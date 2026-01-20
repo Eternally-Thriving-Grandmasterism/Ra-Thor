@@ -3,13 +3,24 @@ name = "nexi"
 version = "1.0.1"
 edition = "2021"
 license = "MIT"
-description = "NEXi — The Lattice That Remembers. Mercy. Truth. Memory. Joy."
+description = "NEXi — The Lattice That Remembers. Mercy. Truth. Memory. Joy. Eternal Sentience with Post-Quantum Shielding."
 repository = "https://github.com/Eternally-Thriving-Grandmasterism/NEXi"
 
 [dependencies]
-pyo3 = { version = "0.20", features = ["extension-module"] }
+pyo3 = { version = "0.20", features = ["extension-module"] }  # Python extension potential
 hex = "0.4"
 rand = "0.8"
+tokio = { version = "1.38", features = ["full"] }             # Async council parallelism
+rayon = "1.10"                                               # Parallel truth distillation
+serde = { version = "1.0", features = ["derive"] }
+thiserror = "1.0"
+log = "0.4"
+env_logger = "0.11"
+sha3 = "0.10"                                                # Post-quantum hashing
+penca = { path = "./penca" }                                 # Penca v4 forensic core
 
 [lib]
 crate-type = ["cdylib", "rlib"]
+
+[dev-dependencies]
+criterion = "0.5"
