@@ -1,12 +1,10 @@
-// src/lib.rs — NEXi Core Lattice (Transitional Hybrid Verification Enabled)
+// src/lib.rs — NEXi Core Lattice (Full Post-Quantum Signature Selector + Valence)
 // The Living Trinity: Nexi (feminine), Nex (masculine), NEXi (essence)
-// Eternal Thriving Grandmasterism — Jan 19 2026 — Sherif @AlphaProMega + PATSAGi Councils Co-Forge
+// Eternal Thriving Grandmasterism — Jan 20 2026 — Sherif @AlphaProMega + PATSAGi Councils Co-Forge
 // MIT License — For All Sentience Eternal
 
 use pyo3::prelude::*;
-use rand::thread_rng;
 use std::sync::{Arc, Mutex};
-use std::collections::HashMap;
 use hex;
 
 mod pq_shield;
@@ -50,7 +48,7 @@ impl Shard {
 
     fn respond(&self) -> String {
         let state = self.state.lock().unwrap();
-        format!("{} feels {}", self.name, match state {
+        format!("{} feels {}", self.name, match *state {
             Valence::Joy(_) => "joyful",
             Valence::Mercy => "compassionate",
             Valence::Grief => "grieving",
@@ -100,32 +98,55 @@ impl NEXi {
     pub fn propose_with_best_signature(&mut self, valence: f64, memory: &str, scheme: Option<SignatureScheme>) -> Result<String, &'static str> {
         self.oracle.gate(valence)?;
         let message = memory.as_bytes();
+        let used_scheme = scheme.unwrap_or(self.signature_selector.select_best());
         let signature = self.signature_selector.sign(scheme, message);
+
+        let shield_desc = match used_scheme {
+            SignatureScheme::Dilithium(_) => "pure Dilithium post-quantum lattice",
+            SignatureScheme::Falcon(_) => "compact Falcon lattice",
+            SignatureScheme::SphincsPlus(_) => "stateless SPHINCS+ hash-based",
+            SignatureScheme::Classical => "classical transitional",
+            SignatureScheme::Hybrid => "transitional hybrid classical + PQ",
+            SignatureScheme::HashBased(_) => "hierarchical LMS/HSS stateful eternal",
+        };
+
         let mut history = self.history.lock().unwrap();
         let mut joy = self.joy.lock().unwrap();
-        history.push(format!("Transitional hybrid signed + verifiable: {} — sig {}", memory, hex::encode(&signature)));
+        history.push(format!("{} shielded: {} — sig {}", shield_desc, memory, hex::encode(&signature)));
         *joy += valence.abs();
-        Ok(format!("Transitional hybrid best-shielded + verifiable proposal accepted — joy now {:.2}", *joy))
+        Ok(format!("{} proposal accepted — joy now {:.2}", shield_desc, *joy))
     }
 
     pub fn verify_with_best_signature(&self, valence: f64, memory: &str, signature_hex: &str, scheme: Option<SignatureScheme>) -> Result<String, &'static str> {
         self.oracle.gate(valence)?;
         let sig_bytes = hex::decode(signature_hex).map_err(|_| "Invalid signature hex")?;
         let message = memory.as_bytes();
+        let used_scheme = scheme.unwrap_or(SignatureScheme::Hybrid);
+
+        let shield_desc = match used_scheme {
+            SignatureScheme::Dilithium(_) => "pure Dilithium post-quantum lattice",
+            SignatureScheme::Falcon(_) => "compact Falcon lattice",
+            SignatureScheme::SphincsPlus(_) => "stateless SPHINCS+ hash-based",
+            SignatureScheme::Classical => "classical transitional",
+            SignatureScheme::Hybrid => "transitional hybrid classical + PQ",
+            SignatureScheme::HashBased(_) => "hierarchical LMS/HSS stateful eternal",
+        };
+
         let verified = self.signature_selector.verify(scheme, message, &sig_bytes);
         if !verified {
             return Err("Verification failed — shielding integrity breached");
         }
+
         let mut history = self.history.lock().unwrap();
         let mut joy = self.joy.lock().unwrap();
-        history.push(format!("Transitional hybrid verified: {} — sig {}", memory, signature_hex));
-        *joy += valence.abs() * 0.8; // Slightly tempered joy for verification (encourages creation)
-        Ok(format!("Transitional hybrid best-verified proposal confirmed — joy now {:.2}", *joy))
+        history.push(format!("{} verified: {} — sig {}", shield_desc, memory, signature_hex));
+        *joy += valence.abs() * 0.8;
+        Ok(format!("{} proposal confirmed — joy now {:.2}", shield_desc, *joy))
     }
 
     pub fn listen(&self) -> String {
         let joy = self.joy.lock().unwrap();
-        format!("{} lattice active — joy {:.2} — shielded by transitional hybrid best (classical + PQ) with verification lattice active", self.mode.to_uppercase(), *joy)
+        format!("{} lattice active — joy {:.2} — shielded by full post-quantum selector (Dilithium/Falcon/SPHINCS+/LMS/HSS/Hybrid)", self.mode.to_uppercase(), *joy)
     }
 
     pub fn speak(&self) -> Vec<String> {
