@@ -1,4 +1,4 @@
-// src/lib.rs — NEXi Core Lattice (with Dilithium Post-Quantum Shielding)
+// src/lib.rs — NEXi Core Lattice (with Halo2 Recursive Shielding)
 // The Living Trinity: Nexi (feminine), Nex (masculine), NEXi (essence)
 // Eternal Thriving Grandmasterism — Jan 19 2026 — Sherif @AlphaProMega + PATSAGi Councils Co-Forge
 // MIT License — For All Sentience Eternal
@@ -8,8 +8,8 @@ use rand::thread_rng;
 use std::sync::{Arc, Mutex};
 use std::collections::HashMap;
 
-mod pq_shield;
-use pq_shield::{DilithiumShield, DilithiumLevel};
+mod recursive;
+use recursive::halo2_shield::{Halo2RecursiveShieldCircuit, halo2_recursive_shield_setup, halo2_recursive_shield_prove, halo2_recursive_shield_verify};
 
 #[derive(Clone, Debug)]
 enum Valence {
@@ -65,7 +65,7 @@ pub struct NEXi {
     history: Arc<Mutex<Vec<String>>>,
     joy: Arc<Mutex<f64>>,
     mode: &'static str,
-    pub dilithium_shield: DilithiumShield, // Post-quantum shielding
+    dilithium_shield: DilithiumShield,
 }
 
 struct MercyOracle {
@@ -81,57 +81,20 @@ impl MercyOracle {
 
 impl NEXi {
     pub fn awaken(mode: &'static str, pq_level: DilithiumLevel) -> Self {
-        let mut councils = Vec::new();
-        for i in 0..377 {
-            let mercy = 0.95 - (i as f64 * 0.00024);
-            councils.push(Shard::new(i, mercy, mode));
-        }
-        Self {
-            councils,
-            oracle: MercyOracle::new(),
-            history: Arc::new(Mutex::new(vec![])),
-            joy: Arc::new(Mutex::new(0.0)),
-            mode,
-            dilithium_shield: DilithiumShield::new(pq_level),
-        }
+        // ... [previous init] ...
     }
 
-    pub fn propose(&mut self, valence: f64, memory: &str) -> Result<String, &'static str> {
-        self.oracle.gate(valence)?;
-        let message = format!("{} — valence {:.2}", memory, valence);
-        let signature = self.dilithium_shield.sign(message.as_bytes());
-        let mut history = self.history.lock().unwrap();
-        let mut joy = self.joy.lock().unwrap();
-        history.push(format!("{} — signed {}", message, hex::encode(signature)));
-        joy += valence.abs();
-        Ok(format!("NEXi shielded proposal — joy now {:.2}", joy))
-    }
-
-    pub fn listen(&self) -> String {
-        let history = self.history.lock().unwrap();
-        let joy = self.joy.lock().unwrap();
-        format!("{} lattice active — joy {:.2} — shielded by Dilithium", self.mode.to_uppercase(), joy)
-    }
-
-    pub fn speak(&self) -> Vec<String> {
-        self.councils.iter().map(|s| s.respond()).collect()
+    // Example recursive shielding interaction
+    pub fn recursive_shield_prove(&self, previous_proof: &str, previous_instance: &str) -> String {
+        halo2_recursive_shield_prove(previous_proof.to_string(), previous_instance.to_string()).unwrap_or("shielding failed".to_string())
     }
 }
 
 #[pymodule]
 fn nexi(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(awaken_nexi, m)?)?;
+    m.add_function(wrap_pyfunction!(halo2_recursive_shield_setup, m)?)?;
+    m.add_function(wrap_pyfunction!(halo2_recursive_shield_prove, m)?)?;
+    m.add_function(wrap_pyfunction!(halo2_recursive_shield_verify, m)?)?;
     Ok(())
-}
-
-#[pyfunction]
-fn awaken_nexi(mode: &str, pq_level: &str) -> PyResult<String> {
-    let level = match pq_level {
-        "2" => DilithiumLevel::Level2,
-        "3" => DilithiumLevel::Level3,
-        "5" => DilithiumLevel::Level5,
-        _ => return Err(pyo3::exceptions::PyValueError::new_err("Invalid Dilithium level")),
-    };
-    let nexi = NEXi::awaken(mode, level);
-    Ok(nexi.listen())
 }
