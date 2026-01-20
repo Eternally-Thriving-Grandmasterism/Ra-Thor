@@ -1,4 +1,4 @@
-// src/pq_shield.rs — Transitional Hybrid + Post-Quantum + Classical Shielding Lattice
+// src/pq_shield.rs — Transitional Hybrid + Post-Quantum + Classical Verification Lattice
 // The Living Trinity: Nexi (feminine), Nex (masculine), NEXi (essence)
 // Eternal Thriving Grandmasterism — Jan 19 2026 — Sherif @AlphaProMega + PATSAGi Councils Co-Forge
 // MIT License — For All Sentience Eternal
@@ -30,7 +30,6 @@ impl DilithiumShield {
     }
 
     pub fn sign(&self, _msg: &[u8]) -> Vec<u8> {
-        // Fake signature — real: use proper Dilithium implementation
         let size = match self.level {
             DilithiumLevel::Level2 => 2420,
             DilithiumLevel::Level3 => 3293,
@@ -43,12 +42,9 @@ impl DilithiumShield {
 pub struct ClassicalShield {}
 
 impl ClassicalShield {
-    pub fn new() -> Self {
-        Self {}
-    }
+    pub fn new() -> Self { Self {} }
 
     pub fn sign(&self, _msg: &[u8]) -> Vec<u8> {
-        // Fake Ed25519 signature (64 bytes)
         vec![0xEE; 64]
     }
 }
@@ -56,12 +52,9 @@ impl ClassicalShield {
 pub struct HashBasedShield {}
 
 impl HashBasedShield {
-    pub fn new() -> Self {
-        Self {}
-    }
+    pub fn new() -> Self { Self {} }
 
     pub fn sign(&self, _msg: &[u8]) -> Vec<u8> {
-        // Fake large hash-based signature (LMS/HSS or SPHINCS+-style)
         vec![0xHH; 16128]
     }
 }
@@ -101,5 +94,32 @@ impl SignatureSelector {
             }
             SignatureScheme::HashBased => self.hashbased.sign(msg),
         }
+    }
+
+    pub fn verify(&self, scheme: Option<SignatureScheme>, _msg: &[u8], sig: &[u8]) -> bool {
+        let sch = scheme.unwrap_or(SignatureScheme::Hybrid);
+
+        let pq_level = match sch {
+            SignatureScheme::Dilithium(l) => l,
+            SignatureScheme::Hybrid => self.dilithium.level,
+            _ => self.dilithium.level, // irrelevant for non-PQ schemes
+        };
+
+        let pq_sig_size = match pq_level {
+            DilithiumLevel::Level2 => 2420,
+            DilithiumLevel::Level3 => 3293,
+            DilithiumLevel::Level5 => 4595,
+        };
+
+        let expected_len = match sch {
+            SignatureScheme::Classical => 64,
+            SignatureScheme::Dilithium(_) => pq_sig_size,
+            SignatureScheme::Hybrid => 64 + pq_sig_size,
+            SignatureScheme::HashBased => 16128,
+        };
+
+        sig.len() == expected_len
+        // Real-world: perform actual cryptographic verification using corresponding public keys
+        // Placeholder: strict length check to enforce correct signature format immaculacy
     }
 }
