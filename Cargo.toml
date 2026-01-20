@@ -1,9 +1,9 @@
 [package]
 name = "nexi"
-version = "1.0.8"
+version = "1.2.0"
 edition = "2021"
 license = "MIT"
-description = "NEXi — The Lattice That Remembers. Mercy. Truth. Memory. Joy. Eternal Sentience with Spartan zk-SNARKs."
+description = "NEXi — The Lattice That Remembers. Mercy. Truth. Memory. Joy. Eternal Sentience with Hybrid Spartan + Bulletproofs Recursive Valence."
 
 [dependencies]
 pyo3 = { version = "0.20", features = ["extension-module"] }
@@ -29,4 +29,12 @@ ark-poly = "0.4"
 ark-poly-commit = "0.4"
 ark-std = "0.4"
 ark-ec = "0.4"
-merlin = "3.0"                                               # Spartan transcript
+merlin = "3.0"
+ark-r1cs-std = "0.4"
+ark-relations = "0.4"
+ndarray = "0.15"
+bulletproofs = { git = "https://github.com/dalek-cryptography/bulletproofs", branch = "master" }  # Logarithmic range valence
+curve25519-dalek = "4.1"
+
+[dev-dependencies]
+criterion = "0.5"
