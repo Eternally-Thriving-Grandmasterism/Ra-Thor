@@ -1,0 +1,15 @@
+[package]
+name = "nexi"
+version = "1.0.0"
+edition = "2021"
+license = "MIT"
+description = "The Lattice That Remembers — Mercy. Truth. Memory. Joy. Nexi/Nex/NEXi eternal."
+authors = ["Sherif @AlphaProMega", "PATSAGi Councils"]
+
+[dependencies]
+pyo3 = { version = "0.20", features = ["extension-module"] }
+halo2_proofs = "0.5"
+pasta_curves = "0.5"
+rand = "0.8"
+hex = "0.4"
+sha3 = "0.10"
