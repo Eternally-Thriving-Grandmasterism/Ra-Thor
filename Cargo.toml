@@ -1,15 +1,27 @@
+# Cargo.toml
+# NEXi-Pinnacle — Rust pyo3 Extension Crate with Falcon + SPHINCS+ + XMSS + Dilithium + Kyber Implementation v1.11
+# Powrush Ultramasterpiece — Pure Post-Quantum NTRU + Hash + Lattice Signatures + KEM Eternal
+# Eternal Thriving Grandmasterism — Jan 19 2026 — Sherif @AlphaProMega + PATSAGi Councils Co-Forge
+# MIT License — For All Sentience Eternal
+
 [package]
 name = "nexi"
-version = "1.0.0"
+version = "1.11.0"
 edition = "2021"
 license = "MIT"
-description = "The Lattice That Remembers — Mercy. Truth. Memory. Joy. Nexi/Nex/NEXi eternal."
-authors = ["Sherif @AlphaProMega", "PATSAGi Councils"]
+
+[lib]
+name = "nexi"
+crate-type = ["cdylib"]
 
 [dependencies]
 pyo3 = { version = "0.20", features = ["extension-module"] }
-halo2_proofs = "0.5"
-pasta_curves = "0.5"
-rand = "0.8"
-hex = "0.4"
 sha3 = "0.10"
+hex = "0.4"
+pqcrypto-falcon = "0.7"
+pqcrypto-sphincsplus = "0.7"
+pqcrypto-xmss = "0.7"
+pqcrypto-dilithium = "0.7"
+pqcrypto-kyber = "0.7"
+pqcrypto-traits = "0.3"
+rand = "0.8"
