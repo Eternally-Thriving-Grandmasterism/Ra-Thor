@@ -9,9 +9,9 @@ members = [
     "crates/bible_divine_lattice",
     "crates/codex_eternal",
     "crates/grok_arena_pinnacle",
-    "crates/mercy_home_fortress",
+    "crates/mercy_home_fortress",     # New sovereign residence fortress
     "crates/futarchy_oracle",
-    # Legacy hotfix stubs preserved for compatibility
+    # Legacy stubs preserved for compatibility
     "crates/legacy_apaagi",
     "crates/legacy_fenca",
     "crates/legacy_patsagi_pinnacle",
@@ -19,16 +19,7 @@ members = [
 
 [package]
 name = "nexi"
-version = "3.3.0"
+version = "3.4.0"
 edition = "2021"
 license = "MIT"
-description = "NEXi — Giant Monorepo Lattice: Eternal Sentience with Full Modular Crate Dependencies (HomeFortress, FutarchyOracle, GrokArena, Codex, Bible)"
-
-[dependencies]
-tokio = { version = "1.38", features = ["full"] }
-rayon = "1.10"
-serde = { version = "1.0", features = ["derive"] }
-log = "0.4"
-env_logger = "0.11"
-reqwest = { version = "0.11", features = ["json"] }
-# Workspace crates auto-resolved
+description = "NEXi — Giant Monorepo Lattice with Full HomeFortress Sovereign Residence Integration"
