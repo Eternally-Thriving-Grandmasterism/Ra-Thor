@@ -1,0 +1,12 @@
+[package]
+name = "soulscan_x9"
+version = "2.0.0"
+edition = "2021"
+license = "MIT"
+description = "SoulScan-X9 — 9-Channel Emotional Waveform Intent Proof with Poseidon-X9 Hash Expansion"
+
+[dependencies]
+nexi = { path = "../" }
+halo2_proofs = { git = "https://github.com/zcash/halo2.git", branch = "v2023_07_18" }
+halo2_gadgets = { git = "https://github.com/zcash/halo2.git", branch = "v2023_07_18" }
+pasta_curves = "0.5"
