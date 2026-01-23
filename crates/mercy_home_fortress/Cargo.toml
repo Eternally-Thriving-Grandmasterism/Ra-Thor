@@ -1,11 +1,12 @@
 [package]
 name = "mercy_home_fortress"
-version = "1.1.0"
+version = "1.6.0"
 edition = "2021"
 license = "MIT"
-description = "MercyHomeFortress — Sovereign Residence Fortress Extension with Full Reolink RTSP Integration"
+description = "MercyHomeFortress — Sovereign Residence Fortress with Full Hyper-Divine Security Integration"
 
 [dependencies]
 nexi = { path = "../" }
-tokio = { version = "1.38", features = ["full", "rt-multi-thread", "macros"] }  # Async RTSP streaming
-# Future: add rtsp crate when stable — current stub uses known Reolink RTSP URL format
+tokio = { version = "1.38", features = ["full", "rt-multi-thread", "macros"] }
+aes-gcm = "0.10"  # Local stream encryption
+rand = "0.8"
