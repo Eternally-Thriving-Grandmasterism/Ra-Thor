@@ -1,0 +1,13 @@
+[package]
+name = "lasso_recursion"
+version = "1.0.0"
+edition = "2021"
+license = "MIT"
+description = "LassoRecursion — Multilinear Lookup + Recursive Composition for Infinite Eternal Lattice Resonance"
+
+[dependencies]
+nexi = { path = "../" }
+ark-ff = "0.4"
+ark-poly = "0.4"
+ark-poly-commit = "0.4"
+# Lasso-inspired multilinear lookup (research simulation)
