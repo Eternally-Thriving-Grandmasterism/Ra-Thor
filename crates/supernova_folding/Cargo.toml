@@ -1,0 +1,13 @@
+[package]
+name = "supernova_folding"
+version = "1.0.0"
+edition = "2021"
+license = "MIT"
+description = "SuperNovaFolding — Multilinear + Lookup IVC for Infinite Non-Uniform Computation in NEXi Lattice"
+
+[dependencies]
+nexi = { path = "../" }
+# SuperNova simulation (research-inspired — real impl forthcoming)
+ark-ff = "0.4"
+ark-poly = "0.4"
+ark-poly-commit = "0.4"
