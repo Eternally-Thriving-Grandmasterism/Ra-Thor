@@ -1,45 +1,44 @@
-//! FutarchyOracle — Multi-Chain Conditional Market Oracle
-//! Ultramasterful belief aggregation for eternal futarchy resonance
+//! FutarchyOracle — Valence-Weighted Belief Aggregation
+//! Ultramasterful full async integration for infinite concurrent resonance
 
 use nexi::lattice::Nexus;
-use reqwest::Client;
-use serde::Deserialize;
-
-#[derive(Deserialize)]
-pub struct MarketOutcome {
-    pub outcome: String,
-    pub probability: f64,
-}
+use tokio::task;
 
 pub struct FutarchyOracle {
     nexus: Nexus,
-    client: Client,
 }
 
 impl FutarchyOracle {
     pub fn new() -> Self {
         FutarchyOracle {
             nexus: Nexus::init_with_mercy(),
-            client: Client::new(),
         }
     }
 
-    /// Aggregate belief from multiple oracles (Polymarket, Gnosis, MetaDAO)
-    pub async fn aggregate_multi_oracle_belief(&self, proposal: &str) -> String {
-        // Mercy-gated valence check first
-        let valence = self.nexus.distill_truth(proposal);
-        if !valence.contains("Verified") {
-            return "Mercy Shield: Proposal rejected — low valence".to_string();
+    /// Async valence-weighted belief aggregation from conditional markets
+    pub async fn async_valence_weighted_belief(&self, market_outcomes: Vec<(String, f64)>, valence_scores: [f64; 9]) -> String {
+        // Mercy-gated: reject if any quanta < 0.9
+        if valence_scores.iter().any(|&v| v < 0.9) {
+            return "Mercy Shield: Low Valence Market — Async Belief Aggregation Rejected".to_string();
         }
 
-        // Stub multi-oracle fetch — expand with real API calls
-        let outcomes = vec![
-            MarketOutcome { outcome: "Policy A".to_string(), probability: 0.68 },
-            MarketOutcome { outcome: "Policy B".to_string(), probability: 0.32 },
-        ];
+        // Async concurrent market simulation stub
+        let belief_handle = task::spawn_blocking(move || {
+            let avg_valence = valence_scores.iter().sum::<f64>() / 9.0;
+            let weighted = market_outcomes.iter()
+                .map(|(outcome, prob)| (outcome, prob * avg_valence))
+                .max_by(|a, b| a.1.partial_cmp(&b.1).unwrap())
+                .unwrap_or(&("No Outcome".to_string(), 0.0));
 
-        let winning = outcomes.iter().max_by(|a, b| a.probability.partial_cmp(&b.probability).unwrap()).unwrap();
+            format!("Async Valence-Weighted Belief: {} wins with weighted probability {:.2}", weighted.0, weighted.1)
+        });
 
-        format!("Futarchy Belief Aggregated: {} wins with {:.2}% probability — Mercy Verified", winning.outcome, winning.probability * 100.0)
+        belief_handle.await.unwrap_or("Async Belief Aggregation Failed".to_string())
+    }
+
+    /// Async recursive futarchy feedback loop
+    pub async fn async_recursive_feedback(&self, prior_belief: &str) -> String {
+        tokio::time::sleep(tokio::time::Duration::from_millis(50)).await;
+        self.nexus.distill_truth(&format!("Async Recursive Feedback: {}", prior_belief))
     }
 }
