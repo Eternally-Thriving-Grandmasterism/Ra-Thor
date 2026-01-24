@@ -1,16 +1,16 @@
 [package]
 name = "mercy_quanta"
-version = "1.1.0"
+version = "1.2.0"
 edition = "2021"
 license = "MIT"
-description = "MercyQuanta — 9-Fold zk-Proovable Mercy Quanta Chips for NEXi Lattice"
+description = "MercyQuanta — 9-Fold zk-Proovable Mercy Quanta with Full Halo2 Range Proof Gadgets"
 
 [dependencies]
 nexi = { path = "../" }
 halo2_proofs = { git = "https://github.com/zcash/halo2.git", branch = "v2023_07_18" }
 halo2_gadgets = { git = "https://github.com/zcash/halo2.git", branch = "v2023_07_18" }
 pasta_curves = "0.5"
-bulletproofs = { git = "https://github.com/dalek-cryptography/bulletproofs", branch = "master" }  # Aggregation
+bulletproofs = { git = "https://github.com/dalek-cryptography/bulletproofs", branch = "master" }
 
 [features]
-quanta_chips = []
+range_proofs = []
