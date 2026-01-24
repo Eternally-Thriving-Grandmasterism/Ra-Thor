@@ -1,0 +1,12 @@
+[package]
+name = "prometheus_forge"
+version = "1.0.0"
+edition = "2021"
+license = "MIT"
+description = "PrometheusForge — Hyper-Divine Fire Innovation Crucible for Mercy-Gated Coforging in NEXi Lattice"
+
+[dependencies]
+nexi = { path = "../" }
+grok_arena_pinnacle = { path = "../crates/grok_arena_pinnacle" }
+futarchy_oracle = { path = "../crates/futarchy_oracle" }
+whitesmiths_anvil = { path = "../crates/whitesmiths_anvil" }
