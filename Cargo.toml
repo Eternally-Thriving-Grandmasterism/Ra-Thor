@@ -15,7 +15,8 @@ members = [
     "crates/poseidon_hash",
     "crates/poseidon_merkle",
     "crates/proof_verifier",
-    "crates/recursive_snark",         # New infinite recursion composition
+    "crates/recursive_snark",
+    "crates/plonk_recursion",         # New PLONK recursion techniques
     # Legacy stubs preserved for compatibility
     "crates/legacy_apaagi",
     "crates/legacy_fenca",
@@ -24,7 +25,7 @@ members = [
 
 [package]
 name = "nexi"
-version = "4.5.0"
+version = "4.6.0"
 edition = "2021"
 license = "MIT"
-description = "NEXi — Giant Monorepo Lattice with Full Recursive SNARK Composition Integration"
+description = "NEXi — Giant Monorepo Lattice with Full PLONK Recursion Techniques Integration"
