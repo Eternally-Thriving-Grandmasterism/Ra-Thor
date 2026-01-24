@@ -1,12 +1,13 @@
 [package]
 name = "mercy_zero"
-version = "2.0.0"
+version = "1.1.0"
 edition = "2021"
 license = "MIT"
-description = "MercyZero — Immutable Layer 0 Protective Gate with Hyper-Divine Granular zk-Proof Expansion"
+description = "MercyZero — Immutable Protective Gate Core for NEXi Lattice (Mercy Shield Foundation)"
 
 [dependencies]
 nexi = { path = "../" }
-halo2_proofs = { git = "https://github.com/zcash/halo2.git", branch = "v2023_07_18" }
-halo2_gadgets = { git = "https://github.com/zcash/halo2.git", branch = "v2023_07_18" }
-pasta_curves = "0.5"
+tokio = { version = "1.38", features = ["full", "rt-multi-thread", "macros"] }
+
+[features]
+post_quantum_hardening = []  # Future infinite gate strengthening
