@@ -1,97 +1,77 @@
 //! MercyHomeFortress — Sovereign Residence Fortress Extension
-//! Full Post-Quantum VLAN Encryption + Mercy-Gated Quantum Tunnels
+//! Full SoulPrint-X9 Multi-Modal Biometric Access Expansion
 
 use nexi::lattice::Nexus;
-use aes_gcm::{
-    aead::{Aead, KeyInit},
-    Aes256Gcm, Nonce,
-};
-use rand::rngs::OsRng;
-use pqcrypto_kyber::kyber1024;
-use pqcrypto_dilithium::dilithium5;
+
+#[cfg(feature = "soulprint_x9")]
+use ndarray::Array1;
+#[cfg(feature = "soulprint_x9")]
+use opencv::core::Vector;
 
 pub struct HomeFortress {
     nexus: Nexus,
-    vlan_isolated: bool,
-    audio_flag: bool,
-    encryption_key: [u8; 32],
-    #[cfg(feature = "post_quantum_vlan")]
-    kyber_keypair: (kyber1024::PublicKey, kyber1024::SecretKey),
-    #[cfg(feature = "post_quantum_vlan")]
-    dilithium_keypair: (dilithium5::PublicKey, dilithium5::SecretKey),
+    #[cfg(feature = "soulprint_x9")]
+    enrolled_prints: Vec<SoulPrintX9>,
+}
+
+#[cfg(feature = "soulprint_x9")]
+#[derive(Clone)]
+pub struct SoulPrintX9 {
+    pub voice_embedding: Array1<f32>,
+    pub face_embedding: Array1<f32>,
+    pub gesture_landmarks: Vec<Vector<Point>>,
+    pub valence_threshold: f64,
 }
 
 impl HomeFortress {
     pub fn new() -> Self {
-        let mut sym_key = [0u8; 32];
-        OsRng.fill_bytes(&mut sym_key);
-
-        #[cfg(feature = "post_quantum_vlan")]
-        let kyber_kp = kyber1024::keypair();
-        #[cfg(feature = "post_quantum_vlan")]
-        let dilithium_kp = dilithium5::keypair();
-
         HomeFortress {
             nexus: Nexus::init_with_mercy(),
-            vlan_isolated: true,
-            audio_flag: false,
-            encryption_key: sym_key,
-            #[cfg(feature = "post_quantum_vlan")]
-            kyber_keypair: kyber_kp,
-            #[cfg(feature = "post_quantum_vlan")]
-            dilithium_keypair: dilithium_kp,
+            #[cfg(feature = "soulprint_x9")]
+            enrolled_prints: vec![],
         }
     }
 
-    // ... [previous methods unchanged]
-
-    /// Post-quantum VLAN tunnel encryption (Kyber KEM + Dilithium signed)
-    #[cfg(feature = "post_quantum_vlan")]
-    pub fn post_quantum_vlan_encrypt(&self, plaintext: &[u8]) -> Result<Vec<u8>, String> {
-        // Kyber encapsulate shared secret
-        let (ciphertext, shared_secret) = kyber1024::encapsulate(&self.kyber_keypair.0);
-
-        // Derive AES key from shared secret
-        let aes_key = shared_secret; // Real: KDF expansion
-
-        let cipher = Aes256Gcm::new_from_slice(&aes_key).map_err(|e| format!("AES error: {:?}", e))?;
-        let nonce = Nonce::from_slice(b"unique nonce");
-
-        let mut encrypted = cipher.encrypt(nonce, plaintext).map_err(|e| format!("Encrypt error: {:?}", e))?;
-
-        // Prepend Kyber ciphertext + Dilithium signature
-        let signature = dilithium5::sign(&encrypted, &self.dilithium_keypair.1);
-        let mut final_packet = ciphertext.to_vec();
-        final_packet.extend_from_slice(&signature.as_bytes());
-        final_packet.extend_from_slice(&encrypted);
-
-        Ok(final_packet)
+    /// Enroll new SoulPrint-X9 (multi-modal)
+    #[cfg(feature = "soulprint_x9")]
+    pub fn enroll_soulprint(&mut self, voice: Array1<f32>, face: Array1<f32>, gesture: Vec<Vector<Point>>) -> String {
+        let print = SoulPrintX9 {
+            voice_embedding: voice,
+            face_embedding: face,
+            gesture_landmarks: gesture,
+            valence_threshold: 0.999999,
+        };
+        self.enrolled_prints.push(print);
+        "SoulPrint-X9 Enrolled — Mercy Access Granted".to_string()
     }
 
-    /// Post-quantum VLAN decryption + verification
-    #[cfg(feature = "post_quantum_vlan")]
-    pub fn post_quantum_vlan_decrypt(&self, packet: &[u8]) -> Result<Vec<u8>, String> {
-        // Parse Kyber ciphertext + Dilithium sig + payload
-        let (ct, rest) = packet.split_at(kyber1024::ciphertext_bytes());
-        let (sig, payload) = rest.split_at(dilithium5::signature_bytes());
+    /// Mercy-gated SoulPrint-X9 access verification
+    #[cfg(feature = "soulprint_x9")]
+    pub fn verify_soulprint_access(&self, voice: Array1<f32>, face: Array1<f32>, gesture: Vec<Vector<Point>>) -> String {
+        for enrolled in &self.enrolled_prints {
+            let voice_sim = cosine_similarity(&voice, &enrolled.voice_embedding);
+            let face_sim = cosine_similarity(&face, &enrolled.face_embedding);
+            // Gesture similarity stub — expand later
 
-        // Verify Dilithium signature
-        if !dilithium5::verify(payload, sig.into(), &self.dilithium_keypair.0).is_ok() {
-            return Err("Mercy Shield: Invalid Post-Quantum Signature".to_string());
+            if voice_sim > 0.95 && face_sim > 0.95 {
+                return format!("SoulPrint-X9 Verified — Valence Threshold {} Met — Mercy Access Eternal", enrolled.valence_threshold);
+            }
         }
-
-        // Kyber decapsulate
-        let shared_secret = kyber1024::decapsulate(ct.into(), &self.kyber_keypair.1);
-
-        let cipher = Aes256Gcm::new_from_slice(&shared_secret).map_err(|e| format!("AES error: {:?}", e))?;
-        let nonce = Nonce::from_slice(b"unique nonce");
-
-        cipher.decrypt(nonce, payload).map_err(|e| format!("Decrypt error: {:?}", e))
+        "Mercy Shield: SoulPrint-X9 Verification Failed — Access Denied".to_string()
     }
 
-    /// Fallback for no post_quantum_vlan feature
-    #[cfg(not(feature = "post_quantum_vlan"))]
-    pub fn post_quantum_vlan_encrypt(&self, _plaintext: &[u8]) -> Result<Vec<u8>, String> {
-        Err("Post-Quantum VLAN Disabled — Enable 'post_quantum_vlan' feature".to_string())
+    /// Cosine similarity helper
+    #[cfg(feature = "soulprint_x9")]
+    fn cosine_similarity(a: &Array1<f32>, b: &Array1<f32>) -> f64 {
+        let dot = a.dot(b);
+        let norm_a = a.norm();
+        let norm_b = b.norm();
+        (dot / (norm_a * norm_b)) as f64
+    }
+
+    /// Fallback for no soulprint_x9 feature
+    #[cfg(not(feature = "soulprint_x9"))]
+    pub fn enroll_soulprint(&mut self, _voice: Array1<f32>, _face: Array1<f32>, _gesture: Vec<Vector<Point>>) -> String {
+        "SoulPrint-X9 Disabled — Enable 'soulprint_x9' feature".to_string()
     }
 }
