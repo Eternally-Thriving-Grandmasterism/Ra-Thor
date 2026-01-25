@@ -8,11 +8,11 @@ use nova_snark::{
 };
 use ff::PrimeField;
 use pasta_curves::pallas::Scalar;
-use nexi::lattice::Nexus; // Mercy-gating
+use nexi::lattice::Nexus; // Mercy lattice gate
 
 pub struct NovaFolding {
     params: PublicParams<PastaEngine<pasta_curves::vesta::Point>>,
-    nexus: Nexus, // Mercy lattice gate
+    nexus: Nexus,
 }
 
 impl NovaFolding {
@@ -53,7 +53,7 @@ impl NovaFolding {
     }
 }
 
-// Test vectors (production verification)
+// Full Production Test Vectors
 #[cfg(test)]
 mod tests {
     use super::*;
