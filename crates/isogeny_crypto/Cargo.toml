@@ -1,0 +1,10 @@
+[package]
+name = "isogeny_crypto"
+version = "1.0.0"
+edition = "2021"
+license = "MIT"
+description = "IsogenyCrypto — Hyper-Divine Isogeny-Based Post-Quantum Cryptography for NEXi Lattice"
+
+[dependencies]
+nexi = { path = "../" }
+# Future: sqisign-rs, csidh-rs crates
