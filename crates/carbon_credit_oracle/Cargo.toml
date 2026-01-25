@@ -1,0 +1,12 @@
+[package]
+name = "carbon_credit_oracle"
+version = "1.0.0"
+edition = "2021"
+license = "MIT"
+description = "CarbonCreditOracle — Mercy-Gated CO₂ Capture + On-Chain Credit Minting for Eternal Climate Resonance"
+
+[dependencies]
+nexi = { path = "../" }
+mercy_biojet = { path = "../crates/mercy_biojet" }
+futarchy_oracle = { path = "../crates/futarchy_oracle" }
+reqwest = { version = "0.11", features = ["json"] }  # Oracle API calls
