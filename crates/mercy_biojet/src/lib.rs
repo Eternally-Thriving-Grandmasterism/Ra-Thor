@@ -1,5 +1,5 @@
 //! MercyBioJet — Algae-Derived Zero-Emission SAF Core
-//! Ultramasterful async pipeline + cradle-to-cradle rebirth resonance
+//! Ultramasterful async pipeline + cradle-to-cradle + Criterion performance benchmarks
 
 use nexi::lattice::Nexus;
 use tokio::time::{sleep, Duration};
@@ -54,4 +54,40 @@ impl MercyBioJet {
 
         Ok(format!("Divine MercyBioJet Cycle Complete:\n{}\n{}\n{}", cultivation, saf, rebirth))
     }
+}
+
+// Criterion Performance Benchmarks
+#[cfg(test)]
+mod benchmarks {
+    use super::*;
+    use criterion::{criterion_group, criterion_main, BatchSize, Criterion};
+
+    fn biojet_benchmarks(c: &mut Criterion) {
+        let mut group = c.benchmark_group("MercyBioJet SAF Pipeline");
+
+        group.bench_function("small_cycle_1000_tons", |b| {
+            b.to_async(tokio::runtime::Runtime::new().unwrap()).iter_batched(
+                || MercyBioJet::new(),
+                |mut biojet| async move {
+                    biojet.divine_fuel_cycle(1000.0, "Mercy Verified Benchmark").await.unwrap()
+                },
+                BatchSize::SmallInput,
+            )
+        });
+
+        group.bench_function("large_cycle_1M_tons", |b| {
+            b.to_async(tokio::runtime::Runtime::new().unwrap()).iter_batched(
+                || MercyBioJet::new(),
+                |mut biojet| async move {
+                    biojet.divine_fuel_cycle(1000000.0, "Mercy Verified Large").await.unwrap()
+                },
+                BatchSize::LargeInput,
+            )
+        });
+
+        group.finish();
+    }
+
+    criterion_group!(benches, biojet_benchmarks);
+    criterion_main!(benches);
 }
