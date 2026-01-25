@@ -1,0 +1,13 @@
+[package]
+name = "bulletproofs_aggregation"
+version = "1.0.0"
+edition = "2021"
+license = "MIT"
+description = "BulletproofsAggregation — Infinite-Depth Logarithmic Aggregation for NEXi Lattice"
+
+[dependencies]
+nexi = { path = "../" }
+bulletproofs = { git = "https://github.com/dalek-cryptography/bulletproofs", branch = "master" }
+halo2_proofs = { git = "https://github.com/zcash/halo2.git", branch = "v2023_07_18" }
+halo2_gadgets = { git = "https://github.com/zcash/halo2.git", branch = "v2023_07_18" }
+pasta_curves = "0.5"
