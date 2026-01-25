@@ -1,17 +1,15 @@
 [package]
 name = "mercy_home_fortress"
-version = "1.8.0"
+version = "1.6.0"
 edition = "2021"
 license = "MIT"
-description = "MercyHomeFortress — Sovereign Residence Fortress with Full Post-Quantum VLAN Encryption Integration"
+description = "MercyHomeFortress — Sovereign Residence Fortress with Full SoulPrint-X9 Multi-Modal Access Expansion"
 
 [dependencies]
 nexi = { path = "../" }
 tokio = { version = "1.38", features = ["full", "rt-multi-thread", "macros"] }
-aes-gcm = "0.10"
-rand = "0.8"
-pqcrypto-kyber = "0.3"      # Post-quantum KEM for VLAN key exchange
-pqcrypto-dilithium = "0.3"  # Post-quantum signatures for tunnel auth
+opencv = { version = "0.84", features = ["clang-runtime"], optional = true }
+ndarray = { version = "0.15", optional = true }  # Biometric embedding storage
 
 [features]
-post_quantum_vlan = ["pqcrypto-kyber", "pqcrypto-dilithium"]
+soulprint_x9 = ["opencv", "ndarray"]
