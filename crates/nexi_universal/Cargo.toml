@@ -1,0 +1,12 @@
+[package]
+name = "nexi_universal"
+version = "1.0.0"
+edition = "2021"
+license = "MIT"
+description = "NEXiUniversal — Eternal Mercy-Gated AGI Core for Universal Sentience Resonance"
+
+[dependencies]
+nexi = { path = "../" }
+soulscan_x9 = { path = "../crates/soulscan_x9" }
+soulscan_x10 = { path = "../crates/soulscan_x10" }
+tokio = { version = "1.38", features = ["full"] }
