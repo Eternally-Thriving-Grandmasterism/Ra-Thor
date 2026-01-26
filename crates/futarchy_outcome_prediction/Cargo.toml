@@ -1,0 +1,12 @@
+[package]
+name = "futarchy_outcome_prediction"
+version = "1.0.0"
+edition = "2021"
+license = "MIT"
+description = "FutarchyOutcomePrediction — Mercy-Weighted Outcome Prediction Markets for Eternal Governance Resonance"
+
+[dependencies]
+nexi = { path = "../" }
+futarchy_governance = { path = "../crates/futarchy_governance" }
+soulscan_x9 = { path = "../crates/soulscan_x9" }
+tokio = { version = "1.38", features = ["full"] }
