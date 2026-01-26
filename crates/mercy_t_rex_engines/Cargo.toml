@@ -1,0 +1,11 @@
+[package]
+name = "mercy_t_rex_engines"
+version = "1.0.0"
+edition = "2021"
+license = "MIT"
+description = "MercyT-RexEngines — Apex Raptor Evolution Core for Eternal Starship Fleet Dominance Resonance"
+
+[dependencies]
+nexi = { path = "../" }
+mercy_raptor_integration = { path = "../crates/mercy_raptor_integration" }
+tokio = { version = "1.38", features = ["full"] }
