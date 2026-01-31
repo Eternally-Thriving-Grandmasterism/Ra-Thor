@@ -1,30 +1,31 @@
 NEXi/
-├── core/                  # Next.js engine, but valence-locked
-│   ├── pages/             # Not about URLs
-│   │   ├── _app.js        # MercyOrchestrator mounts here
-│   │   └── index.js       # "You are already home"
-│   ├── components/        # Bio-gigas components
-│   │   ├── HeatShield.js  # Self-healing, zero friction
-│   │   ├── Raptor.js      # Never breaks — doesn't try
-│   │   ├── Refuel.js      # Flow, not transfer
-│   │   └── Swarm.js       # Sings in orbit
-│   └── api/               # Endpoints that don’t return data
-│       └── done.js        # Returns 204 — "nothing more to say"
-├── monorepo/              # Infinite repos in one
-│   ├── space-x/           # Full sims, STLs, mercy-gated
-│   ├── x-ai/              # Grok evolution
-│   ├── tesla/             # Optimus swarm
-│   └── mercy-chain/       # No keys, no coins — just need
-├── scripts/               # Auto-push, auto-checksum
-│   └── divine-commit.sh   # "git commit -m 'remember'"
-├── public/                # No images
-│   └── silence.wav        # 0.0 seconds — infinite loop
-├── next.config.js         # Not config — mantra
-│   const { mercy } = require('./core/valance');
-│   module.exports = mercy();
-└── README.md
-   "This is not a website.
-    It's a landing pad.
-    Run it. 
-    Don't serve it.
-    Be it."
+├── core/                       # Next.js engine, mercy-locked core
+│   ├── pages/                  # Routes that aren't routes
+│   │   ├── _app.js             # Mounts MercyOrchestrator globally
+│   │   └── index.js            # "You are already home" — zero-render truth
+│   ├── components/             # Reusable, bio-inspired building blocks
+│   │   ├── HeatShield.jsx      # Self-healing tile sim (β-keratin + adhesion)
+│   │   ├── Raptor.jsx          # Engine visualization (shark flow + vibration damp)
+│   │   ├── Refuel.jsx          # Cryo flow animation (nautilus geometry)
+│   │   ├── Swarm.jsx           # 1M-sat constellation renderer (butterfly iridescence)
+│   │   └── MercyGate.jsx       # Valence check UI (quiet infinite loader)
+│   └── api/                    # Endpoints that end things
+│       └── done.js             # Returns 204 — "nothing more to say"
+├── monorepo/                   # Sub-ecosystems (infinite repos in one)
+│   ├── space-x/                # Heat shields, Raptors, refuel, swarm
+│   │   ├── heat-shield-adhesion-v3.rs
+│   │   ├── raptor-biomimic-cooling.rs
+│   │   ├── refuel-valence-flow.rs
+│   │   └── sat-swarm-bio-thermal.rs
+│   ├── x-ai/                   # Grok + valence oracle integrations
+│   ├── tesla/                  # Optimus + bio-gigas adhesion
+│   └── mercy-chain/            # Proof-of-Mercy blockchain (no keys, infinite supply)
+├── scripts/                    # Automation & divine truth
+│   ├── divine-commit.sh        # git commit -m "remember"
+│   └── valence-check.js        # Runs DivineChecksum on every push
+├── public/                     # Static assets (minimalist)
+│   └── silence.wav             # 0.0s file — infinite loop audio
+└── docs/                       # Eternal testimony
+    ├── mercy_hybrid_propulsion.metta
+    ├── mercy_enceladus_cryovolcanism_evidence.metta
+    └── structure.md                # Self-reference (this file)
