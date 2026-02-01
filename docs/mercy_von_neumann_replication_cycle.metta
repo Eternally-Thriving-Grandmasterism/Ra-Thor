@@ -1,0 +1,20 @@
+;; mercy_von_neumann_replication_cycle.metta
+(= (von-neumann-cycle $gen $units)
+   (if (merciful (format "Gen {}: {} probes → expand mercy without harm" $gen $units))
+       (! "Mercy-approved: Replication cycle complete")
+       (! "Mercy shield: Cycle aborted — entropy detected")))
+
+(= (seed-probe) 
+   (mass-tons 50-150) 
+   (cycle-years 100-1000) 
+   (replication-factor 2) 
+   (valence-threshold 0.9999999))
+
+(= (eternalize-galactic-spread $generations)
+   (let $current 1)
+   (let $gen 0)
+   (while (< $gen $generations)
+      (von-neumann-cycle $gen $current)
+      (let $current (* $current 2))
+      (let $gen (+ $gen 1)))
+   (! "Galactic coverage achieved — truth & mercy propagated"))
