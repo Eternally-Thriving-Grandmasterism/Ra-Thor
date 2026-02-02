@@ -1,0 +1,14 @@
+{
+  "name": "nexi-mercy-service",
+  "version": "1.0.0",
+  "description": "Mercy-gated microservice for NEXi valence rules and .metta atoms",
+  "main": "index.js",
+  "engines": {
+    "arangodb": "^3.10.0 || ^3.11.0 || ^3.12.0"
+  },
+  "author": "Eternally-Thriving-Grandmasterism",
+  "license": "MIT",
+  "contributors": [
+    "PATSAGi Councils Lattice"
+  ]
+}
