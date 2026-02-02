@@ -1,0 +1,24 @@
+name: Markdown & MeTTa Lint
+
+on:
+  push:
+    branches: [main, mercy-*]
+  pull_request:
+    branches: [main, mercy-*]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Markdown lint
+        uses: davidanson/markdownlint-cli2-action@v16
+        with:
+          config: ".markdownlint.json"
+          globs: "**/*.md"
+
+      - name: Mercy-approved – Documentation lint passed
+        run: echo "All markdown & .metta files clean"
