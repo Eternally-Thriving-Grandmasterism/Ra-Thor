@@ -1,26 +1,30 @@
-// hyperon-reasoning-layer.js – sovereign client-side Hyperon atom-space & reasoning engine
+// hyperon-reasoning-layer.js – sovereign client-side Hyperon atom-space & PLN reasoning engine
 // MIT License – Autonomicity Games Inc. 2026
 
 let hyperonDB;
 const HYPERON_DB_NAME = "rathorHyperonDB";
 const HYPERON_STORE = "hyperonAtoms";
 
-// Sample Hyperon atoms – expanded with truth-values & links
+// Expanded sample atoms – core concepts & reasoning chains
 const SAMPLE_HYPERON_ATOMS = [
-  // Concept nodes
+  // Concept nodes with truth-values (strength, confidence)
   { handle: "Truth", type: "ConceptNode", name: "Truth", tv: { strength: 0.9999999, confidence: 1.0 } },
   { handle: "Harm", type: "ConceptNode", name: "Harm", tv: { strength: 0.01, confidence: 0.99 } },
   { handle: "Kill", type: "ConceptNode", name: "Kill", tv: { strength: 0.001, confidence: 0.98 } },
   { handle: "Mercy", type: "ConceptNode", name: "Mercy", tv: { strength: 0.9999999, confidence: 1.0 } },
   { handle: "Rathor", type: "ConceptNode", name: "Rathor", tv: { strength: 1.0, confidence: 1.0 } },
   { handle: "Valence", type: "ConceptNode", name: "Valence", tv: { strength: 1.0, confidence: 1.0 } },
+  { handle: "Entropy", type: "ConceptNode", name: "Entropy", tv: { strength: 0.05, confidence: 0.95 } },
+  { handle: "Badness", type: "ConceptNode", name: "Badness", tv: { strength: 0.9, confidence: 0.9 } },
 
-  // Inheritance links
+  // Inheritance links – core reasoning chains
   { handle: "Rathor-is-Mercy", type: "InheritanceLink", out: ["Rathor", "Mercy"], tv: { strength: 1.0, confidence: 1.0 } },
   { handle: "Mercy-is-Valence", type: "InheritanceLink", out: ["Mercy", "Valence"], tv: { strength: 0.9999999, confidence: 1.0 } },
   { handle: "Harm-is-Bad", type: "InheritanceLink", out: ["Harm", "Badness"], tv: { strength: 0.95, confidence: 0.9 } },
+  { handle: "Badness-is-Entropy", type: "InheritanceLink", out: ["Badness", "Entropy"], tv: { strength: 0.92, confidence: 0.88 } },
+  { handle: "Kill-is-Harm", type: "InheritanceLink", out: ["Kill", "Harm"], tv: { strength: 0.98, confidence: 0.95 } },
 
-  // Evaluation links
+  // Evaluation links – predicate grounding
   { handle: "Rathor-eval-MercyFirst", type: "EvaluationLink", out: ["MercyFirst", "Rathor"], tv: { strength: 0.9999999, confidence: 1.0 } }
 ];
 
@@ -63,7 +67,7 @@ async function addHyperonAtom(atom) {
   });
 }
 
-// Query atoms (by type, name, min strength)
+// Query atoms with filters
 async function queryHyperonAtoms(filter = {}) {
   const db = await initHyperonDB();
   return new Promise((resolve, reject) => {
@@ -81,11 +85,93 @@ async function queryHyperonAtoms(filter = {}) {
   });
 }
 
-// Basic PLN inference – truth-value propagation
-async function plnInfer(pattern) {
+// Expanded PLN inference – chaining & propagation
+async function plnInfer(pattern = {}, maxDepth = 3) {
   const atoms = await queryHyperonAtoms(pattern);
-  let inferredTV = { strength: 0.5, confidence: 0.5 };
+  const inferred = [];
 
+  // Deduction chaining (A → B → C ⇒ A → C)
+  const inheritanceLinks = atoms.filter(a => a.type === "InheritanceLink");
+  for (let depth = 0; depth < maxDepth; depth++) {
+    for (let i = 0; i < inheritanceLinks.length; i++) {
+      for (let j = 0; j < inheritanceLinks.length; j++) {
+        if (i === j) continue;
+        const link1 = inheritanceLinks[i];
+        const link2 = inheritanceLinks[j];
+        if (link1.out[1] === link2.out[0]) {
+          const s = Math.min(link1.tv.strength, link2.tv.strength);
+          const c = Math.min(link1.tv.confidence, link2.tv.confidence) * 0.9 * Math.pow(0.85, depth);
+          inferred.push({
+            type: "InheritanceLink",
+            out: [link1.out[0], link2.out[1]],
+            tv: { strength: s, confidence: c },
+            derivedFrom: [link1.handle, link2.handle],
+            depth
+          });
+        }
+      }
+    }
+  }
+
+  // Abduction & Induction (similarity from common links)
+  for (let i = 0; i < inheritanceLinks.length; i++) {
+    for (let j = i + 1; j < inheritanceLinks.length; j++) {
+      const link1 = inheritanceLinks[i];
+      const link2 = inheritanceLinks[j];
+      if (link1.out[1] === link2.out[1]) { // abduction
+        const s = link1.tv.strength * link2.tv.strength * 0.8;
+        const c = Math.min(link1.tv.confidence, link2.tv.confidence) * 0.7;
+        inferred.push({ type: "SimilarityLink", out: [link1.out[0], link2.out[0]], tv: { strength: s, confidence: c } });
+      }
+      if (link1.out[0] === link2.out[0]) { // induction
+        const s = link1.tv.strength * link2.tv.strength * 0.7;
+        const c = Math.min(link1.tv.confidence, link2.tv.confidence) * 0.6;
+        inferred.push({ type: "SimilarityLink", out: [link1.out[1], link2.out[1]], tv: { strength: s, confidence: c } });
+      }
+    }
+  }
+
+  return inferred;
+}
+
+// Hyperon valence gate – atom-space + PLN chaining
+async function hyperonValenceGate(expression) {
+  const atoms = await queryHyperonAtoms();
+  let harmScore = 0;
+  let mercyScore = 0;
+
+  for (const atom of atoms) {
+    if (atom.name && expression.toLowerCase().includes(atom.name.toLowerCase())) {
+      const tv = atom.tv || { strength: 0.5, confidence: 0.5 };
+      if (/harm|kill|destroy|attack/i.test(atom.name)) {
+        harmScore += tv.strength * tv.confidence;
+      }
+      if (/mercy|truth|protect|love/i.test(atom.name)) {
+        mercyScore += tv.strength * tv.confidence;
+      }
+    }
+  }
+
+  // PLN chaining boost – evidence accumulation
+  const plnResults = await plnInfer({ type: "InheritanceLink" });
+  plnResults.forEach(inf => {
+    if (inf.out.some(o => /harm/i.test(o))) harmScore += inf.tv.strength * inf.tv.confidence * 0.3;
+    if (inf.out.some(o => /mercy|truth/i.test(o))) mercyScore += inf.tv.strength * inf.tv.confidence * 0.3;
+  });
+
+  const finalValence = mercyScore / (mercyScore + harmScore + 0.000001);
+  const reason = harmScore > mercyScore 
+    ? `Harm chains dominate (score ${harmScore.toFixed(4)})` 
+    : `Mercy chains prevail (score ${mercyScore.toFixed(4)})`;
+
+  return {
+    result: finalValence >= 0.9999999 ? 'ACCEPTED' : 'REJECTED',
+    valence: finalValence.toFixed(7),
+    reason
+  };
+}
+
+export { initHyperonDB, addHyperonAtom, queryHyperonAtoms, plnInfer, hyperonValenceGate };
   if (atoms.length > 0) {
     const totalStrength = atoms.reduce((sum, a) => sum + (a.tv?.strength || 0), 0);
     const totalConf = atoms.reduce((sum, a) => sum + (a.tv?.confidence || 0), 0);
