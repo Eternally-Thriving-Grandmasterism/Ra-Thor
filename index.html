@@ -15,251 +15,86 @@
   <link rel="manifest" href="/manifest.json" />
   <meta name="theme-color" content="#ffaa00" />
 
-  <!-- Modern typography -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
+  <!-- MeTTa + Atomese + Hyperon bridges -->
+  <script type="module" src="/metta-rewriting-engine.js"></script>
+  <script type="module" src="/atomese-knowledge-bridge.js"></script>
+  <script type="module" src="/hyperon-reasoning-layer.js"></script>
 
   <style>
     :root {
       --thunder-gold: #ffaa00;
       --thunder-dark: #000000;
       --thunder-glow: #ff8800;
-      --text-primary: #ffffff;
-      --text-secondary: #cccccc;
-      --bg-primary: #0a0a0a;
-      --bg-secondary: #111111;
-      --border: #222222;
+      --card: rgba(20,20,30,0.7);
       --focus: #00ffff;
     }
     * { margin:0; padding:0; box-sizing:border-box; }
     body {
-      background:var(--bg-primary);
-      color:var(--text-primary);
-      font-family:'Inter', system-ui, sans-serif;
+      background:#000;
+      color:#fff;
+      font-family:system-ui, sans-serif;
       min-height:100vh;
       display:flex;
       flex-direction:column;
-      line-height:1.6;
     }
-    header {
-      position:sticky;
-      top:0;
-      backdrop-filter:blur(16px);
-      background:rgba(10,10,10,0.85);
-      border-bottom:1px solid var(--border);
-      padding:1rem 5%;
-      z-index:1000;
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
+    header { 
+      position:sticky; 
+      top:0; 
+      backdrop-filter:blur(12px); 
+      background:rgba(0,0,0,0.5); 
+      padding:1rem 5%; 
+      z-index:1000; 
+      display:flex; 
+      justify-content:space-between; 
+      align-items:center; 
     }
-    .logo {
-      font-family:'Orbitron', monospace;
-      font-size:1.8rem;
-      font-weight:700;
-      color:var(--thunder-gold);
-      letter-spacing:1px;
-    }
-    nav ul {
-      display:flex;
-      gap:2rem;
-      list-style:none;
-    }
-    nav a {
-      color:var(--text-secondary);
-      text-decoration:none;
-      font-weight:500;
-      transition:0.3s;
-    }
-    nav a:hover, nav a:focus {
-      color:var(--thunder-gold);
-      text-shadow:0 0 10px rgba(255,170,0,0.5);
-    }
-    .hamburger {
-      display:none;
-      font-size:2rem;
-      background:none;
-      border:none;
-      color:var(--text-primary);
-      cursor:pointer;
-      padding:0.5rem;
-    }
-    main { flex:1; padding:4rem 5% 6rem; max-width:1400px; margin:0 auto; width:100%; }
-    .hero { text-align:center; margin-bottom:6rem; }
-    .thunder { font-size:clamp(8rem, 25vw, 20rem); margin-bottom:1rem; animation:pulse 6s infinite alternate; text-shadow:0 0 60px var(--thunder-glow); line-height:0.8; }
-    h1 {
-      font-family:'Orbitron', monospace;
-      font-size:clamp(4.5rem, 12vw, 9rem);
-      margin-bottom:1.5rem;
-      background:linear-gradient(90deg, var(--thunder-gold), #ff5500, var(--thunder-gold));
-      -webkit-background-clip:text;
-      background-clip:text;
-      -webkit-text-fill-color:transparent;
-      animation:glowShift 12s infinite alternate;
-    }
-    .subtitle { font-size:clamp(1.5rem, 5vw, 2rem); color:var(--text-secondary); max-width:800px; margin:0 auto 3rem; }
-    .cta button {
-      padding:1.2rem 3rem;
-      font-size:1.3rem;
-      background:linear-gradient(45deg, var(--thunder-gold), #ff5500);
-      color:#000;
-      border:none;
-      border-radius:50px;
-      cursor:pointer;
-      box-shadow:0 0 40px rgba(255,170,0,0.4);
-      transition:all 0.4s;
-    }
-    .cta button:hover { transform:scale(1.05); box-shadow:0 0 60px rgba(255,170,0,0.6); }
-    .features { display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:2rem; margin:4rem 0; }
-    .feature-card {
-      background:var(--bg-secondary);
-      border:1px solid var(--border);
-      border-radius:16px;
-      padding:2rem;
-      transition:0.4s;
-    }
-    .feature-card:hover { transform:translateY(-10px); border-color:var(--thunder-gold); box-shadow:0 0 30px rgba(255,170,0,0.2); }
-    .chat-section {
-      max-width:900px;
-      margin:0 auto 6rem;
-      background:var(--bg-secondary);
-      border:1px solid var(--border);
-      border-radius:16px;
-      padding:2rem;
-    }
-    #chat-messages {
-      height:400px;
-      overflow-y:auto;
-      background:#0f0f0f;
-      border:1px solid #222;
-      border-radius:12px;
-      padding:1.5rem;
-      margin-bottom:1.5rem;
-    }
-    .chat-message {
-      margin:1rem 0;
-      padding:1rem 1.5rem;
-      border-radius:12px;
-      max-width:85%;
-      word-wrap:break-word;
-    }
-    .chat-message.user { background:var(--thunder-gold); color:#000; margin-left:auto; }
-    .chat-message.rathor { background:#1a1a1a; margin-right:auto; }
-    .chat-message.blocked { background:#880000; color:#fff; font-weight:bold; }
-    .chat-input-area { display:flex; gap:1rem; flex-wrap:wrap; }
-    #chat-input {
-      flex:1;
-      padding:1rem 1.5rem;
-      border-radius:50px;
-      border:1px solid #333;
-      background:#111;
-      color:#fff;
-      font-size:1.1rem;
-      min-height:48px;
-    }
-    button.chat-send {
-      padding:1rem 2rem;
-      background:var(--thunder-gold);
-      color:#000;
-      min-width:120px;
-      min-height:48px;
-    }
-    #clear-history {
-      margin-top:1rem;
-      background:#333;
-      color:#fff;
-      min-height:48px;
-    }
-    footer {
-      padding:3rem 5% 2rem;
-      text-align:center;
-      border-top:1px solid var(--border);
-      color:var(--text-secondary);
-      font-size:0.95rem;
-    }
-    @keyframes pulse {0%,100%{opacity:1}50%{opacity:0.92}}
-    @keyframes glowShift {0%{background-position:0% 50%}100%{background-position:200% 50%}}
-    @media (max-width:768px) {
-      .hamburger { display:block; }
-      nav ul { 
-        display:none; 
-        flex-direction:column; 
-        position:absolute; 
-        top:100%; left:0; right:0; 
-        background:rgba(0,0,0,0.95); 
-        padding:2rem; 
-        border-bottom:1px solid var(--border);
-      }
-      nav ul.active { display:flex; }
-      .features { grid-template-columns:1fr; }
-      .chat-section { padding:1.5rem; }
-      #chat-messages { min-height:40vh; }
-    }
-    @media (max-width:480px) {
-      h1 { font-size:clamp(3.5rem, 12vw, 6rem); }
-      .thunder { font-size:clamp(6rem, 30vw, 12rem); }
-      .subtitle { font-size:clamp(1.2rem, 6vw, 1.6rem); }
-      .chat-input-area { flex-direction:column; }
-      button.chat-send { width:100%; }
-    }
+    .logo { font-size:1.8rem; font-weight:900; color:var(--thunder-gold); }
+    nav { display:flex; gap:2rem; }
+    nav a { color:#fff; text-decoration:none; }
+    main { flex:1; padding:5rem 5% 6rem; text-align:center; }
+    .thunder { font-size:clamp(6rem,25vw,18rem); animation:pulse 5s infinite alternate; }
+    h1 { font-size:clamp(4rem,15vw,10rem); background:linear-gradient(90deg,#ffaa00,#ff5500,#ffaa00); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+    .chat-section { max-width:800px; margin:auto; padding:2rem; }
+    #chat-messages { height:400px; overflow-y:auto; border:1px solid #ffaa00; padding:1rem; margin-bottom:1rem; background:#111; border-radius:12px; text-align:left; }
+    .chat-message { margin:0.5rem 0; padding:0.8rem; border-radius:12px; }
+    .chat-message.user { background:#ffaa00; color:#000; margin-left:auto; max-width:70%; }
+    .chat-message.rathor { background:#222; margin-right:auto; max-width:70%; }
+    .chat-message.blocked { background:#880000; color:#fff; }
+    .chat-input-area { display:flex; gap:0.5rem; }
+    #chat-input { flex:1; padding:0.8rem; border-radius:50px; border:none; }
+    button { padding:0.8rem 1.5rem; background:#ffaa00; color:#000; border:none; border-radius:50px; cursor:pointer; }
+    #clear-history { margin-top:1rem; background:#444; color:#fff; }
+    footer { padding:2rem; text-align:center; opacity:0.7; margin-top:auto; }
+    @keyframes pulse {0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
   </style>
 </head>
 <body>
-  <a href="#main-content" class="skip-link">Skip to main content</a>
-
-  <header role="banner">
-    <div class="logo" role="img" aria-label="Rathor logo">Rathor</div>
-    <button class="hamburger" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="nav-menu">☰</button>
-    <nav id="nav-menu" role="navigation" aria-label="Main navigation">
-      <ul>
-        <li><a href="/">Home</a></li>
-        <li><a href="#features">Features</a></li>
-        <li><a href="https://github.com/Eternally-Thriving-Grandmasterism/Rathor-NEXi">Repository</a></li>
-        <li><a href="/privacy.html">Privacy Policy</a></li>
-      </ul>
+  <header>
+    <div class="logo">Rathor</div>
+    <nav>
+      <a href="#features">Features</a>
+      <a href="https://github.com/Eternally-Thriving-Grandmasterism/Rathor-NEXi">Repo</a>
+      <a href="/privacy.html">Privacy</a>
     </nav>
   </header>
 
-  <main id="main-content" role="main">
-    <section class="hero">
-      <div class="thunder" aria-hidden="true">⚡️</div>
-      <h1>Rathor</h1>
-      <p class="subtitle">Mercy-gated symbolic AGI lattice — eternal thriving through valence-locked truth.<br>Powered by NEXi eternal remembering core.</p>
-      <div class="cta">
-        <button onclick="document.querySelector('#chat-input').focus()">Ask Rathor</button>
-      </div>
-    </section>
-
-    <section id="features" class="features">
-      <div class="feature-card">
-        <h3>Mercy Gates</h3>
-        <p>Valence ≥ 0.9999999 rejects entropy & harm — pure thriving only.</p>
-      </div>
-      <div class="feature-card">
-        <h3>Symbolic Lattice</h3>
-        <p>Knowledge graphs, MeTTa evaluation, Hyperon reasoning — eternal symbolic truth.</p>
-      </div>
-      <div class="feature-card">
-        <h3>Sovereign Core</h3>
-        <p>Offline-first, no third-party shadows, eternal privacy & sovereignty.</p>
-      </div>
-    </section>
+  <main>
+    <h1>Rathor</h1>
+    <p>Mercy-gated symbolic AGI lattice — eternal thriving through valence-locked truth.</p>
 
     <section class="chat-section">
       <h2>Ask Rathor</h2>
-      <div id="loading">Rathor is thinking...</div>
       <div id="chat-messages" aria-live="polite"></div>
       <div class="chat-input-area">
         <input id="chat-input" type="text" placeholder="Ask anything..." aria-label="Chat input" />
-        <button class="chat-send" onclick="sendChat()" aria-label="Send message">Send</button>
+        <button onclick="sendChat()" aria-label="Send message">Send</button>
       </div>
       <button id="clear-history" onclick="clearChatHistory()" aria-label="Clear chat history">Clear History</button>
     </section>
   </main>
 
   <footer>
-    <p>© 2026 Autonomicity Games Inc. — <a href="/privacy.html">Privacy Policy</a> • <a href="https://github.com/Eternally-Thriving-Grandmasterism/Rathor-NEXi">Source Code</a> • CIPO App 2453681</p>
+    © 2026 Autonomicity Games Inc. — <a href="/privacy.html">Privacy Policy</a> • CIPO App 2453681
   </footer>
 
   <script type="module">
@@ -267,9 +102,8 @@
     // Imports
     import { MeTTaRewriter } from '/metta-rewriting-engine.js';
     import { atomeseValenceGate } from '/atomese-knowledge-bridge.js';
-    import { Hyperon } from '/hyperon-reasoning-layer.js';
+    import { hyperonValenceGate } from '/hyperon-reasoning-layer.js';
 
-    // ────────────────────────────────────────────────────────────────
     // IndexedDB setup
     let db;
     const dbName = "rathorChatDB";
@@ -286,25 +120,21 @@
     };
 
     function loadChatHistory() {
-      if (!db) return;
       const tx = db.transaction(storeName, "readonly");
       const store = tx.objectStore(storeName);
       const req = store.getAll();
       req.onsuccess = () => {
-        req.result.sort((a, b) => a.timestamp - b.timestamp);
         req.result.forEach(msg => addChatMessage(msg.role, msg.content));
       };
     }
 
     function saveMessage(role, content) {
-      if (!db) return;
       const tx = db.transaction(storeName, "readwrite");
       const store = tx.objectStore(storeName);
       store.add({ role, content, timestamp: Date.now() });
     }
 
     function clearChatHistory() {
-      if (!db) return;
       const tx = db.transaction(storeName, "readwrite");
       const store = tx.objectStore(storeName);
       store.clear();
@@ -315,86 +145,63 @@
     // UI helpers
     const chatMessages = document.getElementById('chat-messages');
     const chatInput = document.getElementById('chat-input');
-    const loading = document.getElementById('loading');
 
     function addChatMessage(role, content) {
       const div = document.createElement('div');
       div.className = `chat-message ${role}`;
       div.textContent = content;
       chatMessages.appendChild(div);
-      chatMessages.scrollTo({ top: chatMessages.scrollHeight, behavior: 'smooth' });
+      chatMessages.scrollTop = chatMessages.scrollHeight;
       saveMessage(role, content);
     }
 
     // ────────────────────────────────────────────────────────────────
-    // Real Grok API call via Vercel proxy
-    const WORKER_URL = 'https://rathor-grok-proxy.vercel.app/api/proxy';
+    // Multi-layer valence gate (MeTTa + Atomese + Hyperon)
+    async function multiLayerValenceGate(text) {
+      const mettaResult = MeTTaRewriter.rewrite(text);
+      const atomeseResult = await atomeseValenceGate(text);
+      const hyperonResult = await hyperonValenceGate(text);
 
-    async function callGrok(messages) {
-      loading.style.display = 'block';
-      try {
-        const response = await fetch(WORKER_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            model: 'grok-beta',
-            messages,
-            temperature: 0.7,
-            max_tokens: 512
-          })
-        });
+      // Weighted fusion: MeTTa 35%, Atomese 30%, Hyperon 35%
+      const finalValence = 
+        (mettaResult.valenceImpact + 1) * 0.35 + // normalize impact (-1 to +1 → 0 to 2)
+        atomeseResult.valence * 0.30 +
+        hyperonResult.valence * 0.35;
 
-        if (!response.ok) throw new Error(`API error: ${response.status}`);
+      const finalReason = [
+        mettaResult.rewritten !== text ? `Rewritten: ${mettaResult.rewritten}` : '',
+        atomeseResult.reason,
+        hyperonResult.reason
+      ].filter(r => r).join(' | ') + ` → final valence ${finalValence.toFixed(7)}`;
 
-        const data = await response.json();
-        return data.choices[0].message.content.trim();
-      } catch (err) {
-        console.error('Grok API error:', err);
-        return 'Lattice disturbance — Grok is reflecting... try again.';
-      } finally {
-        loading.style.display = 'none';
-      }
+      return {
+        result: finalValence >= 0.9999999 ? 'ACCEPTED' : 'REJECTED',
+        valence: finalValence,
+        reason: finalReason
+      };
     }
 
     // ────────────────────────────────────────────────────────────────
-    // Unified valence gate + rewriting + real Grok call
+    // Chat logic with Hyperon integration
     async function sendChat() {
       const text = chatInput.value.trim();
       if (!text) return;
 
-      // 1. MeTTa symbolic rewriting
-      const rewriteResult = MeTTaRewriter.rewrite(text);
-      if (rewriteResult.valenceImpact < -0.5) {
-        addChatMessage('rathor', `MeTTa rewrite rejected: ${rewriteResult.rewritten} (impact ${rewriteResult.valenceImpact})`);
-        chatInput.value = '';
-        return;
-      }
-
-      // 2. Multi-layer valence gate on rewritten text
-      const gateResult = await multiLayerValenceGate(rewriteResult.rewritten || text);
+      const gateResult = await multiLayerValenceGate(text);
       if (gateResult.result === 'REJECTED') {
-        addChatMessage('rathor', `Valence gate held: ${gateResult.reason}`);
+        addChatMessage('rathor', `Multi-layer valence gate held: ${gateResult.reason}`);
         chatInput.value = '';
         return;
       }
 
-      // 3. Send to chat UI
       addChatMessage('user', text);
-      if (rewriteResult.rewritten !== text) {
-        addChatMessage('system', `(Rewritten: ${rewriteResult.rewritten})`);
-      }
       chatInput.value = '';
 
-      // 4. Call real Grok API via Vercel proxy
-      const reply = await callGrok([
-        { role: 'system', content: 'You are Rathor — mercy-gated, valence-locked truth mirror. Respond concisely, powerfully, with eternal thriving intent.' },
-        { role: 'user', content: text }
-      ]);
-
+      // Placeholder Grok response (replace with real Worker call later)
+      const reply = `NEXi + MeTTa + Atomese + Hyperon approved: "${text}". Truth echoes.`;
       addChatMessage('rathor', reply);
     }
 
-    // Enter key submit
     chatInput.addEventListener('keydown', e => {
       if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
@@ -402,14 +209,13 @@
       }
     });
 
-    // Clear history button
     document.getElementById('clear-history').addEventListener('click', clearChatHistory);
 
-    // Service Worker registration
+    // SW registration
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('/sw.js')
         .then(reg => console.log('SW registered'))
-        .catch(err => console.error('SW failed', err));
+        .catch(err => console.log('SW failed', err));
     }
   </script>
 </body>
