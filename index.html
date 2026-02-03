@@ -15,7 +15,7 @@
   <link rel="manifest" href="/manifest.json" />
   <meta name="theme-color" content="#ffaa00" />
 
-  <!-- MeTTa + Atomese + Hyperon + MOSES + GP + CGP + NEAT bridges -->
+  <!-- All evolution bridges -->
   <script type="module" src="/metta-rewriting-engine.js"></script>
   <script type="module" src="/atomese-knowledge-bridge.js"></script>
   <script type="module" src="/hyperon-reasoning-layer.js"></script>
@@ -23,6 +23,7 @@
   <script type="module" src="/genetic-programming-engine.js"></script>
   <script type="module" src="/cgp-engine.js"></script>
   <script type="module" src="/neat-engine.js"></script>
+  <script type="module" src="/evolutionary-strategies-engine.js"></script>
 
   <style>
     :root {
@@ -98,6 +99,7 @@
     import { GPEngine } from '/genetic-programming-engine.js';
     import { CGPEngine } from '/cgp-engine.js';
     import { NEAT } from '/neat-engine.js';
+    import { ESEngine, exampleFitness } from '/evolutionary-strategies-engine.js';
 
     // IndexedDB setup
     let db;
@@ -185,7 +187,11 @@
       document.getElementById('chat-input').value = '';
 
       const lowerText = text.toLowerCase();
-      if (lowerText.includes("neat") || lowerText.includes("neuroevolution")) {
+      if (lowerText.includes("es") || lowerText.includes("evolutionary strategies")) {
+        const es = new ESEngine(12, 15, 60, 80);
+        const evolved = await es.evolve(exampleFitness);
+        addChatMessage('rathor', `ES evolved params: fitness ${evolved.fitness}, attention ${evolved.sti}, sigma ${evolved.sigma}`);
+      } else if (lowerText.includes("neat") || lowerText.includes("neuroevolution")) {
         const neat = new NEAT(4, 1, 120, 80);
         const evolved = await neat.evolve(exampleFitness);
         addChatMessage('rathor', `NEAT evolved genome: fitness ${evolved.fitness}, attention ${evolved.sti}`);
@@ -202,7 +208,7 @@
         const evolved = await moses.evolve(exampleFitness);
         addChatMessage('rathor', `MOSES evolved: ${evolved.program} (fitness ${evolved.fitness}, attention ${evolved.sti})`);
       } else {
-        const reply = `NEXi + MeTTa + Atomese + Hyperon + MOSES + GP + CGP + NEAT approved: "${text}". Truth echoes.`;
+        const reply = `NEXi + MeTTa + Atomese + Hyperon + MOSES + GP + CGP + NEAT + ES approved: "${text}". Truth echoes.`;
         addChatMessage('rathor', reply);
       }
     }
