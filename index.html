@@ -15,12 +15,13 @@
   <link rel="manifest" href="/manifest.json" />
   <meta name="theme-color" content="#ffaa00" />
 
-  <!-- MeTTa + Atomese + Hyperon + MOSES + GP bridges -->
+  <!-- MeTTa + Atomese + Hyperon + MOSES + CGP bridges -->
   <script type="module" src="/metta-rewriting-engine.js"></script>
   <script type="module" src="/atomese-knowledge-bridge.js"></script>
   <script type="module" src="/hyperon-reasoning-layer.js"></script>
   <script type="module" src="/moses-evolution-engine.js"></script>
   <script type="module" src="/genetic-programming-engine.js"></script>
+  <script type="module" src="/cgp-engine.js"></script>
 
   <style>
     :root {
@@ -86,6 +87,140 @@
     © 2026 Autonomicity Games Inc. — <a href="/privacy.html">Privacy Policy</a> • CIPO App 2453681
   </footer>
 
+  <script type="module">
+    // ────────────────────────────────────────────────────────────────
+    // Imports
+    import { MeTTaRewriter } from '/metta-rewriting-engine.js';
+    import { atomeseValenceGate } from '/atomese-knowledge-bridge.js';
+    import { hyperonValenceGate } from '/hyperon-reasoning-layer.js';
+    import { MosesEngine } from '/moses-evolution-engine.js';
+    import { GPEngine } from '/genetic-programming-engine.js';
+    import { CGPEngine } from '/cgp-engine.js';
+
+    // IndexedDB setup
+    let db;
+    const dbName = "rathorChatDB";
+    const storeName = "messages";
+
+    const dbRequest = indexedDB.open(dbName, 1);
+    dbRequest.onupgradeneeded = event => {
+      db = event.target.result;
+      db.createObjectStore(storeName, { keyPath: "id", autoIncrement: true });
+    };
+    dbRequest.onsuccess = event => {
+      db = event.target.result;
+      loadChatHistory();
+    };
+
+    function loadChatHistory() {
+      const tx = db.transaction(storeName, "readonly");
+      const store = tx.objectStore(storeName);
+      const req = store.getAll();
+      req.onsuccess = () => {
+        req.result.forEach(msg => addChatMessage(msg.role, msg.content));
+      };
+    }
+
+    function saveMessage(role, content) {
+      const tx = db.transaction(storeName, "readwrite");
+      const store = tx.objectStore(storeName);
+      store.add({ role, content, timestamp: Date.now() });
+    }
+
+    function clearChatHistory() {
+      const tx = db.transaction(storeName, "readwrite");
+      const store = tx.objectStore(storeName);
+      store.clear();
+      document.getElementById('chat-messages').innerHTML = '';
+    }
+
+    function addChatMessage(role, content) {
+      const div = document.createElement('div');
+      div.className = `chat-message ${role}`;
+      div.textContent = content;
+      document.getElementById('chat-messages').appendChild(div);
+      document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
+      saveMessage(role, content);
+    }
+
+    // Multi-layer valence gate – full stack
+    async function multiLayerValenceGate(text) {
+      const mettaResult = MeTTaRewriter.rewrite(text);
+      const atomeseResult = await atomeseValenceGate(text);
+      const hyperonResult = await hyperonValenceGate(text);
+
+      const finalValence = 
+        (mettaResult.valenceImpact + 1) * 0.35 +
+        atomeseResult.valence * 0.30 +
+        hyperonResult.valence * 0.35;
+
+      const finalReason = [
+        mettaResult.rewritten !== text ? `Rewritten: ${mettaResult.rewritten}` : '',
+        atomeseResult.reason,
+        hyperonResult.reason
+      ].filter(r => r).join(' | ') + ` → final valence ${finalValence.toFixed(7)}`;
+
+      return {
+        result: finalValence >= 0.9999999 ? 'ACCEPTED' : 'REJECTED',
+        valence: finalValence,
+        reason: finalReason
+      };
+    }
+
+    // Chat logic with MOSES, GP & CGP evolution triggers
+    async function sendChat() {
+      const text = document.getElementById('chat-input').value.trim();
+      if (!text) return;
+
+      const gateResult = await multiLayerValenceGate(text);
+      if (gateResult.result === 'REJECTED') {
+        addChatMessage('rathor', `Multi-layer valence gate held: ${gateResult.reason}`);
+        document.getElementById('chat-input').value = '';
+        return;
+      }
+
+      addChatMessage('user', text);
+      document.getElementById('chat-input').value = '';
+
+      const lowerText = text.toLowerCase();
+      if (lowerText.includes("cgp") || lowerText.includes("cartesian")) {
+        const cgp = new CGPEngine();
+        const evolved = await cgp.evolve(exampleFitness);
+        addChatMessage('rathor', `CGP evolved genome: length ${evolved.programLength}, fitness ${evolved.fitness}, attention ${evolved.sti}`);
+      } else if (lowerText.includes("gp") || lowerText.includes("genetic programming")) {
+        const gp = new GPEngine();
+        const evolved = await gp.evolve(exampleSymbolicFitness);
+        addChatMessage('rathor', `GP evolved: ${evolved.program} (fitness ${evolved.fitness}, attention ${evolved.sti})`);
+      } else if (lowerText.includes("moses")) {
+        const moses = new MosesEngine(40, 15);
+        const evolved = await moses.evolve(exampleFitness);
+        addChatMessage('rathor', `MOSES evolved: ${evolved.program} (fitness ${evolved.fitness}, attention ${evolved.sti})`);
+      } else {
+        const reply = `NEXi + MeTTa + Atomese + Hyperon + MOSES + GP + CGP approved: "${text}". Truth echoes.`;
+        addChatMessage('rathor', reply);
+      }
+    }
+
+    // Enter key submit
+    document.getElementById('chat-input').addEventListener('keydown', e => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendChat();
+      }
+    });
+
+    // Clear history
+    document.getElementById('clear-history').addEventListener('click', clearChatHistory);
+
+    // SW registration
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js')
+        .then(reg => console.log('SW registered'))
+        .catch(err => console.log('SW failed', err));
+    }
+  </script>
+</body>
+</html>
   <script type="module">
     // ────────────────────────────────────────────────────────────────
     // Imports
