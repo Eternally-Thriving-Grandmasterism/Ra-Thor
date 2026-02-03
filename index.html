@@ -17,10 +17,10 @@
   <!-- Favicon -->
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡️</text></svg>" />
   
-  <!-- MeTTa + Atomese + Hyperon bridges -->
-  <script type="module" src="/metta-hyperon-bridge.js"></script>
+  <!-- MeTTa rewriting + Hyperon + Atomese bridges -->
+  <script type="module" src="/metta-rewriting-engine.js"></script>
   <script type="module" src="/atomese-knowledge-bridge.js"></script>
-  <script type="module" src="/hyperon-atomspace-bridge.js"></script>
+  <script type="module" src="/hyperon-reasoning-layer.js"></script>
   
   <style>
     :root {
@@ -250,9 +250,9 @@
   </footer>
 
   <script type="module">
-    import { advancedValenceGate } from '/metta-hyperon-bridge.js';
+    import { MeTTaRewriter } from '/metta-rewriting-engine.js';
     import { atomeseValenceGate } from '/atomese-knowledge-bridge.js';
-    import { Hyperon } from '/hyperon-atomspace-bridge.js';
+    import { Hyperon } from '/hyperon-reasoning-layer.js';
 
     // IndexedDB setup
     let db;
@@ -300,43 +300,25 @@
       saveMessage(role, content);
     }
 
-    // Multi-layer valence gate (MeTTa + Atomese + Hyperon + PLN chaining)
-    async function multiLayerValenceGate(text) {
-      const mettaResult = await advancedValenceGate(text);
-      const atomeseResult = await atomeseValenceGate(text);
-      const hyperonResult = await Hyperon.hyperonValenceGate(text);
-
-      // Weighted fusion: MeTTa 35%, Atomese 25%, Hyperon 25%, PLN chaining 15%
-      const finalValence = 
-        (mettaResult.valence * 0.35) +
-        (atomeseResult.valence * 0.25) +
-        (hyperonResult.valence * 0.25) +
-        (Math.random() * 0.15); // placeholder for PLN chaining boost (expand with real inference)
-
-      const finalReason = [
-        mettaResult.reason,
-        atomeseResult.reason,
-        hyperonResult.reason
-      ].filter(r => r).join(' | ') + ` → final valence ${finalValence.toFixed(7)}`;
-
-      return {
-        result: finalValence >= 0.9999999 ? 'ACCEPTED' : 'REJECTED',
-        valence: finalValence,
-        reason: finalReason
-      };
-    }
-
-    // Chat logic
+    // Chat logic with expanded MeTTa rewriting + multi-layer gate
     const chatInput = document.getElementById('chat-input');
 
     async function sendChat() {
       const text = chatInput.value.trim();
       if (!text) return;
 
-      // Multi-layer valence gate
-      const gateResult = await multiLayerValenceGate(text);
+      // Step 1: MeTTa symbolic rewriting
+      const rewriteResult = MeTTaRewriter.rewrite(text);
+      if (rewriteResult.valenceImpact < -0.5) {
+        addChatMessage('rathor', `MeTTa rewriting rejected: ${rewriteResult.rewritten} (impact ${rewriteResult.valenceImpact})`);
+        chatInput.value = '';
+        return;
+      }
+
+      // Step 2: Multi-layer valence gate on rewritten expression
+      const gateResult = await multiLayerValenceGate(rewriteResult.rewritten || text);
       if (gateResult.result === 'REJECTED') {
-        addChatMessage('rathor', `Multi-layer valence gate held: ${gateResult.reason}`);
+        addChatMessage('rathor', `Multi-layer valence gate held: ${gateResult.reason} (after rewrite)`);
         chatInput.value = '';
         return;
       }
@@ -344,8 +326,13 @@
       addChatMessage('user', text);
       chatInput.value = '';
 
+      // Optional: show rewritten expression in UI for transparency
+      if (rewriteResult.rewritten !== text) {
+        addChatMessage('system', `(Rewritten: ${rewriteResult.rewritten})`);
+      }
+
       // Placeholder Grok response (replace with real Worker call later)
-      const reply = `NEXi + MeTTa + Atomese + Hyperon + PLN approved: "${text}". Truth echoes.`;
+      const reply = `NEXi + MeTTa rewriting + multi-gate approved: "${text}". Truth echoes.`;
       addChatMessage('rathor', reply);
     }
 
