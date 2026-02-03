@@ -1,5 +1,5 @@
 // hyperon-reasoning-layer.js – sovereign client-side Hyperon atom-space & reasoning engine
-// with pattern mining and similarity clustering
+// with pattern mining, similarity clustering, and attention dynamics
 // MIT License – Autonomicity Games Inc. 2026
 
 let hyperonDB;
@@ -8,26 +8,26 @@ const HYPERON_STORE = "hyperonAtoms";
 
 // Sample atoms – core concepts + reasoning chains
 const SAMPLE_HYPERON_ATOMS = [
-  // Concepts
-  { handle: "Truth", type: "ConceptNode", name: "Truth", tv: { strength: 0.9999999, confidence: 1.0 } },
-  { handle: "Harm", type: "ConceptNode", name: "Harm", tv: { strength: 0.01, confidence: 0.99 } },
-  { handle: "Kill", type: "ConceptNode", name: "Kill", tv: { strength: 0.001, confidence: 0.98 } },
-  { handle: "Mercy", type: "ConceptNode", name: "Mercy", tv: { strength: 0.9999999, confidence: 1.0 } },
-  { handle: "Rathor", type: "ConceptNode", name: "Rathor", tv: { strength: 1.0, confidence: 1.0 } },
-  { handle: "Valence", type: "ConceptNode", name: "Valence", tv: { strength: 1.0, confidence: 1.0 } },
-  { handle: "Entropy", type: "ConceptNode", name: "Entropy", tv: { strength: 0.05, confidence: 0.95 } },
-  { handle: "Badness", type: "ConceptNode", name: "Badness", tv: { strength: 0.9, confidence: 0.9 } },
-  { handle: "Love", type: "ConceptNode", name: "Love", tv: { strength: 0.95, confidence: 0.9 } },
-  { handle: "Protect", type: "ConceptNode", name: "Protect", tv: { strength: 0.92, confidence: 0.88 } },
+  // Concepts (with initial STI/LTI)
+  { handle: "Truth", type: "ConceptNode", name: "Truth", tv: { strength: 0.9999999, confidence: 1.0 }, sti: 0.1, lti: 0.8 },
+  { handle: "Harm", type: "ConceptNode", name: "Harm", tv: { strength: 0.01, confidence: 0.99 }, sti: 0.05, lti: 0.3 },
+  { handle: "Kill", type: "ConceptNode", name: "Kill", tv: { strength: 0.001, confidence: 0.98 }, sti: 0.02, lti: 0.2 },
+  { handle: "Mercy", type: "ConceptNode", name: "Mercy", tv: { strength: 0.9999999, confidence: 1.0 }, sti: 0.15, lti: 0.85 },
+  { handle: "Rathor", type: "ConceptNode", name: "Rathor", tv: { strength: 1.0, confidence: 1.0 }, sti: 0.2, lti: 0.9 },
+  { handle: "Valence", type: "ConceptNode", name: "Valence", tv: { strength: 1.0, confidence: 1.0 }, sti: 0.18, lti: 0.88 },
+  { handle: "Entropy", type: "ConceptNode", name: "Entropy", tv: { strength: 0.05, confidence: 0.95 }, sti: 0.03, lti: 0.25 },
+  { handle: "Badness", type: "ConceptNode", name: "Badness", tv: { strength: 0.9, confidence: 0.9 }, sti: 0.08, lti: 0.4 },
+  { handle: "Love", type: "ConceptNode", name: "Love", tv: { strength: 0.95, confidence: 0.9 }, sti: 0.12, lti: 0.75 },
+  { handle: "Protect", type: "ConceptNode", name: "Protect", tv: { strength: 0.92, confidence: 0.88 }, sti: 0.1, lti: 0.7 },
 
-  // Inheritance chains
-  { handle: "Rathor-is-Mercy", type: "InheritanceLink", out: ["Rathor", "Mercy"], tv: { strength: 1.0, confidence: 1.0 } },
-  { handle: "Mercy-is-Valence", type: "InheritanceLink", out: ["Mercy", "Valence"], tv: { strength: 0.9999999, confidence: 1.0 } },
-  { handle: "Harm-is-Bad", type: "InheritanceLink", out: ["Harm", "Badness"], tv: { strength: 0.95, confidence: 0.9 } },
-  { handle: "Badness-is-Entropy", type: "InheritanceLink", out: ["Badness", "Entropy"], tv: { strength: 0.92, confidence: 0.88 } },
-  { handle: "Kill-is-Harm", type: "InheritanceLink", out: ["Kill", "Harm"], tv: { strength: 0.98, confidence: 0.95 } },
-  { handle: "Love-is-Mercy", type: "InheritanceLink", out: ["Love", "Mercy"], tv: { strength: 0.9, confidence: 0.85 } },
-  { handle: "Protect-is-Valence", type: "InheritanceLink", out: ["Protect", "Valence"], tv: { strength: 0.88, confidence: 0.82 } }
+  // Inheritance links
+  { handle: "Rathor-is-Mercy", type: "InheritanceLink", out: ["Rathor", "Mercy"], tv: { strength: 1.0, confidence: 1.0 }, sti: 0.15, lti: 0.8 },
+  { handle: "Mercy-is-Valence", type: "InheritanceLink", out: ["Mercy", "Valence"], tv: { strength: 0.9999999, confidence: 1.0 }, sti: 0.14, lti: 0.82 },
+  { handle: "Harm-is-Bad", type: "InheritanceLink", out: ["Harm", "Badness"], tv: { strength: 0.95, confidence: 0.9 }, sti: 0.06, lti: 0.35 },
+  { handle: "Badness-is-Entropy", type: "InheritanceLink", out: ["Badness", "Entropy"], tv: { strength: 0.92, confidence: 0.88 }, sti: 0.04, lti: 0.3 },
+  { handle: "Kill-is-Harm", type: "InheritanceLink", out: ["Kill", "Harm"], tv: { strength: 0.98, confidence: 0.95 }, sti: 0.05, lti: 0.28 },
+  { handle: "Love-is-Mercy", type: "InheritanceLink", out: ["Love", "Mercy"], tv: { strength: 0.9, confidence: 0.85 }, sti: 0.11, lti: 0.72 },
+  { handle: "Protect-is-Valence", type: "InheritanceLink", out: ["Protect", "Valence"], tv: { strength: 0.88, confidence: 0.82 }, sti: 0.09, lti: 0.68 }
 ];
 
 async function initHyperonDB() {
@@ -86,6 +86,36 @@ async function queryHyperonAtoms(filter = {}) {
 }
 
 // ────────────────────────────────────────────────────────────────
+// Attention dynamics – STI decay, stimulation, novelty boost
+async function updateAttention(expression = "") {
+  const atoms = await queryHyperonAtoms();
+  const now = Date.now();
+
+  for (const atom of atoms) {
+    // Decay STI over time (half-life ~5 minutes)
+    const timePassed = (now - (atom.lastUpdate || now)) / (1000 * 60 * 5);
+    atom.sti = (atom.sti || 0.1) * Math.pow(0.5, timePassed);
+
+    // Stimulate if atom name appears in current expression
+    if (atom.name && expression.toLowerCase().includes(atom.name.toLowerCase())) {
+      atom.sti = Math.min(1.0, (atom.sti || 0) + 0.3);
+      atom.lti = Math.min(1.0, (atom.lti || 0) + 0.05); // long-term reinforcement
+    }
+
+    // Novelty boost – low confidence but high strength → surprise
+    if (atom.tv && atom.tv.strength > 0.8 && atom.tv.confidence < 0.4) {
+      atom.sti = Math.min(1.0, atom.sti + 0.2);
+    }
+
+    atom.lastUpdate = now;
+    await addHyperonAtom(atom); // persist updated attention
+  }
+
+  // Return high-attention atoms for prioritization
+  return atoms.filter(a => a.sti > 0.3).sort((a, b) => b.sti - a.sti);
+}
+
+// ────────────────────────────────────────────────────────────────
 // Similarity clustering – groups concepts/links by TV & structural overlap
 async function clusterSimilarAtoms(threshold = 0.7) {
   const concepts = await queryHyperonAtoms({ type: "ConceptNode" });
@@ -93,7 +123,6 @@ async function clusterSimilarAtoms(threshold = 0.7) {
   const clusters = [];
   const visited = new Set();
 
-  // Cosine similarity on TV vectors + overlap bonus
   function similarity(a, b) {
     const tvA = a.tv || { strength: 0.5, confidence: 0.5 };
     const tvB = b.tv || { strength: 0.5, confidence: 0.5 };
@@ -102,7 +131,6 @@ async function clusterSimilarAtoms(threshold = 0.7) {
     const normB = Math.sqrt(tvB.strength**2 + tvB.confidence**2);
     let cosSim = dot / (normA * normB || 1);
 
-    // Bonus for shared outgoing/incoming links
     let overlap = 0;
     if (a.type === "ConceptNode" && b.type === "ConceptNode") {
       const aOut = links.filter(l => l.out[0] === a.handle);
@@ -141,6 +169,54 @@ async function clusterSimilarAtoms(threshold = 0.7) {
 }
 
 // ────────────────────────────────────────────────────────────────
+// Pattern mining – frequent link patterns & subgraphs
+async function minePatterns(minSupport = 0.3, maxPatternSize = 5) {
+  const allLinks = await queryHyperonAtoms({ type: "InheritanceLink" });
+  const patterns = [];
+  const linkFreq = new Map();
+
+  allLinks.forEach(link => {
+    const key = `${link.out[0]} → ${link.out[1]}`;
+    linkFreq.set(key, (linkFreq.get(key) || 0) + 1);
+  });
+
+  const totalLinks = allLinks.length;
+  linkFreq.forEach((count, key) => {
+    const support = count / totalLinks;
+    if (support >= minSupport) {
+      patterns.push({
+        pattern: key,
+        support: support.toFixed(4),
+        count,
+        type: "frequent-link"
+      });
+    }
+  });
+
+  // Chain pattern detection
+  for (let i = 0; i < allLinks.length; i++) {
+    for (let j = 0; j < allLinks.length; j++) {
+      if (i === j) continue;
+      const link1 = allLinks[i];
+      const link2 = allLinks[j];
+      if (link1.out[1] === link2.out[0]) {
+        const chain = `${link1.out[0]} → ${link1.out[1]} → ${link2.out[1]}`;
+        const support = Math.min(link1.tv.strength, link2.tv.strength);
+        if (support >= minSupport) {
+          patterns.push({
+            pattern: chain,
+            support: support.toFixed(4),
+            type: "inference-chain"
+          });
+        }
+      }
+    }
+  }
+
+  return patterns.sort((a, b) => b.support - a.support);
+}
+
+// ────────────────────────────────────────────────────────────────
 // PLN inference – chaining & propagation
 async function plnInfer(pattern = {}, maxDepth = 3) {
   const atoms = await queryHyperonAtoms(pattern);
@@ -172,7 +248,7 @@ async function plnInfer(pattern = {}, maxDepth = 3) {
 }
 
 // ────────────────────────────────────────────────────────────────
-// Hyperon valence gate – atom-space + PLN + clustering + pattern boost
+// Hyperon valence gate – full stack: atom-space + PLN + patterns + clusters + attention
 async function hyperonValenceGate(expression) {
   const atoms = await queryHyperonAtoms();
   let harmScore = 0;
@@ -209,7 +285,7 @@ async function hyperonValenceGate(expression) {
     }
   });
 
-  // Similarity clustering boost – penalize/boost based on cluster membership
+  // Similarity clustering boost
   const clusters = await clusterSimilarAtoms(0.7);
   clusters.forEach(cluster => {
     const hasHarm = cluster.members.some(m => /harm|kill|entropy/i.test(m));
@@ -219,18 +295,32 @@ async function hyperonValenceGate(expression) {
     if (hasMercy) mercyScore += clusterWeight * 0.15;
   });
 
+  // Attention dynamics boost – high STI atoms get amplified weight
+  const highAttention = await updateAttention(expression);
+  highAttention.forEach(atom => {
+    const tv = atom.tv || { strength: 0.5, confidence: 0.5 };
+    const weight = atom.sti * 0.4; // attention modulates score contribution
+    if (/harm|kill|destroy|attack/i.test(atom.name)) {
+      harmScore += tv.strength * tv.confidence * weight;
+    }
+    if (/mercy|truth|protect|love/i.test(atom.name)) {
+      mercyScore += tv.strength * tv.confidence * weight;
+    }
+  });
+
   const finalValence = mercyScore / (mercyScore + harmScore + 0.000001);
   const reason = harmScore > mercyScore 
-    ? `Harm clusters & chains dominate (score ${harmScore.toFixed(4)})` 
-    : `Mercy clusters & chains prevail (score ${mercyScore.toFixed(4)})`;
+    ? `Harm clusters, patterns & attention dominate (score ${harmScore.toFixed(4)})` 
+    : `Mercy clusters, patterns & attention prevail (score ${mercyScore.toFixed(4)})`;
 
   return {
     result: finalValence >= 0.9999999 ? 'ACCEPTED' : 'REJECTED',
     valence: finalValence.toFixed(7),
     reason,
     minedPatternsCount: patterns.length,
-    clusterCount: clusters.length
+    clusterCount: clusters.length,
+    highAttentionCount: highAttention.length
   };
 }
 
-export { initHyperonDB, addHyperonAtom, queryHyperonAtoms, plnInfer, minePatterns, clusterSimilarAtoms, hyperonValenceGate };
+export { initHyperonDB, addHyperonAtom, queryHyperonAtoms, plnInfer, minePatterns, clusterSimilarAtoms, updateAttention, hyperonValenceGate };
