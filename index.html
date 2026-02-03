@@ -17,10 +17,11 @@
   <!-- Favicon -->
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡️</text></svg>" />
   
-  <!-- MeTTa + Atomese + Hyperon bridges -->
+  <!-- MeTTa + Atomese + Hyperon + MeTTa-PLN fusion bridge -->
   <script type="module" src="/metta-hyperon-bridge.js"></script>
   <script type="module" src="/atomese-knowledge-bridge.js"></script>
   <script type="module" src="/hyperon-atomspace-bridge.js"></script>
+  <script type="module" src="/metta-pln-fusion-engine.js"></script>
   
   <style>
     :root {
@@ -253,6 +254,7 @@
     import { advancedValenceGate } from '/metta-hyperon-bridge.js';
     import { atomeseValenceGate } from '/atomese-knowledge-bridge.js';
     import { Hyperon } from '/hyperon-atomspace-bridge.js';
+    import { mettaPlnFusionGate } from '/metta-pln-fusion-engine.js';
 
     // IndexedDB setup
     let db;
@@ -300,29 +302,14 @@
       saveMessage(role, content);
     }
 
-    // Multi-layer valence gate (MeTTa + Atomese + Hyperon + PLN)
-    async function multiLayerValenceGate(text) {
-      const mettaResult = await advancedValenceGate(text);
-      const atomeseResult = await atomeseValenceGate(text);
-      const hyperonResult = await Hyperon.hyperonValenceGate(text);
-
-      // Weighted fusion: MeTTa 35%, Atomese 25%, Hyperon 25%, PLN inference boost 15%
-      const finalValence = 
-        (mettaResult.valence * 0.35) +
-        (atomeseResult.valence * 0.25) +
-        (hyperonResult.valence * 0.25) +
-        (Math.random() * 0.15); // placeholder PLN boost (expand with real inference later)
-
-      const finalReason = [
-        mettaResult.reason,
-        atomeseResult.reason,
-        hyperonResult.reason
-      ].filter(r => r).join(' | ') + ` → final valence ${finalValence.toFixed(7)}`;
+    // Unified MeTTa-PLN fused valence gate
+    async function unifiedValenceGate(text) {
+      const fusionResult = await mettaPlnFusionGate(text);
 
       return {
-        result: finalValence >= 0.9999999 ? 'ACCEPTED' : 'REJECTED',
-        valence: finalValence,
-        reason: finalReason
+        result: fusionResult.result,
+        valence: fusionResult.valence,
+        reason: fusionResult.reason
       };
     }
 
@@ -333,10 +320,10 @@
       const text = chatInput.value.trim();
       if (!text) return;
 
-      // Multi-layer valence gate
-      const gateResult = await multiLayerValenceGate(text);
+      // Unified MeTTa-PLN valence gate
+      const gateResult = await unifiedValenceGate(text);
       if (gateResult.result === 'REJECTED') {
-        addChatMessage('rathor', `Multi-layer valence gate held: ${gateResult.reason}`);
+        addChatMessage('rathor', `MeTTa-PLN fused gate held: ${gateResult.reason}`);
         chatInput.value = '';
         return;
       }
@@ -345,7 +332,7 @@
       chatInput.value = '';
 
       // Placeholder Grok response (replace with real Worker call later)
-      const reply = `NEXi + MeTTa + Atomese + Hyperon + PLN approved: "${text}". Truth echoes.`;
+      const reply = `NEXi + MeTTa-PLN fused approved: "${text}". Truth echoes.`;
       addChatMessage('rathor', reply);
     }
 
