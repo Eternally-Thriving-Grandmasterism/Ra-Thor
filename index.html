@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Rathor: Mercy-gated symbolic AGI lattice — eternal thriving through valence-locked truth." />
+  <title>Rathor — Mercy Strikes First</title>
+
+  <!-- PWA manifest -->
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#ffaa00" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  <meta name="apple-mobile-web-app-title" content="Rathor" />
+  <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡️</text></svg>" />
+
+  <style>
+    /* Your thunder CSS – abbreviated */
+    :root { --thunder-gold: #ffaa00; --thunder-dark: #000; --thunder-glow: #ff8800; }
+    body { margin:0; min-height:100vh; background:#000; color:#fff; font-family:system-ui,sans-serif; display:flex; flex-direction:column; }
+    header { position:sticky; top:0; backdrop-filter:blur(12px); background:rgba(0,0,0,0.5); padding:1rem 5%; z-index:1000; display:flex; justify-content:space-between; align-items:center; }
+    main { flex:1; padding:5rem 5% 6rem; text-align:center; }
+    .thunder { font-size:clamp(6rem,25vw,18rem); animation:pulse 5s infinite alternate; }
+    h1 { font-size:clamp(4rem,15vw,10rem); background:linear-gradient(90deg,#ffaa00,#ff5500,#ffaa00); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+    .nexi-badge { background:#222; color:#ffaa00; padding:0.5rem 1rem; border-radius:8px; font-size:0.9rem; margin:1rem auto; max-width:400px; }
+    .chat-section { max-width:800px; margin:auto; padding:2rem; }
+    #chat-messages { height:300px; overflow-y:auto; border:1px solid #ffaa00; padding:1rem; margin-bottom:1rem; background:#111; border-radius:12px; text-align:left; }
+    .chat-message { margin:0.5rem 0; padding:0.8rem; border-radius:12px; }
+    .chat-message.user { background:#ffaa00; color:#000; margin-left:auto; max-width:70%; }
+    .chat-message.rathor { background:#222; margin-right:auto; max-width:70%; }
+    .chat-input-area { display:flex; gap:0.5rem; }
+    #chat-input { flex:1; padding:0.8rem; border-radius:50px; border:none; }
+    button { padding:0.8rem 1.5rem; background:#ffaa00; color:#000; border:none; border-radius:50px; cursor:pointer; }
+    footer { padding:2rem; text-align:center; opacity:0.7; margin-top:auto; }
+    @keyframes pulse {0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">Rathor</div>
+    <nav>
+      <a href="#features">Features</a>
+      <a href="https://github.com/Eternally-Thriving-Grandmasterism/Rathor">Repo</a>
+      <a href="/privacy.html">Privacy</a>
+    </nav>
+  </header>
+
+  <main>
+    <h1>Rathor</h1>
+    <p>Mercy-gated symbolic AGI lattice — eternal thriving through valence-locked truth.</p>
+    <div class="nexi-badge">Powered by NEXi – eternal remembering lattice core (submodule integrated)</div>
+
+    <section class="chat-section">
+      <h2>Ask Rathor</h2>
+      <div id="chat-messages" aria-live="polite"></div>
+      <div class="chat-input-area">
+        <input id="chat-input" type="text" placeholder="Ask anything..." aria-label="Chat input" />
+        <button onclick="sendChat()" aria-label="Send message">Send</button>
+      </div>
+      <button id="clear-history" onclick="clearChatHistory()" aria-label="Clear chat history">Clear History</button>
+    </section>
+  </main>
+
+  <footer>
+    © 2026 Autonomicity Games Inc. — <a href="/privacy.html">Privacy Policy</a> • CIPO App 2453681
+  </footer>
+
+  <script>
+    // Chat logic (Grok placeholder – ready for Worker)
+    const messagesDiv = document.getElementById('chat-messages');
+    const input = document.getElementById('chat-input');
+    let history = JSON.parse(localStorage.getItem('rathorChat')) || [];
+
+    history.forEach(m => addMsg(m.role, m.content));
+
+    function addMsg(role, content) {
+      const div = document.createElement('div');
+      div.className = `chat-message ${role}`;
+      div.textContent = content;
+      messagesDiv.appendChild(div);
+      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+
+    async function sendChat() {
+      const text = input.value.trim();
+      if (!text) return;
+      addMsg('user', text);
+      history.push({ role: 'user', content: text });
+      input.value = '';
+
+      // Placeholder – replace with Worker fetch later
+      const reply = `NEXi echoes: "${text}". Valence holds.`;
+      addMsg('rathor', reply);
+      history.push({ role: 'rathor', content: reply });
+      localStorage.setItem('rathorChat', JSON.stringify(history));
+    }
+
+    function clearChatHistory() {
+      localStorage.removeItem('rathorChat');
+      history = [];
+      messagesDiv.innerHTML = '';
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,52 @@
+/**
+ * Rathor Chat Proxy Worker – Sovereign Grok Gateway
+ * Hides xAI API key & Cloudflare AI Gateway token
+ * MIT License – Autonomicity Games Inc. 2026
+ */
+
+addEventListener('fetch', event => {
+  event.respondWith(handleRequest(event.request));
+});
+
+async function handleRequest(request) {
+  // Only allow POST from Rathor.ai (CORS + origin check)
+  if (request.method !== 'POST') {
+    return new Response('Method not allowed', { status: 405 });
+  }
+
+  // Optional: Check origin for extra security (uncomment if paranoid)
+  // const origin = request.headers.get('Origin');
+  // if (origin !== 'https://rathor.ai') {
+  //   return new Response('Forbidden', { status: 403 });
+  // }
+
+  try {
+    const body = await request.json();
+
+    // Forward to Cloudflare AI Gateway + xAI
+    const gatewayResp = await fetch(
+      'https://gateway.ai.cloudflare.com/v1/YOUR_ACCOUNT_ID/rathor-grok/compat/chat/completions',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${XAI_API_KEY}`,
+          'cf-aig-authorization': `Bearer ${CF_AIG_TOKEN}`
+        },
+        body: JSON.stringify(body)
+      }
+    );
+
+    if (!gatewayResp.ok) {
+      return new Response('Gateway error', { status: gatewayResp.status });
+    }
+
+    // Forward response back to client
+    return new Response(gatewayResp.body, {
+      status: gatewayResp.status,
+      headers: gatewayResp.headers
+    });
+  } catch (err) {
+    return new Response('Lattice disturbance', { status: 500 });
+  }
+}
