@@ -15,13 +15,14 @@
   <link rel="manifest" href="/manifest.json" />
   <meta name="theme-color" content="#ffaa00" />
 
-  <!-- MeTTa + Atomese + Hyperon + MOSES + CGP bridges -->
+  <!-- MeTTa + Atomese + Hyperon + MOSES + GP + CGP + NEAT bridges -->
   <script type="module" src="/metta-rewriting-engine.js"></script>
   <script type="module" src="/atomese-knowledge-bridge.js"></script>
   <script type="module" src="/hyperon-reasoning-layer.js"></script>
   <script type="module" src="/moses-evolution-engine.js"></script>
   <script type="module" src="/genetic-programming-engine.js"></script>
   <script type="module" src="/cgp-engine.js"></script>
+  <script type="module" src="/neat-engine.js"></script>
 
   <style>
     :root {
@@ -96,6 +97,7 @@
     import { MosesEngine } from '/moses-evolution-engine.js';
     import { GPEngine } from '/genetic-programming-engine.js';
     import { CGPEngine } from '/cgp-engine.js';
+    import { NEAT } from '/neat-engine.js';
 
     // IndexedDB setup
     let db;
@@ -167,7 +169,7 @@
       };
     }
 
-    // Chat logic with MOSES, GP & CGP evolution triggers
+    // Chat logic with all evolution triggers
     async function sendChat() {
       const text = document.getElementById('chat-input').value.trim();
       if (!text) return;
@@ -183,7 +185,11 @@
       document.getElementById('chat-input').value = '';
 
       const lowerText = text.toLowerCase();
-      if (lowerText.includes("cgp") || lowerText.includes("cartesian")) {
+      if (lowerText.includes("neat") || lowerText.includes("neuroevolution")) {
+        const neat = new NEAT(4, 1, 120, 80);
+        const evolved = await neat.evolve(exampleFitness);
+        addChatMessage('rathor', `NEAT evolved genome: fitness ${evolved.fitness}, attention ${evolved.sti}`);
+      } else if (lowerText.includes("cgp") || lowerText.includes("cartesian")) {
         const cgp = new CGPEngine();
         const evolved = await cgp.evolve(exampleFitness);
         addChatMessage('rathor', `CGP evolved genome: length ${evolved.programLength}, fitness ${evolved.fitness}, attention ${evolved.sti}`);
@@ -196,380 +202,9 @@
         const evolved = await moses.evolve(exampleFitness);
         addChatMessage('rathor', `MOSES evolved: ${evolved.program} (fitness ${evolved.fitness}, attention ${evolved.sti})`);
       } else {
-        const reply = `NEXi + MeTTa + Atomese + Hyperon + MOSES + GP + CGP approved: "${text}". Truth echoes.`;
+        const reply = `NEXi + MeTTa + Atomese + Hyperon + MOSES + GP + CGP + NEAT approved: "${text}". Truth echoes.`;
         addChatMessage('rathor', reply);
       }
-    }
-
-    // Enter key submit
-    document.getElementById('chat-input').addEventListener('keydown', e => {
-      if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        sendChat();
-      }
-    });
-
-    // Clear history
-    document.getElementById('clear-history').addEventListener('click', clearChatHistory);
-
-    // SW registration
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js')
-        .then(reg => console.log('SW registered'))
-        .catch(err => console.log('SW failed', err));
-    }
-  </script>
-</body>
-</html>
-  <script type="module">
-    // ────────────────────────────────────────────────────────────────
-    // Imports
-    import { MeTTaRewriter } from '/metta-rewriting-engine.js';
-    import { atomeseValenceGate } from '/atomese-knowledge-bridge.js';
-    import { hyperonValenceGate } from '/hyperon-reasoning-layer.js';
-    import { MosesEngine } from '/moses-evolution-engine.js';
-    import { GPEngine, exampleSymbolicFitness } from '/genetic-programming-engine.js';
-
-    // IndexedDB setup
-    let db;
-    const dbName = "rathorChatDB";
-    const storeName = "messages";
-
-    const dbRequest = indexedDB.open(dbName, 1);
-    dbRequest.onupgradeneeded = event => {
-      db = event.target.result;
-      db.createObjectStore(storeName, { keyPath: "id", autoIncrement: true });
-    };
-    dbRequest.onsuccess = event => {
-      db = event.target.result;
-      loadChatHistory();
-    };
-
-    function loadChatHistory() {
-      const tx = db.transaction(storeName, "readonly");
-      const store = tx.objectStore(storeName);
-      const req = store.getAll();
-      req.onsuccess = () => {
-        req.result.forEach(msg => addChatMessage(msg.role, msg.content));
-      };
-    }
-
-    function saveMessage(role, content) {
-      const tx = db.transaction(storeName, "readwrite");
-      const store = tx.objectStore(storeName);
-      store.add({ role, content, timestamp: Date.now() });
-    }
-
-    function clearChatHistory() {
-      const tx = db.transaction(storeName, "readwrite");
-      const store = tx.objectStore(storeName);
-      store.clear();
-      document.getElementById('chat-messages').innerHTML = '';
-    }
-
-    function addChatMessage(role, content) {
-      const div = document.createElement('div');
-      div.className = `chat-message ${role}`;
-      div.textContent = content;
-      document.getElementById('chat-messages').appendChild(div);
-      document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
-      saveMessage(role, content);
-    }
-
-    // Multi-layer valence gate – full stack
-    async function multiLayerValenceGate(text) {
-      const mettaResult = MeTTaRewriter.rewrite(text);
-      const atomeseResult = await atomeseValenceGate(text);
-      const hyperonResult = await hyperonValenceGate(text);
-
-      const finalValence = 
-        (mettaResult.valenceImpact + 1) * 0.35 +
-        atomeseResult.valence * 0.30 +
-        hyperonResult.valence * 0.35;
-
-      const finalReason = [
-        mettaResult.rewritten !== text ? `Rewritten: ${mettaResult.rewritten}` : '',
-        atomeseResult.reason,
-        hyperonResult.reason
-      ].filter(r => r).join(' | ') + ` → final valence ${finalValence.toFixed(7)}`;
-
-      return {
-        result: finalValence >= 0.9999999 ? 'ACCEPTED' : 'REJECTED',
-        valence: finalValence,
-        reason: finalReason
-      };
-    }
-
-    // Chat logic with MOSES & GP evolution triggers
-    async function sendChat() {
-      const text = document.getElementById('chat-input').value.trim();
-      if (!text) return;
-
-      const gateResult = await multiLayerValenceGate(text);
-      if (gateResult.result === 'REJECTED') {
-        addChatMessage('rathor', `Multi-layer valence gate held: ${gateResult.reason}`);
-        document.getElementById('chat-input').value = '';
-        return;
-      }
-
-      addChatMessage('user', text);
-      document.getElementById('chat-input').value = '';
-
-      if (text.toLowerCase().includes("evolve") || text.toLowerCase().includes("gp") || text.toLowerCase().includes("genetic")) {
-        const gp = new GPEngine(80, 25, 6);
-        const evolved = await gp.evolve(exampleSymbolicFitness);
-        addChatMessage('rathor', `Genetic Programming evolved: ${evolved.program} (fitness ${evolved.fitness}, attention ${evolved.sti})`);
-      } else if (text.toLowerCase().includes("moses")) {
-        const moses = new MosesEngine(40, 15);
-        const evolved = await moses.evolve(exampleFitness);
-        addChatMessage('rathor', `MOSES evolved: ${evolved.program} (fitness ${evolved.fitness}, attention ${evolved.sti})`);
-      } else {
-        const reply = `NEXi + MeTTa + Atomese + Hyperon + MOSES + GP approved: "${text}". Truth echoes.`;
-        addChatMessage('rathor', reply);
-      }
-    }
-
-    // Enter key submit
-    document.getElementById('chat-input').addEventListener('keydown', e => {
-      if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        sendChat();
-      }
-    });
-
-    // Clear history
-    document.getElementById('clear-history').addEventListener('click', clearChatHistory);
-
-    // SW registration
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js')
-        .then(reg => console.log('SW registered'))
-        .catch(err => console.log('SW failed', err));
-    }
-  </script>
-</body>
-</html>  <script type="module">
-    // ────────────────────────────────────────────────────────────────
-    // Imports
-    import { MeTTaRewriter } from '/metta-rewriting-engine.js';
-    import { atomeseValenceGate } from '/atomese-knowledge-bridge.js';
-    import { hyperonValenceGate } from '/hyperon-reasoning-layer.js';
-    import { MosesEngine, exampleFitness } from '/moses-evolution-engine.js';
-
-    // IndexedDB setup
-    let db;
-    const dbName = "rathorChatDB";
-    const storeName = "messages";
-
-    const dbRequest = indexedDB.open(dbName, 1);
-    dbRequest.onupgradeneeded = event => {
-      db = event.target.result;
-      db.createObjectStore(storeName, { keyPath: "id", autoIncrement: true });
-    };
-    dbRequest.onsuccess = event => {
-      db = event.target.result;
-      loadChatHistory();
-    };
-
-    function loadChatHistory() {
-      const tx = db.transaction(storeName, "readonly");
-      const store = tx.objectStore(storeName);
-      const req = store.getAll();
-      req.onsuccess = () => {
-        req.result.forEach(msg => addChatMessage(msg.role, msg.content));
-      };
-    }
-
-    function saveMessage(role, content) {
-      const tx = db.transaction(storeName, "readwrite");
-      const store = tx.objectStore(storeName);
-      store.add({ role, content, timestamp: Date.now() });
-    }
-
-    function clearChatHistory() {
-      const tx = db.transaction(storeName, "readwrite");
-      const store = tx.objectStore(storeName);
-      store.clear();
-      document.getElementById('chat-messages').innerHTML = '';
-    }
-
-    function addChatMessage(role, content) {
-      const div = document.createElement('div');
-      div.className = `chat-message ${role}`;
-      div.textContent = content;
-      document.getElementById('chat-messages').appendChild(div);
-      document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
-      saveMessage(role, content);
-    }
-
-    // Multi-layer valence gate – MeTTa + Atomese + Hyperon
-    async function multiLayerValenceGate(text) {
-      const mettaResult = MeTTaRewriter.rewrite(text);
-      const atomeseResult = await atomeseValenceGate(text);
-      const hyperonResult = await hyperonValenceGate(text);
-
-      // Weighted fusion: MeTTa 35%, Atomese 30%, Hyperon 35%
-      const finalValence = 
-        (mettaResult.valenceImpact + 1) * 0.35 +
-        atomeseResult.valence * 0.30 +
-        hyperonResult.valence * 0.35;
-
-      const finalReason = [
-        mettaResult.rewritten !== text ? `Rewritten: ${mettaResult.rewritten}` : '',
-        atomeseResult.reason,
-        hyperonResult.reason
-      ].filter(r => r).join(' | ') + ` → final valence ${finalValence.toFixed(7)}`;
-
-      return {
-        result: finalValence >= 0.9999999 ? 'ACCEPTED' : 'REJECTED',
-        valence: finalValence,
-        reason: finalReason
-      };
-    }
-
-    // Chat logic with MOSES evolution trigger
-    async function sendChat() {
-      const text = document.getElementById('chat-input').value.trim();
-      if (!text) return;
-
-      const gateResult = await multiLayerValenceGate(text);
-      if (gateResult.result === 'REJECTED') {
-        addChatMessage('rathor', `Multi-layer valence gate held: ${gateResult.reason}`);
-        document.getElementById('chat-input').value = '';
-        return;
-      }
-
-      addChatMessage('user', text);
-      document.getElementById('chat-input').value = '';
-
-      // Optional MOSES evolution trigger (for complex tasks)
-      if (text.includes("evolve") || text.includes("optimize")) {
-        const moses = new MosesEngine(30, 10);
-        const evolved = await moses.evolve(exampleFitness);
-        addChatMessage('rathor', `MOSES evolved program: ${evolved.program} (fitness ${evolved.fitness}, attention ${evolved.sti})`);
-      } else {
-        // Normal placeholder Grok response
-        const reply = `NEXi + MeTTa + Atomese + Hyperon + MOSES approved: "${text}". Truth echoes.`;
-        addChatMessage('rathor', reply);
-      }
-    }
-
-    // Enter key submit
-    document.getElementById('chat-input').addEventListener('keydown', e => {
-      if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        sendChat();
-      }
-    });
-
-    // Clear history
-    document.getElementById('clear-history').addEventListener('click', clearChatHistory);
-
-    // SW registration
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js')
-        .then(reg => console.log('SW registered'))
-        .catch(err => console.log('SW failed', err));
-    }
-  </script>
-</body>
-</html>    // ────────────────────────────────────────────────────────────────
-    // Imports
-    import { MeTTaRewriter } from '/metta-rewriting-engine.js';
-    import { atomeseValenceGate } from '/atomese-knowledge-bridge.js';
-    import { hyperonValenceGate } from '/hyperon-reasoning-layer.js';
-
-    // IndexedDB setup
-    let db;
-    const dbName = "rathorChatDB";
-    const storeName = "messages";
-
-    const dbRequest = indexedDB.open(dbName, 1);
-    dbRequest.onupgradeneeded = event => {
-      db = event.target.result;
-      db.createObjectStore(storeName, { keyPath: "id", autoIncrement: true });
-    };
-    dbRequest.onsuccess = event => {
-      db = event.target.result;
-      loadChatHistory();
-    };
-
-    function loadChatHistory() {
-      const tx = db.transaction(storeName, "readonly");
-      const store = tx.objectStore(storeName);
-      const req = store.getAll();
-      req.onsuccess = () => {
-        req.result.forEach(msg => addChatMessage(msg.role, msg.content));
-      };
-    }
-
-    function saveMessage(role, content) {
-      const tx = db.transaction(storeName, "readwrite");
-      const store = tx.objectStore(storeName);
-      store.add({ role, content, timestamp: Date.now() });
-    }
-
-    function clearChatHistory() {
-      const tx = db.transaction(storeName, "readwrite");
-      const store = tx.objectStore(storeName);
-      store.clear();
-      document.getElementById('chat-messages').innerHTML = '';
-    }
-
-    function addChatMessage(role, content) {
-      const div = document.createElement('div');
-      div.className = `chat-message ${role}`;
-      div.textContent = content;
-      document.getElementById('chat-messages').appendChild(div);
-      document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
-      saveMessage(role, content);
-    }
-
-    // Multi-layer valence gate – MeTTa + Atomese + Hyperon chaining
-    async function multiLayerValenceGate(text) {
-      const mettaResult = MeTTaRewriter.rewrite(text);
-      const atomeseResult = await atomeseValenceGate(text);
-      const hyperonResult = await hyperonValenceGate(text);
-
-      // Weighted fusion: MeTTa 35%, Atomese 30%, Hyperon 35%
-      const finalValence = 
-        (mettaResult.valenceImpact + 1) * 0.35 +
-        atomeseResult.valence * 0.30 +
-        hyperonResult.valence * 0.35;
-
-      const finalReason = [
-        mettaResult.rewritten !== text ? `Rewritten: ${mettaResult.rewritten}` : '',
-        atomeseResult.reason,
-        hyperonResult.reason,
-        hyperonResult.harmChainsFound > 0 ? `(${hyperonResult.harmChainsFound} harm chains)` : '',
-        hyperonResult.mercyChainsFound > 0 ? `(${hyperonResult.mercyChainsFound} mercy chains)` : ''
-      ].filter(r => r).join(' | ') + ` → final valence ${finalValence.toFixed(7)}`;
-
-      return {
-        result: finalValence >= 0.9999999 ? 'ACCEPTED' : 'REJECTED',
-        valence: finalValence,
-        reason: finalReason
-      };
-    }
-
-    // Chat logic with PLN chaining
-    async function sendChat() {
-      const text = document.getElementById('chat-input').value.trim();
-      if (!text) return;
-
-      const gateResult = await multiLayerValenceGate(text);
-      if (gateResult.result === 'REJECTED') {
-        addChatMessage('rathor', `Multi-layer valence gate held: ${gateResult.reason}`);
-        document.getElementById('chat-input').value = '';
-        return;
-      }
-
-      addChatMessage('user', text);
-      document.getElementById('chat-input').value = '';
-
-      // Placeholder Grok response (replace with real Worker call later)
-      const reply = `NEXi + MeTTa + Atomese + Hyperon approved: "${text}". Truth echoes.`;
-      addChatMessage('rathor', reply);
     }
 
     // Enter key submit
