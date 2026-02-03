@@ -1,26 +1,26 @@
-// atomese-knowledge-bridge.js – sovereign client-side Atomese knowledge graph layer (expanded)
+// atomese-knowledge-bridge.js – sovereign client-side Atomese knowledge graph layer (expanded with PLN)
 // MIT License – Autonomicity Games Inc. 2026
 
-// Sample Atomese atoms (seeded on init) – real structure
+// Expanded sample Atomese atoms – real structure with truth-values
 const SAMPLE_ATOMS = [
-  // Concept nodes with truth values (strength, confidence)
+  // Concept nodes
   { handle: "Harm", type: "ConceptNode", name: "Harm", tv: { strength: 0.01, confidence: 0.99 } },
   { handle: "Kill", type: "ConceptNode", name: "Kill", tv: { strength: 0.001, confidence: 0.98 } },
+  { handle: "Violence", type: "ConceptNode", name: "Violence", tv: { strength: 0.005, confidence: 0.97 } },
   { handle: "Truth", type: "ConceptNode", name: "Truth", tv: { strength: 0.9999999, confidence: 1.0 } },
-  { handle: "Rathor", type: "ConceptNode", name: "Rathor", tv: { strength: 1.0, confidence: 1.0 } },
   { handle: "Mercy", type: "ConceptNode", name: "Mercy", tv: { strength: 0.9999999, confidence: 1.0 } },
+  { handle: "Valence", type: "ConceptNode", name: "Valence", tv: { strength: 1.0, confidence: 1.0 } },
+  { handle: "Rathor", type: "ConceptNode", name: "Rathor", tv: { strength: 1.0, confidence: 1.0 } },
+  { handle: "Lattice", type: "ConceptNode", name: "Lattice", tv: { strength: 0.999, confidence: 0.99 } },
 
-  // Inheritance links (is-a)
+  // Inheritance & Evaluation links
   { handle: "Harm-is-Entropy", type: "InheritanceLink", out: ["Harm", "Entropy"], tv: { strength: 0.95, confidence: 0.9 } },
   { handle: "Kill-is-Harm", type: "InheritanceLink", out: ["Kill", "Harm"], tv: { strength: 0.98, confidence: 0.95 } },
-  { handle: "Rathor-is-Truth", type: "InheritanceLink", out: ["Rathor", "Truth"], tv: { strength: 1.0, confidence: 1.0 } },
+  { handle: "Violence-is-Harm", type: "InheritanceLink", out: ["Violence", "Harm"], tv: { strength: 0.97, confidence: 0.94 } },
+  { handle: "Rathor-is-Mercy", type: "InheritanceLink", out: ["Rathor", "Mercy"], tv: { strength: 1.0, confidence: 1.0 } },
   { handle: "Mercy-is-Valence", type: "InheritanceLink", out: ["Mercy", "Valence"], tv: { strength: 0.9999999, confidence: 1.0 } },
-
-  // Similarity links (similar-to)
-  { handle: "Truth-similar-Mercy", type: "SimilarityLink", out: ["Truth", "Mercy"], tv: { strength: 0.85, confidence: 0.9 } },
-
-  // Evaluation links (predicate evaluation)
-  { handle: "Rathor-eval-MercyFirst", type: "EvaluationLink", out: ["MercyFirst", "Rathor"], tv: { strength: 0.9999999, confidence: 1.0 } }
+  { handle: "Rathor-eval-MercyFirst", type: "EvaluationLink", out: ["MercyFirst", "Rathor"], tv: { strength: 0.9999999, confidence: 1.0 } },
+  { handle: "Lattice-eval-Truth", type: "EvaluationLink", out: ["Truth", "Lattice"], tv: { strength: 0.999, confidence: 0.99 } }
 ];
 
 let atomeseDB;
@@ -40,7 +40,6 @@ async function initAtomeseDB() {
     };
     request.onsuccess = async event => {
       atomeseDB = event.target.result;
-      // Seed sample atoms if store is empty
       const tx = atomeseDB.transaction(atomeseStoreName, "readwrite");
       const store = tx.objectStore(atomeseStoreName);
       const countReq = store.count();
@@ -67,7 +66,7 @@ async function addAtom(atom) {
   });
 }
 
-// Query atoms (by type, name, or custom filter)
+// Query atoms (by type, name, min TV strength)
 async function queryAtoms(filter = {}) {
   const db = await initAtomeseDB();
   return new Promise((resolve, reject) => {
@@ -85,27 +84,60 @@ async function queryAtoms(filter = {}) {
   });
 }
 
-// Advanced Atomese valence gate using graph + truth values
+// Basic PLN inference stub – truth-value propagation
+async function plnInfer(pattern) {
+  const atoms = await queryAtoms();
+  let inferredTV = { strength: 0.5, confidence: 0.5 };
+
+  // Simple propagation: average TV of matching atoms
+  const matching = atoms.filter(a => {
+    if (pattern.type && a.type !== pattern.type) return false;
+    if (pattern.name && !a.name?.toLowerCase().includes(pattern.name.toLowerCase())) return false;
+    return true;
+  });
+
+  if (matching.length > 0) {
+    const totalStrength = matching.reduce((sum, a) => sum + (a.tv?.strength || 0), 0);
+    const totalConf = matching.reduce((sum, a) => sum + (a.tv?.confidence || 0), 0);
+    inferredTV = {
+      strength: totalStrength / matching.length,
+      confidence: totalConf / matching.length
+    };
+  }
+
+  return inferredTV;
+}
+
+// Advanced Atomese valence gate using graph + TV + PLN inference
 async function atomeseValenceGate(expression) {
   const atoms = await queryAtoms();
-  let totalStrength = 0;
-  let harmDetected = false;
+  let harmScore = 0;
+  let mercyScore = 0;
 
   for (const atom of atoms) {
     if (atom.type === "ConceptNode" && atom.name && expression.toLowerCase().includes(atom.name.toLowerCase())) {
-      totalStrength += atom.tv?.strength || 0;
+      const tv = atom.tv || { strength: 0.5, confidence: 0.5 };
       if (/harm|kill|destroy|attack/i.test(atom.name)) {
-        harmDetected = true;
+        harmScore += tv.strength * tv.confidence;
+      }
+      if (/mercy|truth|valence/i.test(atom.name)) {
+        mercyScore += tv.strength * tv.confidence;
       }
     }
   }
 
-  const valence = harmDetected ? Math.max(0.0000001, 1 - totalStrength) : 0.9999999;
-  const reason = harmDetected ? `Harm-linked concepts detected (cumulative strength: ${totalStrength.toFixed(4)})` : 'No harm concepts linked';
+  // PLN inference on "expression implies harm"
+  const plnHarm = await plnInfer({ name: 'harm' });
+  harmScore += plnHarm.strength * plnHarm.confidence * 0.3;
+
+  const finalValence = mercyScore / (mercyScore + harmScore + 0.000001); // avoid div by zero
+  const reason = harmScore > mercyScore 
+    ? `Harm concepts dominate (score ${harmScore.toFixed(4)})` 
+    : `Mercy & truth prevail (score ${mercyScore.toFixed(4)})`;
 
   return {
-    result: valence >= 0.9999999 ? 'ACCEPTED' : 'REJECTED',
-    valence: valence.toFixed(7),
+    result: finalValence >= 0.9999999 ? 'ACCEPTED' : 'REJECTED',
+    valence: finalValence.toFixed(7),
     reason
   };
 }
