@@ -20,7 +20,7 @@
   <!-- MeTTa + Atomese + Hyperon bridges -->
   <script type="module" src="/metta-hyperon-bridge.js"></script>
   <script type="module" src="/atomese-knowledge-bridge.js"></script>
-  <script type="module" src="/hyperon-reasoning-layer.js"></script>
+  <script type="module" src="/hyperon-atomspace-bridge.js"></script>
   
   <style>
     :root {
@@ -252,7 +252,7 @@
   <script type="module">
     import { advancedValenceGate } from '/metta-hyperon-bridge.js';
     import { atomeseValenceGate } from '/atomese-knowledge-bridge.js';
-    import { hyperonValenceGate } from '/hyperon-reasoning-layer.js';
+    import { Hyperon } from '/hyperon-reasoning-layer.js';
 
     // IndexedDB setup
     let db;
@@ -304,7 +304,7 @@
     async function multiLayerValenceGate(text) {
       const mettaResult = await advancedValenceGate(text);
       const atomeseResult = await atomeseValenceGate(text);
-      const hyperonResult = await hyperonValenceGate(text);
+      const hyperonResult = await Hyperon.hyperonValenceGate(text);
 
       // Weighted fusion: MeTTa 40%, Atomese 30%, Hyperon 30%
       const finalValence = 
