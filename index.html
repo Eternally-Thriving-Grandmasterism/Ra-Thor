@@ -15,7 +15,7 @@
   <link rel="manifest" href="/manifest.json" />
   <meta name="theme-color" content="#ffaa00" />
 
-  <!-- MeTTa + Atomese + Hyperon (now Hypergraph) bridges -->
+  <!-- MeTTa + Atomese + Hyperon bridges -->
   <script type="module" src="/metta-rewriting-engine.js"></script>
   <script type="module" src="/atomese-knowledge-bridge.js"></script>
   <script type="module" src="/hyperon-reasoning-layer.js"></script>
@@ -137,13 +137,13 @@
       saveMessage(role, content);
     }
 
-    // Multi-layer valence gate – MeTTa + Atomese + Hypergraph (with clustering, patterns & attention)
+    // Multi-layer valence gate – MeTTa + Atomese + Hyperon chaining
     async function multiLayerValenceGate(text) {
       const mettaResult = MeTTaRewriter.rewrite(text);
       const atomeseResult = await atomeseValenceGate(text);
       const hyperonResult = await hyperonValenceGate(text);
 
-      // Weighted fusion: MeTTa 35%, Atomese 30%, Hypergraph 35%
+      // Weighted fusion: MeTTa 35%, Atomese 30%, Hyperon 35%
       const finalValence = 
         (mettaResult.valenceImpact + 1) * 0.35 +
         atomeseResult.valence * 0.30 +
@@ -153,9 +153,8 @@
         mettaResult.rewritten !== text ? `Rewritten: ${mettaResult.rewritten}` : '',
         atomeseResult.reason,
         hyperonResult.reason,
-        hyperonResult.minedPatternsCount > 0 ? `(${hyperonResult.minedPatternsCount} patterns mined)` : '',
-        hyperonResult.clusterCount > 0 ? `(${hyperonResult.clusterCount} similarity clusters)` : '',
-        hyperonResult.highAttentionCount > 0 ? `(${hyperonResult.highAttentionCount} high-attention atoms)` : ''
+        hyperonResult.harmChainsFound > 0 ? `(${hyperonResult.harmChainsFound} harm chains)` : '',
+        hyperonResult.mercyChainsFound > 0 ? `(${hyperonResult.mercyChainsFound} mercy chains)` : ''
       ].filter(r => r).join(' | ') + ` → final valence ${finalValence.toFixed(7)}`;
 
       return {
@@ -165,7 +164,7 @@
       };
     }
 
-    // Chat logic with full Hypergraph reasoning
+    // Chat logic with PLN chaining
     async function sendChat() {
       const text = document.getElementById('chat-input').value.trim();
       if (!text) return;
@@ -181,7 +180,7 @@
       document.getElementById('chat-input').value = '';
 
       // Placeholder Grok response (replace with real Worker call later)
-      const reply = `NEXi + MeTTa + Atomese + Hypergraph approved: "${text}". Truth echoes.`;
+      const reply = `NEXi + MeTTa + Atomese + Hyperon approved: "${text}". Truth echoes.`;
       addChatMessage('rathor', reply);
     }
 
