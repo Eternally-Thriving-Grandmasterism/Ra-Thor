@@ -1,81 +1,88 @@
 /**
- * Rathor-NEXi Service Worker – Workbox v9 Optimized
- * Precaching, runtime strategies, background sync, cleanup
+ * Rathor-NEXi Service Worker – Workbox v10 Optimized Caching
+ * Refined precaching, runtime strategies, quota management, hardened background sync
  * MIT License – Autonomicity Games Inc. 2026
  */
 
 importScripts('https://storage.googleapis.com/workbox-cdn/releases/7.1.0/workbox-sw.js');
 
 if (workbox) {
-  console.log('Workbox loaded successfully');
+  console.log('Workbox v10 loaded');
 
-  workbox.setConfig({ debug: false }); // set true for dev
+  workbox.setConfig({ debug: false }); // true for dev tuning
 
-  const { precaching, routing, strategies, expiration, backgroundSync } = workbox;
-
-  // ────────────────────────────────────────────────────────────────
-  // Precaching – core app shell
-  precaching.precacheAndRoute([
-    { url: '/', revision: null },
-    { url: '/index.html', revision: null },
-    { url: '/privacy.html', revision: null },
-    { url: '/thanks.html', revision: null },
-    { url: '/manifest.json', revision: null },
-    { url: '/icons/thunder-favicon-192.jpg', revision: null },
-    { url: '/icons/thunder-favicon-512.jpg', revision: null },
-    { url: '/metta-rewriting-engine.js', revision: null },
-    { url: '/atomese-knowledge-bridge.js', revision: null },
-    { url: '/hyperon-reasoning-layer.js', revision: null }
-  ]);
+  const { precaching, routing, strategies, expiration, backgroundSync, cacheableResponse } = workbox;
 
   // ────────────────────────────────────────────────────────────────
-  // Runtime caching strategies
+  // Precaching – core app shell with revision hashing
+  const precacheManifest = [
+    { url: '/', revision: 'v1-home' },
+    { url: '/index.html', revision: 'v1-index' },
+    { url: '/privacy.html', revision: 'v1-privacy' },
+    { url: '/thanks.html', revision: 'v1-thanks' },
+    { url: '/manifest.json', revision: 'v1-manifest' },
+    { url: '/icons/thunder-favicon-192.jpg', revision: 'v1-192' },
+    { url: '/icons/thunder-favicon-512.jpg', revision: 'v1-512' },
+    { url: '/metta-rewriting-engine.js', revision: 'v1-metta' },
+    { url: '/atomese-knowledge-bridge.js', revision: 'v1-atomese' },
+    { url: '/hyperon-reasoning-layer.js', revision: 'v1-hyperon' }
+  ];
 
-  // 1. Google fonts (if you ever add) – CacheFirst
+  precaching.precacheAndRoute(precacheManifest);
+
+  // ────────────────────────────────────────────────────────────────
+  // Runtime caching strategies – optimized for speed + freshness
+
+  // 1. Static JS/CSS – StaleWhileRevalidate (fast + fresh updates)
   routing.registerRoute(
-    ({ url }) => url.origin === 'https://fonts.googleapis.com' || url.origin === 'https://fonts.gstatic.com',
-    new strategies.CacheFirst({
-      cacheName: 'google-fonts',
+    ({ request }) => request.destination === 'script' || request.destination === 'style',
+    new strategies.StaleWhileRevalidate({
+      cacheName: 'static-resources',
       plugins: [
+        new cacheableResponse.CacheableResponsePlugin({
+          statuses: [0, 200]
+        }),
         new expiration.ExpirationPlugin({
-          maxEntries: 30,
-          maxAgeSeconds: 60 * 60 * 24 * 365 // 1 year
+          maxEntries: 60,
+          maxAgeSeconds: 30 * 24 * 60 * 60, // 30 days
+          purgeOnQuotaError: true // auto-clean on storage pressure
         })
       ]
     })
   );
 
-  // 2. Images – CacheFirst with expiration
+  // 2. Images – CacheFirst with aggressive expiration
   routing.registerRoute(
     ({ request }) => request.destination === 'image',
     new strategies.CacheFirst({
       cacheName: 'images',
       plugins: [
+        new cacheableResponse.CacheableResponsePlugin({
+          statuses: [0, 200]
+        }),
         new expiration.ExpirationPlugin({
-          maxEntries: 60,
-          maxAgeSeconds: 30 * 24 * 60 * 60 // 30 days
+          maxEntries: 100,
+          maxAgeSeconds: 60 * 24 * 60 * 60, // 60 days
+          purgeOnQuotaError: true
         })
       ]
     })
   );
 
-  // 3. JS/CSS from our domain – StaleWhileRevalidate
+  // 3. API / Worker calls (Grok proxy) – NetworkFirst + cache fallback
   routing.registerRoute(
-    ({ request }) => request.destination === 'script' || request.destination === 'style',
-    new strategies.StaleWhileRevalidate({
-      cacheName: 'static-resources'
-    })
-  );
-
-  // 4. API / Worker calls – NetworkFirst (fallback to cache if offline)
-  routing.registerRoute(
-    ({ url }) => url.origin === self.location.origin && url.pathname.includes('grok-proxy'),
+    ({ url }) => url.href.includes('rathor-grok-proxy.ceo-c42.workers.dev'),
     new strategies.NetworkFirst({
       cacheName: 'api-responses',
+      networkTimeoutSeconds: 10,
       plugins: [
+        new cacheableResponse.CacheableResponsePlugin({
+          statuses: [0, 200]
+        }),
         new expiration.ExpirationPlugin({
           maxEntries: 50,
-          maxAgeSeconds: 24 * 60 * 60 // 24 hours
+          maxAgeSeconds: 24 * 60 * 60, // 24 hours
+          purgeOnQuotaError: true
         })
       ]
     })
@@ -84,7 +91,10 @@ if (workbox) {
   // ────────────────────────────────────────────────────────────────
   // Background Sync – retry failed POSTs to Grok Worker
   const bgSyncPlugin = new backgroundSync.BackgroundSyncPlugin('rathor-chat-queue', {
-    maxRetentionTime: 24 * 60 // Retry for max 24 hours
+    maxRetentionTime: 24 * 60, // Retry for max 24 hours
+    onSync: async ({ queue }) => {
+      console.log('Background sync triggered for queue:', queue.name);
+    }
   });
 
   routing.registerRoute(
@@ -95,16 +105,42 @@ if (workbox) {
     'POST'
   );
 
+  // ────────────────────────────────────────────────────────────────
+  // Offline navigation fallback – minimal shell when index.html missing
+  self.addEventListener('fetch', event => {
+    if (event.request.mode === 'navigate') {
+      event.respondWith(
+        fetch(event.request).catch(() => {
+          return new Response(`
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>Rathor – Offline</title>
+              <style>
+                body { margin:0; height:100vh; display:flex; align-items:center; justify-content:center; background:#000; color:#ffaa00; font-family:sans-serif; text-align:center; }
+                h1 { font-size:3rem; }
+                p { font-size:1.3rem; max-width:600px; }
+              </style>
+            </head>
+            <body>
+              <div>
+                <h1>Offline Mode</h1>
+                <p>Rathor is reflecting in the storm.<br>Reconnect to the lattice for full power.</p>
+              </div>
+            </body>
+            </html>
+          `, { headers: { 'Content-Type': 'text/html' } });
+        })
+      );
+    }
+  });
+
 } else {
-  console.error('Workbox failed to load');
+  console.error('Workbox failed to load – fallback to basic SW');
 }
 
 // ────────────────────────────────────────────────────────────────
-// Fallback for offline navigation – serve index.html
-self.addEventListener('fetch', event => {
-  if (event.request.mode === 'navigate') {
-    event.respondWith(
-      fetch(event.request).catch(() => caches.match('/index.html'))
-    );
-  }
-});
+self.addEventListener('install', () => self.skipWaiting());
+self.addEventListener('activate', () => self.clients.claim());
