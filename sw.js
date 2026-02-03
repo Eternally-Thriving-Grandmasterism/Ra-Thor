@@ -1,173 +1,110 @@
 /**
- * Rathor-NEXi Service Worker – v9 Optimized
- * Stale-While-Revalidate + Cache-First hybrid, hardened background sync, minimal offline fallback
+ * Rathor-NEXi Service Worker – Workbox v9 Optimized
+ * Precaching, runtime strategies, background sync, cleanup
  * MIT License – Autonomicity Games Inc. 2026
  */
 
-const CACHE_VERSION = 'rathor-nexi-v9';
-const CACHE_NAME = `static-${CACHE_VERSION}`;
-const RUNTIME_CACHE = 'runtime-cache';
+importScripts('https://storage.googleapis.com/workbox-cdn/releases/7.1.0/workbox-sw.js');
 
-const PRECACHE_ASSETS = [
-  '/',
-  '/index.html',
-  '/privacy.html',
-  '/thanks.html',
-  '/manifest.json',
-  '/icons/thunder-favicon-192.jpg',
-  '/icons/thunder-favicon-512.jpg',
-  '/metta-rewriting-engine.js',
-  '/atomese-knowledge-bridge.js',
-  '/hyperon-reasoning-layer.js'
-  // Add more critical JS/CSS if externalized later
-];
+if (workbox) {
+  console.log('Workbox loaded successfully');
 
-// ────────────────────────────────────────────────────────────────
-// Install – precache core assets
-self.addEventListener('install', event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => cache.addAll(PRECACHE_ASSETS))
-      .then(() => self.skipWaiting())
+  workbox.setConfig({ debug: false }); // set true for dev
+
+  const { precaching, routing, strategies, expiration, backgroundSync } = workbox;
+
+  // ────────────────────────────────────────────────────────────────
+  // Precaching – core app shell
+  precaching.precacheAndRoute([
+    { url: '/', revision: null },
+    { url: '/index.html', revision: null },
+    { url: '/privacy.html', revision: null },
+    { url: '/thanks.html', revision: null },
+    { url: '/manifest.json', revision: null },
+    { url: '/icons/thunder-favicon-192.jpg', revision: null },
+    { url: '/icons/thunder-favicon-512.jpg', revision: null },
+    { url: '/metta-rewriting-engine.js', revision: null },
+    { url: '/atomese-knowledge-bridge.js', revision: null },
+    { url: '/hyperon-reasoning-layer.js', revision: null }
+  ]);
+
+  // ────────────────────────────────────────────────────────────────
+  // Runtime caching strategies
+
+  // 1. Google fonts (if you ever add) – CacheFirst
+  routing.registerRoute(
+    ({ url }) => url.origin === 'https://fonts.googleapis.com' || url.origin === 'https://fonts.gstatic.com',
+    new strategies.CacheFirst({
+      cacheName: 'google-fonts',
+      plugins: [
+        new expiration.ExpirationPlugin({
+          maxEntries: 30,
+          maxAgeSeconds: 60 * 60 * 24 * 365 // 1 year
+        })
+      ]
+    })
   );
-});
 
-// ────────────────────────────────────────────────────────────────
-// Activate – clean old caches + claim clients
-self.addEventListener('activate', event => {
-  event.waitUntil(
-    caches.keys().then(keys => {
-      return Promise.all(
-        keys
-          .filter(key => key.startsWith('rathor-nexi-') && key !== CACHE_NAME && key !== RUNTIME_CACHE)
-          .map(key => caches.delete(key))
-      );
-    }).then(() => self.clients.claim())
+  // 2. Images – CacheFirst with expiration
+  routing.registerRoute(
+    ({ request }) => request.destination === 'image',
+    new strategies.CacheFirst({
+      cacheName: 'images',
+      plugins: [
+        new expiration.ExpirationPlugin({
+          maxEntries: 60,
+          maxAgeSeconds: 30 * 24 * 60 * 60 // 30 days
+        })
+      ]
+    })
   );
-});
+
+  // 3. JS/CSS from our domain – StaleWhileRevalidate
+  routing.registerRoute(
+    ({ request }) => request.destination === 'script' || request.destination === 'style',
+    new strategies.StaleWhileRevalidate({
+      cacheName: 'static-resources'
+    })
+  );
+
+  // 4. API / Worker calls – NetworkFirst (fallback to cache if offline)
+  routing.registerRoute(
+    ({ url }) => url.origin === self.location.origin && url.pathname.includes('grok-proxy'),
+    new strategies.NetworkFirst({
+      cacheName: 'api-responses',
+      plugins: [
+        new expiration.ExpirationPlugin({
+          maxEntries: 50,
+          maxAgeSeconds: 24 * 60 * 60 // 24 hours
+        })
+      ]
+    })
+  );
+
+  // ────────────────────────────────────────────────────────────────
+  // Background Sync – retry failed POSTs to Grok Worker
+  const bgSyncPlugin = new backgroundSync.BackgroundSyncPlugin('rathor-chat-queue', {
+    maxRetentionTime: 24 * 60 // Retry for max 24 hours
+  });
+
+  routing.registerRoute(
+    ({ url }) => url.href.includes('rathor-grok-proxy.ceo-c42.workers.dev'),
+    new strategies.NetworkOnly({
+      plugins: [bgSyncPlugin]
+    }),
+    'POST'
+  );
+
+} else {
+  console.error('Workbox failed to load');
+}
 
 // ────────────────────────────────────────────────────────────────
-// Fetch – Stale-While-Revalidate for precached + Cache-First for runtime
+// Fallback for offline navigation – serve index.html
 self.addEventListener('fetch', event => {
-  const url = new URL(event.request.url);
-
-  // Bypass non-GET, cross-origin, or non-app requests
-  if (event.request.method !== 'GET' || url.origin !== self.location.origin) {
-    event.respondWith(fetch(event.request));
-    return;
-  }
-
-  // Precached assets → Cache-First
-  if (PRECACHE_ASSETS.includes(url.pathname) || url.pathname === '/') {
+  if (event.request.mode === 'navigate') {
     event.respondWith(
-      caches.match(event.request)
-        .then(cached => cached || fetchAndCache(event.request))
-        .catch(() => caches.match('/index.html')) // offline fallback
+      fetch(event.request).catch(() => caches.match('/index.html'))
     );
-    return;
-  }
-
-  // Runtime assets (JS bridges, future dynamic) → Stale-While-Revalidate
-  event.respondWith(
-    caches.match(event.request)
-      .then(cached => {
-        const fetchPromise = fetch(event.request).then(networkResponse => {
-          if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
-            return networkResponse;
-          }
-          caches.open(RUNTIME_CACHE)
-            .then(cache => cache.put(event.request, networkResponse.clone()));
-          return networkResponse;
-        }).catch(() => cached); // fallback to cache on network failure
-
-        return cached || fetchPromise;
-      })
-  );
-});
-
-// Helper: fetch + cache + return response
-async function fetchAndCache(request) {
-  const response = await fetch(request);
-  if (response && response.status === 200 && response.type === 'basic') {
-    const responseToCache = response.clone();
-    caches.open(CACHE_NAME).then(cache => cache.put(request, responseToCache));
-  }
-  return response;
-}
-
-// ────────────────────────────────────────────────────────────────
-// Background Sync – retry queued messages with exponential backoff
-self.addEventListener('sync', event => {
-  if (event.tag === 'sync-chat-messages') {
-    event.waitUntil(syncQueuedMessagesWithRetry());
   }
 });
-
-async function syncQueuedMessagesWithRetry() {
-  const db = await openDB();
-  const tx = db.transaction('queuedMessages', 'readwrite');
-  const store = tx.objectStore('queuedMessages');
-  const messages = await store.getAll();
-
-  let backoff = 1000; // start 1s
-
-  for (const msg of messages) {
-    const attempts = msg.attempts || 0;
-    if (attempts >= 5) {
-      // Max retries reached – mark failed or delete
-      await store.delete(msg.id);
-      continue;
-    }
-
-    try {
-      const response = await fetch(msg.url || 'https://rathor-grok-proxy.ceo-c42.workers.dev', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(msg.payload)
-      });
-
-      if (response.ok) {
-        await store.delete(msg.id);
-        notifyClients({ type: 'sync-success', id: msg.id });
-      } else {
-        msg.attempts = attempts + 1;
-        await store.put(msg);
-        await delay(backoff);
-        backoff = Math.min(backoff * 2, 300000); // cap at 5 min
-      }
-    } catch (err) {
-      msg.attempts = attempts + 1;
-      await store.put(msg);
-      await delay(backoff);
-      backoff = Math.min(backoff * 2, 300000);
-    }
-  }
-}
-
-function delay(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-function notifyClients(message) {
-  self.clients.matchAll().then(clients => {
-    clients.forEach(client => client.postMessage(message));
-  });
-}
-
-// IndexedDB helper for queue
-function openDB() {
-  return new Promise((resolve, reject) => {
-    const req = indexedDB.open('rathorChatDB', 3);
-    req.onupgradeneeded = event => {
-      const db = event.target.result;
-      if (!db.objectStoreNames.contains('messages')) {
-        db.createObjectStore('messages', { keyPath: 'id', autoIncrement: true });
-      }
-      if (!db.objectStoreNames.contains('queuedMessages')) {
-        db.createObjectStore('queuedMessages', { keyPath: 'id', autoIncrement: true });
-      }
-    };
-    req.onsuccess = () => resolve(req.result);
-    req.onerror = () => reject(req.error);
-  });
-}
