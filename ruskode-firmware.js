@@ -2,7 +2,6 @@
 // Mercy-gated, post-quantum, self-healing Rust firmware emulator (client-side JS)
 // MIT License – Autonomicity Games Inc. 2026
 
-// Core state: aircraft, energy, valence, integrity
 class RuskodeCore {
   constructor() {
     this.state = {
@@ -14,7 +13,9 @@ class RuskodeCore {
       sensors: new Map(),
       mercyGate: true,
       postQuantum: true,
-      selfHealing: true
+      selfHealing: true,
+      foundation: "AlphaProMega Air Foundation",
+      mission: "Zero-crash, infinite-range, post-quantum secure flight for eternal thriving"
     };
     this.thunder = "eternal";
   }
@@ -28,11 +29,16 @@ class RuskodeCore {
     return true;
   }
 
-  // Post-quantum comms handshake
+  // Post-quantum comms handshake (simulated)
   async secureComm(target) {
     const nonce = crypto.randomUUID();
     const sig = await this.sign(nonce + target);
     return { nonce, sig, status: "post-quantum secure" };
+  }
+
+  async sign(data) {
+    // Simulated post-quantum signature (in real impl: use actual PQ crypto)
+    return "PQ-SIG-" + btoa(data).slice(0, 32);
   }
 
   // Self-healing integrity
@@ -40,25 +46,41 @@ class RuskodeCore {
     if (this.state.integrity < 0.95) {
       console.log("Self-healing activated — lattice repair.");
       this.state.integrity = Math.min(1.0, this.state.integrity + 0.05);
-      await sleep(100); // sim delay
+      await new Promise(r => setTimeout(r, 100)); // sim delay
     }
   }
 
   // NEAT-evolved flight logic (integrates Rathor-NEXi)
   async evolveFlightPath(targetAltitude, targetVel) {
-    if (!this.mercyCheck()) return;
+    if (!this.mercyCheck()) return { error: "Mercy gate held" };
 
     // NEAT engine call (from Rathor-NEXi)
     const neat = new NEAT(4, 1, 120, 20); // inputs: sensors, outputs: thrust
     const evolved = await neat.evolve(async genome => {
-      const inputs = [this.state.altitude / 1000, this.state.velocity / 100, this.state.energy / 100, this.state.integrity];
+      const inputs = [
+        this.state.altitude / 1000,
+        this.state.velocity / 100,
+        this.state.energy / 100,
+        this.state.integrity
+      ];
       const thrust = genome.evaluate(inputs)[0];
-      const fitness = -Math.abs(thrust - (targetVel / 100)) - Math.abs((this.state.altitude / 1000) - (targetAltitude / 1000));
+      const fitness = -Math.abs(thrust - (targetVel / 100)) 
+                    - Math.abs((this.state.altitude / 1000) - (targetAltitude / 1000));
       return Math.max(0, fitness);
     });
 
-    this.applyThrust(evolved.genome.evaluate([this.state.altitude / 1000, this.state.velocity / 100, this.state.energy / 100, this.state.integrity])[0] * 100);
-    return evolved;
+    this.applyThrust(evolved.genome.evaluate([
+      this.state.altitude / 1000,
+      this.state.velocity / 100,
+      this.state.energy / 100,
+      this.state.integrity
+    ])[0] * 100);
+
+    return {
+      fitness: evolved.fitness,
+      sti: evolved.sti,
+      status: "Flight path evolved — AlphaProMega Air zero-crash enabled"
+    };
   }
 
   applyThrust(thrust) {
