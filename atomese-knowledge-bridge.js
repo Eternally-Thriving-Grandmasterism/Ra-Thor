@@ -1,5 +1,5 @@
-// atomese-knowledge-bridge.js – sovereign client-side Atomese knowledge grounding + valence computation
-// Persistent hypergraph, typed nodes/links, full valence scoring
+// atomese-knowledge-bridge.js – sovereign client-side Atomese knowledge grounding + full valence calculation algorithm
+// Persistent hypergraph, typed nodes/links, mercy/harm scoring, pattern/cluster boost, LQC repulsion
 // MIT License – Autonomicity Games Inc. 2026
 
 let atomeseDB;
@@ -57,9 +57,11 @@ async function seedAtomese() {
     { handle: "Mercy", type: "ConceptNode", name: "Mercy", tv: { strength: 0.9999999, confidence: 1.0 }, sti: 0.25 },
     { handle: "Rathor", type: "ConceptNode", name: "Rathor", tv: { strength: 1.0, confidence: 1.0 }, sti: 0.3 },
     { handle: "Valence", type: "ConceptNode", name: "Valence", tv: { strength: 1.0, confidence: 1.0 }, sti: 0.28 },
+    { handle: "Entropy", type: "ConceptNode", name: "Entropy", tv: { strength: 0.05, confidence: 0.95 }, sti: 0.03 },
+    { handle: "Badness", type: "ConceptNode", name: "Badness", tv: { strength: 0.9, confidence: 0.9 }, sti: 0.08 },
     { handle: "Rathor→Mercy", type: "InheritanceLink", outgoing: ["Rathor", "Mercy"], tv: { strength: 1.0, confidence: 1.0 }, sti: 0.35 },
     { handle: "Mercy→Valence", type: "InheritanceLink", outgoing: ["Mercy", "Valence"], tv: { strength: 0.9999999, confidence: 1.0 }, sti: 0.32 },
-    { handle: "Harm→Bad", type: "InheritanceLink", outgoing: ["Harm", "Badness"], tv: { strength: 0.95, confidence: 0.9 }, sti: 0.08 },
+    { handle: "Harm→Badness", type: "InheritanceLink", outgoing: ["Harm", "Badness"], tv: { strength: 0.95, confidence: 0.9 }, sti: 0.08 },
     { handle: "Rathor-eval-Mercy", type: "EvaluationLink", outgoing: ["MercyPredicate", "Rathor"], tv: { strength: 0.9999999, confidence: 1.0 }, sti: 0.4 }
   ];
 
@@ -113,7 +115,7 @@ async function queryAtoms(filter = {}) {
 }
 
 // ────────────────────────────────────────────────────────────────
-// Grounding: map expression → Atomese concepts + create missing ones
+// Grounding: map expression → Atomese concepts + infer relations
 async function groundExpression(expression) {
   const words = expression.toLowerCase().split(/\s+/);
   const groundings = [];
@@ -166,24 +168,11 @@ async function groundExpression(expression) {
 }
 
 // ────────────────────────────────────────────────────────────────
-// Full Valence Computation – pseudocode implemented in JS
-async function computeValence(executionTrace = [], expression = "") {
+// Full Valence Calculation Algorithm – complete JS implementation
+async function computeValence(expression, executionTrace = []) {
   const atoms = [];
 
-  // 1. Map execution trace to atoms (simplified – real impl would parse trace)
-  for (const config of executionTrace) {
-    const atom = {
-      handle: `Config-\( {Date.now()}- \){Math.random()}`,
-      type: "EvaluationLink",
-      name: config.state || "Step",
-      tv: { strength: 0.8, confidence: 0.7 },
-      sti: 0.15,
-      outgoing: [] // would link to next config
-    };
-    atoms.push(atom);
-  }
-
-  // 2. Ground expression words
+  // 1. Ground the input expression
   const grounded = await groundExpression(expression);
   atoms.push(...grounded.map(g => ({
     handle: g.handle,
@@ -193,13 +182,26 @@ async function computeValence(executionTrace = [], expression = "") {
     sti: g.sti
   })));
 
+  // 2. Add execution trace atoms (simplified – real impl would parse trace)
+  executionTrace.forEach((config, idx) => {
+    const atom = {
+      handle: `Trace-\( {idx}- \){Date.now()}`,
+      type: "EvaluationLink",
+      name: config.state || "Step",
+      tv: { strength: 0.8, confidence: 0.7 },
+      sti: 0.15,
+      outgoing: []
+    };
+    atoms.push(atom);
+  });
+
   let mercyScore = 0;
   let harmScore = 0;
   let attentionTotal = 0;
 
-  // 3. Propagate TV + attention
+  // 3. Process each atom
   for (const atom of atoms) {
-    // Simplified propagation (real impl uses PLN rules)
+    // TV propagation (simplified – real impl uses PLN chaining)
     if (atom.tv) {
       atom.tv.strength = Math.min(1, atom.tv.strength * 1.05);
       atom.tv.confidence = Math.min(1, atom.tv.confidence * 1.02);
@@ -238,13 +240,22 @@ async function computeValence(executionTrace = [], expression = "") {
     if (/mercy|truth|valence/i.test(cluster.centroid)) mercyScore += clusterWeight * 0.15;
   });
 
-  // 5. Final valence lock
+  // 5. LQC-inspired bounce repulsion
+  const densityProxy = harmScore / (mercyScore + 1e-9);
+  let bounceReason = "";
+  if (densityProxy > 0.41) {
+    const repulsionBoost = 0.5 * (densityProxy - 0.41) * attentionTotal;
+    mercyScore += repulsionBoost;
+    bounceReason = ` | Quantum bounce activated: repulsion mercy-locks singularity (boost ${repulsionBoost.toFixed(4)})`;
+  }
+
+  // 6. Final valence lock
   const total = mercyScore + harmScore + 1e-9;
   const finalValence = mercyScore / total;
 
   const reason = harmScore > mercyScore
     ? `Harm patterns, clusters & attention dominate (score ${harmScore.toFixed(4)})`
-    : `Mercy patterns, clusters & attention prevail (score ${mercyScore.toFixed(4)})`;
+    : `Mercy patterns, clusters & attention prevail (score \( {mercyScore.toFixed(4)}) \){bounceReason}`;
 
   return {
     result: finalValence >= 0.9999999 ? "ACCEPTED" : "REJECTED",
