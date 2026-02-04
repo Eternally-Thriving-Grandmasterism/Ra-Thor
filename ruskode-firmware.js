@@ -1,6 +1,5 @@
 // ruskode-firmware.js — AlphaProMega Air Foundation sovereign flight brain
-// Mercy-gated, post-quantum, self-healing Rust firmware emulator (client-side JS)
-// Expanded with multi-aircraft swarm + NEAT flight evolution
+// Mercy-gated, post-quantum, self-healing Rust firmware emulator + RL policy learning
 // MIT License – Autonomicity Games Inc. 2026
 
 class RuskodeCore {
@@ -21,6 +20,7 @@ class RuskodeCore {
       mission: "Zero-crash, infinite-range, post-quantum secure flight for eternal thriving"
     };
     this.thunder = "eternal";
+    this.rlAgent = new RLAgent(6, 2); // state + action dim
   }
 
   mercyCheck() {
@@ -58,31 +58,40 @@ class RuskodeCore {
   async evolveFleetFlightPath() {
     if (!this.mercyCheck()) return { error: "Mercy gate held" };
 
-    const simulator = new FlightSimulator(this.state.fleet.length);
-    const neat = new NEAT(6, 2, 200, 120);
-    const evolved = await neat.evolve(async genome => simulator.evaluate(genome));
+    const trajectory = [];
+    for (let step = 0; step < 100; step++) {
+      for (const ac of this.state.fleet) {
+        const inputs = [
+          ac.altitude / 1000,
+          ac.velocity / 100,
+          ac.energy / 100,
+          ac.integrity,
+          (ac.targetAltitude - ac.altitude) / 1000,
+          (ac.targetVelocity - ac.velocity) / 100
+        ];
 
-    // Apply best genome to fleet
-    for (const ac of this.state.fleet) {
-      const inputs = [
-        ac.altitude / 1000,
-        ac.velocity / 100,
-        ac.energy / 100,
-        ac.integrity,
-        (ac.targetAltitude - ac.altitude) / 1000,
-        (ac.targetVelocity - ac.velocity) / 100
-      ];
-      const [thrust, pitch] = evolved.genome.evaluate(inputs);
-      ac.velocity += thrust * 0.01 + pitch * 0.005;
-      ac.altitude += ac.velocity * 0.01;
-      ac.energy -= Math.abs(thrust) * 0.001 + Math.abs(pitch) * 0.0005;
-      ac.integrity = Math.max(0, ac.integrity - 0.0001 * Math.random());
+        const { action, probs } = this.rlAgent.getAction(inputs);
+        const thrust = action * 100; // scale to thrust
+
+        // Apply action
+        ac.velocity += thrust * 0.01;
+        ac.altitude += ac.velocity * 0.01;
+        ac.energy -= Math.abs(thrust) * 0.001;
+        ac.integrity = Math.max(0, ac.integrity - 0.0001 * Math.random());
+
+        // Mercy-shaped reward
+        const reward = this.rlAgent.shapeReward(ac, action, ac); // nextState is same for now (simplified)
+
+        trajectory.push({ state: inputs, action, reward, prob: probs[action] });
+      }
     }
 
+    // Train RL agent on trajectory
+    await this.rlAgent.train(trajectory);
+
     return {
-      fitness: evolved.fitness,
-      sti: evolved.sti,
-      status: "Fleet flight path evolved — AlphaProMega Air zero-crash swarm enabled"
+      status: "Fleet flight path evolved via RL — AlphaProMega Air zero-crash swarm enabled",
+      averageReward: trajectory.reduce((sum, t) => sum + t.reward, 0) / trajectory.length
     };
   }
 }
