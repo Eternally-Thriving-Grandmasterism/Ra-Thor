@@ -137,19 +137,34 @@
       saveMessage(role, content);
     }
 
-    // Multi-layer valence gate – MeTTa + Atomese + Hypergraph
+    // Multi-layer valence gate – MeTTa first, then Atomese + Hypergraph
     async function multiLayerValenceGate(text) {
+      // Stage 1: MeTTa rewriting (first mercy gate)
       const mettaResult = MeTTaRewriter.rewrite(text);
-      const atomeseResult = await atomeseValenceGate(text);
-      const hyperonResult = await hyperonValenceGate(text);
 
+      // Early rejection if rewrite valence too low
+      if (mettaResult.rejected) {
+        return {
+          result: 'REJECTED',
+          valence: mettaResult.valenceImpact,
+          reason: mettaResult.reason
+        };
+      }
+
+      // Stage 2: Atomese grounding + valence
+      const atomeseResult = await atomeseValenceGate(mettaResult.rewritten || text);
+
+      // Stage 3: Hyperon hypergraph reasoning
+      const hyperonResult = await hyperonValenceGate(mettaResult.rewritten || text);
+
+      // Weighted fusion: MeTTa 35%, Atomese 30%, Hyperon 35%
       const finalValence = 
-        (mettaResult.valenceImpact + 1) * 0.35 +
+        (mettaResult.valenceImpact + 1) * 0.35 + // normalize (-1..+1 → 0..2)
         atomeseResult.valence * 0.30 +
         hyperonResult.valence * 0.35;
 
       const finalReason = [
-        mettaResult.rewritten !== text ? `Rewritten: ${mettaResult.rewritten}` : '',
+        mettaResult.rewritten !== text ? `MeTTa rewritten: ${mettaResult.rewritten}` : '',
         atomeseResult.reason,
         hyperonResult.reason
       ].filter(r => r).join(' | ') + ` → final valence ${finalValence.toFixed(7)}`;
@@ -161,7 +176,7 @@
       };
     }
 
-    // Chat logic with full grounding & hypergraph reasoning
+    // Chat logic with full MeTTa → Atomese → Hypergraph pipeline
     async function sendChat() {
       const text = document.getElementById('chat-input').value.trim();
       if (!text) return;
