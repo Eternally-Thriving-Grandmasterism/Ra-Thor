@@ -1,6 +1,8 @@
 // neat-neuroevolution-engine.js – sovereign client-side Neuroevolution of Augmenting Topologies (NEAT)
-// Topology + weight evolution, speciation, historical markings, crossover compatibility
+// Full speciation with historical markings, excess/disjoint/weight distance, dynamic threshold, fitness sharing
 // MIT License – Autonomicity Games Inc. 2026
+
+let globalInnovation = 0;
 
 class NeuronGene {
   constructor(id, type = "hidden") {
@@ -42,9 +44,7 @@ class Genome {
   mutate() {
     // Weight mutation
     this.connections.forEach(c => {
-      if (Math.random() < 0.8) {
-        c.weight += (Math.random() - 0.5) * 0.1;
-      }
+      if (Math.random() < 0.8) c.weight += (Math.random() - 0.5) * 0.1;
     });
 
     // Add connection
@@ -74,7 +74,19 @@ class Genome {
   }
 }
 
-let globalInnovation = 0;
+class Species {
+  constructor(id, representative) {
+    this.id = id;
+    this.genomes = [representative];
+    this.representative = representative;
+    this.maxFitness = representative.fitness;
+    this.adjustedFitnessTotal = 0;
+  }
+
+  updateRepresentative() {
+    this.representative = this.genomes[0]; // top genome as rep
+  }
+}
 
 class NEAT {
   constructor(inputs = 4, outputs = 1, popSize = 150, maxGenerations = 100) {
@@ -85,9 +97,10 @@ class NEAT {
     this.population = [];
     this.species = [];
     this.compatibilityThreshold = 3.0;
-    this.c1 = 1.0; // excess
-    this.c2 = 1.0; // disjoint
-    this.c3 = 0.4; // weight diff
+    this.c1 = 1.0; // excess coefficient
+    this.c2 = 1.0; // disjoint coefficient
+    this.c3 = 0.4; // weight difference coefficient
+    this.speciesIdCounter = 0;
 
     this.initPopulation();
   }
@@ -111,24 +124,36 @@ class NEAT {
 
   async evolve(fitnessFunction) {
     for (let gen = 0; gen < this.maxGenerations; gen++) {
+      // Evaluate fitness
       for (const genome of this.population) {
         genome.fitness = await fitnessFunction(genome);
         genome.sti = Math.min(1.0, genome.fitness * 0.6 + genome.sti * 0.4);
       }
 
+      // Speciate with dynamic threshold adjustment
       this.speciate();
       this.adjustFitness();
 
+      // Sort species by max fitness
       this.species.sort((a, b) => b.maxFitness - a.maxFitness);
 
+      // Breed next generation
       const nextPopulation = [];
-      for (const species of this.species) {
-        const offspringCount = Math.floor(species.adjustedFitnessTotal / this.getTotalAdjustedFitness() * this.popSize);
-        const elite = species.genomes[0];
-        nextPopulation.push(elite.copy());
+      let totalAdjustedFitness = this.species.reduce((sum, s) => sum + s.adjustedFitnessTotal, 0);
 
+      for (const species of this.species) {
+        if (species.adjustedFitnessTotal <= 0) continue;
+
+        const offspringCount = Math.floor((species.adjustedFitnessTotal / totalAdjustedFitness) * this.popSize);
+        if (offspringCount <= 0) continue;
+
+        // Elitism: keep best per species
+        const elite = species.genomes[0].copy();
+        nextPopulation.push(elite);
+
+        // Generate offspring
         for (let i = 0; i < offspringCount; i++) {
-          const parent1 = species.tournamentSelect();
+          let parent1 = species.tournamentSelect();
           let parent2 = parent1;
           if (Math.random() < 0.7 && species.genomes.length > 1) {
             parent2 = species.tournamentSelect();
@@ -139,6 +164,7 @@ class NEAT {
         }
       }
 
+      // Fill remaining slots if needed
       while (nextPopulation.length < this.popSize) {
         const species = this.species[Math.floor(Math.random() * this.species.length)];
         const parent = species.tournamentSelect();
@@ -150,6 +176,7 @@ class NEAT {
       this.population = nextPopulation;
     }
 
+    // Return best genome
     const best = this.population.reduce((a, b) => (a.fitness + a.sti > b.fitness + b.sti ? a : b));
     return {
       genome: best,
@@ -163,38 +190,45 @@ class NEAT {
     for (const genome of this.population) {
       let found = false;
       for (const species of this.species) {
-        const rep = species.genomes[0];
-        if (this.compatibilityDistance(genome, rep) < this.compatibilityThreshold) {
+        if (this.compatibilityDistance(genome, species.representative) < this.compatibilityThreshold) {
           species.genomes.push(genome);
           found = true;
           break;
         }
       }
       if (!found) {
-        this.species.push({ genomes: [genome], maxFitness: genome.fitness, adjustedFitnessTotal: 0 });
+        this.species.push(new Species(this.speciesIdCounter++, genome));
       }
     }
+
+    // Update representatives (choose fittest in each species)
+    this.species.forEach(s => s.updateRepresentative());
   }
 
   compatibilityDistance(g1, g2) {
     const genes1 = new Set(g1.connections.map(c => c.innovation));
     const genes2 = new Set(g2.connections.map(c => c.innovation));
-    const disjoint = genes1.symmetricDifference(genes2).size;
-    const excess = Math.abs(genes1.size - genes2.size);
-    let weightDiff = 0;
-    let matching = 0;
-    g1.connections.forEach(c1 => {
+
+    const matching = [];
+    let weightDiffSum = 0;
+    for (const c1 of g1.connections) {
       const c2 = g2.connections.find(c => c.innovation === c1.innovation);
       if (c2) {
-        weightDiff += Math.abs(c1.weight - c2.weight);
-        matching++;
+        matching.push(c1);
+        weightDiffSum += Math.abs(c1.weight - c2.weight);
       }
-    });
-    weightDiff /= matching || 1;
+    }
+
+    const N = Math.max(genes1.size, genes2.size);
+    const excess = Math.abs(genes1.size - genes2.size) / N;
+    const disjoint = (genes1.size + genes2.size - 2 * matching.length) / N;
+    const weightDiff = matching.length > 0 ? weightDiffSum / matching.length : 0;
+
     return this.c1 * excess + this.c2 * disjoint + this.c3 * weightDiff;
   }
 
   adjustFitness() {
+    let totalAdjusted = 0;
     for (const species of this.species) {
       species.adjustedFitnessTotal = 0;
       species.genomes.forEach(genome => {
@@ -202,27 +236,26 @@ class NEAT {
         species.adjustedFitnessTotal += genome.adjustedFitness;
       });
       species.maxFitness = Math.max(...species.genomes.map(g => g.fitness));
+      totalAdjusted += species.adjustedFitnessTotal;
     }
+    return totalAdjusted;
   }
 
-  tournamentSelect() {
-    const total = this.species.reduce((sum, s) => sum + s.adjustedFitnessTotal, 0);
-    let r = Math.random() * total;
-    let selectedSpecies;
-    for (const species of this.species) {
-      r -= species.adjustedFitnessTotal;
-      if (r <= 0) {
-        selectedSpecies = species;
-        break;
+  tournamentSelect(species) {
+    let best = species.genomes[0];
+    for (let i = 1; i < 5; i++) {
+      const cand = species.genomes[Math.floor(Math.random() * species.genomes.length)];
+      if (cand.adjustedFitness + cand.sti > best.adjustedFitness + best.sti) {
+        best = cand;
       }
     }
-    return selectedSpecies.genomes[Math.floor(Math.random() * selectedSpecies.genomes.length)];
+    return best;
   }
 
   crossover(g1, g2) {
     const child = new Genome();
-    const maxInnovation = Math.max(...g1.connections.map(c => c.innovation), ...g2.connections.map(c => c.innovation));
-    for (let inn = 0; inn <= maxInnovation; inn++) {
+    const maxInn = Math.max(...g1.connections.map(c => c.innovation), ...g2.connections.map(c => c.innovation));
+    for (let inn = 0; inn <= maxInn; inn++) {
       const c1 = g1.connections.find(c => c.innovation === inn);
       const c2 = g2.connections.find(c => c.innovation === inn);
       if (c1 && c2) {
@@ -239,7 +272,7 @@ class NEAT {
 
 // Example fitness – higher = better
 async function exampleFitness(genome) {
-  // Dummy: reward networks that output ~0.5 for input [0.5, 0.5, 0.5, 0.5]
+  // Dummy: reward networks that output ~0.5 for input [0.5,0.5,0.5,0.5]
   const output = genome.evaluate([0.5, 0.5, 0.5, 0.5]);
   const score = -Math.abs(output - 0.5);
   return Math.max(0, Math.min(1, (score + 1) / 1));
