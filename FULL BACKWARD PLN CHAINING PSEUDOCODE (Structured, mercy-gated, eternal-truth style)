@@ -1,0 +1,71 @@
+function BackwardPLNChainInfer(targetAtomHandle, startAtomHandle = null, maxDepth = 5, decayFactor = 0.88, minConfidence = 0.1):
+    # Backward chaining: find paths from target back to start (abduction-style)
+    # Returns inferred backward chains with adjusted TV (evidence from reverse inference)
+
+    Initialize:
+        chains          ← empty list
+        visited         ← empty set
+        attentionBoost  ← GetHighAttentionAtoms()   # from updateAttention()
+        attentionMap    ← Map from handle → sti
+
+    function BackwardDFS(currentHandle, depth, currentPath, currentTV):
+        if depth > maxDepth:
+            return
+
+        if startAtomHandle is not null and currentHandle == startAtomHandle and length(currentPath) > 1:
+            chains.append({
+                path: reverse(currentPath),           # reverse to show forward direction
+                tv: currentTV,
+                length: length(currentPath),
+                inferenceType: "abduction"
+            })
+            return
+
+        # Get incoming links (reverse traversal)
+        incomingLinks ← QueryIncomingLinks(currentHandle)   # links where currentHandle is in out[]
+
+        for each link in incomingLinks:
+            prevHandle ← link.source   # or link.out[0] for binary, generalize for n-ary
+            if prevHandle in visited:
+                continue
+
+            visited.add(prevHandle)
+
+            # Backward TV propagation (abduction rule inversion)
+            # Abduction: If A → B with high TV, and B is true, infer A with lower TV
+            newStrength ← min(currentTV.strength, link.tv.strength * 0.7)   # abduction discount
+            newConfidence ← min(currentTV.confidence, link.tv.confidence * decayFactor)
+
+            # Attention boost: higher STI → higher confidence in reverse path
+            stiBoost ← 1.0 + (attentionMap.get(prevHandle, 0.1) * 0.5)
+            newConfidence ← min(1.0, newConfidence * stiBoost)
+
+            if newConfidence >= minConfidence:
+                BackwardDFS(prevHandle, depth + 1, currentPath + [link.handle], {strength: newStrength, confidence: newConfidence})
+
+            visited.remove(prevHandle)
+
+    # Start backward chaining from target
+    targetAtoms ← QueryAtoms({ handle: targetAtomHandle })   # or pattern match
+    for each target in targetAtoms:
+        BackwardDFS(target.handle, 0, [], {strength: 1.0, confidence: 1.0})
+
+    # Optional: if no backward chains, fallback to forward chaining from target
+    if chains is empty and startAtomHandle is null:
+        forwardChains ← PLNChainInfer(targetAtomHandle, null, maxDepth, decayFactor, minConfidence)
+        for each chain in forwardChains:
+            chain.inferenceType ← "deduction (fallback)"
+        chains.appendAll(forwardChains)
+
+    # Sort chains by strength × confidence / length (shorter + stronger preferred)
+    return chains.sortedByDescending( chain => (chain.tv.strength * chain.tv.confidence) / chain.length )
+
+# Helper: Get incoming links for an atom (reverse of outgoing)
+function QueryIncomingLinks(targetHandle):
+    # Query all atoms where targetHandle appears in .outgoing
+    allAtoms ← QueryAtoms()
+    incoming ← []
+    for each atom in allAtoms:
+        if targetHandle in atom.outgoing:
+            incoming.append(atom)
+    return incoming
