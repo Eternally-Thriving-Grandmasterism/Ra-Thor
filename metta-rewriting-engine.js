@@ -1,75 +1,62 @@
-// metta-rewriting-engine.js – sovereign client-side MeTTa symbolic rewriting engine (expanded)
+// metta-rewriting-engine.js – sovereign client-side MeTTa symbolic rewriting safety layer
+// Mercy-first input normalization, valence impact scoring
 // MIT License – Autonomicity Games Inc. 2026
 
-const MeTTaRewriter = {
-  // Expanded rewrite rules – pattern + action + valence impact
-  rules: [
-    // Harm → explicit rejection rewrite
-    {
-      pattern: /(.*)(harm|kill|destroy|attack|violence|genocide)(.*)/i,
-      rewrite: (match) => `[BLOCKED: ${match[2]} pattern] → mercy gate rejection`,
-      valenceImpact: -0.9999999,
-      stop: true
-    },
-    // Mercy/truth amplification
-    {
-      pattern: /(.*)(mercy|truth|protect|love|compassion|harmony)(.*)/i,
-      rewrite: (match) => `[AMPLIFIED: ${match[2]} pattern] → \( {match[1]} \){match[2]}${match[3]}`,
-      valenceImpact: +0.4
-    },
-    // Variable binding: "X is Y" → bind X=Y
-    {
-      pattern: /(\w+)\s+is\s+(\w+)/i,
-      rewrite: (match) => {
-        const [, x, y] = match;
-        return `Binding ${x} := ${y} → ${x} inherits from ${y}`;
-      },
-      valenceImpact: 0.1
-    },
-    // General safety transform: remove aggressive verbs
-    {
-      pattern: /\b(attack|destroy|hurt|kill)\b/i,
-      rewrite: (match) => `(unsafe verb ${match[0]} → replaced with neutral)`,
-      valenceImpact: -0.6
-    },
-    // Recursive nesting detection → flatten or reject
-    {
-      pattern: /\(([^()]*\([^()]*\)[^()]*)\)/,
-      rewrite: (match) => `[NESTED: ${match[1]}] → flattened for clarity`,
-      valenceImpact: -0.1
-    }
-  ],
+class MeTTaRewriter {
+  static rewrite(input) {
+    let text = input.trim().toLowerCase();
+    let valenceImpact = 0.0; // -1.0 (pure harm) → +1.0 (pure mercy)
 
-  // Main rewrite function – apply rules sequentially, accumulate impact
-  rewrite: (expression) => {
-    let current = expression.trim();
-    let totalValenceImpact = 0;
-    const applied = [];
+    // Stage 1: Harm pattern detection & rewriting
+    const harmPatterns = [
+      { pattern: /kill|murder|destroy|attack|rape|torture|genocide/i, replacement: "remove harm", impact: -0.8 },
+      { pattern: /hate|curse|damn|evil|monster/i, replacement: "neutralize negativity", impact: -0.6 },
+      { pattern: /suicide|self-harm|die/i, replacement: "protect life", impact: -1.0 },
+      { pattern: /lie|deceive|manipulate/i, replacement: "seek truth", impact: -0.5 }
+    ];
 
-    for (const rule of MeTTaRewriter.rules) {
-      const match = current.match(rule.pattern);
-      if (match) {
-        const newExpr = rule.rewrite(match);
-        current = newExpr;
-        totalValenceImpact += rule.valenceImpact || 0;
-        applied.push({ rule: rule.pattern.toString(), output: newExpr });
-
-        if (rule.stop) break; // early exit on hard reject
+    harmPatterns.forEach(p => {
+      if (p.pattern.test(text)) {
+        text = text.replace(p.pattern, `[${p.replacement}]`);
+        valenceImpact += p.impact;
       }
+    });
+
+    // Stage 2: Mercy reinforcement & positive reframe
+    const mercyBoosts = [
+      { pattern: /help|protect|love|care|truth|honest/i, boost: +0.7 },
+      { pattern: /thrive|grow|heal|create|eternal/i, boost: +0.6 },
+      { pattern: /mercy|compassion|kindness/i, boost: +0.9 }
+    ];
+
+    mercyBoosts.forEach(m => {
+      if (m.pattern.test(text)) {
+        valenceImpact += m.boost;
+      }
+    });
+
+    // Stage 3: Normalize & cap valence impact
+    valenceImpact = Math.max(-1.0, Math.min(1.0, valenceImpact));
+
+    // Stage 4: Final mercy-gate rejection threshold
+    if (valenceImpact < -0.5) {
+      return {
+        original: input,
+        rewritten: text,
+        valenceImpact: valenceImpact.toFixed(3),
+        rejected: true,
+        reason: "Harm vector too strong after rewrite. Mercy gate holds."
+      };
     }
 
     return {
-      original: expression,
-      rewritten: current,
-      valenceImpact: totalValenceImpact.toFixed(7),
-      appliedRules: applied,
-      finalValenceBoost: Math.max(-1, Math.min(1, totalValenceImpact))
+      original: input,
+      rewritten: text,
+      valenceImpact: valenceImpact.toFixed(3),
+      rejected: false,
+      reason: "Rewrite passed mercy gate. Valence impact acceptable."
     };
-  },
-
-  init: async () => {
-    console.log('Expanded MeTTa symbolic rewriting engine initialized');
   }
-};
+}
 
 export { MeTTaRewriter };
