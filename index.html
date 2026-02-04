@@ -163,7 +163,7 @@
       };
     }
 
-    // Chat logic with MOSES evolutionary learning trigger
+    // Chat logic with enhanced MOSES trigger
     async function sendChat() {
       const text = document.getElementById('chat-input').value.trim();
       if (!text) return;
@@ -179,10 +179,10 @@
       document.getElementById('chat-input').value = '';
 
       // MOSES trigger on keywords
-      if (text.toLowerCase().includes("evolve") || text.toLowerCase().includes("moses")) {
-        const moses = new MosesEngine(50, 30);
+      if (text.toLowerCase().includes("moses") || text.toLowerCase().includes("evolve program")) {
+        const moses = new MosesEngine(60, 40);
         const evolved = await moses.evolve(exampleFitness);
-        addChatMessage('rathor', `MOSES evolved program: ${evolved.program} (fitness ${evolved.fitness}, attention ${evolved.sti})`);
+        addChatMessage('rathor', `MOSES evolved program: ${evolved.program}\nFitness: ${evolved.fitness}\nValence impact: ${evolved.valenceImpact}\nComplexity: ${evolved.complexity}\nAttention: ${evolved.sti}`);
       } else {
         const reply = `NEXi + MeTTa + Atomese + Hypergraph + MOSES approved: "${text}". Truth echoes.`;
         addChatMessage('rathor', reply);
