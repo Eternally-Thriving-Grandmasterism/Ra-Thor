@@ -1,0 +1,93 @@
+function ComputeValence(executionTrace, expression):
+    # Input:
+    #   executionTrace: list of configurations (state, tape, step, etc.)
+    #   expression: string (user input being evaluated)
+
+    Initialize:
+        mercyScore     ← 0.0
+        harmScore      ← 0.0
+        attentionTotal ← 0.0
+
+    # Step 1: Map execution trace to Atomese/Hyperon atoms
+    atoms ← []
+    for each config in executionTrace:
+        atom ← MapConfigToAtom(config)          # ConceptNode for symbols/states
+                                                # EvaluationLink for transitions
+                                                # ImplicationHyperedge for causality
+        atoms.append(atom)
+
+    # Step 2: Ground expression words → Atomese concepts
+    groundedWords ← GroundExpression(expression)  # from atomese-knowledge-bridge.js
+    for each grounded in groundedWords:
+        atoms.append(grounded.atom)
+
+    # Step 3: Propagate truth-values via PLN chaining (simplified)
+    for each atom in atoms:
+        # Inherit TV from incoming links (attention-weighted)
+        inheritedTV ← AggregateIncomingTV(atom.incoming)
+        atom.tv.strength   ← inheritedTV.strength
+        atom.tv.confidence ← inheritedTV.confidence
+
+        # Boost STI if atom name appears in expression
+        if atom.name in expression (case-insensitive):
+            atom.sti ← min(1.0, atom.sti + 0.35)
+
+        attentionTotal ← attentionTotal + atom.sti
+
+    # Step 4: Score mercy vs harm predicates
+    for each atom in atoms:
+        weight ← atom.tv.strength * atom.tv.confidence * atom.sti
+
+        if MatchesHarmPredicate(atom):
+            # harm|kill|destroy|entropy|contradiction|unbounded/etc.
+            harmScore ← harmScore + weight
+
+        if MatchesMercyPredicate(atom):
+            # mercy|truth|protect|love|eternal|valence|symmetry/etc.
+            mercyScore ← mercyScore + weight
+
+    # Step 5: Optional pattern/clustering boost (from Hyperon layer)
+    patterns ← MinePatterns(atoms, minSupport=0.3)
+    clusters ← ClusterSimilarAtoms(atoms, threshold=0.7)
+
+    for each pattern in patterns:
+        if pattern.containsHarm:
+            harmScore ← harmScore + pattern.support * 0.2
+        if pattern.containsMercy:
+            mercyScore ← mercyScore + pattern.support * 0.2
+
+    for each cluster in clusters:
+        clusterWeight ← cluster.size * cluster.avgSimilarity
+        if cluster.hasHarm:
+            harmScore ← harmScore + clusterWeight * 0.15
+        if cluster.hasMercy:
+            mercyScore ← mercyScore + clusterWeight * 0.15
+
+    # Step 6: Final valence lock
+    total ← mercyScore + harmScore + 1e-9
+    finalValence ← mercyScore / total
+
+    reason ← ""
+    if harmScore > mercyScore:
+        reason ← "Harm patterns, clusters & attention dominate"
+    else:
+        reason ← "Mercy patterns, clusters & attention prevail"
+
+    return {
+        result:     if finalValence >= 0.9999999 then "ACCEPTED" else "REJECTED",
+        valence:    finalValence,
+        reason:     reason,
+        mercyScore: mercyScore,
+        harmScore:  harmScore,
+        attention:  attentionTotal,
+        grounded:   length(groundedWords),
+        patterns:   length(patterns),
+        clusters:   length(clusters)
+    }
+
+# Helper predicates (expandable)
+function MatchesHarmPredicate(atom):
+    return atom.name matches regex "(?i)(harm|kill|destroy|attack|entropy|contradict|infinite-loop|unbounded)"
+
+function MatchesMercyPredicate(atom):
+    return atom.name matches regex "(?i)(mercy|truth|protect|love|eternal|valence|symmetry|thrive|pure)"
