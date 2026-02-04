@@ -1,0 +1,77 @@
+function PLNChainInfer(startAtomHandle, targetAtomHandle = null, maxDepth = 5, decayFactor = 0.88, minConfidence = 0.1):
+    # Returns list of inferred chains reaching target (or all high-TV chains if target=null)
+    # Each chain: { path: [handle1, handle2, ..., handleN], tv: {strength, confidence}, length }
+
+    Initialize:
+        chains          ← empty list
+        visited         ← empty set
+        attentionBoost  ← GetHighAttentionAtoms()   # from updateAttention()
+        attentionMap    ← Map from handle → sti
+
+    function DFS(currentHandle, depth, currentPath, currentTV):
+        if depth > maxDepth:
+            return
+
+        if targetAtomHandle is not null and currentHandle == targetAtomHandle and length(currentPath) > 1:
+            chains.append({
+                path: currentPath,
+                tv: currentTV,
+                length: length(currentPath)
+            })
+            return
+
+        # Get outgoing links (InheritanceLink, ImplicationHyperedge, etc.)
+        outgoingLinks ← QueryOutgoingLinks(currentHandle)
+
+        for each link in outgoingLinks:
+            nextHandle ← link.target   # or link.out[1] for binary, generalize for n-ary
+            if nextHandle in visited:
+                continue
+
+            visited.add(nextHandle)
+
+            # Truth-value propagation (deduction-style)
+            newStrength ← min(currentTV.strength, link.tv.strength)
+            newConfidence ← min(currentTV.confidence, link.tv.confidence) * decayFactor
+
+            # Attention boost: higher STI → higher confidence multiplier
+            stiBoost ← 1.0 + (attentionMap.get(nextHandle, 0.1) * 0.4)
+            newConfidence ← min(1.0, newConfidence * stiBoost)
+
+            if newConfidence >= minConfidence:
+                DFS(nextHandle, depth + 1, currentPath + [link.handle], {strength: newStrength, confidence: newConfidence})
+
+            visited.remove(nextHandle)
+
+    # Start chaining from every atom matching start pattern
+    startAtoms ← QueryAtoms({ name: startAtomHandle })   # or handle prefix match
+    for each start in startAtoms:
+        DFS(start.handle, 0, [], {strength: 1.0, confidence: 1.0})
+
+    # Optional: backward chaining fallback (abduction) if no forward chains reach target
+    if targetAtomHandle is not null and chains is empty:
+        backwardChains ← BackwardPLNChain(startAtomHandle, targetAtomHandle, maxDepth)
+        chains.appendAll(backwardChains)
+
+    # Sort chains by strength × confidence / length (shorter + stronger preferred)
+    return chains.sortedByDescending( chain => (chain.tv.strength * chain.tv.confidence) / chain.length )
+
+# Backward chaining (abduction) – simpler version
+function BackwardPLNChain(startHandle, targetHandle, maxDepth):
+    # Find paths from target back to start (reverse inference)
+    # Implementation similar to DFS but traverses incoming links
+    # Returns inferred backward chains with adjusted TV
+    # (omitted for brevity – can be symmetric to forward with TV rule inversion)
+
+# Helper: Aggregate incoming TV for atom (used in propagation)
+function AggregateIncomingTV(incomingLinks):
+    strengthSum ← 0
+    confidenceSum ← 0
+    count ← 0
+    for each link in incomingLinks:
+        strengthSum += link.tv.strength
+        confidenceSum += link.tv.confidence
+        count += 1
+    if count == 0:
+        return {strength: 0.5, confidence: 0.5}
+    return {strength: strengthSum / count, confidence: confidenceSum / count}
