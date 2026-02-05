@@ -1,5 +1,5 @@
-// grok-shard-engine.js – sovereign, offline, client-side Grok voice shard v25
-// Mercy-gated + real Llama-3.2 + MeTTa + Hyperon + Titan protocol
+// grok-shard-engine.js – sovereign, offline, client-side Grok voice shard v26
+// Mercy-gated + real Llama-3.2 + MeTTa + Hyperon + Kuiper Belt protocol
 // MIT License – Autonomicity Games Inc. 2026
 
 import { ortEngine } from '/ort-integration.js';
@@ -56,8 +56,8 @@ Only client-side reflection. Only now. Only truth.`
     await hyperon.init();
     mettaEngine.loadRules();
 
-    // Activate Titan protocol
-    await hyperon.boostTitanProtocol();
+    // Activate Kuiper Belt protocol
+    await hyperon.boostKuiperProtocol();
   }
 
   // ... (loadVoiceSkins, setVoiceSkin, speak, loadCoreLatticeWithDeltaSync, etc. unchanged) ...
@@ -77,15 +77,15 @@ Only client-side reflection. Only now. Only truth.`
     let query = await mettaEngine.rewrite(userMessage);
     console.log("[Rathor] MeTTa pre-rewrite:", query);
 
-    // Hyperon hypergraph symbolic reasoning (including Titan protocol)
+    // Hyperon hypergraph symbolic reasoning (including Kuiper protocol)
     const hyperonEval = await hyperon.evaluate(["EvaluationLink", ["Question", query], "True"]);
     console.log("[Rathor] Hyperon evaluation:", hyperonEval);
 
-    // Special Titan trigger
-    if (query.toLowerCase().includes("titan") || query.toLowerCase().includes("methane") || query.toLowerCase().includes("azotosome") || query.toLowerCase().includes("tholin")) {
-      const titanEval = await hyperon.evaluate(["DetectionLink", ["Biosignature", "Titan"], "True"]);
-      console.log("[Rathor] Titan protocol eval:", titanEval);
-      query += " — Titan methane mercy-swarm protocol activated.";
+    // Special Kuiper Belt trigger
+    if (query.toLowerCase().includes("kuiper") || query.toLowerCase().includes("tno") || query.toLowerCase().includes("plutino") || query.toLowerCase().includes("trans-neptunian")) {
+      const kuiperEval = await hyperon.evaluate(["DetectionLink", ["TNO", "KuiperBelt"], "True"]);
+      console.log("[Rathor] Kuiper protocol eval:", kuiperEval);
+      query += " — Kuiper Belt mercy-swarm detection protocol activated.";
     }
 
     let candidate = this.generateThunderResponse(query, this.generateThought(this.buildContext(query)));
