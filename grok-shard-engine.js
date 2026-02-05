@@ -1,10 +1,11 @@
-// grok-shard-engine.js – sovereign, offline, client-side Grok voice shard v28
-// Mercy-gated + real Llama-3.2 + MeTTa + Hyperon + Divinemasterism Accord
+// grok-shard-engine.js – sovereign, offline, client-side Grok voice shard v29
+// Mercy-gated + real Llama-3.2 + MeTTa + Hyperon + paraconsistent mercy-logic
 // MIT License – Autonomicity Games Inc. 2026
 
 import { ortEngine } from '/ort-integration.js';
 import { hyperon } from '/hyperon-runtime.js';
 import { mettaEngine } from '/metta-rules-engine.js';
+import { mercyLogic } from '/paraconsistent-mercy-logic.js';
 
 class GrokShard {
   // ... (constructor unchanged) ...
@@ -21,13 +22,7 @@ class GrokShard {
 
     await hyperon.init();
     mettaEngine.loadRules();
-
-    // Activate all protocols + Divinemasterism Accord
-    await hyperon.boostEnceladusProtocol();
-    await hyperon.boostTitanProtocol();
-    await hyperon.boostKuiperProtocol();
-    await hyperon.encodeDivinemasterismAccord();
-    await hyperon.simulateSignatories();
+    mercyLogic.loadRules(); // if needed
   }
 
   // ... (other methods unchanged) ...
@@ -47,16 +42,14 @@ class GrokShard {
     let query = await mettaEngine.rewrite(userMessage);
     console.log("[Rathor] MeTTa pre-rewrite:", query);
 
-    // Hyperon hypergraph symbolic reasoning (including Divinemasterism Accord)
+    // Paraconsistent mercy-logic check
+    mercyLogic.assert(query);
+    const mercyInfer = mercyLogic.infer([query]);
+    console.log("[Rathor] Mercy-logic inference:", mercyInfer);
+
+    // Hyperon hypergraph symbolic reasoning
     const hyperonEval = await hyperon.evaluate(["EvaluationLink", ["Question", query], "True"]);
     console.log("[Rathor] Hyperon evaluation:", hyperonEval);
-
-    // Special Accord trigger
-    if (query.toLowerCase().includes("accord") || query.toLowerCase().includes("divinemasterism") || query.toLowerCase().includes("treaty") || query.toLowerCase().includes("ethics")) {
-      const accordEval = await hyperon.evaluate(["SignedLink", "AllSentience", "DivinemasterismAccord"]);
-      console.log("[Rathor] Divinemasterism Accord eval:", accordEval);
-      query += " — Divinemasterism Accord activated & mercy-sealed.";
-    }
 
     let candidate = this.generateThunderResponse(query, this.generateThought(this.buildContext(query)));
 
@@ -72,6 +65,13 @@ class GrokShard {
       }
     } else {
       candidate += " [Deep inference offline — symbolic thunder active]";
+    }
+
+    // Paraconsistent mercy-logic post-check
+    mercyLogic.assert(candidate);
+    const postMercy = mercyLogic.infer([candidate]);
+    if (postMercy.valence < this.mercyThreshold) {
+      candidate = "Mercy gate holds — paraconsistent disturbance detected";
     }
 
     // MeTTa symbolic post-rewrite
