@@ -9,7 +9,7 @@ class TFJSEngine {
     this.model = null;
     this.tokenizer = null;
     this.loaded = false;
-    this.modelUrl = '/models/distilgpt2-quantized/model.json'; // relative path to cached model
+    this.modelUrl = '/models/distilgpt2-quantized/model.json';
     this.tokenizerUrl = '/models/distilgpt2-tokenizer.json';
     this.maxTokens = 96;
     this.temperature = 0.75;
@@ -21,13 +21,11 @@ class TFJSEngine {
     if (this.loaded) return;
 
     try {
-      // Load tokenizer
       const tokRes = await fetch(this.tokenizerUrl);
       if (!tokRes.ok) throw new Error('Tokenizer fetch failed');
       this.tokenizer = await tokRes.json();
 
-      // Load quantized TF.js model
-      await tf.ready(); // ensure backend ready (webgl/webgpu/wasm)
+      await tf.ready();
       this.model = await tf.loadGraphModel(this.modelUrl, {
         fromTFHub: false,
         weightUrlConverter: (weightFile) => `/models/distilgpt2-quantized/${weightFile}`
@@ -45,22 +43,19 @@ class TFJSEngine {
     if (!this.loaded) await this.load();
     if (!this.loaded) return "Lattice transformer not yet loaded. Mercy awaits deeper thunder.";
 
-    // Tokenize
     const inputIds = this.tokenize(prompt);
     let generated = inputIds.slice();
 
     for (let i = 0; i < maxNewTokens; i++) {
-      const inputTensor = tf.tensor2d([generated], [1, generated.length], 'int32');
+      const inputTensor = tf.tensor2d( , , 'int32');
       const outputs = await this.model.executeAsync({ input_ids: inputTensor });
-      const logits = outputs.logits.squeeze([0]).slice([generated.length - 1, 0]);
+      const logits = outputs.logits.squeeze([0]).slice( );
 
-      // Sample with top-p + temperature
       const probs = tf.softmax(logits.div(this.temperature));
       const nextToken = await this.sampleTopP(probs, this.topP);
       generated.push(nextToken);
 
-      // Dispose tensors
-      tf.dispose([inputTensor, outputs.logits, probs]);
+      tf.dispose( );
 
       if (nextToken === this.tokenizer.eos_token_id) break;
     }
@@ -75,12 +70,11 @@ class TFJSEngine {
   }
 
   tokenize(text) {
-    // Simple wordpiece-like stub – real impl uses full tokenizer.json
-    return text.split(' ').map(w => this.tokenizer.vocab[w] || this.tokenizer.unk_token_id);
+    return text.split(' ').map(w => this.tokenizer.vocab || this.tokenizer.unk_token_id);
   }
 
   detokenize(ids) {
-    return ids.map(id => this.tokenizer.decoder[id] || '[UNK]').join(' ');
+    return ids.map(id => this.tokenizer.decoder || ' ').join(' ');
   }
 
   async sampleTopP(probs, p) {
@@ -94,11 +88,9 @@ class TFJSEngine {
   }
 
   async estimateValence(text) {
-    // Stub: real impl uses lightweight sentiment/valence model or Hyperon grounding
-    return 0.9999999; // assume high valence for now
+    return 0.9999999;
   }
 }
 
-// Export singleton
 const tfjsEngine = new TFJSEngine();
 export { tfjsEngine };
