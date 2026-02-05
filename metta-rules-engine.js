@@ -10,7 +10,7 @@ class MeTTaEngine {
   }
 
   loadRules() {
-    // Rules can be loaded from lattice .bin later
+    // Real rules can be loaded from lattice .bin later
     this.rules = [
       {
         name: "mercy-purity",
@@ -84,6 +84,156 @@ class MeTTaEngine {
     }
 
     // Swap if expr is variable
+    if (this.isVariable(expr)) {
+      return this.unify(expr, pattern, bindings, typeConstraints);
+    }
+
+    // Both expressions (lists)
+    if (Array.isArray(pattern) && Array.isArray(expr)) {
+      if (pattern.length !== expr.length) return null;
+
+      let currentBindings = { ...bindings };
+      for (let i = 0; i < pattern.length; i++) {
+        const newBindings = this.unify(pattern[i], expr[i], currentBindings, typeConstraints);
+        if (!newBindings) return null;
+        currentBindings = newBindings;
+      }
+      return currentBindings;
+    }
+
+    return null;
+  }
+
+  occursCheck(varName, expr, bindings) {
+    if (this.isVariable(expr)) {
+      const name = expr.slice(1).split(':')[0];
+      if (name === varName) return true;
+      if (name in bindings) {
+        return this.occursCheck(varName, bindings[name], bindings);
+      }
+      return false;
+    }
+    if (Array.isArray(expr)) {
+      return expr.some(e => this.occursCheck(varName, e, bindings));
+    }
+    return false;
+  }
+
+  isVariable(x) {
+    return typeof x === 'string' && x.startsWith('$') && x.length > 1;
+  }
+
+  satisfiesType(expr, type) {
+    // Basic type checking — expand later
+    if (type === 'ConceptNode') return typeof expr === 'string' && !this.isVariable(expr);
+    if (type === 'InheritanceLink') return Array.isArray(expr) && expr[0] === 'InheritanceLink';
+    return true; // default allow
+  }
+
+  applyBindings(expr, bindings) {
+    if (this.isVariable(expr)) {
+      const varName = expr.slice(1).split(':')[0];
+      return varName in bindings ? bindings[varName] : expr;
+    }
+    if (Array.isArray(expr)) {
+      return expr.map(e => this.applyBindings(e, bindings));
+    }
+    return expr;
+  }
+
+  // ────────────────────────────────────────────────────────────────
+  // Rewrite with unification & backtracking
+  // ────────────────────────────────────────────────────────────────
+
+  async rewrite(input) {
+    // Input can be string or expression tree
+    let expr = typeof input === 'string' ? this.parse(input) : input;
+
+    let changed = true;
+    let iterations = 0;
+
+    while (changed && iterations < this.maxRewriteIterations) {
+      changed = false;
+      iterations++;
+
+      for (const rule of this.rules) {
+        const bindings = this.unify(rule.pattern, expr);
+        if (bindings) {
+          const newExpr = this.applyBindings(rule.rewrite, bindings);
+          const valence = this.estimateValence(newExpr);
+          if (valence >= this.mercyThreshold) {
+            expr = newExpr;
+            changed = true;
+            console.log("[MeTTa] Unified & rewritten:", rule.name, bindings);
+            break; // apply one rule per iteration
+          } else {
+            console.warn("[MeTTa] Rule rejected by mercy gate:", rule.name, valence);
+          }
+        }
+      }
+    }
+
+    return typeof input === 'string' ? this.stringify(expr) : expr;
+  }
+
+  // Basic parser for nested expressions
+  parse(str) {
+    str = str.trim();
+    if (!str.startsWith('(') || !str.endsWith(')')) return str;
+
+    const stack = [[]];
+    let current = stack[0];
+    let token = '';
+    let i = 1; // skip opening (
+
+    while (i < str.length - 1) {
+      const c = str[i];
+
+      if (c === '(') {
+        const newList = [];
+        current.push(newList);
+        stack.push(newList);
+        current = newList;
+      } else if (c === ')') {
+        stack.pop();
+        current = stack[stack.length - 1];
+      } else if (c === ' ') {
+        if (token) {
+          current.push(token);
+          token = '';
+        }
+      } else {
+        token += c;
+      }
+      i++;
+    }
+
+    if (token) current.push(token);
+    return stack[0];
+  }
+
+  stringify(expr) {
+    if (Array.isArray(expr)) {
+      return '(' + expr.map(this.stringify.bind(this)).join(' ') + ')';
+    }
+    return expr;
+  }
+
+  estimateValence(expr) {
+    // Traverse expression tree
+    let score = 1.0;
+    if (Array.isArray(expr)) {
+      if (expr.includes("Reject") || expr.includes("harm")) score *= 0.1;
+      if (expr.includes("HighValence") || expr.includes("Mercy") || expr.includes("Abundance")) score *= 1.2;
+      expr.forEach(e => { score *= this.estimateValence(e); });
+      score /= expr.length || 1;
+    }
+    return Math.min(1.0, Math.max(0.0, score));
+  }
+}
+
+const mettaEngine = new MeTTaEngine();
+export { mettaEngine };    // Swap if expr is variable
     if (this.isVariable(expr)) {
       return this.unify(expr, pattern, bindings, typeConstraints);
     }
