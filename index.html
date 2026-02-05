@@ -2,90 +2,39 @@
 <html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="description" content="Rathor: Mercy-gated symbolic AGI lattice — eternal thriving through valence-locked truth. Powered by AlphaProMega Air Foundation." />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Rathor — Mercy Strikes First</title>
+  <!-- ... existing head content ... -->
+</head>
+<body>
+  <!-- ... existing body content ... -->
 
-  <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Inter:wght@400;500;700&display=swap" />
+  <script type="module">
+    // ... existing imports ...
 
-  <!-- Favicons -->
-  <link rel="icon" type="image/jpeg" sizes="192x192" href="/icons/thunder-favicon-192.jpg" />
-  <link rel="icon" type="image/jpeg" sizes="512x512" href="/icons/thunder-favicon-512.jpg" />
-  <link rel="apple-touch-icon" sizes="192x192" href="/icons/thunder-favicon-192.jpg" />
+    // Lattice loading on boot
+    async function bootLattice() {
+      const loadingDiv = document.createElement('div');
+      loadingDiv.id = 'lattice-loading';
+      loadingDiv.textContent = 'Thunder gathering lattice...';
+      document.body.appendChild(loadingDiv);
 
-  <!-- PWA manifest -->
-  <link rel="manifest" href="/manifest.json" />
-  <meta name="theme-color" content="#ffaa00" />
-  <meta name="mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+      try {
+        await grokShard.init();
+        loadingDiv.textContent = 'Lattice loaded. Mercy gates open.';
+        setTimeout(() => loadingDiv.remove(), 2000);
+      } catch (err) {
+        loadingDiv.textContent = 'Lattice load error. Using fallback.';
+        console.error(err);
+      }
+    }
 
-  <!-- All local bridges -->
-  <script type="module" src="/metta-rewriting-engine.js"></script>
-  <script type="module" src="/atomese-knowledge-bridge.js"></script>
-  <script type="module" src="/hyperon-reasoning-layer.js"></script>
-  <script type="module" src="/grok-shard-engine.js"></script>
-  <script type="module" src="/neat-neuroevolution-engine.js"></script>
-  <script type="module" src="/ruskode-firmware.js"></script>
-  <script type="module" src="/td3-robust-flight.js"></script>
+    bootLattice();
 
-  <style>
-    :root {
-      --thunder-gold: #ffaa00;
-      --thunder-dark: #000000;
-      --thunder-glow: #ff8800;
-      --text-primary: #ffffff;
-      --text-secondary: #cccccc;
-      --bg-primary: #0a0a0a;
-      --bg-secondary: #111111;
-      --border: #222222;
-      --focus: #00ffff;
-    }
-    * { margin:0; padding:0; box-sizing:border-box; }
-    body {
-      background:var(--bg-primary);
-      color:var(--text-primary);
-      font-family:'Inter', system-ui, sans-serif;
-      min-height:100vh;
-      display:flex;
-      flex-direction:column;
-      line-height:1.6;
-    }
-    header {
-      position:sticky;
-      top:0;
-      backdrop-filter:blur(16px);
-      background:rgba(10,10,10,0.85);
-      border-bottom:1px solid var(--border);
-      padding:1rem 5%;
-      z-index:1000;
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-    }
-    .logo {
-      font-family:'Orbitron', monospace;
-      font-size:1.8rem;
-      font-weight:700;
-      color:var(--thunder-gold);
-      letter-spacing:1px;
-    }
-    nav ul {
-      display:flex;
-      gap:2rem;
-      list-style:none;
-    }
-    nav a {
-      color:var(--text-secondary);
-      text-decoration:none;
-      font-weight:500;
-      transition:0.3s;
-    }
-    nav a:hover, nav a:focus {
-      color:var(--thunder-gold);
+    // ... rest of script (chat logic, etc.) unchanged ...
+  </script>
+</body>
+</html>      color:var(--thunder-gold);
       text-shadow:0 0 10px rgba(255,170,0,0.5);
     }
     .hamburger {
