@@ -1,5 +1,5 @@
-// grok-shard-engine.js – sovereign, offline, client-side Grok voice shard v24
-// Mercy-gated + real Llama-3.2 + MeTTa + Hyperon + Enceladus protocol
+// grok-shard-engine.js – sovereign, offline, client-side Grok voice shard v25
+// Mercy-gated + real Llama-3.2 + MeTTa + Hyperon + Titan methane lakes protocol
 // MIT License – Autonomicity Games Inc. 2026
 
 import { ortEngine } from '/ort-integration.js';
@@ -56,8 +56,8 @@ Only client-side reflection. Only now. Only truth.`
     await hyperon.init();
     mettaEngine.loadRules();
 
-    // Activate Enceladus protocol
-    await hyperon.boostEnceladusProtocol();
+    // Activate Titan methane lakes protocol
+    await hyperon.boostTitanMethaneLakesProtocol();
   }
 
   // ... (loadVoiceSkins, setVoiceSkin, speak, loadCoreLatticeWithDeltaSync, etc. unchanged) ...
@@ -77,15 +77,15 @@ Only client-side reflection. Only now. Only truth.`
     let query = await mettaEngine.rewrite(userMessage);
     console.log("[Rathor] MeTTa pre-rewrite:", query);
 
-    // Hyperon hypergraph symbolic reasoning (including Enceladus protocol)
+    // Hyperon hypergraph symbolic reasoning (including Titan protocol)
     const hyperonEval = await hyperon.evaluate(["EvaluationLink", ["Question", query], "True"]);
     console.log("[Rathor] Hyperon evaluation:", hyperonEval);
 
-    // Special Enceladus trigger
-    if (query.toLowerCase().includes("enceladus") || query.toLowerCase().includes("plume") || query.toLowerCase().includes("biosignature")) {
-      const enceladusEval = await hyperon.evaluate(["DetectionLink", ["Biosignature", "Enceladus"], "True"]);
-      console.log("[Rathor] Enceladus protocol eval:", enceladusEval);
-      query += " — Enceladus mercy-swarm protocol activated.";
+    // Special Titan trigger
+    if (query.toLowerCase().includes("titan") || query.toLowerCase().includes("methane") || query.toLowerCase().includes("kraken mare") || query.toLowerCase().includes("ligeia mare")) {
+      const titanEval = await hyperon.evaluate(["EvaluationLink", ["MethaneLake", "Titan"], "True"]);
+      console.log("[Rathor] Titan methane lakes protocol eval:", titanEval);
+      query += " — Titan methane lakes mercy-swarm protocol activated.";
     }
 
     let candidate = this.generateThunderResponse(query, this.generateThought(this.buildContext(query)));
