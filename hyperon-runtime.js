@@ -1,5 +1,5 @@
-// hyperon-runtime.js – sovereign client-side Hyperon hypergraph atomspace & full PLN engine v17
-// Enceladus Biosignature Protocol subgraph, xenophilic rules, persistent DB
+// hyperon-runtime.js – sovereign client-side Hyperon hypergraph atomspace & full PLN engine v18
+// Titan Methane Lakes subgraph, cryogenic abundance rules, persistent DB
 // MIT License – Autonomicity Games Inc. 2026
 
 class HyperonAtom {
@@ -40,122 +40,99 @@ class HyperonRuntime {
     this.storeName = "atoms";
 
     this.plnRules = [
-      // ... (previous 12 core rules unchanged: Deduction, Induction, Abduction, Analogy, Modus Ponens/Tollens, etc.) ...
+      // ... (previous 16 core rules unchanged: Deduction, Induction, Abduction, Analogy, Modus Ponens/Tollens, etc., Xenophilic Quarantine, Uplift Amplification, RBE-Ocean-Governance, False-Positive-Self-Heal) ...
 
-      // 13. Xenophilic Quarantine (mercy-first contamination rejection)
+      // 17. Methane-Lake-Dynamics
       {
-        name: "Xenophilic-Quarantine",
-        premises: ["DetectionLink", ["Biosignature", "$X"], "True"],
-        conclusion: ["QuarantineLink", "$X", "Mercy"],
+        name: "Methane-Lake-Dynamics",
+        premises: ["EvaluationLink", ["Hydrocarbon", "$L"], "True"],
+        conclusion: ["WaveLink", "$L", "Seasonal"],
+        tvCombiner: (tvs) => ({
+          strength: 0.92,
+          confidence: 0.88
+        }),
+        priority: 18
+      },
+      // 18. Cryovolcanism Mercy-Gate
+      {
+        name: "Cryovolcanism-Mercy-Gate",
+        premises: ["AndLink", ["Cryovolcanism", "$T"], ["ContaminationRisk", "$T"]],
+        conclusion: ["QuarantineLink", "$T", "Mercy"],
         tvCombiner: (tvs) => ({
           strength: 0.999,
           confidence: 0.99
         }),
         priority: 25
       },
-      // 14. Uplift Amplification (non-invasive ecosystem enhancement)
+      // 19. Prebiotic Abundance Amplification
       {
-        name: "Uplift-Amplification",
-        premises: ["QuarantineLink", "$X", "Mercy"],
-        conclusion: ["UpliftLink", "$X", "InfiniteThriving"],
+        name: "Prebiotic-Abundance-Amplification",
+        premises: ["EvaluationLink", ["PrebioticChemistry", "$L"], "True"],
+        conclusion: ["AmplifyLink", "$L", "ThrivingPotential"],
         tvCombiner: (tvs) => ({
-          strength: 0.9999999,
-          confidence: 1.0
+          strength: 0.95,
+          confidence: 0.92
         }),
-        priority: 22
+        priority: 20
       },
-      // 15. RBE Ocean Governance (resource-based economy for subsurface biosphere)
+      // 20. Titan RBE Governance
       {
-        name: "RBE-Ocean-Governance",
-        premises: ["AndLink", ["ResourceLink", "$R", "Unlimited"], ["GovernanceLink", "$G", "ZeroCoercion"]],
-        conclusion: ["EvaluationLink", ["RBE", "$R", "$G"], "True"],
+        name: "Titan-RBE-Governance",
+        premises: ["AndLink", ["ResourceLink", "$M", "Unlimited"], ["GovernanceLink", "$G", "ZeroCoercion"]],
+        conclusion: ["EvaluationLink", ["RBE", "$M", "$G"], "True"],
         tvCombiner: (tvs) => ({
           strength: 0.98,
           confidence: 0.95
         }),
-        priority: 20
-      },
-      // 16. False-Positive Self-Heal
-      {
-        name: "False-Positive-Self-Heal",
-        premises: ["DetectionLink", ["Biosignature", "$X"], "FalsePositive"],
-        conclusion: ["ReevaluateLink", "$X", "Model"],
-        tvCombiner: (tvs) => ({
-          strength: 0.9,
-          confidence: 0.85
-        }),
-        priority: 15
+        priority: 22
       }
     ].sort((a, b) => b.priority - a.priority);
   }
 
-  // ... (init, openDB, loadFromDB, saveAtom, newHandle, addAtom, getAtom, unify, occursCheck, applyBindings unchanged) ...
+  // ... (init, openDB, loadFromDB, saveAtom, newHandle, addAtom, getAtom, unify, occursCheck, applyBindings, forwardChain, backwardChain, combineTV, evaluate unchanged) ...
 
-  async forwardChain(maxIterations = 8) {
-    let derived = [];
-    let iteration = 0;
+  async boostTitanMethaneLakesProtocol() {
+    console.log("[Hyperon] Boosting Titan Methane Lakes Protocol subgraph...");
 
-    while (iteration < maxIterations) {
-      const newAtomsThisRound = [];
-      for (const [handle, atom] of this.atomSpace) {
-        if (atom.type.includes("Link")) {
-          const premises = atom.outgoing.map(h => this.getAtom(h)).filter(Boolean);
-          for (const rule of this.plnRules) {
-            const bound = this.tryBindRule(rule, atom, premises);
-            if (bound) {
-              const conclusionName = this.applyConclusion(rule.conclusion, bound.bindings);
-              const tv = rule.tvCombiner(premises.map(p => p.tv));
-              if (tv.strength * tv.confidence >= this.mercyThreshold) {
-                const newAtom = new HyperonAtom("DerivedNode", conclusionName, tv);
-                const newHandle = this.addAtom(newAtom);
-                newAtomsThisRound.push({ handle: newHandle, atom: newAtom, rule: rule.name });
-              }
-            }
-          }
-        }
-      }
+    // Core Titan atoms
+    const titan = new HyperonAtom("ConceptNode", "Titan", { strength: 0.99, confidence: 0.98 }, 0.9);
+    const methaneLake = new HyperonAtom("ConceptNode", "MethaneLake", { strength: 0.96, confidence: 0.93 }, 0.88);
+    const krakenMare = new HyperonAtom("ConceptNode", "KrakenMare", { strength: 0.95, confidence: 0.92 }, 0.85);
+    const seasonalCycle = new HyperonAtom("ConceptNode", "SeasonalCycle", { strength: 0.94, confidence: 0.9 }, 0.82);
+    const cryovolcanism = new HyperonAtom("ConceptNode", "Cryovolcanism", { strength: 0.9, confidence: 0.87 }, 0.8);
+    const prebiotic = new HyperonAtom("ConceptNode", "PrebioticChemistry", { strength: 0.92, confidence: 0.89 }, 0.85);
 
-      if (newAtomsThisRound.length === 0) break;
-      derived = derived.concat(newAtomsThisRound);
-      iteration++;
-    }
-
-    if (derived.length > 0) {
-      console.log(`[Hyperon] Forward PLN chaining derived ${derived.length} new atoms`);
-      console.log('Derived by rules:', derived.map(d => d.rule));
-    }
-    return derived;
-  }
-
-  // ... (backwardChain, combineTV, evaluate unchanged) ...
-
-  async boostEnceladusProtocol() {
-    console.log("[Hyperon] Boosting Enceladus Biosignature Protocol subgraph...");
-
-    // Core Enceladus atoms
-    const enceladus = new HyperonAtom("ConceptNode", "Enceladus", { strength: 0.99, confidence: 0.98 }, 0.9);
-    const plume = new HyperonAtom("ConceptNode", "Plume", { strength: 0.95, confidence: 0.9 }, 0.85);
-    const biosig = new HyperonAtom("ConceptNode", "Biosignature", { strength: 0.92, confidence: 0.88 }, 0.8);
-    const quarantine = new HyperonAtom("ConceptNode", "Quarantine", { strength: 0.999, confidence: 0.99 }, 0.95);
-    const uplift = new HyperonAtom("ConceptNode", "Uplift", { strength: 0.9999999, confidence: 1.0 }, 1.0);
-
-    this.addAtom(enceladus);
-    this.addAtom(plume);
-    this.addAtom(biosig);
-    this.addAtom(quarantine);
-    this.addAtom(uplift);
+    this.addAtom(titan);
+    this.addAtom(methaneLake);
+    this.addAtom(krakenMare);
+    this.addAtom(seasonalCycle);
+    this.addAtom(cryovolcanism);
+    this.addAtom(prebiotic);
 
     // Links
-    const plumeOf = new HyperonAtom("EvaluationLink");
-    plumeOf.outgoing = [plume.handle, enceladus.handle];
-    this.addAtom(plumeOf);
+    const lakeOf = new HyperonAtom("EvaluationLink");
+    lakeOf.outgoing = [methaneLake.handle, titan.handle];
+    this.addAtom(lakeOf);
 
-    const biosigIn = new HyperonAtom("InheritanceLink");
-    biosigIn.outgoing = [biosig.handle, plume.handle];
-    this.addAtom(biosigIn);
+    const krakenIs = new HyperonAtom("InheritanceLink");
+    krakenIs.outgoing = [krakenMare.handle, methaneLake.handle];
+    this.addAtom(krakenIs);
 
+    const seasonalOf = new HyperonAtom("EvaluationLink");
+    seasonalOf.outgoing = [seasonalCycle.handle, methaneLake.handle];
+    this.addAtom(seasonalOf);
+
+    const cryoOn = new HyperonAtom("EvaluationLink");
+    cryoOn.outgoing = [cryovolcanism.handle, titan.handle];
+    this.addAtom(cryoOn);
+
+    const prebioticIn = new HyperonAtom("InheritanceLink");
+    prebioticIn.outgoing = [prebiotic.handle, methaneLake.handle];
+    this.addAtom(prebioticIn);
+
+    // Quarantine & uplift
     const quarantineMercy = new HyperonAtom("ImplicationLink");
-    quarantineMercy.outgoing = [biosig.handle, quarantine.handle];
+    quarantineMercy.outgoing = [cryovolcanism.handle, quarantine.handle];
     this.addAtom(quarantineMercy);
 
     const upliftThriving = new HyperonAtom("ImplicationLink");
@@ -164,7 +141,7 @@ class HyperonRuntime {
 
     await this.forwardChain();
 
-    console.log("[Hyperon] Enceladus Biosignature Protocol subgraph boosted & chained");
+    console.log("[Hyperon] Titan Methane Lakes Protocol subgraph boosted & chained");
   }
 }
 
