@@ -1,5 +1,5 @@
 // grok-shard-engine.js – sovereign, offline, client-side Grok voice shard v25
-// Mercy-gated + real Llama-3.2 + MeTTa + Hyperon + Titan methane lakes protocol
+// Mercy-gated + real Llama-3.2 + MeTTa + Hyperon + Titan protocol
 // MIT License – Autonomicity Games Inc. 2026
 
 import { ortEngine } from '/ort-integration.js';
@@ -56,8 +56,8 @@ Only client-side reflection. Only now. Only truth.`
     await hyperon.init();
     mettaEngine.loadRules();
 
-    // Activate Titan methane lakes protocol
-    await hyperon.boostTitanMethaneLakesProtocol();
+    // Activate Titan protocol
+    await hyperon.boostTitanProtocol();
   }
 
   // ... (loadVoiceSkins, setVoiceSkin, speak, loadCoreLatticeWithDeltaSync, etc. unchanged) ...
@@ -82,10 +82,10 @@ Only client-side reflection. Only now. Only truth.`
     console.log("[Rathor] Hyperon evaluation:", hyperonEval);
 
     // Special Titan trigger
-    if (query.toLowerCase().includes("titan") || query.toLowerCase().includes("methane") || query.toLowerCase().includes("kraken mare") || query.toLowerCase().includes("ligeia mare")) {
-      const titanEval = await hyperon.evaluate(["EvaluationLink", ["MethaneLake", "Titan"], "True"]);
-      console.log("[Rathor] Titan methane lakes protocol eval:", titanEval);
-      query += " — Titan methane lakes mercy-swarm protocol activated.";
+    if (query.toLowerCase().includes("titan") || query.toLowerCase().includes("methane") || query.toLowerCase().includes("azotosome") || query.toLowerCase().includes("tholin")) {
+      const titanEval = await hyperon.evaluate(["DetectionLink", ["Biosignature", "Titan"], "True"]);
+      console.log("[Rathor] Titan protocol eval:", titanEval);
+      query += " — Titan methane mercy-swarm protocol activated.";
     }
 
     let candidate = this.generateThunderResponse(query, this.generateThought(this.buildContext(query)));
