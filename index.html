@@ -59,6 +59,7 @@
       --valence-green: #00ffaa;
       --valence-red: #ff5555;
       --waveform-bar: #ffaa00;
+      --waveform-glow: rgba(255,170,0,0.6);
       --waveform-bg: rgba(30,30,30,0.6);
     }
     * { margin:0; padding:0; box-sizing:border-box; }
@@ -344,42 +345,42 @@
     }
     #waveform-canvas {
       width: 100%;
-      height: 80px;
+      height: 100px;
       background: var(--neumorph-dark);
-      border-radius: 20px;
+      border-radius: 24px;
       box-shadow: var(--shadow-out-primary), var(--shadow-in-primary);
       display: none;
-      margin-bottom: 1rem;
+      margin-bottom: 1.5rem;
     }
     #chat-input {
       flex: 1 1 100%;
-      padding: 2rem 3rem;
+      padding: 2.5rem 3.5rem;
       border-radius: 50px;
       border: none;
       background: var(--neumorph-dark);
       color: #fff;
-      font-size: 1.4rem;
-      min-height: 80px;
+      font-size: 1.5rem;
+      min-height: 90px;
       transition: var(--transition);
       box-shadow: var(--shadow-out-primary), var(--shadow-in-primary);
     }
     #chat-input:focus {
       outline: none;
-      box-shadow: var(--shadow-out-primary), var(--shadow-in-primary), 0 0 80px rgba(255,170,0,0.9);
-      transform: translateY(-8px);
+      box-shadow: var(--shadow-out-primary), var(--shadow-in-primary), 0 0 100px rgba(255,170,0,0.9);
+      transform: translateY(-10px);
     }
     .chat-controls {
       display: flex;
-      gap: 1.5rem;
+      gap: 2rem;
       justify-content: center;
       flex-wrap: wrap;
     }
     button.chat-send, button.voice-btn, button.skin-btn {
-      padding: 1.5rem 3rem;
+      padding: 2rem 4rem;
       background: var(--neumorph-light);
       color: var(--thunder-gold);
-      min-width: 160px;
-      min-height: 80px;
+      min-width: 180px;
+      min-height: 90px;
       border: none;
       border-radius: 50px;
       cursor: pointer;
@@ -390,35 +391,35 @@
       overflow: hidden;
     }
     button.chat-send:active, button.voice-btn:active, button.skin-btn:active {
-      transform: translateY(8px) scale(0.92);
+      transform: translateY(10px) scale(0.9);
       box-shadow: var(--shadow-pressed);
     }
     button.chat-send:hover, button.voice-btn:hover, button.skin-btn:hover {
-      transform: translateY(-10px);
-      box-shadow: 32px 32px 64px rgba(0,0,0,0.9), inset -16px -16px 32px rgba(255,255,255,0.015);
+      transform: translateY(-12px);
+      box-shadow: 48px 48px 96px rgba(0,0,0,0.95), inset -24px -24px 48px rgba(255,255,255,0.01);
     }
     button.voice-btn.listening {
       background: linear-gradient(135deg, #00ffaa, #00cc88);
       animation: pulse-green 1s infinite, breathing 5s infinite ease-in-out;
-      transform: scale(1.15);
+      transform: scale(1.2);
     }
     button.skin-btn.active {
       background: linear-gradient(135deg, #00ffaa, #00cc88);
-      box-shadow: 0 0 80px #00ffaa, inset -12px -12px 24px rgba(0,0,0,0.7);
+      box-shadow: 0 0 100px #00ffaa, inset -16px -16px 32px rgba(0,0,0,0.8);
     }
     #clear-history, #install-btn {
-      margin-top: 3rem;
+      margin-top: 4rem;
       background: var(--neumorph-light);
       color: #fff;
-      min-height: 80px;
+      min-height: 90px;
       box-shadow: var(--shadow-out-primary), var(--shadow-in-primary);
     }
     footer {
-      padding: clamp(6rem, 14vw, 12rem) 7% 6rem;
+      padding: clamp(8rem, 16vw, 14rem) 7% 8rem;
       text-align: center;
       border-top: 1px solid var(--glass-border);
       color: var(--text-secondary);
-      font-size: 1.3rem;
+      font-size: 1.4rem;
       backdrop-filter: var(--blur);
     }
     footer a {
@@ -431,8 +432,8 @@
     @keyframes pulse { 0%,100% { opacity:1 } 50% { opacity:0.97 } }
     @keyframes pulse-green { 0%,100% { background:#00ffaa } 50% { background:#00cc88 } }
     @keyframes breathing {
-      0%,100% { transform: scale(1.15); }
-      50% { transform: scale(1.35); }
+      0%,100% { transform: scale(1.2); }
+      50% { transform: scale(1.4); }
     }
     @keyframes glowShift { 0% { background-position:0% 50% } 100% { background-position:200% 50% } }
     @keyframes subtle-tremor {
@@ -460,21 +461,21 @@
         left:0;
         right:0;
         background:rgba(10,10,10,0.98);
-        padding:3.5rem 6%;
+        padding:4rem 7%;
         border-bottom:1px solid var(--border);
-        box-shadow:0 16px 48px rgba(0,0,0,0.8);
+        box-shadow:0 20px 60px rgba(0,0,0,0.8);
       }
       nav ul.active { display:flex; }
       .features { grid-template-columns:1fr; }
-      .chat-section { padding:4rem; }
-      #chat-messages { min-height:70vh; }
+      .chat-section { padding:5rem; }
+      #chat-messages { min-height:80vh; }
       .chat-input-area { flex-direction:column; }
       button.chat-send, button.voice-btn, button.skin-btn, #install-btn { width:100%; }
     }
     @media (max-width:480px) {
-      h1 { font-size:clamp(8rem, 22vw, 12rem); }
-      .thunder { font-size:clamp(16rem, 55vw, 32rem); }
-      .subtitle { font-size:clamp(2.2rem, 11vw, 2.8rem); }
+      h1 { font-size:clamp(9rem, 24vw, 13rem); }
+      .thunder { font-size:clamp(20rem, 60vw, 36rem); }
+      .subtitle { font-size:clamp(2.4rem, 12vw, 3rem); }
     }
   </style>
 </head>
@@ -523,18 +524,18 @@
       <h2>Ask Rathor</h2>
       <div id="loading">Thunder gathers...</div>
       <div id="chat-messages" aria-live="polite"></div>
-      <canvas id="waveform-canvas" width="800" height="80"></canvas>
+      <canvas id="waveform-canvas" width="800" height="100"></canvas>
       <div class="chat-input-area">
         <input id="chat-input" type="text" placeholder="Ask anything..." aria-label="Chat input" />
         <button class="chat-send" onclick="sendChat()" aria-label="Send message">Send</button>
         <button class="voice-btn" onclick="toggleVoice()" aria-label="Toggle voice input">🎤 Voice</button>
       </div>
-      <div class="skin-selector" style="margin:3rem 0; display:flex; gap:2rem; justify-content:center; flex-wrap:wrap;">
+      <div class="skin-selector" style="margin:3.5rem 0; display:flex; gap:2.5rem; justify-content:center; flex-wrap:wrap;">
         <button class="skin-btn active" data-skin="default" onclick="grokShard.setVoiceSkin('default')">Default Thunder</button>
         <button class="skin-btn" data-skin="bond" onclick="grokShard.setVoiceSkin('bond')">Bond (Brosnan)</button>
         <button class="skin-btn" data-skin="sheppard" onclick="grokShard.setVoiceSkin('sheppard')">Sheppard</button>
       </div>
-      <div style="display:flex; gap:2.5rem; justify-content:center; flex-wrap:wrap; margin-top:4rem;">
+      <div style="display:flex; gap:3rem; justify-content:center; flex-wrap:wrap; margin-top:5rem;">
         <button id="clear-history" onclick="clearChatHistory()" aria-label="Clear chat history">Clear History</button>
         <button id="install-btn">Install Rathor (PWA)</button>
       </div>
@@ -624,66 +625,55 @@
     let analyser = null;
     let dataArray = null;
     let animationFrameId = null;
+    let emaAmplitude = 0; // for smooth responsiveness
+    const emaAlpha = 0.15; // smoothing factor
 
-    function addChatMessage(role, content) {
-      const div = document.createElement('div');
-      div.className = `chat-message ${role}`;
-      div.textContent = content;
-      div.style.opacity = '0';
-      div.style.transform = 'translateY(60px) scale(0.85)';
-      chatMessages.appendChild(div);
-      chatMessages.scrollTo({ top: chatMessages.scrollHeight, behavior: 'smooth' });
-      setTimeout(() => {
-        div.classList.add('visible');
-        div.style.transition = 'opacity 1.5s ease, transform 1.5s cubic-bezier(0.34, 1.56, 0.64, 1)';
-        div.style.opacity = '1';
-        div.style.transform = 'translateY(0) scale(1)';
-        if (role === 'rathor') {
-          div.style.boxShadow = '0 0 100px rgba(0,255,170,0.6)';
-          setTimeout(() => div.style.boxShadow = 'var(--shadow-out-primary), var(--shadow-in-primary)', 2000);
-        }
-      }, 10);
-      saveMessage(role, content);
+    function resizeWaveform() {
+      waveformCanvas.width = waveformCanvas.offsetWidth * devicePixelRatio;
+      waveformCanvas.height = waveformCanvas.offsetHeight * devicePixelRatio;
+      waveformCtx.scale(devicePixelRatio, devicePixelRatio);
     }
 
-    // Voice skin selector
-    function updateSkinButtons() {
-      document.querySelectorAll('.skin-btn').forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.skin === grokShard.currentVoiceSkin);
-      });
-    }
+    window.addEventListener('resize', resizeWaveform);
+    resizeWaveform();
 
-    document.querySelectorAll('.skin-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const skin = btn.dataset.skin;
-        grokShard.setVoiceSkin(skin);
-        updateSkinButtons();
-        addChatMessage('system', `Voice skin switched to: ${grokShard.voiceSkins[skin]?.name || skin}`);
-      });
-    });
-
-    // Web Audio Waveform Visualizer
-    async function startWaveformVisualizer() {
+    async function startWaveformVisualizer(stream) {
       if (!audioContext) {
         audioContext = new (window.AudioContext || window.webkitAudioContext)();
         analyser = audioContext.createAnalyser();
         analyser.fftSize = 2048;
+        analyser.smoothingTimeConstant = 0.85;
         dataArray = new Uint8Array(analyser.frequencyBinCount);
       }
+
+      const source = audioContext.createMediaStreamSource(stream);
+      source.connect(analyser);
 
       waveformCanvas.style.display = 'block';
 
       function draw() {
         animationFrameId = requestAnimationFrame(draw);
+
         analyser.getByteTimeDomainData(dataArray);
+
+        // Calculate smoothed amplitude for golden glow
+        let sum = 0;
+        for (let i = 0; i < dataArray.length; i++) {
+          const deviation = Math.abs(dataArray[i] - 128) / 128;
+          sum += deviation;
+        }
+        const avg = sum / dataArray.length;
+        emaAmplitude = emaAlpha * avg + (1 - emaAlpha) * emaAmplitude;
 
         waveformCtx.fillStyle = 'var(--waveform-bg)';
         waveformCtx.fillRect(0, 0, waveformCanvas.width, waveformCanvas.height);
 
-        waveformCtx.lineWidth = 3;
-        waveformCtx.strokeStyle = 'var(--waveform-bar)';
-        waveformCtx.beginPath();
+        waveformCtx.lineWidth = 4 + emaAmplitude * 8;
+        waveformCtx.strokeStyle = `hsl(42, 100%, ${60 + emaAmplitude * 40}%)`; // golden hue shift
+        waveformCtx.shadowBlur = 20 + emaAmplitude * 40;
+        waveformCtx.shadowColor = 'var(--thunder-glow)';
 
+        waveformCtx.beginPath();
         const sliceWidth = waveformCanvas.width / dataArray.length;
         let x = 0;
 
@@ -696,12 +686,17 @@
           } else {
             waveformCtx.lineTo(x, y);
           }
-
           x += sliceWidth;
         }
 
         waveformCtx.lineTo(waveformCanvas.width, waveformCanvas.height / 2);
         waveformCtx.stroke();
+
+        // Mercy valence tint
+        if (emaAmplitude > 0.6) {
+          waveformCtx.fillStyle = 'rgba(0,255,170,0.15)';
+          waveformCtx.fillRect(0, 0, waveformCanvas.width, waveformCanvas.height);
+        }
       }
 
       draw();
@@ -829,7 +824,7 @@
     // Clear history
     document.getElementById('clear-history').addEventListener('click', clearChatHistory);
 
-    // Voice input bloom with waveform
+    // Voice input bloom with responsive waveform
     async function toggleVoice() {
       if (grokShard.isListening) {
         grokShard.stopListening();
@@ -838,18 +833,16 @@
       } else {
         try {
           const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-          const source = audioContext.createMediaStreamSource(stream);
-          source.connect(analyser);
-          startWaveformVisualizer();
+          startWaveformVisualizer(stream);
           grokShard.startListening((err, transcript) => {
+            stopWaveformVisualizer();
+            stream.getTracks().forEach(track => track.stop());
             if (err) {
               addChatMessage('rathor', err);
             } else if (transcript) {
               document.getElementById('chat-input').value = transcript;
               sendChat();
             }
-            stopWaveformVisualizer();
-            stream.getTracks().forEach(track => track.stop());
           });
           addChatMessage('system', 'Listening... speak clearly.');
         } catch (err) {
