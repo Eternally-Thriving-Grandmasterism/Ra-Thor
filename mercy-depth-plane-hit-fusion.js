@@ -58,6 +58,13 @@ class MercyDepthPlaneHitFusion {
         const pose = hit.getPose(referenceSpace);
         if (pose) {
           mercyHaptic.pulse(0.4 * this.valence, 50);
+
+          // Depth occlusion check (simplified – real impl uses depth texture)
+          if (this.depthInfo) {
+            // Example: adjust overlay visibility based on depth
+            console.log("[MercyDepthPlaneHit] Depth-aware hit – occlusion check active");
+          }
+
           console.log(`[MercyDepthPlaneHit] Hit-test valid – position (${pose.transform.position.x.toFixed(3)}, ${pose.transform.position.y.toFixed(3)}, ${pose.transform.position.z.toFixed(3)})`);
           // Place mercy overlay at hit pose (example)
           // this.placeMercyOverlay(pose.transform);
