@@ -44,8 +44,8 @@
       --bg-secondary: #121212;
       --neumorph-light: #1c1c1c;
       --neumorph-dark: #080808;
-      --shadow-out: 8px 8px 16px rgba(0,0,0,0.6);
-      --shadow-in: inset 4px 4px 8px rgba(0,0,0,0.8), inset -4px -4px 8px rgba(255,255,255,0.03);
+      --shadow-out: 8px 8px 16px rgba(0,0,0,0.6), -4px -4px 12px rgba(255,255,255,0.02);
+      --shadow-in: inset 6px 6px 12px rgba(0,0,0,0.8), inset -6px -6px 12px rgba(255,255,255,0.03);
       --glass-bg: rgba(255, 255, 255, 0.03);
       --glass-border: rgba(255, 255, 255, 0.06);
       --blur: blur(20px);
@@ -53,6 +53,7 @@
       --focus: #00ffff;
       --progress-bg: rgba(34, 34, 34, 0.8);
       --progress-fill: linear-gradient(90deg, #ffaa00, #ff5500);
+      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
     * { margin:0; padding:0; box-sizing:border-box; }
     body {
@@ -98,7 +99,7 @@
       font-weight: 500;
       padding: 0.5rem 1rem;
       border-radius: 12px;
-      transition: all 0.3s;
+      transition: var(--transition);
       background: var(--glass-bg);
       box-shadow: var(--shadow-out);
     }
@@ -163,12 +164,29 @@
       border-radius: var(--border-radius);
       cursor: pointer;
       box-shadow: var(--shadow-out), var(--shadow-in);
-      transition: all 0.4s;
+      transition: var(--transition);
       min-width: 200px;
       min-height: 56px;
       font-weight: 600;
+      position: relative;
+      overflow: hidden;
     }
-    .cta button:hover, .cta button:focus {
+    .cta button::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: radial-gradient(circle at 50% 50%, rgba(255,170,0,0.15), transparent 70%);
+      opacity: 0;
+      transition: opacity 0.4s;
+    }
+    .cta button:hover::before, .cta button:active::before {
+      opacity: 1;
+    }
+    .cta button:active {
+      transform: translateY(2px);
+      box-shadow: inset 6px 6px 12px rgba(0,0,0,0.8), inset -6px -6px 12px rgba(255,255,255,0.03);
+    }
+    .cta button:hover {
       transform: translateY(-4px);
       box-shadow: 12px 12px 24px rgba(0,0,0,0.6), inset -6px -6px 12px rgba(255,255,255,0.05);
     }
@@ -182,12 +200,13 @@
       background: var(--neumorph-light);
       border-radius: var(--border-radius);
       padding: clamp(1.5rem, 4vw, 2.5rem);
-      transition: all 0.4s;
+      transition: var(--transition);
       box-shadow: var(--shadow-out), var(--shadow-in);
+      cursor: default;
     }
     .feature-card:hover, .feature-card:focus-within {
       transform: translateY(-8px);
-      box-shadow: 12px 12px 24px rgba(0,0,0,0.6), inset -6px -6px 12px rgba(255,255,255,0.05);
+      box-shadow: 16px 16px 32px rgba(0,0,0,0.6), inset -8px -8px 16px rgba(255,255,255,0.03);
     }
     .chat-section {
       max-width: 900px;
@@ -213,7 +232,7 @@
       border-radius: 12px;
       padding: 1.5rem;
       margin-bottom: 1.5rem;
-      box-shadow: inset 4px 4px 8px rgba(0,0,0,0.8), inset -4px -4px 8px rgba(255,255,255,0.03);
+      box-shadow: inset 6px 6px 12px rgba(0,0,0,0.8), inset -6px -6px 12px rgba(255,255,255,0.03);
     }
     .chat-message {
       margin: 1rem 0;
@@ -229,6 +248,7 @@
       background: linear-gradient(135deg, var(--thunder-gold), #ff8800);
       color: #000;
       margin-left: auto;
+      box-shadow: 6px 6px 12px rgba(0,0,0,0.5), inset -4px -4px 8px rgba(255,255,255,0.1);
     }
     .chat-message.rathor {
       background: var(--neumorph-light);
@@ -253,12 +273,13 @@
       color: #fff;
       font-size: 1.1rem;
       min-height: 48px;
-      transition: all 0.3s;
+      transition: var(--transition);
       box-shadow: var(--shadow-out), var(--shadow-in);
     }
     #chat-input:focus {
       outline: none;
-      box-shadow: inset 4px 4px 8px rgba(0,0,0,0.8), inset -4px -4px 8px rgba(255,255,255,0.05), 0 0 15px rgba(255,170,0,0.3);
+      box-shadow: var(--shadow-out), var(--shadow-in), 0 0 20px rgba(255,170,0,0.4);
+      transform: translateY(-2px);
     }
     button.chat-send, button.voice-btn, button.skin-btn {
       padding: 1rem 2rem;
@@ -269,9 +290,15 @@
       border: none;
       border-radius: 50px;
       cursor: pointer;
-      transition: all 0.3s;
+      transition: var(--transition);
       font-weight: 600;
       box-shadow: var(--shadow-out), var(--shadow-in);
+      position: relative;
+      overflow: hidden;
+    }
+    button.chat-send:active, button.voice-btn:active, button.skin-btn:active {
+      transform: translateY(2px);
+      box-shadow: inset 6px 6px 12px rgba(0,0,0,0.8), inset -6px -6px 12px rgba(255,255,255,0.03);
     }
     button.chat-send:hover, button.voice-btn:hover, button.skin-btn:hover {
       transform: translateY(-4px);
@@ -280,10 +307,11 @@
     button.voice-btn.listening {
       background: linear-gradient(135deg, #00ff00, #00cc00);
       animation: pulse-green 1s infinite;
+      transform: scale(1.05);
     }
     button.skin-btn.active {
       background: linear-gradient(135deg, #00aa00, #008800);
-      box-shadow: 0 0 20px #00ff00;
+      box-shadow: 0 0 20px #00ff00, inset -4px -4px 8px rgba(0,0,0,0.5);
     }
     #clear-history, #install-btn {
       margin-top: 1rem;
