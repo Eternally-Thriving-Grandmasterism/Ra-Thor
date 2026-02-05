@@ -1,5 +1,5 @@
 // hyperon-runtime.js – sovereign client-side Hyperon atomspace & PLN runtime v12
-// Resolution Rule integrated, expanded chaining, variable binding, mercy-gated inference
+// Destructive Dilemma rule integrated, expanded chaining, variable binding, mercy-gated inference
 // MIT License – Autonomicity Games Inc. 2026
 
 class HyperonAtom {
@@ -112,7 +112,7 @@ class HyperonRuntime {
         priority: 18
       },
 
-      // NEW: Resolution / Disjunctive Syllogism variant (classic resolution rule)
+      // NEW: Resolution (classic clause resolution)
       {
         name: "Resolution",
         direction: "forward",
@@ -122,20 +122,33 @@ class HyperonRuntime {
           strength: Math.max(tvs[0].strength, tvs[1].strength) * 0.9,
           confidence: Math.min(tvs[0].confidence, tvs[1].confidence) * 0.8
         }),
-        priority: 19, // highest priority for contradiction resolution & clause fusion
-        description: "From (A ∨ B) and (¬A ∨ C) derive (B ∨ C) — classic resolution step"
+        priority: 19
+      },
+
+      // NEW: Destructive Dilemma / Constructive Dilemma variant (¬C ∨ ¬D, A → C, B → D ⊢ ¬A ∨ ¬B)
+      {
+        name: "Destructive Dilemma",
+        direction: "forward",
+        premises: ["OrLink Not $C Not $D", "ImplicationLink $A $C", "ImplicationLink $B $D"],
+        conclusion: "OrLink Not $A Not $B",
+        tvCombiner: (tvs) => ({
+          strength: Math.min(tvs[0].strength, tvs[1].strength, tvs[2].strength) * 0.9,
+          confidence: Math.min(...tvs.map(tv => tv.confidence)) * 0.8
+        }),
+        priority: 17, // high priority for destructive convergence & negation propagation
+        description: "If (¬C ∨ ¬D), A → C, B → D, then ¬A ∨ ¬B"
       },
       {
-        name: "Resolution-Backward",
+        name: "Destructive Dilemma-Backward",
         direction: "backward",
-        premises: ["OrLink $B $C"],
-        conclusion: "OrLink $A $B", // seeks complementary literal to resolve
+        premises: ["OrLink Not $A Not $B"],
+        conclusion: "OrLink Not $C Not $D", // seeks negated consequent disjunction
         tvCombiner: (tvs) => ({
           strength: tvs[0].strength * 0.85,
           confidence: tvs[0].confidence * 0.75
         }),
-        priority: 17,
-        description: "Backward Resolution: given (B ∨ C), seek complementary (¬A ∨ B) or (A ∨ C)"
+        priority: 15,
+        description: "Backward Destructive Dilemma: given ¬A ∨ ¬B, seek ¬C ∨ ¬D where A → C and B → D"
       },
 
       // Existing backward chaining rules (unchanged)
@@ -166,7 +179,7 @@ class HyperonRuntime {
 
   // ... existing methods (newHandle, addAtom, getAtom, matchWithBindings, combineTV, forwardChain, backwardChain, evaluate, loadFromLattice, clear) unchanged ...
 
-  // Forward chaining now includes Resolution
+  // Forward chaining now includes Destructive Dilemma
   async forwardChain(maxIterations = 8) {
     let derived = [];
     let iteration = 0;
@@ -203,7 +216,7 @@ class HyperonRuntime {
     return derived;
   }
 
-  // Backward chaining now leverages Resolution backward rule
+  // Backward chaining now leverages Destructive Dilemma backward rule
   async backwardChain(targetPattern, depth = 0, visited = new Set(), bindings = {}) {
     if (depth > this.maxChainDepth) return { tv: { strength: 0.1, confidence: 0.1 }, chain: [], bindings: {} };
 
@@ -220,7 +233,7 @@ class HyperonRuntime {
         }
       }
 
-      // Apply backward-specific rules (including Resolution backward)
+      // Apply backward-specific rules (including Destructive Dilemma backward)
       for (const rule of this.inferenceRules.filter(r => r.direction === "backward")) {
         const bound = this.tryBindRule(rule, atom, []);
         if (bound) {
