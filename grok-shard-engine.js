@@ -1,13 +1,13 @@
-// grok-shard-engine.js – sovereign, offline, client-side Grok voice shard v8
-// Mercy-gated, valence-locked + offline transformer fallback
+// grok-shard-engine.js – sovereign, offline, client-side Grok voice shard v9
+// Mercy-gated + TensorFlow.js deep inference integration
 // MIT License – Autonomicity Games Inc. 2026
 
-import { offlineTransformer } from '/transformer-offline.js';
+import { tfjsEngine } from '/tfjs-integration.js';
 
 class GrokShard {
   constructor() {
     // ... existing constructor fields ...
-    this.transformerReady = false;
+    this.tfjsReady = false;
   }
 
   async init() {
@@ -16,8 +16,8 @@ class GrokShard {
       this.latticeLoaded = true;
     }
     await this.loadVoiceSkins();
-    await offlineTransformer.load();
-    this.transformerReady = offlineTransformer.loaded;
+    await tfjsEngine.load();
+    this.tfjsReady = tfjsEngine.loaded;
   }
 
   async reply(userMessage) {
@@ -29,13 +29,13 @@ class GrokShard {
       return rejectMsg;
     }
 
-    // Try lattice first
-    let response = this.generateThunderResponse(userMessage, this.generateThought(this.buildContext(userMessage)));
-
-    // If lattice weak or transformer available, enhance with offline model
-    if (this.transformerReady && Math.random() < 0.7) {
-      const enhanced = await offlineTransformer.generate(response);
-      response = enhanced.trim();
+    let response;
+    if (this.tfjsReady) {
+      // Primary path: deep TF.js generation
+      response = await tfjsEngine.generate(userMessage);
+    } else {
+      // Fallback: symbolic lattice
+      response = this.generateThunderResponse(userMessage, this.generateThought(this.buildContext(userMessage)));
     }
 
     const postGate = await hyperonValenceGate(response);
