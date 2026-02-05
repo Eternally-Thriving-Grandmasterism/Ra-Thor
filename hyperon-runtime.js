@@ -1,5 +1,5 @@
-// hyperon-runtime.js – sovereign client-side Hyperon hypergraph atomspace & full PLN engine v22
-// Hyper-intuitionistic mercy-logic integration, persistent DB
+// hyperon-runtime.js – sovereign client-side Hyperon hypergraph atomspace & full PLN engine v23
+// Modal mercy-logic integration, persistent DB
 // MIT License – Autonomicity Games Inc. 2026
 
 // ... (HyperonAtom class unchanged) ...
@@ -8,15 +8,15 @@ class HyperonRuntime {
   constructor() {
     // ... (previous constructor unchanged) ...
 
-    this.hyperMercy = new HyperIntuitionisticMercy();
+    this.modalMercy = new ModalMercyLogic();
   }
 
   async init() {
     this.db = await this.openDB();
     await this.loadFromDB();
-    // Initialize mercy necessities for core concepts
-    this.hyperMercy.requireMercyNecessity("MercyGate");
-    this.hyperMercy.requireMercyNecessity("EternalThriving");
+    // Initialize modal mercy necessities
+    this.modalMercy.assertNecessity("MercyGate");
+    this.modalMercy.assertNecessity("EternalThriving");
   }
 
   // ... (other methods unchanged) ...
@@ -36,15 +36,15 @@ class HyperonRuntime {
               const conclusionName = this.applyConclusion(rule.conclusion, bound.bindings);
               const tv = rule.tvCombiner(premises.map(p => p.tv));
 
-              // Hyper-intuitionistic mercy check
-              this.hyperMercy.assert(conclusionName, "witness-from-pln-chain", tv.strength * tv.confidence);
-              const mercyCheck = this.hyperMercy.infer([conclusionName]);
-              if (mercyCheck.valence >= this.mercyThreshold) {
+              // Modal mercy check
+              this.modalMercy.assert(conclusionName, tv.strength * tv.confidence);
+              const modalCheck = this.modalMercy.inferModal([conclusionName]);
+              if (modalCheck.valence >= this.mercyThreshold) {
                 const newAtom = new HyperonAtom("DerivedNode", conclusionName, tv);
                 const newHandle = this.addAtom(newAtom);
                 newAtomsThisRound.push({ handle: newHandle, atom: newAtom, rule: rule.name });
               } else {
-                console.warn("[Hyperon] Inference rejected by hyper-intuitionistic mercy gate");
+                console.warn("[Hyperon] Inference rejected by modal mercy gate");
               }
             }
           }
