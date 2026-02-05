@@ -31,7 +31,7 @@ class MercyChrisOlahAudit {
   }
 
   runOlahInspiredAudit() {
-    // Placeholder checks – real impl would probe internals
+    // Placeholder checks – real impl would probe internals / SAEs
     const passedChecks = Object.values(this.auditChecklist).filter(v => v).length;
     const totalChecks = Object.keys(this.auditChecklist).length;
     const auditScore = passedChecks / totalChecks;
