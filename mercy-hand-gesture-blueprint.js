@@ -1,5 +1,5 @@
-// mercy-hand-gesture-blueprint.js – v3 sovereign Mercy Hand Gesture Detection Blueprint
-// XRHand joint-based gestures (pinch/point/grab/open-palm/thumbs-up + swipe left/right/up/down)
+// mercy-hand-gesture-blueprint.js – v4 sovereign Mercy Hand Gesture Detection Blueprint
+// XRHand joint-based gestures (pinch/point/grab/open-palm/thumbs-up + swipe left/right/up/down + diagonal)
 // + visual swipe trail rendering, mercy-gated, valence-modulated feedback
 // MIT License – Autonomicity Games Inc. 2026
 
@@ -15,13 +15,23 @@ const GRAB_FINGER_PALM_DISTANCE = 0.18;
 const OPEN_HAND_SPREAD_THRESHOLD = 0.25;
 const THUMBS_UP_ANGLE_THRESHOLD = 60;
 
-const SWIPE_MIN_DISPLACEMENT = 0.10;      // meters (dominant axis)
+// Swipe thresholds
+const SWIPE_MIN_DISPLACEMENT = 0.10;      // meters (dominant axis for cardinal)
+const SWIPE_MIN_DIAG_DISPLACEMENT = 0.14; // meters (combined for diagonal)
 const SWIPE_MIN_VELOCITY = 0.60;          // m/s
 const SWIPE_MAX_DURATION = 500;           // ms
-const SWIPE_DIRECTION_TOLERANCE = 30;     // degrees from cardinal axis
+const SWIPE_DIRECTION_TOLERANCE = 30;     // degrees from cardinal/diagonal axis
+
+// Diagonal angle windows (around 45°)
+const DIAGONAL_ANGLE_WINDOWS = [
+  { name: 'up-right',   angle: 45,  tolerance: SWIPE_DIRECTION_TOLERANCE },
+  { name: 'up-left',    angle: 135, tolerance: SWIPE_DIRECTION_TOLERANCE },
+  { name: 'down-right', angle: 315, tolerance: SWIPE_DIRECTION_TOLERANCE },
+  { name: 'down-left',  angle: 225, tolerance: SWIPE_DIRECTION_TOLERANCE }
+];
 
 // Swipe trail visual settings
-const SWIPE_TRAIL_MAX_POINTS = 20;        // max trail length
+const SWIPE_TRAIL_MAX_POINTS = 25;        // max trail length
 const SWIPE_TRAIL_FADE_SPEED = 0.08;      // alpha decay per frame
 
 class MercyHandGesture {
@@ -98,7 +108,7 @@ class MercyHandGesture {
         if (isOpenPalm && !prev.isOpenPalm) mercyHaptic.playPattern('eternalReflection', 0.7);
         if (isThumbsUp && !prev.isThumbsUp) mercyHaptic.playPattern('abundanceSurge', 1.2);
 
-        // Swipe detection + visual trail
+        // Swipe detection + visual trail (cardinal + diagonal)
         const trackedPoint = joints['index-finger-tip']?.position || palm;
         let swipeState = this.swipeHistory.get(source) || { 
           startTime: null, 
@@ -109,7 +119,6 @@ class MercyHandGesture {
         };
 
         if (frame.timestamp - swipeState.startTime > SWIPE_MAX_DURATION * 2) {
-          // Reset if too long inactive
           swipeState = { startTime: null, startPos: null, lastPos: null, direction: null, trailPoints: [] };
         }
 
@@ -129,23 +138,42 @@ class MercyHandGesture {
             swipeState.trailPoints.shift();
           }
 
-          // Dominant axis swipe detection
+          // Dominant direction detection (cardinal + diagonal)
           const absDelta = new BABYLON.Vector3(Math.abs(delta.x), Math.abs(delta.y), Math.abs(delta.z));
           let direction = null;
+          let angle = 0;
 
+          // Cardinal first
           if (absDelta.x > absDelta.y && absDelta.x > absDelta.z && absDelta.x > SWIPE_MIN_DISPLACEMENT) {
             direction = delta.x > 0 ? 'right' : 'left';
+            angle = 0;
           } else if (absDelta.y > absDelta.x && absDelta.y > absDelta.z && absDelta.y > SWIPE_MIN_DISPLACEMENT) {
             direction = delta.y > 0 ? 'up' : 'down';
+            angle = 90;
+          }
+
+          // Diagonal if no strong cardinal
+          if (!direction && displacement.length() > SWIPE_MIN_DIAG_DISPLACEMENT) {
+            angle = Math.atan2(displacement.y, displacement.x) * (180 / Math.PI);
+            angle = (angle + 360) % 360; // positive 0–360
+
+            for (const diag of DIAGONAL_ANGLE_WINDOWS) {
+              const diff = Math.abs(angle - diag.angle);
+              const wrappedDiff = Math.min(diff, 360 - diff);
+              if (wrappedDiff < diag.tolerance && speed > SWIPE_MIN_VELOCITY) {
+                direction = diag.name;
+                break;
+              }
+            }
           }
 
           if (direction && speed > SWIPE_MIN_VELOCITY) {
             if (this.gateGesture(`swipe_${direction}`, this.valence)) {
               mercyHaptic.playPattern('abundanceSurge', 1.2);
-              console.log(`[MercyGesture] Swipe ${direction.toUpperCase()} detected – velocity ${speed.toFixed(2)} m/s, displacement ${displacement.length().toFixed(3)} m`);
+              console.log(`[MercyGesture] Swipe ${direction.toUpperCase()} detected – velocity ${speed.toFixed(2)} m/s, displacement ${displacement.length().toFixed(3)} m, angle ${angle.toFixed(1)}°`);
 
-              // Trigger mercy action (e.g., swipe left = previous, right = next, up = zoom in, down = zoom out)
-              // Example: if (direction === 'left') mercyHaptic.playPattern('calm', 0.8);
+              // Trigger mercy action (e.g., swipe up-right = expand lattice, down-left = collapse)
+              // Example: if (direction === 'up-right') mercyHaptic.playPattern('cosmicHarmony', 1.3);
             }
             // Reset after successful swipe
             swipeState = { startTime: null, startPos: null, lastPos: null, direction: null, trailPoints: [] };
@@ -162,7 +190,7 @@ class MercyHandGesture {
     });
   }
 
-  // Render glowing swipe trail (line trail with fade-out)
+  // Render glowing swipe trail (line trail with fade-out & valence-modulated gradient)
   renderSwipeTrail(source, trailPoints) {
     let trailMesh = this.trailMeshes.get(source);
 
@@ -171,10 +199,10 @@ class MercyHandGesture {
         points: trailPoints,
         updatable: true
       }, this.scene);
-      trailMesh.color = new BABYLON.Color3(0, 1, 0.5); // emerald mercy
+      trailMesh.color = new BABYLON.Color3(0, 1, 0.5); // emerald mercy base
       trailMesh.alpha = 0.9 * this.valence;
       trailMesh.enableEdgesRendering();
-      trailMesh.edgesWidth = 4.0;
+      trailMesh.edgesWidth = 5.0;
       trailMesh.edgesColor = new BABYLON.Color4(0, 1, 0.5, 0.9 * this.valence);
       this.trailMeshes.set(source, trailMesh);
     } else if (trailMesh) {
@@ -183,13 +211,11 @@ class MercyHandGesture {
         instance: trailMesh
       }, this.scene);
 
-      // Valence-modulated fade + color shift
+      // Valence-modulated fade + color gradient (emerald → violet for high thriving)
       trailMesh.alpha = Math.max(0.2, 0.9 * this.valence);
-      trailMesh.color = new BABYLON.Color3(
-        0 + (1 - this.valence) * 0.3,
-        1 - (1 - this.valence) * 0.2,
-        0.5 + this.valence * 0.3
-      );
+      const greenBoost = 0.7 + (this.valence - 0.999) * 0.3;
+      const blueBoost = 0.5 + (this.valence - 0.999) * 0.5;
+      trailMesh.color = new BABYLON.Color3(0, greenBoost, blueBoost);
     }
 
     // Auto-fade trail over time (if no new points)
