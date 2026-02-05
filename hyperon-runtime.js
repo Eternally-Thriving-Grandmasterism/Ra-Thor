@@ -1,5 +1,5 @@
-// hyperon-runtime.js – sovereign client-side Hyperon atomspace & PLN runtime v8
-// Modus Tollens rule integrated, expanded chaining, variable binding, mercy-gated inference
+// hyperon-runtime.js – sovereign client-side Hyperon atomspace & PLN runtime v9
+// Hypothetical Syllogism rule integrated, expanded chaining, variable binding, mercy-gated inference
 // MIT License – Autonomicity Games Inc. 2026
 
 class HyperonAtom {
@@ -56,8 +56,6 @@ class HyperonRuntime {
         }),
         priority: 8
       },
-
-      // Modus Ponens (already present)
       {
         name: "Modus Ponens",
         direction: "forward",
@@ -69,8 +67,6 @@ class HyperonRuntime {
         }),
         priority: 15
       },
-
-      // NEW: Modus Tollens (classic negation rule)
       {
         name: "Modus Tollens",
         direction: "forward",
@@ -80,20 +76,33 @@ class HyperonRuntime {
           strength: tvs[0].strength * tvs[1].strength * 0.95,
           confidence: Math.min(tvs[0].confidence, tvs[1].confidence) * 0.85
         }),
-        priority: 16, // very high priority for contradiction detection
-        description: "If A → B and ¬B is true, then ¬A is true"
+        priority: 16
+      },
+
+      // NEW: Hypothetical Syllogism (chain rule for implications)
+      {
+        name: "Hypothetical Syllogism",
+        direction: "forward",
+        premises: ["ImplicationLink $A $B", "ImplicationLink $B $C"],
+        conclusion: "ImplicationLink $A $C",
+        tvCombiner: (tvs) => ({
+          strength: tvs[0].strength * tvs[1].strength,
+          confidence: Math.min(tvs[0].confidence, tvs[1].confidence) * 0.85
+        }),
+        priority: 14, // high priority for chained logical reasoning
+        description: "If A → B and B → C, then A → C (transitive implication)"
       },
       {
-        name: "Modus Tollens-Backward",
+        name: "Hypothetical Syllogism-Backward",
         direction: "backward",
-        premises: ["EvaluationLink Not $A"],
-        conclusion: "EvaluationLink Not $B", // seeks consequent B where A → B
+        premises: ["ImplicationLink $A $C"],
+        conclusion: "ImplicationLink $A $B", // seeks intermediate B
         tvCombiner: (tvs) => ({
           strength: tvs[0].strength * 0.9,
           confidence: tvs[0].confidence * 0.75
         }),
-        priority: 14,
-        description: "Backward Modus Tollens: given ¬A, seek ¬B where A → B"
+        priority: 13,
+        description: "Backward Hypothetical Syllogism: given A → C, seek intermediate A → B → C"
       },
 
       // Existing backward chaining rules (unchanged)
@@ -124,7 +133,7 @@ class HyperonRuntime {
 
   // ... existing methods (newHandle, addAtom, getAtom, matchWithBindings, combineTV, forwardChain, backwardChain, evaluate, loadFromLattice, clear) unchanged ...
 
-  // Forward chaining now includes Modus Tollens
+  // Forward chaining now includes Hypothetical Syllogism
   async forwardChain(maxIterations = 8) {
     let derived = [];
     let iteration = 0;
@@ -161,7 +170,7 @@ class HyperonRuntime {
     return derived;
   }
 
-  // Backward chaining now leverages Modus Tollens backward rule
+  // Backward chaining now leverages Hypothetical Syllogism backward rule
   async backwardChain(targetPattern, depth = 0, visited = new Set(), bindings = {}) {
     if (depth > this.maxChainDepth) return { tv: { strength: 0.1, confidence: 0.1 }, chain: [], bindings: {} };
 
@@ -178,7 +187,7 @@ class HyperonRuntime {
         }
       }
 
-      // Apply backward-specific rules (including Modus Tollens backward)
+      // Apply backward-specific rules (including Hypothetical Syllogism backward)
       for (const rule of this.inferenceRules.filter(r => r.direction === "backward")) {
         const bound = this.tryBindRule(rule, atom, []);
         if (bound) {
