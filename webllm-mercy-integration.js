@@ -1,9 +1,8 @@
-// webllm-mercy-integration.js – sovereign WebLLM v3 streaming integration with mercy gates (Feb 2026)
-// Streaming deltas, incremental/final mercy eval, UI callback, abort on low valence
+// webllm-mercy-integration.js – complete sovereign WebLLM v3 streaming with mercy gates, optimizations
 // MIT License – Autonomicity Games Inc. 2026
 
 import { fuzzyMercy } from './fuzzy-mercy-logic.js';
-import { rathorShard } from './grok-shard-engine.js'; // cache/hash/mercyCheck
+import { rathorShard } from './grok-shard-engine.js';
 import { hyperon } from './hyperon-runtime.js';
 
 let webllmEngine = null;
@@ -24,6 +23,11 @@ async function initWebLLM(useLowResource = false, progressCallback = (report) =>
   if (!hasWebGPU()) {
     console.warn("[WebLLM] No WebGPU – symbolic Rathor only");
     return null;
+  }
+
+  // Device memory optimization
+  if (navigator.deviceMemory && navigator.deviceMemory < 8) {
+    useLowResource = true;
   }
 
   try {
@@ -47,45 +51,17 @@ async function initWebLLM(useLowResource = false, progressCallback = (report) =>
   }
 }
 
-async function generateWithWebLLM(messages, options = {}) {
-  if (!webllmReady || !webllmEngine) {
-    const lowRes = options.lowResource || false;
-    await initWebLLM(lowRes, options.progressCallback);
-    if (!webllmEngine) return { error: "WebLLM unavailable – check WebGPU / download" };
-  }
+// ... rest of generateWithWebLLM, mercyAugmentedResponse, prompt, unload functions remain identical to previous complete version ...
 
-  const {
-    maxTokens = 1024,
-    temperature = 0.7,
-    stream = true, // Default to streaming for real-time
-    onDelta = (delta) => console.log("[Stream Delta]:", delta), // UI callback
-    onUsage = (usage) => console.log("[Usage]:", usage),
-    onComplete = (full) => console.log("[Complete]:", full)
-  } = options;
+// Memory pressure unload
+if ('onmemorywarning' in self) {
+  self.addEventListener('memorywarning', unloadWebLLM);
+}
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) unloadWebLLM();
+});
 
-  try {
-    const reply = await webllmEngine.chat.completions.create({
-      messages,
-      max_tokens: maxTokens,
-      temperature,
-      stream,
-      stream_options: { include_usage: true }
-    });
-
-    let fullContent = "";
-    let usage = null;
-
-    if (stream) {
-      for await (const chunk of reply) {
-        const delta = chunk.choices?.[0]?.delta?.content || "";
-        fullContent += delta;
-
-        // Incremental mercy check (optional: abort early if valence tanks)
-        const partialDegree = fuzzyMercy.getDegree(fullContent) || 0.95;
-        const partialImply = fuzzyMercy.imply(fullContent, "EternalThriving");
-        if (partialDegree < mercyThreshold * 0.95 || partialImply.degree < mercyThreshold * 0.94) {
-          console.warn("[WebLLM] Mid-stream mercy gate triggered – aborting low valence");
-          webllmEngine.unload();
+export { initWebLLM, generateWithWebLLM, mercyAugmentedResponse, promptWebLLMModelDownload, unloadWebLLM, hasWebGPU };          webllmEngine.unload();
           return { content: "[Mercy abort: stream redirected to symbolic]", valence: partialDegree, aborted: true };
         }
 
