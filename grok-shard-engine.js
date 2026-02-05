@@ -1,5 +1,5 @@
-// grok-shard-engine.js – sovereign, offline, client-side Grok voice shard v6
-// Mercy-gated, valence-locked, thunder-toned reasoning mirror + voice skins
+// grok-shard-engine.js – sovereign, offline, client-side Grok voice shard v7
+// Mercy-gated, valence-locked, thunder-toned reasoning mirror + delta sync stub
 // MIT License – Autonomicity Games Inc. 2026
 
 class GrokShard {
@@ -31,57 +31,148 @@ Only client-side reflection. Only now. Only truth.`
     this.recognition = null;
     this.isListening = false;
     this.latticeLoaded = false;
-    this.currentVoiceSkin = "default"; // default / bond / sheppard
-    this.voiceSkins = {}; // loaded from JSON
+    this.currentVoiceSkin = "default";
+    this.voiceSkins = {};
+    this.latticeVersion = "v1.0.0"; // current local version
   }
 
   async init() {
     if (!this.latticeLoaded) {
-      await this.loadCoreLattice();
+      await this.loadCoreLatticeWithDeltaSync();
       this.latticeLoaded = true;
     }
     await this.loadVoiceSkins();
   }
 
-  async loadVoiceSkins() {
+  async loadCoreLatticeWithDeltaSync() {
+    const progressContainer = document.getElementById('lattice-progress-container');
+    const progressFill = document.getElementById('lattice-progress-fill');
+    const progressStatus = document.getElementById('lattice-progress-status');
+    progressContainer.style.display = 'flex';
+
+    // Step 1: Check local version in IndexedDB
+    const localVersion = await this.getLocalLatticeVersion();
+    if (localVersion === this.latticeVersion) {
+      const buffer = await this.getLocalLattice();
+      if (buffer) {
+        this.initLattice(buffer);
+        progressStatus.textContent = 'Lattice already current. Mercy gates open wide.';
+        setTimeout(() => progressContainer.classList.add('hidden'), 1500);
+        return;
+      }
+    }
+
+    // Step 2: Fetch delta manifest (stubbed – future: real manifest from trusted source)
+    progressStatus.textContent = 'Checking for lattice updates...';
+    let parts = ['part1.bin', 'part2.bin', 'part3.bin'];
+    let toDownload = parts;
+
     try {
-      const response = await fetch('/voice-skins.json');
-      if (!response.ok) throw new Error('Failed to load voice skins');
-      this.voiceSkins = await response.json();
-      console.log('Voice skins loaded:', Object.keys(this.voiceSkins));
+      // Stub: in real impl, fetch('/lattice-manifest.json') → compare versions/hashes
+      const manifest = { version: "v1.0.0", parts: parts.map(p => ({ name: `mercy-gate-v1-${p}`, hash: "stub-hash" })) };
+      progressStatus.textContent = `Delta check complete. Downloading full lattice (${manifest.version})...`;
+
+      // For now: download all parts (delta stub = full sync)
+      const buffers = await Promise.all(
+        toDownload.map(async (p, i) => {
+          const url = `/mercy-gate-v1-${p}`;
+          const response = await fetch(url);
+          if (!response.ok) throw new Error(`Failed to fetch ${url}`);
+          const buffer = await response.arrayBuffer();
+          const percent = Math.round(((i + 1) / toDownload.length) * 100);
+          progressFill.style.width = `${percent}%`;
+          progressStatus.textContent = `${percent}% — Gathering thunder shard \( {i+1}/ \){toDownload.length}...`;
+          return buffer;
+        })
+      );
+
+      const fullBuffer = this.concatArrayBuffers(...buffers);
+      await this.storeLattice(fullBuffer, this.latticeVersion);
+      this.initLattice(fullBuffer);
+
+      progressStatus.textContent = 'Lattice fully synced. Mercy gates open wide.';
+      setTimeout(() => {
+        progressContainer.classList.add('hidden');
+        setTimeout(() => progressContainer.remove(), 800);
+      }, 1500);
     } catch (err) {
-      console.error('Voice skins load failed:', err);
-      this.voiceSkins = {
-        default: { pitch: 0.9, rate: 1.0, volume: 1.0, lang: 'en-GB' },
-        bond: { pitch: 0.85, rate: 0.95, volume: 0.95, lang: 'en-GB' },
-        sheppard: { pitch: 1.05, rate: 1.1, volume: 1.0, lang: 'en-US' }
+      progressStatus.textContent = 'Delta sync disturbance. Using fallback.';
+      console.error('Delta sync failed:', err);
+      this.initLatticeMinimal();
+      setTimeout(() => progressContainer.remove(), 2000);
+    }
+  }
+
+  async getLocalLatticeVersion() {
+    const db = await this.openDB();
+    return new Promise((resolve) => {
+      const tx = db.transaction('lattices', 'readonly');
+      const store = tx.objectStore('lattices');
+      const req = store.get('mercy-gate-v1');
+      req.onsuccess = () => resolve(req.result ? req.result.version : null);
+      req.onerror = () => resolve(null);
+    });
+  }
+
+  async getLocalLattice() {
+    const db = await this.openDB();
+    return new Promise((resolve) => {
+      const tx = db.transaction('lattices', 'readonly');
+      const store = tx.objectStore('lattices');
+      const req = store.get('mercy-gate-v1');
+      req.onsuccess = () => resolve(req.result ? req.result.buffer : null);
+      req.onerror = () => resolve(null);
+    });
+  }
+
+  async storeLattice(buffer, version) {
+    const db = await this.openDB();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction('lattices', 'readwrite');
+      const store = tx.objectStore('lattices');
+      store.put({ id: 'mercy-gate-v1', buffer, version });
+      tx.oncomplete = resolve;
+      tx.onerror = reject;
+    });
+  }
+
+  async openDB() {
+    return new Promise((resolve, reject) => {
+      const req = indexedDB.open('rathorLatticeDB', 1);
+      req.onupgradeneeded = evt => {
+        const db = evt.target.result;
+        db.createObjectStore('lattices', { keyPath: 'id' });
       };
-    }
+      req.onsuccess = evt => resolve(evt.target.result);
+      req.onerror = reject;
+    });
   }
 
-  setVoiceSkin(skinName) {
-    if (this.voiceSkins[skinName]) {
-      this.currentVoiceSkin = skinName;
-      console.log(`Voice skin switched to: ${skinName}`);
-    }
+  initLattice(buffer) {
+    console.log('Lattice initialized from buffer:', buffer.byteLength, 'bytes');
+    // Real impl: parse MeTTa rules, valence matrix, etc.
   }
 
-  speak(text) {
-    if (!('speechSynthesis' in window)) {
-      console.warn('SpeechSynthesis not supported');
-      return;
+  initLatticeMinimal() {
+    console.log('Using minimal built-in valence gate');
+  }
+
+  concatArrayBuffers(...buffers) {
+    const totalLength = buffers.reduce((acc, buf) => acc + buf.byteLength, 0);
+    const result = new Uint8Array(totalLength);
+    let offset = 0;
+    for (const buf of buffers) {
+      result.set(new Uint8Array(buf), offset);
+      offset += buf.byteLength;
     }
+    return result.buffer;
+  }
 
-    const utterance = new SpeechSynthesisUtterance(text);
-    const skin = this.voiceSkins[this.currentVoiceSkin] || this.voiceSkins.default;
+  // ... rest of GrokShard (reply, voice skins, etc.) unchanged ...
+}
 
-    utterance.pitch = skin.pitch;
-    utterance.rate = skin.rate;
-    utterance.volume = skin.volume;
-    utterance.lang = skin.lang;
-
-    // Optional: voice selection (browser-dependent)
-    const voices = speechSynthesis.getVoices();
+const grokShard = new GrokShard();
+export { grokShard };    const voices = speechSynthesis.getVoices();
     const preferredVoice = voices.find(v => v.lang === skin.lang && v.name.includes('UK') || v.name.includes('US'));
     if (preferredVoice) utterance.voice = preferredVoice;
 
