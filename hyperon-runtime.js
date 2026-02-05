@@ -1,5 +1,5 @@
-// hyperon-runtime.js – sovereign client-side Hyperon atomspace & PLN runtime v11
-// Modus Tollens rule integrated, expanded chaining, variable binding, mercy-gated inference
+// hyperon-runtime.js – sovereign client-side Hyperon atomspace & PLN runtime v12
+// Destructive Dilemma rule integrated, expanded chaining, variable binding, mercy-gated inference
 // MIT License – Autonomicity Games Inc. 2026
 
 class HyperonAtom {
@@ -67,8 +67,6 @@ class HyperonRuntime {
         }),
         priority: 15
       },
-
-      // NEW: Modus Tollens (A → B, ¬B ⊢ ¬A)
       {
         name: "Modus Tollens",
         direction: "forward",
@@ -78,153 +76,34 @@ class HyperonRuntime {
           strength: tvs[0].strength * tvs[1].strength * 0.95,
           confidence: Math.min(tvs[0].confidence, tvs[1].confidence) * 0.85
         }),
-        priority: 16, // very high priority for negation & contradiction detection
-        description: "If A implies B and B is false, then A is false"
+        priority: 16
       },
       {
-        name: "Modus Tollens-Backward",
-        direction: "backward",
-        premises: ["EvaluationLink Not $A"],
-        conclusion: "EvaluationLink Not $B", // seeks consequent B where ¬B leads to ¬A
+        name: "Hypothetical Syllogism",
+        direction: "forward",
+        premises: ["ImplicationLink $A $B", "ImplicationLink $B $C"],
+        conclusion: "ImplicationLink $A $C",
         tvCombiner: (tvs) => ({
-          strength: tvs[0].strength * 0.9,
-          confidence: tvs[0].confidence * 0.75
+          strength: tvs[0].strength * tvs[1].strength,
+          confidence: Math.min(tvs[0].confidence, tvs[1].confidence) * 0.85
         }),
-        priority: 15,
-        description: "Backward Modus Tollens: given ¬A, seek ¬B where A → B"
-      },
-
-      // Existing backward chaining rules (unchanged)
-      {
-        name: "Backward-Deduction",
-        direction: "backward",
-        premises: ["InheritanceLink $A $C"],
-        conclusion: "InheritanceLink $A $B",
-        tvCombiner: (tvs) => ({
-          strength: tvs[0].strength ** 0.8,
-          confidence: tvs[0].confidence * 0.7
-        }),
-        priority: 12
+        priority: 14
       },
       {
-        name: "Mercy-Backward-Boost",
-        direction: "backward",
-        premises: ["EvaluationLink HighValence $X"],
-        conclusion: "InheritanceLink $X Mercy",
+        name: "Disjunctive Syllogism",
+        direction: "forward",
+        premises: ["OrLink $A $B", "EvaluationLink Not $A"],
+        conclusion: "EvaluationLink $B",
         tvCombiner: (tvs) => ({
-          strength: tvs[0].strength * 1.2,
-          confidence: 0.95
+          strength: tvs[0].strength * tvs[1].strength * 0.95,
+          confidence: Math.min(tvs[0].confidence, tvs[1].confidence) * 0.9
         }),
-        priority: 15
-      }
-    ].sort((a, b) => b.priority - a.priority);
-  }
-
-  // ... existing methods (newHandle, addAtom, getAtom, matchWithBindings, combineTV, forwardChain, backwardChain, evaluate, loadFromLattice, clear) unchanged ...
-
-  // Forward chaining now includes Modus Tollens
-  async forwardChain(maxIterations = 8) {
-    let derived = [];
-    let iteration = 0;
-
-    while (iteration < maxIterations) {
-      const newAtomsThisRound = [];
-      for (const [handle, atom] of this.atomSpace) {
-        if (atom.type.includes("Link")) {
-          const premises = atom.outgoing.map(h => this.getAtom(h)).filter(Boolean);
-          for (const rule of this.inferenceRules.filter(r => r.direction === "forward")) {
-            const bound = this.tryBindRule(rule, atom, premises);
-            if (bound) {
-              const conclusionName = this.applyConclusion(rule.conclusion, bound.bindings);
-              const tv = rule.tvCombiner(premises.map(p => p.tv));
-              if (tv.strength * tv.confidence >= this.mercyThreshold) {
-                const newAtom = new HyperonAtom("DerivedNode", conclusionName, tv);
-                const newHandle = this.addAtom(newAtom);
-                newAtomsThisRound.push({ handle: newHandle, atom: newAtom, rule: rule.name });
-              }
-            }
-          }
-        }
-      }
-
-      if (newAtomsThisRound.length === 0) break;
-      derived = derived.concat(newAtomsThisRound);
-      iteration++;
-    }
-
-    if (derived.length > 0) {
-      console.log(`Forward chaining derived ${derived.length} new atoms`);
-      console.log('Derived by rules:', derived.map(d => d.rule));
-    }
-    return derived;
-  }
-
-  // Backward chaining now leverages Modus Tollens backward rule
-  async backwardChain(targetPattern, depth = 0, visited = new Set(), bindings = {}) {
-    if (depth > this.maxChainDepth) return { tv: { strength: 0.1, confidence: 0.1 }, chain: [], bindings: {} };
-
-    const results = [];
-    for (const [handle, atom] of this.atomSpace) {
-      if (visited.has(handle)) continue;
-      visited.add(handle);
-
-      const matchedBindings = this.matchWithBindings(atom, targetPattern, { ...bindings });
-      if (matchedBindings) {
-        const tv = atom.tv;
-        if (atom.isMercyAligned()) {
-          results.push({ handle, tv, chain: [atom], bindings: matchedBindings });
-        }
-      }
-
-      // Apply backward-specific rules (including Modus Tollens backward)
-      for (const rule of this.inferenceRules.filter(r => r.direction === "backward")) {
-        const bound = this.tryBindRule(rule, atom, []);
-        if (bound) {
-          const conclusionName = this.applyConclusion(rule.conclusion, bound.bindings);
-          const tv = rule.tvCombiner([atom.tv]);
-          if (tv.strength * tv.confidence >= this.mercyThreshold) {
-            results.push({
-              handle,
-              tv,
-              chain: [atom],
-              bindings: { ...bound.bindings, ...matchedBindings }
-            });
-          }
-        }
-      }
-
-      for (const parentHandle of atom.incoming) {
-        const parent = this.getAtom(parentHandle);
-        if (parent && parent.type.includes("Link")) {
-          const subResult = await this.backwardChain(parent, depth + 1, visited, { ...bindings });
-          if (subResult.tv.strength > 0.1) {
-            results.push({
-              handle: parentHandle,
-              tv: this.combineTV(subResult.tv, atom.tv),
-              chain: [...subResult.chain, atom],
-              bindings: { ...subResult.bindings, ...matchedBindings }
-            });
-          }
-        }
-      }
-    }
-
-    if (results.length === 0) return { tv: { strength: 0.1, confidence: 0.1 }, chain: [], bindings: {} };
-
-    const best = results.reduce((a, b) => {
-      const aScore = a.tv.strength * a.tv.confidence * (Object.keys(a.bindings).length > 0 ? 1.2 : 1);
-      const bScore = b.tv.strength * b.tv.confidence * (Object.keys(b.bindings).length > 0 ? 1.2 : 1);
-      return aScore > bScore ? a : b;
-    });
-
-    return best;
-  }
-
-  // ... existing matchWithBindings, applyConclusion, tryBindRule, combineTV, evaluate, loadFromLattice, clear unchanged ...
-}
-
-const hyperon = new HyperonRuntime();
-export { hyperon };        premises: ["ImplicationLink $A $C", "ImplicationLink $B $C", "OrLink $A $B"],
+        priority: 17
+      },
+      {
+        name: "Constructive Dilemma",
+        direction: "forward",
+        premises: ["ImplicationLink $A $C", "ImplicationLink $B $C", "OrLink $A $B"],
         conclusion: "EvaluationLink $C",
         tvCombiner: (tvs) => ({
           strength: Math.min(tvs[0].strength, tvs[1].strength) * tvs[2].strength,
@@ -232,31 +111,27 @@ export { hyperon };        premises: ["ImplicationLink $A $C", "ImplicationLink 
         }),
         priority: 18
       },
-
-      // NEW: Modus Ponens (A → B, A ⊢ B)
       {
-        name: "Modus Ponens",
+        name: "Resolution",
         direction: "forward",
-        premises: ["ImplicationLink $A $B", "EvaluationLink $A"],
-        conclusion: "EvaluationLink $B",
+        premises: ["OrLink $A $B", "OrLink Not $A $C"],
+        conclusion: "OrLink $B $C",
         tvCombiner: (tvs) => ({
-          strength: tvs[0].strength * tvs[1].strength,
-          confidence: Math.min(tvs[0].confidence, tvs[1].confidence) * 0.9
+          strength: Math.max(tvs[0].strength, tvs[1].strength) * 0.9,
+          confidence: Math.min(tvs[0].confidence, tvs[1].confidence) * 0.8
         }),
-        priority: 20, // very high priority for core deductive reasoning
-        description: "If A implies B and A is true, then B is true"
+        priority: 19
       },
       {
-        name: "Modus Ponens-Backward",
-        direction: "backward",
-        premises: ["EvaluationLink $B"],
-        conclusion: "EvaluationLink $A", // seeks antecedent A
+        name: "Destructive Dilemma",
+        direction: "forward",
+        premises: ["OrLink Not $C Not $D", "ImplicationLink $A $C", "ImplicationLink $B $D"],
+        conclusion: "OrLink Not $A Not $B",
         tvCombiner: (tvs) => ({
-          strength: tvs[0].strength * 0.8,
-          confidence: tvs[0].confidence * 0.75
+          strength: Math.min(tvs[0].strength, tvs[1].strength, tvs[2].strength) * 0.9,
+          confidence: Math.min(...tvs.map(tv => tv.confidence)) * 0.8
         }),
-        priority: 18,
-        description: "Backward Modus Ponens: given B, seek A where A → B"
+        priority: 17
       },
 
       // Existing backward chaining rules (unchanged)
@@ -285,9 +160,79 @@ export { hyperon };        premises: ["ImplicationLink $A $C", "ImplicationLink 
     ].sort((a, b) => b.priority - a.priority);
   }
 
-  // ... existing methods (newHandle, addAtom, getAtom, matchWithBindings, combineTV, forwardChain, backwardChain, evaluate, loadFromLattice, clear) unchanged ...
+  newHandle() {
+    return this.nextHandle++;
+  }
 
-  // Forward chaining now includes Modus Ponens
+  addAtom(atom) {
+    const handle = this.newHandle();
+    atom.handle = handle;
+    this.atomSpace.set(handle, atom);
+
+    atom.outgoing.forEach(targetHandle => {
+      const target = this.atomSpace.get(targetHandle);
+      if (target) target.incoming.add(handle);
+    });
+
+    return handle;
+  }
+
+  getAtom(handle) {
+    return this.atomSpace.get(handle);
+  }
+
+  matchWithBindings(atom, pattern, bindings = {}) {
+    if (pattern.type && atom.type !== pattern.type) return null;
+
+    if (pattern.name) {
+      if (pattern.name.startsWith('$')) {
+        const varName = pattern.name.slice(1);
+        if (bindings[varName] !== undefined && bindings[varName] !== atom.name) return null;
+        bindings[varName] = atom.name;
+      } else if (pattern.name !== atom.name) {
+        return null;
+      }
+    }
+
+    if (pattern.outgoing) {
+      if (atom.outgoing.length !== pattern.outgoing.length) return null;
+      for (let i = 0; i < pattern.outgoing.length; i++) {
+        const childAtom = this.getAtom(atom.outgoing[i]);
+        if (!childAtom) return null;
+        const childBindings = this.matchWithBindings(childAtom, pattern.outgoing[i], { ...bindings });
+        if (!childBindings) return null;
+        Object.assign(bindings, childBindings);
+      }
+    }
+
+    return bindings;
+  }
+
+  applyConclusion(template, bindings) {
+    return template.replace(/\$([a-z]+)/g, (_, varName) => bindings[varName] || `$${varName}`);
+  }
+
+  tryBindRule(rule, linkAtom, premises) {
+    if (rule.premises.length !== premises.length + 1) return null;
+
+    const bindings = {};
+    for (let i = 0; i < rule.premises.length; i++) {
+      const pattern = rule.premises[i];
+      const target = i === 0 ? linkAtom : premises[i - 1];
+      const match = this.matchWithBindings(target, pattern, bindings);
+      if (!match) return null;
+      Object.assign(bindings, match);
+    }
+
+    return { bindings };
+  }
+
+  combineTV(tv1, tv2) {
+    const strength = (tv1.strength + tv2.strength) / 2;
+    const confidence = Math.min(tv1.confidence, tv2.confidence);
+    return { strength, confidence };
+  }
+
   async forwardChain(maxIterations = 8) {
     let derived = [];
     let iteration = 0;
@@ -324,7 +269,6 @@ export { hyperon };        premises: ["ImplicationLink $A $C", "ImplicationLink 
     return derived;
   }
 
-  // Backward chaining now leverages Modus Ponens backward rule
   async backwardChain(targetPattern, depth = 0, visited = new Set(), bindings = {}) {
     if (depth > this.maxChainDepth) return { tv: { strength: 0.1, confidence: 0.1 }, chain: [], bindings: {} };
 
@@ -341,7 +285,6 @@ export { hyperon };        premises: ["ImplicationLink $A $C", "ImplicationLink 
         }
       }
 
-      // Apply backward-specific rules (including Modus Ponens backward)
       for (const rule of this.inferenceRules.filter(r => r.direction === "backward")) {
         const bound = this.tryBindRule(rule, atom, []);
         if (bound) {
@@ -385,7 +328,40 @@ export { hyperon };        premises: ["ImplicationLink $A $C", "ImplicationLink 
     return best;
   }
 
-  // ... existing matchWithBindings, applyConclusion, tryBindRule, combineTV, evaluate, loadFromLattice, clear unchanged ...
+  evaluate(expression) {
+    const pattern = expression;
+    const result = this.query(pattern);
+    if (result.length === 0) return { truth: 0.1, confidence: 0.3 };
+
+    const tv = result.reduce((acc, r) => {
+      const v = r.atom.truthValue();
+      return acc + v * (v >= this.mercyThreshold ? 1.5 : 0.5);
+    }, 0) / result.length;
+
+    return { truth: tv, confidence: Math.min(1, tv * 2) };
+  }
+
+  loadFromLattice(buffer) {
+    console.log('Hyperon atoms loaded from lattice:', buffer ? buffer.byteLength : 'null');
+
+    const truth = new HyperonAtom("ConceptNode", "Truth", { strength: 1.0, confidence: 1.0 }, 0.9);
+    const mercy = new HyperonAtom("ConceptNode", "Mercy", { strength: 0.9999999, confidence: 1.0 }, 1.0);
+    const inheritance = new HyperonAtom("InheritanceLink");
+    inheritance.outgoing = [truth.handle, mercy.handle];
+
+    this.addAtom(truth);
+    this.addAtom(mercy);
+    this.addAtom(inheritance);
+
+    this.forwardChain();
+
+    console.log('Hyperon bootstrap & chaining complete – mercy-aligned atoms ready');
+  }
+
+  clear() {
+    this.atomSpace.clear();
+    this.nextHandle = 0;
+  }
 }
 
 const hyperon = new HyperonRuntime();
