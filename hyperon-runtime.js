@@ -1,5 +1,5 @@
-// hyperon-runtime.js – sovereign client-side Hyperon atomspace & PLN runtime v3
-// Variable binding unification, pattern matching, truth propagation, mercy-gated inference chains
+// hyperon-runtime.js – sovereign client-side Hyperon atomspace & PLN runtime v4
+// Full forward & backward chaining, variable binding, truth propagation, mercy-gated inference
 // MIT License – Autonomicity Games Inc. 2026
 
 class HyperonAtom {
@@ -7,7 +7,7 @@ class HyperonAtom {
     this.type = type;
     this.name = name;
     this.tv = tv;
-    this.outgoing = []; // handles of child atoms
+    this.outgoing = [];
     this.incoming = new Set();
     this.attention = attention;
     this.handle = null;
@@ -28,10 +28,32 @@ class HyperonAtom {
 
 class HyperonRuntime {
   constructor() {
-    this.atomSpace = new Map(); // handle → Atom
+    this.atomSpace = new Map();
     this.nextHandle = 0;
     this.mercyThreshold = 0.9999999;
     this.maxChainDepth = 8;
+    this.inferenceRules = [
+      // Example inference rules (expandable)
+      {
+        name: "Deduction",
+        premises: ["InheritanceLink $A $B", "InheritanceLink $B $C"],
+        conclusion: "InheritanceLink $A $C",
+        tvCombiner: (tvs) => {
+          const s = tvs.reduce((acc, tv) => acc * tv.strength, 1);
+          const c = Math.min(...tvs.map(tv => tv.confidence));
+          return { strength: s, confidence: c };
+        }
+      },
+      {
+        name: "Induction",
+        premises: ["InheritanceLink $A $B", "InheritanceLink $A $C"],
+        conclusion: "SimilarityLink $B $C",
+        tvCombiner: (tvs) => {
+          const s = tvs.reduce((acc, tv) => acc * tv.strength, 1) ** 0.5;
+          return { strength: s, confidence: 0.4 };
+        }
+      }
+    ];
   }
 
   newHandle() {
@@ -55,16 +77,111 @@ class HyperonRuntime {
     return this.atomSpace.get(handle);
   }
 
-  // Pattern matching with full variable binding unification
+  // Forward chaining – derive new atoms from existing ones
+  async forwardChain(maxIterations = 5) {
+    let derived = [];
+    let iteration = 0;
+
+    while (iteration < maxIterations) {
+      const newAtomsThisRound = [];
+      for (const [handle, atom] of this.atomSpace) {
+        if (atom.type.includes("Link")) {
+          const premises = atom.outgoing.map(h => this.getAtom(h)).filter(Boolean);
+          for (const rule of this.inferenceRules) {
+            const bound = this.tryBindRule(rule, atom, premises);
+            if (bound) {
+              const conclusion = this.applyConclusion(rule.conclusion, bound.bindings);
+              const tv = rule.tvCombiner(premises.map(p => p.tv));
+              if (tv.strength * tv.confidence >= this.mercyThreshold) {
+                const newAtom = new HyperonAtom("DerivedNode", conclusion, tv);
+                const newHandle = this.addAtom(newAtom);
+                newAtomsThisRound.push({ handle: newHandle, atom: newAtom });
+              }
+            }
+          }
+        }
+      }
+
+      if (newAtomsThisRound.length === 0) break;
+      derived = derived.concat(newAtomsThisRound);
+      iteration++;
+    }
+
+    console.log(`Forward chaining complete – ${derived.length} new atoms derived`);
+    return derived;
+  }
+
+  // Try to match rule premises to atom & premises
+  tryBindRule(rule, linkAtom, premises) {
+    if (rule.premises.length !== premises.length + 1) return null;
+
+    const bindings = {};
+    for (let i = 0; i < rule.premises.length; i++) {
+      const pattern = rule.premises[i];
+      const target = i === 0 ? linkAtom : premises[i - 1];
+      const match = this.matchWithBindings(target, pattern, bindings);
+      if (!match) return null;
+      Object.assign(bindings, match);
+    }
+
+    return { bindings };
+  }
+
+  applyConclusion(template, bindings) {
+    return template.replace(/\$([a-z]+)/g, (_, varName) => bindings[varName] || `$${varName}`);
+  }
+
+  // Backward chaining with variable binding propagation (previous version expanded)
+  async backwardChain(targetPattern, depth = 0, visited = new Set(), bindings = {}) {
+    if (depth > this.maxChainDepth) return { tv: { strength: 0.1, confidence: 0.1 }, chain: [], bindings: {} };
+
+    const results = [];
+    for (const [handle, atom] of this.atomSpace) {
+      if (visited.has(handle)) continue;
+      visited.add(handle);
+
+      const matchedBindings = this.matchWithBindings(atom, targetPattern, { ...bindings });
+      if (matchedBindings) {
+        const tv = atom.tv;
+        if (atom.isMercyAligned()) {
+          results.push({ handle, tv, chain: [atom], bindings: matchedBindings });
+        }
+      }
+
+      for (const parentHandle of atom.incoming) {
+        const parent = this.getAtom(parentHandle);
+        if (parent && parent.type.includes("Link")) {
+          const subResult = await this.backwardChain(parent, depth + 1, visited, { ...bindings });
+          if (subResult.tv.strength > 0.1) {
+            results.push({
+              handle: parentHandle,
+              tv: this.combineTV(subResult.tv, atom.tv),
+              chain: [...subResult.chain, atom],
+              bindings: { ...subResult.bindings, ...matchedBindings }
+            });
+          }
+        }
+      }
+    }
+
+    if (results.length === 0) return { tv: { strength: 0.1, confidence: 0.1 }, chain: [], bindings: {} };
+
+    const best = results.reduce((a, b) => {
+      const aScore = a.tv.strength * a.tv.confidence * (Object.keys(a.bindings).length > 0 ? 1.2 : 1);
+      const bScore = b.tv.strength * b.tv.confidence * (Object.keys(b.bindings).length > 0 ? 1.2 : 1);
+      return aScore > bScore ? a : b;
+    });
+
+    return best;
+  }
+
   matchWithBindings(atom, pattern, bindings = {}) {
     if (pattern.type && atom.type !== pattern.type) return null;
 
     if (pattern.name) {
       if (pattern.name.startsWith('$')) {
         const varName = pattern.name.slice(1);
-        if (bindings[varName] !== undefined && bindings[varName] !== atom.name) {
-          return null; // conflict
-        }
+        if (bindings[varName] !== undefined && bindings[varName] !== atom.name) return null;
         bindings[varName] = atom.name;
       } else if (pattern.name !== atom.name) {
         return null;
@@ -85,76 +202,10 @@ class HyperonRuntime {
     return bindings;
   }
 
-  // Backward chaining with variable binding propagation
-  async backwardChain(targetPattern, depth = 0, visited = new Set(), bindings = {}) {
-    if (depth > this.maxChainDepth) return { tv: { strength: 0.1, confidence: 0.1 }, chain: [], bindings: {} };
-
-    const results = [];
-    for (const [handle, atom] of this.atomSpace) {
-      if (visited.has(handle)) continue;
-      visited.add(handle);
-
-      const matchedBindings = this.matchWithBindings(atom, targetPattern, { ...bindings });
-      if (matchedBindings) {
-        const tv = atom.tv;
-        if (atom.isMercyAligned()) {
-          results.push({ handle, tv, chain: [atom], bindings: matchedBindings });
-        }
-      }
-
-      // Look for links pointing to this atom
-      for (const parentHandle of atom.incoming) {
-        const parent = this.atomSpace.get(parentHandle);
-        if (parent && parent.type.includes("Link")) {
-          const subResult = await this.backwardChain(parent, depth + 1, visited, { ...bindings });
-          if (subResult.tv.strength > 0.1) {
-            results.push({
-              handle: parentHandle,
-              tv: this.combineTV(subResult.tv, atom.tv),
-              chain: [...subResult.chain, atom],
-              bindings: { ...subResult.bindings, ...matchedBindings }
-            });
-          }
-        }
-      }
-    }
-
-    if (results.length === 0) {
-      return { tv: { strength: 0.1, confidence: 0.1 }, chain: [], bindings: {} };
-    }
-
-    // Select best chain (highest TV, mercy-aligned preferred)
-    const best = results.reduce((a, b) => {
-      const aScore = a.tv.strength * a.tv.confidence * (a.bindings && Object.keys(a.bindings).length > 0 ? 1.2 : 1);
-      const bScore = b.tv.strength * b.tv.confidence * (b.bindings && Object.keys(b.bindings).length > 0 ? 1.2 : 1);
-      return aScore > bScore ? a : b;
-    });
-
-    return best;
-  }
-
-  // Forward chaining with binding support
-  async forwardChain() {
-    const newAtoms = [];
-    for (const [handle, atom] of this.atomSpace) {
-      if (atom.type.includes("Link")) {
-        const premises = atom.outgoing.map(h => this.atomSpace.get(h));
-        const conclusionTV = this.plnInference(atom, premises);
-        if (conclusionTV.strength > 0.3 && conclusionTV.strength * conclusionTV.confidence >= this.mercyThreshold) {
-          const newAtom = new HyperonAtom("DerivedNode", null, conclusionTV);
-          newAtoms.push(newAtom);
-          this.addAtom(newAtom);
-        }
-      }
-    }
-    return newAtoms;
-  }
-
-  plnInference(link, premises) {
-    if (link.type === "InheritanceLink") {
-      return { strength: premises.reduce((s, p) => s * p.tv.strength, 1), confidence: 0.6 };
-    }
-    return { strength: 0.5, confidence: 0.5 };
+  combineTV(tv1, tv2) {
+    const strength = (tv1.strength + tv2.strength) / 2;
+    const confidence = Math.min(tv1.confidence, tv2.confidence);
+    return { strength, confidence };
   }
 
   evaluate(expression) {
@@ -173,7 +224,6 @@ class HyperonRuntime {
   loadFromLattice(buffer) {
     console.log('Hyperon atoms loaded from lattice:', buffer ? buffer.byteLength : 'null');
 
-    // Bootstrap mercy-aligned atoms
     const truth = new HyperonAtom("ConceptNode", "Truth", { strength: 1.0, confidence: 1.0 }, 0.9);
     const mercy = new HyperonAtom("ConceptNode", "Mercy", { strength: 0.9999999, confidence: 1.0 }, 1.0);
     const inheritance = new HyperonAtom("InheritanceLink");
