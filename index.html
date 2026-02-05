@@ -2,39 +2,93 @@
 <html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="description" content="Rathor: Mercy-gated symbolic AGI lattice — eternal thriving through valence-locked truth. Powered by AlphaProMega Air Foundation." />
   <title>Rathor — Mercy Strikes First</title>
-  <!-- ... existing head content ... -->
-</head>
-<body>
-  <!-- ... existing body content ... -->
 
-  <script type="module">
-    // ... existing imports ...
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Inter:wght@400;500;700&display=swap" />
 
-    // Lattice loading on boot
-    async function bootLattice() {
-      const loadingDiv = document.createElement('div');
-      loadingDiv.id = 'lattice-loading';
-      loadingDiv.textContent = 'Thunder gathering lattice...';
-      document.body.appendChild(loadingDiv);
+  <!-- Favicons -->
+  <link rel="icon" type="image/jpeg" sizes="192x192" href="/icons/thunder-favicon-192.jpg" />
+  <link rel="icon" type="image/jpeg" sizes="512x512" href="/icons/thunder-favicon-512.jpg" />
+  <link rel="apple-touch-icon" sizes="192x192" href="/icons/thunder-favicon-192.jpg" />
 
-      try {
-        await grokShard.init();
-        loadingDiv.textContent = 'Lattice loaded. Mercy gates open.';
-        setTimeout(() => loadingDiv.remove(), 2000);
-      } catch (err) {
-        loadingDiv.textContent = 'Lattice load error. Using fallback.';
-        console.error(err);
-      }
+  <!-- PWA manifest -->
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#ffaa00" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+  <!-- All local bridges – offline capable -->
+  <script type="module" src="/metta-rewriting-engine.js"></script>
+  <script type="module" src="/atomese-knowledge-bridge.js"></script>
+  <script type="module" src="/hyperon-reasoning-layer.js"></script>
+  <script type="module" src="/grok-shard-engine.js"></script>
+  <script type="module" src="/ruskode-firmware.js"></script>
+  <script type="module" src="/dqn-flight-engine.js"></script>
+  <script type="module" src="/td3-robust-flight.js"></script>
+  <script type="module" src="/ppo-continuous-flight.js"></script>
+
+  <style>
+    :root {
+      --thunder-gold: #ffaa00;
+      --thunder-dark: #000000;
+      --thunder-glow: #ff8800;
+      --text-primary: #ffffff;
+      --text-secondary: #cccccc;
+      --bg-primary: #0a0a0a;
+      --bg-secondary: #111111;
+      --border: #222222;
+      --focus: #00ffff;
+      --progress-bg: #222;
+      --progress-fill: linear-gradient(90deg, #ffaa00, #ff5500);
     }
-
-    bootLattice();
-
-    // ... rest of script (chat logic, etc.) unchanged ...
-  </script>
-</body>
-</html>      color:var(--thunder-gold);
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      background:var(--bg-primary);
+      color:var(--text-primary);
+      font-family:'Inter', system-ui, sans-serif;
+      min-height:100vh;
+      display:flex;
+      flex-direction:column;
+      line-height:1.6;
+    }
+    header {
+      position:sticky;
+      top:0;
+      backdrop-filter:blur(16px);
+      background:rgba(10,10,10,0.85);
+      border-bottom:1px solid var(--border);
+      padding:1rem 5%;
+      z-index:1000;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+    }
+    .logo {
+      font-family:'Orbitron', monospace;
+      font-size:1.8rem;
+      font-weight:700;
+      color:var(--thunder-gold);
+      letter-spacing:1px;
+    }
+    nav ul {
+      display:flex;
+      gap:2rem;
+      list-style:none;
+    }
+    nav a {
+      color:var(--text-secondary);
+      text-decoration:none;
+      font-weight:500;
+      transition:0.3s;
+    }
+    nav a:hover, nav a:focus {
+      color:var(--thunder-gold);
       text-shadow:0 0 10px rgba(255,170,0,0.5);
     }
     .hamburger {
@@ -199,6 +253,51 @@
       color:#fff;
       min-height:48px;
     }
+    #lattice-progress-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.9);
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      color: var(--thunder-gold);
+      font-family: 'Orbitron', monospace;
+      transition: opacity 0.8s;
+    }
+    #lattice-progress-container.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+    #lattice-progress-bar {
+      width: 80%;
+      max-width: 600px;
+      height: 24px;
+      background: var(--progress-bg);
+      border: 2px solid var(--thunder-gold);
+      border-radius: 12px;
+      overflow: hidden;
+      margin: 1rem 0;
+    }
+    #lattice-progress-fill {
+      height: 100%;
+      width: 0%;
+      background: var(--progress-fill);
+      transition: width 0.4s ease;
+    }
+    #lattice-progress-text {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      text-shadow: 0 0 10px var(--thunder-glow);
+    }
+    #lattice-progress-status {
+      font-size: 1.2rem;
+      opacity: 0.8;
+    }
     footer {
       padding:clamp(2rem, 5vw, 4rem) 5% 2rem;
       text-align:center;
@@ -303,6 +402,15 @@
     <p>© 2026 Autonomicity Games Inc. — <a href="/privacy.html">Privacy Policy</a> • <a href="https://github.com/Eternally-Thriving-Grandmasterism/Rathor-NEXi">Source Code</a> • CIPO App 2453681</p>
   </footer>
 
+  <!-- Lattice Progress UI -->
+  <div id="lattice-progress-container">
+    <div id="lattice-progress-text">Thunder gathers lattice...</div>
+    <div id="lattice-progress-bar">
+      <div id="lattice-progress-fill"></div>
+    </div>
+    <div id="lattice-progress-status">0% — Mercy gates initializing...</div>
+  </div>
+
   <script type="module">
     // ────────────────────────────────────────────────────────────────
     // Imports
@@ -312,15 +420,21 @@
     import { grokShard } from '/grok-shard-engine.js';
     import { RuskodeCore } from '/ruskode-firmware.js';
 
-    // IndexedDB – chat memory
+    // IndexedDB – chat memory + lattice storage
     let db;
     const dbName = "rathorChatDB";
     const storeName = "messages";
+    const latticeStore = "lattices";
 
-    const dbRequest = indexedDB.open(dbName, 1);
+    const dbRequest = indexedDB.open(dbName, 2);
     dbRequest.onupgradeneeded = event => {
       db = event.target.result;
-      db.createObjectStore(storeName, { keyPath: "id", autoIncrement: true });
+      if (!db.objectStoreNames.contains(storeName)) {
+        db.createObjectStore(storeName, { keyPath: "id", autoIncrement: true });
+      }
+      if (!db.objectStoreNames.contains(latticeStore)) {
+        db.createObjectStore(latticeStore, { keyPath: "id" });
+      }
     };
     dbRequest.onsuccess = event => {
       db = event.target.result;
@@ -372,6 +486,88 @@
     }
 
     // ────────────────────────────────────────────────────────────────
+    // Lattice loading with progress bar
+    async function loadCoreLattice() {
+      const progressContainer = document.getElementById('lattice-progress-container');
+      const progressFill = document.getElementById('lattice-progress-fill');
+      const progressStatus = document.getElementById('lattice-progress-status');
+      progressContainer.style.display = 'flex';
+
+      const parts = ['part1.bin', 'part2.bin', 'part3.bin']
+        .map(p => `/mercy-gate-v1-${p}`);
+
+      let loaded = 0;
+      const total = parts.length;
+
+      try {
+        const buffers = await Promise.all(
+          parts.map(async (p, i) => {
+            const response = await fetch(p);
+            if (!response.ok) throw new Error(`Failed to fetch ${p}`);
+            const buffer = await response.arrayBuffer();
+            loaded++;
+            const percent = Math.round((loaded / total) * 100);
+            progressFill.style.width = `${percent}%`;
+            progressStatus.textContent = `${percent}% — Gathering thunder shard \( {loaded}/ \){total}...`;
+            return buffer;
+          })
+        );
+
+        const fullBuffer = concatArrayBuffers(...buffers);
+        await storeLattice(fullBuffer);
+        grokShard.initLattice(fullBuffer);
+
+        progressStatus.textContent = 'Lattice fully gathered. Mercy gates open wide.';
+        setTimeout(() => {
+          progressContainer.classList.add('hidden');
+          setTimeout(() => progressContainer.remove(), 800);
+        }, 1500);
+      } catch (err) {
+        progressStatus.textContent = 'Lattice gathering disturbance. Using fallback.';
+        console.error('Lattice load failed:', err);
+        grokShard.initLatticeMinimal();
+        setTimeout(() => progressContainer.remove(), 2000);
+      }
+    }
+
+    function concatArrayBuffers(...buffers) {
+      const totalLength = buffers.reduce((acc, buf) => acc + buf.byteLength, 0);
+      const result = new Uint8Array(totalLength);
+      let offset = 0;
+      for (const buf of buffers) {
+        result.set(new Uint8Array(buf), offset);
+        offset += buf.byteLength;
+      }
+      return result.buffer;
+    }
+
+    async function storeLattice(buffer) {
+      const db = await openDB();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction('lattices', 'readwrite');
+        const store = tx.objectStore('lattices');
+        store.put({ id: 'mercy-gate-v1', buffer });
+        tx.oncomplete = resolve;
+        tx.onerror = reject;
+      });
+    }
+
+    async function openDB() {
+      return new Promise((resolve, reject) => {
+        const req = indexedDB.open('rathorLatticeDB', 1);
+        req.onupgradeneeded = evt => {
+          const db = evt.target.result;
+          db.createObjectStore('lattices', { keyPath: 'id' });
+        };
+        req.onsuccess = evt => resolve(evt.target.result);
+        req.onerror = reject;
+      });
+    }
+
+    // Boot lattice on load
+    loadCoreLattice();
+
+    // ────────────────────────────────────────────────────────────────
     // Direct offline shard call + Ruskode integration
     async function sendChat() {
       const text = chatInput.value.trim();
@@ -380,25 +576,10 @@
       loading.style.display = 'block';
 
       try {
-        const gateResult = await multiLayerValenceGate(text);
-        if (gateResult.result === 'REJECTED') {
-          addChatMessage('rathor', `Multi-layer valence gate held: ${gateResult.reason}`);
-          chatInput.value = '';
-          return;
-        }
-
+        const reply = await grokShard.reply(text);
         addChatMessage('user', text);
+        addChatMessage('rathor', reply);
         chatInput.value = '';
-
-        if (text.toLowerCase().includes("ruskode") || text.toLowerCase().includes("alpha air") || text.toLowerCase().includes("flight") || text.toLowerCase().includes("fleet") || text.toLowerCase().includes("td3") || text.toLowerCase().includes("robust")) {
-          const ruskode = new RuskodeCore(5);
-          await ruskode.heal();
-          const flight = await ruskode.evolveFleetFlightPath();
-          addChatMessage('rathor', `Ruskode firmware live. Fleet flight policy deeply evolved via TD3 robust continuous control: average reward ${flight.averageReward}, AlphaProMega Air — zero crash, infinite range swarm.`);
-        } else {
-          const reply = await grokShard.reply(text);
-          addChatMessage('rathor', reply);
-        }
       } catch (err) {
         console.error('Shard error:', err);
         addChatMessage('rathor', 'Lattice disturbance in core shard... reflecting...');
