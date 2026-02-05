@@ -1,5 +1,5 @@
-// hyperon-runtime.js – sovereign client-side Hyperon hypergraph atomspace & full PLN engine v25
-// Relevance-mercy-logic integration, persistent DB
+// hyperon-runtime.js – sovereign client-side Hyperon hypergraph atomspace & full PLN engine v26
+// Fuzzy-mercy-logic integration, persistent DB
 // MIT License – Autonomicity Games Inc. 2026
 
 // ... (HyperonAtom class unchanged) ...
@@ -8,15 +8,15 @@ class HyperonRuntime {
   constructor() {
     // ... (previous constructor unchanged) ...
 
-    this.relevanceMercy = new RelevanceMercyLogic();
+    this.fuzzyMercy = new FuzzyMercyLogic();
   }
 
   async init() {
     this.db = await this.openDB();
     await this.loadFromDB();
-    // Seed some relevant implications
-    this.relevanceMercy.assertRelevantImplication("MercyGate", "EternalThriving");
-    this.relevanceMercy.assertRelevantImplication("HighValence", "InfiniteAbundance");
+    // Seed fuzzy assertions
+    this.fuzzyMercy.assert("MercyGate", 0.9999999);
+    this.fuzzyMercy.assert("EternalThriving", 1.0);
   }
 
   // ... (other methods unchanged) ...
@@ -36,17 +36,15 @@ class HyperonRuntime {
               const conclusionName = this.applyConclusion(rule.conclusion, bound.bindings);
               const tv = rule.tvCombiner(premises.map(p => p.tv));
 
-              // Relevance-mercy check
-              const relevant = this.relevanceMercy.relevantEntails(
-                premises.map(p => p.name).join(" & "),
-                conclusionName
-              );
-              if (relevant && tv.strength * tv.confidence >= this.mercyThreshold) {
+              // Fuzzy mercy check
+              this.fuzzyMercy.assert(conclusionName, tv.strength * tv.confidence);
+              const fuzzyInfer = this.fuzzyMercy.infer(premises.map(p => p.name), conclusionName);
+              if (fuzzyInfer.degree >= this.mercyThreshold) {
                 const newAtom = new HyperonAtom("DerivedNode", conclusionName, tv);
                 const newHandle = this.addAtom(newAtom);
                 newAtomsThisRound.push({ handle: newHandle, atom: newAtom, rule: rule.name });
               } else {
-                console.warn("[Hyperon] Inference rejected by relevance-mercy gate");
+                console.warn("[Hyperon] Inference rejected by fuzzy mercy gate");
               }
             }
           }
