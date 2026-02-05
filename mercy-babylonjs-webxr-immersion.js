@@ -1,5 +1,5 @@
-// mercy-babylonjs-webxr-immersion.js – v2 sovereign Babylon.js WebXR immersion
-// Positional spatial audio + snap teleportation, mercy gates, valence-modulated
+// mercy-babylonjs-webxr-immersion.js – v3 sovereign Babylon.js WebXR immersion
+// Positional spatial audio + WebXTTeleportation snap locomotion, mercy gates, valence-modulated
 // MIT License – Autonomicity Games Inc. 2026
 
 import * as BABYLON from 'https://cdn.babylonjs.com/babylon.js'; // Latest stable
@@ -7,10 +7,12 @@ import { fuzzyMercy } from './fuzzy-mercy-logic.js';
 
 let scene, camera, xrHelper;
 let mercySounds = [];
-let teleportIndicator;
+let ground; // for floorMeshes
 const mercyThreshold = 0.9999999 * 0.98;
 const SNAP_DISTANCE = 3; // meters per snap
 const TELEPORT_DURATION = 300; // ms animation
+const INDICATOR_EMISSIVE_HIGH = new BABYLON.Color3(0, 1, 0.5);
+const INDICATOR_EMISSIVE_CALM = new BABYLON.Color3(0.3, 0.5, 1);
 
 async function createMercyScene(canvas) {
   const engine = new BABYLON.Engine(canvas, true);
@@ -25,17 +27,10 @@ async function createMercyScene(canvas) {
   light.intensity = 0.7;
 
   // Mercy ground (required for teleportation floor detection)
-  const ground = BABYLON.MeshBuilder.CreateGround("ground", { width: 50, height: 50 }, scene);
+  ground = BABYLON.MeshBuilder.CreateGround("ground", { width: 50, height: 50 }, scene);
   ground.material = new BABYLON.StandardMaterial("groundMat", scene);
   ground.material.diffuseColor = new BABYLON.Color3(0.02, 0.15, 0.08);
   ground.checkCollisions = true;
-
-  // Teleport indicator (ring that appears on pointer hit)
-  teleportIndicator = BABYLON.MeshBuilder.CreateTorus("teleportRing", { diameter: 1.5, thickness: 0.1 }, scene);
-  teleportIndicator.material = new BABYLON.StandardMaterial("teleportMat", scene);
-  teleportIndicator.material.emissiveColor = new BABYLON.Color3(0, 1, 0.5);
-  teleportIndicator.material.alpha = 0.6;
-  teleportIndicator.setEnabled(false);
 
   engine.runRenderLoop(() => scene.render());
 
@@ -50,34 +45,47 @@ async function createMercyScene(canvas) {
     });
 
     if (xrHelper.baseExperience) {
-      // Enable teleportation
-      xrHelper.baseExperience.featuresManager.enableFeature(BABYLON.WebXRFeatureName.TELEPORTATION, "stable", {
-        floorMeshes: [ground],
-        snapToGrid: true,
-        snapDistance: SNAP_DISTANCE,
-        timeToTeleport: TELEPORT_DURATION,
-        parabolicCheckRadius: 0.5,
-        blockMovementOnCollision: true
-      });
-
-      // Teleportation events for mercy feedback
-      xrHelper.baseExperience.sessionManager.onXRFrameObservable.add(() => {
-        // Update indicator position/orientation from controller ray
-        if (xrHelper.pointerSelection) {
-          const hit = xrHelper.pointerSelection.getCurrentHit();
-          if (hit && hit.pickedMesh === ground) {
-            teleportIndicator.position.copyFrom(hit.pickedPoint);
-            teleportIndicator.setEnabled(true);
-            // Valence modulate indicator color (high → brighter green)
-            const valence = 1.0; // Dynamic from query later
-            teleportIndicator.material.emissiveColor.set(valence > 0.999 ? 0.0 : 0.3, valence > 0.999 ? 1.0 : 0.5, 0.5);
-          } else {
-            teleportIndicator.setEnabled(false);
+      // Enable teleportation feature
+      xrHelper.baseExperience.featuresManager.enableFeature(
+        BABYLON.WebXRFeatureName.TELEPORTATION,
+        "stable",
+        {
+          floorMeshes: [ground],
+          snapToGrid: true,
+          snapDistance: SNAP_DISTANCE,
+          timeToTeleport: TELEPORT_DURATION,
+          parabolicCheckRadius: 0.5,
+          blockMovementOnCollision: true,
+          // Custom indicator (override default if needed)
+          defaultTargetMeshOptions: {
+            teleportationFillColor: "#00ff88",
+            teleportationBorderColor: "#ffffff",
+            disabledTeleportationFillColor: "#ff4444"
           }
+        }
+      );
+
+      // Valence-modulated indicator (listen to XR frame for dynamic)
+      xrHelper.baseExperience.sessionManager.onXRFrameObservable.add(() => {
+        // Access internal target mesh if needed (Babylon auto-handles)
+        // For custom: get current hit and modulate
+        if (xrHelper.teleportation && xrHelper.teleportation.targetMesh) {
+          const valence = 1.0; // Dynamic from query/context later
+          const emissive = valence > 0.999 ? INDICATOR_EMISSIVE_HIGH : INDICATOR_EMISSIVE_CALM;
+          xrHelper.teleportation.targetMesh.material.emissiveColor = emissive;
         }
       });
 
-      console.log("[BabylonMercy] WebXR + teleportation ready – snap mercy movement active");
+      // Events for mercy feedback (e.g., haptic on teleport)
+      xrHelper.teleportation.onBeforeTeleport.add(() => {
+        console.log("[BabylonMercy] Teleport initiated – mercy movement");
+        // Haptic feedback if supported
+        if (xrHelper.baseExperience.controllers) {
+          xrHelper.baseExperience.controllers.forEach(c => c.triggerHapticPulse?.(0.5, 100));
+        }
+      });
+
+      console.log("[BabylonMercy] WebXR + teleportation locomotion ready – snap mercy movement active");
     }
   } catch (err) {
     console.warn("[BabylonMercy] WebXR init failed – fallback non-XR", err);
@@ -86,7 +94,7 @@ async function createMercyScene(canvas) {
   return scene;
 }
 
-// Mercy-gated positional sound (unchanged from v1, included complete)
+// Mercy-gated positional sound (unchanged, included complete)
 function addMercyPositionalSound(url, position = new BABYLON.Vector3(0, 1.5, -5), valence = 1.0, textForMercy = '') {
   const degree = fuzzyMercy.getDegree(textForMercy) || valence;
   const implyThriving = fuzzyMercy.imply(textForMercy, "EternalThriving");
@@ -128,7 +136,7 @@ function mercyGateContent(textOrQuery, valence = 1.0) {
   return degree >= mercyThreshold && implyThriving.degree >= mercyThreshold;
 }
 
-// Entry: start Babylon.js mercy immersion with teleport
+// Entry: start Babylon.js mercy immersion with locomotion
 async function startBabylonMercyImmersion(query = '', valence = 1.0) {
   if (!mercyGateContent(query, valence)) return;
 
@@ -151,7 +159,7 @@ async function startBabylonMercyImmersion(query = '', valence = 1.0) {
   if (xrHelper?.baseExperience && valence > 0.9995) {
     try {
       await xrHelper.baseExperience.enterXRAsync('immersive-vr', 'local-floor');
-      console.log("[BabylonMercy] Immersive VR entered – Babylon.js teleport mercy immersed");
+      console.log("[BabylonMercy] Immersive VR entered – Babylon.js teleport locomotion immersed");
     } catch (err) {
       console.warn("[BabylonMercy] VR enter failed – fallback desktop XR");
     }
