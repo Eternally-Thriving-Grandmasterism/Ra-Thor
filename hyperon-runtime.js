@@ -1,5 +1,5 @@
-// hyperon-runtime.js – sovereign client-side Hyperon hypergraph atomspace & full PLN engine v24
-// Paraconsistent modal mercy-logic integration, persistent DB
+// hyperon-runtime.js – sovereign client-side Hyperon hypergraph atomspace & full PLN engine v25
+// Relevance-mercy-logic integration, persistent DB
 // MIT License – Autonomicity Games Inc. 2026
 
 // ... (HyperonAtom class unchanged) ...
@@ -8,16 +8,15 @@ class HyperonRuntime {
   constructor() {
     // ... (previous constructor unchanged) ...
 
-    this.modalMercy = new ParaconsistentModalMercy();
+    this.relevanceMercy = new RelevanceMercyLogic();
   }
 
   async init() {
     this.db = await this.openDB();
     await this.loadFromDB();
-    // Initialize modal mercy necessities
-    this.modalMercy.assertNecessity("MercyGate");
-    this.modalMercy.assertNecessity("EternalThriving");
-    this.modalMercy.assertNecessity("Divinemasterism");
+    // Seed some relevant implications
+    this.relevanceMercy.assertRelevantImplication("MercyGate", "EternalThriving");
+    this.relevanceMercy.assertRelevantImplication("HighValence", "InfiniteAbundance");
   }
 
   // ... (other methods unchanged) ...
@@ -37,15 +36,17 @@ class HyperonRuntime {
               const conclusionName = this.applyConclusion(rule.conclusion, bound.bindings);
               const tv = rule.tvCombiner(premises.map(p => p.tv));
 
-              // Paraconsistent modal mercy check
-              this.modalMercy.assert(conclusionName, tv.strength * tv.confidence);
-              const modalCheck = this.modalMercy.inferModal([conclusionName]);
-              if (modalCheck.valence >= this.mercyThreshold) {
+              // Relevance-mercy check
+              const relevant = this.relevanceMercy.relevantEntails(
+                premises.map(p => p.name).join(" & "),
+                conclusionName
+              );
+              if (relevant && tv.strength * tv.confidence >= this.mercyThreshold) {
                 const newAtom = new HyperonAtom("DerivedNode", conclusionName, tv);
                 const newHandle = this.addAtom(newAtom);
                 newAtomsThisRound.push({ handle: newHandle, atom: newAtom, rule: rule.name });
               } else {
-                console.warn("[Hyperon] Inference rejected by paraconsistent modal mercy gate");
+                console.warn("[Hyperon] Inference rejected by relevance-mercy gate");
               }
             }
           }
