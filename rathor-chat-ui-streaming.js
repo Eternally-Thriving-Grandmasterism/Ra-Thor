@@ -171,6 +171,92 @@ style.textContent = `
   .typing, .error { color: #888; font-style: italic; }
   .error { color: #ff4444; }
 `;
+document.head.appendChild(style);      try {
+        bubble.innerHTML = marked.parse(fullContent);
+      } catch (e) {
+        bubble.innerHTML += escapeHtml(delta); // fallback raw
+      }
+      autoScroll();
+      lastFrame = now;
+    } else {
+      bubble.innerHTML += escapeHtml(delta);
+    }
+  };
+
+  try {
+    const response = await mercyAugmentedResponse(query, context, onDelta);
+
+    if (response.error || response.aborted) {
+      bubble.innerHTML = `<span class="error">Mercy gate: ${response.error || 'low valence abort'}</span>`;
+      return;
+    }
+
+    // Final render
+    bubble.innerHTML = marked.parse(response.response || '');
+    valence = response.valence || 0.999;
+
+    // Persist with threading (assume last user message is parent)
+    const lastUser = messageHistory.filter(m => m.role === 'user').pop();
+    await saveMessage({ 
+      conversationId: SESSION_ID, 
+      parentId: lastUser ? lastUser.id : null, 
+      role: 'user', 
+      content: query, 
+      valence: 1.0 
+    });
+    await saveMessage({ 
+      conversationId: SESSION_ID, 
+      parentId: lastUser ? lastUser.id : null, 
+      role: 'assistant', 
+      content: response.response, 
+      valence 
+    });
+
+  } catch (err) {
+    console.error("[Stream] Error:", err);
+    bubble.innerHTML += '<span class="error"> Streaming error – mercy preserved. Try again.</span>';
+  }
+
+  autoScroll();
+}
+
+inputForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const query = userInput.value.trim();
+  if (!query) return;
+
+  addMessage('user', query);
+  userInput.value = '';
+  sendButton.disabled = true;
+
+  if (hasWebGPU()) {
+    promptWebLLMModelDownload();
+  }
+
+  await streamResponse(query, 'Current lattice context: eternal thriving mercy');
+
+  sendButton.disabled = false;
+  userInput.focus();
+});
+
+// Init on load
+window.addEventListener('load', async () => {
+  await loadInitialHistory();
+});
+
+// Basic inline styles (expand to css file later)
+const style = document.createElement('style');
+style.textContent = `
+  #chat-container { max-height: 70vh; overflow-y: auto; padding: 1rem; }
+  .message { margin: 1rem 0; }
+  .user-message { text-align: right; }
+  .assistant-message { text-align: left; }
+  .bubble { display: inline-block; max-width: 80%; padding: 1rem; border-radius: 1rem; background: #f0f0f0; }
+  .user-message .bubble { background: #007bff; color: white; }
+  .valence-badge { font-size: 0.8rem; margin-left: 1rem; font-weight: bold; }
+  .typing, .error { color: #888; font-style: italic; }
+  .error { color: #ff4444; }
+`;
 document.head.appendChild(style);    }
   };
 
