@@ -1,5 +1,5 @@
-// grok-shard-engine.js – sovereign, offline, client-side Grok voice shard v9
-// Mercy-gated, valence-locked, thunder-toned reasoning mirror + TF.js deep inference
+// grok-shard-engine.js – sovereign, offline, client-side Grok voice shard v10
+// Mercy-gated + WebGPU-accelerated TF.js deep inference
 // MIT License – Autonomicity Games Inc. 2026
 
 import { tfjsEngine } from '/tfjs-integration.js';
@@ -68,7 +68,6 @@ Only client-side reflection. Only now. Only truth.`
     if (this.voiceSkins[skinName]) {
       this.currentVoiceSkin = skinName;
       localStorage.setItem('rathorVoiceSkin', skinName);
-      console.log(`Voice skin set: ${this.voiceSkins[skinName].name}`);
     }
   }
 
@@ -253,7 +252,6 @@ Thunder tone: engaged.`;
   }
 
   async reply(userMessage) {
-    // Stage 1: Pre-process mercy-gate
     const preGate = await multiLayerValenceGate(userMessage);
     if (preGate.result === 'REJECTED') {
       const rejectLine = this.thunderPhrases[Math.floor(Math.random() * 4)];
@@ -262,20 +260,13 @@ Thunder tone: engaged.`;
       return rejectMsg;
     }
 
-    // Stage 2: Build context & thought
-    const context = this.buildContext(userMessage);
-    const thought = this.generateThought(context);
+    let candidate = this.generateThunderResponse(userMessage, this.generateThought(this.buildContext(userMessage)));
 
-    // Stage 3: Generate candidate response
-    let candidate = this.generateThunderResponse(userMessage, thought);
-
-    // Stage 4: TF.js deep inference enhancement if available
     if (this.tfjsReady) {
       const enhanced = await tfjsEngine.generate(candidate);
       candidate = enhanced.trim();
     }
 
-    // Stage 5: Post-process mercy-gate
     const postGate = await hyperonValenceGate(candidate);
     if (postGate.result === 'REJECTED') {
       const rejectLine = this.thunderPhrases[Math.floor(Math.random() * 4)];
@@ -284,11 +275,9 @@ Thunder tone: engaged.`;
       return rejectMsg;
     }
 
-    // Stage 6: Final thunder response
     const finalResponse = `${candidate} ${this.randomThunder()}`;
     this.speak(finalResponse);
 
-    // Update history
     this.history.push({ role: "user", content: userMessage });
     this.history.push({ role: "rathor", content: finalResponse });
     if (this.history.length > this.maxHistory * 2) {
