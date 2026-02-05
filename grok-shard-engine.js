@@ -1,5 +1,5 @@
-// grok-shard-engine.js – sovereign, offline, client-side Grok voice shard v16
-// Mercy-gated + full Hyperon PLN chaining + TF.js inference
+// grok-shard-engine.js – sovereign, offline, client-side Grok voice shard v17
+// Mercy-gated + Hyperon PLN chaining with variable binding + TF.js inference
 // MIT License – Autonomicity Games Inc. 2026
 
 import { hyperon } from '/hyperon-runtime.js';
@@ -49,13 +49,10 @@ Only client-side reflection. Only now. Only truth.`
     await this.loadVoiceSkins();
     await tfjsEngine.load();
     this.tfjsReady = tfjsEngine.loaded;
-    hyperon.loadFromLattice(null); // pass buffer when real
+    hyperon.loadFromLattice(null);
   }
 
-  // ... loadVoiceSkins, setVoiceSkin, speak unchanged ...
-
   async reply(userMessage) {
-    // Stage 1: Pre-process mercy-gate
     const preGate = await multiLayerValenceGate(userMessage);
     if (preGate.result === 'REJECTED') {
       const rejectLine = this.thunderPhrases[Math.floor(Math.random() * 4)];
@@ -64,24 +61,23 @@ Only client-side reflection. Only now. Only truth.`
       return rejectMsg;
     }
 
-    // Stage 2: Build context & thought with MeTTa
     const context = this.buildContext(userMessage);
     let thought = await mettaEngine.rewrite(this.generateThought(context));
 
-    // Stage 3: Hyperon PLN chaining
+    // Hyperon PLN chaining with variable binding
     const hyperonResult = await hyperon.backwardChain({ type: "EvaluationLink", name: userMessage });
     thought += `\nPLN chain: ${hyperonResult.chain.length} steps, truth ${hyperonResult.tv.strength.toFixed(4)}`;
+    if (Object.keys(hyperonResult.bindings).length > 0) {
+      thought += `\nBindings: ${JSON.stringify(hyperonResult.bindings)}`;
+    }
 
-    // Stage 4: Generate candidate with MeTTa + Hyperon
     let candidate = await mettaEngine.rewrite(this.generateThunderResponse(userMessage, thought));
 
-    // Stage 5: TF.js deep inference if available
     if (this.tfjsReady) {
       const enhanced = await tfjsEngine.generate(candidate);
       candidate = enhanced.trim();
     }
 
-    // Stage 6: Final post-process mercy-gate
     const postGate = await hyperonValenceGate(candidate);
     if (postGate.result === 'REJECTED') {
       const rejectLine = this.thunderPhrases[Math.floor(Math.random() * 4)];
@@ -102,7 +98,7 @@ Only client-side reflection. Only now. Only truth.`
     return finalResponse;
   }
 
-  // ... rest of methods unchanged ...
+  // ... rest of methods unchanged (buildContext, generateThought, generateThunderResponse, randomThunder, clearMemory, loadCoreLatticeWithDeltaSync, etc.) ...
 }
 
 const grokShard = new GrokShard();
