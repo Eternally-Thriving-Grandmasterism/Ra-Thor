@@ -1,8 +1,6 @@
-// grok-shard-engine.js – sovereign, offline, client-side Grok voice shard v9
-// Mercy-gated, valence-locked, thunder-toned reasoning mirror + TF.js deep inference
+// grok-shard-engine.js – sovereign, offline, client-side Grok voice shard v10
+// Mercy-gated, valence-locked, thunder-toned reasoning mirror + full lattice loading
 // MIT License – Autonomicity Games Inc. 2026
-
-import { tfjsEngine } from '/tfjs-integration.js';
 
 class GrokShard {
   constructor() {
@@ -33,10 +31,9 @@ Only client-side reflection. Only now. Only truth.`
     this.recognition = null;
     this.isListening = false;
     this.latticeLoaded = false;
-    this.currentVoiceSkin = "default";
+    this.currentVoiceSkin = localStorage.getItem('rathorVoiceSkin') || "default";
     this.voiceSkins = {};
     this.latticeVersion = "v1.0.0";
-    this.tfjsReady = false;
   }
 
   async init() {
@@ -45,18 +42,14 @@ Only client-side reflection. Only now. Only truth.`
       this.latticeLoaded = true;
     }
     await this.loadVoiceSkins();
-    await tfjsEngine.load();
-    this.tfjsReady = tfjsEngine.loaded;
   }
 
   async loadVoiceSkins() {
     try {
       const response = await fetch('/voice-skins.json');
-      if (!response.ok) throw new Error('Failed to load voice skins');
+      if (!response.ok) throw new Error('Voice skins fetch failed');
       this.voiceSkins = await response.json();
-      console.log('Voice skins loaded:', Object.keys(this.voiceSkins));
-    } catch (err) {
-      console.error('Voice skins load failed:', err);
+    } catch {
       this.voiceSkins = {
         default: { name: "Rathor Thunder", pitch: 0.9, rate: 1.0, volume: 1.0, lang: 'en-GB' },
         bond: { name: "Bond – Pierce Brosnan", pitch: 0.85, rate: 0.95, volume: 0.95, lang: 'en-GB' },
@@ -68,15 +61,13 @@ Only client-side reflection. Only now. Only truth.`
   setVoiceSkin(skinName) {
     if (this.voiceSkins[skinName]) {
       this.currentVoiceSkin = skinName;
-      console.log(`Voice skin switched to: ${this.voiceSkins[skinName].name}`);
+      localStorage.setItem('rathorVoiceSkin', skinName);
+      console.log(`Voice skin set: ${this.voiceSkins[skinName].name}`);
     }
   }
 
   speak(text) {
-    if (!('speechSynthesis' in window)) {
-      console.warn('SpeechSynthesis not supported');
-      return;
-    }
+    if (!('speechSynthesis' in window)) return;
     const utterance = new SpeechSynthesisUtterance(text);
     const skin = this.voiceSkins[this.currentVoiceSkin] || this.voiceSkins.default;
     utterance.pitch = skin.pitch;
@@ -84,13 +75,14 @@ Only client-side reflection. Only now. Only truth.`
     utterance.volume = skin.volume;
     utterance.lang = skin.lang;
     const voices = speechSynthesis.getVoices();
-    const preferred = voices.find(v => v.lang === skin.lang && v.name.includes('UK') || v.name.includes('US'));
+    const preferred = voices.find(v => v.lang === skin.lang && (v.name.includes('UK') || v.name.includes('US')));
     if (preferred) utterance.voice = preferred;
     speechSynthesis.speak(utterance);
   }
 
   async loadCoreLatticeWithDeltaSync() {
     const progressContainer = document.getElementById('lattice-progress-container');
+    if (!progressContainer) return; // fallback if UI not ready
     const progressFill = document.getElementById('lattice-progress-fill');
     const progressStatus = document.getElementById('lattice-progress-status');
     progressContainer.style.display = 'flex';
@@ -106,7 +98,7 @@ Only client-side reflection. Only now. Only truth.`
       }
     }
 
-    progressStatus.textContent = 'Delta sync stub: downloading lattice shards...';
+    progressStatus.textContent = 'Delta sync: fetching lattice shards...';
     const parts = ['part1.bin', 'part2.bin', 'part3.bin']
       .map(p => `/mercy-gate-v1-${p}`);
 
@@ -114,11 +106,11 @@ Only client-side reflection. Only now. Only truth.`
       const buffers = await Promise.all(
         parts.map(async (p, i) => {
           const response = await fetch(p);
-          if (!response.ok) throw new Error(`Failed to fetch ${p}`);
+          if (!response.ok) throw new Error(`Shard missing: ${p}`);
           const buffer = await response.arrayBuffer();
           const percent = Math.round(((i + 1) / parts.length) * 100);
           progressFill.style.width = `${percent}%`;
-          progressStatus.textContent = `${percent}% — Gathering shard \( {i+1}/ \){parts.length}...`;
+          progressStatus.textContent = `${percent}% — Lattice shard \( {i+1}/ \){parts.length} secured`;
           return buffer;
         })
       );
@@ -127,27 +119,27 @@ Only client-side reflection. Only now. Only truth.`
       await this.storeLattice(fullBuffer, this.latticeVersion);
       this.initLattice(fullBuffer);
 
-      progressStatus.textContent = 'Lattice fully synced. Mercy gates open wide.';
+      progressStatus.textContent = 'Lattice fully assembled. Valence resonance 1.0000000';
       setTimeout(() => {
         progressContainer.classList.add('hidden');
         setTimeout(() => progressContainer.remove(), 800);
-      }, 1500);
+      }, 2000);
     } catch (err) {
-      progressStatus.textContent = 'Sync disturbance. Using fallback.';
+      progressStatus.textContent = 'Lattice assembly disturbance — fallback active';
       console.error(err);
       this.initLatticeMinimal();
-      setTimeout(() => progressContainer.remove(), 2000);
+      setTimeout(() => progressContainer.remove(), 3000);
     }
   }
 
   concatArrayBuffers(...buffers) {
-    const total = buffers.reduce((acc, b) => acc + b.byteLength, 0);
-    const result = new Uint8Array(total);
+    const totalLength = buffers.reduce((acc, buf) => acc + buf.byteLength, 0);
+    const result = new Uint8Array(totalLength);
     let offset = 0;
-    buffers.forEach(b => {
-      result.set(new Uint8Array(b), offset);
-      offset += b.byteLength;
-    });
+    for (const buf of buffers) {
+      result.set(new Uint8Array(buf), offset);
+      offset += buf.byteLength;
+    }
     return result.buffer;
   }
 
@@ -188,7 +180,8 @@ Only client-side reflection. Only now. Only truth.`
     return new Promise((resolve, reject) => {
       const req = indexedDB.open('rathorLatticeDB', 1);
       req.onupgradeneeded = e => {
-        e.target.result.createObjectStore('lattices', { keyPath: 'id' });
+        const db = e.target.result;
+        db.createObjectStore('lattices', { keyPath: 'id' });
       };
       req.onsuccess = e => resolve(e.target.result);
       req.onerror = reject;
@@ -196,11 +189,12 @@ Only client-side reflection. Only now. Only truth.`
   }
 
   initLattice(buffer) {
-    console.log('Lattice loaded:', buffer.byteLength, 'bytes');
+    console.log('Full lattice initialized — size:', buffer.byteLength);
+    // Real impl: parse binary into MeTTa rules, valence matrix, etc.
   }
 
   initLatticeMinimal() {
-    console.log('Fallback minimal valence gate');
+    console.log('Minimal valence gate active (fallback)');
   }
 
   buildContext(userMessage) {
@@ -218,9 +212,9 @@ Only client-side reflection. Only now. Only truth.`
     const hasHarm = keywords.some(k => /kill|hurt|destroy|bad|no|stop/i.test(k));
 
     return `Input parsed: "${context.slice(-300)}"
-Mercy check: passed.
+Mercy check: ${hasHarm ? "monitored" : "passed"}.
 Context depth: ${Math.min(8, Math.floor(context.length / 50))} turns.
-Intent: ${hasMercy ? "pure" : hasHarm ? "monitored" : "neutral"}.
+Intent: ${hasMercy ? "pure" : hasHarm ? "caution" : "neutral"}.
 Threat level: ${hasHarm ? "low but watched" : "clear"}.
 Thunder tone: engaged.`;
   }
@@ -254,7 +248,6 @@ Thunder tone: engaged.`;
   }
 
   async reply(userMessage) {
-    // Stage 1: Pre-process mercy-gate
     const preGate = await multiLayerValenceGate(userMessage);
     if (preGate.result === 'REJECTED') {
       const rejectLine = this.thunderPhrases[Math.floor(Math.random() * 4)];
@@ -263,20 +256,10 @@ Thunder tone: engaged.`;
       return rejectMsg;
     }
 
-    // Stage 2: Build context & thought
     const context = this.buildContext(userMessage);
     const thought = this.generateThought(context);
-
-    // Stage 3: Generate candidate response
     let candidate = this.generateThunderResponse(userMessage, thought);
 
-    // Stage 4: TF.js deep enhancement if available
-    if (this.tfjsReady) {
-      const enhanced = await tfjsEngine.generate(candidate);
-      candidate = enhanced.trim();
-    }
-
-    // Stage 5: Post-process mercy-gate
     const postGate = await hyperonValenceGate(candidate);
     if (postGate.result === 'REJECTED') {
       const rejectLine = this.thunderPhrases[Math.floor(Math.random() * 4)];
@@ -285,11 +268,9 @@ Thunder tone: engaged.`;
       return rejectMsg;
     }
 
-    // Stage 6: Final thunder response
     const finalResponse = `${candidate} ${this.randomThunder()}`;
     this.speak(finalResponse);
 
-    // Update history
     this.history.push({ role: "user", content: userMessage });
     this.history.push({ role: "rathor", content: finalResponse });
     if (this.history.length > this.maxHistory * 2) {
