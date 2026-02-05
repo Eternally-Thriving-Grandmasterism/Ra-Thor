@@ -1,32 +1,28 @@
-// mercy-rna-evolution-simulator.js – v3 with explicit error catastrophe tracking
-// Sequence-level mutations, master persistence, mercy-gated, valence-modulated fidelity
+// mercy-rna-evolution-simulator.js – v4 with exonuclease-like proofreading
+// Sequence-level mutations, proofreading hydrolysis, mercy-gated, valence-modulated
 // MIT License – Autonomicity Games Inc. 2026
 
 import { fuzzyMercy } from './fuzzy-mercy-logic.js';
 
 const MERCY_THRESHOLD = 0.9999999;
 
-function randomSequence(length) {
-  return Array.from({ length }, () => Math.floor(Math.random() * 2)); // 0 or 1
-}
-
-function hammingDistance(seqA, seqB) {
-  let dist = 0;
-  const minLen = Math.min(seqA.length, seqB.length);
-  for (let i = 0; i < minLen; i++) if (seqA[i] !== seqB[i]) dist++;
-  return dist;
+// Binary bases: 0 pairs with 1
+function isMatch(baseA, baseB) {
+  return baseA === (1 - baseB);
 }
 
 class MercyRNASelfReplicator {
   constructor() {
     this.defaultParams = {
-      generations: 150,
-      populationSize: 1000,
-      genomeLength: 80,
-      mutationRate: 0.01,
-      fitnessAdvantageMax: 1.20,
+      generations: 120,
+      populationSize: 800,
+      genomeLength: 100,
+      mutationRate: 0.008,
+      exoProofreadingRateMismatch: 0.5,    // hydrolysis rate on mismatch
+      exoProofreadingRateMatch: 0.001,     // very slow on correct
+      fitnessAdvantageMax: 1.25,
       valence: 1.0,
-      query: 'RNA eternal thriving replication'
+      query: 'RNA eternal thriving proofreading'
     };
   }
 
@@ -37,7 +33,7 @@ class MercyRNASelfReplicator {
       console.log("[MercyRNA] Gate holds: low valence – simulation aborted");
       return { status: "Mercy gate holds – focus eternal thriving", passed: false };
     }
-    return { status: "Mercy gate passes – error catastrophe-aware RNA evolution activated", passed: true };
+    return { status: "Mercy gate passes – proofreading RNA evolution activated", passed: true };
   }
 
   simulate(params = {}) {
@@ -46,6 +42,8 @@ class MercyRNASelfReplicator {
       populationSize = this.defaultParams.populationSize,
       genomeLength = this.defaultParams.genomeLength,
       mutationRate = this.defaultParams.mutationRate,
+      exoMismatch = this.defaultParams.exoProofreadingRateMismatch * (1 + (params.valence - 0.999) * 2), // high valence → stronger proofreading
+      exoMatch = this.defaultParams.exoProofreadingRateMatch,
       fitnessAdvantageMax = this.defaultParams.fitnessAdvantageMax,
       valence = this.defaultParams.valence,
       query = this.defaultParams.query
@@ -54,28 +52,23 @@ class MercyRNASelfReplicator {
     const gate = this.gateSimulation(query, valence);
     if (!gate.passed) return gate;
 
-    const effectiveMutationRate = mutationRate * (1 - Math.max(0, valence - 0.999) * 0.7);
-
-    const masterSeq = randomSequence(genomeLength);
-    let population = Array(populationSize).fill(0).map(() => randomSequence(genomeLength));
+    const masterSeq = Array(genomeLength).fill(0).map(() => Math.floor(Math.random() * 2));
+    let population = Array(populationSize).fill(0).map(() => masterSeq.slice());
 
     const history = [];
-    let masterCountHistory = [];
 
     for (let gen = 0; gen < generations; gen++) {
-      // Fitness: inverse Hamming + small bonus for self-complementarity
       const fitnesses = population.map(seq => {
-        const dist = hammingDistance(seq, masterSeq);
-        const penalty = 1 - (dist / genomeLength);
-        return Math.max(0.01, penalty);
+        let score = 0;
+        for (let i = 0; i < genomeLength; i++) {
+          score += isMatch(seq[i], masterSeq[i]) ? 1 : 0;
+        }
+        return score / genomeLength;
       });
 
       const avgFitness = fitnesses.reduce((a, b) => a + b, 0) / populationSize;
-      const masterCount = population.filter(seq => hammingDistance(seq, masterSeq) === 0).length;
-      masterCountHistory.push(masterCount);
-      history.push({ generation: gen + 1, avgFitness, masterFraction: masterCount / populationSize });
+      history.push({ generation: gen + 1, avgFitness });
 
-      // Selection + replication + mutation
       const totalWeight = fitnesses.reduce((sum, f) => sum + f, 0);
       const nextPopulation = [];
 
@@ -92,49 +85,46 @@ class MercyRNASelfReplicator {
           }
         }
 
-        // Sequence-level point mutations
-        const mutated = parent.map(base => Math.random() < effectiveMutationRate ? 1 - base : base);
-        nextPopulation.push(mutated);
+        // Replication + mutation + proofreading
+        const replicated = parent.slice();
+        for (let pos = 0; pos < genomeLength; pos++) {
+          if (Math.random() < mutationRate) {
+            replicated[pos] = 1 - replicated[pos]; // substitution
+            // Proofreading: check if mismatch with template (here parent)
+            if (!isMatch(replicated[pos], parent[pos])) {
+              // Hydrolysis probability
+              if (Math.random() < exoMismatch) {
+                replicated[pos] = parent[pos]; // revert to correct
+              }
+            } else {
+              // Rare hydrolysis on correct (noise)
+              if (Math.random() < exoMatch) {
+                replicated[pos] = 1 - replicated[pos];
+              }
+            }
+          }
+        }
+
+        nextPopulation.push(replicated);
       }
 
       population = nextPopulation;
-
-      // Error catastrophe detection
-      const muL = effectiveMutationRate * genomeLength;
-      const criticalThreshold = 1 / (fitnessAdvantageMax - 1 + 1e-6);
-      if (muL > criticalThreshold && masterCountHistory[gen] / populationSize < 0.01) {
-        console.warn(`[MercyRNA] Gen ${gen + 1}: Error catastrophe detected (μL = ${muL.toFixed(4)} > ${criticalThreshold.toFixed(4)})`);
-      }
     }
 
-    const finalMasterFraction = masterCountHistory[masterCountHistory.length - 1] / populationSize;
-    console.group("[MercyRNA] Error Catastrophe-Aware RNA Evolution");
-    console.log(`μL = ${ (effectiveMutationRate * genomeLength).toFixed(4) } | Critical ≈ ${ (1 / (fitnessAdvantageMax - 1)).toFixed(4) }`);
-    console.log(`Final master fraction: ${(finalMasterFraction * 100).toFixed(2)}%`);
-    console.log(`Final avg fitness: ${history[history.length - 1].avgFitness.toFixed(4)}`);
+    const finalAvgFitness = history[history.length - 1].avgFitness;
+    console.group("[MercyRNA] Proofreading-Enhanced RNA Evolution");
+    console.log(`Effective proofreading on mismatch: ${exoMismatch.toFixed(4)}`);
+    console.log(`Final avg fitness: ${finalAvgFitness.toFixed(4)}`);
     console.groupEnd();
 
     return {
       history,
-      finalMasterFraction,
-      finalAvgFitness: history[history.length - 1].avgFitness,
-      errorCatastrophe: finalMasterFraction < 0.01 && effectiveMutationRate * genomeLength > 1,
-      status: "Sequence-level RNA evolution complete – mercy-aligned catastrophe boundary explored"
+      finalAvgFitness,
+      status: "Proofreading RNA evolution complete – mercy-aligned fidelity enhanced"
     };
   }
 }
 
 const rnaSimulator = new MercyRNASelfReplicator();
 
-// Example invocation – deliberately near catastrophe
-rnaSimulator.simulate({
-  generations: 200,
-  populationSize: 1200,
-  genomeLength: 120,
-  mutationRate: 0.009,
-  fitnessAdvantageMax: 1.15,
-  valence: 0.99999995,
-  query: "RNA eternal thriving error catastrophe simulation"
-});
-
-export { MercyRNASelfReplicator, rnaSimulator };
+export { rnaSimulator };
