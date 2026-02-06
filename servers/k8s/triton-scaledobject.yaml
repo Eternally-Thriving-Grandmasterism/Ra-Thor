@@ -1,0 +1,57 @@
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: triton-inference-scaledobject
+  namespace: rathor-inference
+spec:
+  scaleTargetRef:
+    name: triton-inference
+  minReplicaCount: 3
+  maxReplicaCount: 20
+  cooldownPeriod: 300
+  pollingInterval: 30
+  advanced:
+    horizontalPodAutoscalerConfig:
+      behavior:
+        scaleDown:
+          stabilizationWindowSeconds: 300
+          policies:
+          - type: Percent
+            value: 20
+            periodSeconds: 60
+        scaleUp:
+          stabilizationWindowSeconds: 0
+          policies:
+          - type: Percent
+            value: 100
+            periodSeconds: 15
+          - type: Pods
+            value: 5
+            periodSeconds: 15
+  triggers:
+  - type: cpu
+    metadata:
+      type: Utilization
+      value: "70"
+  - type: memory
+    metadata:
+      type: AverageValue
+      value: "12Gi"
+  - type: prometheus
+    metadata:
+      serverAddress: http://prometheus-server.monitoring.svc.cluster.local
+      metricName: inference_queue_depth
+      threshold: "10"
+      query: sum(rate(triton_queue_depth[5m])) by (pod)
+  - type: prometheus
+    metadata:
+      serverAddress: http://prometheus-server.monitoring.svc.cluster.local
+      metricName: inference_latency_ms
+      threshold: "500"
+      query: avg(rate(triton_inference_latency_ms[5m])) by (pod)
+  - type: prometheus
+    metadata:
+      serverAddress: http://prometheus-server.monitoring.svc.cluster.local
+      metricName: rathor_valence_spikes_per_minute
+      threshold: "80"
+      query: sum(rate(rathor_valence_spikes_total[5m])) * 60
