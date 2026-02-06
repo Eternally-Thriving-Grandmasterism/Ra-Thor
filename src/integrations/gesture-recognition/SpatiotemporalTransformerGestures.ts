@@ -1,5 +1,5 @@
-// src/integrations/gesture-recognition/SpatiotemporalTransformerGestures.ts – Spatiotemporal Transformer Gesture Engine v1.8
-// BlazePose → Encoder-Decoder → Beam Search / Top-k / Top-p Sampling with Valence Modulation → gesture + future valence
+// src/integrations/gesture-recognition/SpatiotemporalTransformerGestures.ts – Spatiotemporal Transformer Gesture Engine v1.9
+// BlazePose → Encoder-Decoder → Beam Search with Top-p Nucleus Filtering → gesture + future valence
 // MIT License – Autonomicity Games Inc. 2026
 
 import * as tf from '@tensorflow/tfjs';
@@ -20,8 +20,7 @@ const FF_DIMS = 256;
 const FUTURE_STEPS = 15;
 const BEAM_WIDTH_BASE = 5;
 const LENGTH_PENALTY = 0.6;
-const TOP_K_BASE = 40;
-const TOP_P_BASE = 0.92;        // nucleus sampling cumulative prob threshold
+const TOP_P_BASE = 0.92;        // nucleus cumulative probability threshold
 const TEMPERATURE_MIN = 0.6;
 const TEMPERATURE_MAX = 1.4;
 const TEMPERATURE_VALENCE_PIVOT = 0.95;
@@ -38,7 +37,7 @@ export class SpatiotemporalTransformerGestures {
   }
 
   private async initializeEncoderDecoder() {
-    // ... (same encoder-decoder model construction as v1.7 – omitted for brevity)
+    // ... (same encoder-decoder model construction as v1.8 – omitted for brevity)
   }
 
   /**
@@ -54,7 +53,6 @@ export class SpatiotemporalTransformerGestures {
 
   /**
    * Valence-modulated top-p nucleus threshold
-   * High valence → smaller p (more coherent); low valence → larger p (more exploratory)
    */
   private getValenceTopP(valence: number = currentValence.get()): number {
     const actionName = 'Valence-modulated top-p threshold';
@@ -64,7 +62,77 @@ export class SpatiotemporalTransformerGestures {
   }
 
   /**
-   * Unified decoding with beam search / top-k / top-p – valence-modulated choice
+   * Beam search with top-p nucleus filtering inside each beam expansion step
+   */
+  private async beamSearchWithTopPDecode(logits: tf.Tensor, futureValenceLogits: tf.Tensor, beamWidth: number, temperature: number, topP: number) {
+    const softenedLogits = tf.div(logits, tf.scalar(temperature));
+    const vocabSize = logits.shape[1]!;
+
+    // Initialize beams with start token (assume class 0 = none/start)
+    let beams = [{
+      sequence: [0],
+      score: 0,
+      futureValence: Array(FUTURE_STEPS).fill(0)
+    }];
+
+    for (let step = 0; step < 4; step++) { // 4 gesture classes
+      const newBeams = [];
+
+      for (const beam of beams) {
+        // Get next-token logits for this beam (simplified – real impl would condition on sequence)
+        const nextLogits = softenedLogits; // placeholder – in full seq2seq would be decoder step
+
+        // Apply top-p nucleus filtering
+        const sorted = tf.topk(nextLogits, vocabSize, true);
+        const sortedValues = await sorted.values.data();
+        const sortedIndices = await sorted.indices.data();
+
+        const probs = await tf.softmax(sortedValues).data();
+        let cumProb = 0;
+        let k = 0;
+        for (; k < probs.length; k++) {
+          cumProb += probs[k];
+          if (cumProb >= topP) break;
+        }
+
+        // Sample from nucleus for each beam expansion
+        const nucleusProbs = probs.slice(0, k + 1);
+        const sumProbs = nucleusProbs.reduce((a, b) => a + b, 0);
+        const normalizedProbs = nucleusProbs.map(p => p / sumProbs);
+
+        for (let i = 0; i < k + 1; i++) {
+          const token = sortedIndices[i];
+          const prob = normalizedProbs[i];
+          const newScore = beam.score + Math.log(prob) / Math.pow(step + 1, LENGTH_PENALTY);
+
+          newBeams.push({
+            sequence: [...beam.sequence, token],
+            score: newScore,
+            futureValence: beam.futureValence // simplified – real impl would predict step-by-step
+          });
+        }
+      }
+
+      // Keep top beamWidth
+      newBeams.sort((a, b) => b.score - a.score);
+      beams = newBeams.slice(0, beamWidth);
+    }
+
+    const best = beams[0];
+    const gestureMap = ['none', 'pinch', 'spiral', 'figure8'];
+    const gesture = gestureMap[best.sequence[best.sequence.length - 1]];
+
+    const futureValence = await futureValenceLogits.data();
+
+    return {
+      gesture,
+      confidence: Math.exp(best.score),
+      futureValence: Array.from(futureValence)
+    };
+  }
+
+  /**
+   * Unified decoding with valence-modulated choice (beam + top-p / top-k / temperature)
    */
   async decode(logits: tf.Tensor, futureValenceLogits: tf.Tensor): Promise<{ gesture: string; confidence: number; futureValence: number[] }> {
     const valence = currentValence.get();
@@ -72,10 +140,10 @@ export class SpatiotemporalTransformerGestures {
     const topP = this.getValenceTopP(valence);
 
     if (valence > 0.97) {
-      // Ultra-high valence → narrow beam + low temp (maximum coherence)
-      return this.beamSearchDecode(logits, futureValenceLogits, Math.max(3, Math.round(BEAM_WIDTH_BASE * valence)), temperature);
+      // Ultra-high valence → narrow beam + low temp + tight top-p (maximum coherence)
+      return this.beamSearchWithTopPDecode(logits, futureValenceLogits, Math.max(3, Math.round(BEAM_WIDTH_BASE * valence)), temperature, topP);
     } else if (valence > TEMPERATURE_VALENCE_PIVOT) {
-      // High valence → top-p sampling with moderate temp (balanced creativity)
+      // High valence → top-p sampling with moderate temp
       return this.topPSampleDecode(logits, futureValenceLogits, topP, temperature);
     } else {
       // Medium-low valence → wider top-k + high temp (exploratory survival)
@@ -83,70 +151,7 @@ export class SpatiotemporalTransformerGestures {
     }
   }
 
-  /**
-   * Beam search decoding with temperature
-   */
-  private async beamSearchDecode(logits: tf.Tensor, futureValenceLogits: tf.Tensor, beamWidth: number, temperature: number) {
-    // ... (same beam search implementation as v1.7 – omitted for brevity)
-  }
-
-  /**
-   * Top-k sampling decoding with temperature
-   */
-  private async topKSampleDecode(logits: tf.Tensor, futureValenceLogits: tf.Tensor, k: number, temperature: number) {
-    // ... (same top-k implementation as v1.7 – omitted for brevity)
-  }
-
-  /**
-   * Top-p (nucleus) sampling decoding with temperature
-   */
-  private async topPSampleDecode(logits: tf.Tensor, futureValenceLogits: tf.Tensor, p: number, temperature: number): Promise<{ gesture: string; confidence: number; futureValence: number[] }> {
-    const softenedLogits = tf.div(logits, tf.scalar(temperature));
-    const sorted = tf.topk(softenedLogits, logits.shape[1], true);
-    const sortedValues = await sorted.values.data();
-    const sortedIndices = await sorted.indices.data();
-
-    // Cumulative probabilities
-    const probs = await tf.softmax(sortedValues).data();
-    let cumProb = 0;
-    let k = 0;
-    for (; k < probs.length; k++) {
-      cumProb += probs[k];
-      if (cumProb >= p) break;
-    }
-
-    // Sample from the nucleus (top-k where cumProb >= p)
-    const nucleusProbs = probs.slice(0, k + 1);
-    const sumProbs = nucleusProbs.reduce((a, b) => a + b, 0);
-    const normalizedProbs = nucleusProbs.map(p => p / sumProbs);
-
-    const r = Math.random();
-    let cum = 0;
-    let tokenIdx = 0;
-    for (let i = 0; i < normalizedProbs.length; i++) {
-      cum += normalizedProbs[i];
-      if (r <= cum) {
-        tokenIdx = i;
-        break;
-      }
-    }
-
-    const gestureIdx = sortedIndices[tokenIdx];
-    const confidence = normalizedProbs[tokenIdx];
-
-    const gestureMap = ['none', 'pinch', 'spiral', 'figure8'];
-    const gesture = confidence > 0.6 ? gestureMap[gestureIdx] : 'none';
-
-    const futureValence = await futureValenceLogits.data();
-
-    return {
-      gesture,
-      confidence,
-      futureValence: Array.from(futureValence)
-    };
-  }
-
-  // ... (rest of the class remains identical to v1.7 – processFrame now uses this.decode())
+  // ... (rest of the class remains identical to v1.8 – processFrame now uses this.decode())
 }
 
 export const blazePoseTransformerEngine = new SpatiotemporalTransformerGestures();
