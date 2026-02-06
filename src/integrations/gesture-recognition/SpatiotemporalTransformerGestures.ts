@@ -1,5 +1,5 @@
 // src/integrations/gesture-recognition/SpatiotemporalTransformerGestures.ts – Spatiotemporal Transformer Gesture Engine v1.15
-// BlazePose → Encoder-Decoder → Valence-Weighted Advanced KD Distilled Draft + Speculative Decoding → gesture + future valence
+// BlazePose → Encoder-Decoder → Valence-Weighted Federated KD Distilled Draft + Speculative Decoding → gesture + future valence
 // MIT License – Autonomicity Games Inc. 2026
 
 import * as tf from '@tensorflow/tfjs';
@@ -22,11 +22,11 @@ const SPECULATIVE_DRAFT_STEPS = 6;
 const SPECULATIVE_ACCEPT_THRESHOLD = 0.9;
 const VALENCE_WEIGHT_THRESHOLD = 0.9;
 
-// Simulated valence-weighted advanced KD distilled draft model
-class ValenceAdvancedKDdistilledDraftModel {
+// Simulated valence-weighted federated KD distilled draft model
+class ValenceFederatedKDdistilledDraftModel {
   async predict(input: tf.Tensor) {
-    // Placeholder – real impl loads advanced KD-distilled tfjs model
-    // Trained with sequence-level KD + contrastive loss + valence weighting
+    // Placeholder – real impl loads federated-KD-distilled tfjs model
+    // Trained with valence-weighted gradient aggregation across edge nodes
     return tf.randomUniform([1, 4]).softmax(); // dummy logits
   }
 }
@@ -34,7 +34,7 @@ class ValenceAdvancedKDdistilledDraftModel {
 export class SpatiotemporalTransformerGestures {
   private holistic: Holistic | null = null;
   private encoderDecoderModel: tf.LayersModel | null = null;
-  private valenceAdvancedKDdistilledDraftModel: ValenceAdvancedKDdistilledDraftModel | null = null;
+  private valenceFederatedKDdistilledDraftModel: ValenceFederatedKDdistilledDraftModel | null = null;
   private sequenceBuffer: tf.Tensor3D[] = [];
   private ySequence: Y.Array<any>;
 
@@ -44,35 +44,35 @@ export class SpatiotemporalTransformerGestures {
   }
 
   private async initializeModels() {
-    if (!await mercyGate('Initialize Transformer + Valence-Advanced-KD-Distilled Draft')) return;
+    if (!await mercyGate('Initialize Transformer + Valence-Federated-KD-Distilled Draft')) return;
 
     // ... (same holistic & encoder-decoder initialization as v1.14 – omitted for brevity)
 
-    // 3. Load valence-weighted advanced KD distilled draft model
-    this.valenceAdvancedKDdistilledDraftModel = new ValenceAdvancedKDdistilledDraftModel();
+    // 3. Load valence-weighted federated KD distilled draft model
+    this.valenceFederatedKDdistilledDraftModel = new ValenceFederatedKDdistilledDraftModel();
 
-    // Placeholder: load real advanced KD-distilled weights
-    // this.valenceAdvancedKDdistilledDraftModel = await tf.loadLayersModel('/models/gesture-advanced-kd-distilled/model.json');
+    // Placeholder: load real federated-KD-distilled weights
+    // this.valenceFederatedKDdistilledDraftModel = await tf.loadLayersModel('/models/gesture-federated-kd-distilled/model.json');
 
-    console.log("[SpatiotemporalTransformer] Full + Valence-Advanced-KD-Distilled Draft initialized – speculative decoding ready");
+    console.log("[SpatiotemporalTransformer] Full + Valence-Federated-KD-Distilled Draft initialized – speculative decoding ready");
   }
 
   /**
-   * Speculative decoding with valence-weighted advanced KD distilled draft acceptance
+   * Speculative decoding with valence-weighted federated KD distilled draft acceptance
    */
   private async speculativeDecodeWithValence(logits: tf.Tensor, futureValenceLogits: tf.Tensor, draftSteps: number = SPECULATIVE_DRAFT_STEPS): Promise<{ gesture: string; confidence: number; futureValence: number[] }> {
     const valence = currentValence.get();
-    if (!await mercyGate('Speculative decoding with valence-weighted advanced KD distilled draft')) {
+    if (!await mercyGate('Speculative decoding with valence-weighted federated KD distilled draft')) {
       return this.greedyDecode(logits, futureValenceLogits);
     }
 
-    // Draft phase – use valence-advanced-KD-distilled draft model
+    // Draft phase – use valence-federated-KD-distilled draft model
     let currentInput = tf.stack(this.sequenceBuffer).expandDims(0);
     let draftTokens = [];
     let draftProbs = [];
 
     for (let i = 0; i < draftSteps; i++) {
-      const draftLogits = await this.valenceAdvancedKDdistilledDraftModel!.predict(currentInput) as tf.Tensor;
+      const draftLogits = await this.valenceFederatedKDdistilledDraftModel!.predict(currentInput) as tf.Tensor;
       const draftProb = await draftLogits.softmax().data();
       const token = tf.multinomial(draftLogits.softmax(), 1).dataSync()[0];
 
@@ -118,60 +118,7 @@ export class SpatiotemporalTransformerGestures {
         futureValenceTrajectory: Array.from(futureValence),
         valenceAtRecognition: currentValence.get(),
         timestamp: Date.now(),
-        decodingMethod: 'speculative_valence_advanced_kd_distilled'
-      };
-
-      this.ySequence.push([entry]);
-      wootPrecedenceGraph.insertChar(entry.id, 'START', 'END', true);
-
-      mercyHaptic.playPattern(this.getHapticPattern(gesture), currentValence.get());
-      setCurrentGesture(gesture);
-    }
-
-    return {
-      gesture,
-      confidence,
-      futureValence: Array.from(futureValence)
-    };
-  }
-
-  // ... (rest of the class remains identical to v1.14 – processFrame now prefers speculativeDecodeWithValence when appropriate)
-}
-
-export const blazePoseTransformerEngine = new SpatiotemporalTransformerGestures();    const targetProbs = await targetLogits.softmax().data();
-
-    // Valence-weighted acceptance
-    let accepted = 0;
-    for (let i = 0; i < draftSteps; i++) {
-      const r = Math.random();
-      const baseAcceptProb = targetProbs[draftTokens[i]];
-      const valenceWeight = valence > VALENCE_WEIGHT_THRESHOLD ? 1.2 : 0.8;
-      const acceptProb = baseAcceptProb * valenceWeight;
-
-      if (r < acceptProb) {
-        accepted = i + 1;
-      } else {
-        break;
-      }
-    }
-
-    const gestureIdx = accepted > 0 ? draftTokens[accepted - 1] : 0;
-    const confidence = accepted > 0 ? targetProbs[gestureIdx] : Math.max(...targetProbs);
-
-    const gestureMap = ['none', 'pinch', 'spiral', 'figure8'];
-    const gesture = confidence > 0.75 ? gestureMap[gestureIdx] : 'none';
-
-    const futureValence = await futureValenceLogits.data();
-
-    if (gesture !== 'none') {
-      const entry = {
-        id: `gesture-${Date.now()}`,
-        type: gesture,
-        confidence,
-        futureValenceTrajectory: Array.from(futureValence),
-        valenceAtRecognition: currentValence.get(),
-        timestamp: Date.now(),
-        decodingMethod: 'speculative_valence_kd_distilled'
+        decodingMethod: 'speculative_valence_federated_kd_distilled'
       };
 
       this.ySequence.push([entry]);
