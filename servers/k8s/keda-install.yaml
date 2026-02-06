@@ -1,0 +1,53 @@
+# KEDA installation (minimal – official Helm recommended for production)
+# Run: helm repo add kedacore https://kedacore.github.io/charts
+# helm install keda kedacore/keda --namespace keda --create-namespace
+
+# CRDs (apply once)
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: scaledobjects.keda.sh
+spec:
+  group: keda.sh
+  versions:
+  - name: v1alpha1
+    served: true
+    storage: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            properties:
+              scaleTargetRef:
+                type: object
+                required: [name]
+                properties:
+                  name: {type: string}
+                  kind: {type: string}
+                  apiVersion: {type: string}
+              triggers:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type: {type: string}
+                    metadata: {type: object}
+                    authenticationRef: {type: object}
+              minReplicaCount: {type: integer}
+              maxReplicaCount: {type: integer}
+              advanced:
+                type: object
+                properties:
+                  horizontalPodAutoscalerConfig:
+                    type: object
+                    properties:
+                      behavior: {type: object}
+  scope: Namespaced
+  names:
+    plural: scaledobjects
+    singular: scaledobject
+    kind: ScaledObject
+    shortNames:
+    - so
