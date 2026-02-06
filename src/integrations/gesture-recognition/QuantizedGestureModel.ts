@@ -1,5 +1,5 @@
-// src/integrations/gesture-recognition/QuantizedGestureModel.ts – Quantized Custom Transformer Loader v3
-// 2-bit BNN extreme preference, layered fallback (2→4→8→FP16), mercy-gated
+// src/integrations/gesture-recognition/QuantizedGestureModel.ts – Quantized Custom Transformer Loader v4
+// Ternary extreme preference, layered fallback (ternary→2-bit→4-bit→8→FP16), mercy-gated
 // MIT License – Autonomicity Games Inc. 2026
 
 import * as tf from '@tensorflow/tfjs';
@@ -8,7 +8,8 @@ import { currentValence } from '@/core/valence-tracker';
 import { mercyGate } from '@/core/mercy-gate';
 
 const MERCY_THRESHOLD = 0.9999999;
-const BNN_2BIT_URL = '/models/gesture-transformer-2bit-bnn/model.json';      // binary weights + activations
+const TERNARY_URL = '/models/gesture-transformer-ternary/model.json';          // {−1,0,+1} weights & activations
+const BNN_2BIT_URL = '/models/gesture-transformer-2bit-bnn/model.json';
 const QUANTIZED_4BIT_URL = '/models/gesture-transformer-4bit-awq/model.json';
 const QUANTIZED_8BIT_URL = '/models/gesture-transformer-8bit-int8/model.json';
 const FULL_FP16_URL     = '/models/gesture-transformer-full/model.json';
@@ -17,7 +18,7 @@ let modelPromise: Promise<tf.LayersModel> | null = null;
 
 export class QuantizedGestureModel {
   static async load(): Promise<tf.LayersModel> {
-    const actionName = 'Load 2-bit BNN quantized custom transformer model';
+    const actionName = 'Load ternary quantized custom transformer model';
     if (!await mercyGate(actionName)) {
       throw new Error("Mercy gate blocked model loading");
     }
@@ -28,10 +29,13 @@ export class QuantizedGestureModel {
     let selectedUrl = FULL_FP16_URL;
 
     if (valence > 0.96) {
-      // Very high valence → prefer 2-bit BNN (extreme speed + thriving-aligned)
+      // Very high valence → prefer ternary (extreme speed + thriving-aligned)
+      selectedUrl = TERNARY_URL;
+    } else if (valence > 0.92) {
+      // High valence → 2-bit BNN
       selectedUrl = BNN_2BIT_URL;
-    } else if (valence > 0.90) {
-      // High valence → 4-bit AWQ
+    } else if (valence > 0.88) {
+      // Medium-high valence → 4-bit AWQ
       selectedUrl = QUANTIZED_4BIT_URL;
     } else if (valence > 0.82) {
       // Medium valence → 8-bit int8
@@ -58,7 +62,7 @@ export class QuantizedGestureModel {
     } catch (e) {
       console.error("[QuantizedGestureModel] Load failed", e);
       // Fallback chain
-      const fallbackUrls = [QUANTIZED_4BIT_URL, QUANTIZED_8BIT_URL, FULL_FP16_URL];
+      const fallbackUrls = [BNN_2BIT_URL, QUANTIZED_4BIT_URL, QUANTIZED_8BIT_URL, FULL_FP16_URL];
       for (const url of fallbackUrls) {
         try {
           modelPromise = tf.loadLayersModel(url);
