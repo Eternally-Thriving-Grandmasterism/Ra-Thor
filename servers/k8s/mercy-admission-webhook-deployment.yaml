@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mercy-admission-webhook
+  namespace: rathor-system
+  labels:
+    app: mercy-admission-webhook
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: mercy-admission-webhook
+  template:
+    metadata:
+      labels:
+        app: mercy-admission-webhook
+    spec:
+      serviceAccountName: mercy-admission-webhook
+      containers:
+      - name: webhook
+        image: your-registry/rathor-mercy-webhook:latest  # Build & push your own
+        args:
+        - --cert-dir=/etc/webhook/certs
+        - --secure-port=8443
+        - --v=4
+        ports:
+        - containerPort: 8443
+          name: https
+        volumeMounts:
+        - name: webhook-certs
+          mountPath: /etc/webhook/certs
+          readOnly: true
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: 8443
+            scheme: HTTPS
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8443
+            scheme: HTTPS
+          initialDelaySeconds: 15
+          periodSeconds: 20
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+      volumes:
+      - name: webhook-certs
+        secret:
+          secretName: mercy-webhook-tls
