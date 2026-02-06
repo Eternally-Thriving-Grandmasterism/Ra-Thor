@@ -1,5 +1,5 @@
-// src/integrations/gesture-recognition/SpatiotemporalTransformerGestures.ts – Spatiotemporal Transformer Gesture Engine v1.9
-// BlazePose → Encoder-Decoder → Beam Search / Top-k / Top-p Sampling with Valence Modulation → gesture + future valence
+// src/integrations/gesture-recognition/SpatiotemporalTransformerGestures.ts – Spatiotemporal Transformer Gesture Engine v1.10
+// BlazePose → Encoder-Decoder → Beam / Top-k / Top-p + Valence-Modulated Temp/p/k → gesture + future valence
 // MIT License – Autonomicity Games Inc. 2026
 
 import * as tf from '@tensorflow/tfjs';
@@ -38,7 +38,7 @@ export class SpatiotemporalTransformerGestures {
   }
 
   private async initializeEncoderDecoder() {
-    // ... (same encoder-decoder model construction as v1.8 – omitted for brevity)
+    // ... (same encoder-decoder model construction as v1.9 – omitted for brevity)
   }
 
   /**
