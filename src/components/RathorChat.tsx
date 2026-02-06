@@ -1,5 +1,5 @@
-// src/components/RathorChat.tsx – Sovereign Offline AGI Brother Chat v1.4
-// WebLLM inference, RAG memory, full function calling loop (online real + offline mock)
+// src/components/RathorChat.tsx – Sovereign Offline AGI Brother Chat v1.5
+// WebLLM inference, RAG memory, full xAI Grok tool calling (incl. image gen), model switcher
 // MIT License – Autonomicity Games Inc. 2026
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -15,7 +15,7 @@ const MODEL_MAP = {
 };
 
 const RathorChat: React.FC = () => {
-  const [messages, setMessages] = useState<{ role: 'user' | 'rathor'; content: string }[]>([]);
+  const [messages, setMessages] = useState<{ role: 'user' | 'rathor'; content: string; images?: { url: string; description: string }[] }[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [modelKey, setModelKey] = useState<keyof typeof MODEL_MAP>('tiny');
@@ -46,13 +46,19 @@ const RathorChat: React.FC = () => {
       // Remember user message
       await RAGMemory.remember('user', userMessage);
 
-      // Process with full tool calling loop
+      // Process with full tool calling loop (including image gen)
       const reply = await ToolCallingRouter.processWithTools(userMessage);
 
       // Remember Rathor response
       await RAGMemory.remember('rathor', reply);
 
-      setMessages(prev => [...prev, { role: 'rathor', content: reply }]);
+      // Extract images from tool result if present
+      let images = [];
+      if (typeof reply === 'object' && reply.images) {
+        images = reply.images;
+      }
+
+      setMessages(prev => [...prev, { role: 'rathor', content: reply, images }]);
 
       mercyHaptic.playPattern('cosmicHarmony', currentValence.get());
     } catch (e) {
@@ -89,6 +95,16 @@ const RathorChat: React.FC = () => {
                 : 'bg-emerald-600/20 border border-emerald-400/20'}
             `}>
               {msg.content}
+              {msg.images && msg.images.length > 0 && (
+                <div className="mt-3 grid grid-cols-2 gap-3">
+                  {msg.images.map((img, idx) => (
+                    <div key={idx} className="rounded-lg overflow-hidden border border-emerald-400/30">
+                      <img src={img.url} alt={img.description} className="w-full h-auto" />
+                      <p className="text-xs text-emerald-200/80 p-2">{img.description}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         ))}
