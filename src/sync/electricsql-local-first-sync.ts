@@ -1,5 +1,5 @@
-// src/sync/electricsql-local-first-sync.ts – ElectricSQL Local-First Postgres + CRDT Sync Layer v1
-// Valence-aware shape subscriptions, offline PGlite persistence, reconnection bloom
+// src/sync/electricsql-local-first-sync.ts – ElectricSQL Local-First Postgres + CRDT Sync Layer v2
+// Valence-aware shape subscriptions, PGlite offline persistence, reconnection bloom, mercy gates
 // MIT License – Autonomicity Games Inc. 2026
 
 import { electric } from '@electric-sql/pglite';
@@ -12,65 +12,79 @@ import mercyHaptic from '@/utils/haptic-utils';
 const MERCY_THRESHOLD = 0.9999999;
 const VALENCE_SHAPE_PIVOT = 0.9;
 const RECONNECT_BACKOFF_MS = [100, 500, 2000, 5000, 10000];
+const ELECTRIC_URL = 'wss://electric.rathor.ai/v1'; // replace with real ElectricSQL endpoint
 
-const ELECTRIC_URL = 'wss://electric.rathor.ai/v1'; // replace with real ElectricSQL sync service
-
-// Schema definition (expand as needed)
+// Relational schema (expand as lattice grows)
 const schema = {
   users: {
     fields: {
-      id: 'uuid',
+      id: 'uuid primary key',
       name: 'text',
       avatar_url: 'text',
-      valence: 'float4',
+      valence: 'real',
       last_active: 'timestamptz'
-    },
-    relations: {}
+    }
   },
   progress_ladders: {
     fields: {
-      id: 'uuid',
-      user_id: 'uuid',
-      level: 'int4',
+      id: 'uuid primary key',
+      user_id: 'uuid references users(id)',
+      level: 'integer',
       description: 'text',
       updated_at: 'timestamptz'
-    },
-    relations: {}
+    }
   },
   valence_logs: {
     fields: {
-      id: 'uuid',
-      user_id: 'uuid',
-      valence: 'float4',
+      id: 'uuid primary key',
+      user_id: 'uuid references users(id)',
+      valence: 'real',
       timestamp: 'timestamptz',
       source: 'text'
-    },
-    relations: {}
+    }
+  },
+  habitats: {
+    fields: {
+      id: 'uuid primary key',
+      name: 'text',
+      status: 'text',
+      last_updated: 'timestamptz'
+    }
+  },
+  probes: {
+    fields: {
+      id: 'uuid primary key',
+      habitat_id: 'uuid references habitats(id)',
+      status: 'text',
+      last_seen: 'timestamptz'
+    }
   }
-};
+} as const;
 
 let electricDb: any = null;
 let reconnectAttempts = 0;
 
 export class ElectricSQLLocalFirstSync {
   static async initialize() {
-    const actionName = 'Initialize ElectricSQL local-first Postgres + CRDT sync';
+    const actionName = 'Initialize ElectricSQL local-first relational CRDT sync';
     if (!await mercyGate(actionName)) return;
 
     try {
-      // 1. Initialize PGlite in-browser DB
+      // 1. Initialize PGlite (IndexedDB-backed Postgres in browser)
       const pg = await electric.open('rathor-mercy-db', {
         dataDir: 'idb://rathor-mercy-db'
       });
 
       // 2. Electrify with schema & sync service
       electricDb = await electrify(pg, electrifySchema(schema), {
-        auth: { token: 'your-electric-token-here' }, // replace with real auth
+        auth: { token: 'your-electric-auth-token-here' }, // replace with real token
         url: ELECTRIC_URL
       });
 
       // 3. Valence-aware shape subscriptions
       const valence = currentValence.get();
+
+      // High-valence valence_logs first
       await electricDb.sync({
         shape: {
           table: 'valence_logs',
@@ -79,8 +93,11 @@ export class ElectricSQLLocalFirstSync {
         }
       });
 
+      // Then core tables
       await electricDb.sync({ shape: { table: 'users' } });
       await electricDb.sync({ shape: { table: 'progress_ladders' } });
+      await electricDb.sync({ shape: { table: 'habitats' } });
+      await electricDb.sync({ shape: { table: 'probes' } });
 
       console.log("[ElectricSync] ElectricSQL initialized – high-valence shapes prioritized");
 
@@ -96,26 +113,48 @@ export class ElectricSQLLocalFirstSync {
       });
     } catch (e) {
       console.error("[ElectricSync] Initialization failed", e);
+      mercyHaptic.playPattern('warningPulse', 0.7);
     }
   }
 
-  static async syncWithValencePriority(table: string, data: any) {
-    const actionName = 'Valence-priority ElectricSQL sync';
-    if (!await mercyGate(actionName)) return;
+  static async queryWithValencePriority(table: keyof typeof schema, filter: any = {}) {
+    const actionName = 'Valence-priority ElectricSQL query';
+    if (!await mercyGate(actionName) || !electricDb) return [];
 
     const valence = currentValence.get();
 
-    try {
-      if (valence > VALENCE_SHAPE_PIVOT) {
-        // High valence → sync immediately
-        await electricDb[table].create(data);
-        mercyHaptic.playPattern('cosmicHarmony', valence);
-      } else {
-        // Queue low-valence for batch sync (handled by ElectricSQL offline queue)
-        await electricDb[table].create(data);
+    let query = electricDb[table];
+
+    // Prioritize high-valence records
+    if (valence > VALENCE_SHAPE_PIVOT && table === 'valence_logs') {
+      query = query.where('valence > ?', [VALENCE_SHAPE_PIVOT]);
+    }
+
+    // Apply additional filter
+    if (filter) {
+      for (const [field, value] of Object.entries(filter)) {
+        query = query.where(`${field} = ?`, [value]);
       }
-    } catch (e) {
-      console.error("[ElectricSync] Sync failed", e);
+    }
+
+    return await query.fetch();
+  }
+
+  static async insertWithValence(table: keyof typeof schema, data: any) {
+    const actionName = 'Valence-aware ElectricSQL insert';
+    if (!await mercyGate(actionName) || !electricDb) return;
+
+    const valence = currentValence.get();
+    const entry = {
+      ...data,
+      updated_at: new Date(),
+      valence: valence
+    };
+
+    await electricDb[table].create(entry);
+
+    if (valence > VALENCE_SHAPE_PIVOT) {
+      mercyHaptic.playPattern('cosmicHarmony', valence);
     }
   }
 
