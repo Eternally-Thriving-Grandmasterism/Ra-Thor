@@ -43,7 +43,7 @@ export default defineConfig({
       devOptions: { enabled: true }
     })
   ],
-  base: '/Rathor-NEXi/', // Critical for GitHub Pages
+  base: '/Rathor-NEXi/',
   build: {
     outDir: 'dist',
     assetsDir: 'assets',
@@ -65,7 +65,4 @@ export default defineConfig({
   },
   server: { port: 3000, open: true },
   preview: { port: 4173 }
-})  preview: {
-    port: 4173,
-  }
 })
