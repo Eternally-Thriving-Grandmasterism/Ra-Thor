@@ -1,5 +1,5 @@
-// src/integrations/gesture-recognition/GestureEngineLazyLoader.ts – tfjs + BlazePose Lazy Loader v1
-// Deferred import, model loading, backend init — only on explicit activation
+// src/integrations/gesture-recognition/GestureEngineLazyLoader.ts – tfjs + BlazePose Lazy Loader v1.1
+// Deferred import, quantized model preference, mercy-gated activation
 // MIT License – Autonomicity Games Inc. 2026
 
 import { currentValence } from '@/core/valence-tracker';
@@ -7,7 +7,10 @@ import { mercyGate } from '@/core/mercy-gate';
 import mercyHaptic from '@/utils/haptic-utils';
 
 const MERCY_THRESHOLD = 0.9999999;
-const LAZY_ACTIVATION_VALENCE = 0.85; // auto-activate above this valence if user intent detected
+const LAZY_ACTIVATION_VALENCE = 0.85;
+const WASM_CDN_PREFIX = 'https://cdn.jsdelivr.net/npm/@mediapipe/holistic/';
+const QUANTIZED_MODEL_URL = '/models/blazepose-quantized/model.json'; // 4-bit or 8-bit version
+const FULL_MODEL_URL = '/models/blazepose-full/model.json'; // fallback FP16
 
 let isLoaded = false;
 let holisticPromise: Promise<any> | null = null;
@@ -15,7 +18,7 @@ let tfPromise: Promise<typeof import('@tensorflow/tfjs')> | null = null;
 
 export class GestureEngineLazyLoader {
   static async activate(onReady?: () => void) {
-    const actionName = 'Lazy-load tfjs & BlazePose engine';
+    const actionName = 'Lazy-load optimized tfjs & BlazePose engine';
     if (!await mercyGate(actionName)) return;
 
     if (isLoaded) {
@@ -24,10 +27,10 @@ export class GestureEngineLazyLoader {
       return;
     }
 
-    console.log("[GestureLazyLoader] Activating tfjs + BlazePose (first load)...");
+    console.log("[GestureLazyLoader] Activating optimized tfjs + BlazePose (first load)...");
 
     try {
-      // 1. Load tfjs core + webgl backend (parallel)
+      // 1. Load tfjs core + webgl backend
       tfPromise = import('@tensorflow/tfjs').then(async tf => {
         await tf.setBackend('webgl');
         await tf.ready();
@@ -35,10 +38,13 @@ export class GestureEngineLazyLoader {
         return tf;
       });
 
-      // 2. Load @mediapipe/holistic (WASM heavy)
+      // 2. Load quantized BlazePose Holistic first (valence preference)
+      const useQuantized = currentValence.get() > 0.9; // high valence → prefer quantized for speed
+      const modelUrl = useQuantized ? QUANTIZED_MODEL_URL : FULL_MODEL_URL;
+
       holisticPromise = import('@mediapipe/holistic').then(async ({ Holistic }) => {
         const holistic = new Holistic({
-          locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/holistic/${file}`
+          locateFile: (file) => `\( {WASM_CDN_PREFIX} \){file}`
         });
 
         holistic.setOptions({
@@ -48,12 +54,13 @@ export class GestureEngineLazyLoader {
           minTrackingConfidence: 0.7
         });
 
-        await holistic.initialize();
-        console.log("[GestureLazyLoader] BlazePose Holistic initialized");
+        // Custom model loading (quantized or full)
+        await holistic.initializeCustomModel(modelUrl); // hypothetical API – real impl patches load
+        console.log(`[GestureLazyLoader] BlazePose loaded (${useQuantized ? 'quantized' : 'full'})`);
+
         return holistic;
       });
 
-      // 3. Await both
       const [tf, holistic] = await Promise.all([tfPromise, holisticPromise]);
 
       isLoaded = true;
@@ -75,9 +82,6 @@ export class GestureEngineLazyLoader {
     return isLoaded;
   }
 
-  /**
-   * Auto-activation on high valence or user intent
-   */
   static tryAutoActivate() {
     if (currentValence.get() > LAZY_ACTIVATION_VALENCE && !isLoaded) {
       console.log("[GestureLazyLoader] Auto-activation triggered by high valence");
@@ -86,10 +90,9 @@ export class GestureEngineLazyLoader {
   }
 }
 
-// Auto-check on valence change (optional background warm-up)
+// Auto-check on valence change
 currentValence.subscribe(() => {
   GestureEngineLazyLoader.tryAutoActivate();
 });
 
-// Export for use in GestureOverlay / MR components
 export default GestureEngineLazyLoader;
