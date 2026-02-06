@@ -1,18 +1,13 @@
-// vite.config.ts – Vite configuration with PWA plugin integration v2
-// Full offline sovereignty, manifest generation, service worker, GitHub Pages base path
-// MIT License – Autonomicity Games Inc. 2026
-
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 
-// https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
+      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg', 'pwa-*.png'],
       manifest: {
         name: 'Rathor — Mercy Strikes First',
         short_name: 'Rathor',
@@ -23,22 +18,9 @@ export default defineConfig({
         scope: '/Rathor-NEXi/',
         start_url: '/Rathor-NEXi/',
         icons: [
-          {
-            src: 'pwa-192x192.png',
-            sizes: '192x192',
-            type: 'image/png'
-          },
-          {
-            src: 'pwa-512x512.png',
-            sizes: '512x512',
-            type: 'image/png'
-          },
-          {
-            src: 'pwa-512x512.png',
-            sizes: '512x512',
-            type: 'image/png',
-            purpose: 'any maskable'
-          }
+          { src: 'pwa-192x192.png', sizes: '192x192', type: 'image/png' },
+          { src: 'pwa-512x512.png', sizes: '512x512', type: 'image/png' },
+          { src: 'pwa-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' }
         ]
       },
       workbox: {
@@ -47,45 +29,43 @@ export default defineConfig({
           {
             urlPattern: /^https:\/\/cdn\.jsdelivr\.net\/.*/i,
             handler: 'CacheFirst',
-            options: {
-              cacheName: 'cdn-assets',
-              expiration: {
-                maxEntries: 50,
-                maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
-              }
-            }
+            options: { cacheName: 'cdn-assets', expiration: { maxEntries: 50, maxAgeSeconds: 2592000 } }
           },
           {
             urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp|ico)$/,
             handler: 'CacheFirst',
-            options: {
-              cacheName: 'images',
-              expiration: {
-                maxEntries: 100,
-                maxAgeSeconds: 60 * 60 * 24 * 30
-              }
-            }
+            options: { cacheName: 'images', expiration: { maxEntries: 100, maxAgeSeconds: 2592000 } }
           }
         ],
         navigateFallback: '/index.html',
         navigateFallbackDenylist: [/^\/api\//]
       },
-      devOptions: {
-        enabled: true // show PWA features in dev mode
-      }
+      devOptions: { enabled: true }
     })
   ],
-  base: '/Rathor-NEXi/', // Critical for GitHub Pages (repo name as base path)
+  base: '/Rathor-NEXi/', // Critical for GitHub Pages
   build: {
     outDir: 'dist',
     assetsDir: 'assets',
     sourcemap: true,
+    minify: 'terser',
+    terserOptions: {
+      compress: { drop_console: false, passes: 3 },
+      mangle: true
+    },
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom', 'framer-motion'],
+          tfjs: ['@tensorflow/tfjs', '@tensorflow/tfjs-backend-webgl'],
+          mediapipe: ['@mediapipe/holistic']
+        }
+      }
+    }
   },
-  server: {
-    port: 3000,
-    open: true,
-  },
-  preview: {
+  server: { port: 3000, open: true },
+  preview: { port: 4173 }
+})  preview: {
     port: 4173,
   }
 })
