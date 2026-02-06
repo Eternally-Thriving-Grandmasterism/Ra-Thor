@@ -1,4 +1,4 @@
-// src/integrations/gesture-recognition/GestureOverlay.tsx – Gesture Recognition Overlay v1.2
+// src/integrations/gesture-recognition/GestureOverlay.tsx – Gesture Recognition Overlay v1.3
 // Lazy tfjs + MediaPipe WASM loading, valence breathing HUD, haptic feedback, persistent anchors
 // MIT License – Autonomicity Games Inc. 2026
 
@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { currentValence } from '@/core/valence-tracker';
 import { mercyGate } from '@/core/mercy-gate';
 import mercyHaptic from '@/utils/haptic-utils';
-import GestureEngineLazyLoader from './GestureEngineLazyLoader';
+import TfjsLazyLoader from './TfjsLazyLoader';
 import MediaPipeLazyLoader from './MediaPipeLazyLoader';
 
 const GestureOverlay: React.FC<{ videoRef: React.RefObject<HTMLVideoElement> }> = ({ videoRef }) => {
@@ -24,7 +24,7 @@ const GestureOverlay: React.FC<{ videoRef: React.RefObject<HTMLVideoElement> }> 
   useEffect(() => {
     // Activate tfjs + MediaPipe on mount or high valence
     const activate = async () => {
-      await GestureEngineLazyLoader.activate();
+      await TfjsLazyLoader.activate();
       await MediaPipeLazyLoader.activate(holistic => {
         setIsEngineReady(true);
       });
@@ -39,8 +39,9 @@ const GestureOverlay: React.FC<{ videoRef: React.RefObject<HTMLVideoElement> }> 
     let animationFrame: number;
 
     const detect = async () => {
+      const tf = await TfjsLazyLoader.getTf();
       const holistic = await MediaPipeLazyLoader.getHolistic();
-      if (!holistic) return;
+      if (!tf || !holistic) return;
 
       const results = await holistic.send({ image: videoRef.current });
 
@@ -86,6 +87,27 @@ const GestureOverlay: React.FC<{ videoRef: React.RefObject<HTMLVideoElement> }> 
               {/* ... existing inner glow, border, gesture text ... */}
             </motion.div>
           </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Persistent anchor indicators */}
+      <div className="absolute bottom-8 left-8 text-cyan-200/70 text-sm backdrop-blur-sm p-4 rounded-xl border border-cyan-500/20">
+        Pinch: Propose Alliance  
+        Spiral: Bloom Swarm  
+        Figure-8: Eternal Harmony Loop
+      </div>
+
+      {/* Engine status indicator */}
+      {!isEngineReady && (
+        <div className="absolute top-4 right-4 bg-black/50 px-3 py-1 rounded-full text-xs text-cyan-300/80 backdrop-blur-sm">
+          Gesture Engine Warming...
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default GestureOverlay;          </motion.div>
         )}
       </AnimatePresence>
 
