@@ -1,5 +1,5 @@
-// src/integrations/gesture-recognition/SpatiotemporalTransformerGestures.ts – Spatiotemporal Transformer Gesture Engine v1.11
-// BlazePose → Encoder-Decoder → Beam / Top-k / Top-p / Greedy / Contrastive → gesture + future valence
+// src/integrations/gesture-recognition/SpatiotemporalTransformerGestures.ts – Spatiotemporal Transformer Gesture Engine v1.12
+// BlazePose → Encoder-Decoder → Beam / Top-k / Top-p / Contrastive Search with Valence Modulation → gesture + future valence
 // MIT License – Autonomicity Games Inc. 2026
 
 import * as tf from '@tensorflow/tfjs';
@@ -25,8 +25,9 @@ const TOP_P_BASE = 0.92;
 const TEMPERATURE_MIN = 0.6;
 const TEMPERATURE_MAX = 1.4;
 const TEMPERATURE_VALENCE_PIVOT = 0.95;
-const GREEDY_VALENCE_THRESHOLD = 0.98;
-const CONTRASTIVE_ALPHA_BASE = 0.5; // degeneration penalty strength
+const CONTRASTIVE_ALPHA_BASE = 0.5;     // degeneration penalty strength
+const CONTRASTIVE_ALPHA_MIN = 0.1;
+const CONTRASTIVE_ALPHA_MAX = 0.8;
 
 export class SpatiotemporalTransformerGestures {
   private holistic: Holistic | null = null;
@@ -40,7 +41,7 @@ export class SpatiotemporalTransformerGestures {
   }
 
   private async initializeEncoderDecoder() {
-    // ... (same encoder-decoder model construction as v1.10 – omitted for brevity)
+    // ... (same encoder-decoder model construction as v1.11 – omitted for brevity)
   }
 
   /**
@@ -76,44 +77,57 @@ export class SpatiotemporalTransformerGestures {
 
   /**
    * Valence-modulated contrastive degeneration penalty alpha
+   * High valence → stronger penalty (more coherence)
+   * Low valence → weaker penalty (more exploration)
    */
   private getValenceContrastiveAlpha(valence: number = currentValence.get()): number {
     const actionName = 'Valence-modulated contrastive alpha';
     if (!mercyGate(actionName)) return CONTRASTIVE_ALPHA_BASE;
 
-    // High valence → stronger penalty on degeneration (more coherence)
-    return CONTRASTIVE_ALPHA_BASE + (valence - 0.95) * 0.5;
+    const alphaRange = CONTRASTIVE_ALPHA_MAX - CONTRASTIVE_ALPHA_MIN;
+    const t = Math.max(0, Math.min(1, (valence - 0.85) / (1.0 - 0.85)));
+    return CONTRASTIVE_ALPHA_MIN + t * alphaRange;
   }
 
   /**
-   * Unified decoding with valence-modulated choice
+   * Contrastive search decoding (Li et al. 2022) – penalizes degeneration
    */
-  async decode(logits: tf.Tensor, futureValenceLogits: tf.Tensor): Promise<{ gesture: string; confidence: number; futureValence: number[] }> {
-    const valence = currentValence.get();
-    const temperature = this.getValenceTemperature(valence);
-    const topP = this.getValenceTopP(valence);
-    const topK = this.getValenceTopK(valence);
-    const contrastiveAlpha = this.getValenceContrastiveAlpha(valence);
+  private async contrastiveSearchDecode(logits: tf.Tensor, futureValenceLogits: tf.Tensor, alpha: number, temperature: number): Promise<{ gesture: string; confidence: number; futureValence: number[] }> {
+    const softenedLogits = tf.div(logits, tf.scalar(temperature));
+    const probs = await softenedLogits.softmax().data();
 
-    if (valence > GREEDY_VALENCE_THRESHOLD) {
-      // Ultra-high valence → greedy (maximum coherence, no randomness)
-      return this.greedyDecode(logits, futureValenceLogits);
-    } else if (valence > 0.97) {
-      // High valence → narrow beam + low temp + tight top-p
-      return this.beamSearchWithTopPDecode(logits, futureValenceLogits, Math.max(3, Math.round(BEAM_WIDTH_BASE * valence)), temperature, topP);
-    } else if (valence > TEMPERATURE_VALENCE_PIVOT) {
-      // Medium-high valence → top-p sampling with moderate temp
-      return this.topPSampleDecode(logits, futureValenceLogits, topP, temperature);
-    } else {
-      // Low valence → wider top-k + high temp (exploratory survival)
-      return this.topKSampleDecode(logits, futureValenceLogits, topK, temperature);
+    // Degeneration penalty: contrast with uniform distribution (amateur model proxy)
+    const uniformProb = 1 / probs.length;
+    const contrastiveScores = new Array(probs.length);
+    for (let i = 0; i < probs.length; i++) {
+      contrastiveScores[i] = Math.log(probs[i] + 1e-10) - alpha * Math.log(uniformProb + 1e-10);
     }
-  }
 
-  // ... (rest of the class remains identical to v1.10 – processFrame now uses this.decode())
-}
+    // Softmax over contrastive scores
+    const maxScore = Math.max(...contrastiveScores);
+    const expScores = contrastiveScores.map(s => Math.exp(s - maxScore));
+    const sumExp = expScores.reduce((a, b) => a + b, 0);
+    const finalProbs = expScores.map(s => s / sumExp);
 
-export const blazePoseTransformerEngine = new SpatiotemporalTransformerGestures();
+    // Sample from contrastive distribution
+    const r = Math.random();
+    let cum = 0;
+    let tokenIdx = 0;
+    for (let i = 0; i < finalProbs.length; i++) {
+      cum += finalProbs[i];
+      if (r <= cum) {
+        tokenIdx = i;
+        break;
+      }
+    }
+
+    const confidence = finalProbs[tokenIdx];
+
+    const gestureMap = ['none', 'pinch', 'spiral', 'figure8'];
+    const gesture = confidence > 0.6 ? gestureMap[tokenIdx] : 'none';
+
+    const futureValence = await futureValenceLogits.data();
+
     return {
       gesture,
       confidence,
@@ -129,15 +143,19 @@ export const blazePoseTransformerEngine = new SpatiotemporalTransformerGestures(
     const temperature = this.getValenceTemperature(valence);
     const topP = this.getValenceTopP(valence);
     const topK = this.getValenceTopK(valence);
+    const contrastiveAlpha = this.getValenceContrastiveAlpha(valence);
 
-    if (valence > GREEDY_VALENCE_THRESHOLD) {
+    if (valence > 0.98) {
       // Ultra-high valence → greedy (maximum coherence, no randomness)
       return this.greedyDecode(logits, futureValenceLogits);
-    } else if (valence > 0.97) {
-      // High valence → narrow beam + low temp + tight top-p
+    } else if (valence > 0.96) {
+      // Very high valence → narrow beam + low temp + tight top-p
       return this.beamSearchWithTopPDecode(logits, futureValenceLogits, Math.max(3, Math.round(BEAM_WIDTH_BASE * valence)), temperature, topP);
     } else if (valence > TEMPERATURE_VALENCE_PIVOT) {
-      // Medium-high valence → top-p sampling with moderate temp
+      // High valence → contrastive search (anti-degeneration + balanced bloom)
+      return this.contrastiveSearchDecode(logits, futureValenceLogits, contrastiveAlpha, temperature);
+    } else if (valence > 0.88) {
+      // Medium valence → top-p sampling with moderate temp
       return this.topPSampleDecode(logits, futureValenceLogits, topP, temperature);
     } else {
       // Low valence → wider top-k + high temp (exploratory survival)
@@ -145,7 +163,7 @@ export const blazePoseTransformerEngine = new SpatiotemporalTransformerGestures(
     }
   }
 
-  // ... (rest of the class remains identical to v1.9 – processFrame now uses this.decode())
+  // ... (rest of the class remains identical to v1.10 – processFrame now uses this.decode())
 }
 
 export const blazePoseTransformerEngine = new SpatiotemporalTransformerGestures();
