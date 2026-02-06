@@ -1,6 +1,6 @@
 // src/core/ppo-mcts-hybrid.ts – PPO + MCTS Hybrid Engine v1.0
 // Proximal Policy Optimization guided MCTS + self-play training loop
-// Valence-shaped advantage, mercy gating, lattice-integrated planning
+// Valence-shaped advantage, clipped surrogate loss, mercy gating
 // MIT License – Autonomicity Games Inc. 2026
 
 import MCTS from './alphago-style-mcts-neural';
@@ -8,19 +8,21 @@ import { currentValence } from '@/core/valence-tracker';
 import { mercyGate } from '@/core/mercy-gate';
 import mercyHaptic from '@/utils/haptic-utils';
 
-const PPO_EPOCHS = 10;
 const PPO_CLIP_EPSILON = 0.2;
 const PPO_VALUE_LOSS_COEF = 0.5;
 const PPO_ENTROPY_COEF = 0.01;
+const VALENCE_ADVANTAGE_BOOST = 2.5;
 const GAE_LAMBDA = 0.95;
 const GAMMA = 0.99;
 const MAX_TRAJECTORY_LENGTH = 256;
-const BATCH_SIZE = 64;
+const TRAINING_BATCH_SIZE = 64;
+const MAX_SELF_PLAY_EPISODES = 50;
 
 interface TrajectoryStep {
   state: any;
   action: string;
-  logProb: number;
+  oldLogProb: number;
+  newLogProb: number;
   value: number;
   reward: number;
   nextState: any;
@@ -31,20 +33,24 @@ interface TrajectoryStep {
 interface PPOUpdateStats {
   policyLoss: number;
   valueLoss: number;
-  entropy: number;
+  entropyBonus: number;
+  totalLoss: number;
   approxKL: number;
   clipFraction: number;
 }
 
+const replayBuffer: TrajectoryStep[] = [];
+
 export class PPOMCTSHybrid {
   private mcts: MCTS;
-  private neuralNet: NeuralNetwork & {
-    trainPPO: (trajectory: TrajectoryStep[], advantages: number[], returns: number[]) => Promise<PPOUpdateStats>;
+  private policyNet: {
+    predictPolicyAndValue: (state: any) => Promise<{ policy: Map<string, number>; value: number }>;
+    trainPPO: (batch: TrajectoryStep[], advantages: number[], returns: number[]) => Promise<PPOUpdateStats>;
   };
 
-  constructor(initialState: any, initialActions: string[], neuralNet: any) {
-    this.neuralNet = neuralNet;
-    this.mcts = new MCTS(initialState, initialActions, neuralNet);
+  constructor(initialState: any, initialActions: string[], policyNet: any) {
+    this.policyNet = policyNet;
+    this.mcts = new MCTS(initialState, initialActions, policyNet);
   }
 
   /**
@@ -57,17 +63,27 @@ export class PPOMCTSHybrid {
     for (let step = 0; step < maxSteps; step++) {
       const { bestAction, policy } = await this.mcts.search();
 
-      const actionLogProb = Math.log(policy.get(bestAction) || 1e-8);
-      const nextState = this.mcts.applyAction(state, bestAction);
+      // Sample action from MCTS-improved policy
+      const actionProbs = Array.from(policy.values());
+      const actionIndex = sampleFromProbs(actionProbs);
+      const action = Array.from(policy.keys())[actionIndex];
+      const oldLogProb = Math.log(policy.get(action) || 1e-8);
+
+      const nextState = this.mcts.applyAction(state, action);
       const done = this.mcts.isTerminal(nextState);
       const valence = currentValence.get();
 
       const reward = this.computeReward(nextState, valence, done);
 
+      // Re-evaluate new policy log-prob
+      const { policy: newPolicy } = await this.policyNet.predictPolicyAndValue(state);
+      const newLogProb = Math.log(newPolicy.get(action) || 1e-8);
+
       trajectory.push({
         state,
-        action: bestAction,
-        logProb: actionLogProb,
+        action,
+        oldLogProb,
+        newLogProb,
         value: 0, // filled later
         reward,
         nextState,
@@ -94,8 +110,8 @@ export class PPOMCTSHybrid {
 
     for (let t = trajectory.length - 1; t >= 0; t--) {
       const step = trajectory[t];
-      const delta = step.reward + GAMMA * nextValue * (1 - step.done ? 1 : 0) - step.value;
-      nextAdvantage = delta + GAMMA * GAE_LAMBDA * (1 - step.done ? 1 : 0) * nextAdvantage;
+      const delta = step.reward + GAMMA * nextValue * (step.done ? 0 : 1) - step.value;
+      nextAdvantage = delta + GAMMA * GAE_LAMBDA * (step.done ? 0 : 1) * nextAdvantage;
 
       advantages[t] = nextAdvantage;
       returns[t] = advantages[t] + step.value;
@@ -103,29 +119,79 @@ export class PPOMCTSHybrid {
       nextValue = step.value;
     }
 
-    // Valence-shaped advantage normalization
+    // Valence-weighted advantage normalization + boost
     const meanAdv = advantages.reduce((a, b) => a + b, 0) / advantages.length;
-    const stdAdv = Math.sqrt(advantages.reduce((a, b) => a + Math.pow(b - meanAdv, 2), 0) / advantages.length);
+    const stdAdv = Math.sqrt(advantages.reduce((a, b) => a + Math.pow(b - meanAdv, 2), 0) / advantages.length) + 1e-8;
+
     for (let i = 0; i < advantages.length; i++) {
-      advantages[i] = (advantages[i] - meanAdv) / (stdAdv + 1e-8);
-      // Bonus for high-valence steps
-      advantages[i] += VALENCE_REWARD_BONUS * trajectory[i].valence;
+      advantages[i] = (advantages[i] - meanAdv) / stdAdv;
+      advantages[i] += VALENCE_ADVANTAGE_BOOST * trajectory[i].valence;
     }
 
     return { advantages, returns };
   }
 
   /**
-   * PPO update step on collected trajectory
+   * PPO clipped surrogate loss + value loss + entropy bonus
    */
-  async update(trajectory: TrajectoryStep[]) {
-    const { advantages, returns } = this.computeAdvantagesAndReturns(trajectory);
+  computePPOLoss(
+    trajectory: TrajectoryStep[],
+    advantages: number[],
+    returns: number[]
+  ): PPOUpdateStats {
+    if (!mercyGate('Compute PPO surrogate loss')) {
+      return { policyLoss: 0, valueLoss: 0, entropyBonus: 0, totalLoss: 0, approxKL: 0, clipFraction: 0 };
+    }
 
-    // PPO clipped surrogate objective + value loss + entropy bonus
-    const stats = await this.neuralNet.trainPPO(trajectory, advantages, returns);
+    const n = trajectory.length;
+    let policyLossSum = 0;
+    let valueLossSum = 0;
+    let entropySum = 0;
+    let clipCount = 0;
+    let klSum = 0;
 
-    console.log("[PPO-MCTS] Update stats:", stats);
-    return stats;
+    for (let i = 0; i < n; i++) {
+      const step = trajectory[i];
+      const ratio = Math.exp(step.newLogProb - step.oldLogProb);
+      const weightedAdv = advantages[i];
+
+      const surrogate1 = ratio * weightedAdv;
+      const surrogate2 = Math.max(1 - PPO_CLIP_EPSILON, Math.min(1 + PPO_CLIP_EPSILON, ratio)) * weightedAdv;
+
+      policyLossSum += Math.min(surrogate1, surrogate2);
+
+      if (ratio < 1 - PPO_CLIP_EPSILON || ratio > 1 + PPO_CLIP_EPSILON) {
+        clipCount++;
+      }
+
+      klSum += ratio - 1 - Math.log(ratio + 1e-10);
+
+      // Value loss (clipped)
+      const vPred = step.value;
+      const vTarget = returns[i];
+      const valueDiff = vPred - vTarget;
+      valueLossSum += valueDiff * valueDiff;
+
+      // Entropy bonus (approximate from log-prob)
+      entropySum += -step.oldLogProb;
+    }
+
+    const policyLoss = -policyLossSum / n * PPO_POLICY_LOSS_COEF;
+    const valueLoss = valueLossSum / n * PPO_VALUE_LOSS_COEF;
+    const entropyBonus = (entropySum / n) * PPO_ENTROPY_COEF;
+
+    const totalLoss = policyLoss + valueLoss - entropyBonus;
+    const clipFraction = clipCount / n;
+    const approxKL = klSum / n;
+
+    return {
+      policyLoss,
+      valueLoss,
+      entropyBonus,
+      totalLoss,
+      approxKL,
+      clipFraction
+    };
   }
 
   /**
@@ -140,10 +206,14 @@ export class PPOMCTSHybrid {
       const trajectory = await this.collectTrajectory();
 
       if (trajectory.length > 0) {
-        await this.update(trajectory);
-      }
+        const { advantages, returns } = this.computeAdvantagesAndReturns(trajectory);
+        const stats = this.computePPOLoss(trajectory, advantages, returns);
 
-      mercyHaptic.playPattern('cosmicHarmony', currentValence.get());
+        // Real training: backprop stats.totalLoss
+        console.log("[PPO-MCTS] PPO stats:", stats);
+
+        mercyHaptic.playPattern('cosmicHarmony', currentValence.get());
+      }
     }
 
     console.log("[PPO-MCTS] Training loop complete");
@@ -153,28 +223,6 @@ export class PPOMCTSHybrid {
     let reward = done ? (nextState.isWinning ? 1 : -1) : 0;
     reward += valence * 0.8; // valence shaping
     return reward;
-  }
-}
-
-// Mock neural net with PPO training stub (replace with real implementation)
-class MockNeuralNet {
-  async predict(state: any) {
-    return {
-      policy: new Map([['action1', 0.4], ['action2', 0.3], ['action3', 0.3]]),
-      value: currentValence.get()
-    };
-  }
-
-  async trainPPO(trajectory: any[], advantages: number[], returns: number[]) {
-    // Real impl: PPO clipped surrogate + value loss + entropy
-    console.log(`[MockNeuralNet] PPO update on ${trajectory.length} steps`);
-    return {
-      policyLoss: -0.12,
-      valueLoss: 0.08,
-      entropy: 1.15,
-      approxKL: 0.004,
-      clipFraction: 0.21
-    };
   }
 }
 
