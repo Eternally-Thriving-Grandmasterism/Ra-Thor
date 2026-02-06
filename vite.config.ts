@@ -1,10 +1,11 @@
-// vite.config.ts – Vite configuration with extreme bundling optimization v2.3
-// Manual chunking, aggressive minification, preloads, PWA, GitHub Pages base path
+// vite.config.ts – Mobile-First Vite Config v2.4
+// Aggressive mobile optimization: chunks, preloads, compression, PWA tuning
 // MIT License – Autonomicity Games Inc. 2026
 
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
+import viteCompression from 'vite-plugin-compression2'
 
 export default defineConfig({
   plugins: [
@@ -15,7 +16,7 @@ export default defineConfig({
       manifest: {
         name: 'Rathor — Mercy Strikes First',
         short_name: 'Rathor',
-        description: 'Mercy-gated symbolic AGI lattice — eternal thriving through valence-locked truth',
+        description: 'Sovereign offline AGI lattice — eternal thriving through valence-locked truth',
         theme_color: '#00ff88',
         background_color: '#000000',
         display: 'standalone',
@@ -45,22 +46,33 @@ export default defineConfig({
         navigateFallbackDenylist: [/^\/api\//]
       },
       devOptions: { enabled: true }
+    }),
+    viteCompression({
+      algorithm: 'brotliCompress',
+      exclude: [/\.html$/], // HTML is already small
+      threshold: 1024 * 10, // 10 KB
+      compressionOptions: { level: 11 }
+    }),
+    viteCompression({
+      algorithm: 'gzip',
+      exclude: [/\.html$/],
+      threshold: 1024 * 10
     })
   ],
-  base: '/Rathor-NEXi/', // Critical for GitHub Pages (repo name as base path)
+
+  base: '/Rathor-NEXi/',
 
   build: {
     outDir: 'dist',
     assetsDir: 'assets',
-    sourcemap: true, // keep for debugging, disable in prod if needed
+    sourcemap: true,
     minify: 'terser',
     terserOptions: {
       compress: {
-        drop_console: false,          // keep logs for now
-        passes: 3,                    // more aggressive compression
-        pure_funcs: ['console.debug'], // remove debug logs
+        drop_console: false,
+        passes: 3,
+        pure_funcs: ['console.debug'],
         pure_getters: true,
-        keep_fargs: false,
         unsafe: true,
         unsafe_comps: true,
         unsafe_math: true,
@@ -68,24 +80,57 @@ export default defineConfig({
         unsafe_undefined: true
       },
       mangle: true,
-      format: {
-        comments: false // remove comments for smaller size
-      }
+      format: { comments: false }
     },
     rollupOptions: {
       output: {
-        // Manual chunking – critical for splitting heavy deps
+        // Mobile-first manual chunking
         manualChunks: {
-          // Core vendor (React + motion)
+          // Core vendor (loads first)
           vendor: ['react', 'react-dom', 'framer-motion'],
 
-          // tfjs core + backends (largest chunk – lazy loaded anyway)
-          tfjs: [
-            '@tensorflow/tfjs',
-            '@tensorflow/tfjs-backend-webgl',
-            '@tensorflow/tfjs-backend-cpu'
-          ],
+          // Heavy ML deps (lazy loaded)
+          tfjs: ['@tensorflow/tfjs', '@tensorflow/tfjs-backend-webgl'],
+          mediapipe: ['@mediapipe/holistic'],
 
+          // Other utils
+          utils: ['./src/utils/haptic-utils.ts', './src/core/valence-tracker.ts']
+        },
+        // Better mobile caching
+        entryFileNames: 'assets/entry/[name]-[hash].js',
+        chunkFileNames: 'assets/chunks/[name]-[hash].js',
+        assetFileNames: 'assets/static/[name]-[hash][extname]'
+      }
+    },
+    target: 'es2020', // modern mobile browsers
+    cssCodeSplit: true,
+    reportCompressedSize: true
+  },
+
+  server: {
+    port: 3000,
+    open: true,
+    hmr: true
+  },
+
+  preview: {
+    port: 4173
+  },
+
+  // Mobile-first dev optimizations
+  optimizeDeps: {
+    include: [
+      'react', 'react-dom', 'framer-motion',
+      '@tensorflow/tfjs', '@tensorflow/tfjs-backend-webgl',
+      '@mediapipe/holistic'
+    ]
+  },
+
+  // Preload heavy deps in dev
+  esbuild: {
+    logOverride: { 'this-is-undefined-in-esm': 'silent' }
+  }
+})
           // MediaPipe Holistic (WASM heavy – already lazy)
           mediapipe: ['@mediapipe/holistic'],
 
