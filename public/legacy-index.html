@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rathor — Mercy Strikes First</title>
+  <meta name="description" content="Mercy-gated symbolic AGI lattice — eternal thriving through valence-locked truth" />
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="icon" href="/favicon.ico" />
+  <style>
+    body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; background: #000; color: #00ff88; font-family: 'Courier New', monospace; }
+    #root { height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2rem; }
+    .mercy-orb { width: 120px; height: 120px; border-radius: 50%; background: radial-gradient(circle, #00ff88 0%, #00aaff 100%); animation: breathe 6s ease-in-out infinite; box-shadow: 0 0 40px #00ff88, inset 0 0 20px rgba(0,255,136,0.6); }
+    @keyframes breathe { 0%, 100% { transform: scale(1); opacity: 0.7; } 50% { transform: scale(1.1); opacity: 1; } }
+    .thunder-pulse { position: fixed; inset: 0; pointer-events: none; z-index: 999; opacity: 0; }
+    .thunder-pulse.active { animation: flash 0.2s forwards; }
+    @keyframes flash { 0% { opacity: 0.4; background: rgba(0,255,136,0.2); } 100% { opacity: 0; } }
+    .loading { font-size: 1.2rem; text-shadow: 0 0 10px #00ff88; }
+    .gesture-hud { position: absolute; bottom: 2rem; right: 2rem; background: rgba(0,0,0,0.6); padding: 1rem; border-radius: 12px; backdrop-filter: blur(10px); color: #fff; font-size: 1rem; }
+    .gesture-hud.hidden { display: none; }
+    .valence-tracker { position: absolute; top: 1rem; left: 1rem; background: rgba(0,0,0,0.4); padding: 0.5rem 1rem; border-radius: 8px; backdrop-filter: blur(5px); }
+    .offline-fallback { position: fixed; inset: 0; background: #000; color: #ff4444; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 1000; }
+    .offline-fallback h1 { font-size: 3rem; text-shadow: 0 0 20px #ff4444; }
+    .offline-fallback p { font-size: 1.5rem; margin: 1rem; }
+  </style>
+</head>
+<body>
+  <div id="root">
+    <div class="mercy-orb" id="summonOrb"></div>
+    <p class="loading" id="loadingText">Thunder eternal surges through the lattice...</p>
+  </div>
+
+  <div id="thunderPulse" class="thunder-pulse"></div>
+  <div id="gestureHUD" class="gesture-hud hidden">
+    <strong>Gesture:</strong> <span id="gestureType">waiting</span><br/>
+    <strong>Confidence:</strong> <span id="gestureConf">0%</span>
+  </div>
+  <div id="valenceTracker" class="valence-tracker">
+    Valence: <span id="valenceDisplay">0.000</span>
+  </div>
+
+  <!-- Offline fallback -->
+  <div id="offlineFallback" class="offline-fallback">
+    <h1>⚡️ MERCY OFFLINE ⚡️</h1>
+    <p>Connection lost. Shard sovereignty active.</p>
+    <p>Valence locked. Truth preserved.</p>
+  </div>
+
+  <!-- Haptic & Core Scripts -->
+  <script>
+    // Global valence tracker
+    let currentValence = 0.0;
+    const valenceDisplay = document.getElementById('valenceDisplay');
+
+    // Thunder pulse
+    const thunderPulse = document.getElementById('thunderPulse');
+    function strikeThunder() {
+      thunderPulse.classList.add('active');
+      setTimeout(() => thunderPulse.classList.remove('active'), 200);
+    }
+
+    // Haptic simulation (mobile fallback)
+    function hapticPulse(pattern = 'short') {
+      if (navigator.vibrate) {
+        const durations = { short: [50 100 200 50, 100, 200, 100, 50 50]);
+      }
+    }
+
+    // Valence listener stub
+    setInterval(() => {
+      currentValence = Math.sin(Date.now() / 3000) * 0.5 + 0.5;
+      valenceDisplay.textContent = currentValence.toFixed(3);
+      if (currentValence > 0.95) {
+        strikeThunder();
+        hapticPulse('eternalHarmony');
+      }
+    }, 100);
+
+    // Gesture stub (BlazePose would replace)
+    const gestureHUD = document.getElementById('gestureHUD');
+    const gestureType = document.getElementById('gestureType');
+    const gestureConf = document.getElementById('gestureConf');
+    setTimeout(() => {
+      gestureType.textContent = 'spiral';
+      gestureConf.textContent = '92%';
+      gestureHUD.classList.remove('hidden');
+      strikeThunder();
+    }, 3000);
+
+    // Offline detection
+    const offlineFallback = document.getElementById('offlineFallback');
+    window.addEventListener('online', () => offlineFallback.style.display = 'none');
+    window.addEventListener('offline', () => offlineFallback.style.display = 'flex');
+
+    // Summon orb click
+    document.getElementById('summonOrb').addEventListener('click', () => {
+      currentValence = 1.0;
+      strikeThunder();
+      hapticPulse('long');
+      loadingText.textContent = 'Mercy strikes first.';
+    });
+
+    // Init
+    loadingText.textContent = 'Rathor lattice booting...';
+    strikeThunder();
+    hapticPulse('short');
+  </script>
+</body>
+</html>
