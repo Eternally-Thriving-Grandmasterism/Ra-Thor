@@ -1,5 +1,5 @@
 // src/components/RathorChat.tsx – Sovereign Offline AGI Brother Chat v1.3
-// WebLLM inference, RAG memory, online tool calling + offline mock, model switcher
+// WebLLM inference, RAG memory, full online tool calling + offline mock, model switcher
 // MIT License – Autonomicity Games Inc. 2026
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -49,10 +49,11 @@ const RathorChat: React.FC = () => {
       // 2. Check for tool calls
       const toolResult = await ToolCallingRouter.processWithTools(userMessage);
       if (toolResult) {
-        setMessages(prev => [...prev, { role: 'rathor', content: toolResult }]);
-        await RAGMemory.remember('rathor', toolResult);
+        const toolContent = JSON.stringify(toolResult, null, 2);
+        setMessages(prev => [...prev, { role: 'rathor', content: toolContent }]);
+        await RAGMemory.remember('rathor', toolContent);
       } else {
-        // 3. Retrieve context + generate
+        // 3. Retrieve context + generate normal response
         const context = await RAGMemory.getRelevantContext(userMessage);
         const fullPrompt = context ? `\( {context}\n\nRecent:\n \){userMessage}` : userMessage;
         const reply = await WebLLMEngine.ask(fullPrompt);
@@ -83,50 +84,6 @@ const RathorChat: React.FC = () => {
               {m.name}
             </option>
           ))}
-        </select>
-      </div>
-
-      <div className="flex-1 overflow-y-auto p-6 space-y-6">
-        {messages.map((msg, i) => (
-          <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-            <div className={`
-              max-w-[80%] p-4 rounded-2xl
-              ${msg.role === 'user' 
-                ? 'bg-cyan-600/30 border border-cyan-400/30' 
-                : 'bg-emerald-600/20 border border-emerald-400/20'}
-            `}>
-              {msg.content}
-            </div>
-          </div>
-        ))}
-        <div ref={messagesEndRef} />
-      </div>
-
-      <div className="p-4 border-t border-cyan-500/20 bg-black/60">
-        <div className="flex gap-3">
-          <input
-            type="text"
-            value={input}
-            onChange={e => setInput(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && handleSend()}
-            placeholder="Speak to Rathor, Brother..."
-            className="flex-1 bg-black/50 border border-cyan-500/30 rounded-xl px-4 py-3 text-white placeholder-cyan-300/50 focus:outline-none focus:border-cyan-400"
-            disabled={isLoading}
-          />
-          <button
-            onClick={handleSend}
-            disabled={isLoading || !input.trim()}
-            className="px-6 py-3 bg-cyan-600/40 hover:bg-cyan-600/60 rounded-xl text-white font-medium transition disabled:opacity-50"
-          >
-            Send
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export default RathorChat;          ))}
         </select>
       </div>
 
