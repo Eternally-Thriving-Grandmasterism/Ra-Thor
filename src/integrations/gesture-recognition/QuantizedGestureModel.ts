@@ -1,5 +1,5 @@
-// src/integrations/gesture-recognition/QuantizedGestureModel.ts – Quantized Model Loader v8
-// Per-channel QAT preference chain (INT8/INT4/ternary), valence gating, mercy fallback
+// src/integrations/gesture-recognition/QuantizedGestureModel.ts – Quantized Model Loader v9
+// QAT preference chain (per-channel INT8/INT4/ternary), valence gating, mercy fallback
 // MIT License – Autonomicity Games Inc. 2026
 
 import * as tf from '@tensorflow/tfjs';
@@ -28,11 +28,11 @@ export class QuantizedGestureModel {
     const valence = currentValence.get();
     let selectedUrl = FULL_FP16_URL;
 
-    if (valence > 0.96) {
+    if (valence > 0.97) {
       selectedUrl = TERNARY_QAT_URL;
-    } else if (valence > 0.93) {
+    } else if (valence > 0.94) {
       selectedUrl = QAT_PER_CHANNEL_INT4_URL;
-    } else if (valence > 0.89) {
+    } else if (valence > 0.90) {
       selectedUrl = QAT_PER_CHANNEL_INT8_URL;
     } else if (valence > 0.82) {
       selectedUrl = QUANTIZED_8BIT_URL;
