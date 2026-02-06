@@ -2,43 +2,46 @@
 
 load("@rules_python//python:defs.bzl", "py_binary", "py_library", "py_test")
 load("@pip//:requirements.bzl", "requirement")
-load("@rules_cuda//cuda:defs.bzl", "cuda_library", "cuda_cc_binary")
+load("@rules_cuda//cuda:defs.bzl", "cuda_cc_library", "cuda_cc_binary")
 
-# Python library – model definition (CPU fallback)
+# Python library – model definition
 py_library(
     name = "gesture_model",
     srcs = ["gesture_model.py"],
     deps = [
-        requirement("tensorflow"),
+        requirement("torch"),
+        requirement("torchvision"),
         requirement("numpy"),
-        requirement("onnxruntime"),
+        requirement("onnxruntime-gpu"),
         "//src/core:valence_tracker",
     ],
 )
 
-# CUDA-accelerated model extension (optional – if using custom kernels)
-cuda_library(
+# CUDA-accelerated custom kernel (optional – e.g. fused attention)
+cuda_cc_library(
     name = "gesture_cuda_kernels",
     srcs = ["gesture_kernels.cu"],
+    hdrs = ["gesture_kernels.h"],
     deps = [
-        "@org_tensorflow//tensorflow/core:framework",
         "@rules_cuda//cuda:cuda_headers",
+        requirement("torch"),  # torch cuda headers
     ],
 )
 
-# Training binary – GPU-accelerated (CUDA if available)
+# GPU training binary
 cuda_cc_binary(
     name = "train_gpu",
     srcs = ["train.py"],
     deps = [
         ":gesture_model",
         ":gesture_cuda_kernels",
-        requirement("tensorflow"),
+        requirement("torch"),
         requirement("numpy"),
     ],
     data = ["//data:training_set"],
     copts = ["-O3", "-march=native"],
     linkopts = ["-lcudart", "-lcublas", "-lcudnn"],
+    args = ["--device", "cuda"],
 )
 
 # CPU fallback training
@@ -50,7 +53,7 @@ py_binary(
     args = ["--device", "cpu"],
 )
 
-# Export to ONNX (CPU only for determinism)
+# Export to ONNX (CPU for determinism)
 py_binary(
     name = "export_onnx",
     srcs = ["export_onnx.py"],
