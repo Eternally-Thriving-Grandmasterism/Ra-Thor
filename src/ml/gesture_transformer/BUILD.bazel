@@ -1,0 +1,48 @@
+# src/ml/gesture_transformer/BUILD.bazel
+
+load("@rules_python//python:defs.bzl", "py_binary", "py_library", "py_test")
+load("@pip//:requirements.bzl", "requirement")
+load("@org_tensorflow//tensorflow:tensorflow.bzl", "tf_py_binary")
+
+# Python library – model definition
+py_library(
+    name = "gesture_model",
+    srcs = ["gesture_model.py"],
+    deps = [
+        requirement("tensorflow"),
+        requirement("numpy"),
+        requirement("onnxruntime"),
+        "//src/core:valence_tracker",  # internal dep
+    ],
+)
+
+# Training binary – hermetic TF training
+tf_py_binary(
+    name = "train",
+    srcs = ["train.py"],
+    deps = [":gesture_model"],
+    data = [
+        "//data:training_set",  # hermetic data
+    ],
+    args = [
+        "--epochs", "100",
+        "--batch_size", "64",
+    ],
+    python_version = "PY3",
+)
+
+# Inference test
+py_test(
+    name = "inference_test",
+    srcs = ["inference_test.py"],
+    deps = [":gesture_model"],
+    data = ["//data:test_set"],
+)
+
+# Export to ONNX (for WebNN / TensorRT)
+py_binary(
+    name = "export_onnx",
+    srcs = ["export_onnx.py"],
+    deps = [":gesture_model"],
+    args = ["--output", "gesture-transformer.onnx"],
+)
