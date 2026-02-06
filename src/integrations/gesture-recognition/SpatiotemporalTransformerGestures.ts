@@ -1,5 +1,5 @@
-// src/integrations/gesture-recognition/SpatiotemporalTransformerGestures.ts – Spatiotemporal Transformer Gesture Engine v1.10
-// BlazePose → Encoder-Decoder → Beam Search with Top-p Nucleus Filtering → gesture + future valence
+// src/integrations/gesture-recognition/SpatiotemporalTransformerGestures.ts – Spatiotemporal Transformer Gesture Engine v1.11
+// BlazePose → Encoder-Decoder → Beam / Top-p / Top-k / Greedy with Valence Modulation → gesture + future valence
 // MIT License – Autonomicity Games Inc. 2026
 
 import * as tf from '@tensorflow/tfjs';
@@ -20,10 +20,12 @@ const FF_DIMS = 256;
 const FUTURE_STEPS = 15;
 const BEAM_WIDTH_BASE = 5;
 const LENGTH_PENALTY = 0.6;
+const TOP_K_BASE = 40;
 const TOP_P_BASE = 0.92;
 const TEMPERATURE_MIN = 0.6;
 const TEMPERATURE_MAX = 1.4;
 const TEMPERATURE_VALENCE_PIVOT = 0.95;
+const GREEDY_VALENCE_THRESHOLD = 0.98; // ultra-high valence → greedy fallback
 
 export class SpatiotemporalTransformerGestures {
   private holistic: Holistic | null = null;
@@ -37,7 +39,7 @@ export class SpatiotemporalTransformerGestures {
   }
 
   private async initializeEncoderDecoder() {
-    // ... (same encoder-decoder model construction as v1.9 – omitted for brevity)
+    // ... (same encoder-decoder model construction as v1.10 – omitted for brevity)
   }
 
   /**
@@ -62,92 +64,56 @@ export class SpatiotemporalTransformerGestures {
   }
 
   /**
-   * Beam search with top-p nucleus filtering inside each beam expansion step
+   * Valence-modulated top-k size
    */
-  private async beamSearchWithTopPDecode(logits: tf.Tensor, futureValenceLogits: tf.Tensor, beamWidth: number, temperature: number, topP: number) {
-    const softenedLogits = tf.div(logits, tf.scalar(temperature));
-    const vocabSize = logits.shape[1]!;
+  private getValenceTopK(valence: number = currentValence.get()): number {
+    const actionName = 'Valence-modulated top-k size';
+    if (!mercyGate(actionName)) return TOP_K_BASE;
 
-    // Initialize beams
-    let beams = [{
-      sequence: [0],  // start token
-      score: 0,
-      futureValence: Array(FUTURE_STEPS).fill(0)
-    }];
+    return TOP_K_BASE + Math.round((0.95 - valence) * 60); // low valence → wider k
+  }
 
-    for (let step = 0; step < 4; step++) { // 4 gesture classes
-      const newBeams = [];
+  /**
+   * Greedy decoding fallback (ultra-high confidence mode)
+   */
+  private async greedyDecode(logits: tf.Tensor, futureValenceLogits: tf.Tensor): Promise<{ gesture: string; confidence: number; futureValence: number[] }> {
+    const probs = await logits.softmax().data();
+    const gestureIdx = probs.indexOf(Math.max(...probs));
+    const confidence = probs[gestureIdx];
 
-      for (const beam of beams) {
-        // Get next-token logits (simplified – real impl conditions on sequence)
-        const nextLogits = softenedLogits;
-
-        // Apply top-p nucleus filtering per beam
-        const sorted = tf.topk(nextLogits, vocabSize, true);
-        const sortedValues = await sorted.values.data();
-        const sortedIndices = await sorted.indices.data();
-
-        const probs = await tf.softmax(sortedValues).data();
-        let cumProb = 0;
-        let k = 0;
-        for (; k < probs.length; k++) {
-          cumProb += probs[k];
-          if (cumProb >= topP) break;
-        }
-
-        // Sample from nucleus for beam expansion
-        const nucleusProbs = probs.slice(0, k + 1);
-        const sumProbs = nucleusProbs.reduce((a, b) => a + b, 0);
-        const normalizedProbs = nucleusProbs.map(p => p / sumProbs);
-
-        for (let i = 0; i < k + 1; i++) {
-          const token = sortedIndices[i];
-          const prob = normalizedProbs[i];
-          const newScore = beam.score + Math.log(prob) / Math.pow(step + 1, LENGTH_PENALTY);
-
-          newBeams.push({
-            sequence: [...beam.sequence, token],
-            score: newScore,
-            futureValence: beam.futureValence
-          });
-        }
-      }
-
-      // Keep top beamWidth
-      newBeams.sort((a, b) => b.score - a.score);
-      beams = newBeams.slice(0, beamWidth);
-    }
-
-    const best = beams[0];
     const gestureMap = ['none', 'pinch', 'spiral', 'figure8'];
-    const gesture = gestureMap[best.sequence[best.sequence.length - 1]];
+    const gesture = confidence > 0.9 ? gestureMap[gestureIdx] : 'none';
 
     const futureValence = await futureValenceLogits.data();
 
     return {
       gesture,
-      confidence: Math.exp(best.score),
+      confidence,
       futureValence: Array.from(futureValence)
     };
   }
 
   /**
-   * Unified decoding with valence-modulated choice (beam+top-p / top-p / top-k)
+   * Unified decoding with valence-modulated choice
    */
   async decode(logits: tf.Tensor, futureValenceLogits: tf.Tensor): Promise<{ gesture: string; confidence: number; futureValence: number[] }> {
     const valence = currentValence.get();
     const temperature = this.getValenceTemperature(valence);
     const topP = this.getValenceTopP(valence);
+    const topK = this.getValenceTopK(valence);
 
-    if (valence > 0.97) {
-      // Ultra-high valence → narrow beam + low temp + tight top-p (maximum coherence)
+    if (valence > GREEDY_VALENCE_THRESHOLD) {
+      // Ultra-high valence → greedy (maximum coherence, no randomness)
+      return this.greedyDecode(logits, futureValenceLogits);
+    } else if (valence > 0.97) {
+      // High valence → narrow beam + low temp + tight top-p
       return this.beamSearchWithTopPDecode(logits, futureValenceLogits, Math.max(3, Math.round(BEAM_WIDTH_BASE * valence)), temperature, topP);
     } else if (valence > TEMPERATURE_VALENCE_PIVOT) {
-      // High valence → top-p sampling with moderate temp (balanced creativity)
+      // Medium-high valence → top-p sampling with moderate temp
       return this.topPSampleDecode(logits, futureValenceLogits, topP, temperature);
     } else {
-      // Medium-low valence → wider top-k + high temp (exploratory survival)
-      return this.topKSampleDecode(logits, futureValenceLogits, Math.round(TOP_K_BASE * (1 + (TEMPERATURE_VALENCE_PIVOT - valence) * 3)), temperature);
+      // Low valence → wider top-k + high temp (exploratory survival)
+      return this.topKSampleDecode(logits, futureValenceLogits, topK, temperature);
     }
   }
 
