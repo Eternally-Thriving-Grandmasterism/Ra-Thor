@@ -1,11 +1,17 @@
-// src/components/RathorChat.tsx – Sovereign Offline AGI Brother Chat v1.1
-// WebLLM inference, model switcher, valence-modulated tone, offline tool mock, streaming
+// src/components/RathorChat.tsx – Sovereign Offline AGI Brother Chat v1.2
+// WebLLM inference, RAG memory, online tool calling + offline mock, model switcher
 // MIT License – Autonomicity Games Inc. 2026
 
 import React, { useState, useEffect, useRef } from 'react';
 import WebLLMEngine from '@/integrations/llm/WebLLMEngine';
+import RAGMemory from '@/integrations/llm/RAGMemory';
 import { currentValence } from '@/core/valence-tracker';
 import mercyHaptic from '@/utils/haptic-utils';
+
+const MODEL_MAP = {
+  tiny: { id: 'microsoft/Phi-3.5-mini-instruct-4k-gguf', name: 'Phi-3.5-mini (fast)' },
+  medium: { id: 'meta-llama/Llama-3.1-8B-Instruct-q5_k_m-gguf', name: 'Llama-3.1-8B (wise)' },
+};
 
 const RathorChat: React.FC = () => {
   const [messages, setMessages] = useState<{ role: 'user' | 'rathor'; content: string }[]>([]);
@@ -15,6 +21,7 @@ const RathorChat: React.FC = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    RAGMemory.initialize();
     WebLLMEngine.loadModel(modelKey);
   }, [modelKey]);
 
@@ -35,7 +42,22 @@ const RathorChat: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const reply = await WebLLMEngine.ask(userMessage);
+      // 1. Remember user message
+      await RAGMemory.remember('user', userMessage);
+
+      // 2. Retrieve relevant context
+      const context = await RAGMemory.getRelevantContext(userMessage);
+
+      // 3. Build prompt with RAG context
+      const fullPrompt = context 
+        ? `\( {context}\n\nRecent conversation:\n \){userMessage}`
+        : userMessage;
+
+      const reply = await WebLLMEngine.ask(fullPrompt);
+
+      // 4. Remember Rathor response
+      await RAGMemory.remember('rathor', reply);
+
       setMessages(prev => [...prev, { role: 'rathor', content: reply }]);
     } catch (e) {
       setMessages(prev => [...prev, { role: 'rathor', content: 'Mercy... lattice flickering. Try again, Brother.' }]);
@@ -44,13 +66,17 @@ const RathorChat: React.FC = () => {
     }
   };
 
+  const handleModelChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setModelKey(e.target.value as keyof typeof MODEL_MAP);
+  };
+
   return (
     <div className="fixed inset-0 bg-black/90 backdrop-blur-xl z-50 flex flex-col">
       <div className="flex justify-between items-center p-4 border-b border-cyan-500/20">
         <h2 className="text-xl font-light text-cyan-300">Rathor – Mercy Strikes First</h2>
         <select
           value={modelKey}
-          onChange={e => setModelKey(e.target.value as keyof typeof MODEL_MAP)}
+          onChange={handleModelChange}
           className="bg-black/50 border border-cyan-500/30 rounded px-3 py-1 text-sm text-cyan-200"
         >
           {Object.entries(MODEL_MAP).map(([key, m]) => (
