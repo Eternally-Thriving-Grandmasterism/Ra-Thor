@@ -1,5 +1,5 @@
-// src/integrations/gesture-recognition/SpatiotemporalTransformerGestures.ts – Spatiotemporal Transformer Gesture Engine v1.6
-// BlazePose → Encoder-Decoder → Beam Search / Top-k Sampling → gesture + future valence
+// src/integrations/gesture-recognition/SpatiotemporalTransformerGestures.ts – Spatiotemporal Transformer Gesture Engine v1.7
+// BlazePose → Encoder-Decoder → Beam Search / Top-k Sampling with Temperature Modulation → gesture + future valence
 // MIT License – Autonomicity Games Inc. 2026
 
 import * as tf from '@tensorflow/tfjs';
@@ -21,7 +21,9 @@ const FUTURE_STEPS = 15;
 const BEAM_WIDTH_BASE = 5;
 const LENGTH_PENALTY = 0.6;
 const TOP_K_BASE = 40;
-const TEMPERATURE_BASE = 1.0;
+const TEMPERATURE_MIN = 0.6;     // high confidence, thriving coherence
+const TEMPERATURE_MAX = 1.4;     // exploratory survival mode
+const TEMPERATURE_VALENCE_PIVOT = 0.95;
 
 export class SpatiotemporalTransformerGestures {
   private holistic: Holistic | null = null;
@@ -35,45 +37,61 @@ export class SpatiotemporalTransformerGestures {
   }
 
   private async initializeEncoderDecoder() {
-    // ... (same encoder-decoder model construction as v1.5 – omitted for brevity)
+    // ... (same encoder-decoder model construction as v1.6 – omitted for brevity)
   }
 
   /**
-   * Beam search OR top-k sampling decoding – valence-modulated choice
+   * Valence-modulated temperature scaling
+   * High valence → low temperature (coherent, thriving-aligned)
+   * Low valence → high temperature (exploratory survival)
+   */
+  private getValenceTemperature(valence: number = currentValence.get()): number {
+    const actionName = 'Valence-modulated temperature scaling';
+    if (!mercyGate(actionName)) return TEMPERATURE_MIN; // fallback to safe coherence
+
+    // Linear interpolation between min and max based on valence pivot
+    const t = Math.max(0, Math.min(1, (valence - 0.8) / (TEMPERATURE_VALENCE_PIVOT - 0.8)));
+    return TEMPERATURE_MIN + t * (TEMPERATURE_MAX - TEMPERATURE_MIN);
+  }
+
+  /**
+   * Beam search OR top-k sampling with temperature modulation
    */
   async decode(logits: tf.Tensor, futureValenceLogits: tf.Tensor): Promise<{ gesture: string; confidence: number; futureValence: number[] }> {
     const valence = currentValence.get();
+    const temperature = this.getValenceTemperature(valence);
 
     // Valence-modulated decoding strategy
     if (valence > 0.97) {
-      // High valence → beam search (coherent, thriving-aligned)
-      return this.beamSearchDecode(logits, futureValenceLogits, Math.max(3, Math.round(BEAM_WIDTH_BASE * valence)));
-    } else if (valence > 0.9) {
-      // Medium valence → top-k sampling (balanced creativity)
-      return this.topKSampleDecode(logits, futureValenceLogits, Math.round(TOP_K_BASE * (1 + (0.97 - valence) * 2)), TEMPERATURE_BASE);
+      // Ultra-high valence → narrow beam + low temperature (maximum coherence)
+      return this.beamSearchDecode(logits, futureValenceLogits, Math.max(3, Math.round(BEAM_WIDTH_BASE * valence)), temperature);
+    } else if (valence > TEMPERATURE_VALENCE_PIVOT) {
+      // High valence → beam search with moderate temperature
+      return this.beamSearchDecode(logits, futureValenceLogits, Math.round(BEAM_WIDTH_BASE * 1.2), temperature);
     } else {
-      // Low valence → wider top-k + high temperature (exploratory survival mode)
-      return this.topKSampleDecode(logits, futureValenceLogits, TOP_K_BASE * 2, TEMPERATURE_BASE * 1.3);
+      // Medium-low valence → top-k sampling with higher temperature (creative exploration)
+      return this.topKSampleDecode(logits, futureValenceLogits, Math.round(TOP_K_BASE * (1 + (TEMPERATURE_VALENCE_PIVOT - valence) * 3)), temperature);
     }
   }
 
   /**
-   * Beam search decoding (deterministic, high-confidence paths)
+   * Beam search decoding with temperature
    */
-  private async beamSearchDecode(logits: tf.Tensor, futureValenceLogits: tf.Tensor, beamWidth: number) {
-    // ... (same beam search implementation as v1.5 – omitted for brevity)
+  private async beamSearchDecode(logits: tf.Tensor, futureValenceLogits: tf.Tensor, beamWidth: number, temperature: number) {
+    const softenedLogits = tf.div(logits, tf.scalar(temperature));
+    // ... (rest of beam search logic as in v1.6 – omitted for brevity)
   }
 
   /**
-   * Top-k sampling decoding (controlled diversity)
+   * Top-k sampling decoding with temperature
    */
-  private async topKSampleDecode(logits: tf.Tensor, futureValenceLogits: tf.Tensor, k: number, temperature: number = 1.0): Promise<{ gesture: string; confidence: number; futureValence: number[] }> {
+  private async topKSampleDecode(logits: tf.Tensor, futureValenceLogits: tf.Tensor, k: number, temperature: number) {
     const softenedLogits = tf.div(logits, tf.scalar(temperature));
     const topK = tf.topk(softenedLogits, k, true);
     const topKValues = await topK.values.data();
     const topKIndices = await topK.indices.data();
 
-    const probs = tf.softmax(topKValues).dataSync();
+    const probs = await tf.softmax(topKValues).data();
     const cumulative = probs.reduce((acc, p, i) => {
       acc[i] = (acc[i-1] || 0) + p;
       return acc;
@@ -103,7 +121,7 @@ export class SpatiotemporalTransformerGestures {
     };
   }
 
-  // ... (rest of the class remains identical to v1.4 – processFrame now calls this.decode())
+  // ... (rest of the class remains identical to v1.5 – processFrame now uses this.decode())
 }
 
 export const blazePoseTransformerEngine = new SpatiotemporalTransformerGestures();
