@@ -1,5 +1,5 @@
-// src/integrations/gesture-recognition/ONNXGestureEngine.ts – ONNX Runtime Web Engine v2.1
-// Loads & runs QAT-quantized ONNX models, WebGPU preference + fallback, mercy-gated
+// src/integrations/gesture-recognition/ONNXGestureEngine.ts – ONNX Runtime Web Engine v2.2
+// WebNN native preference → WebGPU → WebGL fallback, QAT-quantized models, mercy-gated
 // MIT License – Autonomicity Games Inc. 2026
 
 import { currentValence } from '@/core/valence-tracker';
@@ -16,35 +16,25 @@ const ONNX_TARGET_FULL_URL = '/models/gesture-transformer-onnx/model.onnx';
 let sessionTarget: ort.InferenceSession | null = null;
 let sessionDraft: ort.InferenceSession | null = null;
 let isONNXReady = false;
+let currentProvider = 'none';
 
 export class ONNXGestureEngine {
   static async activate() {
-    const actionName = 'Activate ONNX Runtime Web with WebGPU preference';
+    const actionName = 'Activate ONNX Runtime Web with WebNN preference';
     if (!await mercyGate(actionName)) return;
 
     if (isONNXReady) {
-      console.log("[ONNXGestureEngine] Already activated");
+      console.log("[ONNXGestureEngine] Already activated – provider:", currentProvider);
       return;
     }
 
-    console.log("[ONNXGestureEngine] Activating ONNX Runtime Web with WebGPU...");
+    console.log("[ONNXGestureEngine] Activating ONNX Runtime Web...");
 
     try {
-      // 1. Configure ORT for WebGPU first, fallback to WebGL
+      // 1. Configure ORT
       ort.env.wasm.wasmPaths = 'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.18.0/dist/ort-wasm.wasm';
       ort.env.wasm.numThreads = navigator.hardwareConcurrency || 4;
       ort.env.wasm.simd = true;
-
-      // Try WebGPU → fallback to WebGL
-      let providers: string[] = ['webgpu'];
-      try {
-        ort.env.executionProviders = providers;
-        console.log("[ONNXGestureEngine] Attempting WebGPU provider...");
-      } catch (gpuErr) {
-        console.warn("[ONNXGestureEngine] WebGPU not available, falling back to WebGL", gpuErr);
-        providers = ['webgl'];
-        ort.env.executionProviders = providers;
-      }
 
       const valence = currentValence.get();
       let targetUrl = ONNX_TARGET_FULL_URL;
@@ -55,15 +45,40 @@ export class ONNXGestureEngine {
         targetUrl = ONNX_TARGET_QAT_INT8_URL;
       }
 
-      sessionTarget = await ort.InferenceSession.create(targetUrl, {
-        executionProviders: providers,
-        graphOptimizationLevel: 'all',
-      });
+      // 2. Build execution provider chain: WebNN → WebGPU → WebGL
+      const providers = [];
+      const hasWebNN = 'ml' in navigator && 'createContext' in navigator.ml;
 
-      sessionDraft = await ort.InferenceSession.create(ONNX_DRAFT_QAT_INT8_URL, {
-        executionProviders: providers,
-        graphOptimizationLevel: 'all',
-      });
+      if (hasWebNN) {
+        providers.push('webnn');
+      }
+      providers.push('webgpu', 'webgl');
+
+      console.log("[ONNXGestureEngine] Trying providers in order:", providers);
+
+      // Try each provider in sequence
+      for (const provider of providers) {
+        try {
+          sessionTarget = await ort.InferenceSession.create(targetUrl, {
+            executionProviders: [provider],
+            graphOptimizationLevel: 'all',
+          });
+
+          sessionDraft = await ort.InferenceSession.create(ONNX_DRAFT_QAT_INT8_URL, {
+            executionProviders: [provider],
+            graphOptimizationLevel: 'all',
+          });
+
+          currentProvider = provider;
+          break;
+        } catch (providerErr) {
+          console.warn(`[ONNXGestureEngine] Provider ${provider} failed`, providerErr);
+        }
+      }
+
+      if (!sessionTarget || !sessionDraft) {
+        throw new Error("No suitable execution provider found");
+      }
 
       // Warm-up
       const dummyInput = new ort.Tensor('float32', new Float32Array(SEQUENCE_LENGTH * LANDMARK_DIM), [1, SEQUENCE_LENGTH, LANDMARK_DIM]);
@@ -74,7 +89,7 @@ export class ONNXGestureEngine {
 
       isONNXReady = true;
       mercyHaptic.playPattern('cosmicHarmony', currentValence.get());
-      console.log("[ONNXGestureEngine] ONNX models loaded with provider:", providers[0]);
+      console.log(`[ONNXGestureEngine] ONNX models loaded with provider: ${currentProvider}`);
     } catch (e) {
       console.error("[ONNXGestureEngine] Activation failed", e);
       mercyHaptic.playPattern('warningPulse', 0.7);
@@ -86,6 +101,44 @@ export class ONNXGestureEngine {
       throw new Error("ONNX engine not ready");
     }
 
+    const valence = currentValence.get();
+
+    // Draft phase
+    const draftFeeds = { input: inputTensor };
+    const draftResults = await sessionDraft.run(draftFeeds);
+    const draftProbs = draftResults.output.data as Float32Array;
+
+    const draftToken = draftProbs.indexOf(Math.max(...draftProbs));
+
+    // Verification phase
+    const targetFeeds = { input: inputTensor };
+    const targetResults = await sessionTarget.run(targetFeeds);
+    const targetProbs = targetResults.gesture.data as Float32Array;
+    const futureValenceData = targetResults.future_valence.data as Float32Array;
+
+    const maxIdx = targetProbs.indexOf(Math.max(...targetProbs));
+    const confidence = targetProbs[maxIdx];
+
+    const gestureMap = ['none', 'pinch', 'spiral', 'figure8'];
+    const gesture = confidence > 0.75 ? gestureMap[maxIdx] : 'none';
+
+    return {
+      gesture,
+      confidence,
+      futureValence: Array.from(futureValenceData),
+    };
+  }
+
+  static isActive(): boolean {
+    return isONNXReady;
+  }
+
+  static getCurrentProvider(): string {
+    return currentProvider;
+  }
+}
+
+export default ONNXGestureEngine;
     const valence = currentValence.get();
 
     // Draft phase
