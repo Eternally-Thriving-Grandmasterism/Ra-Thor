@@ -1,5 +1,5 @@
 // src/integrations/gesture-recognition/SpatiotemporalTransformerGestures.ts – Spatiotemporal Transformer Gesture Engine v1.15
-// BlazePose → Encoder-Decoder → Valence-Weighted QAT + KD Distilled Draft + Speculative Decoding → gesture + future valence
+// BlazePose → Encoder-Decoder → Valence-Weighted QAT-KD Distilled Draft + Speculative Decoding → gesture + future valence
 // MIT License – Autonomicity Games Inc. 2026
 
 import * as tf from '@tensorflow/tfjs';
@@ -22,11 +22,11 @@ const SPECULATIVE_DRAFT_STEPS = 6;
 const SPECULATIVE_ACCEPT_THRESHOLD = 0.9;
 const VALENCE_WEIGHT_THRESHOLD = 0.9;
 
-// Simulated valence-weighted QAT + KD distilled draft model
+// Simulated valence-weighted QAT-KD distilled draft model
 class ValenceQATKDdistilledDraftModel {
   async predict(input: tf.Tensor) {
-    // Placeholder – real impl loads QAT + KD-distilled tfjs model
-    // Trained with fake-quant ops + valence-weighted KD loss
+    // Placeholder – real impl loads QAT-KD-distilled tfjs model
+    // Trained with fake-quant ops + valence-weighted KD loss + attention matching
     return tf.randomUniform([1, 4]).softmax(); // dummy logits
   }
 }
@@ -48,21 +48,21 @@ export class SpatiotemporalTransformerGestures {
 
     // ... (same holistic & encoder-decoder initialization as v1.14 – omitted for brevity)
 
-    // 3. Load valence-weighted QAT + KD distilled draft model
+    // 3. Load valence-weighted QAT-KD distilled draft model
     this.valenceQATKDdistilledDraftModel = new ValenceQATKDdistilledDraftModel();
 
-    // Placeholder: load real QAT + KD-distilled weights
+    // Placeholder: load real QAT-KD-distilled weights
     // this.valenceQATKDdistilledDraftModel = await tf.loadLayersModel('/models/gesture-qat-kd-distilled/model.json');
 
     console.log("[SpatiotemporalTransformer] Full + Valence-QAT-KD-Distilled Draft initialized – speculative decoding ready");
   }
 
   /**
-   * Speculative decoding with valence-weighted QAT + KD distilled draft acceptance
+   * Speculative decoding with valence-weighted QAT-KD distilled draft acceptance
    */
   private async speculativeDecodeWithValence(logits: tf.Tensor, futureValenceLogits: tf.Tensor, draftSteps: number = SPECULATIVE_DRAFT_STEPS): Promise<{ gesture: string; confidence: number; futureValence: number[] }> {
     const valence = currentValence.get();
-    if (!await mercyGate('Speculative decoding with valence-weighted QAT + KD distilled draft')) {
+    if (!await mercyGate('Speculative decoding with valence-weighted QAT-KD distilled draft')) {
       return this.greedyDecode(logits, futureValenceLogits);
     }
 
