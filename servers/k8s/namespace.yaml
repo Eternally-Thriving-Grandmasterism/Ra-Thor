@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: rathor-inference
+  labels:
+    app.kubernetes.io/part-of: rathor-nexi
+    mercy-gate: "true"
+    valence-priority: high
