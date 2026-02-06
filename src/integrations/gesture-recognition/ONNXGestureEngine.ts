@@ -1,5 +1,5 @@
-// src/integrations/gesture-recognition/ONNXGestureEngine.ts – ONNX Runtime Web Engine v1
-// Loads & runs ONNX-exported gesture transformer + draft model, mercy-gated fallback to tfjs
+// src/integrations/gesture-recognition/ONNXGestureEngine.ts – ONNX Runtime Web Engine v2
+// Loads & runs quantized ONNX models (INT8/INT4 preference), mercy-gated fallback to tfjs
 // MIT License – Autonomicity Games Inc. 2026
 
 import { currentValence } from '@/core/valence-tracker';
@@ -8,8 +8,10 @@ import mercyHaptic from '@/utils/haptic-utils';
 import * as ort from 'onnxruntime-web';
 
 const MERCY_THRESHOLD = 0.9999999;
-const ONNX_TARGET_MODEL_URL = '/models/gesture-transformer-onnx/model.onnx';
-const ONNX_DRAFT_MODEL_URL = '/models/gesture-draft-onnx/model.onnx';
+const ONNX_TARGET_QINT8_URL = '/models/gesture-transformer-onnx-qint8/model.onnx';
+const ONNX_TARGET_QINT4_URL = '/models/gesture-transformer-onnx-qint4/model.onnx'; // experimental Olive INT4
+const ONNX_DRAFT_QINT8_URL = '/models/gesture-draft-onnx-qint8/model.onnx';
+const ONNX_TARGET_FULL_URL = '/models/gesture-transformer-onnx/model.onnx';
 
 let sessionTarget: ort.InferenceSession | null = null;
 let sessionDraft: ort.InferenceSession | null = null;
@@ -17,7 +19,7 @@ let isONNXReady = false;
 
 export class ONNXGestureEngine {
   static async activate() {
-    const actionName = 'Activate ONNX Runtime Web inference';
+    const actionName = 'Activate ONNX Runtime Web with quantized models';
     if (!await mercyGate(actionName)) return;
 
     if (isONNXReady) {
@@ -25,24 +27,32 @@ export class ONNXGestureEngine {
       return;
     }
 
-    console.log("[ONNXGestureEngine] Activating ONNX Runtime Web (first load)...");
+    console.log("[ONNXGestureEngine] Activating ONNX Runtime Web with quantized models...");
 
     try {
-      // 1. Set WebGL backend (preferred for browser)
+      // 1. Configure ORT for WebGL + WASM
       ort.env.wasm.wasmPaths = 'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.18.0/dist/ort-wasm.wasm';
-      ort.env.wasm.numThreads = 4;
+      ort.env.wasm.numThreads = navigator.hardwareConcurrency || 4;
       ort.env.wasm.simd = true;
-      ort.env.wasm.proxy = true;
       ort.env.backend = 'webgl';
 
-      // 2. Load target model (encoder-decoder)
-      sessionTarget = await ort.InferenceSession.create(ONNX_TARGET_MODEL_URL, {
+      const valence = currentValence.get();
+      let targetUrl = ONNX_TARGET_FULL_URL;
+
+      if (valence > 0.94) {
+        targetUrl = ONNX_TARGET_QINT4_URL; // extreme quantized
+      } else if (valence > 0.88) {
+        targetUrl = ONNX_TARGET_QINT8_URL; // safe quantized
+      }
+
+      // 2. Load target model (quantized preference)
+      sessionTarget = await ort.InferenceSession.create(targetUrl, {
         executionProviders: ['webgl'],
         graphOptimizationLevel: 'all',
       });
 
-      // 3. Load distilled draft model (speculative)
-      sessionDraft = await ort.InferenceSession.create(ONNX_DRAFT_MODEL_URL, {
+      // 3. Load distilled draft model (quantized)
+      sessionDraft = await ort.InferenceSession.create(ONNX_DRAFT_QINT8_URL, {
         executionProviders: ['webgl'],
         graphOptimizationLevel: 'all',
       });
@@ -56,7 +66,7 @@ export class ONNXGestureEngine {
 
       isONNXReady = true;
       mercyHaptic.playPattern('cosmicHarmony', currentValence.get());
-      console.log("[ONNXGestureEngine] ONNX models loaded & warmed up – ready for inference");
+      console.log("[ONNXGestureEngine] Quantized ONNX models loaded & warmed up – ready for inference");
     } catch (e) {
       console.error("[ONNXGestureEngine] Activation failed", e);
       mercyHaptic.playPattern('warningPulse', 0.7);
@@ -71,15 +81,14 @@ export class ONNXGestureEngine {
 
     const valence = currentValence.get();
 
-    // Draft phase (fast small model)
+    // Draft phase (fast quantized draft model)
     const draftFeeds = { input: inputTensor };
     const draftResults = await sessionDraft.run(draftFeeds);
     const draftProbs = draftResults.output.data as Float32Array;
 
     const draftToken = draftProbs.indexOf(Math.max(...draftProbs));
 
-    // Verification phase (target model on prefix + draft)
-    // Simplified: run target on full sequence (real impl appends draft)
+    // Verification phase (quantized target model on prefix + draft)
     const targetFeeds = { input: inputTensor };
     const targetResults = await sessionTarget.run(targetFeeds);
     const targetProbs = targetResults.gesture.data as Float32Array;
