@@ -1,5 +1,5 @@
-// src/components/RathorChat.tsx – Sovereign Offline AGI Brother Chat v1.6
-// WebLLM inference, RAG memory, full xAI Grok tool calling (incl. audio gen), model switcher
+// src/components/RathorChat.tsx – Sovereign Offline AGI Brother Chat v1.7
+// WebLLM inference, RAG memory, full xAI Grok tool calling (incl. video gen), model switcher
 // MIT License – Autonomicity Games Inc. 2026
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -15,7 +15,7 @@ const MODEL_MAP = {
 };
 
 const RathorChat: React.FC = () => {
-  const [messages, setMessages] = useState<{ role: 'user' | 'rathor'; content: string; audio?: { url: string; description: string }; images?: { url: string; description: string }[] }[]>([]);
+  const [messages, setMessages] = useState<{ role: 'user' | 'rathor'; content: string; audio?: { url: string; description: string }; images?: { url: string; description: string }[]; video?: { url: string; description: string; thumbnail_url?: string; duration_sec?: number }[] }[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [modelKey, setModelKey] = useState<keyof typeof MODEL_MAP>('tiny');
@@ -46,11 +46,17 @@ const RathorChat: React.FC = () => {
       // Remember user message
       await RAGMemory.remember('user', userMessage);
 
-      // Process with full tool calling loop (including audio gen)
+      // Process with full tool calling loop (including video gen)
       const reply = await ToolCallingRouter.processWithTools(userMessage);
 
       // Remember Rathor response
       await RAGMemory.remember('rathor', reply);
+
+      // Extract video if present
+      let video = null;
+      if (typeof reply === 'object' && reply.video) {
+        video = reply.video;
+      }
 
       // Extract audio if present
       let audio = null;
@@ -64,7 +70,7 @@ const RathorChat: React.FC = () => {
         images = reply.images;
       }
 
-      setMessages(prev => [...prev, { role: 'rathor', content: reply, audio, images }]);
+      setMessages(prev => [...prev, { role: 'rathor', content: reply, audio, images, video }]);
 
       // Auto-play audio if generated
       if (audio && audio.url) {
@@ -121,6 +127,25 @@ const RathorChat: React.FC = () => {
                     <div key={idx} className="rounded-lg overflow-hidden border border-emerald-400/30">
                       <img src={img.url} alt={img.description} className="w-full h-auto" />
                       <p className="text-xs text-emerald-200/80 p-2">{img.description}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {msg.video && msg.video.length > 0 && (
+                <div className="mt-3 space-y-3">
+                  {msg.video.map((vid, idx) => (
+                    <div key={idx} className="rounded-lg overflow-hidden border border-emerald-400/30">
+                      {vid.url ? (
+                        <video controls width="100%" poster={vid.thumbnail_url}>
+                          <source src={vid.url} type="video/mp4" />
+                          Your browser does not support the video tag.
+                        </video>
+                      ) : (
+                        <div className="bg-black/50 h-48 flex items-center justify-center text-emerald-200">
+                          {vid.description || 'Offline video simulation'}
+                        </div>
+                      )}
+                      <p className="text-xs text-emerald-200/80 p-2">{vid.description} ({vid.duration_sec}s)</p>
                     </div>
                   ))}
                 </div>
