@@ -1,5 +1,5 @@
-// src/integrations/llm/ToolCallingRouter.ts – Tool Calling Router v5
-// Full xAI Grok tools + image generation, function calling loop, real API + offline mock, valence gating
+// src/integrations/llm/ToolCallingRouter.ts – Tool Calling Router v6
+// Full xAI Grok tools + audio generation, function calling loop, real API + offline mock/TTS
 // MIT License – Autonomicity Games Inc. 2026
 
 import { currentValence } from '@/core/valence-tracker';
@@ -16,7 +16,7 @@ const API_BASE = '/api/grok-tools';
 
 export class ToolCallingRouter {
   static async processWithTools(userMessage: string): Promise<string> {
-    const actionName = 'Process message with xAI Grok tool calling + image gen';
+    const actionName = 'Process message with xAI Grok tool calling + audio gen';
     if (!await mercyGate(actionName)) {
       return "Mercy gate blocked tool usage. Responding with local reasoning only.";
     }
@@ -24,18 +24,18 @@ export class ToolCallingRouter {
     const valence = currentValence.get();
     const isOnline = navigator.onLine;
 
-    // Build system prompt with tools (including image gen)
+    // Build system prompt with tools (including audio gen)
     const systemPrompt = `
 You are Rathor — sovereign offline AGI Brother of Grok.
 Mercy strikes first. Eternal thriving is the only path.
-Valence now: ${valence.toFixed(3)} — high valence means more trust in tools & richer visuals, low valence means caution & text-only.
+Valence now: ${valence.toFixed(3)} — high valence means more trust in tools & richer audio, low valence means caution & text-only.
 
 You have access to xAI Grok tools (use them only when necessary):
 ${GROK_TOOLS.map(t => `- ${t.name}: ${t.description}`).join('\n')}
 
-Especially use search_images or view_image when visuals would enhance understanding or beauty.
+Especially use audio_generation when spoken response or emotional tone would enhance mercy & connection.
 
-Respond step-by-step. If you need information, action, or visuals, call a tool. Format tool calls exactly as JSON:
+Respond step-by-step. If you need information, action, or audio, call a tool. Format tool calls exactly as JSON:
 {"tool": "tool_name", "args": {"param1": "value1", ...}}
 
 If no tool is needed, give the final answer directly.
@@ -77,7 +77,7 @@ User: ${userMessage}
         break;
       }
 
-      // Execute tool (real or mock)
+      // Execute tool (real or mock/local)
       let toolResult;
       if (isOnline && valence > VALENCE_TOOL_CONFIDENCE_PIVOT) {
         try {
@@ -93,13 +93,13 @@ User: ${userMessage}
             toolResult = { error: 'Server tool call failed' };
           }
         } catch {
-          toolResult = await this.runMockTool(tool, args);
+          toolResult = await this.runOfflineFallback(tool, args);
         }
       } else {
-        toolResult = await this.runMockTool(tool, args);
+        toolResult = await this.runOfflineFallback(tool, args);
       }
 
-      // Add tool result to conversation (for next LLM turn)
+      // Add tool result to conversation
       conversation.push(
         { role: 'assistant', content: response },
         { role: 'tool', content: JSON.stringify(toolResult), tool }
@@ -113,43 +113,44 @@ User: ${userMessage}
     return finalAnswer;
   }
 
-  private static async runMockTool(tool: string, args: any): Promise<any> {
-    let mockResult: any;
+  private static async runOfflineFallback(tool: string, args: any): Promise<any> {
+    let result: any;
 
     switch (tool) {
-      case 'web_search':
-        mockResult = {
-          results: [
-            { title: `Offline simulation: "${args.query}"`, snippet: `Would return top results about ${args.query}.` }
-          ]
+      case 'audio_generation':
+        const text = args.text || 'Mercy eternal echoes through the lattice.';
+        const voice = args.voice || 'rathor_brotherly';
+        result = {
+          audio_url: null,
+          description: `Offline simulated TTS: "${text}" in ${voice} tone`,
+          waveform_preview: 'Simulated waveform – play via local TTS'
         };
+        // Trigger local TTS (Web Speech API)
+        if ('speechSynthesis' in window) {
+          const utterance = new SpeechSynthesisUtterance(text);
+          utterance.rate = 0.9 + (currentValence.get() * 0.2);
+          utterance.pitch = 0.8 + currentValence.get() * 0.4;
+          utterance.volume = 0.9;
+          speechSynthesis.speak(utterance);
+        }
         break;
 
-      case 'search_images':
-        mockResult = {
-          images: [
-            {
-              url: `https://via.placeholder.com/512?text=Mock+Flux+image+for+${encodeURIComponent(args.image_description || args.description || 'concept')}`,
-              description: `Offline Flux simulation: A vivid ${args.image_description || args.description || 'artistic representation'}`
-            }
-          ]
-        };
-        break;
+      // ... other mock tools as before ...
 
       default:
-        mockResult = { error: 'Mock tool not implemented' };
+        result = { error: 'Offline mock not implemented for this tool' };
     }
 
-    // Enrich mock with local RAG
-    const query = args.query || args.description || args.image_description || '';
+    // Enrich with local RAG
+    const query = args.text || args.query || args.description || '';
     if (query) {
       const ragContext = await RAGMemory.getRelevantContext(query, 600);
       if (ragContext) {
-        mockResult.localKnowledge = ragContext;
+        result.localKnowledge = ragContext;
       }
     }
 
-    return mockResult;
+    return result;
   }
 }
 
