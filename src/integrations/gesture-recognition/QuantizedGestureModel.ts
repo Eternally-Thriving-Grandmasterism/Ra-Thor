@@ -1,5 +1,5 @@
-// src/integrations/gesture-recognition/QuantizedGestureModel.ts – Quantized Custom Transformer Loader v1
-// Loads 4-bit AWQ quantized model first, fallback to 8-bit/FP16, mercy-gated
+// src/integrations/gesture-recognition/QuantizedGestureModel.ts – Quantized Custom Transformer Loader v2
+// 2-bit extreme quantization preference, layered fallback (2→4→8→FP16), mercy-gated
 // MIT License – Autonomicity Games Inc. 2026
 
 import * as tf from '@tensorflow/tfjs';
@@ -8,15 +8,16 @@ import { currentValence } from '@/core/valence-tracker';
 import { mercyGate } from '@/core/mercy-gate';
 
 const MERCY_THRESHOLD = 0.9999999;
-const QUANTIZED_4BIT_URL = '/models/gesture-transformer-4bit-awq/model.json';
-const QUANTIZED_8BIT_URL = '/models/gesture-transformer-8bit-int8/model.json';
-const FULL_FP16_URL = '/models/gesture-transformer-full/model.json';
+const QUANTIZED_2BIT_URL = '/models/gesture-transformer-2bit/model.json';      // extreme compression
+const QUANTIZED_4BIT_URL = '/models/gesture-transformer-4bit-awq/model.json';  // sweet spot
+const QUANTIZED_8BIT_URL = '/models/gesture-transformer-8bit-int8/model.json'; // safe fallback
+const FULL_FP16_URL     = '/models/gesture-transformer-full/model.json';       // maximum accuracy
 
 let modelPromise: Promise<tf.LayersModel> | null = null;
 
 export class QuantizedGestureModel {
   static async load(): Promise<tf.LayersModel> {
-    const actionName = 'Load quantized custom transformer model';
+    const actionName = 'Load 2-bit quantized custom transformer model';
     if (!await mercyGate(actionName)) {
       throw new Error("Mercy gate blocked model loading");
     }
@@ -26,35 +27,45 @@ export class QuantizedGestureModel {
     const valence = currentValence.get();
     let selectedUrl = FULL_FP16_URL;
 
-    if (valence > 0.92) {
-      // High valence → prefer 4-bit AWQ (fastest + thriving-aligned)
+    if (valence > 0.96) {
+      // Very high valence → prefer 2-bit (extreme speed + thriving-aligned)
+      selectedUrl = QUANTIZED_2BIT_URL;
+    } else if (valence > 0.90) {
+      // High valence → 4-bit AWQ (best speed/quality trade-off)
       selectedUrl = QUANTIZED_4BIT_URL;
-    } else if (valence > 0.85) {
-      // Medium valence → 8-bit int8 (balanced speed/safety)
+    } else if (valence > 0.82) {
+      // Medium valence → 8-bit int8 (safe balance)
       selectedUrl = QUANTIZED_8BIT_URL;
     } else {
       // Low valence → full FP16 (maximum accuracy for survival mode)
       selectedUrl = FULL_FP16_URL;
     }
 
-    console.log(`[QuantizedGestureModel] Loading model (${selectedUrl}) for valence ${valence.toFixed(4)}`);
+    console.log(`[QuantizedGestureModel] Loading ${selectedUrl} for valence ${valence.toFixed(4)}`);
 
     try {
       modelPromise = tf.loadLayersModel(selectedUrl);
       const model = await modelPromise;
 
-      // Warm up backend
+      // Warm-up inference (critical for first-run latency)
       const dummyInput = tf.zeros([1, SEQUENCE_LENGTH, LANDMARK_DIM]);
-      await model.predict(dummyInput);
+      const dummyOutput = model.predict(dummyInput) as tf.Tensor[];
+      dummyOutput.forEach(t => t.dispose());
       dummyInput.dispose();
 
       console.log("[QuantizedGestureModel] Model loaded & warmed up successfully");
       return model;
     } catch (e) {
       console.error("[QuantizedGestureModel] Load failed", e);
-      // Fallback to full model on error
-      modelPromise = tf.loadLayersModel(FULL_FP16_URL);
-      return await modelPromise;
+      // Fallback chain
+      const fallbackUrls = [QUANTIZED_4BIT_URL, QUANTIZED_8BIT_URL, FULL_FP16_URL];
+      for (const url of fallbackUrls) {
+        try {
+          modelPromise = tf.loadLayersModel(url);
+          return await modelPromise;
+        } catch {}
+      }
+      throw new Error("All model loading attempts failed");
     }
   }
 
