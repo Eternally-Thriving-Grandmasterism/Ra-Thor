@@ -1,0 +1,29 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: mercy-admission-webhook
+webhooks:
+- name: mercy-admission.rathor.ai
+  clientConfig:
+    service:
+      name: mercy-admission-webhook
+      namespace: rathor-system
+      path: "/mutate"
+    caBundle: "<CA_BUNDLE>"  # base64-encoded CA cert
+  rules:
+  - operations: ["DELETE"]
+    apiGroups: [""]
+    apiVersions: ["v1"]
+    resources: ["pods"]
+    scope: "Namespaced"
+  failurePolicy: Ignore
+  sideEffects: None
+  admissionReviewVersions: ["v1"]
+  matchPolicy: Equivalent
+  objectSelector:
+    matchExpressions:
+    - key: app
+      operator: In
+      values:
+      - triton
+      - fastapi-proxy
