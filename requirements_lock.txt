@@ -1,0 +1,10 @@
+# requirements_lock.txt – locked PyTorch CUDA dependencies (pip-compile style)
+torch==2.3.0+cu124
+torchvision==0.18.0+cu124
+torchaudio==2.3.0+cu124
+--extra-index-url https://download.pytorch.org/whl/cu124
+numpy==1.26.4
+pandas==2.2.2
+scikit-learn==1.5.0
+matplotlib==3.9.0
+onnxruntime-gpu==1.18.0
