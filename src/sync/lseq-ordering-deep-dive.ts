@@ -8,11 +8,11 @@ import { mercyGate } from '@/core/mercy-gate';
 const MERCY_THRESHOLD = 0.9999999;
 
 /**
- * LSEQ ordering reference – core mechanics
+ * LSEQ ordering reference – core mechanics & improvements over Logoot
  */
 export const LSEQOrderingReference = {
   positionIDStructure: "Variable-length sequence of digits in large base (e.g. 2^32 per digit)",
-  adaptiveAllocation: "Alternates between boundary+ (midpoint) and boundary- (biased) to keep average length sub-linear",
+  adaptiveAllocation: "Alternates between boundary+ (midpoint) and boundary- (biased) → sub-linear average length",
   insertResolution: "New ID generated between left & right neighbor; concurrent inserts → different points in gap",
   boundarySplitting: "When gap exhausted → extend length by 1, place new ID in middle of new level, rebalance neighbors if needed",
   deleteResolution: "Tombstone + visible=false; concurrent insert + delete → insert wins if after delete",
