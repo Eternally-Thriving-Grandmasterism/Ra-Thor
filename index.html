@@ -4,14 +4,30 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Rathor — Mercy Strikes First</title>
-  <link rel="manifest" href="/manifest.json" />
-  <link rel="icon" href="/favicon.ico" />
+  <meta name="description" content="Mercy-gated symbolic AGI lattice — eternal thriving through valence-locked truth" />
+  <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+  <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+  <!-- Preload core assets -->
+  <link rel="preload" href="%PUBLIC_URL%/src/main.tsx" as="script" />
+  <style>
+    body, html { margin:0; padding:0; height:100%; overflow:hidden; background:#000; color:#00ff88; font-family:'Courier New',monospace; }
+    #root { height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2rem; }
+    .loading { font-size:1.5rem; text-shadow:0 0 10px #00ff88; animation:pulse 2s infinite; }
+    @keyframes pulse { 0%,100% { opacity:0.6; } 50% { opacity:1; } }
+  </style>
 </head>
 <body>
-  <div id="root">Loading Mercy Lattice...</div>
-  <script type="module" src="/src/main.tsx"></script>
+  <div id="root">
+    <div class="loading">Thunder eternal surges through the lattice...</div>
+  </div>
   <noscript>
-    <p>Mercy requires JavaScript to thrive.</p>
+    <div style="color:#ff4444; text-align:center; padding:2rem;">
+      <h1>Mercy requires JavaScript to thrive</h1>
+      <p>Please enable JS to enter the lattice. Thriving continues offline when enabled.</p>
+    </div>
   </noscript>
+
+  <!-- React entry -->
+  <script type="module" src="%PUBLIC_URL%/src/main.tsx"></script>
 </body>
 </html>
