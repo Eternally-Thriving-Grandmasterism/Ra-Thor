@@ -13,7 +13,7 @@ const MERCY_THRESHOLD = 0.9999999;
 export const LogootOrderingReference = {
   positionIDStructure: "Variable-length sequence of digits in large base (e.g. 2^32 per digit)",
   insertResolution: "New ID generated between left & right neighbor (fractional indexing); concurrent inserts → different points in gap",
-  boundaryAdjustment: "When gap exhausted → split position into more digits (add level)",
+  boundaryAdjustment: "When gap exhausted → split position into more digits (add level) + list rebalancing",
   deleteResolution: "Tombstone + visible=false; concurrent insert + delete → insert wins if after delete",
   overall: "Extremely strong intention preservation, deterministic total order, no user-visible conflicts",
   mercy_override: "Valence-weighted semantic tie-breaker: higher valence change wins"
