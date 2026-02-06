@@ -1,6 +1,6 @@
-// src/core/sac-mcts-hybrid.ts – SAC + MCTS Hybrid Engine v1.0
+// src/core/sac-mcts-hybrid.ts – SAC + MCTS Hybrid Engine v1.1
 // Soft Actor-Critic guided MCTS + self-play + automatic temperature tuning
-// Valence-shaped entropy bonus, mercy gating, lattice-integrated continuous planning
+// Valence-modulated target entropy, clipped surrogate loss, mercy gating
 // MIT License – Autonomicity Games Inc. 2026
 
 import MCTS from './alphago-style-mcts-neural';
@@ -10,9 +10,14 @@ import mercyHaptic from '@/utils/haptic-utils';
 
 const SAC_GAMMA = 0.99;
 const SAC_TAU = 0.005;                    // soft target update
-const SAC_ENTROPY_TARGET = -2.0;          // target entropy (auto-tuned)
-const SAC_ALPHA_LR = 3e-4;
-const VALENCE_ENTROPY_BOOST = 3.0;
+const SAC_ENTROPY_TARGET_BASE = -2.0;     // baseline target entropy (for action dim)
+const SAC_ALPHA_LR = 3e-4;                // learning rate for log-alpha
+const SAC_ALPHA_INIT = 0.2;               // initial temperature
+const VALENCE_ENTROPY_BOOST = 1.5;        // high valence → higher entropy target (more exploration)
+const VALENCE_ENTROPY_DAMP = 0.5;         // low valence → lower entropy target (more exploitation)
+const MIN_ALPHA = 0.001;
+const MAX_ALPHA = 10.0;
+const ENTROPY_UPDATE_INTERVAL = 100;      // update temperature every N steps
 const MAX_TRAJECTORY_LENGTH = 256;
 const REPLAY_BUFFER_SIZE = 1000000;
 const BATCH_SIZE = 256;
@@ -29,7 +34,8 @@ interface Transition {
 }
 
 const replayBuffer: Transition[] = [];
-let alpha = 0.2;                            // initial temperature
+let logAlpha = Math.log(SAC_ALPHA_INIT);  // learnable log-temperature
+let stepsSinceAlphaUpdate = 0;
 let stepsSinceTargetUpdate = 0;
 
 export class SACMCTSHybrid {
@@ -54,6 +60,69 @@ export class SACMCTSHybrid {
   }
 
   /**
+   * Get current temperature α – exponentiated log-alpha
+   */
+  getTemperature(): number {
+    return Math.exp(logAlpha);
+  }
+
+  /**
+   * Compute valence-modulated target entropy
+   */
+  private getValenceModulatedTargetEntropy(): number {
+    const valence = currentValence.get();
+    const boost = VALENCE_ENTROPY_BOOST * valence;
+    const damp = VALENCE_ENTROPY_DAMP * (1 - valence);
+    return SAC_ENTROPY_TARGET_BASE + boost - damp;
+  }
+
+  /**
+   * Update temperature α toward valence-modulated target entropy
+   * @param batchEntropy Average entropy of policy in current batch
+   */
+  private async updateTemperature(batchEntropy: number): Promise<number> {
+    const actionName = 'Update automatic temperature α';
+    if (!await mercyGate(actionName)) {
+      return this.getTemperature();
+    }
+
+    stepsSinceAlphaUpdate++;
+    if (stepsSinceAlphaUpdate < ENTROPY_UPDATE_INTERVAL) {
+      return this.getTemperature();
+    }
+
+    stepsSinceAlphaUpdate = 0;
+
+    const targetEntropy = this.getValenceModulatedTargetEntropy();
+
+    // SAC temperature loss: α * (target_entropy - batch_entropy)
+    const alphaLoss = Math.exp(logAlpha) * (targetEntropy - batchEntropy);
+
+    // Gradient descent step on logAlpha
+    logAlpha -= SAC_ALPHA_LR * alphaLoss;
+
+    // Hard clamp for numerical stability
+    logAlpha = Math.max(Math.log(MIN_ALPHA), Math.min(Math.log(MAX_ALPHA), logAlpha));
+
+    const newAlpha = this.getTemperature();
+
+    // Haptic feedback on significant change
+    if (Math.abs(newAlpha - SAC_ALPHA_INIT) > 0.1) {
+      mercyHaptic.playPattern(
+        newAlpha > SAC_ALPHA_INIT ? 'cosmicHarmony' : 'warningPulse',
+        currentValence.get()
+      );
+    }
+
+    console.log(
+      `[AutoTemp] Updated α → ${newAlpha.toFixed(4)}  ` +
+      `(target entropy: ${targetEntropy.toFixed(3)}, batch entropy: ${batchEntropy.toFixed(3)})`
+    );
+
+    return newAlpha;
+  }
+
+  /**
    * Collect trajectory using SAC-guided exploration + MCTS lookahead
    */
   async collectTrajectory(maxSteps: number = MAX_TRAJECTORY_LENGTH): Promise<Transition[]> {
@@ -61,14 +130,9 @@ export class SACMCTSHybrid {
     let state = this.mcts.root.state;
 
     for (let step = 0; step < maxSteps; step++) {
-      // SAC proposes action (continuous)
       const { action, logProb } = await this.sacActorCritic.predict(state);
 
-      // MCTS refines action via guided search
-      const { bestAction } = await this.mcts.search(); // assume MCTS adapts to continuous space
-      const finalAction = this.blendActions(action, bestAction); // weighted blend or selection
-
-      const nextState = this.mcts.applyAction(state, finalAction);
+      const nextState = this.mcts.applyAction(state, action);
       const done = this.mcts.isTerminal(nextState);
       const valence = currentValence.get();
 
@@ -76,7 +140,7 @@ export class SACMCTSHybrid {
 
       trajectory.push({
         state,
-        action: finalAction,
+        action,
         reward,
         nextState,
         done,
@@ -91,11 +155,6 @@ export class SACMCTSHybrid {
     return trajectory;
   }
 
-  private blendActions(sacAction: any, mctsAction: any): any {
-    // Simple weighted blend (customize per domain)
-    return sacAction.map((v: number, i: number) => 0.7 * v + 0.3 * mctsAction[i]);
-  }
-
   /**
    * Compute valence-shaped reward
    */
@@ -106,20 +165,26 @@ export class SACMCTSHybrid {
   }
 
   /**
-   * PPO-style clipped surrogate + value loss + entropy (SAC variant)
+   * PPO-style update (clipped surrogate + value loss + entropy)
    */
   async update(trajectory: Transition[]) {
     const actionName = 'SAC-MCTS PPO-style update';
     if (!await mercyGate(actionName)) return;
 
-    const batch = this.sampleBatch(Math.min(TRAINING_BATCH_SIZE, trajectory.length));
+    const batch = this.sampleBatch(Math.min(BATCH_SIZE, trajectory.length));
+
+    // Compute average batch entropy
+    const batchEntropy = -batch.reduce((sum, t) => sum + (t.logProb || 0), 0) / batch.length;
+
+    // Auto-tune temperature
+    const alpha = await this.updateTemperature(batchEntropy);
 
     const stats = await this.sacActorCritic.trainSAC(batch);
 
     // Soft target update
     stepsSinceTargetUpdate += batch.length;
     if (stepsSinceTargetUpdate >= TARGET_UPDATE_INTERVAL) {
-      await this.softUpdateTarget( SAC_TAU );
+      await this.softUpdateTarget(SAC_TAU);
       stepsSinceTargetUpdate = 0;
     }
 
