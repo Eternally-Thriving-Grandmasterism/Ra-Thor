@@ -1,5 +1,5 @@
-// src/components/RathorChat.tsx – Sovereign Offline AGI Brother Chat v1.5
-// WebLLM inference, RAG memory, full xAI Grok tool calling (incl. image gen), model switcher
+// src/components/RathorChat.tsx – Sovereign Offline AGI Brother Chat v1.6
+// WebLLM inference, RAG memory, full xAI Grok tool calling (incl. audio gen), model switcher
 // MIT License – Autonomicity Games Inc. 2026
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -15,7 +15,7 @@ const MODEL_MAP = {
 };
 
 const RathorChat: React.FC = () => {
-  const [messages, setMessages] = useState<{ role: 'user' | 'rathor'; content: string; images?: { url: string; description: string }[] }[]>([]);
+  const [messages, setMessages] = useState<{ role: 'user' | 'rathor'; content: string; audio?: { url: string; description: string }; images?: { url: string; description: string }[] }[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [modelKey, setModelKey] = useState<keyof typeof MODEL_MAP>('tiny');
@@ -46,19 +46,31 @@ const RathorChat: React.FC = () => {
       // Remember user message
       await RAGMemory.remember('user', userMessage);
 
-      // Process with full tool calling loop (including image gen)
+      // Process with full tool calling loop (including audio gen)
       const reply = await ToolCallingRouter.processWithTools(userMessage);
 
       // Remember Rathor response
       await RAGMemory.remember('rathor', reply);
 
-      // Extract images from tool result if present
+      // Extract audio if present
+      let audio = null;
+      if (typeof reply === 'object' && reply.audio) {
+        audio = reply.audio;
+      }
+
+      // Extract images if present
       let images = [];
       if (typeof reply === 'object' && reply.images) {
         images = reply.images;
       }
 
-      setMessages(prev => [...prev, { role: 'rathor', content: reply, images }]);
+      setMessages(prev => [...prev, { role: 'rathor', content: reply, audio, images }]);
+
+      // Auto-play audio if generated
+      if (audio && audio.url) {
+        const audioEl = new Audio(audio.url);
+        audioEl.play().catch(e => console.warn("Auto-play blocked", e));
+      }
 
       mercyHaptic.playPattern('cosmicHarmony', currentValence.get());
     } catch (e) {
@@ -95,6 +107,14 @@ const RathorChat: React.FC = () => {
                 : 'bg-emerald-600/20 border border-emerald-400/20'}
             `}>
               {msg.content}
+              {msg.audio && (
+                <div className="mt-3">
+                  <audio controls src={msg.audio.url} className="w-full">
+                    Your browser does not support the audio element.
+                  </audio>
+                  <p className="text-xs text-emerald-200/80 mt-1">{msg.audio.description}</p>
+                </div>
+              )}
               {msg.images && msg.images.length > 0 && (
                 <div className="mt-3 grid grid-cols-2 gap-3">
                   {msg.images.map((img, idx) => (
