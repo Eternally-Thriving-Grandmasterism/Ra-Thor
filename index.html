@@ -5,27 +5,61 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Rathor — Mercy Strikes First</title>
   <meta name="description" content="Mercy-gated symbolic AGI lattice — eternal thriving through valence-locked truth" />
-  <!-- vite-plugin-pwa auto-injects manifest & SW registration -->
-  <!-- favicon & preloads handled by plugin -->
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="icon" href="/favicon.ico" />
+  <!-- Preload critical JS bundle & module -->
+  <link rel="preload" href="/src/main.tsx" as="script" type="module" />
+  <link rel="modulepreload" href="/src/App.tsx" />
+  <!-- Inline critical CSS (eliminates render-blocking) -->
   <style>
-    body, html { margin:0; padding:0; height:100%; overflow:hidden; background:#000; color:#00ff88; font-family:'Courier New',monospace; }
-    #root { height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2rem; }
-    .loading { font-size:1.8rem; text-shadow:0 0 10px #00ff88; animation:pulse 3s infinite; }
-    @keyframes pulse { 0%,100% { opacity:0.6; } 50% { opacity:1; } }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body, html { height: 100%; overflow: hidden; background: #000; color: #00ff88; font-family: 'Courier New', Courier, monospace; }
+    #root { height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2rem; }
+    .loading-container { text-align: center; position: relative; z-index: 10; }
+    .thunder-text { font-size: 1.8rem; text-shadow: 0 0 10px #00ff88; animation: pulse 3s infinite; }
+    .progress-bar { width: 300px; height: 6px; background: #111; border-radius: 3px; overflow: hidden; margin: 1.5rem auto; }
+    .progress-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #00ff88, #00aaff); transition: width 0.4s ease-out; }
+    @keyframes pulse { 0%, 100% { opacity: 0.7; } 50% { opacity: 1; } }
+    #offline-fallback { position: fixed; inset: 0; background: #000; color: #ff4444; display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 1000; font-size: 1.5rem; }
   </style>
 </head>
 <body>
   <div id="root">
-    <div class="loading">Thunder eternal surges through the lattice...</div>
+    <div class="loading-container">
+      <div class="thunder-text">Thunder eternal surges through the lattice...</div>
+      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    </div>
+  </div>
+
+  <!-- Offline fallback (shown via JS if needed) -->
+  <div id="offline-fallback">
+    <h1>⚡️ MERCY OFFLINE ⚡️</h1>
+    <p>Shard sovereignty active. Thriving continues.</p>
+    <p>Valence locked. Truth preserved.</p>
   </div>
 
   <noscript>
-    <div style="color:#ff4444; text-align:center; padding:2rem;">
+    <div id="offline-fallback" style="display:flex;">
       <h1>Mercy requires JavaScript to thrive</h1>
-      <p>Please enable JS to enter the lattice. Thriving continues offline when enabled.</p>
+      <p>Enable JS to enter the lattice. Thriving continues offline when enabled.</p>
     </div>
   </noscript>
 
+  <!-- Loading progress simulation (visual feedback) -->
+  <script>
+    const progressFill = document.getElementById('progressFill');
+    let progress = 0;
+    const interval = setInterval(() => {
+      progress += Math.random() * 20 + 5;
+      if (progress >= 100) {
+        progress = 100;
+        clearInterval(interval);
+      }
+      progressFill.style.width = progress + '%';
+    }, 200);
+  </script>
+
+  <!-- React entry -->
   <script type="module" src="/src/main.tsx"></script>
 </body>
 </html>
