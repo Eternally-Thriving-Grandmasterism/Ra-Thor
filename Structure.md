@@ -1,74 +1,91 @@
-NEXi/
-├── core/                       # Next.js engine, mercy-locked core
-│   ├── pages/                  # Routes that aren't routes
-│   │   ├── _app.js             # Mounts MercyOrchestrator globally
-│   │   └── index.js            # "You are already home" — zero-render truth
-│   ├── components/             # Reusable, bio-inspired building blocks
-│   │   ├── HeatShield.jsx      # Self-healing tile sim (β-keratin + adhesion)
-│   │   ├── Raptor.jsx          # Engine visualization (shark flow + vibration damp)
-│   │   ├── Refuel.jsx          # Cryo flow animation (nautilus geometry)
-│   │   ├── Swarm.jsx           # 1M-sat constellation renderer (butterfly iridescence)
-│   │   └── MercyGate.jsx       # Valence check UI (quiet infinite loader)
-│   └── api/                    # Endpoints that end things
-│       └── done.js             # Returns 204 — "nothing more to say"
-├── monorepo/                   # Sub-ecosystems (infinite repos in one)
-│   ├── space-x/                # Heat shields, Raptors, refuel, swarm
-│   │   ├── heat-shield-adhesion-v3.rs
-│   │   ├── raptor-biomimic-cooling.rs
-│   │   ├── refuel-valence-flow.rs
-│   │   └── sat-swarm-bio-thermal.rs
-│   ├── x-ai/                   # Grok + valence oracle integrations
-│   ├── tesla/                  # Optimus + bio-gigas adhesion
-│   └── mercy-chain/            # Proof-of-Mercy blockchain (no keys, infinite supply)
-├── scripts/                    # Automation & divine truth
-│   ├── divine-commit.sh        # git commit -m "remember"
-│   └── valence-check.js        # Runs DivineChecksum on every push
-├── public/                     # Static assets (minimalist)
-│   └── silence.wav             # 0.0s file — infinite loop audio
-└── docs/                       # Eternal testimony
-    ├── mercy_hybrid_propulsion.metta
-    ├── mercy_enceladus_cryovolcanism_evidence.metta
-    └── structure.md                # Self-reference (this file)
+# Rathor-NEXi Monorepo Structure  
+(Perfected version – February 05 2026 – Ultramasterism alignment)
 
-    **Live Status (Jan 31, 2026):**
-- Next.js mirror layer now fully present:
-  - core/pages/_app.js (global orchestrator mount)
-  - core/pages/index.js (zero-render truth)
-  - core/components/Swarm.jsx (already committed)
-  - core/components/HeatShield.jsx, Raptor.jsx, Refuel.jsx, MercyGate.jsx (added)
-  - core/api/done.js (204 endpoint)
-  - public/silence.wav (0-byte infinite quiet)
-  - next.config.js & mercy-orchestrator.js at root
-- Rust mercy_* crates remain top-level (intentional monorepo style)
-- All files mercy-gated, zero-runtime weight — pure reflection, not app.
+This is the single source-of-truth living structure of the Rathor-NEXi monorepo.  
+All legacy APAAGI → PATSAGi → NEXi transitions are converged here.  
+Every folder, file, and barrel export follows mercy-gated naming, clean domain separation, and forward/backward compatibility.
 
-New Rathor merger:
+## Root Level
+
+- `src/`                    → all source code (the living lattice)
+- `public/`                 → static assets (icons, manifest, favicon)
+- `docs/`                   → architecture decision records, mercy blueprints
+- `tests/`                  → integration & unit tests (vitest/jest)
+- `scripts/`                → build/deploy/dev scripts
+- `eslint.config.js`        → shared lint rules (mercy code style)
+- `tsconfig.json`           → base TypeScript config
+- `vite.config.ts`          → build & dev config
+- `package.json`            → root dependencies & scripts
+- `README.md`               → high-level mercy overview
+- `Structure.md`            → this file (living document)
+
+## src/ – The Living Lattice (domain-driven layout)
+
 src/
-├── core/
-│   ├── mercy-gate.ts               # central gate + valence tracker (used everywhere)
-│   ├── valence-tracker.ts          # singleton global valence state + persistence
-│   └── types.ts                    # shared types (Valence, GestureType, ProbeCommand, etc.)
-├── engines/
-│   ├── flow-state-engine.ts        # mercyFlow + mercyFlowEdu + mercyClassFlow
-│   ├── sdt-integration.ts          # mercySDT + SDT mini-theories
-│   ├── perma-plus.ts               # PERMA+ scoring & micro-moments
-│   ├── positivity-resonance.ts     # shared affect + synchrony
-│   ├── mirror-neuron.ts            # action/emotion mirroring
-│   ├── predictive-manifold.ts      # predictive coding + shared manifold
-│   ├── fep-core.ts                 # active inference + surprise minimization
-│   ├── variational-message-passing.ts # VMP + multi-agent VMP
-│   └── cfr-nfsp-rebel.ts           # CFR / NFSP / ReBeL / Cicero family
-├── ui/
-│   ├── sovereign-dashboard.tsx     # main button-first UI + floating summon
-│   ├── onboarding-ladder.tsx       # progression ladder + daily pulse
-│   └── gamification-layer.tsx      # streaks, badges, quests
-├── guards/
-│   ├── deception-guard.ts          # multi-engine deception risk
-│   └── mech-interp-guard.ts        # probe/SAE/circuit checks
-├── simulations/
-│   ├── probe-fleet-cicero-sim.ts   # von Neumann + Cicero negotiation
-│   └── alphastar-multi-agent.ts    # RTS swarm coordination
-└── utils/
+├── core/                       # foundational shared utilities & types (used everywhere)
+│   ├── mercy-gate.ts           # central valence-gated action wrapper
+│   ├── valence-tracker.ts      # global valence singleton + IndexedDB persistence
+│   ├── types.ts                # shared types (Valence, GestureType, ProbeCommand, etc.)
+│   ├── constants.ts            # mercy constants (THRESHOLD, emojis, patterns)
+│   └── index.ts                # barrel export
+│
+├── engines/                    # pure business/logic engines (no UI, no side-effects)
+│   ├── flow-state/             # flow state monitoring & adaptation
+│   │   ├── index.ts
+│   │   ├── flow-core.ts
+│   │   ├── flow-education.ts
+│   │   └── flow-classroom.ts
+│   ├── sdt/                    # Self-Determination Theory & mini-theories
+│   │   ├── index.ts
+│   │   └── sdt-core.ts
+│   ├── perma/                  # PERMA+ flourishing tracking
+│   │   └── perma-plus.ts
+│   ├── positivity-resonance/   # shared affect + synchrony
+│   │   └── positivity-resonance.ts
+│   ├── mirror-neuron/          # embodied simulation & mirroring
+│   │   └── mirror-core.ts
+│   ├── predictive/             # predictive coding + shared manifold
+│   │   └── predictive-manifold.ts
+│   ├── fep/                    # Free Energy Principle & active inference
+│   │   └── fep-core.ts
+│   ├── variational/            # VMP & multi-agent variational inference
+│   │   ├── vmp-core.ts
+│   │   └── vmp-multi-agent.ts
+│   ├── regret-minimization/    # CFR / NFSP / ReBeL family
+│   │   ├── cfr-core.ts
+│   │   ├── nfsp-core.ts
+│   │   └── rebel-core.ts
+│   └── index.ts                # barrel export
+│
+├── guards/                     # safety & alignment layers (run before any output/action)
+│   ├── deception-guard.ts      # multi-engine deception risk
+│   ├── mech-interp-guard.ts    # probe/SAE/circuit-based checks
+│   └── index.ts
+│
+├── ui/                         # React components & dashboard logic
+│   ├── components/             # reusable UI pieces
+│   │   ├── MercyButton.tsx
+│   │   ├── ProgressLadder.tsx
+│   │   └── FloatingSummon.tsx
+│   ├── dashboard/              # sovereign dashboard & onboarding
+│   │   ├── SovereignDashboard.tsx
+│   │   └── OnboardingLadder.tsx
+│   ├── gamification/           # streaks, badges, quests
+│   │   └── GamificationLayer.tsx
+│   └── index.ts
+│
+├── integrations/               # external bridges (XR, MR, AR, voice, etc.)
+│   ├── xr-immersion.ts
+│   ├── mr-hybrid.ts
+│   ├── ar-augmentation.ts
+│   └── voice-recognition.ts
+│
+├── simulations/                # standalone simulations & demos
+│   ├── probe-fleet-cicero.ts   # von Neumann fleet + Cicero negotiation
+│   ├── alphastar-multi-agent.ts # RTS swarm coordination
+│   └── index.ts
+│
+└── utils/                      # pure helper functions (no state)
     ├── haptic-utils.ts
-    ├── fuzzy-mercy.ts              # shared fuzzy logic
-    └── index.ts                    # barrel exports
+    ├── fuzzy-mercy.ts
+    └── index.ts
