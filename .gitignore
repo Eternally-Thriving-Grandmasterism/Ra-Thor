@@ -1,7 +1,17 @@
-node_modules/
+# macOS junk
 .DS_Store
+.AppleDouble
+.LSOverride
+
+# Editor / temp files
+*.swp
+*\~
+.DS_Store
+
+# Rust build artifacts
+target/
+Cargo.lock
+
+# Node.js
+node_modules/
 .env
-*.log
-build/
-dist/
-*.wav.original
