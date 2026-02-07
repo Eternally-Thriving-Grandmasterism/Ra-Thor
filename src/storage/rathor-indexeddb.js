@@ -12,20 +12,21 @@ const STORES = {
 
 let db = null;
 
-// Snappy pure JS implementation (minimal port — can be replaced with snappyjs npm later)
-const snappy = {
-  async compress(data) {
-    // Placeholder: real snappy compression (use snappyjs or similar in production)
-    // For demo we just return raw — replace with actual call
-    return data;
-  },
+// Load SnappyJS from CDN (async import — only once)
+let Snappy = null;
+async function loadSnappy() {
+  if (Snappy) return Snappy;
+  const script = document.createElement('script');
+  script.src = 'https://unpkg.com/snappyjs@latest/dist/snappy.min.js';
+  script.async = true;
+  document.head.appendChild(script);
+  await new Promise(resolve => { script.onload = resolve; });
+  Snappy = window.Snappy;
+  if (!Snappy) throw new Error('SnappyJS failed to load');
+  return Snappy;
+}
 
-  async decompress(compressed) {
-    // Placeholder: real snappy decompression
-    return compressed;
-  }
-};
-
+// Database open with migration
 const dbPromise = new Promise((resolve, reject) => {
   const request = indexedDB.open(DB_NAME, DB_VERSION);
 
@@ -80,7 +81,8 @@ export async function saveMessage(sessionId, role, content) {
   // Compress if > 1 KB
   if (originalSize > 1024) {
     try {
-      compressed = await snappy.compress(content);
+      await loadSnappy();
+      compressed = await Snappy.compress(content);
       compression = 'snappy';
     } catch (e) {
       console.warn('Snappy compression failed, saving raw', e);
@@ -118,9 +120,15 @@ export async function getMessages(sessionId, limit = 100, offset = 0) {
       const cursor = event.target.result;
       if (!cursor) {
         // Decompress on read
+        await loadSnappy();
         const decompressed = await Promise.all(results.map(async msg => {
           if (msg.compression === 'snappy') {
-            msg.content = await snappy.decompress(msg.content);
+            try {
+              msg.content = await Snappy.decompress(msg.content);
+            } catch (e) {
+              console.warn('Snappy decompress failed for msg', msg.id, e);
+              // fallback: keep raw
+            }
           }
           return msg;
         }));
@@ -134,9 +142,14 @@ export async function getMessages(sessionId, limit = 100, offset = 0) {
         results.push(cursor.value);
         cursor.continue();
       } else {
+        await loadSnappy();
         const decompressed = await Promise.all(results.map(async msg => {
           if (msg.compression === 'snappy') {
-            msg.content = await snappy.decompress(msg.content);
+            try {
+              msg.content = await Snappy.decompress(msg.content);
+            } catch (e) {
+              console.warn('Snappy decompress failed for msg', msg.id, e);
+            }
           }
           return msg;
         }));
