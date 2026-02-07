@@ -1,4 +1,4 @@
-// js/chat.js — Rathor Lattice Core with Expanded Emergency & Mental Health (PTSD/trauma added)
+// js/chat.js — Rathor Lattice Core with Expanded Emergency & Mental Health (C-PTSD added)
 
 const chatMessages = document.getElementById('chat-messages');
 const chatInput = document.getElementById('chat-input');
@@ -41,7 +41,7 @@ translateLangSelect.addEventListener('change', e => {
 });
 
 // ────────────────────────────────────────────────
-// Expanded Emergency & Mental Health Assistants (PTSD/Trauma added)
+// Expanded Emergency & Mental Health Assistants (C-PTSD added)
 // ────────────────────────────────────────────────
 
 const emergencyAssistants = {
@@ -97,29 +97,42 @@ const emergencyAssistants = {
     title: "PTSD / Trauma Support (Offline Stub)",
     disclaimer: "THIS IS NOT THERAPY OR PROFESSIONAL HELP. If you are in crisis or flashback call a helpline or emergency services immediately. Rathor is NOT a trauma specialist. Seek trained professional support (EMDR, CPT, trauma-informed therapy).",
     templates: [
+      { name: "Flashback / Dissociation Grounding", content: `• Right here, right now — name 5 things you see in the room\n• Touch something solid (chair, floor, wall)\n• Say aloud: "I am [name], I am in [place], it is [year] — the trauma is over"\n• Cold sensation: hold ice cube, splash cold water on face/wrists\n• Slow breathing: in 4, hold 4, out 6–8\n• Safe anchor: look at a photo/object that represents safety` },
+      { name: "Nightmare / Sleep Disturbance", content: `• After waking: turn on light, name 3 things you see, touch something real\n• Ground: 5-4-3-2-1 technique\n• Re-script: write down nightmare, then rewrite ending where you are safe\n• Sleep hygiene: consistent bedtime, no screens 1h before, relaxation audio\n• Helpline if recurrent: trauma support lines (befrienders.org, 988 US, etc.)` },
+      { name: "Hypervigilance / Trigger Response", content: `• Notice body: scan for tension, clenched jaw, racing heart\n• Ground: feel feet on floor, press palms together, name surroundings\n• Self-talk: "This is a trigger, not real danger — I am safe now"\n• Exit if possible: step outside, change room\n• After: rest, hydrate, journal what triggered\n• Long-term: consider trauma therapy (EMDR, somatic experiencing)` },
+      { name: "Shame / Self-Blame Reprocessing", content: `• Reminder: the event was not your fault — responsibility lies with perpetrator\n• Self-compassion: "I did the best I could with what I knew then"\n• Write letter to younger self: compassion, protection, love\n• Challenge thoughts: "Would I blame a friend in this situation?"\n• Reach out: safe person or hotline — shame thrives in silence` },
+      { name: "Emotional Numbness / Avoidance", content: `• Gentle re-connection: notice body sensations without judgment\n• Small exposure: listen to safe music, look at old photos with support\n• Self-care basics: movement, nature, warm bath\n• Reminder: numbness is a survival response — it's okay to feel nothing sometimes\n• When ready: talk to trauma-informed therapist — avoidance can keep pain frozen` },
+      { name: "Reclaiming Safety & Trust", content: `• Create safety anchors: safe place visualization, comfort object, trusted person\n• Small trust exercises: share one small thing with safe person\n• Boundaries: practice saying "no" in low-stakes situations\n• Self-validation: "My feelings are real and valid"\n• Long-term: trauma therapy helps rebuild trust in self & others` }
+    ]
+  },
+
+  cptsd: {
+    title: "Complex PTSD (C-PTSD) Support (Offline Stub)",
+    disclaimer: "THIS IS NOT THERAPY OR PROFESSIONAL HELP. Complex PTSD from prolonged/repeated trauma requires specialist support (trauma-informed therapy, EMDR, IFS, somatic experiencing). Rathor is NOT a therapist. If in crisis call a helpline or emergency services immediately.",
+    templates: [
       {
-        name: "Flashback / Dissociation Grounding",
-        content: `• Right here, right now — name 5 things you see in the room\n• Touch something solid (chair, floor, wall)\n• Say aloud: "I am [name], I am in [place], it is [year] — the trauma is over"\n• Cold sensation: hold ice cube, splash cold water on face/wrists\n• Slow breathing: in 4, hold 4, out 6–8\n• Safe anchor: look at a photo/object that represents safety`
+        name: "Emotional Flashbacks",
+        content: `• Recognize: intense shame, fear, abandonment feelings without clear present trigger\n• Ground: name 5 things you see right now, touch something solid\n• Self-talk: "This is an emotional flashback — the danger is in the past"\n• Comfort younger self: imagine hugging child-you, say "You're safe now, I'm here"\n• After: rest, hydrate, journal feelings without judgment`
       },
       {
-        name: "Nightmare / Sleep Disturbance",
-        content: `• After waking: turn on light, name 3 things you see, touch something real\n• Ground: 5-4-3-2-1 technique\n• Re-script: write down nightmare, then rewrite ending where you are safe\n• Sleep hygiene: consistent bedtime, no screens 1h before, relaxation audio\n• Helpline if recurrent: trauma support lines (befrienders.org, 988 US, etc.)`
+        name: "Toxic Shame / Inner Critic",
+        content: `• Name it: "This is the voice of past abuse, not truth"\n• Challenge: "Would I say this to someone I love?"\n• Self-compassion break: hand on heart, "This hurts. May I be kind to myself"\n• Affirmation: "I am worthy of love and respect exactly as I am"\n• Long-term: inner-child work with therapist`
       },
       {
-        name: "Hypervigilance / Trigger Response",
-        content: `• Notice body: scan for tension, clenched jaw, racing heart\n• Ground: feel feet on floor, press palms together, name surroundings\n• Self-talk: "This is a trigger, not real danger — I am safe now"\n• Exit if possible: step outside, change room\n• After: rest, hydrate, journal what triggered\n• Long-term: consider trauma therapy (EMDR, somatic experiencing)`
+        name: "Toxic Family / Relational Trauma",
+        content: `• Boundaries: practice "gray rock" or low-contact if needed\n• Reminder: "Their behavior was about them, not my worth"\n• Grieve the family you deserved but didn't get\n• Build chosen family: safe friends, support groups\n• Therapy: trauma-informed, attachment-focused approaches`
       },
       {
-        name: "Shame / Self-Blame Reprocessing",
-        content: `• Reminder: the event was not your fault — responsibility lies with perpetrator\n• Self-compassion: "I did the best I could with what I knew then"\n• Write letter to younger self: compassion, protection, love\n• Challenge thoughts: "Would I blame a friend in this situation?"\n• Reach out: safe person or hotline — shame thrives in silence`
+        name: "Developmental / Childhood Trauma",
+        content: `• Acknowledge: needs that were never met (safety, attunement, protection)\n• Reparent yourself: give inner child what they missed (comfort, play, boundaries)\n• Small acts: warm drink, blanket, gentle music\n• Self-compassion: "I was a child. It wasn't my fault"\n• Professional help: inner-child work, somatic experiencing`
       },
       {
-        name: "Emotional Numbness / Avoidance",
-        content: `• Gentle re-connection: notice body sensations without judgment\n• Small exposure: listen to safe music, look at old photos with support\n• Self-care basics: movement, nature, warm bath\n• Reminder: numbness is a survival response — it's okay to feel nothing sometimes\n• When ready: talk to trauma-informed therapist — avoidance can keep pain frozen`
+        name: "Dissociation / Freeze Response",
+        content: `• Notice: feeling numb, foggy, outside body\n• Ground: press feet into floor, squeeze hands, name surroundings\n• Sensory: strong taste/smell (mint, lemon, coffee)\n• Movement: gentle rocking, stretching, walk\n• Reminder: "I am safe now. The freeze helped me survive — I can come back"`
       },
       {
-        name: "Reclaiming Safety & Trust",
-        content: `• Create safety anchors: safe place visualization, comfort object, trusted person\n• Small trust exercises: share one small thing with safe person\n• Boundaries: practice saying "no" in low-stakes situations\n• Self-validation: "My feelings are real and valid"\n• Long-term: trauma therapy helps rebuild trust in self & others`
+        name: "Reclaiming Identity & Trust",
+        content: `• Small trust experiments: share one feeling with safe person\n• Identity work: list values that are yours (not from abuser)\n• Joy practice: 5-minute activity you loved as child\n• Self-validation: "My experience is real. My feelings are valid"\n• Long-term: trauma therapy to rebuild self-trust`
       }
     ]
   }
@@ -151,13 +164,20 @@ function triggerEmergencyAssistant(mode) {
 }
 
 // ────────────────────────────────────────────────
-// Voice Command Processor — expanded with PTSD/trauma
+// Voice Command Processor — expanded with C-PTSD
 // ────────────────────────────────────────────────
 
 async function processVoiceCommand(raw) {
   let cmd = raw.toLowerCase().trim();
 
-  // PTSD / Trauma triggers
+  // C-PTSD / Complex Trauma triggers
+  if (cmd.includes('complex ptsd') || cmd.includes('cptsd') || cmd.includes('emotional flashback') || cmd.includes('toxic shame') || cmd.includes('toxic family') || cmd.includes('developmental trauma') || cmd.includes('interpersonal trauma')) {
+    triggerEmergencyAssistant('cptsd');
+    speak("You survived what was done to you. The past is over. You are safe in this moment. Help is here.");
+    return true;
+  }
+
+  // PTSD general
   if (cmd.includes('ptsd') || cmd.includes('trauma') || cmd.includes('flashback') || cmd.includes('triggered') || cmd.includes('nightmare') || cmd.includes('hypervigilant') || cmd.includes('self blame') || cmd.includes('emotional numb')) {
     triggerEmergencyAssistant('ptsd');
     speak("You are safe here in this moment. The trauma is in the past. Help is available.");
