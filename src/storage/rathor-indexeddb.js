@@ -1,220 +1,168 @@
-/**
- * Rathor-NEXi IndexedDB Schema & Encrypted Storage Layer (v6 – current stable)
- * 
- * Encryption added: AES-GCM-256 via Web Crypto API
- * - Sensitive fields (content, translatedText, name, description, tags) encrypted
- * - Key derived from user passphrase (PBKDF2 + salt)
- * - Passphrase held in memory only — lost on page reload
- * - Non-sensitive fields (id, sessionId, timestamp, targetLang) in cleartext for indexing
- */
+// src/storage/rathor-indexeddb.js — Optimized Mercy-gated IndexedDB wrapper
 
-const DB_NAME = 'RathorNEXiDB';
-const DB_VERSION = 6;
-
+const DB_NAME = 'rathorDB';
+const DB_VERSION = 3; // bump when adding indexes or stores
 const STORES = {
-  CHAT_HISTORY: 'chat-history',
-  SESSION_METADATA: 'session-metadata',
-  TRANSLATION_CACHE: 'translation-cache',
-  MERCY_LOGS: 'mercy-logs',
-  EVOLUTION_STATES: 'evolution-states',
-  USER_PREFERENCES: 'user-preferences'
+  sessions: 'sessions',
+  messages: 'messages',
+  tags: 'tags',
+  translationCache: 'translationCache'
 };
 
-const CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
+let db = null;
 
-// Encryption constants
-const ENC_ALGORITHM = 'AES-GCM';
-const ENC_KEY_LENGTH = 256;
-const PBKDF2_ITERATIONS = 100000;
-const PBKDF2_HASH = 'SHA-256';
-const SALT_LENGTH = 16;
-const IV_LENGTH = 12;
+const dbPromise = new Promise((resolve, reject) => {
+  const request = indexedDB.open(DB_NAME, DB_VERSION);
 
-// In-memory encryption key (set once per session)
-let encryptionKey = null;
-let encryptionSalt = null;
+  request.onupgradeneeded = event => {
+    const db = event.target.result;
+    const oldVersion = event.oldVersion;
 
-// ────────────────────────────────────────────────
-// Encryption / Decryption Helpers
-// ────────────────────────────────────────────────
+    if (oldVersion < 1) {
+      // Initial schema
+      const sessionStore = db.createObjectStore(STORES.sessions, { keyPath: 'id' });
+      sessionStore.createIndex('name', 'name');
 
-async function deriveKey(passphrase, salt) {
-  const encoder = new TextEncoder();
-  const keyMaterial = await crypto.subtle.importKey(
-    'raw',
-    encoder.encode(passphrase),
-    'PBKDF2',
-    false,
-    ['deriveBits', 'deriveKey']
-  );
+      db.createObjectStore(STORES.messages, { autoIncrement: true });
+      db.createObjectStore(STORES.tags, { keyPath: 'id' });
+      db.createObjectStore(STORES.translationCache, { keyPath: 'key' });
+    }
 
-  return crypto.subtle.deriveKey(
-    {
-      name: 'PBKDF2',
-      salt,
-      iterations: PBKDF2_ITERATIONS,
-      hash: PBKDF2_HASH
-    },
-    keyMaterial,
-    { name: ENC_ALGORITHM, length: ENC_KEY_LENGTH },
-    false,
-    ['encrypt', 'decrypt']
-  );
-}
+    if (oldVersion < 2) {
+      // Add indexes for performance
+      const messageStore = db.transaction(STORES.messages, 'readwrite').objectStore(STORES.messages);
+      messageStore.createIndex('sessionId', 'sessionId');
+      messageStore.createIndex('timestamp', 'timestamp');
+      messageStore.createIndex('role', 'role');
+    }
 
-async function encryptData(data) {
-  if (!encryptionKey) throw new Error('Encryption key not set — passphrase required');
-
-  const encoder = new TextEncoder();
-  const encoded = encoder.encode(JSON.stringify(data));
-  const iv = crypto.getRandomValues(new Uint8Array(IV_LENGTH));
-
-  const encrypted = await crypto.subtle.encrypt(
-    { name: ENC_ALGORITHM, iv },
-    encryptionKey,
-    encoded
-  );
-
-  return {
-    iv: Array.from(iv),
-    ciphertext: Array.from(new Uint8Array(encrypted))
+    if (oldVersion < 3) {
+      // Add compression flag & quota tracking
+      // Future migration logic here
+    }
   };
-}
 
-async function decryptData(encryptedObj) {
-  if (!encryptionKey) throw new Error('Encryption key not set — passphrase required');
+  request.onsuccess = event => {
+    db = event.target.result;
+    db.onerror = err => console.error('IndexedDB error:', err);
+    resolve(db);
+  };
 
-  const iv = new Uint8Array(encryptedObj.iv);
-  const ciphertext = new Uint8Array(encryptedObj.ciphertext);
-
-  const decrypted = await crypto.subtle.decrypt(
-    { name: ENC_ALGORITHM, iv },
-    encryptionKey,
-    ciphertext
-  );
-
-  const decoder = new TextDecoder();
-  return JSON.parse(decoder.decode(decrypted));
-}
-
-// ────────────────────────────────────────────────
-// Passphrase / Key Initialization
-// ────────────────────────────────────────────────
-
-/**
- * Initialize encryption key from user passphrase
- * Called once on first launch or after reload
- */
-async function initEncryption(passphrase) {
-  if (!passphrase) throw new Error('Passphrase required for encryption');
-
-  encryptionSalt = crypto.getRandomValues(new Uint8Array(SALT_LENGTH));
-  encryptionKey = await deriveKey(passphrase, encryptionSalt);
-
-  // Store salt (not secret) for future sessions
-  localStorage.setItem('rathor_enc_salt', JSON.stringify(Array.from(encryptionSalt)));
-}
-
-/**
- * Load existing salt and prompt for passphrase if needed
- */
-async function loadOrInitEncryption() {
-  const savedSalt = localStorage.getItem('rathor_enc_salt');
-  if (savedSalt) {
-    encryptionSalt = new Uint8Array(JSON.parse(savedSalt));
-  } else {
-    // First time — generate salt & prompt passphrase
-    encryptionSalt = crypto.getRandomValues(new Uint8Array(SALT_LENGTH));
-    localStorage.setItem('rathor_enc_salt', JSON.stringify(Array.from(encryptionSalt)));
-  }
-
-  // Prompt user for passphrase (in real UI this would be a modal)
-  const passphrase = prompt('Enter your Rathor encryption passphrase (saved in memory only):');
-  if (!passphrase) throw new Error('Passphrase required');
-
-  encryptionKey = await deriveKey(passphrase, encryptionSalt);
-}
-
-// Call on app init
-window.addEventListener('load', async () => {
-  try {
-    await loadOrInitEncryption();
-    console.log('[Rathor IndexedDB] Encryption initialized');
-  } catch (err) {
-    console.error('[Rathor IndexedDB] Encryption setup failed:', err);
-    alert('Encryption passphrase required — application will run in limited mode.');
-  }
+  request.onerror = event => reject(event.target.error);
 });
 
+async function openDB() {
+  if (db) return db;
+  db = await dbPromise;
+  return db;
+}
+
 // ────────────────────────────────────────────────
-// Encrypted wrappers for sensitive operations
+// Sessions CRUD
 // ────────────────────────────────────────────────
 
-async function encryptedPut(storeName, record) {
-  const encryptedRecord = { ...record };
-
-  if (storeName === STORES.CHAT_HISTORY) {
-    encryptedRecord.content = await encryptData(record.content);
-  } else if (storeName === STORES.TRANSLATION_CACHE) {
-    encryptedRecord.translatedText = await encryptData(record.translatedText);
-  } else if (storeName === STORES.SESSION_METADATA) {
-    encryptedRecord.name = await encryptData(record.name);
-    encryptedRecord.description = await encryptData(record.description || '');
-    encryptedRecord.tags = await encryptData(record.tags || []);
-  }
-
-  return this._transaction(storeName, 'readwrite', ({ store }) => {
-    store.put(encryptedRecord);
+export async function saveSession(session) {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORES.sessions, 'readwrite');
+    const store = tx.objectStore(STORES.sessions);
+    const req = store.put(session);
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
   });
 }
 
-async function encryptedGet(storeName, key) {
-  const record = await this._transaction(storeName, 'readonly', ({ store }) => store.get(key));
+export async function getSession(id) {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORES.sessions);
+    const store = tx.objectStore(STORES.sessions);
+    const req = store.get(id);
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
 
-  if (!record) return null;
-
-  if (storeName === STORES.CHAT_HISTORY) {
-    record.content = await decryptData(record.content);
-  } else if (storeName === STORES.TRANSLATION_CACHE) {
-    record.translatedText = await decryptData(record.translatedText);
-  } else if (storeName === STORES.SESSION_METADATA) {
-    record.name = await decryptData(record.name);
-    record.description = await decryptData(record.description);
-    record.tags = await decryptData(record.tags);
-  }
-
-  return record;
+export async function getAllSessions() {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORES.sessions);
+    const store = tx.objectStore(STORES.sessions);
+    const req = store.getAll();
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
 }
 
 // ────────────────────────────────────────────────
-// Bulk operations — now using encrypted wrappers
+// Messages CRUD (batched + paginated)
 // ────────────────────────────────────────────────
 
-async bulkSaveMessages(messages, onProgress = null) {
-  if (!Array.isArray(messages) || messages.length === 0) return 0;
+export async function saveMessages(sessionId, messages) {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORES.messages, 'readwrite');
+    const store = tx.objectStore(STORES.messages);
+    let count = 0;
+    messages.forEach(msg => {
+      msg.sessionId = sessionId;
+      msg.timestamp = Date.now();
+      const req = store.add(msg);
+      req.onsuccess = () => { count++; if (count === messages.length) resolve(); };
+      req.onerror = () => reject(req.error);
+    });
+  });
+}
 
-  let savedCount = 0;
+export async function getMessages(sessionId, limit = 100, offset = 0) {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORES.messages);
+    const store = tx.objectStore(STORES.messages);
+    const index = store.index('sessionId');
+    const req = index.openCursor(IDBKeyRange.only(sessionId));
+    const results = [];
+    let skipped = 0;
 
-  await this._transaction(STORES.CHAT_HISTORY, 'readwrite', async ({ store, tx }) => {
-    for (const msg of messages) {
-      if (!msg.id) msg.id = crypto.randomUUID();
-      msg.sessionId = this.activeSessionId;
+    req.onsuccess = event => {
+      const cursor = event.target.result;
+      if (!cursor) return resolve(results);
 
-      const encryptedMsg = { ...msg };
-      encryptedMsg.content = await encryptData(msg.content);
-
-      store.put(encryptedMsg);
-      savedCount++;
-
-      if (onProgress && savedCount % 10 === 0) {
-        onProgress(Math.round(savedCount / messages.length * 100), `Encrypted & saved \( {savedCount}/ \){messages.length} messages...`);
+      if (skipped < offset) {
+        skipped++;
+        cursor.continue();
+      } else if (results.length < limit) {
+        results.push(cursor.value);
+        cursor.continue();
+      } else {
+        resolve(results);
       }
-    }
-  }, onProgress);
+    };
 
-  return savedCount;
+    req.onerror = () => reject(req.error);
+  });
 }
 
-// Similar encryption wrappers for bulk delete & invalidate (metadata only, no need to decrypt for delete)
+// ────────────────────────────────────────────────
+// Utility: Clear old data (quota management)
+// ────────────────────────────────────────────────
 
-// ... rest of the class (open, transaction helper, previous bulk methods) kept intact ...
+export async function clearExpiredCache(days = 30) {
+  const db = await openDB();
+  const cutoff = Date.now() - days * 24 * 60 * 60 * 1000;
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction([STORES.messages, STORES.sessions], 'readwrite');
+    const msgStore = tx.objectStore(STORES.messages);
+    const msgIndex = msgStore.index('timestamp');
+    const req = msgIndex.openCursor(IDBKeyRange.upperBound(cutoff));
+    req.onsuccess = e => {
+      const cursor = e.target.result;
+      if (cursor) {
+        cursor.delete();
+        cursor.continue();
+      }
+    };
+    tx.oncomplete = resolve;
+    tx.onerror = reject;
+  });
+}
