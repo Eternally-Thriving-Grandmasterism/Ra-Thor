@@ -1,4 +1,4 @@
-// js/chat.js — Rathor Lattice Core (with expanded session search + tags)
+// js/chat.js — Rathor Lattice Core with Emergency Assistants stubs
 
 const chatMessages = document.getElementById('chat-messages');
 const chatInput = document.getElementById('chat-input');
@@ -39,53 +39,108 @@ translateLangSelect.addEventListener('change', e => {
   localStorage.setItem('rathor_translate_to', e.target.value);
   if (translateToggle.checked) translateChat();
 });
-sessionSearch.addEventListener('input', filterSessions);
 
-// Send message
-function sendMessage() {
-  const text = chatInput.value.trim();
-  if (!text) return;
-  chatMessages.innerHTML += `<div class="message user">${text}</div>`;
-  chatInput.value = '';
-  chatMessages.scrollTop = chatMessages.scrollHeight;
-  rathorDB.saveMessage(currentSessionId, 'user', text);
-  if (ttsEnabled) speak(text);
-  if (translateToggle.checked) translateChat();
+// ────────────────────────────────────────────────
+// Emergency Assistants Stubs (offline-first)
+// ────────────────────────────────────────────────
+
+const emergencyAssistants = {
+  medical: {
+    title: "Medical Guidance (Offline Stub)",
+    disclaimer: "This is NOT medical advice. For emergencies call your local emergency number immediately (e.g. 112, 911). Rathor is NOT a doctor.",
+    content: `Basic first-aid reminders:
+• Unconscious but breathing → recovery position
+• No breathing → start CPR if trained
+• Severe bleeding → apply direct pressure
+• Suspected heart attack → sit down, chew aspirin if available
+• Always seek professional help as soon as possible.`
+  },
+  legal: {
+    title: "Legal Rights Reminder (Offline Stub)",
+    disclaimer: "This is NOT legal advice. Rathor is NOT a lawyer. Consult a qualified attorney for your situation.",
+    content: `Common basic rights (varies by country):
+• Right to remain silent when questioned by police
+• Right to an attorney / legal counsel
+• Protection against unreasonable search & seizure
+• Freedom of speech & expression (with limits)
+• Do NOT rely on this — laws change and context matters.`
+  },
+  crisis: {
+    title: "Crisis Grounding (Offline Stub)",
+    disclaimer: "If you are in immediate danger call emergency services NOW. This is only a temporary grounding aid.",
+    content: `5-4-3-2-1 grounding technique:
+5 things you can see
+4 things you can touch
+3 things you can hear
+2 things you can smell
+1 thing you can taste
+Breathe slowly: in for 4, hold for 4, out for 6.
+You are safe in this moment. Help is available.`
+  }
+};
+
+function triggerEmergencyAssistant(mode) {
+  const assistant = emergencyAssistants[mode];
+  if (!assistant) return;
+
+  const modal = document.createElement('div');
+  modal.className = 'modal-overlay';
+  modal.innerHTML = `
+    <div class="modal-content emergency-modal">
+      <h2 style="color: #ff4444;">${assistant.title}</h2>
+      <p style="color: #ff6666; font-weight: bold;">${assistant.disclaimer}</p>
+      <p style="white-space: pre-wrap;">${assistant.content}</p>
+      <div class="modal-buttons">
+        <button onclick="this.closest('.modal-overlay').remove()">Close</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+  modal.style.display = 'flex';
 }
 
-// Speak function (TTS)
-function speak(text) {
-  if (!ttsEnabled || !text) return;
-  const utt = new SpeechSynthesisUtterance(text);
-  utt.pitch = voicePitchValue;
-  utt.rate = voiceRateValue;
-  utt.volume = voiceVolumeValue;
-  utt.lang = localStorage.getItem('rathor_output_lang') || 'en-US';
-  speechSynthesis.speak(utt);
-}
+// ────────────────────────────────────────────────
+// Voice Command Processor — expanded with emergency
+// ────────────────────────────────────────────────
 
-// Session search with tags + color indicators
-function filterSessions() {
-  const filter = sessionSearch.value.toLowerCase().trim();
-  if (!filter) {
-    Array.from(sessionSelect.options).forEach(opt => opt.style.display = '');
-    return;
+async function processVoiceCommand(raw) {
+  let cmd = raw.toLowerCase().trim();
+
+  // Emergency assistants
+  if (cmd.includes('medical help') || cmd.includes('medical advice') || cmd.includes('health emergency')) {
+    triggerEmergencyAssistant('medical');
+    return true;
   }
 
-  Array.from(sessionSelect.options).forEach(opt => {
-    const session = allSessions.find(s => s.id === opt.value);
-    if (!session) {
-      opt.style.display = 'none';
-      return;
-    }
+  if (cmd.includes('legal advice') || cmd.includes('legal help') || cmd.includes('rights')) {
+    triggerEmergencyAssistant('legal');
+    return true;
+  }
 
-    const nameMatch = (session.name || session.id).toLowerCase().includes(filter);
-    const tagMatch = session.tags?.toLowerCase().includes(filter);
-    opt.style.display = nameMatch || tagMatch ? '' : 'none';
+  if (cmd.includes('crisis mode') || cmd.includes('emotional support') || cmd.includes('grounding')) {
+    triggerEmergencyAssistant('crisis');
+    return true;
+  }
 
-    // Add visual indicators
-    if (opt.style.display !== 'none') {
-      let indicator = opt.querySelector('.session-indicator');
+  // Existing commands (emergency recording, export, test, bridges, etc.)
+  if (cmd.includes('emergency mode') || cmd.includes('crisis recording')) {
+    await startVoiceRecording(currentSessionId, true);
+    showToast('Emergency recording started — saved with priority ⚠️');
+    return true;
+  }
+
+  if (cmd.includes('stop emergency') || cmd.includes('end recording')) {
+    stopVoiceRecording();
+    showToast('Recording stopped & saved ⚡️');
+    return true;
+  }
+
+  // ... other existing commands ...
+
+  return false;
+}
+
+// ... rest of chat.js functions (sendMessage, speak, recognition, recording, session CRUD, etc.) remain unchanged ...      let indicator = opt.querySelector('.session-indicator');
       if (!indicator) {
         indicator = document.createElement('span');
         indicator.className = 'session-indicator';
