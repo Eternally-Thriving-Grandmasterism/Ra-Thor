@@ -46,7 +46,7 @@ class RathorIndexedDB {
   }
 
   // ────────────────────────────────────────────────
-  // Translation Metrics with Latency Tracking
+  // Translation Metrics with Per-Language Latency
   // ────────────────────────────────────────────────
 
   async getTranslationMetrics() {
@@ -58,30 +58,88 @@ class RathorIndexedDB {
           total: 0,
           hits: 0,
           misses: 0,
-          latencies: [], // array of {ms, timestamp}
+          perLang: {}, // langCode → {total, hits, misses, latencies: []}
           history: []
         });
         req.onerror = () => rej(req.error);
       });
     });
 
-    const hitRate = metrics.total > 0 ? Math.round((metrics.hits / metrics.total) * 100) : 0;
+    const overallHitRate = metrics.total > 0 ? Math.round((metrics.hits / metrics.total) * 100) : 0;
 
-    // Latency stats
-    const latencies = metrics.latencies || [];
-    const avgLatency = latencies.length > 0 ? Math.round(latencies.reduce((sum, l) => sum + l.ms, 0) / latencies.length) : 0;
-    const minLatency = latencies.length > 0 ? Math.min(...latencies.map(l => l.ms)) : 0;
-    const maxLatency = latencies.length > 0 ? Math.max(...latencies.map(l => l.ms)) : 0;
-    const p95Latency = latencies.length > 0 ? Math.round(latencies.map(l => l.ms).sort((a,b)=>a-b)[Math.floor(latencies.length * 0.95)]) : 0;
+    // Aggregate per-language stats
+    const perLangStats = {};
+    Object.entries(metrics.perLang).forEach(([lang, data]) => {
+      const hitRate = data.total > 0 ? Math.round((data.hits / data.total) * 100) : 0;
+      const latencies = data.latencies || [];
+      const avg = latencies.length > 0 ? Math.round(latencies.reduce((sum, l) => sum + l, 0) / latencies.length) : 0;
+      const min = latencies.length > 0 ? Math.min(...latencies) : 0;
+      const max = latencies.length > 0 ? Math.max(...latencies) : 0;
+      const p95 = latencies.length > 0 ? Math.round(latencies.sort((a,b)=>a-b)[Math.floor(latencies.length * 0.95)]) : 0;
+
+      perLangStats[lang] = { total: data.total, hits: data.hits, misses: data.misses, hitRate, avgLatency: avg, minLatency: min, maxLatency: max, p95Latency: p95 };
+    });
+
+    // Overall latency from all languages
+    const allLatencies = Object.values(metrics.perLang).flatMap(d => d.latencies || []);
+    const overallAvg = allLatencies.length > 0 ? Math.round(allLatencies.reduce((sum, l) => sum + l, 0) / allLatencies.length) : 0;
+    const overallP95 = allLatencies.length > 0 ? Math.round(allLatencies.sort((a,b)=>a-b)[Math.floor(allLatencies.length * 0.95)]) : 0;
 
     return {
-      ...metrics,
-      hitRate,
-      avgLatency,
-      minLatency,
-      maxLatency,
-      p95Latency,
+      total: metrics.total,
+      hits: metrics.hits,
+      misses: metrics.misses,
+      hitRate: overallHitRate,
+      avgLatency: overallAvg,
+      p95Latency: overallP95,
+      perLang: perLangStats,
+      history: metrics.history || [],
       cacheSize: await this.getCacheSize()
+    };
+  }
+
+  async updateTranslationMetrics(isHit, latencyMs = null, lang = targetTranslationLang) {
+    const metrics = await this.getTranslationMetrics();
+    metrics.total += 1;
+    if (isHit) metrics.hits += 1;
+    else metrics.misses += 1;
+
+    metrics.perLang = metrics.perLang || {};
+    metrics.perLang[lang] = metrics.perLang[lang] || { total: 0, hits: 0, misses: 0, latencies: [] };
+    metrics.perLang[lang].total += 1;
+    if (isHit) metrics.perLang[lang].hits += 1;
+    else {
+      metrics.perLang[lang].misses += 1;
+      if (latencyMs !== null) {
+        metrics.perLang[lang].latencies.push(latencyMs);
+        if (metrics.perLang[lang].latencies.length > 500) metrics.perLang[lang].latencies.shift();
+      }
+    }
+
+    metrics.history.push({
+      timestamp: Date.now(),
+      hit: isHit,
+      hitRate: Math.round((metrics.hits / metrics.total) * 100),
+      latency: latencyMs,
+      lang
+    });
+    if (metrics.history.length > 1000) metrics.history.shift();
+
+    await this._transaction(STORES.USER_PREFERENCES, 'readwrite', (tx) => {
+      tx.objectStore(STORES.USER_PREFERENCES).put({ key: 'translation_metrics', value: metrics });
+    });
+  }
+
+  async resetTranslationMetrics() {
+    await this._transaction(STORES.USER_PREFERENCES, 'readwrite', (tx) => {
+      tx.objectStore(STORES.USER_PREFERENCES).delete('translation_metrics');
+    });
+  }
+
+  // ... keep all previous translation cache methods ...
+}
+
+export const rathorDB = new RathorIndexedDB();      cacheSize: await this.getCacheSize()
     };
   }
 
