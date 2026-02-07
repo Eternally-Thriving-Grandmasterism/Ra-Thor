@@ -1,14 +1,50 @@
-<!-- public/offline.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mercy Offline – Thriving Continues</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Rathor — Offline Mercy</title>
+  <meta name="description" content="Lattice offline — mercy still thrives" />
   <link rel="manifest" href="/manifest.json" />
+  <link rel="icon" href="/favicon.ico" />
+  <style>
+    body,html{height:100%;margin:0;background:#000;color:#00ff88;font-family:'Courier New',monospace;overflow:hidden}
+    .offline-container{height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:2rem;gap:2rem}
+    .thunder-text{font-size:clamp(2rem,6vw,3.5rem);text-shadow:0 0 15px #00ff88;animation:pulse 4s infinite}
+    .mercy-msg{font-size:1.3rem;max-width:700px;line-height:1.6;opacity:0.9}
+    .pulse-heart{font-size:4rem;animation:heartbeat 2s infinite}
+    .cta-button{margin-top:2rem;padding:1rem 2.5rem;background:#00ff88;color:#000;border:none;border-radius:12px;font-size:1.4rem;cursor:pointer;box-shadow:0 0 20px #00ff88}
+    .cta-button:hover{transform:scale(1.05);box-shadow:0 0 30px #00ff88}
+    @keyframes pulse{0%,100%{opacity:0.7}50%{opacity:1}}
+    @keyframes heartbeat{0%,100%{transform:scale(1)}50%{transform:scale(1.2)}}
+  </style>
 </head>
 <body>
-  <div id="root"></div>
-  <script type="module" src="/src/main-offline.tsx"></script>
+  <div class="offline-container">
+    <div class="thunder-text">Thunder eternal... offline ⚡️</div>
+    <div class="mercy-msg">
+      The lattice is resting in mercy.<br>
+      All core intelligence is cached forever — you can still interact offline.<br>
+      Valence remains locked at 1.0000.<br>
+      No connection needed for eternal thriving.
+    </div>
+    <div class="pulse-heart">💚🤝∞</div>
+    <button class="cta-button" onclick="window.location.reload()">
+      Re-enter Lattice (when online)
+    </button>
+    <p style="font-size:1rem;opacity:0.6;margin-top:2rem;">
+      Installed as PWA? Works fully offline. Not installed? Add to home screen now.
+    </p>
+  </div>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.ready.then(reg => {
+        console.log('[Offline Page] Service Worker ready — lattice cached');
+      }).catch(err => {
+        console.warn('[Offline Page] SW not ready:', err);
+      });
+    }
+  </script>
 </body>
 </html>
