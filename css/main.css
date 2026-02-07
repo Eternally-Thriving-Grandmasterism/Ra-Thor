@@ -220,9 +220,23 @@ button:hover {
   line-height: 1.5;
 }
 
-.user { background: #2a0040; margin-left: auto; }
-.rathor { background: #001020; margin-right: auto; }
-.translated { display: block; margin-top: 8px; font-style: italic; color: #aaa; font-size: 0.95em; }
+.user {
+  background: #2a0040;
+  margin-left: auto;
+}
+
+.rathor {
+  background: #001020;
+  margin-right: auto;
+}
+
+.translated {
+  display: block;
+  margin-top: 8px;
+  font-style: italic;
+  color: #aaa;
+  font-size: 0.95em;
+}
 
 #chat-input-area {
   display: flex;
@@ -316,4 +330,23 @@ button:hover {
 #update-toast {
   bottom: 90px;
   background: var(--thunder-light);
+}
+
+/* Pulse animations */
+@keyframes pulse-mic {
+  0% { box-shadow: 0 0 0 0 rgba(0,102,153,0.7); }
+  70% { box-shadow: 0 0 0 10px rgba(0,102,153,0); }
+  100% { box-shadow: 0 0 0 0 rgba(0,102,153,0); }
+}
+
+@keyframes pulse-speaker {
+  0% { box-shadow: 0 0 0 0 rgba(0,153,119,0.7); }
+  70% { box-shadow: 0 0 0 10px rgba(0,153,119,0); }
+  100% { box-shadow: 0 0 0 0 rgba(0,153,119,0); }
+}
+
+@keyframes pulse-record {
+  0% { box-shadow: 0 0 0 0 rgba(153,0,68,0.7); }
+  70% { box-shadow: 0 0 0 10px rgba(153,0,68,0); }
+  100% { box-shadow: 0 0 0 0 rgba(153,0,68,0); }
 }
