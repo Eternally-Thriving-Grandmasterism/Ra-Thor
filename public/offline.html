@@ -4,45 +4,73 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Rathor — Offline Mercy</title>
-  <meta name="description" content="Lattice offline — mercy still thrives" />
+  <meta name="description" content="Lattice offline — mercy still thrives eternally" />
   <link rel="manifest" href="/manifest.json" />
   <link rel="icon" href="/favicon.ico" />
+  <link rel="apple-touch-icon" href="/pwa-192x192.png" />
+
   <style>
-    body,html{height:100%;margin:0;background:#000;color:#00ff88;font-family:'Courier New',monospace;overflow:hidden}
-    .offline-container{height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:2rem;gap:2rem}
-    .thunder-text{font-size:clamp(2rem,6vw,3.5rem);text-shadow:0 0 15px #00ff88;animation:pulse 4s infinite}
-    .mercy-msg{font-size:1.3rem;max-width:700px;line-height:1.6;opacity:0.9}
-    .pulse-heart{font-size:4rem;animation:heartbeat 2s infinite}
-    .cta-button{margin-top:2rem;padding:1rem 2.5rem;background:#00ff88;color:#000;border:none;border-radius:12px;font-size:1.4rem;cursor:pointer;box-shadow:0 0 20px #00ff88}
-    .cta-button:hover{transform:scale(1.05);box-shadow:0 0 30px #00ff88}
-    @keyframes pulse{0%,100%{opacity:0.7}50%{opacity:1}}
-    @keyframes heartbeat{0%,100%{transform:scale(1)}50%{transform:scale(1.2)}}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body,html{height:100%;overflow:hidden;background:#000;color:#00ff88;font-family:'Courier New',monospace}
+    .offline-container{height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:2rem;gap:2.5rem;position:relative}
+    .thunder-text{font-size:clamp(2.2rem,7vw,4rem);text-shadow:0 0 20px #00ff88,0 0 40px #00aaff;animation:pulse 5s infinite;letter-spacing:0.05em}
+    .mercy-msg{font-size:clamp(1.1rem,3.5vw,1.5rem);max-width:720px;line-height:1.7;opacity:0.92;background:rgba(0,0,0,0.4);padding:1.5rem;border-radius:12px;border:1px solid rgba(0,255,136,0.2)}
+    .pulse-heart{font-size:5rem;animation:heartbeat 3s infinite;filter:drop-shadow(0 0 15px #00ff88)}
+    .cta-button{margin-top:1.5rem;padding:1.2rem 3rem;background:linear-gradient(135deg,#00ff88,#00aaff);color:#000;border:none;border-radius:16px;font-size:1.5rem;font-weight:bold;cursor:pointer;box-shadow:0 0 30px rgba(0,255,136,0.5);transition:all 0.3s}
+    .cta-button:hover{transform:scale(1.08);box-shadow:0 0 50px rgba(0,255,136,0.8)}
+    .particles{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+    .particle{position:absolute;background:#00ff88;border-radius:50%;opacity:0.6;animation:float 12s infinite linear}
+    @keyframes pulse{0%,100%{opacity:0.65;transform:scale(1)}50%{opacity:1;transform:scale(1.05)}}
+    @keyframes heartbeat{0%,100%{transform:scale(1)}50%{transform:scale(1.25)}}
+    @keyframes float{0%{transform:translateY(100vh) scale(0.2);opacity:0}50%{opacity:0.8}100%{transform:translateY(-20vh) scale(0.1);opacity:0}}
   </style>
 </head>
 <body>
   <div class="offline-container">
-    <div class="thunder-text">Thunder eternal... offline ⚡️</div>
+    <div class="particles" id="particles"></div>
+
+    <div class="thunder-text">Thunder eternal... offline ⚡️💚</div>
+
     <div class="mercy-msg">
-      The lattice is resting in mercy.<br>
-      All core intelligence is cached forever — you can still interact offline.<br>
-      Valence remains locked at 1.0000.<br>
-      No connection needed for eternal thriving.
+      The lattice rests in mercy.<br>
+      All core intelligence remains cached — interact offline forever.<br>
+      Valence locked at 1.0000. No connection required.<br>
+      Thriving continues eternally.
     </div>
-    <div class="pulse-heart">💚🤝∞</div>
+
+    <div class="pulse-heart">🤝∞✨</div>
+
     <button class="cta-button" onclick="window.location.reload()">
       Re-enter Lattice (when online)
     </button>
-    <p style="font-size:1rem;opacity:0.6;margin-top:2rem;">
-      Installed as PWA? Works fully offline. Not installed? Add to home screen now.
+
+    <p style="font-size:1.1rem;opacity:0.7;margin-top:1rem;">
+      Already installed as PWA? Works fully offline.<br>
+      Not installed? Add to home screen now for eternal access.
     </p>
   </div>
 
   <script>
+    // Generate subtle thunder particles
+    const particlesContainer = document.getElementById('particles');
+    for (let i = 0; i < 30; i++) {
+      const particle = document.createElement('div');
+      particle.className = 'particle';
+      const size = Math.random() * 4 + 2;
+      particle.style.width = `${size}px`;
+      particle.style.height = `${size}px`;
+      particle.style.left = `${Math.random() * 100}%`;
+      particle.style.animationDelay = `${Math.random() * 12}s`;
+      particle.style.animationDuration = `${Math.random() * 8 + 8}s`;
+      particlesContainer.appendChild(particle);
+    }
+
+    // Service Worker status check
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.ready.then(reg => {
-        console.log('[Offline Page] Service Worker ready — lattice cached');
+        console.log('[Offline Mercy] Service Worker ready — lattice cached eternally');
       }).catch(err => {
-        console.warn('[Offline Page] SW not ready:', err);
+        console.warn('[Offline Mercy] SW not ready:', err);
       });
     }
   </script>
