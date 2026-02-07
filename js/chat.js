@@ -1,4 +1,4 @@
-// js/chat.js — Rathor Lattice Core with Tag Validation & Deduplication
+// js/chat.js — Rathor Lattice Core with Tag Validation + Error Messaging
 
 const chatMessages = document.getElementById('chat-messages');
 const chatInput = document.getElementById('chat-input');
@@ -44,23 +44,46 @@ translateLangSelect.addEventListener('change', e => {
 sessionSearch.addEventListener('input', filterSessions);
 
 // ────────────────────────────────────────────────
-// Tag Validation & Deduplication
+// Tag Validation & Error Messaging
 // ────────────────────────────────────────────────
 
-function normalizeTags(tagsString) {
-  if (!tagsString) return '';
-  return tagsString
-    .split(',')
-    .map(t => t.trim())
-    .filter(t => t.length > 0)
-    .map(t => t.toLowerCase()) // canonical lowercase
-    .filter((t, i, arr) => arr.indexOf(t) === i) // deduplicate
-    .join(', ');
+function normalizeAndValidateTags(tagsString) {
+  if (!tagsString) return { cleaned: '', errors: [] };
+
+  const rawTags = tagsString.split(',').map(t => t.trim());
+  const errors = [];
+  const seen = new Set();
+  const validTags = [];
+
+  rawTags.forEach(tag => {
+    if (!tag) {
+      errors.push('Empty tags ignored');
+      return;
+    }
+
+    const canonical = tag.toLowerCase();
+    if (seen.has(canonical)) {
+      errors.push(`Duplicate tag "${tag}" removed`);
+      return;
+    }
+
+    // Allow: letters, numbers, hyphen, underscore, space
+    if (!/^[a-z0-9\-_ ]+$/i.test(tag)) {
+      errors.push(`Invalid characters in "${tag}" — only letters, numbers, hyphen, underscore, space allowed`);
+      return;
+    }
+
+    seen.add(canonical);
+    validTags.push(tag);
+  });
+
+  const cleaned = validTags.join(', ');
+  return { cleaned, errors };
 }
 
 function renderTagPills(tagsString) {
   editTagPreview.innerHTML = '';
-  const cleaned = normalizeTags(tagsString);
+  const { cleaned } = normalizeAndValidateTags(tagsString);
   if (!cleaned) return;
   const tags = cleaned.split(',').map(t => t.trim());
   tags.forEach(tag => {
@@ -78,14 +101,51 @@ function renderTagPills(tagsString) {
     pill.appendChild(remove);
     editTagPreview.appendChild(pill);
   });
-  // Update input to normalized version
+  // Sync input to cleaned version
   editTagsInput.value = cleaned;
 }
 
 editTagsInput.addEventListener('input', e => {
   const value = e.target.value;
+  const { cleaned, errors } = normalizeAndValidateTags(value);
   renderTagPills(value);
-  // Autocomplete code remains as before, but suggestions will be normalized too
+
+  // Show errors as toast (one at a time or combined)
+  if (errors.length > 0) {
+    showToast(errors.join(' • '));
+  }
+
+  // Autocomplete code remains as before, but suggestions normalized
+});
+
+// On modal save — validate & clean tags
+document.getElementById('modal-save')?.addEventListener('click', async () => {
+  const name = document.getElementById('edit-name').value.trim();
+  const description = document.getElementById('edit-description').value.trim();
+  const rawTags = document.getElementById('edit-tags').value.trim();
+  const { cleaned: tags, errors } = normalizeAndValidateTags(rawTags);
+  const color = document.getElementById('edit-color').value;
+
+  if (errors.length > 0) {
+    showToast('Tags cleaned automatically: ' + errors.join(' • '));
+  }
+
+  const session = await getSession(currentSessionId);
+  if (session) {
+    session.name = name || session.name;
+    session.description = description || session.description;
+    session.tags = tags;
+    session.color = color;
+    await saveSession(session);
+    await refreshSessionList();
+    await updateTagFrequency(); // refresh global frequency
+    showToast('Session updated — tags validated & saved ⚡️');
+  }
+
+  document.getElementById('edit-modal-overlay').style.display = 'none';
+});
+
+// ... rest of chat.js functions (sendMessage, speak, recognition, recording, emergency assistants, session search with tags, etc.) remain as previously expanded ...  // Autocomplete code remains as before, but suggestions will be normalized too
 });
 
 // On modal save — ensure tags are normalized
