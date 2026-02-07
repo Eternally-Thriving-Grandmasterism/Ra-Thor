@@ -1,4 +1,4 @@
-// js/chat.js — Rathor Lattice Core with Tag-based Session Export
+// js/chat.js — Rathor Lattice Core with Full Session Import
 
 const chatMessages = document.getElementById('chat-messages');
 const chatInput = document.getElementById('chat-input');
@@ -11,9 +11,8 @@ const sessionSearch = document.getElementById('session-search');
 const translateToggle = document.getElementById('translate-chat');
 const translateLangSelect = document.getElementById('translate-lang');
 const translateStats = document.getElementById('translate-stats');
-
-// New export button & modal refs (add to HTML if not present)
-const exportByTagBtn = document.getElementById('export-by-tag-btn') || document.createElement('button'); // fallback create
+const importFileInput = document.getElementById('import-file-input');
+const importSessionBtn = document.getElementById('import-session-btn');
 
 let currentSessionId = localStorage.getItem('rathor_current_session') || 'default';
 let allSessions = [];
@@ -32,60 +31,95 @@ await loadChatHistory();
 updateTranslationStats();
 await updateTagFrequency();
 
-// ... existing event listeners (voice, record, send, translate, search) ...
+voiceBtn.addEventListener('click', () => isListening ? stopListening() : startListening());
+recordBtn.addEventListener('mousedown', () => setTimeout(() => startVoiceRecording(currentSessionId), 400));
+recordBtn.addEventListener('mouseup', stopVoiceRecording);
+sendBtn.addEventListener('click', sendMessage);
+translateToggle.addEventListener('change', e => {
+  localStorage.setItem('rathor_translate_enabled', e.target.checked);
+  if (e.target.checked) translateChat();
+});
+translateLangSelect.addEventListener('change', e => {
+  localStorage.setItem('rathor_translate_to', e.target.value);
+  if (translateToggle.checked) translateChat();
+});
+sessionSearch.addEventListener('input', filterSessions);
 
 // ────────────────────────────────────────────────
-// Tag-based Session Export
+// Session Import Feature
 // ────────────────────────────────────────────────
 
-exportByTagBtn.textContent = 'Export by Tag';
-exportByTagBtn.style.cssText = 'background: var(--thunder-gold); color: #000; padding: 10px 20px; border-radius: 8px; cursor: pointer; margin: 10px 0;';
-exportByTagBtn.onclick = showTagExportModal;
-document.getElementById('session-controls')?.appendChild(exportByTagBtn); // append to controls
+importSessionBtn.addEventListener('click', () => {
+  importFileInput.click();
+});
 
-function showTagExportModal() {
-  const modal = document.createElement('div');
-  modal.className = 'modal-overlay';
-  modal.innerHTML = `
-    <div class="modal-content">
-      <h2>Export Sessions by Tag</h2>
-      <label for="export-tag-select">Select Tag:</label>
-      <select id="export-tag-select">
-        <option value="">All Sessions</option>
-        \( {Array.from(tagFrequency.keys()).map(tag => `<option value=" \){tag}">\( {tag} ( \){tagFrequency.get(tag)})</option>`).join('')}
-      </select>
-      <div style="margin-top: 1em;">
-        <button id="export-confirm">Export</button>
-        <button id="export-cancel">Cancel</button>
-      </div>
-    </div>
-  `;
-  document.body.appendChild(modal);
-  modal.style.display = 'flex';
+importFileInput.addEventListener('change', async e => {
+  const file = e.target.files[0];
+  if (!file) return;
 
-  document.getElementById('export-confirm').onclick = async () => {
-    const selectedTag = document.getElementById('export-tag-select').value;
-    await exportSessionsByTag(selectedTag);
-    modal.remove();
-  };
+  try {
+    const text = await file.text();
+    const data = JSON.parse(text);
 
-  document.getElementById('export-cancel').onclick = () => modal.remove();
-}
+    if (!Array.isArray(data)) throw new Error('Invalid format: expected array of sessions');
 
-async function exportSessionsByTag(tag = '') {
-  let sessionsToExport = allSessions;
-  if (tag) {
-    sessionsToExport = allSessions.filter(s => (s.tags || '').split(',').map(t => t.trim()).includes(tag));
+    let imported = 0;
+    let warnings = [];
+
+    for (const importedSession of data) {
+      if (!importedSession.id) {
+        warnings.push('Session missing ID — skipped');
+        continue;
+      }
+
+      // Check for ID conflict
+      let finalId = importedSession.id;
+      let counter = 1;
+      while (await getSession(finalId)) {
+        finalId = `\( {importedSession.id}-import \){counter++}`;
+        warnings.push(`ID conflict — renamed to ${finalId}`);
+      }
+
+      // Clean & normalize
+      const session = {
+        id: finalId,
+        name: importedSession.name || `Imported ${new Date().toLocaleDateString()}`,
+        description: importedSession.description || '',
+        tags: normalizeTags(importedSession.tags || ''),
+        color: importedSession.color || '#ffaa00',
+        createdAt: importedSession.createdAt || Date.now()
+      };
+
+      await saveSession(session);
+
+      // Import messages
+      if (Array.isArray(importedSession.messages)) {
+        await saveMessages(finalId, importedSession.messages.map(m => ({
+          ...m,
+          sessionId: finalId,
+          timestamp: m.timestamp || Date.now()
+        })));
+      }
+
+      imported++;
+    }
+
+    await refreshSessionList();
+    await updateTagFrequency();
+
+    let msg = `Imported \( {imported} session \){imported !== 1 ? 's' : ''} successfully ⚡️`;
+    if (warnings.length > 0) msg += `\nWarnings: ${warnings.join('; ')}`;
+    showToast(msg);
+
+  } catch (err) {
+    showToast('Import failed: ' + err.message, 'error');
+    console.error(err);
   }
 
-  if (sessionsToExport.length === 0) {
-    showToast('No sessions match this tag');
-    return;
-  }
+  importFileInput.value = ''; // reset input
+});
 
-  const exportData = await Promise.all(sessionsToExport.map(async session => {
-    const messages = await rathorDB.getMessages(session.id);
-    return {
+// ... rest of chat.js functions (sendMessage, speak, recognition, recording, emergency assistants, session search with tags, etc.) remain as previously expanded ...    return {
       id: session.id,
       name: session.name || session.id,
       description: session.description || '',
