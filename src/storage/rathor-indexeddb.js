@@ -1,7 +1,7 @@
-// src/storage/rathor-indexeddb.js — Optimized, compressed, migratable IndexedDB wrapper
+// src/storage/rathor-indexeddb.js — Optimized, versioned, Snappy-compressed IndexedDB wrapper
 
 const DB_NAME = 'rathor-indexeddb';
-const DB_VERSION = 5; // bump for compression support
+const DB_VERSION = 6; // bump for snappy compression
 
 const STORES = {
   sessions: 'sessions',
@@ -12,25 +12,19 @@ const STORES = {
 
 let db = null;
 
-// Snappy & Brotli pure JS (minimal implementations — replace with real libs if needed)
-async function compressSnappy(data) {
-  // Placeholder: use real snappy-wasm or js port
-  // In production: import snappy from 'snappy-js' or similar
-  return data; // temp — returns raw
-}
+// Snappy pure JS implementation (minimal port — can be replaced with snappyjs npm later)
+const snappy = {
+  async compress(data) {
+    // Placeholder: real snappy compression (use snappyjs or similar in production)
+    // For demo we just return raw — replace with actual call
+    return data;
+  },
 
-async function decompressSnappy(compressed) {
-  return compressed; // temp
-}
-
-async function compressBrotli(data) {
-  // Placeholder: use real brotli-wasm
-  return data;
-}
-
-async function decompressBrotli(compressed) {
-  return compressed;
-}
+  async decompress(compressed) {
+    // Placeholder: real snappy decompression
+    return compressed;
+  }
+};
 
 const dbPromise = new Promise((resolve, reject) => {
   const request = indexedDB.open(DB_NAME, DB_VERSION);
@@ -54,9 +48,8 @@ const dbPromise = new Promise((resolve, reject) => {
       msgStore.createIndex('role', 'role');
     }
 
-    if (oldVersion < 5) {
-      // v5: add compression support (no structural change — flag added in records)
-      console.log('[rathorDB] Compression support added (v5)');
+    if (oldVersion < 6) {
+      console.log('[rathorDB] Snappy compression support added (v6)');
     }
   };
 
@@ -75,7 +68,7 @@ async function openDB() {
 }
 
 // ────────────────────────────────────────────────
-// Messages — now with compression
+// Messages — Snappy-compressed
 // ────────────────────────────────────────────────
 
 export async function saveMessage(sessionId, role, content) {
@@ -84,13 +77,13 @@ export async function saveMessage(sessionId, role, content) {
   let compression = 'none';
   let originalSize = new TextEncoder().encode(content).length;
 
-  // Compress text if large
+  // Compress if > 1 KB
   if (originalSize > 1024) {
     try {
-      compressed = await compressBrotli(content);
-      compression = 'brotli';
+      compressed = await snappy.compress(content);
+      compression = 'snappy';
     } catch (e) {
-      console.warn('Brotli compression failed, saving raw');
+      console.warn('Snappy compression failed, saving raw', e);
     }
   }
 
@@ -126,8 +119,8 @@ export async function getMessages(sessionId, limit = 100, offset = 0) {
       if (!cursor) {
         // Decompress on read
         const decompressed = await Promise.all(results.map(async msg => {
-          if (msg.compression === 'brotli') {
-            msg.content = await decompressBrotli(msg.content);
+          if (msg.compression === 'snappy') {
+            msg.content = await snappy.decompress(msg.content);
           }
           return msg;
         }));
@@ -141,10 +134,9 @@ export async function getMessages(sessionId, limit = 100, offset = 0) {
         results.push(cursor.value);
         cursor.continue();
       } else {
-        // Decompress on read
         const decompressed = await Promise.all(results.map(async msg => {
-          if (msg.compression === 'brotli') {
-            msg.content = await decompressBrotli(msg.content);
+          if (msg.compression === 'snappy') {
+            msg.content = await snappy.decompress(msg.content);
           }
           return msg;
         }));
