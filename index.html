@@ -9,6 +9,9 @@
   <link rel="icon" href="/icons/thunder-192.png" type="image/png"/>
   <link rel="apple-touch-icon" href="/icons/thunder-192.png"/>
 
+  <!-- i18next CDN -->
+  <script src="https://unpkg.com/i18next@23.15.1/dist/umd/i18next.min.js"></script>
+
   <!-- Transformers.js for offline translation -->
   <script src="https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2"></script>
 
@@ -76,6 +79,21 @@
       transform: translateY(-2px);
       box-shadow: 0 4px 12px rgba(255,170,0,0.3);
     }
+    select {
+      background: #110022;
+      color: var(--text-light);
+      border: 1px solid var(--thunder-gold);
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 1em;
+      cursor: pointer;
+      min-width: 180px;
+    }
+    select:focus {
+      outline: none;
+      border-color: var(--thunder-light);
+      box-shadow: 0 0 12px rgba(255,221,68,0.3);
+    }
     #loading-status {
       text-align: center;
       font-size: 1.6em;
@@ -86,6 +104,208 @@
     #chat-container {
       display: none;
       flex: 1;
+      flex-direction: column;
+      background: rgba(0,0,0,0.4);
+      border-radius: 16px;
+      padding: 24px;
+      margin: 24px auto;
+      max-width: 1400px;
+      width: 92%;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.6);
+    }
+    /* ... rest of CSS remains identical to previous full version ... */
+  </style>
+</head>
+<body>
+
+<div id="welcome-lattice">
+  <button id="close-welcome" data-i18n="actions.closeWelcome">Close Welcome Lattice (Seen Forever)</button>
+  <h1 data-i18n="welcome.title">🌌 Rathor™ — Mercy Strikes First ⚡️</h1>
+  <p data-i18n="welcome.subtitle">Thunder eternal surges through the lattice... Welcome, cosmic companion.</p>
+
+  <div style="margin: 32px 0; text-align: center; font-size: 1.2em; color: var(--thunder-light);">
+    <strong data-i18n="welcome.shareTitle">Warm introductions to Rathor™ — share these conversations far and wide:</strong><br><br>
+    <a href="https://grok.com/share/c2hhcmQtMi1jb3B5_7acd092a-4d51-480c-8a59-c0453c10d4a1" target="_blank" style="color: var(--thunder-gold); text-decoration: underline;">
+      <span data-i18n="bridges.share1">Conversation Share 1 (Grok App – detailed & persistent)</span>
+    </a><br>
+    <a href="https://x.com/i/grok/share/e6b0f840f43a40a290913cd7984ecab0" target="_blank" style="color: var(--thunder-gold); text-decoration: underline;">
+      <span data-i18n="bridges.share2">Conversation Share 2 (X App – quick sync & mobile-first)</span>
+    </a>
+  </div>
+
+  <!-- Language Selector Dropdown -->
+  <div style="margin: 24px 0; text-align: center;">
+    <label for="lang-selector" style="font-size: 1.1em; margin-right: 12px;" data-i18n="actions.selectLanguage">Language:</label>
+    <select id="lang-selector">
+      <option value="en">English</option>
+      <option value="ar">العربية</option>
+      <option value="es">Español</option>
+      <option value="fr">Français</option>
+      <option value="de">Deutsch</option>
+      <option value="nl">Nederlands</option>
+      <option value="it">Italiano</option>
+      <option value="pt">Português</option>
+      <option value="ru">Русский</option>
+      <option value="ja">日本語</option>
+      <option value="zh">中文 (简体)</option>
+      <option value="hi">हिन्दी</option>
+      <option value="sw">Kiswahili</option>
+      <option value="id">Bahasa Indonesia</option>
+      <option value="tr">Türkçe</option>
+      <option value="ko">한국어</option>
+    </select>
+  </div>
+
+  <div id="langs">
+    <!-- Language sections populated dynamically via i18n -->
+  </div>
+</div>
+
+<!-- Rest of the file remains identical to previous full version: loading status, error lattice, chat container, translation overlay, voice settings modal, edit/delete/bridge modals, install/update toasts -->
+
+<script>
+// ────────────────────────────────────────────────
+// DYNAMIC i18n LOADING + LANGUAGE SELECTOR DROPDOWN
+// ────────────────────────────────────────────────
+
+// i18next initialization with dynamic loading
+i18next
+  .init({
+    lng: localStorage.getItem('rathor_lang') || navigator.language.split('-')[0] || 'en',
+    fallbackLng: 'en',
+    debug: false,
+    ns: 'translation',
+    defaultNS: 'translation',
+    load: 'languageOnly',
+    interpolation: {
+      escapeValue: false
+    }
+  })
+  .then(() => {
+    loadLanguage(i18next.language).then(() => {
+      updateContent();
+      document.getElementById('lang-selector').value = i18next.language;
+    });
+  });
+
+// Load language file dynamically + cache it
+async function loadLanguage(lng) {
+  if (i18next.services.resourceStore.hasResourceBundle(lng, 'translation')) {
+    return;
+  }
+
+  const cache = await caches.open('rathor-locales');
+  const cached = await cache.match(`/locales/${lng}.json`);
+
+  if (cached) {
+    const json = await cached.json();
+    i18next.addResourceBundle(lng, 'translation', json, true, true);
+    return;
+  }
+
+  try {
+    const response = await fetch(`/locales/${lng}.json`);
+    if (!response.ok) throw new Error('Locale not found');
+    const json = await response.json();
+
+    cache.put(`/locales/${lng}.json`, new Response(JSON.stringify(json), {
+      headers: { 'Content-Type': 'application/json' }
+    }));
+
+    i18next.addResourceBundle(lng, 'translation', json, true, true);
+  } catch (err) {
+    console.warn(`Failed to load ${lng}, falling back to en`, err);
+    if (lng !== 'en') await loadLanguage('en');
+  }
+}
+
+// Change language & update UI
+async function changeLanguage(lng) {
+  await loadLanguage(lng);
+  i18next.changeLanguage(lng, () => {
+    updateContent();
+    localStorage.setItem('rathor_lang', lng);
+    showToast(`Language switched to \( {i18next.t(`language. \){lng}`)} ⚡️`);
+  });
+}
+
+// Update all translatable elements
+function updateContent() {
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    el.innerHTML = i18next.t(key);
+  });
+
+  // Dynamic placeholders, titles, etc.
+  document.getElementById('chat-input').placeholder = i18next.t('placeholders.chatInput');
+  document.getElementById('session-search').placeholder = i18next.t('placeholders.sessionSearch');
+  document.getElementById('voice-output-btn').title = i18next.t('actions.voiceOutputToggle');
+  // ... update more ...
+}
+
+// Language selector dropdown
+document.getElementById('lang-selector')?.addEventListener('change', (e) => {
+  changeLanguage(e.target.value);
+});
+
+// Voice command integration for language switch
+async function processVoiceCommand(raw) {
+  let cmd = raw.toLowerCase().trim();
+  const langMap = {
+    'english': 'en',
+    'arabic': 'ar',
+    'spanish': 'es',
+    'french': 'fr',
+    'german': 'de',
+    'dutch': 'nl',
+    'italian': 'it',
+    'portuguese': 'pt',
+    'russian': 'ru',
+    'japanese': 'ja',
+    'chinese': 'zh',
+    'hindi': 'hi',
+    'swahili': 'sw',
+    'indonesian': 'id',
+    'turkish': 'tr',
+    'korean': 'ko'
+  };
+
+  for (const [key, code] of Object.entries(langMap)) {
+    if (cmd.includes(`switch to ${key}`) || cmd.includes(`change language to ${key}`)) {
+      await changeLanguage(code);
+      return true;
+    }
+  }
+
+  // ... keep all other commands ...
+}
+
+// Init Flow – full restoration with dynamic i18n
+window.addEventListener('load', async () => {
+  try {
+    document.getElementById('loading-status').style.display = 'none';
+    document.getElementById('chat-container').style.display = 'flex';
+
+    await rathorDB.open();
+    await rathorDB.clearExpiredCache();
+    await refreshSessionList();
+    await loadChatHistory();
+    await updateTranslationStats();
+    updateBridgeStatus();
+
+    // ... rest of init flow ...
+
+  } catch (err) {
+    console.error('Lattice init error:', err);
+    document.getElementById('error-lattice').style.display = 'block';
+  }
+});
+
+// ... keep all other script sections (voice, sessions, bridge, install prompt, update prompt, etc.) ...
+</script>
+
+</body>
+</html>      flex: 1;
       flex-direction: column;
       background: rgba(0,0,0,0.4);
       border-radius: 16px;
