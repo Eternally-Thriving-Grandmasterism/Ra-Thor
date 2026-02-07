@@ -10,7 +10,8 @@ export default defineConfig(({ mode }) => ({
     splitVendorChunkPlugin(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'pwa-*.png'],
+      devOptions: { enabled: true },
+      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'pwa-*.png', '**/*.wasm'],
       manifest: {
         name: 'Rathor — Mercy Strikes First',
         short_name: 'Rathor',
@@ -26,29 +27,44 @@ export default defineConfig(({ mode }) => ({
         ]
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2,wasm}'],
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2,wasm,onnx}'],
+        // Runtime caching strategies
         runtimeCaching: [
+          // Cache Mediapipe WASM & JS – CacheFirst, long-lived
           {
             urlPattern: /^https:\/\/cdn\.jsdelivr\.net\/npm\/@mediapipe\/.*/i,
             handler: 'CacheFirst',
             options: {
-              cacheName: 'mediapipe-wasm',
-              expiration: { maxEntries: 20, maxAgeSeconds: 2592000 }
+              cacheName: 'mediapipe-runtime',
+              expiration: { maxEntries: 30, maxAgeSeconds: 60 * 60 * 24 * 30 }, // 30 days
+              cacheableResponse: { statuses: [0, 200] }
             }
           },
+          // tfjs assets – CacheFirst
           {
             urlPattern: /^https:\/\/cdn\.jsdelivr\.net\/npm\/@tensorflow\/.*/i,
             handler: 'CacheFirst',
             options: {
-              cacheName: 'tfjs-assets',
-              expiration: { maxEntries: 50, maxAgeSeconds: 2592000 }
+              cacheName: 'tfjs-runtime',
+              expiration: { maxEntries: 60, maxAgeSeconds: 60 * 60 * 24 * 30 }
+            }
+          },
+          // Our own static assets – StaleWhileRevalidate for fast repeat visits
+          {
+            urlPattern: /^https:\/\/eternally-thriving-grandmasterism\.github\.io\/Rathor-NEXi\/.*/i,
+            handler: 'StaleWhileRevalidate',
+            options: {
+              cacheName: 'rathor-static',
+              expiration: { maxEntries: 100, maxAgeSeconds: 60 * 60 * 24 * 7 } // 1 week
             }
           }
         ],
         navigateFallback: '/index.html',
-        navigateFallbackDenylist: [/^\/api\//]
-      },
-      devOptions: { enabled: true }
+        navigateFallbackDenylist: [/^\/api\//, /\.wasm$/],
+        cleanupOutdatedCaches: true,
+        skipWaiting: true,
+        clientsClaim: true
+      }
     }),
     viteCompression({ algorithm: 'brotliCompress', exclude: [/\.html$/], threshold: 10240 }),
     viteCompression({ algorithm: 'gzip', exclude: [/\.html$/], threshold: 10240 })
@@ -57,9 +73,7 @@ export default defineConfig(({ mode }) => ({
   base: '/Rathor-NEXi/',
 
   resolve: {
-    alias: {
-      '@': path.resolve(__dirname, 'src')
-    }
+    alias: { '@': path.resolve(__dirname, 'src') }
   },
 
   build: {
@@ -67,87 +81,25 @@ export default defineConfig(({ mode }) => ({
     assetsDir: 'assets',
     sourcemap: mode === 'development',
     minify: 'terser',
-    terserOptions: {
-      compress: {
-        drop_console: mode === 'production',
-        passes: 3
-      },
-      mangle: true,
-      format: { comments: false }
-    },
+    chunkSizeWarningLimit: 2000,
     rollupOptions: {
       output: {
         manualChunks: {
           'vendor-core': ['react', 'react-dom'],
           'vendor-ml': ['@tensorflow/tfjs', '@tensorflow/tfjs-backend-webgl'],
-          'vendor-mediapipe': ['@mediapipe/holistic'],
-          'vendor-utils': ['./src/utils/haptic-utils.ts', './src/core/valence-tracker.ts']
-        },
-        entryFileNames: 'assets/entry/[name]-[hash].js',
-        chunkFileNames: 'assets/chunks/[name]-[hash].js',
-        assetFileNames: 'assets/static/[name]-[hash][extname]'
-      }
-    },
-    target: 'es2020',
-    cssCodeSplit: true,
-    reportCompressedSize: true,
-    chunkSizeWarningLimit: 2000
-  },
-
-  server: {
-    port: 3000,
-    open: true,
-    hmr: true,
-    fs: { strict: false }
-  },
-
-  preview: { port: 4173 },
-
-  optimizeDeps: {
-    include: [
-      'react', 'react-dom',
-      '@tensorflow/tfjs', '@tensorflow/tfjs-backend-webgl',
-      '@mediapipe/holistic'
-    ],
-    exclude: ['onnxruntime-web']
-  },
-
-  esbuild: {
-    logOverride: { 'this-is-undefined-in-esm': 'silent' }
-  },
-
-  // Debug loading issues
-  logLevel: 'info'
-}))  server: {
-    port: 3000,
-    open: true,
-    hmr: true,
-    fs: { strict: false }
-  },
-
-  preview: { port: 4173 },
-
-  optimizeDeps: {
-    include: [
-      'react', 'react-dom',
-      '@tensorflow/tfjs', '@tensorflow/tfjs-backend-webgl',
-      '@mediapipe/holistic'
-    ],
-    exclude: ['onnxruntime-web']
-  },
-
-  esbuild: {
-    logOverride: { 'this-is-undefined-in-esm': 'silent' }
-  },
-
-  // Debug loading issues
-  logLevel: 'info',
-  build: {
-    rollupOptions: {
-      onwarn(warning, warn) {
-        if (warning.code === 'MODULE_LEVEL_DIRECTIVE') return
-        warn(warning)
+          'vendor-mediapipe': ['@mediapipe/holistic']
+        }
       }
     }
-  }
+  },
+
+  server: { port: 3000, open: true, hmr: true, fs: { strict: false } },
+  preview: { port: 4173 },
+
+  optimizeDeps: {
+    include: ['react', 'react-dom', '@tensorflow/tfjs', '@mediapipe/holistic'],
+    exclude: ['onnxruntime-web']
+  },
+
+  logLevel: 'info'
 }))
