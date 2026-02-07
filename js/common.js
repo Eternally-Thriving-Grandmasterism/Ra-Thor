@@ -1,9 +1,7 @@
-// js/common.js — Shared utilities, i18n, language registry
-
-const registryUrl = '/locales/languages.json';
+// js/common.js — Shared across all pages
 
 async function loadLanguageRegistry() {
-  const res = await fetch(registryUrl);
+  const res = await fetch('/locales/languages.json');
   return await res.json();
 }
 
@@ -20,6 +18,7 @@ async function initI18n() {
   });
 
   await loadLanguage(i18next.language);
+  updateContent();
 }
 
-// ... rest of shared functions (changeLanguage, applyRTL, updateContent, initLanguageSearch, getBestLanguage, etc.) ...
+// ... include changeLanguage, applyRTL, updateContent, getBestLanguage, initLanguageSearch, etc. ...
