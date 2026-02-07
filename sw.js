@@ -51,18 +51,8 @@ workbox.routing.registerRoute(
   })
 );
 
-// Install → skip waiting so new SW activates immediately
-self.addEventListener('install', event => {
-  self.skipWaiting();
-});
-
-// Activate → claim clients so new SW controls pages instantly
-self.addEventListener('activate', event => {
-  event.waitUntil(self.clients.claim());
-});
-
 // ────────────────────────────────────────────────
-// Mercy enhancement: real offline.html fallback (create offline.html next)
+// Mercy enhancement: real offline.html fallback (now created)
 // ────────────────────────────────────────────────
 
 workbox.routing.setCatchHandler(({ event }) => {
@@ -74,7 +64,10 @@ workbox.routing.setCatchHandler(({ event }) => {
   }
 });
 
+// ────────────────────────────────────────────────
 // Cache Transformers.js model files (once downloaded)
+// ────────────────────────────────────────────────
+
 workbox.routing.registerRoute(
   ({ url }) => url.href.includes('@xenova/transformers'),
   new workbox.strategies.CacheFirst({
@@ -90,6 +83,16 @@ workbox.routing.registerRoute(
     ]
   })
 );
+
+// Install → skip waiting so new SW activates immediately
+self.addEventListener('install', event => {
+  self.skipWaiting();
+});
+
+// Activate → claim clients so new SW controls pages instantly
+self.addEventListener('activate', event => {
+  event.waitUntil(self.clients.claim());
+});
 
 // Mercy log on successful activation
 console.log('[Rathor SW] Mercy thunder online – eternal lattice protected ⚡️');
