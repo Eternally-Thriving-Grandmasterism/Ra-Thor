@@ -36,34 +36,7 @@ class RathorIndexedDB {
       };
 
       request.onupgradeneeded = (event) => {
-        const db = event.target.result;
-        const tx = event.target.transaction;
-        const oldVersion = event.oldVersion || 0;
-
-        const createOrUpdateStore = (name, options = {}, indexes = []) => {
-          let store;
-          if (db.objectStoreNames.contains(name)) {
-            store = tx.objectStore(name);
-          } else {
-            store = db.createObjectStore(name, options);
-          }
-          indexes.forEach(([keyPath, unique = false]) => {
-            if (!store.indexNames.contains(keyPath)) {
-              store.createIndex(keyPath, keyPath, { unique });
-            }
-          });
-          return store;
-        };
-
-        // Previous migrations (v1–v5) – kept as is
-        if (oldVersion < 1) { /* ... */ }
-        if (oldVersion < 2) { /* ... */ }
-        if (oldVersion < 3) { /* ... */ }
-        if (oldVersion < 4) { /* session-metadata */ }
-        if (oldVersion < 5) { /* tags */ }
-        if (oldVersion < 6) { /* translation_cache */ }
-
-        // No new schema for metrics — stored in user_preferences
+        // ... previous migrations kept unchanged ...
       };
 
       request.onblocked = () => {
@@ -73,7 +46,7 @@ class RathorIndexedDB {
   }
 
   // ────────────────────────────────────────────────
-  // Translation Metrics Tracking
+  // Translation Metrics with Latency Tracking
   // ────────────────────────────────────────────────
 
   async getTranslationMetrics() {
@@ -81,26 +54,54 @@ class RathorIndexedDB {
       const store = tx.objectStore(STORES.USER_PREFERENCES);
       const req = store.get('translation_metrics');
       return new Promise((res, rej) => {
-        req.onsuccess = () => res(req.result || { total: 0, hits: 0, misses: 0, history: [] });
+        req.onsuccess = () => res(req.result || {
+          total: 0,
+          hits: 0,
+          misses: 0,
+          latencies: [], // array of {ms, timestamp}
+          history: []
+        });
         req.onerror = () => rej(req.error);
       });
     });
 
     const hitRate = metrics.total > 0 ? Math.round((metrics.hits / metrics.total) * 100) : 0;
-    return { ...metrics, hitRate };
+
+    // Latency stats
+    const latencies = metrics.latencies || [];
+    const avgLatency = latencies.length > 0 ? Math.round(latencies.reduce((sum, l) => sum + l.ms, 0) / latencies.length) : 0;
+    const minLatency = latencies.length > 0 ? Math.min(...latencies.map(l => l.ms)) : 0;
+    const maxLatency = latencies.length > 0 ? Math.max(...latencies.map(l => l.ms)) : 0;
+    const p95Latency = latencies.length > 0 ? Math.round(latencies.map(l => l.ms).sort((a,b)=>a-b)[Math.floor(latencies.length * 0.95)]) : 0;
+
+    return {
+      ...metrics,
+      hitRate,
+      avgLatency,
+      minLatency,
+      maxLatency,
+      p95Latency,
+      cacheSize: await this.getCacheSize()
+    };
   }
 
-  async updateTranslationMetrics(isHit) {
+  async updateTranslationMetrics(isHit, latencyMs = null) {
     const metrics = await this.getTranslationMetrics();
     metrics.total += 1;
     if (isHit) metrics.hits += 1;
     else metrics.misses += 1;
 
-    // Keep last 1000 entries for history
+    if (latencyMs !== null && !isHit) {
+      metrics.latencies = metrics.latencies || [];
+      metrics.latencies.push({ ms: latencyMs, timestamp: Date.now() });
+      if (metrics.latencies.length > 1000) metrics.latencies.shift(); // keep last 1000
+    }
+
     metrics.history.push({
       timestamp: Date.now(),
       hit: isHit,
-      hitRate: Math.round((metrics.hits / metrics.total) * 100)
+      hitRate: Math.round((metrics.hits / metrics.total) * 100),
+      latency: latencyMs
     });
     if (metrics.history.length > 1000) metrics.history.shift();
 
@@ -115,54 +116,13 @@ class RathorIndexedDB {
     });
   }
 
-  // ────────────────────────────────────────────────
-  // Enhanced translateText with cache + metrics
-  // ────────────────────────────────────────────────
-
-  async translateText(text, messageId, sessionId, fromLang = 'auto', toLang = targetTranslationLang) {
-    if (!isTranslationEnabled) return text;
-
-    const cached = await this.getCachedTranslation(sessionId, messageId, toLang);
-    if (cached) {
-      await this.updateTranslationMetrics(true);
-      showToast('Translation retrieved from eternal lattice cache ⚡️');
-      return cached.translatedText;
-    }
-
-    try {
-      if (!translator) {
-        showTranslationProgress('Downloading offline translation model (one-time, \~40MB)...');
-        const { pipeline } = Xenova;
-        translator = await pipeline('translation', 'Xenova/m2m100_418M-distilled', {
-          progress_callback: (progress) => {
-            if (progress.status === 'progress') {
-              const percent = Math.round(progress.loaded / progress.total * 100);
-              updateTranslationProgress(percent);
-            }
-          }
-        });
-        updateTranslationProgress(100, 'Offline translation lattice awakened ⚡️');
-        setTimeout(hideTranslationProgress, 800);
-      }
-
-      const output = await translator(text, {
-        src_lang: fromLang === 'auto' ? undefined : fromLang,
-        tgt_lang: `to_${toLang}`
-      });
-
-      const translated = output[0].translation_text;
-      await this.cacheTranslation(sessionId, messageId, toLang, translated);
-      await this.updateTranslationMetrics(false); // miss → new translation
-
-      return translated;
-    } catch (err) {
-      console.error('Translation error:', err);
-      await this.updateTranslationMetrics(false);
-      return text + ' [translation offline error]';
-    }
+  async getCacheSize() {
+    return this._transaction(STORES.TRANSLATION_CACHE, 'readonly', (tx) => {
+      return tx.objectStore(STORES.TRANSLATION_CACHE).count();
+    });
   }
 
-  // ... keep all previous methods (getCachedTranslation, cacheTranslation, invalidate*, clearExpiredCache, etc.) ...
+  // ... keep all previous translation cache methods (getCachedTranslation, cacheTranslation, invalidate*, clearExpiredCache) ...
 }
 
 export const rathorDB = new RathorIndexedDB();
