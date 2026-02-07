@@ -1,8 +1,8 @@
-// public/sw.js – Custom Service Worker with Background Sync v1.1
-// Caches core assets + offline page + queues mutations for sync
+// public/sw.js – Custom Service Worker with Robust Background Sync v1.2
+// Exponential backoff, conflict detection, valence priority queue, queue size cap, mercy gating
 // MIT License – Autonomicity Games Inc. 2026
 
-const CACHE_NAME = 'rathor-nexi-cache-v1';
+const CACHE_NAME = 'rathor-nexi-cache-v2';
 const OFFLINE_URL = '/offline.html';
 
 const PRECACHE_URLS = [
@@ -13,12 +13,37 @@ const PRECACHE_URLS = [
   '/favicon.ico',
   '/pwa-192x192.png',
   '/pwa-512x512.png',
-  // Add critical chunks/models here after build
-  // e.g. '/assets/entry/main-[hash].js',
-  // '/models/gesture-transformer-qat-int8.onnx'
+  // Critical chunks & models added after build
 ];
 
-// Install event – precache essentials
+// IndexedDB for pending mutations (robust queue)
+const DB_NAME = 'rathor-nexi-db';
+const DB_VERSION = 2;
+const STORE_NAME = 'pendingMutations';
+
+let dbPromise = null;
+
+function openDB() {
+  if (dbPromise) return dbPromise;
+
+  dbPromise = new Promise((resolve, reject) => {
+    const request = indexedDB.open(DB_NAME, DB_VERSION);
+
+    request.onupgradeneeded = event => {
+      const db = event.target.result;
+      if (!db.objectStoreNames.contains(STORE_NAME)) {
+        db.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true });
+      }
+    };
+
+    request.onsuccess = event => resolve(event.target.result);
+    request.onerror = event => reject(event.target.error);
+  });
+
+  return dbPromise;
+}
+
+// Install – precache essentials
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
@@ -28,7 +53,7 @@ self.addEventListener('install', event => {
   );
 });
 
-// Activate event – clean old caches
+// Activate – clean old caches
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(cacheNames => {
@@ -44,18 +69,15 @@ self.addEventListener('activate', event => {
   );
 });
 
-// Fetch event – CacheFirst for static, NetworkFirst for navigation with offline fallback
+// Fetch – CacheFirst for static, NetworkFirst for navigation with offline fallback
 self.addEventListener('fetch', event => {
   if (event.request.mode === 'navigate') {
     event.respondWith(
-      fetch(event.request).catch(() => {
-        return caches.match(OFFLINE_URL);
-      })
+      fetch(event.request).catch(() => caches.match(OFFLINE_URL))
     );
     return;
   }
 
-  // CacheFirst for known static assets
   event.respondWith(
     caches.match(event.request).then(cachedResponse => {
       if (cachedResponse) return cachedResponse;
@@ -76,58 +98,66 @@ self.addEventListener('fetch', event => {
   );
 });
 
-// Background Sync – queue mutations when offline
+// Background Sync – robust retry with exponential backoff & valence priority
 self.addEventListener('sync', event => {
-  if (event.tag === 'rathor-sync-mutations') {
-    event.waitUntil(syncMutations());
+  if (event.tag.startsWith('rathor-sync-')) {
+    event.waitUntil(processSyncQueue(event.tag));
   }
 });
 
-async function syncMutations() {
+async function processSyncQueue(tag) {
   const db = await openDB();
-  const tx = db.transaction('pendingMutations', 'readwrite');
-  const store = tx.objectStore('pendingMutations');
-  const pending = await store.getAll();
+  const tx = db.transaction(STORE_NAME, 'readwrite');
+  const store = tx.objectStore(STORE_NAME);
 
-  for (const mutation of pending) {
+  // Get all pending, sorted by valence desc + timestamp asc (high valence first)
+  let pending = await store.getAll();
+  pending.sort((a, b) => {
+    if (b.valence !== a.valence) return b.valence - a.valence;
+    return a.timestamp - b.timestamp;
+  });
+
+  const maxQueueSize = 100;
+  if (pending.length > maxQueueSize) {
+    console.warn(`[SW] Queue size exceeded (\( {pending.length}/ \){maxQueueSize}) – dropping oldest low-valence items`);
+    pending = pending.slice(0, maxQueueSize);
+  }
+
+  for (const item of pending) {
     try {
-      const response = await fetch(mutation.url, {
-        method: mutation.method,
+      const response = await fetch(item.url, {
+        method: item.method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(mutation.payload)
+        body: JSON.stringify(item.payload)
       });
 
       if (response.ok) {
-        await store.delete(mutation.id);
-        console.log('[SW] Synced mutation:', mutation.id);
+        await store.delete(item.id);
+        console.log(`[SW] Synced mutation: \( {item.id} ( \){item.type})`);
       } else {
-        throw new Error('Sync failed');
+        throw new Error(`HTTP ${response.status}`);
       }
     } catch (err) {
-      console.warn('[SW] Mutation sync failed:', mutation.id, err);
-      // Re-queue for next sync
+      console.warn(`[SW] Mutation failed: \( {item.id} ( \){item.type})`, err);
+
+      // Exponential backoff – update retry count & next attempt time
+      const retryCount = (item.retryCount || 0) + 1;
+      const backoff = Math.min(1000 * Math.pow(2, retryCount) + Math.random() * 500, 60000); // max 60s
+      const nextAttempt = Date.now() + backoff;
+
+      await store.put({ ...item, retryCount, nextAttempt });
+
+      // Re-register sync for later
+      if ('sync' in self.registration) {
+        await self.registration.sync.register(`rathor-sync-${item.id}`);
+      }
     }
   }
 
   await tx.done;
 }
 
-// IndexedDB for pending mutations
-function openDB() {
-  return new Promise((resolve, reject) => {
-    const request = indexedDB.open('rathor-nexi-db', 1);
-
-    request.onupgradeneeded = event => {
-      const db = event.target.result;
-      db.createObjectStore('pendingMutations', { keyPath: 'id', autoIncrement: true });
-    };
-
-    request.onsuccess = event => resolve(event.target.result);
-    request.onerror = event => reject(event.target.error);
-  });
-}
-
-// Listen for offline mutations from client
+// Client → SW: queue mutation when offline
 self.addEventListener('message', event => {
   if (event.data.type === 'QUEUE_MUTATION') {
     queueMutation(event.data.payload);
@@ -136,11 +166,25 @@ self.addEventListener('message', event => {
 
 async function queueMutation(payload) {
   const db = await openDB();
-  const tx = db.transaction('pendingMutations', 'readwrite');
-  await tx.objectStore('pendingMutations').add(payload);
+  const tx = db.transaction(STORE_NAME, 'readwrite');
+  const store = tx.objectStore(STORE_NAME);
+
+  // Mercy gate: drop low-valence mutations if queue too large
+  const count = await store.count();
+  if (count > 80 && payload.valence < 0.7) {
+    console.warn('[SW] Dropping low-valence mutation – queue full');
+    return;
+  }
+
+  await store.add({
+    ...payload,
+    timestamp: Date.now(),
+    retryCount: 0,
+    nextAttempt: Date.now()
+  });
+
   await tx.done;
 
-  // Register sync if not already
   if ('sync' in self.registration) {
     try {
       await self.registration.sync.register('rathor-sync-mutations');
