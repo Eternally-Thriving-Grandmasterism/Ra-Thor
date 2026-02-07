@@ -1,4 +1,4 @@
-// js/chat.js — Rathor Lattice Core with Expanded Emergency Assistants
+// js/chat.js — Rathor Lattice Core with Expanded Emergency & Mental Health Assistants
 
 const chatMessages = document.getElementById('chat-messages');
 const chatInput = document.getElementById('chat-input');
@@ -41,7 +41,7 @@ translateLangSelect.addEventListener('change', e => {
 });
 
 // ────────────────────────────────────────────────
-// Expanded Emergency Assistants (offline-first)
+// Expanded Emergency & Mental Health Assistants (offline-first)
 // ────────────────────────────────────────────────
 
 const emergencyAssistants = {
@@ -49,51 +49,11 @@ const emergencyAssistants = {
     title: "Medical Guidance (Offline Stub)",
     disclaimer: "THIS IS NOT MEDICAL ADVICE. Rathor is NOT a doctor. For emergencies call your local emergency number immediately (112 / 911 / 999 / etc.). Seek professional help as soon as possible.",
     templates: [
-      {
-        name: "Basic First Aid",
-        content: `• Check scene safety first
-• Call emergency services if unconscious, not breathing, severe bleeding or chest pain
-• For bleeding: apply direct pressure, elevate if possible
-• For burns: cool with running water 10–20 min, cover loosely
-• Never give food/drink to unconscious person`
-      },
-      {
-        name: "Choking Adult",
-        content: `• Ask "Are you choking?" If they nod → perform Heimlich maneuver
-• Stand behind, fist above navel, thumb inward, grasp fist with other hand
-• Quick upward thrusts until object dislodged or person unconscious
-• If unconscious → start CPR
-• Call emergency services immediately`
-      },
-      {
-        name: "Heart Attack Signs",
-        content: `Common signs:
-• Chest pain/pressure (may spread to arm, jaw, back)
-• Shortness of breath
-• Nausea, cold sweat
-• Lightheadedness
-Immediate action:
-• Call emergency services
-• Chew 325mg aspirin if available and not allergic
-• Rest, loosen clothing, stay calm`
-      },
-      {
-        name: "Stroke FAST Test",
-        content: `F – Face drooping? Smile to check
-A – Arm weakness? Raise both arms
-S – Speech difficulty? Repeat simple sentence
-T – Time to call emergency services NOW
-Other signs: sudden confusion, severe headache, trouble seeing/walking
-Act FAST — every minute counts`
-      },
-      {
-        name: "Severe Bleeding",
-        content: `• Apply direct pressure with clean cloth/hand
-• Elevate limb if possible
-• If bleeding through dressing → add more layers, do NOT remove original
-• For limb: apply tourniquet only if life-threatening and trained
-• Call emergency services immediately`
-      }
+      { name: "Basic First Aid", content: `• Check scene safety first\n• Call emergency services if unconscious, not breathing, severe bleeding or chest pain\n• For bleeding: apply direct pressure, elevate if possible\n• For burns: cool with running water 10–20 min, cover loosely\n• Never give food/drink to unconscious person` },
+      { name: "Choking Adult", content: `• Ask "Are you choking?" If they nod → perform Heimlich maneuver\n• Stand behind, fist above navel, thumb inward, grasp fist with other hand\n• Quick upward thrusts until object dislodged or person unconscious\n• If unconscious → start CPR\n• Call emergency services immediately` },
+      { name: "Heart Attack Signs", content: `Common signs:\n• Chest pain/pressure (may spread to arm, jaw, back)\n• Shortness of breath\n• Nausea, cold sweat\n• Lightheadedness\nImmediate action:\n• Call emergency services\n• Chew 325mg aspirin if available and not allergic\n• Rest, loosen clothing, stay calm` },
+      { name: "Stroke FAST Test", content: `F – Face drooping? Smile to check\nA – Arm weakness? Raise both arms\nS – Speech difficulty? Repeat simple sentence\nT – Time to call emergency services NOW\nOther signs: sudden confusion, severe headache, trouble seeing/walking\nAct FAST — every minute counts` },
+      { name: "Severe Bleeding", content: `• Apply direct pressure with clean cloth/hand\n• Elevate limb if possible\n• If bleeding through dressing → add more layers, do NOT remove original\n• For limb: apply tourniquet only if life-threatening and trained\n• Call emergency services immediately` }
     ]
   },
 
@@ -101,88 +61,52 @@ Act FAST — every minute counts`
     title: "Legal Rights Reminder (Offline Stub)",
     disclaimer: "THIS IS NOT LEGAL ADVICE. Rathor is NOT a lawyer. Laws vary by country/jurisdiction. Consult a qualified attorney or legal aid service for your situation.",
     templates: [
-      {
-        name: "Police Interaction Rights (general)",
-        content: `• Right to remain silent — say "I invoke my right to remain silent"
-• Right to an attorney — request one immediately
-• Do NOT consent to search without warrant (say "I do not consent to search")
-• Ask "Am I free to go?" — if yes, leave calmly
-• Record interaction if safe and legal in your area`
-      },
-      {
-        name: "Contract Basics",
-        content: `• Read everything before signing
-• Verbal agreements can be binding — get written proof when possible
-• Unfair terms may be unenforceable (e.g. excessive penalties)
-• Cooling-off periods exist for some contracts (e.g. door-to-door sales)
-• Keep copies of all signed documents`
-      },
-      {
-        name: "Privacy & Data Rights",
-        content: `• Right to know what data companies hold (subject access request)
-• Right to correct inaccurate data
-• Right to delete data in many cases (right to be forgotten)
-• Right to object to processing (marketing, profiling)
-• Report breaches to data protection authority`
-      },
-      {
-        name: "Domestic/Family Issues",
-        content: `• Everyone has right to live free from violence/abuse
-• Emergency protection orders available in most jurisdictions
-• Child custody determined by child's best interest
-• Spousal/partner rights vary — seek local legal aid
-• Hotlines exist for immediate support (search locally)`
-      }
+      { name: "Police Interaction Rights (general)", content: `• Right to remain silent — say "I invoke my right to remain silent"\n• Right to an attorney — request one immediately\n• Do NOT consent to search without warrant (say "I do not consent to search")\n• Ask "Am I free to go?" — if yes, leave calmly\n• Record interaction if safe and legal in your area` },
+      { name: "Contract Basics", content: `• Read everything before signing\n• Verbal agreements can be binding — get written proof when possible\n• Unfair terms may be unenforceable (e.g. excessive penalties)\n• Cooling-off periods exist for some contracts (e.g. door-to-door sales)\n• Keep copies of all signed documents` },
+      { name: "Privacy & Data Rights", content: `• Right to know what data companies hold (subject access request)\n• Right to correct inaccurate data\n• Right to delete data in many cases (right to be forgotten)\n• Right to object to processing (marketing, profiling)\n• Report breaches to data protection authority` },
+      { name: "Domestic/Family Issues", content: `• Everyone has right to live free from violence/abuse\n• Emergency protection orders available in most jurisdictions\n• Child custody determined by child's best interest\n• Spousal/partner rights vary — seek local legal aid\n• Hotlines exist for immediate support (search locally)` }
     ]
   },
 
   crisis: {
     title: "Crisis Grounding & Support (Offline Stub)",
-    disclaimer: "If you are in immediate danger call emergency services NOW. This is only a temporary aid. Help is available — you are not alone.",
+    disclaimer: "If you are in immediate danger call emergency services NOW. This is only a temporary grounding aid. Help is available — you are not alone.",
+    templates: [
+      { name: "5-4-3-2-1 Grounding", content: `5 things you can see\n4 things you can touch\n3 things you can hear\n2 things you can smell\n1 thing you can taste\nRepeat slowly. Breathe in for 4, hold 4, out 6.` },
+      { name: "Panic Attack Breathing", content: `Box breathing:\nInhale 4 seconds\nHold 4 seconds\nExhale 4 seconds\nHold 4 seconds\nRepeat until calmer\nFocus on something cold (ice cube, cold water on wrists)` },
+      { name: "Suicidal Thoughts", content: `You are enough. This feeling is temporary.\nReach out — call a helpline NOW:\nInternational: befrienders.org\nUS: 988\nUK: 116 123 (Samaritans)\nAustralia: 13 11 14 (Lifeline)\nYou matter. Help is waiting.` },
+      { name: "Grief Support", content: `Grief has no timeline — all feelings are valid\nAllow tears, memories, anger\nTalk to someone safe\nSelf-care basics: sleep, water, small movement\nMemorial ritual: write letter, light candle, speak aloud` },
+      { name: "Anger De-escalation", content: `Step away if possible\nDeep belly breaths (in nose 4, out mouth 6)\nClench & release fists 10× (progressive muscle relaxation)\nSplash cold water on face\nName 5 things you feel grateful for right now` }
+    ]
+  },
+
+  mental: {
+    title: "Mental Health Support (Offline Stub)",
+    disclaimer: "THIS IS NOT THERAPY OR PROFESSIONAL HELP. If you are in crisis call a helpline or emergency services immediately. Rathor is NOT a mental health professional.",
     templates: [
       {
-        name: "5-4-3-2-1 Grounding",
-        content: `5 things you can see
-4 things you can touch
-3 things you can hear
-2 things you can smell
-1 thing you can taste
-Repeat slowly. Breathe in for 4, hold 4, out 6.`
+        name: "Anxiety / Panic Attack",
+        content: `• Name 5 things you see, 4 you can touch, 3 you hear, 2 you smell, 1 you taste\n• Slow breathing: in 4, hold 4, out 6–8\n• Cold sensation: hold ice, splash face, drink cold water\n• Ground yourself: feel feet on floor, name objects around you\n• Reminder: this will pass — you have survived 100% of bad days so far`
       },
       {
-        name: "Panic Attack Breathing",
-        content: `Box breathing:
-Inhale 4 seconds
-Hold 4 seconds
-Exhale 4 seconds
-Hold 4 seconds
-Repeat until calmer
-Focus on something cold (ice cube, cold water on wrists)`
+        name: "Depression / Low Mood",
+        content: `• One small action: shower, drink water, open window\n• Gentle movement: 5-minute walk or stretch\n• Self-kindness: speak to yourself as you would to a friend\n• Reach out: text/message someone safe\n• Helplines: befrienders.org (international), 988 (US), 116 123 (UK)`
       },
       {
         name: "Suicidal Thoughts",
-        content: `You are enough. This feeling is temporary.
-Reach out — call a helpline NOW:
-International: befrienders.org
-US: 988
-UK: 116 123 (Samaritans)
-You matter. Help is waiting.`
+        content: `You are not alone — this pain is real but temporary.\nImmediate action:\n• Call emergency services or crisis line NOW\n• Tell someone you trust\n• Remove immediate means if safe\nInternational helplines: befrienders.org\nUS: 988\nUK: 116 123\nAustralia: 13 11 14\nYou matter. Stay. Help is here.`
       },
       {
-        name: "Grief Support",
-        content: `Grief has no timeline — all feelings are valid
-Allow tears, memories, anger
-Talk to someone safe
-Self-care basics: sleep, water, small movement
-Memorial ritual: write letter, light candle, speak aloud`
+        name: "Self-Harm Urges",
+        content: `• Delay: set timer for 15 minutes — urge often passes\n• Alternatives: hold ice, snap rubber band, draw on skin\n• Distract: music, game, call friend\n• Safety: remove means if possible\n• Reach out: tell someone safe or call helpline\nYou deserve safety and care — even when it feels impossible`
       },
       {
-        name: "Anger De-escalation",
-        content: `Step away if possible
-Deep belly breaths (in nose 4, out mouth 6)
-Clench & release fists 10× (progressive muscle relaxation)
-Splash cold water on face
-Name 5 things you feel grateful for right now`
+        name: "Trauma Flashback / Dissociation",
+        content: `• Grounding: name 5 things you see right now\n• Sensory anchor: hold something textured/cold\n• Breathing: in 4, out 6\n• Safe place visualization: picture calm location\n• Reminder: you are here now, in this moment\n• After: rest, hydrate, talk to safe person`
+      },
+      {
+        name: "Addiction / Craving",
+        content: `• Urge surfing: notice craving, let it rise & fall like wave\n• Distract 15 minutes: walk, shower, game\n• Self-talk: "This will pass — I've done it before"\n• Reach out: sponsor, friend, helpline\n• Reminder: one day at a time — you are stronger than the craving`
       }
     ]
   }
@@ -197,14 +121,14 @@ function triggerEmergencyAssistant(mode) {
   modal.innerHTML = `
     <div class="modal-content emergency-modal">
       <h2 style="color: #ff4444;">${assistant.title}</h2>
-      <p style="color: #ff6666; font-weight: bold;">${assistant.disclaimer}</p>
-      <div style="max-height: 60vh; overflow-y: auto;">
+      <p style="color: #ff6666; font-weight: bold; margin-bottom: 1em;">${assistant.disclaimer}</p>
+      <div style="max-height: 60vh; overflow-y: auto; padding-right: 12px;">
         ${assistant.templates.map(t => `
-          <h3 style="margin-top: 1.5em;">${t.name}</h3>
-          <p style="white-space: pre-wrap;">${t.content}</p>
+          <h3 style="margin: 1.5em 0 0.5em; color: #ffaa00;">${t.name}</h3>
+          <p style="white-space: pre-wrap; line-height: 1.6;">${t.content}</p>
         `).join('')}
       </div>
-      <div class="modal-buttons">
+      <div class="modal-buttons" style="margin-top: 1.5em;">
         <button onclick="this.closest('.modal-overlay').remove()">Close</button>
       </div>
     </div>
@@ -214,13 +138,25 @@ function triggerEmergencyAssistant(mode) {
 }
 
 // ────────────────────────────────────────────────
-// Voice Command Processor — expanded with emergency assistants
+// Voice Command Processor — expanded with mental health
 // ────────────────────────────────────────────────
 
 async function processVoiceCommand(raw) {
   let cmd = raw.toLowerCase().trim();
 
-  // Emergency assistants
+  // Mental Health triggers
+  if (cmd.includes('mental health') || cmd.includes('mental help') || cmd.includes('feeling down') || cmd.includes('depressed') || cmd.includes('anxiety') || cmd.includes('panic attack')) {
+    triggerEmergencyAssistant('mental');
+    return true;
+  }
+
+  if (cmd.includes('suicidal') || cmd.includes('want to die') || cmd.includes('end it') || cmd.includes('not worth it')) {
+    triggerEmergencyAssistant('mental');
+    speak("You are enough. Help is here right now. Stay with me.");
+    return true;
+  }
+
+  // Existing emergency triggers
   if (cmd.includes('medical help') || cmd.includes('medical advice') || cmd.includes('health emergency')) {
     triggerEmergencyAssistant('medical');
     return true;
@@ -231,12 +167,12 @@ async function processVoiceCommand(raw) {
     return true;
   }
 
-  if (cmd.includes('crisis mode') || cmd.includes('emotional support') || cmd.includes('grounding') || cmd.includes('panic') || cmd.includes('feeling bad')) {
+  if (cmd.includes('crisis mode') || cmd.includes('emotional support') || cmd.includes('grounding')) {
     triggerEmergencyAssistant('crisis');
     return true;
   }
 
-  // Existing commands
+  // Recording & other commands...
   if (cmd.includes('emergency mode') || cmd.includes('crisis recording')) {
     await startVoiceRecording(currentSessionId, true);
     showToast('Emergency recording started — saved with priority ⚠️');
@@ -249,12 +185,7 @@ async function processVoiceCommand(raw) {
     return true;
   }
 
-  if (cmd.includes('export voice notes') || cmd.includes('download recordings')) {
-    await recorderDB.exportAll(currentSessionId);
-    return true;
-  }
-
-  // ... other commands (test sound, bridges, etc.) ...
+  // ... other commands ...
 
   return false;
 }
