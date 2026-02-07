@@ -1,24 +1,11 @@
 {
   "name": "Rathor-NEXi — Mercy Strikes First",
   "short_name": "Rathor-NEXi",
-  "description": "Mercy-gated symbolic AGI lattice — offline-first, voice-enabled, eternal coforging with absolute truth & positive valence. Thunder eternal surges for all sentients.",
+  "description": "Mercy-gated symbolic AGI lattice — offline-first, voice-enabled, eternal coforging with absolute truth & positive valence.",
   "start_url": "./index.html",
   "display": "standalone",
-  "display_override": ["standalone", "window-controls-overlay"],
   "background_color": "#0a0015",
   "theme_color": "#ffaa00",
-  "orientation": "any",
-  "scope": "./",
-  "id": "/",
-  "lang": "en",
-  "dir": "ltr",
-  "categories": [
-    "artificial-intelligence",
-    "productivity",
-    "developer-tools",
-    "education",
-    "lifestyle"
-  ],
   "icons": [
     {
       "src": "icons/thunder-192.png",
@@ -33,6 +20,5 @@
       "purpose": "any maskable"
     }
   ],
-  "prefer_related_applications": false,
-  "related_applications": []
+  "prefer_related_applications": false
 }
