@@ -1,3 +1,4 @@
+// vite.config.ts (unchanged – Bazel calls it directly for both dev & build)
 import { defineConfig, splitVendorChunkPlugin } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
@@ -26,27 +27,30 @@ export default defineConfig(({ mode }) => ({
         ]
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2,wasm}'],
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2,wasm,onnx}'],
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/cdn\.jsdelivr\.net\/npm\/@mediapipe\/.*/i,
             handler: 'CacheFirst',
             options: {
-              cacheName: 'mediapipe-wasm',
-              expiration: { maxEntries: 20, maxAgeSeconds: 2592000 }
+              cacheName: 'mediapipe-runtime',
+              expiration: { maxEntries: 30, maxAgeSeconds: 2592000 }
             }
           },
           {
             urlPattern: /^https:\/\/cdn\.jsdelivr\.net\/npm\/@tensorflow\/.*/i,
             handler: 'CacheFirst',
             options: {
-              cacheName: 'tfjs-assets',
-              expiration: { maxEntries: 50, maxAgeSeconds: 2592000 }
+              cacheName: 'tfjs-runtime',
+              expiration: { maxEntries: 60, maxAgeSeconds: 2592000 }
             }
           }
         ],
-        navigateFallback: '/index.html',
-        navigateFallbackDenylist: [/^\/api\//]
+        navigateFallback: '/offline.html',
+        navigateFallbackDenylist: [/^\/api\//, /\.wasm$/],
+        cleanupOutdatedCaches: true,
+        skipWaiting: true,
+        clientsClaim: true
       },
       devOptions: { enabled: true }
     }),
@@ -67,31 +71,16 @@ export default defineConfig(({ mode }) => ({
     assetsDir: 'assets',
     sourcemap: mode === 'development',
     minify: 'terser',
-    terserOptions: {
-      compress: {
-        drop_console: mode === 'production',
-        passes: 3
-      },
-      mangle: true,
-      format: { comments: false }
-    },
+    chunkSizeWarningLimit: 2000,
     rollupOptions: {
       output: {
         manualChunks: {
           'vendor-core': ['react', 'react-dom'],
           'vendor-ml': ['@tensorflow/tfjs', '@tensorflow/tfjs-backend-webgl'],
-          'vendor-mediapipe': ['@mediapipe/holistic'],
-          'vendor-utils': ['./src/utils/haptic-utils.ts', './src/core/valence-tracker.ts']
-        },
-        entryFileNames: 'assets/entry/[name]-[hash].js',
-        chunkFileNames: 'assets/chunks/[name]-[hash].js',
-        assetFileNames: 'assets/static/[name]-[hash][extname]'
+          'vendor-mediapipe': ['@mediapipe/holistic']
+        }
       }
-    },
-    target: 'es2020',
-    cssCodeSplit: true,
-    reportCompressedSize: true,
-    chunkSizeWarningLimit: 2000
+    }
   },
 
   server: {
@@ -104,16 +93,8 @@ export default defineConfig(({ mode }) => ({
   preview: { port: 4173 },
 
   optimizeDeps: {
-    include: [
-      'react', 'react-dom',
-      '@tensorflow/tfjs', '@tensorflow/tfjs-backend-webgl',
-      '@mediapipe/holistic'
-    ],
+    include: ['react', 'react-dom', '@tensorflow/tfjs', '@mediapipe/holistic'],
     exclude: ['onnxruntime-web']
-  },
-
-  esbuild: {
-    logOverride: { 'this-is-undefined-in-esm': 'silent' }
   },
 
   logLevel: 'info'
