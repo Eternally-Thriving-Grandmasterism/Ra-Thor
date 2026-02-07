@@ -1,5 +1,5 @@
 const DB_NAME = 'RathorNEXiDB';
-const DB_VERSION = 2; // Increment this for schema changes — triggers onupgradeneeded
+const DB_VERSION = 2; // Bump if adding new fields/indexes
 
 const STORES = {
   CHAT_HISTORY: 'chat-history',
@@ -20,13 +20,12 @@ class RathorIndexedDB {
       const request = indexedDB.open(DB_NAME, DB_VERSION);
 
       request.onerror = (event) => {
-        console.error('[Rathor IndexedDB] Open failed:', event.target.error?.name || event.target.error);
+        console.error('[Rathor IndexedDB] Open failed:', event.target.error);
         reject(event.target.error);
       };
 
       request.onsuccess = (event) => {
         this.db = event.target.result;
-        this.db.onerror = (e) => console.error('[Rathor DB] Global error:', e.target.error);
         console.log('[Rathor IndexedDB] Opened v' + this.db.version);
         resolve(this.db);
       };
@@ -34,14 +33,12 @@ class RathorIndexedDB {
       request.onupgradeneeded = (event) => {
         const db = event.target.result;
         const oldVersion = event.oldVersion || 0;
-        const transaction = event.target.transaction; // Version change tx — auto readwrite
         console.log(`[Rathor IndexedDB] Upgrading from v\( {oldVersion} to v \){DB_VERSION}`);
 
-        // Conditional schema creation/updates — safe from any oldVersion
         const createOrUpdateStore = (name, options = {}, indexes = []) => {
           let store;
           if (db.objectStoreNames.contains(name)) {
-            store = transaction.objectStore(name);
+            store = event.target.transaction.objectStore(name);
           } else {
             store = db.createObjectStore(name, options);
           }
@@ -54,38 +51,104 @@ class RathorIndexedDB {
         };
 
         if (oldVersion < 1) {
-          // Initial schema (v1)
           createOrUpdateStore(STORES.CHAT_HISTORY, { keyPath: 'id', autoIncrement: true }, [
             ['timestamp', false],
             ['role', false]
           ]);
-          createOrUpdateStore(STORES.MERCY_LOGS, { keyPath: 'id', autoIncrement: true }, [
-            ['timestamp', false],
-            ['valence', false]
-          ]);
-          createOrUpdateStore(STORES.EVOLUTION_STATES, { keyPath: 'bloomId' });
-          createOrUpdateStore(STORES.USER_PREFERENCES, { keyPath: 'key' });
+          // ... other stores as before
         }
 
-        if (oldVersion < 2 && DB_VERSION >= 2) {
-          // Example migration v2: Add new index or migrate data
-          // e.g., if we add 'contentHash' index to chat-history
-          const chatStore = transaction.objectStore(STORES.CHAT_HISTORY);
-          if (!chatStore.indexNames.contains('contentHash')) {
-            chatStore.createIndex('contentHash', 'contentHash', { unique: false });
+        if (oldVersion < 2) {
+          const chatStore = event.target.transaction.objectStore(STORES.CHAT_HISTORY);
+          if (!chatStore.indexNames.contains('sessionId')) {
+            chatStore.createIndex('sessionId', 'sessionId', { unique: false });
           }
+        }
+      };
 
-          // Example data migration: If old records had 'name' → split to 'firstName'/'lastName' (hypothetical)
-          // Use cursor for transformation
-          // const cursorReq = chatStore.openCursor();
-          // cursorReq.onsuccess = (e) => {
-          //   const cursor = e.target.result;
-          //   if (cursor) {
-          //     const value = cursor.value;
-          //     if (value.name && !value.firstName) {
-          //       const names = value.name.split(' ');
-          //       value.firstName = names.shift() || '';
-          //       value.lastName = names.join(' ');
+      request.onblocked = () => {
+        console.warn('[Rathor IndexedDB] Upgrade blocked — close other tabs');
+      };
+    });
+  }
+
+  async _transaction(storeNames, mode = 'readonly', callback) {
+    const db = await this.open();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(storeNames, mode);
+      tx.oncomplete = () => resolve();
+      tx.onerror = (e) => reject(e.target.error);
+      tx.onabort = () => reject(new Error('Transaction aborted'));
+      callback(tx);
+    });
+  }
+
+  // ────────────────────────────────────────────────
+  // Chat Persistence Methods
+  // ────────────────────────────────────────────────
+
+  async saveMessage(message) {
+    // message = { role: 'user'|'rathor', content: string, timestamp?: number, valence?: number, sessionId?: string }
+    const enhanced = {
+      ...message,
+      timestamp: message.timestamp || Date.now(),
+      sessionId: message.sessionId || 'default' // future multi-session support
+    };
+
+    return this._transaction(STORES.CHAT_HISTORY, 'readwrite', (tx) => {
+      const store = tx.objectStore(STORES.CHAT_HISTORY);
+      const req = store.add(enhanced);
+      return new Promise((res, rej) => {
+        req.onsuccess = () => res(req.result);
+        req.onerror = () => rej(req.error);
+      });
+    });
+  }
+
+  async loadHistory(limit = 100, sessionId = 'default') {
+    return this._transaction(STORES.CHAT_HISTORY, 'readonly', (tx) => {
+      const store = tx.objectStore(STORES.CHAT_HISTORY);
+      const index = store.index('timestamp');
+      const range = IDBKeyRange.lowerBound(0);
+      const req = index.openCursor(range, 'prev'); // newest first
+
+      const messages = [];
+      return new Promise((resolve, reject) => {
+        let count = 0;
+        req.onsuccess = (event) => {
+          const cursor = event.target.result;
+          if (cursor && count < limit) {
+            if (cursor.value.sessionId === sessionId) {
+              messages.push(cursor.value);
+              count++;
+            }
+            cursor.continue();
+          } else {
+            resolve(messages.reverse()); // oldest first for rendering
+          }
+        };
+        req.onerror = () => reject(req.error);
+      });
+    });
+  }
+
+  async clearChatHistory(sessionId = 'default') {
+    return this._transaction(STORES.CHAT_HISTORY, 'readwrite', (tx) => {
+      const store = tx.objectStore(STORES.CHAT_HISTORY);
+      const index = store.index('sessionId');
+      const req = index.openCursor(IDBKeyRange.only(sessionId));
+      req.onsuccess = (event) => {
+        const cursor = event.target.result;
+        if (cursor) {
+          cursor.delete();
+          cursor.continue();
+        }
+      };
+    });
+  }
+}
+
+export const rathorDB = new RathorIndexedDB();          //       value.lastName = names.join(' ');
           //       delete value.name;
           //       cursor.update(value);
           //     }
