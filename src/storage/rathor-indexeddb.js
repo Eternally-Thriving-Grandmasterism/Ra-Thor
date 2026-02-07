@@ -1,5 +1,5 @@
 const DB_NAME = 'RathorNEXiDB';
-const DB_VERSION = 1; // Bump for schema changes — onupgradeneeded triggers
+const DB_VERSION = 1;
 const STORES = {
   CHAT_HISTORY: 'chat-history',
   MERCY_LOGS: 'mercy-logs',
@@ -19,115 +19,160 @@ class RathorIndexedDB {
       const request = indexedDB.open(DB_NAME, DB_VERSION);
 
       request.onerror = (event) => {
-        console.error('[Rathor IndexedDB] Open failed:', event.target.error);
+        console.error('[Rathor IndexedDB] Database open failed:', event.target.error?.name || event.target.error);
         reject(event.target.error);
       };
 
       request.onsuccess = (event) => {
         this.db = event.target.result;
-        console.log('[Rathor IndexedDB] Opened successfully');
+        this.db.onerror = (e) => console.error('[Rathor DB] Global DB error:', e.target.error);
+        console.log('[Rathor IndexedDB] Opened v' + DB_VERSION);
         resolve(this.db);
       };
 
       request.onupgradeneeded = (event) => {
         const db = event.target.result;
-        console.log('[Rathor IndexedDB] Upgrading schema to v', DB_VERSION);
+        console.log('[Rathor IndexedDB] Schema upgrade to v' + DB_VERSION);
 
-        // Create stores if not exist
-        if (!db.objectStoreNames.contains(STORES.CHAT_HISTORY)) {
-          const store = db.createObjectStore(STORES.CHAT_HISTORY, { keyPath: 'id', autoIncrement: true });
-          store.createIndex('timestamp', 'timestamp', { unique: false });
-          store.createIndex('role', 'role', { unique: false });
-        }
+        const createStoreIfMissing = (name, options = {}, indexes = []) => {
+          if (!db.objectStoreNames.contains(name)) {
+            const store = db.createObjectStore(name, options);
+            indexes.forEach(([key, unique]) => store.createIndex(key, key, { unique }));
+          }
+        };
 
-        if (!db.objectStoreNames.contains(STORES.MERCY_LOGS)) {
-          const store = db.createObjectStore(STORES.MERCY_LOGS, { keyPath: 'id', autoIncrement: true });
-          store.createIndex('timestamp', 'timestamp');
-          store.createIndex('valence', 'valence');
-        }
-
-        if (!db.objectStoreNames.contains(STORES.EVOLUTION_STATES)) {
-          db.createObjectStore(STORES.EVOLUTION_STATES, { keyPath: 'bloomId' });
-        }
-
-        if (!db.objectStoreNames.contains(STORES.USER_PREFERENCES)) {
-          db.createObjectStore(STORES.USER_PREFERENCES, { keyPath: 'key' });
-        }
+        createStoreIfMissing(STORES.CHAT_HISTORY, { keyPath: 'id', autoIncrement: true }, ['timestamp', 'role']);
+        createStoreIfMissing(STORES.MERCY_LOGS, { keyPath: 'id', autoIncrement: true }, ['timestamp', 'valence']);
+        createStoreIfMissing(STORES.EVOLUTION_STATES, { keyPath: 'bloomId' });
+        createStoreIfMissing(STORES.USER_PREFERENCES, { keyPath: 'key' });
       };
+    });
+  }
+
+  // Core transaction helper — mercy-wrapped for safety
+  async _transaction(storeNames, mode = 'readonly', callback) {
+    const db = await this.open();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(storeNames, mode);
+      let result;
+
+      tx.oncomplete = () => resolve(result);
+      tx.onerror = (e) => {
+        console.error('[Rathor TX] Transaction error:', e.target.error?.name || e.target.error);
+        reject(e.target.error);
+      };
+      tx.onabort = () => {
+        console.warn('[Rathor TX] Transaction aborted');
+        reject(new Error('Transaction aborted'));
+      };
+
+      try {
+        result = callback(tx);
+      } catch (err) {
+        tx.abort();
+        reject(err);
+      }
     });
   }
 
   async add(storeName, data) {
-    const db = await this.open();
-    return new Promise((resolve, reject) => {
-      const tx = db.transaction(storeName, 'readwrite');
+    return this._transaction(storeName, 'readwrite', (tx) => {
       const store = tx.objectStore(storeName);
-      const request = store.add({ ...data, timestamp: Date.now() });
-
-      request.onsuccess = () => resolve(request.result);
-      request.onerror = () => reject(request.error);
-      tx.oncomplete = () => console.log(`[Rathor DB] Added to ${storeName}`);
-      tx.onerror = (e) => reject(e.target.error);
+      const enhanced = { ...data, timestamp: Date.now() };
+      const req = store.add(enhanced);
+      return new Promise((res, rej) => {
+        req.onsuccess = () => res(req.result);
+        req.onerror = () => rej(req.error);
+      });
     });
   }
 
-  async getAll(storeName, query = null, direction = 'prev') {
-    const db = await this.open();
-    return new Promise((resolve, reject) => {
-      const tx = db.transaction(storeName, 'readonly');
+  async put(storeName, data) {
+    return this._transaction(storeName, 'readwrite', (tx) => {
       const store = tx.objectStore(storeName);
-      let request;
+      const req = store.put(data);
+      return new Promise((res, rej) => {
+        req.onsuccess = () => res(req.result);
+        req.onerror = () => rej(req.error);
+      });
+    });
+  }
 
-      if (query) {
-        const index = store.index(query.index || 'timestamp');
-        request = index.openCursor(query.range || IDBKeyRange.lowerBound(0), direction);
+  async get(storeName, key) {
+    return this._transaction(storeName, 'readonly', (tx) => {
+      const store = tx.objectStore(storeName);
+      const req = store.get(key);
+      return new Promise((res, rej) => {
+        req.onsuccess = () => res(req.result);
+        req.onerror = () => rej(req.error);
+      });
+    });
+  }
+
+  async getAll(storeName, indexName = null, range = null, direction = 'next') {
+    return this._transaction(storeName, 'readonly', (tx) => {
+      const store = tx.objectStore(storeName);
+      let req;
+      if (indexName) {
+        const index = store.index(indexName);
+        req = index.openCursor(range, direction);
       } else {
-        request = store.openCursor(null, direction);
+        req = store.openCursor(null, direction);
       }
 
       const results = [];
-      request.onsuccess = (event) => {
-        const cursor = event.target.result;
-        if (cursor) {
-          results.push(cursor.value);
-          cursor.continue();
-        } else {
-          resolve(results);
-        }
-      };
-      request.onerror = () => reject(request.error);
+      return new Promise((resolve, reject) => {
+        req.onsuccess = (event) => {
+          const cursor = event.target.result;
+          if (cursor) {
+            results.push(cursor.value);
+            cursor.continue();
+          } else {
+            resolve(results);
+          }
+        };
+        req.onerror = () => reject(req.error);
+      });
     });
   }
 
   async getLatestChat(limit = 50) {
-    const history = await this.getAll(STORES.CHAT_HISTORY, { index: 'timestamp' }, 'prev');
-    return history.slice(0, limit).reverse(); // Latest first
+    const all = await this.getAll(STORES.CHAT_HISTORY, 'timestamp', null, 'prev');
+    return all.slice(0, limit).reverse(); // newest first
   }
 
-  async clearStore(storeName) {
-    const db = await this.open();
-    return new Promise((resolve, reject) => {
-      const tx = db.transaction(storeName, 'readwrite');
+  async batchAdd(storeName, items) {
+    return this._transaction(storeName, 'readwrite', (tx) => {
       const store = tx.objectStore(storeName);
-      const request = store.clear();
-      request.onsuccess = resolve;
-      request.onerror = reject;
+      items.forEach(item => {
+        store.add({ ...item, timestamp: Date.now() });
+      });
+      return Promise.resolve(true); // success on tx complete
     });
   }
 
-  // Mercy valence gate example — reject low-valence writes
-  async addWithValenceCheck(storeName, data) {
+  async clear(storeName) {
+    return this._transaction(storeName, 'readwrite', (tx) => {
+      const store = tx.objectStore(storeName);
+      store.clear();
+      return Promise.resolve();
+    });
+  }
+
+  // Mercy valence gate + quota fallback hint
+  async addWithValence(storeName, data) {
     if (storeName === STORES.MERCY_LOGS && (data.valence ?? 0) < 0.999) {
-      console.warn('[Rathor DB] Valence too low — write blocked');
-      throw new Error('Mercy valence threshold not met');
+      throw new Error('Mercy valence threshold violation — write blocked');
     }
-    return this.add(storeName, data);
+    try {
+      return await this.add(storeName, data);
+    } catch (err) {
+      if (err.name === 'QuotaExceededError') {
+        console.warn('[Rathor DB] Quota exceeded — consider cleanup or localStorage fallback');
+      }
+      throw err;
+    }
   }
 }
 
 export const rathorDB = new RathorIndexedDB();
-
-// Usage example (in chat init):
-// await rathorDB.open();
-// const history = await rathorDB.getLatestChat();
-// await rathorDB.add(STORES.CHAT_HISTORY, { role: 'user', content: 'Hello thunder' });
