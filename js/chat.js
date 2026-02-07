@@ -1,4 +1,4 @@
-// js/chat.js — Rathor Lattice Core
+// js/chat.js — Rathor Lattice Core (with expanded session search + tags)
 
 const chatMessages = document.getElementById('chat-messages');
 const chatInput = document.getElementById('chat-input');
@@ -11,7 +11,6 @@ const sessionSearch = document.getElementById('session-search');
 const translateToggle = document.getElementById('translate-chat');
 const translateLangSelect = document.getElementById('translate-lang');
 const translateStats = document.getElementById('translate-stats');
-const voiceSettingsModal = document.getElementById('voice-settings-modal');
 
 let currentSessionId = localStorage.getItem('rathor_current_session') || 'default';
 let allSessions = [];
@@ -42,6 +41,7 @@ translateLangSelect.addEventListener('change', e => {
 });
 sessionSearch.addEventListener('input', filterSessions);
 
+// Send message
 function sendMessage() {
   const text = chatInput.value.trim();
   if (!text) return;
@@ -50,8 +50,10 @@ function sendMessage() {
   chatMessages.scrollTop = chatMessages.scrollHeight;
   rathorDB.saveMessage(currentSessionId, 'user', text);
   if (ttsEnabled) speak(text);
+  if (translateToggle.checked) translateChat();
 }
 
+// Speak function (TTS)
 function speak(text) {
   if (!ttsEnabled || !text) return;
   const utt = new SpeechSynthesisUtterance(text);
@@ -62,11 +64,50 @@ function speak(text) {
   speechSynthesis.speak(utt);
 }
 
+// Session search with tags + color indicators
 function filterSessions() {
-  const filter = sessionSearch.value.toLowerCase();
+  const filter = sessionSearch.value.toLowerCase().trim();
+  if (!filter) {
+    Array.from(sessionSelect.options).forEach(opt => opt.style.display = '');
+    return;
+  }
+
   Array.from(sessionSelect.options).forEach(opt => {
-    opt.style.display = opt.textContent.toLowerCase().includes(filter) ? '' : 'none';
+    const session = allSessions.find(s => s.id === opt.value);
+    if (!session) {
+      opt.style.display = 'none';
+      return;
+    }
+
+    const nameMatch = (session.name || session.id).toLowerCase().includes(filter);
+    const tagMatch = session.tags?.toLowerCase().includes(filter);
+    opt.style.display = nameMatch || tagMatch ? '' : 'none';
+
+    // Add visual indicators
+    if (opt.style.display !== 'none') {
+      let indicator = opt.querySelector('.session-indicator');
+      if (!indicator) {
+        indicator = document.createElement('span');
+        indicator.className = 'session-indicator';
+        indicator.style.cssText = 'display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-right: 8px; vertical-align: middle;';
+        opt.insertBefore(indicator, opt.firstChild);
+      }
+      indicator.style.background = session.color || '#ffaa00';
+    }
   });
 }
 
-// ... (rest of your existing functions: initRecognition, startListening, stopListening, processVoiceCommand, refreshSessionList, loadChatHistory, updateTranslationStats, etc.)
+// ... (rest of functions: voice recognition, recording, processVoiceCommand, refreshSessionList, loadChatHistory, updateTranslationStats, bridge pings, etc. remain as previously deployed)
+
+// Example session object shape (for reference)
+async function refreshSessionList() {
+  allSessions = await rathorDB.getAllSessions();
+  sessionSelect.innerHTML = '';
+  allSessions.forEach(session => {
+    const option = document.createElement('option');
+    option.value = session.id;
+    option.textContent = session.name || session.id;
+    if (session.id === currentSessionId) option.selected = true;
+    sessionSelect.appendChild(option);
+  });
+}
