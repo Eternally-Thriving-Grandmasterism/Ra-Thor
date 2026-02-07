@@ -1,11 +1,12 @@
 {
-  "name": "Rathor-NEXi",
-  "short_name": "Rathor",
-  "description": "Mercy-gated symbolic AGI lattice — offline-first, voice-enabled, eternal coforging",
+  "name": "Rathor-NEXi — Mercy Strikes First",
+  "short_name": "Rathor-NEXi",
+  "description": "Mercy-gated symbolic AGI lattice — offline-first, voice-enabled, eternal coforging with absolute truth & positive valence",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#0a0015",
   "theme_color": "#ffaa00",
+  "orientation": "any",
   "icons": [
     {
       "src": "icons/thunder-192.png",
@@ -19,5 +20,11 @@
       "type": "image/png",
       "purpose": "any maskable"
     }
-  ]
+  ],
+  "scope": "./",
+  "id": "/",
+  "categories": ["productivity", "artificial-intelligence", "developer-tools", "education"],
+  "dir": "ltr",
+  "lang": "en",
+  "prefer_related_applications": false
 }
