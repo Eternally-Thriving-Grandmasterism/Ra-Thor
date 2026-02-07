@@ -1,4 +1,4 @@
-# src/ml/gesture_transformer/gesture_model.py – Spatiotemporal Transformer v1.1
+# src/ml/gesture_transformer/gesture_model.py – Spatiotemporal Transformer v1.2
 # Multi-head self-attention over time + landmarks, positional encoding,
 # valence-conditioned attention scaling, residual connections, layer norm
 # PyTorch 2.3+, CUDA-ready, ONNX exportable
@@ -20,11 +20,10 @@ class PositionalEncoding(nn.Module):
         self.register_buffer('pe', pe)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        # x: (B, T, D)
         return x + self.pe[:, :x.size(1), :]
 
+
 class ValenceConditionedAttention(nn.Module):
-    """Multi-head attention with valence scaling on attention weights"""
     def __init__(self, d_model: int, nhead: int, dropout: float = 0.1):
         super().__init__()
         self.attention = nn.MultiheadAttention(
@@ -32,7 +31,7 @@ class ValenceConditionedAttention(nn.Module):
         )
         self.dropout = nn.Dropout(dropout)
         self.norm = nn.LayerNorm(d_model)
-        self.valence_scale = nn.Parameter(torch.ones(1))  # learnable scale
+        self.valence_scale = nn.Parameter(torch.ones(1))
 
     def forward(
         self,
@@ -41,17 +40,15 @@ class ValenceConditionedAttention(nn.Module):
         value: torch.Tensor,
         valence: torch.Tensor = None
     ):
-        # Standard attention
         attn_output, attn_weights = self.attention(query, key, value)
 
-        # Valence-conditioned scaling (higher valence → sharper attention)
         if valence is not None:
-            # valence ∈ [0,1] → scale ∈ [0.5, 2.0]
             scale_factor = 0.5 + 1.5 * valence.mean()
             attn_weights = attn_weights * scale_factor
 
         attn_output = self.dropout(attn_output)
         return self.norm(attn_output), attn_weights
+
 
 class GestureTransformer(nn.Module):
     def __init__(
@@ -71,38 +68,18 @@ class GestureTransformer(nn.Module):
         self.landmark_dim = landmark_dim
         self.d_model = d_model
 
-        # Input projection
         self.input_proj = nn.Linear(landmark_dim, d_model)
-
-        # Positional encoding
         self.pos_encoder = PositionalEncoding(d_model, seq_len)
 
-        # Transformer encoder layers with valence-conditioned attention
-        encoder_layers = []
-        for _ in range(num_layers):
-            attn = ValenceConditionedAttention(d_model, nhead, dropout)
-            ffn = nn.Sequential(
-                nn.Linear(d_model, dim_feedforward),
-                nn.GELU(),
-                nn.Dropout(dropout),
-                nn.Linear(dim_feedforward, d_model),
-                nn.Dropout(dropout)
-            )
-            norm1 = nn.LayerNorm(d_model)
-            norm2 = nn.LayerNorm(d_model)
+        encoder_layer = nn.TransformerEncoderLayer(
+            d_model=d_model,
+            nhead=nhead,
+            dim_feedforward=dim_feedforward,
+            dropout=dropout,
+            batch_first=True
+        )
+        self.transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers=num_layers)
 
-            def layer_forward(x, valence):
-                attn_out, _ = attn(x, x, x, valence)
-                x = norm1(x + attn_out)
-                ffn_out = ffn(x)
-                x = norm2(x + ffn_out)
-                return x
-
-            encoder_layers.append(layer_forward)
-
-        self.encoder_layers = nn.ModuleList(encoder_layers)
-
-        # Gesture classification head
         self.gesture_head = nn.Sequential(
             nn.Linear(d_model, 512),
             nn.GELU(),
@@ -110,7 +87,6 @@ class GestureTransformer(nn.Module):
             nn.Linear(512, num_gesture_classes)
         )
 
-        # Future valence prediction head
         self.valence_head = nn.Sequential(
             nn.Linear(d_model, 256),
             nn.GELU(),
@@ -118,53 +94,35 @@ class GestureTransformer(nn.Module):
             nn.Linear(256, future_valence_horizon)
         )
 
-        self.dropout = nn.Dropout(dropout)
-
-    def forward(self, x: torch.Tensor, valence: torch.Tensor = None) -> tuple[torch.Tensor, torch.Tensor]:
-        """
-        x: (batch, seq_len, landmark_dim)
-        valence: (batch,) or scalar – optional per-batch valence conditioning
-        Returns:
-            gesture_logits: (batch, num_gesture_classes)
-            future_valence: (batch, future_horizon)
-        """
+    def forward(self, x: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
         batch_size = x.shape[0]
 
-        if valence is None:
-            valence = torch.full((batch_size,), current_valence(), device=x.device)
-
-        # Project + positional encoding
         x = self.input_proj(x) + self.pos_encoder.pe[:, :x.size(1), :]
 
-        # Encoder layers with valence conditioning
-        for layer in self.encoder_layers:
-            x = layer(x, valence)
+        x = self.transformer_encoder(x)
 
-        # Global mean pooling over time
-        x = x.mean(dim=1)  # (B, D)
+        x = x.mean(dim=1)
 
-        # Heads
         gesture_logits = self.gesture_head(x)
-        future_valence = torch.sigmoid(self.valence_head(x))  # [0,1]
+        future_valence = torch.sigmoid(self.valence_head(x))
 
         return gesture_logits, future_valence
 
-    def export_to_onnx(self, dummy_input: torch.Tensor, dummy_valence: torch.Tensor, output_path: str = "gesture_transformer.onnx"):
+    def export_to_onnx(self, dummy_input: torch.Tensor, output_path: str = "gesture_transformer.onnx"):
         self.eval()
         torch.onnx.export(
             self,
-            (dummy_input, dummy_valence),
+            dummy_input,
             output_path,
             export_params=True,
             opset_version=14,
             do_constant_folding=True,
-            input_names=['input', 'valence'],
+            input_names=['input'],
             output_names=['gesture_logits', 'future_valence'],
             dynamic_axes={
                 'input': {0: 'batch_size'},
-                'valence': {0: 'batch_size'},
                 'gesture_logits': {0: 'batch_size'},
                 'future_valence': {0: 'batch_size'}
             }
         )
-        print(f"[Model] Exported to ONNX with valence input: {output_path}")
+        print(f"Model exported to {output_path}")
