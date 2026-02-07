@@ -436,7 +436,39 @@
       <option value="zh-CN">中文</option>
     </select>
 
-    <!-- Sliders and other voice settings content restored -->
+    <div class="slider-container">
+      <label for="voice-pitch">Pitch (0.5–2.0):</label>
+      <input type="range" id="voice-pitch" min="0.5" max="2.0" step="0.1" value="1.0">
+      <span id="pitch-value">1.0</span>
+    </div>
+
+    <div class="slider-container">
+      <label for="voice-rate">Rate (0.5–2.0):</label>
+      <input type="range" id="voice-rate" min="0.5" max="2.0" step="0.1" value="1.0">
+      <span id="rate-value">1.0</span>
+    </div>
+
+    <div class="slider-container">
+      <label for="voice-volume">Voice Volume (Rathor speech):</label>
+      <input type="range" id="voice-volume" min="0.0" max="1.0" step="0.1" value="1.0">
+      <span id="voice-volume-value">1.0</span>
+    </div>
+
+    <div class="slider-container">
+      <label for="feedback-volume">Feedback Volume (beeps & pulses):</label>
+      <input type="range" id="feedback-volume" min="0.0" max="1.0" step="0.1" value="0.6">
+      <span id="feedback-volume-value">0.6</span>
+    </div>
+
+    <label for="voice-voice">Voice:</label>
+    <select id="voice-voice"></select>
+
+    <div id="voice-feedback-toggle">
+      <input type="checkbox" id="feedback-sounds" checked>
+      <label for="feedback-sounds" data-i18n="actions.feedbackSounds">Play feedback sounds</label>
+    </div>
+
+    <button id="voice-test-btn" data-i18n="actions.testVoice">Test Voice & Sounds ⚡️</button>
 
     <div class="modal-buttons">
       <button id="voice-cancel" data-i18n="actions.cancel">Cancel</button>
@@ -445,7 +477,75 @@
   </div>
 </div>
 
-<!-- Install & Update toasts + all other modals restored -->
+<!-- Edit Modal -->
+<div id="edit-modal-overlay" class="modal-overlay">
+  <div id="edit-modal" class="modal-content">
+    <h2 data-i18n="actions.editCurrent">Edit Session</h2>
+    <label for="edit-name">Session Name:</label>
+    <input type="text" id="edit-name" maxlength="50">
+    <label for="edit-description">Description (optional):</label>
+    <textarea id="edit-description" rows="3" maxlength="200"></textarea>
+    <label for="edit-tags">Tags (comma separated):</label>
+    <div id="edit-tags-container">
+      <input type="text" id="edit-tags" placeholder="work,ideas,urgent,personal">
+      <div id="tag-suggestions"></div>
+    </div>
+    <div id="tag-preview" class="tag-preview"></div>
+    <label>Color Tag:</label>
+    <div class="color-presets">
+      <div class="color-preset" data-color="#ffaa00" style="background:#ffaa00;"></div>
+      <div class="color-preset" data-color="#88ffdd" style="background:#88ffdd;"></div>
+      <div class="color-preset" data-color="#ff6666" style="background:#ff6666;"></div>
+      <div class="color-preset" data-color="#aa88ff" style="background:#aa88ff;"></div>
+      <div class="color-preset" data-color="#44ccff" style="background:#44ccff;"></div>
+    </div>
+    <div class="modal-buttons">
+      <button id="modal-cancel" data-i18n="actions.cancel">Cancel</button>
+      <button id="modal-save" data-i18n="actions.saveApply">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="delete-modal-overlay" class="modal-overlay">
+  <div id="delete-modal" class="modal-content">
+    <h2 data-i18n="actions.deleteCurrent">Delete Session</h2>
+    <p data-i18n="status.deleteConfirm">Are you sure you want to permanently delete this session?</p>
+    <p class="warning" id="delete-warning" data-i18n="status.deleteWarning">This action cannot be undone. All messages and metadata will be erased from the lattice.</p>
+    <div class="modal-buttons">
+      <button id="delete-cancel" data-i18n="actions.cancel">Cancel</button>
+      <button id="delete-confirm">Delete Permanently</button>
+    </div>
+  </div>
+</div>
+
+<!-- Bridge Health History Modal -->
+<div id="bridge-health-overlay" class="modal-overlay">
+  <div id="bridge-health-modal" class="modal-content">
+    <h2 data-i18n="status.bridgeHealth">Bridge Health Chronicle</h2>
+    <div id="bridge-health-content">
+      <p data-i18n="status.loading">Loading bridge health history...</p>
+    </div>
+    <div class="action-buttons">
+      <button id="bridge-health-close" data-i18n="actions.close">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Import Toast -->
+<div id="import-toast" data-i18n="status.importSuccess">Session imported successfully ⚡️</div>
+
+<!-- Install Prompt Toast -->
+<div id="install-toast">
+  <button id="install-btn">Add Rathor™ to Home Screen ⚡️</button>
+  <button id="dismiss-install">×</button>
+</div>
+
+<!-- Update Prompt Toast -->
+<div id="update-toast">
+  <button id="update-btn">New version available — Update now ⚡️</button>
+  <button id="dismiss-update">×</button>
+</div>
 
 <input type="file" id="import-file-input" accept=".json" style="display:none;">
 
@@ -605,7 +705,7 @@ function initRecognition() {
     voiceBtn.classList.remove('listening');
     isListening = false;
 
-    if (!ignoreOnEnd && isListening) {
+    if (!ignoreOnEnd) {
       // Auto-restart for continuous listening
       setTimeout(() => {
         if (!ignoreOnEnd) recognition.start();
