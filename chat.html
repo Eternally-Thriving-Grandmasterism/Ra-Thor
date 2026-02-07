@@ -175,4 +175,94 @@
   <script src="src/storage/rathor-indexeddb.js"></script>
   <script src="src/voice/offline-voice-recorder.js"></script>
 </body>
+</html>        <!-- populated dynamically if needed -->
+      </select>
+
+      <label for="output-lang" data-i18n="voice.outputLang">Output Language (Synthesis):</label>
+      <select id="output-lang">
+        <option value="auto" data-i18n="voice.auto">Auto-detect (browser preference)</option>
+        <!-- populated dynamically if needed -->
+      </select>
+
+      <div class="slider-container">
+        <label for="voice-pitch">Pitch (0.5–2.0):</label>
+        <input type="range" id="voice-pitch" min="0.5" max="2.0" step="0.1" value="1.0">
+        <span id="pitch-value">1.0</span>
+      </div>
+
+      <div class="slider-container">
+        <label for="voice-rate">Rate (0.5–2.0):</label>
+        <input type="range" id="voice-rate" min="0.5" max="2.0" step="0.1" value="1.0">
+        <span id="rate-value">1.0</span>
+      </div>
+
+      <div class="slider-container">
+        <label for="voice-volume">Voice Volume (Rathor speech):</label>
+        <input type="range" id="voice-volume" min="0.0" max="1.0" step="0.1" value="1.0">
+        <span id="voice-volume-value">1.0</span>
+      </div>
+
+      <div class="slider-container">
+        <label for="feedback-volume">Feedback Volume (beeps & pulses):</label>
+        <input type="range" id="feedback-volume" min="0.0" max="1.0" step="0.1" value="0.6">
+        <span id="feedback-volume-value">0.6</span>
+      </div>
+
+      <label for="voice-voice">Voice:</label>
+      <select id="voice-voice">
+        <option value="">Loading voices...</option>
+      </select>
+
+      <div id="voice-feedback-toggle">
+        <input type="checkbox" id="feedback-sounds" checked>
+        <label for="feedback-sounds" data-i18n="actions.feedbackSounds">Play feedback sounds</label>
+      </div>
+
+      <div id="tts-toggle">
+        <input type="checkbox" id="tts-enabled" checked>
+        <label for="tts-enabled" data-i18n="actions.ttsEnabled">Enable Rathor speech (offline TTS)</label>
+      </div>
+
+      <button id="voice-test-btn" data-i18n="actions.testVoice">Test Voice & Sounds ⚡️</button>
+
+      <div class="modal-buttons">
+        <button id="voice-cancel" data-i18n="actions.cancel">Cancel</button>
+        <button id="voice-save" data-i18n="actions.saveApply">Save & Apply</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Modal -->
+  <div id="edit-modal-overlay" class="modal-overlay">
+    <div id="edit-modal" class="modal-content">
+      <h2 data-i18n="actions.editCurrent">Edit Session</h2>
+      <label for="edit-name">Session Name:</label>
+      <input type="text" id="edit-name" maxlength="50">
+
+      <label for="edit-description">Description (optional):</label>
+      <textarea id="edit-description" rows="3" maxlength="200"></textarea>
+
+      <label for="edit-tags">Tags (comma separated):</label>
+      <input type="text" id="edit-tags" placeholder="urgent, personal, research, 2026">
+      <div id="edit-tag-preview" style="margin: 12px 0; display: flex; flex-wrap: wrap; gap: 8px;"></div>
+
+      <label>Session Color:</label>
+      <input type="color" id="edit-color" value="#ffaa00" style="width: 100%; height: 40px; border: none; border-radius: 8px;">
+
+      <div class="modal-buttons">
+        <button id="modal-cancel" data-i18n="actions.cancel">Cancel</button>
+        <button id="modal-save" data-i18n="actions.saveApply">Save Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Modal, Bridge Health Modal, Toasts, etc. — keep as previously deployed -->
+
+  <input type="file" id="import-file-input" accept=".json" style="display:none;">
+
+  <script src="/js/common.js"></script>
+  <script src="/js/chat.js"></script>
+  <script src="src/storage/rathor-indexeddb.js"></script>
+  <script src="src/voice/offline-voice-recorder.js"></script>
+</body>
 </html>
