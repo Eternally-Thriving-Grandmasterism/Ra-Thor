@@ -46,42 +46,142 @@ class RathorIndexedDB {
   }
 
   // ────────────────────────────────────────────────
-  // Translation Metrics with Per-Language Latency
+  // Bulk Delete Methods (new)
   // ────────────────────────────────────────────────
 
-  async getTranslationMetrics() {
-    const metrics = await this._transaction(STORES.USER_PREFERENCES, 'readonly', (tx) => {
-      const store = tx.objectStore(STORES.USER_PREFERENCES);
-      const req = store.get('translation_metrics');
-      return new Promise((res, rej) => {
-        req.onsuccess = () => res(req.result || {
-          total: 0,
-          hits: 0,
-          misses: 0,
-          perLang: {}, // langCode → {total, hits, misses, latencies: []}
-          history: []
-        });
-        req.onerror = () => rej(req.error);
+  /**
+   * Delete all messages belonging to a specific session
+   * @param {string} sessionId
+   * @returns {Promise<number>} Number of deleted records
+   */
+  async bulkDeleteMessagesBySession(sessionId) {
+    return this._transaction(STORES.CHAT_HISTORY, 'readwrite', (tx) => {
+      const store = tx.objectStore(STORES.CHAT_HISTORY);
+      const index = store.index('sessionId');
+      const request = index.openCursor(IDBKeyRange.only(sessionId));
+      let count = 0;
+
+      return new Promise((resolve, reject) => {
+        request.onsuccess = (event) => {
+          const cursor = event.target.result;
+          if (cursor) {
+            cursor.delete();
+            count++;
+            cursor.continue();
+          } else {
+            resolve(count);
+          }
+        };
+        request.onerror = () => reject(request.error);
       });
     });
+  }
 
-    const overallHitRate = metrics.total > 0 ? Math.round((metrics.hits / metrics.total) * 100) : 0;
+  /**
+   * Bulk invalidate (delete) all translation cache entries for a session
+   * @param {string} sessionId
+   * @returns {Promise<number>} Number of deleted cache entries
+   */
+  async bulkInvalidateTranslationsBySession(sessionId) {
+    return this._transaction(STORES.TRANSLATION_CACHE, 'readwrite', (tx) => {
+      const store = tx.objectStore(STORES.TRANSLATION_CACHE);
+      const index = store.index('sessionId');
+      const request = index.openCursor(IDBKeyRange.only(sessionId));
+      let count = 0;
 
-    // Aggregate per-language stats
-    const perLangStats = {};
-    Object.entries(metrics.perLang).forEach(([lang, data]) => {
-      const hitRate = data.total > 0 ? Math.round((data.hits / data.total) * 100) : 0;
-      const latencies = data.latencies || [];
-      const avg = latencies.length > 0 ? Math.round(latencies.reduce((sum, l) => sum + l, 0) / latencies.length) : 0;
-      const min = latencies.length > 0 ? Math.min(...latencies) : 0;
-      const max = latencies.length > 0 ? Math.max(...latencies) : 0;
-      const p95 = latencies.length > 0 ? Math.round(latencies.sort((a,b)=>a-b)[Math.floor(latencies.length * 0.95)]) : 0;
-
-      perLangStats[lang] = { total: data.total, hits: data.hits, misses: data.misses, hitRate, avgLatency: avg, minLatency: min, maxLatency: max, p95Latency: p95 };
+      return new Promise((resolve, reject) => {
+        request.onsuccess = (event) => {
+          const cursor = event.target.result;
+          if (cursor) {
+            cursor.delete();
+            count++;
+            cursor.continue();
+          } else {
+            resolve(count);
+          }
+        };
+        request.onerror = () => reject(request.error);
+      });
     });
+  }
 
-    // Overall latency from all languages
-    const allLatencies = Object.values(metrics.perLang).flatMap(d => d.latencies || []);
+  /**
+   * Bulk invalidate all translation cache entries for a specific target language
+   * @param {string} targetLang e.g. 'es', 'fr'
+   * @returns {Promise<number>} Number of deleted entries
+   */
+  async bulkInvalidateTranslationsByLanguage(targetLang) {
+    return this._transaction(STORES.TRANSLATION_CACHE, 'readwrite', (tx) => {
+      const store = tx.objectStore(STORES.TRANSLATION_CACHE);
+      const index = store.index('targetLang');
+      const request = index.openCursor(IDBKeyRange.only(targetLang));
+      let count = 0;
+
+      return new Promise((resolve, reject) => {
+        request.onsuccess = (event) => {
+          const cursor = event.target.result;
+          if (cursor) {
+            cursor.delete();
+            count++;
+            cursor.continue();
+          } else {
+            resolve(count);
+          }
+        };
+        request.onerror = () => reject(request.error);
+      });
+    });
+  }
+
+  /**
+   * Delete all expired translation cache entries across all sessions
+   * @returns {Promise<number>} Number of expired entries removed
+   */
+  async bulkDeleteExpiredCacheEntries() {
+    const now = Date.now();
+    return this._transaction(STORES.TRANSLATION_CACHE, 'readwrite', (tx) => {
+      const store = tx.objectStore(STORES.TRANSLATION_CACHE);
+      const index = store.index('expiresAt');
+      const request = index.openCursor(IDBKeyRange.upperBound(now));
+      let count = 0;
+
+      return new Promise((resolve, reject) => {
+        request.onsuccess = (event) => {
+          const cursor = event.target.result;
+          if (cursor) {
+            cursor.delete();
+            count++;
+            cursor.continue();
+          } else {
+            resolve(count);
+          }
+        };
+        request.onerror = () => reject(request.error);
+      });
+    });
+  }
+
+  // ────────────────────────────────────────────────
+  // Example usage integration (add to your existing methods)
+  // ────────────────────────────────────────────────
+
+  // When deleting a session (example)
+  async deleteSession(sessionId) {
+    await this.bulkDeleteMessagesBySession(sessionId);
+    await this.bulkInvalidateTranslationsBySession(sessionId);
+    // ... delete metadata ...
+    showToast(`Session and all related cache pruned — lattice lighter ⚡️`);
+  }
+
+  // On language change (already partially there)
+  // ... after changing targetLang ...
+  await this.bulkInvalidateTranslationsByLanguage(previousLang);
+  await this.bulkDeleteExpiredCacheEntries(); // clean up
+
+  // ... keep all previous methods (getCachedTranslation, cacheTranslation, etc.) ...
+}
+
+export const rathorDB = new RathorIndexedDB();    const allLatencies = Object.values(metrics.perLang).flatMap(d => d.latencies || []);
     const overallAvg = allLatencies.length > 0 ? Math.round(allLatencies.reduce((sum, l) => sum + l, 0) / allLatencies.length) : 0;
     const overallP95 = allLatencies.length > 0 ? Math.round(allLatencies.sort((a,b)=>a-b)[Math.floor(allLatencies.length * 0.95)]) : 0;
 
