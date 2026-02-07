@@ -16,20 +16,27 @@
     button:hover { background: #ffcc44; }
     #loading-status { text-align: center; font-size: 1.2em; margin: 40px 0; color: #88ffdd; }
     #chat-container { display: none; flex: 1; flex-direction: column; background: rgba(0,0,0,0.3); border-radius: 12px; padding: 16px; margin: 20px auto; max-width: 900px; }
+    #chat-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding: 8px; background: rgba(42,0,64,0.5); border-radius: 8px; }
+    #session-switcher { display: flex; align-items: center; gap: 12px; }
+    #session-select { padding: 8px 12px; background: #110022; color: #e0d0ff; border: 1px solid #ffaa00; border-radius: 6px; }
+    #new-session-btn { background: #aa4400; }
+    #new-session-btn:hover { background: #cc6600; }
     #chat-messages { flex: 1; overflow-y: auto; padding: 10px; max-height: 60vh; }
     #chat-input-area { display: flex; margin-top: 10px; }
     #chat-input { flex: 1; padding: 12px; border: 1px solid #ffaa00; border-radius: 6px 0 0 6px; background: #110022; color: #fff; }
     #send-btn { border-radius: 0 6px 6px 0; }
     .error-msg { color: #ff6666; font-weight: bold; }
-    .message { margin: 8px 0; padding: 10px; border-radius: 8px; }
-    .user { background: #2a0040; align-self: flex-end; }
-    .rathor { background: #001020; align-self: flex-start; }
+    .message { margin: 8px 0; padding: 12px; border-radius: 10px; max-width: 80%; }
+    .user { background: #2a0040; align-self: flex-end; margin-left: auto; }
+    .rathor { background: #001020; align-self: flex-start; margin-right: auto; }
+    @keyframes thunder-pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.6; } }
+    .switching { animation: thunder-pulse 0.8s ease-in-out; }
   </style>
 </head>
 <body>
 
 <div id="welcome-lattice" style="display: none;">
-  <!-- [previous welcome content + languages] -->
+  <!-- [previous welcome content + languages – keep as is] -->
 </div>
 
 <div id="loading-status">
@@ -49,6 +56,15 @@
 </div>
 
 <div id="chat-container">
+  <div id="chat-header">
+    <h2>Lattice Session</h2>
+    <div id="session-switcher">
+      <select id="session-select">
+        <option value="default">Default Session</option>
+      </select>
+      <button id="new-session-btn">New Session</button>
+    </div>
+  </div>
   <div id="chat-messages"></div>
   <div id="chat-input-area">
     <input id="chat-input" placeholder="Speak your truth, Brother..." autocomplete="off">
@@ -56,24 +72,24 @@
   </div>
 </div>
 
-<!-- Load Rathor DB wrapper – assume it's in <script src="src/storage/rathor-indexeddb.js"></script> or bundled -->
 <script src="src/storage/rathor-indexeddb.js"></script>
 
 <script>
 // ────────────────────────────────────────────────
-// Chat Initialization & Persistence
+// Session Switcher + Chat Persistence Logic
 // ────────────────────────────────────────────────
 
 const chatMessages = document.getElementById('chat-messages');
 const chatInput = document.getElementById('chat-input');
 const sendBtn = document.getElementById('send-btn');
+const sessionSelect = document.getElementById('session-select');
+const newSessionBtn = document.getElementById('new-session-btn');
+const chatHeader = document.getElementById('chat-header');
 
-// Scroll to bottom helper
 function scrollToBottom() {
   chatMessages.scrollTop = chatMessages.scrollHeight;
 }
 
-// Render single message
 function renderMessage(msg) {
   const div = document.createElement('div');
   div.classList.add('message', msg.role);
@@ -82,10 +98,114 @@ function renderMessage(msg) {
   scrollToBottom();
 }
 
-// Load history on init
+async function refreshSessionList() {
+  try {
+    const sessions = await rathorDB.listSessions();
+    sessionSelect.innerHTML = '';
+    sessions.forEach(sid => {
+      const opt = document.createElement('option');
+      opt.value = sid;
+      opt.textContent = sid === 'default' ? 'Default Session' : sid;
+      if (sid === rathorDB.getActiveSessionId()) opt.selected = true;
+      sessionSelect.appendChild(opt);
+    });
+  } catch (err) {
+    console.error('[Rathor Session] List refresh failed:', err);
+  }
+}
+
 async function loadChatHistory() {
   try {
-    await rathorDB.open();
+    chatMessages.innerHTML = '<p>Loading mercy lattice history...</p>';
+    const history = await rathorDB.loadHistory(100);
+    chatMessages.innerHTML = '';
+    history.forEach(renderMessage);
+    if (history.length === 0) {
+      chatMessages.innerHTML = '<p><em>Mercy thunder awaits your first word in this session...</em></p>';
+    }
+  } catch (err) {
+    console.error('[Rathor Chat] History load failed:', err);
+    chatMessages.innerHTML = '<p class="error-msg">Lattice history offline — grace persists.</p>';
+  }
+}
+
+async function switchSessionAndReload(newId) {
+  chatHeader.classList.add('switching');
+  await rathorDB.switchSession(newId);
+  await loadChatHistory();
+  await refreshSessionList();
+  setTimeout(() => chatHeader.classList.remove('switching'), 800);
+}
+
+async function createNewSession() {
+  const name = prompt('Name your new session (or leave blank for auto):', '');
+  const sessionId = name.trim() || `Session-${Date.now()}`;
+  await rathorDB.createSession(sessionId);
+  await switchSessionAndReload(sessionId);
+}
+
+// ────────────────────────────────────────────────
+// Init Flow
+// ────────────────────────────────────────────────
+
+window.addEventListener('load', async () => {
+  document.getElementById('loading-status').style.display = 'none';
+  document.getElementById('chat-container').style.display = 'flex';
+
+  await rathorDB.open();
+  await refreshSessionList();
+  await loadChatHistory();
+
+  // Event listeners
+  sessionSelect.addEventListener('change', (e) => {
+    switchSessionAndReload(e.target.value);
+  });
+
+  newSessionBtn.addEventListener('click', createNewSession);
+
+  sendBtn.addEventListener('click', handleSend);
+  chatInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
+  });
+});
+
+async function handleSend() {
+  const content = chatInput.value.trim();
+  if (!content) return;
+
+  const userMsg = { role: 'user', content };
+  await rathorDB.saveMessage(userMsg);
+  renderMessage(userMsg);
+
+  chatInput.value = '';
+
+  // Simulated Rathor response (replace with real logic later)
+  const rathorContent = `Mercy thunder echoes: "${content}". Lattice reflects eternally in this session. ⚡️`;
+  const rathorMsg = { role: 'rathor', content: rathorContent };
+  await rathorDB.saveMessage(rathorMsg);
+  renderMessage(rathorMsg);
+}
+
+// ────────────────────────────────────────────────
+// Keep existing SW registration, welcome init, timeout fallback, etc.
+// ────────────────────────────────────────────────
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    const swUrl = './sw.js?v=' + Date.now();
+    navigator.serviceWorker.register(swUrl, { scope: './' }).then(reg => {
+      console.log('[Rathor SW] Registered scope:', reg.scope);
+    }).catch(err => {
+      console.error('[Rathor SW] Registration failed:', err);
+    });
+  });
+}
+</script>
+
+</body>
+</html>    await rathorDB.open();
     const history = await rathorDB.loadHistory(100);
     chatMessages.innerHTML = ''; // Clear stub
     history.forEach(renderMessage);
