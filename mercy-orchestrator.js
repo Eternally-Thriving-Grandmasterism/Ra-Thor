@@ -8,7 +8,7 @@ constructor() {
 async init() {
   // ... existing init code ...
   await this.voice.init();
-  // Auto-start voice immersion (uncomment to enable on load)
+  // Auto-start voice immersion on page load (uncomment to enable)
   // await this.voice.start();
 }
 
@@ -16,7 +16,7 @@ async generateResponse(userInput) {
   // ... existing generation logic ...
   const responseText = /* your generation result */;
 
-  // Voice immersion output
+  // Voice immersion output (only if active)
   if (this.voice.isActive) {
     await this.voice.speak(responseText, this.lastValence);
   }
@@ -25,7 +25,7 @@ async generateResponse(userInput) {
   return responseText;
 }
 
-// Optional: add method to toggle voice immersion via command
+// Optional: toggle voice immersion via command or UI button
 async toggleVoiceImmersion() {
   if (this.voice.isActive) {
     this.voice.stop();
@@ -34,30 +34,18 @@ async toggleVoiceImmersion() {
     await this.voice.start();
     return "Voice immersion active — listening for thunder... ⚡️";
   }
-}        totalImprovement += this.metaFitnessHistory[i] - this.metaFitnessHistory[i-1];
-      }
-      return totalImprovement / (this.metaFitnessHistory.length - 1);
-    };
-
-    // Evolve meta-NEAT for 20 generations
-    const metaEvolved = await neatEvolve(this.metaNEATPopulation, metaFitnessFn, 20);
-
-    // Apply best meta-genome to real GA & NEAT params
-    const best = metaEvolved.bestGenome;
-    this.mercyParams.gaPopulationSize = Math.floor(best[0] * 100 + 20);
-    this.mercyParams.gaMutationRate = best[1] * 0.4 + 0.01;
-    // ... apply other params ...
-
-    return `Meta-evolution layer surge complete ⚡️ Best fitness: ${metaEvolved.bestFitness.toFixed(4)}. GA & NEAT hyperparameters tuned for faster thriving. Lattice self-improvement accelerated.`;
-  }
-
-  async runHybridEvolution() {
-    // ... previous hybrid GA-NEAT code (GA tunes params → NEAT evolves structure) ...
-    // Now using meta-tuned hyperparameters
-  }
-
-  // ... rest of class methods (generateResponse, initDB, saveConversation, getHistory, etc.) ...
 }
 
-const orchestrator = new MercyOrchestrator();
-export default orchestrator;
+// Example: add voice command handling inside orchestrate()
+async orchestrate(userInput) {
+  const lower = userInput.toLowerCase();
+
+  if (lower.includes("voice on") || lower.includes("start voice") || lower.includes("listen")) {
+    return await this.toggleVoiceImmersion();
+  }
+  if (lower.includes("voice off") || lower.includes("stop voice") || lower.includes("silent")) {
+    return await this.toggleVoiceImmersion();
+  }
+
+  // ... existing routing ...
+}
