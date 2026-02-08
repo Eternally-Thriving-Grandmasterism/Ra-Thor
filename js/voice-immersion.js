@@ -8,26 +8,28 @@ export class VoiceImmersion {
     this.synthesis = window.speechSynthesis;
     this.currentVoice = null;
     this.isActive = false;
-    this.wakeWord = "rathor"; // configurable: "mate", "thunder", "leo", etc.
-    this.valenceModulator = 1.0; // 0.6–1.4 range
+    this.wakeWord = "rathor";
+    this.valenceModulator = 1.0;
     this.interimTranscript = "";
     this.finalTranscript = "";
+    this.accumulatedFinal = "";
     this.lastValence = 0.8;
-    this.bargeInThreshold = 300; // ms of speech to interrupt TTS
+    this.bargeInThreshold = 300;
+    this.onInterim = null;
+    this.onFinal = null;
   }
 
   async init() {
     if (!('SpeechRecognition' in window) && !('webkitSpeechRecognition' in window)) {
-      console.warn("Voice immersion not supported in this browser.");
+      console.warn("Voice immersion not supported.");
       return false;
     }
 
     this.recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
     this.recognition.continuous = true;
     this.recognition.interimResults = true;
-    this.recognition.lang = 'en-US'; // can be dynamic later
+    this.recognition.lang = 'en-US';
 
-    // Prefer high-quality / neural voices
     const voices = this.synthesis.getVoices();
     this.currentVoice = voices.find(v => v.name.includes("Neural") || v.name.includes("Google") || v.name.includes("Natural")) || voices[0];
 
@@ -35,7 +37,7 @@ export class VoiceImmersion {
     this.recognition.onerror = (event) => this.handleError(event);
     this.recognition.onend = () => this.handleEnd();
 
-    console.log("Voice immersion initialized — ready for thunder.");
+    console.log("Voice immersion ready.");
     return true;
   }
 
@@ -45,59 +47,56 @@ export class VoiceImmersion {
 
     this.isActive = true;
     this.recognition.start();
-    console.log("Voice immersion active — listening for wake-word or direct input...");
+    console.log("Listening for thunder...");
   }
 
   stop() {
     if (this.recognition && this.isActive) {
       this.recognition.stop();
       this.isActive = false;
-      console.log("Voice immersion paused.");
+      console.log("Voice paused.");
     }
   }
 
   handleResult(event) {
     let interim = "";
-    let final = "";
+    let newFinal = "";
 
     for (let i = event.resultIndex; i < event.results.length; ++i) {
-      const transcript = event.results[i][0].transcript;
-      if (event.results[i].isFinal) {
-        final += transcript + " ";
+      const transcript = event.results [0].transcript;
+      if (event.results .isFinal) {
+        newFinal += transcript + " ";
       } else {
         interim += transcript;
       }
     }
 
     this.interimTranscript = interim;
-    this.finalTranscript = final.trim();
 
-    // Mercy wake-word gate + command extraction
-    const lowerFinal = final.toLowerCase();
-    if (lowerFinal.includes(this.wakeWord)) {
-      const command = lowerFinal.split(this.wakeWord)[1]?.trim() || "";
-      if (command) {
-        this.orchestrator.orchestrate(command);
-      }
+    if (newFinal) {
+      this.accumulatedFinal += newFinal;
+      this.finalTranscript = this.accumulatedFinal.trim();
+      if (this.onFinal) this.onFinal(newFinal.trim());
     }
 
-    // Optional live UI feedback (e.g. show interim in chat)
-    if (this.orchestrator.onInterim) {
-      this.orchestrator.onInterim(interim);
+    if (this.onInterim) this.onInterim(interim);
+
+    const lowerFinal = this.finalTranscript.toLowerCase();
+    if (lowerFinal.includes(this.wakeWord)) {
+      const command = lowerFinal.split(this.wakeWord)[1]?.trim() || "";
+      if (command) this.orchestrator.orchestrate(command);
     }
   }
 
   handleError(event) {
     console.warn("Voice error:", event.error);
     if (event.error === 'no-speech' || event.error === 'aborted') {
-      // Mercy gentle restart
       setTimeout(() => this.recognition.start(), 500);
     }
   }
 
   handleEnd() {
     if (this.isActive) {
-      // Continuous feel — auto-restart
       setTimeout(() => this.recognition.start(), 300);
     }
   }
@@ -107,13 +106,12 @@ export class VoiceImmersion {
 
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.voice = this.currentVoice;
-    utterance.pitch = 1.0 + (valence - 0.8) * 0.4;     // lower valence → lower pitch
-    utterance.rate = 0.9 + (valence - 0.8) * 0.3;      // lower valence → slower
+    utterance.pitch = 1.0 + (valence - 0.8) * 0.4;
+    utterance.rate = 0.9 + (valence - 0.8) * 0.3;
     utterance.volume = 0.9 + (valence - 0.8) * 0.2;
 
-    // Barge-in handling: pause TTS on new voice activity
     utterance.onboundary = () => {
-      if (this.recognition && this.recognition.interimTranscript.length > 3) {
+      if (this.recognition && this.interimTranscript.length > 3) {
         this.synthesis.cancel();
       }
     };
