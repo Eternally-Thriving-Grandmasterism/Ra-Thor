@@ -1,168 +1,47 @@
 :root {
   --thunder-gold: #ffaa00;
-  --thunder-light: #ffdd44;
-  --bg-dark: #0a0015;
-  --bg-darker: #001020;
-  --text-light: #e0d0ff;
-  --accent-purple: #2a0040;
-  --error-red: #ff6666;
-  --status-online: #88ffdd;
-  --status-offline: #ff6666;
-  --status-never: #aaa;
+  --thunder-light: #ffdd88;
+  --thunder-glow: #ffff44;
+  --bg-cosmic: #000011;
+  --bg-void: #0a0015;
+  --text-mercy: #e0d0ff;
+  --accent-nebula: #4400aa;
+  --pulse-glow: 0 0 30px rgba(255,170,0,0.6);
 }
 
 body {
-  font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-  background: var(--bg-dark);
-  color: var(--text-light);
-  margin: 0;
-  padding: 0;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  line-height: 1.6;
-  direction: ltr;
-  text-align: left;
+  background: var(--bg-void);
+  color: var(--text-mercy);
+  font-weight: 300;
+  text-shadow: 0 0 5px rgba(255,170,0,0.2);
 }
 
-body.rtl {
-  direction: rtl;
-  text-align: right;
+h2, button {
+  font-family: 'Orbitron', sans-serif;
+  text-shadow: 0 0 15px var(--thunder-gold);
 }
 
-/* Legacy slider polish */
-.slider-container {
-  margin: 12px 0;
-  padding: 8px;
-  background: rgba(255,170,0,0.05);
-  border-radius: 8px;
-}
-
-.slider-container label {
-  display: block;
-  margin-bottom: 4px;
-  font-weight: 500;
-}
-
-input[type="range"] {
-  width: 100%;
-  height: 8px;
-  background: linear-gradient(to right, var(--thunder-gold) 0%, var(--thunder-gold) 50%, #444 50%, #444 100%);
-  border-radius: 4px;
-  outline: none;
-  -webkit-appearance: none;
-}
-
-input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  width: 20px;
-  height: 20px;
-  background: var(--thunder-gold);
-  border-radius: 50%;
-  cursor: pointer;
-  box-shadow: 0 0 10px var(--thunder-gold);
-  transition: all 0.2s;
-}
-
-input[type="range"]::-webkit-slider-thumb:hover {
-  transform: scale(1.2);
-}
-
-input[type="range"]::-moz-range-thumb {
-  width: 20px;
-  height: 20px;
-  background: var(--thunder-gold);
-  border-radius: 50%;
-  cursor: pointer;
-  box-shadow: 0 0 10px var(--thunder-gold);
-  transition: all 0.2s;
-}
-
-input[type="range"]::-moz-range-thumb:hover {
-  transform: scale(1.2);
-}
-
-/* Test button glow */
-#voice-test-btn {
-  background: linear-gradient(135deg, var(--thunder-gold), var(--thunder-light));
-  transition: all 0.3s;
-}
-
-#voice-test-btn:hover {
-  box-shadow: 0 0 20px var(--thunder-gold), 0 0 40px var(--thunder-light);
-  transform: scale(1.05);
-}
-
-/* Checkbox polish */
-input[type="checkbox"] {
-  accent-color: var(--thunder-gold);
-  width: 18px;
-  height: 18px;
-}
-
-label {
-  cursor: pointer;
-}
-
-/* Modal polish */
-.modal-overlay {
-  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.8); display: none; align-items: center; justify-content: center; z-index: 1000;
-}
-
-.modal-content {
-  background: linear-gradient(135deg, var(--accent-purple), var(--bg-darker));
-  border: 2px solid var(--thunder-gold);
-  border-radius: 16px;
-  padding: 32px;
-  max-width: 640px;
-  width: 92%;
-  max-height: 92vh;
-  overflow-y: auto;
-  box-shadow: 0 10px 50px rgba(255,170,0,0.4);
-  color: var(--text-light);
-}
-
-/* Toast polish */
-#toast-container {
-  position: fixed;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 2000;
-}
-
-.toast {
-  background: var(--thunder-gold);
-  color: #000;
+button {
+  background: linear-gradient(135deg, var(--accent-nebula), var(--thunder-gold));
+  border: none;
+  border-radius: 12px;
   padding: 12px 24px;
-  border-radius: 8px;
-  margin: 8px 0;
-  box-shadow: 0 4px 12px rgba(255,170,0,0.4);
-  font-weight: 600;
+  color: #000;
+  font-weight: 700;
+  transition: all 0.4s;
+  box-shadow: var(--pulse-glow);
 }
 
-/* ... rest of main.css styles (body, welcome, chat, pulses, etc.) remain as previously deployed ... */
-/* Test button glow */
-#voice-test-btn {
-  background: linear-gradient(135deg, var(--thunder-gold), var(--thunder-light));
-  transition: all 0.3s;
+button:hover {
+  transform: translateY(-4px) scale(1.05);
+  box-shadow: 0 0 50px rgba(255,170,0,0.8);
 }
 
-#voice-test-btn:hover {
-  box-shadow: 0 0 20px var(--thunder-gold), 0 0 40px var(--thunder-light);
-  transform: scale(1.05);
+#chat-messages {
+  background: rgba(10,0,30,0.7);
+  border-radius: 20px;
+  padding: 20px;
+  backdrop-filter: blur(10px);
 }
 
-/* Checkbox polish */
-input[type="checkbox"] {
-  accent-color: var(--thunder-gold);
-  width: 18px;
-  height: 18px;
-}
-
-label {
-  cursor: pointer;
-}
-
-/* ... rest of main.css styles (body, welcome, chat, modals, toasts, pulses, etc.) remain as previously deployed ... */
+/* Add more glows, transitions to existing elements */
