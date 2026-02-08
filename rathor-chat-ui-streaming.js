@@ -1,3 +1,5 @@
+import orchestrator from './mercy-orchestrator.js';
+
 // ... previous imports
 import { speakWithMercy, autoSpeakIfHighValence, addSpeakButtonToBubble } from './voice-skins-mercy-ui.js';
 
