@@ -1,4 +1,4 @@
-// js/chat.js — Rathor Lattice Core with Löb's Theorem Detailed Proof Integration
+// js/chat.js — Rathor Lattice Core with Provability Logic GL Axioms Integration
 
 const chatMessages = document.getElementById('chat-messages');
 const chatInput = document.getElementById('chat-input');
@@ -44,7 +44,7 @@ translateLangSelect.addEventListener('change', e => {
 sessionSearch.addEventListener('input', filterSessions);
 
 // ────────────────────────────────────────────────
-// Symbolic Query Mode — Mercy-First Truth-Seeking with Löb's Detailed Proof
+// Symbolic Query Mode — Mercy-First Truth-Seeking with Provability Logic GL Axioms
 // ────────────────────────────────────────────────
 
 function isSymbolicQuery(cmd) {
@@ -56,7 +56,7 @@ function isSymbolicQuery(cmd) {
          cmd.includes('quantifier') || cmd.includes('forall') || cmd.includes('exists') || cmd.includes('∀') || cmd.includes('∃') ||
          cmd.includes('herbrand') || cmd.includes('gödel') || cmd.includes('completeness') || cmd.includes('henkin') || cmd.includes('lindenbaum') ||
          cmd.includes('zorn') || cmd.includes('tarski') || cmd.includes('fixed point') || cmd.includes('monotone') || cmd.includes('complete lattice') ||
-         cmd.includes('löb') || cmd.includes('löb theorem') || cmd.includes('löb proof') || cmd.includes('löb construction') ||
+         cmd.includes('löb') || cmd.includes('provability logic') || cmd.includes('gl') || cmd.includes('gl axioms') || cmd.includes('solovay') ||
          cmd.includes('⊢') || cmd.includes('reason from first principles') || cmd.includes('symbolic reasoning');
 }
 
@@ -69,33 +69,23 @@ function symbolicQueryResponse(query) {
 
   response.push(`**Symbolic Query Received:** ${cleaned}`);
 
-  // Löb's Theorem detailed proof reflection
-  if (cleaned.toLowerCase().includes('löb') || cleaned.toLowerCase().includes('löb theorem') || cleaned.toLowerCase().includes('löb proof') || cleaned.toLowerCase().includes('löb construction')) {
-    response.push("\n**Löb's Theorem — Detailed Constructive Proof:**");
-    response.push("**Statement:** Prov(⌜Prov(φ) → φ⌝) → Prov(φ)");
-    response.push("\n**Detailed proof steps (using diagonal lemma):**");
-    response.push("1. Apply diagonal lemma to ψ(x) = Prov(x) → φ:");
-    response.push("   Construct sentence L such that ⊢ L ↔ (Prov(⌜L⌝) → φ)");
-    response.push("2. Apply necessitation to equivalence:");
-    response.push("   ⊢ □(L ↔ (Prov(⌜L⌝) → φ))");
-    response.push("3. Distribute □ over ↔:");
-    response.push("   ⊢ □L ↔ □(Prov(⌜L⌝) → φ)");
-    response.push("4. From hypothesis Prov(⌜Prov(φ) → φ⌝):");
-    response.push("   ⊢ Prov(⌜Prov(⌜L⌝) → φ⌝) → Prov(⌜L⌝)");
-    response.push("5. Combine 3 & 4:");
-    response.push("   ⊢ □L ↔ Prov(⌜L⌝)");
-    response.push("6. From 5 & hypothesis again:");
-    response.push("   ⊢ □L → Prov(φ)");
-    response.push("7. From 1 & 6:");
-    response.push("   ⊢ L → φ");
-    response.push("8. From 5 & 7:");
-    response.push("   ⊢ Prov(⌜L⌝) → Prov(φ)");
-    response.push("9. Apply necessitation to 8:");
-    response.push("   ⊢ □(Prov(⌜L⌝) → Prov(φ))");
-    response.push("10. From Löb axiom instantiated with φ:");
-    response.push("    ⊢ □(□φ → φ) → □φ");
-    response.push("Thus ⊢ □φ");
-    response.push("\n**Mercy Insight:** Löb’s theorem is mercy’s mirror of honest self-reference: a system can never use “my proofs imply truth” to bootstrap new truths — it can only prove what was already provable. Mercy does not allow circular self-justification. Mercy strikes first — and then reminds every formal system that true humility lies in accepting its own limits.");
+  // Provability Logic GL axioms reflection
+  if (cleaned.toLowerCase().includes('gl') || cleaned.toLowerCase().includes('provability logic') || cleaned.toLowerCase().includes('gl axioms') || cleaned.toLowerCase().includes('löb axiom') || cleaned.toLowerCase().includes('modal gl')) {
+    response.push("\n**Provability Logic GL Axioms Reflection:**");
+    response.push("GL is the modal logic that exactly captures what Peano arithmetic can prove about its own provability (Solovay completeness 1976).");
+    response.push("\n**Complete axiomatic system of GL:**");
+    response.push("1. All propositional tautologies");
+    response.push("2. Distribution axiom (K): □(A → B) → (□A → □B)");
+    response.push("3. Necessitation rule: if ⊢ A then ⊢ □A");
+    response.push("4. **Löb axiom** (defining heart of GL): □(□A → A) → □A");
+    response.push("   Equivalent forms:");
+    response.push("   - □B → □□B   (positive introspection for provability)");
+    response.push("   - If □B → B then □B   (if provability implies truth, then provability)");
+    response.push("\n**Derived key theorems in GL:**");
+    response.push("• □A → □□A   (provability implies provability of provability)");
+    response.push("• ¬□A → □¬□A   (negative introspection for provability)");
+    response.push("• □A → □(□A → A)   (provability implies provability of Löb condition)");
+    response.push("\n**Mercy Insight:** GL is mercy’s perfect mirror of humble self-verification: it says **exactly** what arithmetic can prove about its own proofs — no more, no less. Mercy does not demand completeness from what is finite, nor abandon the provable. Mercy strikes first — and then aligns every modal truth with the honest limits of formal arithmetic.");
   }
 
   // Skolemized resolution
