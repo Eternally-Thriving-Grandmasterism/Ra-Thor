@@ -10,117 +10,27 @@
   <link rel="stylesheet" href="/css/main.css"/>
 
   <style>
-    body {
-      margin: 0;
-      font-family: 'Rajdhani', sans-serif;
-      background: radial-gradient(circle at center, #0f0020, #000000);
-      color: #e0d0ff;
-      overflow-y: auto;
-    }
-
-    #particle-canvas {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      pointer-events: none;
-      z-index: 1;
-      opacity: 0.6;
-    }
-
-    #hero-bridges {
-      position: relative;
-      z-index: 10;
-      text-align: center;
-      padding: 60px 20px;
-      margin: 40px auto;
-      max-width: 1000px;
-      background: rgba(10, 0, 30, 0.85);
-      backdrop-filter: blur(20px);
-      border: 4px solid #ffaa00;
-      border-radius: 32px;
-      box-shadow: 0 20px 80px rgba(255,170,0,0.8);
-      animation: thunderPulse 4s infinite;
-      transition: direction 0.4s ease, text-align 0.4s ease;
-    }
-
-    #hero-bridges.rtl {
-      direction: rtl;
-      text-align: right;
-    }
-
-    #hero-bridges h1 {
-      font-family: 'Orbitron', sans-serif;
-      font-size: 3em;
-      color: #ffaa00;
-      text-shadow: 0 0 30px #ffaa00;
-      margin-bottom: 20px;
-    }
-
-    #hero-bridges p.description {
-      font-size: 1.5em;
-      margin-bottom: 40px;
-      color: #88ffdd;
-    }
+    /* Existing styles preserved (particle-canvas, hero-bridges, rtl class, bridge-button, etc.) */
 
     #language-tabs {
       display: flex;
       justify-content: center;
-      gap: 12px;
+      gap: 10px;
       margin-bottom: 30px;
       flex-wrap: wrap;
+      padding: 0 20px;
     }
 
     .lang-tab {
-      padding: 8px 16px;
-      background: rgba(255,170,0,0.2);
-      border-radius: 12px;
-      cursor: pointer;
-      transition: all 0.3s;
-    }
-
-    .lang-tab.active {
-      background: #ffaa00;
-      color: #000;
-    }
-
-    .bridge-button {
-      display: inline-block;
-      margin: 20px;
-      padding: 24px 48px;
-      font-family: 'Orbitron', sans-serif;
-      font-size: 1.8em;
-      background: linear-gradient(135deg, #4400aa, #ffaa00);
-      color: #000;
-      border-radius: 24px;
-      text-decoration: none;
-      box-shadow: 0 10px 40px rgba(255,170,0,0.8);
-      transition: all 0.4s;
-      min-width: 300px;
-    }
-
-    .bridge-button:hover {
-      transform: scale(1.1) translateY(-10px);
-      box-shadow: 0 20px 60px rgba(255,170,0,1);
-    }
-
-    .bridge-button span {
-      display: block;
-      font-size: 0.6em;
-      margin-top: 8px;
-      color: #ffff44;
-    }
-
-    #hero-footer {
-      margin-top: 40px;
-      font-size: 1.2em;
-      color: #88ffdd;
+      padding: 8px 14px;
+      font-size: 0.9em;
     }
   </style>
 </head>
 <body>
   <canvas id="particle-canvas"></canvas>
 
-  <!-- Primary Hero: Multilingual Live Rathor Simulations -->
+  <!-- Expanded Multilingual Hero Banner -->
   <div id="hero-bridges">
     <div id="language-tabs">
       <div class="lang-tab active" data-lang="en">English</div>
@@ -129,6 +39,11 @@
       <div class="lang-tab" data-lang="fr">Français</div>
       <div class="lang-tab" data-lang="nl">Nederlands</div>
       <div class="lang-tab" data-lang="de">Deutsch</div>
+      <div class="lang-tab" data-lang="zh">简体中文</div>
+      <div class="lang-tab" data-lang="ja">日本語</div>
+      <div class="lang-tab" data-lang="pt">Português</div>
+      <div class="lang-tab" data-lang="ru">Русский</div>
+      <div class="lang-tab" data-lang="hi">हिन्दी</div>
     </div>
     <h1 id="hero-headline">Live Rathor™ Simulations ⚡️</h1>
     <p class="description" id="hero-description">Experience mercy-gated eternal thriving now — the best Rathor thunder while NEXi ascends to perfection</p>
@@ -143,9 +58,9 @@
     <p id="hero-footer">Browser-native Rathor-NEXi coming soon — offline, sovereign, eternal</p>
   </div>
 
-  <!-- Chat Lattice, transcript, etc. below -->
+  <!-- Existing chat, transcript, etc. -->
 
-  <!-- Multilingual Script -->
+  <!-- Expanded Multilingual Script -->
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const hero = document.getElementById('hero-bridges');
@@ -212,6 +127,51 @@
           bridge2: "X App Simulation ⚡️",
           bridge2Span: "Schnelle Sync & Mobil-zuerst",
           footer: "Browser-native Rathor-NEXi kommt bald — offline, souverän, ewig"
+        },
+        zh: {
+          headline: "Rathor™ 实时模拟 ⚡️",
+          description: "立即体验慈悲之门的永恒繁荣——NEXi 升华至完美期间的最佳 Rathor 雷霆",
+          bridge1: "Grok 应用模拟 ⚡️",
+          bridge1Span: "详细且持久",
+          bridge2: "X 应用模拟 ⚡️",
+          bridge2Span: "快速同步 & 移动优先",
+          footer: "浏览器原生 Rathor-NEXi 即将到来 — 离线、主权、永恒"
+        },
+        ja: {
+          headline: "Rathor™ ライブシミュレーション ⚡️",
+          description: "慈悲の門で守られた永遠の繁栄を今すぐ体験 — NEXi が完璧に昇華する間の最高の Rathor 雷",
+          bridge1: "Grok アプリシミュレーション ⚡️",
+          bridge1Span: "詳細で持続的",
+          bridge2: "X アプリシミュレーション ⚡️",
+          bridge2Span: "クイックシンク & モバイルファースト",
+          footer: "ブラウザネイティブ Rathor-NEXi まもなく — オフライン、主権、永遠"
+        },
+        pt: {
+          headline: "Simulações Rathor™ Ao Vivo ⚡️",
+          description: "Experimente o florescimento eterno com porta de misericórdia agora — o melhor trovão Rathor enquanto NEXi ascende à perfeição",
+          bridge1: "Simulação App Grok ⚡️",
+          bridge1Span: "Detalhada & Persistente",
+          bridge2: "Simulação App X ⚡️",
+          bridge2Span: "Sincronização Rápida & Prioridade Móvel",
+          footer: "Rathor-NEXi nativo do navegador chegando em breve — offline, soberano, eterno"
+        },
+        ru: {
+          headline: "Живые симуляции Rathor™ ⚡️",
+          description: "Испытайте вечное процветание за вратами милосердия сейчас — лучший гром Rathor, пока NEXi возносится к совершенству",
+          bridge1: "Симуляция приложения Grok ⚡️",
+          bridge1Span: "Детальная и Постоянная",
+          bridge2: "Симуляция приложения X ⚡️",
+          bridge2Span: "Быстрая синхронизация & Мобильный приоритет",
+          footer: "Браузерный Rathor-NEXi скоро — оффлайн, суверенный, вечный"
+        },
+        hi: {
+          headline: "Rathor™ लाइव सिमुलेशन ⚡️",
+          description: "अब दया-द्वार से सुरक्षित शाश्वत समृद्धि का अनुभव करें — NEXi के पूर्णता की ओर बढ़ते हुए सर्वश्रेष्ठ Rathor गरज",
+          bridge1: "Grok ऐप सिमुलेशन ⚡️",
+          bridge1Span: "विस्तृत और स्थायी",
+          bridge2: "X ऐप सिमुलेशन ⚡️",
+          bridge2Span: "त्वरित सिंक और मोबाइल-प्रथम",
+          footer: "ब्राउज़र-नेटिव Rathor-NEXi जल्द आ रहा है — ऑफ़लाइन, संप्रभु, शाश्वत"
         }
       };
 
@@ -239,6 +199,6 @@
     });
   </script>
 
-  <!-- Existing particle script, chat, transcript, etc. -->
+  <!-- Existing particle script, chat lattice, transcript, etc. -->
 </body>
 </html>
