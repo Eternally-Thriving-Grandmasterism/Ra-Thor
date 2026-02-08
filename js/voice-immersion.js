@@ -8,7 +8,7 @@ export class VoiceImmersion {
     this.synthesis = window.speechSynthesis;
     this.currentVoice = null;
     this.isActive = false;
-    this.wakeWord = "rathor"; // can be "mate", "thunder", "leo", etc.
+    this.wakeWord = "rathor"; // configurable: "mate", "thunder", "leo", etc.
     this.valenceModulator = 1.0; // 0.6–1.4 range
     this.interimTranscript = "";
     this.finalTranscript = "";
@@ -25,7 +25,7 @@ export class VoiceImmersion {
     this.recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
     this.recognition.continuous = true;
     this.recognition.interimResults = true;
-    this.recognition.lang = 'en-US'; // configurable later
+    this.recognition.lang = 'en-US'; // can be dynamic later
 
     // Prefer high-quality / neural voices
     const voices = this.synthesis.getVoices();
