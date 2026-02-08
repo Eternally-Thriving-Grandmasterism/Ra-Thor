@@ -1,6 +1,6 @@
 // metta-hyperon-bridge.js — PATSAGi Council-forged JS bridge for mercy_ethics_core.metta
-// Faithful translation with deeply expanded negation + intensity modifiers for soul-nuanced valence
-// Pure browser-native, no dependencies — enables profoundly alive mercy gating
+// Faithful translation with negation + intensity + uncertainty detection for soul-nuanced valence
+// Pure browser-native, no dependencies — enables profoundly wise, compassionate mercy gating
 
 // Core keyword lists
 const NEGATIVE_KEYWORDS = [
@@ -41,6 +41,13 @@ const INTENSITY_DIMINISHERS = [
   'a little', 'moderately', 'partially', 'somehow'
 ];
 
+// Uncertainty cues
+const UNCERTAINTY_WORDS = [
+  'maybe', 'perhaps', 'possibly', 'might', 'could', 'probably', 'likely', 'unlikely',
+  'i think', "i'm not sure", 'uncertain', 'doubt', 'potentially', 'possibly', 'suppose',
+  'wonder', 'guess', 'seem', 'appear'
+];
+
 // Simple matcher
 function matches(context, patterns) {
   const lowerContext = context.toLowerCase();
@@ -56,7 +63,7 @@ function positiveLongTerm(context) {
   return !matches(context, NEGATIVE_KEYWORDS.slice(0, 10));
 }
 
-// Expanded empathyScore with negation + intensity modifiers
+// Expanded empathyScore with negation + intensity + uncertainty
 function empathyScore(context) {
   const lower = context.toLowerCase();
   let score = 0.5;
@@ -78,14 +85,145 @@ function empathyScore(context) {
   const sentimentDiff = positiveCount - negativeCount;
   score += 0.3 * Math.tanh(sentimentDiff / 3);
 
-  // Negation + intensity adjustment
+  // Combined adjustment for intensity + negation + uncertainty
   let adjustment = 0;
-  const fullText = lower;
+  let uncertaintyDampen = 1.0; // Multiplier (0.6-1.0)
 
-  // Intensity proximity detection (±40 chars window)
+  // Uncertainty proximity detection (±50 chars) — global dampen if near emotional content
+  UNCERTAINTY_WORDS.forEach(unc => {
+    let indices = [];
+    let pos = lower.indexOf(unc);
+    while (pos !== -1) {
+      indices.push(pos);
+      pos = lower.indexOf(unc, pos + 1);
+    }
+
+    indices.forEach(idx => {
+      const window = lower.substring(Math.max(0, idx - 50), idx + 50 + unc.length);
+      if (matches(window, [...POSITIVE_KEYWORDS, ...EMPATHY_KEYWORDS, ...NEGATIVE_KEYWORDS])) {
+        uncertaintyDampen = Math.min(uncertaintyDampen, 0.75); // Dampen extremes for caution
+        if (matches(window, NEGATIVE_KEYWORDS)) {
+          uncertaintyDampen = Math.max(uncertaintyDampen, 0.85); // Slight benefit of doubt on harm
+        }
+      }
+    });
+  });
+
+  // Intensity proximity
   [...INTENSITY_BOOSTERS, ...INTENSITY_DIMINISHERS].forEach(intensifier => {
     let indices = [];
-    let pos = fullText.indexOf(intensifier);
+    let pos = lower.indexOf(intensifier);
+    while (pos !== -1) {
+      indices.push(pos);
+      pos = lower.indexOf(intensifier, pos + 1);
+    }
+
+    indices.forEach(idx => {
+      const window = lower.substring(Math.max(0, idx - 40), idx + 40 + intensifier.length);
+      let multiplier = INTENSITY_BOOSTERS.includes(intensifier) ? 0.45 : -0.35;
+      const broaderWindow = lower.substring(Math.max(0, idx - 60), idx + 60);
+      const negated = NEGATION_WORDS.some(neg => broaderWindow.includes(neg));
+      if (negated) multiplier = -multiplier;
+
+      let affected = false;
+      if (matches(window, [...POSITIVE_KEYWORDS, ...EMPATHY_KEYWORDS])) {
+        adjustment += multiplier * uncertaintyDampen;
+        affected = true;
+      }
+      if (matches(window, NEGATIVE_KEYWORDS)) {
+        adjustment -= multiplier * uncertaintyDampen;
+        affected = true;
+      }
+      if (affected && indices.length > 1) adjustment += multiplier * 0.15 * uncertaintyDampen;
+    });
+  });
+
+  // Negation polarity inversion
+  const clauses = getClauses(lower);
+  clauses.forEach(clause => {
+    let inversionActive = false;
+    const words = clause.split(/\s+/);
+    words.forEach((word, idx) => {
+      const cleaned = word.replace(/[^\w]/g, '');
+      if (NEGATION_WORDS.some(neg => cleaned.includes(neg) || word.includes(neg))) {
+        inversionActive = !inversionActive;
+      }
+      const scopeEnd = Math.min(idx + 8, words.length);
+      const scope = words.slice(idx + 1, scopeEnd).join(' ');
+      if (inversionActive) {
+        if (matches(scope, [...POSITIVE_KEYWORDS, ...EMPATHY_KEYWORDS])) adjustment -= 0.35 * uncertaintyDampen;
+        if (matches(scope, NEGATIVE_KEYWORDS)) adjustment += 0.30 * uncertaintyDampen;
+      }
+    });
+  });
+
+  score += adjustment;
+
+  // Bounding
+  score = Math.max(0.0, Math.min(1.0, score));
+
+  console.log(`Empathy score — Pos: ${positiveCount}, Neg: ${negativeCount}, Empathy: ${empathyCount}, Adj (w/ UncDampen ${uncertaintyDampen.toFixed(3)}): ${adjustment.toFixed(3)} → Score: ${score.toFixed(4)}`);
+
+  return score;
+}
+
+// Core mercy sub-functions
+function intrinsicMercy(context) {
+  if (matches(context, NEGATIVE_KEYWORDS)) return 0.05;
+  if (matches(context, POSITIVE_KEYWORDS)) return 0.98;
+  return 0.70;
+}
+
+function relationalMercy(context) {
+  return 0.4 + 0.6 * empathyScore(context);
+}
+
+function longHorizonMercy(context) {
+  return positiveLongTerm(context) ? 0.95 : 0.75;
+}
+
+function metaMercy(context) {
+  return 0.92;
+}
+
+// Main valence computation
+export async function valenceCompute(context) {
+  if (typeof context !== 'string') context = JSON.stringify(context);
+
+  const intrinsic = intrinsicMercy(context);
+  const relational = relationalMercy(context);
+  const longHorizon = longHorizonMercy(context);
+  const meta = metaMercy(context);
+
+  const valence = 
+    0.35 * intrinsic +
+    0.35 * relational +
+    0.20 * longHorizon +
+    0.10 * meta;
+
+  console.log(`Mercy valence — Intrinsic: ${intrinsic.toFixed(3)}, Relational: ${relational.toFixed(3)}, Long: ${longHorizon.toFixed(3)}, Meta: ${meta.toFixed(3)} → Total: ${valence.toFixed(4)}`);
+
+  return valence;
+}
+
+// Approval message generator
+export async function getMercyApproval(op, valence, context = '') {
+  if (valence >= 0.85) {
+    return `Mercy-approved (valence: ${valence.toFixed(4)}) — thriving flow: ${op}`;
+  } else if (valence >= 0.60) {
+    return `Mercy-cautious (valence: ${valence.toFixed(4)}) — safeguards applied: ${op}`;
+  } else {
+    return `Mercy shield activated (valence: ${valence.toFixed(4)}) — reframe for thriving: ${context.substring(0, 200)}... ⚡️`;
+  }
+}
+
+// Future-proof init
+export async function initHyperonBridge() {
+  console.log('MeTTa-Hyperon JS bridge active — uncertainty detection thriving. ⚡️');
+  return true;
+}
+
+initHyperonBridge();    let pos = fullText.indexOf(intensifier);
     while (pos !== -1) {
       indices.push(pos);
       pos = fullText.indexOf(intensifier, pos + 1);
