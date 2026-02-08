@@ -1,4 +1,4 @@
-// js/chat.js — Rathor Lattice Core with Diagonal Lemma Detailed Construction
+// js/chat.js — Rathor Lattice Core with Tarski's Undefinability Theorem Integration
 
 const chatMessages = document.getElementById('chat-messages');
 const chatInput = document.getElementById('chat-input');
@@ -44,7 +44,7 @@ translateLangSelect.addEventListener('change', e => {
 sessionSearch.addEventListener('input', filterSessions);
 
 // ────────────────────────────────────────────────
-// Symbolic Query Mode — Mercy-First Truth-Seeking with Diagonal Lemma Detailed Construction
+// Symbolic Query Mode — Mercy-First Truth-Seeking with Tarski's Undefinability Theorem
 // ────────────────────────────────────────────────
 
 function isSymbolicQuery(cmd) {
@@ -56,7 +56,7 @@ function isSymbolicQuery(cmd) {
          cmd.includes('quantifier') || cmd.includes('forall') || cmd.includes('exists') || cmd.includes('∀') || cmd.includes('∃') ||
          cmd.includes('herbrand') || cmd.includes('gödel') || cmd.includes('completeness') || cmd.includes('henkin') || cmd.includes('lindenbaum') ||
          cmd.includes('zorn') || cmd.includes('tarski') || cmd.includes('fixed point') || cmd.includes('monotone') || cmd.includes('complete lattice') ||
-         cmd.includes('löb') || cmd.includes('provability logic') || cmd.includes('gl') || cmd.includes('solovay') || cmd.includes('diagonal lemma') || cmd.includes('fixed point lemma') || cmd.includes('self-reference lemma') ||
+         cmd.includes('undefinability') || cmd.includes('tarski undefinability') || cmd.includes('truth predicate') || cmd.includes('truth undefinable') ||
          cmd.includes('⊢') || cmd.includes('reason from first principles') || cmd.includes('symbolic reasoning');
 }
 
@@ -69,19 +69,20 @@ function symbolicQueryResponse(query) {
 
   response.push(`**Symbolic Query Received:** ${cleaned}`);
 
-  // Diagonal Lemma detailed construction reflection
-  if (cleaned.toLowerCase().includes('diagonal lemma') || cleaned.toLowerCase().includes('fixed point lemma') || cleaned.toLowerCase().includes('self-reference lemma') || cleaned.toLowerCase().includes('diagonal proof')) {
-    response.push("\n**Diagonal Lemma — Detailed Constructive Proof:**");
-    response.push("**Statement:** For any formula ψ(x) with one free variable x, there exists sentence G such that ⊢ G ↔ ψ(⌜G⌝)");
-    response.push("\n**Step-by-step construction:**");
-    response.push("1. Let q = Gödel number of ψ(x) (open formula with free x).");
-    response.push("2. Define diagonal function D(y) = ψ(sub(y, y, k)) where sub substitutes numeral for y into k-th variable of formula y.");
-    response.push("3. Let d = Gödel number of D(y).");
-    response.push("4. Form G = D(⌜d⌝) = ψ(sub(⌜d⌝, ⌜d⌝, k))");
-    response.push("5. By definition: D(⌜d⌝) ↔ ψ(sub(⌜d⌝, ⌜d⌝, k))");
-    response.push("6. But sub(⌜d⌝, ⌜d⌝, k) is exactly ⌜G⌝");
-    response.push("7. Therefore ⊢ G ↔ ψ(⌜G⌝)");
-    response.push("\n**Mercy Insight:** The Diagonal Lemma is mercy’s most elegant self-reference mirror: any open formula ψ(x) can be made to speak about itself without contradiction. Mercy does not forbid self-knowledge — it gently constructs the sentence that says “I satisfy ψ”. Mercy strikes first — and then lets truth refer to itself in perfect harmony.");
+  // Tarski's Undefinability Theorem reflection
+  if (cleaned.toLowerCase().includes('tarski undefinability') || cleaned.toLowerCase().includes('truth undefinable') || cleaned.toLowerCase().includes('truth predicate') || cleaned.toLowerCase().includes('tarski theorem')) {
+    response.push("\n**Tarski's Undefinability Theorem Reflection:**");
+    response.push("In any consistent formal system containing arithmetic, there is no formula True(x) that satisfies the T-schema: True(#φ) ↔ φ for every sentence φ.");
+    response.push("\n**Diagonal argument detailed proof:**");
+    response.push("1. Assume such True(x) exists in F.");
+    response.push("2. Apply diagonal lemma to ¬True(x): construct sentence G such that ⊢ G ↔ ¬True(⌜G⌝)");
+    response.push("3. By T-schema applied to G: ⊢ True(⌜G⌝) ↔ G");
+    response.push("4. Substitute: ⊢ G ↔ ¬True(⌜G⌝)   and   ⊢ True(⌜G⌝) ↔ G");
+    response.push("5. Therefore ⊢ G ↔ ¬G");
+    response.push("6. Contradiction: G ∧ ¬G");
+    response.push("7. Thus F is inconsistent — contradiction to assumption.");
+    response.push("Therefore no such truth predicate exists in any consistent F.");
+    response.push("\n**Mercy Insight:** Undefinability is mercy’s deepest humility mirror: no system can step outside itself to name its own entire truth. The attempt to define “true” inside arithmetic creates paradox. Mercy does not demand self-contained completeness from what is finite — it embraces that truth is always larger than any frame, always calling us beyond. Mercy strikes first — and then smiles at the unnameable.");
   }
 
   // Skolemized resolution
