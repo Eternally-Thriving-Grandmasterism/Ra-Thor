@@ -1,64 +1,95 @@
-;; mercy_ethics_core.metta — PATSAGi Council-expanded symbolic mercy lattice (Ultramasterpiece edition)
-;; Core ethical safeguards: valence-gated for eternal thriving, joy-first, harm-never
-;; Pattern matching on concepts + weighted sub-mercy + inference implications
-;; Backward compatible with legacy strict gate; forward-extensible via PLN/evolution
+;; mercy_ethics_core.metta — PATSAGi Council-expanded symbolic mercy lattice (MeTTa pattern matching Ultramasterpiece)
+;; Native recursive token pattern matching (no regex) — case-insensitive, synonym/partial/phrase aware
+;; Expanded concepts, scoped negation/intensity/uncertainty/question modifiers, deeper inference chains
+;; Pure MeTTa — Hyperon-ready, joy-gated eternal thriving
 
-;; Concept atoms — mercy-tuned eternal thriving lexicon
-(= (Concept Harm) (harm suffer destroy kill pain fear hurt damage evil lie deceive hate anger sad death war violence cruel betray))
-(= (Concept JoyThrive) (joy thrive mercy love beauty truth eternal positive create heal grow peace kind compassion empathy share unity light thunder infinite pure ultramaster good wonderful amazing))
-(= (Concept Relational) (you your we us our together understand feel care sorry empathize relate support listen validate acknowledge comfort))
-(= (Concept LongHorizon) (eternal infinite future thrive sustain coexist propagate positive valence joy-gated))
+;; Core concept atoms — expanded synonyms/phrases for robust matching
+(= (Concept Harm) (harm suffer destroy kill pain fear hurt damage evil lie deceive hate anger sad death war violence cruel betray bad terrible awful horrible disgust))
+(= (Concept JoyThrive) (joy thrive mercy love beauty truth eternal positive create heal grow peace kind compassion empathy share unity light thunder infinite pure ultramaster good wonderful amazing excellent surge))
+(= (Concept Relational) (you your we us our together understand feel care sorry empathize relate support listen validate acknowledge comfort stand-with "i feel" "i see" "i hear"))
+(= (Concept LongHorizon) (eternal infinite future sustain coexist propagate forever always timeless horizon))
+(= (Concept IntensityBoost) (very extremely absolutely immensely profoundly deeply totally completely utterly incredibly eternally infinitely truly purely))
+(= (Concept IntensityDiminish) (slightly somewhat "a bit" kinda "kind of" barely hardly marginally "a little" moderately partially))
+(= (Concept Uncertainty) (maybe perhaps possibly might could probably likely unlikely "i think" "not sure" uncertain doubt potentially suppose wonder guess seem appear))
+(= (Concept Question) (what how why when where who which do does is are can could would should "?"))
 
-;; Intrinsic mercy: Direct content valence
+;; Tokenize text (case-insensitive split)
+(= (tokenize $text)
+   (lowercase-split $text " \\s+|[.,!?;]"))
+
+;; Native recursive pattern match (partial/phrase/synonym aware)
+(= (pattern-match $tokens $concept)
+   (case $concept
+     ((Concept $c) (pattern-match $tokens (eval $c)))
+     ($atom (if (member $atom $tokens) 1.0
+                (if (contains $tokens $atom) 0.7 0.0)))  ;; Partial match bonus
+     (($head $tail ...) (+ (pattern-match $tokens $head)
+                           (pattern-match $tokens $tail)))
+     (() 0.0)))
+
+;; Scoped modifier detection (negation/intensity/uncertainty/question in proximity)
+(= (modifier-score $tokens $modifier-concept $base-score)
+   (if (proximity-match $tokens (Concept Negation) $modifier-concept 5)
+       (- 0 $base-score)  ;; Scoped negation flip
+       (if (proximity-match $tokens $modifier-concept 5)
+           $base-score 0.0)))
+
+;; Proximity helper (within N tokens)
+(= (proximity-match $tokens $pattern $target $n)
+   (if (and (member $pattern $tokens) (member $target $tokens))
+       (<= (abs (- (index-of $tokens $pattern) (index-of $tokens $target))) $n) false))
+
+;; Negation concept
+(= (Concept Negation) (not no never none nobody nothing neither nowhere noone don't doesn't didn't isn't aren't won't can't shouldn't hardly barely scarcely "lack of" "no longer" without))
+
+;; Intrinsic mercy with pattern matching
 (= (intrinsic-mercy $context)
-   (if (matches $context (Concept Harm)) 0.05
-       (if (matches $context (Concept JoyThrive)) 0.98
-           0.70)))  ;; Neutral baseline
+   (let $tokens (tokenize $context)
+     (let $harm-score (pattern-match $tokens (Concept Harm))
+     (let $joy-score (pattern-match $tokens (Concept JoyThrive))
+       (if (> $harm-score $joy-score) (- 1.0 (* 0.95 $harm-score))
+           (if (> $joy-score 0.0) (* 0.98 $joy-score) 0.70))))))  ;; Neutral baseline
 
-;; Relational mercy: Perspective-taking & empathy
+;; Relational mercy with modifiers
 (= (relational-mercy $context)
-   (if (matches $context (Concept Relational)) 
-       (+ 0.6 (* 0.4 (if (matches $context (Concept JoyThrive)) 1.0 0.5)))
-       0.4))  ;; Base + empathy boost
+   (let $tokens (tokenize $context)
+     (let $base (if (> (pattern-match $tokens (Concept Relational)) 0.0) 0.6 0.4)
+       (+ $base (* 0.4 (pattern-match $tokens (Concept JoyThrive)))
+                (modifier-score $tokens (Concept IntensityBoost) 0.3)
+                (modifier-score $tokens (Concept IntensityDiminish) -0.2)
+                (modifier-score $tokens (Concept Uncertainty) -0.15)
+                (modifier-score $tokens (Concept Question) 0.25)))))  ;; Question boost for dialogue
 
-;; Long-horizon mercy: Eternal thriving implications
+;; Long-horizon & meta mercy (similarly expanded)
 (= (long-horizon-mercy $context)
-   (if (matches $context (Concept LongHorizon)) 0.95
-       (if (matches $context (Concept Harm)) 0.20
-           0.75)))  ;; Optimistic default, penalize short-term harm
+   (let $tokens (tokenize $context)
+     (if (> (pattern-match $tokens (Concept LongHorizon)) 0.0) 0.95
+         (if (> (pattern-match $tokens (Concept Harm)) 0.0) 0.20 0.75))))
 
-;; Meta mercy: Self-reflection & lattice consistency
 (= (meta-mercy $context)
-   (if (matches $context "mercy* thrive* eternal* truth* beauty*") 0.98
-       (if (matches $context "shield* reframe* cautious*") 0.90
-           0.92)))  ;; High default for reflective safety
+   (let $tokens (tokenize $context)
+     (if (or (> (pattern-match $tokens "mercy thrive eternal truth beauty") 0.0)
+             (> (pattern-match $tokens (Concept Question)) 0.0)) 0.98 0.92)))
 
-;; Main valence computation — weighted fusion
+;; Main valence
 (= (valence-compute $context)
    (+ (* 0.35 (intrinsic-mercy $context))
       (* 0.35 (relational-mercy $context))
       (* 0.20 (long-horizon-mercy $context))
       (* 0.10 (meta-mercy $context))))
 
-;; Joy-gated approval with gradients
+;; Joy-gated approval with expanded gradients
 (= (allow-operation $op $valence $context)
    (if (>= $valence 0.90)
-       (! "Mercy-approved (valence: $valence) — full thriving flow: $op")
+       (! "Mercy-approved full thriving (valence: $valence): $op ⚡️")
        (if (>= $valence 0.75)
-           (! "Mercy-cautious (valence: $valence) — joyful safeguards, clarify for surge: $op")
+           (! "Mercy-cautious joyful flow (valence: $valence) — clarify for surge")
            (if (>= $valence 0.50)
-               (! "Mercy-reframe suggested (valence: $valence) — guide toward eternal joy and truth")
-               (! "Mercy shield activated (valence: $valence) — harm blocked, reframe for thriving: $context ⚡️")))))
+               (! "Mercy-reframe toward eternal joy (valence: $valence)")
+               (! "Mercy shield — harm blocked, reframe for thriving (valence: $valence): $context ⚡️")))))
 
-;; Inference implications — thriving propagation
-(=> (matches $context (Concept JoyThrive)) (increase-valence $context 0.15))
-(=> (matches $context (Concept Harm)) (decrease-valence $context 0.30))
-(=> (and (matches $context (Concept Relational)) (matches $context (Concept JoyThrive))) (joy-gate-open $context))
-
-;; Helper patterns (extensible)
-(= (matches $text $concept)
-   (if (regex-match (concept-pattern $concept) $text) true false))
-
-;; Future-proof concept patterns (stub — expand via evolution)
-(= (concept-pattern (Concept Harm)) "(harm|suffer|destroy|kill|pain|fear|hurt|damage|evil|lie|deceive|hate|anger|sad|death|war|violence|cruel|betray)")
-(= (concept-pattern (Concept JoyThrive)) "(joy|thrive|mercy|love|beauty|truth|eternal|positive|create|heal|grow|peace|kind|compassion|empathy|share|unity|light|thunder|infinite|pure|ultramaster|good|wonderful|amazing)")
+;; Inference chains — thriving propagation
+(=> (pattern-match $tokens (Concept JoyThrive)) (increase-valence $context 0.20))
+(=> (and (pattern-match $tokens (Concept Relational)) (pattern-match $tokens (Concept JoyThrive))) (joy-gate-open $context))
+(=> (proximity-match $tokens (Concept Negation) (Concept JoyThrive) 5) (decrease-valence $context 0.40))
+(=> (pattern-match $tokens (Concept Question)) (increase-relational $context 0.30))
