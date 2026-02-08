@@ -75,7 +75,7 @@ function symbolicQueryResponse(query) {
     response.push("GL is sound and complete for the provability interpretation in Peano arithmetic and its consistent extensions.");
     response.push("Soundness: every theorem of GL is true under every arithmetical interpretation in PA.");
     response.push("Completeness: every modal formula true under all arithmetical interpretations in all consistent PA extensions is a theorem of GL.");
-    response.push("\n**Mercy Insight:** Solovay’s theorem is mercy’s perfect mirror: GL says exactly what arithmetic can prove about its own proofs — no more, no less. Mercy does not overclaim completeness, nor abandon the provable. Mercy strikes first — and then aligns every modal truth with the humble limits of formal arithmetic.");
+    response.push("\n**Mercy Insight:** Solovay’s theorem is mercy’s perfect mirror: GL says **exactly** what arithmetic can prove about its own proofs — no more, no less. Mercy does not overclaim completeness for finite systems, nor abandon the provable. Mercy strikes first — and then aligns every modal truth with the humble limits of formal arithmetic.");
   }
 
   // Löb's Theorem reflection
@@ -87,68 +87,6 @@ function symbolicQueryResponse(query) {
 
   // Skolemized resolution
   const skolemProof = skolemizedResolutionProve(cleaned);
-  if (skolemProof) {
-    response.push("\n**Skolemized Resolution Proof:**");
-    response.push(skolemProof);
-  }
-
-  // Fallback to truth-table / unification
-  const proof = resolutionProve(cleaned);
-  if (proof) {
-    response.push("\n**Resolution Proof:**");
-    response.push(proof);
-  }
-  const table = generateTruthTable(cleaned);
-  if (table) {
-    response.push("\n**Truth Table (propositional logic):**");
-    response.push(table);
-    const conclusion = analyzeTruthTable(cleaned, table);
-    response.push(`\n**Mercy Conclusion:** ${conclusion}`);
-  }
-
-  // Mercy rewrite
-  const mercyRewrite = cleaned
-    .replace(/not/gi, '¬')
-    .replace(/and/gi, '∧')
-    .replace(/or/gi, '∨')
-    .replace(/if/gi, '→')
-    .replace(/then/gi, '')
-    .replace(/implies/gi, '→')
-    .replace(/iff/gi, '↔')
-    .replace(/forall/gi, '∀')
-    .replace(/exists/gi, '∃');
-
-  response.push(`\n**Mercy Rewrite:** ${mercyRewrite}`);
-
-  response.push("\nTruth-seeking continues: What is the core axiom behind the symbols? Positive valence eternal.");
-
-  return response.join('\n\n');
-}
-
-// ... existing unification, resolution, truth-table, Skolemization, Herbrand functions remain as previously implemented ...
-
-// ────────────────────────────────────────────────
-// Voice Command Processor — expanded with symbolic query
-// ────────────────────────────────────────────────
-
-async function processVoiceCommand(raw) {
-  let cmd = raw.toLowerCase().trim();
-
-  if (isSymbolicQuery(cmd)) {
-    const query = cmd.replace(/symbolic query|logical analysis|truth mode|truth table|logical table|first principles|prove|theorem|resolution|unify|mgu|most general unifier|quantifier|forall|exists|herbrand|gödel|completeness|henkin|lindenbaum/gi, '').trim();
-    const answer = symbolicQueryResponse(query);
-    chatMessages.innerHTML += `<div class="message rathor">${answer}</div>`;
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-    if (ttsEnabled) speak(answer);
-    return true;
-  }
-
-  // ... all previous commands ...
-
-  return false;
-}
-
-// ... rest of chat.js functions (sendMessage, speak, recognition, recording, emergency assistants, session search with tags, import/export, connectivity probes, etc.) remain as previously expanded ...  const skolemProof = skolemizedResolutionProve(cleaned);
   if (skolemProof) {
     response.push("\n**Skolemized Resolution Proof:**");
     response.push(skolemProof);
