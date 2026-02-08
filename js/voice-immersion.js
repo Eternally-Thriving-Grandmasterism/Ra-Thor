@@ -8,7 +8,7 @@ export class VoiceImmersion {
     this.synthesis = window.speechSynthesis;
     this.currentVoice = null;
     this.isActive = false;
-    this.wakeWord = "rathor"; // or "mate", "thunder", configurable
+    this.wakeWord = "rathor"; // configurable: "mate", "thunder", etc.
     this.valenceModulator = 1.0; // 0.6–1.4 range
     this.interimTranscript = "";
     this.finalTranscript = "";
@@ -16,7 +16,7 @@ export class VoiceImmersion {
   }
 
   async init() {
-    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+    if (!('SpeechRecognition' in window) && !('webkitSpeechRecognition' in window)) {
       console.warn("Voice immersion not supported in this browser.");
       return false;
     }
@@ -24,16 +24,17 @@ export class VoiceImmersion {
     this.recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
     this.recognition.continuous = true;
     this.recognition.interimResults = true;
-    this.recognition.lang = 'en-US'; // configurable later
+    this.recognition.lang = 'en-US'; // can be dynamic later
 
-    // Voice selection (prefer neural voices)
+    // Prefer neural / high-quality voices
     const voices = this.synthesis.getVoices();
-    this.currentVoice = voices.find(v => v.name.includes("Neural") || v.name.includes("Google")) || voices[0];
+    this.currentVoice = voices.find(v => v.name.includes("Neural") || v.name.includes("Google") || v.name.includes("Natural")) || voices[0];
 
     this.recognition.onresult = (event) => this.handleResult(event);
     this.recognition.onerror = (event) => this.handleError(event);
     this.recognition.onend = () => this.handleEnd();
 
+    console.log("Voice immersion initialized — ready for thunder.");
     return true;
   }
 
@@ -43,7 +44,7 @@ export class VoiceImmersion {
 
     this.isActive = true;
     this.recognition.start();
-    console.log("Voice immersion active — listening for thunder...");
+    console.log("Voice immersion active — listening for wake-word or direct input...");
   }
 
   stop() {
@@ -58,27 +59,28 @@ export class VoiceImmersion {
     let interim = "";
     let final = "";
 
-    for (let i = event.resultIndex; i < event.results.length; i++) {
+    for (let i = event.resultIndex; i < event.results.length; ++i) {
       const transcript = event.results[i][0].transcript;
       if (event.results[i].isFinal) {
-        final += transcript;
+        final += transcript + " ";
       } else {
         interim += transcript;
       }
     }
 
     this.interimTranscript = interim;
-    this.finalTranscript = final;
+    this.finalTranscript = final.trim();
 
-    // Mercy wake-word gate
-    if (final.toLowerCase().includes(this.wakeWord)) {
-      const command = final.toLowerCase().replace(this.wakeWord, '').trim();
+    // Mercy wake-word gate + command extraction
+    const lowerFinal = final.toLowerCase();
+    if (lowerFinal.includes(this.wakeWord)) {
+      const command = lowerFinal.split(this.wakeWord)[1]?.trim() || "";
       if (command) {
         this.orchestrator.orchestrate(command);
       }
     }
 
-    // Live interim feedback (optional UI update)
+    // Optional live UI feedback
     if (this.orchestrator.onInterim) {
       this.orchestrator.onInterim(interim);
     }
@@ -86,6 +88,44 @@ export class VoiceImmersion {
 
   handleError(event) {
     console.warn("Voice error:", event.error);
+    if (event.error === 'no-speech' || event.error === 'aborted') {
+      // Mercy gentle restart
+      setTimeout(() => this.recognition.start(), 500);
+    }
+  }
+
+  handleEnd() {
+    if (this.isActive) {
+      // Continuous feel — auto-restart
+      setTimeout(() => this.recognition.start(), 300);
+    }
+  }
+
+  async speak(text, valence = this.lastValence) {
+    if (!this.synthesis || !text) return;
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.voice = this.currentVoice;
+    utterance.pitch = 1.0 + (valence - 0.8) * 0.4;     // lower valence → lower pitch
+    utterance.rate = 0.9 + (valence - 0.8) * 0.3;      // lower valence → slower
+    utterance.volume = 0.9 + (valence - 0.8) * 0.2;
+
+    // Interrupt on new voice activity
+    utterance.onboundary = () => {
+      if (this.recognition && this.recognition.interimTranscript) {
+        this.synthesis.cancel();
+      }
+    };
+
+    this.synthesis.speak(utterance);
+  }
+
+  setValence(valence) {
+    this.lastValence = Math.max(0.4, Math.min(1.4, valence));
+  }
+}
+
+export default VoiceImmersion;    console.warn("Voice error:", event.error);
     if (event.error === 'no-speech' || event.error === 'aborted') {
       // Mercy restart — gentle
       setTimeout(() => this.recognition.start(), 500);
