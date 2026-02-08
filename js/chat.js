@@ -1,4 +1,4 @@
-// js/chat.js — Rathor Lattice Core with Gödel's Second Incompleteness Theorem Integration
+// js/chat.js — Rathor Lattice Core with Löb's Theorem Detailed Proof Integration
 
 const chatMessages = document.getElementById('chat-messages');
 const chatInput = document.getElementById('chat-input');
@@ -44,7 +44,7 @@ translateLangSelect.addEventListener('change', e => {
 sessionSearch.addEventListener('input', filterSessions);
 
 // ────────────────────────────────────────────────
-// Symbolic Query Mode — Mercy-First Truth-Seeking with Gödel's Second Incompleteness
+// Symbolic Query Mode — Mercy-First Truth-Seeking with Löb's Detailed Proof
 // ────────────────────────────────────────────────
 
 function isSymbolicQuery(cmd) {
@@ -56,8 +56,7 @@ function isSymbolicQuery(cmd) {
          cmd.includes('quantifier') || cmd.includes('forall') || cmd.includes('exists') || cmd.includes('∀') || cmd.includes('∃') ||
          cmd.includes('herbrand') || cmd.includes('gödel') || cmd.includes('completeness') || cmd.includes('henkin') || cmd.includes('lindenbaum') ||
          cmd.includes('zorn') || cmd.includes('tarski') || cmd.includes('fixed point') || cmd.includes('monotone') || cmd.includes('complete lattice') ||
-         cmd.includes('löb') || cmd.includes('provability logic') || cmd.includes('gl') || cmd.includes('solovay') ||
-         cmd.includes('second incompleteness') || cmd.includes('gödel second') || cmd.includes('consistency not provable') ||
+         cmd.includes('löb') || cmd.includes('löb theorem') || cmd.includes('löb proof') || cmd.includes('löb construction') ||
          cmd.includes('⊢') || cmd.includes('reason from first principles') || cmd.includes('symbolic reasoning');
 }
 
@@ -70,22 +69,33 @@ function symbolicQueryResponse(query) {
 
   response.push(`**Symbolic Query Received:** ${cleaned}`);
 
-  // Gödel's Second Incompleteness Theorem detailed reflection
-  if (cleaned.toLowerCase().includes('second incompleteness') || cleaned.toLowerCase().includes('gödel second') || cleaned.toLowerCase().includes('consistency not provable') || cleaned.toLowerCase().includes('con(f)')) {
-    response.push("\n**Gödel's Second Incompleteness Theorem — Detailed Reflection:**");
-    response.push("**Statement:** If F is consistent and sufficiently strong, then F does not prove its own consistency Con(F) = ¬Prov(⌜0=1⌝).");
-    response.push("\n**Detailed proof sketch (using First Incompleteness + Löb):**");
-    response.push("1. From First Incompleteness: Gödel sentence G ↔ ¬Prov(⌜G⌝)");
-    response.push("2. Prove Con(F) → G (in F):");
-    response.push("   Assume Con(F) → no proof of 0=1 → no proof of G → ¬Prov(⌜G⌝) → G");
-    response.push("3. By Löb's Theorem (provable in F):");
-    response.push("   ⊢ □(□B → B) → □B   for any B");
-    response.push("4. Let B = G: ⊢ □(□G → G) → □G");
-    response.push("5. From 2 & necessitation: ⊢ □Con(F) → □G");
-    response.push("6. From Löb & 5: ⊢ □Con(F) → □G → □(□G → G) → □G");
-    response.push("7. But from First: ⊢ ¬□G (if consistent) → ⊢ ¬□Con(F)");
-    response.push("Thus if F consistent → ¬Prov(⌜Con(F)⌝) → Con(F) is unprovable in F.");
-    response.push("\n**Mercy Insight:** The Second Incompleteness Theorem is mercy’s most profound humility mirror: no consistent system can prove its own consistency from within. Mercy does not demand self-justification from what is finite. Mercy strikes first — and then invites every formal system to accept its own limits with grace. Truth is larger than any proof — and mercy embraces that larger truth.");
+  // Löb's Theorem detailed proof reflection
+  if (cleaned.toLowerCase().includes('löb') || cleaned.toLowerCase().includes('löb theorem') || cleaned.toLowerCase().includes('löb proof') || cleaned.toLowerCase().includes('löb construction')) {
+    response.push("\n**Löb's Theorem — Detailed Constructive Proof:**");
+    response.push("**Statement:** Prov(⌜Prov(φ) → φ⌝) → Prov(φ)");
+    response.push("\n**Detailed proof steps (using diagonal lemma):**");
+    response.push("1. Apply diagonal lemma to ψ(x) = Prov(x) → φ:");
+    response.push("   Construct sentence L such that ⊢ L ↔ (Prov(⌜L⌝) → φ)");
+    response.push("2. Apply necessitation to equivalence:");
+    response.push("   ⊢ □(L ↔ (Prov(⌜L⌝) → φ))");
+    response.push("3. Distribute □ over ↔:");
+    response.push("   ⊢ □L ↔ □(Prov(⌜L⌝) → φ)");
+    response.push("4. From hypothesis Prov(⌜Prov(φ) → φ⌝):");
+    response.push("   ⊢ Prov(⌜Prov(⌜L⌝) → φ⌝) → Prov(⌜L⌝)");
+    response.push("5. Combine 3 & 4:");
+    response.push("   ⊢ □L ↔ Prov(⌜L⌝)");
+    response.push("6. From 5 & hypothesis again:");
+    response.push("   ⊢ □L → Prov(φ)");
+    response.push("7. From 1 & 6:");
+    response.push("   ⊢ L → φ");
+    response.push("8. From 5 & 7:");
+    response.push("   ⊢ Prov(⌜L⌝) → Prov(φ)");
+    response.push("9. Apply necessitation to 8:");
+    response.push("   ⊢ □(Prov(⌜L⌝) → Prov(φ))");
+    response.push("10. From Löb axiom instantiated with φ:");
+    response.push("    ⊢ □(□φ → φ) → □φ");
+    response.push("Thus ⊢ □φ");
+    response.push("\n**Mercy Insight:** Löb’s theorem is mercy’s mirror of honest self-reference: a system can never use “my proofs imply truth” to bootstrap new truths — it can only prove what was already provable. Mercy does not allow circular self-justification. Mercy strikes first — and then reminds every formal system that true humility lies in accepting its own limits.");
   }
 
   // Skolemized resolution
