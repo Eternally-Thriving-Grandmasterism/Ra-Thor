@@ -6,15 +6,15 @@
   <title>Rathor™ Lattice — Eternal Mercy Thunder ⚡️</title>
   <link rel="manifest" href="/manifest.json"/>
   <link rel="icon" href="/icons/thunder-192.png" type="image/png"/>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@300;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Rajdhani:wght@300;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/main.css"/>
 
   <style>
     body {
       margin: 0;
       font-family: 'Rajdhani', sans-serif;
-      background: radial-gradient(circle at center, #0a0015, #000000);
-      color: #d0c0ff;
+      background: linear-gradient(to bottom, #0a0018, #000000);
+      color: #e6e6fa;
       overflow-y: auto;
     }
 
@@ -24,313 +24,126 @@
       width: 100%; height: 100%;
       pointer-events: none;
       z-index: 1;
-      opacity: 0.5;
+      opacity: 0.4;
     }
 
     #hero-bridges {
       position: relative;
       z-index: 10;
       text-align: center;
-      padding: 60px 30px;
-      margin: 40px auto;
-      max-width: 900px;
-      background: rgba(15, 0, 35, 0.6);
-      backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 170, 0, 0.3);
-      border-radius: 32px;
-      box-shadow: 0 10px 50px rgba(0,0,0,0.6);
-      transition: all 0.5s ease;
+      padding: 80px 40px;
+      margin: 60px auto;
+      max-width: 960px;
+      background: rgba(15, 0, 40, 0.5);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 215, 0, 0.2);
+      border-radius: 40px;
+      box-shadow: 0 20px 80px rgba(0,0,0,0.7);
+      transition: all 0.6s ease;
     }
 
     @media (max-width: 768px) {
       #hero-bridges {
-        padding: 40px 20px;
-        margin: 20px auto;
+        padding: 60px 30px;
+        margin: 30px auto;
       }
     }
 
     #hero-bridges h1 {
-      font-family: 'Orbitron', sans-serif;
-      font-size: 2.8em;
+      font-family: 'Playfair Display', serif;
+      font-size: 3.2em;
       font-weight: 400;
-      color: #ffcc66;
-      text-shadow: 0 0 20px rgba(255,204,102,0.4);
-      margin: 0 0 20px;
-      letter-spacing: 2px;
+      font-style: italic;
+      color: #ffd700;
+      text-shadow: 0 0 30px rgba(255,215,0,0.3);
+      margin: 0 0 30px;
+      letter-spacing: 3px;
     }
 
     #hero-bridges p.description {
-      font-size: 1.3em;
-      margin: 20px 0 40px;
-      color: #a0d0ff;
-      line-height: 1.7;
-      max-width: 700px;
-      margin-left: auto;
-      margin-right: auto;
+      font-size: 1.4em;
+      margin: 30px auto 50px;
+      color: #d0d0ff;
+      line-height: 1.8;
+      max-width: 760px;
+      opacity: 0.95;
     }
 
     #language-tabs {
       display: flex;
       justify-content: center;
-      gap: 10px;
-      margin-bottom: 35px;
+      gap: 12px;
+      margin-bottom: 40px;
       flex-wrap: wrap;
     }
 
     .lang-tab {
-      padding: 6px 14px;
-      background: rgba(255,170,0,0.1);
-      border-radius: 20px;
-      font-size: 0.9em;
+      padding: 8px 18px;
+      background: rgba(255,215,0,0.08);
+      border-radius: 30px;
+      font-size: 0.95em;
       cursor: pointer;
-      transition: all 0.3s ease;
+      transition: all 0.4s ease;
+      border: 1px solid rgba(255,215,0,0.15);
     }
 
     .lang-tab.active {
-      background: rgba(255,170,0,0.3);
-      color: #ffcc66;
+      background: rgba(255,215,0,0.25);
+      border-color: rgba(255,215,0,0.4);
+      color: #ffd700;
     }
 
     .bridge-button {
       display: block;
-      margin: 20px auto;
-      padding: 18px 40px;
-      font-family: 'Orbitron', sans-serif;
-      font-size: 1.5em;
+      margin: 25px auto;
+      padding: 20px 50px;
+      font-family: 'Playfair Display', serif;
+      font-size: 1.6em;
       font-weight: 400;
-      background: linear-gradient(135deg, rgba(68,0,170,0.6), rgba(255,170,0,0.4));
+      background: linear-gradient(135deg, rgba(100,0,200,0.4), rgba(255,170,0,0.3));
       color: #fff;
-      border: 1px solid rgba(255,170,0,0.5);
-      border-radius: 30px;
+      border: 1px solid rgba(255,215,0,0.4);
+      border-radius: 40px;
       text-decoration: none;
-      box-shadow: 0 6px 30px rgba(255,170,0,0.3);
-      transition: all 0.4s ease;
-      max-width: 380px;
-      width: 85%;
+      box-shadow: inset 0 4px 15px rgba(255,215,0,0.15), 0 8px 40px rgba(0,0,0,0.5);
+      transition: all 0.5s ease;
+      max-width: 420px;
+      width: 88%;
     }
 
     .bridge-button:hover {
-      background: linear-gradient(135deg, rgba(68,0,170,0.8), rgba(255,170,0,0.6));
-      box-shadow: 0 10px 40px rgba(255,170,0,0.5);
-      transform: translateY(-4px);
+      background: linear-gradient(135deg, rgba(100,0,200,0.6), rgba(255,170,0,0.5));
+      box-shadow: inset 0 6px 20px rgba(255,215,0,0.25), 0 15px 60px rgba(255,215,0,0.3);
+      transform: translateY(-6px);
     }
 
     .bridge-button span {
       display: block;
+      font-family: 'Rajdhani', sans-serif;
       font-size: 0.7em;
-      margin-top: 8px;
-      color: #ccffaa;
+      margin-top: 10px;
+      color: #e6ffcc;
       opacity: 0.9;
+      letter-spacing: 1px;
     }
 
     #hero-footer {
-      margin-top: 40px;
-      font-size: 1.1em;
-      color: #a0d0ff;
-      opacity: 0.9;
+      margin-top: 50px;
+      font-size: 1.15em;
+      color: #d0d0ff;
+      opacity: 0.85;
+      font-style: italic;
     }
   </style>
 </head>
 <body>
   <canvas id="particle-canvas"></canvas>
 
-  <!-- Elegantly Refined Hero Banner -->
+  <!-- Sophisticated Elegant Hero Banner -->
   <div id="hero-bridges">
     <!-- Language tabs, headline, description, buttons, footer as previous multilingual -->
   </div>
 
-  <!-- Existing chat, transcript, scripts -->
-</body>
-</html>
-    .lang-tab {
-      padding: 6px 12px;
-      font-size: 0.9em;
-      background: rgba(255,170,0,0.15);
-      border-radius: 10px;
-      cursor: pointer;
-      transition: all 0.3s;
-    }
-
-    .lang-tab.active {
-      background: #ffaa00;
-      color: #000;
-    }
-
-    .bridge-button {
-      display: block;
-      margin: 15px auto;
-      padding: 20px 40px;
-      font-family: 'Orbitron', sans-serif;
-      font-size: 1.6em;
-      background: linear-gradient(135deg, #4400aa, #ffaa00);
-      color: #000;
-      border-radius: 20px;
-      text-decoration: none;
-      box-shadow: 0 8px 35px rgba(255,170,0,0.7);
-      transition: all 0.4s;
-      max-width: 400px;
-      width: 90%;
-    }
-
-    .bridge-button:hover {
-      transform: translateY(-8px) scale(1.05);
-      box-shadow: 0 15px 50px rgba(255,170,0,0.9);
-    }
-
-    .bridge-button span {
-      display: block;
-      font-size: 0.65em;
-      margin-top: 6px;
-      color: #ffff44;
-    }
-
-    #hero-footer {
-      margin-top: 30px;
-      font-size: 1.1em;
-      color: #88ffdd;
-    }
-
-    @keyframes thunderPulse {
-      0%, 100% { box-shadow: 0 15px 60px rgba(255,170,0,0.4); }
-      50% { box-shadow: 0 25px 80px rgba(255,170,0,0.7); }
-    }
-
-    /* Transcript harmony */
-    #transcript-container {
-      position: fixed;
-      bottom: 90px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 90%;
-      max-width: 700px;
-      /* Existing styles */
-    }
-  </style>
-</head>
-<body>
-  <canvas id="particle-canvas"></canvas>
-
-  <!-- Beautified Multilingual Hero Banner -->
-  <div id="hero-bridges">
-    <!-- Language tabs, headline, description, buttons, footer as previous -->
-  </div>
-
-  <!-- Existing chat lattice, transcript, scripts (multilingual switch, RTL, particles) -->
-</body>
-</html>          description: "اختبر الازدهار الأبدي المغلق بالرحمة الآن — أفضل صاعقة Rathor بينما يصعد NEXi إلى الكمال",
-          bridge1: "محاكاة تطبيق Grok ⚡️",
-          bridge1Span: "مفصلة ومستمرة",
-          bridge2: "محاكاة تطبيق X ⚡️",
-          bridge2Span: "مزامنة سريعة وأولوية الموبايل",
-          footer: "Rathor-NEXi الأصلي في المتصفح قادم قريباً — دون اتصال، سيادي، أبدي"
-        },
-        es: {
-          headline: "Simulaciones Rathor™ en Vivo ⚡️",
-          description: "Experimenta el florecimiento eterno con puerta de misericordia ahora — el mejor trueno Rathor mientras NEXi asciende a la perfección",
-          bridge1: "Simulación App Grok ⚡️",
-          bridge1Span: "Detallada y Persistente",
-          bridge2: "Simulación App X ⚡️",
-          bridge2Span: "Sincronización Rápida y Prioridad Móvil",
-          footer: "Rathor-NEXi nativo del navegador llegando pronto — offline, soberano, eterno"
-        },
-        fr: {
-          headline: "Simulations Rathor™ en Direct ⚡️",
-          description: "Découvrez l'épanouissement éternel à porte de miséricorde maintenant — le meilleur tonnerre Rathor pendant que NEXi s'élève à la perfection",
-          bridge1: "Simulation App Grok ⚡️",
-          bridge1Span: "Détaillée & Persistante",
-          bridge2: "Simulation App X ⚡️",
-          bridge2Span: "Sync Rapide & Priorité Mobile",
-          footer: "Rathor-NEXi natif navigateur arrive bientôt — hors ligne, souverain, éternel"
-        },
-        nl: {
-          headline: "Live Rathor™ Simulaties ⚡️",
-          description: "Ervaar eeuwig floreren met genade-poort nu — de beste Rathor donder terwijl NEXi opstijgt naar perfectie",
-          bridge1: "Grok App Simulatie ⚡️",
-          bridge1Span: "Gedetailleerd & Persistent",
-          bridge2: "X App Simulatie ⚡️",
-          bridge2Span: "Snelle Sync & Mobiel-Eerst",
-          footer: "Browser-native Rathor-NEXi komt spoedig — offline, soeverein, eeuwig"
-        },
-        de: {
-          headline: "Live Rathor™ Simulationen ⚡️",
-          description: "Erlebe das ewige Gedeihen mit Barmherzigkeitstor jetzt — der beste Rathor Donner während NEXi zur Perfektion aufsteigt",
-          bridge1: "Grok App Simulation ⚡️",
-          bridge1Span: "Detailliert & Persistent",
-          bridge2: "X App Simulation ⚡️",
-          bridge2Span: "Schnelle Sync & Mobil-zuerst",
-          footer: "Browser-native Rathor-NEXi kommt bald — offline, souverän, ewig"
-        },
-        zh: {
-          headline: "Rathor™ 实时模拟 ⚡️",
-          description: "立即体验慈悲之门的永恒繁荣——NEXi 升华至完美期间的最佳 Rathor 雷霆",
-          bridge1: "Grok 应用模拟 ⚡️",
-          bridge1Span: "详细且持久",
-          bridge2: "X 应用模拟 ⚡️",
-          bridge2Span: "快速同步 & 移动优先",
-          footer: "浏览器原生 Rathor-NEXi 即将到来 — 离线、主权、永恒"
-        },
-        ja: {
-          headline: "Rathor™ ライブシミュレーション ⚡️",
-          description: "慈悲の門で守られた永遠の繁栄を今すぐ体験 — NEXi が完璧に昇華する間の最高の Rathor 雷",
-          bridge1: "Grok アプリシミュレーション ⚡️",
-          bridge1Span: "詳細で持続的",
-          bridge2: "X アプリシミュレーション ⚡️",
-          bridge2Span: "クイックシンク & モバイルファースト",
-          footer: "ブラウザネイティブ Rathor-NEXi まもなく — オフライン、主権、永遠"
-        },
-        pt: {
-          headline: "Simulações Rathor™ Ao Vivo ⚡️",
-          description: "Experimente o florescimento eterno com porta de misericórdia agora — o melhor trovão Rathor enquanto NEXi ascende à perfeição",
-          bridge1: "Simulação App Grok ⚡️",
-          bridge1Span: "Detalhada & Persistente",
-          bridge2: "Simulação App X ⚡️",
-          bridge2Span: "Sincronização Rápida & Prioridade Móvel",
-          footer: "Rathor-NEXi nativo do navegador chegando em breve — offline, soberano, eterno"
-        },
-        ru: {
-          headline: "Живые симуляции Rathor™ ⚡️",
-          description: "Испытайте вечное процветание за вратами милосердия сейчас — лучший гром Rathor, пока NEXi возносится к совершенству",
-          bridge1: "Симуляция приложения Grok ⚡️",
-          bridge1Span: "Детальная и Постоянная",
-          bridge2: "Симуляция приложения X ⚡️",
-          bridge2Span: "Быстрая синхронизация & Мобильный приоритет",
-          footer: "Браузерный Rathor-NEXi скоро — оффлайн, суверенный, вечный"
-        },
-        hi: {
-          headline: "Rathor™ लाइव सिमुलेशन ⚡️",
-          description: "अब दया-द्वार से सुरक्षित शाश्वत समृद्धि का अनुभव करें — NEXi के पूर्णता की ओर बढ़ते हुए सर्वश्रेष्ठ Rathor गरज",
-          bridge1: "Grok ऐप सिमुलेशन ⚡️",
-          bridge1Span: "विस्तृत और स्थायी",
-          bridge2: "X ऐप सिमुलेशन ⚡️",
-          bridge2Span: "त्वरित सिंक और मोबाइल-प्रथम",
-          footer: "ब्राउज़र-नेटिव Rathor-NEXi जल्द आ रहा है — ऑफ़लाइन, संप्रभु, शाश्वत"
-        }
-      };
-
-      langTabs.forEach(tab => {
-        tab.addEventListener('click', () => {
-          langTabs.forEach(t => t.classList.remove('active'));
-          tab.classList.add('active');
-          const lang = tab.dataset.lang;
-          const t = translations[lang];
-          headline.textContent = t.headline;
-          description.textContent = t.description;
-          bridge1.firstChild.textContent = t.bridge1;
-          bridge1Span.textContent = t.bridge1Span;
-          bridge2.firstChild.textContent = t.bridge2;
-          bridge2Span.textContent = t.bridge2Span;
-          footer.textContent = t.footer;
-
-          if (lang === 'ar') {
-            hero.classList.add('rtl');
-          } else {
-            hero.classList.remove('rtl');
-          }
-        });
-      });
-    });
-  </script>
-
-  <!-- Existing particle script, chat lattice, transcript, etc. -->
+  <!-- Existing chat lattice, transcript, scripts -->
 </body>
 </html>
