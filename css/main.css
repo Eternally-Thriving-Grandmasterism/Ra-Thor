@@ -1,43 +1,34 @@
-/* Rathor Lattice Chat Styles — RTL-Ready with dir="auto" */
+:root {
+  --thunder-gold: #ffaa00;
+  --text-mercy: #e0d0ff;
+}
 
 #chat-messages {
   display: flex;
   flex-direction: column;
   gap: 16px;
   padding: 20px;
-  overflow-y: auto;
-  align-items: flex-start; /* Rathor messages start-aligned */
 }
 
 .message {
   max-width: 80%;
   padding: 12px 18px;
   border-radius: 20px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.4);
-  animation: gentlePulse 3s infinite alternate;
 }
 
 .message.user {
   align-self: flex-end;
-  background: linear-gradient(135deg, #ffaa00, #ffdd88);
+  background: var(--thunder-gold);
   color: #000;
-  border-bottom-right-radius: 4px;
 }
 
 .message.rathor {
   align-self: flex-start;
   background: rgba(40, 0, 80, 0.9);
-  color: #e0d0ff;
-  border-bottom-left-radius: 4px;
+  color: var(--text-mercy);
 }
 
 .message-text {
-  dir: auto; /* Core RTL extension — auto-detects Arabic/script */
+  dir: auto;
   text-align: start;
-  white-space: pre-wrap;
-  word-break: break-word;
-  font-size: 1.1em;
-  line-height: 1.6;
 }
-
-/* Existing cosmic/transcript styles preserved below */
