@@ -15,3 +15,7 @@ Cargo.lock
 # Node.js
 node_modules/
 .env
+
+android/
+ios/
+dist/
