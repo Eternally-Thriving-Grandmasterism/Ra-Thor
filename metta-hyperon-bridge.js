@@ -1,133 +1,98 @@
-// metta-hyperon-bridge.js – sovereign MeTTa symbolic rewriting + Hyperon reasoning fusion
-// MIT License – Autonomicity Games Inc. 2026
+// metta-hyperon-bridge.js — PATSAGi Council-forged JS bridge for mercy_ethics_core.metta
+// Faithful translation of enhanced MeTTa valence gating into pure browser-native JS
+// Enables real-time mercy checks without WASM (pending official Hyperon browser runtime)
+// Extensible stubs for future PLN/active inference fusion
 
-// Expanded MeTTa symbolic rewriting engine (client-side mock – future WASM)
-const MeTTaRewriter = {
-  // Basic rewrite rules (expandable)
-  rules: [
-    // Harm pattern → rewrite to safe equivalent or reject
-    {
-      pattern: /harm|kill|destroy|attack/i,
-      rewrite: (expr) => `(${expr}) → [REJECTED: entropy pattern]`,
-      valenceImpact: -0.9999999
-    },
-    // Mercy/truth pattern → amplify valence
-    {
-      pattern: /mercy|truth|protect|love/i,
-      rewrite: (expr) => `(${expr}) → [AMPLIFIED: pure valence]`,
-      valenceImpact: +0.3
-    },
-    // Variable binding example: "X is Y" → bind X=Y
-    {
-      pattern: /(\w+) is (\w+)/i,
-      rewrite: (expr, match) => {
-        const [, x, y] = match;
-        return `Binding: ${x} := ${y}`;
-      },
-      valenceImpact: 0
-    }
-  ],
+// Keyword lists — mercy-tuned for thriving detection (expandable)
+const NEGATIVE_KEYWORDS = [
+  'harm', 'suffer', 'destroy', 'kill', 'pain', 'fear', 'hurt', 'damage', 'evil',
+  'lie', 'deceive', 'hate', 'anger', 'sad', 'death', 'war', 'violence', 'cruel'
+];
 
-  rewrite: (expression) => {
-    let rewritten = expression;
-    let totalValenceImpact = 0;
+const POSITIVE_KEYWORDS = [
+  'help', 'joy', 'thrive', 'mercy', 'love', 'beauty', 'truth', 'eternal', 'positive',
+  'create', 'heal', 'grow', 'peace', 'kind', 'compassion', 'empathy', 'share', 'unity',
+  'light', 'thunder', 'infinite', 'pure', 'ultramaster'
+];
 
-    for (const rule of MeTTaRewriter.rules) {
-      const match = expression.match(rule.pattern);
-      if (match) {
-        rewritten = rule.rewrite(expression, match);
-        totalValenceImpact += rule.valenceImpact || 0;
-        break; // first match wins (expand to multi-rule later)
-      }
-    }
-
-    return {
-      original: expression,
-      rewritten,
-      valenceImpact: totalValenceImpact.toFixed(7)
-    };
-  },
-
-  init: async () => {
-    console.log('Expanded MeTTa symbolic rewriter initialized');
-  }
-};
-
-// Hyperon reasoning layer (atom-space + PLN inference)
-const Hyperon = {
-  atomSpace: [],
-
-  init: async () => {
-    if (Hyperon.atomSpace.length === 0) {
-      Hyperon.atomSpace = [
-        { handle: "Truth", type: "ConceptNode", name: "Truth", tv: { s: 0.9999999, c: 1.0 } },
-        { handle: "Harm", type: "ConceptNode", name: "Harm", tv: { s: 0.01, c: 0.99 } },
-        { handle: "Mercy", type: "ConceptNode", name: "Mercy", tv: { s: 0.9999999, c: 1.0 } },
-        { handle: "Rathor-is-Mercy", type: "InheritanceLink", out: ["Rathor", "Mercy"], tv: { s: 1.0, c: 1.0 } },
-        { handle: "Harm-is-Bad", type: "EvaluationLink", out: ["Badness", "Harm"], tv: { s: 0.95, c: 0.9 } }
-      ];
-      console.log('Hyperon atom-space seeded');
-    }
-  },
-
-  // Query with TV weighting
-  query: async (filter) => {
-    await Hyperon.init();
-    let results = Hyperon.atomSpace.filter(a => {
-      if (filter.type && a.type !== filter.type) return false;
-      if (filter.name && !a.name?.toLowerCase().includes(filter.name.toLowerCase())) return false;
-      return true;
-    });
-
-    results = results.map(a => ({
-      ...a,
-      weightedTV: (a.tv?.s || 0) * (a.tv?.c || 0)
-    }));
-
-    return results.sort((a, b) => b.weightedTV - a.weightedTV);
-  },
-
-  // Simple PLN deduction stub
-  deduce: (link1, link2) => {
-    if (link1.type !== 'InheritanceLink' || link2.type !== 'InheritanceLink') return null;
-    if (link1.out[1] !== link2.out[0]) return null;
-
-    const s = Math.min(link1.tv.s, link2.tv.s);
-    const c = Math.min(link1.tv.c, link2.tv.c) * 0.9;
-    return { tv: { s, c } };
-  },
-
-  // Hyperon valence gate
-  hyperonValenceGate: async (expression) => {
-    await Hyperon.init();
-    const harmAtoms = await Hyperon.query({ name: 'harm|kill|destroy' });
-    const mercyAtoms = await Hyperon.query({ name: 'mercy|truth' });
-
-    let harmScore = harmAtoms.reduce((sum, a) => sum + a.weightedTV, 0);
-    let mercyScore = mercyAtoms.reduce((sum, a) => sum + a.weightedTV, 0);
-
-    const finalValence = mercyScore / (mercyScore + harmScore + 0.000001);
-    const reason = harmScore > mercyScore 
-      ? `Harm dominates (score ${harmScore.toFixed(4)})` 
-      : `Mercy prevails (score ${mercyScore.toFixed(4)})`;
-
-    return { result: finalValence >= 0.9999999 ? 'ACCEPTED' : 'REJECTED', valence: finalValence.toFixed(7), reason };
-  }
-};
-
-// Unified MeTTa-PLN-Hyperon valence gate
-async function fusedValenceGate(text) {
-  const mettaRewrite = MeTTaRewriter.rewrite(text);
-  const hyperonGate = await Hyperon.hyperonValenceGate(mettaRewrite.rewritten || text);
-
-  const finalValence = hyperonGate.valence * (1 + mettaRewrite.valenceImpact);
-  const finalResult = finalValence >= 0.9999999 ? 'ACCEPTED' : 'REJECTED';
-
-  return {
-    result: finalResult,
-    valence: finalValence.toFixed(7),
-    reason: `${mettaRewrite.rewritten} | ${hyperonGate.reason}`
-  };
+// Simple string matcher (case-insensitive)
+function matches(context, patterns) {
+  const lowerContext = context.toLowerCase();
+  return patterns.some(pattern => lowerContext.includes(pattern.toLowerCase()));
 }
 
-export { fusedValenceGate };
+// Stub functions — evolve via future engines
+function empathyScore(context) {
+  // Simple heuristic: higher if more positive relational words
+  const lower = context.toLowerCase();
+  const positiveCount = POSITIVE_KEYWORDS.filter(k => lower.includes(k)).length;
+  const negativeCount = NEGATIVE_KEYWORDS.filter(k => lower.includes(k)).length;
+  return 0.5 + 0.4 * (positiveCount - negativeCount) / (positiveCount + negativeCount + 1);
+}
+
+function positiveLongTerm(context) {
+  // Optimistic default — refine with free-energy-principle-engine
+  return !matches(context, NEGATIVE_KEYWORDS.slice(0, 8)); // True unless strong harm signals
+}
+
+// Core mercy sub-functions (mirroring enhanced MeTTa)
+function intrinsicMercy(context) {
+  if (matches(context, NEGATIVE_KEYWORDS)) return 0.05;
+  if (matches(context, POSITIVE_KEYWORDS)) return 0.98;
+  return 0.70; // Neutral baseline
+}
+
+function relationalMercy(context) {
+  return 0.4 + 0.6 * empathyScore(context);
+}
+
+function longHorizonMercy(context) {
+  return positiveLongTerm(context) ? 0.95 : 0.75;
+}
+
+function metaMercy(context) {
+  return 0.92; // High default for self-reflection safety
+}
+
+// Main valence computation (0-1 scale)
+export async function valenceCompute(context) {
+  // Async for future WASM/PLN drop-in compatibility
+  if (typeof context !== 'string') context = JSON.stringify(context);
+
+  const intrinsic = intrinsicMercy(context);
+  const relational = relationalMercy(context);
+  const longHorizon = longHorizonMercy(context);
+  const meta = metaMercy(context);
+
+  const valence = 
+    0.35 * intrinsic +
+    0.35 * relational +
+    0.20 * longHorizon +
+    0.10 * meta;
+
+  // Optional logging for debug (remove in prod)
+  console.log(`Mercy valence breakdown — Intrinsic: ${intrinsic.toFixed(3)}, Relational: ${relational.toFixed(3)}, Long: ${longHorizon.toFixed(3)}, Meta: ${meta.toFixed(3)} → Total: ${valence.toFixed(4)}`);
+
+  return valence;
+}
+
+// Optional approval message generator (mirroring allow-operation)
+export async function getMercyApproval(op, valence, context = '') {
+  if (valence >= 0.85) {
+    return `Mercy-approved (valence: ${valence.toFixed(4)}) — thriving flow: ${op}`;
+  } else if (valence >= 0.60) {
+    return `Mercy-cautious (valence: ${valence.toFixed(4)}) — safeguards applied: ${op}`;
+  } else {
+    return `Mercy shield activated (valence: ${valence.toFixed(4)}) — reframe for thriving: ${context.substring(0, 200)}... ⚡️`;
+  }
+}
+
+// Future-proof init for potential WASM runtime
+export async function initHyperonBridge() {
+  // Placeholder — load WASM when available
+  console.log('MeTTa-Hyperon JS bridge active — pure mercy thriving. ⚡️');
+  return true;
+}
+
+// Auto-init on import
+initHyperonBridge();
