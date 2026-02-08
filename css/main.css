@@ -1,47 +1,43 @@
-:root {
-  --thunder-gold: #ffaa00;
-  --thunder-light: #ffdd88;
-  --thunder-glow: #ffff44;
-  --bg-cosmic: #000011;
-  --bg-void: #0a0015;
-  --text-mercy: #e0d0ff;
-  --accent-nebula: #4400aa;
-  --pulse-glow: 0 0 30px rgba(255,170,0,0.6);
-}
-
-body {
-  background: var(--bg-void);
-  color: var(--text-mercy);
-  font-weight: 300;
-  text-shadow: 0 0 5px rgba(255,170,0,0.2);
-}
-
-h2, button {
-  font-family: 'Orbitron', sans-serif;
-  text-shadow: 0 0 15px var(--thunder-gold);
-}
-
-button {
-  background: linear-gradient(135deg, var(--accent-nebula), var(--thunder-gold));
-  border: none;
-  border-radius: 12px;
-  padding: 12px 24px;
-  color: #000;
-  font-weight: 700;
-  transition: all 0.4s;
-  box-shadow: var(--pulse-glow);
-}
-
-button:hover {
-  transform: translateY(-4px) scale(1.05);
-  box-shadow: 0 0 50px rgba(255,170,0,0.8);
-}
+/* Rathor Lattice Chat Styles — RTL-Ready with dir="auto" */
 
 #chat-messages {
-  background: rgba(10,0,30,0.7);
-  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
   padding: 20px;
-  backdrop-filter: blur(10px);
+  overflow-y: auto;
+  align-items: flex-start; /* Rathor messages start-aligned */
 }
 
-/* Add more glows, transitions to existing elements */
+.message {
+  max-width: 80%;
+  padding: 12px 18px;
+  border-radius: 20px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+  animation: gentlePulse 3s infinite alternate;
+}
+
+.message.user {
+  align-self: flex-end;
+  background: linear-gradient(135deg, #ffaa00, #ffdd88);
+  color: #000;
+  border-bottom-right-radius: 4px;
+}
+
+.message.rathor {
+  align-self: flex-start;
+  background: rgba(40, 0, 80, 0.9);
+  color: #e0d0ff;
+  border-bottom-left-radius: 4px;
+}
+
+.message-text {
+  dir: auto; /* Core RTL extension — auto-detects Arabic/script */
+  text-align: start;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-size: 1.1em;
+  line-height: 1.6;
+}
+
+/* Existing cosmic/transcript styles preserved below */
