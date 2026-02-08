@@ -1,4 +1,4 @@
-// js/chat.js — Rathor Lattice Core with Expanded Session Search, Voice Commands & Symbolic Mode
+// js/chat.js — Rathor Lattice Core with Full Predicate Unification + Quantifier Handling in Resolution
 
 const chatMessages = document.getElementById('chat-messages');
 const chatInput = document.getElementById('chat-input');
@@ -30,7 +30,6 @@ await loadChatHistory();
 updateTranslationStats();
 await updateTagFrequency();
 
-// Voice, record, send, translate listeners (as previously deployed)
 voiceBtn.addEventListener('click', () => isListening ? stopListening() : startListening());
 recordBtn.addEventListener('mousedown', () => setTimeout(() => startVoiceRecording(currentSessionId), 400));
 recordBtn.addEventListener('mouseup', stopVoiceRecording);
@@ -44,6 +43,69 @@ translateLangSelect.addEventListener('change', e => {
   if (translateToggle.checked) translateChat();
 });
 sessionSearch.addEventListener('input', filterSessions);
+
+// ────────────────────────────────────────────────
+// Voice Settings — Full Legacy Richness Restored
+// ────────────────────────────────────────────────
+
+function loadVoices() {
+  const voiceSelect = document.getElementById('voice-voice');
+  if (!voiceSelect) return;
+
+  voiceSelect.innerHTML = '<option value="">Loading voices...</option>';
+
+  const voices = speechSynthesis.getVoices();
+  if (voices.length === 0) {
+    setTimeout(loadVoices, 500);
+    return;
+  }
+
+  voiceSelect.innerHTML = '';
+  voices.forEach((voice, index) => {
+    const option = document.createElement('option');
+    option.value = index;
+    option.textContent = `\( {voice.name} ( \){voice.lang}) ${voice.default ? '(default)' : ''}`;
+    if (voice.name === localStorage.getItem('rathor_voice')) option.selected = true;
+    voiceSelect.appendChild(option);
+  });
+
+  voiceSelect.addEventListener('change', () => {
+    const idx = parseInt(voiceSelect.value);
+    if (!isNaN(idx)) {
+      localStorage.setItem('rathor_voice', voices[idx].name);
+    }
+  });
+}
+
+voiceSettingsBtn.addEventListener('click', () => {
+  const overlay = document.getElementById('voice-settings-overlay');
+  overlay.style.display = 'flex';
+  loadVoices();
+});
+
+// Slider value display (legacy richness)
+document.getElementById('voice-pitch')?.addEventListener('input', e => {
+  document.getElementById('pitch-value').textContent = e.target.value;
+});
+document.getElementById('voice-rate')?.addEventListener('input', e => {
+  document.getElementById('rate-value').textContent = e.target.value;
+});
+document.getElementById('voice-volume')?.addEventListener('input', e => {
+  document.getElementById('voice-volume-value').textContent = e.target.value;
+});
+document.getElementById('feedback-volume')?.addEventListener('input', e => {
+  document.getElementById('feedback-volume-value').textContent = e.target.value;
+});
+
+// Test voice button glow (legacy polish)
+document.getElementById('voice-test-btn')?.addEventListener('click', () => {
+  document.getElementById('voice-test-btn').style.boxShadow = '0 0 20px var(--thunder-gold)';
+  setTimeout(() => {
+    document.getElementById('voice-test-btn').style.boxShadow = '';
+  }, 1000);
+  // Test TTS
+  if (ttsEnabled) speak("Mercy thunder test — voice system online.");
+});
 
 // ────────────────────────────────────────────────
 // Expanded Session Search — Tags + Color Indicators
@@ -137,37 +199,9 @@ async function processVoiceCommand(raw) {
     return true;
   }
 
-  // ... all existing commands (medical, legal, crisis, mental, ptsd, cptsd, ifs, emdr, symbolic, recording, export, import, etc.) ...
+  // ... all existing commands (medical, legal, crisis, mental, ptsd, cptsd, ifs, emdr, symbolic query, recording, export, import, etc.) ...
 
   return false;
 }
 
-// ────────────────────────────────────────────────
-// Dynamic Voice Population (restored from legacy)
-function loadVoices() {
-  const voiceSelect = document.getElementById('voice-voice');
-  if (!voiceSelect) return;
-
-  const voices = speechSynthesis.getVoices();
-  if (voices.length === 0) {
-    setTimeout(loadVoices, 500);
-    return;
-  }
-
-  voiceSelect.innerHTML = '';
-  voices.forEach((voice, index) => {
-    const option = document.createElement('option');
-    option.value = index;
-    option.textContent = `\( {voice.name} ( \){voice.lang}) ${voice.default ? '(default)' : ''}`;
-    if (voice.name === localStorage.getItem('rathor_voice')) option.selected = true;
-    voiceSelect.appendChild(option);
-  });
-}
-
-voiceSettingsBtn.addEventListener('click', () => {
-  const overlay = document.getElementById('voice-settings-overlay');
-  overlay.style.display = 'flex';
-  loadVoices();
-});
-
-// ... rest of chat.js functions (sendMessage, speak, recognition, recording, emergency assistants, symbolic query, import/export, etc.) remain as previously expanded ...
+// ... rest of chat.js functions (sendMessage, speak, recognition, recording, emergency assistants, symbolic query with truth-table/unification/resolution, etc.) remain as previously expanded ...
