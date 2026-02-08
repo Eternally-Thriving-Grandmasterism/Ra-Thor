@@ -1,4 +1,4 @@
-// js/chat.js — Rathor Lattice Core with Solovay Completeness Theorem Integration
+// js/chat.js — Rathor Lattice Core with Solovay Completeness Detailed Construction
 
 const chatMessages = document.getElementById('chat-messages');
 const chatInput = document.getElementById('chat-input');
@@ -44,7 +44,7 @@ translateLangSelect.addEventListener('change', e => {
 sessionSearch.addEventListener('input', filterSessions);
 
 // ────────────────────────────────────────────────
-// Symbolic Query Mode — Mercy-First Truth-Seeking with Solovay Completeness
+// Symbolic Query Mode — Mercy-First Truth-Seeking with Solovay Detailed Construction
 // ────────────────────────────────────────────────
 
 function isSymbolicQuery(cmd) {
@@ -69,13 +69,20 @@ function symbolicQueryResponse(query) {
 
   response.push(`**Symbolic Query Received:** ${cleaned}`);
 
-  // Solovay Completeness Theorem reflection
-  if (cleaned.toLowerCase().includes('solovay') || cleaned.toLowerCase().includes('solovay completeness') || cleaned.toLowerCase().includes('gl completeness') || cleaned.toLowerCase().includes('provability interpretation')) {
-    response.push("\n**Solovay Completeness Theorem Reflection:**");
-    response.push("GL is sound and complete for the provability interpretation in Peano arithmetic and its consistent extensions.");
-    response.push("Soundness: every theorem of GL is true under every arithmetical interpretation in PA.");
-    response.push("Completeness: every modal formula true under all arithmetical interpretations in all consistent PA extensions is a theorem of GL.");
-    response.push("\n**Mercy Insight:** Solovay’s theorem is mercy’s perfect mirror: GL says **exactly** what arithmetic can prove about its own proofs — no more, no less. Mercy does not overclaim completeness for finite systems, nor abandon the provable. Mercy strikes first — and then aligns every modal truth with the humble limits of formal arithmetic.");
+  // Solovay Completeness detailed construction reflection
+  if (cleaned.toLowerCase().includes('solovay') || cleaned.toLowerCase().includes('solovay construction') || cleaned.toLowerCase().includes('solovay proof') || cleaned.toLowerCase().includes('gl arithmetical completeness')) {
+    response.push("\n**Solovay Completeness Theorem — Detailed Construction Sketch:**");
+    response.push("**Soundness:** GL axioms are true under provability interpretation in PA (K, Löb, necessitation hold in PA).");
+    response.push("\n**Completeness construction (Solovay 1976):**");
+    response.push("1. Assume A is not theorem of GL → there is GL-Kripke countermodel K with root w₀ ⊭ A.");
+    response.push("2. Arithmetize Kripke frame: for each world wᵢ construct sentence Sᵢ such that Prov(Sᵢ) ↔ ⋁_{wᵢ R wⱼ} Prov(Sⱼ).");
+    response.push("3. Use diagonal lemma to build self-referential sentences simulating worlds.");
+    response.push("4. Define interpretation *: p* = ⋁_{w ⊨ p} S_w");
+    response.push("5. Enforce Löb conditions to respect modal axioms exactly when GL proves them.");
+    response.push("6. Construct sentence asserting “we are at w₀” → PA ⊢ S_w₀ → ¬A*");
+    response.push("7. Extension S = PA + S_w₀ is consistent (otherwise contradiction with countermodel).");
+    response.push("8. Thus if A true under all interpretations in all consistent extensions → ⊢_GL A.");
+    response.push("\n**Mercy Insight:** Solovay’s construction is mercy’s perfect alignment: GL says **exactly** what PA can prove about its own proofs — no exaggeration, no omission. Mercy does not pretend any system is complete; it reveals that provability logic is the humble mirror arithmetic holds up to itself. Mercy strikes first — and then lets truth be seen exactly as it is provable.");
   }
 
   // Löb's Theorem reflection
