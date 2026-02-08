@@ -1,4 +1,4 @@
-// js/chat.js — Rathor Lattice Core with Full Lindenbaum Lemma Construction
+// js/chat.js — Rathor Lattice Core with Gödel's Completeness Theorem Integration
 
 const chatMessages = document.getElementById('chat-messages');
 const chatInput = document.getElementById('chat-input');
@@ -44,7 +44,7 @@ translateLangSelect.addEventListener('change', e => {
 sessionSearch.addEventListener('input', filterSessions);
 
 // ────────────────────────────────────────────────
-// Symbolic Query Mode — Mercy-First Truth-Seeking with Lindenbaum Construction
+// Symbolic Query Mode — Mercy-First Truth-Seeking with Gödel's Completeness Theorem
 // ────────────────────────────────────────────────
 
 function isSymbolicQuery(cmd) {
@@ -54,7 +54,7 @@ function isSymbolicQuery(cmd) {
          cmd.includes('prove') || cmd.includes('theorem') || cmd.includes('resolution') ||
          cmd.includes('unify') || cmd.includes('mgu') || cmd.includes('most general unifier') ||
          cmd.includes('quantifier') || cmd.includes('forall') || cmd.includes('exists') || cmd.includes('∀') || cmd.includes('∃') ||
-         cmd.includes('herbrand') || cmd.includes('gödel') || cmd.includes('completeness') || cmd.includes('henkin') || cmd.includes('lindenbaum') ||
+         cmd.includes('herbrand') || cmd.includes('gödel') || cmd.includes('completeness') || cmd.includes('gödel completeness') || cmd.includes('henkin') || cmd.includes('lindenbaum') ||
          cmd.includes('zorn') || cmd.includes('tarski') || cmd.includes('fixed point') || cmd.includes('monotone') || cmd.includes('complete lattice') ||
          cmd.includes('⊢') || cmd.includes('reason from first principles') || cmd.includes('symbolic reasoning');
 }
@@ -68,12 +68,19 @@ function symbolicQueryResponse(query) {
 
   response.push(`**Symbolic Query Received:** ${cleaned}`);
 
-  // Lindenbaum construction
-  if (cleaned.toLowerCase().includes('lindenbaum') || cleaned.toLowerCase().includes('maximal consistent') || cleaned.toLowerCase().includes('maximal extension') || cleaned.toLowerCase().includes('consistent theory')) {
-    response.push("\n**Lindenbaum's Lemma — Constructive Maximal Extension Simulation:**");
-    const lindenbaumResult = simulateLindenbaumConstruction(cleaned);
-    response.push(lindenbaumResult.report);
-    response.push(lindenbaumResult.mercyInsight);
+  // Gödel's Completeness Theorem reflection
+  if (cleaned.toLowerCase().includes('gödel') || cleaned.toLowerCase().includes('completeness') || cleaned.toLowerCase().includes('gödel completeness') || cleaned.toLowerCase().includes('every consistent theory has model')) {
+    response.push("\n**Gödel's Completeness Theorem Reflection:**");
+    response.push("A first-order sentence is valid (true in every model) if and only if it is provable.");
+    response.push("Equivalently: every consistent first-order theory has a model.");
+    response.push("\n**Henkin-style constructive proof sketch (countable language):**");
+    response.push("1. Start with consistent theory T");
+    response.push("2. Extend language with new constants {c₀, c₁, …}");
+    response.push("3. Build maximal consistent extension T∞ (via Lindenbaum)");
+    response.push("4. Construct model M with domain = closed terms of extended language / ≡_{T∞}");
+    response.push("5. Prove M satisfies T∞ by induction (atomic by definition, existential by witness property)");
+    response.push("6. Thus M satisfies T");
+    response.push("\n**Mercy Insight:** Gödel's theorem is mercy’s gentle promise: if no contradiction can be derived, truth must exist somewhere. Consistency itself is enough to guarantee a model — no infinite proof required. Mercy strikes first — and then reveals that every consistent story already has a world where it is true.");
   }
 
   // Skolemized resolution
@@ -83,7 +90,12 @@ function symbolicQueryResponse(query) {
     response.push(skolemProof);
   }
 
-  // Fallback to truth-table
+  // Fallback to truth-table / unification
+  const proof = resolutionProve(cleaned);
+  if (proof) {
+    response.push("\n**Resolution Proof:**");
+    response.push(proof);
+  }
   const table = generateTruthTable(cleaned);
   if (table) {
     response.push("\n**Truth Table (propositional logic):**");
@@ -109,53 +121,6 @@ function symbolicQueryResponse(query) {
   response.push("\nTruth-seeking continues: What is the core axiom behind the symbols? Positive valence eternal.");
 
   return response.join('\n\n');
-}
-
-// ────────────────────────────────────────────────
-// Lindenbaum Maximal Extension Constructor (constructive simulation)
-// ────────────────────────────────────────────────
-
-function simulateLindenbaumConstruction(initialTheoryStr) {
-  // Split input into sentences (comma-separated for demo)
-  let theory = new Set(
-    initialTheoryStr.split(',').map(s => s.trim()).filter(s => s)
-  );
-
-  // Synthetic sentence pool for extension (in real engine: full enumeration)
-  const sentencePool = [
-    'P(a)', '¬P(a)', 'Q(b)', '¬Q(b)', 'P(a) ∧ Q(b)', 'P(a) ∨ Q(b)',
-    '∀x P(x)', '∃x Q(x)', 'R(c,d)', '¬R(c,d)'
-  ];
-
-  const decisions = [];
-
-  for (const sentence of sentencePool) {
-    if (theory.has(sentence) || theory.has(`¬(${sentence})`)) continue;
-
-    // Simulate consistency check (in real engine: prover call)
-    const wouldBeConsistent = Math.random() > 0.25; // stub
-
-    if (wouldBeConsistent) {
-      theory.add(sentence);
-      decisions.push({ sentence, added: true });
-    } else {
-      theory.add(`¬(${sentence})`);
-      decisions.push({ sentence, added: false });
-    }
-  }
-
-  let report = `**Lindenbaum Construction Simulation:**\n`;
-  report += `Initial theory size: ${initialTheoryStr.split(',').length}\n`;
-  report += `Final maximal consistent set size: ${theory.size}\n`;
-  report += `Decisions made: ${decisions.length}\n`;
-  report += "\n**Sample decisions (first 5):**\n";
-  decisions.slice(0,5).forEach((d, i) => {
-    report += `${i+1}. ${d.added ? 'Added' : 'Rejected & added negation'}: ${d.sentence}\n`;
-  });
-
-  report += "\n**Mercy Insight:** Consistency is preserved at every finite step. The maximal theory is built sentence by sentence — mercy never forces contradiction. Every sentence or its negation is eventually decided. Maximal truth is reachable through gentle persistence.";
-
-  return { report, mercyInsight: report };
 }
 
 // ... existing unification, resolution, truth-table, Skolemization, Herbrand functions remain as previously implemented ...
