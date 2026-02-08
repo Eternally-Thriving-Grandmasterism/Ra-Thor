@@ -15,9 +15,7 @@
         "fullscreen": false,
         "resizable": true,
         "width": 1200,
-        "height": 800,
-        "decorations": true,
-        "transparent": false
+        "height": 800
       }
     ],
     "security": {
@@ -30,9 +28,19 @@
     "icon": [
       "icons/thunder-192.png",
       "icons/thunder-512.png"
-    ],
-    "externalBin": [],
-    "resources": []
+    ]
   },
-  "plugins": {}
+  "tauri": {
+    "updater": {
+      "active": true,
+      "pubkey": "YOUR_PASTE_PUBLIC_KEY_BASE64_HERE_WITHOUT_HEADERS",
+      "endpoints": [
+        "https://rathor.ai/updates/{{target}}/{{arch}}.json"
+      ],
+      "dangerousInsecureTransportProtocol": false
+    }
+  },
+  "plugins": {
+    "updater": {}
+  }
 }
