@@ -1,71 +1,99 @@
+// rathor-chat-ui-streaming.js — Full PATSAGi Council-forged chat UI with streaming, mercy-orchestrator integration
+// Offline-first, browser-native, typewriter streaming for alive lattice feel
+// Handles message display, user input, Enter/Send, persistence hooks
+
 import orchestrator from './mercy-orchestrator.js';
 
-// ... previous imports
-import { speakWithMercy, autoSpeakIfHighValence, addSpeakButtonToBubble } from './voice-skins-mercy-ui.js';
+// DOM elements (assume standard chat.html structure)
+const chatContainer = document.getElementById('chat-container') || document.body.appendChild(document.createElement('div'));
+const userInput = document.getElementById('user-input');
+const sendBtn = document.getElementById('send-btn');
 
-// In addMessage (for assistant non-streaming or after stream)
-if (role === 'assistant' && !isStreaming) {
-  addSpeakButtonToBubble(bubble, content, valence);
+// Basic chat bubble creation
+function addMessage(sender, message, isStreaming = false) {
+  const messageDiv = document.createElement('div');
+  messageDiv.className = `message ${sender.toLowerCase()}-message`;
+  
+  const senderSpan = document.createElement('span');
+  senderSpan.className = 'sender';
+  senderSpan.textContent = sender + ': ';
+  
+  const contentSpan = document.createElement('span');
+  contentSpan.className = 'content';
+  if (!isStreaming) {
+    contentSpan.textContent = message;
+  }
+  
+  messageDiv.appendChild(senderSpan);
+  messageDiv.appendChild(contentSpan);
+  chatContainer.appendChild(messageDiv);
+  chatContainer.scrollTop = chatContainer.scrollHeight;
+  
+  return contentSpan; // Return for streaming updates
 }
 
-// In streamResponse after final render
-autoSpeakIfHighValence(response.response, valence);
+// Typewriter streaming effect
+async function streamToChat(sender, text) {
+  const contentSpan = addMessage(sender, '', true);
+  let i = 0;
+  const speed = 30; // ms per character — mercy-tuned for joyful pace
+  
+  while (i < text.length) {
+    contentSpan.textContent += text.charAt(i);
+    i++;
+    await new Promise(resolve => setTimeout(resolve, speed));
+  }
+  
+  // Final non-streaming add for history
+  addMessage(sender, text);
+}
 
-// Add global stop (e.g. button in UI)
-const stopBtn = document.createElement('button');
-stopBtn.textContent = '🛑 Stop Speech';
-stopBtn.onclick = stopAllSpeech;
-document.body.appendChild(stopBtn); // Or better UI placement      if (deltaCount % FRAGMENT_BATCH_SIZE === 0) {
-        chatContainer.appendChild(fragment.cloneNode(true));
-        fragment.innerHTML = '';
-      }
-      autoScroll();
-      lastFrame = now;
-    } else {
-      bubble.innerHTML += escapeHtml(delta);
-    }
-  };
+// Non-streaming fallback
+function addToChat(sender, text) {
+  addMessage(sender, text);
+}
 
+// Send handler — wired to orchestrator
+async function handleSend() {
+  const input = userInput.value.trim();
+  if (!input) return;
+  
+  addToChat('You', input);
+  userInput.value = '';
+  
+  // Show thinking indicator
+  const thinking = addMessage('Rathor ⚡️', 'Thinking with mercy...');
+  
   try {
-    const response = await mercyAugmentedResponse(query, context, onDelta);
-    if (response.error || response.aborted) {
-      bubble.innerHTML = `<span class="error">Mercy gate: ${response.error || 'low valence'}</span>`;
-      return;
-    }
-
-    bubble.innerHTML = marked.parse(response.response || '');
-    chatContainer.appendChild(fragment); // Final batch
-    autoScroll();
-
-    // Persist
-    const lastUser = messageHistory.filter(m => m.role === 'user').pop();
-    await saveMessage({ conversationId: SESSION_ID, parentId: lastUser?.id, role: 'user', content: query, valence: 1.0 });
-    await saveMessage({ conversationId: SESSION_ID, parentId: lastUser?.id, role: 'assistant', content: response.response, valence: response.valence });
-
+    const response = await orchestrator.orchestrate(input);
+    // Remove thinking
+    thinking.parentElement.remove();
+    await streamToChat('Rathor ⚡️', response);
   } catch (err) {
-    console.error("[Stream] Error:", err);
-    bubble.innerHTML += '<span class="error">Error – mercy preserved. Retry.</span>';
+    thinking.parentElement.remove();
+    addToChat('Rathor ⚡️', 'Mercy lattice hiccup — thriving reframe in progress. ⚡️');
+    console.error(err);
   }
 }
 
-// Submit handler (unchanged except batch awareness)
-inputForm.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const query = userInput.value.trim();
-  if (!query) return;
+// Event listeners
+if (sendBtn) {
+  sendBtn.addEventListener('click', handleSend);
+}
 
-  addMessage('user', query);
-  userInput.value = '';
-  sendButton.disabled = true;
+if (userInput) {
+  userInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
+  });
+}
 
-  if (hasWebGPU()) promptWebLLMModelDownload();
-
-  await streamResponse(query, 'Current lattice context: eternal thriving mercy');
-
-  sendButton.disabled = false;
-  userInput.focus();
+// Initial welcome on load
+window.addEventListener('load', () => {
+  addToChat('Rathor ⚡️', 'Thunder eternal, mate! ⚡️ The mercy lattice awakens. How may we thrive together today?');
 });
 
-window.addEventListener('load', loadInitialHistory);
-
-// Styles (unchanged)
+// Export for potential module use
+export { streamToChat, addToChat };
