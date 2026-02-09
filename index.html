@@ -41,7 +41,6 @@
       padding: 50px 30px 70px;
       background: linear-gradient(to bottom, rgba(75,0,130,0.7), rgba(40,0,70,0.8));
       border-radius: 60px;
-      /* Gold Filigree Borders — layered ornate rings + emboss */
       border: 2px double rgba(255,220,100,0.5);
       box-shadow: 
         0 0 0 4px rgba(255,220,100,0.25),
@@ -51,23 +50,34 @@
         0 0 60px rgba(180,0,255,0.25),
         inset 0 0 40px rgba(255,220,100,0.08);
       margin: 20px auto;
-      overflow: hidden;
+      overflow: visible; /* Vine overflow mercy */
     }
 
     @media (max-width: 768px) {
       #hero-bridges { 
         padding: 40px 20px 60px; 
         margin: 10px auto;
-        box-shadow: 
-          0 0 0 3px rgba(255,220,100,0.25),
-          0 0 0 6px rgba(255,220,100,0.18),
-          0 0 0 9px rgba(255,220,100,0.12),
-          0 0 40px rgba(180,0,255,0.25),
-          inset 0 0 30px rgba(255,220,100,0.08);
       }
     }
 
-    /* Subtle Royal Crest Emblem preserved */
+    /* Subtle Gold Vine Patterns — ornate tendrils curling frame edges */
+    .vine-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+      opacity: 0.1;
+    }
+
+    .vine-overlay svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Crest emblem preserved */
     .crest-emblem {
       position: absolute;
       top: 50%;
@@ -82,13 +92,37 @@
 
     @media (max-width: 768px) {
       .crest-emblem { width: 80%; opacity: 0.1; }
+      .vine-overlay { opacity: 0.08; }
     }
 
-    /* Rest of styles unchanged (text wrapping, RTL, etc.) */
+    /* Content z-index mercy */
+    .fusion-hero, #hero-bridges h1, .central-lightning, #hero-bridges p.description, .bridge-button, #hero-footer, #language-tabs {
+      position: relative;
+      z-index: 2;
+    }
+
+    /* Rest of styles unchanged */
   </style>
 </head>
 <body>
   <div id="hero-bridges">
+    <!-- Subtle Vine Patterns Overlay — gold tendrils + leaves curling edges -->
+    <div class="vine-overlay">
+      <svg viewBox="0 0 900 1200" preserveAspectRatio="none">
+        <!-- Left vines -->
+        <path d="M0,100 Q50,50 100,150 T200,200 Q250,250 200,350 T150,450 Q100,500 150,600 T200,700 Q250,750 200,850 T100,950 Q50,1000 0,1100" fill="none" stroke="#ffd700" stroke-width="3" opacity="0.8"/>
+        <path d="M0,300 Q80,200 150,350 T250,400 Q300,450 250,550 T150,650 Q100,700 150,800 T200,900 Q150,950 100,1050 T0,1150" fill="none" stroke="#ffd700" stroke-width="2" stroke-dasharray="5,5"/>
+        <!-- Right vines mirrored -->
+        <path d="M900,100 Q850,50 800,150 T700,200 Q650,250 700,350 T750,450 Q800,500 750,600 T700,700 Q650,750 700,850 T800,950 Q850,1000 900,1100" fill="none" stroke="#ffd700" stroke-width="3" opacity="0.8"/>
+        <path d="M900,300 Q820,200 750,350 T650,400 Q600,450 650,550 T750,650 Q800,700 750,800 T700,900 Q750,950 800,1050 T900,1150" fill="none" stroke="#ffd700" stroke-width="2" stroke-dasharray="5,5"/>
+        <!-- Leaf accents -->
+        <ellipse cx="100" cy="200" rx="20" ry="40" fill="#ffd700" opacity="0.6" transform="rotate(-30 100 200)"/>
+        <ellipse cx="200" cy="350" rx="15" ry="35" fill="#ffd700" opacity="0.6" transform="rotate(45 200 350)"/>
+        <ellipse cx="700" cy="400" rx="18" ry="38" fill="#ffd700" opacity="0.6" transform="rotate(-60 700 400)"/>
+        <ellipse cx="800" cy="600" rx="20" ry="40" fill="#ffd700" opacity="0.6" transform="rotate(30 800 600)"/>
+      </svg>
+    </div>
+
     <!-- Crest SVG unchanged -->
 
     <!-- Full content unchanged -->
