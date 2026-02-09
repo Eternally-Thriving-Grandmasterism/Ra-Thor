@@ -9,13 +9,18 @@
   <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
 
   <style>
-    * { box-sizing: border-box; } /* Global mercy for consistent mobile layout */
+    * { 
+      box-sizing: border-box; 
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      -webkit-tap-highlight-color: transparent; /* Chrome mobile touch mercy */
+    }
 
     body {
       margin: 0;
       font-family: 'Cormorant Garamond', serif;
-      background: radial-gradient(circle at center, rgba(255,220,100,0.04) 0%, #000000 60%);
-      color: #f0e6ff;
+      background: linear-gradient(to bottom, #1a0033, #000000);
+      color: #e6ccff;
       min-height: 100vh;
       display: flex;
       justify-content: center;
@@ -27,43 +32,42 @@
       position: relative;
       z-index: 10;
       text-align: center;
-      padding: 70px 40px;
-      max-width: 950px;
-      width: 92%;
-      background: linear-gradient(to bottom, rgba(20,0,40,0.75), rgba(10,0,20,0.85));
+      padding: 60px 30px;
+      max-width: 900px;
+      width: 94%;
+      background: rgba(30, 0, 60, 0.5);
+      backdrop-filter: blur(8px);
       border-radius: 50px;
-      border: 2px double rgba(255,220,100,0.45);
-      box-shadow: 
-        0 0 50px rgba(255,220,100,0.18),
-        inset 0 0 70px rgba(255,220,100,0.06);
+      border: 1px solid rgba(255, 220, 100, 0.3);
+      box-shadow: 0 0 40px rgba(255, 220, 100, 0.1);
     }
 
     #hero-bridges h1 {
       font-family: 'Cinzel Decorative', cursive;
-      font-size: clamp(3.2em, 10vw, 5.5em);
+      font-size: clamp(2.8em, 9vw, 5em);
       font-weight: 900;
       color: #ffd700;
-      margin: 0 0 50px;
-      letter-spacing: clamp(6px, 2vw, 12px);
-      line-height: 1.1;
-      text-shadow: 
-        0 0 10px #ffd700,
-        0 0 20px #ffec8b,
-        0 0 30px #b8860b,
-        1px 1px 2px #000000;
+      margin: 0 0 40px;
+      letter-spacing: 6px;
+      line-height: 1.2;
+      text-shadow: 0 0 20px rgba(255, 220, 100, 0.5);
+    }
+
+    @media (max-width: 768px) {
+      #hero-bridges h1 { text-shadow: 0 0 15px rgba(255, 220, 100, 0.4); } /* Lighter for mobile perf */
     }
 
     .central-lightning {
-      font-size: clamp(7em, 16vw, 11em);
+      font-size: clamp(6em, 14vw, 10em);
       color: #ffd700;
-      margin: 60px 0;
-      opacity: 0.95;
-      animation: gentle-pulse 8s ease-in-out infinite;
-      text-shadow: 
-        0 0 20px #ffd700,
-        0 0 40px #ffec8b,
-        0 0 60px #b8860b,
-        0 0 80px rgba(255,220,100,0.6);
+      margin: 50px 0;
+      opacity: 0.92;
+      animation: gentle-pulse 7s ease-in-out infinite;
+      text-shadow: 0 0 30px #ffd700, 0 0 60px rgba(255, 220, 100, 0.6);
+    }
+
+    @media (max-width: 768px) {
+      .central-lightning { text-shadow: 0 0 20px #ffd700, 0 0 40px rgba(255, 220, 100, 0.5); }
     }
 
     @keyframes gentle-pulse {
@@ -72,121 +76,114 @@
     }
 
     #hero-bridges p.description {
-      font-size: clamp(1.4em, 4.2vw, 1.8em);
+      font-size: clamp(1.3em, 4vw, 1.7em);
       font-style: italic;
-      margin: 50px auto 70px;
-      max-width: 850px;
-      opacity: 0.92;
+      margin: 40px auto 60px;
+      max-width: 800px;
+      opacity: 0.9;
       line-height: 1.8;
-      letter-spacing: 1px;
+      color: #d6c0ff;
     }
 
     .fusion-hero {
-      font-size: clamp(1.8em, 5.8vw, 2.4em);
+      font-size: clamp(1.7em, 5.5vw, 2.2em);
       font-style: italic;
-      margin: 70px auto;
+      margin: 60px auto;
       color: #ffd700;
-      opacity: 0.95;
+      opacity: 0.92;
       line-height: 1.6;
       max-width: 900px;
-      text-shadow: 
-        0 0 15px #ffd700,
-        0 0 30px rgba(255,220,100,0.5);
+      text-shadow: 0 0 15px rgba(255, 220, 100, 0.4);
     }
 
     #language-tabs {
       display: flex;
       justify-content: center;
-      gap: 15px;
-      margin: 50px 0;
+      gap: 12px;
+      margin: 40px 0;
       flex-wrap: wrap;
     }
 
     .lang-tab {
-      padding: 10px 22px;
-      background: rgba(255,220,100,0.06);
-      border-radius: 40px;
-      font-size: clamp(1em, 3.2vw, 1.1em);
+      padding: 8px 18px;
+      background: rgba(255,220,100,0.05);
+      border-radius: 30px;
+      font-size: clamp(0.9em, 3vw, 1em);
       cursor: pointer;
       transition: all 0.4s ease;
-      border: 1px solid rgba(255,220,100,0.2);
+      border: 1px solid rgba(255,220,100,0.15);
     }
 
     .lang-tab.active {
-      background: rgba(255,220,100,0.18);
-      border-color: rgba(255,220,100,0.5);
+      background: rgba(255,220,100,0.15);
+      border-color: rgba(255,220,100,0.4);
       color: #ffd700;
-      box-shadow: 0 0 20px rgba(255,220,100,0.3);
     }
 
     .bridge-button {
       display: block;
-      margin: 50px auto;
-      padding: clamp(28px, 7.5vw, 45px) clamp(45px, 11vw, 70px);
+      margin: 40px auto;
+      padding: clamp(30px, 8vw, 50px) clamp(40px, 10vw, 60px);
       font-family: 'Cinzel Decorative', cursive;
-      font-size: clamp(1.9em, 6.2vw, 2.7em);
-      font-weight: 700;
-      background: linear-gradient(to bottom, rgba(106,13,173,0.4), rgba(255,215,0,0.2));
+      font-size: clamp(2em, 6.5vw, 2.8em);
+      font-weight: 900;
+      background: linear-gradient(to bottom, #4b0082, #2a004a);
       color: #ffd700;
-      border: 2px double rgba(255,220,100,0.55);
-      border-radius: 70px;
+      border: 2px solid rgba(255,220,100,0.5);
+      border-radius: 80px;
       text-decoration: none;
       transition: all 0.5s ease;
       max-width: 600px;
-      width: 90%;
-      letter-spacing: 5px;
-      text-shadow: 
-        0 0 10px #ffd700,
-        0 0 20px #ffec8b;
-      box-shadow: 
-        0 0 40px rgba(255,220,100,0.25),
-        inset 0 0 50px rgba(255,220,100,0.12);
+      width: 92%;
+      letter-spacing: 4px;
+      text-shadow: 0 0 15px rgba(255,220,100,0.5);
+      box-shadow: 0 0 30px rgba(180, 0, 255, 0.3);
     }
 
-    .bridge-button:hover {
-      background: linear-gradient(to bottom, rgba(106,13,173,0.55), rgba(255,215,0,0.3));
-      box-shadow: 
-        0 0 60px rgba(255,220,100,0.45),
-        inset 0 0 70px rgba(255,220,100,0.2);
-      transform: translateY(-6px);
+    @media (max-width: 768px) {
+      .bridge-button { 
+        box-shadow: 0 0 20px rgba(180, 0, 255, 0.25); 
+        text-shadow: 0 0 10px rgba(255,220,100,0.4);
+      }
+    }
+
+    .bridge-button:hover, .bridge-button:active {
+      background: linear-gradient(to bottom, #6a0dad, #3a0066);
+      box-shadow: 0 0 50px rgba(180, 0, 255, 0.5);
+      transform: translateY(-5px);
     }
 
     .bridge-button .lightning {
       display: block;
-      font-size: 2.2em;
-      margin: 18px 0;
+      font-size: 2.5em;
+      margin: 20px 0;
       opacity: 0.95;
-      text-shadow: 
-        0 0 20px #ffd700,
-        0 0 40px #ffec8b;
+      text-shadow: 0 0 30px #ffd700, 0 0 60px rgba(255,220,100,0.7);
+    }
+
+    @media (max-width: 768px) {
+      .bridge-button .lightning { text-shadow: 0 0 20px #ffd700, 0 0 40px rgba(255,220,100,0.6); }
     }
 
     .bridge-button span {
       display: block;
-      font-size: 0.7em;
+      font-size: 0.75em;
       font-style: italic;
-      margin-top: 12px;
-      color: #e0d0ff;
-      opacity: 0.9;
+      margin-top: 15px;
+      color: #e6ccff;
+      opacity: 0.95;
       letter-spacing: 3px;
     }
 
     #hero-footer {
-      margin-top: 70px;
-      font-size: clamp(1.2em, 3.8vw, 1.5em);
+      margin-top: 60px;
+      font-size: clamp(1.1em, 3.5vw, 1.4em);
       font-style: italic;
-      color: #e0d0ff;
-      opacity: 0.88;
-      letter-spacing: 1.5px;
+      color: #d6c0ff;
+      opacity: 0.85;
     }
 
-    /* Ultra-Optimized Royal Embers — unchanged (10 faint) */
-
-    @media (max-width: 768px) {
-      .particle:nth-child(n+7) { display: none; }
-      #hero-bridges { padding: 60px 30px; } /* Extra mobile mercy */
-      .bridge-button, #hero-bridges h1, .central-lightning { text-shadow: 0 0 15px #ffd700, 0 0 30px #b8860b; } /* Lighter glow on mobile */
-    }
+    /* Ultra-light embers preserved + mobile reduce */
 
     @media (prefers-reduced-motion: reduce) {
       .particle, .central-lightning { animation: none !important; opacity: 0.2 !important; }
@@ -197,12 +194,12 @@
   <!-- particles-container + 10 particles unchanged -->
 
   <div id="hero-bridges">
-    <!-- language-tabs, fusion-hero, headline, central-lightning, description, buttons, footer unchanged -->
+    <!-- All content unchanged: tabs, fusion, headline, lightning, description, buttons with lightning div, footer -->
 
   </div>
 
   <script>
-    <!-- Multilingual + structure preserved -->
+    <!-- Multilingual preserved full -->
   </script>
 </body>
 </html>
