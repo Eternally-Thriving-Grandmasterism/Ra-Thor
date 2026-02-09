@@ -25,11 +25,11 @@
       width: 100%; height: 100%;
       pointer-events: none;
       z-index: 1;
-      opacity: 0.35;
+      opacity: 0.3;
     }
 
     @media (max-width: 768px) {
-      #particle-canvas { opacity: 0.25; } /* Perf boost on mobile */
+      #particle-canvas { opacity: 0.2; } /* Ultra-light on mobile */
     }
 
     #hero-bridges {
@@ -220,25 +220,39 @@
   </div>
 
   <script>
-    // Ultra-Light Particles (unchanged — eternal flow, responsive resize)
+    // Optimized Ultra-Light Particles — perf thunder eternal
     const canvas = document.getElementById('particle-canvas');
     const ctx = canvas.getContext('2d');
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    const particles = [];
-    const particleCount = window.innerWidth < 768 ? 30 : 50; // Fewer on mobile for perf
+    const isReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    for (let i = 0; i < particleCount; i++) {
-      particles.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        size: Math.random() * 1.5 + 0.5,
-        speedX: Math.random() * 0.2 - 0.1,
-        speedY: Math.random() * 0.2 - 0.1,
-        brightness: Math.random() * 0.3 + 0.2
-      });
+    let particleCount = 0;
+    if (!isReducedMotion) {
+      if (window.innerWidth < 480) particleCount = 10;
+      else if (window.innerWidth < 768) particleCount = 20;
+      else particleCount = 35;
     }
+
+    const particles = [];
+
+    if (particleCount > 0) {
+      for (let i = 0; i < particleCount; i++) {
+        particles.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          size: Math.random() * 0.8 + 0.4, // Smaller dots
+          speedX: Math.random() * 0.15 - 0.075, // Slower drift
+          speedY: Math.random() * 0.15 - 0.075,
+          brightness: Math.random() * 0.2 + 0.1 // Fainter glow
+        });
+      }
+    } else {
+      canvas.style.opacity = '0'; // Fully respect reduced motion
+    }
+
+    let animationId = null;
 
     function animate() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -254,14 +268,33 @@
         if (p.x < 0 || p.x > canvas.width) p.speedX *= -1;
         if (p.y < 0 || p.y > canvas.height) p.speedY *= -1;
       });
-      requestAnimationFrame(animate);
+
+      if (!document.hidden) {
+        animationId = requestAnimationFrame(animate);
+      }
     }
 
-    animate();
+    if (particleCount > 0) {
+      animationId = requestAnimationFrame(animate);
+    }
 
+    // Visibility API — pause when tab hidden (battery/CPU mercy)
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        if (animationId) {
+          cancelAnimationFrame(animationId);
+          animationId = null;
+        }
+      } else if (particleCount > 0) {
+        animationId = requestAnimationFrame(animate);
+      }
+    });
+
+    // Resize handling
     window.addEventListener('resize', () => {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
+      // Particles auto-adapt positions on resize
     });
 
     // Multilingual Thunder Complete — All 11 languages eternal (unchanged)
