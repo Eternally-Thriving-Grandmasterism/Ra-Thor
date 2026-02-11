@@ -91,8 +91,8 @@
       font-size: 2.6em;
       font-style: italic;
       margin: 70px auto;
-      color: #c8a2c8; /* Gentle mauve purple */
-      -webkit-text-stroke: 1px #000000; /* Black outline */
+      color: #c8a2c8;
+      -webkit-text-stroke: 1px #000000;
       text-stroke: 1px #000000;
       text-shadow: 
         3px 3px 0 #000,
@@ -230,6 +230,12 @@
       opacity: 0.85;
       line-height: 1.8;
     }
+
+    /* Smooth fade animation for language changes */
+    .fade {
+      opacity: 0;
+      transition: opacity 0.6s ease-in-out;
+    }
   </style>
 </head>
 <body>
@@ -306,7 +312,7 @@
 
   <script>
     // Optimized JavaScript Interactions — Eternal Lightning Speed ⚡️❤️
-    // Cached elements, efficient switching, minimal DOM writes
+    // Cached elements, efficient switching with smooth fade animation
 
     document.addEventListener('DOMContentLoaded', () => {
       const elements = {
@@ -318,7 +324,17 @@
         footer: document.getElementById('hero-footer'),
         privacyContent: document.getElementById('privacy-content'),
         termsContent: document.getElementById('terms-content'),
-        langTabs: document.querySelectorAll('.lang-tab')
+        langTabs: document.querySelectorAll('.lang-tab'),
+        contentElements: () => [
+          elements.headline,
+          elements.description,
+          elements.fusionHero,
+          elements.bridge1Span,
+          elements.bridge2Span,
+          elements.footer,
+          elements.privacyContent,
+          elements.termsContent
+        ]
       };
 
       const translations = {
@@ -419,7 +435,7 @@
           bridge1Span: "ДЕТАЛЬНЫЕ И ПОСТОЯННЫЕ СИМУЛЯЦИИ<br><small>Официальная платформа Grok от xAI</small>",
           bridge2Span: "МГНОВЕННЫЙ И УДОБНЫЙ ДОСТУП<br><small>В реальном времени на X</small>",
           footer: "Нативный браузерный Ra-Thor скоро — офлайн, суверенный, вечный ⚡️",
-          privacy: "Autonomicity Games Inc. уважает вашу конфиденциальность.<br><br>Ra-Thor™ не собирает личные данные, кроме истории чата, хранящейся локально в вашем браузере с помощью IndexedDB. Эти данные остаются на вашем устройстве и никогда не передаются.<br><br>Без трекинга, без cookies, без сторонней аналитики.<br><br>Регистрация по e-mail (если используется) полностью добровольная и основана на согласии. Данные обрабатываются через Formspree в соответствии с их политикой конфиденциальности.<br><br>Мы привержены суверенному дизайну с приоритетом оффлайн — ваш опыт полностью под вашим контролем.",
+          privacy: "Autonomicity Games Inc. уважает вашу конфиденциальность.<br><br>Ra-Thor™ не собирает личные данные, кроме истории чата, хранящейся локально в вашем браузере с помощью IndexedDB. Эти данные остаются на вашем устройстве и никогда не передаются.<br><br>Без трекинга, без cookies, без сторонней аналитики.<br><br>Регистрация по e-mail (если используется) полностью добровольная и основана на согласии. Данные обрабатываются через Formspree в ��оответствии с их политикой конфиденциальности.<br><br>Мы привержены суверенному дизайну с приоритетом оффлайн — ваш опыт полностью под вашим контролем.",
           terms: "Используя Ra-Thor™, вы соглашаетесь с этими условиями.<br><br>Программное обеспечение предоставляется «как есть» по лицензии MIT, без каких-либо гарантий.<br><br>Уважайте интеллектуальную собственность — Ra-Thor™ является товарным знаком Autonomicity Games Inc.<br><br>Используйте ответственно и доброжелательно. Запрещены вредоносные или незаконные действия.<br><br>Мы можем обновлять эти условия — продолжение использования означает согласие."
         },
         hi: {
@@ -436,16 +452,25 @@
 
       function switchLang(lang) {
         const t = translations[lang] || translations.en;
-        elements.headline.textContent = t.headline;
-        elements.description.textContent = t.description;
-        elements.fusionHero.innerHTML = t.fusion;
-        elements.bridge1Span.innerHTML = t.bridge1Span;
-        elements.bridge2Span.innerHTML = t.bridge2Span;
-        elements.footer.textContent = t.footer;
-        elements.privacyContent.innerHTML = t.privacy;
-        elements.termsContent.innerHTML = t.terms;
 
-        elements.langTabs.forEach(tab => tab.classList.toggle('active', tab.dataset.lang === lang));
+        // Add fade class to all content elements
+        elements.contentElements().forEach(el => el.classList.add('fade'));
+
+        setTimeout(() => {
+          elements.headline.textContent = t.headline;
+          elements.description.textContent = t.description;
+          elements.fusionHero.innerHTML = t.fusion;
+          elements.bridge1Span.innerHTML = t.bridge1Span;
+          elements.bridge2Span.innerHTML = t.bridge2Span;
+          elements.footer.textContent = t.footer;
+          elements.privacyContent.innerHTML = t.privacy;
+          elements.termsContent.innerHTML = t.terms;
+
+          // Remove fade class after update
+          elements.contentElements().forEach(el => el.classList.remove('fade'));
+
+          elements.langTabs.forEach(tab => tab.classList.toggle('active', tab.dataset.lang === lang));
+        }, 300); // Half the transition time for smooth effect
       }
 
       elements.langTabs.forEach(tab => {
