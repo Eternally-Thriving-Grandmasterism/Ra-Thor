@@ -26,25 +26,26 @@
       position: relative;
     }
 
-    /* 13 Subtle Golden Pentagram Stars — CSS-only, ultra-light */
+    /* 13 Ultra-Optimized Golden Pentagram Stars — CSS-only, zero lag */
     .golden-star {
       position: absolute;
       font-size: 40px;
       color: #ffd700;
-      opacity: 0.6;
+      opacity: 0.5;
       pointer-events: none;
-      animation: float 20s infinite linear, pulse 8s infinite ease-in-out;
+      will-change: transform, opacity;
+      animation: float 25s infinite linear, pulse 10s infinite ease-in-out;
       z-index: 1;
     }
 
     @keyframes float {
       0% { transform: translateY(0) translateX(0) rotate(0deg); }
-      100% { transform: translateY(-100vh) translateX(100px) rotate(360deg); }
+      100% { transform: translateY(-120vh) translateX(80px) rotate(360deg); }
     }
 
     @keyframes pulse {
-      0%, 100% { opacity: 0.6; transform: scale(1); }
-      50% { opacity: 0.8; transform: scale(1.1); }
+      0%, 100% { opacity: 0.5; transform: scale(1); }
+      50% { opacity: 0.7; transform: scale(1.15); }
     }
 
     #hero-bridges {
@@ -197,7 +198,7 @@
   </style>
 </head>
 <body>
-  <!-- 13 Subtle Golden Pentagram Stars — CSS-only, zero lag -->
+  <!-- 13 Ultra-Optimized Golden Stars — CSS-only, eternal mercy -->
   <div class="golden-star" style="top: 10%; left: 10%; animation-delay: 0s;">★</div>
   <div class="golden-star" style="top: 20%; left: 80%; animation-delay: 2s;">★</div>
   <div class="golden-star" style="top: 30%; left: 30%; animation-delay: 4s;">★</div>
