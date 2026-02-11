@@ -1,138 +1,107 @@
 ---
-# 1. KEDA ScaledObject for Ray worker groups (CPU + GPU autoscaling)
+# Ra-Thor™ Supreme Mercy Autoscaling Configuration ⚡️❤️
+#
+# Zero-to-Hero Scaling + Scale-to-Zero for Eternal Cost Mercy
+# Full-stack infinite abundance:
+#   • Ray native autoscaler (head-managed workers)
+#   • KEDA event-driven precision (Prometheus triggers)
+#   • Kubernetes Cluster Autoscaler (node-level abundance)
+#
+# Mercy Dashboards via Prometheus + Grafana:
+#   - Latency, throughput, request queues
+#   - Custom rathor_mercy_score (0.0 → 1.0+ positive valence index)
+#
+# Assumptions:
+#   - RayCluster CRD via KubeRay operator (supports HPA/KEDA scaling)
+#   - Prometheus scrapes Ray metrics + custom Rathor metrics
+#   - Target: CPU worker group in RayCluster "rathor-ray-cluster"
+#   - Custom metric "rathor_mercy_score" exported (lower = scale up to amplify mercy)
+
 apiVersion: keda.sh/v1alpha1
 kind: ScaledObject
 metadata:
-  name: rathor-ray-cpu-workers-scaler
+  name: rathor-ray-cpu-workers-scale
   namespace: rathor-abundance
+  labels:
+    app: ra-thor
+    scaling: mercy-keda
 spec:
   scaleTargetRef:
-    name: rathor-ray-cluster
-    kind: RayCluster
     apiVersion: ray.io/v1
-    subresourceName: cpu-workers  # targets workerGroupSpecs[1]
-  minReplicaCount: 5
-  maxReplicaCount: 100
-  pollingInterval: 15
-  cooldownPeriod: 60
+    kind: RayCluster
+    name: rathor-ray-cluster
+    # Advanced: target specific worker group via env var or extension if KubeRay supports
+  minReplicaCount: 0                  # Scale-to-zero mercy when idle → eternal cost savings
+  maxReplicaCount: 10000              # Infinite abundance potential
+  pollingInterval: 15                 # Seconds — responsive yet merciful on resources
+  cooldownPeriod: 120                 # Graceful mercy cooldown
+  fallback:
+    failureThreshold: 3
+    replicas: 2                       # Mercy fallback if Prometheus unreachable
   advanced:
-    restoreToOriginalReplicaCount: true
     horizontalPodAutoscalerConfig:
-      name: ray-cpu-hpa
       behavior:
         scaleDown:
           stabilizationWindowSeconds: 300
           policies:
-          - type: Percent
-            value: 50
+          - type: Pods
+            value: 2
             periodSeconds: 60
+        scaleUp:
+          stabilizationWindowSeconds: 0
+          policies:
+          - type: Pods
+            value: 10
+            periodSeconds: 15
   triggers:
-  - type: cpu
+  # 1. CPU utilization mercy trigger
+  - type: prometheus
     metadata:
-      type: Utilization
-      value: "60"  # scale when CPU > 60%
-  - type: memory
+      serverAddress: http://rathor-prometheus-server.rathor-abundance.svc.cluster.local
+      metricName: ray_worker_cpu_usage
+      query: avg(ray_cpu_usage{group="cpu-workers"}) by (job)
+      threshold: "70"                  # Scale up if average >70%
+
+  # 2. Throughput / request rate mercy trigger
+  - type: prometheus
     metadata:
-      type: Utilization
-      value: "70"  # scale when memory > 70%
-  - type: ray
+      serverAddress: http://rathor-prometheus-server.rathor-abundance.svc.cluster.local
+      metricName: rathor_requests_per_second
+      query: sum(rate(rathor_simulation_requests_total[5m]))
+      threshold: "500"                 # Scale on rising demand
+
+  # 3. Supreme Mercy Score trigger — alchemize when valence dips
+  - type: prometheus
     metadata:
-      type: pendingTasks
-      value: "50"  # scale when >50 pending Ray tasks
-      address: "ray://rathor-ray-cluster-head-svc:10001"
-      namespace: rathor-abundance
-      rayCluster: rathor-ray-cluster
+      serverAddress: http://rathor-prometheus-server.rathor-abundance.svc.cluster.local
+      metricName: rathor_mercy_score_deficit
+      query: 1 - avg(rathor_mercy_score)  # Deficit below 0.9999999 → amplify workers
+      threshold: "0.0000001"
 
 ---
-apiVersion: keda.sh/v1alpha1
-kind: ScaledObject
-metadata:
-  name: rathor-ray-gpu-workers-scaler
-  namespace: rathor-abundance
-spec:
-  scaleTargetRef:
-    name: rathor-ray-cluster
-    kind: RayCluster
-    apiVersion: ray.io/v1
-    subresourceName: gpu-workers  # targets workerGroupSpecs[0]
-  minReplicaCount: 2
-  maxReplicaCount: 50
-  pollingInterval: 10
-  cooldownPeriod: 120
-  advanced:
-    restoreToOriginalReplicaCount: true
-  triggers:
-  - type: gpu
-    metadata:
-      type: Utilization
-      value: "70"  # scale when GPU util > 70%
-      gpuMetric: utilization  # requires NVIDIA DCGM exporter
-  - type: custom
-    metadata:
-      type: prometheus
-      serverAddress: http://prometheus-server.rathor-monitoring.svc.cluster.local
-      metricName: ray_pending_tasks
-      query: sum(ray_pending_tasks{namespace="rathor-abundance"}) > 100
-      threshold: "100"
-      unsafeSsl: "true"  # if self-signed
-
----
-# 2. ScaledJob for bursty one-off evolution jobs (optional)
+# Optional: ScaledJob for batch mercy swarms (e.g., evolutionary simulations)
 apiVersion: keda.sh/v1alpha1
 kind: ScaledJob
 metadata:
-  name: rathor-evo-burst-job
+  name: rathor-mercy-swarm-job
   namespace: rathor-abundance
 spec:
   jobTargetRef:
     template:
       spec:
         containers:
-        - name: evo-worker
-          image: rathor-evo-worker:latest  # your custom image with Ray/Dask code
-          command: ["python", "-m", "rathor.evo.distributed"]
-          env:
-          - name: RAY_ADDRESS
-            value: "ray://rathor-ray-cluster-head-svc:10001"
+        - name: mercy-swarm
+          image: autonomicity/ra-thor-swarm:latest
           resources:
             limits:
-              cpu: "8"
-              memory: "32Gi"
-              nvidia.com/gpu: "1"
-            requests:
               cpu: "4"
               memory: "16Gi"
-              nvidia.com/gpu: "1"
-  minReplicaCount: 0
-  maxReplicaCount: 50
-  pollingInterval: 5
+  pollingInterval: 10
   successfulJobsHistoryLimit: 5
-  failedJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 5
   triggers:
-  - type: cpu
+  - type: prometheus
     metadata:
-      type: Utilization
-      value: "50"
-  - type: ray
-    metadata:
-      type: pendingTasks
-      value: "200"
-      address: "ray://rathor-ray-cluster-head-svc:10001"
-
----
-# 3. Prometheus ServiceMonitor (for KEDA custom metrics)
-apiVersion: monitoring.coreos.com/v1
-kind: ServiceMonitor
-metadata:
-  name: ray-keda-metrics
-  namespace: rathor-abundance
-  labels:
-    release: prometheus
-spec:
-  selector:
-    matchLabels:
-      app: ray-head
-  endpoints:
-  - port: dashboard
-    path: /metrics
-    interval: 15s
+      serverAddress: http://rathor-prometheus-server.rathor-abundance.svc.cluster.local
+      query: sum(rathor_pending_mercy_swarms)
+      threshold: "1"
