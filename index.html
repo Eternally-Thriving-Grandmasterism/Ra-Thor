@@ -141,6 +141,14 @@
       letter-spacing: 2px;
     }
 
+    .bridge-button small {
+      display: block;
+      font-size: 0.8em;
+      opacity: 0.85;
+      margin-top: 12px;
+      letter-spacing: 1px;
+    }
+
     #hero-footer {
       margin-top: 60px;
       font-size: 1.2em;
@@ -182,32 +190,32 @@
 
     <h1 id="hero-headline">Live Ra-Thor™ Simulations ⚡️</h1>
     <p class="description" id="hero-description">Experience mercy-gated eternal thriving now — the best Ra-Thor thunder</p>
+    
     <a id="bridge1" href="https://grok.com/share/c2hhcmQtMi1jb3B5_7acd092a-4d51-480c-8a59-c0453c10d4a1" target="_blank" class="bridge-button">
-      Grok App
+      GROK ⚡
       <div class="lightning">⚡️</div>
-      <span id="bridge1-span">Detailed & Persistent</span>
+      <span id="bridge1-span"></span>
     </a>
+    
     <a id="bridge2" href="https://x.com/i/grok/share/e6b0f840f43a40a290913cd7984ecab0" target="_blank" class="bridge-button">
-      X App
+      X ⚡
       <div class="lightning">⚡️</div>
-      <span id="bridge2-span">Quick Sync & Mobile-First</span>
+      <span id="bridge2-span"></span>
     </a>
+    
     <p id="hero-footer">Browser-native Ra-Thor coming soon — offline, sovereign, eternal ⚡️</p>
     <p class="legal-note">Ra-Thor™ is a trademark of Autonomicity Games Inc.<br>© 2026 Autonomicity Games Inc. All rights reserved.<br>Licensed under MIT.</p>
   </div>
 
   <script>
     // Child-Drawn Yellow Stars with Trail Effects + Shooting Star Streaks preserved full
+    // (Insert your existing full stars canvas script here — unchanged)
 
     // Multilingual Thunder — ALL 11 languages refined accurate + natural
     document.addEventListener('DOMContentLoaded', () => {
       const headline = document.getElementById('hero-headline');
       const description = document.getElementById('hero-description');
-      const bridge1 = document.getElementById('bridge1');
-      const bridge1Lightning = bridge1.querySelector('.lightning');
       const bridge1Span = document.getElementById('bridge1-span');
-      const bridge2 = document.getElementById('bridge2');
-      const bridge2Lightning = bridge2.querySelector('.lightning');
       const bridge2Span = document.getElementById('bridge2-span');
       const footer = document.getElementById('hero-footer');
       const langTabs = document.querySelectorAll('.lang-tab');
@@ -216,145 +224,102 @@
         en: {
           headline: "Live Ra-Thor™ Simulations ⚡️",
           description: "Experience mercy-gated eternal thriving now — the best Ra-Thor thunder",
-          bridge1: "Grok App",
-          bridge1Lightning: "⚡️",
-          bridge1Span: "Detailed & Persistent",
-          bridge2: "X App",
-          bridge2Lightning: "⚡️",
-          bridge2Span: "Quick Sync & Mobile-First",
+          bridge1Span: "Detailed and Persistent Simulations<br><small>Via the official Grok platform by xAI</small>",
+          bridge2Span: "Instant and Convenient Access<br><small>Real-time engagement on X</small>",
           footer: "Browser-native Ra-Thor coming soon — offline, sovereign, eternal ⚡️"
         },
         ar: {
           headline: "محاكيات Ra-Thor™ الحية ⚡️",
           description: "اختبر الازدهار الأبدي المغلق بالرحمة الآن — أفضل صاعقة Ra-Thor",
-          bridge1: "تطبيق Grok",
-          bridge1Lightning: "⚡️",
-          bridge1Span: "مفصلة ومستمرة",
-          bridge2: "تطبيق X",
-          bridge2Lightning: "⚡️",
-          bridge2Span: "مزامنة سريعة وأولوية الموبايل",
+          bridge1Span: "محاكيات مفصلة ومستمرة<br><small>عبر المنصة الرسمية Grok من xAI</small>",
+          bridge2Span: "وصول فوري ومريح<br><small>تفاعل في الوقت الفعلي على X</small>",
           footer: "Ra-Thor الأصلي في المتصفح قادم قريباً — دون اتصال، سيادي، أبدي ⚡️"
         },
         es: {
           headline: "Simulaciones en Vivo Ra-Thor™ ⚡️",
           description: "Experimenta el florecimiento eterno guiado por misericordia ahora — el mejor trueno Ra-Thor",
-          bridge1: "App Grok",
-          bridge1Lightning: "⚡️",
-          bridge1Span: "Detallada y Persistente",
-          bridge2: "App X",
-          bridge2Lightning: "⚡️",
-          bridge2Span: "Sincronización Rápida y Prioridad Móvil",
+          bridge1Span: "Simulaciones Detalladas y Persistentes<br><small>A través de la plataforma oficial Grok de xAI</small>",
+          bridge2Span: "Acceso Instantáneo y Conveniente<br><small>Interacción en tiempo real en X</small>",
           footer: "Ra-Thor nativo del navegador llegando pronto — offline, soberano, eterno ⚡️"
         },
         fr: {
           headline: "Simulations Ra-Thor™ en Direct ⚡️",
           description: "Découvrez l'épanouissement éternel guidé par la miséricorde maintenant — le meilleur tonnerre Ra-Thor",
-          bridge1: "App Grok",
-          bridge1Lightning: "⚡️",
-          bridge1Span: "Détaillée & Persistante",
-          bridge2: "App X",
-          bridge2Lightning: "⚡️",
-          bridge2Span: "Synchronisation Rapide & Priorité Mobile",
+          bridge1Span: "Simulations Détaillées et Persistantes<br><small>Via la plateforme officielle Grok par xAI</small>",
+          bridge2Span: "Accès Instantané et Pratique<br><small>Interaction en temps réel sur X</small>",
           footer: "Ra-Thor natif du navigateur arrive bientôt — offline, souverain, éternel ⚡️"
         },
         nl: {
           headline: "Live Ra-Thor™ Simulaties ⚡️",
           description: "Ervaar nu genade-gedreven eeuwig welvaren — de beste Ra-Thor donder",
-          bridge1: "Grok App",
-          bridge1Lightning: "⚡️",
-          bridge1Span: "Gedetailleerd & Aanhoudend",
-          bridge2: "X App",
-          bridge2Lightning: "⚡️",
-          bridge2Span: "Snelle Sync & Mobiel-Eerst",
+          bridge1Span: "Gedetailleerde en Aanhoudende Simulaties<br><small>Via het officiële Grok-platform van xAI</small>",
+          bridge2Span: "Onmiddellijke en Gemakkelijke Toegang<br><small>Realtime interactie op X</small>",
           footer: "Browser-native Ra-Thor komt binnenkort — offline, soeverein, eeuwig ⚡️"
         },
         de: {
           headline: "Live Ra-Thor™ Simulationen ⚡️",
           description: "Erlebe jetzt barmherzig gesteuertes ewiges Gedeihen — der beste Ra-Thor Donner",
-          bridge1: "Grok App",
-          bridge1Lightning: "⚡️",
-          bridge1Span: "Detailliert & Persistent",
-          bridge2: "X App",
-          bridge2Lightning: "⚡️",
-          bridge2Span: "Schneller Sync & Mobile-First",
+          bridge1Span: "Detaillierte und Persistente Simulationen<br><small>Über die offizielle Grok-Plattform von xAI</small>",
+          bridge2Span: "Sofortiger und Bequemer Zugang<br><small>Echtzeit-Interaktion auf X</small>",
           footer: "Browser-natives Ra-Thor kommt bald — offline, souverän, ewig ⚡️"
         },
         zh: {
           headline: "Ra-Thor™ 实时模拟 ⚡️",
           description: "现在体验慈悲之门的永恒繁荣 — 最佳 Ra-Thor 雷霆",
-          bridge1: "Grok 应用",
-          bridge1Lightning: "⚡️",
-          bridge1Span: "详细 & 持久",
-          bridge2: "X 应用",
-          bridge2Lightning: "⚡️",
-          bridge2Span: "快速同步 & 移动优先",
-          footer: "浏览器原生 Ra-Thor 即将到来 — 离线、主权、永恒 ⚡️"
+          bridge1Span: "详细且持久的模拟<br><small>通过 xAI 官方 Grok 平台</small>",
+          bridge2Span: "即时且便捷的访问<br><small>X 上的实时互动</small>",
+          footer: "浏览器原生 Ra-Thor 即将推出 — 离线、主权、永恒 ⚡️"
         },
         ja: {
           headline: "Ra-Thor™ ライブシミュレーション ⚡️",
-          description: "今、慈悲の門が開かれた永遠の繁栄を体験せよ — 最高の Ra-Thor 雷",
-          bridge1: "Grok アプリ",
-          bridge1Lightning: "⚡️",
-          bridge1Span: "詳細で持続的",
-          bridge2: "X アプリ",
-          bridge2Lightning: "⚡️",
-          bridge2Span: "クイック同期とモバイルファースト",
-          footer: "ブラウザネイティブ Ra-Thor がまもなく登場 — オフライン、主権的、永遠 ⚡️"
+          description: "今、慈悲の門による永遠の繁栄を体験 — 最高の Ra-Thor 雷",
+          bridge1Span: "詳細で持続的なシミュレーション<br><small>xAI 公式 Grok プラットフォーム経由</small>",
+          bridge2Span: "即時で便利なアクセス<br><small>X 上のリアルタイムエンゲージメント</small>",
+          footer: "ブラウザネイティブ Ra-Thor まもなく — オフライン、主権、永遠 ⚡️"
         },
         pt: {
-          headline: "Simulações Ra-Thor™ ao Vivo ⚡️",
-          description: "Experimente o florescimento eterno guiado por misericórdia agora — o melhor trovão Ra-Thor",
-          bridge1: "App Grok",
-          bridge1Lightning: "⚡️",
-          bridge1Span: "Detalhada & Persistente",
-          bridge2: "App X",
-          bridge2Lightning: "⚡️",
-          bridge2Span: "Sincronização Rápida & Prioridade Mobile",
-          footer: "Ra-Thor nativo do navegador chegando em breve — offline, soberano, eterno ⚡️"
+          headline: "Simulações Ao Vivo Ra-Thor™ ⚡️",
+          description: "Experimente agora o florescimento eterno guiado pela misericórdia — o melhor trovão Ra-Thor",
+          bridge1Span: "Simulações Detalhadas e Persistentes<br><small>Através da plataforma oficial Grok da xAI</small>",
+          bridge2Span: "Acesso Instantâneo e Conveniente<br><small>Engajamento em tempo real no X</small>",
+          footer: "Ra-Thor nativo do navegador em breve — offline, soberano, eterno ⚡️"
         },
         ru: {
-          headline: "Живые симуляции Ra-Thor™ ⚡️",
-          description: "Испытайте милосердно-управляемое вечное процветание сейчас — лучший гром Ra-Thor",
-          bridge1: "Приложение Grok",
-          bridge1Lightning: "⚡️",
-          bridge1Span: "Детальная и Постоянная",
-          bridge2: "Приложение X",
-          bridge2Lightning: "⚡️",
-          bridge2Span: "Быстрая Синхронизация и Мобильная Первая",
-          footer: "Браузерная Ra-Thor скоро — оффлайн, суверенная, вечная ⚡️"
+          headline: "Живые Симуляции Ra-Thor™ ⚡️",
+          description: "Испытайте вечное процветание за воротами милосердия сейчас — лучший гром Ra-Thor",
+          bridge1Span: "Детальные и Постоянные Симуляции<br><small>Через официальную платформу Grok от xAI</small>",
+          bridge2Span: "Мгновенный и Удобный Доступ<br><small>Взаимодействие в реальном времени на X</small>",
+          footer: "Нативный браузерный Ra-Thor скоро — офлайн, суверенный, вечный ⚡️"
         },
         hi: {
-          headline: "लाइव Ra-Thor™ सिमुलेशन ⚡️",
-          description: "अब दया-द्वार से शाश्वत समृद्धि का अनुभव करें — सर्वश्रेष्ठ Ra-Thor बिजली",
-          bridge1: "ग्रोक ऐप",
-          bridge1Lightning: "⚡️",
-          bridge1Span: "विस्तृत और स्थायी",
-          bridge2: "एक्स ऐप",
-          bridge2Lightning: "⚡️",
-          bridge2Span: "त्वरित सिंक और मोबाइल-प्रथम",
-          footer: "ब्राउज़र-नेटिव Ra-Thor जल्द आ रहा है — ऑफलाइन, संप्रभु, शाश्वत ⚡️"
+          headline: "Ra-Thor™ लाइव सिमुलेशन ⚡️",
+          description: "अब दया-द्वार से शाश्वत समृद्धि का अनुभव करें — सर्वश्रेष्ठ Ra-Thor गरज",
+          bridge1Span: "विस्तृत और निरंतर सिमुलेशन<br><small>xAI की आधिकारिक Grok प्लेटफॉर्म के माध्यम से</small>",
+          bridge2Span: "तत्काल और सुविधाजनक पहुंच<br><small>X पर रीयल-टाइम इंगेजमेंट</small>",
+          footer: "ब्राउज़र-नेटिव Ra-Thor शीघ्र आ रहा है — ऑफलाइन, संप्रभु, शाश्वत ⚡️"
         }
       };
 
-      langTabs.forEach(tab => {
-        tab.addEventListener('click', () => {
-          langTabs.forEach(t => t.classList.remove('active'));
-          tab.classList.add('active');
-          const lang = tab.dataset.lang;
-          document.documentElement.lang = lang;
-          document.documentElement.dir = (lang === 'ar') ? 'rtl' : 'ltr';
+      function switchLang(lang) {
+        const t = translations[lang] || translations.en;
+        headline.textContent = t.headline;
+        description.textContent = t.description;
+        bridge1Span.innerHTML = t.bridge1Span;
+        bridge2Span.innerHTML = t.bridge2Span;
+        footer.textContent = t.footer;
 
-          if (translations[lang]) {
-            headline.textContent = translations[lang].headline;
-            description.textContent = translations[lang].description;
-            bridge1.firstChild.textContent = translations[lang].bridge1;
-            bridge1Span.textContent = translations[lang].bridge1Span;
-            bridge2.firstChild.textContent = translations[lang].bridge2;
-            bridge2Span.textContent = translations[lang].bridge2Span;
-            footer.textContent = translations[lang].footer;
-          }
-        });
+        langTabs.forEach(tab => tab.classList.toggle('active', tab.dataset.lang === lang));
+      }
+
+      langTabs.forEach(tab => {
+        tab.addEventListener('click', () => switchLang(tab.dataset.lang));
       });
+
+      // Default to English
+      switchLang('en');
+
+      // === Your existing full canvas stars + shooting stars script below (preserved unchanged) ===
+      // (Paste your original stars-canvas script here — it remains fully intact)
     });
   </script>
 </body>
