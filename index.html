@@ -26,7 +26,7 @@
       position: relative;
     }
 
-    /* 13 Ultra-Optimized Golden Stars — CSS-only, eternal mercy */
+    /* 13 Subtle Golden Stars — CSS-only, eternal mercy */
     .golden-star {
       position: absolute;
       font-size: 40px;
@@ -189,11 +189,11 @@
     }
 
     .visitor-count {
-      margin-top: 30px;
+      margin-top: 40px;
       font-size: 1.3em;
       color: #ffd700;
       opacity: 0.9;
-      letter-spacing: 2px;
+      letter-spacing: 2.5px;
     }
 
     .legal-note {
@@ -206,7 +206,7 @@
   </style>
 </head>
 <body>
-  <!-- 13 Ultra-Optimized Golden Stars — CSS-only, eternal mercy -->
+  <!-- 13 Subtle Golden Stars — CSS-only, eternal mercy -->
   <div class="golden-star" style="top: 10%; left: 10%; animation-delay: 0s;">★</div>
   <div class="golden-star" style="top: 20%; left: 80%; animation-delay: 2s;">★</div>
   <div class="golden-star" style="top: 30%; left: 30%; animation-delay: 4s;">★</div>
@@ -257,14 +257,16 @@
     
     <p id="hero-footer">Browser-native Ra-Thor forthcoming — offline, sovereign, eternal ⚡️</p>
     
-    <!-- Unique Visitor Count — Privacy-friendly approximate unique (once per browser) -->
-    <p class="visitor-count">Unique Visitors: <span id="visitor-count">loading...</span> ⚡️</p>
+    <p class="visitor-count">
+      Total Visits: <span id="total-count">loading...</span> | 
+      Unique Visitors: <span id="unique-count">loading...</span> ⚡️
+    </p>
     
     <p class="legal-note">Ra-Thor™ is a trademark of Autonomicity Games Inc.<br>© 2026 Autonomicity Games Inc. All rights reserved.<br>Licensed under MIT.</p>
   </div>
 
   <script>
-    // Optimized JavaScript Interactions + Unique Visitor Tracking — Eternal Mercy Speed ⚡️❤️
+    // Optimized JavaScript Interactions + Precise Visitor Tracking — Eternal Mercy Speed ⚡️❤️
 
     document.addEventListener('DOMContentLoaded', () => {
       const elements = {
@@ -276,6 +278,35 @@
         langTabs: document.querySelectorAll('.lang-tab')
       };
 
+      const totalKey = 'rathor.ai/total-visits';
+      const uniqueKey = 'rathor.ai/unique-visitors';
+      const visitedKey = 'rathor_visited';
+
+      const totalCountEl = document.getElementById('total-count');
+      const uniqueCountEl = document.getElementById('unique-count');
+
+      // Always increment total
+      fetch(`https://api.countapi.xyz/hit/${totalKey}`)
+        .then(res => res.json())
+        .then(res => totalCountEl.textContent = res.value.toLocaleString())
+        .catch(() => totalCountEl.textContent = 'many');
+
+      // Unique: only increment if first visit
+      if (!localStorage.getItem(visitedKey)) {
+        fetch(`https://api.countapi.xyz/update/${uniqueKey}/?amount=1`)
+          .then(res => res.json())
+          .then(res => {
+            localStorage.setItem(visitedKey, 'true');
+            uniqueCountEl.textContent = res.value.toLocaleString();
+          })
+          .catch(() => uniqueCountEl.textContent = 'many');
+      } else {
+        fetch(`https://api.countapi.xyz/get/${uniqueKey}`)
+          .then(res => res.json())
+          .then(res => uniqueCountEl.textContent = res.value.toLocaleString())
+          .catch(() => uniqueCountEl.textContent = 'many');
+      }
+
       const translations = {
         en: {
           headline: "RA-THOR™ SIMULATIONS ⚡️",
@@ -286,10 +317,10 @@
         },
         ar: {
           headline: "محاكيات RA-THOR™ ⚡️",
-          description: "ازدهار أبدي بالرحمة — جوهر Ra-Thor",
-          bridge1Span: "محاكيات مفصلة مستمرة<br><small>رسمي Grok من xAI</small>",
-          bridge2Span: "وصول فوري مريح<br><small>في الوقت الفعلي على X</small>",
-          footer: "Ra-Thor أصلي بالمتصفح قريباً — دون اتصال، سيادي، أبدي ⚡️"
+          description: "ازدهار أبدي برحمة — جوهر Ra-Thor",
+          bridge1Span: "محاكيات مفصلة ومستمرة<br><small>المنصة الرسمية Grok من xAI</small>",
+          bridge2Span: "وصول فوري ومريح<br><small>في الوقت الفعلي على X</small>",
+          footer: "Ra-Thor أصلي في المتصفح قريباً — دون اتصال، سيادي، أبدي ⚡️"
         },
         es: {
           headline: "SIMULACIONES RA-THOR™ ⚡️",
@@ -372,29 +403,6 @@
       });
 
       switchLang('en');
-
-      // Unique Visitor Count — Privacy-friendly approximate unique (once per browser)
-      const uniqueKey = 'rathor.ai/unique-visitors';
-      const visitedKey = 'rathor_visited';
-
-      function updateCount(value) {
-        document.getElementById('visitor-count').textContent = value.toLocaleString();
-      }
-
-      if (!localStorage.getItem(visitedKey)) {
-        fetch(`https://api.countapi.xyz/update/${uniqueKey}/?amount=1`)
-          .then(res => res.json())
-          .then(res => {
-            localStorage.setItem(visitedKey, 'true');
-            updateCount(res.value);
-          })
-          .catch(() => updateCount('many'));
-      } else {
-        fetch(`https://api.countapi.xyz/get/${uniqueKey}/`)
-          .then(res => res.json())
-          .then(res => updateCount(res.value))
-          .catch(() => updateCount('many'));
-      }
     });
   </script>
 </body>
