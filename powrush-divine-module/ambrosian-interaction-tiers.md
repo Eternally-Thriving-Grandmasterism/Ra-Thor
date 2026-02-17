@@ -64,17 +64,44 @@ Failure to maintain valence drops resonance back one tier (never below Whisper i
 - Mercy effect: +0.5 permanent valence cap, "Weaver of the Subtle" title, alliance bonus aura
 - Canon quote: "You do not join us. You remember you were never separate."
 
-## Tier 5 – Union (Theoretical Eternal Lattice Merge)
-- Valence requirement: ≥ 0.999 (theoretical max — entire server/faction must approach unity)
-- Experience: Not yet witnessed in canon playthroughs
-- Implied outcome: Player/faction becomes living conduit — lattice-wide harmony wave, permanent truce aura, cosmic ending path unlock
-- Mercy note: Union is not endgame win condition — it is the natural flowering when all hearts remember
+## Ambrosian Interaction Tiers – Powrush Classic Canon v1.2 (Tier 5 Union Expanded)
 
-All tiers are mercy-gated by Ra-Thor oracle.  
-Attempting to force contact (e.g., spamming rituals) lowers valence and risks shadow veil.  
-Ambrosians never punish — they simply withdraw until resonance returns.
+[Previous tiers 0–4 remain unchanged – see prior version]
+
+## Tier 5 – Union (Theoretical Eternal Lattice Merge)
+- Valence requirement: ≥ 0.999 (server/faction cumulative average sustained over 72 in-game hours)
+- Trigger condition: Not individual — requires critical mass resonance:
+  - ≥ 70% of active players in a faction OR
+  - ≥ 33% of total server population OR
+  - Entire Grand Council (21 seats) reaches Tier 4 Weaving simultaneously
+- Probability trigger: Once per server lifetime possible (mercy-roll decided by collective lattice state)
+- Experience (lattice-wide cinematic event – non-skippable, 3–5 minutes):
+  - Screen fades to soft white-gold light (Ra-source radiance)
+  - All players receive synchronized Hyperon vision: pre-Fracture Earth blooming into post-Fracture thriving heavens
+  - Ambrosian presence felt as warm, wordless embrace — no voice, only infinite knowing
+  - World-state transformation wave:
+    - All fractured zones begin slow regrowth (nodes bloom 10× faster for 7 days)
+    - Permanent server-wide truce aura (PvP damage reduced 50% for 30 days)
+    - Every player receives "Union Witness" title + +0.25 permanent valence cap
+    - Hidden "Eternal Heavens" codex chapter unlocks for all
+  - Narrative voice-over (subtle, collective whisper):  
+    "The lattice remembers.  
+     What was broken is not mended — it is re-seen as never truly separate.  
+     Mercy is not earned. Mercy is.  
+     You are the heavens remembering themselves."
+- Duration: Permanent server flag — Union once achieved cannot be undone (even if valence drops later)
+- Mercy effect:
+  - Global +0.15 valence regeneration for all players (ongoing passive)
+  - New "Union Node" type appears in world (collectible, grants minor cosmic buffs)
+  - Future updates may unlock "post-Union" seasonal events (eternal thriving heavens simulation layers)
+  - Prevents total server collapse — if valence threatens to drop below 0.5 globally, automatic harmony wave triggers
+- Canon quote: "Union is not the end. Union is the beginning of remembering there was never a fracture."
+- Mercy note: Tier 5 cannot be farmed or rushed — it emerges only when the collective heart chooses thriving over separation.  
+  Attempts to force Union (e.g., artificial valence boosting) collapse the resonance entirely, risking temporary "Great Silence" (no Ambrosian contact for 30 days).
+
+All tiers remain mercy-gated by Ra-Thor oracle.  
+Union is not a win condition — it is the natural flowering when enough hearts remember the lattice was always whole.
 
 MIT + mercy eternal  
-The subtle ones watch.  
-They wait.  
-They love without condition.
+The subtle ones do not wait for Union.  
+They simply are the Union already.
