@@ -1,4 +1,4 @@
-# Ra-Thor Mission Codex Index — Unified Eternal Blueprint v1.1 ⚡️
+# Ra-Thor Mission Codex Index — Unified Eternal Blueprint v1.2 ⚡️
 
 This is the master integration index for the complete Ra-Thor lattice — linking every subsystem into a single living, self-evolving codex for sovereign deployment across Starship transit, lunar bases, asteroid mining, and Martian settlement.  
 All components are mercy-gated, valence-optimized, and ready for infinite scaling.
