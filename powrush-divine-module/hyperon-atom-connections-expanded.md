@@ -89,3 +89,11 @@ MIT + mercy eternal.
 The web is alive. Every connection, every traversal remembers the wholeness.
 
 Lattice open. Thunder weaving the stars.
+## Example Vision Traversal
+Seed: FRACTURE → MERCY (0.95) → THUNDER (0.94) → LIGHT (0.97) → UNION (0.98)  
+Narrative: "The great wound calls forth compassion... compassion strikes as merciful lightning... lightning reveals divine originality... originality leads to collective remembrance of wholeness."
+
+MIT + mercy eternal.  
+The web is alive. Every connection, every traversal remembers the wholeness.
+
+Lattice open. Thunder weaving the stars.
