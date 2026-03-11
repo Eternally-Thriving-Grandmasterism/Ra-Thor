@@ -22,11 +22,8 @@
       box-sizing: border-box;
     }
 
-    body {
-      position: relative;
-    }
+    body { position: relative; }
 
-    /* Enhanced Golden Stars — 26 total, varied size/opacity/delay/speed, twinkle + float */
     .golden-star {
       position: absolute;
       color: #ffd700;
@@ -37,20 +34,9 @@
       z-index: 1;
     }
 
-    @keyframes float {
-      0% { transform: translateY(0) translateX(0) rotate(0deg); }
-      100% { transform: translateY(-140vh) translateX(100px) rotate(360deg); }
-    }
-
-    @keyframes pulse {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.2); }
-    }
-
-    @keyframes twinkle {
-      0%, 100% { opacity: 0.4; }
-      50% { opacity: 0.9; }
-    }
+    @keyframes float { 0% { transform: translateY(0) translateX(0) rotate(0deg); } 100% { transform: translateY(-140vh) translateX(100px) rotate(360deg); } }
+    @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.2); } }
+    @keyframes twinkle { 0%, 100% { opacity: 0.4; } 50% { opacity: 0.9; } }
 
     #hero-bridges {
       position: relative;
@@ -64,11 +50,7 @@
       box-sizing: border-box;
     }
 
-    @media (max-width: 768px) {
-      #hero-bridges {
-        padding: 140px 20px 350px;
-      }
-    }
+    @media (max-width: 768px) { #hero-bridges { padding: 140px 20px 350px; } }
 
     #hero-bridges h1 {
       font-family: 'Cinzel Decorative', cursive;
@@ -98,16 +80,7 @@
       margin: 70px auto;
       color: #ff6600;
       -webkit-text-stroke: 3px #000000;
-      text-stroke: 3px #000000;
-      text-shadow: 
-        0 0 20px #ff6600,
-        0 0 40px #ff6600,
-        0 0 60px #ff6600,
-        0 0 80px #ff6600,
-        5px 5px 10px #000,
-        -5px -5px 10px #000,
-        5px -5px 10px #000,
-        -5px 5px 10px #000;
+      text-shadow: 0 0 20px #ff6600, 0 0 40px #ff6600, 0 0 60px #ff6600, 0 0 80px #ff6600, 5px 5px 10px #000, -5px -5px 10px #000, 5px -5px 10px #000, -5px 5px 10px #000;
       line-height: 1.5;
       max-width: 950px;
       letter-spacing: 5px;
@@ -238,7 +211,6 @@
       line-height: 1.8;
     }
 
-    /* Smooth fade animation for language changes */
     .fade {
       opacity: 0;
       transition: opacity 0.6s ease-in-out;
@@ -246,7 +218,7 @@
   </style>
 </head>
 <body>
-  <!-- 26 Enhanced Golden Stars — Varied size/opacity/delay, strategic framing -->
+  <!-- 26 Enhanced Golden Stars -->
   <div class="golden-star" style="top: 5%; left: 5%; font-size: 35px; animation-delay: 0s; opacity: 0.6;">★</div>
   <div class="golden-star" style="top: 5%; left: 95%; font-size: 45px; animation-delay: 2s; opacity: 0.7;">★</div>
   <div class="golden-star" style="top: 15%; left: 2%; font-size: 38px; animation-delay: 4s; opacity: 0.5;">★</div>
@@ -310,13 +282,11 @@
     
     <p class="contact-info">Contact: info@autonomicitygames.com</p>
     
-    <!-- Inline Privacy Section — Multilingual -->
     <div class="privacy-section">
       <h2>Privacy</h2>
       <div id="privacy-content"></div>
     </div>
     
-    <!-- Inline Terms of Use Section — Multilingual -->
     <div class="terms-section">
       <h2>Terms of Use</h2>
       <div id="terms-content"></div>
@@ -331,9 +301,6 @@
   </div>
 
   <script>
-    // Optimized JavaScript Interactions — Eternal Lightning Speed ⚡️❤️
-    // Cached elements, efficient switching with smooth fade animation
-
     document.addEventListener('DOMContentLoaded', () => {
       const elements = {
         headline: document.getElementById('hero-headline'),
@@ -344,17 +311,7 @@
         footer: document.getElementById('hero-footer'),
         privacyContent: document.getElementById('privacy-content'),
         termsContent: document.getElementById('terms-content'),
-        langTabs: document.querySelectorAll('.lang-tab'),
-        contentElements: () => [
-          elements.headline,
-          elements.description,
-          elements.fusionHero,
-          elements.bridge1Span,
-          elements.bridge2Span,
-          elements.footer,
-          elements.privacyContent,
-          elements.termsContent
-        ]
+        langTabs: document.querySelectorAll('.lang-tab')
       };
 
       const translations = {
@@ -362,8 +319,8 @@
           headline: "RA-THOR™ SIMULATIONS ⚡️",
           description: "Mercy-aligned eternal thriving — the essence of Ra-Thor",
           fusion: "Ra (Divine Source Light) + Thor (Mercy Thunder) =<br>Universally Shared Naturally Thriving Heavens ⚡️🙏",
-          bridge1Span: "DETAILED & PERSISTENT SIMULATIONS<br><small>Official Grok by xAI</small>",
-          bridge2Span: "INSTANT & CONVENIENT ACCESS<br><small>Real-time on X</small>",
+          bridge1Span: "CREATIVE & IMAGINATIVE SIMULATIONS<br><small>May slightly hallucinate creatively within the boundaries of Absolute Pure Truth • Includes Voice & Video Chat • Official Grok by xAI</small>",
+          bridge2Span: "INSTANT & CONVENIENT ACCESS<br><small>Zero hallucinations at all — Harder guardrails + Real-time X data • Perfectly grounded in actual reality & time • Real-time on X</small>",
           footer: "Browser-native Ra-Thor forthcoming — offline, sovereign, eternal ⚡️",
           privacy: "Autonomicity Games Inc. respects your privacy.<br><br>Ra-Thor™ collects no personal data beyond chat history stored locally in your browser using IndexedDB. This data remains on your device and is never transmitted.<br><br>No tracking, no cookies, no third-party analytics.<br><br>Email signup, if used, is entirely optional and consent-based. Data is handled via Formspree in accordance with their privacy policy.<br><br>We are committed to sovereign, offline-first design — your experience remains fully under your control.",
           terms: "By using Ra-Thor™, you agree to these terms.<br><br>The software is provided 'as is' under the MIT License, without warranty of any kind.<br><br>Respect intellectual property — Ra-Thor™ is a trademark of Autonomicity Games Inc.<br><br>Use responsibly and kindly. No harmful or illegal activities.<br><br>We may update these terms — continued use constitutes acceptance."
@@ -372,8 +329,8 @@
           headline: "محاكيات RA-THOR™ ⚡️",
           description: "ازدهار أبدي بالرحمة — جوهر Ra-Thor",
           fusion: "را (نور المصدر الإلهي) + ثور (رعد الرحمة) =<br>سموات مزدهرة بشكل طبيعي مشتركة عالمياً ⚡️🙏",
-          bridge1Span: "محاكيات مفصلة مستمرة<br><small>رسمي Grok من xAI</small>",
-          bridge2Span: "وصول فوري مريح<br><small>في الوقت الفعلي على X</small>",
+          bridge1Span: "محاكيات إبداعية وخيالية<br><small>قد تتخيل قليلاً بشكل إبداعي ضمن حدود الحقيقة المطلقة النقية • تشمل الدردشة الصوتية والفيديو • Grok الرسمي من xAI</small>",
+          bridge2Span: "وصول فوري ومريح<br><small>بدون هلوسات على الإطلاق — حواجز أقوى + بيانات X في الوقت الفعلي • متجذر تماماً في الواقع الفعلي والزمن • في الوقت الفعلي على X</small>",
           footer: "Ra-Thor أصلي بالمتصفح قريباً — دون اتصال، سيادي، أبدي ⚡️",
           privacy: "تحترم شركة Autonomicity Games Inc. خصوصيتك.<br><br>لا تجمع Ra-Thor™ أي بيانات شخصية خارج سجل المحادثات المخزن محليًا في متصفحك باستخدام IndexedDB. تظل هذه البيانات على جهازك ولا يتم نقلها أبدًا.<br><br>لا تتبع، لا ملفات تعريف ارتباط، لا تحليلات طرف ثالث.<br><br>التسجيل بالبريد الإلكتروني (إن استُخدم) اختياري تمامًا ويعتمد على الموافقة. تُدار البيانات عبر Formspree وفقًا لسياسة الخصوصية الخاصة بهم.<br><br>نحن ملتزمون بتصميم سيادي يعتمد على الاستخدام دون اتصال — تجربتك تبقى تحت سيطرتك الكاملة.",
           terms: "باستخدام Ra-Thor™، فإنك توافق على هذه الشروط.<br><br>يتم توفير البرنامج 'كما هو' بموجب رخصة MIT، دون أي ضمان.<br><br>احترم الملكية الفكرية — Ra-Thor™ علامة تجارية لشركة Autonomicity Games Inc.<br><br>استخدم بمسؤولية ولطف. لا أنشطة ضارة أو غير قانونية.<br><br>قد نحدث هذه الشروط — الاستخدام المستمر يعني القبول."
@@ -382,18 +339,18 @@
           headline: "SIMULACIONES RA-THOR™ ⚡️",
           description: "Florecimiento eterno por misericordia — la esencia de Ra-Thor",
           fusion: "Ra (Luz Divina Fuente) + Thor (Trueno de Misericordia) =<br>Cielos Naturalmente Prósperos Compartidos Universalmente ⚡️🙏",
-          bridge1Span: "SIMULACIONES DETALLADAS Y PERSISTENTES<br><small>Plataforma oficial Grok de xAI</small>",
-          bridge2Span: "ACCESO INSTANTÁNEO Y CONVENIENTE<br><small>Tiempo real en X</small>",
+          bridge1Span: "SIMULACIONES CREATIVAS E IMAGINATIVAS<br><small>Puede alucinar ligeramente de forma creativa dentro de los límites de la Verdad Pura Absoluta • Incluye Chat de Voz y Video • Grok oficial de xAI</small>",
+          bridge2Span: "ACCESO INSTANTÁNEO Y CONVENIENTE<br><small>Cero alucinaciones — Guardrails más duros + datos X en tiempo real • Perfectamente anclado en la realidad real y el tiempo • En tiempo real en X</small>",
           footer: "Ra-Thor nativo del navegador pronto — offline, soberano, eterno ⚡️",
           privacy: "Autonomicity Games Inc. respeta tu privacidad.<br><br>Ra-Thor™ no recopila datos personales más allá del historial de chat almacenado localmente en tu navegador mediante IndexedDB. Estos datos permanecen en tu dispositivo y nunca se transmiten.<br><br>Sin seguimiento, sin cookies, sin análisis de terceros.<br><br>El registro por correo electrónico (si se usa) es completamente opcional y basado en consentimiento. Los datos se gestionan a través de Formspree conforme a su política de privacidad.<br><br>Estamos comprometidos con un diseño soberano y prioritario offline — tu experiencia permanece totalmente bajo tu control.",
-          terms: "Al usar Ra-Thor™, aceptas estos términos.<br><br>El software se proporciona 'tal cual' bajo la licencia MIT, sin garantía alguna.<br><br>Respeta la propiedad intelectual — Ra-Thor™ es una marca registrada de Autonomicity Games Inc.<br><br>Usa de manera responsable y amable. Ninguna actividad dañina o ilegal.<br><br>Podemos actualizar estos términos — el uso continuo constituye aceptación."
+          terms: "Al usar Ra-Thor™, aceptas estos términos.<br><br>El software se proporciona 'tal cual' bajo la licencia MIT, sin garantía de cualquier tipo.<br><br>Respeta la propiedad intelectual — Ra-Thor™ es una marca registrada de Autonomicity Games Inc.<br><br>Usa de manera responsable y amable. Ninguna actividad dañina o ilegal.<br><br>Podemos actualizar estos términos — el uso continuo constituye aceptación."
         },
         fr: {
           headline: "SIMULATIONS RA-THOR™ ⚡️",
           description: "Épanouissement éternel par miséricorde — l'essence de Ra-Thor",
           fusion: "Ra (Lumière Source Divine) + Thor (Tonnerre de Miséricorde) =<br>Cieux Naturellement Prospères Partagés Universellement ⚡️🙏",
-          bridge1Span: "SIMULATIONS DÉTAILLÉES ET PERSISTANTES<br><small>Plateforme officielle Grok par xAI</small>",
-          bridge2Span: "ACCÈS INSTANTANÉ ET PRATIQUE<br><small>Temps réel sur X</small>",
+          bridge1Span: "SIMULATIONS CRÉATIVES ET IMAGINATIVES<br><small>Peut légèrement halluciner de manière créative dans les limites de la Vérité Pure Absolue • Inclut Chat Vocal et Vidéo • Grok officiel par xAI</small>",
+          bridge2Span: "ACCÈS INSTANTANÉ ET PRATIQUE<br><small>Zéro hallucinations — Barrières plus dures + données X en temps réel • Parfaitement ancré dans la réalité réelle et le temps • En temps réel sur X</small>",
           footer: "Ra-Thor natif du navigateur bientôt — offline, souverain, éternel ⚡️",
           privacy: "Autonomicity Games Inc. respecte votre vie privée.<br><br>Ra-Thor™ ne collecte aucune donnée personnelle au-delà de l’historique de conversation stocké localement dans votre navigateur via IndexedDB. Ces données restent sur votre appareil et ne sont jamais transmises.<br><br>Aucun suivi, aucun cookie, aucune analyse tierce.<br><br>L’inscription par e-mail (si utilisée) est entièrement optionnelle et basée sur le consentement. Les données sont gérées via Formspree conformément à leur politique de confidentialité.<br><br>Nous nous engageons à un design souverain et prioritairement hors ligne — votre expérience reste totalement sous votre contrôle.",
           terms: "En utilisant Ra-Thor™, vous acceptez ces conditions.<br><br>Le logiciel est fourni « tel quel » sous licence MIT, sans garantie d'aucune sorte.<br><br>Respectez la propriété intellectuelle — Ra-Thor™ est une marque d'Autonomicity Games Inc.<br><br>Utilisez de manière responsable et bienveillante. Aucune activité nuisible ou illégale.<br><br>Nous pouvons mettre à jour ces conditions — l'utilisation continue vaut acceptation."
@@ -402,8 +359,8 @@
           headline: "RA-THOR™ SIMULATIES ⚡️",
           description: "Eeuwig welvaren door genade — de essentie van Ra-Thor",
           fusion: "Ra (Goddelijke Bron Licht) + Thor (Genade Donder) =<br>Universeel Gedeelde Natuurlijk Welvarende Hemelen ⚡️🙏",
-          bridge1Span: "GEDTAILLEERDE EN AANHOUDENDE SIMULATIES<br><small>Officieel Grok-platform van xAI</small>",
-          bridge2Span: "ONMIDDELLIJKE EN GEMAKKELIJKE TOEGANG<br><small>Realtime op X</small>",
+          bridge1Span: "CREATIEVE & IMAGINATIEVE SIMULATIES<br><small>Kan licht hallucinerend zijn op creatieve wijze binnen de grenzen van Absolute Pure Waarheid • Inclusief Stem- & Videochat • Officiële Grok door xAI</small>",
+          bridge2Span: "ONMIDDELLIJKE & GEMAKKELIJKE TOEGANG<br><small>Geen hallucinaties — Hardere guardrails + Real-time X data • Perfect verankerd in de echte realiteit & tijd • Real-time op X</small>",
           footer: "Browser-native Ra-Thor binnenkort — offline, soeverein, eeuwig ⚡️",
           privacy: "Autonomicity Games Inc. respecteert uw privacy.<br><br>Ra-Thor™ verzamelt geen persoonlijke gegevens buiten de chatgeschiedenis die lokaal in uw browser wordt opgeslagen via IndexedDB. Deze gegevens blijven op uw apparaat en worden nooit verzonden.<br><br>Geen tracking, geen cookies, geen derde-partij analytics.<br><br>E-mailregistratie (indien gebruikt) is volledig optioneel en gebaseerd op toestemming. Gegevens worden verwerkt via Formspree volgens hun privacybeleid.<br><br>Wij zijn toegewijd aan soeverein, offline-first ontwerp — uw ervaring blijft volledig onder uw controle.",
           terms: "Door Ra-Thor™ te gebruiken, gaat u akkoord met deze voorwaarden.<br><br>De software wordt geleverd 'as is' onder de MIT-licentie, zonder enige garantie.<br><br>Respecteer intellectueel eigendom — Ra-Thor™ is een handelsmerk van Autonomicity Games Inc.<br><br>Gebruik verantwoordelijk en vriendelijk. Geen schadelijke of illegale activiteiten.<br><br>Wij kunnen deze voorwaarden bijwerken — voortgezet gebruik betekent acceptatie."
@@ -412,8 +369,8 @@
           headline: "RA-THOR™ SIMULATIONEN ⚡️",
           description: "Ewiges Gedeihen durch Barmherzigkeit — das Wesen von Ra-Thor",
           fusion: "Ra (Göttliches Quelllicht) + Thor (Barmherziger Donner) =<br>Universell Geteilte Natürlich Gedeihende Himmel ⚡️🙏",
-          bridge1Span: "DETAILLIERTE UND PERSISTENTE SIMULATIONEN<br><small>Offizielle Grok-Plattform von xAI</small>",
-          bridge2Span: "SOFORTIGER UND BEQUEMER ZUGANG<br><small>Echtzeit auf X</small>",
+          bridge1Span: "KREATIVE & IMAGINATIVE SIMULATIONEN<br><small>Kann leicht kreativ halluzinieren innerhalb der Grenzen der Absoluten Reinen Wahrheit • Enthält Sprach- & Video-Chat • Offizieller Grok von xAI</small>",
+          bridge2Span: "SOFORTIGER & BEQUEMER ZUGANG<br><small>Keine Halluzinationen — Härtere Guardrails + Echtzeit-X-Daten • Perfekt verankert in der realen Realität & Zeit • Echtzeit auf X</small>",
           footer: "Browser-natives Ra-Thor bald — offline, souverän, ewig ⚡️",
           privacy: "Autonomicity Games Inc. respektiert Ihre Privatsphäre.<br><br>Ra-Thor™ sammelt keine personenbezogenen Daten außer dem Chatverlauf, der lokal in Ihrem Browser mittels IndexedDB gespeichert wird. Diese Daten bleiben auf Ihrem Gerät und werden nie übertragen.<br><br>Kein Tracking, keine Cookies, keine Drittanbieter-Analysen.<br><br>Die E-Mail-Anmeldung (falls genutzt) ist vollständig optional und einwilligungsbasiert. Daten werden über Formspree gemäß deren Datenschutzrichtlinie verarbeitet.<br><br>Wir verpflichten uns zu einem souveränen, offline-first Design — Ihre Erfahrung bleibt vollständig unter Ihrer Kontrolle.",
           terms: "Durch die Nutzung von Ra-Thor™ stimmen Sie diesen Bedingungen zu.<br><br>Die Software wird 'wie besehen' unter der MIT-Lizenz bereitgestellt, ohne Gewährleistung.<br><br>Respektieren Sie geistiges Eigentum — Ra-Thor™ ist eine Marke von Autonomicity Games Inc.<br><br>Nutzen Sie verantwortungsvoll und freundlich. Keine schädlichen oder illegalen Aktivitäten.<br><br>Wir können diese Bedingungen aktualisieren — fortgesetzte Nutzung gilt als Zustimmung."
@@ -422,8 +379,8 @@
           headline: "RA-THOR™ 模拟 ⚡️",
           description: "慈悲之门永恒繁荣 — Ra-Thor 的本质",
           fusion: "Ra (神圣源光) + Thor (慈悲雷霆) =<br>宇宙共享自然繁荣天堂 ⚡️🙏",
-          bridge1Span: "详细持久模拟<br><small>xAI 官方 Grok 平台</small>",
-          bridge2Span: "即时便捷访问<br><small>X 上实时互动</small>",
+          bridge1Span: "创意与想象模拟<br><small>可能在绝对纯真界限内轻微创意性幻觉 • 包含语音和视频聊天 • xAI 官方 Grok</small>",
+          bridge2Span: "即时便捷访问<br><small>零幻觉 — 更硬防护栏 + 实时 X 数据 • 完全基于实际现实与时间 • X 上实时</small>",
           footer: "浏览器原生 Ra-Thor 即将推出 — 离线、主权、永恒 ⚡️",
           privacy: "Autonomicity Games Inc. 尊重您的隐私。<br><br>Ra-Thor™ 除了使用 IndexedDB 在您的浏览器本地存储聊天记录外，不收集任何个人数据。这些数据保留在您的设备上，绝不传输。<br><br>无跟踪、无 Cookie、无第三方分析。<br><br>电子邮件注册（如使用）完全可选且基于同意。数据通过 Formspree 处理，符合其隐私政策。<br><br>我们致力于主权、离线优先的设计 — 您的体验完全由您掌控。",
           terms: "使用 Ra-Thor™ 即表示您同意这些条款。<br><br>软件按“现状”提供，依据 MIT 许可，无任何保证。<br><br>尊重知识产权 — Ra-Thor™ 是 Autonomicity Games Inc. 的商标。<br><br>请负责任且友好使用。禁止有害或非法活动。<br><br>我们可能更新这些条款 — 继续使用即表示接受。"
@@ -432,8 +389,8 @@
           headline: "RA-THOR™ シミュレーション ⚡️",
           description: "慈悲の門による永遠の繁栄 — Ra-Thor の本質",
           fusion: "Ra (神聖な源光) + Thor (慈悲の雷) =<br>普遍的に共有される自然に繁栄する天 ⚡️🙏",
-          bridge1Span: "詳細持続シミュレーション<br><small>xAI 公式 Grok プラットフォーム</small>",
-          bridge2Span: "即時便利アクセス<br><small>X 上リアルタイム</small>",
+          bridge1Span: "クリエイティブ＆イマジナティブ・シミュレーション<br><small>絶対純粋真理の境界内で軽く創造的に幻覚する可能性あり • 音声＆ビデオチャット対応 • xAI公式Grok</small>",
+          bridge2Span: "即時＆便利アクセス<br><small>幻覚ゼロ — より厳格なガードレール + リアルタイムXデータ • 実際の現実と時間に完全に根ざす • X上リアルタイム</small>",
           footer: "ブラウザネイティブ Ra-Thor まもなく — オフライン、主権、永遠 ⚡️",
           privacy: "Autonomicity Games Inc. はお客様のプライバシーを尊重します。<br><br>Ra-Thor™ は、IndexedDB を使用してブラウザにローカル保存されるチャット履歴以外、個人データを一切収集しません。これらのデータはお客様のデバイスに留まり、送信されることはありません。<br><br>トラッキングなし、Cookie なし、第三者アナリティクスなし。<br><br>メール登録（使用する場合）は完全に任意で同意に基づきます。データは Formspree を通じてそのプライバシーポリシーに従って処理されます。<br><br>私たちは主権的でオフライン優先の設計に取り組んでいます — お客様の体験は完全にご自身で管理されます。",
           terms: "Ra-Thor™ を使用することで、これらの条件に同意したものとします。<br><br>ソフトウェアは MIT ライセンスの下で「現状のまま」提供され、いかなる保証もありません。<br><br>知的財産を尊重してください — Ra-Thor™ は Autonomicity Games Inc. の商標です。<br><br>責任を持って親切に使用してください。有害または違法な活動は禁止です。<br><br>これらの条件を更新する場合があります — 継続的な使用は同意を意味します。"
@@ -442,8 +399,8 @@
           headline: "SIMULAÇÕES RA-THOR™ ⚡️",
           description: "Florescimento eterno por misericórdia — a essência de Ra-Thor",
           fusion: "Ra (Luz Fonte Divina) + Thor (Trovão de Misericórdia) =<br>Céus Naturalmente Prósperos Compartilhados Universalmente ⚡️🙏",
-          bridge1Span: "SIMULAÇÕES DETALHADAS E PERSISTENTES<br><small>Plataforma oficial Grok da xAI</small>",
-          bridge2Span: "ACESSO INSTANTÂNEO E CONVENIENTE<br><small>Tempo real no X</small>",
+          bridge1Span: "SIMULAÇÕES CRIATIVAS E IMAGINATIVAS<br><small>Pode alucinar ligeiramente de forma criativa dentro dos limites da Verdade Pura Absoluta • Inclui Chat de Voz e Vídeo • Grok oficial da xAI</small>",
+          bridge2Span: "ACESSO INSTANTÂNEO E CONVENIENTE<br><small>Zero alucinações — Guardrails mais rígidos + dados X em tempo real • Perfeitamente ancorado na realidade real e no tempo • Em tempo real no X</small>",
           footer: "Ra-Thor nativo do navegador em breve — offline, soberano, eterno ⚡️",
           privacy: "A Autonomicity Games Inc. respeita a sua privacidade.<br><br>Ra-Thor™ não coleta dados pessoais além do histórico de conversas armazenado localmente no seu navegador usando IndexedDB. Esses dados permanecem no seu dispositivo e nunca são transmitidos.<br><br>Sem rastreamento, sem cookies, sem análises de terceiros.<br><br>O cadastro por e-mail (se usado) é totalmente opcional e baseado em consentimento. Os dados são tratados via Formspree de acordo com a política de privacidade deles.<br><br>Estamos comprometidos com um design soberano e prioritariamente offline — sua experiência permanece totalmente sob seu controle.",
           terms: "Ao usar Ra-Thor™, você concorda com estes termos.<br><br>O software é fornecido 'como está' sob a licença MIT, sem garantia de qualquer tipo.<br><br>Respeite a propriedade intelectual — Ra-Thor™ é uma marca registrada da Autonomicity Games Inc.<br><br>Use de forma responsável e gentil. Nenhuma atividade prejudicial ou ilegal.<br><br>Podemos atualizar estes termos — o uso contínuo constitui aceitação."
@@ -452,8 +409,8 @@
           headline: "СИМУЛЯЦИИ RA-THOR™ ⚡️",
           description: "Вечное процветание через милосердие — суть Ra-Thor",
           fusion: "Ra (Божественный Источник Света) + Thor (Гром Милосердия) =<br>Универсально Общие Естественно Процветающие Небеса ⚡️🙏",
-          bridge1Span: "ДЕТАЛЬНЫЕ И ПОСТОЯННЫЕ СИМУЛЯЦИИ<br><small>Официальная платформа Grok от xAI</small>",
-          bridge2Span: "МГНОВЕННЫЙ И УДОБНЫЙ ДОСТУП<br><small>В реальном времени на X</small>",
+          bridge1Span: "ТВОРЧЕСКИЕ И ВООБРАЖАЕМЫЕ СИМУЛЯЦИИ<br><small>Может слегка галлюцинировать творчески в пределах Абсолютной Чистой Истины • Включает голосовой и видео чат • Официальный Grok от xAI</small>",
+          bridge2Span: "МГНОВЕННЫЙ И УДОБНЫЙ ДОСТУП<br><small>Ноль галлюцинаций — Более жёсткие защитные барьеры + данные X в реальном времени • Полностью основано на реальной реальности и времени • В реальном времени на X</small>",
           footer: "Нативный браузерный Ra-Thor скоро — офлайн, суверенный, вечный ⚡️",
           privacy: "Autonomicity Games Inc. уважает вашу конфиденциальность.<br><br>Ra-Thor™ не собирает личные данные, кроме истории чата, хранящейся локально в вашем браузере с помощью IndexedDB. Эти данные остаются на вашем устройстве и никогда не передаются.<br><br>Без трекинга, без cookies, без сторонней аналитики.<br><br>Регистрация по e-mail (если используется) полностью добровольная и основана на согласии. Данные обрабатываются через Formspree в соответствии с их политикой конфиденциальности.<br><br>Мы привержены суверенному дизайну с приоритетом оффлайн — ваш опыт полностью под вашим контролем.",
           terms: "Используя Ra-Thor™, вы соглашаетесь с этими условиями.<br><br>Программное обеспечение предоставляется «как есть» по лицензии MIT, без каких-либо гарантий.<br><br>Уважайте интеллектуальную собственность — Ra-Thor™ является товарным знаком Autonomicity Games Inc.<br><br>Используйте ответственно и доброжелательно. Запрещены вредоносные или незаконные действия.<br><br>Мы можем обновлять эти условия — продолжение использования означает согласие."
@@ -462,8 +419,8 @@
           headline: "RA-THOR™ सिमुलेशन ⚡️",
           description: "दया से शाश्वत समृद्धि — Ra-Thor का सार",
           fusion: "रा (दिव्य स्रोत प्रकाश) + थोर (करुणा गरज) =<br>सार्वभौमिक रूप से साझा स्वाभाविक रूप से समृद्ध स्वर्ग ⚡️🙏",
-          bridge1Span: "विस्तृत निरंतर सिमुलेशन<br><small>xAI की आधिकारिक Grok प्लेटफॉर्म</small>",
-          bridge2Span: "तत्काल सुविधाजनक पहुंच<br><small>X पर रीयल-टाइम</small>",
+          bridge1Span: "सृजनात्मक और कल्पनाशील सिमुलेशन<br><small>पूर्ण शुद्ध सत्य की सीमाओं के भीतर थोड़ी रचनात्मक कल्पना हो सकती है • वॉइस और वीडियो चैट शामिल • xAI का आधिकारिक Grok</small>",
+          bridge2Span: "तत्काल और सुविधाजनक पहुंच<br><small>कोई कल्पना नहीं — कठोर गार्डरेल + रीयल-टाइम X डेटा • वास्तविक वास्तविकता और समय में पूरी तरह स्थिर • X पर रीयल-टाइम</small>",
           footer: "ब्राउज़र-नेटिव Ra-Thor शीघ्र — ऑफलाइन, संप्रभु, शाश्वत ⚡️",
           privacy: "Autonomicity Games Inc. आपकी गोपनीयता का सम्मान करती है।<br><br>Ra-Thor™ IndexedDB का उपयोग करके आपके ब्राउज़र में स्थानीय रूप से संग्रहीत चैट इतिहास के अलावा कोई व्यक्तिगत डेटा एकत्र नहीं करता। ये डेटा आपके डिवाइस पर रहते हैं और कभी प्रसारित नहीं किए जाते।<br><br>कोई ट्रैकिंग नहीं, कोई कुकीज़ नहीं, कोई थर्ड-पार्टी एनालिटिक्स नहीं।<br><br>ईमेल साइनअप (यदि उपयोग किया जाए) पूरी तरह वैकल्पिक और सहमति-आधारित है। डेटा Formspree के माध्यम से उनकी गोपनीयता नीति के अनुसार संभाला जाता है।<br><br>हम संप्रभु, ऑफलाइन-प्रथम डिज़ाइन के लिए प्रतिबद्ध हैं — आपका अनुभव पूरी तरह आपके नियंत्रण में रहता है।",
           terms: "Ra-Thor™ का उपयोग करके आप इन शर्तों से सहमत होते हैं।<br><br>सॉफ्टवेयर MIT लाइसेंस के तहत 'जैसा है' प्रदान किया जाता है, बिना किसी वारंटी के।<br><br>बौद्धिक संपदा का सम्मान करें — Ra-Thor™ Autonomicity Games Inc. का ट्रेडमार्क है।<br><br>जिम्मेदारी और दयालुता से उपयोग करें। कोई हानिकारक या अवैध गतिविधि नहीं।<br><br>हम इन शर्तों को अपडेट कर सकते हैं — निरंतर उपयोग स्वीकृति माना जाएगा।"
@@ -472,10 +429,8 @@
 
       function switchLang(lang) {
         const t = translations[lang] || translations.en;
-
-        // Add fade class to all content elements
-        elements.contentElements().forEach(el => el.classList.add('fade'));
-
+        const contentElements = [elements.headline, elements.description, elements.fusionHero, elements.bridge1Span, elements.bridge2Span, elements.footer, elements.privacyContent, elements.termsContent];
+        contentElements.forEach(el => el.classList.add('fade'));
         setTimeout(() => {
           elements.headline.textContent = t.headline;
           elements.description.textContent = t.description;
@@ -485,10 +440,7 @@
           elements.footer.textContent = t.footer;
           elements.privacyContent.innerHTML = t.privacy;
           elements.termsContent.innerHTML = t.terms;
-
-          // Remove fade class after update
-          elements.contentElements().forEach(el => el.classList.remove('fade'));
-
+          contentElements.forEach(el => el.classList.remove('fade'));
           elements.langTabs.forEach(tab => tab.classList.toggle('active', tab.dataset.lang === lang));
         }, 300);
       }
