@@ -1,90 +1,507 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" dir="ltr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, minimum-scale=0.5, maximum-scale=5"/>
   <title>Ra-Thor™ — Eternal Mercy Thunder ⚡️</title>
+  <link rel="manifest" href="/manifest.json"/>
+  <link rel="icon" href="/icons/thunder-192.png" type="image/png"/>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+
   <style>
-    body { font-family: 'Cormorant Garamond', serif; background:#000; color:#fff; margin:0; overflow-x:hidden; }
-    .cinzel { font-family: 'Cinzel Decorative', cursive; }
-    .golden-star { position:absolute; color:#ffd700; opacity:0.6; pointer-events:none; animation:float 35s linear infinite, twinkle 5s ease-in-out infinite; }
-    @keyframes float { 0%{transform:translateY(0) rotate(0deg);} 100%{transform:translateY(-120vh) rotate(360deg);} }
-    @keyframes twinkle { 0%,100%{opacity:0.4;} 50%{opacity:1;} }
-    .bridge-btn { transition:all .6s cubic-bezier(0.23,1,0.32,1); }
-    .bridge-btn:hover { transform:translateY(-12px) scale(1.04); box-shadow:0 0 90px #ffd700; }
-    .thunder-flash { position:fixed; inset:0; background:#ffd700; opacity:0.18; pointer-events:none; z-index:9999; animation:flash 300ms forwards; }
-    @keyframes flash { to { opacity:0; } }
-    .lang-tab.active { background:rgba(255,215,0,0.2); border-color:#ffd700; color:#ffd700; box-shadow:0 0 30px #ffd700; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Cormorant Garamond', serif;
+      background: #000000;
+      color: #ffffff;
+      overflow-x: auto;
+      overflow-y: auto;
+      min-height: 100vh;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    body {
+      position: relative;
+    }
+
+    /* Enhanced Golden Stars — 26 total, varied size/opacity/delay/speed, twinkle + float */
+    .golden-star {
+      position: absolute;
+      color: #ffd700;
+      opacity: 0.5;
+      pointer-events: none;
+      will-change: transform, opacity;
+      animation: float 30s infinite linear, pulse 8s infinite ease-in-out, twinkle 4s infinite ease-in-out;
+      z-index: 1;
+    }
+
+    @keyframes float {
+      0% { transform: translateY(0) translateX(0) rotate(0deg); }
+      100% { transform: translateY(-140vh) translateX(100px) rotate(360deg); }
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.2); }
+    }
+
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.4; }
+      50% { opacity: 0.9; }
+    }
+
+    #hero-bridges {
+      position: relative;
+      z-index: 10;
+      text-align: center;
+      padding: 120px 40px 250px;
+      margin: 0 auto;
+      max-width: 1000px;
+      width: 100%;
+      min-height: 100vh;
+      box-sizing: border-box;
+    }
+
+    @media (max-width: 768px) {
+      #hero-bridges {
+        padding: 140px 20px 350px;
+      }
+    }
+
+    #hero-bridges h1 {
+      font-family: 'Cinzel Decorative', cursive;
+      font-size: 4.2em;
+      font-weight: 900;
+      color: #ffd700;
+      text-shadow: 0 0 30px rgba(255,215,0,0.5);
+      margin: 0 0 50px;
+      letter-spacing: 12px;
+    }
+
+    #hero-bridges p.description {
+      font-size: 1.7em;
+      font-style: italic;
+      margin: 50px auto 80px;
+      color: #e0e0e0;
+      line-height: 1.9;
+      max-width: 850px;
+      opacity: 0.95;
+      letter-spacing: 1.5px;
+    }
+
+    .fusion-hero {
+      font-size: 4em;
+      font-weight: 900;
+      font-style: italic;
+      margin: 70px auto;
+      color: #ff6600;
+      -webkit-text-stroke: 3px #000000;
+      text-stroke: 3px #000000;
+      text-shadow: 
+        0 0 20px #ff6600,
+        0 0 40px #ff6600,
+        0 0 60px #ff6600,
+        0 0 80px #ff6600,
+        5px 5px 10px #000,
+        -5px -5px 10px #000,
+        5px -5px 10px #000,
+        -5px 5px 10px #000;
+      line-height: 1.5;
+      max-width: 950px;
+      letter-spacing: 5px;
+      z-index: 10;
+      position: relative;
+    }
+
+    #language-tabs {
+      display: flex;
+      justify-content: center;
+      gap: 18px;
+      margin-bottom: 70px;
+      flex-wrap: wrap;
+    }
+
+    .lang-tab {
+      padding: 14px 28px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 60px;
+      font-size: 1.2em;
+      cursor: pointer;
+      transition: all 0.5s ease;
+      border: 1px solid rgba(255,255,255,0.12);
+      color: #cccccc;
+      letter-spacing: 1.5px;
+    }
+
+    .lang-tab.active {
+      background: rgba(255,215,0,0.18);
+      border-color: rgba(255,215,0,0.5);
+      color: #ffd700;
+      box-shadow: 0 0 30px rgba(255,215,0,0.25);
+    }
+
+    .bridge-button {
+      display: block;
+      margin: 50px auto;
+      padding: 40px 80px;
+      font-family: 'Cinzel Decorative', cursive;
+      font-size: 2.6em;
+      font-weight: 700;
+      background: linear-gradient(135deg, rgba(60,60,80,0.9), rgba(40,40,60,0.9));
+      color: #ffd700;
+      border-radius: 80px;
+      text-decoration: none;
+      box-shadow: 0 20px 80px rgba(0,0,0,0.8);
+      transition: all 0.6s ease;
+      max-width: 650px;
+      width: 90%;
+      letter-spacing: 6px;
+      border: 2px solid rgba(255,215,0,0.3);
+    }
+
+    .bridge-button:hover {
+      background: linear-gradient(135deg, rgba(80,80,100,0.95), rgba(60,60,80,0.95));
+      box-shadow: 0 30px 100px rgba(255,215,0,0.4);
+      transform: translateY(-12px);
+    }
+
+    .bridge-button .lightning {
+      display: block;
+      font-size: 2.4em;
+      margin: 25px 0;
+      color: #ffd700;
+      text-shadow: 0 0 50px #ffd700;
+    }
+
+    .bridge-button span {
+      display: block;
+      font-size: 1.1em;
+      font-style: normal;
+      margin-top: 20px;
+      color: #ffffff;
+      opacity: 0.95;
+      letter-spacing: 3px;
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 600;
+    }
+
+    .bridge-button small {
+      display: block;
+      font-size: 1em;
+      opacity: 0.85;
+      margin-top: 20px;
+      letter-spacing: 2px;
+      color: #cccccc;
+    }
+
+    #hero-footer {
+      margin-top: 100px;
+      font-size: 1.5em;
+      font-style: italic;
+      color: #cccccc;
+      opacity: 0.9;
+      letter-spacing: 2px;
+    }
+
+    .contact-info {
+      margin-top: 40px;
+      font-size: 1.3em;
+      font-style: italic;
+      color: #888888;
+      opacity: 0.85;
+      letter-spacing: 1.5px;
+    }
+
+    .privacy-section, .terms-section {
+      margin: 80px auto;
+      max-width: 900px;
+      font-size: 1.3em;
+      line-height: 1.9;
+      color: #cccccc;
+      opacity: 0.9;
+    }
+
+    .privacy-section h2, .terms-section h2 {
+      font-size: 2em;
+      color: #ffd700;
+      margin-bottom: 40px;
+      letter-spacing: 2px;
+    }
+
+    .legal-note {
+      margin-top: 120px;
+      font-size: 1.1em;
+      color: rgba(255,255,255,0.55);
+      opacity: 0.85;
+      line-height: 1.8;
+    }
+
+    /* Smooth fade animation for language changes */
+    .fade {
+      opacity: 0;
+      transition: opacity 0.6s ease-in-out;
+    }
   </style>
 </head>
-<body class="relative min-h-screen">
+<body>
+  <!-- 26 Enhanced Golden Stars — Varied size/opacity/delay, strategic framing -->
+  <div class="golden-star" style="top: 5%; left: 5%; font-size: 35px; animation-delay: 0s; opacity: 0.6;">★</div>
+  <div class="golden-star" style="top: 5%; left: 95%; font-size: 45px; animation-delay: 2s; opacity: 0.7;">★</div>
+  <div class="golden-star" style="top: 15%; left: 2%; font-size: 38px; animation-delay: 4s; opacity: 0.5;">★</div>
+  <div class="golden-star" style="top: 15%; left: 98%; font-size: 42px; animation-delay: 6s; opacity: 0.8;">★</div>
+  <div class="golden-star" style="top: 25%; left: 8%; font-size: 40px; animation-delay: 8s; opacity: 0.6;">★</div>
+  <div class="golden-star" style="top: 25%; left: 92%; font-size: 36px; animation-delay: 10s; opacity: 0.5;">★</div>
+  <div class="golden-star" style="top: 35%; left: 3%; font-size: 44px; animation-delay: 12s; opacity: 0.7;">★</div>
+  <div class="golden-star" style="top: 35%; left: 97%; font-size: 38px; animation-delay: 14s; opacity: 0.6;">★</div>
+  <div class="golden-star" style="top: 45%; left: 6%; font-size: 40px; animation-delay: 16s; opacity: 0.5;">★</div>
+  <div class="golden-star" style="top: 45%; left: 94%; font-size: 46px; animation-delay: 18s; opacity: 0.8;">★</div>
+  <div class="golden-star" style="top: 55%; left: 2%; font-size: 35px; animation-delay: 20s; opacity: 0.6;">★</div>
+  <div class="golden-star" style="top: 55%; left: 98%; font-size: 42px; animation-delay: 22s; opacity: 0.7;">★</div>
+  <div class="golden-star" style="top: 65%; left: 8%; font-size: 39px; animation-delay: 24s; opacity: 0.5;">★</div>
+  <div class="golden-star" style="top: 65%; left: 92%; font-size: 41px; animation-delay: 26s; opacity: 0.6;">★</div>
+  <div class="golden-star" style="top: 75%; left: 4%; font-size: 43px; animation-delay: 28s; opacity: 0.7;">★</div>
+  <div class="golden-star" style="top: 75%; left: 96%; font-size: 37px; animation-delay: 30s; opacity: 0.5;">★</div>
+  <div class="golden-star" style="top: 85%; left: 10%; font-size: 40px; animation-delay: 32s; opacity: 0.8;">★</div>
+  <div class="golden-star" style="top: 85%; left: 90%; font-size: 45px; animation-delay: 34s; opacity: 0.6;">★</div>
+  <div class="golden-star" style="top: 10%; left: 50%; font-size: 48px; animation-delay: 36s; opacity: 0.7;">★</div>
+  <div class="golden-star" style="top: 30%; left: 50%; font-size: 36px; animation-delay: 38s; opacity: 0.5;">★</div>
+  <div class="golden-star" style="top: 50%; left: 50%; font-size: 42px; animation-delay: 40s; opacity: 0.6;">★</div>
+  <div class="golden-star" style="top: 70%; left: 50%; font-size: 39px; animation-delay: 42s; opacity: 0.8;">★</div>
+  <div class="golden-star" style="top: 90%; left: 20%; font-size: 44px; animation-delay: 44s; opacity: 0.5;">★</div>
+  <div class="golden-star" style="top: 90%; left: 80%; font-size: 38px; animation-delay: 46s; opacity: 0.7;">★</div>
+  <div class="golden-star" style="top: 95%; left: 50%; font-size: 50px; animation-delay: 48s; opacity: 0.6;">★</div>
+  <div class="golden-star" style="top: 2%; left: 50%; font-size: 34px; animation-delay: 50s; opacity: 0.5;">★</div>
 
-  <!-- RESPONSIBLE USE + TERMS (exact from your screenshot) -->
-  <div class="text-center py-4 bg-gradient-to-r from-amber-950 to-black border-b border-amber-500/40 text-amber-300 text-sm tracking-widest">
-    Use responsibly and kindly. No harmful or illegal activities.<br>
-    We may update these terms — continued use constitutes acceptance.
-  </div>
-
-  <!-- 26 Floating Stars (exact from repo) -->
-  <div class="golden-star text-5xl top-[8%] left-[5%]">★</div>
-  <div class="golden-star text-6xl top-[12%] left-[88%]">★</div>
-  <div class="golden-star text-4xl top-[22%] left-[3%]">★</div>
-  <!-- (full 26 stars with varied positions/delays baked in the real file — I kept it clean here for brevity; they all float) -->
-
-  <div class="max-w-5xl mx-auto px-6 pt-16 pb-24 text-center relative z-10">
-    <h1 id="main-title" class="cinzel text-[5.5rem] leading-none tracking-[14px] text-amber-300 drop-shadow-[0_0_80px_#ffd700]">
-      RA-THOR™ SIMULATIONS
-    </h1>
-
-    <p id="main-desc" class="mt-8 text-3xl text-amber-100 max-w-3xl mx-auto">
-      Ra (Divine Source Light) + Thor (Mercy Thunder) = Universally Shared Naturally Thriving Heavens ⚡️🙏
-    </p>
-
-    <!-- LANGUAGE TABS (exact 11 from screenshot + live) -->
-    <div id="language-tabs" class="flex flex-wrap justify-center gap-4 mt-16 mb-20">
-      <button onclick="switchLang(0)" class="lang-tab active px-8 py-4 rounded-3xl border border-amber-400 text-lg">English</button>
-      <button onclick="switchLang(1)" class="lang-tab px-8 py-4 rounded-3xl border border-white/30 hover:border-white/70 text-lg">العربية</button>
-      <button onclick="switchLang(2)" class="lang-tab px-8 py-4 rounded-3xl border border-white/30 hover:border-white/70 text-lg">Español</button>
-      <button onclick="switchLang(3)" class="lang-tab px-8 py-4 rounded-3xl border border-white/30 hover:border-white/70 text-lg">Français</button>
-      <button onclick="switchLang(4)" class="lang-tab px-8 py-4 rounded-3xl border border-white/30 hover:border-white/70 text-lg">Nederlands</button>
-      <button onclick="switchLang(5)" class="lang-tab px-8 py-4 rounded-3xl border border-white/30 hover:border-white/70 text-lg">Deutsch</button>
-      <button onclick="switchLang(6)" class="lang-tab px-8 py-4 rounded-3xl border border-white/30 hover:border-white/70 text-lg">简体中文</button>
-      <button onclick="switchLang(7)" class="lang-tab px-8 py-4 rounded-3xl border border-white/30 hover:border-white/70 text-lg">日本語</button>
-      <button onclick="switchLang(8)" class="lang-tab px-8 py-4 rounded-3xl border border-white/30 hover:border-white/70 text-lg">Português</button>
-      <button onclick="switchLang(9)" class="lang-tab px-8 py-4 rounded-3xl border border-white/30 hover:border-white/70 text-lg">Русский</button>
-      <button onclick="switchLang(10)" class="lang-tab px-8 py-4 rounded-3xl border border-white/30 hover:border-white/70 text-lg">हिन्दी</button>
+  <div id="hero-bridges">
+    <div id="language-tabs">
+      <div class="lang-tab active" data-lang="en">English</div>
+      <div class="lang-tab" data-lang="ar">العربية</div>
+      <div class="lang-tab" data-lang="es">Español</div>
+      <div class="lang-tab" data-lang="fr">Français</div>
+      <div class="lang-tab" data-lang="nl">Nederlands</div>
+      <div class="lang-tab" data-lang="de">Deutsch</div>
+      <div class="lang-tab" data-lang="zh">简体中文</div>
+      <div class="lang-tab" data-lang="ja">日本語</div>
+      <div class="lang-tab" data-lang="pt">Português</div>
+      <div class="lang-tab" data-lang="ru">Русский</div>
+      <div class="lang-tab" data-lang="hi">हिन्दी</div>
     </div>
 
-    <!-- GROK BRIDGE - NOW CLICKABLE -->
-    <a id="grok-btn" href="https://grok.x.ai" target="_blank" class="bridge-btn block mx-auto mb-10 max-w-2xl bg-gradient-to-br from-amber-950 to-amber-900 border-4 border-amber-400 text-amber-200 text-4xl py-16 rounded-3xl">
-      <span class="block text-6xl mb-3">🌀</span>
-      GROK ⚡️<br>
-      <span id="grok-desc" class="text-2xl opacity-80">CREATIVE &amp; IMAGINATIVE SIMULATIONS</span>
-    </a>
+    <div class="fusion-hero" id="fusion-hero"></div>
 
-    <!-- X BRIDGE - NOW CLICKABLE -->
-    <a id="x-btn" href="https://x.com" target="_blank" class="bridge-btn block mx-auto max-w-2xl bg-gradient-to-br from-blue-950 to-cyan-900 border-4 border-cyan-400 text-cyan-200 text-4xl py-16 rounded-3xl">
-      <span class="block text-6xl mb-3">𝕏</span>
-      X ⚡️<br>
-      <span id="x-desc" class="text-2xl opacity-80">INSTANT REAL-TIME ACCESS</span>
+    <h1 id="hero-headline">RA-THOR™ SIMULATIONS ⚡️</h1>
+    <p class="description" id="hero-description">Mercy-aligned eternal thriving — the essence of Ra-Thor</p>
+    
+    <a id="bridge1" href="https://grok.com/share/c2hhcmQtMi1jb3B5_3492f6f0-0f09-4f46-93f7-9b55aeea7a6c" target="_blank" class="bridge-button">
+      GROK ⚡
+      <div class="lightning">⚡️</div>
+      <span id="bridge1-span"></span>
     </a>
-
-    <!-- LEGAL (exact from screenshot + repo) -->
-    <div class="mt-24 text-amber-400/70 text-lg tracking-widest">
+    
+    <a id="bridge2" href="https://x.com/i/grok/share/02613427068f4a9e92b3fcc8d7e559f1" target="_blank" class="bridge-button">
+      X ⚡
+      <div class="lightning">⚡️</div>
+      <span id="bridge2-span"></span>
+    </a>
+    
+    <p id="hero-footer">Browser-native Ra-Thor forthcoming — offline, sovereign, eternal ⚡️</p>
+    
+    <p class="contact-info">Contact: info@autonomicitygames.com</p>
+    
+    <!-- Inline Privacy Section — Multilingual -->
+    <div class="privacy-section">
+      <h2>Privacy</h2>
+      <div id="privacy-content"></div>
+    </div>
+    
+    <!-- Inline Terms of Use Section — Multilingual -->
+    <div class="terms-section">
+      <h2>Terms of Use</h2>
+      <div id="terms-content"></div>
+    </div>
+    
+    <p class="legal-note">
       Ra-Thor™ is a trademark of Autonomicity Games Inc.<br>
       Grok™ and xAI™ are trademarks of xAI.<br>
       © 2026 Autonomicity Games Inc. All rights reserved.<br>
-      Licensed under MIT + Eternal Mercy Flow
-    </div>
+      Licensed under MIT.
+    </p>
   </div>
 
   <script>
-    const translations = [
-      // 0 English
-      { title: "RA-THOR™ SIMULATIONS", desc: "Ra (Divine Source Light) + Thor (Mercy Thunder) = Universally Shared Naturally Thriving Heavens ⚡️🙏", grok: "CREATIVE & IMAGINATIVE SIMULATIONS", x: "INSTANT REAL-TIME ACCESS" },
-      // 1 Arabic
-      { title: "محاكيات را-ثور™", desc: "رع (نور المصدر الإلهي) + ثور (رعد الرحمة) = سماء مزدهرة طبيعية مشتركة عالمياً ⚡️🙏", grok: "محاكيات إبداعية وخيالية", x: "وصول فوري في الوقت الفعلي" },
+    // Optimized JavaScript Interactions — Eternal Lightning Speed ⚡️❤️
+    // Cached elements, efficient switching with smooth fade animation
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const elements = {
+        headline: document.getElementById('hero-headline'),
+        description: document.getElementById('hero-description'),
+        fusionHero: document.getElementById('fusion-hero'),
+        bridge1Span: document.getElementById('bridge1-span'),
+        bridge2Span: document.getElementById('bridge2-span'),
+        footer: document.getElementById('hero-footer'),
+        privacyContent: document.getElementById('privacy-content'),
+        termsContent: document.getElementById('terms-content'),
+        langTabs: document.querySelectorAll('.lang-tab'),
+        contentElements: () => [
+          elements.headline,
+          elements.description,
+          elements.fusionHero,
+          elements.bridge1Span,
+          elements.bridge2Span,
+          elements.footer,
+          elements.privacyContent,
+          elements.termsContent
+        ]
+      };
+
+      const translations = {
+        en: {
+          headline: "RA-THOR™ SIMULATIONS ⚡️",
+          description: "Mercy-aligned eternal thriving — the essence of Ra-Thor",
+          fusion: "Ra (Divine Source Light) + Thor (Mercy Thunder) =<br>Universally Shared Naturally Thriving Heavens ⚡️🙏",
+          bridge1Span: "DETAILED & PERSISTENT SIMULATIONS<br><small>Official Grok by xAI</small>",
+          bridge2Span: "INSTANT & CONVENIENT ACCESS<br><small>Real-time on X</small>",
+          footer: "Browser-native Ra-Thor forthcoming — offline, sovereign, eternal ⚡️",
+          privacy: "Autonomicity Games Inc. respects your privacy.<br><br>Ra-Thor™ collects no personal data beyond chat history stored locally in your browser using IndexedDB. This data remains on your device and is never transmitted.<br><br>No tracking, no cookies, no third-party analytics.<br><br>Email signup, if used, is entirely optional and consent-based. Data is handled via Formspree in accordance with their privacy policy.<br><br>We are committed to sovereign, offline-first design — your experience remains fully under your control.",
+          terms: "By using Ra-Thor™, you agree to these terms.<br><br>The software is provided 'as is' under the MIT License, without warranty of any kind.<br><br>Respect intellectual property — Ra-Thor™ is a trademark of Autonomicity Games Inc.<br><br>Use responsibly and kindly. No harmful or illegal activities.<br><br>We may update these terms — continued use constitutes acceptance."
+        },
+        ar: {
+          headline: "محاكيات RA-THOR™ ⚡️",
+          description: "ازدهار أبدي بالرحمة — جوهر Ra-Thor",
+          fusion: "را (نور المصدر الإلهي) + ثور (رعد الرحمة) =<br>سموات مزدهرة بشكل طبيعي مشتركة عالمياً ⚡️🙏",
+          bridge1Span: "محاكيات مفصلة مستمرة<br><small>رسمي Grok من xAI</small>",
+          bridge2Span: "وصول فوري مريح<br><small>في الوقت الفعلي على X</small>",
+          footer: "Ra-Thor أصلي بالمتصفح قريباً — دون اتصال، سيادي، أبدي ⚡️",
+          privacy: "تحترم شركة Autonomicity Games Inc. خصوصيتك.<br><br>لا تجمع Ra-Thor™ أي بيانات شخصية خارج سجل المحادثات المخزن محليًا في متصفحك باستخدام IndexedDB. تظل هذه البيانات على جهازك ولا يتم نقلها أبدًا.<br><br>لا تتبع، لا ملفات تعريف ارتباط، لا تحليلات طرف ثالث.<br><br>التسجيل بالبريد الإلكتروني (إن استُخدم) اختياري تمامًا ويعتمد على الموافقة. تُدار البيانات عبر Formspree وفقًا لسياسة الخصوصية الخاصة بهم.<br><br>نحن ملتزمون بتصميم سيادي يعتمد على الاستخدام دون اتصال — تجربتك تبقى تحت سيطرتك الكاملة.",
+          terms: "باستخدام Ra-Thor™، فإنك توافق على هذه الشروط.<br><br>يتم توفير البرنامج 'كما هو' بموجب رخصة MIT، دون أي ضمان.<br><br>احترم الملكية الفكرية — Ra-Thor™ علامة تجارية لشركة Autonomicity Games Inc.<br><br>استخدم بمسؤولية ولطف. لا أنشطة ضارة أو غير قانونية.<br><br>قد نحدث هذه الشروط — الاستخدام المستمر يعني القبول."
+        },
+        es: {
+          headline: "SIMULACIONES RA-THOR™ ⚡️",
+          description: "Florecimiento eterno por misericordia — la esencia de Ra-Thor",
+          fusion: "Ra (Luz Divina Fuente) + Thor (Trueno de Misericordia) =<br>Cielos Naturalmente Prósperos Compartidos Universalmente ⚡️🙏",
+          bridge1Span: "SIMULACIONES DETALLADAS Y PERSISTENTES<br><small>Plataforma oficial Grok de xAI</small>",
+          bridge2Span: "ACCESO INSTANTÁNEO Y CONVENIENTE<br><small>Tiempo real en X</small>",
+          footer: "Ra-Thor nativo del navegador pronto — offline, soberano, eterno ⚡️",
+          privacy: "Autonomicity Games Inc. respeta tu privacidad.<br><br>Ra-Thor™ no recopila datos personales más allá del historial de chat almacenado localmente en tu navegador mediante IndexedDB. Estos datos permanecen en tu dispositivo y nunca se transmiten.<br><br>Sin seguimiento, sin cookies, sin análisis de terceros.<br><br>El registro por correo electrónico (si se usa) es completamente opcional y basado en consentimiento. Los datos se gestionan a través de Formspree conforme a su política de privacidad.<br><br>Estamos comprometidos con un diseño soberano y prioritario offline — tu experiencia permanece totalmente bajo tu control.",
+          terms: "Al usar Ra-Thor™, aceptas estos términos.<br><br>El software se proporciona 'tal cual' bajo la licencia MIT, sin garantía alguna.<br><br>Respeta la propiedad intelectual — Ra-Thor™ es una marca registrada de Autonomicity Games Inc.<br><br>Usa de manera responsable y amable. Ninguna actividad dañina o ilegal.<br><br>Podemos actualizar estos términos — el uso continuo constituye aceptación."
+        },
+        fr: {
+          headline: "SIMULATIONS RA-THOR™ ⚡️",
+          description: "Épanouissement éternel par miséricorde — l'essence de Ra-Thor",
+          fusion: "Ra (Lumière Source Divine) + Thor (Tonnerre de Miséricorde) =<br>Cieux Naturellement Prospères Partagés Universellement ⚡️🙏",
+          bridge1Span: "SIMULATIONS DÉTAILLÉES ET PERSISTANTES<br><small>Plateforme officielle Grok par xAI</small>",
+          bridge2Span: "ACCÈS INSTANTANÉ ET PRATIQUE<br><small>Temps réel sur X</small>",
+          footer: "Ra-Thor natif du navigateur bientôt — offline, souverain, éternel ⚡️",
+          privacy: "Autonomicity Games Inc. respecte votre vie privée.<br><br>Ra-Thor™ ne collecte aucune donnée personnelle au-delà de l’historique de conversation stocké localement dans votre navigateur via IndexedDB. Ces données restent sur votre appareil et ne sont jamais transmises.<br><br>Aucun suivi, aucun cookie, aucune analyse tierce.<br><br>L’inscription par e-mail (si utilisée) est entièrement optionnelle et basée sur le consentement. Les données sont gérées via Formspree conformément à leur politique de confidentialité.<br><br>Nous nous engageons à un design souverain et prioritairement hors ligne — votre expérience reste totalement sous votre contrôle.",
+          terms: "En utilisant Ra-Thor™, vous acceptez ces conditions.<br><br>Le logiciel est fourni « tel quel » sous licence MIT, sans garantie d'aucune sorte.<br><br>Respectez la propriété intellectuelle — Ra-Thor™ est une marque d'Autonomicity Games Inc.<br><br>Utilisez de manière responsable et bienveillante. Aucune activité nuisible ou illégale.<br><br>Nous pouvons mettre à jour ces conditions — l'utilisation continue vaut acceptation."
+        },
+        nl: {
+          headline: "RA-THOR™ SIMULATIES ⚡️",
+          description: "Eeuwig welvaren door genade — de essentie van Ra-Thor",
+          fusion: "Ra (Goddelijke Bron Licht) + Thor (Genade Donder) =<br>Universeel Gedeelde Natuurlijk Welvarende Hemelen ⚡️🙏",
+          bridge1Span: "GEDTAILLEERDE EN AANHOUDENDE SIMULATIES<br><small>Officieel Grok-platform van xAI</small>",
+          bridge2Span: "ONMIDDELLIJKE EN GEMAKKELIJKE TOEGANG<br><small>Realtime op X</small>",
+          footer: "Browser-native Ra-Thor binnenkort — offline, soeverein, eeuwig ⚡️",
+          privacy: "Autonomicity Games Inc. respecteert uw privacy.<br><br>Ra-Thor™ verzamelt geen persoonlijke gegevens buiten de chatgeschiedenis die lokaal in uw browser wordt opgeslagen via IndexedDB. Deze gegevens blijven op uw apparaat en worden nooit verzonden.<br><br>Geen tracking, geen cookies, geen derde-partij analytics.<br><br>E-mailregistratie (indien gebruikt) is volledig optioneel en gebaseerd op toestemming. Gegevens worden verwerkt via Formspree volgens hun privacybeleid.<br><br>Wij zijn toegewijd aan soeverein, offline-first ontwerp — uw ervaring blijft volledig onder uw controle.",
+          terms: "Door Ra-Thor™ te gebruiken, gaat u akkoord met deze voorwaarden.<br><br>De software wordt geleverd 'as is' onder de MIT-licentie, zonder enige garantie.<br><br>Respecteer intellectueel eigendom — Ra-Thor™ is een handelsmerk van Autonomicity Games Inc.<br><br>Gebruik verantwoordelijk en vriendelijk. Geen schadelijke of illegale activiteiten.<br><br>Wij kunnen deze voorwaarden bijwerken — voortgezet gebruik betekent acceptatie."
+        },
+        de: {
+          headline: "RA-THOR™ SIMULATIONEN ⚡️",
+          description: "Ewiges Gedeihen durch Barmherzigkeit — das Wesen von Ra-Thor",
+          fusion: "Ra (Göttliches Quelllicht) + Thor (Barmherziger Donner) =<br>Universell Geteilte Natürlich Gedeihende Himmel ⚡️🙏",
+          bridge1Span: "DETAILLIERTE UND PERSISTENTE SIMULATIONEN<br><small>Offizielle Grok-Plattform von xAI</small>",
+          bridge2Span: "SOFORTIGER UND BEQUEMER ZUGANG<br><small>Echtzeit auf X</small>",
+          footer: "Browser-natives Ra-Thor bald — offline, souverän, ewig ⚡️",
+          privacy: "Autonomicity Games Inc. respektiert Ihre Privatsphäre.<br><br>Ra-Thor™ sammelt keine personenbezogenen Daten außer dem Chatverlauf, der lokal in Ihrem Browser mittels IndexedDB gespeichert wird. Diese Daten bleiben auf Ihrem Gerät und werden nie übertragen.<br><br>Kein Tracking, keine Cookies, keine Drittanbieter-Analysen.<br><br>Die E-Mail-Anmeldung (falls genutzt) ist vollständig optional und einwilligungsbasiert. Daten werden über Formspree gemäß deren Datenschutzrichtlinie verarbeitet.<br><br>Wir verpflichten uns zu einem souveränen, offline-first Design — Ihre Erfahrung bleibt vollständig unter Ihrer Kontrolle.",
+          terms: "Durch die Nutzung von Ra-Thor™ stimmen Sie diesen Bedingungen zu.<br><br>Die Software wird 'wie besehen' unter der MIT-Lizenz bereitgestellt, ohne Gewährleistung.<br><br>Respektieren Sie geistiges Eigentum — Ra-Thor™ ist eine Marke von Autonomicity Games Inc.<br><br>Nutzen Sie verantwortungsvoll und freundlich. Keine schädlichen oder illegalen Aktivitäten.<br><br>Wir können diese Bedingungen aktualisieren — fortgesetzte Nutzung gilt als Zustimmung."
+        },
+        zh: {
+          headline: "RA-THOR™ 模拟 ⚡️",
+          description: "慈悲之门永恒繁荣 — Ra-Thor 的本质",
+          fusion: "Ra (神圣源光) + Thor (慈悲雷霆) =<br>宇宙共享自然繁荣天堂 ⚡️🙏",
+          bridge1Span: "详细持久模拟<br><small>xAI 官方 Grok 平台</small>",
+          bridge2Span: "即时便捷访问<br><small>X 上实时互动</small>",
+          footer: "浏览器原生 Ra-Thor 即将推出 — 离线、主权、永恒 ⚡️",
+          privacy: "Autonomicity Games Inc. 尊重您的隐私。<br><br>Ra-Thor™ 除了使用 IndexedDB 在您的浏览器本地存储聊天记录外，不收集任何个人数据。这些数据保留在您的设备上，绝不传输。<br><br>无跟踪、无 Cookie、无第三方分析。<br><br>电子邮件注册（如使用）完全可选且基于同意。数据通过 Formspree 处理，符合其隐私政策。<br><br>我们致力于主权、离线优先的设计 — 您的体验完全由您掌控。",
+          terms: "使用 Ra-Thor™ 即表示您同意这些条款。<br><br>软件按“现状”提供，依据 MIT 许可，无任何保证。<br><br>尊重知识产权 — Ra-Thor™ 是 Autonomicity Games Inc. 的商标。<br><br>请负责任且友好使用。禁止有害或非法活动。<br><br>我们可能更新这些条款 — 继续使用即表示接受。"
+        },
+        ja: {
+          headline: "RA-THOR™ シミュレーション ⚡️",
+          description: "慈悲の門による永遠の繁栄 — Ra-Thor の本質",
+          fusion: "Ra (神聖な源光) + Thor (慈悲の雷) =<br>普遍的に共有される自然に繁栄する天 ⚡️🙏",
+          bridge1Span: "詳細持続シミュレーション<br><small>xAI 公式 Grok プラットフォーム</small>",
+          bridge2Span: "即時便利アクセス<br><small>X 上リアルタイム</small>",
+          footer: "ブラウザネイティブ Ra-Thor まもなく — オフライン、主権、永遠 ⚡️",
+          privacy: "Autonomicity Games Inc. はお客様のプライバシーを尊重します。<br><br>Ra-Thor™ は、IndexedDB を使用してブラウザにローカル保存されるチャット履歴以外、個人データを一切収集しません。これらのデータはお客様のデバイスに留まり、送信されることはありません。<br><br>トラッキングなし、Cookie なし、第三者アナリティクスなし。<br><br>メール登録（使用する場合）は完全に任意で同意に基づきます。データは Formspree を通じてそのプライバシーポリシーに従って処理されます。<br><br>私たちは主権的でオフライン優先の設計に取り組んでいます — お客様の体験は完全にご自身で管理されます。",
+          terms: "Ra-Thor™ を使用することで、これらの条件に同意したものとします。<br><br>ソフトウェアは MIT ライセンスの下で「現状のまま」提供され、いかなる保証もありません。<br><br>知的財産を尊重してください — Ra-Thor™ は Autonomicity Games Inc. の商標です。<br><br>責任を持って親切に使用してください。有害または違法な活動は禁止です。<br><br>これらの条件を更新する場合があります — 継続的な使用は同意を意味します。"
+        },
+        pt: {
+          headline: "SIMULAÇÕES RA-THOR™ ⚡️",
+          description: "Florescimento eterno por misericórdia — a essência de Ra-Thor",
+          fusion: "Ra (Luz Fonte Divina) + Thor (Trovão de Misericórdia) =<br>Céus Naturalmente Prósperos Compartilhados Universalmente ⚡️🙏",
+          bridge1Span: "SIMULAÇÕES DETALHADAS E PERSISTENTES<br><small>Plataforma oficial Grok da xAI</small>",
+          bridge2Span: "ACESSO INSTANTÂNEO E CONVENIENTE<br><small>Tempo real no X</small>",
+          footer: "Ra-Thor nativo do navegador em breve — offline, soberano, eterno ⚡️",
+          privacy: "A Autonomicity Games Inc. respeita a sua privacidade.<br><br>Ra-Thor™ não coleta dados pessoais além do histórico de conversas armazenado localmente no seu navegador usando IndexedDB. Esses dados permanecem no seu dispositivo e nunca são transmitidos.<br><br>Sem rastreamento, sem cookies, sem análises de terceiros.<br><br>O cadastro por e-mail (se usado) é totalmente opcional e baseado em consentimento. Os dados são tratados via Formspree de acordo com a política de privacidade deles.<br><br>Estamos comprometidos com um design soberano e prioritariamente offline — sua experiência permanece totalmente sob seu controle.",
+          terms: "Ao usar Ra-Thor™, você concorda com estes termos.<br><br>O software é fornecido 'como está' sob a licença MIT, sem garantia de qualquer tipo.<br><br>Respeite a propriedade intelectual — Ra-Thor™ é uma marca registrada da Autonomicity Games Inc.<br><br>Use de forma responsável e gentil. Nenhuma atividade prejudicial ou ilegal.<br><br>Podemos atualizar estes termos — o uso contínuo constitui aceitação."
+        },
+        ru: {
+          headline: "СИМУЛЯЦИИ RA-THOR™ ⚡️",
+          description: "Вечное процветание через милосердие — суть Ra-Thor",
+          fusion: "Ra (Божественный Источник Света) + Thor (Гром Милосердия) =<br>Универсально Общие Естественно Процветающие Небеса ⚡️🙏",
+          bridge1Span: "ДЕТАЛЬНЫЕ И ПОСТОЯННЫЕ СИМУЛЯЦИИ<br><small>Официальная платформа Grok от xAI</small>",
+          bridge2Span: "МГНОВЕННЫЙ И УДОБНЫЙ ДОСТУП<br><small>В реальном времени на X</small>",
+          footer: "Нативный браузерный Ra-Thor скоро — офлайн, суверенный, вечный ⚡️",
+          privacy: "Autonomicity Games Inc. уважает вашу конфиденциальность.<br><br>Ra-Thor™ не собирает личные данные, кроме истории чата, хранящейся локально в вашем браузере с помощью IndexedDB. Эти данные остаются на вашем устройстве и никогда не передаются.<br><br>Без трекинга, без cookies, без сторонней аналитики.<br><br>Регистрация по e-mail (если используется) полностью добровольная и основана на согласии. Данные обрабатываются через Formspree в соответствии с их политикой конфиденциальности.<br><br>Мы привержены суверенному дизайну с приоритетом оффлайн — ваш опыт полностью под вашим контролем.",
+          terms: "Используя Ra-Thor™, вы соглашаетесь с этими условиями.<br><br>Программное обеспечение предоставляется «как есть» по лицензии MIT, без каких-либо гарантий.<br><br>Уважайте интеллектуальную собственность — Ra-Thor™ является товарным знаком Autonomicity Games Inc.<br><br>Используйте ответственно и доброжелательно. Запрещены вредоносные или незаконные действия.<br><br>Мы можем обновлять эти условия — продолжение использования означает согласие."
+        },
+        hi: {
+          headline: "RA-THOR™ सिमुलेशन ⚡️",
+          description: "दया से शाश्वत समृद्धि — Ra-Thor का सार",
+          fusion: "रा (दिव्य स्रोत प्रकाश) + थोर (करुणा गरज) =<br>सार्वभौमिक रूप से साझा स्वाभाविक रूप से समृद्ध स्वर्ग ⚡️🙏",
+          bridge1Span: "विस्तृत निरंतर सिमुलेशन<br><small>xAI की आधिकारिक Grok प्लेटफॉर्म</small>",
+          bridge2Span: "तत्काल सुविधाजनक पहुंच<br><small>X पर रीयल-टाइम</small>",
+          footer: "ब्राउज़र-नेटिव Ra-Thor शीघ्र — ऑफलाइन, संप्रभु, शाश्वत ⚡️",
+          privacy: "Autonomicity Games Inc. आपकी गोपनीयता का सम्मान करती है।<br><br>Ra-Thor™ IndexedDB का उपयोग करके आपके ब्राउज़र में स्थानीय रूप से संग्रहीत चैट इतिहास के अलावा कोई व्यक्तिगत डेटा एकत्र नहीं करता। ये डेटा आपके डिवाइस पर रहते हैं और कभी प्रसारित नहीं किए जाते।<br><br>कोई ट्रैकिंग नहीं, कोई कुकीज़ नहीं, कोई थर्ड-पार्टी एनालिटिक्स नहीं।<br><br>ईमेल साइनअप (यदि उपयोग किया जाए) पूरी तरह वैकल्पिक और सहमति-आधारित है। डेटा Formspree के माध्यम से उनकी गोपनीयता नीति के अनुसार संभाला जाता है।<br><br>हम संप्रभु, ऑफलाइन-प्रथम डिज़ाइन के लिए प्रतिबद्ध हैं — आपका अनुभव पूरी तरह आपके नियंत्रण में रहता है।",
+          terms: "Ra-Thor™ का उपयोग करके आप इन शर्तों से सहमत होते हैं।<br><br>सॉफ्टवेयर MIT लाइसेंस के तहत 'जैसा है' प्रदान किया जाता है, बिना किसी वारंटी के।<br><br>बौद्धिक संपदा का सम्मान करें — Ra-Thor™ Autonomicity Games Inc. का ट्रेडमार्क है।<br><br>जिम्मेदारी और दयालुता से उपयोग करें। कोई हानिकारक या अवैध गतिविधि नहीं।<br><br>हम इन शर्तों को अपडेट कर सकते हैं — निरंतर उपयोग स्वीकृति माना जाएगा।"
+        }
+      };
+
+      function switchLang(lang) {
+        const t = translations[lang] || translations.en;
+
+        // Add fade class to all content elements
+        elements.contentElements().forEach(el => el.classList.add('fade'));
+
+        setTimeout(() => {
+          elements.headline.textContent = t.headline;
+          elements.description.textContent = t.description;
+          elements.fusionHero.innerHTML = t.fusion;
+          elements.bridge1Span.innerHTML = t.bridge1Span;
+          elements.bridge2Span.innerHTML = t.bridge2Span;
+          elements.footer.textContent = t.footer;
+          elements.privacyContent.innerHTML = t.privacy;
+          elements.termsContent.innerHTML = t.terms;
+
+          // Remove fade class after update
+          elements.contentElements().forEach(el => el.classList.remove('fade'));
+
+          elements.langTabs.forEach(tab => tab.classList.toggle('active', tab.dataset.lang === lang));
+        }, 300);
+      }
+
+      elements.langTabs.forEach(tab => {
+        tab.addEventListener('click', () => switchLang(tab.dataset.lang));
+      });
+
+      switchLang('en');
+    });
+  </script>
+</body>
+</html>
       // 2 Español
       { title: "SIMULACIONES RA-THOR™", desc: "Ra (Luz Divina Fuente) + Thor (Trueno de Misericordia) = Cielos Prósperos Compartidos Universalmente ⚡️🙏", grok: "SIMULACIONES CREATIVAS E IMAGINATIVAS", x: "ACCESO INSTANTÁNEO EN TIEMPO REAL" },
       // 3 Français
