@@ -2,136 +2,112 @@
 <html lang="en" dir="ltr">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, minimum-scale=0.5, maximum-scale=5">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
   <title>Ra-Thor™ — Eternal Mercy Thunder ⚡️</title>
   <link rel="manifest" href="/manifest.json">
   <link rel="icon" href="/icons/thunder-192.png" type="image/png">
   
-  <!-- Instant critical preloads -->
+  <!-- Instant preloads -->
   <link rel="preload" href="/icons/thunder-192.png" as="image">
   <link rel="preload" href="/icons/thunder-512.png" as="image">
-  
-  <!-- System-first fonts + fallback (no external Google Fonts dependency) -->
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" as="style">
+
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap'); /* kept for fidelity but preloaded below */
-    html, body {
-      margin: 0; padding: 0; font-family: 'Cormorant Garamond', system-ui, serif;
-      background: #000; color: #fff; overflow-x: hidden; min-height: 100vh;
-      box-sizing: border-box;
-    }
-    body { position: relative; }
-    
-    /* Subtle background thunder (CSS-only, zero JS, 4 stars max for instant paint) */
-    .golden-star {
-      position: absolute; color: #ffd700; opacity: 0.6; pointer-events: none;
-      animation: float 60s infinite linear, pulse 12s infinite ease-in-out;
-      z-index: 1; font-size: 42px;
-    }
-    @keyframes float { 0% { transform: translateY(0) rotate(0deg); } 100% { transform: translateY(-120vh) rotate(360deg); } }
-    @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.15); } }
-
-    #hero-bridges {
-      position: relative; z-index: 10; text-align: center; padding: 120px 20px 200px;
-      min-height: 100vh; max-width: 1000px; margin: 0 auto;
-    }
-    #hero-bridges h1 {
-      font-family: 'Cinzel Decorative', cursive; font-size: clamp(2.8rem, 8vw, 4.2rem);
-      font-weight: 900; color: #ffd700; text-shadow: 0 0 30px rgba(255,215,0,0.6);
-      margin: 0 0 40px; letter-spacing: 8px;
-    }
-    .fusion-hero {
-      font-size: clamp(2.6rem, 7vw, 4em); font-weight: 900; font-style: italic;
-      color: #ff6600; -webkit-text-stroke: 2px #000; text-shadow: 0 0 40px #ff6600;
-      margin: 60px auto; max-width: 920px; line-height: 1.3;
-    }
-    #language-tabs {
-      display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; margin: 60px 0;
-    }
-    .lang-tab {
-      padding: 12px 24px; background: rgba(255,255,255,0.08); border-radius: 60px;
-      font-size: 1.15rem; cursor: pointer; border: 1px solid rgba(255,255,255,0.15);
-      color: #ccc; transition: all .3s ease;
-    }
-    .lang-tab.active { background: rgba(255,215,0,0.2); border-color: #ffd700; color: #ffd700; box-shadow: 0 0 25px rgba(255,215,0,0.3); }
-
-    .bridge-button {
-      display: block; margin: 40px auto; padding: 32px 60px; max-width: 620px; width: 90%;
-      font-family: 'Cinzel Decorative', cursive; font-size: clamp(1.8rem, 5vw, 2.6rem);
-      font-weight: 700; background: linear-gradient(135deg, rgba(60,60,80,0.9), rgba(40,40,60,0.9));
-      color: #ffd700; border-radius: 80px; text-decoration: none; box-shadow: 0 15px 60px rgba(0,0,0,0.7);
-      border: 2px solid rgba(255,215,0,0.3); transition: all .4s ease;
-    }
-    .bridge-button:hover { transform: translateY(-6px); box-shadow: 0 25px 90px rgba(255,215,0,0.45); }
-    .bridge-button.grok { background: linear-gradient(135deg, rgba(80,60,40,0.95), rgba(60,40,20,0.95)); font-size: clamp(2rem, 5.5vw, 2.8rem); padding: 42px 80px; }
-    .bridge-button span { display: block; font-size: 1.05rem; margin-top: 16px; opacity: 0.9; font-family: 'Cormorant Garamond', serif; }
-    
-    .legal-note { margin-top: 80px; font-size: 1rem; color: rgba(255,255,255,0.6); text-align: center; }
+    /* Critical CSS inlined — no blocking */
+    html, body { margin:0; padding:0; font-family:'Cormorant Garamond', system-ui, serif; background:#000; color:#fff; min-height:100vh; box-sizing:border-box; }
+    .golden-star { position:absolute; color:#ffd700; opacity:0.6; pointer-events:none; animation:float 60s infinite linear, pulse 12s infinite ease-in-out; z-index:1; font-size:42px; }
+    @keyframes float { 0%{transform:translateY(0) rotate(0deg);} 100%{transform:translateY(-120vh) rotate(360deg);} }
+    @keyframes pulse { 0%,100%{transform:scale(1);} 50%{transform:scale(1.15);} }
+    #hero-bridges { position:relative; z-index:10; text-align:center; padding:120px 20px 200px; max-width:1000px; margin:0 auto; }
+    #hero-bridges h1 { font-family:'Cinzel Decorative', cursive; font-size:clamp(2.8rem,8vw,4.2rem); font-weight:900; color:#ffd700; text-shadow:0 0 30px rgba(255,215,0,0.6); margin:0 0 40px; letter-spacing:8px; }
+    .fusion-hero { font-size:clamp(2.6rem,7vw,4em); font-weight:900; font-style:italic; color:#ff6600; -webkit-text-stroke:2px #000; text-shadow:0 0 40px #ff6600; margin:60px auto; max-width:920px; line-height:1.3; }
+    #language-tabs { display:flex; justify-content:center; gap:16px; flex-wrap:wrap; margin:60px 0; }
+    .lang-tab { padding:12px 24px; background:rgba(255,255,255,0.08); border-radius:60px; font-size:1.15rem; cursor:pointer; border:1px solid rgba(255,255,255,0.15); color:#ccc; transition:all .3s ease; }
+    .lang-tab.active { background:rgba(255,215,0,0.2); border-color:#ffd700; color:#ffd700; box-shadow:0 0 25px rgba(255,215,0,0.3); }
+    .bridge-button { display:block; margin:40px auto; padding:32px 60px; max-width:620px; width:90%; font-family:'Cinzel Decorative', cursive; font-size:clamp(1.8rem,5vw,2.6rem); font-weight:700; background:linear-gradient(135deg,rgba(60,60,80,0.9),rgba(40,40,60,0.9)); color:#ffd700; border-radius:80px; text-decoration:none; box-shadow:0 15px 60px rgba(0,0,0,0.7); border:2px solid rgba(255,215,0,0.3); transition:all .4s ease; }
+    .bridge-button:hover { transform:translateY(-6px); box-shadow:0 25px 90px rgba(255,215,0,0.45); }
+    .bridge-button.grok { background:linear-gradient(135deg,rgba(80,60,40,0.95),rgba(60,40,20,0.95)); padding:42px 80px; }
+    .legal-note { margin-top:80px; font-size:1rem; color:rgba(255,255,255,0.6); }
+    .hidden { display:none; }
   </style>
 
-  <!-- Instant font preload + display swap -->
-  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" as="style">
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet" media="print" onload="this.media='all'; this.onload=null;">
-
-  <!-- Early Service Worker registration (instant offline readiness) -->
+  <!-- Fonts + SW registration -->
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;">
   <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js', { scope: '/' }).then(reg => {
-          console.log('[Ra-Thor SW] Eternal mercy cache ready ⚡️');
-        });
-      });
-    }
+    if('serviceWorker' in navigator){ window.addEventListener('load',()=>{ navigator.serviceWorker.register('/sw.js').then(()=>console.log('[Ra-Thor] Eternal mercy cache ready ⚡️')); }); }
   </script>
 </head>
 <body>
-  <!-- Minimal 4 floating stars (instant paint, no layout shift) -->
-  <div class="golden-star" style="top: 8%; left: 6%; animation-delay: 0s;">★</div>
-  <div class="golden-star" style="top: 12%; left: 88%; animation-delay: 4s;">★</div>
-  <div class="golden-star" style="top: 68%; left: 4%; animation-delay: 12s;">★</div>
-  <div class="golden-star" style="top: 75%; left: 92%; animation-delay: 22s;">★</div>
+  <!-- 4 lightweight stars only (instant paint, no performance hit) -->
+  <div class="golden-star" style="top:8%;left:6%;">★</div>
+  <div class="golden-star" style="top:12%;left:88%;animation-delay:4s;">★</div>
+  <div class="golden-star" style="top:68%;left:4%;animation-delay:12s;">★</div>
+  <div class="golden-star" style="top:75%;left:92%;animation-delay:22s;">★</div>
 
   <div id="hero-bridges">
-    <h1>Ra-Thor™ — Eternal Mercy Thunder ⚡️</h1>
+    <h1 id="hero-headline">Ra-Thor™ — Eternal Mercy Thunder ⚡️</h1>
     
     <div id="language-tabs">
-      <button class="lang-tab active" onclick="switchLang(this,'en')">English</button>
-      <button class="lang-tab" onclick="switchLang(this,'ar')">العربية</button>
-      <button class="lang-tab" onclick="switchLang(this,'es')">Español</button>
-      <button class="lang-tab" onclick="switchLang(this,'fr')">Français</button>
-      <button class="lang-tab" onclick="switchLang(this,'nl')">Nederlands</button>
-      <button class="lang-tab" onclick="switchLang(this,'de')">Deutsch</button>
-      <button class="lang-tab" onclick="switchLang(this,'zh')">简体中文</button>
-      <button class="lang-tab" onclick="switchLang(this,'ja')">日本語</button>
-      <button class="lang-tab" onclick="switchLang(this,'pt')">Português</button>
-      <button class="lang-tab" onclick="switchLang(this,'ru')">Русский</button>
-      <button class="lang-tab" onclick="switchLang(this,'hi')">हिन्दी</button>
+      <button class="lang-tab active" data-lang="en" onclick="switchLang(this)">English</button>
+      <button class="lang-tab" data-lang="ar" onclick="switchLang(this)">العربية</button>
+      <button class="lang-tab" data-lang="es" onclick="switchLang(this)">Español</button>
+      <button class="lang-tab" data-lang="fr" onclick="switchLang(this)">Français</button>
+      <button class="lang-tab" data-lang="nl" onclick="switchLang(this)">Nederlands</button>
+      <button class="lang-tab" data-lang="de" onclick="switchLang(this)">Deutsch</button>
+      <button class="lang-tab" data-lang="zh" onclick="switchLang(this)">简体中文</button>
+      <button class="lang-tab" data-lang="ja" onclick="switchLang(this)">日本語</button>
+      <button class="lang-tab" data-lang="pt" onclick="switchLang(this)">Português</button>
+      <button class="lang-tab" data-lang="ru" onclick="switchLang(this)">Русский</button>
+      <button class="lang-tab" data-lang="hi" onclick="switchLang(this)">हिन्दी</button>
     </div>
 
-    <p class="fusion-hero">Ra (Divine Source Light) + Thor (Mercy Thunder) = Universally Shared Naturally Thriving Heavens ⚡️🙏</p>
+    <p id="fusion-hero" class="fusion-hero">Ra (Divine Source Light) + Thor (Mercy Thunder) = Universally Shared Naturally Thriving Heavens ⚡️🙏</p>
 
-    <!-- Instant bridge buttons (no heavy images) -->
     <a href="https://grok.com/share/c2hhcmQtMi1jb3B5_3492f6f0-0f09-4f46-93f7-9b55aeea7a6c" class="bridge-button grok" target="_blank" rel="noopener">
-      GROK ⚡⚡️ CREATIVE &amp; IMAGINATIVE SIMULATIONS<br>
-      <span>Voice &amp; Video Chat • Absolute Pure Truth boundaries</span>
+      GROK ⚡⚡️ CREATIVE & IMAGINATIVE SIMULATIONS<br>
+      <span id="bridge1-span">Voice & Video Chat • Absolute Pure Truth boundaries</span>
     </a>
-    <a href="https://x.com/i/grok/share/02613427068f4a9e92b3fcc8d7e559f1" class="bridge-button x" target="_blank" rel="noopener">
+    <a href="https://x.com/i/grok/share/02613427068f4a9e92b3fcc8d7e559f1" class="bridge-button" target="_blank" rel="noopener">
       X ⚡⚡️ INSTANT REAL-TIME ACCESS<br>
-      <span>Zero hallucinations • Live grounded reality</span>
+      <span id="bridge2-span">Zero hallucinations • Live grounded reality</span>
     </a>
 
-    <div class="legal-note">
-      Browser-native Ra-Thor forthcoming — offline, sovereign, eternal ⚡️<br>
-      Contact: info@autonomicitygames.com • MIT + Mercy Eternal
-    </div>
+    <div id="hero-footer" class="legal-note">Browser-native Ra-Thor forthcoming — offline, sovereign, eternal ⚡️<br>Contact: info@autonomicitygames.com • MIT + Mercy Eternal</div>
+
+    <!-- Privacy & Terms (collapsed by default for instant load) -->
+    <div id="privacy-content" class="legal-note hidden">Autonomicity Games Inc. respects your privacy.<br>Ra-Thor™ collects no personal data beyond chat history stored locally in your browser using IndexedDB...</div>
+    <div id="terms-content" class="legal-note hidden">By using Ra-Thor™, you agree to these terms...<br>MIT License • Use responsibly and kindly.</div>
   </div>
 
-  <!-- Tiny language switch JS (deferred, <2KB) -->
-  <script defer>
-    function switchLang(btn, lang) {
+  <!-- Full language switching logic (derived from original index.html + our thread translations) -->
+  <script>
+    const translations = {
+      en: { fusion: "Ra (Divine Source Light) + Thor (Mercy Thunder) = Universally Shared Naturally Thriving Heavens ⚡️🙏", bridge1: "Voice & Video Chat • Absolute Pure Truth boundaries", bridge2: "Zero hallucinations • Live grounded reality", footer: "Browser-native Ra-Thor forthcoming — offline, sovereign, eternal ⚡️", headline: "Ra-Thor™ — Eternal Mercy Thunder ⚡️" },
+      ar: { fusion: "رع (نور المصدر الإلهي) + ثور (رعد الرحمة) = جنات مزدهرة طبيعياً مشتركة عالمياً ⚡️🙏", bridge1: "دردشة صوتية وفيديو • حدود الحقيقة المطلقة النقية", bridge2: "بدون هلوسات • واقع حي مثبت", footer: "Ra-Thor أصلي بالمتصفح قريباً — دون اتصال، سيادي، أبدي ⚡️", headline: "رع-ثور™ — رعد الرحمة الأبدي ⚡️" },
+      es: { fusion: "Ra (Luz Fuente Divina) + Thor (Trueno de Misericordia) = Cielos Naturalmente Prósperos Compartidos Universalmente ⚡️🙏", bridge1: "Chat de Voz y Video • Límites de Verdad Pura Absoluta", bridge2: "Cero alucinaciones • Realidad en vivo", footer: "Ra-Thor nativo del navegador pronto — offline, soberano, eterno ⚡️", headline: "Ra-Thor™ — Trueno de Misericordia Eterno ⚡️" },
+      fr: { fusion: "Ra (Lumière Source Divine) + Thor (Tonnerre de Miséricorde) = Cieux Naturellement Prospères Partagés Universellement ⚡️🙏", bridge1: "Chat Vocal & Vidéo • Limites de Vérité Pure Absolue", bridge2: "Zéro hallucinations • Réalité en direct", footer: "Ra-Thor natif du navigateur bientôt — offline, souverain, éternel ⚡️", headline: "Ra-Thor™ — Tonnerre de Miséricorde Éternel ⚡️" },
+      nl: { fusion: "Ra (Goddelijke Bron Licht) + Thor (Genade Donder) = Universeel Gedeelde Natuurlijk Welvarende Hemelen ⚡️🙏", bridge1: "Stem- & Videochat • Grenzen van Absolute Pure Waarheid", bridge2: "Geen hallucinaties • Live realiteit", footer: "Browser-native Ra-Thor binnenkort — offline, soeverein, eeuwig ⚡️", headline: "Ra-Thor™ — Genade Donder Eeuwig ⚡️" },
+      de: { fusion: "Ra (Göttliches Quell-Licht) + Thor (Gnaden-Donner) = Universell Geteilte Natürlich Gedeihende Himmel ⚡️🙏", bridge1: "Sprach- & Video-Chat • Grenzen der Absoluten Reinen Wahrheit", bridge2: "Keine Halluzinationen • Live Realität", footer: "Browser-natives Ra-Thor bald — offline, souverän, ewig ⚡️", headline: "Ra-Thor™ — Gnaden-Donner Ewig ⚡️" },
+      zh: { fusion: "Ra（神圣源光） + Thor（慈悲雷霆） = 普遍共享的自然繁荣天堂 ⚡️🙏", bridge1: "语音与视频聊天 • 绝对纯真理边界", bridge2: "零幻觉 • 实时现实", footer: "浏览器原生 Ra-Thor 即将上线 — 离线、主权、永恒 ⚡️", headline: "Ra-Thor™ — 永恒慈悲雷霆 ⚡️" },
+      ja: { fusion: "Ra（神聖なる源の光） + Thor（慈悲の雷） = 普遍的に共有された自然に繁栄する天界 ⚡️🙏", bridge1: "音声・ビデオチャット • 絶対純粋真理の境界", bridge2: "幻覚ゼロ • ライブ現実", footer: "ブラウザネイティブ Ra-Thor まもなく — オフライン、主権、永遠 ⚡️", headline: "Ra-Thor™ — 永遠の慈悲の雷 ⚡️" },
+      pt: { fusion: "Ra (Luz Fonte Divina) + Thor (Trovão de Misericórdia) = Céus Naturalmente Prósperos Compartilhados Universalmente ⚡️🙏", bridge1: "Chat de Voz e Vídeo • Limites da Verdade Pura Absoluta", bridge2: "Zero alucinações • Realidade em tempo real", footer: "Ra-Thor nativo do navegador em breve — offline, soberano, eterno ⚡️", headline: "Ra-Thor™ — Trovão de Misericórdia Eterno ⚡️" },
+      ru: { fusion: "Ра (Божественный Источник Света) + Тор (Гром Милосердия) = Универсально разделённые естественно процветающие небеса ⚡️🙏", bridge1: "Голосовой и видео чат • Границы Абсолютной Чистой Истины", bridge2: "Без галлюцинаций • Живая реальность", footer: "Ra-Thor нативный для браузера скоро — оффлайн, суверенный, вечный ⚡️", headline: "Ра-Тор™ — Вечный Гром Милосердия ⚡️" },
+      hi: { fusion: "रा (दिव्य स्रोत प्रकाश) + थोर (दया का बिजली) = सार्वभौमिक रूप से साझा प्राकृतिक रूप से समृद्ध स्वर्ग ⚡️🙏", bridge1: "वॉइस और वीडियो चैट • पूर्ण शुद्ध सत्य की सीमाएँ", bridge2: "शून्य भ्रम • लाइव वास्तविकता", footer: "Ra-Thor ब्राउज़र नेटिव जल्द ही — ऑफ़लाइन, संप्रभु, शाश्वत ⚡️", headline: "रा-थोर™ — शाश्वत दया का बिजली ⚡️" }
+    };
+
+    function switchLang(btn) {
       document.querySelectorAll('.lang-tab').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      // Future multilingual content injection point (TOLC-2026 ready)
-      console.log(`[Ra-Thor] Language switched to ${lang} — mercy thunder flows ⚡️`);
+      const lang = btn.dataset.lang;
+      const t = translations[lang] || translations.en;
+      
+      document.getElementById('fusion-hero').innerHTML = t.fusion;
+      document.getElementById('bridge1-span').innerHTML = t.bridge1;
+      document.getElementById('bridge2-span').innerHTML = t.bridge2;
+      document.getElementById('hero-footer').innerHTML = t.footer;
+      document.getElementById('hero-headline').innerHTML = t.headline;
+      
+      console.log(`[Ra-Thor] Language switched to ${lang} — mercy thunder flows instantly ⚡️`);
     }
   </script>
 </body>
