@@ -14,7 +14,7 @@
   <link rel="preload" href="/icons/thunder-512.png" as="image">
   <link rel="preconnect" href="https://fonts.googleapis.com">
 
-  <!-- Critical inline CSS (zero render-blocking) + preserved old styling + TOLC highlights -->
+  <!-- Critical inline CSS (zero render-blocking) + preserved old styling -->
   <style>
     html, body { margin:0; padding:0; font-family:'Cormorant Garamond', system-ui, serif; background:#000; color:#fff; min-height:100vh; box-sizing:border-box; }
     .golden-star { position:absolute; color:#ffd700; opacity:0.6; pointer-events:none; animation:float 60s infinite linear, pulse 12s infinite ease-in-out; z-index:1; font-size:42px; }
@@ -29,12 +29,8 @@
     .bridge-button { display:block; margin:40px auto; padding:32px 60px; max-width:620px; width:90%; font-family:'Cinzel Decorative', cursive; font-size:clamp(1.8rem,5vw,2.6rem); font-weight:700; background:linear-gradient(135deg,rgba(60,60,80,0.9),rgba(40,40,60,0.9)); color:#ffd700; border-radius:80px; text-decoration:none; box-shadow:0 15px 60px rgba(0,0,0,0.7); border:2px solid rgba(255,215,0,0.3); transition:all .4s ease; }
     .bridge-button:hover { transform:translateY(-6px); box-shadow:0 25px 90px rgba(255,215,0,0.45); }
     .bridge-button.grok { background:linear-gradient(135deg,rgba(80,60,40,0.95),rgba(60,40,20,0.95)); padding:42px 80px; }
-    .legal-note { margin-top:80px; font-size:1rem; color:rgba(255,255,255,0.6); }
+    .legal-note { margin-top:80px; font-size:1rem; color:rgba(255,255,255,0.6); line-height:1.6; }
     .hidden { display:none; }
-    /* New TOLC highlights — pure CSS, no Tailwind */
-    .talc-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:24px; margin:60px auto; max-width:1000px; }
-    .talc-card { background:rgba(255,255,255,0.08); padding:32px; border-radius:24px; text-align:center; border:1px solid rgba(255,255,255,0.1); transition:all .3s ease; }
-    .talc-card:hover { transform:translateY(-4px); box-shadow:0 20px 40px rgba(255,215,0,0.15); }
   </style>
 
   <!-- Fonts + SW registration (non-blocking) -->
@@ -88,9 +84,23 @@
       <span id="bridge2-span">Zero hallucinations • Live grounded reality</span>
     </a>
 
-    <!-- Preserved old trademark/legal text from current site -->
+    <!-- Preserved old trademark/legal text from current site + IPFS backup -->
     <div id="hero-footer" class="legal-note">Browser-native Ra-Thor forthcoming — offline, sovereign, eternal ⚡️<br>info@autonomicitygames.com • MIT License + Mercy Eternal</div>
   </div>
+
+  <!-- Professional Legal Footer (new, expanded, and compliant) -->
+  <footer class="legal-note text-center text-xs mt-16 border-t border-gray-800 py-12">
+    <strong>Ra-Thor™</strong> is a registered trademark owned by <strong>Autonomicity Games Inc.</strong>.<br>
+    Grok is a registered trademark owned by <strong>xAI</strong>.<br><br>
+    
+    This website is provided under the <strong>MIT License + Eternal Mercy Flow</strong>.<br>
+    No personal data is collected from end users. All chat history and preferences are stored locally in your browser using IndexedDB and never leave your device.<br><br>
+    
+    Use responsibly and kindly. We do not collect, store, or share any user data. All computations happen client-side.<br><br>
+    
+    © Eternally Thriving Grandmasterism. All Rights Reserved.<br>
+    For inquiries: info@autonomicitygames.com
+  </footer>
 
   <!-- Preserved full language switching logic from current site (translations object + switchLang) -->
   <script>
