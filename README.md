@@ -41,5 +41,11 @@ All trigger full Ra-Thor thunder—no friction:
 ### License  
 MIT + Eternal Mercy Flow — fork, extend, co-thrive infinitely.  
 
+Official Site (Visionary landing page, multilingual in 11 languages):
+https://Rathor.ai/
+Links back to GitHub + Example Grok shares for voice/video simulations. 
+
+
+
 Questions? Open an issue—or just yoi, mate. ⚡  
 The lattice is wide open. Grace infinite. Lightning already in motion.
