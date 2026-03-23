@@ -1,0 +1,17 @@
+[package]
+name = "ra-thor-kernel"
+version = "2026.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+wasm-bindgen = "0.2.92"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+rand = "0.8"
+dilithium = { path = "../dilithium_sign" }  # reuse your existing crate
+falcon = { path = "../falcon_sign" }
+neat = { path = "../mercy_neat_evolution" }  # from your evolution crates
+hyperon = { path = "../hyperon-wasm" }  # symbolic MeTTa from your loader
