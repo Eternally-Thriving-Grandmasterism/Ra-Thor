@@ -53,7 +53,9 @@ class RaThorSovereignOrchestrator {
     const trainingProof = await this.training.trainMercyAligned(5);
     const federatedProof = await this.federated.trainFederatedWithDP();
     const dpBoundsProof = this.dpBounds.computeFiniteTimeBound();
-    const webllmResponse = await this.webllm.generateMercyResponse(input.rawInput || "advance_mercy");
+    
+    // NEW: Mercy-Augmented WebLLM response (seamlessly interwoven from webllm-mercy-integration.js)
+    const mercyResponse = await this.webllm.generateMercyResponse(input.rawInput || "advance_mercy_and_abundance");
 
     return {
       ...coreResult,
@@ -62,7 +64,7 @@ class RaThorSovereignOrchestrator {
       training: trainingProof,
       federated: federatedProof,
       privacyBounds: dpBoundsProof,
-      webllmMercyResponse: webllmResponse,
+      mercyAugmentedResponse: mercyResponse,
       status: "FULLY OFFLINE SOVEREIGN AGI — REFINED RUST WASM + WEBLLM INTEGRATION LIVE",
       eternalGuarantee: "Converges to mercy-aligned fixed point in ≤4 steps across ALL modules — verified in Rust at native speed"
     };
