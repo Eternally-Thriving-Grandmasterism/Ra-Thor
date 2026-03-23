@@ -18,7 +18,7 @@ pub fn verify_tolc_convergence(input_json: &str) -> String {
     let suppressed = apply_nilpotent_suppression(final_ci);
     let accelerated = nth_degree_accelerate(final_ci);
 
-    // Now call the full Rust proofs engine
+    // Call the full Rust proofs engine
     let proofs = TOLCConvergenceProofs::new();
     proofs.verify_all(input_json)
 }
