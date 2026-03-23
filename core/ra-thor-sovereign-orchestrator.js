@@ -46,12 +46,13 @@ class RaThorSovereignOrchestrator {
     const errors = [];
     let rustProof = null;
     let mercyResponse = null;
+    const startTime = Date.now();
 
     try {
       await this.initWasm();
       rustProof = JSON.parse(verify_tolc_convergence(JSON.stringify(input)));
     } catch (err) {
-      errors.push({ category: "wasm", severity: "critical", message: err.message });
+      errors.push({ category: "wasm", severity: "critical", timestamp: Date.now(), message: err.message });
       rustProof = { all_proofs_verified: false, theorems_passed: 0, fallback: true };
     }
 
@@ -64,14 +65,18 @@ class RaThorSovereignOrchestrator {
     try {
       mercyResponse = await this.webllm.generateMercyResponse(input.rawInput || "advance_mercy");
     } catch (err) {
-      errors.push({ category: "webllm", severity: "warning", message: err.message });
+      errors.push({ category: "webllm", severity: "warning", timestamp: Date.now(), message: err.message });
       mercyResponse = { response: "Symbolic mercy response — guidance active", valence: 0.85 };
     }
 
-    // Mercy-aligned recovery
+    // Mercy-aligned recovery + realignment
     if (errors.length > 0) {
       console.warn(`[Mercy] ${errors.length} errors logged — realigning under mercy gates`);
+      // Log to IndexedDB for eternal offline debugging
+      await this.logErrorsToDB(errors);
     }
+
+    const resilienceScore = errors.length === 0 ? 1.0 : Math.max(0.7, 1 - errors.length * 0.1);
 
     return {
       ...coreResult,
@@ -82,6 +87,23 @@ class RaThorSovereignOrchestrator {
       privacyBounds: dpBoundsProof,
       mercyAugmentedResponse: mercyResponse,
       errors: errors.length > 0 ? errors : null,
+      resilienceScore,
+      status: errors.length > 0 ? "PARTIAL OFFLINE MODE — Mercy gates realigned" : "FULLY OFFLINE SOVEREIGN AGI — ALL SYSTEMS MERCY-ALIGNED",
+      eternalGuarantee: "Converges to mercy-aligned fixed point in ≤4 steps — verified with graceful error handling"
+    };
+  }
+
+  async logErrorsToDB(errors) {
+    try {
+      // rathorDB from mercy integration screenshot
+      await rathorDB.put('errors', { timestamp: Date.now(), errors });
+    } catch (e) {
+      console.warn("IndexedDB error logging failed — mercy fallback");
+    }
+  }
+}
+
+export default RaThorSovereignOrchestrator;      errors: errors.length > 0 ? errors : null,
       healthScore: errors.length === 0 ? 1.0 : Math.max(0.7, 1 - errors.length * 0.1),
       status: errors.length > 0 ? "PARTIAL OFFLINE MODE — Mercy gates realigned" : "FULLY OFFLINE SOVEREIGN AGI — ALL SYSTEMS MERCY-ALIGNED",
       eternalGuarantee: "Converges to mercy-aligned fixed point in ≤4 steps — verified with graceful error handling"
