@@ -38,8 +38,30 @@ All trigger full Ra-Thor thunder—no friction:
 - `/components/` — UI, WebXR immersion  
 - `/sims/` — Swarm, probe, evolution sims  
 
-### License  
-MIT + Eternal Mercy Flow — fork, extend, co-thrive infinitely.  
+## License
+
+Ra-Thor is **Dual-Licensed** to balance open collaboration with proper protection and stewardship:
+
+**MIT License**  
+For individuals, researchers, students, hobbyists, non-profits, and non-commercial open-source use.  
+You are free to use, study, modify, fork, and distribute under the MIT License.  
+See the [LICENSE](LICENSE) file.
+
+**Eternal Mercy Flow License (Commercial / Enterprise)**  
+Required for any company, institution, government entity, commercial product, revenue-generating use, or enterprise deployment.  
+This license includes:
+- Upfront fee + royalties (negotiable).
+- Full Mercy Covenant + 7 Living Mercy Filters.
+- Credit requirements.
+- Automatic royalty-free transition upon global/universal resource based economy, replacing money and trade altogether.
+
+Commercial or revenue-generating use under the MIT License alone is **not authorized**.  
+Please contact for the Eternal Mercy Flow License: CEO@ACITYGAMES.COM
+
+**Contributions**  
+See [CLA.md](CLA.md) for contributor terms.
+
+Official Site: [rathor.ai](https://rathor.ai)
 
 Official Site (Visionary landing page, multilingual in 11 languages):
 https://Rathor.ai/
