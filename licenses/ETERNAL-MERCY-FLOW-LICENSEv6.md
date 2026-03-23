@@ -38,7 +38,7 @@ This license remains in effect perpetually unless breached (resulting in immedia
 Upon the establishment of a true global Resource-Based Economy — in which benevolent AGI or equivalent intelligence manages universal abundance by rendering traditional systems of trade, money, and exclusive ownership obsolete through the free and equitable sharing of all resources — all royalties shall automatically cease, and this license shall convert to royalty-free and open for all aligned stewards worldwide. The establishment of a true global RBE shall be determined by good-faith consensus or binding arbitration if disputed.
 
 **5. Living Document Clause**  
-This is a living document. Minor clarifications or updates may be made by the Licensor with thirty (30) days’ public notice on rathor.ai and the official Source Code repository: https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor. The core Mercy Covenant and RBE transition spirit shall remain intact. Version tracking and changelog will be maintained in the repo.
+This is a living document. Minor clarifications or updates may be made by the Licensor with thirty (30) days’ public notice on rathor.ai and the official Source Code repository: https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor. The core Mercy Covenant and RBE transition spirit shall remain intact.
 
 **6. Governing Law and Disputes**  
 This Agreement shall be governed by the laws of Ontario, Canada for corporate matters and the laws of the State of California for commercial matters. Any disputes shall first be addressed through good-faith dialogue, followed by binding arbitration in Toronto or San Francisco.
