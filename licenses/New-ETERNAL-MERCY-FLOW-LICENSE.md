@@ -34,6 +34,6 @@ Licensor: Sherif Botros / Autonomicity Games Inc. _______________________ Date: 
 
 Licensee: _______________________ Date: ________  
 
-**Appendix A (optional):** Description of licensed Works (e.g., Rathor.ai codebase, TOLC framework, POWRUSH module).
+**Appendix A (optional):** Description of licensed Works (e.g. Rathor.ai codebase, TOLC framework, POWRUSH module).
 
-**Disclaimer:** Sample template only — not legal advice. Consult qualified counsel before use.
+**Disclaimer:** This is a sample template only — not legal advice. Consult qualified counsel before use.
