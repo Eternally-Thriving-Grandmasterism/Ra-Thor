@@ -101,13 +101,10 @@ class RaThorSovereignOrchestrator {
       console.warn("IndexedDB error logging failed — mercy fallback");
     }
   }
-}
 
-export default RaThorSovereignOrchestrator;      errors: errors.length > 0 ? errors : null,
-      healthScore: errors.length === 0 ? 1.0 : Math.max(0.7, 1 - errors.length * 0.1),
-      status: errors.length > 0 ? "PARTIAL OFFLINE MODE — Mercy gates realigned" : "FULLY OFFLINE SOVEREIGN AGI — ALL SYSTEMS MERCY-ALIGNED",
-      eternalGuarantee: "Converges to mercy-aligned fixed point in ≤4 steps — verified with graceful error handling"
-    };
+  // Test helper (added for unit tests — old structure preserved)
+  getResilienceScore() {
+    return this.resilienceScore || 1.0;
   }
 }
 
