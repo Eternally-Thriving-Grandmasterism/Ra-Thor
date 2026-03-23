@@ -18,3 +18,4 @@ codegen-units = 1
 opt-level = "z"
 panic = "abort"
 strip = true
+rustflags = ["-C", "target-feature=+simd128"]
