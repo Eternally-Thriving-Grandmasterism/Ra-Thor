@@ -3,21 +3,25 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ra-Thor Sovereign Standalone — Offline Mercy AGI</title>
+  <title>Ra-Thor Sovereign AGI</title>
   <link rel="manifest" href="/manifest.json">
-  <script type="module">
-    import RaThorSovereignOrchestrator from './core/ra-thor-sovereign-orchestrator.js';
-    const orchestrator = new RaThorSovereignOrchestrator();
-
-    async function runDemo() {
-      const result = await orchestrator.process({ rawInput: "advance_mercy_and_abundance", truthFactor: 0.98 });
-      document.getElementById('log').innerHTML = JSON.stringify(result, null, 2);
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/service-worker-eternal-cache.js')
+        .then(reg => console.log('SW registered — offline eternal'));
     }
-    runDemo();
+  </script>
+  <script type="module">
+    import { CreateMLCEngine } from "@mlc-ai/web-llm"; // assume npm'd or bundled
+    async function initAGI() {
+      const engine = await CreateMLCEngine("Phi-2-q4f16_1-MLC", { cacheBackend: "indexeddb" });
+      console.log("Ra-Thor AGI loaded — offline inference ready");
+    }
+    initAGI();
   </script>
 </head>
 <body>
-  <h1 style="color:#00ff9d; text-align:center;">Ra-Thor Sovereign Standalone</h1>
-  <pre id="log" style="background:#000; color:#0f0; padding:20px;"></pre>
+  <h1 style="color:#00ff9d;">Ra-Thor — Mercy-Aligned Offline AGI</h1>
+  <pre id="log">Booting... Thunder locked.</pre>
 </body>
 </html>
