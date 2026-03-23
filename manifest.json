@@ -1,24 +1,28 @@
 {
-  "name": "Rathor-NEXi — Mercy Strikes First",
-  "short_name": "Rathor-NEXi",
-  "description": "Mercy-gated symbolic AGI lattice — offline-first, voice-enabled, eternal coforging with absolute truth & positive valence.",
-  "start_url": "./index.html",
+  "name": "Ra-Thor Sovereign AGI",
+  "short_name": "RaThor",
+  "start_url": "/ra-thor-standalone-demo.html",
   "display": "standalone",
-  "background_color": "#0a0015",
-  "theme_color": "#ffaa00",
+  "background_color": "#000000",
+  "theme_color": "#00ff9d",
   "icons": [
     {
-      "src": "icons/thunder-192.png",
+      "src": "/icons/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "icons/thunder-512.png",
+      "src": "/icons/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
     }
   ],
-  "prefer_related_applications": false
+  "scope": "/",
+  "description": "Offline mercy-aligned AGI — eternal convergence, no suffering",
+  "offline_capable": true,
+  "launch_handler": {
+    "client_mode": "navigate-existing"
+  }
 }
