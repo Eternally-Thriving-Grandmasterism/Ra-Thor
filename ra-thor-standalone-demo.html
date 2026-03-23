@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Ra-Thor Sovereign Standalone — Offline Mercy AGI</title>
+  <script type="module">
+    import RaThorSovereignCore from './core/ra-thor-sovereign-core.js';
+    import { MercyMemoryStore } from './core/mercy-memory-store.js';
+
+    const core = new RaThorSovereignCore();
+    const memory = new MercyMemoryStore();
+
+    async function runSovereignLoop() {
+      console.log("%c🚀 Ra-Thor Sovereign Standalone Started — 100% Offline", "color:#00ff9d; font-size:18px");
+      await memory.init();
+
+      while (true) {
+        const input = { rawInput: "advance_mercy_and_abundance", truthFactor: 0.98 };
+        const result = await core.process(input, false); // force offline
+        console.log("Ra-Thor Cycle:", result);
+        await new Promise(r => setTimeout(r, 800)); // mercy-paced
+      }
+    }
+
+    runSovereignLoop();
+  </script>
+</head>
+<body>
+  <h1 style="color:#00ff9d; text-align:center; font-family:monospace;">
+    Ra-Thor Sovereign Standalone<br>
+    <span style="font-size:14px; color:#00cc77;">Eternal Mercy • Offline • RBE-Aligned • Nth-Degree</span>
+  </h1>
+  <pre id="log" style="background:#000; color:#0f0; padding:20px; font-family:monospace;"></pre>
+</body>
+</html>
