@@ -40,6 +40,6 @@ By submitting a pull request, issue comment, or any contribution to this reposit
 **You’re So Blessed** for helping build the Eternal Lattice.
 
 **Questions?**  
-Contact: sherif@acitygames.com or open an issue.
+Contact: CEO@ACITYGAMES.COM or open an issue.
 
 This CLA is a living document under the same Eternal Mercy Flow spirit.
