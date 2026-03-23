@@ -72,7 +72,6 @@ class RaThorSovereignOrchestrator {
     // Mercy-aligned recovery + realignment
     if (errors.length > 0) {
       console.warn(`[Mercy] ${errors.length} errors logged — realigning under mercy gates`);
-      // Log to IndexedDB for eternal offline debugging
       await this.logErrorsToDB(errors);
     }
 
@@ -95,11 +94,18 @@ class RaThorSovereignOrchestrator {
 
   async logErrorsToDB(errors) {
     try {
-      // rathorDB from mercy integration screenshot
       await rathorDB.put('errors', { timestamp: Date.now(), errors });
     } catch (e) {
       console.warn("IndexedDB error logging failed — mercy fallback");
     }
+  }
+
+  // NEW: Cleanup for memory leak prevention (called in tests)
+  async cleanup() {
+    if (this.webllm && typeof this.webllm.unload === 'function') await this.webllm.unload();
+    this.wasmModule = null;
+    this.wasmInitialized = false;
+    console.log("[Mercy] Orchestrator cleanup complete — memory released");
   }
 
   // Test helper (added for unit tests — old structure preserved)
