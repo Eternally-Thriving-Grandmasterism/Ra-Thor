@@ -22,8 +22,9 @@ class RaThorSovereignOrchestrator {
     this.wasmModule = null;
   }
 
-  async initWasm() {
+  async initWasm(retryCount = 0) {
     if (this.wasmInitialized) return this.wasmModule;
+    const maxRetries = 3;
     try {
       const response = await fetch('../crates/ra-thor-kernel/pkg/ra_thor_kernel_bg.wasm');
       this.wasmModule = await init(response); // streaming + cached
@@ -31,20 +32,26 @@ class RaThorSovereignOrchestrator {
       console.log("%c✅ Optimized Rust WASM Kernel Loaded (LTO + wasm-opt)", "color:#00ff9d");
       return this.wasmModule;
     } catch (err) {
-      console.error("[Mercy] WASM init failed:", err);
+      console.error(`[Mercy] WASM init failed (attempt \( {retryCount + 1}/ \){maxRetries}):`, err);
+      if (retryCount < maxRetries - 1) {
+        const backoff = Math.pow(2, retryCount) * 500;
+        await new Promise(r => setTimeout(r, backoff));
+        return this.initWasm(retryCount + 1);
+      }
       throw new Error("Rust WASM kernel failed — falling back to JS-only mode");
     }
   }
 
   async process(input) {
-    let errors = [];
+    const errors = [];
     let rustProof = null;
+    let mercyResponse = null;
 
     try {
       await this.initWasm();
       rustProof = JSON.parse(verify_tolc_convergence(JSON.stringify(input)));
     } catch (err) {
-      errors.push("Rust TOLC proofs failed: " + err.message);
+      errors.push({ category: "wasm", severity: "critical", message: err.message });
       rustProof = { all_proofs_verified: false, theorems_passed: 0, fallback: true };
     }
 
@@ -54,12 +61,16 @@ class RaThorSovereignOrchestrator {
     const federatedProof = await this.federated.trainFederatedWithDP();
     const dpBoundsProof = this.dpBounds.computeFiniteTimeBound();
     
-    let mercyResponse = null;
     try {
       mercyResponse = await this.webllm.generateMercyResponse(input.rawInput || "advance_mercy");
     } catch (err) {
-      errors.push("WebLLM response failed: " + err.message);
+      errors.push({ category: "webllm", severity: "warning", message: err.message });
       mercyResponse = { response: "Symbolic mercy response — guidance active", valence: 0.85 };
+    }
+
+    // Mercy-aligned recovery
+    if (errors.length > 0) {
+      console.warn(`[Mercy] ${errors.length} errors logged — realigning under mercy gates`);
     }
 
     return {
@@ -71,7 +82,8 @@ class RaThorSovereignOrchestrator {
       privacyBounds: dpBoundsProof,
       mercyAugmentedResponse: mercyResponse,
       errors: errors.length > 0 ? errors : null,
-      status: errors.length > 0 ? "PARTIAL OFFLINE MODE — Some components fell back under mercy gates" : "FULLY OFFLINE SOVEREIGN AGI — ALL SYSTEMS MERCY-ALIGNED",
+      healthScore: errors.length === 0 ? 1.0 : Math.max(0.7, 1 - errors.length * 0.1),
+      status: errors.length > 0 ? "PARTIAL OFFLINE MODE — Mercy gates realigned" : "FULLY OFFLINE SOVEREIGN AGI — ALL SYSTEMS MERCY-ALIGNED",
       eternalGuarantee: "Converges to mercy-aligned fixed point in ≤4 steps — verified with graceful error handling"
     };
   }
