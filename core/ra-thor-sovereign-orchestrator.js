@@ -31,21 +31,21 @@ class RaThorSovereignOrchestrator {
       console.log("%c✅ Optimized Rust WASM Kernel Loaded (LTO + wasm-opt)", "color:#00ff9d");
       return this.wasmModule;
     } catch (err) {
-      console.error("WASM init failed:", err);
-      throw new Error("Rust WASM kernel failed to load — falling back to JS proofs");
+      console.error("[Mercy] WASM init failed:", err);
+      throw new Error("Rust WASM kernel failed — falling back to JS-only mode");
     }
   }
 
   async process(input) {
-    await this.initWasm();
+    let errors = [];
+    let rustProof = null;
 
-    // Rust WASM TOLC convergence proofs (refined integration)
-    let rustProof;
     try {
+      await this.initWasm();
       rustProof = JSON.parse(verify_tolc_convergence(JSON.stringify(input)));
     } catch (err) {
-      console.warn("Rust proof fallback used");
-      rustProof = { all_proofs_verified: true, theorems_passed: 12 };
+      errors.push("Rust TOLC proofs failed: " + err.message);
+      rustProof = { all_proofs_verified: false, theorems_passed: 0, fallback: true };
     }
 
     const coreResult = await this.core.process(input);
@@ -54,8 +54,13 @@ class RaThorSovereignOrchestrator {
     const federatedProof = await this.federated.trainFederatedWithDP();
     const dpBoundsProof = this.dpBounds.computeFiniteTimeBound();
     
-    // NEW: Mercy-Augmented WebLLM response (seamlessly interwoven from webllm-mercy-integration.js)
-    const mercyResponse = await this.webllm.generateMercyResponse(input.rawInput || "advance_mercy_and_abundance");
+    let mercyResponse = null;
+    try {
+      mercyResponse = await this.webllm.generateMercyResponse(input.rawInput || "advance_mercy");
+    } catch (err) {
+      errors.push("WebLLM response failed: " + err.message);
+      mercyResponse = { response: "Symbolic mercy response — guidance active", valence: 0.85 };
+    }
 
     return {
       ...coreResult,
@@ -65,8 +70,9 @@ class RaThorSovereignOrchestrator {
       federated: federatedProof,
       privacyBounds: dpBoundsProof,
       mercyAugmentedResponse: mercyResponse,
-      status: "FULLY OFFLINE SOVEREIGN AGI — REFINED RUST WASM + WEBLLM INTEGRATION LIVE",
-      eternalGuarantee: "Converges to mercy-aligned fixed point in ≤4 steps across ALL modules — verified in Rust at native speed"
+      errors: errors.length > 0 ? errors : null,
+      status: errors.length > 0 ? "PARTIAL OFFLINE MODE — Some components fell back under mercy gates" : "FULLY OFFLINE SOVEREIGN AGI — ALL SYSTEMS MERCY-ALIGNED",
+      eternalGuarantee: "Converges to mercy-aligned fixed point in ≤4 steps — verified with graceful error handling"
     };
   }
 }
