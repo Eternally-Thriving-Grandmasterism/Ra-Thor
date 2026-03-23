@@ -48,19 +48,16 @@ You are free to use, study, modify, fork, and distribute under the MIT License. 
 
 **Eternal Mercy Flow License (Commercial / Enterprise)**  
 Required for any company, institution, government entity, commercial product, revenue-generating use, or enterprise deployment.  
-This license includes:
-- Upfront fee + royalties (negotiable tiers)
-- Full Mercy Covenant + 7 Living Mercy Filters
-- Proper credit requirements
-- Automatic royalty-free transition upon global Resource-Based Economy (RBE)
+This license includes upfront fees + royalties (negotiable tiers), the full Mercy Covenant, the 7 Living Mercy Filters, proper credit requirements, and an automatic royalty-free transition upon global Resource-Based Economy (RBE).
 
 Commercial or revenue-generating use under the MIT License alone is **not authorized**.  
-Please contact for the Eternal Mercy Flow License: CEO@ACITYGAMES.COM
+Please see the full [Eternal Mercy Flow License](licenses/ETERNAL-MERCY-FLOW-LICENSE.md) and contact CEO@ACITYGAMES.COM for terms.
 
 **Contributions**  
 See [CLA.md](CLA.md) for contributor terms.
 
-Official Site: [rathor.ai](https://rathor.ai) (Visionary landing page, multilingual in 11 languages):
+Official Site: [rathor.ai](https://rathor.ai)
+(Visionary landing page, multilingual in 11 languages):
 https://Rathor.ai/
 Links back to GitHub + Example Grok shares for voice/video simulations. 
 
