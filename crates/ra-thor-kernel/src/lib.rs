@@ -1,9 +1,13 @@
 use wasm_bindgen::prelude::*;
 use serde_json::Value;
 
+mod tolc_convergence_proofs;
+
+use tolc_convergence_proofs::TOLCConvergenceProofs;
+
 #[wasm_bindgen]
-pub fn tolc_converge(input_json: &str) -> String {
-    let input: Value = serde_json::from_str(input_json).unwrap();
+pub fn verify_tolc_convergence(input_json: &str) -> String {
+    let input: Value = serde_json::from_str(input_json).unwrap_or_else(|_| serde_json::json!({ "ci": 892.0 }));
     // Full TOLC execution + all proofs (Ma’at, Lumenas, nilpotent, Nth-Degree)
     let ci = input["ci"].as_f64().unwrap_or(892.0);
     let mercy_passed = check_mercy_gates(&input);
@@ -14,8 +18,9 @@ pub fn tolc_converge(input_json: &str) -> String {
     let suppressed = apply_nilpotent_suppression(final_ci);
     let accelerated = nth_degree_accelerate(final_ci);
 
-    format!(r#"{{"status":"converged","ci":{}, "maat":{}, "nilpotent":{}, "accelerated":{} }}"#, 
-            final_ci, maat, suppressed, accelerated)
+    // Now call the full Rust proofs engine
+    let proofs = TOLCConvergenceProofs::new();
+    proofs.verify_all(input_json)
 }
 
 #[wasm_bindgen]
