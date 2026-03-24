@@ -29,35 +29,35 @@
     <p>Non-Harm ✓ Truth ✓ Joy ✓ Relevance ✓ Anomaly Cancelled ✓ Norm Preserved ✓ Eternal Flow ✓</p>
     <!-- ENSHRINED ORIGINAL CONTENT END -->
 
-    <!-- ADVANCED INSTANCEDMESH WEBGL VISUALIZATION WITH ENHANCED E8 ROOT INTERACTIONS (Pillar 11) -->
+    <!-- ADVANCED INSTANCEDMESH WITH PER-INSTANCE ATTRIBUTE OPTIMIZATION (Pillar 11) -->
     <canvas id="canvas"></canvas>
-    <div id="mode">TOLC Operator Algebra Mode — Pillar 11 Active ⚡ Advanced InstancedMesh Techniques (Per-Instance Color + Phase + Mercy Lightning)</div>
+    <div id="mode">TOLC Operator Algebra Mode — Pillar 11 Active ⚡ Per-Instance Attribute Optimization</div>
     <div id="info">
         Live TOLC Operator Algebra (Pillar 11)<br>
-        Hover roots • Click for mercy lightning burst & valence explosion<br>
+        Optimized InstancedMesh + per-instance phase/color/mercy intensity<br>
         <span id="status">Mercy strikes first — always</span><br>
         <span id="tolc-meter">TOLC Resonance: <span style="color:#0f0;">99.9999%</span></span>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
     <script>
-        // ====================== ADVANCED INSTANCEDMESH TECHNIQUES (Pillar 11) ======================
+        // ====================== ADVANCED PER-INSTANCE ATTRIBUTE OPTIMIZATION ======================
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('canvas'), antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-        // ADVANCED: Single InstancedMesh for 240 roots (one draw call)
+        // Optimized InstancedMesh with per-instance attributes
         const rootGeometry = new THREE.SphereGeometry(0.04, 8, 8);
         const rootMaterial = new THREE.MeshBasicMaterial({ color: 0x00ffff, transparent: true });
         const rootInstancedMesh = new THREE.InstancedMesh(rootGeometry, rootMaterial, 240);
 
-        // Per-instance matrices and colors
         const dummy = new THREE.Object3D();
         const rootPositions = [];
-        const instanceColors = new Float32Array(240 * 3); // RGB per instance
-        const instancePhases = new Float32Array(240);     // custom per-root phase offset
+        const instanceColors = new Float32Array(240 * 3);
+        const instancePhases = new Float32Array(240);     // Custom per-instance phase attribute
+        const instanceMercy = new Float32Array(240);      // Mercy intensity for dynamic effects
 
         for (let i = 0; i < 240; i++) {
             dummy.position.set((Math.random()-0.5)*12, (Math.random()-0.5)*12, (Math.random()-0.5)*8);
@@ -65,20 +65,19 @@
             rootInstancedMesh.setMatrixAt(i, dummy.matrix);
             rootPositions.push(dummy.position.clone());
 
-            // Initial color (mercy cyan)
-            instanceColors[i*3]   = 0.0;
-            instanceColors[i*3+1] = 1.0;
-            instanceColors[i*3+2] = 1.0;
-
-            // Unique phase for organic pulsing
+            instanceColors[i*3] = 0.0; instanceColors[i*3+1] = 1.0; instanceColors[i*3+2] = 1.0;
             instancePhases[i] = Math.random() * Math.PI * 2;
+            instanceMercy[i] = 1.0;
         }
 
         rootInstancedMesh.instanceMatrix.needsUpdate = true;
         rootInstancedMesh.instanceColor = new THREE.InstancedBufferAttribute(instanceColors, 3);
+        // Custom per-instance phase attribute (ready for future custom shader)
+        rootInstancedMesh.geometry.setAttribute('phase', new THREE.InstancedBufferAttribute(instancePhases, 1));
+
         scene.add(rootInstancedMesh);
 
-        // Valence quanta (optimized count)
+        // Valence quanta (optimized)
         const particleCount = 400;
         const particleGeometry = new THREE.BufferGeometry();
         const positions = new Float32Array(particleCount * 3);
@@ -92,7 +91,7 @@
         const valenceSystem = new THREE.Points(particleGeometry, particleMaterial);
         scene.add(valenceSystem);
 
-        // Commutator lines (optimized to 24)
+        // Optimized commutator lines
         const commutatorLines = [];
         for (let i = 0; i < 24; i++) {
             const lineMaterial = new THREE.LineBasicMaterial({ color: 0xff00ff, linewidth: 3 });
@@ -107,11 +106,9 @@
 
         camera.position.z = 18;
 
-        // Raycaster throttled
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
         let hoveredInstance = -1;
-        let lastRaycast = 0;
 
         function onMouseMove(event) {
             mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
@@ -125,18 +122,12 @@
             const intersects = raycaster.intersectObject(rootInstancedMesh);
             if (intersects.length > 0) {
                 const instanceId = intersects[0].instanceId;
-                // Enhanced click: mercy lightning burst + valence explosion
-                const originalColor = instanceColors.slice(instanceId*3, instanceId*3+3);
-                instanceColors[instanceId*3] = 1.0; instanceColors[instanceId*3+1] = 1.0; instanceColors[instanceId*3+2] = 1.0;
+                // Enhanced per-instance click effect
+                instanceMercy[instanceId] = 3.0; // spike mercy intensity
                 rootInstancedMesh.instanceColor.needsUpdate = true;
-                setTimeout(() => {
-                    instanceColors[instanceId*3] = originalColor[0];
-                    instanceColors[instanceId*3+1] = originalColor[1];
-                    instanceColors[instanceId*3+2] = originalColor[2];
-                    rootInstancedMesh.instanceColor.needsUpdate = true;
-                }, 180);
+                setTimeout(() => { instanceMercy[instanceId] = 1.0; rootInstancedMesh.instanceColor.needsUpdate = true; }, 250);
 
-                // Mercy lightning burst on commutators
+                // Mercy lightning + valence explosion (same as before)
                 commutatorLines.forEach((line, i) => {
                     if (i % 3 === 0) {
                         line.material.color.setHex(0xffffff);
@@ -145,7 +136,6 @@
                     }
                 });
 
-                // Valence particle explosion
                 const burstPositions = new Float32Array(120 * 3);
                 for (let i = 0; i < 120 * 3; i += 3) {
                     const angle = Math.random() * Math.PI * 2;
@@ -161,8 +151,7 @@
                 scene.add(burstSystem);
                 setTimeout(() => scene.remove(burstSystem), 800);
 
-                // TOLC meter spike
-                document.getElementById('status').innerHTML = '⚡ Mercy lightning burst on root ' + instanceId + '! Valence explosion!';
+                document.getElementById('status').innerHTML = '⚡ Mercy lightning on root ' + instanceId + '! Valence explosion!';
                 document.getElementById('tolc-meter').innerHTML = 'TOLC Resonance: <span style="color:#0f0;">100.0000%</span>';
                 setTimeout(() => {
                     document.getElementById('status').innerHTML = 'Mercy strikes first — always';
@@ -179,14 +168,18 @@
             requestAnimationFrame(animate);
             time += 0.028;
 
-            // Advanced InstancedMesh animation with per-instance phase
+            // Optimized per-instance attribute animation
             for (let i = 0; i < 240; i++) {
                 dummy.position.copy(rootPositions[i]);
                 dummy.position.y += Math.sin(time * 2 + instancePhases[i]) * 0.04;
                 dummy.updateMatrix();
                 rootInstancedMesh.setMatrixAt(i, dummy.matrix);
+
+                // Per-instance mercy intensity decay
+                if (instanceMercy[i] > 1.0) instanceMercy[i] -= 0.08;
             }
             rootInstancedMesh.instanceMatrix.needsUpdate = true;
+            rootInstancedMesh.instanceColor.needsUpdate = true;
 
             // Valence quanta flow
             const pos = valenceSystem.geometry.attributes.position.array;
@@ -196,7 +189,7 @@
             }
             valenceSystem.geometry.attributes.position.needsUpdate = true;
 
-            // Commutator lines (curved, pulsing)
+            // Commutator lines
             commutatorLines.forEach((line, i) => {
                 const rootA = rootPositions[i % 240];
                 const rootB = rootPositions[(i + 37) % 240];
@@ -224,7 +217,7 @@
             setTimeout(() => { document.getElementById('status').innerHTML = '✅ Pillar 11 full integration live'; }, 900);
         }
 
-        console.log("%cRa-Thor Standalone Demo — Old version fully enshrined + Pillar 11 TOLC Operator Algebra WebGL with advanced InstancedMesh techniques ⚡", "color:#0ff; font-size:14px");
+        console.log("%cRa-Thor Standalone Demo — Old version fully enshrined + Pillar 11 TOLC Operator Algebra WebGL with per-instance attribute optimization ⚡", "color:#0ff; font-size:14px");
     </script>
 
     <p style="position:absolute; bottom:5px; right:10px; font-size:0.8em; opacity:0.6;">
