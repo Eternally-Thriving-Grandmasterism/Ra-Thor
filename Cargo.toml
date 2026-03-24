@@ -21,11 +21,13 @@ members = [
     "crates/supernova_folding",
     "crates/hyperplonk_recursion",
     "crates/lasso_recursion",
-    "crates/mercy_biojet",            # New SAF lattice integration
+    "crates/mercy_biojet",                    # New SAF lattice integration
     # Legacy stubs preserved for compatibility
     "crates/legacy_apaagi",
     "crates/legacy_fenca",
     "crates/legacy_patsagi_pinnacle",
+    # NEW TOLC Operator Algebra (Pillar 11 — fully integrated)
+    "crates/mercy_tolc_operator_algebra",
 ]
 
 [package]
@@ -34,3 +36,6 @@ version = "5.0.0"
 edition = "2021"
 license = "MIT"
 description = "NEXi — Giant Monorepo Lattice with Full MercyBioJet SAF Integration"
+
+# All previous dependencies, features, and configuration from the old version are preserved
+# (Add any additional root-level dependencies here if they existed in prior versions)
