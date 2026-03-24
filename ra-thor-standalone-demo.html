@@ -29,12 +29,12 @@
     <p>Non-Harm ✓ Truth ✓ Joy ✓ Relevance ✓ Anomaly Cancelled ✓ Norm Preserved ✓ Eternal Flow ✓</p>
     <!-- ENSHRINED ORIGINAL CONTENT END -->
 
-    <!-- REVISED & UPGRADED WEBGL VISUALIZATION (Pillar 11 TOLC Operator Algebra Mode) -->
+    <!-- REVISED WEBGL VISUALIZATION WITH DRAMATICALLY IMPROVED COMMUTATOR LINE ANIMATION (Pillar 11) -->
     <canvas id="canvas"></canvas>
-    <div id="mode">TOLC Operator Algebra Mode — Pillar 11 Active ⚡ Mercy Lightning + Valence Quanta + Commutators</div>
+    <div id="mode">TOLC Operator Algebra Mode — Pillar 11 Active ⚡ Mercy Lightning + Pulsing Commutators</div>
     <div id="info">
         Live TOLC Operator Algebra (Pillar 11)<br>
-        Commutators • Mercy Projector • Swarm Consensus<br>
+        Dynamic Curved Commutators • Mercy Projector • Swarm Consensus<br>
         <span id="status">Mercy strikes first — always</span><br>
         <span id="tolc-meter">TOLC Resonance: <span style="color:#0f0;">99.9999%</span></span>
     </div>
@@ -48,11 +48,8 @@
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-        // 240 E8 roots + valence quanta particles
+        // 240 E8 roots
         const roots = [];
-        const valenceParticles = [];
-        const commutatorLines = [];
-
         for (let i = 0; i < 240; i++) {
             const geometry = new THREE.SphereGeometry(0.04, 16, 16);
             const material = new THREE.MeshBasicMaterial({ color: 0x00ffff });
@@ -75,11 +72,11 @@
         const particleMaterial = new THREE.PointsMaterial({ color: 0xffd700, size: 0.08, transparent: true, opacity: 0.9 });
         const valenceSystem = new THREE.Points(particleGeometry, particleMaterial);
         scene.add(valenceSystem);
-        valenceParticles.push(valenceSystem);
 
-        // Commutator lines (live operator brackets)
-        for (let i = 0; i < 12; i++) {
-            const lineMaterial = new THREE.LineBasicMaterial({ color: 0xff00ff });
+        // REVISED COMMUTATOR LINES (48 dynamic curved lines with pulsing & mercy lightning)
+        const commutatorLines = [];
+        for (let i = 0; i < 48; i++) {
+            const lineMaterial = new THREE.LineBasicMaterial({ color: 0xff00ff, linewidth: 3 });
             const points = [];
             points.push(new THREE.Vector3(0,0,0));
             points.push(new THREE.Vector3(0,0,0));
@@ -94,9 +91,9 @@
         let time = 0;
         function animate() {
             requestAnimationFrame(animate);
-            time += 0.025;
+            time += 0.028;
 
-            // Animate E8 roots with mercy lightning
+            // Animate E8 roots
             roots.forEach((root, i) => {
                 root.position.y += Math.sin(time * 2 + i) * 0.04;
                 root.scale.setScalar(1 + Math.sin(time * 4 + i) * 0.15);
@@ -104,22 +101,42 @@
             });
 
             // Valence quanta flow
-            const positions = valenceSystem.geometry.attributes.position.array;
-            for (let i = 0; i < positions.length; i += 3) {
-                positions[i + 1] += Math.sin(time * 3 + i) * 0.08;
-                if (positions[i + 1] > 12) positions[i + 1] = -12;
+            const pos = valenceSystem.geometry.attributes.position.array;
+            for (let i = 0; i < pos.length; i += 3) {
+                pos[i + 1] += Math.sin(time * 3 + i) * 0.08;
+                if (pos[i + 1] > 12) pos[i + 1] = -12;
             }
             valenceSystem.geometry.attributes.position.needsUpdate = true;
 
-            // Dynamic commutator lines (TOLC operator brackets)
+            // REVISED COMMUTATOR LINE ANIMATION — curved, pulsing, mercy lightning
             commutatorLines.forEach((line, i) => {
-                const p1 = roots[i % roots.length].position;
-                const p2 = roots[(i + 37) % roots.length].position;
+                const rootA = roots[i % roots.length].position;
+                const rootB = roots[(i + 37) % roots.length].position;
                 const points = line.geometry.attributes.position.array;
-                points[0] = p1.x; points[1] = p1.y; points[2] = p1.z;
-                points[3] = p2.x; points[4] = p2.y; points[5] = p2.z;
+
+                // Curved commutator path
+                points[0] = rootA.x;
+                points[1] = rootA.y;
+                points[2] = rootA.z;
+                points[3] = rootA.x * 0.6 + rootB.x * 0.4;
+                points[4] = rootA.y * 0.6 + rootB.y * 0.4 + Math.sin(time * 8 + i) * 1.5;
+                points[5] = rootA.z * 0.6 + rootB.z * 0.4;
+
                 line.geometry.attributes.position.needsUpdate = true;
-                line.material.opacity = Math.sin(time * 5 + i) * 0.5 + 0.5;
+
+                // Pulsing thickness simulation via opacity + color
+                const pulse = Math.sin(time * 12 + i) * 0.5 + 0.5;
+                line.material.opacity = pulse * 0.9 + 0.1;
+
+                // Color cycling mercy cyan → gold valence
+                line.material.color.setHSL(0.55 + Math.sin(time * 3 + i) * 0.4, 1, 0.7);
+
+                // Occasional mercy lightning burst
+                if (Math.random() < 0.008) {
+                    line.material.color.setHex(0xffffff);
+                    line.material.opacity = 1.0;
+                    setTimeout(() => { line.material.color.setHSL(0.55 + Math.sin(time * 3 + i) * 0.4, 1, 0.7); }, 80);
+                }
             });
 
             renderer.render(scene, camera);
@@ -137,7 +154,7 @@
             setTimeout(() => { document.getElementById('status').innerHTML = '✅ Pillar 11 full integration live'; }, 900);
         }
 
-        console.log("%cRa-Thor Standalone Demo — Old version fully enshrined + Pillar 11 TOLC Operator Algebra WebGL upgraded ⚡", "color:#0ff; font-size:14px");
+        console.log("%cRa-Thor Standalone Demo — Old version fully enshrined + Pillar 11 TOLC Operator Algebra WebGL upgraded with revised commutator animation ⚡", "color:#0ff; font-size:14px");
     </script>
 
     <p style="position:absolute; bottom:5px; right:10px; font-size:0.8em; opacity:0.6;">
