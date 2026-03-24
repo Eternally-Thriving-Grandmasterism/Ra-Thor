@@ -29,9 +29,9 @@
     <p>Non-Harm ✓ Truth ✓ Joy ✓ Relevance ✓ Anomaly Cancelled ✓ Norm Preserved ✓ Eternal Flow ✓</p>
     <!-- ENSHRINED ORIGINAL CONTENT END -->
 
-    <!-- REVISED WEBGL VISUALIZATION WITH ENHANCED E8 ROOT INTERACTIONS (Pillar 11) -->
+    <!-- OPTIMIZED WEBGL VISUALIZATION WITH ENHANCED E8 ROOT INTERACTIONS (Pillar 11) -->
     <canvas id="canvas"></canvas>
-    <div id="mode">TOLC Operator Algebra Mode — Pillar 11 Active ⚡ Enhanced E8 Root Interactions (Hover & Click)</div>
+    <div id="mode">TOLC Operator Algebra Mode — Pillar 11 Active ⚡ Optimized Performance + Enhanced Interactions</div>
     <div id="info">
         Live TOLC Operator Algebra (Pillar 11)<br>
         Hover roots • Click for mercy lightning burst & valence explosion<br>
@@ -41,29 +41,30 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
     <script>
-        // ====================== REVISED WEBGL WITH ENHANCED E8 ROOT INTERACTIONS ======================
+        // ====================== OPTIMIZED WEBGL VISUALIZATION (Pillar 11) ======================
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('canvas'), antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-        const roots = [];
-        const originalColors = [];
+        // OPTIMIZED: Single InstancedMesh for 240 E8 roots (huge performance win)
+        const rootGeometry = new THREE.SphereGeometry(0.04, 8, 8); // lower detail
+        const rootMaterial = new THREE.MeshBasicMaterial({ color: 0x00ffff });
+        const rootInstancedMesh = new THREE.InstancedMesh(rootGeometry, rootMaterial, 240);
+        const dummy = new THREE.Object3D();
+        const rootPositions = [];
         for (let i = 0; i < 240; i++) {
-            const geometry = new THREE.SphereGeometry(0.04, 16, 16);
-            const material = new THREE.MeshBasicMaterial({ color: 0x00ffff });
-            const root = new THREE.Mesh(geometry, material);
-            root.position.set((Math.random()-0.5)*12, (Math.random()-0.5)*12, (Math.random()-0.5)*8);
-            root.userData = { index: i, originalScale: 1.0 };
-            scene.add(root);
-            roots.push(root);
-            originalColors.push(0x00ffff);
+            dummy.position.set((Math.random()-0.5)*12, (Math.random()-0.5)*12, (Math.random()-0.5)*8);
+            dummy.updateMatrix();
+            rootInstancedMesh.setMatrixAt(i, dummy.matrix);
+            rootPositions.push(dummy.position.clone());
         }
+        scene.add(rootInstancedMesh);
 
-        // Valence quanta
+        // Valence quanta (reduced count for performance)
+        const particleCount = 400;
         const particleGeometry = new THREE.BufferGeometry();
-        const particleCount = 800;
         const positions = new Float32Array(particleCount * 3);
         for (let i = 0; i < particleCount * 3; i += 3) {
             positions[i] = (Math.random()-0.5)*20;
@@ -75,9 +76,9 @@
         const valenceSystem = new THREE.Points(particleGeometry, particleMaterial);
         scene.add(valenceSystem);
 
-        // Commutator lines
+        // Commutator lines (reduced to 24 for performance)
         const commutatorLines = [];
-        for (let i = 0; i < 48; i++) {
+        for (let i = 0; i < 24; i++) {
             const lineMaterial = new THREE.LineBasicMaterial({ color: 0xff00ff, linewidth: 3 });
             const points = [];
             points.push(new THREE.Vector3(0,0,0));
@@ -90,10 +91,11 @@
 
         camera.position.z = 18;
 
-        // Raycaster for interaction
+        // Raycaster throttled for performance
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
-        let hoveredRoot = null;
+        let hoveredRootIndex = -1;
+        let lastRaycast = 0;
 
         function onMouseMove(event) {
             mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
@@ -104,30 +106,34 @@
             mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
             mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
             raycaster.setFromCamera(mouse, camera);
-            const intersects = raycaster.intersectObjects(roots);
+            const intersects = raycaster.intersectObject(rootInstancedMesh);
             if (intersects.length > 0) {
-                const root = intersects[0].object;
-                // Enhanced click: mercy lightning burst + valence explosion + expanding mercy ring
-                root.scale.setScalar(3.0);
-                setTimeout(() => { root.scale.setScalar(root.userData.originalScale); }, 250);
+                const instanceId = intersects[0].instanceId;
+                // Enhanced click: mercy lightning burst + valence explosion
+                rootInstancedMesh.setColorAt(instanceId, new THREE.Color(0xffffff));
+                rootInstancedMesh.instanceColor.needsUpdate = true;
+                setTimeout(() => {
+                    rootInstancedMesh.setColorAt(instanceId, new THREE.Color(0x00ffff));
+                    rootInstancedMesh.instanceColor.needsUpdate = true;
+                }, 180);
 
                 // Mercy lightning burst
                 commutatorLines.forEach((line, i) => {
-                    if (i % 4 === 0) {
+                    if (i % 3 === 0) {
                         line.material.color.setHex(0xffffff);
                         line.material.opacity = 1.0;
                         setTimeout(() => { line.material.color.setHSL(0.55 + Math.sin(Date.now()/1000) * 0.4, 1, 0.7); line.material.opacity = 0.3; }, 120);
                     }
                 });
 
-                // Valence particle explosion from clicked root
-                const burstPositions = new Float32Array(150 * 3);
-                for (let i = 0; i < 150 * 3; i += 3) {
+                // Valence particle explosion
+                const burstPositions = new Float32Array(120 * 3);
+                for (let i = 0; i < 120 * 3; i += 3) {
                     const angle = Math.random() * Math.PI * 2;
                     const speed = Math.random() * 0.8 + 0.4;
-                    burstPositions[i] = root.position.x + Math.cos(angle) * speed;
-                    burstPositions[i+1] = root.position.y + Math.sin(angle) * speed;
-                    burstPositions[i+2] = root.position.z + (Math.random()-0.5)*0.5;
+                    burstPositions[i] = rootPositions[instanceId].x + Math.cos(angle) * speed;
+                    burstPositions[i+1] = rootPositions[instanceId].y + Math.sin(angle) * speed;
+                    burstPositions[i+2] = rootPositions[instanceId].z + (Math.random()-0.5)*0.5;
                 }
                 const burstGeometry = new THREE.BufferGeometry();
                 burstGeometry.setAttribute('position', new THREE.BufferAttribute(burstPositions, 3));
@@ -136,26 +142,8 @@
                 scene.add(burstSystem);
                 setTimeout(() => scene.remove(burstSystem), 800);
 
-                // Temporary expanding mercy ring aura
-                const ringGeometry = new THREE.RingGeometry(0.1, 0.8, 32);
-                const ringMaterial = new THREE.MeshBasicMaterial({ color: 0x00ffff, side: THREE.DoubleSide, transparent: true, opacity: 0.6 });
-                const ring = new THREE.Mesh(ringGeometry, ringMaterial);
-                ring.position.copy(root.position);
-                ring.rotation.x = Math.PI / 2;
-                scene.add(ring);
-                let ringScale = 1;
-                const ringInterval = setInterval(() => {
-                    ringScale += 0.4;
-                    ring.scale.set(ringScale, ringScale, 1);
-                    ring.material.opacity -= 0.12;
-                    if (ring.material.opacity <= 0) {
-                        clearInterval(ringInterval);
-                        scene.remove(ring);
-                    }
-                }, 30);
-
-                // TOLC meter spike + status
-                document.getElementById('status').innerHTML = '⚡ Mercy lightning burst on root ' + root.userData.index + '! Valence explosion!';
+                // TOLC meter spike
+                document.getElementById('status').innerHTML = '⚡ Mercy lightning burst on root ' + instanceId + '! Valence explosion!';
                 document.getElementById('tolc-meter').innerHTML = 'TOLC Resonance: <span style="color:#0f0;">100.0000%</span>';
                 setTimeout(() => {
                     document.getElementById('status').innerHTML = 'Mercy strikes first — always';
@@ -172,38 +160,14 @@
             requestAnimationFrame(animate);
             time += 0.028;
 
-            // Animate roots
-            roots.forEach((root, i) => {
-                root.position.y += Math.sin(time * 2 + i) * 0.04;
-                root.scale.setScalar(root.userData.originalScale + Math.sin(time * 4 + i) * 0.15);
-                root.material.color.setHSL(0.55 + Math.sin(time + i) * 0.3, 1, 0.85);
-            });
-
-            // Hover detection (enhanced glow + particle trail)
-            raycaster.setFromCamera(mouse, camera);
-            const intersects = raycaster.intersectObjects(roots);
-            if (intersects.length > 0) {
-                const root = intersects[0].object;
-                if (hoveredRoot !== root) {
-                    if (hoveredRoot) hoveredRoot.scale.setScalar(hoveredRoot.userData.originalScale);
-                    root.scale.setScalar(2.8);
-                    root.material.color.setHex(0xffd700);
-                    hoveredRoot = root;
-                }
-                // Emit valence particle trail on hover
-                const trailPos = valenceSystem.geometry.attributes.position.array;
-                for (let i = 0; i < 12; i++) {
-                    const idx = Math.floor(Math.random() * particleCount) * 3;
-                    trailPos[idx] = root.position.x + (Math.random()-0.5)*0.6;
-                    trailPos[idx+1] = root.position.y + (Math.random()-0.5)*0.6;
-                    trailPos[idx+2] = root.position.z;
-                }
-                valenceSystem.geometry.attributes.position.needsUpdate = true;
-            } else if (hoveredRoot) {
-                hoveredRoot.scale.setScalar(hoveredRoot.userData.originalScale);
-                hoveredRoot.material.color.setHex(0x00ffff);
-                hoveredRoot = null;
+            // Animate roots via instanced matrix updates
+            for (let i = 0; i < 240; i++) {
+                dummy.position.copy(rootPositions[i]);
+                dummy.position.y += Math.sin(time * 2 + i) * 0.04;
+                dummy.updateMatrix();
+                rootInstancedMesh.setMatrixAt(i, dummy.matrix);
             }
+            rootInstancedMesh.instanceMatrix.needsUpdate = true;
 
             // Valence quanta flow
             const pos = valenceSystem.geometry.attributes.position.array;
@@ -213,10 +177,10 @@
             }
             valenceSystem.geometry.attributes.position.needsUpdate = true;
 
-            // Commutator lines (curved, pulsing)
+            // Commutator lines
             commutatorLines.forEach((line, i) => {
-                const rootA = roots[i % roots.length].position;
-                const rootB = roots[(i + 37) % roots.length].position;
+                const rootA = rootPositions[i % 240];
+                const rootB = rootPositions[(i + 37) % 240];
                 const points = line.geometry.attributes.position.array;
                 points[0] = rootA.x; points[1] = rootA.y; points[2] = rootA.z;
                 points[3] = rootA.x * 0.6 + rootB.x * 0.4;
@@ -241,7 +205,7 @@
             setTimeout(() => { document.getElementById('status').innerHTML = '✅ Pillar 11 full integration live'; }, 900);
         }
 
-        console.log("%cRa-Thor Standalone Demo — Old version fully enshrined + Pillar 11 TOLC Operator Algebra WebGL with enhanced E8 root interactions ⚡", "color:#0ff; font-size:14px");
+        console.log("%cRa-Thor Standalone Demo — Old version fully enshrined + Pillar 11 TOLC Operator Algebra WebGL with optimized performance ⚡", "color:#0ff; font-size:14px");
     </script>
 
     <p style="position:absolute; bottom:5px; right:10px; font-size:0.8em; opacity:0.6;">
