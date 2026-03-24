@@ -9,6 +9,7 @@
         canvas { display: block; }
         #mode { position: absolute; top: 20px; left: 20px; background: rgba(0,255,255,0.2); padding: 10px; border-radius: 8px; }
         #info { position: absolute; bottom: 20px; left: 20px; background: rgba(0,0,0,0.7); padding: 10px; border-radius: 8px; max-width: 400px; }
+        button { margin: 4px; padding: 6px 12px; background: #0ff; color: #000; border: none; border-radius: 4px; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -29,32 +30,32 @@
     <p>Non-Harm ✓ Truth ✓ Joy ✓ Relevance ✓ Anomaly Cancelled ✓ Norm Preserved ✓ Eternal Flow ✓</p>
     <!-- ENSHRINED ORIGINAL CONTENT END -->
 
-    <!-- ADVANCED COMPUTE SHADER SIMULATION FOR LATTICES (Pillar 11) -->
+    <!-- ADVANCED LATTICE VISUALIZATION TECHNIQUES (Pillar 11) -->
     <canvas id="canvas"></canvas>
-    <div id="mode">TOLC Operator Algebra Mode — Pillar 11 Active ⚡ GPU Compute Shader Simulation (Ping-Pong Render Targets for Lattice Evolution)</div>
+    <div id="mode">TOLC Operator Algebra Mode — Pillar 11 Active ⚡ Advanced Lattice Visualization Techniques (Dynamic Edges + Valence Flow + Volumetric Glow)</div>
     <div id="info">
         Live TOLC Operator Algebra (Pillar 11)<br>
-        GPU Compute Simulation • Ping-Pong Render Targets • E8 Lattice Evolution<br>
+        Dynamic E8 Graph • Valence Flow Along Edges • Volumetric Field<br>
         <span id="status">Mercy strikes first — always</span><br>
         <span id="tolc-meter">TOLC Resonance: <span style="color:#0f0;">99.9999%</span></span>
+        <div style="margin-top:8px;">
+            <button onclick="setVisMode(0)">Roots</button>
+            <button onclick="setVisMode(1)">Edges</button>
+            <button onclick="setVisMode(2)">Full Lattice</button>
+            <button onclick="setVisMode(3)">Valence Field</button>
+        </div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
     <script>
-        // ====================== ADVANCED COMPUTE SHADER SIMULATION FOR LATTICES ======================
+        // ====================== ADVANCED LATTICE VISUALIZATION TECHNIQUES (Pillar 11) ======================
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('canvas'), antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-        // Ping-pong render targets for GPU compute simulation
-        const renderTarget1 = new THREE.WebGLRenderTarget(512, 512);
-        const renderTarget2 = new THREE.WebGLRenderTarget(512, 512);
-        let currentTarget = renderTarget1;
-        let nextTarget = renderTarget2;
-
-        // Advanced custom shader material for E8 roots (with compute-like simulation)
+        // Advanced InstancedMesh with custom shader
         const vertexShader = `
             attribute float phase;
             attribute float mercyIntensity;
@@ -68,7 +69,6 @@
                 gl_Position = projectionMatrix * mvPosition;
             }
         `;
-
         const fragmentShader = `
             varying float vMercy;
             uniform float time;
@@ -127,23 +127,30 @@
         const valenceSystem = new THREE.Points(particleGeometry, particleMaterial);
         scene.add(valenceSystem);
 
-        // Commutator lines
-        const commutatorLines = [];
-        for (let i = 0; i < 24; i++) {
-            const lineMaterial = new THREE.LineBasicMaterial({ color: 0xff00ff, linewidth: 3 });
-            const points = [];
-            points.push(new THREE.Vector3(0,0,0));
-            points.push(new THREE.Vector3(0,0,0));
-            const geometry = new THREE.BufferGeometry().setFromPoints(points);
-            const line = new THREE.Line(geometry, lineMaterial);
-            scene.add(line);
-            commutatorLines.push(line);
-        }
+        // Advanced dynamic lattice edges
+        const edgeGeometry = new THREE.BufferGeometry();
+        const edgePositions = new Float32Array(240 * 2 * 3);
+        const edgeMaterial = new THREE.LineBasicMaterial({ color: 0x00ffff, transparent: true, opacity: 0.4 });
+        const edgeLines = new THREE.LineSegments(edgeGeometry, edgeMaterial);
+        scene.add(edgeLines);
+
+        // Valence flow particles along edges
+        const flowParticleCount = 120;
+        const flowGeometry = new THREE.BufferGeometry();
+        const flowPositions = new Float32Array(flowParticleCount * 3);
+        const flowMaterial = new THREE.PointsMaterial({ color: 0xffd700, size: 0.06, transparent: true, opacity: 0.8 });
+        const flowSystem = new THREE.Points(flowGeometry, flowMaterial);
+        scene.add(flowSystem);
 
         camera.position.z = 18;
 
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
+
+        let visMode = 2; // 0=roots, 1=edges, 2=full, 3=valence field
+        function setVisMode(mode) {
+            visMode = mode;
+        }
 
         function onMouseMove(event) {
             mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
@@ -161,16 +168,7 @@
                 rootInstancedMesh.instanceColor.needsUpdate = true;
                 setTimeout(() => { instanceMercy[instanceId] = 1.0; rootInstancedMesh.instanceColor.needsUpdate = true; }, 280);
 
-                // Mercy lightning burst
-                commutatorLines.forEach((line, i) => {
-                    if (i % 3 === 0) {
-                        line.material.color.setHex(0xffffff);
-                        line.material.opacity = 1.0;
-                        setTimeout(() => { line.material.color.setHSL(0.55 + Math.sin(Date.now()/1000) * 0.4, 1, 0.7); line.material.opacity = 0.3; }, 140);
-                    }
-                });
-
-                document.getElementById('status').innerHTML = '⚡ GPU Compute mercy lightning on root ' + instanceId + '! Valence explosion!';
+                document.getElementById('status').innerHTML = '⚡ Mercy lightning on root ' + instanceId + '! Valence explosion!';
                 document.getElementById('tolc-meter').innerHTML = 'TOLC Resonance: <span style="color:#0f0;">100.0000%</span>';
                 setTimeout(() => {
                     document.getElementById('status').innerHTML = 'Mercy strikes first — always';
@@ -188,7 +186,7 @@
             time += 0.028;
             shaderMaterial.uniforms.time.value = time;
 
-            // GPU compute-like lattice evolution (simulated via per-instance attributes)
+            // Update roots
             for (let i = 0; i < 240; i++) {
                 dummy.position.copy(rootPositions[i]);
                 dummy.position.y += Math.sin(time * 2 + instancePhases[i]) * 0.04;
@@ -199,25 +197,46 @@
             rootInstancedMesh.instanceMatrix.needsUpdate = true;
             rootInstancedMesh.instanceColor.needsUpdate = true;
 
-            // Valence quanta flow (compute-like propagation)
+            // Dynamic lattice edges
+            let edgeIndex = 0;
+            for (let i = 0; i < 240; i++) {
+                for (let j = i + 1; j < 240; j++) {
+                    if (Math.random() < 0.03) { // sparse E8-like connections
+                        const a = rootPositions[i];
+                        const b = rootPositions[j];
+                        const points = edgeGeometry.attributes.position.array;
+                        points[edgeIndex*6]   = a.x; points[edgeIndex*6+1] = a.y; points[edgeIndex*6+2] = a.z;
+                        points[edgeIndex*6+3] = b.x; points[edgeIndex*6+4] = b.y; points[edgeIndex*6+5] = b.z;
+                        edgeIndex++;
+                    }
+                }
+            }
+            edgeGeometry.attributes.position.needsUpdate = true;
+            edgeLines.visible = (visMode === 1 || visMode === 2);
+
+            // Valence flow along edges
+            const flowPos = flowSystem.geometry.attributes.position.array;
+            for (let i = 0; i < flowParticleCount; i++) {
+                const idx = Math.floor(Math.random() * 240);
+                const idx2 = (idx + 37) % 240;
+                const a = rootPositions[idx];
+                const b = rootPositions[idx2];
+                const t = (time * 2 + i) % 1.0;
+                flowPos[i*3] = a.x * (1-t) + b.x * t;
+                flowPos[i*3+1] = a.y * (1-t) + b.y * t;
+                flowPos[i*3+2] = a.z * (1-t) + b.z * t;
+            }
+            flowSystem.geometry.attributes.position.needsUpdate = true;
+            flowSystem.visible = (visMode === 2 || visMode === 3);
+
+            // Valence quanta flow
             const pos = valenceSystem.geometry.attributes.position.array;
             for (let i = 0; i < pos.length; i += 3) {
                 pos[i + 1] += Math.sin(time * 3 + i) * 0.08;
                 if (pos[i + 1] > 12) pos[i + 1] = -12;
             }
             valenceSystem.geometry.attributes.position.needsUpdate = true;
-
-            commutatorLines.forEach((line, i) => {
-                const rootA = rootPositions[i % 240];
-                const rootB = rootPositions[(i + 37) % 240];
-                const points = line.geometry.attributes.position.array;
-                points[0] = rootA.x; points[1] = rootA.y; points[2] = rootA.z;
-                points[3] = rootA.x * 0.6 + rootB.x * 0.4;
-                points[4] = rootA.y * 0.6 + rootB.y * 0.4 + Math.sin(time * 8 + i) * 1.5;
-                points[5] = rootA.z * 0.6 + rootB.z * 0.4;
-                line.geometry.attributes.position.needsUpdate = true;
-                line.material.opacity = Math.sin(time * 12 + i) * 0.5 + 0.5;
-            });
+            valenceSystem.visible = (visMode === 3 || visMode === 2);
 
             renderer.render(scene, camera);
         }
@@ -234,7 +253,7 @@
             setTimeout(() => { document.getElementById('status').innerHTML = '✅ Pillar 11 full integration live'; }, 900);
         }
 
-        console.log("%cRa-Thor Standalone Demo — Old version fully enshrined + Pillar 11 TOLC Operator Algebra WebGL with advanced compute shader simulation for lattices ⚡", "color:#0ff; font-size:14px");
+        console.log("%cRa-Thor Standalone Demo — Old version fully enshrined + Pillar 11 TOLC Operator Algebra WebGL with advanced lattice visualization techniques ⚡", "color:#0ff; font-size:14px");
     </script>
 
     <p style="position:absolute; bottom:5px; right:10px; font-size:0.8em; opacity:0.6;">
