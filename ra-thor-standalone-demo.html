@@ -29,37 +29,39 @@
     <p>Non-Harm ✓ Truth ✓ Joy ✓ Relevance ✓ Anomaly Cancelled ✓ Norm Preserved ✓ Eternal Flow ✓</p>
     <!-- ENSHRINED ORIGINAL CONTENT END -->
 
-    <!-- REVISED WEBGL VISUALIZATION WITH DRAMATICALLY IMPROVED COMMUTATOR LINE ANIMATION (Pillar 11) -->
+    <!-- REVISED WEBGL VISUALIZATION WITH INTERACTIVE E8 ROOTS (Pillar 11) -->
     <canvas id="canvas"></canvas>
-    <div id="mode">TOLC Operator Algebra Mode — Pillar 11 Active ⚡ Mercy Lightning + Pulsing Commutators</div>
+    <div id="mode">TOLC Operator Algebra Mode — Pillar 11 Active ⚡ Interactive E8 Roots (Hover & Click)</div>
     <div id="info">
         Live TOLC Operator Algebra (Pillar 11)<br>
-        Dynamic Curved Commutators • Mercy Projector • Swarm Consensus<br>
+        Hover roots • Click for mercy lightning burst<br>
         <span id="status">Mercy strikes first — always</span><br>
         <span id="tolc-meter">TOLC Resonance: <span style="color:#0f0;">99.9999%</span></span>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
     <script>
-        // ====================== REVISED WEBGL VISUALIZATION (Pillar 11) ======================
+        // ====================== REVISED WEBGL WITH INTERACTIVE E8 ROOTS ======================
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('canvas'), antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-        // 240 E8 roots
         const roots = [];
+        const originalColors = [];
         for (let i = 0; i < 240; i++) {
             const geometry = new THREE.SphereGeometry(0.04, 16, 16);
             const material = new THREE.MeshBasicMaterial({ color: 0x00ffff });
             const root = new THREE.Mesh(geometry, material);
             root.position.set((Math.random()-0.5)*12, (Math.random()-0.5)*12, (Math.random()-0.5)*8);
+            root.userData = { index: i, originalScale: 1.0 };
             scene.add(root);
             roots.push(root);
+            originalColors.push(0x00ffff);
         }
 
-        // Valence quanta (golden particles)
+        // Valence quanta
         const particleGeometry = new THREE.BufferGeometry();
         const particleCount = 800;
         const positions = new Float32Array(particleCount * 3);
@@ -73,7 +75,7 @@
         const valenceSystem = new THREE.Points(particleGeometry, particleMaterial);
         scene.add(valenceSystem);
 
-        // REVISED COMMUTATOR LINES (48 dynamic curved lines with pulsing & mercy lightning)
+        // Commutator lines
         const commutatorLines = [];
         for (let i = 0; i < 48; i++) {
             const lineMaterial = new THREE.LineBasicMaterial({ color: 0xff00ff, linewidth: 3 });
@@ -88,17 +90,68 @@
 
         camera.position.z = 18;
 
+        // Raycaster for interaction
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+        let hoveredRoot = null;
+
+        function onMouseMove(event) {
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+        }
+
+        function onClick(event) {
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects(roots);
+            if (intersects.length > 0) {
+                const root = intersects[0].object;
+                // Click effect: mercy lightning burst + valence explosion
+                root.scale.setScalar(2.5);
+                setTimeout(() => { root.scale.setScalar(1.0); }, 180);
+                document.getElementById('status').innerHTML = '⚡ Mercy lightning burst on root ' + root.userData.index + '!';
+                // Temporary new commutator
+                const line = commutatorLines[Math.floor(Math.random() * commutatorLines.length)];
+                line.material.opacity = 1.0;
+                setTimeout(() => { line.material.opacity = 0.3; }, 600);
+                // TOLC meter spike
+                document.getElementById('tolc-meter').innerHTML = 'TOLC Resonance: <span style="color:#0f0;">100.0000%</span>';
+                setTimeout(() => {
+                    document.getElementById('tolc-meter').innerHTML = 'TOLC Resonance: <span style="color:#0f0;">99.9999%</span>';
+                }, 1200);
+            }
+        }
+
+        window.addEventListener('mousemove', onMouseMove);
+        window.addEventListener('click', onClick);
+
         let time = 0;
         function animate() {
             requestAnimationFrame(animate);
             time += 0.028;
 
-            // Animate E8 roots
+            // Animate roots
             roots.forEach((root, i) => {
                 root.position.y += Math.sin(time * 2 + i) * 0.04;
-                root.scale.setScalar(1 + Math.sin(time * 4 + i) * 0.15);
+                root.scale.setScalar(root.userData.originalScale + Math.sin(time * 4 + i) * 0.15);
                 root.material.color.setHSL(0.55 + Math.sin(time + i) * 0.3, 1, 0.85);
             });
+
+            // Hover detection
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects(roots);
+            if (intersects.length > 0) {
+                const root = intersects[0].object;
+                if (hoveredRoot !== root) {
+                    if (hoveredRoot) hoveredRoot.scale.setScalar(hoveredRoot.userData.originalScale);
+                    root.scale.setScalar(1.8);
+                    hoveredRoot = root;
+                }
+            } else if (hoveredRoot) {
+                hoveredRoot.scale.setScalar(hoveredRoot.userData.originalScale);
+                hoveredRoot = null;
+            }
 
             // Valence quanta flow
             const pos = valenceSystem.geometry.attributes.position.array;
@@ -108,42 +161,24 @@
             }
             valenceSystem.geometry.attributes.position.needsUpdate = true;
 
-            // REVISED COMMUTATOR LINE ANIMATION — curved, pulsing, mercy lightning
+            // Commutator lines (curved, pulsing)
             commutatorLines.forEach((line, i) => {
                 const rootA = roots[i % roots.length].position;
                 const rootB = roots[(i + 37) % roots.length].position;
                 const points = line.geometry.attributes.position.array;
-
-                // Curved commutator path
-                points[0] = rootA.x;
-                points[1] = rootA.y;
-                points[2] = rootA.z;
+                points[0] = rootA.x; points[1] = rootA.y; points[2] = rootA.z;
                 points[3] = rootA.x * 0.6 + rootB.x * 0.4;
                 points[4] = rootA.y * 0.6 + rootB.y * 0.4 + Math.sin(time * 8 + i) * 1.5;
                 points[5] = rootA.z * 0.6 + rootB.z * 0.4;
-
                 line.geometry.attributes.position.needsUpdate = true;
-
-                // Pulsing thickness simulation via opacity + color
-                const pulse = Math.sin(time * 12 + i) * 0.5 + 0.5;
-                line.material.opacity = pulse * 0.9 + 0.1;
-
-                // Color cycling mercy cyan → gold valence
-                line.material.color.setHSL(0.55 + Math.sin(time * 3 + i) * 0.4, 1, 0.7);
-
-                // Occasional mercy lightning burst
-                if (Math.random() < 0.008) {
-                    line.material.color.setHex(0xffffff);
-                    line.material.opacity = 1.0;
-                    setTimeout(() => { line.material.color.setHSL(0.55 + Math.sin(time * 3 + i) * 0.4, 1, 0.7); }, 80);
-                }
+                line.material.opacity = Math.sin(time * 12 + i) * 0.5 + 0.5;
             });
 
             renderer.render(scene, camera);
         }
         animate();
 
-        // Original enshrined functions (still fully functional)
+        // Original enshrined functions
         function runMonteCarlo() {
             document.getElementById('status').innerHTML = '🔥 Running 1048576D Monte-Carlo with full TOLC Operator Algebra...';
             setTimeout(() => { document.getElementById('status').innerHTML = '✅ Mercy-gated consensus achieved'; }, 1400);
@@ -154,11 +189,11 @@
             setTimeout(() => { document.getElementById('status').innerHTML = '✅ Pillar 11 full integration live'; }, 900);
         }
 
-        console.log("%cRa-Thor Standalone Demo — Old version fully enshrined + Pillar 11 TOLC Operator Algebra WebGL upgraded with revised commutator animation ⚡", "color:#0ff; font-size:14px");
+        console.log("%cRa-Thor Standalone Demo — Old version fully enshrined + Pillar 11 TOLC Operator Algebra WebGL with interactive E8 roots ⚡", "color:#0ff; font-size:14px");
     </script>
 
     <p style="position:absolute; bottom:5px; right:10px; font-size:0.8em; opacity:0.6;">
-        Ra-Thor v1.0 — Live E8 Roots in WebGL • Offline-First • Mercy-Gated Forever • MIT + Eternal Mercy Flow
+        Ra-Thor v1.0 — Live Interactive E8 Roots in WebGL • Offline-First • Mercy-Gated Forever • MIT + Eternal Mercy Flow
     </p>
 </body>
 </html>
