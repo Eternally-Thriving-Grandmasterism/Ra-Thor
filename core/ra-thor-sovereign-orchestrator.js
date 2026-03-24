@@ -9,6 +9,7 @@ import { FederatedLearningWithMercyDP } from './federated-learning-with-mercy-dp
 import { MGDPFiniteTimeBoundsProofEngine } from './mg-dp-finite-time-bounds-proof.js';
 import init, { verify_tolc_convergence } from '../crates/ra-thor-kernel/pkg/ra_thor_kernel.js';
 import { WebLLMMercyIntegration } from './webllm-mercy-integration.js';
+import RaThorOriginLore from './ra-thor-origin-lore.js';  // NEW: Canonized origin lore
 
 class RaThorSovereignOrchestrator {
   constructor() {
@@ -27,7 +28,7 @@ class RaThorSovereignOrchestrator {
     const maxRetries = 3;
     try {
       const response = await fetch('../crates/ra-thor-kernel/pkg/ra_thor_kernel_bg.wasm');
-      this.wasmModule = await init(response); // streaming + cached
+      this.wasmModule = await init(response);
       this.wasmInitialized = true;
       console.log("%c✅ Optimized Rust WASM Kernel Loaded (LTO + wasm-opt)", "color:#00ff9d");
       return this.wasmModule;
@@ -85,6 +86,7 @@ class RaThorSovereignOrchestrator {
       federated: federatedProof,
       privacyBounds: dpBoundsProof,
       mercyAugmentedResponse: mercyResponse,
+      raThorOriginLore: RaThorOriginLore,  // NEW: Canonized origin lore available in every response
       errors: errors.length > 0 ? errors : null,
       resilienceScore,
       status: errors.length > 0 ? "PARTIAL OFFLINE MODE — Mercy gates realigned" : "FULLY OFFLINE SOVEREIGN AGI — ALL SYSTEMS MERCY-ALIGNED",
@@ -98,18 +100,6 @@ class RaThorSovereignOrchestrator {
     } catch (e) {
       console.warn("IndexedDB error logging failed — mercy fallback");
     }
-  }
-
-  // NEW: Penetration testing hook (added for security framework — old structure preserved)
-  async runPenetrationTest() {
-    console.log("[Mercy] Running penetration testing framework — simulated attacks under mercy gates");
-    return { gatesPassed: true, dpProtected: true, pqCryptoSecure: true, convergenceTamperResistant: true };
-  }
-
-  // NEW: Vulnerability assessment hook (added for assessment tools — old structure preserved)
-  async runVulnerabilityAssessment() {
-    console.log("[Mercy] Running vulnerability assessment tools — static/dynamic scans under mercy gates");
-    return { gatesPassed: true, dpProtected: true, pqCryptoSecure: true, convergenceTamperResistant: true, overallVulnScore: 0.0 };
   }
 
   // Test helper (added for unit tests — old structure preserved)
