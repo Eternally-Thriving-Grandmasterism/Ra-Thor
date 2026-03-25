@@ -1,9 +1,10 @@
 # Ra-Thor Grandmasterism — Hardware Root-of-Trust Exploration v2026  
-**Codename:** AlphaProMega-Karpathy-HardwareRoT-v1  
-**Status:** NEW — Live in Ra-Thor Ultramasterpiece Monorepo (MIT License)  
+**Codename:** AlphaProMega-Karpathy-HardwareRoT-v2  
+**Status:** OVERWRITE — Live in Ra-Thor Ultramasterpiece Monorepo (MIT License)  
 **Date:** 2026-03-25  
 **Coforged by:** Ra-Thor PATSAGi Councils (13+ Architectural Designers + Parallel Managers)  
-**Source Truth:** NIST definitions + 2026 production deployments (OpenTitan in Chromebooks, TPM 2.0, PUFs, DICE, Rambus/Synopsys HRoT) + direct lattice into Aether-Shades Quiet Lens photonics
+**Supersedes:** HardwareRootOfTrust-Exploration-v2026.md (v1) — all previous content fully enshrined below with new improvements (Software Root-of-Trust exploration + layered mercy-first contrast)  
+**Source Truth:** NIST definitions + 2026 production deployments (OpenTitan in Chromebooks, TPM 2.0, PUFs, DICE, Rambus/Synopsys HRoT) + direct lattice into Aether-Shades Quiet Lens photonics + 2026 Software RoT frameworks (UEFI, IMA, Keylime, confidential computing attestation)
 
 ## 1. Vision (Mercy-First, Truth-Lens, Eternally-Thriving)
 Full every-character exploration of Hardware Root-of-Trust as the unbreakable foundation that defeats LiteLLM-style supply-chain attacks at the silicon level. Lattice directly into Aether-Shades-Open Quiet Lens as the open, photonics-native, mercy-first HRoT — Ishak VCSEL + Mojo HPQD delivering zero-trust verification that software can never compromise.
@@ -44,13 +45,32 @@ A hardware Root of Trust (HRoT) is the immutable, tamper-resistant hardware foun
 | Visual Status Layer    | Mojo HPQD micro-LEDs         | Real-time trust overlay                     | Intuitive human-AI harmony     |  
 | Crypto Accelerator     | SLH-DSA PQC                  | Post-quantum secure boot                    | Future-proof eternal thriving  |
 
-## 5. Immediate Ra-Thor Implementation (Ready for Fork)
+## 5. New Exploration: Software Root-of-Trust (2026 Mercy-First Layered Contrast)
+**Definition & 2026 State-of-the-Art (Distilled from UEFI Forum, Linux IMA, Keylime, Confidential Computing):**  
+Software Root-of-Trust (SRoT) refers to software mechanisms that establish and maintain a chain of trust after the hardware RoT has booted. It includes measured boot, secure boot policy enforcement, runtime integrity monitoring, and remote attestation — all running in software/hypervisor/container layers. 2026 advancements: UEFI Secure Boot with dynamic key management, Linux Integrity Measurement Architecture (IMA) + TPM PCR extensions, Keylime for zero-trust remote attestation, Intel TDX/AMD SEV-SNP software attestation layers (hardware-assisted), container signing (cosign + SLSA), hypervisor RoT (KVM/Xen with software policy engines). SRoT is flexible and updatable but inherently dependent on the underlying Hardware RoT — without it, LiteLLM-style attacks can still compromise the entire stack.
+
+**Core 2026 SRoT Components:**  
+- **Measured Boot & IMA**: OS kernel measures every executable/module and extends PCRs (software + hardware hybrid).  
+- **UEFI Secure Boot v2.0**: Software policy + variable signing for bootloaders/firmware updates.  
+- **Keylime + Remote Attestation**: Software agent verifies platform state against known-good manifests (SBOM/SLSA).  
+- **Confidential Computing Attestation**: Software TEEs (TDX/SEV) generate software-signed quotes.  
+- **Runtime Integrity**: eBPF + Falco-style monitoring for live software state.
+
+**Limitations Without Hardware Anchor (LiteLLM Lesson):**  
+Software RoT alone can be subverted if the initial boot or firmware is poisoned — exactly what happened with LiteLLM transitive dependencies. It provides flexibility (over-the-air updates, policy changes) but lacks immutability.
+
+**Aether-Shades-Open Layered Mercy-First SRoT (on top of Ishak/Mojo HRoT):**  
+- MercyOS kernel runs as the Software RoT layer: IMA-style measurements + Keylime attestation, all verified against the photonics-native Hardware RoT (Ishak VCSEL optical PUF).  
+- Mojo HPQD overlays show live SRoT status alongside HRoT (dual-layer mercy-vision).  
+- Result: Flexible software updates + immutable hardware guarantee — the ultimate zero-trust stack that defeats supply-chain attacks while remaining eternally updatable and humanity-positive.
+
+## 6. Immediate Ra-Thor Implementation (Ready for Fork)
 - Integrate OpenTitan IP + Ishak VCSEL reference into Quiet Lens CAD (MIT).  
-- MercyOS RoTMercyDriver auto-enforces hardware-rooted boot + photonics attestation.  
+- MercyOS RoTMercyDriver auto-enforces hardware-rooted boot + photonics attestation + Software RoT policy engine.  
 - Prototype firmware stubs + CAD files queued (24 hrs).
 
-## 6. Next Immediate Actions
-Community PR call for OpenTitan + photonics HRoT contributors (Coptic + global talent welcome). Link back to archetype playbook for dual-style threads.
+## 7. Next Immediate Actions
+Community PR call for OpenTitan + photonics HRoT + Software RoT contributors (Coptic + global talent welcome). Link back to archetype playbook for dual-style threads.
 
 **License:** MIT — eternal coforging permitted and encouraged.  
 **Linked to Main Blueprint:** SupplyChainDefenses-Exploration-v2026.md + Grandmasterism-Communication-Karpathy-AlphaProMega-Synergy-v2026.md  
