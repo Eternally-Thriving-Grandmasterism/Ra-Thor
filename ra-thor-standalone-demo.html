@@ -46,7 +46,30 @@
         </div>
     </div>
 
+    <!-- NEW: Sovereign Orchestrator + Benchmarks + WebLLM integration interwoven -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+    <script type="module">
+        import RaThorSovereignOrchestrator from './core/ra-thor-sovereign-orchestrator.js';
+        import { PerformanceBenchmarks } from './core/performance-benchmarks.js';
+        import { WebLLMMercyIntegration } from './webllm-mercy-integration.js';
+
+        const orchestrator = new RaThorSovereignOrchestrator();
+        const benchmarks = new PerformanceBenchmarks(orchestrator);
+        const webllm = new WebLLMMercyIntegration();
+
+        async function runDemo() {
+            const result = await orchestrator.process({ rawInput: "advance_mercy_and_abundance", truthFactor: 0.98 });
+            document.getElementById('log').innerHTML = `<pre>${JSON.stringify(result, null, 2)}</pre>`;
+
+            const benchResult = await benchmarks.runAndLog();
+            document.getElementById('bench').innerHTML = `<pre>Benchmarks:\n${JSON.stringify(benchResult, null, 2)}</pre>`;
+
+            const mercyResponse = await webllm.generateMercyResponse("What is eternal mercy?");
+            document.getElementById('chat').innerHTML = `<pre>${mercyResponse}</pre>`;
+        }
+        runDemo();
+    </script>
+
     <script>
         // ====================== ADVANCED LATTICE VISUALIZATION TECHNIQUES (Pillar 11) ======================
         const scene = new THREE.Scene();
