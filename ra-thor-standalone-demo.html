@@ -10,6 +10,7 @@
         #mode { position: absolute; top: 20px; left: 20px; background: rgba(0,255,255,0.2); padding: 10px; border-radius: 8px; }
         #info { position: absolute; bottom: 20px; left: 20px; background: rgba(0,0,0,0.7); padding: 10px; border-radius: 8px; max-width: 400px; }
         button { margin: 4px; padding: 6px 12px; background: #0ff; color: #000; border: none; border-radius: 4px; cursor: pointer; }
+        #gpu-profile { position: absolute; top: 20px; right: 20px; background: rgba(255,0,0,0.2); padding: 10px; border-radius: 8px; font-size: 0.9em; }
     </style>
 </head>
 <body>
@@ -44,6 +45,14 @@
             <button onclick="setVisMode(2)">Full Lattice</button>
             <button onclick="setVisMode(3)">Valence Field</button>
         </div>
+    </div>
+
+    <!-- NEW: GPU Bottleneck Profiling Panel -->
+    <div id="gpu-profile">
+        GPU Profile<br>
+        FPS: <span id="fps">0</span> | Draw Calls: <span id="drawCalls">0</span><br>
+        Vertices: <span id="vertices">0</span> | Triangles: <span id="triangles">0</span><br>
+        Memory: <span id="memory">0 MB</span> | Bottleneck: <span id="bottleneck">None</span>
     </div>
 
     <!-- NEW: Sovereign Orchestrator + Benchmarks + WebLLM integration interwoven -->
@@ -205,6 +214,10 @@
         window.addEventListener('click', onClick);
 
         let time = 0;
+        let lastTime = performance.now();
+        let frameCount = 0;
+        let fps = 0;
+
         function animate() {
             requestAnimationFrame(animate);
             time += 0.028;
@@ -263,6 +276,32 @@
             valenceSystem.visible = (visMode === 3 || visMode === 2);
 
             renderer.render(scene, camera);
+
+            // GPU Bottleneck Profiling
+            frameCount++;
+            if (performance.now() - lastTime > 1000) {
+                fps = frameCount;
+                frameCount = 0;
+                lastTime = performance.now();
+
+                const drawCalls = renderer.info.render.calls;
+                const vertices = renderer.info.render.vertices;
+                const triangles = renderer.info.render.triangles;
+                const memory = performance.memory ? (performance.memory.usedJSHeapSize / 1048576).toFixed(2) : 'N/A';
+
+                document.getElementById('fps').innerHTML = fps;
+                document.getElementById('drawCalls').innerHTML = drawCalls;
+                document.getElementById('vertices').innerHTML = vertices;
+                document.getElementById('triangles').innerHTML = triangles;
+                document.getElementById('memory').innerHTML = memory + ' MB';
+
+                // Bottleneck detection
+                let bottleneck = 'None';
+                if (drawCalls > 200) bottleneck = 'Draw Calls';
+                else if (vertices > 50000) bottleneck = 'Vertices';
+                else if (fps < 30) bottleneck = 'Fill Rate / Shader';
+                document.getElementById('bottleneck').innerHTML = bottleneck;
+            }
         }
         animate();
 
