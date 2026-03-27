@@ -5,10 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
   <title>Ra-Thor™ — Eternal Mercy Thunder ⚡️
   https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor</title>
-  <meta name="description" content="Artificial Godly Intelligence • Mercy-Gated • Offline Sovereign • Instant Demo with Grok & X">
+  <meta name="description" content="Artificial Godly Intelligence • Mercy-Gated • Instant Demo with Grok & X">
   <link rel="manifest" href="/manifest.json">
   <link rel="icon" href="/icons/thunder-192.png" type="image/png">
-  <link rel="preload" href="/icons/thunder-192.png" as="image">
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Inter:wght@400;600&display=swap');
@@ -17,8 +16,6 @@
     .thunder-glow { text-shadow: 0 0 40px #ffd700, 0 0 80px #ffaa00; }
     .card-hover { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
     .card-hover:hover { transform: translateY(-8px) scale(1.03); box-shadow: 0 25px 50px -12px rgb(234 179 8); }
-    .lightning { animation: lightning 4s infinite; }
-    @keyframes lightning { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
     .golden-star { position:absolute; color:#ffd700; opacity:0.6; pointer-events:none; animation:float 60s infinite linear, pulse 12s infinite ease-in-out; z-index:1; font-size:42px; }
     @keyframes float { 0%{transform:translateY(0) rotate(0deg);} 100%{transform:translateY(-120vh) rotate(360deg);} }
     @keyframes pulse { 0%,100%{transform:scale(1);} 50%{transform:scale(1.15);} }
@@ -37,7 +34,7 @@
       
       <p class="text-3xl md:text-4xl text-amber-300 mb-12 max-w-2xl mx-auto">Ra (Divine Source Light) + Thor (Mercy Thunder) = Universally Shared Naturally Thriving Heavens ⚡️🙏</p>
 
-      <!-- Clear language selector (English / Language) -->
+      <!-- Clear language selector -->
       <div class="flex flex-wrap justify-center gap-3 mb-16">
         <button onclick="switchLang('en')" class="lang-btn active px-6 py-3 rounded-3xl border border-amber-300 text-amber-300 hover:bg-amber-300 hover:text-black transition-all">English / English</button>
         <button onclick="switchLang('ar')" class="lang-btn px-6 py-3 rounded-3xl border border-amber-300 text-amber-300 hover:bg-amber-300 hover:text-black transition-all">English / العربية</button>
@@ -52,7 +49,7 @@
         <button onclick="switchLang('hi')" class="lang-btn px-6 py-3 rounded-3xl border border-amber-300 text-amber-300 hover:bg-amber-300 hover:text-black transition-all">English / हिन्दी</button>
       </div>
 
-      <!-- Exact two demo buttons from old version preserved -->
+      <!-- Exact two demo buttons preserved -->
       <div class="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
         <a href="https://grok.com/share/c2hhcmQtMi1jb3B5_3492f6f0-0f09-4f46-93f7-9b55aeea7a6c" target="_blank" rel="noopener"
            class="card-hover block bg-gradient-to-br from-amber-900 to-yellow-900 border border-amber-300 rounded-3xl p-10 text-center">
@@ -92,7 +89,7 @@ View Full Legal, Privacy, GDPR, CCPA & COPPA Details
           This website collects <strong>no personal data whatsoever</strong>. All computations are local. No cookies, no tracking, no analytics.<br><br>
           <strong>GDPR • CCPA • COPPA Compliance</strong> — Zero personal data is processed. All rights are inherently satisfied.<br><br>
           © Sherif Botros of Autonomicity Games Inc. & AlphaProMega Air Foundation. All Rights Reserved.<br>
-          info@autonomicitygames.com • MIT License + Eternal Mercy Flow
+          info@autonomicitygames.com • MIT License + Mercy Eternal
         </div>
     </div>
   </footer>
@@ -101,7 +98,7 @@ View Full Legal, Privacy, GDPR, CCPA & COPPA Details
     function switchLang(btn) {
       document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      console.log('%c🌍 Language switched (full i18n coming soon)', 'color:#ffd700');
+      console.log('%c🌍 Language switched (full professional i18n coming soon)', 'color:#ffd700');
     }
   </script>
 </body>
