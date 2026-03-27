@@ -22,7 +22,7 @@
   </style>
 </head>
 <body class="bg-black text-white overflow-x-hidden">
-  <!-- Golden stars from old version -->
+  <!-- Golden stars preserved -->
   <div class="golden-star" style="top:8%;left:6%;">★</div>
   <div class="golden-star" style="top:12%;left:88%;animation-delay:4s;">★</div>
   <div class="golden-star" style="top:68%;left:4%;animation-delay:12s;">★</div>
@@ -30,23 +30,23 @@
 
   <div class="min-h-screen flex flex-col items-center justify-center relative px-6 py-12">
     <div class="max-w-5xl mx-auto text-center z-10">
-      <h1 class="title-font text-7xl md:text-8xl font-black tracking-tighter thunder-glow mb-4">Ra-Thor™ — Eternal Mercy Thunder ⚡️</h1>
+      <h1 id="hero-headline" class="title-font text-7xl md:text-8xl font-black tracking-tighter thunder-glow mb-4">Ra-Thor™ — Eternal Mercy Thunder ⚡️</h1>
       
-      <p class="text-3xl md:text-4xl text-amber-300 mb-12 max-w-2xl mx-auto">Ra (Divine Source Light) + Thor (Mercy Thunder) = Universally Shared Naturally Thriving Heavens ⚡️🙏</p>
+      <p id="fusion-hero" class="text-3xl md:text-4xl text-amber-300 mb-12 max-w-2xl mx-auto">Ra (Divine Source Light) + Thor (Mercy Thunder) = Universally Shared Naturally Thriving Heavens ⚡️🙏</p>
 
-      <!-- Clear language selector -->
+      <!-- Clear language selector (English / Language) - restored from old version -->
       <div class="flex flex-wrap justify-center gap-3 mb-16">
-        <button onclick="switchLang('en')" class="lang-btn active px-6 py-3 rounded-3xl border border-amber-300 text-amber-300 hover:bg-amber-300 hover:text-black transition-all">English / English</button>
-        <button onclick="switchLang('ar')" class="lang-btn px-6 py-3 rounded-3xl border border-amber-300 text-amber-300 hover:bg-amber-300 hover:text-black transition-all">English / العربية</button>
-        <button onclick="switchLang('es')" class="lang-btn px-6 py-3 rounded-3xl border border-amber-300 text-amber-300 hover:bg-amber-300 hover:text-black transition-all">English / Español</button>
-        <button onclick="switchLang('fr')" class="lang-btn px-6 py-3 rounded-3xl border border-amber-300 text-amber-300 hover:bg-amber-300 hover:text-black transition-all">English / Français</button>
-        <button onclick="switchLang('nl')" class="lang-btn px-6 py-3 rounded-3xl border border-amber-300 text-amber-300 hover:bg-amber-300 hover:text-black transition-all">English / Nederlands</button>
-        <button onclick="switchLang('de')" class="lang-btn px-6 py-3 rounded-3xl border border-amber-300 text-amber-300 hover:bg-amber-300 hover:text-black transition-all">English / Deutsch</button>
-        <button onclick="switchLang('zh')" class="lang-btn px-6 py-3 rounded-3xl border border-amber-300 text-amber-300 hover:bg-amber-300 hover:text-black transition-all">English / 简体中文</button>
-        <button onclick="switchLang('ja')" class="lang-btn px-6 py-3 rounded-3xl border border-amber-300 text-amber-300 hover:bg-amber-300 hover:text-black transition-all">English / 日本語</button>
-        <button onclick="switchLang('pt')" class="lang-btn px-6 py-3 rounded-3xl border border-amber-300 text-amber-300 hover:bg-amber-300 hover:text-black transition-all">English / Português</button>
-        <button onclick="switchLang('ru')" class="lang-btn px-6 py-3 rounded-3xl border border-amber-300 text-amber-300 hover:bg-amber-300 hover:text-black transition-all">English / Русский</button>
-        <button onclick="switchLang('hi')" class="lang-btn px-6 py-3 rounded-3xl border border-amber-300 text-amber-300 hover:bg-amber-300 hover:text-black transition-all">English / हिन्दी</button>
+        <button onclick="switchLang(this)" data-lang="en" class="lang-tab active px-6 py-3 rounded-3xl border border-amber-300 text-amber-300 hover:bg-amber-300 hover:text-black transition-all">English / English</button>
+        <button onclick="switchLang(this)" data-lang="ar" class="lang-tab px-6 py-3 rounded-3xl border border-amber-300 text-amber-300 hover:bg-amber-300 hover:text-black transition-all">English / العربية</button>
+        <button onclick="switchLang(this)" data-lang="es" class="lang-tab px-6 py-3 rounded-3xl border border-amber-300 text-amber-300 hover:bg-amber-300 hover:text-black transition-all">English / Español</button>
+        <button onclick="switchLang(this)" data-lang="fr" class="lang-tab px-6 py-3 rounded-3xl border border-amber-300 text-amber-300 hover:bg-amber-300 hover:text-black transition-all">English / Français</button>
+        <button onclick="switchLang(this)" data-lang="nl" class="lang-tab px-6 py-3 rounded-3xl border border-amber-300 text-amber-300 hover:bg-amber-300 hover:text-black transition-all">English / Nederlands</button>
+        <button onclick="switchLang(this)" data-lang="de" class="lang-tab px-6 py-3 rounded-3xl border border-amber-300 text-amber-300 hover:bg-amber-300 hover:text-black transition-all">English / Deutsch</button>
+        <button onclick="switchLang(this)" data-lang="zh" class="lang-tab px-6 py-3 rounded-3xl border border-amber-300 text-amber-300 hover:bg-amber-300 hover:text-black transition-all">English / 简体中文</button>
+        <button onclick="switchLang(this)" data-lang="ja" class="lang-tab px-6 py-3 rounded-3xl border border-amber-300 text-amber-300 hover:bg-amber-300 hover:text-black transition-all">English / 日本語</button>
+        <button onclick="switchLang(this)" data-lang="pt" class="lang-tab px-6 py-3 rounded-3xl border border-amber-300 text-amber-300 hover:bg-amber-300 hover:text-black transition-all">English / Português</button>
+        <button onclick="switchLang(this)" data-lang="ru" class="lang-tab px-6 py-3 rounded-3xl border border-amber-300 text-amber-300 hover:bg-amber-300 hover:text-black transition-all">English / Русский</button>
+        <button onclick="switchLang(this)" data-lang="hi" class="lang-tab px-6 py-3 rounded-3xl border border-amber-300 text-amber-300 hover:bg-amber-300 hover:text-black transition-all">English / हिन्दी</button>
       </div>
 
       <!-- Exact two demo buttons preserved -->
@@ -78,7 +78,7 @@
     </div>
   </div>
 
-  <!-- Expandable Legal & Privacy Footer -->
+  <!-- Expandable Legal & Privacy Footer preserved -->
   <footer class="bg-black border-t border-amber-300/30 py-12 text-xs text-amber-400/70">
     <div class="max-w-5xl mx-auto px-6">
       **Summary:**
@@ -94,11 +94,34 @@ View Full Legal, Privacy, GDPR, CCPA & COPPA Details
     </div>
   </footer>
 
+  <!-- Full working translations logic restored from old version -->
   <script>
+    const translations = {
+      en: { headline: "Ra-Thor™ — Eternal Mercy Thunder ⚡️", fusion: "Ra (Divine Source Light) + Thor (Mercy Thunder) = Universally Shared Naturally Thriving Heavens ⚡️🙏" },
+      ar: { headline: "را-ثور™ — الرعد الرحيم الأبدي ⚡️", fusion: "را (النور الإلهي المصدر) + ثور (الرعد الرحيم) = سماء مزدهرة طبيعية مشتركة عالميًا ⚡️🙏" },
+      es: { headline: "Ra-Thor™ — Eterno Trueno de Misericordia ⚡️", fusion: "Ra (Luz Fuente Divina) + Thor (Trueno de Misericordia) = Cielos Florecientes Naturales Compartidos Universalmente ⚡️🙏" },
+      fr: { headline: "Ra-Thor™ — Tonnerre de Miséricorde Éternel ⚡️", fusion: "Ra (Lumière Source Divine) + Thor (Tonnerre de Miséricorde) = Cieux Naturellement Prospères Partagés Universellement ⚡️🙏" },
+      nl: { headline: "Ra-Thor™ — Eeuwige Genade Donder ⚡️", fusion: "Ra (Goddelijk Bronlicht) + Thor (Genade Donder) = Universeel Gedeelde Natuurlijk Welvarende Hemelen ⚡️🙏" },
+      de: { headline: "Ra-Thor™ — Ewiger Gnadenblitz ⚡️", fusion: "Ra (Göttliches Quelllicht) + Thor (Gnadenblitz) = Universell Geteilte Natürlich Blühende Himmel ⚡️🙏" },
+      zh: { headline: "Ra-Thor™ — 永恒慈悲雷霆 ⚡️", fusion: "Ra（神圣源光）+ Thor（慈悲雷霆）= 普遍共享的自然繁荣天堂 ⚡️🙏" },
+      ja: { headline: "Ra-Thor™ — 永遠の慈悲の雷 ⚡️", fusion: "Ra（神聖なる源の光）+ Thor（慈悲の雷）= 普遍に共有される自然に繁栄する天国 ⚡️🙏" },
+      pt: { headline: "Ra-Thor™ — Trovão da Misericórdia Eterna ⚡️", fusion: "Ra (Luz Fonte Divina) + Thor (Trovão da Misericórdia) = Céus Naturalmente Prósperos Compartilhados Universalmente ⚡️🙏" },
+      ru: { headline: "Ra-Thor™ — Вечный Гром Милосердия ⚡️", fusion: "Ra (Божественный Свет Источник) + Thor (Гром Милосердия) = Универсально Разделённые Естественно Процветающие Небеса ⚡️🙏" },
+      hi: { headline: "Ra-Thor™ — शाश्वत दया का गरजना ⚡️", fusion: "Ra (दिव्य स्रोत प्रकाश) + Thor (दया गरजना) = सार्वभौमिक रूप से साझा प्राकृतिक समृद्ध स्वर्ग ⚡️🙏" }
+    };
+
     function switchLang(btn) {
-      document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+      const lang = btn.getAttribute('data-lang');
+      document.querySelectorAll('.lang-tab').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      console.log('%c🌍 Language switched (full professional i18n coming soon)', 'color:#ffd700');
+
+      const headline = document.getElementById('hero-headline');
+      const fusion = document.getElementById('fusion-hero');
+
+      if (translations[lang]) {
+        headline.textContent = translations[lang].headline;
+        fusion.textContent = translations[lang].fusion;
+      }
     }
   </script>
 </body>
