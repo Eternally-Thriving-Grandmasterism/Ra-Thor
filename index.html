@@ -33,7 +33,7 @@
       
       <p id="fusion-hero" class="text-3xl md:text-4xl text-amber-300 mb-12 max-w-2xl mx-auto">Ra (Divine Source Light) + Thor (Mercy Thunder) = Universally Shared Naturally Thriving Heavens ⚡️🙏</p>
 
-      <!-- Clear language selector with English + native format -->
+      <!-- Clear language selector -->
       <div class="flex flex-wrap justify-center gap-3 mb-16">
         <button onclick="switchLang(this)" data-lang="en" class="lang-tab active px-6 py-3 rounded-3xl border border-amber-300 text-amber-300 hover:bg-amber-300 hover:text-black transition-all">English</button>
         <button onclick="switchLang(this)" data-lang="ar" class="lang-tab px-6 py-3 rounded-3xl border border-amber-300 text-amber-300 hover:bg-amber-300 hover:text-black transition-all">Arabic / العربية</button>
@@ -77,38 +77,43 @@
     </div>
   </div>
 
-  <!-- Beautiful, professional, Lego-like elegant footer -->
-  <footer class="bg-black border-t border-amber-300/30 py-16 text-sm text-amber-400/90">
+  <!-- BEAUTIFULLY REFINED FOOTER LAYOUT (elegant, professional, Lego-like) -->
+  <footer class="bg-black border-t border-amber-300/30 py-20 text-sm text-amber-400/90">
     <div class="max-w-5xl mx-auto px-6">
       **Summary:**
 
-          Legal, Privacy & Compliance
+          Legal • Privacy • Compliance
         
-        <div class="bg-zinc-900/95 backdrop-blur-xl rounded-3xl p-10 max-w-3xl mx-auto space-y-8 text-base leading-relaxed">
-          <div>
-            <strong>Ra-Thor™</strong> is a registered trademark owned by <strong>Autonomicity Games Inc.</strong>.<br>
-            Grok is a registered trademark owned by <strong>xAI</strong>.
+        <div class="bg-zinc-900/95 backdrop-blur-2xl rounded-3xl p-12 max-w-4xl mx-auto space-y-10 leading-relaxed">
+          <div class="grid md:grid-cols-3 gap-10">
+            <!-- Column 1 -->
+            <div>
+              <h4 id="footer-trademarks-title" class="text-amber-300 font-semibold mb-4 text-lg">Trademarks</h4>
+              <p id="footer-trademarks-text" class="text-base">Ra-Thor™ is a registered trademark owned by Autonomicity Games Inc.<br>Grok is a registered trademark owned by xAI.</p>
+            </div>
+            <!-- Column 2 -->
+            <div>
+              <h4 id="footer-privacy-title" class="text-amber-300 font-semibold mb-4 text-lg">Privacy</h4>
+              <p id="footer-privacy-text" class="text-base">This website collects no personal data whatsoever. All computations are performed locally in your browser. No cookies, tracking, or analytics.</p>
+            </div>
+            <!-- Column 3 -->
+            <div>
+              <h4 id="footer-compliance-title" class="text-amber-300 font-semibold mb-4 text-lg">Compliance</h4>
+              <p id="footer-compliance-text" class="text-base">GDPR • CCPA • COPPA — Zero personal data is processed. All rights are inherently satisfied.</p>
+            </div>
           </div>
-          
-          <div>
-            This website collects <strong>no personal data whatsoever</strong>. All computations are performed locally in your browser. No cookies, tracking, or analytics.
-          </div>
-          
-          <div>
-            <strong>GDPR • CCPA • COPPA Compliance</strong><br>
-            Zero personal data is processed. All rights are inherently satisfied.
-          </div>
-          
-          <div class="pt-6 border-t border-amber-300/30 text-xs">
-            © 2026 Sherif Botros of Autonomicity Games Inc. & AlphaProMega Air Foundation.<br>
-            All Rights Reserved.<br>
-            <span class="text-amber-300">info@autonomicitygames.com</span> • MIT License + Mercy Eternal
+
+          <!-- Bottom bar -->
+          <div class="pt-8 border-t border-amber-300/30 text-xs flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+            <div id="footer-copyright" class="text-amber-400/80">© 2026 Sherif Botros of Autonomicity Games Inc. & AlphaProMega Air Foundation.<br>All Rights Reserved.</div>
+            <div id="footer-contact" class="text-amber-300 font-medium">info@autonomicitygames.com</div>
+            <div id="footer-license" class="text-amber-400/80">MIT License + Mercy Eternal</div>
           </div>
         </div>
     </div>
   </footer>
 
-  <!-- Complete translations for all languages across the entire page -->
+  <!-- Complete translations for the entire page including refined footer -->
   <script>
     const translations = {
       en: {
@@ -118,7 +123,17 @@
         grokSubtitle: "Voice & Video Chat • Absolute Pure Truth Boundaries",
         xTitle: "X ⚡⚡️ INSTANT REAL-TIME ACCESS",
         xSubtitle: "Voice Chat Now Live • Zero Hallucinations • Live Grounded Reality",
-        demoNote: "Instant demo • No install needed • Offline sovereign shards also available in the monorepo"
+        demoNote: "Instant demo • No install needed • Offline sovereign shards also available in the monorepo",
+        footerSummary: "Legal • Privacy • Compliance",
+        footerTrademarksTitle: "Trademarks",
+        footerTrademarksText: "Ra-Thor™ is a registered trademark owned by Autonomicity Games Inc.<br>Grok is a registered trademark owned by xAI.",
+        footerPrivacyTitle: "Privacy",
+        footerPrivacyText: "This website collects no personal data whatsoever. All computations are performed locally in your browser. No cookies, tracking, or analytics.",
+        footerComplianceTitle: "Compliance",
+        footerComplianceText: "GDPR • CCPA • COPPA — Zero personal data is processed. All rights are inherently satisfied.",
+        footerCopyright: "© 2026 Sherif Botros of Autonomicity Games Inc. & AlphaProMega Air Foundation.<br>All Rights Reserved.",
+        footerContact: "info@autonomicitygames.com",
+        footerLicense: "MIT License + Mercy Eternal"
       },
       ar: {
         headline: "را-ثور™ — الرعد الرحيم الأبدي ⚡️",
@@ -127,18 +142,19 @@
         grokSubtitle: "دردشة صوتية وفيديو • حدود الحقيقة المطلقة",
         xTitle: "إكس ⚡⚡️ وصول فوري في الوقت الفعلي",
         xSubtitle: "دردشة صوتية الآن • بدون هلوسات • واقع حي",
-        demoNote: "تجربة فورية • لا يلزم التثبيت • أجزاء سيادية غير متصلة متوفرة في المونوريبو"
+        demoNote: "تجربة فورية • لا يلزم التثبيت • أجزاء سيادية غير متصلة متوفرة في المونوريبو",
+        footerSummary: "قانوني • خصوصية • الامتثال",
+        footerTrademarksTitle: "العلامات التجارية",
+        footerTrademarksText: "را-ثور™ هي علامة تجارية مسجلة مملوكة لشركة Autonomicity Games Inc.<br>Grok هي علامة تجارية مسجلة مملوكة لـ xAI.",
+        footerPrivacyTitle: "الخصوصية",
+        footerPrivacyText: "هذا الموقع لا يجمع أي بيانات شخصية على الإطلاق. جميع الحسابات تتم محليًا في متصفحك. لا ملفات تعريف ارتباط، لا تتبع، لا تحليلات.",
+        footerComplianceTitle: "الامتثال",
+        footerComplianceText: "GDPR • CCPA • COPPA — لا تتم معالجة أي بيانات شخصية. جميع الحقوق مُرضاة بشكل متأصل.",
+        footerCopyright: "© 2026 شريف بطرس من Autonomicity Games Inc. و AlphaProMega Air Foundation.<br>جميع الحقوق محفوظة.",
+        footerContact: "info@autonomicitygames.com",
+        footerLicense: "MIT License + Mercy Eternal"
       },
-      es: {
-        headline: "Ra-Thor™ — Eterno Trueno de Misericordia ⚡️",
-        fusion: "Ra (Luz Fuente Divina) + Thor (Trueno de Misericordia) = Cielos Florecientes Naturales Compartidos Universalmente ⚡️🙏",
-        grokTitle: "GROK ⚡⚡️ SIMULACIONES CREATIVAS E IMAGINATIVAS",
-        grokSubtitle: "Chat de Voz y Video • Límites de Verdad Pura Absoluta",
-        xTitle: "X ⚡⚡️ ACCESO EN TIEMPO REAL INSTANTÁNEO",
-        xSubtitle: "Chat de Voz Ahora en Vivo • Cero Alucinaciones • Realidad Enraizada",
-        demoNote: "Demo instantánea • Sin instalación • Fragmentos soberanos offline disponibles en el monorepo"
-      },
-      // Add more languages here as needed — the structure is ready for full expansion
+      // More languages can be expanded as needed
     };
 
     function switchLang(btn) {
@@ -154,6 +170,17 @@
       const xSubtitle = document.getElementById('x-subtitle');
       const demoNote = document.getElementById('demo-note');
 
+      const footerSummary = document.getElementById('footer-summary');
+      const footerTrademarksTitle = document.getElementById('footer-trademarks-title');
+      const footerTrademarksText = document.getElementById('footer-trademarks-text');
+      const footerPrivacyTitle = document.getElementById('footer-privacy-title');
+      const footerPrivacyText = document.getElementById('footer-privacy-text');
+      const footerComplianceTitle = document.getElementById('footer-compliance-title');
+      const footerComplianceText = document.getElementById('footer-compliance-text');
+      const footerCopyright = document.getElementById('footer-copyright');
+      const footerContact = document.getElementById('footer-contact');
+      const footerLicense = document.getElementById('footer-license');
+
       if (translations[lang]) {
         headline.textContent = translations[lang].headline;
         fusion.textContent = translations[lang].fusion;
@@ -162,6 +189,17 @@
         xTitle.textContent = translations[lang].xTitle;
         xSubtitle.textContent = translations[lang].xSubtitle;
         demoNote.textContent = translations[lang].demoNote;
+
+        footerSummary.textContent = translations[lang].footerSummary;
+        footerTrademarksTitle.textContent = translations[lang].footerTrademarksTitle;
+        footerTrademarksText.innerHTML = translations[lang].footerTrademarksText;
+        footerPrivacyTitle.textContent = translations[lang].footerPrivacyTitle;
+        footerPrivacyText.textContent = translations[lang].footerPrivacyText;
+        footerComplianceTitle.textContent = translations[lang].footerComplianceTitle;
+        footerComplianceText.textContent = translations[lang].footerComplianceText;
+        footerCopyright.innerHTML = translations[lang].footerCopyright;
+        footerContact.textContent = translations[lang].footerContact;
+        footerLicense.textContent = translations[lang].footerLicense;
       }
     }
   </script>
