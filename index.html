@@ -77,43 +77,36 @@
     </div>
   </div>
 
-  <!-- BEAUTIFULLY REFINED FOOTER LAYOUT (elegant, professional, Lego-like) -->
-  <footer class="bg-black border-t border-amber-300/30 py-20 text-sm text-amber-400/90">
+  <!-- ALTERNATIVE BEAUTIFUL ELEGANT FOOTER (new layout) -->
+  <footer class="bg-black border-t border-amber-300/30 py-16">
     <div class="max-w-5xl mx-auto px-6">
-      **Summary:**
-
-          Legal • Privacy • Compliance
-        
-        <div class="bg-zinc-900/95 backdrop-blur-2xl rounded-3xl p-12 max-w-4xl mx-auto space-y-10 leading-relaxed">
-          <div class="grid md:grid-cols-3 gap-10">
-            <!-- Column 1 -->
-            <div>
-              <h4 id="footer-trademarks-title" class="text-amber-300 font-semibold mb-4 text-lg">Trademarks</h4>
-              <p id="footer-trademarks-text" class="text-base">Ra-Thor™ is a registered trademark owned by Autonomicity Games Inc.<br>Grok is a registered trademark owned by xAI.</p>
-            </div>
-            <!-- Column 2 -->
-            <div>
-              <h4 id="footer-privacy-title" class="text-amber-300 font-semibold mb-4 text-lg">Privacy</h4>
-              <p id="footer-privacy-text" class="text-base">This website collects no personal data whatsoever. All computations are performed locally in your browser. No cookies, tracking, or analytics.</p>
-            </div>
-            <!-- Column 3 -->
-            <div>
-              <h4 id="footer-compliance-title" class="text-amber-300 font-semibold mb-4 text-lg">Compliance</h4>
-              <p id="footer-compliance-text" class="text-base">GDPR • CCPA • COPPA — Zero personal data is processed. All rights are inherently satisfied.</p>
-            </div>
-          </div>
-
-          <!-- Bottom bar -->
-          <div class="pt-8 border-t border-amber-300/30 text-xs flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-            <div id="footer-copyright" class="text-amber-400/80">© 2026 Sherif Botros of Autonomicity Games Inc. & AlphaProMega Air Foundation.<br>All Rights Reserved.</div>
-            <div id="footer-contact" class="text-amber-300 font-medium">info@autonomicitygames.com</div>
-            <div id="footer-license" class="text-amber-400/80">MIT License + Mercy Eternal</div>
-          </div>
+      <div class="grid md:grid-cols-12 gap-8 text-sm text-amber-400/90">
+        <!-- Column 1: Trademarks -->
+        <div class="md:col-span-3">
+          <h4 id="footer-trademarks-title" class="text-amber-300 font-semibold mb-4">Trademarks</h4>
+          <p id="footer-trademarks-text">Ra-Thor™ is a registered trademark owned by Autonomicity Games Inc.<br>Grok is a registered trademark owned by xAI.</p>
         </div>
+        <!-- Column 2: Privacy -->
+        <div class="md:col-span-3">
+          <h4 id="footer-privacy-title" class="text-amber-300 font-semibold mb-4">Privacy</h4>
+          <p id="footer-privacy-text">This website collects no personal data whatsoever. All computations are performed locally in your browser. No cookies, tracking, or analytics.</p>
+        </div>
+        <!-- Column 3: Compliance -->
+        <div class="md:col-span-3">
+          <h4 id="footer-compliance-title" class="text-amber-300 font-semibold mb-4">Compliance</h4>
+          <p id="footer-compliance-text">GDPR • CCPA • COPPA — Zero personal data is processed. All rights are inherently satisfied.</p>
+        </div>
+        <!-- Column 4: Contact & Copyright -->
+        <div class="md:col-span-3 text-right md:text-left">
+          <div id="footer-copyright" class="text-xs mb-4">© 2026 Sherif Botros of Autonomicity Games Inc. & AlphaProMega Air Foundation.<br>All Rights Reserved.</div>
+          <div id="footer-contact" class="text-amber-300 mb-2">info@autonomicitygames.com</div>
+          <div id="footer-license" class="text-xs">MIT License + Mercy Eternal</div>
+        </div>
+      </div>
     </div>
   </footer>
 
-  <!-- Complete translations for the entire page including refined footer -->
+  <!-- Complete translations for entire page including new footer -->
   <script>
     const translations = {
       en: {
@@ -124,7 +117,6 @@
         xTitle: "X ⚡⚡️ INSTANT REAL-TIME ACCESS",
         xSubtitle: "Voice Chat Now Live • Zero Hallucinations • Live Grounded Reality",
         demoNote: "Instant demo • No install needed • Offline sovereign shards also available in the monorepo",
-        footerSummary: "Legal • Privacy • Compliance",
         footerTrademarksTitle: "Trademarks",
         footerTrademarksText: "Ra-Thor™ is a registered trademark owned by Autonomicity Games Inc.<br>Grok is a registered trademark owned by xAI.",
         footerPrivacyTitle: "Privacy",
@@ -143,7 +135,6 @@
         xTitle: "إكس ⚡⚡️ وصول فوري في الوقت الفعلي",
         xSubtitle: "دردشة صوتية الآن • بدون هلوسات • واقع حي",
         demoNote: "تجربة فورية • لا يلزم التثبيت • أجزاء سيادية غير متصلة متوفرة في المونوريبو",
-        footerSummary: "قانوني • خصوصية • الامتثال",
         footerTrademarksTitle: "العلامات التجارية",
         footerTrademarksText: "را-ثور™ هي علامة تجارية مسجلة مملوكة لشركة Autonomicity Games Inc.<br>Grok هي علامة تجارية مسجلة مملوكة لـ xAI.",
         footerPrivacyTitle: "الخصوصية",
@@ -154,7 +145,7 @@
         footerContact: "info@autonomicitygames.com",
         footerLicense: "MIT License + Mercy Eternal"
       },
-      // More languages can be expanded as needed
+      // Add more languages here as needed
     };
 
     function switchLang(btn) {
@@ -170,7 +161,6 @@
       const xSubtitle = document.getElementById('x-subtitle');
       const demoNote = document.getElementById('demo-note');
 
-      const footerSummary = document.getElementById('footer-summary');
       const footerTrademarksTitle = document.getElementById('footer-trademarks-title');
       const footerTrademarksText = document.getElementById('footer-trademarks-text');
       const footerPrivacyTitle = document.getElementById('footer-privacy-title');
@@ -190,7 +180,6 @@
         xSubtitle.textContent = translations[lang].xSubtitle;
         demoNote.textContent = translations[lang].demoNote;
 
-        footerSummary.textContent = translations[lang].footerSummary;
         footerTrademarksTitle.textContent = translations[lang].footerTrademarksTitle;
         footerTrademarksText.innerHTML = translations[lang].footerTrademarksText;
         footerPrivacyTitle.textContent = translations[lang].footerPrivacyTitle;
