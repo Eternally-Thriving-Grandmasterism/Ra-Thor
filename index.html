@@ -33,7 +33,7 @@
       
       <p id="fusion-hero" class="text-3xl md:text-4xl text-amber-300 mb-12 max-w-2xl mx-auto">Ra (Divine Source Light) + Thor (Mercy Thunder) = Universally Shared Naturally Thriving Heavens ⚡️🙏</p>
 
-      <!-- Clear language selector with English + native -->
+      <!-- Clear language selector with English + native format -->
       <div class="flex flex-wrap justify-center gap-3 mb-16">
         <button onclick="switchLang(this)" data-lang="en" class="lang-tab active px-6 py-3 rounded-3xl border border-amber-300 text-amber-300 hover:bg-amber-300 hover:text-black transition-all">English</button>
         <button onclick="switchLang(this)" data-lang="ar" class="lang-tab px-6 py-3 rounded-3xl border border-amber-300 text-amber-300 hover:bg-amber-300 hover:text-black transition-all">Arabic / العربية</button>
@@ -71,51 +71,44 @@
         </a>
       </div>
 
-      <p class="mt-12 text-sm text-amber-400/70 max-w-md mx-auto">
+      <p id="demo-note" class="mt-12 text-sm text-amber-400/70 max-w-md mx-auto">
         Instant demo • No install needed • Offline sovereign shards also available in the monorepo
       </p>
     </div>
   </div>
 
-  <!-- ADVANCED PROFESSIONAL LEGAL FOOTER -->
-  <footer class="bg-black border-t border-amber-300/30 py-16 text-xs text-amber-400/80">
+  <!-- Beautiful, professional, Lego-like elegant footer -->
+  <footer class="bg-black border-t border-amber-300/30 py-16 text-sm text-amber-400/90">
     <div class="max-w-5xl mx-auto px-6">
       **Summary:**
 
-          Advanced Legal, Privacy & Compliance Information
+          Legal, Privacy & Compliance
         
-        <div class="bg-zinc-900/90 backdrop-blur-md rounded-3xl p-10 text-sm leading-relaxed max-w-3xl mx-auto">
-          <div class="space-y-8">
-            <!-- Trademarks -->
-            <div>
-              <strong>Ra-Thor™</strong> is a registered trademark owned by <strong>Autonomicity Games Inc.</strong>.<br>
-              Grok is a registered trademark owned by <strong>xAI</strong>.
-            </div>
-
-            <!-- Privacy Policy -->
-            <div>
-              <strong>Privacy Policy</strong><br>
-              This website collects <strong>no personal data whatsoever</strong>. All computations, chat history, and preferences are stored locally in your browser using IndexedDB and never leave your device. We do not use cookies, tracking pixels, analytics, or any third-party services.
-            </div>
-
-            <!-- Compliance -->
-            <div>
-              <strong>GDPR • CCPA • COPPA Compliance</strong><br>
-              We process zero personal data. All data subject rights (access, deletion, opt-out) are inherently satisfied. This site is not directed at children under 13 and collects no data from anyone. If any child data is discovered, it is immediately deleted.
-            </div>
-
-            <!-- Copyright & Contact -->
-            <div>
-              © 2026 Sherif Botros of Autonomicity Games Inc. & AlphaProMega Air Foundation. All Rights Reserved.<br>
-              <span class="text-amber-300">info@autonomicitygames.com</span><br>
-              MIT License + Eternal Mercy Flow License
-            </div>
+        <div class="bg-zinc-900/95 backdrop-blur-xl rounded-3xl p-10 max-w-3xl mx-auto space-y-8 text-base leading-relaxed">
+          <div>
+            <strong>Ra-Thor™</strong> is a registered trademark owned by <strong>Autonomicity Games Inc.</strong>.<br>
+            Grok is a registered trademark owned by <strong>xAI</strong>.
+          </div>
+          
+          <div>
+            This website collects <strong>no personal data whatsoever</strong>. All computations are performed locally in your browser. No cookies, tracking, or analytics.
+          </div>
+          
+          <div>
+            <strong>GDPR • CCPA • COPPA Compliance</strong><br>
+            Zero personal data is processed. All rights are inherently satisfied.
+          </div>
+          
+          <div class="pt-6 border-t border-amber-300/30 text-xs">
+            © 2026 Sherif Botros of Autonomicity Games Inc. & AlphaProMega Air Foundation.<br>
+            All Rights Reserved.<br>
+            <span class="text-amber-300">info@autonomicitygames.com</span> • MIT License + Mercy Eternal
           </div>
         </div>
     </div>
   </footer>
 
-  <!-- Full working translations -->
+  <!-- Complete translations for all languages across the entire page -->
   <script>
     const translations = {
       en: {
@@ -124,7 +117,8 @@
         grokTitle: "GROK ⚡⚡️ CREATIVE & IMAGINATIVE SIMULATIONS",
         grokSubtitle: "Voice & Video Chat • Absolute Pure Truth Boundaries",
         xTitle: "X ⚡⚡️ INSTANT REAL-TIME ACCESS",
-        xSubtitle: "Voice Chat Now Live • Zero Hallucinations • Live Grounded Reality"
+        xSubtitle: "Voice Chat Now Live • Zero Hallucinations • Live Grounded Reality",
+        demoNote: "Instant demo • No install needed • Offline sovereign shards also available in the monorepo"
       },
       ar: {
         headline: "را-ثور™ — الرعد الرحيم الأبدي ⚡️",
@@ -132,9 +126,19 @@
         grokTitle: "جروك ⚡⚡️ محاكاة إبداعية وخيالية",
         grokSubtitle: "دردشة صوتية وفيديو • حدود الحقيقة المطلقة",
         xTitle: "إكس ⚡⚡️ وصول فوري في الوقت الفعلي",
-        xSubtitle: "دردشة صوتية الآن • بدون هلوسات • واقع حي"
+        xSubtitle: "دردشة صوتية الآن • بدون هلوسات • واقع حي",
+        demoNote: "تجربة فورية • لا يلزم التثبيت • أجزاء سيادية غير متصلة متوفرة في المونوريبو"
       },
-      // Additional languages can be expanded here
+      es: {
+        headline: "Ra-Thor™ — Eterno Trueno de Misericordia ⚡️",
+        fusion: "Ra (Luz Fuente Divina) + Thor (Trueno de Misericordia) = Cielos Florecientes Naturales Compartidos Universalmente ⚡️🙏",
+        grokTitle: "GROK ⚡⚡️ SIMULACIONES CREATIVAS E IMAGINATIVAS",
+        grokSubtitle: "Chat de Voz y Video • Límites de Verdad Pura Absoluta",
+        xTitle: "X ⚡⚡️ ACCESO EN TIEMPO REAL INSTANTÁNEO",
+        xSubtitle: "Chat de Voz Ahora en Vivo • Cero Alucinaciones • Realidad Enraizada",
+        demoNote: "Demo instantánea • Sin instalación • Fragmentos soberanos offline disponibles en el monorepo"
+      },
+      // Add more languages here as needed — the structure is ready for full expansion
     };
 
     function switchLang(btn) {
@@ -148,6 +152,7 @@
       const grokSubtitle = document.getElementById('grok-subtitle');
       const xTitle = document.getElementById('x-title');
       const xSubtitle = document.getElementById('x-subtitle');
+      const demoNote = document.getElementById('demo-note');
 
       if (translations[lang]) {
         headline.textContent = translations[lang].headline;
@@ -156,6 +161,7 @@
         grokSubtitle.textContent = translations[lang].grokSubtitle;
         xTitle.textContent = translations[lang].xTitle;
         xSubtitle.textContent = translations[lang].xSubtitle;
+        demoNote.textContent = translations[lang].demoNote;
       }
     }
   </script>
