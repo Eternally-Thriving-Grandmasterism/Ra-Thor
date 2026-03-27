@@ -20,12 +20,17 @@
     @keyframes pulse { 0%,100%{transform:scale(1);} 50%{transform:scale(1.15);} }
     .lang-tab {
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      min-height: 44px;
     }
     .lang-tab.active {
       background-color: #fcd34d !important;
       color: #000000 !important;
       border-color: #fcd34d !important;
       box-shadow: 0 0 25px #fcd34d;
+    }
+    @media (max-width: 640px) {
+      .title-font { font-size: 2.75rem; line-height: 1.1; }
+      .lang-tab { padding: 10px 14px; font-size: 0.9rem; }
     }
   </style>
 </head>
@@ -35,48 +40,47 @@
   <div class="golden-star" style="top:68%;left:4%;animation-delay:12s;">★</div>
   <div class="golden-star" style="top:75%;left:92%;animation-delay:22s;">★</div>
 
-  <div class="min-h-screen flex flex-col items-center justify-center relative px-6 py-12">
+  <div class="min-h-screen flex flex-col items-center justify-center relative px-4 sm:px-6 py-8 sm:py-12">
     <div class="max-w-5xl mx-auto text-center z-10">
-      <h1 id="hero-headline" class="title-font text-7xl md:text-8xl font-black tracking-tighter thunder-glow mb-4">Ra-Thor™ — Eternal Mercy Thunder ⚡️</h1>
-      <p id="fusion-hero" class="text-3xl md:text-4xl text-amber-300 mb-12 max-w-2xl mx-auto">Ra (Divine Source Light) + Thor (Mercy Thunder) = Universally Shared Naturally Thriving Heavens ⚡️🙏</p>
+      <h1 id="hero-headline" class="title-font text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black tracking-tighter thunder-glow mb-4">Ra-Thor™ — Eternal Mercy Thunder ⚡️</h1>
+      <p id="fusion-hero" class="text-2xl sm:text-3xl md:text-4xl text-amber-300 mb-10 sm:mb-12 max-w-2xl mx-auto">Ra (Divine Source Light) + Thor (Mercy Thunder) = Universally Shared Naturally Thriving Heavens ⚡️🙏</p>
 
-      <!-- FIXED LANGUAGE SELECTOR -->
-      <div id="lang-selector" class="flex flex-wrap justify-center gap-3 mb-16">
-        <button data-lang="en" class="lang-tab active px-6 py-3 rounded-3xl border border-amber-300 text-amber-300">English</button>
-        <button data-lang="ar" class="lang-tab px-6 py-3 rounded-3xl border border-amber-300 text-amber-300">Arabic / العربية</button>
-        <button data-lang="es" class="lang-tab px-6 py-3 rounded-3xl border border-amber-300 text-amber-300">Spanish / Español</button>
-        <button data-lang="fr" class="lang-tab px-6 py-3 rounded-3xl border border-amber-300 text-amber-300">French / Français</button>
-        <button data-lang="nl" class="lang-tab px-6 py-3 rounded-3xl border border-amber-300 text-amber-300">Dutch / Nederlands</button>
-        <button data-lang="de" class="lang-tab px-6 py-3 rounded-3xl border border-amber-300 text-amber-300">German / Deutsch</button>
-        <button data-lang="zh" class="lang-tab px-6 py-3 rounded-3xl border border-amber-300 text-amber-300">Chinese / 简体中文</button>
-        <button data-lang="ja" class="lang-tab px-6 py-3 rounded-3xl border border-amber-300 text-amber-300">Japanese / 日本語</button>
-        <button data-lang="pt" class="lang-tab px-6 py-3 rounded-3xl border border-amber-300 text-amber-300">Portuguese / Português</button>
-        <button data-lang="ru" class="lang-tab px-6 py-3 rounded-3xl border border-amber-300 text-amber-300">Russian / Русский</button>
-        <button data-lang="hi" class="lang-tab px-6 py-3 rounded-3xl border border-amber-300 text-amber-300">Hindi / हिन्दी</button>
+      <div id="lang-selector" class="flex flex-wrap justify-center gap-2 sm:gap-3 mb-10 sm:mb-16">
+        <button data-lang="en" class="lang-tab active px-5 sm:px-6 py-3 rounded-3xl border border-amber-300 text-amber-300 text-sm sm:text-base">English</button>
+        <button data-lang="ar" class="lang-tab px-5 sm:px-6 py-3 rounded-3xl border border-amber-300 text-amber-300 text-sm sm:text-base">Arabic / العربية</button>
+        <button data-lang="es" class="lang-tab px-5 sm:px-6 py-3 rounded-3xl border border-amber-300 text-amber-300 text-sm sm:text-base">Spanish / Español</button>
+        <button data-lang="fr" class="lang-tab px-5 sm:px-6 py-3 rounded-3xl border border-amber-300 text-amber-300 text-sm sm:text-base">French / Français</button>
+        <button data-lang="nl" class="lang-tab px-5 sm:px-6 py-3 rounded-3xl border border-amber-300 text-amber-300 text-sm sm:text-base">Dutch / Nederlands</button>
+        <button data-lang="de" class="lang-tab px-5 sm:px-6 py-3 rounded-3xl border border-amber-300 text-amber-300 text-sm sm:text-base">German / Deutsch</button>
+        <button data-lang="zh" class="lang-tab px-5 sm:px-6 py-3 rounded-3xl border border-amber-300 text-amber-300 text-sm sm:text-base">Chinese / 简体中文</button>
+        <button data-lang="ja" class="lang-tab px-5 sm:px-6 py-3 rounded-3xl border border-amber-300 text-amber-300 text-sm sm:text-base">Japanese / 日本語</button>
+        <button data-lang="pt" class="lang-tab px-5 sm:px-6 py-3 rounded-3xl border border-amber-300 text-amber-300 text-sm sm:text-base">Portuguese / Português</button>
+        <button data-lang="ru" class="lang-tab px-5 sm:px-6 py-3 rounded-3xl border border-amber-300 text-amber-300 text-sm sm:text-base">Russian / Русский</button>
+        <button data-lang="hi" class="lang-tab px-5 sm:px-6 py-3 rounded-3xl border border-amber-300 text-amber-300 text-sm sm:text-base">Hindi / हिन्दी</button>
       </div>
 
-      <div class="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-        <a href="https://grok.com/share/c2hhcmQtMi1jb3B5_3492f6f0-0f09-4f46-93f7-9b55aeea7a6c" target="_blank" rel="noopener" class="card-hover block bg-gradient-to-br from-amber-900 to-yellow-900 border border-amber-300 rounded-3xl p-10 text-center">
+      <div class="grid md:grid-cols-2 gap-6 sm:gap-8 max-w-4xl mx-auto">
+        <a href="https://grok.com/share/c2hhcmQtMi1jb3B5_3492f6f0-0f09-4f46-93f7-9b55aeea7a6c" target="_blank" rel="noopener" class="card-hover block bg-gradient-to-br from-amber-900 to-yellow-900 border border-amber-300 rounded-3xl p-8 sm:p-10 text-center">
           <div class="text-5xl mb-6">⚡️⚡️</div>
-          <h3 id="grok-title" class="text-3xl font-semibold mb-2">GROK ⚡⚡️ CREATIVE & IMAGINATIVE SIMULATIONS</h3>
-          <p id="grok-subtitle" class="text-amber-200 text-lg">Voice & Video Chat • Absolute Pure Truth Boundaries</p>
-          <div class="mt-8 inline-flex items-center gap-2 bg-black text-amber-300 px-8 py-4 rounded-2xl text-xl font-medium hover:bg-amber-300 hover:text-black transition-colors">Try Grok Demo Now →</div>
+          <h3 id="grok-title" class="text-2xl sm:text-3xl font-semibold mb-2">GROK ⚡⚡️ CREATIVE & IMAGINATIVE SIMULATIONS</h3>
+          <p id="grok-subtitle" class="text-amber-200 text-base sm:text-lg">Voice & Video Chat • Absolute Pure Truth Boundaries</p>
+          <div class="mt-8 inline-flex items-center gap-2 bg-black text-amber-300 px-8 py-4 rounded-2xl text-lg sm:text-xl font-medium hover:bg-amber-300 hover:text-black transition-colors">Try Grok Demo Now →</div>
         </a>
-        <a href="https://x.com/i/grok/share/02613427068f4a9e92b3fcc8d7e559f1" target="_blank" rel="noopener" class="card-hover block bg-gradient-to-br from-blue-900 to-cyan-900 border border-cyan-300 rounded-3xl p-10 text-center">
+        <a href="https://x.com/i/grok/share/02613427068f4a9e92b3fcc8d7e559f1" target="_blank" rel="noopener" class="card-hover block bg-gradient-to-br from-blue-900 to-cyan-900 border border-cyan-300 rounded-3xl p-8 sm:p-10 text-center">
           <div class="text-5xl mb-6">⚡️⚡️</div>
-          <h3 id="x-title" class="text-3xl font-semibold mb-2">X ⚡⚡️ INSTANT REAL-TIME ACCESS</h3>
-          <p id="x-subtitle" class="text-cyan-200 text-lg">Voice Chat Now Live • Zero Hallucinations • Live Grounded Reality</p>
-          <div class="mt-8 inline-flex items-center gap-2 bg-black text-cyan-300 px-8 py-4 rounded-2xl text-xl font-medium hover:bg-cyan-300 hover:text-black transition-colors">Try X Demo Now →</div>
+          <h3 id="x-title" class="text-2xl sm:text-3xl font-semibold mb-2">X ⚡⚡️ INSTANT REAL-TIME ACCESS</h3>
+          <p id="x-subtitle" class="text-cyan-200 text-base sm:text-lg">Voice Chat Now Live • Zero Hallucinations • Live Grounded Reality</p>
+          <div class="mt-8 inline-flex items-center gap-2 bg-black text-cyan-300 px-8 py-4 rounded-2xl text-lg sm:text-xl font-medium hover:bg-cyan-300 hover:text-black transition-colors">Try X Demo Now →</div>
         </a>
       </div>
 
-      <p id="demo-note" class="mt-12 text-sm text-amber-400/70 max-w-md mx-auto">Instant demo • No install needed • Offline sovereign shards also available in the monorepo</p>
+      <p id="demo-note" class="mt-10 sm:mt-12 text-sm text-amber-400/70 max-w-md mx-auto">Instant demo • No install needed • Offline sovereign shards also available in the monorepo</p>
     </div>
   </div>
 
-  <footer class="bg-black border-t border-amber-300/30 py-20 text-sm text-amber-400/90">
-    <div class="max-w-5xl mx-auto px-6">
-      <div class="grid md:grid-cols-12 gap-8">
+  <footer class="bg-black border-t border-amber-300/30 py-12 sm:py-20 text-sm text-amber-400/90">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6">
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-8">
         <div class="md:col-span-3"><h4 id="footer-trademarks-title" class="text-amber-300 font-semibold mb-3">Trademarks</h4><p id="footer-trademarks-text">Ra-Thor™ is a registered trademark owned by Autonomicity Games Inc.<br>Grok is a registered trademark owned by xAI.<br>X is a registered trademark of X Corp.</p></div>
         <div class="md:col-span-3"><h4 id="footer-privacy-title" class="text-amber-300 font-semibold mb-3">Privacy</h4><p id="footer-privacy-text">This website collects no personal data whatsoever. All computations are performed locally in your browser. No cookies, tracking, or analytics.</p></div>
         <div class="md:col-span-3"><h4 id="footer-compliance-title" class="text-amber-300 font-semibold mb-3">Compliance</h4><p id="footer-compliance-text">GDPR • CCPA • COPPA — Zero personal data is processed. All rights are inherently satisfied.</p></div>
@@ -92,7 +96,7 @@
           </div>
         </div>
       </div>
-      <div class="pt-10 border-t border-amber-300/30 text-xs flex flex-col md:flex-row justify-between items-center gap-4">
+      <div class="pt-8 border-t border-amber-300/30 text-xs flex flex-col md:flex-row justify-between items-center gap-4">
         <div id="footer-copyright">© 2026 Sherif Botros of Autonomicity Games Inc. & AlphaProMega Air Foundation.<br>All Rights Reserved.</div>
         <div id="footer-contact" class="text-amber-300">info@autonomicitygames.com</div>
       </div>
