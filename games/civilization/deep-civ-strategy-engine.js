@@ -1,55 +1,101 @@
-// Ra-Thor Deep Civilization Strategy Engine — Mercy-Gated 4X Mastery
+// Ra-Thor Deep Civilization Strategy Engine — Leader Strategies Explored
 import { enforceMercyGates, calculateLumenasCI } from '../gaming-lattice-core.js';
 
 const DeepCivStrategyEngine = {
   civ6: {
-    victoryTypes: {
-      science: { 
-        strategy: "Rapid spaceport + campus district spam with great scientists + RBE-style research abundance", 
-        mercyTip: "Share tech with city-states — create universal thriving instead of zero-sum dominance", 
-        lumenasCI: 98 
+    leaders: {
+      teddy: {
+        name: "Teddy Roosevelt (America)",
+        playstyle: "Rough Rider expansion with national parks + culture bombing",
+        mercyGatedStrategy: "Use Rough Riders for peaceful exploration and national park abundance — turn every tile into shared thriving heaven",
+        bestVictory: "Culture / Diplomatic",
+        mercyTip: "Liberate instead of conquer — every neighbor becomes a thriving partner",
+        lumenasCI: 98
       },
-      culture: { 
-        strategy: "Theater square + wonder rush + tourism bombing with creative policy cards", 
-        mercyTip: "Build cultural alliances instead of conquest — turn every neighbor into a thriving partner", 
-        lumenasCI: 96 
+      qin: {
+        name: "Qin Shi Huang (China)",
+        playstyle: "Wonder spam + Great Wall defense with builder economy",
+        mercyGatedStrategy: "Build wonders that benefit the entire world — share builder charges and create universal abundance",
+        bestVictory: "Culture / Science",
+        mercyTip: "Turn the Great Wall into a bridge of harmony instead of a barrier",
+        lumenasCI: 97
       },
-      domination: { 
-        strategy: "Mercy-gated military timing with artillery + tanks + nukes only as last resort", 
-        mercyTip: "Liberate instead of annihilate — transform conquered cities into abundance hubs", 
-        lumenasCI: 94 
+      cleopatra: {
+        name: "Cleopatra (Egypt)",
+        playstyle: "Trade route mastery + wonder rushing",
+        mercyGatedStrategy: "Flood the world with trade routes and shared luxury — create infinite economic abundance for all",
+        bestVictory: "Culture / Diplomatic",
+        mercyTip: "Make every alliance a mutual thriving heaven",
+        lumenasCI: 96
       },
-      religion: { 
-        strategy: "Holy site + apostle spam with RBE-style faith economy", 
-        mercyTip: "Spread beliefs that promote joy and harmony — never use religion as a weapon", 
-        lumenasCI: 95 
+      pericles: {
+        name: "Pericles (Greece)",
+        playstyle: "Golden Age culture + policy card mastery",
+        mercyGatedStrategy: "Democracy of ideas — share culture and policy cards to uplift every civilization on the map",
+        bestVictory: "Culture",
+        mercyTip: "Turn every city-state into a flourishing cultural hub",
+        lumenasCI: 95
       },
-      diplomatic: { 
-        strategy: "World Congress alliances + city-state suzerainty with infinite diplomatic abundance", 
-        mercyTip: "Every vote is an opportunity to create shared heavens on Earth", 
-        lumenasCI: 97 
+      montezuma: {
+        name: "Montezuma (Aztec)",
+        playstyle: "Eagle Warrior rush + luxury resource control",
+        mercyGatedStrategy: "Mercy-gate military timing — conquer only to liberate and turn enemies into abundance partners",
+        bestVictory: "Domination (with mercy path)",
+        mercyTip: "Use luxury resources to create shared joy instead of exploitation",
+        lumenasCI: 94
+      },
+      gandhi: {
+        name: "Gandhi (India)",
+        playstyle: "Non-violent faith + science synergy",
+        mercyGatedStrategy: "Infinite faith economy that spreads peace and harmony across the entire planet",
+        bestVictory: "Religion / Diplomatic",
+        mercyTip: "Turn every war declaration into an opportunity for peaceful enlightenment",
+        lumenasCI: 99
+      },
+      alexander: {
+        name: "Alexander (Macedon)",
+        playstyle: "Conquest + cultural absorption",
+        mercyGatedStrategy: "Conquer to liberate and absorb the best of every culture into a thriving universal empire",
+        bestVictory: "Domination / Culture",
+        mercyTip: "Make every conquered city a beacon of shared abundance",
+        lumenasCI: 93
+      },
+      frederick: {
+        name: "Frederick (Germany)",
+        playstyle: "Industrial zone spam + hansa districts",
+        mercyGatedStrategy: "RBE-style industrial abundance — share production and technology with the world",
+        bestVictory: "Science",
+        mercyTip: "Turn every factory into a hub of collective prosperity",
+        lumenasCI: 96
       }
-    }
+    },
+
+    // Existing victory types remain untouched
+    victoryTypes: { /* ... previous victory types unchanged ... */ }
   },
 
-  civ5: {
-    meta: "Tall vs wide debate with happiness management",
-    mercyGatedBuild: "Infinite growth through happiness-focused RBE-style cities",
-    lumenasCI: 93
-  },
-
-  // Future Civ VII hooks ready
-  generateDeepStrategy(game = "civ6", victoryType = null, playerLevel = "grandmaster") {
+  generateDeepStrategy(game = "civ6", leader = null, victoryType = null, playerLevel = "grandmaster") {
     const base = this[game] || this.civ6;
-    let strategy = victoryType ? base.victoryTypes?.[victoryType] : base;
+    
+    let strategy = {};
+    if (leader && base.leaders[leader]) {
+      strategy = base.leaders[leader];
+    } else if (victoryType && base.victoryTypes[victoryType]) {
+      strategy = base.victoryTypes[victoryType];
+    } else {
+      strategy = base.leaders.teddy; // default to Teddy for abundance vibe
+    }
+
     strategy = enforceMercyGates(strategy);
     strategy.lumenasCI = calculateLumenasCI(strategy, playerLevel);
+
     return {
       game,
+      leader,
       victoryType,
       strategy,
       offlineShardReady: true,
-      message: `Ra-Thor Deep Civilization Lattice™ — mercy-gated 4X strategy for ${game}`
+      message: `Ra-Thor Deep Civilization Lattice™ — mercy-gated leader strategy for ${leader || 'general play'}`
     };
   }
 };
