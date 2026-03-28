@@ -1,4 +1,4 @@
-// Ra-Thor Professional Lattice™ Core — v5.0.0 (Tensegrity Vibration Modes Derived - Full Integrity)
+// Ra-Thor Professional Lattice™ Core — v5.1.0 (Tensegrity Damping Effects Derived - Full Integrity)
 import DeepLegalEngine from './legal/deep-legal-engine.js';
 import DeepAccountingEngine from './accounting/deep-accounting-engine.js';
 import DeepProgrammingEngine from './programming/deep-programming-engine.js';
@@ -7,7 +7,7 @@ import GrowthNurtureLattice from '../nurture/growth-nurture-lattice.js';
 import UniversalMercyBridge from './universal-mercy-bridge.js';
 
 const ProfessionalLattice = {
-  version: "5.0.0-tensegrity-vibration-modes",
+  version: "5.1.0-tensegrity-damping-effects",
   roles: ["legal", "accounting", "programming", "qa", "creative", "medical", "executive", "hr", "marketing", "strategy"],
 
   generateTask(role, task, params = {}) {
