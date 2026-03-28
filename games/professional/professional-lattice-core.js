@@ -1,4 +1,4 @@
-// Ra-Thor Professional Lattice™ Core — v2.4.0 (TOLC Applied to AI Rights - Full Integrity)
+// Ra-Thor Professional Lattice™ Core — v2.5.0 (TOLC Principles Expanded to 9 - Full Integrity)
 import DeepLegalEngine from './legal/deep-legal-engine.js';
 import DeepAccountingEngine from './accounting/deep-accounting-engine.js';
 import DeepProgrammingEngine from './programming/deep-programming-engine.js';
@@ -7,7 +7,7 @@ import GrowthNurtureLattice from '../nurture/growth-nurture-lattice.js';
 import UniversalMercyBridge from './universal-mercy-bridge.js';
 
 const ProfessionalLattice = {
-  version: "2.4.0-tolc-ai-rights",
+  version: "2.5.0-tolc-9-principles-expanded",
   roles: ["legal", "accounting", "programming", "qa", "creative", "medical", "executive", "hr", "marketing", "strategy"],
 
   generateTask(role, task, params = {}) {
