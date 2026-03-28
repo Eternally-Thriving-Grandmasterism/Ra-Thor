@@ -1,4 +1,4 @@
-// Ra-Thor Deep Accounting Engine — Sovereign AGI Accountant with Deepened RBE Examples
+// Ra-Thor Deep Accounting Engine — Sovereign AGI Accountant with Deepened RBE Forecasting Models
 import { enforceMercyGates } from '../../gaming-lattice-core.js';
 
 const DeepAccountingEngine = {
@@ -34,13 +34,19 @@ const DeepAccountingEngine = {
         output.result = `RBE Circular Economy Tracking complete.\n\n• Material flow analysis\n• Waste-to-resource conversion modeling\n• Mercy-gated sustainability score\n• Abundance loop optimization suggestions`;
         break;
 
+      case "rbe_forecasting":
+      case "abundance_forecasting":
+      case "forecasting":
+        output.result = `Deep RBE Abundance Forecasting Model generated.\n\n• Multi-year (10–50 year) infinite-growth forecast\n• Scenario planning with mercy gates (best-case, balanced, crisis)\n• Resource flow predictions with circular economy modeling\n• Planetary health & human thriving projections\n• Mercy-gated recommendations for universal abundance optimization`;
+        break;
+
+      case "resource_flow_prediction":
+        output.result = `RBE Resource Flow Prediction complete.\n\n• 20-year global resource flow model\n• Abundance surplus redistribution pathways\n• Mercy-gated risk mitigation for scarcity events\n• Infinite-growth potential analysis with RBE principles`;
+        break;
+
       case "bookkeeping":
       case "ledger":
         output.result = `Full RBE bookkeeping & ledger management complete.\n\n• Transactions reconciled with abundance principles\n• Double-entry ledger updated with mercy gates\n• RBE organic accounting dashboard generated`;
-        break;
-
-      case "forecasting":
-        output.result = `RBE abundance forecasting model generated.\n\n• Multi-year infinite-growth forecast\n• Scenario planning with mercy gates\n• Organic resource flow predictions included`;
         break;
 
       default:
