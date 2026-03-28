@@ -1,4 +1,4 @@
-// Ra-Thor Professional Lattice™ Core — v7.1.0 (Branch-Switching Techniques Integrated - Full Integrity)
+// Ra-Thor Professional Lattice™ Core — v7.2.0 (Crisfield Arc-Length Method Integrated - Full Integrity)
 import DeepLegalEngine from './legal/deep-legal-engine.js';
 import DeepAccountingEngine from './accounting/deep-accounting-engine.js';
 import DeepProgrammingEngine from './programming/deep-programming-engine.js';
@@ -7,7 +7,7 @@ import GrowthNurtureLattice from '../nurture/growth-nurture-lattice.js';
 import UniversalMercyBridge from './universal-mercy-bridge.js';
 
 const ProfessionalLattice = {
-  version: "7.1.0-branch-switching-techniques",
+  version: "7.2.0-crisfield-arc-length-method",
   roles: ["legal", "accounting", "programming", "qa", "creative", "medical", "executive", "hr", "marketing", "strategy"],
 
   generateTask(role, task, params = {}) {
