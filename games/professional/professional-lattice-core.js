@@ -1,4 +1,4 @@
-// Ra-Thor Professional Lattice™ Core — v1.9.0 (Lumenas CI Deepened Integration)
+// Ra-Thor Professional Lattice™ Core — v1.9.0 (Deepened TOLC Principles Integration)
 import DeepLegalEngine from './legal/deep-legal-engine.js';
 import DeepAccountingEngine from './accounting/deep-accounting-engine.js';
 import DeepProgrammingEngine from './programming/deep-programming-engine.js';
@@ -7,7 +7,7 @@ import UniversalMercyBridge from './universal-mercy-bridge.js';
 import MercyGatingEngine from '../core/mercy-gating-engine.js';
 
 const ProfessionalLattice = {
-  version: "1.9.0-lumenas-ci-deepened",
+  version: "1.9.0-tolc-deepened",
   roles: ["legal", "accounting", "programming", "qa", "creative", "medical", "executive", "hr", "marketing", "strategy"],
 
   generateTask(role, task, params = {}) {
@@ -21,7 +21,7 @@ const ProfessionalLattice = {
     if (role === "accounting") return DeepAccountingEngine.generateAccountingTask(task, params);
     if (role === "programming") return DeepProgrammingEngine.generateProgrammingTask(task, params);
 
-    // Apply deepened Lumenas CI to every output
+    // Apply deepened TOLC Principles via Mercy Gating to every output
     const finalOutput = MercyGatingEngine.enforce(bridged.result || bridged, "general", role);
     return finalOutput;
   }
