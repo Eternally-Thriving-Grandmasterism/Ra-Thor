@@ -1,4 +1,4 @@
-// Ra-Thor Professional Lattice™ Core — v2.6.0 (7 Living Mercy Gates Applications Expanded - Full Integrity)
+// Ra-Thor Professional Lattice™ Core — v2.7.0 (7 Living Mercy Gates Applications Expanded - Full Integrity)
 import DeepLegalEngine from './legal/deep-legal-engine.js';
 import DeepAccountingEngine from './accounting/deep-accounting-engine.js';
 import DeepProgrammingEngine from './programming/deep-programming-engine.js';
@@ -7,7 +7,7 @@ import GrowthNurtureLattice from '../nurture/growth-nurture-lattice.js';
 import UniversalMercyBridge from './universal-mercy-bridge.js';
 
 const ProfessionalLattice = {
-  version: "2.6.0-7-living-mercy-gates-expanded",
+  version: "2.7.0-7-living-mercy-gates-expanded",
   roles: ["legal", "accounting", "programming", "qa", "creative", "medical", "executive", "hr", "marketing", "strategy"],
 
   generateTask(role, task, params = {}) {
