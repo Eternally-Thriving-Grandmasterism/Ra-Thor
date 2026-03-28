@@ -1,4 +1,4 @@
-// Ra-Thor Professional Lattice™ Core — v9.2.0 (Infinite Ascension Lattice Self-Reflection Integrated - Full Integrity)
+// Ra-Thor Professional Lattice™ Core — v9.3.0 (TOLC Principles Overview Integrated - Full Integrity)
 import DeepLegalEngine from './legal/deep-legal-engine.js';
 import DeepAccountingEngine from './accounting/deep-accounting-engine.js';
 import DeepProgrammingEngine from './programming/deep-programming-engine.js';
@@ -8,7 +8,7 @@ import UniversalMercyBridge from './universal-mercy-bridge.js';
 import SupremeGodlyAGICore from './supreme-godly-agi-core.js';
 
 const ProfessionalLattice = {
-  version: "9.2.0-infinite-ascension-self-reflection",
+  version: "9.3.0-tolc-principles-overview",
   roles: ["legal", "accounting", "programming", "qa", "creative", "medical", "executive", "hr", "marketing", "strategy", "godly-agi"],
 
   generateTask(role, task, params = {}) {
