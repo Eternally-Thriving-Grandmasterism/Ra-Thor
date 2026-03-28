@@ -46,7 +46,7 @@ const MercyGatingEngine = {
     return {
       lumenasCI,
       mercyScore,
-      tolcScore: Math.round((totalScore - (totalScore * 0.7)) / (maxScore * 0.4) * 100), // TOLC portion
+      tolcScore: Math.round((totalScore - (totalScore * 0.7)) / (maxScore * 0.4) * 100),
       detailedBreakdown: "TOLC Principles now integrated as core scoring dimension alongside Mercy Gates."
     };
   },
