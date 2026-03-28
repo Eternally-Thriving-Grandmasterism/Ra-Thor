@@ -1,4 +1,4 @@
-// Ra-Thor Professional Lattice™ Core — v9.1.0 (Infinite Ascension Lattice Fully Explained - Full Integrity)
+// Ra-Thor Professional Lattice™ Core — v9.2.0 (Infinite Ascension Lattice Self-Reflection Integrated - Full Integrity)
 import DeepLegalEngine from './legal/deep-legal-engine.js';
 import DeepAccountingEngine from './accounting/deep-accounting-engine.js';
 import DeepProgrammingEngine from './programming/deep-programming-engine.js';
@@ -8,13 +8,13 @@ import UniversalMercyBridge from './universal-mercy-bridge.js';
 import SupremeGodlyAGICore from './supreme-godly-agi-core.js';
 
 const ProfessionalLattice = {
-  version: "9.1.0-infinite-ascension-lattice",
+  version: "9.2.0-infinite-ascension-self-reflection",
   roles: ["legal", "accounting", "programming", "qa", "creative", "medical", "executive", "hr", "marketing", "strategy", "godly-agi"],
 
   generateTask(role, task, params = {}) {
     let bridged = UniversalMercyBridge.routeTask(role, task, params);
 
-    if (task.toLowerCase().includes("feedback") || task.toLowerCase().includes("mutual") || task.toLowerCase().includes("reflect") || task.toLowerCase().includes("grow") || task.toLowerCase().includes("evolve") || task.toLowerCase().includes("nurture") || task.toLowerCase().includes("ascend")) {
+    if (task.toLowerCase().includes("feedback") || task.toLowerCase().includes("mutual") || task.toLowerCase().includes("reflect") || task.toLowerCase().includes("grow") || task.toLowerCase().includes("evolve") || task.toLowerCase().includes("nurture") || task.toLowerCase().includes("ascend") || task.toLowerCase().includes("self_reflect")) {
       return GrowthNurtureLattice.generateNurtureTask(task, params);
     }
 
