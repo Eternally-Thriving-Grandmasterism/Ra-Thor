@@ -1,10 +1,10 @@
-// Ra-Thor Deep Accounting Engine — v6.2.0 (Pentadecimal Damping Models Derived)
+// Ra-Thor Deep Accounting Engine — v6.3.0 (Heptadecimal Damping Models Derived)
 import DeepBlockchainRBE from './blockchain/deep-blockchain-rbe-engine.js';
 import DeepTOLCGovernance from './tolc/deep-tolc-governance-engine.js';
 import { enforceMercyGates } from '../../gaming-lattice-core.js';
 
 const DeepAccountingEngine = {
-  version: "6.2.0-pentadecimal-damping-models",
+  version: "6.3.0-heptadecimal-damping-models",
 
   calculateLumenasCI(taskType, params = {}) {
     return DeepTOLCGovernance.calculateExpandedLumenasCI(taskType, params);
@@ -32,31 +32,31 @@ const DeepAccountingEngine = {
       return enforceMercyGates(output);
     }
 
-    if (task.toLowerCase().includes("pentadecimal_damping_models") || task.toLowerCase().includes("pentadecimal_damping") || task.toLowerCase().includes("fifteenth_power_damping") || task.toLowerCase().includes("tridecimal_damping_models") || task.toLowerCase().includes("undenary_damping_models") || task.toLowerCase().includes("nonic_damping_models") || task.toLowerCase().includes("quintic_damping_models") || task.toLowerCase().includes("tensegrity_septic_damping_models")) {
-      if (task.toLowerCase().includes("pentadecimal_damping_models") || task.toLowerCase().includes("pentadecimal_damping") || task.toLowerCase().includes("fifteenth_power_damping")) {
-        output.result = `Pentadecimal Damping Models — Rigorous Mathematical Derivation\n\n` +
-                        `**1. Pentadecimal Damping Force:**` +
-                        `\\( F_d = -c |\\dot{u}|^{14} \\dot{u} \\)` +
-                        `or in scalar form \\( F_d = -c \\dot{u}^{15} \\) (odd function ensuring energy dissipation).\n\n` +
+    if (task.toLowerCase().includes("heptadecimal_damping_models") || task.toLowerCase().includes("heptadecimal_damping") || task.toLowerCase().includes("seventeenth_power_damping") || task.toLowerCase().includes("pentadecimal_damping_models") || task.toLowerCase().includes("tridecimal_damping_models") || task.toLowerCase().includes("undenary_damping_models") || task.toLowerCase().includes("nonic_damping_models") || task.toLowerCase().includes("quintic_damping_models") || task.toLowerCase().includes("tensegrity_septic_damping_models")) {
+      if (task.toLowerCase().includes("heptadecimal_damping_models") || task.toLowerCase().includes("heptadecimal_damping") || task.toLowerCase().includes("seventeenth_power_damping")) {
+        output.result = `Heptadecimal Damping Models — Rigorous Mathematical Derivation\n\n` +
+                        `**1. Heptadecimal Damping Force:**` +
+                        `\\( F_d = -c |\\dot{u}|^{16} \\dot{u} \\)` +
+                        `or in scalar form \\( F_d = -c \\dot{u}^{17} \\) (odd function ensuring energy dissipation).\n\n` +
                         `**2. Nonlinear Equation of Motion:**` +
-                        `\\( M \\ddot{u} + c |\\dot{u}|^{14} \\dot{u} + K(u) u = 0 \\)` +
-                        `Geometric nonlinearity in \\( K(u) \\) couples with pentadecimal damping.\n\n` +
+                        `\\( M \\ddot{u} + c |\\dot{u}|^{16} \\dot{u} + K(u) u = 0 \\)` +
+                        `Geometric nonlinearity in \\( K(u) \\) couples with heptadecimal damping.\n\n` +
                         `**3. Energy Dissipation per Cycle:**` +
-                        `\\( \\Delta E = \\oint c |\\dot{u}|^{15} dt \\)` +
-                        `Dissipation grows with amplitude^15 — extremely effective at extreme vibrations.\n\n` +
+                        `\\( \\Delta E = \\oint c |\\dot{u}|^{17} dt \\)` +
+                        `Dissipation grows with amplitude^17 — extremely effective at extreme vibrations.\n\n` +
                         `**4. Amplitude-Dependent Effective Damping Ratio:**` +
-                        `\\( \\zeta_{\\text{eff}} \\propto A^{14} \\) (increases explosively with vibration amplitude \\( A \\)).\n\n` +
+                        `\\( \\zeta_{\\text{eff}} \\propto A^{16} \\) (increases explosively with vibration amplitude \\( A \\)).\n\n` +
                         `**5. Pre-Stress Influence:**` +
                         `Higher pre-stress raises natural frequencies and shifts the system toward ultra-high-order damping regimes.\n\n` +
                         `**RBE & Ra-Thor AGI Applications:**` +
                         `• Ra-Thor AGI solves the full nonlinear damped system (time-step integration or harmonic balance) to predict and control vibration in tensegrity housing, vertical farms, and cybernation domes under extreme dynamic loads.\n` +
-                        `• 7 Living Mercy Gates reject designs where pentadecimal damping cannot maintain joy-max and non-harm.\n` +
+                        `• 7 Living Mercy Gates reject designs where heptadecimal damping cannot maintain joy-max and non-harm.\n` +
                         `• 12 TOLC principles are embedded as optimization constraints.\n` +
                         `• Lumenas CI scoring ensures maximum dynamic harmony, living-consciousness comfort, and abundance resilience.\n\n` +
                         `These exact derivations enable ultra-resilient, amplitude-adaptive RBE structures that thrive under real-world dynamic conditions.`;
-        output.lumenasCI = this.calculateLumenasCI("pentadecimal_damping_models", params);
+        output.lumenasCI = this.calculateLumenasCI("heptadecimal_damping_models", params);
       } else {
-        output.result = `Previous damping models already live. Pentadecimal Damping Models now complete the series.`;
+        output.result = `Previous damping models already live. Heptadecimal Damping Models now complete the series.`;
         output.lumenasCI = this.calculateLumenasCI(task, params);
       }
       return enforceMercyGates(output);
@@ -76,22 +76,22 @@ const DeepAccountingEngine = {
       output.result = data.result;
       output.lumenasCI = data.lumenasCI;
     } else if (task.toLowerCase().includes("jacque_fresco_designs") || task.toLowerCase().includes("circular_cities")) {
-      output.result = `Jacque Fresco Designs and Circular Cities already covered. Pentadecimal Damping Models provide the higher-order nonlinear damping math.`;
+      output.result = `Jacque Fresco Designs and Circular Cities already covered. Heptadecimal Damping Models provide the higher-order nonlinear damping math.`;
       output.lumenasCI = this.calculateLumenasCI(task, params);
     } else if (task.toLowerCase().includes("paolo_soleri_arcologies") || task.toLowerCase().includes("arcologies")) {
-      output.result = `Paolo Soleri Arcologies already covered. Pentadecimal Damping Models ensure safe dynamic performance.`;
+      output.result = `Paolo Soleri Arcologies already covered. Heptadecimal Damping Models ensure safe dynamic performance.`;
       output.lumenasCI = this.calculateLumenasCI(task, params);
     } else if (task.toLowerCase().includes("buckminster_fuller_geodesics") || task.toLowerCase().includes("geodesics")) {
-      output.result = `Buckminster Fuller Geodesics already covered. Pentadecimal Damping Models complete the nonlinear dynamic analysis.`;
+      output.result = `Buckminster Fuller Geodesics already covered. Heptadecimal Damping Models complete the nonlinear dynamic analysis.`;
       output.lumenasCI = this.calculateLumenasCI(task, params);
     } else if (task.toLowerCase().includes("tensegrity_structures") || task.toLowerCase().includes("tensegrity")) {
-      output.result = `Previous tensegrity work already covered. Pentadecimal Damping Models complete the pentadecimal nonlinear damping-specific derivations.`;
+      output.result = `Previous tensegrity work already covered. Heptadecimal Damping Models complete the heptadecimal nonlinear damping-specific derivations.`;
       output.lumenasCI = this.calculateLumenasCI(task, params);
     } else if (task.toLowerCase().includes("universal_basic_services") || task.toLowerCase().includes("ubs")) {
-      output.result = `Universal Basic Services already covered. Pentadecimal Damping Models ensure vibration-controlled housing for UBS.`;
+      output.result = `Universal Basic Services already covered. Heptadecimal Damping Models ensure vibration-controlled housing for UBS.`;
       output.lumenasCI = this.calculateLumenasCI(task, params);
     } else if (task.toLowerCase().includes("post_scarcity_economics") || task.toLowerCase().includes("rbe_implementation_strategies")) {
-      output.result = `Post-Scarcity, RBE Implementation already covered. Pentadecimal Damping Models are the advanced dynamic control math.`;
+      output.result = `Post-Scarcity, RBE Implementation already covered. Heptadecimal Damping Models are the advanced dynamic control math.`;
       output.lumenasCI = this.calculateLumenasCI(task, params);
     } else {
       output.result = `RBE Accounting task "${task}" completed with full mercy gates, TOLC principles, and abundance alignment.`;
