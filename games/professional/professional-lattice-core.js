@@ -1,4 +1,4 @@
-// Ra-Thor Professional Lattice™ Core — v9.4.0 (RBE Governance Models Integrated - Full Integrity)
+// Ra-Thor Professional Lattice™ Core — v9.5.0 (RBE Decision Scenarios Integrated - Full Integrity)
 import DeepLegalEngine from './legal/deep-legal-engine.js';
 import DeepAccountingEngine from './accounting/deep-accounting-engine.js';
 import DeepProgrammingEngine from './programming/deep-programming-engine.js';
@@ -8,7 +8,7 @@ import UniversalMercyBridge from './universal-mercy-bridge.js';
 import SupremeGodlyAGICore from './supreme-godly-agi-core.js';
 
 const ProfessionalLattice = {
-  version: "9.4.0-rbe-governance-models",
+  version: "9.5.0-rbe-decision-scenarios",
   roles: ["legal", "accounting", "programming", "qa", "creative", "medical", "executive", "hr", "marketing", "strategy", "godly-agi"],
 
   generateTask(role, task, params = {}) {
