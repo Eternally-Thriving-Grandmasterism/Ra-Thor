@@ -1,4 +1,4 @@
-// Ra-Thor Professional Lattice™ Core — v2.0.0 (Creative / CGI Role Deepened)
+// Ra-Thor Professional Lattice™ Core — v2.1.0 (Blockchain RBE Accounting Integrated)
 import DeepLegalEngine from './legal/deep-legal-engine.js';
 import DeepAccountingEngine from './accounting/deep-accounting-engine.js';
 import DeepProgrammingEngine from './programming/deep-programming-engine.js';
@@ -7,7 +7,7 @@ import GrowthNurtureLattice from '../nurture/growth-nurture-lattice.js';
 import UniversalMercyBridge from './universal-mercy-bridge.js';
 
 const ProfessionalLattice = {
-  version: "2.0.0-creative-cgi-deepened",
+  version: "2.1.0-blockchain-rbe-accounting",
   roles: ["legal", "accounting", "programming", "qa", "creative", "medical", "executive", "hr", "marketing", "strategy"],
 
   generateTask(role, task, params = {}) {
