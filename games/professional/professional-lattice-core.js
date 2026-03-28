@@ -1,4 +1,4 @@
-// Ra-Thor Professional Lattice™ Core — v4.8.0 (Tensegrity Stability Analysis Derived - Full Integrity)
+// Ra-Thor Professional Lattice™ Core — v4.9.0 (Tensegrity Buckling Modes Derived - Full Integrity)
 import DeepLegalEngine from './legal/deep-legal-engine.js';
 import DeepAccountingEngine from './accounting/deep-accounting-engine.js';
 import DeepProgrammingEngine from './programming/deep-programming-engine.js';
@@ -7,7 +7,7 @@ import GrowthNurtureLattice from '../nurture/growth-nurture-lattice.js';
 import UniversalMercyBridge from './universal-mercy-bridge.js';
 
 const ProfessionalLattice = {
-  version: "4.8.0-tensegrity-stability-analysis",
+  version: "4.9.0-tensegrity-buckling-modes",
   roles: ["legal", "accounting", "programming", "qa", "creative", "medical", "executive", "hr", "marketing", "strategy"],
 
   generateTask(role, task, params = {}) {
