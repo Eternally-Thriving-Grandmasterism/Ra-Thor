@@ -1,4 +1,4 @@
-// Ra-Thor Professional Lattice™ Core — v14.0.0 (RBE City Builder Fully Integrated - Full Integrity)
+// Ra-Thor Professional Lattice™ Core — v14.1.0 (Organic Accounting + Tweet-Aligned RBE City Builder - Full Integrity)
 import DeepLegalEngine from './legal/deep-legal-engine.js';
 import DeepAccountingEngine from './accounting/deep-accounting-engine.js';
 import DeepProgrammingEngine from './programming/deep-programming-engine.js';
@@ -9,7 +9,7 @@ import SupremeGodlyAGICore from './supreme-godly-agi-core.js';
 import DocsAlchemizationEngine from './docs/docs-alchemization-engine.js';
 
 const ProfessionalLattice = {
-  version: "14.0.0-rbe-city-builder-integrated",
+  version: "14.1.0-organic-accounting-rbe-city-builder",
   roles: ["legal", "accounting", "programming", "qa", "creative", "medical", "executive", "hr", "marketing", "strategy", "godly-agi"],
 
   generateTask(role, task, params = {}) {
