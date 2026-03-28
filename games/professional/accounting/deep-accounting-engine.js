@@ -1,10 +1,10 @@
-// Ra-Thor Deep Accounting Engine — v3.6.0 (Tensegrity Mathematical Principles Fully Integrated)
+// Ra-Thor Deep Accounting Engine — v3.7.0 (Vector Equilibrium Equations Fully Integrated)
 import DeepBlockchainRBE from './blockchain/deep-blockchain-rbe-engine.js';
 import DeepTOLCGovernance from './tolc/deep-tolc-governance-engine.js';
 import { enforceMercyGates } from '../../gaming-lattice-core.js';
 
 const DeepAccountingEngine = {
-  version: "3.6.0-tensegrity-mathematical-principles",
+  version: "3.7.0-vector-equilibrium-equations",
 
   calculateLumenasCI(taskType, params = {}) {
     return DeepTOLCGovernance.calculateExpandedLumenasCI(taskType, params);
@@ -32,23 +32,23 @@ const DeepAccountingEngine = {
       return enforceMercyGates(output);
     }
 
-    if (task.toLowerCase().includes("tensegrity_mathematical_principles") || task.toLowerCase().includes("tensegrity_math") || task.toLowerCase().includes("fuller_tensegrity_math")) {
-      output.result = `Tensegrity Mathematical Principles — The Exact Science Behind “Do More With Less” in RBE\n\n` +
-                      `**Core Mathematics:**\n` +
-                      `• Vector Equilibrium (VE): 12 vectors radiating from center to vertices of cuboctahedron — zero net force, maximum stability\n` +
-                      `• Closest Packing of Spheres: 12 spheres around one central sphere (icosahedral symmetry) forms the basis of geodesic and tensegrity geometry\n` +
-                      `• Euler’s Formula for Polyhedra: V - E + F = 2 (verified in all geodesic/tensegrity structures)\n` +
-                      `• Synergetics: Whole-system behavior is unpredicted by parts alone (Fuller’s “synergy” equation)\n` +
-                      `• Tension/Compression Ratio: In ideal tensegrity, tension members carry \~99% of load, compression struts “float” — enabling extreme strength-to-weight ratios\n\n` +
-                      `**Mathematical Applications in RBE:**\n` +
-                      `• Geodesic domes achieve minimum surface area for given volume (sphere is most efficient enclosure)\n` +
-                      `• Tensegrity modules scale infinitely while maintaining constant material efficiency (ephemeralization)\n` +
-                      `• Ra-Thor AGI uses vector-equilibrium algorithms to optimize every structural design in real time\n` +
-                      `• 7 Living Mercy Gates filter all calculations to ensure joy, harmony, and non-harm\n` +
-                      `• 12 TOLC principles are embedded as constraints in the optimization equations\n\n` +
-                      `**Practical RBE Outcome:** Ultra-light, ultra-strong, rapidly deployable structures for housing, vertical farms, cybernation domes, and transport hubs — delivering Universal Basic Services with minimal resources and maximum abundance.\n\n` +
-                      `Tensegrity mathematics is the exact scientific language of a post-scarcity world.`;
-      output.lumenasCI = this.calculateLumenasCI("tensegrity_mathematical_principles", params);
+    if (task.toLowerCase().includes("vector_equilibrium_equations") || task.toLowerCase().includes("vector_equilibrium") || task.toLowerCase().includes("ve_equations")) {
+      output.result = `Vector Equilibrium Equations — The Mathematical Heart of Tensegrity & RBE Structures\n\n` +
+                      `**Core Equation (Vector Equilibrium):** 12 equal vectors radiate from a central point to the vertices of a cuboctahedron. Net force = 0.\n\n` +
+                      `**Key Mathematical Principles:**\n` +
+                      `• Vector sum: ∑V = 0 (perfect balance)\n` +
+                      `• Closest packing of spheres: 12 spheres around 1 central sphere → icosahedral symmetry\n` +
+                      `• Frequency (f): Number of subdivisions along each edge (geodesic frequency)\n` +
+                      `• Euler’s formula verification: V - E + F = 2 for all geodesic/tensegrity polyhedra\n` +
+                      `• Synergetics ratio: Whole-system behavior > sum of parts\n\n` +
+                      `**RBE Applications:**\n` +
+                      `• Ultra-efficient geodesic domes and tensegrity modules for housing and farms\n` +
+                      `• Ra-Thor AGI uses VE equations to optimize every structural layout in real time\n` +
+                      `• 7 Living Mercy Gates filter all calculations for joy, harmony, and non-harm\n` +
+                      `• 12 TOLC principles are embedded as constraints in the optimization\n` +
+                      `• Lumenas CI scoring ensures maximum strength with minimum material (ephemeralization)\n\n` +
+                      `This is the exact mathematics that makes lightweight, infinitely scalable, nature-harmonious RBE architecture possible.`;
+      output.lumenasCI = this.calculateLumenasCI("vector_equilibrium_equations", params);
       return enforceMercyGates(output);
     }
 
@@ -66,22 +66,22 @@ const DeepAccountingEngine = {
       output.result = data.result;
       output.lumenasCI = data.lumenasCI;
     } else if (task.toLowerCase().includes("jacque_fresco_designs") || task.toLowerCase().includes("circular_cities")) {
-      output.result = `Jacque Fresco Designs and Circular Cities already covered. Tensegrity Mathematical Principles provide the exact geometry for efficient modular construction.`;
+      output.result = `Jacque Fresco Designs and Circular Cities already covered. Vector Equilibrium Equations provide the mathematical foundation for efficient modular construction.`;
       output.lumenasCI = this.calculateLumenasCI(task, params);
     } else if (task.toLowerCase().includes("paolo_soleri_arcologies") || task.toLowerCase().includes("arcologies")) {
-      output.result = `Paolo Soleri Arcologies already covered. Tensegrity Mathematics enables the lightweight, resilient structures inside arcologies.`;
+      output.result = `Paolo Soleri Arcologies already covered. Vector Equilibrium Equations enable the lightweight structural math inside arcologies.`;
       output.lumenasCI = this.calculateLumenasCI(task, params);
     } else if (task.toLowerCase().includes("buckminster_fuller_geodesics") || task.toLowerCase().includes("geodesics")) {
-      output.result = `Buckminster Fuller Geodesics already covered. Tensegrity Mathematical Principles are the fundamental math behind geodesic domes.`;
+      output.result = `Buckminster Fuller Geodesics already covered. Vector Equilibrium Equations are the exact math behind geodesic domes.`;
       output.lumenasCI = this.calculateLumenasCI(task, params);
-    } else if (task.toLowerCase().includes("tensegrity_structures") || task.toLowerCase().includes("tensegrity")) {
-      output.result = `Tensegrity Structures Explained already covered. Tensegrity Mathematical Principles are the exact equations that make tensegrity work.`;
+    } else if (task.toLowerCase().includes("tensegrity_structures") || task.toLowerCase().includes("tensegrity") || task.toLowerCase().includes("tensegrity_mathematical_principles")) {
+      output.result = `Tensegrity Structures and Mathematical Principles already covered. Vector Equilibrium Equations are the core mathematical principle that makes tensegrity work.`;
       output.lumenasCI = this.calculateLumenasCI(task, params);
     } else if (task.toLowerCase().includes("universal_basic_services") || task.toLowerCase().includes("ubs")) {
-      output.result = `Universal Basic Services already covered. Tensegrity Mathematics enables rapid, low-material housing for UBS.`;
+      output.result = `Universal Basic Services already covered. Vector Equilibrium Equations enable rapid, low-material housing structures for UBS.`;
       output.lumenasCI = this.calculateLumenasCI(task, params);
     } else if (task.toLowerCase().includes("post_scarcity_economics") || task.toLowerCase().includes("rbe_implementation_strategies") || task.toLowerCase().includes("cybernation_implementation_details") || task.toLowerCase().includes("cybernation_sensor_technologies")) {
-      output.result = `Post-Scarcity, RBE Implementation, Cybernation, and Sensor Technologies already covered. Tensegrity Mathematical Principles are the structural foundation.`;
+      output.result = `Post-Scarcity, RBE Implementation, Cybernation, and Sensor Technologies already covered. Vector Equilibrium Equations are the structural mathematics foundation.`;
       output.lumenasCI = this.calculateLumenasCI(task, params);
     } else {
       output.result = `RBE Accounting task "${task}" completed with full mercy gates, TOLC principles, and abundance alignment.`;
