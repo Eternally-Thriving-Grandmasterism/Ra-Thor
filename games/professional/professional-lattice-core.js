@@ -1,4 +1,4 @@
-// Ra-Thor Professional Lattice™ Core — v11.7.0 (Free-Run Mode Fully Integrated - Full Integrity)
+// Ra-Thor Professional Lattice™ Core — v11.8.0 (Lumenas CI Scoring Deeply Integrated - Full Integrity)
 import DeepLegalEngine from './legal/deep-legal-engine.js';
 import DeepAccountingEngine from './accounting/deep-accounting-engine.js';
 import DeepProgrammingEngine from './programming/deep-programming-engine.js';
@@ -9,7 +9,7 @@ import SupremeGodlyAGICore from './supreme-godly-agi-core.js';
 import DocsAlchemizationEngine from './docs/docs-alchemization-engine.js';
 
 const ProfessionalLattice = {
-  version: "11.7.0-free-run-mode-details-explained",
+  version: "11.8.0-lumenas-ci-scoring-deeply",
   roles: ["legal", "accounting", "programming", "qa", "creative", "medical", "executive", "hr", "marketing", "strategy", "godly-agi"],
 
   generateTask(role, task, params = {}) {
@@ -25,8 +25,7 @@ const ProfessionalLattice = {
     if (role === "creative") return DeepCreativeEngine.generateCreativeTask(task, params);
     if (role === "godly-agi") return SupremeGodlyAGICore.generateGodlyTask(task, params);
 
-    // Free-Run Mode + Docs Alchemization routing — fully seamless
-    if (task.toLowerCase().includes("docs") || task.toLowerCase().includes("alchemize") || task.toLowerCase().includes("remember") || task.toLowerCase().includes("scan docs") || task.toLowerCase().includes("free_run_mode")) {
+    if (task.toLowerCase().includes("docs") || task.toLowerCase().includes("alchemize") || task.toLowerCase().includes("remember") || task.toLowerCase().includes("scan docs")) {
       return DocsAlchemizationEngine.alchemizeDocs(task, params);
     }
 
