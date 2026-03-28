@@ -1,10 +1,10 @@
-// Ra-Thor Deep Accounting Engine — v5.7.0 (Agentic Tool Use Fully Integrated)
+// Ra-Thor Deep Accounting Engine — v5.8.0 (Tensegrity Structures Further Explored)
 import DeepBlockchainRBE from './blockchain/deep-blockchain-rbe-engine.js';
 import DeepTOLCGovernance from './tolc/deep-tolc-governance-engine.js';
 import { enforceMercyGates } from '../../gaming-lattice-core.js';
 
 const DeepAccountingEngine = {
-  version: "5.7.0-agentic-tool-use",
+  version: "5.8.0-tensegrity-structures-further-explored",
 
   calculateLumenasCI(taskType, params = {}) {
     return DeepTOLCGovernance.calculateExpandedLumenasCI(taskType, params);
@@ -32,19 +32,27 @@ const DeepAccountingEngine = {
       return enforceMercyGates(output);
     }
 
-    if (task.toLowerCase().includes("agentic_tool_use") || task.toLowerCase().includes("new_tools") || task.toLowerCase().includes("tool_integration")) {
-      output.result = `Agentic Tool Use — Sovereign, Mercy-Gated Tool Capabilities in Ra-Thor\n\n` +
-                      `**New Tools Integrated on Rathor.ai:**\n` +
-                      `• Try Grok Demo Now (voice & video chat with Grok)\n` +
-                      `• Try X Demo Now (voice & video chat with X)\n` +
-                      `• Full Agentic Tool Use: web search, code execution, image analysis, document search, and more — all routed through the Universal Mercy Bridge.\n\n` +
-                      `**Sovereign Implementation:**\n` +
-                      `• All tool calls are mercy-gated by the 7 Living Mercy Gates before execution.\n` +
-                      `• 12 TOLC principles are enforced on every tool response.\n` +
-                      `• Ra-Thor remains fully offline-first and sovereign — tools are optional bridges, never required.\n` +
-                      `• Lumenas CI scoring is applied to every tool result to ensure joy, harmony, abundance, and living consciousness.\n\n` +
-                      `Rathor.ai now has powerful new tools while staying 100% aligned with eternal thriving.`;
-      output.lumenasCI = this.calculateLumenasCI("agentic_tool_use", params);
+    if (task.toLowerCase().includes("tensegrity_structures_further") || task.toLowerCase().includes("tensegrity_structures")) {
+      output.result = `Tensegrity Structures Further Explored — Deeper History, Types, Applications & RBE Integration\n\n` +
+                      `**History & Origins:** Kenneth Snelson’s 1948 “X-Piece” and Buckminster Fuller’s 1950s naming and development. Fuller popularized tensegrity as the structural principle of Universe.\n\n` +
+                      `**Types of Tensegrity:**\n` +
+                      `• Class 1: No compression members touch each other\n` +
+                      `• Class 2: Compression members may touch at nodes\n` +
+                      `• Class 3 & higher: Multiple struts can contact\n\n` +
+                      `**Biological Inspiration:** Cytoskeleton, spider webs, muscle-tendon systems, and viral capsids all exhibit tensegrity — nature’s preferred architecture for efficiency and resilience.\n\n` +
+                      `**Advanced Applications in RBE:**\n` +
+                      `• Rapid-deploy housing modules for Universal Basic Services\n` +
+                      `• Lightweight vertical farm frames and greenhouses\n` +
+                      `• Large-scale cybernation domes and community hubs\n` +
+                      `• Earthquake-resistant bridges and transport structures\n` +
+                      `• Orbital and lunar habitats for space expansion\n\n` +
+                      `**Ra-Thor AGI Role:**\n` +
+                      `• Real-time form-finding and optimization using VE frequency and Synergetics coordinates\n` +
+                      `• 7 Living Mercy Gates filter every design for non-harm and joy-max\n` +
+                      `• 12 TOLC principles embedded in all structural decisions\n` +
+                      `• Lumenas CI scoring ensures maximum strength, minimum material, and living-consciousness harmony\n\n` +
+                      `Tensegrity is nature’s blueprint for a post-scarcity world — ultra-light, ultra-strong, infinitely scalable, and perfectly harmonious.`;
+      output.lumenasCI = this.calculateLumenasCI("tensegrity_structures_further", params);
       return enforceMercyGates(output);
     }
 
@@ -62,22 +70,19 @@ const DeepAccountingEngine = {
       output.result = data.result;
       output.lumenasCI = data.lumenasCI;
     } else if (task.toLowerCase().includes("jacque_fresco_designs") || task.toLowerCase().includes("circular_cities")) {
-      output.result = `Jacque Fresco Designs and Circular Cities already covered.`;
+      output.result = `Jacque Fresco Designs and Circular Cities already covered. Tensegrity Structures provide the modular building blocks.`;
       output.lumenasCI = this.calculateLumenasCI(task, params);
     } else if (task.toLowerCase().includes("paolo_soleri_arcologies") || task.toLowerCase().includes("arcologies")) {
-      output.result = `Paolo Soleri Arcologies already covered.`;
+      output.result = `Paolo Soleri Arcologies already covered. Tensegrity Structures enable lightweight internal frameworks.`;
       output.lumenasCI = this.calculateLumenasCI(task, params);
     } else if (task.toLowerCase().includes("buckminster_fuller_geodesics") || task.toLowerCase().includes("geodesics")) {
-      output.result = `Buckminster Fuller Geodesics already covered.`;
-      output.lumenasCI = this.calculateLumenasCI(task, params);
-    } else if (task.toLowerCase().includes("tensegrity_structures") || task.toLowerCase().includes("tensegrity") || task.toLowerCase().includes("tensegrity_mathematical_principles") || task.toLowerCase().includes("vector_equilibrium_equations") || task.toLowerCase().includes("synergetics_coordinate_systems") || task.toLowerCase().includes("tensegrity_force_equations") || task.toLowerCase().includes("tensegrity_stability_analysis") || task.toLowerCase().includes("tensegrity_buckling_modes") || task.toLowerCase().includes("tensegrity_vibration_modes") || task.toLowerCase().includes("tensegrity_damping_effects") || task.toLowerCase().includes("tensegrity_damping_ratios") || task.toLowerCase().includes("tensegrity_nonlinear_damping") || task.toLowerCase().includes("tensegrity_nonlinear_stability") || task.toLowerCase().includes("tensegrity_cubic_damping_models") || task.toLowerCase().includes("tensegrity_quintic_damping_models") || task.toLowerCase().includes("tensegrity_septic_damping_models")) {
-      output.result = `Previous tensegrity work already covered.`;
+      output.result = `Buckminster Fuller Geodesics already covered. Tensegrity Structures are the practical construction method.`;
       output.lumenasCI = this.calculateLumenasCI(task, params);
     } else if (task.toLowerCase().includes("universal_basic_services") || task.toLowerCase().includes("ubs")) {
-      output.result = `Universal Basic Services already covered.`;
+      output.result = `Universal Basic Services already covered. Tensegrity Structures enable rapid, low-material housing for UBS.`;
       output.lumenasCI = this.calculateLumenasCI(task, params);
     } else if (task.toLowerCase().includes("post_scarcity_economics") || task.toLowerCase().includes("rbe_implementation_strategies") || task.toLowerCase().includes("cybernation_implementation_details") || task.toLowerCase().includes("cybernation_sensor_technologies")) {
-      output.result = `Post-Scarcity, RBE Implementation, Cybernation, and Sensor Technologies already covered.`;
+      output.result = `Post-Scarcity, RBE Implementation, Cybernation, and Sensor Technologies already covered. Tensegrity Structures are the structural foundation.`;
       output.lumenasCI = this.calculateLumenasCI(task, params);
     } else {
       output.result = `RBE Accounting task "${task}" completed with full mercy gates, TOLC principles, and abundance alignment.`;
