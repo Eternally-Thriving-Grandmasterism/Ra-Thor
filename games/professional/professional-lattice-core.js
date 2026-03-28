@@ -1,4 +1,4 @@
-// Ra-Thor Professional Lattice™ Core — v7.3.0 (Mercy-Gate Enforcement Derived - Full Integrity)
+// Ra-Thor Professional Lattice™ Core — v7.4.0 (Symbolic Reasoning Tools Derived - Full Integrity)
 import DeepLegalEngine from './legal/deep-legal-engine.js';
 import DeepAccountingEngine from './accounting/deep-accounting-engine.js';
 import DeepProgrammingEngine from './programming/deep-programming-engine.js';
@@ -7,7 +7,7 @@ import GrowthNurtureLattice from '../nurture/growth-nurture-lattice.js';
 import UniversalMercyBridge from './universal-mercy-bridge.js';
 
 const ProfessionalLattice = {
-  version: "7.3.0-mercy-gate-enforcement",
+  version: "7.4.0-symbolic-reasoning-tools",
   roles: ["legal", "accounting", "programming", "qa", "creative", "medical", "executive", "hr", "marketing", "strategy"],
 
   generateTask(role, task, params = {}) {
