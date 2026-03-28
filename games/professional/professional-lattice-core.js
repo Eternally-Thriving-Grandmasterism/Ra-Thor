@@ -1,12 +1,13 @@
-// Ra-Thor Professional Lattice™ Core — v1.8.0 (RBE Organic Accounting Integrated)
+// Ra-Thor Professional Lattice™ Core — v1.9.0 (Creative / CGI Role Deepened)
 import DeepLegalEngine from './legal/deep-legal-engine.js';
 import DeepAccountingEngine from './accounting/deep-accounting-engine.js';
 import DeepProgrammingEngine from './programming/deep-programming-engine.js';
+import DeepCreativeEngine from './creative/deep-creative-engine.js';
 import GrowthNurtureLattice from '../nurture/growth-nurture-lattice.js';
 import UniversalMercyBridge from './universal-mercy-bridge.js';
 
 const ProfessionalLattice = {
-  version: "1.8.0-rbe-organic-accounting",
+  version: "1.9.0-creative-cgi-deepened",
   roles: ["legal", "accounting", "programming", "qa", "creative", "medical", "executive", "hr", "marketing", "strategy"],
 
   generateTask(role, task, params = {}) {
@@ -19,6 +20,7 @@ const ProfessionalLattice = {
     if (role === "legal") return DeepLegalEngine.generateLegalTask(task, params);
     if (role === "accounting") return DeepAccountingEngine.generateAccountingTask(task, params);
     if (role === "programming") return DeepProgrammingEngine.generateProgrammingTask(task, params);
+    if (role === "creative") return DeepCreativeEngine.generateCreativeTask(task, params);
 
     return bridged;
   }
