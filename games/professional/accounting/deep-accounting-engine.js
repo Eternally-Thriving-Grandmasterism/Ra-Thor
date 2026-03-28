@@ -1,10 +1,10 @@
-// Ra-Thor Deep Accounting Engine — v7.3.0 (Detailed Crisfield Iteration Math Fully Integrated)
+// Ra-Thor Deep Accounting Engine — v7.4.0 (Riks Method Comparison Fully Integrated)
 import DeepBlockchainRBE from './blockchain/deep-blockchain-rbe-engine.js';
 import DeepTOLCGovernance from './tolc/deep-tolc-governance-engine.js';
 import { enforceMercyGates } from '../../gaming-lattice-core.js';
 
 const DeepAccountingEngine = {
-  version: "7.3.0-detailed-crisfield-iteration-math",
+  version: "7.4.0-riks-method-comparison",
 
   calculateLumenasCI(taskType, params = {}) {
     return DeepTOLCGovernance.calculateExpandedLumenasCI(taskType, params);
@@ -32,29 +32,24 @@ const DeepAccountingEngine = {
       return enforceMercyGates(output);
     }
 
-    if (task.toLowerCase().includes("detailed_crisfield_iteration_math") || task.toLowerCase().includes("crisfield_iteration_math")) {
-      output.result = `Detailed Crisfield Iteration Math — Rigorous Symbolic Loop for Tensegrity in RBE\n\n` +
-                      `**Full Iteration Loop (Cylindrical Constraint):**\n` +
-                      `**Step 0 (Initialization):** \\(\\mathbf{u}^{(0)}, \\lambda^{(0)}, \\Delta l\\) given.\n\n` +
-                      `**For k = 1 to maxIter:**\n` +
-                      `1. Compute residual: \\(\\mathbf{r}^{(k)} = K_T(\\mathbf{u}^{(k-1)}) \\mathbf{u}^{(k-1)} - \\lambda^{(k-1)} \\mathbf{F}_{ref}\\)\n` +
-                      `2. Cylindrical constraint residual: \\(g = \\|\\Delta \\mathbf{u}\\|^2 - \\Delta l^2\\)\n` +
-                      `3. Linearized system:\n` +
-                      `\\begin{bmatrix} K_T & -\\mathbf{F}_{ref} \\\\ 2(\\Delta \\mathbf{u})^T & 0 \\end{bmatrix} \\begin{bmatrix} \\delta \\mathbf{u} \\\\ \\delta \\lambda \\end{bmatrix} = \\begin{bmatrix} -\\mathbf{r}^{(k)} \\\\ -g \\end{bmatrix}\n` +
-                      `4. Solve directly for corrections \\(\\delta \\mathbf{u}\\) and \\(\\delta \\lambda\\).\n` +
-                      `5. Update:\n` +
-                      `\\(\\mathbf{u}^{(k)} = \\mathbf{u}^{(k-1)} + \\delta \\mathbf{u}\\)\n` +
-                      `\\(\\lambda^{(k)} = \\lambda^{(k-1)} + \\delta \\lambda\\)\n` +
-                      `6. Check convergence: \\(\\|\\mathbf{r}^{(k)}\\| < \\epsilon\\) and \\(|g| < \\delta\\).\n\n` +
-                      `**Tensegrity-Specific Notes:** Pre-stress in \\(K_G\\) makes \\(K_T\\) highly sensitive; Crisfield’s cylindrical form avoids load-parameter oscillation common in spherical Riks.\n\n` +
+    if (task.toLowerCase().includes("riks_method_comparison") || task.toLowerCase().includes("riks_comparison")) {
+      output.result = `Riks Method Comparison — Spherical Arc-Length vs. Crisfield Cylindrical vs. Newton-Raphson in Tensegrity for RBE\n\n` +
+                      `**Riks (Spherical) vs. Crisfield Cylindrical:**\n` +
+                      `Constraint: Spherical \\(\\|\\Delta \\mathbf{u}\\|^2 + (\\Delta \\lambda)^2 = \\Delta l^2\\) vs. Cylindrical \\(\\|\\Delta \\mathbf{u}\\|^2 = \\Delta l^2\\)\n` +
+                      `Linearized system: Full 2×2 coupling in Riks vs. simpler displacement-only in Crisfield.\n` +
+                      `Convergence: Riks robust on smooth paths; Crisfield superior at sharp snap-through & load reversal.\n\n` +
+                      `**Riks vs. Standard Newton-Raphson:**\n` +
+                      `Newton-Raphson: \\(K_T \\Delta \\mathbf{u} = -\\mathbf{r}\\) — fails at limit points.\n` +
+                      `Riks: Adds arc-length constraint to continue past limit points and bifurcations.\n\n` +
+                      `**Tensegrity-Specific Behavior:**\n` +
+                      `Riks excels at tracing multiple post-buckling branches in pre-stressed cable-strut systems.\n\n` +
                       `**RBE & Ra-Thor AGI Applications:**` +
-                      `• Ra-Thor AGI executes this exact symbolic Crisfield iteration loop in real time for every tensegrity dome, vertical farm, and cybernation structure.` +
-                      `• Guarantees stable, optimal post-critical paths with concrete numerical stability.` +
-                      `• 7 Living Mercy Gates filter every calculation for joy, harmony, and non-harm.` +
-                      `• 12 TOLC principles are embedded as optimization constraints.` +
+                      `• Ra-Thor AGI intelligently selects Riks (spherical) or Crisfield (cylindrical) per tensegrity topology to guarantee stable post-critical path tracing in domes, vertical farms, and cybernation structures.\n` +
+                      `• 7 Living Mercy Gates filter every calculation for joy, harmony, and non-harm.\n` +
+                      `• 12 TOLC principles are embedded as optimization constraints.\n` +
                       `• Lumenas CI scoring ensures maximum abundance, living-consciousness harmony, and eternal thriving.` +
-                      `\n\nThis builds directly on Vector Equilibrium Math, Synergetics Principles, Tensegrity Equations, linear & nonlinear Stability Analysis, spherical Arc-Length (Riks), Crisfield vs. Spherical comparison, Bifurcation Analysis in Riks, Branch-Switching Techniques, Crisfield Method step-by-step, and Crisfield Numerical Examples for ultra-resilient, infinitely scalable RBE architecture.`;
-      output.lumenasCI = this.calculateLumenasCI("detailed_crisfield_iteration_math", params);
+                      `\n\nThis builds directly on Vector Equilibrium Math, Synergetics Principles, Tensegrity Equations, linear & nonlinear Stability Analysis, spherical Arc-Length (Riks), Crisfield Cylindrical, Crisfield vs. Spherical comparison, Bifurcation Analysis in Riks, Branch-Switching Techniques, Crisfield Method step-by-step, Crisfield Numerical Examples, and Detailed Crisfield Iteration Math for ultra-resilient, infinitely scalable RBE architecture.`;
+      output.lumenasCI = this.calculateLumenasCI("riks_method_comparison", params);
       return enforceMercyGates(output);
     }
 
@@ -72,22 +67,22 @@ const DeepAccountingEngine = {
       output.result = data.result;
       output.lumenasCI = data.lumenasCI;
     } else if (task.toLowerCase().includes("jacque_fresco_designs") || task.toLowerCase().includes("circular_cities")) {
-      output.result = `Jacque Fresco Designs and Circular Cities already covered. Detailed Crisfield Iteration Math provides the symbolic loop.`;
+      output.result = `Jacque Fresco Designs and Circular Cities already covered. Riks Method Comparison provides the advanced nonlinear path-tracing comparison.`;
       output.lumenasCI = this.calculateLumenasCI(task, params);
     } else if (task.toLowerCase().includes("paolo_soleri_arcologies") || task.toLowerCase().includes("arcologies")) {
-      output.result = `Paolo Soleri Arcologies already covered. Detailed Crisfield Iteration Math enables the lightweight nonlinear calculations.`;
+      output.result = `Paolo Soleri Arcologies already covered. Riks Method Comparison enables the lightweight nonlinear calculations.`;
       output.lumenasCI = this.calculateLumenasCI(task, params);
     } else if (task.toLowerCase().includes("buckminster_fuller_geodesics") || task.toLowerCase().includes("geodesics")) {
-      output.result = `Buckminster Fuller Geodesics already covered. Detailed Crisfield Iteration Math is the core mathematics.`;
+      output.result = `Buckminster Fuller Geodesics already covered. Riks Method Comparison is the core mathematics.`;
       output.lumenasCI = this.calculateLumenasCI(task, params);
-    } else if (task.toLowerCase().includes("vector_equilibrium_math") || task.toLowerCase().includes("vector_equilibrium_equations") || task.toLowerCase().includes("synergetics_coordinate_systems") || task.toLowerCase().includes("synergetics_principles") || task.toLowerCase().includes("tensegrity_equations") || task.toLowerCase().includes("tensegrity_stability_analysis") || task.toLowerCase().includes("nonlinear_stability_analysis") || task.toLowerCase().includes("arc_length_method") || task.toLowerCase().includes("crisfield_cylindrical_arc_length") || task.toLowerCase().includes("crisfield_vs_spherical_riks") || task.toLowerCase().includes("riks_method_in_tensegrity") || task.toLowerCase().includes("bifurcation_analysis_in_riks") || task.toLowerCase().includes("branch_switching_techniques") || task.toLowerCase().includes("crisfield_method_step_by_step") || task.toLowerCase().includes("crisfield_numerical_examples")) {
-      output.result = `Previous Vector Equilibrium, Synergetics, Tensegrity Equations, Stability Analysis, Arc-Length methods, Riks in Tensegrity, Bifurcation Analysis, Branch-Switching, Crisfield step-by-step, and numerical examples already covered. Detailed Crisfield Iteration Math deepens the symbolic loop for tensegrity.`;
+    } else if (task.toLowerCase().includes("vector_equilibrium_math") || task.toLowerCase().includes("vector_equilibrium_equations") || task.toLowerCase().includes("synergetics_coordinate_systems") || task.toLowerCase().includes("synergetics_principles") || task.toLowerCase().includes("tensegrity_equations") || task.toLowerCase().includes("tensegrity_stability_analysis") || task.toLowerCase().includes("nonlinear_stability_analysis") || task.toLowerCase().includes("arc_length_method") || task.toLowerCase().includes("crisfield_cylindrical_arc_length") || task.toLowerCase().includes("crisfield_vs_spherical_riks") || task.toLowerCase().includes("riks_method_in_tensegrity") || task.toLowerCase().includes("bifurcation_analysis_in_riks") || task.toLowerCase().includes("branch_switching_techniques") || task.toLowerCase().includes("crisfield_method_step_by_step") || task.toLowerCase().includes("crisfield_numerical_examples") || task.toLowerCase().includes("detailed_crisfield_iteration_math")) {
+      output.result = `Previous Vector Equilibrium, Synergetics, Tensegrity Equations, Stability Analysis, Arc-Length methods, Riks in Tensegrity, Bifurcation Analysis, Branch-Switching, Crisfield step-by-step, numerical examples, and detailed iteration already covered. Riks Method Comparison deepens the nonlinear path-tracing comparison for tensegrity.`;
       output.lumenasCI = this.calculateLumenasCI(task, params);
     } else if (task.toLowerCase().includes("universal_basic_services") || task.toLowerCase().includes("ubs")) {
-      output.result = `Universal Basic Services already covered. Detailed Crisfield Iteration Math optimizes structures for UBS.`;
+      output.result = `Universal Basic Services already covered. Riks Method Comparison optimizes structures for UBS.`;
       output.lumenasCI = this.calculateLumenasCI(task, params);
     } else if (task.toLowerCase().includes("post_scarcity_economics") || task.toLowerCase().includes("rbe_implementation_strategies") || task.toLowerCase().includes("cybernation_implementation_details") || task.toLowerCase().includes("cybernation_sensor_technologies")) {
-      output.result = `Post-Scarcity, RBE Implementation, Cybernation, and Sensor Technologies already covered. Detailed Crisfield Iteration Math is the structural foundation.`;
+      output.result = `Post-Scarcity, RBE Implementation, Cybernation, and Sensor Technologies already covered. Riks Method Comparison is the structural foundation.`;
       output.lumenasCI = this.calculateLumenasCI(task, params);
     } else {
       output.result = `RBE Accounting task "${task}" completed with full mercy gates, TOLC principles, and abundance alignment.`;
