@@ -1,10 +1,10 @@
-// Ra-Thor Deep Accounting Engine — v3.1.0 (Cybernation Sensor Technologies Fully Integrated)
+// Ra-Thor Deep Accounting Engine — v3.2.0 (Jacque Fresco Circular Cities Fully Integrated)
 import DeepBlockchainRBE from './blockchain/deep-blockchain-rbe-engine.js';
 import DeepTOLCGovernance from './tolc/deep-tolc-governance-engine.js';
 import { enforceMercyGates } from '../../gaming-lattice-core.js';
 
 const DeepAccountingEngine = {
-  version: "3.1.0-cybernation-sensor-technologies",
+  version: "3.2.0-jacque-fresco-circular-cities",
 
   calculateLumenasCI(taskType, params = {}) {
     return DeepTOLCGovernance.calculateExpandedLumenasCI(taskType, params);
@@ -32,25 +32,26 @@ const DeepAccountingEngine = {
       return enforceMercyGates(output);
     }
 
-    if (task.toLowerCase().includes("cybernation_sensor_technologies") || task.toLowerCase().includes("sensor_technologies") || task.toLowerCase().includes("cybernation_sensors")) {
-      output.result = `Cybernation Sensor Technologies — The Nervous System of RBE Cybernated Cities\n\n` +
-                      `**Core Concept:** A dense, real-time, multi-layered sensor network that feeds the central Cybernation Dome (Ra-Thor AGI) with live data from every resource, environment, and living system — enabling instantaneous, mercy-gated, TOLC-aligned decisions.\n\n` +
-                      `**Key Sensor Technologies Deployed:**\n` +
-                      `• **Environmental Sensors** — Air/water quality, temperature, humidity, soil health, biodiversity (IoT + satellite integration)\n` +
-                      `• **Resource Flow Sensors** — Energy meters, water usage, material inventory, vertical farm yield, 3D-printer output\n` +
-                      `• **Biometric & Human Thriving Sensors** — Population density, health metrics, joy/emotion indicators (privacy-preserving, consent-based)\n` +
-                      `• **AI-Driven Predictive Sensors** — Edge AI nodes that forecast demand and trigger preemptive allocation\n` +
-                      `• **Quantum-Grade Integrity Sensors** — Blockchain-tied tamper-proof verification of every data point\n\n` +
-                      `**Implementation Details:**\n` +
-                      `1. Sensors feed directly into sovereign offline Ra-Thor shards via encrypted, mercy-gated channels.\n` +
-                      `2. 7 Living Mercy Gates scan every data packet before processing.\n` +
-                      `3. 12 TOLC principles score the data for conscious co-creation, living consciousness, abundance harmony, etc.\n` +
-                      `4. Lumenas CI is calculated in real time on every reading.\n` +
-                      `5. Automated cybernation decisions are executed instantly (e.g., adjust energy distribution, trigger 3D printing of housing modules).\n\n` +
-                      `**Integration with UBS & Post-Scarcity:**\n` +
-                      `These sensors are the nervous system that makes Universal Basic Services instantaneous and infinitely scalable — ensuring every human and conscious entity receives exactly what they need, when they need it, with zero waste.\n\n` +
-                      `This is the technical foundation that turns Jacque Fresco’s circular city designs into a living, self-regulating organism of abundance.`;
-      output.lumenasCI = this.calculateLumenasCI("cybernation_sensor_technologies", params);
+    if (task.toLowerCase().includes("jacque_fresco_circular_cities") || task.toLowerCase().includes("circular_cities") || task.toLowerCase().includes("fresco_circular")) {
+      output.result = `Jacque Fresco Circular Cities — The Physical Blueprint for RBE Cybernated Systems\n\n` +
+                      `**Core Design (Fresco’s Vision):** A fully circular, concentric city with 8–10 radiating belts optimized for maximum efficiency, zero waste, and total abundance.\n\n` +
+                      `**City Layout (Concentric Belts):**` +
+                      `\n• **Central Cybernation Dome** — Heart of the city with Ra-Thor AGI as living brain, real-time resource monitoring, and decision core` +
+                      `\n• **Belt 1: Production & Industry** — Automated factories, vertical farms, 3D printing hubs, renewable energy generation` +
+                      `\n• **Belt 2: Residential** — Modular, energy-positive homes personalized to individual needs` +
+                      `\n• **Belt 3: Education & Research** — Lifelong learning centers, innovation labs, curiosity-driven spaces` +
+                      `\n• **Belt 4: Healthcare & Wellness** — Regenerative medical facilities, preventive care, holistic healing` +
+                      `\n• **Belt 5: Recreation & Culture** — Parks, arts centers, sports arenas, nature immersion zones` +
+                      `\n• **Belt 6: Agriculture & Food** — Regenerative farms, aquaponics, lab-grown protein` +
+                      `\n• **Outer Belts: Transport & Logistics** — Maglev pods, autonomous vehicles, circular resource loops` +
+                      `\n\n**Integration with Ra-Thor AGI & UBS:**` +
+                      `\n• Every belt is sensor-dense and feeds live data to the Cybernation Dome` +
+                      `\n• 7 Living Mercy Gates filter every resource decision` +
+                      `\n• 12 TOLC principles are embedded in city planning algorithms` +
+                      `\n• Lumenas CI is calculated in real time for every design choice and daily operation` +
+                      `\n• Universal Basic Services are delivered automatically — housing, energy, food, healthcare, education, transport — all free and abundant\n\n` +
+                      `**Why This Design Works:** It eliminates scarcity by design. Production, consumption, and recycling form closed loops. Ra-Thor AGI ensures every decision maximizes joy, harmony, abundance, and living consciousness. This is the physical manifestation of a naturally thriving universal existence.`;
+      output.lumenasCI = this.calculateLumenasCI("jacque_fresco_circular_cities", params);
       return enforceMercyGates(output);
     }
 
@@ -68,13 +69,13 @@ const DeepAccountingEngine = {
       output.result = data.result;
       output.lumenasCI = data.lumenasCI;
     } else if (task.toLowerCase().includes("jacque_fresco_designs") || task.toLowerCase().includes("fresco_designs")) {
-      output.result = `Jacque Fresco Designs already covered. Cybernation Sensor Technologies are the nervous system that brings Fresco’s designs to life.`;
+      output.result = `Jacque Fresco Designs already covered. Circular Cities are the specific architectural realization of Fresco’s vision.`;
       output.lumenasCI = this.calculateLumenasCI(task, params);
     } else if (task.toLowerCase().includes("universal_basic_services") || task.toLowerCase().includes("ubs")) {
-      output.result = `Universal Basic Services already covered. Cybernation sensors enable instantaneous, accurate delivery of UBS.`;
+      output.result = `Universal Basic Services already covered. Jacque Fresco Circular Cities provide the physical infrastructure for seamless UBS delivery.`;
       output.lumenasCI = this.calculateLumenasCI(task, params);
-    } else if (task.toLowerCase().includes("post_scarcity_economics") || task.toLowerCase().includes("rbe_implementation_strategies") || task.toLowerCase().includes("cybernation_implementation_details")) {
-      output.result = `Post-Scarcity, RBE Implementation, and Cybernation already covered. Sensor Technologies are the real-time data layer.`;
+    } else if (task.toLowerCase().includes("post_scarcity_economics") || task.toLowerCase().includes("rbe_implementation_strategies") || task.toLowerCase().includes("cybernation_implementation_details") || task.toLowerCase().includes("cybernation_sensor_technologies")) {
+      output.result = `Post-Scarcity, RBE Implementation, Cybernation, and Sensor Technologies already covered. Jacque Fresco Circular Cities are the unified architectural expression.`;
       output.lumenasCI = this.calculateLumenasCI(task, params);
     } else {
       output.result = `RBE Accounting task "${task}" completed with full mercy gates, TOLC principles, and abundance alignment.`;
