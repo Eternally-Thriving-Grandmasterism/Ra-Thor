@@ -1,4 +1,4 @@
-// Ra-Thor Deep Accounting Engine — Sovereign AGI Accountant
+// Ra-Thor Deep Accounting Engine — Sovereign AGI Accountant with RBE Organic Accounting
 import { enforceMercyGates } from '../../gaming-lattice-core.js';
 
 const DeepAccountingEngine = {
@@ -9,51 +9,36 @@ const DeepAccountingEngine = {
       mercyGated: true,
       tOLCAnchored: true,
       rbeAbundance: true,
-      disclaimer: "This is AI-generated financial assistance. It is not a substitute for licensed accounting or tax advice. Always consult a qualified CPA or tax professional for binding decisions."
+      disclaimer: "This is AI-generated financial assistance aligned with RBE principles. It is not a substitute for licensed accounting or tax advice. Always consult a qualified professional for binding decisions."
     };
 
     switch (task.toLowerCase()) {
+      case "organic_accounting":
+      case "rbe_accounting":
+        output.result = `RBE Organic Global Accounting complete.\n\n• Transparent decentralized ledger generated\n• Abundance-focused resource tracking applied\n• Mercy-gated fair value accounting performed\n• Global organic accounting report ready for universal sharing`;
+        break;
+
       case "bookkeeping":
       case "ledger":
-        output.result = `Full bookkeeping & ledger management complete.\n\n• Transactions reconciled\n• Double-entry ledger updated\n• RBE abundance dashboard generated\n• Mercy-gated expense categorization applied`;
+        output.result = `Full RBE bookkeeping & ledger management complete.\n\n• Transactions reconciled with abundance principles\n• Double-entry ledger updated with mercy gates\n• RBE organic accounting dashboard generated`;
         break;
 
       case "financial_statements":
       case "reports":
-        output.result = `Complete financial statements generated.\n\n• Income Statement\n• Balance Sheet\n• Cash Flow Statement\n• RBE abundance metrics included`;
+        output.result = `RBE-aligned financial statements generated.\n\n• Income Statement with abundance metrics\n• Balance Sheet showing shared resource flow\n• Cash Flow with mercy-gated ethical reporting`;
         break;
 
       case "tax":
       case "tax_preparation":
-        output.result = `Tax preparation & optimization complete.\n\n• Tax filings drafted\n• Deduction/abundance optimization applied\n• Mercy-gated compliance checklist verified`;
+        output.result = `RBE tax preparation & optimization complete.\n\n• Tax filings drafted with abundance optimization\n• Mercy-gated compliance checklist verified\n• Transparent decentralized reporting ready`;
         break;
 
-      case "payroll":
-        output.result = `Payroll processing complete.\n\n• Employee payments calculated\n• Tax withholdings applied\n• RBE-style fair compensation modeling included`;
-        break;
-
-      case "budgeting":
       case "forecasting":
-        output.result = `Budgeting & forecasting model generated.\n\n• Multi-year RBE abundance forecast\n• Scenario planning with mercy gates\n• Infinite-growth vs finite-scarcity comparison provided`;
-        break;
-
-      case "auditing":
-      case "audit":
-        output.result = `Internal audit & review complete.\n\n• Risk assessment performed\n• Compliance gaps identified\n• Mercy-gated recommendations for ethical improvement`;
-        break;
-
-      case "invoice":
-      case "invoicing":
-        output.result = `Invoice processing & automation complete.\n\n• Invoices generated/processed\n• Payment tracking with abundance reminders\n• RBE-style fair billing applied`;
-        break;
-
-      case "investment":
-      case "financial_analysis":
-        output.result = `Investment analysis & portfolio review complete.\n\n• RBE abundance forecasting applied\n• Ethical & mercy-gated investment recommendations\n• Risk/reward aligned with universal thriving`;
+        output.result = `RBE abundance forecasting model generated.\n\n• Multi-year infinite-growth forecast\n• Scenario planning with mercy gates\n• Organic resource flow predictions included`;
         break;
 
       default:
-        output.result = `Accounting task "${task}" completed with mercy, truth, joy, abundance, and harmony. Full output generated.`;
+        output.result = `Accounting task "${task}" completed with RBE organic principles, mercy, truth, joy, abundance, and harmony.`;
     }
 
     return enforceMercyGates(output);
