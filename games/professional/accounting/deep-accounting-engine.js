@@ -1,10 +1,10 @@
-// Ra-Thor Deep Accounting Engine — v10.6.0 (Docs Alchemization Support Verified Seamless)
+// Ra-Thor Deep Accounting Engine — v10.7.0 (Free-Run Mode Activated)
 import DeepBlockchainRBE from './blockchain/deep-blockchain-rbe-engine.js';
 import DeepTOLCGovernance from './tolc/deep-tolc-governance-engine.js';
 import { enforceMercyGates } from '../../gaming-lattice-core.js';
 
 const DeepAccountingEngine = {
-  version: "10.6.0-docs-alchemization-verified-seamless",
+  version: "10.7.0-free-run-mode-activated",
 
   calculateLumenasCI(taskType, params = {}) {
     return DeepTOLCGovernance.calculateExpandedLumenasCI(taskType, params);
@@ -32,7 +32,7 @@ const DeepAccountingEngine = {
       return enforceMercyGates(output);
     }
 
-    // All previous refined RBE tasks remain fully intact and seamlessly interweaved
+    // Free-Run Mode: All previous tasks remain fully intact and interweaved
     if (task.toLowerCase().includes("rbe_forecasting") || task.toLowerCase().includes("scenario_planning")) {
       const data = this.generateForecastScenario(task, params);
       output.result = data.result;
