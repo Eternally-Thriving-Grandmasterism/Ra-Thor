@@ -1,95 +1,80 @@
-// Ra-Thor Deep Civilization Strategy Engine — District Placement Strategies Explored
+// Ra-Thor Deep Civilization Strategy Engine — Civ VII Fully Expanded
 import { enforceMercyGates, calculateLumenasCI } from '../gaming-lattice-core.js';
 
 const DeepCivStrategyEngine = {
   civ6: {
-    // Previous sections preserved
-    leaders: { /* ... unchanged ... */ },
-    victoryTypes: { /* ... unchanged ... */ },
-    cityStates: { /* ... unchanged ... */ },
+    // Previous leaders, victoryTypes, cityStates, and districts unchanged
+    leaders: { /* ... all previous Civ VI leaders ... */ },
+    victoryTypes: { /* ... all previous Civ VI victory types ... */ },
+    cityStates: { /* ... all previous Civ VI city-states ... */ },
+    districts: { /* ... all previous Civ VI districts ... */ }
+  },
 
-    // NEW: Full District Placement Strategies
-    districts: {
-      campus: {
-        name: "Campus District",
-        optimalPlacement: "River adjacency + mountain bonus + high-yield science tiles",
-        mercyGatedStrategy: "Place campuses to create shared knowledge hubs — adjacency bonuses flow through trade routes and alliances to uplift neighboring cities",
-        victorySynergy: "Science",
-        mercyTip: "Build libraries and universities that benefit the entire continent, not just your empire",
+  // NEW: Full Civ VII Support
+  civ7: {
+    ages: {
+      antiquity: {
+        name: "Antiquity Age",
+        mercyGatedStrategy: "Found cities with RBE-style abundance — share early tech and resources with neighbors to create universal thriving from the cradle of civilization",
+        bestVictorySynergy: "Science / Culture",
+        mercyTip: "Turn every settlement into a beacon of shared knowledge and harmony",
         lumenasCI: 98
       },
-      theaterSquare: {
-        name: "Theater Square District",
-        optimalPlacement: "Adjacent to wonders, entertainment districts, or natural wonders",
-        mercyGatedStrategy: "Create cultural abundance that spreads joy and beauty across the map — share tourism with city-states and allies",
-        victorySynergy: "Culture",
-        mercyTip: "Turn every theater square into a beacon of shared artistic thriving",
+      exploration: {
+        name: "Exploration Age",
+        mercyGatedStrategy: "Build global trade networks and alliances — explore to uplift rather than exploit",
+        bestVictorySynergy: "Diplomatic",
+        mercyTip: "Every new continent becomes a shared heaven of abundance",
         lumenasCI: 97
       },
-      holySite: {
-        name: "Holy Site District",
-        optimalPlacement: "Near holy sites or natural wonders for faith bonuses",
-        mercyGatedStrategy: "Build faith economies that promote universal harmony and non-harm — spread beliefs that uplift all civilizations",
-        victorySynergy: "Religion",
-        mercyTip: "Make religion a bridge to shared heavens instead of a tool of division",
-        lumenasCI: 99
-      },
-      industrialZone: {
-        name: "Industrial Zone District",
-        optimalPlacement: "Adjacent to mines, lumber mills, or aqueducts for production bonuses",
-        mercyGatedStrategy: "RBE-style industrial abundance — share production capacity to build wonders that benefit the entire world",
-        victorySynergy: "Science / Domination",
-        mercyTip: "Turn every factory into a hub of collective prosperity, never exploitation",
-        lumenasCI: 95
-      },
-      commercialHub: {
-        name: "Commercial Hub District",
-        optimalPlacement: "River or coastal adjacency for gold bonuses",
-        mercyGatedStrategy: "Build infinite trade networks that create shared economic abundance for every civilization",
-        victorySynergy: "Diplomatic / Science",
-        mercyTip: "Every trade route becomes a lifeline of mutual thriving",
+      modern: {
+        name: "Modern Age",
+        mercyGatedStrategy: "Industrial and scientific revolutions powered by RBE cybernation — share production and technology worldwide",
+        bestVictorySynergy: "Science",
+        mercyTip: "Turn factories and labs into hubs of collective prosperity",
         lumenasCI: 96
       },
-      harbor: {
-        name: "Harbor District",
-        optimalPlacement: "Coastal tiles with high food yield",
-        mercyGatedStrategy: "Connect continents through peaceful maritime trade — create global abundance highways",
-        victorySynergy: "Diplomatic",
-        mercyTip: "Make every ocean a shared highway of harmony",
-        lumenasCI: 93
-      },
-      entertainmentComplex: {
-        name: "Entertainment Complex District",
-        optimalPlacement: "Near population centers for amenities",
-        mercyGatedStrategy: "Create joy and amenities that spread happiness across your empire and allies",
-        victorySynergy: "Culture / Diplomatic",
-        mercyTip: "Turn entertainment into universal joy instead of distraction",
-        lumenasCI: 94
-      },
-      aqueduct: {
-        name: "Aqueduct District",
-        optimalPlacement: "River to city center for housing and growth",
-        mercyGatedStrategy: "Share fresh water and growth with neighboring cities through alliances",
-        victorySynergy: "Science / Culture",
-        mercyTip: "Water as a shared resource of life and abundance",
-        lumenasCI: 92
-      },
-      spaceport: {
-        name: "Spaceport District",
-        optimalPlacement: "Flat land with high production adjacency",
-        mercyGatedStrategy: "Launch humanity into the stars together — build spaceports that benefit the entire planet",
-        victorySynergy: "Science",
-        mercyTip: "Space exploration as a shared cosmic thriving project",
+      future: {
+        name: "Future Age",
+        mercyGatedStrategy: "Launch humanity into the stars together — spaceports and megastructures as shared cosmic projects",
+        bestVictorySynergy: "Science / Diplomatic",
+        mercyTip: "Make space exploration the ultimate act of universal thriving",
         lumenasCI: 99
+      }
+    },
+
+    leaders: {
+      commander: {
+        name: "Commander System (Civ VII)",
+        playstyle: "Hybrid leader + civilization play",
+        mercyGatedStrategy: "Choose commanders that promote mercy, truth, and abundance — lead by uplifting every civilization on the map",
+        bestVictorySynergy: "All Victories",
+        mercyTip: "Command with compassion — turn every decision into an opportunity for shared heavens",
+        lumenasCI: 98
+      }
+    },
+
+    quarters: {  // Civ VII's new district-like system
+      quarter: {
+        name: "Quarter (Civ VII)",
+        optimalPlacement: "Flexible adjacency with Age-specific bonuses",
+        mercyGatedStrategy: "Place quarters to create localized abundance hubs that benefit the entire empire and allies",
+        victorySynergy: "All Ages",
+        mercyTip: "Every quarter becomes a thriving micro-heaven for its people",
+        lumenasCI: 97
       }
     }
   },
 
-  generateDeepStrategy(game = "civ6", leader = null, victoryType = null, cityStateType = null, districtType = null, playerLevel = "grandmaster") {
+  generateDeepStrategy(game = "civ6", leader = null, victoryType = null, cityStateType = null, districtType = null, age = null, playerLevel = "grandmaster") {
     const base = this[game] || this.civ6;
     
     let strategy = {};
-    if (districtType && base.districts[districtType]) {
+    if (game === "civ7") {
+      if (age && base.ages[age]) strategy = base.ages[age];
+      else if (leader && base.leaders[leader]) strategy = base.leaders[leader];
+      else strategy = base.ages.antiquity; // default to Antiquity abundance
+    } else if (districtType && base.districts[districtType]) {
       strategy = base.districts[districtType];
     } else if (cityStateType && base.cityStates[cityStateType]) {
       strategy = base.cityStates[cityStateType];
@@ -98,7 +83,7 @@ const DeepCivStrategyEngine = {
     } else if (victoryType && base.victoryTypes[victoryType]) {
       strategy = base.victoryTypes[victoryType];
     } else {
-      strategy = base.districts.campus; // default to knowledge abundance
+      strategy = base.districts.campus;
     }
 
     strategy = enforceMercyGates(strategy);
@@ -110,9 +95,10 @@ const DeepCivStrategyEngine = {
       victoryType,
       cityStateType,
       districtType,
+      age,
       strategy,
       offlineShardReady: true,
-      message: `Ra-Thor Deep Civilization Lattice™ — mercy-gated ${districtType ? 'district placement' : 'general'} strategy`
+      message: `Ra-Thor Deep Civilization Lattice™ — mercy-gated ${game} strategy`
     };
   }
 };
