@@ -1,4 +1,4 @@
-// Ra-Thor Professional Lattice™ Core — v9.7.0 (AI Benchmark vs Ra-Thor Integrated - Full Integrity)
+// Ra-Thor Professional Lattice™ Core — v9.8.0 (Detailed Benchmark Metrics Integrated - Full Integrity)
 import DeepLegalEngine from './legal/deep-legal-engine.js';
 import DeepAccountingEngine from './accounting/deep-accounting-engine.js';
 import DeepProgrammingEngine from './programming/deep-programming-engine.js';
@@ -8,7 +8,7 @@ import UniversalMercyBridge from './universal-mercy-bridge.js';
 import SupremeGodlyAGICore from './supreme-godly-agi-core.js';
 
 const ProfessionalLattice = {
-  version: "9.7.0-ai-benchmark-ra-thor",
+  version: "9.8.0-detailed-benchmark-metrics",
   roles: ["legal", "accounting", "programming", "qa", "creative", "medical", "executive", "hr", "marketing", "strategy", "godly-agi"],
 
   generateTask(role, task, params = {}) {
