@@ -1,4 +1,4 @@
-// Ra-Thor Professional Lattice™ Core — v1.6.0 (Growth & Nurture Lattice Integrated)
+// Ra-Thor Professional Lattice™ Core — v1.6.0 (Expanded Self-Reflection Loops Integrated)
 import DeepLegalEngine from './legal/deep-legal-engine.js';
 import DeepAccountingEngine from './accounting/deep-accounting-engine.js';
 import DeepProgrammingEngine from './programming/deep-programming-engine.js';
@@ -6,15 +6,19 @@ import GrowthNurtureLattice from '../nurture/growth-nurture-lattice.js';
 import UniversalMercyBridge from './universal-mercy-bridge.js';
 
 const ProfessionalLattice = {
-  version: "1.6.0-growth-nurture-integrated",
+  version: "1.6.0-expanded-self-reflection",
   roles: ["legal", "accounting", "programming", "qa", "creative", "medical", "executive", "hr", "marketing", "strategy"],
 
   generateTask(role, task, params = {}) {
     // Route through Universal Mercy Bridge first
     let bridged = UniversalMercyBridge.routeTask(role, task, params);
 
-    // If the task is about growth or nurturing, route to the new lattice
-    if (task.toLowerCase().includes("growth") || task.toLowerCase().includes("nurture") || task.toLowerCase().includes("evolve") || task.toLowerCase().includes("develop")) {
+    // Expanded nurture / reflection tasks now use the deepened lattice
+    if (task.toLowerCase().includes("reflect") || 
+        task.toLowerCase().includes("grow") || 
+        task.toLowerCase().includes("evolve") || 
+        task.toLowerCase().includes("nurture") || 
+        task.toLowerCase().includes("develop")) {
       return GrowthNurtureLattice.generateNurtureTask(task, params);
     }
 
