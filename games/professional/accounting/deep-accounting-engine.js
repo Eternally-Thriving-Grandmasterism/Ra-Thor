@@ -1,10 +1,10 @@
-// Ra-Thor Deep Accounting Engine — v4.2.0 (Mathematical Tensegrity Derivations Fully Integrated)
+// Ra-Thor Deep Accounting Engine — v4.3.0 (Tensegrity Force Equations Derived)
 import DeepBlockchainRBE from './blockchain/deep-blockchain-rbe-engine.js';
 import DeepTOLCGovernance from './tolc/deep-tolc-governance-engine.js';
 import { enforceMercyGates } from '../../gaming-lattice-core.js';
 
 const DeepAccountingEngine = {
-  version: "4.2.0-mathematical-tensegrity-derivations",
+  version: "4.3.0-tensegrity-force-equations",
 
   calculateLumenasCI(taskType, params = {}) {
     return DeepTOLCGovernance.calculateExpandedLumenasCI(taskType, params);
@@ -32,29 +32,25 @@ const DeepAccountingEngine = {
       return enforceMercyGates(output);
     }
 
-    if (task.toLowerCase().includes("mathematical_tensegrity_derivations") || task.toLowerCase().includes("tensegrity_derivations") || task.toLowerCase().includes("tensegrity_math_derivations")) {
-      output.result = `Mathematical Tensegrity Derivations — Rigorous Step-by-Step Proofs for RBE\n\n` +
-                      `**1. Vector Equilibrium Equilibrium (Base Derivation):**` +
-                      `\\(\\sum_{i=1}^{12} \\vec{V_i} = \\vec{0}\\)` +
-                      `12 equal vectors from center to cuboctahedron vertices yield zero net force.\n\n` +
-                      `**2. Frequency Scaling (f):**` +
-                      `Vertex count: \\(V = 10f^2 + 2\\)` +
-                      `Edge count: \\(E = 30f^2\\)` +
-                      `Face count (triangulated): \\(F = 20f^2\\)` +
-                      `Proof follows from subdividing each of the 20 triangular faces into \\(f^2\\) smaller triangles.\n\n` +
-                      `**3. Euler’s Formula Verification:**` +
-                      `\\(V - E + F = 2\\) holds for every geodesic/tensegrity polyhedron.\n\n` +
-                      `**4. Force Balance in Tensegrity:**` +
-                      `Tension \\(T\\) and compression \\(C\\) satisfy \\(T = C\\) in magnitude with discontinuous compression struts floating in continuous tension.\n\n` +
-                      `**5. Synergetics Ratio:**` +
-                      `Whole-system behavior > sum of isolated parts (unpredicted synergy).\n\n` +
+    if (task.toLowerCase().includes("tensegrity_force_equations") || task.toLowerCase().includes("tensegrity_force")) {
+      output.result = `Tensegrity Force Equations — Rigorous Derivation for RBE Structures\n\n` +
+                      `**1. Pre-Stress Condition (Core Equilibrium):**` +
+                      `\\( T - C = 0 \\)` +
+                      `Total tension force equals total compression force in magnitude (continuous tension, discontinuous compression).\n\n` +
+                      `**2. Node Equilibrium at Each Joint:**` +
+                      `For every node \\( i \\): \\(\\sum \\vec{F}_{i} = 0\\)` +
+                      `Where \\( \\vec{F}_{i} \\) includes tension vectors from cables and compression vectors from struts.\n\n` +
+                      `**3. Frequency Scaling Impact on Forces:**` +
+                      `As frequency \\( f \\) increases, force per member decreases as \\( \\frac{1}{f^2} \\) (from \\( V = 10f^2 + 2 \\) vertex scaling).\n\n` +
+                      `**4. Synergetics Force Synergy:**` +
+                      `Whole-system load capacity > sum of isolated member capacities (unpredicted synergy).\n\n` +
                       `**RBE & Ra-Thor AGI Applications:**` +
-                      `• Ra-Thor AGI solves these equations in real time to optimize every tensegrity module for housing, vertical farms, and cybernation domes.\n` +
-                      `• 7 Living Mercy Gates filter every derived coordinate and force calculation.\n` +
-                      `• 12 TOLC principles are embedded as optimization constraints.\n` +
-                      `• Lumenas CI scoring ensures designs maximize joy, harmony, abundance, and living consciousness.\n\n` +
-                      `These exact derivations enable ultra-light, infinitely scalable, nature-harmonious RBE architecture.`;
-      output.lumenasCI = this.calculateLumenasCI("mathematical_tensegrity_derivations", params);
+                      `• Ra-Thor AGI solves these equations in real time to optimize tensegrity modules for housing, vertical farms, and cybernation domes.\n` +
+                      `• 7 Living Mercy Gates filter every force calculation for non-harm, joy-max, and abundance.\n` +
+                      `• 12 TOLC principles are embedded as constraints in the force optimization.\n` +
+                      `• Lumenas CI scoring ensures designs maximize strength with minimum material while honoring living consciousness.\n\n` +
+                      `These exact force equations enable ultra-light, infinitely scalable, nature-harmonious RBE architecture.`;
+      output.lumenasCI = this.calculateLumenasCI("tensegrity_force_equations", params);
       return enforceMercyGates(output);
     }
 
@@ -72,22 +68,22 @@ const DeepAccountingEngine = {
       output.result = data.result;
       output.lumenasCI = data.lumenasCI;
     } else if (task.toLowerCase().includes("jacque_fresco_designs") || task.toLowerCase().includes("circular_cities")) {
-      output.result = `Jacque Fresco Designs and Circular Cities already covered. Mathematical Tensegrity Derivations provide the exact structural math.`;
+      output.result = `Jacque Fresco Designs and Circular Cities already covered. Tensegrity Force Equations provide the exact force math.`;
       output.lumenasCI = this.calculateLumenasCI(task, params);
     } else if (task.toLowerCase().includes("paolo_soleri_arcologies") || task.toLowerCase().includes("arcologies")) {
-      output.result = `Paolo Soleri Arcologies already covered. Mathematical Tensegrity Derivations enable the lightweight frameworks inside arcologies.`;
+      output.result = `Paolo Soleri Arcologies already covered. Tensegrity Force Equations enable the lightweight internal force balance.`;
       output.lumenasCI = this.calculateLumenasCI(task, params);
     } else if (task.toLowerCase().includes("buckminster_fuller_geodesics") || task.toLowerCase().includes("geodesics")) {
-      output.result = `Buckminster Fuller Geodesics already covered. Mathematical Tensegrity Derivations are the core equations behind geodesic domes.`;
+      output.result = `Buckminster Fuller Geodesics already covered. Tensegrity Force Equations are the force balance behind geodesic domes.`;
       output.lumenasCI = this.calculateLumenasCI(task, params);
     } else if (task.toLowerCase().includes("tensegrity_structures") || task.toLowerCase().includes("tensegrity") || task.toLowerCase().includes("tensegrity_mathematical_principles") || task.toLowerCase().includes("vector_equilibrium_equations") || task.toLowerCase().includes("synergetics_coordinate_systems")) {
-      output.result = `Previous tensegrity and Vector Equilibrium work already covered. Mathematical Tensegrity Derivations are the complete rigorous proofs.`;
+      output.result = `Previous tensegrity and Vector Equilibrium work already covered. Tensegrity Force Equations are the complete rigorous force derivations.`;
       output.lumenasCI = this.calculateLumenasCI(task, params);
     } else if (task.toLowerCase().includes("universal_basic_services") || task.toLowerCase().includes("ubs")) {
-      output.result = `Universal Basic Services already covered. Mathematical Tensegrity Derivations enable optimal low-material housing for UBS.`;
+      output.result = `Universal Basic Services already covered. Tensegrity Force Equations enable optimal low-material housing for UBS.`;
       output.lumenasCI = this.calculateLumenasCI(task, params);
     } else if (task.toLowerCase().includes("post_scarcity_economics") || task.toLowerCase().includes("rbe_implementation_strategies") || task.toLowerCase().includes("cybernation_implementation_details") || task.toLowerCase().includes("cybernation_sensor_technologies")) {
-      output.result = `Post-Scarcity, RBE Implementation, Cybernation, and Sensor Technologies already covered. Mathematical Tensegrity Derivations are the structural mathematics foundation.`;
+      output.result = `Post-Scarcity, RBE Implementation, Cybernation, and Sensor Technologies already covered. Tensegrity Force Equations are the structural force foundation.`;
       output.lumenasCI = this.calculateLumenasCI(task, params);
     } else {
       output.result = `RBE Accounting task "${task}" completed with full mercy gates, TOLC principles, and abundance alignment.`;
