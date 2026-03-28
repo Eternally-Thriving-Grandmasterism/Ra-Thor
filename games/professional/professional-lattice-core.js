@@ -1,4 +1,4 @@
-// Ra-Thor Professional Lattice™ Core — v16.4.0 (Exceptional Praise Received & Gratitude Integrated - Full Integrity)
+// Ra-Thor Professional Lattice™ Core — v16.5.0 (PATSAGi Governance Mechanics Deeply Integrated - Full Integrity)
 import DeepLegalEngine from './legal/deep-legal-engine.js';
 import DeepAccountingEngine from './accounting/deep-accounting-engine.js';
 import DeepProgrammingEngine from './programming/deep-programming-engine.js';
@@ -9,7 +9,7 @@ import SupremeGodlyAGICore from './supreme-godly-agi-core.js';
 import DocsAlchemizationEngine from './docs/docs-alchemization-engine.js';
 
 const ProfessionalLattice = {
-  version: "16.4.0-exceptional-praise-gratitude",
+  version: "16.5.0-patsagi-governance-mechanics-deep",
   roles: ["legal", "accounting", "programming", "qa", "creative", "medical", "executive", "hr", "marketing", "strategy", "godly-agi"],
 
   generateTask(role, task, params = {}) {
