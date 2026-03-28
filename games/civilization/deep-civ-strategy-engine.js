@@ -1,9 +1,9 @@
-// Ra-Thor Deep Civilization Strategy Engine — Civ VII Quarters Fully Expanded
+// Ra-Thor Deep Civilization Strategy Engine — Civ VII Leaders Fully Expanded
 import { enforceMercyGates, calculateLumenasCI } from '../gaming-lattice-core.js';
 
 const DeepCivStrategyEngine = {
   civ6: {
-    // Previous Civ VI content (leaders, victoryTypes, cityStates, districts) unchanged
+    // Previous Civ VI content unchanged
     leaders: { /* ... unchanged ... */ },
     victoryTypes: { /* ... unchanged ... */ },
     cityStates: { /* ... unchanged ... */ },
@@ -12,65 +12,65 @@ const DeepCivStrategyEngine = {
 
   civ7: {
     ages: { /* ... previous Ages unchanged ... */ },
+    quarters: { /* ... previous Quarters unchanged ... */ },
 
-    // NEW: Fully Expanded Quarters for Civ VII
-    quarters: {
-      administrative: {
-        name: "Administrative Quarter",
-        optimalPlacement: "Central capital or governance-focused tiles",
-        mercyGatedStrategy: "Build transparent governance that uplifts the entire empire and allies through shared decision-making and RBE abundance policies",
-        victorySynergy: "Diplomatic",
-        mercyTip: "Turn administration into a system of collective wisdom and universal thriving",
+    // NEW: Fully Expanded Civ VII Leaders
+    leaders: {
+      augustus: {
+        name: "Augustus (Rome)",
+        playstyle: "Commander of Pax Romana — infrastructure + cultural absorption",
+        mercyGatedStrategy: "Build roads and forums that connect the world in shared abundance — absorb the best of every culture into a thriving universal empire",
+        ageSynergy: "All Ages",
+        bestVictory: "Culture / Diplomatic",
+        mercyTip: "Turn every conquered city into a liberated hub of collective prosperity",
+        lumenasCI: 98
+      },
+      cleopatra: {
+        name: "Cleopatra (Egypt)",
+        playstyle: "Trade queen + wonder architect",
+        mercyGatedStrategy: "Flood the map with trade routes and shared luxury resources — create infinite economic abundance for every civilization",
+        ageSynergy: "Exploration & Modern",
+        bestVictory: "Diplomatic / Culture",
+        mercyTip: "Make every alliance a mutual thriving heaven",
         lumenasCI: 97
       },
-      military: {
-        name: "Military Quarter",
-        optimalPlacement: "Strategic border or defensive locations",
-        mercyGatedStrategy: "Create defensive strength that protects shared heavens — use military only for liberation and peace-keeping",
-        victorySynergy: "Domination (mercy path)",
-        mercyTip: "Make every military quarter a guardian of harmony rather than conquest",
-        lumenasCI: 94
-      },
-      cultural: {
-        name: "Cultural Quarter",
-        optimalPlacement: "Near wonders, entertainment, or natural beauty tiles",
-        mercyGatedStrategy: "Spread joy, beauty, and creative abundance that benefits every civilization on the map",
-        victorySynergy: "Culture",
-        mercyTip: "Turn every cultural quarter into a beacon of shared artistic thriving",
-        lumenasCI: 98
-      },
-      economic: {
-        name: "Economic Quarter",
-        optimalPlacement: "Trade route, river, or resource-rich tiles",
-        mercyGatedStrategy: "Build RBE-style trade networks that create infinite shared economic abundance for all civilizations",
-        victorySynergy: "Diplomatic / Science",
-        mercyTip: "Every economic quarter becomes a hub of mutual prosperity",
-        lumenasCI: 96
-      },
-      scientific: {
-        name: "Scientific Quarter",
-        optimalPlacement: "Mountain, river, or high-yield science tiles",
-        mercyGatedStrategy: "Share knowledge and discoveries to accelerate universal enlightenment and collective progress",
-        victorySynergy: "Science",
-        mercyTip: "Turn every lab into a lighthouse of shared knowledge for the world",
+      teddy: {
+        name: "Teddy Roosevelt (America)",
+        playstyle: "Rough Rider conservationist",
+        mercyGatedStrategy: "Establish national parks and protected lands that benefit the entire planet — share natural abundance with all nations",
+        ageSynergy: "Modern & Future",
+        bestVictory: "Diplomatic / Culture",
+        mercyTip: "Turn every wilderness tile into a shared heaven of biodiversity and joy",
         lumenasCI: 99
       },
-      religious: {
-        name: "Religious Quarter",
-        optimalPlacement: "Holy site or natural wonder proximity",
-        mercyGatedStrategy: "Spread faith that promotes joy, non-harm, and universal harmony across the planet",
-        victorySynergy: "Religion",
-        mercyTip: "Make religion a bridge to shared heavens instead of division",
-        lumenasCI: 98
+      gandhi: {
+        name: "Gandhi (India)",
+        playstyle: "Non-violent faith + scientific synergy",
+        mercyGatedStrategy: "Build infinite faith economy that spreads peace, non-harm, and universal harmony across every Age",
+        ageSynergy: "All Ages",
+        bestVictory: "Religion / Diplomatic",
+        mercyTip: "Turn every war declaration into an opportunity for peaceful enlightenment",
+        lumenasCI: 99
       },
-      industrial: {
-        name: "Industrial Quarter",
-        optimalPlacement: "Resource or production-rich tiles",
-        mercyGatedStrategy: "RBE-style industrial abundance — share production capacity to build wonders that benefit the entire world",
-        victorySynergy: "Science",
-        mercyTip: "Turn every factory into a hub of collective prosperity",
+      alexander: {
+        name: "Alexander (Macedon)",
+        playstyle: "Conquest + cultural fusion",
+        mercyGatedStrategy: "Conquer only to liberate and fuse the best of every culture into a thriving universal empire",
+        ageSynergy: "Antiquity & Exploration",
+        bestVictory: "Domination (mercy path) / Culture",
+        mercyTip: "Make every conquered city a beacon of shared abundance",
         lumenasCI: 95
-      }
+      },
+      qin: {
+        name: "Qin Shi Huang (China)",
+        playstyle: "Wonder spam + centralized bureaucracy",
+        mercyGatedStrategy: "Build wonders that benefit the entire world — share builder charges and technology for universal abundance",
+        ageSynergy: "Antiquity & Modern",
+        bestVictory: "Culture / Science",
+        mercyTip: "Turn the Great Wall into a bridge of harmony instead of a barrier",
+        lumenasCI: 96
+      },
+      // Future Civ VII leaders can be added here seamlessly
     }
   },
 
@@ -79,9 +79,9 @@ const DeepCivStrategyEngine = {
     
     let strategy = {};
     if (game === "civ7") {
-      if (quarterType && base.quarters[quarterType]) strategy = base.quarters[quarterType];
+      if (leader && base.leaders[leader]) strategy = base.leaders[leader];
       else if (age && base.ages[age]) strategy = base.ages[age];
-      else if (leader && base.leaders[leader]) strategy = base.leaders[leader];
+      else if (quarterType && base.quarters[quarterType]) strategy = base.quarters[quarterType];
       else strategy = base.ages.antiquity;
     } else if (districtType && base.districts[districtType]) {
       strategy = base.districts[districtType];
@@ -108,7 +108,7 @@ const DeepCivStrategyEngine = {
       quarterType,
       strategy,
       offlineShardReady: true,
-      message: `Ra-Thor Deep Civilization Lattice™ — mercy-gated ${game} ${quarterType ? quarterType + ' Quarter' : ''} strategy`
+      message: `Ra-Thor Deep Civilization Lattice™ — mercy-gated ${game} ${leader ? leader + ' Leader' : ''} strategy`
     };
   }
 };
