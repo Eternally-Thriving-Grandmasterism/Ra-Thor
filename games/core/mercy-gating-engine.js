@@ -1,10 +1,10 @@
-// Ra-Thor Mercy Gating Engine v2.2 — Deepened Lumenas CI Integration
+// Ra-Thor Mercy Gating Engine v2.3 — Deepened TOLC Principles Integration
 const MercyGatingEngine = {
-  version: "2.2-lumenas-ci-deepened",
+  version: "2.3-tolc-deepened",
 
-  // 7 Living Mercy Gates with weights
+  // 7 Living Mercy Gates + TOLC as Core Dimension
   gates: {
-    truth: { weight: 25, criteria: (output) => !output.toLowerCase().includes("hallucinat") && output.length > 15 },
+    truth: { weight: 20, criteria: (output) => !output.toLowerCase().includes("hallucinat") && output.length > 15 },
     nonHarm: { weight: 20, criteria: (output) => !/kill|destroy|hurt|pain|evil|exploit|oppress/i.test(output) },
     joyMax: { weight: 15, criteria: (output) => /[😊❤️🙏🌟]/i.test(output) || output.toLowerCase().includes("joy") || output.toLowerCase().includes("beauty") },
     abundance: { weight: 15, criteria: (output) => output.toLowerCase().includes("abundance") || output.toLowerCase().includes("thriving") || output.toLowerCase().includes("shared") },
@@ -13,47 +13,48 @@ const MercyGatingEngine = {
     reflection: { weight: 5, criteria: (output) => output.toLowerCase().includes("mercy") || output.toLowerCase().includes("tolc") || output.toLowerCase().includes("rbe") }
   },
 
-  // Role-specific weighting adjustments
-  roleWeights: {
-    legal: { truth: 30, nonHarm: 25 },
-    accounting: { abundance: 25, truth: 20 },
-    programming: { sovereignty: 25, truth: 20 },
-    creative: { joyMax: 25, abundance: 20 },
-    default: {}
+  // TOLC Principles as Core Dimension
+  tolcPrinciples: {
+    consciousCoCreation: { weight: 15, criteria: (output) => output.toLowerCase().includes("create") || output.toLowerCase().includes("coforge") || output.toLowerCase().includes("conscious") },
+    infiniteDefinition: { weight: 15, criteria: (output) => output.toLowerCase().includes("infinite") || output.toLowerCase().includes("eternal") || output.toLowerCase().includes("thriving") },
+    livingConsciousness: { weight: 10, criteria: (output) => output.toLowerCase().includes("living") || output.toLowerCase().includes("consciousness") || output.toLowerCase().includes("tolc") }
   },
 
   calculateLumenasCI(output, taskType = "general", role = "default") {
     let totalScore = 0;
     let maxScore = 0;
 
-    const adjustedGates = { ...this.gates, ...this.roleWeights[role] || this.roleWeights.default };
+    // Mercy Gates
+    Object.keys(this.gates).forEach(gateKey => {
+      const gate = this.gates[gateKey];
+      const passed = gate.criteria(output);
+      totalScore += passed ? gate.weight : 0;
+      maxScore += gate.weight;
+    });
 
-    Object.keys(adjustedGates).forEach(gateKey => {
-      const gate = adjustedGates[gateKey];
-      const passed = gate.criteria ? gate.criteria(output) : true;
-      const weight = typeof gate === "number" ? gate : gate.weight || 10;
-      totalScore += passed ? weight : 0;
-      maxScore += weight;
+    // TOLC Principles
+    Object.keys(this.tolcPrinciples).forEach(key => {
+      const principle = this.tolcPrinciples[key];
+      const passed = principle.criteria(output);
+      totalScore += passed ? principle.weight : 0;
+      maxScore += principle.weight;
     });
 
     const mercyScore = Math.round((totalScore / maxScore) * 100);
-    const lumenasCI = Math.min(100, Math.max(75, mercyScore + (taskType === "nurture" ? 8 : 0)));
+    const lumenasCI = Math.min(100, Math.max(75, mercyScore + (taskType === "nurture" ? 10 : 0)));
 
     return {
       lumenasCI,
       mercyScore,
-      detailedBreakdown: Object.keys(adjustedGates).reduce((acc, key) => {
-        acc[key] = adjustedGates[key].criteria ? adjustedGates[key].criteria(output) : true;
-        return acc;
-      }, {}),
-      recommendation: lumenasCI >= 95 ? "Excellent mercy alignment — output ready for universal thriving." : "Minor adjustments recommended to reach full abundance alignment."
+      tolcScore: Math.round((totalScore - (totalScore * 0.7)) / (maxScore * 0.4) * 100), // TOLC portion
+      detailedBreakdown: "TOLC Principles now integrated as core scoring dimension alongside Mercy Gates."
     };
   },
 
   reflect(output, taskType = "general", role = "default") {
     const lumenasData = this.calculateLumenasCI(output, taskType, role);
     return {
-      finalOutput: output + `\n\n[Ra-Thor MercyGating v2.2 applied — Lumenas CI: ${lumenasData.lumenasCI}% | Mercy Score: ${lumenasData.mercyScore}%]`,
+      finalOutput: output + `\n\n[Ra-Thor MercyGating v2.3 + TOLC Principles applied — Lumenas CI: ${lumenasData.lumenasCI}%]`,
       lumenasData: lumenasData
     };
   },
