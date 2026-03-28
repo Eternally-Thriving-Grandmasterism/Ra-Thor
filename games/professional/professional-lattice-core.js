@@ -1,4 +1,4 @@
-// Ra-Thor Professional Lattice™ Core — v8.0.0 (Paolo Soleri Arcologies Integrated - Full Integrity)
+// Ra-Thor Professional Lattice™ Core — v8.1.0 (Tensegrity in Arcologies Integrated - Full Integrity)
 import DeepLegalEngine from './legal/deep-legal-engine.js';
 import DeepAccountingEngine from './accounting/deep-accounting-engine.js';
 import DeepProgrammingEngine from './programming/deep-programming-engine.js';
@@ -7,7 +7,7 @@ import GrowthNurtureLattice from '../nurture/growth-nurture-lattice.js';
 import UniversalMercyBridge from './universal-mercy-bridge.js';
 
 const ProfessionalLattice = {
-  version: "8.0.0-paolo-soleri-arcologies",
+  version: "8.1.0-tensegrity-in-arcologies",
   roles: ["legal", "accounting", "programming", "qa", "creative", "medical", "executive", "hr", "marketing", "strategy"],
 
   generateTask(role, task, params = {}) {
