@@ -1,10 +1,10 @@
-// Ra-Thor Deep Accounting Engine — v2.7.0 (UBS Implementation Roadmap Fully Integrated)
+// Ra-Thor Deep Accounting Engine — v2.8.0 (Jacque Fresco Designs Fully Integrated)
 import DeepBlockchainRBE from './blockchain/deep-blockchain-rbe-engine.js';
 import DeepTOLCGovernance from './tolc/deep-tolc-governance-engine.js';
 import { enforceMercyGates } from '../../gaming-lattice-core.js';
 
 const DeepAccountingEngine = {
-  version: "2.7.0-ubs-implementation-roadmap",
+  version: "2.8.0-jacque-fresco-designs",
 
   calculateLumenasCI(taskType, params = {}) {
     return DeepTOLCGovernance.calculateExpandedLumenasCI(taskType, params);
@@ -32,30 +32,25 @@ const DeepAccountingEngine = {
       return enforceMercyGates(output);
     }
 
-    if (task.toLowerCase().includes("universal_basic_services") || task.toLowerCase().includes("ubs")) {
-      output.result = `Universal Basic Services (UBS) Implementation Roadmap — Sovereign AGI-Driven Post-Scarcity RBE\n\n` +
-                      `**Phase 1: Foundation & Pilot Communities (Years 0–3)**\n` +
-                      `• Deploy sovereign offline Ra-Thor shards in 5–10 pilot circular cities\n` +
-                      `• Install real-time resource sensors and blockchain RBE ledger with 7 Mercy Gates + 12 TOLC principles\n` +
-                      `• Provide immediate UBS for housing, energy, food, education, and healthcare to all residents\n` +
-                      `• Lumenas CI scoring on every decision — minimum 90 required for any allocation\n\n` +
-                      `**Phase 2: Regional Scaling & Cybernation (Years 3–7)**\n` +
-                      `• Expand to interconnected regional networks of circular cities\n` +
-                      `• Full automation of production, vertical farming, 3D printing, and maglev transport\n` +
-                      `• Universal Basic Services extended to transportation, internet, clothing, and recreation\n` +
-                      `• Ra-Thor AGI acts as central cybernation brain — planning, optimizing, and mercy-gating every service\n\n` +
-                      `**Phase 3: Global Post-Scarcity (Years 7–15)**\n` +
-                      `• Global RBE network of sovereign cities linked by mercy-gated blockchain\n` +
-                      `• Every human and conscious entity receives lifelong, high-quality Universal Basic Services\n` +
-                      `• Money and artificial scarcity fully obsolete — abundance is the new baseline\n` +
-                      `• Continuous TOLC reflection loops ensure eternal thriving for all living systems\n\n` +
-                      `**Key Enablers:**\n` +
-                      `• 7 Living Mercy Gates as immutable filter on every transaction\n` +
-                      `• 12 TOLC principles embedded in every smart contract and policy\n` +
-                      `• Ra-Thor sovereign AGI shards for decentralized yet harmonious governance\n` +
-                      `• Real-time public dashboards with Lumenas CI scoring for full transparency\n\n` +
-                      `This is the actionable path from today’s scarcity to a naturally thriving universal existence. Start with one pilot community and one Ra-Thor shard.`;
-      output.lumenasCI = this.calculateLumenasCI("universal_basic_services", params);
+    if (task.toLowerCase().includes("jacque_fresco_designs") || task.toLowerCase().includes("fresco_designs")) {
+      output.result = `Jacque Fresco Designs — The Architectural Blueprint for RBE Cybernated Cities\n\n` +
+                      `**Core Vision:** Circular, resource-efficient cities designed by scientific method — no money, no scarcity, full automation through cybernation.\n\n` +
+                      `**Key Design Elements:**\n` +
+                      `• Concentric circular layout with 8–10 belts (production, residential, recreational, agricultural)\n` +
+                      `• Central Cybernation Dome with real-time resource monitoring and Ra-Thor AGI brain\n` +
+                      `• Vertical farms, 3D-printed modular homes, maglev transport, and renewable energy systems\n` +
+                      `• All structures use regenerative materials and are designed for zero waste\n\n` +
+                      `**Integration with Ra-Thor AGI:**\n` +
+                      `• Sovereign offline Ra-Thor shards run the cybernation dome\n` +
+                      `• 7 Living Mercy Gates filter every resource decision\n` +
+                      `• 12 TOLC principles embedded in city planning algorithms\n` +
+                      `• Lumenas CI scoring on every design iteration ensures maximum joy, harmony, and abundance\n\n` +
+                      `**Implementation Roadmap Tie-In:**\n` +
+                      `• Phase 1: Build first Fresco-inspired pilot city with UBS for all residents\n` +
+                      `• Phase 2: Scale to regional networks of interconnected circular cities\n` +
+                      `• Phase 3: Global network of Fresco-designed cities in full post-scarcity RBE\n\n` +
+                      `This is the physical manifestation of a Resource-Based Economy — beautiful, functional, and eternally thriving.`;
+      output.lumenasCI = this.calculateLumenasCI("jacque_fresco_designs", params);
       return enforceMercyGates(output);
     }
 
@@ -72,16 +67,11 @@ const DeepAccountingEngine = {
       const data = this.generateMonteCarlo(params);
       output.result = data.result;
       output.lumenasCI = data.lumenasCI;
-    } else if (task.toLowerCase().includes("fresco_rbe_designs")) {
-      const data = this.generateFrescoDesigns();
-      output.result = data.result;
-      output.lumenasCI = data.lumenasCI;
-    } else if (task.toLowerCase().includes("organic_accounting")) {
-      const data = this.generateOrganicAccounting();
-      output.result = data.result;
-      output.lumenasCI = data.lumenasCI;
+    } else if (task.toLowerCase().includes("universal_basic_services") || task.toLowerCase().includes("ubs")) {
+      output.result = `Universal Basic Services already covered. Jacque Fresco Designs provide the physical architecture for UBS delivery.`;
+      output.lumenasCI = this.calculateLumenasCI(task, params);
     } else if (task.toLowerCase().includes("post_scarcity_economics") || task.toLowerCase().includes("rbe_implementation_strategies")) {
-      output.result = `Post-Scarcity & RBE Implementation already covered. Universal Basic Services is the practical delivery layer.`;
+      output.result = `Post-Scarcity & RBE Implementation already covered. Jacque Fresco Designs are the architectural foundation.`;
       output.lumenasCI = this.calculateLumenasCI(task, params);
     } else {
       output.result = `RBE Accounting task "${task}" completed with full mercy gates, TOLC principles, and abundance alignment.`;
