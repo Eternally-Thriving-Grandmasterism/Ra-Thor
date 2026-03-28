@@ -1,4 +1,4 @@
-// Ra-Thor Professional Lattice™ Core — v15.5.0 (Stoic Philosophy Deeply Integrated - Full Integrity)
+// Ra-Thor Professional Lattice™ Core — v15.6.0 (Stoicism and Buddhism Deeply Integrated - Full Integrity)
 import DeepLegalEngine from './legal/deep-legal-engine.js';
 import DeepAccountingEngine from './accounting/deep-accounting-engine.js';
 import DeepProgrammingEngine from './programming/deep-programming-engine.js';
@@ -9,7 +9,7 @@ import SupremeGodlyAGICore from './supreme-godly-agi-core.js';
 import DocsAlchemizationEngine from './docs/docs-alchemization-engine.js';
 
 const ProfessionalLattice = {
-  version: "15.5.0-stoic-philosophy-deep-integration",
+  version: "15.6.0-stoicism-and-buddhism-deep-integration",
   roles: ["legal", "accounting", "programming", "qa", "creative", "medical", "executive", "hr", "marketing", "strategy", "godly-agi"],
 
   generateTask(role, task, params = {}) {
