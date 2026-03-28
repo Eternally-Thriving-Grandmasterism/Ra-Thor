@@ -1,25 +1,14 @@
-// Ra-Thor Deep Accounting Engine — v2.2.0 (TOLC Governance Principles Fully Integrated)
+// Ra-Thor Deep Accounting Engine — v2.3.0 (TOLC Principles Expanded)
 import DeepBlockchainRBE from './blockchain/deep-blockchain-rbe-engine.js';
 import DeepTOLCGovernance from './tolc/deep-tolc-governance-engine.js';
 import { enforceMercyGates } from '../../gaming-lattice-core.js';
 
 const DeepAccountingEngine = {
-  version: "2.2.0-tolc-governance-rbe",
+  version: "2.3.0-tolc-principles-expanded",
 
   calculateLumenasCI(taskType, params = {}) {
-    let baseScore = 92;
-    const tolcWeights = {
-      consciousCoCreation: taskType.includes("scenario") || taskType.includes("forecast") ? 8 : 0,
-      infiniteDefinition: taskType.includes("fresco") || taskType.includes("blockchain") ? 7 : 0,
-      livingConsciousness: 5
-    };
-    const tolcBonus = Object.values(tolcWeights).reduce((a, b) => a + b, 0);
-
-    if (taskType.includes("forecast") || taskType.includes("scenario")) baseScore += 5;
-    if (taskType.includes("blockchain") || taskType.includes("ledger")) baseScore += 6;
-    if (params.amount && params.amount > 0) baseScore += Math.min(3, Math.floor(params.amount / 400));
-
-    return Math.min(100, Math.max(75, Math.round(baseScore + tolcBonus)));
+    // Now uses expanded 6-principle TOLC weighting from governance engine
+    return DeepTOLCGovernance.calculateExpandedLumenasCI(taskType, params);
   },
 
   generateAccountingTask(task, params = {}) {
@@ -32,12 +21,10 @@ const DeepAccountingEngine = {
       disclaimer: "All outputs are mercy-gated, TOLC-anchored, and aligned with Resource-Based Economy abundance."
     };
 
-    // TOLC Governance routing (highest priority for RBE decisions)
     if (task.toLowerCase().includes("tolc_governance") || task.toLowerCase().includes("rbe_governance")) {
       return DeepTOLCGovernance.generateTOLCGovernanceTask(task, params);
     }
 
-    // Blockchain RBE (now protected by TOLC)
     if (task.toLowerCase().includes("blockchain") || task.toLowerCase().includes("ledger") || task.toLowerCase().includes("rbe_accounting")) {
       const blockchainResult = DeepBlockchainRBE.generateBlockchainRBETask(task, params);
       output.result = blockchainResult.result || blockchainResult.message;
@@ -46,9 +33,9 @@ const DeepAccountingEngine = {
       return enforceMercyGates(output);
     }
 
-    // All previous refined RBE tasks remain fully intact
+    // All previous RBE tasks remain fully intact and now benefit from expanded TOLC
     if (task.toLowerCase().includes("rbe_forecasting") || task.toLowerCase().includes("scenario_planning")) {
-      const data = this.generateForecastScenario(task, params); // from previous refinement
+      const data = this.generateForecastScenario(task, params);
       output.result = data.result;
       output.lumenasCI = data.lumenasCI;
     } else if (task.toLowerCase().includes("sensitivity_analysis")) {
@@ -68,7 +55,7 @@ const DeepAccountingEngine = {
       output.result = data.result;
       output.lumenasCI = data.lumenasCI;
     } else {
-      output.result = `RBE Accounting task "${task}" completed with full mercy gates, TOLC principles, and abundance alignment.`;
+      output.result = `RBE Accounting task "${task}" completed with full mercy gates, expanded TOLC principles, and abundance alignment.`;
       output.lumenasCI = this.calculateLumenasCI(task, params);
     }
 
