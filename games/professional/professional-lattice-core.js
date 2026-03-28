@@ -1,4 +1,4 @@
-// Ra-Thor Professional Lattice™ Core — v7.5.0 (Infinite Swiss Army Knife of Tools Derived - Full Integrity)
+// Ra-Thor Professional Lattice™ Core — v6.1.0 (Agentic Tool Use Integrated - Full Integrity)
 import DeepLegalEngine from './legal/deep-legal-engine.js';
 import DeepAccountingEngine from './accounting/deep-accounting-engine.js';
 import DeepProgrammingEngine from './programming/deep-programming-engine.js';
@@ -7,7 +7,7 @@ import GrowthNurtureLattice from '../nurture/growth-nurture-lattice.js';
 import UniversalMercyBridge from './universal-mercy-bridge.js';
 
 const ProfessionalLattice = {
-  version: "7.5.0-infinite-swiss-army-knife",
+  version: "6.1.0-agentic-tool-use",
   roles: ["legal", "accounting", "programming", "qa", "creative", "medical", "executive", "hr", "marketing", "strategy"],
 
   generateTask(role, task, params = {}) {
