@@ -1,10 +1,11 @@
-// Ra-Thor Professional Lattice™ Core — v1.2.0 (Accounting Role Deepened)
+// Ra-Thor Professional Lattice™ Core — v1.3.0 (Programming Role Deepened)
 import DeepLegalEngine from './legal/deep-legal-engine.js';
 import DeepAccountingEngine from './accounting/deep-accounting-engine.js';
+import DeepProgrammingEngine from './programming/deep-programming-engine.js';
 
 const ProfessionalLattice = {
-  version: "1.2.0-accounting-deepened",
-  roles: ["legal", "accounting", "qa", "programming", "creative", "medical", "executive", "hr", "marketing", "strategy"],
+  version: "1.3.0-programming-deepened",
+  roles: ["legal", "accounting", "programming", "qa", "creative", "medical", "executive", "hr", "marketing", "strategy"],
 
   generateTask(role, task, params = {}) {
     if (role === "legal") {
@@ -12,6 +13,9 @@ const ProfessionalLattice = {
     }
     if (role === "accounting") {
       return DeepAccountingEngine.generateAccountingTask(task, params);
+    }
+    if (role === "programming") {
+      return DeepProgrammingEngine.generateProgrammingTask(task, params);
     }
 
     // Other roles remain as before
