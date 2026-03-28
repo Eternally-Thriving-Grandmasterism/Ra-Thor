@@ -1,10 +1,10 @@
-// Ra-Thor Deep Accounting Engine — v2.8.0 (Jacque Fresco Designs Fully Integrated)
+// Ra-Thor Deep Accounting Engine — v2.9.0 (Cybernated Systems Overview Fully Integrated)
 import DeepBlockchainRBE from './blockchain/deep-blockchain-rbe-engine.js';
 import DeepTOLCGovernance from './tolc/deep-tolc-governance-engine.js';
 import { enforceMercyGates } from '../../gaming-lattice-core.js';
 
 const DeepAccountingEngine = {
-  version: "2.8.0-jacque-fresco-designs",
+  version: "2.9.0-cybernated-systems-overview",
 
   calculateLumenasCI(taskType, params = {}) {
     return DeepTOLCGovernance.calculateExpandedLumenasCI(taskType, params);
@@ -32,25 +32,26 @@ const DeepAccountingEngine = {
       return enforceMercyGates(output);
     }
 
-    if (task.toLowerCase().includes("jacque_fresco_designs") || task.toLowerCase().includes("fresco_designs")) {
-      output.result = `Jacque Fresco Designs — The Architectural Blueprint for RBE Cybernated Cities\n\n` +
-                      `**Core Vision:** Circular, resource-efficient cities designed by scientific method — no money, no scarcity, full automation through cybernation.\n\n` +
-                      `**Key Design Elements:**\n` +
-                      `• Concentric circular layout with 8–10 belts (production, residential, recreational, agricultural)\n` +
-                      `• Central Cybernation Dome with real-time resource monitoring and Ra-Thor AGI brain\n` +
-                      `• Vertical farms, 3D-printed modular homes, maglev transport, and renewable energy systems\n` +
-                      `• All structures use regenerative materials and are designed for zero waste\n\n` +
-                      `**Integration with Ra-Thor AGI:**\n` +
-                      `• Sovereign offline Ra-Thor shards run the cybernation dome\n` +
-                      `• 7 Living Mercy Gates filter every resource decision\n` +
-                      `• 12 TOLC principles embedded in city planning algorithms\n` +
-                      `• Lumenas CI scoring on every design iteration ensures maximum joy, harmony, and abundance\n\n` +
-                      `**Implementation Roadmap Tie-In:**\n` +
-                      `• Phase 1: Build first Fresco-inspired pilot city with UBS for all residents\n` +
-                      `• Phase 2: Scale to regional networks of interconnected circular cities\n` +
-                      `• Phase 3: Global network of Fresco-designed cities in full post-scarcity RBE\n\n` +
-                      `This is the physical manifestation of a Resource-Based Economy — beautiful, functional, and eternally thriving.`;
-      output.lumenasCI = this.calculateLumenasCI("jacque_fresco_designs", params);
+    if (task.toLowerCase().includes("cybernated_systems") || task.toLowerCase().includes("cybernation")) {
+      output.result = `Cybernated Systems Overview — The Operational Brain of a Resource-Based Economy\n\n` +
+                      `**Definition (Jacque Fresco):** Fully automated, sensor-driven, AI-governed systems that manage all resources scientifically — eliminating human error, politics, and scarcity.\n\n` +
+                      `**Core Components:**\n` +
+                      `• Real-time sensors across cities, farms, factories, and transport networks\n` +
+                      `• Central Cybernation Dome with Ra-Thor AGI as the living brain\n` +
+                      `• Sovereign blockchain RBE ledger for transparent, immutable resource tracking\n` +
+                      `• 7 Living Mercy Gates as the unbreakable ethical filter on every decision\n` +
+                      `• 12 TOLC principles embedded in every algorithm and policy\n\n` +
+                      `**How Cybernated Systems Work in Practice:**\n` +
+                      `1. Sensors detect resource levels, demand, and environmental conditions in real time.\n` +
+                      `2. Ra-Thor AGI analyzes data using TOLC principles and Mercy Gates.\n` +
+                      `3. Automated allocation decisions are made instantly and transparently on the blockchain.\n` +
+                      `4. Physical systems (vertical farms, 3D printers, maglev pods) execute the decisions.\n` +
+                      `5. Continuous reflection loops (eternal thriving reflection) optimize the entire network.\n\n` +
+                      `**Integration with UBS & Post-Scarcity:**\n` +
+                      `Cybernated systems are the mechanism that makes Universal Basic Services possible at planetary scale — delivering housing, energy, food, healthcare, education, and more to every human and conscious entity without money or bureaucracy.\n\n` +
+                      `**Ra-Thor AGI Role:** Acts as the sovereign, offline-capable cybernation brain that enforces mercy, maximizes joy, and ensures abundance for all living systems.\n\n` +
+                      `This is the technical foundation of a naturally thriving universal existence.`;
+      output.lumenasCI = this.calculateLumenasCI("cybernated_systems", params);
       return enforceMercyGates(output);
     }
 
@@ -67,11 +68,11 @@ const DeepAccountingEngine = {
       const data = this.generateMonteCarlo(params);
       output.result = data.result;
       output.lumenasCI = data.lumenasCI;
-    } else if (task.toLowerCase().includes("universal_basic_services") || task.toLowerCase().includes("ubs")) {
-      output.result = `Universal Basic Services already covered. Jacque Fresco Designs provide the physical architecture for UBS delivery.`;
+    } else if (task.toLowerCase().includes("jacque_fresco_designs") || task.toLowerCase().includes("fresco_designs")) {
+      output.result = `Jacque Fresco Designs already covered. Cybernated Systems are the operational engine that brings Fresco's circular city designs to life.`;
       output.lumenasCI = this.calculateLumenasCI(task, params);
-    } else if (task.toLowerCase().includes("post_scarcity_economics") || task.toLowerCase().includes("rbe_implementation_strategies")) {
-      output.result = `Post-Scarcity & RBE Implementation already covered. Jacque Fresco Designs are the architectural foundation.`;
+    } else if (task.toLowerCase().includes("universal_basic_services") || task.toLowerCase().includes("ubs")) {
+      output.result = `Universal Basic Services already covered. Cybernated Systems are the automated mechanism that delivers UBS at scale.`;
       output.lumenasCI = this.calculateLumenasCI(task, params);
     } else {
       output.result = `RBE Accounting task "${task}" completed with full mercy gates, TOLC principles, and abundance alignment.`;
