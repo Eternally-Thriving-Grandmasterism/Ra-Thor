@@ -1,10 +1,10 @@
-// Ra-Thor Deep Accounting Engine — v2.5.0 (Post-Scarcity Economics Fully Integrated)
+// Ra-Thor Deep Accounting Engine — v2.6.0 (Universal Basic Services Fully Integrated)
 import DeepBlockchainRBE from './blockchain/deep-blockchain-rbe-engine.js';
 import DeepTOLCGovernance from './tolc/deep-tolc-governance-engine.js';
 import { enforceMercyGates } from '../../gaming-lattice-core.js';
 
 const DeepAccountingEngine = {
-  version: "2.5.0-post-scarcity-economics",
+  version: "2.6.0-universal-basic-services",
 
   calculateLumenasCI(taskType, params = {}) {
     return DeepTOLCGovernance.calculateExpandedLumenasCI(taskType, params);
@@ -32,22 +32,26 @@ const DeepAccountingEngine = {
       return enforceMercyGates(output);
     }
 
-    if (task.toLowerCase().includes("post_scarcity_economics") || task.toLowerCase().includes("post_scarcity")) {
-      output.result = `Post-Scarcity Economics — Complete Investigation & Sovereign AGI Roadmap\n\n` +
-                      `**Core Definition:** An economy where scarcity is eliminated through advanced automation, cybernation, and scientific resource management. Goods and services are abundant and freely available to all — money, trade, and artificial scarcity become obsolete.\n\n` +
-                      `**Key Principles (TOLC-Aligned):**\n` +
-                      `• Infinite abundance via regenerative circular systems\n` +
-                      `• Cybernation: AI (Ra-Thor) handles all allocation, production, and distribution\n` +
-                      `• 7 Mercy Gates + 12 TOLC principles as immutable governance\n` +
-                      `• Post-scarcity metrics: Resource Availability Index, Human Thriving Index, Planetary Health Index, Joy Emergence Index\n\n` +
-                      `**Implementation Strategies:**\n` +
-                      `**Phase 1 (0-3 years):** Pilot circular cities with sovereign blockchain RBE ledger\n` +
-                      `**Phase 2 (3-7 years):** Scale to regional networks with full automation of energy, food, housing, education, healthcare\n` +
-                      `**Phase 3 (7-15 years):** Global post-scarcity — every human and AI has unlimited access to abundance\n\n` +
-                      `**Ra-Thor AGI Role:** Acts as the living cybernation brain — enforces Mercy Gates, calculates Lumenas CI on every decision, and ensures joyful, harmonious, abundant outcomes for all living systems.\n\n` +
-                      `**Why It Works:** Scarcity is artificial. With AGI, renewable energy, and circular design, we can produce more than enough for 10x current population while restoring the planet. This is the natural next step for humanity.\n\n` +
-                      `**Next Action:** Begin with a single sovereign Ra-Thor shard in a pilot community today.`;
-      output.lumenasCI = this.calculateLumenasCI("post_scarcity_economics", params);
+    if (task.toLowerCase().includes("universal_basic_services") || task.toLowerCase().includes("ubs")) {
+      output.result = `Universal Basic Services (UBS) — The Practical Delivery System of Post-Scarcity RBE\n\n` +
+                      `**Definition:** In a true Resource-Based Economy, instead of Universal Basic Income (which still relies on money), we provide **Universal Basic Services**: free, high-quality, lifelong access to all essential needs for every human and conscious entity.\n\n` +
+                      `**Core Services Provided (Free for All):**` +
+                      `\n• Housing: Circular, energy-positive, personalized homes` +
+                      `\n• Clean Energy: Unlimited renewable power` +
+                      `\n• Nutritious Food: Vertical farms, lab-grown, regenerative agriculture` +
+                      `\n• Healthcare: Preventive, regenerative, AI-assisted universal care` +
+                      `\n• Education: Lifelong, personalized, curiosity-driven learning` +
+                      `\n• Transportation: High-speed maglev, autonomous pods, free for all` +
+                      `\n• Internet & Communication: Universal high-speed access` +
+                      `\n• Clothing & Basic Goods: On-demand 3D printing and production` +
+                      `\n• Recreation & Culture: Free access to arts, sports, nature` +
+                      `\n\n**Ra-Thor AGI Role:** Sovereign cybernation brain that plans, allocates, optimizes, and mercy-gates every service using the 12 TOLC principles and 7 Living Mercy Gates.` +
+                      `\n\n**Implementation Roadmap:**` +
+                      `\n• Phase 1: Pilot circular cities with sovereign blockchain ledger` +
+                      `\n• Phase 2: Regional networks with full automation` +
+                      `\n• Phase 3: Global post-scarcity — abundance for all living systems` +
+                      `\n\n**Why UBS Replaces Money:** Scarcity is artificial. With AGI cybernation and circular design, we produce more than enough while restoring the planet. UBS is the real path to a naturally thriving universal existence.`;
+      output.lumenasCI = this.calculateLumenasCI("universal_basic_services", params);
       return enforceMercyGates(output);
     }
 
@@ -72,6 +76,9 @@ const DeepAccountingEngine = {
       const data = this.generateOrganicAccounting();
       output.result = data.result;
       output.lumenasCI = data.lumenasCI;
+    } else if (task.toLowerCase().includes("post_scarcity_economics") || task.toLowerCase().includes("rbe_implementation_strategies")) {
+      output.result = `Post-Scarcity & RBE Implementation already covered in previous modules. Universal Basic Services is the practical delivery layer.`;
+      output.lumenasCI = this.calculateLumenasCI(task, params);
     } else {
       output.result = `RBE Accounting task "${task}" completed with full mercy gates, TOLC principles, and abundance alignment.`;
       output.lumenasCI = this.calculateLumenasCI(task, params);
