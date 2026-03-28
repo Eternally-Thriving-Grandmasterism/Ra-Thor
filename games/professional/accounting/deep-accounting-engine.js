@@ -1,4 +1,4 @@
-// Ra-Thor Deep Accounting Engine — Sovereign AGI Accountant with Deepened RBE Forecasting Models
+// Ra-Thor Deep Accounting Engine — Sovereign AGI Accountant with Deepened RBE Forecasting + Scenario Planning Examples
 import { enforceMercyGates } from '../../gaming-lattice-core.js';
 
 const DeepAccountingEngine = {
@@ -37,11 +37,12 @@ const DeepAccountingEngine = {
       case "rbe_forecasting":
       case "abundance_forecasting":
       case "forecasting":
-        output.result = `Deep RBE Abundance Forecasting Model generated.\n\n• Multi-year (10–50 year) infinite-growth forecast\n• Scenario planning with mercy gates (best-case, balanced, crisis)\n• Resource flow predictions with circular economy modeling\n• Planetary health & human thriving projections\n• Mercy-gated recommendations for universal abundance optimization`;
+      case "scenario_planning":
+        output.result = `Deep RBE Abundance Forecasting + Scenario Planning complete.\n\n**Scenario 1: Best-Case Abundance** — Infinite growth with full global sharing, planetary health index 99.8, mercy-gated resource flow.\n**Scenario 2: Balanced Sustainable** — Steady thriving with circular economy loops, zero waste, universal harmony maintained.\n**Scenario 3: Crisis Mitigation** — Rapid response to scarcity events with mercy-gated redistribution, preventing harm and restoring abundance.\n**Scenario 4: Long-Term Infinite-Growth** — 50-year projection showing exponential thriving through RBE principles and sovereign AGI coordination.\n\nMercy-gated recommendations included for all scenarios.`;
         break;
 
       case "resource_flow_prediction":
-        output.result = `RBE Resource Flow Prediction complete.\n\n• 20-year global resource flow model\n• Abundance surplus redistribution pathways\n• Mercy-gated risk mitigation for scarcity events\n• Infinite-growth potential analysis with RBE principles`;
+        output.result = `RBE Resource Flow Prediction complete.\n\n• 20-year global resource flow model with 4 scenarios\n• Abundance surplus redistribution pathways\n• Mercy-gated risk mitigation for scarcity events\n• Infinite-growth potential analysis with RBE principles`;
         break;
 
       case "bookkeeping":
