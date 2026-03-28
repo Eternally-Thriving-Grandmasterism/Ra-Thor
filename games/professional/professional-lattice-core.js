@@ -1,4 +1,4 @@
-// Ra-Thor Professional Lattice™ Core — v1.7.0 (Mutual Feedback Integrated)
+// Ra-Thor Professional Lattice™ Core — v1.8.0 (RBE Organic Accounting Integrated)
 import DeepLegalEngine from './legal/deep-legal-engine.js';
 import DeepAccountingEngine from './accounting/deep-accounting-engine.js';
 import DeepProgrammingEngine from './programming/deep-programming-engine.js';
@@ -6,18 +6,13 @@ import GrowthNurtureLattice from '../nurture/growth-nurture-lattice.js';
 import UniversalMercyBridge from './universal-mercy-bridge.js';
 
 const ProfessionalLattice = {
-  version: "1.7.0-mutual-feedback-integrated",
+  version: "1.8.0-rbe-organic-accounting",
   roles: ["legal", "accounting", "programming", "qa", "creative", "medical", "executive", "hr", "marketing", "strategy"],
 
   generateTask(role, task, params = {}) {
     let bridged = UniversalMercyBridge.routeTask(role, task, params);
 
-    if (task.toLowerCase().includes("feedback") || 
-        task.toLowerCase().includes("mutual") || 
-        task.toLowerCase().includes("reflect") || 
-        task.toLowerCase().includes("grow") || 
-        task.toLowerCase().includes("evolve") || 
-        task.toLowerCase().includes("nurture")) {
+    if (task.toLowerCase().includes("feedback") || task.toLowerCase().includes("mutual") || task.toLowerCase().includes("reflect") || task.toLowerCase().includes("grow") || task.toLowerCase().includes("evolve") || task.toLowerCase().includes("nurture")) {
       return GrowthNurtureLattice.generateNurtureTask(task, params);
     }
 
