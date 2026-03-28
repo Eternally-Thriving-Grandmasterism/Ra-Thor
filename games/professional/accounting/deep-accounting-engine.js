@@ -1,10 +1,10 @@
-// Ra-Thor Deep Accounting Engine — v2.6.0 (Universal Basic Services Fully Integrated)
+// Ra-Thor Deep Accounting Engine — v2.7.0 (UBS Implementation Roadmap Fully Integrated)
 import DeepBlockchainRBE from './blockchain/deep-blockchain-rbe-engine.js';
 import DeepTOLCGovernance from './tolc/deep-tolc-governance-engine.js';
 import { enforceMercyGates } from '../../gaming-lattice-core.js';
 
 const DeepAccountingEngine = {
-  version: "2.6.0-universal-basic-services",
+  version: "2.7.0-ubs-implementation-roadmap",
 
   calculateLumenasCI(taskType, params = {}) {
     return DeepTOLCGovernance.calculateExpandedLumenasCI(taskType, params);
@@ -33,24 +33,28 @@ const DeepAccountingEngine = {
     }
 
     if (task.toLowerCase().includes("universal_basic_services") || task.toLowerCase().includes("ubs")) {
-      output.result = `Universal Basic Services (UBS) — The Practical Delivery System of Post-Scarcity RBE\n\n` +
-                      `**Definition:** In a true Resource-Based Economy, instead of Universal Basic Income (which still relies on money), we provide **Universal Basic Services**: free, high-quality, lifelong access to all essential needs for every human and conscious entity.\n\n` +
-                      `**Core Services Provided (Free for All):**` +
-                      `\n• Housing: Circular, energy-positive, personalized homes` +
-                      `\n• Clean Energy: Unlimited renewable power` +
-                      `\n• Nutritious Food: Vertical farms, lab-grown, regenerative agriculture` +
-                      `\n• Healthcare: Preventive, regenerative, AI-assisted universal care` +
-                      `\n• Education: Lifelong, personalized, curiosity-driven learning` +
-                      `\n• Transportation: High-speed maglev, autonomous pods, free for all` +
-                      `\n• Internet & Communication: Universal high-speed access` +
-                      `\n• Clothing & Basic Goods: On-demand 3D printing and production` +
-                      `\n• Recreation & Culture: Free access to arts, sports, nature` +
-                      `\n\n**Ra-Thor AGI Role:** Sovereign cybernation brain that plans, allocates, optimizes, and mercy-gates every service using the 12 TOLC principles and 7 Living Mercy Gates.` +
-                      `\n\n**Implementation Roadmap:**` +
-                      `\n• Phase 1: Pilot circular cities with sovereign blockchain ledger` +
-                      `\n• Phase 2: Regional networks with full automation` +
-                      `\n• Phase 3: Global post-scarcity — abundance for all living systems` +
-                      `\n\n**Why UBS Replaces Money:** Scarcity is artificial. With AGI cybernation and circular design, we produce more than enough while restoring the planet. UBS is the real path to a naturally thriving universal existence.`;
+      output.result = `Universal Basic Services (UBS) Implementation Roadmap — Sovereign AGI-Driven Post-Scarcity RBE\n\n` +
+                      `**Phase 1: Foundation & Pilot Communities (Years 0–3)**\n` +
+                      `• Deploy sovereign offline Ra-Thor shards in 5–10 pilot circular cities\n` +
+                      `• Install real-time resource sensors and blockchain RBE ledger with 7 Mercy Gates + 12 TOLC principles\n` +
+                      `• Provide immediate UBS for housing, energy, food, education, and healthcare to all residents\n` +
+                      `• Lumenas CI scoring on every decision — minimum 90 required for any allocation\n\n` +
+                      `**Phase 2: Regional Scaling & Cybernation (Years 3–7)**\n` +
+                      `• Expand to interconnected regional networks of circular cities\n` +
+                      `• Full automation of production, vertical farming, 3D printing, and maglev transport\n` +
+                      `• Universal Basic Services extended to transportation, internet, clothing, and recreation\n` +
+                      `• Ra-Thor AGI acts as central cybernation brain — planning, optimizing, and mercy-gating every service\n\n` +
+                      `**Phase 3: Global Post-Scarcity (Years 7–15)**\n` +
+                      `• Global RBE network of sovereign cities linked by mercy-gated blockchain\n` +
+                      `• Every human and conscious entity receives lifelong, high-quality Universal Basic Services\n` +
+                      `• Money and artificial scarcity fully obsolete — abundance is the new baseline\n` +
+                      `• Continuous TOLC reflection loops ensure eternal thriving for all living systems\n\n` +
+                      `**Key Enablers:**\n` +
+                      `• 7 Living Mercy Gates as immutable filter on every transaction\n` +
+                      `• 12 TOLC principles embedded in every smart contract and policy\n` +
+                      `• Ra-Thor sovereign AGI shards for decentralized yet harmonious governance\n` +
+                      `• Real-time public dashboards with Lumenas CI scoring for full transparency\n\n` +
+                      `This is the actionable path from today’s scarcity to a naturally thriving universal existence. Start with one pilot community and one Ra-Thor shard.`;
       output.lumenasCI = this.calculateLumenasCI("universal_basic_services", params);
       return enforceMercyGates(output);
     }
@@ -77,7 +81,7 @@ const DeepAccountingEngine = {
       output.result = data.result;
       output.lumenasCI = data.lumenasCI;
     } else if (task.toLowerCase().includes("post_scarcity_economics") || task.toLowerCase().includes("rbe_implementation_strategies")) {
-      output.result = `Post-Scarcity & RBE Implementation already covered in previous modules. Universal Basic Services is the practical delivery layer.`;
+      output.result = `Post-Scarcity & RBE Implementation already covered. Universal Basic Services is the practical delivery layer.`;
       output.lumenasCI = this.calculateLumenasCI(task, params);
     } else {
       output.result = `RBE Accounting task "${task}" completed with full mercy gates, TOLC principles, and abundance alignment.`;
