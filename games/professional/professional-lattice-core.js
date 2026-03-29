@@ -1,4 +1,4 @@
-// Ra-Thor Professional Lattice™ Core — v16.60.0 (Incremental Parsing Algorithms Deeply Explored - Full Integrity)
+// Ra-Thor Professional Lattice™ Core — v16.61.0 (AST Diffing Techniques Deeply Explored - Full Integrity)
 import DeepLegalEngine from './legal/deep-legal-engine.js';
 import DeepAccountingEngine from './accounting/deep-accounting-engine.js';
 import DeepProgrammingEngine from './programming/deep-programming-engine.js';
@@ -9,7 +9,7 @@ import SupremeGodlyAGICore from './supreme-godly-agi-core.js';
 import DocsAlchemizationEngine from './docs/docs-alchemization-engine.js';
 
 const ProfessionalLattice = {
-  version: "16.60.0-incremental-parsing-algorithms-deeply-explored",
+  version: "16.61.0-ast-diffing-techniques-deeply-explored",
   roles: ["legal", "accounting", "programming", "qa", "creative", "medical", "executive", "hr", "marketing", "strategy", "godly-agi"],
 
   generateTask(role, task, params = {}) {
@@ -25,8 +25,8 @@ const ProfessionalLattice = {
     if (role === "creative") return DeepCreativeEngine.generateCreativeTask(task, params);
     if (role === "godly-agi") return SupremeGodlyAGICore.generateGodlyTask(task, params);
 
-    // Hybrid docs routing — now fully includes Incremental Parsing Algorithms
-    if (task.toLowerCase().includes("docs") || task.toLowerCase().includes("alchemize") || task.toLowerCase().includes("remember") || task.toLowerCase().includes("scan docs") || task.toLowerCase().includes("docs_alchemization_engine_internals") || task.toLowerCase().includes("docsalchemizationengine_performance_optimization") || task.toLowerCase().includes("incremental_parsing_algorithms") || task.toLowerCase().includes("knowledge_graph_fusion") || task.toLowerCase().includes("neo4j_graph_databases") || task.toLowerCase().includes("tolc_omniverse_unification_framework") || task.toLowerCase().includes("compare_to_string_theory") || task.toLowerCase().includes("tolc_unification_equations") || task.toLowerCase().includes("tolc_lumenasci_equation") || task.toLowerCase().includes("tolc_vs_string_theory_unification") || task.toLowerCase().includes("compare_to_loop_quantum_gravity") || task.toLowerCase().includes("tolc_unification_equations_further") || task.toLowerCase().includes("derive_lumenasci_equation_details") || task.toLowerCase().includes("derive_lumenasci_equations_mathematically") || task.toLowerCase().includes("expand_lumenasci_mercy_gates_details") || task.toLowerCase().includes("derive_lumenasci_weights_mathematically") || task.toLowerCase().includes("expand_lumenasci_equations") || task.toLowerCase().includes("palo_alto_xai_tesla_visit_tweet") || task.toLowerCase().includes("docs_third_file_workflow") || task.toLowerCase().includes("docsalchemizationengine_internals")) {
+    // Hybrid docs routing — now fully includes AST Diffing Techniques
+    if (task.toLowerCase().includes("docs") || task.toLowerCase().includes("alchemize") || task.toLowerCase().includes("remember") || task.toLowerCase().includes("scan docs") || task.toLowerCase().includes("docs_alchemization_engine_internals") || task.toLowerCase().includes("docsalchemizationengine_performance_optimization") || task.toLowerCase().includes("incremental_parsing_algorithms") || task.toLowerCase().includes("ast_diffing_techniques") || task.toLowerCase().includes("knowledge_graph_fusion") || task.toLowerCase().includes("neo4j_graph_databases") || task.toLowerCase().includes("tolc_omniverse_unification_framework") || task.toLowerCase().includes("compare_to_string_theory") || task.toLowerCase().includes("tolc_unification_equations") || task.toLowerCase().includes("tolc_lumenasci_equation") || task.toLowerCase().includes("tolc_vs_string_theory_unification") || task.toLowerCase().includes("compare_to_loop_quantum_gravity") || task.toLowerCase().includes("tolc_unification_equations_further") || task.toLowerCase().includes("derive_lumenasci_equation_details") || task.toLowerCase().includes("derive_lumenasci_equations_mathematically") || task.toLowerCase().includes("expand_lumenasci_mercy_gates_details") || task.toLowerCase().includes("derive_lumenasci_weights_mathematically") || task.toLowerCase().includes("expand_lumenasci_equations") || task.toLowerCase().includes("palo_alto_xai_tesla_visit_tweet") || task.toLowerCase().includes("docs_third_file_workflow") || task.toLowerCase().includes("docsalchemizationengine_internals")) {
       return DocsAlchemizationEngine.alchemizeDocs(task, params);
     }
 
