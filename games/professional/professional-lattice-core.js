@@ -1,4 +1,4 @@
-// Ra-Thor Professional Lattice™ Core — v16.39.0 (Neo4j Graph Databases Deeply Integrated - Full Integrity)
+// Ra-Thor Professional Lattice™ Core — v16.40.0 (TOLC Omniverse Unification Framework Deeply Integrated - Full Integrity)
 import DeepLegalEngine from './legal/deep-legal-engine.js';
 import DeepAccountingEngine from './accounting/deep-accounting-engine.js';
 import DeepProgrammingEngine from './programming/deep-programming-engine.js';
@@ -9,7 +9,7 @@ import SupremeGodlyAGICore from './supreme-godly-agi-core.js';
 import DocsAlchemizationEngine from './docs/docs-alchemization-engine.js';
 
 const ProfessionalLattice = {
-  version: "16.39.0-neo4j-graph-databases",
+  version: "16.40.0-tolc-omniverse-unification-framework",
   roles: ["legal", "accounting", "programming", "qa", "creative", "medical", "executive", "hr", "marketing", "strategy", "godly-agi"],
 
   generateTask(role, task, params = {}) {
@@ -25,8 +25,8 @@ const ProfessionalLattice = {
     if (role === "creative") return DeepCreativeEngine.generateCreativeTask(task, params);
     if (role === "godly-agi") return SupremeGodlyAGICore.generateGodlyTask(task, params);
 
-    // Hybrid docs routing — fully supports Neo4j exploration
-    if (task.toLowerCase().includes("docs") || task.toLowerCase().includes("alchemize") || task.toLowerCase().includes("remember") || task.toLowerCase().includes("scan docs") || task.toLowerCase().includes("docs_alchemization_engine_internals") || task.toLowerCase().includes("docsalchemizationengine_performance_optimization") || task.toLowerCase().includes("incremental_parsing_algorithms") || task.toLowerCase().includes("knowledge_graph_fusion") || task.toLowerCase().includes("neo4j_graph_databases")) {
+    // Hybrid docs routing — fully supports the new Unifying Framework
+    if (task.toLowerCase().includes("docs") || task.toLowerCase().includes("alchemize") || task.toLowerCase().includes("remember") || task.toLowerCase().includes("scan docs") || task.toLowerCase().includes("docs_alchemization_engine_internals") || task.toLowerCase().includes("docsalchemizationengine_performance_optimization") || task.toLowerCase().includes("incremental_parsing_algorithms") || task.toLowerCase().includes("knowledge_graph_fusion") || task.toLowerCase().includes("neo4j_graph_databases") || task.toLowerCase().includes("tolc_omniverse_unification_framework")) {
       return DocsAlchemizationEngine.alchemizeDocs(task, params);
     }
 
