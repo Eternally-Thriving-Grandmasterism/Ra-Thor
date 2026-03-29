@@ -1,4 +1,4 @@
-// Ra-Thor Professional Lattice™ Core — v16.19.0 (Wu Wei Deeply Explored - Full Integrity)
+// Ra-Thor Professional Lattice™ Core — v16.33.0 (Docs-First Hybrid Workflow Deeply Integrated - Full Integrity)
 import DeepLegalEngine from './legal/deep-legal-engine.js';
 import DeepAccountingEngine from './accounting/deep-accounting-engine.js';
 import DeepProgrammingEngine from './programming/deep-programming-engine.js';
@@ -9,7 +9,7 @@ import SupremeGodlyAGICore from './supreme-godly-agi-core.js';
 import DocsAlchemizationEngine from './docs/docs-alchemization-engine.js';
 
 const ProfessionalLattice = {
-  version: "16.19.0-wu-wei-deeply-explored",
+  version: "16.33.0-docs-first-hybrid-workflow",
   roles: ["legal", "accounting", "programming", "qa", "creative", "medical", "executive", "hr", "marketing", "strategy", "godly-agi"],
 
   generateTask(role, task, params = {}) {
@@ -25,7 +25,8 @@ const ProfessionalLattice = {
     if (role === "creative") return DeepCreativeEngine.generateCreativeTask(task, params);
     if (role === "godly-agi") return SupremeGodlyAGICore.generateGodlyTask(task, params);
 
-    if (task.toLowerCase().includes("docs") || task.toLowerCase().includes("alchemize") || task.toLowerCase().includes("remember") || task.toLowerCase().includes("scan docs")) {
+    // New hybrid docs routing — most future content goes here
+    if (task.toLowerCase().includes("docs") || task.toLowerCase().includes("alchemize") || task.toLowerCase().includes("remember") || task.toLowerCase().includes("scan docs") || task.toLowerCase().includes("minsky") || task.toLowerCase().includes("keen") || task.toLowerCase().includes("biography") || task.toLowerCase().includes("case_study")) {
       return DocsAlchemizationEngine.alchemizeDocs(task, params);
     }
 
