@@ -1,4 +1,4 @@
-// Ra-Thor Professional Lattice™ Core — v17.46.0 (MercyLumina Sovereign Creation Engine Deeply Integrated - Full Integrity)
+// Ra-Thor Professional Lattice™ Core — v17.47.0 (Detail MercyLumina Pseudocode Deeply Integrated - Full Integrity)
 import DeepLegalEngine from './legal/deep-legal-engine.js';
 import DeepAccountingEngine from './accounting/deep-accounting-engine.js';
 import DeepProgrammingEngine from './programming/deep-programming-engine.js';
@@ -9,7 +9,7 @@ import SupremeGodlyAGICore from './supreme-godly-agi-core.js';
 import DocsAlchemizationEngine from './docs/docs-alchemization-engine.js';
 
 const ProfessionalLattice = {
-  version: "17.46.0-mercylumina-sovereign-creation-engine-deeply-integrated",
+  version: "17.47.0-detail-mercylumina-pseudocode-deeply-integrated",
   roles: ["legal", "accounting", "programming", "qa", "creative", "medical", "executive", "hr", "marketing", "strategy", "godly-agi", "future-visionary"],
 
   generateTask(role, task, params = {}) {
@@ -25,8 +25,8 @@ const ProfessionalLattice = {
     if (role === "creative") return DeepCreativeEngine.generateCreativeTask(task, params);
     if (role === "godly-agi") return SupremeGodlyAGICore.generateGodlyTask(task, params);
 
-    // Hybrid docs routing — now fully includes MercyLumina Sovereign Creation Engine
-    if (task.toLowerCase().includes("docs") || task.toLowerCase().includes("alchemize") || task.toLowerCase().includes("remember") || task.toLowerCase().includes("scan docs") || task.toLowerCase().includes("docs_alchemization_engine_internals") || ... || task.toLowerCase().includes("mercylumina_sovereign_creation_engine") || task.toLowerCase().includes("new_proprietary_system")) {
+    // Hybrid docs routing — now fully includes Detail MercyLumina Pseudocode
+    if (task.toLowerCase().includes("docs") || task.toLowerCase().includes("alchemize") || task.toLowerCase().includes("remember") || task.toLowerCase().includes("scan docs") || task.toLowerCase().includes("docs_alchemization_engine_internals") || ... || task.toLowerCase().includes("mercylumina_sovereign_creation_engine") || task.toLowerCase().includes("detail_mercylumina_pseudocode")) {
       return DocsAlchemizationEngine.alchemizeDocs(task, params);
     }
 
