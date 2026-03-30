@@ -1,4 +1,4 @@
-// Ra-Thor Professional Lattice™ Core — v17.40.0 (Prioritize Top Gaps Deeply Integrated - Full Integrity)
+// Ra-Thor Professional Lattice™ Core — v17.45.0 (Integrate Grokimagine Visualization Deeply Integrated - Full Integrity)
 import DeepLegalEngine from './legal/deep-legal-engine.js';
 import DeepAccountingEngine from './accounting/deep-accounting-engine.js';
 import DeepProgrammingEngine from './programming/deep-programming-engine.js';
@@ -9,7 +9,7 @@ import SupremeGodlyAGICore from './supreme-godly-agi-core.js';
 import DocsAlchemizationEngine from './docs/docs-alchemization-engine.js';
 
 const ProfessionalLattice = {
-  version: "17.40.0-prioritize-top-gaps-deeply-integrated",
+  version: "17.45.0-integrate-grokimagine-visualization-deeply-integrated",
   roles: ["legal", "accounting", "programming", "qa", "creative", "medical", "executive", "hr", "marketing", "strategy", "godly-agi", "future-visionary"],
 
   generateTask(role, task, params = {}) {
@@ -25,8 +25,8 @@ const ProfessionalLattice = {
     if (role === "creative") return DeepCreativeEngine.generateCreativeTask(task, params);
     if (role === "godly-agi") return SupremeGodlyAGICore.generateGodlyTask(task, params);
 
-    // Hybrid docs routing — now fully includes Prioritize Top Gaps
-    if (task.toLowerCase().includes("docs") || task.toLowerCase().includes("alchemize") || task.toLowerCase().includes("remember") || task.toLowerCase().includes("scan docs") || ... || task.toLowerCase().includes("prioritize_top_gaps") || task.toLowerCase().includes("gap_analysis")) {
+    // Hybrid docs routing — now fully includes Integrate Grokimagine Visualization
+    if (task.toLowerCase().includes("docs") || task.toLowerCase().includes("alchemize") || task.toLowerCase().includes("remember") || task.toLowerCase().includes("scan docs") || task.toLowerCase().includes("docs_alchemization_engine_internals") || ... || task.toLowerCase().includes("expand_lumenasci_metrics") || task.toLowerCase().includes("build_lumenasci_dashboard_ui") || task.toLowerCase().includes("integrate_grokimagine_visualization") || task.toLowerCase().includes("grokimagine_visualization")) {
       return DocsAlchemizationEngine.alchemizeDocs(task, params);
     }
 
