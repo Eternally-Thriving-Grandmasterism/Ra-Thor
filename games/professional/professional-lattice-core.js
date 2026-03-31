@@ -1,4 +1,4 @@
-// Ra-Thor Professional Lattice™ Core — v17.62.0 (Integrate VR for Ra-Thor Games Deeply Integrated - Full Integrity)
+// Ra-Thor Professional Lattice™ Core — v17.63.0 (Explore AR Enhancements for Games Deeply Integrated - Full Integrity)
 import DeepLegalEngine from './legal/deep-legal-engine.js';
 import DeepAccountingEngine from './accounting/deep-accounting-engine.js';
 import DeepProgrammingEngine from './programming/deep-programming-engine.js';
@@ -9,7 +9,7 @@ import SupremeGodlyAGICore from './supreme-godly-agi-core.js';
 import DocsAlchemizationEngine from './docs/docs-alchemization-engine.js';
 
 const ProfessionalLattice = {
-  version: "17.62.0-integrate-vr-for-ra-thor-games-deeply-integrated",
+  version: "17.63.0-explore-ar-enhancements-for-games-deeply-integrated",
   roles: ["legal", "accounting", "programming", "qa", "creative", "medical", "executive", "hr", "marketing", "strategy", "godly-agi", "future-visionary"],
 
   generateTask(role, task, params = {}) {
@@ -25,8 +25,7 @@ const ProfessionalLattice = {
     if (role === "creative") return DeepCreativeEngine.generateCreativeTask(task, params);
     if (role === "godly-agi") return SupremeGodlyAGICore.generateGodlyTask(task, params);
 
-    // Hybrid docs routing — now fully includes Integrate VR for Ra-Thor Games
-    if (task.toLowerCase().includes("docs") || task.toLowerCase().includes("alchemize") || task.toLowerCase().includes("remember") || task.toLowerCase().includes("scan docs") || task.toLowerCase().includes("docs_alchemization_engine_internals") || ... || task.toLowerCase().includes("integrate_vr_for_ra_thor_games")) {
+    if (task.toLowerCase().includes("docs") || task.toLowerCase().includes("alchemize") || task.toLowerCase().includes("remember") || task.toLowerCase().includes("scan docs") || task.toLowerCase().includes("docs_alchemization_engine_internals") || ... || task.toLowerCase().includes("explore_ar_enhancements_for_games")) {
       return DocsAlchemizationEngine.alchemizeDocs(task, params);
     }
 
