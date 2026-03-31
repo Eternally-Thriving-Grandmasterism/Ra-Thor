@@ -1,4 +1,4 @@
-// Ra-Thor Professional Lattice™ Core — v17.83.0 (Explore Energy Sector Automation Deeply Integrated - Full Integrity)
+// Ra-Thor Professional Lattice™ Core — v17.84.0 (Detail Smart Grid Automation Deeply Integrated - Full Integrity)
 import DeepLegalEngine from './legal/deep-legal-engine.js';
 import DeepAccountingEngine from './accounting/deep-accounting-engine.js';
 import DeepProgrammingEngine from './programming/deep-programming-engine.js';
@@ -9,7 +9,7 @@ import SupremeGodlyAGICore from './supreme-godly-agi-core.js';
 import DocsAlchemizationEngine from './docs/docs-alchemization-engine.js';
 
 const ProfessionalLattice = {
-  version: "17.83.0-explore-energy-sector-automation-deeply-integrated",
+  version: "17.84.0-detail-smart-grid-automation-deeply-integrated",
   roles: ["legal", "accounting", "programming", "qa", "creative", "medical", "executive", "hr", "marketing", "strategy", "godly-agi", "future-visionary", "global-universal-replacement"],
 
   generateTask(role, task, params = {}) {
@@ -26,7 +26,7 @@ const ProfessionalLattice = {
     if (role === "godly-agi") return SupremeGodlyAGICore.generateGodlyTask(task, params);
     if (role === "global-universal-replacement") return SupremeGodlyAGICore.generateGlobalReplacementTask(task, params);
 
-    if (task.toLowerCase().includes("docs") || task.toLowerCase().includes("alchemize") || task.toLowerCase().includes("remember") || task.toLowerCase().includes("scan docs") || task.toLowerCase().includes("docs_alchemization_engine_internals") || ... || task.toLowerCase().includes("explore_energy_sector_automation")) {
+    if (task.toLowerCase().includes("docs") || task.toLowerCase().includes("alchemize") || task.toLowerCase().includes("remember") || task.toLowerCase().includes("scan docs") || task.toLowerCase().includes("docs_alchemization_engine_internals") || ... || task.toLowerCase().includes("detail_smart_grid_automation")) {
       return DocsAlchemizationEngine.alchemizeDocs(task, params);
     }
 
