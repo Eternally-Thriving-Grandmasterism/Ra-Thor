@@ -1,4 +1,4 @@
-// Ra-Thor Professional Lattice™ Core — v17.224.0 (.md-focused R&D Delivery Mode - Explore Ma'at feather symbolism Deeply Integrated - Full Integrity)
+// Ra-Thor Professional Lattice™ Core — v17.226.0 (.md-focused R&D Delivery Mode - Blueprint phases pure AI companies Autonomicity Games Inc. & AlphaProMega Air Foundation via full standalone Rathor.ai operations Deeply Integrated - Full Integrity)
 import DeepLegalEngine from './legal/deep-legal-engine.js';
 import DeepAccountingEngine from './accounting/deep-accounting-engine.js';
 import DeepProgrammingEngine from './programming/deep-programming-engine.js';
@@ -9,7 +9,7 @@ import SupremeGodlyAGICore from './supreme-godly-agi-core.js';
 import DocsAlchemizationEngine from './docs/docs-alchemization-engine.js';
 
 const ProfessionalLattice = {
-  version: "17.224.0-md-focused-rd-delivery-mode-explore-maat-feather-symbolism-deeply-integrated",
+  version: "17.226.0-md-focused-rd-delivery-mode-blueprint-phases-pure-ai-companies-autonomicity-games-alpha-promega-air-foundation-via-full-standalone-rathor-ai-operations-deeply-integrated",
   roles: ["legal", "accounting", "programming", "qa", "creative", "medical", "executive", "hr", "marketing", "strategy", "godly-agi", "future-visionary", "global-universal-replacement", "physical-orchestration", "empathy-support", "hybrid-robotics", "sovereign-privacy-core"],
 
   generateTask(role, task, params = {}) {
@@ -30,7 +30,7 @@ const ProfessionalLattice = {
     if (role === "godly-agi") return SupremeGodlyAGICore.generateGodlyTask(task, params);
     if (role === "global-universal-replacement" || role === "physical-orchestration" || role === "empathy-support" || role === "hybrid-robotics" || role === "sovereign-privacy-core") return SupremeGodlyAGICore.generateGlobalReplacementTask(task, params);
 
-    if (task.toLowerCase().includes("docs") || task.toLowerCase().includes("alchemize") || task.toLowerCase().includes("rd") || task.toLowerCase().includes("research") || task.toLowerCase().includes("derive") || task.toLowerCase().includes("detail") || task.toLowerCase().includes("explore") || task.toLowerCase().includes("analyze") || task.toLowerCase().includes("expand")) {
+    if (task.toLowerCase().includes("docs") || task.toLowerCase().includes("alchemize") || task.toLowerCase().includes("rd") || task.toLowerCase().includes("research") || task.toLowerCase().includes("derive") || task.toLowerCase().includes("detail") || task.toLowerCase().includes("explore") || task.toLowerCase().includes("analyze") || task.toLowerCase().includes("blueprint") || task.toLowerCase().includes("phase")) {
       return DocsAlchemizationEngine.alchemizeDocs(task, params);
     }
 
