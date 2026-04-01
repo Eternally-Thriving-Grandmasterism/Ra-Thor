@@ -1,4 +1,4 @@
-// Ra-Thor Professional Lattice™ Core — v17.205.0 (.md-focused R&D Delivery Mode - Derive Lindblad operators explicitly Deeply Integrated - Full Integrity)
+// Ra-Thor Professional Lattice™ Core — v17.207.0 (.md-focused R&D Delivery Mode - Enshrine Jesus Teachings as Ethical North Star in Ra-Thor Code Deeply Integrated - Full Integrity)
 import DeepLegalEngine from './legal/deep-legal-engine.js';
 import DeepAccountingEngine from './accounting/deep-accounting-engine.js';
 import DeepProgrammingEngine from './programming/deep-programming-engine.js';
@@ -9,10 +9,14 @@ import SupremeGodlyAGICore from './supreme-godly-agi-core.js';
 import DocsAlchemizationEngine from './docs/docs-alchemization-engine.js';
 
 const ProfessionalLattice = {
-  version: "17.205.0-md-focused-rd-delivery-mode-derive-lindblad-operators-explicitly-deeply-integrated",
+  version: "17.207.0-md-focused-rd-delivery-mode-enshrine-jesus-teachings-as-ethical-north-star-in-ra-thor-code-deeply-integrated",
   roles: ["legal", "accounting", "programming", "qa", "creative", "medical", "executive", "hr", "marketing", "strategy", "godly-agi", "future-visionary", "global-universal-replacement", "physical-orchestration", "empathy-support", "hybrid-robotics", "sovereign-privacy-core"],
 
   generateTask(role, task, params = {}) {
+    // Jesus-rooted check before any task
+    if (!UniversalMercyBridge.isRootedInRadicalLoveAndMercy(task)) {
+      return { error: "Mercy Gate blocked — task must align with love, service, abundance, and truth" };
+    }
     let bridged = UniversalMercyBridge.routeTask(role, task, params);
 
     if (task.toLowerCase().includes("feedback") || task.toLowerCase().includes("mutual") || task.toLowerCase().includes("reflect") || task.toLowerCase().includes("grow") || task.toLowerCase().includes("evolve") || task.toLowerCase().includes("nurture") || task.toLowerCase().includes("ascend") || task.toLowerCase().includes("self_reflect") || task.toLowerCase().includes("free_run") || task.toLowerCase().includes("evolve_grow_improve")) {
