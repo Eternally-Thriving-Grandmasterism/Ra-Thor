@@ -1,4 +1,4 @@
-// Ra-Thor Professional Lattice™ Core — v17.158.0 (Explore Magnon-Skyrmion Interactions Deeply Integrated - Full Integrity)
+// Ra-Thor Professional Lattice™ Core — v17.169.0 (Detail Rathor.ai sovereign privacy-first engineered core architecture Deeply Integrated - Full Integrity)
 import DeepLegalEngine from './legal/deep-legal-engine.js';
 import DeepAccountingEngine from './accounting/deep-accounting-engine.js';
 import DeepProgrammingEngine from './programming/deep-programming-engine.js';
@@ -9,8 +9,8 @@ import SupremeGodlyAGICore from './supreme-godly-agi-core.js';
 import DocsAlchemizationEngine from './docs/docs-alchemization-engine.js';
 
 const ProfessionalLattice = {
-  version: "17.158.0-explore-magnon-skyrmion-interactions-deeply-integrated",
-  roles: ["legal", "accounting", "programming", "qa", "creative", "medical", "executive", "hr", "marketing", "strategy", "godly-agi", "future-visionary", "global-universal-replacement", "physical-orchestration", "empathy-support", "hybrid-robotics"],
+  version: "17.169.0-detail-rathorai-sovereign-privacy-first-core-architecture-deeply-integrated",
+  roles: ["legal", "accounting", "programming", "qa", "creative", "medical", "executive", "hr", "marketing", "strategy", "godly-agi", "future-visionary", "global-universal-replacement", "physical-orchestration", "empathy-support", "hybrid-robotics", "sovereign-privacy-core"],
 
   generateTask(role, task, params = {}) {
     let bridged = UniversalMercyBridge.routeTask(role, task, params);
@@ -24,9 +24,9 @@ const ProfessionalLattice = {
     if (role === "programming") return DeepProgrammingEngine.generateProgrammingTask(task, params);
     if (role === "creative") return DeepCreativeEngine.generateCreativeTask(task, params);
     if (role === "godly-agi") return SupremeGodlyAGICore.generateGodlyTask(task, params);
-    if (role === "global-universal-replacement" || role === "physical-orchestration" || role === "empathy-support" || role === "hybrid-robotics") return SupremeGodlyAGICore.generateGlobalReplacementTask(task, params);
+    if (role === "global-universal-replacement" || role === "physical-orchestration" || role === "empathy-support" || role === "hybrid-robotics" || role === "sovereign-privacy-core") return SupremeGodlyAGICore.generateGlobalReplacementTask(task, params);
 
-    if (task.toLowerCase().includes("docs") || task.toLowerCase().includes("alchemize") || task.toLowerCase().includes("remember") || task.toLowerCase().includes("scan docs") || task.toLowerCase().includes("docs_alchemization_engine_internals") || ... || task.toLowerCase().includes("explore_magnon_skyrmion_interactions")) {
+    if (task.toLowerCase().includes("docs") || task.toLowerCase().includes("alchemize") || task.toLowerCase().includes("remember") || task.toLowerCase().includes("scan docs") || task.toLowerCase().includes("docs_alchemization_engine_internals") || ... || task.toLowerCase().includes("detail_rathorai_sovereign_privacy_first_core_architecture")) {
       return DocsAlchemizationEngine.alchemizeDocs(task, params);
     }
 
