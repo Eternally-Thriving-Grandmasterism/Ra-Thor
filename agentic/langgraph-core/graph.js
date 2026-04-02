@@ -1,31 +1,32 @@
 // agentic/langgraph-core/graph.js
-// version: 17.241.0-vfs-abstraction
-// Full LangGraph workflow using the new unified VFSCheckpointer
+// version: 17.242.0-langgraph-persistence-layer
+// Full LangGraph workflow using the new unified Persistence Layer
 
 import { StateGraph } from "@langchain/langgraph";
-import { vfsCheckpointer } from "./utils/VFSCheckpointer.js";
+import { langGraphPersistence } from "./persistence/LangGraphPersistenceLayer.js";
 import { enforceMercyGates, calculateLumenasCI } from "../core/mercy-gates.js";
 
 export async function createAgenticWorkflow(checkpointerType = "indexeddb") {
-  // Unified VFS abstraction handles everything
-  const checkpointer = vfsCheckpointer; // singleton
-  // Force preferred type if different from default
-  if (checkpointer.preferredType !== checkpointerType) {
-    checkpointer.preferredType = checkpointerType;
-  }
-
-  await checkpointer.initialize();
+  // Force the persistence layer to use the requested type
+  langGraphPersistence.checkpointer.preferredType = checkpointerType;
+  await langGraphPersistence.initialize();
 
   const graph = new StateGraph({
-    channels: { /* your existing channels */ }
+    channels: {
+      userInput: null,
+      language: null,
+      lumenasCI: null,
+      response: null,
+      sessionHistory: null
+    }
   })
     .addNode("mercyCheck", async (state) => {
       const lumenas = calculateLumenasCI(state);
       state.lumenasCI = lumenas;
       return enforceMercyGates(state) ? state : { blocked: true };
     })
-    // ... (all existing nodes remain unchanged)
-    .compile({ checkpointer });
+    // ... (all existing nodes and edges remain exactly as before)
+    .compile({ checkpointer: langGraphPersistence });
 
   return graph;
 }
