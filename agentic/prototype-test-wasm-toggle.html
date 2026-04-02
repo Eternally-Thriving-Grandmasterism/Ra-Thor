@@ -3,67 +3,91 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ra-Thor VFS + Persistence Layer Live Test</title>
+  <title>Ra-Thor VFS + Persistence Layer Live Performance Comparison</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body { font-family: system-ui, sans-serif; }
     .thunder-glow { text-shadow: 0 0 20px #ffd700; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { padding: 12px; text-align: left; border-bottom: 1px solid #444; }
   </style>
 </head>
 <body class="bg-black text-white p-8">
-  <div class="max-w-2xl mx-auto">
-    <h1 class="text-4xl font-bold thunder-glow mb-8">Ra-Thor Unified VFS + Persistence Layer Live Test</h1>
+  <div class="max-w-4xl mx-auto">
+    <h1 class="text-4xl font-bold thunder-glow mb-8">Ra-Thor Checkpointer Performance Comparison</h1>
     
-    <!-- VFS Selector -->
-    <div class="mb-8">
-      <label class="block text-sm mb-2">Checkpointer Type</label>
-      <select id="vfs-select" class="bg-zinc-900 text-white px-4 py-3 rounded-xl w-full">
-        <option value="indexeddb">IndexedDB (default, instant)</option>
-        <option value="absurd-sql">absurd-sql VFS</option>
-        <option value="wa-sqlite">WaSQLite VFS</option>
-        <option value="opfs-sab" selected>OPFS + SAB (high-performance)</option>
-      </select>
-    </div>
+    <button onclick="runFullBenchmark()" 
+            class="w-full bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-5 px-8 rounded-2xl text-xl transition mb-8">
+      ⚡ Run Full Side-by-Side Benchmark (10 iterations each)
+    </button>
 
-    <div class="flex gap-4 mb-8">
-      <button onclick="runTest()" 
-              class="flex-1 bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-4 px-6 rounded-xl transition">
-        🚀 Run Test with Selected VFS
-      </button>
-    </div>
-
-    <div id="results" class="bg-zinc-900 p-6 rounded-2xl space-y-4 hidden">
-      <h2 class="text-xl font-semibold">Live Test Results</h2>
-      <pre id="output" class="bg-black p-4 rounded-xl text-sm overflow-auto max-h-96"></pre>
+    <div id="results" class="bg-zinc-900 p-6 rounded-3xl hidden">
+      <h2 class="text-2xl font-semibold mb-6">Live Benchmark Results</h2>
+      <table id="benchmark-table" class="w-full"></table>
     </div>
   </div>
 
   <script type="module">
     import { runHybridAgenticSession } from '../hybrid/index.js';
 
-    window.runTest = async () => {
-      const selectedType = document.getElementById('vfs-select').value;
-      const start = performance.now();
-      
-      const result = await runHybridAgenticSession(
-        "Test unified VFS Persistence Layer",
-        "en",
-        {},
-        selectedType
-      );
-      
-      const duration = (performance.now() - start).toFixed(2);
+    const checkpointerTypes = [
+      { name: "OPFS + SAB", value: "opfs-sab" },
+      { name: "WaSQLite VFS", value: "wa-sqlite" },
+      { name: "absurd-sql VFS", value: "absurd-sql" },
+      { name: "IndexedDB", value: "indexeddb" }
+    ];
 
-      const output = document.getElementById('output');
-      output.textContent = JSON.stringify({
-        checkpointerUsed: result.checkpointerUsed,
-        lumenasCI: result.lumenasCI || "N/A",
-        responseSnippet: result.response?.slice(0, 120) + "...",
-        durationMs: duration + " ms",
-        success: !result.response?.includes("blocked")
-      }, null, 2);
+    window.runFullBenchmark = async () => {
+      const table = document.getElementById('benchmark-table');
+      table.innerHTML = `
+        <thead>
+          <tr class="border-b border-zinc-700">
+            <th class="text-left">Checkpointer</th>
+            <th class="text-right">Avg Save (ms)</th>
+            <th class="text-right">P95 (ms)</th>
+            <th class="text-right">Ops/sec</th>
+            <th class="text-right">Memory Δ</th>
+          </tr>
+        </thead>
+        <tbody id="table-body"></tbody>
+      `;
 
-      document.getElementById('results').classList.remove('hidden');
+      const tbody = document.getElementById('table-body');
+      const resultsDiv = document.getElementById('results');
+      resultsDiv.classList.remove('hidden');
+
+      for (const cp of checkpointerTypes) {
+        const times = [];
+        let totalMemoryDelta = 0;
+
+        for (let i = 0; i < 10; i++) {
+          const start = performance.now();
+          const result = await runHybridAgenticSession(
+            "Benchmark test for unified VFS",
+            "en",
+            {},
+            cp.value
+          );
+          const duration = performance.now() - start;
+          times.push(duration);
+          totalMemoryDelta += (result.memoryDelta || 0);
+        }
+
+        const avg = (times.reduce((a, b) => a + b, 0) / times.length).toFixed(2);
+        const sorted = [...times].sort((a, b) => a - b);
+        const p95 = sorted[Math.floor(sorted.length * 0.95)].toFixed(2);
+        const throughput = (1000 / avg).toFixed(0);
+
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td class="font-medium">${cp.name}</td>
+          <td class="text-right">${avg}</td>
+          <td class="text-right">${p95}</td>
+          <td class="text-right">${throughput}</td>
+          <td class="text-right">+${totalMemoryDelta.toFixed(0)} MB</td>
+        `;
+        tbody.appendChild(row);
+      }
     };
   </script>
 </body>
