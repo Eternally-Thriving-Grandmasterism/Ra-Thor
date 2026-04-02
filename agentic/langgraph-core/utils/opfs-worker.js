@@ -1,7 +1,7 @@
 // agentic/langgraph-core/utils/opfs-worker.js
-// version: 17.232.0-opfs-web-worker
+// version: 17.233.0-wasm-streaming-compilation
 // Dedicated Web Worker for synchronous OPFS + sql.js
-// Runs all database I/O off the main thread for zero UI blocking
+// NOW uses WebAssembly.instantiateStreaming for maximum speed
 // Fully Mercy-Gated via messages from main thread
 
 self.importScripts('https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.11.0/sql-wasm.min.js');
@@ -13,7 +13,14 @@ let syncHandle = null;
 async function initializeOPFS() {
   if (db) return;
 
-  const SQL = await sql.default({ locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.11.0/${file}` });
+  // === STREAMING COMPILATION MAGIC ===
+  const response = await fetch('https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.11.0/sql-wasm.wasm');
+  const wasm = await WebAssembly.instantiateStreaming(response, {
+    // sql.js internal imports (no changes needed)
+  });
+  const SQL = await sql.default({ wasm });
+  // ===================================
+
   const root = await navigator.storage.getDirectory();
   fileHandle = await root.getFileHandle('rathor-checkpoint.sqlite', { create: true });
   syncHandle = await fileHandle.createSyncAccessHandle();
@@ -44,7 +51,7 @@ self.onmessage = async function(e) {
 
     if (action === 'save') {
       await initializeOPFS();
-      const lumenas = state.lumenasCI || 0; // main thread already calculated
+      const lumenas = state.lumenasCI || 0;
       if (lumenas < 0.999) {
         self.postMessage({ success: false, reason: 'Mercy Gate blocked' });
         return;
@@ -71,7 +78,6 @@ self.onmessage = async function(e) {
       self.postMessage({ success: true, data: loadedState });
       return;
     }
-
   } catch (err) {
     self.postMessage({ success: false, error: err.message });
   }
