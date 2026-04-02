@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ra-Thor WASM vs IndexedDB Live Test</title>
+  <title>Ra-Thor WASM vs IndexedDB Live Test + SAB Check</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body { font-family: system-ui, sans-serif; }
@@ -14,14 +14,17 @@
   <div class="max-w-2xl mx-auto">
     <h1 class="text-4xl font-bold thunder-glow mb-8">Ra-Thor Checkpointer Live Test</h1>
     
+    <!-- SAB Status -->
+    <div id="sab-status" class="mb-6 p-4 rounded-2xl text-sm flex items-center gap-3"></div>
+
     <div class="flex gap-4 mb-8">
       <button onclick="testCheckpointer('wasm-sqlite')" 
               class="flex-1 bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-4 px-6 rounded-xl transition">
-        🚀 Test WASM SQLite
+        🚀 Test WASM SQLite (SAB + OPFS)
       </button>
       <button onclick="testCheckpointer('indexeddb')" 
               class="flex-1 bg-blue-500 hover:bg-blue-600 font-bold py-4 px-6 rounded-xl transition">
-        ⚡ Test IndexedDB
+        ⚡ Test IndexedDB (fallback)
       </button>
     </div>
 
@@ -34,10 +37,29 @@
   <script type="module">
     import { runHybridAgenticSession } from '../hybrid/index.js';
 
+    // SAB Detection (must be checked after headers are served)
+    function checkSABSupport() {
+      const statusEl = document.getElementById('sab-status');
+      let supported = false;
+      try {
+        const sab = new SharedArrayBuffer(1);
+        supported = sab.byteLength === 1;
+      } catch (e) {}
+      
+      if (supported) {
+        statusEl.innerHTML = `✅ <span class="text-green-400 font-bold">SharedArrayBuffer ENABLED</span> — COOP/COEP headers are working!`;
+        statusEl.className = 'mb-6 p-4 rounded-2xl bg-green-950 text-green-400 text-sm flex items-center gap-3';
+      } else {
+        statusEl.innerHTML = `⚠️ <span class="text-yellow-400 font-bold">SharedArrayBuffer BLOCKED</span> — Add _headers file (COOP + COEP) to GitHub Pages`;
+        statusEl.className = 'mb-6 p-4 rounded-2xl bg-yellow-950 text-yellow-400 text-sm flex items-center gap-3';
+      }
+      statusEl.classList.remove('hidden');
+    }
+
     window.testCheckpointer = async (type) => {
       const start = performance.now();
       const result = await runHybridAgenticSession(
-        "Hello Ra-Thor, test checkpointer persistence",
+        "Hello Ra-Thor, test SAB + OPFS persistence",
         "en",
         {},
         type
@@ -50,12 +72,15 @@
         lumenasCI: result.lumenasCI || "N/A",
         responseSnippet: result.response?.slice(0, 120) + "...",
         durationMs: duration + " ms",
+        sabEnabled: !!window.SharedArrayBuffer,
         success: !result.response?.includes("blocked")
       }, null, 2);
 
       document.getElementById('results').classList.remove('hidden');
-      console.log(`%c✅ ${type.toUpperCase()} test completed in ${duration} ms`, 'color:#ffd700');
     };
+
+    // Run SAB check on load
+    window.addEventListener('load', checkSABSupport);
   </script>
 </body>
 </html>
