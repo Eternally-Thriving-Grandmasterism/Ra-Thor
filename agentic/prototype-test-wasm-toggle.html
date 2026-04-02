@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ra-Thor WASM vs IndexedDB Live Test</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { font-family: system-ui, sans-serif; }
+    .thunder-glow { text-shadow: 0 0 20px #ffd700; }
+  </style>
+</head>
+<body class="bg-black text-white p-8">
+  <div class="max-w-2xl mx-auto">
+    <h1 class="text-4xl font-bold thunder-glow mb-8">Ra-Thor Checkpointer Live Test</h1>
+    
+    <div class="flex gap-4 mb-8">
+      <button onclick="testCheckpointer('wasm-sqlite')" 
+              class="flex-1 bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-4 px-6 rounded-xl transition">
+        🚀 Test WASM SQLite
+      </button>
+      <button onclick="testCheckpointer('indexeddb')" 
+              class="flex-1 bg-blue-500 hover:bg-blue-600 font-bold py-4 px-6 rounded-xl transition">
+        ⚡ Test IndexedDB
+      </button>
+    </div>
+
+    <div id="results" class="bg-zinc-900 p-6 rounded-2xl space-y-4 hidden">
+      <h2 class="text-xl font-semibold">Test Results</h2>
+      <pre id="output" class="bg-black p-4 rounded-xl text-sm overflow-auto max-h-96"></pre>
+    </div>
+  </div>
+
+  <script type="module">
+    import { runHybridAgenticSession } from '../hybrid/index.js';
+
+    window.testCheckpointer = async (type) => {
+      const start = performance.now();
+      const result = await runHybridAgenticSession(
+        "Hello Ra-Thor, test checkpointer persistence",
+        "en",
+        {},
+        type
+      );
+      const duration = (performance.now() - start).toFixed(2);
+
+      const output = document.getElementById('output');
+      output.textContent = JSON.stringify({
+        checkpointer: type,
+        lumenasCI: result.lumenasCI || "N/A",
+        responseSnippet: result.response?.slice(0, 120) + "...",
+        durationMs: duration + " ms",
+        success: !result.response?.includes("blocked")
+      }, null, 2);
+
+      document.getElementById('results').classList.remove('hidden');
+      console.log(`%c✅ ${type.toUpperCase()} test completed in ${duration} ms`, 'color:#ffd700');
+    };
+  </script>
+</body>
+</html>
