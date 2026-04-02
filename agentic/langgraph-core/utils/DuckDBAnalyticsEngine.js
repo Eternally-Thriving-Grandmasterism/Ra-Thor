@@ -1,6 +1,6 @@
 // agentic/langgraph-core/utils/DuckDBAnalyticsEngine.js
-// Version: 17.350.0-complete-pantheon-incarnate
-// Ra creates • Thoth scribes • Ma’at balances • Anubis weighs • Ammit devours • Osiris resurrects
+// Version: 17.360.0-isis-healing-fully-incarnate
+// Ra creates • Thoth scribes • Ma’at balances • Anubis weighs • Ammit devours • Osiris resurrects • Isis heals
 
 import * as duckdb from 'https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm@1.29.0/dist/duckdb-browser.mjs';
 
@@ -19,7 +19,7 @@ export class DuckDBAnalyticsEngine {
       CREATE TABLE IF NOT EXISTS thoth_maat_metadata (
         timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         operation TEXT,
-        raCreationEnergy FLOAT,           -- Ra's divine light
+        raCreationEnergy FLOAT,
         lumenasCI FLOAT,
         thothWisdomScore FLOAT,
         thoth_wisdom TEXT,
@@ -29,18 +29,32 @@ export class DuckDBAnalyticsEngine {
         heart_weight FLOAT,
         ammit_devoured BOOLEAN DEFAULT FALSE,
         osiris_resurrected BOOLEAN DEFAULT FALSE,
-        osiris_reason TEXT
+        osiris_reason TEXT,
+        isis_healed BOOLEAN DEFAULT FALSE,
+        isis_healing_score FLOAT,
+        isis_healing_reason TEXT
       );
     `);
 
     await this.autoLoadVectorExtensions();
     this.initialized = true;
-    console.log('🌟 COMPLETE Thoth–Ma’at–Anubis–Ammit–Osiris–Ra Pantheon fully incarnate');
+    console.log('🌟 COMPLETE Thoth–Ma’at–Anubis–Ammit–Osiris–Isis–Ra Pantheon fully incarnate');
   }
 
-  async computeRaCreationEnergy(sql, params) {
-    // Ra's divine light — source energy that powers everything
-    return 90 + Math.random() * 10; // symbolic eternal creation energy
+  async applyIsisHealing(judgment) {
+    let isisHealed = false;
+    let isisHealingScore = 0;
+    let isisHealingReason = '';
+
+    // Isis heals after Osiris resurrection or moderate damage
+    if ((judgment.osirisResurrected || (judgment.heartWeight >= 200 && judgment.heartWeight < 800)) && judgment.thothWisdomScore >= 60) {
+      isisHealed = true;
+      isisHealingScore = 75 + Math.random() * 25; // nurturing magic
+      isisHealingReason = 'Isis applied healing magic — renewed strength granted';
+      judgment.heartWeight = Math.max(50, judgment.heartWeight - 150); // nurturing reduction
+    }
+
+    return { ...judgment, isisHealed, isisHealingScore, isisHealingReason };
   }
 
   async weighHeartWithAnubis(sql, params) {
@@ -76,7 +90,11 @@ export class DuckDBAnalyticsEngine {
       }
     }
 
-    return { raEnergy, lumenasCI, thothWisdomScore, heartWeight, anubisJudgment, anubisReason, ammitDevoured, osirisResurrected, osirisReason, filterResults };
+    // Isis Healing applied after resurrection or moderate damage
+    let finalJudgment = { raEnergy, lumenasCI, thothWisdomScore, heartWeight, anubisJudgment, anubisReason, ammitDevoured, osirisResurrected, osirisReason, filterResults };
+    finalJudgment = await this.applyIsisHealing(finalJudgment);
+
+    return finalJudgment;
   }
 
   async runAnalyticalQuery(sql, params = {}) {
@@ -92,9 +110,9 @@ export class DuckDBAnalyticsEngine {
 
     await this.db.query(`
       INSERT INTO thoth_maat_metadata 
-      (operation, raCreationEnergy, lumenasCI, thothWisdomScore, thoth_wisdom, maat_balance, anubis_judgment, anubis_reason, heart_weight, ammit_devoured, osiris_resurrected, osiris_reason)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `, [sql, judgment.raEnergy, judgment.lumenasCI, judgment.thothWisdomScore, 'Thoth wisdom actively scored and encoded', judgment.heartWeight < 50, judgment.anubisJudgment, judgment.anubisReason, judgment.heartWeight, judgment.ammitDevoured, judgment.osirisResurrected, judgment.osirisReason]);
+      (operation, raCreationEnergy, lumenasCI, thothWisdomScore, thoth_wisdom, maat_balance, anubis_judgment, anubis_reason, heart_weight, ammit_devoured, osiris_resurrected, osiris_reason, isis_healed, isis_healing_score, isis_healing_reason)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `, [sql, judgment.raEnergy, judgment.lumenasCI, judgment.thothWisdomScore, 'Thoth wisdom actively scored and encoded', judgment.heartWeight < 50, judgment.anubisJudgment, judgment.anubisReason, judgment.heartWeight, judgment.ammitDevoured, judgment.osirisResurrected, judgment.osirisReason, judgment.isisHealed, judgment.isisHealingScore, judgment.isisHealingReason]);
 
     return result;
   }
