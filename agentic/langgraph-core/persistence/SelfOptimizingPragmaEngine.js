@@ -1,7 +1,7 @@
 // agentic/langgraph-core/persistence/SelfOptimizingPragmaEngine.js
-// version: 17.251.0-self-optimizing-pragma-engine
-// Intelligent, adaptive PRAGMA tuner for all VFS checkpointers
-// Monitors workload and dynamically adjusts settings in real time
+// version: 17.252.0-ml-heuristics-expanded
+// Self-optimizing PRAGMA engine with expanded ML-style heuristics
+// Exponential smoothing, linear regression, adaptive thresholds, memory forecasting
 
 import { workerPoolBenchmark } from './WorkerPoolBenchmark.js';
 
@@ -9,8 +9,11 @@ export class SelfOptimizingPragmaEngine {
   constructor(db) {
     this.db = db;
     this.lastOptimization = Date.now();
-    this.optimizationInterval = 5000; // every 5 seconds
-    this.metricsHistory = [];
+    this.optimizationInterval = 3000; // every 3 seconds
+    this.metricsHistory = []; // rolling window of last 20 runs
+    this.alpha = 0.3; // smoothing factor for exponential moving average
+    this.emaThroughput = 0;
+    this.emaMemory = 0;
   }
 
   async optimize(currentMetrics) {
@@ -18,35 +21,56 @@ export class SelfOptimizingPragmaEngine {
     this.lastOptimization = Date.now();
 
     this.metricsHistory.push(currentMetrics);
-    if (this.metricsHistory.length > 10) this.metricsHistory.shift();
+    if (this.metricsHistory.length > 20) this.metricsHistory.shift();
 
-    const avgThroughput = this.metricsHistory.reduce((a, m) => a + (m.throughput || 0), 0) / this.metricsHistory.length;
-    const avgMemoryMB = this.metricsHistory.reduce((a, m) => a + (m.aggregateMemoryDeltaMB || 0), 0) / this.metricsHistory.length;
+    // Update exponential moving averages
+    const throughput = currentMetrics.throughput || 0;
+    const memoryMB = currentMetrics.aggregateMemoryDeltaMB || 0;
+    this.emaThroughput = this.alpha * throughput + (1 - this.alpha) * this.emaThroughput;
+    this.emaMemory = this.alpha * memoryMB + (1 - this.alpha) * this.emaMemory;
 
-    // Adaptive PRAGMA logic
-    if (avgThroughput > 800) {
-      // High throughput → more aggressive cache and WAL
-      await this.db.run('PRAGMA cache_size=-196608;');
-      await this.db.run('PRAGMA wal_autocheckpoint=200;');
-    } else if (avgThroughput < 300) {
-      // Low throughput → conserve memory
+    // Linear regression on recent history to predict next optimal cache_size
+    const predictedCache = this._predictOptimalCache();
+
+    // Adaptive PRAGMA decisions
+    if (this.emaThroughput > 900) {
+      await this.db.run(`PRAGMA cache_size=-${Math.min(393216, predictedCache)};`); // up to \~1.5 GB
+      await this.db.run('PRAGMA wal_autocheckpoint=150;');
+    } else if (this.emaThroughput < 400) {
       await this.db.run('PRAGMA cache_size=-64000;');
-      await this.db.run('PRAGMA wal_autocheckpoint=1000;');
+      await this.db.run('PRAGMA wal_autocheckpoint=1200;');
     }
 
-    if (avgMemoryMB > 600) {
-      // High memory pressure → reduce cache and mmap
-      await this.db.run('PRAGMA cache_size=-64000;');
+    if (this.emaMemory > 650) {
+      await this.db.run('PRAGMA cache_size=-96000;');
       await this.db.run('PRAGMA mmap_size=134217728;'); // 128 MB
+    } else if (this.emaMemory < 300) {
+      await this.db.run('PRAGMA mmap_size=536870912;'); // 512 MB
     }
 
-    // Always run optimize after adjustment
     await this.db.run('PRAGMA optimize;');
 
-    console.log(`🔧 Self-optimizing PRAGMA engine adjusted for throughput=\( {avgThroughput.toFixed(0)} ops/sec, memory= \){avgMemoryMB.toFixed(0)} MB`);
+    console.log(`🔧 ML-Heuristics PRAGMA engine tuned → throughput EMA: ${this.emaThroughput.toFixed(0)} ops/sec, memory EMA: ${this.emaMemory.toFixed(0)} MB`);
   }
 
-  // Hook for benchmark framework to call after each run
+  _predictOptimalCache() {
+    if (this.metricsHistory.length < 5) return 196608; // fallback
+    const n = this.metricsHistory.length;
+    let sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0;
+    this.metricsHistory.forEach((m, i) => {
+      const x = i;
+      const y = m.aggregateMemoryDeltaMB || 0;
+      sumX += x;
+      sumY += y;
+      sumXY += x * y;
+      sumX2 += x * x;
+    });
+    const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+    const predictedMemory = this.metricsHistory[this.metricsHistory.length - 1].aggregateMemoryDeltaMB + slope;
+    return Math.max(64000, Math.min(393216, Math.round(predictedMemory * 512))); // map to cache size
+  }
+
+  // Hook called by benchmark framework after each run
   async onBenchmarkComplete(result) {
     await this.optimize(result);
   }
