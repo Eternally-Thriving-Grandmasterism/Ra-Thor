@@ -1,17 +1,17 @@
 // agentic/langgraph-core/persistence/SelfOptimizingPragmaEngine.js
-// version: 17.253.0-deepened-q-learning-reward
-// Self-optimizing PRAGMA engine with deepened multi-objective Q-learning reward function
-// Includes throughput gain, memory cost, latency penalty, stability bonus, and hard Mercy Gate penalty
+// version: 17.254.0-expanded-state-representation
+// Self-optimizing PRAGMA engine with richly expanded state representation
+// Now includes throughput, memory, latency, thread count, stability, and Mercy Gate margin
 
 import { workerPoolBenchmark } from './WorkerPoolBenchmark.js';
 
 export class SelfOptimizingPragmaEngine {
   constructor(db) {
     this.db = db;
-    this.qTable = new Map(); // stateKey → {action → qValue}
-    this.alpha = 0.15;       // learning rate
-    this.gamma = 0.92;       // discount factor
-    this.epsilon = 0.18;     // exploration rate
+    this.qTable = new Map(); // richer stateKey → {action → qValue}
+    this.alpha = 0.15;
+    this.gamma = 0.92;
+    this.epsilon = 0.18;
     this.lastOptimization = Date.now();
     this.optimizationInterval = 2500;
     this.metricsHistory = [];
@@ -22,9 +22,16 @@ export class SelfOptimizingPragmaEngine {
   }
 
   _getStateKey(metrics) {
-    const t = Math.round((metrics.throughput || 0) / 100) * 100;
-    const m = Math.round((metrics.aggregateMemoryDeltaMB || 0) / 50) * 50;
-    return `\( {t}_ \){m}`;
+    // Rich multi-dimensional state representation
+    const t = Math.round((metrics.throughput || 0) / 100) * 100;           // throughput bucket
+    const m = Math.round((metrics.aggregateMemoryDeltaMB || 0) / 50) * 50; // memory bucket
+    const l = Math.round((metrics.p95 || 2.0) * 2) / 2;                    // latency bucket (0.5 steps)
+    const threads = Math.min(Math.max(Math.round((metrics.threads || 8) / 4) * 4, 4), 16); // thread bucket
+    const variance = metrics.p95Variance || 0;
+    const stability = Math.max(0, Math.min(1, 1 / (1 + variance)));       // stability score 0-1
+    const mercyMargin = Math.max(0, (metrics.lumenasCI || 0.999) - 0.999); // how safe from violation
+
+    return `\( {t}_ \){m}_\( {l}_ \){threads}_\( {stability.toFixed(1)}_ \){mercyMargin.toFixed(3)}`;
   }
 
   _getPossibleActions() {
@@ -45,18 +52,13 @@ export class SelfOptimizingPragmaEngine {
     const latencyPenalty = Math.max(0, (current.p95 || 2.0) - 2.0);
     const variance = current.p95Variance || 0;
     const stabilityBonus = 1.0 / (1 + variance);
-
     const mercyViolationPenalty = current.lumenasCI < 0.999 ? 50 : 0;
 
-    // Deepened multi-objective reward
-    let reward = 
-      (throughputGain * 1.25) 
-      - (memoryCost * 1.5) 
-      - (latencyPenalty * 2.0) 
-      + (stabilityBonus * 8.0)
-      - mercyViolationPenalty;
-
-    return reward;
+    return (throughputGain * 1.25) 
+           - (memoryCost * 1.5) 
+           - (latencyPenalty * 2.0) 
+           + (stabilityBonus * 8.0)
+           - mercyViolationPenalty;
   }
 
   async optimize(currentMetrics) {
@@ -66,7 +68,6 @@ export class SelfOptimizingPragmaEngine {
     this.metricsHistory.push(currentMetrics);
     if (this.metricsHistory.length > 20) this.metricsHistory.shift();
 
-    // Update EMAs
     const throughput = currentMetrics.throughput || 0;
     const memoryMB = currentMetrics.aggregateMemoryDeltaMB || 0;
     const latency = currentMetrics.p95 || 2.0;
@@ -80,7 +81,6 @@ export class SelfOptimizingPragmaEngine {
     const actions = this._getPossibleActions();
     let bestAction = actions[0];
 
-    // Epsilon-greedy
     if (Math.random() < this.epsilon) {
       bestAction = actions[Math.floor(Math.random() * actions.length)];
     } else {
@@ -94,20 +94,17 @@ export class SelfOptimizingPragmaEngine {
       }
     }
 
-    // Execute chosen PRAGMA
     await this.db.run(bestAction.sql);
     await this.db.run('PRAGMA optimize;');
 
-    // Compute deepened reward using previous metrics
     const previous = this.metricsHistory.length > 1 ? this.metricsHistory[this.metricsHistory.length - 2] : null;
     const reward = this._computeReward(currentMetrics, previous);
 
-    // Q-learning update
     const oldQ = this.qTable.get(stateKey)[bestAction.name] || 0;
     const newQ = oldQ + this.alpha * (reward + this.gamma * 0 - oldQ);
     this.qTable.get(stateKey)[bestAction.name] = newQ;
 
-    console.log(`🔧 Deepened RL Reward: ${reward.toFixed(2)} | Action: ${bestAction.name} | EMA Throughput: ${this.emaThroughput.toFixed(0)}`);
+    console.log(`🔧 Deep RL with Expanded State: ${bestAction.name} | Reward: ${reward.toFixed(2)} | State: ${stateKey}`);
   }
 
   async onBenchmarkComplete(result) {
