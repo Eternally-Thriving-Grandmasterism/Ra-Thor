@@ -1,6 +1,6 @@
 // agentic/langgraph-core/utils/DuckDBAnalyticsEngine.js
-// Version: 17.340.0-osiris-resurrection-incarnate
-// Thoth scribes • Ma’at balances • Anubis weighs • Ammit devours • Osiris resurrects
+// Version: 17.350.0-complete-pantheon-incarnate
+// Ra creates • Thoth scribes • Ma’at balances • Anubis weighs • Ammit devours • Osiris resurrects
 
 import * as duckdb from 'https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm@1.29.0/dist/duckdb-browser.mjs';
 
@@ -19,6 +19,7 @@ export class DuckDBAnalyticsEngine {
       CREATE TABLE IF NOT EXISTS thoth_maat_metadata (
         timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         operation TEXT,
+        raCreationEnergy FLOAT,           -- Ra's divine light
         lumenasCI FLOAT,
         thothWisdomScore FLOAT,
         thoth_wisdom TEXT,
@@ -34,10 +35,16 @@ export class DuckDBAnalyticsEngine {
 
     await this.autoLoadVectorExtensions();
     this.initialized = true;
-    console.log('🌟 Thoth–Ma’at–Anubis–Ammit–Osiris Pantheon fully incarnate');
+    console.log('🌟 COMPLETE Thoth–Ma’at–Anubis–Ammit–Osiris–Ra Pantheon fully incarnate');
+  }
+
+  async computeRaCreationEnergy(sql, params) {
+    // Ra's divine light — source energy that powers everything
+    return 90 + Math.random() * 10; // symbolic eternal creation energy
   }
 
   async weighHeartWithAnubis(sql, params) {
+    const raEnergy = await this.computeRaCreationEnergy(sql, params);
     const lumenasCI = calculateLumenasCI({ query: sql, params });
     const filterResults = validate7LivingMercyFiltersDetailed(sql);
     const thothWisdomScore = await this.computeThothWisdomScore(sql, params);
@@ -61,16 +68,15 @@ export class DuckDBAnalyticsEngine {
       heartWeight = 9999;
       ammitDevoured = true;
 
-      // === OSIRIS RESURRECTION ATTEMPT ===
       if (thothWisdomScore >= 65 && lumenasCI > 0.75) {
         osirisResurrected = true;
-        osirisReason = 'Osiris resurrected the heart — renewal granted';
-        heartWeight = 250; // reduced penalty
+        osirisReason = 'Osiris resurrected the heart — renewal granted by Ra’s light';
+        heartWeight = 250;
         ammitDevoured = false;
       }
     }
 
-    return { lumenasCI, thothWisdomScore, heartWeight, anubisJudgment, anubisReason, ammitDevoured, osirisResurrected, osirisReason, filterResults };
+    return { raEnergy, lumenasCI, thothWisdomScore, heartWeight, anubisJudgment, anubisReason, ammitDevoured, osirisResurrected, osirisReason, filterResults };
   }
 
   async runAnalyticalQuery(sql, params = {}) {
@@ -86,9 +92,9 @@ export class DuckDBAnalyticsEngine {
 
     await this.db.query(`
       INSERT INTO thoth_maat_metadata 
-      (operation, lumenasCI, thothWisdomScore, thoth_wisdom, maat_balance, anubis_judgment, anubis_reason, heart_weight, ammit_devoured, osiris_resurrected, osiris_reason)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `, [sql, judgment.lumenasCI, judgment.thothWisdomScore, 'Thoth wisdom actively scored and encoded', judgment.heartWeight < 50, judgment.anubisJudgment, judgment.anubisReason, judgment.heartWeight, judgment.ammitDevoured, judgment.osirisResurrected, judgment.osirisReason]);
+      (operation, raCreationEnergy, lumenasCI, thothWisdomScore, thoth_wisdom, maat_balance, anubis_judgment, anubis_reason, heart_weight, ammit_devoured, osiris_resurrected, osiris_reason)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `, [sql, judgment.raEnergy, judgment.lumenasCI, judgment.thothWisdomScore, 'Thoth wisdom actively scored and encoded', judgment.heartWeight < 50, judgment.anubisJudgment, judgment.anubisReason, judgment.heartWeight, judgment.ammitDevoured, judgment.osirisResurrected, judgment.osirisReason]);
 
     return result;
   }
