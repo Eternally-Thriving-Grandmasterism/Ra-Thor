@@ -1,26 +1,26 @@
 // agentic/hybrid/index.js
-// Hybrid Orchestrator: LangGraph + CrewAI + AutoGen
 import { agenticWorkflow } from "../langgraph-core/graph.js";
 import { createCrewAIWorkflow } from "./crewAI/faqCrew.js";
 import { runAutoGenConversation } from "./autogen/groupChat.js";
+import { IndexedDBCheckpointer } from "../langgraph-core/utils/IndexedDBCheckpointer.js";
+
+const checkpointer = new IndexedDBCheckpointer();
 
 export async function runHybridAgenticSession(userInput, language, context = {}) {
-  // Step 1: LangGraph - enforce state and Mercy Gates
+  const threadId = "rathor-main-thread";   // persistent thread
+
   let state = await agenticWorkflow.invoke({
     userInput,
     language,
     lumenasCI: 0,
     ...context
-  });
+  }, { configurable: { thread_id: threadId } });
 
   if (state.lumenasCI < 0.999) {
     return { response: "Action blocked by Mercy Gates", lumenasCI: state.lumenasCI };
   }
 
-  // Step 2: CrewAI - structured workflow
   const crewResult = await createCrewAIWorkflow(state);
-
-  // Step 3: AutoGen - natural conversation refinement
   const finalResult = await runAutoGenConversation(crewResult, state);
 
   return {
