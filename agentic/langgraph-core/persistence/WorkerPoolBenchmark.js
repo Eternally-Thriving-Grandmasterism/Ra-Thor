@@ -1,7 +1,7 @@
 // agentic/langgraph-core/persistence/WorkerPoolBenchmark.js
-// version: 17.247.0-workerpool-benchmark-framework
-// Production benchmark framework for WorkerPool + all VFS checkpointers
-// Multi-threaded, configurable, with memory tracking and exportable results
+// version: 17.248.0-workerpool-benchmark-per-thread-memory-tracking
+// Enhanced benchmark framework with detailed per-thread memory tracking
+// Tracks memory delta per thread, max/avg per-thread delta, plus aggregate
 
 import { workerPool } from './WorkerPool.js';
 import { vfsCheckpointer } from '../utils/VFSCheckpointer.js';
@@ -11,33 +11,58 @@ export class WorkerPoolBenchmark {
     this.results = [];
   }
 
-  /**
-   * Run a full benchmark suite
-   * @param {Object} config
-   * @param {string} config.vfsType - "opfs-sab", "wa-sqlite", "absurd-sql", "indexeddb"
-   * @param {number} config.threads - number of concurrent workers
-   * @param {number} config.iterations - saves/loads per thread
-   * @param {number} config.stateSizeKB - approximate JSON size per checkpoint
-   */
   async run(config = {}) {
-    const {
-      vfsType = "opfs-sab",
-      threads = navigator.hardwareConcurrency || 8,
-      iterations = 200,
-      stateSizeKB = 50
-    } = config;
+    const { vfsType = "opfs-sab", threads = navigator.hardwareConcurrency || 8, iterations = 200, stateSizeKB = 50 } = config;
 
-    // Force VFS type
     vfsCheckpointer.preferredType = vfsType;
     await workerPool.initialize();
 
-    console.log(`🚀 Starting ${threads}-thread benchmark for \( {vfsType} ( \){iterations} iterations each)`);
-
     const startTime = performance.now();
-    const promises = [];
-    let totalMemoryDelta = 0;
+    const beforeMemory = this.getMemoryUsage();
 
-    // Generate test state
+    const promises = [];
+    for (let i = 0; i < threads; i++) {
+      promises.push(this._runThread(i, iterations, stateSizeKB));
+    }
+
+    const threadResults = await Promise.all(promises);
+
+    const afterMemory = this.getMemoryUsage();
+    const aggregateDeltaMB = ((afterMemory - beforeMemory) || 0).toFixed(1);
+
+    const totalDuration = performance.now() - startTime;
+    const avgSave = threadResults.reduce((sum, r) => sum + r.avgSave, 0) / threads;
+    const p95 = this._calculateP95(threadResults.flatMap(r => r.times));
+    const throughput = (threads * iterations * 2) / (totalDuration / 1000);
+
+    // Per-thread memory tracking
+    const perThreadDeltas = threadResults.map(r => r.memoryDeltaMB);
+    const maxDeltaPerThread = Math.max(...perThreadDeltas);
+    const avgDeltaPerThread = perThreadDeltas.reduce((sum, d) => sum + d, 0) / perThreadDeltas.length;
+
+    const result = {
+      vfsType,
+      threads,
+      iterations,
+      avgSave: parseFloat(avgSave.toFixed(2)),
+      p95: parseFloat(p95.toFixed(2)),
+      throughput: parseFloat(throughput.toFixed(0)),
+      totalDuration: parseFloat(totalDuration.toFixed(0)),
+      aggregateMemoryDeltaMB: parseFloat(aggregateDeltaMB),
+      perThreadDeltas: perThreadDeltas.map(d => parseFloat(d.toFixed(1))),
+      maxDeltaPerThread: parseFloat(maxDeltaPerThread.toFixed(1)),
+      avgDeltaPerThread: parseFloat(avgDeltaPerThread.toFixed(1)),
+      timestamp: new Date().toISOString()
+    };
+
+    this.results.push(result);
+    return result;
+  }
+
+  async _runThread(threadId, iterations, stateSizeKB) {
+    const beforeThreadMemory = this.getMemoryUsage();
+    const times = [];
+
     const testState = {
       userInput: "Benchmark test payload",
       language: "en",
@@ -45,44 +70,25 @@ export class WorkerPoolBenchmark {
       sessionHistory: Array.from({ length: Math.floor(stateSizeKB / 2) }, (_, i) => `entry-${i}`)
     };
 
-    for (let i = 0; i < threads; i++) {
-      promises.push(this._runThread(i, iterations, testState));
-    }
-
-    const threadResults = await Promise.all(promises);
-    
-    const totalDuration = performance.now() - startTime;
-    const avgSave = threadResults.reduce((sum, r) => sum + r.avgSave, 0) / threads;
-    const p95 = this._calculateP95(threadResults.flatMap(r => r.times));
-    const throughput = (threads * iterations * 2) / (totalDuration / 1000); // save + load
-
-    const result = {
-      vfsType,
-      threads,
-      iterations,
-      avgSave: avgSave.toFixed(2),
-      p95: p95.toFixed(2),
-      throughput: throughput.toFixed(0),
-      totalDuration: totalDuration.toFixed(0),
-      memoryDeltaMB: totalMemoryDelta.toFixed(1),
-      timestamp: new Date().toISOString()
-    };
-
-    this.results.push(result);
-    console.log(`✅ Benchmark complete:`, result);
-    return result;
-  }
-
-  async _runThread(threadId, iterations, baseState) {
-    const times = [];
     for (let i = 0; i < iterations; i++) {
       const start = performance.now();
-      await workerPool.save(baseState, `benchmark-thread-\( {threadId}- \){i}`);
+      await workerPool.save(testState, `benchmark-thread-\( {threadId}- \){i}`);
       await workerPool.load(`benchmark-thread-\( {threadId}- \){i}`);
       times.push(performance.now() - start);
     }
+
+    const afterThreadMemory = this.getMemoryUsage();
+    const memoryDeltaMB = ((afterThreadMemory - beforeThreadMemory) || 0);
+
     const avgSave = times.reduce((a, b) => a + b, 0) / times.length;
-    return { avgSave, times };
+    return { avgSave, times, memoryDeltaMB };
+  }
+
+  getMemoryUsage() {
+    if ('memory' in performance) {
+      return performance.memory.usedJSHeapSize / (1024 * 1024);
+    }
+    return 0;
   }
 
   _calculateP95(numbers) {
