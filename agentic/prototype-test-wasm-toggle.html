@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ra-Thor WASM vs IndexedDB Live Test + SAB Check</title>
+  <title>Ra-Thor VFS + Persistence Layer Live Test</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body { font-family: system-ui, sans-serif; }
@@ -12,24 +12,28 @@
 </head>
 <body class="bg-black text-white p-8">
   <div class="max-w-2xl mx-auto">
-    <h1 class="text-4xl font-bold thunder-glow mb-8">Ra-Thor Checkpointer Live Test</h1>
+    <h1 class="text-4xl font-bold thunder-glow mb-8">Ra-Thor Unified VFS + Persistence Layer Live Test</h1>
     
-    <!-- SAB Status -->
-    <div id="sab-status" class="mb-6 p-4 rounded-2xl text-sm flex items-center gap-3"></div>
+    <!-- VFS Selector -->
+    <div class="mb-8">
+      <label class="block text-sm mb-2">Checkpointer Type</label>
+      <select id="vfs-select" class="bg-zinc-900 text-white px-4 py-3 rounded-xl w-full">
+        <option value="indexeddb">IndexedDB (default, instant)</option>
+        <option value="absurd-sql">absurd-sql VFS</option>
+        <option value="wa-sqlite">WaSQLite VFS</option>
+        <option value="opfs-sab" selected>OPFS + SAB (high-performance)</option>
+      </select>
+    </div>
 
     <div class="flex gap-4 mb-8">
-      <button onclick="testCheckpointer('wasm-sqlite')" 
+      <button onclick="runTest()" 
               class="flex-1 bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-4 px-6 rounded-xl transition">
-        🚀 Test WASM SQLite (SAB + OPFS)
-      </button>
-      <button onclick="testCheckpointer('indexeddb')" 
-              class="flex-1 bg-blue-500 hover:bg-blue-600 font-bold py-4 px-6 rounded-xl transition">
-        ⚡ Test IndexedDB (fallback)
+        🚀 Run Test with Selected VFS
       </button>
     </div>
 
     <div id="results" class="bg-zinc-900 p-6 rounded-2xl space-y-4 hidden">
-      <h2 class="text-xl font-semibold">Test Results</h2>
+      <h2 class="text-xl font-semibold">Live Test Results</h2>
       <pre id="output" class="bg-black p-4 rounded-xl text-sm overflow-auto max-h-96"></pre>
     </div>
   </div>
@@ -37,50 +41,30 @@
   <script type="module">
     import { runHybridAgenticSession } from '../hybrid/index.js';
 
-    // SAB Detection (must be checked after headers are served)
-    function checkSABSupport() {
-      const statusEl = document.getElementById('sab-status');
-      let supported = false;
-      try {
-        const sab = new SharedArrayBuffer(1);
-        supported = sab.byteLength === 1;
-      } catch (e) {}
-      
-      if (supported) {
-        statusEl.innerHTML = `✅ <span class="text-green-400 font-bold">SharedArrayBuffer ENABLED</span> — COOP/COEP headers are working!`;
-        statusEl.className = 'mb-6 p-4 rounded-2xl bg-green-950 text-green-400 text-sm flex items-center gap-3';
-      } else {
-        statusEl.innerHTML = `⚠️ <span class="text-yellow-400 font-bold">SharedArrayBuffer BLOCKED</span> — Add _headers file (COOP + COEP) to GitHub Pages`;
-        statusEl.className = 'mb-6 p-4 rounded-2xl bg-yellow-950 text-yellow-400 text-sm flex items-center gap-3';
-      }
-      statusEl.classList.remove('hidden');
-    }
-
-    window.testCheckpointer = async (type) => {
+    window.runTest = async () => {
+      const selectedType = document.getElementById('vfs-select').value;
       const start = performance.now();
+      
       const result = await runHybridAgenticSession(
-        "Hello Ra-Thor, test SAB + OPFS persistence",
+        "Test unified VFS Persistence Layer",
         "en",
         {},
-        type
+        selectedType
       );
+      
       const duration = (performance.now() - start).toFixed(2);
 
       const output = document.getElementById('output');
       output.textContent = JSON.stringify({
-        checkpointer: type,
+        checkpointerUsed: result.checkpointerUsed,
         lumenasCI: result.lumenasCI || "N/A",
         responseSnippet: result.response?.slice(0, 120) + "...",
         durationMs: duration + " ms",
-        sabEnabled: !!window.SharedArrayBuffer,
         success: !result.response?.includes("blocked")
       }, null, 2);
 
       document.getElementById('results').classList.remove('hidden');
     };
-
-    // Run SAB check on load
-    window.addEventListener('load', checkSABSupport);
   </script>
 </body>
 </html>
