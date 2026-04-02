@@ -3,91 +3,80 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ra-Thor VFS + Persistence Layer Live Performance Comparison</title>
+  <title>Ra-Thor VFS + WorkerPool Live Benchmark + Leak Alerts</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body { font-family: system-ui, sans-serif; }
     .thunder-glow { text-shadow: 0 0 20px #ffd700; }
-    table { border-collapse: collapse; width: 100%; }
-    th, td { padding: 12px; text-align: left; border-bottom: 1px solid #444; }
+    .leak-alert { animation: pulse 1s infinite; }
   </style>
 </head>
 <body class="bg-black text-white p-8">
   <div class="max-w-4xl mx-auto">
-    <h1 class="text-4xl font-bold thunder-glow mb-8">Ra-Thor Checkpointer Performance Comparison</h1>
-    
-    <button onclick="runFullBenchmark()" 
+    <h1 class="text-4xl font-bold thunder-glow mb-8">Ra-Thor VFS Benchmark + Real-Time Leak Alerts</h1>
+
+    <div class="mb-8">
+      <label class="block text-sm mb-2">VFS Type</label>
+      <select id="vfs-select" class="bg-zinc-900 text-white px-4 py-3 rounded-xl w-full">
+        <option value="opfs-sab">OPFS + SAB (high-performance)</option>
+        <option value="wa-sqlite">WaSQLite VFS</option>
+        <option value="absurd-sql">absurd-sql VFS</option>
+        <option value="indexeddb">IndexedDB (fallback)</option>
+      </select>
+    </div>
+
+    <button onclick="runBenchmark()" 
             class="w-full bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-5 px-8 rounded-2xl text-xl transition mb-8">
-      ⚡ Run Full Side-by-Side Benchmark (10 iterations each)
+      ⚡ Run Full Benchmark + Leak Detection
     </button>
 
+    <!-- Leak Alert Banner -->
+    <div id="leak-banner" class="hidden leak-alert bg-red-900 text-red-300 p-4 rounded-2xl mb-8 flex items-center gap-3">
+      <span class="text-2xl">🚨</span>
+      <div>
+        <strong>VFS MEMORY LEAK DETECTED!</strong>
+        <span id="leak-details" class="block text-sm"></span>
+      </div>
+    </div>
+
     <div id="results" class="bg-zinc-900 p-6 rounded-3xl hidden">
-      <h2 class="text-2xl font-semibold mb-6">Live Benchmark Results</h2>
+      <h2 class="text-2xl font-semibold mb-6">Benchmark Results + Leak Status</h2>
       <table id="benchmark-table" class="w-full"></table>
     </div>
   </div>
 
   <script type="module">
-    import { runHybridAgenticSession } from '../hybrid/index.js';
+    import { workerPoolBenchmark } from '../persistence/WorkerPoolBenchmark.js';
 
-    const checkpointerTypes = [
-      { name: "OPFS + SAB", value: "opfs-sab" },
-      { name: "WaSQLite VFS", value: "wa-sqlite" },
-      { name: "absurd-sql VFS", value: "absurd-sql" },
-      { name: "IndexedDB", value: "indexeddb" }
-    ];
+    window.runBenchmark = async () => {
+      const vfsType = document.getElementById('vfs-select').value;
+      const result = await workerPoolBenchmark.run({ vfsType, threads: 8, iterations: 150, runs: 5 });
 
-    window.runFullBenchmark = async () => {
+      // Show leak banner if detected
+      const banner = document.getElementById('leak-banner');
+      const details = document.getElementById('leak-details');
+      if (result.leakDetected) {
+        banner.classList.remove('hidden');
+        details.textContent = `Type: ${result.vfsType} | Slope: ${result.trendSlopeMBPerRun} MB/run | Alerts: ${result.leakAlerts.length}`;
+      } else {
+        banner.classList.add('hidden');
+      }
+
+      // Render table
       const table = document.getElementById('benchmark-table');
       table.innerHTML = `
-        <thead>
-          <tr class="border-b border-zinc-700">
-            <th class="text-left">Checkpointer</th>
-            <th class="text-right">Avg Save (ms)</th>
-            <th class="text-right">P95 (ms)</th>
-            <th class="text-right">Ops/sec</th>
-            <th class="text-right">Memory Δ</th>
-          </tr>
-        </thead>
+        <thead><tr class="border-b"><th class="text-left">Metric</th><th class="text-right">Value</th></tr></thead>
         <tbody id="table-body"></tbody>
       `;
-
       const tbody = document.getElementById('table-body');
-      const resultsDiv = document.getElementById('results');
-      resultsDiv.classList.remove('hidden');
-
-      for (const cp of checkpointerTypes) {
-        const times = [];
-        let totalMemoryDelta = 0;
-
-        for (let i = 0; i < 10; i++) {
-          const start = performance.now();
-          const result = await runHybridAgenticSession(
-            "Benchmark test for unified VFS",
-            "en",
-            {},
-            cp.value
-          );
-          const duration = performance.now() - start;
-          times.push(duration);
-          totalMemoryDelta += (result.memoryDelta || 0);
-        }
-
-        const avg = (times.reduce((a, b) => a + b, 0) / times.length).toFixed(2);
-        const sorted = [...times].sort((a, b) => a - b);
-        const p95 = sorted[Math.floor(sorted.length * 0.95)].toFixed(2);
-        const throughput = (1000 / avg).toFixed(0);
-
+      Object.entries(result).forEach(([key, value]) => {
+        if (typeof value === 'object') return;
         const row = document.createElement('tr');
-        row.innerHTML = `
-          <td class="font-medium">${cp.name}</td>
-          <td class="text-right">${avg}</td>
-          <td class="text-right">${p95}</td>
-          <td class="text-right">${throughput}</td>
-          <td class="text-right">+${totalMemoryDelta.toFixed(0)} MB</td>
-        `;
+        row.innerHTML = `<td class="font-medium">\( {key}</td><td class="text-right"> \){value}</td>`;
         tbody.appendChild(row);
-      }
+      });
+
+      document.getElementById('results').classList.remove('hidden');
     };
   </script>
 </body>
