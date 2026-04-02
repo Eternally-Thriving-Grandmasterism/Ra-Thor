@@ -1,8 +1,8 @@
 // agentic/langgraph-core/utils/WasmSqliteCheckpointer.js
-// version: 17.230.0-wasm-sqlite-checkpointer
-// Sovereign WASM-powered SQLite checkpointer for LangGraph
-// Uses sql.js (WASM SQLite) backed by IndexedDB for persistence
-// Fully Mercy-Gated and LumenasCI-enforced
+// version: 17.231.0-advanced-sqljs-features
+// Sovereign WASM SQLite checkpointer with prepared statements, transactions,
+// backup/restore, PRAGMA optimizations, and Mercy Gate enforcement.
+// Fully enshrines previous version while adding all advanced sql.js capabilities.
 
 import { enforceMercyGates, calculateLumenasCI } from '../../core/mercy-gates.js';
 
@@ -10,17 +10,26 @@ export class WasmSqliteCheckpointer {
   constructor() {
     this.db = null;
     this.threadId = 'rathor-main-thread';
+    this.stmtSave = null;   // prepared statement for save
+    this.stmtLoad = null;   // prepared statement for load
   }
 
   async initialize() {
-    // Dynamically load sql.js WASM (only once)
     if (!this.db) {
       const SQL = await import('https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.11.0/sql-wasm.min.js');
-      const config = { locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.11.0/${file}` };
+      const config = { 
+        locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.11.0/${file}`,
+        useBigInt: true 
+      };
       this.SQL = await SQL.default(config);
       this.db = new this.SQL.Database();
-      
-      // Create table if not exists
+
+      // Advanced PRAGMA optimizations for performance + durability
+      this.db.run('PRAGMA journal_mode=WAL;');
+      this.db.run('PRAGMA synchronous=NORMAL;');
+      this.db.run('PRAGMA cache_size=-20000;'); // \~80 MB cache
+
+      // Create table
       this.db.run(`
         CREATE TABLE IF NOT EXISTS checkpointer (
           thread_id TEXT PRIMARY KEY,
@@ -28,6 +37,13 @@ export class WasmSqliteCheckpointer {
           timestamp INTEGER
         )
       `);
+
+      // Prepare statements once (performance win)
+      this.stmtSave = this.db.prepare(`
+        INSERT OR REPLACE INTO checkpointer (thread_id, checkpoint, timestamp)
+        VALUES (?, ?, ?)
+      `);
+      this.stmtLoad = this.db.prepare('SELECT checkpoint FROM checkpointer WHERE thread_id = ?');
     }
     return this;
   }
@@ -40,24 +56,45 @@ export class WasmSqliteCheckpointer {
     }
 
     await this.initialize();
-    const blob = new Uint8Array(JSON.stringify(state));
-    this.db.run('DELETE FROM checkpointer WHERE thread_id = ?', [threadId]);
-    this.db.run('INSERT INTO checkpointer (thread_id, checkpoint, timestamp) VALUES (?, ?, ?)', 
-      [threadId, blob, Date.now()]);
-    
-    // Persist to IndexedDB as backup
-    await this._persistToIndexedDB(threadId, blob);
-    return true;
+
+    // Transaction for atomicity
+    this.db.run('BEGIN TRANSACTION;');
+    try {
+      const blob = new Uint8Array(JSON.stringify(state));
+      this.stmtSave.run([threadId, blob, Date.now()]);
+      this.db.run('COMMIT;');
+
+      await this._persistToIndexedDB(threadId, blob); // backup layer
+      return true;
+    } catch (e) {
+      this.db.run('ROLLBACK;');
+      console.error('WASM SQLite save failed:', e);
+      return false;
+    }
   }
 
   async load(threadId = this.threadId) {
     await this.initialize();
-    const result = this.db.exec('SELECT checkpoint FROM checkpointer WHERE thread_id = ?', [threadId]);
-    if (result.length > 0 && result[0].values.length > 0) {
-      const blob = result[0].values[0][0];
+    const result = this.stmtLoad.get([threadId]);
+    if (result && result.length) {
+      const blob = result[0];
       return JSON.parse(new TextDecoder().decode(blob));
     }
     return null;
+  }
+
+  // Advanced backup/restore (full DB snapshot)
+  async backup() {
+    await this.initialize();
+    return this.db.export(); // Uint8Array of entire DB
+  }
+
+  async restore(buffer) {
+    await this.initialize();
+    this.db = new this.SQL.Database(buffer);
+    // Re-prepare statements after restore
+    this.stmtSave = this.db.prepare('INSERT OR REPLACE INTO checkpointer (thread_id, checkpoint, timestamp) VALUES (?, ?, ?)');
+    this.stmtLoad = this.db.prepare('SELECT checkpoint FROM checkpointer WHERE thread_id = ?');
   }
 
   async _persistToIndexedDB(threadId, blob) {
@@ -72,7 +109,14 @@ export class WasmSqliteCheckpointer {
       };
     });
   }
+
+  // Cleanup (prevents memory leaks)
+  close() {
+    if (this.stmtSave) this.stmtSave.free();
+    if (this.stmtLoad) this.stmtLoad.free();
+    if (this.db) this.db.close();
+  }
 }
 
-// Singleton for easy use in graph
+// Singleton
 export const wasmSqliteCheckpointer = new WasmSqliteCheckpointer();
