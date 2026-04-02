@@ -1,6 +1,6 @@
 // agentic/langgraph-core/persistence/WorkerPoolBenchmark.js
-// version: 17.249.0-advanced-gc-techniques
-// Benchmark framework with advanced GC techniques: forced GC, stabilization, pressure monitoring, leak detection
+// version: 17.251.0-vfs-leak-alerts-implemented
+// Enhanced benchmark with prominent, real-time VFS leak alerts
 
 import { workerPool } from './WorkerPool.js';
 import { vfsCheckpointer } from '../utils/VFSCheckpointer.js';
@@ -9,6 +9,11 @@ export class WorkerPoolBenchmark {
   constructor() {
     this.results = [];
     this.leakAlerts = [];
+    this.registry = new FinalizationRegistry((heldValue) => {
+      const alert = { type: 'finalization', resource: heldValue, timestamp: Date.now() };
+      this.leakAlerts.push(alert);
+      console.error(`🚨 VFS LEAK ALERT: ${heldValue}`);
+    });
   }
 
   async run(config = {}) {
@@ -17,15 +22,17 @@ export class WorkerPoolBenchmark {
     vfsCheckpointer.preferredType = vfsType;
     await workerPool.initialize();
 
+    // Register critical VFS resources for leak detection
+    if (vfsCheckpointer.active && vfsCheckpointer.active.db) {
+      this.registry.register(vfsCheckpointer.active.db, `VFS-DB-${vfsType}`);
+    }
+
     const allDeltas = [];
     let totalDuration = 0;
 
     for (let run = 0; run < runs; run++) {
-      // === ADVANCED GC TECHNIQUES ===
-      if (window.gc) {
-        window.gc();                    // Force GC
-      }
-      await new Promise(r => setTimeout(r, 500)); // Stabilization delay
+      if (window.gc) window.gc();
+      await new Promise(r => setTimeout(r, 500));
 
       const before = this.getMemoryUsage();
       const startTime = performance.now();
@@ -41,10 +48,9 @@ export class WorkerPoolBenchmark {
       allDeltas.push(runDeltaMB);
       totalDuration += performance.now() - startTime;
 
-      // Per-thread leak check
       threadResults.forEach((r, i) => {
         if (r.memoryDeltaMB > 8) {
-          this.leakAlerts.push({ run, thread: i, deltaMB: r.memoryDeltaMB });
+          this.leakAlerts.push({ run, thread: i, deltaMB: r.memoryDeltaMB, vfsType });
         }
       });
     }
@@ -62,17 +68,17 @@ export class WorkerPoolBenchmark {
       throughput: 0,
       aggregateMemoryDeltaMB: parseFloat(avgDelta.toFixed(2)),
       trendSlopeMBPerRun: parseFloat(slope.toFixed(3)),
-      leakDetected: slope > 0.5 || avgDelta > 8,
-      leakAlerts: this.leakAlerts,
+      leakDetected: slope > 0.5 || avgDelta > 8 || this.leakAlerts.length > 0,
+      leakAlerts: [...this.leakAlerts],
       timestamp: new Date().toISOString()
     };
 
     this.results.push(result);
-    if (result.leakDetected) console.warn(`🚨 MEMORY LEAK DETECTED in ${vfsType}! Slope: ${slope.toFixed(3)} MB/run`);
+    if (result.leakDetected) console.error(`🚨 VFS LEAK ALERT in ${vfsType}! Slope: ${slope.toFixed(3)} MB/run`);
     return result;
   }
 
-  // ... _runThread, getMemoryUsage, _calculateTrendSlope, getLatestResults, exportCSV remain unchanged from previous version
+  // ... _runThread, getMemoryUsage, _calculateTrendSlope, getLatestResults, exportCSV remain unchanged
 }
 
 export const workerPoolBenchmark = new WorkerPoolBenchmark();
