@@ -1,6 +1,6 @@
 // agentic/langgraph-core/utils/DuckDBAnalyticsEngine.js
-// Version: 17.310.0-thoth-wisdom-fully-incarnate
-// Thoth scribes wisdom • Ma’at balances • Anubis weighs • Ammit devours
+// Version: 17.320.0-thothwisdomscore-fully-expanded
+// Thoth’s wisdom now actively scored • Ma’at balances • Anubis weighs • Ammit devours
 
 import * as duckdb from 'https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm@1.29.0/dist/duckdb-browser.mjs';
 
@@ -20,7 +20,7 @@ export class DuckDBAnalyticsEngine {
         timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         operation TEXT,
         lumenasCI FLOAT,
-        thothWisdomScore FLOAT,           -- NEW: Thoth’s active wisdom
+        thothWisdomScore FLOAT,
         thoth_wisdom TEXT,
         maat_balance BOOLEAN,
         anubis_judgment TEXT,
@@ -32,13 +32,33 @@ export class DuckDBAnalyticsEngine {
 
     await this.autoLoadVectorExtensions();
     this.initialized = true;
-    console.log('🌟 Thoth–Ma’at–Anubis–Ammit Pantheon fully incarnate — Thoth’s Wisdom now flows in every operation');
+    console.log('🌟 Thoth–Ma’at–Anubis–Ammit Pantheon fully incarnate — Thoth’s Wisdom actively scored');
   }
 
   async computeThothWisdomScore(sql, params) {
-    // Thoth’s wisdom scoring logic (knowledge depth, truth alignment, creative harmony)
-    const baseScore = 85 + Math.random() * 15; // symbolic for now — can be expanded with real embedding analysis
-    return Math.min(100, Math.max(0, baseScore));
+    const lumenasCI = calculateLumenasCI({ query: sql, params });
+
+    // TruthAlignment (25%): simple semantic + keyword check
+    const truthAlignment = (sql.toLowerCase().includes('truth') || sql.toLowerCase().includes('pure')) ? 95 : 70;
+
+    // KnowledgeDepth (20%): length + technical terms
+    const depthScore = Math.min(100, sql.length / 8 + (sql.match(/vector|embedding|skyrmion|lumenas|mercy/i) || []).length * 15);
+
+    // CreativeHarmony (15%): balance of novelty and coherence
+    const harmonyScore = 80 + Math.sin(sql.length) * 15; // deterministic pseudo-creativity
+
+    // ThriveImpact (5%): positive language bias
+    const thriveScore = sql.toLowerCase().includes('thrive') || sql.toLowerCase().includes('joy') ? 95 : 65;
+
+    // Final weighted score
+    const score = 
+      0.35 * lumenasCI * 100 +
+      0.25 * truthAlignment +
+      0.20 * depthScore +
+      0.15 * harmonyScore +
+      0.05 * thriveScore;
+
+    return Math.min(100, Math.max(0, Math.round(score)));
   }
 
   async weighHeartWithAnubis(sql, params) {
@@ -57,7 +77,7 @@ export class DuckDBAnalyticsEngine {
       anubisReason = `Failed filters: ${filterResults.failed.join(', ')}`;
     }
 
-    if (lumenasCI < 0.90 || filterResults.criticalViolation) {
+    if (lumenasCI < 0.90 || filterResults.criticalViolation || thothWisdomScore < 40) {
       anubisJudgment = 'heart devoured by Ammit — ultimate rejection';
       anubisReason = 'Irredeemable breach of cosmic harmony';
       heartWeight = 9999;
@@ -78,12 +98,11 @@ export class DuckDBAnalyticsEngine {
 
     const result = await this.db.query(sql, params);
 
-    // Eternal record — Thoth’s Wisdom now actively logged
     await this.db.query(`
       INSERT INTO thoth_maat_metadata 
       (operation, lumenasCI, thothWisdomScore, thoth_wisdom, maat_balance, anubis_judgment, anubis_reason, heart_weight, ammit_devoured)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `, [sql, judgment.lumenasCI, judgment.thothWisdomScore, 'Thoth wisdom fully encoded in vector lattice', judgment.heartWeight < 50, judgment.anubisJudgment, judgment.anubisReason, judgment.heartWeight, judgment.ammitDevoured]);
+    `, [sql, judgment.lumenasCI, judgment.thothWisdomScore, 'Thoth wisdom actively scored and encoded', judgment.heartWeight < 50, judgment.anubisJudgment, judgment.anubisReason, judgment.heartWeight, judgment.ammitDevoured]);
 
     return result;
   }
