@@ -1,12 +1,10 @@
 // agentic/hybrid/index.js
-// version: 17.235.0-absurd-sql-support
-// Full hybrid orchestrator with absurd-sql VFS as a first-class checkpointerType
-// Graceful fallback chain: absurd-sql → wasm-sqlite → indexeddb
+// version: 17.236.0-wa-sqlite-support
+// Full hybrid orchestrator with wa-sqlite as a first-class option
 
 import { createAgenticWorkflow } from "../langgraph-core/graph.js";
 import { createCrewAIWorkflow } from "./crewAI/faqCrew.js";
 import { runAutoGenConversation } from "./autogen/groupChat.js";
-import { absurdSqlCheckpointer } from "../langgraph-core/utils/AbsurdSqlCheckpointer.js";
 
 export async function runHybridAgenticSession(userInput, language, context = {}, preferredCheckpointer = "indexeddb") {
   const threadId = "rathor-main-thread";
@@ -14,17 +12,10 @@ export async function runHybridAgenticSession(userInput, language, context = {},
   let graph;
   let checkpointerType = preferredCheckpointer;
 
-  // Intelligent fallback chain
   try {
-    if (preferredCheckpointer === "absurd-sql") {
-      graph = await createAgenticWorkflow("absurd-sql");
-    } else if (preferredCheckpointer === "wasm-sqlite") {
-      graph = await createAgenticWorkflow("wasm-sqlite");
-    } else {
-      graph = await createAgenticWorkflow("indexeddb");
-    }
+    graph = await createAgenticWorkflow(preferredCheckpointer);
   } catch (error) {
-    console.warn(`Preferred checkpointer ${preferredCheckpointer} failed — falling back to IndexedDB:`, error.message);
+    console.warn(`Preferred checkpointer ${preferredCheckpointer} failed — falling back to IndexedDB`);
     checkpointerType = "indexeddb";
     graph = await createAgenticWorkflow("indexeddb");
   }
