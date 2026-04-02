@@ -1,45 +1,37 @@
 // agentic/langgraph-core/utils/OpfsSqliteCheckpointer.js
-// version: 17.232.0-opfs-persistence
-// High-performance OPFS-backed WASM SQLite checkpointer
-// Uses synchronous access handles in Web Worker + graceful fallback
-// Fully Mercy-Gated and LumenasCI-enforced
+// version: 17.232.0-opfs-web-worker-integrated
+// Now uses dedicated Web Worker for true off-main-thread OPFS + SQLite
+// Graceful fallback to IndexedDB if Worker fails
+// Fully enshrines previous version
 
 import { enforceMercyGates, calculateLumenasCI } from '../../core/mercy-gates.js';
+import { IndexedDBCheckpointer } from './IndexedDBCheckpointer.js';
 
 export class OpfsSqliteCheckpointer {
   constructor() {
-    this.db = null;
+    this.worker = null;
+    this.fallback = new IndexedDBCheckpointer();
     this.threadId = 'rathor-main-thread';
-    this.fileHandle = null;
-    this.syncHandle = null;
   }
 
   async initialize() {
-    if (!this.db) {
-      // Dynamically load sql.js
-      const SQL = await import('https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.11.0/sql-wasm.min.js');
-      const config = { locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.11.0/${file}` };
-      this.SQL = await SQL.default(config);
-
-      // Get OPFS root and file handle
-      const root = await navigator.storage.getDirectory();
-      this.fileHandle = await root.getFileHandle('rathor-checkpoint.sqlite', { create: true });
-
-      // Open synchronous handle (must be in Worker context for full speed)
-      this.syncHandle = await this.fileHandle.createSyncAccessHandle();
-
-      this.db = new this.SQL.Database();
-      // Load existing data if any
-      const size = this.syncHandle.getSize();
-      if (size > 0) {
-        const buffer = new Uint8Array(size);
-        this.syncHandle.read(buffer, { at: 0 });
-        this.db = new this.SQL.Database(buffer);
+    if (!this.worker) {
+      try {
+        this.worker = new Worker(new URL('./opfs-worker.js', import.meta.url), { type: 'module' });
+        
+        // Wait for worker ready
+        await new Promise((resolve, reject) => {
+          this.worker.onmessage = (e) => {
+            if (e.data.success && e.data.action === 'initialized') resolve();
+            else if (!e.data.success) reject(new Error(e.data.error || 'Worker init failed'));
+          };
+          this.worker.postMessage({ action: 'initialize' });
+        });
+      } catch (err) {
+        console.warn('OPFS Web Worker failed — falling back to IndexedDB:', err.message);
+        this.worker = null;
+        return this.fallback;
       }
-
-      // PRAGMA optimizations
-      this.db.run('PRAGMA journal_mode=WAL;');
-      this.db.run('PRAGMA synchronous=NORMAL;');
     }
     return this;
   }
@@ -51,30 +43,32 @@ export class OpfsSqliteCheckpointer {
       return false;
     }
 
-    await this.initialize();
+    const checkpointer = await this.initialize();
+    if (checkpointer === this.fallback) {
+      return await this.fallback.save(state, threadId);
+    }
 
-    const blob = new Uint8Array(JSON.stringify(state));
-    const buffer = this.db.export(); // or direct write for speed
-
-    this.syncHandle.write(buffer, { at: 0 });
-    this.syncHandle.flush();
-
-    return true;
+    return new Promise((resolve) => {
+      this.worker.onmessage = (e) => resolve(e.data.success);
+      this.worker.postMessage({ action: 'save', state });
+    });
   }
 
   async load(threadId = this.threadId) {
-    await this.initialize();
-    const size = this.syncHandle.getSize();
-    if (size === 0) return null;
+    const checkpointer = await this.initialize();
+    if (checkpointer === this.fallback) {
+      return await this.fallback.load(threadId);
+    }
 
-    const buffer = new Uint8Array(size);
-    this.syncHandle.read(buffer, { at: 0 });
-    return JSON.parse(new TextDecoder().decode(buffer));
+    return new Promise((resolve) => {
+      this.worker.onmessage = (e) => resolve(e.data.success ? e.data.data : null);
+      this.worker.postMessage({ action: 'load' });
+    });
   }
 
   close() {
-    if (this.syncHandle) this.syncHandle.close();
-    if (this.db) this.db.close();
+    if (this.worker) this.worker.terminate();
+    if (this.fallback) this.fallback.close?.();
   }
 }
 
