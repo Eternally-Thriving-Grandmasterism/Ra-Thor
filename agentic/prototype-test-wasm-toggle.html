@@ -50,7 +50,7 @@
     <!-- DQN Live Status -->
     <div id="dqn-status" class="bg-emerald-950 border border-emerald-400 text-emerald-300 p-4 rounded-2xl mb-8 hidden">
       <div class="flex justify-between">
-        <div><strong>Deep Q-Network + Mamba Active</strong></div>
+        <div><strong>Deep Q-Network + Mamba Active — Self-Learning Live</strong></div>
         <div id="dqn-epsilon" class="font-mono"></div>
       </div>
       <div id="dqn-reward" class="text-sm mt-1"></div>
@@ -95,7 +95,7 @@
       
       const result = await workerPoolBenchmark.run({ vfsType, threads, iterations: 150, runs: 5 });
 
-      // Trigger DQN + Mamba optimization after benchmark
+      // Trigger full DQN + Mamba optimization
       await selfOptimizingPragmaEngine.onBenchmarkComplete(result);
 
       // Update DQN status
