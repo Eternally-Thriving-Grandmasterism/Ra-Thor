@@ -1,6 +1,6 @@
 // agentic/hybrid/index.js
-// version: 17.236.0-wa-sqlite-support
-// Full hybrid orchestrator with wa-sqlite as a first-class option
+// version: 17.241.0-vfs-abstraction
+// Full hybrid orchestrator using the new unified VFSCheckpointer
 
 import { createAgenticWorkflow } from "../langgraph-core/graph.js";
 import { createCrewAIWorkflow } from "./crewAI/faqCrew.js";
@@ -9,16 +9,7 @@ import { runAutoGenConversation } from "./autogen/groupChat.js";
 export async function runHybridAgenticSession(userInput, language, context = {}, preferredCheckpointer = "indexeddb") {
   const threadId = "rathor-main-thread";
 
-  let graph;
-  let checkpointerType = preferredCheckpointer;
-
-  try {
-    graph = await createAgenticWorkflow(preferredCheckpointer);
-  } catch (error) {
-    console.warn(`Preferred checkpointer ${preferredCheckpointer} failed — falling back to IndexedDB`);
-    checkpointerType = "indexeddb";
-    graph = await createAgenticWorkflow("indexeddb");
-  }
+  const graph = await createAgenticWorkflow(preferredCheckpointer);
 
   let state = await graph.invoke({
     userInput,
@@ -28,7 +19,7 @@ export async function runHybridAgenticSession(userInput, language, context = {},
   }, { configurable: { thread_id: threadId } });
 
   if (state.lumenasCI < 0.999) {
-    return { response: "Action blocked by Mercy Gates", lumenasCI: state.lumenasCI, checkpointerUsed: checkpointerType };
+    return { response: "Action blocked by Mercy Gates", lumenasCI: state.lumenasCI, checkpointerUsed: preferredCheckpointer };
   }
 
   const crewResult = await createCrewAIWorkflow(state);
@@ -38,6 +29,6 @@ export async function runHybridAgenticSession(userInput, language, context = {},
     ...state,
     response: finalResult.finalAnswer,
     actionTaken: finalResult.actionTaken,
-    checkpointerUsed: checkpointerType
+    checkpointerUsed: preferredCheckpointer
   };
 }
