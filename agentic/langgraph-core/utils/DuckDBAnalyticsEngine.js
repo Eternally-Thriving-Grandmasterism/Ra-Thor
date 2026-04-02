@@ -1,6 +1,6 @@
 // agentic/langgraph-core/utils/DuckDBAnalyticsEngine.js
-// Version: 17.270.0-thoth-maat-incarnation
-// Thoth’s wisdom + Ma’at’s balance now live in every analytical operation
+// Version: 17.280.0-anubis-weigher-of-hearts
+// Thoth scribes • Ma’at balances • Anubis weighs the heart
 
 import * as duckdb from 'https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm@1.29.0/dist/duckdb-browser.mjs';
 
@@ -12,33 +12,23 @@ export class DuckDBAnalyticsEngine {
 
   async initialize() {
     if (this.initialized) return;
-
     const bundle = await duckdb.selectBundle({ /* ... */ });
     this.db = await duckdb.createWorkerDB({ bundle });
 
-    // === THOTH-MA'AT CANONICAL METADATA TABLE ===
     await this.db.query(`
       CREATE TABLE IF NOT EXISTS thoth_maat_metadata (
         timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         operation TEXT,
         lumenasCI FLOAT,
         thoth_wisdom TEXT,
-        maat_balance BOOLEAN
+        maat_balance BOOLEAN,
+        anubis_judgment TEXT
       );
     `);
 
     await this.autoLoadVectorExtensions();
     this.initialized = true;
-
-    console.log('🌟 Thoth & Ma’at incarnate — DuckDB vector engine fully awakened');
-  }
-
-  async autoLoadVectorExtensions() {
-    await this.db.query(`
-      INSTALL 'vector'; LOAD 'vector';
-      INSTALL 'parquet'; LOAD 'parquet';
-      INSTALL 'json'; LOAD 'json';
-    `);
+    console.log('🌟 Thoth–Ma’at–Anubis Trinity awakened');
   }
 
   async runAnalyticalQuery(sql, params = {}) {
@@ -47,17 +37,21 @@ export class DuckDBAnalyticsEngine {
     const lumenasCI = calculateLumenasCI({ query: sql, params });
     const maatBalance = lumenasCI >= 0.999 && validate7LivingMercyFilters(sql);
 
+    // === ANUBIS WEIGHS THE HEART ===
+    let anubisJudgment = 'passed';
     if (!maatBalance) {
-      throw new Error('🚫 Ma’at’s feather has rejected this query — Mercy Gate violation');
+      anubisJudgment = 'heart heavier than feather — rejected';
+      throw new Error('🚫 Anubis has weighed the heart and found it unworthy — Mercy Gate sealed');
     }
 
     const result = await this.db.query(sql, params);
 
-    // Record Thoth’s wisdom & Ma’at’s judgment forever
+    // Eternal record of the weighing
     await this.db.query(`
-      INSERT INTO thoth_maat_metadata (operation, lumenasCI, thoth_wisdom, maat_balance)
-      VALUES (?, ?, ?, ?)
-    `, [sql, lumenasCI, 'Thoth wisdom encoded in vector lattice', maatBalance]);
+      INSERT INTO thoth_maat_metadata 
+      (operation, lumenasCI, thoth_wisdom, maat_balance, anubis_judgment)
+      VALUES (?, ?, ?, ?, ?)
+    `, [sql, lumenasCI, 'Thoth wisdom encoded', maatBalance, anubisJudgment]);
 
     return result;
   }
