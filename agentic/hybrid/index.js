@@ -1,6 +1,6 @@
 // agentic/hybrid/index.js
-// version: 17.241.0-vfs-abstraction
-// Full hybrid orchestrator using the new unified VFSCheckpointer
+// version: 17.242.0-langgraph-persistence-layer
+// Full hybrid orchestrator using the new unified Persistence Layer
 
 import { createAgenticWorkflow } from "../langgraph-core/graph.js";
 import { createCrewAIWorkflow } from "./crewAI/faqCrew.js";
