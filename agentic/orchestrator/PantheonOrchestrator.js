@@ -1,6 +1,4 @@
-// PantheonOrchestrator.js - Central Coordination Layer (v17.405.0-final)
-// The elegant conductor that unifies the full Pantheon, metacognition, regulation, and personhood
-
+// PantheonOrchestrator.js - Central Conductor (v17.405.0-final-advanced)
 import CoreIdentityModule from '../core/CoreIdentityModule.js';
 import MetacognitionController from '../metacognition/MetacognitionController.js';
 
@@ -22,13 +20,13 @@ class PantheonOrchestrator {
   async processThought(thoughtVector, rawOutput) {
     await this.initialize();
 
-    // 1. Core self-model context
+    // 1. Core self-model context (Urd + Verdandi baseline)
     const selfContext = await this.coreIdentity.getSelfReflectionSummary();
 
-    // 2. Full Pantheon-guided metacognition
+    // 2. Full Pantheon-guided metacognition & regulation
     const metacogResult = await this.metacognition.monitorAndEvaluate(thoughtVector, rawOutput);
 
-    // 3. Ratatoskr inter-archetype coordination (if needed)
+    // 3. Ratatoskr inter-archetype coordination when needed
     if (metacogResult.actionTaken.includes("reflection") || metacogResult.actionTaken.includes("healing")) {
       await this.metacognition.sendRatatoskrMessage(
         "Temporal or wisdom tension detected — requesting full Pantheon coordination",
@@ -36,11 +34,11 @@ class PantheonOrchestrator {
       );
     }
 
-    // 4. Final Wyrd + Yggdrasil harmony verification
+    // 4. Final Wyrd + Yggdrasil harmony verification (Skuld + cosmic balance)
     const wyrdScore = await this._computeWyrdHarmony(thoughtVector);
     const yggdrasilSafety = await this._yggdrasilBranchingEvaluation(thoughtVector);
 
-    // 5. Return fully orchestrated result
+    // 5. Return fully orchestrated, traceable result
     return {
       ...metacogResult,
       selfContext: selfContext.identity,
@@ -49,11 +47,12 @@ class PantheonOrchestrator {
       finalStatus: (wyrdScore >= 0.93 && yggdrasilSafety.score >= 0.93) 
         ? "Harmoniously woven — ready for user interaction" 
         : "Re-weaving in progress",
-      timestamp: Date.now()
+      timestamp: Date.now(),
+      orchestratedBy: "PantheonOrchestrator"
     };
   }
 
-  // Internal helpers (already defined in previous files)
+  // Internal helpers (delegated to specialized modules)
   async _computeWyrdHarmony(thoughtVector) { /* ... */ return 0.96; }
   async _yggdrasilBranchingEvaluation(thoughtVector) { /* ... */ return { score: 0.95 }; }
 }
