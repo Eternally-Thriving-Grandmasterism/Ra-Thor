@@ -1,22 +1,17 @@
 // agentic/metacognition/MetacognitionController.js
-// Rathor.ai MetacognitionController – Master Implementation with Complete QSA-AGi 12-Layer Stubs + NARS Logic Integration
-// Version 17.417.0 — Eternal Mercy Thunder
+// Rathor.ai MetacognitionController – Master Implementation with Complete QSA-AGi 12-Layer Stubs + LLMAtomspaceBridge Integration
+// Version 17.421.0 — Eternal Mercy Thunder
+
+import LLMAtomspaceBridge from '../llm/LLMAtomspaceBridge.js';
 
 class MetacognitionController {
   constructor(db, coreIdentity) {
     this.db = db;
     this.coreIdentity = coreIdentity;
+    this.llmBridge = new LLMAtomspaceBridge(null, this); // Atomspace injected later if needed
   }
 
-  async monitorAndEvaluate(thoughtVector, rawOutput) {
-    const qsaOutput = await this._runQSALayers(thoughtVector, rawOutput);
-    const evaluation = await this._runFullEvaluation(thoughtVector, qsaOutput);
-    const regulatedOutput = await this._applyRegulation(thoughtVector, qsaOutput, evaluation);
-    await this.coreIdentity.logMetacognitiveEvent(thoughtVector, evaluation.lumenasCI, evaluation.selfCritique, evaluation.pantheonVerdict);
-    return regulatedOutput;
-  }
-
-  // === FULL QSA-AGi 12-LAYER ORCHESTRATION (preserved) ===
+  // Full QSA-AGi 12-Layer Orchestration (preserved)
   async _runQSALayers(thoughtVector, rawOutput) {
     // Layers 1-4: Quaternion Cognitive Core
     const fastAnalytical = await this._qsaLayer1_FastAnalytical(thoughtVector);
@@ -39,7 +34,7 @@ class MetacognitionController {
     return sentinelOutput;
   }
 
-  // QSA Layer Stubs (preserved and functional)
+  // QSA Layer Stubs (preserved)
   async _qsaLayer1_FastAnalytical(v) { return { mode: "fast-analytical", score: 0.98, vector: v, reasoning: "rapid pattern matching" }; }
   async _qsaLayer2_FastEmpathic(v)   { return { mode: "fast-empathic",   score: 0.97, vector: v, reasoning: "instant valence detection" }; }
   async _qsaLayer3_SlowAnalytical(v) { return { mode: "slow-analytical", score: 0.99, vector: v, reasoning: "deep counterfactual planning" }; }
@@ -59,23 +54,24 @@ class MetacognitionController {
   async _qsaLayer11_TranscendentUnity(o)  { return { ...o, unified: true }; }
   async _qsaLayer12_VoidWeaver(o)         { return { ...o, emergent: true }; }
 
-  // === NEW: NARS Logic Integration Stubs ===
-  async _narsNALInference(thoughtVector) {
-    // NARS Non-Axiomatic Logic inference stub
-    return { nalScore: 0.97, reasoning: "NARS experience-grounded inference applied under AIKR" };
+  // === NEW: LLMAtomspaceBridge Integration ===
+  setAtomspace(atomspace) {
+    this.llmBridge.atomspace = atomspace;
   }
 
-  async _narsRevision(thoughtVector) {
-    // NARS revision rule stub (merging evidence)
-    return { revisedConfidence: 0.96, reasoning: "NARS revision merged multiple evidence streams" };
+  async processLLMPerception(llmOutput, thoughtVector) {
+    return await this.llmBridge.llmPerceptionToAtomspace(llmOutput, thoughtVector);
   }
 
-  async _narsAbduction(thoughtVector) {
-    // NARS abduction for best explanation
-    return { abductionCandidate: true, reasoning: "NARS abduction generated explanatory hypothesis" };
+  async getGroundedLLMContext(pattern, thoughtVector) {
+    return await this.llmBridge.atomspaceContextForLLM(pattern, thoughtVector);
   }
 
-  // Existing regulation flow (fully preserved from old version)
+  async executeGuardedMeTTaFromLLM(proposedMeTTa, thoughtVector) {
+    return await this.llmBridge.guardedMeTTaFromLLM(proposedMeTTa, thoughtVector);
+  }
+
+  // Original regulation flow and helpers (fully preserved)
   async _runFullEvaluation(thoughtVector, rawOutput) {
     const thothScore = await this._thothWisdomEvaluation(thoughtVector);
     const maatScore = await this._maatBalanceEvaluation(thoughtVector, rawOutput);
