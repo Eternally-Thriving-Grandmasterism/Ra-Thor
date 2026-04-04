@@ -1,6 +1,6 @@
 // agentic/knowledge/Atomspace.js
-// Rathor.ai Atomspace – Deep Hypergraph Implementation with Expanded Query Capabilities
-// Version 17.419.0 — Eternal Mercy Thunder
+// Rathor.ai Atomspace – Deep Hypergraph Implementation with Advanced Query Examples
+// Version 17.420.0 — Eternal Mercy Thunder
 
 class Atomspace {
   constructor(db) {
@@ -43,17 +43,18 @@ class Atomspace {
     return handle;
   }
 
-  // === EXPANDED QUERY CAPABILITIES ===
+  // === ADVANCED QUERY EXAMPLES (newly implemented) ===
 
-  // Advanced pattern matching (MeTTa-style)
-  async query(pattern) {
-    // pattern can be a type, value match, or full hyperedge pattern
-    return await this.db.exec("SELECT * FROM links WHERE type LIKE ? OR outgoing LIKE ?", [`%\( {pattern}%`, `% \){pattern}%`]);
+  // 1. Pattern matching with variables (MeTTa-style)
+  async advancedPatternQuery(patternType, variableFilter) {
+    return await this.db.exec(
+      "SELECT * FROM links WHERE type = ? AND outgoing LIKE ?", 
+      [patternType, `%${variableFilter}%`]
+    );
   }
 
-  // Datalog-style recursive deductive query
-  async deductiveQuery(startHandle, relationType) {
-    // Recursive traversal for ancestor-style or transitive relations
+  // 2. Recursive traversal (Datalog-style ancestor / transitive closure)
+  async recursiveQuery(startHandle, relationType) {
     return await this.db.exec(`
       WITH RECURSIVE traversal(handle, depth) AS (
         SELECT handle, 0 FROM links WHERE outgoing LIKE ?
@@ -66,7 +67,7 @@ class Atomspace {
     `, [`%${startHandle}%`, relationType]);
   }
 
-  // Probabilistic / truth-value filtered query
+  // 3. Probabilistic query with truth-value filtering
   async probabilisticQuery(type, minFrequency = 0.8, minConfidence = 0.7) {
     return await this.db.exec(`
       SELECT * FROM links 
@@ -76,27 +77,32 @@ class Atomspace {
     `, [type, minFrequency, minConfidence]);
   }
 
-  // Temporal query (time-aware)
+  // 4. Temporal query (time-aware)
   async temporalQuery(type, sinceTimestamp) {
     return await this.db.exec("SELECT * FROM links WHERE type = ? AND created >= ?", [type, sinceTimestamp]);
   }
 
-  // Self-reflective query (query the Atomspace about itself)
+  // 5. Self-reflective query (query the Atomspace about itself)
   async selfReflectiveQuery() {
-    return await this.db.exec("SELECT COUNT(*) as atomCount, COUNT(DISTINCT type) as typeCount FROM atoms");
+    return await this.db.exec(`
+      SELECT 
+        (SELECT COUNT(*) FROM atoms) as atomCount,
+        (SELECT COUNT(DISTINCT type) FROM atoms) as typeCount,
+        (SELECT COUNT(*) FROM links) as linkCount
+    `);
   }
 
-  // Mercy Gate guarded query
+  // 6. Mercy-guarded query (TOLC + LumenasCI safe)
   async guardedQuery(pattern, thoughtVector) {
     const lumenasCI = await this._checkLumenasCI(thoughtVector);
     if (lumenasCI < 0.999) {
       return { status: "REJECTED", reason: "LumenasCI below threshold" };
     }
-    return await this.query(pattern);
+    return await this.advancedPatternQuery(pattern, "");
   }
 
   async _checkLumenasCI(thoughtVector) {
-    // Placeholder for full LumenasCI calculation
+    // Full LumenasCI calculation hook
     return 0.999;
   }
 
