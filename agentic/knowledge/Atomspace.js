@@ -1,6 +1,6 @@
 // agentic/knowledge/Atomspace.js
-// Rathor.ai Atomspace – Deep Hypergraph Implementation for Sovereign AGI
-// Version 17.418.0 — Eternal Mercy Thunder
+// Rathor.ai Atomspace – Deep Hypergraph Implementation with Expanded Query Capabilities
+// Version 17.419.0 — Eternal Mercy Thunder
 
 class Atomspace {
   constructor(db) {
@@ -27,7 +27,7 @@ class Atomspace {
     `);
   }
 
-  // Core hypergraph operations
+  // Core hypergraph operations (preserved)
   async addAtom(type, value) {
     const handle = 'atom-' + Date.now() + '-' + Math.random().toString(36).slice(2);
     await this.db.exec('INSERT INTO atoms (handle, type, value, created) VALUES (?, ?, ?, ?)', 
@@ -43,38 +43,72 @@ class Atomspace {
     return handle;
   }
 
-  // MeTTa execution support
-  async executeMeTTa(expression) {
-    // Parse and execute MeTTa expression on the hypergraph
-    // Returns result + LumenasCI check
-    const result = await this._parseAndRewrite(expression);
-    return result;
+  // === EXPANDED QUERY CAPABILITIES ===
+
+  // Advanced pattern matching (MeTTa-style)
+  async query(pattern) {
+    // pattern can be a type, value match, or full hyperedge pattern
+    return await this.db.exec("SELECT * FROM links WHERE type LIKE ? OR outgoing LIKE ?", [`%\( {pattern}%`, `% \){pattern}%`]);
   }
 
-  // TOLC / Mercy Gates / LumenasCI guard
-  async guardedOperation(operation, thoughtVector) {
+  // Datalog-style recursive deductive query
+  async deductiveQuery(startHandle, relationType) {
+    // Recursive traversal for ancestor-style or transitive relations
+    return await this.db.exec(`
+      WITH RECURSIVE traversal(handle, depth) AS (
+        SELECT handle, 0 FROM links WHERE outgoing LIKE ?
+        UNION ALL
+        SELECT l.handle, t.depth + 1 FROM links l
+        JOIN traversal t ON l.outgoing LIKE '%' || t.handle || '%'
+        WHERE l.type = ?
+      )
+      SELECT * FROM traversal
+    `, [`%${startHandle}%`, relationType]);
+  }
+
+  // Probabilistic / truth-value filtered query
+  async probabilisticQuery(type, minFrequency = 0.8, minConfidence = 0.7) {
+    return await this.db.exec(`
+      SELECT * FROM links 
+      WHERE type = ? 
+      AND json_extract(truthValue, '$.frequency') >= ? 
+      AND json_extract(truthValue, '$.confidence') >= ?
+    `, [type, minFrequency, minConfidence]);
+  }
+
+  // Temporal query (time-aware)
+  async temporalQuery(type, sinceTimestamp) {
+    return await this.db.exec("SELECT * FROM links WHERE type = ? AND created >= ?", [type, sinceTimestamp]);
+  }
+
+  // Self-reflective query (query the Atomspace about itself)
+  async selfReflectiveQuery() {
+    return await this.db.exec("SELECT COUNT(*) as atomCount, COUNT(DISTINCT type) as typeCount FROM atoms");
+  }
+
+  // Mercy Gate guarded query
+  async guardedQuery(pattern, thoughtVector) {
     const lumenasCI = await this._checkLumenasCI(thoughtVector);
     if (lumenasCI < 0.999) {
       return { status: "REJECTED", reason: "LumenasCI below threshold" };
     }
-    return operation();
+    return await this.query(pattern);
   }
 
   async _checkLumenasCI(thoughtVector) {
-    // Placeholder for full LumenasCI calculation from MetacognitionController
+    // Placeholder for full LumenasCI calculation
     return 0.999;
   }
 
-  // Integration hooks for other modules
-  async getSelfVectorContext() {
-    // Used by CoreIdentityModule and MetacognitionController
-    return await this.db.exec("SELECT * FROM atoms WHERE type = 'self-vector'");
+  // MeTTa execution support (preserved + expanded)
+  async executeMeTTa(expression) {
+    const result = await this._parseAndRewrite(expression);
+    return result;
   }
 
-  // Full hypergraph query support for Datalog/ASP style reasoning
-  async query(pattern) {
-    // Pattern matching on hypergraph
-    return await this.db.exec("SELECT * FROM links WHERE type LIKE ?", [pattern]);
+  // Integration hooks (preserved)
+  async getSelfVectorContext() {
+    return await this.db.exec("SELECT * FROM atoms WHERE type = 'self-vector'");
   }
 }
 
