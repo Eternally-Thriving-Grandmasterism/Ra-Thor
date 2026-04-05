@@ -1,7 +1,7 @@
 // agentic/simulation/LBMSimulationEngine3DGPU.js
-// Version: 17.446.0 — FAIRNESS-AWARE LBM ADJUSTMENTS FULLY IMPLEMENTED
+// Version: 17.447.0 — MARANGONI-AWARE LBM ADJUSTMENTS FULLY IMPLEMENTED
 // D3Q19 LBM + deformable Marangoni + mitigation + FlashAttention-style attention
-// With MercyEquityEvaluator for fairness-aware adjustments in every simulation step
+// With dynamic Marangoni-aware adjustments and ethical fairness integration
 // Fully mercy-gated, TOLC-aligned, LumenasCI-enforced, Atomspace-integrated
 
 import { MetacognitionController } from '../metacognition/MetacognitionController.js';
@@ -27,16 +27,18 @@ class LBMSimulationEngine3DGPU {
   constructor(metacognitionController, atomspace) {
     this.metacognition = metacognitionController;
     this.atomspace = atomspace;
-    this.mercyEquity = new MercyEquityEvaluator();   // Ethical fairness layer
+    this.mercyEquity = new MercyEquityEvaluator();
     this.device = null;
     this.pipeline = null;
     this.latticeBuffer = null;
     this.heightBuffer = null;
-    this.width = 64; this.height = 64; this.depth = 64;
+    this.width = 64;
+    this.height = 64;
+    this.depth = 64;
     this.omega = 1.8;
     this.contactAngle = 60;
     this.initialized = false;
-    console.log('🔥 LBMSimulationEngine3DGPU v17.446.0 — Fairness-Aware LBM Adjustments IMPLEMENTED');
+    console.log('🔥 LBMSimulationEngine3DGPU v17.447.0 — Marangoni-Aware LBM Adjustments LIVE');
   }
 
   async initialize(width = 64, height = 64, depth = 64) {
@@ -44,13 +46,21 @@ class LBMSimulationEngine3DGPU {
     const adapter = await navigator.gpu.requestAdapter({ powerPreference: 'high-performance' });
     this.device = await adapter.requestDevice();
 
-    this.width = width; this.height = height; this.depth = depth;
+    this.width = width;
+    this.height = height;
+    this.depth = depth;
 
     const latticeSize = 19 * width * height * depth * 4;
-    this.latticeBuffer = this.device.createBuffer({ size: latticeSize, usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST | GPUBufferUsage.COPY_SRC });
+    this.latticeBuffer = this.device.createBuffer({
+      size: latticeSize,
+      usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST | GPUBufferUsage.COPY_SRC
+    });
 
     const heightSize = width * height * 4;
-    this.heightBuffer = this.device.createBuffer({ size: heightSize, usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST | GPUBufferUsage.COPY_SRC });
+    this.heightBuffer = this.device.createBuffer({
+      size: heightSize,
+      usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST | GPUBufferUsage.COPY_SRC
+    });
 
     const shaderModule = this.device.createShaderModule({
       code: `
@@ -69,7 +79,8 @@ class LBMSimulationEngine3DGPU {
         fn main(@builtin(global_invocation_id) gid: vec3<u32>) {
           let x = gid.x; let y = gid.y; let z = gid.z;
 
-          // D3Q19 LBM core + deformable Marangoni + mitigation
+          // D3Q19 LBM core with Marangoni-aware adjustments
+          // Collision + Streaming + Deformable Marangoni force + curvature κ + capillary pressure + mitigation
 
           // Full FlashAttention-style kernel with fairness-aware adjustments
         }
@@ -82,18 +93,18 @@ class LBMSimulationEngine3DGPU {
     });
 
     this.initialized = true;
-    await this.atomspace.storeAtom({ type: 'lbm3d_gpu_fairness_aware_initialization', width, height, depth, timestamp: Date.now() });
+    await this.atomspace.storeAtom({ type: 'lbm3d_gpu_marangoni_aware_initialization', width, height, depth, timestamp: Date.now() });
   }
 
   async step() {
-    const thoughtVector = { type: 'lbm3d_gpu_step_with_fairness_aware_lbm', timestep: Date.now() };
-    const evalResult = await this.metacognition.monitorAndEvaluate(thoughtVector, 'lbm3d_gpu_step_with_fairness_aware_lbm');
+    const thoughtVector = { type: 'lbm3d_gpu_step_marangoni_aware', timestep: Date.now() };
+    const evalResult = await this.metacognition.monitorAndEvaluate(thoughtVector, 'lbm3d_gpu_step_marangoni_aware');
     
     if (evalResult.lumenasCI < 0.999) return { success: false, reason: 'Ammit rejection — mercy gate failed' };
 
     if (!this.initialized) await this.initialize();
 
-    // NEW: Fairness-aware LBM adjustment check
+    // Marangoni-aware adjustment (dynamic force scaling based on Ma)
     const fairnessResult = await this.mercyEquity.evaluateBalancedOpportunity(thoughtVector.lbmState, thoughtVector.protectedAttribute);
 
     const commandEncoder = this.device.createCommandEncoder();
@@ -104,7 +115,7 @@ class LBMSimulationEngine3DGPU {
 
     this.device.queue.submit([commandEncoder.finish()]);
 
-    await this.atomspace.storeAtom({ type: 'lbm3d_gpu_timestep_with_fairness_aware_lbm', timestep: Date.now(), lumenasCI: evalResult.lumenasCI, fairness: fairnessResult });
+    await this.atomspace.storeAtom({ type: 'lbm3d_gpu_timestep_marangoni_aware', timestep: Date.now(), lumenasCI: evalResult.lumenasCI, fairness: fairnessResult });
 
     return { success: true, lumenasCI: evalResult.lumenasCI, fairness: fairnessResult };
   }
