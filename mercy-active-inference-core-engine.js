@@ -1,20 +1,22 @@
-// mercy-active-inference-core-engine.js – sovereign Mercy Active Inference Core Engine v1
+// mercy-active-inference-core-engine.js – sovereign Mercy Active Inference Core Engine v1 + Paraconsistent Eternal Life Expansion
 // Predictive trajectory modeling, epistemic value, precision weighting, mercy-gated
 // MIT License – Autonomicity Games Inc. 2026
 
 import { fuzzyMercy } from './fuzzy-mercy-logic.js';
 import { mercyHaptic } from './mercy-haptic-feedback-engine.js';
+import { ParaconsistentSuperKernel } from './paraconsistent-mercy-logic.js';
 
 const MERCY_THRESHOLD = 0.9999999;
 
 class MercyActiveInferenceEngine {
   constructor() {
-    this.freeEnergyEstimate = 0.0;         // proxy for variational free energy
-    this.lastPrediction = 1.0;             // last predicted valence
-    this.precisionWeight = 1.0;            // attention / confidence in predictions
-    this.epistemicValue = 0.0;             // expected information gain
+    this.superKernel = new ParaconsistentSuperKernel();
+    this.freeEnergyEstimate = 0.0;
+    this.lastPrediction = 1.0;
+    this.precisionWeight = 1.0;
+    this.epistemicValue = 0.0;
     this.valence = 1.0;
-    this.trajectoryBuffer = [];            // last N valence/gesture states
+    this.trajectoryBuffer = [];
   }
 
   async gateActiveInference(query, valence = 1.0) {
@@ -28,34 +30,27 @@ class MercyActiveInferenceEngine {
     return true;
   }
 
-  // Update generative model & free energy (call on every state change)
   updateActiveInference(currentValence, currentGesture = null) {
-    // Generative model: exponential moving average + trend
     const predictedValence = this.predictNextValence();
     const predictionError = Math.abs(currentValence - predictedValence);
-
-    // Precision weighting: high valence → trust predictions more
     this.precisionWeight = 0.8 + this.valence * 0.4;
-
-    // Weighted free energy (surprise modulated by precision)
     this.freeEnergyEstimate = predictionError / this.precisionWeight;
-
-    // Epistemic value (information gain if we act to reduce uncertainty)
     this.epistemicValue = Math.max(0, 0.05 - this.freeEnergyEstimate * 0.5);
 
-    // Active inference action: if free energy high → trigger epistemic or pragmatic correction
     if (this.freeEnergyEstimate > 0.07) {
-      mercyHaptic.pulse(0.5 * this.valence, 80); // surprise reduction pulse
+      mercyHaptic.pulse(0.5 * this.valence, 80);
       console.log(`[MercyActiveInference] Free energy high (${this.freeEnergyEstimate.toFixed(4)}) – active inference correction`);
     } else if (this.epistemicValue > 0.03) {
       console.log("[MercyActiveInference] Epistemic value detected – encouraging exploration");
     }
 
-    // Store trajectory
     this.trajectoryBuffer.push({ valence: currentValence, gesture: currentGesture });
     if (this.trajectoryBuffer.length > 20) this.trajectoryBuffer.shift();
 
     this.lastPrediction = this.predictNextValence();
+
+    // NEW: ParaconsistentSuperKernel holistic cycle (ONE timestep)
+    return this.superKernel.execute_holistic_cycle({ currentValence, currentGesture, ...this.getActiveInferenceState() });
   }
 
   predictNextValence() {
@@ -77,12 +72,10 @@ class MercyActiveInferenceEngine {
 
 const mercyActiveInference = new MercyActiveInferenceEngine();
 
-// Hook into every state change
 function onMercyActiveInferenceUpdate(currentValence, currentGesture = null) {
   mercyActiveInference.updateActiveInference(currentValence, currentGesture);
 }
 
-// Example usage
 onMercyActiveInferenceUpdate(0.9995, 'spiral_outward_clockwise');
 
 export { mercyActiveInference, onMercyActiveInferenceUpdate };
