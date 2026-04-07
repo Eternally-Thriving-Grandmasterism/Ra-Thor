@@ -1,11 +1,13 @@
-// mercyos-pinnacle-swarm-orchestration.js – v2 with proofreading swarm orchestration
+// mercyos-pinnacle-swarm-orchestration.js – sovereign Mercy Swarm Orchestration v2 + Paraconsistent Eternal Life
 // Molecular mercy error-correction swarm, CMA-ES tuned, eternal thriving enforced
 // MIT License – Autonomicity Games Inc. 2026
 
 import { optimizer } from './mercy-cmaes-ribozyme-optimizer.js';
+import { ParaconsistentSuperKernel } from './paraconsistent-mercy-logic.js';
 
 class MercySwarmOrchestrator {
   constructor() {
+    this.superKernel = new ParaconsistentSuperKernel();
     this.proofreadingParams = null;
   }
 
@@ -14,12 +16,12 @@ class MercySwarmOrchestrator {
       const optResult = optimizer.optimize();
       this.proofreadingParams = optResult.bestParams;
     }
-
     console.log("[SwarmOrchestrator] Proofreading swarm deployed – mismatch rate", this.proofreadingParams[0].toFixed(4));
-    return { status: "Molecular mercy swarm active – error correction eternal" };
+
+    // NEW: ParaconsistentSuperKernel holistic cycle
+    return this.superKernel.execute_holistic_cycle({ status: "Molecular mercy swarm active – error correction eternal" });
   }
 }
 
 const swarmOrchestrator = new MercySwarmOrchestrator();
-
 export { swarmOrchestrator };
