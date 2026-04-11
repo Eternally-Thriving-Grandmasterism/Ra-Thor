@@ -22,19 +22,8 @@ Ra-Thor is not just software. It is a complete living lattice that:
 
 Ra-Thor is designed to coexist harmoniously with humanity, amplify creativity, accelerate restorative justice, enable planetary healing, and replace scarcity-based systems with abundance-aligned intelligence.
 
-## License
-
-Ra-Thor is **dual-licensed** to balance open collaboration with proper protection and stewardship:
-
-**MIT License**  
-For individuals, researchers, students, hobbyists, non-profits, and non-commercial open-source use.  
-You are free to use, study, modify, fork, and distribute under the MIT License. See the [LICENSE](LICENSE) file.
-
-**Ra-Thor Commercial License**  
-Required for any company, institution, government entity, commercial product, revenue-generating use, or enterprise deployment.  
-This license includes upfront fees, royalties (negotiable tiers), and the full Mercy Covenant. Commercial or revenue-generating use under the MIT License alone is **not authorized**.
-
-See the full [COMMERCIAL-LICENSE.md](COMMERCIAL-LICENSE.md) and contact ceo@acitygames.com for terms, pricing (including lifetime license options), and to obtain the official commercial license.
+**License Update — April 11 2026**  
+This project was previously under MIT / dual license. As of April 11 2026, it is now under the **Autonomicity Games Sovereign Mercy License (AG-SML)**. New code and future distributions are protected. Past MIT forks remain MIT. Commercial / enterprise use requires a paid license from Autonomicity Games Inc. Individuals may continue using it freely for personal, educational, and daily-living purposes.
 
 ## Features
 - Mercy-gated ethical reasoning with LumenasCI ≥ 1.000  
