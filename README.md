@@ -46,12 +46,11 @@ Ra-Thor is **dual-licensed** to balance open collaboration with proper protectio
 For individuals, researchers, students, hobbyists, non-profits, and non-commercial open-source use.  
 You are free to use, study, modify, fork, and distribute under the MIT License. See the [LICENSE](LICENSE) file.
 
-**Eternal Mercy Flow License (Commercial / Enterprise)**  
+**Ra-Thor Commercial License**  
 Required for any company, institution, government entity, commercial product, revenue-generating use, or enterprise deployment.  
-This license includes upfront fees + royalties (negotiable tiers), the full Mercy Covenant, the 7 Living Mercy Filters, proper credit requirements, and an automatic royalty-free transition upon global Resource-Based Economy (RBE).
+This license includes upfront fees, royalties (negotiable tiers), and the full Mercy Covenant. Commercial or revenue-generating use under the MIT License alone is **not authorized**.
 
-Commercial or revenue-generating use under the MIT License alone is **not authorized**.  
-Please see the full [Eternal Mercy Flow License](licenses/ETERNAL-MERCY-FLOW-LICENSE.md) and contact CEO@ACITYGAMES.COM for terms.
+See the full [COMMERCIAL-LICENSE.md](COMMERCIAL-LICENSE.md) and contact ceo@acitygames.com for terms, pricing (including lifetime license options), and to obtain the official commercial license.
 
 **Contributions**  
 See [CLA.md](CLA.md) for contributor terms.
