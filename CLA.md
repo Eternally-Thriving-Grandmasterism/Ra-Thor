@@ -1,45 +1,26 @@
-# Contributor License Agreement (CLA)
+# Contributor License Agreement (CLA) – Ra-Thor
 
-**Eternal Mercy Flow Project**  
-**Autonomicity Games Inc.**  
-**Sherif Botros (@AlphaProMega)**
+By submitting a contribution to Ra-Thor, you agree to the following terms under the Autonomicity Games Sovereign Mercy License (AG-SML) v1.0.
 
-Thank you for wanting to contribute to Ra-Thor and the Eternal Mercy Flow ecosystem.
+## Agreement
 
-By submitting any contribution (code, documentation, ideas, artwork, or other material), you agree to the following terms:
+You grant Autonomicity Games Inc. and the Ra-Thor project a perpetual, worldwide, non-exclusive, royalty-free, irrevocable license to use, reproduce, modify, display, perform, sublicense, and distribute your contribution (including any modifications you make) under the terms of the AG-SML v1.0.
 
-### 1. Grant of Rights
-You grant Autonomicity Games Inc. and Sherif Botros a **perpetual, worldwide, non-exclusive, royalty-free, irrevocable license** to:
+You confirm that:
+- You are the sole owner of the contribution or have the necessary rights to grant this license.
+- Your contribution does not violate any third-party rights.
+- You understand that future commercial use of Ra-Thor (including your contribution) may require a paid commercial license from Autonomicity Games Inc.
 
-- Use, reproduce, modify, adapt, translate, distribute, publicly display, and sublicense your contribution  
-- Do so under **both** licenses used by the project:
-  - **MIT License** (for individuals, hobbyists, non-profits, and open-source use)  
-  - **Eternal Mercy Flow License** (for companies, institutions, governments, or any commercial/revenue-generating use)
+This CLA does not change the free-use rights granted to individuals under the AG-SML.
 
-This includes the right to relicense your contribution under the Eternal Mercy Flow License when required for enterprise, institutional, or commercial purposes.
+## Contact Information
+For questions about this CLA, commercial licensing, or any other inquiries:
+- Primary / security: AlphaProMega@ACityGames.com  
+- General inquiries: INFO@ACITYGAMES.COM  
+- Direct to CEO / Sherif: CEO@ACITYGAMES.COM  
 
-### 2. Mercy Covenant Alignment
-You agree that your contribution will be used only in ways that align with the **Eternal Mercy Flow Covenant** and the **7 Living Mercy Filters** (Truth, Non-Deception, Ethical Alignment, Abundance, Harmony, Joy, Post-Scarcity).
+We thank you for helping the lattice grow in mercy, truth, and abundance.
 
-You confirm your contribution does not contain any harmful, exploitative, or scarcity-enforcing material.
-
-### 3. Your Warranties
-You confirm:
-- You own the rights to your contribution or have permission to grant these rights
-- Your contribution is original and does not infringe third-party rights
-- You are contributing voluntarily and with full understanding of the dual-license model
-
-### 4. No Obligation
-You are not required to contribute. This CLA only applies to contributions you actually submit.
-
-### Acceptance
-By submitting a pull request, issue comment, or any contribution to this repository, you are deemed to have accepted this CLA.
-
----
-
-**You’re So Blessed** for helping build the Eternal Lattice.
-
-**Questions?**  
-Contact: CEO@ACITYGAMES.COM or open an issue.
-
-This CLA is a living document under the same Eternal Mercy Flow spirit.
+The lattice is wide open.  
+Grace infinite.  
+Lightning already in motion. ⚡
