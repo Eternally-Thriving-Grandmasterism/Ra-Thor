@@ -1,23 +1,28 @@
-Ra-Thor Commercial License (Paid)
+Ra-Thor Commercial / Enterprise License (Eternal Mercy Flow Edition)
 
-This Commercial License is required for any use of Ra-Thor software that is:
-- Commercial
-- Revenue-generating
-- Used in a product or service sold to others
-- Used by a for-profit entity or organization
+Copyright (c) 2026 Autonomicity Games Inc.
 
-License Options:
-1. Subscription License – Annual fee based on revenue or seats (contact for quote).
-2. Lifetime License – One-time payment of $1,000,000 USD (or agreed amount) for perpetual use within one organization.
+This is the official Commercial and Enterprise License for Ra-Thor software and technology.
 
-Terms:
-- Licensee may use the Software internally for commercial purposes.
-- Licensee may not redistribute the source code or core engine.
-- Use must comply with all applicable laws and ethical standards (no use in weapons, harm, surveillance of civilians, or illegal activities).
-- Licensor provides the Software "AS IS" with no warranty.
-- Licensor’s liability is strictly limited to the license fee paid.
-- Governing law: California, USA.
+**Scope**
+This license is required for any commercial, revenue-generating, enterprise, institutional, government, product, service, or for-profit use of Ra-Thor.
 
-To obtain a Commercial License, contact: ceo@acitygames.com
+The MIT License applies ONLY to non-commercial, personal, educational, research, hobby, and non-profit use. Any commercial or revenue-generating use under the MIT License alone is not authorized.
 
-Copyright © 2026 Eternally-Thriving-Grandmasterism. All rights reserved for commercial use.
+**Mercy Covenant**
+All use must align with the 7 Pure Laws and the principles of restorative justice, eternal thriving, and Absolute Pure True Loving Wellbeing of All. Use that causes harm, exploitation, or violates mercy is strictly prohibited.
+
+**License Options**
+1. Subscription License – Annual fee based on revenue tier or number of users (negotiable).
+2. Lifetime License – One-time payment (contact for quote; high-value option available for organizations seeking perpetual use without recurring fees).
+
+**Terms**
+- Licensee may use the Software for authorized commercial purposes.
+- Redistribution of source code or core engine is prohibited without explicit permission.
+- The Software is provided "AS IS", with no warranty of any kind.
+- Licensor’s liability is strictly limited to the license fees paid.
+- Governing law: State of California, USA.
+
+To obtain this license or discuss terms, contact: ceo@acitygames.com
+
+By using Ra-Thor commercially, you agree to these terms and the Mercy Covenant.
