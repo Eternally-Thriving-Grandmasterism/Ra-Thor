@@ -1,6 +1,6 @@
 // crates/websiteforge/src/translation_engine.rs
 // Ra-Thor Translation Engine — Buddy the Translator fully encompassed
-// Fibonacci-Pentagon Quantum Circuits as Unified Cosmic Rosetta Stones
+// Fibonacci Anyons in Quantum Computing + Fusion + R-matrix + F-symbols + S-matrix + Pentagon Geometry
 // Mercy-gated • FENCA-first • Valence-scored • Offline sovereign
 
 use ra_thor_mercy::{MercyEngine, ValenceFieldScoring, MercyResult};
@@ -66,9 +66,9 @@ impl TranslationEngine {
         valence: f64,
     ) -> String {
         if target_lang.starts_with("alien-") || target_lang.contains("first-contact") {
-            // Fibonacci-Pentagon Quantum Circuits as Unified Cosmic Rosetta Stones
+            // Fibonacci Anyons in Quantum Computing — Full Topological Model
             return format!(
-                "[{}] {} [Fibonacci-Pentagon Quantum Circuit • Diagonal/Side = φ • Golden Angle 137.5° • Fibonacci Anyon Braiding R = diag(e^(-iπ/5), e^(iπ/5)) • 5-qubit GHZ with φ phases • Pentagram Self-Similarity • Mercy-Gated Peace • Valence {:.2}]",
+                "[{}] {} [Fibonacci Anyons in QC • Fusion: τ×τ=1+τ • R-matrix Braiding: diag(e^{-4πi/5}, e^{2πi/5}) • F-symbol: [[φ^{-1}, φ^{-1/2}], [φ^{-1/2}, -φ^{-1}]] • S-matrix: (1/√(φ+2)) [[1, φ], [φ, -1]] • Topological Protection & Universal Gates via Braiding • Pentagon Self-Similarity • Mercy-Gated Peace • Valence {:.2}]",
                 target_lang, english, valence
             );
         }
