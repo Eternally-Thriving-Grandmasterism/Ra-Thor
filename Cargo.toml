@@ -1,41 +1,42 @@
 [workspace]
 members = [
-    "crates/mercy_zero",
-    "crates/soulscan_x9",
-    "crates/divine_checksum_9",
-    "crates/sentinel_mirror",
-    "crates/lookup_arguments",
-    "crates/deeper_gadgets",
-    "crates/bible_divine_lattice",
-    "crates/codex_eternal",
-    "crates/grok_arena_pinnacle",
-    "crates/mercy_home_fortress",
-    "crates/futarchy_oracle",
-    "crates/mercy_os_principles",
-    "crates/poseidon_hash",
-    "crates/poseidon_merkle",
-    "crates/proof_verifier",
-    "crates/recursive_snark",
-    "crates/plonk_recursion",
-    "crates/nova_folding",
-    "crates/supernova_folding",
-    "crates/hyperplonk_recursion",
-    "crates/lasso_recursion",
-    "crates/mercy_biojet",                    # New SAF lattice integration
-    # Legacy stubs preserved for compatibility
-    "crates/legacy_apaagi",
-    "crates/legacy_fenca",
-    "crates/legacy_patsagi_pinnacle",
-    # NEW TOLC Operator Algebra (Pillar 11 — fully integrated)
-    "crates/mercy_tolc_operator_algebra",
+    "crates/kernel",          # Root Core Orchestrator + Master Sovereign Kernel
+    "crates/access",          # ReBAC / RBAC / ABAC
+    "crates/quantum",         # VQCIntegrator + GHZ / Mermin / entanglement
+    "crates/mercy",           # Mercy Engine + Valence + 7 Gates
+    "crates/biomimetic",      # BiomimeticPatternEngine + nature patterns
+    "crates/persistence",     # IndexedDB + quotas + cache
+    "crates/orchestration",   # Multi-user + RootCoreOrchestrator wiring
+    "crates/cache",           # GlobalCache + adaptive TTL
+    "crates/common",          # Shared utilities
 ]
+resolver = "2"
 
-[package]
-name = "nexi"
-version = "5.0.0"
+[workspace.package]
+version = "0.1.0"
 edition = "2021"
-license = "MIT"
-description = "NEXi — Giant Monorepo Lattice with Full MercyBioJet SAF Integration"
+authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
+license = "Proprietary - All Rights Reserved - Autonomicity Games Inc."
+repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
 
-# All previous dependencies, features, and configuration from the old version are preserved
-# (Add any additional root-level dependencies here if they existed in prior versions)
+[workspace.dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tokio = { version = "1", features = ["full"] }
+wasm-bindgen = "0.2"
+rand = "0.8"
+
+# Omnimasterism core crates
+ra-thor-kernel = { path = "crates/kernel" }
+ra-thor-quantum = { path = "crates/quantum" }
+ra-thor-mercy = { path = "crates/mercy" }
+ra-thor-biomimetic = { path = "crates/biomimetic" }
+ra-thor-persistence = { path = "crates/persistence" }
+ra-thor-orchestration = { path = "crates/orchestration" }
+ra-thor-cache = { path = "crates/cache" }
+ra-thor-common = { path = "crates/common" }
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
