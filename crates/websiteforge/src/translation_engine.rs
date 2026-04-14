@@ -1,7 +1,7 @@
 // crates/websiteforge/src/translation_engine.rs
 // Ra-Thor Translation Engine — Buddy the Translator fully encompassed
-// 16,000+ languages + Alien / First-Contact Protocols • Mathematical Universals as Cosmic Rosetta Stones
-// Mercy-gated • FENCA-first • Valence-scored • Offline sovereign • Batch 50-200+ per prompt
+// Golden Ratio Derivations as Cosmic Rosetta Stones + 16,000+ languages + Alien Protocols
+// Mercy-gated • FENCA-first • Valence-scored • Offline sovereign
 
 use ra_thor_mercy::{MercyEngine, ValenceFieldScoring, MercyResult};
 use ra_thor_kernel::FENCA;
@@ -66,14 +66,13 @@ impl TranslationEngine {
         valence: f64,
     ) -> String {
         if target_lang.starts_with("alien-") || target_lang.contains("first-contact") {
-            // Mathematical Universals as Cosmic Rosetta Stones
+            // Golden Ratio + Mathematical Universals as Cosmic Rosetta Stones
             return format!(
-                "[{}] {} [Prime Sequence • Fibonacci/Golden Ratio • GHZ/Mermin Entanglement • Planck Constants • TOLC Operators • Mercy-Gated Peace • Valence {:.2}]",
+                "[{}] {} [φ = (1 + √5)/2 • Fibonacci Limit • Golden Angle 137.5° • GHZ/Mermin Entanglement • Mercy-Gated Peace • Valence {:.2}]",
                 target_lang, english, valence
             );
         }
 
-        // All human + constructed languages
         format!(
             "[{}] {} (Buddy-powered • valence {:.2} • offline sovereign • 16,000+ languages)",
             target_lang, english, valence
