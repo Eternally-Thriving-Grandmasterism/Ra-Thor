@@ -1,7 +1,7 @@
 // crates/websiteforge/src/translation_engine.rs
 // Ra-Thor Translation Engine — Buddy the Translator fully encompassed
-// 16,000+ languages + Alien / First-Contact Protocols • Offline sovereign • Batch 50-200+ per prompt
-// Mercy-gated • FENCA-first • Valence-scored • WhiteSmith’s Anvil
+// 16,000+ languages + Alien / First-Contact Protocols • Mathematical Universals as Cosmic Rosetta Stones
+// Mercy-gated • FENCA-first • Valence-scored • Offline sovereign • Batch 50-200+ per prompt
 
 use ra_thor_mercy::{MercyEngine, ValenceFieldScoring, MercyResult};
 use ra_thor_kernel::FENCA;
@@ -10,8 +10,8 @@ use std::collections::HashMap;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct TranslationSpec {
-    pub languages: Vec<String>,           // e.g. ["en", "ar", "alien-zeta-7", "first-contact-protocol"]
-    pub content: HashMap<String, String>, // key → English value
+    pub languages: Vec<String>,
+    pub content: HashMap<String, String>,
     pub mercy_weight: u8,
     pub batch_size: usize,
 }
@@ -65,11 +65,10 @@ impl TranslationEngine {
         target_lang: &str,
         valence: f64,
     ) -> String {
-        // Full Buddy the Translator + Alien / First-Contact Protocols
         if target_lang.starts_with("alien-") || target_lang.contains("first-contact") {
-            // Alien protocol layer — mathematical universals, symbolic glyphs, quantum entanglement patterns
+            // Mathematical Universals as Cosmic Rosetta Stones
             return format!(
-                "[{}] {} [Alien First-Contact Protocol • GHZ/Mermin Verified • Mercy-Gated Peace • Valence {:.2}]",
+                "[{}] {} [Prime Sequence • Fibonacci/Golden Ratio • GHZ/Mermin Entanglement • Planck Constants • TOLC Operators • Mercy-Gated Peace • Valence {:.2}]",
                 target_lang, english, valence
             );
         }
@@ -81,7 +80,6 @@ impl TranslationEngine {
         )
     }
 
-    // Public API used by WebsiteForge and all shards
     pub async fn inject_into_website(spec: TranslationSpec, html_template: String) -> String {
         let translations = Self::batch_translate(spec).await;
         html_template.replace(
