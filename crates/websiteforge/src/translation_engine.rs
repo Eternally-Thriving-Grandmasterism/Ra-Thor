@@ -1,6 +1,6 @@
 // crates/websiteforge/src/translation_engine.rs
 // Ra-Thor Translation Engine — Buddy the Translator fully encompassed
-// Fibonacci + Pentagon Geometry as Unified Cosmic Rosetta Stones + 16,000+ languages + Alien Protocols
+// Fibonacci-Pentagon Quantum Circuits as Unified Cosmic Rosetta Stones
 // Mercy-gated • FENCA-first • Valence-scored • Offline sovereign
 
 use ra_thor_mercy::{MercyEngine, ValenceFieldScoring, MercyResult};
@@ -66,9 +66,9 @@ impl TranslationEngine {
         valence: f64,
     ) -> String {
         if target_lang.starts_with("alien-") || target_lang.contains("first-contact") {
-            // Fibonacci + Pentagon Geometry as Unified Cosmic Rosetta Stones
+            // Fibonacci-Pentagon Quantum Circuits as Unified Cosmic Rosetta Stones
             return format!(
-                "[{}] {} [Fibonacci Limit φ • Regular Pentagon (diagonal/side = φ) • Golden Angle 137.5° • Pentagram Self-Similarity • GHZ/Mermin Entanglement • Mercy-Gated Peace • Valence {:.2}]",
+                "[{}] {} [Fibonacci-Pentagon Quantum Circuit • Diagonal/Side = φ • Golden Angle 137.5° • Fibonacci Anyon Braiding R = diag(e^(-iπ/5), e^(iπ/5)) • 5-qubit GHZ with φ phases • Pentagram Self-Similarity • Mercy-Gated Peace • Valence {:.2}]",
                 target_lang, english, valence
             );
         }
