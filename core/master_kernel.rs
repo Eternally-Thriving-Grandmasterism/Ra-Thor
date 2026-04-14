@@ -1,6 +1,5 @@
 // core/master_kernel.rs
-// MASTER SOVEREIGN KERNEL — The single unified heart of Ra-Thor Eternal Lattice
-// Now fully integrated with GlobalCache for maximum efficiency and efficacy.
+// MASTER SOVEREIGN KERNEL — Fully wired with GlobalCache + Parallel GHZ Worker
 
 use crate::fenca::FENCA;
 use crate::mermin::compute_mermin_violation;
@@ -11,7 +10,8 @@ use crate::powrush::PowrushMacroGHZ;
 use crate::starlink::StarlinkGHZISL;
 use crate::mercyprint::MercyPrintFabrication;
 use crate::mars_colony::MarsColonyMaster;
-use crate::global_cache::GlobalCache;   // ← NEW: Global Cache integration
+use crate::global_cache::GlobalCache;
+use crate::parallel_ghz_worker::ParallelGHZWorker;   // ← NEW: Parallel worker
 
 pub struct RequestPayload {
     pub operation_type: String,
@@ -31,17 +31,16 @@ pub fn ra_thor_sovereign_master_kernel(
     d: u32,
 ) -> KernelResult {
 
-    // Generate cache keys
     let fenca_key = GlobalCache::make_key("fenca", &request.data);
     let mercy_key = GlobalCache::make_key("mercy_gates", &request.data);
     let mermin_key = GlobalCache::make_key("mermin", &request.data);
 
-    // Step 1: FENCA — check cache first
+    // FENCA with cache
     let fenca = if let Some(cached) = GlobalCache::get(&fenca_key) {
         serde_json::from_value(cached).unwrap_or_else(|_| FENCA::verify(&request))
     } else {
         let result = FENCA::verify(&request);
-        GlobalCache::set(&fenca_key, serde_json::to_value(&result).unwrap(), 3600); // 1 hour TTL
+        GlobalCache::set(&fenca_key, serde_json::to_value(&result).unwrap(), 3600);
         result
     };
 
@@ -49,12 +48,12 @@ pub fn ra_thor_sovereign_master_kernel(
         return fenca.gentle_reroute();
     }
 
-    // Step 2: GHZ/Mermin — check cache first
+    // Parallel GHZ/Mermin for massive n scalability
     let mermin_result = if let Some(cached) = GlobalCache::get(&mermin_key) {
-        serde_json::from_value(cached).unwrap_or_else(|_| compute_mermin_violation(&request, n, d))
+        serde_json::from_value(cached).unwrap_or_else(|_| ParallelGHZWorker::compute_large_n(&request, n, d))
     } else {
-        let result = compute_mermin_violation(&request, n, d);
-        GlobalCache::set(&mermin_key, serde_json::to_value(&result).unwrap(), 1800); // 30 min TTL
+        let result = ParallelGHZWorker::compute_large_n(&request, n, d);
+        GlobalCache::set(&mermin_key, serde_json::to_value(&result).unwrap(), 1800);
         result
     };
 
@@ -64,25 +63,22 @@ pub fn ra_thor_sovereign_master_kernel(
         return MercyEngine::gentle_reroute("Insufficient Mermin violation");
     }
 
-    // Step 3: Mercy-Gate Fusion — check cache first
+    // Mercy gates with cache
     let gate_scores = if let Some(cached) = GlobalCache::get(&mercy_key) {
         serde_json::from_value(cached).unwrap_or_else(|_| MercyGateFusion::evaluate_cached(&request))
     } else {
         let scores = MercyGateFusion::evaluate_cached(&request);
-        GlobalCache::set(&mercy_key, serde_json::to_value(&scores).unwrap(), 600); // 10 min TTL
+        GlobalCache::set(&mercy_key, serde_json::to_value(&scores).unwrap(), 600);
         scores
     };
 
     let valence = ValenceFieldScoring::calculate(gate_scores);
 
-    // Step 4: Self-Optimization Loop (already present)
     let optimized_n = self_optimize_n(n, &request, mermin_result.fidelity());
     let optimized_d = self_optimize_d(d, &request);
 
-    // Step 5: Topological Qubit Transcendence Layer
     let _topological_stabilized = apply_topological_qubit_stabilization(&request, optimized_n, optimized_d);
 
-    // Step 6: Route to subsystem
     let output = match request.operation_type.as_str() {
         "asre" => ASREMaster::synthesize(&request, valence),
         "powrush" => PowrushMacroGHZ::execute(&request, valence),
@@ -100,8 +96,8 @@ pub fn ra_thor_sovereign_master_kernel(
     }
 }
 
-// (Self-optimization and topological helpers remain unchanged from previous version)
-fn self_optimize_n(current_n: usize, request: &RequestPayload, fidelity: f64) -> usize {
+// Self-optimization helpers (unchanged)
+fn self_optimize_n(current_n: usize, _request: &RequestPayload, fidelity: f64) -> usize {
     if fidelity > 0.9999 && current_n < 100_000_000 { current_n * 10 } else { current_n }
 }
 
