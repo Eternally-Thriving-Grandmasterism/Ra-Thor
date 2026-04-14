@@ -1,4 +1,3 @@
-// core/wasm_binding.rs
 use wasm_bindgen::prelude::*;
 use crate::master_kernel::*;
 
@@ -8,7 +7,7 @@ pub fn ra_thor_master_kernel_js(
     n: usize,
     d: u32,
 ) -> String {
-    let request: RequestPayload = serde_json::from_str(request_json).unwrap();
+    let request: RequestPayload = serde_json::from_str(request_json).unwrap_or_default();
     let result = ra_thor_sovereign_master_kernel(request, n, d);
-    serde_json::to_string(&result).unwrap()
+    serde_json::to_string(&result).unwrap_or_else(|_| "{}".to_string())
 }
