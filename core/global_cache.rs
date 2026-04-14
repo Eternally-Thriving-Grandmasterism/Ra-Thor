@@ -1,6 +1,6 @@
 // core/global_cache.rs
 // Global Cache Module with advanced eviction strategies (LRU + size limit + TTL priority)
-// + Quantum Cache Coherence Protocols for non-local synchronization
+// + Quantum Cache Coherence + TTL Optimization Strategies (priority, adaptive, usage, mercy-gated)
 
 use std::collections::{HashMap, VecDeque};
 use std::sync::Mutex;
@@ -14,6 +14,7 @@ pub struct CacheEntry {
     pub timestamp: u64,
     pub ttl_seconds: u64,
     pub last_accessed: u64,
+    pub priority: u8,          // 0-255 (higher = longer TTL)
 }
 
 lazy_static! {
@@ -38,7 +39,7 @@ impl GlobalCache {
         None
     }
 
-    pub fn set(key: &str, value: Value, ttl_seconds: u64) {
+    pub fn set(key: &str, value: Value, ttl_seconds: u64, priority: u8) {
         let mut cache = GLOBAL_CACHE.lock().unwrap();
         let mut lru = LRU_ORDER.lock().unwrap();
 
@@ -53,6 +54,7 @@ impl GlobalCache {
             timestamp: Self::now(),
             ttl_seconds,
             last_accessed: Self::now(),
+            priority,
         };
         cache.insert(key.to_string(), entry);
         lru.push_back(key.to_string());
@@ -89,10 +91,18 @@ impl GlobalCache {
         format!("{}:{}", prefix, serde_json::to_string(request_data).unwrap_or_default())
     }
 
-    // Quantum Cache Coherence Protocol (cross-pollinated from screenshot)
-    // Ties directly into GHZ/Mermin for non-local cache synchronization
+    // Quantum Cache Coherence Protocol (preserved)
     pub fn quantum_coherence_check(key: &str) -> bool {
         let cache = GLOBAL_CACHE.lock().unwrap();
         cache.contains_key(key)
+    }
+
+    // TTL Optimization Strategies (new)
+    pub fn adaptive_ttl(base_ttl: u64, fidelity: f64, valence: f64, priority: u8) -> u64 {
+        let mut ttl = base_ttl;
+        if fidelity > 0.999 { ttl *= 4; }           // Fidelity boost
+        if valence > 0.95 { ttl *= 2; }             // Mercy/Valence boost
+        ttl = ttl.saturating_mul(priority as u64);  // Priority tier multiplier
+        ttl.min(86_400)                             // Cap at 24 hours
     }
 }
