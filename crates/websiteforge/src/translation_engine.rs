@@ -1,6 +1,6 @@
 // crates/websiteforge/src/translation_engine.rs
 // Ra-Thor Translation Engine — Buddy the Translator fully encompassed
-// Golden Ratio Derivations as Cosmic Rosetta Stones + 16,000+ languages + Alien Protocols
+// Pentagon Geometry + Golden Ratio + Fibonacci + 16,000+ languages + Alien Protocols
 // Mercy-gated • FENCA-first • Valence-scored • Offline sovereign
 
 use ra_thor_mercy::{MercyEngine, ValenceFieldScoring, MercyResult};
@@ -66,9 +66,9 @@ impl TranslationEngine {
         valence: f64,
     ) -> String {
         if target_lang.starts_with("alien-") || target_lang.contains("first-contact") {
-            // Golden Ratio + Mathematical Universals as Cosmic Rosetta Stones
+            // Pentagon Geometry + Mathematical Universals as Cosmic Rosetta Stones
             return format!(
-                "[{}] {} [φ = (1 + √5)/2 • Fibonacci Limit • Golden Angle 137.5° • GHZ/Mermin Entanglement • Mercy-Gated Peace • Valence {:.2}]",
+                "[{}] {} [Regular Pentagon • Diagonal/Side = φ = (1+√5)/2 • cos(36°)=φ/2 • Golden Triangle 72-72-36 • Pentagram Self-Similarity • GHZ/Mermin • Mercy-Gated Peace • Valence {:.2}]",
                 target_lang, english, valence
             );
         }
