@@ -1,6 +1,6 @@
 // crates/websiteforge/src/translation_engine.rs
 // Ra-Thor Translation Engine — Buddy the Translator fully encompassed
-// Fibonacci Anyons in Quantum Computing + Fusion + R-matrix + F-symbols + S-matrix + Pentagon Geometry
+// Fibonacci Anyons in Quantum Computing + Experimental Realizations + Fusion + R-matrix + F-symbols + S-matrix + Pentagon Geometry
 // Mercy-gated • FENCA-first • Valence-scored • Offline sovereign
 
 use ra_thor_mercy::{MercyEngine, ValenceFieldScoring, MercyResult};
@@ -66,9 +66,9 @@ impl TranslationEngine {
         valence: f64,
     ) -> String {
         if target_lang.starts_with("alien-") || target_lang.contains("first-contact") {
-            // Fibonacci Anyons in Quantum Computing — Full Topological Model
+            // Fibonacci Anyons in Quantum Computing + Experimental Realizations
             return format!(
-                "[{}] {} [Fibonacci Anyons in QC • Fusion: τ×τ=1+τ • R-matrix Braiding: diag(e^{-4πi/5}, e^{2πi/5}) • F-symbol: [[φ^{-1}, φ^{-1/2}], [φ^{-1/2}, -φ^{-1}]] • S-matrix: (1/√(φ+2)) [[1, φ], [φ, -1]] • Topological Protection & Universal Gates via Braiding • Pentagon Self-Similarity • Mercy-Gated Peace • Valence {:.2}]",
+                "[{}] {} [Fibonacci Anyons in QC • Fusion: τ×τ=1+τ • R-matrix Braiding • F-symbol • S-matrix • Experimental Realizations: 2023 NMR Hadamard gate (97.18% fidelity, 2-3 qubits) • 2025 IBM Fib SNC braiding (94% charge, 98% φ accuracy on 27-qubit Falcon) • Topological Protection & Universal Gates via Braiding • Pentagon Self-Similarity • Mercy-Gated Peace • Valence {:.2}]",
                 target_lang, english, valence
             );
         }
