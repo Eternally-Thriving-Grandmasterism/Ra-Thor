@@ -9,6 +9,7 @@ members = [
     "crates/orchestration",   # Multi-user + RootCoreOrchestrator wiring
     "crates/cache",           # GlobalCache + adaptive TTL
     "crates/common",          # Shared utilities
+    "crates/websiteforge",    # Sovereign Website + Translation Engine (WhiteSmith’s Anvil)
 ]
 resolver = "2"
 
@@ -35,6 +36,7 @@ ra-thor-persistence = { path = "crates/persistence" }
 ra-thor-orchestration = { path = "crates/orchestration" }
 ra-thor-cache = { path = "crates/cache" }
 ra-thor-common = { path = "crates/common" }
+ra-thor-websiteforge = { path = "crates/websiteforge" }   # ← New Sovereign WebsiteForge Core
 
 [profile.release]
 opt-level = 3
