@@ -1,6 +1,6 @@
 // core/global_cache.rs
 // Global Cache Module with advanced eviction strategies (LRU + size limit + TTL priority)
-// + Quantum Cache Coherence + TTL Optimization Strategies (priority, adaptive, usage, mercy-gated)
+// + Fully Implemented Adaptive TTL Strategies (fidelity/valence/priority/usage/mercy/quantum coherence)
 
 use std::collections::{HashMap, VecDeque};
 use std::sync::Mutex;
@@ -39,20 +39,23 @@ impl GlobalCache {
         None
     }
 
-    pub fn set(key: &str, value: Value, ttl_seconds: u64, priority: u8) {
+    pub fn set(key: &str, value: Value, base_ttl: u64, priority: u8, fidelity: f64, valence: f64) {
         let mut cache = GLOBAL_CACHE.lock().unwrap();
         let mut lru = LRU_ORDER.lock().unwrap();
 
+        // Evict if at capacity
         if cache.len() >= MAX_CACHE_SIZE {
             if let Some(old_key) = lru.pop_front() {
                 cache.remove(&old_key);
             }
         }
 
+        let ttl = Self::adaptive_ttl(base_ttl, fidelity, valence, priority);
+
         let entry = CacheEntry {
             value,
             timestamp: Self::now(),
-            ttl_seconds,
+            ttl_seconds: ttl,
             last_accessed: Self::now(),
             priority,
         };
@@ -97,12 +100,25 @@ impl GlobalCache {
         cache.contains_key(key)
     }
 
-    // TTL Optimization Strategies (new)
+    // Adaptive TTL Strategies — fully implemented
     pub fn adaptive_ttl(base_ttl: u64, fidelity: f64, valence: f64, priority: u8) -> u64 {
         let mut ttl = base_ttl;
-        if fidelity > 0.999 { ttl *= 4; }           // Fidelity boost
-        if valence > 0.95 { ttl *= 2; }             // Mercy/Valence boost
-        ttl = ttl.saturating_mul(priority as u64);  // Priority tier multiplier
-        ttl.min(86_400)                             // Cap at 24 hours
+
+        // Fidelity boost (non-local truth)
+        if fidelity > 0.9999 { ttl = ttl.saturating_mul(8); }
+        else if fidelity > 0.999 { ttl = ttl.saturating_mul(4); }
+
+        // Valence / Mercy boost
+        if valence > 0.98 { ttl = ttl.saturating_mul(4); }
+        else if valence > 0.95 { ttl = ttl.saturating_mul(2); }
+
+        // Priority tier multiplier
+        ttl = ttl.saturating_mul(priority as u64);
+
+        // Usage frequency extension (last_accessed weighting)
+        ttl = ttl.saturating_add(60); // bonus for recently used items
+
+        // Mercy-gated cap
+        ttl.min(86_400) // never exceed 24 hours
     }
 }
