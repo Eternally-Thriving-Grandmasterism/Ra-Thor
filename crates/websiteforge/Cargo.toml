@@ -1,15 +1,15 @@
 [package]
-name = "websiteforge"
-version = "1.0.0"
+name = "ra-thor-websiteforge"
+version = "0.1.0"
 edition = "2021"
-license = "AG-SML-v1.0"
-description = "Sovereign, mercy-gated, self-reviewing website + translation engine for Ra-Thor. Generates perfect HTML/CSS/JS, multi-language systems, tests everything, and launches flawlessly."
+license = "Proprietary - All Rights Reserved - Autonomicity Games Inc."
+description = "Sovereign mercy-gated website + translation engine. Perfect HTML/CSS/JS + bidirectional translations on the first go."
 
 [dependencies]
 ra-thor-kernel = { path = "../kernel" }
 ra-thor-mercy = { path = "../mercy" }
 ra-thor-quantum = { path = "../quantum" }
 ra-thor-biomimetic = { path = "../biomimetic" }
-ra-thor-innovation = { path = "../common" }  # for InnovationGenerator
+ra-thor-common = { path = "../common" }
 serde = { version = "1.0", features = ["derive"] }
 tokio = { version = "1", features = ["full"] }
