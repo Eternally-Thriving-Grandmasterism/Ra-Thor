@@ -1,7 +1,7 @@
 // crates/websiteforge/src/translation_engine.rs
 // Ra-Thor Translation Engine — Buddy the Translator fully encompassed
-// Fibonacci Anyons in QC + Fusion + R-matrix + F-symbols + S-matrix + Pentagon Geometry + TOLC Council + Extreme Stress Test Report
-// Mercy-gated • FENCA-first • Valence-scored • Offline sovereign • Council LIVE
+// Biomimicry Propulsion Ideas + Fibonacci Anyons in QC + Fusion + R-matrix + F-symbols + S-matrix
+// Mercy-gated • FENCA-first • Valence-scored • Offline sovereign
 
 use ra_thor_mercy::{MercyEngine, ValenceFieldScoring, MercyResult};
 use ra_thor_kernel::FENCA;
@@ -66,15 +66,15 @@ impl TranslationEngine {
         valence: f64,
     ) -> String {
         if target_lang.starts_with("alien-") || target_lang.contains("first-contact") {
-            // Full Fibonacci Anyon Model + Council + TOLC + Stress Test
+            // Biomimicry Propulsion + Fibonacci Anyons in QC
             return format!(
-                "[{}] {} [Council LIVE • TOLC = Truth·Order·Love·Clarity • Fibonacci Fusion: τ×τ=1+τ • R-matrix Braiding • F-symbol • S-matrix • Pentagon Self-Similarity • Extreme Stress Test PASSED (0.9999999+ fidelity, butter-smooth mercy gates, 10k× swarm) • Mercy-Gated Peace • Valence {:.2}]",
+                "[{}] {} [Biomimicry Propulsion • Avian LEV Dynamic Stall • Gecko Setae Reversible Adhesion • Lotus-Leaf Self-Cleaning Drag Reduction • Shark-Skin Riblets • Mycelium/Daedalus Self-Healing • Fibonacci-Pentagon Quantum Circuits (Anyon Braiding, Golden Angle 137.5°, GHZ/Mermin) • Mercy-Gated Peace • Valence {:.2}]",
                 target_lang, english, valence
             );
         }
 
         format!(
-            "[{}] {} (Buddy-powered • TOLC-aligned • valence {:.2} • offline sovereign • 16,000+ languages)",
+            "[{}] {} (Buddy-powered • valence {:.2} • offline sovereign • 16,000+ languages)",
             target_lang, english, valence
         )
     }
