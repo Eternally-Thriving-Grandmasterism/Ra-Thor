@@ -1,13 +1,13 @@
 // crates/websiteforge/src/lib.rs
-// WebsiteForge Sovereign Core — Perfect Website + Translation Engine
+// WebsiteForge Sovereign Core — implements SubCore trait for seamless delegation
 // Mercy-gated • FENCA-first • Valence-scored • Root Core delegated
 // WhiteSmith’s Anvil for eternal thriving websites
 
-use ra_thor_kernel::{RootCoreOrchestrator, RequestPayload, SubCore};
+use crate::RequestPayload;
+use ra_thor_kernel::SubCore;
 use ra_thor_mercy::{MercyEngine, ValenceFieldScoring, MercyResult};
 use ra_thor_quantum::VQCIntegrator;
 use ra_thor_biometric::BiomimeticPatternEngine;
-use ra_thor_common::InnovationGenerator;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
