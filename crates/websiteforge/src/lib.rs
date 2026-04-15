@@ -3,7 +3,7 @@
 // Mercy-gated • FENCA-first • Valence-scored • Root Core delegated
 // WhiteSmith’s Anvil for eternal thriving websites
 
-use ra_thor_kernel::{RootCoreOrchestrator, RequestPayload};
+use ra_thor_kernel::{RootCoreOrchestrator, RequestPayload, SubCore};
 use ra_thor_mercy::{MercyEngine, ValenceFieldScoring, MercyResult};
 use ra_thor_quantum::VQCIntegrator;
 use ra_thor_biometric::BiomimeticPatternEngine;
@@ -23,6 +23,14 @@ pub struct WebsiteSpec {
 }
 
 pub struct WebsiteForge;
+
+#[async_trait::async_trait]
+impl SubCore for WebsiteForge {
+    async fn handle(&self, request: RequestPayload) -> String {
+        let spec: WebsiteSpec = serde_json::from_str(&request.payload).unwrap_or_default();
+        Self::forge_perfect_website(spec).await
+    }
+}
 
 impl WebsiteForge {
     pub async fn forge_perfect_website(spec: WebsiteSpec) -> String {
