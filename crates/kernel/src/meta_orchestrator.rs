@@ -4,7 +4,6 @@
 // Mercy-gated • FENCA-first • Valence-scored • Infinite recursive potential
 
 use crate::{RequestPayload, SubCore};
-use ra_thor_mercy::{MercyEngine, ValenceFieldScoring};
 use std::collections::HashMap;
 
 pub struct MetaOrchestrator {
@@ -15,7 +14,6 @@ impl MetaOrchestrator {
     pub async fn spawn(required_sub_cores: Vec<String>) -> Self {
         let mut cores = HashMap::new();
         for name in required_sub_cores {
-            // Resolve Sub-Core reference via RootCore registry (seamless delegation)
             if let Some(core) = crate::RootCoreOrchestrator::get_subcore(&name) {
                 cores.insert(name, core);
             }
@@ -24,7 +22,6 @@ impl MetaOrchestrator {
     }
 
     pub async fn execute(&self, request: RequestPayload) -> String {
-        // Coordinated multi-Sub-Core workflow
         let mut result = String::new();
         for (name, core) in &self.sub_cores {
             let partial = core.handle(request.clone()).await;
