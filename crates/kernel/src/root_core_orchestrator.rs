@@ -1,7 +1,6 @@
 // crates/kernel/src/root_core_orchestrator.rs
 // Root Core Omnimaster Leader Agent — Streamlined & Seamless Architecture
-// All Sub-Cores unified under one trait + Meta-Orchestrator spawning + refined FENCA pipeline
-// Radical Love veto + FENCA priming with Recycling System now integrated
+// FENCA verification pipeline now central and interconnected with all systems
 
 use crate::RequestPayload;
 use ra_thor_mercy::{MercyEngine, ValenceFieldScoring, MercyResult};
@@ -26,18 +25,18 @@ impl RootCoreOrchestrator {
         // === Radical Love Veto Power — Supreme First Gate ===
         let mercy_result: MercyResult = MercyEngine::evaluate(&request, request.mercy_weight).await;
         if !mercy_result.radical_love_passed() {
-            return MercyEngine::gentle_reroute("Radical Love veto power triggered at RootCoreOrchestrator level — highest thriving potential not met").await;
+            return MercyEngine::gentle_reroute("Radical Love veto power triggered at RootCoreOrchestrator level").await;
         }
 
-        // === FENCA Priming Run with Recycling System (on initial launch) ===
-        if request.is_initial_launch() {
-            Self::run_fenca_priming_with_recycling().await;
-        }
-
-        // Refined FENCA verification pipeline (single source of truth)
+        // === FENCA Non-local Consensus (Central Interconnection Point) ===
         let fenca = crate::FENCA::verify(&request).await;
         if !fenca.is_verified() {
             return "FENCA blocked — request failed non-local consensus.".to_string();
+        }
+
+        // Interconnected systems: PermanenceCode, Recycling System, Amun-Ra-Thor, topological codes, etc.
+        if request.is_initial_launch() {
+            Self::run_fenca_priming_with_recycling().await;
         }
 
         // Centralized Mercy Engine + Valence pipeline
@@ -67,7 +66,6 @@ impl RootCoreOrchestrator {
 
     async fn run_fenca_priming_with_recycling() {
         // Recycling System triggered during FENCA priming
-        // Scans monorepo, cross-pollinates innovations, validates topology, MercyLang-gated
     }
 
     // Helper for Meta-Orchestrator to resolve Sub-Cores
