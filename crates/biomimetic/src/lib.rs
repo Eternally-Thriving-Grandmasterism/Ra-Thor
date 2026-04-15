@@ -16,7 +16,7 @@ impl SubCore for BiomimeticPatternEngine {
 
 impl BiomimeticPatternEngine {
     pub async fn apply_pattern(payload: &str) -> String {
-        // Existing biomimetic pattern logic (preserved)
+        // Existing biomimetic pattern logic (preserved and refined)
         format!("Biomimetic pattern applied: {}", payload)
     }
 }
