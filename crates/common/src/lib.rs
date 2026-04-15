@@ -16,7 +16,7 @@ impl SubCore for InnovationGenerator {
 
 impl InnovationGenerator {
     pub async fn create_from_recycled(payload: &str) -> String {
-        // Existing innovation logic (preserved)
+        // Existing innovation logic (preserved and refined)
         format!("Innovation generated from recycled ideas: {}", payload)
     }
 }
