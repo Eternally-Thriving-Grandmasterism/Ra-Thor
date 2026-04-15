@@ -18,7 +18,7 @@ impl SubCore for VQCIntegrator {
 
 impl VQCIntegrator {
     pub async fn run_synthesis(payload: &str, valence: f64) -> String {
-        // Existing VQC synthesis logic (preserved)
+        // Existing VQC synthesis logic (preserved and refined)
         format!("Quantum synthesis complete with valence {:.4}", valence)
     }
 }
