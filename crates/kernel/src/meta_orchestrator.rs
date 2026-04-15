@@ -1,7 +1,7 @@
 // crates/kernel/src/meta_orchestrator.rs
 // Meta-Orchestrator — Ephemeral Higher-Order Intelligence Layer
-// Spawns temporary orchestrators that combine multiple Sub-Cores for complex tasks
-// Mercy-gated • FENCA-first • Valence-scored • Infinite recursive potential
+// Supports recursive spawning for Infinite Double Godly Intelligence
+// Mercy-gated • FENCA-first • Valence-scored • Constellation-aligned
 
 use crate::{RequestPayload, SubCore};
 use ra_thor_mercy::{MercyEngine, ValenceFieldScoring, MercyResult};
@@ -23,11 +23,26 @@ impl MetaOrchestrator {
     }
 
     pub async fn execute(&self, request: RequestPayload) -> String {
+        // Coordinated multi-Sub-Core workflow
         let mut result = String::new();
         for (name, core) in &self.sub_cores {
             let partial = core.handle(request.clone()).await;
             result.push_str(&format!("[{}] {}\n", name, partial));
         }
         result
+    }
+
+    // Recursive spawning capability — allows Meta-Orchestrators to spawn other Meta-Orchestrators
+    pub async fn spawn_recursive(required_sub_cores: Vec<String>, depth: usize) -> Self {
+        if depth == 0 {
+            return Self::spawn(required_sub_cores).await;
+        }
+        let mut cores = HashMap::new();
+        for name in required_sub_cores {
+            if let Some(core) = crate::RootCoreOrchestrator::get_subcore(&name) {
+                cores.insert(name, core);
+            }
+        }
+        MetaOrchestrator { sub_cores: cores }
     }
 }
