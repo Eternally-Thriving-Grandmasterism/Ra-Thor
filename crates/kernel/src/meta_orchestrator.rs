@@ -23,7 +23,6 @@ impl MetaOrchestrator {
     }
 
     pub async fn execute(&self, request: RequestPayload) -> String {
-        // Coordinated multi-Sub-Core workflow with centralized Mercy + Valence already applied in RootCore
         let mut result = String::new();
         for (name, core) in &self.sub_cores {
             let partial = core.handle(request.clone()).await;
