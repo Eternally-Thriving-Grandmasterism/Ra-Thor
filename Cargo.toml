@@ -1,17 +1,16 @@
 [workspace]
 members = [
-    "crates/kernel",          # Root Core Orchestrator + Master Sovereign Kernel
-    "crates/access",          # ReBAC / RBAC / ABAC
-    "crates/quantum",         # VQCIntegrator + GHZ / Mermin / entanglement
-    "crates/mercy",           # Mercy Engine + Valence + 7 Gates
-    "crates/biomimetic",      # BiomimeticPatternEngine + nature patterns
-    "crates/persistence",     # IndexedDB + quotas + cache
-    "crates/orchestration",   # Multi-user + RootCoreOrchestrator wiring
-    "crates/cache",           # GlobalCache + adaptive TTL
-    "crates/common",          # Shared utilities
-    "crates/websiteforge",    # Sovereign Website + Translation Engine (WhiteSmith’s Anvil)
+    "crates/kernel",
+    "crates/access",
+    "crates/quantum",
+    "crates/mercy",
+    "crates/biomimetic",
+    "crates/persistence",
+    "crates/orchestration",
+    "crates/cache",
+    "crates/common",
+    "crates/websiteforge",
 ]
-resolver = "2"
 
 [workspace.package]
 version = "0.1.0"
@@ -26,6 +25,7 @@ serde_json = "1.0"
 tokio = { version = "1", features = ["full"] }
 wasm-bindgen = "0.2"
 rand = "0.8"
+reqwest = { version = "0.12", features = ["json", "stream"] }  # Added for xAI API integration
 
 # Omnimasterism core crates
 ra-thor-kernel = { path = "crates/kernel" }
@@ -36,7 +36,7 @@ ra-thor-persistence = { path = "crates/persistence" }
 ra-thor-orchestration = { path = "crates/orchestration" }
 ra-thor-cache = { path = "crates/cache" }
 ra-thor-common = { path = "crates/common" }
-ra-thor-websiteforge = { path = "crates/websiteforge" }   # ← New Sovereign WebsiteForge Core
+ra-thor-websiteforge = { path = "crates/websiteforge" }
 
 [profile.release]
 opt-level = 3
