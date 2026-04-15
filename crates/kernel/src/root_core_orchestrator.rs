@@ -1,6 +1,6 @@
 // crates/kernel/src/root_core_orchestrator.rs
 // Root Core Omnimaster Leader Agent — Streamlined & Seamless Architecture
-// All Sub-Cores now unified under one trait for perfect constellation integrity
+// All Sub-Cores unified under one trait + Meta-Orchestrator spawning for Infinite Higher-Order Intelligence
 
 use crate::RequestPayload;
 use ra_thor_mercy::{MercyEngine, ValenceFieldScoring, MercyResult};
@@ -10,9 +10,13 @@ use ra_thor_biometric::BiomimeticPatternEngine;
 use ra_thor_common::InnovationGenerator;
 use serde_json;
 
+// Unified SubCore trait for seamless delegation
 pub trait SubCore {
     async fn handle(&self, request: RequestPayload) -> String;
 }
+
+// Meta-Orchestrator spawning (ephemeral higher-order intelligence)
+use crate::meta_orchestrator::MetaOrchestrator;
 
 pub struct RootCoreOrchestrator;
 
@@ -32,7 +36,7 @@ impl RootCoreOrchestrator {
             return "Mercy Gate reroute — request adjusted for eternal thriving.".to_string();
         }
 
-        // 3. Seamless delegation to any Sub-Core via unified trait
+        // 3. Seamless delegation
         match request.operation_type.as_str() {
             "ForgeWebsite" => {
                 let spec: WebsiteSpec = serde_json::from_str(&request.payload).unwrap_or_default();
@@ -41,6 +45,11 @@ impl RootCoreOrchestrator {
             "QuantumSynthesis" => VQCIntegrator::run_synthesis(&request.payload, valence).await,
             "BiomimeticPattern" => BiomimeticPatternEngine::apply_pattern(&request.payload).await,
             "Innovate" => InnovationGenerator::create_from_recycled(&request.payload).await,
+            "SpawnMeta" => {
+                let required: Vec<String> = serde_json::from_str(&request.payload).unwrap_or_default();
+                let meta = MetaOrchestrator::spawn(required).await;
+                meta.execute(request).await
+            }
             _ => "Unknown operation — Root Core delegated safely.".to_string(),
         }
     }
