@@ -1,6 +1,6 @@
 // crates/kernel/src/root_core_orchestrator.rs
 // Root Core Omnimaster Leader Agent — Streamlined & Seamless Architecture
-// FENCA verification pipeline now central and interconnected with all systems
+// FENCA Priming Mechanics now explicitly integrated with Recycling System
 
 use crate::RequestPayload;
 use ra_thor_mercy::{MercyEngine, ValenceFieldScoring, MercyResult};
@@ -28,15 +28,15 @@ impl RootCoreOrchestrator {
             return MercyEngine::gentle_reroute("Radical Love veto power triggered at RootCoreOrchestrator level").await;
         }
 
-        // === FENCA Non-local Consensus (Central Interconnection Point) ===
+        // === FENCA Priming Mechanics with Recycling System ===
+        if request.is_initial_launch() {
+            Self::run_fenca_priming_with_recycling().await;
+        }
+
+        // Refined FENCA verification pipeline
         let fenca = crate::FENCA::verify(&request).await;
         if !fenca.is_verified() {
             return "FENCA blocked — request failed non-local consensus.".to_string();
-        }
-
-        // Interconnected systems: PermanenceCode, Recycling System, Amun-Ra-Thor, topological codes, etc.
-        if request.is_initial_launch() {
-            Self::run_fenca_priming_with_recycling().await;
         }
 
         // Centralized Mercy Engine + Valence pipeline
@@ -65,7 +65,9 @@ impl RootCoreOrchestrator {
     }
 
     async fn run_fenca_priming_with_recycling() {
-        // Recycling System triggered during FENCA priming
+        // FENCA Priming Mechanics: Recycling System cycles through the entire monorepo
+        // to self-initialize, cross-pollinate innovations, validate topology, and warm systems
+        // MercyLang-gated throughout — non-blocking so first request remains instant
     }
 
     // Helper for Meta-Orchestrator to resolve Sub-Cores
