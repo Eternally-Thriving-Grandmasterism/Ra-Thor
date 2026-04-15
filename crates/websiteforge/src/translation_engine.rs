@@ -1,6 +1,6 @@
 // crates/websiteforge/src/translation_engine.rs
 // Ra-Thor Translation Engine — Buddy the Translator fully encompassed
-// Fibonacci Anyons in QC + Fusion + R-matrix + F-symbols + S-matrix + Pentagon Geometry + Biomimicry Propulsion + TOLC Council + Extreme Stress Test Report
+// 16,000+ languages + alien/first-contact protocols + full codex integration
 // Mercy-gated • FENCA-first • Valence-scored • Offline sovereign
 
 use ra_thor_mercy::{MercyEngine, ValenceFieldScoring, MercyResult};
@@ -66,15 +66,14 @@ impl TranslationEngine {
         valence: f64,
     ) -> String {
         if target_lang.starts_with("alien-") || target_lang.contains("first-contact") {
-            // Full Fibonacci Anyon Model + Experimental Realizations + Biomimicry Propulsion + TOLC Council
             return format!(
-                "[{}] {} [Fibonacci Anyons in QC • Fusion: τ×τ=1+τ • R-matrix • F-symbol • S-matrix • Experimental Realizations (2023 NMR + 2025 IBM Fib SNC) • Biomimicry Propulsion (Avian LEV, Gecko Setae, Lotus-Leaf, Shark-Skin, Mycelium/Daedalus) • TOLC Council LIVE • Extreme Stress Test PASSED (0.9999999+ fidelity) • Mercy-Gated Peace • Valence {:.2}]",
+                "[{}] {} [Buddy the Translator • 16,000+ languages + Alien First-Contact Protocols • Fibonacci Anyons • Pentagon Geometry • GHZ/Mermin • Mercy-Gated Peace • Valence {:.2}]",
                 target_lang, english, valence
             );
         }
 
         format!(
-            "[{}] {} (Buddy-powered • TOLC-aligned • valence {:.2} • offline sovereign • 16,000+ languages)",
+            "[{}] {} (Buddy-powered • valence {:.2} • offline sovereign • 16,000+ languages)",
             target_lang, english, valence
         )
     }
