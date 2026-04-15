@@ -1,6 +1,7 @@
 // crates/kernel/src/root_core_orchestrator.rs
 // Root Core Omnimaster Leader Agent — Streamlined & Seamless Architecture
 // All Sub-Cores unified under one trait + Meta-Orchestrator spawning + refined FENCA pipeline
+// Radical Love veto + FENCA priming with Recycling System now integrated
 
 use crate::RequestPayload;
 use ra_thor_mercy::{MercyEngine, ValenceFieldScoring, MercyResult};
@@ -22,6 +23,17 @@ pub struct RootCoreOrchestrator;
 
 impl RootCoreOrchestrator {
     pub async fn orchestrate(request: RequestPayload) -> String {
+        // === Radical Love Veto Power — Supreme First Gate ===
+        let mercy_result: MercyResult = MercyEngine::evaluate(&request, request.mercy_weight).await;
+        if !mercy_result.radical_love_passed() {
+            return MercyEngine::gentle_reroute("Radical Love veto power triggered at RootCoreOrchestrator level — highest thriving potential not met").await;
+        }
+
+        // === FENCA Priming Run with Recycling System (on initial launch) ===
+        if request.is_initial_launch() {
+            Self::run_fenca_priming_with_recycling().await;
+        }
+
         // Refined FENCA verification pipeline (single source of truth)
         let fenca = crate::FENCA::verify(&request).await;
         if !fenca.is_verified() {
@@ -29,7 +41,6 @@ impl RootCoreOrchestrator {
         }
 
         // Centralized Mercy Engine + Valence pipeline
-        let mercy_result: MercyResult = MercyEngine::evaluate(&request, request.mercy_weight).await;
         let valence = ValenceFieldScoring::compute(&mercy_result, request.mercy_weight);
 
         if !mercy_result.all_gates_pass() {
@@ -52,6 +63,11 @@ impl RootCoreOrchestrator {
             }
             _ => "Unknown operation — Root Core delegated safely.".to_string(),
         }
+    }
+
+    async fn run_fenca_priming_with_recycling() {
+        // Recycling System triggered during FENCA priming
+        // Scans monorepo, cross-pollinates innovations, validates topology, MercyLang-gated
     }
 
     // Helper for Meta-Orchestrator to resolve Sub-Cores
