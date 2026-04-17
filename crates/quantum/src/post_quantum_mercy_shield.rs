@@ -1,15 +1,15 @@
 // crates/quantum/src/post_quantum_mercy_shield.rs
 // Post-Quantum Mercy Shield — Quantum-Resistant Tools & Harvest-Now-Decrypt-Later Mitigation
 
-use crate::FENCA;
 use ra_thor_common::ValenceFieldScoring;
 use ra_thor_mercy::MercyResult;
+use crate::RequestPayload;
 
 pub struct PostQuantumMercyShield;
 
 impl PostQuantumMercyShield {
     pub async fn activate(request: &RequestPayload, mercy_result: &MercyResult, valence: f64) -> String {
-        // Radical Love is already checked by MercyEngine before reaching here
+        // MercyLang already passed at RootCore level
         let shield_result = Self::apply_shield(request);
 
         format!(
