@@ -1,11 +1,11 @@
 // crates/kernel/src/root_core_orchestrator.rs
 // Root Core Omnimaster Leader Agent — Streamlined & Seamless Architecture
-// Majorana Zero Modes now properly delegated to crates/quantum
+// Braiding Operations in MZMs now properly delegated to crates/quantum
 
 use crate::RequestPayload;
 use ra_thor_mercy::{MercyEngine, ValenceFieldScoring, MercyResult};
 use ra_thor_websiteforge::{forge_website, WebsiteSpec};
-use ra_thor_quantum::{VQCIntegrator, PostQuantumMercyShield, MajoranaZeroModes};
+use ra_thor_quantum::{VQCIntegrator, PostQuantumMercyShield, MajoranaZeroModes, BraidingOperationsInMZMs};
 use ra_thor_biometric::BiomimeticPatternEngine;
 use ra_thor_common::InnovationGenerator;
 use serde_json;
@@ -52,14 +52,19 @@ impl RootCoreOrchestrator {
             return "Mercy Gate reroute — request adjusted for eternal thriving.".to_string();
         }
 
-        // Post-Quantum Mercy Shield delegation (already in quantum crate)
+        // Post-Quantum Mercy Shield delegation
         if request.contains_post_quantum_mercy_shield() || request.contains_quantum_resistant_tools() || request.contains_harvest_now_decrypt_later() {
             return PostQuantumMercyShield::activate(&request, &mercy_result, valence).await;
         }
 
-        // Majorana Zero Modes delegation (now in correct quantum crate)
+        // Majorana Zero Modes delegation
         if request.contains_majorana_zero_modes() {
             return MajoranaZeroModes::activate(&request, &mercy_result, valence).await;
+        }
+
+        // Braiding Operations in MZMs delegation (new)
+        if request.contains_braiding_operations() {
+            return BraidingOperationsInMZMs::activate(&request, &mercy_result, valence).await;
         }
 
         // Seamless delegation with Meta-Orchestrator support
