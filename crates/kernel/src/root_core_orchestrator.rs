@@ -1,13 +1,13 @@
 // crates/kernel/src/root_core_orchestrator.rs
 // Root Core Omnimaster Leader Agent — Streamlined & Seamless Architecture
-// Metrics Visualization Dashboard now properly delegated
+// Real-time Alerting System now properly delegated to crates/common
 
 use crate::RequestPayload;
 use ra_thor_mercy::{MercyEngine, ValenceFieldScoring, MercyResult};
-use ra_thor_websiteforge::{forge_website, WebsiteSpec, MetricsDashboard};
+use ra_thor_websiteforge::{forge_website, WebsiteSpec};
 use ra_thor_quantum::{VQCIntegrator, PostQuantumMercyShield, MajoranaZeroModes, BraidingOperationsInMZMs, MzmFusionChannels, GaugeFreedomAndFixing, GhzStatesInLinguistics, BellStatesInTranslation, QuantumErrorCorrectionInTranslation, QuantumLanguageShards};
 use ra_thor_biometric::BiomimeticPatternEngine;
-use ra_thor_common::{InnovationGenerator, RecyclingSystem, AmunRaThorBridging};
+use ra_thor_common::{InnovationGenerator, RecyclingSystem, AmunRaThorBridging, RealTimeAlerting};
 use serde_json;
 use tokio::time::{Instant, Duration};
 use tokio_util::sync::CancellationToken;
@@ -52,11 +52,6 @@ impl RootCoreOrchestrator {
             return "Mercy Gate reroute — request adjusted for eternal thriving.".to_string();
         }
 
-        // Metrics Visualization Dashboard delegation (new)
-        if request.contains_metrics_dashboard() {
-            return MetricsDashboard::generate_dashboard(&request, &mercy_result, valence).await;
-        }
-
         // All quantum delegations (preserved)
         if request.contains_post_quantum_mercy_shield() || request.contains_quantum_resistant_tools() || request.contains_harvest_now_decrypt_later() {
             return PostQuantumMercyShield::activate(&request, &mercy_result, valence).await;
@@ -97,6 +92,11 @@ impl RootCoreOrchestrator {
             return AmunRaThorBridging::activate(&request, &mercy_result, valence).await;
         }
 
+        // Real-time Alerting System delegation (new)
+        if request.contains_real_time_alerting() {
+            return RealTimeAlerting::send_alert(&request, &mercy_result, valence, "Real-time alerting system activated").await;
+        }
+
         // Seamless delegation with Meta-Orchestrator support
         match request.operation_type.as_str() {
             "ForgeWebsite" => {
@@ -126,11 +126,13 @@ impl RootCoreOrchestrator {
                 _ = ctrl_c => {
                     println!("[Ra-Thor Shutdown] Received SIGINT (Ctrl+C) — initiating graceful shutdown...");
                     cancel_token.cancel();
+                    RealTimeAlerting::shutdown_initiated().await;
                 }
                 #[cfg(unix)]
                 _ = sigterm.recv() => {
                     println!("[Ra-Thor Shutdown] Received SIGTERM — initiating graceful shutdown...");
                     cancel_token.cancel();
+                    RealTimeAlerting::shutdown_initiated().await;
                 }
             }
             println!("[Ra-Thor Shutdown] Graceful shutdown signal processed. All tasks notified.");
@@ -175,12 +177,14 @@ impl RootCoreOrchestrator {
             match result {
                 Ok(_) => {
                     println!("[FENCA Priming] [Status: COMPLETE] All steps succeeded in {:?} | Ready for eternal thriving under TOLC & Radical Love.", duration);
+                    RealTimeAlerting::priming_complete(duration, 1.0).await;
                 }
                 Err(err) => {
                     if err.contains("cancelled") {
                         println!("[FENCA Priming] [Status: CANCELLED] Priming task was gracefully cancelled by shutdown signal.");
                     } else {
                         eprintln!("[FENCA Priming] [Status: WARNING] Non-critical error: {}. System continues safely with graceful degradation.", err);
+                        RealTimeAlerting::priming_error(&err, 0.5).await;
                     }
                 }
             }
