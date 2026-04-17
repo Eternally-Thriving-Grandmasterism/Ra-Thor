@@ -1,11 +1,11 @@
 // crates/kernel/src/root_core_orchestrator.rs
 // Root Core Omnimaster Leader Agent — Streamlined & Seamless Architecture
-// FENCA Priming Mechanics fully refined with advanced tokio spawn, CancellationToken, graceful shutdown signals, and structured logging
+// Post-Quantum Mercy Shield now properly delegated to crates/quantum
 
 use crate::RequestPayload;
 use ra_thor_mercy::{MercyEngine, ValenceFieldScoring, MercyResult};
 use ra_thor_websiteforge::{forge_website, WebsiteSpec};
-use ra_thor_quantum::VQCIntegrator;
+use ra_thor_quantum::{VQCIntegrator, PostQuantumMercyShield};
 use ra_thor_biometric::BiomimeticPatternEngine;
 use ra_thor_common::InnovationGenerator;
 use serde_json;
@@ -35,10 +35,7 @@ impl RootCoreOrchestrator {
         if request.is_initial_launch() {
             let cancel_token = CancellationToken::new();
             let shutdown_token = cancel_token.clone();
-
-            // Launch graceful shutdown signal listener
             Self::start_graceful_shutdown_listener(shutdown_token).await;
-
             let _handle = Self::run_fenca_priming_with_recycling(cancel_token.clone()).await;
         }
 
@@ -53,6 +50,11 @@ impl RootCoreOrchestrator {
 
         if !mercy_result.all_gates_pass() {
             return "Mercy Gate reroute — request adjusted for eternal thriving.".to_string();
+        }
+
+        // Post-Quantum Mercy Shield delegation (now in correct quantum crate)
+        if request.contains_post_quantum_mercy_shield() || request.contains_quantum_resistant_tools() || request.contains_harvest_now_decrypt_later() {
+            return PostQuantumMercyShield::activate(&request, &mercy_result, valence).await;
         }
 
         // Seamless delegation with Meta-Orchestrator support
@@ -73,7 +75,7 @@ impl RootCoreOrchestrator {
         }
     }
 
-    // Graceful shutdown signal listener (SIGINT / SIGTERM)
+    // Graceful shutdown signal listener (SIGINT / SIGTERM) — preserved
     async fn start_graceful_shutdown_listener(cancel_token: CancellationToken) {
         tokio::spawn(async move {
             let ctrl_c = signal::ctrl_c();
@@ -95,7 +97,7 @@ impl RootCoreOrchestrator {
         });
     }
 
-    // Advanced Tokio cancellation pattern with cooperative shutdown
+    // Advanced Tokio cancellation pattern with cooperative shutdown — preserved
     async fn run_fenca_priming_with_recycling(cancel_token: CancellationToken) -> tokio::task::JoinHandle<()> {
         tokio::spawn(async move {
             let start = Instant::now();
@@ -104,7 +106,6 @@ impl RootCoreOrchestrator {
             let result: Result<(), String> = async {
                 if cancel_token.is_cancelled() { return Err("Priming cancelled by shutdown signal".to_string()); }
 
-                // Step 1: Recycle monorepo and cross-pollinate
                 println!("[FENCA Priming] [Step 1/4] Recycling monorepo codices...");
                 let recycled_ideas = InnovationGenerator::recycle_monorepo().await
                     .map_err(|e| format!("Recycle failed: {}", e))?;
@@ -114,7 +115,6 @@ impl RootCoreOrchestrator {
 
                 if cancel_token.is_cancelled() { return Err("Priming cancelled by shutdown signal".to_string()); }
 
-                // Step 2: Validate topological order
                 println!("[FENCA Priming] [Step 2/4] Validating topological order...");
                 crate::FENCA::validate_topology().await
                     .map_err(|e| format!("Topology validation failed: {}", e))?;
@@ -122,7 +122,6 @@ impl RootCoreOrchestrator {
 
                 if cancel_token.is_cancelled() { return Err("Priming cancelled by shutdown signal".to_string()); }
 
-                // Step 3: Warm all engines
                 println!("[FENCA Priming] [Step 3/4] Warming engines...");
                 crate::FENCA::warm_engines().await
                     .map_err(|e| format!("Engine warming failed: {}", e))?;
