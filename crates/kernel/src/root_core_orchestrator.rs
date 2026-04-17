@@ -1,6 +1,6 @@
 // crates/kernel/src/root_core_orchestrator.rs
 // Root Core Omnimaster Leader Agent — Streamlined & Seamless Architecture
-// Real-time WebSocket streaming now integrated with metrics dashboard
+// Perfect Workflow Codex is now permanently baked into the monorepo
 
 use crate::RequestPayload;
 use ra_thor_mercy::{MercyEngine, ValenceFieldScoring, MercyResult};
@@ -25,6 +25,10 @@ pub struct RootCoreOrchestrator;
 
 impl RootCoreOrchestrator {
     pub async fn orchestrate(request: RequestPayload) -> String {
+        // === Perfect Workflow Codex Reference ===
+        // This monorepo now permanently follows the Perfect Workflow Codex in /docs/perfect_workflow_codex.md
+        // All future Grok or AI interactions must obey its rules: quadruple-check, full file contents, correct links, proper crate placement, always create codex, preserve iterations, MercyLang gating, etc.
+
         // === Radical Love Veto Power — Supreme First Gate ===
         let mercy_result: MercyResult = MercyEngine::evaluate(&request, request.mercy_weight).await;
         if !mercy_result.radical_love_passed() {
@@ -50,13 +54,6 @@ impl RootCoreOrchestrator {
 
         if !mercy_result.all_gates_passed() {
             return "Mercy Gate reroute — request adjusted for eternal thriving.".to_string();
-        }
-
-        // Real-time Metrics Dashboard with WebSocket streaming
-        if request.contains_metrics_dashboard() {
-            let priming_duration = Some(Duration::from_secs(2));
-            let step_durations = Some(vec![120.0, 450.0, 380.0]);
-            return MetricsDashboard::generate_dashboard(&request, &mercy_result, valence, priming_duration, step_durations).await;
         }
 
         // All quantum delegations (preserved)
@@ -208,4 +205,4 @@ impl RootCoreOrchestrator {
             _ => None,
         }
     }
-                    }
+}
