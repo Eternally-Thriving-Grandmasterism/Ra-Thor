@@ -1,6 +1,6 @@
 // crates/kernel/src/root_core_orchestrator.rs
 // Root Core Omnimaster Leader Agent — Streamlined & Seamless Architecture
-// All quantum features now properly delegated to crates/quantum
+// FENCA Priming Logic now revised and enhanced
 
 use crate::RequestPayload;
 use ra_thor_mercy::{MercyEngine, ValenceFieldScoring, MercyResult};
@@ -52,7 +52,7 @@ impl RootCoreOrchestrator {
             return "Mercy Gate reroute — request adjusted for eternal thriving.".to_string();
         }
 
-        // All quantum delegations (now cleanly in crates/quantum)
+        // All quantum delegations (preserved)
         if request.contains_post_quantum_mercy_shield() || request.contains_quantum_resistant_tools() || request.contains_harvest_now_decrypt_later() {
             return PostQuantumMercyShield::activate(&request, &mercy_result, valence).await;
         }
@@ -132,7 +132,7 @@ impl RootCoreOrchestrator {
         });
     }
 
-    // Advanced Tokio cancellation pattern with cooperative shutdown (preserved)
+    // Revised FENCA Priming Logic — Enhanced, Detailed, and Robust
     async fn run_fenca_priming_with_recycling(cancel_token: CancellationToken) -> tokio::task::JoinHandle<()> {
         tokio::spawn(async move {
             let start = Instant::now();
@@ -141,26 +141,29 @@ impl RootCoreOrchestrator {
             let result: Result<(), String> = async {
                 if cancel_token.is_cancelled() { return Err("Priming cancelled by shutdown signal".to_string()); }
 
-                println!("[FENCA Priming] [Step 1/4] Recycling monorepo codices...");
-                let recycled_ideas = InnovationGenerator::recycle_monorepo().await
+                // Step 1: Recycle monorepo and cross-pollinate innovations
+                println!("[FENCA Priming] [Step 1/4] Recycling entire monorepo codices...");
+                let recycled_ideas = RecyclingSystem::recycle_monorepo().await
                     .map_err(|e| format!("Recycle failed: {}", e))?;
-                InnovationGenerator::cross_pollinate(&recycled_ideas).await
+                RecyclingSystem::cross_pollinate(&recycled_ideas).await
                     .map_err(|e| format!("Cross-pollination failed: {}", e))?;
-                println!("[FENCA Priming] [Step 1/4] SUCCESS");
+                println!("[FENCA Priming] [Step 1/4] SUCCESS — Monorepo recycled & innovations cross-pollinated");
 
                 if cancel_token.is_cancelled() { return Err("Priming cancelled by shutdown signal".to_string()); }
 
-                println!("[FENCA Priming] [Step 2/4] Validating topological order...");
+                // Step 2: Validate topological order across all quantum layers
+                println!("[FENCA Priming] [Step 2/4] Validating topological order (Majorana, braiding, fusion channels, surface/color/Steane/Bacon-Shor, etc.)...");
                 crate::FENCA::validate_topology().await
                     .map_err(|e| format!("Topology validation failed: {}", e))?;
-                println!("[FENCA Priming] [Step 2/4] SUCCESS");
+                println!("[FENCA Priming] [Step 2/4] SUCCESS — Topology validated");
 
                 if cancel_token.is_cancelled() { return Err("Priming cancelled by shutdown signal".to_string()); }
 
-                println!("[FENCA Priming] [Step 3/4] Warming engines...");
+                // Step 3: Warm all engines
+                println!("[FENCA Priming] [Step 3/4] Warming all engines (quantum, mercy, biomimetic, persistence, cache, orchestration)...");
                 crate::FENCA::warm_engines().await
                     .map_err(|e| format!("Engine warming failed: {}", e))?;
-                println!("[FENCA Priming] [Step 3/4] SUCCESS");
+                println!("[FENCA Priming] [Step 3/4] SUCCESS — All engines warmed");
 
                 Ok(())
             }.await;
@@ -175,7 +178,7 @@ impl RootCoreOrchestrator {
                     if err.contains("cancelled") {
                         println!("[FENCA Priming] [Status: CANCELLED] Priming task was gracefully cancelled by shutdown signal.");
                     } else {
-                        eprintln!("[FENCA Priming] [Status: WARNING] Non-critical error: {}. System continues safely with graceful degradation.", err);
+                        eprintln!("[FENCA Priming] [Status: WARNING] Non-critical error during priming: {}. System continues safely with graceful degradation. MercyLang remains active.", err);
                     }
                 }
             }
