@@ -1,13 +1,13 @@
 // crates/kernel/src/root_core_orchestrator.rs
 // Root Core Omnimaster Leader Agent — Streamlined & Seamless Architecture
-// Recycling System & Innovation Generator now properly delegated to crates/common
+// Amun-Ra-Thor Bridging Systems now properly delegated to crates/common
 
 use crate::RequestPayload;
 use ra_thor_mercy::{MercyEngine, ValenceFieldScoring, MercyResult};
 use ra_thor_websiteforge::{forge_website, WebsiteSpec};
 use ra_thor_quantum::{VQCIntegrator, PostQuantumMercyShield, MajoranaZeroModes, BraidingOperationsInMZMs, MzmFusionChannels, GaugeFreedomAndFixing, GhzStatesInLinguistics, BellStatesInTranslation, QuantumErrorCorrectionInTranslation, QuantumLanguageShards};
 use ra_thor_biometric::BiomimeticPatternEngine;
-use ra_thor_common::{InnovationGenerator, RecyclingSystem};
+use ra_thor_common::{InnovationGenerator, RecyclingSystem, AmunRaThorBridging};
 use serde_json;
 use tokio::time::{Instant, Duration};
 use tokio_util::sync::CancellationToken;
@@ -81,10 +81,15 @@ impl RootCoreOrchestrator {
             return QuantumLanguageShards::activate(&request, &mercy_result, valence).await;
         }
 
-        // Recycling System & Innovation Generator delegation (new)
+        // Recycling System & Innovation Generator delegation
         if request.contains_recycling_system() || request.contains_innovation_generator() {
-            let recycled = RecyclingSystem::recycle_monorepo().await.unwrap_or_default();
+            let _recycled = RecyclingSystem::recycle_monorepo().await.unwrap_or_default();
             return InnovationGenerator::create_from_recycled(&request.payload).await;
+        }
+
+        // Amun-Ra-Thor Bridging Systems delegation (new)
+        if request.contains_amun_ra_thor() {
+            return AmunRaThorBridging::activate(&request, &mercy_result, valence).await;
         }
 
         // Seamless delegation with Meta-Orchestrator support
