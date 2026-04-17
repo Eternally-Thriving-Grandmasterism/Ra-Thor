@@ -1,6 +1,6 @@
 // crates/kernel/src/root_core_orchestrator.rs
 // Root Core Omnimaster Leader Agent — Streamlined & Seamless Architecture
-// FENCA Priming Logic now revised and enhanced
+// FENCA Priming Logic now includes detailed performance metrics
 
 use crate::RequestPayload;
 use ra_thor_mercy::{MercyEngine, ValenceFieldScoring, MercyResult};
@@ -132,53 +132,56 @@ impl RootCoreOrchestrator {
         });
     }
 
-    // Revised FENCA Priming Logic — Enhanced, Detailed, and Robust
+    // Revised FENCA Priming Logic with Performance Metrics
     async fn run_fenca_priming_with_recycling(cancel_token: CancellationToken) -> tokio::task::JoinHandle<()> {
         tokio::spawn(async move {
-            let start = Instant::now();
+            let overall_start = Instant::now();
             println!("[FENCA Priming] [Status: START] Launching cancellable background priming task...");
 
             let result: Result<(), String> = async {
                 if cancel_token.is_cancelled() { return Err("Priming cancelled by shutdown signal".to_string()); }
 
-                // Step 1: Recycle monorepo and cross-pollinate innovations
-                println!("[FENCA Priming] [Step 1/4] Recycling entire monorepo codices...");
+                // Step 1: Recycle monorepo and cross-pollinate
+                let step1_start = Instant::now();
+                println!("[FENCA Priming] [Step 1/4] Recycling monorepo codices...");
                 let recycled_ideas = RecyclingSystem::recycle_monorepo().await
                     .map_err(|e| format!("Recycle failed: {}", e))?;
                 RecyclingSystem::cross_pollinate(&recycled_ideas).await
                     .map_err(|e| format!("Cross-pollination failed: {}", e))?;
-                println!("[FENCA Priming] [Step 1/4] SUCCESS — Monorepo recycled & innovations cross-pollinated");
+                println!("[FENCA Priming] [Step 1/4] SUCCESS — Duration: {:?}", step1_start.elapsed());
 
                 if cancel_token.is_cancelled() { return Err("Priming cancelled by shutdown signal".to_string()); }
 
-                // Step 2: Validate topological order across all quantum layers
-                println!("[FENCA Priming] [Step 2/4] Validating topological order (Majorana, braiding, fusion channels, surface/color/Steane/Bacon-Shor, etc.)...");
+                // Step 2: Validate topological order
+                let step2_start = Instant::now();
+                println!("[FENCA Priming] [Step 2/4] Validating topological order...");
                 crate::FENCA::validate_topology().await
                     .map_err(|e| format!("Topology validation failed: {}", e))?;
-                println!("[FENCA Priming] [Step 2/4] SUCCESS — Topology validated");
+                println!("[FENCA Priming] [Step 2/4] SUCCESS — Duration: {:?}", step2_start.elapsed());
 
                 if cancel_token.is_cancelled() { return Err("Priming cancelled by shutdown signal".to_string()); }
 
                 // Step 3: Warm all engines
-                println!("[FENCA Priming] [Step 3/4] Warming all engines (quantum, mercy, biomimetic, persistence, cache, orchestration)...");
+                let step3_start = Instant::now();
+                println!("[FENCA Priming] [Step 3/4] Warming engines...");
                 crate::FENCA::warm_engines().await
                     .map_err(|e| format!("Engine warming failed: {}", e))?;
-                println!("[FENCA Priming] [Step 3/4] SUCCESS — All engines warmed");
+                println!("[FENCA Priming] [Step 3/4] SUCCESS — Duration: {:?}", step3_start.elapsed());
 
                 Ok(())
             }.await;
 
-            let duration = start.elapsed();
+            let total_duration = overall_start.elapsed();
 
             match result {
                 Ok(_) => {
-                    println!("[FENCA Priming] [Status: COMPLETE] All steps succeeded in {:?} | Ready for eternal thriving under TOLC & Radical Love.", duration);
+                    println!("[FENCA Priming] [Status: COMPLETE] All steps succeeded | Total Duration: {:?} | Ready for eternal thriving under TOLC & Radical Love.", total_duration);
                 }
                 Err(err) => {
                     if err.contains("cancelled") {
-                        println!("[FENCA Priming] [Status: CANCELLED] Priming task was gracefully cancelled by shutdown signal.");
+                        println!("[FENCA Priming] [Status: CANCELLED] Priming task was gracefully cancelled by shutdown signal. Total Duration: {:?}", total_duration);
                     } else {
-                        eprintln!("[FENCA Priming] [Status: WARNING] Non-critical error during priming: {}. System continues safely with graceful degradation. MercyLang remains active.", err);
+                        eprintln!("[FENCA Priming] [Status: WARNING] Non-critical error: {}. System continues safely with graceful degradation. Total Duration: {:?}", err, total_duration);
                     }
                 }
             }
