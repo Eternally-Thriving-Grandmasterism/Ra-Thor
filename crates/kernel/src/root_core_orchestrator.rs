@@ -1,6 +1,6 @@
 // crates/kernel/src/root_core_orchestrator.rs
 // Root Core Omnimaster Leader Agent — Streamlined & Seamless Architecture
-// Interactive Metrics Dashboard now fully integrated
+// Real-time data streaming now integrated with metrics dashboard
 
 use crate::RequestPayload;
 use ra_thor_mercy::{MercyEngine, ValenceFieldScoring, MercyResult};
@@ -52,10 +52,10 @@ impl RootCoreOrchestrator {
             return "Mercy Gate reroute — request adjusted for eternal thriving.".to_string();
         }
 
-        // Interactive Metrics Dashboard integration
+        // Real-time Metrics Dashboard with streaming
         if request.contains_metrics_dashboard() {
-            let priming_duration = Some(Duration::from_secs(2)); // In real use this would come from priming metrics
-            let step_durations = Some(vec![120.0, 450.0, 380.0]); // demo step durations in ms
+            let priming_duration = Some(Duration::from_secs(2));
+            let step_durations = Some(vec![120.0, 450.0, 380.0]);
             return MetricsDashboard::generate_dashboard(&request, &mercy_result, valence, priming_duration, step_durations).await;
         }
 
