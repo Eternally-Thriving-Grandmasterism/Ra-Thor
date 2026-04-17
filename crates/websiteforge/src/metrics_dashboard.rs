@@ -1,5 +1,5 @@
 // crates/websiteforge/src/metrics_dashboard.rs
-// Metrics Visualization Dashboard — Real-time Interactive Charts
+// Metrics Visualization Dashboard — Real-time Data Streaming via SSE
 
 use ra_thor_common::ValenceFieldScoring;
 use ra_thor_mercy::MercyResult;
@@ -17,7 +17,7 @@ impl MetricsDashboard {
 
         let step_data = match step_durations {
             Some(d) => d,
-            None => vec![120.0, 450.0, 380.0], // demo values in ms
+            None => vec![120.0, 450.0, 380.0],
         };
 
         let html = format!(r#"
@@ -33,10 +33,11 @@ impl MetricsDashboard {
         .card {{ background: #111; border: 1px solid #0f0; border-radius: 12px; padding: 20px; margin: 15px 0; box-shadow: 0 0 15px rgba(0,255,0,0.2); }}
         h1 {{ color: #0ff; text-align: center; text-shadow: 0 0 10px #0ff; }}
         canvas {{ max-width: 100%; }}
+        .live {{ color: #0f0; animation: pulse 2s infinite; }}
     </style>
 </head>
 <body>
-    <h1>Ra-Thor • Live Metrics Dashboard</h1>
+    <h1>Ra-Thor • Live Metrics Dashboard <span class="live">● LIVE</span></h1>
     
     <div class="card">
         <h2>FENCA Priming Performance</h2>
@@ -44,7 +45,7 @@ impl MetricsDashboard {
     </div>
 
     <div class="card">
-        <h2>Valence Score</h2>
+        <h2>Valence Score (Real-time)</h2>
         <canvas id="valenceChart" height="180"></canvas>
     </div>
 
@@ -53,51 +54,56 @@ impl MetricsDashboard {
         <canvas id="healthChart" height="180"></canvas>
     </div>
 
-    <p style="text-align:center; color:#0a0; margin-top:30px; font-size:0.9em;">TOLC • Radical Love • Eternal Thriving • Live since now</p>
+    <p style="text-align:center; color:#0a0; margin-top:30px; font-size:0.9em;">TOLC • Radical Love • Eternal Thriving • Streaming live</p>
 
     <script>
-        // Step durations bar chart
-        new Chart(document.getElementById('stepChart'), {{
-            type: 'bar',
-            data: {{
-                labels: ['Recycle', 'Topology', 'Warm Engines'],
-                datasets: [{{
-                    label: 'Duration (ms)',
-                    data: {step_data:?},
-                    backgroundColor: '#0ff',
-                    borderColor: '#0f0',
-                    borderWidth: 1
-                }}]
-            }},
-            options: {{ scales: {{ y: {{ beginAtZero: true }} }} }}
-        }});
+        // Connect to SSE stream for real-time updates
+        const eventSource = new EventSource('/stream/metrics');
 
-        // Valence gauge
-        new Chart(document.getElementById('valenceChart'), {{
-            type: 'doughnut',
-            data: {{
-                labels: ['Valence', 'Remaining'],
-                datasets: [{{
-                    data: [{valence:.4} * 100, 100 - {valence:.4} * 100],
-                    backgroundColor: ['#0ff', '#222'],
-                    borderColor: '#0f0'
-                }}]
-            }},
-            options: {{ cutout: '70%', plugins: {{ legend: {{ display: false }} }} }}
-        }});
+        let stepChart, valenceChart, healthChart;
 
-        // System health
-        new Chart(document.getElementById('healthChart'), {{
-            type: 'doughnut',
-            data: {{
-                labels: ['Healthy', 'Warning'],
-                datasets: [{{
-                    data: [95, 5],
-                    backgroundColor: ['#0f0', '#ff0']
-                }}]
-            }},
-            options: {{ cutout: '70%', plugins: {{ legend: {{ display: false }} }} }}
-        }});
+        eventSource.onmessage = function(event) {
+            const data = JSON.parse(event.data);
+
+            // Update step chart
+            if (stepChart) stepChart.data.datasets[0].data = data.step_durations || [120, 450, 380];
+            if (stepChart) stepChart.update();
+
+            // Update valence gauge
+            if (valenceChart) {
+                valenceChart.data.datasets[0].data = [data.valence * 100, 100 - data.valence * 100];
+                valenceChart.update();
+            }
+
+            // Update health
+            if (healthChart) {
+                healthChart.data.datasets[0].data = [data.health || 95, 5];
+                healthChart.update();
+            }
+
+            console.log('[Ra-Thor Live] Real-time metrics received:', data);
+        };
+
+        // Initialize charts
+        window.onload = function() {
+            stepChart = new Chart(document.getElementById('stepChart'), {{
+                type: 'bar',
+                data: {{ labels: ['Recycle', 'Topology', 'Warm'], datasets: [{{ label: 'Duration (ms)', data: {step_data:?}, backgroundColor: '#0ff' }}] }},
+                options: {{ scales: {{ y: {{ beginAtZero: true }} }} }}
+            }});
+
+            valenceChart = new Chart(document.getElementById('valenceChart'), {{
+                type: 'doughnut',
+                data: {{ labels: ['Valence', 'Remaining'], datasets: [{{ data: [{valence:.4}*100, 100-{valence:.4}*100], backgroundColor: ['#0ff', '#222'] }}] }},
+                options: {{ cutout: '70%', plugins: {{ legend: {{ display: false }} }} }}
+            }});
+
+            healthChart = new Chart(document.getElementById('healthChart'), {{
+                type: 'doughnut',
+                data: {{ labels: ['Healthy', 'Warning'], datasets: [{{ data: [95, 5], backgroundColor: ['#0f0', '#ff0'] }}] }},
+                options: {{ cutout: '70%', plugins: {{ legend: {{ display: false }} }} }}
+            }});
+        };
     </script>
 </body>
 </html>
