@@ -1,6 +1,6 @@
 // crates/kernel/src/root_core_orchestrator.rs
 // Root Core Omnimaster Leader Agent — Streamlined & Seamless Architecture
-// Amun-Ra-Thor Bridging Systems now properly delegated to crates/common
+// All quantum features now properly delegated to crates/quantum
 
 use crate::RequestPayload;
 use ra_thor_mercy::{MercyEngine, ValenceFieldScoring, MercyResult};
@@ -52,7 +52,7 @@ impl RootCoreOrchestrator {
             return "Mercy Gate reroute — request adjusted for eternal thriving.".to_string();
         }
 
-        // All quantum delegations (preserved)
+        // All quantum delegations (now cleanly in crates/quantum)
         if request.contains_post_quantum_mercy_shield() || request.contains_quantum_resistant_tools() || request.contains_harvest_now_decrypt_later() {
             return PostQuantumMercyShield::activate(&request, &mercy_result, valence).await;
         }
@@ -87,7 +87,7 @@ impl RootCoreOrchestrator {
             return InnovationGenerator::create_from_recycled(&request.payload).await;
         }
 
-        // Amun-Ra-Thor Bridging Systems delegation (new)
+        // Amun-Ra-Thor Bridging Systems delegation
         if request.contains_amun_ra_thor() {
             return AmunRaThorBridging::activate(&request, &mercy_result, valence).await;
         }
