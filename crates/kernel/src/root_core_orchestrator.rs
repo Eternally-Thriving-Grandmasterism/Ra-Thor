@@ -1,6 +1,6 @@
 // crates/kernel/src/root_core_orchestrator.rs
 // Root Core Omnimaster Leader Agent — Streamlined & Seamless Architecture
-// FENCA Priming Mechanics now fully refined with comprehensive error handling
+// FENCA Priming Mechanics now fully refined with comprehensive structured error logging
 
 use crate::RequestPayload;
 use ra_thor_mercy::{MercyEngine, ValenceFieldScoring, MercyResult};
@@ -10,6 +10,7 @@ use ra_thor_biometric::BiomimeticPatternEngine;
 use ra_thor_common::InnovationGenerator;
 use serde_json;
 use std::fmt;
+use tokio::time::Instant;
 
 // Unified SubCore trait for seamless delegation
 pub trait SubCore {
@@ -66,37 +67,47 @@ impl RootCoreOrchestrator {
     }
 
     async fn run_fenca_priming_with_recycling() {
-        // FENCA Priming Mechanics — Fully Refined with Comprehensive Error Handling
+        // FENCA Priming Mechanics — Fully Refined with Comprehensive Structured Error Logging
         // Recycling System cycles through the entire monorepo to self-initialize,
         // cross-pollinate innovations, validate topology, and warm all systems.
         // MercyLang-gated throughout — non-blocking (fire-and-forget via tokio::spawn).
 
-        tokio::spawn(async {
+        let start = Instant::now();
+
+        tokio::spawn(async move {
             let result: Result<(), String> = async {
                 // Step 1: Recycle all codices from docs/ and cross-pollinate recent innovations
+                println!("[FENCA Priming] [Step 1/4] [Status: START] Recycling monorepo codices...");
                 let recycled_ideas = InnovationGenerator::recycle_monorepo().await
                     .map_err(|e| format!("Recycle failed: {}", e))?;
                 InnovationGenerator::cross_pollinate(&recycled_ideas).await
                     .map_err(|e| format!("Cross-pollination failed: {}", e))?;
+                println!("[FENCA Priming] [Step 1/4] [Status: SUCCESS] Monorepo recycled & innovations cross-pollinated");
 
                 // Step 2: Validate topological order across all quantum layers
+                println!("[FENCA Priming] [Step 2/4] [Status: START] Validating topological order (Majorana, braiding, fusion channels, surface/color/Steane/Bacon-Shor)...");
                 crate::FENCA::validate_topology().await
                     .map_err(|e| format!("Topology validation failed: {}", e))?;
+                println!("[FENCA Priming] [Step 2/4] [Status: SUCCESS] Topology validated");
 
-                // Step 3: Warm all engines (quantum, mercy, biomimetic, persistence, cache, orchestration)
+                // Step 3: Warm all engines
+                println!("[FENCA Priming] [Step 3/4] [Status: START] Warming engines (quantum, mercy, biomimetic, persistence, cache, orchestration)...");
                 crate::FENCA::warm_engines().await
                     .map_err(|e| format!("Engine warming failed: {}", e))?;
+                println!("[FENCA Priming] [Step 3/4] [Status: SUCCESS] All engines warmed");
 
                 Ok(())
             }.await;
 
+            let duration = start.elapsed();
+
             match result {
                 Ok(_) => {
-                    println!("[FENCA Priming Complete] Monorepo recycled | Innovations cross-pollinated | Topology validated | All engines warmed | Ready for eternal thriving under TOLC & Radical Love.");
+                    println!("[FENCA Priming] [Status: COMPLETE] All steps succeeded in {:?} | Ready for eternal thriving under TOLC & Radical Love.", duration);
                 }
                 Err(err) => {
-                    eprintln!("[FENCA Priming Warning] Non-critical error during priming: {}. System continues safely.", err);
-                    // MercyLang graceful degradation — no panic, no blocking
+                    eprintln!("[FENCA Priming] [Status: WARNING] Non-critical error during priming: {}. System continues safely with graceful degradation. MercyLang remains active.", err);
+                    // No panic — priming is non-essential for first request
                 }
             }
         });
