@@ -1,5 +1,5 @@
 // crates/websiteforge/src/metrics_dashboard.rs
-// Metrics Visualization Dashboard — Real-time Data Streaming via SSE
+// Metrics Visualization Dashboard — Real-time WebSocket Streaming (Primary) + SSE Fallback
 
 use ra_thor_common::ValenceFieldScoring;
 use ra_thor_mercy::MercyResult;
@@ -37,7 +37,7 @@ impl MetricsDashboard {
     </style>
 </head>
 <body>
-    <h1>Ra-Thor • Live Metrics Dashboard <span class="live">● LIVE</span></h1>
+    <h1>Ra-Thor • Live Metrics Dashboard <span class="live">● LIVE via WebSocket</span></h1>
     
     <div class="card">
         <h2>FENCA Priming Performance</h2>
@@ -54,35 +54,45 @@ impl MetricsDashboard {
         <canvas id="healthChart" height="180"></canvas>
     </div>
 
-    <p style="text-align:center; color:#0a0; margin-top:30px; font-size:0.9em;">TOLC • Radical Love • Eternal Thriving • Streaming live</p>
+    <p style="text-align:center; color:#0a0; margin-top:30px; font-size:0.9em;">TOLC • Radical Love • Eternal Thriving • Streaming live via WebSocket</p>
 
     <script>
-        // Connect to SSE stream for real-time updates
-        const eventSource = new EventSource('/stream/metrics');
+        // WebSocket streaming (primary)
+        let ws;
+        function connectWebSocket() {
+            ws = new WebSocket('ws://' + window.location.host + '/ws/metrics');
+            ws.onmessage = function(event) {
+                const data = JSON.parse(event.data);
+                updateCharts(data);
+            };
+            ws.onclose = function() {
+                console.log('[Ra-Thor] WebSocket closed — falling back to SSE');
+                connectSSE();
+            };
+        }
 
-        let stepChart, valenceChart, healthChart;
+        function connectSSE() {
+            const eventSource = new EventSource('/stream/metrics');
+            eventSource.onmessage = function(event) {
+                const data = JSON.parse(event.data);
+                updateCharts(data);
+            };
+        }
 
-        eventSource.onmessage = function(event) {
-            const data = JSON.parse(event.data);
-
-            // Update step chart
+        function updateCharts(data) {
             if (stepChart) stepChart.data.datasets[0].data = data.step_durations || [120, 450, 380];
             if (stepChart) stepChart.update();
 
-            // Update valence gauge
             if (valenceChart) {
                 valenceChart.data.datasets[0].data = [data.valence * 100, 100 - data.valence * 100];
                 valenceChart.update();
             }
 
-            // Update health
             if (healthChart) {
                 healthChart.data.datasets[0].data = [data.health || 95, 5];
                 healthChart.update();
             }
-
-            console.log('[Ra-Thor Live] Real-time metrics received:', data);
-        };
+        }
 
         // Initialize charts
         window.onload = function() {
@@ -103,6 +113,9 @@ impl MetricsDashboard {
                 data: {{ labels: ['Healthy', 'Warning'], datasets: [{{ data: [95, 5], backgroundColor: ['#0f0', '#ff0'] }}] }},
                 options: {{ cutout: '70%', plugins: {{ legend: {{ display: false }} }} }}
             }});
+
+            // Start WebSocket streaming
+            connectWebSocket();
         };
     </script>
 </body>
