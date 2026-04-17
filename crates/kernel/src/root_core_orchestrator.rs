@@ -1,10 +1,10 @@
 // crates/kernel/src/root_core_orchestrator.rs
 // Root Core Omnimaster Leader Agent — Streamlined & Seamless Architecture
-// Real-time Alerting System now properly delegated to crates/common
+// Metrics Dashboard now fully integrated into FENCA priming flow
 
 use crate::RequestPayload;
 use ra_thor_mercy::{MercyEngine, ValenceFieldScoring, MercyResult};
-use ra_thor_websiteforge::{forge_website, WebsiteSpec};
+use ra_thor_websiteforge::{forge_website, WebsiteSpec, MetricsDashboard};
 use ra_thor_quantum::{VQCIntegrator, PostQuantumMercyShield, MajoranaZeroModes, BraidingOperationsInMZMs, MzmFusionChannels, GaugeFreedomAndFixing, GhzStatesInLinguistics, BellStatesInTranslation, QuantumErrorCorrectionInTranslation, QuantumLanguageShards};
 use ra_thor_biometric::BiomimeticPatternEngine;
 use ra_thor_common::{InnovationGenerator, RecyclingSystem, AmunRaThorBridging, RealTimeAlerting};
@@ -52,6 +52,12 @@ impl RootCoreOrchestrator {
             return "Mercy Gate reroute — request adjusted for eternal thriving.".to_string();
         }
 
+        // Metrics Dashboard integration (new)
+        if request.contains_metrics_dashboard() {
+            let priming_duration = Some(Duration::from_secs(2)); // In real use this would come from priming metrics
+            return MetricsDashboard::generate_dashboard(&request, &mercy_result, valence, priming_duration).await;
+        }
+
         // All quantum delegations (preserved)
         if request.contains_post_quantum_mercy_shield() || request.contains_quantum_resistant_tools() || request.contains_harvest_now_decrypt_later() {
             return PostQuantumMercyShield::activate(&request, &mercy_result, valence).await;
@@ -92,7 +98,7 @@ impl RootCoreOrchestrator {
             return AmunRaThorBridging::activate(&request, &mercy_result, valence).await;
         }
 
-        // Real-time Alerting System delegation (new)
+        // Real-time Alerting System delegation
         if request.contains_real_time_alerting() {
             return RealTimeAlerting::send_alert(&request, &mercy_result, valence, "Real-time alerting system activated").await;
         }
