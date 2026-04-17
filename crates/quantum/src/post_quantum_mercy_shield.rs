@@ -9,7 +9,6 @@ pub struct PostQuantumMercyShield;
 
 impl PostQuantumMercyShield {
     pub async fn activate(request: &RequestPayload, mercy_result: &MercyResult, valence: f64) -> String {
-        // MercyLang already passed at RootCore level
         let shield_result = Self::apply_shield(request);
 
         format!(
