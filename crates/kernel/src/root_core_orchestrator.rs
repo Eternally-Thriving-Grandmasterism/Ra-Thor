@@ -1,11 +1,11 @@
 // crates/kernel/src/root_core_orchestrator.rs
 // Root Core Omnimaster Leader Agent — Streamlined & Seamless Architecture
-// Braiding Operations in MZMs now properly delegated to crates/quantum
+// MercyLang 7 Living Gates now properly centralized in crates/mercy
 
 use crate::RequestPayload;
-use ra_thor_mercy::{MercyEngine, ValenceFieldScoring, MercyResult};
+use ra_thor_mercy::{MercyEngine, ValenceFieldScoring, MercyResult, MercyLangGates};
 use ra_thor_websiteforge::{forge_website, WebsiteSpec};
-use ra_thor_quantum::{VQCIntegrator, PostQuantumMercyShield, MajoranaZeroModes, BraidingOperationsInMZMs};
+use ra_thor_quantum::{VQCIntegrator, PostQuantumMercyShield, MajoranaZeroModes, BraidingOperationsInMZMs, MzmFusionChannels, GaugeFreedomAndFixing, GhzStatesInLinguistics, BellStatesInTranslation, QuantumErrorCorrectionInTranslation, QuantumLanguageShards};
 use ra_thor_biometric::BiomimeticPatternEngine;
 use ra_thor_common::InnovationGenerator;
 use serde_json;
@@ -25,9 +25,9 @@ pub struct RootCoreOrchestrator;
 
 impl RootCoreOrchestrator {
     pub async fn orchestrate(request: RequestPayload) -> String {
-        // === Radical Love Veto Power — Supreme First Gate ===
-        let mercy_result: MercyResult = MercyEngine::evaluate(&request, request.mercy_weight).await;
-        if !mercy_result.radical_love_passed() {
+        // === Radical Love Veto Power — Supreme First Gate (now centralized in mercy crate) ===
+        let mercy_result: MercyResult = MercyLangGates::evaluate(&request).await;
+        if !mercy_result.radical_love_passed {
             return MercyEngine::gentle_reroute("Radical Love veto power triggered at RootCoreOrchestrator level").await;
         }
 
@@ -48,23 +48,37 @@ impl RootCoreOrchestrator {
         // Centralized Mercy Engine + Valence pipeline
         let valence = ValenceFieldScoring::compute(&mercy_result, request.mercy_weight);
 
-        if !mercy_result.all_gates_pass() {
+        if !mercy_result.all_gates_passed {
             return "Mercy Gate reroute — request adjusted for eternal thriving.".to_string();
         }
 
-        // Post-Quantum Mercy Shield delegation
+        // All quantum delegations (preserved)
         if request.contains_post_quantum_mercy_shield() || request.contains_quantum_resistant_tools() || request.contains_harvest_now_decrypt_later() {
             return PostQuantumMercyShield::activate(&request, &mercy_result, valence).await;
         }
-
-        // Majorana Zero Modes delegation
         if request.contains_majorana_zero_modes() {
             return MajoranaZeroModes::activate(&request, &mercy_result, valence).await;
         }
-
-        // Braiding Operations in MZMs delegation (new)
         if request.contains_braiding_operations() {
             return BraidingOperationsInMZMs::activate(&request, &mercy_result, valence).await;
+        }
+        if request.contains_mzm_fusion_channels() {
+            return MzmFusionChannels::activate(&request, &mercy_result, valence).await;
+        }
+        if request.contains_gauge_freedom() || request.contains_gauge_fixing() {
+            return GaugeFreedomAndFixing::activate(&request, &mercy_result, valence).await;
+        }
+        if request.contains_ghz_states() {
+            return GhzStatesInLinguistics::activate(&request, &mercy_result, valence).await;
+        }
+        if request.contains_bell_states() {
+            return BellStatesInTranslation::activate(&request, &mercy_result, valence).await;
+        }
+        if request.contains_quantum_error_correction() {
+            return QuantumErrorCorrectionInTranslation::activate(&request, &mercy_result, valence).await;
+        }
+        if request.contains_quantum_language_shards() || request.contains_fibonacci_anyon_braiding() {
+            return QuantumLanguageShards::activate(&request, &mercy_result, valence).await;
         }
 
         // Seamless delegation with Meta-Orchestrator support
