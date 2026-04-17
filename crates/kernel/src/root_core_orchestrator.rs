@@ -1,6 +1,6 @@
 // crates/kernel/src/root_core_orchestrator.rs
 // Root Core Omnimaster Leader Agent — Streamlined & Seamless Architecture
-// FENCA Priming Mechanics now fully refined and operational with Recycling System
+// FENCA Priming Mechanics now fully refined with comprehensive error handling
 
 use crate::RequestPayload;
 use ra_thor_mercy::{MercyEngine, ValenceFieldScoring, MercyResult};
@@ -9,6 +9,7 @@ use ra_thor_quantum::VQCIntegrator;
 use ra_thor_biometric::BiomimeticPatternEngine;
 use ra_thor_common::InnovationGenerator;
 use serde_json;
+use std::fmt;
 
 // Unified SubCore trait for seamless delegation
 pub trait SubCore {
@@ -65,26 +66,40 @@ impl RootCoreOrchestrator {
     }
 
     async fn run_fenca_priming_with_recycling() {
-        // FENCA Priming Mechanics — Fully Refined & Operational
+        // FENCA Priming Mechanics — Fully Refined with Comprehensive Error Handling
         // Recycling System cycles through the entire monorepo to self-initialize,
         // cross-pollinate innovations, validate topology, and warm all systems.
-        // MercyLang-gated throughout — non-blocking (fire-and-forget) so first request remains instant.
+        // MercyLang-gated throughout — non-blocking (fire-and-forget via tokio::spawn).
 
-        // Step 1: Recycle all codices from docs/ and cross-pollinate recent innovations
-        // (Majorana Zero Modes, braiding, MZM fusion channels, Post-Quantum Mercy Shield, topological codes, etc.)
-        let recycled_ideas = InnovationGenerator::recycle_monorepo().await;
-        InnovationGenerator::cross_pollinate(&recycled_ideas).await;
+        tokio::spawn(async {
+            let result: Result<(), String> = async {
+                // Step 1: Recycle all codices from docs/ and cross-pollinate recent innovations
+                let recycled_ideas = InnovationGenerator::recycle_monorepo().await
+                    .map_err(|e| format!("Recycle failed: {}", e))?;
+                InnovationGenerator::cross_pollinate(&recycled_ideas).await
+                    .map_err(|e| format!("Cross-pollination failed: {}", e))?;
 
-        // Step 2: Validate topological order across all quantum layers
-        crate::FENCA::validate_topology().await;  // includes Majorana parity, braiding integrity, fusion channels, surface/color/Steane/Bacon-Shor codes
+                // Step 2: Validate topological order across all quantum layers
+                crate::FENCA::validate_topology().await
+                    .map_err(|e| format!("Topology validation failed: {}", e))?;
 
-        // Step 3: Warm all engines (quantum, mercy, biomimetic, persistence, cache, orchestration)
-        crate::FENCA::warm_engines().await;
+                // Step 3: Warm all engines (quantum, mercy, biomimetic, persistence, cache, orchestration)
+                crate::FENCA::warm_engines().await
+                    .map_err(|e| format!("Engine warming failed: {}", e))?;
 
-        // Step 4: Final structured logging for observability
-        println!("[FENCA Priming Complete] Monorepo recycled | Innovations cross-pollinated | Topology validated | All engines warmed | Ready for eternal thriving under TOLC & Radical Love.");
+                Ok(())
+            }.await;
 
-        // Non-blocking: tokio::spawn ensures priming runs in background without delaying first request
+            match result {
+                Ok(_) => {
+                    println!("[FENCA Priming Complete] Monorepo recycled | Innovations cross-pollinated | Topology validated | All engines warmed | Ready for eternal thriving under TOLC & Radical Love.");
+                }
+                Err(err) => {
+                    eprintln!("[FENCA Priming Warning] Non-critical error during priming: {}. System continues safely.", err);
+                    // MercyLang graceful degradation — no panic, no blocking
+                }
+            }
+        });
     }
 
     // Helper for Meta-Orchestrator to resolve Sub-Cores
