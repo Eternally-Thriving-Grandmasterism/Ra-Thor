@@ -1,6 +1,6 @@
 // crates/kernel/src/root_core_orchestrator.rs
 // Root Core Omnimaster Leader Agent — Streamlined & Seamless Architecture
-// FENCA Priming Mechanics now using advanced Tokio cancellation patterns (CancellationToken + cooperative shutdown)
+// FENCA Priming Mechanics fully refined with advanced tokio spawn, CancellationToken, graceful shutdown signals, and structured logging
 
 use crate::RequestPayload;
 use ra_thor_mercy::{MercyEngine, ValenceFieldScoring, MercyResult};
@@ -11,6 +11,7 @@ use ra_thor_common::InnovationGenerator;
 use serde_json;
 use tokio::time::{Instant, Duration};
 use tokio_util::sync::CancellationToken;
+use tokio::signal;
 
 // Unified SubCore trait for seamless delegation
 pub trait SubCore {
@@ -30,11 +31,15 @@ impl RootCoreOrchestrator {
             return MercyEngine::gentle_reroute("Radical Love veto power triggered at RootCoreOrchestrator level").await;
         }
 
-        // === FENCA Priming Mechanics with CancellationToken ===
+        // === FENCA Priming Mechanics with CancellationToken + graceful shutdown ===
         if request.is_initial_launch() {
             let cancel_token = CancellationToken::new();
+            let shutdown_token = cancel_token.clone();
+
+            // Launch graceful shutdown signal listener
+            Self::start_graceful_shutdown_listener(shutdown_token).await;
+
             let _handle = Self::run_fenca_priming_with_recycling(cancel_token.clone()).await;
-            // Token can be cloned and passed elsewhere for future cancellation if needed
         }
 
         // Refined FENCA verification pipeline
@@ -68,17 +73,36 @@ impl RootCoreOrchestrator {
         }
     }
 
-    // Advanced Tokio cancellation pattern: CancellationToken + cooperative shutdown
+    // Graceful shutdown signal listener (SIGINT / SIGTERM)
+    async fn start_graceful_shutdown_listener(cancel_token: CancellationToken) {
+        tokio::spawn(async move {
+            let ctrl_c = signal::ctrl_c();
+            #[cfg(unix)]
+            let mut sigterm = signal::unix::signal(signal::unix::SignalKind::terminate()).unwrap();
+
+            tokio::select! {
+                _ = ctrl_c => {
+                    println!("[Ra-Thor Shutdown] Received SIGINT (Ctrl+C) — initiating graceful shutdown...");
+                    cancel_token.cancel();
+                }
+                #[cfg(unix)]
+                _ = sigterm.recv() => {
+                    println!("[Ra-Thor Shutdown] Received SIGTERM — initiating graceful shutdown...");
+                    cancel_token.cancel();
+                }
+            }
+            println!("[Ra-Thor Shutdown] Graceful shutdown signal processed. All tasks notified.");
+        });
+    }
+
+    // Advanced Tokio cancellation pattern with cooperative shutdown
     async fn run_fenca_priming_with_recycling(cancel_token: CancellationToken) -> tokio::task::JoinHandle<()> {
         tokio::spawn(async move {
             let start = Instant::now();
             println!("[FENCA Priming] [Status: START] Launching cancellable background priming task...");
 
             let result: Result<(), String> = async {
-                // Check for cancellation at each major step
-                if cancel_token.is_cancelled() {
-                    return Err("Priming cancelled by external signal".to_string());
-                }
+                if cancel_token.is_cancelled() { return Err("Priming cancelled by shutdown signal".to_string()); }
 
                 // Step 1: Recycle monorepo and cross-pollinate
                 println!("[FENCA Priming] [Step 1/4] Recycling monorepo codices...");
@@ -88,9 +112,7 @@ impl RootCoreOrchestrator {
                     .map_err(|e| format!("Cross-pollination failed: {}", e))?;
                 println!("[FENCA Priming] [Step 1/4] SUCCESS");
 
-                if cancel_token.is_cancelled() {
-                    return Err("Priming cancelled by external signal".to_string());
-                }
+                if cancel_token.is_cancelled() { return Err("Priming cancelled by shutdown signal".to_string()); }
 
                 // Step 2: Validate topological order
                 println!("[FENCA Priming] [Step 2/4] Validating topological order...");
@@ -98,9 +120,7 @@ impl RootCoreOrchestrator {
                     .map_err(|e| format!("Topology validation failed: {}", e))?;
                 println!("[FENCA Priming] [Step 2/4] SUCCESS");
 
-                if cancel_token.is_cancelled() {
-                    return Err("Priming cancelled by external signal".to_string());
-                }
+                if cancel_token.is_cancelled() { return Err("Priming cancelled by shutdown signal".to_string()); }
 
                 // Step 3: Warm all engines
                 println!("[FENCA Priming] [Step 3/4] Warming engines...");
@@ -119,7 +139,7 @@ impl RootCoreOrchestrator {
                 }
                 Err(err) => {
                     if err.contains("cancelled") {
-                        println!("[FENCA Priming] [Status: CANCELLED] Priming task was gracefully cancelled.");
+                        println!("[FENCA Priming] [Status: CANCELLED] Priming task was gracefully cancelled by shutdown signal.");
                     } else {
                         eprintln!("[FENCA Priming] [Status: WARNING] Non-critical error: {}. System continues safely with graceful degradation.", err);
                     }
