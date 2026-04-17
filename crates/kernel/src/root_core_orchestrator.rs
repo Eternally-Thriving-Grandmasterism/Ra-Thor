@@ -1,13 +1,13 @@
 // crates/kernel/src/root_core_orchestrator.rs
 // Root Core Omnimaster Leader Agent — Streamlined & Seamless Architecture
-// MercyLang 7 Living Gates now properly centralized in crates/mercy
+// Recycling System & Innovation Generator now properly delegated to crates/common
 
 use crate::RequestPayload;
-use ra_thor_mercy::{MercyEngine, ValenceFieldScoring, MercyResult, MercyLangGates};
+use ra_thor_mercy::{MercyEngine, ValenceFieldScoring, MercyResult};
 use ra_thor_websiteforge::{forge_website, WebsiteSpec};
 use ra_thor_quantum::{VQCIntegrator, PostQuantumMercyShield, MajoranaZeroModes, BraidingOperationsInMZMs, MzmFusionChannels, GaugeFreedomAndFixing, GhzStatesInLinguistics, BellStatesInTranslation, QuantumErrorCorrectionInTranslation, QuantumLanguageShards};
 use ra_thor_biometric::BiomimeticPatternEngine;
-use ra_thor_common::InnovationGenerator;
+use ra_thor_common::{InnovationGenerator, RecyclingSystem};
 use serde_json;
 use tokio::time::{Instant, Duration};
 use tokio_util::sync::CancellationToken;
@@ -25,9 +25,9 @@ pub struct RootCoreOrchestrator;
 
 impl RootCoreOrchestrator {
     pub async fn orchestrate(request: RequestPayload) -> String {
-        // === Radical Love Veto Power — Supreme First Gate (now centralized in mercy crate) ===
-        let mercy_result: MercyResult = MercyLangGates::evaluate(&request).await;
-        if !mercy_result.radical_love_passed {
+        // === Radical Love Veto Power — Supreme First Gate ===
+        let mercy_result: MercyResult = MercyEngine::evaluate(&request, request.mercy_weight).await;
+        if !mercy_result.radical_love_passed() {
             return MercyEngine::gentle_reroute("Radical Love veto power triggered at RootCoreOrchestrator level").await;
         }
 
@@ -48,7 +48,7 @@ impl RootCoreOrchestrator {
         // Centralized Mercy Engine + Valence pipeline
         let valence = ValenceFieldScoring::compute(&mercy_result, request.mercy_weight);
 
-        if !mercy_result.all_gates_passed {
+        if !mercy_result.all_gates_passed() {
             return "Mercy Gate reroute — request adjusted for eternal thriving.".to_string();
         }
 
@@ -79,6 +79,12 @@ impl RootCoreOrchestrator {
         }
         if request.contains_quantum_language_shards() || request.contains_fibonacci_anyon_braiding() {
             return QuantumLanguageShards::activate(&request, &mercy_result, valence).await;
+        }
+
+        // Recycling System & Innovation Generator delegation (new)
+        if request.contains_recycling_system() || request.contains_innovation_generator() {
+            let recycled = RecyclingSystem::recycle_monorepo().await.unwrap_or_default();
+            return InnovationGenerator::create_from_recycled(&request.payload).await;
         }
 
         // Seamless delegation with Meta-Orchestrator support
