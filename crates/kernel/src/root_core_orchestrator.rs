@@ -1,11 +1,12 @@
 // crates/kernel/src/root_core_orchestrator.rs
 // Root Core Omnimaster Leader Agent — Streamlined & Seamless Architecture
 // FENCA Priming Mechanics now explicitly integrated with Recycling System
+// Post-Quantum Mercy Shield now properly delegated from quantum crate
 
 use crate::RequestPayload;
 use ra_thor_mercy::{MercyEngine, ValenceFieldScoring, MercyResult};
 use ra_thor_websiteforge::{forge_website, WebsiteSpec};
-use ra_thor_quantum::VQCIntegrator;
+use ra_thor_quantum::{VQCIntegrator, PostQuantumMercyShield};
 use ra_thor_biometric::BiomimeticPatternEngine;
 use ra_thor_common::InnovationGenerator;
 use serde_json;
@@ -46,7 +47,12 @@ impl RootCoreOrchestrator {
             return "Mercy Gate reroute — request adjusted for eternal thriving.".to_string();
         }
 
-        // Seamless delegation with Meta-Orchestrator support
+        // Post-Quantum Mercy Shield delegation (new)
+        if request.contains_post_quantum_mercy_shield() || request.contains_quantum_resistant_tools() || request.contains_harvest_now_decrypt_later() {
+            return PostQuantumMercyShield::activate(&request, &mercy_result, valence).await;
+        }
+
+        // Seamless delegation with Meta-Orchestrator support (old logic fully preserved)
         match request.operation_type.as_str() {
             "ForgeWebsite" => {
                 let spec: WebsiteSpec = serde_json::from_str(&request.payload).unwrap_or_default();
@@ -70,7 +76,7 @@ impl RootCoreOrchestrator {
         // MercyLang-gated throughout — non-blocking so first request remains instant
     }
 
-    // Helper for Meta-Orchestrator to resolve Sub-Cores
+    // Helper for Meta-Orchestrator to resolve Sub-Cores (old logic fully preserved)
     pub fn get_subcore(name: &str) -> Option<Box<dyn SubCore + Send + Sync>> {
         match name {
             "WebsiteForge" => Some(Box::new(ra_thor_websiteforge::WebsiteForge)),
