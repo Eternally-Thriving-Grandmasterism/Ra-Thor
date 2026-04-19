@@ -146,7 +146,6 @@ mod fuzz_tests {
     });
 }
 
-// ====================== AFL++ FUZZING COMPARISON NOTE (ADDED NOW) ======================
-// libFuzzer (current) vs AFL++ comparison summary is in the new codex file.
-// For native Rust targets, AFL++ can be used via cargo-afl for additional coverage on non-WASM paths.
-// libFuzzer remains the primary choice for this WASM-heavy monorepo due to better Rust integration and in-process fuzzing.
+// ====================== HONGGFUZZ EXPLORATION NOTE (ADDED NOW) ======================
+// Honggfuzz is now explored as a complementary tool. See the new codex for full comparison and integration guidance.
+// It excels at hardware-based feedback (Intel PT, ARM CoreSight) and is ideal for native Rust targets.
