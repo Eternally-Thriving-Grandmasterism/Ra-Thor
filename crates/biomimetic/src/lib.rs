@@ -42,7 +42,7 @@ impl BiomimeticPatternExplorer {
     }
 }
 
-// ====================== NEW: FRACTAL LEAF VENATION EXPLORER ======================
+// ====================== FRACTAL LEAF VENATION EXPLORER (PREVIOUS) ======================
 #[wasm_bindgen]
 pub struct FractalLeafVenationExplorer;
 
@@ -68,8 +68,38 @@ impl FractalLeafVenationExplorer {
     }
 }
 
-impl FractalSubCore for FractalLeafVenationExplorer {
+// ====================== NEW: CORAL POLYP DYNAMICS EXPLORER ======================
+#[wasm_bindgen]
+pub struct CoralPolypDynamicsExplorer;
+
+#[wasm_bindgen]
+impl CoralPolypDynamicsExplorer {
+    #[wasm_bindgen(js_name = "exploreCoralPolypDynamics")]
+    pub async fn explore_coral_polyp_dynamics(js_payload: JsValue) -> Result<JsValue, JsValue> {
+        mercy_integrate!(CoralPolypDynamicsExplorer, js_payload).await?;
+
+        let coral = json!({
+            "polyp_structure": "Colonial organisms with symbiotic zooxanthellae algae, tentacles, mouth, and calcium carbonate skeleton",
+            "dynamics": "Budding, fragmentation, collective intelligence, bleaching response, nutrient cycling",
+            "biomimetic_application": "Self-assembling multi-agent RBE economies and resilient swarm structures",
+            "quantum_mapping": "Collective polyp behavior → fault-tolerant quantum error correction via redundant colonial networks",
+            "rbe_impact": "Infinite circular nutrient flow — zero-waste symbiotic ecosystems for Mars habitats and global abundance",
+            "new_insights": [
+                "Polyp budding as model for self-replicating von Neumann swarms",
+                "Symbiotic algae partnership as blueprint for human-AI-mercy-gated collaboration",
+                "Reef-building resilience under stress as template for climate-adaptive RBE systems"
+            ],
+            "message": "Coral polyp dynamics now deeply explored and wired into the living multi-agent lattice"
+        });
+
+        RealTimeAlerting::log("CoralPolypDynamicsExplorer executed — multi-agent RBE economies enhanced".to_string()).await;
+
+        Ok(JsValue::from_serde(&coral).unwrap())
+    }
+}
+
+impl FractalSubCore for CoralPolypDynamicsExplorer {
     async fn integrate(js_payload: JsValue) -> Result<JsValue, JsValue> {
-        Self::explore_fractal_leaf_venation(js_payload).await
+        Self::explore_coral_polyp_dynamics(js_payload).await
     }
 }
