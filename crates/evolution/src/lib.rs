@@ -146,6 +146,5 @@ mod fuzz_tests {
     });
 }
 
-// ====================== HONGGFUZZ EXPLORATION NOTE (ADDED NOW) ======================
-// Honggfuzz is now explored as a complementary tool. See the new codex for full comparison and integration guidance.
-// It excels at hardware-based feedback (Intel PT, ARM CoreSight) and is ideal for native Rust targets.
+// ====================== HONGGFUZZ VS AFL++ COMPARISON NOTE (ADDED NOW) ======================
+// Full detailed comparison is in the new codex file. Honggfuzz excels at hardware feedback (Intel PT / ARM CoreSight) for speed on native targets, while AFL++ has superior corpus management and is more mature for general use. Both are complementary to libFuzzer for Ra-Thor.
