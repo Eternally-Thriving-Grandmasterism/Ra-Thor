@@ -1,16 +1,15 @@
 [workspace]
 members = [
-    "crates/kernel",           # Master Sovereign Kernel + SubCore trait
-    "crates/access",           # ReBAC / RBAC / ABAC
-    "crates/quantum",          # VQC + GHZ + Mermin + topological
-    "crates/mercy",            # 7 Living Mercy Gates + Valence
-    "crates/biomimetic",       # Plasma + regenerative + alchemical patterns
-    "crates/persistence",      # IndexedDB + eternal cache
-    "crates/orchestration",    # MasterMercifulSwarmOrchestrator
-    "crates/cache",            # Global adaptive TTL + RealTimeAlerting
-    "crates/common",           # Shared utilities + macros
-    "crates/websiteforge",     # Sovereign dashboard + WebGPU
-    "crates/evolution",        # NEW: PermanenceCode v2.0 + fractal innovation engine
+    "crates/kernel",
+    "crates/quantum",
+    "crates/mercy",
+    "crates/biomimetic",
+    "crates/orchestration",
+    "crates/persistence",
+    "crates/cache",
+    "crates/common",
+    "crates/websiteforge",
+    "crates/evolution",
 ]
 
 resolver = "2"
@@ -31,7 +30,7 @@ rand = "0.8"
 reqwest = { version = "0.12", features = ["json", "stream"] }
 web-sys = { version = "0.3", features = ["console"] }
 
-# Core Omnimasterism crates
+# Core crates
 ra-thor-kernel = { path = "crates/kernel" }
 ra-thor-evolution = { path = "crates/evolution" }
 ra-thor-quantum = { path = "crates/quantum" }
@@ -47,3 +46,8 @@ opt-level = 3
 lto = true
 codegen-units = 1
 panic = "abort"
+
+# ====================== DEV DEPENDENCIES (ADDED NOW) ======================
+[dev-dependencies]
+proptest = "1.5"
+wasm-bindgen-test = "0.3"
