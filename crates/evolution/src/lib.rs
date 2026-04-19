@@ -89,7 +89,7 @@ impl EvolutionEngine {
     }
 }
 
-// ====================== PROPERTY-BASED TESTING (PREVIOUSLY ADDED) ======================
+// ====================== PROPERTY-BASED TESTING (PREVIOUS) ======================
 #[cfg(test)]
 mod property_tests {
     use super::*;
@@ -127,17 +127,28 @@ mod property_tests {
     }
 }
 
-// ====================== FUZZ TESTING INTEGRATION (ADDED NOW) ======================
+// ====================== COVERAGE-GUIDED FUZZING (ADDED NOW) ======================
 #[cfg(fuzzing)]
 mod fuzz_tests {
     use super::*;
     use libfuzzer_sys::fuzz_target;
 
+    // Coverage-guided fuzz target (libFuzzer automatically uses coverage feedback)
+    // Run with: cargo fuzz run evolution_coverage_guided_fuzz_target
     fuzz_target!(|data: &[u8]| {
-        // Fuzz the PermanenceCode v2 entry point with arbitrary binary input
-        let payload = JsValue::from_serde(&data).unwrap_or(JsValue::NULL);
+        // Feed arbitrary data into PermanenceCode v2 (coverage-guided path exploration)
+        let payload = if data.len() > 0 {
+            JsValue::from_serde(&data).unwrap_or(JsValue::NULL)
+        } else {
+            JsValue::NULL
+        };
+
+        // Fuzz the core entry points
         let _ = futures::executor::block_on(async { EvolutionEngine::run_permanence_code_v2(payload).await });
-        // Fuzz the full audit path
         let _ = futures::executor::block_on(async { EvolutionEngine::run_full_monorepo_self_audit().await });
+
+        // Fuzz innovation synthesis path
+        let dummy_review = FractalSelfReview;
+        let _ = futures::executor::block_on(async { EvolutionEngine::synthesize_infinite_ideas(&dummy_review).await });
     });
 }
