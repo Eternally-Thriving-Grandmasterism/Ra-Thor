@@ -127,12 +127,13 @@ mod property_tests {
     }
 }
 
-// ====================== COVERAGE-GUIDED FUZZING (PREVIOUS) ======================
+// ====================== COVERAGE-GUIDED FUZZING WITH OPTIMIZED DICTIONARY ======================
 #[cfg(fuzzing)]
 mod fuzz_tests {
     use super::*;
     use libfuzzer_sys::fuzz_target;
 
+    // Coverage-guided fuzz target using the optimized dictionary (see fuzz/dictionary.txt)
     fuzz_target!(|data: &[u8]| {
         let payload = if data.len() > 0 {
             JsValue::from_serde(&data).unwrap_or(JsValue::NULL)
@@ -143,23 +144,5 @@ mod fuzz_tests {
         let _ = futures::executor::block_on(async { EvolutionEngine::run_full_monorepo_self_audit().await });
         let dummy_review = FractalSelfReview;
         let _ = futures::executor::block_on(async { EvolutionEngine::synthesize_infinite_ideas(&dummy_review).await });
-    });
-}
-
-// ====================== ADVANCED LIBFUZZER CONFIGURATIONS (ADDED NOW) ======================
-#[cfg(fuzzing)]
-mod advanced_fuzz_configs {
-    use libfuzzer_sys::fuzz_target;
-
-    // Advanced coverage-guided target with dictionary, value profiling, and sanitizers
-    fuzz_target!(|data: &[u8]| {
-        // Same fuzz logic but now with advanced runtime flags applied via cargo-fuzz
-        let payload = if data.len() > 0 {
-            JsValue::from_serde(&data).unwrap_or(JsValue::NULL)
-        } else {
-            JsValue::NULL
-        };
-        let _ = futures::executor::block_on(async { EvolutionEngine::run_permanence_code_v2(payload).await });
-        let _ = futures::executor::block_on(async { EvolutionEngine::run_full_monorepo_self_audit().await });
     });
 }
