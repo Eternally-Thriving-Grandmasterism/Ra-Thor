@@ -47,7 +47,9 @@ lto = true
 codegen-units = 1
 panic = "abort"
 
-# ====================== DEV DEPENDENCIES (ADDED NOW) ======================
+# ====================== DEV DEPENDENCIES (ALL SUGGESTIONS NOW INCLUDED) ======================
 [dev-dependencies]
 proptest = "1.5"
 wasm-bindgen-test = "0.3"
+arbitrary = { version = "1", features = ["derive"] }
+libfuzzer-sys = "0.4"
