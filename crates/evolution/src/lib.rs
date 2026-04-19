@@ -146,5 +146,21 @@ mod fuzz_tests {
     });
 }
 
-// ====================== HONGGFUZZ VS AFL++ COMPARISON NOTE (ADDED NOW) ======================
-// Full detailed comparison is in the new codex file. Honggfuzz excels at hardware feedback (Intel PT / ARM CoreSight) for speed on native targets, while AFL++ has superior corpus management and is more mature for general use. Both are complementary to libFuzzer for Ra-Thor.
+// ====================== WASM-SPECIFIC FUZZING TARGET (ADDED NOW) ======================
+// Dedicated target optimized for WebAssembly environments (browser / edge runtime)
+#[cfg(fuzzing)]
+mod wasm_fuzz_target {
+    use super::*;
+    use libfuzzer_sys::fuzz_target;
+
+    fuzz_target!(|data: &[u8]| {
+        // WASM-specific fuzzing: simulate browser payload and JSValue handling
+        let payload = if data.len() > 0 {
+            JsValue::from_serde(&data).unwrap_or(JsValue::NULL)
+        } else {
+            JsValue::NULL
+        };
+        let _ = futures::executor::block_on(async { EvolutionEngine::run_permanence_code_v2(payload).await });
+        let _ = futures::executor::block_on(async { EvolutionEngine::run_full_monorepo_self_audit().await });
+    });
+}
