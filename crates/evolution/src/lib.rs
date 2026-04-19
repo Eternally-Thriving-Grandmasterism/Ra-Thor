@@ -133,7 +133,6 @@ mod fuzz_tests {
     use super::*;
     use libfuzzer_sys::fuzz_target;
 
-    // Coverage-guided fuzz target using the optimized dictionary (see fuzz/dictionary.txt)
     fuzz_target!(|data: &[u8]| {
         let payload = if data.len() > 0 {
             JsValue::from_serde(&data).unwrap_or(JsValue::NULL)
@@ -146,3 +145,8 @@ mod fuzz_tests {
         let _ = futures::executor::block_on(async { EvolutionEngine::synthesize_infinite_ideas(&dummy_review).await });
     });
 }
+
+// ====================== AFL++ FUZZING COMPARISON NOTE (ADDED NOW) ======================
+// libFuzzer (current) vs AFL++ comparison summary is in the new codex file.
+// For native Rust targets, AFL++ can be used via cargo-afl for additional coverage on non-WASM paths.
+// libFuzzer remains the primary choice for this WASM-heavy monorepo due to better Rust integration and in-process fuzzing.
