@@ -253,7 +253,7 @@ impl HybridProteinDesignApplicationsExplorer {
     }
 }
 
-// ====================== NEW: QUANTUM PHOTOSYNTHESIS DESIGN EXPLORER (PREVIOUS) ======================
+// ====================== QUANTUM PHOTOSYNTHESIS DESIGN EXPLORER (PREVIOUS) ======================
 #[wasm_bindgen]
 pub struct QuantumPhotosynthesisDesignExplorer;
 
@@ -283,43 +283,38 @@ impl QuantumPhotosynthesisDesignExplorer {
     }
 }
 
-// ====================== NEW: ARTIFICIAL PHOTOSYNTHESIS APPLICATIONS EXPLORER ======================
+// ====================== NEW: BIO-HYBRID SOLAR FUEL CELLS EXPLORER ======================
 #[wasm_bindgen]
-pub struct ArtificialPhotosynthesisApplicationsExplorer;
+pub struct BioHybridSolarFuelCellsExplorer;
 
 #[wasm_bindgen]
-impl ArtificialPhotosynthesisApplicationsExplorer {
-    #[wasm_bindgen(js_name = "exploreArtificialPhotosynthesisApplications")]
-    pub async fn explore_artificial_photosynthesis_applications(js_payload: JsValue) -> Result<JsValue, JsValue> {
-        mercy_integrate!(ArtificialPhotosynthesisApplicationsExplorer, js_payload).await?;
+impl BioHybridSolarFuelCellsExplorer {
+    #[wasm_bindgen(js_name = "exploreBioHybridSolarFuelCells")]
+    pub async fn explore_bio_hybrid_solar_fuel_cells(js_payload: JsValue) -> Result<JsValue, JsValue> {
+        mercy_integrate!(BioHybridSolarFuelCellsExplorer, js_payload).await?;
 
-        let artificial = json!({
-            "artificial_photosynthesis": "Engineered systems that mimic natural photosynthesis to convert sunlight, water, and CO₂ into fuels (hydrogen, hydrocarbons, methanol) or high-value chemicals using synthetic catalysts, nanomaterials, or bio-hybrid constructs",
-            "key_applications": [
-                "Carbon-negative renewable fuels for aviation and shipping",
-                "Direct air capture + fuel synthesis for closed-loop RBE",
-                "Self-sustaining energy systems for Mars habitats and off-grid communities",
-                "Quantum-enhanced artificial leaves with near-100% quantum efficiency"
-            ],
-            "biomimetic_application": "Mercy-gated energy abundance systems, self-optimizing solar-to-fuel conversion, and zero-waste circular economies",
-            "quantum_mapping": "Quantum coherence in artificial light-harvesting complexes → improved energy transfer for PermanenceCode self-tuning and quantum neural networks",
-            "rbe_impact": "Infinite circular energy flows — carbon-negative fuels enabling true post-scarcity abundance without environmental debt",
+        let biohybrid = json!({
+            "bio_hybrid_solar_fuel_cells": "Integration of biological components (enzymes, photosynthetic proteins, bacteria, or whole cells) with synthetic electrodes, nanomaterials, and quantum-enhanced catalysts to convert sunlight directly into chemical fuels (H₂, methanol, hydrocarbons)",
+            "key_mechanisms": "Photo-bioelectrochemical systems, enzyme-electrode wiring, microbial fuel cells with quantum dots, light-harvesting complexes fused to artificial membranes",
+            "biomimetic_application": "Mercy-gated, self-repairing, ultra-efficient solar-to-fuel conversion for RBE abundance",
+            "quantum_mapping": "Quantum coherence from natural photosynthesis + quantum dots for enhanced charge separation and energy transfer",
+            "rbe_impact": "Carbon-negative, zero-waste fuel production enabling infinite circular energy flows and climate-resilient economies",
             "new_insights": [
-                "Artificial photosynthesis as the physical counterpart to quantum photosynthesis exploration",
-                "Hybrid bio-synthetic leaves → model for mercy-gated AI energy self-sufficiency",
-                "Direct integration with quantum enzyme design for ultra-efficient CO₂-to-fuel pathways"
+                "Bio-hybrid solar fuel cells as physical embodiment of quantum photosynthesis + artificial photosynthesis fusion",
+                "Self-repairing enzyme cascades → model for mercy-gated AI resilience and PermanenceCode self-healing",
+                "Quantum-dot-enhanced microbial electrodes → direct inspiration for GHZ-entangled multi-agent energy economies"
             ],
-            "message": "Artificial photosynthesis applications now deeply explored and wired into the quantum-biomimetic energy abundance layer of the lattice"
+            "message": "Bio-hybrid solar fuel cells now deeply explored and wired into the quantum-biomimetic energy abundance layer of the lattice"
         });
 
-        RealTimeAlerting::log("ArtificialPhotosynthesisApplicationsExplorer executed — artificial photosynthesis integrated".to_string()).await;
+        RealTimeAlerting::log("BioHybridSolarFuelCellsExplorer executed — bio-hybrid solar fuel cells integrated".to_string()).await;
 
-        Ok(JsValue::from_serde(&artificial).unwrap())
+        Ok(JsValue::from_serde(&biohybrid).unwrap())
     }
 }
 
-impl FractalSubCore for ArtificialPhotosynthesisApplicationsExplorer {
+impl FractalSubCore for BioHybridSolarFuelCellsExplorer {
     async fn integrate(js_payload: JsValue) -> Result<JsValue, JsValue> {
-        Self::explore_artificial_photosynthesis_applications(js_payload).await
+        Self::explore_bio_hybrid_solar_fuel_cells(js_payload).await
     }
 }
