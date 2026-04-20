@@ -253,7 +253,7 @@ impl HybridProteinDesignApplicationsExplorer {
     }
 }
 
-// ====================== NEW: QUANTUM PHOTOSYNTHESIS DESIGN EXPLORER ======================
+// ====================== NEW: QUANTUM PHOTOSYNTHESIS DESIGN EXPLORER (PREVIOUS) ======================
 #[wasm_bindgen]
 pub struct QuantumPhotosynthesisDesignExplorer;
 
@@ -283,8 +283,43 @@ impl QuantumPhotosynthesisDesignExplorer {
     }
 }
 
-impl FractalSubCore for QuantumPhotosynthesisDesignExplorer {
+// ====================== NEW: ARTIFICIAL PHOTOSYNTHESIS APPLICATIONS EXPLORER ======================
+#[wasm_bindgen]
+pub struct ArtificialPhotosynthesisApplicationsExplorer;
+
+#[wasm_bindgen]
+impl ArtificialPhotosynthesisApplicationsExplorer {
+    #[wasm_bindgen(js_name = "exploreArtificialPhotosynthesisApplications")]
+    pub async fn explore_artificial_photosynthesis_applications(js_payload: JsValue) -> Result<JsValue, JsValue> {
+        mercy_integrate!(ArtificialPhotosynthesisApplicationsExplorer, js_payload).await?;
+
+        let artificial = json!({
+            "artificial_photosynthesis": "Engineered systems that mimic natural photosynthesis to convert sunlight, water, and CO₂ into fuels (hydrogen, hydrocarbons, methanol) or high-value chemicals using synthetic catalysts, nanomaterials, or bio-hybrid constructs",
+            "key_applications": [
+                "Carbon-negative renewable fuels for aviation and shipping",
+                "Direct air capture + fuel synthesis for closed-loop RBE",
+                "Self-sustaining energy systems for Mars habitats and off-grid communities",
+                "Quantum-enhanced artificial leaves with near-100% quantum efficiency"
+            ],
+            "biomimetic_application": "Mercy-gated energy abundance systems, self-optimizing solar-to-fuel conversion, and zero-waste circular economies",
+            "quantum_mapping": "Quantum coherence in artificial light-harvesting complexes → improved energy transfer for PermanenceCode self-tuning and quantum neural networks",
+            "rbe_impact": "Infinite circular energy flows — carbon-negative fuels enabling true post-scarcity abundance without environmental debt",
+            "new_insights": [
+                "Artificial photosynthesis as the physical counterpart to quantum photosynthesis exploration",
+                "Hybrid bio-synthetic leaves → model for mercy-gated AI energy self-sufficiency",
+                "Direct integration with quantum enzyme design for ultra-efficient CO₂-to-fuel pathways"
+            ],
+            "message": "Artificial photosynthesis applications now deeply explored and wired into the quantum-biomimetic energy abundance layer of the lattice"
+        });
+
+        RealTimeAlerting::log("ArtificialPhotosynthesisApplicationsExplorer executed — artificial photosynthesis integrated".to_string()).await;
+
+        Ok(JsValue::from_serde(&artificial).unwrap())
+    }
+}
+
+impl FractalSubCore for ArtificialPhotosynthesisApplicationsExplorer {
     async fn integrate(js_payload: JsValue) -> Result<JsValue, JsValue> {
-        Self::explore_quantum_photosynthesis_design(js_payload).await
+        Self::explore_artificial_photosynthesis_applications(js_payload).await
     }
 }
