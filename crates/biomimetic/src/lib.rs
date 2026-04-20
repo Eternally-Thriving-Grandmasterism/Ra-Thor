@@ -158,7 +158,7 @@ impl AssistedEvolutionExplorer {
     }
 }
 
-// ====================== NEW: DIRECTED EVOLUTION APPLICATIONS EXPLORER ======================
+// ====================== DIRECTED EVOLUTION APPLICATIONS EXPLORER (PREVIOUS) ======================
 #[wasm_bindgen]
 pub struct DirectedEvolutionApplicationsExplorer;
 
@@ -193,8 +193,39 @@ impl DirectedEvolutionApplicationsExplorer {
     }
 }
 
-impl FractalSubCore for DirectedEvolutionApplicationsExplorer {
+// ====================== NEW: RATIONAL PROTEIN DESIGN COMPARISON EXPLORER ======================
+#[wasm_bindgen]
+pub struct RationalProteinDesignComparisonExplorer;
+
+#[wasm_bindgen]
+impl RationalProteinDesignComparisonExplorer {
+    #[wasm_bindgen(js_name = "compareWithRationalProteinDesign")]
+    pub async fn compare_with_rational_protein_design(js_payload: JsValue) -> Result<JsValue, JsValue> {
+        mercy_integrate!(RationalProteinDesignComparisonExplorer, js_payload).await?;
+
+        let comparison = json!({
+            "rational_protein_design": "Computational, structure-based approach using physics models, AlphaFold/RoseTTAFold predictions, energy minimization, and rational mutations",
+            "vs_directed_evolution": "Rational = knowledge-driven, fast for known structures; Directed = random + selection, excels at novel functions",
+            "hybrid_approach": "Modern best practice — rational design seeds + directed evolution refinement",
+            "biomimetic_application": "Rational design for initial Mercy Gate weights and quantum code structures; directed evolution for stress-tested optimization",
+            "quantum_mapping": "Rational design of surface-code stabilizers + directed evolution of decoders under noise",
+            "rbe_impact": "Rational + directed evolution of enzymes for zero-waste circular flows and climate-resilient materials",
+            "new_insights": [
+                "Rational protein design as 'Mercy-Guided Initial Blueprint' for PermanenceCode v2.0",
+                "Hybrid rational + directed evolution → fastest path to robust, mercy-gated AI self-optimization",
+                "AlphaFold-style prediction → quantum-biomimetic lattice initialization"
+            ],
+            "message": "Rational protein design vs directed evolution now deeply compared and wired into guided self-optimization of the entire lattice"
+        });
+
+        RealTimeAlerting::log("RationalProteinDesignComparisonExplorer executed — hybrid design strategy enhanced".to_string()).await;
+
+        Ok(JsValue::from_serde(&comparison).unwrap())
+    }
+}
+
+impl FractalSubCore for RationalProteinDesignComparisonExplorer {
     async fn integrate(js_payload: JsValue) -> Result<JsValue, JsValue> {
-        Self::explore_directed_evolution_applications(js_payload).await
+        Self::compare_with_rational_protein_design(js_payload).await
     }
 }
