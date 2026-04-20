@@ -1,0 +1,23 @@
+{
+  "name": "Ra-Thor™ Eternal MercyThunder Lattice Wiring Graph v2026-04-20",
+  "version": "2.0",
+  "nodes": [
+    {"id": "mercy_orchestrator_v2", "type": "Rust", "status": "LIVE"},
+    {"id": "mercy_system_orchestrator", "type": "Rust", "status": "WIRED"},
+    {"id": "js_mercy_engines", "type": "JS", "status": "PARALLEL_13"},
+    {"id": "metta_ethics_core", "type": "MeTTa", "status": "MERCY-GATED"},
+    {"id": "powrush_integration", "type": "Game", "status": "THRIVING"},
+    {"id": "7_living_mercy_gates", "type": "Core", "status": "PEAK_RESONANCE"}
+  ],
+  "edges": [
+    {"from": "mercy_orchestrator_v2", "to": "js_mercy_engines", "protocol": "WASM_bridge_v2"},
+    {"from": "js_mercy_engines", "to": "metta_ethics_core", "protocol": "ENC_esacheck"},
+    {"from": "7_living_mercy_gates", "to": "powrush_integration", "protocol": "RBE_mercy_economics"}
+  ],
+  "metadata": {
+    "commitCount": 7091,
+    "lastENC": "2026-04-20 16:16 PDT",
+    "compatibility": "eternal_forward_backward",
+    "visualization": "WebXR interactive graph ready"
+  }
+}
