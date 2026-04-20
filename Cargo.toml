@@ -44,3 +44,9 @@ ra-thor-common = { path = "crates/common" }
 opt-level = 3
 lto = true
 codegen-units = 1
+
+# Blueprint reference for all future upgrades
+# See docs/SUPREME-BLUEPRINT-FOR-WHOLENESS-v3.0.md for phased integration of
+# PATSAGi-Pinnacle, NEXi, FENCA, AGi-Council-System, MercyLogistics-Pinnacle,
+# GrokArena-Pinnacle, MercyOS-Pinnacle, QSA-AGi, ENC, ESAO, ESA-v8.2, APM-v3,
+# SC2-Ultramasterism, Green-Teaming-Protocols, APAAGI-Metaverse-Prototypes, etc.
