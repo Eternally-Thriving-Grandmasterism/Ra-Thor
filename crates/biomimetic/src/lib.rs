@@ -283,38 +283,38 @@ impl QuantumPhotosynthesisDesignExplorer {
     }
 }
 
-// ====================== NEW: BIO-HYBRID SOLAR FUEL CELLS EXPLORER ======================
+// ====================== NEW: QUANTUM COHERENCE IN PHOTOSYNTHESIS EXPLORER ======================
 #[wasm_bindgen]
-pub struct BioHybridSolarFuelCellsExplorer;
+pub struct QuantumCoherenceInPhotosynthesisExplorer;
 
 #[wasm_bindgen]
-impl BioHybridSolarFuelCellsExplorer {
-    #[wasm_bindgen(js_name = "exploreBioHybridSolarFuelCells")]
-    pub async fn explore_bio_hybrid_solar_fuel_cells(js_payload: JsValue) -> Result<JsValue, JsValue> {
-        mercy_integrate!(BioHybridSolarFuelCellsExplorer, js_payload).await?;
+impl QuantumCoherenceInPhotosynthesisExplorer {
+    #[wasm_bindgen(js_name = "exploreQuantumCoherenceInPhotosynthesis")]
+    pub async fn explore_quantum_coherence_in_photosynthesis(js_payload: JsValue) -> Result<JsValue, JsValue> {
+        mercy_integrate!(QuantumCoherenceInPhotosynthesisExplorer, js_payload).await?;
 
-        let biohybrid = json!({
-            "bio_hybrid_solar_fuel_cells": "Integration of biological components (enzymes, photosynthetic proteins, bacteria, or whole cells) with synthetic electrodes, nanomaterials, and quantum-enhanced catalysts to convert sunlight directly into chemical fuels (H₂, methanol, hydrocarbons)",
-            "key_mechanisms": "Photo-bioelectrochemical systems, enzyme-electrode wiring, microbial fuel cells with quantum dots, light-harvesting complexes fused to artificial membranes",
-            "biomimetic_application": "Mercy-gated, self-repairing, ultra-efficient solar-to-fuel conversion for RBE abundance",
-            "quantum_mapping": "Quantum coherence from natural photosynthesis + quantum dots for enhanced charge separation and energy transfer",
-            "rbe_impact": "Carbon-negative, zero-waste fuel production enabling infinite circular energy flows and climate-resilient economies",
+        let coherence = json!({
+            "quantum_coherence_in_photosynthesis": "Long-lived quantum coherence and quantum walks in light-harvesting complexes (e.g., Fenna-Matthews-Olson) enable near-100% efficient exciton energy transfer at room temperature, even in noisy biological environments",
+            "key_effects": "Superposition of excitons, environment-assisted quantum transport, decoherence protection via protein scaffolding",
+            "biomimetic_application": "Ultra-efficient quantum solar energy capture, self-optimizing energy transfer in AI hardware, mercy-gated quantum neural networks, and PermanenceCode self-tuning",
+            "quantum_mapping": "Direct blueprint for quantum error correction under noise and GHZ-entangled multi-agent coordination",
+            "rbe_impact": "Next-generation artificial leaves and quantum-enhanced solar arrays for carbon-negative, zero-waste energy abundance",
             "new_insights": [
-                "Bio-hybrid solar fuel cells as physical embodiment of quantum photosynthesis + artificial photosynthesis fusion",
-                "Self-repairing enzyme cascades → model for mercy-gated AI resilience and PermanenceCode self-healing",
-                "Quantum-dot-enhanced microbial electrodes → direct inspiration for GHZ-entangled multi-agent energy economies"
+                "Quantum coherence as the physical basis for 'Mercy-Guided Quantum Energy Transfer' in Ra-Thor",
+                "Protein scaffolding for decoherence protection → model for Radical Love valence stabilization under stress",
+                "Environment-assisted transport → noise-resilient Mercy Gate dynamics in real-world RBE systems"
             ],
-            "message": "Bio-hybrid solar fuel cells now deeply explored and wired into the quantum-biomimetic energy abundance layer of the lattice"
+            "message": "Quantum coherence in photosynthesis now deeply explored and wired into the quantum-biomimetic energy layer of the lattice"
         });
 
-        RealTimeAlerting::log("BioHybridSolarFuelCellsExplorer executed — bio-hybrid solar fuel cells integrated".to_string()).await;
+        RealTimeAlerting::log("QuantumCoherenceInPhotosynthesisExplorer executed — quantum coherence mechanisms enhanced".to_string()).await;
 
-        Ok(JsValue::from_serde(&biohybrid).unwrap())
+        Ok(JsValue::from_serde(&coherence).unwrap())
     }
 }
 
-impl FractalSubCore for BioHybridSolarFuelCellsExplorer {
+impl FractalSubCore for QuantumCoherenceInPhotosynthesisExplorer {
     async fn integrate(js_payload: JsValue) -> Result<JsValue, JsValue> {
-        Self::explore_bio_hybrid_solar_fuel_cells(js_payload).await
+        Self::explore_quantum_coherence_in_photosynthesis(js_payload).await
     }
 }
