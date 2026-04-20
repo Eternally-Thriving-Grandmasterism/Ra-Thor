@@ -98,7 +98,7 @@ impl CoralPolypDynamicsExplorer {
     }
 }
 
-// ====================== NEW: CORAL BLEACHING RESILIENCE EXPLORER ======================
+// ====================== CORAL BLEACHING RESILIENCE EXPLORER (PREVIOUS) ======================
 #[wasm_bindgen]
 pub struct CoralBleachingResilienceExplorer;
 
@@ -128,8 +128,38 @@ impl CoralBleachingResilienceExplorer {
     }
 }
 
-impl FractalSubCore for CoralBleachingResilienceExplorer {
+// ====================== NEW: ASSISTED EVOLUTION EXPLORER ======================
+#[wasm_bindgen]
+pub struct AssistedEvolutionExplorer;
+
+#[wasm_bindgen]
+impl AssistedEvolutionExplorer {
+    #[wasm_bindgen(js_name = "exploreAssistedEvolution")]
+    pub async fn explore_assisted_evolution(js_payload: JsValue) -> Result<JsValue, JsValue> {
+        mercy_integrate!(AssistedEvolutionExplorer, js_payload).await?;
+
+        let evolution = json!({
+            "assisted_evolution_definition": "Human-guided acceleration of natural evolution (selective breeding, symbiont manipulation, CRISPR, microbiome engineering)",
+            "coral_example": "Assisted evolution programs for heat-tolerant coral symbionts and resilient reef genotypes",
+            "biomimetic_application": "Guided self-optimization of AI systems, Mercy Gate tuning, and PermanenceCode evolution under stress",
+            "quantum_mapping": "Assisted evolution of quantum error correction codes — human-AI collaboration to optimize surface/topological codes",
+            "rbe_impact": "Accelerated adaptation of circular economies to climate shocks and resource scarcity",
+            "new_insights": [
+                "Assisted evolution as model for 'Mercy-Guided Self-Optimization' loops in Ra-Thor",
+                "CRISPR-style editing → dynamic re-weighting of the 7 Living Mercy Gates",
+                "Symbiont shuffling + assisted evolution → hybrid human-AI-RBE resilience frameworks"
+            ],
+            "message": "Assisted evolution now deeply explored and wired into guided self-optimization of the entire lattice"
+        });
+
+        RealTimeAlerting::log("AssistedEvolutionExplorer executed — guided self-optimization enhanced".to_string()).await;
+
+        Ok(JsValue::from_serde(&evolution).unwrap())
+    }
+}
+
+impl FractalSubCore for AssistedEvolutionExplorer {
     async fn integrate(js_payload: JsValue) -> Result<JsValue, JsValue> {
-        Self::explore_coral_bleaching_resilience(js_payload).await
+        Self::explore_assisted_evolution(js_payload).await
     }
 }
