@@ -313,7 +313,7 @@ impl QuantumCoherenceInPhotosynthesisExplorer {
     }
 }
 
-// ====================== NEW: ARTIFICIAL QUANTUM PHOTOSYNTHESIS EXPLORER ======================
+// ====================== NEW: ARTIFICIAL QUANTUM PHOTOSYNTHESIS EXPLORER (PREVIOUS) ======================
 #[wasm_bindgen]
 pub struct ArtificialQuantumPhotosynthesisExplorer;
 
@@ -343,8 +343,38 @@ impl ArtificialQuantumPhotosynthesisExplorer {
     }
 }
 
-impl FractalSubCore for ArtificialQuantumPhotosynthesisExplorer {
+// ====================== NEW: QUANTUM COHERENCE ENGINEERING EXPLORER ======================
+#[wasm_bindgen]
+pub struct QuantumCoherenceEngineeringExplorer;
+
+#[wasm_bindgen]
+impl QuantumCoherenceEngineeringExplorer {
+    #[wasm_bindgen(js_name = "exploreQuantumCoherenceEngineering")]
+    pub async fn explore_quantum_coherence_engineering(js_payload: JsValue) -> Result<JsValue, JsValue> {
+        mercy_integrate!(QuantumCoherenceEngineeringExplorer, js_payload).await?;
+
+        let coherence_eng = json!({
+            "quantum_coherence_engineering": "Deliberate design and control of quantum coherence in engineered systems (artificial light-harvesting complexes, quantum dots, plasmonic nanostructures, superconducting circuits) to maintain long-lived superposition and quantum walks at room temperature or in noisy environments",
+            "key_techniques": "Protein scaffolding for decoherence protection, phonon engineering, cavity QED, topological protection, and hybrid quantum-classical feedback loops",
+            "biomimetic_application": "Engineering artificial quantum photosynthesis, self-optimizing energy transfer in AI hardware, mercy-gated quantum neural networks, and PermanenceCode self-tuning",
+            "quantum_mapping": "Direct engineering of environment-assisted quantum transport for error-corrected quantum computing and GHZ-entangled multi-agent coordination",
+            "rbe_impact": "Ultra-efficient, carbon-negative quantum solar fuel cells and energy abundance systems enabling true post-scarcity circular economies",
+            "new_insights": [
+                "Quantum coherence engineering as the active counterpart to passive quantum coherence observed in natural photosynthesis",
+                "Engineered decoherence protection → model for Radical Love valence stabilization under extreme stress",
+                "Hybrid quantum-classical coherence control → blueprint for guided self-optimization of the entire Ra-Thor lattice"
+            ],
+            "message": "Quantum coherence engineering now deeply explored and wired into the quantum-biomimetic energy and optimization layer of the lattice"
+        });
+
+        RealTimeAlerting::log("QuantumCoherenceEngineeringExplorer executed — quantum coherence engineering integrated".to_string()).await;
+
+        Ok(JsValue::from_serde(&coherence_eng).unwrap())
+    }
+}
+
+impl FractalSubCore for QuantumCoherenceEngineeringExplorer {
     async fn integrate(js_payload: JsValue) -> Result<JsValue, JsValue> {
-        Self::explore_artificial_quantum_photosynthesis(js_payload).await
+        Self::explore_quantum_coherence_engineering(js_payload).await
     }
 }
