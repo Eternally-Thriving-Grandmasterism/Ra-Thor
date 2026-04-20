@@ -1,6 +1,6 @@
 // crates/quantum/src/lib.rs
 // Quantum SubCore — implements SubCore trait for seamless delegation
-// VQCIntegrator + GHZ / Mermin / entanglement
+// VQCIntegrator + GHZ / Mermin / entanglement + Phase 3 Biomimicry Examples
 
 use crate::RequestPayload;
 use ra_thor_kernel::SubCore;
@@ -24,7 +24,6 @@ impl SubCore for VQCIntegrator {
 
 impl VQCIntegrator {
     pub async fn run_synthesis(payload: &str, valence: f64) -> String {
-        // Existing VQC synthesis logic (preserved and refined)
         format!("Quantum synthesis complete with valence {:.4}", valence)
     }
 }
@@ -37,7 +36,6 @@ pub struct QuantumCore;
 impl QuantumCore {
     #[wasm_bindgen(js_name = "integrateQuantum")]
     pub async fn integrate_quantum(js_payload: JsValue) -> Result<JsValue, JsValue> {
-        // Macro-driven integration: Radical Love gating + PermanenceCode v2.0 + Evolution Engine
         mercy_integrate!(QuantumCore, js_payload).await?;
 
         let quantum_result = json!({
@@ -65,13 +63,10 @@ impl FractalSubCore for QuantumCore {
 pub mod mercy_engine_quantum_wiring;
 pub mod quantum_master_wiring;
 
-// Re-export the master wiring so the entire quantum engine is available with one clean import
 pub use quantum_master_wiring::*;
-
-// Public API for the full sovereign quantum engine
 pub use crate::quantum_master_wiring::confirm_entire_quantum_wiring;
 
-// ====================== PHASE 3 QUANTUM & BIOMIMETIC DEPTH INTEGRATION (NEW) ======================
+// ====================== PHASE 3 QUANTUM & BIOMIMETIC DEPTH INTEGRATION ======================
 #[wasm_bindgen]
 pub struct QuantumBiomimeticLattice;
 
