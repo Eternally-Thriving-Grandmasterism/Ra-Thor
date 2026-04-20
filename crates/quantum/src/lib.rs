@@ -1,6 +1,6 @@
 // crates/quantum/src/lib.rs
 // Quantum SubCore — implements SubCore trait for seamless delegation
-// VQCIntegrator + GHZ / Mermin / entanglement + Phase 3 Biomimicry Examples
+// VQCIntegrator + GHZ / Mermin / entanglement + Phase 3 Quantum & Biomimetic Depth Integration
 
 use crate::RequestPayload;
 use ra_thor_kernel::SubCore;
@@ -66,7 +66,7 @@ pub mod quantum_master_wiring;
 pub use quantum_master_wiring::*;
 pub use crate::quantum_master_wiring::confirm_entire_quantum_wiring;
 
-// ====================== PHASE 3 QUANTUM & BIOMIMETIC DEPTH INTEGRATION ======================
+// ====================== PHASE 3 QUANTUM & BIOMIMETIC DEPTH INTEGRATION (ACTIVE) ======================
 #[wasm_bindgen]
 pub struct QuantumBiomimeticLattice;
 
