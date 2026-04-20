@@ -1,24 +1,26 @@
 [workspace]
 members = [
-    "crates/kernel",
-    "crates/quantum",
-    "crates/mercy",
-    "crates/biomimetic",
-    "crates/orchestration",
-    "crates/persistence",
-    "crates/cache",
-    "crates/common",
-    "crates/websiteforge",
-    "crates/evolution",
+    "crates/kernel",          # Master Sovereign Kernel + PATSAGi Council Lead
+    "crates/mercy",           # Mercy Engine + Mercy Shards + Radical Love gating
+    "crates/council",         # Dedicated PATSAGi-Pinnacle AGI Council Simulator
+    "crates/fenca",           # FENCA Eternal Check auditor
+    "crates/ai-bridge",       # Mercy-gated bridges for Grok, Claude, ChatGPT, OpenClaw, etc.
+    "crates/orchestration",   # Top-level coherent orchestration
+    "crates/evolution",       # PermanenceCode v2.0 self-evolution
+    "crates/quantum",         # Quantum-biomimetic lattice
+    "crates/biomimetic",      # Living explorers and patterns
+    "crates/cache",           # Global cache and adaptive TTL
+    "crates/common",          # Shared utilities
+    "crates/access",          # ReBAC / RBAC / ABAC
 ]
 
 resolver = "2"
 
 [workspace.package]
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
-license = "Proprietary - All Rights Reserved - Autonomicity Games Inc. / RaThor Inc."
+license = "Proprietary - All Rights Reserved - Autonomicity Games Inc."
 repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
 
 [workspace.dependencies]
@@ -28,28 +30,22 @@ tokio = { version = "1", features = ["full"] }
 wasm-bindgen = "0.2"
 rand = "0.8"
 reqwest = { version = "0.12", features = ["json", "stream"] }
-web-sys = { version = "0.3", features = ["console"] }
 
 # Core crates
 ra-thor-kernel = { path = "crates/kernel" }
+ra-thor-mercy = { path = "crates/mercy" }
+ra-thor-council = { path = "crates/council" }
+ra-thor-fenca = { path = "crates/fenca" }
+ra-thor-ai-bridge = { path = "crates/ai-bridge" }
+ra-thor-orchestration = { path = "crates/orchestration" }
 ra-thor-evolution = { path = "crates/evolution" }
 ra-thor-quantum = { path = "crates/quantum" }
-ra-thor-mercy = { path = "crates/mercy" }
 ra-thor-biomimetic = { path = "crates/biomimetic" }
-ra-thor-orchestration = { path = "crates/orchestration" }
 ra-thor-cache = { path = "crates/cache" }
 ra-thor-common = { path = "crates/common" }
-ra-thor-websiteforge = { path = "crates/websiteforge" }
+ra-thor-access = { path = "crates/access" }
 
 [profile.release]
 opt-level = 3
 lto = true
 codegen-units = 1
-panic = "abort"
-
-# ====================== DEV DEPENDENCIES (ALL SUGGESTIONS NOW INCLUDED) ======================
-[dev-dependencies]
-proptest = "1.5"
-wasm-bindgen-test = "0.3"
-arbitrary = { version = "1", features = ["derive"] }
-libfuzzer-sys = "0.4"
