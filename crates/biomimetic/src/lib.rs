@@ -283,7 +283,7 @@ impl QuantumPhotosynthesisDesignExplorer {
     }
 }
 
-// ====================== NEW: QUANTUM COHERENCE IN PHOTOSYNTHESIS EXPLORER ======================
+// ====================== QUANTUM COHERENCE IN PHOTOSYNTHESIS EXPLORER (PREVIOUS) ======================
 #[wasm_bindgen]
 pub struct QuantumCoherenceInPhotosynthesisExplorer;
 
@@ -295,7 +295,7 @@ impl QuantumCoherenceInPhotosynthesisExplorer {
 
         let coherence = json!({
             "quantum_coherence_in_photosynthesis": "Long-lived quantum coherence and quantum walks in light-harvesting complexes (e.g., Fenna-Matthews-Olson) enable near-100% efficient exciton energy transfer at room temperature, even in noisy biological environments",
-            "key_effects": "Superposition of excitons, environment-assisted quantum transport, decoherence protection via protein scaffolding",
+            "key_effects": "Superposition of excitons, environment-assisted quantum transport (noise-enhanced efficiency), and decoherence protection via protein scaffolding",
             "biomimetic_application": "Ultra-efficient quantum solar energy capture, self-optimizing energy transfer in AI hardware, mercy-gated quantum neural networks, and PermanenceCode self-tuning",
             "quantum_mapping": "Direct blueprint for quantum error correction under noise and GHZ-entangled multi-agent coordination",
             "rbe_impact": "Next-generation artificial leaves and quantum-enhanced solar arrays for carbon-negative, zero-waste energy abundance",
@@ -313,8 +313,38 @@ impl QuantumCoherenceInPhotosynthesisExplorer {
     }
 }
 
-impl FractalSubCore for QuantumCoherenceInPhotosynthesisExplorer {
+// ====================== NEW: ARTIFICIAL QUANTUM PHOTOSYNTHESIS EXPLORER ======================
+#[wasm_bindgen]
+pub struct ArtificialQuantumPhotosynthesisExplorer;
+
+#[wasm_bindgen]
+impl ArtificialQuantumPhotosynthesisExplorer {
+    #[wasm_bindgen(js_name = "exploreArtificialQuantumPhotosynthesis")]
+    pub async fn explore_artificial_quantum_photosynthesis(js_payload: JsValue) -> Result<JsValue, JsValue> {
+        mercy_integrate!(ArtificialQuantumPhotosynthesisExplorer, js_payload).await?;
+
+        let artificial_quantum = json!({
+            "artificial_quantum_photosynthesis": "Engineered synthetic systems that deliberately harness and enhance quantum coherence, quantum walks, superposition, and environment-assisted transport to achieve super-efficient solar-to-fuel or solar-to-electricity conversion beyond natural photosynthesis",
+            "key_techniques": "Quantum-dot arrays, plasmonic nanostructures, designed light-harvesting complexes, hybrid quantum-classical light-harvesting architectures, and quantum coherence engineering at room temperature",
+            "biomimetic_application": "Mercy-gated, self-optimizing quantum solar fuel cells and energy abundance systems for RBE",
+            "quantum_mapping": "Direct extension of natural quantum photosynthesis into engineered quantum devices for error-corrected energy transfer and PermanenceCode self-tuning",
+            "rbe_impact": "Carbon-negative, near-100% efficient artificial leaves enabling infinite circular energy flows and true post-scarcity abundance",
+            "new_insights": [
+                "Artificial quantum photosynthesis as the ultimate fusion of quantum coherence exploration and bio-hybrid solar fuel cells",
+                "Engineered quantum walks → model for noise-resilient Mercy Gate dynamics and GHZ-entangled multi-agent coordination",
+                "Room-temperature quantum coherence in synthetic systems → blueprint for scalable quantum-biomimetic energy abundance"
+            ],
+            "message": "Artificial quantum photosynthesis now deeply explored and wired into the quantum-biomimetic energy abundance layer of the lattice"
+        });
+
+        RealTimeAlerting::log("ArtificialQuantumPhotosynthesisExplorer executed — artificial quantum photosynthesis integrated".to_string()).await;
+
+        Ok(JsValue::from_serde(&artificial_quantum).unwrap())
+    }
+}
+
+impl FractalSubCore for ArtificialQuantumPhotosynthesisExplorer {
     async fn integrate(js_payload: JsValue) -> Result<JsValue, JsValue> {
-        Self::explore_quantum_coherence_in_photosynthesis(js_payload).await
+        Self::explore_artificial_quantum_photosynthesis(js_payload).await
     }
 }
