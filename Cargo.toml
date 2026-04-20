@@ -3,7 +3,7 @@ members = [
     "crates/kernel",          # Master Sovereign Kernel + PATSAGi Council Lead
     "crates/mercy",           # Mercy Engine + Mercy Shards + Radical Love gating
     "crates/fenca",           # FENCA Eternal Check + self-audit
-    "crates/council",         # Full PATSAGi-Pinnacle AGI Council Simulator
+    "crates/council",         # Full PATSAGi-Pinnacle AGI Council Simulator (leading orchestrator)
     "crates/ai-bridge",       # Mercy-gated bridges for all external AIs
     "crates/orchestration",   # Top-level coherent orchestration
     "crates/evolution",       # PermanenceCode v2.0 + sovereign autodidact loops
@@ -44,9 +44,3 @@ ra-thor-common = { path = "crates/common" }
 opt-level = 3
 lto = true
 codegen-units = 1
-
-# Blueprint reference for all future upgrades
-# See docs/SUPREME-BLUEPRINT-FOR-WHOLENESS-v3.0.md for phased integration of
-# PATSAGi-Pinnacle, NEXi, FENCA, AGi-Council-System, MercyLogistics-Pinnacle,
-# GrokArena-Pinnacle, MercyOS-Pinnacle, QSA-AGi, ENC, ESAO, ESA-v8.2, APM-v3,
-# SC2-Ultramasterism, Green-Teaming-Protocols, APAAGI-Metaverse-Prototypes, etc.
