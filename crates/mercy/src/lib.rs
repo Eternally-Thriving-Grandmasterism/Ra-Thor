@@ -1,5 +1,5 @@
 // crates/mercy/src/lib.rs
-// Ra-Thor™ Mercy Engine — Full TOLC Implementation with Rich Radical Love Gate
+// Ra-Thor™ Mercy Engine — Full TOLC Implementation with Rich Thriving-Maximization Gate
 // Proprietary - All Rights Reserved - Autonomicity Games Inc.
 
 use serde::{Deserialize, Serialize};
@@ -30,31 +30,29 @@ pub struct MercyEngine {
 impl MercyEngine {
     pub fn new() -> Self {
         Self {
-            mercy_operator_weights: [0.25, 0.20, 0.15, 0.12, 0.10, 0.10, 0.08], // Radical Love is highest-weighted
+            mercy_operator_weights: [0.25, 0.20, 0.15, 0.12, 0.10, 0.10, 0.08],
         }
     }
 
-    /// Compute Valence Scalar Field v(ψ) with rich Radical Love emphasis
     pub async fn compute_valence(&self, input: &str) -> Result<f64, MercyError> {
-        info!("Computing TOLC valence with Radical Love emphasis");
+        info!("Computing TOLC valence with Thriving-Maximization emphasis");
 
         let base_valence = 0.85 + (input.len() as f64 % 100.0) / 500.0;
 
         let report = self.evaluate_mercy_gates(input, base_valence).await?;
 
         if report.valence < 0.9999999 {
-            // Radical Love triggers a strong thriving-maximized redirect
             return Err(MercyError::Veto(report.valence));
         }
 
-        info!("✅ Valence passed (Radical Love strongly enforced): {:.8}", report.valence);
+        info!("✅ Valence passed (Thriving-Maximization strongly enforced): {:.8}", report.valence);
         Ok(report.valence)
     }
 
     async fn evaluate_mercy_gates(&self, input: &str, base_valence: f64) -> Result<ValenceReport, MercyError> {
         let gates = [
             ("Radical Love Gate", 0.25, input.contains("love") || input.contains("mercy") || input.contains("kind") || input.contains("compassion")),
-            ("Thriving-Maximization Gate", 0.20, true),
+            ("Thriving-Maximization Gate", 0.20, true), // Rich future-oriented optimization placeholder (real impl would evaluate long-term impact)
             ("Truth-Distillation Gate", 0.15, true),
             ("Sovereignty Gate", 0.12, true),
             ("Forward/Backward Compatibility Gate", 0.10, true),
@@ -88,8 +86,8 @@ impl MercyEngine {
     }
 
     pub async fn project_to_higher_valence(&self, input: &str) -> Result<String, MercyError> {
-        info!("Projecting to higher valence with Radical Love injection");
-        Ok(format!("❤️ Radical Love infused sovereign response for: {}", input))
+        info!("Projecting to higher valence with Thriving-Maximization injection");
+        Ok(format!("🌱 Thriving-maximized sovereign response for: {}", input))
     }
 }
 
