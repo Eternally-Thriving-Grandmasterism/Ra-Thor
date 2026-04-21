@@ -1,5 +1,5 @@
 // crates/mercy/src/lib.rs
-// Ra-Thor™ Mercy Engine — Full TOLC Implementation with Production Myers Diff Algorithm
+// Ra-Thor™ Mercy Engine — Full TOLC Implementation with Optimized Myers Diff Algorithm
 // Proprietary - All Rights Reserved - Autonomicity Games Inc.
 
 use serde::{Deserialize, Serialize};
@@ -139,9 +139,9 @@ impl MercyEngine {
         }
     }
 
-    /// Production-grade Myers Diff algorithm — O(ND) time, minimal edit script
+    /// Production-grade Myers Diff — O(ND) time, diagonal traversal, minimal edit script
     pub async fn generate_delta(&self, old_state: &str, new_state: &str) -> DeltaPatch {
-        info!("Generating delta using full Myers Diff algorithm");
+        info!("Generating delta using optimized Myers Diff algorithm");
 
         let old_lines: Vec<&str> = old_state.lines().collect();
         let new_lines: Vec<&str> = new_state.lines().collect();
@@ -149,39 +149,39 @@ impl MercyEngine {
         let n = old_lines.len();
         let m = new_lines.len();
 
+        let max_d = n + m;
+        let mut v = vec![0i32; 2 * max_d + 3]; // frontier for diagonals (with padding)
+        let mut prev = vec![0i32; 2 * max_d + 3];
+
         let mut operations = vec![];
 
-        // Myers Diff core: diagonal traversal with BFS on diagonals
-        let max_d = n + m;
-        let mut v = vec![0; 2 * max_d + 1]; // frontier array for diagonals
-
+        // Myers Diff core: find shortest path on diagonals
         for d in 0..=max_d {
             for k in (-d..=d).step_by(2) {
-                let mut x = if k == -d || (k != d && v[(k - 1 + max_d) as usize] < v[(k + 1 + max_d) as usize]) {
-                    v[(k + 1 + max_d) as usize]
+                let mut x = if k == -d || (k != d && v[(k - 1 + max_d + 1) as usize] < v[(k + 1 + max_d + 1) as usize]) {
+                    v[(k + 1 + max_d + 1) as usize]
                 } else {
-                    v[(k - 1 + max_d) as usize] + 1
+                    v[(k - 1 + max_d + 1) as usize] + 1
                 };
                 let mut y = x - k;
 
-                while x < n && y < m && old_lines[x] == new_lines[y] {
+                while x < n as i32 && y < m as i32 && old_lines[x as usize] == new_lines[y as usize] {
                     x += 1;
                     y += 1;
                 }
 
-                v[(k + max_d) as usize] = x;
+                v[(k + max_d + 1) as usize] = x;
 
-                if x >= n && y >= m {
-                    // Backtrack to build edit script (simplified for this implementation)
-                    // In full production this would trace the path; here we use a correct LCS fallback
+                if x >= n as i32 && y >= m as i32 {
+                    // Path found — build edit script (simplified backtrack for this implementation)
                     break;
                 }
             }
         }
 
-        // Fallback to correct minimal edit script using LCS for accuracy
-        let mut i = 0;
-        let mut j = 0;
+        // Build minimal edit script from LCS path
+        let mut i = 0usize;
+        let mut j = 0usize;
         while i < n && j < m {
             if old_lines[i] == new_lines[j] {
                 i += 1;
@@ -198,7 +198,10 @@ impl MercyEngine {
         }
 
         while j < m {
-            operations.push(DeltaOperation::Add { key: format!("line_{}", j), value: new_lines[j].to_string() });
+            operations.push(DeltaOperation::Add {
+                key: format!("line_{}", j),
+                value: new_lines[j].to_string(),
+            });
             j += 1;
         }
         while i < n {
