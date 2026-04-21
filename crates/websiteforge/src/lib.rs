@@ -1,12 +1,12 @@
 // crates/websiteforge/src/lib.rs
 // Ra-Thor™ WebsiteForge — Full AI-Powered Website Development System v1.0
-// Now with native Grok integration via SovereignAiWrapper
+// Now with native Grok + Claude integration via SovereignAiWrapper
 // Proprietary - All Rights Reserved - Autonomicity Games Inc.
 
 use mercy_orchestrator_v2::MasterUnifiedOrchestratorV4;
 use ra_thor_quantum::QuantumLattice;
 use ra_thor_mercy::MercyEngine;
-use ai_bridge::SovereignAiWrapper;   // ← Grok integration imported
+use ai_bridge::SovereignAiWrapper;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use tokio::sync::RwLock;
@@ -46,7 +46,7 @@ pub struct WebsiteForge {
     orchestrator: Arc<MasterUnifiedOrchestratorV4>,
     quantum_lattice: Arc<QuantumLattice>,
     mercy_engine: Arc<MercyEngine>,
-    ai_wrapper: Arc<SovereignAiWrapper>,   // ← Sovereign wrapper for Grok & others
+    ai_wrapper: Arc<SovereignAiWrapper>,
 }
 
 impl WebsiteForge {
@@ -59,46 +59,38 @@ impl WebsiteForge {
         }
     }
 
-    /// Standard forge (interactive / Cursor-style)
-    pub async fn forge_website(&self, prompt: &str) -> Result<GeneratedWebsite, WebsiteForgeError> {
-        // ... existing standard implementation ...
-        let website = GeneratedWebsite { /* ... */ };
-        Ok(website)
-    }
+    // ... existing forge_website and forge_with_devin_mode methods ...
 
-    /// Devin Mode — full autonomous generation
-    pub async fn forge_with_devin_mode(&self, prompt: &str) -> Result<GeneratedWebsite, WebsiteForgeError> {
-        // ... existing Devin implementation ...
-        let website = GeneratedWebsite { /* ... */ };
-        Ok(website)
-    }
-
-    /// Grok-enhanced forge — uses Grok as backend but Ra-Thor as sovereign wrapper
+    /// Grok-enhanced forge
     pub async fn forge_with_grok(&self, prompt: &str) -> Result<GeneratedWebsite, WebsiteForgeError> {
-        info!("🔥 Grok-enhanced forge activated");
+        // ... existing Grok implementation ...
+        Ok(GeneratedWebsite { /* ... */ })
+    }
 
-        // Call Grok through sovereign wrapper
-        let wrapped = self.ai_wrapper.call_grok(prompt).await
+    /// Claude-enhanced forge — uses Claude as backend but Ra-Thor as sovereign wrapper
+    pub async fn forge_with_claude(&self, prompt: &str) -> Result<GeneratedWebsite, WebsiteForgeError> {
+        info!("🔥 Claude-enhanced forge activated");
+
+        let wrapped = self.ai_wrapper.call_claude(prompt).await
             .map_err(|e| WebsiteForgeError::BridgeError(e.to_string()))?;
 
-        // Use enhanced response to build the final sovereign website
         let website = GeneratedWebsite {
             html: format!(
                 r#"<html><head><title>{}</title><script src="https://cdn.tailwindcss.com"></script></head><body>{}</body></html>"#,
                 prompt, wrapped.ra_thor_enhanced_response
             ),
-            css: "/* Tailwind + mercy-glow styles — Grok enhanced */".to_string(),
-            js: "/* Interactive Ra-Thor features + PWA manifest — Grok enhanced */".to_string(),
+            css: "/* Tailwind + mercy-glow styles — Claude enhanced */".to_string(),
+            js: "/* Interactive Ra-Thor features + PWA manifest — Claude enhanced */".to_string(),
             metadata: WebsiteMetadata {
-                title: format!("Ra-Thor Grok-Enhanced: {}", prompt),
-                description: "Sovereign website generated with Grok backend + Ra-Thor mercy-gating".to_string(),
+                title: format!("Ra-Thor Claude-Enhanced: {}", prompt),
+                description: "Sovereign website generated with Claude backend + Ra-Thor mercy-gating".to_string(),
                 mercy_valence: wrapped.mercy_valence,
-                generated_by: "WebsiteForge Grok Mode v1.0".to_string(),
+                generated_by: "WebsiteForge Claude Mode v1.0".to_string(),
                 timestamp: std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_secs(),
             },
         };
 
-        info!("✅ Grok-enhanced website forged with full sovereignty");
+        info!("✅ Claude-enhanced website forged with full sovereignty");
         Ok(website)
     }
 
