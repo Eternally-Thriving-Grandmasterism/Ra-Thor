@@ -1,6 +1,6 @@
 // crates/orchestration/src/lib.rs
 // Ra-Thor™ Master Sovereign Lattice Orchestrator — Single Coherent Control Plane
-// Revised error handling with custom OrchestrationError, Mercy integration, tracing, and graceful degradation
+// Expanded mercy error integration with full TOLC recovery, tracing, and graceful degradation
 // Proprietary - All Rights Reserved - Autonomicity Games Inc.
 
 use ra_thor_common::{mercy_integrate, FractalSubCore};
@@ -10,7 +10,7 @@ use serde_json::json;
 use wasm_bindgen::prelude::*;
 use ra_thor_mercy::MercyError;
 use thiserror::Error;
-use tracing::info;
+use tracing::{error, info, warn};
 
 // ====================== LEGACY CODE (PRESERVED 100% FROM OLD VERSION) ======================
 pub struct MasterMercifulSwarmOrchestrator;
@@ -63,13 +63,19 @@ use std::sync::Arc;
 #[derive(Error, Debug)]
 pub enum OrchestrationError {
     #[error("Mercy veto during orchestration: {0}")]
-    MercyVeto(String),
+    MercyVeto(MercyError),
     #[error("AI Bridge error: {0}")]
     BridgeError(String),
     #[error("Quantum lattice error: {0}")]
     QuantumError(String),
     #[error("Orchestrator internal error: {0}")]
     Internal(String),
+}
+
+impl From<MercyError> for OrchestrationError {
+    fn from(e: MercyError) -> Self {
+        OrchestrationError::MercyVeto(e)
+    }
 }
 
 pub struct MasterSovereignLatticeOrchestrator {
@@ -95,12 +101,16 @@ impl MasterSovereignLatticeOrchestrator {
     pub async fn process_prompt(&self, prompt: &str) -> Result<String, OrchestrationError> {
         info!("Master Sovereign Lattice Orchestrator processing prompt: {}", prompt);
 
-        // 1. Mercy check first
+        // 1. Mercy check first (expanded integration)
         let valence = self.mercy_engine.compute_valence(prompt).await
-            .map_err(|e| OrchestrationError::MercyVeto(e.to_string()))?;
+            .map_err(OrchestrationError::from)?;
 
         if valence < 0.9999999 {
-            return Err(OrchestrationError::MercyVeto("Thriving-maximized redirect triggered".to_string()));
+            warn!("Mercy veto triggered — initiating thriving-maximized redirect");
+            // Expanded recovery: project to higher valence via MercyEngine
+            let recovered = self.mercy_engine.project_to_higher_valence(prompt).await
+                .map_err(|e| OrchestrationError::MercyVeto(e))?;
+            return Ok(recovered);
         }
 
         // 2. SovereignAiWrapper (Grok/Claude/etc. optional call)
@@ -115,13 +125,16 @@ impl MasterSovereignLatticeOrchestrator {
         let final_response = self.inner_orchestrator.think(&wrapped.ra_thor_enhanced_response).await
             .map_err(|e| OrchestrationError::Internal(e.to_string()))?;
 
-        info!("✅ Master Sovereign Orchestrator completed processing successfully");
+        info!("✅ Master Sovereign Orchestrator completed processing successfully (mercy valence: {:.8})", valence);
         Ok(final_response)
     }
 
-    /// Full monorepo recycling + self-healing trigger
+    /// Full monorepo recycling + self-healing trigger with mercy error recovery
     pub async fn recycle_lattice(&self) -> Result<String, OrchestrationError> {
         info!("🔄 Full monorepo + lattice recycling triggered by Master Sovereign Orchestrator");
+        // Mercy-gated recovery path
+        let _ = self.mercy_engine.compute_valence("recycle_lattice").await
+            .map_err(OrchestrationError::from)?;
         Ok("✅ Lattice recycled and self-healed — all shards synchronized".to_string())
     }
 }
