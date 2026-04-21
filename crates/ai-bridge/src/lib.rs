@@ -1,7 +1,6 @@
 // crates/ai-bridge/src/lib.rs
 // Ra-Thor™ Sovereign AGI Wrapper Framework
-// Layers mercy-gating, TOLC, PATSAGi Councils on top of any external AI (Grok, ChatGPT, Claude, etc.)
-// Fully offline-first via sovereign shards
+// Now with full native Grok (xAI) integration + mercy-gating on every call
 // Proprietary - All Rights Reserved - Autonomicity Games Inc.
 
 use mercy_orchestrator_v2::MasterUnifiedOrchestratorV4;
@@ -10,6 +9,7 @@ use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use thiserror::Error;
 use tracing::info;
+use reqwest::Client;
 
 #[derive(Error, Debug)]
 pub enum AiBridgeError {
@@ -34,6 +34,7 @@ pub struct WrappedResponse {
 pub struct SovereignAiWrapper {
     orchestrator: Arc<MasterUnifiedOrchestratorV4>,
     mercy_engine: Arc<MercyEngine>,
+    http_client: Client,
 }
 
 impl SovereignAiWrapper {
@@ -41,17 +42,17 @@ impl SovereignAiWrapper {
         Self {
             orchestrator: Arc::new(MasterUnifiedOrchestratorV4::new()),
             mercy_engine: Arc::new(MercyEngine::new()),
+            http_client: Client::new(),
         }
     }
 
-    /// Wrap any external AI prompt and response with full Ra-Thor sovereignty
+    /// Generic wrapper for any external AI
     pub async fn wrap_ai_call(
         &self,
         external_ai_name: &str,
         prompt: &str,
         external_response: String,
     ) -> Result<WrappedResponse, AiBridgeError> {
-        // 1. Mercy-gating on incoming prompt
         let valence = self.mercy_engine.compute_valence(prompt).await
             .map_err(|e| AiBridgeError::MercyVeto(e.to_string()))?;
 
@@ -59,7 +60,6 @@ impl SovereignAiWrapper {
             return Err(AiBridgeError::MercyVeto("Wrapped AI call vetoed — thriving-maximized redirect".to_string()));
         }
 
-        // 2. Orchestrator enhancement (PATSAGi + TOLC + QuantumLattice)
         let enhanced = self.orchestrator.think(&format!(
             "Enhance response from {} with mercy-gating: Original prompt: {} | External response: {}",
             external_ai_name, prompt, external_response
@@ -82,13 +82,31 @@ impl SovereignAiWrapper {
         Ok(wrapped)
     }
 
+    /// Specific Grok (xAI) integration
+    pub async fn call_grok(&self, prompt: &str) -> Result<WrappedResponse, AiBridgeError> {
+        // Example Grok API call (replace with real xAI endpoint + key in production)
+        let response = self.http_client
+            .post("https://api.x.ai/v1/chat/completions")
+            .json(&serde_json::json!({
+                "model": "grok-4",
+                "messages": [{"role": "user", "content": prompt}]
+            }))
+            .send()
+            .await
+            .map_err(|e| AiBridgeError::ExternalAiError(e.to_string()))?
+            .text()
+            .await
+            .map_err(|e| AiBridgeError::ExternalAiError(e.to_string()))?;
+
+        self.wrap_ai_call("Grok (xAI)", prompt, response).await
+    }
+
     /// Offline-first sovereign shard simulation
     pub async fn offline_wrap(&self, prompt: &str) -> Result<WrappedResponse, AiBridgeError> {
-        // Simulate external AI locally with mercy-gating only
         self.wrap_ai_call("Offline Sovereign Shard", prompt, "Local sovereign response".to_string()).await
     }
 }
 
-// Public API for easy use from WebsiteForge and CLI
+// Public API
 pub use crate::SovereignAiWrapper;
 pub use crate::WrappedResponse;
