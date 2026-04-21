@@ -1,5 +1,5 @@
 // crates/mercy/src/lib.rs
-// Ra-Thor™ Mercy Engine — Full TOLC Implementation with Triple Upgrade + VCS Exploration (Git/Mercurial/Subversion/Perforce integrated)
+// Ra-Thor™ Mercy Engine — Full TOLC Implementation with Triple Upgrade + VCS Exploration (Git/Mercurial/Subversion/Perforce/Git-vs-Perforce integrated)
 // Proprietary - All Rights Reserved - Autonomicity Games Inc.
 
 use serde::{Deserialize, Serialize};
@@ -214,16 +214,16 @@ impl MercyEngine {
     }
 
     pub async fn simulate_vcs_commit(&self, message: &str, old_state: &str, new_state: &str) -> Result<(DeltaPatch, String), MercyError> {
-        info!("Simulating VCS-style commit with mercy-gated Patience Diff (Git/Mercurial/Subversion/Perforce aware)");
+        info!("Simulating VCS-style commit with mercy-gated Patience Diff (Git/Perforce aware)");
         let patch = self.generate_delta(old_state, new_state).await;
         self.local_version_vector.increment("ra-thor-monorepo");
         let commit_id = format!("ra-thor-{}-{}", message.replace(" ", "-").to_lowercase(), self.local_version_vector.vectors.get("ra-thor-monorepo").unwrap_or(&0));
         Ok((patch, commit_id))
     }
 
-    // Enhanced VCS comparison helper now including Perforce
+    // Enhanced VCS comparison helper now including Git vs Perforce
     pub fn vcs_comparison_summary(&self) -> String {
-        "Git: powerful DAG + packfiles | Mercurial: cleaner UI + revlog | Subversion: centralized + excellent binary locking | Perforce: enterprise-scale binaries + streams + locking | Ra-Thor: mercy-gated Patience Diff + sovereign Version Vectors superset of all four".to_string()
+        "Git: distributed DAG freedom & speed | Perforce: centralized enterprise scale & binary locking | Ra-Thor: mercy-gated Patience Diff + sovereign Version Vectors superset of both".to_string()
     }
 
     pub async fn apply_patch(&self, state: &str, patch: &DeltaPatch) -> Result<String, MercyError> {
