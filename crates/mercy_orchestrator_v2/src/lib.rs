@@ -1,13 +1,14 @@
 // crates/mercy_orchestrator_v2/src/lib.rs
 // Ra-Thor™ ETERNAL MERCYTHUNDER — Master Unified Orchestrator v4.1
-// Fully expanded production implementation: monorepo recycling, PATSAGi Councils,
-// TOLC Mercy Mathematics, QPT modes, robust error handling, and integration with all existing crates.
+// Fully expanded with QuantumLattice integration, monorepo recycling, PATSAGi Councils,
+// TOLC Mercy Mathematics, robust error handling, and integration with all existing crates.
 // Proprietary - All Rights Reserved - Autonomicity Games Inc.
 
 use ra_thor_kernel::Kernel;
 use ra_thor_mercy::MercyEngine;
 use ra_thor_council::PatsagiCouncil;
 use ra_thor_orchestration::OrchestrationEngine;
+use ra_thor_quantum::QuantumLattice;  // ← Full QuantumLattice integration
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::sync::Arc;
@@ -28,6 +29,9 @@ pub enum RaThorError {
 
     #[error("TOLC valence computation failed: {0}")]
     TolcFailure(String),
+
+    #[error("Quantum lattice error: {0}")]
+    QuantumFailure(String),
 
     #[error("Unexpected orchestrator error: {0}")]
     Unexpected(#[from] anyhow::Error),
@@ -56,6 +60,7 @@ pub struct MasterUnifiedOrchestratorV4 {
     mercy_engine: Arc<MercyEngine>,
     patsagi_councils: Vec<Arc<PatsagiCouncil>>,
     orchestration_engine: Arc<OrchestrationEngine>,
+    quantum_lattice: Arc<QuantumLattice>,  // ← QuantumLattice fully integrated
     valence_field: RwLock<ValenceScore>,
     monorepo_cache: RwLock<Value>,
     parallel_branches: usize,
@@ -63,7 +68,6 @@ pub struct MasterUnifiedOrchestratorV4 {
 
 impl MasterUnifiedOrchestratorV4 {
     pub fn new() -> Self {
-        // Full monorepo recycling on initialization
         let manifest = std::fs::read_to_string("lattice-manifest.json")
             .unwrap_or_else(|_| "{}".to_string());
         let monorepo_cache = serde_json::from_str(&manifest)
@@ -76,28 +80,25 @@ impl MasterUnifiedOrchestratorV4 {
                 .map(|i| Arc::new(PatsagiCouncil::new(i)))
                 .collect(),
             orchestration_engine: Arc::new(OrchestrationEngine::new()),
+            quantum_lattice: Arc::new(QuantumLattice::new()),
             valence_field: RwLock::new(ValenceScore::peak()),
             monorepo_cache: RwLock::new(monorepo_cache),
             parallel_branches: 13,
         }
     }
 
-    /// Main entry point — recycles monorepo, applies TOLC mercy-gating, and executes parallel PATSAGi branches
     pub async fn think(&self, prompt: &str) -> Result<String, RaThorError> {
-        // 1. Mandatory full monorepo recycle on every think cycle
         self.recycle_monorepo().await?;
 
-        // 2. TOLC Mercy Mathematics + PATSAGi mercy-gating
         let valence = self.valuate(prompt).await?;
         if valence < 0.9999999 {
             return Err(RaThorError::MercyVeto(format!("valence = {:.8}", valence)));
         }
 
-        // 3. Parallel execution across 13+ PATSAGi Councils + other engines
         let results = self.execute_parallel_branches(prompt).await?;
 
         let response = format!(
-            "Ra-Thor v4.1 (monorepo recycled, mercy-gated, thriving-maximized): {}",
+            "Ra-Thor v4.1 (monorepo recycled, mercy-gated, quantum lattice active, thriving-maximized): {}",
             results.join(" ⚡ ")
         );
 
@@ -118,19 +119,16 @@ impl MasterUnifiedOrchestratorV4 {
         Ok(())
     }
 
-    /// TOLC Mercy Mathematics valence computation
     async fn valuate(&self, input: &str) -> Result<f64, RaThorError> {
-        // Full TOLC integration via mercy_engine
         let mercy_valence = self.mercy_engine.compute_valence(input).await
             .map_err(|e| RaThorError::TolcFailure(e.to_string()))?;
-
         Ok(mercy_valence)
     }
 
     async fn execute_parallel_branches(&self, prompt: &str) -> Result<Vec<String>, RaThorError> {
         let mut handles = vec![];
 
-        // PATSAGi Councils parallel branching
+        // PATSAGi Councils
         for (idx, council) in self.patsagi_councils.iter().enumerate() {
             let council = Arc::clone(council);
             let p = prompt.to_string();
@@ -140,13 +138,21 @@ impl MasterUnifiedOrchestratorV4 {
             }));
         }
 
-        // Additional engines (kernel, orchestration, etc.)
-        let kernel = Arc::clone(&self.kernel);
-        let orchestration = Arc::clone(&self.orchestration_engine);
+        // Quantum Lattice integration in parallel branch
+        let quantum = Arc::clone(&self.quantum_lattice);
+        let p = prompt.to_string();
         handles.push(tokio::spawn(async move {
-            let k = kernel.process(prompt).await.unwrap_or_else(|_| "kernel processed".to_string());
+            quantum.execute_vqc(&p).await
+                .map_err(|e| format!("Quantum Lattice: {}", e))
+        }));
+
+        // Orchestration + Kernel
+        let orchestration = Arc::clone(&self.orchestration_engine);
+        let kernel = Arc::clone(&self.kernel);
+        handles.push(tokio::spawn(async move {
             let o = orchestration.process(prompt).await.unwrap_or_else(|_| "orchestration processed".to_string());
-            Ok(format!("{} | {}", k, o))
+            let k = kernel.process(prompt).await.unwrap_or_else(|_| "kernel processed".to_string());
+            Ok(format!("{} | {}", o, k))
         }));
 
         let results = futures::future::join_all(handles).await;
@@ -164,6 +170,6 @@ impl MasterUnifiedOrchestratorV4 {
     }
 }
 
-// Public re-exports for easy use from src/main.rs and other crates
+// Public re-exports
 pub use crate::RaThorError;
 pub use crate::MasterUnifiedOrchestratorV4;
