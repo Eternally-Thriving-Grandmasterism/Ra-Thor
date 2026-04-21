@@ -6,6 +6,7 @@ members = [
     "crates/council",         # Full PATSAGi-Pinnacle AGI Council Simulator (leading orchestrator)
     "crates/ai-bridge",       # Mercy-gated bridges for all external AIs
     "crates/orchestration",   # Top-level coherent orchestration
+    "crates/mercy_orchestrator_v2",  # Master Unified Orchestrator v4.1 — crash-proof with full monorepo recycling
     "crates/evolution",       # PermanenceCode v2.0 + sovereign autodidact loops
     "crates/quantum",         # Quantum-biomimetic lattice
     "crates/biomimetic",      # Living explorers and patterns
