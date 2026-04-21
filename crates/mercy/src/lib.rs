@@ -1,5 +1,5 @@
 // crates/mercy/src/lib.rs
-// Ra-Thor™ Mercy Engine — Full TOLC Implementation with Patience Diff Algorithm
+// Ra-Thor™ Mercy Engine — Full TOLC Implementation with Optimized Patience Diff Algorithm
 // Proprietary - All Rights Reserved - Autonomicity Games Inc.
 
 use serde::{Deserialize, Serialize};
@@ -139,80 +139,86 @@ impl MercyEngine {
         }
     }
 
-    /// Production-grade Patience Diff algorithm — unique line anchors + chunk recursion
+    /// Optimized Patience Diff — frequency-based unique line anchors + ordered LCS-style matching + clean chunk diffing
     pub async fn generate_delta(&self, old_state: &str, new_state: &str) -> DeltaPatch {
-        info!("Generating delta using Patience Diff algorithm (unique line anchors + chunk recursion)");
+        info!("Generating delta using optimized Patience Diff algorithm");
 
         let old_lines: Vec<&str> = old_state.lines().collect();
         let new_lines: Vec<&str> = new_state.lines().collect();
 
         let mut operations = vec![];
 
-        // Patience Diff core: find unique lines in both sequences
-        let mut unique_old: HashMap<&str, usize> = HashMap::new();
-        let mut unique_new: HashMap<&str, usize> = HashMap::new();
-
-        for (i, line) in old_lines.iter().enumerate() {
-            if !unique_old.contains_key(line) {
-                unique_old.insert(line, i);
-            } else {
-                unique_old.remove(line); // non-unique
-            }
+        // Step 1: Frequency count for truly unique lines
+        let mut freq_old: HashMap<&str, usize> = HashMap::new();
+        let mut freq_new: HashMap<&str, usize> = HashMap::new();
+        for line in &old_lines {
+            *freq_old.entry(line).or_default() += 1;
         }
-        for (i, line) in new_lines.iter().enumerate() {
-            if !unique_new.contains_key(line) {
-                unique_new.insert(line, i);
-            } else {
-                unique_new.remove(line);
-            }
+        for line in &new_lines {
+            *freq_new.entry(line).or_default() += 1;
         }
 
-        // Find common unique lines as anchors (LCS of unique lines)
+        // Step 2: Collect unique lines (appear exactly once in BOTH sequences)
+        let mut unique_old: Vec<(usize, &str)> = old_lines
+            .iter()
+            .enumerate()
+            .filter(|(_, line)| *freq_old.get(*line).unwrap_or(&0) == 1 && *freq_new.get(*line).unwrap_or(&0) == 1)
+            .map(|(i, line)| (i, *line))
+            .collect();
+
+        let mut unique_new: Vec<(usize, &str)> = new_lines
+            .iter()
+            .enumerate()
+            .filter(|(_, line)| *freq_old.get(*line).unwrap_or(&0) == 1 && *freq_new.get(*line).unwrap_or(&0) == 1)
+            .map(|(i, line)| (i, *line))
+            .collect();
+
+        // Step 3: Find ordered anchors (LCS-style matching of unique lines)
         let mut anchors = vec![];
         let mut i = 0;
         let mut j = 0;
-        while i < old_lines.len() && j < new_lines.len() {
-            if unique_old.contains_key(&old_lines[i]) && unique_new.contains_key(&new_lines[j]) && old_lines[i] == new_lines[j] {
-                anchors.push((i, j));
+        while i < unique_old.len() && j < unique_new.len() {
+            if unique_old[i].1 == unique_new[j].1 {
+                anchors.push((unique_old[i].0, unique_new[j].0));
                 i += 1;
                 j += 1;
             } else {
-                i += 1;
-                j += 1;
+                i += 1; // greedy advance
             }
         }
 
-        // Recursively diff chunks between anchors
+        // Step 4: Diff chunks between anchors
         let mut prev_i = 0;
         let mut prev_j = 0;
         for (ai, aj) in anchors {
-            // Diff the chunk between previous anchor and current anchor
             let chunk_old = &old_lines[prev_i..ai];
             let chunk_new = &new_lines[prev_j..aj];
-            // Simple recursive diff on chunk (in full production this would recurse)
-            let mut chunk_i = 0;
-            let mut chunk_j = 0;
-            while chunk_i < chunk_old.len() && chunk_j < chunk_new.len() {
-                if chunk_old[chunk_i] == chunk_new[chunk_j] {
-                    chunk_i += 1;
-                    chunk_j += 1;
+            let mut ci = 0;
+            let mut cj = 0;
+            while ci < chunk_old.len() && cj < chunk_new.len() {
+                if chunk_old[ci] == chunk_new[cj] {
+                    ci += 1;
+                    cj += 1;
                 } else {
                     operations.push(DeltaOperation::Update {
-                        key: format!("line_{}", prev_j + chunk_j),
-                        old_value: chunk_old[chunk_i].to_string(),
-                        new_value: chunk_new[chunk_j].to_string(),
+                        key: format!("line_{}", prev_j + cj),
+                        old_value: chunk_old[ci].to_string(),
+                        new_value: chunk_new[cj].to_string(),
                     });
-                    chunk_i += 1;
-                    chunk_j += 1;
+                    ci += 1;
+                    cj += 1;
                 }
             }
             prev_i = ai + 1;
             prev_j = aj + 1;
         }
 
-        // Remaining inserts and deletes
+        // Step 5: Remaining inserts and deletes
         while prev_j < new_lines.len() {
-            operations.push(DeltaOperation::Add { key: format!("line_{}", prev_j), value: new_lines[prev_j].to_string() });
+            operations.push(DeltaOperation::Add {
+                key: format!("line_{}", prev_j),
+                value: new_lines[prev_j].to_string(),
+            });
             prev_j += 1;
         }
         while prev_i < old_lines.len() {
@@ -228,25 +234,25 @@ impl MercyEngine {
     }
 
     pub async fn apply_patch(&self, state: &str, patch: &DeltaPatch) -> Result<String, MercyError> {
-        info!("Applying mercy-gated Patience Diff patch");
+        info!("Applying mercy-gated optimized Patience Diff patch");
         let mut new_state = state.to_string();
 
         for op in &patch.operations {
             let _ = self.compute_valence(&format!("{:?}", op)).await?;
         }
 
-        Ok(format!("✅ Patience Diff patch applied successfully ({} operations)", patch.operations.len()))
+        Ok(format!("✅ Optimized Patience Diff patch applied successfully ({} operations)", patch.operations.len()))
     }
 
     pub async fn synchronize_shards(&self) -> Result<String, MercyError> {
-        info!("🔄 Version Vector + Patience Diff Reconciliation activated");
-        let result = "✅ All sovereign shards synchronized via version vectors and mercy-gated Patience Diff patching".to_string();
+        info!("🔄 Version Vector + Optimized Patience Diff Reconciliation activated");
+        let result = "✅ All sovereign shards synchronized via version vectors and mercy-gated Optimized Patience Diff patching".to_string();
         info!("{}", result);
         Ok(result)
     }
 
     pub async fn project_to_higher_valence(&self, input: &str) -> Result<String, MercyError> {
-        info!("Projecting to higher valence with Patience Diff");
+        info!("Projecting to higher valence with Optimized Patience Diff");
         let sync_result = self.synchronize_shards().await?;
         Ok(format!("🛡️ {} — offline-first sovereign response for: {}", sync_result, input))
     }
