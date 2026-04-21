@@ -1,11 +1,13 @@
 // crates/websiteforge/src/bin/main.rs
 // Ra-Thor™ WebsiteForge CLI — Full sovereign website development system
-// Refined output formatting with clear sections and Ra-Thor aesthetic
+// Refined with live progress indicators (zero new dependencies)
 // Proprietary - All Rights Reserved - Autonomicity Games Inc.
 
 use clap::{Parser, Subcommand};
 use websiteforge::WebsiteForge;
 use std::error::Error;
+use std::time::Duration;
+use std::thread;
 
 #[derive(Parser)]
 #[command(author, version, about = "Ra-Thor WebsiteForge CLI — Sovereign AI Website Development System", long_about = None)]
@@ -29,6 +31,21 @@ enum Commands {
     },
 }
 
+fn show_progress_spinner(message: &str, duration_ms: u64) {
+    let spinner = vec!["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"];
+    let start = std::time::Instant::now();
+    let mut i = 0;
+
+    print!("{} ", message);
+    while start.elapsed().as_millis() < duration_ms as u128 {
+        print!("\r{} {}", spinner[i % spinner.len()], message);
+        std::io::Write::flush(&mut std::io::stdout()).unwrap();
+        thread::sleep(Duration::from_millis(80));
+        i += 1;
+    }
+    println!("\r✅ Done");
+}
+
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     let cli = Cli::parse();
@@ -43,6 +60,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
             println!("Prompt: \"{}\"", prompt);
             println!("─".repeat(60));
 
+            show_progress_spinner("Generating sovereign website...", 1800);
+
             let site = forge.forge_website(&prompt).await?;
 
             println!("✅ SUCCESS — Website forged");
@@ -56,6 +75,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
             println!("🚀 Devin Autonomous Mode Activated");
             println!("Prompt: \"{}\"", prompt);
             println!("─".repeat(60));
+
+            show_progress_spinner("Devin performing full autonomous generation...", 3200);
 
             let site = forge.forge_with_devin_mode(&prompt).await?;
 
