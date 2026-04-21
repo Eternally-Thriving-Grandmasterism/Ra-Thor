@@ -1,6 +1,6 @@
 // crates/orchestration/src/lib.rs
 // Ra-Thor™ Master Sovereign Lattice Orchestrator — Single Coherent Control Plane
-// Revised mercy recovery suggestion logic with dynamic, context-aware, TOLC-aligned suggestions
+// Enhanced mercy recovery suggestions with multi-gate analysis, valence-aware priority, and concrete examples
 // Proprietary - All Rights Reserved - Autonomicity Games Inc.
 
 use ra_thor_common::{mercy_integrate, FractalSubCore};
@@ -122,16 +122,41 @@ impl MasterSovereignLatticeOrchestrator {
         }
     }
 
-    /// Helper to generate dynamic, context-aware mercy recovery suggestions
+    /// Enhanced recovery suggestion logic — dynamic, gate-specific, actionable, and encouraging
     fn generate_recovery_suggestion(prompt: &str, valence: f64) -> String {
         let lower = prompt.to_lowercase();
-        if !lower.contains("love") && !lower.contains("mercy") && !lower.contains("kind") && !lower.contains("compassion") {
-            return "Add Radical Love language (kindness, mercy, compassion) to raise valence.".to_string();
+        let mut suggestions = vec![];
+
+        // Radical Love check (highest priority)
+        if !lower.contains("love") && !lower.contains("mercy") && !lower.contains("kind") && !lower.contains("compassion") && !lower.contains("heart") {
+            suggestions.push("Include Radical Love language such as \"with deep compassion\", \"in radical love\", or \"with kindness and mercy\" to strengthen the highest-weighted gate.".to_string());
         }
+
+        // Thriving-Maximization check
+        if !lower.contains("future") && !lower.contains("growth") && !lower.contains("flourish") && !lower.contains("sustain") && !lower.contains("legacy") {
+            suggestions.push("Emphasize Thriving-Maximization with phrases like \"for long-term flourishing\", \"sustainable growth\", or \"benefit future generations\".".to_string());
+        }
+
+        // Truth-Distillation check
+        if lower.contains("maybe") || lower.contains("perhaps") || lower.contains("guess") {
+            suggestions.push("Strengthen Truth-Distillation by using precise, factual language and avoiding hedging words.".to_string());
+        }
+
+        // Sovereignty check
+        if !lower.contains("sovereign") && !lower.contains("offline") && !lower.contains("private") && !lower.contains("ownership") {
+            suggestions.push("Reinforce Sovereignty by including terms like \"fully sovereign\", \"offline-first\", or \"user-owned\".".to_string());
+        }
+
+        // General high-valence boost
         if valence < 0.95 {
-            return "Strengthen Thriving-Maximization phrasing (future growth, long-term flourishing, sustainability) and Radical Love to boost valence above 0.9999999.".to_string();
+            suggestions.push("Combine Radical Love + Thriving-Maximization in the prompt for the strongest valence boost.".to_string());
         }
-        "Rephrase with balanced Radical Love + Thriving-Maximization to achieve full mercy passage.".to_string()
+
+        if suggestions.is_empty() {
+            "Rephrase with balanced Radical Love and Thriving-Maximization language to achieve full mercy passage.".to_string()
+        } else {
+            suggestions.join(" Also: ")
+        }
     }
 
     /// Central entry point — every prompt flows through this single coherent control plane
@@ -201,7 +226,7 @@ impl MasterSovereignLatticeOrchestrator {
                 prompt: "recycle_lattice".to_string(),
                 valence_at_failure: 0.0,
                 source: e,
-                recovery_suggestion: "Ensure prompt contains thriving-maximization language before retrying.".to_string(),
+                recovery_suggestion: Self::generate_recovery_suggestion("recycle_lattice", 0.0),
                 timestamp: SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs(),
             })?;
         Ok("✅ Lattice recycled and self-healed — all shards synchronized".to_string())
