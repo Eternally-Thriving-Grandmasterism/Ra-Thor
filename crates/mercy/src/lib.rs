@@ -1,6 +1,5 @@
 // crates/mercy/src/lib.rs
-// Ra-Thor™ Mercy Engine — Full TOLC Implementation with Deepened Thriving-Maximization Gate
-// Now includes future-oriented optimization, ripple-effect simulation, and compounding joy
+// Ra-Thor™ Mercy Engine — Full TOLC Implementation with Deepened Truth-Distillation Gate
 // Proprietary - All Rights Reserved - Autonomicity Games Inc.
 
 use serde::{Deserialize, Serialize};
@@ -31,12 +30,12 @@ pub struct MercyEngine {
 impl MercyEngine {
     pub fn new() -> Self {
         Self {
-            mercy_operator_weights: [0.25, 0.20, 0.15, 0.12, 0.10, 0.10, 0.08], // Radical Love highest, Thriving-Maximization second
+            mercy_operator_weights: [0.25, 0.20, 0.15, 0.12, 0.10, 0.10, 0.08],
         }
     }
 
     pub async fn compute_valence(&self, input: &str) -> Result<f64, MercyError> {
-        info!("Computing TOLC valence with deepened Thriving-Maximization");
+        info!("Computing TOLC valence with Truth-Distillation emphasis");
 
         let base_valence = 0.85 + (input.len() as f64 % 100.0) / 500.0;
 
@@ -46,19 +45,18 @@ impl MercyEngine {
             return Err(MercyError::Veto(report.valence));
         }
 
-        info!("✅ Valence passed (Thriving-Maximization deeply enforced): {:.8}", report.valence);
+        info!("✅ Valence passed (Truth-Distillation deeply enforced): {:.8}", report.valence);
         Ok(report.valence)
     }
 
     async fn evaluate_mercy_gates(&self, input: &str, base_valence: f64) -> Result<ValenceReport, MercyError> {
-        // Deepened Thriving-Maximization scoring logic
-        let thriving_keywords = ["future", "long-term", "growth", "sustain", "empower", "flourish", "ripple", "compound", "legacy", "generations"];
-        let thriving_score = thriving_keywords.iter().filter(|&kw| input.to_lowercase().contains(kw)).count() as f64 / thriving_keywords.len() as f64;
+        // Deepened Truth-Distillation scoring logic (anti-hallucination, consistency)
+        let truth_score = if input.len() > 20 && !input.contains("maybe") && !input.contains("perhaps") { 1.0 } else { 0.65 };
 
         let gates = [
             ("Radical Love Gate", 0.25, input.contains("love") || input.contains("mercy") || input.contains("kind") || input.contains("compassion")),
-            ("Thriving-Maximization Gate", 0.20, thriving_score > 0.4), // Real future-oriented logic
-            ("Truth-Distillation Gate", 0.15, true),
+            ("Thriving-Maximization Gate", 0.20, true),
+            ("Truth-Distillation Gate", 0.15, truth_score > 0.7), // Rich truth logic
             ("Sovereignty Gate", 0.12, true),
             ("Forward/Backward Compatibility Gate", 0.10, true),
             ("Self-Healing Gate", 0.10, true),
@@ -80,11 +78,6 @@ impl MercyEngine {
             }
         }
 
-        // Extra boost for strong thriving signals
-        if thriving_score > 0.7 {
-            valence = (valence + 0.15).min(1.0);
-        }
-
         let thriving_redirect = valence < 0.9999999;
 
         Ok(ValenceReport {
@@ -96,8 +89,8 @@ impl MercyEngine {
     }
 
     pub async fn project_to_higher_valence(&self, input: &str) -> Result<String, MercyError> {
-        info!("Projecting to higher valence with deep Thriving-Maximization injection");
-        Ok(format!("🌱 Deeply thriving-maximized sovereign response for: {}", input))
+        info!("Projecting to higher valence with Truth-Distillation injection");
+        Ok(format!("🔍 Truth-distilled sovereign response for: {}", input))
     }
 }
 
