@@ -1,6 +1,6 @@
 // crates/orchestration/src/lib.rs
 // Ra-Thor™ Master Sovereign Lattice Orchestrator — Single Coherent Control Plane
-// Expanded mercy error integration with full TOLC recovery, tracing, and graceful degradation
+// Revised mercy error propagation with clean ? usage, context, recovery, and graceful degradation
 // Proprietary - All Rights Reserved - Autonomicity Games Inc.
 
 use ra_thor_common::{mercy_integrate, FractalSubCore};
@@ -101,15 +101,14 @@ impl MasterSovereignLatticeOrchestrator {
     pub async fn process_prompt(&self, prompt: &str) -> Result<String, OrchestrationError> {
         info!("Master Sovereign Lattice Orchestrator processing prompt: {}", prompt);
 
-        // 1. Mercy check first (expanded integration)
-        let valence = self.mercy_engine.compute_valence(prompt).await
-            .map_err(OrchestrationError::from)?;
+        // 1. Mercy check first (expanded propagation with ?)
+        let valence = self.mercy_engine.compute_valence(prompt).await?;
 
         if valence < 0.9999999 {
             warn!("Mercy veto triggered — initiating thriving-maximized redirect");
-            // Expanded recovery: project to higher valence via MercyEngine
+            // Expanded mercy recovery path
             let recovered = self.mercy_engine.project_to_higher_valence(prompt).await
-                .map_err(|e| OrchestrationError::MercyVeto(e))?;
+                .map_err(OrchestrationError::from)?;
             return Ok(recovered);
         }
 
@@ -133,8 +132,7 @@ impl MasterSovereignLatticeOrchestrator {
     pub async fn recycle_lattice(&self) -> Result<String, OrchestrationError> {
         info!("🔄 Full monorepo + lattice recycling triggered by Master Sovereign Orchestrator");
         // Mercy-gated recovery path
-        let _ = self.mercy_engine.compute_valence("recycle_lattice").await
-            .map_err(OrchestrationError::from)?;
+        let _ = self.mercy_engine.compute_valence("recycle_lattice").await?;
         Ok("✅ Lattice recycled and self-healed — all shards synchronized".to_string())
     }
 }
