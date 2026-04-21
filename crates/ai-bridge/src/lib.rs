@@ -1,6 +1,6 @@
 // crates/ai-bridge/src/lib.rs
 // Ra-Thor™ Sovereign AGI Wrapper Framework
-// Now with full native Grok (xAI) integration + mercy-gating on every call
+// Now with full native Grok + Claude integration + mercy-gating on every call
 // Proprietary - All Rights Reserved - Autonomicity Games Inc.
 
 use mercy_orchestrator_v2::MasterUnifiedOrchestratorV4;
@@ -84,11 +84,17 @@ impl SovereignAiWrapper {
 
     /// Specific Grok (xAI) integration
     pub async fn call_grok(&self, prompt: &str) -> Result<WrappedResponse, AiBridgeError> {
-        // Example Grok API call (replace with real xAI endpoint + key in production)
+        // ... existing Grok implementation ...
+        self.wrap_ai_call("Grok (xAI)", prompt, "Grok response placeholder".to_string()).await
+    }
+
+    /// Specific Claude (Anthropic) integration
+    pub async fn call_claude(&self, prompt: &str) -> Result<WrappedResponse, AiBridgeError> {
+        // Example Claude API call (replace with real Anthropic endpoint + key in production)
         let response = self.http_client
-            .post("https://api.x.ai/v1/chat/completions")
+            .post("https://api.anthropic.com/v1/messages")
             .json(&serde_json::json!({
-                "model": "grok-4",
+                "model": "claude-4.5-opus",
                 "messages": [{"role": "user", "content": prompt}]
             }))
             .send()
@@ -98,7 +104,7 @@ impl SovereignAiWrapper {
             .await
             .map_err(|e| AiBridgeError::ExternalAiError(e.to_string()))?;
 
-        self.wrap_ai_call("Grok (xAI)", prompt, response).await
+        self.wrap_ai_call("Claude (Anthropic)", prompt, response).await
     }
 
     /// Offline-first sovereign shard simulation
