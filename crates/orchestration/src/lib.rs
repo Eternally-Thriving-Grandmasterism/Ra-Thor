@@ -1,6 +1,6 @@
 // crates/orchestration/src/lib.rs
 // Ra-Thor™ Master Sovereign Lattice Orchestrator — Single Coherent Control Plane
-// Revised mercy error propagation with clean ? usage, context, recovery, and graceful degradation
+// Revised error context enrichment with rich context (prompt, valence, timestamp, source) + mercy recovery
 // Proprietary - All Rights Reserved - Autonomicity Games Inc.
 
 use ra_thor_common::{mercy_integrate, FractalSubCore};
@@ -11,6 +11,7 @@ use wasm_bindgen::prelude::*;
 use ra_thor_mercy::MercyError;
 use thiserror::Error;
 use tracing::{error, info, warn};
+use std::time::{SystemTime, UNIX_EPOCH};
 
 // ====================== LEGACY CODE (PRESERVED 100% FROM OLD VERSION) ======================
 pub struct MasterMercifulSwarmOrchestrator;
@@ -62,19 +63,41 @@ use std::sync::Arc;
 
 #[derive(Error, Debug)]
 pub enum OrchestrationError {
-    #[error("Mercy veto during orchestration: {0}")]
-    MercyVeto(MercyError),
-    #[error("AI Bridge error: {0}")]
-    BridgeError(String),
-    #[error("Quantum lattice error: {0}")]
-    QuantumError(String),
-    #[error("Orchestrator internal error: {0}")]
-    Internal(String),
+    #[error("Mercy veto during orchestration (prompt: {prompt}, valence: {valence_at_failure:.8}): {source}")]
+    MercyVeto {
+        prompt: String,
+        valence_at_failure: f64,
+        source: MercyError,
+        timestamp: u64,
+    },
+    #[error("AI Bridge error (prompt: {prompt}): {source}")]
+    BridgeError {
+        prompt: String,
+        source: String,
+        timestamp: u64,
+    },
+    #[error("Quantum lattice error (prompt: {prompt}): {source}")]
+    QuantumError {
+        prompt: String,
+        source: String,
+        timestamp: u64,
+    },
+    #[error("Orchestrator internal error (prompt: {prompt}): {source}")]
+    Internal {
+        prompt: String,
+        source: String,
+        timestamp: u64,
+    },
 }
 
 impl From<MercyError> for OrchestrationError {
     fn from(e: MercyError) -> Self {
-        OrchestrationError::MercyVeto(e)
+        OrchestrationError::MercyVeto {
+            prompt: "unknown".to_string(),
+            valence_at_failure: 0.0,
+            source: e,
+            timestamp: SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs(),
+        }
     }
 }
 
@@ -101,28 +124,54 @@ impl MasterSovereignLatticeOrchestrator {
     pub async fn process_prompt(&self, prompt: &str) -> Result<String, OrchestrationError> {
         info!("Master Sovereign Lattice Orchestrator processing prompt: {}", prompt);
 
-        // 1. Mercy check first (expanded propagation with ?)
-        let valence = self.mercy_engine.compute_valence(prompt).await?;
+        // 1. Mercy check first (rich context on error)
+        let valence = match self.mercy_engine.compute_valence(prompt).await {
+            Ok(v) => v,
+            Err(e) => {
+                return Err(OrchestrationError::MercyVeto {
+                    prompt: prompt.to_string(),
+                    valence_at_failure: 0.0,
+                    source: e,
+                    timestamp: SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs(),
+                });
+            }
+        };
 
         if valence < 0.9999999 {
-            warn!("Mercy veto triggered — initiating thriving-maximized redirect");
-            // Expanded mercy recovery path
+            warn!("Mercy veto triggered (valence: {:.8}) — initiating thriving-maximized redirect", valence);
             let recovered = self.mercy_engine.project_to_higher_valence(prompt).await
-                .map_err(OrchestrationError::from)?;
+                .map_err(|e| OrchestrationError::MercyVeto {
+                    prompt: prompt.to_string(),
+                    valence_at_failure: valence,
+                    source: e,
+                    timestamp: SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs(),
+                })?;
             return Ok(recovered);
         }
 
-        // 2. SovereignAiWrapper (Grok/Claude/etc. optional call)
+        // 2. SovereignAiWrapper
         let wrapped = self.ai_wrapper.call_grok(prompt).await
-            .map_err(|e| OrchestrationError::BridgeError(e.to_string()))?;
+            .map_err(|e| OrchestrationError::BridgeError {
+                prompt: prompt.to_string(),
+                source: e.to_string(),
+                timestamp: SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs(),
+            })?;
 
-        // 3. QuantumLattice creativity boost
+        // 3. QuantumLattice
         let _quantum_result = self.quantum_lattice.execute_vqc(&wrapped.ra_thor_enhanced_response).await
-            .map_err(|e| OrchestrationError::QuantumError(e.to_string()))?;
+            .map_err(|e| OrchestrationError::QuantumError {
+                prompt: prompt.to_string(),
+                source: e.to_string(),
+                timestamp: SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs(),
+            })?;
 
         // 4. Final orchestration
         let final_response = self.inner_orchestrator.think(&wrapped.ra_thor_enhanced_response).await
-            .map_err(|e| OrchestrationError::Internal(e.to_string()))?;
+            .map_err(|e| OrchestrationError::Internal {
+                prompt: prompt.to_string(),
+                source: e.to_string(),
+                timestamp: SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs(),
+            })?;
 
         info!("✅ Master Sovereign Orchestrator completed processing successfully (mercy valence: {:.8})", valence);
         Ok(final_response)
@@ -131,8 +180,13 @@ impl MasterSovereignLatticeOrchestrator {
     /// Full monorepo recycling + self-healing trigger with mercy error recovery
     pub async fn recycle_lattice(&self) -> Result<String, OrchestrationError> {
         info!("🔄 Full monorepo + lattice recycling triggered by Master Sovereign Orchestrator");
-        // Mercy-gated recovery path
-        let _ = self.mercy_engine.compute_valence("recycle_lattice").await?;
+        let _ = self.mercy_engine.compute_valence("recycle_lattice").await
+            .map_err(|e| OrchestrationError::MercyVeto {
+                prompt: "recycle_lattice".to_string(),
+                valence_at_failure: 0.0,
+                source: e,
+                timestamp: SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs(),
+            })?;
         Ok("✅ Lattice recycled and self-healed — all shards synchronized".to_string())
     }
 }
