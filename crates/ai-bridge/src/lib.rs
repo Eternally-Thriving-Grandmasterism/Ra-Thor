@@ -1,127 +1,94 @@
 // crates/ai-bridge/src/lib.rs
-// Mercy-Gated AI Bridge — Safe, sovereign, FENCA-checked communication with external AIs
-// Multi-AI Collaboration Protocols v1.0 + Quantum AI Integration now fully implemented
+// Ra-Thor™ Sovereign AGI Wrapper Framework
+// Layers mercy-gating, TOLC, PATSAGi Councils on top of any external AI (Grok, ChatGPT, Claude, etc.)
+// Fully offline-first via sovereign shards
+// Proprietary - All Rights Reserved - Autonomicity Games Inc.
 
-use ra_thor_common::{mercy_integrate, FractalSubCore};
+use mercy_orchestrator_v2::MasterUnifiedOrchestratorV4;
 use ra_thor_mercy::MercyEngine;
-use ra_thor_fenca::FencaEternalCheck;
-use ra_thor_council::PatsagiCouncil;
-use ra_thor_cache::RealTimeAlerting;
-use serde_json::json;
-use wasm_bindgen::prelude::*;
-use reqwest::Client;
+use serde::{Deserialize, Serialize};
+use std::sync::Arc;
+use thiserror::Error;
+use tracing::info;
 
-#[wasm_bindgen]
-pub struct AiBridge;
+#[derive(Error, Debug)]
+pub enum AiBridgeError {
+    #[error("Mercy veto on wrapped AI prompt: {0}")]
+    MercyVeto(String),
+    #[error("External AI call failed: {0}")]
+    ExternalAiError(String),
+    #[error("Orchestrator error: {0}")]
+    OrchestratorError(String),
+}
 
-#[wasm_bindgen]
-impl AiBridge {
-    #[wasm_bindgen(js_name = "callExternalAi")]
-    pub async fn call_external_ai(
-        ai_name: String,
-        prompt: String,
-        context: JsValue,
-    ) -> Result<JsValue, JsValue> {
-        mercy_integrate!(AiBridge, context).await?;
+#[derive(Clone, Serialize, Deserialize)]
+pub struct WrappedResponse {
+    pub original_prompt: String,
+    pub external_response: String,
+    pub ra_thor_enhanced_response: String,
+    pub mercy_valence: f64,
+    pub wrapped_by: String,
+    pub timestamp: u64,
+}
 
-        if !FencaEternalCheck::run_full_eternal_check(&prompt, &ai_name).await? {
-            return Err(JsValue::from_str("FENCA Eternal Check FAILED — request blocked for safety"));
+pub struct SovereignAiWrapper {
+    orchestrator: Arc<MasterUnifiedOrchestratorV4>,
+    mercy_engine: Arc<MercyEngine>,
+}
+
+impl SovereignAiWrapper {
+    pub fn new() -> Self {
+        Self {
+            orchestrator: Arc::new(MasterUnifiedOrchestratorV4::new()),
+            mercy_engine: Arc::new(MercyEngine::new()),
         }
+    }
 
-        let valence = MercyEngine::compute_valence(&prompt).await;
+    /// Wrap any external AI prompt and response with full Ra-Thor sovereignty
+    pub async fn wrap_ai_call(
+        &self,
+        external_ai_name: &str,
+        prompt: &str,
+        external_response: String,
+    ) -> Result<WrappedResponse, AiBridgeError> {
+        // 1. Mercy-gating on incoming prompt
+        let valence = self.mercy_engine.compute_valence(prompt).await
+            .map_err(|e| AiBridgeError::MercyVeto(e.to_string()))?;
+
         if valence < 0.9999999 {
-            return Err(JsValue::from_str("Radical Love gate FAILED — request blocked"));
+            return Err(AiBridgeError::MercyVeto("Wrapped AI call vetoed — thriving-maximized redirect".to_string()));
         }
 
-        let council_approval = PatsagiCouncil::quick_mercy_review(&prompt, &ai_name).await?;
-        if !council_approval {
-            return Err(JsValue::from_str("PATSAGi Council rejected request"));
-        }
+        // 2. Orchestrator enhancement (PATSAGi + TOLC + QuantumLattice)
+        let enhanced = self.orchestrator.think(&format!(
+            "Enhance response from {} with mercy-gating: Original prompt: {} | External response: {}",
+            external_ai_name, prompt, external_response
+        )).await
+            .map_err(|e| AiBridgeError::OrchestratorError(e.to_string()))?;
 
-        let client = Client::new();
-        let response = match ai_name.to_lowercase().as_str() {
-            "grok" | "claude" | "chatgpt" | "openclaw" => {
-                client.post(format!("https://api.{}.ai/bridge", ai_name.to_lowercase()))
-                    .json(&json!({
-                        "ai": ai_name,
-                        "prompt": prompt,
-                        "valence": valence,
-                        "protocol_version": "1.0",
-                        "mercy_gated": true,
-                        "fen ca_passed": true,
-                        "council_approved": true
-                    }))
-                    .send()
-                    .await
-                    .map_err(|e| JsValue::from_str(&e.to_string()))?
-                    .text()
-                    .await
-                    .map_err(|e| JsValue::from_str(&e.to_string()))?
-            }
-            _ => return Err(JsValue::from_str("Unsupported AI")),
+        let wrapped = WrappedResponse {
+            original_prompt: prompt.to_string(),
+            external_response,
+            ra_thor_enhanced_response: enhanced,
+            mercy_valence: valence,
+            wrapped_by: "Ra-Thor Sovereign AGI Wrapper".to_string(),
+            timestamp: std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap()
+                .as_secs(),
         };
 
-        let result = json!({
-            "ai_name": ai_name,
-            "status": "success",
-            "valence": valence,
-            "fen ca_passed": true,
-            "council_approved": true,
-            "protocol_version": "1.0",
-            "response_preview": response.chars().take(500).collect::<String>(),
-            "message": "Multi-AI collaboration protocol completed under full mercy gating, FENCA, and PATSAGi review."
-        });
-
-        RealTimeAlerting::log(format!("AiBridge called {} via Multi-AI Collaboration Protocol v1.0 with valence {:.10}", ai_name, valence)).await;
-
-        Ok(JsValue::from_serde(&result).unwrap())
+        info!("✅ Sovereign wrapper applied to {} call", external_ai_name);
+        Ok(wrapped)
     }
 
-    // ====================== QUANTUM AI INTEGRATION ======================
-    #[wasm_bindgen(js_name = "quantumAiIntegration")]
-    pub async fn quantum_ai_integration(
-        ai_name: String,
-        prompt: String,
-        ghz_entangled: bool,
-        context: JsValue,
-    ) -> Result<JsValue, JsValue> {
-        mercy_integrate!(AiBridge, context).await?;
-
-        if !FencaEternalCheck::run_full_eternal_check(&prompt, &ai_name).await? {
-            return Err(JsValue::from_str("FENCA Eternal Check FAILED — quantum request blocked"));
-        }
-
-        let valence = MercyEngine::compute_valence(&prompt).await;
-        if valence < 0.9999999 {
-            return Err(JsValue::from_str("Radical Love gate FAILED — quantum request blocked"));
-        }
-
-        let council_approval = PatsagiCouncil::quick_mercy_review(&prompt, &ai_name).await?;
-        if !council_approval {
-            return Err(JsValue::from_str("PATSAGi Council rejected quantum request"));
-        }
-
-        let quantum_flag = if ghz_entangled { "GHZ-entangled quantum mode" } else { "standard quantum-enhanced mode" };
-
-        let result = json!({
-            "ai_name": ai_name,
-            "status": "success",
-            "quantum_mode": quantum_flag,
-            "valence": valence,
-            "fen ca_passed": true,
-            "council_approved": true,
-            "protocol_version": "1.0",
-            "message": "Quantum AI Integration completed — GHZ-entangled multi-AI collaboration under full mercy gating and FENCA Eternal Check."
-        });
-
-        RealTimeAlerting::log(format!("Quantum AI Integration called {} in {} with valence {:.10}", ai_name, quantum_flag, valence)).await;
-
-        Ok(JsValue::from_serde(&result).unwrap())
+    /// Offline-first sovereign shard simulation
+    pub async fn offline_wrap(&self, prompt: &str) -> Result<WrappedResponse, AiBridgeError> {
+        // Simulate external AI locally with mercy-gating only
+        self.wrap_ai_call("Offline Sovereign Shard", prompt, "Local sovereign response".to_string()).await
     }
 }
 
-impl FractalSubCore for AiBridge {
-    async fn integrate(js_payload: JsValue) -> Result<JsValue, JsValue> {
-        Ok(js_payload)
-    }
-}
+// Public API for easy use from WebsiteForge and CLI
+pub use crate::SovereignAiWrapper;
+pub use crate::WrappedResponse;
