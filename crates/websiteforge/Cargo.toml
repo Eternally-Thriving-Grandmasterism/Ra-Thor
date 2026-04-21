@@ -1,9 +1,9 @@
 [package]
 name = "ra-thor-websiteforge"
-version = "0.1.0"
+version = "0.3.0"
 edition = "2021"
 license = "Proprietary - All Rights Reserved - Autonomicity Games Inc."
-description = "Sovereign mercy-gated website + translation engine. Perfect HTML/CSS/JS + bidirectional translations on the first go."
+description = "Sovereign mercy-gated website + translation engine. Perfect HTML/CSS/JS + bidirectional. Full AI-powered Website Development System for Ra-Thor."
 
 [dependencies]
 ra-thor-kernel = { path = "../kernel" }
@@ -11,5 +11,10 @@ ra-thor-mercy = { path = "../mercy" }
 ra-thor-quantum = { path = "../quantum" }
 ra-thor-biomimetic = { path = "../biomimetic" }
 ra-thor-common = { path = "../common" }
+mercy_orchestrator_v2 = { path = "../mercy_orchestrator_v2" }
 serde = { version = "1.0", features = ["derive"] }
 tokio = { version = "1", features = ["full"] }
+serde_json = "1.0"
+thiserror = "1.0"
+tracing = "0.1"
+futures = "0.3"
