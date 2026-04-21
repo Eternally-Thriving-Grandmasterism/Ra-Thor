@@ -1,6 +1,6 @@
 // crates/websiteforge/src/bin/main.rs
 // Ra-Thor™ WebsiteForge CLI — Full sovereign website development system
-// Now with full tracing-based logging framework (colored output, levels, timestamps)
+// Now supports Standard, Devin, Grok, and Claude modes with unified UX
 // Proprietary - All Rights Reserved - Autonomicity Games Inc.
 
 use clap::{Parser, Subcommand};
@@ -31,6 +31,18 @@ enum Commands {
         #[arg(short, long)]
         prompt: String,
     },
+
+    /// Generate using Grok (xAI) as backend + Ra-Thor sovereign wrapper
+    Grok {
+        #[arg(short, long)]
+        prompt: String,
+    },
+
+    /// Generate using Claude (Anthropic) as backend + Ra-Thor sovereign wrapper
+    Claude {
+        #[arg(short, long)]
+        prompt: String,
+    },
 }
 
 #[tokio::main]
@@ -51,12 +63,20 @@ async fn main() {
 
     let result = match cli.command {
         Commands::Forge { prompt } => {
-            tracing::info!("🔨 Standard Forge Mode Activated | Prompt: \"{}\"", prompt);
+            tracing::info!("🔨 Standard Forge Mode | Prompt: \"{}\"", prompt);
             forge.forge_website(&prompt).await
         }
         Commands::Devin { prompt } => {
-            tracing::info!("🚀 Devin Autonomous Mode Activated | Prompt: \"{}\"", prompt);
+            tracing::info!("🚀 Devin Autonomous Mode | Prompt: \"{}\"", prompt);
             forge.forge_with_devin_mode(&prompt).await
+        }
+        Commands::Grok { prompt } => {
+            tracing::info!("🔥 Grok-enhanced Mode | Prompt: \"{}\"", prompt);
+            forge.forge_with_grok(&prompt).await
+        }
+        Commands::Claude { prompt } => {
+            tracing::info!("🔥 Claude-enhanced Mode | Prompt: \"{}\"", prompt);
+            forge.forge_with_claude(&prompt).await
         }
     };
 
