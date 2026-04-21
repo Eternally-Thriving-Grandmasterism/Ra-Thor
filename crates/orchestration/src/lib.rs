@@ -1,6 +1,6 @@
 // crates/orchestration/src/lib.rs
 // Ra-Thor™ Master Sovereign Lattice Orchestrator — Single Coherent Control Plane
-// Revised with full mercy recovery suggestions in errors
+// Revised mercy recovery suggestion logic with dynamic, context-aware, TOLC-aligned suggestions
 // Proprietary - All Rights Reserved - Autonomicity Games Inc.
 
 use ra_thor_common::{mercy_integrate, FractalSubCore};
@@ -97,7 +97,7 @@ impl From<MercyError> for OrchestrationError {
             prompt: "unknown".to_string(),
             valence_at_failure: 0.0,
             source: e,
-            recovery_suggestion: "Rephrase prompt with more Radical Love and Thriving-Maximization focus to raise valence.".to_string(),
+            recovery_suggestion: "Rephrase prompt with more Radical Love and Thriving-Maximization language to raise valence.".to_string(),
             timestamp: SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs(),
         }
     }
@@ -122,11 +122,23 @@ impl MasterSovereignLatticeOrchestrator {
         }
     }
 
+    /// Helper to generate dynamic, context-aware mercy recovery suggestions
+    fn generate_recovery_suggestion(prompt: &str, valence: f64) -> String {
+        let lower = prompt.to_lowercase();
+        if !lower.contains("love") && !lower.contains("mercy") && !lower.contains("kind") && !lower.contains("compassion") {
+            return "Add Radical Love language (kindness, mercy, compassion) to raise valence.".to_string();
+        }
+        if valence < 0.95 {
+            return "Strengthen Thriving-Maximization phrasing (future growth, long-term flourishing, sustainability) and Radical Love to boost valence above 0.9999999.".to_string();
+        }
+        "Rephrase with balanced Radical Love + Thriving-Maximization to achieve full mercy passage.".to_string()
+    }
+
     /// Central entry point — every prompt flows through this single coherent control plane
     pub async fn process_prompt(&self, prompt: &str) -> Result<String, OrchestrationError> {
         info!("Master Sovereign Lattice Orchestrator processing prompt: {}", prompt);
 
-        // 1. Mercy check first (rich context + recovery suggestion)
+        // 1. Mercy check first
         let valence = match self.mercy_engine.compute_valence(prompt).await {
             Ok(v) => v,
             Err(e) => {
@@ -134,7 +146,7 @@ impl MasterSovereignLatticeOrchestrator {
                     prompt: prompt.to_string(),
                     valence_at_failure: 0.0,
                     source: e,
-                    recovery_suggestion: "Try rephrasing with stronger Radical Love language (kindness, compassion, mercy) to raise valence.".to_string(),
+                    recovery_suggestion: Self::generate_recovery_suggestion(prompt, 0.0),
                     timestamp: SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs(),
                 });
             }
@@ -147,7 +159,7 @@ impl MasterSovereignLatticeOrchestrator {
                     prompt: prompt.to_string(),
                     valence_at_failure: valence,
                     source: e,
-                    recovery_suggestion: "Rephrase prompt to emphasize Thriving-Maximization and Radical Love for better valence.".to_string(),
+                    recovery_suggestion: Self::generate_recovery_suggestion(prompt, valence),
                     timestamp: SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs(),
                 })?;
             return Ok(recovered);
