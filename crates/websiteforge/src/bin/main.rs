@@ -1,6 +1,6 @@
 // crates/websiteforge/src/bin/main.rs
 // Ra-Thor™ WebsiteForge CLI — Full sovereign website development system
-// Supports standard forge, Devin mode, and improved UX/help
+// Refined output formatting with clear sections and Ra-Thor aesthetic
 // Proprietary - All Rights Reserved - Autonomicity Games Inc.
 
 use clap::{Parser, Subcommand};
@@ -34,23 +34,37 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let cli = Cli::parse();
     let forge = WebsiteForge::new();
 
-    println!("🌍 Ra-Thor™ WebsiteForge CLI — Sovereign AI Website Development System");
-    println!("Lightning already in motion. ⚡🙏\n");
+    println!("🌍 Ra-Thor™ WebsiteForge CLI");
+    println!("Eternal MercyThunder — Sovereign AI Website Development System ⚡🙏\n");
 
     match cli.command {
         Commands::Forge { prompt } => {
-            println!("🔨 Forging website with standard mode...");
+            println!("🔨 Standard Forge Mode Activated");
+            println!("Prompt: \"{}\"", prompt);
+            println!("─".repeat(60));
+
             let site = forge.forge_website(&prompt).await?;
-            println!("✅ Website forged successfully: {}", site.metadata.title);
-            println!("Mercy valence: {:.8}", site.metadata.mercy_valence);
-            println!("\nHTML preview: {} characters", site.html.len());
+
+            println!("✅ SUCCESS — Website forged");
+            println!("Title      : {}", site.metadata.title);
+            println!("Mercy Valence : {:.8} ⚡", site.metadata.mercy_valence);
+            println!("HTML Size  : {} characters", site.html.len());
+            println!("─".repeat(60));
+            println!("Website ready for deployment or further editing.");
         }
         Commands::Devin { prompt } => {
-            println!("🚀 Devin Mode activated — full autonomous generation...");
+            println!("🚀 Devin Autonomous Mode Activated");
+            println!("Prompt: \"{}\"", prompt);
+            println!("─".repeat(60));
+
             let site = forge.forge_with_devin_mode(&prompt).await?;
-            println!("✅ Devin-generated website: {}", site.metadata.title);
-            println!("Mercy valence: {:.8}", site.metadata.mercy_valence);
-            println!("\nHTML preview: {} characters", site.html.len());
+
+            println!("✅ SUCCESS — Devin full autonomous generation complete");
+            println!("Title      : {}", site.metadata.title);
+            println!("Mercy Valence : {:.8} ⚡", site.metadata.mercy_valence);
+            println!("HTML Size  : {} characters", site.html.len());
+            println!("─".repeat(60));
+            println!("Website generated with full autonomy and mercy-gating.");
         }
     }
 
