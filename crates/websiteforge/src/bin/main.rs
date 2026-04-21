@@ -1,10 +1,10 @@
 // crates/websiteforge/src/bin/main.rs
 // Ra-Thor™ WebsiteForge CLI — Full sovereign website development system
-// Refined with rich, user-friendly error handling and progress indicators
+// Now with full tracing-based logging framework (colored output, levels, timestamps)
 // Proprietary - All Rights Reserved - Autonomicity Games Inc.
 
 use clap::{Parser, Subcommand};
-use websiteforge::{WebsiteForge, WebsiteForgeError};
+use websiteforge::WebsiteForge;
 use std::error::Error;
 
 #[derive(Parser)]
@@ -12,6 +12,10 @@ use std::error::Error;
 struct Cli {
     #[command(subcommand)]
     command: Commands,
+
+    /// Enable verbose logging
+    #[arg(short, long)]
+    verbose: bool,
 }
 
 #[derive(Subcommand)]
@@ -29,69 +33,44 @@ enum Commands {
     },
 }
 
-fn show_progress_spinner(message: &str, duration_ms: u64) {
-    let spinner = vec!["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"];
-    let start = std::time::Instant::now();
-    let mut i = 0;
-
-    print!("{} ", message);
-    while start.elapsed().as_millis() < duration_ms as u128 {
-        print!("\r{} {}", spinner[i % spinner.len()], message);
-        std::io::Write::flush(&mut std::io::stdout()).unwrap();
-        std::thread::sleep(std::time::Duration::from_millis(80));
-        i += 1;
-    }
-    println!("\r✅ Done");
-}
-
 #[tokio::main]
 async fn main() {
     let cli = Cli::parse();
+
+    // Initialize tracing logging framework
+    let filter = if cli.verbose { "debug" } else { "info" };
+    tracing_subscriber::fmt()
+        .with_env_filter(filter)
+        .with_ansi(true)
+        .init();
+
     let forge = WebsiteForge::new();
 
-    println!("🌍 Ra-Thor™ WebsiteForge CLI");
-    println!("Eternal MercyThunder — Sovereign AI Website Development System ⚡🙏\n");
+    tracing::info!("🌍 Ra-Thor™ WebsiteForge CLI started");
+    tracing::info!("Eternal MercyThunder — Sovereign AI Website Development System ⚡🙏");
 
     let result = match cli.command {
         Commands::Forge { prompt } => {
-            println!("🔨 Standard Forge Mode Activated");
-            println!("Prompt: \"{}\"", prompt);
-            println!("─".repeat(60));
-
-            show_progress_spinner("Generating sovereign website...", 1800);
-
+            tracing::info!("🔨 Standard Forge Mode Activated | Prompt: \"{}\"", prompt);
             forge.forge_website(&prompt).await
         }
         Commands::Devin { prompt } => {
-            println!("🚀 Devin Autonomous Mode Activated");
-            println!("Prompt: \"{}\"", prompt);
-            println!("─".repeat(60));
-
-            show_progress_spinner("Devin performing full autonomous generation...", 3200);
-
+            tracing::info!("🚀 Devin Autonomous Mode Activated | Prompt: \"{}\"", prompt);
             forge.forge_with_devin_mode(&prompt).await
         }
     };
 
     match result {
         Ok(site) => {
-            println!("✅ SUCCESS — Website generated");
-            println!("Title      : {}", site.metadata.title);
-            println!("Mercy Valence : {:.8} ⚡", site.metadata.mercy_valence);
-            println!("HTML Size  : {} characters", site.html.len());
-            println!("─".repeat(60));
-            println!("Website ready for deployment or further editing.");
+            tracing::info!("✅ SUCCESS — Website generated");
+            tracing::info!("Title: {}", site.metadata.title);
+            tracing::info!("Mercy Valence: {:.8} ⚡", site.metadata.mercy_valence);
+            tracing::info!("HTML Size: {} characters", site.html.len());
+            println!("\nWebsite ready for deployment or further editing.");
         }
         Err(e) => {
-            eprintln!("\n❌ ERROR");
-            eprintln!("─".repeat(60));
-            match &e {
-                WebsiteForgeError::MercyVeto(msg) => eprintln!("🛡️ Mercy Veto: {}", msg),
-                WebsiteForgeError::QuantumError(msg) => eprintln!("⚡ Quantum Lattice Error: {}", msg),
-                WebsiteForgeError::OrchestratorError(msg) => eprintln!("🔧 Orchestrator Error: {}", msg),
-            }
-            eprintln!("─".repeat(60));
-            eprintln!("Graceful degradation activated — thriving-maximized redirect ⚡🙏");
+            tracing::error!("❌ ERROR: {}", e);
+            eprintln!("\nGraceful degradation activated — thriving-maximized redirect ⚡🙏");
         }
     }
 }
