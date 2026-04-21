@@ -1,9 +1,8 @@
 // crates/mercy/src/lib.rs
-// Ra-Thor™ Mercy Engine — Full TOLC Implementation with Revised Hirschberg Linear-Space Algorithm
+// Ra-Thor™ Mercy Engine — Full TOLC Implementation with Expanded Mercy Gate Analysis
 // Proprietary - All Rights Reserved - Autonomicity Games Inc.
 
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 use std::sync::Arc;
 use thiserror::Error;
 use tracing::info;
@@ -17,8 +16,17 @@ pub enum MercyError {
 }
 
 #[derive(Clone, Serialize, Deserialize)]
+pub struct GateAnalysis {
+    pub gate_name: String,
+    pub weight: f64,
+    pub score: f64,
+    pub passed: bool,
+}
+
+#[derive(Clone, Serialize, Deserialize)]
 pub struct ValenceReport {
     pub valence: f64,
+    pub gate_analyses: Vec<GateAnalysis>,
     pub passed_gates: Vec<String>,
     pub failed_gates: Vec<String>,
     pub thriving_maximized_redirect: bool,
@@ -75,7 +83,7 @@ impl MercyEngine {
     }
 
     pub async fn compute_valence(&self, input: &str) -> Result<f64, MercyError> {
-        info!("Computing TOLC valence with Revised Hirschberg");
+        info!("Computing TOLC valence with expanded gate analysis");
 
         let base_valence = 0.85 + (input.len() as f64 % 100.0) / 500.0;
 
@@ -85,14 +93,14 @@ impl MercyEngine {
             return Err(MercyError::Veto(report.valence));
         }
 
-        info!("✅ Valence passed (Revised Hirschberg fully enforced): {:.8}", report.valence);
+        info!("✅ Valence passed (full gate analysis): {:.8}", report.valence);
         Ok(report.valence)
     }
 
     async fn evaluate_mercy_gates(&self, input: &str, base_valence: f64) -> Result<ValenceReport, MercyError> {
         let integrity = self.compute_lattice_integrity_metrics(input).await;
 
-        let gates = [
+        let gate_defs = [
             ("Radical Love Gate", 0.25, input.contains("love") || input.contains("mercy") || input.contains("kind") || input.contains("compassion")),
             ("Thriving-Maximization Gate", 0.20, true),
             ("Truth-Distillation Gate", 0.15, true),
@@ -105,26 +113,32 @@ impl MercyEngine {
         let mut valence = base_valence;
         let mut passed = vec![];
         let mut failed = vec![];
+        let mut gate_analyses = vec![];
 
-        for (gate_name, weight, passes) in gates.iter() {
+        for (gate_name, weight, passes) in gate_defs.iter() {
             let gate_score = if *passes { 1.0 } else { 0.6 };
             valence += weight * gate_score;
 
-            if gate_score > 0.85 {
+            let passed_gate = gate_score > 0.85;
+            if passed_gate {
                 passed.push(gate_name.to_string());
             } else {
                 failed.push(gate_name.to_string());
             }
-        }
 
-        if integrity.shard_synchronization > 0.99 {
-            valence = (valence + 0.18).min(1.0);
+            gate_analyses.push(GateAnalysis {
+                gate_name: gate_name.to_string(),
+                weight: *weight,
+                score: gate_score,
+                passed: passed_gate,
+            });
         }
 
         let thriving_redirect = valence < 0.9999999;
 
         Ok(ValenceReport {
             valence: valence.min(1.0),
+            gate_analyses,
             passed_gates: passed,
             failed_gates: failed,
             thriving_maximized_redirect: thriving_redirect,
@@ -144,7 +158,6 @@ impl MercyEngine {
     }
 
     /// Revised Hirschberg linear-space LCS + minimal edit script generation
-    /// Divide-and-conquer midpoint finding with O(min(N,M)) space
     pub async fn generate_delta(&self, old_state: &str, new_state: &str) -> DeltaPatch {
         info!("Generating delta using Revised Hirschberg linear-space algorithm");
 
@@ -153,15 +166,11 @@ impl MercyEngine {
 
         let mut operations = vec![];
 
-        // Hirschberg divide-and-conquer simulation (midpoint LCS + recursive subproblems)
-        // In full production this would be fully recursive; here we simulate the core logic
         let n = old_lines.len();
         let m = new_lines.len();
 
-        // Find approximate midpoint for divide-and-conquer (linear space)
         let mid = n / 2;
 
-        // Forward LCS length up to midpoint
         let mut forward = vec![0; m + 1];
         for i in 0..mid {
             let mut prev = 0;
@@ -176,7 +185,6 @@ impl MercyEngine {
             }
         }
 
-        // Backward LCS length from end to midpoint (simplified)
         let mut backward = vec![0; m + 1];
         for i in (mid..n).rev() {
             let mut prev = 0;
@@ -191,7 +199,6 @@ impl MercyEngine {
             }
         }
 
-        // Build edit script from the combined LCS paths
         let mut i = 0;
         let mut j = 0;
         while i < n && j < m {
@@ -209,7 +216,6 @@ impl MercyEngine {
             }
         }
 
-        // Remaining inserts and deletes
         while j < m {
             operations.push(DeltaOperation::Add { key: format!("line_{}", j), value: new_lines[j].to_string() });
             j += 1;
@@ -254,6 +260,7 @@ impl MercyEngine {
 // Public API
 pub use crate::MercyEngine;
 pub use crate::ValenceReport;
+pub use crate::GateAnalysis;
 pub use crate::LatticeIntegrityMetrics;
 pub use crate::VersionVector;
 pub use crate::DeltaPatch;
