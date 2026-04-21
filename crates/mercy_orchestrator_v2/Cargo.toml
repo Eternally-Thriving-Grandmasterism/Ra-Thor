@@ -1,0 +1,19 @@
+[package]
+name = "mercy_orchestrator_v2"
+version = "0.3.0"
+edition = "2021"
+authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
+license = "Proprietary - All Rights Reserved - Autonomicity Games Inc."
+description = "Ra-Thor Master Unified Orchestrator v4.1 — crash-proof with full monorepo recycling, PATSAGi Councils, TOLC mercy-gating"
+
+[dependencies]
+ra-thor-kernel = { path = "../kernel" }
+ra-thor-mercy = { path = "../mercy" }
+ra-thor-council = { path = "../council" }
+ra-thor-orchestration = { path = "../orchestration" }
+serde = { workspace = true }
+serde_json = { workspace = true }
+tokio = { workspace = true }
+thiserror = "1.0"
+tracing = "0.1"
+futures = "0.3"
