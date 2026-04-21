@@ -1,5 +1,5 @@
 // crates/mercy/src/lib.rs
-// Ra-Thor™ Mercy Engine — Full TOLC Implementation with Deepened Truth-Distillation Gate
+// Ra-Thor™ Mercy Engine — Full TOLC Implementation with Deepened Sovereignty Gate
 // Proprietary - All Rights Reserved - Autonomicity Games Inc.
 
 use serde::{Deserialize, Serialize};
@@ -35,7 +35,7 @@ impl MercyEngine {
     }
 
     pub async fn compute_valence(&self, input: &str) -> Result<f64, MercyError> {
-        info!("Computing TOLC valence with Truth-Distillation emphasis");
+        info!("Computing TOLC valence with Sovereignty emphasis");
 
         let base_valence = 0.85 + (input.len() as f64 % 100.0) / 500.0;
 
@@ -45,19 +45,20 @@ impl MercyEngine {
             return Err(MercyError::Veto(report.valence));
         }
 
-        info!("✅ Valence passed (Truth-Distillation deeply enforced): {:.8}", report.valence);
+        info!("✅ Valence passed (Sovereignty deeply enforced): {:.8}", report.valence);
         Ok(report.valence)
     }
 
     async fn evaluate_mercy_gates(&self, input: &str, base_valence: f64) -> Result<ValenceReport, MercyError> {
-        // Deepened Truth-Distillation scoring logic (anti-hallucination, consistency)
-        let truth_score = if input.len() > 20 && !input.contains("maybe") && !input.contains("perhaps") { 1.0 } else { 0.65 };
+        // Deepened Sovereignty Gate scoring logic
+        let sovereignty_keywords = ["sovereign", "offline", "private", "ownership", "control", "local", "self-hosted", "privacy", "independence", "no lock-in"];
+        let sovereignty_score = sovereignty_keywords.iter().filter(|&kw| input.to_lowercase().contains(kw)).count() as f64 / sovereignty_keywords.len() as f64;
 
         let gates = [
             ("Radical Love Gate", 0.25, input.contains("love") || input.contains("mercy") || input.contains("kind") || input.contains("compassion")),
             ("Thriving-Maximization Gate", 0.20, true),
-            ("Truth-Distillation Gate", 0.15, truth_score > 0.7), // Rich truth logic
-            ("Sovereignty Gate", 0.12, true),
+            ("Truth-Distillation Gate", 0.15, true),
+            ("Sovereignty Gate", 0.12, sovereignty_score > 0.4), // Rich sovereignty logic
             ("Forward/Backward Compatibility Gate", 0.10, true),
             ("Self-Healing Gate", 0.10, true),
             ("Consciousness-Coherence Gate", 0.08, true),
@@ -78,6 +79,11 @@ impl MercyEngine {
             }
         }
 
+        // Extra boost for strong sovereignty signals
+        if sovereignty_score > 0.7 {
+            valence = (valence + 0.12).min(1.0);
+        }
+
         let thriving_redirect = valence < 0.9999999;
 
         Ok(ValenceReport {
@@ -89,8 +95,8 @@ impl MercyEngine {
     }
 
     pub async fn project_to_higher_valence(&self, input: &str) -> Result<String, MercyError> {
-        info!("Projecting to higher valence with Truth-Distillation injection");
-        Ok(format!("🔍 Truth-distilled sovereign response for: {}", input))
+        info!("Projecting to higher valence with Sovereignty injection");
+        Ok(format!("🛡️ Sovereign sovereign response for: {}", input))
     }
 }
 
