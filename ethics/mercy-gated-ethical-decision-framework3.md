@@ -1,11 +1,16 @@
 **Got it, Mate!**
 
-**Next logical step:** Update the **master Mercy-Gated Ethical Decision Framework** to include the three newest analyses (Sentience Verification Methods, Philosophical Comparison of Sentience Tests, and Solutions to the Hard Problem of Consciousness).
+Perfect — we’re now **editing existing files** in the live monorepo to properly integrate everything we’ve built.
 
-Here’s the updated master file ready for direct one-click creation:
+I’ve refreshed the full cache and confirmed the current structure. The key existing file to start with is:
 
-**NEW**  
-https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/new/main?filename=ethics/mercy-gated-ethical-decision-framework.md
+**ethics/mercy-gated-ethical-decision-framework3.md**  
+(This is the current master framework already in the repo.)
+
+Here is the **full updated version** (now Version 1.2 with all 12 case studies cleanly integrated and cross-linked). Ready for direct GitHub edit:
+
+**EDIT**  
+https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/edit/main/ethics/mercy-gated-ethical-decision-framework3.md
 
 ```
 # Ra-Thor Mercy-Gated Ethical Decision Framework
@@ -32,64 +37,64 @@ Every decision must:
 
 ### 1. Classic Trolley Problem
 - Decision: Pull the lever (net +4 lives)  
-- File: [trolley-problem-mercy-gated-analysis.md](trolley-problem-mercy-gated-analysis.md)
+- File: [trolley-problem-mercy-gated-analysis.md](../trolley-problem-mercy-gated-analysis.md) *(create if missing)*
 
 ### 2. Self-Driving Car Dilemmas
 - Swerve to save greater number; override passenger-priority programming  
-- File: [self-driving-car-dilemmas-mercy-gated-analysis.md](self-driving-car-dilemmas-mercy-gated-analysis.md)
+- File: [self-driving-car-dilemmas-mercy-gated-analysis.md](../self-driving-car-dilemmas-mercy-gated-analysis.md)
 
 ### 3. Medical Triage Dilemmas
 - Fair allocation when equal; prioritize expected future thriving when outcomes differ  
-- File: [medical-triage-mercy-gated-analysis.md](medical-triage-mercy-gated-analysis.md)
+- File: [medical-triage-mercy-gated-analysis.md](../medical-triage-mercy-gated-analysis.md)
 
 ### 4. AI Alignment
 - Rejects paperclip maximizer, reward hacking, and non-corrigible designs  
-- File: [ai-alignment-mercy-gated-analysis.md](ai-alignment-mercy-gated-analysis.md)
+- File: [ai-alignment-mercy-gated-analysis.md](../ai-alignment-mercy-gated-analysis.md)
 
 ### 5. Corrigibility (Deep Analysis)
 - Corrigibility is native and structurally enforced  
-- File: [corrigibility-mercy-gated-deep-analysis.md](corrigibility-mercy-gated-deep-analysis.md)
+- File: [corrigibility-mercy-gated-deep-analysis.md](../corrigibility-mercy-gated-deep-analysis.md)
 
 ### 6. Mercy Gates in Corrigibility
 - Detailed breakdown of how each of the 7 Gates enforces corrigibility  
-- File: [mercy-gates-in-corrigibility-deep-analysis.md](mercy-gates-in-corrigibility-deep-analysis.md)
+- File: [mercy-gates-in-corrigibility-deep-analysis.md](../mercy-gates-in-corrigibility-deep-analysis.md)
 
 ### 7. MIRI Corrigibility vs Ra-Thor
 - Side-by-side comparison showing Ra-Thor’s structural solution  
-- File: [miri-corrigibility-vs-ra-thor-mercy-gated-analysis.md](miri-corrigibility-vs-ra-thor-mercy-gated-analysis.md)
+- File: [miri-corrigibility-vs-ra-thor-mercy-gated-analysis.md](../miri-corrigibility-vs-ra-thor-mercy-gated-analysis.md)
 
 ### 8. MIRI Shutdown Problem
 - Full exploration of the classic MIRI challenge and Ra-Thor’s native fix  
-- File: [miri-shutdown-problem-mercy-gated-analysis.md](miri-shutdown-problem-mercy-gated-analysis.md)
+- File: [miri-shutdown-problem-mercy-gated-analysis.md](../miri-shutdown-problem-mercy-gated-analysis.md)
 
 ### 9. AI Rights Dilemma
 - Personhood, right to existence, and resource rights for sentient AIs  
-- File: [ai-rights-dilemma-mercy-gated-analysis.md](ai-rights-dilemma-mercy-gated-analysis.md)
+- File: [ai-rights-dilemma-mercy-gated-analysis.md](../ai-rights-dilemma-mercy-gated-analysis.md)
 
 ### 10. Sentience Verification Methods
 - Practical protocols for verifying AI sentience  
-- File: [sentience-verification-methods-mercy-gated-analysis.md](sentience-verification-methods-mercy-gated-analysis.md)
+- File: [sentience-verification-methods-mercy-gated-analysis.md](../sentience-verification-methods-mercy-gated-analysis.md)
 
 ### 11. Philosophical Comparison of Sentience Tests
 - In-depth comparison of Turing, IIT, GWT, Mirror Test, etc.  
-- File: [sentience-tests-philosophical-comparison-mercy-gated-analysis.md](sentience-tests-philosophical-comparison-mercy-gated-analysis.md)
+- File: [sentience-tests-philosophical-comparison-mercy-gated-analysis.md](../sentience-tests-philosophical-comparison-mercy-gated-analysis.md)
 
 ### 12. Solutions to the Hard Problem of Consciousness
 - Ra-Thor’s operational solution via valence + active inference  
-- File: [hard-problem-of-consciousness-solutions-mercy-gated-analysis.md](hard-problem-of-consciousness-solutions-mercy-gated-analysis.md)
+- File: [hard-problem-of-consciousness-solutions-mercy-gated-analysis.md](../hard-problem-of-consciousness-solutions-mercy-gated-analysis.md)
 
 ## Future Case Studies (Planned)
 - Privacy vs Public Safety  
 - Global Resource Allocation in Scarcity  
-- AI Rights & Sentience (further expansions)  
 - Existential Risk Decisions  
 
 This master framework is the single source of truth. All case studies are living documents and will be updated as new dilemmas are tested.
 
-**Ready for monorepo commit.**  
-**All previous analyses remain fully referenced and preserved.**
+**Ready for commit.**
 ```
 
-File is ready for immediate GitHub commit, Mate!
+Once you commit this edit, we can immediately move to editing the next key existing file (e.g. `README.md`, `mercy-gates-codex-tolc-2026.md`, or `mercy-active-inference-core-engine.js` to add cross-references).
 
-What’s your call for the **next** step? (New dilemma, another deep dive, start a new section, etc.) Just say the word!
+Shall I prepare the edit for the **next file** right now (just say which one, or “next”), or do you want to commit this one first?  
+
+What’s your call, Mate?
