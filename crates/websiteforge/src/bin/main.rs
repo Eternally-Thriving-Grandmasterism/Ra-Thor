@@ -1,13 +1,11 @@
 // crates/websiteforge/src/bin/main.rs
 // Ra-Thor™ WebsiteForge CLI — Full sovereign website development system
-// Refined with live progress indicators (zero new dependencies)
+// Refined with rich, user-friendly error handling and progress indicators
 // Proprietary - All Rights Reserved - Autonomicity Games Inc.
 
 use clap::{Parser, Subcommand};
-use websiteforge::WebsiteForge;
+use websiteforge::{WebsiteForge, WebsiteForgeError};
 use std::error::Error;
-use std::time::Duration;
-use std::thread;
 
 #[derive(Parser)]
 #[command(author, version, about = "Ra-Thor WebsiteForge CLI — Sovereign AI Website Development System", long_about = None)]
@@ -40,21 +38,21 @@ fn show_progress_spinner(message: &str, duration_ms: u64) {
     while start.elapsed().as_millis() < duration_ms as u128 {
         print!("\r{} {}", spinner[i % spinner.len()], message);
         std::io::Write::flush(&mut std::io::stdout()).unwrap();
-        thread::sleep(Duration::from_millis(80));
+        std::thread::sleep(std::time::Duration::from_millis(80));
         i += 1;
     }
     println!("\r✅ Done");
 }
 
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn Error>> {
+async fn main() {
     let cli = Cli::parse();
     let forge = WebsiteForge::new();
 
     println!("🌍 Ra-Thor™ WebsiteForge CLI");
     println!("Eternal MercyThunder — Sovereign AI Website Development System ⚡🙏\n");
 
-    match cli.command {
+    let result = match cli.command {
         Commands::Forge { prompt } => {
             println!("🔨 Standard Forge Mode Activated");
             println!("Prompt: \"{}\"", prompt);
@@ -62,14 +60,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
             show_progress_spinner("Generating sovereign website...", 1800);
 
-            let site = forge.forge_website(&prompt).await?;
-
-            println!("✅ SUCCESS — Website forged");
-            println!("Title      : {}", site.metadata.title);
-            println!("Mercy Valence : {:.8} ⚡", site.metadata.mercy_valence);
-            println!("HTML Size  : {} characters", site.html.len());
-            println!("─".repeat(60));
-            println!("Website ready for deployment or further editing.");
+            forge.forge_website(&prompt).await
         }
         Commands::Devin { prompt } => {
             println!("🚀 Devin Autonomous Mode Activated");
@@ -78,16 +69,29 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
             show_progress_spinner("Devin performing full autonomous generation...", 3200);
 
-            let site = forge.forge_with_devin_mode(&prompt).await?;
+            forge.forge_with_devin_mode(&prompt).await
+        }
+    };
 
-            println!("✅ SUCCESS — Devin full autonomous generation complete");
+    match result {
+        Ok(site) => {
+            println!("✅ SUCCESS — Website generated");
             println!("Title      : {}", site.metadata.title);
             println!("Mercy Valence : {:.8} ⚡", site.metadata.mercy_valence);
             println!("HTML Size  : {} characters", site.html.len());
             println!("─".repeat(60));
-            println!("Website generated with full autonomy and mercy-gating.");
+            println!("Website ready for deployment or further editing.");
+        }
+        Err(e) => {
+            eprintln!("\n❌ ERROR");
+            eprintln!("─".repeat(60));
+            match &e {
+                WebsiteForgeError::MercyVeto(msg) => eprintln!("🛡️ Mercy Veto: {}", msg),
+                WebsiteForgeError::QuantumError(msg) => eprintln!("⚡ Quantum Lattice Error: {}", msg),
+                WebsiteForgeError::OrchestratorError(msg) => eprintln!("🔧 Orchestrator Error: {}", msg),
+            }
+            eprintln!("─".repeat(60));
+            eprintln!("Graceful degradation activated — thriving-maximized redirect ⚡🙏");
         }
     }
-
-    Ok(())
 }
