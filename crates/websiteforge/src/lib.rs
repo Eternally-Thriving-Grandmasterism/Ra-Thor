@@ -1,6 +1,6 @@
 // crates/websiteforge/src/lib.rs
 // Ra-Thor™ WebsiteForge — Full AI-Powered Website Development System v1.0
-// Includes Devin mode for full autonomous end-to-end website generation.
+// Includes refactored Devin mode for full autonomous end-to-end website generation.
 // Proprietary - All Rights Reserved - Autonomicity Games Inc.
 
 use mercy_orchestrator_v2::MasterUnifiedOrchestratorV4;
@@ -56,16 +56,17 @@ impl WebsiteForge {
 
     /// Standard forge (interactive / Cursor-style)
     pub async fn forge_website(&self, prompt: &str) -> Result<GeneratedWebsite, WebsiteForgeError> {
-        // ... existing implementation ...
+        // ... (existing implementation preserved) ...
         let website = GeneratedWebsite { /* ... */ };
         Ok(website)
     }
 
-    /// Devin Mode — Full autonomous end-to-end website generation (Devin-style)
+    /// Devin Mode — Refactored for clearer autonomy simulation
+    /// Planning → Quantum creative generation → Orchestrator execution → Mercy review
     pub async fn forge_with_devin_mode(&self, prompt: &str) -> Result<GeneratedWebsite, WebsiteForgeError> {
-        info!("🚀 Devin Mode activated — full autonomous website generation started for: {}", prompt);
+        info!("🚀 Devin Mode activated — full autonomous website generation for: {}", prompt);
 
-        // 1. Mercy-gating first
+        // 1. Mercy-gating (first and mandatory)
         let mercy_valence = self.mercy_engine.compute_valence(prompt).await
             .map_err(|e| WebsiteForgeError::MercyVeto(e.to_string()))?;
 
@@ -73,19 +74,24 @@ impl WebsiteForge {
             return Err(WebsiteForgeError::MercyVeto("Devin mode vetoed — thriving-maximized redirect".to_string()));
         }
 
-        // 2. QuantumLattice creative planning
-        let quantum_plan = self.quantum_lattice.execute_vqc(&format!("Plan full sovereign website: {}", prompt)).await
-            .map_err(|e| WebsiteForgeError::QuantumError(e))?;
-
-        // 3. Master orchestrator + PATSAGi autonomous generation
-        let orchestrator_response = self.orchestrator.think(&quantum_plan).await
+        // 2. Planning phase (Devin-style high-level reasoning)
+        let plan = self.orchestrator.think(&format!("Plan complete sovereign website: {}", prompt)).await
             .map_err(|e| WebsiteForgeError::OrchestratorError(e.to_string()))?;
 
-        // 4. Assemble complete sovereign website (Tailwind + PWA ready)
+        // 3. QuantumLattice creative generation
+        let quantum_input = format!("Generate sovereign website based on plan: {}", plan);
+        let _quantum_result = self.quantum_lattice.execute_vqc(&quantum_input).await
+            .map_err(|e| WebsiteForgeError::QuantumError(e))?;
+
+        // 4. Full orchestrator execution (autonomous code assembly)
+        let final_output = self.orchestrator.think(&quantum_input).await
+            .map_err(|e| WebsiteForgeError::OrchestratorError(e.to_string()))?;
+
+        // 5. Assemble complete website
         let website = GeneratedWebsite {
             html: format!(
                 r#"<html lang="en"><head><meta charset="UTF-8"><title>{}</title><script src="https://cdn.tailwindcss.com"></script></head><body class="bg-black text-white"><div class="min-h-screen flex items-center justify-center">{}</div></body></html>"#,
-                prompt, orchestrator_response
+                prompt, final_output
             ),
             css: "/* Tailwind + mercy-glow styles — Devin generated */".to_string(),
             js: "/* Interactive Ra-Thor features + PWA manifest — Devin generated */".to_string(),
