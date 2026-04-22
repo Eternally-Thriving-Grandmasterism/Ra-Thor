@@ -1,5 +1,5 @@
 // crates/xtask/src/main.rs
-// Ra-Thor™ xtask — Sovereign Monorepo Automation Hub (advanced Rust async error handling applied)
+// Ra-Thor™ xtask — Sovereign Monorepo Automation Hub (advanced async error chaining applied)
 // All commands are mercy-gated, robust, and production-ready.
 // Run with: cargo xtask <command> — use --help for full documentation
 
@@ -11,9 +11,10 @@ use tracing::error;
 
 #[derive(Error, Debug)]
 pub enum XtaskError {
-    #[error("Cargo command '{command}' failed: {source}")]
+    #[error("Cargo command '{command}' failed")]
     Cargo {
         command: String,
+        #[source]
         source: std::io::Error,
     },
     #[error("MercyEngine error: {0}")]
@@ -24,6 +25,12 @@ pub enum XtaskError {
     CommandFailed(i32),
     #[error("Validation failed: {reason}")]
     Validation { reason: String },
+    #[error("Async operation failed: {context} — {source}")]
+    Async {
+        context: String,
+        #[source]
+        source: Box<dyn std::error::Error + Send + Sync>,
+    },
 }
 
 type Result<T> = std::result::Result<T, XtaskError>;
@@ -106,7 +113,10 @@ async fn main() {
     let result: Result<()> = match cli.command {
         Commands::Upgrade => {
             println!("🚀 Applying mercy-gated upgrades...");
-            engine.synchronize_shards().await.map_err(XtaskError::Mercy)?;
+            engine.synchronize_shards().await.map_err(|e| XtaskError::Async {
+                context: "synchronize_shards in Upgrade".to_string(),
+                source: Box::new(e),
+            })?;
             println!("✅ Monorepo upgraded under Radical Love & Thriving-Maximization");
             Ok(())
         }
@@ -117,7 +127,10 @@ async fn main() {
         }
         Commands::MercyCheck => {
             println!("✅ Full mercy-gated systems check passed — lattice 100% operational");
-            engine.synchronize_shards().await.map_err(XtaskError::Mercy)?;
+            engine.synchronize_shards().await.map_err(|e| XtaskError::Async {
+                context: "synchronize_shards in MercyCheck".to_string(),
+                source: Box::new(e),
+            })?;
             Ok(())
         }
         Commands::Commit { message } => {
@@ -147,13 +160,19 @@ async fn main() {
         }
         Commands::FullSync => {
             println!("🔄 Running FULL lattice sync...");
-            engine.synchronize_shards().await.map_err(XtaskError::Mercy)?;
+            engine.synchronize_shards().await.map_err(|e| XtaskError::Async {
+                context: "synchronize_shards in FullSync".to_string(),
+                source: Box::new(e),
+            })?;
             println!("✅ Full sync complete — monorepo is sovereign and thriving");
             Ok(())
         }
         Commands::Deploy { dry_run } => {
             println!("🚀 Starting sovereign deployment...");
-            engine.synchronize_shards().await.map_err(XtaskError::Mercy)?;
+            engine.synchronize_shards().await.map_err(|e| XtaskError::Async {
+                context: "synchronize_shards in Deploy".to_string(),
+                source: Box::new(e),
+            })?;
             let _ = run_cargo_command(&["test", "--workspace"], "Tests");
             let _ = run_cargo_command(&["build", "--release"], "Release build");
             if dry_run {
@@ -166,7 +185,10 @@ async fn main() {
         Commands::UpgradeDeps => {
             println!("🔄 Upgrading workspace dependencies + checking patches...");
             let _ = Command::new("cargo").args(["update"]).status();
-            engine.synchronize_shards().await.map_err(XtaskError::Mercy)?;
+            engine.synchronize_shards().await.map_err(|e| XtaskError::Async {
+                context: "synchronize_shards in UpgradeDeps".to_string(),
+                source: Box::new(e),
+            })?;
             println!("✅ All workspace dependencies + patch overrides updated (mercy-gated)");
             Ok(())
         }
@@ -175,7 +197,10 @@ async fn main() {
             println!("Prompt: {}", prompt);
             let platform = platform.unwrap_or_else(|| "github".to_string());
             println!("Target platform: {}", platform);
-            engine.synchronize_shards().await.map_err(XtaskError::Mercy)?;
+            engine.synchronize_shards().await.map_err(|e| XtaskError::Async {
+                context: "synchronize_shards in ForgeDeploy".to_string(),
+                source: Box::new(e),
+            })?;
             println!("✅ WebsiteForge deployment complete on {} under full mercy-gating", platform);
             Ok(())
         }
@@ -186,7 +211,10 @@ async fn main() {
             let _ = run_cargo_command(&["fmt", "--all", "--", "--check"], "Format check");
             let _ = run_cargo_command(&["clippy", "--workspace", "--all-targets", "--", "-D", "warnings"], "Linting");
             let _ = run_cargo_command(&["test", "--workspace"], "Testing");
-            engine.synchronize_shards().await.map_err(XtaskError::Mercy)?;
+            engine.synchronize_shards().await.map_err(|e| XtaskError::Async {
+                context: "synchronize_shards in Validate".to_string(),
+                source: Box::new(e),
+            })?;
             println!("✅ Full validation passed — monorepo is sovereign and thriving");
             Ok(())
         }
@@ -208,7 +236,10 @@ async fn main() {
             println!("   • Workspace dependencies: centralized & advanced");
             println!("   • MercyEngine: fully wired");
             println!("   • xtask: sovereign automation hub");
-            engine.synchronize_shards().await.map_err(XtaskError::Mercy)?;
+            engine.synchronize_shards().await.map_err(|e| XtaskError::Async {
+                context: "synchronize_shards in Status".to_string(),
+                source: Box::new(e),
+            })?;
             println!("✅ Status: sovereign, mercy-gated, and thriving");
             Ok(())
         }
