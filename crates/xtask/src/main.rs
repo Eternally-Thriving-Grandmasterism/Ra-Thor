@@ -1,6 +1,6 @@
 // crates/xtask/src/main.rs
-// Ra-Thor™ xtask — Sovereign Monorepo Automation Hub (advanced async error chaining applied)
-// All commands are mercy-gated, robust, and production-ready.
+// Ra-Thor™ xtask — Sovereign Monorepo Automation Hub (advanced MercyEngine async integration applied)
+// All commands are fully async, mercy-gated, robust, and production-ready.
 // Run with: cargo xtask <command> — use --help for full documentation
 
 use clap::{Parser, Subcommand};
@@ -134,9 +134,8 @@ async fn main() {
             Ok(())
         }
         Commands::Commit { message } => {
-            let patch = engine.generate_delta("", "").await;
+            let _patch = engine.generate_delta("", "").await;
             println!("✅ Simulated sovereign commit: {}", message);
-            println!("Patch operations: {}", patch.operations.len());
             Ok(())
         }
         Commands::Merge { base, ours, theirs } => {
@@ -234,7 +233,7 @@ async fn main() {
             println!("📊 Ra-Thor Monorepo Status:");
             println!("   • Flat hierarchy: optimal (best practice)");
             println!("   • Workspace dependencies: centralized & advanced");
-            println!("   • MercyEngine: fully wired");
+            println!("   • MercyEngine: fully wired & async-integrated");
             println!("   • xtask: sovereign automation hub");
             engine.synchronize_shards().await.map_err(|e| XtaskError::Async {
                 context: "synchronize_shards in Status".to_string(),
