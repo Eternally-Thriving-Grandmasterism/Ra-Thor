@@ -1,5 +1,5 @@
 // crates/xtask/src/main.rs
-// Ra-Thor™ xtask — Sovereign Monorepo Automation Hub (advanced error handling applied)
+// Ra-Thor™ xtask — Sovereign Monorepo Automation Hub (advanced Rust error patterns applied)
 // All commands are mercy-gated, robust, and production-ready.
 // Run with: cargo xtask <command> — use --help for full documentation
 
@@ -11,14 +11,19 @@ use tracing::error;
 
 #[derive(Error, Debug)]
 pub enum XtaskError {
-    #[error("Cargo command failed: {0}")]
-    Cargo(String),
+    #[error("Cargo command '{command}' failed: {source}")]
+    Cargo {
+        command: String,
+        source: std::io::Error,
+    },
     #[error("MercyEngine error: {0}")]
     Mercy(#[from] ra_thor_mercy::MercyError),
     #[error("IO error: {0}")]
     Io(#[from] std::io::Error),
-    #[error("Command failed with status: {0}")]
+    #[error("Command failed with exit code {0}")]
     CommandFailed(i32),
+    #[error("Validation failed: {reason}")]
+    Validation { reason: String },
 }
 
 type Result<T> = std::result::Result<T, XtaskError>;
@@ -79,14 +84,16 @@ fn run_cargo_command(args: &[&str], description: &str) -> Result<()> {
     let status = Command::new("cargo")
         .args(args)
         .status()
-        .map_err(XtaskError::Io)?;
+        .map_err(|e| XtaskError::Cargo {
+            command: args.join(" "),
+            source: e,
+        })?;
 
     if status.success() {
         println!("✅ {} complete", description);
         Ok(())
     } else {
-        let code = status.code().unwrap_or(-1);
-        Err(XtaskError::CommandFailed(code))
+        Err(XtaskError::CommandFailed(status.code().unwrap_or(-1)))
     }
 }
 
