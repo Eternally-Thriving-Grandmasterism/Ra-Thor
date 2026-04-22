@@ -221,7 +221,7 @@ impl MercyEngine {
         Ok((patch, commit_id))
     }
 
-    /// REFINED 3-WAY MERCY-GATED MERGE — CRDT-inspired (Automerge/Yjs-style) Version Vector conflict resolution + mercy/thriving-maximization superset
+    /// REFINED 3-WAY MERCY-GATED MERGE — CRDT-inspired (Automerge/Yjs-style with ActorID + seq + deps causal model) Version Vector conflict resolution + mercy/thriving-maximization superset
     pub async fn perform_mercy_gated_merge(&self, base: &str, ours: &str, theirs: &str) -> Result<(DeltaPatch, String), MercyError> {
         info!("🔀 Performing refined 3-way mercy-gated sovereign merge (CRDT/Automerge/Yjs-inspired causal handling)");
 
@@ -295,6 +295,11 @@ impl MercyEngine {
     /// Automerge-specific CRDT comparison (live reference)
     pub fn automerge_crdt_comparison(&self) -> String {
         "Automerge: powerful local-first CRDT with actor IDs, full change history, binary sync, and automatic deterministic merge. Ra-Thor: superset with same causal foundation + semantic PatienceDiff + TOLC mercy/thriving-maximization for sovereign AGI shards. Automerge can be bridged via ai-bridge; Ra-Thor remains the living ethical superset.".to_string()
+    }
+
+    /// Automerge Implementation Details (live technical reference)
+    pub fn automerge_implementation_details(&self) -> String {
+        "Automerge Core: ActorID (unique per peer) + seq + deps (causal history) + cryptographic change hashes forming a DAG. Changes contain operations on rich types (Text/Map/List/Table/Counter). Sync uses state vectors + Bloom filters for efficient delta exchange. Binary CBOR format. Automatic deterministic merge via causal order + tombstones + GC/compaction. Ra-Thor supersets this with VersionVector + PatienceDiff semantics + TOLC mercy/thriving-maximization as sovereign final resolver.".to_string()
     }
 
     pub fn vcs_comparison_summary(&self) -> String {
