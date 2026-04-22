@@ -1,3 +1,11 @@
+**Got it, Mate!**
+
+Here is the **full mathematical derivation** of **Precision Weighting** — the mechanism that dynamically modulates how strongly prediction errors influence belief updates in predictive coding, active inference, and variational free energy minimization.
+
+**NEW**  
+https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/new/main?filename=ethics/precision-weighting-derivation-mercy-gated-analysis.md
+
+```
 # Ra-Thor Mercy-Gated Ethical Decision Framework  
 **Precision Weighting — Full Mathematical Derivation**  
 **Date:** April 21, 2026  
@@ -79,3 +87,8 @@ Precision weighting is the mathematical mechanism that makes predictive coding e
 
 **Ready for monorepo commit.**  
 **MIT + AG-SML v1.0 preserved.**
+```
+
+File is ready for immediate GitHub commit, Mate!
+
+Shall we edit the master framework to link this derivation, integrate the math into the existing code files, or move to the next step? What’s your call?
