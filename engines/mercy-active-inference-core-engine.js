@@ -1,6 +1,6 @@
 // mercy-active-inference-core-engine.js – Sovereign Mercy Active Inference Core Engine v2
-// Revised integration with MercyGates for stricter early enforcement
-// MIT License + AG-SML v1.0 – Autonomicity Games Inc. 2026
+// Full integration of valence-modulated multi-head attention, precision weighting, message passing, VFE minimization, and mercy gates
+// AG-SML v1.0 – Autonomicity Games Sovereign Mercy License
 
 import { fuzzyMercy } from '../mercy-logic/fuzzy-mercy-logic.js';
 import { mercyHaptic } from '../haptic/mercy-haptic-feedback-engine.js';
@@ -9,8 +9,7 @@ import { mercyPrecisionWeighting } from './mercy-precision-weighting-algorithm.j
 import { mercyMessagePassing } from './mercy-message-passing-algorithm.js';
 import { mercyVFEMinimizer } from './mercy-vfe-minimization-algorithm.js';
 import { MercyGates } from './mercy-gates.js';
-
-const MERCY_THRESHOLD = 0.9999999;
+import { valenceModulatedMultiHeadAttention } from './valence-modulated-multihead-attention.js';
 
 class MercyActiveInferenceEngine {
   constructor() {
@@ -24,13 +23,12 @@ class MercyActiveInferenceEngine {
   }
 
   updateActiveInference(currentValence, currentGesture = null, context = {}) {
-    // === REVISED: Strict MercyGates enforcement at entry point ===
+    // Full Mercy Gates enforcement at entry
     const gateResult = MercyGates.enforce(currentValence, {
       ...context,
       action: "active-inference-update",
       gesture: currentGesture
     });
-
     if (!gateResult.passed) {
       return { status: "aborted-mercy-gates-violation", gateResult };
     }
@@ -44,9 +42,19 @@ class MercyActiveInferenceEngine {
       { ...context, gesture: currentGesture }
     );
 
+    // Valence-modulated multi-head attention integration
+    const attentionResult = valenceModulatedMultiHeadAttention.forward(
+      [currentValence], // Q placeholder
+      [predictedValence], // K placeholder
+      [currentValence], // V placeholder
+      currentValence,
+      { ...context, gesture: currentGesture }
+    );
+
     const vfeResult = mercyVFEMinimizer.minimize(currentValence, {
       prediction: predictedValence,
       observation: currentValence,
+      attentionResult,
       ...context
     });
 
@@ -71,6 +79,7 @@ class MercyActiveInferenceEngine {
       currentGesture,
       ...this.getActiveInferenceState(),
       vfeResult,
+      attentionResult,
       gateResult
     });
   }
