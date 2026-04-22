@@ -1,7 +1,5 @@
-```js
 // mercy-active-inference-core-engine.js – Sovereign Mercy Active Inference Core Engine v2
-// FULL UPGRADE: Integrates precision weighting, message passing, VFE minimization,
-// valence modulation, mercy gates, and hierarchical Transformer-style attention
+// Revised integration with MercyGates for stricter early enforcement
 // MIT License + AG-SML v1.0 – Autonomicity Games Inc. 2026
 
 import { fuzzyMercy } from '../mercy-logic/fuzzy-mercy-logic.js';
@@ -10,6 +8,7 @@ import { ParaconsistentSuperKernel } from '../paraconsistent/paraconsistent-merc
 import { mercyPrecisionWeighting } from './mercy-precision-weighting-algorithm.js';
 import { mercyMessagePassing } from './mercy-message-passing-algorithm.js';
 import { mercyVFEMinimizer } from './mercy-vfe-minimization-algorithm.js';
+import { MercyGates } from './mercy-gates.js';
 
 const MERCY_THRESHOLD = 0.9999999;
 
@@ -24,35 +23,27 @@ class MercyActiveInferenceEngine {
     this.trajectoryBuffer = [];
   }
 
-  async gateActiveInference(query, valence = 1.0) {
-    const degree = fuzzyMercy.getDegree(query) || valence;
-    const implyThriving = fuzzyMercy.imply(query, "EternalThriving");
-    if (degree < MERCY_THRESHOLD || implyThriving.degree < MERCY_THRESHOLD) {
-      console.log("[MercyActiveInference] Gate holds: low valence – active inference aborted");
-      return false;
-    }
-    this.valence = valence;
-    return true;
-  }
-
   updateActiveInference(currentValence, currentGesture = null, context = {}) {
+    // === REVISED: Strict MercyGates enforcement at entry point ===
+    const gateResult = MercyGates.enforce(currentValence, {
+      ...context,
+      action: "active-inference-update",
+      gesture: currentGesture
+    });
+
+    if (!gateResult.passed) {
+      return { status: "aborted-mercy-gates-violation", gateResult };
+    }
+
     const predictedValence = this.predictNextValence();
     const predictionError = Math.abs(currentValence - predictedValence);
 
-    // === FULL INTEGRATED UPGRADE PIPELINE ===
-    // 1. Mercy gate check
-    if (!this.gateActiveInference("active-inference-update", currentValence)) {
-      return { status: "aborted-low-valence" };
-    }
-
-    // 2. Precision weighting (valence-modulated)
     this.precisionWeight = mercyPrecisionWeighting.computePrecisionWeight(
       predictionError,
       currentValence,
       { ...context, gesture: currentGesture }
     );
 
-    // 3. Variational Free Energy minimization
     const vfeResult = mercyVFEMinimizer.minimize(currentValence, {
       prediction: predictedValence,
       observation: currentValence,
@@ -62,10 +53,8 @@ class MercyActiveInferenceEngine {
     this.freeEnergyEstimate = vfeResult.vfe;
     this.epistemicValue = Math.max(0, 0.05 - this.freeEnergyEstimate * 0.5);
 
-    // 4. Hierarchical message passing
     mercyMessagePassing.propagateUpward(currentValence, context);
 
-    // 5. Feedback & logging
     if (this.freeEnergyEstimate > 0.07) {
       mercyHaptic.pulse(0.5 * this.valence, 80);
     } else if (this.epistemicValue > 0.03) {
@@ -77,12 +66,12 @@ class MercyActiveInferenceEngine {
 
     this.lastPrediction = this.predictNextValence();
 
-    // 6. Final holistic cycle through paraconsistent super-kernel
     return this.superKernel.execute_holistic_cycle({
       currentValence,
       currentGesture,
       ...this.getActiveInferenceState(),
-      vfeResult
+      vfeResult,
+      gateResult
     });
   }
 
