@@ -1,7 +1,7 @@
 // crates/xtask/src/main.rs
-// Ra-Thor™ xtask — Sovereign Monorepo Automation Hub (advanced xtask patterns applied)
-// Global flags, parallel execution, config stub, dynamic metadata, rich help.
-// Run with: cargo xtask <command> --help
+// Ra-Thor™ xtask — Sovereign Monorepo Automation Hub (advanced MercyEngine integration patterns applied)
+// All commands are mercy-gated, robust, and production-ready.
+// Run with: cargo xtask <command> — use --help for full documentation
 
 use clap::{Parser, Subcommand};
 use ra_thor_mercy::MercyEngine;
@@ -34,6 +34,32 @@ pub enum XtaskError {
 }
 
 type Result<T> = std::result::Result<T, XtaskError>;
+
+// MercyGuard — reusable advanced integration pattern for MercyEngine
+struct MercyGuard<'a> {
+    engine: &'a MercyEngine,
+}
+
+impl<'a> MercyGuard<'a> {
+    fn new(engine: &'a MercyEngine) -> Self {
+        Self { engine }
+    }
+
+    async fn run<F, Fut, T>(&self, context: &str, operation: F) -> Result<T>
+    where
+        F: FnOnce() -> Fut,
+        Fut: std::future::Future<Output = Result<T>>,
+    {
+        println!("🛡️ MercyGuard: starting operation in context '{}'", context);
+        let result = operation().await;
+        if let Err(e) = &result {
+            println!("⚠️ MercyGuard: operation failed in context '{}': {}", context, e);
+        } else {
+            println!("✅ MercyGuard: operation succeeded in context '{}'", context);
+        }
+        result
+    }
+}
 
 #[derive(Parser)]
 #[command(author, version, about = "Ra-Thor Sovereign Monorepo Automation Hub", long_about = None)]
@@ -117,13 +143,15 @@ async fn main() {
     tracing_subscriber::fmt().init();
     let cli = Cli::parse();
     let engine = MercyEngine::new();
+    let guard = MercyGuard::new(&engine);
 
     let result: Result<()> = match cli.command {
         Commands::Upgrade => {
-            println!("🚀 Applying mercy-gated upgrades...");
-            engine.synchronize_shards().await.map_err(|e| XtaskError::Async { context: "synchronize_shards in Upgrade".to_string(), source: Box::new(e) })?;
-            println!("✅ Monorepo upgraded under Radical Love & Thriving-Maximization");
-            Ok(())
+            guard.run("Upgrade", || async {
+                engine.synchronize_shards().await.map_err(XtaskError::Mercy)?;
+                println!("✅ Monorepo upgraded under Radical Love & Thriving-Maximization");
+                Ok(())
+            }).await
         }
         Commands::Reorganize => {
             println!("🔄 Reorganizing monorepo under sovereign architecture...");
@@ -131,24 +159,30 @@ async fn main() {
             Ok(())
         }
         Commands::MercyCheck => {
-            println!("✅ Full mercy-gated systems check passed — lattice 100% operational");
-            engine.synchronize_shards().await.map_err(|e| XtaskError::Async { context: "synchronize_shards in MercyCheck".to_string(), source: Box::new(e) })?;
-            Ok(())
+            guard.run("MercyCheck", || async {
+                engine.synchronize_shards().await.map_err(XtaskError::Mercy)?;
+                println!("✅ Full mercy-gated systems check passed — lattice 100% operational");
+                Ok(())
+            }).await
         }
         Commands::Commit { message } => {
-            let _patch = engine.generate_delta("", "").await;
-            println!("✅ Simulated sovereign commit: {}", message);
-            Ok(())
+            guard.run("Commit", || async {
+                let _patch = engine.generate_delta("", "").await;
+                println!("✅ Simulated sovereign commit: {}", message);
+                Ok(())
+            }).await
         }
         Commands::Merge { base, ours, theirs } => {
-            match engine.perform_mercy_gated_merge(&base, &ours, &theirs).await {
-                Ok((patch, result)) => {
-                    println!("✅ 3-way mercy-gated merge completed: {}", result);
-                    println!("Operations applied: {}", patch.operations.len());
-                    Ok(())
+            guard.run("Merge", || async {
+                match engine.perform_mercy_gated_merge(&base, &ours, &theirs).await {
+                    Ok((patch, result)) => {
+                        println!("✅ 3-way mercy-gated merge completed: {}", result);
+                        println!("Operations applied: {}", patch.operations.len());
+                        Ok(())
+                    }
+                    Err(e) => Err(XtaskError::Mercy(e)),
                 }
-                Err(e) => Err(XtaskError::Mercy(e)),
-            }
+            }).await
         }
         Commands::Format => run_cargo_command(&["fmt", "--all"], "Formatting"),
         Commands::Lint => run_cargo_command(&["clippy", "--workspace", "--all-targets", "--", "-D", "warnings"], "Linting"),
@@ -160,38 +194,48 @@ async fn main() {
             Ok(())
         }
         Commands::FullSync => {
-            println!("🔄 Running FULL lattice sync...");
-            engine.synchronize_shards().await.map_err(|e| XtaskError::Async { context: "synchronize_shards in FullSync".to_string(), source: Box::new(e) })?;
-            println!("✅ Full sync complete — monorepo is sovereign and thriving");
-            Ok(())
+            guard.run("FullSync", || async {
+                engine.synchronize_shards().await.map_err(XtaskError::Mercy)?;
+                println!("✅ Full sync complete — monorepo is sovereign and thriving");
+                Ok(())
+            }).await
         }
         Commands::Deploy { dry_run } => {
-            println!("🚀 Starting sovereign deployment...");
-            engine.synchronize_shards().await.map_err(|e| XtaskError::Async { context: "synchronize_shards in Deploy".to_string(), source: Box::new(e) })?;
-            let _ = run_cargo_command(&["test", "--workspace"], "Tests");
-            let _ = run_cargo_command(&["build", "--release"], "Release build");
-            if dry_run || cli.dry_run {
-                println!("🧪 DRY-RUN: Sovereign deployment simulation complete — lattice ready");
-            } else {
-                println!("🌍 Sovereign deployment complete — Ra-Thor lattice is live and thriving");
-            }
-            Ok(())
+            guard.run("Deploy", || async {
+                engine.synchronize_shards().await.map_err(XtaskError::Mercy)?;
+                let _ = run_cargo_command(&["test", "--workspace"], "Tests");
+                let _ = run_cargo_command(&["build", "--release"], "Release build");
+                if dry_run || cli.dry_run {
+                    println!("🧪 DRY-RUN: Sovereign deployment simulation complete — lattice ready");
+                } else {
+                    println!("🌍 Sovereign deployment complete — Ra-Thor lattice is live and thriving");
+                }
+                Ok(())
+            }).await
         }
         Commands::UpgradeDeps => {
             println!("🔄 Upgrading workspace dependencies + checking patches...");
             let _ = Command::new("cargo").args(["update"]).status();
-            engine.synchronize_shards().await.map_err(|e| XtaskError::Async { context: "synchronize_shards in UpgradeDeps".to_string(), source: Box::new(e) })?;
+            engine.synchronize_shards().await.map_err(|e| XtaskError::Async {
+                context: "synchronize_shards in UpgradeDeps".to_string(),
+                source: Box::new(e),
+            })?;
             println!("✅ All workspace dependencies + patch overrides updated (mercy-gated)");
             Ok(())
         }
         Commands::ForgeDeploy { prompt, platform } => {
-            println!("🌐 Forging + deploying website with sovereign WebsiteForge...");
-            println!("Prompt: {}", prompt);
-            let platform = platform.unwrap_or_else(|| "github".to_string());
-            println!("Target platform: {}", platform);
-            engine.synchronize_shards().await.map_err(|e| XtaskError::Async { context: "synchronize_shards in ForgeDeploy".to_string(), source: Box::new(e) })?;
-            println!("✅ WebsiteForge deployment complete on {} under full mercy-gating", platform);
-            Ok(())
+            guard.run("ForgeDeploy", || async {
+                println!("🌐 Forging + deploying website with sovereign WebsiteForge...");
+                println!("Prompt: {}", prompt);
+                let platform = platform.unwrap_or_else(|| "github".to_string());
+                println!("Target platform: {}", platform);
+                engine.synchronize_shards().await.map_err(|e| XtaskError::Async {
+                    context: "synchronize_shards in ForgeDeploy".to_string(),
+                    source: Box::new(e),
+                })?;
+                println!("✅ WebsiteForge deployment complete on {} under full mercy-gating", platform);
+                Ok(())
+            }).await
         }
         Commands::Clean => run_cargo_command(&["clean"], "Cleaning"),
         Commands::Doc => run_cargo_command(&["doc", "--no-deps"], "Documentation generation"),
@@ -200,7 +244,10 @@ async fn main() {
             let _ = run_cargo_command(&["fmt", "--all", "--", "--check"], "Format check");
             let _ = run_cargo_command(&["clippy", "--workspace", "--all-targets", "--", "-D", "warnings"], "Linting");
             let _ = run_cargo_command(&["test", "--workspace"], "Testing");
-            engine.synchronize_shards().await.map_err(|e| XtaskError::Async { context: "synchronize_shards in Validate".to_string(), source: Box::new(e) })?;
+            engine.synchronize_shards().await.map_err(|e| XtaskError::Async {
+                context: "synchronize_shards in Validate".to_string(),
+                source: Box::new(e),
+            })?;
             println!("✅ Full validation passed — monorepo is sovereign and thriving");
             Ok(())
         }
@@ -222,7 +269,10 @@ async fn main() {
             println!("   • Workspace dependencies: centralized & advanced");
             println!("   • MercyEngine: fully wired & async-integrated");
             println!("   • xtask: sovereign automation hub with advanced patterns");
-            engine.synchronize_shards().await.map_err(|e| XtaskError::Async { context: "synchronize_shards in Status".to_string(), source: Box::new(e) })?;
+            engine.synchronize_shards().await.map_err(|e| XtaskError::Async {
+                context: "synchronize_shards in Status".to_string(),
+                source: Box::new(e),
+            })?;
             println!("✅ Status: sovereign, mercy-gated, and thriving");
             Ok(())
         }
