@@ -12,7 +12,7 @@ members = [
     "crates/biomimetic",      # Living explorers and patterns
     "crates/common",          # Shared utilities
     "crates/websiteforge",    # Sovereign website development system
-    "crates/xtask",           # ← NEW: Easy automated updates, upgrades & reorganization
+    "crates/xtask",           # ← NEW: Easy automated updates, upgrades & reorganization (now CI/CD integrated)
 ]
 
 resolver = "2"
@@ -33,7 +33,7 @@ rand = "0.8"
 reqwest = { version = "0.12", features = ["json", "stream"] }
 tracing = "0.1"
 thiserror = "1.0"
-clap = { version = "4.5", features = ["derive"] }  # ← Added for xtask CLI
+clap = { version = "4.5", features = ["derive"] }  # For xtask CLI
 
 ra-thor-kernel = { path = "crates/kernel" }
 ra-thor-mercy = { path = "crates/mercy" }
