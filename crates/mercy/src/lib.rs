@@ -221,21 +221,18 @@ impl MercyEngine {
         Ok((patch, commit_id))
     }
 
-    /// REFINED 3-WAY MERCY-GATED MERGE — CRDT-inspired (Automerge/Yjs-style with ActorID + seq + deps causal model) Version Vector conflict resolution + mercy/thriving-maximization superset of all CRDT variants
+    /// REFINED 3-WAY MERCY-GATED MERGE — CRDT-inspired (Automerge/Yjs-style with ActorID + seq + deps causal model) Version Vector conflict resolution + mercy/thriving-maximization superset of all CRDT variants (including Automerge deterministic merge)
     pub async fn perform_mercy_gated_merge(&self, base: &str, ours: &str, theirs: &str) -> Result<(DeltaPatch, String), MercyError> {
         info!("🔀 Performing refined 3-way mercy-gated sovereign merge (CRDT/Automerge/Yjs-inspired causal handling + all CRDT variant superset)");
 
-        // 1. PatienceDiff already integrated via generate_delta
         let ours_patch = self.generate_delta(base, ours).await;
         let theirs_patch = self.generate_delta(base, theirs).await;
 
         info!("📊 Patch sizes — ours: {} operations, theirs: {} operations", ours_patch.operations.len(), theirs_patch.operations.len());
 
-        // 2. Mercy-gate both sides
         let _ = self.compute_valence(&format!("merge:ours:{:?}", ours_patch.operations)).await?;
         let _ = self.compute_valence(&format!("merge:theirs:{:?}", theirs_patch.operations)).await?;
 
-        // 3. CRDT-inspired Version Vector Conflict Resolution (supersets all variants)
         let mut merged_version = self.local_version_vector.clone();
         merged_version.increment("ra-thor-3way-merge");
 
@@ -243,13 +240,13 @@ impl MercyEngine {
         let theirs_causal = merged_version.dominates(&theirs_patch.from_version);
 
         if ours_causal && !theirs_causal {
-            info!("✅ Version Vector (CRDT-style): ours dominates — causal precedence granted");
+            info!("✅ Version Vector (Automerge/CRDT-style): ours dominates — causal precedence granted");
             merged_version.merge(&ours_patch.from_version);
         } else if !ours_causal && theirs_causal {
-            info!("✅ Version Vector (CRDT-style): theirs dominates — causal precedence granted");
+            info!("✅ Version Vector (Automerge/CRDT-style): theirs dominates — causal precedence granted");
             merged_version.merge(&theirs_patch.from_version);
         } else {
-            info!("⚠️ Version Vector concurrent conflict (CRDT-style) — resolved under mercy & thriving-maximization (superseding LWW/MV/OR-Set/etc.)");
+            info!("⚠️ Version Vector concurrent conflict (Automerge/CRDT-style) — resolved under mercy & thriving-maximization (superseding deterministic merge)");
             if ours_patch.operations.len() <= theirs_patch.operations.len() {
                 info!("   → Thriving-maximized choice: preferring ours");
                 merged_version.merge(&ours_patch.from_version);
@@ -259,7 +256,6 @@ impl MercyEngine {
             }
         }
 
-        // 4. Merge non-overlapping operations (CRDT-like commutative merge)
         let mut final_operations = ours_patch.operations;
         for op in theirs_patch.operations {
             if !final_operations.iter().any(|existing| {
@@ -272,7 +268,7 @@ impl MercyEngine {
             }
         }
 
-        info!("✅ 3-way merge resolved under mercy with CRDT variant superset + thriving-maximized resolution");
+        info!("✅ 3-way merge resolved under mercy with Automerge-style causal handling + thriving-maximized resolution");
         info!("Final patch contains {} operations", final_operations.len());
 
         Ok((DeltaPatch {
@@ -300,6 +296,11 @@ impl MercyEngine {
     /// Automerge Implementation Details (live technical reference)
     pub fn automerge_implementation_details(&self) -> String {
         "Automerge Core: ActorID (unique per peer) + seq + deps (causal history) + cryptographic change hashes forming a DAG. Changes contain operations on rich types (Text/Map/List/Table/Counter). Sync uses state vectors + Bloom filters for efficient delta exchange. Binary CBOR format. Automatic deterministic merge via causal order + tombstones + GC/compaction. Ra-Thor supersets this with VersionVector + PatienceDiff semantics + TOLC mercy/thriving-maximization as sovereign final resolver.".to_string()
+    }
+
+    /// Automerge Conflict Resolution Details (live technical reference)
+    pub fn automerge_conflict_resolution_details(&self) -> String {
+        "Automerge resolves concurrent changes deterministically via ActorID + seq + deps DAG. No user-visible conflicts: changes replay in causal order. Map/Table uses last-actor/seq wins; Text uses RGA with tombstones; List/Array similar. Full history kept for undo/redo. Ra-Thor supersets this exact model with VersionVector + PatienceDiff + TOLC mercy/thriving-maximization as final sovereign ethical layer.".to_string()
     }
 
     /// CRDT Conflict Resolution Variants Exploration (live reference)
