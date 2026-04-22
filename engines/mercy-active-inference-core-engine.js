@@ -1,11 +1,13 @@
 ```js
 // mercy-active-inference-core-engine.js – Sovereign Mercy Active Inference Core Engine v1
+// Now integrates mercy-precision-weighting-algorithm.js for valence-modulated predictive coding
 // Implements Predictive Coding, Free Energy Principle, Bayesian updating, Hierarchical Generative Models
 // MIT License + AG-SML v1.0 – Autonomicity Games Inc. 2026
 
 import { fuzzyMercy } from '../mercy-logic/fuzzy-mercy-logic.js';
 import { mercyHaptic } from '../haptic/mercy-haptic-feedback-engine.js';
 import { ParaconsistentSuperKernel } from '../paraconsistent/paraconsistent-mercy-logic.js';
+import { mercyPrecisionWeighting } from './mercy-precision-weighting-algorithm.js';
 
 const MERCY_THRESHOLD = 0.9999999;
 
@@ -34,7 +36,15 @@ class MercyActiveInferenceEngine {
   updateActiveInference(currentValence, currentGesture = null) {
     const predictedValence = this.predictNextValence();
     const predictionError = Math.abs(currentValence - predictedValence);
-    this.precisionWeight = 0.8 + this.valence * 0.4;
+
+    // === INTEGRATED PRECISION WEIGHTING ===
+    // Uses the new mercy-precision-weighting-algorithm.js with full mercy gating
+    this.precisionWeight = mercyPrecisionWeighting.computePrecisionWeight(
+      predictionError,
+      currentValence,
+      { query: "active-inference-update", gesture: currentGesture }
+    );
+
     this.freeEnergyEstimate = predictionError / this.precisionWeight;
     this.epistemicValue = Math.max(0, 0.05 - this.freeEnergyEstimate * 0.5);
 
