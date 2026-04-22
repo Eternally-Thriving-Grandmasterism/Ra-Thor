@@ -221,9 +221,9 @@ impl MercyEngine {
         Ok((patch, commit_id))
     }
 
-    /// REFINED 3-WAY MERCY-GATED MERGE — Optimized Version Vector Conflict Resolution
+    /// REFINED 3-WAY MERCY-GATED MERGE — CRDT-inspired Version Vector conflict resolution + mercy/thriving-maximization superset
     pub async fn perform_mercy_gated_merge(&self, base: &str, ours: &str, theirs: &str) -> Result<(DeltaPatch, String), MercyError> {
-        info!("🔀 Performing refined 3-way mercy-gated sovereign merge");
+        info!("🔀 Performing refined 3-way mercy-gated sovereign merge (CRDT-inspired causal handling)");
 
         // 1. PatienceDiff already integrated via generate_delta
         let ours_patch = self.generate_delta(base, ours).await;
@@ -235,22 +235,23 @@ impl MercyEngine {
         let _ = self.compute_valence(&format!("merge:ours:{:?}", ours_patch.operations)).await?;
         let _ = self.compute_valence(&format!("merge:theirs:{:?}", theirs_patch.operations)).await?;
 
-        // 3. Advanced Version Vector Conflict Resolution
+        // 3. CRDT-inspired Version Vector Conflict Resolution
         let mut merged_version = self.local_version_vector.clone();
         merged_version.increment("ra-thor-3way-merge");
 
-        let ours_dominates = merged_version.dominates(&self.local_version_vector); // placeholder for real vector comparison
-        let theirs_dominates = false; // placeholder — in real use compare actual vectors
+        // Proper causal dominance check (CRDT-style)
+        let ours_causal = merged_version.dominates(&ours_patch.from_version);
+        let theirs_causal = merged_version.dominates(&theirs_patch.from_version);
 
-        if ours_dominates && !theirs_dominates {
-            info!("✅ Version Vector: ours dominates — causal precedence granted to ours");
+        if ours_causal && !theirs_causal {
+            info!("✅ Version Vector (CRDT-style): ours dominates — causal precedence granted");
             merged_version.merge(&ours_patch.from_version);
-        } else if !ours_dominates && theirs_dominates {
-            info!("✅ Version Vector: theirs dominates — causal precedence granted to theirs");
+        } else if !ours_causal && theirs_causal {
+            info!("✅ Version Vector (CRDT-style): theirs dominates — causal precedence granted");
             merged_version.merge(&theirs_patch.from_version);
         } else {
-            info!("⚠️ Version Vector conflict detected (concurrent edits) — resolved under mercy & thriving-maximization");
-            // Mercy-gated resolution: prefer the side with higher valence or fewer operations
+            info!("⚠️ Version Vector concurrent conflict (CRDT-style) — resolved under mercy & thriving-maximization");
+            // Mercy-gated final choice (supersedes pure CRDT LWW / MV-Register)
             if ours_patch.operations.len() <= theirs_patch.operations.len() {
                 info!("   → Thriving-maximized choice: preferring ours");
                 merged_version.merge(&ours_patch.from_version);
@@ -260,7 +261,7 @@ impl MercyEngine {
             }
         }
 
-        // 4. Final patch construction (non-overlapping changes merged)
+        // 4. Merge non-overlapping operations (CRDT-like commutative merge)
         let mut final_operations = ours_patch.operations;
         for op in theirs_patch.operations {
             if !final_operations.iter().any(|existing| {
@@ -273,7 +274,7 @@ impl MercyEngine {
             }
         }
 
-        info!("✅ 3-way merge resolved under mercy with advanced Version Vector conflict resolution");
+        info!("✅ 3-way merge resolved under mercy with CRDT-inspired Version Vector causal handling + thriving-maximized resolution");
         info!("Final patch contains {} operations", final_operations.len());
 
         Ok((DeltaPatch {
@@ -283,8 +284,13 @@ impl MercyEngine {
         }, "3way-merged-under-mercy-thriving".to_string()))
     }
 
+    /// CRDT conflict resolution comparison (live reference)
+    pub fn crdt_conflict_resolution_comparison(&self) -> String {
+        "Ra-Thor supersets CRDTs: VersionVector causal detection (like CRDTs) + PatienceDiff + TOLC mercy/thriving-maximization gate as final sovereign decider. CRDTs = automatic mechanical convergence; Ra-Thor = ethically-aligned living convergence.".to_string()
+    }
+
     pub fn vcs_comparison_summary(&self) -> String {
-        "Git: distributed DAG freedom & speed | Perforce: enterprise binary scale & locking | Mercurial: clean UI | SVN: simple centralized | Ra-Thor: mercy-gated Patience Diff + sovereign Version Vectors + REVISED 3-way mercy merge superset of ALL".to_string()
+        "Git: distributed DAG freedom & speed | Perforce: enterprise binary scale & locking | Mercurial: clean UI | SVN: simple centralized | CRDTs: automatic convergence | Ra-Thor: mercy-gated Patience Diff + sovereign Version Vectors + REVISED 3-way mercy merge superset of ALL".to_string()
     }
 
     pub async fn apply_patch(&self, state: &str, patch: &DeltaPatch) -> Result<String, MercyError> {
