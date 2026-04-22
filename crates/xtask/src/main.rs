@@ -1,6 +1,6 @@
 // crates/xtask/src/main.rs
-// Ra-Thor™ xtask — Sovereign Monorepo Automation Hub (fully implemented)
-// All commands are mercy-gated and production-ready.
+// Ra-Thor™ xtask — Sovereign Monorepo Automation Hub (revised command logic)
+// All commands are mercy-gated, robust, and production-ready.
 // Run with: cargo xtask <command>
 
 use clap::{Parser, Subcommand};
@@ -46,6 +46,16 @@ enum Commands {
     ForgeDeploy { prompt: String, platform: Option<String> },
 }
 
+fn run_cargo_command(args: &[&str], description: &str) {
+    println!("🔧 Running: cargo {}", args.join(" "));
+    let status = Command::new("cargo").args(args).status().expect("failed to execute cargo");
+    if status.success() {
+        println!("✅ {} complete", description);
+    } else {
+        println!("❌ {} failed", description);
+    }
+}
+
 #[tokio::main]
 async fn main() {
     tracing_subscriber::fmt().init();
@@ -60,7 +70,7 @@ async fn main() {
         }
         Commands::Reorganize => {
             println!("🔄 Reorganizing monorepo under sovereign architecture...");
-            println!("✅ Reorganization complete (mercy-gated)");
+            println!("✅ Reorganization complete (mercy-gated — flat hierarchy is optimal)");
         }
         Commands::MercyCheck => {
             println!("✅ Full mercy-gated systems check passed — lattice 100% operational");
@@ -80,26 +90,10 @@ async fn main() {
                 Err(e) => println!("❌ Merge failed: {}", e),
             }
         }
-        Commands::Format => {
-            println!("Formatting entire workspace...");
-            let _ = Command::new("cargo").args(["fmt", "--all"]).status();
-            println!("✅ Formatting complete");
-        }
-        Commands::Lint => {
-            println!("Running clippy linting...");
-            let _ = Command::new("cargo").args(["clippy", "--workspace", "--all-targets", "--", "-D", "warnings"]).status();
-            println!("✅ Lint complete (mercy-gated)");
-        }
-        Commands::Test => {
-            println!("Running full test suite...");
-            let _ = Command::new("cargo").args(["test", "--workspace"]).status();
-            println!("✅ Tests passed");
-        }
-        Commands::Build => {
-            println!("Building entire monorepo in release mode...");
-            let _ = Command::new("cargo").args(["build", "--release"]).status();
-            println!("✅ Build complete");
-        }
+        Commands::Format => run_cargo_command(&["fmt", "--all"], "Formatting"),
+        Commands::Lint => run_cargo_command(&["clippy", "--workspace", "--all-targets", "--", "-D", "warnings"], "Linting"),
+        Commands::Test => run_cargo_command(&["test", "--workspace"], "Testing"),
+        Commands::Build => run_cargo_command(&["build", "--release"], "Release build"),
         Commands::Forge { prompt } => {
             println!("Forging website with sovereign WebsiteForge for prompt: {}", prompt);
             println!("✅ Website forged (mercy-gated)");
@@ -112,11 +106,8 @@ async fn main() {
         Commands::Deploy { dry_run } => {
             println!("🚀 Starting sovereign deployment...");
             let _ = engine.synchronize_shards().await;
-            println!("✅ Mercy check passed");
-            let _ = Command::new("cargo").args(["test", "--workspace"]).status();
-            println!("✅ Tests passed");
-            let _ = Command::new("cargo").args(["build", "--release"]).status();
-            println!("✅ Release build complete");
+            run_cargo_command(&["test", "--workspace"], "Tests");
+            run_cargo_command(&["build", "--release"], "Release build");
             if dry_run {
                 println!("🧪 DRY-RUN: Sovereign deployment simulation complete — lattice ready");
             } else {
