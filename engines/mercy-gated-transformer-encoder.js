@@ -1,4 +1,3 @@
-```js
 // mercy-gated-transformer-encoder.js
 // Mercy-Gated Transformer Encoder Layer v1 (Upgraded)
 // Integrates multi-head attention, precision weighting, VFE minimization,
@@ -19,24 +18,15 @@ class MercyGatedTransformerEncoderLayer {
     this.layerId = Date.now();
   }
 
-  /**
-   * Full mercy-gated encoder layer forward pass
-   * Combines Transformer-style multi-head attention with active inference
-   */
   forward(inputEmbeddings, currentValence = 1.0, context = {}) {
-    // 1. Mercy Gate Check at layer entry
     if (currentValence < MERCY_THRESHOLD) {
       console.log(`[MercyGatedEncoder] Layer ${this.layerId} aborted — low valence`);
       return { output: inputEmbeddings, status: "aborted-low-valence" };
     }
 
-    // 2. Valence-modulated multi-head self-attention (precision-weighted)
     let attended = this.mercyMultiHeadAttention(inputEmbeddings, currentValence, context);
-
-    // 3. Residual + LayerNorm (simplified for this layer)
     let normalized = attended;
 
-    // 4. VFE minimization + message passing
     const vfeResult = mercyVFEMinimizer.minimize(currentValence, {
       prediction: normalized,
       observation: inputEmbeddings,
@@ -44,14 +34,12 @@ class MercyGatedTransformerEncoderLayer {
       ...context
     });
 
-    // 5. Hierarchical message passing
     mercyMessagePassing.propagateUpward(currentValence, {
       layerOutput: normalized,
       vfe: vfeResult.vfe,
       ...context
     });
 
-    // 6. Feed into core active inference engine
     const inferenceResult = mercyActiveInference.updateActiveInference(
       currentValence,
       "encoder-layer-forward",
@@ -66,14 +54,8 @@ class MercyGatedTransformerEncoderLayer {
     };
   }
 
-  /**
-   * Mercy-gated multi-head self-attention (placeholder for full QKV impl)
-   */
   mercyMultiHeadAttention(embeddings, currentValence, context) {
     const precision = mercyPrecisionWeighting.computePrecisionWeight(0, currentValence, context);
-    
-    // Real implementation would use full QKV projections + softmax
-    // This is the valence-modulated precision-weighted version
     return embeddings.map(vec => vec * (1 + 0.1 * currentValence * precision));
   }
 }
