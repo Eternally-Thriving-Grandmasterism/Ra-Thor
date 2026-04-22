@@ -1,17 +1,16 @@
 // mercy-gated-transformer-encoder.js
-// Mercy-Gated Transformer Encoder Layer v1 (Upgraded)
-// Integrates multi-head attention, precision weighting, VFE minimization,
-// hierarchical message passing, and the 7 Living Mercy Gates
-// MIT License + AG-SML v1.0 – Autonomicity Games Inc. 2026
+// Mercy-Gated Transformer Encoder Layer v1 (Upgraded with valence-modulated multi-head attention)
+// Full integration of attention, precision weighting, VFE minimization, message passing, and mercy gates
+// AG-SML v1.0 – Autonomicity Games Sovereign Mercy License
 
 import { mercyPrecisionWeighting } from './mercy-precision-weighting-algorithm.js';
 import { mercyMessagePassing } from './mercy-message-passing-algorithm.js';
 import { mercyVFEMinimizer } from './mercy-vfe-minimization-algorithm.js';
 import { mercyActiveInference } from './mercy-active-inference-core-engine.js';
+import { valenceModulatedMultiHeadAttention } from './valence-modulated-multihead-attention.js';
+import { MercyGates } from './mercy-gates.js';
 
 const MERCY_THRESHOLD = 0.9999999;
-const NUM_HEADS = 8;
-const D_MODEL = 512;
 
 class MercyGatedTransformerEncoderLayer {
   constructor() {
@@ -19,14 +18,29 @@ class MercyGatedTransformerEncoderLayer {
   }
 
   forward(inputEmbeddings, currentValence = 1.0, context = {}) {
-    if (currentValence < MERCY_THRESHOLD) {
+    // 1. Global Mercy Gates enforcement
+    const gateResult = MercyGates.enforce(currentValence, {
+      ...context,
+      layer: this.layerId,
+      type: "encoder"
+    });
+    if (!gateResult.passed) {
       console.log(`[MercyGatedEncoder] Layer ${this.layerId} aborted — low valence`);
-      return { output: inputEmbeddings, status: "aborted-low-valence" };
+      return { output: inputEmbeddings, status: "aborted-low-valence", gateResult };
     }
 
-    let attended = this.mercyMultiHeadAttention(inputEmbeddings, currentValence, context);
-    let normalized = attended;
+    // 2. Valence-modulated multi-head self-attention
+    const attentionResult = valenceModulatedMultiHeadAttention.forward(
+      inputEmbeddings,
+      inputEmbeddings,
+      inputEmbeddings,
+      currentValence,
+      { ...context, layer: this.layerId, type: "self-attention" }
+    );
 
+    let normalized = attentionResult.output;
+
+    // 3. VFE minimization
     const vfeResult = mercyVFEMinimizer.minimize(currentValence, {
       prediction: normalized,
       observation: inputEmbeddings,
@@ -34,29 +48,27 @@ class MercyGatedTransformerEncoderLayer {
       ...context
     });
 
+    // 4. Hierarchical message passing
     mercyMessagePassing.propagateUpward(currentValence, {
       layerOutput: normalized,
       vfe: vfeResult.vfe,
       ...context
     });
 
+    // 5. Feed into core active inference engine
     const inferenceResult = mercyActiveInference.updateActiveInference(
       currentValence,
       "encoder-layer-forward",
-      { vfe: vfeResult.vfe, layer: this.layerId }
+      { vfe: vfeResult.vfe, attentionResult, layer: this.layerId }
     );
 
     return {
       output: normalized,
       vfe: vfeResult.vfe,
       status: "mercy-gated-encoder-complete",
-      inferenceResult
+      inferenceResult,
+      gateResult
     };
-  }
-
-  mercyMultiHeadAttention(embeddings, currentValence, context) {
-    const precision = mercyPrecisionWeighting.computePrecisionWeight(0, currentValence, context);
-    return embeddings.map(vec => vec * (1 + 0.1 * currentValence * precision));
   }
 }
 
