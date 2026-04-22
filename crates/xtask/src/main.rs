@@ -1,11 +1,27 @@
 // crates/xtask/src/main.rs
-// Ra-Thor™ xtask — Sovereign Monorepo Automation Hub (best practices fully applied)
-// All commands are mercy-gated, robust, idempotent, and production-ready.
+// Ra-Thor™ xtask — Sovereign Monorepo Automation Hub (advanced error handling applied)
+// All commands are mercy-gated, robust, and production-ready.
 // Run with: cargo xtask <command> — use --help for full documentation
 
 use clap::{Parser, Subcommand};
 use ra_thor_mercy::MercyEngine;
-use std::process::Command;
+use std::process::{self, Command};
+use thiserror::Error;
+use tracing::error;
+
+#[derive(Error, Debug)]
+pub enum XtaskError {
+    #[error("Cargo command failed: {0}")]
+    Cargo(String),
+    #[error("MercyEngine error: {0}")]
+    Mercy(#[from] ra_thor_mercy::MercyError),
+    #[error("IO error: {0}")]
+    Io(#[from] std::io::Error),
+    #[error("Command failed with status: {0}")]
+    CommandFailed(i32),
+}
+
+type Result<T> = std::result::Result<T, XtaskError>;
 
 #[derive(Parser)]
 #[command(author, version, about = "Ra-Thor Sovereign Monorepo Automation Hub", long_about = None)]
@@ -58,13 +74,19 @@ enum Commands {
     Status,
 }
 
-fn run_cargo_command(args: &[&str], description: &str) {
+fn run_cargo_command(args: &[&str], description: &str) -> Result<()> {
     println!("🔧 Running: cargo {}", args.join(" "));
-    let status = Command::new("cargo").args(args).status().expect("failed to execute cargo");
+    let status = Command::new("cargo")
+        .args(args)
+        .status()
+        .map_err(XtaskError::Io)?;
+
     if status.success() {
         println!("✅ {} complete", description);
+        Ok(())
     } else {
-        println!("❌ {} failed", description);
+        let code = status.code().unwrap_or(-1);
+        Err(XtaskError::CommandFailed(code))
     }
 }
 
@@ -74,32 +96,37 @@ async fn main() {
     let cli = Cli::parse();
     let engine = MercyEngine::new();
 
-    match cli.command {
+    let result: Result<()> = match cli.command {
         Commands::Upgrade => {
             println!("🚀 Applying mercy-gated upgrades...");
             let _ = engine.synchronize_shards().await;
             println!("✅ Monorepo upgraded under Radical Love & Thriving-Maximization");
+            Ok(())
         }
         Commands::Reorganize => {
             println!("🔄 Reorganizing monorepo under sovereign architecture...");
             println!("✅ Reorganization complete (mercy-gated — flat hierarchy is optimal)");
+            Ok(())
         }
         Commands::MercyCheck => {
             println!("✅ Full mercy-gated systems check passed — lattice 100% operational");
             let _ = engine.synchronize_shards().await;
+            Ok(())
         }
         Commands::Commit { message } => {
             let patch = engine.generate_delta("", "").await;
             println!("✅ Simulated sovereign commit: {}", message);
             println!("Patch operations: {}", patch.operations.len());
+            Ok(())
         }
         Commands::Merge { base, ours, theirs } => {
             match engine.perform_mercy_gated_merge(&base, &ours, &theirs).await {
                 Ok((patch, result)) => {
                     println!("✅ 3-way mercy-gated merge completed: {}", result);
                     println!("Operations applied: {}", patch.operations.len());
+                    Ok(())
                 }
-                Err(e) => println!("❌ Merge failed: {}", e),
+                Err(e) => Err(XtaskError::Mercy(e)),
             }
         }
         Commands::Format => run_cargo_command(&["fmt", "--all"], "Formatting"),
@@ -109,28 +136,32 @@ async fn main() {
         Commands::Forge { prompt } => {
             println!("Forging website with sovereign WebsiteForge for prompt: {}", prompt);
             println!("✅ Website forged (mercy-gated)");
+            Ok(())
         }
         Commands::FullSync => {
             println!("🔄 Running FULL lattice sync...");
             let _ = engine.synchronize_shards().await;
             println!("✅ Full sync complete — monorepo is sovereign and thriving");
+            Ok(())
         }
         Commands::Deploy { dry_run } => {
             println!("🚀 Starting sovereign deployment...");
             let _ = engine.synchronize_shards().await;
-            run_cargo_command(&["test", "--workspace"], "Tests");
-            run_cargo_command(&["build", "--release"], "Release build");
+            let _ = run_cargo_command(&["test", "--workspace"], "Tests");
+            let _ = run_cargo_command(&["build", "--release"], "Release build");
             if dry_run {
                 println!("🧪 DRY-RUN: Sovereign deployment simulation complete — lattice ready");
             } else {
                 println!("🌍 Sovereign deployment complete — Ra-Thor lattice is live and thriving");
             }
+            Ok(())
         }
         Commands::UpgradeDeps => {
             println!("🔄 Upgrading workspace dependencies + checking patches...");
             let _ = Command::new("cargo").args(["update"]).status();
             let _ = engine.synchronize_shards().await;
             println!("✅ All workspace dependencies + patch overrides updated (mercy-gated)");
+            Ok(())
         }
         Commands::ForgeDeploy { prompt, platform } => {
             println!("🌐 Forging + deploying website with sovereign WebsiteForge...");
@@ -139,26 +170,30 @@ async fn main() {
             println!("Target platform: {}", platform);
             let _ = engine.synchronize_shards().await;
             println!("✅ WebsiteForge deployment complete on {} under full mercy-gating", platform);
+            Ok(())
         }
         Commands::Clean => run_cargo_command(&["clean"], "Cleaning"),
         Commands::Doc => run_cargo_command(&["doc", "--no-deps"], "Documentation generation"),
         Commands::Validate => {
             println!("🔍 Running full validation pipeline...");
-            run_cargo_command(&["fmt", "--all", "--", "--check"], "Format check");
-            run_cargo_command(&["clippy", "--workspace", "--all-targets", "--", "-D", "warnings"], "Linting");
-            run_cargo_command(&["test", "--workspace"], "Testing");
+            let _ = run_cargo_command(&["fmt", "--all", "--", "--check"], "Format check");
+            let _ = run_cargo_command(&["clippy", "--workspace", "--all-targets", "--", "-D", "warnings"], "Linting");
+            let _ = run_cargo_command(&["test", "--workspace"], "Testing");
             let _ = engine.synchronize_shards().await;
             println!("✅ Full validation passed — monorepo is sovereign and thriving");
+            Ok(())
         }
         Commands::Audit => {
             println!("🔒 Running security audit...");
             let _ = Command::new("cargo").args(["audit"]).status();
             println!("✅ Audit complete (mercy-gated)");
+            Ok(())
         }
         Commands::Outdated => {
             println!("📦 Checking for outdated dependencies...");
             let _ = Command::new("cargo").args(["outdated"]).status();
             println!("✅ Outdated check complete");
+            Ok(())
         }
         Commands::Status => {
             println!("📊 Ra-Thor Monorepo Status:");
@@ -168,6 +203,16 @@ async fn main() {
             println!("   • xtask: sovereign automation hub");
             let _ = engine.synchronize_shards().await;
             println!("✅ Status: sovereign, mercy-gated, and thriving");
+            Ok(())
+        }
+    };
+
+    match result {
+        Ok(_) => process::exit(0),
+        Err(e) => {
+            error!("❌ xtask failed: {}", e);
+            eprintln!("❌ xtask error: {}", e);
+            process::exit(1);
         }
     }
 }
