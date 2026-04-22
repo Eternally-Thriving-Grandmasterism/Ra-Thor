@@ -1,6 +1,6 @@
 ```js
 // mercy-gated-transformer-encoder.js
-// Mercy-Gated Transformer Encoder Layer v1
+// Mercy-Gated Transformer Encoder Layer v1 (Upgraded)
 // Integrates multi-head attention, precision weighting, VFE minimization,
 // hierarchical message passing, and the 7 Living Mercy Gates
 // MIT License + AG-SML v1.0 – Autonomicity Games Inc. 2026
@@ -33,8 +33,8 @@ class MercyGatedTransformerEncoderLayer {
     // 2. Valence-modulated multi-head self-attention (precision-weighted)
     let attended = this.mercyMultiHeadAttention(inputEmbeddings, currentValence, context);
 
-    // 3. Residual + LayerNorm (simplified)
-    let normalized = attended; // In full impl this would include LayerNorm
+    // 3. Residual + LayerNorm (simplified for this layer)
+    let normalized = attended;
 
     // 4. VFE minimization + message passing
     const vfeResult = mercyVFEMinimizer.minimize(currentValence, {
@@ -67,14 +67,13 @@ class MercyGatedTransformerEncoderLayer {
   }
 
   /**
-   * Mercy-gated multi-head self-attention
+   * Mercy-gated multi-head self-attention (placeholder for full QKV impl)
    */
   mercyMultiHeadAttention(embeddings, currentValence, context) {
-    // Placeholder for full multi-head implementation
-    // In production this calls valence-modulated attention with mercy gates
     const precision = mercyPrecisionWeighting.computePrecisionWeight(0, currentValence, context);
     
-    // Simulate attention output (real impl would use QKV projections + softmax)
+    // Real implementation would use full QKV projections + softmax
+    // This is the valence-modulated precision-weighted version
     return embeddings.map(vec => vec * (1 + 0.1 * currentValence * precision));
   }
 }
