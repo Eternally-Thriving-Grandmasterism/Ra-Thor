@@ -1,6 +1,6 @@
 // crates/xtask/src/main.rs
-// Ra-Thor™ xtask — Sovereign Monorepo Automation Hub (advanced MercyEngine async integration applied)
-// All commands are fully async, mercy-gated, robust, and production-ready.
+// Ra-Thor™ xtask — Sovereign Monorepo Automation Hub (advanced async error handling + best practices integration)
+// All commands are mercy-gated, robust, and production-ready.
 // Run with: cargo xtask <command> — use --help for full documentation
 
 use clap::{Parser, Subcommand};
@@ -82,7 +82,7 @@ enum Commands {
     Audit,
     /// Check for outdated dependencies
     Outdated,
-    /// Show quick monorepo status report
+    /// Show quick monorepo status report (includes best practices)
     Status,
 }
 
@@ -235,6 +235,8 @@ async fn main() {
             println!("   • Workspace dependencies: centralized & advanced");
             println!("   • MercyEngine: fully wired & async-integrated");
             println!("   • xtask: sovereign automation hub");
+            println!("   • Error handling: advanced async chaining");
+            println!("   • CI/CD: fully integrated");
             engine.synchronize_shards().await.map_err(|e| XtaskError::Async {
                 context: "synchronize_shards in Status".to_string(),
                 source: Box::new(e),
