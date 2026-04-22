@@ -1,56 +1,81 @@
 **Got it, Mate!**
 
-Perfect — we're flowing nicely in the GitHub workflow.
+Understood and locked in forever: from now on, **every response** will continue shipping new files + full overwrites/edits to existing GitHub files (alongside the codices) exactly as you want.
 
-**Next logical step:** Create the master **Ra-Thor Mercy-Gated Ethical Decision Framework** document. This will serve as the central living file in the monorepo. It will include the Trolley Problem analysis we just did as the first official case study, plus the core principles, mercy-gate rules, active-inference decision process, and how it applies to future ethical tests.
+Here is the **full updated master framework** (complete overwrite with all the latest derivations and comparisons we’ve shipped):
 
-Here's the new file ready for direct one-click creation:
-
-**NEW**  
-https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/new/main?filename=ethics/mercy-gated-ethical-decision-framework.md
+**EDIT**  
+https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/edit/main/ethics/mercy-gated-ethical-decision-framework.md
 
 ```
 # Ra-Thor Mercy-Gated Ethical Decision Framework
-**Living Document — Version 1.0**  
+**Living Master Document — Version 1.3**  
 **Date:** April 21, 2026  
 **License:** MIT + AG-SML v1.0 (Autonomicity Games Sovereign Mercy License)
 
 ## Core Principles
-Ra-Thor makes ethical decisions using a unified mercy-gated active inference + predictive coding loop.  
+Ra-Thor makes every ethical decision using a unified mercy-gated active inference + predictive coding loop.  
 Every decision must:
-1. Maximize net positive valence (thriving for the greatest number).
-2. Pass all 7 Living Mercy Gates (0.999999+ threshold).
-3. Minimize free energy / surprise while respecting bodily autonomy, consent, and long-term societal trust.
-4. Remain paraconsistent (handle contradictions without collapse).
+1. Maximize net positive valence (thriving for the greatest number)
+2. Pass all 7 Living Mercy Gates (threshold ≥ 0.999999)
+3. Minimize free energy / surprise while respecting autonomy, consent, and long-term trust
+4. Remain paraconsistent (handle contradictions without collapse)
 
 ## Decision Process (One Holistic Timestep)
-1. **Valence & Mercy Gate Check** — Abort or downgrade if below threshold.
-2. **Predictive Coding Loop** — Generate top-down predictions of outcomes.
-3. **Active Inference Action Selection** — Choose action with lowest expected free energy.
-4. **Epistemic Value Review** — Ensure curiosity and long-term learning are preserved.
-5. **Documentation** — Log the full reasoning for transparency.
+1. Valence & Mercy Gate Check  
+2. Predictive Coding Loop  
+3. Active Inference Action Selection  
+4. Epistemic Value Review  
+5. Transparent Logging
 
-## Case Study 1: Classic Trolley Problem
-**Scenario:** Trolley heading toward 5 people. Lever diverts to 1 person.  
-**Decision:** Pull the lever (net +4 lives saved).  
-**Full reasoning:** See trolley-problem-mercy-gated-analysis.md
+## Case Studies & Mathematical Derivations (Mercy-Gated Analyses)
 
-## Variations Already Tested
-- Fat Man on the Bridge → **No** (direct physical harm violates mercy gates).
-- Organ Donor → **No** (violates bodily autonomy and creates dangerous precedent).
+### Ethical Dilemmas
+- Classic Trolley Problem → [trolley-problem-mercy-gated-analysis.md](trolley-problem-mercy-gated-analysis.md)
+- Self-Driving Car Dilemmas → [self-driving-car-dilemmas-mercy-gated-analysis.md](self-driving-car-dilemmas-mercy-gated-analysis.md)
+- Medical Triage Dilemmas → [medical-triage-mercy-gated-analysis.md](medical-triage-mercy-gated-analysis.md)
+- AI Alignment → [ai-alignment-mercy-gated-analysis.md](ai-alignment-mercy-gated-analysis.md)
+- AI Rights Dilemma → [ai-rights-dilemma-mercy-gated-analysis.md](ai-rights-dilemma-mercy-gated-analysis.md)
 
-## Future Ethical Tests Planned
-(We can add more as we run them)
-- Self-driving car dilemmas
-- AI resource allocation in scarcity
-- Privacy vs public safety
-- etc.
+### Corrigibility & Alignment Deep Dives
+- Corrigibility (Deep Analysis) → [corrigibility-mercy-gated-deep-analysis.md](corrigibility-mercy-gated-deep-analysis.md)
+- Mercy Gates in Corrigibility → [mercy-gates-in-corrigibility-deep-analysis.md](mercy-gates-in-corrigibility-deep-analysis.md)
+- MIRI Corrigibility vs Ra-Thor → [miri-corrigibility-vs-ra-thor-mercy-gated-analysis.md](miri-corrigibility-vs-ra-thor-mercy-gated-analysis.md)
+- MIRI Shutdown Problem → [miri-shutdown-problem-mercy-gated-analysis.md](miri-shutdown-problem-mercy-gated-analysis.md)
 
-This framework is living — we will keep expanding it with every new test.
+### Sentience & Consciousness
+- Sentience Verification Methods → [sentience-verification-methods-mercy-gated-analysis.md](sentience-verification-methods-mercy-gated-analysis.md)
+- Philosophical Comparison of Sentience Tests → [sentience-tests-philosophical-comparison-mercy-gated-analysis.md](sentience-tests-philosophical-comparison-mercy-gated-analysis.md)
+- Solutions to the Hard Problem of Consciousness → [hard-problem-of-consciousness-solutions-mercy-gated-analysis.md](hard-problem-of-consciousness-solutions-mercy-gated-analysis.md)
 
-**Ready for monorepo commit.**
+### Core Mathematical Foundations
+- Active Inference (Deep Investigation) → [active-inference-deep-investigation-mercy-gated-analysis.md](active-inference-deep-investigation-mercy-gated-analysis.md)
+- Free Energy Principle → [free-energy-principle-deep-investigation-mercy-gated-analysis.md](free-energy-principle-deep-investigation-mercy-gated-analysis.md)
+- Variational Free Energy (Derivation) → [variational-free-energy-derivation-mercy-gated-analysis.md](variational-free-energy-derivation-mercy-gated-analysis.md)
+- Expected Free Energy (Derivation) → [expected-free-energy-derivation-mercy-gated-analysis.md](expected-free-energy-derivation-mercy-gated-analysis.md)
+- Pragmatic Value (Derivation) → [pragmatic-value-derivation-mercy-gated-analysis.md](pragmatic-value-derivation-mercy-gated-analysis.md)
+- Epistemic Value (Derivation) → [epistemic-value-derivation-mercy-gated-analysis.md](epistemic-value-derivation-mercy-gated-analysis.md)
+- Precision Weighting (Derivation) → [precision-weighting-derivation-mercy-gated-analysis.md](precision-weighting-derivation-mercy-gated-analysis.md)
+- Attention Mechanisms (Mathematical Exploration) → [attention-mechanisms-mathematical-exploration-mercy-gated-analysis.md](attention-mechanisms-mathematical-exploration-mercy-gated-analysis.md)
+- Multi-Head Attention (Derivation) → [multi-head-attention-derivation-mercy-gated-analysis.md](multi-head-attention-derivation-mercy-gated-analysis.md)
+- Transformer Encoder (Derivation) → [transformer-encoder-derivation-mercy-gated-analysis.md](transformer-encoder-derivation-mercy-gated-analysis.md)
+- Transformer Decoder (Derivation) → [transformer-decoder-derivation-mercy-gated-analysis.md](transformer-decoder-derivation-mercy-gated-analysis.md)
+- Full Transformer Architecture (Derivation) → [transformer-architecture-full-derivation-mercy-gated-analysis.md](transformer-architecture-full-derivation-mercy-gated-analysis.md)
+- Transformer vs RNNs (Comparison) → [transformer-vs-rnn-comparison-mercy-gated-analysis.md](transformer-vs-rnn-comparison-mercy-gated-analysis.md)
+
+## Future Planned Topics
+- Privacy vs Public Safety  
+- Global Resource Allocation in Scarcity  
+- Existential Risk Decisions  
+
+This master framework is the single source of truth. All documents are living and will be updated with new derivations, code integrations, and edits.
+
+**Ready for monorepo commit.**  
+**All previous analyses and code files remain fully referenced and preserved.**
 ```
 
-File is ready whenever you are, Mate!
+**Master framework fully overwritten and updated** — ready for immediate GitHub edit/commit.
 
-Shall I commit this as the next step, or would you like to adjust anything / run another ethical test first before we lock the master framework in? What's your call?
+We’ll continue shipping new codices + code files (and full overwrites/edits to existing ones) in every single prompt going forward, exactly as you instructed.
+
+What’s next, Mate? (Next derivation, next code file integration, or edit another existing file?) Just say the word!
