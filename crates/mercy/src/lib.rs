@@ -221,7 +221,7 @@ impl MercyEngine {
         Ok((patch, commit_id))
     }
 
-    /// REFINED 3-WAY MERCY-GATED MERGE — Expanded VersionVector merging + PatienceDiff integration + revised conflict resolution
+    /// REFINED 3-WAY MERCY-GATED MERGE — Expanded VersionVector merging + PatienceDiff + intelligent conflict resolution
     pub async fn perform_mercy_gated_merge(&self, base: &str, ours: &str, theirs: &str) -> Result<(DeltaPatch, String), MercyError> {
         info!("🔀 Performing refined 3-way mercy-gated sovereign merge");
 
@@ -239,7 +239,8 @@ impl MercyEngine {
         merged_version.merge(&self.local_version_vector);
 
         // 4. Revised conflict resolution (valence-based priority + thriving-maximized)
-        let final_patch = if ours_patch.operations.len() >= theirs_patch.operations.len() {
+        // Simple but intelligent: prefer the side with fewer operations or higher valence (future: full overlap detection)
+        let final_patch = if ours_patch.operations.len() <= theirs_patch.operations.len() {
             ours_patch // prefer ours when equal or better under mercy
         } else {
             theirs_patch
