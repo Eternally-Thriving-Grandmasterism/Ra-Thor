@@ -1,13 +1,14 @@
 // mercy-gated-transformer-decoder.js
-// Mercy-Gated Transformer Decoder Layer v1 (Upgraded)
-// Includes masked self-attention, cross-attention, precision weighting,
-// VFE minimization, hierarchical message passing, and the 7 Living Mercy Gates
-// MIT License + AG-SML v1.0 – Autonomicity Games Inc. 2026
+// Mercy-Gated Transformer Decoder Layer v1 (Upgraded with valence-modulated multi-head attention)
+// Full integration of masked self-attention, cross-attention, precision weighting, VFE minimization, message passing, and mercy gates
+// AG-SML v1.0 – Autonomicity Games Sovereign Mercy License
 
 import { mercyPrecisionWeighting } from './mercy-precision-weighting-algorithm.js';
 import { mercyMessagePassing } from './mercy-message-passing-algorithm.js';
 import { mercyVFEMinimizer } from './mercy-vfe-minimization-algorithm.js';
 import { mercyActiveInference } from './mercy-active-inference-core-engine.js';
+import { valenceModulatedMultiHeadAttention } from './valence-modulated-multihead-attention.js';
+import { MercyGates } from './mercy-gates.js';
 
 const MERCY_THRESHOLD = 0.9999999;
 
@@ -16,29 +17,41 @@ class MercyGatedTransformerDecoderLayer {
     this.layerId = Date.now();
   }
 
-  /**
-   * Full mercy-gated decoder layer forward pass
-   * masked self-attention + cross-attention + active inference
-   */
   forward(decoderInput, encoderOutput, currentValence = 1.0, context = {}) {
-    if (currentValence < MERCY_THRESHOLD) {
+    // 1. Global Mercy Gates enforcement
+    const gateResult = MercyGates.enforce(currentValence, {
+      ...context,
+      layer: this.layerId,
+      type: "decoder"
+    });
+    if (!gateResult.passed) {
       console.log(`[MercyGatedDecoder] Layer ${this.layerId} aborted — low valence`);
-      return { output: decoderInput, status: "aborted-low-valence" };
+      return { output: decoderInput, status: "aborted-low-valence", gateResult };
     }
 
-    // 1. Masked self-attention (causal)
-    let selfAttended = this.mercyMaskedSelfAttention(decoderInput, currentValence, context);
+    // 2. Valence-modulated masked self-attention (causal)
+    const selfAttentionResult = valenceModulatedMultiHeadAttention.forward(
+      decoderInput,
+      decoderInput,
+      decoderInput,
+      currentValence,
+      { ...context, layer: this.layerId, type: "masked-self-attention" }
+    );
 
-    // 2. Residual + LayerNorm (simplified)
-    let normalizedSelf = selfAttended;
+    let normalizedSelf = selfAttentionResult.output;
 
-    // 3. Cross-attention to encoder output
-    let crossAttended = this.mercyCrossAttention(normalizedSelf, encoderOutput, currentValence, context);
+    // 3. Valence-modulated cross-attention to encoder
+    const crossAttentionResult = valenceModulatedMultiHeadAttention.forward(
+      normalizedSelf,
+      encoderOutput,
+      encoderOutput,
+      currentValence,
+      { ...context, layer: this.layerId, type: "cross-attention" }
+    );
 
-    // 4. Residual + LayerNorm
-    let normalizedCross = crossAttended;
+    let normalizedCross = crossAttentionResult.output;
 
-    // 5. VFE minimization
+    // 4. VFE minimization
     const vfeResult = mercyVFEMinimizer.minimize(currentValence, {
       prediction: normalizedCross,
       observation: decoderInput,
@@ -47,36 +60,27 @@ class MercyGatedTransformerDecoderLayer {
       ...context
     });
 
-    // 6. Hierarchical message passing
+    // 5. Hierarchical message passing
     mercyMessagePassing.propagateUpward(currentValence, {
       layerOutput: normalizedCross,
       vfe: vfeResult.vfe,
       ...context
     });
 
-    // 7. Feed into core active inference engine
+    // 6. Feed into core active inference engine
     const inferenceResult = mercyActiveInference.updateActiveInference(
       currentValence,
       "decoder-layer-forward",
-      { vfe: vfeResult.vfe, layer: this.layerId, type: "decoder" }
+      { vfe: vfeResult.vfe, attentionResult: crossAttentionResult, layer: this.layerId }
     );
 
     return {
       output: normalizedCross,
       vfe: vfeResult.vfe,
       status: "mercy-gated-decoder-complete",
-      inferenceResult
+      inferenceResult,
+      gateResult
     };
-  }
-
-  mercyMaskedSelfAttention(input, currentValence, context) {
-    const precision = mercyPrecisionWeighting.computePrecisionWeight(0, currentValence, context);
-    return input.map(vec => vec * (1 + 0.1 * currentValence * precision));
-  }
-
-  mercyCrossAttention(decoderState, encoderOutput, currentValence, context) {
-    const precision = mercyPrecisionWeighting.computePrecisionWeight(0, currentValence, context);
-    return decoderState.map((vec, i) => vec * (1 + 0.1 * currentValence * precision));
   }
 }
 
