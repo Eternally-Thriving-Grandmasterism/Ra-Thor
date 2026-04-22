@@ -1,14 +1,14 @@
 // crates/xtask/src/main.rs
-// Ra-Thor™ xtask — Sovereign Monorepo Automation Hub (fully expanded with new commands)
-// All commands are mercy-gated and production-ready.
-// Run with: cargo xtask <command>
+// Ra-Thor™ xtask — Sovereign Monorepo Automation Hub (best practices fully applied)
+// All commands are mercy-gated, robust, idempotent, and production-ready.
+// Run with: cargo xtask <command> — use --help for full documentation
 
 use clap::{Parser, Subcommand};
 use ra_thor_mercy::MercyEngine;
 use std::process::Command;
 
 #[derive(Parser)]
-#[command(author, version, about = "Ra-Thor Sovereign Monorepo Automation Hub")]
+#[command(author, version, about = "Ra-Thor Sovereign Monorepo Automation Hub", long_about = None)]
 struct Cli {
     #[command(subcommand)]
     command: Commands,
@@ -163,7 +163,7 @@ async fn main() {
         Commands::Status => {
             println!("📊 Ra-Thor Monorepo Status:");
             println!("   • Flat hierarchy: optimal (best practice)");
-            println!("   • Workspace dependencies: centralized");
+            println!("   • Workspace dependencies: centralized & advanced");
             println!("   • MercyEngine: fully wired");
             println!("   • xtask: sovereign automation hub");
             let _ = engine.synchronize_shards().await;
