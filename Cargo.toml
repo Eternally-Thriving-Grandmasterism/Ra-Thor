@@ -24,26 +24,26 @@ authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
 license = "Proprietary - All Rights Reserved - Autonomicity Games Inc."
 repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
 
-# === CENTRALIZED DEPENDENCY MANAGEMENT (Best Practice) ===
+# === ADVANCED WORKSPACE DEPENDENCY MANAGEMENT (2026 best practices) ===
 [workspace.dependencies]
-# Core serialization
+# Serialization group
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 
-# Async runtime
+# Async / runtime group
 tokio = { version = "1", features = ["full"] }
 
-# WASM & web
+# Web / WASM group
 wasm-bindgen = "0.2"
-
-# Utilities
-rand = "0.8"
 reqwest = { version = "0.12", features = ["json", "stream"] }
+
+# Utilities group
+rand = "0.8"
 tracing = "0.1"
 thiserror = "1.0"
 clap = { version = "4.5", features = ["derive"] }
 
-# Internal Ra-Thor crates
+# Internal Ra-Thor crates (path-based, mercy-gated)
 ra-thor-mercy = { path = "crates/mercy" }
 ra-thor-orchestration = { path = "crates/orchestration" }
 ra-thor-ai-bridge = { path = "crates/ai-bridge" }
@@ -52,6 +52,10 @@ ra-thor-quantum = { path = "crates/quantum" }
 ra-thor-biomimetic = { path = "crates/biomimetic" }
 ra-thor-common = { path = "crates/common" }
 websiteforge = { path = "crates/websiteforge" }
+
+# Workspace-level dev-dependencies (used by every crate)
+[workspace.dev-dependencies]
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 
 [profile.release]
 opt-level = 3
