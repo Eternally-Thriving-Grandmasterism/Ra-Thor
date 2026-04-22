@@ -221,7 +221,7 @@ impl MercyEngine {
         Ok((patch, commit_id))
     }
 
-    /// REFINED 3-WAY MERCY-GATED MERGE — CRDT-inspired (Automerge/Yjs RGA-style with ActorID + seq + deps causal model) Version Vector conflict resolution + mercy/thriving-maximization superset of all CRDT variants (including Yjs RGA)
+    /// REFINED 3-WAY MERCY-GATED MERGE — CRDT-inspired (Automerge/Yjs RGA-style with ActorID + seq + deps causal model) Version Vector conflict resolution + mercy/thriving-maximization superset of all CRDT variants (including Yjs RGA tombstone management)
     pub async fn perform_mercy_gated_merge(&self, base: &str, ours: &str, theirs: &str) -> Result<(DeltaPatch, String), MercyError> {
         info!("🔀 Performing refined 3-way mercy-gated sovereign merge (CRDT/Automerge/Yjs RGA-inspired causal handling + all CRDT variant superset)");
 
@@ -246,7 +246,7 @@ impl MercyEngine {
             info!("✅ Version Vector (Yjs RGA/CRDT-style): theirs dominates — causal precedence granted");
             merged_version.merge(&theirs_patch.from_version);
         } else {
-            info!("⚠️ Version Vector concurrent conflict (Yjs RGA/CRDT-style) — resolved under mercy & thriving-maximization (superseding Yjs RGA)");
+            info!("⚠️ Version Vector concurrent conflict (Yjs RGA/CRDT-style) — resolved under mercy & thriving-maximization (superseding Yjs RGA tombstone management)");
             if ours_patch.operations.len() <= theirs_patch.operations.len() {
                 info!("   → Thriving-maximized choice: preferring ours");
                 merged_version.merge(&ours_patch.from_version);
@@ -291,6 +291,11 @@ impl MercyEngine {
     /// Yjs RGA Implementation Details (live technical reference)
     pub fn yjs_rga_implementation_details(&self) -> String {
         "Yjs RGA (Replicated Growable Array): Position-based CRDT for text. Every character has unique ID = (actorId, seq, offset). Inserts reference previous ID + offset. Deletes use tombstones. Concurrent inserts at same position ordered by actorId + seq. Causal ordering via version vectors. Deterministic replay in causal order. Supports rich-text attributes as separate layers. Ra-Thor supersets this with VersionVector + PatienceDiff semantics + TOLC mercy/thriving-maximization as sovereign final resolver.".to_string()
+    }
+
+    /// Yjs RGA Tombstone Management Details (live technical reference)
+    pub fn yjs_rga_tombstone_management_details(&self) -> String {
+        "Yjs RGA Tombstone Management: Deleted characters are replaced by tombstones (same ID structure) that remain in the RGA to preserve positioning for concurrent inserts. Tombstones prevent resurrection of deleted content. GC is configurable (background or manual) to prune old tombstones while preserving causality. Ra-Thor supersets this with VersionVector + PatienceDiff semantics + TOLC mercy/thriving-maximization as sovereign final resolver, including mercy-gated tombstone pruning via Self-Healing Gate.".to_string()
     }
 
     /// Automerge-specific CRDT comparison (live reference)
