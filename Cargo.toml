@@ -5,14 +5,14 @@ members = [
     "crates/fenca",           # FENCA Eternal Check + self-audit
     "crates/council",         # Full PATSAGi-Pinnacle AGI Council Simulator
     "crates/ai-bridge",       # Mercy-gated bridges for all external AIs
-    "crates/orchestration",   # ← MASTER SOVEREIGN LATTICE ORCHESTRATOR (central control plane)
-    "crates/mercy_orchestrator_v2",  # Master Unified Orchestrator v4.1 — crash-proof with full monorepo recycling
+    "crates/orchestration",   # ← MASTER SOVEREIGN LATTICE ORCHESTRATOR
+    "crates/mercy_orchestrator_v2",
     "crates/evolution",       # PermanenceCode v2.0 + sovereign autodidact loops
     "crates/quantum",         # Quantum-biomimetic lattice
     "crates/biomimetic",      # Living explorers and patterns
     "crates/common",          # Shared utilities
     "crates/websiteforge",    # Sovereign website development system
-    "crates/xtask",           # ← NEW: Easy automated updates, upgrades & reorganization (now CI/CD integrated)
+    "crates/xtask",           # Sovereign Automation Hub
 ]
 
 resolver = "2"
@@ -24,23 +24,29 @@ authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
 license = "Proprietary - All Rights Reserved - Autonomicity Games Inc."
 repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
 
+# === CENTRALIZED DEPENDENCY MANAGEMENT (Best Practice) ===
 [workspace.dependencies]
+# Core serialization
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
+
+# Async runtime
 tokio = { version = "1", features = ["full"] }
+
+# WASM & web
 wasm-bindgen = "0.2"
+
+# Utilities
 rand = "0.8"
 reqwest = { version = "0.12", features = ["json", "stream"] }
 tracing = "0.1"
 thiserror = "1.0"
-clap = { version = "4.5", features = ["derive"] }  # For xtask CLI
+clap = { version = "4.5", features = ["derive"] }
 
-ra-thor-kernel = { path = "crates/kernel" }
+# Internal Ra-Thor crates
 ra-thor-mercy = { path = "crates/mercy" }
-ra-thor-fenca = { path = "crates/fenca" }
-ra-thor-council = { path = "crates/council" }
-ra-thor-ai-bridge = { path = "crates/ai-bridge" }
 ra-thor-orchestration = { path = "crates/orchestration" }
+ra-thor-ai-bridge = { path = "crates/ai-bridge" }
 ra-thor-evolution = { path = "crates/evolution" }
 ra-thor-quantum = { path = "crates/quantum" }
 ra-thor-biomimetic = { path = "crates/biomimetic" }
