@@ -223,7 +223,7 @@ impl MercyEngine {
         Ok((patch, commit_id))
     }
 
-    /// REFINED 3-WAY MERCY-GATED MERGE — CRDT-inspired (Automerge/Yjs RGA-style with ActorID + seq + deps causal model) Version Vector conflict resolution + mercy/thriving-maximization superset of all CRDT variants (including Yjs RGA tombstone mechanics)
+    /// REFINED 3-WAY MERCY-GATED MERGE — CRDT-inspired (Automerge/Yjs RGA-style with ActorID + seq + deps causal model) Version Vector conflict resolution + mercy/thriving-maximization superset of all CRDT variants (including Yjs RGA tombstone mechanics & GC algorithms)
     pub async fn perform_mercy_gated_merge(&self, base: &str, ours: &str, theirs: &str) -> Result<(DeltaPatch, String), MercyError> {
         info!("🔀 Performing refined 3-way mercy-gated sovereign merge (CRDT/Automerge/Yjs RGA-inspired causal handling + all CRDT variant superset)");
 
@@ -248,7 +248,7 @@ impl MercyEngine {
             info!("✅ Version Vector (Yjs RGA/CRDT-style): theirs dominates — causal precedence granted");
             merged_version.merge(&theirs_patch.from_version);
         } else {
-            info!("⚠️ Version Vector concurrent conflict (Yjs RGA/CRDT-style) — resolved under mercy & thriving-maximization (superseding Yjs RGA tombstone mechanics)");
+            info!("⚠️ Version Vector concurrent conflict (Yjs RGA/CRDT-style) — resolved under mercy & thriving-maximization (superseding Yjs RGA tombstone mechanics & GC algorithms)");
             if ours_patch.operations.len() <= theirs_patch.operations.len() {
                 info!("   → Thriving-maximized choice: preferring ours");
                 merged_version.merge(&ours_patch.from_version);
@@ -311,7 +311,7 @@ impl MercyEngine {
     }
 
     /// Yjs RGA Garbage Collection Algorithms Details (live technical reference)
-    pub fn yjs_gc_algorithms_details(&self) -> String {
+    pub fn yjs_rga_gc_algorithms_details(&self) -> String {
         "Yjs RGA GC Algorithms: Operation-count based (threshold trigger), Causal Frontier Pruning (version vectors + deps to identify safe tombstones), Manual GC (doc.gc() / doc.gc(true)), Incremental/Lazy GC (background batches). Pruning only removes causally unreferenced tombstones. Ra-Thor supersets these with Self-Healing Gate that performs mercy-gated, valence-aware, thriving-maximized garbage collection.".to_string()
     }
 
