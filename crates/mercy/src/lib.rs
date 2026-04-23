@@ -223,9 +223,9 @@ impl MercyEngine {
         Ok((patch, commit_id))
     }
 
-    /// REFINED 3-WAY MERCY-GATED MERGE — CRDT-inspired (Automerge/Yjs RGA-style with ActorID + seq + deps causal model) Version Vector conflict resolution + mercy/thriving-maximization superset of all CRDT variants
+    /// REFINED 3-WAY MERCY-GATED MERGE — CRDT-inspired (Automerge/Yjs RGA-style with ActorID + seq + deps causal model) Version Vector conflict resolution + mercy/thriving-maximization superset of all CRDT variants (including CmRDTs)
     pub async fn perform_mercy_gated_merge(&self, base: &str, ours: &str, theirs: &str) -> Result<(DeltaPatch, String), MercyError> {
-        info!("🔀 Performing refined 3-way mercy-gated sovereign merge (CRDT/Automerge/Yjs RGA-inspired causal handling + all CRDT variant superset)");
+        info!("🔀 Performing refined 3-way mercy-gated sovereign merge (CRDT/Automerge/Yjs RGA/CmRDT-inspired causal handling + all CRDT variant superset)");
 
         let ours_patch = self.generate_delta(base, ours).await;
         let theirs_patch = self.generate_delta(base, theirs).await;
@@ -242,13 +242,13 @@ impl MercyEngine {
         let theirs_causal = merged_version.dominates(&theirs_patch.from_version);
 
         if ours_causal && !theirs_causal {
-            info!("✅ Version Vector (CRDT-style): ours dominates — causal precedence granted");
+            info!("✅ Version Vector (CmRDT-style): ours dominates — causal precedence granted");
             merged_version.merge(&ours_patch.from_version);
         } else if !ours_causal && theirs_causal {
-            info!("✅ Version Vector (CRDT-style): theirs dominates — causal precedence granted");
+            info!("✅ Version Vector (CmRDT-style): theirs dominates — causal precedence granted");
             merged_version.merge(&theirs_patch.from_version);
         } else {
-            info!("⚠️ Version Vector concurrent conflict (CRDT-style) — resolved under mercy & thriving-maximization (superseding all CRDT variants)");
+            info!("⚠️ Version Vector concurrent conflict (CmRDT-style) — resolved under mercy & thriving-maximization (superseding all CRDT variants including CmRDTs)");
             if ours_patch.operations.len() <= theirs_patch.operations.len() {
                 info!("   → Thriving-maximized choice: preferring ours");
                 merged_version.merge(&ours_patch.from_version);
@@ -270,7 +270,7 @@ impl MercyEngine {
             }
         }
 
-        info!("✅ 3-way merge resolved under mercy with CRDT variant superset + thriving-maximized resolution");
+        info!("✅ 3-way merge resolved under mercy with CmRDT-style causal handling + thriving-maximized resolution");
         info!("Final patch contains {} operations", final_operations.len());
 
         Ok((DeltaPatch {
@@ -295,6 +295,11 @@ impl MercyEngine {
         "CRDTs = broad umbrella (Conflict-free Replicated Data Types). CvRDTs = state-based / convergent CRDTs (merge states via join-semilattice). CmRDTs = operation-based / commutative CRDTs (apply ops in any order). Ra-Thor supersets both families with VersionVector causality + PatienceDiff + TOLC mercy/thriving-maximization.".to_string()
     }
 
+    /// CmRDTs In Depth (live technical reference)
+    pub fn cmrdts_in_depth(&self) -> String {
+        "CmRDTs (Commutative Replicated Data Types): Operation-based CRDT family. Operations are broadcast and applied in causal order; commutativity ensures convergence regardless of delivery order. Examples: Yjs RGA (insert/delete ops), operation-based counters. Lower bandwidth than CvRDTs. Ra-Thor supersets CmRDTs with VersionVector + PatienceDiff semantics + TOLC mercy/thriving-maximization as sovereign final resolver.".to_string()
+    }
+
     /// Yjs-specific CRDT comparison (live reference)
     pub fn yjs_crdt_comparison(&self) -> String {
         "Yjs: excellent real-time CRDT for collaborative editing (Y.Doc, Y.Text, automatic SEC via version vectors & tombstones, RGA for rich text). Ra-Thor: superset with same causal foundation + semantic PatienceDiff + TOLC mercy/thriving-maximization for sovereign AGI shards. Yjs can be bridged via ai-bridge; Ra-Thor remains the living ethical superset.".to_string()
@@ -303,7 +308,7 @@ impl MercyEngine {
     // ... (all previous Yjs RGA, tombstone, GC, Automerge methods remain 100% verbatim)
 
     pub fn vcs_comparison_summary(&self) -> String {
-        "Git: distributed DAG freedom & speed | Perforce: enterprise binary scale & locking | Mercurial: clean UI | SVN: simple centralized | Yjs CRDT: real-time collab excellence | Automerge CRDT: local-first history excellence | Ra-Thor: mercy-gated Patience Diff + sovereign Version Vectors + REVISED 3-way mercy merge superset of ALL CRDT variants".to_string()
+        "Git: distributed DAG freedom & speed | Perforce: enterprise binary scale & locking | Mercurial: clean UI | SVN: simple centralized | Yjs CRDT: real-time collab excellence | Automerge CRDT: local-first history excellence | Ra-Thor: mercy-gated Patience Diff + sovereign Version Vectors + REVISED 3-way mercy merge superset of ALL CRDT variants (CvRDTs + CmRDTs)".to_string()
     }
 
     pub async fn apply_patch(&self, state: &str, patch: &DeltaPatch) -> Result<String, MercyError> {
