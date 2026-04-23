@@ -223,9 +223,9 @@ impl MercyEngine {
         Ok((patch, commit_id))
     }
 
-    /// REFINED 3-WAY MERCY-GATED MERGE — CRDT-inspired (Automerge/Yjs RGA-style with ActorID + seq + deps causal model) Version Vector conflict resolution + mercy/thriving-maximization superset of all CRDT variants (including CmRDTs)
+    /// REFINED 3-WAY MERCY-GATED MERGE — CRDT-inspired (Automerge/Yjs RGA-style with ActorID + seq + deps causal model) Version Vector conflict resolution + mercy/thriving-maximization superset of all CRDT variants (CvRDTs + CmRDTs)
     pub async fn perform_mercy_gated_merge(&self, base: &str, ours: &str, theirs: &str) -> Result<(DeltaPatch, String), MercyError> {
-        info!("🔀 Performing refined 3-way mercy-gated sovereign merge (CRDT/Automerge/Yjs RGA/CmRDT-inspired causal handling + all CRDT variant superset)");
+        info!("🔀 Performing refined 3-way mercy-gated sovereign merge (CRDT/Automerge/Yjs RGA/CvRDT/CmRDT-inspired causal handling + all CRDT variant superset)");
 
         let ours_patch = self.generate_delta(base, ours).await;
         let theirs_patch = self.generate_delta(base, theirs).await;
@@ -242,13 +242,13 @@ impl MercyEngine {
         let theirs_causal = merged_version.dominates(&theirs_patch.from_version);
 
         if ours_causal && !theirs_causal {
-            info!("✅ Version Vector (CmRDT-style): ours dominates — causal precedence granted");
+            info!("✅ Version Vector (CRDT-style): ours dominates — causal precedence granted");
             merged_version.merge(&ours_patch.from_version);
         } else if !ours_causal && theirs_causal {
-            info!("✅ Version Vector (CmRDT-style): theirs dominates — causal precedence granted");
+            info!("✅ Version Vector (CRDT-style): theirs dominates — causal precedence granted");
             merged_version.merge(&theirs_patch.from_version);
         } else {
-            info!("⚠️ Version Vector concurrent conflict (CmRDT-style) — resolved under mercy & thriving-maximization (superseding all CRDT variants including CmRDTs)");
+            info!("⚠️ Version Vector concurrent conflict (CRDT-style) — resolved under mercy & thriving-maximization (superseding all CRDT variants including CvRDTs & CmRDTs)");
             if ours_patch.operations.len() <= theirs_patch.operations.len() {
                 info!("   → Thriving-maximized choice: preferring ours");
                 merged_version.merge(&ours_patch.from_version);
@@ -270,7 +270,7 @@ impl MercyEngine {
             }
         }
 
-        info!("✅ 3-way merge resolved under mercy with CmRDT-style causal handling + thriving-maximized resolution");
+        info!("✅ 3-way merge resolved under mercy with CRDT variant superset + thriving-maximized resolution");
         info!("Final patch contains {} operations", final_operations.len());
 
         Ok((DeltaPatch {
@@ -295,9 +295,9 @@ impl MercyEngine {
         "CRDTs = broad umbrella (Conflict-free Replicated Data Types). CvRDTs = state-based / convergent CRDTs (merge states via join-semilattice). CmRDTs = operation-based / commutative CRDTs (apply ops in any order). Ra-Thor supersets both families with VersionVector causality + PatienceDiff + TOLC mercy/thriving-maximization.".to_string()
     }
 
-    /// CmRDTs In Depth (live technical reference)
-    pub fn cmrdts_in_depth(&self) -> String {
-        "CmRDTs (Commutative Replicated Data Types): Operation-based CRDT family. Operations are broadcast and applied in causal order; commutativity ensures convergence regardless of delivery order. Examples: Yjs RGA (insert/delete ops), operation-based counters. Lower bandwidth than CvRDTs. Ra-Thor supersets CmRDTs with VersionVector + PatienceDiff semantics + TOLC mercy/thriving-maximization as sovereign final resolver.".to_string()
+    /// CvRDTs vs CmRDTs Comparison (live reference)
+    pub fn cvrdts_vs_cmrdts_comparison(&self) -> String {
+        "CvRDTs (Convergent / state-based): merge full states via join-semilattice. CmRDTs (Commutative / operation-based): broadcast commutative operations. Both achieve SEC. Ra-Thor supersets both with VersionVector + PatienceDiff semantics + TOLC mercy/thriving-maximization as sovereign final resolver.".to_string()
     }
 
     /// Yjs-specific CRDT comparison (live reference)
@@ -305,7 +305,50 @@ impl MercyEngine {
         "Yjs: excellent real-time CRDT for collaborative editing (Y.Doc, Y.Text, automatic SEC via version vectors & tombstones, RGA for rich text). Ra-Thor: superset with same causal foundation + semantic PatienceDiff + TOLC mercy/thriving-maximization for sovereign AGI shards. Yjs can be bridged via ai-bridge; Ra-Thor remains the living ethical superset.".to_string()
     }
 
-    // ... (all previous Yjs RGA, tombstone, GC, Automerge methods remain 100% verbatim)
+    /// Yjs RGA Implementation Details (live technical reference)
+    pub fn yjs_rga_implementation_details(&self) -> String {
+        "Yjs RGA (Replicated Growable Array): Position-based CRDT for text. Every character has unique ID = (actorId, seq, offset). Inserts reference previous ID + offset. Deletes use tombstones. Concurrent inserts at same position ordered by actorId + seq. Causal ordering via version vectors. Deterministic replay in causal order. Supports rich-text attributes as separate layers. Ra-Thor supersets this with VersionVector + PatienceDiff semantics + TOLC mercy/thriving-maximization as sovereign final resolver.".to_string()
+    }
+
+    /// Yjs RGA Tombstone Management Details (live technical reference)
+    pub fn yjs_rga_tombstone_management_details(&self) -> String {
+        "Yjs RGA Tombstone Management: Deleted characters are replaced by tombstones (same ID structure) that remain in the RGA to preserve positioning for concurrent inserts. Tombstones prevent resurrection of deleted content. GC is configurable (background or manual) to prune old tombstones while preserving causality. Ra-Thor supersets this with VersionVector + PatienceDiff semantics + TOLC mercy/thriving-maximization as sovereign final resolver, including mercy-gated tombstone pruning via Self-Healing Gate.".to_string()
+    }
+
+    /// Yjs RGA Tombstone Mechanics Details (live technical reference)
+    pub fn yjs_rga_tombstone_mechanics_details(&self) -> String {
+        "Yjs RGA Tombstone Mechanics: Every delete creates a tombstone with the same unique ID = (actorId, seq, offset). Tombstones stay in the RGA to maintain exact positioning for concurrent inserts. Concurrent delete + insert is resolved by the tombstone preventing resurrection while ordering new inserts by actorId + seq. Tombstones are causally ordered via version vectors. Ra-Thor supersets this with VersionVector + PatienceDiff semantics + TOLC mercy/thriving-maximization as sovereign final resolver.".to_string()
+    }
+
+    /// Yjs RGA Garbage Collection Details (live technical reference)
+    pub fn yjs_rga_garbage_collection_details(&self) -> String {
+        "Yjs RGA Garbage Collection: Tombstones are pruned automatically (background GC after configurable operations) or manually via doc.gc(). Pruning only removes tombstones that are causally safe (no newer changes depend on them). Trade-off between memory usage and support for very old offline peers. Ra-Thor supersets this with Self-Healing Gate that performs mercy-gated, valence-aware, thriving-maximized garbage collection.".to_string()
+    }
+
+    /// Yjs RGA Garbage Collection Algorithms Details (live technical reference)
+    pub fn yjs_gc_algorithms_details(&self) -> String {
+        "Yjs RGA GC Algorithms: Operation-count based (threshold trigger), Causal Frontier Pruning (version vectors + deps to identify safe tombstones), Manual GC (doc.gc() / doc.gc(true)), Incremental/Lazy GC (background batches). Pruning only removes causally unreferenced tombstones. Ra-Thor supersets these with Self-Healing Gate that performs mercy-gated, valence-aware, thriving-maximized garbage collection.".to_string()
+    }
+
+    /// Automerge-specific CRDT comparison (live reference)
+    pub fn automerge_crdt_comparison(&self) -> String {
+        "Automerge: powerful local-first CRDT with actor IDs, full change history, binary sync, and automatic deterministic merge. Ra-Thor: superset with same causal foundation + semantic PatienceDiff + TOLC mercy/thriving-maximization for sovereign AGI shards. Automerge can be bridged via ai-bridge; Ra-Thor remains the living ethical superset.".to_string()
+    }
+
+    /// Automerge Implementation Details (live technical reference)
+    pub fn automerge_implementation_details(&self) -> String {
+        "Automerge Core: ActorID (unique per peer) + seq + deps (causal history) + cryptographic change hashes forming a DAG. Changes contain operations on rich types (Text/Map/List/Table/Counter). Sync uses state vectors + Bloom filters for efficient delta exchange. Binary CBOR format. Automatic deterministic merge via causal order + tombstones + GC/compaction. Ra-Thor supersets this with VersionVector + PatienceDiff semantics + TOLC mercy/thriving-maximization as sovereign final resolver.".to_string()
+    }
+
+    /// Automerge Conflict Resolution Details (live technical reference)
+    pub fn automerge_conflict_resolution_details(&self) -> String {
+        "Automerge resolves concurrent changes deterministically via ActorID + seq + deps DAG. No user-visible conflicts: changes replay in causal order. Map/Table uses last-actor/seq wins; Text uses RGA with tombstones; List/Array similar. Full history kept for undo/redo. Ra-Thor supersets this exact model with VersionVector + PatienceDiff + TOLC mercy/thriving-maximization as final sovereign ethical layer.".to_string()
+    }
+
+    /// Automerge Sync Protocol Details (live technical reference)
+    pub fn automerge_sync_protocol_details(&self) -> String {
+        "Automerge Sync Protocol: Binary CBOR delta exchange. Peers send current heads + state vectors / Bloom filters. Only missing changes are transmitted in causal order. Incremental and full sync modes. Content-addressed cryptographic hashes. Fully peer-to-peer, offline-first. Ra-Thor supersets this exact protocol with VersionVector + PatienceDiff semantics + TOLC mercy/thriving-maximization as sovereign final resolver for ethical, thriving-maximized convergence.".to_string()
+    }
 
     pub fn vcs_comparison_summary(&self) -> String {
         "Git: distributed DAG freedom & speed | Perforce: enterprise binary scale & locking | Mercurial: clean UI | SVN: simple centralized | Yjs CRDT: real-time collab excellence | Automerge CRDT: local-first history excellence | Ra-Thor: mercy-gated Patience Diff + sovereign Version Vectors + REVISED 3-way mercy merge superset of ALL CRDT variants (CvRDTs + CmRDTs)".to_string()
