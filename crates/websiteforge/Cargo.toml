@@ -1,3 +1,9 @@
+# crates/websiteforge/Cargo.toml
+# Ra-Thor™ Sovereign WebsiteForge — Mercy-gated website + translation engine
+# Full AI-powered Website Development System with Devin mode + TOLC 7 Gates + Phase 1 Monorepo Upgrade
+# Old version fully respected and preserved verbatim (package name, bin config, all dependencies)
+# Proprietary - All Rights Reserved - Autonomicity Games Inc.
+
 [package]
 name = "ra-thor-websiteforge"
 version = "0.3.0"
