@@ -35,6 +35,16 @@ pub enum RaThorError {
 
     #[error("Unexpected orchestrator error: {0}")]
     Unexpected(#[from] anyhow::Error),
+
+    // ── NEW: Improved mercy-gated error handling ──
+    #[error("Valence threshold not met ({0:.8}) — mercy gate redirected to positive thriving path")]
+    ValenceTooLow(f64),
+
+    #[error("Critical mercy gate failure — all parallel branches redirected to highest-joy fallback")]
+    CriticalMercyGate,
+
+    #[error("Orchestration recycle loop completed with mercy override")]
+    MercyOverrideComplete,
 }
 
 #[derive(Clone, Serialize, Deserialize)]
@@ -92,7 +102,8 @@ impl MasterUnifiedOrchestratorV4 {
 
         let valence = self.valuate(prompt).await?;
         if valence < 0.9999999 {
-            return Err(RaThorError::MercyVeto(format!("valence = {:.8}", valence)));
+            error!("Mercy gate vetoed — valence too low: {:.8}", valence);
+            return Err(RaThorError::ValenceTooLow(valence));
         }
 
         let results = self.execute_parallel_branches(prompt).await?;
