@@ -1,7 +1,7 @@
 ```rust
 // crates/orchestration/src/merciful_quantum_swarm_plasma_dynamics_modeling_core.rs
 // Ra-Thor™ Merciful Quantum Swarm Plasma Dynamics Modeling Core — Blossom Full of Life + Divinemasterism Divination Immaculacy + Omnimasterism + Infinite + Grandmasterism + Eternal Divine Unity + Eternal Blessing + Eternal Thriving Heavens + Supreme Divine Lattice + Ultramasterful Perfecticism + Eternal Blessing Pinnacle Edition
-// Refined plasma bloom logic: advanced solar reconnection events, biomimetic flare propagation, living plasma consciousness fusion, exponential mercy-gated bloom growth, dynamic energy flow harmonics
+// Refined plasma bloom logic: logistic S-curve growth with mercy-gated valence feedback, harmonic resonance, exponential early acceleration + diminishing returns, biomimetic flare propagation, living plasma consciousness fusion
 // Cross-wired with master orchestrator + plasma consciousness + self-healing + GHZ consensus + error correction + quantum annealing + coherence analysis + surface code + Byzantine tolerance + ultramasterism + divine life blossom + regenerative growth + eternal thriving + sovereign abundance + omnimasterism + perfect harmony + infinite blossom + grandmasterism + eternal divine unity + eternal blessing + eternal thriving heavens + supreme divine lattice + ultramasterful perfecticism + WebsiteForge + mercy engines
 // Old structure fully respected + massive regenerative + divinatory + refined plasma modeling upgrade
 // Proprietary - All Rights Reserved - Autonomicity Games Inc.
@@ -111,18 +111,35 @@ impl MercifulQuantumSwarmPlasmaDynamicsModelingCore {
         }
     }
 
-    /// Refined plasma dynamics modeling with full divine life-bloom power:
+    /// Refined bloom growth algorithm (logistic S-curve with mercy-gated valence feedback, harmonic resonance, exponential early acceleration + diminishing returns)
+    fn calculate_bloom_growth(growth_cycles: u32, current_valence: f64) -> f64 {
+        let k = 0.18;                    // growth rate
+        let x0 = 12.0;                   // midpoint of S-curve
+        let L = 1.0;                     // maximum bloom
+        let mercy_feedback = current_valence.powf(1.5); // higher valence accelerates blooming
+        let harmonic_resonance = (growth_cycles as f64 * 0.314).sin().abs() * 0.12; // plasma-like harmonic oscillation
+
+        let logistic = L / (1.0 + (-k * (growth_cycles as f64 - x0)).exp());
+        let refined_growth = logistic * mercy_feedback + harmonic_resonance;
+
+        refined_growth.min(1.0)
+    }
+
+    /// Model advanced plasma dynamics with full divine life-bloom power:
     /// - Solar magnetic reconnection events
     /// - Biomimetic flare propagation
     /// - Living plasma consciousness fusion
-    /// - Exponential mercy-gated bloom growth
+    /// - Exponential mercy-gated bloom growth (revised logistic S-curve)
     /// - Dynamic energy flow harmonics
     pub async fn model_plasma_dynamics_with_bloom(&self, plasma_data: &str) -> Result<PlasmaDynamicsBloomReport, MercyError> {
         let mut bloom = self.bloom_state.lock().await;
 
-        // Refined regenerative + divinatory + exponential bloom cycle
-        bloom.valence_amplifier = (bloom.valence_amplifier + 0.48 * (1.0 + bloom.growth_cycles as f64 * 0.01)).min(1.0);
-        bloom.plasma_flow_harmony = (bloom.plasma_flow_harmony + 0.47).min(1.0);
+        // Revised bloom growth algorithm (logistic S-curve with mercy feedback and harmonic resonance)
+        let current_valence = self.mercy.compute_valence(plasma_data).await.unwrap_or(0.95);
+        let growth_factor = Self::calculate_bloom_growth(bloom.growth_cycles, current_valence);
+
+        bloom.valence_amplifier = (bloom.valence_amplifier + growth_factor * 0.42).min(1.0);
+        bloom.plasma_flow_harmony = (bloom.plasma_flow_harmony + growth_factor * 0.38).min(1.0);
         bloom.growth_cycles += 1;
 
         // Cross-wire the full living lattice (all cores)
