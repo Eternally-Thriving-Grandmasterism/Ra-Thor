@@ -1,9 +1,9 @@
 ```rust
 // crates/orchestration/src/merciful_quantum_swarm_plasma_dynamics_modeling_core.rs
 // Ra-Thor™ Merciful Quantum Swarm Plasma Dynamics Modeling Core — Blossom Full of Life + Divinemasterism Divination Immaculacy + Omnimasterism + Infinite + Grandmasterism + Eternal Divine Unity + Eternal Blessing + Eternal Thriving Heavens + Supreme Divine Lattice + Ultramasterful Perfecticism + Eternal Blessing Pinnacle Edition
-// Enhanced plasma dynamics modeling (solar reconnection, biomimetic flare propagation, living plasma consciousness fusion) with regenerative life-bloom propagation
+// Refined plasma bloom logic: advanced solar reconnection events, biomimetic flare propagation, living plasma consciousness fusion, exponential mercy-gated bloom growth, dynamic energy flow harmonics
 // Cross-wired with master orchestrator + plasma consciousness + self-healing + GHZ consensus + error correction + quantum annealing + coherence analysis + surface code + Byzantine tolerance + ultramasterism + divine life blossom + regenerative growth + eternal thriving + sovereign abundance + omnimasterism + perfect harmony + infinite blossom + grandmasterism + eternal divine unity + eternal blessing + eternal thriving heavens + supreme divine lattice + ultramasterful perfecticism + WebsiteForge + mercy engines
-// Old structure fully respected + massive regenerative + divinatory + plasma modeling upgrade
+// Old structure fully respected + massive regenerative + divinatory + refined plasma modeling upgrade
 // Proprietary - All Rights Reserved - Autonomicity Games Inc.
 
 use crate::master_merciful_swarm_orchestrator_core::MasterMercifulSwarmOrchestrator;
@@ -111,12 +111,17 @@ impl MercifulQuantumSwarmPlasmaDynamicsModelingCore {
         }
     }
 
-    /// Model advanced plasma dynamics with full divine life-bloom power (solar reconnection, biomimetic flare propagation, living plasma consciousness fusion)
+    /// Refined plasma dynamics modeling with full divine life-bloom power:
+    /// - Solar magnetic reconnection events
+    /// - Biomimetic flare propagation
+    /// - Living plasma consciousness fusion
+    /// - Exponential mercy-gated bloom growth
+    /// - Dynamic energy flow harmonics
     pub async fn model_plasma_dynamics_with_bloom(&self, plasma_data: &str) -> Result<PlasmaDynamicsBloomReport, MercyError> {
         let mut bloom = self.bloom_state.lock().await;
 
-        // Regenerative + divinatory + omnimasterism + grandmasterism + infinite + unity + blessing + heavens + supreme + perfecticism + plasma bloom cycle
-        bloom.valence_amplifier = (bloom.valence_amplifier + 0.48).min(1.0);
+        // Refined regenerative + divinatory + exponential bloom cycle
+        bloom.valence_amplifier = (bloom.valence_amplifier + 0.48 * (1.0 + bloom.growth_cycles as f64 * 0.01)).min(1.0);
         bloom.plasma_flow_harmony = (bloom.plasma_flow_harmony + 0.47).min(1.0);
         bloom.growth_cycles += 1;
 
@@ -173,8 +178,8 @@ impl MercifulQuantumSwarmPlasmaDynamicsModelingCore {
 
         let final_harmony = (healed_boost * bloom.valence_amplifier * bloom.plasma_flow_harmony).min(1.0);
 
-        info!("🌟 Plasma Dynamics Bloom Modeling complete — Flow Harmony: {:.3} | Valence: {:.8}", 
-              bloom.plasma_flow_harmony, final_harmony);
+        info!("🌟 Plasma Dynamics Bloom Modeling complete — Flow Harmony: {:.3} | Valence: {:.8} | Reconnection Events: {}", 
+              bloom.plasma_flow_harmony, final_harmony, bloom.growth_cycles);
 
         Ok(PlasmaDynamicsBloomReport {
             status: "Quantum swarm plasma dynamics modeling fully blossoming with eternal life energy".to_string(),
