@@ -1,8 +1,8 @@
 // crates/orchestration/src/stdp_hebbian_plasticity_core.rs
-// Ra-Thor™ STDP Hebbian Plasticity Core — Multiplicative STDP + Exponential BCM + Oja's Rule + Mercy-Gated Adaptive GHA + Mercy-Gated Metaplastic BCM (Full Hybrid)
+// Ra-Thor™ STDP Hebbian Plasticity Core — Multiplicative STDP + Exponential BCM + Oja's Rule + Mercy-Gated Adaptive GHA + Mercy-Gated Metaplastic BCM + Synaptic Scaling (Full Hybrid)
 // Blossom Full of Life + Divinemasterism Divination Immaculacy + Omnimasterism Pinnacle Edition
-// Local, unsupervised, objective-function-free plasticity with intrinsic novelty, homeostatic sliding threshold, principal component normalization, multi-component extraction, and ultra-long-term metaplastic stability
-// Fully integrated with HebbianNoveltyCore, Self-Improvement Core, Hybrid Optimization, Unified Lattice
+// Local, unsupervised, objective-function-free plasticity with intrinsic novelty, homeostatic sliding threshold, principal component normalization, multi-component extraction, ultra-long-term metaplastic stability, and global firing-rate homeostasis
+// Fully integrated with HebbianNoveltyCore, Self-Improvement Core, Hybrid Optimization, Unified Lattice, SparseBCMNetwork, RecurrentBCMNetwork, HybridBCMHopfieldModule
 // Proprietary - All Rights Reserved - Autonomicity Games Inc.
 
 use serde::{Deserialize, Serialize};
@@ -34,6 +34,8 @@ pub struct STDPConfig {
     pub refractory_period: f64,
     pub bcm_alpha: f64,
     pub metaplastic_alpha: f64,
+    pub synaptic_scaling_target_rate: f64,
+    pub synaptic_scaling_strength: f64,
 }
 
 pub struct STDPHebbianPlasticityCore {
@@ -59,6 +61,8 @@ impl STDPHebbianPlasticityCore {
                 refractory_period: 5.0,
                 bcm_alpha: 0.01,
                 metaplastic_alpha: 0.001,
+                synaptic_scaling_target_rate: 0.15,
+                synaptic_scaling_strength: 0.02,
             },
             current_time_ms: 0.0,
         }
@@ -100,7 +104,7 @@ impl STDPHebbianPlasticityCore {
         // Mercy-gated BCM threshold
         let mercy_threshold = neuron.bcm_threshold * (1.0 + current_valence * 0.3);
 
-        // === Mercy-Gated Metaplastic BCM (ultra-long-term stability) ===
+        // Mercy-Gated Metaplastic BCM
         neuron.metaplastic_threshold = neuron.metaplastic_threshold * self.config.metaplastic_alpha
             + (1.0 - self.config.metaplastic_alpha) * neuron.bcm_threshold;
 
@@ -122,12 +126,21 @@ impl STDPHebbianPlasticityCore {
             novelty_boost = 0.20 * current_valence;
         }
 
-        // Oja's rule
+        // Oja's rule normalization
         let y = neuron.membrane_potential;
         for (_, weight) in neuron.synaptic_weights.iter_mut() {
             let oja_term = y * y * *weight;
             *weight = (*weight + self.config.a_plus * y * (input_value - oja_term))
                 .clamp(self.config.min_weight, self.config.max_weight);
+        }
+
+        // === Synaptic Scaling (global firing-rate homeostasis) ===
+        let target_rate = self.config.synaptic_scaling_target_rate;
+        let current_rate = neuron.membrane_potential.max(0.001);
+        let scaling_factor = (target_rate / current_rate).powf(self.config.synaptic_scaling_strength);
+
+        for (_, weight) in neuron.synaptic_weights.iter_mut() {
+            *weight = (*weight * scaling_factor).clamp(self.config.min_weight, self.config.max_weight);
         }
 
         for (_, weight) in neuron.synaptic_weights.iter_mut() {
