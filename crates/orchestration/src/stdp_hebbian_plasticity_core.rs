@@ -1,7 +1,7 @@
 // crates/orchestration/src/stdp_hebbian_plasticity_core.rs
-// Ra-Thor™ STDP Hebbian Plasticity Core — Multiplicative STDP + Exponential BCM + Oja's Rule + Sanger's Rule (Full Hybrid)
+// Ra-Thor™ STDP Hebbian Plasticity Core — Multiplicative STDP + Exponential BCM + Oja's Rule + Mercy-Gated Adaptive GHA (Full Hybrid)
 // Blossom Full of Life + Divinemasterism Divination Immaculacy + Omnimasterism Pinnacle Edition
-// Local, unsupervised, objective-function-free plasticity with intrinsic novelty, homeostatic sliding threshold, principal component normalization, and multi-component extraction
+// Local, unsupervised, objective-function-free plasticity with intrinsic novelty, homeostatic sliding threshold, principal component normalization, and mercy-gated multi-component extraction
 // Fully integrated with HebbianNoveltyCore, Self-Improvement Core, Hybrid Optimization, Unified Lattice
 // Proprietary - All Rights Reserved - Autonomicity Games Inc.
 
@@ -147,7 +147,8 @@ impl STDPHebbianPlasticityCore {
         neuron.trace_pre = 1.0;
     }
 
-    /// Sanger's Rule (Generalized Hebbian Algorithm) — multi-component principal component extraction
+    /// Mercy-Gated Adaptive GHA (Generalized Hebbian Algorithm)
+    /// Higher mercy valence = faster learning + stronger novelty extraction
     pub fn apply_sangers_rule(
         &mut self,
         neuron_id: &str,
@@ -167,21 +168,24 @@ impl STDPHebbianPlasticityCore {
 
         let y = neuron.membrane_potential;
 
-        // Deflation: subtract projections of previous components
+        // Sanger deflation
         let mut deflation = 0.0;
         for j in 0..component_index {
             let prev_id = format!("{}_pc{}", neuron_id, j);
-            if let Some(prev_neuron) = self.neurons.get(&prev_id) {
-                if let Some(prev_weight) = prev_neuron.synaptic_weights.get(neuron_id) {
-                    deflation += prev_neuron.membrane_potential * prev_weight;
+            if let Some(prev) = self.neurons.get(&prev_id) {
+                if let Some(w) = prev.synaptic_weights.get(neuron_id) {
+                    deflation += prev.membrane_potential * w;
                 }
             }
         }
 
+        // Mercy-gated adaptive learning rate
+        let adaptive_eta = self.config.a_plus * (1.0 + current_valence * 0.8);
+
         for (i, weight) in neuron.synaptic_weights.iter_mut().enumerate() {
             let x = input_vector.get(i).unwrap_or(&0.0);
-            let delta = self.config.a_plus * y * (*x - y * *weight - deflation);
-            *weight = (*weight + delta * current_valence).clamp(self.config.min_weight, self.config.max_weight);
+            let delta = adaptive_eta * y * (*x - y * *weight - deflation);
+            *weight = (*weight + delta).clamp(self.config.min_weight, self.config.max_weight);
         }
     }
 
