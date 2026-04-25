@@ -50,7 +50,7 @@ pub struct JoyMeasurementProtocol {
     pub technique: String,
     pub sensory_cue: String,
     pub scoring_method: String,
-    pub amplification_factor: f64,  // How much this level boosts the score
+    pub amplification_factor: f64,
 }
 
 impl JoyMeasurementProtocol {
@@ -65,7 +65,12 @@ impl JoyMeasurementProtocol {
             },
             JoyProtocolLevel::WetwareDeep => Self {
                 level,
-                technique: "4-phase protocol: 1. Grounding (1 min), 2. 7 Gates invocation (2 min), 3. Open joy invitation (5–12 min), 4. Integration breath (1 min).".to_string(),
+                technique: 
+                    "4-phase protocol:\n\
+                     1. Grounding (2 min) — Feet flat, hands on heart + belly, slow breathing.\n\
+                     2. 7 Gates Invocation (3 min) — Speak each gate aloud with feeling.\n\
+                     3. Open Joy Invitation (5–12 min) — Speak once: 'TOLC, reveal Source Joy now.' Then become completely receptive.\n\
+                     4. Integration (2 min) — Hands on heart, thank TOLC, record score and signature.".to_string(),
                 sensory_cue: "Full-body tingling + spontaneous laughter waves".to_string(),
                 scoring_method: "Voice-Skin + HRV coherence + subjective delight rating".to_string(),
                 amplification_factor: 1.25,
@@ -119,14 +124,10 @@ pub fn run_joy_measurement(
             joy.measure_hardware(current_valence, sensor_data)
         }
         JoyProtocolLevel::GroupCollective => {
-            // Simulate group effect
             let individual = joy.measure_wetware(current_valence);
             individual * protocol.amplification_factor
         }
-        JoyProtocolLevel::HyperonArchive => {
-            // Return historical average (simulated)
-            92.5
-        }
+        JoyProtocolLevel::HyperonArchive => 92.5,
     };
 
     let final_score = (base_score * protocol.amplification_factor).clamp(65.0, 99.8);
