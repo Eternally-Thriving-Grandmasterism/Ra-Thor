@@ -43,37 +43,34 @@ impl JoyProtocolLevel {
     }
 }
 
-/// MercyGel Sensor — Ra-Thor’s primary bio-sensor for joy measurement
+/// MercyGel Sensor Data Structure
 #[derive(Clone, Serialize, Deserialize, Debug)]
-pub struct MercyGelSensor {
-    pub skin_conductance: f64,      // µS (microsiemens)
-    pub heart_rate_variability: f64, // ms (RMSSD)
+pub struct MercyGelReading {
+    pub skin_conductance: f64,      // µS
+    pub heart_rate_variability: f64, // RMSSD in ms
     pub temperature: f64,           // °C
-    pub joy_correlation: f64,       // 0.0–1.0 (internal model)
+    pub laughter_intensity: f64,    // 0.0–1.0 from Voice-Skin
 }
 
-impl MercyGelSensor {
-    pub fn new() -> Self {
-        Self {
-            skin_conductance: 0.0,
-            heart_rate_variability: 0.0,
-            temperature: 0.0,
-            joy_correlation: 0.0,
-        }
-    }
+/// Revised Sensor Fusion Algorithm (Production Grade)
+fn fuse_mercy_gel_sensors(
+    reading: &MercyGelReading,
+    current_valence: MercyValence,
+) -> f64 {
+    // Normalize each signal (0.0–1.0)
+    let conductance_norm = (reading.skin_conductance.clamp(5.0, 45.0) - 5.0) / 40.0;
+    let hrv_norm = (reading.heart_rate_variability.clamp(25.0, 85.0) - 25.0) / 60.0;
+    let laughter_norm = reading.laughter_intensity.clamp(0.0, 1.0);
+    let temp_stability = (reading.temperature.clamp(35.5, 37.5) - 35.5) / 2.0;
 
-    /// Read from physical MercyGel sensor (simulated for now)
-    pub fn read(&mut self) -> f64 {
-        // In production: real I2C / SPI / Bluetooth read from MercyGel hardware
-        self.skin_conductance = 12.4 + (rand::random::<f64>() * 8.0);
-        self.heart_rate_variability = 42.0 + (rand::random::<f64>() * 25.0);
-        self.temperature = 36.7 + (rand::random::<f64>() * 0.6);
+    // Weighted fusion (Mercy-aligned priorities)
+    let fused = (current_valence * 0.22)
+        + (conductance_norm * 0.28)
+        + (hrv_norm * 0.25)
+        + (laughter_norm * 0.15)
+        + (temp_stability * 0.10);
 
-        // Joy correlation model (higher HRV + stable conductance = higher joy)
-        self.joy_correlation = ((self.heart_rate_variability - 35.0) / 40.0).clamp(0.0, 1.0);
-
-        self.joy_correlation
-    }
+    fused.clamp(0.55, 0.995)
 }
 
 /// Complete Joy Measurement Protocol
@@ -100,10 +97,10 @@ impl JoyMeasurementProtocol {
                 level,
                 technique: 
                     "4-phase protocol (Total: 11.5–15.5 minutes):\n\
-                     1. Grounding (90 seconds) — Feet flat on floor/earth, right hand on heart, left on belly. Slow 4-2-6 breathing.\n\
-                     2. 7 Gates Invocation (2.5 minutes) — Speak each gate aloud slowly with full feeling.\n\
-                     3. Open Joy Invitation (6–10 minutes) — Speak once: 'TOLC, reveal Source Joy now.' Then become completely receptive.\n\
-                     4. Integration & Recording (90 seconds) — Hands on heart, thank TOLC, note insights, record score.".to_string(),
+                     1. Grounding (90 seconds) — Feet flat, hands on heart + belly, 4-2-6 breathing.\n\
+                     2. 7 Gates Invocation (2.5 minutes) — Speak each gate aloud with feeling.\n\
+                     3. Open Joy Invitation (6–10 minutes) — Speak once then become fully receptive.\n\
+                     4. Integration (90 seconds) — Hands on heart, thank TOLC, record score.".to_string(),
                 sensory_cue: "Full-body tingling + spontaneous laughter waves".to_string(),
                 scoring_method: "Voice-Skin + HRV coherence + subjective delight rating".to_string(),
                 amplification_factor: 1.25,
@@ -112,49 +109,44 @@ impl JoyMeasurementProtocol {
                 level,
                 technique: 
                     "Group Collective Protocol (10–20 minutes):\n\
-                     1. Form a circle (minimum 3 people). Hold hands if comfortable.\n\
-                     2. One person begins: 'TOLC, reveal Source Joy for all of us now.'\n\
-                     3. Pass the joy around the circle — each person speaks or laughs spontaneously.\n\
-                     4. Allow the group field to amplify naturally (laughter often becomes contagious).\n\
-                     5. After 10–15 minutes, close with: 'Thank you, TOLC. We receive this joy together.'\n\
-                     6. Each person silently notes their personal score.".to_string(),
-                sensory_cue: "Shared laughter wave + collective warmth field + synchronized breathing".to_string(),
-                scoring_method: "Average individual scores + group coherence bonus (+1.8 per additional person beyond 3)".to_string(),
+                     1. Form a circle (min 3 people).\n\
+                     2. One person starts: 'TOLC, reveal Source Joy for all of us now.'\n\
+                     3. Pass laughter around the circle.\n\
+                     4. Allow natural amplification.\n\
+                     5. Close together and record individual + collective scores.".to_string(),
+                sensory_cue: "Shared laughter wave + collective warmth field".to_string(),
+                scoring_method: "Average individual scores + group coherence bonus (+1.8 per person beyond 3)".to_string(),
                 amplification_factor: 1.8,
             },
             JoyProtocolLevel::HardwareEdge => Self {
                 level,
                 technique: 
                     "Hardware Edge Protocol (Real-time):\n\
-                     1. Attach MercyGel sensor to inner wrist (preferred) or chest.\n\
-                     2. Activate Voice-Skin microphone and HRV wristband.\n\
-                     3. System continuously reads skin conductance + HRV + temperature.\n\
-                     4. Joy correlation model runs in real time (updated every 800ms).\n\
-                     5. Haptic pulse feedback on joy peaks (>0.85).".to_string(),
-                sensory_cue: "Haptic pulse on joy peaks + bio-luminescent feedback on device".to_string(),
-                scoring_method: "MercyGel sensor fusion (conductance + HRV + temperature) + Voice-Skin laughter detection".to_string(),
+                     1. Attach MercyGel sensor to wrist or chest.\n\
+                     2. Activate Voice-Skin + HRV.\n\
+                     3. Run revised sensor fusion algorithm (weighted: Conductance 28%, HRV 25%, Laughter 15%, Valence 22%, Temp 10%).\n\
+                     4. Real-time haptic feedback on joy peaks.".to_string(),
+                sensory_cue: "Haptic pulse on joy peaks + bio-luminescent feedback".to_string(),
+                scoring_method: "Revised weighted sensor fusion algorithm".to_string(),
                 amplification_factor: 1.35,
             },
             JoyProtocolLevel::SovereignStarship => Self {
                 level,
                 technique: 
-                    "Sovereign Starship / Habitat Protocol (Real-time):\n\
-                     1. Activate all MercyGel sensors + Voice-Skin array across crew quarters, bridge, and common areas.\n\
-                     2. Environmental sensors (air quality, lighting, temperature, CO₂) begin streaming.\n\
-                     3. Speak bridge-wide: \"TOLC, reveal Source Joy for the entire habitat now.\"\n\
-                     4. System calculates average joy amplitude + variance across all active MercyGel nodes.\n\
-                     5. Ambient lighting automatically shifts to warm golden hues in high-joy zones.\n\
-                     6. When collective joy exceeds threshold, synchronized haptic pulses are sent to all crew wristbands and habitat surfaces.\n\
-                     7. Habitat-level amplification applied (stronger than individual or small group).".to_string(),
-                sensory_cue: "Ambient lighting shifts + shared haptic pulses + collective warmth field".to_string(),
-                scoring_method: "Habitat average + variance analysis + collective amplification".to_string(),
+                    "Sovereign Starship Protocol (Real-time):\n\
+                     1. Activate full MercyGel array + Voice-Skin network across habitat.\n\
+                     2. Run habitat-wide fusion algorithm.\n\
+                     3. Ambient lighting + haptic synchronization.\n\
+                     4. Collective amplification (2.1x).".to_string(),
+                sensory_cue: "Ambient lighting shifts + synchronized haptic pulses".to_string(),
+                scoring_method: "Habitat-wide weighted fusion + collective amplification".to_string(),
                 amplification_factor: 2.1,
             },
             JoyProtocolLevel::HyperonArchive => Self {
                 level,
-                technique: "Eternal logging of all joy measurements + correlation with Miracle Rapture Waves and 7-D integral scores.".to_string(),
-                sensory_cue: "None (pure archival)".to_string(),
-                scoring_method: "Long-term pattern recognition + predictive joy modeling".to_string(),
+                technique: "Eternal logging + long-term pattern analysis.".to_string(),
+                sensory_cue: "None (archival)".to_string(),
+                scoring_method: "Long-term pattern recognition".to_string(),
                 amplification_factor: 1.0,
             },
         }
@@ -175,7 +167,22 @@ pub fn run_joy_measurement(
             joy.measure_wetware(current_valence)
         }
         JoyProtocolLevel::HardwareEdge | JoyProtocolLevel::SovereignStarship => {
-            joy.measure_hardware(current_valence, sensor_data)
+            // Revised sensor fusion
+            if let Some(data) = sensor_data {
+                if data.len() >= 3 {
+                    let reading = MercyGelReading {
+                        skin_conductance: data[0],
+                        heart_rate_variability: data[1],
+                        temperature: data[2],
+                        laughter_intensity: if data.len() > 3 { data[3] } else { 0.5 },
+                    };
+                    fuse_mercy_gel_sensors(&reading, current_valence)
+                } else {
+                    joy.measure_hardware(current_valence, sensor_data)
+                }
+            } else {
+                joy.measure_hardware(current_valence, sensor_data)
+            }
         }
         JoyProtocolLevel::GroupCollective => {
             let individual = joy.measure_wetware(current_valence);
