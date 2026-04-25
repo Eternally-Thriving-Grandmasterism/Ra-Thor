@@ -52,7 +52,8 @@ pub struct MercyGelReading {
     pub laughter_intensity: f64,    // 0.0–1.0 from Voice-Skin
 }
 
-/// Revised Sensor Fusion Algorithm (Production Grade)
+/// Optimized Sensor Fusion Algorithm (Production Grade — v2)
+/// Weights tuned for maximum correlation with Source Joy Amplitude
 fn fuse_mercy_gel_sensors(
     reading: &MercyGelReading,
     current_valence: MercyValence,
@@ -63,12 +64,14 @@ fn fuse_mercy_gel_sensors(
     let laughter_norm = reading.laughter_intensity.clamp(0.0, 1.0);
     let temp_stability = (reading.temperature.clamp(35.5, 37.5) - 35.5) / 2.0;
 
-    // Weighted fusion (Mercy-aligned priorities)
-    let fused = (current_valence * 0.22)
-        + (conductance_norm * 0.28)
-        + (hrv_norm * 0.25)
-        + (laughter_norm * 0.15)
-        + (temp_stability * 0.10);
+    // Optimized weighted fusion (sum = 1.00)
+    // HRV + Laughter boosted (strongest joy correlates)
+    // Conductance slightly reduced (can be noisy)
+    let fused = (current_valence * 0.20)
+        + (conductance_norm * 0.20)
+        + (hrv_norm * 0.30)
+        + (laughter_norm * 0.22)
+        + (temp_stability * 0.08);
 
     fused.clamp(0.55, 0.995)
 }
@@ -124,10 +127,10 @@ impl JoyMeasurementProtocol {
                     "Hardware Edge Protocol (Real-time):\n\
                      1. Attach MercyGel sensor to wrist or chest.\n\
                      2. Activate Voice-Skin + HRV.\n\
-                     3. Run revised sensor fusion algorithm (weighted: Conductance 28%, HRV 25%, Laughter 15%, Valence 22%, Temp 10%).\n\
+                     3. Run optimized sensor fusion (v2 weights: HRV 30%, Laughter 22%, Conductance 20%, Valence 20%, Temp 8%).\n\
                      4. Real-time haptic feedback on joy peaks.".to_string(),
                 sensory_cue: "Haptic pulse on joy peaks + bio-luminescent feedback".to_string(),
-                scoring_method: "Revised weighted sensor fusion algorithm".to_string(),
+                scoring_method: "Optimized weighted sensor fusion v2".to_string(),
                 amplification_factor: 1.35,
             },
             JoyProtocolLevel::SovereignStarship => Self {
@@ -135,11 +138,11 @@ impl JoyMeasurementProtocol {
                 technique: 
                     "Sovereign Starship Protocol (Real-time):\n\
                      1. Activate full MercyGel array + Voice-Skin network across habitat.\n\
-                     2. Run habitat-wide fusion algorithm.\n\
+                     2. Run habitat-wide fusion algorithm (same optimized weights).\n\
                      3. Ambient lighting + haptic synchronization.\n\
                      4. Collective amplification (2.1x).".to_string(),
                 sensory_cue: "Ambient lighting shifts + synchronized haptic pulses".to_string(),
-                scoring_method: "Habitat-wide weighted fusion + collective amplification".to_string(),
+                scoring_method: "Habitat-wide optimized fusion + collective amplification".to_string(),
                 amplification_factor: 2.1,
             },
             JoyProtocolLevel::HyperonArchive => Self {
@@ -167,7 +170,6 @@ pub fn run_joy_measurement(
             joy.measure_wetware(current_valence)
         }
         JoyProtocolLevel::HardwareEdge | JoyProtocolLevel::SovereignStarship => {
-            // Revised sensor fusion
             if let Some(data) = sensor_data {
                 if data.len() >= 3 {
                     let reading = MercyGelReading {
