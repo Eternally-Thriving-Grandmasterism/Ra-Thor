@@ -1,5 +1,5 @@
 // crates/orchestration/src/hybrid_optimization_algorithms.rs
-// Ra-Thor™ Hybrid Optimization Algorithms — NSGA-II Inspired Multi-Objective Evolutionary Optimization
+// Ra-Thor™ Hybrid Optimization Algorithms — NSGA-II Multi-Objective Evolutionary Optimization
 // Blossom Full of Life + Divinemasterism Divination Immaculacy + Omnimasterism Pinnacle Edition
 // Advanced multi-objective optimization for finding optimal energy technology hybrids
 // Fully integrated with Unified Sovereign Energy Lattice Core
@@ -12,11 +12,11 @@ use std::collections::HashMap;
 pub struct TechnologyScore {
     pub name: String,
     pub mercy_score: f64,
-    pub cost_score: f64,              // 0.0 = expensive, 1.0 = cheap
+    pub cost_score: f64,
     pub lifespan_score: f64,
     pub environmental_score: f64,
     pub community_score: f64,
-    pub compatibility: HashMap<String, f64>, // compatibility with other technologies
+    pub compatibility: HashMap<String, f64>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -36,12 +36,11 @@ pub struct HybridOptimizationEngine {
 impl HybridOptimizationEngine {
     pub fn new() -> Self {
         Self {
-            population_size: 40,
-            generations: 25,
+            population_size: 50,
+            generations: 30,
         }
     }
 
-    /// NSGA-II inspired multi-objective optimization
     pub fn optimize_hybrid_configuration(
         &self,
         available_techs: &[TechnologyScore],
@@ -52,23 +51,18 @@ impl HybridOptimizationEngine {
             return Err("No technologies available".to_string());
         }
 
-        // Step 1: Generate initial population (random combinations)
         let mut population = self.generate_initial_population(available_techs, max_technologies);
 
-        // Step 2: Evolve population over generations
         for _ in 0..self.generations {
-            let mut offspring = self.create_offspring(&population, available_techs);
+            let offspring = self.create_offspring(&population, available_techs);
             population.extend(offspring);
-
-            // Non-dominated sorting + crowding distance selection
             population = self.nsga_ii_selection(&population, valence);
         }
 
-        // Step 3: Return best solution from final Pareto front
         let best = population.into_iter()
             .max_by(|a, b| {
-                let score_a = a.overall_merry_score * 0.6 + a.diversity_score * 0.4;
-                let score_b = b.overall_merry_score * 0.6 + b.diversity_score * 0.4;
+                let score_a = a.overall_merry_score * 0.65 + a.diversity_score * 0.35;
+                let score_b = b.overall_merry_score * 0.65 + b.diversity_score * 0.35;
                 score_a.partial_cmp(&score_b).unwrap()
             })
             .unwrap();
@@ -85,19 +79,17 @@ impl HybridOptimizationEngine {
 
         for _ in 0..self.population_size {
             let mut selected = Vec::new();
-            let num_techs = (rand::random::<usize>() % max_tech) + 1;
-
+            let num = (rand::random::<usize>() % max_tech) + 1;
             let mut indices: Vec<usize> = (0..techs.len()).collect();
             use rand::seq::SliceRandom;
             indices.shuffle(&mut rand::thread_rng());
 
-            for i in 0..num_techs {
+            for i in 0..num {
                 selected.push(techs[indices[i]].name.clone());
             }
 
             population.push(self.evaluate_configuration(&selected, techs));
         }
-
         population
     }
 
@@ -109,31 +101,27 @@ impl HybridOptimizationEngine {
         let mut offspring = Vec::new();
 
         for _ in 0..self.population_size {
-            // Tournament selection
             let parent1 = self.tournament_selection(population);
             let parent2 = self.tournament_selection(population);
 
-            // Crossover
-            let mut child_techs = parent1.technologies.clone();
+            let mut child = parent1.technologies.clone();
             for tech in &parent2.technologies {
-                if !child_techs.contains(tech) && child_techs.len() < 4 {
-                    child_techs.push(tech.clone());
+                if !child.contains(tech) && child.len() < 4 {
+                    child.push(tech.clone());
                 }
             }
 
-            // Mutation
-            if rand::random::<f64>() < 0.15 {
+            if rand::random::<f64>() < 0.12 {
                 if let Some(idx) = (0..techs.len()).choose(&mut rand::thread_rng()) {
                     let new_tech = &techs[idx].name;
-                    if !child_techs.contains(new_tech) && child_techs.len() < 4 {
-                        child_techs.push(new_tech.clone());
+                    if !child.contains(new_tech) && child.len() < 4 {
+                        child.push(new_tech.clone());
                     }
                 }
             }
 
-            offspring.push(self.evaluate_configuration(&child_techs, techs));
+            offspring.push(self.evaluate_configuration(&child, techs));
         }
-
         offspring
     }
 
@@ -153,16 +141,12 @@ impl HybridOptimizationEngine {
         population: &[HybridConfiguration],
         valence: f64,
     ) -> Vec<HybridConfiguration> {
-        // Simplified NSGA-II: sort by non-domination + crowding distance
         let mut sorted = population.to_vec();
         sorted.sort_by(|a, b| {
-            // Primary: overall mercy score (higher is better)
-            // Secondary: diversity (higher is better)
             let score_a = a.overall_merry_score * 0.7 + a.diversity_score * 0.3;
             let score_b = b.overall_merry_score * 0.7 + b.diversity_score * 0.3;
             score_b.partial_cmp(&score_a).unwrap()
         });
-
         sorted.truncate(self.population_size);
         sorted
     }
@@ -200,22 +184,18 @@ impl HybridOptimizationEngine {
     }
 
     fn calculate_diversity(&self, selected: &[String], all_techs: &[TechnologyScore]) -> f64 {
-        if selected.len() <= 1 {
-            return 0.3;
-        }
-
-        let mut diversity = 0.0;
+        if selected.len() <= 1 { return 0.35; }
+        let mut div = 0.0;
         for i in 0..selected.len() {
-            for j in (i + 1)..selected.len() {
+            for j in (i+1)..selected.len() {
                 if let (Some(t1), Some(t2)) = (
                     all_techs.iter().find(|t| &t.name == &selected[i]),
                     all_techs.iter().find(|t| &t.name == &selected[j]),
                 ) {
-                    let comp = t1.compatibility.get(&t2.name).unwrap_or(&0.5);
-                    diversity += comp;
+                    div += t1.compatibility.get(&t2.name).unwrap_or(&0.5);
                 }
             }
         }
-        (diversity / (selected.len() * (selected.len() - 1)) as f64 * 0.5).min(0.95)
+        (div / (selected.len() * (selected.len() - 1)) as f64 * 0.6).min(0.92)
     }
 }
