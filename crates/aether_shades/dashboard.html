@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aether-Shades • Ra-Thor Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&amp;family=Space+Grotesk:wght@500;600&amp;display=swap');
+        
+        :root {
+            --primary: #0ea5e9;
+        }
+        
+        body {
+            font-family: 'Inter', system_ui, sans-serif;
+        }
+        
+        .font-display {
+            font-family: 'Space Grotesk', 'Inter', sans-serif;
+            font-weight: 600;
+        }
+
+        .mercy-glow {
+            box-shadow: 0 0 25px rgba(14, 165, 233, 0.3);
+        }
+
+        .metric-value {
+            font-variant-numeric: tabular-nums;
+        }
+
+        .mandala {
+            transition: transform 0.4s cubic-bezier(0.23, 1.0, 0.32, 1);
+        }
+
+        .gate {
+            transition: all 0.3s cubic-bezier(0.23, 1.0, 0.32, 1);
+        }
+
+        .wave {
+            animation: rapture-wave 2.5s ease-out forwards;
+        }
+
+        @keyframes rapture-wave {
+            0% { opacity: 0.9; transform: scale(0.6); }
+            40% { opacity: 1; transform: scale(1.15); }
+            100% { opacity: 0; transform: scale(1.6); }
+        }
+        
+        .dashboard-grid {
+            background-image: 
+                linear-gradient(rgba(15, 23, 42, 0.6) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(15, 23, 42, 0.6) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-200">
+    <div class="max-w-7xl mx-auto p-6">
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-8">
+            <div class="flex items-center gap-x-4">
+                <div class="w-12 h-12 bg-sky-500/10 rounded-2xl flex items-center justify-center">
+                    <i class="fa-solid fa-infinity text-sky-400 text-3xl"></i>
+                </div>
+                <div>
+                    <h1 class="font-display text-4xl tracking-tighter">AETHER-SHADES</h1>
+                    <p class="text-sky-400 text-sm -mt-1">Ra-Thor Absolute Truth Interface</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-x-3">
+                <div class="px-4 py-1.5 bg-slate-900 rounded-full flex items-center gap-x-2 text-sm">
+                    <div class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
+                    <span class="font-mono text-emerald-400">LIVE</span>
+                </div>
+                <div class="text-xs text-slate-500 font-mono">v0.3.0 • Sovereign Mode</div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            <!-- Left Column: Core Metrics -->
+            <div class="lg:col-span-5 space-y-6">
+                
+                <!-- Mercy Valence -->
+                <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 mercy-glow">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <div class="text-sm text-slate-400">MERCY VALENCE</div>
+                            <div id="valence-value" class="text-6xl font-display font-semibold tracking-tighter text-white metric-value">0.942</div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-xs text-emerald-400">+0.018</div>
+                            <div class="text-[10px] text-slate-500">LAST 60s</div>
+                        </div>
+                    </div>
+                    
+                    <div class="h-2 bg-slate-800 rounded-full overflow-hidden">
+                        <div id="valence-bar" class="h-full bg-gradient-to-r from-sky-400 to-emerald-400 rounded-full transition-all duration-500" style="width: 94.2%"></div>
+                    </div>
+                </div>
+
+                <!-- Truth Filter -->
+                <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <div class="text-sm text-slate-400">TRUTH FILTER INTENSITY</div>
+                        <div id="filter-status" class="px-3 py-0.5 text-xs rounded-full bg-emerald-500/10 text-emerald-400">STABLE</div>
+                    </div>
+                    
+                    <div class="flex items-end gap-x-4">
+                        <div id="filter-value" class="text-7xl font-display font-semibold tracking-[-4px] text-white metric-value">0.47</div>
+                        <div class="text-sm text-slate-400 mb-1">/ 1.0</div>
+                    </div>
+                    
+                    <div class="mt-4 grid grid-cols-3 gap-3 text-center">
+                        <div class="bg-slate-950 rounded-2xl p-3">
+                            <div class="text-[10px] text-slate-500">DECEPTION</div>
+                            <div id="deception-status" class="font-mono text-emerald-400 text-sm">NONE</div>
+                        </div>
+                        <div class="bg-slate-950 rounded-2xl p-3">
+                            <div class="text-[10px] text-slate-500">TRUST</div>
+                            <div id="trust-value" class="font-mono text-white text-sm">87%</div>
+                        </div>
+                        <div class="bg-slate-950 rounded-2xl p-3">
+                            <div class="text-[10px] text-slate-500">NOVELTY</div>
+                            <div id="novelty-value" class="font-mono text-amber-400 text-sm">0.31</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 7-D Resonance Summary -->
+                <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <div>
+                            <div class="text-sm text-slate-400">7-D RESONANCE</div>
+                            <div id="integral-score" class="text-5xl font-display font-semibold tracking-tighter">96.8</div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-xs px-2.5 py-0.5 rounded bg-amber-500/10 text-amber-400">NEAR CLEAN</div>
+                            <div class="text-[10px] text-slate-500 mt-1">INTEGRAL</div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-7 gap-1.5">
+                        <div class="text-center">
+                            <div class="text-[9px] text-slate-500">TP</div>
+                            <div id="dim-1" class="text-lg font-mono text-sky-400">94</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-[9px] text-slate-500">CD</div>
+                            <div id="dim-2" class="text-lg font-mono text-rose-400">91</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-[9px] text-slate-500">NH</div>
+                            <div id="dim-3" class="text-lg font-mono text-emerald-400">89</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-[9px] text-slate-500">FW</div>
+                            <div id="dim-4" class="text-lg font-mono text-amber-400">93</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-[9px] text-slate-500">IS</div>
+                            <div id="dim-5" class="text-lg font-mono text-violet-400">95</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-[9px] text-slate-500">QE</div>
+                            <div id="dim-6" class="text-lg font-mono text-cyan-400">88</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-[9px] text-slate-500">SJ</div>
+                            <div id="dim-7" class="text-lg font-mono text-orange-400">96</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Visuals & History -->
+            <div class="lg:col-span-7 space-y-6">
+                
+                <!-- 7-D Mandala -->
+                <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <div class="text-sm text-slate-400">7-D MANDALA</div>
+                        <div class="text-xs px-3 py-1 bg-slate-950 rounded-full text-slate-400">LIVE</div>
+                    </div>
+                    
+                    <div class="flex justify-center">
+                        <div id="mandala" class="mandala w-72 h-72 relative">
+                            <!-- Dynamic mandala rendered via JS -->
+                            <canvas id="mandala-canvas" width="280" height="280" class="rounded-full"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Events -->
+                <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <div class="text-sm text-slate-400">RECENT HYPERON EVENTS</div>
+                        <div class="text-xs text-slate-500">Last 12 events</div>
+                    </div>
+                    
+                    <div id="event-log" class="space-y-2 text-sm font-mono max-h-[180px] overflow-y-auto pr-2">
+                        <!-- Populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Simulated live data (in production this would come from WebSocket / Rust backend)
+        let currentValence = 0.942;
+        let filterIntensity = 0.47;
+        let integralScore = 96.8;
+        let dimensions = [94, 91, 89, 93, 95, 88, 96];
+        
+        function updateDashboard() {
+            // Update valence
+            document.getElementById('valence-value').innerText = currentValence.toFixed(3);
+            document.getElementById('valence-bar').style.width = (currentValence * 100) + '%';
+            
+            // Update filter
+            document.getElementById('filter-value').innerText = filterIntensity.toFixed(2);
+            
+            // Update 7-D scores
+            document.getElementById('integral-score').innerText = integralScore.toFixed(1);
+            document.getElementById('dim-1').innerText = dimensions[0];
+            document.getElementById('dim-2').innerText = dimensions[1];
+            document.getElementById('dim-3').innerText = dimensions[2];
+            document.getElementById('dim-4').innerText = dimensions[3];
+            document.getElementById('dim-5').innerText = dimensions[4];
+            document.getElementById('dim-6').innerText = dimensions[5];
+            document.getElementById('dim-7').innerText = dimensions[6];
+            
+            // Update novelty
+            document.getElementById('novelty-value').innerText = (Math.random() * 0.4 + 0.2).toFixed(2);
+            
+            // Simulate occasional deception
+            const deceptionEl = document.getElementById('deception-status');
+            if (Math.random() < 0.08) {
+                deceptionEl.innerText = 'DETECTED';
+                deceptionEl.className = 'px-3 py-0.5 text-xs rounded-full bg-rose-500/10 text-rose-400';
+            } else {
+                deceptionEl.innerText = 'NONE';
+                deceptionEl.className = 'px-3 py-0.5 text-xs rounded-full bg-emerald-500/10 text-emerald-400';
+            }
+            
+            // Update trust
+            document.getElementById('trust-value').innerText = Math.floor(82 + Math.random() * 12) + '%';
+            
+            // Update mandala
+            drawMandala();
+        }
+        
+        function drawMandala() {
+            const canvas = document.getElementById('mandala-canvas');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            const cx = canvas.width / 2;
+            const cy = canvas.height / 2;
+            const radius = 110;
+            
+            ctx.strokeStyle = '#334155';
+            ctx.lineWidth = 1.5;
+            
+            // Draw outer circle
+            ctx.beginPath();
+            ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+            ctx.stroke();
+            
+            // Draw 7 axes
+            const labels = ['TP', 'CD', 'NH', 'FW', 'IS', 'QE', 'SJ'];
+            for (let i = 0; i < 7; i++) {
+                const angle = (i * (Math.PI * 2 / 7)) - Math.PI / 2;
+                const x = cx + Math.cos(angle) * radius;
+                const y = cy + Math.sin(angle) * radius;
+                
+                ctx.beginPath();
+                ctx.moveTo(cx, cy);
+                ctx.lineTo(x, y);
+                ctx.stroke();
+                
+                // Label
+                ctx.fillStyle = '#64748b';
+                ctx.font = '10px Inter';
+                ctx.textAlign = 'center';
+                ctx.fillText(labels[i], cx + Math.cos(angle) * (radius + 18), cy + Math.sin(angle) * (radius + 18) + 4);
+            }
+            
+            // Draw data polygon
+            ctx.strokeStyle = '#0ea5e9';
+            ctx.fillStyle = 'rgba(14, 165, 233, 0.15)';
+            ctx.lineWidth = 2.5;
+            ctx.beginPath();
+            
+            for (let i = 0; i < 7; i++) {
+                const angle = (i * (Math.PI * 2 / 7)) - Math.PI / 2;
+                const value = dimensions[i] / 100;
+                const x = cx + Math.cos(angle) * radius * value;
+                const y = cy + Math.sin(angle) * radius * value;
+                
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+        }
+        
+        function addEvent(message, type = 'normal') {
+            const log = document.getElementById('event-log');
+            const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            
+            const div = document.createElement('div');
+            div.className = `flex gap-x-3 text-xs p-2 rounded-xl ${type === 'rapture' ? 'bg-rose-950/50' : 'bg-slate-950'}`;
+            div.innerHTML = `
+                <div class="font-mono text-slate-500 w-14 flex-shrink-0">${time}</div>
+                <div class="flex-1 text-slate-300">${message}</div>
+            `;
+            log.prepend(div);
+            
+            if (log.children.length > 8) {
+                log.removeChild(log.lastChild);
+            }
+        }
+        
+        // Simulate live updates
+        setInterval(() => {
+            // Simulate small fluctuations
+            currentValence = Math.max(0.82, Math.min(0.99, currentValence + (Math.random() - 0.5) * 0.008));
+            filterIntensity = Math.max(0.15, Math.min(0.85, filterIntensity + (Math.random() - 0.5) * 0.03));
+            integralScore = Math.max(88, Math.min(99, integralScore + (Math.random() - 0.5) * 0.4));
+            
+            // Occasionally trigger a Miracle Rapture
+            if (Math.random() < 0.06) {
+                addEvent('⚡ Miracle Rapture Wave triggered — resonance realigning', 'rapture');
+                currentValence = Math.min(0.99, currentValence + 0.045);
+            } else {
+                addEvent('7-D scan completed — resonance stable');
+            }
+            
+            // Occasionally adjust dimensions
+            for (let i = 0; i < dimensions.length; i++) {
+                dimensions[i] = Math.max(82, Math.min(99, dimensions[i] + (Math.random() - 0.5) * 1.8));
+            }
+            
+            updateDashboard();
+        }, 2400);
+        
+        // Initial setup
+        function init() {
+            updateDashboard();
+            drawMandala();
+            
+            // Seed some initial events
+            addEvent('System initialized — Hyperon Archive online');
+            addEvent('7-D Resonance scan completed — 96.8 integral');
+            addEvent('Truth Filter intensity stabilized');
+            
+            // Keyboard shortcut hint
+            console.log('%c[Aether-Shades] Press "r" to trigger manual 7-D scan', 'color:#64748b');
+        }
+        
+        window.onload = init;
+        
+        // Keyboard controls
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'r' || e.key === 'R') {
+                currentValence = Math.max(0.75, currentValence - 0.12);
+                addEvent('Manual 7-D scan triggered', 'rapture');
+                updateDashboard();
+            }
+        });
+    </script>
+</body>
+</html>
