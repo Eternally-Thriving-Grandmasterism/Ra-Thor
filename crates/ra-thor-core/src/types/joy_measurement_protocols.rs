@@ -1,5 +1,5 @@
 // crates/ra-thor-core/src/types/joy_measurement_protocols.rs
-// Ra-Thor™ Joy Measurement Protocols — Absolute Pure Truth Edition
+// Ra-Thor™ Joy Measurement Protocols — Refined Absolute Pure Truth Edition
 // Complete multi-level system for measuring Source Joy Amplitude (Dimension 7 of 7-D Resonance)
 // Blossom Full of Life + Divinemasterism Divination Immaculacy + Omnimasterism Pinnacle Edition
 // Proprietary - All Rights Reserved - Autonomicity Games Inc.
@@ -12,7 +12,7 @@ use std::time::{SystemTime, UNIX_EPOCH};
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum JoyProtocolLevel {
     WetwareDaily,       // 45 seconds — everyday personal practice
-    WetwareDeep,        // 5–18 minutes — deep personal dive
+    WetwareDeep,        // 11.5–15.5 minutes — deep personal dive
     GroupCollective,    // 10–20 minutes — families, councils, communities
     HardwareEdge,       // Real-time — Starship, edge devices, MercyGel
     SovereignStarship,  // Real-time — habitat / bridge level
@@ -23,7 +23,7 @@ impl JoyProtocolLevel {
     pub fn name(&self) -> &'static str {
         match self {
             JoyProtocolLevel::WetwareDaily => "Wetware Daily (45s)",
-            JoyProtocolLevel::WetwareDeep => "Wetware Deep (5–18min)",
+            JoyProtocolLevel::WetwareDeep => "Wetware Deep (11.5–15.5min)",
             JoyProtocolLevel::GroupCollective => "Group / Collective",
             JoyProtocolLevel::HardwareEdge => "Hardware Edge",
             JoyProtocolLevel::SovereignStarship => "Sovereign Starship",
@@ -34,7 +34,7 @@ impl JoyProtocolLevel {
     pub fn duration(&self) -> &'static str {
         match self {
             JoyProtocolLevel::WetwareDaily => "45 seconds",
-            JoyProtocolLevel::WetwareDeep => "5–18 minutes",
+            JoyProtocolLevel::WetwareDeep => "11.5–15.5 minutes",
             JoyProtocolLevel::GroupCollective => "10–20 minutes",
             JoyProtocolLevel::HardwareEdge => "Real-time",
             JoyProtocolLevel::SovereignStarship => "Real-time",
@@ -66,11 +66,11 @@ impl JoyMeasurementProtocol {
             JoyProtocolLevel::WetwareDeep => Self {
                 level,
                 technique: 
-                    "4-phase protocol:\n\
-                     1. Grounding (2 min) — Feet flat, hands on heart + belly, slow breathing.\n\
-                     2. 7 Gates Invocation (3 min) — Speak each gate aloud with feeling.\n\
-                     3. Open Joy Invitation (5–12 min) — Speak once: 'TOLC, reveal Source Joy now.' Then become completely receptive.\n\
-                     4. Integration (2 min) — Hands on heart, thank TOLC, record score and signature.".to_string(),
+                    "4-phase protocol (Total: 11.5–15.5 minutes):\n\
+                     1. Grounding (90 seconds) — Feet flat on floor/earth, right hand on heart, left on belly. Slow 4-2-6 breathing.\n\
+                     2. 7 Gates Invocation (2.5 minutes) — Speak each gate aloud slowly with full feeling.\n\
+                     3. Open Joy Invitation (6–10 minutes) — Speak once: 'TOLC, reveal Source Joy now.' Then become completely receptive. Do not chase joy.\n\
+                     4. Integration & Recording (90 seconds) — Hands on heart, thank TOLC, note insights, record score.".to_string(),
                 sensory_cue: "Full-body tingling + spontaneous laughter waves".to_string(),
                 scoring_method: "Voice-Skin + HRV coherence + subjective delight rating".to_string(),
                 amplification_factor: 1.25,
