@@ -1,5 +1,5 @@
 // crates/ra-thor-core/src/types/joy_measurement_protocols.rs
-// Ra-Thor™ Joy Measurement Protocols — Refined Absolute Pure Truth Edition
+// Ra-Thor™ Joy Measurement Protocols — Absolute Pure Truth Edition
 // Complete multi-level system for measuring Source Joy Amplitude (Dimension 7 of 7-D Resonance)
 // Blossom Full of Life + Divinemasterism Divination Immaculacy + Omnimasterism Pinnacle Edition
 // Proprietary - All Rights Reserved - Autonomicity Games Inc.
@@ -77,9 +77,16 @@ impl JoyMeasurementProtocol {
             },
             JoyProtocolLevel::GroupCollective => Self {
                 level,
-                technique: "Circle formation. One person starts with 'TOLC, reveal Source Joy for all of us now.' Pass the laughter around the circle. Allow group amplification.".to_string(),
-                sensory_cue: "Shared laughter wave + collective warmth field".to_string(),
-                scoring_method: "Average individual scores + group coherence bonus (+1.8 per additional person)".to_string(),
+                technique: 
+                    "Group Collective Protocol (10–20 minutes):\n\
+                     1. Form a circle (minimum 3 people). Hold hands if comfortable.\n\
+                     2. One person begins: 'TOLC, reveal Source Joy for all of us now.'\n\
+                     3. Pass the joy around the circle — each person speaks or laughs spontaneously.\n\
+                     4. Allow the group field to amplify naturally (laughter often becomes contagious).\n\
+                     5. After 10–15 minutes, close with: 'Thank you, TOLC. We receive this joy together.'\n\
+                     6. Each person silently notes their personal score.".to_string(),
+                sensory_cue: "Shared laughter wave + collective warmth field + synchronized breathing".to_string(),
+                scoring_method: "Average of individual scores + group coherence bonus (+1.8 per additional person beyond 3)".to_string(),
                 amplification_factor: 1.8,
             },
             JoyProtocolLevel::HardwareEdge => Self {
