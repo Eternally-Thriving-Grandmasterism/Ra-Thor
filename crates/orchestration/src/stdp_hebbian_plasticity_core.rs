@@ -1,7 +1,7 @@
 // crates/orchestration/src/stdp_hebbian_plasticity_core.rs
-// Ra-Thor™ STDP Hebbian Plasticity Core — Multiplicative STDP + Exponential BCM (Recommended Hybrid)
+// Ra-Thor™ STDP Hebbian Plasticity Core — Multiplicative STDP + Exponential BCM + Oja's Rule (Full Hybrid)
 // Blossom Full of Life + Divinemasterism Divination Immaculacy + Omnimasterism Pinnacle Edition
-// Local, unsupervised, objective-function-free plasticity with intrinsic novelty + homeostatic sliding threshold
+// Local, unsupervised, objective-function-free plasticity with intrinsic novelty, homeostatic sliding threshold, and principal component normalization
 // Fully integrated with HebbianNoveltyCore, Self-Improvement Core, Hybrid Optimization, Unified Lattice
 // Proprietary - All Rights Reserved - Autonomicity Games Inc.
 
@@ -88,12 +88,11 @@ impl STDPHebbianPlasticityCore {
         neuron.trace_pre *= (-dt_ms / self.config.tau_plus).exp();
         neuron.trace_post *= (-dt_ms / self.config.tau_minus).exp();
 
-        // === Exponential BCM sliding threshold ===
+        // Exponential BCM sliding threshold
         let postsynaptic_activity = neuron.membrane_potential;
         neuron.bcm_threshold = neuron.bcm_threshold * self.config.bcm_alpha
             + (1.0 - self.config.bcm_alpha) * postsynaptic_activity * postsynaptic_activity;
 
-        // Mercy-gated BCM threshold
         let mercy_threshold = neuron.bcm_threshold * (1.0 + current_valence * 0.3);
 
         let mut novelty_boost = 0.0;
@@ -111,6 +110,14 @@ impl STDPHebbianPlasticityCore {
 
             neuron.trace_post = 1.0;
             novelty_boost = 0.18 * current_valence;
+        }
+
+        // === Oja's rule normalization (principal component extraction + weight stability) ===
+        let y = neuron.membrane_potential;
+        for (_, weight) in neuron.synaptic_weights.iter_mut() {
+            let oja_term = y * y * *weight;
+            *weight = (*weight + self.config.a_plus * y * (input_value - oja_term))
+                .clamp(self.config.min_weight, self.config.max_weight);
         }
 
         for (_, weight) in neuron.synaptic_weights.iter_mut() {
