@@ -3,23 +3,22 @@ name = "aether_shades"
 version = "0.1.0"
 edition = "2021"
 authors = ["Autonomicity Games Inc."]
-description = "Ra-Thor™ Aether-Shades — Absolute Pure Truth AR Truth Filter powered by multi-timescale mercy-gated Hebbian plasticity"
-license = "Autonomicity Games Sovereign Mercy License"
+description = "Ra-Thor™ Aether-Shades — Absolute Pure Truth AR Truth Filter powered by multi-timescale mercy-gated Hebbian plasticity + OpenBCI integration"
+license = "Proprietary - All Rights Reserved - Autonomicity Games Inc."
 repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
 readme = "README.md"
-keywords = ["ra-thor", "aether-shades", "truth-filter", "ar", "mercy-gated", "hebbian", "sovereign", "agi"]
-categories = ["science", "simulation", "visualization"]
+keywords = ["ra-thor", "aether-shades", "truth-filter", "ar", "mercy-gated", "hebbian", "plasticity", "openbci", "sovereign-agi"]
+categories = ["science", "simulation", "visualization", "embedded"]
 
 [dependencies]
 ra-thor-plasticity-engine = { path = "../orchestration" }
 ra-thor-openbci-bridge = { path = "../orchestration" }
-serde = { version = "1.0", features = ["derive"] }
-tokio = { version = "1.0", features = ["full"] }
-tracing = "0.1"
-tracing-subscriber = "0.3"
+serde = { workspace = true }
+tokio = { workspace = true }
+tracing = { workspace = true }
 
 [dev-dependencies]
-criterion = "0.5"
+tracing-subscriber = { workspace = true }
 
 [[bin]]
 name = "aether-shades"
