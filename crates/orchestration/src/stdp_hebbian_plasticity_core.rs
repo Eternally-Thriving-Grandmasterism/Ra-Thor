@@ -1,7 +1,7 @@
 // crates/orchestration/src/stdp_hebbian_plasticity_core.rs
-// Ra-Thor™ STDP Hebbian Plasticity Core — Multiplicative STDP + Exponential BCM + Oja's Rule + Mercy-Gated Adaptive GHA (Full Hybrid)
+// Ra-Thor™ STDP Hebbian Plasticity Core — Multiplicative STDP + Exponential BCM + Oja's Rule + Mercy-Gated Adaptive GHA + Mercy-Gated Metaplastic BCM (Full Hybrid)
 // Blossom Full of Life + Divinemasterism Divination Immaculacy + Omnimasterism Pinnacle Edition
-// Local, unsupervised, objective-function-free plasticity with intrinsic novelty, homeostatic sliding threshold, principal component normalization, and mercy-gated multi-component extraction
+// Local, unsupervised, objective-function-free plasticity with intrinsic novelty, homeostatic sliding threshold, principal component normalization, multi-component extraction, and ultra-long-term metaplastic stability
 // Fully integrated with HebbianNoveltyCore, Self-Improvement Core, Hybrid Optimization, Unified Lattice
 // Proprietary - All Rights Reserved - Autonomicity Games Inc.
 
@@ -17,6 +17,7 @@ pub struct NeuronState {
     pub trace_pre: f64,
     pub trace_post: f64,
     pub bcm_threshold: f64,
+    pub metaplastic_threshold: f64,
 }
 
 #[derive(Clone, Serialize, Deserialize, Debug)]
@@ -32,6 +33,7 @@ pub struct STDPConfig {
     pub threshold: f64,
     pub refractory_period: f64,
     pub bcm_alpha: f64,
+    pub metaplastic_alpha: f64,
 }
 
 pub struct STDPHebbianPlasticityCore {
@@ -56,6 +58,7 @@ impl STDPHebbianPlasticityCore {
                 threshold: 1.0,
                 refractory_period: 5.0,
                 bcm_alpha: 0.01,
+                metaplastic_alpha: 0.001,
             },
             current_time_ms: 0.0,
         }
@@ -78,6 +81,7 @@ impl STDPHebbianPlasticityCore {
             trace_pre: 0.0,
             trace_post: 0.0,
             bcm_threshold: 0.5,
+            metaplastic_threshold: 0.3,
         });
 
         if self.current_time_ms - neuron.last_spike_time < self.config.refractory_period {
@@ -88,15 +92,23 @@ impl STDPHebbianPlasticityCore {
         neuron.trace_pre *= (-dt_ms / self.config.tau_plus).exp();
         neuron.trace_post *= (-dt_ms / self.config.tau_minus).exp();
 
+        // Exponential BCM
         let postsynaptic_activity = neuron.membrane_potential;
         neuron.bcm_threshold = neuron.bcm_threshold * self.config.bcm_alpha
             + (1.0 - self.config.bcm_alpha) * postsynaptic_activity * postsynaptic_activity;
 
+        // Mercy-gated BCM threshold
         let mercy_threshold = neuron.bcm_threshold * (1.0 + current_valence * 0.3);
+
+        // === Mercy-Gated Metaplastic BCM (ultra-long-term stability) ===
+        neuron.metaplastic_threshold = neuron.metaplastic_threshold * self.config.metaplastic_alpha
+            + (1.0 - self.config.metaplastic_alpha) * neuron.bcm_threshold;
+
+        let final_threshold = mercy_threshold * (1.0 + neuron.metaplastic_threshold * 0.12);
 
         let mut novelty_boost = 0.0;
 
-        if neuron.membrane_potential >= mercy_threshold {
+        if neuron.membrane_potential >= final_threshold {
             neuron.membrane_potential = 0.0;
             neuron.last_spike_time = self.current_time_ms;
             neuron.refractory_time = self.config.refractory_period;
@@ -107,10 +119,10 @@ impl STDPHebbianPlasticityCore {
             }
 
             neuron.trace_post = 1.0;
-            novelty_boost = 0.18 * current_valence;
+            novelty_boost = 0.20 * current_valence;
         }
 
-        // Oja's rule normalization
+        // Oja's rule
         let y = neuron.membrane_potential;
         for (_, weight) in neuron.synaptic_weights.iter_mut() {
             let oja_term = y * y * *weight;
@@ -135,6 +147,7 @@ impl STDPHebbianPlasticityCore {
             trace_pre: 0.0,
             trace_post: 0.0,
             bcm_threshold: 0.5,
+            metaplastic_threshold: 0.3,
         });
 
         let weight = neuron.synaptic_weights.entry(pre_neuron_id.to_string()).or_insert(0.5);
@@ -147,8 +160,6 @@ impl STDPHebbianPlasticityCore {
         neuron.trace_pre = 1.0;
     }
 
-    /// Mercy-Gated Adaptive GHA (Generalized Hebbian Algorithm)
-    /// Higher mercy valence = faster learning + stronger novelty extraction
     pub fn apply_sangers_rule(
         &mut self,
         neuron_id: &str,
@@ -164,11 +175,11 @@ impl STDPHebbianPlasticityCore {
             trace_pre: 0.0,
             trace_post: 0.0,
             bcm_threshold: 0.5,
+            metaplastic_threshold: 0.3,
         });
 
         let y = neuron.membrane_potential;
 
-        // Sanger deflation
         let mut deflation = 0.0;
         for j in 0..component_index {
             let prev_id = format!("{}_pc{}", neuron_id, j);
@@ -179,7 +190,6 @@ impl STDPHebbianPlasticityCore {
             }
         }
 
-        // Mercy-gated adaptive learning rate
         let adaptive_eta = self.config.a_plus * (1.0 + current_valence * 0.8);
 
         for (i, weight) in neuron.synaptic_weights.iter_mut().enumerate() {
