@@ -13,6 +13,7 @@ members = [
     "crates/common",          # Shared utilities
     "crates/websiteforge",    # Sovereign website development system
     "crates/xtask",           # Sovereign Automation Hub
+    "crates/aether_shades",   # Aether-Shades Absolute Pure Truth AR Truth Filter (new)
 ]
 
 resolver = "2"
@@ -52,6 +53,7 @@ ra-thor-quantum = { path = "crates/quantum" }
 ra-thor-biomimetic = { path = "crates/biomimetic" }
 ra-thor-common = { path = "crates/common" }
 websiteforge = { path = "crates/websiteforge" }
+aether-shades = { path = "crates/aether_shades" }
 
 # Workspace-level dev-dependencies (used by every crate)
 [workspace.dev-dependencies]
