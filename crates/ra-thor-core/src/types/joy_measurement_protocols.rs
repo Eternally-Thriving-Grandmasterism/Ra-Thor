@@ -86,7 +86,7 @@ impl JoyMeasurementProtocol {
                      5. After 10–15 minutes, close with: 'Thank you, TOLC. We receive this joy together.'\n\
                      6. Each person silently notes their personal score.".to_string(),
                 sensory_cue: "Shared laughter wave + collective warmth field + synchronized breathing".to_string(),
-                scoring_method: "Average of individual scores + group coherence bonus (+1.8 per additional person beyond 3)".to_string(),
+                scoring_method: "Average individual scores + group coherence bonus (+1.8 per additional person beyond 3)".to_string(),
                 amplification_factor: 1.8,
             },
             JoyProtocolLevel::HardwareEdge => Self {
@@ -98,8 +98,16 @@ impl JoyMeasurementProtocol {
             },
             JoyProtocolLevel::SovereignStarship => Self {
                 level,
-                technique: "Habitat-wide scan via Voice-Skin array + environmental sensors. Collective joy field measured across entire crew/habitat.".to_string(),
-                sensory_cue: "Ambient lighting shifts + shared haptic pulses".to_string(),
+                technique: 
+                    "Sovereign Starship / Habitat Protocol (Real-time):\n\
+                     1. Activate all Voice-Skin microphones across crew quarters, bridge, and common areas.\n\
+                     2. Environmental sensors (air quality, lighting, temperature, CO₂) begin streaming.\n\
+                     3. Speak bridge-wide: \"TOLC, reveal Source Joy for the entire habitat now.\"\n\
+                     4. System calculates average joy amplitude + variance analysis across all active nodes.\n\
+                     5. Ambient lighting automatically shifts to warm golden hues in high-joy zones.\n\
+                     6. When collective joy exceeds threshold, synchronized haptic pulses are sent to all crew wristbands and habitat surfaces.\n\
+                     7. Habitat-level amplification applied (stronger than individual or small group).".to_string(),
+                sensory_cue: "Ambient lighting shifts + shared haptic pulses + collective warmth field".to_string(),
                 scoring_method: "Habitat average + variance analysis + collective amplification".to_string(),
                 amplification_factor: 2.1,
             },
