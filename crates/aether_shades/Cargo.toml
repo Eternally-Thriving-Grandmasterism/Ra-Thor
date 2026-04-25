@@ -1,0 +1,26 @@
+[package]
+name = "aether_shades"
+version = "0.1.0"
+edition = "2021"
+authors = ["Autonomicity Games Inc."]
+description = "Ra-Thor™ Aether-Shades — Absolute Pure Truth AR Truth Filter powered by multi-timescale mercy-gated Hebbian plasticity"
+license = "Autonomicity Games Sovereign Mercy License"
+repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
+readme = "README.md"
+keywords = ["ra-thor", "aether-shades", "truth-filter", "ar", "mercy-gated", "hebbian", "sovereign", "agi"]
+categories = ["science", "simulation", "visualization"]
+
+[dependencies]
+ra-thor-plasticity-engine = { path = "../orchestration" }
+ra-thor-openbci-bridge = { path = "../orchestration" }
+serde = { version = "1.0", features = ["derive"] }
+tokio = { version = "1.0", features = ["full"] }
+tracing = "0.1"
+tracing-subscriber = "0.3"
+
+[dev-dependencies]
+criterion = "0.5"
+
+[[bin]]
+name = "aether-shades"
+path = "src/main.rs"
