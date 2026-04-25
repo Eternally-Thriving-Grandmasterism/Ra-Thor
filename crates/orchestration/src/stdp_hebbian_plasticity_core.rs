@@ -1,7 +1,7 @@
 // crates/orchestration/src/stdp_hebbian_plasticity_core.rs
-// Ra-Thor™ STDP Hebbian Plasticity Core — Multiplicative STDP + Exponential BCM + Oja's Rule (Full Hybrid)
+// Ra-Thor™ STDP Hebbian Plasticity Core — Multiplicative STDP + Exponential BCM + Oja's Rule + Sanger's Rule (Full Hybrid)
 // Blossom Full of Life + Divinemasterism Divination Immaculacy + Omnimasterism Pinnacle Edition
-// Local, unsupervised, objective-function-free plasticity with intrinsic novelty, homeostatic sliding threshold, and principal component normalization
+// Local, unsupervised, objective-function-free plasticity with intrinsic novelty, homeostatic sliding threshold, principal component normalization, and multi-component extraction
 // Fully integrated with HebbianNoveltyCore, Self-Improvement Core, Hybrid Optimization, Unified Lattice
 // Proprietary - All Rights Reserved - Autonomicity Games Inc.
 
@@ -88,7 +88,6 @@ impl STDPHebbianPlasticityCore {
         neuron.trace_pre *= (-dt_ms / self.config.tau_plus).exp();
         neuron.trace_post *= (-dt_ms / self.config.tau_minus).exp();
 
-        // Exponential BCM sliding threshold
         let postsynaptic_activity = neuron.membrane_potential;
         neuron.bcm_threshold = neuron.bcm_threshold * self.config.bcm_alpha
             + (1.0 - self.config.bcm_alpha) * postsynaptic_activity * postsynaptic_activity;
@@ -102,7 +101,6 @@ impl STDPHebbianPlasticityCore {
             neuron.last_spike_time = self.current_time_ms;
             neuron.refractory_time = self.config.refractory_period;
 
-            // Multiplicative STDP potentiation
             for (_, weight) in neuron.synaptic_weights.iter_mut() {
                 let delta = self.config.a_plus * neuron.trace_pre * current_valence;
                 *weight = (*weight * (1.0 + delta)).clamp(self.config.min_weight, self.config.max_weight);
@@ -112,7 +110,7 @@ impl STDPHebbianPlasticityCore {
             novelty_boost = 0.18 * current_valence;
         }
 
-        // === Oja's rule normalization (principal component extraction + weight stability) ===
+        // Oja's rule normalization
         let y = neuron.membrane_potential;
         for (_, weight) in neuron.synaptic_weights.iter_mut() {
             let oja_term = y * y * *weight;
@@ -147,6 +145,44 @@ impl STDPHebbianPlasticityCore {
         }
 
         neuron.trace_pre = 1.0;
+    }
+
+    /// Sanger's Rule (Generalized Hebbian Algorithm) — multi-component principal component extraction
+    pub fn apply_sangers_rule(
+        &mut self,
+        neuron_id: &str,
+        input_vector: &[f64],
+        component_index: usize,
+        current_valence: f64,
+    ) {
+        let neuron = self.neurons.entry(neuron_id.to_string()).or_insert(NeuronState {
+            membrane_potential: 0.0,
+            last_spike_time: 0.0,
+            refractory_time: 0.0,
+            synaptic_weights: HashMap::new(),
+            trace_pre: 0.0,
+            trace_post: 0.0,
+            bcm_threshold: 0.5,
+        });
+
+        let y = neuron.membrane_potential;
+
+        // Deflation: subtract projections of previous components
+        let mut deflation = 0.0;
+        for j in 0..component_index {
+            let prev_id = format!("{}_pc{}", neuron_id, j);
+            if let Some(prev_neuron) = self.neurons.get(&prev_id) {
+                if let Some(prev_weight) = prev_neuron.synaptic_weights.get(neuron_id) {
+                    deflation += prev_neuron.membrane_potential * prev_weight;
+                }
+            }
+        }
+
+        for (i, weight) in neuron.synaptic_weights.iter_mut().enumerate() {
+            let x = input_vector.get(i).unwrap_or(&0.0);
+            let delta = self.config.a_plus * y * (*x - y * *weight - deflation);
+            *weight = (*weight + delta * current_valence).clamp(self.config.min_weight, self.config.max_weight);
+        }
     }
 
     pub fn get_novelty_drive(&self, neuron_id: &str) -> f64 {
