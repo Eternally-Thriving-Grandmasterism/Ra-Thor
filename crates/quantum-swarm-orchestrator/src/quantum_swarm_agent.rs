@@ -10,7 +10,7 @@
 //! - Tracks its personal **mercy-valence** and **CEHI trajectory**
 //! - Contributes to the collective **free-energy descent** (Theorem 2)
 //! - Applies **Hebbian Reinforcement** for long-term wiring
-//! - Participates in **exponential swarm convergence** (Theorem 1 & 4)
+//! - Participates in **exponential swarm convergence** (Theorems 1 & 4)
 //!
 //! ## Why This Design Matters (Intuition)
 //!
@@ -65,7 +65,7 @@ impl QuantumSwarmAgent {
             mercy_valence: 0.55 + rand::random::<f64>() * 0.35,
             lifetime_cehi_contribution: 0.0,
             cycles_completed: 0,
-            gate_pass_rate: 0.92, // typical healthy starting rate
+            gate_pass_rate: 0.92,
             hebbian_swarm_bond: 0.65 + rand::random::<f64>() * 0.25,
         }
     }
@@ -101,5 +101,40 @@ impl QuantumSwarmAgent {
 
         // Step 4: Strengthen Hebbian swarm bond when gates are passing well
         if cehi_impact.improvement >= 0.12 {
-            self.hebbian_swarm_bond =
-                (self.hebbian_swarm_bond + 0.012
+            self.hebbian_swarm_bond = (self.hebbian_swarm_bond + 0.012).min(0.999);
+        }
+
+        // Step 5: Update rolling gate pass rate (simple exponential moving average)
+        let gate_contribution = if cehi_impact.tier
+            != ra_thor_legal_lattice::cehi::DisbursementTier::Ineligible
+        {
+            1.0
+        } else {
+            0.0
+        };
+        self.gate_pass_rate = self.gate_pass_rate * 0.85 + gate_contribution * 0.15;
+
+        Ok(cehi_impact)
+    }
+
+    /// Returns a human-readable summary of this agent's current state.
+    ///
+    /// Useful for dashboards, simulations, and debugging.
+    pub fn status_summary(&self) -> String {
+        format!(
+            "Agent {} | Mercy: {:.3} | CEHI contrib: {:.3} | Cycles: {} | Gate pass: {:.1}% | Hebbian bond: {:.3}",
+            self.id,
+            self.mercy_valence,
+            self.lifetime_cehi_contribution,
+            self.cycles_completed,
+            self.gate_pass_rate * 100.0,
+            self.hebbian_swarm_bond
+        )
+    }
+}
+
+impl Default for QuantumSwarmAgent {
+    fn default() -> Self {
+        Self::new()
+    }
+}
