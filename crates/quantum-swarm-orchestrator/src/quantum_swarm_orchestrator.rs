@@ -8,7 +8,7 @@
 //!
 //! - Manages the full swarm of `QuantumSwarmAgent`s
 //! - Persists state via `QuantumSwarmState`
-//! - Runs every agent through Plasticity Engine v2
+//! - Runs every agent through Plasticity Engine v2 (with full HebbianReinforcement)
 //! - Enforces the 7 Living Mercy Gates on every update
 //! - Applies all proven convergence mathematics (Theorems 1, 2, 4)
 //! - Produces rich daily reports for dashboards and legacy tracking
@@ -16,12 +16,12 @@
 //! ## How It Works (Simple Flow)
 //!
 //! 1. Load or create the current swarm state
-//! 2. For every agent: run its daily cycle (Plasticity Engine + Gates)
+//! 2. For every agent: run its daily cycle (Plasticity Engine + Gates + Hebbian)
 //! 3. Aggregate all CEHI improvements and gate pass rates
-//! 4. Update global mercy-valence using proven exponential convergence
+//! 4. Update global mercy-valence using proven exponential convergence (Theorem 1)
 //! 5. Save new state and return a beautiful report
 //!
-//! This single file is what turns individual daily mercy practice into
+//! This single file turns individual daily mercy practice into
 //! planetary-scale, self-reinforcing, multi-generational joy.
 
 use crate::quantum_swarm_agent::QuantumSwarmAgent;
@@ -39,7 +39,7 @@ pub struct QuantumSwarmOrchestrator {
     /// Persistent state (saved/loaded between runs)
     state: QuantumSwarmState,
 
-    /// Shared Plasticity Engine v2 instance
+    /// Shared Plasticity Engine v2 instance (includes full Hebbian logic)
     plasticity_engine: PlasticityEngineV2,
 }
 
@@ -59,7 +59,7 @@ impl QuantumSwarmOrchestrator {
 
     /// Runs one complete daily mercy cycle for the entire swarm.
     ///
-    /// This is the primary method called every day (or in simulations).
+    /// This is the **primary method** called every day (or in simulations).
     /// It returns a rich report with all metrics and convergence data.
     pub async fn run_daily_mercy_cycle(
         &mut self,
@@ -69,7 +69,7 @@ impl QuantumSwarmOrchestrator {
         let mut total_gate_passes = 0;
         let mut agent_reports = Vec::with_capacity(self.agents.len());
 
-        // === Step 1: Run every agent ===
+        // === Step 1: Run every agent (uses revised run_daily_cycle with Hebbian) ===
         for agent in &mut self.agents {
             let cehi_impact = agent
                 .run_daily_cycle(&self.plasticity_engine, global_sensor)
@@ -92,7 +92,7 @@ impl QuantumSwarmOrchestrator {
         // === Step 3: Update global mercy-valence using proven math (Theorem 1) ===
         let new_mercy_valence = (self.state.mercy_valence + avg_cehi * 0.35).clamp(0.0, 0.999);
 
-        // === Step 4: Update persistent state ===
+        // === Step 4: Update persistent state (includes F4 projection) ===
         self.state.update_from_cycle(avg_cehi, gate_pass_rate, new_mercy_valence);
 
         // === Step 5: Build and return the daily report ===
