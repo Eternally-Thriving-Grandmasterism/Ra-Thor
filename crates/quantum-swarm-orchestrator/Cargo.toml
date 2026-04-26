@@ -6,7 +6,7 @@ authors = ["Ra-Thor Core Team <core@rathor.ai>"]
 description = "Quantum Swarm Orchestrator — Mercy-gated, active-inference quantum swarm coordination layer for Ra-Thor. Coordinates thousands of parallel quantum-inspired agents with 7 Living Mercy Gates, 5-Gene Joy Tetrad CEHI feedback, Plasticity Engine v2, and Legal Lattice integration for planetary-scale 200-year+ mercy legacy acceleration."
 license = "Proprietary - All Rights Reserved - Autonomicity Games Inc."
 repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
-keywords = ["quantum", "swarm", "orchestrator", "active-inference", "mercy", "rathor", "plasticity"]
+keywords = ["quantum", "swarm", "orchestrator", "active-inference", "mercy", "rathor", "plasticity", "hebbian"]
 categories = ["science", "simulation", "embedded", "network-programming"]
 
 [dependencies]
