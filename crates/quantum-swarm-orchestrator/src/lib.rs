@@ -10,7 +10,7 @@
 //! - Plasticity Engine v2 (5-Gene Joy Tetrad real-time updates)
 //! - 7 Living Mercy Gates validation (non-bypassable)
 //! - Legal Lattice integration (28th Amendment + Mercy Legacy Fund)
-//! - Hebbian Reinforcement + full mathematical convergence proofs
+//! - Hebbian Reinforcement + full mathematical convergence proofs (Theorems 1, 2, 4)
 //!
 //! ## Core Guarantees (Proven)
 //!
@@ -26,7 +26,7 @@ pub mod quantum_swarm_convergence;
 pub mod quantum_swarm_lyapunov_theorem1;
 pub mod quantum_swarm_lyapunov_theorem2;
 pub mod quantum_swarm_lyapunov_theorem4;
-pub mod hebbian_math_model; // re-exported for swarm-level use
+pub mod hebbian_math_model;
 pub mod hebbian_stability_proofs;
 pub mod hebbian_convergence_rate_bounds;
 
@@ -63,7 +63,7 @@ impl QuantumSwarmOrchestrator {
         Self {
             agents: Arc::new(RwLock::new(agents)),
             plasticity_engine: Arc::new(PlasticityEngineV2::new()),
-            mercy_valence: 0.62, // typical starting global valence
+            mercy_valence: 0.62,
         }
     }
 
@@ -71,15 +71,20 @@ impl QuantumSwarmOrchestrator {
     ///
     /// Every agent processes its local sensor data, applies Plasticity Engine v2,
     /// validates all 7 Mercy Gates, and contributes to collective free-energy descent.
-    pub async fn run_daily_cycle(&self, global_sensor: &ra_thor_legal_lattice::sensor_fusion_bridge::MercyGelReading) -> Result<SwarmCycleReport, crate::Error> {
+    pub async fn run_daily_cycle(
+        &self,
+        global_sensor: &ra_thor_legal_lattice::sensor_fusion_bridge::MercyGelReading,
+    ) -> Result<SwarmCycleReport, crate::Error> {
         let mut agents = self.agents.write().await;
         let mut total_cehi_improvement = 0.0;
         let mut gates_passed = 0;
 
         for agent in agents.iter_mut() {
-            let cehi_impact = self.plasticity_engine
+            let cehi_impact = self
+                .plasticity_engine
                 .process_daily_update(global_sensor)
-                .await?;
+                .await
+                .map_err(|e| crate::Error::Plasticity(e.to_string()))?;
 
             if cehi_impact.tier != ra_thor_legal_lattice::cehi::DisbursementTier::Ineligible {
                 gates_passed += 1;
@@ -92,7 +97,6 @@ impl QuantumSwarmOrchestrator {
         let avg_improvement = total_cehi_improvement / agents.len() as f64;
         let new_mercy_valence = (self.mercy_valence + avg_improvement * 0.35).min(0.999);
 
-        // Apply proven convergence bounds
         let convergence_factor = exponential_swarm_convergence_bound(new_mercy_valence, 1);
 
         Ok(SwarmCycleReport {
