@@ -136,6 +136,6 @@ impl QuantumSwarmState {
 
 impl Default for QuantumSwarmState {
     fn default() -> Self {
-        Self::new(1000) // default swarm size
+        Self::new(1000)
     }
 }
