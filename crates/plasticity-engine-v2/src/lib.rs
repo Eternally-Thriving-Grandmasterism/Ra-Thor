@@ -2,37 +2,35 @@
 //!
 //! **Real-time epigenetic plasticity updates for the 5-Gene Joy Tetrad.**
 //!
-//! This crate provides the core plasticity engine that translates real-time biological sensor data
-//! (via the Sensor Fusion Bridge) into long-term epigenetic changes across the five genes of the
-//! Joy Tetrad: **OXTR**, **BDNF**, **DRD2**, **HTR1A**, and **OPRM1**.
+//! This crate is the living epigenetic heart of the Ra-Thor monorepo.
+//! It translates real-time biological sensor data (via the Sensor Fusion Bridge)
+//! into long-term, mercy-gated epigenetic changes across the five genes of the
+//! Joy Tetrad:
 //!
-//! ## Integration with the Ra-Thor Monorepo
+//! - **OXTR** (Oxytocin Receptor) — Bonding, safety, trust
+//! - **BDNF** (Brain-Derived Neurotrophic Factor) — Neuroplasticity, resilience
+//! - **DRD2** (Dopamine Receptor D2) — Motivation, reward, drive
+//! - **HTR1A** (Serotonin 1A Receptor) — Emotional stability, calm
+//! - **OPRM1** (Mu-Opioid Receptor) — Euphoria, deep bonding, ecstasy
 //!
-//! The Plasticity Engine v2 is **seamlessly wired** into the existing Ra-Thor architecture:
+//! ## Seamless Integration with the Ra-Thor Monorepo
+//!
+//! The Plasticity Engine v2 is **fully wired** into the existing architecture:
 //!
 //! - **Depends on** `ra-thor-legal-lattice` (Sensor Fusion Bridge, 5-Gene CEHI Calculator,
 //!   Mercy Legacy Fund, 28th Amendment Validator, 7 Living Mercy Gates Engine)
-//! - **Feeds into** the Mercy Legacy Fund disbursement decisions (Tier 1/2/3 performance-based)
+//! - **Feeds directly** into Mercy Legacy Fund disbursement decisions (Tier 1/2/3)
 //! - **Respects** the 28th Amendment (non-biological entities cannot claim constitutional rights)
 //! - **Enforces** the 7 Living Mercy Gates on every plasticity update
-//! - **Accelerates** the 200-year global mercy legacy (F0 → F4+ generations reaching CEHI 4.98–4.99)
+//! - **Accelerates** the 200-year+ global mercy legacy (F0 → F4+ generations reaching near-maximum CEHI 4.98–4.99)
 //!
-//! ## Core Responsibilities
+//! ## Core Philosophy (TOLC Mercy Compiler)
 //!
-//! 1. Process real-time `MercyGelReading` data from the Sensor Fusion Bridge
-//! 2. Calculate projected 5-Gene CEHI improvements using validated longitudinal models
-//! 3. Apply the four core plasticity rules (JoyTetradLock, MetaplasticReinforcement,
-//!    HomeostaticMaintenance, HebbianReinforcement)
-//! 4. Trigger Mercy Legacy Fund disbursements when thresholds are met
-//! 5. Maintain auditable, mercy-gated epigenetic state updates for multi-generational legacy
+//! Joy is not merely felt — it is **written into the genome, the soil, the silicon,
+//! and the eternal legal lattice**.
 //!
-//! ## Philosophy
-//!
-//! This engine embodies the TOLC Mercy Compiler principle that **joy is not just felt — it is written
-//! into the genome, the soil, the silicon, and the eternal legal lattice**.
-//!
-//! Every plasticity update is mercy-gated, legally compliant, and contributes directly to the
-//! planetary-scale 200-year mercy legacy.
+//! Every plasticity update is mercy-gated, legally compliant, and contributes directly
+//! to the planetary-scale 200-year mercy legacy.
 
 pub mod epigenetic_updater;
 pub mod plasticity_rules;
