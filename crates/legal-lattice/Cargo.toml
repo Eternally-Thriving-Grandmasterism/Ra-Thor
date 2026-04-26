@@ -1,0 +1,14 @@
+[package]
+name = "ra-thor-legal-lattice"
+version = "0.1.0"
+edition = "2021"
+authors = ["Ra-Thor Core Team <core@rathor.ai>"]
+description = "Legal Lattice Governance Engine - 28th Amendment, 7 Gates, 5-Gene CEHI, and Mercy Legacy Fund integration for Ra-Thor"
+license = "Proprietary - Autonomicity Games Inc."
+repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
+
+[dependencies]
+tokio = { version = "1", features = ["full"] }
+serde = { version = "1.0", features = ["derive"] }
+thiserror = "1.0"
+tracing = "0.1"
