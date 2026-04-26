@@ -3,11 +3,14 @@ name = "ra-thor-plasticity-engine-v2"
 version = "0.1.0"
 edition = "2021"
 authors = ["Ra-Thor Core Team <core@rathor.ai>"]
-description = "Plasticity Engine v2 - Real-time epigenetic plasticity updates for the 5-Gene Joy Tetrad"
-license = "Proprietary - Autonomicity Games Inc."
+description = "Plasticity Engine v2 — Real-time epigenetic plasticity updates for the 5-Gene Joy Tetrad, fully integrated with Legal Lattice, Sensor Fusion Bridge, and Mercy Legacy Fund"
+license = "Proprietary - All Rights Reserved - Autonomicity Games Inc."
 repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
+keywords = ["plasticity", "epigenetics", "joy-tetrad", "mercy", "rathor"]
+categories = ["science", "simulation"]
 
 [dependencies]
+ra-thor-legal-lattice = { path = "../legal-lattice" }
 tokio = { version = "1", features = ["full"] }
 serde = { version = "1.0", features = ["derive"] }
 thiserror = "1.0"
