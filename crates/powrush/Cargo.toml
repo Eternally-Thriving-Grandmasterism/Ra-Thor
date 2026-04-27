@@ -1,0 +1,39 @@
+[package]
+name = "powrush"
+version = "0.1.0"
+edition = "2021"
+authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
+description = "Powrush — The world's first mercy-gated Resource-Based Economy (RBE) AGI game. Single-player + MMO. Built on Ra-Thor + TOLC 7 Living Mercy Gates."
+license = "AG-SML"
+repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
+
+[dependencies]
+# Core
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tokio = { version = "1.38", features = ["full"] }
+rand = "0.8"
+chrono = { version = "0.4", features = ["serde"] }
+thiserror = "1.0"
+anyhow = "1.0"
+tracing = "0.1"
+
+# Game-specific
+strum = { version = "0.26", features = ["derive"] }
+uuid = { version = "1.8", features = ["v4", "serde"] }
+
+# Future integrations (will be activated in later files)
+# ra-thor-mercy = { path = "../mercy" }
+# ra-thor-quantum-swarm-orchestrator = { path = "../quantum-swarm-orchestrator" }
+
+[dev-dependencies]
+tokio-test = "0.4"
+pretty_assertions = "1.4"
+
+[[bin]]
+name = "powrush-singleplayer"
+path = "src/bin/singleplayer.rs"
+
+[[bin]]
+name = "powrush-mmo-server"
+path = "src/bin/mmo_server.rs"
