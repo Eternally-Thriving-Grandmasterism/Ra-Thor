@@ -1,6 +1,7 @@
 //! # Advanced Search Engine (v0.3.0)
 //!
-//! Keyword + semantic-like scoring with context awareness and Powrush bias.
+//! Smart keyword search with relevance scoring and strong Powrush bias.
+//! Designed for fast, intelligent discovery across the entire monorepo.
 
 use crate::scanner::ScannedFile;
 
@@ -20,6 +21,7 @@ impl MonorepoSearch {
         Self { files }
     }
 
+    /// Search for a keyword with smart relevance scoring
     pub fn search(&self, keyword: &str) -> Vec<SearchResult> {
         let keyword_lower = keyword.to_lowercase();
         let mut results = Vec::new();
@@ -28,26 +30,26 @@ impl MonorepoSearch {
             let mut score: f32 = 0.0;
             let mut matched_context = Vec::new();
 
-            // Path match
+            // Path match scoring
             if file.relative_path.to_lowercase().contains(&keyword_lower) {
                 score += 12.0;
             }
 
-            // Filename match
+            // Filename match scoring
             if let Some(name) = std::path::Path::new(&file.relative_path).file_name() {
                 if name.to_string_lossy().to_lowercase().contains(&keyword_lower) {
                     score += 18.0;
                 }
             }
 
-            // Extension match
+            // Extension match scoring
             if let Some(ext) = &file.extension {
                 if ext.to_lowercase() == keyword_lower {
                     score += 10.0;
                 }
             }
 
-            // Strong Powrush bias
+            // Strong Powrush bias (very important for our use case)
             if file.relative_path.to_lowercase().contains("powrush") {
                 score *= 1.35;
             }
@@ -61,10 +63,12 @@ impl MonorepoSearch {
             }
         }
 
+        // Sort by relevance (highest first)
         results.sort_by(|a, b| b.relevance_score.partial_cmp(&a.relevance_score).unwrap());
         results
     }
 
+    /// Convenience method for Powrush-specific searches
     pub fn search_powrush(&self) -> Vec<SearchResult> {
         self.search("powrush")
     }
