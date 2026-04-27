@@ -1,11 +1,10 @@
 [package]
 name = "ra-thor-monorepo-intelligence"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
-authors = ["@AlphaProMega <AlphaProMega@ACityGames.com>"]
-description = "Exhaustive monorepo scanning, GitHub pagination handling, smart search, and structured reporting for Ra-Thor AGI systems"
+authors = ["@AlphaProMega"]
+description = "Infinite-grade monorepo intelligence system — exhaustive scanning, semantic analysis, health scoring, and universal AI integration for Ra-Thor and beyond"
 license = "AG-SML"
-repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
 
 [dependencies]
 tokio = { version = "1.38", features = ["full"] }
@@ -18,6 +17,7 @@ walkdir = "2.5"
 regex = "1.10"
 chrono = { version = "0.4", features = ["serde"] }
 anyhow = "1.0"
-
-[dev-dependencies]
-tokio-test = "0.4"
+toml = "0.8"
+handlebars = "5.1"           # For beautiful HTML reports
+rayon = "1.10"               # Parallel scanning
+indicatif = "0.17"           # Progress bars
