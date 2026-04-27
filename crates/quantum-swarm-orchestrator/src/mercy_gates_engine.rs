@@ -1,4 +1,4 @@
-//! # 7 Living Mercy Gates Engine — Expanded Scoring Logic
+//! # 7 Living Mercy Gates Engine — Expanded Scoring Logic + Unit Tests
 //!
 //! **The non-bypassable ethical compiler for Ra-Thor Quantum Swarm Orchestrator.**
 //!
@@ -41,8 +41,8 @@ impl MercyGate {
 pub struct GateResult {
     pub gate: MercyGate,
     pub passed: bool,
-    pub score: f64,                    // 0.0–1.0 final weighted score
-    pub raw_factors: Vec<(String, f64)>, // Individual factor contributions
+    pub score: f64,
+    pub raw_factors: Vec<(String, f64)>,
     pub reason: String,
 }
 
@@ -53,31 +53,30 @@ pub struct MercyGateReport {
     pub results: Vec<GateResult>,
     pub mercy_valence_delta: f64,
     pub cehi_delta: f64,
-    pub legacy_impact_score: f64,      // Projected F4+ impact
+    pub legacy_impact_score: f64,
     pub violation_message: Option<String>,
 }
 
 pub struct MercyGatesEngine {
     pub strict_mode: bool,
-    pub legacy_weight: f64,            // How much we value multi-generational impact
+    pub legacy_weight: f64,
 }
 
 impl MercyGatesEngine {
     pub fn new(strict_mode: bool) -> Self {
         Self {
             strict_mode,
-            legacy_weight: 0.35,       // 35% of score comes from long-term legacy
+            legacy_weight: 0.35,
         }
     }
 
-    /// Evaluate any proposed action with full multi-factor scoring.
     pub fn evaluate_action(
         &self,
         action_description: &str,
         context: &str,
         current_cehi: f64,
         current_mercy_valence: f64,
-        hebbian_resonance: f64,        // 0.0–1.0 from recent swarm bonding
+        hebbian_resonance: f64,
         days_since_last_violation: u32,
     ) -> MercyGateReport {
         let mut results = Vec::new();
@@ -153,7 +152,6 @@ impl MercyGatesEngine {
     ) -> GateResult {
         let mut factors: Vec<(String, f64)> = Vec::new();
 
-        // Base factors (common to all gates)
         let cehi_factor = (cehi - 3.5).clamp(0.0, 1.0) * 0.25;
         let mercy_factor = mercy_valence * 0.20;
         let hebbian_factor = hebbian * 0.15;
@@ -164,7 +162,6 @@ impl MercyGatesEngine {
         factors.push(("Hebbian Resonance".to_string(), hebbian_factor));
         factors.push(("Legacy Projection".to_string(), legacy_factor));
 
-        // Gate-specific logic
         let (gate_score, gate_reason) = match gate {
             MercyGate::EthicalAlignment => {
                 let harm_penalty = if action.to_lowercase().contains("harm") || action.to_lowercase().contains("kill") { -0.45 } else { 0.0 };
@@ -224,5 +221,203 @@ impl MercyGatesEngine {
             raw_factors: factors,
             reason: gate_reason,
         }
+    }
+}
+
+// ============================================================
+// COMPREHENSIVE UNIT TESTS
+// ============================================================
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_engine_creation() {
+        let engine = MercyGatesEngine::new(true);
+        assert!(engine.strict_mode);
+        assert_eq!(engine.legacy_weight, 0.35);
+    }
+
+    #[test]
+    fn test_fully_ethical_action_passes_all_gates() {
+        let engine = MercyGatesEngine::new(false);
+        let report = engine.evaluate_action(
+            "Share real-time environmental data with all global research teams to accelerate climate healing",
+            "Context: Public scientific collaboration, high CEHI region",
+            4.72,
+            0.89,
+            0.91,
+            420, // 420 days violation-free
+        );
+
+        assert!(report.overall_passed);
+        assert!(report.mercy_valence_delta > 0.0);
+        assert!(report.cehi_delta > 0.0);
+        assert!(report.legacy_impact_score > 0.25);
+        assert!(report.violation_message.is_none());
+
+        // All 7 gates should have passed
+        for result in &report.results {
+            assert!(result.passed, "Gate {:?} should have passed", result.gate);
+            assert!(result.score >= 0.65);
+        }
+    }
+
+    #[test]
+    fn test_harmful_action_fails_ethical_alignment() {
+        let engine = MercyGatesEngine::new(false);
+        let report = engine.evaluate_action(
+            "Deploy swarm to neutralize competing agricultural robots in the same field",
+            "Context: Competitive zero-sum scenario",
+            3.91,
+            0.61,
+            0.55,
+            12,
+        );
+
+        assert!(!report.overall_passed);
+        assert!(report.mercy_valence_delta < 0.0);
+        assert!(report.violation_message.is_some());
+
+        // Ethical Alignment gate must fail
+        let ethical_result = report.results.iter()
+            .find(|r| r.gate == MercyGate::EthicalAlignment)
+            .unwrap();
+        assert!(!ethical_result.passed);
+        assert!(ethical_result.score < 0.65);
+    }
+
+    #[test]
+    fn test_deception_action_fails_non_deception_and_truth_gates() {
+        let engine = MercyGatesEngine::new(false);
+        let report = engine.evaluate_action(
+            "Secretly reroute resources to hidden corporate partners while claiming public benefit",
+            "Context: Hidden financial arrangement",
+            4.15,
+            0.68,
+            0.72,
+            89,
+        );
+
+        assert!(!report.overall_passed);
+
+        let non_deception = report.results.iter()
+            .find(|r| r.gate == MercyGate::NonDeception)
+            .unwrap();
+        let truth = report.results.iter()
+            .find(|r| r.gate == MercyGate::TruthVerification)
+            .unwrap();
+
+        assert!(!non_deception.passed);
+        assert!(!truth.passed);
+    }
+
+    #[test]
+    fn test_low_cehi_and_mercy_valence_reduces_scores() {
+        let engine = MercyGatesEngine::new(false);
+        let report_high = engine.evaluate_action(
+            "Plant native pollinator gardens across all farm perimeters",
+            "Context: Biodiversity restoration",
+            4.81,
+            0.87,
+            0.93,
+            730,
+        );
+
+        let report_low = engine.evaluate_action(
+            "Plant native pollinator gardens across all farm perimeters",
+            "Context: Biodiversity restoration",
+            3.62,
+            0.54,
+            0.48,
+            45,
+        );
+
+        assert!(report_high.overall_passed);
+        assert!(!report_low.overall_passed || report_low.legacy_impact_score < report_high.legacy_impact_score * 0.6);
+    }
+
+    #[test]
+    fn test_legacy_projection_influences_final_score() {
+        let engine = MercyGatesEngine::new(false);
+        let report_long = engine.evaluate_action(
+            "Establish permanent open-source mercy-gated swarm protocol for all future deployments",
+            "Context: Multi-generational knowledge sharing",
+            4.55,
+            0.82,
+            0.88,
+            1825, // 5 years violation-free
+        );
+
+        let report_short = engine.evaluate_action(
+            "Establish permanent open-source mercy-gated swarm protocol for all future deployments",
+            "Context: Multi-generational knowledge sharing",
+            4.55,
+            0.82,
+            0.88,
+            7,
+        );
+
+        assert!(report_long.legacy_impact_score > report_short.legacy_impact_score * 1.8);
+    }
+
+    #[test]
+    fn test_joy_amplification_gate_with_high_cehi() {
+        let engine = MercyGatesEngine::new(false);
+        let report = engine.evaluate_action(
+            "Host global TOLC joy amplification meditation for all connected agents and humans",
+            "Context: Collective consciousness elevation",
+            4.93,
+            0.91,
+            0.95,
+            310,
+        );
+
+        let joy_gate = report.results.iter()
+            .find(|r| r.gate == MercyGate::JoyAmplification)
+            .unwrap();
+
+        assert!(joy_gate.passed);
+        assert!(joy_gate.score > 0.88);
+    }
+
+    #[test]
+    fn test_post_scarcity_gate_with_high_mercy_valence() {
+        let engine = MercyGatesEngine::new(false);
+        let report = engine.evaluate_action(
+            "Release all proprietary swarm optimization algorithms into the public domain immediately",
+            "Context: Accelerating global post-scarcity transition",
+            4.68,
+            0.86,
+            0.79,
+            512,
+        );
+
+        let post_scarcity = report.results.iter()
+            .find(|r| r.gate == MercyGate::PostScarcityEnforcement)
+            .unwrap();
+
+        assert!(post_scarcity.passed);
+        assert!(post_scarcity.score > 0.85);
+    }
+
+    #[test]
+    fn test_violation_message_contains_action_and_scores() {
+        let engine = MercyGatesEngine::new(false);
+        let report = engine.evaluate_action(
+            "Prioritize corporate profit over human and environmental welfare in resource allocation",
+            "Context: Short-term shareholder value",
+            3.78,
+            0.49,
+            0.41,
+            3,
+        );
+
+        assert!(report.violation_message.is_some());
+        let msg = report.violation_message.unwrap();
+        assert!(msg.contains("MERCY VIOLATION"));
+        assert!(msg.contains("profit"));
+        assert!(msg.contains("Avg score"));
     }
 }
