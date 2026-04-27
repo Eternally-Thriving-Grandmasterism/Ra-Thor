@@ -1,7 +1,7 @@
-//! # Monorepo Scanner
+//! # Monorepo Scanner (v0.3.0)
 //!
 //! Exhaustive recursive scanner for the entire Ra-Thor monorepo.
-//! Supports deep folder traversal, file filtering, and structured output.
+//! Supports depth control, hidden file filtering, and parallel scanning.
 
 use std::path::{Path, PathBuf};
 use walkdir::{WalkDir, DirEntry};
