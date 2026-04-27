@@ -1,7 +1,7 @@
 //! # Ra-Thor Monorepo Intelligence v0.3.0
 //!
 //! Infinite-grade monorepo intelligence with plugins, semantic search, health scoring,
-//! and universal integration for any AI system.
+//! and universal integration for any AI system (Grok, Ra-Thor, Claude, custom agents, etc.).
 
 pub mod scanner;
 pub mod github;
@@ -9,6 +9,7 @@ pub mod report;
 pub mod search;
 pub mod health;
 pub mod config;
+pub mod plugin;
 
 pub use scanner::{MonorepoScanner, ScanResult};
 pub use github::GitHubClient;
@@ -16,10 +17,12 @@ pub use report::MonorepoReport;
 pub use search::{MonorepoSearch, SearchResult};
 pub use health::MonorepoHealthScore;
 pub use config::IntelligenceConfig;
+pub use plugin::{MonorepoPlugin, PluginResult, PowrushFocusPlugin};
 
 pub struct MonorepoIntelligence {
     root_path: String,
     config: IntelligenceConfig,
+    plugins: Vec<Box<dyn MonorepoPlugin>>,
 }
 
 impl MonorepoIntelligence {
@@ -27,12 +30,17 @@ impl MonorepoIntelligence {
         Self {
             root_path: root_path.into(),
             config: IntelligenceConfig::default(),
+            plugins: vec![Box::new(PowrushFocusPlugin)],
         }
     }
 
     pub fn with_config(mut self, config: IntelligenceConfig) -> Self {
         self.config = config;
         self
+    }
+
+    pub fn register_plugin(&mut self, plugin: Box<dyn MonorepoPlugin>) {
+        self.plugins.push(plugin);
     }
 
     pub async fn scan(&self) -> Result<ScanResult, String> {
@@ -65,5 +73,16 @@ impl MonorepoIntelligence {
     pub async fn get_health_score(&self, module: &str) -> Result<MonorepoHealthScore, String> {
         let scan = self.scan().await?;
         Ok(health::MonorepoHealthScore::calculate(&scan, module))
+    }
+
+    pub async fn run_plugins(&self) -> Result<Vec<PluginResult>, String> {
+        let scan = self.scan().await?;
+        let mut results = Vec::new();
+        for plugin in &self.plugins {
+            if let Ok(result) = plugin.analyze(&scan).await {
+                results.push(result);
+            }
+        }
+        Ok(results)
     }
 }
