@@ -1,9 +1,8 @@
 //! # Advanced Search Engine (v0.3.0)
 //!
-//! Smart keyword + semantic-like scoring with context awareness.
+//! Keyword + semantic-like scoring with context awareness and Powrush bias.
 
 use crate::scanner::ScannedFile;
-use regex::Regex;
 
 #[derive(Debug, Clone)]
 pub struct SearchResult {
@@ -23,36 +22,34 @@ impl MonorepoSearch {
 
     pub fn search(&self, keyword: &str) -> Vec<SearchResult> {
         let keyword_lower = keyword.to_lowercase();
-        let regex = Regex::new(&format!(r"(?i){}", regex::escape(keyword))).unwrap();
-
         let mut results = Vec::new();
 
         for file in &self.files {
             let mut score: f32 = 0.0;
             let mut matched_context = Vec::new();
 
-            // Path scoring
+            // Path match
             if file.relative_path.to_lowercase().contains(&keyword_lower) {
                 score += 12.0;
             }
 
-            // Filename scoring
+            // Filename match
             if let Some(name) = std::path::Path::new(&file.relative_path).file_name() {
                 if name.to_string_lossy().to_lowercase().contains(&keyword_lower) {
                     score += 18.0;
                 }
             }
 
-            // Extension scoring
+            // Extension match
             if let Some(ext) = &file.extension {
                 if ext.to_lowercase() == keyword_lower {
                     score += 10.0;
                 }
             }
 
-            // Bonus for Powrush-related files
+            // Strong Powrush bias
             if file.relative_path.to_lowercase().contains("powrush") {
-                score *= 1.25;
+                score *= 1.35;
             }
 
             if score > 0.0 {
