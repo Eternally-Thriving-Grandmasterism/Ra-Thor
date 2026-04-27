@@ -1,11 +1,10 @@
-//! # GitHub Client
+//! # GitHub Client (v0.3.0)
 //!
-//! Robust GitHub API client with proper pagination support.
+//! Robust GitHub API client with full pagination support.
 //! Enables exhaustive scanning of repositories, files, and commits.
 
 use reqwest::{Client, header};
 use serde::Deserialize;
-use std::collections::HashMap;
 
 #[derive(Debug, Clone)]
 pub struct GitHubClient {
@@ -16,15 +15,17 @@ pub struct GitHubClient {
 impl GitHubClient {
     pub fn new(token: Option<String>) -> Self {
         let mut headers = header::HeaderMap::new();
+        
         if let Some(ref t) = token {
             headers.insert(
                 header::AUTHORIZATION,
                 header::HeaderValue::from_str(&format!("token {}", t)).unwrap(),
             );
         }
+        
         headers.insert(
             header::USER_AGENT,
-            header::HeaderValue::from_static("Ra-Thor-Monorepo-Intelligence/1.0"),
+            header::HeaderValue::from_static("Ra-Thor-Monorepo-Intelligence/0.3.0"),
         );
 
         let client = Client::builder()
@@ -35,7 +36,7 @@ impl GitHubClient {
         Self { client, token }
     }
 
-    /// Fetch all repositories for the authenticated user (handles pagination)
+    /// Fetch all repositories for the authenticated user (handles pagination properly)
     pub async fn list_all_repositories(&self) -> Result<Vec<Repository>, String> {
         let mut repos = Vec::new();
         let mut page = 1;
@@ -68,7 +69,7 @@ impl GitHubClient {
             repos.extend(batch);
             page += 1;
 
-            // Safety limit
+            // Safety limit to prevent infinite loops
             if page > 50 {
                 break;
             }
