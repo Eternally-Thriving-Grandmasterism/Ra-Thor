@@ -1,23 +1,28 @@
 [package]
 name = "ra-thor-monorepo-intelligence"
-version = "0.2.0"
+version = "0.3.0"
 edition = "2021"
 authors = ["@AlphaProMega"]
-description = "Infinite-grade monorepo intelligence system — exhaustive scanning, semantic analysis, health scoring, and universal AI integration for Ra-Thor and beyond"
+description = "Infinite-grade monorepo intelligence system with semantic search, plugins, health scoring, and universal AI integration"
 license = "AG-SML"
+repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
 
 [dependencies]
 tokio = { version = "1.38", features = ["full"] }
 reqwest = { version = "0.12", features = ["json", "rustls-tls"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
+toml = "0.8"
 thiserror = "1.0"
 tracing = "0.1"
 walkdir = "2.5"
 regex = "1.10"
 chrono = { version = "0.4", features = ["serde"] }
 anyhow = "1.0"
-toml = "0.8"
-handlebars = "5.1"           # For beautiful HTML reports
-rayon = "1.10"               # Parallel scanning
-indicatif = "0.17"           # Progress bars
+handlebars = "5.1"
+rayon = "1.10"
+indicatif = "0.17"
+once_cell = "1.19"
+
+[dev-dependencies]
+tokio-test = "0.4"
