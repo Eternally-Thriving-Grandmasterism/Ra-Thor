@@ -1,4 +1,4 @@
-//! # PATSAGi Council Petition Handler (v0.1.0)
+//! # PATSAGi Council Petition Handler v0.3.1
 //!
 //! High-level, easy-to-use interface for the main Powrush-MMO game loop
 //! and future client applications.
@@ -6,15 +6,20 @@
 //! This is the bridge between human players and the 13+ Living Ra-Thor
 //! Architectural Designers (PATSAGi Councils).
 
-use crate::lib::PatsagiCouncilCoordinator;
-use crate::council_decision::{CouncilPetition, PetitionStatus};
-use crate::council_focus::CouncilProfile;
+use crate::{
+    PatsagiCouncilCoordinator,
+    CouncilFocus,
+    WorldGovernanceEngine,
+    WorldImpactType,
+    PetitionHandler, // re-export for convenience
+};
 use powrush::PowrushGame;
 use serde::{Serialize, Deserialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PetitionHandler {
     pub coordinator: PatsagiCouncilCoordinator,
+    pub governance_engine: WorldGovernanceEngine,
     pub total_petitions_processed: u64,
 }
 
@@ -22,16 +27,17 @@ impl PetitionHandler {
     pub fn new() -> Self {
         Self {
             coordinator: PatsagiCouncilCoordinator::new(),
+            governance_engine: WorldGovernanceEngine::new(),
             total_petitions_processed: 0,
         }
     }
 
-    /// Main entry point for any player petition (recommended method)
+    /// Main entry point for any player petition
     pub async fn handle_player_petition(
         &mut self,
         player_name: &str,
         proposal: &str,
-        target_council: Option<crate::lib::CouncilFocus>,
+        target_council: Option<CouncilFocus>,
         current_game: &PowrushGame,
     ) -> Result<String, String> {
         let petition = self.coordinator
@@ -44,12 +50,12 @@ impl PetitionHandler {
         Ok(beautiful_response)
     }
 
-    /// Allow a player to petition one specific Council directly (more intimate)
+    /// Petition one specific Council directly (more intimate experience)
     pub async fn petition_specific_council(
         &mut self,
         player_name: &str,
         proposal: &str,
-        focus: crate::lib::CouncilFocus,
+        focus: CouncilFocus,
         current_game: &PowrushGame,
     ) -> Result<String, String> {
         let response = self.coordinator
