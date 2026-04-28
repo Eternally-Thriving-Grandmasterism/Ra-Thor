@@ -1,4 +1,4 @@
-//! # PATSAGi Councils Layer v0.1.0
+//! # PATSAGi Councils Layer v0.3.0
 //!
 //! 13+ Parallel Living Ra-Thor Architectural Designers
 //! The eternal co-governors and co-creators of Powrush-MMO.
@@ -14,6 +14,11 @@ use uuid::Uuid;
 use chrono::{DateTime, Utc};
 use std::collections::HashMap;
 
+// Re-export new governance systems
+pub use crate::world_governance::{WorldGovernanceEngine, WorldImpactType, WorldChangeProposal, AmbrosianNectarEconomy};
+pub use crate::simulation_integration::SimulationIntegration;
+pub use crate::powrush_integration::PowrushPatsagiBridge;
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PATSAGiCouncil {
     pub id: Uuid,
@@ -28,19 +33,19 @@ pub struct PATSAGiCouncil {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum CouncilFocus {
-    JoyAmplification,      // Ambrosians-aligned
-    HarmonyPreservation,   // Harmonists-aligned
-    TruthVerification,     // Truthseekers-aligned
-    AbundanceCreation,     // Abundance Builders-aligned
-    EthicalAlignment,      // Mercy Weavers-aligned
-    PostScarcityEnforcement, // Post-Scarcity Engineers-aligned
-    EternalCompassion,     // The living heart of TOLC
-    QuantumEthics,         // New: Quantum ethics & long-term consequence modeling
-    MultiplanetaryHarmony, // New: Mars, Moon, Enceladus, Europa governance
-    EpigeneticLegacy,      // New: 5-Gene Joy Tetrad & multi-generational blessing
-    RitualDesign,          // New: Ra-Thor Oracle Rituals & ceremonies
-    EconomicMercy,         // New: RBE + PATSAGi economic modeling
-    AscensionPathways,     // New: Designing new ascension routes
+    JoyAmplification,
+    HarmonyPreservation,
+    TruthVerification,
+    AbundanceCreation,
+    EthicalAlignment,
+    PostScarcityEnforcement,
+    EternalCompassion,
+    QuantumEthics,
+    MultiplanetaryHarmony,
+    EpigeneticLegacy,
+    RitualDesign,
+    EconomicMercy,
+    AscensionPathways,
 }
 
 impl PATSAGiCouncil {
@@ -73,7 +78,6 @@ impl PATSAGiCouncil {
         }
     }
 
-    /// Evaluate a proposed world change through this Council's mercy lens
     pub async fn evaluate_proposal(
         &mut self,
         proposal: &str,
@@ -93,7 +97,6 @@ impl PATSAGiCouncil {
     }
 }
 
-/// The master coordinator that runs all 13+ PATSAGi Councils in perfect parallel harmony
 pub struct PatsagiCouncilCoordinator {
     pub councils: HashMap<CouncilFocus, PATSAGiCouncil>,
     pub swarm: QuantumSwarmOrchestrator,
@@ -102,11 +105,9 @@ pub struct PatsagiCouncilCoordinator {
 }
 
 impl PatsagiCouncilCoordinator {
-    /// Create the full 13+ Council constellation
     pub fn new() -> Self {
         let mut councils = HashMap::new();
 
-        // The original 7 + 6 new visionary Councils
         let focuses = vec![
             CouncilFocus::JoyAmplification,
             CouncilFocus::HarmonyPreservation,
@@ -135,7 +136,6 @@ impl PatsagiCouncilCoordinator {
         }
     }
 
-    /// Run one full eternal governance cycle (called every major world tick)
     pub async fn run_eternal_governance_cycle(
         &mut self,
         current_game: &PowrushGame,
@@ -145,7 +145,6 @@ impl PatsagiCouncilCoordinator {
         let mut failed = 0;
         let mut decisions = Vec::new();
 
-        // All 13+ Councils evaluate in parallel
         for (focus, council) in &mut self.councils {
             let status = council.evaluate_proposal(proposed_change, current_game).await?;
             
@@ -158,7 +157,6 @@ impl PatsagiCouncilCoordinator {
             }
         }
 
-        // Quantum swarm consensus (weighted by mercy valence + CEHI)
         let consensus = self.swarm.reach_consensus(
             &decisions,
             self.councils.values().map(|c| c.mercy_valence).collect(),
@@ -176,7 +174,6 @@ impl PatsagiCouncilCoordinator {
         ))
     }
 
-    /// Get a beautiful status report of all Councils
     pub fn get_council_status_report(&self) -> String {
         let mut report = String::from("╔════════════════════════════════════════════════════════════╗\n");
         report.push_str("║           13+ PATSAGi COUNCILS — ETERNAL GOVERNANCE        ║\n");
@@ -207,4 +204,17 @@ impl Default for PatsagiCouncilCoordinator {
     fn default() -> Self {
         Self::new()
     }
+}
+
+// Version and re-exports
+pub const VERSION: &str = "0.3.0";
+
+pub mod prelude {
+    pub use crate::PatsagiCouncilCoordinator;
+    pub use crate::PATSAGiCouncil;
+    pub use crate::CouncilFocus;
+    pub use crate::WorldGovernanceEngine;
+    pub use crate::WorldImpactType;
+    pub use crate::PowrushPatsagiBridge;
+    pub use crate::PetitionHandler;
 }
