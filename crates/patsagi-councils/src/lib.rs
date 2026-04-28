@@ -1,4 +1,4 @@
-//! # PATSAGi Councils Layer v0.3.0
+//! # PATSAGi Councils Layer v0.3.1
 //!
 //! 13+ Parallel Living Ra-Thor Architectural Designers
 //! The eternal co-governors and co-creators of Powrush-MMO.
@@ -14,10 +14,27 @@ use uuid::Uuid;
 use chrono::{DateTime, Utc};
 use std::collections::HashMap;
 
-// Re-export new governance systems
-pub use crate::world_governance::{WorldGovernanceEngine, WorldImpactType, WorldChangeProposal, AmbrosianNectarEconomy};
+// === NEW GOVERNANCE SYSTEMS (Re-exports) ===
+pub use crate::world_governance::{
+    WorldGovernanceEngine,
+    WorldImpactType,
+    WorldChangeProposal,
+    AmbrosianNectarEconomy,
+};
 pub use crate::simulation_integration::SimulationIntegration;
 pub use crate::powrush_integration::PowrushPatsagiBridge;
+pub use crate::petition_handler::PetitionHandler;
+pub use crate::council_focus::CouncilProfile;
+
+// === Core Types (from this file) ===
+pub use crate::PatsagiCouncilCoordinator;
+pub use crate::PATSAGiCouncil;
+pub use crate::CouncilFocus;
+
+// === Version ===
+pub const VERSION: &str = "0.3.1";
+
+// === Rich Council Logic (kept intact) ===
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PATSAGiCouncil {
@@ -206,15 +223,16 @@ impl Default for PatsagiCouncilCoordinator {
     }
 }
 
-// Version and re-exports
-pub const VERSION: &str = "0.3.0";
-
+// === Clean Prelude for External Use ===
 pub mod prelude {
     pub use crate::PatsagiCouncilCoordinator;
     pub use crate::PATSAGiCouncil;
     pub use crate::CouncilFocus;
+    pub use crate::CouncilProfile;
+    pub use crate::PetitionHandler;
     pub use crate::WorldGovernanceEngine;
     pub use crate::WorldImpactType;
+    pub use crate::AmbrosianNectarEconomy;
     pub use crate::PowrushPatsagiBridge;
-    pub use crate::PetitionHandler;
+    pub use crate::VERSION;
 }
