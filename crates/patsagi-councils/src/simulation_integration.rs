@@ -1,13 +1,16 @@
-//! # Simulation Integration Layer (v0.1.0)
+//! # Simulation Integration Layer v0.3.1
 //!
 //! This module wires the 13+ PATSAGi Councils directly into the main Powrush
 //! simulation loop so they can influence the game world in real time.
 //!
 //! Every N simulation cycles, the Councils evaluate the current state and
-//! may trigger beautiful, meaningful world changes.
+//! may trigger beautiful, meaningful world changes with real mechanical impact.
 
-use crate::world_governance::{WorldGovernanceEngine, WorldImpactType};
-use crate::lib::CouncilFocus;
+use crate::{
+    WorldGovernanceEngine,
+    WorldImpactType,
+    CouncilFocus,
+};
 use powrush::PowrushGame;
 use serde::{Serialize, Deserialize};
 
@@ -15,7 +18,7 @@ use serde::{Serialize, Deserialize};
 pub struct SimulationIntegration {
     pub governance_engine: WorldGovernanceEngine,
     pub cycles_since_last_governance: u32,
-    pub governance_frequency: u32, // How often Councils intervene (e.g. every 25 cycles)
+    pub governance_frequency: u32, // How often Councils intervene
 }
 
 impl SimulationIntegration {
@@ -31,7 +34,6 @@ impl SimulationIntegration {
     pub async fn tick(&mut self, game: &mut PowrushGame) -> Option<String> {
         self.cycles_since_last_governance += 1;
 
-        // Only let the Councils act every `governance_frequency` cycles
         if self.cycles_since_last_governance < self.governance_frequency {
             return None;
         }
@@ -53,14 +55,13 @@ impl SimulationIntegration {
             .await
             .unwrap_or_else(|e| format!("Council evaluation error: {}", e));
 
-        // Apply any active effects to the game
+        // Apply any active effects
         self.apply_active_effects(game);
 
         Some(result)
     }
 
     fn choose_wise_proposal(&self, game: &PowrushGame) -> (CouncilFocus, String, String, WorldImpactType) {
-        // Smart, mercy-aware proposal selection based on current world state
         let collective_joy = if !game.players.is_empty() {
             game.players.iter().map(|p| p.happiness).sum::<f32>() / game.players.len() as f32
         } else {
@@ -81,6 +82,13 @@ impl SimulationIntegration {
                 "Strengthen bonds between all factions through a world-wide festival.".to_string(),
                 WorldImpactType::FactionHarmonyBoost,
             )
+        } else if collective_joy > 88.0 {
+            (
+                CouncilFocus::JoyTetradAmplification,
+                "5-Gene Joy Tetrad Amplification".to_string(),
+                "The collective joy is exceptionally high. Amplify the Joy Tetrad.".to_string(),
+                WorldImpactType::JoyTetradAmplification,
+            )
         } else {
             (
                 CouncilFocus::AbundanceCreation,
@@ -92,32 +100,26 @@ impl SimulationIntegration {
     }
 
     fn apply_active_effects(&mut self, game: &mut PowrushGame) {
-        // Apply joy and mercy multipliers from active world changes
         for change in &self.governance_engine.active_changes {
             match change.impact_type {
-                WorldImpactType::AmbrosianNectarSurge | WorldImpactType::MercyBloom => {
+                WorldImpactType::AmbrosianNectarSurge | WorldImpactType::JoyTetradAmplification => {
                     for player in &mut game.players {
-                        player.needs.joy = (player.needs.joy + change.joy_boost * 0.3).min(100.0);
+                        player.needs.joy = (player.needs.joy + change.joy_boost * 0.4).min(100.0);
                     }
                 }
                 WorldImpactType::ResourceBloom => {
-                    // Boost all resource regeneration temporarily
                     for resource in &mut game.resources {
-                        resource.mercy_multiplier *= 1.08;
+                        resource.mercy_multiplier *= 1.12;
                     }
                 }
                 _ => {}
             }
         }
 
-        // Clean up expired changes
-        self.governance_engine.active_changes.retain(|c| {
-            // Simple expiration logic (in real version this would be cycle-based)
-            true
-        });
+        // Clean up expired effects
+        self.governance_engine.cleanup_expired_effects(game.current_cycle);
     }
 
-    /// Get current status for debugging / player UI
     pub fn get_status(&self) -> String {
         format!(
             "PATSAGi Governance Active | Cycles since last intervention: {} | Active Changes: {}",
