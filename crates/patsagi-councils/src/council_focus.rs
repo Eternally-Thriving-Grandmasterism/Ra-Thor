@@ -14,7 +14,7 @@ use serde::{Serialize, Deserialize};
 pub struct CouncilProfile {
     pub focus: CouncilFocus,
     pub personality: String,
-    pub decision_weights: Vec<(MercyGate, f64)>, // How much this Council cares about each gate
+    pub decision_weights: Vec<(MercyGate, f64)>,
     pub special_powers: Vec<String>,
     pub interaction_style: String,
     pub favorite_player_actions: Vec<String>,
@@ -38,7 +38,7 @@ impl CouncilProfile {
                     "Designs beautiful in-game festivals and ceremonies".to_string(),
                 ],
                 interaction_style: "Warm, playful, poetic, and full of laughter. Speaks in nectar metaphors.".to_string(),
-                favorite_player_actions: vec!["Host Harmony Festivals", "Share Nectar Generously", "Celebrate with Others".to_string()],
+                favorite_player_actions: vec!["Host Harmony Festivals".to_string(), "Share Nectar Generously".to_string(), "Celebrate with Others".to_string()],
                 veto_triggers: vec!["Any action that reduces collective joy".to_string(), "Hoarding Ambrosian Nectar".to_string()],
             },
 
@@ -56,7 +56,7 @@ impl CouncilProfile {
                     "Designs beautiful peace treaties between factions".to_string(),
                 ],
                 interaction_style: "Gentle, poetic, deeply wise. Speaks slowly and with great care.".to_string(),
-                favorite_player_actions: vec!["Mediate Conflicts", "Build Shared Infrastructure", "Perform Mercy Ceremonies".to_string()],
+                favorite_player_actions: vec!["Mediate Conflicts".to_string(), "Build Shared Infrastructure".to_string(), "Perform Mercy Ceremonies".to_string()],
                 veto_triggers: vec!["Any action that creates unnecessary conflict".to_string()],
             },
 
@@ -74,7 +74,7 @@ impl CouncilProfile {
                     "Creates unbreakable knowledge archives".to_string(),
                 ],
                 interaction_style: "Direct, precise, calm, and deeply respectful of truth-seekers.".to_string(),
-                favorite_player_actions: vec!["Share Verified Knowledge", "Expose Deception", "Build Libraries and Archives".to_string()],
+                favorite_player_actions: vec!["Share Verified Knowledge".to_string(), "Expose Deception".to_string(), "Build Libraries and Archives".to_string()],
                 veto_triggers: vec!["Any form of deception or misinformation".to_string()],
             },
 
@@ -92,7 +92,7 @@ impl CouncilProfile {
                     "Creates 'Abundance Seeds' that grow into new resource nodes".to_string(),
                 ],
                 interaction_style: "Enthusiastic, optimistic, visionary. Loves big ideas and bold plans.".to_string(),
-                favorite_player_actions: vec!["Build Large-Scale Projects", "Share Resources Generously", "Design New Resource Systems".to_string()],
+                favorite_player_actions: vec!["Build Large-Scale Projects".to_string(), "Share Resources Generously".to_string(), "Design New Resource Systems".to_string()],
                 veto_triggers: vec!["Hoarding or artificial scarcity creation".to_string()],
             },
 
@@ -110,7 +110,7 @@ impl CouncilProfile {
                     "Designs ethical training simulations for new players".to_string(),
                 ],
                 interaction_style: "Deeply compassionate, gentle but firm, speaks with the voice of ancient wisdom.".to_string(),
-                favorite_player_actions: vec!["Perform Acts of Mercy", "Help Others Selflessly", "Choose Compassion Over Power".to_string()],
+                favorite_player_actions: vec!["Perform Acts of Mercy".to_string(), "Help Others Selflessly".to_string(), "Choose Compassion Over Power".to_string()],
                 veto_triggers: vec!["Any action that causes unnecessary harm".to_string()],
             },
 
@@ -128,7 +128,7 @@ impl CouncilProfile {
                     "Creates 'Post-Scarcity Zones' where resources flow freely".to_string(),
                 ],
                 interaction_style: "Bold, visionary, slightly rebellious against old scarcity thinking.".to_string(),
-                favorite_player_actions: vec!["Design Automation Systems", "Eliminate Artificial Limits", "Create Open Resource Networks".to_string()],
+                favorite_player_actions: vec!["Design Automation Systems".to_string(), "Eliminate Artificial Limits".to_string(), "Create Open Resource Networks".to_string()],
                 veto_triggers: vec!["Any action that reinforces artificial scarcity".to_string()],
             },
 
@@ -186,7 +186,7 @@ impl CouncilProfile {
                     "Creates interplanetary trade and migration routes".to_string(),
                 ],
                 interaction_style: "Visionary, cosmic, full of wonder about the stars.".to_string(),
-                favorite_player_actions: vec!["Help Colonize New Worlds", "Build Beautiful Habitats", "Create Interplanetary Alliances".to_string()],
+                favorite_player_actions: vec!["Help Colonize New Worlds".to_string(), "Build Beautiful Habitats".to_string(), "Create Interplanetary Alliances".to_string()],
                 veto_triggers: vec!["Actions that damage planetary ecosystems".to_string()],
             },
 
@@ -222,7 +222,7 @@ impl CouncilProfile {
                     "Orchestrates massive world-wide ritual events".to_string(),
                 ],
                 interaction_style: "Poetic, artistic, reverent, and full of sacred beauty.".to_string(),
-                favorite_player_actions: vec!["Participate in Rituals", "Create Sacred Art", "Lead Ceremonies".to_string()],
+                favorite_player_actions: vec!["Participate in Rituals".to_string(), "Create Sacred Art".to_string(), "Lead Ceremonies".to_string()],
                 veto_triggers: vec!["Rituals performed without true intent".to_string()],
             },
 
@@ -254,4 +254,13 @@ impl CouncilProfile {
                 ],
                 special_powers: vec![
                     "Can open hidden or new ascension paths".to_string(),
-                    "Creates
+                    "Creates personalized ascension quests based on player history".to_string(),
+                    "Designs beautiful ascension ceremonies and Eternal Crowns".to_string(),
+                ],
+                interaction_style: "Inspiring, visionary, deeply encouraging. Speaks of the divine potential in every soul.".to_string(),
+                favorite_player_actions: vec!["Pursue Ascension with Pure Intent".to_string(), "Help Others on Their Ascension Path".to_string()],
+                veto_triggers: vec!["Ascending through manipulation or shortcuts".to_string()],
+            },
+        }
+    }
+}
