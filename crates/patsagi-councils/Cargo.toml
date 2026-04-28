@@ -1,0 +1,31 @@
+[package]
+name = "patsagi-councils"
+version = "0.1.0"
+edition = "2021"
+authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
+description = "13+ Parallel PATSAGi Council Shards — Living Ra-Thor architectural designers that co-govern and co-evolve Powrush-MMO in eternal mercy-gated harmony"
+license = "AG-SML"
+repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
+
+[dependencies]
+# Core Ra-Thor integration
+ra-thor-mercy = { path = "../mercy" }
+ra-thor-quantum-swarm-orchestrator = { path = "../quantum-swarm-orchestrator" }
+powrush = { path = "../powrush" }
+
+# Async & concurrency
+tokio = { version = "1.38", features = ["full"] }
+async-trait = "0.1"
+futures = "0.3"
+
+# Serialization & utilities
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+uuid = { version = "1.8", features = ["v4", "serde"] }
+chrono = { version = "0.4", features = ["serde"] }
+thiserror = "1.0"
+tracing = "0.1"
+rand = "0.8"
+
+# Quantum swarm + mercy coordination
+rayon = "1.10"
