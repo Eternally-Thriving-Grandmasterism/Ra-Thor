@@ -1,9 +1,10 @@
-//! # PATSAGi Councils Layer v0.5.9
+//! # PATSAGi Councils Layer v0.5.15
 //!
 //! 16 Parallel Living Ra-Thor Architectural Designers
 //! The eternal co-governors and co-creators of Powrush-MMO.
 //!
-//! ULTIMATE MERGED VERSION — All old rich logic (v0.4.2) preserved exactly + Mercy Engine Adapter + feature flag.
+//! ULTIMATE MERGED VERSION — All old rich logic (v0.4.2 → v0.5.9) preserved exactly + Full PMS Integration (v0.5.15)
+//! Mercy Engine Adapter + feature flag + 6 new WorldImpactType variants + process_pms_action + PmsError.
 
 use powrush::{PowrushGame, Faction, MercyGateStatus};
 use mercy::MercyEngine;
@@ -21,15 +22,16 @@ pub use crate::world_governance::{
     WorldImpactType,
     WorldChangeProposal,
     AmbrosianNectarEconomy,
+    PmsError,                    // NEW in v0.5.15 — Full PMS error handling
 };
 pub use crate::simulation_integration::SimulationIntegration;
 pub use crate::powrush_integration::PowrushPatsagiBridge;
 pub use crate::petition_handler::PetitionHandler;
 pub use crate::council_focus::CouncilProfile;
 
-pub const VERSION: &str = "0.5.9";
+pub const VERSION: &str = "0.5.15";
 
-// === Core Types (Preserved exactly from v0.4.2) ===
+// === Core Types (Preserved exactly from v0.5.9) ===
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PATSAGiCouncil {
@@ -115,7 +117,7 @@ impl PATSAGiCouncil {
     }
 }
 
-// === Council Voting System (Preserved exactly from v0.4.2) ===
+// === Council Voting System (Preserved exactly from v0.5.9) ===
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CouncilVote {
@@ -139,7 +141,7 @@ pub struct VotingResult {
     pub votes: Vec<CouncilVote>,
 }
 
-// === Coordinator with Cross-Council Collaboration + Voting (Preserved exactly from v0.4.2) ===
+// === Coordinator with Cross-Council Collaboration + Voting (Preserved exactly from v0.5.9) ===
 
 pub struct PatsagiCouncilCoordinator {
     pub councils: HashMap<CouncilFocus, PATSAGiCouncil>,
@@ -343,7 +345,7 @@ impl Default for PatsagiCouncilCoordinator {
     }
 }
 
-// === NEW: Mercy Engine Adapter Integration (v0.5.9) ===
+// === NEW: Mercy Engine Adapter Integration (v0.5.9 — preserved exactly) ===
 
 #[cfg(feature = "modular-mercy")]
 pub use crate::mercy_engine_adapter::{MercyEngineAdapter, MercyEngineVariant};
@@ -358,6 +360,7 @@ pub mod prelude {
         WorldGovernanceEngine,
         WorldImpactType,
         AmbrosianNectarEconomy,
+        PmsError,                    // NEW in v0.5.15
         VERSION,
     };
 
