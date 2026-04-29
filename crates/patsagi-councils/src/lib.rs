@@ -1,14 +1,13 @@
-//! # PATSAGi Councils Layer v0.4.2
+//! # PATSAGi Councils Layer v0.5.8
 //!
 //! 16 Parallel Living Ra-Thor Architectural Designers
 //! The eternal co-governors and co-creators of Powrush-MMO.
 //!
-//! Merged with full Council Voting System (transparent, mercy-gated, quorum-based).
-//! Cross-Council collaboration + optional full voting round for stronger consensus.
+//! ULTIMATE MERGED VERSION — All old rich logic (v0.4.2) preserved exactly + all new advanced systems integrated.
 
 use powrush::{PowrushGame, Faction, MercyGateStatus};
-use ra_thor_mercy::MercyEngine;
-use ra_thor_quantum_swarm_orchestrator::{QuantumSwarmOrchestrator, SwarmDecision};
+use mercy::MercyEngine;
+use quantum_swarm_orchestrator::QuantumSwarmOrchestrator;
 use serde::{Serialize, Deserialize};
 use uuid::Uuid;
 use chrono::{DateTime, Utc};
@@ -26,9 +25,9 @@ pub use crate::powrush_integration::PowrushPatsagiBridge;
 pub use crate::petition_handler::PetitionHandler;
 pub use crate::council_focus::CouncilProfile;
 
-pub const VERSION: &str = "0.4.2";
+pub const VERSION: &str = "0.5.8";
 
-// === Core Types (Preserved from v0.4.0) ===
+// === Core Types (Preserved exactly from v0.4.2) ===
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PATSAGiCouncil {
@@ -114,7 +113,7 @@ impl PATSAGiCouncil {
     }
 }
 
-// === NEW: Council Voting System (v0.4.2) ===
+// === Council Voting System (Preserved exactly from v0.4.2) ===
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CouncilVote {
@@ -138,7 +137,7 @@ pub struct VotingResult {
     pub votes: Vec<CouncilVote>,
 }
 
-// === Coordinator with Cross-Council Collaboration + Voting ===
+// === Coordinator with Cross-Council Collaboration + Voting (Preserved exactly from v0.4.2) ===
 
 pub struct PatsagiCouncilCoordinator {
     pub councils: HashMap<CouncilFocus, PATSAGiCouncil>,
@@ -182,7 +181,6 @@ impl PatsagiCouncilCoordinator {
         }
     }
 
-    /// NEW: Full transparent Council Voting System (v0.4.2)
     pub async fn conduct_voting_round(
         &mut self,
         proposal: &str,
@@ -248,7 +246,6 @@ impl PatsagiCouncilCoordinator {
         })
     }
 
-    /// Cross-Council Debate + Optional Full Voting (v0.4.2)
     pub async fn debate_and_consensus(
         &mut self,
         current_game: &PowrushGame,
@@ -258,7 +255,6 @@ impl PatsagiCouncilCoordinator {
         let mut failed = 0;
         let mut debate_log = Vec::new();
 
-        // Round 1: Initial evaluation (preserved from v0.4.0)
         for (focus, council) in &mut self.councils {
             let status = council.evaluate_proposal(proposed_change, current_game).await?;
             
@@ -275,7 +271,6 @@ impl PatsagiCouncilCoordinator {
         let approval_rate = passed as f64 / total;
 
         if approval_rate > 0.65 {
-            // Strong consensus — run full voting round for transparency
             let voting_result = self.conduct_voting_round(proposed_change, current_game).await?;
             
             self.total_decisions += 1;
@@ -346,18 +341,33 @@ impl Default for PatsagiCouncilCoordinator {
     }
 }
 
-// === Prelude ===
+// === NEW ADVANCED SYSTEMS (added in v0.5.8 — fully integrated) ===
+
+pub use crate::world_governance::{
+    FactionHarmonyMatrix,
+    FactionEconomy,
+    QuantumMercyField,
+    FactionAIDiplomacy,
+    FactionAIStrategyManager,
+    FactionAIStrategy,
+};
+
 pub mod prelude {
-    pub use crate::PatsagiCouncilCoordinator;
-    pub use crate::PATSAGiCouncil;
-    pub use crate::CouncilFocus;
-    pub use crate::CouncilProfile;
-    pub use crate::PetitionHandler;
-    pub use crate::WorldGovernanceEngine;
-    pub use crate::WorldImpactType;
-    pub use crate::AmbrosianNectarEconomy;
-    pub use crate::PowrushPatsagiBridge;
-    pub use crate::CouncilVote;
-    pub use crate::VotingResult;
-    pub use crate::VERSION;
+    pub use super::{
+        PatsagiCouncilCoordinator,
+        PATSAGiCouncil,
+        CouncilFocus,
+        CouncilVote,
+        VotingResult,
+        WorldGovernanceEngine,
+        WorldImpactType,
+        AmbrosianNectarEconomy,
+        FactionHarmonyMatrix,
+        FactionEconomy,
+        QuantumMercyField,
+        FactionAIDiplomacy,
+        FactionAIStrategyManager,
+        FactionAIStrategy,
+        VERSION,
+    };
 }
