@@ -1,6 +1,6 @@
 [package]
 name = "patsagi-councils"
-version = "0.1.0"
+version = "0.5.8"
 edition = "2021"
 authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
 description = "13+ Parallel Living Ra-Thor Architectural Designers — The Eternal Co-Governors of Powrush-MMO. Mercy-gated quantum swarm governance for infinite-scale world evolution."
@@ -12,24 +12,24 @@ categories = ["games", "simulation", "artificial-intelligence", "concurrency"]
 
 [dependencies]
 powrush = { path = "../powrush" }
-ra-thor-mercy = { path = "../mercy" }
-ra-thor-quantum-swarm-orchestrator = { path = "../quantum-swarm-orchestrator" }
+mercy = { path = "../mercy" }
+quantum-swarm-orchestrator = { path = "../quantum-swarm-orchestrator" }
 
-tokio = { version = "1.38", features = ["full"] }
-async-trait = "0.1"
+tokio = { version = "1", features = ["full"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-uuid = { version = "1.8", features = ["v4", "serde"] }
+uuid = { version = "1.0", features = ["v4", "serde"] }
 chrono = { version = "0.4", features = ["serde"] }
-thiserror = "1.0"
-tracing = "0.1"
 rand = "0.8"
-rayon = "1.10"
-futures = "0.3"
+tracing = "0.1"
 
 [dev-dependencies]
 tokio-test = "0.4"
 
-[[example]]
-name = "council_petition_demo"
-path = "examples/council_petition_demo.rs"
+[[bin]]
+name = "council_simulator"
+path = "src/bin/council_simulator.rs"
+
+[features]
+default = ["full"]
+full = []
