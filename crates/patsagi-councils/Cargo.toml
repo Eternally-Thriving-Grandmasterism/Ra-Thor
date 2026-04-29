@@ -1,6 +1,6 @@
 [package]
 name = "patsagi-councils"
-version = "0.5.8"
+version = "0.5.9"
 edition = "2021"
 authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
 description = "13+ Parallel Living Ra-Thor Architectural Designers — The Eternal Co-Governors of Powrush-MMO. Mercy-gated quantum swarm governance for infinite-scale world evolution."
@@ -33,4 +33,4 @@ path = "src/bin/council_simulator.rs"
 [features]
 default = ["full"]
 full = []
-modular-mercy = []   # Enables the new Modular MercyEngine adapter (unifies Advanced + live modular mercy crate)
+modular-mercy = []   # Enables MercyEngineAdapter (unifies Advanced + live Modular MercyEngine)
