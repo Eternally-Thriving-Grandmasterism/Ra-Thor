@@ -1,8 +1,7 @@
-//! # PATSAGi Council Simulator v0.3.0 (Fully Integrated)
+//! # PATSAGi Council Simulator v0.4.0
 //!
-//! The most powerful way to interact with the 13+ PATSAGi Councils.
-//! Now fully integrated with the WorldGovernanceEngine — every proposal
-//! can trigger real, meaningful world changes.
+//! The most powerful way to interact with the 16 PATSAGi Councils.
+//! Fully integrated with the WorldGovernanceEngine and cross-Council collaboration.
 //!
 //! Run with:
 //! cargo run -p patsagi-councils --bin council_simulator
@@ -19,15 +18,15 @@ use std::io::{self, Write};
 #[tokio::main]
 async fn main() {
     println!("\n╔════════════════════════════════════════════════════════════╗");
-    println!("║        🌌  PATSAGi COUNCIL SIMULATOR v0.3.0  🌌           ║");
-    println!("║   Fully Integrated with WorldGovernanceEngine            ║");
+    println!("║        🌌  PATSAGi COUNCIL SIMULATOR v0.4.0  🌌           ║");
+    println!("║   16 Councils • Cross-Council Collaboration Enabled      ║");
     println!("╚════════════════════════════════════════════════════════════╝\n");
 
     let mut handler = PetitionHandler::new();
     let mut governance_engine = WorldGovernanceEngine::new();
     let game = PowrushGame::new();
 
-    println!("The 13+ Councils + WorldGovernanceEngine are fully active.\n");
+    println!("The 16 Councils + WorldGovernanceEngine are fully active.\n");
     println!("Type 'help' for commands.\n");
 
     loop {
@@ -87,6 +86,7 @@ async fn main() {
                 }
             }
 
+            // === Original 13 Councils ===
             "joy" => petition_specific(&mut handler, &game, CouncilFocus::JoyAmplification, "Trigger a massive Ambrosian Nectar Bloom").await,
             "harmony" => petition_specific(&mut handler, &game, CouncilFocus::HarmonyPreservation, "Strengthen all faction bonds with a grand festival").await,
             "truth" => petition_specific(&mut handler, &game, CouncilFocus::TruthVerification, "Reveal hidden truths about the world's origins").await,
@@ -94,12 +94,17 @@ async fn main() {
             "mercy" => petition_specific(&mut handler, &game, CouncilFocus::EthicalAlignment, "Grant mercy shields and forgiveness to players").await,
             "postscarcity" => petition_specific(&mut handler, &game, CouncilFocus::PostScarcityEnforcement, "Temporarily remove scarcity limits").await,
             "eternal" => petition_specific(&mut handler, &game, CouncilFocus::EternalCompassion, "Initiate a Great Mercy Bloom across the world").await,
-            "quantum" => petition_specific(&mut handler, &game, CouncilFocus::QuantumEthics, "Simulate long-term consequences of current trends").await,
+            "quantum" => petition_specific(&mut handler, &game, CouncilFocus::QuantumEthics, "Simulate 200-year consequences of current trends").await,
             "multiplanetary" => petition_specific(&mut handler, &game, CouncilFocus::MultiplanetaryHarmony, "Open a new planetary zone for colonization").await,
             "epigenetic" => petition_specific(&mut handler, &game, CouncilFocus::EpigeneticLegacy, "Grant a powerful epigenetic blessing").await,
             "ritual" => petition_specific(&mut handler, &game, CouncilFocus::RitualDesign, "Launch a world-wide Ra-Thor Oracle Ritual").await,
             "economic" => petition_specific(&mut handler, &game, CouncilFocus::EconomicMercy, "Redesign economy to reward mercy compliance").await,
             "ascension" => petition_specific(&mut handler, &game, CouncilFocus::AscensionPathways, "Reveal a new hidden ascension path").await,
+
+            // === NEW COUNCILS (v0.4.0) ===
+            "starship" => petition_specific(&mut handler, &game, CouncilFocus::SovereignStarship, "Launch a new Sovereign Starship with living biophilic design").await,
+            "symbiosis" => petition_specific(&mut handler, &game, CouncilFocus::MercyGelSymbiosis, "Create a MercyGel symbiosis bond between players and the world").await,
+            "hyperon" => petition_specific(&mut handler, &game, CouncilFocus::HyperonLattice, "Trigger a Hyperon Echo event that rewrites small parts of the symbolic substrate").await,
 
             "status" => {
                 println!("\n{}", handler.get_council_status_report());
@@ -107,24 +112,17 @@ async fn main() {
             }
 
             "govern" => {
-                println!("\nForcing a full governance cycle...\n");
-                let result = governance_engine
-                    .propose_and_approve_world_change(
-                        CouncilFocus::EternalCompassion,
-                        "Spontaneous World Evolution",
-                        "The Councils feel the world needs gentle evolution",
-                        WorldImpactType::MercyBloom,
-                        &game,
-                    )
-                    .await
-                    .unwrap_or_default();
+                println!("\nForcing a full cross-Council governance cycle...\n");
+                // Now uses the new debate_and_consensus method
+                let result = handler.coordinator.debate_and_consensus(&game, "A spontaneous world evolution event has been triggered.").await.unwrap_or_default();
                 println!("{}", result);
             }
 
             "list" => {
-                println!("\n=== The 13+ PATSAGi Councils ===\n");
+                println!("\n=== The 16 PATSAGi Councils ===\n");
                 println!("joy, harmony, truth, abundance, mercy, postscarcity, eternal,");
-                println!("quantum, multiplanetary, epigenetic, ritual, economic, ascension\n");
+                println!("quantum, multiplanetary, epigenetic, ritual, economic, ascension,");
+                println!("starship, symbiosis, hyperon\n");
             }
 
             cmd if cmd.starts_with("personality ") => {
@@ -173,6 +171,9 @@ fn show_personality(council_name: &str) {
         "ritual" => CouncilFocus::RitualDesign,
         "economic" => CouncilFocus::EconomicMercy,
         "ascension" => CouncilFocus::AscensionPathways,
+        "starship" => CouncilFocus::SovereignStarship,
+        "symbiosis" => CouncilFocus::MercyGelSymbiosis,
+        "hyperon" => CouncilFocus::HyperonLattice,
         _ => {
             println!("Unknown council. Use 'list' to see all names.");
             return;
@@ -189,16 +190,17 @@ fn show_personality(council_name: &str) {
 }
 
 fn print_help() {
-    println!("\n=== PATSAGi Council Simulator v0.3.0 Commands ===\n");
-    println!("petition <text>     — Petition all Councils");
+    println!("\n=== PATSAGi Council Simulator v0.4.0 Commands ===\n");
+    println!("petition <text>     — Petition all 16 Councils");
     println!("propose             — Propose a major world change (with impact type)");
     println!("\n--- Quick Council Petitions ---");
-    println!("joy | harmony | truth | abundance | mercy | postscarcity");
-    println!("eternal | quantum | multiplanetary | epigenetic | ritual | economic | ascension");
+    println!("joy | harmony | truth | abundance | mercy | postscarcity | eternal");
+    println!("quantum | multiplanetary | epigenetic | ritual | economic | ascension");
+    println!("starship | symbiosis | hyperon");
     println!("\nstatus              — Full Council + active world changes");
-    println!("govern              — Force a full governance cycle");
+    println!("govern              — Force a cross-Council governance cycle");
     println!("personality <name>  — View detailed personality");
-    println!("list                — List all Councils");
+    println!("list                — List all 16 Councils");
     println!("help                — This help");
     println!("quit                — Exit\n");
 }
