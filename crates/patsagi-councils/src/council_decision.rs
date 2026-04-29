@@ -1,4 +1,4 @@
-//! # PATSAGi Council Petition & Decision System (v0.1.0)
+//! # PATSAGi Council Petition & Decision System v0.3.1
 //!
 //! This module handles player petitions to the 13+ Councils,
 //! collective decision making, and beautiful feedback to players.
@@ -6,8 +6,12 @@
 //! Players can now directly petition the Councils for world changes,
 //! new ascension paths, faction alliances, or mercy interventions.
 
-use crate::lib::{PatsagiCouncilCoordinator, PATSAGiCouncil, CouncilFocus};
-use crate::council_focus::CouncilProfile;
+use crate::{
+    PatsagiCouncilCoordinator,
+    CouncilFocus,
+    WorldGovernanceEngine,
+    WorldImpactType,
+};
 use powrush::{PowrushGame, MercyGateStatus};
 use serde::{Serialize, Deserialize};
 use uuid::Uuid;
@@ -18,7 +22,7 @@ pub struct CouncilPetition {
     pub id: Uuid,
     pub player_name: String,
     pub proposal: String,
-    pub target_council: Option<CouncilFocus>, // None = all Councils
+    pub target_council: Option<CouncilFocus>,
     pub submitted_at: DateTime<Utc>,
     pub status: PetitionStatus,
     pub final_decision: Option<String>,
@@ -128,7 +132,7 @@ impl PatsagiCouncilCoordinator {
         response
     }
 
-    /// Allow a player to petition a specific Council directly (more intimate experience)
+    /// Allow a player to petition a specific Council directly (more intimate)
     pub async fn petition_specific_council(
         &mut self,
         player_name: &str,
@@ -136,7 +140,7 @@ impl PatsagiCouncilCoordinator {
         focus: CouncilFocus,
         current_game: &PowrushGame,
     ) -> Result<String, String> {
-        let profile = CouncilProfile::get_profile(focus);
+        let profile = crate::CouncilProfile::get_profile(focus);
         let council = self.councils.get_mut(&focus).ok_or("Council not found")?;
 
         let status = council.evaluate_proposal(proposal, current_game).await?;
