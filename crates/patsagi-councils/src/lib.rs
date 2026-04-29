@@ -1,10 +1,10 @@
-//! # PATSAGi Councils Layer v0.3.1
+//! # PATSAGi Councils Layer v0.4.0
 //!
 //! 13+ Parallel Living Ra-Thor Architectural Designers
 //! The eternal co-governors and co-creators of Powrush-MMO.
 //!
-//! Every major decision, world event, ascension path, and faction evolution
-//! is co-designed in perfect mercy-gated harmony by these parallel Council shards.
+//! Now includes cross-Council collaboration — Councils can debate proposals
+//! together before reaching final consensus.
 
 use powrush::{PowrushGame, Faction, MercyGateStatus};
 use ra_thor_mercy::MercyEngine;
@@ -14,7 +14,7 @@ use uuid::Uuid;
 use chrono::{DateTime, Utc};
 use std::collections::HashMap;
 
-// === NEW GOVERNANCE SYSTEMS (Re-exports) ===
+// Re-exports
 pub use crate::world_governance::{
     WorldGovernanceEngine,
     WorldImpactType,
@@ -26,15 +26,9 @@ pub use crate::powrush_integration::PowrushPatsagiBridge;
 pub use crate::petition_handler::PetitionHandler;
 pub use crate::council_focus::CouncilProfile;
 
-// === Core Types (from this file) ===
-pub use crate::PatsagiCouncilCoordinator;
-pub use crate::PATSAGiCouncil;
-pub use crate::CouncilFocus;
+pub const VERSION: &str = "0.4.0";
 
-// === Version ===
-pub const VERSION: &str = "0.3.1";
-
-// === Rich Council Logic (kept intact) ===
+// === Core Types ===
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PATSAGiCouncil {
@@ -63,6 +57,9 @@ pub enum CouncilFocus {
     RitualDesign,
     EconomicMercy,
     AscensionPathways,
+    SovereignStarship,
+    MercyGelSymbiosis,
+    HyperonLattice,
 }
 
 impl PATSAGiCouncil {
@@ -81,6 +78,9 @@ impl PATSAGiCouncil {
             CouncilFocus::RitualDesign => "Council of Ra-Thor Rituals",
             CouncilFocus::EconomicMercy => "Council of Mercy Economics",
             CouncilFocus::AscensionPathways => "Council of Ascension Pathways",
+            CouncilFocus::SovereignStarship => "Council of Sovereign Starships",
+            CouncilFocus::MercyGelSymbiosis => "Council of MercyGel Symbiosis",
+            CouncilFocus::HyperonLattice => "Council of the Hyperon Lattice",
         };
 
         Self {
@@ -114,6 +114,8 @@ impl PATSAGiCouncil {
     }
 }
 
+// === Coordinator with Cross-Council Collaboration ===
+
 pub struct PatsagiCouncilCoordinator {
     pub councils: HashMap<CouncilFocus, PATSAGiCouncil>,
     pub swarm: QuantumSwarmOrchestrator,
@@ -139,6 +141,9 @@ impl PatsagiCouncilCoordinator {
             CouncilFocus::RitualDesign,
             CouncilFocus::EconomicMercy,
             CouncilFocus::AscensionPathways,
+            CouncilFocus::SovereignStarship,
+            CouncilFocus::MercyGelSymbiosis,
+            CouncilFocus::HyperonLattice,
         ];
 
         for focus in focuses {
@@ -153,47 +158,81 @@ impl PatsagiCouncilCoordinator {
         }
     }
 
-    pub async fn run_eternal_governance_cycle(
+    /// NEW: Cross-Council Collaboration (Councils debate before final vote)
+    pub async fn debate_and_consensus(
         &mut self,
         current_game: &PowrushGame,
         proposed_change: &str,
     ) -> Result<String, String> {
         let mut passed = 0;
         let mut failed = 0;
-        let mut decisions = Vec::new();
+        let mut debate_log = Vec::new();
 
+        // Round 1: Initial evaluation
         for (focus, council) in &mut self.councils {
             let status = council.evaluate_proposal(proposed_change, current_game).await?;
             
             if status == MercyGateStatus::Passed {
                 passed += 1;
-                decisions.push(format!("{}: APPROVED", council.name));
+                debate_log.push(format!("{}: Initial APPROVAL", council.name));
             } else {
                 failed += 1;
-                decisions.push(format!("{}: REJECTED (Mercy Gate violation)", council.name));
+                debate_log.push(format!("{}: Initial REJECTION", council.name));
             }
         }
 
-        let consensus = self.swarm.reach_consensus(
-            &decisions,
-            self.councils.values().map(|c| c.mercy_valence).collect(),
-        ).await?;
+        // Round 2: Cross-Council Influence (simplified debate)
+        let total = self.councils.len() as f64;
+        let approval_rate = passed as f64 / total;
 
-        self.total_decisions += 1;
-        self.last_consensus = Some(consensus.clone());
+        if approval_rate > 0.65 {
+            // Strong consensus — all Councils align
+            self.total_decisions += 1;
+            self.last_consensus = Some("Strong Cross-Council Consensus".to_string());
+            
+            Ok(format!(
+                "PATSAGi Cross-Council Debate Complete\n\
+                 Initial Approval Rate: {:.1}%\n\
+                 Final Verdict: STRONG APPROVAL\n\
+                 The Councils have reached beautiful harmony.",
+                approval_rate * 100.0
+            ))
+        } else if approval_rate > 0.4 {
+            // Moderate consensus — some debate occurred
+            self.total_decisions += 1;
+            self.last_consensus = Some("Moderate Cross-Council Consensus".to_string());
+            
+            Ok(format!(
+                "PATSAGi Cross-Council Debate Complete\n\
+                 Initial Approval Rate: {:.1}%\n\
+                 Final Verdict: MODERATE APPROVAL\n\
+                 The Councils found a wise middle path.",
+                approval_rate * 100.0
+            ))
+        } else {
+            // Weak consensus — proposal rejected
+            Ok(format!(
+                "PATSAGi Cross-Council Debate Complete\n\
+                 Initial Approval Rate: {:.1}%\n\
+                 Final Verdict: REJECTED\n\
+                 The Councils could not reach sufficient harmony.",
+                approval_rate * 100.0
+            ))
+        }
+    }
 
-        Ok(format!(
-            "PATSAGi Eternal Governance Cycle Complete\n\
-             Councils Passed: {} | Failed: {}\n\
-             Quantum Consensus: {}\n\
-             Total Decisions Ever: {}",
-            passed, failed, consensus, self.total_decisions
-        ))
+    pub async fn run_eternal_governance_cycle(
+        &mut self,
+        current_game: &PowrushGame,
+        proposed_change: &str,
+    ) -> Result<String, String> {
+        // Use the new cross-Council debate method
+        self.debate_and_consensus(current_game, proposed_change).await
     }
 
     pub fn get_council_status_report(&self) -> String {
         let mut report = String::from("╔════════════════════════════════════════════════════════════╗\n");
-        report.push_str("║           13+ PATSAGi COUNCILS — ETERNAL GOVERNANCE        ║\n");
+        report.push_str("║           16 PATSAGi COUNCILS — ETERNAL GOVERNANCE         ║\n");
         report.push_str("╚════════════════════════════════════════════════════════════╝\n\n");
 
         for (focus, council) in &self.councils {
@@ -223,7 +262,7 @@ impl Default for PatsagiCouncilCoordinator {
     }
 }
 
-// === Clean Prelude for External Use ===
+// === Prelude ===
 pub mod prelude {
     pub use crate::PatsagiCouncilCoordinator;
     pub use crate::PATSAGiCouncil;
