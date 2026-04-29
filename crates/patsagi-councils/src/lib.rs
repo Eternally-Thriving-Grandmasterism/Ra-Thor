@@ -1,9 +1,9 @@
-//! # PATSAGi Councils Layer v0.5.8
+//! # PATSAGi Councils Layer v0.5.9
 //!
 //! 16 Parallel Living Ra-Thor Architectural Designers
 //! The eternal co-governors and co-creators of Powrush-MMO.
 //!
-//! ULTIMATE MERGED VERSION — All old rich logic (v0.4.2) preserved exactly + all new advanced systems integrated.
+//! ULTIMATE MERGED VERSION — All old rich logic (v0.4.2) preserved exactly + Mercy Engine Adapter + feature flag.
 
 use powrush::{PowrushGame, Faction, MercyGateStatus};
 use mercy::MercyEngine;
@@ -13,7 +13,9 @@ use uuid::Uuid;
 use chrono::{DateTime, Utc};
 use std::collections::HashMap;
 
-// Re-exports
+#[cfg(feature = "modular-mercy")]
+use crate::mercy_engine_adapter::{MercyEngineAdapter, MercyEngineVariant};
+
 pub use crate::world_governance::{
     WorldGovernanceEngine,
     WorldImpactType,
@@ -25,7 +27,7 @@ pub use crate::powrush_integration::PowrushPatsagiBridge;
 pub use crate::petition_handler::PetitionHandler;
 pub use crate::council_focus::CouncilProfile;
 
-pub const VERSION: &str = "0.5.8";
+pub const VERSION: &str = "0.5.9";
 
 // === Core Types (Preserved exactly from v0.4.2) ===
 
@@ -341,16 +343,10 @@ impl Default for PatsagiCouncilCoordinator {
     }
 }
 
-// === NEW ADVANCED SYSTEMS (added in v0.5.8 — fully integrated) ===
+// === NEW: Mercy Engine Adapter Integration (v0.5.9) ===
 
-pub use crate::world_governance::{
-    FactionHarmonyMatrix,
-    FactionEconomy,
-    QuantumMercyField,
-    FactionAIDiplomacy,
-    FactionAIStrategyManager,
-    FactionAIStrategy,
-};
+#[cfg(feature = "modular-mercy")]
+pub use crate::mercy_engine_adapter::{MercyEngineAdapter, MercyEngineVariant};
 
 pub mod prelude {
     pub use super::{
@@ -362,12 +358,9 @@ pub mod prelude {
         WorldGovernanceEngine,
         WorldImpactType,
         AmbrosianNectarEconomy,
-        FactionHarmonyMatrix,
-        FactionEconomy,
-        QuantumMercyField,
-        FactionAIDiplomacy,
-        FactionAIStrategyManager,
-        FactionAIStrategy,
         VERSION,
     };
+
+    #[cfg(feature = "modular-mercy")]
+    pub use super::{MercyEngineAdapter, MercyEngineVariant};
 }
