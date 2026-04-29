@@ -1,4 +1,4 @@
-//! # PATSAGi Council Simulator v0.4.0
+//! # PATSAGi Council Simulator v0.4.1
 //!
 //! The most powerful way to interact with the 16 PATSAGi Councils.
 //! Fully integrated with the WorldGovernanceEngine and cross-Council collaboration.
@@ -18,7 +18,7 @@ use std::io::{self, Write};
 #[tokio::main]
 async fn main() {
     println!("\n╔════════════════════════════════════════════════════════════╗");
-    println!("║        🌌  PATSAGi COUNCIL SIMULATOR v0.4.0  🌌           ║");
+    println!("║        🌌  PATSAGi COUNCIL SIMULATOR v0.4.1  🌌           ║");
     println!("║   16 Councils • Cross-Council Collaboration Enabled      ║");
     println!("╚════════════════════════════════════════════════════════════╝\n");
 
@@ -112,10 +112,38 @@ async fn main() {
             }
 
             "govern" => {
-                println!("\nForcing a full cross-Council governance cycle...\n");
-                // Now uses the new debate_and_consensus method
-                let result = handler.coordinator.debate_and_consensus(&game, "A spontaneous world evolution event has been triggered.").await.unwrap_or_default();
-                println!("{}", result);
+                println!("\n=== Forcing a Full Cross-Council Governance Cycle ===\n");
+                
+                print!("What kind of world change do you want to trigger?\n(bloom / nectar / ascension / harmony / mercy / planetary / epigenetic / ritual): ");
+                io::stdout().flush().unwrap();
+                
+                let mut impact_input = String::new();
+                io::stdin().read_line(&mut impact_input).unwrap();
+                
+                let impact_type = match impact_input.trim().to_lowercase().as_str() {
+                    "bloom" => WorldImpactType::ResourceBloom,
+                    "nectar" => WorldImpactType::AmbrosianNectarSurge,
+                    "ascension" => WorldImpactType::NewAscensionPath,
+                    "harmony" => WorldImpactType::FactionHarmonyBoost,
+                    "mercy" => WorldImpactType::MercyBloom,
+                    "planetary" => WorldImpactType::PlanetaryZoneOpen,
+                    "epigenetic" => WorldImpactType::EpigeneticBlessing,
+                    "ritual" => WorldImpactType::RitualEvent,
+                    _ => WorldImpactType::MercyBloom,
+                };
+
+                let result = governance_engine
+                    .propose_and_approve_world_change(
+                        CouncilFocus::EternalCompassion,
+                        "Forced Governance Event",
+                        "A powerful governance cycle has been manually triggered by the simulator user.",
+                        impact_type,
+                        &game,
+                    )
+                    .await
+                    .unwrap_or_default();
+                
+                println!("\n{}", result);
             }
 
             "list" => {
@@ -190,7 +218,7 @@ fn show_personality(council_name: &str) {
 }
 
 fn print_help() {
-    println!("\n=== PATSAGi Council Simulator v0.4.0 Commands ===\n");
+    println!("\n=== PATSAGi Council Simulator v0.4.1 Commands ===\n");
     println!("petition <text>     — Petition all 16 Councils");
     println!("propose             — Propose a major world change (with impact type)");
     println!("\n--- Quick Council Petitions ---");
@@ -198,7 +226,7 @@ fn print_help() {
     println!("quantum | multiplanetary | epigenetic | ritual | economic | ascension");
     println!("starship | symbiosis | hyperon");
     println!("\nstatus              — Full Council + active world changes");
-    println!("govern              — Force a cross-Council governance cycle");
+    println!("govern              — Force a full governance cycle (interactive)");
     println!("personality <name>  — View detailed personality");
     println!("list                — List all 16 Councils");
     println!("help                — This help");
