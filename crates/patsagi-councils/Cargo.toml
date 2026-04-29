@@ -33,3 +33,4 @@ path = "src/bin/council_simulator.rs"
 [features]
 default = ["full"]
 full = []
+modular-mercy = []   # Enables the new Modular MercyEngine adapter (unifies Advanced + live modular mercy crate)
