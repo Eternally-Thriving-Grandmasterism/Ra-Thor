@@ -1,12 +1,16 @@
-//! # Powrush Integration Bridge (v0.1.0)
+//! # Powrush Integration Bridge v0.3.1
 //!
-//! This module provides a single, beautiful function that the main
+//! This module provides a single, clean, and powerful function that the main
 //! Powrush simulation loop can call every cycle.
 //!
 //! Just add one line in your main simulation loop and the 13+ PATSAGi
 //! Councils will automatically govern, propose, and implement world changes.
 
-use crate::simulation_integration::SimulationIntegration;
+use crate::{
+    WorldGovernanceEngine,
+    SimulationIntegration,
+    WorldImpactType,
+};
 use powrush::PowrushGame;
 use serde::{Serialize, Deserialize};
 
@@ -14,6 +18,7 @@ use serde::{Serialize, Deserialize};
 pub struct PowrushPatsagiBridge {
     pub integration: SimulationIntegration,
     pub enabled: bool,
+    pub version: &'static str,
 }
 
 impl PowrushPatsagiBridge {
@@ -21,6 +26,7 @@ impl PowrushPatsagiBridge {
         Self {
             integration: SimulationIntegration::new(),
             enabled: true,
+            version: "0.3.1",
         }
     }
 
@@ -34,19 +40,35 @@ impl PowrushPatsagiBridge {
         self.integration.tick(game).await
     }
 
-    /// Enable or disable Council governance (useful for testing)
+    /// Enable or disable Council governance (useful for testing or special events)
     pub fn set_enabled(&mut self, enabled: bool) {
         self.enabled = enabled;
     }
 
-    /// Get current status
+    /// Get current status for debugging or UI
     pub fn get_status(&self) -> String {
         self.integration.get_status()
     }
 
-    /// Quick helper to get the full Council status report
+    /// Get full Council status report
     pub fn get_council_report(&self) -> String {
         self.integration.governance_engine.coordinator.get_council_status_report()
+    }
+
+    /// Force an immediate governance cycle (useful for special events)
+    pub async fn force_governance_cycle(&mut self, game: &mut PowrushGame) -> String {
+        let result = self.integration.governance_engine
+            .propose_and_approve_world_change(
+                crate::CouncilFocus::EternalCompassion,
+                "Forced Governance Cycle",
+                "A special event has triggered immediate Council governance.",
+                WorldImpactType::MercyBloom,
+                game,
+            )
+            .await
+            .unwrap_or_default();
+
+        result
     }
 }
 
