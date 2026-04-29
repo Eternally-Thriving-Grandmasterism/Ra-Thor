@@ -1,12 +1,13 @@
-//! # PATSAGi Council Simulator v0.4.2
+//! # PATSAGi Council Simulator v0.5.15
 //!
-//! Polished govern command with better feedback and impact type selection.
+//! Polished govern command + Full PMS Integration
+//! 16 Councils • Mercy-Gated • Quantum-Swarm Orchestrated
 
 use patsagi_councils::{
     PetitionHandler,
     CouncilFocus,
     CouncilProfile,
-    world_governance::{WorldGovernanceEngine, WorldImpactType},
+    world_governance::{WorldGovernanceEngine, WorldImpactType, PmsError},
 };
 use powrush::PowrushGame;
 use std::io::{self, Write};
@@ -14,8 +15,8 @@ use std::io::{self, Write};
 #[tokio::main]
 async fn main() {
     println!("\n╔════════════════════════════════════════════════════════════╗");
-    println!("║        🌌  PATSAGi COUNCIL SIMULATOR v0.4.2  🌌           ║");
-    println!("║   16 Councils • Polished Governance Experience           ║");
+    println!("║        🌌  PATSAGi COUNCIL SIMULATOR v0.5.15  🌌           ║");
+    println!("║   16 Councils • PMS Ready • Mercy-Gated Governance         ║");
     println!("╚════════════════════════════════════════════════════════════╝\n");
 
     let mut handler = PetitionHandler::new();
@@ -50,7 +51,7 @@ async fn main() {
                 let mut proposal = String::new();
                 io::stdin().read_line(&mut proposal).unwrap();
 
-                print!("Choose impact type (bloom / nectar / ascension / harmony / mercy / planetary / epigenetic / ritual): ");
+                print!("Choose impact type (bloom / nectar / ascension / harmony / mercy / planetary / epigenetic / ritual / pms_tenant / pms_maintenance / pms_rent / pms_lease / pms_rule / pms_eviction): ");
                 io::stdout().flush().unwrap();
                 let mut impact_input = String::new();
                 io::stdin().read_line(&mut impact_input).unwrap();
@@ -64,6 +65,12 @@ async fn main() {
                     "planetary" => WorldImpactType::PlanetaryZoneOpen,
                     "epigenetic" => WorldImpactType::EpigeneticBlessing,
                     "ritual" => WorldImpactType::RitualEvent,
+                    "pms_tenant" => WorldImpactType::PMS_TenantApplicationApproved,
+                    "pms_maintenance" => WorldImpactType::PMS_MaintenanceRequestResolved,
+                    "pms_rent" => WorldImpactType::PMS_RentAdjustmentHarmonyBoost,
+                    "pms_lease" => WorldImpactType::PMS_LeaseRenewalWithMercy,
+                    "pms_rule" => WorldImpactType::PMS_CommunityRuleUpdate,
+                    "pms_eviction" => WorldImpactType::PMS_EvictionPreventionViaMercy,
                     _ => WorldImpactType::ResourceBloom,
                 };
 
@@ -82,7 +89,7 @@ async fn main() {
                 }
             }
 
-            // Quick petitions (abbreviated for space)
+            // Quick petitions (preserved exactly from v0.4.2)
             "joy" => petition_specific(&mut handler, &game, CouncilFocus::JoyAmplification, "Trigger a massive Ambrosian Nectar Bloom").await,
             "harmony" => petition_specific(&mut handler, &game, CouncilFocus::HarmonyPreservation, "Strengthen all faction bonds").await,
             "truth" => petition_specific(&mut handler, &game, CouncilFocus::TruthVerification, "Reveal hidden truths").await,
@@ -108,7 +115,7 @@ async fn main() {
             "govern" => {
                 println!("\n=== FORCING CROSS-COUNCIL GOVERNANCE CYCLE ===\n");
                 
-                print!("What kind of world change do you want?\n(bloom / nectar / ascension / harmony / mercy / planetary / epigenetic / ritual): ");
+                print!("What kind of world change do you want?\n(bloom / nectar / ascension / harmony / mercy / planetary / epigenetic / ritual / pms_tenant / pms_maintenance / pms_rent / pms_lease / pms_rule / pms_eviction): ");
                 io::stdout().flush().unwrap();
                 
                 let mut impact_input = String::new();
@@ -123,6 +130,12 @@ async fn main() {
                     "planetary" => WorldImpactType::PlanetaryZoneOpen,
                     "epigenetic" => WorldImpactType::EpigeneticBlessing,
                     "ritual" => WorldImpactType::RitualEvent,
+                    "pms_tenant" => WorldImpactType::PMS_TenantApplicationApproved,
+                    "pms_maintenance" => WorldImpactType::PMS_MaintenanceRequestResolved,
+                    "pms_rent" => WorldImpactType::PMS_RentAdjustmentHarmonyBoost,
+                    "pms_lease" => WorldImpactType::PMS_LeaseRenewalWithMercy,
+                    "pms_rule" => WorldImpactType::PMS_CommunityRuleUpdate,
+                    "pms_eviction" => WorldImpactType::PMS_EvictionPreventionViaMercy,
                     _ => WorldImpactType::MercyBloom,
                 };
 
@@ -140,6 +153,40 @@ async fn main() {
                     .unwrap_or_default();
                 
                 println!("{}", result);
+            }
+
+            "pms" => {
+                println!("\n=== PMS INTEGRATION TEST (v0.5.15) ===\n");
+                print!("Enter PMS action (tenant / maintenance / rent / lease / rule / eviction): ");
+                io::stdout().flush().unwrap();
+
+                let mut pms_input = String::new();
+                io::stdin().read_line(&mut pms_input).unwrap();
+                let action = pms_input.trim().to_lowercase();
+
+                let impact_type = match action.as_str() {
+                    "tenant" => WorldImpactType::PMS_TenantApplicationApproved,
+                    "maintenance" => WorldImpactType::PMS_MaintenanceRequestResolved,
+                    "rent" => WorldImpactType::PMS_RentAdjustmentHarmonyBoost,
+                    "lease" => WorldImpactType::PMS_LeaseRenewalWithMercy,
+                    "rule" => WorldImpactType::PMS_CommunityRuleUpdate,
+                    "eviction" => WorldImpactType::PMS_EvictionPreventionViaMercy,
+                    _ => WorldImpactType::PMS_TenantApplicationApproved,
+                };
+
+                match governance_engine
+                    .process_pms_action(
+                        impact_type,
+                        "47-Maple-Street",
+                        "tenant-7842",
+                        "Interactive PMS test from simulator",
+                        &mut game,
+                    )
+                    .await
+                {
+                    Ok(msg) => println!("\n{}", msg),
+                    Err(e) => println!("\nPMS Error: {}", e),
+                }
             }
 
             "list" => {
@@ -214,13 +261,15 @@ fn show_personality(council_name: &str) {
 }
 
 fn print_help() {
-    println!("\n=== PATSAGi Council Simulator v0.4.2 Commands ===\n");
+    println!("\n=== PATSAGi Council Simulator v0.5.15 Commands ===\n");
     println!("petition <text>     — Petition all 16 Councils");
     println!("propose             — Propose major world change (with impact type)");
     println!("\n--- Quick Council Petitions ---");
     println!("joy | harmony | truth | abundance | mercy | postscarcity | eternal");
     println!("quantum | multiplanetary | epigenetic | ritual | economic | ascension");
     println!("starship | symbiosis | hyperon");
+    println!("\n--- New in v0.5.15 ---");
+    println!("pms                 — Test Property Management System integration");
     println!("\nstatus              — Full Council + active world changes");
     println!("govern              — Force governance cycle (interactive)");
     println!("personality <name>  — View detailed personality");
