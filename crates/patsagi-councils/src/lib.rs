@@ -1,10 +1,10 @@
-//! # PATSAGi Councils Layer v0.4.0
+//! # PATSAGi Councils Layer v0.4.2
 //!
-//! 13+ Parallel Living Ra-Thor Architectural Designers
+//! 16 Parallel Living Ra-Thor Architectural Designers
 //! The eternal co-governors and co-creators of Powrush-MMO.
 //!
-//! Now includes cross-Council collaboration — Councils can debate proposals
-//! together before reaching final consensus.
+//! Merged with full Council Voting System (transparent, mercy-gated, quorum-based).
+//! Cross-Council collaboration + optional full voting round for stronger consensus.
 
 use powrush::{PowrushGame, Faction, MercyGateStatus};
 use ra_thor_mercy::MercyEngine;
@@ -26,9 +26,9 @@ pub use crate::powrush_integration::PowrushPatsagiBridge;
 pub use crate::petition_handler::PetitionHandler;
 pub use crate::council_focus::CouncilProfile;
 
-pub const VERSION: &str = "0.4.0";
+pub const VERSION: &str = "0.4.2";
 
-// === Core Types ===
+// === Core Types (Preserved from v0.4.0) ===
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PATSAGiCouncil {
@@ -114,7 +114,31 @@ impl PATSAGiCouncil {
     }
 }
 
-// === Coordinator with Cross-Council Collaboration ===
+// === NEW: Council Voting System (v0.4.2) ===
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CouncilVote {
+    pub council: CouncilFocus,
+    pub approved: bool,
+    pub mercy_valence: f64,
+    pub reasoning: String,
+    pub timestamp: DateTime<Utc>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct VotingResult {
+    pub proposal_id: String,
+    pub total_votes: usize,
+    pub approvals: usize,
+    pub rejections: usize,
+    pub approval_rate: f64,
+    pub mercy_average: f64,
+    pub passed: bool,
+    pub final_verdict: String,
+    pub votes: Vec<CouncilVote>,
+}
+
+// === Coordinator with Cross-Council Collaboration + Voting ===
 
 pub struct PatsagiCouncilCoordinator {
     pub councils: HashMap<CouncilFocus, PATSAGiCouncil>,
@@ -158,7 +182,73 @@ impl PatsagiCouncilCoordinator {
         }
     }
 
-    /// NEW: Cross-Council Collaboration (Councils debate before final vote)
+    /// NEW: Full transparent Council Voting System (v0.4.2)
+    pub async fn conduct_voting_round(
+        &mut self,
+        proposal: &str,
+        game: &PowrushGame,
+    ) -> Result<VotingResult, String> {
+        let proposal_id = Uuid::new_v4().to_string();
+        let mut votes = Vec::new();
+        let mut total_mercy = 0.0;
+
+        for (focus, council) in &mut self.councils {
+            let status = council.evaluate_proposal(proposal, game).await?;
+            let mercy_valence = council.mercy_valence;
+
+            let approved = status == MercyGateStatus::Passed;
+            let reasoning = format!(
+                "{} Council {} the proposal (mercy valence {:.2})",
+                council.name,
+                if approved { "APPROVES" } else { "REJECTS" },
+                mercy_valence
+            );
+
+            votes.push(CouncilVote {
+                council: *focus,
+                approved,
+                mercy_valence,
+                reasoning,
+                timestamp: Utc::now(),
+            });
+
+            total_mercy += mercy_valence;
+        }
+
+        let total_votes = votes.len();
+        let approvals = votes.iter().filter(|v| v.approved).count();
+        let rejections = total_votes - approvals;
+        let approval_rate = approvals as f64 / total_votes as f64;
+        let mercy_average = total_mercy / total_votes as f64;
+
+        let passed = approval_rate >= 0.6 && mercy_average >= 0.7;
+
+        let final_verdict = if passed {
+            format!(
+                "✅ PROPOSAL PASSED — {:.1}% approval, {:.2} avg mercy valence\nAll 16 Councils reached beautiful consensus.",
+                approval_rate * 100.0, mercy_average
+            )
+        } else {
+            format!(
+                "❌ PROPOSAL REJECTED — {:.1}% approval, {:.2} avg mercy valence\nMore mercy alignment required.",
+                approval_rate * 100.0, mercy_average
+            )
+        };
+
+        Ok(VotingResult {
+            proposal_id,
+            total_votes,
+            approvals,
+            rejections,
+            approval_rate,
+            mercy_average,
+            passed,
+            final_verdict,
+            votes,
+        })
+    }
+
+    /// Cross-Council Debate + Optional Full Voting (v0.4.2)
     pub async fn debate_and_consensus(
         &mut self,
         current_game: &PowrushGame,
@@ -168,7 +258,7 @@ impl PatsagiCouncilCoordinator {
         let mut failed = 0;
         let mut debate_log = Vec::new();
 
-        // Round 1: Initial evaluation
+        // Round 1: Initial evaluation (preserved from v0.4.0)
         for (focus, council) in &mut self.councils {
             let status = council.evaluate_proposal(proposed_change, current_game).await?;
             
@@ -181,41 +271,36 @@ impl PatsagiCouncilCoordinator {
             }
         }
 
-        // Round 2: Cross-Council Influence (simplified debate)
         let total = self.councils.len() as f64;
         let approval_rate = passed as f64 / total;
 
         if approval_rate > 0.65 {
-            // Strong consensus — all Councils align
-            self.total_decisions += 1;
-            self.last_consensus = Some("Strong Cross-Council Consensus".to_string());
+            // Strong consensus — run full voting round for transparency
+            let voting_result = self.conduct_voting_round(proposed_change, current_game).await?;
             
+            self.total_decisions += 1;
+            self.last_consensus = Some("Strong Cross-Council Consensus + Full Vote".to_string());
+
             Ok(format!(
-                "PATSAGi Cross-Council Debate Complete\n\
-                 Initial Approval Rate: {:.1}%\n\
-                 Final Verdict: STRONG APPROVAL\n\
-                 The Councils have reached beautiful harmony.",
-                approval_rate * 100.0
+                "PATSAGi Cross-Council Debate + Voting Complete\n\n{}\n\n{}",
+                voting_result.final_verdict,
+                if voting_result.passed {
+                    "The 16 Councils have spoken in perfect harmony. The world evolves."
+                } else {
+                    "The Councils stand in loving disagreement. More mercy is needed."
+                }
             ))
         } else if approval_rate > 0.4 {
-            // Moderate consensus — some debate occurred
             self.total_decisions += 1;
             self.last_consensus = Some("Moderate Cross-Council Consensus".to_string());
             
             Ok(format!(
-                "PATSAGi Cross-Council Debate Complete\n\
-                 Initial Approval Rate: {:.1}%\n\
-                 Final Verdict: MODERATE APPROVAL\n\
-                 The Councils found a wise middle path.",
+                "PATSAGi Cross-Council Debate Complete\nInitial Approval Rate: {:.1}%\nFinal Verdict: MODERATE APPROVAL\nThe Councils found a wise middle path.",
                 approval_rate * 100.0
             ))
         } else {
-            // Weak consensus — proposal rejected
             Ok(format!(
-                "PATSAGi Cross-Council Debate Complete\n\
-                 Initial Approval Rate: {:.1}%\n\
-                 Final Verdict: REJECTED\n\
-                 The Councils could not reach sufficient harmony.",
+                "PATSAGi Cross-Council Debate Complete\nInitial Approval Rate: {:.1}%\nFinal Verdict: REJECTED\nThe Councils could not reach sufficient harmony.",
                 approval_rate * 100.0
             ))
         }
@@ -226,7 +311,6 @@ impl PatsagiCouncilCoordinator {
         current_game: &PowrushGame,
         proposed_change: &str,
     ) -> Result<String, String> {
-        // Use the new cross-Council debate method
         self.debate_and_consensus(current_game, proposed_change).await
     }
 
@@ -273,5 +357,7 @@ pub mod prelude {
     pub use crate::WorldImpactType;
     pub use crate::AmbrosianNectarEconomy;
     pub use crate::PowrushPatsagiBridge;
+    pub use crate::CouncilVote;
+    pub use crate::VotingResult;
     pub use crate::VERSION;
 }
