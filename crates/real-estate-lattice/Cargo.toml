@@ -3,15 +3,16 @@ name = "real-estate-lattice"
 version = "0.1.0"
 edition = "2021"
 authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
-description = "Ra-Thor Real Estate Lattice (RREL) — Mercy-gated AGI layer for global real estate operating system. PMS Bridge + quantum swarm + Powrush-MMO integration."
+description = "Ra-Thor Real Estate Lattice (RREL) — Mercy-gated global real estate operating system. Canada-first Ontario pilot with TREB MLS, PMS Bridge, RECO enforcement, Quantum Valuation, and LAT/Divisional Court evidence generation."
 license = "AG-SML"
 repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
 readme = "README.md"
-keywords = ["real-estate", "ra-thor", "patsagi", "mercy-gated", "pms-bridge", "powrush", "quantum-swarm"]
-categories = ["real-estate", "simulation", "artificial-intelligence"]
+keywords = ["real-estate", "ra-thor", "rrel", "powrush", "mercy-gated", "treb", "reco", "ontario", "quantum", "agi"]
+categories = ["simulation", "artificial-intelligence", "finance", "games"]
 
 [dependencies]
 patsagi-councils = { path = "../patsagi-councils" }
+powrush = { path = "../powrush" }
 ra-thor-mercy = { path = "../mercy" }
 ra-thor-quantum-swarm-orchestrator = { path = "../quantum-swarm-orchestrator" }
 
@@ -19,7 +20,22 @@ tokio = { version = "1.38", features = ["full"] }
 async-trait = "0.1"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
+uuid = { version = "1.8", features = ["v4", "serde"] }
+chrono = { version = "0.4", features = ["serde"] }
 thiserror = "1.0"
 tracing = "0.1"
-chrono = { version = "0.4", features = ["serde"] }
-uuid = { version = "1.8", features = ["v4", "serde"] }
+tracing-subscriber = "0.3"
+rand = "0.8"
+
+[dev-dependencies]
+tokio-test = "0.4"
+pretty_assertions = "1.4"
+
+[[example]]
+name = "canada_pilot_demo"
+path = "examples/canada_pilot_demo.rs"
+required-features = []
+
+[features]
+default = []
+full = ["patsagi-councils/full"]
