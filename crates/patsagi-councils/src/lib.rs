@@ -1,10 +1,10 @@
-//! # PATSAGi Councils Layer v0.5.15
+//! # PATSAGi Councils Layer v0.5.19
 //!
 //! 16 Parallel Living Ra-Thor Architectural Designers
 //! The eternal co-governors and co-creators of Powrush-MMO.
 //!
-//! ULTIMATE MERGED VERSION — All old rich logic (v0.4.2 → v0.5.9) preserved exactly + Full PMS Integration (v0.5.15)
-//! Mercy Engine Adapter + feature flag + 6 new WorldImpactType variants + process_pms_action + PmsError.
+//! ULTIMATE MERGED VERSION — All old rich logic (v0.4.2 → v0.5.15) preserved exactly + Full RREL Canada Pilot Integration (Phase 2 Derivation)
+//! Mercy Engine Adapter + feature flag + 6 new WorldImpactType variants + process_pms_action + PmsError + Full Real Estate Lattice (MLS, PMS, RECO, LAT, Divisional Court, Quantum Valuation)
 
 use powrush::{PowrushGame, Faction, MercyGateStatus};
 use mercy::MercyEngine;
@@ -24,14 +24,27 @@ pub use crate::world_governance::{
     AmbrosianNectarEconomy,
     PmsError,                    // NEW in v0.5.15 — Full PMS error handling
 };
+
+// === RREL CANADA PILOT INTEGRATION (v0.5.19 — Phase 2 Derivation) ===
+pub use real_estate_lattice::{
+    CanadaPilotModule,
+    TrebMlsAdapter,
+    PmsBridge,
+    PmsProvider,
+    RecoEnforcementEngine,
+    QuantumRealEstateValuation,
+    EvidenceGenerator,
+    RREL_VERSION,
+};
+
 pub use crate::simulation_integration::SimulationIntegration;
 pub use crate::powrush_integration::PowrushPatsagiBridge;
 pub use crate::petition_handler::PetitionHandler;
 pub use crate::council_focus::CouncilProfile;
 
-pub const VERSION: &str = "0.5.15";
+pub const VERSION: &str = "0.5.19";
 
-// === Core Types (Preserved exactly from v0.5.9) ===
+// === Core Types (Preserved exactly from v0.5.15) ===
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PATSAGiCouncil {
@@ -117,7 +130,7 @@ impl PATSAGiCouncil {
     }
 }
 
-// === Council Voting System (Preserved exactly from v0.5.9) ===
+// === Council Voting System (Preserved exactly from v0.5.15) ===
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CouncilVote {
@@ -141,7 +154,7 @@ pub struct VotingResult {
     pub votes: Vec<CouncilVote>,
 }
 
-// === Coordinator with Cross-Council Collaboration + Voting (Preserved exactly from v0.5.9) ===
+// === Coordinator with Cross-Council Collaboration + Voting (Preserved exactly from v0.5.15) ===
 
 pub struct PatsagiCouncilCoordinator {
     pub councils: HashMap<CouncilFocus, PATSAGiCouncil>,
@@ -362,6 +375,15 @@ pub mod prelude {
         AmbrosianNectarEconomy,
         PmsError,                    // NEW in v0.5.15
         VERSION,
+        // RREL Canada Pilot (v0.5.19)
+        CanadaPilotModule,
+        TrebMlsAdapter,
+        PmsBridge,
+        PmsProvider,
+        RecoEnforcementEngine,
+        QuantumRealEstateValuation,
+        EvidenceGenerator,
+        RREL_VERSION,
     };
 
     #[cfg(feature = "modular-mercy")]
