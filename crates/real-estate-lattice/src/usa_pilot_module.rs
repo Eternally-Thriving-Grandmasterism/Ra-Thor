@@ -1,6 +1,6 @@
 //! USA Pilot Module — RREL v0.5.21
 //! Central orchestration layer for all USA states
-//! Wires: UsaMlsAdapter + UsaRegulatoryEngine + State Adapters (California, Florida, Texas, New York)
+//! Wires: UsaMlsAdapter + UsaRegulatoryEngine + State Adapters (California, Florida, Texas, New York, New Jersey)
 //! Mercy-gated • Quantum Swarm • 13+ PATSAGi Councils
 
 use crate::RREL_VERSION;
@@ -9,6 +9,7 @@ use crate::california_mls_adapter::CaliforniaMlsAdapter;
 use crate::florida_mls_adapter::FloridaMlsAdapter;
 use crate::texas_mls_adapter::TexasMlsAdapter;
 use crate::new_york_mls_adapter::NewYorkMlsAdapter;
+use crate::new_jersey_mls_adapter::NewJerseyMlsAdapter;
 use patsagi_councils::WorldGovernanceEngine;
 use powrush::PowrushGame;
 use ra_thor_mercy::MercyEngine;
@@ -32,6 +33,7 @@ pub struct UsaPilotModule {
     florida_adapter: FloridaMlsAdapter,
     texas_adapter: TexasMlsAdapter,
     new_york_adapter: NewYorkMlsAdapter,
+    new_jersey_adapter: NewJerseyMlsAdapter,
 }
 
 impl UsaPilotModule {
@@ -62,6 +64,11 @@ impl UsaPilotModule {
                 world_governance.clone(),
             ),
             new_york_adapter: NewYorkMlsAdapter::new(
+                mercy_engine.clone(),
+                quantum_swarm.clone(),
+                world_governance.clone(),
+            ),
+            new_jersey_adapter: NewJerseyMlsAdapter::new(
                 mercy_engine.clone(),
                 quantum_swarm.clone(),
                 world_governance.clone(),
@@ -114,6 +121,9 @@ impl UsaPilotModule {
                     }
                     "NY" | "NEW YORK" => {
                         let _ = self.new_york_adapter.process_new_york_listing(&listing, game).await;
+                    }
+                    "NJ" | "NEW JERSEY" => {
+                        let _ = self.new_jersey_adapter.process_new_jersey_listing(&listing, game).await;
                     }
                     _ => {}
                 }
