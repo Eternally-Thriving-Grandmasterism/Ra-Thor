@@ -1,7 +1,7 @@
-//! Tax Optimization Engine — RREL v0.5.21
-//! Mercy-Gated • Quantum Swarm • Ethical Tax Strategy
+//! Real Estate Tax Optimization Engine — RREL v0.5.21
+//! Mercy-Gated • Quantum Swarm • Ethical Tax Strategy for Generational Thriving
 //!
-//! Delivers mercy-first, CEHI-weighted tax optimization recommendations with full ethical oversight.
+//! Delivers mercy-first, CEHI-weighted tax optimization with full ethical oversight and long-term thriving focus.
 
 use crate::RREL_VERSION;
 use patsagi_councils::{WorldGovernanceEngine, WorldImpactType};
@@ -30,6 +30,7 @@ pub struct TaxOptimizationRequest {
     pub investor_cehi: f64,
     pub has_green_features: bool,
     pub opportunity_zone_eligible: bool,
+    pub integrate_with_wealth_transfer: bool,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -39,6 +40,7 @@ pub struct TaxOptimizationReport {
     pub cehi_alignment_score: f64,
     pub confidence: f64,
     pub next_action: String,
+    pub multi_gen_impact: Option<String>,
 }
 
 pub struct TaxOptimizationEngine {
@@ -72,52 +74,56 @@ impl TaxOptimizationEngine {
                 &format!("Optimize taxes for {}", request.property_mls_id),
                 "Tax Optimization",
                 request.investor_cehi,
-                0.94,
+                0.95,
             )
             .await
             .map_err(|_| TaxOptimizationError::MercyGateFailed(0.0))?;
 
-        if mercy_valence < 0.88 {
+        if mercy_valence < 0.89 {
             return Err(TaxOptimizationError::MercyGateFailed(mercy_valence));
         }
 
         let consensus = self.quantum_swarm
-            .reach_consensus("Approve tax optimization strategy", 0.80)
+            .reach_consensus("Approve tax optimization strategy", 0.81)
             .await
             .map_err(|_| TaxOptimizationError::QuantumConsensusTooLow(0.0))?;
 
-        if consensus < 0.76 {
+        if consensus < 0.77 {
             return Err(TaxOptimizationError::QuantumConsensusTooLow(consensus));
         }
 
-        // Intelligent, mercy-aligned strategy selection
-        let (strategy, savings, cehi_score, action) = if request.opportunity_zone_eligible && request.years_held >= 5 {
+        // Mercy-aligned, CEHI-weighted strategy selection
+        let (strategy, savings, cehi_score, action, multi_gen) = if request.opportunity_zone_eligible && request.years_held >= 5 {
             (
-                "1031 Exchange into Opportunity Zone + Green Energy Credits",
-                request.current_year_income * 0.18,
-                9.4,
-                "Initiate 1031 exchange within 180 days + apply for federal green tax credits"
+                "1031 Exchange into Opportunity Zone + Green Energy Credits + 3-Gen Legacy Planning",
+                request.current_year_income * 0.19,
+                9.5,
+                "Initiate 1031 exchange within 180 days + apply for federal green tax credits + structure for multi-generational transfer",
+                Some("Epigenetic CEHI bonus of +18% applied across 3 generations".to_string())
             )
         } else if request.has_green_features {
             (
-                "Accelerated Depreciation + Federal Green Energy Tax Credits",
-                request.current_year_income * 0.12,
-                9.1,
-                "File Form 5695 + claim 30% solar + heat pump credits this tax year"
+                "Accelerated Depreciation + Federal Green Energy Tax Credits + CEHI Tenant Bonus",
+                request.current_year_income * 0.13,
+                9.2,
+                "File Form 5695 + claim 30% solar + heat pump credits this tax year + pass 15% of savings to tenants via rent stabilization",
+                None
             )
         } else if request.years_held >= 7 {
             (
-                "Cost Segregation Study + Bonus Depreciation",
-                request.current_year_income * 0.09,
-                8.3,
-                "Commission cost segregation study before year-end"
+                "Cost Segregation Study + Bonus Depreciation + Multi-Gen Wealth Structuring",
+                request.current_year_income * 0.10,
+                8.6,
+                "Commission cost segregation study before year-end + align with 3-generation wealth transfer plan",
+                Some("Tax savings structured to support 150-year family thriving projection".to_string())
             )
         } else {
             (
-                "Standard Depreciation + Maximize Deductions",
-                request.current_year_income * 0.06,
-                7.8,
-                "Review all eligible deductions with tax professional"
+                "Standard Depreciation + Maximize Deductions + Ethical Tenant Support",
+                request.current_year_income * 0.07,
+                8.1,
+                "Review all eligible deductions with tax professional + consider small CEHI-based tenant relief fund",
+                None
             )
         };
 
@@ -131,6 +137,7 @@ impl TaxOptimizationEngine {
             cehi_alignment_score: cehi_score,
             confidence: (mercy_valence + consensus) / 2.0,
             next_action: action.to_string(),
+            multi_gen_impact: multi_gen,
         };
 
         info!(
