@@ -1,7 +1,7 @@
 //! Property Tax Appeal Demo — RREL v0.5.21
 //! Demonstrates mercy-gated, quantum-swarm property tax appeal with estimated savings
 
-use real_estate_lattice::property_tax_appeal::{PropertyTaxAppealEngine, PropertyTaxAppealRequest};
+use real_estate_lattice::property_tax_appeal_engine::{PropertyTaxAppealEngine, PropertyTaxAppealRequest};
 use patsagi_councils::WorldGovernanceEngine;
 use powrush::PowrushGame;
 use ra_thor_mercy::MercyEngine;
@@ -26,12 +26,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     );
 
     let request = PropertyTaxAppealRequest {
+        appeal_id: "TAX-2026-0429-9912".to_string(),
         property_mls_id: "TX-2026-0429-7721".to_string(),
         current_assessed_value: 1250000.0,
         proposed_assessed_value: 1080000.0,
-        reason: "Comparable sales show 14% over-assessment + recent market decline".to_string(),
+        appeal_reason: "Comparable sales show 14% over-assessment + recent market decline".to_string(),
         owner_cehi: 8.9,
         years_owned: 7,
+        previous_appeals_won: 2,
     };
 
     println!("📋 Processing property tax appeal for {}...", request.property_mls_id);
