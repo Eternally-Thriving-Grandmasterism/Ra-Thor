@@ -1,0 +1,25 @@
+[package]
+name = "ra-thor-post-quantum-sig"
+version = "0.1.0"
+edition = "2021"
+authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
+description = "Ra-Thor Hybrid Post-Quantum Signature (RHPQS) — Mercy-Gated • 13+ PATSAGi Councils Multi-Sig • Epigenetic Stateful Wallets"
+license = "AG-SML"
+repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
+keywords = ["post-quantum", "bitcoin", "ra-thor", "mercy-gated", "cryptography", "patsagi"]
+categories = ["cryptography", "simulation", "artificial-intelligence"]
+
+[dependencies]
+ra-thor-mercy = { path = "../mercy" }
+ra-thor-quantum-swarm-orchestrator = { path = "../quantum-swarm-orchestrator" }
+
+tokio = { version = "1.38", features = ["full"] }
+serde = { version = "1.0", features = ["derive"] }
+thiserror = "1.0"
+tracing = "0.1"
+rand = "0.8"
+sha2 = "0.10"
+blake3 = "1.5"
+
+[dev-dependencies]
+tokio-test = "0.4"
