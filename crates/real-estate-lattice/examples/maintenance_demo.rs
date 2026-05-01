@@ -33,6 +33,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         urgency: 4,
         tenant_joy_impact: 7.5,
         cehi_impact: 1.8,
+        estimated_cost: 1850.0,
+        days_since_last_inspection: 267,
     };
 
     println!("📋 Processing maintenance request {}...", request.request_id);
@@ -42,7 +44,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("\n{}", result);
 
     println!("\n╔════════════════════════════════════════════════════════════════════════════╗");
-    println!("║           ✅ MAINTENANCE DEMO COMPLETE — PRIORITIZED & APPROVED          ║");
+    println!("║           ✅ MAINTENANCE DEMO COMPLETE — PRIORITIZED & APPROVED            ║");
     println!("╚════════════════════════════════════════════════════════════════════════════╝\n");
 
     Ok(())
