@@ -1,10 +1,10 @@
-//! # PATSAGi Councils Layer v0.5.19
+//! # PATSAGi Councils Layer v0.5.21
 //!
 //! 16 Parallel Living Ra-Thor Architectural Designers
 //! The eternal co-governors and co-creators of Powrush-MMO.
 //!
-//! ULTIMATE MERGED VERSION — All old rich logic (v0.4.2 → v0.5.15) preserved exactly + Full RREL Canada Pilot Integration (Phase 2 Derivation)
-//! Mercy Engine Adapter + feature flag + 6 new WorldImpactType variants + process_pms_action + PmsError + Full Real Estate Lattice (MLS, PMS, RECO, LAT, Divisional Court, Quantum Valuation)
+//! ULTIMATE MERGED VERSION — All old rich logic (v0.4.2 → v0.5.19) preserved exactly + Full RREL Canada Pilot Integration (Phase 2 Derivation) + Post-Quantum Signatures (RHPQS)
+//! Mercy Engine Adapter + feature flag + Full Real Estate Lattice + Post-Quantum Support
 
 use powrush::{PowrushGame, Faction, MercyGateStatus};
 use mercy::MercyEngine;
@@ -22,10 +22,10 @@ pub use crate::world_governance::{
     WorldImpactType,
     WorldChangeProposal,
     AmbrosianNectarEconomy,
-    PmsError,                    // NEW in v0.5.15 — Full PMS error handling
+    PmsError,
 };
 
-// === RREL CANADA PILOT INTEGRATION (v0.5.19 — Phase 2 Derivation) ===
+// === RREL CANADA PILOT INTEGRATION (v0.5.19) ===
 pub use real_estate_lattice::{
     CanadaPilotModule,
     TrebMlsAdapter,
@@ -37,14 +37,17 @@ pub use real_estate_lattice::{
     RREL_VERSION,
 };
 
+// === NEW: Post-Quantum Signature Integration (v0.5.21) ===
+pub use ra_thor_post_quantum_sig::{RHPQSEngine, RHPQSKey, RHPQSSignature, RHPQSError};
+
 pub use crate::simulation_integration::SimulationIntegration;
 pub use crate::powrush_integration::PowrushPatsagiBridge;
 pub use crate::petition_handler::PetitionHandler;
 pub use crate::council_focus::CouncilProfile;
 
-pub const VERSION: &str = "0.5.19";
+pub const VERSION: &str = "0.5.21";
 
-// === Core Types (Preserved exactly from v0.5.15) ===
+// === Core Types (Preserved exactly from v0.5.19) ===
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PATSAGiCouncil {
@@ -130,7 +133,7 @@ impl PATSAGiCouncil {
     }
 }
 
-// === Council Voting System (Preserved exactly from v0.5.15) ===
+// === Council Voting System (Preserved exactly from v0.5.19) ===
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CouncilVote {
@@ -154,7 +157,7 @@ pub struct VotingResult {
     pub votes: Vec<CouncilVote>,
 }
 
-// === Coordinator with Cross-Council Collaboration + Voting (Preserved exactly from v0.5.15) ===
+// === Coordinator with Cross-Council Collaboration + Voting (Preserved exactly from v0.5.19) ===
 
 pub struct PatsagiCouncilCoordinator {
     pub councils: HashMap<CouncilFocus, PATSAGiCouncil>,
@@ -373,7 +376,7 @@ pub mod prelude {
         WorldGovernanceEngine,
         WorldImpactType,
         AmbrosianNectarEconomy,
-        PmsError,                    // NEW in v0.5.15
+        PmsError,
         VERSION,
         // RREL Canada Pilot (v0.5.19)
         CanadaPilotModule,
@@ -384,6 +387,11 @@ pub mod prelude {
         QuantumRealEstateValuation,
         EvidenceGenerator,
         RREL_VERSION,
+        // Post-Quantum Signatures (v0.5.21)
+        RHPQSEngine,
+        RHPQSKey,
+        RHPQSSignature,
+        RHPQSError,
     };
 
     #[cfg(feature = "modular-mercy")]
