@@ -1,0 +1,38 @@
+# Moonrepo Task Configuration for Ra-Thor Monorepo
+# v0.5.21 — Mercy-Gated • Quantum Swarm • Ethical AGI Infrastructure
+
+tasks:
+  build:
+    command: 'cargo build --workspace'
+    inputs:
+      - '**/*.rs'
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+    outputs:
+      - 'target/debug'
+
+  test:
+    command: 'cargo test --workspace --all-features'
+    inputs:
+      - '**/*.rs'
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+
+  clippy:
+    command: 'cargo clippy --workspace --all-targets --all-features -- -D warnings'
+    inputs:
+      - '**/*.rs'
+
+  fmt:
+    command: 'cargo fmt --all -- --check'
+    inputs:
+      - '**/*.rs'
+
+  # Future polyglot tasks (examples)
+  # frontend:build:
+  #   command: 'cd apps/dashboard && npm run build'
+  #   inputs:
+  #     - 'apps/dashboard/**/*'
+
+  # python:lint:
+  #   command: 'cd tools/analysis && ruff check .'
