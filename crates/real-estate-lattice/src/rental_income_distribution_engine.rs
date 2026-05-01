@@ -1,7 +1,7 @@
 //! Rental Income Distribution Engine — RREL v0.5.21
 //! Mercy-Gated • Quantum Swarm • Fair & Ethical Rental Income Distribution
 //!
-//! Automatically distributes rental income to owners and fractional stakeholders with mercy-first logic.
+//! Automatically distributes rental income to owners, fractional stakeholders, and tenants with full mercy-first logic.
 
 use crate::RREL_VERSION;
 use patsagi_councils::{WorldGovernanceEngine, WorldImpactType};
@@ -25,10 +25,11 @@ pub struct RentalDistributionRequest {
     pub distribution_id: String,
     pub property_mls_id: String,
     pub monthly_rent_collected: f64,
-    pub total_ownership_shares: f64, // e.g. 1.0 = 100%
+    pub total_ownership_shares: f64,
     pub investor_cehi: f64,
     pub investor_share_percentage: f64,
     pub months_since_last_distribution: u8,
+    pub tenant_relief_percentage: f64, // 0.0 - 0.15 (optional mercy-based tenant support)
 }
 
 pub struct RentalIncomeDistributionEngine {
@@ -81,8 +82,13 @@ impl RentalIncomeDistributionEngine {
         }
 
         let investor_payout = request.monthly_rent_collected * request.investor_share_percentage;
-        let platform_fee = investor_payout * 0.03; // 3% ethical platform fee
-        let net_payout = investor_payout - platform_fee;
+        let platform_fee = investor_payout * 0.03;
+        let tenant_relief = if request.tenant_relief_percentage > 0.0 {
+            investor_payout * request.tenant_relief_percentage
+        } else {
+            0.0
+        };
+        let net_payout = investor_payout - platform_fee - tenant_relief;
 
         let _ = self.world_governance
             .apply_world_impact(WorldImpactType::PortfolioAcquisitionConsensus, game)
@@ -96,6 +102,7 @@ impl RentalIncomeDistributionEngine {
              Investor Share: {:.1}%\n\
              Gross Payout: ${:.0}\n\
              Platform Fee (3%): ${:.0}\n\
+             Tenant Relief (Mercy): ${:.0}\n\
              Net Payout to Investor: ${:.0}\n\
              Mercy Valence: {:.2}\n\
              Council Consensus: {:.2}\n\
@@ -107,6 +114,7 @@ impl RentalIncomeDistributionEngine {
             request.investor_share_percentage * 100.0,
             investor_payout,
             platform_fee,
+            tenant_relief,
             net_payout,
             mercy_valence,
             consensus
