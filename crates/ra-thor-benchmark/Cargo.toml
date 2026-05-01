@@ -1,0 +1,17 @@
+[package]
+name = "ra-thor-benchmark"
+version = "0.5.21"
+edition = "2021"
+authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
+description = "Official Ra-Thor Benchmark Runner — GPQA Diamond + MMLU-Pro evaluation suite (mercy-gated)"
+license = "AG-SML"
+repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
+
+[dependencies]
+ra-thor-mercy = { path = "../mercy" }
+ra-thor-quantum-swarm-orchestrator = { path = "../quantum-swarm-orchestrator" }
+tokio = { version = "1.38", features = ["full"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tracing = "0.1"
+tracing-subscriber = "0.3"
