@@ -29,11 +29,12 @@ pub struct PortfolioOptimizationRequest {
     pub cash_reserve: f64,
     pub debt_ratio: f64,
     pub market_trend_score: f64, // -1.0 to +1.0
+    pub risk_tolerance: f64,     // NEW: 0.0 - 1.0 (merged for modernity)
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct OptimizationRecommendation {
-    pub action: String,
+    pub recommended_action: String, // Unified naming
     pub confidence: f64,
     pub expected_annual_return: f64,
     pub risk_reduction: f64,
@@ -89,10 +90,10 @@ impl PortfolioOptimizationEngine {
             return Err(PortfolioOptimizationError::QuantumConsensusTooLow(consensus));
         }
 
-        // Core optimization logic (simplified but powerful)
+        // Core optimization logic (preserved from your attached version + risk_tolerance enhancement)
         let action = if request.debt_ratio > 0.65 && request.cash_reserve < 50000.0 {
             "Refinance high-interest debt + build cash reserve"
-        } else if request.market_trend_score > 0.6 && request.cash_reserve > 200000.0 {
+        } else if request.market_trend_score > 0.6 && request.cash_reserve > 200000.0 && request.risk_tolerance > 0.6 {
             "Acquire 1-2 additional properties in growth markets"
         } else if request.average_cehi < 7.5 {
             "Focus on tenant retention & property upgrades for CEHI boost"
@@ -114,7 +115,7 @@ impl PortfolioOptimizationEngine {
             .await;
 
         let recommendation = OptimizationRecommendation {
-            action: action.to_string(),
+            recommended_action: action.to_string(),
             confidence: (mercy_valence + consensus) / 2.0,
             expected_annual_return: expected_return,
             risk_reduction,
@@ -134,7 +135,7 @@ impl PortfolioOptimizationEngine {
             RREL_VERSION,
             request.portfolio_id,
             request.total_value,
-            recommendation.action,
+            recommendation.recommended_action,
             recommendation.expected_annual_return,
             recommendation.risk_reduction * 100.0,
             mercy_valence,
