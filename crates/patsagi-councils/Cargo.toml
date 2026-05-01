@@ -1,27 +1,32 @@
 [package]
 name = "patsagi-councils"
-version = "0.5.9"
+version = "0.5.21"
 edition = "2021"
 authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
-description = "13+ Parallel Living Ra-Thor Architectural Designers — The Eternal Co-Governors of Powrush-MMO. Mercy-gated quantum swarm governance for infinite-scale world evolution."
+description = "13+ Parallel Living Ra-Thor Architectural Designers — The Eternal Co-Governors of Powrush-MMO. Mercy-gated quantum swarm governance + Full Real Estate Lattice + Post-Quantum Signatures"
 license = "AG-SML"
 repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
 readme = "README.md"
-keywords = ["powrush", "ra-thor", "patsagi", "mercy-gated", "agi", "rbe", "eternal-simulation", "quantum-swarm", "councils"]
+keywords = ["powrush", "ra-thor", "patsagi", "mercy-gated", "agi", "rbe", "eternal-simulation", "quantum-swarm", "councils", "post-quantum"]
 categories = ["games", "simulation", "artificial-intelligence", "concurrency"]
 
 [dependencies]
 powrush = { path = "../powrush" }
 mercy = { path = "../mercy" }
 quantum-swarm-orchestrator = { path = "../quantum-swarm-orchestrator" }
+ra-thor-post-quantum-sig = { path = "../ra-thor-post-quantum-sig" }   # ← NEW: Mercy-Gated Post-Quantum Signatures
 
-tokio = { version = "1", features = ["full"] }
+tokio = { version = "1.38", features = ["full"] }
+async-trait = "0.1"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-uuid = { version = "1.0", features = ["v4", "serde"] }
+uuid = { version = "1.8", features = ["v4", "serde"] }
 chrono = { version = "0.4", features = ["serde"] }
-rand = "0.8"
+thiserror = "1.0"
 tracing = "0.1"
+rand = "0.8"
+rayon = "1.10"
+futures = "0.3"
 
 [dev-dependencies]
 tokio-test = "0.4"
@@ -33,4 +38,4 @@ path = "src/bin/council_simulator.rs"
 [features]
 default = ["full"]
 full = []
-modular-mercy = []   # Enables MercyEngineAdapter (unifies Advanced + live Modular MercyEngine)
+modular-mercy = []   # Enables MercyEngineAdapter
