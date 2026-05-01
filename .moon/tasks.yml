@@ -2,6 +2,7 @@
 # v0.5.21 — Mercy-Gated • Quantum Swarm • Ethical AGI Infrastructure
 
 tasks:
+  # Core Rust workspace tasks
   build:
     command: 'cargo build --workspace'
     inputs:
@@ -28,11 +29,15 @@ tasks:
     inputs:
       - '**/*.rs'
 
-  # Future polyglot tasks (examples)
+  # Real Estate Lattice specific
+  real-estate-lattice:build:
+    command: 'cargo build -p real-estate-lattice'
+    inputs:
+      - 'crates/real-estate-lattice/**/*'
+
+  real-estate-lattice:test:
+    command: 'cargo test -p real-estate-lattice --all-features'
+
+  # Future polyglot readiness
   # frontend:build:
   #   command: 'cd apps/dashboard && npm run build'
-  #   inputs:
-  #     - 'apps/dashboard/**/*'
-
-  # python:lint:
-  #   command: 'cd tools/analysis && ruff check .'
