@@ -1,12 +1,14 @@
 //! USA Pilot Module — RREL v0.5.21
 //! Central orchestration layer for all USA states
-//! Wires: UsaMlsAdapter + UsaRegulatoryEngine + State Adapters (California, Florida, Texas, New York, etc.)
+//! Wires: UsaMlsAdapter + UsaRegulatoryEngine + State Adapters (California, Florida, Texas, New York)
 //! Mercy-gated • Quantum Swarm • 13+ PATSAGi Councils
 
 use crate::RREL_VERSION;
 use crate::usa_mls_adapter::UsaMlsAdapter;
-use crate::usa_regulatory_engine::UsaRegulatoryEngine;
 use crate::california_mls_adapter::CaliforniaMlsAdapter;
+use crate::florida_mls_adapter::FloridaMlsAdapter;
+use crate::texas_mls_adapter::TexasMlsAdapter;
+use crate::new_york_mls_adapter::NewYorkMlsAdapter;
 use patsagi_councils::WorldGovernanceEngine;
 use powrush::PowrushGame;
 use ra_thor_mercy::MercyEngine;
@@ -27,7 +29,9 @@ pub struct UsaPilotReport {
 pub struct UsaPilotModule {
     usa_adapter: UsaMlsAdapter,
     california_adapter: CaliforniaMlsAdapter,
-    // Future: florida_adapter, texas_adapter, new_york_adapter, etc.
+    florida_adapter: FloridaMlsAdapter,
+    texas_adapter: TexasMlsAdapter,
+    new_york_adapter: NewYorkMlsAdapter,
 }
 
 impl UsaPilotModule {
@@ -36,25 +40,36 @@ impl UsaPilotModule {
         quantum_swarm: QuantumSwarmOrchestrator,
         world_governance: WorldGovernanceEngine,
     ) -> Self {
-        let usa_adapter = UsaMlsAdapter::new(
-            mercy_engine.clone(),
-            quantum_swarm.clone(),
-            world_governance.clone(),
-        );
-
-        let california_adapter = CaliforniaMlsAdapter::new(
-            mercy_engine.clone(),
-            quantum_swarm.clone(),
-            world_governance.clone(),
-        );
-
         Self {
-            usa_adapter,
-            california_adapter,
+            usa_adapter: UsaMlsAdapter::new(
+                mercy_engine.clone(),
+                quantum_swarm.clone(),
+                world_governance.clone(),
+            ),
+            california_adapter: CaliforniaMlsAdapter::new(
+                mercy_engine.clone(),
+                quantum_swarm.clone(),
+                world_governance.clone(),
+            ),
+            florida_adapter: FloridaMlsAdapter::new(
+                mercy_engine.clone(),
+                quantum_swarm.clone(),
+                world_governance.clone(),
+            ),
+            texas_adapter: TexasMlsAdapter::new(
+                mercy_engine.clone(),
+                quantum_swarm.clone(),
+                world_governance.clone(),
+            ),
+            new_york_adapter: NewYorkMlsAdapter::new(
+                mercy_engine.clone(),
+                quantum_swarm.clone(),
+                world_governance.clone(),
+            ),
         }
     }
 
-    /// Process listings across multiple USA states
+    /// Process listings across multiple USA states with full state-specific enforcement
     pub async fn process_usa_listings(
         &mut self,
         states: &[&str],
@@ -86,11 +101,21 @@ impl UsaPilotModule {
                     issues_prevented += 1;
                 }
 
-                // Special handling for California
-                if state.eq_ignore_ascii_case("CA") || state.eq_ignore_ascii_case("California") {
-                    let _ = self.california_adapter
-                        .process_california_listing(&listing, game)
-                        .await;
+                // State-specific processing
+                match state.to_uppercase().as_str() {
+                    "CA" | "CALIFORNIA" => {
+                        let _ = self.california_adapter.process_california_listing(&listing, game).await;
+                    }
+                    "FL" | "FLORIDA" => {
+                        let _ = self.florida_adapter.process_florida_listing(&listing, game).await;
+                    }
+                    "TX" | "TEXAS" => {
+                        let _ = self.texas_adapter.process_texas_listing(&listing, game).await;
+                    }
+                    "NY" | "NEW YORK" => {
+                        let _ = self.new_york_adapter.process_new_york_listing(&listing, game).await;
+                    }
+                    _ => {}
                 }
             }
         }
