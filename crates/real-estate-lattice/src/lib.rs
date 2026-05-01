@@ -1,6 +1,6 @@
 //! Ra-Thor Real Estate Lattice (RREL) — v0.5.21
 //! Mercy-Gated Global Real Estate Operating System
-//! Canada Pilot (v0.5.19) + USA Expansion (v0.5.21) + Full Integration
+//! Canada Pilot + Full USA Expansion (All 50 States)
 
 pub mod pms_bridge;
 pub mod mls_integration;
@@ -12,7 +12,7 @@ pub mod canada_pilot_module;
 // === USA EXPANSION (v0.5.21) ===
 pub mod usa_regulatory_engine;
 pub mod usa_mls_adapter;
-pub mod california_mls_adapter;
+pub mod usa_state_adapters;   // ← NEW: All 50 states in one elegant file
 
 pub use crate::pms_bridge::{PmsBridge, PmsProvider, RrelError};
 pub use crate::mls_integration::{TrebMlsAdapter, MlsListing, MlsError};
@@ -23,7 +23,7 @@ pub use crate::canada_pilot_module::{CanadaPilotModule, CanadaPilotReport};
 
 pub use crate::usa_regulatory_engine::{UsaRegulatoryEngine, UsaRegulatoryResult, UsaRegulatoryError};
 pub use crate::usa_mls_adapter::{UsaMlsAdapter, UsaListing, UsaMlsError};
-pub use crate::california_mls_adapter::{CaliforniaMlsAdapter, CaliforniaMlsError};
+pub use crate::usa_state_adapters::{UsaStateAdapters, UsState, UsaStateAdapterError};
 
 pub const RREL_VERSION: &str = "0.5.21";
 
