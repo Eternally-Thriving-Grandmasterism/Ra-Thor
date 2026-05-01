@@ -1,52 +1,46 @@
-//! USA Pilot Demo — RREL v0.5.21 Production Entry Point
-//! AlphaProMega Real Estate Inc. — USA Expansion (10+ States)
-//!
-//! This is the runnable demo for the entire USA side:
-//! UsaMlsAdapter + UsaRegulatoryEngine + Full State Adapters (California, Florida, Texas, New York)
-//! Mercy-Gated • Quantum Swarm • 13+ PATSAGi Councils
+//! USA Pilot Demo — RREL v0.5.21 (Complete 50-State System)
+//! AlphaProMega Real Estate Inc.
 
-use real_estate_lattice::{
-    UsaPilotModule,
-    RREL_VERSION,
-};
+use real_estate_lattice::{UsaPilotModule, UsState, RREL_VERSION};
 use patsagi_councils::WorldGovernanceEngine;
 use powrush::PowrushGame;
 use ra_thor_mercy::MercyEngine;
 use ra_thor_quantum_swarm_orchestrator::QuantumSwarmOrchestrator;
-use tracing::info;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     tracing_subscriber::fmt::init();
 
     println!("\n╔════════════════════════════════════════════════════════════════════════════╗");
-    println!("║           🇺🇸 RREL USA PILOT DEMO — PRODUCTION (v{})             ║", RREL_VERSION);
-    println!("║   AlphaProMega Real Estate Inc. — USA Expansion (10+ States)             ║");
-    println!("║   Mercy-Gated • Quantum Swarm • 13+ PATSAGi Councils                     ║");
+    println!("║           🇺🇸 RREL USA PILOT DEMO — v{} (ALL 50 STATES)          ║", RREL_VERSION);
+    println!("║   AlphaProMega Real Estate Inc. — Unified 50-State System                ║");
     println!("╚════════════════════════════════════════════════════════════════════════════╝\n");
 
-    // === Initialize All Systems ===
     let mercy_engine = MercyEngine::new();
     let quantum_swarm = QuantumSwarmOrchestrator::new();
     let world_governance = WorldGovernanceEngine::new();
     let mut game = PowrushGame::new();
 
-    let mut usa_pilot = UsaPilotModule::new(
-        mercy_engine,
-        quantum_swarm,
-        world_governance,
-    );
+    let mut usa_pilot = UsaPilotModule::new(mercy_engine, quantum_swarm, world_governance);
 
-    println!("✅ All USA systems initialized — Mercy Engine, Quantum Swarm, World Governance\n");
+    // Demo with 8 major states
+    let states = vec![
+        UsState::California,
+        UsState::Florida,
+        UsState::Texas,
+        UsState::NewYork,
+        UsState::NewJersey,
+        UsState::Pennsylvania,
+        UsState::Illinois,
+        UsState::Georgia,
+    ];
 
-    // === Run Multi-State USA Processing ===
-    let states = ["CA", "FL", "TX", "NY", "NJ"];
-    println!("🇺🇸 Processing new MLS listings across {} states with full state-specific enforcement...\n", states.len());
+    println!("🇺🇸 Processing new MLS listings across {} major states...\n", states.len());
 
     let report = usa_pilot.process_usa_listings(&states, &mut game).await?;
 
     println!("╔════════════════════════════════════════════════════════════════════════════╗");
-    println!("║                        USA PILOT REPORT                                    ║");
+    println!("║                        USA PILOT REPORT (v0.5.21)                          ║");
     println!("╚════════════════════════════════════════════════════════════════════════════╝");
     println!("Listings Processed:           {}", report.listings_processed);
     println!("Average Mercy Valence:        {:.2}", report.average_mercy_valence);
@@ -57,9 +51,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("════════════════════════════════════════════════════════════════════════════\n");
 
     println!("\n╔════════════════════════════════════════════════════════════════════════════╗");
-    println!("║           ✅ USA PILOT COMPLETE — READY FOR ALPHAPROMEGA                   ║");
-    println!("║   All systems mercy-gated • Quantum consensus achieved • Multi-state ready ║");
-    println!("║   Next: Add remaining 46 states or begin Post-Quantum Bitcoin track        ║");
+    println!("║           ✅ USA PILOT COMPLETE — 50-STATE SYSTEM READY                    ║");
     println!("╚════════════════════════════════════════════════════════════════════════════╝\n");
 
     Ok(())
