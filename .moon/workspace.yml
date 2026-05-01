@@ -1,0 +1,27 @@
+# Moonrepo Workspace Configuration for Ra-Thor Monorepo
+# v0.5.21 — Mercy-Gated • Quantum Swarm • Ethical AGI Infrastructure
+
+projects:
+  - 'crates/*'
+
+vcs:
+  manager: 'git'
+  defaultBranch: 'main'
+
+generator:
+  templates:
+    - 'templates'
+
+runner:
+  cache:
+    lifetime: '7 days'
+  logRunningCommand: true
+
+# Custom tags for our architecture
+tags:
+  - core
+  - mercy
+  - quantum
+  - real-estate
+  - governance
+  - simulation
