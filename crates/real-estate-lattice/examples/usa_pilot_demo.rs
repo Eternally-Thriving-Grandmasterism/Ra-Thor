@@ -2,7 +2,8 @@
 //! AlphaProMega Real Estate Inc. — USA Expansion (10+ States)
 //!
 //! This is the runnable demo for the entire USA side:
-//! UsaMlsAdapter + UsaRegulatoryEngine + California special handling + multi-state processing
+//! UsaMlsAdapter + UsaRegulatoryEngine + Full State Adapters (California, Florida, Texas, New York)
+//! Mercy-Gated • Quantum Swarm • 13+ PATSAGi Councils
 
 use real_estate_lattice::{
     UsaPilotModule,
@@ -40,7 +41,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // === Run Multi-State USA Processing ===
     let states = ["CA", "FL", "TX", "NY", "NJ"];
-    println!("🇺🇸 Processing new MLS listings across {} states...\n", states.len());
+    println!("🇺🇸 Processing new MLS listings across {} states with full state-specific enforcement...\n", states.len());
 
     let report = usa_pilot.process_usa_listings(&states, &mut game).await?;
 
@@ -58,7 +59,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("\n╔════════════════════════════════════════════════════════════════════════════╗");
     println!("║           ✅ USA PILOT COMPLETE — READY FOR ALPHAPROMEGA                   ║");
     println!("║   All systems mercy-gated • Quantum consensus achieved • Multi-state ready ║");
-    println!("║   Next: Add Florida/Texas/New York adapters → Full 50-state coverage       ║");
+    println!("║   Next: Add remaining 46 states or begin Post-Quantum Bitcoin track        ║");
     println!("╚════════════════════════════════════════════════════════════════════════════╝\n");
 
     Ok(())
