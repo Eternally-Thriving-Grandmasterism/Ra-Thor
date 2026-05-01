@@ -1,5 +1,5 @@
 //! USA Pilot Module — RREL v0.5.21
-//! Central orchestration layer using the unified 50-state system
+//! Central orchestration using the unified 50-state system
 //! Mercy-gated • Quantum Swarm • 13+ PATSAGi Councils
 
 use crate::RREL_VERSION;
@@ -41,7 +41,7 @@ impl UsaPilotModule {
         states: &[UsState],
         game: &mut PowrushGame,
     ) -> Result<UsaPilotReport, crate::RrelError> {
-        info!("🇺🇸 RREL USA Pilot (v{}) — Processing {} states using unified adapter", RREL_VERSION, states.len());
+        info!("🇺🇸 RREL USA Pilot (v{}) — Processing {} states using unified 50-state adapter", RREL_VERSION, states.len());
 
         let mut total_processed = 0;
         let mut total_mercy = 0.0;
