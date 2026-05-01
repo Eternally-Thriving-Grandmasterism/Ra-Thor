@@ -14,10 +14,11 @@ generator:
 
 runner:
   cache:
-    lifetime: '7 days'
+    lifetime: '14 days'
   logRunningCommand: true
+  inheritColorsForPipes: true
 
-# Custom tags for our architecture
+# Ra-Thor specific tags for intelligent task routing
 tags:
   - core
   - mercy
@@ -25,3 +26,5 @@ tags:
   - real-estate
   - governance
   - simulation
+  - cryptography
+  - post-quantum
