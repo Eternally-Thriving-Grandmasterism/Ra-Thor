@@ -12,7 +12,7 @@ pub mod canada_pilot_module;
 // === USA EXPANSION (v0.5.21) ===
 pub mod usa_regulatory_engine;
 pub mod usa_mls_adapter;
-pub mod usa_state_adapters;   // ← NEW: All 50 states in one elegant file
+pub mod usa_state_adapters;   // ← All 50 US States (unified elegant system)
 
 pub use crate::pms_bridge::{PmsBridge, PmsProvider, RrelError};
 pub use crate::mls_integration::{TrebMlsAdapter, MlsListing, MlsError};
