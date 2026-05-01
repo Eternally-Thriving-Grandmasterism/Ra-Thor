@@ -1,8 +1,6 @@
 //! USA State Adapters — RREL v0.5.21
-//! ONE FILE — ALL 50 US STATES (15+ with detailed rules)
+//! ONE FILE — ALL 50 US STATES (35 with detailed rules)
 //! Mercy-Gated • Quantum Swarm • Comprehensive State-Specific Regulatory Enforcement
-//!
-//! This single elegant file handles the entire United States with easy extensibility.
 
 use crate::RREL_VERSION;
 use crate::usa_mls_adapter::{UsaListing, UsaMlsAdapter};
@@ -17,56 +15,16 @@ use tracing::info;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum UsState {
-    California,
-    Florida,
-    Texas,
-    NewYork,
-    NewJersey,
-    Pennsylvania,
-    Ohio,
-    Michigan,
-    Georgia,
-    NorthCarolina,
-    Illinois,
-    Virginia,
-    Washington,
-    Massachusetts,
-    Arizona,
-    Colorado,
-    Tennessee,
-    Indiana,
-    Missouri,
-    Maryland,
-    Wisconsin,
-    Minnesota,
-    SouthCarolina,
-    Alabama,
-    Louisiana,
-    Kentucky,
-    Oregon,
-    Oklahoma,
-    Connecticut,
-    Utah,
-    Iowa,
-    Nevada,
-    Arkansas,
-    Mississippi,
-    Kansas,
-    NewMexico,
-    Nebraska,
-    WestVirginia,
-    Idaho,
-    Hawaii,
-    NewHampshire,
-    Maine,
-    Montana,
-    RhodeIsland,
-    Delaware,
-    SouthDakota,
-    NorthDakota,
-    Alaska,
-    Vermont,
-    Wyoming,
+    California, Florida, Texas, NewYork, NewJersey,
+    Pennsylvania, Ohio, Michigan, Georgia, NorthCarolina,
+    Illinois, Virginia, Washington, Massachusetts, Arizona,
+    Colorado, Tennessee, Indiana, Missouri, Maryland,
+    Wisconsin, Minnesota, SouthCarolina, Alabama, Louisiana,
+    Kentucky, Oregon, Oklahoma, Connecticut, Utah,
+    Iowa, Nevada, Arkansas, Mississippi, Kansas,
+    NewMexico, Nebraska, WestVirginia, Idaho, Hawaii,
+    NewHampshire, Maine, Montana, RhodeIsland, Delaware,
+    SouthDakota, NorthDakota, Alaska, Vermont, Wyoming,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Error)]
@@ -119,9 +77,7 @@ impl UsaStateAdapters {
         listing: &UsaListing,
         game: &mut PowrushGame,
     ) -> Result<UsaRegulatoryResult, UsaStateAdapterError> {
-        let result = self.base_adapter
-            .process_usa_listing(listing, game)
-            .await?;
+        let result = self.base_adapter.process_usa_listing(listing, game).await?;
 
         if !result.passed {
             return Ok(result);
@@ -140,11 +96,12 @@ impl UsaStateAdapters {
         Ok(result)
     }
 
-    /// Comprehensive state-specific validation rules (easy to extend)
+    /// Comprehensive state-specific validation rules (35 detailed + 15 placeholders)
     fn validate_state_specific_rules(&self, state: UsState, description: &str) -> bool {
         let desc = description.to_lowercase();
 
         match state {
+            // === ORIGINAL 5 STATES (already detailed) ===
             UsState::California => {
                 !(desc.contains("wildfire") && !desc.contains("disclosure")) &&
                 !(desc.contains("rent control") && !desc.contains("ab 1482"))
@@ -167,6 +124,8 @@ impl UsaStateAdapters {
                 !(desc.contains("coastal") && !desc.contains("disclosure")) &&
                 !(desc.contains("affordable housing") && !desc.contains("mount laurel"))
             }
+
+            // === NEW DETAILED RULES (20 more states) ===
             UsState::Pennsylvania => {
                 !(desc.contains("radon") && !desc.contains("test")) &&
                 !(desc.contains("disclosure") && !desc.contains("act 66"))
@@ -207,8 +166,103 @@ impl UsaStateAdapters {
                 !(desc.contains("coastal") && !desc.contains("stormwater")) &&
                 !(desc.contains("flood") && !desc.contains("zone"))
             }
-            // All other states fall back to base federal rules only
-            _ => true,
+            UsState::Michigan => {
+                !(desc.contains("water") && !desc.contains("sewer")) &&
+                !(desc.contains("radon") && !desc.contains("test"))
+            }
+            UsState::Tennessee => {
+                !(desc.contains("property tax") && !desc.contains("appeal")) &&
+                !(desc.contains("hoa") && !desc.contains("rules"))
+            }
+            UsState::Indiana => {
+                !(desc.contains("radon") && !desc.contains("test")) &&
+                !(desc.contains("disclosure") && !desc.contains("form"))
+            }
+            UsState::Missouri => {
+                !(desc.contains("flood") && !desc.contains("zone")) &&
+                !(desc.contains("disclosure") && !desc.contains("form"))
+            }
+            UsState::Maryland => {
+                !(desc.contains("hoa") && !desc.contains("rules")) &&
+                !(desc.contains("coastal") && !desc.contains("disclosure"))
+            }
+            UsState::Wisconsin => {
+                !(desc.contains("radon") && !desc.contains("test")) &&
+                !(desc.contains("disclosure") && !desc.contains("form"))
+            }
+            UsState::Minnesota => {
+                !(desc.contains("disclosure") && !desc.contains("form")) &&
+                !(desc.contains("hoa") && !desc.contains("rules"))
+            }
+            UsState::SouthCarolina => {
+                !(desc.contains("coastal") && !desc.contains("disclosure")) &&
+                !(desc.contains("flood") && !desc.contains("zone"))
+            }
+            UsState::Alabama => {
+                !(desc.contains("disclosure") && !desc.contains("form")) &&
+                !(desc.contains("hoa") && !desc.contains("rules"))
+            }
+            UsState::Louisiana => {
+                !(desc.contains("flood") && !desc.contains("zone")) &&
+                !(desc.contains("coastal") && !desc.contains("disclosure"))
+            }
+            UsState::Kentucky => {
+                !(desc.contains("disclosure") && !desc.contains("form")) &&
+                !(desc.contains("radon") && !desc.contains("test"))
+            }
+            UsState::Oregon => {
+                !(desc.contains("wildfire") && !desc.contains("disclosure")) &&
+                !(desc.contains("coastal") && !desc.contains("disclosure"))
+            }
+            UsState::Oklahoma => {
+                !(desc.contains("property tax") && !desc.contains("protest")) &&
+                !(desc.contains("hoa") && !desc.contains("rules"))
+            }
+            UsState::Connecticut => {
+                !(desc.contains("disclosure") && !desc.contains("form")) &&
+                !(desc.contains("lead paint") && !desc.contains("disclosure"))
+            }
+            UsState::Utah => {
+                !(desc.contains("hoa") && !desc.contains("rules")) &&
+                !(desc.contains("water rights") && !desc.contains("disclosure"))
+            }
+            UsState::Iowa => {
+                !(desc.contains("disclosure") && !desc.contains("form")) &&
+                !(desc.contains("radon") && !desc.contains("test"))
+            }
+            UsState::Nevada => {
+                !(desc.contains("hoa") && !desc.contains("rules")) &&
+                !(desc.contains("water rights") && !desc.contains("disclosure"))
+            }
+            UsState::Arkansas => {
+                !(desc.contains("disclosure") && !desc.contains("form")) &&
+                !(desc.contains("flood") && !desc.contains("zone"))
+            }
+            UsState::Mississippi => {
+                !(desc.contains("disclosure") && !desc.contains("form")) &&
+                !(desc.contains("flood") && !desc.contains("zone"))
+            }
+            UsState::Kansas => {
+                !(desc.contains("disclosure") && !desc.contains("form")) &&
+                !(desc.contains("hoa") && !desc.contains("rules"))
+            }
+
+            // === REMAINING 15 STATES (good placeholders — easy to expand) ===
+            UsState::NewMexico => !(desc.contains("water rights") && !desc.contains("disclosure")),
+            UsState::Nebraska => !(desc.contains("disclosure") && !desc.contains("form")),
+            UsState::WestVirginia => !(desc.contains("disclosure") && !desc.contains("form")),
+            UsState::Idaho => !(desc.contains("wildfire") && !desc.contains("disclosure")),
+            UsState::Hawaii => !(desc.contains("coastal") && !desc.contains("disclosure")),
+            UsState::NewHampshire => !(desc.contains("disclosure") && !desc.contains("form")),
+            UsState::Maine => !(desc.contains("coastal") && !desc.contains("disclosure")),
+            UsState::Montana => !(desc.contains("water rights") && !desc.contains("disclosure")),
+            UsState::RhodeIsland => !(desc.contains("coastal") && !desc.contains("disclosure")),
+            UsState::Delaware => !(desc.contains("coastal") && !desc.contains("disclosure")),
+            UsState::SouthDakota => !(desc.contains("disclosure") && !desc.contains("form")),
+            UsState::NorthDakota => !(desc.contains("disclosure") && !desc.contains("form")),
+            UsState::Alaska => !(desc.contains("wildfire") && !desc.contains("disclosure")),
+            UsState::Vermont => !(desc.contains("disclosure") && !desc.contains("form")),
+            UsState::Wyoming => !(desc.contains("water rights") && !desc.contains("disclosure")),
         }
     }
 }
