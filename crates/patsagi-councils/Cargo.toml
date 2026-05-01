@@ -14,7 +14,7 @@ categories = ["games", "simulation", "artificial-intelligence", "concurrency"]
 powrush = { path = "../powrush" }
 mercy = { path = "../mercy" }
 quantum-swarm-orchestrator = { path = "../quantum-swarm-orchestrator" }
-ra-thor-post-quantum-sig = { path = "../ra-thor-post-quantum-sig" }   # ← NEW: Mercy-Gated Post-Quantum Signatures
+ra-thor-post-quantum-sig = { path = "../ra-thor-post-quantum-sig" }
 
 tokio = { version = "1.38", features = ["full"] }
 async-trait = "0.1"
@@ -35,7 +35,11 @@ tokio-test = "0.4"
 name = "council_simulator"
 path = "src/bin/council_simulator.rs"
 
+[[example]]
+name = "council_post_quantum_demo"
+path = "examples/council_post_quantum_demo.rs"
+
 [features]
 default = ["full"]
 full = []
-modular-mercy = []   # Enables MercyEngineAdapter
+modular-mercy = []
