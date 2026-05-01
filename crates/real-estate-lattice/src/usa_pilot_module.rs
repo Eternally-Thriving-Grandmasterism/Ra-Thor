@@ -1,15 +1,9 @@
 //! USA Pilot Module — RREL v0.5.21
-//! Central orchestration layer for all USA states
-//! Wires: UsaMlsAdapter + UsaRegulatoryEngine + State Adapters (California, Florida, Texas, New York, New Jersey)
+//! Central orchestration layer using the unified 50-state system
 //! Mercy-gated • Quantum Swarm • 13+ PATSAGi Councils
 
 use crate::RREL_VERSION;
-use crate::usa_mls_adapter::UsaMlsAdapter;
-use crate::california_mls_adapter::CaliforniaMlsAdapter;
-use crate::florida_mls_adapter::FloridaMlsAdapter;
-use crate::texas_mls_adapter::TexasMlsAdapter;
-use crate::new_york_mls_adapter::NewYorkMlsAdapter;
-use crate::new_jersey_mls_adapter::NewJerseyMlsAdapter;
+use crate::usa_state_adapters::{UsaStateAdapters, UsState};
 use patsagi_councils::WorldGovernanceEngine;
 use powrush::PowrushGame;
 use ra_thor_mercy::MercyEngine;
@@ -28,12 +22,7 @@ pub struct UsaPilotReport {
 }
 
 pub struct UsaPilotModule {
-    usa_adapter: UsaMlsAdapter,
-    california_adapter: CaliforniaMlsAdapter,
-    florida_adapter: FloridaMlsAdapter,
-    texas_adapter: TexasMlsAdapter,
-    new_york_adapter: NewYorkMlsAdapter,
-    new_jersey_adapter: NewJerseyMlsAdapter,
+    state_adapters: UsaStateAdapters,
 }
 
 impl UsaPilotModule {
@@ -43,46 +32,16 @@ impl UsaPilotModule {
         world_governance: WorldGovernanceEngine,
     ) -> Self {
         Self {
-            usa_adapter: UsaMlsAdapter::new(
-                mercy_engine.clone(),
-                quantum_swarm.clone(),
-                world_governance.clone(),
-            ),
-            california_adapter: CaliforniaMlsAdapter::new(
-                mercy_engine.clone(),
-                quantum_swarm.clone(),
-                world_governance.clone(),
-            ),
-            florida_adapter: FloridaMlsAdapter::new(
-                mercy_engine.clone(),
-                quantum_swarm.clone(),
-                world_governance.clone(),
-            ),
-            texas_adapter: TexasMlsAdapter::new(
-                mercy_engine.clone(),
-                quantum_swarm.clone(),
-                world_governance.clone(),
-            ),
-            new_york_adapter: NewYorkMlsAdapter::new(
-                mercy_engine.clone(),
-                quantum_swarm.clone(),
-                world_governance.clone(),
-            ),
-            new_jersey_adapter: NewJerseyMlsAdapter::new(
-                mercy_engine.clone(),
-                quantum_swarm.clone(),
-                world_governance.clone(),
-            ),
+            state_adapters: UsaStateAdapters::new(mercy_engine, quantum_swarm, world_governance),
         }
     }
 
-    /// Process listings across multiple USA states with full state-specific enforcement
     pub async fn process_usa_listings(
         &mut self,
-        states: &[&str],
+        states: &[UsState],
         game: &mut PowrushGame,
     ) -> Result<UsaPilotReport, crate::RrelError> {
-        info!("🇺🇸 RREL USA Pilot (v{}) — Processing listings for states: {:?}", RREL_VERSION, states);
+        info!("🇺🇸 RREL USA Pilot (v{}) — Processing {} states using unified adapter", RREL_VERSION, states.len());
 
         let mut total_processed = 0;
         let mut total_mercy = 0.0;
@@ -91,14 +50,12 @@ impl UsaPilotModule {
         let mut states_covered = Vec::new();
 
         for state in states {
-            states_covered.push(state.to_string());
+            states_covered.push(format!("{:?}", state));
 
-            let listings = self.usa_adapter.fetch_new_listings(state).await?;
+            let listings = self.state_adapters.fetch_and_validate_state_listings(*state).await?;
 
             for listing in listings {
-                let result = self.usa_adapter
-                    .process_usa_listing(&listing, game)
-                    .await?;
+                let result = self.state_adapters.process_state_listing(*state, &listing, game).await?;
 
                 if result.passed {
                     total_processed += 1;
@@ -106,26 +63,6 @@ impl UsaPilotModule {
                     total_consensus += result.quantum_consensus;
                 } else {
                     issues_prevented += 1;
-                }
-
-                // State-specific processing
-                match state.to_uppercase().as_str() {
-                    "CA" | "CALIFORNIA" => {
-                        let _ = self.california_adapter.process_california_listing(&listing, game).await;
-                    }
-                    "FL" | "FLORIDA" => {
-                        let _ = self.florida_adapter.process_florida_listing(&listing, game).await;
-                    }
-                    "TX" | "TEXAS" => {
-                        let _ = self.texas_adapter.process_texas_listing(&listing, game).await;
-                    }
-                    "NY" | "NEW YORK" => {
-                        let _ = self.new_york_adapter.process_new_york_listing(&listing, game).await;
-                    }
-                    "NJ" | "NEW JERSEY" => {
-                        let _ = self.new_jersey_adapter.process_new_jersey_listing(&listing, game).await;
-                    }
-                    _ => {}
                 }
             }
         }
@@ -139,9 +76,7 @@ impl UsaPilotModule {
             timestamp: chrono::Utc::now(),
         };
 
-        info!("✅ USA Pilot Report: {} listings processed across {} states | Issues prevented: {}",
-              total_processed, states.len(), issues_prevented);
-
+        info!("✅ USA Pilot Report: {} listings processed across {} states | Issues prevented: {}", total_processed, states.len(), issues_prevented);
         Ok(report)
     }
 }
