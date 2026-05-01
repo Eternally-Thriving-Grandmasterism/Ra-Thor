@@ -1,8 +1,8 @@
 //! USA State Adapters — RREL v0.5.21
-//! ONE FILE — ALL 50 US STATES
-//! Mercy-Gated • Quantum Swarm • State-Specific Regulatory Enforcement
+//! ONE FILE — ALL 50 US STATES (15+ with detailed rules)
+//! Mercy-Gated • Quantum Swarm • Comprehensive State-Specific Regulatory Enforcement
 //!
-//! This single file replaces 50 separate adapter files and is fully extensible.
+//! This single elegant file handles the entire United States with easy extensibility.
 
 use crate::RREL_VERSION;
 use crate::usa_mls_adapter::{UsaListing, UsaMlsAdapter};
@@ -92,7 +92,6 @@ impl UsaStateAdapters {
         }
     }
 
-    /// Fetch + validate listings for ANY US state
     pub async fn fetch_and_validate_state_listings(
         &self,
         state: UsState,
@@ -114,7 +113,6 @@ impl UsaStateAdapters {
         Ok(validated)
     }
 
-    /// Full processing pipeline for any US state
     pub async fn process_state_listing(
         &mut self,
         state: UsState,
@@ -142,7 +140,7 @@ impl UsaStateAdapters {
         Ok(result)
     }
 
-    /// State-specific validation rules (easy to extend)
+    /// Comprehensive state-specific validation rules (easy to extend)
     fn validate_state_specific_rules(&self, state: UsState, description: &str) -> bool {
         let desc = description.to_lowercase();
 
@@ -153,7 +151,8 @@ impl UsaStateAdapters {
             }
             UsState::Florida => {
                 !(desc.contains("flood") && !desc.contains("zone")) &&
-                !(desc.contains("hurricane") && !desc.contains("insurance"))
+                !(desc.contains("hurricane") && !desc.contains("insurance")) &&
+                !(desc.contains("hoa") && !desc.contains("financial"))
             }
             UsState::Texas => {
                 !(desc.contains("property tax") && !desc.contains("protest")) &&
@@ -161,13 +160,54 @@ impl UsaStateAdapters {
             }
             UsState::NewYork => {
                 !(desc.contains("rent stabilization") && !desc.contains("verified")) &&
-                !(desc.contains("co-op") && !desc.contains("board"))
+                !(desc.contains("co-op") && !desc.contains("board")) &&
+                !(desc.contains("lead paint") && !desc.contains("disclosure"))
             }
             UsState::NewJersey => {
                 !(desc.contains("coastal") && !desc.contains("disclosure")) &&
                 !(desc.contains("affordable housing") && !desc.contains("mount laurel"))
             }
-            // All other states use base federal rules only for now
+            UsState::Pennsylvania => {
+                !(desc.contains("radon") && !desc.contains("test")) &&
+                !(desc.contains("disclosure") && !desc.contains("act 66"))
+            }
+            UsState::Illinois => {
+                !(desc.contains("property tax") && !desc.contains("appeal")) &&
+                !(desc.contains("chicago") && !desc.contains("rules"))
+            }
+            UsState::Ohio => {
+                !(desc.contains("radon") && !desc.contains("test"))
+            }
+            UsState::Georgia => {
+                !(desc.contains("property tax") && !desc.contains("reassessment")) &&
+                !(desc.contains("flood") && !desc.contains("zone"))
+            }
+            UsState::Washington => {
+                !(desc.contains("rent control") && !desc.contains("seattle")) &&
+                !(desc.contains("coastal") && !desc.contains("disclosure"))
+            }
+            UsState::Massachusetts => {
+                !(desc.contains("rent control") && !desc.contains("boston")) &&
+                !(desc.contains("lead paint") && !desc.contains("disclosure"))
+            }
+            UsState::Arizona => {
+                !(desc.contains("hoa") && !desc.contains("rules")) &&
+                !(desc.contains("water rights") && !desc.contains("disclosure"))
+            }
+            UsState::Colorado => {
+                !(desc.contains("wildfire") && !desc.contains("disclosure")) &&
+                !(desc.contains("hoa") && !desc.contains("financial"))
+            }
+            UsState::Virginia => {
+                !(desc.contains("hoa") && !desc.contains("rules")) &&
+                !(desc.contains("flood") && !desc.contains("zone")) &&
+                !(desc.contains("historic") && !desc.contains("district"))
+            }
+            UsState::NorthCarolina => {
+                !(desc.contains("coastal") && !desc.contains("stormwater")) &&
+                !(desc.contains("flood") && !desc.contains("zone"))
+            }
+            // All other states fall back to base federal rules only
             _ => true,
         }
     }
