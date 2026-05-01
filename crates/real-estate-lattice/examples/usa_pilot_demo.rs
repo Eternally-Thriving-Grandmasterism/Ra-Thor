@@ -1,5 +1,5 @@
-//! USA Pilot Demo — RREL v0.5.21 (Complete 50-State System)
-//! AlphaProMega Real Estate Inc.
+//! USA Pilot Demo — RREL v0.5.21 (Complete 50-State Unified System)
+//! AlphaProMega Real Estate Inc. — Mercy-Gated • Quantum Swarm • 13+ PATSAGi Councils
 
 use real_estate_lattice::{UsaPilotModule, UsState, RREL_VERSION};
 use patsagi_councils::WorldGovernanceEngine;
@@ -23,7 +23,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let mut usa_pilot = UsaPilotModule::new(mercy_engine, quantum_swarm, world_governance);
 
-    // Demo with 8 major states
+    // Demo with 10 major states (easily changeable to any combination of 50)
     let states = vec![
         UsState::California,
         UsState::Florida,
@@ -33,9 +33,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         UsState::Pennsylvania,
         UsState::Illinois,
         UsState::Georgia,
+        UsState::Washington,
+        UsState::Massachusetts,
     ];
 
-    println!("🇺🇸 Processing new MLS listings across {} major states...\n", states.len());
+    println!("🇺🇸 Processing new MLS listings across {} major states using unified 50-state adapter...\n", states.len());
 
     let report = usa_pilot.process_usa_listings(&states, &mut game).await?;
 
@@ -51,7 +53,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("════════════════════════════════════════════════════════════════════════════\n");
 
     println!("\n╔════════════════════════════════════════════════════════════════════════════╗");
-    println!("║           ✅ USA PILOT COMPLETE — 50-STATE SYSTEM READY                    ║");
+    println!("║           ✅ USA PILOT COMPLETE — 50-STATE SYSTEM FULLY OPERATIONAL        ║");
     println!("╚════════════════════════════════════════════════════════════════════════════╝\n");
 
     Ok(())
