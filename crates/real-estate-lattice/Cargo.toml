@@ -3,11 +3,11 @@ name = "real-estate-lattice"
 version = "0.1.0"
 edition = "2021"
 authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
-description = "Ra-Thor Real Estate Lattice (RREL) — Mercy-gated global real estate operating system. Canada-first Ontario pilot with TREB MLS, PMS Bridge, RECO enforcement, Quantum Valuation, and LAT/Divisional Court evidence generation."
+description = "Ra-Thor Real Estate Lattice (RREL) — Mercy-gated global real estate operating system. Canada Pilot (v0.5.19) + USA Expansion (v0.5.21) with full federal + state regulatory enforcement."
 license = "AG-SML"
 repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
 readme = "README.md"
-keywords = ["real-estate", "ra-thor", "rrel", "powrush", "mercy-gated", "treb", "reco", "ontario", "quantum", "agi"]
+keywords = ["real-estate", "ra-thor", "rrel", "powrush", "mercy-gated", "usa", "california", "florida", "texas", "new-york", "treb", "reco", "ontario", "quantum", "agi"]
 categories = ["simulation", "artificial-intelligence", "finance", "games"]
 
 [dependencies]
@@ -35,6 +35,10 @@ pretty_assertions = "1.4"
 name = "canada_pilot_demo"
 path = "examples/canada_pilot_demo.rs"
 required-features = []
+
+[[example]]
+name = "usa_pilot_demo"
+path = "examples/usa_pilot_demo.rs"
 
 [features]
 default = []
