@@ -1,7 +1,7 @@
 //! Lease Renewal Demo — RREL v0.5.21
-//! Demonstrates mercy-gated, quantum-swarm lease renewal with loyalty-based discounts
+//! Demonstrates mercy-gated lease renewal with loyalty discounts and CEHI rewards
 
-use real_estate_lattice::lease_renewal::{LeaseRenewalEngine, LeaseRenewalRequest};
+use real_estate_lattice::lease_renewal_engine::{LeaseRenewalEngine, LeaseRenewalRequest};
 use patsagi_councils::WorldGovernanceEngine;
 use powrush::PowrushGame;
 use ra_thor_mercy::MercyEngine;
@@ -10,8 +10,8 @@ use ra_thor_quantum_swarm_orchestrator::QuantumSwarmOrchestrator;
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("\n╔════════════════════════════════════════════════════════════════════════════╗");
-    println!("║           📜 RREL LEASE RENEWAL DEMO — v0.5.21                            ║");
-    println!("║   Mercy-Gated • Quantum Swarm • Loyalty-Based Discounts                  ║");
+    println!("║           📝 RREL LEASE RENEWAL DEMO — v0.5.21                            ║");
+    println!("║   Mercy-Gated • Quantum Swarm • Loyalty Discount System                  ║");
     println!("╚════════════════════════════════════════════════════════════════════════════╝\n");
 
     let mercy_engine = MercyEngine::new();
@@ -26,13 +26,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     );
 
     let request = LeaseRenewalRequest {
-        tenant_id: "TENANT-8821".to_string(),
-        property_mls_id: "CA-2026-0429-8847".to_string(),
+        renewal_id: "RENEW-2026-0429-9912".to_string(),
+        property_mls_id: "ON-2026-0429-8821".to_string(),
+        tenant_id: "TENANT-7719".to_string(),
         current_rent: 2850.0,
-        lease_end_date: chrono::Utc::now() + chrono::Duration::days(45),
-        tenant_cehi: 8.7,
         years_as_tenant: 6,
-        payment_history_score: 0.97,
+        tenant_cehi: 9.1,
+        payment_history_score: 9.4,
+        requested_renewal_term_months: 24,
     };
 
     println!("📋 Processing lease renewal for {}...", request.tenant_id);
@@ -42,7 +43,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("\n{}", result);
 
     println!("\n╔════════════════════════════════════════════════════════════════════════════╗");
-    println!("║           ✅ LEASE RENEWAL DEMO COMPLETE — DISCOUNT APPLIED                ║");
+    println!("║           ✅ LEASE RENEWAL DEMO COMPLETE — LOYAL TENANT REWARDED           ║");
     println!("╚════════════════════════════════════════════════════════════════════════════╝\n");
 
     Ok(())
