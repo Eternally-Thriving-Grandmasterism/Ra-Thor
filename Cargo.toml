@@ -13,11 +13,15 @@ members = [
     "crates/mercy",                   # Mercy Engine + Mercy Shards + Radical Love gating
     "crates/mercy_orchestrator",      # Mercy Orchestrator
     "crates/mercy_orchestrator_v2",   # Mercy Orchestrator v2
+    "crates/mercy-radiation-shield",  # ← NEW: Ultimate Mercy-Alchemical Radiation Transmutation Engine (TOLC 7 Gates + Quantum Swarm)
     "crates/monorepo-intelligence",   # ← NEW: Infinite-grade monorepo intelligence with plugins, semantic search, health scoring & universal AI integration
     "crates/orchestration",           # ← MASTER SOVEREIGN LATTICE ORCHESTRATOR
     "crates/plasticity-engine-v2",    # ← NEW: Real-time 5-Gene Joy Tetrad Plasticity Engine (epigenetic updates + Sensor Fusion Bridge)
+    "crates/powrush",                 # Powrush Core Game Engine
     "crates/quantum-swarm-orchestrator",   # ← NEW: Mercy-gated Quantum Swarm Orchestrator (Theorems 1, 2, 4 + Hebbian)
     "crates/quantum",                 # Quantum-biomimetic lattice
+    "crates/ra-thor-benchmark",       # ← NEW: Official GPQA Diamond + MMLU-Pro + BIG-bench Runner (deepest mercy-gated reasoning)
+    "crates/real-estate-lattice",     # ← NEW: RREL v0.5.21 — Full Mercy-Gated Ethical Real Estate Operating System (17+ engines)
     "crates/websiteforge",            # Sovereign website development system
     "crates/xtask",                   # Sovereign Automation Hub
 ]
@@ -61,9 +65,12 @@ ra-thor-common = { path = "crates/common" }
 websiteforge = { path = "crates/websiteforge" }
 aether-shades = { path = "crates/aether_shades" }
 ra-thor-legal-lattice = { path = "crates/legal-lattice" }
-ra-thor-plasticity-engine-v2 = { path = "crates/plasticity-engine-v2" }   # ← NEW
-ra-thor-quantum-swarm-orchestrator = { path = "crates/quantum-swarm-orchestrator" }   # ← NEW
-ra-thor-monorepo-intelligence = { path = "crates/monorepo-intelligence" }   # ← NEW
+ra-thor-plasticity-engine-v2 = { path = "crates/plasticity-engine-v2" }
+ra-thor-quantum-swarm-orchestrator = { path = "crates/quantum-swarm-orchestrator" }
+ra-thor-monorepo-intelligence = { path = "crates/monorepo-intelligence" }
+ra-thor-mercy-radiation-shield = { path = "crates/mercy-radiation-shield" }   # ← NEW
+ra-thor-real-estate-lattice = { path = "crates/real-estate-lattice" }         # ← NEW
+ra-thor-benchmark = { path = "crates/ra-thor-benchmark" }                     # ← NEW
 
 # Workspace-level dev-dependencies (used by every crate)
 [workspace.dev-dependencies]
