@@ -1,6 +1,6 @@
 //! Orbital Habitat Management Engine — SREL v0.5.21
 //! Mercy-Gated • Quantum Swarm • TOLC 7 Gates Radiation Mapping
-//! Perfect merge: Your exact old structure + full materials + electronics protection + in-situ production
+//! Perfect merge: Your exact old structure + full materials + electronics protection + in-situ production + nth-degree radiation
 
 use mercy_radiation_shield::RadiationType;
 use mercy_radiation_shield::radiation_shielding_materials::RadiationShieldingMaterials;
@@ -61,17 +61,17 @@ impl OrbitalHabitatEngine {
             RadiationType::CosmicRays, request.radiation_flux, request.current_cehi
         );
 
-        // Calculate real electronics protection (TID / DD / SEE)
+        // Calculate real electronics protection (TID / DD / SEE) — now with orbit for real AP8/AE8 data
         let elec_risk = self.electronics.calculate_electronics_risk(
-            RadiationType::CosmicRays, request.radiation_flux, &best_mat, 1.0, request.current_cehi
+            RadiationType::CosmicRays, request.radiation_flux, &best_mat, 1.0, request.current_cehi, "LEO"
         );
 
-        // Run full TOLC 7 Gates mapping
+        // Run full TOLC 7 Gates mapping (nth-degree version)
         let reports = self.mapping
-            .process_radiation_with_7_gates(
+            .process_radiation_with_7_gates_nth_degree(
                 RadiationType::CosmicRays,
                 request.radiation_flux,
-                &request.location,
+                "LEO",
                 request.current_cehi,
                 game,
             )
