@@ -22,6 +22,7 @@ members = [
     "crates/quantum",                 # Quantum-biomimetic lattice
     "crates/ra-thor-benchmark",       # ← NEW: Official GPQA Diamond + MMLU-Pro + BIG-bench Runner (deepest mercy-gated reasoning)
     "crates/real-estate-lattice",     # ← NEW: RREL v0.5.21 — Full Mercy-Gated Ethical Real Estate Operating System (17+ engines)
+    "crates/interstellar-operations", # ← NEW: Advanced propulsion, Stargate technologies, hyperspace, ZPM, ancient tech
     "crates/websiteforge",            # Sovereign website development system
     "crates/xtask",                   # Sovereign Automation Hub
 ]
@@ -71,6 +72,7 @@ ra-thor-monorepo-intelligence = { path = "crates/monorepo-intelligence" }
 ra-thor-mercy-radiation-shield = { path = "crates/mercy-radiation-shield" }   # ← NEW
 ra-thor-real-estate-lattice = { path = "crates/real-estate-lattice" }         # ← NEW
 ra-thor-benchmark = { path = "crates/ra-thor-benchmark" }                     # ← NEW
+ra-thor-interstellar-operations = { path = "crates/interstellar-operations" } # ← NEW
 
 # Workspace-level dev-dependencies (used by every crate)
 [workspace.dev-dependencies]
