@@ -37,6 +37,7 @@ pub mod hyperspace_navigation_engine;
 pub mod stargate_dialing_computer;
 pub mod destiny_ship_seed_engine;
 pub mod nuclear_thermal_propulsion_engine;
+pub mod fusion_drive_engine;
 
 pub use stargate_wormhole_engine::{
     StargateWormholeEngine,
@@ -108,4 +109,10 @@ pub use nuclear_thermal_propulsion_engine::{
     NuclearThermalPropulsionEngine,
     NuclearThermalPropulsionRequest,
     NuclearThermalPropulsionReport,
+};
+
+pub use fusion_drive_engine::{
+    FusionDriveEngine,
+    FusionDriveRequest,
+    FusionDriveReport,
 };
