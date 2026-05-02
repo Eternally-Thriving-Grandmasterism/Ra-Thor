@@ -13,6 +13,7 @@
 //! - Relativistic Time Dilation (proper time, length contraction, mission planning)
 //! - General Relativity Effects (spacetime curvature, gravitational time dilation, lensing, wormhole stability)
 //! - Black Hole Navigation (safe flybys, gravitational slingshot, event horizon safety)
+//! - Wormhole Stability (exotic matter, throat stability, tidal forces, safe transit)
 //!
 //! ## Why This Separate Crate?
 //! The `real-estate-lattice` crate focuses on **habitats, colonies, claims, and real estate management**.
@@ -56,6 +57,7 @@ pub mod interstellar_navigation_engine;
 pub mod relativistic_time_dilation_engine;
 pub mod general_relativity_effects_engine;
 pub mod black_hole_navigation_engine;
+pub mod wormhole_stability_engine;
 
 pub use stargate_wormhole_engine::{
     StargateWormholeEngine,
@@ -217,4 +219,10 @@ pub use black_hole_navigation_engine::{
     BlackHoleNavigationEngine,
     BlackHoleNavigationRequest,
     BlackHoleNavigationReport,
+};
+
+pub use wormhole_stability_engine::{
+    WormholeStabilityEngine,
+    WormholeStabilityRequest,
+    WormholeStabilityReport,
 };
