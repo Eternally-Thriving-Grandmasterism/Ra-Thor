@@ -53,6 +53,7 @@ pub mod black_hole_navigation_engine;
 pub mod wormhole_stability_engine;
 pub mod morris_thorne_wormhole_engine;
 pub mod visser_wormhole_engine;
+pub mod exotic_matter_production;
 
 pub use stargate_wormhole_engine::{
     StargateWormholeEngine,
@@ -233,3 +234,5 @@ pub use visser_wormhole_engine::{
     VisserWormholeRequest,
     VisserWormholeReport,
 };
+
+pub use exotic_matter_production::ExoticMatterProduction;
