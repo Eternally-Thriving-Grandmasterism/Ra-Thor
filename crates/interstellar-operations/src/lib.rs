@@ -5,15 +5,8 @@
 //! This crate is the **official home for all advanced interstellar and ancient technologies**
 //! in the Ra-Thor monorepo.
 //!
-//! It contains:
-//! - Advanced propulsion systems (Nuclear Thermal, Fusion Drive, Ion Thrusters, Warp Core, Antimatter, Quantum Vacuum Thruster, EmDrive, Solar Sail, Laser Sail, Magnetic Sail, Bussard Ramjet, Project Daedalus, Project Icarus, Breakthrough Starshot, etc.)
-//! - Stargate technologies (Wormhole travel, Atlantis City Ship, Puddle Jumper, ZPM, Ancient Drone Weapons, Atlantis Shield Generator, etc.)
-//! - Hyperspace navigation, Stargate Dialing Computer, and generational seed-ship logic
-//! - Interstellar Navigation (Star Tracker + XNAV + Laser Comms)
-//! - Relativistic Time Dilation (proper time, length contraction, mission planning)
-//! - General Relativity Effects (spacetime curvature, gravitational time dilation, lensing, wormhole stability)
-//! - Black Hole Navigation (safe flybys, gravitational slingshot, event horizon safety)
-//! - Wormhole Stability (exotic matter, throat stability, tidal forces, safe transit)
+//! It contains 29 mercy-gated engines covering every major propellant-free interstellar propulsion concept,
+//! Stargate technologies, navigation, and full special + general relativity support (including black holes and wormholes).
 //!
 //! ## Why This Separate Crate?
 //! The `real-estate-lattice` crate focuses on **habitats, colonies, claims, and real estate management**.
@@ -58,6 +51,7 @@ pub mod relativistic_time_dilation_engine;
 pub mod general_relativity_effects_engine;
 pub mod black_hole_navigation_engine;
 pub mod wormhole_stability_engine;
+pub mod morris_thorne_wormhole_engine;
 
 pub use stargate_wormhole_engine::{
     StargateWormholeEngine,
@@ -225,4 +219,10 @@ pub use wormhole_stability_engine::{
     WormholeStabilityEngine,
     WormholeStabilityRequest,
     WormholeStabilityReport,
+};
+
+pub use morris_thorne_wormhole_engine::{
+    MorrisThorneWormholeEngine,
+    MorrisThorneWormholeRequest,
+    MorrisThorneWormholeReport,
 };
