@@ -6,7 +6,7 @@
 //! in the Ra-Thor monorepo.
 //!
 //! It contains:
-//! - Advanced propulsion systems (Nuclear Thermal, Fusion Drive, Ion Thrusters, Warp Core, Antimatter, Quantum Vacuum Thruster, EmDrive, Solar Sail, etc.)
+//! - Advanced propulsion systems (Nuclear Thermal, Fusion Drive, Ion Thrusters, Warp Core, Antimatter, Quantum Vacuum Thruster, EmDrive, Solar Sail, Laser Sail, etc.)
 //! - Stargate technologies (Wormhole travel, Atlantis City Ship, Puddle Jumper, ZPM, Ancient Drone Weapons, Atlantis Shield Generator, etc.)
 //! - Hyperspace navigation, Stargate Dialing Computer, and generational seed-ship logic
 //!
@@ -42,6 +42,7 @@ pub mod antimatter_propulsion_engine;
 pub mod quantum_vacuum_thruster_engine;
 pub mod emdrive_engine;
 pub mod solar_sail_engine;
+pub mod laser_sail_propulsion_engine;
 
 pub use stargate_wormhole_engine::{
     StargateWormholeEngine,
@@ -143,5 +144,10 @@ pub use solar_sail_engine::{
     SolarSailEngine,
     SolarSailRequest,
     SolarSailReport,
-    SolarSailDesign,
+};
+
+pub use laser_sail_propulsion_engine::{
+    LaserSailPropulsionEngine,
+    LaserSailRequest,
+    LaserSailReport,
 };
