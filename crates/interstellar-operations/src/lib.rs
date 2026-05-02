@@ -11,6 +11,7 @@
 //! - Hyperspace navigation, Stargate Dialing Computer, and generational seed-ship logic
 //! - Interstellar Navigation (Star Tracker + XNAV + Laser Comms)
 //! - Relativistic Time Dilation (proper time, length contraction, mission planning)
+//! - General Relativity Effects (spacetime curvature, gravitational time dilation, lensing, wormhole stability)
 //!
 //! ## Why This Separate Crate?
 //! The `real-estate-lattice` crate focuses on **habitats, colonies, claims, and real estate management**.
@@ -52,6 +53,7 @@ pub mod project_icarus_propulsion_engine;
 pub mod breakthrough_starshot_engine;
 pub mod interstellar_navigation_engine;
 pub mod relativistic_time_dilation_engine;
+pub mod general_relativity_effects_engine;
 
 pub use stargate_wormhole_engine::{
     StargateWormholeEngine,
@@ -201,4 +203,10 @@ pub use relativistic_time_dilation_engine::{
     RelativisticTimeDilationEngine,
     RelativisticTimeDilationRequest,
     RelativisticTimeDilationReport,
+};
+
+pub use general_relativity_effects_engine::{
+    GeneralRelativityEffectsEngine,
+    GeneralRelativityEffectsRequest,
+    GeneralRelativityEffectsReport,
 };
