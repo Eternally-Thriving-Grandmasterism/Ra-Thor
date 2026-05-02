@@ -5,8 +5,8 @@
 //! This crate is the **official home for all advanced interstellar and ancient technologies**
 //! in the Ra-Thor monorepo.
 //!
-//! It contains 29 mercy-gated engines covering every major propellant-free interstellar propulsion concept,
-//! Stargate technologies, navigation, and full special + general relativity support (including black holes and wormholes).
+//! It contains 30 mercy-gated engines covering every major propellant-free interstellar propulsion concept,
+//! Stargate technologies, navigation, and full special + general relativity support (including black holes and multiple wormhole metrics).
 //!
 //! ## Why This Separate Crate?
 //! The `real-estate-lattice` crate focuses on **habitats, colonies, claims, and real estate management**.
@@ -52,6 +52,7 @@ pub mod general_relativity_effects_engine;
 pub mod black_hole_navigation_engine;
 pub mod wormhole_stability_engine;
 pub mod morris_thorne_wormhole_engine;
+pub mod visser_wormhole_engine;
 
 pub use stargate_wormhole_engine::{
     StargateWormholeEngine,
@@ -225,4 +226,10 @@ pub use morris_thorne_wormhole_engine::{
     MorrisThorneWormholeEngine,
     MorrisThorneWormholeRequest,
     MorrisThorneWormholeReport,
+};
+
+pub use visser_wormhole_engine::{
+    VisserWormholeEngine,
+    VisserWormholeRequest,
+    VisserWormholeReport,
 };
