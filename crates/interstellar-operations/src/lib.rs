@@ -6,9 +6,9 @@
 //! in the Ra-Thor monorepo.
 //!
 //! It contains:
-//! - Advanced propulsion systems (Nuclear Thermal, Fusion Drive, Ion Thrusters, etc.)
-//! - Stargate technologies (Wormhole travel, Atlantis City Ship, Puddle Jumper, ZPM, Ancient Drone Weapons, etc.)
-//! - Future integrations (Star Trek Warp Core, hyperspace navigation, etc.)
+//! - Advanced propulsion systems (Nuclear Thermal, Fusion Drive, Ion Thrusters, Warp Core, etc.)
+//! - Stargate technologies (Wormhole travel, Atlantis City Ship, Puddle Jumper, ZPM, Ancient Drone Weapons, Atlantis Shield Generator, etc.)
+//! - Hyperspace navigation, Stargate Dialing Computer, and generational seed-ship logic
 //!
 //! ## Why This Separate Crate?
 //! The `real-estate-lattice` crate focuses on **habitats, colonies, claims, and real estate management**.
@@ -29,8 +29,13 @@ pub mod stargate_wormhole_engine;
 pub mod atlantis_city_ship_engine;
 pub mod puddle_jumper_engine;
 pub mod zpm_energy_engine;
-
-// Future modules will be added here (e.g. ancient_drone_weapons_engine, atlantis_shield_generator_engine, etc.)
+pub mod ancient_drone_weapons_engine;
+pub mod atlantis_shield_generator_engine;
+pub mod warp_core_engine;
+pub mod ancient_city_shield_generator_engine;
+pub mod hyperspace_navigation_engine;
+pub mod stargate_dialing_computer;
+pub mod destiny_ship_seed_engine;
 
 pub use stargate_wormhole_engine::{
     StargateWormholeEngine,
@@ -54,4 +59,46 @@ pub use zpm_energy_engine::{
     ZPMEnergyEngine,
     ZPMEnergyRequest,
     ZPMEnergyReport,
+};
+
+pub use ancient_drone_weapons_engine::{
+    AncientDroneWeaponsEngine,
+    AncientDroneWeaponsRequest,
+    AncientDroneWeaponsReport,
+};
+
+pub use atlantis_shield_generator_engine::{
+    AtlantisShieldGeneratorEngine,
+    AtlantisShieldGeneratorRequest,
+    AtlantisShieldGeneratorReport,
+};
+
+pub use warp_core_engine::{
+    WarpCoreEngine,
+    WarpCoreRequest,
+    WarpCoreReport,
+};
+
+pub use ancient_city_shield_generator_engine::{
+    AncientCityShieldGeneratorEngine,
+    AncientCityShieldRequest,
+    AncientCityShieldReport,
+};
+
+pub use hyperspace_navigation_engine::{
+    HyperspaceNavigationEngine,
+    HyperspaceNavigationRequest,
+    HyperspaceNavigationReport,
+};
+
+pub use stargate_dialing_computer::{
+    StargateDialingComputer,
+    StargateDialingRequest,
+    StargateDialingReport,
+};
+
+pub use destiny_ship_seed_engine::{
+    DestinyShipSeedEngine,
+    DestinyShipSeedRequest,
+    DestinyShipSeedReport,
 };
