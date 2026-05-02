@@ -1,4 +1,4 @@
-//! Interstellar Operations — Ra-Thor (v0.5.24)
+//! Interstellar Operations — Ra-Thor (v0.5.25)
 //!
 //! ## Human-Readable Context
 //!
@@ -6,7 +6,7 @@
 //! in the Ra-Thor monorepo.
 //!
 //! It contains:
-//! - Advanced propulsion systems (Nuclear Thermal, Fusion Drive, Ion Thrusters, Warp Core, Antimatter, Quantum Vacuum Thruster, EmDrive, Solar Sail, Laser Sail, Magnetic Sail, etc.)
+//! - Advanced propulsion systems (Nuclear Thermal, Fusion Drive, Ion Thrusters, Warp Core, Antimatter, Quantum Vacuum Thruster, EmDrive, Solar Sail, Laser Sail, Magnetic Sail, Bussard Ramjet, etc.)
 //! - Stargate technologies (Wormhole travel, Atlantis City Ship, Puddle Jumper, ZPM, Ancient Drone Weapons, Atlantis Shield Generator, etc.)
 //! - Hyperspace navigation, Stargate Dialing Computer, and generational seed-ship logic
 //!
@@ -44,6 +44,7 @@ pub mod emdrive_engine;
 pub mod solar_sail_engine;
 pub mod laser_sail_propulsion_engine;
 pub mod magnetic_sail_propulsion_engine;
+pub mod bussard_ramjet_propulsion_engine;
 
 pub use stargate_wormhole_engine::{
     StargateWormholeEngine,
@@ -157,4 +158,10 @@ pub use magnetic_sail_propulsion_engine::{
     MagneticSailPropulsionEngine,
     MagneticSailRequest,
     MagneticSailReport,
+};
+
+pub use bussard_ramjet_propulsion_engine::{
+    BussardRamjetPropulsionEngine,
+    BussardRamjetRequest,
+    BussardRamjetReport,
 };
