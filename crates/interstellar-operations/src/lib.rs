@@ -36,6 +36,7 @@ pub mod ancient_city_shield_generator_engine;
 pub mod hyperspace_navigation_engine;
 pub mod stargate_dialing_computer;
 pub mod destiny_ship_seed_engine;
+pub mod nuclear_thermal_propulsion_engine;
 
 pub use stargate_wormhole_engine::{
     StargateWormholeEngine,
@@ -101,4 +102,10 @@ pub use destiny_ship_seed_engine::{
     DestinyShipSeedEngine,
     DestinyShipSeedRequest,
     DestinyShipSeedReport,
+};
+
+pub use nuclear_thermal_propulsion_engine::{
+    NuclearThermalPropulsionEngine,
+    NuclearThermalPropulsionRequest,
+    NuclearThermalPropulsionReport,
 };
