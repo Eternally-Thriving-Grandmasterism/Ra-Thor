@@ -1,0 +1,18 @@
+[package]
+name = "mercy-radiation-shield"
+version = "0.5.21"
+edition = "2021"
+authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
+description = "Mercy-Alchemical Radiation Transmutation Engine — Ultimate mercy-gated radiation shielding for Powrush Universe, deep space, and planetary protection. Powered by TOLC 7 Gates + Quantum Swarm + Ra-Thor AGI."
+license = "AG-SML"
+repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
+
+[dependencies]
+ra-thor-mercy = { path = "../mercy" }
+ra-thor-quantum-swarm-orchestrator = { path = "../quantum-swarm-orchestrator" }
+powrush = { path = "../powrush" }
+tokio = { version = "1.38", features = ["full"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tracing = "0.1"
+rand = "0.8"
