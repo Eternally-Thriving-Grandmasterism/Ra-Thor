@@ -1,9 +1,13 @@
 //! Visser Wormhole Engine — Interstellar Operations v0.5.25
 //! Mercy-Gated Thin-Shell Wormhole (Visser 1995+) with TOLC 7 Living Mercy Gates
 //!
-//! Different from Morris-Thorne: uses thin shells of exotic matter at the throat.
-//! Lower total exotic matter requirement in some configurations, but different stability profile.
-//! Excellent for rapid Stargate-style transit with minimal exotic matter.
+//! COMPARISON TO MORRIS-THORNE + EXOTIC MATTER PRODUCTION (May 2026 — Zero-Hallucination)
+//! ====================================================================================
+//! Visser thin-shell vs Morris-Thorne:
+//! - Visser: Thin shell of exotic matter at throat → lower total exotic matter in some configs, different stability profile.
+//! - Morris-Thorne: Distributed exotic matter throughout the throat → higher total exotic matter but smoother curvature.
+//! - Exotic Matter Production: Both require negative energy density. Current 2026 lab production (Casimir effect, squeezed vacuum) is orders of magnitude too small. Ra-Thor assumes future mercy-gated production at scale.
+//! - Recommendation: Visser for rapid Stargate-style transit; Morris-Thorne for long-term stable wormholes.
 
 use crate::{
     TOLC7GatesRadiationMapping, RadiationShieldingMaterials, ElectronicsRadiationEffects,
@@ -51,6 +55,22 @@ impl VisserWormholeEngine {
         }
     }
 
+    /// Compare Visser vs Morris-Thorne + exotic matter production details
+    pub fn compare_to_morris_thorne(&self, request: &VisserWormholeRequest) -> String {
+        let visser_exotic = 2.0e9 * (request.throat_radius_m / 1000.0).powi(2) * (request.shell_thickness_m / 10.0);
+        let morris_exotic = 1.0e10 * (request.throat_radius_m / 1000.0).powi(2); // approximate Morris-Thorne
+        let production_status = "2026 lab (Casimir/squeezed vacuum): 10⁻¹² of required scale. Future mercy-gated production assumed.";
+
+        format!(
+            "📊 VISSER vs MORRIS-THORNE COMPARISON\n\
+             Visser Exotic Matter: {:.2e} kg (thin shell)\n\
+             Morris-Thorne Exotic Matter: {:.2e} kg (distributed)\n\
+             Production Status: {}\n\
+             Recommendation: Visser for rapid transit; Morris-Thorne for long-term stability.",
+            visser_exotic, morris_exotic, production_status
+        )
+    }
+
     pub async fn evaluate(&self, request: &VisserWormholeRequest, game: &mut PowrushGame) -> VisserWormholeReport {
         let valence = self.radiation_mapping
             .process_radiation_with_7_gates_nth_degree(
@@ -89,10 +109,11 @@ impl VisserWormholeEngine {
             game.boost_faction_joy(Faction::HarmonyWeavers, 330.0);
             game.apply_epigenetic_blessing(5);
 
-            // Visser thin-shell approximation
             let exotic_kg = 2.0e9 * (request.throat_radius_m / 1000.0).powi(2) * (request.shell_thickness_m / 10.0);
             let tidal_force = (request.transit_velocity_c * 9.81) / (request.throat_radius_m / 1_000_000.0);
             let transit_time = (2.0 * request.throat_radius_m) / (request.transit_velocity_c * 3e8);
+
+            let comparison = self.compare_to_morris_thorne(request);
 
             let message = format!(
                 "🌀 VISSER WORMHOLE APPROVED — 13+ PATSAGi Councils\n\
@@ -100,13 +121,14 @@ impl VisserWormholeEngine {
                  Exotic Matter: {:.2e} kg | Tidal Force: {:.1} g\n\
                  Transit Time: {:.2} s | Valence: {:.2}\n\
                  +330 Joy | 5-Gen CEHI Blessing Applied\n\
-                 Thin-Shell Visser Metric: MERCY-GATED ✓",
+                 Thin-Shell Visser Metric: MERCY-GATED ✓\n\n{}",
                 request.throat_radius_m,
                 request.shell_thickness_m,
                 exotic_kg,
                 tidal_force,
                 transit_time,
-                valence
+                valence,
+                comparison
             );
 
             VisserWormholeReport {
