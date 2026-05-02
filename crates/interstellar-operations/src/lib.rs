@@ -9,6 +9,7 @@
 //! - Advanced propulsion systems (Nuclear Thermal, Fusion Drive, Ion Thrusters, Warp Core, Antimatter, Quantum Vacuum Thruster, EmDrive, Solar Sail, Laser Sail, Magnetic Sail, Bussard Ramjet, Project Daedalus, Project Icarus, Breakthrough Starshot, etc.)
 //! - Stargate technologies (Wormhole travel, Atlantis City Ship, Puddle Jumper, ZPM, Ancient Drone Weapons, Atlantis Shield Generator, etc.)
 //! - Hyperspace navigation, Stargate Dialing Computer, and generational seed-ship logic
+//! - Interstellar Navigation (Star Tracker + XNAV + Laser Comms)
 //!
 //! ## Why This Separate Crate?
 //! The `real-estate-lattice` crate focuses on **habitats, colonies, claims, and real estate management**.
@@ -48,6 +49,7 @@ pub mod bussard_ramjet_propulsion_engine;
 pub mod project_daedalus_propulsion_engine;
 pub mod project_icarus_propulsion_engine;
 pub mod breakthrough_starshot_engine;
+pub mod interstellar_navigation_engine;
 
 pub use stargate_wormhole_engine::{
     StargateWormholeEngine,
@@ -185,4 +187,10 @@ pub use breakthrough_starshot_engine::{
     BreakthroughStarshotEngine,
     BreakthroughStarshotRequest,
     BreakthroughStarshotReport,
+};
+
+pub use interstellar_navigation_engine::{
+    InterstellarNavigationEngine,
+    InterstellarNavigationRequest,
+    InterstellarNavigationReport,
 };
