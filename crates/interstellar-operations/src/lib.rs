@@ -143,4 +143,5 @@ pub use solar_sail_engine::{
     SolarSailEngine,
     SolarSailRequest,
     SolarSailReport,
+    SolarSailDesign,
 };
