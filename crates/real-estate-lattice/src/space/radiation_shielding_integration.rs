@@ -56,7 +56,7 @@ impl RadiationShieldingIntegration {
         game: &mut PowrushGame,
     ) -> RadiationShieldingReport {
         let (best_mat, props, _score) = self.materials.select_optimal_material(
-            request.radiation_type, request.radiation_flux, request.current_cehi
+            request.radiation_type, request.radiation_flux, request.current_cehi, &request.location
         );
 
         let elec_risk = self.electronics.calculate_electronics_risk(
