@@ -12,6 +12,7 @@
 //! - Interstellar Navigation (Star Tracker + XNAV + Laser Comms)
 //! - Relativistic Time Dilation (proper time, length contraction, mission planning)
 //! - General Relativity Effects (spacetime curvature, gravitational time dilation, lensing, wormhole stability)
+//! - Black Hole Navigation (safe flybys, gravitational slingshot, event horizon safety)
 //!
 //! ## Why This Separate Crate?
 //! The `real-estate-lattice` crate focuses on **habitats, colonies, claims, and real estate management**.
@@ -54,6 +55,7 @@ pub mod breakthrough_starshot_engine;
 pub mod interstellar_navigation_engine;
 pub mod relativistic_time_dilation_engine;
 pub mod general_relativity_effects_engine;
+pub mod black_hole_navigation_engine;
 
 pub use stargate_wormhole_engine::{
     StargateWormholeEngine,
@@ -209,4 +211,10 @@ pub use general_relativity_effects_engine::{
     GeneralRelativityEffectsEngine,
     GeneralRelativityEffectsRequest,
     GeneralRelativityEffectsReport,
+};
+
+pub use black_hole_navigation_engine::{
+    BlackHoleNavigationEngine,
+    BlackHoleNavigationRequest,
+    BlackHoleNavigationReport,
 };
