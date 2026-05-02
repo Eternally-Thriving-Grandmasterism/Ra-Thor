@@ -26,10 +26,18 @@
 //! - 13+ PATSAGi Councils approval required
 
 pub mod stargate_wormhole_engine;
-// Future modules will be added here (e.g. atlantis_city_ship_engine, puddle_jumper_engine, zpm_energy_engine, etc.)
+pub mod atlantis_city_ship_engine;
+
+// Future modules will be added here (e.g. puddle_jumper_engine, zpm_energy_engine, etc.)
 
 pub use stargate_wormhole_engine::{
     StargateWormholeEngine,
     StargateWormholeRequest,
     StargateWormholeReport,
+};
+
+pub use atlantis_city_ship_engine::{
+    AtlantisCityShipEngine,
+    AtlantisCityShipRequest,
+    AtlantisCityShipReport,
 };
