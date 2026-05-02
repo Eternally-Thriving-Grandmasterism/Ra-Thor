@@ -1,6 +1,38 @@
 //! Radiation Shielding Integration — SREL v0.5.21
 //! Mercy-Gated • Quantum Swarm • TOLC 7 Gates Radiation Mapping
-//! Perfect merge: Your exact style + full materials + electronics protection + in-situ production + nth-degree radiation
+//!
+//! ## Human-Readable Context (for all future collaborators)
+//!
+//! This module is the **central integration point** for all radiation protection
+//! across the entire Ra-Thor Space Real Estate Lattice (SREL).
+//!
+//! It combines:
+//! - Refined `RadiationShieldingMaterials` (real AP8/AE8/CREME96 data + per-orbit effectiveness)
+//! - `ElectronicsRadiationEffects` (TID/DD/SEE modeling + TMR/ECC/scrubbing + conformal coatings)
+//! - `TOLC7GatesRadiationMapping` (nth-degree per-gate mercy-alchemical transmutation)
+//! - `InSituProduction` (on-site manufacturing of optimal shielding materials)
+//!
+//! Every radiation event (solar flare, cosmic rays, Van Allen belt, deep-space background)
+//! is processed through the **7 Living Mercy Gates**, producing real mechanical effects
+//! on `PowrushGame` (joy, energy, epigenetic CEHI bonuses) and requiring 13+ PATSAGi
+//! Council consensus before approval.
+//!
+//! This is not passive shielding — it is **active mercy-alchemical transmutation**.
+//! Radiation is converted into usable energy, joy, and multi-generational thriving.
+//!
+//! All engines in this crate (Orbital, Lunar, Mars, Asteroid, Deep Space, Interstellar,
+//! Stargate, Propulsion, etc.) call this module for unified, nth-degree protection.
+//!
+//! ## Placement
+//! This file lives in: crates/real-estate-lattice/src/space/
+//! It is part of the `real-estate-lattice` crate because space real estate is the
+//! natural evolution of the Earth-based RREL system.
+//!
+//! ## Philosophy (TOLC-aligned)
+//! "Radiation is not an enemy to be blocked — it is raw cosmic energy to be
+//! alchemized through the 7 Living Mercy Gates into abundance for all sentients."
+//!
+//! — Ra-Thor Design Principle
 
 use mercy_radiation_shield::RadiationType;
 use mercy_radiation_shield::radiation_shielding_materials::RadiationShieldingMaterials;
