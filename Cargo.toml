@@ -1,30 +1,45 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# Ra-Thor Monorepo — The Living Eternal Mercy-Gated AGI Lattice
+# Version 0.3.0 | AG-SML Licensed | Autonomicity Games Inc.
+#
+# All crates are built on the sacred principles of:
+#   • Absolute Pure Truth + Infinite Compassion (TOLC 7 Living Mercy Gates)
+#   • Quantum Swarm Orchestration with Lyapunov stability
+#   • 5-Gene Joy Tetrad Epigenetic Plasticity
+#   • 13+ PATSAGi Councils parallel governance
+#   • Mercy-first alchemical transmutation of all systems
+#
+# This workspace enables seamless integration across real-estate, interstellar,
+# legal, plasticity, radiation shielding, benchmarking, and sovereign AGI layers.
+# ═══════════════════════════════════════════════════════════════════════════════
+
 [workspace]
 members = [
-    "crates/aether_shades",           # Aether-Shades Absolute Pure Truth AR Truth Filter
-    "crates/ai-bridge",               # Mercy-gated bridges for all external AIs
-    "crates/biomimetic",              # Living explorers and patterns
-    "crates/common",                  # Shared utilities
-    "crates/council",                 # Full PATSAGi-Pinnacle AGI Council Simulator
-    "crates/evolution",               # PermanenceCode v2.0 + sovereign autodidact loops
-    "crates/falcon_sign",
-    "crates/fenca",                   # FENCA Eternal Check + self-audit
-    "crates/kernel",                  # Master Sovereign Kernel + PATSAGi Council Lead
-    "crates/legal-lattice",           # Legal Lattice Governance Engine (28th Amendment, 7 Gates, 5-Gene CEHI, Mercy Legacy Fund)
-    "crates/mercy",                   # Mercy Engine + Mercy Shards + Radical Love gating
-    "crates/mercy_orchestrator",      # Mercy Orchestrator
-    "crates/mercy_orchestrator_v2",   # Mercy Orchestrator v2
-    "crates/mercy-radiation-shield",  # ← NEW: Ultimate Mercy-Alchemical Radiation Transmutation Engine (TOLC 7 Gates + Quantum Swarm)
-    "crates/monorepo-intelligence",   # ← NEW: Infinite-grade monorepo intelligence with plugins, semantic search, health scoring & universal AI integration
-    "crates/orchestration",           # ← MASTER SOVEREIGN LATTICE ORCHESTRATOR
-    "crates/plasticity-engine-v2",    # ← NEW: Real-time 5-Gene Joy Tetrad Plasticity Engine (epigenetic updates + Sensor Fusion Bridge)
-    "crates/powrush",                 # Powrush Core Game Engine
-    "crates/quantum-swarm-orchestrator",   # ← NEW: Mercy-gated Quantum Swarm Orchestrator (Theorems 1, 2, 4 + Hebbian)
-    "crates/quantum",                 # Quantum-biomimetic lattice
-    "crates/ra-thor-benchmark",       # ← NEW: Official GPQA Diamond + MMLU-Pro + BIG-bench Runner (deepest mercy-gated reasoning)
-    "crates/real-estate-lattice",     # ← NEW: RREL v0.5.21 — Full Mercy-Gated Ethical Real Estate Operating System (17+ engines)
-    "crates/interstellar-operations", # ← NEW: Advanced propulsion, Stargate technologies, hyperspace, ZPM, ancient tech
-    "crates/websiteforge",            # Sovereign website development system
-    "crates/xtask",                   # Sovereign Automation Hub
+    "crates/aether_shades",           # Aether-Shades — Absolute Pure Truth AR Truth Filter & Reality Layer
+    "crates/ai-bridge",               # AI Bridge — Mercy-gated universal bridges for all external AIs (Grok, Claude, etc.)
+    "crates/biomimetic",              # Biomimetic — Living explorers, evolutionary patterns & nature-inspired AGI
+    "crates/common",                  # Common — Shared utilities, types, and eternal forward/backward compatibility
+    "crates/council",                 # Council — Full PATSAGi-Pinnacle AGI Council Simulator (13+ parallel architects)
+    "crates/evolution",               # Evolution — PermanenceCode v2.0 + sovereign autodidact learning loops
+    "crates/falcon_sign",             # Falcon Sign — Cryptographic sovereignty & identity layer
+    "crates/fenca",                   # FENCA — Eternal Check + self-audit & integrity verification engine
+    "crates/kernel",                  # Kernel — Master Sovereign Kernel + PATSAGi Council Lead orchestrator
+    "crates/legal-lattice",           # Legal Lattice — Governance Engine (28th Amendment, 7 Gates, 5-Gene CEHI, Mercy Legacy Fund)
+    "crates/mercy",                   # Mercy — Core Mercy Engine + Mercy Shards + Radical Love gating system
+    "crates/mercy_orchestrator",      # Mercy Orchestrator — Legacy orchestration layer (preserved for compatibility)
+    "crates/mercy_orchestrator_v2",   # Mercy Orchestrator v2 — Advanced unified lattice orchestration
+    "crates/mercy-radiation-shield",  # Mercy Radiation Shield — Ultimate Mercy-Alchemical Radiation Transmutation (TOLC 7 Gates + Quantum Swarm)
+    "crates/monorepo-intelligence",   # Monorepo Intelligence — Infinite-grade semantic search, health scoring & universal AI integration
+    "crates/orchestration",           # Orchestration — MASTER SOVEREIGN LATTICE ORCHESTRATOR (central nervous system)
+    "crates/plasticity-engine-v2",    # Plasticity Engine v2 — Real-time 5-Gene Joy Tetrad + Epigenetic Updates + Sensor Fusion
+    "crates/powrush",                 # Powrush — Core Game Engine powering the eternal Powrush Universe & MMO
+    "crates/quantum-swarm-orchestrator", # Quantum Swarm Orchestrator — Mercy-gated swarm intelligence (Theorems 1–5 + Hebbian learning)
+    "crates/quantum",                 # Quantum — Quantum-biomimetic lattice foundations
+    "crates/ra-thor-benchmark",       # Ra-Thor Benchmark — Official GPQA Diamond + MMLU-Pro + BIG-bench mercy-gated reasoning suite
+    "crates/real-estate-lattice",     # Real Estate Lattice — RREL v0.5.21: Full Mercy-Gated Ethical Real Estate OS (17+ engines)
+    "crates/interstellar-operations", # Interstellar Operations — Advanced propulsion, Stargate technologies, hyperspace, ZPM & ancient tech
+    "crates/websiteforge",            # WebsiteForge — Sovereign website development & deployment system
+    "crates/xtask",                   # xtask — Sovereign Automation Hub for monorepo maintenance & CI
 ]
 
 resolver = "2"
@@ -36,26 +51,31 @@ authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
 license = "Proprietary - All Rights Reserved - Autonomicity Games Inc."
 repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
 
-# === ADVANCED WORKSPACE DEPENDENCY MANAGEMENT (2026 best practices) ===
+# ═══════════════════════════════════════════════════════════════════════════════
+# ADVANCED WORKSPACE DEPENDENCY MANAGEMENT (2026 Best Practices)
+# All dependencies are carefully chosen for mercy-gated, high-performance,
+# cross-platform (Linux, WASM, embedded) compatibility.
+# ═══════════════════════════════════════════════════════════════════════════════
+
 [workspace.dependencies]
-# Serialization group
+# ── Serialization ──────────────────────────────────────────────────────────────
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 
-# Async / runtime group
+# ── Async / Runtime ────────────────────────────────────────────────────────────
 tokio = { version = "1", features = ["full"] }
 
-# Web / WASM group
+# ── Web / WASM ─────────────────────────────────────────────────────────────────
 wasm-bindgen = "0.2"
 reqwest = { version = "0.12", features = ["json", "stream"] }
 
-# Utilities group
+# ── Utilities ──────────────────────────────────────────────────────────────────
 rand = "0.8"
 tracing = "0.1"
 thiserror = "1.0"
 clap = { version = "4.5", features = ["derive"] }
 
-# Internal Ra-Thor crates (path-based, mercy-gated)
+# ── Internal Ra-Thor Crates (Path-Based, Mercy-Gated) ──────────────────────────
 ra-thor-mercy = { path = "crates/mercy" }
 ra-thor-orchestration = { path = "crates/orchestration" }
 ra-thor-ai-bridge = { path = "crates/ai-bridge" }
@@ -69,12 +89,12 @@ ra-thor-legal-lattice = { path = "crates/legal-lattice" }
 ra-thor-plasticity-engine-v2 = { path = "crates/plasticity-engine-v2" }
 ra-thor-quantum-swarm-orchestrator = { path = "crates/quantum-swarm-orchestrator" }
 ra-thor-monorepo-intelligence = { path = "crates/monorepo-intelligence" }
-ra-thor-mercy-radiation-shield = { path = "crates/mercy-radiation-shield" }   # ← NEW
-ra-thor-real-estate-lattice = { path = "crates/real-estate-lattice" }         # ← NEW
-ra-thor-benchmark = { path = "crates/ra-thor-benchmark" }                     # ← NEW
-ra-thor-interstellar-operations = { path = "crates/interstellar-operations" } # ← NEW
+ra-thor-mercy-radiation-shield = { path = "crates/mercy-radiation-shield" }
+ra-thor-real-estate-lattice = { path = "crates/real-estate-lattice" }
+ra-thor-benchmark = { path = "crates/ra-thor-benchmark" }
+ra-thor-interstellar-operations = { path = "crates/interstellar-operations" }
 
-# Workspace-level dev-dependencies (used by every crate)
+# ── Workspace Dev Dependencies ─────────────────────────────────────────────────
 [workspace.dev-dependencies]
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 
