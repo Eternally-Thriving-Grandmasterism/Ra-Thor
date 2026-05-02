@@ -27,8 +27,10 @@
 
 pub mod stargate_wormhole_engine;
 pub mod atlantis_city_ship_engine;
+pub mod puddle_jumper_engine;
+pub mod zpm_energy_engine;
 
-// Future modules will be added here (e.g. puddle_jumper_engine, zpm_energy_engine, etc.)
+// Future modules will be added here (e.g. ancient_drone_weapons_engine, atlantis_shield_generator_engine, etc.)
 
 pub use stargate_wormhole_engine::{
     StargateWormholeEngine,
@@ -40,4 +42,16 @@ pub use atlantis_city_ship_engine::{
     AtlantisCityShipEngine,
     AtlantisCityShipRequest,
     AtlantisCityShipReport,
+};
+
+pub use puddle_jumper_engine::{
+    PuddleJumperEngine,
+    PuddleJumperRequest,
+    PuddleJumperReport,
+};
+
+pub use zpm_energy_engine::{
+    ZPMEnergyEngine,
+    ZPMEnergyRequest,
+    ZPMEnergyReport,
 };
