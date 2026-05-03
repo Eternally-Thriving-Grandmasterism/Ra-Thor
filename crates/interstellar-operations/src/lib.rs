@@ -5,7 +5,7 @@
 //! This crate is the **official home for all advanced interstellar and ancient technologies**
 //! in the Ra-Thor monorepo.
 //!
-//! It contains 30 mercy-gated engines covering every major propellant-free interstellar propulsion concept,
+//! It contains 32 mercy-gated engines covering every major propellant-free interstellar propulsion concept,
 //! Stargate technologies, navigation, and full special + general relativity support (including black holes and multiple wormhole metrics).
 //!
 //! ## Why This Separate Crate?
@@ -54,6 +54,8 @@ pub mod wormhole_stability_engine;
 pub mod morris_thorne_wormhole_engine;
 pub mod visser_wormhole_engine;
 pub mod exotic_matter_production;
+pub mod tolc_7_gates_radiation_mapping;
+pub mod cehi_epigenetic_blessings;
 
 pub use stargate_wormhole_engine::{
     StargateWormholeEngine,
@@ -236,3 +238,15 @@ pub use visser_wormhole_engine::{
 };
 
 pub use exotic_matter_production::ExoticMatterProduction;
+
+pub use tolc_7_gates_radiation_mapping::{
+    TOLC7GatesRadiationMapping,
+    GateMappingReport,
+    GateReport,
+};
+
+pub use cehi_epigenetic_blessings::{
+    CEHIEpigeneticBlessings,
+    CEHIBlessingReport,
+    GeneBlessing,
+};
