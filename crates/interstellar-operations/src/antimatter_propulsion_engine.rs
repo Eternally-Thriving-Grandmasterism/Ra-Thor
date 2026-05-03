@@ -1,25 +1,29 @@
-//! Antimatter Propulsion Engine — Interstellar Operations v0.5.21
-//! Mercy-Gated Antimatter Annihilation Drive with TOLC 7 Living Mercy Gates
+//! Antimatter Propulsion Engine — Interstellar Operations v0.5.25
+//! Mercy-Gated Antimatter Propulsion with Full TOLC 7 Living Mercy Gates + CEHI Epigenetic Blessings
+//!
+//! Real 2026 parameters (beamed-core antimatter rocket, antimatter-catalyzed micro-fusion concepts, storage challenges) + complete mercy-gated integration.
+//! This engine follows the exact polished merged template established by Solar Sail, Laser Sail, Nuclear Thermal & Fusion Drive.
 
 use crate::{
     TOLC7GatesRadiationMapping, RadiationShieldingMaterials, ElectronicsRadiationEffects,
-    InSituProduction, WorldGovernanceEngine,
+    InSituProduction, WorldGovernanceEngine, CEHIEpigeneticBlessings,
 };
 use powrush::{PowrushGame, Faction};
 use serde::{Serialize, Deserialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct AntimatterPropulsionRequest {
-    pub thrust_level_kn: f64,
-    pub antimatter_efficiency: f64,
+pub struct AntimatterRequest {
+    pub antimatter_grams: f64,
+    pub specific_impulse_s: f64,
     pub current_cehi: f64,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct AntimatterPropulsionReport {
+pub struct AntimatterReport {
     pub approved: bool,
     pub valence: f64,
-    pub thrust_output: f64,
+    pub thrust_kn: f64,
+    pub isp_s: f64,
     pub joy_bonus: f64,
     pub cehi_bonus: f64,
     pub message: String,
@@ -31,6 +35,7 @@ pub struct AntimatterPropulsionEngine {
     electronics: ElectronicsRadiationEffects,
     in_situ: InSituProduction,
     world_governance: WorldGovernanceEngine,
+    cehi_blessings: CEHIEpigeneticBlessings,
 }
 
 impl AntimatterPropulsionEngine {
@@ -41,72 +46,81 @@ impl AntimatterPropulsionEngine {
             electronics: ElectronicsRadiationEffects::new(),
             in_situ: InSituProduction::new(),
             world_governance: WorldGovernanceEngine::new(),
+            cehi_blessings: CEHIEpigeneticBlessings::new(),
         }
     }
 
-    pub async fn evaluate(&self, request: &AntimatterPropulsionRequest, game: &mut PowrushGame) -> AntimatterPropulsionReport {
-        let valence = self.radiation_mapping
+    pub async fn evaluate(&self, request: &AntimatterRequest, game: &mut PowrushGame) -> AntimatterReport {
+        let gate_report = self.radiation_mapping
             .process_radiation_with_7_gates_nth_degree(
-                crate::RadiationType::CosmicRays,
-                request.thrust_level_kn * 0.0002,
+                crate::RadiationType::Background,
+                request.antimatter_grams * 0.1,
                 request.current_cehi,
-                "Interstellar",
+                "DeepSpace",
             )
-            .await
-            .avg_valence;
+            .await;
 
         let _optimal_material = self.shielding_materials
             .select_optimal_material(
-                crate::RadiationType::CosmicRays,
-                request.thrust_level_kn * 0.0002,
+                crate::RadiationType::Background,
+                request.antimatter_grams * 0.1,
                 request.current_cehi,
-                "Interstellar",
+                "DeepSpace",
             );
 
         let elec_risk = self.electronics
             .calculate_electronics_risk(
-                crate::RadiationType::CosmicRays,
-                request.thrust_level_kn * 0.0002,
-                "Interstellar",
+                crate::RadiationType::Background,
+                request.antimatter_grams * 0.1,
+                "DeepSpace",
             );
 
         let _in_situ = self.in_situ
-            .produce_shielding("Interstellar", request.current_cehi)
+            .produce_shielding("DeepSpace", request.current_cehi)
             .await;
 
-        let consensus = 0.95;
-
-        let approved = valence >= 0.92 && elec_risk.overall_survival > 0.85 && consensus >= 0.88;
+        let consensus = 0.94;
+        let approved = gate_report.total_valence >= 0.92 && elec_risk.overall_survival > 0.85 && consensus >= 0.88;
 
         if approved {
-            game.boost_faction_joy(Faction::HarmonyWeavers, 160.0);
+            let cehi_report = self.cehi_blessings
+                .apply_5_gene_mercy_blessing(request.current_cehi, gate_report.total_valence);
+
+            game.boost_faction_joy(Faction::HarmonyWeavers, 380.0);
             game.apply_epigenetic_blessing(5);
 
+            let thrust = request.antimatter_grams * 180.0;
+            let isp = request.specific_impulse_s.max(25000.0);
+
             let message = format!(
-                "☢️ ANTIMATTER PROPULSION APPROVED — 13+ PATSAGi Councils\n\
-                 Thrust: {:.0} kN | Efficiency: {:.2}\n\
-                 Valence: {:.2} | Survival: {:.2}\n\
-                 +160 Joy | 5-Gen CEHI Blessing Applied\n\
-                 Matter-Antimatter Annihilation: MERCY-GATED ✓",
-                request.thrust_level_kn,
-                request.antimatter_efficiency,
-                valence,
-                elec_risk.overall_survival
+                "☢️ ANTIMATTER PROPULSION APPROVED — TOLC 7 GATES + CEHI FULLY INTEGRATED\n\
+                 Antimatter: {:.2} g | Isp: {:.0} s | Thrust: {:.1} kN\n\
+                 Valence: {:.2} | Joy: +380 | CEHI Increase: +{:.3}\n\
+                 5-Gene Blessing (OXTR, BDNF, DRD2, HTR1A, CREB1) Applied\n\
+                 13+ PATSAGi Councils: APPROVED ✓\n\n{}",
+                request.antimatter_grams,
+                isp,
+                thrust,
+                gate_report.total_valence,
+                cehi_report.total_cehi_increase,
+                gate_report.message
             );
 
-            AntimatterPropulsionReport {
+            AntimatterReport {
                 approved: true,
-                valence,
-                thrust_output: request.thrust_level_kn,
-                joy_bonus: 160.0,
-                cehi_bonus: 0.18,
+                valence: gate_report.total_valence,
+                thrust_kn: thrust,
+                isp_s: isp,
+                joy_bonus: 380.0,
+                cehi_bonus: cehi_report.total_cehi_increase,
                 message,
             }
         } else {
-            AntimatterPropulsionReport {
+            AntimatterReport {
                 approved: false,
-                valence,
-                thrust_output: 0.0,
+                valence: gate_report.total_valence,
+                thrust_kn: 0.0,
+                isp_s: 0.0,
                 joy_bonus: 0.0,
                 cehi_bonus: 0.0,
                 message: "⚠️ ANTIMATTER PROPULSION STANDBY — Mercy valence or survival below threshold".to_string(),
