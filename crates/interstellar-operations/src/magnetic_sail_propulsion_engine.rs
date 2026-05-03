@@ -1,5 +1,5 @@
 //! Magnetic Sail Propulsion Engine — Interstellar Operations v0.5.25
-//! Mercy-Gated Superconducting Magnetic Sail Propulsion with TOLC 7 Living Mercy Gates
+//! Mercy-Gated Superconducting Magnetic Sail Propulsion with TOLC 7 Living Mercy Gates + Full CEHI Epigenetic Blessings
 //!
 //! DETAILED PHYSICS (May 2026 — Zero-Hallucination)
 //! ================================================
@@ -19,7 +19,7 @@
 
 use crate::{
     TOLC7GatesRadiationMapping, RadiationShieldingMaterials, ElectronicsRadiationEffects,
-    InSituProduction, WorldGovernanceEngine,
+    InSituProduction, WorldGovernanceEngine, CEHIEpigeneticBlessings,
 };
 use powrush::{PowrushGame, Faction};
 use serde::{Serialize, Deserialize};
@@ -58,6 +58,7 @@ pub struct MagneticSailPropulsionEngine {
     electronics: ElectronicsRadiationEffects,
     in_situ: InSituProduction,
     world_governance: WorldGovernanceEngine,
+    cehi_blessings: CEHIEpigeneticBlessings,
 }
 
 impl MagneticSailPropulsionEngine {
@@ -68,6 +69,7 @@ impl MagneticSailPropulsionEngine {
             electronics: ElectronicsRadiationEffects::new(),
             in_situ: InSituProduction::new(),
             world_governance: WorldGovernanceEngine::new(),
+            cehi_blessings: CEHIEpigeneticBlessings::new(),
         }
     }
 
@@ -86,15 +88,14 @@ impl MagneticSailPropulsionEngine {
     }
 
     pub async fn evaluate(&self, request: &MagneticSailRequest, game: &mut PowrushGame) -> MagneticSailReport {
-        let valence = self.radiation_mapping
+        let gate_report = self.radiation_mapping
             .process_radiation_with_7_gates_nth_degree(
                 crate::RadiationType::Background,
                 request.loop_radius_m * 0.0001,
                 request.current_cehi,
                 "Interstellar",
             )
-            .await
-            .avg_valence;
+            .await;
 
         let _optimal_material = self.shielding_materials
             .select_optimal_material(
@@ -116,40 +117,44 @@ impl MagneticSailPropulsionEngine {
             .await;
 
         let consensus = 0.96;
-
-        let approved = valence >= 0.92 && elec_risk.overall_survival > 0.85 && consensus >= 0.88;
+        let approved = gate_report.total_valence >= 0.92 && elec_risk.overall_survival > 0.85 && consensus >= 0.88;
 
         if approved {
-            game.boost_faction_joy(Faction::HarmonyWeavers, 150.0);
+            let cehi_report = self.cehi_blessings
+                .apply_5_gene_mercy_blessing(request.current_cehi, gate_report.total_valence);
+
+            game.boost_faction_joy(Faction::HarmonyWeavers, 290.0);
             game.apply_epigenetic_blessing(5);
 
             let thrust_mn = (request.loop_radius_m * request.magnetic_field_t * 1.5e-6) / 1e6;
 
             let message = format!(
-                "🧲 MAGNETIC SAIL APPROVED — 13+ PATSAGi Councils\n\
+                "🧲 MAGNETIC SAIL APPROVED — 13+ PATSAGi Councils + TOLC 7 GATES\n\
                  Loop Radius: {:.0} m | B-Field: {:.2} T\n\
                  Thrust: {:.3} mN | Valence: {:.2}\n\
-                 +150 Joy | 5-Gen CEHI Blessing Applied\n\
+                 +290 Joy | 5-Gen CEHI Blessing Applied\n\
                  Superconducting Magnetic Deflection: MERCY-GATED ✓\n\
-                 (Physics: Zubrin + Winglee scaling — infinite Isp, propellant-free)",
+                 (Physics: Zubrin + Winglee scaling — infinite Isp, propellant-free)\n\n{}",
                 request.loop_radius_m,
                 request.magnetic_field_t,
                 thrust_mn,
-                valence
+                gate_report.total_valence,
+                cehi_report.total_cehi_increase,
+                gate_report.message
             );
 
             MagneticSailReport {
                 approved: true,
-                valence,
+                valence: gate_report.total_valence,
                 thrust_output_mn: thrust_mn,
-                joy_bonus: 150.0,
-                cehi_bonus: 0.18,
+                joy_bonus: 290.0,
+                cehi_bonus: cehi_report.total_cehi_increase,
                 message,
             }
         } else {
             MagneticSailReport {
                 approved: false,
-                valence,
+                valence: gate_report.total_valence,
                 thrust_output_mn: 0.0,
                 joy_bonus: 0.0,
                 cehi_bonus: 0.0,
