@@ -1,12 +1,12 @@
-//! Solar Sail Engine — Interstellar Operations v0.5.23
-//! Mercy-Gated Photon-Powered Solar Sail Propulsion with TOLC 7 Living Mercy Gates
+//! Solar Sail Engine — Interstellar Operations v0.5.25
+//! Mercy-Gated Photon-Powered Solar Sail Propulsion with TOLC 7 Living Mercy Gates + Full CEHI Epigenetic Blessings
 //!
 //! Real-world comparison of flown and planned solar sail designs (May 2026 data).
-//! Integrated thrust calculation comparison + attitude control simulation for mission-critical use.
+//! Integrated thrust calculation comparison + attitude control simulation + complete TOLC 7 + CEHI integration for mission-critical use.
 
 use crate::{
     TOLC7GatesRadiationMapping, RadiationShieldingMaterials, ElectronicsRadiationEffects,
-    InSituProduction, WorldGovernanceEngine,
+    InSituProduction, WorldGovernanceEngine, CEHIEpigeneticBlessings,
 };
 use powrush::{PowrushGame, Faction};
 use serde::{Serialize, Deserialize};
@@ -53,6 +53,7 @@ pub struct SolarSailEngine {
     electronics: ElectronicsRadiationEffects,
     in_situ: InSituProduction,
     world_governance: WorldGovernanceEngine,
+    cehi_blessings: CEHIEpigeneticBlessings,
 }
 
 impl SolarSailEngine {
@@ -63,6 +64,7 @@ impl SolarSailEngine {
             electronics: ElectronicsRadiationEffects::new(),
             in_situ: InSituProduction::new(),
             world_governance: WorldGovernanceEngine::new(),
+            cehi_blessings: CEHIEpigeneticBlessings::new(),
         }
     }
 
@@ -156,15 +158,15 @@ impl SolarSailEngine {
     }
 
     pub async fn evaluate(&self, request: &SolarSailRequest, game: &mut PowrushGame) -> SolarSailReport {
-        let valence = self.radiation_mapping
+        // Full TOLC 7 Living Mercy Gates nth-degree processing
+        let gate_report = self.radiation_mapping
             .process_radiation_with_7_gates_nth_degree(
                 crate::RadiationType::SolarFlare,
                 request.sail_area_m2 * 0.000001,
                 request.current_cehi,
                 "Interstellar",
             )
-            .await
-            .avg_valence;
+            .await;
 
         let _optimal_material = self.shielding_materials
             .select_optimal_material(
@@ -186,43 +188,51 @@ impl SolarSailEngine {
             .await;
 
         let consensus = 0.96;
-        let approved = valence >= 0.92 && elec_risk.overall_survival > 0.85 && consensus >= 0.88;
+        let approved = gate_report.total_valence >= 0.92 && elec_risk.overall_survival > 0.85 && consensus >= 0.88;
 
         if approved {
-            game.boost_faction_joy(Faction::HarmonyWeavers, 120.0);
+            // Apply full 5-gene CEHI epigenetic blessing (new system)
+            let cehi_report = self.cehi_blessings
+                .apply_5_gene_mercy_blessing(request.current_cehi, gate_report.total_valence);
+
+            game.boost_faction_joy(Faction::HarmonyWeavers, 280.0);
             game.apply_epigenetic_blessing(5);
 
             let (theoretical, real, efficiency) = self.compare_thrust_calculations(request);
             let attitude = self.simulate_attitude_control(request.sail_area_m2).await;
 
             let message = format!(
-                "🌞 SOLAR SAIL APPROVED — 13+ PATSAGi Councils\n\
+                "🌞 SOLAR SAIL APPROVED — TOLC 7 GATES + CEHI FULLY INTEGRATED\n\
                  Sail Area: {:.0} m² | Distance: {:.2} AU\n\
                  Theoretical Thrust: {:.3} mN | Real Thrust: {:.3} mN (Eff: {:.1}%)\n\
                  Attitude Control: {} | Stability: {:.2}\n\
-                 +120 Joy | 5-Gen CEHI Blessing Applied\n\
-                 Photon-Powered, Propellant-Free: MERCY-GATED ✓",
+                 Valence: {:.2} | Joy: +280 | CEHI Increase: +{:.3}\n\
+                 5-Gene Blessing (OXTR, BDNF, DRD2, HTR1A, CREB1) Applied\n\
+                 13+ PATSAGi Councils: APPROVED ✓\n\n{}",
                 request.sail_area_m2,
                 request.distance_from_sun_au,
                 theoretical,
                 real,
                 efficiency * 100.0,
                 attitude.method,
-                attitude.stability
+                attitude.stability,
+                gate_report.total_valence,
+                cehi_report.total_cehi_increase,
+                gate_report.message
             );
 
             SolarSailReport {
                 approved: true,
-                valence,
+                valence: gate_report.total_valence,
                 thrust_output_mn: real,
-                joy_bonus: 120.0,
-                cehi_bonus: 0.18,
+                joy_bonus: 280.0,
+                cehi_bonus: cehi_report.total_cehi_increase,
                 message,
             }
         } else {
             SolarSailReport {
                 approved: false,
-                valence,
+                valence: gate_report.total_valence,
                 thrust_output_mn: 0.0,
                 joy_bonus: 0.0,
                 cehi_bonus: 0.0,
