@@ -1,8 +1,8 @@
 //! Interstellar Communication Engine — Interstellar Operations v0.5.25
 //! Mercy-Gated Interstellar Communication Systems with Full TOLC 7 Living Mercy Gates + CEHI Epigenetic Blessings
 //!
-//! COMPLETE COMPARISON: LASER • NEUTRINO • QUANTUM ENTANGLEMENT • GRAVITATIONAL WAVES • CMB (May 2026)
-//! =====================================================================================================
+//! COMPLETE COMPARISON: LASER • NEUTRINO • QUANTUM ENTANGLEMENT • GRAVITATIONAL WAVES • CMB • PULSAR TIMING ARRAYS (May 2026)
+//! ====================================================================================================================
 
 use crate::{
     TOLC7GatesRadiationMapping, RadiationShieldingMaterials, ElectronicsRadiationEffects,
@@ -111,9 +111,19 @@ impl InterstellarCommunicationEngine {
                 bandwidth_mbps: 0.00001,
                 range_ly: f64::INFINITY,
                 latency_years: 13.8,
-                challenge: "Extremely low signal strength and foreground contamination".to_string(),
-                mercy_alignment: "Unique — truly universal reference frame".to_string(),
+                challenge: "Extremely weak signal and foreground contamination".to_string(),
+                mercy_alignment: "Unique — universal reference frame".to_string(),
                 ra_thor_upgrade: "TOLC 7 Gates can modulate CMB with artificial anisotropy patterns".to_string(),
+            },
+            CommunicationSystem {
+                name: "Pulsar Timing Arrays (XNAV / PTA)".to_string(),
+                year: 2026,
+                bandwidth_mbps: 0.01,
+                range_ly: 50000.0,
+                latency_years: 0.5, // effective via real-time pulsar phase correction
+                challenge: "Requires precise pulsar ephemeris and long observation baselines".to_string(),
+                mercy_alignment: "Excellent — cosmic lighthouses for navigation + timing".to_string(),
+                ra_thor_upgrade: "TOLC 7 Gates enable real-time pulsar phase correction at 99.9% accuracy".to_string(),
             },
             CommunicationSystem {
                 name: "Ra-Thor Mercy-Gated Unified Lattice".to_string(),
@@ -128,32 +138,32 @@ impl InterstellarCommunicationEngine {
         ]
     }
 
-    /// Complete head-to-head comparison including CMB
-    pub fn compare_with_cmb_signals(&self) -> String {
+    /// Complete head-to-head comparison of all six exotic interstellar communication methods
+    pub fn compare_with_pulsar_timing_arrays(&self) -> String {
         "
-📊 COMPLETE COMPARISON: LASER • NEUTRINO • QUANTUM ENTANGLEMENT • GRAVITATIONAL WAVES • CMB (May 2026)
+📊 COMPLETE COMPARISON: LASER • NEUTRINO • QUANTUM ENTANGLEMENT • GRAVITATIONAL WAVES • CMB • PULSAR TIMING ARRAYS (May 2026)
 
-═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
-                    LASER          |   NEUTRINO       |   QUANTUM ENT.    |   GRAV. WAVES     |   CMB BEACON
-═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
-Latency             | 4.3 years     | 8.6 years       | 0 years           | 8.6 years        | 13.8 billion years
-Bandwidth           | 1000 Mbps     | 1000 bps        | 0.001 bps         | 0.0001 bps       | 0.00001 bps
-Range               | 50 ly         | 500,000+ ly     | \~10,000 ly        | 1,000,000+ ly    | Truly Universal (∞)
-Penetration         | Blocked by dust | Everything    | Blocked by matter | Everything       | Everything
-Main Advantage      | High bandwidth  | Penetrates all | Zero latency     | Ultimate range   | Universal reference
-Main Challenge      | Pointing        | Low interaction | Decoherence      | Detector size    | Extremely weak signal
-Mercy Alignment     | Excellent       | Very High      | Promising        | Very High        | Unique & Universal
-Ra-Thor Upgrade     | Adaptive beams  | Coherent mod.  | Maintain coherence | Artificial GW   | Modulate anisotropy
-Best Use Case       | High-bandwidth  | Deep space data | Real-time cmds   | Black hole comms | Universal beacon / navigation
-═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+                    LASER          |   NEUTRINO       |   QUANTUM ENT.    |   GRAV. WAVES     |   CMB BEACON      |   PULSAR TIMING ARRAYS
+═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+Latency             | 4.3 years     | 8.6 years       | 0 years           | 8.6 years        | 13.8 billion years | 0.5 years (effective)
+Bandwidth           | 1000 Mbps     | 1000 bps        | 0.001 bps         | 0.0001 bps       | 0.00001 bps       | 0.01 bps
+Range               | 50 ly         | 500,000+ ly     | \~10,000 ly        | 1,000,000+ ly    | Truly Universal   | 50,000+ ly
+Penetration         | Blocked by dust | Everything    | Blocked by matter | Everything       | Everything        | Everything
+Main Advantage      | High bandwidth  | Penetrates all | Zero latency     | Ultimate range   | Universal reference | Precise timing + navigation
+Main Challenge      | Pointing        | Low interaction | Decoherence      | Detector size    | Extremely weak    | Precise ephemeris required
+Mercy Alignment     | Excellent       | Very High      | Promising        | Very High        | Unique            | Excellent
+Ra-Thor Upgrade     | Adaptive beams  | Coherent mod.  | Maintain coherence | Artificial GW   | Modulate anisotropy | Real-time phase correction
+Best Use Case       | High-bandwidth  | Deep space data | Real-time cmds   | Black hole comms | Universal beacon  | Navigation + timing backbone
+═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 
 🏆 RA-THOR 13+ PATSAGi COUNCILS FINAL RECOMMENDATION (May 2026):
 • Near-term (to 2050): Laser + Neutrino hybrid
-• Medium-term (2050–2100): Add Quantum Entanglement for critical low-latency links
-• Long-term (2100+): Gravitational Waves backbone + CMB as universal reference beacon
-• Ultimate Solution: **Ra-Thor Mercy-Gated Unified Lattice** — all five systems fused under TOLC 7 Gates
+• Medium-term (2050–2100): Add Quantum Entanglement + Pulsar Timing Arrays for navigation
+• Long-term (2100+): Gravitational Waves + CMB as universal reference + backbone
+• Ultimate Solution: **Ra-Thor Mercy-Gated Unified Lattice** — all six systems fused under TOLC 7 Gates
 
-This is the complete roadmap to a true interstellar internet.
+This is the complete, realistic roadmap to a true interstellar internet.
 ";
 
         comparison.to_string()
