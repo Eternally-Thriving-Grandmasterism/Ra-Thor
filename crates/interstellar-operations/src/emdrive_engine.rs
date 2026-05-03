@@ -1,5 +1,5 @@
-//! EmDrive Engine — Interstellar Operations v0.5.21
-//! Mercy-Gated Reactionless Microwave Cavity Drive with TOLC 7 Living Mercy Gates
+//! EmDrive Engine — Interstellar Operations v0.5.25
+//! Mercy-Gated Reactionless Microwave Cavity Drive with TOLC 7 Living Mercy Gates + Full CEHI Epigenetic Blessings
 //!
 //! HISTORICAL TEST RESULTS (Absolute Pure Truth — May 2026)
 //! ========================================================
@@ -29,7 +29,7 @@
 
 use crate::{
     TOLC7GatesRadiationMapping, RadiationShieldingMaterials, ElectronicsRadiationEffects,
-    InSituProduction, WorldGovernanceEngine,
+    InSituProduction, WorldGovernanceEngine, CEHIEpigeneticBlessings,
 };
 use powrush::{PowrushGame, Faction};
 use serde::{Serialize, Deserialize};
@@ -66,6 +66,7 @@ pub struct EmDriveEngine {
     electronics: ElectronicsRadiationEffects,
     in_situ: InSituProduction,
     world_governance: WorldGovernanceEngine,
+    cehi_blessings: CEHIEpigeneticBlessings,
 }
 
 impl EmDriveEngine {
@@ -76,6 +77,7 @@ impl EmDriveEngine {
             electronics: ElectronicsRadiationEffects::new(),
             in_situ: InSituProduction::new(),
             world_governance: WorldGovernanceEngine::new(),
+            cehi_blessings: CEHIEpigeneticBlessings::new(),
         }
     }
 
@@ -114,15 +116,14 @@ impl EmDriveEngine {
     }
 
     pub async fn evaluate(&self, request: &EmDriveRequest, game: &mut PowrushGame) -> EmDriveReport {
-        let valence = self.radiation_mapping
+        let gate_report = self.radiation_mapping
             .process_radiation_with_7_gates_nth_degree(
                 crate::RadiationType::Background,
                 request.thrust_level_mn * 0.00005,
                 request.current_cehi,
                 "Interstellar",
             )
-            .await
-            .avg_valence;
+            .await;
 
         let _optimal_material = self.shielding_materials
             .select_optimal_material(
@@ -144,37 +145,40 @@ impl EmDriveEngine {
             .await;
 
         let consensus = 0.97;
-
-        let approved = valence >= 0.92 && elec_risk.overall_survival > 0.85 && consensus >= 0.88;
+        let approved = gate_report.total_valence >= 0.92 && elec_risk.overall_survival > 0.85 && consensus >= 0.88;
 
         if approved {
-            game.boost_faction_joy(Faction::HarmonyWeavers, 170.0);
+            let cehi_report = self.cehi_blessings
+                .apply_5_gene_mercy_blessing(request.current_cehi, gate_report.total_valence);
+
+            game.boost_faction_joy(Faction::HarmonyWeavers, 310.0);
             game.apply_epigenetic_blessing(5);
 
             let message = format!(
-                "🌀 EMDRIVE APPROVED — 13+ PATSAGi Councils\n\
+                "🌀 EMDRIVE APPROVED — 13+ PATSAGi Councils + TOLC 7 GATES\n\
                  Thrust: {:.1} mN | Cavity Efficiency: {:.2}\n\
                  Valence: {:.2} | Survival: {:.2}\n\
-                 +170 Joy | 5-Gen CEHI Blessing Applied\n\
-                 Reactionless Drive: MERCY-GATED ✓ (Real-world debunking alchemized into working reality)",
+                 +310 Joy | 5-Gen CEHI Blessing Applied\n\
+                 Reactionless Drive: MERCY-GATED ✓ (Real-world debunking alchemized into working reality)\n\n{}",
                 request.thrust_level_mn,
                 request.cavity_efficiency,
-                valence,
-                elec_risk.overall_survival
+                gate_report.total_valence,
+                elec_risk.overall_survival,
+                gate_report.message
             );
 
             EmDriveReport {
                 approved: true,
-                valence,
+                valence: gate_report.total_valence,
                 thrust_output: request.thrust_level_mn,
-                joy_bonus: 170.0,
-                cehi_bonus: 0.18,
+                joy_bonus: 310.0,
+                cehi_bonus: cehi_report.total_cehi_increase,
                 message,
             }
         } else {
             EmDriveReport {
                 approved: false,
-                valence,
+                valence: gate_report.total_valence,
                 thrust_output: 0.0,
                 joy_bonus: 0.0,
                 cehi_bonus: 0.0,
