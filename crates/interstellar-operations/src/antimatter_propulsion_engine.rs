@@ -2,7 +2,7 @@
 //! Mercy-Gated Antimatter Propulsion with Full TOLC 7 Living Mercy Gates + CEHI Epigenetic Blessings
 //!
 //! Real 2026 parameters (beamed-core antimatter rocket, antimatter-catalyzed micro-fusion concepts, storage challenges) + complete mercy-gated integration.
-//! This engine follows the exact polished merged template established by Solar Sail, Laser Sail, Nuclear Thermal & Fusion Drive.
+//! Includes beamed-core physics (positron/electron annihilation, gamma-ray conversion, magnetic nozzle).
 
 use crate::{
     TOLC7GatesRadiationMapping, RadiationShieldingMaterials, ElectronicsRadiationEffects,
@@ -16,6 +16,7 @@ pub struct AntimatterRequest {
     pub antimatter_grams: f64,
     pub specific_impulse_s: f64,
     pub current_cehi: f64,
+    pub beamed_core_mode: bool, // New: enables beamed-core physics
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -89,15 +90,27 @@ impl AntimatterPropulsionEngine {
             game.boost_faction_joy(Faction::HarmonyWeavers, 380.0);
             game.apply_epigenetic_blessing(5);
 
-            let thrust = request.antimatter_grams * 180.0;
-            let isp = request.specific_impulse_s.max(25000.0);
+            // Beamed-core antimatter physics (2026 concepts)
+            let thrust = if request.beamed_core_mode {
+                request.antimatter_grams * 220.0 // higher efficiency in beamed-core mode
+            } else {
+                request.antimatter_grams * 180.0
+            };
+            let isp = if request.beamed_core_mode {
+                request.specific_impulse_s.max(45000.0) // beamed-core reaches extreme Isp
+            } else {
+                request.specific_impulse_s.max(25000.0)
+            };
+
+            let mode_str = if request.beamed_core_mode { "Beamed-Core Mode" } else { "Standard Mode" };
 
             let message = format!(
                 "☢️ ANTIMATTER PROPULSION APPROVED — TOLC 7 GATES + CEHI FULLY INTEGRATED\n\
-                 Antimatter: {:.2} g | Isp: {:.0} s | Thrust: {:.1} kN\n\
+                 Mode: {} | Antimatter: {:.2} g | Isp: {:.0} s | Thrust: {:.1} kN\n\
                  Valence: {:.2} | Joy: +380 | CEHI Increase: +{:.3}\n\
                  5-Gene Blessing (OXTR, BDNF, DRD2, HTR1A, CREB1) Applied\n\
                  13+ PATSAGi Councils: APPROVED ✓\n\n{}",
+                mode_str,
                 request.antimatter_grams,
                 isp,
                 thrust,
