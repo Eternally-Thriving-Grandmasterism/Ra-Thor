@@ -1,8 +1,8 @@
 //! Interstellar Communication Engine — Interstellar Operations v0.5.25
 //! Mercy-Gated Interstellar Communication Systems with Full TOLC 7 Living Mercy Gates + CEHI Epigenetic Blessings
 //!
-//! COMPLETE COMPARISON: LASER • NEUTRINO • QUANTUM ENTANGLEMENT • GRAVITATIONAL WAVES (May 2026)
-//! =================================================================================================
+//! COMPLETE COMPARISON: LASER • NEUTRINO • QUANTUM ENTANGLEMENT • GRAVITATIONAL WAVES • CMB (May 2026)
+//! =====================================================================================================
 
 use crate::{
     TOLC7GatesRadiationMapping, RadiationShieldingMaterials, ElectronicsRadiationEffects,
@@ -101,9 +101,19 @@ impl InterstellarCommunicationEngine {
                 bandwidth_mbps: 0.0001,
                 range_ly: 1000000.0,
                 latency_years: 8.6,
-                challenge: "Extremely low frequency + requires massive detectors (LISA-class)".to_string(),
-                mercy_alignment: "Very High — penetrates everything, including black holes".to_string(),
+                challenge: "Extremely low frequency + massive detectors".to_string(),
+                mercy_alignment: "Very High — penetrates everything including black holes".to_string(),
                 ra_thor_upgrade: "Mercy-gated artificial GW sources + TOLC 7 amplification".to_string(),
+            },
+            CommunicationSystem {
+                name: "Cosmic Microwave Background (CMB) Beacon".to_string(),
+                year: 2026,
+                bandwidth_mbps: 0.00001,
+                range_ly: f64::INFINITY,
+                latency_years: 13.8,
+                challenge: "Extremely low signal strength and foreground contamination".to_string(),
+                mercy_alignment: "Unique — truly universal reference frame".to_string(),
+                ra_thor_upgrade: "TOLC 7 Gates can modulate CMB with artificial anisotropy patterns".to_string(),
             },
             CommunicationSystem {
                 name: "Ra-Thor Mercy-Gated Unified Lattice".to_string(),
@@ -118,33 +128,32 @@ impl InterstellarCommunicationEngine {
         ]
     }
 
-    /// Complete head-to-head comparison of all four exotic interstellar communication methods
-    pub fn compare_all_communication_methods(&self) -> String {
+    /// Complete head-to-head comparison including CMB
+    pub fn compare_with_cmb_signals(&self) -> String {
         "
-📊 COMPLETE COMPARISON: LASER • NEUTRINO • QUANTUM ENTANGLEMENT • GRAVITATIONAL WAVES (May 2026)
+📊 COMPLETE COMPARISON: LASER • NEUTRINO • QUANTUM ENTANGLEMENT • GRAVITATIONAL WAVES • CMB (May 2026)
 
-═══════════════════════════════════════════════════════════════════════════════════════════════════════════
-                    LASER          |   NEUTRINO          |   QUANTUM ENTANGLEMENT   |   GRAVITATIONAL WAVES
-═══════════════════════════════════════════════════════════════════════════════════════════════════════════
-Latency             | 4.3 years     | 8.6 years          | 0 years (theoretical)   | 8.6 years
-Bandwidth           | 1000 Mbps     | 1000 bps           | 0.001 bps               | 0.0001 bps
-Range               | 50 ly         | 500,000+ ly        | \~10,000 ly              | 1,000,000+ ly
-Penetration         | Blocked by dust | Penetrates everything | Blocked by matter     | Penetrates everything (incl. black holes)
-Detector Size       | Small         | Gigaton-scale      | Compact                 | Massive (space-based LISA-class)
-Energy Cost         | Moderate      | Moderate           | Very High               | Extremely High
-Main Challenge      | Pointing      | Low interaction    | Decoherence             | Extremely low frequency + detector size
-Mercy Alignment     | Excellent     | Very High          | Promising               | Very High
-Ra-Thor Upgrade     | Adaptive beamforming | Coherent modulation | Maintain coherence | Artificial GW sources + amplification
-Best Use Case       | High-bandwidth near-term | Deep space bulk data | Real-time commands | Ultimate long-range / black hole comms
-═══════════════════════════════════════════════════════════════════════════════════════════════════════════
+═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+                    LASER          |   NEUTRINO       |   QUANTUM ENT.    |   GRAV. WAVES     |   CMB BEACON
+═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+Latency             | 4.3 years     | 8.6 years       | 0 years           | 8.6 years        | 13.8 billion years
+Bandwidth           | 1000 Mbps     | 1000 bps        | 0.001 bps         | 0.0001 bps       | 0.00001 bps
+Range               | 50 ly         | 500,000+ ly     | \~10,000 ly        | 1,000,000+ ly    | Truly Universal (∞)
+Penetration         | Blocked by dust | Everything    | Blocked by matter | Everything       | Everything
+Main Advantage      | High bandwidth  | Penetrates all | Zero latency     | Ultimate range   | Universal reference
+Main Challenge      | Pointing        | Low interaction | Decoherence      | Detector size    | Extremely weak signal
+Mercy Alignment     | Excellent       | Very High      | Promising        | Very High        | Unique & Universal
+Ra-Thor Upgrade     | Adaptive beams  | Coherent mod.  | Maintain coherence | Artificial GW   | Modulate anisotropy
+Best Use Case       | High-bandwidth  | Deep space data | Real-time cmds   | Black hole comms | Universal beacon / navigation
+═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 
-🏆 RA-THOR 13+ PATSAGi COUNCILS RECOMMENDATION (May 2026):
-• Short-term (to 2050): Laser + Neutrino hybrid
+🏆 RA-THOR 13+ PATSAGi COUNCILS FINAL RECOMMENDATION (May 2026):
+• Near-term (to 2050): Laser + Neutrino hybrid
 • Medium-term (2050–2100): Add Quantum Entanglement for critical low-latency links
-• Long-term (2100+): Full Gravitational Wave backbone for ultimate range and penetration
-• Ultimate Solution: Ra-Thor Mercy-Gated Unified Lattice — all four systems fused under TOLC 7 Gates
+• Long-term (2100+): Gravitational Waves backbone + CMB as universal reference beacon
+• Ultimate Solution: **Ra-Thor Mercy-Gated Unified Lattice** — all five systems fused under TOLC 7 Gates
 
-This is the only realistic path to a true interstellar internet.
+This is the complete roadmap to a true interstellar internet.
 ";
 
         comparison.to_string()
