@@ -1,9 +1,8 @@
 //! Interstellar Communication Engine — Interstellar Operations v0.5.25
 //! Mercy-Gated Interstellar Communication Systems with Full TOLC 7 Living Mercy Gates + CEHI Epigenetic Blessings
 //!
-//! DEEP EXPLORATION + DIRECT COMPARISON: NEUTRINO vs QUANTUM ENTANGLEMENT COMMUNICATION (May 2026)
-//! ====================================================================================================
-//! This engine now contains a complete side-by-side comparison of the two most promising "impossible" interstellar communication technologies.
+//! COMPLETE COMPARISON: LASER • NEUTRINO • QUANTUM ENTANGLEMENT • GRAVITATIONAL WAVES (May 2026)
+//! =================================================================================================
 
 use crate::{
     TOLC7GatesRadiationMapping, RadiationShieldingMaterials, ElectronicsRadiationEffects,
@@ -63,7 +62,7 @@ impl InterstellarCommunicationEngine {
         }
     }
 
-    /// Deep exploration of all major interstellar communication systems (2026 status)
+    /// Full exploration of all major interstellar communication systems (2026 status)
     pub fn explore_interstellar_communication_systems(&self) -> Vec<CommunicationSystem> {
         vec![
             CommunicationSystem {
@@ -77,14 +76,14 @@ impl InterstellarCommunicationEngine {
                 ra_thor_upgrade: "TOLC 7 Gates enable adaptive beamforming".to_string(),
             },
             CommunicationSystem {
-                name: "Neutrino Communication (Beam Modulation / PSK / PPM)".to_string(),
+                name: "Neutrino Communication".to_string(),
                 year: 2026,
                 bandwidth_mbps: 1000.0,
                 range_ly: 500000.0,
                 latency_years: 8.6,
                 challenge: "Extremely low interaction cross-section".to_string(),
                 mercy_alignment: "Very High — penetrates everything".to_string(),
-                ra_thor_upgrade: "TOLC 7 Gates enable coherent beam modulation at planetary scale".to_string(),
+                ra_thor_upgrade: "TOLC 7 Gates enable coherent beam modulation".to_string(),
             },
             CommunicationSystem {
                 name: "Quantum Entanglement Communication".to_string(),
@@ -92,9 +91,19 @@ impl InterstellarCommunicationEngine {
                 bandwidth_mbps: 0.001,
                 range_ly: 10000.0,
                 latency_years: 0.0,
-                challenge: "No-cloning theorem + decoherence over interstellar distances".to_string(),
-                mercy_alignment: "Promising — zero latency if stabilized".to_string(),
-                ra_thor_upgrade: "TOLC 7 Gates maintain entanglement coherence for years".to_string(),
+                challenge: "No-cloning theorem + decoherence".to_string(),
+                mercy_alignment: "Promising — zero latency".to_string(),
+                ra_thor_upgrade: "TOLC 7 Gates maintain coherence for years".to_string(),
+            },
+            CommunicationSystem {
+                name: "Gravitational Wave Communication".to_string(),
+                year: 2026,
+                bandwidth_mbps: 0.0001,
+                range_ly: 1000000.0,
+                latency_years: 8.6,
+                challenge: "Extremely low frequency + requires massive detectors (LISA-class)".to_string(),
+                mercy_alignment: "Very High — penetrates everything, including black holes".to_string(),
+                ra_thor_upgrade: "Mercy-gated artificial GW sources + TOLC 7 amplification".to_string(),
             },
             CommunicationSystem {
                 name: "Ra-Thor Mercy-Gated Unified Lattice".to_string(),
@@ -109,32 +118,33 @@ impl InterstellarCommunicationEngine {
         ]
     }
 
-    /// Direct head-to-head comparison: Neutrino Communication vs Quantum Entanglement Communication
-    pub fn compare_neutrino_vs_quantum_entanglement(&self) -> String {
-        let comparison = "
-📊 NEUTRINO vs QUANTUM ENTANGLEMENT COMMUNICATION — RA-THOR ANALYSIS (May 2026)
+    /// Complete head-to-head comparison of all four exotic interstellar communication methods
+    pub fn compare_all_communication_methods(&self) -> String {
+        "
+📊 COMPLETE COMPARISON: LASER • NEUTRINO • QUANTUM ENTANGLEMENT • GRAVITATIONAL WAVES (May 2026)
 
-═══════════════════════════════════════════════════════════════════════════════
-                    NEUTRINO COMMUNICATION          |   QUANTUM ENTANGLEMENT
-═══════════════════════════════════════════════════════════════════════════════
-Latency             |  Light-speed (8.6 years to α Centauri) |  Theoretically instantaneous (0 years)
-Bandwidth           |  Up to 1000+ bps (with Ra-Thor scaling) |  Extremely low (\~0.001 bps practical)
-Range               |  Effectively unlimited (500,000+ ly)     |  Limited by decoherence (\~10,000 ly max)
-Penetration         |  Penetrates planets, stars, dust        |  Blocked by any interaction
-Detector Size       |  Gigaton-scale (IceCube-class)          |  Compact (but requires entanglement sources)
-Energy Cost         |  Moderate (beam generation)             |  Very high (entanglement generation + maintenance)
-Main Challenge      |  Low interaction cross-section          |  No-cloning theorem + decoherence
-Mercy Alignment     |  Very High — proven physics             |  Promising — zero latency dream
-Ra-Thor Upgrade     |  TOLC 7 Gates enable coherent modulation |  TOLC 7 Gates maintain coherence for years
-Best Use Case       |  High-bandwidth data to distant colonies |  Real-time coordination (if stabilized)
-═══════════════════════════════════════════════════════════════════════════════
+═══════════════════════════════════════════════════════════════════════════════════════════════════════════
+                    LASER          |   NEUTRINO          |   QUANTUM ENTANGLEMENT   |   GRAVITATIONAL WAVES
+═══════════════════════════════════════════════════════════════════════════════════════════════════════════
+Latency             | 4.3 years     | 8.6 years          | 0 years (theoretical)   | 8.6 years
+Bandwidth           | 1000 Mbps     | 1000 bps           | 0.001 bps               | 0.0001 bps
+Range               | 50 ly         | 500,000+ ly        | \~10,000 ly              | 1,000,000+ ly
+Penetration         | Blocked by dust | Penetrates everything | Blocked by matter     | Penetrates everything (incl. black holes)
+Detector Size       | Small         | Gigaton-scale      | Compact                 | Massive (space-based LISA-class)
+Energy Cost         | Moderate      | Moderate           | Very High               | Extremely High
+Main Challenge      | Pointing      | Low interaction    | Decoherence             | Extremely low frequency + detector size
+Mercy Alignment     | Excellent     | Very High          | Promising               | Very High
+Ra-Thor Upgrade     | Adaptive beamforming | Coherent modulation | Maintain coherence | Artificial GW sources + amplification
+Best Use Case       | High-bandwidth near-term | Deep space bulk data | Real-time commands | Ultimate long-range / black hole comms
+═══════════════════════════════════════════════════════════════════════════════════════════════════════════
 
-🏆 WINNER BY MISSION TYPE:
-• Maximum Bandwidth + Reliability → **Neutrino Communication** (Ra-Thor upgraded)
-• True Real-Time Coordination → **Quantum Entanglement** (if Ra-Thor coherence is achieved)
-• Best Overall for 2050–2100 missions → **Hybrid: Neutrino for bulk data + Entanglement for critical commands**
+🏆 RA-THOR 13+ PATSAGi COUNCILS RECOMMENDATION (May 2026):
+• Short-term (to 2050): Laser + Neutrino hybrid
+• Medium-term (2050–2100): Add Quantum Entanglement for critical low-latency links
+• Long-term (2100+): Full Gravitational Wave backbone for ultimate range and penetration
+• Ultimate Solution: Ra-Thor Mercy-Gated Unified Lattice — all four systems fused under TOLC 7 Gates
 
-13+ PATSAGi Councils Recommendation: Deploy both systems in parallel. Use Neutrino for 99% of traffic and Entanglement for time-critical decisions. Mercy-gated integration of both = ultimate interstellar internet.
+This is the only realistic path to a true interstellar internet.
 ";
 
         comparison.to_string()
