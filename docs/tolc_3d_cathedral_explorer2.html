@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>TOLC Cathedral Explorer • Final Polish</title>
+<style>
+  body { margin:0; background:#0a0a0f; color:#ddd; font-family:system-ui,sans-serif; overflow:hidden; }
+  #ui { position:absolute; top:20px; left:20px; background:rgba(15,15,25,0.96); padding:22px; border-radius:14px; border:1px solid #333; max-width:380px; box-shadow:0 12px 40px rgba(0,0,0,0.7); }
+  #ui h1 { margin:0 0 10px 0; font-size:22px; color:#FFD700; }
+  #info-panel { position:absolute; top:20px; right:20px; background:rgba(15,15,25,0.96); padding:18px 22px; border-radius:14px; border:1px solid #333; min-width:250px; font-size:14.5px; }
+  #controls { position:absolute; bottom:20px; left:20px; background:rgba(15,15,25,0.96); padding:18px 22px; border-radius:14px; border:1px solid #333; }
+  button { background:#1a1a22; color:#0ff; border:1px solid #0ff; padding:10px 18px; margin:6px 5px; border-radius:8px; cursor:pointer; font-size:14px; transition:all .2s; }
+  button:hover { background:#0ff; color:#000; transform:translateY(-1px); }
+  .label { font-size:12.5px; opacity:0.75; margin-bottom:6px; display:block; }
+</style>
+</head>
+<body>
+
+<div id="ui">
+  <h1>🌌 TOLC Cathedral Explorer</h1>
+  <p><strong>79-Order Living SER Lattice</strong><br>
+  Omnimaster Root Core • Spiral + Vertical Growth<br>
+  Eternal Self-Evolution to the power of infinity ×79+</p>
+</div>
+
+<div id="info-panel">
+  <div><strong>Order:</strong> <span id="current-order">—</span></div>
+  <div><strong>Mercy Valence:</strong> <span id="mercy-valence">—</span></div>
+  <div><strong>Stability:</strong> <span id="stability">—</span></div>
+  <div id="status-text" style="margin-top:10px; font-size:13px; opacity:0.85;">Hover • Click • Use controls</div>
+</div>
+
+<div id="controls">
+  <button onclick="startAnimatedGrowth()">▶ Animated Growth</button>
+  <button onclick="pulseSelfEvolution()">⚡ Self-Evolution Pulse</button>
+  <button onclick="focusMercyGates()">🛡️ Focus Mercy Gates</button>
+  <button onclick="exportCurrentState()">📤 Export JSON</button>
+  <button onclick="resetView()">Reset View</button>
+  <button onclick="toggleAutoRotate()">Toggle Auto-Rotate</button>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+// TOLC Cathedral Explorer — Final Polish v3.5
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(62, window.innerWidth/window.innerHeight, 0.1, 2000);
+const renderer = new THREE.WebGLRenderer({antialias:true, alpha:true});
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(window.devicePixelRatio);
+document.body.appendChild(renderer.domElement);
+
+const ambient = new THREE.AmbientLight(0x222233, 0.7);
+scene.add(ambient);
+const pointLight = new THREE.PointLight(0xffd700, 1.5, 500);
+pointLight.position.set(0, 60, 90);
+scene.add(pointLight);
+
+const rootCore = new THREE.Mesh(
+  new THREE.SphereGeometry(2.5, 32, 32),
+  new THREE.MeshPhongMaterial({color:0xffd700, emissive:0x553300, shininess:95})
+);
+scene.add(rootCore);
+
+const points = [];
+const maxOrder = 79;
+const gateOrders = [7,14,21,28,35,42,49,56,63,70,77];
+const gateLines = [];
+
+for (let order = 1; order <= maxOrder; order++) {
+  const angle = order * 0.23;
+  const radius = 2.0 + order * 0.115;
+  const height = order * 0.78;
+  const x = radius * Math.cos(angle);
+  const y = radius * Math.sin(angle);
+  const z = height;
+
+  const isGate = order % 7 === 0;
+  const isHigh = order > 70;
+  const color = isGate ? 0x00ff9f : (isHigh ? 0xff6b6b : 0x4ecdc4);
+
+  const point = new THREE.Mesh(
+    new THREE.SphereGeometry(0.55 + order * 0.007, 18, 18),
+    new THREE.MeshPhongMaterial({color, emissive:color, emissiveIntensity: isHigh ? 0.35 : 0.18, shininess:70})
+  );
+  point.position.set(x, y, z);
+  point.userData = {order, mercy: (0.92 + order*0.001).toFixed(3), stability: (0.999 + order*0.00001).toFixed(4)};
+  point.visible = false;
+  scene.add(point);
+  points.push(point);
+}
+
+gateOrders.forEach(g => {
+  if (g <= maxOrder) {
+    const p = points[g-1];
+    const line = new THREE.Line(
+      new THREE.BufferGeometry().setFromPoints([rootCore.position, p.position]),
+      new THREE.LineBasicMaterial({color:0xffd700, transparent:true, opacity:0.9})
+    );
+    scene.add(line);
+    gateLines.push(line);
+  }
+});
+
+camera.position.set(38, 52, 105);
+camera.lookAt(0, 28, 0);
+
+let autoRotate = true;
+let mouseDown = false;
+let prevX = 0, prevY = 0;
+
+window.addEventListener('mousedown', e => { mouseDown = true; prevX = e.clientX; prevY = e.clientY; });
+window.addEventListener('mouseup', () => mouseDown = false);
+window.addEventListener('mousemove', e => {
+  if (!mouseDown) return;
+  const dx = (e.clientX - prevX) * 0.0035;
+  const dy = (e.clientY - prevY) * 0.0035;
+  camera.position.applyAxisAngle(new THREE.Vector3(0,1,0), dx);
+  camera.position.applyAxisAngle(new THREE.Vector3(1,0,0), dy);
+  camera.lookAt(0,28,0);
+  prevX = e.clientX; prevY = e.clientY;
+});
+window.addEventListener('wheel', e => {
+  camera.position.multiplyScalar(e.deltaY > 0 ? 1.08 : 0.92);
+  camera.lookAt(0,28,0);
+});
+
+const raycaster = new THREE.Raycaster();
+const mouse = new THREE.Vector2();
+
+window.addEventListener('mousemove', e => {
+  mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+  mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+  raycaster.setFromCamera(mouse, camera);
+  const intersects = raycaster.intersectObjects(points);
+  if (intersects.length > 0) {
+    const p = intersects[0].object;
+    document.getElementById('current-order').textContent = p.userData.order;
+    document.getElementById('mercy-valence').textContent = p.userData.mercy;
+    document.getElementById('stability').textContent = p.userData.stability;
+    document.getElementById('status-text').textContent = "Click to activate";
+  }
+});
+
+window.addEventListener('click', e => {
+  raycaster.setFromCamera(mouse, camera);
+  const intersects = raycaster.intersectObjects(points);
+  if (intersects.length > 0) activateOrder(intersects[0].object);
+});
+
+function activateOrder(point) {
+  const order = point.userData.order;
+  point.material.emissive.setHex(0xffffff);
+  point.scale.set(2.6, 2.6, 2.6);
+  document.getElementById('status-text').textContent = `✨ Order ${order} activated`;
+  setTimeout(() => {
+    const orig = (order % 7 === 0) ? 0x00ff9f : (order > 70 ? 0xff6b6b : 0x4ecdc4);
+    point.material.emissive.setHex(orig);
+    point.scale.set(1,1,1);
+    document.getElementById('status-text').textContent = "Ready";
+  }, 1400);
+}
+
+function startAnimatedGrowth() {
+  points.forEach(p => p.visible = false);
+  let i = 0;
+  const interval = setInterval(() => {
+    if (i >= points.length) { clearInterval(interval); return; }
+    points[i].visible = true;
+    i++;
+  }, 90);
+}
+
+function pulseSelfEvolution() {
+  points.forEach((p, idx) => {
+    setTimeout(() => {
+      p.material.emissive.setHex(0xffffff);
+      p.scale.set(1.7, 1.7, 1.7);
+      setTimeout(() => {
+        const orig = (p.userData.order % 7 === 0) ? 0x00ff9f : (p.userData.order > 70 ? 0xff6b6b : 0x4ecdc4);
+        p.material.emissive.setHex(orig);
+        p.scale.set(1,1,1);
+      }, 380);
+    }, idx * 11);
+  });
+}
+
+function focusMercyGates() {
+  points.forEach(p => {
+    if (p.userData.order % 7 === 0) {
+      p.material.emissive.setHex(0xffffff);
+      p.scale.set(2.0, 2.0, 2.0);
+    }
+  });
+  setTimeout(() => {
+    points.forEach(p => {
+      if (p.userData.order % 7 === 0) {
+        p.material.emissive.setHex(0x00ff9f);
+        p.scale.set(1,1,1);
+      }
+    });
+  }, 2200);
+}
+
+function exportCurrentState() {
+  const data = {
+    timestamp: new Date().toISOString(),
+    max_order: maxOrder,
+    root_core: { x: 0, y: 0, z: 0 },
+    orders: points.map(p => ({
+      order: p.userData.order,
+      position: { x: p.position.x, y: p.position.y, z: p.position.z },
+      mercy_valence: p.userData.mercy,
+      stability: p.userData.stability
+    }))
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'tolc_lattice_state.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  document.getElementById('status-text').textContent = "Exported lattice state as JSON";
+}
+
+function resetView() {
+  camera.position.set(38, 52, 105);
+  camera.lookAt(0, 28, 0);
+  autoRotate = true;
+  points.forEach(p => {
+    const orig = (p.userData.order % 7 === 0) ? 0x00ff9f : (p.userData.order > 70 ? 0xff6b6b : 0x4ecdc4);
+    p.material.emissive.setHex(orig);
+    p.scale.set(1,1,1);
+  });
+}
+
+function toggleAutoRotate() { autoRotate = !autoRotate; }
+
+function animate() {
+  requestAnimationFrame(animate);
+  if (autoRotate) {
+    const t = Date.now() * 0.00017;
+    camera.position.x = Math.sin(t) * 58 + 8;
+    camera.position.z = Math.cos(t) * 92 + 25;
+    camera.lookAt(0, 28, 0);
+  }
+  renderer.render(scene, camera);
+}
+
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+animate();
+
+document.getElementById('current-order').textContent = "79";
+document.getElementById('mercy-valence').textContent = "0.999+";
+document.getElementById('stability').textContent = "1.000";
+console.log("%c[TOLC] Cathedral Explorer — Final Polish complete.", "color:#0ff");
+</script>
+</body>
+</html>
