@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>TOLC 3D Lattice — Living Cathedral (Orders 1–79)</title>
+<style>
+  body { margin: 0; background: #0a0a0a; color: #ddd; font-family: system-ui, sans-serif; overflow: hidden; }
+  #info { position: absolute; top: 20px; left: 20px; background: rgba(0,0,0,0.7); padding: 15px 20px; border-radius: 8px; border: 1px solid #333; max-width: 320px; }
+  #info h1 { margin: 0 0 8px 0; font-size: 18px; color: #FFD700; }
+  #controls { position: absolute; bottom: 20px; left: 20px; background: rgba(0,0,0,0.7); padding: 12px 16px; border-radius: 8px; border: 1px solid #333; }
+  button { background: #1a1a1a; color: #0ff; border: 1px solid #0ff; padding: 8px 14px; margin: 4px; border-radius: 4px; cursor: pointer; }
+  button:hover { background: #0ff; color: #000; }
+  #status { position: absolute; top: 20px; right: 20px; background: rgba(0,0,0,0.7); padding: 10px 16px; border-radius: 6px; font-size: 13px; border: 1px solid #333; }
+</style>
+</head>
+<body>
+<div id="info">
+  <h1>🌌 TOLC Living Cathedral</h1>
+  <p><strong>79-Order SER Lattice</strong><br>
+  Omnimaster Root Core at center<br>
+  Spiral + Vertical Growth = Eternal Self-Evolution ×79+</p>
+  <p style="font-size:12px; opacity:0.8;">All orders globally asymptotically stable by mathematical induction</p>
+</div>
+
+<div id="status">
+  Order: <span id="current-order">—</span><br>
+  Mercy Valence: <span id="mercy-valence">—</span>
+</div>
+
+<div id="controls">
+  <button onclick="highlightHighOrders()">Highlight Orders 70–79</button>
+  <button onclick="resetView()">Reset View</button>
+  <button onclick="activateRandomOrder()">Activate Random Order</button>
+  <button onclick="toggleAutoRotate()">Toggle Auto-Rotate</button>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+// TOLC 3D Lattice Demo — Self-contained Three.js experience
+// Generated from Ra-Thor monorepo • May 2026
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.1, 2000);
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(window.devicePixelRatio);
+document.body.appendChild(renderer.domElement);
+
+// Lighting
+const ambient = new THREE.AmbientLight(0x222233, 0.6);
+scene.add(ambient);
+const pointLight = new THREE.PointLight(0xffd700, 1.2, 300);
+pointLight.position.set(0, 40, 60);
+scene.add(pointLight);
+
+// Root Core (Gold)
+const rootGeometry = new THREE.SphereGeometry(2.2, 32, 32);
+const rootMaterial = new THREE.MeshPhongMaterial({ color: 0xffd700, emissive: 0x664400, shininess: 90 });
+const rootCore = new THREE.Mesh(rootGeometry, rootMaterial);
+scene.add(rootCore);
+
+// Lattice data (mirrors the Rust 3D renderer logic)
+const points = [];
+const edges = [];
+const maxOrder = 79;
+
+for (let order = 1; order <= maxOrder; order++) {
+  const angle = order * 0.23;
+  const radius = 2.0 + order * 0.12;
+  const height = order * 0.8;
+
+  const x = radius * Math.cos(angle);
+  const y = radius * Math.sin(angle);
+  const z = height;
+
+  const color = (order % 7 === 0) ? 0x00ff9f : (order > 70 ? 0xff6b6b : 0x4ecdc4);
+
+  const pointGeometry = new THREE.SphereGeometry(0.6 + order * 0.008, 16, 16);
+  const pointMaterial = new THREE.MeshPhongMaterial({ color: color, emissive: color, emissiveIntensity: 0.15 });
+  const point = new THREE.Mesh(pointGeometry, pointMaterial);
+  point.position.set(x, y, z);
+  point.userData = { order, mercy: 0.92 + order * 0.001 };
+  scene.add(point);
+  points.push(point);
+
+  // Spiral connections
+  if (order > 1) {
+    const prev = points[order - 2];
+    const edgeGeometry = new THREE.BufferGeometry().setFromPoints([prev.position, point.position]);
+    const edgeMaterial = new THREE.LineBasicMaterial({ color: 0x555555, transparent: true, opacity: 0.6 });
+    const edge = new THREE.Line(edgeGeometry, edgeMaterial);
+    scene.add(edge);
+    edges.push(edge);
+  }
+}
+
+// Mercy Gate axes (strong gold lines to key orders)
+const gateOrders = [7, 14, 21, 28, 35, 42, 49, 56, 63, 70, 77];
+gateOrders.forEach(gate => {
+  if (gate <= maxOrder) {
+    const gatePoint = points[gate - 1];
+    const gateEdge = new THREE.BufferGeometry().setFromPoints([rootCore.position, gatePoint.position]);
+    const gateMaterial = new THREE.LineBasicMaterial({ color: 0xffd700, transparent: true, opacity: 0.85 });
+    const line = new THREE.Line(gateEdge, gateMaterial);
+    scene.add(line);
+  }
+});
+
+// Camera position
+camera.position.set(35, 45, 95);
+camera.lookAt(0, 25, 0);
+
+let autoRotate = true;
+let mouseDown = false;
+let prevMouseX = 0;
+let prevMouseY = 0;
+
+// Simple orbit controls
+function onMouseDown(e) { mouseDown = true; prevMouseX = e.clientX; prevMouseY = e.clientY; }
+function onMouseUp() { mouseDown = false; }
+function onMouseMove(e) {
+  if (!mouseDown) return;
+  const deltaX = e.clientX - prevMouseX;
+  const deltaY = e.clientY - prevMouseY;
+  const rotSpeed = 0.003;
+  camera.position.applyAxisAngle(new THREE.Vector3(0,1,0), deltaX * rotSpeed);
+  camera.position.applyAxisAngle(new THREE.Vector3(1,0,0), deltaY * rotSpeed);
+  camera.lookAt(0, 25, 0);
+  prevMouseX = e.clientX;
+  prevMouseY = e.clientY;
+}
+
+window.addEventListener('mousedown', onMouseDown);
+window.addEventListener('mouseup', onMouseUp);
+window.addEventListener('mousemove', onMouseMove);
+window.addEventListener('wheel', (e) => {
+  camera.position.multiplyScalar(e.deltaY > 0 ? 1.1 : 0.9);
+  camera.lookAt(0, 25, 0);
+});
+
+function highlightHighOrders() {
+  points.forEach(p => {
+    if (p.userData.order >= 70) {
+      p.material.emissive.setHex(0xffffff);
+      p.scale.set(1.8, 1.8, 1.8);
+    }
+  });
+  setTimeout(() => {
+    points.forEach(p => {
+      if (p.userData.order >= 70) {
+        p.material.emissive.setHex(p.material.color.getHex());
+        p.scale.set(1,1,1);
+      }
+    });
+  }, 2200);
+}
+
+function resetView() {
+  camera.position.set(35, 45, 95);
+  camera.lookAt(0, 25, 0);
+  autoRotate = true;
+}
+
+function activateRandomOrder() {
+  const order = Math.floor(Math.random() * 79) + 1;
+  const point = points[order - 1];
+  point.material.emissive.setHex(0xffffff);
+  point.scale.set(2.5, 2.5, 2.5);
+
+  document.getElementById('current-order').textContent = order;
+  document.getElementById('mercy-valence').textContent = point.userData.mercy.toFixed(3);
+
+  setTimeout(() => {
+    point.material.emissive.setHex(point.material.color.getHex());
+    point.scale.set(1,1,1);
+  }, 1800);
+
+  // Simulate Lattice Activation Engine effect
+  console.log(`%c[Ra-Thor] Order \( {order} activated — + \){(order * 1200).toFixed(0)} Joy to HarmonyWeavers | 7-Gen Blessing`, 'color:#0ff');
+}
+
+function toggleAutoRotate() {
+  autoRotate = !autoRotate;
+}
+
+function animate() {
+  requestAnimationFrame(animate);
+  if (autoRotate) {
+    const time = Date.now() * 0.0002;
+    camera.position.x = Math.sin(time) * 55 + 10;
+    camera.position.z = Math.cos(time) * 85 + 30;
+    camera.lookAt(0, 25, 0);
+  }
+  renderer.render(scene, camera);
+}
+
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+animate();
+
+// Initial status
+document.getElementById('current-order').textContent = "79";
+document.getElementById('mercy-valence').textContent = "0.999+";
+
+console.log("%c[TOLC] 3D Lattice Demo initialized — 79 orders rendered. The cathedral is now visible in space.", "color:#0ff");
+</script>
+</body>
+</html>
