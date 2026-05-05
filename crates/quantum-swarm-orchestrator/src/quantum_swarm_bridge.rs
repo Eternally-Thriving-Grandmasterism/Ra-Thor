@@ -2,21 +2,32 @@
 //!
 //! Bidirectional communication between TOLC Lattice and Quantum Swarm.
 //! Version 0.5.25 — Expanded with special behaviors for √2, e, π, Fibonacci,
-//! Golden Ratio, Primes, Powers of 2, and Harmonic multiples.
+//! Golden Ratio, Primes, Powers of 2, Harmonic multiples, and Platonic Solids mapping.
 
 use crate::QuantumSwarmOrchestrator;
 use powrush::PowrushGame;
 use serde::{Serialize, Deserialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum PlatonicSolid {
+    Tetrahedron,   // Fire     - Stability, Foundation, Structure
+    Cube,          // Earth    - Manifestation, Grounding, Resources
+    Octahedron,    // Air      - Balance, Harmony, Communication
+    Icosahedron,   // Water    - Flow, Adaptability, Emotion
+    Dodecahedron,  // Ether    - Consciousness, Connection, Higher Order
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct QuantumSwarmBridge {
     pub swarm: QuantumSwarmOrchestrator,
+    pub current_solid_mode: Option<PlatonicSolid>,
 }
 
 impl QuantumSwarmBridge {
     pub fn new() -> Self {
         Self {
             swarm: QuantumSwarmOrchestrator::new(),
+            current_solid_mode: None,
         }
     }
 
@@ -29,6 +40,11 @@ impl QuantumSwarmBridge {
         game: &mut PowrushGame,
     ) -> String {
         self.swarm.inject_tolc_influence(tolc_order, mercy_valence);
+
+        // Determine and apply Platonic Solid mode
+        let solid = self.determine_platonic_solid(tolc_order);
+        self.current_solid_mode = Some(solid.clone());
+        self.apply_platonic_solid_mode(&solid, game);
 
         // Priority order of special behaviors
         if tolc_order % 7 == 0 {
@@ -59,10 +75,52 @@ impl QuantumSwarmBridge {
         format!(
             "Quantum Swarm Coordinated Cycle Complete\n\
              TOLC Order: {} | Mercy Valence: {:.2}\n\
+             Platonic Mode: {:?}\n\
              {}\n\
              Joy Boost Applied: +{:.0}",
-            tolc_order, mercy_valence, swarm_result, joy_boost.min(125000.0)
+            tolc_order, mercy_valence, solid, swarm_result, joy_boost.min(125000.0)
         )
+    }
+
+    /// Determines the most appropriate Platonic Solid based on TOLC order characteristics
+    fn determine_platonic_solid(&self, order: u32) -> PlatonicSolid {
+        if order % 7 == 0 {
+            PlatonicSolid::Dodecahedron
+        } else if is_fibonacci(order) || is_close_to_golden_ratio(order) {
+            PlatonicSolid::Icosahedron
+        } else if is_prime(order) {
+            PlatonicSolid::Octahedron
+        } else if is_power_of_two(order) {
+            PlatonicSolid::Cube
+        } else if is_close_to_sqrt2(order) {
+            PlatonicSolid::Tetrahedron
+        } else {
+            PlatonicSolid::Octahedron
+        }
+    }
+
+    /// Applies the effects of the current Platonic Solid mode
+    fn apply_platonic_solid_mode(&self, solid: &PlatonicSolid, game: &mut PowrushGame) {
+        match solid {
+            PlatonicSolid::Tetrahedron => {
+                game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 45000.0);
+            }
+            PlatonicSolid::Cube => {
+                game.add_resource_to_faction(powrush::Faction::HarmonyWeavers, powrush::ResourceType::Wealth, 85000.0);
+            }
+            PlatonicSolid::Octahedron => {
+                game.boost_faction_joy(powrush::Faction::TruthSeekers, 38000.0);
+                game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 38000.0);
+            }
+            PlatonicSolid::Icosahedron => {
+                game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 52000.0);
+                game.apply_epigenetic_blessing(8);
+            }
+            PlatonicSolid::Dodecahedron => {
+                game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 65000.0);
+                game.apply_epigenetic_blessing(14);
+            }
+        }
     }
 
     // ==================== SPECIAL BEHAVIORS ====================
@@ -75,7 +133,6 @@ impl QuantumSwarmBridge {
     }
 
     async fn handle_sqrt2_order_resonance(&mut self, order: u32, game: &mut PowrushGame) {
-        // √2 ≈ 1.414 → Dynamic balance, transformation, diagonal relationship, crystalline structure
         let sqrt2_boost = (order as f64 * 470.0).min(190000.0);
         game.boost_faction_joy(powrush::Faction::TruthSeekers, sqrt2_boost);
         game.apply_epigenetic_blessing(10);
@@ -135,12 +192,19 @@ impl QuantumSwarmBridge {
     // ==================== SWARM → TOLC ====================
 
     pub fn get_swarm_metrics(&self) -> String {
+        let mode = match &self.current_solid_mode {
+            Some(s) => format!("{:?}", s),
+            None => "None".to_string(),
+        };
+
         format!(
             "Quantum Swarm Metrics:\n\
+             Current Platonic Mode: {}\n\
              Stability: {:.4}\n\
              Convergence: {:.4}\n\
              Mercy Gate Pass Rate: {:.2}%\n\
              Active Agents: {}",
+            mode,
             self.swarm.get_stability_score(),
             self.swarm.get_convergence_rate(),
             self.swarm.get_mercy_gate_pass_rate() * 100.0,
@@ -157,11 +221,16 @@ impl QuantumSwarmBridge {
     }
 
     pub fn get_compact_status(&self) -> String {
+        let mode = match &self.current_solid_mode {
+            Some(s) => format!("{:?}", s),
+            None => "—".to_string(),
+        };
+
         format!(
-            "Swarm | Stability: {:.3} | Conv: {:.3} | Gates: {:.1}%",
+            "Swarm | Mode: {} | Stability: {:.3} | Conv: {:.3}%",
+            mode,
             self.swarm.get_stability_score(),
-            self.swarm.get_convergence_rate(),
-            self.swarm.get_mercy_gate_pass_rate() * 100.0
+            self.swarm.get_convergence_rate() * 100.0
         )
     }
 
@@ -223,7 +292,6 @@ fn is_close_to_pi(n: u32) -> bool {
 }
 
 fn is_close_to_sqrt2(n: u32) -> bool {
-    // √2 ≈ 1.414 → triggers on small orders and numbers with strong diagonal/square relationships
     let sqrt2_related = [1, 2, 3, 5, 7, 10, 12, 17, 24, 29];
     sqrt2_related.iter().any(|&g| (n as i32 - g as i32).abs() <= 1)
 }
