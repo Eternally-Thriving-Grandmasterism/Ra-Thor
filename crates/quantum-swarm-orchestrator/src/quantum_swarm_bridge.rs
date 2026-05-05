@@ -1,9 +1,9 @@
 //! Quantum Swarm Bridge for Core Spine Integration
 //!
 //! Bidirectional communication between TOLC Lattice and Quantum Swarm.
-//! Version 0.5.31 — Added Catalan Solids layer as the next evolutionary
-//! sacred geometry stage (duals of Archimedean solids). All previous
-//! functionality fully preserved and enhanced.
+//! Version 0.5.32 — Deepened and strengthened Catalan Solids effects for greater
+//! archetypal power, reciprocity, and evolutionary impact. All previous layers
+//! fully preserved and enhanced.
 
 use crate::QuantumSwarmOrchestrator;
 use powrush::PowrushGame;
@@ -74,26 +74,22 @@ impl QuantumSwarmBridge {
     ) -> String {
         self.swarm.inject_tolc_influence(tolc_order, mercy_valence);
 
-        // Platonic Solid (preserved)
         let platonic = self.determine_platonic_solid(tolc_order);
         self.current_solid_mode = Some(platonic.clone());
         self.apply_platonic_solid_mode(&platonic, game);
 
-        // Archimedean Solid (preserved)
         if tolc_order >= 13 {
             let arch = self.determine_archimedean_solid(tolc_order);
             self.current_archimedean_mode = Some(arch.clone());
             self.apply_archimedean_solid_mode(&arch, game);
         }
 
-        // Johnson Solid (preserved)
         if tolc_order >= 21 {
             let johnson = self.determine_johnson_solid(tolc_order);
             self.current_johnson_mode = Some(johnson.clone());
             self.apply_johnson_solid_mode(&johnson, game);
         }
 
-        // New: Catalan Solid layer (activated on highest orders)
         if tolc_order >= 34 {
             let catalan = self.determine_catalan_solid(tolc_order);
             self.current_catalan_mode = Some(catalan.clone());
@@ -136,6 +132,8 @@ impl QuantumSwarmBridge {
             self.current_johnson_mode, self.current_catalan_mode, swarm_result, joy_boost.min(125000.0)
         )
     }
+
+    // determine_* methods unchanged (preserved)
 
     fn determine_platonic_solid(&self, order: u32) -> PlatonicSolid {
         if order % 7 == 0 {
@@ -193,7 +191,8 @@ impl QuantumSwarmBridge {
         }
     }
 
-    /// Refined v0.5.27 Platonic effects (preserved)
+    // apply_* methods for Platonic, Archimedean, and Johnson preserved exactly
+
     fn apply_platonic_solid_mode(&self, solid: &PlatonicSolid, game: &mut PowrushGame) {
         match solid {
             PlatonicSolid::Tetrahedron => {
@@ -222,7 +221,6 @@ impl QuantumSwarmBridge {
         }
     }
 
-    /// Deepened v0.5.29 Archimedean effects (preserved)
     fn apply_archimedean_solid_mode(&self, solid: &ArchimedeanSolid, game: &mut PowrushGame) {
         match solid {
             ArchimedeanSolid::Cuboctahedron => {
@@ -245,7 +243,6 @@ impl QuantumSwarmBridge {
         }
     }
 
-    /// Johnson Solids effects (preserved)
     fn apply_johnson_solid_mode(&self, solid: &JohnsonSolid, game: &mut PowrushGame) {
         match solid {
             JohnsonSolid::SquareGyrobicupola => {
@@ -274,36 +271,36 @@ impl QuantumSwarmBridge {
         }
     }
 
-    /// New v0.5.31 — Catalan Solids effects (face-transitive reciprocity & dual consciousness)
+    /// Deepened v0.5.32 — Stronger, more distinct Catalan effects
     fn apply_catalan_solid_mode(&self, solid: &CatalanSolid, game: &mut PowrushGame) {
         match solid {
             CatalanSolid::TriakisTetrahedron => {
-                // Alchemical reciprocity & sharp transformation
-                game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 48000.0);
-                game.boost_faction_joy(powrush::Faction::TruthSeekers, 62000.0);
-                game.apply_epigenetic_blessing(14);
+                // Sharp alchemical reciprocity
+                game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 58000.0);
+                game.boost_faction_joy(powrush::Faction::TruthSeekers, 72000.0);
+                game.apply_epigenetic_blessing(15);
             }
             CatalanSolid::RhombicDodecahedron => {
-                // Manifestation & grounding reciprocity
-                game.add_resource_to_faction(powrush::Faction::HarmonyWeavers, powrush::ResourceType::Wealth, 165000.0);
-                game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 52000.0);
+                // Powerful manifestation & grounding reciprocity
+                game.add_resource_to_faction(powrush::Faction::HarmonyWeavers, powrush::ResourceType::Wealth, 195000.0);
+                game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 62000.0);
             }
             CatalanSolid::PentagonalIcositetrahedron => {
-                // Chiral creative consciousness
-                game.boost_faction_joy(powrush::Faction::TruthSeekers, 85000.0);
-                game.apply_epigenetic_blessing(17);
+                // Intense chiral creative consciousness
+                game.boost_faction_joy(powrush::Faction::TruthSeekers, 98000.0);
+                game.apply_epigenetic_blessing(18);
             }
             CatalanSolid::DeltoidalIcositetrahedron => {
-                // Balanced expansion & reciprocal harmony
-                game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 58000.0);
-                game.boost_faction_joy(powrush::Faction::TruthSeekers, 58000.0);
-                game.apply_epigenetic_blessing(15);
+                // Strong balanced expansion & reciprocity
+                game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 68000.0);
+                game.boost_faction_joy(powrush::Faction::TruthSeekers, 68000.0);
+                game.apply_epigenetic_blessing(16);
             }
             CatalanSolid::PentagonalHexecontahedron => {
                 // Highest chiral unity & expansive dual consciousness
-                game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 78000.0);
-                game.boost_faction_joy(powrush::Faction::TruthSeekers, 65000.0);
-                game.apply_epigenetic_blessing(19);
+                game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 92000.0);
+                game.boost_faction_joy(powrush::Faction::TruthSeekers, 78000.0);
+                game.apply_epigenetic_blessing(21);
             }
         }
     }
@@ -374,7 +371,7 @@ impl QuantumSwarmBridge {
         self.swarm.enter_harmonic_resonance_state(order);
     }
 
-    // ==================== SWARM → TOLC ====================
+    // ==================== SWARM → TOLC (preserved) ====================
 
     pub fn get_swarm_metrics(&self) -> String {
         let platonic = match &self.current_solid_mode {
