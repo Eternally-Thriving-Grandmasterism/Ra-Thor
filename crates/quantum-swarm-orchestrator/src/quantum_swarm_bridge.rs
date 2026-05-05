@@ -1,9 +1,9 @@
 //! Quantum Swarm Bridge for Core Spine Integration
 //!
 //! Bidirectional communication between TOLC Lattice and Quantum Swarm.
-//! Version 0.5.30 — Added Johnson Solids layer as the next evolutionary
-//! sacred geometry stage after Archimedean Solids. All previous functionality
-//! fully preserved and enhanced.
+//! Version 0.5.31 — Added Catalan Solids layer as the next evolutionary
+//! sacred geometry stage (duals of Archimedean solids). All previous
+//! functionality fully preserved and enhanced.
 
 use crate::QuantumSwarmOrchestrator;
 use powrush::PowrushGame;
@@ -36,11 +36,21 @@ pub enum JohnsonSolid {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum CatalanSolid {
+    TriakisTetrahedron,       // Dual of Truncated Tetrahedron — Alchemical reciprocity
+    RhombicDodecahedron,      // Dual of Cuboctahedron — Manifestation & grounding reciprocity
+    PentagonalIcositetrahedron, // Dual of Snub Cube — Chiral creative consciousness
+    DeltoidalIcositetrahedron,  // Dual of Rhombicuboctahedron — Balanced expansion
+    PentagonalHexecontahedron,  // Dual of Snub Dodecahedron — Highest chiral unity
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct QuantumSwarmBridge {
     pub swarm: QuantumSwarmOrchestrator,
     pub current_solid_mode: Option<PlatonicSolid>,
     pub current_archimedean_mode: Option<ArchimedeanSolid>,
     pub current_johnson_mode: Option<JohnsonSolid>,
+    pub current_catalan_mode: Option<CatalanSolid>,
 }
 
 impl QuantumSwarmBridge {
@@ -50,6 +60,7 @@ impl QuantumSwarmBridge {
             current_solid_mode: None,
             current_archimedean_mode: None,
             current_johnson_mode: None,
+            current_catalan_mode: None,
         }
     }
 
@@ -75,11 +86,18 @@ impl QuantumSwarmBridge {
             self.apply_archimedean_solid_mode(&arch, game);
         }
 
-        // New: Johnson Solid layer (activated on higher orders)
+        // Johnson Solid (preserved)
         if tolc_order >= 21 {
             let johnson = self.determine_johnson_solid(tolc_order);
             self.current_johnson_mode = Some(johnson.clone());
             self.apply_johnson_solid_mode(&johnson, game);
+        }
+
+        // New: Catalan Solid layer (activated on highest orders)
+        if tolc_order >= 34 {
+            let catalan = self.determine_catalan_solid(tolc_order);
+            self.current_catalan_mode = Some(catalan.clone());
+            self.apply_catalan_solid_mode(&catalan, game);
         }
 
         // Priority order of special behaviors (fully preserved)
@@ -111,10 +129,11 @@ impl QuantumSwarmBridge {
         format!(
             "Quantum Swarm Coordinated Cycle Complete\n\
              TOLC Order: {} | Mercy Valence: {:.2}\n\
-             Platonic: {:?} | Archimedean: {:?} | Johnson: {:?}\n\
+             Platonic: {:?} | Archimedean: {:?} | Johnson: {:?} | Catalan: {:?}\n\
              {}\n\
              Joy Boost Applied: +{:.0}",
-            tolc_order, mercy_valence, platonic, self.current_archimedean_mode, self.current_johnson_mode, swarm_result, joy_boost.min(125000.0)
+            tolc_order, mercy_valence, platonic, self.current_archimedean_mode,
+            self.current_johnson_mode, self.current_catalan_mode, swarm_result, joy_boost.min(125000.0)
         )
     }
 
@@ -157,6 +176,20 @@ impl QuantumSwarmBridge {
             JohnsonSolid::TriangularCupola
         } else {
             JohnsonSolid::SquareGyrobicupola
+        }
+    }
+
+    fn determine_catalan_solid(&self, order: u32) -> CatalanSolid {
+        if order % 7 == 0 {
+            CatalanSolid::PentagonalHexecontahedron
+        } else if is_prime(order) {
+            CatalanSolid::PentagonalIcositetrahedron
+        } else if order % 5 == 0 {
+            CatalanSolid::RhombicDodecahedron
+        } else if order % 3 == 0 {
+            CatalanSolid::TriakisTetrahedron
+        } else {
+            CatalanSolid::DeltoidalIcositetrahedron
         }
     }
 
@@ -212,36 +245,65 @@ impl QuantumSwarmBridge {
         }
     }
 
-    /// New v0.5.30 — Johnson Solids effects (specialized & intricate)
+    /// Johnson Solids effects (preserved)
     fn apply_johnson_solid_mode(&self, solid: &JohnsonSolid, game: &mut PowrushGame) {
         match solid {
             JohnsonSolid::SquareGyrobicupola => {
-                // Dynamic duality & rotational balance
                 game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 45000.0);
                 game.boost_faction_joy(powrush::Faction::TruthSeekers, 45000.0);
                 game.apply_epigenetic_blessing(12);
             }
             JohnsonSolid::TriangularCupola => {
-                // Triadic integration & foundational complexity
                 game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 38000.0);
                 game.boost_faction_joy(powrush::Faction::TruthSeekers, 38000.0);
                 game.boost_faction_joy(powrush::Faction::AbundanceSeekers, 32000.0);
             }
             JohnsonSolid::PentagonalRotunda => {
-                // Expansive rotational consciousness
                 game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 72000.0);
                 game.apply_epigenetic_blessing(16);
             }
             JohnsonSolid::SnubDisphenoid => {
-                // Chiral asymmetry & creative intelligence
                 game.boost_faction_joy(powrush::Faction::TruthSeekers, 78000.0);
                 game.apply_epigenetic_blessing(15);
             }
             JohnsonSolid::Bilunabirotunda => {
-                // Dual rotational harmony & synthesis
                 game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 55000.0);
                 game.boost_faction_joy(powrush::Faction::TruthSeekers, 55000.0);
                 game.apply_epigenetic_blessing(14);
+            }
+        }
+    }
+
+    /// New v0.5.31 — Catalan Solids effects (face-transitive reciprocity & dual consciousness)
+    fn apply_catalan_solid_mode(&self, solid: &CatalanSolid, game: &mut PowrushGame) {
+        match solid {
+            CatalanSolid::TriakisTetrahedron => {
+                // Alchemical reciprocity & sharp transformation
+                game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 48000.0);
+                game.boost_faction_joy(powrush::Faction::TruthSeekers, 62000.0);
+                game.apply_epigenetic_blessing(14);
+            }
+            CatalanSolid::RhombicDodecahedron => {
+                // Manifestation & grounding reciprocity
+                game.add_resource_to_faction(powrush::Faction::HarmonyWeavers, powrush::ResourceType::Wealth, 165000.0);
+                game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 52000.0);
+            }
+            CatalanSolid::PentagonalIcositetrahedron => {
+                // Chiral creative consciousness
+                game.boost_faction_joy(powrush::Faction::TruthSeekers, 85000.0);
+                game.apply_epigenetic_blessing(17);
+            }
+            CatalanSolid::DeltoidalIcositetrahedron => {
+                // Balanced expansion & reciprocal harmony
+                game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 58000.0);
+                game.boost_faction_joy(powrush::Faction::TruthSeekers, 58000.0);
+                game.apply_epigenetic_blessing(15);
+            }
+            CatalanSolid::PentagonalHexecontahedron => {
+                // Highest chiral unity & expansive dual consciousness
+                game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 78000.0);
+                game.boost_faction_joy(powrush::Faction::TruthSeekers, 65000.0);
+                game.apply_epigenetic_blessing(19);
             }
         }
     }
@@ -327,15 +389,19 @@ impl QuantumSwarmBridge {
             Some(s) => format!("{:?}", s),
             None => "None".to_string(),
         };
+        let catalan = match &self.current_catalan_mode {
+            Some(s) => format!("{:?}", s),
+            None => "None".to_string(),
+        };
 
         format!(
             "Quantum Swarm Metrics:\n\
-             Platonic: {} | Archimedean: {} | Johnson: {}\n\
+             Platonic: {} | Archimedean: {} | Johnson: {} | Catalan: {}\n\
              Stability: {:.4}\n\
              Convergence: {:.4}\n\
              Mercy Gate Pass Rate: {:.2}%\n\
              Active Agents: {}",
-            platonic, arch, johnson,
+            platonic, arch, johnson, catalan,
             self.swarm.get_stability_score(),
             self.swarm.get_convergence_rate(),
             self.swarm.get_mercy_gate_pass_rate() * 100.0,
@@ -364,10 +430,14 @@ impl QuantumSwarmBridge {
             Some(s) => format!("{:?}", s),
             None => "—".to_string(),
         };
+        let catalan = match &self.current_catalan_mode {
+            Some(s) => format!("{:?}", s),
+            None => "—".to_string(),
+        };
 
         format!(
-            "Swarm | P:{} | A:{} | J:{} | Stab:{:.3}",
-            platonic, arch, johnson, self.swarm.get_stability_score()
+            "Swarm | P:{} | A:{} | J:{} | C:{} | Stab:{:.3}",
+            platonic, arch, johnson, catalan, self.swarm.get_stability_score()
         )
     }
 
@@ -437,4 +507,4 @@ impl Default for QuantumSwarmBridge {
     fn default() -> Self {
         Self::new()
     }
-            }
+}
