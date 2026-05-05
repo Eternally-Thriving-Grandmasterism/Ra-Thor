@@ -1,8 +1,8 @@
 //! Quantum Swarm Bridge for Core Spine Integration
 //!
 //! Bidirectional communication between TOLC Lattice and Quantum Swarm.
-//! Version 0.5.26 — Refined Platonic Solids mapping with more differentiated
-//! and powerful archetypal effects + all previous special order behaviors.
+//! Version 0.5.27 — Fine-tuned Platonic Solid effects for clearer archetypal
+//! distinction, better gameplay balance, and deeper symbolic alignment.
 
 use crate::QuantumSwarmOrchestrator;
 use powrush::PowrushGame;
@@ -41,12 +41,11 @@ impl QuantumSwarmBridge {
     ) -> String {
         self.swarm.inject_tolc_influence(tolc_order, mercy_valence);
 
-        // Determine and apply Platonic Solid mode
         let solid = self.determine_platonic_solid(tolc_order);
         self.current_solid_mode = Some(solid.clone());
         self.apply_platonic_solid_mode(&solid, game);
 
-        // Priority order of special behaviors
+        // Priority order of special behaviors (unchanged)
         if tolc_order % 7 == 0 {
             self.handle_mercy_gate_resonance(tolc_order, game).await;
         } else if is_close_to_sqrt2(tolc_order) {
@@ -82,7 +81,6 @@ impl QuantumSwarmBridge {
         )
     }
 
-    /// Determines the most appropriate Platonic Solid based on TOLC order characteristics
     fn determine_platonic_solid(&self, order: u32) -> PlatonicSolid {
         if order % 7 == 0 {
             PlatonicSolid::Dodecahedron
@@ -99,41 +97,41 @@ impl QuantumSwarmBridge {
         }
     }
 
-    /// Applies the effects of the current Platonic Solid mode (Refined v0.5.26)
+    /// Refined v0.5.27 — Clearer archetypal power + better gameplay balance
     fn apply_platonic_solid_mode(&self, solid: &PlatonicSolid, game: &mut PowrushGame) {
         match solid {
             PlatonicSolid::Tetrahedron => {
-                // Fire — Ignition & Focused Power
-                game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 38000.0);
-                game.boost_faction_joy(powrush::Faction::TruthSeekers, 22000.0);
+                // Fire — Focused ignition & transformation
+                game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 42000.0);
+                game.boost_faction_joy(powrush::Faction::TruthSeekers, 18000.0);
             }
             PlatonicSolid::Cube => {
-                // Earth — Manifestation & Resource Power
-                game.add_resource_to_faction(powrush::Faction::HarmonyWeavers, powrush::ResourceType::Wealth, 125000.0);
-                game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 32000.0);
+                // Earth — Strong manifestation & resource power
+                game.add_resource_to_faction(powrush::Faction::HarmonyWeavers, powrush::ResourceType::Wealth, 145000.0);
+                game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 28000.0);
             }
             PlatonicSolid::Octahedron => {
-                // Air — Balance & Diplomatic Resonance
-                game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 28000.0);
-                game.boost_faction_joy(powrush::Faction::TruthSeekers, 28000.0);
-                game.boost_faction_joy(powrush::Faction::AbundanceSeekers, 18000.0);
+                // Air — Diplomatic balance across factions
+                game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 26000.0);
+                game.boost_faction_joy(powrush::Faction::TruthSeekers, 26000.0);
+                game.boost_faction_joy(powrush::Faction::AbundanceSeekers, 22000.0);
             }
             PlatonicSolid::Icosahedron => {
-                // Water — Flow, Depth & Organic Intelligence
-                game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 45000.0);
-                game.apply_epigenetic_blessing(9);
+                // Water — Deep flow + strong epigenetic adaptation
+                game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 48000.0);
+                game.apply_epigenetic_blessing(10);
             }
             PlatonicSolid::Dodecahedron => {
-                // Ether — Highest Consciousness
-                game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 58000.0);
-                game.apply_epigenetic_blessing(16);
-                game.boost_faction_joy(powrush::Faction::TruthSeekers, 15000.0);
-                game.boost_faction_joy(powrush::Faction::AbundanceSeekers, 15000.0);
+                // Ether — Highest consciousness & wide blessing
+                game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 62000.0);
+                game.apply_epigenetic_blessing(18);
+                game.boost_faction_joy(powrush::Faction::TruthSeekers, 14000.0);
+                game.boost_faction_joy(powrush::Faction::AbundanceSeekers, 14000.0);
             }
         }
     }
 
-    // ==================== SPECIAL BEHAVIORS ====================
+    // ==================== SPECIAL BEHAVIORS (unchanged) ====================
 
     async fn handle_mercy_gate_resonance(&mut self, order: u32, game: &mut PowrushGame) {
         let resonance_boost = (order as f64 * 420.0).min(185000.0);
@@ -253,7 +251,7 @@ impl QuantumSwarmBridge {
     }
 }
 
-// ==================== Helper Functions ====================
+// ==================== Helper Functions (unchanged) ====================
 
 fn is_prime(n: u32) -> bool {
     if n <= 1 { return false; }
