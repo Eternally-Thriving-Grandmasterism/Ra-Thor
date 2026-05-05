@@ -1,8 +1,8 @@
 //! Quantum Swarm Bridge for Core Spine Integration
 //!
 //! Provides a clean, mercy-gated interface for the CentralCoordinator
-//! to coordinate with the Quantum Swarm Orchestrator.
-//! Accepts TOLC lattice status and returns structured metrics.
+//! and other Core Spine components to coordinate with the Quantum Swarm.
+//! Version 0.5.25 — Expanded with richer methods and tighter TOLC coupling.
 
 use crate::QuantumSwarmOrchestrator;
 use powrush::PowrushGame;
@@ -27,13 +27,10 @@ impl QuantumSwarmBridge {
         mercy_valence: f64,
         game: &mut PowrushGame,
     ) -> String {
-        // Inject TOLC influence into the swarm
         self.swarm.inject_tolc_influence(tolc_order, mercy_valence);
 
-        // Run the swarm's internal cycle
         let swarm_result = self.swarm.run_coordinated_cycle().await;
 
-        // Apply mercy-gated effects back into the game
         let joy_boost = (tolc_order as f64 * 180.0) + (mercy_valence * 850.0);
         game.boost_faction_joy(powrush::Faction::HarmonyWeavers, joy_boost.min(125000.0));
 
@@ -59,6 +56,39 @@ impl QuantumSwarmBridge {
             self.swarm.get_mercy_gate_pass_rate() * 100.0,
             self.swarm.get_active_agent_count()
         )
+    }
+
+    // ==================== NEW EXPANDED METHODS ====================
+
+    /// Run a pure swarm cycle without TOLC influence (for testing / isolation)
+    pub async fn run_isolated_swarm_cycle(&mut self) -> String {
+        self.swarm.run_coordinated_cycle().await
+    }
+
+    /// Push current TOLC lattice status into the swarm (one-way sync)
+    pub fn sync_tolc_status(&mut self, tolc_order: u32, mercy_valence: f64) {
+        self.swarm.inject_tolc_influence(tolc_order, mercy_valence);
+    }
+
+    /// Get a compact summary suitable for CentralCoordinator reports
+    pub fn get_compact_status(&self) -> String {
+        format!(
+            "Swarm | Stability: {:.3} | Conv: {:.3} | Gates: {:.1}%",
+            self.swarm.get_stability_score(),
+            self.swarm.get_convergence_rate(),
+            self.swarm.get_mercy_gate_pass_rate() * 100.0
+        )
+    }
+
+    /// Trigger a mercy-gated self-organization pulse inside the swarm
+    pub async fn trigger_mercy_self_organization(&mut self, intensity: f64) -> String {
+        let result = self.swarm.trigger_mercy_self_organization(intensity).await;
+        format!("Quantum Swarm Mercy Self-Organization: {}", result)
+    }
+
+    /// Check if the swarm is currently in a stable convergent state
+    pub fn is_stable(&self) -> bool {
+        self.swarm.get_stability_score() > 0.92 && self.swarm.get_convergence_rate() > 0.88
     }
 }
 
