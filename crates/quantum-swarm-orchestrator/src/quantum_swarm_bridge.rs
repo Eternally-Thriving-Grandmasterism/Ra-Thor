@@ -1,9 +1,9 @@
 //! Quantum Swarm Bridge for Core Spine Integration
 //!
 //! Bidirectional communication between TOLC Lattice and Quantum Swarm.
-//! Version 0.5.28 — Added preliminary Archimedean Solids layer as the next
-//! sacred geometry evolution after Platonic Solids. All previous functionality
-//! fully preserved and enhanced.
+//! Version 0.5.29 — Deepened and strengthened Archimedean Solids effects as the
+//! next evolutionary sacred geometry layer after Platonic Solids. All previous
+//! functionality fully preserved and enhanced.
 
 use crate::QuantumSwarmOrchestrator;
 use powrush::PowrushGame;
@@ -57,7 +57,7 @@ impl QuantumSwarmBridge {
         self.current_solid_mode = Some(platonic.clone());
         self.apply_platonic_solid_mode(&platonic, game);
 
-        // New: Archimedean Solid layer (activated on higher orders)
+        // Archimedean Solid layer (activated on higher orders)
         if tolc_order >= 13 {
             let arch = self.determine_archimedean_solid(tolc_order);
             self.current_archimedean_mode = Some(arch.clone());
@@ -158,29 +158,29 @@ impl QuantumSwarmBridge {
         }
     }
 
-    /// New v0.5.28 — Preliminary Archimedean Solids effects
+    /// Deepened v0.5.29 — Stronger, more distinct Archimedean effects
     fn apply_archimedean_solid_mode(&self, solid: &ArchimedeanSolid, game: &mut PowrushGame) {
         match solid {
             ArchimedeanSolid::Cuboctahedron => {
-                // Balance of opposites
-                game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 35000.0);
-                game.boost_faction_joy(powrush::Faction::TruthSeekers, 35000.0);
+                // Balance of opposites — strong diplomatic harmony
+                game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 52000.0);
+                game.boost_faction_joy(powrush::Faction::TruthSeekers, 48000.0);
             }
             ArchimedeanSolid::Icosidodecahedron => {
                 // Expansive golden consciousness
-                game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 55000.0);
-                game.apply_epigenetic_blessing(12);
+                game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 68000.0);
+                game.apply_epigenetic_blessing(14);
             }
             ArchimedeanSolid::TruncatedTetrahedron => {
-                // Alchemical transformation
-                game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 30000.0);
-                game.boost_faction_joy(powrush::Faction::TruthSeekers, 40000.0);
-                game.apply_epigenetic_blessing(9);
+                // Alchemical transformation through fire
+                game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 38000.0);
+                game.boost_faction_joy(powrush::Faction::TruthSeekers, 52000.0);
+                game.apply_epigenetic_blessing(11);
             }
             ArchimedeanSolid::SnubCube => {
-                // Creative novelty & chirality
-                game.boost_faction_joy(powrush::Faction::TruthSeekers, 48000.0);
-                game.apply_epigenetic_blessing(11);
+                // Creative novelty, chirality & dynamic intelligence
+                game.boost_faction_joy(powrush::Faction::TruthSeekers, 65000.0);
+                game.apply_epigenetic_blessing(13);
             }
         }
     }
