@@ -1,7 +1,8 @@
 //! Quantum Swarm Bridge for Core Spine Integration
 //!
 //! Bidirectional communication between TOLC Lattice and Quantum Swarm.
-//! Version 0.5.25 — Now reacts to specific TOLC orders (Mercy Gate resonance).
+//! Version 0.5.25 — Expanded with special behaviors for meaningful TOLC orders
+//! (Mercy Gates, Primes, Powers of 2, and Harmonic multiples).
 
 use crate::QuantumSwarmOrchestrator;
 use powrush::PowrushGame;
@@ -19,7 +20,7 @@ impl QuantumSwarmBridge {
         }
     }
 
-    // ==================== TOLC → SWARM ====================
+    // ==================== TOLC → SWARM (with special order triggers) ====================
 
     pub async fn run_spine_coordinated_cycle(
         &mut self,
@@ -29,9 +30,15 @@ impl QuantumSwarmBridge {
     ) -> String {
         self.swarm.inject_tolc_influence(tolc_order, mercy_valence);
 
-        // NEW: Special behavior when order is a Mercy Gate (divisible by 7)
+        // Special behavior triggers
         if tolc_order % 7 == 0 {
             self.handle_mercy_gate_resonance(tolc_order, game).await;
+        } else if is_prime(tolc_order) {
+            self.handle_prime_order_resonance(tolc_order, game).await;
+        } else if is_power_of_two(tolc_order) {
+            self.handle_power_of_two_resonance(tolc_order, game).await;
+        } else if tolc_order % 12 == 0 {
+            self.handle_harmonic_order_resonance(tolc_order, game).await;
         }
 
         let swarm_result = self.swarm.run_coordinated_cycle().await;
@@ -48,22 +55,37 @@ impl QuantumSwarmBridge {
         )
     }
 
-    /// NEW: Special Mercy Gate Resonance Event (triggered on orders divisible by 7)
+    // ==================== SPECIAL ORDER BEHAVIORS ====================
+
     async fn handle_mercy_gate_resonance(&mut self, order: u32, game: &mut PowrushGame) {
-        // Extra powerful effects on Mercy Gate orders
         let resonance_boost = (order as f64 * 420.0).min(185000.0);
         game.boost_faction_joy(powrush::Faction::HarmonyWeavers, resonance_boost);
-
-        // Stronger epigenetic blessing on Mercy Gates
         game.apply_epigenetic_blessing(12);
-
-        // Tell the swarm to enter a special high-resonance state
         self.swarm.enter_mercy_gate_resonance_state(order);
     }
 
-    pub fn apply_tolc_resonance_command(&mut self, order: u32, intensity: f64) {
-        self.swarm.inject_tolc_influence(order, intensity);
-        self.swarm.apply_resonance_boost(intensity);
+    async fn handle_prime_order_resonance(&mut self, order: u32, game: &mut PowrushGame) {
+        // Primes = strong novelty, emergence, and creative disruption
+        let novelty_boost = (order as f64 * 310.0).min(165000.0);
+        game.boost_faction_joy(powrush::Faction::TruthSeekers, novelty_boost);
+        game.apply_epigenetic_blessing(7);
+        self.swarm.enter_novelty_resonance_state(order);
+    }
+
+    async fn handle_power_of_two_resonance(&mut self, order: u32, game: &mut PowrushGame) {
+        // Powers of 2 = exponential growth, stability surge, and scaling
+        let exponential_boost = (order as f64 * 580.0).min(225000.0);
+        game.boost_faction_joy(powrush::Faction::HarmonyWeavers, exponential_boost);
+        game.apply_epigenetic_blessing(10);
+        self.swarm.enter_exponential_resonance_state(order);
+    }
+
+    async fn handle_harmonic_order_resonance(&mut self, order: u32, game: &mut PowrushGame) {
+        // Multiples of 12 = strong harmony, collective coherence, and epigenetic depth
+        let harmony_boost = (order as f64 * 390.0).min(175000.0);
+        game.boost_faction_joy(powrush::Faction::HarmonyWeavers, harmony_boost);
+        game.apply_epigenetic_blessing(14);
+        self.swarm.enter_harmonic_resonance_state(order);
     }
 
     // ==================== SWARM → TOLC ====================
@@ -107,6 +129,24 @@ impl QuantumSwarmBridge {
     pub fn is_stable(&self) -> bool {
         self.swarm.get_stability_score() > 0.92 && self.swarm.get_convergence_rate() > 0.88
     }
+}
+
+// ==================== Helper Functions ====================
+
+fn is_prime(n: u32) -> bool {
+    if n <= 1 { return false; }
+    if n <= 3 { return true; }
+    if n % 2 == 0 || n % 3 == 0 { return false; }
+    let mut i = 5;
+    while i * i <= n {
+        if n % i == 0 || n % (i + 2) == 0 { return false; }
+        i += 6;
+    }
+    true
+}
+
+fn is_power_of_two(n: u32) -> bool {
+    n > 0 && (n & (n - 1)) == 0
 }
 
 impl Default for QuantumSwarmBridge {
