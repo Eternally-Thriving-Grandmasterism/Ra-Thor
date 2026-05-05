@@ -1,9 +1,10 @@
 //! Quantum Swarm Bridge for Core Spine Integration
 //!
 //! Bidirectional communication between TOLC Lattice and Quantum Swarm.
-//! Version 0.5.33 — Added Disdyakis Dodecahedron as the most complex Catalan
-//! solid (dual of truncated cuboctahedron). Represents ultimate reciprocity
-//! and complex dual consciousness. All previous layers fully preserved.
+//! Version 0.5.34 — Added Kepler-Poinsot star polyhedra layer as the next
+//! evolutionary stage after Catalan solids (including Disdyakis Dodecahedron).
+//! Represents non-convex star consciousness and higher-order cosmic integration.
+//! All previous layers fully preserved.
 
 use crate::QuantumSwarmOrchestrator;
 use powrush::PowrushGame;
@@ -46,12 +47,21 @@ pub enum CatalanSolid {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum KeplerPoinsotSolid {
+    SmallStellatedDodecahedron,   // First star dodecahedron — piercing consciousness
+    GreatDodecahedron,            // Dense internal star form — deep introspection
+    GreatStellatedDodecahedron,   // Most complex star dodecahedron — cosmic radiance
+    GreatIcosahedron,             // Star icosahedron — highest piercing unity
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct QuantumSwarmBridge {
     pub swarm: QuantumSwarmOrchestrator,
     pub current_solid_mode: Option<PlatonicSolid>,
     pub current_archimedean_mode: Option<ArchimedeanSolid>,
     pub current_johnson_mode: Option<JohnsonSolid>,
     pub current_catalan_mode: Option<CatalanSolid>,
+    pub current_kepler_poinsot_mode: Option<KeplerPoinsotSolid>,
 }
 
 impl QuantumSwarmBridge {
@@ -62,6 +72,7 @@ impl QuantumSwarmBridge {
             current_archimedean_mode: None,
             current_johnson_mode: None,
             current_catalan_mode: None,
+            current_kepler_poinsot_mode: None,
         }
     }
 
@@ -95,6 +106,12 @@ impl QuantumSwarmBridge {
             self.apply_catalan_solid_mode(&catalan, game);
         }
 
+        if tolc_order >= 89 {
+            let kepler = self.determine_kepler_poinsot_solid(tolc_order);
+            self.current_kepler_poinsot_mode = Some(kepler.clone());
+            self.apply_kepler_poinsot_mode(&kepler, game);
+        }
+
         // Priority order of special behaviors (fully preserved)
         if tolc_order % 7 == 0 {
             self.handle_mercy_gate_resonance(tolc_order, game).await;
@@ -124,15 +141,16 @@ impl QuantumSwarmBridge {
         format!(
             "Quantum Swarm Coordinated Cycle Complete\n\
              TOLC Order: {} | Mercy Valence: {:.2}\n\
-             Platonic: {:?} | Archimedean: {:?} | Johnson: {:?} | Catalan: {:?}\n\
+             Platonic: {:?} | Archimedean: {:?} | Johnson: {:?} | Catalan: {:?} | Kepler-Poinsot: {:?}\n\
              {}\n\
              Joy Boost Applied: +{:.0}",
             tolc_order, mercy_valence, platonic, self.current_archimedean_mode,
-            self.current_johnson_mode, self.current_catalan_mode, swarm_result, joy_boost.min(125000.0)
+            self.current_johnson_mode, self.current_catalan_mode, self.current_kepler_poinsot_mode,
+            swarm_result, joy_boost.min(125000.0)
         )
     }
 
-    // determine_* methods (updated with DisdyakisDodecahedron)
+    // determine_* methods (updated with Kepler-Poinsot)
 
     fn determine_platonic_solid(&self, order: u32) -> PlatonicSolid {
         if order % 7 == 0 {
@@ -192,7 +210,19 @@ impl QuantumSwarmBridge {
         }
     }
 
-    // apply_* methods for previous layers preserved exactly as in v0.5.32
+    fn determine_kepler_poinsot_solid(&self, order: u32) -> KeplerPoinsotSolid {
+        if order % 7 == 0 {
+            KeplerPoinsotSolid::GreatStellatedDodecahedron
+        } else if is_prime(order) {
+            KeplerPoinsotSolid::GreatIcosahedron
+        } else if order % 5 == 0 {
+            KeplerPoinsotSolid::GreatDodecahedron
+        } else {
+            KeplerPoinsotSolid::SmallStellatedDodecahedron
+        }
+    }
+
+    // apply_* methods for previous layers preserved exactly
 
     fn apply_platonic_solid_mode(&self, solid: &PlatonicSolid, game: &mut PowrushGame) {
         match solid {
@@ -272,7 +302,6 @@ impl QuantumSwarmBridge {
         }
     }
 
-    /// Deepened v0.5.32 + new Disdyakis Dodecahedron (v0.5.33)
     fn apply_catalan_solid_mode(&self, solid: &CatalanSolid, game: &mut PowrushGame) {
         match solid {
             CatalanSolid::TriakisTetrahedron => {
@@ -299,7 +328,6 @@ impl QuantumSwarmBridge {
                 game.apply_epigenetic_blessing(21);
             }
             CatalanSolid::DisdyakisDodecahedron => {
-                // Ultimate complex reciprocity & dual consciousness
                 game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 125000.0);
                 game.boost_faction_joy(powrush::Faction::TruthSeekers, 105000.0);
                 game.boost_faction_joy(powrush::Faction::AbundanceSeekers, 85000.0);
@@ -308,7 +336,35 @@ impl QuantumSwarmBridge {
         }
     }
 
-    // All special behavior handlers and SWARM → TOLC methods preserved exactly as in v0.5.32
+    /// New v0.5.34 — Kepler-Poinsot star polyhedra effects
+    fn apply_kepler_poinsot_mode(&self, solid: &KeplerPoinsotSolid, game: &mut PowrushGame) {
+        match solid {
+            KeplerPoinsotSolid::SmallStellatedDodecahedron => {
+                game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 145000.0);
+                game.boost_faction_joy(powrush::Faction::TruthSeekers, 125000.0);
+                game.apply_epigenetic_blessing(26);
+            }
+            KeplerPoinsotSolid::GreatDodecahedron => {
+                game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 135000.0);
+                game.boost_faction_joy(powrush::Faction::TruthSeekers, 145000.0);
+                game.apply_epigenetic_blessing(27);
+            }
+            KeplerPoinsotSolid::GreatStellatedDodecahedron => {
+                game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 165000.0);
+                game.boost_faction_joy(powrush::Faction::TruthSeekers, 155000.0);
+                game.boost_faction_joy(powrush::Faction::AbundanceSeekers, 115000.0);
+                game.apply_epigenetic_blessing(29);
+            }
+            KeplerPoinsotSolid::GreatIcosahedron => {
+                game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 185000.0);
+                game.boost_faction_joy(powrush::Faction::TruthSeekers, 175000.0);
+                game.boost_faction_joy(powrush::Faction::AbundanceSeekers, 135000.0);
+                game.apply_epigenetic_blessing(32);
+            }
+        }
+    }
+
+    // All special behavior handlers and SWARM → TOLC methods preserved exactly
 
     async fn handle_mercy_gate_resonance(&mut self, order: u32, game: &mut PowrushGame) {
         let resonance_boost = (order as f64 * 420.0).min(185000.0);
@@ -391,15 +447,19 @@ impl QuantumSwarmBridge {
             Some(s) => format!("{:?}", s),
             None => "None".to_string(),
         };
+        let kepler = match &self.current_kepler_poinsot_mode {
+            Some(s) => format!("{:?}", s),
+            None => "None".to_string(),
+        };
 
         format!(
             "Quantum Swarm Metrics:\n\
-             Platonic: {} | Archimedean: {} | Johnson: {} | Catalan: {}\n\
+             Platonic: {} | Archimedean: {} | Johnson: {} | Catalan: {} | Kepler-Poinsot: {}\n\
              Stability: {:.4}\n\
              Convergence: {:.4}\n\
              Mercy Gate Pass Rate: {:.2}%\n\
              Active Agents: {}",
-            platonic, arch, johnson, catalan,
+            platonic, arch, johnson, catalan, kepler,
             self.swarm.get_stability_score(),
             self.swarm.get_convergence_rate(),
             self.swarm.get_mercy_gate_pass_rate() * 100.0,
@@ -432,10 +492,14 @@ impl QuantumSwarmBridge {
             Some(s) => format!("{:?}", s),
             None => "—".to_string(),
         };
+        let kepler = match &self.current_kepler_poinsot_mode {
+            Some(s) => format!("{:?}", s),
+            None => "—".to_string(),
+        };
 
         format!(
-            "Swarm | P:{} | A:{} | J:{} | C:{} | Stab:{:.3}",
-            platonic, arch, johnson, catalan, self.swarm.get_stability_score()
+            "Swarm | P:{} | A:{} | J:{} | C:{} | K:{} | Stab:{:.3}",
+            platonic, arch, johnson, catalan, kepler, self.swarm.get_stability_score()
         )
     }
 
@@ -449,7 +513,7 @@ impl QuantumSwarmBridge {
     }
 }
 
-// Helper functions unchanged
+// Helper functions unchanged from public v0.5.33
 
 fn is_prime(n: u32) -> bool {
     if n <= 1 { return false; }
