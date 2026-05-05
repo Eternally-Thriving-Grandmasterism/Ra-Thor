@@ -1,9 +1,9 @@
 //! Quantum Swarm Bridge for Core Spine Integration
 //!
 //! Bidirectional communication between TOLC Lattice and Quantum Swarm.
-//! Version 0.5.32 — Deepened and strengthened Catalan Solids effects for greater
-//! archetypal power, reciprocity, and evolutionary impact. All previous layers
-//! fully preserved and enhanced.
+//! Version 0.5.33 — Added Disdyakis Dodecahedron as the most complex Catalan
+//! solid (dual of truncated cuboctahedron). Represents ultimate reciprocity
+//! and complex dual consciousness. All previous layers fully preserved.
 
 use crate::QuantumSwarmOrchestrator;
 use powrush::PowrushGame;
@@ -37,11 +37,12 @@ pub enum JohnsonSolid {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum CatalanSolid {
-    TriakisTetrahedron,       // Dual of Truncated Tetrahedron — Alchemical reciprocity
-    RhombicDodecahedron,      // Dual of Cuboctahedron — Manifestation & grounding reciprocity
-    PentagonalIcositetrahedron, // Dual of Snub Cube — Chiral creative consciousness
-    DeltoidalIcositetrahedron,  // Dual of Rhombicuboctahedron — Balanced expansion
-    PentagonalHexecontahedron,  // Dual of Snub Dodecahedron — Highest chiral unity
+    TriakisTetrahedron,           // Dual of Truncated Tetrahedron — Alchemical reciprocity
+    RhombicDodecahedron,          // Dual of Cuboctahedron — Manifestation & grounding reciprocity
+    PentagonalIcositetrahedron,   // Dual of Snub Cube — Chiral creative consciousness
+    DeltoidalIcositetrahedron,    // Dual of Rhombicuboctahedron — Balanced expansion
+    PentagonalHexecontahedron,    // Dual of Snub Dodecahedron — Highest chiral unity
+    DisdyakisDodecahedron,        // Dual of Truncated Cuboctahedron — Ultimate complex reciprocity
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -63,8 +64,6 @@ impl QuantumSwarmBridge {
             current_catalan_mode: None,
         }
     }
-
-    // ==================== TOLC → SWARM ====================
 
     pub async fn run_spine_coordinated_cycle(
         &mut self,
@@ -133,7 +132,7 @@ impl QuantumSwarmBridge {
         )
     }
 
-    // determine_* methods unchanged (preserved)
+    // determine_* methods (updated with DisdyakisDodecahedron)
 
     fn determine_platonic_solid(&self, order: u32) -> PlatonicSolid {
         if order % 7 == 0 {
@@ -178,7 +177,9 @@ impl QuantumSwarmBridge {
     }
 
     fn determine_catalan_solid(&self, order: u32) -> CatalanSolid {
-        if order % 7 == 0 {
+        if order >= 55 && order % 7 == 0 {
+            CatalanSolid::DisdyakisDodecahedron
+        } else if order % 7 == 0 {
             CatalanSolid::PentagonalHexecontahedron
         } else if is_prime(order) {
             CatalanSolid::PentagonalIcositetrahedron
@@ -191,7 +192,7 @@ impl QuantumSwarmBridge {
         }
     }
 
-    // apply_* methods for Platonic, Archimedean, and Johnson preserved exactly
+    // apply_* methods for previous layers preserved exactly as in v0.5.32
 
     fn apply_platonic_solid_mode(&self, solid: &PlatonicSolid, game: &mut PowrushGame) {
         match solid {
@@ -271,41 +272,43 @@ impl QuantumSwarmBridge {
         }
     }
 
-    /// Deepened v0.5.32 — Stronger, more distinct Catalan effects
+    /// Deepened v0.5.32 + new Disdyakis Dodecahedron (v0.5.33)
     fn apply_catalan_solid_mode(&self, solid: &CatalanSolid, game: &mut PowrushGame) {
         match solid {
             CatalanSolid::TriakisTetrahedron => {
-                // Sharp alchemical reciprocity
                 game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 58000.0);
                 game.boost_faction_joy(powrush::Faction::TruthSeekers, 72000.0);
                 game.apply_epigenetic_blessing(15);
             }
             CatalanSolid::RhombicDodecahedron => {
-                // Powerful manifestation & grounding reciprocity
                 game.add_resource_to_faction(powrush::Faction::HarmonyWeavers, powrush::ResourceType::Wealth, 195000.0);
                 game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 62000.0);
             }
             CatalanSolid::PentagonalIcositetrahedron => {
-                // Intense chiral creative consciousness
                 game.boost_faction_joy(powrush::Faction::TruthSeekers, 98000.0);
                 game.apply_epigenetic_blessing(18);
             }
             CatalanSolid::DeltoidalIcositetrahedron => {
-                // Strong balanced expansion & reciprocity
                 game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 68000.0);
                 game.boost_faction_joy(powrush::Faction::TruthSeekers, 68000.0);
                 game.apply_epigenetic_blessing(16);
             }
             CatalanSolid::PentagonalHexecontahedron => {
-                // Highest chiral unity & expansive dual consciousness
                 game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 92000.0);
                 game.boost_faction_joy(powrush::Faction::TruthSeekers, 78000.0);
                 game.apply_epigenetic_blessing(21);
             }
+            CatalanSolid::DisdyakisDodecahedron => {
+                // Ultimate complex reciprocity & dual consciousness
+                game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 125000.0);
+                game.boost_faction_joy(powrush::Faction::TruthSeekers, 105000.0);
+                game.boost_faction_joy(powrush::Faction::AbundanceSeekers, 85000.0);
+                game.apply_epigenetic_blessing(24);
+            }
         }
     }
 
-    // ==================== SPECIAL BEHAVIORS (fully preserved) ====================
+    // All special behavior handlers and SWARM → TOLC methods preserved exactly as in v0.5.32
 
     async fn handle_mercy_gate_resonance(&mut self, order: u32, game: &mut PowrushGame) {
         let resonance_boost = (order as f64 * 420.0).min(185000.0);
@@ -370,8 +373,6 @@ impl QuantumSwarmBridge {
         game.apply_epigenetic_blessing(14);
         self.swarm.enter_harmonic_resonance_state(order);
     }
-
-    // ==================== SWARM → TOLC (preserved) ====================
 
     pub fn get_swarm_metrics(&self) -> String {
         let platonic = match &self.current_solid_mode {
@@ -448,7 +449,7 @@ impl QuantumSwarmBridge {
     }
 }
 
-// ==================== Helper Functions (unchanged) ====================
+// Helper functions unchanged
 
 fn is_prime(n: u32) -> bool {
     if n <= 1 { return false; }
