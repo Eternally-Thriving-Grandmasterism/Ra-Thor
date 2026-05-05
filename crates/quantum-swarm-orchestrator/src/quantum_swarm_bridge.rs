@@ -1,9 +1,9 @@
 //! Quantum Swarm Bridge for Core Spine Integration
 //!
 //! Bidirectional communication between TOLC Lattice and Quantum Swarm.
-//! Version 0.5.29 — Deepened and strengthened Archimedean Solids effects as the
-//! next evolutionary sacred geometry layer after Platonic Solids. All previous
-//! functionality fully preserved and enhanced.
+//! Version 0.5.30 — Added Johnson Solids layer as the next evolutionary
+//! sacred geometry stage after Archimedean Solids. All previous functionality
+//! fully preserved and enhanced.
 
 use crate::QuantumSwarmOrchestrator;
 use powrush::PowrushGame;
@@ -27,10 +27,20 @@ pub enum ArchimedeanSolid {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum JohnsonSolid {
+    SquareGyrobicupola,     // J29 — Dynamic duality, rotational balance
+    TriangularCupola,       // J3  — Triadic integration, foundational complexity
+    PentagonalRotunda,      // J6  — Expansive rotational consciousness
+    SnubDisphenoid,         // J84 — Chiral asymmetry, creative intelligence
+    Bilunabirotunda,        // J91 — Dual rotational harmony, synthesis
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct QuantumSwarmBridge {
     pub swarm: QuantumSwarmOrchestrator,
     pub current_solid_mode: Option<PlatonicSolid>,
     pub current_archimedean_mode: Option<ArchimedeanSolid>,
+    pub current_johnson_mode: Option<JohnsonSolid>,
 }
 
 impl QuantumSwarmBridge {
@@ -39,6 +49,7 @@ impl QuantumSwarmBridge {
             swarm: QuantumSwarmOrchestrator::new(),
             current_solid_mode: None,
             current_archimedean_mode: None,
+            current_johnson_mode: None,
         }
     }
 
@@ -52,16 +63,23 @@ impl QuantumSwarmBridge {
     ) -> String {
         self.swarm.inject_tolc_influence(tolc_order, mercy_valence);
 
-        // Platonic Solid (existing logic preserved)
+        // Platonic Solid (preserved)
         let platonic = self.determine_platonic_solid(tolc_order);
         self.current_solid_mode = Some(platonic.clone());
         self.apply_platonic_solid_mode(&platonic, game);
 
-        // Archimedean Solid layer (activated on higher orders)
+        // Archimedean Solid (preserved)
         if tolc_order >= 13 {
             let arch = self.determine_archimedean_solid(tolc_order);
             self.current_archimedean_mode = Some(arch.clone());
             self.apply_archimedean_solid_mode(&arch, game);
+        }
+
+        // New: Johnson Solid layer (activated on higher orders)
+        if tolc_order >= 21 {
+            let johnson = self.determine_johnson_solid(tolc_order);
+            self.current_johnson_mode = Some(johnson.clone());
+            self.apply_johnson_solid_mode(&johnson, game);
         }
 
         // Priority order of special behaviors (fully preserved)
@@ -93,11 +111,10 @@ impl QuantumSwarmBridge {
         format!(
             "Quantum Swarm Coordinated Cycle Complete\n\
              TOLC Order: {} | Mercy Valence: {:.2}\n\
-             Platonic Mode: {:?}\n\
-             Archimedean Mode: {:?}\n\
+             Platonic: {:?} | Archimedean: {:?} | Johnson: {:?}\n\
              {}\n\
              Joy Boost Applied: +{:.0}",
-            tolc_order, mercy_valence, platonic, self.current_archimedean_mode, swarm_result, joy_boost.min(125000.0)
+            tolc_order, mercy_valence, platonic, self.current_archimedean_mode, self.current_johnson_mode, swarm_result, joy_boost.min(125000.0)
         )
     }
 
@@ -126,6 +143,20 @@ impl QuantumSwarmBridge {
             ArchimedeanSolid::Cuboctahedron
         } else {
             ArchimedeanSolid::TruncatedTetrahedron
+        }
+    }
+
+    fn determine_johnson_solid(&self, order: u32) -> JohnsonSolid {
+        if order % 7 == 0 {
+            JohnsonSolid::PentagonalRotunda
+        } else if is_prime(order) {
+            JohnsonSolid::SnubDisphenoid
+        } else if order % 5 == 0 {
+            JohnsonSolid::Bilunabirotunda
+        } else if order % 3 == 0 {
+            JohnsonSolid::TriangularCupola
+        } else {
+            JohnsonSolid::SquareGyrobicupola
         }
     }
 
@@ -158,29 +189,59 @@ impl QuantumSwarmBridge {
         }
     }
 
-    /// Deepened v0.5.29 — Stronger, more distinct Archimedean effects
+    /// Deepened v0.5.29 Archimedean effects (preserved)
     fn apply_archimedean_solid_mode(&self, solid: &ArchimedeanSolid, game: &mut PowrushGame) {
         match solid {
             ArchimedeanSolid::Cuboctahedron => {
-                // Balance of opposites — strong diplomatic harmony
                 game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 52000.0);
                 game.boost_faction_joy(powrush::Faction::TruthSeekers, 48000.0);
             }
             ArchimedeanSolid::Icosidodecahedron => {
-                // Expansive golden consciousness
                 game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 68000.0);
                 game.apply_epigenetic_blessing(14);
             }
             ArchimedeanSolid::TruncatedTetrahedron => {
-                // Alchemical transformation through fire
                 game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 38000.0);
                 game.boost_faction_joy(powrush::Faction::TruthSeekers, 52000.0);
                 game.apply_epigenetic_blessing(11);
             }
             ArchimedeanSolid::SnubCube => {
-                // Creative novelty, chirality & dynamic intelligence
                 game.boost_faction_joy(powrush::Faction::TruthSeekers, 65000.0);
                 game.apply_epigenetic_blessing(13);
+            }
+        }
+    }
+
+    /// New v0.5.30 — Johnson Solids effects (specialized & intricate)
+    fn apply_johnson_solid_mode(&self, solid: &JohnsonSolid, game: &mut PowrushGame) {
+        match solid {
+            JohnsonSolid::SquareGyrobicupola => {
+                // Dynamic duality & rotational balance
+                game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 45000.0);
+                game.boost_faction_joy(powrush::Faction::TruthSeekers, 45000.0);
+                game.apply_epigenetic_blessing(12);
+            }
+            JohnsonSolid::TriangularCupola => {
+                // Triadic integration & foundational complexity
+                game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 38000.0);
+                game.boost_faction_joy(powrush::Faction::TruthSeekers, 38000.0);
+                game.boost_faction_joy(powrush::Faction::AbundanceSeekers, 32000.0);
+            }
+            JohnsonSolid::PentagonalRotunda => {
+                // Expansive rotational consciousness
+                game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 72000.0);
+                game.apply_epigenetic_blessing(16);
+            }
+            JohnsonSolid::SnubDisphenoid => {
+                // Chiral asymmetry & creative intelligence
+                game.boost_faction_joy(powrush::Faction::TruthSeekers, 78000.0);
+                game.apply_epigenetic_blessing(15);
+            }
+            JohnsonSolid::Bilunabirotunda => {
+                // Dual rotational harmony & synthesis
+                game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 55000.0);
+                game.boost_faction_joy(powrush::Faction::TruthSeekers, 55000.0);
+                game.apply_epigenetic_blessing(14);
             }
         }
     }
@@ -262,17 +323,19 @@ impl QuantumSwarmBridge {
             Some(s) => format!("{:?}", s),
             None => "None".to_string(),
         };
+        let johnson = match &self.current_johnson_mode {
+            Some(s) => format!("{:?}", s),
+            None => "None".to_string(),
+        };
 
         format!(
             "Quantum Swarm Metrics:\n\
-             Platonic Mode: {}\n\
-             Archimedean Mode: {}\n\
+             Platonic: {} | Archimedean: {} | Johnson: {}\n\
              Stability: {:.4}\n\
              Convergence: {:.4}\n\
              Mercy Gate Pass Rate: {:.2}%\n\
              Active Agents: {}",
-            platonic,
-            arch,
+            platonic, arch, johnson,
             self.swarm.get_stability_score(),
             self.swarm.get_convergence_rate(),
             self.swarm.get_mercy_gate_pass_rate() * 100.0,
@@ -297,10 +360,14 @@ impl QuantumSwarmBridge {
             Some(s) => format!("{:?}", s),
             None => "—".to_string(),
         };
+        let johnson = match &self.current_johnson_mode {
+            Some(s) => format!("{:?}", s),
+            None => "—".to_string(),
+        };
 
         format!(
-            "Swarm | Platonic: {} | Archimedean: {} | Stability: {:.3}",
-            platonic, arch, self.swarm.get_stability_score()
+            "Swarm | P:{} | A:{} | J:{} | Stab:{:.3}",
+            platonic, arch, johnson, self.swarm.get_stability_score()
         )
     }
 
@@ -370,4 +437,4 @@ impl Default for QuantumSwarmBridge {
     fn default() -> Self {
         Self::new()
     }
-}
+            }
