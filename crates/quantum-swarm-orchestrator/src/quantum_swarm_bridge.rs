@@ -1,8 +1,8 @@
 //! Quantum Swarm Bridge for Core Spine Integration
 //!
 //! Bidirectional communication between TOLC Lattice and Quantum Swarm.
-//! Version 0.5.25 — Now includes special behaviors for Fibonacci numbers
-//! and numbers close to the Golden Ratio (phi).
+//! Version 0.5.25 — Expanded with special behaviors for e, π, Fibonacci,
+//! Golden Ratio, Primes, Powers of 2, and Harmonic multiples.
 
 use crate::QuantumSwarmOrchestrator;
 use powrush::PowrushGame;
@@ -20,7 +20,7 @@ impl QuantumSwarmBridge {
         }
     }
 
-    // ==================== TOLC → SWARM (with expanded special order triggers) ====================
+    // ==================== TOLC → SWARM ====================
 
     pub async fn run_spine_coordinated_cycle(
         &mut self,
@@ -30,9 +30,13 @@ impl QuantumSwarmBridge {
     ) -> String {
         self.swarm.inject_tolc_influence(tolc_order, mercy_valence);
 
-        // Special behavior triggers (priority order matters)
+        // Priority order of special behaviors
         if tolc_order % 7 == 0 {
             self.handle_mercy_gate_resonance(tolc_order, game).await;
+        } else if is_close_to_e(tolc_order) {
+            self.handle_e_order_resonance(tolc_order, game).await;
+        } else if is_close_to_pi(tolc_order) {
+            self.handle_pi_order_resonance(tolc_order, game).await;
         } else if is_fibonacci(tolc_order) {
             self.handle_fibonacci_order_resonance(tolc_order, game).await;
         } else if is_close_to_golden_ratio(tolc_order) {
@@ -59,7 +63,7 @@ impl QuantumSwarmBridge {
         )
     }
 
-    // ==================== SPECIAL ORDER BEHAVIORS ====================
+    // ==================== SPECIAL BEHAVIORS ====================
 
     async fn handle_mercy_gate_resonance(&mut self, order: u32, game: &mut PowrushGame) {
         let resonance_boost = (order as f64 * 420.0).min(185000.0);
@@ -68,8 +72,23 @@ impl QuantumSwarmBridge {
         self.swarm.enter_mercy_gate_resonance_state(order);
     }
 
+    async fn handle_e_order_resonance(&mut self, order: u32, game: &mut PowrushGame) {
+        // e ≈ 2.718 → Natural exponential growth, continuous compounding, organic intelligence
+        let e_boost = (order as f64 * 480.0).min(195000.0);
+        game.boost_faction_joy(powrush::Faction::AbundanceSeekers, e_boost);
+        game.apply_epigenetic_blessing(11);
+        self.swarm.enter_exponential_natural_growth_state(order);
+    }
+
+    async fn handle_pi_order_resonance(&mut self, order: u32, game: &mut PowrushGame) {
+        // π ≈ 3.141 → Cycles, periodicity, wholeness, feedback loops, completion
+        let pi_boost = (order as f64 * 390.0).min(175000.0);
+        game.boost_faction_joy(powrush::Faction::HarmonyWeavers, pi_boost);
+        game.apply_epigenetic_blessing(9);
+        self.swarm.enter_cyclic_wholeness_state(order);
+    }
+
     async fn handle_fibonacci_order_resonance(&mut self, order: u32, game: &mut PowrushGame) {
-        // Fibonacci = natural growth, scaling, long-term legacy, and organic emergence
         let fib_boost = (order as f64 * 520.0).min(205000.0);
         game.boost_faction_joy(powrush::Faction::HarmonyWeavers, fib_boost);
         game.apply_epigenetic_blessing(13);
@@ -77,7 +96,6 @@ impl QuantumSwarmBridge {
     }
 
     async fn handle_golden_ratio_order_resonance(&mut self, order: u32, game: &mut PowrushGame) {
-        // Golden Ratio proximity = optimal harmony, beauty, efficiency, and cross-faction synergy
         let phi_boost = (order as f64 * 610.0).min(235000.0);
         game.boost_faction_joy(powrush::Faction::HarmonyWeavers, phi_boost);
         game.boost_faction_joy(powrush::Faction::TruthSeekers, phi_boost * 0.6);
@@ -182,12 +200,20 @@ fn is_fibonacci(n: u32) -> bool {
 }
 
 fn is_close_to_golden_ratio(n: u32) -> bool {
-    // Check if n is close to a Fibonacci number scaled by golden ratio (phi ≈ 1.618)
-    if n < 5 { return false; }
-    let phi = 1.6180339887_f64;
-    // Simple heuristic: check proximity to common golden ratio related numbers
     let golden_related = [8, 13, 21, 34, 55, 89, 144, 233, 377, 610, 987];
     golden_related.iter().any(|&g| (n as i32 - g as i32).abs() <= 2)
+}
+
+fn is_close_to_e(n: u32) -> bool {
+    // e ≈ 2.71828 → check proximity to 3 and nearby natural growth numbers
+    let e_related = [2, 3, 5, 8, 13];
+    e_related.iter().any(|&g| (n as i32 - g as i32).abs() <= 1)
+}
+
+fn is_close_to_pi(n: u32) -> bool {
+    // π ≈ 3.14159 → check proximity to 3 and nearby cyclic/wholeness numbers
+    let pi_related = [3, 6, 9, 12, 15];
+    pi_related.iter().any(|&g| (n as i32 - g as i32).abs() <= 1)
 }
 
 impl Default for QuantumSwarmBridge {
