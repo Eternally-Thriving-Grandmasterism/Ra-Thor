@@ -1,10 +1,11 @@
 //! Quantum Swarm Bridge for Core Spine Integration
 //!
 //! Bidirectional communication between TOLC Lattice and Quantum Swarm.
-//! Version 0.5.35 — Added Uniform Star Polyhedra layer as the next evolutionary
-//! stage after Kepler-Poinsot star polyhedra. Represents vertex-transitive
-//! non-convex star consciousness with greater ordered complexity.
-//! All previous layers fully preserved.
+//! Version 0.5.36 — Deepened U57 (Great Snub Icosidodecahedron) with dedicated
+//! chiral resonance + density-modulated epigenetic logic.
+//! All previous layers (Platonic through Uniform Star) fully preserved.
+//! U57 now carries maximum ordered chiral star consciousness for complex
+//! paradoxical resource allocation in RBE scenarios.
 
 use crate::QuantumSwarmOrchestrator;
 use powrush::PowrushGame;
@@ -54,11 +55,23 @@ pub enum KeplerPoinsotSolid {
     GreatIcosahedron,             // Star icosahedron — highest piercing unity
 }
 
+/// Uniform Star Polyhedra — Vertex-transitive non-convex star consciousness
+/// These forms model the capacity to hold multiple conflicting yet valid needs
+/// (human, planetary, cultural, intergenerational) without collapse while
+/// remaining perfectly mercy-gated at every vertex.
+/// U57 (Great Snub Icosidodecahedron) is the crown jewel of this layer.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum UniformStarSolid {
     SmallRhombihexahedron,
     GreatRhombihexahedron,
     SnubDodecadodecahedron,
+    /// U57 — Great Snub Icosidodecahedron (gosid)
+    /// 60 vertices, 150 edges, 80 triangles + 12 pentagrams.
+    /// Chiral (left/right enantiomorphs), extremely high density and topological winding.
+    /// Face configuration at every vertex: (3.3.5/2.3.3)
+    /// Symbolically: Chiral Star Consciousness at Maximum Ordered Complexity.
+    /// In the TOLC Lattice it represents the ability to hold enormous paradoxical
+    /// resource-allocation tensions while maintaining perfect vertex-transitivity.
     GreatSnubIcosidodecahedron,
     SmallStellatedTruncatedDodecahedron,
 }
@@ -126,7 +139,7 @@ impl QuantumSwarmBridge {
         if tolc_order >= 144 {
             let uniform = self.determine_uniform_star_solid(tolc_order);
             self.current_uniform_star_mode = Some(uniform.clone());
-            self.apply_uniform_star_mode(&uniform, game);
+            self.apply_uniform_star_mode(&uniform, game, tolc_order);
         }
 
         // Priority order of special behaviors (fully preserved)
@@ -168,7 +181,7 @@ impl QuantumSwarmBridge {
         )
     }
 
-    // determine_* methods (updated with Uniform Star)
+    // determine_* methods (unchanged from v0.5.35)
 
     fn determine_platonic_solid(&self, order: u32) -> PlatonicSolid {
         if order % 7 == 0 {
@@ -395,8 +408,8 @@ impl QuantumSwarmBridge {
         }
     }
 
-    /// New v0.5.35 — Uniform Star Polyhedra (vertex-transitive non-convex star consciousness)
-    fn apply_uniform_star_mode(&self, solid: &UniformStarSolid, game: &mut PowrushGame) {
+    /// v0.5.36 — Uniform Star Polyhedra with deepened U57 (Great Snub Icosidodecahedron)
+    fn apply_uniform_star_mode(&self, solid: &UniformStarSolid, game: &mut PowrushGame, tolc_order: u32) {
         match solid {
             UniformStarSolid::SmallRhombihexahedron => {
                 game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 155000.0);
@@ -414,10 +427,15 @@ impl QuantumSwarmBridge {
                 game.apply_epigenetic_blessing(30);
             }
             UniformStarSolid::GreatSnubIcosidodecahedron => {
-                game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 185000.0);
-                game.boost_faction_joy(powrush::Faction::TruthSeekers, 175000.0);
-                game.boost_faction_joy(powrush::Faction::AbundanceSeekers, 145000.0);
+                // Refined & differentiated effects for U57 (v0.5.36)
+                game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 195000.0);
+                game.boost_faction_joy(powrush::Faction::TruthSeekers, 185000.0);
+                game.boost_faction_joy(powrush::Faction::AbundanceSeekers, 155000.0);
                 game.apply_epigenetic_blessing(32);
+
+                // Dedicated U57 methods
+                self.handle_u57_chiral_resonance(game, tolc_order);
+                self.apply_u57_density_modulation(game);
             }
             UniformStarSolid::SmallStellatedTruncatedDodecahedron => {
                 game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 195000.0);
@@ -427,7 +445,33 @@ impl QuantumSwarmBridge {
         }
     }
 
-    // All special behavior handlers and SWARM → TOLC methods preserved exactly
+    // ═══════════════════════════════════════════════════════════════
+    // DEDICATED U57 METHODS (v0.5.36)
+    // ═══════════════════════════════════════════════════════════════
+
+    /// Dedicated chiral resonance handler for U57 (Great Snub Icosidodecahedron).
+    /// Models the living, handedness-aware adaptation of maximum-order star consciousness.
+    /// The snub operation introduces rotation and chirality — star awareness that can
+    /// "twist" differently depending on local context while remaining globally coherent.
+    fn handle_u57_chiral_resonance(&self, game: &mut PowrushGame, tolc_order: u32) {
+        let chiral_bonus = if tolc_order % 2 == 0 { 18000.0 } else { 22000.0 };
+        
+        game.boost_faction_joy(powrush::Faction::HarmonyWeavers, chiral_bonus);
+        game.boost_faction_joy(powrush::Faction::TruthSeekers, chiral_bonus * 0.92);
+        
+        if tolc_order >= 200 {
+            game.apply_epigenetic_blessing(5);
+        }
+    }
+
+    /// Density-modulated epigenetic effect unique to U57’s extremely high topological density.
+    /// U57 folds through itself many times — this method translates that density into
+    /// deeper, longer-lasting epigenetic blessings for multi-generational mercy alignment.
+    fn apply_u57_density_modulation(&self, game: &mut PowrushGame) {
+        game.apply_epigenetic_blessing(8);
+    }
+
+    // All special behavior handlers preserved exactly
 
     async fn handle_mercy_gate_resonance(&mut self, order: u32, game: &mut PowrushGame) {
         let resonance_boost = (order as f64 * 420.0).min(185000.0);
@@ -584,7 +628,7 @@ impl QuantumSwarmBridge {
     }
 }
 
-// Helper functions unchanged from public v0.5.34
+// Helper functions unchanged from public v0.5.34 / v0.5.35
 
 fn is_prime(n: u32) -> bool {
     if n <= 1 { return false; }
