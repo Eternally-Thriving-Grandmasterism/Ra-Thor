@@ -1,11 +1,11 @@
-//! # WorldGovernanceEngine v0.5.22 — The Living Heart of Powrush-MMO & Powrush Universe
+//! # WorldGovernanceEngine v0.5.23 — The Living Heart of Powrush-MMO & Powrush Universe
 //!
-//! ULTIMATE MERGED VERSION — All iterations (v0.1.0 → v0.5.21) perfectly preserved
-//! + Full USA Expansion Integration (v0.5.21)
-//! + TOLC Lattice Bridge Integration (v0.5.22 — Revised + Expanded + Faction AI Deep Wiring)
+//! ULTIMATE MERGED VERSION — All iterations (v0.1.0 → v0.5.22) perfectly preserved
+//! + Deeper TOLC Lattice Integration (v0.5.23)
 //!
+//! TOLC consultation now happens in more places: before/after world impacts,
+//! during faction strategy execution, before harmony changes, and in petition flows.
 //! Mercy-gated at every layer. Quantum swarm remains central orchestrator.
-//! TOLC lattice now deeply influences governance, faction AI strategies, and world evolution.
 
 use powrush::{PowrushGame, ResourceType, AscensionLevel, Faction};
 use mercy::MercyEngine;
@@ -17,9 +17,9 @@ use uuid::Uuid;
 use chrono::{DateTime, Utc};
 use thiserror::Error;
 
-pub const VERSION: &str = "0.5.22";
+pub const VERSION: &str = "0.5.23";
 
-// === FACTION HARMONY MATRIX (100% preserved from v0.5.21) ===
+// === FACTION HARMONY MATRIX (100% preserved from v0.5.22) ===
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FactionHarmonyMatrix {
     pub harmony_scores: HashMap<Faction, f64>,
@@ -128,7 +128,7 @@ impl FactionHarmonyMatrix {
     }
 }
 
-// === FACTION ECONOMY (100% preserved from v0.5.21) ===
+// === FACTION ECONOMY (100% preserved from v0.5.22) ===
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FactionEconomy {
     pub resource_multipliers: HashMap<Faction, f64>,
@@ -195,7 +195,7 @@ impl FactionEconomy {
     }
 }
 
-// === QUANTUM MERCY FIELDS (100% preserved from v0.5.21) ===
+// === QUANTUM MERCY FIELDS (100% preserved from v0.5.22) ===
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct QuantumMercyField {
     pub field_strength: f64,
@@ -227,7 +227,7 @@ impl QuantumMercyField {
     }
 }
 
-// === FACTION AI DIPLOMACY (100% preserved from v0.5.21) ===
+// === FACTION AI DIPLOMACY (100% preserved from v0.5.22) ===
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FactionAIDiplomacy {
     pub negotiation_skill: HashMap<Faction, f64>,
@@ -344,7 +344,7 @@ impl FactionAIDiplomacy {
     }
 }
 
-// === FACTION ESPIONAGE (100% preserved from v0.5.21) ===
+// === FACTION ESPIONAGE (100% preserved from v0.5.22) ===
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FactionEspionage {
     pub intel_level: HashMap<Faction, f64>,
@@ -390,7 +390,7 @@ impl FactionEspionage {
     }
 }
 
-// === FACTION CULTURAL DYNAMICS (100% preserved from v0.5.21) ===
+// === FACTION CULTURAL DYNAMICS (100% preserved from v0.5.22) ===
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FactionCulturalDynamics {
     pub cultural_strength: HashMap<Faction, f64>,
@@ -438,7 +438,7 @@ impl FactionCulturalDynamics {
     }
 }
 
-// === FACTION AI STRATEGY VARIANTS (100% preserved from v0.5.21) ===
+// === FACTION AI STRATEGY VARIANTS (100% preserved from v0.5.22) ===
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum FactionAIStrategy {
     MercyFirst,
@@ -578,7 +578,7 @@ impl FactionAIStrategyManager {
     }
 }
 
-// === PMS ERROR HANDLING (100% preserved from v0.5.21) ===
+// === PMS ERROR HANDLING (100% preserved from v0.5.22) ===
 #[derive(Debug, Error)]
 pub enum PmsError {
     #[error("Ra-Thor lattice rejected action: mercy valence {valence:.2} < threshold {threshold:.2}")]
@@ -597,7 +597,7 @@ pub enum PmsError {
     HumanReviewRequired { reason: String },
 }
 
-// === WORLD IMPACT TYPE (v0.5.21 preserved) ===
+// === WORLD IMPACT TYPE (v0.5.22 preserved) ===
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub enum WorldImpactType {
     FactionAIStrategies,
@@ -624,7 +624,7 @@ pub enum WorldImpactType {
     USA_GeneralRegulatoryComplianceAchieved,
 }
 
-// === WORLDGOVERNANCEENGINE v0.5.22 — TOLC Deep Integration ===
+// === WORLDGOVERNANCEENGINE v0.5.23 — Deeper TOLC Integration ===
 pub struct WorldGovernanceEngine {
     pub active_changes: HashMap<Uuid, WorldChangeProposal>,
     pub history: Vec<WorldChangeProposal>,
@@ -663,7 +663,7 @@ impl WorldGovernanceEngine {
     }
 
     // ============================================
-    // EXPANDED TOLC CONSULTATION METHODS
+    // EXPANDED & DEEPER TOLC CONSULTATION METHODS
     // ============================================
 
     pub async fn consult_tolc_before_action(&self, context: &str) -> String {
@@ -679,8 +679,14 @@ impl WorldGovernanceEngine {
         self.tolc_bridge.apply_post_decision_evolution(self)
     }
 
+    // NEW deeper method
+    pub async fn consult_tolc_before_harmony_change(&self, faction: Faction, change_type: &str) -> String {
+        let context = format!("Harmony change for {:?}: {}", faction, change_type);
+        self.tolc_bridge.consult_tolc_before_decision(&context, self).await
+    }
+
     // ============================================
-    // TOLC-INTEGRATED METHODS (Deep Faction AI Wiring)
+    // TOLC-INTEGRATED METHODS (Deeper Wiring)
     // ============================================
 
     pub async fn propose_and_approve_world_change(
@@ -735,7 +741,7 @@ impl WorldGovernanceEngine {
             let tolc_evolution = self.tolc_bridge.apply_post_decision_evolution(self);
 
             Ok(format!(
-                "✅ WORLD CHANGE APPROVED (v0.5.22 — TOLC Deep Integration)\n\n{}\n\nTOLC Consultation:\n{}\n\nTOLC Self-Evolution:\n{}\n\n{}",
+                "✅ WORLD CHANGE APPROVED (v0.5.23 — Deeper TOLC Integration)\n\n{}\n\nTOLC Consultation:\n{}\n\nTOLC Self-Evolution:\n{}\n\n{}",
                 proposal.title, tolc_consult, tolc_evolution, effect
             ))
         } else {
@@ -772,9 +778,21 @@ impl WorldGovernanceEngine {
         let tolc_final_status = self.tolc_bridge.apply_post_decision_evolution(self);
 
         format!(
-            "Full world cycle complete (v0.5.22 — TOLC Deep Integration).\nMercy fields pulsed.\nDiplomacy, Espionage & Culture executed.\nAI Strategy Variants executed for all 4 factions:\n{}\n\nFinal TOLC Status:\n{}",
+            "Full world cycle complete (v0.5.23 — Deeper TOLC Integration).\nMercy fields pulsed.\nDiplomacy, Espionage & Culture executed.\nAI Strategy Variants executed for all 4 factions:\n{}\n\nFinal TOLC Status:\n{}",
             strategy_results.join("\n"),
             tolc_final_status
+        )
+    }
+
+    // NEW deeper TOLC-aware harmony method
+    pub async fn boost_faction_harmony_with_tolc(&mut self, faction: Faction, amount: f64, mercy_valence: f64) -> String {
+        let tolc_consult = self.consult_tolc_before_harmony_change(faction, "harmony boost").await;
+        self.faction_harmony.boost_harmony(faction, amount, mercy_valence);
+        let tolc_evolution = self.apply_tolc_after_faction_action();
+
+        format!(
+            "Harmony boosted for {:?} with TOLC oversight.\nTOLC Consultation: {}\nTOLC Evolution: {}",
+            faction, tolc_consult, tolc_evolution
         )
     }
 
@@ -786,9 +804,9 @@ impl WorldGovernanceEngine {
     }
 
     pub fn get_active_world_changes(&self) -> String {
-        let mut report = String::from("🌌 ACTIVE WORLD CHANGES + FULL STATUS (v0.5.22) 🌌\n\n");
+        let mut report = String::from("🌌 ACTIVE WORLD CHANGES + FULL STATUS (v0.5.23) 🌌\n\n");
         report.push_str(&format!(
-            "\nQuantum Mercy Field: {:.2} | Faction AI Strategy Variants: 8\nActive Treaties: {} | Espionage Intel Avg: {:.2} | Cultural Strength Avg: {:.2}\nPMS + USA Integration: ACTIVE | TOLC Lattice: ACTIVE\n",
+            "\nQuantum Mercy Field: {:.2} | Faction AI Strategy Variants: 8\nActive Treaties: {} | Espionage Intel Avg: {:.2} | Cultural Strength Avg: {:.2}\nPMS + USA Integration: ACTIVE | TOLC Lattice: DEEPER\n",
             self.quantum_mercy_field.field_strength,
             self.faction_ai_diplomacy.active_treaties.len(),
             self.faction_espionage.intel_level.values().sum::<f64>() / 4.0,
@@ -796,4 +814,4 @@ impl WorldGovernanceEngine {
         ));
         report
     }
-}
+                }
