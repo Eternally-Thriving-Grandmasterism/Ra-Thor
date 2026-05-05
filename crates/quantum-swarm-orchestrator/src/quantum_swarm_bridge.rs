@@ -45,7 +45,7 @@ impl QuantumSwarmBridge {
         self.current_solid_mode = Some(solid.clone());
         self.apply_platonic_solid_mode(&solid, game);
 
-        // Priority order of special behaviors (unchanged)
+        // Priority order of special behaviors
         if tolc_order % 7 == 0 {
             self.handle_mercy_gate_resonance(tolc_order, game).await;
         } else if is_close_to_sqrt2(tolc_order) {
@@ -131,7 +131,7 @@ impl QuantumSwarmBridge {
         }
     }
 
-    // ==================== SPECIAL BEHAVIORS (unchanged) ====================
+    // ==================== SPECIAL BEHAVIORS ====================
 
     async fn handle_mercy_gate_resonance(&mut self, order: u32, game: &mut PowrushGame) {
         let resonance_boost = (order as f64 * 420.0).min(185000.0);
@@ -251,7 +251,7 @@ impl QuantumSwarmBridge {
     }
 }
 
-// ==================== Helper Functions (unchanged) ====================
+// ==================== Helper Functions ====================
 
 fn is_prime(n: u32) -> bool {
     if n <= 1 { return false; }
