@@ -1,8 +1,8 @@
 //! Quantum Swarm Bridge for Core Spine Integration
 //!
 //! Bidirectional communication between TOLC Lattice and Quantum Swarm.
-//! Version 0.5.25 — Expanded with special behaviors for √2, e, π, Fibonacci,
-//! Golden Ratio, Primes, Powers of 2, Harmonic multiples, and Platonic Solids mapping.
+//! Version 0.5.26 — Refined Platonic Solids mapping with more differentiated
+//! and powerful archetypal effects + all previous special order behaviors.
 
 use crate::QuantumSwarmOrchestrator;
 use powrush::PowrushGame;
@@ -10,11 +10,11 @@ use serde::{Serialize, Deserialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum PlatonicSolid {
-    Tetrahedron,   // Fire     - Stability, Foundation, Structure
-    Cube,          // Earth    - Manifestation, Grounding, Resources
-    Octahedron,    // Air      - Balance, Harmony, Communication
-    Icosahedron,   // Water    - Flow, Adaptability, Emotion
-    Dodecahedron,  // Ether    - Consciousness, Connection, Higher Order
+    Tetrahedron,   // Fire     - Ignition, Transformation, Focused Power
+    Cube,          // Earth    - Manifestation, Stability, Resource Accumulation
+    Octahedron,    // Air      - Balance, Clarity, Diplomatic Resonance
+    Icosahedron,   // Water    - Flow, Emotional Depth, Organic Adaptation
+    Dodecahedron,  // Ether    - Consciousness, Unity, Highest Order Blessing
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -99,26 +99,36 @@ impl QuantumSwarmBridge {
         }
     }
 
-    /// Applies the effects of the current Platonic Solid mode
+    /// Applies the effects of the current Platonic Solid mode (Refined v0.5.26)
     fn apply_platonic_solid_mode(&self, solid: &PlatonicSolid, game: &mut PowrushGame) {
         match solid {
             PlatonicSolid::Tetrahedron => {
-                game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 45000.0);
+                // Fire — Ignition & Focused Power
+                game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 38000.0);
+                game.boost_faction_joy(powrush::Faction::TruthSeekers, 22000.0);
             }
             PlatonicSolid::Cube => {
-                game.add_resource_to_faction(powrush::Faction::HarmonyWeavers, powrush::ResourceType::Wealth, 85000.0);
+                // Earth — Manifestation & Resource Power
+                game.add_resource_to_faction(powrush::Faction::HarmonyWeavers, powrush::ResourceType::Wealth, 125000.0);
+                game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 32000.0);
             }
             PlatonicSolid::Octahedron => {
-                game.boost_faction_joy(powrush::Faction::TruthSeekers, 38000.0);
-                game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 38000.0);
+                // Air — Balance & Diplomatic Resonance
+                game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 28000.0);
+                game.boost_faction_joy(powrush::Faction::TruthSeekers, 28000.0);
+                game.boost_faction_joy(powrush::Faction::AbundanceSeekers, 18000.0);
             }
             PlatonicSolid::Icosahedron => {
-                game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 52000.0);
-                game.apply_epigenetic_blessing(8);
+                // Water — Flow, Depth & Organic Intelligence
+                game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 45000.0);
+                game.apply_epigenetic_blessing(9);
             }
             PlatonicSolid::Dodecahedron => {
-                game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 65000.0);
-                game.apply_epigenetic_blessing(14);
+                // Ether — Highest Consciousness
+                game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 58000.0);
+                game.apply_epigenetic_blessing(16);
+                game.boost_faction_joy(powrush::Faction::TruthSeekers, 15000.0);
+                game.boost_faction_joy(powrush::Faction::AbundanceSeekers, 15000.0);
             }
         }
     }
@@ -227,10 +237,9 @@ impl QuantumSwarmBridge {
         };
 
         format!(
-            "Swarm | Mode: {} | Stability: {:.3} | Conv: {:.3}%",
+            "Swarm | Mode: {} | Stability: {:.3}",
             mode,
-            self.swarm.get_stability_score(),
-            self.swarm.get_convergence_rate() * 100.0
+            self.swarm.get_stability_score()
         )
     }
 
