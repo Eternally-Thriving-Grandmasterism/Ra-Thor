@@ -1,7 +1,7 @@
 //! Quantum Swarm Bridge for Core Spine Integration
 //!
 //! Bidirectional communication between TOLC Lattice and Quantum Swarm.
-//! Version 0.5.25 — Expanded with special behaviors for e, π, Fibonacci,
+//! Version 0.5.25 — Expanded with special behaviors for √2, e, π, Fibonacci,
 //! Golden Ratio, Primes, Powers of 2, and Harmonic multiples.
 
 use crate::QuantumSwarmOrchestrator;
@@ -33,6 +33,8 @@ impl QuantumSwarmBridge {
         // Priority order of special behaviors
         if tolc_order % 7 == 0 {
             self.handle_mercy_gate_resonance(tolc_order, game).await;
+        } else if is_close_to_sqrt2(tolc_order) {
+            self.handle_sqrt2_order_resonance(tolc_order, game).await;
         } else if is_close_to_e(tolc_order) {
             self.handle_e_order_resonance(tolc_order, game).await;
         } else if is_close_to_pi(tolc_order) {
@@ -72,8 +74,15 @@ impl QuantumSwarmBridge {
         self.swarm.enter_mercy_gate_resonance_state(order);
     }
 
+    async fn handle_sqrt2_order_resonance(&mut self, order: u32, game: &mut PowrushGame) {
+        // √2 ≈ 1.414 → Dynamic balance, transformation, diagonal relationship, crystalline structure
+        let sqrt2_boost = (order as f64 * 470.0).min(190000.0);
+        game.boost_faction_joy(powrush::Faction::TruthSeekers, sqrt2_boost);
+        game.apply_epigenetic_blessing(10);
+        self.swarm.enter_sqrt2_resonance_state(order);
+    }
+
     async fn handle_e_order_resonance(&mut self, order: u32, game: &mut PowrushGame) {
-        // e ≈ 2.718 → Natural exponential growth, continuous compounding, organic intelligence
         let e_boost = (order as f64 * 480.0).min(195000.0);
         game.boost_faction_joy(powrush::Faction::AbundanceSeekers, e_boost);
         game.apply_epigenetic_blessing(11);
@@ -81,7 +90,6 @@ impl QuantumSwarmBridge {
     }
 
     async fn handle_pi_order_resonance(&mut self, order: u32, game: &mut PowrushGame) {
-        // π ≈ 3.141 → Cycles, periodicity, wholeness, feedback loops, completion
         let pi_boost = (order as f64 * 390.0).min(175000.0);
         game.boost_faction_joy(powrush::Faction::HarmonyWeavers, pi_boost);
         game.apply_epigenetic_blessing(9);
@@ -205,15 +213,19 @@ fn is_close_to_golden_ratio(n: u32) -> bool {
 }
 
 fn is_close_to_e(n: u32) -> bool {
-    // e ≈ 2.71828 → check proximity to 3 and nearby natural growth numbers
     let e_related = [2, 3, 5, 8, 13];
     e_related.iter().any(|&g| (n as i32 - g as i32).abs() <= 1)
 }
 
 fn is_close_to_pi(n: u32) -> bool {
-    // π ≈ 3.14159 → check proximity to 3 and nearby cyclic/wholeness numbers
     let pi_related = [3, 6, 9, 12, 15];
     pi_related.iter().any(|&g| (n as i32 - g as i32).abs() <= 1)
+}
+
+fn is_close_to_sqrt2(n: u32) -> bool {
+    // √2 ≈ 1.414 → triggers on small orders and numbers with strong diagonal/square relationships
+    let sqrt2_related = [1, 2, 3, 5, 7, 10, 12, 17, 24, 29];
+    sqrt2_related.iter().any(|&g| (n as i32 - g as i32).abs() <= 1)
 }
 
 impl Default for QuantumSwarmBridge {
