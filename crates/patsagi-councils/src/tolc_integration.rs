@@ -20,7 +20,7 @@ impl TOLCCouncilBridge {
         }
     }
 
-    /// Let councils consult the TOLC lattice before making important decisions
+    /// Let the councils consult the TOLC lattice before making important decisions
     pub async fn consult_tolc_before_decision(
         &mut self,
         decision_context: &str,
@@ -28,6 +28,7 @@ impl TOLCCouncilBridge {
     ) -> String {
         let mercy_valence = self.mercy_engine.compute_valence(decision_context).await;
 
+        // Activate relevant lattice orders based on decision weight
         let lattice_insight = self.lattice_engine
             .activate_full_lattice_up_to(35, &mut world.powrush_game)
             .await;
