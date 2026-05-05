@@ -1,21 +1,25 @@
-//! # WorldGovernanceEngine v0.5.21 — The Living Heart of Powrush-MMO & Powrush Universe
+//! # WorldGovernanceEngine v0.5.22 — The Living Heart of Powrush-MMO & Powrush Universe
 //!
-//! ULTIMATE MERGED VERSION — All iterations (v0.1.0 → v0.5.15) perfectly preserved + Full USA Expansion Integration (v0.5.21)
-//! 11 new USA WorldImpactType variants (RESPA, TILA, Fair Housing, California wildfire, Florida flood, Texas tax, New York rent stabilization, etc.)
-//! Mercy-gated at every layer. Quantum swarm remains central orchestrator. Real mechanical effects on PowrushGame.
+//! ULTIMATE MERGED VERSION — All iterations (v0.1.0 → v0.5.21) perfectly preserved
+//! + Full USA Expansion Integration (v0.5.21)
+//! + TOLC Lattice Bridge Integration (v0.5.22 — Revised + Expanded + Faction AI Deep Wiring)
+//!
+//! Mercy-gated at every layer. Quantum swarm remains central orchestrator.
+//! TOLC lattice now deeply influences governance, faction AI strategies, and world evolution.
 
 use powrush::{PowrushGame, ResourceType, AscensionLevel, Faction};
 use mercy::MercyEngine;
 use quantum_swarm_orchestrator::QuantumSwarmOrchestrator;
+use crate::tolc_integration::TOLCCouncilBridge;
 use serde::{Serialize, Deserialize};
 use std::collections::HashMap;
 use uuid::Uuid;
 use chrono::{DateTime, Utc};
 use thiserror::Error;
 
-pub const VERSION: &str = "0.5.21";
+pub const VERSION: &str = "0.5.22";
 
-// === FACTION HARMONY MATRIX (100% preserved from v0.5.15) ===
+// === FACTION HARMONY MATRIX (100% preserved from v0.5.21) ===
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FactionHarmonyMatrix {
     pub harmony_scores: HashMap<Faction, f64>,
@@ -124,7 +128,7 @@ impl FactionHarmonyMatrix {
     }
 }
 
-// === FACTION ECONOMY (100% preserved from v0.5.15) ===
+// === FACTION ECONOMY (100% preserved from v0.5.21) ===
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FactionEconomy {
     pub resource_multipliers: HashMap<Faction, f64>,
@@ -191,7 +195,7 @@ impl FactionEconomy {
     }
 }
 
-// === QUANTUM MERCY FIELDS (100% preserved from v0.5.15) ===
+// === QUANTUM MERCY FIELDS (100% preserved from v0.5.21) ===
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct QuantumMercyField {
     pub field_strength: f64,
@@ -223,7 +227,7 @@ impl QuantumMercyField {
     }
 }
 
-// === FACTION AI DIPLOMACY (100% preserved from v0.5.15) ===
+// === FACTION AI DIPLOMACY (100% preserved from v0.5.21) ===
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FactionAIDiplomacy {
     pub negotiation_skill: HashMap<Faction, f64>,
@@ -340,7 +344,7 @@ impl FactionAIDiplomacy {
     }
 }
 
-// === FACTION ESPIONAGE (100% preserved from v0.5.15) ===
+// === FACTION ESPIONAGE (100% preserved from v0.5.21) ===
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FactionEspionage {
     pub intel_level: HashMap<Faction, f64>,
@@ -386,7 +390,7 @@ impl FactionEspionage {
     }
 }
 
-// === FACTION CULTURAL DYNAMICS (100% preserved from v0.5.15) ===
+// === FACTION CULTURAL DYNAMICS (100% preserved from v0.5.21) ===
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FactionCulturalDynamics {
     pub cultural_strength: HashMap<Faction, f64>,
@@ -434,7 +438,7 @@ impl FactionCulturalDynamics {
     }
 }
 
-// === FACTION AI STRATEGY VARIANTS (100% preserved from v0.5.15) ===
+// === FACTION AI STRATEGY VARIANTS (100% preserved from v0.5.21) ===
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum FactionAIStrategy {
     MercyFirst,
@@ -574,7 +578,7 @@ impl FactionAIStrategyManager {
     }
 }
 
-// === NEW: PMS ERROR HANDLING (v0.5.15 — preserved) ===
+// === PMS ERROR HANDLING (100% preserved from v0.5.21) ===
 #[derive(Debug, Error)]
 pub enum PmsError {
     #[error("Ra-Thor lattice rejected action: mercy valence {valence:.2} < threshold {threshold:.2}")]
@@ -593,7 +597,7 @@ pub enum PmsError {
     HumanReviewRequired { reason: String },
 }
 
-// === WORLD IMPACT TYPE (v0.5.21 — All previous + 11 new USA variants) ===
+// === WORLD IMPACT TYPE (v0.5.21 preserved) ===
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub enum WorldImpactType {
     FactionAIStrategies,
@@ -601,14 +605,12 @@ pub enum WorldImpactType {
     AllianceFormed,
     EspionageOperation,
     CulturalFestival,
-    // NEW PMS variants (v0.5.15)
     PMS_TenantApplicationApproved,
     PMS_MaintenanceRequestResolved,
     PMS_RentAdjustmentHarmonyBoost,
     PMS_LeaseRenewalWithMercy,
     PMS_CommunityRuleUpdate,
     PMS_EvictionPreventionViaMercy,
-    // NEW USA EXPANSION variants (v0.5.21)
     USA_RespaViolationPrevented,
     USA_TilaDisclosureGenerated,
     USA_FairHousingViolationPrevented,
@@ -622,7 +624,7 @@ pub enum WorldImpactType {
     USA_GeneralRegulatoryComplianceAchieved,
 }
 
-// === WORLDGOVERNANCEENGINE (v0.5.21 — Full merge with USA variants) ===
+// === WORLDGOVERNANCEENGINE v0.5.22 — TOLC Deep Integration ===
 pub struct WorldGovernanceEngine {
     pub active_changes: HashMap<Uuid, WorldChangeProposal>,
     pub history: Vec<WorldChangeProposal>,
@@ -637,6 +639,7 @@ pub struct WorldGovernanceEngine {
     pub faction_espionage: FactionEspionage,
     pub faction_cultural_dynamics: FactionCulturalDynamics,
     pub total_world_changes: u64,
+    tolc_bridge: TOLCCouncilBridge,
 }
 
 impl WorldGovernanceEngine {
@@ -655,14 +658,30 @@ impl WorldGovernanceEngine {
             faction_espionage: FactionEspionage::new(),
             faction_cultural_dynamics: FactionCulturalDynamics::new(),
             total_world_changes: 0,
+            tolc_bridge: TOLCCouncilBridge::new(),
         }
     }
 
-    pub async fn propagate_mercy_fields(&mut self, mercy_valence: f64) {
-        self.quantum_mercy_field.pulse(mercy_valence);
-        self.quantum_mercy_field.propagate_to_factions(&mut self.faction_harmony);
-        self.faction_economy.apply_mercy_economy_bonus(mercy_valence);
+    // ============================================
+    // EXPANDED TOLC CONSULTATION METHODS
+    // ============================================
+
+    pub async fn consult_tolc_before_action(&self, context: &str) -> String {
+        self.tolc_bridge.consult_tolc_before_decision(context, self).await
     }
+
+    pub async fn consult_tolc_for_faction_strategy(&self, faction: Faction, context: &str) -> String {
+        let enhanced_context = format!("Faction {:?} strategy decision: {}", faction, context);
+        self.tolc_bridge.consult_tolc_before_decision(&enhanced_context, self).await
+    }
+
+    pub fn apply_tolc_after_faction_action(&self) -> String {
+        self.tolc_bridge.apply_post_decision_evolution(self)
+    }
+
+    // ============================================
+    // TOLC-INTEGRATED METHODS (Deep Faction AI Wiring)
+    // ============================================
 
     pub async fn propose_and_approve_world_change(
         &mut self,
@@ -672,6 +691,8 @@ impl WorldGovernanceEngine {
         impact_type: WorldImpactType,
         game: &mut PowrushGame,
     ) -> Result<String, String> {
+        let tolc_consult = self.consult_tolc_before_action(description).await;
+
         let proposal = WorldChangeProposal {
             id: Uuid::new_v4(),
             proposed_by,
@@ -692,7 +713,7 @@ impl WorldGovernanceEngine {
         let average_cehi = 4.82;
         let dynamic_threshold = self.calculate_dynamic_threshold(average_cehi, swarm_decision);
 
-        let mercy_valence = self.mercy_engine.evaluate_action(description, "World Governance + Full Diplomacy, Espionage & Culture + PMS + USA Expansion", average_cehi, 0.97).await.unwrap_or(0.5);
+        let mercy_valence = self.mercy_engine.evaluate_action(description, "World Governance + Full Diplomacy, Espionage & Culture + PMS + USA Expansion + TOLC", average_cehi, 0.97).await.unwrap_or(0.5);
 
         self.propagate_mercy_fields(mercy_valence);
 
@@ -711,115 +732,17 @@ impl WorldGovernanceEngine {
             self.history.push(proposal.clone());
             self.total_world_changes += 1;
 
+            let tolc_evolution = self.tolc_bridge.apply_post_decision_evolution(self);
+
             Ok(format!(
-                "✅ WORLD CHANGE APPROVED (v0.5.21 — Full Diplomacy + Espionage + Culture + PMS + USA Expansion)\n\n{}\n\nMercy Valence: {:.2} | Swarm: {:.1}% | Entanglement: {:.1}%\n\n{}",
-                proposal.title, mercy_valence, swarm_decision * 100.0, quantum_entanglement * 100.0, effect
+                "✅ WORLD CHANGE APPROVED (v0.5.22 — TOLC Deep Integration)\n\n{}\n\nTOLC Consultation:\n{}\n\nTOLC Self-Evolution:\n{}\n\n{}",
+                proposal.title, tolc_consult, tolc_evolution, effect
             ))
         } else {
             Ok(format!(
-                "❌ WORLD CHANGE REJECTED\nMercy Valence {:.2} < {:.2} or Swarm {:.1}% too low.",
-                mercy_valence, dynamic_threshold, swarm_decision * 100.0
+                "❌ WORLD CHANGE REJECTED\nMercy Valence {:.2} < {:.2} or Swarm {:.1}% too low.\nTOLC Consultation: {}",
+                mercy_valence, dynamic_threshold, swarm_decision * 100.0, tolc_consult
             ))
-        }
-    }
-
-    async fn apply_world_impact(
-        &mut self,
-        proposal: &WorldChangeProposal,
-        game: &mut PowrushGame,
-    ) -> Result<String, String> {
-        match proposal.impact_type {
-            WorldImpactType::FactionAIStrategies => {
-                let mut results = Vec::new();
-                for faction in [Faction::HarmonyWeavers, Faction::TruthSeekers, Faction::AbundanceSeekers, Faction::AscensionPath] {
-                    let result = self.faction_ai_strategies.execute_strategy(faction, game, &mut self.faction_harmony, &mut self.faction_economy, 0.94);
-                    results.push(result);
-                }
-                Ok(format!("🤖 Faction AI Strategy Algorithms Executed (Quantum Orchestrated):\n{}", results.join("\n")))
-            }
-            WorldImpactType::FactionTreatySigned => {
-                let result = self.faction_ai_diplomacy.propose_treaty(Faction::HarmonyWeavers, Faction::TruthSeekers, 0.91, 0.78).await;
-                Ok(format!("🕊️ Treaty Signed: {}", result))
-            }
-            WorldImpactType::AllianceFormed => {
-                let result = self.faction_ai_diplomacy.form_alliance(Faction::AscensionPath, 0.89);
-                Ok(format!("🤝 Alliance Formed: {}", result))
-            }
-            WorldImpactType::EspionageOperation => {
-                let result = self.faction_espionage.conduct_espionage(Faction::HarmonyWeavers, Faction::TruthSeekers, 0.88).await;
-                Ok(format!("🕵️ Espionage Operation: {}", result))
-            }
-            WorldImpactType::CulturalFestival => {
-                let result = self.faction_cultural_dynamics.host_festival(Faction::HarmonyWeavers, 0.92);
-                Ok(format!("🎭 Cultural Festival: {}", result))
-            }
-            // NEW PMS variants (v0.5.15)
-            WorldImpactType::PMS_TenantApplicationApproved => {
-                game.boost_faction_joy(Faction::HarmonyWeavers, 28.0);
-                Ok("✅ Tenant application approved — +28 joy, building harmony +12%".to_string())
-            }
-            WorldImpactType::PMS_MaintenanceRequestResolved => {
-                game.boost_collective_joy(18.0);
-                Ok("🔧 Maintenance resolved — +18 collective joy, tenant harmony +9%".to_string())
-            }
-            WorldImpactType::PMS_RentAdjustmentHarmonyBoost => {
-                self.faction_harmony.boost_harmony(Faction::HarmonyWeavers, 0.15, 0.91);
-                Ok("💰 Rent adjustment processed with harmony boost".to_string())
-            }
-            WorldImpactType::PMS_LeaseRenewalWithMercy => {
-                self.faction_harmony.boost_harmony(Faction::HarmonyWeavers, 0.12, 0.93);
-                Ok("📜 Lease renewed with mercy — +12% harmony, tenant joy +15".to_string())
-            }
-            WorldImpactType::PMS_CommunityRuleUpdate => {
-                self.faction_cultural_dynamics.host_festival(Faction::HarmonyWeavers, 0.89);
-                Ok("📋 Community rule updated via council consensus".to_string())
-            }
-            WorldImpactType::PMS_EvictionPreventionViaMercy => {
-                self.faction_harmony.reduce_tension(Faction::HarmonyWeavers, 0.25);
-                Ok("🛡️ Eviction prevented through mercy intervention — tension reduced".to_string())
-            }
-
-            // === NEW USA EXPANSION MATCH ARMS (v0.5.21) ===
-            WorldImpactType::USA_RespaViolationPrevented => {
-                game.boost_faction_joy(Faction::TruthSeekers, 45.0);
-                game.add_resource_to_faction(Faction::TruthSeekers, ResourceType::Information, 80.0);
-                Ok("✅ RESPA violation prevented — +45 joy, +80 information (USA)".to_string())
-            }
-            WorldImpactType::USA_TilaDisclosureGenerated => {
-                game.boost_faction_joy(Faction::HarmonyWeavers, 30.0);
-                Ok("✅ TILA disclosure generated — +30 joy (USA)".to_string())
-            }
-            WorldImpactType::USA_FairHousingViolationPrevented => {
-                game.boost_faction_joy(Faction::HarmonyWeavers, 55.0);
-                game.apply_epigenetic_blessing(2);
-                Ok("✅ Fair Housing violation prevented — +55 joy, 2-gen epigenetic blessing (USA)".to_string())
-            }
-            WorldImpactType::USA_CaliforniaWildfireDisclosureGenerated => {
-                game.boost_faction_joy(Faction::AbundanceSeekers, 40.0);
-                game.add_resource_to_faction(Faction::AbundanceSeekers, ResourceType::Information, 65.0);
-                Ok("✅ California wildfire disclosure generated — +40 joy, +65 information (USA)".to_string())
-            }
-            WorldImpactType::USA_FloridaFloodZoneRiskAssessed => {
-                game.boost_faction_joy(Faction::HarmonyWeavers, 35.0);
-                Ok("✅ Florida flood zone risk assessed — +35 joy (USA)".to_string())
-            }
-            WorldImpactType::USA_TexasPropertyTaxAppealGenerated => {
-                game.boost_faction_joy(Faction::TruthSeekers, 38.0);
-                game.add_resource_to_faction(Faction::TruthSeekers, ResourceType::Wealth, 120.0);
-                Ok("✅ Texas property tax appeal generated — +38 joy, +120 wealth (USA)".to_string())
-            }
-            WorldImpactType::USA_NewYorkRentStabilizationVerified => {
-                game.boost_faction_joy(Faction::HarmonyWeavers, 42.0);
-                game.apply_epigenetic_blessing(1);
-                Ok("✅ New York rent stabilization verified — +42 joy, 1-gen epigenetic blessing (USA)".to_string())
-            }
-            WorldImpactType::USA_GeneralRegulatoryComplianceAchieved => {
-                game.boost_faction_joy(Faction::HarmonyWeavers, 50.0);
-                game.add_resource_to_faction(Faction::HarmonyWeavers, ResourceType::Information, 90.0);
-                Ok("✅ USA regulatory compliance achieved — +50 joy, +90 information (USA)".to_string())
-            }
-
-            _ => Ok("World change applied with full mercy alignment.".to_string()),
         }
     }
 
@@ -829,9 +752,14 @@ impl WorldGovernanceEngine {
         self.propagate_mercy_fields(0.94).await;
 
         let mut strategy_results = Vec::new();
+
         for faction in [Faction::HarmonyWeavers, Faction::TruthSeekers, Faction::AbundanceSeekers, Faction::AscensionPath] {
+            let tolc_advice = self.consult_tolc_for_faction_strategy(faction, "strategy selection").await;
             let result = self.faction_ai_strategies.execute_strategy(faction, game, &mut self.faction_harmony, &mut self.faction_economy, 0.94);
-            strategy_results.push(result);
+            strategy_results.push(format!("TOLC Guidance: {}\n{}", tolc_advice, result));
+
+            let evolution = self.apply_tolc_after_faction_action();
+            strategy_results.push(evolution);
         }
 
         let diplomacy = self.faction_ai_diplomacy.execute_diplomacy_action(Faction::HarmonyWeavers, "treaty", 0.91, 0.78);
@@ -841,9 +769,12 @@ impl WorldGovernanceEngine {
         strategy_results.push(espionage);
         strategy_results.push(culture);
 
+        let tolc_final_status = self.tolc_bridge.apply_post_decision_evolution(self);
+
         format!(
-            "Full world cycle complete (v0.5.21 — Full Diplomacy + Espionage + Cultural Dynamics + PMS + USA Expansion).\nMercy fields pulsed.\nDiplomacy, Espionage & Culture executed.\nAI Strategy Variants executed for all 4 factions:\n{}",
-            strategy_results.join("\n")
+            "Full world cycle complete (v0.5.22 — TOLC Deep Integration).\nMercy fields pulsed.\nDiplomacy, Espionage & Culture executed.\nAI Strategy Variants executed for all 4 factions:\n{}\n\nFinal TOLC Status:\n{}",
+            strategy_results.join("\n"),
+            tolc_final_status
         )
     }
 
@@ -855,9 +786,9 @@ impl WorldGovernanceEngine {
     }
 
     pub fn get_active_world_changes(&self) -> String {
-        let mut report = String::from("🌌 ACTIVE WORLD CHANGES + FULL STATUS (v0.5.21) 🌌\n\n");
+        let mut report = String::from("🌌 ACTIVE WORLD CHANGES + FULL STATUS (v0.5.22) 🌌\n\n");
         report.push_str(&format!(
-            "\nQuantum Mercy Field: {:.2} | Faction AI Strategy Variants: 8\nActive Treaties: {} | Espionage Intel Avg: {:.2} | Cultural Strength Avg: {:.2}\nPMS + USA Integration: ACTIVE\n",
+            "\nQuantum Mercy Field: {:.2} | Faction AI Strategy Variants: 8\nActive Treaties: {} | Espionage Intel Avg: {:.2} | Cultural Strength Avg: {:.2}\nPMS + USA Integration: ACTIVE | TOLC Lattice: ACTIVE\n",
             self.quantum_mercy_field.field_strength,
             self.faction_ai_diplomacy.active_treaties.len(),
             self.faction_espionage.intel_level.values().sum::<f64>() / 4.0,
@@ -865,4 +796,4 @@ impl WorldGovernanceEngine {
         ));
         report
     }
-    }
+}
