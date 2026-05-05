@@ -1,7 +1,7 @@
 //! Central Coordinator for Ra-Thor Core Spine
 //!
 //! Acts as the architectural glue between the Core Spine crates.
-//! Now deeply integrated with TOLC lattice + Quantum Swarm.
+//! Deeply integrated with TOLC lattice + Quantum Swarm (via QuantumSwarmBridge).
 
 use interstellar_operations::TOLCLatticeActivationEngine;
 use mercy::MercyEngine;
@@ -30,7 +30,7 @@ impl RaThorCentralCoordinator {
         }
     }
 
-    /// Run a full coordinated Core Spine cycle (TOLC + Quantum Swarm)
+    /// Run a full coordinated Core Spine cycle with intelligent swarm usage
     pub async fn run_full_core_spine_cycle(&mut self) -> String {
         let mercy_status = self.mercy.apply_global_mercy().await;
 
@@ -38,7 +38,7 @@ impl RaThorCentralCoordinator {
             .activate_full_lattice_up_to(85, &mut self.powrush_game)
             .await;
 
-        // NEW: Quantum Swarm now participates with TOLC influence
+        // Use the bridge with current TOLC state
         let swarm_status = self.quantum_swarm_bridge
             .run_spine_coordinated_cycle(
                 self.tlc_lattice.current_max_order,
@@ -46,6 +46,13 @@ impl RaThorCentralCoordinator {
                 &mut self.powrush_game,
             )
             .await;
+
+        // NEW: Intelligent behavior based on swarm stability
+        if !self.quantum_swarm_bridge.is_stable() {
+            let _ = self.quantum_swarm_bridge
+                .trigger_mercy_self_organization(0.85)
+                .await;
+        }
 
         let governance_status = self.world_governance
             .run_full_world_cycle(&mut self.powrush_game)
@@ -56,29 +63,40 @@ impl RaThorCentralCoordinator {
             .await
             .unwrap_or_else(|e| format!("Powrush error: {}", e));
 
+        // NEW: Include compact swarm status in the final report
+        let swarm_compact = self.quantum_swarm_bridge.get_compact_status();
+
         format!(
             "=== Ra-Thor Core Spine Coordinated Cycle (v0.5.25) ===\n\n\
              Mercy: {}\n\n\
              TOLC Lattice: {}\n\n\
              Quantum Swarm: {}\n\n\
+             Swarm Status: {}\n\n\
              World Governance: {}\n\n\
              Powrush: {}",
-            mercy_status, lattice_status, swarm_status, governance_status, powrush_status
+            mercy_status,
+            lattice_status,
+            swarm_status,
+            swarm_compact,
+            governance_status,
+            powrush_status
         )
     }
 
-    /// Get unified status from all Core Spine systems
+    /// Get unified status from all Core Spine systems (enhanced)
     pub fn get_unified_core_spine_status(&self) -> String {
         let lattice_status = self.tlc_lattice.generate_living_cathedral_status_report();
         let swarm_metrics = self.quantum_swarm_bridge.get_swarm_metrics();
         let governance_status = self.world_governance.get_active_world_changes();
+        let swarm_compact = self.quantum_swarm_bridge.get_compact_status();
 
         format!(
-            "=== Ra-Thor Core Spine Unified Status ===\n\n\
+            "=== Ra-Thor Core Spine Unified Status (v0.5.25) ===\n\n\
              TOLC Lattice:\n{}\n\n\
-             Quantum Swarm:\n{}\n\n\
+             Quantum Swarm (Detailed):\n{}\n\n\
+             Quantum Swarm (Compact): {}\n\n\
              World Governance:\n{}",
-            lattice_status, swarm_metrics, governance_status
+            lattice_status, swarm_metrics, swarm_compact, governance_status
         )
     }
 }
