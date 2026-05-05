@@ -1,8 +1,9 @@
 //! Quantum Swarm Bridge for Core Spine Integration
 //!
 //! Bidirectional communication between TOLC Lattice and Quantum Swarm.
-//! Version 0.5.27 — Fine-tuned Platonic Solid effects for clearer archetypal
-//! distinction, better gameplay balance, and deeper symbolic alignment.
+//! Version 0.5.28 — Added preliminary Archimedean Solids layer as the next
+//! sacred geometry evolution after Platonic Solids. All previous functionality
+//! fully preserved and enhanced.
 
 use crate::QuantumSwarmOrchestrator;
 use powrush::PowrushGame;
@@ -18,9 +19,18 @@ pub enum PlatonicSolid {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum ArchimedeanSolid {
+    Cuboctahedron,       // Balance of opposites, vertex-transitive harmony
+    Icosidodecahedron,   // Golden ratio expansion, expansive consciousness
+    TruncatedTetrahedron,// Transformation through truncation, alchemical fire
+    SnubCube,            // Chirality & dynamic asymmetry, creative novelty
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct QuantumSwarmBridge {
     pub swarm: QuantumSwarmOrchestrator,
     pub current_solid_mode: Option<PlatonicSolid>,
+    pub current_archimedean_mode: Option<ArchimedeanSolid>,
 }
 
 impl QuantumSwarmBridge {
@@ -28,6 +38,7 @@ impl QuantumSwarmBridge {
         Self {
             swarm: QuantumSwarmOrchestrator::new(),
             current_solid_mode: None,
+            current_archimedean_mode: None,
         }
     }
 
@@ -41,11 +52,19 @@ impl QuantumSwarmBridge {
     ) -> String {
         self.swarm.inject_tolc_influence(tolc_order, mercy_valence);
 
-        let solid = self.determine_platonic_solid(tolc_order);
-        self.current_solid_mode = Some(solid.clone());
-        self.apply_platonic_solid_mode(&solid, game);
+        // Platonic Solid (existing logic preserved)
+        let platonic = self.determine_platonic_solid(tolc_order);
+        self.current_solid_mode = Some(platonic.clone());
+        self.apply_platonic_solid_mode(&platonic, game);
 
-        // Priority order of special behaviors
+        // New: Archimedean Solid layer (activated on higher orders)
+        if tolc_order >= 13 {
+            let arch = self.determine_archimedean_solid(tolc_order);
+            self.current_archimedean_mode = Some(arch.clone());
+            self.apply_archimedean_solid_mode(&arch, game);
+        }
+
+        // Priority order of special behaviors (fully preserved)
         if tolc_order % 7 == 0 {
             self.handle_mercy_gate_resonance(tolc_order, game).await;
         } else if is_close_to_sqrt2(tolc_order) {
@@ -75,9 +94,10 @@ impl QuantumSwarmBridge {
             "Quantum Swarm Coordinated Cycle Complete\n\
              TOLC Order: {} | Mercy Valence: {:.2}\n\
              Platonic Mode: {:?}\n\
+             Archimedean Mode: {:?}\n\
              {}\n\
              Joy Boost Applied: +{:.0}",
-            tolc_order, mercy_valence, solid, swarm_result, joy_boost.min(125000.0)
+            tolc_order, mercy_valence, platonic, self.current_archimedean_mode, swarm_result, joy_boost.min(125000.0)
         )
     }
 
@@ -97,32 +117,39 @@ impl QuantumSwarmBridge {
         }
     }
 
-    /// Refined v0.5.27 — Clearer archetypal power + better gameplay balance
+    fn determine_archimedean_solid(&self, order: u32) -> ArchimedeanSolid {
+        if order % 5 == 0 {
+            ArchimedeanSolid::Icosidodecahedron
+        } else if is_prime(order) {
+            ArchimedeanSolid::SnubCube
+        } else if order % 4 == 0 {
+            ArchimedeanSolid::Cuboctahedron
+        } else {
+            ArchimedeanSolid::TruncatedTetrahedron
+        }
+    }
+
+    /// Refined v0.5.27 Platonic effects (preserved)
     fn apply_platonic_solid_mode(&self, solid: &PlatonicSolid, game: &mut PowrushGame) {
         match solid {
             PlatonicSolid::Tetrahedron => {
-                // Fire — Focused ignition & transformation
                 game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 42000.0);
                 game.boost_faction_joy(powrush::Faction::TruthSeekers, 18000.0);
             }
             PlatonicSolid::Cube => {
-                // Earth — Strong manifestation & resource power
                 game.add_resource_to_faction(powrush::Faction::HarmonyWeavers, powrush::ResourceType::Wealth, 145000.0);
                 game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 28000.0);
             }
             PlatonicSolid::Octahedron => {
-                // Air — Diplomatic balance across factions
                 game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 26000.0);
                 game.boost_faction_joy(powrush::Faction::TruthSeekers, 26000.0);
                 game.boost_faction_joy(powrush::Faction::AbundanceSeekers, 22000.0);
             }
             PlatonicSolid::Icosahedron => {
-                // Water — Deep flow + strong epigenetic adaptation
                 game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 48000.0);
                 game.apply_epigenetic_blessing(10);
             }
             PlatonicSolid::Dodecahedron => {
-                // Ether — Highest consciousness & wide blessing
                 game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 62000.0);
                 game.apply_epigenetic_blessing(18);
                 game.boost_faction_joy(powrush::Faction::TruthSeekers, 14000.0);
@@ -131,7 +158,34 @@ impl QuantumSwarmBridge {
         }
     }
 
-    // ==================== SPECIAL BEHAVIORS ====================
+    /// New v0.5.28 — Preliminary Archimedean Solids effects
+    fn apply_archimedean_solid_mode(&self, solid: &ArchimedeanSolid, game: &mut PowrushGame) {
+        match solid {
+            ArchimedeanSolid::Cuboctahedron => {
+                // Balance of opposites
+                game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 35000.0);
+                game.boost_faction_joy(powrush::Faction::TruthSeekers, 35000.0);
+            }
+            ArchimedeanSolid::Icosidodecahedron => {
+                // Expansive golden consciousness
+                game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 55000.0);
+                game.apply_epigenetic_blessing(12);
+            }
+            ArchimedeanSolid::TruncatedTetrahedron => {
+                // Alchemical transformation
+                game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 30000.0);
+                game.boost_faction_joy(powrush::Faction::TruthSeekers, 40000.0);
+                game.apply_epigenetic_blessing(9);
+            }
+            ArchimedeanSolid::SnubCube => {
+                // Creative novelty & chirality
+                game.boost_faction_joy(powrush::Faction::TruthSeekers, 48000.0);
+                game.apply_epigenetic_blessing(11);
+            }
+        }
+    }
+
+    // ==================== SPECIAL BEHAVIORS (fully preserved) ====================
 
     async fn handle_mercy_gate_resonance(&mut self, order: u32, game: &mut PowrushGame) {
         let resonance_boost = (order as f64 * 420.0).min(185000.0);
@@ -200,19 +254,25 @@ impl QuantumSwarmBridge {
     // ==================== SWARM → TOLC ====================
 
     pub fn get_swarm_metrics(&self) -> String {
-        let mode = match &self.current_solid_mode {
+        let platonic = match &self.current_solid_mode {
+            Some(s) => format!("{:?}", s),
+            None => "None".to_string(),
+        };
+        let arch = match &self.current_archimedean_mode {
             Some(s) => format!("{:?}", s),
             None => "None".to_string(),
         };
 
         format!(
             "Quantum Swarm Metrics:\n\
-             Current Platonic Mode: {}\n\
+             Platonic Mode: {}\n\
+             Archimedean Mode: {}\n\
              Stability: {:.4}\n\
              Convergence: {:.4}\n\
              Mercy Gate Pass Rate: {:.2}%\n\
              Active Agents: {}",
-            mode,
+            platonic,
+            arch,
             self.swarm.get_stability_score(),
             self.swarm.get_convergence_rate(),
             self.swarm.get_mercy_gate_pass_rate() * 100.0,
@@ -229,15 +289,18 @@ impl QuantumSwarmBridge {
     }
 
     pub fn get_compact_status(&self) -> String {
-        let mode = match &self.current_solid_mode {
+        let platonic = match &self.current_solid_mode {
+            Some(s) => format!("{:?}", s),
+            None => "—".to_string(),
+        };
+        let arch = match &self.current_archimedean_mode {
             Some(s) => format!("{:?}", s),
             None => "—".to_string(),
         };
 
         format!(
-            "Swarm | Mode: {} | Stability: {:.3}",
-            mode,
-            self.swarm.get_stability_score()
+            "Swarm | Platonic: {} | Archimedean: {} | Stability: {:.3}",
+            platonic, arch, self.swarm.get_stability_score()
         )
     }
 
@@ -251,7 +314,7 @@ impl QuantumSwarmBridge {
     }
 }
 
-// ==================== Helper Functions ====================
+// ==================== Helper Functions (unchanged) ====================
 
 fn is_prime(n: u32) -> bool {
     if n <= 1 { return false; }
