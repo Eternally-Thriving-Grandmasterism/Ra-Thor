@@ -1,4 +1,4 @@
-//! # Powrush Core Library v0.5.22
+//! # Powrush Core Library v0.5.23
 //!
 //! The world's first mercy-gated Resource-Based Economy (RBE) AGI game.
 //! Built on Ra-Thor + TOLC 7 Living Mercy Gates.
@@ -14,6 +14,7 @@ pub mod simulation;
 pub mod faction;
 pub mod ascension;
 pub mod base_reality_simulator_codex;
+pub mod tolc_integration;   // ← NEW: TOLC Integration Bridge
 
 pub use game::PowrushGame;
 pub use player::Player;
@@ -25,6 +26,7 @@ pub use base_reality_simulator_codex::{
     BaseRealitySimulatorCodex,
     SimulationComparison,
 };
+pub use tolc_integration::TOLCPowrushBridge;   // ← NEW: Re-export for convenience
 
 use thiserror::Error;
 
@@ -46,6 +48,7 @@ pub struct PowrushCore {
     pub mercy_gates_active: bool,
     pub version: &'static str,
     base_reality_codex: BaseRealitySimulatorCodex,
+    tolc_bridge: TOLCPowrushBridge,   // ← NEW: TOLC Lattice Integration
 }
 
 impl PowrushCore {
@@ -54,35 +57,32 @@ impl PowrushCore {
         Self {
             game: PowrushGame::new(),
             mercy_gates_active: true,
-            version: "0.5.22",
+            version: "0.5.23",
             base_reality_codex: BaseRealitySimulatorCodex::new(),
+            tolc_bridge: TOLCPowrushBridge::new(),   // ← NEW
         }
     }
 
-    /// Run one full mercy-gated simulation cycle.
-    /// Every action passes through the TOLC 7 Living Mercy Gates.
+    /// Run one full mercy-gated + TOLC-enhanced simulation cycle.
+    /// Every action passes through the TOLC 7 Living Mercy Gates + higher-order lattice effects.
     pub async fn run_mercy_cycle(&mut self) -> Result<String, MercyError> {
         if !self.mercy_gates_active {
             return Err(MercyError::MercyGatesDisabled);
         }
 
-        // Simulate TOLC 7 Gates validation (future: integrate real ra-thor-mercy crate)
-        let valence = 0.97; // Placeholder — will be replaced with real gate evaluation
-        if valence < 0.92 {
-            return Err(MercyError::GateValidationFailed);
-        }
+        // Run TOLC-enhanced world cycle (includes mercy gating + lattice effects)
+        let tolc_result = self.tolc_bridge.run_tolc_world_cycle(&mut self.game).await;
 
-        let result = self.game.run_simulation_cycle().await
-            .map_err(|e| MercyError::SimulationFailed(e))?;
+        // Optional: Run Base Reality Simulator as part of the cycle
+        let base_reality_result = self.base_reality_codex.get_ra_thor_unique_position();
 
         Ok(format!(
-            "Mercy Cycle Complete — All 7 Gates Passed (Valence: {:.2})\n{}",
-            valence, result
+            "Mercy + TOLC Cycle Complete\n\n{}\n\nBase Reality Insight:\n{}",
+            tolc_result, base_reality_result
         ))
     }
 
     /// Run a full Base Reality Simulator cycle using the integrated codex.
-    /// This is the educational RBE heart of Powrush.
     pub async fn run_base_reality_simulation(&mut self) -> Result<String, MercyError> {
         if !self.mercy_gates_active {
             return Err(MercyError::MercyGatesDisabled);
@@ -107,13 +107,23 @@ impl PowrushCore {
         self.game.apply_epigenetic_blessing(cehi_generations);
     }
 
-    /// Get current system status.
+    /// Trigger a powerful TOLC self-evolution pulse across the entire world
+    pub fn trigger_tolc_self_evolution_pulse(&mut self) -> String {
+        self.tolc_bridge.trigger_world_self_evolution_pulse(&mut self.game)
+    }
+
+    /// Get current system status (including TOLC lattice state)
     pub fn get_status(&self) -> String {
         format!(
-            "PowrushCore v{} | Mercy Gates: {} | Base Reality Codex: ACTIVE",
+            "PowrushCore v{} | Mercy Gates: {} | TOLC Lattice: ACTIVE",
             self.version,
             if self.mercy_gates_active { "ENABLED" } else { "DISABLED (TESTING)" }
         )
+    }
+
+    /// Get detailed TOLC status report
+    pub fn get_tolc_status(&self) -> String {
+        self.tolc_bridge.get_world_tolc_status()
     }
 
     /// Disable mercy gates (only for testing — never in real gameplay)
