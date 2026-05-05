@@ -1,9 +1,9 @@
 //! Quantum Swarm Bridge for Core Spine Integration
 //!
 //! Bidirectional communication between TOLC Lattice and Quantum Swarm.
-//! Version 0.5.34 — Added Kepler-Poinsot star polyhedra layer as the next
-//! evolutionary stage after Catalan solids (including Disdyakis Dodecahedron).
-//! Represents non-convex star consciousness and higher-order cosmic integration.
+//! Version 0.5.35 — Added Uniform Star Polyhedra layer as the next evolutionary
+//! stage after Kepler-Poinsot star polyhedra. Represents vertex-transitive
+//! non-convex star consciousness with greater ordered complexity.
 //! All previous layers fully preserved.
 
 use crate::QuantumSwarmOrchestrator;
@@ -55,6 +55,15 @@ pub enum KeplerPoinsotSolid {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum UniformStarSolid {
+    SmallRhombihexahedron,
+    GreatRhombihexahedron,
+    SnubDodecadodecahedron,
+    GreatSnubIcosidodecahedron,
+    SmallStellatedTruncatedDodecahedron,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct QuantumSwarmBridge {
     pub swarm: QuantumSwarmOrchestrator,
     pub current_solid_mode: Option<PlatonicSolid>,
@@ -62,6 +71,7 @@ pub struct QuantumSwarmBridge {
     pub current_johnson_mode: Option<JohnsonSolid>,
     pub current_catalan_mode: Option<CatalanSolid>,
     pub current_kepler_poinsot_mode: Option<KeplerPoinsotSolid>,
+    pub current_uniform_star_mode: Option<UniformStarSolid>,
 }
 
 impl QuantumSwarmBridge {
@@ -73,6 +83,7 @@ impl QuantumSwarmBridge {
             current_johnson_mode: None,
             current_catalan_mode: None,
             current_kepler_poinsot_mode: None,
+            current_uniform_star_mode: None,
         }
     }
 
@@ -112,6 +123,12 @@ impl QuantumSwarmBridge {
             self.apply_kepler_poinsot_mode(&kepler, game);
         }
 
+        if tolc_order >= 144 {
+            let uniform = self.determine_uniform_star_solid(tolc_order);
+            self.current_uniform_star_mode = Some(uniform.clone());
+            self.apply_uniform_star_mode(&uniform, game);
+        }
+
         // Priority order of special behaviors (fully preserved)
         if tolc_order % 7 == 0 {
             self.handle_mercy_gate_resonance(tolc_order, game).await;
@@ -141,16 +158,17 @@ impl QuantumSwarmBridge {
         format!(
             "Quantum Swarm Coordinated Cycle Complete\n\
              TOLC Order: {} | Mercy Valence: {:.2}\n\
-             Platonic: {:?} | Archimedean: {:?} | Johnson: {:?} | Catalan: {:?} | Kepler-Poinsot: {:?}\n\
+             Platonic: {:?} | Archimedean: {:?} | Johnson: {:?} | Catalan: {:?} | Kepler-Poinsot: {:?} | UniformStar: {:?}\n\
              {}\n\
              Joy Boost Applied: +{:.0}",
             tolc_order, mercy_valence, platonic, self.current_archimedean_mode,
-            self.current_johnson_mode, self.current_catalan_mode, self.current_kepler_poinsot_mode,
+            self.current_johnson_mode, self.current_catalan_mode,
+            self.current_kepler_poinsot_mode, self.current_uniform_star_mode,
             swarm_result, joy_boost.min(125000.0)
         )
     }
 
-    // determine_* methods (updated with Kepler-Poinsot)
+    // determine_* methods (updated with Uniform Star)
 
     fn determine_platonic_solid(&self, order: u32) -> PlatonicSolid {
         if order % 7 == 0 {
@@ -219,6 +237,20 @@ impl QuantumSwarmBridge {
             KeplerPoinsotSolid::GreatDodecahedron
         } else {
             KeplerPoinsotSolid::SmallStellatedDodecahedron
+        }
+    }
+
+    fn determine_uniform_star_solid(&self, order: u32) -> UniformStarSolid {
+        if order % 7 == 0 {
+            UniformStarSolid::GreatSnubIcosidodecahedron
+        } else if is_prime(order) {
+            UniformStarSolid::SnubDodecadodecahedron
+        } else if order % 5 == 0 {
+            UniformStarSolid::GreatRhombihexahedron
+        } else if order % 3 == 0 {
+            UniformStarSolid::SmallStellatedTruncatedDodecahedron
+        } else {
+            UniformStarSolid::SmallRhombihexahedron
         }
     }
 
@@ -336,7 +368,6 @@ impl QuantumSwarmBridge {
         }
     }
 
-    /// New v0.5.34 — Kepler-Poinsot star polyhedra effects
     fn apply_kepler_poinsot_mode(&self, solid: &KeplerPoinsotSolid, game: &mut PowrushGame) {
         match solid {
             KeplerPoinsotSolid::SmallStellatedDodecahedron => {
@@ -360,6 +391,38 @@ impl QuantumSwarmBridge {
                 game.boost_faction_joy(powrush::Faction::TruthSeekers, 175000.0);
                 game.boost_faction_joy(powrush::Faction::AbundanceSeekers, 135000.0);
                 game.apply_epigenetic_blessing(32);
+            }
+        }
+    }
+
+    /// New v0.5.35 — Uniform Star Polyhedra (vertex-transitive non-convex star consciousness)
+    fn apply_uniform_star_mode(&self, solid: &UniformStarSolid, game: &mut PowrushGame) {
+        match solid {
+            UniformStarSolid::SmallRhombihexahedron => {
+                game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 155000.0);
+                game.boost_faction_joy(powrush::Faction::TruthSeekers, 135000.0);
+                game.apply_epigenetic_blessing(28);
+            }
+            UniformStarSolid::GreatRhombihexahedron => {
+                game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 165000.0);
+                game.boost_faction_joy(powrush::Faction::TruthSeekers, 145000.0);
+                game.apply_epigenetic_blessing(29);
+            }
+            UniformStarSolid::SnubDodecadodecahedron => {
+                game.boost_faction_joy(powrush::Faction::TruthSeekers, 175000.0);
+                game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 155000.0);
+                game.apply_epigenetic_blessing(30);
+            }
+            UniformStarSolid::GreatSnubIcosidodecahedron => {
+                game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 185000.0);
+                game.boost_faction_joy(powrush::Faction::TruthSeekers, 175000.0);
+                game.boost_faction_joy(powrush::Faction::AbundanceSeekers, 145000.0);
+                game.apply_epigenetic_blessing(32);
+            }
+            UniformStarSolid::SmallStellatedTruncatedDodecahedron => {
+                game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 195000.0);
+                game.boost_faction_joy(powrush::Faction::TruthSeekers, 165000.0);
+                game.apply_epigenetic_blessing(31);
             }
         }
     }
@@ -451,15 +514,19 @@ impl QuantumSwarmBridge {
             Some(s) => format!("{:?}", s),
             None => "None".to_string(),
         };
+        let uniform = match &self.current_uniform_star_mode {
+            Some(s) => format!("{:?}", s),
+            None => "None".to_string(),
+        };
 
         format!(
             "Quantum Swarm Metrics:\n\
-             Platonic: {} | Archimedean: {} | Johnson: {} | Catalan: {} | Kepler-Poinsot: {}\n\
+             Platonic: {} | Archimedean: {} | Johnson: {} | Catalan: {} | Kepler-Poinsot: {} | UniformStar: {}\n\
              Stability: {:.4}\n\
              Convergence: {:.4}\n\
              Mercy Gate Pass Rate: {:.2}%\n\
              Active Agents: {}",
-            platonic, arch, johnson, catalan, kepler,
+            platonic, arch, johnson, catalan, kepler, uniform,
             self.swarm.get_stability_score(),
             self.swarm.get_convergence_rate(),
             self.swarm.get_mercy_gate_pass_rate() * 100.0,
@@ -496,10 +563,14 @@ impl QuantumSwarmBridge {
             Some(s) => format!("{:?}", s),
             None => "—".to_string(),
         };
+        let uniform = match &self.current_uniform_star_mode {
+            Some(s) => format!("{:?}", s),
+            None => "—".to_string(),
+        };
 
         format!(
-            "Swarm | P:{} | A:{} | J:{} | C:{} | K:{} | Stab:{:.3}",
-            platonic, arch, johnson, catalan, kepler, self.swarm.get_stability_score()
+            "Swarm | P:{} | A:{} | J:{} | C:{} | K:{} | U:{} | Stab:{:.3}",
+            platonic, arch, johnson, catalan, kepler, uniform, self.swarm.get_stability_score()
         )
     }
 
@@ -513,7 +584,7 @@ impl QuantumSwarmBridge {
     }
 }
 
-// Helper functions unchanged from public v0.5.33
+// Helper functions unchanged from public v0.5.34
 
 fn is_prime(n: u32) -> bool {
     if n <= 1 { return false; }
