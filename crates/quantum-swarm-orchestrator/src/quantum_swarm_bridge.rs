@@ -1,7 +1,7 @@
 //! Quantum Swarm Bridge for Core Spine Integration
 //!
-//! Provides bidirectional communication between the TOLC Lattice and Quantum Swarm.
-//! Version 0.5.25 — Now supports two-way influence and feedback.
+//! Bidirectional communication between TOLC Lattice and Quantum Swarm.
+//! Version 0.5.25 — Now reacts to specific TOLC orders (Mercy Gate resonance).
 
 use crate::QuantumSwarmOrchestrator;
 use powrush::PowrushGame;
@@ -19,7 +19,7 @@ impl QuantumSwarmBridge {
         }
     }
 
-    // ==================== TOLC → SWARM (TOLC commands the swarm) ====================
+    // ==================== TOLC → SWARM ====================
 
     pub async fn run_spine_coordinated_cycle(
         &mut self,
@@ -28,6 +28,12 @@ impl QuantumSwarmBridge {
         game: &mut PowrushGame,
     ) -> String {
         self.swarm.inject_tolc_influence(tolc_order, mercy_valence);
+
+        // NEW: Special behavior when order is a Mercy Gate (divisible by 7)
+        if tolc_order % 7 == 0 {
+            self.handle_mercy_gate_resonance(tolc_order, game).await;
+        }
+
         let swarm_result = self.swarm.run_coordinated_cycle().await;
 
         let joy_boost = (tolc_order as f64 * 180.0) + (mercy_valence * 850.0);
@@ -42,13 +48,25 @@ impl QuantumSwarmBridge {
         )
     }
 
-    /// NEW: Allow TOLC to send a specific resonance command to the swarm
+    /// NEW: Special Mercy Gate Resonance Event (triggered on orders divisible by 7)
+    async fn handle_mercy_gate_resonance(&mut self, order: u32, game: &mut PowrushGame) {
+        // Extra powerful effects on Mercy Gate orders
+        let resonance_boost = (order as f64 * 420.0).min(185000.0);
+        game.boost_faction_joy(powrush::Faction::HarmonyWeavers, resonance_boost);
+
+        // Stronger epigenetic blessing on Mercy Gates
+        game.apply_epigenetic_blessing(12);
+
+        // Tell the swarm to enter a special high-resonance state
+        self.swarm.enter_mercy_gate_resonance_state(order);
+    }
+
     pub fn apply_tolc_resonance_command(&mut self, order: u32, intensity: f64) {
         self.swarm.inject_tolc_influence(order, intensity);
         self.swarm.apply_resonance_boost(intensity);
     }
 
-    // ==================== SWARM → TOLC (Swarm reports back) ====================
+    // ==================== SWARM → TOLC ====================
 
     pub fn get_swarm_metrics(&self) -> String {
         format!(
@@ -64,7 +82,6 @@ impl QuantumSwarmBridge {
         )
     }
 
-    /// NEW: Return structured data the TOLC lattice can consume
     pub fn get_tolc_feedback(&self) -> (f64, f64, f64) {
         (
             self.swarm.get_stability_score(),
