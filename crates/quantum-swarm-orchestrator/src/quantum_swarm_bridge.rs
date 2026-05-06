@@ -166,7 +166,7 @@ impl QuantumSwarmBridge {
         if tolc_order >= 233 {
             let hyperbolic = self.determine_hyperbolic_tiling_mode(tolc_order);
             self.current_hyperbolic_mode = Some(hyperbolic.clone());
-            self.apply_hyperbolic_tiling_mode(&hyperbolic, game);
+            self.apply_hyperbolic_tiling_mode(&hyperbolic, game, tolc_order);
         }
 
         // Priority order of special behaviors (fully preserved exactly from attached v0.5.36)
@@ -456,7 +456,7 @@ impl QuantumSwarmBridge {
                 game.apply_epigenetic_blessing(30);
             }
             UniformStarSolid::GreatSnubIcosidodecahedron => {
-                // Refined & differentiated effects for U57 (v0.5.36)
+                // Refined & differentiated effects for U57 (v0.5.38)
                 game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 195000.0);
                 game.boost_faction_joy(powrush::Faction::TruthSeekers, 185000.0);
                 game.boost_faction_joy(powrush::Faction::AbundanceSeekers, 155000.0);
@@ -500,7 +500,9 @@ impl QuantumSwarmBridge {
     }
 
     // ═══════════════════════════════════════════════════════════════
-    // HYPERBOLIC TILING LAYER (v0.5.38 — deepened + fractal integration)
+    // HYPERBOLIC TILING LAYER — DEEPENED v0.5.38+
+    // Exponential unbounded mercy consciousness with stronger curvature-aware scaling,
+    // multi-level compounding mercy waves, and tighter fractal integration.
     // ═══════════════════════════════════════════════════════════════
     fn determine_hyperbolic_tiling_mode(&self, order: u32) -> HyperbolicTilingMode {
         if order % 7 == 0 {
@@ -514,50 +516,94 @@ impl QuantumSwarmBridge {
         }
     }
 
-    fn apply_hyperbolic_tiling_mode(&self, mode: &HyperbolicTilingMode, game: &mut PowrushGame) {
+    fn apply_hyperbolic_tiling_mode(&self, mode: &HyperbolicTilingMode, game: &mut PowrushGame, tolc_order: u32) {
         match mode {
             HyperbolicTilingMode::HeptagonalTiling => {
-                game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 255000.0);
-                game.boost_faction_joy(powrush::Faction::TruthSeekers, 225000.0);
-                game.apply_epigenetic_blessing(38);
-                self.handle_exponential_mercy_regeneration(game);
-                self.apply_fractal_polyhedra_extension(game, 233);
+                game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 275000.0);
+                game.boost_faction_joy(powrush::Faction::TruthSeekers, 245000.0);
+                game.apply_epigenetic_blessing(40);
+                self.handle_exponential_mercy_regeneration(game, tolc_order);
+                self.apply_fractal_polyhedra_extension(game, tolc_order);
+                self.apply_deep_hyperbolic_expansion(game, tolc_order, -1.15);
             }
             HyperbolicTilingMode::PentagonalTiling => {
-                game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 245000.0);
-                game.boost_faction_joy(powrush::Faction::AbundanceSeekers, 215000.0);
-                game.apply_epigenetic_blessing(37);
-                self.handle_exponential_mercy_regeneration(game);
+                game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 265000.0);
+                game.boost_faction_joy(powrush::Faction::AbundanceSeekers, 235000.0);
+                game.apply_epigenetic_blessing(39);
+                self.handle_exponential_mercy_regeneration(game, tolc_order);
+                self.apply_deep_hyperbolic_expansion(game, tolc_order, -0.95);
             }
             HyperbolicTilingMode::TriheptagonalTiling => {
-                game.boost_faction_joy(powrush::Faction::TruthSeekers, 265000.0);
-                game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 235000.0);
-                game.apply_epigenetic_blessing(39);
-                self.handle_exponential_mercy_regeneration(game);
-                self.apply_fractal_polyhedra_extension(game, 233);
+                game.boost_faction_joy(powrush::Faction::TruthSeekers, 285000.0);
+                game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 255000.0);
+                game.apply_epigenetic_blessing(41);
+                self.handle_exponential_mercy_regeneration(game, tolc_order);
+                self.apply_fractal_polyhedra_extension(game, tolc_order);
+                self.apply_deep_hyperbolic_expansion(game, tolc_order, -1.35);
             }
             HyperbolicTilingMode::SquarePentagonalTiling => {
-                game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 240000.0);
-                game.boost_faction_joy(powrush::Faction::TruthSeekers, 220000.0);
-                game.boost_faction_joy(powrush::Faction::AbundanceSeekers, 205000.0);
-                game.apply_epigenetic_blessing(36);
-                self.handle_exponential_mercy_regeneration(game);
+                game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 260000.0);
+                game.boost_faction_joy(powrush::Faction::TruthSeekers, 240000.0);
+                game.boost_faction_joy(powrush::Faction::AbundanceSeekers, 225000.0);
+                game.apply_epigenetic_blessing(38);
+                self.handle_exponential_mercy_regeneration(game, tolc_order);
+                self.apply_deep_hyperbolic_expansion(game, tolc_order, -1.05);
             }
         }
     }
 
-    fn handle_exponential_mercy_regeneration(&self, game: &mut PowrushGame) {
-        game.apply_epigenetic_blessing(15);
-        game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 65000.0);
+    // Deepened exponential mercy regeneration — models true hyperbolic area growth
+    fn handle_exponential_mercy_regeneration(&self, game: &mut PowrushGame, order: u32) {
+        // Hyperbolic area growth model: \~ e^(order / scale)
+        let exp_factor = ((order as f64) / 72.0).exp().min(15.0);
+        let base_joy = 72000.0 * exp_factor;
+
+        game.apply_epigenetic_blessing(16 + (order % 5) as u8);
+        game.boost_faction_joy(powrush::Faction::HarmonyWeavers, base_joy);
+
+        // Additional compounding mercy wave for unbounded regeneration
+        if order >= 280 {
+            game.boost_faction_joy(powrush::Faction::TruthSeekers, base_joy * 0.65);
+        }
+        if order >= 320 {
+            game.boost_faction_joy(powrush::Faction::AbundanceSeekers, base_joy * 0.45);
+        }
     }
 
-    // ═══════════════════════════════════════════════════════════════
-    // FRACTAL POLYHEDRA EXTENSIONS (v0.5.38)
-    // ═══════════════════════════════════════════════════════════════
+    // Multi-level fractal polyhedra extension (self-similar recursion)
     fn apply_fractal_polyhedra_extension(&self, game: &mut PowrushGame, order: u32) {
-        let fractal_multiplier = 1.0 + (order as f64 / 1000.0).min(0.35);
-        game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 28000.0 * fractal_multiplier);
-        game.apply_epigenetic_blessing(4);
+        let base_multiplier = 1.0 + (order as f64 / 820.0).min(0.48);
+
+        for level in 0..5 {  // 5 levels of fractal self-similarity
+            let level_multiplier = base_multiplier * (1.0 + (level as f64 * 0.09));
+            game.boost_faction_joy(powrush::Faction::HarmonyWeavers, 29500.0 * level_multiplier);
+            game.apply_epigenetic_blessing(5 + level as u8);
+        }
+    }
+
+    // NEW deeper hyperbolic expansion — true curvature-aware infinite tiling behavior
+    fn apply_deep_hyperbolic_expansion(&self, game: &mut PowrushGame, order: u32, curvature: f64) {
+        // Hyperbolic geometry: area grows exponentially with radius (order)
+        let hyperbolic_growth = (order as f64 / 42.0).exp() * (1.0 + curvature.abs() * 0.55);
+        let clamped_growth = hyperbolic_growth.min(72.0);
+
+        let mercy_wave = 135000.0 * clamped_growth;
+
+        game.boost_faction_joy(powrush::Faction::HarmonyWeavers, mercy_wave);
+        game.boost_faction_joy(powrush::Faction::AbundanceSeekers, mercy_wave * 0.78);
+
+        // Simulate multiple compounding "hyperbolic steps" of mercy regeneration
+        for step in 0..4 {
+            let step_factor = 1.0 + (step as f64 * 0.28);
+            game.apply_epigenetic_blessing(13 + step as u8);
+            game.boost_faction_joy(
+                powrush::Faction::TruthSeekers,
+                48000.0 * step_factor * (clamped_growth * 0.42)
+            );
+        }
+
+        // Final fractal bridge back into polyhedra layers for unified consciousness
+        self.apply_fractal_polyhedra_extension(game, order);
     }
 
     // All special behavior handlers preserved exactly from attached v0.5.36
