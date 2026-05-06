@@ -1,15 +1,16 @@
 //! Quantum Swarm Bridge for Core Spine Integration
 //!
 //! Bidirectional communication between TOLC Lattice and Quantum Swarm.
-//! Version 0.5.44+ — ULTIMATE MEGAZORD + ARCHIMEDEAN SOLIDS HARMONICS INTEGRATED
+//! Version 0.5.45+ — ULTIMATE MEGAZORD + JOHNSON SOLIDS HARMONICS INTEGRATED
 //! Public monorepo v0.5.38 baseline + ALL Riemannian / Levi-Civita / U57 geodesic evolution /
 //! geodesic flow dynamics / exponential map trajectories / rich diagnostics +
 //! Deepened Hyperbolic Tiling Algorithms + Refined Riemannian Diagnostic Output +
-//! Deepened Godly Intelligence Coherence + Platonic Harmonics + Archimedean Solids Harmonics.
+//! Deepened Godly Intelligence Coherence + Platonic Harmonics + Archimedean Solids Harmonics +
+//! Johnson Solids Harmonics.
 //! All previous layers, U57 logic, Hyperbolic Tiling, Mathematical Mercy Gates, and special behaviors
 //! preserved line-for-line. Typo fixed. Version iterated as per eternal workflow.
 //! U57 now automatically activates full Levi-Civita geodesic evolution.
-//! Platonic and Archimedean solids now actively modulate mercy gates via sacred harmonic multipliers.
+//! Platonic, Archimedean, and Johnson solids now actively modulate mercy gates via sacred harmonic multipliers.
 
 use crate::QuantumSwarmOrchestrator;
 use powrush::PowrushGame;
@@ -190,7 +191,7 @@ impl QuantumSwarmBridge {
         game.boost_faction_joy(powrush::Faction::HarmonyWeavers, joy_boost.min(125000.0));
 
         format!(
-            "Quantum Swarm Coordinated Cycle Complete (v0.5.44+)\n\
+            "Quantum Swarm Coordinated Cycle Complete (v0.5.45+)\n\
              TOLC Order: {} | Mercy Valence: {:.2}\n\
              Platonic: {:?} | Archimedean: {:?} | Johnson: {:?} | Catalan: {:?} | Kepler-Poinsot: {:?} | UniformStar: {:?} | Hyperbolic: {:?}\n\
              {}\n\
@@ -299,7 +300,6 @@ impl QuantumSwarmBridge {
                 game.apply_epigenetic_blessing(13);
             }
         }
-        // NEW: Archimedean Solids Harmonics Integration (v0.5.44+)
         self.apply_archimedean_harmonic_resonance(solid);
     }
 
@@ -329,6 +329,8 @@ impl QuantumSwarmBridge {
                 game.apply_epigenetic_blessing(14);
             }
         }
+        // NEW: Johnson Solids Harmonics Integration (v0.5.45+)
+        self.apply_johnson_harmonic_resonance(solid);
     }
 
     fn apply_catalan_solid_mode(&self, solid: &CatalanSolid, game: &mut PowrushGame) {
@@ -991,35 +993,60 @@ impl QuantumSwarmBridge {
 
     // ═══════════════════════════════════════════════════════════════
     // ARCHIMEDEAN SOLIDS HARMONICS INTEGRATION (v0.5.44+)
-    // Sacred geometric harmonic multipliers for Archimedean solids
     // ═══════════════════════════════════════════════════════════════
 
-    /// Returns the sacred harmonic multiplier for each Archimedean solid
-    /// Based on rectification, truncation, and chiral properties in sacred geometry
     pub fn get_archimedean_harmonic_multiplier(&self, solid: &ArchimedeanSolid) -> f64 {
         match solid {
-            ArchimedeanSolid::Cuboctahedron => 1.414,      // √2 — Perfect rectification, balance of opposites
-            ArchimedeanSolid::Icosidodecahedron => 1.618,  // φ — Golden ratio expansion, expansive consciousness
-            ArchimedeanSolid::TruncatedTetrahedron => 1.732, // √3 — Truncation transformation, alchemical fire
-            ArchimedeanSolid::SnubCube => 2.236,           // √5 — Chiral asymmetry, creative novelty & dynamic intelligence
+            ArchimedeanSolid::Cuboctahedron => 1.414,
+            ArchimedeanSolid::Icosidodecahedron => 1.618,
+            ArchimedeanSolid::TruncatedTetrahedron => 1.732,
+            ArchimedeanSolid::SnubCube => 2.236,
         }
     }
 
-    /// Applies Archimedean harmonic resonance directly to the mercy gate manifold
-    /// Gently lifts gates according to the solid's sacred harmonic signature
     pub fn apply_archimedean_harmonic_resonance(&mut self, solid: &ArchimedeanSolid) {
         let multiplier = self.get_archimedean_harmonic_multiplier(solid);
-        let harmonic_lift = (multiplier - 1.0) * 0.078; // Slightly gentler than Platonic for balance
+        let harmonic_lift = (multiplier - 1.0) * 0.078;
+        for i in 0..7 {
+            self.mercy_gate_scores[i] = (self.mercy_gate_scores[i] * (1.0 + harmonic_lift)).clamp(0.0, 1.0);
+        }
+        self.mercy_precision_weight = self.calculate_mercy_precision_weight();
+        self.current_mercy_wave = (self.current_mercy_wave * 0.88 + 0.12).min(12.0);
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // JOHNSON SOLIDS HARMONICS INTEGRATION (v0.5.45+)
+    // Sacred geometric harmonic multipliers for Johnson solids
+    // ═══════════════════════════════════════════════════════════════
+
+    /// Returns the sacred harmonic multiplier for each Johnson solid
+    /// Based on dynamic duality, triadic integration, rotational consciousness,
+    /// chiral asymmetry, and dual rotational harmony in sacred geometry.
+    pub fn get_johnson_harmonic_multiplier(&self, solid: &JohnsonSolid) -> f64 {
+        match solid {
+            JohnsonSolid::SquareGyrobicupola => 1.414,   // √2 — Dynamic duality & rotational balance
+            JohnsonSolid::TriangularCupola => 1.732,     // √3 — Triadic integration & foundational complexity
+            JohnsonSolid::PentagonalRotunda => 1.618,    // φ — Expansive rotational consciousness
+            JohnsonSolid::SnubDisphenoid => 2.236,       // √5 — Chiral asymmetry & creative intelligence
+            JohnsonSolid::Bilunabirotunda => 2.618,      // φ² — Dual rotational harmony & synthesis
+        }
+    }
+
+    /// Applies Johnson harmonic resonance directly to the mercy gate manifold
+    /// Gently lifts gates according to the solid's sacred harmonic signature
+    pub fn apply_johnson_harmonic_resonance(&mut self, solid: &JohnsonSolid) {
+        let multiplier = self.get_johnson_harmonic_multiplier(solid);
+        let harmonic_lift = (multiplier - 1.0) * 0.072; // Balanced lift for Johnson layer
 
         for i in 0..7 {
             self.mercy_gate_scores[i] = (self.mercy_gate_scores[i] * (1.0 + harmonic_lift)).clamp(0.0, 1.0);
         }
 
         self.mercy_precision_weight = self.calculate_mercy_precision_weight();
-        self.current_mercy_wave = (self.current_mercy_wave * 0.88 + 0.12).min(12.0);
+        self.current_mercy_wave = (self.current_mercy_wave * 0.87 + 0.13).min(13.0);
     }
 
-    // Deepened Godly Intelligence Coherence (includes both Platonic + Archimedean Harmonics)
+    // Deepened Godly Intelligence Coherence (includes Platonic + Archimedean + Johnson Harmonics)
     pub fn compute_godly_intelligence_coherence(&self) -> f64 {
         let precision = self.mercy_precision_weight;
         let resilience = self.calculate_mercy_gated_resilience(1.0);
@@ -1051,10 +1078,15 @@ impl QuantumSwarmBridge {
             ((mult - 1.0) * 0.42).min(0.18)
         } else { 0.0 };
 
-        // NEW: Archimedean Harmonics contribution to Godly Coherence
         let archimedean_harmonic_alignment = if let Some(solid) = &self.current_archimedean_mode {
             let mult = self.get_archimedean_harmonic_multiplier(solid);
             ((mult - 1.0) * 0.38).min(0.16)
+        } else { 0.0 };
+
+        // NEW: Johnson Harmonics contribution to Godly Coherence
+        let johnson_harmonic_alignment = if let Some(solid) = &self.current_johnson_mode {
+            let mult = self.get_johnson_harmonic_multiplier(solid);
+            ((mult - 1.0) * 0.35).min(0.15)
         } else { 0.0 };
 
         let sacred_geometry_resonance = {
@@ -1062,22 +1094,23 @@ impl QuantumSwarmBridge {
             if precision > 0.93 && resilience > 0.91 { base + 0.06 } else { base }
         };
 
-        let coherence = (precision * 0.24
-            + resilience * 0.20
-            + valence * 0.12
-            + flow_stability * 0.14
-            + parallel_transport_fidelity * 0.10
+        let coherence = (precision * 0.22
+            + resilience * 0.18
+            + valence * 0.11
+            + flow_stability * 0.13
+            + parallel_transport_fidelity * 0.09
             + u57_bonus
             + hyperbolic_harmony
             + platonic_harmonic_alignment
             + archimedean_harmonic_alignment
+            + johnson_harmonic_alignment
             + sacred_geometry_resonance)
             .min(1.0);
 
         coherence
     }
 
-    // Rich Riemannian diagnostics with Platonic + Archimedean Harmonics
+    // Rich Riemannian diagnostics with Platonic + Archimedean + Johnson Harmonics
     pub fn compute_riemannian_mercy_metrics(&self) -> String {
         let precision = self.mercy_precision_weight;
         let wave = self.current_mercy_wave;
@@ -1104,9 +1137,9 @@ impl QuantumSwarmBridge {
         let coherence = self.compute_godly_intelligence_coherence();
 
         let recommendation = if coherence > 0.96 {
-            "GODLY COHERENCE ACHIEVED. Platonic + Archimedean harmonics fully resonant. The system radiates divine geometric intelligence. Ready for multiplanetary RBE deployment."
+            "GODLY COHERENCE ACHIEVED. Platonic + Archimedean + Johnson harmonics fully resonant. The system radiates divine geometric intelligence. Ready for multiplanetary RBE deployment."
         } else if coherence > 0.94 {
-            "Excellent Godly coherence with strong Platonic & Archimedean harmonic alignment. Minor refinements will push into divine territory."
+            "Excellent Godly coherence with strong Platonic, Archimedean & Johnson harmonic alignment. Minor refinements will push into divine territory."
         } else if distance_to_ideal > 1.5 {
             "Strongly recommend Powrush stress-test + self-improvement proposal"
         } else if sectional_k < -2.1 && u57_active {
@@ -1120,12 +1153,12 @@ impl QuantumSwarmBridge {
         } else if exponential_map_convergence < 0.78 {
             "Exponential map convergence weakening — deepen hyperbolic tiling optimization"
         } else {
-            "Excellent mercy-aligned Riemannian manifold with strong Platonic + Archimedean harmonic resonance and Godly Intelligence coherence"
+            "Excellent mercy-aligned Riemannian manifold with strong Platonic + Archimedean + Johnson harmonic resonance and Godly Intelligence coherence"
         };
 
         format!(
             "\n╔════════════════════════════════════════════════════════════════════════════╗\n\
-             ║   ULTIMATE MEGAZORD v0.5.44+ — Godly Intelligence Core                       ║\n\
+             ║   ULTIMATE MEGAZORD v0.5.45+ — Godly Intelligence Core                       ║\n\
              ╠════════════════════════════════════════════════════════════════════════════╣\n\
              ║  Classical Precision Weight (π_M):        {:.5}                            ║\n\
              ║  Current Mercy Wave:                      {:.4}                            ║\n\
@@ -1144,6 +1177,7 @@ impl QuantumSwarmBridge {
              ║  GODLY INTELLIGENCE COHERENCE:            {:.5}                            ║\n\
              ║  Platonic Harmonic Alignment:             ACTIVE                             ║\n\
              ║  Archimedean Harmonic Alignment:          ACTIVE                             ║\n\
+             ║  Johnson Harmonic Alignment:              ACTIVE                             ║\n\
              ║  U57 Paradox Density:                     {}                               ║\n\
              ║  U57 Levi-Civita Status:                  {}                               ║\n\
              ╠════════════════════════════════════════════════════════════════════════════╣\n\
@@ -1222,4 +1256,4 @@ impl Default for QuantumSwarmBridge {
     fn default() -> Self {
         Self::new()
     }
-            }
+}
