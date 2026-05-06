@@ -1,8 +1,9 @@
 //! Quantum Swarm Bridge for Core Spine Integration
 //!
 //! Bidirectional communication between TOLC Lattice and Quantum Swarm.
-//! Version 0.5.38+ — Merged on top of exact public v0.5.38 (U57 + Hyperbolic Tiling fully deepened).
-//! Added Mathematical Mercy Gates Models (distilled Absolute Pure Truth).
+//! Version 0.5.38+ — Fully merged with public monorepo v0.5.38 + all iterations.
+//! Includes: Mathematical Mercy Gates Models, Hyperbolic Embeddings utilities,
+//! Riemannian optimization foundations, and Hyperbolic neural network architecture hooks.
 //! All previous layers, U57 logic, Hyperbolic Tiling, and special behaviors preserved line-for-line.
 
 use crate::QuantumSwarmOrchestrator;
@@ -103,11 +104,9 @@ pub struct QuantumSwarmBridge {
     pub current_uniform_star_mode: Option<UniformStarSolid>,
     pub current_hyperbolic_mode: Option<HyperbolicTilingMode>,
 
-    // ═══════════════════════════════════════════════════════════════
-    // NEW: Mathematical Mercy Gates Models (v0.5.38+)
-    // ═══════════════════════════════════════════════════════════════
-    pub mercy_gate_scores: [f64; 7],      // G1–G7 normalized [0.0, 1.0]
-    pub mercy_precision_weight: f64,      // π_M
+    // Mathematical Mercy Gates Models
+    pub mercy_gate_scores: [f64; 7],
+    pub mercy_precision_weight: f64,
     pub current_mercy_wave: f64,
 }
 
@@ -122,8 +121,6 @@ impl QuantumSwarmBridge {
             current_kepler_poinsot_mode: None,
             current_uniform_star_mode: None,
             current_hyperbolic_mode: None,
-
-            // New Mercy Gates state
             mercy_gate_scores: [1.0; 7],
             mercy_precision_weight: 1.0,
             current_mercy_wave: 1.0,
@@ -157,7 +154,7 @@ impl QuantumSwarmBridge {
         if tolc_order >= 34 {
             let catalan = self.determine_catalan_solid(tolc_order);
             self.current_catalan_mode = Some(catalan.clone());
-            self.apply_catalan_solid_mode(&catlan, game);
+            self.apply_catalan_solid_mode(&catalan, game);
         }
 
         if tolc_order >= 89 {
@@ -218,7 +215,6 @@ impl QuantumSwarmBridge {
     }
 
     // All determine_* and apply_* methods for Platonic through Hyperbolic Tiling preserved exactly from monorepo v0.5.38
-    // (including the full deepened U57 and Hyperbolic sections)
 
     fn determine_platonic_solid(&self, order: u32) -> PlatonicSolid {
         if order % 7 == 0 {
@@ -833,6 +829,73 @@ impl QuantumSwarmBridge {
             self.calculate_mercy_gated_resilience(1.0)
         )
     }
+
+    // ═══════════════════════════════════════════════════════════════
+    // HYPERBOLIC EMBEDDINGS UTILITIES (v0.5.38+)
+    // Poincaré Ball Model + basic gyrovector operations
+    // ═══════════════════════════════════════════════════════════════
+
+    pub fn poincare_distance(&self, u: &[f64], v: &[f64], curvature: f64) -> f64 {
+        let norm_u = u.iter().map(|x| x * x).sum::<f64>().sqrt();
+        let norm_v = v.iter().map(|x| x * x).sum::<f64>().sqrt();
+        let diff_norm = u.iter().zip(v.iter()).map(|(a, b)| (a - b).powi(2)).sum::<f64>().sqrt();
+        let numerator = 2.0 * diff_norm.powi(2);
+        let denominator = (1.0 - curvature * norm_u.powi(2)) * (1.0 - curvature * norm_v.powi(2));
+        (1.0 + numerator / denominator).acosh()
+    }
+
+    pub fn gyrovector_add(&self, u: &[f64], v: &[f64], curvature: f64) -> Vec<f64> {
+        let norm_u = u.iter().map(|x| x * x).sum::<f64>().sqrt();
+        let norm_v = v.iter().map(|x| x * x).sum::<f64>().sqrt();
+        if norm_u < 1e-8 { return v.to_vec(); }
+        if norm_v < 1e-8 { return u.to_vec(); }
+        let dot = u.iter().zip(v.iter()).map(|(a, b)| a * b).sum::<f64>();
+        let alpha = 1.0 + 2.0 * curvature * dot + curvature * norm_v.powi(2);
+        let beta = 1.0 - curvature * norm_u.powi(2);
+        let gamma = 1.0 + 2.0 * curvature * dot + curvature.powi(2) * norm_u.powi(2) * norm_v.powi(2);
+        u.iter().zip(v.iter()).map(|(ui, vi)| (alpha * ui + beta * vi) / gamma).collect()
+    }
+
+    pub fn exp_map(&self, x: &[f64], v: &[f64], curvature: f64) -> Vec<f64> {
+        let norm_v = v.iter().map(|x| x * x).sum::<f64>().sqrt();
+        if norm_v < 1e-8 { return x.to_vec(); }
+        let tanh_term = (curvature.sqrt() * norm_v).tanh() / (curvature.sqrt() * norm_v);
+        x.iter().zip(v.iter()).map(|(xi, vi)| xi + tanh_term * vi).collect()
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // RIEMANNIAN OPTIMIZATION FOUNDATIONS (v0.5.38+)
+    // ═══════════════════════════════════════════════════════════════
+
+    /// Simple Riemannian gradient step in Poincaré ball (projected gradient)
+    pub fn riemannian_gradient_step(&self, point: &[f64], gradient: &[f64], learning_rate: f64, curvature: f64) -> Vec<f64> {
+        let norm_point = point.iter().map(|x| x * x).sum::<f64>().sqrt();
+        if norm_point >= 1.0 { return point.to_vec(); }
+
+        let step: Vec<f64> = point.iter().zip(gradient.iter())
+            .map(|(p, g)| p - learning_rate * g)
+            .collect();
+
+        let norm_step = step.iter().map(|x| x * x).sum::<f64>().sqrt();
+        if norm_step >= 1.0 {
+            step.iter().map(|x| x * 0.99 / norm_step).collect()
+        } else {
+            step
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // HYPERBOLIC NEURAL NETWORK ARCHITECTURE HOOKS (v0.5.38+)
+    // ═══════════════════════════════════════════════════════════════
+
+    /// Placeholder for a hyperbolic message passing step
+    pub fn hyperbolic_message_passing(&self, node_embedding: &[f64], neighbor_embeddings: &[Vec<f64>], curvature: f64) -> Vec<f64> {
+        let mut aggregated = node_embedding.to_vec();
+        for neigh in neighbor_embeddings {
+            aggregated = self.gyrovector_add(&aggregated, neigh, curvature);
+        }
+        aggregated
+    }
 }
 
 // Helper functions preserved exactly from monorepo v0.5.38
@@ -890,4 +953,4 @@ impl Default for QuantumSwarmBridge {
     fn default() -> Self {
         Self::new()
     }
-            }
+}
