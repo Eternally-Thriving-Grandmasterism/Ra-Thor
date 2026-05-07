@@ -1,16 +1,46 @@
 [package]
 name = "mercy_orchestrator_v2"
-version = "0.3.0"
+version = "0.3.7"
 edition = "2021"
 authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
-license = "Proprietary - All Rights Reserved - Autonomicity Games Inc."
-description = "Sovereign mercy-orchestrator v2 — PATSAGi Councils coordination, CRDT consensus, valence gating, and TOLC-2026 decision lattice"
+license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
+description = "Mercy Orchestrator v2 — Advanced unified lattice orchestration layer for Ra-Thor. The central mercy-gated coordination system between mercy engine, quantum swarm, kernel, and the full lattice."
+repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
+keywords = ["ra-thor", "mercy", "orchestrator", "lattice", "coordination", "agi", "patsagi"]
+categories = ["simulation", "science"]
 
 [dependencies]
-ra-thor-mercy = { path = "../mercy" }
-ra-thor-common = { path = "../common" }
-serde = { workspace = true }
+# Core mercy layer
+ra-thor-mercy = { workspace = true }
+
+# Intelligence & swarm coordination
+ra-thor-quantum-swarm-orchestrator = { workspace = true }
+ra-thor-kernel = { path = "../kernel" }
+ra-thor-orchestration = { workspace = true }
+ra-thor-evolution = { workspace = true }
+ra-thor-plasticity-engine-v2 = { workspace = true }
+ra-thor-monorepo-intelligence = { workspace = true }
+
+# Governance
+patsagi-councils = { path = "../patsagi-councils" }
+
+# Async & runtime
+tokio = { workspace = true, features = ["full"] }
+async-trait = { workspace = true }
+futures = { workspace = true }
+
+# Serialization & utilities
+serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
-tokio = { workspace = true }
 tracing = { workspace = true }
 thiserror = { workspace = true }
+rand = { workspace = true }
+
+[dev-dependencies]
+tracing-subscriber = { workspace = true }
+tokio-test = "0.4"
+
+[features]
+default = ["full"]
+full = []
+minimal = []
