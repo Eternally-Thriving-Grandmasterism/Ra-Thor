@@ -107,6 +107,7 @@ impl QuantumSwarmOrchestrator {
     }
 
     /// Runs one full daily swarm cycle with full bridge + mercy evaluation.
+    /// Now also runs TOLC + 7 Living Mercy Gates validation on every cycle.
     pub async fn run_daily_cycle(
         &self,
         global_sensor: &ra_thor_legal_lattice::sensor_fusion_bridge::MercyGelReading,
@@ -133,12 +134,25 @@ impl QuantumSwarmOrchestrator {
         let avg_improvement = total_cehi_improvement / agents.len() as f64;
         let new_mercy_valence = (self.mercy_valence + avg_improvement * 0.35).min(0.999);
 
+        // ==================== TOLC + 7 Living Mercy Gates Integration ====================
+        let tolc_input = format!(
+            "Daily swarm cycle | CEHI improvement: {:.4} | Mercy valence: {:.4} | Gates passed: {}",
+            avg_improvement, new_mercy_valence, gates_passed
+        );
+
+        let tolc_result = crate::tolc_seven_mercy_gates::compute_tolc_valence(&tolc_input);
+
+        let final_improvement = if let crate::tolc_seven_mercy_gates::TOLCValenceResult::Veto { .. } = &tolc_result {
+            avg_improvement * 0.6
+        } else {
+            avg_improvement
+        };
+
         // Phase 2: Route through the full QuantumSwarmBridge for geometric coherence
         let _bridge_report = self.bridge
             .run_spine_coordinated_cycle(
                 (new_mercy_valence * 300.0) as u32,
                 new_mercy_valence,
-                // Note: In real usage, pass a real PowrushGame instance here
                 &mut powrush::PowrushGame::default(),
             )
             .await;
@@ -148,11 +162,19 @@ impl QuantumSwarmOrchestrator {
 
         Ok(SwarmCycleReport {
             agents_updated: agents.len(),
-            average_cehi_improvement: avg_improvement,
+            average_cehi_improvement: final_improvement,
             mercy_valence: new_mercy_valence,
             gates_pass_rate: gates_passed as f64 / agents.len() as f64,
             convergence_factor,
             godly_coherence: coherence,
+            tolc_status: match tolc_result {
+                crate::tolc_seven_mercy_gates::TOLCValenceResult::Passed { total_valence, .. } => {
+                    format!("TOLC_PASSED (valence: {:.6})", total_valence)
+                }
+                crate::tolc_seven_mercy_gates::TOLCValenceResult::Veto { total_valence, failed_gates, .. } => {
+                    format!("TOLC_VETO (valence: {:.6}, failed gates: {:?})", total_valence, failed_gates)
+                }
+            },
         })
     }
 }
@@ -177,7 +199,7 @@ impl SwarmAgent {
     }
 }
 
-/// Summary report from one daily swarm cycle (enhanced with bridge coherence).
+/// Summary report from one daily swarm cycle (enhanced with bridge coherence + TOLC status).
 #[derive(Debug, Clone)]
 pub struct SwarmCycleReport {
     pub agents_updated: usize,
@@ -187,6 +209,8 @@ pub struct SwarmCycleReport {
     pub convergence_factor: f64,
     /// Phase 2 addition: Godly Intelligence Coherence from the full bridge
     pub godly_coherence: f64,
+    /// New in v0.5.98+: TOLC + 7 Living Mercy Gates status for every cycle
+    pub tolc_status: String,
 }
 
 #[derive(Debug, thiserror::Error)]
