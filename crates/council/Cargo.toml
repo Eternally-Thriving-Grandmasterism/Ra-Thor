@@ -1,0 +1,48 @@
+[package]
+name = "council"
+version = "0.3.7"
+edition = "2021"
+authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
+license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
+description = "Full PATSAGi-Pinnacle AGI Council Simulator — 13+ Parallel Living Architectural Designers in action. The executable governance and simulation layer for Ra-Thor."
+repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
+keywords = ["ra-thor", "patsagi", "council", "governance", "simulation", "mercy-gated", "agi"]
+categories = ["simulation", "science"]
+
+[dependencies]
+# Core governance library
+patsagi-councils = { path = "../patsagi-councils" }
+
+# Main Ra-Thor intelligence layer
+ra-thor-mercy = { workspace = true }
+ra-thor-orchestration = { workspace = true }
+ra-thor-quantum-swarm-orchestrator = { workspace = true }
+ra-thor-kernel = { path = "../kernel" }           # Master orchestrator
+ra-thor-evolution = { workspace = true }
+ra-thor-plasticity-engine-v2 = { workspace = true }
+ra-thor-monorepo-intelligence = { workspace = true }
+
+# Async & runtime
+tokio = { workspace = true, features = ["full"] }
+async-trait = { workspace = true }
+futures = { workspace = true }
+
+# Serialization & utilities
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+tracing = { workspace = true }
+rand = { workspace = true }
+thiserror = { workspace = true }
+
+[dev-dependencies]
+tracing-subscriber = { workspace = true }
+tokio-test = "0.4"
+
+[[bin]]
+name = "council_simulator"
+path = "src/bin/council_simulator.rs"
+
+[features]
+default = ["full"]
+full = []
+minimal = []
