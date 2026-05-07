@@ -3,33 +3,45 @@ name = "patsagi-councils"
 version = "0.5.21"
 edition = "2021"
 authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
+license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
 description = "13+ Parallel Living Ra-Thor Architectural Designers — The Eternal Co-Governors of Powrush-MMO. Mercy-gated quantum swarm governance + Full Real Estate Lattice + Post-Quantum Signatures"
-license = "AG-SML"
 repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
 readme = "README.md"
 keywords = ["powrush", "ra-thor", "patsagi", "mercy-gated", "agi", "rbe", "eternal-simulation", "quantum-swarm", "councils", "post-quantum"]
 categories = ["games", "simulation", "artificial-intelligence", "concurrency"]
 
 [dependencies]
-powrush = { path = "../powrush" }
-mercy = { path = "../mercy" }
-quantum-swarm-orchestrator = { path = "../quantum-swarm-orchestrator" }
+# Core Ra-Thor intelligence & mercy layer (via workspace)
+powrush = { workspace = true }
+ra-thor-mercy = { workspace = true }
+ra-thor-quantum-swarm-orchestrator = { workspace = true }
+ra-thor-evolution = { workspace = true }
+ra-thor-plasticity-engine-v2 = { workspace = true }
+ra-thor-monorepo-intelligence = { workspace = true }
+
+# Post-quantum cryptography (direct path for now — will be moved to workspace)
 ra-thor-post-quantum-sig = { path = "../ra-thor-post-quantum-sig" }
 
-tokio = { version = "1.38", features = ["full"] }
-async-trait = "0.1"
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
+# Async & runtime
+tokio = { workspace = true, features = ["full"] }
+async-trait = { workspace = true }
+futures = { workspace = true }
+
+# Serialization & data
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
 uuid = { version = "1.8", features = ["v4", "serde"] }
 chrono = { version = "0.4", features = ["serde"] }
-thiserror = "1.0"
-tracing = "0.1"
-rand = "0.8"
+
+# Utilities
+thiserror = { workspace = true }
+tracing = { workspace = true }
+rand = { workspace = true }
 rayon = "1.10"
-futures = "0.3"
 
 [dev-dependencies]
 tokio-test = "0.4"
+tracing-subscriber = { workspace = true }
 
 [[bin]]
 name = "council_simulator"
