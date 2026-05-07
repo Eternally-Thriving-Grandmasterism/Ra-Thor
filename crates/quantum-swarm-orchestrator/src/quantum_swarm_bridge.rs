@@ -1477,4 +1477,4 @@ impl Default for QuantumSwarmBridge {
     fn default() -> Self {
         Self::new()
     }
-        }
+}
