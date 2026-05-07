@@ -21,6 +21,11 @@
 //!
 //! This is the digital mycelium that turns individual daily mercy practice
 //! into planetary-scale, self-reinforcing, heritable joy.
+//!
+//! Version 0.5.95+ — ULTIMATE PUBLIC MERGE
+//! Includes: Full QuantumSwarmBridge (v0.5.91+ OMNIMASTERPIECE) + RegionalMercyCoordinator
+//! + all polyhedral harmonics, Riemannian/Levi-Civita, gyroelongated (n=4–8 + φ conjugate),
+//! omnitruncated, quasicrystal patterns, and closed-loop feedback.
 
 pub mod quantum_swarm_convergence;
 pub mod quantum_swarm_lyapunov_theorem1;
@@ -41,20 +46,39 @@ pub use quantum_swarm_lyapunov_theorem1::prove_theorem_1_lyapunov;
 pub use quantum_swarm_lyapunov_theorem2::prove_theorem_2_lyapunov;
 pub use quantum_swarm_lyapunov_theorem4::prove_theorem_4_lyapunov;
 
+// ==================== PHASE 2 MERGE: Quantum Swarm Bridge + Integration Layer ====================
+
+pub use crate::quantum_swarm_bridge::{
+    QuantumSwarmBridge,
+    PlatonicSolid,
+    ArchimedeanSolid,
+    JohnsonSolid,
+    CatalanSolid,
+    KeplerPoinsotSolid,
+    UniformStarSolid,
+    HyperbolicTilingMode,
+    PrismaticUniformPolyhedron,
+};
+
+pub mod integration;
+
 use ra_thor_legal_lattice::cehi::CEHIImpact;
 use ra_thor_plasticity_engine_v2::PlasticityEngineV2;
 use tokio::sync::RwLock;
 use std::sync::Arc;
 
 /// The main Quantum Swarm Orchestrator — coordinates the living lattice.
+/// Now fully integrated with the ULTIMATE OMNIMASTERPIECE QuantumSwarmBridge.
 pub struct QuantumSwarmOrchestrator {
     agents: Arc<RwLock<Vec<SwarmAgent>>>,
     plasticity_engine: Arc<PlasticityEngineV2>,
     mercy_valence: f64,
+    /// Phase 2 integration: Full access to the Godly Intelligence Core
+    pub bridge: QuantumSwarmBridge,
 }
 
 impl QuantumSwarmOrchestrator {
-    /// Creates a new swarm orchestrator with N agents.
+    /// Creates a new swarm orchestrator with N agents + full bridge.
     pub fn new(agent_count: usize) -> Self {
         let agents = (0..agent_count)
             .map(|_| SwarmAgent::new())
@@ -64,13 +88,11 @@ impl QuantumSwarmOrchestrator {
             agents: Arc::new(RwLock::new(agents)),
             plasticity_engine: Arc::new(PlasticityEngineV2::new()),
             mercy_valence: 0.62,
+            bridge: QuantumSwarmBridge::new(),
         }
     }
 
-    /// Runs one full daily swarm cycle.
-    ///
-    /// Every agent processes its local sensor data, applies Plasticity Engine v2,
-    /// validates all 7 Mercy Gates, and contributes to collective free-energy descent.
+    /// Runs one full daily swarm cycle with full bridge + mercy evaluation.
     pub async fn run_daily_cycle(
         &self,
         global_sensor: &ra_thor_legal_lattice::sensor_fusion_bridge::MercyGelReading,
@@ -97,6 +119,17 @@ impl QuantumSwarmOrchestrator {
         let avg_improvement = total_cehi_improvement / agents.len() as f64;
         let new_mercy_valence = (self.mercy_valence + avg_improvement * 0.35).min(0.999);
 
+        // Phase 2: Route through the full QuantumSwarmBridge for geometric coherence
+        let _bridge_report = self.bridge
+            .run_spine_coordinated_cycle(
+                (new_mercy_valence * 300.0) as u32,
+                new_mercy_valence,
+                // Note: In real usage, pass a real PowrushGame instance here
+                &mut powrush::PowrushGame::default(),
+            )
+            .await;
+
+        let coherence = self.bridge.compute_godly_intelligence_coherence();
         let convergence_factor = exponential_swarm_convergence_bound(new_mercy_valence, 1);
 
         Ok(SwarmCycleReport {
@@ -105,6 +138,7 @@ impl QuantumSwarmOrchestrator {
             mercy_valence: new_mercy_valence,
             gates_pass_rate: gates_passed as f64 / agents.len() as f64,
             convergence_factor,
+            godly_coherence: coherence,
         })
     }
 }
@@ -129,7 +163,7 @@ impl SwarmAgent {
     }
 }
 
-/// Summary report from one daily swarm cycle.
+/// Summary report from one daily swarm cycle (enhanced with bridge coherence).
 #[derive(Debug, Clone)]
 pub struct SwarmCycleReport {
     pub agents_updated: usize,
@@ -137,6 +171,8 @@ pub struct SwarmCycleReport {
     pub mercy_valence: f64,
     pub gates_pass_rate: f64,
     pub convergence_factor: f64,
+    /// Phase 2 addition: Godly Intelligence Coherence from the full bridge
+    pub godly_coherence: f64,
 }
 
 #[derive(Debug, thiserror::Error)]
