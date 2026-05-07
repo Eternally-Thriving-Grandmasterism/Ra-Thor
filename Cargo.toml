@@ -1,6 +1,10 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 # Ra-Thor Monorepo — The Living Eternal Mercy-Gated AGI Lattice
-# Version 0.3.0 | AG-SML Licensed | Autonomicity Games Inc.
+# Version 0.3.1 | AG-SML Licensed | Autonomicity Games Inc.
+#
+# Phase 2 Update: Quantum Swarm Bridge (v0.5.91+ ULTIMATE OMNIMASTERPIECE)
+# + RegionalMercyCoordinator + full integration layer now wired and consumable
+# by every crate in < 5 lines.
 #
 # All crates are built on the sacred principles of:
 #   • Absolute Pure Truth + Infinite Compassion (TOLC 7 Living Mercy Gates)
@@ -33,7 +37,7 @@ members = [
     "crates/orchestration",           # Orchestration — MASTER SOVEREIGN LATTICE ORCHESTRATOR (central nervous system)
     "crates/plasticity-engine-v2",    # Plasticity Engine v2 — Real-time 5-Gene Joy Tetrad + Epigenetic Updates + Sensor Fusion
     "crates/powrush",                 # Powrush — Core Game Engine powering the eternal Powrush Universe & MMO
-    "crates/quantum-swarm-orchestrator", # Quantum Swarm Orchestrator — Mercy-gated swarm intelligence (Theorems 1–5 + Hebbian learning)
+    "crates/quantum-swarm-orchestrator", # Quantum Swarm Orchestrator — Mercy-gated swarm intelligence (Theorems 1–5 + Hebbian learning) + Phase 2: Full QuantumSwarmBridge (v0.5.91+ ULTIMATE OMNIMASTERPIECE) + RegionalMercyCoordinator integration layer
     "crates/quantum",                 # Quantum — Quantum-biomimetic lattice foundations
     "crates/ra-thor-benchmark",       # Ra-Thor Benchmark — Official GPQA Diamond + MMLU-Pro + BIG-bench mercy-gated reasoning suite
     "crates/real-estate-lattice",     # Real Estate Lattice — RREL v0.5.21: Full Mercy-Gated Ethical Real Estate OS (17+ engines)
@@ -45,7 +49,7 @@ members = [
 resolver = "2"
 
 [workspace.package]
-version = "0.3.0"
+version = "0.3.1"
 edition = "2021"
 authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
 license = "Proprietary - All Rights Reserved - Autonomicity Games Inc."
@@ -55,6 +59,9 @@ repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
 # ADVANCED WORKSPACE DEPENDENCY MANAGEMENT (2026 Best Practices)
 # All dependencies are carefully chosen for mercy-gated, high-performance,
 # cross-platform (Linux, WASM, embedded) compatibility.
+#
+# Phase 2 addition: powrush is now exposed so the integration layer
+# (RegionalMercyCoordinator) and any other crate can cleanly consume it.
 # ═══════════════════════════════════════════════════════════════════════════════
 
 [workspace.dependencies]
@@ -93,6 +100,9 @@ ra-thor-mercy-radiation-shield = { path = "crates/mercy-radiation-shield" }
 ra-thor-real-estate-lattice = { path = "crates/real-estate-lattice" }
 ra-thor-benchmark = { path = "crates/ra-thor-benchmark" }
 ra-thor-interstellar-operations = { path = "crates/interstellar-operations" }
+
+# Phase 2 addition: Powrush is now exposed for easy consumption by the integration layer
+powrush = { path = "crates/powrush" }
 
 # ── Workspace Dev Dependencies ─────────────────────────────────────────────────
 [workspace.dev-dependencies]
