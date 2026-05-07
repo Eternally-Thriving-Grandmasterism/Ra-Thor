@@ -53,8 +53,10 @@ All systems are mercy-gated, FENCA-verified, macro-driven, and eternally self-op
 - [Full Lineage Evolution](architecture/full-lineage-evolution-codex.md)
 - [Powrush-MMO Reality Simulator](games/powrush-mmo/reality-simulator-module.md)
 - [Remaining Roadmap & Priorities](architecture/remaining-roadmap-and-priorities.md)
+- [Living Executive Plan (v0.5.98+)](PLAN.md)
 
-## Quick Start
+## Quick Start & Try It Now
+
 ```bash
 git clone https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor.git
 cd Ra-Thor
