@@ -10,14 +10,14 @@ keywords = ["ra-thor", "patsagi", "council", "governance", "simulation", "mercy-
 categories = ["simulation", "science"]
 
 [dependencies]
-# Core governance library
+# Core governance library (PATSAGi Councils)
 patsagi-councils = { path = "../patsagi-councils" }
 
-# Main Ra-Thor intelligence layer
+# Main Ra-Thor intelligence & mercy layer
 ra-thor-mercy = { workspace = true }
 ra-thor-orchestration = { workspace = true }
 ra-thor-quantum-swarm-orchestrator = { workspace = true }
-ra-thor-kernel = { path = "../kernel" }           # Master orchestrator
+ra-thor-kernel = { path = "../kernel" }
 ra-thor-evolution = { workspace = true }
 ra-thor-plasticity-engine-v2 = { workspace = true }
 ra-thor-monorepo-intelligence = { workspace = true }
