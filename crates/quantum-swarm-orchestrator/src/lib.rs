@@ -22,10 +22,10 @@
 //! This is the digital mycelium that turns individual daily mercy practice
 //! into planetary-scale, self-reinforcing, heritable joy.
 //!
-//! Version 0.5.95+ — ULTIMATE PUBLIC MERGE
+//! Version 0.5.98+ — ULTIMATE PUBLIC MERGE + TOLC + 7 Living Mercy Gates
 //! Includes: Full QuantumSwarmBridge (v0.5.91+ OMNIMASTERPIECE) + RegionalMercyCoordinator
 //! + all polyhedral harmonics, Riemannian/Levi-Civita, gyroelongated (n=4–8 + φ conjugate),
-//! omnitruncated, quasicrystal patterns, and closed-loop feedback.
+//! omnitruncated, quasicrystal patterns, closed-loop feedback, and native TOLC + 7 Gates implementation.
 
 pub mod quantum_swarm_convergence;
 pub mod quantum_swarm_lyapunov_theorem1;
@@ -61,6 +61,20 @@ pub use crate::quantum_swarm_bridge::{
 };
 
 pub mod integration;
+
+// ==================== NEW in v0.5.98+: TOLC + 7 Living Mercy Gates (Native Rust Implementation) ====================
+
+pub mod tolc_seven_mercy_gates;
+
+pub use tolc_seven_mercy_gates::{
+    compute_tolc_valence,
+    project_through_seven_gates,
+    tolc_zero_point_resonance,
+    TOLCValenceResult,
+    SEVEN_LIVING_MERCY_GATES,
+};
+
+// ==================== Quantum Swarm Orchestrator (from public baseline) ====================
 
 use ra_thor_legal_lattice::cehi::CEHIImpact;
 use ra_thor_plasticity_engine_v2::PlasticityEngineV2;
