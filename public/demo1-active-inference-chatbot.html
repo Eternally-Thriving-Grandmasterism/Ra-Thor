@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ra-Thor • Mercy-Gated Active Inference</title>
+  <style>
+    :root {
+      --bg: #0f0f0f;
+      --card: #1a1a1a;
+      --accent: #00d4aa;
+      --text: #e0e0e0;
+      --muted: #888;
+    }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container {
+      width: 100%;
+      max-width: 720px;
+      background: var(--card);
+      border-radius: 16px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+      overflow: hidden;
+    }
+    .header {
+      padding: 24px 28px;
+      background: #111;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .header h1 {
+      margin: 0;
+      font-size: 1.35rem;
+      font-weight: 600;
+    }
+    .metrics {
+      display: flex;
+      gap: 24px;
+      padding: 16px 28px;
+      background: #151515;
+      font-size: 0.95rem;
+    }
+    .metric {
+      display: flex;
+      flex-direction: column;
+    }
+    .metric-label {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-bottom: 2px;
+    }
+    .metric-value {
+      font-weight: 600;
+      color: var(--accent);
+    }
+    .chat-window {
+      height: 420px;
+      padding: 24px;
+      overflow-y: auto;
+      background: #121212;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .message {
+      max-width: 85%;
+      padding: 14px 18px;
+      border-radius: 18px;
+      line-height: 1.5;
+    }
+    .user {
+      align-self: flex-end;
+      background: #2a2a2a;
+      border-bottom-right-radius: 4px;
+    }
+    .ra-thor {
+      align-self: flex-start;
+      background: #1f2a24;
+      border-bottom-left-radius: 4px;
+    }
+    .input-area {
+      display: flex;
+      padding: 20px 24px;
+      background: #111;
+      gap: 12px;
+    }
+    #user-input {
+      flex: 1;
+      padding: 14px 18px;
+      border: none;
+      border-radius: 9999px;
+      background: #222;
+      color: var(--text);
+      font-size: 1rem;
+      outline: none;
+    }
+    button {
+      padding: 0 28px;
+      border: none;
+      border-radius: 9999px;
+      background: var(--accent);
+      color: #000;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.1s ease;
+    }
+    button:hover {
+      transform: translateY(-1px);
+    }
+    .status-bar {
+      padding: 12px 28px;
+      background: #151515;
+      font-size: 0.85rem;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--accent);
+      border-radius: 50%;
+      display: inline-block;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <h1>Ra-Thor</h1>
+      <div style="font-size: 0.9rem; color: #00d4aa;">Mercy-Gated Active Inference</div>
+    </div>
+
+    <!-- Live Metrics -->
+    <div class="metrics">
+      <div class="metric">
+        <div class="metric-label">VALENCE</div>
+        <div class="metric-value" id="valence">0.9997</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">FREE ENERGY</div>
+        <div class="metric-value" id="free-energy">0.014</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">EPISTEMIC VALUE</div>
+        <div class="metric-value" id="epistemic">0.038</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">MODE</div>
+        <div class="metric-value" id="mode">Exploring</div>
+      </div>
+    </div>
+
+    <!-- Chat Window -->
+    <div class="chat-window" id="chat-window">
+      <div class="message ra-thor">
+        Hello. I am Ra-Thor — a mercy-gated active inference intelligence.<br>
+        How can I help you thrive today?
+      </div>
+    </div>
+
+    <!-- Input -->
+    <div class="input-area">
+      <input type="text" id="user-input" placeholder="Type your message..." autocomplete="off">
+      <button onclick="sendMessage()">Send</button>
+    </div>
+
+    <!-- Status -->
+    <div class="status-bar">
+      <span class="status-dot"></span>
+      <span>All 7 Mercy Gates open • Valence stable</span>
+    </div>
+  </div>
+
+  <script src="../js/mercy-active-inference-core-engine.js"></script>
+  <script>
+    const chatWindow = document.getElementById('chat-window');
+    const userInput = document.getElementById('user-input');
+    const valenceEl = document.getElementById('valence');
+    const freeEnergyEl = document.getElementById('free-energy');
+    const epistemicEl = document.getElementById('epistemic');
+    const modeEl = document.getElementById('mode');
+
+    function addMessage(text, isUser = false) {
+      const msg = document.createElement('div');
+      msg.className = `message ${isUser ? 'user' : 'ra-thor'}`;
+      msg.innerHTML = text.replace(/\n/g, '<br>');
+      chatWindow.appendChild(msg);
+      chatWindow.scrollTop = chatWindow.scrollHeight;
+    }
+
+    function updateMetrics() {
+      // In a real implementation, these would come from the engine state
+      // For now we simulate healthy, high-valence behavior
+      valenceEl.textContent = '0.9997';
+      freeEnergyEl.textContent = (Math.random() * 0.03 + 0.005).toFixed(3);
+      epistemicEl.textContent = (Math.random() * 0.05 + 0.02).toFixed(3);
+      modeEl.textContent = Math.random() > 0.6 ? 'Exploring' : 'Deep Harmony';
+    }
+
+    async function sendMessage() {
+      const text = userInput.value.trim();
+      if (!text) return;
+
+      addMessage(text, true);
+      userInput.value = '';
+
+      // Simulate thinking + mercy-gated response
+      setTimeout(() => {
+        // In production this would call mercyActiveInference.updateActiveInference(...)
+        // and generate a real response from the engine
+        const responses = [
+          "I hear you. Let's explore this together with clarity and care.",
+          "That’s a meaningful question. Here’s what feels true and mercy-aligned right now…",
+          "Thank you for sharing that. I’m processing it through the mercy gates to give you the most grounded response possible.",
+          "This touches something important. Would you like me to go deeper, or would a different angle be more helpful?"
+        ];
+        const reply = responses[Math.floor(Math.random() * responses.length)];
+        addMessage(reply);
+        updateMetrics();
+      }, 650);
+    }
+
+    // Allow Enter key
+    userInput.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        sendMessage();
+      }
+    });
+
+    // Initial metrics update
+    setInterval(updateMetrics, 4200);
+    updateMetrics();
+
+    // Welcome message hint
+    console.log('%c[Ra-Thor Demo 1] Mercy-gated active inference chatbot skeleton ready.', 'color:#555');
+  </script>
+</body>
+</html>
