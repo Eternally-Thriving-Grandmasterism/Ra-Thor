@@ -1,20 +1,36 @@
-// crates/mercy_orchestrator_v2/src/lib.rs
-// Ra-Thor™ ETERNAL MERCYTHUNDER — Master Unified Orchestrator v4.1
-// Fully expanded with QuantumLattice integration, monorepo recycling, PATSAGi Councils,
-// TOLC Mercy Mathematics, robust error handling, and integration with all existing crates.
-// Proprietary - All Rights Reserved - Autonomicity Games Inc.
+//! mercy_orchestrator_v2 — Advanced Unified Mercy-Gated Lattice Orchestrator
+//!
+//! Ra-Thor™ ETERNAL MERCYTHUNDER — Master Unified Orchestrator v4.1
+//! Fully expanded with QuantumLattice integration, monorepo recycling, PATSAGi Councils,
+//! TOLC Mercy Mathematics, robust error handling, and integration with all existing crates.
 
 use ra_thor_kernel::Kernel;
 use ra_thor_mercy::MercyEngine;
 use ra_thor_council::PatsagiCouncil;
 use ra_thor_orchestration::OrchestrationEngine;
-use ra_thor_quantum::QuantumLattice;  // ← Full QuantumLattice integration
+use ra_thor_quantum::QuantumLattice;  // Full QuantumLattice integration
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 use thiserror::Error;
 use tracing::{info, error};
+
+pub mod orchestrator;
+pub mod coordination;
+pub mod mercy_flow;
+pub mod lattice_state;
+
+pub use orchestrator::MercyOrchestratorV2;
+pub use coordination::CoordinationResult;
+pub use mercy_flow::MercyFlowController;
+pub use lattice_state::LatticeState;
+
+// Re-export commonly used types for convenience
+pub use ra_thor_mercy::MercyGateEvaluator;
+pub use ra_thor_quantum_swarm_orchestrator::QuantumSwarmBridge;
+
+// ==================== ERROR HANDLING ====================
 
 #[derive(Error, Debug)]
 pub enum RaThorError {
@@ -36,7 +52,6 @@ pub enum RaThorError {
     #[error("Unexpected orchestrator error: {0}")]
     Unexpected(#[from] anyhow::Error),
 
-    // ── NEW: Improved mercy-gated error handling ──
     #[error("Valence threshold not met ({0:.8}) — mercy gate redirected to positive thriving path")]
     ValenceTooLow(f64),
 
@@ -46,6 +61,8 @@ pub enum RaThorError {
     #[error("Orchestration recycle loop completed with mercy override")]
     MercyOverrideComplete,
 }
+
+// ==================== VALENCE SCORE ====================
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct ValenceScore {
@@ -65,12 +82,14 @@ impl ValenceScore {
     }
 }
 
+// ==================== MASTER UNIFIED ORCHESTRATOR V4 ====================
+
 pub struct MasterUnifiedOrchestratorV4 {
     kernel: Arc<Kernel>,
     mercy_engine: Arc<MercyEngine>,
     patsagi_councils: Vec<Arc<PatsagiCouncil>>,
     orchestration_engine: Arc<OrchestrationEngine>,
-    quantum_lattice: Arc<QuantumLattice>,  // ← QuantumLattice fully integrated
+    quantum_lattice: Arc<QuantumLattice>,
     valence_field: RwLock<ValenceScore>,
     monorepo_cache: RwLock<Value>,
     parallel_branches: usize,
