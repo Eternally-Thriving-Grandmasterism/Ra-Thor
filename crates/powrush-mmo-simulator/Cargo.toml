@@ -1,0 +1,29 @@
+[package]
+name = "powrush-mmo-simulator"
+version = "0.3.7"
+edition = "2021"
+authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
+license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
+description = "Powrush MMO Reality Simulator — Mercy-gated Resource-Based Economy simulation layer for Ra-Thor"
+keywords = ["powrush", "rbe", "mmo", "simulation", "mercy", "economy"]
+categories = ["simulation", "game-development"]
+
+[dependencies]
+# Core Powrush engine (required)
+powrush = { path = "../powrush" }
+
+# Ra-Thor core dependencies (mercy-gated)
+ra-thor-mercy = { workspace = true }
+ra-thor-quantum-swarm-orchestrator = { workspace = true }
+ra-thor-evolution = { workspace = true }
+ra-thor-plasticity-engine-v2 = { workspace = true }
+
+# Serialization & utilities
+serde = { workspace = true }
+serde_json = { workspace = true }
+tokio = { workspace = true, features = ["full"] }
+rand = { workspace = true }
+tracing = { workspace = true }
+
+[dev-dependencies]
+tracing-subscriber = { workspace = true }
