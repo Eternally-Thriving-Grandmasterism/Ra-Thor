@@ -1,35 +1,45 @@
 [package]
 name = "interstellar-operations"
-version = "0.5.21"
+version = "0.3.9"
 edition = "2021"
 authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
+license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
 description = "Ra-Thor Interstellar Operations — Advanced propulsion, Stargate technologies, hyperspace travel, ZPM energy, and ancient tech integration. Mercy-gated, TOLC 7 Gates aligned, nth-degree radiation protected."
-license = "AG-SML"
 repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
 readme = "README.md"
 keywords = ["ra-thor", "interstellar", "stargate", "propulsion", "hyperspace", "zpm", "ancient-tech", "mercy-gated", "agi"]
 categories = ["simulation", "artificial-intelligence", "games", "science"]
 
 [dependencies]
-powrush = { path = "../powrush" }
-ra-thor-mercy = { path = "../mercy" }
-ra-thor-quantum-swarm-orchestrator = { path = "../quantum-swarm-orchestrator" }
-patsagi-councils = { path = "../patsagi-councils" }
-mercy-radiation-shield = { path = "../mercy-radiation-shield" }
+# Core Ra-Thor dependencies (workspace style for consistency)
+powrush = { workspace = true }
+ra-thor-mercy = { workspace = true }
+ra-thor-quantum-swarm-orchestrator = { workspace = true }
+ra-thor-kernel = { workspace = true }
+ra-thor-council = { workspace = true }
+ra-thor-mercy-orchestrator-v2 = { workspace = true }
+mercy-radiation-shield = { workspace = true }
+patsagi-councils = { workspace = true }
 
-tokio = { version = "1.38", features = ["full"] }
-async-trait = "0.1"
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
-uuid = { version = "1.8", features = ["v4", "serde"] }
-chrono = { version = "0.4", features = ["serde"] }
-thiserror = "1.0"
-tracing = "0.1"
-rand = "0.8"
+tokio = { workspace = true, features = ["full"] }
+async-trait = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+uuid = { workspace = true }
+chrono = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+rand = { workspace = true }
 
 [dev-dependencies]
+tracing-subscriber = { workspace = true }
 tokio-test = "0.4"
 
 [[example]]
 name = "stargate_demo"
 path = "examples/stargate_demo.rs"
+
+[features]
+default = ["full"]
+full = []
+minimal = []
