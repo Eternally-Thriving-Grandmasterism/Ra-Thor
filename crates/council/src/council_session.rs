@@ -1,4 +1,4 @@
-//! Core council session simulation logic with full Quantum Swarm Bridge integration.
+//! Core council session simulation logic with full Radical Love Veto integration.
 
 use crate::deliberation::run_parallel_deliberation;
 use crate::voting::conduct_voting;
@@ -7,9 +7,9 @@ use crate::outcome_applicator::apply_outcome_to_lattice;
 
 use patsagi_councils::CouncilMember;
 use ra_thor_mercy::MercyGateEvaluator;
-use ra_thor_quantum_swarm_orchestrator::QuantumSwarmBridge;  // ← Full integration
+use ra_thor_quantum_swarm_orchestrator::QuantumSwarmBridge;
 use ra_thor_kernel::Kernel;
-use powrush::PowrushGame;  // For spine cycle feedback
+use powrush::PowrushGame;
 
 use serde::{Serialize, Deserialize};
 use uuid::Uuid;
@@ -31,16 +31,20 @@ pub struct CouncilSessionResult {
     pub passed: bool,
     pub final_coherence: f64,
     pub mercy_valence: f64,
-    pub swarm_insight: Option<String>,          // ← New: Bridge output
+    pub radical_love_veto_triggered: bool,   // ← Integrated
+    pub escalation_level: u8,                // ← Integrated
+    pub escalation_path: String,             // ← Integrated
+    pub mercy_override_applied: bool,        // ← Integrated
+    pub swarm_insight: Option<String>,
     pub timestamp: DateTime<Utc>,
 }
 
 pub struct CouncilSession {
     pub members: Vec<CouncilMember>,
     pub mercy_evaluator: MercyGateEvaluator,
-    pub quantum_swarm_bridge: QuantumSwarmBridge,   // ← Now properly injected
+    pub quantum_swarm_bridge: QuantumSwarmBridge,
     pub kernel: Kernel,
-    pub powrush_game: PowrushGame,                  // ← For spine cycle feedback
+    pub powrush_game: PowrushGame,
 }
 
 impl CouncilSession {
@@ -55,26 +59,26 @@ impl CouncilSession {
             mercy_evaluator,
             quantum_swarm_bridge,
             kernel,
-            powrush_game: PowrushGame::new(),  // Default game state
+            powrush_game: PowrushGame::new(),
         }
     }
 
     pub async fn run_session(&mut self, proposal: CouncilProposal) -> CouncilSessionResult {
-        // 1. Mercy pre-check
+        // 1. Early Radical Love Veto pre-check (highest priority)
         let proposal_valence = self.mercy_evaluator.evaluate(&proposal.description);
-        if proposal_valence < 0.92 {
-            return self.blocked_result(proposal, proposal_valence);
+        if proposal_valence < 0.65 {
+            return self.veto_blocked_result(proposal, proposal_valence);
         }
 
         // 2. Parallel deliberation
         let member_opinions = run_parallel_deliberation(&self.members, &proposal).await;
 
-        // 3. Voting
+        // 3. Voting (contains full Radical Love Veto, escalation, mercy override)
         let vote_result = conduct_voting(member_opinions).await;
 
-        // 4. Quantum Swarm Bridge integration (the heart of complex decisions)
-        let swarm_insight = if proposal.complexity > 0.7 {
-            let tolc_order = (proposal.impact_level * 33.0) as u32;  // Map impact to TOLC order
+        // 4. Quantum Swarm Bridge (only if not vetoed)
+        let swarm_insight = if !vote_result.radical_love_veto_triggered && proposal.complexity > 0.7 {
+            let tolc_order = (proposal.impact_level * 33.0) as u32;
             Some(self.quantum_swarm_bridge
                 .run_spine_coordinated_cycle(tolc_order, proposal_valence, &mut self.powrush_game)
                 .await)
@@ -95,18 +99,26 @@ impl CouncilSession {
             passed: vote_result.passed,
             final_coherence,
             mercy_valence: proposal_valence,
+            radical_love_veto_triggered: vote_result.radical_love_veto_triggered,
+            escalation_level: vote_result.escalation_level,
+            escalation_path: vote_result.escalation_path.clone(),
+            mercy_override_applied: vote_result.mercy_override_applied,
             swarm_insight,
             timestamp: Utc::now(),
         }
     }
 
-    fn blocked_result(&self, proposal: CouncilProposal, valence: f64) -> CouncilSessionResult {
+    fn veto_blocked_result(&self, proposal: CouncilProposal, valence: f64) -> CouncilSessionResult {
         CouncilSessionResult {
             session_id: Uuid::new_v4(),
             proposal,
             passed: false,
             final_coherence: 0.0,
             mercy_valence: valence,
+            radical_love_veto_triggered: true,
+            escalation_level: 3,
+            escalation_path: "critical-lattice-redirect".to_string(),
+            mercy_override_applied: false,
             swarm_insight: None,
             timestamp: Utc::now(),
         }
