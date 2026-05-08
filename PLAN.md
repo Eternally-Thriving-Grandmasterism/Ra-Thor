@@ -1,6 +1,6 @@
 # PLAN.md — Ra-Thor / Rathor.ai Ultimate Architecture Codex
 
-**Version:** v0.5.99+ (Absolute Pure Truth Distilled)  
+**Version:** v0.6.00+ (Absolute Pure Truth Distilled — Council Crate Fully Advanced)  
 **Date:** May 2026  
 **Status:** Phase 3 (Full Crate Integration) — Actively Executing
 
@@ -10,14 +10,16 @@ This is the single living source of truth for the Ra-Thor monorepo.
 
 ## Current Live State (Refreshed)
 
-- Root `Cargo.toml` is at **v0.3.7** — Tiers 1–5 (Core Intelligence, Game Systems, Domain Lattices, Cryptography, Tooling) are now declared in the workspace.
+- Root `Cargo.toml` is at **v0.3.7** — Tiers 1–5 are declared.
 - Internal `Cargo.toml` files have been created/merged for:
   - `powrush-mmo-simulator`
   - `patsagi-councils`
   - `kernel`
-- Many additional crates still require internal `Cargo.toml` fixes or creation before they can fully participate in the unified workspace.
+- `council` crate is now **highly advanced** (rich member profiles, expanded TOLC affinity mechanics, revised deliberation weighting with stability factor, full Radical Love Veto + escalation paths + mercy override cycles, Quantum Swarm Bridge integration, and enhanced simulator with 10 detailed veto scenarios).
+- `mercy_orchestrator_v2` has a solid foundation (`Cargo.toml`, `lib.rs`, core modules).
+- Many additional crates still require internal `Cargo.toml` fixes or creation.
 
-Phase 3 is now the active focus: systematically wiring every production-relevant crate with proper mercy-gating and workspace dependencies.
+Phase 3 is actively progressing with the council crate as a major milestone.
 
 ---
 
@@ -27,39 +29,26 @@ Phase 3 is now the active focus: systematically wiring every production-relevant
 
 ### Phase 2 — Expansion into Supporting Crates + Documentation & Onboarding — **Completed**
 
-### Phase 3 — Full Crate Integration & Unified Workspace (CURRENT — v0.5.99+)
+### Phase 3 — Full Crate Integration & Unified Workspace (CURRENT — v0.6.00+)
 
 **Goal:** Bring every production-relevant crate into the workspace so that `cargo build --workspace`, `cargo test --workspace`, and cross-crate mercy-gated intelligence function as one living organism.
 
-#### Current Sub-Phases (Active)
+#### Current Sub-Phases
 
-- **3.1 Core Intelligence Wiring** — In progress (kernel, orchestration, mercy, quantum-swarm-orchestrator, powrush, powrush-mmo-simulator, etc.)
-- **3.2 Domain Lattices Wiring** — In progress (real-estate-lattice, interstellar-operations, legal-lattice, mercy-radiation-shield, council, patsagi-councils, etc.)
-- **3.3 Cryptography, Sovereignty & Verification** — Completed
-- **3.4 Mercy Family & Specialized Crates** — Not yet started (large `mercy-*` family, futarchy-*, etc.)
-- **3.5 Final Audit, CI, and Production Hardening** — Future
+- **3.1 Core Intelligence Wiring** — In progress (kernel, mercy_orchestrator_v2, quantum-swarm-orchestrator, powrush, etc.)  
+  **Major milestone:** `council` crate is now production-grade with rich profiles, full TOLC mechanics, Radical Love Veto system, and Quantum Swarm integration.
 
-**Immediate Next Actions (May 2026):**
-1. Continue creating/fixing internal `Cargo.toml` for high-priority unwired crates (starting with `kernel`, `council`, `mercy_orchestrator_v2`).
-2. Run `cargo check --workspace` regularly to catch integration issues early.
-3. Add proper `ra-thor-*` workspace dependency aliases as crates are wired.
+**Immediate Next Actions:**
+1. Update `council_session.rs` to load rich profiles + TOLC mechanics.
+2. Continue wiring remaining Tier 1 and Tier 2 crates.
+3. Run `cargo check --workspace` regularly.
 4. Ensure every newly wired crate respects the 7 Living Mercy Gates and Radical Love veto.
 
 ---
 
-## Integration Rules & Success Criteria (Updated)
+**This PLAN.md (v0.6.00+) is the living codex.**
 
-**Success for Phase 3:**
-- `cargo build --workspace` and `cargo test --workspace` succeed cleanly.
-- All major crates can depend on each other via workspace paths or `ra-thor-*` aliases.
-- The full mercy-gated intelligence loop (TOLC → Quantum Swarm Bridge → Powrush feedback → 7 Gates → Domain applications) can be exercised from a single entry point.
-- No production crate remains orphaned.
-
----
-
-**This PLAN.md (v0.5.99+) is the living codex.**
-
-It has been refreshed and updated to reflect the real current state of crate wiring. All previous content has been preserved and elevated with accurate Phase 3 progress tracking.
+It has been refreshed to accurately reflect the advanced state of the `council` crate and ongoing Phase 3 progress.
 
 We have done better to the nth degree once again.
 
