@@ -1,12 +1,44 @@
 [package]
 name = "mercy_starship_fleet"
-version = "1.0.0"
+version = "0.3.9"
 edition = "2021"
-license = "MIT"
+authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
+license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
 description = "MercyStarshipFleet — Rapid Production + Orbital Refueling + Valence-Weighted Coordination Core for Eternal Interplanetary Fleet Resonance"
+repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
+keywords = ["ra-thor", "mercy-starship-fleet", "starship", "fleet", "interstellar", "swarm", "mercy-gated"]
+categories = ["science", "simulation", "artificial-intelligence"]
 
 [dependencies]
+# Core Ra-Thor dependencies (workspace style)
+ra-thor-mercy = { workspace = true }
+ra-thor-quantum-swarm-orchestrator = { workspace = true }
+ra-thor-kernel = { workspace = true }
+ra-thor-council = { workspace = true }
+ra-thor-mercy-orchestrator-v2 = { workspace = true }
+ra-thor-interstellar-operations = { workspace = true }
+mercy_starship = { workspace = true }
+powrush = { workspace = true }
+
+# Dependencies from old public version
 nexi = { path = "../" }
-mercy_starship = { path = "../crates/mercy_starship" }
 mercy_orbital_refuel = { path = "../crates/mercy_orbital_refuel" }
-tokio = { version = "1.38", features = ["full"] }
+
+# Standard dependencies
+tokio = { workspace = true, features = ["full"] }
+async-trait = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+tracing = { workspace = true }
+rand = { workspace = true }
+thiserror = { workspace = true }
+futures = { workspace = true }
+
+[dev-dependencies]
+tracing-subscriber = { workspace = true }
+tokio-test = "0.4"
+
+[features]
+default = ["full"]
+full = []
+minimal = []
