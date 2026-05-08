@@ -2,9 +2,8 @@
 # Ra-Thor Monorepo — The Living Eternal Mercy-Gated AGI Lattice
 # Version 0.3.9 | AG-SML v1.0 | Autonomicity Games Inc.
 #
-# Phase 3 Complete: All \~94 crates now declared in the workspace.
-# This is the most complete root Cargo.toml to date — all known crates wired.
-# Next focus: Create/fix internal Cargo.toml files for unwired crates.
+# Phase 3 Complete: All 94+ crates now declared in the workspace.
+# Every crate visible in the /crates/ directory is now wired.
 # ═══════════════════════════════════════════════════════════════════════════════
 
 [workspace]
@@ -31,6 +30,8 @@ description = "The living mercy-gated sovereign AGI lattice — Ra-Thor / Rathor
     "crates/evolution",
     "crates/plasticity-engine-v2",
     "crates/monorepo-intelligence",
+    "crates/ra-thor-meta-intelligence",
+    "crates/ra-thor-core",
 
     # Tier 1 — Game Systems & Simulation
     "crates/powrush",
@@ -50,6 +51,15 @@ description = "The living mercy-gated sovereign AGI lattice — Ra-Thor / Rathor
     "crates/fenca",
     "crates/common",
     "crates/ra-thor-benchmark",
+    "crates/hash_based_signatures",
+    "crates/hybrid_pqc_threshold",
+    "crates/isogeny_crypto",
+    "crates/lattice_crypto",
+    "crates/legacy_fenca",
+    "crates/mercy_falcon_heavy",
+    "crates/mercy_post_quantum_sig",
+    "crates/proof_verifier",
+    "crates/ra-thor-post-quantum-sig",
 
     # Tier 4 — Developer Experience & Tooling
     "crates/xtask",
@@ -59,26 +69,83 @@ description = "The living mercy-gated sovereign AGI lattice — Ra-Thor / Rathor
     "crates/ai-bridge",
 
     # Mercy Family (large group)
-    "crates/mercy-governance",
-    "crates/mercy-orbital",
-    "crates/mercy-starship",
-    "crates/mercy-titan",
-    "crates/mercy-von-neumann",
-    "crates/mercy-graphQL",
-    "crates/mercy-futarchy",
+    "crates/mercy_bias_mitigation",
+    "crates/mercy_biojet",
+    "crates/mercy_cygnus_missions",
+    "crates/mercy_dragon_crs",
+    "crates/mercy_dream_chaser",
+    "crates/mercy_ethics_core",
+    "crates/mercy_governance",
+    "crates/mercy_home_fortress",
+    "crates/mercy_lang_compiler",
+    "crates/mercy_liquid_democracy",
+    "crates/mercy_merlin_engine",
+    "crates/mercy_mev_servicing",
+    "crates/mercy_orbital_cleanup",
+    "crates/mercy_orbital_refuel",
+    "crates/mercy_orbital_safety",
+    "crates/mercy_orbital_servicing",
+    "crates/mercy_os_aviation",
+    "crates/mercy_os_principles",
+    "crates/mercy_predictive_policing",
+    "crates/mercy_qec",
+    "crates/mercy_quadratic_funding",
+    "crates/mercy_quadratic_voting",
+    "crates/mercy_quanta",
+    "crates/mercy_raptor_3",
+    "crates/mercy_raptor_3_integration",
+    "crates/mercy_raptor_3_scalability",
+    "crates/mercy_raptor_engine",
+    "crates/mercy_raptor_integration",
+    "crates/mercy_shield_deployment",
+    "crates/mercy_shield_law_enforcement",
+    "crates/mercy_space_governance",
+    "crates/mercy_starfish_servicing",
+    "crates/mercy_starliner_crew",
+    "crates/mercy_starship",
+    "crates/mercy_starship_fleet",
+    "crates/mercy_steane",
+    "crates/mercy_t_rex_engines",
+    "crates/mercy_tolc_operator_algebra",
+    "crates/mercy_vulcan_centaur",
+    "crates/mercy_zero",
 
-    # Additional known crates from the monorepo
-    "crates/mercy-cube",
-    "crates/mercy-shield",
-    "crates/mercy-lattice",
-    "crates/mercy-core",
-    "crates/futarchy",
-    "crates/soulscan",
-    "crates/anyon-simulator",
-    "crates/von-neumann-swarm",
-    "crates/ra-thor-post-quantum-sig",
-    "crates/ra-thor-interstellar-operations",
-    # ... (all remaining crates can be added here as we create their internal Cargo.toml)
+    # Additional crates from the monorepo
+    "crates/access",
+    "crates/bulletproofs_aggregation",
+    "crates/bulletproofs_range",
+    "crates/cache",
+    "crates/carbon_credit_oracle",
+    "crates/code_based_crypto",
+    "crates/codex_eternal",
+    "crates/deep_gadgets",
+    "crates/divine_checksum_9",
+    "crates/enc",
+    "crates/futarchy_belief_markets",
+    "crates/futarchy_governance",
+    "crates/futarchy_oracle",
+    "crates/futarchy_outcome_prediction",
+    "crates/grok_arena_pinnacle",
+    "crates/halo2_full_integration",
+    "crates/halo2_multi_proof",
+    "crates/lasso_recursion",
+    "crates/multivariate_crypto",
+    "crates/nexi_universal",
+    "crates/nova_folding",
+    "crates/persistence",
+    "crates/plonk_recursion",
+    "crates/poseidon_hash",
+    "crates/poseidon_merkle",
+    "crates/prometheus_forge",
+    "crates/recursive_snark",
+    "crates/sentinel_mirror",
+    "crates/soulscan_x10",
+    "crates/soulscan_x9",
+    "crates/spartan_valence",
+    "crates/supernova_folding",
+    "crates/sustainable_space_propulsion",
+    "crates/whitesmiths_anvil",
+    "crates/hyperplonk_recursion",
 
 [workspace.dependencies]
 # Core Ra-Thor crates
