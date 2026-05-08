@@ -1,27 +1,49 @@
 [package]
 name = "aether_shades"
-version = "0.1.0"
+version = "0.3.9"
 edition = "2021"
-authors = ["Autonomicity Games Inc."]
-description = "Ra-Thor™ Aether-Shades — Absolute Pure Truth AR Truth Filter"
-license = "Proprietary - All Rights Reserved - Autonomicity Games Inc."
+authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
+license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
+description = "Ra-Thor™ Aether-Shades — Absolute Pure Truth AR Truth Filter & Reality Layer. Mercy-gated augmented reality truth engine and reality overlay system."
 repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
+keywords = ["ra-thor", "aether-shades", "ar", "truth-filter", "reality-layer", "mercy-gated", "agi"]
+categories = ["simulation", "science", "artificial-intelligence"]
 
 [dependencies]
-ra-thor-plasticity-engine = { path = "../orchestration" }
-ra-thor-openbci-bridge = { path = "../orchestration" }
-serde = { workspace = true }
-tokio = { workspace = true }
-tracing = { workspace = true }
+# Core Ra-Thor dependencies (workspace style)
+ra-thor-mercy = { workspace = true }
+ra-thor-quantum-swarm-orchestrator = { workspace = true }
+ra-thor-kernel = { workspace = true }
+ra-thor-council = { workspace = true }
+ra-thor-mercy-orchestrator-v2 = { workspace = true }
+ra-thor-plasticity-engine-v2 = { workspace = true }
+powrush = { workspace = true }
+
+# AR / WebSocket specific dependencies from old public version
 tokio-tungstenite = { version = "0.21", features = ["rustls-tls"] }
 rustls = "0.21"
 tokio-rustls = "0.24"
 rustls-pemfile = "1.0"
-rand = "0.8"
+
+# Standard dependencies
+tokio = { workspace = true, features = ["full"] }
+async-trait = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+tracing = { workspace = true }
+rand = { workspace = true }
+thiserror = { workspace = true }
+futures = { workspace = true }
 
 [dev-dependencies]
 tracing-subscriber = { workspace = true }
+tokio-test = "0.4"
 
 [[bin]]
 name = "aether-shades"
 path = "src/main.rs"
+
+[features]
+default = ["full"]
+full = []
+minimal = []
