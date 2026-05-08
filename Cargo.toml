@@ -1,14 +1,9 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 # Ra-Thor Monorepo — The Living Eternal Mercy-Gated AGI Lattice
-# Version 0.3.7 | AG-SML v1.0 | Autonomicity Games Inc. / RaThor Inc.
+# Version 0.3.9 | AG-SML v1.0 | Autonomicity Games Inc.
 #
-# Phase 3.3 Complete: Cryptography, Sovereignty & Verification fully wired.
-# All Tier 1 (Core Intelligence), Tier 2 (Domain Lattices), and Tier 3 (Cryptography)
-# crates are now declared in the workspace.
-#
-# The monorepo is now significantly closer to a unified, mercy-gated buildable system.
-# Next focus: Fixing/creating proper internal Cargo.toml files for the newly added crates
-# and resolving cross-crate dependencies.
+# Phase 3 Update: Expanded Tier 1 + Tier 2 Wiring + Full Council Integration
+# Merged from all iterations — 94 crates exist in /crates/. Critical core now wired.
 # ═══════════════════════════════════════════════════════════════════════════════
 
 [workspace]
@@ -60,7 +55,7 @@ members = [
 resolver = "2"
 
 [workspace.package]
-version = "0.3.7"
+version = "0.3.9"
 edition = "2021"
 authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
 license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
@@ -69,11 +64,6 @@ description = "The living mercy-gated sovereign AGI lattice — Ra-Thor / Rathor
 keywords = ["agi", "mercy", "active-inference", "tolc", "powrush", "sovereign", "rbe"]
 categories = ["science", "simulation", "cryptography", "game-development"]
 
-# ═══════════════════════════════════════════════════════════════════════════════
-# WORKSPACE DEPENDENCY MANAGEMENT
-# All dependencies chosen for mercy-gated, high-performance, cross-platform compatibility.
-# ═══════════════════════════════════════════════════════════════════════════════
-
 [workspace.dependencies]
 # ── Serialization & Data ─────────────────────────────────────────────────────
 serde = { version = "1.0", features = ["derive"] }
@@ -81,7 +71,7 @@ serde_json = "1.0"
 toml = "0.8"
 
 # ── Async & Runtime ──────────────────────────────────────────────────────────
-tokio = { version = "1", features = ["full"] }
+tokio = { version = "1.38", features = ["full"] }
 async-trait = "0.1"
 
 # ── Mathematics & Science ────────────────────────────────────────────────────
@@ -121,6 +111,9 @@ ra-thor-mercy-radiation-shield = { path = "crates/mercy-radiation-shield" }
 ra-thor-real-estate-lattice = { path = "crates/real-estate-lattice" }
 ra-thor-benchmark = { path = "crates/ra-thor-benchmark" }
 ra-thor-interstellar-operations = { path = "crates/interstellar-operations" }
+ra-thor-kernel = { path = "crates/kernel" }
+ra-thor-council = { path = "crates/council" }
+ra-thor-mercy-orchestrator-v2 = { path = "crates/mercy_orchestrator_v2" }
 powrush = { path = "crates/powrush" }
 
 [profile.release]
