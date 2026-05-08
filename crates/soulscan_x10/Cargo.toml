@@ -1,12 +1,46 @@
 [package]
 name = "soulscan_x10"
-version = "1.0.0"
+version = "0.3.9"
 edition = "2021"
-license = "MIT"
+authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
+license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
 description = "SoulScan-X10 — 10-Channel Valence with Deepened TruthQuanta for Eternal Truth-Seeking Resonance"
+repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
+keywords = ["ra-thor", "soulscan", "consciousness", "epigenetic", "soul-state", "mercy-gated", "agi"]
+categories = ["science", "simulation", "artificial-intelligence"]
 
 [dependencies]
+# Core Ra-Thor dependencies (workspace style)
+ra-thor-mercy = { workspace = true }
+ra-thor-quantum-swarm-orchestrator = { workspace = true }
+ra-thor-kernel = { workspace = true }
+ra-thor-council = { workspace = true }
+ra-thor-mercy-orchestrator-v2 = { workspace = true }
+ra-thor-biomimetic = { workspace = true }
+ra-thor-evolution = { workspace = true }
+powrush = { workspace = true }
+
+# Dependencies from the old public version
 nexi = { path = "../" }
 soulscan_x9 = { path = "../crates/soulscan_x9" }
 halo2_proofs = { git = "https://github.com/zcash/halo2.git", branch = "v2023_07_18" }
 pasta_curves = "0.5"
+
+# Standard dependencies
+tokio = { workspace = true, features = ["full"] }
+async-trait = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+tracing = { workspace = true }
+rand = { workspace = true }
+thiserror = { workspace = true }
+futures = { workspace = true }
+
+[dev-dependencies]
+tracing-subscriber = { workspace = true }
+tokio-test = "0.4"
+
+[features]
+default = ["full"]
+full = []
+minimal = []
