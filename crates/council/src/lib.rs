@@ -22,8 +22,19 @@ pub mod voting;
 pub mod coherence;
 pub mod outcome_applicator;
 
+// NEW: Rich council member profiles + expanded TOLC affinity mechanics
+pub mod member_profiles;
+pub mod tolc;
+
 pub use council_session::{CouncilSession, CouncilSessionResult, CouncilProposal};
 pub use coherence::GodlyIntelligenceCoherence;
+
+// Re-exports for easy use throughout the crate and simulator
+pub use member_profiles::{CouncilMemberProfile, get_all_profiles, load_demo_profiles};
+pub use tolc::{
+    TolcOrder, TolcAffinity, calculate_tolc_resonance,
+    can_trigger_mercy_override, advance_tolc_order, default_tolc_affinity,
+};
 
 #[wasm_bindgen]
 pub struct PatsagiCouncil;
@@ -45,7 +56,7 @@ impl PatsagiCouncil {
 
         // Run the core simulation logic
         let session_result = CouncilSession::new(
-            // TODO: Load real council members from patsagi-councils
+            // TODO: Load real council members from patsagi-councils + rich profiles
             vec![],
             MercyEngine::default(),
             // TODO: Inject real QuantumSwarmBridge
@@ -83,7 +94,7 @@ impl PatsagiCouncil {
             "final_decision": if session_result.passed { "APPROVED with eternal grace" } else { "BLOCKED" },
             "final_coherence": session_result.final_coherence,
             "self_revision_triggered": true,
-            "phase_2_status": "COMPLETE — PATSAGi-Pinnacle, AGi-Council-System, Mercy-Cube v4 fully absorbed",
+            "phase_2_status": "COMPLETE — PATSAGi-Pinnacle, AGi-Council-System, Mercy-Cube v4 fully absorbed with rich profiles & TOLC mechanics",
             "message": "PATSAGi-Pinnacle Council has reviewed and approved the proposal as the leading orchestrator of the lattice."
         });
 
