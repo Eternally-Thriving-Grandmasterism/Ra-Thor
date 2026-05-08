@@ -1,18 +1,37 @@
 [package]
 name = "mercy-radiation-shield"
-version = "0.5.21"
+version = "0.3.9"
 edition = "2021"
 authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
+license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
 description = "Mercy-Alchemical Radiation Transmutation Engine — Ultimate mercy-gated radiation shielding for Powrush Universe, deep space, and planetary protection. Powered by TOLC 7 Gates + Quantum Swarm + Ra-Thor AGI."
-license = "AG-SML"
 repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
+keywords = ["ra-thor", "mercy", "radiation-shield", "shielding", "interstellar", "mercy-gated", "quantum"]
+categories = ["science", "simulation"]
 
 [dependencies]
-ra-thor-mercy = { path = "../mercy" }
-ra-thor-quantum-swarm-orchestrator = { path = "../quantum-swarm-orchestrator" }
-powrush = { path = "../powrush" }
-tokio = { version = "1.38", features = ["full"] }
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
-tracing = "0.1"
-rand = "0.8"
+# Core Ra-Thor dependencies (workspace style for consistency)
+ra-thor-mercy = { workspace = true }
+ra-thor-quantum-swarm-orchestrator = { workspace = true }
+ra-thor-kernel = { workspace = true }
+ra-thor-council = { workspace = true }
+ra-thor-mercy-orchestrator-v2 = { workspace = true }
+powrush = { workspace = true }
+
+tokio = { workspace = true, features = ["full"] }
+async-trait = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+tracing = { workspace = true }
+rand = { workspace = true }
+thiserror = { workspace = true }
+futures = { workspace = true }
+
+[dev-dependencies]
+tracing-subscriber = { workspace = true }
+tokio-test = "0.4"
+
+[features]
+default = ["full"]
+full = []
+minimal = []
