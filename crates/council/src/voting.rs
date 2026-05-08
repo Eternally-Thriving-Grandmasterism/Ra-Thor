@@ -1,8 +1,8 @@
-//! voting.rs — Advanced Mercy-Gated Voting Aggregation + Quorum Override + Veto Escalation + Mercy Override Cycles
+//! voting.rs — Advanced Mercy-Gated Voting Aggregation + Quorum Override + Veto Escalation + Refined Mercy Override Logic
 //!
 //! Full collective voting with weighted aggregation, Radical Love veto,
-//! quorum rules, veto escalation, AND mercy override cycles that attempt
-//! to find a thriving-maximized path after a veto or low-coherence vote.
+//! quorum rules, veto escalation, AND refined mercy override cycles that
+//! seek the highest-joy, truth-aligned path when possible.
 
 use crate::deliberation::MemberOpinion;
 use ra_thor_mercy::MercyGateEvaluator;
@@ -21,15 +21,16 @@ pub struct VoteResult {
     pub veto_escalated: bool,
     pub escalation_level: u8,           // 0 = none, 1 = mild, 2 = moderate, 3 = critical
     pub escalation_reason: Option<String>,
-    pub mercy_override_cycles: u8,      // Number of mercy override cycles attempted
+    pub mercy_override_cycles: u8,
     pub mercy_override_applied: bool,
+    pub mercy_override_score: f64,      // 0.0–1.0 — refined composite mercy override metric
     pub mercy_override_reason: Option<String>,
     pub final_decision: String,
     pub weighted_support: f64,
     pub overall_valence: f64,
 }
 
-/// Conducts full voting aggregation with mercy override cycles.
+/// Conducts full voting aggregation with refined mercy override logic.
 pub async fn conduct_voting(opinions: Vec<MemberOpinion>) -> VoteResult {
     let mercy_evaluator = MercyGateEvaluator::default();
     let total_members = opinions.len() as u32;
@@ -63,7 +64,7 @@ pub async fn conduct_voting(opinions: Vec<MemberOpinion>) -> VoteResult {
     // Standard quorum
     let standard_quorum_met = (yes as f64 / total_members as f64) >= quorum_threshold;
 
-    // Quorum override
+    // Quorum override (unchanged)
     let mut quorum_overridden = false;
     let mut override_reason: Option<String> = None;
     if !standard_quorum_met {
@@ -80,7 +81,7 @@ pub async fn conduct_voting(opinions: Vec<MemberOpinion>) -> VoteResult {
     }
     let quorum_met = standard_quorum_met || quorum_overridden;
 
-    // Veto escalation
+    // Veto escalation (unchanged)
     let mut veto_escalated = false;
     let mut escalation_level: u8 = 0;
     let mut escalation_reason: Option<String> = None;
@@ -98,30 +99,33 @@ pub async fn conduct_voting(opinions: Vec<MemberOpinion>) -> VoteResult {
         }
     }
 
-    // === MERCY OVERRIDE CYCLES ===
+    // === REFINED MERCY OVERRIDE LOGIC ===
     let mut mercy_override_cycles: u8 = 0;
     let mut mercy_override_applied = false;
+    let mut mercy_override_score: f64 = 0.0;
     let mut mercy_override_reason: Option<String> = None;
 
-    if radical_love_veto || !quorum_met || weighted_support < 0.72 || overall_valence < 0.92 {
-        // Attempt up to 2 mercy override cycles
+    // Calculate refined mercy override score (composite of valence, support, and max individual alignment)
+    mercy_override_score = (overall_valence * 0.55) + (weighted_support * 0.30) + (max_valence * 0.15);
+    mercy_override_score = mercy_override_score.clamp(0.0, 1.0);
+
+    if (radical_love_veto || !quorum_met || weighted_support < 0.72 || overall_valence < 0.92) && mercy_override_score >= 0.985 {
+        // Attempt up to 2 refined mercy override cycles
         for cycle in 1..=2 {
             mercy_override_cycles = cycle;
 
-            // Mercy override condition (exceptional collective valence + TOLC resonance)
-            if overall_valence >= 0.995 && max_valence >= 0.999 {
+            // Refined override conditions (philosophically aligned)
+            if mercy_override_score >= 0.992 {
                 mercy_override_applied = true;
                 mercy_override_reason = Some(format!(
-                    "Mercy override cycle {} activated — exceptional collective valence (≥0.995) and perfect Radical Love alignment",
-                    cycle
+                    "Mercy override cycle {} — exceptional collective mercy alignment (score {:.4})",
+                    cycle, mercy_override_score
                 ));
                 break;
-            }
-            // Strong TOLC + mercy consensus override
-            else if weighted_support >= 0.90 && overall_valence >= 0.985 {
+            } else if mercy_override_score >= 0.987 && max_valence >= 0.999 {
                 mercy_override_applied = true;
                 mercy_override_reason = Some(format!(
-                    "Mercy override cycle {} activated — exceptional TOLC resonance and mercy consensus",
+                    "Mercy override cycle {} — near-perfect individual Radical Love resonance",
                     cycle
                 ));
                 break;
@@ -129,7 +133,7 @@ pub async fn conduct_voting(opinions: Vec<MemberOpinion>) -> VoteResult {
         }
     }
 
-    // Final decision with mercy override applied
+    // Final decision with refined mercy override applied
     let passed = if radical_love_veto && !mercy_override_applied {
         false
     } else {
@@ -145,7 +149,7 @@ pub async fn conduct_voting(opinions: Vec<MemberOpinion>) -> VoteResult {
             "BLOCKED by Radical Love veto — thriving-maximized redirect activated".to_string()
         }
     } else if mercy_override_applied {
-        format!("APPROVED via mercy override cycle {} — {}", mercy_override_cycles, mercy_override_reason.as_ref().unwrap())
+        format!("APPROVED via mercy override cycle {} (score {:.4}) — {}", mercy_override_cycles, mercy_override_score, mercy_override_reason.as_ref().unwrap())
     } else if passed {
         if quorum_overridden {
             "APPROVED with mercy-gated quorum override".to_string()
@@ -174,6 +178,7 @@ pub async fn conduct_voting(opinions: Vec<MemberOpinion>) -> VoteResult {
         escalation_reason,
         mercy_override_cycles,
         mercy_override_applied,
+        mercy_override_score,
         mercy_override_reason,
         final_decision: decision,
         weighted_support,
