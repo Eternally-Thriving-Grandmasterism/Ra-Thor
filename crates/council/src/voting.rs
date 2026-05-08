@@ -1,7 +1,7 @@
-//! voting.rs — Advanced Mercy-Gated Voting Aggregation + Quorum Override + Veto Escalation Paths
+//! voting.rs — Advanced Mercy-Gated Voting Aggregation + Quorum Override + Veto Escalation Paths + Refined Mercy Override
 //!
 //! Full collective voting with weighted aggregation, Radical Love veto,
-//! quorum rules, mercy override cycles, AND distinct veto escalation paths.
+//! quorum rules, veto escalation, mercy override cycles, and revised thresholds.
 
 use crate::deliberation::MemberOpinion;
 use ra_thor_mercy::MercyGateEvaluator;
@@ -18,8 +18,8 @@ pub struct VoteResult {
     pub quorum_overridden: bool,
     pub override_reason: Option<String>,
     pub veto_escalated: bool,
-    pub escalation_level: u8,           // 0 = none, 1 = mild, 2 = moderate, 3 = critical
-    pub escalation_path: String,        // Clear description of the path taken
+    pub escalation_level: u8,
+    pub escalation_path: String,
     pub escalation_reason: Option<String>,
     pub mercy_override_cycles: u8,
     pub mercy_override_applied: bool,
@@ -30,7 +30,7 @@ pub struct VoteResult {
     pub overall_valence: f64,
 }
 
-/// Conducts full voting aggregation with distinct veto escalation paths.
+/// Conducts full voting aggregation with revised, balanced Radical Love Veto thresholds.
 pub async fn conduct_voting(opinions: Vec<MemberOpinion>) -> VoteResult {
     let mercy_evaluator = MercyGateEvaluator::default();
     let total_members = opinions.len() as u32;
@@ -53,7 +53,10 @@ pub async fn conduct_voting(opinions: Vec<MemberOpinion>) -> VoteResult {
         total_valence += opinion.valence;
         if opinion.valence > max_valence { max_valence = opinion.valence; }
 
-        if opinion.support_level < 0.25 && opinion.valence < 0.65 {
+        // REVISED RADICAL LOVE VETO THRESHOLD
+        // Support < 0.32 AND valence < 0.68 triggers veto
+        // This makes vetoes rare but absolute when they occur (Radical Love principle)
+        if opinion.support_level < 0.32 && opinion.valence < 0.68 {
             radical_love_veto = true;
         }
     }
@@ -61,7 +64,7 @@ pub async fn conduct_voting(opinions: Vec<MemberOpinion>) -> VoteResult {
     let weighted_support = total_weighted_support / opinions.len() as f64;
     let overall_valence = total_valence / opinions.len() as f64;
 
-    // Standard quorum + override (unchanged)
+    // Standard quorum + override logic (unchanged)
     let standard_quorum_met = (yes as f64 / total_members as f64) >= quorum_threshold;
     let mut quorum_overridden = false;
     let mut override_reason: Option<String> = None;
@@ -79,7 +82,7 @@ pub async fn conduct_voting(opinions: Vec<MemberOpinion>) -> VoteResult {
     }
     let quorum_met = standard_quorum_met || quorum_overridden;
 
-    // === VETO ESCALATION PATHS ===
+    // Veto escalation paths (unchanged)
     let mut veto_escalated = false;
     let mut escalation_level: u8 = 0;
     let mut escalation_path = "none".to_string();
@@ -87,22 +90,18 @@ pub async fn conduct_voting(opinions: Vec<MemberOpinion>) -> VoteResult {
 
     if radical_love_veto {
         veto_escalated = true;
-
         if overall_valence < 0.70 {
-            // Path 3: Critical — full lattice redirect
             escalation_level = 3;
             escalation_path = "critical-lattice-redirect".to_string();
             escalation_reason = Some("Critical Radical Love veto — full lattice redirect to highest-joy path".to_string());
         } else if overall_valence < 0.85 {
-            // Path 2: Moderate — mercy override cycle + re-deliberation
             escalation_level = 2;
             escalation_path = "moderate-mercy-override".to_string();
-            escalation_reason = Some("Moderate Radical Love veto — mercy override cycle + re-deliberation initiated".to_string());
+            escalation_reason = Some("Moderate Radical Love veto — mercy override cycle attempted".to_string());
         } else {
-            // Path 1: Mild — gentle re-evaluation
             escalation_level = 1;
             escalation_path = "mild-re-evaluation".to_string();
-            escalation_reason = Some("Mild Radical Love veto — gentle re-evaluation with mercy guidance".to_string());
+            escalation_reason = Some("Mild Radical Love veto — gentle re-evaluation initiated".to_string());
         }
     }
 
@@ -128,7 +127,7 @@ pub async fn conduct_voting(opinions: Vec<MemberOpinion>) -> VoteResult {
         }
     }
 
-    // Final decision with escalation paths applied
+    // Final decision logic
     let passed = if radical_love_veto && !mercy_override_applied {
         false
     } else {
