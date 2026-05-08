@@ -1,7 +1,8 @@
-//! deliberation.rs — Advanced Mercy-Gated Parallel Deliberation with Revised Weighting
+//! deliberation.rs — Advanced Mercy-Gated Parallel Deliberation with Revised Stability Factor Weighting
 //!
 //! Each council member reasons individually in parallel, with full
-//! mercy gate evaluation, rich TOLC affinity, and revised weighting logic.
+//! mercy gate evaluation, rich TOLC affinity, and revised weighting that
+//! now includes a clear stability factor for smoother, more reliable outcomes.
 
 use crate::council_session::CouncilProposal;
 use crate::member_profiles::CouncilMemberProfile;
@@ -14,7 +15,7 @@ use rand::Rng;
 pub struct MemberOpinion {
     pub member_id: u32,
     pub name: String,
-    pub support_level: f64,        // Final weighted mercy + TOLC score
+    pub support_level: f64,        // Final weighted mercy + TOLC + stability score
     pub reasoning: String,
     pub concerns: Vec<String>,
     pub valence: f64,
@@ -22,7 +23,7 @@ pub struct MemberOpinion {
     pub tolc_order: u32,
 }
 
-/// Runs full parallel deliberation using rich member profiles and revised weighting
+/// Runs full parallel deliberation using rich member profiles and revised stability-weighted logic
 pub async fn run_parallel_deliberation(
     profiles: &[CouncilMemberProfile],
     proposal: &CouncilProposal,
@@ -44,17 +45,21 @@ pub async fn run_parallel_deliberation(
         let raw_reasoning = generate_member_reasoning(&profile.member, proposal, base_support);
         let mercy_valence = mercy_evaluator.evaluate(&raw_reasoning);
 
-        // === REVISED WEIGHTING LOGIC ===
-        // Mercy valence has highest priority (core principle)
-        // TOLC resonance provides strong mathematical harmony
-        // Member's personal mercy_bias adds individual character
-        let final_support = (
-            base_support          * 0.40 +
+        // === REVISED WEIGHTING WITH STABILITY FACTOR ===
+        // Mercy valence highest priority
+        // TOLC resonance strong mathematical harmony
+        // Mercy bias adds individual character
+        // Stability factor (resonance_stability) acts as multiplier for reliability
+        let raw_support = (
+            base_support          * 0.35 +
             mercy_valence         * 0.35 +
             tolc_resonance        * 0.20 +
             profile.mercy_bias    * 0.05
-        )
-        .clamp(0.0, 1.0);
+        );
+
+        let stability_factor = 0.85 + profile.tolc_affinity.resonance_stability * 0.15;
+
+        let final_support = (raw_support * stability_factor).clamp(0.0, 1.0);
 
         let concerns = generate_member_concerns(&profile.member, proposal, final_support);
 
