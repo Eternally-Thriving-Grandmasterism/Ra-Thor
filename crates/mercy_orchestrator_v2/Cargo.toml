@@ -1,6 +1,6 @@
 [package]
 name = "mercy_orchestrator_v2"
-version = "0.3.7"
+version = "0.3.9"
 edition = "2021"
 authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
 license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
@@ -15,14 +15,14 @@ ra-thor-mercy = { workspace = true }
 
 # Intelligence & swarm coordination
 ra-thor-quantum-swarm-orchestrator = { workspace = true }
-ra-thor-kernel = { path = "../kernel" }
+ra-thor-kernel = { workspace = true }
 ra-thor-orchestration = { workspace = true }
 ra-thor-evolution = { workspace = true }
 ra-thor-plasticity-engine-v2 = { workspace = true }
 ra-thor-monorepo-intelligence = { workspace = true }
 
 # Governance
-patsagi-councils = { path = "../patsagi-councils" }
+patsagi-councils = { workspace = true }
 
 # Async & runtime
 tokio = { workspace = true, features = ["full"] }
