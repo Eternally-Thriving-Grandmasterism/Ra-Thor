@@ -1,40 +1,43 @@
 [package]
 name = "real-estate-lattice"
-version = "0.1.0"
+version = "0.3.9"
 edition = "2021"
 authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
+license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
 description = "Ra-Thor Real Estate Lattice (RREL) — Mercy-gated global real estate operating system. Canada Pilot (v0.5.19) + USA Expansion (v0.5.21) with full federal + state regulatory enforcement."
-license = "AG-SML"
 repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
 readme = "README.md"
 keywords = ["real-estate", "ra-thor", "rrel", "powrush", "mercy-gated", "usa", "california", "florida", "texas", "new-york", "treb", "reco", "ontario", "quantum", "agi"]
 categories = ["simulation", "artificial-intelligence", "finance", "games"]
 
 [dependencies]
-patsagi-councils = { path = "../patsagi-councils" }
-powrush = { path = "../powrush" }
-ra-thor-mercy = { path = "../mercy" }
-ra-thor-quantum-swarm-orchestrator = { path = "../quantum-swarm-orchestrator" }
+# Core Ra-Thor dependencies (workspace style)
+ra-thor-mercy = { workspace = true }
+ra-thor-quantum-swarm-orchestrator = { workspace = true }
+ra-thor-kernel = { workspace = true }
+ra-thor-council = { workspace = true }
+ra-thor-mercy-orchestrator-v2 = { workspace = true }
+patsagi-councils = { workspace = true }
+powrush = { workspace = true }
 
-tokio = { version = "1.38", features = ["full"] }
-async-trait = "0.1"
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
-uuid = { version = "1.8", features = ["v4", "serde"] }
-chrono = { version = "0.4", features = ["serde"] }
-thiserror = "1.0"
-tracing = "0.1"
-tracing-subscriber = "0.3"
-rand = "0.8"
+tokio = { workspace = true, features = ["full"] }
+async-trait = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+uuid = { workspace = true }
+chrono = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+rand = { workspace = true }
 
 [dev-dependencies]
+tracing-subscriber = { workspace = true }
 tokio-test = "0.4"
 pretty_assertions = "1.4"
 
 [[example]]
 name = "canada_pilot_demo"
 path = "examples/canada_pilot_demo.rs"
-required-features = []
 
 [[example]]
 name = "usa_pilot_demo"
