@@ -1,12 +1,11 @@
-//! deliberation.rs — Advanced Mercy-Gated Parallel Deliberation with Full TOLC Resonance
+//! deliberation.rs — Advanced Mercy-Gated Parallel Deliberation with Revised Weighting
 //!
-//! This is the heart of the PATSAGi Council Simulator.
 //! Each council member reasons individually in parallel, with full
-//! mercy gate evaluation, rich TOLC affinity, and valence scoring.
+//! mercy gate evaluation, rich TOLC affinity, and revised weighting logic.
 
 use crate::council_session::CouncilProposal;
-use crate::member_profiles::CouncilMemberProfile;   // ← Now using rich profiles
-use crate::tolc::calculate_tolc_resonance;          // ← Full expanded TOLC mechanics
+use crate::member_profiles::CouncilMemberProfile;
+use crate::tolc::calculate_tolc_resonance;
 use ra_thor_mercy::MercyGateEvaluator;
 use serde::{Serialize, Deserialize};
 use rand::Rng;
@@ -15,7 +14,7 @@ use rand::Rng;
 pub struct MemberOpinion {
     pub member_id: u32,
     pub name: String,
-    pub support_level: f64,        // Final mercy + TOLC weighted score
+    pub support_level: f64,        // Final weighted mercy + TOLC score
     pub reasoning: String,
     pub concerns: Vec<String>,
     pub valence: f64,
@@ -23,9 +22,9 @@ pub struct MemberOpinion {
     pub tolc_order: u32,
 }
 
-/// Runs full parallel deliberation using rich member profiles and expanded TOLC resonance
+/// Runs full parallel deliberation using rich member profiles and revised weighting
 pub async fn run_parallel_deliberation(
-    profiles: &[CouncilMemberProfile],      // ← Changed to rich profiles
+    profiles: &[CouncilMemberProfile],
     proposal: &CouncilProposal,
 ) -> Vec<MemberOpinion> {
     let mercy_evaluator = MercyGateEvaluator::default();
@@ -39,15 +38,23 @@ pub async fn run_parallel_deliberation(
             proposal.impact_level,
         );
 
-        let base_support = 0.70 + rng.gen_range(-0.25..0.35);
+        let base_support = 0.70 + rng.gen_range(-0.22..0.28);
 
         // Mercy gate evaluation on this member's view
         let raw_reasoning = generate_member_reasoning(&profile.member, proposal, base_support);
         let mercy_valence = mercy_evaluator.evaluate(&raw_reasoning);
 
-        // TOLC resonance now directly boosts final support level
-        let final_support = (base_support * 0.55 + mercy_valence * 0.25 + tolc_resonance * 0.20)
-            .clamp(0.0, 1.0);
+        // === REVISED WEIGHTING LOGIC ===
+        // Mercy valence has highest priority (core principle)
+        // TOLC resonance provides strong mathematical harmony
+        // Member's personal mercy_bias adds individual character
+        let final_support = (
+            base_support          * 0.40 +
+            mercy_valence         * 0.35 +
+            tolc_resonance        * 0.20 +
+            profile.mercy_bias    * 0.05
+        )
+        .clamp(0.0, 1.0);
 
         let concerns = generate_member_concerns(&profile.member, proposal, final_support);
 
