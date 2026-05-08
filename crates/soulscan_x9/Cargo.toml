@@ -1,16 +1,50 @@
 [package]
 name = "soulscan_x9"
-version = "1.5.0"
+version = "0.3.9"
 edition = "2021"
-license = "MIT"
+authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
+license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
 description = "SoulScan-X9 — 9-Channel Emotional Waveform + Full Live Valence Scoring Integration for NEXi Lattice"
+repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
+keywords = ["ra-thor", "soulscan", "consciousness", "valence", "truthquanta", "mercy-gated", "agi"]
+categories = ["science", "simulation", "artificial-intelligence"]
 
 [dependencies]
+# Core Ra-Thor dependencies (workspace style)
+ra-thor-mercy = { workspace = true }
+ra-thor-quantum-swarm-orchestrator = { workspace = true }
+ra-thor-kernel = { workspace = true }
+ra-thor-council = { workspace = true }
+ra-thor-mercy-orchestrator-v2 = { workspace = true }
+ra-thor-biomimetic = { workspace = true }
+ra-thor-evolution = { workspace = true }
+powrush = { workspace = true }
+soulscan_x10 = { workspace = true }
+
+# Dependencies from old public version
 nexi = { path = "../" }
-tokio = { version = "1.38", features = ["full"] }
+
+# Live valence features
 opencv = { version = "0.84", features = ["clang-runtime"], optional = true }
 ndarray = { version = "0.15", optional = true }
 
+# Standard dependencies
+tokio = { workspace = true, features = ["full"] }
+async-trait = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+tracing = { workspace = true }
+rand = { workspace = true }
+thiserror = { workspace = true }
+futures = { workspace = true }
+
+[dev-dependencies]
+tracing-subscriber = { workspace = true }
+tokio-test = "0.4"
+
 [features]
+default = ["full"]
+full = []
+minimal = []
 live_valence = ["opencv", "ndarray"]
 multi_modal_valence = ["live_valence"]
