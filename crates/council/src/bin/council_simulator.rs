@@ -32,7 +32,7 @@ async fn main() {
     println!("Ra-Thor Council Simulator — Mercy-Gated, Truth-Seeking, Thriving-Maximized");
 }
 
-/// Enhanced comprehensive simulation of all veto escalation paths, mercy overrides, etc.
+/// Expanded simulation with 10 diverse veto scenarios covering all paths
 async fn simulate_veto_scenarios() {
     let mercy_evaluator = MercyGateEvaluator::default();
     let quantum_swarm_bridge = QuantumSwarmBridge::new();
@@ -40,12 +40,16 @@ async fn simulate_veto_scenarios() {
     let members = load_demo_council_members();
 
     let scenarios = vec![
-        ("✅ Normal Approval (No Veto)", 0.92, 0.85, false),
+        ("✅ Normal Approval (Baseline)", 0.92, 0.85, false),
         ("⚠️  Mild Radical Love Veto", 0.68, 0.78, true),
         ("🔄 Moderate Veto + Mercy Override Attempt", 0.62, 0.71, true),
         ("🚨 Critical Veto (Lattice Redirect)", 0.48, 0.55, true),
         ("✨ Veto with Successful Mercy Override", 0.58, 0.995, true),
         ("❌ Veto with Failed Mercy Override", 0.52, 0.82, true),
+        ("📉 Quorum Failure (No Veto)", 0.55, 0.88, false),
+        ("🌌 Perfect Valence Rescue (TOLC Override)", 0.65, 0.999, true),
+        ("🔬 High Complexity Proposal + Mild Veto", 0.88, 0.76, true),
+        ("❤️ Radical Love + Full Mercy Override Success", 0.45, 0.997, true),
     ];
 
     let mut summary = vec![];
@@ -60,7 +64,7 @@ async fn simulate_veto_scenarios() {
             id: Uuid::new_v4(),
             title: name.to_string(),
             description: format!("Test proposal for {} scenario.", name),
-            complexity: 0.75,
+            complexity: if name.contains("High Complexity") { 0.92 } else { 0.75 },
             impact_level: 0.80,
         };
 
@@ -75,7 +79,6 @@ async fn simulate_veto_scenarios() {
 
         print_detailed_session_result(&result, expect_veto);
 
-        // Record for summary
         summary.push((name, result.passed, result.mercy_override_applied, result.escalation_level));
     }
 
@@ -83,14 +86,14 @@ async fn simulate_veto_scenarios() {
     println!("\n{}", "═".repeat(70));
     println!("📊 SIMULATION SUMMARY");
     println!("{}", "═".repeat(70));
-    println!("{:40} | {:8} | {:12} | {:10}", "Scenario", "Passed", "Mercy Override", "Escalation");
-    println!("{}", "─".repeat(70));
+    println!("{:50} | {:8} | {:12} | {:10}", "Scenario", "Passed", "Mercy Override", "Escalation");
+    println!("{}", "─".repeat(80));
     for (name, passed, override_applied, escalation) in summary {
         let override_str = if override_applied { "YES" } else { "no" };
         let escalation_str = if escalation > 0 { format!("Level {}", escalation) } else { "None".to_string() };
-        println!("{:40} | {:8} | {:12} | {:10}", name, if passed { "✅ YES" } else { "❌ NO" }, override_str, escalation_str);
+        println!("{:50} | {:8} | {:12} | {:10}", name, if passed { "✅ YES" } else { "❌ NO" }, override_str, escalation_str);
     }
-    println!("{}", "═".repeat(70));
+    println!("{}", "═".repeat(80));
 }
 
 fn load_demo_council_members() -> Vec<CouncilMember> {
