@@ -4,27 +4,27 @@ version = "0.3.9"
 edition = "2021"
 authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
 license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
-description = "MercyOSAviation — MercyOS-Pinnacle Runtime Overlay for Eternal Safe Flight Resonance"
+description = "MercyOSAviation — Mercy-Gated Aviation Operating System & Flight Safety Lattice. Integrates TOLC proofs, active inference, and predictive coding for safe, valence-aligned aviation and near-Earth operations."
 repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
-keywords = ["ra-thor", "mercy-os-aviation", "aviation", "flight-control", "aerospace", "mercy-gated"]
-categories = ["science", "simulation", "artificial-intelligence"]
+keywords = ["ra-thor", "mercy-os-aviation", "aviation-safety", "flight-lattice", "tolc-proofs", "mercy-gated", "aerospace"]
+categories = ["science", "simulation", "artificial-intelligence", "aerospace"]
 
 [dependencies]
-# Core Ra-Thor dependencies (workspace style)
+# Core Ra-Thor intelligence & governance (workspace style)
 ra-thor-mercy = { workspace = true }
 ra-thor-quantum-swarm-orchestrator = { workspace = true }
 ra-thor-kernel = { workspace = true }
 ra-thor-council = { workspace = true }
 ra-thor-mercy-orchestrator-v2 = { workspace = true }
-ra-thor-interstellar-operations = { workspace = true }
-mercy_starship = { workspace = true }
-mercy_starship_fleet = { workspace = true }
+ra-thor-monorepo-intelligence = { workspace = true }
+patsagi-councils = { workspace = true }
+mercy_tolc_operator_algebra = { path = "../mercy_tolc_operator_algebra" }
+mercy_merlin_engine = { path = "../mercy_merlin_engine" }
+mercy_orbital_safety = { path = "../mercy_orbital_safety" }
 powrush = { workspace = true }
 
-# Dependencies from old public version
+# nexi preserved per NEXi Lineage Guidelines
 nexi = { path = "../" }
-mercy_flight_agi = { path = "../crates/mercy_flight_agi" }
-mercy_hybrid_propulsion = { path = "../crates/mercy_hybrid_propulsion" }
 
 # Standard dependencies
 tokio = { workspace = true, features = ["full"] }
@@ -42,5 +42,6 @@ tokio-test = "0.4"
 
 [features]
 default = ["full"]
-full = []
+full = ["post_quantum_hardening"]
 minimal = []
+post_quantum_hardening = []
