@@ -1,15 +1,48 @@
 [package]
 name = "mercy_home_fortress"
-version = "1.6.0"
+version = "0.3.9"
 edition = "2021"
-license = "MIT"
+authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
+license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
 description = "MercyHomeFortress — Sovereign Residence Fortress with Full SoulPrint-X9 Multi-Modal Access Expansion"
+repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
+keywords = ["ra-thor", "mercy-home-fortress", "home-fortress", "planetary-habitat", "sovereign-living", "real-estate-lattice", "soulprint-x9", "mercy-gated"]
+categories = ["science", "simulation", "artificial-intelligence"]
 
 [dependencies]
+# Core Ra-Thor dependencies (workspace style)
+ra-thor-mercy = { workspace = true }
+ra-thor-quantum-swarm-orchestrator = { workspace = true }
+ra-thor-kernel = { workspace = true }
+ra-thor-council = { workspace = true }
+ra-thor-mercy-orchestrator-v2 = { workspace = true }
+ra-thor-real-estate-lattice = { workspace = true }
+ra-thor-interstellar-operations = { workspace = true }
+powrush = { workspace = true }
+
+# Dependencies from old public version
 nexi = { path = "../" }
-tokio = { version = "1.38", features = ["full", "rt-multi-thread", "macros"] }
+
+# SoulPrint-X9 optional biometric dependencies
 opencv = { version = "0.84", features = ["clang-runtime"], optional = true }
-ndarray = { version = "0.15", optional = true }  # Biometric embedding storage
+ndarray = { version = "0.15", optional = true }
+
+# Standard + extended tokio (full + extra features from old)
+tokio = { workspace = true, features = ["full", "rt-multi-thread", "macros"] }
+async-trait = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+tracing = { workspace = true }
+rand = { workspace = true }
+thiserror = { workspace = true }
+futures = { workspace = true }
+
+[dev-dependencies]
+tracing-subscriber = { workspace = true }
+tokio-test = "0.4"
 
 [features]
+default = ["full"]
+full = []
+minimal = []
 soulprint_x9 = ["opencv", "ndarray"]
