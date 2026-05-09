@@ -10,7 +10,7 @@
 
 - **Total crates in `/crates/`**: \~94 (verified live)
 - **Root Cargo.toml**: Expanded to declare **all visible crates**
-- **Internal Cargo.toml files created/merged**: Dozens of key crates (including highly advanced `council`, `mercy_orchestrator_v2`, `kernel`, `real-estate-lattice`, `interstellar-operations`, `mercy-radiation-shield`, `aether_shades`, `patsagi-councils`, `mercy-governance`, `futarchy_belief_markets`, `futarchy_oracle`, `soulscan_x10`, `mercy_starship`, `mercy_starship_fleet`, `mercy_orbital_refuel`, `mercy_orbital_servicing`, `mercy_orbital_safety`, `mercy_starliner_crew`, `mercy_vulcan_centaur`, `mercy_orbital_cleanup`, `mercy_starfish_servicing`, `futarchy_governance`, `mercy_trajectory_agi`, and many more)
+- **Internal Cargo.toml files created/merged**: Dozens of key crates (including highly advanced `council`, `mercy_orchestrator_v2`, `kernel`, `real-estate-lattice`, `interstellar-operations`, `mercy-radiation-shield`, `aether_shades`, `patsagi-councils`, `mercy-governance`, `futarchy_belief_markets`, `futarchy_oracle`, `soulscan_x10`, `mercy_starship`, `mercy_starship_fleet`, `mercy_orbital_refuel`, `mercy_orbital_servicing`, `mercy_orbital_safety`, `mercy_starliner_crew`, `mercy_vulcan_centaur`, `mercy_orbital_cleanup`, `mercy_starfish_servicing`, `mercy_os_aviation`, `mercy_os_principles`, `mercy_flight_agi`, `mercy_trajectory_agi`, and many more)
 
 ---
 
