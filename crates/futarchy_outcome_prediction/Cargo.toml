@@ -6,7 +6,7 @@ authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
 license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
 description = "FutarchyOutcomePrediction — Mercy-Weighted Outcome Prediction Markets for Eternal Governance Resonance"
 repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
-keywords = ["ra-thor", "futarchy", "outcome-prediction", "belief-markets", "governance", "patsagi", "mercy-gated"]
+keywords = ["ra-thor", "futarchy", "outcome-prediction", "belief-markets", "governance", "patsagi", "mercy-gated", "agi"]
 categories = ["simulation", "artificial-intelligence", "science"]
 
 [dependencies]
@@ -22,7 +22,7 @@ futarchy_belief_markets = { workspace = true }
 futarchy_oracle = { workspace = true }
 futarchy_governance = { workspace = true }
 
-# Dependencies from old public version
+# Dependencies from old public version (NEXi lineage intentionally preserved per docs/NEXi-Lineage-Guidelines.md)
 nexi = { path = "../" }
 soulscan_x9 = { path = "../crates/soulscan_x9" }
 
