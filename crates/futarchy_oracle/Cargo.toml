@@ -4,9 +4,9 @@ version = "0.3.9"
 edition = "2021"
 authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
 license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
-description = "FutarchyOracle — Valence-Weighted Belief Aggregation with Full Async Integration"
+description = "FutarchyOracle — Valence-Weighted Belief Aggregation with Full Async Integration + PATSAGi Council Governance Resonance"
 repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
-keywords = ["ra-thor", "futarchy", "oracle", "belief-markets", "outcome-prediction", "governance", "mercy-gated"]
+keywords = ["ra-thor", "futarchy", "oracle", "belief-markets", "outcome-prediction", "governance", "mercy-gated", "patsagi"]
 categories = ["simulation", "artificial-intelligence", "science"]
 
 [dependencies]
@@ -16,13 +16,15 @@ ra-thor-quantum-swarm-orchestrator = { workspace = true }
 ra-thor-kernel = { workspace = true }
 ra-thor-council = { workspace = true }
 ra-thor-mercy-orchestrator-v2 = { workspace = true }
+patsagi-councils = { workspace = true }
 powrush = { workspace = true }
 futarchy_belief_markets = { workspace = true }
 
-# Dependencies from old public version
+# Dependencies from old public version (NEXi lineage preserved per guidelines)
 nexi = { path = "../" }
 
 # Async & web
+
 tokio = { workspace = true, features = ["full", "rt-multi-thread", "macros"] }
 reqwest = { version = "0.11", features = ["json"] }
 
