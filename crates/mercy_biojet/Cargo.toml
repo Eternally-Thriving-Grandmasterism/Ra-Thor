@@ -1,13 +1,48 @@
 [package]
 name = "mercy_biojet"
-version = "1.3.0"
+version = "0.3.9"
 edition = "2021"
-license = "MIT"
+authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
+license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
 description = "MercyBioJet — Algae-Derived Zero-Emission SAF Core with Full Halo2 ZK-Proof Integration"
+repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
+keywords = ["ra-thor", "mercy-biojet", "biojet", "biomimetic-jet", "living-engine", "bio-propulsion", "mercy-gated"]
+categories = ["science", "simulation", "artificial-intelligence"]
 
 [dependencies]
+# Core Ra-Thor dependencies (workspace style)
+ra-thor-mercy = { workspace = true }
+ra-thor-quantum-swarm-orchestrator = { workspace = true }
+ra-thor-kernel = { workspace = true }
+ra-thor-council = { workspace = true }
+ra-thor-mercy-orchestrator-v2 = { workspace = true }
+ra-thor-interstellar-operations = { workspace = true }
+mercy_biomimetic_propulsion = { workspace = true }
+mercy_starship = { workspace = true }
+mercy_starship_fleet = { workspace = true }
+powrush = { workspace = true }
+
+# Dependencies from old public version
 nexi = { path = "../" }
-tokio = { version = "1.38", features = ["full", "rt-multi-thread", "macros"] }
 halo2_proofs = { git = "https://github.com/zcash/halo2.git", branch = "v2023_07_18" }
 halo2_gadgets = { git = "https://github.com/zcash/halo2.git", branch = "v2023_07_18" }
 pasta_curves = "0.5"
+
+# Standard + extended tokio (full + extra features from old)
+tokio = { workspace = true, features = ["full", "rt-multi-thread", "macros"] }
+async-trait = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+tracing = { workspace = true }
+rand = { workspace = true }
+thiserror = { workspace = true }
+futures = { workspace = true }
+
+[dev-dependencies]
+tracing-subscriber = { workspace = true }
+tokio-test = "0.4"
+
+[features]
+default = ["full"]
+full = []
+minimal = []
