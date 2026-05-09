@@ -1,0 +1,13 @@
+[package]
+name = "mercy_zero"
+version = "1.1.0"
+edition = "2021"
+license = "MIT"
+description = "MercyZero — Immutable Protective Gate Core for NEXi Lattice (Mercy Shield Foundation)"
+
+[dependencies]
+nexi = { path = "../" }
+tokio = { version = "1.38", features = ["full", "rt-multi-thread", "macros"] }
+
+[features]
+post_quantum_hardening = []  # Future infinite gate strengthening

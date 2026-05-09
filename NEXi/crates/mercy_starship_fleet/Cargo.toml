@@ -1,0 +1,12 @@
+[package]
+name = "mercy_starship_fleet"
+version = "1.0.0"
+edition = "2021"
+license = "MIT"
+description = "MercyStarshipFleet — Rapid Production + Orbital Refueling + Valence-Weighted Coordination Core for Eternal Interplanetary Fleet Resonance"
+
+[dependencies]
+nexi = { path = "../" }
+mercy_starship = { path = "../crates/mercy_starship" }
+mercy_orbital_refuel = { path = "../crates/mercy_orbital_refuel" }
+tokio = { version = "1.38", features = ["full"] }

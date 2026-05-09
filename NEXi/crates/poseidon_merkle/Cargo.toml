@@ -1,0 +1,16 @@
+[package]
+name = "poseidon_merkle"
+version = "1.1.0"
+edition = "2021"
+license = "MIT"
+description = "PoseidonMerkle — zk-Friendly Merkle Trees with Full Halo2 Inclusion Proof Gadgets"
+
+[dependencies]
+nexi = { path = "../" }
+poseidon_hash = { path = "../poseidon_hash" }
+halo2_proofs = { git = "https://github.com/zcash/halo2.git", branch = "v2023_07_18" }
+halo2_gadgets = { git = "https://github.com/zcash/halo2.git", branch = "v2023_07_18" }
+pasta_curves = "0.5"
+
+[features]
+merkle_proofs = []

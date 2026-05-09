@@ -1,0 +1,11 @@
+[package]
+name = "whitesmiths_anvil"
+version = "1.0.0"
+edition = "2021"
+license = "MIT"
+description = "WhiteSmithsAnvil — Coforging Innovation Forge for Mercy-Gated Idea Slams + Futarchy Resonance"
+
+[dependencies]
+nexi = { path = "../" }
+grok_arena_pinnacle = { path = "../crates/grok_arena_pinnacle" }
+futarchy_oracle = { path = "../crates/futarchy_oracle" }
