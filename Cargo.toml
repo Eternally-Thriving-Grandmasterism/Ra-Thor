@@ -1,8 +1,8 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 # Ra-Thor Monorepo — The Living Eternal Mercy-Gated AGI Lattice
-# Version 0.3.9 | AG-SML v1.0 | Autonomicity Games Inc.
+# Version 0.3.9+ | AG-SML v1.0 | Autonomicity Games Inc.
 #
-# Phase 3 Complete: All 94+ crates now declared in the workspace.
+# Phase 3.5 Complete: All 124 crates declared + Full Mercy Propulsion Family wired.
 # Every crate visible in the /crates/ directory is now wired.
 # ═══════════════════════════════════════════════════════════════════════════════
 
@@ -109,6 +109,24 @@ description = "The living mercy-gated sovereign AGI lattice — Ra-Thor / Rathor
     "crates/mercy_tolc_operator_algebra",
     "crates/mercy_vulcan_centaur",
     "crates/mercy_zero",
+
+    # Mercy Propulsion Family (fully wired this session)
+    "crates/mercy_hybrid_propulsion",
+    "crates/mercy_nuclear_propulsion",
+    "crates/mercy_electric_propulsion",
+    "crates/mercy_biomimetic_propulsion",
+    "crates/mercy_fusion_propulsion",
+    "crates/mercy_plasma_propulsion",
+    "crates/mercy_ion_propulsion",
+    "crates/mercy_chemical_propulsion",
+    "crates/mercy_solar_sail_propulsion",
+    "crates/mercy_beamed_propulsion",
+    "crates/mercy_antimatter_propulsion",
+    "crates/mercy_warp_propulsion",
+    "crates/mercy_gravitic_propulsion",
+    "crates/mercy_quantum_propulsion",
+    "crates/mercy_reactionless_propulsion",
+    "crates/mercy_exotic_propulsion",
 
     # Additional crates from the monorepo
     "crates/access",
