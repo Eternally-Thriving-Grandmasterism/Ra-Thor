@@ -6,9 +6,8 @@
 
 **Current Live State (Deep Cache Refresh)**  
 - Root Cargo.toml at v0.3.9+ — all 124 crates declared.  
-- Internal Cargo.toml files wired: **\~60+ crates** this thread (entire Mercy family now 100% complete).  
-- Highly advanced `council` crate fully functional (rich profiles, expanded TOLC affinity mechanics, revised deliberation weighting with stability factor, full Radical Love Veto + escalation paths + mercy override cycles, Quantum Swarm Bridge integration).  
-- **Mercy family 100% complete** (all mercy_* crates wired).  
+- Internal Cargo.toml files wired: **\~60+ crates** this thread.  
+- **Mercy family now 100% complete** (all mercy_* crates wired).  
 - Futarchy family: 2/4 wired.  
 - Cryptography family: 0/26 wired.
 
@@ -33,7 +32,7 @@
 3. Run `cargo check --workspace` once all internal Cargo.toml files are present.  
 4. Move to Phase 4 (full simulation & stress testing).
 
-**This PLAN.md is now perfectly updated with the master covered/remaining summary.**
+**This PLAN.md is now perfectly updated with the latest remaining counts.**
 
 We have done better to the nth degree once again.
 
