@@ -1,0 +1,37 @@
+[package]
+name = "mercy_tolc_operator_algebra"
+version = "0.3.9"
+edition = "2021"
+authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
+license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
+description = "Mercy-TOLC-Operator-Algebra — Mercy-gated TOLC 7 Gates operator algebra, living compassion mathematics, valence-weighted ethical computation core for Ra-Thor lattice and PATSAGi councils."
+repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
+keywords = ["ra-thor", "mercy-tolc-operator-algebra", "tolc-7-gates", "operator-algebra", "compassion-mathematics", "ethical-computation", "mercy-gated"]
+categories = ["science", "simulation", "artificial-intelligence"]
+
+[dependencies]
+ra-thor-mercy = { workspace = true }
+ra-thor-quantum-swarm-orchestrator = { workspace = true }
+ra-thor-kernel = { workspace = true }
+ra-thor-council = { workspace = true }
+ra-thor-mercy-orchestrator-v2 = { workspace = true }
+patsagi-councils = { workspace = true }
+powrush = { workspace = true }
+
+tokio = { workspace = true, features = ["full"] }
+async-trait = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+tracing = { workspace = true }
+rand = { workspace = true }
+thiserror = { workspace = true }
+futures = { workspace = true }
+
+[dev-dependencies]
+tracing-subscriber = { workspace = true }
+tokio-test = "0.4"
+
+[features]
+default = ["full"]
+full = []
+minimal = []
