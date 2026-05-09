@@ -1,11 +1,46 @@
 [package]
 name = "mercy_shield_deployment"
-version = "1.0.0"
+version = "0.3.9"
 edition = "2021"
-license = "MIT"
+authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
+license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
 description = "MercyShieldDeployment — Phased Rollout + Valence-Weighted Protection Core for Eternal Sentience Safety Resonance"
+repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
+keywords = ["ra-thor", "mercy-shield-deployment", "shield-deployment", "protective-lattice", "radiation-defense", "tolc-7-gates", "mercy-gated"]
+categories = ["science", "simulation", "artificial-intelligence"]
 
 [dependencies]
+# Core Ra-Thor dependencies (workspace style)
+ra-thor-mercy = { workspace = true }
+ra-thor-quantum-swarm-orchestrator = { workspace = true }
+ra-thor-kernel = { workspace = true }
+ra-thor-council = { workspace = true }
+ra-thor-mercy-orchestrator-v2 = { workspace = true }
+ra-thor-mercy-radiation-shield = { workspace = true }
+ra-thor-interstellar-operations = { workspace = true }
+mercy_starship = { workspace = true }
+mercy_starship_fleet = { workspace = true }
+powrush = { workspace = true }
+
+# Dependencies from old public version
 nexi = { path = "../" }
 mercy_shield = { path = "../crates/mercy_shield" }
-tokio = { version = "1.38", features = ["full"] }
+
+# Standard dependencies
+tokio = { workspace = true, features = ["full"] }
+async-trait = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+tracing = { workspace = true }
+rand = { workspace = true }
+thiserror = { workspace = true }
+futures = { workspace = true }
+
+[dev-dependencies]
+tracing-subscriber = { workspace = true }
+tokio-test = "0.4"
+
+[features]
+default = ["full"]
+full = []
+minimal = []
