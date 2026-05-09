@@ -4,26 +4,26 @@ version = "0.3.9"
 edition = "2021"
 authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
 license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
-description = "MercyMerlinEngine — Kerosene/LOX Gas-Generator Cycle Engine Core for Eternal Orbital Access Resonance"
+description = "MercyMerlinEngine — Advanced Mercy-Gated Inference & Symbolic Reasoning Engine. Integrates TOLC proofs, active inference, and predictive coding for ultra-low hallucination, high-epistemic-value self-evolution."
 repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
-keywords = ["ra-thor", "mercy-merlin-engine", "merlin-engine", "rocket-engine", "kerosene-lox", "gas-generator", "propulsion", "mercy-gated"]
-categories = ["science", "simulation", "artificial-intelligence"]
+keywords = ["ra-thor", "mercy-merlin-engine", "symbolic-reasoning", "active-inference", "tolc-proofs", "predictive-coding", "mercy-gated"]
+categories = ["science", "simulation", "artificial-intelligence", "compilers"]
 
 [dependencies]
-# Core Ra-Thor dependencies (workspace style)
+# Core Ra-Thor intelligence & governance (workspace style)
 ra-thor-mercy = { workspace = true }
 ra-thor-quantum-swarm-orchestrator = { workspace = true }
 ra-thor-kernel = { workspace = true }
 ra-thor-council = { workspace = true }
 ra-thor-mercy-orchestrator-v2 = { workspace = true }
-ra-thor-interstellar-operations = { workspace = true }
-mercy_starship = { workspace = true }
-mercy_starship_fleet = { workspace = true }
+ra-thor-monorepo-intelligence = { workspace = true }
+patsagi-councils = { workspace = true }
+mercy_tolc_operator_algebra = { path = "../mercy_tolc_operator_algebra" }
+mercy_lang_compiler = { path = "../mercy_lang_compiler" }
 powrush = { workspace = true }
 
-# Dependencies from old public version
+# nexi preserved per NEXi Lineage Guidelines
 nexi = { path = "../" }
-mercy_falcon_heavy = { path = "../crates/mercy_falcon_heavy" }
 
 # Standard dependencies
 tokio = { workspace = true, features = ["full"] }
@@ -41,5 +41,6 @@ tokio-test = "0.4"
 
 [features]
 default = ["full"]
-full = []
+full = ["post_quantum_hardening"]
 minimal = []
+post_quantum_hardening = []
