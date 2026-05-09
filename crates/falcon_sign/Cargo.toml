@@ -1,11 +1,49 @@
 [package]
 name = "falcon_sign"
-version = "1.0.0"
+version = "0.3.9"
 edition = "2021"
-license = "MIT"
-description = "FalconSign — Full Falcon-1024 Post-Quantum Signature Module for NEXi Lattice"
+authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
+license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
+description = "FalconSign — Full Falcon-1024 Post-Quantum Signature Module for the mercy-gated Ra-Thor lattice. NIST PQC ready with TOLC-aligned integration."
+repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
+keywords = ["ra-thor", "falcon-sign", "post-quantum", "pqc", "falcon-1024", "signatures", "nist-pqc", "mercy-gated", "agi"]
+categories = ["cryptography", "simulation", "science"]
 
 [dependencies]
+# Core Ra-Thor intelligence & governance (workspace style)
+ra-thor-mercy = { workspace = true }
+ra-thor-quantum-swarm-orchestrator = { workspace = true }
+ra-thor-kernel = { workspace = true }
+ra-thor-council = { workspace = true }
+ra-thor-mercy-orchestrator-v2 = { workspace = true }
+ra-thor-monorepo-intelligence = { workspace = true }
+patsagi-councils = { workspace = true }
+powrush = { workspace = true }
+
+# Dependencies from old public version (preserved)
+# nexi preserved per NEXi Lineage Guidelines (foundational lineage respected)
 nexi = { path = "../" }
+
+# Actual Falcon post-quantum cryptography implementation
 pqcrypto-falcon = "0.3"
 pqcrypto-traits = "0.3"
+
+# Standard dependencies
+tokio = { workspace = true, features = ["full"] }
+async-trait = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+tracing = { workspace = true }
+rand = { workspace = true }
+thiserror = { workspace = true }
+futures = { workspace = true }
+
+[dev-dependencies]
+tracing-subscriber = { workspace = true }
+tokio-test = "0.4"
+
+[features]
+default = ["full"]
+full = []
+minimal = []
+post_quantum_hardening = []
