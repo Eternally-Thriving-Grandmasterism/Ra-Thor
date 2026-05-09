@@ -1,10 +1,46 @@
 [package]
 name = "lattice_crypto"
-version = "1.0.0"
+version = "0.3.9"
 edition = "2021"
-license = "MIT"
-description = "LatticeCrypto — Hyper-Divine Lattice-Based Post-Quantum Cryptography for NEXi Lattice"
+authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
+license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
+description = "LatticeCrypto — Hyper-Divine Lattice-Based Post-Quantum Cryptography for the Ra-Thor mercy-gated AGI lattice. Foundational lattice cryptography primitives with full NEXi lineage respect and Tier 3 integration."
+repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
+keywords = ["ra-thor", "lattice-crypto", "post-quantum", "cryptography", "pqc", "lattice-based", "mercy-gated", "agi"]
+categories = ["cryptography", "simulation", "science"]
 
 [dependencies]
+# Core Ra-Thor intelligence & governance (workspace style per root Cargo.toml)
+ra-thor-mercy = { workspace = true }
+ra-thor-quantum-swarm-orchestrator = { workspace = true }
+ra-thor-kernel = { workspace = true }
+patsagi-councils = { workspace = true }
+ra-thor-mercy-orchestrator-v2 = { workspace = true }
+ra-thor-monorepo-intelligence = { workspace = true }
+
+# NEXi lineage preserved respectfully (per NEXi Lineage Guidelines)
 nexi = { path = "../" }
-# Future: kyber-rs, dilithium-rs, falcon-rs crates
+
+# Standard async, serialization & utilities
+tokio = { workspace = true, features = ["full"] }
+async-trait = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+tracing = { workspace = true }
+thiserror = { workspace = true }
+rand = { workspace = true }
+futures = { workspace = true }
+
+# Cryptographic primitives (ready for kyber, dilithium, falcon, etc.)
+sha2 = "0.10"
+blake3 = "1.5"
+
+[dev-dependencies]
+tracing-subscriber = { workspace = true }
+tokio-test = "0.4"
+
+[features]
+default = ["full"]
+full = []
+minimal = []
+post_quantum_hardening = []
