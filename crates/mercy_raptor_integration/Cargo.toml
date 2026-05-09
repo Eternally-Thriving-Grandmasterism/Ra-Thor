@@ -4,28 +4,28 @@ version = "0.3.9"
 edition = "2021"
 authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
 license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
-description = "MercyRaptorIntegration — Full-Flow Staged Combustion Methane Engine Core Integration for Eternal Starship Resonance"
+description = "MercyRaptorIntegration — Integration Layer for Raptor Propulsion Systems with full TOLC proofs, active inference, and predictive coding for safe, valence-aligned mission execution."
 repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
-keywords = ["ra-thor", "mercy-raptor-integration", "raptor-engine", "engine-integration", "propulsion-orchestration", "starship-fleet", "mercy-gated"]
-categories = ["science", "simulation", "artificial-intelligence"]
+keywords = ["ra-thor", "mercy-raptor-integration", "raptor-propulsion", "mission-integration", "tolc-proofs", "mercy-gated", "interstellar-operations"]
+categories = ["science", "simulation", "artificial-intelligence", "aerospace"]
 
 [dependencies]
-# Core Ra-Thor dependencies (workspace style)
+# Workspace dependencies (properly declared in root Cargo.toml)
 ra-thor-mercy = { workspace = true }
 ra-thor-quantum-swarm-orchestrator = { workspace = true }
 ra-thor-kernel = { workspace = true }
 ra-thor-council = { workspace = true }
 ra-thor-mercy-orchestrator-v2 = { workspace = true }
+ra-thor-monorepo-intelligence = { workspace = true }
 ra-thor-interstellar-operations = { workspace = true }
-mercy_raptor_3 = { workspace = true }
-mercy_raptor_3_integration = { workspace = true }
-mercy_raptor_3_scalability = { workspace = true }
-mercy_starship = { workspace = true }
-mercy_starship_fleet = { workspace = true }
+patsagi-councils = { workspace = true }
 powrush = { workspace = true }
 
-# Dependencies from old public version
-nexi = { path = "../" }
+# Local sibling crates (correct relative paths)
+mercy_tolc_operator_algebra = { path = "../mercy_tolc_operator_algebra" }
+mercy_merlin_engine = { path = "../mercy_merlin_engine" }
+mercy_raptor_3 = { path = "../mercy_raptor_3" }
+mercy_raptor_3_scalability = { path = "../mercy_raptor_3_scalability" }
 
 # Standard dependencies
 tokio = { workspace = true, features = ["full"] }
@@ -43,5 +43,6 @@ tokio-test = "0.4"
 
 [features]
 default = ["full"]
-full = []
+full = ["post_quantum_hardening"]
 minimal = []
+post_quantum_hardening = []
