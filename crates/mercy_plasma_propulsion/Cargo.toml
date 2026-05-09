@@ -1,0 +1,42 @@
+[package]
+name = "mercy_plasma_propulsion"
+version = "0.3.9"
+edition = "2021"
+authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
+license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
+description = "Mercy-Plasma-Propulsion — Mercy-gated plasma propulsion, VASIMR-style, magnetoplasmadynamic thrusters, and high-efficiency deep-space drive systems for Ra-Thor starship fleets and interstellar operations."
+repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
+keywords = ["ra-thor", "mercy-plasma-propulsion", "plasma-propulsion", "vasimr", "magnetoplasmadynamic", "deep-space", "starship", "mercy-gated"]
+categories = ["science", "simulation", "artificial-intelligence"]
+
+[dependencies]
+ra-thor-mercy = { workspace = true }
+ra-thor-quantum-swarm-orchestrator = { workspace = true }
+ra-thor-kernel = { workspace = true }
+ra-thor-council = { workspace = true }
+ra-thor-mercy-orchestrator-v2 = { workspace = true }
+ra-thor-interstellar-operations = { workspace = true }
+mercy_hybrid_propulsion = { workspace = true }
+mercy_fusion_propulsion = { workspace = true }
+mercy_electric_propulsion = { workspace = true }
+mercy_starship = { workspace = true }
+mercy_starship_fleet = { workspace = true }
+powrush = { workspace = true }
+
+tokio = { workspace = true, features = ["full"] }
+async-trait = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+tracing = { workspace = true }
+rand = { workspace = true }
+thiserror = { workspace = true }
+futures = { workspace = true }
+
+[dev-dependencies]
+tracing-subscriber = { workspace = true }
+tokio-test = "0.4"
+
+[features]
+default = ["full"]
+full = []
+minimal = []
