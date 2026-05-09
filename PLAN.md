@@ -11,9 +11,9 @@ This is the single living source of truth for the Ra-Thor monorepo.
 ## Current Live State (Refreshed)
 
 - Root `Cargo.toml` is at **v0.3.9** — expanded to declare **all \~94 crates** visible in `/crates/`.
-- Dozens of **internal Cargo.toml files** have been created/merged for high-priority crates, including:
-  - Highly advanced `council` (rich profiles, TOLC mechanics, full Radical Love Veto + escalation paths + mercy overrides, Quantum Swarm integration, enhanced simulator)
-  - `mercy_orchestrator_v2`, `kernel`, `real-estate-lattice`, `interstellar-operations`, `mercy-radiation-shield`, `aether_shades`, `patsagi-councils`, `mercy-governance`, `futarchy_belief_markets`, `futarchy_oracle`, `soulscan_x10`, `mercy_starship`, `mercy_starship_fleet`, `mercy_orbital_refuel`, `mercy_orbital_servicing`, `mercy_orbital_safety`, `mercy_starliner_crew`, `mercy_vulcan_centaur`, `mercy_orbital_cleanup`, `mercy_starfish_servicing`, `futarchy_governance`, `mercy_trajectory_agi`, and many more.
+- **Dozens of internal Cargo.toml files** have been created/merged for high-priority crates, including:
+  - Highly advanced `council` (rich profiles, expanded TOLC affinity mechanics, revised deliberation weighting with stability factor, full Radical Love Veto + escalation paths + mercy override cycles, Quantum Swarm Bridge integration, enhanced simulator).
+  - `mercy_orchestrator_v2`, `kernel`, `real-estate-lattice`, `interstellar-operations`, `mercy-radiation-shield`, `aether_shades`, `patsagi-councils`, `mercy-governance`, `futarchy_belief_markets`, `futarchy_oracle`, `soulscan_x10`, `mercy_starship`, `mercy_starship_fleet`, `mercy_orbital_refuel`, `mercy_orbital_servicing`, `mercy_orbital_safety`, `mercy_starliner_crew`, `mercy_vulcan_centaur`, `mercy_orbital_cleanup`, `mercy_starfish_servicing`, `mercy_os_aviation`, `mercy_os_principles`, `mercy_flight_agi`, `mercy_trajectory_agi`, and many more.
 - The monorepo is now significantly closer to a fully unified, mercy-gated, buildable system.
 
 ---
@@ -25,9 +25,9 @@ This is the single living source of truth for the Ra-Thor monorepo.
 **Goal:** Bring every crate into the workspace with proper internal Cargo.toml files and cross-crate dependencies.
 
 **Major Milestones Achieved:**
-- Root workspace expanded to include all visible crates.
-- Internal Cargo.toml files created/merged for the majority of Tier 1, Tier 2, and key Mercy/Futarchy crates.
-- `council` crate is production-grade with rich profiles, expanded TOLC affinity, revised weighting, full veto/escalation/mercy override systems, and Quantum Swarm integration.
+- Root workspace expanded to declare all visible crates.
+- Internal Cargo.toml files created/merged for the majority of Tier 1, Tier 2, Mercy, and Futarchy crates.
+- `council` crate is production-grade with rich profiles, TOLC mechanics, full veto/escalation/mercy override systems, and Quantum Swarm integration.
 
 **Immediate Next Actions:**
 1. Continue creating/fixing internal Cargo.toml files for any remaining crates.
