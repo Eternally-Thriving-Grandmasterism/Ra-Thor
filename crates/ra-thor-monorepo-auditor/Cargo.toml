@@ -1,0 +1,35 @@
+[package]
+name = "ra-thor-monorepo-auditor"
+version = "0.3.9"
+edition = "2021"
+authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
+license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
+description = "Ra-Thor Monorepo Auditor — Self-auditing consistency enforcer for the mercy-gated AGI lattice. Prevents hallucinations, detects outdated Cargo.toml files, enforces workspace standards, and maintains monorepo integrity."
+repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
+keywords = ["ra-thor", "monorepo-auditor", "consistency", "self-audit", "cargo-toml", "mercy-gated", "agi"]
+categories = ["development-tools", "simulation", "science"]
+
+[dependencies]
+# Core Ra-Thor systems
+ra-thor-mercy = { workspace = true }
+ra-thor-quantum-swarm-orchestrator = { workspace = true }
+ra-thor-kernel = { workspace = true }
+ra-thor-monorepo-intelligence = { workspace = true }
+patsagi-councils = { workspace = true }
+
+# Standard dependencies
+tokio = { workspace = true, features = ["full"] }
+async-trait = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+tracing = { workspace = true }
+thiserror = { workspace = true }
+walkdir = "2.5"
+
+[dev-dependencies]
+tracing-subscriber = { workspace = true }
+
+[features]
+default = ["full"]
+full = []
+minimal = []
