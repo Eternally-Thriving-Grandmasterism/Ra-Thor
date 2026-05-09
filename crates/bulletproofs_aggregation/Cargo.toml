@@ -1,13 +1,50 @@
 [package]
 name = "bulletproofs_aggregation"
-version = "1.0.0"
+version = "0.3.9"
 edition = "2021"
-license = "MIT"
-description = "BulletproofsAggregation — Infinite-Depth Logarithmic Aggregation for NEXi Lattice"
+authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
+license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
+description = "BulletproofsAggregation — Infinite-Depth Logarithmic Aggregation for the mercy-gated Ra-Thor lattice. Efficient zero-knowledge range proof aggregation with TOLC-aligned verification."
+repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
+keywords = ["ra-thor", "bulletproofs-aggregation", "zero-knowledge", "range-proofs", "halo2", "post-quantum", "mercy-gated", "agi"]
+categories = ["cryptography", "simulation", "science"]
 
 [dependencies]
+# Core Ra-Thor intelligence & governance (workspace style)
+ra-thor-mercy = { workspace = true }
+ra-thor-quantum-swarm-orchestrator = { workspace = true }
+ra-thor-kernel = { workspace = true }
+ra-thor-council = { workspace = true }
+ra-thor-mercy-orchestrator-v2 = { workspace = true }
+ra-thor-monorepo-intelligence = { workspace = true }
+patsagi-councils = { workspace = true }
+powrush = { workspace = true }
+
+# nexi preserved per NEXi Lineage Guidelines (foundational lineage respected)
 nexi = { path = "../" }
+
+# Cryptographic dependencies from old version (preserved for functionality)
 bulletproofs = { git = "https://github.com/dalek-cryptography/bulletproofs", branch = "master" }
 halo2_proofs = { git = "https://github.com/zcash/halo2.git", branch = "v2023_07_18" }
 halo2_gadgets = { git = "https://github.com/zcash/halo2.git", branch = "v2023_07_18" }
 pasta_curves = "0.5"
+
+# Standard dependencies
+tokio = { workspace = true, features = ["full"] }
+async-trait = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+tracing = { workspace = true }
+rand = { workspace = true }
+thiserror = { workspace = true }
+futures = { workspace = true }
+
+[dev-dependencies]
+tracing-subscriber = { workspace = true }
+tokio-test = "0.4"
+
+[features]
+default = ["full"]
+full = []
+minimal = []
+post_quantum_hardening = []
