@@ -1,11 +1,47 @@
 [package]
 name = "mercy_dragon_crs"
-version = "1.0.0"
+version = "0.3.9"
 edition = "2021"
-license = "MIT"
+authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
+license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
 description = "MercyDragonCRS — Cargo Resupply + Valence-Weighted Priority Core for Eternal Orbital Sustainability Resonance"
+repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
+keywords = ["ra-thor", "mercy-dragon-crs", "dragon-crs", "resupply", "cargo-delivery", "logistics", "mercy-gated"]
+categories = ["science", "simulation", "artificial-intelligence"]
 
 [dependencies]
+# Core Ra-Thor dependencies (workspace style)
+ra-thor-mercy = { workspace = true }
+ra-thor-quantum-swarm-orchestrator = { workspace = true }
+ra-thor-kernel = { workspace = true }
+ra-thor-council = { workspace = true }
+ra-thor-mercy-orchestrator-v2 = { workspace = true }
+ra-thor-interstellar-operations = { workspace = true }
+mercy_starship = { workspace = true }
+mercy_starship_fleet = { workspace = true }
+mercy_orbital_refuel = { workspace = true }
+mercy_cygnus_missions = { workspace = true }
+powrush = { workspace = true }
+
+# Dependencies from old public version
 nexi = { path = "../" }
 mercy_space_governance = { path = "../crates/mercy_space_governance" }
-tokio = { version = "1.38", features = ["full"] }
+
+# Standard dependencies
+tokio = { workspace = true, features = ["full"] }
+async-trait = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+tracing = { workspace = true }
+rand = { workspace = true }
+thiserror = { workspace = true }
+futures = { workspace = true }
+
+[dev-dependencies]
+tracing-subscriber = { workspace = true }
+tokio-test = "0.4"
+
+[features]
+default = ["full"]
+full = []
+minimal = []
