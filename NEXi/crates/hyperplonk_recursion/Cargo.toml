@@ -1,0 +1,13 @@
+[package]
+name = "hyperplonk_recursion"
+version = "1.0.0"
+edition = "2021"
+license = "MIT"
+description = "HyperPlonkRecursion — Multilinear + Lookup Recursive PLONK for Infinite Arbitrary Circuits in NEXi Lattice"
+
+[dependencies]
+nexi = { path = "../" }
+ark-ff = "0.4"
+ark-poly = "0.4"
+ark-poly-commit = "0.4"
+# HyperPlonk simulation (research-inspired — real impl forthcoming)

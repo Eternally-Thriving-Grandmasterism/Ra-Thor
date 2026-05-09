@@ -1,0 +1,11 @@
+[package]
+name = "mercy_quadratic_voting"
+version = "1.0.0"
+edition = "2021"
+license = "MIT"
+description = "MercyQuadraticVoting — Valence-Weighted Quadratic Voting Core for Eternal Governance Resonance"
+
+[dependencies]
+nexi = { path = "../" }
+soulscan_x9 = { path = "../crates/soulscan_x9" }
+futarchy_oracle = { path = "../crates/futarchy_oracle" }

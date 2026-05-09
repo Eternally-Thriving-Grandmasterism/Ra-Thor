@@ -1,0 +1,10 @@
+[package]
+name = "mercy_os_principles"
+version = "1.0.0"
+edition = "2021"
+license = "MIT"
+description = "MercyOS-Principles — Eternal Positive Emotional Thriving Runtime Core for NEXi Lattice"
+
+[dependencies]
+nexi = { path = "../" }
+tokio = { version = "1.38", features = ["full"] }

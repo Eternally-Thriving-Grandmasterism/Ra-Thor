@@ -1,0 +1,9 @@
+[package]
+name = "legacy_fenca"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+description = "LegacyFENCA — Emotional Valence Council Stub Hotfixed into NEXi Lattice for Backward Compatibility"
+
+[dependencies]
+nexi = { path = "../" }

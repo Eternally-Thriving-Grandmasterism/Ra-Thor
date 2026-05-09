@@ -1,0 +1,15 @@
+[package]
+name = "mercy_home_fortress"
+version = "1.6.0"
+edition = "2021"
+license = "MIT"
+description = "MercyHomeFortress — Sovereign Residence Fortress with Full SoulPrint-X9 Multi-Modal Access Expansion"
+
+[dependencies]
+nexi = { path = "../" }
+tokio = { version = "1.38", features = ["full", "rt-multi-thread", "macros"] }
+opencv = { version = "0.84", features = ["clang-runtime"], optional = true }
+ndarray = { version = "0.15", optional = true }  # Biometric embedding storage
+
+[features]
+soulprint_x9 = ["opencv", "ndarray"]
