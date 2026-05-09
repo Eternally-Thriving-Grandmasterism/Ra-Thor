@@ -1,0 +1,5 @@
+fn main() {
+    let y0 = State6::from_vec(vec![0.0, 10.0, 20.0, 0.0, 0.0, 0.0]); // [x, h, v_a, gamma, psi, dummy]
+    let result = velocity_verlet(albatross_ode, 0.0, y0, 100.0, 0.1);
+    // or yoshida_fr4(albatross_ode, 0.0, y0, 100.0, 0.1);
+}
