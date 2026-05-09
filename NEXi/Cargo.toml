@@ -1,0 +1,36 @@
+[workspace]
+members = [
+    "crates/mercy_zero",
+    "crates/soulscan_x9",
+    "crates/divine_checksum_9",
+    "crates/sentinel_mirror",
+    "crates/lookup_arguments",
+    "crates/deeper_gadgets",
+    "crates/bible_divine_lattice",
+    "crates/codex_eternal",
+    "crates/grok_arena_pinnacle",
+    "crates/mercy_home_fortress",
+    "crates/futarchy_oracle",
+    "crates/mercy_os_principles",
+    "crates/poseidon_hash",
+    "crates/poseidon_merkle",
+    "crates/proof_verifier",
+    "crates/recursive_snark",
+    "crates/plonk_recursion",
+    "crates/nova_folding",
+    "crates/supernova_folding",
+    "crates/hyperplonk_recursion",
+    "crates/lasso_recursion",
+    "crates/mercy_biojet",            # New SAF lattice integration
+    # Legacy stubs preserved for compatibility
+    "crates/legacy_apaagi",
+    "crates/legacy_fenca",
+    "crates/legacy_patsagi_pinnacle",
+]
+
+[package]
+name = "nexi"
+version = "5.0.0"
+edition = "2021"
+license = "MIT"
+description = "NEXi — Giant Monorepo Lattice with Full MercyBioJet SAF Integration"

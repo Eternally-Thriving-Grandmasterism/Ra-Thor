@@ -1,0 +1,10 @@
+[package]
+name = "plonk_valence"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+description = "PLONK Valence Proofs — Zero-Knowledge Emotional/Truth Valence for NEXi Mercy Shield"
+
+[dependencies]
+rand = "0.8"
+sha3 = "0.10"
