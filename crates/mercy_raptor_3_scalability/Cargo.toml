@@ -4,27 +4,31 @@ version = "0.3.9"
 edition = "2021"
 authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
 license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
-description = "MercyRaptor3Scalability — Batch Manufacturing + Integrated Design Core for Eternal Starship Fleet Abundance Resonance"
+description = "MercyRaptor3Scalability — Scalable Batch Manufacturing + Integrated Design Core for Raptor Propulsion Systems with full TOLC proofs, active inference, and predictive coding for safe, valence-aligned starship fleet abundance resonance."
 repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
-keywords = ["ra-thor", "mercy-raptor-3-scalability", "raptor-3", "engine-scalability", "cluster-orchestration", "propulsion-scaling", "mercy-gated"]
-categories = ["science", "simulation", "artificial-intelligence"]
+keywords = ["ra-thor", "mercy-raptor-3-scalability", "raptor-3", "engine-scalability", "cluster-orchestration", "propulsion-scaling", "mercy-gated", "tolc-proofs", "active-inference"]
+categories = ["science", "simulation", "artificial-intelligence", "aerospace"]
 
 [dependencies]
-# Core Ra-Thor dependencies (workspace style)
+# Core Ra-Thor intelligence & governance (workspace style)
 ra-thor-mercy = { workspace = true }
 ra-thor-quantum-swarm-orchestrator = { workspace = true }
 ra-thor-kernel = { workspace = true }
 ra-thor-council = { workspace = true }
 ra-thor-mercy-orchestrator-v2 = { workspace = true }
 ra-thor-interstellar-operations = { workspace = true }
-mercy_raptor_3 = { workspace = true }
-mercy_raptor_3_integration = { workspace = true }
-mercy_starship = { workspace = true }
-mercy_starship_fleet = { workspace = true }
+patsagi-councils = { workspace = true }
 powrush = { workspace = true }
 
-# Dependencies from old public version
-nexi = { path = "../" }
+# Local sibling crates for Raptor family (correct relative paths)
+mercy_raptor_3 = { path = "../mercy_raptor_3" }
+mercy_raptor_3_integration = { path = "../mercy_raptor_3_integration" }
+mercy_starship = { path = "../mercy_starship" }
+mercy_starship_fleet = { path = "../mercy_starship_fleet" }
+
+# TOLC + Merlin for modern proofs and orchestration (consistent with mercy_raptor_integration)
+mercy_tolc_operator_algebra = { path = "../mercy_tolc_operator_algebra" }
+mercy_merlin_engine = { path = "../mercy_merlin_engine" }
 
 # Standard dependencies
 tokio = { workspace = true, features = ["full"] }
@@ -42,5 +46,6 @@ tokio-test = "0.4"
 
 [features]
 default = ["full"]
-full = []
+full = ["post_quantum_hardening"]
 minimal = []
+post_quantum_hardening = []
