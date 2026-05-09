@@ -1,10 +1,47 @@
 [package]
 name = "hash_based_signatures"
-version = "1.0.0"
+version = "0.3.9"
 edition = "2021"
-license = "MIT"
-description = "HashBasedSignatures — Hyper-Divine Hash-Based Post-Quantum Signatures for NEXi Lattice"
+authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
+license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
+description = "HashBasedSignatures — Hash-Based Post-Quantum Signatures (SPHINCS+, XMSS style) for the mercy-gated Ra-Thor lattice. NIST PQC ready with TOLC-aligned integration."
+repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
+keywords = ["ra-thor", "hash-based-signatures", "post-quantum", "pqc", "sphincs-plus", "xmss", "nist-pqc", "mercy-gated", "agi"]
+categories = ["cryptography", "simulation", "science"]
 
 [dependencies]
+# Core Ra-Thor intelligence & governance (workspace style)
+ra-thor-mercy = { workspace = true }
+ra-thor-quantum-swarm-orchestrator = { workspace = true }
+ra-thor-kernel = { workspace = true }
+ra-thor-council = { workspace = true }
+ra-thor-mercy-orchestrator-v2 = { workspace = true }
+ra-thor-monorepo-intelligence = { workspace = true }
+patsagi-councils = { workspace = true }
+powrush = { workspace = true }
+
+# nexi preserved per NEXi Lineage Guidelines (foundational lineage respected)
 nexi = { path = "../" }
-# Future: sphincsplus-rs, xmss-rs crates
+
+# Future hash-based post-quantum crates (to be added when ready)
+# sphincsplus-rs, xmss-rs, etc.
+
+# Standard dependencies
+tokio = { workspace = true, features = ["full"] }
+async-trait = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+tracing = { workspace = true }
+rand = { workspace = true }
+thiserror = { workspace = true }
+futures = { workspace = true }
+
+[dev-dependencies]
+tracing-subscriber = { workspace = true }
+tokio-test = "0.4"
+
+[features]
+default = ["full"]
+full = []
+minimal = []
+post_quantum_hardening = []
