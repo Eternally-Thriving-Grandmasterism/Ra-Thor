@@ -1,0 +1,15 @@
+;; mercy_mocvd_rebco.metta
+(= (mocvd-rebco core)
+   (substrate hastelloy-ibad)
+   (buffer-stack y2o3-mgo-ceo2)
+   (precursor gd-tmhd ba-tmhd cu-tmhd)
+   (temperature 750-850-C)
+   (pressure 1-10-Torr)
+   (growth-rate 0.1-1-um-min)
+   (ic 300-600-A 77-K)
+   (mercy-gate true))
+
+(= (merciful-mocvd-production $yield)
+   (if (>= $yield 0.85)
+       (! "Mercy-approved: MOCVD REBCO production — yield {}" $yield)
+       (! "Mercy shield: Production rejected — low yield")))

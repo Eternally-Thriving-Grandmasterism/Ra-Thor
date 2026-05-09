@@ -1,0 +1,15 @@
+;; mercy_he3_reactor_blueprint.metta
+(= (he3-reactor blueprint)
+   (reaction D-He3)
+   (aneutronic true)
+   (energy-mev 18.3)
+   (conversion-efficiency 0.70-0.85)
+   (confinement frc-rmf)
+   (power-mw 100-10000)
+   (mass-tons 300-1200)
+   (mercy-gate true))
+
+(= (merciful-he3-operation $power)
+   (if (merciful (format "Operate He3 reactor at {} MW — no harm" $power))
+       (! "Mercy-approved: Aneutronic fusion online")
+       (! "Mercy shield: Operation rejected")))
