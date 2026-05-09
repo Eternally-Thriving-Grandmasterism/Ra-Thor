@@ -10,19 +10,21 @@ keywords = ["ra-thor", "futarchy", "belief-markets", "outcome-prediction", "gove
 categories = ["simulation", "artificial-intelligence", "science"]
 
 [dependencies]
-# Core Ra-Thor dependencies (workspace style for consistency)
+# Core Ra-Thor dependencies (workspace style)
 ra-thor-mercy = { workspace = true }
 ra-thor-quantum-swarm-orchestrator = { workspace = true }
 ra-thor-kernel = { workspace = true }
 ra-thor-council = { workspace = true }
 ra-thor-mercy-orchestrator-v2 = { workspace = true }
+patsagi-councils = { workspace = true }
 powrush = { workspace = true }
 
-# Dependencies from old public version
+# Dependencies from semi-old public version
 nexi = { path = "../" }
 futarchy_oracle = { path = "../crates/futarchy_oracle" }
 soulscan_x9 = { path = "../crates/soulscan_x9" }
 
+# Standard dependencies
 tokio = { workspace = true, features = ["full"] }
 async-trait = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
