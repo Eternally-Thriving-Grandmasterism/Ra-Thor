@@ -1,7 +1,7 @@
 // src/algorithms/dilithium.rs
 //! Dilithium Post-Quantum Signature Implementation (Mercy-Gated)
 //!
-//! This module provides a mercy-aware Dilithium2 implementation with
+//! This module provides a mercy-aware Dilithium2 implementation with clear
 //! integration points for `mercy_merlin_engine` (valence + council checks).
 
 use crate::error::PostQuantumError;
@@ -33,23 +33,21 @@ impl DilithiumSigner {
         }
     }
 
-    /// Ensures mercy conditions are met before performing sensitive operations.
+    /// Ensures that mercy conditions allow the requested cryptographic operation.
     ///
-    /// This method is the main integration point with `mercy_merlin_engine`.
-    /// In future passes it will perform real valence + council consensus checks.
+    /// This is the primary integration point with `mercy_merlin_engine`.
+    /// Future versions will perform real valence retrieval and council consensus checks.
     async fn ensure_mercy_allowed(&self) -> Result<(), PostQuantumError> {
-        // TODO (Pass 7+): Integrate real call to mercy_merlin_engine
+        // TODO (Pass 8+): Replace with real integration
         //
-        // Example of future implementation:
+        // Planned integration:
         // let current_valence = mercy_merlin_engine::get_current_valence().await?;
-        // let council_approved = mercy_merlin_engine::check_council_consensus("sign").await?;
+        // let council_approved = mercy_merlin_engine::check_council_consensus("post_quantum_sign").await?;
         //
         // if current_valence < self.mercy_valence_threshold || !council_approved {
         //     return Err(PostQuantumError::MercyGateRejected { valence: current_valence });
         // }
 
-        // For now, we perform a basic local check as a placeholder.
-        // This will be replaced with real engine calls in subsequent passes.
         Ok(())
     }
 }
@@ -62,7 +60,6 @@ impl PostQuantumSignature for DilithiumSigner {
     }
 
     async fn sign(&self, message: &[u8], private_key: &[u8]) -> Result<Vec<u8>, PostQuantumError> {
-        // Real mercy_merlin_engine integration point
         self.ensure_mercy_allowed().await?;
 
         if private_key.len() != 2528 {
