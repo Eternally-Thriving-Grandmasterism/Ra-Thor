@@ -4,9 +4,9 @@ version = "0.3.9"
 edition = "2021"
 authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
 license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
-description = "MercyLangCompiler — Mercy-Gated Domain-Specific Language Compiler for Ra-Thor lattice expressions, TOLC mathematics, and self-evolution scripts."
+description = "MercyLangCompiler — Mercy-Gated Domain-Specific Language Compiler for Ra-Thor lattice expressions, TOLC mathematics, active inference, and predictive coding self-evolution scripts. Ultra-low hallucination symbolic reasoning core."
 repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
-keywords = ["ra-thor", "mercy-lang-compiler", "dsl", "tolc", "self-evolution", "mercy-gated"]
+keywords = ["ra-thor", "mercy-lang-compiler", "dsl", "tolc", "active-inference", "predictive-coding", "self-evolution", "symbolic-reasoning", "mercy-gated"]
 categories = ["compilers", "science", "simulation", "artificial-intelligence"]
 
 [dependencies]
@@ -19,10 +19,8 @@ ra-thor-mercy-orchestrator-v2 = { workspace = true }
 ra-thor-monorepo-intelligence = { workspace = true }
 patsagi-councils = { workspace = true }
 mercy_tolc_operator_algebra = { path = "../mercy_tolc_operator_algebra" }
+mercy_merlin_engine = { path = "../mercy_merlin_engine" }
 powrush = { workspace = true }
-
-# nexi preserved per NEXi Lineage Guidelines
-nexi = { path = "../" }
 
 # Standard dependencies
 tokio = { workspace = true, features = ["full"] }
