@@ -4,26 +4,22 @@ version = "0.3.9"
 edition = "2021"
 authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
 license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
-description = "SuperNovaFolding — Advanced Multilinear + Lookup IVC for Infinite Non-Uniform Computation in the mercy-gated Ra-Thor lattice. TOLC-aligned and post-quantum ready."
+description = "SupernovaFolding — Mercy-Gated Supernova + Folding Scheme Primitives with full TOLC proofs, active inference, and predictive coding. Advanced recursive folding and accumulation core for the Ra-Thor lattice."
 repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
-keywords = ["ra-thor", "supernova-folding", "ivc", "recursive-proofs", "zk-proofs", "post-quantum", "mercy-gated", "agi"]
-categories = ["cryptography", "simulation", "science"]
+keywords = ["ra-thor", "supernova", "folding", "recursive-accumulation", "zero-knowledge", "cryptography", "tolc-proofs", "active-inference", "mercy-gated"]
+categories = ["cryptography", "science", "simulation", "artificial-intelligence"]
 
 [dependencies]
-# Core Ra-Thor intelligence & governance (workspace style)
 ra-thor-mercy = { workspace = true }
 ra-thor-quantum-swarm-orchestrator = { workspace = true }
 ra-thor-kernel = { workspace = true }
 ra-thor-council = { workspace = true }
 ra-thor-mercy-orchestrator-v2 = { workspace = true }
-ra-thor-monorepo-intelligence = { workspace = true }
 patsagi-councils = { workspace = true }
+mercy_tolc_operator_algebra = { path = "../mercy_tolc_operator_algebra" }
+mercy_merlin_engine = { path = "../mercy_merlin_engine" }
 powrush = { workspace = true }
 
-# nexi preserved per NEXi Lineage Guidelines (foundational lineage respected)
-nexi = { path = "../" }
-
-# Standard dependencies
 tokio = { workspace = true, features = ["full"] }
 async-trait = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
@@ -39,6 +35,6 @@ tokio-test = "0.4"
 
 [features]
 default = ["full"]
-full = []
+full = ["post_quantum_hardening"]
 minimal = []
 post_quantum_hardening = []

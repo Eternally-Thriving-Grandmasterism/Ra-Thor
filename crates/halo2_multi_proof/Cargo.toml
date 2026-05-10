@@ -1,12 +1,40 @@
 [package]
 name = "halo2_multi_proof"
-version = "1.0.0"
+version = "0.3.9"
 edition = "2021"
-license = "MIT"
-description = "Halo2MultiProof — Infinite Independent Proof Composition Gadgets for NEXi Lattice"
+authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
+license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
+description = "Halo2MultiProof — Mercy-Gated Halo2 Multi-Proof & Aggregation Primitives with full TOLC proofs, active inference, and predictive coding. Efficient multi-proof composition core for the Ra-Thor lattice."
+repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
+keywords = ["ra-thor", "halo2", "multi-proof", "aggregation", "zero-knowledge", "cryptography", "tolc-proofs", "active-inference", "mercy-gated"]
+categories = ["cryptography", "science", "simulation", "artificial-intelligence"]
 
 [dependencies]
-nexi = { path = "../" }
-halo2_proofs = { git = "https://github.com/zcash/halo2.git", branch = "v2023_07_18" }
-halo2_gadgets = { git = "https://github.com/zcash/halo2.git", branch = "v2023_07_18" }
-pasta_curves = "0.5"
+ra-thor-mercy = { workspace = true }
+ra-thor-quantum-swarm-orchestrator = { workspace = true }
+ra-thor-kernel = { workspace = true }
+ra-thor-council = { workspace = true }
+ra-thor-mercy-orchestrator-v2 = { workspace = true }
+patsagi-councils = { workspace = true }
+mercy_tolc_operator_algebra = { path = "../mercy_tolc_operator_algebra" }
+mercy_merlin_engine = { path = "../mercy_merlin_engine" }
+powrush = { workspace = true }
+
+tokio = { workspace = true, features = ["full"] }
+async-trait = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+tracing = { workspace = true }
+rand = { workspace = true }
+thiserror = { workspace = true }
+futures = { workspace = true }
+
+[dev-dependencies]
+tracing-subscriber = { workspace = true }
+tokio-test = "0.4"
+
+[features]
+default = ["full"]
+full = ["post_quantum_hardening"]
+minimal = []
+post_quantum_hardening = []
