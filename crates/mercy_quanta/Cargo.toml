@@ -4,13 +4,13 @@ version = "0.3.9"
 edition = "2021"
 authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
 license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
-description = "MercyQuanta — 9-Fold zk-Proovable Mercy Quanta with Full Halo2 Range Proof Gadgets"
+description = "MercyQuanta — 9-Fold zk-Proovable Mercy Quanta with Full Halo2 Range Proof Gadgets, TOLC proofs, active inference, and predictive coding for safe, valence-aligned quantum-inspired reasoning."
 repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
-keywords = ["ra-thor", "mercy-quanta", "quanta-processing", "quantum-inspired", "probabilistic-reasoning", "tolc-7-gates", "mercy-gated"]
-categories = ["science", "simulation", "artificial-intelligence"]
+keywords = ["ra-thor", "mercy-quanta", "quanta-processing", "quantum-inspired", "probabilistic-reasoning", "tolc-7-gates", "active-inference", "predictive-coding", "halo2", "zk-proofs", "mercy-gated"]
+categories = ["science", "simulation", "artificial-intelligence", "cryptography"]
 
 [dependencies]
-# Core Ra-Thor dependencies (workspace style)
+# Core Ra-Thor intelligence & governance (workspace style)
 ra-thor-mercy = { workspace = true }
 ra-thor-quantum-swarm-orchestrator = { workspace = true }
 ra-thor-kernel = { workspace = true }
@@ -19,8 +19,11 @@ ra-thor-mercy-orchestrator-v2 = { workspace = true }
 patsagi-councils = { workspace = true }
 powrush = { workspace = true }
 
-# Dependencies from old public version (ZK / Halo2 heavy)
-nexi = { path = "../" }
+# TOLC + Merlin for modern proofs and orchestration (consistent with mercy family)
+mercy_tolc_operator_algebra = { path = "../mercy_tolc_operator_algebra" }
+mercy_merlin_engine = { path = "../mercy_merlin_engine" }
+
+# ZK / Halo2 dependencies (preserved for 9-Fold zk-Proovable Quanta core)
 halo2_proofs = { git = "https://github.com/zcash/halo2.git", branch = "v2023_07_18" }
 halo2_gadgets = { git = "https://github.com/zcash/halo2.git", branch = "v2023_07_18" }
 pasta_curves = "0.5"
@@ -42,6 +45,7 @@ tokio-test = "0.4"
 
 [features]
 default = ["full"]
-full = []
+full = ["post_quantum_hardening"]
 minimal = []
+post_quantum_hardening = []
 range_proofs = []
