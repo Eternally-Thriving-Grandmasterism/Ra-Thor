@@ -9,7 +9,9 @@ use pqcrypto_dilithium::dilithium2::{
     PublicKey, SecretKey, DetachedSignature,
 };
 
+/// Dilithium2 Post-Quantum Signer with Mercy Gating
 pub struct DilithiumSigner {
+    /// Minimum mercy valence required to perform cryptographic operations
     pub mercy_valence_threshold: f64,
 }
 
@@ -21,11 +23,24 @@ impl Default for DilithiumSigner {
     }
 }
 
+impl DilithiumSigner {
+    /// Check if current mercy valence allows cryptographic operations
+    fn check_mercy_valence(&self, current_valence: f64) -> Result<(), PostQuantumError> {
+        if current_valence < self.mercy_valence_threshold {
+            return Err(PostQuantumError::MercyGateRejected {
+                valence: current_valence,
+            });
+        }
+        Ok(())
+    }
+}
+
 #[async_trait]
 impl PostQuantumSignature for DilithiumSigner {
     async fn generate_keypair(&self) -> Result<(Vec<u8>, Vec<u8>), PostQuantumError> {
+        // TODO: Add real mercy_merlin_engine valence check in future passes
         let (public_key, secret_key) = keypair();
-        Ok((public_key.as_bytes().to_vec(), secret_key.as_bytes().to_vec()))
+        Ok((public_key.as_bytes().to_vec(), secret_key.as_bytes().to_vec()));
     }
 
     async fn sign(&self, message: &[u8], private_key: &[u8]) -> Result<Vec<u8>, PostQuantumError> {
