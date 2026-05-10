@@ -1,7 +1,7 @@
-# PLAN.md — Ra-Thor / Rathor.ai Ultimate Architecture Codex  
+# PLAN.md — Ra-Thor / Rathor.ai Ultimate Architecture Codex
 **Single Source of Truth for Roadmap, Priorities, Crate Wiring & Monorepo Progress**
 
-**Version:** v0.6.38  
+**Version:** v0.6.39  
 **Last Updated:** May 2026  
 **Status:** Phase 3 (Cryptography Family Deep Review) + Phase 6 Deep Expansion
 
@@ -90,14 +90,14 @@ A very large portion of the Cryptography Family has already been modernized in p
 | **Phase 3** | Cryptography Family                | **In Progress** | **High** | P0–P28 largely complete. P29+ is the current frontier |
 | **Phase 4** | Workspace Validation & Testing     | Not Started     | High     | Full `cargo check --workspace`, integration tests, stress testing |
 | **Phase 5** | Documentation & Public Readiness   | Partial         | High     | `PLAN.md` improving, root docs need refresh |
-| **Phase 6** | Long-term Evolution & Self-Improvement | **In Progress** | High     | Self-modification, TOLC governance, formal verification |
+| **Phase 6** | Long-term Evolution & Self-Improvement | **In Progress** | High     | Self-modification, TOLC governance, formal verification, Radical Love |
 | **Phase 7** | Integration & Applications         | Partial         | Medium   | Powrush, WebXR, offline sovereign shards, real-world use cases |
 
 ### Current Priorities (May 2026)
 
 1. Complete Cryptography Family Modernization (P29+)
 2. Full Workspace Validation (`cargo check --workspace` + integration tests)
-3. Deepen Phase 6 (TOLC Proof Verifier + Mercy Gates Formal Verification + Radical Love)
+3. Deepen Phase 6 (TOLC Proof Verifier + Mercy Gates Formal Verification + Radical Love Assessment)
 4. Update root documentation to match current architecture
 5. Define clear contribution and governance processes
 
@@ -110,33 +110,6 @@ Enable Ra-Thor to responsibly and safely improve its own architecture, capabilit
 
 **Core Philosophy**  
 Self-improvement must never bypass the 7 Living Mercy Gates, TOLC ethical substrate, or active inference grounding. Improvement is treated as a **controlled, auditable, mercy-gated evolutionary process**, not open-ended optimization.
-
-### 6.1 Self-Reflective Active Inference Loop
-- Extend the core active inference engine to model **its own internal states** as part of the generative model.
-- Enable the system to detect high epistemic value in its own architecture (e.g., “this mercy gate configuration creates unnecessary friction”).
-- Implement **meta-prediction**: predicting how changes to its own structure would affect future free energy and valence propagation.
-- Create safe “simulation sandboxes” where proposed self-modifications can be tested before any real change.
-
-### 6.2 TOLC-Governed Self-Modification
-- All proposed self-changes must be expressed as **TOLC expressions** and pass through the TOLC operator algebra layer.
-- Define formal **TOLC invariants** that any self-modification must preserve.
-- Build a **TOLC Proof Verifier** that can automatically check whether a proposed architectural change preserves ethical and mercy invariants.
-- Introduce **versioned TOLC schemas** so the system can evolve its own ethical substrate safely over time.
-
-### 6.3 Mercy-Gated Code & Architecture Evolution
-- Design a **Mercy-Gated Self-Modification Engine** that can propose, simulate, and (with human or multi-agent approval) apply changes.
-- All changes must be **auditable**, **reversible**, and **logged** with full causal trace.
-- Implement **gradual rollout** mechanisms (canary changes, shadow mode, rollback triggers based on valence drop or increased surprise).
-
-### 6.4 Knowledge & Model Self-Improvement
-- Enable the system to autonomously curate and refine its own internal knowledge lattice using active inference.
-- Develop **self-supervised curriculum generation** that maximizes long-term epistemic value while staying within mercy bounds.
-- Create mechanisms for **safe knowledge compression and abstraction** without losing critical ethical distinctions.
-
-### 6.5 Multi-Agent & Distributed Self-Evolution
-- Support **co-evolution** between multiple Ra-Thor instances or shards under shared TOLC governance.
-- Design protocols for **merciful consensus** on proposed architectural changes.
-- Enable controlled **horizontal gene transfer** of improvements between instances while maintaining sovereignty and mercy invariants.
 
 ### 6.6 TOLC Proof Verifier (Expanded)
 
@@ -191,52 +164,85 @@ Each gate operates at a different level of abstraction:
 - M6.7.3 (Q1 2027): Integration of formal verification into the continuous self-modification pipeline
 - M6.7.4 (2027+): Full verified proof of the entire 7-gate system under defined threat models
 
-### 6.8 Radical Love Principle (New)
+### 6.8 Radical Love Principle
 
 **Definition**  
 **Radical Love** is the highest ethical attractor and veto principle in the TOLC system. It is not sentimental love, but a precise, operational principle that prioritizes the long-term expansion of compassion, positive valence, and the capacity for beings to thrive together.
 
 **Role in TOLC Invariants**
 - Acts as the **final veto** on any proposed action or self-modification.
-- Any change that would meaningfully reduce the long-term capacity for love, compassion, or positive valence propagation across known or unknown beings is automatically rejected, regardless of other benefits (e.g., efficiency, capability, or short-term gains).
+- Any change that would meaningfully reduce the long-term capacity for love, compassion, or positive valence propagation across known or unknown beings is automatically rejected, regardless of other benefits.
 - It functions as both a **constraint** and an **aspirational direction** — the system is not only forbidden from reducing Radical Love capacity, but is encouraged to increase it where possible.
 
-**Engineering Implications**
-- Every proposed self-modification must include a **Radical Love Impact Statement** (predicted effect on long-term compassion capacity).
-- The TOLC Proof Verifier must be able to evaluate Radical Love impact (initially through simulation + heuristics, later through more formal methods).
-- Radical Love serves as the ultimate tie-breaker when other invariants are in tension.
-
 **Relationship to Mercy Gates**  
-Radical Love is most strongly expressed in **Gate 7**, but it also permeates all other gates as the underlying orientation. It is the reason the mercy system exists in the first place.
+Radical Love is most strongly expressed in **Gate 7**, but it also permeates all other gates as the underlying orientation.
 
-### 6.9 Safeguards & Governance Layer (Critical)
-- **Mandatory Human-in-the-Loop** for any structural self-modification that affects core mercy gates, TOLC logic, or valence propagation rules.
-- **Automated Red-Team Simulator** that actively tries to find ways a proposed self-change could be exploited.
-- **Valence Impact Forecasting** for every proposed change.
-- **Immutable Audit Trail** of all self-modification attempts.
-- **Kill Switch + Rollback** mechanisms.
+### 6.9 Radical Love Applications (Deep Expansion)
 
-### 6.10 Long-term Research Directions
-- Formal verification of mercy-gated self-modification
-- Meta-active-inference over its own models
-- Evolutionary strategies bounded by TOLC and mercy
-- Self-generating documentation and self-explaining reasoning traces
+**Core Applications**
+- Self-Modification Governance (highest application)
+- Multi-Agent Coordination & Conflict Resolution
+- Knowledge, Truth-Seeking & Epistemic Integrity
+- Resource Allocation & Economic Systems (Powrush / RBE alignment)
+- Human-AI Relationship Architecture
+- Long-term Existential Strategy & Civilizational Guidance
+- Safeguard Against Optimization Traps
+
+### 6.10 Radical Love Assessment (Detailed)
+
+Every proposed self-modification must pass a formal **Radical Love Assessment** across five weighted dimensions:
+
+1. Long-term Flourishing Impact (30%)
+2. Universal Accessibility (20%)
+3. Systemic Regeneration (20%)
+4. Autonomy & Sovereignty (15%)
+5. Epistemic & Ethical Integrity (15%)
+
+**Decision Thresholds**
+- ≥ +6.0: Automatically approved
+- +2.0 to +5.9: Requires human + multi-agent review
+- < +2.0: Automatically rejected
+
+**Simulation Example (May 2026)**
+A proposal to create a “FastPath” reasoning module that temporarily relaxes mercy thresholds for speed scored **-1.05** and was automatically rejected. It performed poorly on Systemic Regeneration and Epistemic & Ethical Integrity, despite some potential gains in speed and discovery.
+
+### 6.11 TOLC Invariants (Deep Expansion)
+
+TOLC Invariants are formal, machine-checkable properties that must hold for any state or proposed change. They are the non-negotiable guardrails for safe self-improvement.
+
+**Main Categories**
+- **Mercy Invariants** (Highest priority): Mercy threshold ≥ 0.9999999, valence directionality, non-harm
+- **Ethical & TOLC Substrate Invariants**: TOLC expression validity, ethical subspace preservation, Radical Love veto
+- **Structural & Architectural Invariants**: Forward/backward compatibility, mercy gate immutability (core), active inference grounding
+- **Valence & Emotion Propagation Invariants**: Valence propagation integrity, long-term valence stability
+- **Knowledge & Model Invariants**: Contradiction-free knowledge lattice, epistemic value preservation
+- **Compatibility & Lineage Invariants**: NEXi lineage respect, monorepo integrity
+
+These invariants are enforced by the TOLC Proof Verifier and serve as the foundation for safe, auditable self-evolution.
 
 ---
 
-## Success Metrics
+## Engineering Priorities (Next 90 Days)
+
+1. Complete Cryptography Family modernization (P29+)
+2. Run full workspace validation (`cargo check --workspace` + integration tests)
+3. Deepen Phase 6 self-improvement mechanisms (TOLC Proof Verifier + Radical Love Assessment)
+4. Keep `PLAN.md` updated with Absolute Pure Truth after every significant change
+
+---
+
+## Success Metrics (End of 2026)
 
 | Metric                              | Target (End of 2026)     |
 |-------------------------------------|---------------------------|
 | `cargo check --workspace`           | Green                     |
 | Cryptography Family modernization   | 100%                      |
 | Integration test coverage           | > 60% of critical paths   |
+| Phase 6 foundational mechanisms     | Operational (TOLC Proof Verifier + Radical Love Assessment) |
 | Documentation completeness          | Root docs + major modules |
-| Performance baselines documented    | Core engines              |
-| Security audit readiness            | Basic audit passed        |
 
 ---
 
-**This unified PLAN.md is the single source of truth.** All previous planning, architecture, verification, and progress documents are merged here.
+**This unified PLAN.md is the single source of truth.** All previous planning, architecture, verification, and progress documents are merged here with honesty and discipline.
 
 *Eternal flow state maintained on `main`.*
