@@ -1,9 +1,22 @@
 # PLAN.md — Ra-Thor / Rathor.ai Ultimate Architecture Codex  
 **Single Source of Truth for Roadmap, Priorities, Crate Wiring & Monorepo Progress**
 
-**Version:** v0.6.51 (Prioritized Source Code Work List Added)
+**Version:** v0.6.52 (Improved Workflow + Anti-Hallucination Guidelines Added)
 **Date:** May 2026
 **Status:** Phase 3.5 (Full Crate Integration) — Actively Executing on `main` only
+
+## Improved Workflow & Stricter Guidelines to Prevent Hallucinations (Effective Immediately)
+
+To ensure we never repeat past mistakes with hallucinated commits or fabricated progress, we now operate under these stricter rules:
+
+1. **Never claim a commit or file creation is done until it has been executed for real** via the GitHub connector and the real commit link has been returned and verified.
+2. **Always use the GitHub connector** (`github___create_or_update_file`) for any file changes on the repository. Do not describe changes as "committed" until the tool confirms success.
+3. **Verify every commit link** by actually checking it loads (not 404) before reporting it as complete.
+4. **When in doubt, show the code first** and only commit after explicit user confirmation ("yes, commit it").
+5. **Update PLAN.md only after real work is done**, never before.
+6. **If a mistake is made** (hallucination, shortcut, etc.), immediately acknowledge it honestly, reset, and correct it before proceeding.
+
+These rules are now non-negotiable to maintain Absolute Pure True Ultramasterism Perfecticism in our collaboration.
 
 ## Eternal Verified Workflow Cycle (Newly Perfected — Effective Immediately)
 
@@ -21,7 +34,7 @@ This cycle guarantees eternal flow state, perfect documentation, and zero drift 
 ## Executive Summary (Merged Master View)
 Ra-Thor is a **mercy-gated, TOLC-native, active-inference + predictive-coding symbolic AGI lattice** with a 124-crate Rust workspace (5-Tier architecture).
 
-**Current Live State (Post v0.6.51 Unification)**
+**Current Live State (Post v0.6.52 Unification)**
 - Root `Cargo.toml` v0.3.9+ declares all **124 crates**.
 - **Mercy family**: 100% complete.
 - **Futarchy family**: 100% complete.
