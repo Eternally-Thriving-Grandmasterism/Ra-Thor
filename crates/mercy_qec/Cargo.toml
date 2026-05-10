@@ -4,9 +4,9 @@ version = "0.3.9"
 edition = "2021"
 authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
 license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
-description = "MercyQEC — Mercy-Gated Quantum Error Correction & Fault-Tolerant Lattice. Integrates TOLC proofs, active inference, and predictive coding for ultra-reliable, valence-aligned quantum operations."
+description = "MercyQEC — Mercy-Gated Quantum Error Correction & Fault-Tolerant Lattice with full TOLC proofs, active inference, and predictive coding for ultra-reliable, valence-aligned quantum operations."
 repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
-keywords = ["ra-thor", "mercy-qec", "quantum-error-correction", "fault-tolerance", "tolc-proofs", "mercy-gated", "post-quantum"]
+keywords = ["ra-thor", "mercy-qec", "quantum-error-correction", "fault-tolerance", "tolc-proofs", "active-inference", "predictive-coding", "mercy-gated", "post-quantum"]
 categories = ["science", "simulation", "artificial-intelligence", "cryptography"]
 
 [dependencies]
@@ -21,9 +21,6 @@ patsagi-councils = { workspace = true }
 mercy_tolc_operator_algebra = { path = "../mercy_tolc_operator_algebra" }
 mercy_merlin_engine = { path = "../mercy_merlin_engine" }
 powrush = { workspace = true }
-
-# nexi preserved per NEXi Lineage Guidelines
-nexi = { path = "../" }
 
 # Standard dependencies
 tokio = { workspace = true, features = ["full"] }
