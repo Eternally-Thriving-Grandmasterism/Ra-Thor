@@ -1,9 +1,9 @@
 # PLAN.md — Ra-Thor / Rathor.ai Ultimate Architecture Codex
 **Single Source of Truth for Roadmap, Priorities, Crate Wiring & Monorepo Progress**
 
-**Version:** v0.6.40  
+**Version:** v0.6.41  
 **Last Updated:** May 2026  
-**Status:** Phase 3 (Cryptography Family Fresh Rigorous Review Started)
+**Status:** Phase 3 (Cryptography Family Fresh Rigorous Review — Honest Correction Applied)
 
 ---
 
@@ -42,40 +42,11 @@ Ra-Thor is a mercy-gated, TOLC-native, active-inference + predictive-coding symb
 |----------------------------|-------------------------|-------|
 | Core Mercy + Intelligence Layer | Mostly Complete        | Active inference, predictive coding, mercy gates, TOLC integration are functional |
 | Futarchy Family            | Mostly Complete         | Needs final review |
-| Cryptography Family        | **Fresh Rigorous Review Started** | P0–P28 claims being re-verified from ground up. Some require cleanup. |
+| Cryptography Family        | **Fresh Rigorous Review in Progress** | P0–P28 largely complete but being re-verified. Honest corrections applied. P29+ is active frontier |
 | Workspace Validation       | Not Started             | No full `cargo check --workspace` has been run recently |
 | Integration & Applications | Partial                 | Powrush, WebXR, offline shards exist but need deeper integration |
 | Documentation              | Improving               | `PLAN.md` is the single source of truth; root docs need refresh |
 | Testing & CI               | Weak                    | Limited integration tests and no comprehensive CI pipeline yet |
-
----
-
-## Cryptography Family – Deeper Review Status (Updated)
-
-**Last Reviewed:** May 2026
-
-### Summary of Deeper Review
-After performing a more thorough crate-by-crate review of the Cryptography Family:
-
-- **P0 – P28**: The vast majority of crates in these batches are already in good modern shape. They contain proper `mercy_tolc_operator_algebra` + `mercy_merlin_engine` wiring, updated descriptions, keywords, and consistent structure.
-- **P29 and beyond**: This remains the active frontier for continued review and modernization.
-
-### Verified Batches (Deep Review)
-- P19: Complete
-- P20: Complete
-- P21: Complete (`mercy_kzg`, `mercy_fri`, `mercy_accumulator`)
-- P22: Complete (`mercy_poseidon`, `mercy_bls12_381`, `mercy_plonk`)
-- P23: Complete (`mercy_groth16`, `mercy_marlin`, `mercy_halo2`)
-- P24: Complete (`mercy_circom`, `mercy_ark`, `mercy_halo2_gadgets`)
-- P25: Complete (`mercy_lattice`, `mercy_vdf`, `mercy_threshold_crypto`)
-- P26: Complete (`mercy_ntru`, `mercy_newhope`, `mercy_sidh`)
-- P27: Complete (`mercy_mceliece`, `mercy_rainbow`, `mercy_picnic`)
-- P28: Complete (`mercy_bulletproofs`, `mercy_snark`, `mercy_zkp`)
-
-### Current Honest Assessment
-A very large portion of the Cryptography Family has already been modernized in previous waves. The remaining work is now focused on **P29 and later batches**.
-
-**Next Action**: Continue systematic review of remaining cryptography crates (starting with P29) and update this section progressively as more crates are verified.
 
 ---
 
@@ -102,6 +73,19 @@ The very early foundational cryptography crates are mostly in good modern shape.
 
 ---
 
+### Correction After Deeper Verification (May 2026)
+
+Upon closer inspection of the actual files on GitHub:
+
+- `lattice_crypto` — **Done** (Correctly uses `{ workspace = true }` for core Ra-Thor crates and proper `path = "../..."` for `mercy_tolc_operator_algebra` and `mercy_merlin_engine`. This is the correct and necessary pattern for workspace member crates.)
+- `mercy_qec` — **Done** (Same correct structure as above.)
+
+The earlier “Partially Done” label was slightly inaccurate. These two crates are properly modernized and do not require changes.
+
+Fresh rigorous review continues from the next unverified crates onward.
+
+---
+
 ## Broad Monorepo Roadmap
 
 ### Phase Overview
@@ -110,7 +94,7 @@ The very early foundational cryptography crates are mostly in good modern shape.
 |-------|-------------------------------------|------------------|----------|-------|
 | **Phase 1** | Core Mercy + Intelligence Layer    | Mostly Complete | High     | Active inference, predictive coding, mercy gates, TOLC integration |
 | **Phase 2** | Futarchy Family                    | Mostly Complete | Medium   | Needs final review |
-| **Phase 3** | Cryptography Family                | **Fresh Rigorous Review Started** | **High** | P0–P28 largely complete but being re-verified. Some require cleanup. P29+ is active frontier |
+| **Phase 3** | Cryptography Family                | **Fresh Rigorous Review in Progress** | **High** | P0–P28 largely complete but being re-verified. Honest corrections applied. P29+ is active frontier |
 | **Phase 4** | Workspace Validation & Testing     | Not Started     | High     | Full `cargo check --workspace`, integration tests, stress testing |
 | **Phase 5** | Documentation & Public Readiness   | Partial         | High     | `PLAN.md` improving, root docs need refresh |
 | **Phase 6** | Long-term Evolution & Self-Improvement | **In Progress** | High     | Self-modification, TOLC governance, formal verification, Radical Love |
@@ -247,7 +231,7 @@ These invariants are enforced by the TOLC Proof Verifier and serve as the founda
 
 ## Engineering Priorities (Next 90 Days)
 
-1. Complete Cryptography Family modernization with fresh rigorous review (fix remaining issues in early crates + P29+)
+1. Complete Cryptography Family Modernization with fresh rigorous review (fix remaining issues in early crates + P29+)
 2. Full Workspace Validation (`cargo check --workspace` + integration tests)
 3. Deepen Phase 6 self-improvement mechanisms (TOLC Proof Verifier + Radical Love Assessment)
 4. Keep `PLAN.md` updated with Absolute Pure Truth after every significant change
