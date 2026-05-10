@@ -1,9 +1,9 @@
 # PLAN.md — Ra-Thor / Rathor.ai Ultimate Architecture Codex
 **Single Source of Truth for Roadmap, Priorities, Crate Wiring & Monorepo Progress**
 
-**Version:** v0.6.39  
+**Version:** v0.6.40  
 **Last Updated:** May 2026  
-**Status:** Phase 3 (Cryptography Family Deep Review) + Phase 6 Deep Expansion
+**Status:** Phase 3 (Cryptography Family Fresh Rigorous Review Started)
 
 ---
 
@@ -42,7 +42,7 @@ Ra-Thor is a mercy-gated, TOLC-native, active-inference + predictive-coding symb
 |----------------------------|-------------------------|-------|
 | Core Mercy + Intelligence Layer | Mostly Complete        | Active inference, predictive coding, mercy gates, TOLC integration are functional |
 | Futarchy Family            | Mostly Complete         | Needs final review |
-| Cryptography Family        | **In Progress**         | P0–P28 largely complete. P29+ is the current frontier |
+| Cryptography Family        | **Fresh Rigorous Review Started** | P0–P28 claims being re-verified from ground up. Some require cleanup. |
 | Workspace Validation       | Not Started             | No full `cargo check --workspace` has been run recently |
 | Integration & Applications | Partial                 | Powrush, WebXR, offline shards exist but need deeper integration |
 | Documentation              | Improving               | `PLAN.md` is the single source of truth; root docs need refresh |
@@ -79,6 +79,29 @@ A very large portion of the Cryptography Family has already been modernized in p
 
 ---
 
+## Cryptography Family – Fresh Rigorous Review Status
+
+**Last Reviewed:** May 2026 (Fresh Review Started)
+
+### Summary of Fresh Review
+A new systematic, crate-by-crate review of the Cryptography Family has begun. Previous status claims are being re-verified from the ground up to ensure accuracy and avoid any hallucinated progress.
+
+### Verified So Far (Early Foundational Crates)
+- `ra-thor-post-quantum-sig` — **Done** (Fully modernized with proper TOLC + `mercy_merlin_engine` wiring)
+- `mercy_quanta` — **Done** (Fully modernized with proper TOLC + `mercy_merlin_engine` wiring)
+- `lattice_crypto` — **Partially Done** (Has TOLC + `mercy_merlin_engine`, but still uses older `path = "../..."` dependency style instead of clean workspace inheritance)
+- `mercy_steane` — **Unknown** (File could not be retrieved during this review pass)
+- `mercy_qec` — **Partially Done** (Has TOLC + `mercy_merlin_engine`, but still uses older `path = "../..."` dependency style)
+
+### Current Honest Assessment
+The very early foundational cryptography crates are mostly in good modern shape. However, some still require minor cleanup on dependency style. A full systematic review is now in progress. Real modernization work has been identified starting from `lattice_crypto` and `mercy_qec`.
+
+**Next Actions**:
+1. Fix dependency style issues in `lattice_crypto` and `mercy_qec`.
+2. Continue systematic review of remaining cryptography crates (starting from P29 / next unverified crates).
+
+---
+
 ## Broad Monorepo Roadmap
 
 ### Phase Overview
@@ -87,7 +110,7 @@ A very large portion of the Cryptography Family has already been modernized in p
 |-------|-------------------------------------|------------------|----------|-------|
 | **Phase 1** | Core Mercy + Intelligence Layer    | Mostly Complete | High     | Active inference, predictive coding, mercy gates, TOLC integration |
 | **Phase 2** | Futarchy Family                    | Mostly Complete | Medium   | Needs final review |
-| **Phase 3** | Cryptography Family                | **In Progress** | **High** | P0–P28 largely complete. P29+ is the current frontier |
+| **Phase 3** | Cryptography Family                | **Fresh Rigorous Review Started** | **High** | P0–P28 largely complete but being re-verified. Some require cleanup. P29+ is active frontier |
 | **Phase 4** | Workspace Validation & Testing     | Not Started     | High     | Full `cargo check --workspace`, integration tests, stress testing |
 | **Phase 5** | Documentation & Public Readiness   | Partial         | High     | `PLAN.md` improving, root docs need refresh |
 | **Phase 6** | Long-term Evolution & Self-Improvement | **In Progress** | High     | Self-modification, TOLC governance, formal verification, Radical Love |
@@ -95,9 +118,9 @@ A very large portion of the Cryptography Family has already been modernized in p
 
 ### Current Priorities (May 2026)
 
-1. Complete Cryptography Family Modernization (P29+)
+1. Complete Cryptography Family Modernization with fresh rigorous review (fix remaining issues in early crates + P29+)
 2. Full Workspace Validation (`cargo check --workspace` + integration tests)
-3. Deepen Phase 6 (TOLC Proof Verifier + Mercy Gates Formal Verification + Radical Love Assessment)
+3. Deepen Phase 6 self-improvement mechanisms (TOLC Proof Verifier + Radical Love Assessment)
 4. Update root documentation to match current architecture
 5. Define clear contribution and governance processes
 
@@ -224,8 +247,8 @@ These invariants are enforced by the TOLC Proof Verifier and serve as the founda
 
 ## Engineering Priorities (Next 90 Days)
 
-1. Complete Cryptography Family modernization (P29+)
-2. Run full workspace validation (`cargo check --workspace` + integration tests)
+1. Complete Cryptography Family modernization with fresh rigorous review (fix remaining issues in early crates + P29+)
+2. Full Workspace Validation (`cargo check --workspace` + integration tests)
 3. Deepen Phase 6 self-improvement mechanisms (TOLC Proof Verifier + Radical Love Assessment)
 4. Keep `PLAN.md` updated with Absolute Pure Truth after every significant change
 
@@ -236,7 +259,7 @@ These invariants are enforced by the TOLC Proof Verifier and serve as the founda
 | Metric                              | Target (End of 2026)     |
 |-------------------------------------|---------------------------|
 | `cargo check --workspace`           | Green                     |
-| Cryptography Family modernization   | 100%                      |
+| Cryptography Family modernization   | 100% (with fresh review)  |
 | Integration test coverage           | > 60% of critical paths   |
 | Phase 6 foundational mechanisms     | Operational (TOLC Proof Verifier + Radical Love Assessment) |
 | Documentation completeness          | Root docs + major modules |
