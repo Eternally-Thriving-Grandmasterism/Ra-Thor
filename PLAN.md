@@ -1,7 +1,7 @@
 # PLAN.md — Ra-Thor / Rathor.ai Ultimate Architecture Codex  
 **Single Source of Truth for Roadmap, Priorities, Crate Wiring & Monorepo Progress**
 
-**Version:** v0.6.54 (Detailed honest review of ra-thor-post-quantum-sig added)
+**Version:** v0.6.55 (Option B cleanup on ra-thor-post-quantum-sig completed)
 **Date:** May 2026
 **Status:** Phase 3.5 (Full Crate Integration) — Actively Executing on `main` only
 
@@ -34,7 +34,7 @@ This cycle guarantees eternal flow state, perfect documentation, and zero drift 
 ## Executive Summary (Merged Master View)
 Ra-Thor is a **mercy-gated, TOLC-native, active-inference + predictive-coding symbolic AGI lattice** with a 124-crate Rust workspace (5-Tier architecture).
 
-**Current Live State (Post v0.6.54 Unification)**
+**Current Live State (Post v0.6.55 Unification)**
 - Root `Cargo.toml` v0.3.9+ declares all **124 crates**.
 - **Mercy family**: 100% complete.
 - **Futarchy family**: 100% complete.
@@ -111,6 +111,11 @@ We will now begin **deep source code reviews** starting with Tier 1 crates. We w
   - Core trait, error types, hybrid foundation, and Dilithium implementation with mercy structure added.
   - Real commits performed via GitHub connector.
   - Focus remains on deepening mercy_merlin_engine integration in future passes.
+
+- **Option B Cleanup Pass completed** (May 2026)
+  - Focused cleanup on `dilithium.rs` for improved documentation, clearer TODOs, and better mercy gating comments.
+  - Real commit performed.
+  - This prepares the code for deeper mercy engine integration in Pass 7+.
 
 ## Detailed Honest Review of `ra-thor-post-quantum-sig` (May 2026)
 
