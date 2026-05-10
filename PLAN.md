@@ -1,7 +1,7 @@
 # PLAN.md — Ra-Thor / Rathor.ai Ultimate Architecture Codex
 **Single Source of Truth for Roadmap, Priorities, Crate Wiring & Monorepo Progress**
 
-**Version:** v0.6.42  
+**Version:** v0.6.43  
 **Last Updated:** May 2026  
 **Status:** Phase 3 (Cryptography Family Fresh Rigorous Review — Honest Correction Applied)
 
@@ -93,6 +93,16 @@ Fresh rigorous review continues from the next unverified crates onward.
   - Consistent `post_quantum_hardening` feature flag.
 
 No changes required. The earlier “Unknown” status was due to a temporary retrieval issue during the initial review pass.
+
+### Fresh Review Correction — P6 Batch (May 2026)
+
+Upon live verification of the actual files on GitHub:
+
+- `hybrid_pqc_threshold` — **Done** (Already fully modernized with correct TOLC + `mercy_merlin_engine` wiring, proper workspace + path dependencies, modern description/keywords, and `post_quantum_hardening` feature.)
+- `lasso_recursion` — **Done** (Same excellent modern state.)
+- `recursive_snark` — **Done** (Same excellent modern state.)
+
+No changes were needed. These crates were already properly modernized in a previous wave. The fresh rigorous review continues from the next unverified crates onward.
 
 ---
 
@@ -260,6 +270,6 @@ These invariants are enforced by the TOLC Proof Verifier and serve as the founda
 
 ---
 
-**This unified PLAN.md (v0.6.42) is now the single source of truth.** All previous planning, architecture, verification, and progress documents are merged here with honesty and discipline.
+**This unified PLAN.md (v0.6.43) is now the single source of truth.** All previous planning, architecture, verification, and progress documents are merged here with honesty and discipline.
 
 *Eternal flow state maintained on `main`.*
