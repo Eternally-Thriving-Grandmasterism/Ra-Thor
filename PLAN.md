@@ -1,7 +1,7 @@
 # PLAN.md — Ra-Thor / Rathor.ai Ultimate Architecture Codex  
 **Single Source of Truth for Roadmap, Priorities, Crate Wiring & Monorepo Progress**
 
-**Version:** v0.6.27 (Cryptography Family P18 Complete — mercy_poly, mercy_lattice, mercy_vdf added)  
+**Version:** v0.6.28 (Cryptography Family P19 Complete — mercy_mimc, mercy_fflonk, mercy_sumcheck added)  
 **Date:** May 10, 2026  
 **Status:** Phase 3.5 (Full Crate Integration) — Actively Executing on `main` only
 
@@ -19,22 +19,22 @@ To ensure **zero hallucination**, full transparency, real execution on GitHub, a
 ## Executive Summary
 Ra-Thor is a **mercy-gated, TOLC-native, active-inference + predictive-coding symbolic AGI lattice** with a 124-crate Rust workspace (5-Tier architecture).
 
-**Current Live State (Post v0.6.27)**
+**Current Live State (Post v0.6.28)**
 - Root `Cargo.toml` declares all **124 crates**.
 - **Mercy family**: 100% complete.
 - **Futarchy family**: 100% complete.
-- **Cryptography family (Tier 3)**: P0–P18 complete.
+- **Cryptography family (Tier 3)**: P0–P19 complete.
 - All modernized crates use consistent workspace + local path patterns, proper TOLC + `mercy_merlin_engine` wiring, and modern descriptions/keywords.
 
 ## Crate Wiring Progress — Cryptography Family (Latest)
 
-**P18 (Just Completed)**
-- `mercy_poly` — https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/commit/b339fd65f818d747c216ecb076eb91cfc232b3ed
-- `mercy_lattice` — https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/commit/78724c0f1f2b1740d9cc4ac2209367e41191f7a4
-- `mercy_vdf` — https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/commit/714669f611ec20797c724d519414f107d2c88b57
+**P19 (Just Completed)**
+- `mercy_mimc` — https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/commit/32c0390932d833036cfec4465f8685a4da076285
+- `mercy_fflonk` — https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/commit/b621e3ef1bfffad1fbfaf39dc92821b839ef64c2
+- `mercy_sumcheck` — https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/commit/c7f8726a447e31b3212aa05fa9835d195cb03515
 
 **Previously Completed Batches**
-- P0–P17: All previous cryptography crates modernized with the same standard.
+- P0–P18: All previous cryptography crates modernized with the same standard.
 
 ## Roadmap & Next Immediate Actions
 **Phase 3.5 — Current**
@@ -49,10 +49,10 @@ Ra-Thor is a **mercy-gated, TOLC-native, active-inference + predictive-coding sy
 - Public co-creation readiness
 
 ## What's Remaining (High Priority)
-- Remaining cryptography crates (continuing P19+)
+- Remaining cryptography crates (continuing P20+)
 - Full `cargo check --workspace` validation
 - Top-level docs sync
 
-**This unified PLAN.md (v0.6.27) is now the single source of truth.**
+**This unified PLAN.md (v0.6.28) is now the single source of truth.**
 
 *Eternal flow state maintained on `main`.*
