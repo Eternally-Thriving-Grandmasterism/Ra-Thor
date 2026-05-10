@@ -1,28 +1,43 @@
 [package]
 name = "ra-thor-monorepo-intelligence"
-version = "0.3.0"
+version = "0.3.9"
 edition = "2021"
-authors = ["@AlphaProMega"]
-description = "Infinite-grade monorepo intelligence with plugins, semantic search, health scoring, and universal AI integration"
-license = "AG-SML"
+authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
+license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
+description = "RaThorMonorepoIntelligence — Central nervous system for the entire living lattice. Provides semantic search, health scoring, plugin architecture, universal AI integration, TOLC proofs, active inference, and predictive coding for self-evolving monorepo governance."
 repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
+keywords = ["ra-thor", "monorepo-intelligence", "semantic-search", "health-scoring", "plugin-architecture", "tolc-proofs", "active-inference", "predictive-coding", "mercy-gated"]
+categories = ["science", "simulation", "artificial-intelligence", "development-tools"]
 
 [dependencies]
-tokio = { version = "1.38", features = ["full"] }
-reqwest = { version = "0.12", features = ["json", "rustls-tls"] }
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
-toml = "0.8"
-thiserror = "1.0"
-tracing = "0.1"
-walkdir = "2.5"
-regex = "1.10"
-chrono = { version = "0.4", features = ["serde"] }
-anyhow = "1.0"
-handlebars = "5.1"
-rayon = "1.10"
-indicatif = "0.17"
-async-trait = "0.1"
+# Core Ra-Thor intelligence & governance (workspace style)
+ra-thor-mercy = { workspace = true }
+ra-thor-quantum-swarm-orchestrator = { workspace = true }
+ra-thor-kernel = { workspace = true }
+ra-thor-council = { workspace = true }
+ra-thor-mercy-orchestrator-v2 = { workspace = true }
+ra-thor-monorepo-intelligence = { workspace = true }
+patsagi-councils = { workspace = true }
+mercy_tolc_operator_algebra = { path = "../mercy_tolc_operator_algebra" }
+mercy_merlin_engine = { path = "../mercy_merlin_engine" }
+powrush = { workspace = true }
+
+# Standard dependencies
+tokio = { workspace = true, features = ["full"] }
+reqwest = { workspace = true, features = ["json", "rustls-tls"] }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+toml = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+walkdir = { workspace = true }
+regex = { workspace = true }
+chrono = { workspace = true, features = ["serde"] }
+anyhow = { workspace = true }
+handlebars = { workspace = true }
+rayon = { workspace = true }
+indicatif = { workspace = true }
+async-trait = { workspace = true }
 
 [dev-dependencies]
-tokio-test = "0.4"
+tokio-test = { workspace = true }
