@@ -1,0 +1,40 @@
+[package]
+name = "mercy_nova"
+version = "0.3.9"
+edition = "2021"
+authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
+license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
+description = "MercyNova — Mercy-Gated Nova Folding Scheme Primitives with full TOLC proofs, active inference, and predictive coding. Incrementally verifiable computation and folding core for the Ra-Thor lattice."
+repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
+keywords = ["ra-thor", "nova", "folding", "ivc", "zero-knowledge", "cryptography", "tolc-proofs", "active-inference", "mercy-gated"]
+categories = ["cryptography", "science", "simulation", "artificial-intelligence"]
+
+[dependencies]
+ra-thor-mercy = { workspace = true }
+ra-thor-quantum-swarm-orchestrator = { workspace = true }
+ra-thor-kernel = { workspace = true }
+ra-thor-council = { workspace = true }
+ra-thor-mercy-orchestrator-v2 = { workspace = true }
+patsagi-councils = { workspace = true }
+mercy_tolc_operator_algebra = { path = "../mercy_tolc_operator_algebra" }
+mercy_merlin_engine = { path = "../mercy_merlin_engine" }
+powrush = { workspace = true }
+
+tokio = { workspace = true, features = ["full"] }
+async-trait = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+tracing = { workspace = true }
+rand = { workspace = true }
+thiserror = { workspace = true }
+futures = { workspace = true }
+
+[dev-dependencies]
+tracing-subscriber = { workspace = true }
+tokio-test = "0.4"
+
+[features]
+default = ["full"]
+full = ["post_quantum_hardening"]
+minimal = []
+post_quantum_hardening = []
