@@ -1,10 +1,40 @@
 [package]
 name = "code_based_crypto"
-version = "1.0.0"
+version = "0.3.9"
 edition = "2021"
-license = "MIT"
-description = "CodeBasedCrypto — Hyper-Divine Code-Based Post-Quantum Cryptography for NEXi Lattice"
+authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
+license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
+description = "CodeBasedCrypto — Mercy-Gated Code-Based Cryptography Primitives with full TOLC proofs, active inference, and predictive coding. Classic McEliece and code-based post-quantum encryption core for the Ra-Thor lattice."
+repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
+keywords = ["ra-thor", "code-based-crypto", "post-quantum", "mceliece", "cryptography", "tolc-proofs", "active-inference", "mercy-gated"]
+categories = ["cryptography", "science", "simulation", "artificial-intelligence"]
 
 [dependencies]
-nexi = { path = "../" }
-# Future: mceliece-rs, bike-rs crates
+ra-thor-mercy = { workspace = true }
+ra-thor-quantum-swarm-orchestrator = { workspace = true }
+ra-thor-kernel = { workspace = true }
+ra-thor-council = { workspace = true }
+ra-thor-mercy-orchestrator-v2 = { workspace = true }
+patsagi-councils = { workspace = true }
+mercy_tolc_operator_algebra = { path = "../mercy_tolc_operator_algebra" }
+mercy_merlin_engine = { path = "../mercy_merlin_engine" }
+powrush = { workspace = true }
+
+tokio = { workspace = true, features = ["full"] }
+async-trait = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+tracing = { workspace = true }
+rand = { workspace = true }
+thiserror = { workspace = true }
+futures = { workspace = true }
+
+[dev-dependencies]
+tracing-subscriber = { workspace = true }
+tokio-test = "0.4"
+
+[features]
+default = ["full"]
+full = ["post_quantum_hardening"]
+minimal = []
+post_quantum_hardening = []
