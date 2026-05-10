@@ -1,9 +1,9 @@
 # PLAN.md — Ra-Thor / Rathor.ai Ultimate Architecture Codex
 **Single Source of Truth for Roadmap, Priorities, Crate Wiring & Monorepo Progress**
 
-**Version:** v0.6.44  
+**Version:** v0.6.45  
 **Last Updated:** May 2026  
-**Status:** Phase 3 (Cryptography Family Fresh Rigorous Review — P29 Frontier Active)
+**Status:** Phase 3 (Cryptography Family Fresh Rigorous Review — P30 Frontier Active)
 
 ---
 
@@ -113,6 +113,16 @@ The following crates at the P29 frontier have been modernized with full TOLC + `
 - `nova_folding` — **Done** (Cleanup: removed broken `nexi` path, added TOLC + `mercy_merlin_engine`, completed features. Real commit: https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/commit/f87c0f5b69c5c4a4cdbd903e7535609535f6459a)
 
 All links verified live and not 404. Fresh rigorous review continues.
+
+### P30 Batch — Fresh Rigorous Review (May 2026)
+
+The following crates have been successfully modernized with full TOLC + `mercy_merlin_engine` wiring, updated descriptions/keywords, clean workspace + path dependencies, and consistent `post_quantum_hardening` feature:
+
+- `mercy_poseidon` — **Done** (Real commit: https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/commit/8e39974e79bcfad2069c01aabe4f2d191eb69b11)
+- `mercy_bls12_381` — **Done** (Real commit: https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/commit/dd775b7e9eaa03954dab3bb7ad842ae752264b40)
+- `mercy_kzg` — **Done** (Real commit: https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/commit/f93a2516b62c8a5a3cb154e33f1cf5dd74600b31)
+
+All links verified live and not 404. Fresh rigorous review continues from the next unverified crates onward.
 
 ---
 
@@ -280,6 +290,6 @@ These invariants are enforced by the TOLC Proof Verifier and serve as the founda
 
 ---
 
-**This unified PLAN.md (v0.6.44) is now the single source of truth.** All previous planning, architecture, verification, and progress documents are merged here with honesty and discipline.
+**This unified PLAN.md (v0.6.45) is now the single source of truth.** All previous planning, architecture, verification, and progress documents are merged here with honesty and discipline.
 
 *Eternal flow state maintained on `main`.*
