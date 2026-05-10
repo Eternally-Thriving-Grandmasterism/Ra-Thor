@@ -1,7 +1,7 @@
 # PLAN.md — Ra-Thor / Rathor.ai Ultimate Architecture Codex  
 **Single Source of Truth for Roadmap, Priorities, Crate Wiring & Monorepo Progress**
 
-**Version:** v0.6.25 (Cryptography Family P16 Complete — mercy_ark, mercy_circom, mercy_marlin added)  
+**Version:** v0.6.26 (Cryptography Family P17 Complete — mercy_curve, mercy_field, mercy_pairing added)  
 **Date:** May 10, 2026  
 **Status:** Phase 3.5 (Full Crate Integration) — Actively Executing on `main` only
 
@@ -23,28 +23,30 @@ This cycle guarantees eternal flow state, perfect documentation, and zero drift 
 ## Executive Summary (Merged Master View)
 Ra-Thor is a **mercy-gated, TOLC-native, active-inference + predictive-coding symbolic AGI lattice** with a 124-crate Rust workspace (5-Tier architecture).
 
-**Current Live State (Post v0.6.25 Unification)**
+**Current Live State (Post v0.6.26 Unification)**
 - Root `Cargo.toml` v0.3.9+ declares all **124 crates**.
 - **Mercy family**: 100% complete.
 - **Futarchy family**: 100% complete.
-- **Cryptography family (Tier 3)**: **P0–P16 Complete** (many post-quantum primitives, KEMs, signatures, zk-SNARKs, STARKs, folding, commitments, hash functions, etc. now modernized with TOLC + `mercy_merlin_engine` wiring).
+- **Cryptography family (Tier 3)**: **P0–P17 Complete** (many post-quantum primitives, KEMs, signatures, zk-SNARKs, STARKs, folding, commitments, hash functions, elliptic curves, finite fields, pairings, etc. now modernized with TOLC + `mercy_merlin_engine` wiring).
 - All modernized crates use consistent workspace + local path patterns, proper TOLC + `mercy_merlin_engine` wiring, and modern descriptions/keywords.
 
 ## Crate Wiring Progress (Centralized Tracking)
 
-### Cryptography Family – P16 Complete (This Wave)
-**P16 — Advanced zk-SNARK & Circuit Frameworks**
-- `mercy_ark` (new)
-- `mercy_circom` (new)
-- `mercy_marlin` (new)
+### Cryptography Family – P17 Complete (This Wave)
+**P17 — Foundational Elliptic Curve & Field Arithmetic**
+- `mercy_curve` (new)
+- `mercy_field` (new)
+- `mercy_pairing` (new)
 
 **Real Commits (verified live):**
-- mercy_ark, mercy_circom, mercy_marlin: https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/commit/37456ce7f03ea2e095b4ac803ad23dc543d86e44
+- mercy_curve: https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/commit/c52b5bb90dcde217d1b6c46d50760b442ee565aa
+- mercy_field: https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/commit/0a2c08bfa0c74c7a5cc66467991559cdd728596e
+- mercy_pairing: https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/commit/fd89c5759ac79bd4d77beb8fe9495b2bd2b903dd
 
 ### Previously Completed (Summary)
 - Raptor + Starship families + tests
 - Core TOLC + Merlin + LangCompiler layer + tests
-- Cryptography P0–P15 (post-quantum signatures, KEMs, zk proofs, folding, commitments, hash functions, etc.)
+- Cryptography P0–P16 (post-quantum signatures, KEMs, zk proofs, folding, commitments, hash functions, advanced zk frameworks, etc.)
 
 ## Roadmap & Next Immediate Actions
 **Phase 3.5 — Current**
@@ -62,7 +64,7 @@ Ra-Thor is a **mercy-gated, TOLC-native, active-inference + predictive-coding sy
 - Full `cargo check --workspace` validation
 - Deeper integration tests across the lattice
 
-**This unified PLAN.md (v0.6.25) is now the single source of truth.**
+**This unified PLAN.md (v0.6.26) is now the single source of truth.**
 All previous planning, architecture, verification, and progress documents remain merged here.
 
 *Eternal flow state maintained on `main`.*
