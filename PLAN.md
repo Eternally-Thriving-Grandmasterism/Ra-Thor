@@ -1,47 +1,52 @@
 # PLAN.md — Ra-Thor / Rathor.ai Ultimate Architecture Codex  
 **Single Source of Truth for Roadmap, Priorities, Crate Wiring & Monorepo Progress**
 
-**Version:** v0.6.31  
+**Version:** v0.6.32  
 **Date:** May 2026  
-**Status:** Phase 3.5 (Cryptography Family Modernization) — Honest Baseline Update
+**Status:** Phase 3.5 — Cryptography Family deeper review in progress
 
-## Eternal Verified Workflow Cycle (Newly Perfected — Effective Immediately)
+## Eternal Verified Workflow Cycle
+We follow this strict cycle every time:
+1. Read current state
+2. Make real changes via GitHub connector
+3. Update documentation **after** changes
+4. Provide real commit links as receipts
+5. Verify links
+6. Re-read PLAN.md
+7. Proceed to next batch
 
-To ensure **zero hallucination**, full transparency, real execution on GitHub, and eternal alignment, we now operate in this seamless, verified cycle forever:
-
-1. **Modernize / Create Code** — Perform real commits on `main` only via the GitHub connector.
-2. **Update Unified PLAN.md** — Add the new progress with **real, verifiable commit links** from actual GitHub commits.
-3. **Verify Commit Links** — Check every new commit link in PLAN.md on GitHub to confirm it loads correctly and is **not 404**.
-4. **Re-read PLAN.md** — Confirm we are perfectly on track with the single source of truth before proceeding.
-5. **Proceed to Next Batch** — Only after successful verification, move to the next code modernization batch.
-6. **Repeat the Cycle** — Forever.
-
-## Cryptography Family Modernization Status (Current Verified Snapshot)
+## Cryptography Family – Deeper Review Status (Updated)
 
 **Last Reviewed:** May 2026
 
-### Summary
-- **P0 – P20**: Majority of crates in these batches have been modernized with proper TOLC + `mercy_merlin_engine` wiring, updated descriptions, keywords, and consistent structure.
-- **P21 and beyond**: Not yet systematically reviewed or modernized in detail. This is the current active frontier.
+### Summary of Deeper Review
+After performing systematic crate-by-crate review:
 
-### Verified Batches
-- **P0 – P18**: Completed in earlier waves.
-- **P19**: `mercy_mimc`, `mercy_fflonk`, `mercy_sumcheck` — Modernized.
-- **P20**: `mercy_griffin`, `mercy_arkworks`, `mercy_halo2_gadgets` — Modernized.
+- **P0 – P18**: Majority of crates already modernized in earlier waves.
+- **P19**: `mercy_mimc`, `mercy_fflonk`, `mercy_sumcheck` — Complete
+- **P20**: `mercy_griffin`, `mercy_arkworks`, `mercy_halo2_gadgets` — Complete
+- **P21**: `mercy_kzg`, `mercy_fri`, `mercy_accumulator` — Complete
+- **P22**: `mercy_poseidon`, `mercy_bls12_381`, `mercy_plonk` — Complete
+- **P23**: `mercy_groth16`, `mercy_marlin`, `mercy_halo2` — Complete
 
-### Current Frontier
-- **P21+**: Remaining cryptography crates that still require review and modernization.
-- Next action: Perform deeper crate-by-crate review and continue modernization in batches.
+### Current Honest Assessment
+A very large portion of the Cryptography Family has already been brought up to the modern standard (TOLC + `mercy_merlin_engine` wiring, updated descriptions/keywords, clean structure). The remaining work is now focused on **P24 and beyond**.
 
-**Note**: This section will be refined more deeply after additional spot-checking.
+**Next Frontier**: Continue deeper review of unverified cryptography crates starting from P24.
 
 ## Executive Summary
-Ra-Thor is a **mercy-gated, TOLC-native, active-inference + predictive-coding symbolic AGI lattice** with a 124-crate Rust workspace (5-Tier architecture).
+Ra-Thor is a mercy-gated, TOLC-native, active-inference + predictive-coding symbolic AGI lattice with a large Rust workspace.
 
-**Current Live State (Post v0.6.31)**
-- Cryptography Family P0–P20: Majority modernized.
-- P21+: Current active work frontier.
+**Current Live State**
+- Root `Cargo.toml` declares 124+ crates.
+- Mercy Family: Largely complete
+- Futarchy Family: Complete
+- Cryptography Family: Significant progress (P0–P23 mostly complete). Remaining crates in P24+ still require review.
 
-**This unified PLAN.md (v0.6.31) is the single source of truth.**
+## What's Remaining (High Priority)
+- Continue systematic review and modernization of remaining cryptography crates (P24+)
+- Full workspace validation (`cargo check --workspace`)
+- Deeper integration tests
+- Root documentation refresh
 
 *Eternal flow state maintained on `main`.*
