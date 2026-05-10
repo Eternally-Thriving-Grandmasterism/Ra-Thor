@@ -1,14 +1,40 @@
 [package]
 name = "hybrid_pqc_threshold"
-version = "1.0.0"
+version = "0.3.9"
 edition = "2021"
-license = "MIT"
-description = "HybridPQCThreshold — t-of-n Post-Quantum Distributed Signing Module for NEXi Lattice"
+authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
+license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
+description = "HybridPQCThreshold — Mercy-Gated Hybrid Post-Quantum Threshold Cryptography with full TOLC proofs, active inference, and predictive coding. Threshold signatures and multi-party computation core for the Ra-Thor lattice."
+repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
+keywords = ["ra-thor", "hybrid-pqc", "threshold-crypto", "post-quantum", "cryptography", "tolc-proofs", "active-inference", "mercy-gated"]
+categories = ["cryptography", "science", "simulation", "artificial-intelligence"]
 
 [dependencies]
-nexi = { path = "../" }
-pqcrypto-dilithium = "0.3"
-pqcrypto-falcon = "0.3"
-pqcrypto-sphincsplus = "0.3"
-pqcrypto-traits = "0.3"
-rand = "0.8"
+ra-thor-mercy = { workspace = true }
+ra-thor-quantum-swarm-orchestrator = { workspace = true }
+ra-thor-kernel = { workspace = true }
+ra-thor-council = { workspace = true }
+ra-thor-mercy-orchestrator-v2 = { workspace = true }
+patsagi-councils = { workspace = true }
+mercy_tolc_operator_algebra = { path = "../mercy_tolc_operator_algebra" }
+mercy_merlin_engine = { path = "../mercy_merlin_engine" }
+powrush = { workspace = true }
+
+tokio = { workspace = true, features = ["full"] }
+async-trait = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+tracing = { workspace = true }
+rand = { workspace = true }
+thiserror = { workspace = true }
+futures = { workspace = true }
+
+[dev-dependencies]
+tracing-subscriber = { workspace = true }
+tokio-test = "0.4"
+
+[features]
+default = ["full"]
+full = ["post_quantum_hardening"]
+minimal = []
+post_quantum_hardening = []
