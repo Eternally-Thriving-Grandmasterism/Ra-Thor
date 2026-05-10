@@ -6,7 +6,7 @@ authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
 license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
 description = "MercySTARK — Mercy-Gated STARK Proof System Primitives with full TOLC proofs, active inference, and predictive coding. Scalable, transparent zero-knowledge proof core for the Ra-Thor lattice."
 repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
-keywords = ["ra-thor", "stark", "zero-knowledge", "zk-proofs", "cryptography", "tolc-proofs", "active-inference", "mercy-gated"]
+keywords = ["ra-thor", "stark", "zero-knowledge", "transparent", "cryptography", "tolc-proofs", "active-inference", "mercy-gated"]
 categories = ["cryptography", "science", "simulation", "artificial-intelligence"]
 
 [dependencies]
