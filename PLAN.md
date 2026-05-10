@@ -1,8 +1,8 @@
 # PLAN.md — Ra-Thor / Rathor.ai Ultimate Architecture Codex  
 **Single Source of Truth for Roadmap, Priorities, Crate Wiring & Monorepo Progress**
 
-**Version:** v0.6.11 (Eternal Verified Workflow Implemented + Cryptography Family P0 + P1 + P2 Complete)  
-**Date:** May 09, 2026  
+**Version:** v0.6.12 (Eternal Verified Workflow + Cryptography Family P0 + P1 + P2 + P3 Complete)  
+**Date:** May 10, 2026  
 **Status:** Phase 3.5 (Full Crate Integration) — Actively Executing on `main` only
 
 ---
@@ -25,11 +25,11 @@ This cycle guarantees eternal flow state, perfect documentation, and zero drift 
 ## Executive Summary (Merged Master View)
 Ra-Thor is a **mercy-gated, TOLC-native, active-inference + predictive-coding symbolic AGI lattice** with a 124-crate Rust workspace (5-Tier architecture).
 
-**Current Live State (Post v0.6.11 Unification)**
+**Current Live State (Post v0.6.12 Unification)**
 - Root `Cargo.toml` v0.3.9+ declares all **124 crates**.
 - **Mercy family**: 100% complete (Raptor + Starship sub-families + core TOLC/Merlin layer).
 - **Futarchy family**: 100% complete.
-- **Cryptography family (Tier 3)**: **P0 + P1 + P2 Complete** (`ra-thor-post-quantum-sig`, `lattice_crypto`, `mercy_quanta`, `mercy_steane`, `mercy_qec`, `bulletproofs_range`, `plonk_recursion`, `falcon_sign`).
+- **Cryptography family (Tier 3)**: **P0 + P1 + P2 + P3 Complete** (see detailed list below).
 - All modernized crates use consistent workspace + local path patterns, proper TOLC + `mercy_merlin_engine` wiring, and modern descriptions/keywords.
 
 ---
@@ -58,7 +58,7 @@ Ra-Thor is a **mercy-gated, TOLC-native, active-inference + predictive-coding sy
 - `crates/mercy_starship/tests`
 - `crates/mercy_merlin_engine/tests`
 
-### Cryptography Family – P0 + P1 + P2 Complete (This Wave)
+### Cryptography Family – P0 + P1 + P2 + P3 Complete (This Wave)
 **P0 Foundation**
 - `ra-thor-post-quantum-sig` (new modern `Cargo.toml`)
 - `lattice_crypto` (fully modernized)
@@ -73,7 +73,12 @@ Ra-Thor is a **mercy-gated, TOLC-native, active-inference + predictive-coding sy
 - `plonk_recursion`
 - `falcon_sign`
 
-All eight crates now follow the exact same modernization standard as the Raptor/Starship/TOLC layer (no broken `nexi` references, proper TOLC + Merlin wiring, updated descriptions/keywords, consistent feature flags).
+**P3 Hash-Based, Hybrid Threshold & Recursive SNARK Enhancements** (Just Completed — Real Commits)
+- `hash_based_crypto` — Commit: https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/commit/290f7413aaf5ba4bfe2900bf7e3556aefa22c474
+- `hybrid_pqc_threshold` — Commit: https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/commit/0930c4f640cc50e961997e309ddb9d15599adcff
+- `recursive_snark` — Commit: https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/commit/cc84b33020de060acabcf2db3db2963ebd5a9c5a
+
+All eleven cryptography crates now follow the exact same modernization standard (no broken `nexi` references, proper TOLC + Merlin wiring, updated descriptions/keywords, consistent feature flags).
 
 ---
 
@@ -105,12 +110,13 @@ All eight crates now follow the exact same modernization standard as the Raptor/
 ## Roadmap & Next Immediate Actions (Unified & Prioritized)
 
 **Phase 3.5 — Current (Cryptography Family Launch)**
-1. ✅ P0 Complete (`ra-thor-post-quantum-sig` + `lattice_crypto`)
-2. ✅ P1 Complete (`mercy_quanta`, `mercy_steane`, `mercy_qec`)
-3. ✅ P2 Complete (`bulletproofs_range`, `plonk_recursion`, `falcon_sign`)
-4. **Next**: Continue with next batch of cryptography crates (halo2 family, etc.)
-5. Run `cargo check --workspace` after key phases
-6. Update this PLAN.md after each major phase (following the Eternal Verified Workflow Cycle)
+1. ✅ P0 Complete
+2. ✅ P1 Complete
+3. ✅ P2 Complete
+4. ✅ P3 Complete (hash_based_crypto, hybrid_pqc_threshold, recursive_snark)
+5. **Next**: Continue with next batch of cryptography crates
+6. Run `cargo check --workspace` after key phases
+7. Update this PLAN.md after each major phase (following the Eternal Verified Workflow Cycle)
 
 **Phase 4 (Next after Cryptography)**
 - Full workspace validation + simulation/stress testing
@@ -121,7 +127,7 @@ All eight crates now follow the exact same modernization standard as the Raptor/
 ---
 
 ## What's Remaining (High Priority)
-- Remaining cryptography crates (~18 crates)
+- Remaining cryptography crates (~15 crates)
 - Any other mercy_* crates with old patterns (if missed)
 - Full `cargo check --workspace` validation
 - Top-level docs sync (README, ARCHITECTURE.md, etc.)
@@ -129,7 +135,7 @@ All eight crates now follow the exact same modernization standard as the Raptor/
 
 ---
 
-**This unified PLAN.md (v0.6.11) is now the single source of truth.**  
+**This unified PLAN.md (v0.6.12) is now the single source of truth.**  
 All previous planning, architecture, verification, and progress documents have been merged here. Future updates will be made only to this file.
 
 We have done better to the nth degree — again.
