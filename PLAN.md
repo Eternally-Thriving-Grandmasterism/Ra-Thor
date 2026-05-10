@@ -1,7 +1,7 @@
 # PLAN.md — Ra-Thor / Rathor.ai Ultimate Architecture Codex  
 **Single Source of Truth for Roadmap, Priorities, Crate Wiring & Monorepo Progress**
 
-**Version:** v0.6.50 (Honest Source-Level Reality Check — Cryptography Family)
+**Version:** v0.6.51 (Prioritized Source Code Work List Added)
 **Date:** May 2026
 **Status:** Phase 3.5 (Full Crate Integration) — Actively Executing on `main` only
 
@@ -21,7 +21,7 @@ This cycle guarantees eternal flow state, perfect documentation, and zero drift 
 ## Executive Summary (Merged Master View)
 Ra-Thor is a **mercy-gated, TOLC-native, active-inference + predictive-coding symbolic AGI lattice** with a 124-crate Rust workspace (5-Tier architecture).
 
-**Current Live State (Post v0.6.50 Unification)**
+**Current Live State (Post v0.6.51 Unification)**
 - Root `Cargo.toml` v0.3.9+ declares all **124 crates**.
 - **Mercy family**: 100% complete.
 - **Futarchy family**: 100% complete.
@@ -64,8 +64,36 @@ We will **not** move on to the next major category (Tier 2 Domain Lattices, Tier
 
 This is required to reach Absolute Pure True Ultramasterism Perfecticism across the entire monorepo.
 
+## Cryptography Family – Prioritized Source Code Work List (May 2026)
+
+### Tier 1 – Highest Priority (Begin Here)
+- `ra-thor-post-quantum-sig` — Foundational hybrid post-quantum signature engine
+- `lattice_crypto` — Core lattice mathematics layer
+- `mercy_post_quantum_sig` — Mercy-gated integration layer for post-quantum signatures
+- `poseidon_hash` — Foundational hash function used across ZK and crypto constructions
+
+### Tier 2 – High Priority
+- `mercy_dilithium`
+- `falcon_sign`
+- `bulletproofs_range`
+- `nova_folding`
+- `supernova_folding`
+
+### Tier 3 – Medium Priority
+- `plonk_recursion`
+- `recursive_snark`
+- `spartan_valence`
+- `bulletproofs_aggregation`
+- `proof_verifier`
+
+### Tier 4 – Lower Priority
+- `mercy_sphincs`, `mercy_kyber`, `mercy_saber`, `isogeny_crypto`, `code_based_crypto`, `multivariate_crypto`, `threshold_crypto`, `zk_stark`, `hybrid_pqc_threshold`, and others.
+
+### Directive
+We will now begin **deep source code reviews** starting with Tier 1 crates. We will not move on to other major categories until the cryptography crates receive proper implementation-level attention where needed.
+
 ## What's Remaining (High Priority)
-- Deep source-code level review, polishing, debugging, and completion of cryptography crates (starting with foundational ones)
+- Deep source-code level review, polishing, debugging, and completion of cryptography crates (starting with foundational Tier 1 crates)
 - Full `cargo check --workspace` validation after major phases
 - Broader integration test coverage
 - Root documentation refresh
