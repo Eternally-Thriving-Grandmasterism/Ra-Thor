@@ -4,9 +4,9 @@ version = "0.3.9"
 edition = "2021"
 authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
 license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
-description = "Mercy-TOLC-Operator-Algebra — Mercy-gated TOLC 7 Gates operator algebra, living compassion mathematics, valence-weighted ethical computation core for Ra-Thor lattice and PATSAGi councils."
+description = "MercyTOLCOperatorAlgebra — Mercy-gated TOLC 7 Gates operator algebra with active inference and predictive coding integration. Living compassion mathematics and valence-weighted ethical computation core for the full Ra-Thor lattice."
 repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
-keywords = ["ra-thor", "mercy-tolc-operator-algebra", "tolc-7-gates", "operator-algebra", "compassion-mathematics", "ethical-computation", "mercy-gated"]
+keywords = ["ra-thor", "mercy-tolc-operator-algebra", "tolc-7-gates", "operator-algebra", "active-inference", "predictive-coding", "compassion-mathematics", "ethical-computation", "mercy-gated"]
 categories = ["science", "simulation", "artificial-intelligence"]
 
 [dependencies]
@@ -18,6 +18,9 @@ ra-thor-mercy-orchestrator-v2 = { workspace = true }
 patsagi-councils = { workspace = true }
 powrush = { workspace = true }
 
+mercy_merlin_engine = { path = "../mercy_merlin_engine" }
+
+# Standard dependencies
 tokio = { workspace = true, features = ["full"] }
 async-trait = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
@@ -33,5 +36,6 @@ tokio-test = "0.4"
 
 [features]
 default = ["full"]
-full = []
+full = ["post_quantum_hardening"]
 minimal = []
+post_quantum_hardening = []
