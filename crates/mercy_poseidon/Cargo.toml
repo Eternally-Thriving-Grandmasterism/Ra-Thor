@@ -4,9 +4,9 @@ version = "0.3.9"
 edition = "2021"
 authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
 license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
-description = "MercyPoseidon — Mercy-Gated Poseidon Hash Function Primitives with full TOLC proofs, active inference, and predictive coding. Efficient algebraic hash core for zero-knowledge circuits in the Ra-Thor lattice."
+description = "MercyPoseidon — Mercy-Gated Poseidon Hash Function Primitives with full TOLC proofs, active inference, and predictive coding. High-performance, mercy-gated cryptographic hashing core for the Ra-Thor lattice."
 repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
-keywords = ["ra-thor", "poseidon", "hash-function", "zero-knowledge", "algebraic-hash", "cryptography", "tolc-proofs", "active-inference", "mercy-gated"]
+keywords = ["ra-thor", "poseidon", "hash-function", "zero-knowledge", "cryptography", "tolc-proofs", "active-inference", "mercy-gated"]
 categories = ["cryptography", "science", "simulation", "artificial-intelligence"]
 
 [dependencies]
