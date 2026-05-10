@@ -4,27 +4,28 @@ version = "0.3.9"
 edition = "2021"
 authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
 license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
-description = "MercyRaptor3Integration — Full-Flow Staged Combustion Methane Engine Core Integration for Eternal Starship Resonance"
+description = "MercyRaptor3Integration — Full-Flow Staged Combustion Methane Engine Integration Layer with TOLC proofs, active inference, and predictive coding for safe, valence-aligned starship fleet orchestration."
 repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
-keywords = ["ra-thor", "mercy-raptor-3-integration", "raptor-3", "engine-integration", "propulsion-orchestration", "starship-fleet", "mercy-gated"]
-categories = ["science", "simulation", "artificial-intelligence"]
+keywords = ["ra-thor", "mercy-raptor-3-integration", "raptor-3", "engine-integration", "propulsion-orchestration", "starship-fleet", "mercy-gated", "tolc-proofs", "active-inference"]
+categories = ["science", "simulation", "artificial-intelligence", "aerospace"]
 
 [dependencies]
-# Core Ra-Thor dependencies (workspace style)
+# Core Ra-Thor intelligence & governance (workspace style)
 ra-thor-mercy = { workspace = true }
 ra-thor-quantum-swarm-orchestrator = { workspace = true }
 ra-thor-kernel = { workspace = true }
 ra-thor-council = { workspace = true }
 ra-thor-mercy-orchestrator-v2 = { workspace = true }
 ra-thor-interstellar-operations = { workspace = true }
-mercy_raptor_3 = { workspace = true }
-mercy_starship = { workspace = true }
-mercy_starship_fleet = { workspace = true }
-mercy_merlin_engine = { workspace = true }
+patsagi-councils = { workspace = true }
 powrush = { workspace = true }
 
-# Dependencies from old public version
-nexi = { path = "../" }
+# Local sibling crates (correct relative paths)
+mercy_raptor_3 = { path = "../mercy_raptor_3" }
+mercy_starship = { path = "../mercy_starship" }
+mercy_starship_fleet = { path = "../mercy_starship_fleet" }
+mercy_merlin_engine = { path = "../mercy_merlin_engine" }
+mercy_tolc_operator_algebra = { path = "../mercy_tolc_operator_algebra" }
 
 # Standard dependencies
 tokio = { workspace = true, features = ["full"] }
@@ -42,5 +43,6 @@ tokio-test = "0.4"
 
 [features]
 default = ["full"]
-full = []
+full = ["post_quantum_hardening"]
 minimal = []
+post_quantum_hardening = []
