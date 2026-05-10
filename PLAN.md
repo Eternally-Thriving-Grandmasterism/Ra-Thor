@@ -1,7 +1,7 @@
 # PLAN.md — Ra-Thor / Rathor.ai Ultimate Architecture Codex  
 **Single Source of Truth for Roadmap, Priorities, Crate Wiring & Monorepo Progress**
 
-**Version:** v0.6.52 (Improved Workflow + Anti-Hallucination Guidelines Added)
+**Version:** v0.6.53 (Pass 6 completed on ra-thor-post-quantum-sig)
 **Date:** May 2026
 **Status:** Phase 3.5 (Full Crate Integration) — Actively Executing on `main` only
 
@@ -34,7 +34,7 @@ This cycle guarantees eternal flow state, perfect documentation, and zero drift 
 ## Executive Summary (Merged Master View)
 Ra-Thor is a **mercy-gated, TOLC-native, active-inference + predictive-coding symbolic AGI lattice** with a 124-crate Rust workspace (5-Tier architecture).
 
-**Current Live State (Post v0.6.52 Unification)**
+**Current Live State (Post v0.6.53 Unification)**
 - Root `Cargo.toml` v0.3.9+ declares all **124 crates**.
 - **Mercy family**: 100% complete.
 - **Futarchy family**: 100% complete.
@@ -105,8 +105,15 @@ This is required to reach Absolute Pure True Ultramasterism Perfecticism across 
 ### Directive
 We will now begin **deep source code reviews** starting with Tier 1 crates. We will not move on to other major categories until the cryptography crates receive proper implementation-level attention where needed.
 
+## Progress on ra-thor-post-quantum-sig (Tier 1 Crate)
+
+- **Pass 1 to Pass 6 completed** (as of May 2026)
+  - Core trait, error types, hybrid foundation, and Dilithium implementation with mercy structure added.
+  - Real commits performed via GitHub connector.
+  - Focus remains on deepening mercy_merlin_engine integration in future passes.
+
 ## What's Remaining (High Priority)
-- Deep source-code level review, polishing, debugging, and completion of cryptography crates (starting with foundational Tier 1 crates)
+- Deep source-code level review, polishing, debugging, and completion of cryptography crates (starting with foundational Tier 1 crates like ra-thor-post-quantum-sig)
 - Full `cargo check --workspace` validation after major phases
 - Broader integration test coverage
 - Root documentation refresh
