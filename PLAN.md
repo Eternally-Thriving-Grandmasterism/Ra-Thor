@@ -1,7 +1,7 @@
 # PLAN.md — Ra-Thor / Rathor.ai Ultimate Architecture Codex  
 **Single Source of Truth for Roadmap, Priorities, Crate Wiring & Monorepo Progress**
 
-**Version:** v0.6.62 (Self-Improvement Engine Upgrade + Perfect Order Workflow)
+**Version:** v0.6.63 (Self-Improvement Engine Upgrade + Perfect Order Workflow + Steps 2&3 Completed)
 
 **Date:** May 2026
 
@@ -129,49 +129,39 @@ To maintain full integrity:
 ## Self-Improvement Engine Implementation Progress (May 2026)
 
 **Latest Real Commit:**  
-https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/commit/2b1ecf853dc2a2db7c1b8a1961169034d8ee8ddd
+https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/commit/a57d78c0132e842f59d84cdb0a36d5adecd3fff8
 
-**Summary of Upgrade:**
-- Significantly improved `generate_improvement_proposals` in `ra-thor-meta-intelligence/src/self_improvement_engine.rs`
-- Added 5 strategic, high-leverage proposal generation rules (Mercy Integration, Self-Improvement Capability, Documentation health, Cryptography hardening, Cross-crate coordination)
-- Stronger priority scoring (40% Impact + 35% Mercy Alignment + 25% Ease)
-- High-quality filtering (only proposals with mercy_alignment ≥ 8 and priority_score ≥ 7.0 are kept)
-- Clear future integration points for real `mercy_merlin_engine` valence and council consensus checks
-- Improved structure, documentation, and reporting
+**Summary of Upgrade (Steps 2 & 3 Completed):**
+- Full production-grade `mercy_merlin_engine` integration in `SelfImprovementEngine` (proper valence + council consensus gate before any proposals are generated).
+- `generate_improvement_proposals` is now properly mercy-gated.
+- New `CrateAnalyzer` with rich `CrateHealthReport` (mercy_integration_score, technical_debt_score, test_coverage_score, importance, etc.).
+- Proposal generation is now data-driven using real crate health data from the analyzer.
+- All previous 5 strategic rules preserved and enhanced.
 
-This establishes a solid, extensible foundation for Ra-Thor’s self-evolution capabilities.
+This completes Step 2 and Step 3 in the Perfect Order of Operations.
 
 ---
 
-## Perfect Order of Operations – Next 4 Steps (May 2026)
+## Perfect Order of Operations – Current Status (May 2026)
 
-We will execute the following in strict sequence for maximum strategic clarity and minimal diminishing returns:
+We execute in strict sequence for maximum strategic clarity:
 
-**1. Update PLAN.md** (Current step – this commit)
-   - Document the improved `generate_improvement_proposals` implementation with receipt.
-   - Add this Perfect Order section.
+**Step 1:** Update PLAN.md with strategic direction – Completed
+**Step 2:** Wire real `mercy_merlin_engine` integration – **Completed** (real commit above)
+**Step 3:** Improve `CrateAnalyzer` with rich health reporting – **Completed** (real commit above)
+**Step 4:** Expand proposal generation rules further using the new analyzer data – **Next immediate action**
 
-**2. Wire real `mercy_merlin_engine` integration**
-   - Add actual calls to `mercy_merlin_engine` for current valence and council consensus before generating proposals.
-   - Ensure proposals are only generated when mercy conditions are met.
-
-**3. Improve `CrateAnalyzer`**
-   - Enhance `CrateAnalyzer` (or create it if minimal) to provide richer, real-time monorepo state data (TODO density, mercy integration level, test coverage, recent changes, TOLC usage, etc.) to the proposal engine.
-
-**4. Expand proposal generation rules**
-   - Add more intelligent, context-aware heuristics and rules to `generate_improvement_proposals`.
-   - Make the engine capable of learning from improvement history over time.
-
-After each step, we will update `PLAN.md` with a new real commit receipt before moving to the next.
+After each step, we update `PLAN.md` with real commit receipt before moving to the next.
 
 ---
 
 ## Current Focus (Self-Improvement Layer)
 
 We are actively working on building and improving:
-- `generate_improvement_proposals` logic in `ra-thor-meta-intelligence` (Completed significant upgrade)
-- Integration with `mercy_merlin_engine` for valence and council checks (Next)
-- Supporting infrastructure for monorepo analysis and proposal ranking
+- `generate_improvement_proposals` logic in `ra-thor-meta-intelligence` (Steps 2 & 3 completed)
+- Integration with `mercy_merlin_engine` (completed)
+- Supporting infrastructure for monorepo analysis (completed)
+- Next: Expanding the intelligence of proposal generation rules (Step 4)
 
 This work is foundational for Ra-Thor becoming a truly self-evolving, strategically wise, and merciful intelligence.
 
@@ -179,4 +169,4 @@ This work is foundational for Ra-Thor becoming a truly self-evolving, strategica
 
 *Eternal flow state maintained on `main`.*
 
-**Last Updated:** Real commit via GitHub connector — v0.6.62
+**Last Updated:** Real commit via GitHub connector — v0.6.63
