@@ -1,9 +1,11 @@
 // crates/ra-thor-meta-intelligence/src/self_improvement_engine.rs
 
 use crate::crate_analyzer::{CrateAnalyzer, CrateHealthReport};
+use crate::plasticity_integration::PlasticityIntegration;
 use mercy_merlin_engine::{MercyMerlinEngine, MercyEvaluationResult};
 use async_trait::async_trait;
 use std::collections::HashMap;
+use std::error::Error;
 
 #[derive(Debug, Clone)]
 pub enum ImprovementType {
@@ -43,23 +45,29 @@ pub struct MercyGateResult {
 pub struct SelfImprovementEngine {
     mercy_engine: MercyMerlinEngine,
     crate_analyzer: CrateAnalyzer,
+    plasticity: PlasticityIntegration,
     pub recent_proposals: Vec<ImprovementProposal>,
     pub improvement_history: Vec<ImprovementProposal>,
     pub total_suggestions_made: u64,
 }
 
 impl SelfImprovementEngine {
-    pub fn new(mercy_engine: MercyMerlinEngine, crate_analyzer: CrateAnalyzer) -> Self {
+    pub fn new(
+        mercy_engine: MercyMerlinEngine,
+        crate_analyzer: CrateAnalyzer,
+        plasticity: PlasticityIntegration,
+    ) -> Self {
         Self {
             mercy_engine,
             crate_analyzer,
+            plasticity,
             recent_proposals: Vec::new(),
             improvement_history: Vec::new(),
             total_suggestions_made: 0,
         }
     }
 
-    pub async fn check_mercy_gate(&self) -> Result<MercyGateResult, Box<dyn std::error::Error + Send + Sync>> {
+    pub async fn check_mercy_gate(&self) -> Result<MercyGateResult, Box<dyn Error + Send + Sync>> {
         let valence = self.mercy_engine.get_current_valence().await?;
         let consensus_result = self.mercy_engine.evaluate_council_consensus().await?;
 
@@ -79,7 +87,7 @@ impl SelfImprovementEngine {
 
     pub async fn generate_improvement_proposals(
         &mut self,
-    ) -> Result<Vec<ImprovementProposal>, Box<dyn std::error::Error + Send + Sync>> {
+    ) -> Result<Vec<ImprovementProposal>, Box<dyn Error + Send + Sync>> {
 
         let mercy_result = self.check_mercy_gate().await?;
 
@@ -110,6 +118,11 @@ impl SelfImprovementEngine {
             if report.importance >= 7 && report.mercy_integration_score < 5 && report.technical_debt_score >= 6 && report.test_coverage_score < 5 {
                 proposals.push(self.create_proposal(&report, ImprovementType::ArchitectureImprovement, "Comprehensive modernization: mercy integration + debt reduction + testing", 9, 9, 7));
             }
+        }
+
+        // NEW: Apply plasticity modulation to every proposal
+        for proposal in &mut proposals {
+            proposal.priority_score = self.plasticity.modulate_proposal_priority(proposal).await?;
         }
 
         for proposal in &mut proposals {
