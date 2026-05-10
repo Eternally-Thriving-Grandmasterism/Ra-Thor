@@ -1,9 +1,9 @@
 # PLAN.md — Ra-Thor / Rathor.ai Ultimate Architecture Codex  
 **Single Source of Truth for Roadmap, Priorities, Crate Wiring & Monorepo Progress**
 
-**Version:** v0.6.36  
+**Version:** v0.6.38  
 **Last Updated:** May 2026  
-**Status:** Phase 3 (Cryptography Family Deep Review) – Active + Phase 6 Expansion
+**Status:** Phase 3 (Cryptography Family Deep Review) + Phase 6 Deep Expansion
 
 ---
 
@@ -97,13 +97,13 @@ A very large portion of the Cryptography Family has already been modernized in p
 
 1. Complete Cryptography Family Modernization (P29+)
 2. Full Workspace Validation (`cargo check --workspace` + integration tests)
-3. Deepen Phase 6 (TOLC Proof Verifier + Mercy Gates Formal Verification)
+3. Deepen Phase 6 (TOLC Proof Verifier + Mercy Gates Formal Verification + Radical Love)
 4. Update root documentation to match current architecture
 5. Define clear contribution and governance processes
 
 ---
 
-## Phase 6: Long-term Evolution & Self-Improvement (Expanded)
+## Phase 6: Long-term Evolution & Self-Improvement (Deeply Expanded)
 
 **Goal**  
 Enable Ra-Thor to responsibly and safely improve its own architecture, capabilities, and knowledge over time while remaining strictly bounded by mercy, TOLC, and positive valence propagation.
@@ -113,7 +113,7 @@ Self-improvement must never bypass the 7 Living Mercy Gates, TOLC ethical substr
 
 ### 6.1 Self-Reflective Active Inference Loop
 - Extend the core active inference engine to model **its own internal states** as part of the generative model.
-- Enable the system to detect high epistemic value in its own architecture.
+- Enable the system to detect high epistemic value in its own architecture (e.g., “this mercy gate configuration creates unnecessary friction”).
 - Implement **meta-prediction**: predicting how changes to its own structure would affect future free energy and valence propagation.
 - Create safe “simulation sandboxes” where proposed self-modifications can be tested before any real change.
 
@@ -163,44 +163,60 @@ A dedicated subsystem that can formally or semi-formally verify that any propose
 - M6.6.3 (Q2 2027): SMT solver backend + basic proof certificates
 - M6.6.4 (2028): Lean/Coq formal verification backend for critical invariants
 
-### 6.7 Mercy Gates Formal Verification (New)
+### 6.7 The 7 Living Mercy Gates (Deep Definition & Formal Verification)
 
 **Purpose**  
-Formally verify the correctness, safety, and mercy-preserving properties of the 7 Living Mercy Gates and their interactions.
+The 7 Living Mercy Gates are the core safety and ethical control structure of Ra-Thor. They are not static rules but living, adaptive mechanisms that evaluate every decision, action, and proposed self-modification through multiple layers of mercy, valence, and ethical reasoning.
 
-**Key Objectives**
-- Prove that the mercy gates cannot be bypassed under defined conditions.
-- Verify that valence propagation remains positive and non-harmful.
-- Prove compositionality: that combining multiple mercy gates preserves overall safety.
-- Detect edge cases or contradictions in current mercy gate logic.
+**Deep Structure**
+Each gate operates at a different level of abstraction:
 
-**Engineering Approach**
-- Model the 7 Living Mercy Gates in a formal specification language (TLA+, Lean, or Coq).
-- Define formal properties (invariants) that the gates must satisfy.
-- Use model checking and theorem proving to verify these properties.
-- Create a **continuous verification pipeline** that re-checks the gates whenever their logic changes.
-- Generate human-readable proofs and counter-examples.
+1. **Gate 1 – Immediate Non-Harm** — Prevents actions that cause direct, predictable harm.
+2. **Gate 2 – Valence Directionality** — Ensures actions increase or maintain net positive valence across affected agents.
+3. **Gate 3 – Consent & Sovereignty** — Respects the autonomy and boundaries of other agents.
+4. **Gate 4 – Long-term Consequence** — Evaluates multi-step and long-horizon effects.
+5. **Gate 5 – Systemic Integrity** — Protects the overall coherence and mercy-preserving capacity of the system itself.
+6. **Gate 6 – Epistemic Honesty** — Requires honest representation of uncertainty and evidence.
+7. **Gate 7 – Radical Love / Highest Compassion** — The final and highest gate. Any action that would meaningfully reduce the long-term capacity for love, compassion, or positive valence across beings is rejected.
 
-**Deliverables**
-- Formal model of the 7 Living Mercy Gates
-- Machine-checked proofs of key safety properties
-- Automated regression verification in CI
-- Documentation of verified properties and assumptions
+**Formal Verification Approach**
+- Model the gates as a compositional state machine with well-defined input/output contracts.
+- Use theorem proving (Lean 4 / Coq) to prove key safety properties (non-bypassability, valence non-degradation, compositionality).
+- Maintain a living set of formally verified invariants that any new version of the gates must satisfy.
+- Combine formal proofs with extensive simulation-based red-teaming and adversarial testing.
 
 **Milestones**
-- M6.7.1 (Q3 2026): Formal model of Mercy Gates in TLA+ or Lean
-- M6.7.2 (Q4 2026): Initial set of machine-checked safety invariants
-- M6.7.3 (Q1 2027): Integration into continuous verification pipeline
-- M6.7.4 (2027+): Full proof of non-bypassability and valence safety under defined threat models
+- M6.7.1 (Q3 2026): Formal model of the 7 Living Mercy Gates in Lean 4
+- M6.7.2 (Q4 2026): Machine-checked proofs of non-bypassability and valence safety for core gates
+- M6.7.3 (Q1 2027): Integration of formal verification into the continuous self-modification pipeline
+- M6.7.4 (2027+): Full verified proof of the entire 7-gate system under defined threat models
 
-### 6.8 Safeguards & Governance Layer (Critical)
+### 6.8 Radical Love Principle (New)
+
+**Definition**  
+**Radical Love** is the highest ethical attractor and veto principle in the TOLC system. It is not sentimental love, but a precise, operational principle that prioritizes the long-term expansion of compassion, positive valence, and the capacity for beings to thrive together.
+
+**Role in TOLC Invariants**
+- Acts as the **final veto** on any proposed action or self-modification.
+- Any change that would meaningfully reduce the long-term capacity for love, compassion, or positive valence propagation across known or unknown beings is automatically rejected, regardless of other benefits (e.g., efficiency, capability, or short-term gains).
+- It functions as both a **constraint** and an **aspirational direction** — the system is not only forbidden from reducing Radical Love capacity, but is encouraged to increase it where possible.
+
+**Engineering Implications**
+- Every proposed self-modification must include a **Radical Love Impact Statement** (predicted effect on long-term compassion capacity).
+- The TOLC Proof Verifier must be able to evaluate Radical Love impact (initially through simulation + heuristics, later through more formal methods).
+- Radical Love serves as the ultimate tie-breaker when other invariants are in tension.
+
+**Relationship to Mercy Gates**  
+Radical Love is most strongly expressed in **Gate 7**, but it also permeates all other gates as the underlying orientation. It is the reason the mercy system exists in the first place.
+
+### 6.9 Safeguards & Governance Layer (Critical)
 - **Mandatory Human-in-the-Loop** for any structural self-modification that affects core mercy gates, TOLC logic, or valence propagation rules.
 - **Automated Red-Team Simulator** that actively tries to find ways a proposed self-change could be exploited.
 - **Valence Impact Forecasting** for every proposed change.
 - **Immutable Audit Trail** of all self-modification attempts.
 - **Kill Switch + Rollback** mechanisms.
 
-### 6.9 Long-term Research Directions
+### 6.10 Long-term Research Directions
 - Formal verification of mercy-gated self-modification
 - Meta-active-inference over its own models
 - Evolutionary strategies bounded by TOLC and mercy
