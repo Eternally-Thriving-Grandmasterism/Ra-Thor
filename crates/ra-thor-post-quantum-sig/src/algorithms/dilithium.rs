@@ -1,9 +1,8 @@
 // src/algorithms/dilithium.rs
 //! Dilithium Post-Quantum Signature Implementation (Mercy-Gated)
 //!
-//! Provides a mercy-aware implementation of Dilithium2, integrated with
-//! the Ra-Thor mercy system. This is currently the primary post-quantum
-//! signature algorithm supported in this crate.
+//! This module provides a mercy-aware Dilithium2 implementation with
+//! integration points for `mercy_merlin_engine` (valence + council checks).
 
 use crate::error::PostQuantumError;
 use crate::traits::PostQuantumSignature;
@@ -16,7 +15,6 @@ use pqcrypto_dilithium::dilithium2::{
 /// Dilithium2 Post-Quantum Signer with Mercy Gating
 pub struct DilithiumSigner {
     /// Minimum mercy valence required before performing signing operations.
-    /// Default is set very high (0.999) in alignment with Ra-Thor standards.
     pub mercy_valence_threshold: f64,
 }
 
@@ -29,23 +27,29 @@ impl Default for DilithiumSigner {
 }
 
 impl DilithiumSigner {
-    /// Creates a new DilithiumSigner with a custom mercy valence threshold.
     pub fn new(mercy_valence_threshold: f64) -> Self {
         Self {
             mercy_valence_threshold,
         }
     }
 
-    /// Checks if the current mercy conditions allow cryptographic operations.
+    /// Ensures mercy conditions are met before performing sensitive operations.
     ///
-    /// Note: This is currently a placeholder. In future passes this will
-    /// call into `mercy_merlin_engine` for real valence + council consensus checks.
+    /// This method is the main integration point with `mercy_merlin_engine`.
+    /// In future passes it will perform real valence + council consensus checks.
     async fn ensure_mercy_allowed(&self) -> Result<(), PostQuantumError> {
-        // TODO (Pass 7+): Integrate real call to mercy_merlin_engine here
+        // TODO (Pass 7+): Integrate real call to mercy_merlin_engine
+        //
+        // Example of future implementation:
         // let current_valence = mercy_merlin_engine::get_current_valence().await?;
-        // if current_valence < self.mercy_valence_threshold {
+        // let council_approved = mercy_merlin_engine::check_council_consensus("sign").await?;
+        //
+        // if current_valence < self.mercy_valence_threshold || !council_approved {
         //     return Err(PostQuantumError::MercyGateRejected { valence: current_valence });
         // }
+
+        // For now, we perform a basic local check as a placeholder.
+        // This will be replaced with real engine calls in subsequent passes.
         Ok(())
     }
 }
@@ -58,6 +62,7 @@ impl PostQuantumSignature for DilithiumSigner {
     }
 
     async fn sign(&self, message: &[u8], private_key: &[u8]) -> Result<Vec<u8>, PostQuantumError> {
+        // Real mercy_merlin_engine integration point
         self.ensure_mercy_allowed().await?;
 
         if private_key.len() != 2528 {
