@@ -4,12 +4,22 @@
 //! generate high-leverage, mercy-aligned improvement proposals,
 //! rank them strategically, and support long-term self-evolution.
 //!
-//! This engine is designed to grow in intelligence over time through
-//! integration with plasticity-engine-v2, mercy_merlin_engine, and TOLC mathematics.
+//! This engine is now properly integrated with mercy_merlin_engine for real
+//! valence and council consensus checks before generating proposals.
 
 use crate::CrateAnalyzer;
 use crate::PlanMaintainer;
+use mercy_merlin_engine::{MercyMerlinEngine, MercyEvaluationResult, CouncilConsensus};
 use serde::{Serialize, Deserialize};
+
+/// Result of a mercy gate check
+#[derive(Debug, Clone)]
+pub struct MercyGateResult {
+    pub passed: bool,
+    pub current_valence: f64,
+    pub council_consensus: bool,
+    pub rejection_reason: Option<String>,
+}
 
 /// Types of improvements the Self-Improvement Engine can propose
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -35,45 +45,69 @@ pub struct ImprovementProposal {
     pub improvement_type: ImprovementType,
     pub title: String,
     pub description: String,
-    pub expected_impact: u8,           // 1-10
-    pub mercy_alignment: u8,           // 1-10 (how well it aligns with 7 Living Mercy Gates + TOLC)
-    pub implementation_difficulty: u8, // 1-10
+    pub expected_impact: u8,
+    pub mercy_alignment: u8,
+    pub implementation_difficulty: u8,
     pub priority_score: f64,
     pub rationale: String,
 }
 
-/// Main Self-Improvement Engine
+/// Main Self-Improvement Engine with real mercy_merlin_engine integration
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SelfImprovementEngine {
     pub recent_proposals: Vec<ImprovementProposal>,
     pub improvement_history: Vec<ImprovementProposal>,
     pub total_suggestions_made: u64,
+    mercy_engine: MercyMerlinEngine,
 }
 
 impl SelfImprovementEngine {
-    pub fn new() -> Self {
+    pub fn new(mercy_engine: MercyMerlinEngine) -> Self {
         Self {
             recent_proposals: Vec::new(),
             improvement_history: Vec::new(),
             total_suggestions_made: 0,
+            mercy_engine,
         }
     }
 
+    /// Real integration with mercy_merlin_engine
+    /// Checks current valence and council consensus before allowing proposal generation
+    pub async fn check_mercy_gate(&self) -> Result<MercyGateResult, crate::error::PostQuantumError> {
+        let valence = self.mercy_engine.get_current_valence().await?;
+        let consensus = self.mercy_engine.evaluate_council_consensus().await?;
+
+        let passed = valence >= 0.92 && consensus.approved;
+
+        Ok(MercyGateResult {
+            passed,
+            current_valence: valence,
+            council_consensus: consensus.approved,
+            rejection_reason: if !passed {
+                Some(format!("Valence: {:.4}, Council Approved: {}", valence, consensus.approved))
+            } else {
+                None
+            },
+        })
+    }
+
     /// Core function: Generates high-leverage, mercy-aligned improvement proposals.
-    /// This is the heart of Ra-Thor's self-evolution capability.
-    ///
-    /// Future enhancement: Integrate real calls to mercy_merlin_engine for valence
-    /// and council consensus before finalizing proposals.
-    pub fn generate_improvement_proposals(
+    /// Only generates proposals if the real mercy gate is passed.
+    pub async fn generate_improvement_proposals(
         &mut self,
         crate_analyzer: &CrateAnalyzer,
         plan_maintainer: &PlanMaintainer,
-        current_valence: f64, // From mercy_merlin_engine (future integration point)
-    ) -> Vec<ImprovementProposal> {
+    ) -> Result<Vec<ImprovementProposal>, crate::error::PostQuantumError> {
         
-        // Mercy gate: Do not propose major changes if valence is too low
-        if current_valence < 0.92 {
-            return vec![];
+        // === REAL MERCY GATE CHECK ===
+        let mercy_result = self.check_mercy_gate().await?;
+
+        if !mercy_result.passed {
+            tracing::warn!(
+                "Mercy gate rejected proposal generation. Reason: {:?}",
+                mercy_result.rejection_reason
+            );
+            return Ok(vec![]);
         }
 
         let mut proposals: Vec<ImprovementProposal> = Vec::new();
@@ -160,15 +194,13 @@ impl SelfImprovementEngine {
             });
         }
 
-        // Calculate priority scores for all proposals
+        // Calculate priority scores
         for proposal in &mut proposals {
             proposal.priority_score = SelfImprovementEngine::calculate_priority_score(proposal);
         }
 
-        // Sort by priority (highest first)
         proposals.sort_by(|a, b| b.priority_score.partial_cmp(&a.priority_score).unwrap());
 
-        // Filter to only high-quality, high-mercy proposals
         let high_quality: Vec<ImprovementProposal> = proposals
             .into_iter()
             .filter(|p| p.mercy_alignment >= 8 && p.priority_score >= 7.0)
@@ -177,7 +209,7 @@ impl SelfImprovementEngine {
         self.recent_proposals = high_quality.clone();
         self.total_suggestions_made += high_quality.len() as u64;
 
-        high_quality
+        Ok(high_quality)
     }
 
     fn calculate_priority_score(proposal: &ImprovementProposal) -> f64 {
@@ -185,11 +217,9 @@ impl SelfImprovementEngine {
         let mercy = proposal.mercy_alignment as f64;
         let difficulty = (10 - proposal.implementation_difficulty) as f64;
 
-        // Weighted scoring: Impact + Mercy + Ease of implementation
         (impact * 0.40) + (mercy * 0.35) + (difficulty * 0.25)
     }
 
-    /// Rank proposals using combined priority and mercy alignment
     pub fn rank_proposals(&self, proposals: &[ImprovementProposal]) -> Vec<ImprovementProposal> {
         let mut ranked = proposals.to_vec();
         ranked.sort_by(|a, b| {
@@ -200,12 +230,10 @@ impl SelfImprovementEngine {
         ranked
     }
 
-    /// Record that an improvement was successfully implemented
     pub fn record_improvement(&mut self, proposal: ImprovementProposal) {
         self.improvement_history.push(proposal);
     }
 
-    /// Generate a clear, human-readable report of current proposals
     pub fn generate_improvement_report(&self) -> String {
         if self.recent_proposals.is_empty() {
             return "No high-priority improvement proposals at this time. The lattice remains stable and mercy-aligned.".to_string();
@@ -232,6 +260,7 @@ impl SelfImprovementEngine {
 
 impl Default for SelfImprovementEngine {
     fn default() -> Self {
-        Self::new()
+        // Note: In production, MercyMerlinEngine should be injected
+        Self::new(MercyMerlinEngine::default())
     }
 }
