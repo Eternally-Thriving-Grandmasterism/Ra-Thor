@@ -22,9 +22,6 @@ mercy_tolc_operator_algebra = { path = "../mercy_tolc_operator_algebra" }
 mercy_lang_compiler = { path = "../mercy_lang_compiler" }
 powrush = { workspace = true }
 
-# nexi preserved per NEXi Lineage Guidelines
-nexi = { path = "../" }
-
 # Standard dependencies
 tokio = { workspace = true, features = ["full"] }
 async-trait = { workspace = true }
