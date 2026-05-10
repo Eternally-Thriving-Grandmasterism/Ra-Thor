@@ -1,7 +1,7 @@
 # PLAN.md — Ra-Thor / Rathor.ai Ultimate Architecture Codex  
 **Single Source of Truth for Roadmap, Priorities, Crate Wiring & Monorepo Progress**
 
-**Version:** v0.6.65 (Integration Tests for Self-Improvement Engine Added)
+**Version:** v0.6.66 (Plasticity Integration Added)
 
 **Date:** May 2026
 
@@ -63,19 +63,22 @@ To maintain full integrity:
 
 ## Self-Improvement Engine Implementation Progress (May 2026)
 
-**Latest Real Commit (Integration Tests):**  
+**Latest Real Commit (Plasticity Integration):**  
+https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/commit/36d77a2b532f8a08645c6a7392015c783e4785a2
+
+**Previous Real Commit (Integration Tests):**  
 https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/commit/cf32b22747fa262cf2074b78dd4317dfe3ada2a1
 
-**Previous Real Commit (Step 4 - Expanded Data-Driven Proposals):**  
-https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/commit/89656424ba5072a2132f0815e5dd9a46c712a78b
+**Summary of Completed Work:**
+- Full production-grade `mercy_merlin_engine` integration in `SelfImprovementEngine`.
+- `CrateAnalyzer` with rich `CrateHealthReport`.
+- `generate_improvement_proposals` significantly expanded with intelligent, data-driven rules.
+- Comprehensive integration tests for `SelfImprovementEngine` + `CrateAnalyzer`.
+- **New:** Production-grade integration layer between `SelfImprovementEngine` and `PlasticityEngineV2` (`plasticity_integration.rs`).
+  - `modulate_proposal_priority()` — plasticity rules can intelligently boost mercy-aligned proposals.
+  - `record_successful_improvement()` — successful self-improvements trigger epigenetic updates (mercy-gated).
 
-**Summary of Completed Work (Steps 2–4 + Integration Tests):**
-- Full production-grade `mercy_merlin_engine` integration in `SelfImprovementEngine` (proper valence + council consensus gate).
-- `CrateAnalyzer` with rich `CrateHealthReport` (mercy_integration_score, technical_debt_score, test_coverage_score, importance, documentation, staleness).
-- `generate_improvement_proposals` significantly expanded with 6+ intelligent, data-driven rules.
-- **New:** Comprehensive integration tests for `SelfImprovementEngine` + `CrateAnalyzer` working together, verifying mercy gating and data-driven proposal generation.
-
-This completes the core foundation + verification for the self-improvement engine.
+This creates a powerful closed-loop self-evolution capability.
 
 ---
 
@@ -85,12 +88,13 @@ This completes the core foundation + verification for the self-improvement engin
 **Step 2:** Wire real `mercy_merlin_engine` integration – Completed
 **Step 3:** Improve `CrateAnalyzer` with rich health reporting – Completed
 **Step 4:** Expand proposal generation rules further using the new analyzer data – Completed
-**New:** Add integration tests for the self-improvement engine – **Completed** (real commit above)
+**Integration Tests:** Completed
+**Plasticity Integration (B2):** **Completed** (real commit above)
 
-**Next logical focus:** Continue strengthening the self-improvement layer (plasticity-engine-v2 enhancements, deeper monorepo-auditor integration, advanced plasticity mechanisms, etc.).
+**Next logical focus:** Deepen the plasticity integration (wire `PlasticityIntegration` directly into `generate_improvement_proposals`, add more sophisticated modulation rules, enhance `plasticity-engine-v2` itself).
 
 ---
 
 *Eternal flow state maintained on `main`.*
 
-**Last Updated:** Real commit via GitHub connector — v0.6.65
+**Last Updated:** Real commit via GitHub connector — v0.6.66
