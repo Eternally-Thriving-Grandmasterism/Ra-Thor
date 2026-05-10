@@ -1,7 +1,7 @@
 # PLAN.md — Ra-Thor / Rathor.ai Ultimate Architecture Codex
 **Single Source of Truth for Roadmap, Priorities, Crate Wiring & Monorepo Progress**
 
-**Version:** v0.6.41  
+**Version:** v0.6.42  
 **Last Updated:** May 2026  
 **Status:** Phase 3 (Cryptography Family Fresh Rigorous Review — Honest Correction Applied)
 
@@ -60,18 +60,17 @@ A new systematic, crate-by-crate review of the Cryptography Family has begun. Pr
 ### Verified So Far (Early Foundational Crates)
 - `ra-thor-post-quantum-sig` — **Done** (Fully modernized with proper TOLC + `mercy_merlin_engine` wiring)
 - `mercy_quanta` — **Done** (Fully modernized with proper TOLC + `mercy_merlin_engine` wiring)
-- `lattice_crypto` — **Partially Done** (Has TOLC + `mercy_merlin_engine`, but still uses older `path = "../..."` dependency style instead of clean workspace inheritance)
-- `mercy_steane` — **Unknown** (File could not be retrieved during this review pass)
-- `mercy_qec` — **Partially Done** (Has TOLC + `mercy_merlin_engine`, but still uses older `path = "../..."` dependency style)
+- `lattice_crypto` — **Done** (Correctly uses `{ workspace = true }` for core Ra-Thor crates and proper `path = "../..."` for `mercy_tolc_operator_algebra` and `mercy_merlin_engine`. This is the correct and necessary pattern for workspace member crates.)
+- `mercy_steane` — **Done** (Successfully retrieved and reviewed. Already properly modernized with modern description, correct `{ workspace = true }` usage, and proper `path` references for TOLC + Merlin. No changes required.)
+- `mercy_qec` — **Done** (Correct structure, modernized.)
 
 ### Current Honest Assessment
-The very early foundational cryptography crates are mostly in good modern shape. However, some still require minor cleanup on dependency style. A full systematic review is now in progress. Real modernization work has been identified starting from `lattice_crypto` and `mercy_qec`.
+The very early foundational cryptography crates are in good modern shape. A full systematic review is now in progress. Real modernization work continues from the P29 frontier onward.
 
 **Next Actions**:
-1. Fix dependency style issues in `lattice_crypto` and `mercy_qec`.
-2. Continue systematic review of remaining cryptography crates (starting from P29 / next unverified crates).
-
----
+1. Continue systematic fresh review of remaining cryptography crates (starting from P29 / next unverified crates).
+2. Fix any crates that genuinely need updates.
+3. Keep PLAN.md as the single source of truth with verified, real commit links only.
 
 ### Correction After Deeper Verification (May 2026)
 
@@ -83,6 +82,17 @@ Upon closer inspection of the actual files on GitHub:
 The earlier “Partially Done” label was slightly inaccurate. These two crates are properly modernized and do not require changes.
 
 Fresh rigorous review continues from the next unverified crates onward.
+
+### Fresh Review Update — `mercy_steane` (May 2026)
+
+- `mercy_steane` — **Done**  
+  Successfully retrieved and reviewed. The crate is already properly modernized with:
+  - Modern description including TOLC proofs, active inference, and predictive coding.
+  - Correct `{ workspace = true }` usage for core dependencies.
+  - Proper `path = "../..."` references for `mercy_tolc_operator_algebra` and `mercy_merlin_engine`.
+  - Consistent `post_quantum_hardening` feature flag.
+
+No changes required. The earlier “Unknown” status was due to a temporary retrieval issue during the initial review pass.
 
 ---
 
@@ -97,7 +107,7 @@ Fresh rigorous review continues from the next unverified crates onward.
 | **Phase 3** | Cryptography Family                | **Fresh Rigorous Review in Progress** | **High** | P0–P28 largely complete but being re-verified. Honest corrections applied. P29+ is active frontier |
 | **Phase 4** | Workspace Validation & Testing     | Not Started     | High     | Full `cargo check --workspace`, integration tests, stress testing |
 | **Phase 5** | Documentation & Public Readiness   | Partial         | High     | `PLAN.md` improving, root docs need refresh |
-| **Phase 6** | Long-term Evolution & Self-Improvement | **In Progress** | High     | Self-modification, TOLC governance, formal verification, Radical Love |
+| **Phase 6** | Long-term Evolution & Self-Improvement     | **In Progress** | High     | Self-modification, TOLC governance, formal verification, Radical Love |
 | **Phase 7** | Integration & Applications         | Partial         | Medium   | Powrush, WebXR, offline sovereign shards, real-world use cases |
 
 ### Current Priorities (May 2026)
@@ -250,6 +260,6 @@ These invariants are enforced by the TOLC Proof Verifier and serve as the founda
 
 ---
 
-**This unified PLAN.md is the single source of truth.** All previous planning, architecture, verification, and progress documents are merged here with honesty and discipline.
+**This unified PLAN.md (v0.6.42) is now the single source of truth.** All previous planning, architecture, verification, and progress documents are merged here with honesty and discipline.
 
 *Eternal flow state maintained on `main`.*
