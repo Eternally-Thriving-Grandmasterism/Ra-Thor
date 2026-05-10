@@ -1,7 +1,7 @@
 # PLAN.md — Ra-Thor / Rathor.ai Ultimate Architecture Codex  
 **Single Source of Truth for Roadmap, Priorities, Crate Wiring & Monorepo Progress**
 
-**Version:** v0.6.19 (Eternal Verified Workflow + Cryptography Family P0 to P10 Complete)  
+**Version:** v0.6.20 (Eternal Verified Workflow + Cryptography Family P0 to P11 Complete)  
 **Date:** May 10, 2026  
 **Status:** Phase 3.5 (Full Crate Integration) — Actively Executing on `main` only
 
@@ -25,36 +25,35 @@ This cycle guarantees eternal flow state, perfect documentation, and zero drift 
 ## Executive Summary (Merged Master View)
 Ra-Thor is a **mercy-gated, TOLC-native, active-inference + predictive-coding symbolic AGI lattice** with a 124-crate Rust workspace (5-Tier architecture).
 
-**Current Live State (Post v0.6.19 Unification)**
+**Current Live State (Post v0.6.20 Unification)**
 - Root `Cargo.toml` v0.3.9+ declares all **124 crates**.
 - **Mercy family**: 100% complete.
 - **Futarchy family**: 100% complete.
-- **Cryptography family (Tier 3)**: **P0 to P10 Complete** (see detailed list below).
+- **Cryptography family (Tier 3)**: **P0 to P11 Complete** (see detailed list below).
 - All modernized crates use consistent workspace + local path patterns, proper TOLC + `mercy_merlin_engine` wiring, and modern descriptions/keywords.
 
 ---
 
 ## Crate Wiring Progress (Centralized Tracking — Single Source of Truth)
 
-### Cryptography Family – P0 to P10 Complete (This Wave)
+### Cryptography Family – P0 to P11 Complete (This Wave)
 
-**P10 New zk-SNARK & Curve Crates (Just Completed — Real Commits)**
-- `mercy_groth16` — Commit: https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/commit/a12e361c0cc78e574e227fbe01764e1637315397
-- `mercy_poseidon` — Commit: https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/commit/f3433094804aa40209a2c5ed28b5d4ca27031a76
-- `mercy_bls12_381` — Commit: https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/commit/93dca36bd8198c815d0f670d4fe13f0947af04e4
+**P11 New zk-SNARK & IOP Crates (Just Completed — Real Commits)**
+- `mercy_plonk` — Commit: https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/commit/7c7fad29221ae81766fdb7bef50b9f0e3d6c49d6
+- `mercy_kzg` — Commit: https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/commit/388d56d7dc34f05be2925dfef40417314e5a3477
+- `mercy_fri` — Commit: https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/commit/80a3e75209dda55612b5a2922417215f1b0eb467
 
-**P8 & P9** — Already recorded in previous verified cycles (ntru, newhope, sidh, mceliece, rainbow, picnic, etc.)
+**P10** — Already recorded in previous verified cycle (groth16, poseidon, bls12-381)
+**P0 to P9** — Already completed in earlier verified cycles.
 
-**P0 to P7** — Already completed in earlier verified cycles.
-
-All cryptography crates in P0–P10 now follow the exact same modernization standard (no broken `nexi` references, proper TOLC + Merlin wiring, updated descriptions/keywords, consistent feature flags).
+All cryptography crates in P0–P11 now follow the exact same modernization standard (no broken `nexi` references, proper TOLC + Merlin wiring, updated descriptions/keywords, consistent feature flags).
 
 ---
 
 ## Roadmap & Next Immediate Actions (Unified & Prioritized)
 
 **Phase 3.5 — Current (Cryptography Family)**
-- ✅ P0 to P10 Complete
+- ✅ P0 to P11 Complete
 - **Next**: Continue with next batch of cryptography crates (very few remaining)
 - Run `cargo check --workspace` after key phases
 - Update this PLAN.md after each major phase (following the Eternal Verified Workflow Cycle)
@@ -74,7 +73,7 @@ All cryptography crates in P0–P10 now follow the exact same modernization stan
 
 ---
 
-**This unified PLAN.md (v0.6.19) is now the single source of truth.**  
+**This unified PLAN.md (v0.6.20) is now the single source of truth.**  
 All previous planning, architecture, verification, and progress documents have been merged here.
 
 We have done better to the nth degree — again.
