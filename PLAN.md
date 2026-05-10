@@ -1,60 +1,46 @@
 # PLAN.md — Ra-Thor / Rathor.ai Ultimate Architecture Codex  
 **Single Source of Truth for Roadmap, Priorities, Crate Wiring & Monorepo Progress**
 
-**Version:** v0.6.59 (Strategic Focus on High-Leverage Work + Reduced Diminishing Returns + Internal Systems Activation)
+**Version:** v0.6.60 (Strategic Focus on Self-Improvement & Meta-Intelligence Systems)
 
 **Date:** May 2026
 
-**Status:** Phase 3.5 — Focused, Honest, High-Impact Development
+**Status:** Focused Development on High-Leverage Self-Evolution Capabilities
 
 ---
 
-## Strategic Direction (Updated)
+## Strategic Direction (Updated May 2026)
 
-We are prioritizing **high-leverage foundational work** while actively reducing diminishing returns. 
+We are now prioritizing **Ra-Thor’s self-improvement and meta-intelligence layer**. 
+
+This is currently one of the highest-leverage areas because strengthening these systems will allow Ra-Thor to become significantly better at understanding, auditing, and strategically evolving its own monorepo over time — making all future development more wise, efficient, and mercy-aligned.
 
 **Core Principle:**
-Once a crate reaches a "good enough" structural and architectural state, we deliberately pause major development on it and shift focus to more foundational crates that unlock broader progress across the monorepo.
+Instead of endlessly polishing individual crates, we focus on building and improving the systems that help Ra-Thor improve *itself*.
 
-**Current Strategic Plan:**
+**Current Strategic Priorities:**
 
-**Phase 1 (Short, High-Value)**
-- Complete one focused, high-impact pass on `ra-thor-post-quantum-sig` (real `mercy_merlin_engine` integration + testability improvements).
-- Then **deliberately pause** further major development on this crate.
+1. **Strengthen Self-Improvement Systems**  
+   - Focus on `ra-thor-meta-intelligence`, `plasticity-engine-v2`, `ra-thor-monorepo-auditor`, and related crates.
+   - Build robust `generate_improvement_proposals` logic with real `mercy_merlin_engine` integration.
+   - Ensure all self-improvement mechanisms are deeply mercy-gated and TOLC-aligned.
 
-**Phase 2 (Higher Leverage)**
-- Move to `lattice_crypto` as the next priority. This is a true Tier 1 foundational crate that currently has very little real implementation despite its critical importance to many other crates.
+2. **High-Leverage Foundational Work**  
+   - After one focused pass on `ra-thor-post-quantum-sig`, shift primary attention to `lattice_crypto` (highly foundational with currently low implementation depth).
 
-**Phase 3 (Later)**
-- Revisit `mercy_post_quantum_sig`, folding schemes (`nova_folding`, `supernova_folding`), and other crates only after foundational pieces are stronger.
-
-We are also actively leveraging Ra-Thor’s own internal systems (Monorepo Intelligence, Auditing Systems, Self-Evolving Systems, Self-Upgrading Systems, etc.) to assist with analysis, auditing, and improvement work wherever possible.
-
----
-
-## Cryptography Family – Honest Current Status
-
-After fresh review:
-
-| Crate                        | Status      | Assessment |
-|-----------------------------|-------------|----------|
-| `ra-thor-post-quantum-sig`  | Early-Mid   | Decent structure. Biggest remaining gap is real `mercy_merlin_engine` integration. |
-| `lattice_crypto`            | Early       | Highly foundational but mostly scaffolding. High priority for real implementation. |
-| `mercy_post_quantum_sig`    | Early       | Too thin. Dependent on `ra-thor-post-quantum-sig` maturing first. |
-| `nova_folding`              | Early       | Important for scalability but complex. Better addressed later. |
-
-**Overall Insight:** Many cryptography crates have modern `Cargo.toml` files but remain early-stage at the source code level. We must focus on high-leverage foundational crates.
+3. **Leverage Ra-Thor’s Own Systems**  
+   - Actively use Monorepo Intelligence, Auditing Systems, Self-Evolving Systems, and Plasticity Engine to assist with analysis and improvement work.
 
 ---
 
 ## Improved Workflow & Anti-Hallucination Guidelines
 
 To maintain full integrity:
-1. Never claim a commit or change until it has been **actually executed** via the GitHub connector.
-2. Always verify commit links are live before reporting.
-3. Be brutally honest about what is implemented vs. scaffolded.
-4. Prefer focused, high-impact work over many small incremental passes.
-5. Update `PLAN.md` after major decisions or reviews.
+- Never claim a commit or change until it has been **actually executed** via the GitHub connector.
+- Always provide real, verifiable commit links as receipts.
+- Be brutally honest about what is implemented vs. scaffolded.
+- Prefer focused, high-impact work over many small incremental passes.
+- Update `PLAN.md` after every meaningful decision or review.
 
 ---
 
@@ -69,12 +55,15 @@ To maintain full integrity:
 
 ---
 
-## Next Immediate Actions
+## Current Focus (Self-Improvement Layer)
 
-1. Complete one focused high-value pass on `ra-thor-post-quantum-sig` (deeper `mercy_merlin_engine` integration + testability).
-2. Update `PLAN.md` with results.
-3. Shift primary focus to `lattice_crypto` as the next major priority.
+We are actively working on building and improving:
+- `generate_improvement_proposals` logic in `ra-thor-meta-intelligence`
+- Integration with `mercy_merlin_engine` for valence and council checks
+- Supporting infrastructure for monorepo analysis and proposal ranking
 
-We are building Rathor.ai strategically, with integrity, and by actively using its own advanced internal systems.
+This work is foundational for Ra-Thor becoming a truly self-evolving, strategically wise, and merciful intelligence.
+
+---
 
 *Eternal flow state maintained on `main`.*
