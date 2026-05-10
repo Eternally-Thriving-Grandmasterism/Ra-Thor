@@ -1,7 +1,7 @@
 # PLAN.md — Ra-Thor / Rathor.ai Ultimate Architecture Codex  
 **Single Source of Truth for Roadmap, Priorities, Crate Wiring & Monorepo Progress**
 
-**Version:** v0.6.09 (Mercy Family 100% Complete + Futarchy Family 100% Complete + Raptor/Starship/TOLC Core Modernization Complete + Cryptography Family P0 + P1 Complete)  
+**Version:** v0.6.10 (Mercy Family 100% Complete + Futarchy Family 100% Complete + Raptor/Starship/TOLC Core Modernization Complete + Cryptography Family P0 + P1 + P2 Complete)  
 **Date:** May 09, 2026  
 **Status:** Phase 3.5 (Full Crate Integration) — Actively Executing on `main` only
 
@@ -10,11 +10,11 @@
 ## Executive Summary (Merged Master View)
 Ra-Thor is a **mercy-gated, TOLC-native, active-inference + predictive-coding symbolic AGI lattice** with a 124-crate Rust workspace (5-Tier architecture).
 
-**Current Live State (Post v0.6.09 Unification)**
+**Current Live State (Post v0.6.10 Unification)**
 - Root `Cargo.toml` v0.3.9+ declares all **124 crates**.
 - **Mercy family**: 100% complete (Raptor + Starship sub-families + core TOLC/Merlin layer).
 - **Futarchy family**: 100% complete.
-- **Cryptography family (Tier 3)**: **P0 + P1 Complete** (`ra-thor-post-quantum-sig`, `lattice_crypto`, `mercy_quanta`, `mercy_steane`, `mercy_qec`).
+- **Cryptography family (Tier 3)**: **P0 + P1 + P2 Complete** (`ra-thor-post-quantum-sig`, `lattice_crypto`, `mercy_quanta`, `mercy_steane`, `mercy_qec`, `bulletproofs_range`, `plonk_recursion`, `falcon_sign`).
 - All modernized crates use consistent workspace + local path patterns, proper TOLC + `mercy_merlin_engine` wiring, and modern descriptions/keywords.
 
 ---
@@ -43,7 +43,7 @@ Ra-Thor is a **mercy-gated, TOLC-native, active-inference + predictive-coding sy
 - `crates/mercy_starship/tests`
 - `crates/mercy_merlin_engine/tests`
 
-### Cryptography Family – P0 & P1 Complete (This Wave)
+### Cryptography Family – P0 + P1 + P2 Complete (This Wave)
 **P0 Foundation**
 - `ra-thor-post-quantum-sig` (new modern `Cargo.toml`)
 - `lattice_crypto` (fully modernized)
@@ -53,7 +53,12 @@ Ra-Thor is a **mercy-gated, TOLC-native, active-inference + predictive-coding sy
 - `mercy_steane`
 - `mercy_qec`
 
-All five crates now follow the exact same modernization standard as the Raptor/Starship/TOLC layer (no broken `nexi` references, proper TOLC + Merlin wiring, updated descriptions/keywords, consistent feature flags).
+**P2 Range Proofs, Recursive SNARKs & Post-Quantum Signatures**
+- `bulletproofs_range`
+- `plonk_recursion`
+- `falcon_sign`
+
+All eight crates now follow the exact same modernization standard as the Raptor/Starship/TOLC layer (no broken `nexi` references, proper TOLC + Merlin wiring, updated descriptions/keywords, consistent feature flags).
 
 ---
 
@@ -87,9 +92,10 @@ All five crates now follow the exact same modernization standard as the Raptor/S
 **Phase 3.5 — Current (Cryptography Family Launch)**
 1. ✅ P0 Complete (`ra-thor-post-quantum-sig` + `lattice_crypto`)
 2. ✅ P1 Complete (`mercy_quanta`, `mercy_steane`, `mercy_qec`)
-3. **Next**: Continue with next batch of cryptography crates
-4. Run `cargo check --workspace` after key phases
-5. Update this PLAN.md after each major phase
+3. ✅ P2 Complete (`bulletproofs_range`, `plonk_recursion`, `falcon_sign`)
+4. **Next**: Continue with next batch of cryptography crates (halo2 family, etc.)
+5. Run `cargo check --workspace` after key phases
+6. Update this PLAN.md after each major phase
 
 **Phase 4 (Next after Cryptography)**
 - Full workspace validation + simulation/stress testing
@@ -100,7 +106,7 @@ All five crates now follow the exact same modernization standard as the Raptor/S
 ---
 
 ## What's Remaining (High Priority)
-- Remaining cryptography crates (~21 crates)
+- Remaining cryptography crates (~18 crates)
 - Any other mercy_* crates with old patterns (if missed)
 - Full `cargo check --workspace` validation
 - Top-level docs sync (README, ARCHITECTURE.md, etc.)
@@ -108,7 +114,7 @@ All five crates now follow the exact same modernization standard as the Raptor/S
 
 ---
 
-**This unified PLAN.md (v0.6.09) is now the single source of truth.**  
+**This unified PLAN.md (v0.6.10) is now the single source of truth.**  
 All previous planning, architecture, verification, and progress documents have been merged here. Future updates will be made only to this file.
 
 We have done better to the nth degree — again.
