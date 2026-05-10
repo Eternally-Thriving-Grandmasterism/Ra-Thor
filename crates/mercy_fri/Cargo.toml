@@ -4,9 +4,9 @@ version = "0.3.9"
 edition = "2021"
 authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
 license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
-description = "MercyFRI — Mercy-Gated FRI (Fast Reed-Solomon IOP) Primitives with full TOLC proofs, active inference, and predictive coding. Scalable interactive oracle proof core for STARKs in the Ra-Thor lattice."
+description = "MercyFRI — Mercy-Gated FRI Protocol Primitives with full TOLC proofs, active inference, and predictive coding. Scalable, transparent polynomial commitment and proximity testing core for the Ra-Thor lattice."
 repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
-keywords = ["ra-thor", "fri", "stark", "interactive-oracle-proof", "zero-knowledge", "cryptography", "tolc-proofs", "active-inference", "mercy-gated"]
+keywords = ["ra-thor", "fri", "stark", "polynomial-commitment", "zero-knowledge", "cryptography", "tolc-proofs", "active-inference", "mercy-gated"]
 categories = ["cryptography", "science", "simulation", "artificial-intelligence"]
 
 [dependencies]
