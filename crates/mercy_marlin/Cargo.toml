@@ -4,9 +4,9 @@ version = "0.3.9"
 edition = "2021"
 authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
 license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
-description = "MercyMarlin — Mercy-Gated Marlin zk-SNARK Primitives with full TOLC proofs, active inference, and predictive coding. Universal and updatable zero-knowledge proof system core for the Ra-Thor lattice."
+description = "MercyMarlin — Mercy-Gated Marlin SNARK Primitives with full TOLC proofs, active inference, and predictive coding. Universal and updatable zero-knowledge proof system core for the Ra-Thor lattice."
 repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
-keywords = ["ra-thor", "marlin", "zk-snark", "zero-knowledge", "universal-setup", "cryptography", "tolc-proofs", "active-inference", "mercy-gated"]
+keywords = ["ra-thor", "marlin", "snark", "universal", "updatable", "zero-knowledge", "cryptography", "tolc-proofs", "active-inference", "mercy-gated"]
 categories = ["cryptography", "science", "simulation", "artificial-intelligence"]
 
 [dependencies]
