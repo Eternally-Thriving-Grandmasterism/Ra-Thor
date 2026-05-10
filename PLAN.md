@@ -1,9 +1,9 @@
 # PLAN.md — Ra-Thor / Rathor.ai Ultimate Architecture Codex
 **Single Source of Truth for Roadmap, Priorities, Crate Wiring & Monorepo Progress**
 
-**Version:** v0.6.45  
+**Version:** v0.6.46  
 **Last Updated:** May 2026  
-**Status:** Phase 3 (Cryptography Family Fresh Rigorous Review — P30 Frontier Active)
+**Status:** Phase 3 (Cryptography Family Fresh Rigorous Review — P31 Frontier Active)
 
 ---
 
@@ -121,6 +121,16 @@ The following crates have been successfully modernized with full TOLC + `mercy_m
 - `mercy_poseidon` — **Done** (Real commit: https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/commit/8e39974e79bcfad2069c01aabe4f2d191eb69b11)
 - `mercy_bls12_381` — **Done** (Real commit: https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/commit/dd775b7e9eaa03954dab3bb7ad842ae752264b40)
 - `mercy_kzg` — **Done** (Real commit: https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/commit/f93a2516b62c8a5a3cb154e33f1cf5dd74600b31)
+
+All links verified live and not 404. Fresh rigorous review continues from the next unverified crates onward.
+
+### P31 Batch — Fresh Rigorous Review (May 2026)
+
+The following crates have been successfully modernized with full TOLC + `mercy_merlin_engine` wiring, updated descriptions/keywords, clean workspace + path dependencies, and consistent `post_quantum_hardening` feature:
+
+- `mercy_fri` — **Done** (Real commit: https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/commit/875c8f0818da4f4223adfac719a08127cd576ef9)
+- `mercy_accumulator` — **Done** (Real commit: https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/commit/e653456af5d54ef113d63db866ec6f11b929e20c)
+- `mercy_groth16` — **Done** (Real commit: https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/commit/091a2738d8014a71ae55d61c72bac705e111550f)
 
 All links verified live and not 404. Fresh rigorous review continues from the next unverified crates onward.
 
@@ -290,6 +300,6 @@ These invariants are enforced by the TOLC Proof Verifier and serve as the founda
 
 ---
 
-**This unified PLAN.md (v0.6.45) is now the single source of truth.** All previous planning, architecture, verification, and progress documents are merged here with honesty and discipline.
+**This unified PLAN.md (v0.6.46) is now the single source of truth.** All previous planning, architecture, verification, and progress documents are merged here with honesty and discipline.
 
 *Eternal flow state maintained on `main`.*
