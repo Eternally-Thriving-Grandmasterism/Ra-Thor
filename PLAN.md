@@ -1,7 +1,7 @@
 # PLAN.md — Ra-Thor / Rathor.ai Ultimate Architecture Codex
 **Single Source of Truth for Roadmap, Priorities, Crate Wiring & Monorepo Progress**
 
-**Version:** v0.6.36 (Strengthened Unified Understanding Protocol v2 + Full Merge + crates/ Verification)
+**Version:** v0.6.37 (Mercy Propulsion Family Inspection Pass)
 **Date:** May 11, 2026
 **Status:** Phase 4.3 — Closed-Loop Self-Assessment + Full Mercy Propulsion Family + JS Mercy Engines Integration + Unified Understanding Protocol
 
@@ -69,52 +69,51 @@ This protocol is itself an application of Ra-Thor’s core systems: it uses **TO
 ## Current Monorepo Code State (Forensic Snapshot — May 11, 2026)
 
 **Overall Architecture**:
-- Hybrid monorepo with mature JavaScript mercy engine layer + ambitious Rust workspace in `crates/`.
-- `crates/` directory exists and contains a large number of real sub-crate directories.
-- Strong, mature JavaScript mercy engine layer (100+ functional .js files at root and supporting locations).
+- Hybrid monorepo with mature JavaScript mercy engine layer + ambitious Rust workspace.
+- Strong, mature JavaScript mercy engine layer (100+ functional .js files).
 - Extensive theoretical/documentation layer (.md files on TOLC, mercy gates, physics, sovereignty, RBE, etc.).
 
-**Rust Workspace (crates/)**
-- Real `crates/` directory exists and is substantial.
-- Dominant family is the `mercy_*` family, with a very large number of propulsion-related crates (examples: `mercy_antimatter_propulsion`, `mercy_fusion_propulsion`, `mercy_warp_propulsion`, `mercy_gravitic_propulsion`, `mercy_quantum_propulsion`, `mercy_reactionless_propulsion`, and many more across hybrid, biomimetic, beamed, axion, brane, casimir, cosmological, dark energy, electric, exotic, higgs, ion, kaluza-klein, loop-quantum, m-theory, multiverse, neutrino, nuclear, plasma, quantum-gravity, solar-sail, spacetime, string, superstring, tachyon, vacuum-energy, wormhole, etc.).
-- Strong cryptography / zero-knowledge family is also present (including multiple `halo2_*` crates and `bulletproofs_*` related crates).
-- Orchestration layer exists with multiple variants (`mercy_orchestrator`, `mercy_orchestrator_v2`, `mercy_system_orchestrator`, `quantum-swarm-orchestrator`).
-- Self-improvement / meta-intelligence layer is present (including `ra-thor-meta-intelligence` with references to `SelfImprovementOrchestrator`).
-- Implementation depth remains uneven across the workspace. Cryptography and core mercy/orchestration crates show stronger presence, while many propulsion and newer specialized crates are still at early/skeleton or partial-implementation stage.
-- GitHub tree view for very large directories shows heavy truncation/pagination. Full accurate enumeration and maturity assessment of every crate requires additional targeted passes.
+**Rust Workspace & Propulsion Crates**
+- Multiple `mercy_*_propulsion` directories exist (both at root level and referenced under `crates/`). 
+- Confirmed examples include: `mercy_biomimetic_propulsion`, `mercy_hybrid_propulsion`, `mercy_manta_glide_propulsion`, `mercy_antimatter_propulsion`, `mercy_fusion_propulsion`, `mercy_warp_propulsion`, `mercy_gravitic_propulsion`, `mercy_quantum_propulsion`, `mercy_reactionless_propulsion`, and many more across hybrid, beamed, ion, plasma, solar-sail, gravitic, and exotic variants (dozens total).
+- Some propulsion crates contain actual source files (e.g. `src/lib.rs`, `efficiency.rs`).
+- File creation dates visible in structure are from several months ago.
+- Implementation depth appears early-stage (basic source file presence with limited visible complexity).
+- There is supporting TOLC documentation for at least some propulsion types (e.g. hybrid propulsion).
+- GitHub tree views for large directories show heavy truncation. Full per-crate maturity assessment requires additional targeted passes.
 
 **JavaScript Mercy Engines (Primary Mature Layer)**
 - 100+ real, functional `.js` files.
-- Core engines fully operational (active inference, predictive coding, orchestration, RL/optimization family, WebXR immersions, von Neumann swarms, paraconsistent logic, haptic feedback, flow-state engines, etc.).
+- Core engines fully operational (active inference, predictive coding, orchestration, RL/optimization family, WebXR immersions, von Neumann swarms, paraconsistent logic, etc.).
 - This layer is currently the most complete, runnable, and integrated part of the entire monorepo.
 
 **Other Code**
-- Minimal but real: Python simulations, MeTTa ethics files, scattered standalone Rust files (e.g. mercyflight.rs).
+- Minimal but real: Python simulations, MeTTa ethics files, scattered standalone Rust files.
 
 **Key Gap Identified**:
-- Declared ambitious architecture (full workspace + complete Mercy Propulsion Family) is partially realized in directory structure. Implementation depth is uneven. JS mercy engines remain significantly ahead in functional readiness and integration.
+- A large number of mercy propulsion crates exist structurally. Most appear to be at early/skeleton or partial-implementation stage. JS mercy engines remain significantly ahead in functional readiness.
 
 ---
 
 ## Phase 4.3 Progress & Next Steps (Self-Improvement / Plasticity / Meta-Intelligence)
 
 **Completed**
-- Rich `self_improvement_orchestrator.rs` restored with proposal generation, mercy verification, and TOLC alignment.
-- `CrateHealthReport` fields and basic `analyze_crate_basic_health()` implemented.
-- Forensic understanding of hybrid (JS + Rust) reality completed across multiple passes.
-- Unified Understanding Protocol activated in this PLAN.md with strict no-hallucination rule (Strengthened v2).
+- Rich `self_improvement_orchestrator.rs` restored.
+- `CrateHealthReport` and basic analyzer implemented.
+- Forensic understanding of hybrid reality completed across multiple passes.
+- Unified Understanding Protocol strengthened with TOLC + Mercy Gate grounding checkpoints.
 
 **Immediate Next Steps (High Priority)**
-- Extend `CrateHealthReport` / `CrateAnalyzer` to cover **both Rust crates and all key JS mercy engines** (implementation depth, mercy-gate coverage, WASM readiness).
-- Score all visible crates + key JS engines using health + self-improvement potential metrics.
-- Create living `CrateHealthDashboard` (start in JS, later WASM bridge to Rust).
-- Begin closed-loop self-improvement proposals that respect the actual hybrid reality.
+- Extend `CrateHealthReport` / `CrateAnalyzer` to cover both Rust crates (including propulsion) and key JS mercy engines.
+- Score implementation depth, mercy-gate coverage, and WASM readiness.
+- Create living `CrateHealthDashboard`.
+- Begin closed-loop self-improvement proposals respecting the actual hybrid reality.
 
 ---
 
 ## Mercy Propulsion Family Integration
 
-**Status**: A very large number of propulsion-related crates exist structurally under `crates/` (dozens across many variants). Most remain at early/skeleton or partial-implementation stage.
+**Status (Updated from latest inspection)**: Dozens of `mercy_*_propulsion` crates exist structurally across multiple types (antimatter, fusion, warp, gravitic, quantum, reactionless, biomimetic, beamed, ion, plasma, solar-sail, and many exotic variants). Some contain basic source files (`lib.rs`, `efficiency.rs`). Most appear early-stage. Supporting TOLC documentation exists for at least some types.
 
 **Required Work (Code-First)**
 - Define and implement a common `MercyPropulsion` trait across all propulsion crates.
@@ -132,27 +131,27 @@ This protocol is itself an application of Ra-Thor’s core systems: it uses **TO
 **Status**: This is currently the most mature and functional layer in the monorepo (100+ real, interconnected .js files).
 
 **Required Work**
-- Treat the 100+ JS mercy engines as first-class citizens in planning and self-improvement.
-- Strengthen WASM bindings so JS engines can call key Rust crates (crypto, orchestration, selected propulsion).
-- Expand the existing `mercy-orchestrator.js` to become the primary runtime orchestrator.
-- Add comprehensive integration tests between core JS engines and the Rust mercy/orchestration crates.
+- Treat the 100+ JS mercy engines as first-class citizens.
+- Strengthen WASM bindings so JS engines can call key Rust crates (including propulsion).
+- Expand `mercy-orchestrator.js` as primary runtime.
+- Add integration tests between core JS engines and Rust crates.
 - Build real-time simulation hooks from JS engines into Powrush and WebXR immersions.
 
-**Priority**: High — leverage the strength that already exists while bridging to the Rust workspace.
+**Priority**: High — leverage existing strength while bridging to Rust workspace.
 
 ---
 
 ## Crate & Engine Wiring Progress (Updated Summary)
 
-| Area                              | Actual Code State                              | Notes / Priority |
-|-----------------------------------|------------------------------------------|------------------|
-| Mercy Core + Orchestration (Rust) | Partial but functional                         | Make `mercy_orchestrator_v2` the single source of truth |
-| Mercy Propulsion Family           | Exists structurally (dozens of crates), mostly early/skeleton | Highest priority for trait standardization + orchestrator |
-| Cryptography / ZK Family          | Strongest Rust implementations                 | Good foundation; unify under `MercyZKEngine` abstraction |
-| Active Inference + Predictive Coding | Excellent in JS layer                        | Functional and integrated; extend to call Rust via WASM |
-| JS Mercy Engines (100+ files)     | Most mature & interconnected layer             | Primary runtime; deepen WASM bridges |
-| Domain Lattices (Powrush, Interstellar, Real-Estate, Legal) | Early implementation | Need end-to-end mercy-gated demos |
-| Self-Improvement Layer            | Partially restored                             | Extend analysis to both Rust crates and JS engines |
+| Area                              | Actual Code State                                      | Notes / Priority |
+|-----------------------------------|--------------------------------------------------------|------------------|
+| Mercy Core + Orchestration (Rust) | Partial but functional                                 | Make `mercy_orchestrator_v2` the single source of truth |
+| Mercy Propulsion Family           | Dozens of crates exist structurally; mostly early-stage | Highest priority for trait + orchestrator + WASM bridge |
+| Cryptography / ZK Family          | Strongest Rust implementations                         | Good foundation; unify under `MercyZKEngine` |
+| Active Inference + Predictive Coding | Excellent in JS layer                               | Extend to call Rust (including propulsion) via WASM |
+| JS Mercy Engines (100+ files)     | Most mature & interconnected layer                     | Primary runtime; deepen WASM bridges |
+| Domain Lattices                   | Early implementation                                   | Need end-to-end mercy-gated demos |
+| Self-Improvement Layer            | Partially restored                                     | Extend analysis to full hybrid set (including propulsion) |
 
 ---
 
@@ -168,7 +167,7 @@ This protocol is itself an application of Ra-Thor’s core systems: it uses **TO
 
 ---
 
-**This unified PLAN.md (v0.6.36) is now the single source of truth.**
+**This unified PLAN.md (v0.6.37) is now the single source of truth.**
 
 Eternal flow state maintained on `main`.
 
