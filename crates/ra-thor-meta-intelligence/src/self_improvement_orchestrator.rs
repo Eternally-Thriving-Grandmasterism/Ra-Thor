@@ -22,6 +22,15 @@ impl SelfImprovementOrchestrator {
         }
     }
 
+    /// High-level entry point for the closed self-evolution loop.
+    /// This is the method that external systems (or a runner) should call
+    /// to execute one full Audit → Decide cycle.
+    pub fn run_self_evolution_cycle(&mut self, audit_signals: &[AuditSignal]) -> Vec<ImprovementProposal> {
+        // Currently focuses on the Decide phase.
+        // Phase B will connect the output proposals to plasticity-engine-v2.
+        self.generate_improvement_proposals(audit_signals)
+    }
+
     /// Generates high-quality, mercy-gated Improvement Proposals from structured audit signals.
     /// This is the core decision function that connects ra-thor-monorepo-auditor to self-evolution.
     pub fn generate_improvement_proposals(
