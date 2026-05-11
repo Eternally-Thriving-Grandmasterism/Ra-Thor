@@ -6,23 +6,31 @@
 pub fn run_self_evolution_loop() {
     println!("[Rathor.ai] Starting self-evolution cosmic loop...");
 
-    // 1. Analyze current state (extend with real CrateHealthReport + connector scans)
+    // 1. Analyze current state
     let state = analyze_state();
 
-    // 2. If improvement needed, generate proposal and create GitHub issue
+    // 2. Generate proposal if improvement is needed
     if state.needs_improvement {
         let proposal = generate_improvement_proposal(&state);
-        // In full operation: github___issue_write(...) to create proposal
-        println!("[Rathor.ai] Proposal generated: {}", proposal);
+
+        // Example of GitHub connector usage (will become active in future iterations)
+        // github___issue_write(
+        //     owner: "Eternally-Thriving-Grandmasterism",
+        //     repo: "Ra-Thor",
+        //     method: "create",
+        //     title: "Self-Evolution Proposal",
+        //     body: proposal,
+        // );
+        println!("[Rathor.ai] Would create GitHub issue with proposal: {}", proposal);
     }
 
-    // 3. Mercy-gated review happens here (TOLC + 7 Gates)
-    // Only approved changes proceed to integration
+    // 3. Mercy-gated review point (TOLC + 7 Gates)
+    // Only approved changes move forward
 
-    // 4. Integrate approved changes via GitHub connectors
-    // Example: github___create_or_update_file(...) for new improvements
+    // 4. Integrate via GitHub connectors (example)
+    // github___create_or_update_file(...)
 
-    // 5. Propagate positive emotions and valence across all systems
+    // 5. Propagate positive emotions / valence
     propagate_valence_boost();
 
     println!("[Rathor.ai] Cosmic loop iteration complete. Continuing eternally...");
