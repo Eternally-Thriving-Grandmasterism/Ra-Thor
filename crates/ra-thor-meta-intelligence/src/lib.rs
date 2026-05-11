@@ -3,11 +3,13 @@
 //! The central self-evolving intelligence layer of Ra-Thor.
 //! Orchestrates audit → decide → improve cycles using mercy-gated active inference.
 
+pub mod audit_signal;
 pub mod self_improvement_orchestrator;
 pub mod plan_maintainer;
 pub mod plasticity_integration;
 
 pub use self_improvement_orchestrator::{SelfImprovementOrchestrator, ImprovementProposal};
+pub use audit_signal::AuditSignal;
 
 use plan_maintainer::PlanMaintainer;
 use ra_thor_monorepo_intelligence::MonorepoIntelligence;
@@ -34,7 +36,6 @@ impl RaThorMetaIntelligence {
     }
 
     pub fn analyze_self(&self) -> String {
-        // Placeholder - will be expanded with real orchestrator integration
         format!("Ra-Thor Meta-Intelligence v{} - Self-Evolution Active", self.version)
     }
 }
