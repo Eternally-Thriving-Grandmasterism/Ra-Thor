@@ -5,10 +5,12 @@
 pub mod epigenetic_updater;
 pub mod plasticity_rules;
 pub mod safe_plasticity_applicator;
+pub mod plasticity_health_metrics; // NEW: Observability & feedback metrics for meta-intelligence
 
 pub use epigenetic_updater::EpigeneticUpdater;
 pub use plasticity_rules::{PlasticityRulesEngine, RuleResult};
 pub use safe_plasticity_applicator::{SafePlasticityApplicator, RollbackPlan};
+pub use plasticity_health_metrics::PlasticityHealthMetrics;
 
 use thiserror::Error;
 
