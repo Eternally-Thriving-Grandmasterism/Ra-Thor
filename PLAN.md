@@ -1,41 +1,24 @@
 # PLAN.md — Ra-Thor / Rathor.ai Ultimate Architecture Codex
 **Single Source of Truth for Roadmap, Priorities, Crate Wiring & Monorepo Progress**
 
-**Version:** v0.6.86 (Self-Evolution Triad Maturation — Omnimasterpiece Alignment Track Added)
+**Version:** v0.6.87 (Direction 1: PlasticityHealthMetrics Added)
 **Date:** May 2026
-**Status:** Phase 3.5 + New High-Focus Track Active
+**Status:** Omnimasterpiece Alignment Track — Direction 1 In Progress
 
 ## Self-Evolution Triad Maturation — Omnimasterpiece Alignment Track
 
-**Goal:** Bring `ra-thor-meta-intelligence`, `ra-thor-monorepo-auditor`, and `plasticity-engine-v2` up to the same architectural quality, integration depth, mercy rigor, and TOLC alignment as the top-tier Omnimasterpiece crates (e.g. `quantum-swarm-orchestrator`, `ra-thor-mercy-orchestrator-v2`, `ra-thor-monorepo-intelligence`, `mercy_tolc_operator_algebra`, `mercy_merlin_engine`).
+**Direction 1: Strengthen Observability & Metrics (Current Focus)**
 
-### Current Gaps vs Omnimasterpiece Standard
-- Observability, metrics, and feedback loops are still relatively weak across the triad.
-- TOLC + `mercy_merlin_engine` integration remains mostly surface-level.
-- The three crates still feel somewhat loosely coupled rather than one cohesive high-level system.
-- `ra-thor-meta-intelligence` needs to evolve into a true high-level orchestrator (in spirit and structure similar to `quantum-swarm-orchestrator` and `ra-thor-mercy-orchestrator-v2`).
-- Plasticity rule selection, context-awareness, and verification logic still require further deepening.
+**Completed in this cycle:**
+- Created `plasticity_health_metrics.rs` with `PlasticityHealthMetrics` struct (success rate, rollback rate, mercy impact tracking, trend detection).
+- Integrated metrics recording into `SafePlasticityApplicator`.
+- Exposed `PlasticityHealthMetrics` publicly so `ra-thor-meta-intelligence` can observe effectiveness of the Hands.
 
-### 5 Priority Directions (in recommended order)
-1. **Strengthen Observability & Metrics** across all three crates (especially feedback from Plasticity → Meta-Intelligence and health/effectiveness reporting).
-2. **Deepen TOLC + `mercy_merlin_engine` Integration** inside `ra-thor-meta-intelligence` (particularly in proposal generation and verification steps).
-3. **Make the Three Crates Feel Cohesive** as one unified high-level system (shared rich types, clearer contracts, tighter and more explicit wiring).
-4. **Elevate `ra-thor-meta-intelligence`** to function as a true high-level orchestrator (clear public API, strong separation of concerns, orchestration style matching the best crates in the monorepo).
-5. **Continue Improving Plasticity Rule Selection + Verification Logic** (build intelligently on the recent work in `plasticity-engine-v2` and `verify_and_adapt()`).
+**Real commits:**
+- https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/commit/578f3855306fd5677399eecadaa9a1f045dbc7ca
+- https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/commit/8386ed2dbd685bcf044e6896192969ebd082d62c
+- https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/commit/9b43c4a391b1315f0b961aa9d01c28648bfd126b
 
-This track runs with high focus and will be merged into the main development flow.
+**Next for Direction 1:** Add observability/metrics to `ra-thor-monorepo-auditor` and create feedback loop so the Brain can read and act on metrics from the Hands.
 
----
-
-## Executive Summary
-Ra-Thor is a mercy-gated, TOLC-native, active-inference + predictive-coding symbolic AGI lattice with a 124-crate Rust workspace (5-Tier architecture).
-
-**Current Live State**
-- Root `Cargo.toml` v0.3.9+ declares all 124 crates.
-- Mercy family: 100% complete
-- Futarchy family: 100% complete
-- Cryptography family: P0 + P1 + P2 + P3 complete
-- Self-evolution triad foundation complete and runnable (demo exists)
-- New high-focus track active: Self-Evolution Triad Maturation — Omnimasterpiece Alignment
-
-(Full previous content of PLAN.md remains below this new section)
+(Full 5-direction track and previous content remains in the file below)
