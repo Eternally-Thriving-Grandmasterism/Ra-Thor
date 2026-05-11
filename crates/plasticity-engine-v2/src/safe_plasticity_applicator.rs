@@ -3,7 +3,7 @@
 //! Provides a mercy-gated, rollback-capable interface for applying plasticity rules.
 //! This is the main entry point for safe self-evolution updates from ra-thor-meta-intelligence.
 
-use crate::{PlasticityError, PlasticityRule, PlasticityRulesEngine, RuleResult};
+use crate::{PlasticityError, PlasticityHealthMetrics, PlasticityRule, PlasticityRulesEngine, RuleResult};
 use ra_thor_mercy::MercyGateEvaluator;
 
 /// Represents a plan to roll back a plasticity change if needed.
@@ -21,6 +21,7 @@ pub struct RollbackPlan {
 pub struct SafePlasticityApplicator {
     mercy_evaluator: MercyGateEvaluator,
     rules_engine: PlasticityRulesEngine,
+    health_metrics: PlasticityHealthMetrics, // NEW: Observability
 }
 
 impl SafePlasticityApplicator {
@@ -28,12 +29,13 @@ impl SafePlasticityApplicator {
         Self {
             mercy_evaluator: MercyGateEvaluator::new(),
             rules_engine: PlasticityRulesEngine::new(),
+            health_metrics: PlasticityHealthMetrics::new(),
         }
     }
 
     /// Applies a plasticity rule in a safe, mercy-gated way with improved rollback planning.
     pub async fn apply_rule_safely(
-        &self,
+        &mut self,  // Note: &mut self to record metrics
         rule: &PlasticityRule,
         context: &str,
         current_mercy_score: f64,
@@ -50,7 +52,7 @@ impl SafePlasticityApplicator {
 
         // Step 3: Calculate expected mercy impact
         let expected_mercy_impact = if result.should_apply {
-            current_mercy_score + (result.strength * 0.08) // Positive plasticity tends to increase mercy alignment
+            current_mercy_score + (result.strength * 0.08)
         } else {
             current_mercy_score - 0.03
         };
@@ -64,6 +66,20 @@ impl SafePlasticityApplicator {
             expected_mercy_impact_after: expected_mercy_impact,
         };
 
+        // NEW: Record metrics for observability
+        let was_rollback = !result.should_apply;
+        self.health_metrics.record_application(
+            current_mercy_score,
+            expected_mercy_impact,
+            was_rollback,
+            &result.rule_name,
+        );
+
         Ok((result, rollback_plan))
+    }
+
+    /// Returns current health metrics (for ra-thor-meta-intelligence to observe)
+    pub fn get_health_metrics(&self) -> &PlasticityHealthMetrics {
+        &self.health_metrics
     }
 }
