@@ -1,18 +1,43 @@
 [package]
 name = "ra-thor-meta-intelligence"
-version = "0.1.0"
+version = "0.3.9"
 edition = "2021"
 authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
-description = "Ra-Thor Meta-Intelligence — Self-organizing, self-improving intelligence layer. Assists in maintaining plans, analyzing the monorepo, and supporting the eternal evolution of the Core Spine."
-license = "AG-SML"
+license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
+description = "RaThorMetaIntelligence — Central Orchestrator of Self-Evolution, Plasticity, and Autonomous Improvement with full TOLC proofs, active inference, and predictive coding. Mercy-gated meta-reasoning core that decides when and how the Ra-Thor lattice improves itself."
 repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
+keywords = ["ra-thor", "meta-intelligence", "self-evolution", "plasticity", "autonomous-improvement", "mercy-gated", "tolc-proofs", "active-inference"]
+categories = ["science", "simulation", "artificial-intelligence"]
 
 [dependencies]
-ra-thor-monorepo-intelligence = { path = "../monorepo-intelligence" }
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
-tokio = { version = "1", features = ["full"] }
-tracing = "0.1"
+ra-thor-mercy = { workspace = true }
+ra-thor-quantum-swarm-orchestrator = { workspace = true }
+ra-thor-kernel = { workspace = true }
+ra-thor-council = { workspace = true }
+ra-thor-mercy-orchestrator-v2 = { workspace = true }
+ra-thor-monorepo-intelligence = { workspace = true }
+patsagi-councils = { workspace = true }
+mercy_tolc_operator_algebra = { path = "../mercy_tolc_operator_algebra" }
+mercy_merlin_engine = { path = "../mercy_merlin_engine" }
+plasticity-engine-v2 = { path = "../plasticity-engine-v2" }
+ra-thor-monorepo-auditor = { path = "../ra-thor-monorepo-auditor" }
+powrush = { workspace = true }
+
+tokio = { workspace = true, features = ["full"] }
+async-trait = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+tracing = { workspace = true }
+rand = { workspace = true }
+thiserror = { workspace = true }
+futures = { workspace = true }
 
 [dev-dependencies]
+tracing-subscriber = { workspace = true }
 tokio-test = "0.4"
+
+[features]
+default = ["full"]
+full = ["post_quantum_hardening"]
+minimal = []
+post_quantum_hardening = []

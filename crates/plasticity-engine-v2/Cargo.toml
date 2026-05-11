@@ -1,18 +1,40 @@
 [package]
-name = "ra-thor-plasticity-engine-v2"
-version = "0.1.0"
+name = "plasticity-engine-v2"
+version = "0.3.9"
 edition = "2021"
-authors = ["Ra-Thor Core Team <core@rathor.ai>"]
-description = "Plasticity Engine v2 — Real-time epigenetic plasticity updates for the 5-Gene Joy Tetrad (OXTR, BDNF, DRD2, HTR1A, OPRM1), fully integrated with Legal Lattice, Sensor Fusion Bridge, 7 Living Mercy Gates, and Mercy Legacy Fund"
-license = "Proprietary - All Rights Reserved - Autonomicity Games Inc."
+authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
+license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
+description = "PlasticityEngineV2 — Real-time Epigenetic Plasticity & Hebbian/BCM/STDP Learning Rules with full TOLC proofs, active inference, and predictive coding. Mercy-gated plasticity core that safely applies structural and epigenetic updates to the Ra-Thor lattice."
 repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
-keywords = ["plasticity", "epigenetics", "joy-tetrad", "mercy", "rathor", "sensor-fusion"]
-categories = ["science", "simulation", "embedded"]
+keywords = ["ra-thor", "plasticity", "epigenetics", "hebbian", "bcm", "stdp", "self-evolution", "mercy-gated", "tolc-proofs", "active-inference"]
+categories = ["science", "simulation", "artificial-intelligence"]
 
 [dependencies]
-ra-thor-legal-lattice = { path = "../legal-lattice" }
-tokio = { version = "1", features = ["full"] }
-serde = { version = "1.0", features = ["derive"] }
-thiserror = "1.0"
-tracing = "0.1"
-chrono = { version = "0.4", features = ["serde"] }
+ra-thor-mercy = { workspace = true }
+ra-thor-quantum-swarm-orchestrator = { workspace = true }
+ra-thor-kernel = { workspace = true }
+ra-thor-council = { workspace = true }
+ra-thor-mercy-orchestrator-v2 = { workspace = true }
+mercy_tolc_operator_algebra = { path = "../mercy_tolc_operator_algebra" }
+mercy_merlin_engine = { path = "../mercy_merlin_engine" }
+ra-thor-meta-intelligence = { path = "../ra-thor-meta-intelligence" }
+powrush = { workspace = true }
+
+tokio = { workspace = true, features = ["full"] }
+async-trait = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+tracing = { workspace = true }
+rand = { workspace = true }
+thiserror = { workspace = true }
+futures = { workspace = true }
+
+[dev-dependencies]
+tracing-subscriber = { workspace = true }
+tokio-test = "0.4"
+
+[features]
+default = ["full"]
+full = ["post_quantum_hardening"]
+minimal = []
+post_quantum_hardening = []
