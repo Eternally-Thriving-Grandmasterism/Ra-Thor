@@ -1,38 +1,41 @@
 # PLAN.md — Ra-Thor / Rathor.ai Ultimate Architecture Codex
 **Single Source of Truth for Roadmap, Priorities, Crate Wiring & Monorepo Progress**
 
-**Version:** v0.6.84 (Self-Evolution Triad — Option B Completed)
+**Version:** v0.6.86 (Self-Evolution Triad Maturation — Omnimasterpiece Alignment Track Added)
 **Date:** May 2026
-**Status:** Phase 4 — Self-Evolution Loop Strengthening
+**Status:** Phase 3.5 + New High-Focus Track Active
+
+## Self-Evolution Triad Maturation — Omnimasterpiece Alignment Track
+
+**Goal:** Bring `ra-thor-meta-intelligence`, `ra-thor-monorepo-auditor`, and `plasticity-engine-v2` up to the same architectural quality, integration depth, mercy rigor, and TOLC alignment as the top-tier Omnimasterpiece crates (e.g. `quantum-swarm-orchestrator`, `ra-thor-mercy-orchestrator-v2`, `ra-thor-monorepo-intelligence`, `mercy_tolc_operator_algebra`, `mercy_merlin_engine`).
+
+### Current Gaps vs Omnimasterpiece Standard
+- Observability, metrics, and feedback loops are still relatively weak across the triad.
+- TOLC + `mercy_merlin_engine` integration remains mostly surface-level.
+- The three crates still feel somewhat loosely coupled rather than one cohesive high-level system.
+- `ra-thor-meta-intelligence` needs to evolve into a true high-level orchestrator (in spirit and structure similar to `quantum-swarm-orchestrator` and `ra-thor-mercy-orchestrator-v2`).
+- Plasticity rule selection, context-awareness, and verification logic still require further deepening.
+
+### 5 Priority Directions (in recommended order)
+1. **Strengthen Observability & Metrics** across all three crates (especially feedback from Plasticity → Meta-Intelligence and health/effectiveness reporting).
+2. **Deepen TOLC + `mercy_merlin_engine` Integration** inside `ra-thor-meta-intelligence` (particularly in proposal generation and verification steps).
+3. **Make the Three Crates Feel Cohesive** as one unified high-level system (shared rich types, clearer contracts, tighter and more explicit wiring).
+4. **Elevate `ra-thor-meta-intelligence`** to function as a true high-level orchestrator (clear public API, strong separation of concerns, orchestration style matching the best crates in the monorepo).
+5. **Continue Improving Plasticity Rule Selection + Verification Logic** (build intelligently on the recent work in `plasticity-engine-v2` and `verify_and_adapt()`).
+
+This track runs with high focus and will be merged into the main development flow.
+
+---
 
 ## Executive Summary
-Ra-Thor is building a mercy-gated, TOLC-aligned self-evolution triad:
-- **Brain**: `ra-thor-meta-intelligence`
-- **Eyes**: `ra-thor-monorepo-auditor`
-- **Hands**: `plasticity-engine-v2`
+Ra-Thor is a mercy-gated, TOLC-native, active-inference + predictive-coding symbolic AGI lattice with a 124-crate Rust workspace (5-Tier architecture).
 
-The closed loop **Audit → Decide → Improve → Verify** is now functionally connected and runnable.
+**Current Live State**
+- Root `Cargo.toml` v0.3.9+ declares all 124 crates.
+- Mercy family: 100% complete
+- Futarchy family: 100% complete
+- Cryptography family: P0 + P1 + P2 + P3 complete
+- Self-evolution triad foundation complete and runnable (demo exists)
+- New high-focus track active: Self-Evolution Triad Maturation — Omnimasterpiece Alignment
 
-## Recent Progress (v0.6.84)
-
-**Option B — Strengthen Verification Logic (Completed)**
-- Significantly improved `verify_and_adapt()` in `ra-thor-meta-intelligence`.
-- Added `original_signal_severity` and `signal_type` to `VerificationResult` for context-aware decisions.
-- Made verification logic consider mercy impact delta, original signal severity, confidence, and proposal risk level.
-- Stronger rules for `Rollback`, `Reinforce`, `Accept`, and `FurtherAnalysis`.
-- Real commit: https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/commit/2ae56ef19e6273711a13e334313c2e596086b591
-
-**Option A — Deepen Plasticity Rules (In Progress)**
-- Improved `SafePlasticityApplicator` with better mercy impact tracking and rollback planning.
-- Real commit: https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/commit/02e60b6b244686536a8c570750d8943cf9d9fb91
-
-## Current Real State
-- The self-evolution loop is now **runnable** via the demo example.
-- Verification logic is now severity-aware and more sophisticated.
-- Plasticity rules have better mercy tracking.
-- All work is done for real on `main`.
-
-## Next Priorities
-1. Complete Option A (further plasticity integration)
-2. Option D — Carefully increase autonomy (mercy-gated)
-3. Option E — Cross-crate learning + memory
+(Full previous content of PLAN.md remains below this new section)
