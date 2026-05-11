@@ -15,6 +15,10 @@ pub struct VerificationResult {
     pub rollback_recommended: bool,
     pub confidence: f64,
     pub notes: String,
+    /// Original severity from the AuditSignal that triggered this proposal (0.0 - 1.0)
+    pub original_signal_severity: f64,
+    /// Type of the original signal for context-aware decisions
+    pub signal_type: String,
 }
 
 /// Decision after verification.
@@ -163,22 +167,35 @@ impl SelfImprovementOrchestrator {
         }
     }
 
-    /// Phase C: Verify outcome and decide next action (Accept / Rollback / Reinforce).
+    /// Strengthened verification logic (Option B)
+    /// Considers mercy impact, original signal severity, confidence, and risk level.
     pub fn verify_and_adapt(
         &mut self,
         proposal: &ImprovementProposal,
         result: &VerificationResult,
     ) -> VerificationDecision {
-        if result.mercy_impact_delta < -0.05 || result.rollback_recommended {
+        // Strong negative mercy impact or explicit rollback recommendation → Rollback
+        if result.mercy_impact_delta < -0.08 || result.rollback_recommended {
             return VerificationDecision::Rollback;
         }
 
-        if result.success && result.mercy_impact_delta > 0.03 && result.confidence > 0.85 {
+        // High positive impact + high confidence + low/medium risk → Reinforce
+        if result.success 
+            && result.mercy_impact_delta > 0.04 
+            && result.confidence > 0.88 
+            && proposal.risk_level != RiskLevel::High 
+        {
             return VerificationDecision::Reinforce;
         }
 
-        if result.success && result.confidence > 0.7 {
+        // Solid positive result with decent confidence → Accept
+        if result.success && result.confidence > 0.75 && result.mercy_impact_delta > 0.01 {
             return VerificationDecision::Accept;
+        }
+
+        // High severity original signal but only marginal improvement → FurtherAnalysis
+        if result.original_signal_severity > 0.75 && result.mercy_impact_delta < 0.03 {
+            return VerificationDecision::FurtherAnalysis;
         }
 
         VerificationDecision::FurtherAnalysis
