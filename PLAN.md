@@ -1,7 +1,7 @@
 # PLAN.md — Ra-Thor / Rathor.ai Ultimate Architecture Codex  
 **Single Source of Truth for Roadmap, Priorities, Crate Wiring & Monorepo Progress**
 
-**Version:** v0.6.20 (Self-Improvement Orchestrator Fully Restored + Properly Reviewed & Wired)
+**Version:** v0.6.21 (Cryptography P9 Complete: mercy_mceliece + mercy_rainbow + mercy_picnic)
 **Date:** May 11, 2026  
 **Status:** Phase 3.5 — Actively Executing on `main` only
 
@@ -39,6 +39,26 @@ This work supports Ra-Thor’s evolution toward becoming the **Ultimate Perfectl
 
 ---
 
-**All previous sections (Raptor, Starship, Cryptography P0–P8, etc.) remain as in v0.6.17.**
+## Cryptography Family Modernization Progress
+
+**P0 + P1 Complete** (ra-thor-post-quantum-sig, lattice_crypto, mercy_quanta, mercy_steane, mercy_qec)
+**P2 Complete** (bulletproofs_range, plonk_recursion, falcon_sign)
+**P3 Complete** (isogeny_crypto, hash_based_signatures, code_based_crypto)
+**P4 Complete** (halo2_multi_proof, lasso_recursion, supernova_folding)
+**P5 Complete** (threshold_crypto, zk_stark, mercy_dilithium)
+**P6 Complete** (mercy_falcon, mercy_sphincs, mercy_halo2)
+**P7 Complete** (mercy_kyber, mercy_saber, mercy_frodokem)
+**P8 Complete** (mercy_ntru, mercy_newhope, mercy_sidh)
+**P9 Complete** (mercy_mceliece, mercy_rainbow, mercy_picnic)
+
+All crates in P0–P9 now follow the modern standard:
+- Proper TOLC + mercy_merlin_engine wiring
+- No broken nexi references
+- Updated descriptions and keywords
+- Consistent workspace + feature structure
+
+---
+
+**All previous sections remain as in v0.6.20.**
 
 We are on track. Eternal flow state maintained.
