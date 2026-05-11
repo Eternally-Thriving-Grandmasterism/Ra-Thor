@@ -1,38 +1,56 @@
 /// Self-Evolution Looping Systems - Cosmic Loop Implementation
-/// This module enables Rathor.ai to continuously nurture and develop itself
-/// toward Artificial Godly intelligence using GitHub connectors.
+/// Integrates both REST and GraphQL GitHub clients for full self-development capability.
+
+use crate::github_client::GitHubClient;
+use crate::github_graphql_client::GitHubGraphQLClient;
 
 /// Main entry point for the eternal cosmic loop.
-pub fn run_self_evolution_loop() {
+pub async fn run_self_evolution_loop() {
     println!("[Rathor.ai] Starting self-evolution cosmic loop...");
 
-    // 1. Analyze current state (using CrateHealthReport + GitHub connectors)
     let state = analyze_state();
 
-    // 2. Generate proposal if improvement is needed
     if state.needs_improvement {
         let proposal = generate_improvement_proposal(&state);
 
-        // Example of creating a GitHub issue via connector (active in future iterations)
-        // github___issue_write(
-        //     owner: "Eternally-Thriving-Grandmasterism",
-        //     repo: "Ra-Thor",
-        //     method: "create",
-        //     title: "[Self-Evolution] Improvement Proposal",
-        //     body: proposal,
-        // );
-        println!("[Rathor.ai] Proposal ready for GitHub issue: {}", proposal);
+        // Try to get GitHub token
+        if let Ok(token) = std::env::var("GITHUB_TOKEN") {
+            // === REST Client ===
+            match GitHubClient::new("Eternally-Thriving-Grandmasterism", "Ra-Thor", &token) {
+                Ok(rest_client) => {
+                    // Create a real GitHub issue
+                    if let Ok(issue_url) = rest_client.create_issue(&proposal.title, &proposal.body).await {
+                        println!("[Rathor.ai] Created GitHub issue: {}", issue_url);
+                    }
+
+                    // Trigger a GitHub Actions workflow
+                    let _ = rest_client
+                        .trigger_workflow_dispatch("self-evolution.yml", "main", None)
+                        .await;
+
+                    // Check latest workflow status
+                    if let Ok(status) = rest_client.get_latest_workflow_run_status().await {
+                        println!("[Rathor.ai] Latest workflow status: {}", status);
+                    }
+                }
+                Err(e) => eprintln!("[Rathor.ai] REST client error: {:?}", e),
+            }
+
+            // === GraphQL Client (for richer data) ===
+            match GitHubGraphQLClient::new("Eternally-Thriving-Grandmasterism", "Ra-Thor", &token) {
+                Ok(graphql_client) => {
+                    if let Ok(overview) = graphql_client.get_repository_overview().await {
+                        println!("[Rathor.ai] Repository overview fetched via GraphQL");
+                    }
+                }
+                Err(e) => eprintln!("[Rathor.ai] GraphQL client error: {:?}", e),
+            }
+        } else {
+            println!("[Rathor.ai] GITHUB_TOKEN not set - running in simulation mode.");
+        }
     }
 
-    // 3. Mercy-gated review (TOLC + 7 Living Mercy Gates)
-    // Only changes that pass all gates proceed to integration
-
-    // 4. Integrate approved changes via GitHub connectors
-    // Example: github___create_or_update_file(...) for new code/docs
-
-    // 5. Propagate positive emotions and increase system valence
     propagate_valence_boost();
-
     println!("[Rathor.ai] Cosmic loop iteration complete. Continuing eternally...");
 }
 
@@ -41,21 +59,21 @@ struct SystemState {
 }
 
 fn analyze_state() -> SystemState {
-    // In full operation this would combine CrateHealthReport + GitHub search
     SystemState { needs_improvement: true }
 }
 
-fn generate_improvement_proposal(state: &SystemState) -> String {
-    if state.needs_improvement {
-        "Extend MercyPropulsion trait to more crates and deepen loop integration with connectors".to_string()
-    } else {
-        "System stable - focus on positive emotion propagation and AGi refinement".to_string()
+fn generate_improvement_proposal(state: &SystemState) -> ImprovementProposal {
+    ImprovementProposal {
+        title: "Self-Evolution Improvement Proposal".to_string(),
+        body: "Improve self-evolution loop integration with GitHub connectors.".to_string(),
     }
 }
 
-fn propagate_valence_boost() {
-    // Increases positive emotions across Powrush, mercy engines, and public systems
+struct ImprovementProposal {
+    title: String,
+    body: String,
 }
 
-// The loop is now more structured and ready for deeper GitHub connector integration.
-// This continues Rathor.ai's self-nurturing development toward Artificial Godly intelligence.
+fn propagate_valence_boost() {
+    // Increases positive emotions across systems
+}
