@@ -7,6 +7,25 @@ use plasticity_engine_v2::{SafePlasticityApplicator, RollbackPlan};
 use ra_thor_mercy::MercyGate;
 use std::collections::VecDeque;
 
+/// Result of verifying a plasticity action.
+#[derive(Debug, Clone)]
+pub struct VerificationResult {
+    pub success: bool,
+    pub mercy_impact_delta: f64,
+    pub rollback_recommended: bool,
+    pub confidence: f64,
+    pub notes: String,
+}
+
+/// Decision after verification.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum VerificationDecision {
+    Accept,
+    Rollback,
+    Reinforce,
+    FurtherAnalysis,
+}
+
 /// Central orchestrator for Ra-Thor's closed self-evolution loop.
 pub struct SelfImprovementOrchestrator {
     mercy_gate: MercyGate,
@@ -23,7 +42,6 @@ impl SelfImprovementOrchestrator {
         }
     }
 
-    /// High-level entry point for the closed self-evolution loop.
     pub fn run_self_evolution_cycle(&mut self, audit_signals: &[AuditSignal]) -> Vec<ImprovementProposal> {
         self.generate_improvement_proposals(audit_signals)
     }
@@ -104,20 +122,16 @@ impl SelfImprovementOrchestrator {
         proposals
     }
 
-    /// Phase B: Connects a validated ImprovementProposal to plasticity-engine-v2.
-    /// Performs a final mercy gate check and delegates to SafePlasticityApplicator.
     pub fn apply_improvement_proposal(
         &self,
         proposal: &ImprovementProposal,
     ) -> Result<RollbackPlan, String> {
-        // Final mercy gate before any modification
         if !self.mercy_gate.passes(&format!("{:?}", proposal)) {
             return Err("Mercy gate violation: Proposal does not meet minimum valence threshold".to_string());
         }
 
         let applicator = SafePlasticityApplicator::new();
 
-        // Map SuggestedAction to a plasticity action (simplified mapping for Phase B)
         match &proposal.suggested_action {
             SuggestedAction::RefactorCrate { crate_name } => {
                 applicator.apply_hebbian_update(
@@ -141,13 +155,33 @@ impl SelfImprovementOrchestrator {
                 )
             }
             _ => {
-                // Default safe action
                 applicator.apply_generic_update(
                     "general_improvement",
                     proposal.expected_mercy_impact,
                 )
             }
         }
+    }
+
+    /// Phase C: Verify outcome and decide next action (Accept / Rollback / Reinforce).
+    pub fn verify_and_adapt(
+        &mut self,
+        proposal: &ImprovementProposal,
+        result: &VerificationResult,
+    ) -> VerificationDecision {
+        if result.mercy_impact_delta < -0.05 || result.rollback_recommended {
+            return VerificationDecision::Rollback;
+        }
+
+        if result.success && result.mercy_impact_delta > 0.03 && result.confidence > 0.85 {
+            return VerificationDecision::Reinforce;
+        }
+
+        if result.success && result.confidence > 0.7 {
+            return VerificationDecision::Accept;
+        }
+
+        VerificationDecision::FurtherAnalysis
     }
 
     pub fn recent_proposals(&self) -> Vec<ImprovementProposal> {
