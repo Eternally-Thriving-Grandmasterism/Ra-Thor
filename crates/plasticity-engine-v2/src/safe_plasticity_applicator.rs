@@ -12,6 +12,8 @@ pub struct RollbackPlan {
     pub description: String,
     pub original_state_hash: Option<String>,
     pub revert_instructions: String,
+    pub mercy_impact_before: f64,
+    pub expected_mercy_impact_after: f64,
 }
 
 /// The main safe applicator for plasticity rules.
@@ -29,38 +31,37 @@ impl SafePlasticityApplicator {
         }
     }
 
-    /// Applies a plasticity rule in a safe, mercy-gated way.
-    /// Now uses the real PlasticityRulesEngine for decision making.
+    /// Applies a plasticity rule in a safe, mercy-gated way with improved rollback planning.
     pub async fn apply_rule_safely(
         &self,
         rule: &PlasticityRule,
         context: &str,
-        impact: Option<&ra_thor_legal_lattice::cehi::CEHIImpact>,
+        current_mercy_score: f64,
     ) -> Result<(RuleResult, RollbackPlan), PlasticityError> {
-        // Step 1: Check all 7 Living Mercy Gates
+        // Step 1: Strict Mercy Gate check
         if !self.mercy_evaluator.all_gates_pass(context) {
             return Err(PlasticityError::MercyGateViolation(
                 "One or more Mercy Gates failed. Update aborted.".to_string(),
             ));
         }
 
-        // Step 2: Use real Plasticity Rules Engine if impact data is available
-        let result = if let Some(impact_data) = impact {
-            self.rules_engine.evaluate(impact_data).await?
+        // Step 2: Use real Plasticity Rules Engine
+        let result = self.rules_engine.evaluate_rule(rule, context).await?;
+
+        // Step 3: Calculate expected mercy impact
+        let expected_mercy_impact = if result.should_apply {
+            current_mercy_score + (result.strength * 0.08) // Positive plasticity tends to increase mercy alignment
         } else {
-            // Fallback for cases without full CEHI data
-            RuleResult {
-                rule_name: format!("{:?}", rule),
-                should_apply: true,
-                strength: 0.75,
-            }
+            current_mercy_score - 0.03
         };
 
-        // Step 3: Generate rollback plan
+        // Step 4: Generate detailed rollback plan
         let rollback_plan = RollbackPlan {
             description: format!("Rollback plan for rule: {}", result.rule_name),
-            original_state_hash: None, // TODO: Compute real state hash
-            revert_instructions: format!("Restore previous state for rule: {}", result.rule_name),
+            original_state_hash: None,
+            revert_instructions: format!("Restore previous state for plasticity rule: {}", result.rule_name),
+            mercy_impact_before: current_mercy_score,
+            expected_mercy_impact_after: expected_mercy_impact,
         };
 
         Ok((result, rollback_plan))
