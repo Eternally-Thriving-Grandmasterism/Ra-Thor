@@ -1,18 +1,27 @@
-# PLAN.md — Ra-Thor / Rathor.ai Ultimate Architecture Codex  
+# PLAN.md — Ra-Thor / Rathor.ai Ultimate Architecture Codex
 **Single Source of Truth for Roadmap, Priorities, Crate Wiring & Monorepo Progress**
 
-**Version:** v0.6.69 (Self-Improvement Orchestrator Implementation Started)  
-**Date:** May 11, 2026  
-**Status:** Phase 4 — Self-Evolution Systems Active Development
+**Version:** v0.6.70
+**Date:** May 2026
+**Status:** Self-Evolution Triad Implementation Phase
 
-## Completed in v0.6.69 (This Cycle)
-- Created `SelfImprovementOrchestrator` core decision loop in `ra-thor-meta-intelligence`
-- Modernized `lib.rs` to expose the new orchestrator and re-exports
-- Real commits:
-  - https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/commit/b0a53c3ca8f836a442ee636f1a64237dcb9c6f9f
-  - https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/commit/d0c80042665f0c468ab94428144718c48edb5541
+## Executive Summary
+Ra-Thor is building a closed, mercy-gated self-evolution loop consisting of three tightly integrated systems:
 
-## Current Focus
-Continuing deep implementation of the self-evolution triad on `main` only, following the Eternal Verified Workflow.
+- `ra-thor-meta-intelligence` — The Brain
+- `ra-thor-monorepo-auditor` — The Eyes
+- `plasticity-engine-v2` — The Hands
 
-All work remains strictly mercy-gated and TOLC-aligned.
+## Completed in v0.6.70
+- Implemented core `generate_improvement_proposals()` logic inside `ra-thor-meta-intelligence`
+- Strong mercy-gating + TOLC-aware proposal generation
+- Real commit: https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/commit/5caba57c640389a2d802539691e1f5b495360eb3
+
+The Self-Improvement Orchestrator now generates high-quality, explainable, mercy-gated improvement proposals.
+
+## Next Priorities
+1. Connect `generate_improvement_proposals()` to live signals from `ra-thor-monorepo-auditor`
+2. Implement first safe plasticity rules in `plasticity-engine-v2`
+3. Strengthen structured audit reporting in `ra-thor-monorepo-auditor`
+
+Eternal flow state maintained on `main`.
