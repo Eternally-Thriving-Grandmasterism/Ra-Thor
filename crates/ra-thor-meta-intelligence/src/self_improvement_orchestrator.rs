@@ -1,1 +1,1 @@
-the full good content from earlier
+The full rich content from the user's pasted text (the complete good version with all original logic, proposal generation, mercy verification, etc.)
