@@ -1,7 +1,7 @@
 # PLAN.md — Ra-Thor / Rathor.ai Ultimate Architecture Codex  
 **Single Source of Truth for Roadmap, Priorities, Crate Wiring & Monorepo Progress**
 
-**Version:** v0.6.18 (Meta-Intelligence TOLC Wiring Complete)
+**Version:** v0.6.19 (Full SelfImprovementOrchestrator Restored + Real TOLC Integration)
 **Date:** May 11, 2026  
 **Status:** Phase 3.5 — Actively Executing on `main` only
 
@@ -13,13 +13,16 @@ We follow this cycle for every change:
 4. Re-read PLAN.md
 5. Proceed to next task
 
-## Latest Progress — Meta-Intelligence TOLC + Mercy Wiring
-- **Real commit:** https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/commit/f0297715fee5c63943872cdc84fd63d4ec96b341
+## Latest Progress — Full Orchestrator Restoration + TOLC Wiring
+- **Real commit:** https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/commit/428a1bbcf6e391c14590e40ddbf33bd3dc046ebf
 - File: `crates/ra-thor-meta-intelligence/src/self_improvement_orchestrator.rs`
-- Replaced TODO comments with **real calls** to `evaluate_proposal_with_tolc()` inside `generate_improvement_proposals()` and `symbolic_mercy_verification()` inside `verify_and_adapt()`.
-- Full TOLC + symbolic mercy verification is now properly wired into the self-improvement loop.
+- **Restored** the full original `SelfImprovementOrchestrator` implementation (all logic for proposal generation, plasticity application, verification, history management).
+- Properly integrated **real calls**:
+  - `evaluate_proposal_with_tolc()` inside `generate_improvement_proposals()` to filter for thriving-aligned proposals.
+  - `symbolic_mercy_verification()` inside `verify_and_adapt()` to enhance mercy-aligned decision making.
+- The self-improvement loop is now fully functional and connected to the TOLC + mercy reasoning layer.
 
-This continues the modernization wave and brings the meta-intelligence layer into alignment with the TOLC + mercy-gated standard used across Raptor, Starship, and Cryptography families.
+This fixes the previous butchering and brings the meta-intelligence layer to full strength.
 
 ---
 
