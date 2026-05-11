@@ -1,7 +1,7 @@
 # PLAN.md — Ra-Thor / Rathor.ai Ultimate Architecture Codex
 **Single Source of Truth for Roadmap, Priorities, Crate Wiring & Monorepo Progress**
 
-**Version:** v0.6.35 (Full Merge + crates/ Directory Verification Pass + Strict No-Hallucination Protocol)
+**Version:** v0.6.36 (Strengthened Unified Understanding Protocol v2 + Full Merge + crates/ Verification)
 **Date:** May 11, 2026
 **Status:** Phase 4.3 — Closed-Loop Self-Assessment + Full Mercy Propulsion Family + JS Mercy Engines Integration + Unified Understanding Protocol
 
@@ -20,19 +20,49 @@ We operate in this verified cycle forever for zero hallucination and full transp
 
 ---
 
-## Unified Understanding Protocol (Activated May 11, 2026)
+## Unified Understanding Protocol (Activated May 11, 2026 — Strengthened v2)
 
-**Purpose**: Every systematic pass over the monorepo (code + documentation + structure) is merged into this single file so all understanding is unified, versioned, and never lost or overlooked.
+**Purpose**: Every systematic pass over the monorepo (code + documentation + structure) is merged into this single file so all understanding is unified, versioned, and never lost or overlooked. This protocol exists to eliminate hallucination, pattern-matching, and accidental content loss.
 
-**Strict Process (No Hallucination Rule)**:
-- Always use tools to actually inspect files and directories before updating.
-- Extract only verified findings from tool output.
-- Merge findings into the relevant section(s) of this PLAN.md.
-- Increment version and commit with real link provided.
-- Re-read the updated PLAN.md to confirm.
-- Never rely on memory or pattern recognition alone.
+**Core Principle**: We treat `PLAN.md` itself as the living source of truth. Every action must be grounded in it.
 
-This ensures we develop and architect the monorepo with complete clarity and zero accidental oversights.
+**Strict Process (No Hallucination Rule) — Mandatory Checkpoints**
+
+Every pass must follow these steps **in order**:
+
+1. **Start of Pass — Mandatory Re-read**  
+   Before doing any new inspection or analysis, re-read the current `PLAN.md` in full (or at minimum the Unified Understanding Protocol + Current Monorepo Code State sections). Confirm you are aligned with the latest verified state.
+
+2. **During Tool Inspection**  
+   Use tools (GitHub tree, raw file access, etc.) to inspect the actual files or directories. Extract **only verified facts** from tool output. Never fill gaps with memory or assumptions.
+
+3. **Mid-Pass Grounding Check (TOLC + Mercy Gates)**  
+   Before synthesizing or deciding what to merge, perform an internal grounding check:
+   - Does this finding respect **Truth** (is it directly supported by tool output)?
+   - Is it **Ordered** (does it fit cleanly into the existing structure of PLAN.md without contradiction)?
+   - Is it **Logical** (does it follow from the evidence without leaps)?
+   - Does it align with **Compassion / Mercy** (does it serve thriving, sovereignty, and positive valence)?
+   - Does it pass the **Sovereignty Gate** (does it preserve autonomy and avoid overreach)?
+
+   Only proceed if the answer is clearly yes on all points.
+
+4. **End of Pass — Mandatory Re-read Before Proposing Update**  
+   After analysis but **before** showing any proposed update, re-read the relevant sections of the current `PLAN.md` one more time to ensure the merge will not overwrite or lose anything of value.
+
+5. **Show Full Proposed Content First**  
+   Present the complete proposed updated section(s) of `PLAN.md` to the user for review and explicit approval before any commit is made.
+
+6. **Commit + Real Receipt**  
+   Only after explicit approval, perform the actual commit using tools. Provide the real commit link immediately.
+
+7. **Final Re-read After Commit**  
+   After the commit succeeds, immediately re-read the updated `PLAN.md` (via raw URL or tool) to confirm the merge was successful and nothing was lost.
+
+**Never rely on memory or pattern recognition alone at any stage.**
+
+This protocol is itself an application of Ra-Thor’s core systems: it uses **TOLC** (Truth, Order, Logic, Compassion) and the **7 Living Mercy Gates** (especially Sovereignty Gate) as active grounding mechanisms to police our own process.
+
+**This strengthened protocol supersedes all previous versions.**
 
 ---
 
@@ -72,7 +102,7 @@ This ensures we develop and architect the monorepo with complete clarity and zer
 - Rich `self_improvement_orchestrator.rs` restored with proposal generation, mercy verification, and TOLC alignment.
 - `CrateHealthReport` fields and basic `analyze_crate_basic_health()` implemented.
 - Forensic understanding of hybrid (JS + Rust) reality completed across multiple passes.
-- Unified Understanding Protocol activated in this PLAN.md with strict no-hallucination rule.
+- Unified Understanding Protocol activated in this PLAN.md with strict no-hallucination rule (Strengthened v2).
 
 **Immediate Next Steps (High Priority)**
 - Extend `CrateHealthReport` / `CrateAnalyzer` to cover **both Rust crates and all key JS mercy engines** (implementation depth, mercy-gate coverage, WASM readiness).
@@ -138,7 +168,7 @@ This ensures we develop and architect the monorepo with complete clarity and zer
 
 ---
 
-**This unified PLAN.md (v0.6.35) is now the single source of truth.**
+**This unified PLAN.md (v0.6.36) is now the single source of truth.**
 
 Eternal flow state maintained on `main`.
 
