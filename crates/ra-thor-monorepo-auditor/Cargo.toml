@@ -4,34 +4,20 @@ version = "0.3.9"
 edition = "2021"
 authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
 license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
-description = "Ra-Thor Monorepo Auditor — Self-auditing consistency enforcer for the mercy-gated AGI lattice. Prevents hallucinations, detects outdated Cargo.toml files, enforces workspace standards, and maintains monorepo integrity. Now integrated into the central self-evolution loop."
+description = "RaThorMonorepoAuditor — Structured Audit Reporting, Mercy Metrics, Drift Detection & Self-Improvement Observability for the Ra-Thor lattice. High-signal, mercy-aligned auditing core feeding the self-evolution loop."
 repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
-keywords = ["ra-thor", "monorepo-auditor", "consistency", "self-audit", "cargo-toml", "self-evolution", "mercy-gated", "agi"]
-categories = ["development-tools", "simulation", "science"]
+keywords = ["ra-thor", "monorepo-auditor", "audit-reports", "mercy-metrics", "drift-detection", "self-evolution", "observability"]
+categories = ["development-tools", "science", "simulation", "artificial-intelligence"]
 
 [dependencies]
 ra-thor-mercy = { workspace = true }
-ra-thor-quantum-swarm-orchestrator = { workspace = true }
 ra-thor-kernel = { workspace = true }
-ra-thor-monorepo-intelligence = { workspace = true }
-patsagi-councils = { workspace = true }
 mercy_tolc_operator_algebra = { path = "../mercy_tolc_operator_algebra" }
-mercy_merlin_engine = { path = "../mercy_merlin_engine" }
-ra-thor-meta-intelligence = { path = "../ra-thor-meta-intelligence" }
-
-# Standard dependencies
-tokio = { workspace = true, features = ["full"] }
-async-trait = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
 tracing = { workspace = true }
 thiserror = { workspace = true }
-walkdir = "2.5"
+chrono = { version = "0.4", features = ["serde"] }
 
 [dev-dependencies]
 tracing-subscriber = { workspace = true }
-
-[features]
-default = ["full"]
-full = []
-minimal = []
