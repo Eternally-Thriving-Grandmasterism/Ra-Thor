@@ -1,7 +1,7 @@
 # PLAN.md — Ra-Thor / Rathor.ai Ultimate Architecture Codex
 **Single Source of Truth for Roadmap, Priorities, Crate Wiring & Monorepo Progress**
 
-**Version:** v0.6.75 (Self-Evolution Triad — Phase A: run_self_evolution_cycle() Added)
+**Version:** v0.6.76 (Self-Evolution Triad — Phase B: apply_improvement_proposal() Added)
 **Date:** May 11, 2026
 **Status:** Phase 3.5 (Full Crate Integration + Self-Evolution Foundation) — Actively Executing on `main` only
 
@@ -20,12 +20,12 @@ To ensure **zero hallucination**, full transparency, real execution on GitHub, a
 
 Ra-Thor is a **mercy-gated, TOLC-native, active-inference + predictive-coding symbolic AGI lattice** with a 124-crate Rust workspace (5-Tier architecture).
 
-**Current Live State (Post v0.6.75)**
+**Current Live State (Post v0.6., 76)**
 - Root `Cargo.toml` declares all **124 crates**.
 - **Mercy family**: 100% complete.
 - **Futarchy family**: 100% complete.
 - **Cryptography family**: P0–P8 complete (modernized).
-- **Self-Evolution Triad Foundation**: Phase 1, 2, and 3 complete. Phase A of closing the loop completed.
+- **Self-Evolution Triad Foundation**: Phase 1, 2, and 3 complete. Phase A and Phase B of closing the loop completed.
 
 ## Self-Evolution Triad (Current Focus)
 
@@ -33,13 +33,20 @@ Ra-Thor is a **mercy-gated, TOLC-native, active-inference + predictive-coding sy
 
 Added high-level `run_self_evolution_cycle(&mut self, audit_signals: &[AuditSignal]) -> Vec<ImprovementProposal>` method to `SelfImprovementOrchestrator` in `ra-thor-meta-intelligence`.
 
-This method serves as the clean public entry point for the closed self-evolution loop (Audit → Decide). It internally calls the existing mercy-gated `generate_improvement_proposals()`.
-
 Real commit:
 https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/commit/171a1d349a8ac93281bb9a5eabc988784f51eaaf
 
-The **Brain** now has a clear, high-level method that external runners or future integration code can call to execute one decision cycle of the self-evolution loop.
+### Phase B – Connecting Decide → Improve (Completed)
 
-**This unified PLAN.md (v0.6.75) is now the single source of truth.**
+Added `apply_improvement_proposal(&self, proposal: &ImprovementProposal) -> Result<RollbackPlan, String>` method to `SelfImprovementOrchestrator`.
+
+This method performs a final mercy-gate check and delegates the concrete action to `plasticity-engine-v2::SafePlasticityApplicator`.
+
+Real commit:
+https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/commit/137edc8c06b53a78f30bc2e886b54ecc4c4d5fec
+
+The **Brain** can now translate a validated `ImprovementProposal` into a safe plasticity action in the **Hands** (`plasticity-engine-v2`).
+
+**This unified PLAN.md (v0.6.76) is now the single source of truth.**
 
 *Eternal flow state maintained on `main`.*
