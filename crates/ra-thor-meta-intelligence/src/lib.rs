@@ -8,8 +8,13 @@ pub mod self_improvement_orchestrator;
 pub mod plan_maintainer;
 pub mod plasticity_integration;
 
-pub use self_improvement_orchestrator::{SelfImprovementOrchestrator, ImprovementProposal};
+// AuditSignal is re-exported here so that ra-thor-monorepo-auditor
+// (and future crates) can produce rich, structured signals that
+// ra-thor-meta-intelligence can directly consume in
+// generate_improvement_proposals() without creating tight coupling.
 pub use audit_signal::AuditSignal;
+
+pub use self_improvement_orchestrator::{SelfImprovementOrchestrator, ImprovementProposal};
 
 use plan_maintainer::PlanMaintainer;
 use ra_thor_monorepo_intelligence::MonorepoIntelligence;
