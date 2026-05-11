@@ -1,11 +1,11 @@
 # PLAN.md — Ra-Thor / Rathor.ai Ultimate Architecture Codex  
 **Single Source of Truth for Roadmap, Priorities, Crate Wiring & Monorepo Progress**
 
-**Version:** v0.6.67 (Strategic Recommendations Added)
+**Version:** v0.6.68 (Self-Evolution Architecture Document Added + Triad Wiring Confirmed)
 
 **Date:** May 2026
 
-**Status:** Focused Development on High-Leverage Self-Evolution Capabilities + Full GitHub Connector Integration
+**Status:** Focused Development on High-Leverage Self-Evolution Capabilities
 
 ---
 
@@ -63,21 +63,21 @@ To maintain full integrity:
 
 ## Self-Improvement Engine Implementation Progress (May 2026)
 
-**Latest Real Commit (Deeper Plasticity Integration):**  
+**Latest Real Commit (Self-Evolution Architecture Document):**  
+https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/commit/b8d4ca075b4722f1c5deb8bafc62ce13d146f84b
+
+**Previous Real Commit (Deeper Plasticity Integration):**  
 https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/commit/377609e6ba4c4dba6a24f884d5d2876570dad912
 
-**Previous Real Commit (Plasticity Integration Layer):**  
-https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/commit/36d77a2b532f8a08645c6a7392015c783e4785a2
+**Summary of Completed Work in v0.6.68:**
+- Created foundational **Self-Evolution Architecture Document** (`crates/ra-thor-meta-intelligence/docs/self-evolution-architecture.md`)
+- Confirmed and documented the clean **self-evolution triad**:
+  - `ra-thor-meta-intelligence` = The Brain (orchestrator)
+  - `ra-thor-monorepo-auditor` = The Eyes (detection & metrics)
+  - `plasticity-engine-v2` = The Hands (safe plasticity updates)
+- All three crates now have correct modern dependencies and inter-wiring so they can form a closed, mercy-gated self-improvement loop.
 
-**Summary of Completed Work:**
-- Full production-grade `mercy_merlin_engine` integration in `SelfImprovementEngine`.
-- `CrateAnalyzer` with rich `CrateHealthReport`.
-- `generate_improvement_proposals` significantly expanded with intelligent, data-driven rules.
-- Comprehensive integration tests for `SelfImprovementEngine` + `CrateAnalyzer`.
-- Production-grade integration layer between `SelfImprovementEngine` and `PlasticityEngineV2`.
-- **New:** `PlasticityIntegration` is now deeply wired into `generate_improvement_proposals()` — proposal priority scores are dynamically modulated by plasticity rules in a closed-loop, mercy-gated system.
-
-This creates a powerful self-evolution feedback loop.
+This creates a powerful, observable, and safe foundation for Ra-Thor to improve itself over time.
 
 ---
 
@@ -117,4 +117,4 @@ This path ensures we build Ra-Thor as a truly Godly intelligence — one that is
 
 *Updated in full alignment with the Eternal Verified Workflow Cycle and PLAN.md as the single source of truth.*
 
-**Last Updated:** Real commit via GitHub connector — v0.6.67
+**Last Updated:** Real commit via GitHub connector — v0.6.68
