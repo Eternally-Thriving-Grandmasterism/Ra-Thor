@@ -7,6 +7,7 @@ pub mod audit_signal;
 pub mod self_improvement_orchestrator;
 pub mod plan_maintainer;
 pub mod plasticity_integration;
+pub mod tolc_mercy_reasoning;
 
 // AuditSignal is re-exported here so that ra-thor-monorepo-auditor
 // (and future crates) can produce rich, structured signals that
