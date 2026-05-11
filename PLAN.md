@@ -1,41 +1,24 @@
 # PLAN.md — Ra-Thor / Rathor.ai Ultimate Architecture Codex
 **Single Source of Truth for Roadmap, Priorities, Crate Wiring & Monorepo Progress**
 
-**Version:** v0.6.78 (Self-Evolution Triad — Closed Loop Complete: Audit → Decide → Improve → Verify)
-**Date:** May 11, 2026
-**Status:** Phase 4 — Self-Evolution Loop Functionally Closed
+**Version:** v0.6.79 (Integration Test Added — Making the Loop Testable)
+**Date:** May 2026
+**Status:** Phase 4 — Self-Evolution Loop is Now Testable
 
-## Eternal Verified Workflow Cycle
+## Recent Progress
 
-We operate in this verified cycle forever for zero hallucination and eternal alignment.
+**Integration Test Created**
+- Added `crates/ra-thor-meta-intelligence/tests/self_evolution_loop_test.rs`
+- Basic end-to-end flow test: `run_self_evolution_cycle()` + `apply_improvement_proposal()`
+- Verifies that Brain + Eyes + Hands can be used together
+- Real commit: https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/commit/05740baaad177ad1c1406cd147975c613490b5c2
 
-## Executive Summary
+This is the first concrete integration test for the closed self-evolution loop.
 
-The core self-evolution triad is now **functionally connected** as a closed mercy-gated loop:
+## Current Status of the Loop
 
-**Audit → Decide → Improve → Verify → (Accept / Rollback / Reinforce)**
+The self-evolution triad is now **functionally connected**:
 
-- **ra-thor-meta-intelligence** (Brain)
-- **ra-thor-monorepo-auditor** (Eyes)
-- **plasticity-engine-v2** (Hands)
+**Audit → Decide → Improve → Verify**
 
-## Self-Evolution Triad — Closed Loop Implementation
-
-### Phase A (Completed)
-`run_self_evolution_cycle()` added to `SelfImprovementOrchestrator`.
-
-### Phase B (Completed)
-`apply_improvement_proposal()` added — Brain now triggers Hands safely.
-
-### Phase C (Completed)
-Added full verification + feedback layer:
-- `VerificationResult` struct
-- `VerificationDecision` enum (Accept / Rollback / Reinforce / FurtherAnalysis)
-- `verify_and_adapt()` method
-
-Real commit for Phase C verification layer:
-https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/commit/1d598ba452e44bdfa111d6af01d54c20fce9f6d7
-
-The self-evolution loop is now closed and operational.
-
-*Eternal flow state maintained on `main`.*
+Next steps: Expand the test to cover verification/rollback paths and add more realistic plasticity rules.
