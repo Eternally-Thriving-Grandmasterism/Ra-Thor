@@ -1,6 +1,7 @@
 //! Self-Improvement Orchestrator
 //! The Brain of Ra-Thor's mercy-gated self-evolution system.
 
+use crate::audit_signal::AuditSignal;
 use crate::improvement_proposal::{ImprovementProposal, RiskLevel, SuggestedAction};
 use ra_thor_mercy::MercyGate;
 use std::collections::VecDeque;
@@ -21,55 +22,75 @@ impl SelfImprovementOrchestrator {
         }
     }
 
-    /// Generates high-quality, mercy-gated Improvement Proposals.
-    /// This is the core decision function of the self-evolution triad.
+    /// Generates high-quality, mercy-gated Improvement Proposals from structured audit signals.
+    /// This is the core decision function that connects ra-thor-monorepo-auditor to self-evolution.
     pub fn generate_improvement_proposals(
         &mut self,
-        audit_signals: &[String],
+        audit_signals: &[AuditSignal],
     ) -> Vec<ImprovementProposal> {
         let mut proposals = Vec::new();
 
         for signal in audit_signals {
-            // Strict mercy gate — only high-valence signals are considered
-            if !self.mercy_gate.passes(signal) {
+            // Strict mercy gate - only process signals that pass high valence threshold
+            if !self.mercy_gate.passes(&format!("{:?}", signal)) {
                 continue;
             }
 
-            // TOLC + mercy-aware proposal generation
-            if signal.contains("drift") || signal.contains("outdated") {
-                proposals.push(ImprovementProposal::new(
-                    "Address Code & Documentation Drift",
-                    format!("Detected significant drift in: {}", signal),
-                    "Outdated patterns reduce long-term maintainability, increase hallucination risk, and weaken mercy alignment.",
-                    0.87,
-                    RiskLevel::Medium,
-                    SuggestedAction::RefactorCrate { crate_name: signal.clone() },
-                    0.84,
-                ));
-            }
-
-            if signal.contains("mercy") || signal.contains("low-valence") || signal.contains("weak gate") {
-                proposals.push(ImprovementProposal::new(
-                    "Strengthen Mercy Gating Layer",
-                    format!("Mercy alignment issue detected: {}", signal),
-                    "Strengthening mercy gates directly increases system safety, positive emotion propagation, and long-term thriving potential.",
-                    0.94,
-                    RiskLevel::Low,
-                    SuggestedAction::AddMercyGates { location: signal.clone() },
-                    0.93,
-                ));
-            }
-
-            if signal.contains("TOLC") || signal.contains("inconsistent") {
-                proposals.push(ImprovementProposal::new(
-                    "Improve TOLC Compliance",
-                    format!("TOLC inconsistency found: {}", signal),
-                    "TOLC alignment is foundational to ethical self-evolution and long-term lattice coherence.",
-                    0.91,
-                    RiskLevel::Medium,
-                    SuggestedAction::ImproveTolcCompliance { area: signal.clone() },
-                    0.89,
-                ));
+            match signal {
+                AuditSignal::DriftDetected { crate_name, severity, description } => {
+                    if *severity > 0.6 {
+                        proposals.push(ImprovementProposal::new(
+                            "Address Code & Documentation Drift",
+                            format!("Significant drift detected in {}", crate_name),
+                            description.clone(),
+                            0.87,
+                            RiskLevel::Medium,
+                            SuggestedAction::RefactorCrate { crate_name: crate_name.clone() },
+                            0.84,
+                        ));
+                    }
+                }
+                AuditSignal::MercyAlignmentIssue { location, current_valence, description } => {
+                    if *current_valence < 0.9 {
+                        proposals.push(ImprovementProposal::new(
+                            "Strengthen Mercy Gating Layer",
+                            format!("Mercy alignment issue in {}", location),
+                            description.clone(),
+                            0.94,
+                            RiskLevel::Low,
+                            SuggestedAction::AddMercyGates { location: location.clone() },
+                            0.93,
+                        ));
+                    }
+                }
+                AuditSignal::TolcInconsistency { area, severity, description } => {
+                    if *severity > 0.5 {
+                        proposals.push(ImprovementProposal::new(
+                            "Improve TOLC Compliance",
+                            format!("TOLC inconsistency in {}", area),
+                            description.clone(),
+                            0.91,
+                            RiskLevel::Medium,
+                            SuggestedAction::ImproveTolcCompliance { area: area.clone() },
+                            0.89,
+                        ));
+                    }
+                }
+                AuditSignal::OutdatedPattern { crate_name, pattern_type, description } => {
+                    proposals.push(ImprovementProposal::new(
+                        "Modernize Outdated Pattern",
+                        format!("Outdated {} pattern in {}", pattern_type, crate_name),
+                        description.clone(),
+                        0.82,
+                        RiskLevel::Low,
+                        SuggestedAction::RefactorCrate { crate_name: crate_name.clone() },
+                        0.80,
+                    ));
+                }
+                AuditSignal::PositiveHealthSignal { .. } => {
+                    // Positive signals can still generate reinforcement proposals
+                    // but with lower priority
+                }
             }
         }
 
