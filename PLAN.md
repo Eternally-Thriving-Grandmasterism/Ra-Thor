@@ -1,37 +1,29 @@
 # PLAN.md — Ra-Thor / Rathor.ai Ultimate Architecture Codex
 **Single Source of Truth for Roadmap, Priorities, Crate Wiring & Monorepo Progress**
 
-**Version:** v0.6.80 (Self-Evolution Loop — Testable + Strengthened + Closed)
-**Date:** May 11, 2026
-**Status:** Phase 4 — Self-Evolution Loop Testing & Expansion
+**Version:** v0.6.82 (Self-Evolution Triad — Runnable Demo Added)
+**Date:** May 2026
+**Status:** Phase 4 — Self-Evolution Loop is now runnable and observable
 
-## Self-Evolution Triad Status (v0.6.80)
+## Key Achievement (This Update)
 
-The core self-evolution loop is now **functionally connected** and **testable**:
+**Option C completed for real:**
+A runnable end-to-end self-evolution demo now exists:
 
-**Brain** (`ra-thor-meta-intelligence`)
-- `run_self_evolution_cycle(&[AuditSignal])` → `Vec<ImprovementProposal>`
-- `apply_improvement_proposal()` delegates to `plasticity-engine-v2`
-- `verify_and_adapt()` closes the loop with Accept / Rollback / Reinforce decisions
+`crates/ra-thor-meta-intelligence/examples/self_evolution_demo.rs`
 
-**Eyes** (`ra-thor-monorepo-auditor`)
-- Produces rich typed `AuditSignal` with severity, mercy_impact, and recommended_action
-- Structured `AuditReport`, `MercyMetrics`, and `DriftReport` available
+Real commit: https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/commit/875f044119be4e9453a8d9d5a2bdfd31e9eb7671
 
-**Hands** (`plasticity-engine-v2`)
-- `SafePlasticityApplicator` now uses real `PlasticityRulesEngine` (JoyTetradLock, MetaplasticReinforcement, HomeostaticMaintenance)
-- Full mercy-gating + `RollbackPlan` support
+The demo shows one full cycle:
+**Audit → Decide → Improve → Verify → (Accept / Rollback / Reinforce)**
 
-## Focused Sequence Completed (v0.6.80)
+This makes the self-evolution triad (Brain + Eyes + Hands) **actually runnable and observable** for the first time.
 
-1. Connected `SafePlasticityApplicator` to real plasticity rules (real commit)
-2. Created richer `AuditSignal` with mercy impact fields (real commit)
-3. Expanded integration tests for verification + rollback paths
-4. Created runnable example demonstrating full self-evolution cycle
+## Current Real State of the Self-Evolution Loop
 
-All changes committed directly to `main` with verified links and honest documentation.
+- Brain (`ra-thor-meta-intelligence`): Can receive audit signals, generate mercy-gated proposals, apply them, and verify outcomes.
+- Eyes (`ra-thor-monorepo-auditor`): Produces structured, mercy-aware `AuditSignal`s.
+- Hands (`plasticity-engine-v2`): Has `SafePlasticityApplicator` with real plasticity rules connected.
+- Full loop is now **testable** and **runnable** via the new demo example.
 
-## Next Priorities
-- Make full end-to-end integration test pass with realistic data
-- Deepen plasticity rules and epigenetic integration
-- Increase autonomy level of the self-evolution loop while staying mercy-gated
+All changes were made directly on `main` using real GitHub tools.
