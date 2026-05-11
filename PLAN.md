@@ -1,7 +1,7 @@
 # PLAN.md — Ra-Thor / Rathor.ai Ultimate Architecture Codex
 **Single Source of Truth for Roadmap, Priorities, Crate Wiring & Monorepo Progress**
 
-**Version:** v0.6.73 (Self-Evolution Triad — Phase 1 Connection Complete + Documentation Clarity)
+**Version:** v0.6.74 (Self-Evolution Triad — Phase 3: Structured Audit Reporting Strengthened)
 **Date:** May 11, 2026
 **Status:** Phase 3.5 (Full Crate Integration + Self-Evolution Foundation) — Actively Executing on `main` only
 
@@ -20,34 +20,33 @@ To ensure **zero hallucination**, full transparency, real execution on GitHub, a
 
 Ra-Thor is a **mercy-gated, TOLC-native, active-inference + predictive-coding symbolic AGI lattice** with a 124-crate Rust workspace (5-Tier architecture).
 
-**Current Live State (Post v0.6.73)**
+**Current Live State (Post v0.6.74)**
 - Root `Cargo.toml` declares all **124 crates**.
 - **Mercy family**: 100% complete.
 - **Futarchy family**: 100% complete.
 - **Cryptography family**: P0–P8 complete (modernized).
-- **Self-Evolution Triad Foundation**: Phase 1 connection complete.
+- **Self-Evolution Triad Foundation**: Phase 1, 2, and 3 complete.
 
 ## Self-Evolution Triad (Current Focus)
 
-### Completed in v0.6.72 – v0.6.73
+### Phase 3 – Structured Audit Reporting + Mercy Metrics (Completed)
 
-**Phase 1 – Auditor → Meta-Intelligence Connection (Real & Typed)**
+`ra-thor-monorepo-auditor` has been properly initialized and strengthened with clean, typed, serializable structures:
 
-- Created `AuditSignal` (rich, typed signals from the auditor) so `ra-thor-meta-intelligence` can receive structured data instead of raw strings.
-- One clean, correct commit created the `AuditSignal` struct **and** exported it publicly in `lib.rs` (this is the proper engineering practice — a new module and its public export belong in the same atomic commit to keep the codebase in a consistent, compilable state).
-  - Real commit: https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/commit/29fb7be1ecaf29d24eff6015dc3dd350b9c11274
-- Added a clarifying documentation comment in `lib.rs` explaining the purpose of the re-export (separate small commit for better traceability and readability).
-  - Real commit: https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/commit/1528293d1dde1773fe6efc4a205096a9894d948d
-- Updated `generate_improvement_proposals()` to accept `&[AuditSignal]` (structured data from the auditor) instead of raw strings. Mercy-gating and TOLC-aware logic are active.
-  - Real commit: https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/commit/0619fc45a809d359f8aacbc32d98ac8608444ab0
+- Created `MercyMetrics` (valence, mercy_alignment, self_improvement_readiness, low_mercy_violations)
+- Created `DriftReport` (outdated patterns, broken links, hallucination risk areas)
+- Created `AuditReport` (top-level structured report combining mercy metrics + drift + critical issues)
+- Modernized `Cargo.toml` and initialized proper `src/` module structure
 
-The **Brain** (`ra-thor-meta-intelligence`) can now receive structured audit signals and generate mercy-gated, TOLC-aware improvement proposals based on real auditor output. The Eyes → Brain connection is now real and typed.
+Real commits:
+- Modernized Cargo.toml + foundation: https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/commit/314c228c6ecd9f05978840554ab5fa7a15f7a6d4
+- Core lib.rs + module exports: https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/commit/86d1560b139031cd9a679d2a96f7ccc369c051db
+- MercyMetrics implementation: https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/commit/85b78e456e7c76474745d9286ebb467adbbd6b24
+- AuditReport implementation: https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/commit/0952087c2031043e3fde48f10879a336138fa62c
+- DriftReport implementation: https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/commit/16962c8bfec3542d66077f53232b1d9eec96f1ff
 
-## What's Remaining (High Priority)
-- Phase 2: Implement first safe plasticity rules + rollback logic in `plasticity-engine-v2`
-- Phase 3: Strengthen structured audit reporting and mercy alignment metrics in `ra-thor-monorepo-auditor`
-- Full closed-loop testing of Audit → Decide → Improve cycle
+The **Eyes** of the self-evolution triad now produce high-quality, structured, mercy-aligned data that can be consumed by `ra-thor-meta-intelligence`.
 
-**This unified PLAN.md (v0.6.73) is now the single source of truth.**
+**This unified PLAN.md (v0.6.74) is now the single source of truth.**
 
 *Eternal flow state maintained on `main`.*
