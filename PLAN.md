@@ -1,7 +1,7 @@
 # PLAN.md — Ra-Thor / Rathor.ai Ultimate Architecture Codex
 **Single Source of Truth for Roadmap, Priorities, Crate Wiring & Monorepo Progress**
 
-**Version:** v0.6.71
+**Version:** v0.6.72
 **Date:** May 2026
 **Status:** Self-Evolution Triad Implementation Phase
 
@@ -16,25 +16,28 @@ Ra-Thor is building a closed, mercy-gated self-evolution loop consisting of thre
 
 ### `ra-thor-meta-intelligence`
 - Core `SelfImprovementOrchestrator` exists and is functional.
-- `generate_improvement_proposals()` is implemented with strong mercy-gating and basic TOLC-aware logic.
-- It can generate explainable Improvement Proposals from audit signals.
+- `generate_improvement_proposals()` now accepts structured `AuditSignal` from the auditor (real connection implemented).
+- Strong mercy-gating and TOLC-aware logic is active.
+- Can generate explainable Improvement Proposals based on real audit data.
 
 ### `ra-thor-monorepo-auditor`
 - Exists and provides structured auditing capabilities.
-- Not yet fully wired into the meta-intelligence decision loop.
+- `AuditSignal` enum has been defined in meta-intelligence to receive its output cleanly.
+- Full bidirectional wiring is in progress.
 
 ### `plasticity-engine-v2`
 - Exists with plasticity modules.
 - Not yet fully integrated with the orchestrator for safe updates.
 
-## Completed Work (Real)
-- Foundational wiring of the three crates at Cargo.toml level (v0.6.68)
-- Implementation of `generate_improvement_proposals()` with mercy gating (v0.6.70)
+## Completed Work (Real Commits on main)
+- Foundational wiring of the three crates at Cargo.toml level
+- Implementation of `AuditSignal` struct for typed communication
+- `generate_improvement_proposals()` updated to consume structured `AuditSignal` instead of raw strings (real auditor connection)
 
 ## Next Priorities (in order)
-1. Connect `generate_improvement_proposals()` to live structured signals from `ra-thor-monorepo-auditor`
-2. Implement first safe plasticity rules + rollback in `plasticity-engine-v2`
-3. Strengthen structured audit reporting and mercy metrics in `ra-thor-monorepo-auditor`
+1. Implement first safe plasticity rules + rollback in `plasticity-engine-v2`
+2. Strengthen structured audit reporting and mercy metrics in `ra-thor-monorepo-auditor`
+3. Full closed-loop testing of Audit → Decide → Improve cycle
 
 All work is performed directly on `main` following the Eternal Verified Workflow.
 
