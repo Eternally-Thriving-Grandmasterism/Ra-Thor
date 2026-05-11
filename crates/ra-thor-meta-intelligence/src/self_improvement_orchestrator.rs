@@ -3,6 +3,7 @@
 
 use crate::audit_signal::AuditSignal;
 use crate::improvement_proposal::{ImprovementProposal, RiskLevel, SuggestedAction};
+use plasticity_engine_v2::{SafePlasticityApplicator, RollbackPlan};
 use ra_thor_mercy::MercyGate;
 use std::collections::VecDeque;
 
@@ -23,16 +24,10 @@ impl SelfImprovementOrchestrator {
     }
 
     /// High-level entry point for the closed self-evolution loop.
-    /// This is the method that external systems (or a runner) should call
-    /// to execute one full Audit → Decide cycle.
     pub fn run_self_evolution_cycle(&mut self, audit_signals: &[AuditSignal]) -> Vec<ImprovementProposal> {
-        // Currently focuses on the Decide phase.
-        // Phase B will connect the output proposals to plasticity-engine-v2.
         self.generate_improvement_proposals(audit_signals)
     }
 
-    /// Generates high-quality, mercy-gated Improvement Proposals from structured audit signals.
-    /// This is the core decision function that connects ra-thor-monorepo-auditor to self-evolution.
     pub fn generate_improvement_proposals(
         &mut self,
         audit_signals: &[AuditSignal],
@@ -40,7 +35,6 @@ impl SelfImprovementOrchestrator {
         let mut proposals = Vec::new();
 
         for signal in audit_signals {
-            // Strict mercy gate - only process signals that pass high valence threshold
             if !self.mercy_gate.passes(&format!("{:?}", signal)) {
                 continue;
             }
@@ -96,14 +90,10 @@ impl SelfImprovementOrchestrator {
                         0.80,
                     ));
                 }
-                AuditSignal::PositiveHealthSignal { .. } => {
-                    // Positive signals can still generate reinforcement proposals
-                    // but with lower priority
-                }
+                AuditSignal::PositiveHealthSignal { .. } => {}
             }
         }
 
-        // Maintain bounded history
         for proposal in &proposals {
             self.proposal_history.push_back(proposal.clone());
             if self.proposal_history.len() > self.max_history {
@@ -112,6 +102,52 @@ impl SelfImprovementOrchestrator {
         }
 
         proposals
+    }
+
+    /// Phase B: Connects a validated ImprovementProposal to plasticity-engine-v2.
+    /// Performs a final mercy gate check and delegates to SafePlasticityApplicator.
+    pub fn apply_improvement_proposal(
+        &self,
+        proposal: &ImprovementProposal,
+    ) -> Result<RollbackPlan, String> {
+        // Final mercy gate before any modification
+        if !self.mercy_gate.passes(&format!("{:?}", proposal)) {
+            return Err("Mercy gate violation: Proposal does not meet minimum valence threshold".to_string());
+        }
+
+        let applicator = SafePlasticityApplicator::new();
+
+        // Map SuggestedAction to a plasticity action (simplified mapping for Phase B)
+        match &proposal.suggested_action {
+            SuggestedAction::RefactorCrate { crate_name } => {
+                applicator.apply_hebbian_update(
+                    crate_name,
+                    "refactor_drift",
+                    proposal.expected_mercy_impact,
+                )
+            }
+            SuggestedAction::AddMercyGates { location } => {
+                applicator.apply_bcm_update(
+                    location,
+                    "strengthen_mercy",
+                    proposal.expected_mercy_impact,
+                )
+            }
+            SuggestedAction::ImproveTolcCompliance { area } => {
+                applicator.apply_stdp_update(
+                    area,
+                    "tolc_compliance",
+                    proposal.expected_mercy_impact,
+                )
+            }
+            _ => {
+                // Default safe action
+                applicator.apply_generic_update(
+                    "general_improvement",
+                    proposal.expected_mercy_impact,
+                )
+            }
+        }
     }
 
     pub fn recent_proposals(&self) -> Vec<ImprovementProposal> {
