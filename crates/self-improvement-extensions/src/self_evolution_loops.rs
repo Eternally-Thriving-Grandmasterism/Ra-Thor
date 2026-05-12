@@ -36,7 +36,6 @@ pub async fn run_self_evolution_loop() {
                         ChatMessage {
                             role: "user".to_string(),
                             content: "Suggest one concrete, actionable improvement to the self-evolution cosmic loop.".to_string(),
-                        },
                     ];
                     generate_chat(&model, &messages, &GenerationConfig::default())
                         .unwrap_or_else(|_| generate_basic_proposal_text())
@@ -54,7 +53,7 @@ pub async fn run_self_evolution_loop() {
         println!("[Rathor.ai] Generated proposal: {}", proposal);
 
         // ============================================
-        // TOLC + 7 LIVING MERCY GATES EVALUATION
+        // TOLC + 7 LIVING MERCY GATES EVALUATION + LOGGING
         // ============================================
         #[cfg(feature = "llama-cpp")]
         {
@@ -64,6 +63,9 @@ pub async fn run_self_evolution_loop() {
                     ..Default::default()
                 }) {
                     let evaluation = evaluate_proposal_with_tolc_and_mercy(&model, &proposal);
+
+                    // Log evaluation results (including rejected proposals)
+                    log_evaluation_result(&proposal, &evaluation);
 
                     println!(
                         "[Rathor.ai] Evaluation → TOLC: {:.1} | Mercy: {:.1} | Sovereignty: {:.1}",
@@ -132,4 +134,17 @@ fn generate_basic_proposal_text() -> String {
 
 fn propagate_valence_boost() {
     // Increases positive emotions across systems
+}
+
+// Simple logging of evaluation results (can be expanded later)
+#[cfg(feature = "llama-cpp")]
+fn log_evaluation_result(proposal: &str, evaluation: &crate::evaluation::EvaluationResult) {
+    println!("[Rathor.ai][EVAL LOG] Proposal: {}", proposal);
+    println!("[Rathor.ai][EVAL LOG] TOLC Avg: {:.1}, Mercy Avg: {:.1}, Sovereignty: {:.1}",
+        evaluation.average_tolc_score,
+        evaluation.average_mercy_score,
+        evaluation.sovereignty_score);
+    println!("[Rathor.ai][EVAL LOG] Passed: {}, Summary: {}",
+        evaluation.passes_threshold,
+        evaluation.summary);
 }
