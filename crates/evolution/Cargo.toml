@@ -19,8 +19,9 @@ ra-thor-biomimetic = { workspace = true }
 powrush = { workspace = true }
 self-improvement-extensions = { path = "../self-improvement-extensions" }
 
-tokio = { workspace = true, features = ["full"] }
-async-trait = { workspace = true }
+qdrant-client = { version = "1.13", features = ["serde"] }
+lancedb = { version = "0.18", features = ["tokio"] }
+
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
 tracing = { workspace = true }
