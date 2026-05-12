@@ -1,6 +1,6 @@
 [package]
 name = "evolution"
-version = "0.3.9"
+version = "0.4.0"
 edition = "2021"
 authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
 license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
