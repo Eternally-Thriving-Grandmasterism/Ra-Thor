@@ -5,42 +5,35 @@
 ## Current Features
 
 - GGUF model loading
-- Text generation (streaming + non-streaming)
-- Chat messages with system prompt support
-- **Basic tool/function calling support**
+- Text generation (sync + async streaming)
+- Chat with system prompt support
+- Tool/function calling support
 
-## Tool Calling Example
+## Async Streaming Example
 
 ```rust
-use llama_cpp_gguf::{generate_chat_with_tools, try_parse_tool_call, ChatMessage, Tool, GenerationConfig, ModelConfig, load_gguf_model};
+use llama_cpp_gguf::{generate_text_stream_async, ModelConfig, GenerationConfig, load_gguf_model};
+use tokio::sync::mpsc;
 
-let tools = vec![Tool {
-    name: "create_github_issue".to_string(),
-    description: "Create a GitHub issue".to_string(),
-    parameters: serde_json::json!({
-        "type": "object",
-        "properties": {
-            "title": { "type": "string" },
-            "body": { "type": "string" }
-        },
-        "required": ["title", "body"]
-    }),
-}];
+#[tokio::main]
+async fn main() {
+    let model = load_gguf_model(&ModelConfig {
+        model_path: "models/phi-2.Q4_K_M.gguf".to_string(),
+        ..Default::default()
+    }).unwrap();
 
-let messages = vec![ChatMessage {
-    role: "user".to_string(),
-    content: "Create an issue about improving the self-evolution loop".to_string(),
-}];
+    let mut receiver = generate_text_stream_async(
+        model,
+        "Explain self-evolution in simple terms.".to_string(),
+        GenerationConfig::default(),
+    ).await.unwrap();
 
-let response = generate_chat_with_tools(&model, &messages, Some(&tools), &GenerationConfig::default()).unwrap();
-
-if let Some(tool_call) = try_parse_tool_call(&response) {
-    println!("Model wants to call tool: {} with args: {}", tool_call.name, tool_call.arguments);
-} else {
-    println!("Model responded normally: {}", response);
+    while let Some(token) = receiver.recv().await {
+        if token.starts_with("[ERROR]") {
+            eprintln!("{}", token);
+            break;
+        }
+        print!("{}", token);
+    }
 }
 ```
-
-## Notes
-
-Tool calling is implemented via prompt engineering + JSON parsing. Native tool calling (for models that support it) can be added later.
