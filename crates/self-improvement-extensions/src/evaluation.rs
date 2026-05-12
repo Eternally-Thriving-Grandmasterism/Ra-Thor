@@ -29,15 +29,13 @@ pub struct EvaluationResult {
 }
 
 impl EvaluationResult {
-    /// A proposal is considered acceptable only if it passes the overall threshold
-    /// AND scores at least 7.0 on the Sovereignty Gate.
     pub fn is_acceptable(&self) -> bool {
         self.passes_threshold && self.sovereignty_gate_score >= 7.0
     }
 }
 
 /// Evaluate a proposal using TOLC + the 7 Living Mercy Gates via LLM
-/// Requests structured JSON output for better parsing and logging.
+/// with robust JSON extraction.
 pub fn evaluate_proposal_with_tolc_and_mercy(
     model: &LlamaModel,
     proposal: &str,
@@ -90,11 +88,13 @@ Respond ONLY with valid JSON in this exact format:
         content: prompt,
     }];
 
-    let response = generate_chat(model, &messages, &GenerationConfig::default())
+    let raw_response = generate_chat(model, &messages, &GenerationConfig::default())
         .unwrap_or_default();
 
-    // Attempt to parse structured JSON output
-    match serde_json::from_str::<serde_json::Value>(&response) {
+    // Robust JSON extraction
+    let json_str = extract_json_from_response(&raw_response);
+
+    match serde_json::from_str::<serde_json::Value>(&json_str) {
         Ok(json) => EvaluationResult {
             truth_score: json["truth_score"].as_f64().unwrap_or(0.0) as f32,
             order_score: json["order_score"].as_f64().unwrap_or(0.0) as f32,
@@ -151,7 +151,40 @@ Respond ONLY with valid JSON in this exact format:
             sovereignty_score: 0.0,
             passes_threshold: false,
             summary: "Failed to parse evaluation response".to_string(),
-            detailed_feedback: response,
+            detailed_feedback: raw_response,
         },
     }
+}
+
+/// Extracts JSON from LLM response, handling common cases like markdown code blocks
+fn extract_json_from_response(response: &str) -> String {
+    let trimmed = response.trim();
+
+    // Already valid JSON
+    if trimmed.starts_with('{') && trimmed.ends_with('}') {
+        return trimmed.to_string();
+    }
+
+    // ```json ... ```
+    if let Some(start) = trimmed.find("```json") {
+        if let Some(end) = trimmed[start..].find("```") {
+            return trimmed[start + 7..start + end].trim().to_string();
+        }
+    }
+
+    // ``` ... ```
+    if let Some(start) = trimmed.find("```") {
+        if let Some(end) = trimmed[start + 3..].find("```") {
+            return trimmed[start + 3..start + 3 + end].trim().to_string();
+        }
+    }
+
+    // Try to find first { ... }
+    if let Some(start) = trimmed.find('{') {
+        if let Some(end) = trimmed.rfind('}') {
+            return trimmed[start..=end].to_string();
+        }
+    }
+
+    trimmed.to_string()
 }
