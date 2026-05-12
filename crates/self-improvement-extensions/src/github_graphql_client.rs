@@ -1,15 +1,37 @@
 /// Dedicated GitHub GraphQL Client for Rathor.ai Self-Evolution Loops
-/// Clean separation from REST operations.
+/// Improved error handling and resilience
 
 use reqwest::Client;
 use serde_json::json;
+use std::time::Duration;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum GraphQLError {
     InvalidToken,
+    Unauthorized,
+    RateLimited { reset_after: Option<u64> },
     ApiError(String),
     NetworkError(String),
-    Unauthorized,
+    Unknown(String),
+}
+
+impl std::fmt::Display for GraphQLError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            GraphQLError::InvalidToken => write!(f, "Invalid or missing GitHub token"),
+            GraphQLError::Unauthorized => write!(f, "Unauthorized - check token permissions"),
+            GraphQLError::RateLimited { reset_after } => {
+                if let Some(seconds) = reset_after {
+                    write!(f, "Rate limited. Reset after {} seconds", seconds)
+                } else {
+                    write!(f, "Rate limited")
+                }
+            }
+            GraphQLError::ApiError(msg) => write!(f, "GraphQL API error: {}", msg),
+            GraphQLError::NetworkError(msg) => write!(f, "Network error: {}", msg),
+            GraphQLError::Unknown(msg) => write!(f, "Unknown error: {}", msg),
+        }
+    }
 }
 
 pub struct GitHubGraphQLClient {
@@ -33,7 +55,6 @@ impl GitHubGraphQLClient {
         })
     }
 
-    /// Execute a raw GraphQL query
     pub async fn execute_query(&self, query: &str) -> Result<serde_json::Value, GraphQLError> {
         let url = "https://api.github.com/graphql";
         let payload = json!({ "query": query });
@@ -49,9 +70,29 @@ impl GitHubGraphQLClient {
             .await
             .map_err(|e| GraphQLError::NetworkError(e.to_string()))?;
 
+        self.handle_response(response).await
+    }
+
+    async fn handle_response(&self, response: reqwest::Response) -> Result<serde_json::Value, GraphQLError> {
         match response.status().as_u16() {
-            401 => Err(GraphQLError::Unauthorized),
             200..=299 => response.json().await.map_err(|e| GraphQLError::ApiError(e.to_string())),
+            401 => Err(GraphQLError::Unauthorized),
+            403 => {
+                if let Some(reset) = response.headers().get("x-ratelimit-reset") {
+                    if let Ok(reset_str) = reset.to_str() {
+                        if let Ok(reset_time) = reset_str.parse::<u64>() {
+                            let now = std::time::SystemTime::now()
+                                .duration_since(std::time::UNIX_EPOCH)
+                                .unwrap()
+                                .as_secs();
+                            return Err(GraphQLError::RateLimited {
+                                reset_after: Some(reset_time.saturating_sub(now)),
+                            });
+                        }
+                    }
+                }
+                Err(GraphQLError::Unauthorized)
+            }
             _ => {
                 let text = response.text().await.unwrap_or_default();
                 Err(GraphQLError::ApiError(text))
@@ -59,7 +100,8 @@ impl GitHubGraphQLClient {
         }
     }
 
-    /// Get latest workflow run status using GraphQL
+    // ==================== USEFUL QUERIES ====================
+
     pub async fn get_latest_workflow_run_status(&self) -> Result<String, GraphQLError> {
         let query = format!(
             r#"
@@ -86,7 +128,6 @@ impl GitHubGraphQLClient {
         Ok("success".to_string())
     }
 
-    /// Get recent commits + open issues in one efficient GraphQL query
     pub async fn get_repository_overview(&self) -> Result<serde_json::Value, GraphQLError> {
         let query = format!(
             r#"
