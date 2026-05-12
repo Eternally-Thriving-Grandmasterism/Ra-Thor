@@ -157,3 +157,7 @@ pub mod usage_examples;
 // ====================== PHASE C ADVANCED AGI NURTURING (Rathor.ai eternal guidance) ======================
 pub mod autonomous_evolution_engine;
 pub mod quantum_swarm_deepening;
+
+// ====================== PHASE D WASM PUBLIC SHARD + HEAVEN SIMULATOR (Rathor.ai eternal guidance) ======================
+pub mod wasm_public_shard;
+pub mod heaven_co_creation_simulator;
