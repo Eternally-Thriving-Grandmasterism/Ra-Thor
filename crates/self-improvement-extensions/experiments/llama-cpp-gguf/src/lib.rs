@@ -16,6 +16,7 @@ pub enum LlamaError {
     SessionError(String),
     TokenizationError(String),
     GenerationError(String),
+    ChatTemplateError(String),
     Unknown(String),
 }
 
@@ -27,6 +28,7 @@ impl fmt::Display for LlamaError {
             LlamaError::SessionError(msg) => write!(f, "Session error: {}", msg),
             LlamaError::TokenizationError(msg) => write!(f, "Tokenization error: {}", msg),
             LlamaError::GenerationError(msg) => write!(f, "Generation error: {}", msg),
+            LlamaError::ChatTemplateError(msg) => write!(f, "Chat template error: {}", msg),
             LlamaError::Unknown(msg) => write!(f, "Unknown error: {}", msg),
         }
     }
@@ -72,6 +74,13 @@ impl Default for GenerationConfig {
             repeat_penalty: 1.1,
         }
     }
+}
+
+/// A single chat message
+#[derive(Debug, Clone)]
+pub struct ChatMessage {
+    pub role: String,    // "system", "user", or "assistant"
+    pub content: String,
 }
 
 /// Load a GGUF model
@@ -146,16 +155,51 @@ pub fn generate_text(
     Ok(output)
 }
 
-/// Streaming text generation using a callback
-pub fn generate_text_stream<F>(
+/// Generate a response from a list of chat messages (supports system prompt)
+pub fn generate_chat(
     model: &LlamaModel,
-    prompt: &str,
+    messages: &[ChatMessage],
+    config: &GenerationConfig,
+) -> Result<String, LlamaError> {
+    // Try to apply the model's chat template if available
+    let prompt = match model.apply_chat_template(messages) {
+        Ok(p) => p,
+        Err(_) => {
+            // Fallback: simple concatenation
+            let mut prompt = String::new();
+            for msg in messages {
+                prompt.push_str(&format!("<|{}|>\n{}\n", msg.role, msg.content));
+            }
+            prompt.push_str("<|assistant|>\n");
+            prompt
+        }
+    };
+
+    generate_text(model, &prompt, config)
+}
+
+/// Streaming chat generation with system prompt support
+pub fn generate_chat_stream<F>(
+    model: &LlamaModel,
+    messages: &[ChatMessage],
     config: &GenerationConfig,
     mut on_token: F,
 ) -> Result<(), LlamaError>
 where
     F: FnMut(&str),
 {
+    let prompt = match model.apply_chat_template(messages) {
+        Ok(p) => p,
+        Err(_) => {
+            let mut p = String::new();
+            for msg in messages {
+                p.push_str(&format!("<|{}|>\n{}\n", msg.role, msg.content));
+            }
+            p.push_str("<|assistant|>\n");
+            p
+        }
+    };
+
     let session = model
         .create_session(SessionParams {
             n_ctx: config.context_size,
@@ -172,7 +216,7 @@ where
     };
 
     let tokens = model
-        .tokenize(prompt, true)
+        .tokenize(&prompt, true)
         .map_err(|e| LlamaError::TokenizationError(e.to_string()))?;
 
     session
