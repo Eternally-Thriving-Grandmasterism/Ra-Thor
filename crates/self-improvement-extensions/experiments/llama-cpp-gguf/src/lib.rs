@@ -2,11 +2,10 @@
 ///
 /// This is an isolated experiment and is **not yet integrated** into the main
 /// self-evolution cosmic loops.
-///
-/// Primary path for GGUF model loading until pure-Rust alternatives mature.
 
 use llama_cpp_rs::{LlamaModel, LlamaParams, SamplingParams, SessionParams};
 use std::fmt;
+use tokio::sync::mpsc;
 
 #[derive(Debug, Clone)]
 pub enum LlamaError {
@@ -94,7 +93,6 @@ pub struct ToolCall {
     pub arguments: serde_json::Value,
 }
 
-/// Load a GGUF model from disk
 pub fn load_gguf_model(config: &ModelConfig) -> Result<LlamaModel, LlamaError> {
     if config.model_path.is_empty() {
         return Err(LlamaError::InvalidConfig("Model path cannot be empty".to_string()));
@@ -110,7 +108,6 @@ pub fn load_gguf_model(config: &ModelConfig) -> Result<LlamaModel, LlamaError> {
     .map_err(|e| LlamaError::ModelLoadError(e.to_string()))
 }
 
-/// Generate text from a raw prompt (non-streaming)
 pub fn generate_text(
     model: &LlamaModel,
     prompt: &str,
@@ -164,20 +161,75 @@ pub fn generate_text(
     Ok(output)
 }
 
-/// Generate a response from chat messages (supports system prompt)
-pub fn generate_chat(
-    model: &LlamaModel,
-    messages: &[ChatMessage],
-    config: &GenerationConfig,
-) -> Result<String, LlamaError> {
-    let mut prompt = String::new();
+/// Async streaming text generation.
+/// Returns a channel receiver that yields generated token pieces.
+pub async fn generate_text_stream_async(
+    model: LlamaModel,
+    prompt: String,
+    config: GenerationConfig,
+) -> Result<mpsc::Receiver<String>, LlamaError> {
+    let (tx, rx) = mpsc::channel(32);
 
-    for msg in messages {
-        prompt.push_str(&format!("<|{}|>\n{}\n", msg.role, msg.content));
-    }
-    prompt.push_str("<|assistant|>\n");
+    tokio::task::spawn_blocking(move || {
+        let session = match model.create_session(SessionParams {
+            n_ctx: config.context_size,
+            ..Default::default()
+        }) {
+            Ok(s) => s,
+            Err(e) => {
+                let _ = tx.blocking_send(format!("[ERROR] Session creation failed: {}", e));
+                return;
+            }
+        };
 
-    generate_text(model, &prompt, config)
+        let sampling = SamplingParams {
+            temperature: config.temperature,
+            top_p: config.top_p,
+            top_k: config.top_k,
+            repeat_penalty: config.repeat_penalty,
+            ..Default::default()
+        };
+
+        let tokens = match model.tokenize(&prompt, true) {
+            Ok(t) => t,
+            Err(e) => {
+                let _ = tx.blocking_send(format!("[ERROR] Tokenization failed: {}", e));
+                return;
+            }
+        };
+
+        if let Err(e) = session.feed_tokens(&tokens) {
+            let _ = tx.blocking_send(format!("[ERROR] Failed to feed prompt: {}", e));
+            return;
+        }
+
+        for _ in 0..config.max_tokens {
+            let token = match session.sample(&sampling) {
+                Ok(t) => t,
+                Err(e) => {
+                    let _ = tx.blocking_send(format!("[ERROR] Sampling failed: {}", e));
+                    return;
+                }
+            };
+
+            if model.is_eos(token) {
+                break;
+            }
+
+            if let Ok(piece) = model.detokenize(&[token]) {
+                if tx.blocking_send(piece).is_err() {
+                    break; // Receiver dropped
+                }
+            }
+
+            if let Err(e) = session.feed_tokens(&[token]) {
+                let _ = tx.blocking_send(format!("[ERROR] Failed to feed token: {}", e));
+                break;
+            }
+        }
+    });
+
+    Ok(rx)
 }
 
 /// Generate chat completion with optional tool calling support
@@ -208,7 +260,7 @@ pub fn generate_chat_with_tools(
     generate_text(model, &prompt, config)
 }
 
-/// Try to parse a tool call from the model's response
+/// Try to parse a tool call from model output
 pub fn try_parse_tool_call(text: &str) -> Option<ToolCall> {
     if let Ok(json) = serde_json::from_str::<serde_json::Value>(text.trim()) {
         if let Some(tc) = json.get("tool_call") {
