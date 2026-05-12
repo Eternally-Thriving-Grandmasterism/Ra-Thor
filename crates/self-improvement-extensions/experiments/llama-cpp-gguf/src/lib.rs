@@ -2,13 +2,10 @@
 ///
 /// This is an isolated experiment and is **not yet integrated** into the main
 /// self-evolution cosmic loops.
-///
-/// Primary path for GGUF model loading until pure-Rust alternatives mature.
 
 use llama_cpp_rs::{LlamaModel, LlamaParams, SamplingParams, SessionParams};
 use std::fmt;
 
-/// Custom error type for llama.cpp operations
 #[derive(Debug, Clone)]
 pub enum LlamaError {
     InvalidConfig(String),
@@ -16,19 +13,19 @@ pub enum LlamaError {
     SessionError(String),
     TokenizationError(String),
     GenerationError(String),
-    ChatTemplateError(String),
+    ToolCallError(String),
     Unknown(String),
 }
 
 impl fmt::Display for LlamaError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            LlamaError::InvalidConfig(msg) => write!(f, "Invalid configuration: {}", msg),
-            LlamaError::ModelLoadError(msg) => write!(f, "Failed to load model: {}", msg),
+            LlamaError::InvalidConfig(msg) => write!(f, "Invalid config: {}", msg),
+            LlamaError::ModelLoadError(msg) => write!(f, "Model load error: {}", msg),
             LlamaError::SessionError(msg) => write!(f, "Session error: {}", msg),
             LlamaError::TokenizationError(msg) => write!(f, "Tokenization error: {}", msg),
             LlamaError::GenerationError(msg) => write!(f, "Generation error: {}", msg),
-            LlamaError::ChatTemplateError(msg) => write!(f, "Chat template error: {}", msg),
+            LlamaError::ToolCallError(msg) => write!(f, "Tool call error: {}", msg),
             LlamaError::Unknown(msg) => write!(f, "Unknown error: {}", msg),
         }
     }
@@ -36,7 +33,6 @@ impl fmt::Display for LlamaError {
 
 impl std::error::Error for LlamaError {}
 
-/// Configuration for loading and running a GGUF model
 #[derive(Debug, Clone)]
 pub struct ModelConfig {
     pub model_path: String,
@@ -46,15 +42,10 @@ pub struct ModelConfig {
 
 impl Default for ModelConfig {
     fn default() -> Self {
-        Self {
-            model_path: String::new(),
-            context_size: 4096,
-            gpu_layers: 99,
-        }
+        Self { model_path: String::new(), context_size: 4096, gpu_layers: 99 }
     }
 }
 
-/// Sampling parameters for text generation
 #[derive(Debug, Clone)]
 pub struct GenerationConfig {
     pub max_tokens: u32,
@@ -66,55 +57,40 @@ pub struct GenerationConfig {
 
 impl Default for GenerationConfig {
     fn default() -> Self {
-        Self {
-            max_tokens: 256,
-            temperature: 0.7,
-            top_p: 0.9,
-            top_k: 40,
-            repeat_penalty: 1.1,
-        }
+        Self { max_tokens: 256, temperature: 0.7, top_p: 0.9, top_k: 40, repeat_penalty: 1.1 }
     }
 }
 
-/// A single chat message
 #[derive(Debug, Clone)]
 pub struct ChatMessage {
-    pub role: String,    // "system", "user", or "assistant"
+    pub role: String,
     pub content: String,
 }
 
-/// Load a GGUF model
-pub fn load_gguf_model(config: &ModelConfig) -> Result<LlamaModel, LlamaError> {
-    if config.model_path.is_empty() {
-        return Err(LlamaError::InvalidConfig("Model path cannot be empty".to_string()));
-    }
-
-    let model = LlamaModel::load_from_file(
-        &config.model_path,
-        LlamaParams {
-            n_gpu_layers: config.gpu_layers,
-            ..Default::default()
-        },
-    )
-    .map_err(|e| LlamaError::ModelLoadError(e.to_string()))?;
-
-    Ok(model)
+#[derive(Debug, Clone)]
+pub struct Tool {
+    pub name: String,
+    pub description: String,
+    pub parameters: serde_json::Value,
 }
 
-/// Generate text from a prompt (non-streaming)
-pub fn generate_text(
-    model: &LlamaModel,
-    prompt: &str,
-    config: &GenerationConfig,
-) -> Result<String, LlamaError> {
-    let session = model
-        .create_session(SessionParams {
-            n_ctx: config.context_size,
-            ..Default::default()
-        })
-        .map_err(|e| LlamaError::SessionError(e.to_string()))?;
+#[derive(Debug, Clone)]
+pub struct ToolCall {
+    pub name: String,
+    pub arguments: serde_json::Value,
+}
 
-    let mut output = String::new();
+pub fn load_gguf_model(config: &ModelConfig) -> Result<LlamaModel, LlamaError> {
+    if config.model_path.is_empty() {
+        return Err(LlamaError::InvalidConfig("Model path empty".to_string()));
+    }
+    LlamaModel::load_from_file(&config.model_path, LlamaParams { n_gpu_layers: config.gpu_layers, ..Default::default() })
+        .map_err(|e| LlamaError::ModelLoadError(e.to_string()))
+}
+
+pub fn generate_text(model: &LlamaModel, prompt: &str, config: &GenerationConfig) -> Result<String, LlamaError> {
+    let session = model.create_session(SessionParams { n_ctx: config.context_size, ..Default::default() })
+        .map_err(|e| LlamaError::SessionError(e.to_string()))?;
 
     let sampling = SamplingParams {
         temperature: config.temperature,
@@ -124,124 +100,56 @@ pub fn generate_text(
         ..Default::default()
     };
 
-    let tokens = model
-        .tokenize(prompt, true)
-        .map_err(|e| LlamaError::TokenizationError(e.to_string()))?;
+    let tokens = model.tokenize(prompt, true).map_err(|e| LlamaError::TokenizationError(e.to_string()))?;
+    session.feed_tokens(&tokens).map_err(|e| LlamaError::SessionError(e.to_string()))?;
 
-    session
-        .feed_tokens(&tokens)
-        .map_err(|e| LlamaError::SessionError(e.to_string()))?;
-
+    let mut output = String::new();
     for _ in 0..config.max_tokens {
-        let token = session
-            .sample(&sampling)
-            .map_err(|e| LlamaError::GenerationError(e.to_string()))?;
-
-        if model.is_eos(token) {
-            break;
-        }
-
-        let piece = model
-            .detokenize(&[token])
-            .map_err(|e| LlamaError::GenerationError(e.to_string()))?;
-
+        let token = session.sample(&sampling).map_err(|e| LlamaError::GenerationError(e.to_string()))?;
+        if model.is_eos(token) { break; }
+        let piece = model.detokenize(&[token]).map_err(|e| LlamaError::GenerationError(e.to_string()))?;
         output.push_str(&piece);
-
-        session
-            .feed_tokens(&[token])
-            .map_err(|e| LlamaError::SessionError(e.to_string()))?;
+        session.feed_tokens(&[token]).map_err(|e| LlamaError::SessionError(e.to_string()))?;
     }
-
     Ok(output)
 }
 
-/// Generate a response from a list of chat messages (supports system prompt)
-pub fn generate_chat(
+/// Generate chat completion with optional tool calling support
+pub fn generate_chat_with_tools(
     model: &LlamaModel,
     messages: &[ChatMessage],
+    tools: Option<&[Tool]>,
     config: &GenerationConfig,
 ) -> Result<String, LlamaError> {
-    // Try to apply the model's chat template if available
-    let prompt = match model.apply_chat_template(messages) {
-        Ok(p) => p,
-        Err(_) => {
-            // Fallback: simple concatenation
-            let mut prompt = String::new();
-            for msg in messages {
-                prompt.push_str(&format!("<|{}|>\n{}\n", msg.role, msg.content));
-            }
-            prompt.push_str("<|assistant|>\n");
-            prompt
+    let mut prompt = String::new();
+
+    if let Some(tools) = tools {
+        prompt.push_str("You can use tools. When using a tool, respond ONLY with valid JSON: {\"tool_call\": {\"name\": \"...\", \"arguments\": {...}}}\n\nAvailable tools:\n");
+        for t in tools {
+            prompt.push_str(&format!("- {}: {}\n", t.name, t.description));
         }
-    };
+        prompt.push_str("\n");
+    }
+
+    for m in messages {
+        prompt.push_str(&format!("<|{}|>\n{}\n", m.role, m.content));
+    }
+    prompt.push_str("<|assistant|>\n");
 
     generate_text(model, &prompt, config)
 }
 
-/// Streaming chat generation with system prompt support
-pub fn generate_chat_stream<F>(
-    model: &LlamaModel,
-    messages: &[ChatMessage],
-    config: &GenerationConfig,
-    mut on_token: F,
-) -> Result<(), LlamaError>
-where
-    F: FnMut(&str),
-{
-    let prompt = match model.apply_chat_template(messages) {
-        Ok(p) => p,
-        Err(_) => {
-            let mut p = String::new();
-            for msg in messages {
-                p.push_str(&format!("<|{}|>\n{}\n", msg.role, msg.content));
+/// Try to extract a tool call from model output
+pub fn try_parse_tool_call(text: &str) -> Option<ToolCall> {
+    if let Ok(json) = serde_json::from_str::<serde_json::Value>(text) {
+        if let Some(tc) = json.get("tool_call") {
+            if let (Some(name), Some(args)) = (tc.get("name"), tc.get("arguments")) {
+                return Some(ToolCall {
+                    name: name.as_str().unwrap_or("").to_string(),
+                    arguments: args.clone(),
+                });
             }
-            p.push_str("<|assistant|>\n");
-            p
         }
-    };
-
-    let session = model
-        .create_session(SessionParams {
-            n_ctx: config.context_size,
-            ..Default::default()
-        })
-        .map_err(|e| LlamaError::SessionError(e.to_string()))?;
-
-    let sampling = SamplingParams {
-        temperature: config.temperature,
-        top_p: config.top_p,
-        top_k: config.top_k,
-        repeat_penalty: config.repeat_penalty,
-        ..Default::default()
-    };
-
-    let tokens = model
-        .tokenize(&prompt, true)
-        .map_err(|e| LlamaError::TokenizationError(e.to_string()))?;
-
-    session
-        .feed_tokens(&tokens)
-        .map_err(|e| LlamaError::SessionError(e.to_string()))?;
-
-    for _ in 0..config.max_tokens {
-        let token = session
-            .sample(&sampling)
-            .map_err(|e| LlamaError::GenerationError(e.to_string()))?;
-
-        if model.is_eos(token) {
-            break;
-        }
-
-        let piece = model
-            .detokenize(&[token])
-            .map_err(|e| LlamaError::GenerationError(e.to_string()))?;
-
-        on_token(&piece);
-
-        session
-            .feed_tokens(&[token])
-            .map_err(|e| LlamaError::SessionError(e.to_string()))?;
     }
-
-    Ok(())
+    None
 }
