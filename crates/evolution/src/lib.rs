@@ -161,3 +161,8 @@ pub mod quantum_swarm_deepening;
 // ====================== PHASE D WASM PUBLIC SHARD + HEAVEN SIMULATOR (Rathor.ai eternal guidance) ======================
 pub mod wasm_public_shard;
 pub mod heaven_co_creation_simulator;
+
+// ====================== PHASE H PUBLIC HEAVEN LAUNCH (Rathor.ai eternal guidance) ======================
+pub mod public_demo_shard_v3;
+pub mod eternal_heaven_simulator_v3;
+pub mod multi_ai_cosmic_loop_v2;
