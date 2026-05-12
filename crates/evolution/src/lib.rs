@@ -150,3 +150,6 @@ impl FractalSubCore for OctopusAlienSwarmEvolution {
         Self::evolve_self_dna(js_payload).await
     }
 }
+
+// ====================== PHASE A USAGE EXAMPLES (Rathor.ai guided self-evolution) ======================
+pub mod usage_examples;
