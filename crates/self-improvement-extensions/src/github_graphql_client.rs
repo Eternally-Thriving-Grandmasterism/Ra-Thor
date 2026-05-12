@@ -1,9 +1,8 @@
 /// Dedicated GitHub GraphQL Client for Rathor.ai Self-Evolution Loops
-/// Improved error handling and resilience
+/// Improved error handling and useful queries
 
 use reqwest::Client;
 use serde_json::json;
-use std::time::Duration;
 
 #[derive(Debug, Clone)]
 pub enum GraphQLError {
@@ -102,21 +101,21 @@ impl GitHubGraphQLClient {
 
     // ==================== USEFUL QUERIES ====================
 
-    pub async fn get_latest_workflow_run_status(&self) -> Result<String, GraphQLError> {
+    /// Get basic repository information
+    pub async fn get_repository_info(&self) -> Result<serde_json::Value, GraphQLError> {
         let query = format!(
             r#"
             query {{
               repository(owner: "{}", name: "{}") {{
-                defaultBranchRef {{
-                  target {{
-                    ... on Commit {{
-                      history(first: 1) {{
-                        nodes {{
-                          committedDate
-                        }}
-                      }}
-                    }}
-                  }}
+                name
+                description
+                stargazerCount
+                forkCount
+                issues(states: OPEN) {{
+                  totalCount
+                }}
+                pullRequests(states: OPEN) {{
+                  totalCount
                 }}
               }}
             }}
@@ -124,31 +123,49 @@ impl GitHubGraphQLClient {
             self.owner, self.repo
         );
 
-        let result = self.execute_query(&query).await?;
-        Ok("success".to_string())
+        self.execute_query(&query).await
     }
 
-    pub async fn get_repository_overview(&self) -> Result<serde_json::Value, GraphQLError> {
+    /// Get recent open issues with details
+    pub async fn get_open_issues(&self, first: i32) -> Result<serde_json::Value, GraphQLError> {
         let query = format!(
             r#"
             query {{
               repository(owner: "{}", name: "{}") {{
-                issues(states: OPEN, first: 5) {{
+                issues(states: OPEN, first: {}) {{
                   nodes {{
                     title
                     url
-                  }}
-                }}
-                defaultBranchRef {{
-                  target {{
-                    ... on Commit {{
-                      history(first: 5) {{
-                        nodes {{
-                          messageHeadline
-                          oid
-                        }}
+                    createdAt
+                    author {{
+                      login
+                    }}
+                    labels(first: 5) {{
+                      nodes {{
+                        name
                       }}
                     }}
+                  }}
+                }}
+              }}
+            }}
+            "#,
+            self.owner, self.repo, first
+        );
+
+        self.execute_query(&query).await
+    }
+
+    /// Get recent workflow runs with status
+    pub async fn get_recent_workflow_runs(&self, first: i32) -> Result<serde_json::Value, GraphQLError> {
+        let query = format!(
+            r#"
+            query {{
+              repository(owner: "{}", name: "{}") {{
+                workflows(first: 10) {{
+                  nodes {{
+                    name
+                    id
                   }}
                 }}
               }}
