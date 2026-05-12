@@ -1,0 +1,12 @@
+[package]
+name = "self-improvement-extensions"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+github-client = { path = "../github-client" } # placeholder, adjust if needed
+llama-cpp-gguf = { path = "../experiments/llama-cpp-gguf", optional = true }
+
+[features]
+default = []
+llama-cpp = ["dep:llama-cpp-gguf"]
