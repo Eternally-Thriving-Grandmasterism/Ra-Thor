@@ -1,9 +1,9 @@
-/// Mercy Orchestrator integration layer (Phase C expansion).
+/// Mercy Orchestrator integration layer (Phase C - Balanced Expansion).
 ///
 /// Provides deeper Mercy-aware decision making, PATSAGi escalation readiness,
 /// and improved observability across the self-improvement loop.
 
-use tracing::{info, warn};
+use tracing::{info, warn, debug};
 
 /// High-level Mercy decision result with expanded fields.
 #[derive(Debug, Clone)]
@@ -31,6 +31,12 @@ pub fn mercy_decide(
             "Escalation to PATSAGi recommended"
         );
     }
+
+    debug!(
+        non_harm = evaluation_result.non_harm_gate_score,
+        harmony = evaluation_result.harmony_gate_score,
+        "Detailed Mercy scores logged"
+    );
 
     info!(
         is_acceptable = is_acceptable,
@@ -83,4 +89,17 @@ pub fn generate_patsagi_summary(
             "No escalation required"
         }
     )
+}
+
+/// Log a full Mercy + TOLC health summary for observability.
+pub fn log_system_health(
+    evaluation_result: &crate::evaluation::EvaluationResult,
+) {
+    info!(
+        tolc = evaluation_result.average_tolc_score,
+        mercy = evaluation_result.average_mercy_score,
+        sovereignty = evaluation_result.sovereignty_gate_score,
+        acceptable = evaluation_result.is_acceptable(),
+        "Self-improvement loop health snapshot"
+    );
 }
