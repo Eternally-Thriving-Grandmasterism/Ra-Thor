@@ -8,59 +8,77 @@ This crate provides reliable GGUF model loading and text generation using **llam
 
 It serves as the **primary path** for loading and running large language models in Rathor.ai until pure-Rust alternatives (such as Candle) reach comparable maturity for GGUF support.
 
-## Current Capabilities (Phase 1)
+## Current Capabilities
 
 - Load GGUF models from disk
 - Create inference sessions
-- Generate text from a prompt with configurable sampling parameters
+- Generate text from raw prompts
+- Generate text from chat messages (with system prompt support)
+- Streaming generation via callback
 
-## Usage Example
+## Usage Examples
+
+### Basic Text Generation
 
 ```rust
-use llama_cpp_gguf::{load_gguf_model, generate_text, ModelConfig, GenerationConfig};
+use llama_cpp_gguf::{generate_text, load_gguf_model, GenerationConfig, ModelConfig};
 
-let config = ModelConfig {
+let model = load_gguf_model(&ModelConfig {
     model_path: "models/phi-2.Q4_K_M.gguf".to_string(),
-    context_size: 4096,
-    gpu_layers: 99,
-};
+    ..Default::default()
+}).unwrap();
 
-let model = load_gguf_model(&config).expect("Failed to load model");
+let output = generate_text(&model, "Explain self-evolution.", &GenerationConfig::default()).unwrap();
+println!("{}", output);
+```
 
-let gen_config = GenerationConfig {
-    max_tokens: 200,
-    temperature: 0.7,
-    top_p: 0.9,
-    top_k: 40,
-    repeat_penalty: 1.1,
-};
+### Chat with System Prompt
 
-let output = generate_text(&model, "Explain the concept of self-evolution in AI.", &gen_config)
-    .expect("Generation failed");
+```rust
+use llama_cpp_gguf::{generate_chat, ChatMessage, GenerationConfig, ModelConfig, load_gguf_model};
 
-println!("Generated text:\n{}", output);
+let model = load_gguf_model(&ModelConfig {
+    model_path: "models/llama-3-8b.Q4_K_M.gguf".to_string(),
+    ..Default::default()
+}).unwrap();
+
+let messages = vec![
+    ChatMessage {
+        role: "system".to_string(),
+        content: "You are a helpful self-improvement agent.".to_string(),
+    },
+    ChatMessage {
+        role: "user".to_string(),
+        content: "How can I improve my daily routine?".to_string(),
+    },
+];
+
+let output = generate_chat(&model, &messages, &GenerationConfig::default()).unwrap();
+println!("{}", output);
+```
+
+### Streaming Generation
+
+```rust
+use llama_cpp_gguf::{generate_text_stream, GenerationConfig, ModelConfig, load_gguf_model};
+
+let model = load_gguf_model(&ModelConfig { model_path: "...".to_string(), ..Default::default() }).unwrap();
+
+generate_text_stream(&model, "Tell me a story.", &GenerationConfig::default(), |token| {
+    print!("{}", token);
+}).unwrap();
 ```
 
 ## Sampling Parameters
 
-- `temperature`: Controls randomness (higher = more creative)
-- `top_p`: Nucleus sampling
-- `top_k`: Top-K sampling
-- `repeat_penalty`: Reduces repetition
-- `max_tokens`: Maximum number of tokens to generate
+- `temperature`, `top_p`, `top_k`, `repeat_penalty`, `max_tokens`
 
-## Next Steps (Planned)
+## Next Steps
 
-- Add streaming generation support
-- Improve error handling and configuration
-- Add support for system prompts / chat templates
-- Integrate with `run_self_evolution_loop()` via feature flags
+- Better chat template detection
+- Tool calling / function calling support
+- Integration into `run_self_evolution_loop()`
 
 ## Notes
 
-- This experiment runs in parallel with the `wasm-ml-candle` exploration.
-- New developments in Rust ML / Wasm will be reviewed cyclically, but we will not switch core paths without strong justification.
-
-## Safety & Control
-
-Model loading and inference remain under the control of the self-evolution loop, respecting mercy-gating and TOLC evaluation principles.
+This experiment runs in parallel with the `wasm-ml-candle` exploration. We review new developments cyclically but stay focused on stable progress.
