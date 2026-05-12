@@ -1,0 +1,15 @@
+[package]
+name = "llama-cpp-gguf"
+version = "0.1.0"
+edition = "2021"
+description = "Experimental: llama.cpp GGUF model loading for Rathor.ai self-evolution loops"
+license = "AG-SML-1.0"
+
+[dependencies]
+llama-cpp-rs = { version = "0.5", features = ["cuda"] }  # Adjust features as needed
+
+[features]
+default = []
+cuda = ["llama-cpp-rs/cuda"]
+metal = ["llama-cpp-rs/metal"]
+vulkan = ["llama-cpp-rs/vulkan"]
