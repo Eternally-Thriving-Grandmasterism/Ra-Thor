@@ -6,10 +6,9 @@ description = "Experimental: llama.cpp GGUF model loading for Rathor.ai self-evo
 license = "AG-SML-1.0"
 
 [dependencies]
-llama-cpp-rs = { version = "0.5", features = ["cuda"] }  # Adjust features as needed
+llama-cpp-rs = "0.5"
+tokio = { version = "1", features = ["rt", "macros"] }
+serde_json = "1.0"
 
-[features]
-default = []
-cuda = ["llama-cpp-rs/cuda"]
-metal = ["llama-cpp-rs/metal"]
-vulkan = ["llama-cpp-rs/vulkan"]
+[dev-dependencies]
+tokio = { version = "1", features = ["rt-multi-thread", "macros"] }
