@@ -4,8 +4,9 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-github-client = { path = "../github-client" } # placeholder, adjust if needed
+github-client = { path = "../github-client" }
 llama-cpp-gguf = { path = "../experiments/llama-cpp-gguf", optional = true }
+regex = "1"
 
 [features]
 default = []
