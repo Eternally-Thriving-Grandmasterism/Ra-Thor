@@ -64,7 +64,7 @@ pub async fn run_self_evolution_loop() {
                 }) {
                     let evaluation = evaluate_proposal_with_tolc_and_mercy(&model, &proposal);
 
-                    // Log evaluation results (including rejected proposals)
+                    // Log all evaluation results (including rejected ones)
                     log_evaluation_result(&proposal, &evaluation);
 
                     println!(
@@ -97,7 +97,6 @@ pub async fn run_self_evolution_loop() {
 
         #[cfg(not(feature = "llama-cpp"))]
         {
-            // Fallback behavior (original simple path)
             println!("[Rathor.ai] Basic proposal accepted (no advanced evaluation).");
             if let Ok(token) = std::env::var("GITHUB_TOKEN") {
                 match GitHubClient::new("Eternally-Thriving-Grandmasterism", "Ra-Thor", &token) {
@@ -136,15 +135,21 @@ fn propagate_valence_boost() {
     // Increases positive emotions across systems
 }
 
-// Simple logging of evaluation results (can be expanded later)
+// Log evaluation results (can be expanded to file/database later)
 #[cfg(feature = "llama-cpp")]
 fn log_evaluation_result(proposal: &str, evaluation: &crate::evaluation::EvaluationResult) {
-    println!("[Rathor.ai][EVAL LOG] Proposal: {}", proposal);
-    println!("[Rathor.ai][EVAL LOG] TOLC Avg: {:.1}, Mercy Avg: {:.1}, Sovereignty: {:.1}",
+    println!("[Rathor.ai][EVAL] === Evaluation Log ===");
+    println!("[Rathor.ai][EVAL] Proposal: {}", proposal);
+    println!(
+        "[Rathor.ai][EVAL] Scores -> TOLC: {:.1}, Mercy: {:.1}, Sovereignty: {:.1}",
         evaluation.average_tolc_score,
         evaluation.average_mercy_score,
-        evaluation.sovereignty_score);
-    println!("[Rathor.ai][EVAL LOG] Passed: {}, Summary: {}",
+        evaluation.sovereignty_score
+    );
+    println!(
+        "[Rathor.ai][EVAL] Passed: {} | Summary: {}",
         evaluation.passes_threshold,
-        evaluation.summary);
+        evaluation.summary
+    );
+    println!("[Rathor.ai][EVAL] === End Log ===");
 }
