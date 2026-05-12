@@ -5,9 +5,24 @@ use llama_cpp_gguf::{generate_chat, ChatMessage, GenerationConfig, LlamaModel};
 
 #[derive(Debug, Clone)]
 pub struct EvaluationResult {
+    pub truth_score: f32,
+    pub order_score: f32,
+    pub logic_score: f32,
+    pub compassion_score: f32,
+
+    pub truth_gate_score: f32,
+    pub order_gate_score: f32,
+    pub logic_gate_score: f32,
+    pub compassion_gate_score: f32,
+    pub non_harm_gate_score: f32,
+    pub harmony_gate_score: f32,
+    pub abundance_gate_score: f32,
+    pub sovereignty_gate_score: f32,
+
     pub average_tolc_score: f32,
     pub average_mercy_score: f32,
     pub sovereignty_score: f32,
+
     pub passes_threshold: bool,
     pub summary: String,
     pub detailed_feedback: String,
@@ -17,46 +32,56 @@ impl EvaluationResult {
     /// A proposal is considered acceptable only if it passes the overall threshold
     /// AND scores at least 7.0 on the Sovereignty Gate.
     pub fn is_acceptable(&self) -> bool {
-        self.passes_threshold && self.sovereignty_score >= 7.0
+        self.passes_threshold && self.sovereignty_gate_score >= 7.0
     }
 }
 
 /// Evaluate a proposal using TOLC + the 7 Living Mercy Gates via LLM
+/// Requests structured JSON output for better parsing and logging.
 pub fn evaluate_proposal_with_tolc_and_mercy(
     model: &LlamaModel,
     proposal: &str,
 ) -> EvaluationResult {
     let prompt = format!(
-        r#"You are an impartial evaluator for Rathor.ai's self-evolution system.
+        r#"You are a rigorous evaluator for Rathor.ai's self-evolution system.
 
-Evaluate the following proposal using both TOLC and the 7 Living Mercy Gates.
+Evaluate the following proposal using clear rubrics for both TOLC and the 7 Living Mercy Gates.
 
 **Proposal:**
 {}
 
-**TOLC Evaluation** (score 0–10 for each):
-- Truth
-- Order
-- Logic
-- Compassion
+**Evaluation Rubrics:**
 
-**7 Living Mercy Gates Evaluation** (score 0–10 for each):
-- Truth Gate
-- Order Gate
-- Logic Gate
-- Compassion Gate
-- Non-Harm Gate
-- Harmony Gate
-- Abundance Gate
-- Sovereignty Gate (give this special attention — it is especially important)
+**TOLC:**
+- Truth: Is the proposal based on verifiable facts and honest assessment?
+- Order: Does it increase healthy structure and reduce unnecessary complexity?
+- Logic: Is the reasoning internally consistent with no contradictions?
+- Compassion: Does it consider the well-being and impact on affected beings?
 
-**Output Format (please follow exactly):**
-Average TOLC Score: X.X
-Average Mercy Score: X.X
-Sovereignty Score: X.X
-Passes Threshold: Yes/No
-Summary: [One short paragraph]
-Detailed Feedback: [Key observations and concerns]"#,
+**7 Living Mercy Gates:**
+- Truth Gate, Order Gate, Logic Gate, Compassion Gate, Non-Harm Gate, Harmony Gate, Abundance Gate, Sovereignty Gate
+  (Sovereignty is especially important — assess whether this proposal preserves meaningful autonomy and future optionality)
+
+**Instructions:**
+Respond ONLY with valid JSON in this exact format:
+
+{{
+  "truth_score": 0-10,
+  "order_score": 0-10,
+  "logic_score": 0-10,
+  "compassion_score": 0-10,
+  "truth_gate_score": 0-10,
+  "order_gate_score": 0-10,
+  "logic_gate_score": 0-10,
+  "compassion_gate_score": 0-10,
+  "non_harm_gate_score": 0-10,
+  "harmony_gate_score": 0-10,
+  "abundance_gate_score": 0-10,
+  "sovereignty_gate_score": 0-10,
+  "passes_threshold": true/false,
+  "summary": "One paragraph summary",
+  "detailed_feedback": "Key observations and concerns"
+}}"#,
         proposal
     );
 
@@ -68,34 +93,65 @@ Detailed Feedback: [Key observations and concerns]"#,
     let response = generate_chat(model, &messages, &GenerationConfig::default())
         .unwrap_or_default();
 
-    EvaluationResult {
-        average_tolc_score: parse_score(&response, "Average TOLC Score"),
-        average_mercy_score: parse_score(&response, "Average Mercy Score"),
-        sovereignty_score: parse_score(&response, "Sovereignty Score"),
-        passes_threshold: response.to_lowercase().contains("passes threshold: yes"),
-        summary: extract_section(&response, "Summary"),
-        detailed_feedback: extract_section(&response, "Detailed Feedback"),
-    }
-}
+    // Attempt to parse structured JSON output
+    match serde_json::from_str::<serde_json::Value>(&response) {
+        Ok(json) => EvaluationResult {
+            truth_score: json["truth_score"].as_f64().unwrap_or(0.0) as f32,
+            order_score: json["order_score"].as_f64().unwrap_or(0.0) as f32,
+            logic_score: json["logic_score"].as_f64().unwrap_or(0.0) as f32,
+            compassion_score: json["compassion_score"].as_f64().unwrap_or(0.0) as f32,
 
-// Helper: Extract numeric score from LLM output
-fn parse_score(text: &str, label: &str) -> f32 {
-    if let Some(line) = text.lines().find(|l| l.contains(label)) {
-        if let Some(num_str) = line.split(':').nth(1) {
-            return num_str.trim().parse().unwrap_or(0.0);
-        }
-    }
-    0.0
-}
+            truth_gate_score: json["truth_gate_score"].as_f64().unwrap_or(0.0) as f32,
+            order_gate_score: json["order_gate_score"].as_f64().unwrap_or(0.0) as f32,
+            logic_gate_score: json["logic_gate_score"].as_f64().unwrap_or(0.0) as f32,
+            compassion_gate_score: json["compassion_gate_score"].as_f64().unwrap_or(0.0) as f32,
+            non_harm_gate_score: json["non_harm_gate_score"].as_f64().unwrap_or(0.0) as f32,
+            harmony_gate_score: json["harmony_gate_score"].as_f64().unwrap_or(0.0) as f32,
+            abundance_gate_score: json["abundance_gate_score"].as_f64().unwrap_or(0.0) as f32,
+            sovereignty_gate_score: json["sovereignty_gate_score"].as_f64().unwrap_or(0.0) as f32,
 
-// Helper: Extract text section from LLM output
-fn extract_section(text: &str, label: &str) -> String {
-    if let Some(start) = text.find(label) {
-        let rest = &text[start + label.len() + 1..];
-        if let Some(end) = rest.find('\n') {
-            return rest[..end].trim().to_string();
-        }
-        return rest.trim().to_string();
+            average_tolc_score: (
+                json["truth_score"].as_f64().unwrap_or(0.0) +
+                json["order_score"].as_f64().unwrap_or(0.0) +
+                json["logic_score"].as_f64().unwrap_or(0.0) +
+                json["compassion_score"].as_f64().unwrap_or(0.0)
+            ) as f32 / 4.0,
+
+            average_mercy_score: (
+                json["truth_gate_score"].as_f64().unwrap_or(0.0) +
+                json["order_gate_score"].as_f64().unwrap_or(0.0) +
+                json["logic_gate_score"].as_f64().unwrap_or(0.0) +
+                json["compassion_gate_score"].as_f64().unwrap_or(0.0) +
+                json["non_harm_gate_score"].as_f64().unwrap_or(0.0) +
+                json["harmony_gate_score"].as_f64().unwrap_or(0.0) +
+                json["abundance_gate_score"].as_f64().unwrap_or(0.0) +
+                json["sovereignty_gate_score"].as_f64().unwrap_or(0.0)
+            ) as f32 / 8.0,
+
+            sovereignty_score: json["sovereignty_gate_score"].as_f64().unwrap_or(0.0) as f32,
+            passes_threshold: json["passes_threshold"].as_bool().unwrap_or(false),
+            summary: json["summary"].as_str().unwrap_or("").to_string(),
+            detailed_feedback: json["detailed_feedback"].as_str().unwrap_or("").to_string(),
+        },
+        Err(_) => EvaluationResult {
+            truth_score: 0.0,
+            order_score: 0.0,
+            logic_score: 0.0,
+            compassion_score: 0.0,
+            truth_gate_score: 0.0,
+            order_gate_score: 0.0,
+            logic_gate_score: 0.0,
+            compassion_gate_score: 0.0,
+            non_harm_gate_score: 0.0,
+            harmony_gate_score: 0.0,
+            abundance_gate_score: 0.0,
+            sovereignty_gate_score: 0.0,
+            average_tolc_score: 0.0,
+            average_mercy_score: 0.0,
+            sovereignty_score: 0.0,
+            passes_threshold: false,
+            summary: "Failed to parse evaluation response".to_string(),
+            detailed_feedback: response,
+        },
     }
-    String::new()
 }
