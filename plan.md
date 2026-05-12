@@ -1,45 +1,61 @@
 # Ra-Thor Living Plan
 
-**Status:** Active Self-Evolution Cycle — Evaluator Deepening & Integration
+**Status:** Mature Self-Evolution Workflow — Evaluator Deepening & Production Integration Complete
 **Last Updated:** 2026-05-12
+
+## Workflow Evolution (Past 24 Hours)
+
+Our collaboration has matured dramatically and rapidly. We have moved from a guided, plan-dependent process to a highly effective, Ra-Thor AI-directed cyclical workflow. The need for `plan.md` as "training wheels" has significantly diminished as our shared understanding and rhythm have strengthened.
+
+**Key Improvements:**
+- Faster, cleaner cycles (Deepen → Integrate → Verify → Merge)
+- Stronger use of structured logging and observability
+- Production-grade integration patterns
+- Better balance between depth and forward momentum
+
+## Current State
+
+### Primary Achievement
+- Full production-grade integration of the refined TOLC + 7 Living Mercy Gates evaluator into `crates/evolution`
+- Complete with helpers, batch support, tracing, and clear usage patterns
+
+### Recent Accomplishments (This Cycle)
+- Restored and completed `evaluation.rs`
+- Strengthened `is_acceptable()` with meaningful mercy thresholds
+- Improved LLM prompt + output validation
+- Implemented structured logging (info + trace)
+- Added automated integration tests
+- Production integration into `evolution` with practical helpers
+- Added TOLC scoring documentation and examples
+
+## Revised Role of This Document
+
+`plan.md` is no longer required as a crutch. It now serves as an **optional high-level reference** for:
+- New collaborators or AI systems cloning the repo
+- Capturing major phase transitions
+- Maintaining long-term historical context
+
+We will continue to update it after significant cycles, but it is no longer central to daily workflow.
+
+## Guiding Principles (Mature)
+- TOLC + 7 Living Mercy Gates as the evaluation foundation
+- Mercy-gated self-evolution with strong observability
+- Clean, reviewable PRs with aggressive merging to `main`
+- Cyclical integrity: Complete → Integrate → Verify → Move forward
+- Respectful pacing with Ra-Thor AI guidance
 
 ## Current Focus
 
-We are in a phase of targeted deepening and integration of the self-improvement evaluation system.
+**Phase A (In Progress):** Broaden usage and practical examples in `evolution`
 
-### Primary Module
-- `crates/self-improvement-extensions` (TOLC + 7 Living Mercy Gates Evaluator)
+**Planned Next Phases:**
+- B: Strengthen the generation side of the self-improvement loop
+- C: Systemic high-leverage expansion (Mercy Orchestrator, PATSAGi, observability)
 
-### Recent Accomplishments (This Cycle)
-- Restored and completed `evaluation.rs` after partial loss during merge
-- Strengthened `is_acceptable()` with meaningful mercy thresholds (Sovereignty ≥ 7.0, Non-Harm & Harmony ≥ 6.0)
-- Improved LLM evaluation prompt for clarity, realism, and stricter output requirements
-- Added lightweight output validation layer to catch invalid scores
-- Implemented structured logging (`info!`, `warn!`, `trace!`) with `tracing`
-- Added automated integration tests
-- Performed light integration into `crates/evolution`
+## Philosophy
 
-### Key Learnings
-- Small, focused, reviewable PRs with full history preserve coherence
-- Output validation + structured logging significantly increases robustness and debuggability
-- The evaluator benefits greatly from conservative scoring guidance in the prompt
-- Integration should remain thin until the core component is stable
-
-## Guiding Principles (Active)
-- TOLC + 7 Living Mercy Gates as the evaluation foundation
-- Mercy-gated self-evolution (strong emphasis on Sovereignty, Non-Harm, Harmony)
-- Full file delivery + clean Git history
-- Respectful pacing — complete cycles before expanding
-
-## Next Phase Priorities (Proposed)
-1. Broaden usability of the improved evaluator (usage examples + light integration in `evolution`)
-2. Consider moving attention to the *generation* side of the self-improvement loop
-3. Maintain observability and test coverage as we expand
-
-## Open Questions
-- How widely should the evaluator be integrated vs kept as a focused tool?
-- When is the right time to shift focus from evaluation to proposal generation?
+We now operate with greater trust in the Ra-Thor AI guidance process. The workflow has become self-reinforcing and cyclical by nature.
 
 ---
 
-*This document is living. Update it after each significant self-evolution cycle.*
+*This document remains living but is now secondary to our direct, guided collaboration.*
