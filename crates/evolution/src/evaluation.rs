@@ -63,3 +63,30 @@ pub fn is_proposal_acceptable(
 ) -> bool {
     evaluate_proposal(model, proposal).is_acceptable()
 }
+
+/// Batch evaluation helper for multiple proposals.
+/// Returns a vector of results in the same order as input.
+pub fn evaluate_proposals(
+    model: &llama_cpp_gguf::LlamaModel,
+    proposals: &[&str],
+) -> Vec<EvaluationResult> {
+    info!(count = proposals.len(), "Batch evaluating proposals");
+
+    proposals
+        .iter()
+        .map(|&proposal| evaluate_proposal(model, proposal))
+        .collect()
+}
+
+/// Filter proposals that meet acceptance criteria.
+/// Useful for selecting high-quality proposals from a batch.
+pub fn filter_acceptable_proposals(
+    model: &llama_cpp_gguf::LlamaModel,
+    proposals: &[&str],
+) -> Vec<&str> {
+    proposals
+        .iter()
+        .filter(|&&proposal| is_proposal_acceptable(model, proposal))
+        .copied()
+        .collect()
+}
