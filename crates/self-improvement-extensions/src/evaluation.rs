@@ -183,3 +183,37 @@ fn extract_json_from_response(response: &str) -> String {
 
     trimmed.to_string()
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_extract_json_raw() {
+        let input = r#"{"truth_score": 8, "summary": "Good"}"#;
+        let result = extract_json_from_response(input);
+        assert!(result.contains("truth_score"));
+    }
+
+    #[test]
+    fn test_extract_json_markdown() {
+        let input = "Here is the result:\n```json\n{\"order_score\": 7}\n```";
+        let result = extract_json_from_response(input);
+        assert!(result.contains("order_score"));
+    }
+
+    #[test]
+    fn test_extract_json_noisy() {
+        let input = "Sure! Here's my evaluation:\n\n```json\n{\"logic_score\": 9, \"passes_threshold\": true}\n```\n\nHope this helps!";
+        let result = extract_json_from_response(input);
+        assert!(result.contains("logic_score"));
+        assert!(result.contains("passes_threshold"));
+    }
+
+    #[test]
+    fn test_extract_json_fallback() {
+        let input = "This is not JSON at all.";
+        let result = extract_json_from_response(input);
+        assert_eq!(result, "This is not JSON at all.");
+    }
+}
