@@ -17,6 +17,7 @@ ra-thor-council = { workspace = true }
 ra-thor-mercy-orchestrator-v2 = { workspace = true }
 ra-thor-biomimetic = { workspace = true }
 powrush = { workspace = true }
+self-improvement-extensions = { path = "../self-improvement-extensions" }
 
 tokio = { workspace = true, features = ["full"] }
 async-trait = { workspace = true }
