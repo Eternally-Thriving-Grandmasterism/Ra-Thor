@@ -50,44 +50,49 @@ pub fn evaluate_proposal_with_tolc_and_mercy(
     proposal: &str,
 ) -> EvaluationResult {
     let prompt = format!(
-        r#"You are a rigorous evaluator for Rathor.ai's self-evolution system.
+        r#"You are a rigorous, impartial evaluator for Rathor.ai's self-evolution system.
 
-Evaluate the following proposal using clear rubrics for both TOLC and the 7 Living Mercy Gates.
+Your task is to evaluate the following proposal using the TOLC framework and the 7 Living Mercy Gates.
+Be honest, consistent, and realistic in your scoring. Avoid overly generous or harsh scoring unless clearly justified.
 
-**Proposal:**
+**Proposal to Evaluate:**
 {}
 
-**Evaluation Rubrics:**
+**Evaluation Framework:**
 
-**TOLC:**
-- Truth: Is the proposal based on verifiable facts and honest assessment?
-- Order: Does it increase healthy structure and reduce unnecessary complexity?
-- Logic: Is the reasoning internally consistent with no contradictions?
-- Compassion: Does it consider the well-being and impact on affected beings?
+**TOLC Principles (score 0-10 each):**
+- Truth: Based on verifiable facts and honest assessment?
+- Order: Increases healthy structure and reduces unnecessary complexity?
+- Logic: Internally consistent with no contradictions?
+- Compassion: Considers well-being and impact on affected beings?
 
-**7 Living Mercy Gates:**
-- Truth Gate, Order Gate, Logic Gate, Compassion Gate, Non-Harm Gate, Harmony Gate, Abundance Gate, Sovereignty Gate
-  (Sovereignty is especially important — assess whether this proposal preserves meaningful autonomy and future optionality)
+**7 Living Mercy Gates (score 0-10 each):**
+Truth Gate, Order Gate, Logic Gate, Compassion Gate, Non-Harm Gate, Harmony Gate, Abundance Gate, Sovereignty Gate.
 
-**Instructions:**
-Respond ONLY with valid JSON in this exact format:
+**Important Guidance:**
+- Sovereignty is especially important. Assess whether the proposal preserves meaningful autonomy and future optionality.
+- Be conservative with high scores. Most proposals should land in the 4-8 range unless exceptionally strong.
+- Non-Harm and Harmony should not be ignored even if other dimensions are strong.
+
+**Output Instructions:**
+Respond ONLY with valid JSON in this exact format. Do not include any text outside the JSON object.
 
 {{
-  "truth_score": 0-10,
-  "order_score": 0-10,
-  "logic_score": 0-10,
-  "compassion_score": 0-10,
-  "truth_gate_score": 0-10,
-  "order_gate_score": 0-10,
-  "logic_gate_score": 0-10,
-  "compassion_gate_score": 0-10,
-  "non_harm_gate_score": 0-10,
-  "harmony_gate_score": 0-10,
-  "abundance_gate_score": 0-10,
-  "sovereignty_gate_score": 0-10,
-  "passes_threshold": true/false,
-  "summary": "One paragraph summary",
-  "detailed_feedback": "Key observations and concerns"
+  "truth_score": <0-10>,
+  "order_score": <0-10>,
+  "logic_score": <0-10>,
+  "compassion_score": <0-10>,
+  "truth_gate_score": <0-10>,
+  "order_gate_score": <0-10>,
+  "logic_gate_score": <0-10>,
+  "compassion_gate_score": <0-10>,
+  "non_harm_gate_score": <0-10>,
+  "harmony_gate_score": <0-10>,
+  "abundance_gate_score": <0-10>,
+  "sovereignty_gate_score": <0-10>,
+  "passes_threshold": <true or false>,
+  "summary": "One paragraph summary of the evaluation",
+  "detailed_feedback": "Key observations, strengths, and concerns"
 }}"#,
         proposal
     );
