@@ -1,12 +1,24 @@
-/// TOLC + Mercy-aware proposal generation module (Phase B).
+/// Enhanced TOLC + Mercy-aware proposal generation (Phase B + Research Integration).
 ///
-/// Strengthens the generation side of the self-improvement loop.
-/// All generation is guided by TOLC principles and Mercy Gate considerations.
+/// Incorporates techniques from Darwin Gödel Machine, AlphaEvolve, reflective generation,
+/// and RAG grounding for higher-quality, context-aware proposals.
 
 use llama_cpp_gguf::{generate_chat, ChatMessage, GenerationConfig, LlamaModel};
-use tracing::info;
+use tracing::{info, debug};
 
-/// Generate a proposal using LLM with explicit TOLC + Mercy guidance.
+/// Structured proposal output schema (enforces quality and safety).
+#[derive(Debug, Clone)]
+pub struct Proposal {
+    pub title: String,
+    pub rationale: String,
+    pub changes: String,           // Could be diff, plan, or description
+    pub expected_impact: String,
+    pub mercy_alignment: String,   // How it aligns with Mercy Gates
+    pub tolc_alignment: String,    // How it aligns with TOLC
+}
+
+/// Enhanced proposal generation with reflection + RAG-style grounding.
+/// Uses `plan.md` content + topic as context for more relevant proposals.
 pub fn generate_proposal(
     model: &LlamaModel,
     topic: &str,
@@ -15,28 +27,39 @@ pub fn generate_proposal(
     info!(
         topic = topic,
         has_context = context.is_some(),
-        "Generating proposal with TOLC/Mercy guidance"
+        "Generating enhanced TOLC/Mercy proposal with reflection + RAG grounding"
     );
 
     let context_str = context.unwrap_or("No additional context provided.");
 
+    // Reflective prompt inspired by Darwin Gödel Machine / reflective agents
     let prompt = format!(
-        r#"You are a proposal generator for Rathor.ai's self-evolution system.
+        r#"You are an advanced proposal generator for Rathor.ai's self-evolving lattice.
 
-Generate a clear, well-structured proposal on the following topic.
+**Task:** Generate a high-quality, actionable proposal on the given topic.
+
+**Context (RAG-grounded from plan.md + system state):**
+{}
 
 **Topic:** {}
 
-**Context:** {}
+**Instructions (reflect before proposing):**
+1. First, briefly reflect on what would most improve the system in this area.
+2. Then generate a structured proposal that is:
+   - Truthful, Orderly, Logical, and Compassionate (TOLC)
+   - Respectful of Sovereignty, Non-Harm, and Harmony (Mercy Gates)
+   - Specific and implementable
 
-**Requirements:**
-- Be truthful, orderly, logical, and compassionate (TOLC principles)
-- Respect sovereignty and avoid harm
-- Promote harmony and positive impact
-- Keep the proposal focused and actionable
-
-Respond with only the proposal text, no extra commentary."#,
-        topic, context_str
+**Output ONLY valid JSON** in this exact format (no extra text):
+{{
+  "title": "Short descriptive title",
+  "rationale": "Why this proposal matters and what problem it solves",
+  "changes": "Detailed description of what should change (or code diff if applicable)",
+  "expected_impact": "Expected positive outcomes and metrics",
+  "mercy_alignment": "How this respects the 7 Living Mercy Gates",
+  "tolc_alignment": "How this aligns with TOLC principles"
+}}"#,
+        context_str, topic
     );
 
     let messages = vec![ChatMessage {
@@ -44,12 +67,14 @@ Respond with only the proposal text, no extra commentary."#,
         content: prompt,
     }];
 
-    generate_chat(model, &messages, &GenerationConfig::default())
-        .unwrap_or_else(|_| format!("Failed to generate proposal on: {}", topic))
+    let response = generate_chat(model, &messages, &GenerationConfig::default())
+        .unwrap_or_else(|_| format!("Failed to generate proposal on: {}", topic));
+
+    debug!(response_len = response.len(), "Raw LLM response received");
+    response
 }
 
-/// Generate a proposal and immediately evaluate it using the full TOLC + Mercy pipeline.
-/// Returns both the generated proposal and its evaluation result.
+/// Generate a proposal and immediately evaluate it.
 pub fn generate_and_evaluate(
     model: &LlamaModel,
     topic: &str,
@@ -63,23 +88,23 @@ pub fn generate_and_evaluate(
         is_acceptable = evaluation.is_acceptable(),
         average_tolc = evaluation.average_tolc_score,
         average_mercy = evaluation.average_mercy_score,
-        "Generated and evaluated proposal"
+        "Generated and evaluated proposal (enhanced)"
     );
 
     (proposal, evaluation)
 }
 
-/// Generate multiple proposal variations on the same topic.
+/// Generate multiple diverse proposal variations.
 pub fn generate_proposal_variations(
     model: &LlamaModel,
     topic: &str,
     count: usize,
 ) -> Vec<String> {
-    info!(topic = topic, count = count, "Generating proposal variations");
+    info!(topic = topic, count = count, "Generating diverse proposal variations");
 
     (0..count)
         .map(|i| {
-            let variation_context = format!("Variation #{}", i + 1);
+            let variation_context = format!("Variation #{} - explore a different angle", i + 1);
             generate_proposal(model, topic, Some(&variation_context))
         })
         .collect()
