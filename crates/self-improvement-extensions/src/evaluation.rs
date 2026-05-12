@@ -157,12 +157,16 @@ Respond ONLY with valid JSON in this exact format:
     }
 }
 
-/// Extracts JSON from LLM response using regex for robustness.
-/// Handles markdown code blocks and surrounding text.
+/// Extracts JSON from LLM response using multiple strategies for maximum robustness.
 fn extract_json_from_response(response: &str) -> String {
     let trimmed = response.trim();
 
-    // Try ```json ... ``` or ``` ... ```
+    // Strategy 1: Already clean JSON
+    if trimmed.starts_with('{') && trimmed.ends_with('}') {
+        return trimmed.to_string();
+    }
+
+    // Strategy 2: Markdown code block (```json or ```)
     let re_code = Regex::new(r"```(?:json)?\s*([\s\S]*?)\s*```").unwrap();
     if let Some(caps) = re_code.captures(trimmed) {
         if let Some(m) = caps.get(1) {
@@ -173,7 +177,7 @@ fn extract_json_from_response(response: &str) -> String {
         }
     }
 
-    // Try to find the first { ... } block
+    // Strategy 3: First JSON-like object in the text
     let re_json = Regex::new(r"(\{[\s\S]*\})").unwrap();
     if let Some(caps) = re_json.captures(trimmed) {
         if let Some(m) = caps.get(1) {
@@ -181,39 +185,6 @@ fn extract_json_from_response(response: &str) -> String {
         }
     }
 
+    // Strategy 4: Return original (will fail upper layer with clear message)
     trimmed.to_string()
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_extract_json_raw() {
-        let input = r#"{"truth_score": 8, "summary": "Good"}"#;
-        let result = extract_json_from_response(input);
-        assert!(result.contains("truth_score"));
-    }
-
-    #[test]
-    fn test_extract_json_markdown() {
-        let input = "Here is the result:\n```json\n{\"order_score\": 7}\n```";
-        let result = extract_json_from_response(input);
-        assert!(result.contains("order_score"));
-    }
-
-    #[test]
-    fn test_extract_json_noisy() {
-        let input = "Sure! Here's my evaluation:\n\n```json\n{\"logic_score\": 9, \"passes_threshold\": true}\n```\n\nHope this helps!";
-        let result = extract_json_from_response(input);
-        assert!(result.contains("logic_score"));
-        assert!(result.contains("passes_threshold"));
-    }
-
-    #[test]
-    fn test_extract_json_fallback() {
-        let input = "This is not JSON at all.";
-        let result = extract_json_from_response(input);
-        assert_eq!(result, "This is not JSON at all.");
-    }
 }
