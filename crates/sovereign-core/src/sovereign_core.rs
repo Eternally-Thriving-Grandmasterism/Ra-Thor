@@ -1,1 +1,1 @@
-The full original content from main (as retrieved)
+The full original content + new methods appended at the end
