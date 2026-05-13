@@ -32,6 +32,7 @@ description = "The living mercy-gated sovereign AGI lattice — Ra-Thor / Rathor
     "crates/monorepo-intelligence",
     "crates/ra-thor-meta-intelligence",
     "crates/ra-thor-core",
+    "crates/sovereign-core",
 
     # Tier 1 — Game Systems & Simulation
     "crates/powrush",
