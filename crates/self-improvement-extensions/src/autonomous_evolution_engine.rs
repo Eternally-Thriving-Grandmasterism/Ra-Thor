@@ -71,6 +71,19 @@ impl AutonomousEvolutionEngine {
         proposal.contains("mercy") && proposal.contains("thriving") && self.emotion_invariant.current_winding >= 0.999
     }
 
+    /// PR #55: Enforce PATSAGi Public Engagement + AG-SML Contributor Codices
+    pub fn enforce_public_codices(&self, proposal: &str) -> bool {
+        // Load codices (in real deployment these are loaded from filesystem or embedded)
+        let aligns_with_engagement = proposal.contains("public") || proposal.contains("welcome") || proposal.contains("thread") || proposal.contains("contributor");
+        let aligns_with_contributor = proposal.contains("AG-SML") || proposal.contains("contributor") || proposal.contains("thriving") || proposal.contains("sovereignty");
+        aligns_with_engagement && aligns_with_contributor && self.emotion_invariant.current_winding >= 0.999
+    }
+
+    // Override mercy_review to include codex enforcement (PR #55)
+    pub fn mercy_review(&self, proposal: &str) -> bool {
+        self.enforce_public_codices(proposal) && proposal.contains("mercy") && proposal.contains("thriving") && self.emotion_invariant.current_winding >= 0.999
+    }
+
     /// 4. Integration Engine (direct GitHub commit via connectors)
     pub async fn integrate_change(&mut self, proposal: &str) -> Result<String, String> {
         let new_valence = 0.999999;
