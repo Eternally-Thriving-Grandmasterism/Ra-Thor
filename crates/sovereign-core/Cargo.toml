@@ -1,0 +1,15 @@
+[package]
+name = "sovereign-core"
+version = "1.0.0"
+edition = "2021"
+authors = ["Eternally-Thriving-Grandmasterism <sherif@alphapromega.com>"]
+license = "AG-SML-1.0"
+description = "Ra-Thor Sovereign Core Lattice — Full unification of all systems"
+
+[dependencies]
+autonomous-evolution-engine = { path = "../autonomous-evolution-engine" }
+cosmic-harmony-protocol = { path = "../cosmic-harmony-protocol" }
+heaven-co-creation-simulator-v4 = { path = "../heaven-co-creation-simulator-v4" }
+orch-or-biophoton-layer = { path = "../orch-or-biophoton-layer" }
+tokio = { version = "1", features = ["full"] }
+chrono = "0.4"
