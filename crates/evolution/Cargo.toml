@@ -1,39 +1,18 @@
 [package]
 name = "evolution"
-version = "0.4.0"
+version = "0.2.0"
 edition = "2021"
-authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
-license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
-description = "Evolution Engine — Mercy-gated epigenetic plasticity and 5-Gene Joy Tetrad evolution system for the Ra-Thor living lattice. Drives sovereign AGI self-improvement and biomimetic adaptation."
+description = "Ra-Thor self-evolution and proposal management crate"
+license = "AG-SML v1.0"
 repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
-keywords = ["ra-thor", "evolution", "epigenetic", "plasticity", "joy-tetrad", "mercy-gated", "agi"]
-categories = ["science", "simulation", "artificial-intelligence"]
 
 [dependencies]
-ra-thor-mercy = { workspace = true }
-ra-thor-quantum-swarm-orchestrator = { workspace = true }
-ra-thor-kernel = { workspace = true }
-ra-thor-council = { workspace = true }
-ra-thor-mercy-orchestrator-v2 = { workspace = true }
-ra-thor-biomimetic = { workspace = true }
-powrush = { workspace = true }
+github-client = { path = "../github-client" }
 self-improvement-extensions = { path = "../self-improvement-extensions" }
-
-qdrant-client = { version = "1.13", features = ["serde"] }
-lancedb = { version = "0.18", features = ["tokio"] }
-
-serde = { workspace = true, features = ["derive"] }
-serde_json = { workspace = true }
 tracing = { workspace = true }
-rand = { workspace = true }
-thiserror = { workspace = true }
-futures = { workspace = true }
-
-[dev-dependencies]
-tracing-subscriber = { workspace = true }
-tokio-test = "0.4"
+qdrant-client = "1.7"
+lancedb = "0.4"
 
 [features]
-default = ["full"]
-full = []
-minimal = []
+default = []
+llama-cpp = ["self-improvement-extensions/llama-cpp"]
