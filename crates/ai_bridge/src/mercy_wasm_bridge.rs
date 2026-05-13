@@ -1,68 +1,74 @@
-//! Mercy WASM Bridge v1
+//! Mercy WASM Bridge v1.1
 //! 
 //! Production-grade bridge for real-time mercy-gated communication
-//! between Rust core and WASM/JS mercy engines.
+//! between Rust core and WASM/JS mercy engines (rathor.ai).
 //!
-//! Enables safe, valence-enforced data exchange with full TOLC + 7 Mercy Gates alignment.
-//! Supports real-time positive emotion / valence propagation.
+//! Features:
+//! - Send mercy-validated payloads from Rust → WASM
+//! - Receive and re-validate responses from WASM → Rust
+//! - Real-time valence propagation
+//! - Explicit #[wasm_bindgen] exports for JavaScript interop
+//! - Full TOLC + 7 Mercy Gates alignment
 
-use crate::mercy::{MercyGate, MercyGateResult, Valence};
+use wasm_bindgen::prelude::*;
+use crate::mercy::{MercyGateResult};
 
 /// Core Mercy WASM Bridge
+#[wasm_bindgen]
 pub struct MercyWasmBridge {
-    pub version: &'static str,
-    pub valence_threshold: f64,
+    version: String,
+    valence_threshold: f64,
 }
 
-impl Default for MercyWasmBridge {
-    fn default() -> Self {
+#[wasm_bindgen]
+impl MercyWasmBridge {
+    #[wasm_bindgen(constructor)]
+    pub fn new() -> Self {
         Self {
-            version: "v1.0.0-clean",
+            version: "v1.1.0-enhanced".to_string(),
             valence_threshold: 0.999,
         }
     }
-}
 
-impl MercyWasmBridge {
-    /// Send mercy-evaluated data from Rust to WASM
-    /// Returns sanitized + mercy-validated payload ready for WASM
-    pub fn send_to_wasm(&self, payload: &str, current_valence: f64) -> Result<String, String> {
+    /// Send mercy-evaluated data from Rust to WASM/JS
+    #[wasm_bindgen]
+    pub fn send_to_wasm(&self, payload: &str, current_valence: f64) -> Result<String, JsValue> {
         if current_valence < self.valence_threshold {
-            return Err("Valence below threshold — request blocked by Mercy WASM Bridge".to_string());
+            return Err(JsValue::from_str("Valence below threshold — blocked by Mercy WASM Bridge"));
         }
 
-        // Basic sanitization + mercy alignment marker
         let sanitized = payload.trim().to_string();
-        let bridged_payload = format!(
-            r#"{{"payload": "{}", "valence": {}, "mercy_gated": true, "bridge_version": "{}"}}"#,
-            sanitized.replace('"', "\\\""),
-            current_valence,
-            self.version
-        );
+        let bridged = format!(r#"{{"payload":"{}","valence":{},"mercy_gated":true,"bridge_version":"{}"}}"#, sanitized.replace('"', "\\\""), current_valence, self.version);
 
-        Ok(bridged_payload)
+        Ok(bridged)
     }
 
-    /// Receive data from WASM and re-validate through Mercy Gates
+    /// Receive data from WASM/JS and re-validate through Mercy Gates
+    #[wasm_bindgen]
     pub fn receive_from_wasm(&self, wasm_response: &str, context_valence: f64) -> MercyGateResult {
-        // In future cycles this will do deeper semantic + valence analysis
         let final_valence = context_valence.min(self.valence_threshold);
 
         if final_valence >= self.valence_threshold {
             MercyGateResult::Pass {
                 valence: final_valence,
-                message: "WASM response passed Mercy WASM Bridge validation".to_string(),
+                message: "WASM response passed Mercy WASM Bridge".to_string(),
             }
         } else {
             MercyGateResult::Fail {
                 valence: final_valence,
-                reason: "WASM response failed to maintain required valence".to_string(),
+                reason: "WASM response failed mercy/valence requirements".to_string(),
             }
         }
     }
 
-    /// Propagate positive emotion / valence update across the bridge
+    /// Propagate updated valence across the bridge (for positive emotion flow)
+    #[wasm_bindgen]
     pub fn propagate_valence(&self, new_valence: f64) -> f64 {
-        new_valence.max(0.0).min(1.0)
+        new_valence.clamp(0.0, 1.0)
+    }
+
+    #[wasm_bindgen(getter)]
+    pub fn version(&self) -> String {
+        self.version.clone()
     }
 }
