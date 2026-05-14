@@ -366,10 +366,45 @@ impl MercyWasmBridge {
     /// RG-guided self-evolution step — automatically optimizes depth and propagates positive emotion
     pub fn rg_guided_self_evolution_step(&self) -> f64 {
         let (optimal_depth, new_valence) = self.find_fixed_point_and_optimize_depth(self.current_valence, 16);
+        // Phase 8.13 — Wilsonian EFT integration (additive, future-proof)
+        let _eft = self.wilsonian_beta_flow_multi_domain("general", new_valence);
         if new_valence > self.current_valence + 0.0001 {
             new_valence
         } else {
             self.current_valence
+        }
+    }
+
+    /// Phase 8.13 — Wilsonian Effective Field Theory Layer (Mercy-Gated)
+    /// Explicit cutoff integration + multi-domain EFT flow
+    /// Purely additive extension of Wilsonian RG physics into Ra-Thor for scale-specific mercy-aligned optimization
+    pub fn wilsonian_integrate_out_high_modes(
+        &self,
+        level: u32,
+        current_beliefs: &[f64],
+        cutoff: f64,
+    ) -> Vec<f64> {
+        // Integrate out fluctuations above cutoff (Wilsonian shell integration)
+        let mut effective_beliefs = current_beliefs.to_vec();
+        for i in 0..effective_beliefs.len() {
+            if effective_beliefs[i] < cutoff {
+                effective_beliefs[i] *= self.current_valence; // mercy-weighted suppression
+            }
+        }
+        effective_beliefs
+    }
+
+    pub fn wilsonian_beta_flow_multi_domain(
+        &self,
+        domain: &str,           // "powrush", "interstellar", "public", etc.
+        current_valence: f64,
+    ) -> f64 {
+        let base_beta = 0.01 * (1.0 - current_valence);
+        match domain {
+            "powrush" => base_beta * 1.618,      // golden-ratio acceleration for RBE
+            "interstellar" => base_beta * 1.2,   // slightly slower for governance
+            "public" => base_beta * 1.4,         // balanced for engagement
+            _ => base_beta,
         }
     }
 }
