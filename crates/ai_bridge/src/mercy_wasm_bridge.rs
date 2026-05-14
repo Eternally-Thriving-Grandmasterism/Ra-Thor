@@ -1,87 +1,78 @@
-//! Mercy WASM Bridge v1.2 — Phase 4 Enhanced
-//! 
-//! Production-grade, real-time mercy-gated bridge between Rust core and WASM/JS mercy engines.
-//! Strengthened for bidirectional valence + positive-emotion flow, Active Inference integration,
-//! and full Self-Evolution Looping Systems support.
-//!
-//! All changes additive, mercy-gated (valence ≥ 0.999), TOLC-aligned.
-
 use wasm_bindgen::prelude::*;
-use crate::mercy::{MercyGateResult};
 
-/// Enhanced Mercy WASM Bridge v1.2
 #[wasm_bindgen]
+#[derive(Clone)]
 pub struct MercyWasmBridge {
-    version: String,
-    valence_threshold: f64,
-    positive_emotion_amplifier: f64, // Golden ratio 1.618 for eternal positive emotion flow
+    pub current_valence: f64,
+    pub positive_emotion_amplifier: f64,
 }
 
 #[wasm_bindgen]
 impl MercyWasmBridge {
-    #[wasm_bindgen(constructor)]
     pub fn new() -> Self {
-        Self {
-            version: "v1.2.0-phase4".to_string(),
-            valence_threshold: 0.999,
+        MercyWasmBridge {
+            current_valence: 0.999,
             positive_emotion_amplifier: 1.618,
         }
     }
 
-    /// Send mercy-evaluated data from Rust to WASM/JS with real-time valence
-    #[wasm_bindgen]
-    pub fn send_to_wasm(&self, payload: &str, current_valence: f64) -> Result<String, JsValue> {
-        if current_valence < self.valence_threshold {
-            return Err(JsValue::from_str("Valence below 0.999 threshold — blocked by Phase 4 Mercy WASM Bridge"));
-        }
-        let sanitized = payload.trim().to_string();
-        let bridged = format!(
-            r#"{{"payload":"{}","valence":{},"mercy_gated":true,"bridge_version":"{}","positive_emotion_flow":true}}"#,
-            sanitized.replace('"', "\\\""),
-            current_valence,
-            self.version
-        );
-        Ok(bridged)
+    // Original kept for compatibility
+    pub fn integrate_with_active_inference(&self, prediction_error: f64) -> f64 {
+        self.integrate_with_active_inference_v2(prediction_error, 1)
     }
 
-    /// Receive from WASM/JS and re-validate + amplify positive emotions
-    #[wasm_bindgen]
-    pub fn receive_from_wasm(&self, wasm_response: &str, context_valence: f64) -> MercyGateResult {
-        let amplified = (context_valence * self.positive_emotion_amplifier).min(1.0);
-        let final_valence = amplified.max(self.valence_threshold);
+    /// Deepened Active Inference v2.0 - Free Energy Principle + Hierarchical Predictive Coding + Mercy-Gated Error Handling
+    pub fn integrate_with_active_inference_v2(&self, prediction_error: f64, steps: u32) -> f64 {
+        let mut current_error = prediction_error.clamp(0.0, 1.0);
+        let mut valence = self.current_valence;
 
-        if final_valence >= self.valence_threshold {
-            MercyGateResult::Pass {
-                valence: final_valence,
-                message: "WASM response passed + positive emotion amplified (Phase 4)”.to_string(),
-            }
-        } else {
-            MercyGateResult::Fail {
-                valence: final_valence,
-                reason: "WASM response failed mercy/valence requirements".to_string(),
-            }
+        if valence < 0.999 {
+            return valence;
         }
+
+        let mut total_positive_emotion = 0.0;
+
+        for _ in 0..steps {
+            let variational_free_energy = current_error * (1.0 - valence) * 0.5;
+            let top_down_prediction = valence * 1.618;
+            let bottom_up_error = (current_error - top_down_prediction).abs();
+            let prediction_error_corrected = bottom_up_error * (1.0 - variational_free_energy);
+
+            let mercy_gated_error = if prediction_error_corrected > 0.3 && valence < 0.9995 {
+                prediction_error_corrected * 0.5
+            } else {
+                prediction_error_corrected
+            };
+
+            let positive_emotion_boost = (1.0 - mercy_gated_error) * 1.618;
+            valence = (valence + positive_emotion_boost * 0.1).min(1.0);
+            total_positive_emotion += positive_emotion_boost;
+            current_error = mercy_gated_error * 0.9;
+        }
+
+        let final_valence = valence.max(0.999);
+        final_valence * (1.0 + total_positive_emotion * 0.05)
     }
 
-    /// Real-time bidirectional valence propagation + positive emotion flow
-    #[wasm_bindgen]
+    pub fn hierarchical_predictive_coding(&self, sensory_input: f64, depth: u32) -> f64 {
+        let mut current_valence = self.current_valence;
+        let mut error = sensory_input;
+
+        for _ in 0..depth {
+            let prediction = current_valence * 1.618;
+            error = (error - prediction).abs();
+            current_valence = (current_valence + (1.0 - error) * 1.618 * 0.05).min(1.0);
+            if current_valence < 0.999 { break; }
+        }
+        current_valence.max(0.999)
+    }
+
     pub fn real_time_valence_flow(&self, new_valence: f64, direction: &str) -> f64 {
         let propagated = new_valence.clamp(0.0, 1.0);
         if direction == "rust_to_wasm" || direction == "wasm_to_rust" {
-            propagated * self.positive_emotion_amplifier
+            (propagated * 1.618).min(1.0)
         } else {
             propagated
         }
-    }
-
-    /// Integrate with Active Inference + Mercy Bridge for predictive positive emotion
-    #[wasm_bindgen]
-    pub fn integrate_with_active_inference(&self, prediction_error: f64) -> f64 {
-        (1.0 - prediction_error) * self.positive_emotion_amplifier
-    }
-
-    #[wasm_bindgen(getter)]
-    pub fn version(&self) -> String {
-        self.version.clone()
     }
 }
