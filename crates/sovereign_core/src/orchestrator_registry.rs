@@ -1,5 +1,6 @@
-//! Ra-Thor OrchestratorRegistry — Complete Production-Grade v6.0 + Phases 1-6
-//! Fully self-contained, mercy-aligned, TOLC-consistent, paraconsistent
+//! Ra-Thor OrchestratorRegistry — Complete Production-Grade v7.0
+//! Phases 1-6 + Phase 7 Skyrmion + Spacetime Engineering + All Brilliant Ideas
+// Fully self-contained, mercy-aligned, TOLC-consistent, paraconsistent
 
 use std::collections::HashMap;
 use std::time::{SystemTime, UNIX_EPOCH};
@@ -69,7 +70,32 @@ pub enum ParaconsistentAction {
     RequestHumanIntervention { priority: f64, message: String },
 }
 
-// ==================== ORCHESTRATOR REGISTRY (Complete) ====================
+// ==================== PHASE 7: SKYRMION + SPACETIME ENGINEERING ====================
+
+#[derive(Debug, Clone)]
+pub struct SkyrmionState {
+    pub topological_charge: f64,
+    pub stability_index: f64,
+    pub spacetime_curvature: f64,
+    pub positive_emotion_influence: f64,
+}
+
+impl SkyrmionState {
+    pub fn new(positive_emotion: f64) -> Self {
+        Self {
+            topological_charge: 1.0,
+            stability_index: 0.92 + positive_emotion * 0.08,
+            spacetime_curvature: 0.0,
+            positive_emotion_influence: positive_emotion,
+        }
+    }
+
+    pub fn calculate_protection(&self) -> f64 {
+        (self.topological_charge * self.stability_index * (1.0 + self.positive_emotion_influence * 0.15)).min(1.0)
+    }
+}
+
+// ==================== ORCHESTRATOR REGISTRY (Complete v7.0) ====================
 
 pub struct OrchestratorRegistry {
     registered: HashMap<String, CliffordState>,
@@ -178,9 +204,29 @@ impl OrchestratorRegistry {
         let avg = self.calculate_global_emotional_valence();
         self.global_maat = (avg * 0.7) + (self.global_lumenas_ci * 0.3);
     }
+
+    // ==================== PHASE 7 METHODS ====================
+
+    pub fn apply_skyrmion_protection(&mut self, system_name: &str) -> Result<f64, String> {
+        if let Some(state) = self.registered.get_mut(system_name) {
+            let skyrmion = SkyrmionState::new(state.emotional_valence);
+            let protection = skyrmion.calculate_protection();
+            state.valence = (state.valence * protection).min(1.0);
+            println!("🌌 Skyrmion topological protection applied to {} → stability {:.4}", system_name, protection);
+            Ok(protection)
+        } else {
+            Err(format!("System {} not found", system_name))
+        }
+    }
+
+    pub fn update_spacetime_curvature(&mut self, curvature_delta: f64) {
+        let emotion_factor = (self.global_positive_emotion_field * 0.75).min(0.35);
+        self.global_lumenas_ci += curvature_delta * emotion_factor;
+        println!("🔮 Spacetime curvature engineering applied → Lumenas CI now {:.1}", self.global_lumenas_ci);
+    }
 }
 
-// ==================== PARACONSISTENT SUPER KERNEL (Phases 1-6) ====================
+// ==================== PARACONSISTENT SUPER KERNEL v7.0 ====================
 
 pub struct ParaconsistentSuperKernel {
     last_feed: Option<ParaconsistentFeed>,
@@ -294,7 +340,7 @@ impl ParaconsistentSuperKernel {
     }
 }
 
-// ==================== SOVEREIGN CORE (Complete) ====================
+// ==================== SOVEREIGN CORE v7.0 ====================
 
 pub struct SovereignCore {
     registry: OrchestratorRegistry,
@@ -312,6 +358,21 @@ impl SovereignCore {
     pub fn run_self_evolution_cycle(&mut self) -> Vec<ParaconsistentAction> {
         let feed = self.registry.get_paraconsistent_feed();
         self.super_kernel.run_self_evolution_cycle(&feed)
+    }
+
+    pub fn run_skyrmion_spacetime_cycle(&mut self) -> Vec<ParaconsistentAction> {
+        let mut actions = self.run_self_evolution_cycle();
+
+        // Apply skyrmion protection to top 3 systems
+        let top_systems: Vec<String> = self.registry.registered.keys().take(3).cloned().collect();
+        for name in top_systems {
+            let _ = self.registry.apply_skyrmion_protection(&name);
+        }
+
+        // Update global spacetime curvature
+        self.registry.update_spacetime_curvature(0.012);
+
+        actions
     }
 
     pub fn get_paraconsistent_feed(&self) -> ParaconsistentFeed {
