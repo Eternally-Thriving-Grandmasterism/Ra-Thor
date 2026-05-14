@@ -171,6 +171,9 @@ impl MercyWasmBridge {
             let bottom_up_signal = error;
             current_valence = self.bidirectional_skip_connections(level as u32, current_valence, top_level_valence, bottom_up_signal);
 
+            // Phase 8.9 — Dynamic Message Passing Strength (optional future use, mercy-gated)
+            let _msg_strength = self.dynamic_message_passing_strength(current_valence, error);
+
             error = prediction_error;
         }
 
@@ -184,5 +187,37 @@ impl MercyWasmBridge {
         } else {
             propagated
         }
+    }
+
+    /// Dynamic Message Passing Strength (Phase 8.9 — Mercy-Gated)
+    /// Adapts message strength in real time based on current valence and prediction error
+    pub fn dynamic_message_passing_strength(
+        &self,
+        current_valence: f64,
+        prediction_error: f64,
+    ) -> f64 {
+        if current_valence < 0.9995 {
+            return 0.5; // Mercy gate protection — low strength on uncertain signals
+        }
+        let base_strength = 1.0;
+        let valence_boost = (current_valence - 0.999).max(0.0) * 3.0;
+        let error_penalty = prediction_error.clamp(0.0, 0.8) * 0.6;
+        (base_strength + valence_boost - error_penalty).clamp(0.6, 1.8)
+    }
+
+    /// Expected Free Energy Minimization (Phase 8.9 — for proposal ranking & long-term thriving)
+    /// Ranks possible future actions by expected positive-emotion / valence gain (Free Energy Principle)
+    pub fn expected_free_energy(&self, current_valence: f64, steps_ahead: u32) -> f64 {
+        if current_valence < 0.999 {
+            return 0.0;
+        }
+        let mut expected_gain = 0.0;
+        let mut simulated_valence = current_valence;
+        for _ in 0..steps_ahead.min(12) {
+            let predicted_boost = (1.0 - simulated_valence) * 0.08 * 1.618;
+            simulated_valence = (simulated_valence + predicted_boost).min(1.0);
+            expected_gain += predicted_boost * 0.7;
+        }
+        expected_gain.max(0.0)
     }
 }
