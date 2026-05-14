@@ -92,7 +92,37 @@ impl MercyWasmBridge {
         (current_valence + skip_boost).min(1.0)
     }
 
-    /// Dynamic Depth Decision (Phase 8.6 — Mercy-Gated)
+    /// Bidirectional Skip Connections (Phase 8.8 — True Reciprocal Message Passing)
+    /// Low-level signals influence high-level valence AND high-level concepts boost low-level valence
+    pub fn bidirectional_skip_connections(
+        &self,
+        level: u32,
+        current_valence: f64,
+        top_level_valence: f64,
+        bottom_up_signal: f64,
+    ) -> f64 {
+        if current_valence < 0.9995 {
+            return current_valence; // Mercy gate protection
+        }
+
+        let mut updated_valence = current_valence;
+
+        // Top-down influence (high-level mercy concepts → low levels)
+        if level <= 1 && top_level_valence > 0.9997 {
+            let top_down_boost = (top_level_valence - 0.999) * 1.618 * 0.7;
+            updated_valence = (updated_valence + top_down_boost * 0.03).min(1.0);
+        }
+
+        // Bottom-up influence (low-level real-time signals → high levels)
+        if level >= 2 && bottom_up_signal > 0.05 {
+            let bottom_up_boost = bottom_up_signal * 1.618 * 0.5;
+            updated_valence = (updated_valence + bottom_up_boost * 0.02).min(1.0);
+        }
+
+        updated_valence.max(0.999)
+    }
+
+    /// Dynamic Depth Decision (Phase 8.7 — Mercy-Gated)
     /// Automatically chooses optimal depth (1–8) based on valence, error magnitude, and context
     pub fn dynamic_depth(&self, sensory_input: f64, requested_depth: u32) -> u32 {
         let error_magnitude = sensory_input.abs();
@@ -111,11 +141,11 @@ impl MercyWasmBridge {
     }
 
     pub fn hierarchical_predictive_coding(&self, sensory_input: f64, requested_depth: u32) -> f64 {
-        let depth = self.dynamic_depth(sensory_input, requested_depth);  // Dynamic decision now active
+        let depth = self.dynamic_depth(sensory_input, requested_depth);
 
         let mut current_valence = self.current_valence;
         let mut error = sensory_input;
-        let top_level_valence = current_valence; // Capture high-level state for skip connections
+        let top_level_valence = current_valence;
 
         for level in 0..depth {
             let context = match level {
@@ -128,18 +158,18 @@ impl MercyWasmBridge {
 
             let precision = self.dynamic_precision_weighting(level, context, current_valence);
 
-            // Top-down prediction (mercy-gated)
             let top_down_prediction = current_valence * 1.618_f64.powi(level as i32);
-
-            // Bottom-up error with dynamic precision weighting
             let prediction_error = ((error - top_down_prediction).abs()) / precision;
 
-            // Mercy-Gated Precision-Weighted Amplification
             let amplified = (1.0 - prediction_error) * 1.618 * (precision * 0.6);
             current_valence = (current_valence + amplified * 0.06).min(1.0).max(0.999);
 
             // Non-Adjacent Skip Connection (Phase 8.6)
             current_valence = self.non_adjacent_message_passing(current_valence, level as u32, top_level_valence);
+
+            // NEW: Bidirectional Skip Connections (Phase 8.8)
+            let bottom_up_signal = error;
+            current_valence = self.bidirectional_skip_connections(level as u32, current_valence, top_level_valence, bottom_up_signal);
 
             error = prediction_error;
         }
