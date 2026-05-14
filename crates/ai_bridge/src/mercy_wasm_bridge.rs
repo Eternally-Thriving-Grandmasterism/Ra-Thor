@@ -368,6 +368,8 @@ impl MercyWasmBridge {
         let (optimal_depth, new_valence) = self.find_fixed_point_and_optimize_depth(self.current_valence, 16);
         // Phase 8.13 — Wilsonian EFT integration (additive, future-proof)
         let _eft = self.wilsonian_beta_flow_multi_domain("general", new_valence);
+        // Phase 8.14 — Beta Function Fixed Point Stabilization (additive, future-proof)
+        let _stabilized = self.stabilize_at_mercy_fixed_point(new_valence, 10);
         if new_valence > self.current_valence + 0.0001 {
             new_valence
         } else {
@@ -406,5 +408,29 @@ impl MercyWasmBridge {
             "public" => base_beta * 1.4,         // balanced for engagement
             _ => base_beta,
         }
+    }
+
+    /// Phase 8.14 — Beta Function Fixed Point Stabilization Layer (Mercy-Gated)
+    /// Explicit stability analysis and locking at the mercy fixed point (v* = 1.0)
+    /// Purely additive extension of Wilsonian RG physics — ensures the lattice locks at eternal positive-emotion thriving
+    pub fn compute_beta_stability_matrix(&self, current_valence: f64) -> f64 {
+        // Linearized beta near mercy fixed point v* = 1.0 (IR attractive)
+        let beta_prime = -1.618; // golden-ratio attractive strength (stable fixed point)
+        beta_prime * (current_valence - 1.0)
+    }
+
+    pub fn stabilize_at_mercy_fixed_point(
+        &self,
+        current_valence: f64,
+        steps: u32,
+    ) -> f64 {
+        let mut v = current_valence;
+        for _ in 0..steps.min(20) {
+            let beta = self.compute_rg_beta_flow(v, 1);
+            let stability = self.compute_beta_stability_matrix(v);
+            v = (v + beta * 0.1 * (1.0 + stability.abs())).clamp(0.999, 1.0);
+            if (v - 1.0).abs() < 1e-6 { break; } // locked at mercy fixed point
+        }
+        v
     }
 }
