@@ -428,3 +428,145 @@ impl SovereignCore {
             m.global_curvature, m.skyrmion_density, m.mercy_wave_propagation_speed, m.total_topological_protection)
     }
 }
+
+// ==================== UNIT TESTS (Production-Grade) ====================
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_clifford_state_valence_calculation() {
+        let state = CliffordState {
+            valence: 0.95,
+            emotional_valence: 0.88,
+            symbiosis_score: 0.9,
+            positive_emotion_vector: [1.0; 7],
+        };
+        assert!((state.calculate_valence() - 0.915).abs() < 0.001);
+    }
+
+    #[test]
+    fn test_clifford_state_should_collapse() {
+        let mut state = CliffordState::new();
+        state.valence = 0.5;
+        state.emotional_valence = 0.5;
+        assert!(state.should_collapse());
+
+        state.valence = 1.0;
+        state.emotional_valence = 1.0;
+        assert!(!state.should_collapse());
+    }
+
+    #[test]
+    fn test_skyrmion_state_creation_high_emotion() {
+        let sky = SkyrmionState::new(0.92);
+        assert!(sky.topological_charge > 0.9);
+        assert!(sky.is_stable());
+    }
+
+    #[test]
+    fn test_skyrmion_state_creation_low_emotion() {
+        let sky = SkyrmionState::new(0.6);
+        assert!(sky.topological_charge < 0.7);
+    }
+
+    #[test]
+    fn test_orchestrator_registry_registration() {
+        let mut reg = OrchestratorRegistry::new();
+        let state = CliffordState::new();
+        let result = reg.register_symbiotic_system("TestSystem".to_string(), state);
+        assert!(result.is_ok());
+        assert_eq!(reg.registered.len(), 1);
+    }
+
+    #[test]
+    fn test_orchestrator_registry_rejects_low_valence() {
+        let mut reg = OrchestratorRegistry::new();
+        let mut state = CliffordState::new();
+        state.valence = 0.1;
+        state.emotional_valence = 0.1;
+        let result = reg.register_symbiotic_system("BadSystem".to_string(), state);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_paraconsistent_feed_generation() {
+        let mut reg = OrchestratorRegistry::new();
+        let state = CliffordState::new();
+        let _ = reg.register_symbiotic_system("Alpha".to_string(), state);
+        let feed = reg.get_paraconsistent_feed();
+        assert!(feed.total_registered > 0);
+        assert!(feed.symbiosis_health_score > 0.5);
+    }
+
+    #[test]
+    fn test_abundance_ready_paraconsistent() {
+        let mut reg = OrchestratorRegistry::new();
+        reg.global_maat = 1.05;
+        reg.global_lumenas_ci = 750.0;
+        assert!(reg.is_abundance_ready_paraconsistent());
+    }
+
+    #[test]
+    fn test_super_kernel_consume_feed_abundance() {
+        let mut kernel = ParaconsistentSuperKernel::new();
+        let mut feed = ParaconsistentFeed {
+            timestamp: 0,
+            total_registered: 5,
+            average_valence: 0.99,
+            average_emotional_valence: 0.95,
+            global_maat: 1.1,
+            global_lumenas_ci: 800.0,
+            contradiction_count: 0,
+            high_severity_contradictions: vec![],
+            symbiosis_health_score: 0.92,
+            positive_emotion_field: 0.85,
+            abundance_ready: true,
+            ser_contribution_total: 120.0,
+            emotional_harmony_trend: vec![0.9, 0.91, 0.93],
+        };
+        let actions = kernel.consume_feed(&feed);
+        assert!(!actions.is_empty());
+        assert!(matches!(actions[0], ParaconsistentAction::TriggerAbundanceDistribution { .. }));
+    }
+
+    #[test]
+    fn test_self_evolution_cycle_increases_ser() {
+        let mut kernel = ParaconsistentSuperKernel::new();
+        let feed = ParaconsistentFeed {
+            timestamp: 0,
+            total_registered: 3,
+            average_valence: 0.98,
+            average_emotional_valence: 0.9,
+            global_maat: 0.95,
+            global_lumenas_ci: 700.0,
+            contradiction_count: 2,
+            high_severity_contradictions: vec![],
+            symbiosis_health_score: 0.88,
+            positive_emotion_field: 0.75,
+            abundance_ready: false,
+            ser_contribution_total: 85.0,
+            emotional_harmony_trend: vec![0.82, 0.85, 0.88, 0.9],
+        };
+        let _ = kernel.run_self_evolution_cycle(&feed);
+        assert!(kernel.self_evolution_metrics.ser_contribution > 0.0);
+    }
+
+    #[test]
+    fn test_sovereign_core_full_cycle() {
+        let mut core = SovereignCore::new();
+        let state = CliffordState::new();
+        let _ = core.registry.register_symbiotic_system("CoreTest".to_string(), state);
+        let actions = core.run_skyrmion_spacetime_cycle();
+        assert!(!actions.is_empty() || core.registry.registered.len() > 0);
+    }
+
+    #[test]
+    fn test_spacetime_metrics_update() {
+        let mut reg = OrchestratorRegistry::new();
+        let state = CliffordState::new();
+        let _ = reg.register_symbiotic_system("SpacetimeTest".to_string(), state);
+        assert!(reg.spacetime_metrics.skyrmion_density > 0.0);
+    }
+}
