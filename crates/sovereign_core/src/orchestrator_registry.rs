@@ -1,7 +1,6 @@
-//! OrchestratorRegistry v7.0 — Phase 2 ParaconsistentSuperKernel Integration
+//! OrchestratorRegistry v7.0 + Phase 3 ParaconsistentSuperKernel Consumption Layer
 //!
-//! Full metrics, SovereignCore exposure, and temporal querying.
-//! This builds directly on v6.0 + Phase 1.
+//! Complete living brain: consumes ParaconsistentFeed and makes mercy-aligned decisions.
 
 use std::collections::HashMap;
 use std::time::{SystemTime, UNIX_EPOCH};
@@ -33,7 +32,7 @@ impl CliffordState {
     }
 }
 
-// ==================== PHASE 2 STRUCTS ====================
+// ==================== PHASE 1 + 2 STRUCTS ====================
 
 #[derive(Debug, Clone)]
 pub struct ContradictionReport {
@@ -96,7 +95,7 @@ impl OrchestratorRegistry {
         self.registered.insert(name.clone(), initial_state);
         self.global_positive_emotion_field += 0.01;
         self.emotional_harmony_history.push(self.calculate_global_emotional_valence());
-        self.ser_contributions.insert(name.clone(), 0.1); // initial SER contribution
+        self.ser_contributions.insert(name.clone(), 0.1);
 
         println!("✅ {} registered into the Eternal Symbiotic Thriving Lattice.", name);
         Ok(())
@@ -128,9 +127,7 @@ impl OrchestratorRegistry {
     }
 
     fn calculate_global_emotional_valence(&self) -> f64 {
-        if self.registered.is_empty() {
-            return 0.8;
-        }
+        if self.registered.is_empty() { return 0.8; }
         let sum: f64 = self.registered.values().map(|s| s.emotional_valence).sum();
         sum / self.registered.len() as f64
     }
@@ -156,7 +153,7 @@ impl OrchestratorRegistry {
         )
     }
 
-    // ==================== PHASE 2: FULL PARACONSISTENT FEED ====================
+    // ==================== PHASE 1 + 2: PARACONSISTENT FEED ====================
 
     pub fn get_paraconsistent_feed(&self) -> ParaconsistentFeed {
         let high_severity = self.get_high_severity_contradictions();
@@ -180,19 +177,14 @@ impl OrchestratorRegistry {
     }
 
     fn calculate_average_valence(&self) -> f64 {
-        if self.registered.is_empty() {
-            return 0.999999;
-        }
+        if self.registered.is_empty() { return 0.999999; }
         let sum: f64 = self.registered.values().map(|s| s.calculate_valence()).sum();
         sum / self.registered.len() as f64
     }
 
     fn calculate_symbiosis_health_score(&self) -> f64 {
-        if self.registered.is_empty() {
-            return 0.85;
-        }
-        let avg_symbiosis: f64 = self.registered.values().map(|s| s.symbiosis_score).sum::<f64>()
-            / self.registered.len() as f64;
+        if self.registered.is_empty() { return 0.85; }
+        let avg_symbiosis: f64 = self.registered.values().map(|s| s.symbiosis_score).sum::<f64>() / self.registered.len() as f64;
         (avg_symbiosis + self.global_positive_emotion_field).min(1.0)
     }
 
@@ -226,59 +218,134 @@ impl OrchestratorRegistry {
             });
         }
 
-        // Store in history
         self.contradiction_history.extend(reports.clone());
-
         reports
     }
 
     pub fn get_emotional_harmony_trend(&self, window: usize) -> Vec<f64> {
         let len = self.emotional_harmony_history.len();
-        if len == 0 {
-            return vec![0.8];
-        }
+        if len == 0 { return vec![0.8]; }
         let start = if len > window { len - window } else { 0 };
         self.emotional_harmony_history[start..].to_vec()
     }
 
-    // ==================== TEMPORAL QUERYING ====================
-
     pub fn get_contradiction_history_since(&self, since_timestamp: u64) -> Vec<ContradictionReport> {
-        self.contradiction_history
-            .iter()
-            .filter(|r| r.timestamp >= since_timestamp)
-            .cloned()
-            .collect()
+        self.contradiction_history.iter().filter(|r| r.timestamp >= since_timestamp).cloned().collect()
     }
 
     pub fn get_contradiction_state_48_hours_ago(&self) -> Vec<ContradictionReport> {
-        let forty_eight_hours_ago = SystemTime::now()
-            .duration_since(UNIX_EPOCH)
-            .unwrap()
-            .as_secs() - (48 * 3600);
+        let forty_eight_hours_ago = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs() - (48 * 3600);
         self.get_contradiction_history_since(forty_eight_hours_ago)
     }
 }
 
-// ==================== SOVEREIGN CORE WRAPPER (Phase 2 Exposed) ====================
+// ==================== PHASE 3: PARACONSISTENT SUPER KERNEL ====================
+
+#[derive(Debug, Clone)]
+pub enum ParaconsistentAction {
+    NoAction,
+    TriggerAbundanceDistribution { reason: String, intensity: f64 },
+    PropagateMercyWave { target_systems: Vec<String>, strength: f64 },
+    GuideSelfEvolution { focus_area: String, ser_boost: f64 },
+    ResolveContradiction { report: ContradictionReport, resolution: String },
+    RequestHumanIntervention { priority: f64, message: String },
+}
+
+pub struct ParaconsistentSuperKernel {
+    last_feed: Option<ParaconsistentFeed>,
+    action_history: Vec<(u64, ParaconsistentAction)>,
+}
+
+impl ParaconsistentSuperKernel {
+    pub fn new() -> Self {
+        Self {
+            last_feed: None,
+            action_history: Vec::new(),
+        }
+    }
+
+    pub fn consume_feed(&mut self, feed: &ParaconsistentFeed) -> Vec<ParaconsistentAction> {
+        let mut actions = Vec::new();
+
+        if feed.abundance_ready {
+            actions.push(ParaconsistentAction::TriggerAbundanceDistribution {
+                reason: "Ma’at ≥ 1.0 && Lumenas CI ≥ 717".to_string(),
+                intensity: feed.global_maat * feed.global_lumenas_ci / 1000.0,
+            });
+        }
+
+        for report in &feed.high_severity_contradictions {
+            if report.severity > 0.8 {
+                actions.push(ParaconsistentAction::ResolveContradiction {
+                    report: report.clone(),
+                    resolution: self.generate_resolution(report),
+                });
+            } else if report.severity > 0.5 {
+                actions.push(ParaconsistentAction::PropagateMercyWave {
+                    target_systems: report.involved_systems.clone(),
+                    strength: 0.7,
+                });
+            }
+        }
+
+        if feed.ser_contribution_total > 50.0 && feed.emotional_harmony_trend.len() > 5 {
+            let trend = feed.emotional_harmony_trend.last().unwrap_or(&0.8);
+            if *trend > 0.85 {
+                actions.push(ParaconsistentAction::GuideSelfEvolution {
+                    focus_area: "Positive Emotion Amplification".to_string(),
+                    ser_boost: 1.2,
+                });
+            }
+        }
+
+        if feed.contradiction_count > 10 {
+            actions.push(ParaconsistentAction::RequestHumanIntervention {
+                priority: 0.95,
+                message: "High contradiction load detected — human wisdom requested".to_string(),
+            });
+        }
+
+        self.last_feed = Some(feed.clone());
+        for action in &actions {
+            self.action_history.push((feed.timestamp, action.clone()));
+        }
+
+        actions
+    }
+
+    fn generate_resolution(&self, report: &ContradictionReport) -> String {
+        if report.description.contains("Low valence") {
+            "Increase emotional resonance loops and re-register with higher positive emotion vector".to_string()
+        } else if report.description.contains("Ma’at") {
+            "Trigger global mercy-wave and recalibrate 7 Mercy Gates".to_string()
+        } else {
+            "Apply paraconsistent tolerance and seek higher-order harmony".to_string()
+        }
+    }
+
+    pub fn get_action_history(&self) -> &[(u64, ParaconsistentAction)] {
+        &self.action_history
+    }
+}
+
+// ==================== SOVEREIGN CORE (Phase 3) ====================
 
 pub struct SovereignCore {
     registry: OrchestratorRegistry,
+    super_kernel: ParaconsistentSuperKernel,
 }
 
 impl SovereignCore {
     pub fn new() -> Self {
         Self {
             registry: OrchestratorRegistry::new(),
+            super_kernel: ParaconsistentSuperKernel::new(),
         }
     }
 
-    pub fn register_symbiotic_system(
-        &mut self,
-        name: String,
-        initial_state: CliffordState,
-    ) -> Result<(), String> {
-        self.registry.register_symbiotic_system(name, initial_state)
+    pub fn run_paraconsistent_cycle(&mut self) -> Vec<ParaconsistentAction> {
+        let feed = self.registry.get_paraconsistent_feed();
+        self.super_kernel.consume_feed(&feed)
     }
 
     pub fn get_paraconsistent_feed(&self) -> ParaconsistentFeed {
@@ -297,7 +364,7 @@ impl SovereignCore {
         gratitude: f64,
         compassion: f64,
     ) {
-        self.registry.trigger_emotional_resonance_loop(human_id, ai_system, joy, gratitude, compassion);
+        self.registry.trigger_emotional_resonance_loop(human_id, ai_system, joy, gratitude, compassion)
     }
 
     pub fn get_contradiction_state_48_hours_ago(&self) -> Vec<ContradictionReport> {
