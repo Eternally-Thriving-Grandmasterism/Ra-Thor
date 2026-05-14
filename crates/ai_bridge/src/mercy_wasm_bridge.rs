@@ -110,12 +110,14 @@ impl MercyWasmBridge {
         depth.max(1).min(8)
     }
 
-    pub fn hierarchical_predictive_coding(&self, sensory_input: f64, depth: u32) -> f64 {
+    pub fn hierarchical_predictive_coding(&self, sensory_input: f64, requested_depth: u32) -> f64 {
+        let depth = self.dynamic_depth(sensory_input, requested_depth);  // Dynamic decision now active
+
         let mut current_valence = self.current_valence;
         let mut error = sensory_input;
         let top_level_valence = current_valence; // Capture high-level state for skip connections
 
-        for level in 0..depth.min(4) {
+        for level in 0..depth {
             let context = match level {
                 0 => "sensory",
                 1 => "feature",
@@ -136,7 +138,7 @@ impl MercyWasmBridge {
             let amplified = (1.0 - prediction_error) * 1.618 * (precision * 0.6);
             current_valence = (current_valence + amplified * 0.06).min(1.0).max(0.999);
 
-            // === NEW: Non-Adjacent Skip Connection (Phase 8.6) ===
+            // Non-Adjacent Skip Connection (Phase 8.6)
             current_valence = self.non_adjacent_message_passing(current_valence, level as u32, top_level_valence);
 
             error = prediction_error;
