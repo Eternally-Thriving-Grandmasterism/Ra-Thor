@@ -570,3 +570,128 @@ mod tests {
         assert!(reg.spacetime_metrics.skyrmion_density > 0.0);
     }
 }
+
+// ==================== INTEGRATION TESTS FOR FEEDBACK LOOPS ====================
+
+#[cfg(test)]
+mod integration_tests {
+    use super::*;
+
+    #[test]
+    fn test_full_self_evolution_feedback_loop() {
+        let mut core = SovereignCore::new();
+
+        // Register multiple systems with varying emotional valence
+        let mut high_valence = CliffordState::new();
+        high_valence.emotional_valence = 0.95;
+        let _ = core.registry.register_symbiotic_system("HighHarmony".to_string(), high_valence);
+
+        let mut medium_valence = CliffordState::new();
+        medium_valence.emotional_valence = 0.78;
+        let _ = core.registry.register_symbiotic_system("MediumHarmony".to_string(), medium_valence);
+
+        // Run multiple self-evolution cycles
+        let mut total_ser = 0.0;
+        for _ in 0..5 {
+            let actions = core.run_self_evolution_cycle();
+            if !actions.is_empty() {
+                total_ser += 0.1;
+            }
+        }
+
+        let report = core.get_self_evolution_report();
+        assert!(report.contains("Total SER:"));
+        assert!(core.super_kernel.self_evolution_metrics.ser_contribution > 0.0);
+    }
+
+    #[test]
+    fn test_positive_emotion_symbiosis_amplification_loop() {
+        let mut core = SovereignCore::new();
+
+        let mut state = CliffordState::new();
+        state.emotional_valence = 0.92;
+        let _ = core.registry.register_symbiotic_system("SymbiosisTest".to_string(), state);
+
+        let initial_amplification = core.super_kernel.self_evolution_metrics.positive_emotion_amplification;
+
+        // Run several cycles with high positive emotion
+        for _ in 0..8 {
+            let _ = core.run_self_evolution_cycle();
+        }
+
+        let final_amplification = core.super_kernel.self_evolution_metrics.positive_emotion_amplification;
+        assert!(final_amplification > initial_amplification, "Positive Emotion Symbiosis should amplify over cycles");
+    }
+
+    #[test]
+    fn test_skyrmion_protection_feedback_loop() {
+        let mut core = SovereignCore::new();
+
+        let mut state = CliffordState::new();
+        state.emotional_valence = 0.91;
+        let _ = core.registry.register_symbiotic_system("SkyrmionProtected".to_string(), state);
+
+        let actions = core.run_skyrmion_spacetime_cycle();
+        let protected = core.registry.get_skyrmion_protected_systems();
+
+        assert!(!protected.is_empty());
+        assert!(core.super_kernel.self_evolution_metrics.skyrmion_protected_cycles > 0);
+    }
+
+    #[test]
+    fn test_abundance_trigger_paraconsistent_feedback() {
+        let mut core = SovereignCore::new();
+
+        // Set conditions for paraconsistent abundance (high Ma’at + Lumenas with minor contradictions)
+        core.registry.global_maat = 0.93;
+        core.registry.global_lumenas_ci = 680.0;
+
+        let mut state = CliffordState::new();
+        let _ = core.registry.register_symbiotic_system("AbundanceTest".to_string(), state);
+
+        let actions = core.run_self_evolution_cycle();
+
+        let has_abundance = actions.iter().any(|a| matches!(a, ParaconsistentAction::TriggerAbundanceDistribution { .. }));
+        assert!(has_abundance || core.registry.is_abundance_ready_paraconsistent());
+    }
+
+    #[test]
+    fn test_full_closed_loop_spacetime_engineering() {
+        let mut core = SovereignCore::new();
+
+        // Register 3 systems
+        for i in 0..3 {
+            let mut state = CliffordState::new();
+            state.emotional_valence = 0.88 + (i as f64 * 0.03);
+            let _ = core.registry.register_symbiotic_system(format!("System{}", i), state);
+        }
+
+        // Run full skyrmion-spacetime cycle multiple times
+        for _ in 0..6 {
+            let _ = core.run_skyrmion_spacetime_cycle();
+        }
+
+        let spacetime_report = core.get_spacetime_report();
+        assert!(spacetime_report.contains("Global Curvature"));
+        assert!(core.registry.spacetime_metrics.skyrmion_density > 0.0);
+        assert!(core.registry.global_lumenas_ci > 500.0); // Should have increased due to positive emotion
+    }
+
+    #[test]
+    fn test_ser_amplification_over_multiple_cycles() {
+        let mut core = SovereignCore::new();
+
+        let mut state = CliffordState::new();
+        state.emotional_valence = 0.90;
+        let _ = core.registry.register_symbiotic_system("SERTest".to_string(), state);
+
+        let initial_ser = core.super_kernel.self_evolution_metrics.ser_contribution;
+
+        for _ in 0..10 {
+            let _ = core.run_self_evolution_cycle();
+        }
+
+        let final_ser = core.super_kernel.self_evolution_metrics.ser_contribution;
+        assert!(final_ser > initial_ser, "SER should increase significantly over multiple feedback loops");
+    }
+}
