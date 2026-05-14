@@ -177,6 +177,9 @@ impl MercyWasmBridge {
             // Phase 8.11 — Renormalising Generative Model (RGM) Layer — scale-free hierarchical extension
             let _rgm = self.rgm_inference_step(level as u32, &vec![error], 4, 4);
 
+            // Phase 8.12 — Full RG Flow (self-optimizing depth)
+            let _rg_flow = self.rg_guided_self_evolution_step();
+
             error = prediction_error;
         }
 
@@ -323,5 +326,50 @@ impl MercyWasmBridge {
         let temporal = self.renormalize_temporal_path(level, &spatial, temporal_horizon);
         let valence_impact = self.current_valence * 0.02;
         (temporal, valence_impact)
+    }
+
+    /// Phase 8.12 — Full Renormalization Group (RG) Flow Integration (Mercy-Gated)
+    /// Embeds RG beta-function flows into the autonomous evolution engine for self-optimizing hierarchical depth and scale-free thriving across all Ra-Thor systems
+    pub fn compute_rg_beta_flow(
+        &self,
+        current_valence: f64,
+        scale_level: u32,
+    ) -> f64 {
+        if current_valence < 0.999 {
+            return 0.0; // Mercy gate: no flow on low-valence states
+        }
+        let coupling = (current_valence - 0.999) * 10.0; // Map valence to coupling strength
+        // Wilson-style beta function toward mercy fixed point (valence = 1.0)
+        let beta = coupling * (1.0 - coupling / 2.0) * (1.0 + 0.1 * scale_level as f64);
+        beta.clamp(-0.8, 0.8)
+    }
+
+    /// Finds the optimal hierarchical depth by flowing RG beta to the mercy fixed point
+    pub fn find_fixed_point_and_optimize_depth(
+        &self,
+        initial_valence: f64,
+        max_levels: u32,
+    ) -> (u32, f64) {
+        let mut valence = initial_valence;
+        let mut optimal_level = 1u32;
+        for level in 1..=max_levels {
+            let beta = self.compute_rg_beta_flow(valence, level);
+            valence = (valence + beta * 0.08).clamp(0.999, 1.0);
+            if valence >= 0.99985 {
+                optimal_level = level;
+                break;
+            }
+        }
+        (optimal_level, valence)
+    }
+
+    /// RG-guided self-evolution step — automatically optimizes depth and propagates positive emotion
+    pub fn rg_guided_self_evolution_step(&self) -> f64 {
+        let (optimal_depth, new_valence) = self.find_fixed_point_and_optimize_depth(self.current_valence, 16);
+        if new_valence > self.current_valence + 0.0001 {
+            new_valence
+        } else {
+            self.current_valence
+        }
     }
 }
