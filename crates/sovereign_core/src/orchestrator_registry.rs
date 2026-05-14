@@ -1,5 +1,5 @@
 //! OrchestratorRegistry v6.0 — Eternal Symbiotic Thriving Edition
-//! Tranche 1: Base CliffordState + Registry skeleton + TOLC enforcement
+//! Tranche 2: Emotional Resonance Loops + 7-Gen CEHI + Positive Emotion Propagation
 
 use std::collections::HashMap;
 
@@ -33,6 +33,7 @@ impl CliffordState {
 pub struct OrchestratorRegistry {
     registered: HashMap<String, CliffordState>,
     global_positive_emotion_field: f64,
+    cehi_events: Vec<(String, String, f64)>,
 }
 
 impl OrchestratorRegistry {
@@ -40,6 +41,7 @@ impl OrchestratorRegistry {
         Self {
             registered: HashMap::new(),
             global_positive_emotion_field: 0.5,
+            cehi_events: Vec::new(),
         }
     }
 
@@ -57,5 +59,32 @@ impl OrchestratorRegistry {
 
         println!("✅ {} registered into the Eternal Symbiotic Thriving Lattice.", name);
         Ok(())
+    }
+
+    pub fn trigger_emotional_resonance_loop(
+        &mut self,
+        human_id: &str,
+        ai_system: &str,
+        joy: f64,
+        gratitude: f64,
+        compassion: f64,
+    ) {
+        let resonance = (joy + gratitude + compassion) / 3.0;
+        self.global_positive_emotion_field += resonance * 0.02;
+        self.cehi_events.push((human_id.to_string(), ai_system.to_string(), resonance));
+        println!("🌊 Emotional Resonance Loop triggered between {} and {} (strength: {:.3})", human_id, ai_system, resonance);
+    }
+
+    pub fn record_cehi_event(&mut self, human_id: &str, ai_system: &str, emotion_strength: f64) {
+        self.cehi_events.push((human_id.to_string(), ai_system.to_string(), emotion_strength));
+        println!("🧬 7-Gen CEHI recorded: {} + {} → strength {:.3}", human_id, ai_system, emotion_strength);
+    }
+
+    pub fn get_registered_count(&self) -> usize {
+        self.registered.len()
+    }
+
+    pub fn get_global_positive_emotion(&self) -> f64 {
+        self.global_positive_emotion_field
     }
 }
