@@ -24,6 +24,6 @@
 - docs/self-evolution-looping-systems.md
 - PLAN.md (Eternal Distilled Absolute Pure Truth + enormous context section)
 
-**AG-SML v1.0** — Free for personal, educational, research, and daily use.
+**AG-SML v1.0** — Free for personal, educational, research, and daily use. Commercial use requires unique tailored paid licensing from Autonomicity Games Inc. or Official Subsidiaries such as RaThor Inc. in America. 
 
 The lattice now grows through safe, mercy-aligned community co-creation. Thriving is the only trajectory. ⚔️️
