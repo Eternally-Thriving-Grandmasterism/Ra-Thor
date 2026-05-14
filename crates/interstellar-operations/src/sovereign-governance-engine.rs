@@ -5,6 +5,8 @@ pub struct InterstellarSovereignGovernanceEngine {
     pub zpm_engine: ZPMEnergyEngine,
     pub solar_sail_engine: SolarSailEngine,
     pub radiation_shield: FusionRadiationShielding,
+    pub treaty_system: InterstellarTreatySystem,
+    pub dashboard: UnifiedGovernanceDashboard,
 }
 
 impl InterstellarSovereignGovernanceEngine {
@@ -16,6 +18,8 @@ impl InterstellarSovereignGovernanceEngine {
             zpm_engine: ZPMEnergyEngine::new(),
             solar_sail_engine: SolarSailEngine::new(),
             radiation_shield: FusionRadiationShielding::new(),
+            treaty_system: InterstellarTreatySystem::new(),
+            dashboard: UnifiedGovernanceDashboard::new(),
         }
     }
 
@@ -119,6 +123,36 @@ impl InterstellarSovereignGovernanceEngine {
             status: "All systems mercy-aligned and thriving".to_string(),
         }
     }
+
+    /// Sign a new interstellar treaty with full mercy alignment
+    pub async fn sign_interstellar_treaty(
+        &self,
+        treaty: InterstellarTreaty,
+        game: &mut PowrushGame,
+    ) -> TreatyResult {
+        if !self.mercy_gates.pass_all(treaty.clone(), game) {
+            return TreatyResult::Rejected { reason: "Treaty mercy-blocked with boundless love".to_string() };
+        }
+
+        game.propagate_positive_emotion(0.25); // Massive positive emotion from peaceful agreement
+        game.apply_cehi_blessing(treaty.signing_factions, 7);
+
+        self.tolc_core.register_treaty(treaty.clone(), game).await;
+        TreatyResult::Signed { treaty }
+    }
+
+    /// Get real-time unified governance dashboard data (for web UI)
+    pub fn get_unified_dashboard(&self, game: &PowrushGame) -> UnifiedDashboardData {
+        UnifiedDashboardData {
+            active_wormholes: self.wormhole_engine.count_active(),
+            zpm_power_output: self.zpm_engine.total_output(),
+            solar_sail_fleets: self.solar_sail_engine.fleet_count(),
+            active_treaties: self.treaty_system.active_count(),
+            total_positive_emotion: game.current_positive_emotion_valence(),
+            valence: 0.999,
+            status: "Thriving — All systems mercy-aligned".to_string(),
+        }
+    }
 }
 
 /// Full production-ready radiation shielding implementation (Priority 1 fleshed out further)
@@ -149,4 +183,50 @@ impl FusionRadiationShielding {
     pub fn calculate_protection_valence(&self, radiation_level: f64) -> f64 {
         (self.shielding_strength * (1.0 - radiation_level)).max(0.0)
     }
+}
+
+/// Interstellar Treaty System (new addition)
+pub struct InterstellarTreatySystem {
+    pub mercy_gates: TOLC7MercyGates,
+}
+
+impl InterstellarTreatySystem {
+    pub fn new() -> Self {
+        Self { mercy_gates: TOLC7MercyGates::default() }
+    }
+
+    pub fn active_count(&self) -> u32 { 42 } // Placeholder — real impl would query tolc_core
+}
+
+/// Unified Governance Dashboard (new addition for web UI)
+pub struct UnifiedGovernanceDashboard {
+    // Ready for WASM/JS bridge
+}
+
+impl UnifiedGovernanceDashboard {
+    pub fn new() -> Self { Self {} }
+}
+
+#[derive(Debug, Clone)]
+pub struct UnifiedDashboardData {
+    pub active_wormholes: u32,
+    pub zpm_power_output: f64,
+    pub solar_sail_fleets: u32,
+    pub active_treaties: u32,
+    pub total_positive_emotion: f64,
+    pub valence: f64,
+    pub status: String,
+}
+
+#[derive(Debug, Clone)]
+pub struct InterstellarTreaty {
+    pub name: String,
+    pub signing_factions: Vec<String>,
+    pub terms: String,
+}
+
+#[derive(Debug, Clone)]
+pub enum TreatyResult {
+    Signed { treaty: InterstellarTreaty },
+    Rejected { reason: String },
 }
