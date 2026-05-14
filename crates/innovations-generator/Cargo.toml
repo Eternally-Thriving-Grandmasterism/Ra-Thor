@@ -1,0 +1,17 @@
+[package]
+name = "innovations-generator"
+version = "0.1.0"
+edition = "2021"
+authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
+license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
+description = "Innovations Generator — Higher-order idea synthesis and eternal self-evolution engine for Ra-Thor"
+
+[dependencies]
+idea-recycling = { path = "../idea-recycling" }
+ra-thor-mercy = { path = "../mercy" }
+ra-thor-fenca = { path = "../fenca" }
+ra-thor-common = { path = "../common" }
+tokio = { version = "1.38", features = ["full"] }
+serde = { version = "1.0", features = ["derive"] }
+tracing = "0.1"
+thiserror = "1.0"
