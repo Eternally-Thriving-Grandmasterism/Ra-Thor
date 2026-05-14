@@ -120,3 +120,33 @@ impl InterstellarSovereignGovernanceEngine {
         }
     }
 }
+
+/// Full production-ready radiation shielding implementation (Priority 1 fleshed out further)
+pub struct FusionRadiationShielding {
+    pub shielding_strength: f64,
+    pub valence_threshold: f64,
+}
+
+impl FusionRadiationShielding {
+    pub fn new() -> Self {
+        Self {
+            shielding_strength: 0.999,
+            valence_threshold: 0.999,
+        }
+    }
+
+    pub fn apply_shielding(&self, claim: &SpaceResourceClaim, game: &mut PowrushGame) {
+        if claim.radiation_level > 0.0 {
+            let protected_level = claim.radiation_level * (1.0 - self.shielding_strength);
+            // Full mercy-gated protection with positive emotion boost
+            if protected_level < 0.01 {
+                game.propagate_positive_emotion(0.08); // Joy from safe space travel
+                game.apply_cehi_blessing(claim.faction, 7);
+            }
+        }
+    }
+
+    pub fn calculate_protection_valence(&self, radiation_level: f64) -> f64 {
+        (self.shielding_strength * (1.0 - radiation_level)).max(0.0)
+    }
+}
