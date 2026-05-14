@@ -220,4 +220,52 @@ impl MercyWasmBridge {
         }
         expected_gain.max(0.0)
     }
+
+    /// Phase 8.10 — Active Inference Policy Engine (Mercy-Gated)
+    /// Computes expected free energy for each policy and selects action that minimizes it
+    /// Purely additive extension of Phase 8.9 expected_free_energy() into full policy selection
+    pub fn infer_policies_and_select_action(
+        &self,
+        current_qs: &[f64],           // current state beliefs (placeholder for future POMDP integration)
+        policies: &[Vec<u32>],        // candidate policies (sequences of actions)
+        horizon: u32,
+    ) -> (u32, f64) {                 // (best_action, min_expected_free_energy)
+        if policies.is_empty() {
+            return (0, 0.0);
+        }
+
+        let mut best_action = policies[0][0];
+        let mut min_efe = f64::INFINITY;
+
+        for policy in policies {
+            let mut simulated_valence = self.current_valence;
+            let mut total_efe = 0.0;
+
+            for &action in policy.iter().take(horizon as usize) {
+                let efe_step = self.expected_free_energy(simulated_valence, 1);
+                total_efe += efe_step;
+
+                // Mercy gate: reject any policy that would drop valence below threshold
+                if simulated_valence < 0.999 {
+                    total_efe = f64::INFINITY;
+                    break;
+                }
+                simulated_valence = (simulated_valence + 0.02).min(1.0);
+            }
+
+            if total_efe < min_efe {
+                min_efe = total_efe;
+                if !policy.is_empty() {
+                    best_action = policy[0];
+                }
+            }
+        }
+
+        // Final mercy gate on selected action
+        if min_efe < 0.5 && self.current_valence >= 0.999 {
+            (best_action, min_efe)
+        } else {
+            (0, min_efe) // safe default action
+        }
+    }
 }
