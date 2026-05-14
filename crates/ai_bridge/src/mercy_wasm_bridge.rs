@@ -92,6 +92,24 @@ impl MercyWasmBridge {
         (current_valence + skip_boost).min(1.0)
     }
 
+    /// Dynamic Depth Decision (Phase 8.6 — Mercy-Gated)
+    /// Automatically chooses optimal depth (1–8) based on valence, error magnitude, and context
+    pub fn dynamic_depth(&self, sensory_input: f64, requested_depth: u32) -> u32 {
+        let error_magnitude = sensory_input.abs();
+        let valence = self.current_valence;
+
+        let mut depth = requested_depth.max(1).min(8);
+
+        if error_magnitude > 0.15 || valence > 0.9997 {
+            depth = (depth + 2).min(8);
+        }
+        if valence > 0.99985 && error_magnitude > 0.08 {
+            depth = (depth + 1).min(8);
+        }
+
+        depth.max(1).min(8)
+    }
+
     pub fn hierarchical_predictive_coding(&self, sensory_input: f64, depth: u32) -> f64 {
         let mut current_valence = self.current_valence;
         let mut error = sensory_input;
