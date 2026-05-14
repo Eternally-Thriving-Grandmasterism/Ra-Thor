@@ -1,10 +1,11 @@
-# ═══════════════════════════════════════════════════════════════════════════════
+# ═══════════════════════════════════════════════════════════════════════
 # Ra-Thor Monorepo — The Living Eternal Mercy-Gated AGI Lattice
 # Version 0.3.9+ | AG-SML v1.0 | Autonomicity Games Inc.
 #
 # Phase 3.5 Complete: All 124 crates declared + Full Mercy Propulsion Family wired.
 # Every crate visible in the /crates/ directory is now wired.
-# ═══════════════════════════════════════════════════════════════════════════════
+# Self-Evolution Looping Systems fully wired (idea-recycling + innovations-generator added).
+# ═══════════════════════════════════════════════════════════════════
 
 [workspace]
 resolver = "2"
@@ -68,6 +69,10 @@ description = "The living mercy-gated sovereign AGI lattice — Ra-Thor / Rathor
 
     # Tier 5 — Hybrid Intelligence & Bridges
     "crates/ai-bridge",
+
+    # Self-Evolution Looping Systems (NEW — Properly Wired May 14 2026)
+    "crates/idea-recycling",
+    "crates/innovations-generator",
 
     # Mercy Family (large group)
     "crates/mercy_bias_mitigation",
@@ -193,6 +198,10 @@ powrush-mmo-simulator = { path = "crates/powrush-mmo-simulator" }
 
 # Governance
 patsagi-councils = { path = "crates/patsagi-councils" }
+
+# Self-Evolution Systems (NEW)
+idea-recycling = { path = "crates/idea-recycling" }
+innovations-generator = { path = "crates/innovations-generator" }
 
 # External deps
 tokio = { version = "1.38", features = ["full"] }
