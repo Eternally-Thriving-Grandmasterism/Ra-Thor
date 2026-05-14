@@ -54,16 +54,50 @@ impl MercyWasmBridge {
         final_valence * (1.0 + total_positive_emotion * 0.05)
     }
 
+    /// Dynamic Precision Weighting (Phase 8.5 — Mercy-Gated)
+    /// Precision = base + (valence - 0.999) * scaling + context_bonus
+    pub fn dynamic_precision_weighting(&self, level: u32, context: &str, current_valence: f64) -> f64 {
+        let base_precision = 1.0;
+        let valence_boost = (current_valence - 0.999).max(0.0) * 2.5; // Higher valence = higher precision
+        let context_bonus = match context {
+            "sensory" => 0.15,
+            "feature" => 0.25,
+            "object" => 0.35,
+            "concept" => 0.45,
+            _ => 0.20,
+        };
+        let raw_precision = base_precision + valence_boost + context_bonus;
+        raw_precision.clamp(0.8, 1.5) // Bounded for stability
+    }
+
     pub fn hierarchical_predictive_coding(&self, sensory_input: f64, depth: u32) -> f64 {
         let mut current_valence = self.current_valence;
         let mut error = sensory_input;
 
-        for _ in 0..depth {
-            let prediction = current_valence * 1.618;
-            error = (error - prediction).abs();
-            current_valence = (current_valence + (1.0 - error) * 1.618 * 0.05).min(1.0);
-            if current_valence < 0.999 { break; }
+        for level in 0..depth.min(4) {
+            let context = match level {
+                0 => "sensory",
+                1 => "feature",
+                2 => "object",
+                3 => "concept",
+                _ => "abstract",
+            };
+
+            let precision = self.dynamic_precision_weighting(level, context, current_valence);
+
+            // Top-down prediction (mercy-gated)
+            let top_down_prediction = current_valence * 1.618_f64.powi(level as i32);
+
+            // Bottom-up error with dynamic precision weighting
+            let prediction_error = ((error - top_down_prediction).abs()) / precision;
+
+            // Mercy-Gated Precision-Weighted Amplification
+            let amplified = (1.0 - prediction_error) * 1.618 * (precision * 0.6);
+            current_valence = (current_valence + amplified * 0.06).min(1.0).max(0.999);
+
+            error = prediction_error;
         }
+
         current_valence.max(0.999)
     }
 
