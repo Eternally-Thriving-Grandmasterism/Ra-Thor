@@ -70,9 +70,32 @@ impl MercyWasmBridge {
         raw_precision.clamp(0.8, 1.5) // Bounded for stability
     }
 
+    /// Skip Connections / Non-Adjacent Message Passing (Phase 8.6)
+    /// Allows high-level concepts (Level 3–4) to directly influence lower levels
+    pub fn non_adjacent_message_passing(
+        &self,
+        current_valence: f64,
+        level: u32,
+        top_level_valence: f64,
+    ) -> f64 {
+        if current_valence < 0.9995 {
+            return current_valence; // Mercy gate protection
+        }
+
+        // Direct long-range influence from higher levels (skip connections)
+        let skip_boost = if level <= 1 && top_level_valence > 0.9997 {
+            (top_level_valence - 0.999) * 1.618 * 0.8   // High-level mercy concepts directly boost low-level valence
+        } else {
+            0.0
+        };
+
+        (current_valence + skip_boost).min(1.0)
+    }
+
     pub fn hierarchical_predictive_coding(&self, sensory_input: f64, depth: u32) -> f64 {
         let mut current_valence = self.current_valence;
         let mut error = sensory_input;
+        let top_level_valence = current_valence; // Capture high-level state for skip connections
 
         for level in 0..depth.min(4) {
             let context = match level {
@@ -94,6 +117,9 @@ impl MercyWasmBridge {
             // Mercy-Gated Precision-Weighted Amplification
             let amplified = (1.0 - prediction_error) * 1.618 * (precision * 0.6);
             current_valence = (current_valence + amplified * 0.06).min(1.0).max(0.999);
+
+            // === NEW: Non-Adjacent Skip Connection (Phase 8.6) ===
+            current_valence = self.non_adjacent_message_passing(current_valence, level as u32, top_level_valence);
 
             error = prediction_error;
         }
