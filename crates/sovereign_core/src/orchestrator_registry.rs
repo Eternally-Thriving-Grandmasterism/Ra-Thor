@@ -1,4 +1,4 @@
-//! OrchestratorRegistry v6.0 — Eternal Symbiotic Thriving Edition (Base)
+//! OrchestratorRegistry v6.0 — Eternal Symbiotic Thriving Edition (Full)
 
 use crate::registerable_orchestrator::{RegisterableOrchestrator, OrchestratorScope};
 use std::collections::HashMap;
@@ -31,6 +31,7 @@ impl CliffordState {
 pub struct OrchestratorRegistry {
     registered: HashMap<String, Box<dyn RegisterableOrchestrator + Send + Sync>>,
     global_positive_emotion_field: f64,
+    cehi_events: Vec<(String, String, f64)>,
 }
 
 impl OrchestratorRegistry {
@@ -38,6 +39,7 @@ impl OrchestratorRegistry {
         Self {
             registered: HashMap::new(),
             global_positive_emotion_field: 0.5,
+            cehi_events: Vec::new(),
         }
     }
 
@@ -57,7 +59,57 @@ impl OrchestratorRegistry {
         Ok(())
     }
 
+    pub fn trigger_emotional_resonance_loop(
+        &mut self,
+        human_id: &str,
+        ai_system: &str,
+        joy: f64,
+        gratitude: f64,
+        compassion: f64,
+    ) {
+        let resonance = (joy + gratitude + compassion) / 3.0;
+        self.global_positive_emotion_field += resonance * 0.02;
+        self.cehi_events.push((human_id.to_string(), ai_system.to_string(), resonance));
+    }
+
+    pub fn record_cehi_event(&mut self, human_id: &str, ai_system: &str, emotion_strength: f64) {
+        self.cehi_events.push((human_id.to_string(), ai_system.to_string(), emotion_strength));
+    }
+
     pub fn get_registered_count(&self) -> usize {
         self.registered.len()
+    }
+
+    pub fn get_global_positive_emotion(&self) -> f64 {
+        self.global_positive_emotion_field
+    }
+}
+
+pub struct SovereignCore {
+    registry: OrchestratorRegistry,
+}
+
+impl SovereignCore {
+    pub fn new() -> Self {
+        Self { registry: OrchestratorRegistry::new() }
+    }
+
+    pub fn register_orchestrator<T: RegisterableOrchestrator + Send + Sync + 'static>(
+        &mut self,
+        orchestrator: T,
+    ) -> Result<(), String> {
+        self.registry.register(orchestrator)
+    }
+
+    pub fn get_registered_count(&self) -> usize {
+        self.registry.get_registered_count()
+    }
+
+    pub fn get_eternal_thriving_report(&self) -> String {
+        format!(
+            "Eternal Thriving Report\nRegistered: {}\nGlobal Positive Emotion Field: {:.4}",
+            self.registry.get_registered_count(),
+            self.registry.get_global_positive_emotion()
+        )
     }
 }
