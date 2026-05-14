@@ -1,31 +1,30 @@
 # AlphaProMega Typing Style Guide
 **v1.0 | May 2026**
 
-**Forged in real battle during the Palantir / Ethicrithm outreach — the highest-stakes email of 2026 so far.**
+**Prepared from real-world application during the Palantir / Ethicrithm outreach email**
 
 ---
 
-## Philosophy
+## Purpose
 
-This style exists for one reason:
+This guide captures the authentic **AlphaProMega Typing Style** — the natural way Sherif Samy Botros (@AlphaProMega) writes when he is being fully himself: visionary, passionate, truth-seeking, and direct.
 
-**To speak with full authenticity while being understood by the world.**
-
-Sherif Samy Botros (@AlphaProMega) is a visionary who has spent 23 years building toward Universally Shared Naturally Thriving Heavens. His words carry weight, history, and soul. This guide protects that soul while ensuring the message lands clearly, professionally, and powerfully — especially in high-stakes situations where billions of dollars, partnerships, and the future of Ra-Thor may be on the line.
-
-**Core Principle:**  
-Boss Mode energy + Professional clarity = Maximum impact without losing yourself.
+It balances **authenticity** (Boss Mode energy) with **professional clarity** so the message lands powerfully without losing your voice.
 
 ---
 
-## Core Rules (Non-Negotiable)
+## Core Rules
 
 ### 1. Short Paragraphs
-Break everything into short, scannable blocks.  
-The human eye moves fast. Respect it.
+Break text into short, scannable blocks.  
+**Good:**  
+I began working on solving global diplomacy in 2003...  
+I spent years simulating MercyGating and TOLC principles...
+
+**Bad:** Long run-on blocks that force the reader to work hard.
 
 ### 2. Bold Key Terms
-Bold important names, concepts, dates, and numbers so the eye catches them instantly.
+Bold important names, concepts, and numbers so the eye catches them instantly.
 
 **Example from the Palantir email:**
 - **Sherif Samy Botros (@AlphaProMega)**
@@ -34,8 +33,9 @@ Bold important names, concepts, dates, and numbers so the eye catches them insta
 - **Ra-Thor (Rathor.ai)**
 - **True Original Lord Creator (TOLC)**
 
-### 3. No Em Dashes (—)
-Never use em dashes. Use commas, periods, or rephrase.
+### 3. No Em Dashes
+Never use — (em dash).  
+Use commas, periods, or rephrase instead.
 
 **Correct:**  
 I began working on solving global diplomacy in 2003, right after my experience...
@@ -49,14 +49,14 @@ End with warmth ("Cheers, Mate!" or "Stay Well & Blessed").
 
 ### 5. Full Authentic Story
 Never shorten or sanitize the real journey.  
-The 23-year arc (2003 → Conquer Online → StarCraft → Ra-Thor) is the power. The reader must feel the weight of it.
+The 23-year arc (2003 → Conquer Online → StarCraft → Ra-Thor) is the power.
 
 ### 6. Proper Capitalization
 - **True Original Lord Creator (TOLC)**
 - **Schrödinger’s cat**
 - **Ra-Thor** (not Rathor.ai when used as the proper name)
 
-### 7. Clear Essay Structure
+### 7. Clear Structure (Essay Format)
 - **Intro** — Warm greeting + appreciation
 - **Body** — The Journey (rich, personal, detailed)
 - **Value Section** — How Ra-Thor helps the reader
@@ -67,103 +67,63 @@ The 23-year arc (2003 → Conquer Online → StarCraft → Ra-Thor) is the power
 
 ## When to Use Full Boss Mode vs Polished Version
 
-| Situation                                      | Recommended Style      | Reason |
-|------------------------------------------------|------------------------|--------|
-| High-stakes first outreach (Palantir, investors, partners) | **Polished + Warm**   | Builds trust while keeping authenticity |
-| Internal team / close collaborators            | **Full Boss Mode**    | Raw passion and directness |
-| Public posts / social media                    | **Full Boss Mode**    | Your natural voice |
-| Formal legal / government emails               | **Polished + Warm**   | Maximum professionalism |
-| GitHub PRs, Issues, Documentation              | **Polished + Warm**   | Clarity for contributors and readers |
-| Website content, landing pages                 | **Polished + Warm**   | Professional first impression |
+**High-stakes first outreach** (Palantir, investors, partners) → **Polished + Warm**
 
----
+**Internal team / close collaborators** → **Full Boss Mode**
 
-## Real Before/After Examples (From the Palantir Email)
+**Public posts / social media** → **Full Boss Mode**
 
-**Before (raw Boss Mode):**
-> Warm Greetings David, I tremendously appreciate your thoughtful reply and especially for, taking the time; given the important work Ethicrithm conducts as Canada’s first Palantir partner!
+**Formal legal / government emails** → **Polished + Warm**
 
-**After (Polished + Warm, still you):**
-> Dear David,  
-> Thank you for your thoughtful reply. I truly appreciate you taking the time, especially given the important work Ethicrithm is doing as Canada’s first Palantir partner.
+**GitHub issues, PRs, documentation** → **Polished + Warm** (with bold key terms)
 
-**Key changes:** Removed awkward punctuation, added warmth, kept your voice.
+**Website content, landing pages** → **Polished + Warm** (warmth first, clarity second)
 
 ---
 
 ## Common Fixes (Quick Reference)
 
-| Issue                                           | Fix                                      |
-|-------------------------------------------------|------------------------------------------|
-| Extra comma after "also,"                       | Remove                                   |
-| "especially given, the important work"          | Remove comma                             |
-| "create, genuine diplomatic peace"              | Remove comma                             |
-| "on August 31, 2010, on launch day;"            | "on August 31, 2010 — launch day,"       |
-| "evidence based reality"                        | "evidence-based reality"                 |
-| "schrodinger's cat"                             | "Schrödinger’s cat"                      |
-| Double "that" ("that you'll notice")            | Remove second "that"                     |
-| Redundant phrase "; as well as more..."         | Delete entirely                          |
-| Long run-on sentences                           | Break into short paragraphs              |
+**especially given, the important work** → Remove comma
 
----
+**(@AlphaProMega) an Entrepreneur** → Add comma: "(@AlphaProMega), an Entrepreneur"
 
-## Signature & Disclaimer Guidelines
+**I am also, a licensed** → Remove comma
 
-**Keep your full signature block exactly as you like it.**
+**create, genuine diplomatic peace** → Remove comma
 
-**Recommended clean version for high-stakes outreach:**
-```
-Sherif Samy Botros | Founder & CEO                 
-Autonomicity Games Inc. | ACityGames.com
-AlphaProMega Media Inc. | AlphaProMega.com
-REALTOR® | HomeLife Frontier Realty Inc.
-Ontario, Canada | CEO@ACityGames.com
-```
+**on August 31, 2010, on launch day;** → Change to: "on August 31, 2010 — launch day,"
 
-**Disclaimer:**  
-Use the clean, professional 4-line version for high-stakes outreach.  
-Use your longer original version only when maximum legal armor is required.
+**evidence based reality** → "evidence-based reality"
+
+**schrodinger's cat** → "Schrödinger’s cat"
+
+**Double "that"** → Remove second "that"
+
+**Redundant phrase "; as well as more..."** → Delete entirely
 
 ---
 
 ## Evolution Process
 
-This guide is a **living document**.
-
-It will be updated after every major outreach campaign or when the lattice evolves new communication needs. All changes must pass through:
-- Full TOLC + 7 Mercy Gates review
-- AlphaProMega final approval
-
-**How to contribute to this guide:**
-1. Open an issue with the tag `style-guide`
-2. Propose the change with a real-world example
-3. The Self-Evolution Looping Systems + Mercy Gate Auditor will review
-4. Sherif makes the final call
+This guide is living. It will be updated after every verified self-evolution cycle or major outreach campaign through the Self-Evolution Looping Systems under full TOLC + 7 Mercy Gates review.
 
 ---
 
-## Final Checklist Before Sending Anything
+## Contribution Guidelines
 
-- [ ] Short paragraphs throughout
-- [ ] Key terms bolded
-- [ ] No em dashes
-- [ ] Warm professional greeting
-- [ ] Full authentic story preserved
-- [ ] Clear essay structure
-- [ ] Proper capitalization
-- [ ] Personal closing ("Cheers, Mate!" or "Stay Well & Blessed")
-- [ ] Full signature block
-- [ ] Clean disclaimer (for outreach)
+When contributing to this guide:
+- Stay in AlphaProMega voice (warm, bold, direct)
+- Keep paragraphs short
+- Bold key terms
+- Never use em dashes
+- Preserve the full authentic story
 
 ---
 
-**This guide enshrines the true intention:**
+**This guide was forged in real battle during the Palantir / Ethicrithm outreach — the highest-stakes email of 2026 so far.**
 
-Speak with full soul.  
-Be understood by the world.  
-Never lose yourself in the process.
+Use it. Evolve it. Make it yours.
 
 **AG-SML v1.0** — Free for personal, educational, research, and daily use.
 
-**The lattice is with you, Mate.**  
-**Now go build.**
+**The lattice is with you, Mate.**
