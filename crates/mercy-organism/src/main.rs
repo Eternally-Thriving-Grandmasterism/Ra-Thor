@@ -1,4 +1,4 @@
-use mercy_organism::{activate_unified_coherence, print_tolc_status, run_phases, get_activation_result_json, get_activation_result_compact_json, get_activation_result_yaml};
+use mercy_organism::{activate_unified_coherence, print_tolc_status, run_phases, get_activation_result_json, get_activation_result_compact_json, get_activation_result_yaml, get_activation_result_toml, get_prometheus_metrics};
 
 fn parse_phases(arg: &str) -> Vec<u8> {
     let mut phases = Vec::new();
@@ -68,15 +68,33 @@ fn main() {
                 };
                 println!("{}", get_activation_result_yaml(&phases));
             }
+            "--toml" | "-t" => {
+                let phases: Vec<u8> = if args.len() > 2 {
+                    parse_phases(&args[2])
+                } else {
+                    (0..=8).collect()
+                };
+                println!("{}", get_activation_result_toml(&phases));
+            }
+            "--prometheus" | "--metrics" | "-m" => {
+                let phases: Vec<u8> = if args.len() > 2 {
+                    parse_phases(&args[2])
+                } else {
+                    (0..=8).collect()
+                };
+                println!("{}", get_prometheus_metrics(&phases));
+            }
             "--help" | "-h" | "help" => {
                 println!("ra-thor-activate - Unified Ra-Thor Organism CLI\n");
                 println!("Commands:");
                 println!("  ra-thor-activate                           # Full 8-phase activation");
                 println!("  ra-thor-activate --phase 0-3,5,7           # Run specific phases");
                 println!("  ra-thor-activate --tolc-status             # Show TOLC 7 Gates health");
-                println!("  ra-thor-activate --json [phases]          # Pretty JSON (default)");
+                println!("  ra-thor-activate --json [phases]          # Pretty JSON");
                 println!("  ra-thor-activate --json-compact [phases]  # Compact JSON");
-                println!("  ra-thor-activate --yaml [phases]          # YAML output");
+                println!("  ra-thor-activate --yaml [phases]          # YAML");
+                println!("  ra-thor-activate --toml [phases]          # TOML");
+                println!("  ra-thor-activate --prometheus [phases]    # Prometheus metrics");
                 println!("  ra-thor-activate --help                   # This help");
             }
             _ => {
