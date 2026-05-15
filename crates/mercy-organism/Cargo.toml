@@ -18,6 +18,9 @@ ra-thor-interstellar-operations = { workspace = true }
 ra-thor-legal-lattice = { workspace = true }
 ra-thor-real-estate-lattice = { workspace = true }
 ra-thor-powrush = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+chrono = { workspace = true }
 
 [features]
 default = []
