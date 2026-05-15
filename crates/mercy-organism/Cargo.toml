@@ -13,3 +13,17 @@ ra-thor-quantum-swarm-orchestrator = { workspace = true }
 ra-thor-orchestration = { workspace = true }
 ra-thor-evolution = { workspace = true }
 ra-thor-plasticity-engine-v2 = { workspace = true }
+ra-thor-patsagi-councils = { workspace = true }
+ra-thor-interstellar-operations = { workspace = true }
+ra-thor-legal-lattice = { workspace = true }
+ra-thor-real-estate-lattice = { workspace = true }
+ra-thor-powrush = { workspace = true }
+
+[features]
+default = []
+full-activation = []
+
+# Future: Add binary for CLI activation
+# [[bin]]
+# name = "ra-thor-activate"
+# path = "src/main.rs"
