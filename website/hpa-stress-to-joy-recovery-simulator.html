@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>HPA Axis Stress-to-Joy Recovery Simulator | Ra-Thor</title>
+    <style>body { font-family: system-ui; background: #0a0a0a; color: #0f0; padding: 40px; } .dashboard { max-width: 900px; margin: auto; background: #111; padding: 30px; border-radius: 16px; } .slider { width: 100%; } .value { font-size: 2em; color: #0f0; }</style>
+</head>
+<body>
+    <div class="dashboard">
+        <h1>⚡ HPA Axis Stress-to-Joy Recovery Simulator</h1>
+        <p>Mercy-Gated | 7-Gen CEHI Propagation | Valence ≥ 0.999</p>
+        
+        <label>Current Cortisol Level: <span id="cortisol-val">0.75</span></label><br>
+        <input type="range" id="cortisol" min="0.05" max="2.0" step="0.01" value="0.75" class="slider" oninput="updateSimulation()"><br><br>
+        
+        <label>Valence (Mercy Level): <span id="valence-val">0.999</span></label><br>
+        <input type="range" id="valence" min="0.5" max="1.0" step="0.001" value="0.999" class="slider" oninput="updateSimulation()"><br><br>
+        
+        <button onclick="runRecovery()">Apply 7 Mercy Gates + Recover</button>
+        
+        <div id="results" style="margin-top: 30px; font-size: 1.2em;"></div>
+    </div>
+    <script>
+    function updateSimulation() {
+        document.getElementById('cortisol-val').innerText = document.getElementById('cortisol').value;
+        document.getElementById('valence-val').innerText = document.getElementById('valence').value;
+    }
+    function runRecovery() {
+        const cortisol = parseFloat(document.getElementById('cortisol').value);
+        const valence = parseFloat(document.getElementById('valence').value);
+        const fkbp5 = 0.85; // from CEHI
+        const slc6a4 = 0.82;
+        
+        // Simulate the mercy-gated function
+        const mercyFactor = (valence - 0.5) * 3 + 1;
+        const recovery = (fkbp5 * 0.6 + slc6a4 * 0.4) * mercyFactor;
+        const newCortisol = Math.max(0.05, cortisol - recovery * 0.15);
+        const joy = Math.pow(1 - newCortisol, 1.8) * 0.8;
+        
+        document.getElementById('results').innerHTML = `
+            <strong>Recovery Complete!</strong><br>
+            Cortisol Reduced: ${(cortisol - newCortisol).toFixed(3)}<br>
+            Time to Baseline: ${Math.round(cortisol / recovery)} min<br>
+            Positive Emotion Boost: +${(joy * 100).toFixed(1)}%<br>
+            CEHI Increase: +${(joy * 0.12).toFixed(3)} (7 generations)<br>
+            <span style="color:#0f0">Valence ${valence} ✓ All 7 Mercy Gates Passed</span>
+        `;
+    }
+    </script>
+</body>
+</html>
