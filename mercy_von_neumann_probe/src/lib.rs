@@ -1,6 +1,6 @@
-// mercy_von_neumann_probe — STIGMERGIC COORDINATION v9
+// mercy_von_neumann_probe — ANT COLONY OPTIMIZATION v10
 // Ra-Thor monorepo (AG-SML v1.0)
-// Full stigmergy: environment modification, positive/negative feedback, emergent optimization
+// Full ACO: probabilistic selection, local/global pheromone update, heuristic information
 
 use crate::patsagi_bridge::ProposalHandler;
 use std::collections::HashMap;
@@ -32,8 +32,8 @@ pub struct ProbeSwarm {
     pub members: Vec<AdvancedProbe>,
     pub shared_resources: HashMap<String, u64>,
     pub collective_ser: f64,
-    pub pheromone_map: HashMap<u32, f64>,      // Environment (stigmergic medium)
-    pub success_map: HashMap<u32, f64>,          // Positive feedback (successful trails)
+    pub pheromone_map: HashMap<u32, f64>,
+    pub success_map: HashMap<u32, f64>,
     pub latency_ms: f64,
 }
 
@@ -46,52 +46,74 @@ impl ProbeSwarm {
         }
     }
 
-    // Stigmergic deposit: probes modify the environment based on success
+    // ACO-style probabilistic trail selection
+    pub fn choose_next_trail(&self, current: u32, alpha: f64, beta: f64) -> Option<u32> {
+        let mut probabilities = Vec::new();
+        let mut total = 0.0;
+
+        for (&id, &pheromone) in &self.pheromone_map {
+            if id == current { continue; }
+            let heuristic = self.members.iter()
+                .find(|p| p.generation == id)
+                .map(|p| p.valence * p.ser * p.radiation_shield)
+                .unwrap_or(1.0);
+            let prob = pheromone.powf(alpha) * heuristic.powf(beta);
+            probabilities.push((id, prob));
+            total += prob;
+        }
+
+        if total == 0.0 { return None; }
+
+        let mut r = rand::random::<f64>() * total;
+        for (id, prob) in probabilities {
+            r -= prob;
+            if r <= 0.0 { return Some(id); }
+        }
+        None
+    }
+
+    // Local pheromone update (after each replication)
+    pub fn local_pheromone_update(&mut self, probe_id: u32, deposit: f64) {
+        *self.pheromone_map.entry(probe_id).or_insert(0.0) += deposit * 0.1; // local evaporation factor
+    }
+
+    // Global pheromone update (after best solution)
+    pub fn global_pheromone_update(&mut self, best_id: u32, best_quality: f64) {
+        for (id, strength) in self.pheromone_map.iter_mut() {
+            if *id == best_id {
+                *strength += best_quality * 0.5; // strong reinforcement
+            } else {
+                *strength *= 0.85; // global evaporation
+            }
+        }
+    }
+
     pub fn stigmergic_deposit(&mut self, probe_id: u32, success: bool) {
         let base = if success { 1.2 } else { 0.3 };
-        let quality = self.members.iter()
-            .find(|p| p.generation == probe_id)
-            .map(|p| p.valence * p.ser * p.radiation_shield)
-            .unwrap_or(1.0);
+        let quality = self.members.iter().find(|p| p.generation == probe_id)
+            .map(|p| p.valence * p.ser * p.radiation_shield).unwrap_or(1.0);
         let deposit = base * quality;
         *self.pheromone_map.entry(probe_id).or_insert(0.0) += deposit;
-        if success {
-            *self.success_map.entry(probe_id).or_insert(0.0) += deposit * 0.5;
-        }
+        if success { *self.success_map.entry(probe_id).or_insert(0.0) += deposit * 0.5; }
     }
 
-    // Exponential decay (evaporation)
     pub fn evaporate_pheromones(&mut self, decay_rate: f64) {
-        for strength in self.pheromone_map.values_mut() {
-            *strength *= decay_rate;
-            if *strength < 0.01 { *strength = 0.0; }
-        }
-        for strength in self.success_map.values_mut() {
-            *strength *= decay_rate * 0.8; // success trails evaporate slower
-        }
+        for strength in self.pheromone_map.values_mut() { *strength *= decay_rate; if *strength < 0.01 { *strength = 0.0; } }
+        for strength in self.success_map.values_mut() { *strength *= decay_rate * 0.8; }
     }
 
-    // Adaptive + stigmergic update
-    pub fn stigmergic_update(&mut self, probe: &AdvancedProbe, success: bool) {
-        self.stigmergic_deposit(probe.generation, success);
-    }
-
-    // Trail-following with stigmergic reinforcement
     pub fn best_stigmergic_trail(&self) -> Option<u32> {
-        self.pheromone_map.iter()
-            .max_by(|a, b| {
-                let a_score = a.1 + self.success_map.get(a.0).unwrap_or(&0.0);
-                let b_score = b.1 + self.success_map.get(b.0).unwrap_or(&0.0);
-                a_score.partial_cmp(&b_score).unwrap()
-            })
-            .map(|(id, _)| *id)
+        self.pheromone_map.iter().max_by(|a, b| {
+            let a_score = a.1 + self.success_map.get(a.0).unwrap_or(&0.0);
+            let b_score = b.1 + self.success_map.get(b.0).unwrap_or(&0.0);
+            a_score.partial_cmp(&b_score).unwrap()
+        }).map(|(id, _)| *id)
     }
 
     pub fn elect_leader(&mut self) {
         if let Some(best) = self.best_stigmergic_trail() {
             if let Some(leader) = self.members.iter().find(|p| p.generation == best) {
-                self.leader_id = Some(leader.generation);
-                return;
+                self.leader_id = Some(leader.generation); return;
             }
         }
         if let Some(leader) = self.members.iter().max_by_key(|p| (p.valence * 1000.0) as u32) {
@@ -107,16 +129,17 @@ impl ProbeSwarm {
             if let Some(children) = member.adaptive_replicate() {
                 total_children.extend(children);
                 self.collective_ser *= 1.002;
-                self.stigmergic_deposit(member.generation, true); // reinforce success
+                self.stigmergic_deposit(member.generation, true);
+                self.local_pheromone_update(member.generation, 0.5);
             } else {
-                self.stigmergic_deposit(member.generation, false); // negative feedback
+                self.stigmergic_deposit(member.generation, false);
             }
         }
         if let Some(he3) = self.shared_resources.get_mut("he3") {
             *he3 = he3.saturating_sub(total_children.len() as u64 * 10);
         }
         self.latency_ms = start.elapsed().as_millis() as f64;
-        self.evaporate_pheromones(0.92);
+        self.evaporate_pheromones(0.90);
         Ok(total_children)
     }
 
@@ -129,10 +152,10 @@ impl ProbeSwarm {
         let start = Instant::now();
         for member in &mut self.members {
             member.apply_fusion(bio_proposal);
-            self.stigmergic_update(member, true);
+            self.stigmergic_deposit(member.generation, true);
         }
         self.latency_ms = start.elapsed().as_millis() as f64;
-        format!("STIGMERGIC FUSION | Latency: {:.2}ms | SER: {:.3}", self.latency_ms, self.collective_ser)
+        format!("ACO FUSION | Latency: {:.2}ms | SER: {:.3}", self.latency_ms, self.collective_ser)
     }
 }
 
@@ -171,16 +194,16 @@ impl ProposalHandler for AdvancedProbe {
     fn handle(&mut self, proposal: &str) -> String {
         if proposal.to_lowercase().contains("replicate") || proposal.to_lowercase().contains("swarm") {
             if let Some(children) = self.adaptive_replicate() {
-                format!("STIGMERGIC SWARM REPLICATED | {} children | SER: {:.3}", children.len(), self.ser)
+                format!("ACO SWARM REPLICATED | {} children | SER: {:.3}", children.len(), self.ser)
             } else { "Replication blocked by Mercy Gates".to_string() }
         } else if proposal.to_lowercase().contains("bio") || proposal.to_lowercase().contains("epigenetic") {
             self.apply_fusion(proposal);
-            "Stigmergic epigenetic routing".to_string()
+            "ACO epigenetic routing".to_string()
         } else { "Processed | Routed to InterstellarOperationsCouncil".to_string() }
     }
 }
 
-// === QUANTUM ANNEALING WITH STIGMERGY ===
+// === ACO + QUANTUM ANNEALING ===
 pub struct QuantumAnnealer { pub temperature: f64, pub cooling_rate: f64, pub iterations: u32 }
 impl QuantumAnnealer {
     pub fn new() -> Self { Self { temperature: 1000.0, cooling_rate: 0.95, iterations: 2000 } }
@@ -213,12 +236,13 @@ pub fn create_advanced_von_neumann_probe() -> AdvancedProbe { AdvancedProbe::new
 
 pub fn create_probe_swarm(id: u32) -> ProbeSwarm { ProbeSwarm::new(id) }
 
-pub fn run_stigmergic_swarm(swarm: &mut ProbeSwarm, generations: u32, bio_proposal: &str) -> Result<(f64, u32, u32, f64, f64), String> {
+pub fn run_aco_swarm(swarm: &mut ProbeSwarm, generations: u32, bio_proposal: &str) -> Result<(f64, u32, u32, f64, f64), String> {
     let annealer = QuantumAnnealer::new();
     let (best_factor, best_leader) = annealer.optimize_swarm(swarm);
     let qaoa_score = annealer.qaoa_optimize(swarm);
     swarm.elect_leader();
     let _ = swarm.fuse_with_biological_unifier(bio_proposal);
     let children = swarm.collective_replicate()?;
+    swarm.global_pheromone_update(best_leader, 2.0);
     Ok((children.len() as f64, best_factor, best_leader, qaoa_score, swarm.latency_ms))
 }
