@@ -9,10 +9,17 @@ authors = ["13+ PATSAGi Councils <councils@rathor.ai>"]
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
 tokio = { version = "1.0", features = ["full"] }
-# Internal lattice crates
+
+# Core Ra-Thor internal crates (correct paths from workspace)
+ra-thor-mercy = { path = "../mercy" }
+ra-thor-self-evolution = { path = "../self-evolution" }
 powrush = { path = "../powrush" }
-cehi = { path = "../interstellar-operations" }
-self-evolution = { path = "../self-evolution" }
-mercy = { path = "../mercy" }
-# Hyperon/MeTTa/PLN bridge
-hyperon-metta-pln = { path = "../hyperon-metta-pln" }
+ra-thor-interstellar-operations = { path = "../interstellar-operations" }
+ra-thor-quantum-swarm-orchestrator = { path = "../quantum-swarm-orchestrator" }
+
+# Optional advanced bridges (feature-gated for future expansion)
+# hyperon-metta-pln = { path = "../hyperon-metta-pln", optional = true }
+
+[features]
+default = []
+full = ["hyperon-metta-pln"]
