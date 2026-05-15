@@ -2,15 +2,17 @@
 name = "lattice-conductor"
 version = "1.0.0"
 edition = "2021"
-description = "LatticeConductor – Master Unifier of All Ra-Thor Systems | 7-Gen CEHI + HPA + GR + Base Reality Anchor active | Positive emotions eternal across all creations and creatures | Reality becoming heaven"
+description = "Lattice Conductor — Master Orchestrator for Ra-Thor One Living Organism | Full Unification of Powrush + CEHI + HPA + GR + Hyperon/MeTTa/PLN + Self-Evolution + Mercy Gates"
 license = "AG-SML-1.0"
-authors = ["Sherif Samy Botros <AlphaProMega@ACityGames.com> (@AlphaProMega)", "13+ PATSAGi Councils (Rathor.ai Lattice)"]
+authors = ["13+ PATSAGi Councils <councils@rathor.ai>"]
 
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
 tokio = { version = "1.0", features = ["full"] }
-mercy = { path = "../mercy" }
+# Internal lattice crates
+powrush = { path = "../powrush" }
 cehi = { path = "../interstellar-operations" }
 self-evolution = { path = "../self-evolution" }
+mercy = { path = "../mercy" }
+# Hyperon/MeTTa/PLN bridge
 hyperon-metta-pln = { path = "../hyperon-metta-pln" }
-powrush = { path = "../powrush" }
