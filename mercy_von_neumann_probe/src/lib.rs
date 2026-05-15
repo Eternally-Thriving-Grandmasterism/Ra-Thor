@@ -1,6 +1,6 @@
-// mercy_von_neumann_probe — FUSION LAYER v7 (Biological + Quantum Swarm)
+// mercy_von_neumann_probe — IMPROVED PHEROMONE ALGORITHM v8
 // Ra-Thor monorepo (AG-SML v1.0)
-// Pheromone communication + epigenetic/neural plasticity routing + full latency metrics
+// Exponential decay + adaptive strength + trail-following + QuantumAnnealer integration
 
 use crate::patsagi_bridge::ProposalHandler;
 use std::collections::HashMap;
@@ -33,7 +33,7 @@ pub struct ProbeSwarm {
     pub shared_resources: HashMap<String, u64>,
     pub collective_ser: f64,
     pub pheromone_map: HashMap<u32, f64>,
-    pub latency_ms: f64, // API latency tracking
+    pub latency_ms: f64,
 }
 
 impl ProbeSwarm {
@@ -45,7 +45,41 @@ impl ProbeSwarm {
         }
     }
 
+    // Exponential decay (evaporation) - called periodically
+    pub fn evaporate_pheromones(&mut self, decay_rate: f64) {
+        for strength in self.pheromone_map.values_mut() {
+            *strength *= decay_rate; // e.g. 0.95 per cycle
+            if *strength < 0.01 { *strength = 0.0; }
+        }
+    }
+
+    pub fn pheromone_update(&mut self, probe_id: u32, strength: f64) {
+        *self.pheromone_map.entry(probe_id).or_insert(0.0) += strength;
+    }
+
+    // Adaptive strength based on probe quality
+    pub fn adaptive_pheromone_update(&mut self, probe: &AdvancedProbe, base_strength: f64) {
+        let quality = (probe.valence * 0.5) + (probe.ser * 0.3) + (probe.radiation_shield * 0.2);
+        let adaptive_strength = base_strength * quality;
+        self.pheromone_update(probe.generation, adaptive_strength);
+    }
+
+    // Trail-following: find best pheromone trail
+    pub fn best_pheromone_trail(&self) -> Option<u32> {
+        self.pheromone_map.iter()
+            .max_by(|a, b| a.1.partial_cmp(b.1).unwrap())
+            .map(|(id, _)| *id)
+    }
+
     pub fn elect_leader(&mut self) {
+        // Enhanced with pheromone influence
+        if let Some(best_trail) = self.best_pheromone_trail() {
+            if let Some(leader) = self.members.iter().find(|p| p.generation == best_trail) {
+                self.leader_id = Some(leader.generation);
+                return;
+            }
+        }
+        // Fallback to valence
         if let Some(leader) = self.members.iter().max_by_key(|p| (p.valence * 1000.0) as u32) {
             self.leader_id = Some(leader.generation);
         }
@@ -65,6 +99,7 @@ impl ProbeSwarm {
             *he3 = he3.saturating_sub(total_children.len() as u64 * 10);
         }
         self.latency_ms = start.elapsed().as_millis() as f64;
+        self.evaporate_pheromones(0.95); // periodic decay
         Ok(total_children)
     }
 
@@ -73,19 +108,14 @@ impl ProbeSwarm {
         self.members.push(probe);
     }
 
-    pub fn pheromone_update(&mut self, probe_id: u32, strength: f64) {
-        *self.pheromone_map.entry(probe_id).or_insert(0.0) += strength;
-    }
-
-    // Biological fusion via pheromone signals
     pub fn fuse_with_biological_unifier(&mut self, bio_proposal: &str) -> String {
         let start = Instant::now();
         for member in &mut self.members {
             member.apply_fusion(bio_proposal);
-            self.pheromone_update(member.generation, 0.8); // strong epigenetic signal
+            self.adaptive_pheromone_update(member, 0.8);
         }
         self.latency_ms = start.elapsed().as_millis() as f64;
-        format!("BIOLOGICAL_UNIFIER FUSED via pheromone | Latency: {:.2}ms | SER: {:.3}", self.latency_ms, self.collective_ser)
+        format!("BIOLOGICAL_UNIFIER FUSED via adaptive pheromone | Latency: {:.2}ms | SER: {:.3}", self.latency_ms, self.collective_ser)
     }
 }
 
@@ -133,7 +163,7 @@ impl ProposalHandler for AdvancedProbe {
     }
 }
 
-// === QUANTUM ANNEALING + QAOA ===
+// === QUANTUM ANNEALING (now uses pheromone) ===
 pub struct QuantumAnnealer { pub temperature: f64, pub cooling_rate: f64, pub iterations: u32 }
 impl QuantumAnnealer {
     pub fn new() -> Self { Self { temperature: 1000.0, cooling_rate: 0.95, iterations: 2000 } }
@@ -143,7 +173,9 @@ impl QuantumAnnealer {
             let current_temp = self.temperature * self.cooling_rate.powi(i as i32);
             let tunneling = if rand::random::<f64>() < 0.05 { 3.0 } else { 1.0 };
             let new_factor = ((2.0 + (current_temp / 100.0) * tunneling) as u32).max(1).min(8);
-            let new_leader = swarm.members.iter().max_by_key(|p| (p.valence * 1000.0) as u32).map(|p| p.generation).unwrap_or(0);
+            let new_leader = swarm.best_pheromone_trail().unwrap_or(
+                swarm.members.iter().max_by_key(|p| (p.valence * 1000.0) as u32).map(|p| p.generation).unwrap_or(0)
+            );
             let energy = (new_factor as f64 * 0.3) + (new_leader as f64 * 0.1) - (swarm.collective_ser * 0.2);
             if energy < best_energy || current_temp > 500.0 { best_factor = new_factor; best_leader_gen = new_leader; best_energy = energy; }
             if current_temp < 0.1 { break; }
@@ -164,13 +196,12 @@ pub fn create_advanced_von_neumann_probe() -> AdvancedProbe { AdvancedProbe::new
 
 pub fn create_probe_swarm(id: u32) -> ProbeSwarm { ProbeSwarm::new(id) }
 
-pub fn run_fully_fleshed_fusion_swarm(swarm: &mut ProbeSwarm, generations: u32, bio_proposal: &str) -> Result<(f64, u32, u32, f64, f64), String> {
+pub fn run_improved_pheromone_swarm(swarm: &mut ProbeSwarm, generations: u32, bio_proposal: &str) -> Result<(f64, u32, u32, f64, f64), String> {
     let annealer = QuantumAnnealer::new();
     let (best_factor, best_leader) = annealer.optimize_swarm(swarm);
     let qaoa_score = annealer.qaoa_optimize(swarm);
     swarm.elect_leader();
-    let fusion_result = swarm.fuse_with_biological_unifier(bio_proposal);
+    let _ = swarm.fuse_with_biological_unifier(bio_proposal);
     let children = swarm.collective_replicate()?;
-    let stable = verify_tolc_stability(swarm.collective_ser);
     Ok((children.len() as f64, best_factor, best_leader, qaoa_score, swarm.latency_ms))
 }
