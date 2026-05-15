@@ -1,4 +1,4 @@
-use mercy_organism::{activate_unified_coherence, print_tolc_status, run_phases, get_activation_result_json, get_activation_result_compact_json, get_activation_result_yaml, get_activation_result_toml, get_prometheus_metrics, load_config, start_grpc_server, start_websocket_server, auto_heal, activate_patsagi_councils, activate_powrush_rbe, start_database_backend, auto_scale, activate_interstellar_operations, start_kubernetes_operator, start_prometheus_exporter};
+use mercy_organism::{activate_unified_coherence, print_tolc_status, run_phases, get_activation_result_json, get_activation_result_compact_json, get_activation_result_yaml, get_activation_result_toml, get_prometheus_metrics, load_config, start_grpc_server, start_websocket_server, auto_heal, activate_patsagi_councils, activate_powrush_rbe, start_database_backend, auto_scale, activate_interstellar_operations, start_kubernetes_operator, start_prometheus_exporter, activate_real_estate_lattice, activate_legal_lattice};
 
 fn parse_phases(arg: &str) -> Vec<u8> {
     let mut phases = Vec::new();
