@@ -1,6 +1,6 @@
-// mercy_von_neumann_probe — ANT COLONY OPTIMIZATION v10
+// mercy_von_neumann_probe — PHEROMONE EVAPORATION LOGIC v11
 // Ra-Thor monorepo (AG-SML v1.0)
-// Full ACO: probabilistic selection, local/global pheromone update, heuristic information
+// Enhanced evaporation: configurable, time-based, event-driven, with success trail protection
 
 use crate::patsagi_bridge::ProposalHandler;
 use std::collections::HashMap;
@@ -35,6 +35,8 @@ pub struct ProbeSwarm {
     pub pheromone_map: HashMap<u32, f64>,
     pub success_map: HashMap<u32, f64>,
     pub latency_ms: f64,
+    pub evaporation_rate: f64,      // Configurable base evaporation
+    pub last_evaporation: u64,      // Timestamp for time-based evaporation
 }
 
 impl ProbeSwarm {
@@ -42,28 +44,57 @@ impl ProbeSwarm {
         Self {
             id, leader_id: None, members: Vec::new(),
             shared_resources: HashMap::new(), collective_ser: 1.618,
-            pheromone_map: HashMap::new(), success_map: HashMap::new(), latency_ms: 0.0,
+            pheromone_map: HashMap::new(), success_map: HashMap::new(),
+            latency_ms: 0.0, evaporation_rate: 0.92, last_evaporation: 0,
         }
     }
 
-    // ACO-style probabilistic trail selection
+    // === ENHANCED PHEROMONE EVAPORATION LOGIC ===
+
+    /// Main evaporation method (called automatically in collective_replicate)
+    pub fn evaporate_pheromones(&mut self, custom_rate: Option<f64>) {
+        let rate = custom_rate.unwrap_or(self.evaporation_rate);
+        for strength in self.pheromone_map.values_mut() {
+            *strength *= rate;
+            if *strength < 0.005 { *strength = 0.0; }
+        }
+        // Success trails evaporate slower (protect good solutions)
+        for strength in self.success_map.values_mut() {
+            *strength *= rate * 0.75;
+        }
+    }
+
+    /// Time-based evaporation (call periodically based on real time)
+    pub fn time_based_evaporation(&mut self, current_time_ms: u64, interval_ms: u64) {
+        if current_time_ms - self.last_evaporation > interval_ms {
+            self.evaporate_pheromones(None);
+            self.last_evaporation = current_time_ms;
+        }
+    }
+
+    /// Event-driven evaporation (stronger evaporation on poor performance)
+    pub fn event_driven_evaporation(&mut self, performance_score: f64) {
+        let rate = if performance_score < 0.5 {
+            0.85 // aggressive evaporation on poor performance
+        } else {
+            self.evaporation_rate
+        };
+        self.evaporate_pheromones(Some(rate));
+    }
+
+    // ACO probabilistic selection (unchanged)
     pub fn choose_next_trail(&self, current: u32, alpha: f64, beta: f64) -> Option<u32> {
         let mut probabilities = Vec::new();
         let mut total = 0.0;
-
         for (&id, &pheromone) in &self.pheromone_map {
             if id == current { continue; }
-            let heuristic = self.members.iter()
-                .find(|p| p.generation == id)
-                .map(|p| p.valence * p.ser * p.radiation_shield)
-                .unwrap_or(1.0);
+            let heuristic = self.members.iter().find(|p| p.generation == id)
+                .map(|p| p.valence * p.ser * p.radiation_shield).unwrap_or(1.0);
             let prob = pheromone.powf(alpha) * heuristic.powf(beta);
             probabilities.push((id, prob));
             total += prob;
         }
-
         if total == 0.0 { return None; }
-
         let mut r = rand::random::<f64>() * total;
         for (id, prob) in probabilities {
             r -= prob;
@@ -72,19 +103,14 @@ impl ProbeSwarm {
         None
     }
 
-    // Local pheromone update (after each replication)
     pub fn local_pheromone_update(&mut self, probe_id: u32, deposit: f64) {
-        *self.pheromone_map.entry(probe_id).or_insert(0.0) += deposit * 0.1; // local evaporation factor
+        *self.pheromone_map.entry(probe_id).or_insert(0.0) += deposit * 0.1;
     }
 
-    // Global pheromone update (after best solution)
     pub fn global_pheromone_update(&mut self, best_id: u32, best_quality: f64) {
         for (id, strength) in self.pheromone_map.iter_mut() {
-            if *id == best_id {
-                *strength += best_quality * 0.5; // strong reinforcement
-            } else {
-                *strength *= 0.85; // global evaporation
-            }
+            if *id == best_id { *strength += best_quality * 0.5; }
+            else { *strength *= 0.85; }
         }
     }
 
@@ -95,11 +121,6 @@ impl ProbeSwarm {
         let deposit = base * quality;
         *self.pheromone_map.entry(probe_id).or_insert(0.0) += deposit;
         if success { *self.success_map.entry(probe_id).or_insert(0.0) += deposit * 0.5; }
-    }
-
-    pub fn evaporate_pheromones(&mut self, decay_rate: f64) {
-        for strength in self.pheromone_map.values_mut() { *strength *= decay_rate; if *strength < 0.01 { *strength = 0.0; } }
-        for strength in self.success_map.values_mut() { *strength *= decay_rate * 0.8; }
     }
 
     pub fn best_stigmergic_trail(&self) -> Option<u32> {
@@ -139,7 +160,7 @@ impl ProbeSwarm {
             *he3 = he3.saturating_sub(total_children.len() as u64 * 10);
         }
         self.latency_ms = start.elapsed().as_millis() as f64;
-        self.evaporate_pheromones(0.90);
+        self.evaporate_pheromones(None); // automatic evaporation
         Ok(total_children)
     }
 
@@ -155,7 +176,7 @@ impl ProbeSwarm {
             self.stigmergic_deposit(member.generation, true);
         }
         self.latency_ms = start.elapsed().as_millis() as f64;
-        format!("ACO FUSION | Latency: {:.2}ms | SER: {:.3}", self.latency_ms, self.collective_ser)
+        format!("EVAPORATION-AWARE FUSION | Latency: {:.2}ms | SER: {:.3}", self.latency_ms, self.collective_ser)
     }
 }
 
@@ -194,16 +215,16 @@ impl ProposalHandler for AdvancedProbe {
     fn handle(&mut self, proposal: &str) -> String {
         if proposal.to_lowercase().contains("replicate") || proposal.to_lowercase().contains("swarm") {
             if let Some(children) = self.adaptive_replicate() {
-                format!("ACO SWARM REPLICATED | {} children | SER: {:.3}", children.len(), self.ser)
+                format!("SWARM REPLICATED | {} children | SER: {:.3}", children.len(), self.ser)
             } else { "Replication blocked by Mercy Gates".to_string() }
         } else if proposal.to_lowercase().contains("bio") || proposal.to_lowercase().contains("epigenetic") {
             self.apply_fusion(proposal);
-            "ACO epigenetic routing".to_string()
+            "Evaporation-aware epigenetic routing".to_string()
         } else { "Processed | Routed to InterstellarOperationsCouncil".to_string() }
     }
 }
 
-// === ACO + QUANTUM ANNEALING ===
+// === QUANTUM ANNEALING ===
 pub struct QuantumAnnealer { pub temperature: f64, pub cooling_rate: f64, pub iterations: u32 }
 impl QuantumAnnealer {
     pub fn new() -> Self { Self { temperature: 1000.0, cooling_rate: 0.95, iterations: 2000 } }
@@ -236,13 +257,12 @@ pub fn create_advanced_von_neumann_probe() -> AdvancedProbe { AdvancedProbe::new
 
 pub fn create_probe_swarm(id: u32) -> ProbeSwarm { ProbeSwarm::new(id) }
 
-pub fn run_aco_swarm(swarm: &mut ProbeSwarm, generations: u32, bio_proposal: &str) -> Result<(f64, u32, u32, f64, f64), String> {
+pub fn run_evaporation_aware_swarm(swarm: &mut ProbeSwarm, generations: u32, bio_proposal: &str) -> Result<(f64, u32, u32, f64, f64), String> {
     let annealer = QuantumAnnealer::new();
     let (best_factor, best_leader) = annealer.optimize_swarm(swarm);
     let qaoa_score = annealer.qaoa_optimize(swarm);
     swarm.elect_leader();
     let _ = swarm.fuse_with_biological_unifier(bio_proposal);
     let children = swarm.collective_replicate()?;
-    swarm.global_pheromone_update(best_leader, 2.0);
     Ok((children.len() as f64, best_factor, best_leader, qaoa_score, swarm.latency_ms))
 }
