@@ -1,4 +1,4 @@
-use mercy_organism::{activate_unified_coherence, print_tolc_status, run_phases, get_activation_result_json, get_activation_result_compact_json, get_activation_result_yaml, get_activation_result_toml, get_prometheus_metrics, load_config, start_grpc_server, start_websocket_server, auto_heal, activate_patsagi_councils};
+use mercy_organism::{activate_unified_coherence, print_tolc_status, run_phases, get_activation_result_json, get_activation_result_compact_json, get_activation_result_yaml, get_activation_result_toml, get_prometheus_metrics, load_config, start_grpc_server, start_websocket_server, auto_heal, activate_patsagi_councils, activate_powrush_rbe, start_database_backend, auto_scale};
 
 fn parse_phases(arg: &str) -> Vec<u8> {
     let mut phases = Vec::new();
@@ -107,6 +107,12 @@ fn main() {
             "--heal" | "--auto-heal" => {
                 auto_heal();
             }
+            "--db" | "--database" => {
+                start_database_backend();
+            }
+            "--scale" | "--auto-scale" => {
+                auto_scale();
+            }
             "--help" | "-h" | "help" => {
                 println!("ra-thor-activate - Unified Ra-Thor Organism CLI\n");
                 println!("Commands:");
@@ -122,6 +128,8 @@ fn main() {
                 println!("  ra-thor-activate --serve / --grpc          # Start gRPC endpoint");
                 println!("  ra-thor-activate --websocket              # Start WebSocket server");
                 println!("  ra-thor-activate --heal                   # Auto-healing self-repair");
+                println!("  ra-thor-activate --db / --database        # Start database backend");
+                println!("  ra-thor-activate --scale / --auto-scale   # Auto-scaling");
                 println!("  ra-thor-activate --help                   # This help");
             }
             _ => {
