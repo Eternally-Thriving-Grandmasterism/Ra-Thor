@@ -27,6 +27,17 @@
 //! + all polyhedral harmonics, Riemannian/Levi-Civita, gyroelongated (n=4–8 + φ conjugate),
 //! omnitruncated, quasicrystal patterns, closed-loop feedback, and native TOLC + 7 Gates implementation.
 
+// ==================== NEW: Quantum Algorithm Layer (2026 Enhancements) ====================
+pub mod quantum;
+
+pub use quantum::{
+    AdvancedQPSO,
+    QuantumRandomWalks,
+    MultiAgentEntanglement,
+};
+
+// ==================== Existing Modules ====================
+
 pub mod quantum_swarm_convergence;
 pub mod quantum_swarm_lyapunov_theorem1;
 pub mod quantum_swarm_lyapunov_theorem2;
