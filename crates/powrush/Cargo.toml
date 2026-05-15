@@ -4,13 +4,12 @@ version = "0.8.0"
 edition = "2021"
 description = "Powrush — Sovereign Resource-Based Economy MMO Simulator with 7-Gen CEHI, HPA & GR Sensitivity Integration | Ra-Thor AGi"
 license = "AG-SML-1.0"
-authors = ["13+ PATSAGi Councils <councils@rathor.ai>"]
+authors = ["Sherif Samy Botros <AlphaProMega@ACityGames.com> (@AlphaProMega)", "13+ PATSAGi Councils (Rathor.ai Lattice)"]
 
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
 tokio = { version = "1.0", features = ["full"] }
 rand = "0.8"
-# Internal lattice crates (full paths in monorepo)
 mercy = { path = "../mercy" }
-cehi = { path = "../interstellar-operations" }  # 7-gene + HPA + GR
+cehi = { path = "../interstellar-operations" }
 self-evolution = { path = "../self-evolution" }

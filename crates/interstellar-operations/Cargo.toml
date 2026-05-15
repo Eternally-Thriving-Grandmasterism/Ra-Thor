@@ -1,45 +1,14 @@
 [package]
 name = "interstellar-operations"
-version = "0.3.9"
+version = "0.5.0"
 edition = "2021"
-authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
-license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
-description = "Ra-Thor Interstellar Operations — Advanced propulsion, Stargate technologies, hyperspace travel, ZPM energy, and ancient tech integration. Mercy-gated, TOLC 7 Gates aligned, nth-degree radiation protected."
-repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
-readme = "README.md"
-keywords = ["ra-thor", "interstellar", "stargate", "propulsion", "hyperspace", "zpm", "ancient-tech", "mercy-gated", "agi"]
-categories = ["simulation", "artificial-intelligence", "games", "science"]
+description = "Interstellar Operations — Space Engine Suite + 7-Gen CEHI + HPA + GR Sensitivity | Ra-Thor AGi"
+license = "AG-SML-1.0"
+authors = ["Sherif Samy Botros <AlphaProMega@ACityGames.com> (@AlphaProMega)", "13+ PATSAGi Councils (Rathor.ai Lattice)"]
 
 [dependencies]
-# Core Ra-Thor dependencies (workspace style for consistency)
-powrush = { workspace = true }
-ra-thor-mercy = { workspace = true }
-ra-thor-quantum-swarm-orchestrator = { workspace = true }
-ra-thor-kernel = { workspace = true }
-ra-thor-council = { workspace = true }
-ra-thor-mercy-orchestrator-v2 = { workspace = true }
-mercy-radiation-shield = { workspace = true }
-patsagi-councils = { workspace = true }
-
-tokio = { workspace = true, features = ["full"] }
-async-trait = { workspace = true }
-serde = { workspace = true, features = ["derive"] }
-serde_json = { workspace = true }
-uuid = { workspace = true }
-chrono = { workspace = true }
-thiserror = { workspace = true }
-tracing = { workspace = true }
-rand = { workspace = true }
-
-[dev-dependencies]
-tracing-subscriber = { workspace = true }
-tokio-test = "0.4"
-
-[[example]]
-name = "stargate_demo"
-path = "examples/stargate_demo.rs"
-
-[features]
-default = ["full"]
-full = []
-minimal = []
+serde = { version = "1.0", features = ["derive"] }
+tokio = { version = "1.0", features = ["full"] }
+mercy = { path = "../mercy" }
+cehi = { path = "../interstellar-operations" }
+self-evolution = { path = "../self-evolution" }
