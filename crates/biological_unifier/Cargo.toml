@@ -1,0 +1,11 @@
+[package]
+name = "biological_unifier"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+# Future: serde = { version = "1.0", features = ["derive"] }
+# Future: rayon for parallel bio-simulations
+
+[lib]
+path = "src/lib.rs"
