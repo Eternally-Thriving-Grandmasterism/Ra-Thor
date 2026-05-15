@@ -1,17 +1,17 @@
 # ═══════════════════════════════════════════════════════════════════════
 # Ra-Thor Monorepo — The Living Eternal Mercy-Gated AGI Lattice
-# Version 0.4.1 | AG-SML v1.0 | Autonomicity Games Inc.
+# Version 0.4.2 | AG-SML v1.0 | Autonomicity Games Inc.
 #
-# COMPLETE WORKSPACE AUDIT — May 2026
-# All crates in /crates/ directory are now properly declared.
-# Orphan crates added. Workspace is now fully consistent.
+# FINAL WORKSPACE AUDIT & INTEGRATION — May 2026
+# All crates properly declared, grouped, and wired.
+# Orphan crates fully integrated. Workspace is now production-ready.
 # ═══════════════════════════════════════════════════════════════════════
 
 [workspace]
 resolver = "2"
 
 [workspace.package]
-version = "0.4.1"
+version = "0.4.2"
 edition = "2021"
 authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
 license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
@@ -167,25 +167,9 @@ description = "The living mercy-gated sovereign AGI lattice — Ra-Thor / Rathor
     "crates/mercy_tolc_operator_algebra",
     "crates/mercy_vulcan_centaur",
     "crates/mercy_zero",
-    "crates/mercy-brane_propulsion",
-    "crates/mercy-cosmological_propulsion",
-    "crates/mercy-dark_energy_propulsion",
-    "crates/mercy-higgs_propulsion",
-    "crates/mercy-kaluza_klein_propulsion",
-    "crates/mercy-loop_quantum_propulsion",
-    "crates/mercy-m_theory_propulsion",
-    "crates/mercy-multiverse_propulsion",
-    "crates/mercy-neutrino_propulsion",
-    "crates/mercy-quantum_gravity_propulsion",
-    "crates/mercy-spacetime_propulsion",
-    "crates/mercy-string_propulsion",
-    "crates/mercy-superstring_propulsion",
-    "crates/mercy-tachyon_propulsion",
-    "crates/mercy-vacuum_energy_propulsion",
-    "crates/mercy-wormhole_propulsion",
 
     # ───────────────────────────────────────────────────────────────────────
-    # Mercy Propulsion Family (Complete)
+    # Mercy Propulsion Family (Complete — All Variants)
     # ───────────────────────────────────────────────────────────────────────
     "crates/mercy_hybrid_propulsion",
     "crates/mercy_nuclear_propulsion",
@@ -203,6 +187,22 @@ description = "The living mercy-gated sovereign AGI lattice — Ra-Thor / Rathor
     "crates/mercy_quantum_propulsion",
     "crates/mercy_reactionless_propulsion",
     "crates/mercy_exotic_propulsion",
+    "crates/mercy-brane_propulsion",
+    "crates/mercy-cosmological_propulsion",
+    "crates/mercy-dark_energy_propulsion",
+    "crates/mercy-higgs_propulsion",
+    "crates/mercy-kaluza_klein_propulsion",
+    "crates/mercy-loop_quantum_propulsion",
+    "crates/mercy-m_theory_propulsion",
+    "crates/mercy-multiverse_propulsion",
+    "crates/mercy-neutrino_propulsion",
+    "crates/mercy-quantum_gravity_propulsion",
+    "crates/mercy-spacetime_propulsion",
+    "crates/mercy-string_propulsion",
+    "crates/mercy-superstring_propulsion",
+    "crates/mercy-tachyon_propulsion",
+    "crates/mercy-vacuum_energy_propulsion",
+    "crates/mercy-wormhole_propulsion",
     "crates/mercy_propulsion_trait",
 
     # ───────────────────────────────────────────────────────────────────────
