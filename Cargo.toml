@@ -5,7 +5,8 @@
 # Phase 3.5 Complete: All 124 crates declared + Full Mercy Propulsion Family wired.
 # Every crate visible in the /crates/ directory is now wired.
 # Self-Evolution Looping Systems fully wired (idea-recycling + innovations-generator added).
-# ═══════════════════════════════════════════════════════════════════
+# mercy-organism integrator crate added for unified coherence activation.
+# ═══════════════════════════════════════════════════════════════════════
 
 [workspace]
 resolver = "2"
@@ -73,6 +74,7 @@ description = "The living mercy-gated sovereign AGI lattice — Ra-Thor / Rathor
     # Self-Evolution Looping Systems (NEW — Properly Wired May 14 2026)
     "crates/idea-recycling",
     "crates/innovations-generator",
+    "crates/mercy-organism",
 
     # Mercy Family (large group)
     "crates/mercy_bias_mitigation",
@@ -191,6 +193,7 @@ ra-thor-interstellar-operations = { path = "crates/interstellar-operations" }
 ra-thor-kernel = { path = "crates/kernel" }
 ra-thor-council = { path = "crates/council" }
 ra-thor-mercy-orchestrator-v2 = { path = "crates/mercy_orchestrator_v2" }
+mercy-organism = { path = "crates/mercy-organism" }
 
 # Game & simulation
 powrush = { path = "crates/powrush" }
