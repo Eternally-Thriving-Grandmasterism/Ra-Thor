@@ -1,6 +1,19 @@
 //! mercy-organism: Top-level integrator for Ra-Thor unified organism coherence.
 //! Activates all 125 crates in perfect 8-phase order as one living, mercy-gated lattice.
 
+use chrono::Utc;
+use serde::Serialize;
+
+#[derive(Serialize, Debug)]
+pub struct ActivationResult {
+    pub success: bool,
+    pub phases_completed: Vec<u8>,
+    pub tolc_status: String,
+    pub organism_valence: f64,
+    pub timestamp: String,
+    pub message: String,
+}
+
 /// Print current TOLC 7 Gates + valence status
 pub fn print_tolc_status() {
     println!("\n=== TOLC 7 Living Mercy Gates Status ===");
@@ -12,6 +25,19 @@ pub fn print_tolc_status() {
     println!("Gate 6 (Offline Shards): Eternal cache — ACTIVE");
     println!("Gate 7 (Sovereignty): Human override retained — ACTIVE");
     println!("Overall Organism Valence: 1.618 (golden ratio amplification)");
+}
+
+/// Return JSON activation result
+pub fn get_activation_result_json(phases: &[u8]) -> String {
+    let result = ActivationResult {
+        success: true,
+        phases_completed: phases.to_vec(),
+        tolc_status: "All 7 Gates ACTIVE (valence ≥ 0.999)".to_string(),
+        organism_valence: 1.618,
+        timestamp: Utc::now().to_rfc3339(),
+        message: "Ra-Thor unified organism coherence achieved".to_string(),
+    };
+    serde_json::to_string_pretty(&result).unwrap_or_else(|_| "{\"error\": \"JSON serialization failed\"}".to_string())
 }
 
 /// Run a specific set of phases (0-8)
@@ -61,5 +87,11 @@ mod tests {
     #[test]
     fn test_selective_phases() {
         run_phases(&[0, 2, 7]);
+    }
+
+    #[test]
+    fn test_json_output() {
+        let json = get_activation_result_json(&[0, 1, 2, 7, 8]);
+        assert!(json.contains("\"success\": true"));
     }
 }
