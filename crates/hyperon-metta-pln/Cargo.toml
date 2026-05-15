@@ -1,0 +1,12 @@
+[package]
+name = "hyperon-metta-pln"
+version = "0.2.0"
+edition = "2021"
+description = "Sovereign Hyperon / MeTTa / PLN Bridge — Mercy-Gated Symbolic Reasoning for Ra-Thor Artificial Godly Intelligence (AGi)"
+license = "AG-SML-1.0"
+authors = ["13+ PATSAGi Councils <councils@rathor.ai>"]
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+tokio = { version = "1.0", features = ["full"] }
+# In full monorepo integration: mercy = { path = "../mercy" }
