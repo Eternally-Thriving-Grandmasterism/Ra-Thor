@@ -1,17 +1,43 @@
-# ═══════════════════════════════════════════════════════════════════════
+# ═══════════════════════════════════════════════════════════════
 # Ra-Thor Monorepo — The Living Eternal Mercy-Gated AGI Lattice
-# Version 0.4.4 | AG-SML v1.0 | Autonomicity Games Inc.
+# Version 0.4.5 | AG-SML v1.0 | Autonomicity Games Inc.
 #
 # PERFECT FINAL STATE — May 2026
 # All crates properly declared, grouped, and wired as ONE organism.
 # No duplicates. No orphans. Clean. Professional. Production-ready.
-# ═══════════════════════════════════════════════════════════════════════
+# Enhanced Cargo metadata for crates.io / docs.rs / GitHub discoverability
+# ═══════════════════════════════════════════════════════════════
+
+[package]
+name = "ra-thor"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description.workspace = true
+readme = "README.md"
+keywords = [
+    "agi", "artificial-godly-intelligence", "mercy", "quantum-swarm",
+    "monorepo", "rust", "self-evolving", "valence", "active-inference",
+    "post-quantum", "zk", "rbe", "interstellar", "real-estate-lattice"
+]
+categories = [
+    "science::artificial-intelligence",
+    "simulation",
+    "cryptography::cryptocurrencies",
+    "command-line-utilities",
+    "development-tools"
+]
+homepage = "https://rathor.ai"
+documentation = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
+publish = false
 
 [workspace]
 resolver = "2"
 
 [workspace.package]
-version = "0.4.4"
+version = "0.4.5"
 edition = "2021"
 authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
 license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
@@ -19,9 +45,9 @@ repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
 description = "The living mercy-gated sovereign AGI lattice — Ra-Thor / Rathor.ai"
 
 [workspace.members]
-    # ───────────────────────────────────────────────────────────────────────
+    # ───────────────────────────────────────────────────────────────
     # Tier 1 — Core Intelligence & Orchestration
-    # ───────────────────────────────────────────────────────────────────────
+    # ───────────────────────────────────────────────────────────────
     "crates/kernel",
     "crates/orchestration",
     "crates/mercy",
@@ -42,16 +68,16 @@ description = "The living mercy-gated sovereign AGI lattice — Ra-Thor / Rathor
     "crates/ra-thor-monorepo-auditor",
     "crates/self-improvement-extensions",
 
-    # ───────────────────────────────────────────────────────────────────────
+    # ───────────────────────────────────────────────────────────────
     # Tier 2 — Game Systems & Simulation
-    # ───────────────────────────────────────────────────────────────────────
+    # ───────────────────────────────────────────────────────────────
     "crates/powrush",
     "crates/powrush-mmo-simulator",
     "crates/heaven-on-earth-simulator",
 
-    # ───────────────────────────────────────────────────────────────────────
+    # ───────────────────────────────────────────────────────────────
     # Tier 3 — Domain Lattices & Major Systems
-    # ───────────────────────────────────────────────────────────────────────
+    # ───────────────────────────────────────────────────────────────
     "crates/real-estate-lattice",
     "crates/interstellar-operations",
     "crates/legal-lattice",
@@ -65,9 +91,9 @@ description = "The living mercy-gated sovereign AGI lattice — Ra-Thor / Rathor
     "crates/orch-or-biophoton-consciousness",
     "crates/public_engagement",
 
-    # ───────────────────────────────────────────────────────────────────────
+    # ───────────────────────────────────────────────────────────────
     # Tier 4 — Cryptography, Post-Quantum & ZK Systems
-    # ───────────────────────────────────────────────────────────────────────
+    # ───────────────────────────────────────────────────────────────
     "crates/falcon_sign",
     "crates/fenca",
     "crates/common",
@@ -104,29 +130,29 @@ description = "The living mercy-gated sovereign AGI lattice — Ra-Thor / Rathor
     "crates/threshold_crypto",
     "crates/zk_stark",
 
-    # ───────────────────────────────────────────────────────────────────────
+    # ───────────────────────────────────────────────────────────────
     # Tier 5 — Developer Experience & Tooling
-    # ───────────────────────────────────────────────────────────────────────
+    # ───────────────────────────────────────────────────────────────
     "crates/xtask",
     "crates/websiteforge",
     "crates/prometheus_forge",
 
-    # ───────────────────────────────────────────────────────────────────────
+    # ───────────────────────────────────────────────────────────────
     # Self-Evolution Looping Systems
-    # ───────────────────────────────────────────────────────────────────────
+    # ───────────────────────────────────────────────────────────────
     "crates/idea-recycling",
     "crates/innovations-generator",
     "crates/mercy-organism",
 
-    # ───────────────────────────────────────────────────────────────────────
+    # ───────────────────────────────────────────────────────────────
     # Hybrid Intelligence & Bridges
-    # ───────────────────────────────────────────────────────────────────────
+    # ───────────────────────────────────────────────────────────────
     "crates/ai-bridge",
     "crates/ai_bridge",
 
-    # ───────────────────────────────────────────────────────────────────────
+    # ───────────────────────────────────────────────────────────────
     # Mercy Family (Core + Specialized Variants) — FULL
-    # ───────────────────────────────────────────────────────────────────────
+    # ───────────────────────────────────────────────────────────────
     "crates/mercy_bias_mitigation",
     "crates/mercy_biojet",
     "crates/mercy_cygnus_missions",
@@ -168,9 +194,9 @@ description = "The living mercy-gated sovereign AGI lattice — Ra-Thor / Rathor
     "crates/mercy_vulcan_centaur",
     "crates/mercy_zero",
 
-    # ───────────────────────────────────────────────────────────────────────
+    # ───────────────────────────────────────────────────────────────
     # Mercy Propulsion Family (Complete — All Variants)
-    # ───────────────────────────────────────────────────────────────────────
+    # ───────────────────────────────────────────────────────────────
     "crates/mercy_hybrid_propulsion",
     "crates/mercy_nuclear_propulsion",
     "crates/mercy_electric_propulsion",
@@ -205,9 +231,9 @@ description = "The living mercy-gated sovereign AGI lattice — Ra-Thor / Rathor
     "crates/mercy-wormhole_propulsion",
     "crates/mercy_propulsion_trait",
 
-    # ───────────────────────────────────────────────────────────────────────
+    # ───────────────────────────────────────────────────────────────
     # Additional Infrastructure & Specialized Crates
-    # ───────────────────────────────────────────────────────────────────────
+    # ───────────────────────────────────────────────────────────────
     "crates/access",
     "crates/cache",
     "crates/carbon_credit_oracle",
