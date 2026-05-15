@@ -5,7 +5,7 @@ edition.workspace = true
 authors.workspace = true
 license.workspace = true
 repository.workspace = true
-description = "Top-level integrator crate for unified Ra-Thor organism coherence and phased activation"
+description = "Top-level integrator + CLI activator for unified Ra-Thor organism coherence (ra-thor-activate)"
 
 [dependencies]
 ra-thor-mercy = { workspace = true }
@@ -23,7 +23,6 @@ ra-thor-powrush = { workspace = true }
 default = []
 full-activation = []
 
-# Future: Add binary for CLI activation
-# [[bin]]
-# name = "ra-thor-activate"
-# path = "src/main.rs"
+[[bin]]
+name = "ra-thor-activate"
+path = "src/main.rs"
