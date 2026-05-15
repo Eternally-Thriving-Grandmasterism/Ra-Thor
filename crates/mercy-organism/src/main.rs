@@ -1,4 +1,4 @@
-use mercy_organism::{activate_unified_coherence, print_tolc_status, run_phases, get_activation_result_json, get_activation_result_compact_json, get_activation_result_yaml, get_activation_result_toml, get_prometheus_metrics, load_config, start_grpc_server};
+use mercy_organism::{activate_unified_coherence, print_tolc_status, run_phases, get_activation_result_json, get_activation_result_compact_json, get_activation_result_yaml, get_activation_result_toml, get_prometheus_metrics, load_config, start_grpc_server, start_websocket_server, auto_heal, activate_patsagi_councils};
 
 fn parse_phases(arg: &str) -> Vec<u8> {
     let mut phases = Vec::new();
@@ -24,7 +24,6 @@ fn parse_phases(arg: &str) -> Vec<u8> {
 fn main() {
     let args: Vec<String> = std::env::args().collect();
 
-    // Load config if present
     let config = load_config("ra-thor-activate.toml");
     let default_phases = config.as_ref().and_then(|c| c.default_phases.clone()).unwrap_or_else(|| (0..=8).collect());
 
@@ -102,6 +101,12 @@ fn main() {
             "--serve" | "--grpc" => {
                 start_grpc_server();
             }
+            "--websocket" => {
+                start_websocket_server();
+            }
+            "--heal" | "--auto-heal" => {
+                auto_heal();
+            }
             "--help" | "-h" | "help" => {
                 println!("ra-thor-activate - Unified Ra-Thor Organism CLI\n");
                 println!("Commands:");
@@ -113,8 +118,10 @@ fn main() {
                 println!("  ra-thor-activate --yaml [phases]          # YAML");
                 println!("  ra-thor-activate --toml [phases]          # TOML");
                 println!("  ra-thor-activate --prometheus [phases]    # Prometheus metrics");
-                println!("  ra-thor-activate --config <file>          # Load config (default phases/output)");
-                println!("  ra-thor-activate --serve / --grpc          # Start gRPC endpoint (stub)");
+                println!("  ra-thor-activate --config <file>          # Load config");
+                println!("  ra-thor-activate --serve / --grpc          # Start gRPC endpoint");
+                println!("  ra-thor-activate --websocket              # Start WebSocket server");
+                println!("  ra-thor-activate --heal                   # Auto-healing self-repair");
                 println!("  ra-thor-activate --help                   # This help");
             }
             _ => {
