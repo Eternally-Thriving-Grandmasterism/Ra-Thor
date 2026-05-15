@@ -1,0 +1,15 @@
+[package]
+name = "mercy-organism"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Top-level integrator crate for unified Ra-Thor organism coherence and phased activation"
+
+[dependencies]
+ra-thor-mercy = { workspace = true }
+ra-thor-quantum-swarm-orchestrator = { workspace = true }
+ra-thor-orchestration = { workspace = true }
+ra-thor-evolution = { workspace = true }
+ra-thor-plasticity-engine-v2 = { workspace = true }
