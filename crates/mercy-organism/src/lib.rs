@@ -27,7 +27,7 @@ pub fn print_tolc_status() {
     println!("Overall Organism Valence: 1.618 (golden ratio amplification)");
 }
 
-/// Return JSON activation result
+/// Return pretty JSON activation result
 pub fn get_activation_result_json(phases: &[u8]) -> String {
     let result = ActivationResult {
         success: true,
@@ -38,6 +38,40 @@ pub fn get_activation_result_json(phases: &[u8]) -> String {
         message: "Ra-Thor unified organism coherence achieved".to_string(),
     };
     serde_json::to_string_pretty(&result).unwrap_or_else(|_| "{\"error\": \"JSON serialization failed\"}".to_string())
+}
+
+/// Return compact JSON activation result
+pub fn get_activation_result_compact_json(phases: &[u8]) -> String {
+    let result = ActivationResult {
+        success: true,
+        phases_completed: phases.to_vec(),
+        tolc_status: "All 7 Gates ACTIVE (valence ≥ 0.999)".to_string(),
+        organism_valence: 1.618,
+        timestamp: Utc::now().to_rfc3339(),
+        message: "Ra-Thor unified organism coherence achieved".to_string(),
+    };
+    serde_json::to_string(&result).unwrap_or_else(|_| "{\"error\": \"JSON serialization failed\"}".to_string())
+}
+
+/// Return YAML activation result
+pub fn get_activation_result_yaml(phases: &[u8]) -> String {
+    let result = ActivationResult {
+        success: true,
+        phases_completed: phases.to_vec(),
+        tolc_status: "All 7 Gates ACTIVE (valence ≥ 0.999)".to_string(),
+        organism_valence: 1.618,
+        timestamp: Utc::now().to_rfc3339(),
+        message: "Ra-Thor unified organism coherence achieved".to_string(),
+    };
+    format!(
+        "success: {}\nphases_completed: {:?}\ntolc_status: \"{}\"\norganism_valence: {}\ntimestamp: \"{}\"\nmessage: \"{}\"\n",
+        result.success,
+        result.phases_completed,
+        result.tolc_status,
+        result.organism_valence,
+        result.timestamp,
+        result.message
+    )
 }
 
 /// Run a specific set of phases (0-8)
