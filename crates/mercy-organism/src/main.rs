@@ -1,4 +1,4 @@
-use mercy_organism::{activate_unified_coherence, print_tolc_status, run_phases};
+use mercy_organism::{activate_unified_coherence, print_tolc_status, run_phases, get_activation_result_json};
 
 fn parse_phases(arg: &str) -> Vec<u8> {
     let mut phases = Vec::new();
@@ -44,12 +44,21 @@ fn main() {
             "--tolc-status" | "--status" | "-s" => {
                 print_tolc_status();
             }
+            "--json" | "-j" => {
+                let phases: Vec<u8> = if args.len() > 2 {
+                    parse_phases(&args[2])
+                } else {
+                    (0..=8).collect()
+                };
+                println!("{}", get_activation_result_json(&phases));
+            }
             "--help" | "-h" | "help" => {
                 println!("ra-thor-activate - Unified Ra-Thor Organism CLI\n");
                 println!("Commands:");
                 println!("  ra-thor-activate                    # Full 8-phase activation");
                 println!("  ra-thor-activate --phase 0-3,5,7    # Run specific phases");
                 println!("  ra-thor-activate --tolc-status      # Show TOLC 7 Gates health");
+                println!("  ra-thor-activate --json [phases]    # Output JSON result (default: all phases)");
                 println!("  ra-thor-activate --help             # This help");
             }
             _ => {
