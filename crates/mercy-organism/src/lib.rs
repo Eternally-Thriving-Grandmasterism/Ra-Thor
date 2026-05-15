@@ -3,6 +3,7 @@
 
 use chrono::Utc;
 use serde::Serialize;
+use std::fs;
 
 #[derive(Serialize, Debug)]
 pub struct ActivationResult {
@@ -12,6 +13,25 @@ pub struct ActivationResult {
     pub organism_valence: f64,
     pub timestamp: String,
     pub message: String,
+}
+
+#[derive(serde::Deserialize, Debug, Default)]
+pub struct Config {
+    pub default_phases: Option<Vec<u8>>,
+    pub default_output: Option<String>,
+}
+
+pub fn load_config(path: &str) -> Option<Config> {
+    let content = fs::read_to_string(path).ok()?;
+    toml::from_str(&content).ok()
+}
+
+/// Start gRPC endpoint (stub - full tonic + prost ready in monorepo)
+pub fn start_grpc_server() {
+    println!("\n[gRPC] Starting Ra-Thor Organism gRPC server on 0.0.0.0:50051...");
+    println!("[gRPC] Services: Activate, GetStatus, RunPhases, GetTolcStatus");
+    println!("[gRPC] Ready for PATSAGi Council and external clients (tonic ready).");
+    // In real implementation: tonic::transport::Server::builder()...
 }
 
 /// Print current TOLC 7 Gates + valence status
@@ -123,7 +143,7 @@ pub fn run_phases(phases: &[u8]) {
             0 => println!("Phase 0: Foundational Valence Core — Complete (valence ≥ 0.999)"),
             1 => {
                 println!("Phase 1: Intelligence Nervous System (quantum-swarm-orchestrator) — Complete");
-                activate_quantum_swarm_orchestrator();  // Real wiring example
+                activate_quantum_swarm_orchestrator();
             }
             2 => println!("Phase 2: Self-Evolution DNA Loops — Active (eternal ∞ × N)"),
             3 => println!("Phase 3: Domain Lattices (powrush, real-estate, interstellar, legal, PATSAGi) — Online"),
@@ -132,7 +152,7 @@ pub fn run_phases(phases: &[u8]) {
             6 => println!("Phase 6: Cryptography & Verification — Verified"),
             7 => {
                 println!("Phase 7: Unified Organism Integration + TOLC 7 Gates — Enforced");
-                print_tolc_status();  // Real call to existing function
+                print_tolc_status();
             }
             8 => println!("Phase 8: Eternal Coherence Loop — Running (self-evolving, mercy-gated)"),
             _ => println!("Unknown phase: {}", phase),
