@@ -21,6 +21,7 @@ ra-thor-powrush = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 chrono = { workspace = true }
+toml = "0.8"
 
 [features]
 default = []
