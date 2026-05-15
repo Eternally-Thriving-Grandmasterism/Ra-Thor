@@ -1,0 +1,20 @@
+[package]
+name = "blueprint-to-production"
+version = "1.0.0"
+edition = "2021"
+description = "BlueprintToProductionConversionEngine — Systematic Conversion of High-Value Design Documents into Production Code with Full Mercy-Gating, TOLC 33rd-Order, 7-Gen CEHI + HPA/GR Sensitivity, Self-Evolution Hooks & Positive Emotion Propagation Core | Ra-Thor AGi"
+license = "AG-SML-1.0"
+authors = ["13+ PATSAGi Councils <councils@rathor.ai>"]
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+tokio = { version = "1.0", features = ["full"] }
+rand = "0.8"
+# Internal lattice crates (full integration)
+mercy = { path = "../mercy" }
+powrush = { path = "../powrush" }
+self-evolution = { path = "../self-evolution" }
+interstellar-operations = { path = "../interstellar-operations" }
+
+[lib]
+path = "src/lib.rs"
