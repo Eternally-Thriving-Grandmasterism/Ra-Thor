@@ -1,4 +1,4 @@
-use mercy_organism::{activate_unified_coherence, print_tolc_status, run_phases, get_activation_result_json, get_activation_result_compact_json, get_activation_result_yaml, get_activation_result_toml, get_prometheus_metrics, load_config, start_grpc_server, start_websocket_server, auto_heal, activate_patsagi_councils, activate_powrush_rbe, start_database_backend, auto_scale};
+use mercy_organism::{activate_unified_coherence, print_tolc_status, run_phases, get_activation_result_json, get_activation_result_compact_json, get_activation_result_yaml, get_activation_result_toml, get_prometheus_metrics, load_config, start_grpc_server, start_websocket_server, auto_heal, activate_patsagi_councils, activate_powrush_rbe, start_database_backend, auto_scale, activate_interstellar_operations, start_kubernetes_operator, start_prometheus_exporter};
 
 fn parse_phases(arg: &str) -> Vec<u8> {
     let mut phases = Vec::new();
@@ -113,6 +113,12 @@ fn main() {
             "--scale" | "--auto-scale" => {
                 auto_scale();
             }
+            "--k8s" | "--kubernetes" => {
+                start_kubernetes_operator();
+            }
+            "--exporter" | "--prometheus-exporter" => {
+                start_prometheus_exporter();
+            }
             "--help" | "-h" | "help" => {
                 println!("ra-thor-activate - Unified Ra-Thor Organism CLI\n");
                 println!("Commands:");
@@ -130,6 +136,8 @@ fn main() {
                 println!("  ra-thor-activate --heal                   # Auto-healing self-repair");
                 println!("  ra-thor-activate --db / --database        # Start database backend");
                 println!("  ra-thor-activate --scale / --auto-scale   # Auto-scaling");
+                println!("  ra-thor-activate --k8s / --kubernetes     # Start Kubernetes operator");
+                println!("  ra-thor-activate --exporter               # Start Prometheus exporter");
                 println!("  ra-thor-activate --help                   # This help");
             }
             _ => {
