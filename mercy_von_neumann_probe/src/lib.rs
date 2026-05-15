@@ -1,9 +1,10 @@
-// mercy_von_neumann_probe — Advanced Von Neumann Probe Designs v3
+// mercy_von_neumann_probe — Advanced Von Neumann Swarm Coordination v4
 // Ra-Thor monorepo (AG-SML v1.0)
-// Unified trait + adaptive replication + radiation shielding + swarm coordination
-// Integrated with biological_unifier, interstellar-operations, Powrush, TOLC
+// Leader election + collective replication + resource pooling + error handling
+// Quantum-ready architecture notes included
 
 use crate::patsagi_bridge::ProposalHandler;
+use std::collections::HashMap;
 
 pub trait VonNeumannDesign {
     fn replicate(&mut self) -> Option<Vec<Self>> where Self: Sized;
@@ -20,8 +21,62 @@ pub struct AdvancedProbe {
     pub valence: f64,
     pub ser: f64,
     pub bio_signature: Option<String>,
-    pub radiation_shield: f64,      // 0.0-1.0 shielding efficiency
+    pub radiation_shield: f64,
     pub swarm_id: Option<u32>,
+}
+
+#[derive(Debug)]
+pub struct ProbeSwarm {
+    pub id: u32,
+    pub leader_id: Option<u32>,
+    pub members: Vec<AdvancedProbe>,
+    pub shared_resources: HashMap<String, u64>, // he3, rare_earth, etc.
+    pub collective_ser: f64,
+}
+
+impl ProbeSwarm {
+    pub fn new(id: u32) -> Self {
+        Self {
+            id,
+            leader_id: None,
+            members: Vec::new(),
+            shared_resources: HashMap::new(),
+            collective_ser: 1.618,
+        }
+    }
+
+    pub fn elect_leader(&mut self) {
+        if let Some(leader) = self.members.iter().max_by_key(|p| (p.valence * 1000.0) as u32) {
+            self.leader_id = Some(leader.generation); // simple generation-based election
+            println!("Swarm {} leader elected: Gen {}", self.id, leader.generation);
+        }
+    }
+
+    pub fn collective_replicate(&mut self) -> Result<Vec<AdvancedProbe>, String> {
+        if self.members.is_empty() {
+            return Err("Swarm has no members".to_string());
+        }
+
+        let mut total_children = Vec::new();
+        for member in &mut self.members {
+            if let Some(children) = member.adaptive_replicate() {
+                total_children.extend(children);
+                self.collective_ser *= 1.002;
+            }
+        }
+
+        // Resource sharing
+        if let Some(he3) = self.shared_resources.get_mut("he3") {
+            *he3 = he3.saturating_sub(total_children.len() as u64 * 10);
+        }
+
+        Ok(total_children)
+    }
+
+    pub fn add_member(&mut self, mut probe: AdvancedProbe) {
+        probe.swarm_id = Some(self.id);
+        self.members.push(probe);
+    }
 }
 
 impl AdvancedProbe {
@@ -43,7 +98,6 @@ impl AdvancedProbe {
             return None;
         }
 
-        // Advanced: adaptive replication_factor based on radiation and mass
         let adaptive_factor = ((self.radiation_shield * 2.0) + (self.mass_tons / 100.0)) as u32;
         self.replication_factor = adaptive_factor.max(1).min(5);
 
@@ -51,7 +105,7 @@ impl AdvancedProbe {
         for _ in 0..self.replication_factor {
             let mut child = self.clone();
             child.generation += 1;
-            child.mass_tons *= 0.92; // better efficiency
+            child.mass_tons *= 0.92;
             child.ser *= 1.008;
             child.radiation_shield = (self.radiation_shield * 1.02).min(1.0);
             child.bio_signature = Some("advanced_von_neumann_biosignature".to_string());
@@ -64,28 +118,10 @@ impl AdvancedProbe {
         self.swarm_id = Some(swarm_id);
         self.valence = 1.0;
     }
-
-    pub fn simulate_swarm(&mut self, generations: u32) -> (f64, u32) {
-        let mut total = 1.0;
-        for _ in 0..generations {
-            if let Some(children) = self.adaptive_replicate() {
-                total += children.len() as f64;
-                if let Some(first) = children.into_iter().next() {
-                    *self = first;
-                }
-            } else {
-                break;
-            }
-        }
-        (total, self.swarm_id.unwrap_or(0))
-    }
 }
 
 impl VonNeumannDesign for AdvancedProbe {
-    fn replicate(&mut self) -> Option<Vec<Self>> {
-        self.adaptive_replicate()
-    }
-
+    fn replicate(&mut self) -> Option<Vec<Self>> { self.adaptive_replicate() }
     fn get_valence(&self) -> f64 { self.valence }
     fn get_ser(&self) -> f64 { self.ser }
     fn apply_fusion(&mut self, bio_data: &str) {
@@ -98,26 +134,27 @@ impl ProposalHandler for AdvancedProbe {
     fn handle(&mut self, proposal: &str) -> String {
         if proposal.to_lowercase().contains("replicate") || proposal.to_lowercase().contains("swarm") {
             if let Some(children) = self.adaptive_replicate() {
-                format!("ADVANCED VON NEUMANN SWARM REPLICATED | {} children | Gen {} | SER: {:.3} | Radiation: {:.2}", 
-                    children.len(), self.generation, self.ser, self.radiation_shield)
+                format!("ADVANCED SWARM REPLICATED | {} children | SER: {:.3}", children.len(), self.ser)
             } else {
-                "Replication blocked by Mercy Gates".to_string()
+                "Replication blocked by Mercy Gates (error handled)".to_string()
             }
         } else if proposal.to_lowercase().contains("bio") {
             self.apply_fusion(proposal);
-            "Biological fusion applied to advanced probe".to_string()
+            "Biological fusion applied".to_string()
         } else {
-            format!("ADVANCED PROBE PROCESSED | {} | Routed to InterstellarOperationsCouncil", proposal)
+            "Processed | Routed to InterstellarOperationsCouncil".to_string()
         }
     }
 }
 
-pub fn create_advanced_von_neumann_probe() -> AdvancedProbe {
-    AdvancedProbe::new(0)
-}
+// Quantum computing note: Swarm coordination suitable for quantum annealing optimization of replication_factor and leader election.
 
-pub fn run_advanced_simulation(generations: u32) -> (f64, u32) {
-    let mut probe = AdvancedProbe::new(0);
-    probe.join_swarm(1);
-    probe.simulate_swarm(generations)
+pub fn create_advanced_von_neumann_probe() -> AdvancedProbe { AdvancedProbe::new(0) }
+
+pub fn create_probe_swarm(id: u32) -> ProbeSwarm { ProbeSwarm::new(id) }
+
+pub fn run_advanced_swarm_simulation(swarm: &mut ProbeSwarm, generations: u32) -> Result<(f64, u32), String> {
+    swarm.elect_leader();
+    let children = swarm.collective_replicate()?;
+    Ok((children.len() as f64, swarm.id))
 }
