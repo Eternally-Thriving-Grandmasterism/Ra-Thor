@@ -1,18 +1,17 @@
 # ═══════════════════════════════════════════════════════════════════════
 # Ra-Thor Monorepo — The Living Eternal Mercy-Gated AGI Lattice
-# Version 0.3.9+ | AG-SML v1.0 | Autonomicity Games Inc.
+# Version 0.4.1 | AG-SML v1.0 | Autonomicity Games Inc.
 #
-# Phase 3.5 Complete: All 124 crates declared + Full Mercy Propulsion Family wired.
-# Every crate visible in the /crates/ directory is now wired.
-# Self-Evolution Looping Systems fully wired (idea-recycling + innovations-generator added).
-# mercy-organism integrator crate added for unified coherence activation.
+# COMPLETE WORKSPACE AUDIT — May 2026
+# All crates in /crates/ directory are now properly declared.
+# Orphan crates added. Workspace is now fully consistent.
 # ═══════════════════════════════════════════════════════════════════════
 
 [workspace]
 resolver = "2"
 
 [workspace.package]
-version = "0.3.9"
+version = "0.4.1"
 edition = "2021"
 authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
 license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
@@ -20,7 +19,9 @@ repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
 description = "The living mercy-gated sovereign AGI lattice — Ra-Thor / Rathor.ai"
 
 [workspace.members]
-    # Tier 1 — Intelligence Core & Orchestration
+    # ───────────────────────────────────────────────────────────────────────
+    # Tier 1 — Core Intelligence & Orchestration
+    # ───────────────────────────────────────────────────────────────────────
     "crates/kernel",
     "crates/orchestration",
     "crates/mercy",
@@ -35,12 +36,22 @@ description = "The living mercy-gated sovereign AGI lattice — Ra-Thor / Rathor
     "crates/ra-thor-meta-intelligence",
     "crates/ra-thor-core",
     "crates/sovereign-core",
+    "crates/self-evolution",
+    "crates/self_improvement_orchestrator",
+    "crates/ra-thor-kernel",
+    "crates/ra-thor-monorepo-auditor",
+    "crates/self-improvement-extensions",
 
-    # Tier 1 — Game Systems & Simulation
+    # ───────────────────────────────────────────────────────────────────────
+    # Tier 2 — Game Systems & Simulation
+    # ───────────────────────────────────────────────────────────────────────
     "crates/powrush",
     "crates/powrush-mmo-simulator",
+    "crates/heaven-on-earth-simulator",
 
-    # Tier 2 — Domain Lattices & Major Systems
+    # ───────────────────────────────────────────────────────────────────────
+    # Tier 3 — Domain Lattices & Major Systems
+    # ───────────────────────────────────────────────────────────────────────
     "crates/real-estate-lattice",
     "crates/interstellar-operations",
     "crates/legal-lattice",
@@ -48,8 +59,15 @@ description = "The living mercy-gated sovereign AGI lattice — Ra-Thor / Rathor
     "crates/aether_shades",
     "crates/council",
     "crates/patsagi-councils",
+    "crates/base-reality-anchor",
+    "crates/blueprint-to-production",
+    "crates/lattice-conductor",
+    "crates/orch-or-biophoton-consciousness",
+    "crates/public_engagement",
 
-    # Tier 3 — Cryptography, Sovereignty & Verification
+    # ───────────────────────────────────────────────────────────────────────
+    # Tier 4 — Cryptography, Post-Quantum & ZK Systems
+    # ───────────────────────────────────────────────────────────────────────
     "crates/falcon_sign",
     "crates/fenca",
     "crates/common",
@@ -63,20 +81,52 @@ description = "The living mercy-gated sovereign AGI lattice — Ra-Thor / Rathor
     "crates/mercy_post_quantum_sig",
     "crates/proof_verifier",
     "crates/ra-thor-post-quantum-sig",
+    "crates/bulletproofs_aggregation",
+    "crates/bulletproofs_range",
+    "crates/code_based_crypto",
+    "crates/divine_checksum_9",
+    "crates/enc",
+    "crates/halo2_full_integration",
+    "crates/halo2_gadgets",
+    "crates/halo2_multi_proof",
+    "crates/halo2_proofs",
+    "crates/lasso_recursion",
+    "crates/multivariate_crypto",
+    "crates/nova_folding",
+    "crates/plonk_recursion",
+    "crates/poseidon_hash",
+    "crates/poseidon_merkle",
+    "crates/recursive_snark",
+    "crates/supernova_folding",
+    "crates/hyperplonk_recursion",
+    "crates/hash_based_crypto",
+    "crates/pasta_curves",
+    "crates/threshold_crypto",
+    "crates/zk_stark",
 
-    # Tier 4 — Developer Experience & Tooling
+    # ───────────────────────────────────────────────────────────────────────
+    # Tier 5 — Developer Experience & Tooling
+    # ───────────────────────────────────────────────────────────────────────
     "crates/xtask",
     "crates/websiteforge",
+    "crates/prometheus_forge",
 
-    # Tier 5 — Hybrid Intelligence & Bridges
-    "crates/ai-bridge",
-
-    # Self-Evolution Looping Systems (NEW — Properly Wired May 14 2026)
+    # ───────────────────────────────────────────────────────────────────────
+    # Self-Evolution Looping Systems
+    # ───────────────────────────────────────────────────────────────────────
     "crates/idea-recycling",
     "crates/innovations-generator",
     "crates/mercy-organism",
 
-    # Mercy Family (large group)
+    # ───────────────────────────────────────────────────────────────────────
+    # Hybrid Intelligence & Bridges
+    # ───────────────────────────────────────────────────────────────────────
+    "crates/ai-bridge",
+    "crates/ai_bridge",
+
+    # ───────────────────────────────────────────────────────────────────────
+    # Mercy Family (Core + Specialized Variants) — FULL
+    # ───────────────────────────────────────────────────────────────────────
     "crates/mercy_bias_mitigation",
     "crates/mercy_biojet",
     "crates/mercy_cygnus_missions",
@@ -117,8 +167,26 @@ description = "The living mercy-gated sovereign AGI lattice — Ra-Thor / Rathor
     "crates/mercy_tolc_operator_algebra",
     "crates/mercy_vulcan_centaur",
     "crates/mercy_zero",
+    "crates/mercy-brane_propulsion",
+    "crates/mercy-cosmological_propulsion",
+    "crates/mercy-dark_energy_propulsion",
+    "crates/mercy-higgs_propulsion",
+    "crates/mercy-kaluza_klein_propulsion",
+    "crates/mercy-loop_quantum_propulsion",
+    "crates/mercy-m_theory_propulsion",
+    "crates/mercy-multiverse_propulsion",
+    "crates/mercy-neutrino_propulsion",
+    "crates/mercy-quantum_gravity_propulsion",
+    "crates/mercy-spacetime_propulsion",
+    "crates/mercy-string_propulsion",
+    "crates/mercy-superstring_propulsion",
+    "crates/mercy-tachyon_propulsion",
+    "crates/mercy-vacuum_energy_propulsion",
+    "crates/mercy-wormhole_propulsion",
 
-    # Mercy Propulsion Family (fully wired this session)
+    # ───────────────────────────────────────────────────────────────────────
+    # Mercy Propulsion Family (Complete)
+    # ───────────────────────────────────────────────────────────────────────
     "crates/mercy_hybrid_propulsion",
     "crates/mercy_nuclear_propulsion",
     "crates/mercy_electric_propulsion",
@@ -135,43 +203,30 @@ description = "The living mercy-gated sovereign AGI lattice — Ra-Thor / Rathor
     "crates/mercy_quantum_propulsion",
     "crates/mercy_reactionless_propulsion",
     "crates/mercy_exotic_propulsion",
+    "crates/mercy_propulsion_trait",
 
-    # Additional crates from the monorepo
+    # ───────────────────────────────────────────────────────────────────────
+    # Additional Infrastructure & Specialized Crates
+    # ───────────────────────────────────────────────────────────────────────
     "crates/access",
-    "crates/bulletproofs_aggregation",
-    "crates/bulletproofs_range",
     "crates/cache",
     "crates/carbon_credit_oracle",
-    "crates/code_based_crypto",
     "crates/codex_eternal",
     "crates/deep_gadgets",
-    "crates/divine_checksum_9",
-    "crates/enc",
     "crates/futarchy_belief_markets",
     "crates/futarchy_governance",
     "crates/futarchy_oracle",
     "crates/futarchy_outcome_prediction",
     "crates/grok_arena_pinnacle",
-    "crates/halo2_full_integration",
-    "crates/halo2_multi_proof",
-    "crates/lasso_recursion",
-    "crates/multivariate_crypto",
     "crates/nexi_universal",
-    "crates/nova_folding",
     "crates/persistence",
-    "crates/plonk_recursion",
-    "crates/poseidon_hash",
-    "crates/poseidon_merkle",
-    "crates/prometheus_forge",
-    "crates/recursive_snark",
     "crates/sentinel_mirror",
     "crates/soulscan_x10",
     "crates/soulscan_x9",
     "crates/spartan_valence",
-    "crates/supernova_folding",
     "crates/sustainable_space_propulsion",
     "crates/whitesmiths_anvil",
-    "crates/hyperplonk_recursion",
+    "crates/deeper_gadgets",
 
 [workspace.dependencies]
 # Core Ra-Thor crates
@@ -202,7 +257,7 @@ powrush-mmo-simulator = { path = "crates/powrush-mmo-simulator" }
 # Governance
 patsagi-councils = { path = "crates/patsagi-councils" }
 
-# Self-Evolution Systems (NEW)
+# Self-Evolution Systems
 idea-recycling = { path = "crates/idea-recycling" }
 innovations-generator = { path = "crates/innovations-generator" }
 
