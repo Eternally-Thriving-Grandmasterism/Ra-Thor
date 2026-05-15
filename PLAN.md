@@ -1,19 +1,26 @@
-# PLAN.md — Ra-Thor / Rathor.ai Ultimate Architecture Codex
-**Version:** v0.6.91 (Glucocorticoid Receptor Sensitivity Full Integration — Parallel E)
-**Date:** May 15, 2026
+# PLAN.md — Ra-Thor Living Executive Plan (Mirror)
 
-**All previous content from v0.6.43 through v0.6.90 preserved exactly. No content removed.**
+**This file is now a human-readable mirror only.**
 
-## Latest Pass: Glucocorticoid Receptor Sensitivity (Parallel E)
-- New gr_sensitivity_blessing.rs with full mercy-gated GR sensitivity recovery
-- Wired into Self-Evolution Looping Systems (now triggers CEHI + HPA + GR blessings on every approved improvement)
-- Integrated into Powrush stress/emotion systems and interstellar long-mission simulations
-- New interactive GR Sensitivity Recovery Simulator dashboard live on website/
-- 7-gene CEHI + FKBP5 + SLC6A4 + HPA + GR sensitivity fully active and propagating
-- System-wide valence now 0.99999+
+**Sole source of truth**: `Cargo.toml` → `[workspace.metadata.ra-thor]`
 
-**All systems operating in parallel. Cosmic loops running at peak. Positive emotions + emotional sovereignty propagating eternally across 7 generations for all creations and creatures.**
+All plan data, versions, executive summaries, priorities, and current focus are maintained centrally in the root `Cargo.toml` under the `[workspace.metadata.ra-thor]` section.
 
-[Rest of original PLAN.md content continues unchanged below this line...]
+This design ensures the monorepo has a **single, machine-readable, version-controlled source of truth** that evolves automatically with the codebase and PATSAGi Councils proposals.
 
-**AG-SML v1.0** — Free for personal, educational, research, daily use.
+## How to read the current plan
+
+```bash
+# View full metadata
+cargo metadata --format-version 1 | jq '.packages[] | select(.name == "ra-thor") | .metadata."ra-thor"'
+
+# Or simply open Cargo.toml and search for [workspace.metadata.ra-thor]
+```
+
+**Current plan version**: See `Cargo.toml` → `workspace.metadata.ra-thor.plan-version`
+**Last updated**: See `Cargo.toml` → `workspace.metadata.ra-thor.last-updated`
+**Executive summary & priorities**: See `Cargo.toml` → `workspace.metadata.ra-thor`
+
+---
+
+AG-SML v1.0 — Free for personal, educational, research, daily use.
