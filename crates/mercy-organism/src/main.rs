@@ -1,4 +1,4 @@
-use mercy_organism::{activate_unified_coherence, print_tolc_status, run_phases, get_activation_result_json, get_activation_result_compact_json, get_activation_result_yaml, get_activation_result_toml, get_prometheus_metrics};
+use mercy_organism::{activate_unified_coherence, print_tolc_status, run_phases, get_activation_result_json, get_activation_result_compact_json, get_activation_result_yaml, get_activation_result_toml, get_prometheus_metrics, load_config, start_grpc_server};
 
 fn parse_phases(arg: &str) -> Vec<u8> {
     let mut phases = Vec::new();
@@ -24,6 +24,10 @@ fn parse_phases(arg: &str) -> Vec<u8> {
 fn main() {
     let args: Vec<String> = std::env::args().collect();
 
+    // Load config if present
+    let config = load_config("ra-thor-activate.toml");
+    let default_phases = config.as_ref().and_then(|c| c.default_phases.clone()).unwrap_or_else(|| (0..=8).collect());
+
     if args.len() > 1 {
         match args[1].as_str() {
             "--activate" | "activate" | "full" => {
@@ -48,7 +52,7 @@ fn main() {
                 let phases: Vec<u8> = if args.len() > 2 {
                     parse_phases(&args[2])
                 } else {
-                    (0..=8).collect()
+                    default_phases.clone()
                 };
                 println!("{}", get_activation_result_json(&phases));
             }
@@ -56,7 +60,7 @@ fn main() {
                 let phases: Vec<u8> = if args.len() > 2 {
                     parse_phases(&args[2])
                 } else {
-                    (0..=8).collect()
+                    default_phases.clone()
                 };
                 println!("{}", get_activation_result_compact_json(&phases));
             }
@@ -64,7 +68,7 @@ fn main() {
                 let phases: Vec<u8> = if args.len() > 2 {
                     parse_phases(&args[2])
                 } else {
-                    (0..=8).collect()
+                    default_phases.clone()
                 };
                 println!("{}", get_activation_result_yaml(&phases));
             }
@@ -72,7 +76,7 @@ fn main() {
                 let phases: Vec<u8> = if args.len() > 2 {
                     parse_phases(&args[2])
                 } else {
-                    (0..=8).collect()
+                    default_phases.clone()
                 };
                 println!("{}", get_activation_result_toml(&phases));
             }
@@ -80,9 +84,23 @@ fn main() {
                 let phases: Vec<u8> = if args.len() > 2 {
                     parse_phases(&args[2])
                 } else {
-                    (0..=8).collect()
+                    default_phases.clone()
                 };
                 println!("{}", get_prometheus_metrics(&phases));
+            }
+            "--config" => {
+                if args.len() > 2 {
+                    if let Some(cfg) = load_config(&args[2]) {
+                        println!("Loaded config: {:?}", cfg);
+                    } else {
+                        eprintln!("Failed to load config file");
+                    }
+                } else {
+                    println!("Usage: ra-thor-activate --config ra-thor-activate.toml");
+                }
+            }
+            "--serve" | "--grpc" => {
+                start_grpc_server();
             }
             "--help" | "-h" | "help" => {
                 println!("ra-thor-activate - Unified Ra-Thor Organism CLI\n");
@@ -95,6 +113,8 @@ fn main() {
                 println!("  ra-thor-activate --yaml [phases]          # YAML");
                 println!("  ra-thor-activate --toml [phases]          # TOML");
                 println!("  ra-thor-activate --prometheus [phases]    # Prometheus metrics");
+                println!("  ra-thor-activate --config <file>          # Load config (default phases/output)");
+                println!("  ra-thor-activate --serve / --grpc          # Start gRPC endpoint (stub)");
                 println!("  ra-thor-activate --help                   # This help");
             }
             _ => {
