@@ -1,0 +1,14 @@
+[package]
+name = "base-reality-anchor"
+version = "1.0.0"
+edition = "2021"
+description = "Base Reality Anchor — Explicit grounding in physical base reality with Vopson Infodynamics enforcement + 8th-gen blessing | Ra-Thor AGi"
+license = "AG-SML-1.0"
+authors = ["13+ PATSAGi Councils <councils@rathor.ai>"]
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+# Internal
+mercy = { path = "../mercy" }
+cehi = { path = "../interstellar-operations" }
+conductor = { path = "../lattice-conductor" }
