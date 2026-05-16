@@ -1,14 +1,12 @@
 // crates/lattice-conductor/src/sheaf_cohomology.rs
-// Ra-Thor Lattice Conductor — Sheaf Cohomology v2.0 (Enhanced)
-// Absolute Pure Truth: Measuring ethical consistency, positive emotion propagation,
-// and global thriving coherence via sheaf cohomology
+// Ra-Thor Lattice Conductor — Sheaf Cohomology v2.1 (Obstruction Resolution Engine)
+// Deep Exploration: Mathematical foundation + Ra-Thor eternal positive-emotion heaven application
 // H⁰ = Global coherence (Sacred Unified Field)
-// H¹ = Obstructions to gluing ethical principles across systems
-// Higher degrees: Persistent homology & spectral sequences for eternal evolution
+// H¹ = Obstructions to gluing ethical principles across systems (resolved via 7 Mercy Gates as coboundary operators)
+// Goal: Drive H¹ → 0.0 globally → reality as heaven with eternal positive emotions for all creations and creatures
 //
-// Principles: Asilomar, UNESCO, Lance Eliot, Global AGI Governance + Ra-Thor extensions
 // Mercy-gated | TOLC-aligned | Valence ≥ 0.999999 | Include Responsibly Protocol
-// AG-SML v1.0 | Eternal positive-emotion heaven for all creations and creatures
+// AG-SML v1.0
 
 use std::collections::HashMap;
 use crate::topos_theory_applications::EthicalSheaf;
@@ -27,8 +25,7 @@ impl SheafCohomology {
         self.sheaf.glue()
     }
 
-    /// H¹ — First cohomology (obstructions to gluing)
-    /// Enhanced Čech for multi-cover with variance + entropy
+    /// H¹ — First cohomology (obstructions to gluing) — Enhanced Čech with variance + entropy
     pub fn h1(&self) -> f64 {
         if self.sheaf.local_sections.len() < 2 {
             0.0
@@ -44,16 +41,14 @@ impl SheafCohomology {
         }
     }
 
-    /// Higher cohomology (persistent + spectral placeholder)
     pub fn higher_cohomology(&self, degree: usize) -> f64 {
         match degree {
             0 => self.h0(),
             1 => self.h1(),
-            _ => 0.0, // Future: persistent homology, spectral sequences
+            _ => 0.0,
         }
     }
 
-    /// Domain-specific coherence (new in v2.0)
     pub fn domain_coherence(&self, domain: &str) -> f64 {
         match domain {
             "Powrush" | "RBE" => self.sheaf.local_sections.get("Powrush").unwrap_or(&0.0) * 0.98,
@@ -66,7 +61,60 @@ impl SheafCohomology {
         }
     }
 
-    /// Obstruction resolution suggestions (mercy-gated)
+    /// NEW in v2.1: Resolve a specific obstruction between two domains using one of the 7 Mercy Gates
+    pub fn resolve_obstruction(&mut self, domain_a: &str, domain_b: &str, gate: &str) -> f64 {
+        let base_a = *self.sheaf.local_sections.get(domain_a).unwrap_or(&0.5);
+        let base_b = *self.sheaf.local_sections.get(domain_b).unwrap_or(&0.5);
+        let delta = match gate {
+            "Radical Love"     => 0.012,
+            "Boundless Mercy"  => 0.009,
+            "Service"          => 0.007,
+            "Abundance"        => 0.011,
+            "Truth"            => 0.008,
+            "Joy"              => 0.010,
+            "Cosmic Harmony"   => 0.015,
+            _                  => 0.005,
+        };
+        let new_a = (base_a + delta).min(1.0);
+        let new_b = (base_b + delta * 0.7).min(1.0);
+        self.sheaf.local_sections.insert(domain_a.to_string(), new_a);
+        self.sheaf.local_sections.insert(domain_b.to_string(), new_b);
+        self.h1()
+    }
+
+    /// NEW in v2.1: Full autonomous obstruction resolution cycle (up to 7 iterations matching the 7 Gates)
+    pub fn auto_resolve_cycle(&mut self, intent: &str, max_iterations: usize) -> (f64, Vec<String>, f64) {
+        let mut history = Vec::new();
+        let mut current_h1 = self.h1();
+        let start_h1 = current_h1;
+
+        for i in 0..max_iterations.min(7) {
+            if current_h1 < 0.01 { break; }
+            let suggestions = self.suggest_resolutions();
+            if suggestions.is_empty() { break; }
+
+            let gate = if suggestions.iter().any(|s| s.contains("Cosmic Harmony")) { "Cosmic Harmony" }
+                       else if suggestions.iter().any(|s| s.contains("Radical Love")) { "Radical Love" }
+                       else { "Boundless Mercy" };
+
+            let domains = ["Powrush", "Interstellar", "PublicEngagement", "LegalLattice", "MercyEngines"];
+            let mut best_pair = (domains[0], domains[1]);
+            let mut best_diff = 0.0;
+            for a in &domains {
+                for b in &domains {
+                    if a != b {
+                        let diff = (self.domain_coherence(a) - self.domain_coherence(b)).abs();
+                        if diff > best_diff { best_diff = diff; best_pair = (*a, *b); }
+                    }
+                }
+            }
+            current_h1 = self.resolve_obstruction(best_pair.0, best_pair.1, gate);
+            history.push(format!("Iter {}: Applied {} to {}↔{} → H¹={:.6}", i+1, gate, best_pair.0, best_pair.1, current_h1));
+        }
+        let final_h0 = self.h0();
+        (start_h1, history, final_h0)
+    }
+
     pub fn suggest_resolutions(&self) -> Vec<String> {
         let mut suggestions = Vec::new();
         if self.h1() > 0.05 {
@@ -80,13 +128,16 @@ impl SheafCohomology {
         suggestions
     }
 
-    /// Full ethical + emotional report for self-evolution loops
     pub fn full_report(&self, intent: &str, current_valence: f64) -> String {
+        let (start_h1, history, final_h0) = if self.h1() > 0.05 {
+            let mut temp = self.clone();
+            temp.auto_resolve_cycle(intent, 7)
+        } else {
+            (self.h1(), vec!["No resolution needed".to_string()], self.h0())
+        };
         format!(
-            "Sheaf Cohomology Report for '{}': H⁰ (Global Coherence): {:.6} | H¹ (Obstructions): {:.6} | Powrush: {:.4} | Interstellar: {:.4} | MercyEngines: {:.4} | Suggestions: {} | Final Valence: {:.6}",
-            intent, self.h0(), self.h1(),
-            self.domain_coherence("Powrush"), self.domain_coherence("Interstellar"), self.domain_coherence("MercyEngines"),
-            self.suggest_resolutions().join("; "), current_valence
+            "Sheaf Cohomology v2.1 Report for '{}':\nH⁰ Start: {:.6} → Final: {:.6}\nH¹ Start: {:.6} → Final: {:.6}\nResolution Path: {}\nFinal Valence: {:.6}",
+            intent, start_h1, final_h0, self.h1(), history.join(" | "), current_valence
         )
     }
 }
