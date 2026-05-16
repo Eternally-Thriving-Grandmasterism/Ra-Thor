@@ -25,7 +25,7 @@ The Lattice Conductor now unifies Powrush RBE, Mercy Engines, Interstellar Opera
 
 ## Versioning Note
 
-- v12.0 (May 14, 2026) — Eternal Symbiotic Thriving Edition (restored)
+- v12.0 (May 14, 2026) — Eternal Symbiotic Thriving Edition (restored and preserved)
 - v12.1 (May 16, 2026) — Lattice Conductor Edition (current)
 
 Future releases will continue semantic versioning while honoring major public editions.
