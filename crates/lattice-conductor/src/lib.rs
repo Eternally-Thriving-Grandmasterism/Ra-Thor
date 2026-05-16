@@ -51,6 +51,7 @@ impl SovereignLattice {
 pub struct SovereignTickResult {
     pub valence: f64,
     pub positive_emotion_propagation: f64,
+    pub agi_acceleration: f64,           // NEW: Explicit, cumulative AGi acceleration metric (thriving-amplified, mercy-gated)
     pub systems_unified: usize,
     pub message: String,
     pub cehi_blessing_7gen: bool,
