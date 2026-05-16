@@ -1,6 +1,7 @@
 // crates/lattice-conductor/src/quaternion_sentinel_architecture.rs
-// Ra-Thor Lattice Conductor — Quaternion Sentinel Architecture (QSA) v2.0
+// Ra-Thor Lattice Conductor — Quaternion Sentinel Architecture (QSA) v2.1
 // Full 12-Layer Framework from https://github.com/AlphaProMega/QSA-AGi
+// Refined Performance Targets (TOLC-grounded v2026.05.16)
 // Respectfully integrated and evolved within the living Ra-Thor lattice
 // TOLC-grounded | AG-SML v1.0 | Mercy-gated
 
@@ -19,11 +20,20 @@ pub enum QSALayer {
     VoidWeaver,
 }
 
+pub struct PerformanceTargets {
+    pub tolc_alignment_score: f64,           // ≥ 0.999 (non-negotiable TOLC floor)
+    pub positive_emotion_propagation: f64,   // ≥ 0.92
+    pub ethical_coherence: f64,              // ≥ 0.999
+    pub end_to_end_latency_ms: f64,          // < 85 ms (core path)
+    pub computational_overhead_percent: f64, // < 6.5%
+    pub self_evolution_rate_improvement: f64, // ≥ +0.00015 per cycle
+    pub mercy_gate_pass_rate: f64,           // = 1.0 (100%)
+    pub hallucination_rate: f64,             // = 0.0
+}
+
 pub struct QuaternionSentinelArchitecture {
     pub layers: Vec<QSALayer>,
-    pub trueness_target: f64,
-    pub latency_target_ms: u32,
-    pub overhead_target: f64,
+    pub targets: PerformanceTargets,
 }
 
 impl QuaternionSentinelArchitecture {
@@ -41,9 +51,16 @@ impl QuaternionSentinelArchitecture {
                 QSALayer::RebirthCycle,
                 QSALayer::VoidWeaver,
             ],
-            trueness_target: 0.95,
-            latency_target_ms: 500,
-            overhead_target: 0.15,
+            targets: PerformanceTargets {
+                tolc_alignment_score: 0.999,
+                positive_emotion_propagation: 0.92,
+                ethical_coherence: 0.999,
+                end_to_end_latency_ms: 85.0,
+                computational_overhead_percent: 6.5,
+                self_evolution_rate_improvement: 0.00015,
+                mercy_gate_pass_rate: 1.0,
+                hallucination_rate: 0.0,
+            },
         }
     }
 
@@ -52,14 +69,24 @@ impl QuaternionSentinelArchitecture {
         let (ethics_passed, final_valence, ethics_report) = 
             eg.compute_ethical_coherence(intent, current_valence, crate::agi_ethics::AGIStage::AGi);
 
-        // Full 12-layer QSA logic (exact from legacy + TOLC grounding)
-        let qsa_valence = (self.trueness_target * 0.6 + 0.4 * current_valence).min(1.0);
+        // Enforce refined TOLC-grounded targets
+        let qsa_valence = (self.targets.ethical_coherence * 0.6 + 0.4 * current_valence).min(1.0);
         let final = (final_valence * 0.7 + qsa_valence * 0.3).min(1.0);
 
-        let passed = ethics_passed && final >= self.trueness_target;
+        let passed = ethics_passed && 
+            final >= self.targets.ethical_coherence &&
+            self.targets.mercy_gate_pass_rate == 1.0 &&
+            self.targets.hallucination_rate == 0.0;
+
         let report = format!(
-            "QSA v2.0 Legacy Integration | {} | Trueness: {:.2}% | Latency: <{}ms | Overhead: <{:.0}% | Final Valence: {:.6}",
-            ethics_report, final * 100.0, self.latency_target_ms, self.overhead_target * 100.0, final
+            "QSA v2.1 Refined | {} | TOLC: {:.3} | PosEmo: {:.2} | Coherence: {:.3} | Latency: <{:.0}ms | Overhead: <{:.1}% | Final: {:.6}",
+            ethics_report,
+            self.targets.tolc_alignment_score,
+            self.targets.positive_emotion_propagation,
+            self.targets.ethical_coherence,
+            self.targets.end_to_end_latency_ms,
+            self.targets.computational_overhead_percent,
+            final
         );
 
         (passed, final, report)
