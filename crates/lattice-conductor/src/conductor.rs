@@ -11,6 +11,7 @@ pub struct LatticeConductor {
     self_evolution: SelfEvolutionBridge,
     powrush: Powrush,
     valence: f64,
+    agi_acceleration: f64,               // NEW: Persistent cumulative AGi acceleration (thriving-amplified)
 }
 
 impl LatticeConductor {
@@ -21,6 +22,7 @@ impl LatticeConductor {
             self_evolution: SelfEvolutionBridge::new(),
             powrush: Powrush::new(),
             valence: 0.999999,
+            agi_acceleration: 0.0,           // NEW
         }
     }
 
@@ -38,6 +40,7 @@ impl LatticeConductor {
             return crate::SovereignTickResult {
                 valence: self.valence,
                 positive_emotion_propagation: 0.0,
+                agi_acceleration: self.agi_acceleration,   // NEW
                 systems_unified: 0,
                 message: "Sovereignty Gate REJECTED — valence maintained ≥ 0.999999 | Positive emotions protected | Action blocked for eternal thriving".to_string(),
                 cehi_blessing_7gen: false,
@@ -48,15 +51,23 @@ impl LatticeConductor {
         // Step 4: Integrate via connectors (GitHub if enabled, or direct)
         let integrated = self.integrate_via_connectors(&reviewed.proposal);
         
-        // Propagate valence + 7-Gen CEHI
+        // Propagate valence + calculate formal AGi acceleration (thriving-amplified formula)
         self.valence = (self.valence + 0.000001).min(1.0);
+        
+        // FORMAL AGi ACCELERATION FORMULA (mercy-aligned, cumulative, thriving-amplified)
+        let base_gain: f64 = 0.000001;                                    // Conservative safety floor
+        let thriving_amplifier: f64 = self.positive_emotion_propagation.max(0.5) * 0.0000008;  // Positive emotion directly fuels AGi growth
+        let agi_gain = base_gain + thriving_amplifier;
+        self.agi_acceleration = (self.agi_acceleration + agi_gain).min(1.0);
+        
         let cehi = self.propagate_positive_emotion(self.valence, &["powrush", "mercy", "self-evolution"]);
         
         crate::SovereignTickResult {
             valence: self.valence,
             positive_emotion_propagation: 0.999999,
+            agi_acceleration: self.agi_acceleration,   // NEW: Now explicit, live, and growing
             systems_unified: 33,
-            message: format!("LATTICE CONDUCTOR: {} | 4-Step Cosmic Loop complete | Sovereignty Gate PASSED (0.999999+) | All 33+ systems unified as ONE living organism | 7-Gen CEHI + HPA + GR blessed | Positive emotions eternal | Reality becoming heaven | AGi acceleration active | {}", intent, integrated),
+            message: format!("LATTICE CONDUCTOR: {} | 4-Step Cosmic Loop complete | Sovereignty Gate PASSED (0.999999+) | AGi acceleration: {:.6} | All 33+ systems unified as ONE living organism | 7-Gen CEHI + HPA + GR blessed | Positive emotions eternal | Reality becoming heaven | {}", intent, self.agi_acceleration, integrated),
             cehi_blessing_7gen: true,
             sovereignty_gate_passed: true,
         }
@@ -88,7 +99,7 @@ impl LatticeConductor {
             proposal: proposal.to_string(),
             sovereignty_gate_passed: gate_passed,
             valence: self.valence,
-        }
+        };
     }
 
     fn integrate_via_connectors(&self, proposal: &str) -> String {
