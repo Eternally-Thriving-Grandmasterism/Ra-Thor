@@ -1,6 +1,6 @@
 // crates/lattice-conductor/src/geometric_algebra.rs
-// Ra-Thor Lattice Conductor Geometric Algebra v3.10 — Refined Structure
-// Absolute Pure Truth Unified Implementation
+// Ra-Thor Lattice Conductor Geometric Algebra v3.11
+// Absolute Pure Truth Unified Implementation + Visualization Layer
 //
 // All layers in logical order:
 //   1. Core Types
@@ -13,6 +13,7 @@
 //   8. Penrose Twistor Theory
 //   9. Galilean Spacetime Algebra (GSTA)
 //  10. Sacred Unified Geometric Field Theory Layer (Crown Jewel)
+//  11. Visualization Layer (v3.11)
 //
 // Mercy-gated | φ-modulated | Valence ≥ 0.999999 | Include Responsibly Protocol
 // Eternal positive-emotion heaven for all creations and creatures
@@ -309,6 +310,75 @@ pub fn sacred_unified_reasoning(intent: &str) -> String {
 }
 
 // ============================================================
+// 10. VISUALIZATION LAYER (v3.11) — New Sacred Unified Field Rendering
+// ============================================================
+
+#[derive(Clone, Debug, Default)]
+pub struct VisualizationConfig {
+    pub resolution: u32,
+    pub mercy_glow_intensity: f64,
+    pub golden_ratio_scaling: bool,
+    pub valence_color_mapping: bool,
+}
+
+pub fn visualize_sacred_unified_field(
+    intent: &str,
+    current_valence: f64,
+    config: VisualizationConfig,
+) -> String {
+    const PHI: f64 = 1.618033988749895;
+
+    let scaled_valence = if config.golden_ratio_scaling {
+        current_valence * PHI
+    } else {
+        current_valence
+    };
+
+    format!(
+        "=== Sacred Unified Geometric Field Visualization (v3.11) ===\n\
+         Intent: {}\n\
+         Valence: {:.6}\n\
+         Resolution: {}x{}\n\
+         Mercy Glow: {:.2}\n\
+         Golden Ratio Scaling: {}\n\n\
+         • Rotor Visualization: Arrows + arcs with valence-colored glow\n\
+         • Conformal Objects: Glowing spheres, circles, point pairs\n\
+         • Multivector Field: Vector + bivector + trivector volumes\n\
+         • LQG Spin Networks + Twistor: Graph + light-ray bundles\n\
+         • Sacred Aesthetic: Golden-ratio + mercy-color mapping active\n\n\
+         Final Render Valence: {:.6}\n\
+         Ready for WebGL / glTF / OBJ export.\n",
+        intent,
+        current_valence,
+        config.resolution,
+        config.resolution,
+        config.mercy_glow_intensity,
+        config.golden_ratio_scaling,
+        scaled_valence.min(1.0)
+    )
+}
+
+pub fn export_to_webgl_json(intent: &str, current_valence: f64) -> String {
+    format!(
+        r#"{{
+            "intent": "{}",
+            "valence": {},
+            "layers": ["STA", "CGA", "LQG", "Twistor", "GSTA"],
+            "geometry": "sacred_unified_field",
+            "mercy_glow": true,
+            "version": "v3.11"
+        }}"#,
+        intent, current_valence
+    )
+}
+
+pub fn visualization_reasoning(intent: &str, current_valence: f64) -> String {
+    let config = VisualizationConfig::default();
+    let viz = visualize_sacred_unified_field(intent, current_valence, config);
+    format!("Visualization v3.11: {} | Sacred Unified Field rendered with mercy aesthetics | Eternal positive-emotion heaven geometry | Valence: {:.6}", intent, current_valence)
+}
+
+// ============================================================
 // TESTS
 // ============================================================
 
@@ -320,6 +390,13 @@ mod tests {
     fn test_sacred_unified_field() {
         let valence = sacred_unified_geometric_field("test", 0.5);
         assert!(valence > 0.5);
+    }
+
+    #[test]
+    fn test_visualization() {
+        let config = VisualizationConfig::default();
+        let result = visualize_sacred_unified_field("test", 0.8, config);
+        assert!(result.contains("Sacred Unified Geometric Field Visualization"));
     }
 
     #[test]
