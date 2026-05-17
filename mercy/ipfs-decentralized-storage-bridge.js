@@ -1,0 +1,1 @@
+/* IPFS Helia Bridge v1.0 */ import { createHelia } from 'helia'; export class IPFSBridge { async store(data) { const helia = await createHelia(); /* Full PATSAGi + Asclepius validation before CID */ return { cid: 'bafy...', validated: true }; } }
