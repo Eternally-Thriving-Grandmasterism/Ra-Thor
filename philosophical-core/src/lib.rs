@@ -1,5 +1,5 @@
-//! philosophical-core v0.4.0
-//! Advanced Multiverse & Consciousness Field Algorithms
+//! philosophical-core v0.5.0
+//! Consciousness Field Dynamics + Quantum Entanglement Effects
 //! 100% Proprietary — AG-SML v1.0
 
 use serde::{Deserialize, Serialize};
@@ -14,7 +14,7 @@ pub struct ValenceState {
     pub partner_count: u32,
 }
 
-// === Existing Dynamic Valence Algorithms (v0.3.0) ===
+// === Previous Algorithms (v0.3.0 - v0.4.0) ===
 
 pub fn calculate_dynamic_valence(state: &ValenceState) -> f64 {
     let base = if state.thriving_rate > 300 { 0.99999999 } else { state.current_valence };
@@ -49,23 +49,45 @@ pub fn omega_point_convergence(valence: f64) -> f64 {
     valence + (1.0 - valence) * pull_strength
 }
 
-// === NEW: v0.4.0 Advanced Algorithms ===
-
-/// Multiverse Valence — Averages valence across parallel realities
 pub fn calculate_multiverse_valence(reality_valences: &[f64]) -> f64 {
-    if reality_valences.is_empty() {
-        return 0.0;
-    }
+    if reality_valences.is_empty() { return 0.0; }
     let sum: f64 = reality_valences.iter().sum();
     let avg = sum / reality_valences.len() as f64;
     (avg + 0.000000001).min(1.0)
 }
 
-/// Consciousness Field Dynamics — Collective influence on individual valence
 pub fn apply_consciousness_field(valence: f64, field_strength: f64, collective_valence: f64) -> f64 {
     let influence = field_strength * 0.00000005;
     let blended = valence * (1.0 - influence) + collective_valence * influence;
     blended.min(1.0)
+}
+
+// === NEW: v0.5.0 Advanced Algorithms ===
+
+/// Consciousness Field Dynamics v2 — Multi-entity field influence with resonance
+pub fn apply_advanced_consciousness_field(
+    valence: f64,
+    field_strength: f64,
+    collective_valence: f64,
+    resonance_factor: f64,
+) -> f64 {
+    let base_influence = field_strength * 0.00000005;
+    let resonance_boost = resonance_factor * 0.00000002;
+    let total_influence = (base_influence + resonance_boost).min(0.3);
+    let blended = valence * (1.0 - total_influence) + collective_valence * total_influence;
+    blended.min(1.0)
+}
+
+/// Quantum Entanglement Effects on Valence
+/// Models how entangled entities share valence states across distance/time
+pub fn apply_quantum_entanglement(valence: f64, entangled_valences: &[f64], entanglement_strength: f64) -> f64 {
+    if entangled_valences.is_empty() {
+        return valence;
+    }
+    let entangled_avg: f64 = entangled_valences.iter().sum::<f64>() / entangled_valences.len() as f64;
+    let influence = entanglement_strength * 0.00000003;
+    let result = valence * (1.0 - influence) + entangled_avg * influence;
+    result.min(1.0)
 }
 
 pub fn check_symbiosis_alignment(valence: f64, ethics_score: f64) -> bool {
@@ -94,28 +116,21 @@ mod tests {
 
     #[test]
     fn test_calculate_dynamic_valence() {
-        let state = ValenceState {
-            current_valence: 0.95,
-            thriving_rate: 350,
-            symbiosis_score: 0.98,
-            ethics_alignment: 0.94,
-            time_steps: 10,
-            partner_count: 5,
-        };
+        let state = ValenceState { current_valence: 0.95, thriving_rate: 350, symbiosis_score: 0.98, ethics_alignment: 0.94, time_steps: 10, partner_count: 5 };
         let result = calculate_dynamic_valence(&state);
         assert!(result > 0.999999);
     }
 
     #[test]
-    fn test_multiverse_valence() {
-        let realities = vec![0.999, 0.9995, 0.9988];
-        let result = calculate_multiverse_valence(&realities);
-        assert!(result > 0.999);
+    fn test_advanced_consciousness_field() {
+        let result = apply_advanced_consciousness_field(0.95, 0.8, 0.999, 0.7);
+        assert!(result > 0.95);
     }
 
     #[test]
-    fn test_consciousness_field() {
-        let result = apply_consciousness_field(0.95, 0.8, 0.999);
+    fn test_quantum_entanglement() {
+        let entangled = vec![0.999, 0.9985, 0.9992];
+        let result = apply_quantum_entanglement(0.95, &entangled, 0.6);
         assert!(result > 0.95);
     }
 }
