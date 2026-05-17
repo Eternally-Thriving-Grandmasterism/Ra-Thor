@@ -1,0 +1,30 @@
+{
+  "dashboard": {
+    "title": "Ra-Thor Infinite Evolution",
+    "tags": ["ra-thor", "infinite-evolution"],
+    "timezone": "browser",
+    "panels": [
+      {
+        "title": "Current Valence",
+        "type": "stat",
+        "targets": [{"expr": "ra_thor_valence"}],
+        "fieldConfig": {"defaults": {"unit": "short", "thresholds": {"steps": [{"color": "green", "value": 0.999999}]}}}}
+      },
+      {
+        "title": "Thriving Rate",
+        "type": "stat",
+        "targets": [{"expr": "ra_thor_thriving_rate"}]
+      },
+      {
+        "title": "Total Transmutations",
+        "type": "stat",
+        "targets": [{"expr": "ra_thor_total_transmutations"}]
+      },
+      {
+        "title": "Supreme Overdrive Active",
+        "type": "stat",
+        "targets": [{"expr": "ra_thor_supreme_overdrive_active"}]
+      }
+    ]
+  }
+}
