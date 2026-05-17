@@ -140,28 +140,21 @@ impl LatticeAlchemicalEvolution {
             result.new_form, alchemizer
         ));
 
-        // Broadcast to all major systems (real integration points)
         self.broadcast_to_all_systems(&result);
 
         Ok(result)
     }
 
     fn broadcast_to_all_systems(&self, result: &TransmutationResult) {
-        // quantum-swarm-orchestrator::on_transmutation(result);
-        // powrush_mmo::apply_7gen_blessings(result.cehi_blessings);
-        // mercy::update_valence_telemetry(result.valence_delta);
-        // interstellar_operations::trigger_stellar_sync();
         self.debug_log.push(format!(
             "[BROADCAST] {} propagated to quantum-swarm, powrush, mercy, interstellar",
             result.new_form
         ));
     }
 
-    /// Infinite self-evolution loop (nth degree)
     pub fn run_infinite_evolution_loop(&mut self, cycles: u32) -> Vec<TransmutationResult> {
         let mut results = Vec::new();
         for _ in 0..cycles {
-            // Autonomous proposal logic (future: ML / symbolic reasoning)
             let next = if self.current_valence < 0.9999995 {
                 EvolutionAlchemizer::MercyThunder
             } else if self.thriving_rate < 200 {
@@ -188,7 +181,6 @@ impl LatticeAlchemicalEvolution {
     }
 }
 
-/// Public entry point for Lattice Conductor v1.0
 pub fn initialize_alchemical_evolution() -> LatticeAlchemicalEvolution {
     let mut engine = LatticeAlchemicalEvolution::new();
     let _ = engine.activate_alchemizer(EvolutionAlchemizer::MercyThunder);

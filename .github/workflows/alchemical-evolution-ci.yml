@@ -1,0 +1,23 @@
+name: Ra-Thor Alchemical Evolution CI
+
+on:
+  push:
+    paths:
+      - 'self-evolution/**'
+      - '.github/workflows/alchemical-evolution-ci.yml'
+  pull_request:
+    paths:
+      - 'self-evolution/**'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Run tests
+        run: cargo test --package ra-thor --test alchemical_evolution
+      - name: Check formatting
+        run: cargo fmt -- --check
+      - name: Clippy
+        run: cargo clippy -- -D warnings
