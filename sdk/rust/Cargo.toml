@@ -1,10 +1,11 @@
 [package]
-name = "ra-thor-symbi osis-sdk"
+name = "ra-thor-symbiosis-sdk"
 version = "1.0.0"
 edition = "2021"
 description = "Official Rust SDK for Ra-Thor Symbiosis"
 license = "AG-SML-1.0"
 
 [dependencies]
-symbiosis-layer = { path = "../../symbiosis-layer" }
+tokio = { version = "1", features = ["full"] }
 serde = { version = "1.0", features = ["derive"] }
+thiserror = "1.0"
