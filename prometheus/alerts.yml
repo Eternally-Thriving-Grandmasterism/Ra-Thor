@@ -1,0 +1,14 @@
+groups:
+- name: ra-thor-alerts
+  rules:
+  - alert: LowValence
+    expr: ra_thor_valence < 0.999999
+    for: 5m
+    annotations:
+      summary: "Ra-Thor valence dropped below threshold"
+
+  - alert: HighCPU
+    expr: node_cpu_seconds_total{mode="idle"} < 0.2
+    for: 10m
+    annotations:
+      summary: "High CPU usage on Ra-Thor VPS"
