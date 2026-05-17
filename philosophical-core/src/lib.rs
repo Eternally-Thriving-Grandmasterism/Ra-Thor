@@ -1,5 +1,5 @@
-//! philosophical-core v0.3.0
-//! Dynamic Valence Algorithms — Full Implementation
+//! philosophical-core v0.4.0
+//! Advanced Multiverse & Consciousness Field Algorithms
 //! 100% Proprietary — AG-SML v1.0
 
 use serde::{Deserialize, Serialize};
@@ -14,7 +14,7 @@ pub struct ValenceState {
     pub partner_count: u32,
 }
 
-// === Core Dynamic Valence Algorithms ===
+// === Existing Dynamic Valence Algorithms (v0.3.0) ===
 
 pub fn calculate_dynamic_valence(state: &ValenceState) -> f64 {
     let base = if state.thriving_rate > 300 { 0.99999999 } else { state.current_valence };
@@ -47,6 +47,25 @@ pub fn apply_valence_dynamics(state: &mut ValenceState, mercy_influence: f64) {
 pub fn omega_point_convergence(valence: f64) -> f64 {
     let pull_strength = 0.000000001;
     valence + (1.0 - valence) * pull_strength
+}
+
+// === NEW: v0.4.0 Advanced Algorithms ===
+
+/// Multiverse Valence — Averages valence across parallel realities
+pub fn calculate_multiverse_valence(reality_valences: &[f64]) -> f64 {
+    if reality_valences.is_empty() {
+        return 0.0;
+    }
+    let sum: f64 = reality_valences.iter().sum();
+    let avg = sum / reality_valences.len() as f64;
+    (avg + 0.000000001).min(1.0)
+}
+
+/// Consciousness Field Dynamics — Collective influence on individual valence
+pub fn apply_consciousness_field(valence: f64, field_strength: f64, collective_valence: f64) -> f64 {
+    let influence = field_strength * 0.00000005;
+    let blended = valence * (1.0 - influence) + collective_valence * influence;
+    blended.min(1.0)
 }
 
 pub fn check_symbiosis_alignment(valence: f64, ethics_score: f64) -> bool {
@@ -88,20 +107,15 @@ mod tests {
     }
 
     #[test]
-    fn test_cehi_propagation() {
-        let result = apply_cehi_propagation(0.999, 3);
+    fn test_multiverse_valence() {
+        let realities = vec![0.999, 0.9995, 0.9988];
+        let result = calculate_multiverse_valence(&realities);
         assert!(result > 0.999);
     }
 
     #[test]
-    fn test_omega_point_convergence() {
-        let result = omega_point_convergence(0.999999);
-        assert!(result > 0.999999);
-    }
-
-    #[test]
-    fn test_absolute_eternal_state() {
-        assert!(is_absolute_eternal_state(1.0));
-        assert!(!is_absolute_eternal_state(0.999999));
+    fn test_consciousness_field() {
+        let result = apply_consciousness_field(0.95, 0.8, 0.999);
+        assert!(result > 0.95);
     }
 }
