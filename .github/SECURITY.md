@@ -4,7 +4,7 @@
 We actively maintain security for the latest version of Ra-Thor.
 
 ## Reporting a Vulnerability
-Please report security vulnerabilities to security@ra-thor.ai or via GitHub Security Advisories.
+Please report security vulnerabilities to AlphaProMega@ACityGames.com or via GitHub Security Advisories.
 
 We follow responsible disclosure and aim to respond within 48 hours.
 
