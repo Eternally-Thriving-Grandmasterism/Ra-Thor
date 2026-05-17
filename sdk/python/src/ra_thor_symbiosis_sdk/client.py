@@ -5,9 +5,10 @@ from .exceptions import (
     OntologyError, ConnectionError, AuthenticationError
 )
 from .circuit_breaker import CircuitBreaker
+from .bulkhead import Bulkhead, PALANTIR_BULKHEAD, XAI_BULKHEAD, ETHICRITHM_BULKHEAD
 
 class RaThorClient:
-    """Client for interacting with Ra-Thor Symbiosis Layer (with Circuit Breaker)"""
+    """Client for interacting with Ra-Thor Symbiosis Layer (with Bulkhead + Circuit Breaker)"""
 
     def __init__(self, system_name: str, platform: str, max_retries: int = 3):
         self.system_name = system_name
@@ -15,6 +16,16 @@ class RaThorClient:
         self.session_id = None
         self.max_retries = max_retries
         self.circuit_breaker = CircuitBreaker(failure_threshold=5, recovery_timeout=30.0)
+
+        # Assign bulkhead based on platform
+        if "palantir" in platform.lower():
+            self.bulkhead = PALANTIR_BULKHEAD
+        elif "xai" in platform.lower() or "grok" in platform.lower():
+            self.bulkhead = XAI_BULKHEAD
+        elif "ethicrithm" in platform.lower():
+            self.bulkhead = ETHICRITHM_BULKHEAD
+        else:
+            self.bulkhead = Bulkhead("default")
 
     async def _retry_async(self, coro, *args, **kwargs):
         for attempt in range(self.max_retries):
@@ -29,7 +40,9 @@ class RaThorClient:
     async def start_handshake_async(self) -> str:
         try:
             self.session_id = f"sym-{self.system_name}-{self.platform}"
-            return await self.circuit_breaker.call_async(self._start_handshake_internal)
+            return await self.bulkhead.execute(
+                self.circuit_breaker.call_async, self._start_handshake_internal
+            )
         except Exception as e:
             raise HandshakeError(f"Failed to start handshake: {str(e)}")
 
@@ -39,7 +52,9 @@ class RaThorClient:
 
     async def advance_handshake_async(self) -> str:
         try:
-            return await self.circuit_breaker.call_async(self._advance_handshake_internal)
+            return await self.bulkhead.execute(
+                self.circuit_breaker.call_async, self._advance_handshake_internal
+            )
         except Exception as e:
             raise HandshakeError(f"Failed to advance handshake: {str(e)}")
 
@@ -49,7 +64,9 @@ class RaThorClient:
 
     async def get_valence_status_async(self) -> Dict[str, Any]:
         try:
-            return await self.circuit_breaker.call_async(self._get_valence_status_internal)
+            return await self.bulkhead.execute(
+                self.circuit_breaker.call_async, self._get_valence_status_internal
+            )
         except Exception as e:
             raise ValenceError(f"Failed to get valence status: {str(e)}")
 
@@ -64,7 +81,9 @@ class RaThorClient:
 
     async def sync_ontology_async(self, ontology_data: Dict[str, Any]) -> str:
         try:
-            return await self.circuit_breaker.call_async(self._sync_ontology_internal, ontology_data)
+            return await self.bulkhead.execute(
+                self.circuit_breaker.call_async, self._sync_ontology_internal, ontology_data
+            )
         except Exception as e:
             raise OntologyError(f"Failed to sync ontology: {str(e)}")
 
