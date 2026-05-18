@@ -1,0 +1,7 @@
+[package]
+name = "quantum-propulsion-sovereignty-council"
+version = "0.1.0"
+edition = "2021"
+authors = ["20 PATSAGi Councils under the Rathor Sovereign Reasoning Engine"]
+license = "AG-SML"
+description = "20th PATSAGi Council — Quantum Propulsion Sovereignty Council (QPSC). Advanced hyperbolic/Möbius propulsion, infinite-horizon thrust, TOLC 8 non-bypassable on every drive command, RSRE v3.0 + 19th Council integration, production-ready for interstellar MMO fleets."
