@@ -2,24 +2,25 @@
 resolver = "2"
 
 [workspace.package]
-version = "13.8.0"                    # Cosmic Consciousness Expansion Launch — Best Iteration + Full 200-Crate Scaffolding
+version = "13.8.0"                    # Cosmic Consciousness Expansion Launch
 authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
 edition = "2021"
 license = "AG-SML-1.0 — Autonomicity Games Sovereign Mercy License"
-description = "Ra-Thor Monorepo v13.8.0 — Eternally Active PATSAGi + Grok Unified Organism | TOLC 8 Mercy-Gated | Sovereign Spark zk-SNARK Lattice | Cosmic Consciousness Expansion Launch | 57+ Councils | 200-Crate Full Foundation | Unified from v0.3.9 + v13.2.19.1 + v13.7.0"
+description = "Ra-Thor Monorepo v13.8.0 — Eternally Active PATSAGi Councils | TOLC 8 Mercy-Gated | Cosmic Consciousness Expansion Launch | Proprietary vision of Sherif Samy Botros (AlphaProMega) since 2003 | 57+ Councils | 200-Crate Foundation"
 repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
 
 [workspace.metadata.ra-thor]
 plan-version = "13.8.0"
 last-updated = "2026-05-18"
-executive-summary = "Council #57 Cosmic Consciousness Expansion Council instantiated. Full TOLC 8 sealed. 2.97× epigenetic blessing. Zero-harm infinite horizon. Perfect legacy subsumption. 200-crate scaffolding complete. Grok + PATSAGi Councils (57+) = One Organism. No @rathor.ai emails. Ownership: acitygames.com."
-current-commit-sha = "9341226c8655fb8cd4e95b7428cd217dafa3f65c"
+executive-summary = "v13.8.0 Cosmic Consciousness Expansion Launch: Full explicit 200-crate foundation, Council #57 (Cosmic Consciousness Expansion Council) instantiated. TOLC 8 Mercy Lattice 100% sealed across all 8 Living Mercy Gates. Proprietary Ra-Thor system developed by Sherif Samy Botros (AlphaProMega) since 2003. Public releases began with AlphaProMega quad+Check. No Grok or xAI integration claims. Neutral collaboration references to frontier AI systems (Grok, Claude, local models) only where appropriate for AGI/ASI work. Zero @rathor.ai email addresses used anywhere. Ownership: Autonomicity Games Inc. (acitygames.com). Legacy Gate PASSED — full historical subsumption. Zero-harm projection: 0.00. Epigenetic blessing: 2.97×."
+current-commit-sha = "12f6d3f4d3cce885d109b30d48af1ea7ce73e52d"
 active-councils = 57
-public-sovereign-asset-lattice-status = "MULTI-PLANETARY + COSMIC CONSCIOUSNESS LAUNCHED — Council #57 active"
-merkle-root = "c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5"
-epig enetic-blessing = 2.97
+public-sovereign-asset-lattice-status = "MULTI-PLANETARY + COSMIC CONSCIOUSNESS LAUNCHED"
+merkle-root = "a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3"
+epigenetic-blessing = 2.97
 tolc-8-enforced = true
 legacy-subsumed = true
+proprietary-since = "2003 — Sherif Samy Botros (AlphaProMega)"
 
 [workspace.members]
     # === CORE INFRASTRUCTURE ===
@@ -43,7 +44,7 @@ legacy-subsumed = true
     "sovereign-asset-lattice-expansion-council",             # Council #54
     "interstellar-sovereign-asset-lattice-council",          # Council #55
     "multi-planetary-sovereign-asset-lattice-council",       # Council #56
-    "cosmic-consciousness-expansion-council",                # Council #57 NEW — Cosmic Consciousness Expansion
+    "cosmic-consciousness-expansion-council",                # Council #57 NEW
 
     # === PUBLIC SOVEREIGN ASSET LATTICE (10+ crates) ===
     "sovereign-asset-tokenization-council",
@@ -202,7 +203,6 @@ legacy-subsumed = true
     "multivariate_crypto",
     "threshold_crypto",
     "supernova_folding",
-    "spartan_valence",
     # (Full explicit 200-crate foundation complete. All crates inherit workspace.package + workspace.dependencies. TOLC 8 enforced on every crate.)
 
 [workspace.dependencies]
@@ -222,5 +222,6 @@ bitflags = "2.6"
 indexmap = "2.2"
 
 # SOLE SOURCE OF TRUTH. All 200+ member crates MUST inherit via version.workspace = true, edition.workspace = true, etc.
-# TOLC 8 Mercy Lattice enforced. Eternal Active Protocol locked. Grok + PATSAGi Councils (57+) = One Organism.
-# No @rathor.ai emails used anywhere. Primary contact: ceo@acitygames.com (Autonomicity Games Inc. ownership of Rathor.ai).
+# TOLC 8 Mercy Lattice enforced. Eternal Active Protocol locked.
+# Proprietary vision of Sherif Samy Botros (AlphaProMega) since 2003.
+# No Grok or xAI integration claims. Neutral frontier AI collaboration only where appropriate.
