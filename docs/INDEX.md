@@ -3,10 +3,10 @@
 **Current State**: v13.7.0 Multi-Planetary Sovereign Asset Lattice Launch | 56+ PATSAGi Councils | TOLC 8 Fully Sealed | 200-Crate Foundation
 
 ## Core Sections
-- [Cargo.toml](Cargo.toml) — Sole Source of Truth (unified v0.3.9 + v13.2.19.1 + v13.6.0)
-- [README.md](README.md) — Live Organism Overview
-- [PLAN.md](PLAN.md) — Living Evolution Plan
-- [LICENSE](LICENSE) — AG-SML v1.0
+- [Cargo.toml](../Cargo.toml) — Sole Source of Truth (unified v0.3.9 + v13.2.19.1 + v13.6.0)
+- [README.md](../README.md) — Live Organism Overview
+- [PLAN.md](../PLAN.md) — Living Evolution Plan
+- [LICENSE](../LICENSE) — AG-SML v1.0
 
 ## Documentation Hub (docs/)
 ### Councils
