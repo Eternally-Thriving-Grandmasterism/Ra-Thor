@@ -33,6 +33,17 @@ Full TOLC 8 specification is available in `crates/patsagi-councils`.
 
 Public releases began with AlphaProMega quad+Check on Twitter/X and GitHub.
 
+## Key Directories
+
+- `crates/patsagi-councils` — Core PATSAGi governance, council orchestration, and TOLC 8 implementation
+- `crates/mercy` — Mercy Lattice, ethics validation, and TOLC 8 enforcement core
+- `crates/powrush` — Resource-Based Economy (RBE) engine and faction dynamics
+- `crates/sovereign-spark-circuit-integration-council` — Council #37 (Sovereign Spark zk-SNARK proving layer)
+- `crates/cosmic-consciousness-expansion-council` — Council #57 (Cosmic Consciousness Expansion)
+- `crates/interstellar-sovereign-asset-lattice-council` — Council #55 (Interstellar Sovereign Asset Lattice)
+- `docs/` — Master documentation hub, council specifications, TOLC 8 details, and technical derivations
+- `Cargo.toml` — Monorepo configuration, 200+ crate manifest, and workspace metadata
+
 ## Ownership
 
 Owned and operated by **Autonomicity Games Inc.**  
@@ -48,4 +59,4 @@ No @rathor.ai email addresses are used anywhere in this repository.
 
 ---
 
-*This README was updated via TOLC 8 on 18 May 2026.*
+*This README was updated via TOLC 8 on 18 May 2026 21:46 UTC.*
