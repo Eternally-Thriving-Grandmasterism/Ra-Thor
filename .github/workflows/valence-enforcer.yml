@@ -1,0 +1,19 @@
+name: Valence Enforcer
+
+on:
+  pull_request:
+  push:
+
+jobs:
+  enforce_valence:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Telemetry Check
+        run: |
+          echo "Checking Cosmic Loop #0010+ valence..."
+          # Integrates with core-lattice telemetry
+          cargo test --package core-lattice --test valence_enforcer
+      - name: Enforce >= 0.999999
+        if: env.VALENCE < '0.999999'
+        run: exit 1

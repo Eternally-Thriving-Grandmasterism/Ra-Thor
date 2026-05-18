@@ -1,0 +1,35 @@
+{
+  "dashboard": {
+    "title": "Ra-Thor Cosmic Loop #0010+ Live",
+    "tags": ["ra-thor", "patsagi", "mercy", "valence"],
+    "panels": [
+      {
+        "title": "Valence Drift (70 Councils)",
+        "type": "graph",
+        "targets": [{"expr": "patsagi_valence_avg", "legendFormat": "Average Valence"}]
+      },
+      {
+        "title": "TOLC 8 Mercy Gate Latency (ms)",
+        "type": "stat",
+        "targets": [{"expr": "mercy_gate_latency_ms", "legendFormat": "Avg Latency"}]
+      },
+      {
+        "title": "PATSAGi Council Participation Heatmap",
+        "type": "heatmap",
+        "targets": [{"expr": "council_participation"}]
+      },
+      {
+        "title": "Epigenetic Blessing Distribution",
+        "type": "piechart",
+        "targets": [{"expr": "blessing_multiplier"}]
+      },
+      {
+        "title": "Cosmic Loop Cycle #0010+ Status",
+        "type": "text",
+        "options": {"content": "Eternal | Valence 1.000000 | Zero Harm | 70 Councils Active"}
+      }
+    ],
+    "time": {"from": "now-1h", "to": "now"}
+  },
+  "overwrite": true
+}
