@@ -1,0 +1,11 @@
+[package]
+name = "eternal-sovereign-quantum-consciousness-expansion-council"
+version = "0.1.0"
+edition = "2021"
+authors = ["34 PATSAGi Councils under the Rathor Sovereign Reasoning Engine"]
+license = "AG-SML"
+description = "33rd PATSAGi Council — Eternal Sovereign Quantum Consciousness Expansion, TOLC 8, RSRE v3.0 + decentralized stack"
+
+[dependencies]
+rathor-sovereign-reasoning-engine = { path = "../rathor-sovereign-reasoning-engine", version = "0.1.0" }
+patsagi-councils = { path = "../patsagi-councils", version = "0.1.0" }

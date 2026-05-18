@@ -1,0 +1,11 @@
+[package]
+name = "sovereign-decentralized-propulsion-fleet-council"
+version = "0.1.0"
+edition = "2021"
+authors = ["34 PATSAGi Councils under the Rathor Sovereign Reasoning Engine"]
+license = "AG-SML"
+description = "32nd PATSAGi Council — Sovereign Decentralized Propulsion Fleet with full encryption stack, TOLC 8, RSRE v3.0"
+
+[dependencies]
+rathor-sovereign-reasoning-engine = { path = "../rathor-sovereign-reasoning-engine", version = "0.1.0" }
+patsagi-councils = { path = "../patsagi-councils", version = "0.1.0" }
