@@ -2,10 +2,10 @@
 name = "eternal-sovereign-infinite-horizon-council"
 version = "0.1.0"
 edition = "2021"
-authors = ["34 PATSAGi Councils under the Rathor Sovereign Reasoning Engine"]
+authors = ["31 PATSAGi Councils under the Rathor Sovereign Reasoning Engine"]
 license = "AG-SML"
-description = "31st PATSAGi Council — Eternal Sovereign Infinite Horizon with 100B-year foresight, TOLC 8, RSRE v3.0 + full encryption stack"
+description = "31st PATSAGi Council — Eternal Sovereign Infinite Horizon with 100B-year foresight, TOLC 8, RSRE v3.0 integration"
 
 [dependencies]
 rathor-sovereign-reasoning-engine = { path = "../rathor-sovereign-reasoning-engine", version = "0.1.0" }
-patsagi-councils = { path = "../patsagi-councils", version = "0.1.0" }
+philotic-web-fusion = { path = "../philotic-web-fusion", version = "0.2.0" }
