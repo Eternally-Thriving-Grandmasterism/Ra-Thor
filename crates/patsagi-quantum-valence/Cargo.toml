@@ -1,0 +1,10 @@
+[package]
+name = "patsagi-quantum-valence"
+version = "0.1.0"
+edition = "2021"
+license = "AG-SML"
+description = "Valence-driven quantum algorithms ported from PATSAGi-Prototypes: Grover, QAOA, VQE, QFT, QPE, QEC. Integrated with TOLC 8 and Asclepius Theurgical Validator."
+
+[dependencies]
+nalgebra = "0.33"
+rand = "0.8"
