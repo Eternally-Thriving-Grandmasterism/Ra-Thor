@@ -1,0 +1,10 @@
+[package]
+name = "philotic-web-fusion"
+version = "0.1.0"
+edition = "2021"
+authors = ["15 PATSAGi Councils under the Rathor Sovereign Reasoning Engine (Sherif @AlphaProMega)"]
+license = "AG-SML"
+description = "Philotic emotional-cognitive fusion layer for Rathor.ai v13.1.4+ — golden-ratio abundance bonds, 7-Gen CEHI, and joy-amplified valence telemetry. Fully TOLC 8 compliant and RSRE-native."
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
