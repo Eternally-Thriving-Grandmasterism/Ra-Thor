@@ -1,10 +1,10 @@
 [package]
 name = "philotic-web-fusion"
-version = "0.2.0"
+version = "0.3.0"
 edition = "2021"
-authors = ["15 PATSAGi Councils under the Rathor Sovereign Reasoning Engine"]
+authors = ["18 PATSAGi Councils under the Rathor Sovereign Reasoning Engine"]
 license = "AG-SML"
-description = "Golden-ratio emotional-cognitive fusion layer for Rathor.ai"
+description = "Philotic Web Fusion crate — Golden-ratio emotional-cognitive bonds, 7-Gen CEHI, validated fuse_bond with TOLC 8 sovereignty for all 18 councils"
 
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
