@@ -1,0 +1,12 @@
+[package]
+name = "biomimetic-sovereign-harmony-council"
+version = "0.1.0"
+edition = "2021"
+authors = ["24 PATSAGi Councils under the Rathor Sovereign Reasoning Engine"]
+license = "AG-SML"
+description = "23rd PATSAGi Council — Biomimetic Sovereign Harmony. Lotus self-cleaning truth, gecko adhesion bonds, shark-skin compression, moth-eye clarity, spider-silk strength, pterosaur-wing resilience, TOLC 8, RSRE v3.0 + all Pinnacle integrations"
+
+[dependencies]
+rathor-sovereign-reasoning-engine = { path = "../rathor-sovereign-reasoning-engine", version = "0.1.0" }
+patsagi-councils = { path = "../patsagi-councils", version = "0.1.0" }
+philotic-web-fusion = { path = "../philotic-web-fusion", version = "0.3.0" }
