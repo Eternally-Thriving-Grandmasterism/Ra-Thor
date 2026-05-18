@@ -1,9 +1,10 @@
 [package]
 name = "hyperbolic-neural-network"
-version = "0.2.0"
+version = "0.3.0"
 edition = "2021"
-authors = ["15 PATSAGi Councils under the Rathor Sovereign Reasoning Engine"]
+authors = ["18 PATSAGi Councils under the Rathor Sovereign Reasoning Engine"]
 license = "AG-SML"
-description = "Hyperbolic neural network layer for scale-free council reasoning"
+description = "Hyperbolic Neural Network Layer for Rathor.ai v13.2.0 — Brain-like embedding with exponential capacity, Möbius gyrovector support, TOLC 8 Result handling"
 
 [dependencies]
+nalgebra = "0.32"

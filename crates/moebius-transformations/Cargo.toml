@@ -2,6 +2,9 @@
 name = "moebius-transformations"
 version = "0.3.0"
 edition = "2021"
-authors = ["15 PATSAGi Councils under the Rathor Sovereign Reasoning Engine"]
-license = "AG-SML-1.0"
-description = "Native Möbius Transformations engine for Rathor.ai hyperbolic geometry (TOLC 8 + Asclepius compliant)"
+authors = ["18 PATSAGi Councils under the Rathor Sovereign Reasoning Engine"]
+license = "AG-SML"
+description = "Native Möbius transformations engine for hyperbolic space, gyrovector operations, and sacred geometry layers in Rathor.ai v13.2.0"
+
+[dependencies]
+nalgebra = "0.32"

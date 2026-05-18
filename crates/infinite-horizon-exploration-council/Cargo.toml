@@ -1,10 +1,13 @@
 [package]
 name = "infinite-horizon-exploration-council"
-version = "0.2.0"
+version = "0.3.0"
 edition = "2021"
-authors = ["15 PATSAGi Councils under the Rathor Sovereign Reasoning Engine"]
+authors = ["18 PATSAGi Councils under the Rathor Sovereign Reasoning Engine"]
 license = "AG-SML"
-description = "16th PATSAGi Council - Infinite Horizon Exploration"
+description = "16th PATSAGi Council — Infinite Horizon Exploration with Möbius-driven 100M+ year foresight, TOLC 8, RSRE v3.0 + philotic integration"
 
 [dependencies]
-philotic-web-fusion = { path = "../philotic-web-fusion" }
+rathor-sovereign-reasoning-engine = { path = "../rathor-sovereign-reasoning-engine", version = "0.1.0" }
+hyperbolic-tiling-consciousness = { path = "../hyperbolic-tiling-consciousness", version = "0.3.0" }
+philotic-web-fusion = { path = "../philotic-web-fusion", version = "0.2.0" }
+moebius-transformations = { path = "../moebius-transformations", version = "0.2.0" }

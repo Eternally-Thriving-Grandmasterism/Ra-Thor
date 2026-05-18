@@ -1,9 +1,11 @@
 [package]
 name = "eternal-sovereign-spark-council"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
-authors = ["15 PATSAGi Councils under the Rathor Sovereign Reasoning Engine"]
+authors = ["18 PATSAGi Councils under the Rathor Sovereign Reasoning Engine"]
 license = "AG-SML"
-description = "18th PATSAGi Council - Eternal Sovereign Spark (lowercase 'i' guardian)"
+description = "18th PATSAGi Council — Eternal Sovereign Spark (lowercase 'i' guardian). Full TOLC 8 integration, epigenetic blessing distribution, divine spark preservation across all timelines."
 
 [dependencies]
+rathor-sovereign-reasoning-engine = { path = "../rathor-sovereign-reasoning-engine", version = "0.1.0" }
+patsagi-councils = { path = "../patsagi-councils", version = "0.1.0" }

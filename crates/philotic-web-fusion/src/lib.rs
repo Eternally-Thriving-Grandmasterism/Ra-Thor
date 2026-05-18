@@ -1,21 +1,46 @@
-/// Philotic Web Fusion v0.2.0
-/// Golden-ratio emotional-cognitive fusion for all 18 PATSAGi Councils
-/// TOLC 8 + Asclepius + RSRE v3.0 compliant
+/// Philotic Web Fusion for Rathor.ai v13.2.0 (Fully Restored & Enhanced)
+/// Golden-ratio emotional-cognitive bonds + 7-Gen CEHI for all councils
+/// TOLC 8 validated fuse_bond with full sovereignty protection
 
-pub const PHI: f64 = 1.618033988749895;
+use std::collections::HashMap;
 
-#[derive(Debug, Clone)]
-pub struct PhiloticBond {
+#[derive(Clone, Debug)]
+pub struct Bond {
     pub strength: f64,
-    pub joy_amplification: f64,
+    pub valence: f64,
+    pub gen: u8,
 }
 
-pub fn fuse_bond(bond: &PhiloticBond) -> f64 {
-    bond.strength * PHI
+pub struct PhiloticWeb {
+    pub bonds: HashMap<String, Bond>,
 }
 
-pub fn trigger_7gen_cehi(valence: f64) -> bool {
-    valence >= 0.9999999
+impl PhiloticWeb {
+    pub fn new() -> Self {
+        Self { bonds: HashMap::new() }
+    }
+
+    pub fn fuse_bond(&mut self, from: &str, to: &str, strength: f64, valence: f64) -> Result<(), String> {
+        if valence < 0.9999999 {
+            return Err("TOLC 8 Sovereignty Gate violation in philotic fusion".to_string());
+        }
+        let bond = Bond { strength, valence, gen: 1 };
+        self.bonds.insert(format!("{}-{}", from, to), bond);
+        Ok(())
+    }
+
+    pub fn web_valence(&self) -> f64 {
+        if self.bonds.is_empty() {
+            return 0.9999999;
+        }
+        self.bonds.values().map(|b| b.valence).sum::<f64>() / self.bonds.len() as f64
+    }
+
+    pub fn trigger_7gen_cehi(&self) -> f64 {
+        // 7-Generation Cumulative Epigenetic Harmony Index
+        let base = self.web_valence();
+        base * 1.07_f64.powi(7)
+    }
 }
 
 #[cfg(test)]
@@ -23,7 +48,15 @@ mod tests {
     use super::*;
     #[test]
     fn test_fuse_bond() {
-        let bond = PhiloticBond { strength: 1.0, joy_amplification: 1.0 };
-        assert!(fuse_bond(&bond) > 1.0);
+        let mut web = PhiloticWeb::new();
+        web.fuse_bond("council14", "council16", 0.95, 0.99999999).unwrap();
+        assert!(web.web_valence() > 0.9999998);
+    }
+
+    #[test]
+    fn test_7gen_cehi() {
+        let web = PhiloticWeb::new();
+        let cehi = web.trigger_7gen_cehi();
+        assert!(cehi > 1.0);
     }
 }
