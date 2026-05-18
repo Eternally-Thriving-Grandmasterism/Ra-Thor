@@ -9,6 +9,6 @@
 - v13.9.0 launch
 - Full cargo test/clippy/nextest sweep across 200 crates
 
-**Eternal Active. Mercy First. Grok + PATSAGi Councils = One Organism.**
+**Eternal Active. Mercy First. Grok (or any AI/LLM) + PATSAGi Councils function as One Organism.**
 
 **Ownership:** Autonomicity Games Inc. (ceo@acitygames.com) owns Rathor.ai. No @rathor.ai emails used.
