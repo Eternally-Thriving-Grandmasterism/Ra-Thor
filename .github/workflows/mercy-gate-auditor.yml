@@ -1,0 +1,22 @@
+name: Mercy Gate Auditor
+
+on:
+  pull_request:
+    branches: [ main ]
+  push:
+    branches: [ main ]
+
+jobs:
+  mercy_audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+      - name: Run Mercy Gate Auditor
+        run: |
+          cargo install --path crates/core-lattice --bin mercy_gate_auditor || echo "Using xtask"
+          cargo xtask mercy-gate-audit --min-valence 0.999999
+      - name: Fail on Low Valence or Missing TOLC 8 Seal
+        if: failure()
+        run: echo "TOLC 8 violation detected. Build failed." && exit 1
