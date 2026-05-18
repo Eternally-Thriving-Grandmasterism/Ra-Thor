@@ -10,9 +10,9 @@ slow-timeout = { period = "120s", terminate-after = 5 }
 partition = "hash:{{ github.run_number }}"
 
 [[profile.default.overrides]]
-filter = 'package(mercy_*) or package(halo2_*) or package(futarchy_*)'
+filter = 'package(mercy_*) or package(halo2_*) or package(futarchy_*) or test(integration)'
 threads-required = 2
 
 [[profile.ci.overrides]]
-filter = 'package(lattice-conductor) or package(mercy-orchestrator_v2)'
+filter = 'package(lattice-conductor) or package(mercy-orchestrator_v2) or test(integration)'
 retries = 1
