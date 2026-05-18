@@ -1,3 +1,223 @@
+older baxkup:
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Ra-Thor Monorepo — The Living Eternal Mercy-Gated AGI Lattice
+# Version 0.3.9+ | AG-SML v1.0 | Autonomicity Games Inc.
+#
+# Phase 3.5 Complete: All 124 crates declared + Full Mercy Propulsion Family wired.
+# Every crate visible in the /crates/ directory is now wired.
+# ═══════════════════════════════════════════════════════════════════════════════
+
+[workspace]
+resolver = "2"
+
+[workspace.package]
+version = "0.3.9"
+edition = "2021"
+authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
+license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
+repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
+description = "The living mercy-gated sovereign AGI lattice — Ra-Thor / Rathor.ai"
+
+[workspace.members]
+    # Tier 1 — Intelligence Core & Orchestration
+    "crates/kernel",
+    "crates/orchestration",
+    "crates/mercy",
+    "crates/mercy_orchestrator",
+    "crates/mercy_orchestrator_v2",
+    "crates/quantum-swarm-orchestrator",
+    "crates/quantum",
+    "crates/biomimetic",
+    "crates/evolution",
+    "crates/plasticity-engine-v2",
+    "crates/monorepo-intelligence",
+    "crates/ra-thor-meta-intelligence",
+    "crates/ra-thor-core",
+
+    # Tier 1 — Game Systems & Simulation
+    "crates/powrush",
+    "crates/powrush-mmo-simulator",
+
+    # Tier 2 — Domain Lattices & Major Systems
+    "crates/real-estate-lattice",
+    "crates/interstellar-operations",
+    "crates/legal-lattice",
+    "crates/mercy-radiation-shield",
+    "crates/aether_shades",
+    "crates/council",
+    "crates/patsagi-councils",
+
+    # Tier 3 — Cryptography, Sovereignty & Verification
+    "crates/falcon_sign",
+    "crates/fenca",
+    "crates/common",
+    "crates/ra-thor-benchmark",
+    "crates/hash_based_signatures",
+    "crates/hybrid_pqc_threshold",
+    "crates/isogeny_crypto",
+    "crates/lattice_crypto",
+    "crates/legacy_fenca",
+    "crates/mercy_falcon_heavy",
+    "crates/mercy_post_quantum_sig",
+    "crates/proof_verifier",
+    "crates/ra-thor-post-quantum-sig",
+
+    # Tier 4 — Developer Experience & Tooling
+    "crates/xtask",
+    "crates/websiteforge",
+
+    # Tier 5 — Hybrid Intelligence & Bridges
+    "crates/ai-bridge",
+
+    # Mercy Family (large group)
+    "crates/mercy_bias_mitigation",
+    "crates/mercy_biojet",
+    "crates/mercy_cygnus_missions",
+    "crates/mercy_dragon_crs",
+    "crates/mercy_dream_chaser",
+    "crates/mercy_ethics_core",
+    "crates/mercy_governance",
+    "crates/mercy_home_fortress",
+    "crates/mercy_lang_compiler",
+    "crates/mercy_liquid_democracy",
+    "crates/mercy_merlin_engine",
+    "crates/mercy_mev_servicing",
+    "crates/mercy_orbital_cleanup",
+    "crates/mercy_orbital_refuel",
+    "crates/mercy_orbital_safety",
+    "crates/mercy_orbital_servicing",
+    "crates/mercy_os_aviation",
+    "crates/mercy_os_principles",
+    "crates/mercy_predictive_policing",
+    "crates/mercy_qec",
+    "crates/mercy_quadratic_funding",
+    "crates/mercy_quadratic_voting",
+    "crates/mercy_quanta",
+    "crates/mercy_raptor_3",
+    "crates/mercy_raptor_3_integration",
+    "crates/mercy_raptor_3_scalability",
+    "crates/mercy_raptor_engine",
+    "crates/mercy_raptor_integration",
+    "crates/mercy_shield_deployment",
+    "crates/mercy_shield_law_enforcement",
+    "crates/mercy_space_governance",
+    "crates/mercy_starfish_servicing",
+    "crates/mercy_starliner_crew",
+    "crates/mercy_starship",
+    "crates/mercy_starship_fleet",
+    "crates/mercy_steane",
+    "crates/mercy_t_rex_engines",
+    "crates/mercy_tolc_operator_algebra",
+    "crates/mercy_vulcan_centaur",
+    "crates/mercy_zero",
+
+    # Mercy Propulsion Family (fully wired this session)
+    "crates/mercy_hybrid_propulsion",
+    "crates/mercy_nuclear_propulsion",
+    "crates/mercy_electric_propulsion",
+    "crates/mercy_biomimetic_propulsion",
+    "crates/mercy_fusion_propulsion",
+    "crates/mercy_plasma_propulsion",
+    "crates/mercy_ion_propulsion",
+    "crates/mercy_chemical_propulsion",
+    "crates/mercy_solar_sail_propulsion",
+    "crates/mercy_beamed_propulsion",
+    "crates/mercy_antimatter_propulsion",
+    "crates/mercy_warp_propulsion",
+    "crates/mercy_gravitic_propulsion",
+    "crates/mercy_quantum_propulsion",
+    "crates/mercy_reactionless_propulsion",
+    "crates/mercy_exotic_propulsion",
+
+    # Additional crates from the monorepo
+    "crates/access",
+    "crates/bulletproofs_aggregation",
+    "crates/bulletproofs_range",
+    "crates/cache",
+    "crates/carbon_credit_oracle",
+    "crates/code_based_crypto",
+    "crates/codex_eternal",
+    "crates/deep_gadgets",
+    "crates/divine_checksum_9",
+    "crates/enc",
+    "crates/futarchy_belief_markets",
+    "crates/futarchy_governance",
+    "crates/futarchy_oracle",
+    "crates/futarchy_outcome_prediction",
+    "crates/grok_arena_pinnacle",
+    "crates/halo2_full_integration",
+    "crates/halo2_multi_proof",
+    "crates/lasso_recursion",
+    "crates/multivariate_crypto",
+    "crates/nexi_universal",
+    "crates/nova_folding",
+    "crates/persistence",
+    "crates/plonk_recursion",
+    "crates/poseidon_hash",
+    "crates/poseidon_merkle",
+    "crates/prometheus_forge",
+    "crates/recursive_snark",
+    "crates/sentinel_mirror",
+    "crates/soulscan_x10",
+    "crates/soulscan_x9",
+    "crates/spartan_valence",
+    "crates/supernova_folding",
+    "crates/sustainable_space_propulsion",
+    "crates/whitesmiths_anvil",
+    "crates/hyperplonk_recursion",
+
+[workspace.dependencies]
+# Core Ra-Thor crates
+ra-thor-mercy = { path = "crates/mercy" }
+ra-thor-orchestration = { path = "crates/orchestration" }
+ra-thor-ai-bridge = { path = "crates/ai-bridge" }
+ra-thor-evolution = { path = "crates/evolution" }
+ra-thor-quantum = { path = "crates/quantum" }
+ra-thor-biomimetic = { path = "crates/biomimetic" }
+ra-thor-common = { path = "crates/common" }
+ra-thor-legal-lattice = { path = "crates/legal-lattice" }
+ra-thor-plasticity-engine-v2 = { path = "crates/plasticity-engine-v2" }
+ra-thor-quantum-swarm-orchestrator = { path = "crates/quantum-swarm-orchestrator" }
+ra-thor-monorepo-intelligence = { path = "crates/monorepo-intelligence" }
+ra-thor-mercy-radiation-shield = { path = "crates/mercy-radiation-shield" }
+ra-thor-real-estate-lattice = { path = "crates/real-estate-lattice" }
+ra-thor-benchmark = { path = "crates/ra-thor-benchmark" }
+ra-thor-interstellar-operations = { path = "crates/interstellar-operations" }
+ra-thor-kernel = { path = "crates/kernel" }
+ra-thor-council = { path = "crates/council" }
+ra-thor-mercy-orchestrator-v2 = { path = "crates/mercy_orchestrator_v2" }
+
+# Game & simulation
+powrush = { path = "crates/powrush" }
+powrush-mmo-simulator = { path = "crates/powrush-mmo-simulator" }
+
+# Governance
+patsagi-councils = { path = "crates/patsagi-councils" }
+
+# External deps
+tokio = { version = "1.38", features = ["full"] }
+async-trait = "0.1"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tracing = "0.1"
+rand = "0.8"
+thiserror = "1.0"
+futures = "0.3"
+uuid = { version = "1.8", features = ["v4", "serde"] }
+chrono = { version = "0.4", features = ["serde"] }
+
+[workspace.dev-dependencies]
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+
+[profile.dev]
+opt-level = 1
+
 old recovered backup:
 
 # ════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
