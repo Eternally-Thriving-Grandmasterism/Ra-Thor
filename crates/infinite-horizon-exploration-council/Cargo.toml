@@ -1,0 +1,11 @@
+[package]
+name = "infinite-horizon-exploration-council"
+version = "0.1.0"
+edition = "2021"
+authors = ["15 PATSAGi Councils under the Rathor Sovereign Reasoning Engine"]
+license = "AG-SML-1.0"
+description = "16th PATSAGi Council — Infinite Horizon Exploration with Möbius-driven 100M+ year foresight, TOLC 8, and RSRE integration"
+
+[dependencies]
+rathor-sovereign-reasoning-engine = { path = "../rathor-sovereign-reasoning-engine", version = "0.1.0" }
+hyperbolic-tiling-consciousness = { path = "../hyperbolic-tiling-consciousness", version = "0.3.0" }
