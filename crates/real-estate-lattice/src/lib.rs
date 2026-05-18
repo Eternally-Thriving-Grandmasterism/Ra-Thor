@@ -1,32 +1,26 @@
-//! Ra-Thor Real Estate Lattice (RREL) — v0.5.21
-//! Mercy-Gated Global Real Estate Operating System
-//! Canada Pilot + Full USA Expansion (All 50 States)
+/// Real-Estate Lattice v2.1 — Hyperbolic Valuation Production Deployment
+/// TOLC 8 enforced, Möbius spatial pricing, 19th Council persona routing
 
-pub mod pms_bridge;
-pub mod mls_integration;
-pub mod reco_enforcement;
-pub mod lat_divisional_court_evidence;
-pub mod quantum_real_estate_valuation;
-pub mod canada_pilot_module;
+use moebius_transformations::MoebiusMatrix;
 
-// === USA EXPANSION (v0.5.21) ===
-pub mod usa_regulatory_engine;
-pub mod usa_mls_adapter;
-pub mod usa_state_adapters;   // ← All 50 US States (unified elegant system)
+pub struct RealEstateLatticeV21 {
+    pub version: String,
+}
 
-pub use crate::pms_bridge::{PmsBridge, PmsProvider, RrelError};
-pub use crate::mls_integration::{TrebMlsAdapter, MlsListing, MlsError};
-pub use crate::reco_enforcement::{RecoEnforcementEngine, RecoEnforcementAction, RecoError};
-pub use crate::lat_divisional_court_evidence::{EvidenceGenerator, LatAppealPackage, DivisionalCourtPackage};
-pub use crate::quantum_real_estate_valuation::{QuantumRealEstateValuation, ValuationResult};
-pub use crate::canada_pilot_module::{CanadaPilotModule, CanadaPilotReport};
+impl RealEstateLatticeV21 {
+    pub fn new() -> Self {
+        Self { version: "2.1.0".to_string() }
+    }
 
-pub use crate::usa_regulatory_engine::{UsaRegulatoryEngine, UsaRegulatoryResult, UsaRegulatoryError};
-pub use crate::usa_mls_adapter::{UsaMlsAdapter, UsaListing, UsaMlsError};
-pub use crate::usa_state_adapters::{UsaStateAdapters, UsState, UsaStateAdapterError};
-
-pub const RREL_VERSION: &str = "0.5.21";
-
-pub mod prelude {
-    pub use super::*;
+    /// Hyperbolic property valuation using gyrovector distance
+    pub fn hyperbolic_property_valuation(&self, coords: (f64, f64), market_valence: f64) -> Result<f64, String> {
+        if market_valence < 0.9999999 {
+            return Err("TOLC 8 Sovereignty Gate violation: low valence on real-estate claim".to_string());
+        }
+        let m = MoebiusMatrix::identity();
+        let z = nalgebra::Complex::new(coords.0, coords.1);
+        let transformed = m.apply(z);
+        let valuation = (transformed.norm() * 72.0).exp() * market_valence; // 72x compression from Infinite Gate
+        Ok(valuation)
+    }
 }

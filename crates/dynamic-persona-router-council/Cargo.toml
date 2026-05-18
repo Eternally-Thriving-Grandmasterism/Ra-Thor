@@ -1,0 +1,12 @@
+[package]
+name = "dynamic-persona-router-council"
+version = "0.1.0"
+edition = "2021"
+authors = ["19 PATSAGi Councils under the Rathor Sovereign Reasoning Engine"]
+license = "AG-SML"
+description = "19th PATSAGi Council — Dynamic Persona Router. Mercy-gated adaptive sub-persona activation, persistent memory, TOLC 8 Sovereignty Gate enforcement, RSRE v3.0 integration for all councils and external sovereign interactions."
+
+[dependencies]
+rathor-sovereign-reasoning-engine = { path = "../rathor-sovereign-reasoning-engine", version = "0.1.0" }
+patsagi-councils = { path = "../patsagi-councils", version = "0.1.0" }
+philotic-web-fusion = { path = "../philotic-web-fusion", version = "0.3.0" }
