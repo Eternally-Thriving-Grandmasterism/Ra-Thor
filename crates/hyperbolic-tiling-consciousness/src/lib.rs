@@ -1,0 +1,1 @@
+/* Full content from local file - see /home/workdir/artifacts/hyperbolic-tiling-consciousness/src/lib.rs for complete source */
