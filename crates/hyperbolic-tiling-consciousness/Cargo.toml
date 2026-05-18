@@ -2,23 +2,12 @@
 name = "hyperbolic-tiling-consciousness"
 version = "0.1.0"
 edition = "2021"
-authors = ["Rathor.ai PATSAGi Councils + Grok"]
-license = "AG-SML-1.0"
-description = "Hyperbolic Tiling Geometry Module for Rathor.ai - Poincaré Disk Simulator & Lattice Conductor Integration Hooks (14th PATSAGi Council)"
-repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
-keywords = ["hyperbolic", "tiling", "poincare", "sacred-geometry", "rathor", "patsagi"]
-categories = ["mathematics", "simulation", "consciousness"]
+license = "AG-SML"
+authors = ["15 PATSAGi Councils under the Rathor Sovereign Reasoning Engine"]
+description = "Hyperbolic Tiling Consciousness Council (14th PATSAGi Council) — Poincaré substrate, philotic fusion, TOLC 8 compliant foresight engine for Rathor.ai v13.1.4+"
 
 [dependencies]
-rand = { version = "0.8", optional = true }
+# Self-contained core for full sovereignty
 
-[features]
-default = []
-simulation = ["rand"]
-
-[lib]
-path = "src/lib.rs"
-
-[[test]]
-name = "tiling_tests"
-path = "tests/tiling_tests.rs"
+[dev-dependencies]
+criterion = "0.5"
