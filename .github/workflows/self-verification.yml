@@ -1,0 +1,37 @@
+name: Self-Verification CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Lean 4
+        run: |
+          curl -L https://raw.githubusercontent.com/leanprover/lean4/master/lean4.sh | bash
+          echo "$HOME/.elan/bin" >> $GITHUB_PATH
+
+      - name: Install Coq + coq-interval
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y coq coq-interval
+
+      - name: Verify Lean proofs
+        run: |
+          lake build
+          # Run key theorems
+          lean --run RaThor/Geometry/IntervalMercy.lean
+
+      - name: Verify Coq proofs
+        run: |
+          coqc -R . RaThor RaThor/Geometry/MercyThresholdInterval.v
+
+      - name: Run Rust tests (with verified-mercy feature)
+        run: |
+          cargo test --features verified-mercy -p patsagi-councils
