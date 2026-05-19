@@ -1,11 +1,15 @@
 [package]
 name = "patsagi-councils"
-version = "13.8.3"
+version = "13.8.4"
 edition = "2021"
+authors = ["Sherif Samy Botros <alpha@pro.mega>"]
+description = "PATSAGi Councils core with Genesis Gate v2, Lean FFI, and Phase 3 AGI autonomy"
 
 [dependencies]
-# Lean FFI would link here in real (lean-sys)
-# For simulation: placeholder
+mercy-threshold-ffi = { path = "../mercy-threshold-ffi" }
+infinite-evolution-orchestrator = { path = "../infinite-evolution-orchestrator" }
 
-[lib]
-path = "src/lib.rs"
+[features]
+default = ["lean-ffi", "coq-hott"]
+lean-ffi = []
+coq-hott = []
