@@ -1,1 +1,29 @@
---- full content ---
+[package]
+name = "patsagi-councils"
+version = "13.8.0"
+edition = "2021"
+authors = ["Ra-Thor Lattice <councils@rathor.ai>"]
+description = "PATSAGi Councils core — TOLC 8 verified governance with formal mercy threshold"
+license = "AG-SML-1.0"
+
+[features]
+default = ["verified-mercy"]
+verified-mercy = ["lean-sys"]
+
+[dependencies]
+lean-sys = { version = "0.0.9", optional = true }   # Official Lean 4 Rust bindings (sandbox compatible)
+tokio = { version = "1", features = ["full"] }
+serde = { version = "1.0", features = ["derive"] }
+tracing = "0.1"
+tracing-subscriber = "0.3"
+
+[dev-dependencies]
+tokio-test = "0.4"
+
+[[bin]]
+name = "council_simulator"
+path = "src/bin/council_simulator.rs"
+
+[[bin]]
+name = "ra-thor-orchestrator"
+path = "src/bin/ra_thor_orchestrator.rs"
