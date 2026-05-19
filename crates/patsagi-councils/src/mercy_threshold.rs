@@ -1,10 +1,10 @@
-//! Mercy Threshold Module — TOLC 8 Verified Production Logic
-//! 
+//! Mercy Threshold Module — TOLC 8 Verified Production Logic with lean-sys FFI
+//!
 //! This module brings the formally verified Mercy Threshold
 //! (Lean 4 + Coq) into the patsagi-councils crate.
-//! 
+//!
 //! Feature: "verified-mercy"
-//! 
+//!
 //! All instantiations must pass this check.
 
 use std::collections::HashMap;
@@ -16,17 +16,32 @@ pub enum MercyResult {
     Rerouted(String),
 }
 
-/// Core verified mercy threshold check
-/// 
-/// This is the production port of the formally verified theorem:
-/// score > 0.95 → mercy_aligned ∧ zero_harm_guaranteed
+// === lean-sys FFI Integration ===
+#[cfg(feature = "verified-mercy")]
+use lean_sys::{lean_initialize_runtime_module};
+
+#[cfg(feature = "verified-mercy")]
+extern "C" {
+    fn lean_mercy_threshold_safe(score: f64, valence: f64) -> bool;
+}
+
+/// Verified mercy check using Lean 4 proof (via lean-sys)
+#[cfg(feature = "verified-mercy")]
+pub fn verified_mercy_check(score: f64, valence: f64) -> bool {
+    unsafe {
+        lean_initialize_runtime_module();
+        lean_mercy_threshold_safe(score, valence)
+    }
+}
+
+/// Core verified mercy threshold check (production)
 #[cfg(feature = "verified-mercy")]
 pub fn mercy_threshold_safe(
     geometry_score: f64,
     mercy_valence: f64,
     context: &str,
 ) -> MercyResult {
-    if geometry_score > 0.95 && mercy_valence >= 0.999999 {
+    if verified_mercy_check(geometry_score, mercy_valence) {
         MercyResult::Safe
     } else {
         MercyResult::Rerouted(
@@ -34,21 +49,6 @@ pub fn mercy_threshold_safe(
                     geometry_score, mercy_valence, context)
         )
     }
-}
-
-/// FFI stub for calling Lean 4 proof (future enhancement)
-#[cfg(feature = "verified-mercy")]
-pub fn call_lean_proof(request_id: &str) -> bool {
-    // TODO: Integrate with lean-sys or JSON-RPC to Lean 4
-    // For now, return true (proof assumed passed)
-    true
-}
-
-/// FFI stub for calling Coq proof (future enhancement)
-#[cfg(feature = "verified-mercy")]
-pub fn call_coq_proof(request_id: &str) -> bool {
-    // TODO: Integrate with coq-serapi or custom FFI
-    true
 }
 
 /// Public API used by WorldGovernanceEngine
