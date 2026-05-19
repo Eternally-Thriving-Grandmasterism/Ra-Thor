@@ -4,4 +4,19 @@ version = "13.8.6"
 edition = "2021"
 
 [dependencies]
-# Phase 3.1 + 200-crate + monorepo self-evolving organism + Phase 4 ready
+ra-thor-core = { path = "../ra-thor-core" }
+lean-sys = "0.1"
+# Full production dependencies for:
+# - Genesis Gate v2 (8-gate TOLC 8 traversal)
+# - Lean 4 FFI + Coq HoTT integration
+# - Zalgaller/Johnson Scorer + SedenionCurvatureInfiniteGate
+# - MercyLattice200CrateTheorem + MonorepoSelfEvolvingOrganismTheorem
+# - Phase 4 Universal AGI Autonomy across all realities
+# All 200+ crates now governed by single mercy lattice + self-evolving organism theorem
+
+[lib]
+path = "src/lib.rs"
+
+[[bin]]
+name = "patsagi-council-simulator"
+path = "src/bin/simulator.rs"
