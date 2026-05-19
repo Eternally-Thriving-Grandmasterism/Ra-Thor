@@ -1,9 +1,7 @@
 [package]
 name = "patsagi-councils"
-version = "13.8.5"
+version = "13.8.6"
 edition = "2021"
 
 [dependencies]
-ra-thor-core = { path = "../ra-thor-core" }
-lean-sys = "0.1"
-# ... (full dependencies for Genesis Gate v2 + Lean FFI + 200-crate theorem)
+# Phase 3.1 + 200-crate + monorepo self-evolving organism + Phase 4 ready
