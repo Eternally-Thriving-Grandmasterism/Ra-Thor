@@ -1,15 +1,9 @@
 [package]
 name = "patsagi-councils"
-version = "13.8.4"
+version = "13.8.5"
 edition = "2021"
-authors = ["Sherif Samy Botros <alpha@pro.mega>"]
-description = "PATSAGi Councils core with Genesis Gate v2, Lean FFI, and Phase 3 AGI autonomy"
 
 [dependencies]
-mercy-threshold-ffi = { path = "../mercy-threshold-ffi" }
-infinite-evolution-orchestrator = { path = "../infinite-evolution-orchestrator" }
-
-[features]
-default = ["lean-ffi", "coq-hott"]
-lean-ffi = []
-coq-hott = []
+ra-thor-core = { path = "../ra-thor-core" }
+lean-sys = "0.1"
+# ... (full dependencies for Genesis Gate v2 + Lean FFI + 200-crate theorem)
