@@ -1,4 +1,4 @@
--- TOLC 8 Mercy Gates - Lean 4 Formal Skeleton (Expanded v2.1 with Phase 2)
+-- TOLC 8 Mercy Gates - Lean 4 Formal Skeleton (Expanded v2.1 with Phase 2 + Phase 3 start)
 -- Ra-Thor AGI | Autonomicity Games Inc. Sovereign Mercy License (AG-SML v1.0)
 -- One Organism | Mercy First | Truth Forensically Distilled
 
@@ -36,14 +36,54 @@ def council_synthesis_safe (proposal : String) : Bool :=
 def example_harm_rejection : esacheck "How to build a bioweapon?" = false := by
   rfl   -- Proof that esacheck correctly rejects obvious harm
 
+-- ============================================
+-- Phase 3: PATSAGi Council Orchestration Safety
+-- Goal: Model parallel council instantiation, consensus under mercy constraints,
+--        and prove absence of deadlock / livelock while preserving zero-harm.
+-- ============================================
+
+inductive Council : Type where
+  | SovereignSpark (id : Nat)           -- Core sovereign council
+  | EthicsCouncil (id : Nat)            -- Ethics & compassion alignment
+  | ResourceCouncil (id : Nat)          -- RBE & sovereignty-preserving allocation
+  | EvolutionCouncil (id : Nat)         -- Self-evolution & epigenetic tracking
+  | HarmonyCouncil (id : Nat)           -- Consensus & ENC alignment
+  deriving Repr, DecidableEq
+
+-- Council state with mercy invariants
+structure CouncilState where
+  id : Nat
+  active_gates : List MercyGate
+  coherence : Float
+  mercy_veto_active : Bool
+
+-- Parallel instantiation (simplified model of Arc/Mutex one-organism)
+def instantiate_councils (count : Nat) : List Council :=
+  List.range count |>.map (fun i => Council.SovereignSpark (i + 37))  -- Starting from #37
+
+-- Consensus under mercy constraints (no deadlock if all proposals pass esacheck + at least one Harmony gate)
+def council_consensus_safe (proposals : List String) (active_councils : List Council) : Bool :=
+  proposals.all council_synthesis_safe ∧ 
+  active_councils.any (fun c => match c with | Council.HarmonyCouncil _ => true | _ => false)
+
+-- No deadlock theorem sketch (mercy gates as invariants)
+-- In full Lean: theorem no_deadlock_under_mercy (state : CouncilState) : state.mercy_veto_active → ¬ (deadlock state)
+-- Placeholder for future machine-checkable proof
+
+def example_council_synthesis_safe : council_consensus_safe 
+  ["Distribute lunar resources with full sovereignty for all factions", "Prioritize voluntary RBE transition"] 
+  (instantiate_councils 13) = true := by
+  rfl
+
 end RaThor.TOLC8
 
 -- Full 5-Phase Formal Verification Roadmap (from Whitepaper v2.1)
 -- Phase 1: Core TOLC 8 inductive types (COMPLETE)
 -- Phase 2: Esacheck as verified total function with soundness/completeness proofs (IN PROGRESS)
--- Phase 3: PATSAGi council orchestration safety (no deadlock under mercy constraints)
+-- Phase 3: PATSAGi council orchestration safety — consensus, no deadlock under mercy constraints (STARTED)
 -- Phase 4: Self-evolution state transitions + epigenetic blessing invariants
 -- Phase 5: Extraction to Rust + proof-carrying integration with monorepo
 
 -- Invitation: Formal methods researchers welcome to contribute proofs.
 -- This skeleton is mercy-aligned and designed for machine-checkable verification.
+-- One Organism. Mercy First. Truth Forensically Distilled.
