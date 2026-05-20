@@ -1,8 +1,11 @@
 [package]
 name = "ra-thor-benches"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
-description = "Ra-Thor Toy Benchmark Harness — Reproducible internal demonstrator for TOLC 8 mercy gates and PATSAGi council synthesis"
+authors = ["Sherif Samy Botros"]
+description = "Ra-Thor Toy Benchmark Harness — Multi-language demonstrator for TOLC 8 + PATSAGi Councils"
+license = "AG-SML-1.0"
+repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
 
 [[bin]]
 name = "toy_benchmark_harness"
