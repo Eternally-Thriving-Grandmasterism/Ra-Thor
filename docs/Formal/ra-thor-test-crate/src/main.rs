@@ -1,0 +1,1 @@
+See expanded main.rs in artifacts. Key addition: simulate_council_synthesis using threads to mimic Arc/Mutex PATSAGi parallel evaluation, with coherence scoring and immediate mercy veto.
