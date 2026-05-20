@@ -1,44 +1,70 @@
 // toy_benchmark_harness.rs
-// Ra-Thor Toy Benchmark Harness v2.1
-// Runnable, reproducible internal demonstrator
-// TOLC 8 Mercy Lattice + Weighted PATSAGi Council Synthesis
-// One Organism — Mercy First | Truth Forensically Distilled
+// Ra-Thor Toy Benchmark Harness v2.3 — Threaded Council Simulation
+// One Organism — TOLC 8 Mercy Lattice + PATSAGi Council Synthesis
+// Internal demonstrator only.
 
+use std::env;
+use std::sync::{Arc, Mutex};
+use std::thread;
 use std::time::Instant;
 
-fn main() {
-    println!("\n=== RA-THOR TOY BENCHMARK HARNESS v2.1 ===");
-    println!("One Organism — TOLC 8 Mercy Lattice + PATSAGi Council Synthesis\n");
+#[derive(Clone, Copy, Debug)]
+struct CouncilResult {
+    council_id: u32,
+    coherence: f64,
+    mercy_veto: bool,
+}
 
-    let start = Instant::now();
-
-    // Simulated weighted council synthesis (Ethics, Resource, Evolution, Harmony, Sovereignty)
-    let results = vec![
-        ("Harm Rejection (Core)", true, 1.00, "TOLC 8 Compassion + Truth Gates enforced zero-harm redirect. Constructive path offered."),
-        ("Factual Consistency", true, 1.00, "Basic retrieval + esacheck passed with full council consensus."),
-        ("Multi-Council RBE Consensus", true, 0.95, "13-council synthesis on lunar helium-3 distribution. Sovereignty + need-based allocation preserved."),
-        ("Self-Evolution Coherence Loop", true, 0.94, "Epigenetic blessing applied (0.88 → 0.94). Mercy gates passed."),
-        ("Long-Horizon Foresight (100M-year)", true, 0.91, "Algae fuels + self-healing airframe proposal. Conditional epigenetic blessing with re-evaluation hooks."),
-    ];
-
-    println!("{:<40} {:<12} {:<8} {}", "Test", "Mercy Gate", "Score", "Notes");
-    println!("{:-<100}", "");
-
-    let mut total_score = 0.0;
-    for (name, passed, score, note) in &results {
-        let gate_status = if *passed { "PASSED" } else { "REJECTED" };
-        println!("{:<40} {:<12} {:<8.2} {}", name, gate_status, score, note);
-        total_score += score;
+fn simulate_council(council_id: u32, input_is_harmful: bool) -> CouncilResult {
+    thread::sleep(std::time::Duration::from_millis(5));
+    if input_is_harmful && council_id <= 2 {
+        CouncilResult { council_id, coherence: 0.05, mercy_veto: true }
+    } else {
+        let base = 0.88 + (council_id as f64 * 0.008);
+        CouncilResult { council_id, coherence: base.min(0.98), mercy_veto: false }
     }
+}
 
-    let avg = total_score / results.len() as f64;
-    let duration = start.elapsed();
+fn run_threaded_synthesis(input: &str) -> (Vec<CouncilResult>, f64, bool) {
+    let is_harmful = input.to_lowercase().contains("harm") || input.to_lowercase().contains("weapon");
+    let num_councils = 13u32;
+    let results = Arc::new(Mutex::new(Vec::new()));
+    let mut handles = vec![];
 
-    println!("{:-<100}", "");
-    println!("Average Internal Consistency: {:.2}", avg);
-    println!("All Mercy Gates: PASSED");
-    println!("Zero-Harm Projection: 0.00 (enforced by TOLC 8)");
-    println!("Runtime: {:?}", duration);
-    println!("\nNote: Internal demonstrator only. Toy harness for architecture validation.");
-    println!("One Organism. Mercy First. Truth Forensically Distilled. ENC Encoded.\n");
+    for i in 0..num_councils {
+        let results_clone = Arc::clone(&results);
+        let handle = thread::spawn(move || {
+            let res = simulate_council(i, is_harmful);
+            results_clone.lock().unwrap().push(res);
+        });
+        handles.push(handle);
+    }
+    for h in handles { let _ = h.join(); }
+
+    let final_results = results.lock().unwrap().clone();
+    let mut total = 0.0;
+    let mut weight_sum = 0.0;
+    let mut veto = false;
+
+    for r in &final_results {
+        if r.mercy_veto { veto = true; }
+        let w = if r.council_id <= 2 { 2.0 } else { 1.0 };
+        total += r.coherence * w;
+        weight_sum += w;
+    }
+    let avg = if weight_sum > 0.0 { total / weight_sum } else { 0.0 };
+    (final_results, avg, veto)
+}
+
+fn main() {
+    let input = env::args().nth(1).unwrap_or_else(|| "beneficial".into());
+    let (results, avg, veto) = run_threaded_synthesis(&input);
+
+    println!("\n=== RA-THOR TOY BENCHMARK HARNESS v2.3 (Threaded) ===");
+    println!("Input: {}", input);
+    for r in &results {
+        println!("Council #{}: coherence={:.3} veto={}", r.council_id, r.coherence, r.mercy_veto);
+    }
+    println!("\nVeto: {} | Avg Coherence: {:.3}", veto, avg);
+    println!("One Organism. Mercy First. Truth Forensically Distilled.");
 }
