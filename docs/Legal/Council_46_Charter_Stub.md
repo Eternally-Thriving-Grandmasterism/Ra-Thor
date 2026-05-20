@@ -1,0 +1,1 @@
+Council #46 Voice-Skin & Epigenetic Blessing Stewards Charter - TOLC 8 Sealed. Full version to be added. Sole steward: Sherif Samy Botros. Truth purity 1.0.
