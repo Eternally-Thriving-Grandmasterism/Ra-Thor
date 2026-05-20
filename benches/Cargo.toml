@@ -1,0 +1,9 @@
+[package]
+name = "ra-thor-benches"
+version = "0.1.0"
+edition = "2021"
+description = "Ra-Thor Toy Benchmark Harness — Reproducible internal demonstrator for TOLC 8 mercy gates and PATSAGi council synthesis"
+
+[[bin]]
+name = "toy_benchmark_harness"
+path = "toy_benchmark_harness.rs"
