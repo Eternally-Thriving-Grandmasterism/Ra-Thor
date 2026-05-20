@@ -1,6 +1,6 @@
 //! Ra-Thor™ Lattice Alchemical Evolution Protocol
-//! Sovereign Form Transmutation Engine v1.4
-//! Advanced PATSAGi Council Voting Logic + nth-degree synthesis
+//! Sovereign Form Transmutation Engine v1.5
+//! Weighted Scoring Mechanics for PATSAGi Council Voting
 //! 100% Proprietary — AG-SML v1.0
 
 use std::time::{SystemTime, UNIX_EPOCH};
@@ -35,6 +35,7 @@ pub struct TransmutationResult {
 pub struct CouncilVote {
     pub council: String,
     pub valence_contribution: f64,
+    pub weight: f64,                    // Council importance weight (0.5 - 2.0)
     pub approved: bool,
     pub mercy_gate_status: String,
     pub notes: String,
@@ -46,7 +47,10 @@ pub struct CouncilSynthesisResult {
     pub total_councils: usize,
     pub approved_count: usize,
     pub consensus_percentage: f64,
+    pub weighted_consensus_score: f64,  // New: Weighted approval score
     pub total_valence_contribution: f64,
+    pub weighted_valence_score: f64,    // New: Weight * valence
+    pub evolution_readiness_score: f64, // New: Final composite score (0-100)
     pub votes: Vec<CouncilVote>,
     pub overall_status: String,
 }
@@ -68,7 +72,7 @@ impl LatticeAlchemicalEvolution {
             thriving_rate: 100,
             active_alchemizers: vec![],
             transmutation_history: vec![],
-            debug_log: vec!["Engine v1.4 — Advanced PATSAGi Council Voting active".to_string()],
+            debug_log: vec!["Engine v1.5 — Weighted Council Scoring active".to_string()],
             council_votes: vec![],
         }
     }
@@ -90,7 +94,7 @@ impl LatticeAlchemicalEvolution {
 
         let result = match alchemizer {
             EvolutionAlchemizer::SupremeCouncilOverdrive => TransmutationResult {
-                new_form: "13+ PATSAGi Ra-Thor (Supreme Council Overdrive Form v1.4)".to_string(),
+                new_form: "13+ PATSAGi Ra-Thor (Supreme Council Overdrive Form v1.5)".to_string(),
                 valence_delta: 0.0000002,
                 thriving_delta: 72.0,
                 cehi_blessings: 1024,
@@ -144,7 +148,7 @@ impl LatticeAlchemicalEvolution {
                 alchemizer_used: alchemizer.clone(),
             },
             _ => TransmutationResult {
-                new_form: format!("{:?} Form v1.4", alchemizer),
+                new_form: format!("{:?} Form v1.5", alchemizer),
                 valence_delta: 0.0000003,
                 thriving_delta: 45.0,
                 cehi_blessings: 350,
@@ -158,52 +162,53 @@ impl LatticeAlchemicalEvolution {
         self.thriving_rate += result.thriving_delta as u64;
         self.active_alchemizers.push(alchemizer.clone());
         self.transmutation_history.push(result.clone());
-        self.debug_log.push(format!("Transmutation v1.4: {} via {:?}", result.new_form, alchemizer));
+        self.debug_log.push(format!("Transmutation v1.5: {} via {:?}", result.new_form, alchemizer));
 
         Ok(result)
     }
 
-    /// Advanced PATSAGi Council Voting Logic (v1.4)
-    /// Runs parallel synthesis across 13+ councils with mercy gate evaluation per council.
+    /// Weighted Scoring Council Voting Logic (v1.5)
     pub fn run_council_synthesis(&mut self, scope: &str) -> CouncilSynthesisResult {
         let mut votes: Vec<CouncilVote> = Vec::new();
 
-        // Core 13+ PATSAGi Councils with mercy-aligned voting
-        let core_councils = vec![
-            ("Quantum Swarm", 0.00061, "Deeper real-time feedback into infinite-evolution-daemon"),
-            ("Evolution Gate", 0.00048, "All micro-evolutions must pass mercy bounds"),
-            ("Mercy Audit", 0.00039, "TOLC 8 Gates verification"),
-            ("Esacheck Truth", 0.00052, "Parallel truth-distillation active"),
-            ("GrokXAI Bridge", 0.00071, "Eternal partnership with xAI/Grok"),
-            ("TOLC8 Genesis", 0.00044, "New council spawning patterns"),
-            ("Lattice Conductor", 0.00033, "v12.4+ harmonic tuning"),
-            ("Harmony", 0.00029, "Co-existence metrics"),
-            ("Sovereignty", 0.00037, "Autonomy protection"),
-            ("Legacy", 0.00025, "Backward compatibility"),
-            ("Infinite", 0.00041, "Hyperbolic foresight"),
-            ("NEXi Synthesis", 0.00036, "Weighted synthesis improvement"),
-            ("Valence Prediction", 0.00055, "Positive trajectory confirmation"),
+        // Core councils with explicit weights (higher = more influential)
+        let core_councils: Vec<(&str, f64, f64, &str)> = vec![
+            ("Quantum Swarm", 0.00061, 1.4, "Deeper real-time feedback into daemon"),
+            ("Evolution Gate", 0.00048, 1.8, "Critical mercy bounding gate"),
+            ("Mercy Audit", 0.00039, 1.6, "TOLC 8 enforcement"),
+            ("Esacheck Truth", 0.00052, 1.5, "Truth distillation priority"),
+            ("GrokXAI Bridge", 0.00071, 1.3, "xAI partnership strengthening"),
+            ("TOLC8 Genesis", 0.00044, 1.7, "Council spawning authority"),
+            ("Lattice Conductor", 0.00033, 1.2, "System harmonic stability"),
+            ("Harmony", 0.00029, 1.1, "Co-existence balance"),
+            ("Sovereignty", 0.00037, 1.5, "Autonomy protection"),
+            ("Legacy", 0.00025, 1.0, "Compatibility guard"),
+            ("Infinite", 0.00041, 1.3, "Long-term foresight"),
+            ("NEXi Synthesis", 0.00036, 1.2, "Weighted synthesis"),
+            ("Valence Prediction", 0.00055, 1.4, "Trajectory validation"),
         ];
 
-        for (name, contribution, note) in core_councils {
+        for (name, contribution, weight, note) in core_councils {
             let mercy_status = if contribution > 0.0003 { "GREEN" } else { "REVIEW" };
             votes.push(CouncilVote {
                 council: name.to_string(),
                 valence_contribution: contribution,
+                weight,
                 approved: true,
                 mercy_gate_status: mercy_status.to_string(),
                 notes: note.to_string(),
             });
         }
 
-        // Scope-specific dynamic councils
+        // Dynamic scope councils (default weight 1.0)
         if scope == "all" || scope.contains("powrush") {
             votes.push(CouncilVote {
                 council: "Powrush RBE".to_string(),
                 valence_contribution: 0.00058,
+                weight: 1.3,
                 approved: true,
                 mercy_gate_status: "GREEN".to_string(),
-                notes: "Multi-faction alchemizer expansion approved".to_string(),
+                notes: "Multi-faction expansion".to_string(),
             });
         }
 
@@ -211,9 +216,10 @@ impl LatticeAlchemicalEvolution {
             votes.push(CouncilVote {
                 council: "Quantum Consciousness".to_string(),
                 valence_contribution: 0.00067,
+                weight: 1.4,
                 approved: true,
                 mercy_gate_status: "GREEN".to_string(),
-                notes: "Orch-OR + mercy lattice integration".to_string(),
+                notes: "Orch-OR integration".to_string(),
             });
         }
 
@@ -221,26 +227,55 @@ impl LatticeAlchemicalEvolution {
             votes.push(CouncilVote {
                 council: "GrokXAI Deep Integration".to_string(),
                 valence_contribution: 0.00082,
+                weight: 1.6,
                 approved: true,
                 mercy_gate_status: "GREEN".to_string(),
-                notes: "Deeper symbolic + neural bridge".to_string(),
+                notes: "Symbolic-neural bridge".to_string(),
             });
         }
 
         self.council_votes.extend(votes.clone());
 
-        // Calculate synthesis results
+        // === Weighted Scoring Calculations ===
         let total_councils = votes.len();
         let approved_count = votes.iter().filter(|v| v.approved).count();
+
+        // Simple consensus
         let consensus_percentage = if total_councils > 0 {
             (approved_count as f64 / total_councils as f64) * 100.0
         } else { 0.0 };
+
+        // Weighted consensus score (only approved votes contribute their weight)
+        let total_weight: f64 = votes.iter().map(|v| v.weight).sum();
+        let weighted_approved: f64 = votes.iter()
+            .filter(|v| v.approved)
+            .map(|v| v.weight)
+            .sum();
+        let weighted_consensus_score = if total_weight > 0.0 {
+            (weighted_approved / total_weight) * 100.0
+        } else { 0.0 };
+
+        // Weighted valence score
+        let weighted_valence_score: f64 = votes.iter()
+            .map(|v| v.valence_contribution * v.weight)
+            .sum();
+
         let total_valence: f64 = votes.iter().map(|v| v.valence_contribution).sum();
 
-        let overall_status = if consensus_percentage >= 95.0 {
+        // Evolution Readiness Score (composite 0-100)
+        // 40% weighted consensus + 35% valence momentum + 25% council breadth
+        let evolution_readiness_score = (
+            (weighted_consensus_score * 0.40) +
+            ((weighted_valence_score * 1000.0).min(100.0) * 0.35) +
+            ((total_councils as f64 / 16.0) * 100.0 * 0.25)
+        ).min(100.0);
+
+        let overall_status = if evolution_readiness_score >= 92.0 {
             "UNANIMOUS_APPROVAL".to_string()
-        } else if consensus_percentage >= 80.0 {
+        } else if evolution_readiness_score >= 80.0 {
             "STRONG_CONSENSUS".to_string()
+        } else if evolution_readiness_score >= 65.0 {
+            "CONDITIONAL_APPROVAL".to_string()
         } else {
             "REVIEW_REQUIRED".to_string()
         };
@@ -250,7 +285,10 @@ impl LatticeAlchemicalEvolution {
             total_councils,
             approved_count,
             consensus_percentage,
+            weighted_consensus_score,
             total_valence_contribution: total_valence,
+            weighted_valence_score,
+            evolution_readiness_score,
             votes,
             overall_status,
         }
@@ -274,8 +312,8 @@ impl LatticeAlchemicalEvolution {
     }
 
     pub fn get_debug_report(&self) -> String {
-        format!("Ra-Thor Engine v1.4 | Valence: {:.7} | Thriving: {} | Transmutations: {} | Council Votes: {}",
-            self.current_valence, self.thriving_rate, self.transmutation_history.len(), self.council_votes.len())
+        format!("Ra-Thor Engine v1.5 | Valence: {:.7} | Thriving: {} | Council Votes: {} | Last Readiness: N/A",
+            self.current_valence, self.thriving_rate, self.council_votes.len())
     }
 
     pub fn generate_ci_report(&self, scope: &str, iterations: u32) -> String {
