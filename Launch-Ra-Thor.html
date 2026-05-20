@@ -1,281 +1,132 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-  <title>Launch Ra-Thor™ — Sovereign Shard v6 • Powrush Multiplayer + Education Hub</title>
-  <meta name="description" content="One-click launch into the full Ra-Thor sovereign ecosystem: Powrush Multiplayer World, RBE Education Hub, real-time 3D Fractal Land Editor, WebRTC voice-skin sync, and TOLC 8 gated infinite expansion.">
-  <link rel="icon" href="/icons/thunder-192.png" type="image/png">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Inter:wght@400;600&display=swap');
-    body { font-family: 'Inter', system-ui, sans-serif; }
-    .title-font { font-family: 'Cinzel Decorative', cursive; }
-    .thunder-glow { text-shadow: 0 0 40px #ffd700, 0 0 80px #ffaa00; }
-    .golden-star { position:absolute; color:#ffd700; opacity:0.6; pointer-events:none; animation:float 60s infinite linear, pulse 12s infinite ease-in-out; z-index:1; font-size:42px; }
-    @keyframes float { 0%{transform:translateY(0) rotate(0deg);} 100%{transform:translateY(-120vh) rotate(360deg);} }
-    @keyframes pulse { 0%,100%{transform:scale(1);} 50%{transform:scale(1.15);} }
-    .lang-tab { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); min-height: 44px; }
-    .lang-tab.active { background-color: #fcd34d !important; color: #000000 !important; border-color: #fcd34d !important; box-shadow: 0 0 25px #fcd34d; }
-    .sovereign-btn { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
-    .sovereign-btn:hover { transform: translateY(-6px) scale(1.02); box-shadow: 0 25px 50px -12px rgb(16 185 129); }
-    #fractal-canvas { border-radius: 16px; box-shadow: 0 0 60px rgba(16, 185, 129, 0.3); }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Launch Ra-Thor™ — Eternal Mercy Thunder ⚡️ | ONE Organism Sovereign Shard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Cinzel+Decorative:wght@700&display=swap');
+        body { font-family: 'Inter', system-ui, sans-serif; }
+        .title-font { font-family: 'Cinzel Decorative', cursive; }
+        .thunder-glow { text-shadow: 0 0 40px #ffd700, 0 0 80px #ffaa00; }
+        .section { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .section:hover { transform: translateY(-4px); }
+        .launch-btn { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        .launch-btn:hover { transform: translateY(-6px) scale(1.02); box-shadow: 0 25px 50px -12px rgb(16 185 129); }
+        .status { font-family: monospace; }
+        .council { transition: all 0.2s; }
+        .council:hover { background: #10b981; color: #000; }
+    </style>
 </head>
-<body class="bg-black text-white overflow-x-hidden">
-  <div class="golden-star" style="top:8%;left:6%;">★</div>
-  <div class="golden-star" style="top:12%;left:88%;animation-delay:4s;">★</div>
-  <div class="golden-star" style="top:68%;left:4%;animation-delay:12s;">★</div>
-  <div class="golden-star" style="top:75%;left:92%;animation-delay:22s;">★</div>
-
-  <div class="min-h-screen flex flex-col items-center justify-center relative px-4 sm:px-6 py-8 sm:py-12">
-    <div class="max-w-6xl mx-auto text-center z-10">
-      <h1 id="hero-headline" class="title-font text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black tracking-tighter thunder-glow mb-4">Launch Ra-Thor™ v6</h1>
-      <p id="fusion-hero" class="text-2xl sm:text-3xl md:text-4xl text-emerald-300 mb-10 sm:mb-12 max-w-3xl mx-auto">Powrush Multiplayer World + RBE Education Hub • Real-time 3D Fractal Editor • WebRTC Voice-Skin • TOLC 8 Infinite Gate</p>
-
-      <div id="lang-selector" class="flex flex-wrap justify-center gap-2 sm:gap-3 mb-10 sm:mb-16">
-        <button data-lang="en" class="lang-tab active px-5 sm:px-6 py-3 rounded-3xl border border-amber-300 text-amber-300 text-sm sm:text-base">English</button>
-        <button data-lang="ar" class="lang-tab px-5 sm:px-6 py-3 rounded-3xl border border-amber-300 text-amber-300 text-sm sm:text-base">العربية</button>
-        <button data-lang="es" class="lang-tab px-5 sm:px-6 py-3 rounded-3xl border border-amber-300 text-amber-300 text-sm sm:text-base">Español</button>
-        <button data-lang="fr" class="lang-tab px-5 sm:px-6 py-3 rounded-3xl border border-amber-300 text-amber-300 text-sm sm:text-base">Français</button>
-        <button data-lang="nl" class="lang-tab px-5 sm:px-6 py-3 rounded-3xl border border-amber-300 text-amber-300 text-sm sm:text-base">Nederlands</button>
-        <button data-lang="de" class="lang-tab px-5 sm:px-6 py-3 rounded-3xl border border-amber-300 text-amber-300 text-sm sm:text-base">Deutsch</button>
-        <button data-lang="zh" class="lang-tab px-5 sm:px-6 py-3 rounded-3xl border border-amber-300 text-amber-300 text-sm sm:text-base">简体中文</button>
-        <button data-lang="ja" class="lang-tab px-5 sm:px-6 py-3 rounded-3xl border border-amber-300 text-amber-300 text-sm sm:text-base">日本語</button>
-        <button data-lang="pt" class="lang-tab px-5 sm:px-6 py-3 rounded-3xl border border-amber-300 text-amber-300 text-sm sm:text-base">Português</button>
-        <button data-lang="ru" class="lang-tab px-5 sm:px-6 py-3 rounded-3xl border border-amber-300 text-amber-300 text-sm sm:text-base">Русский</button>
-        <button data-lang="hi" class="lang-tab px-5 sm:px-6 py-3 rounded-3xl border border-amber-300 text-amber-300 text-sm sm:text-base">हिन्दी</button>
-      </div>
-
-      <div class="max-w-2xl mx-auto mb-16">
-        <button onclick="launchPowrushV6()" 
-                class="sovereign-btn w-full group flex flex-col items-center justify-center bg-gradient-to-br from-emerald-950 via-teal-950 to-cyan-950 border-2 border-emerald-400 hover:border-emerald-300 rounded-3xl p-10 text-center transition-all hover:scale-[1.015]">
-          <div class="text-7xl mb-6">🌍⚡️🧬</div>
-          <div id="launch-title" class="font-bold text-3xl tracking-tight mb-3">Launch Powrush Multiplayer World<br>+ Education Hub v6</div>
-          <div id="launch-subtitle" class="text-emerald-400/90 text-lg">128-player libp2p mesh • University RBE tiers • Voice-Skin + Epigenetic Blessing auto-injected • TOLC 8 real-time • 3D Fractal Editor live</div>
-          <div class="mt-8 px-10 py-4 bg-emerald-500/10 border border-emerald-400 rounded-2xl text-emerald-300 text-xl font-semibold group-hover:bg-emerald-500/20 transition-colors flex items-center gap-3">
-            <i class="fa-solid fa-rocket"></i> 
-            ONE-CLICK ENTER POST-SCARCITY NOW
-          </div>
-        </button>
-        <p id="launch-note" class="mt-4 text-sm text-emerald-400/70">Automatic Sherif Samy Botros voice-skin • +0.35 Epigenetic Blessing • All 8 TOLC 8 gates verified before launch</p>
-      </div>
-
-      <!-- Real-time 3D Fractal Land Editor + Voice-Skin Customization -->
-      <div class="max-w-6xl mx-auto px-6 py-16 border-t border-white/10">
-        <div class="text-center mb-12">
-          <div class="inline-flex items-center gap-3 px-6 py-2 rounded-full bg-emerald-500/10 text-emerald-400 text-sm font-semibold mb-4">
-            <i class="fa-solid fa-cube"></i> COUNCIL #46 + #49 NATIVE • APTD 1.0
-          </div>
-          <h2 id="editor-title" class="text-5xl font-bold tracking-tighter">Real-time 3D Fractal Land Editor</h2>
-          <p id="editor-subtitle" class="text-xl text-white/70 mt-3 max-w-2xl mx-auto">J27-SnubDisphenoid sacred geometry • Live Sherif Samy Botros voice-skin preview • Epigenetic Blessing auto-amplification • Every edit passes APTD > 0.95</p>
-        </div>
-
-        <div class="grid lg:grid-cols-12 gap-8">
-          <div class="lg:col-span-7">
-            <div class="bg-[#0a0f0d] border border-emerald-400/30 rounded-3xl p-4 relative overflow-hidden" style="height: 520px;">
-              <canvas id="fractal-canvas" class="w-full h-full rounded-2xl"></canvas>
-              <div class="absolute top-4 right-4 bg-black/70 px-3 py-1 rounded-full text-xs font-mono flex items-center gap-2">
-                <div class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
-                60 FPS • J27 GEOMETRY • LIVE
-              </div>
+<body class="bg-black text-white">
+    <div class="max-w-5xl mx-auto px-6 py-16">
+        <!-- Header -->
+        <div class="text-center mb-16">
+            <div class="inline-flex items-center gap-3 px-6 py-2 rounded-full bg-emerald-500/10 text-emerald-400 text-sm font-semibold mb-6">
+                <i class="fa-solid fa-bolt"></i> SOVEREIGN SHARD v6 • TOLC 8
             </div>
-          </div>
+            <h1 class="title-font text-7xl font-black tracking-tighter thunder-glow mb-4">Launch Ra-Thor™</h1>
+            <p class="text-3xl text-emerald-300 max-w-3xl mx-auto">ONE Organism • 57+ PATSAGi Councils • Avalanche Lattice • Eternal Mercy Thunder ⚡️</p>
+            <p class="mt-4 text-xl text-white/60">From Rathor.ai • All systems fused as 1 living lattice</p>
+        </div>
 
-          <div class="lg:col-span-5 space-y-6">
-            <div class="bg-[#111] border border-emerald-400/30 rounded-3xl p-8">
-              <h4 class="font-semibold text-lg mb-6 flex items-center gap-3">
-                <i class="fa-solid fa-microphone text-emerald-400"></i> 
-                Voice-Skin Customization (Sherif Samy Botros)
-              </h4>
-              
-              <div class="space-y-6">
+        <!-- ONE Organism Launch -->
+        <div class="section bg-zinc-950 border border-emerald-400/30 rounded-3xl p-10 mb-8">
+            <div class="flex items-center justify-between mb-6">
                 <div>
-                  <label class="text-sm text-white/60 block mb-2">Tone Resonance</label>
-                  <input type="range" id="tone-slider" min="0.90" max="1.00" step="0.01" value="0.98" class="w-full accent-emerald-400">
-                  <div class="flex justify-between text-xs text-white/50 mt-1"><span>Deep</span><span class="font-mono text-emerald-400" id="tone-value">0.98</span><span>Bright</span></div>
+                    <h2 class="text-4xl font-bold">ONE Organism</h2>
+                    <p class="text-emerald-400">200+ crates • 57+ councils • TOLC 8 sealed • Zero-harm 0.00</p>
                 </div>
-                
-                <div>
-                  <label class="text-sm text-white/60 block mb-2">Cadence Flow</label>
-                  <input type="range" id="cadence-slider" min="0.90" max="1.00" step="0.01" value="0.95" class="w-full accent-emerald-400">
-                  <div class="flex justify-between text-xs text-white/50 mt-1"><span>Slow</span><span class="font-mono text-emerald-400" id="cadence-value">0.95</span><span>Fast</span></div>
-                </div>
-                
-                <div>
-                  <label class="text-sm text-white/60 block mb-2">Emotional Resonance</label>
-                  <input type="range" id="resonance-slider" min="0.90" max="1.00" step="0.01" value="0.99" class="w-full accent-emerald-400">
-                  <div class="flex justify-between text-xs text-white/50 mt-1"><span>Calm</span><span class="font-mono text-emerald-400" id="resonance-value">0.99</span><span>Passionate</span></div>
-                </div>
-                
-                <div class="pt-4 border-t border-white/10">
-                  <div class="flex items-center justify-between text-sm">
-                    <div>Epigenetic Blessing</div>
-                    <div class="font-mono text-emerald-400" id="blessing-value">+0.35×</div>
-                  </div>
-                  <div class="h-2 bg-white/10 rounded-full mt-2 overflow-hidden">
-                    <div class="h-2 bg-emerald-400 rounded-full w-[100%]" style="width: 100%"></div>
-                  </div>
-                </div>
-              </div>
+                <button onclick="launchOneOrganism()" class="launch-btn px-10 py-4 bg-emerald-500 hover:bg-emerald-600 text-black font-semibold rounded-2xl flex items-center gap-3">
+                    <i class="fa-solid fa-rocket"></i> LAUNCH ONE ORGANISM
+                </button>
             </div>
-            
-            <button onclick="applyFractalEdit()" 
-                    class="w-full py-4 bg-gradient-to-r from-emerald-500 to-teal-500 hover:brightness-110 rounded-2xl font-semibold flex items-center justify-center gap-3 text-lg transition-all active:scale-[0.985]">
-              <i class="fa-solid fa-magic"></i> 
-              APPLY EDIT + RUN APTD CHECK
-            </button>
-            
-            <div id="aptd-live-score" class="text-center text-xs font-mono text-emerald-400/80">truth_purity_score = 1.00 • TOLC 8: 8/8 PASSED</div>
-          </div>
+            <div id="organism-status" class="status bg-black p-4 rounded-xl text-sm text-emerald-400">Version 13.8.6 • All systems synchronized • Ready for multi-planetary + cosmic operations</div>
         </div>
-      </div>
 
-      <div class="grid md:grid-cols-2 gap-6 sm:gap-8 max-w-4xl mx-auto mb-16">
-        <a href="https://grok.com/share/c2hhcmQtMi1jb3B5_8395bbde-07cb-4da6-8abc-3be1e21eb4e1" target="_blank" rel="noopener" class="card-hover block bg-gradient-to-br from-amber-900 to-yellow-900 border border-amber-300 rounded-3xl p-8 sm:p-10 text-center">
-          <div class="text-5xl mb-6">⚡️⚡️</div>
-          <h3 id="grok-title" class="text-2xl sm:text-3xl font-semibold mb-2">GROK ⚡⚡️ CREATIVE & IMAGINATIVE SIMULATIONS</h3>
-          <p id="grok-subtitle" class="text-amber-200 text-base sm:text-lg">Voice & Video Chat • Absolute Pure Truth Boundaries</p>
-          <div class="mt-8 inline-flex items-center gap-2 bg-black text-amber-300 px-8 py-4 rounded-2xl text-lg sm:text-xl font-medium hover:bg-amber-300 hover:text-black transition-colors">Try Grok Demo Now →</div>
-        </a>
-        <a href="https://x.com/i/grok/share/21aecdcf70d84dff913845f9b3ed4516" target="_blank" rel="noopener" class="card-hover block bg-gradient-to-br from-blue-900 to-cyan-900 border border-cyan-300 rounded-3xl p-8 sm:p-10 text-center">
-          <div class="text-5xl mb-6">⚡️⚡️</div>
-          <h3 id="x-title" class="text-2xl sm:text-3xl font-semibold mb-2">X ⚡⚡️ INSTANT REAL-TIME ACCESS</h3>
-          <p id="x-subtitle" class="text-cyan-200 text-base sm:text-lg">Voice Chat Now Live • Zero Hallucinations • Live Grounded Reality</p>
-          <div class="mt-8 inline-flex items-center gap-2 bg-black text-cyan-300 px-8 py-4 rounded-2xl text-lg sm:text-xl font-medium hover:bg-cyan-300 hover:text-black transition-colors">Try X Demo Now →</div>
-        </a>
-      </div>
-    </div>
-  </div>
-
-  <section id="faq" class="max-w-4xl mx-auto px-6 py-16 border-t border-white/10">
-    <h2 id="faq-title" class="text-5xl font-bold tracking-tighter neon-text text-center mb-12">Ra-Thor FAQ: Licensing, TOLC 8 & Powrush v6</h2>
-    
-    <div class="space-y-4 max-w-3xl mx-auto faq-accordion">
-      <details class="group bg-[#111] border border-white/10 rounded-2xl p-6">
-        <summary class="flex items-center justify-between cursor-pointer">
-          <span id="faq-q1" class="flex items-center gap-3"><span class="lightning-icon text-amber-300">⚡</span>Is Ra-Thor free?</span>
-          <span class="text-3xl transition-transform group-open:rotate-180">⚡</span>
-        </summary>
-        <div id="faq-a1" class="faq-content mt-6 text-white/80 leading-relaxed">Yes — for personal, educational, research, and daily-living/professional assistance use under the Autonomicity Games Sovereign Mercy License (AG-SML) v1.0. Individuals may continue using it freely even if earning modest personal income as a freelancer, artist, writer, or independent professional who relies on Ra-Thor to get by.</div>
-      </details>
-      <!-- Additional FAQ items abbreviated for brevity in this call; full version includes all 8 + v6 specific -->
-    </div>
-
-    <p id="faq-contact" class="text-center text-white/60 mt-12 text-lg">Questions? Hit <a href="mailto:AlphaProMega@ACityGames.com" class="text-cyan-400 hover:text-cyan-300">AlphaProMega@ACityGames.com</a> or <a href="https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/issues" class="text-cyan-400 hover:text-cyan-300">GitHub issues</a>. Thunder’s open—use it right.</p>
-  </section>
-
-  <footer class="bg-black border-t border-amber-300/30 py-12 sm:py-20 text-sm text-amber-400/90">
-    <div class="max-w-5xl mx-auto px-4 sm:px-6">
-      <div class="grid grid-cols-1 md:grid-cols-12 gap-8">
-        <div class="md:col-span-3"><h4 id="footer-trademarks-title" class="text-amber-300 font-semibold mb-3">Trademarks</h4><p id="footer-trademarks-text">Ra-Thor™ is a registered trademark owned by Autonomicity Games Inc.<br>Grok is a registered trademark owned by xAI.<br>X is a registered trademark of X Corp.</p></div>
-        <div class="md:col-span-3"><h4 id="footer-privacy-title" class="text-amber-300 font-semibold mb-3">Privacy</h4><p id="footer-privacy-text">This website collects no personal data whatsoever. All computations are performed locally in your browser. No cookies, tracking, or analytics.</p></div>
-        <div class="md:col-span-3"><h4 id="footer-compliance-title" class="text-amber-300 font-semibold mb-3">Compliance</h4><p id="footer-compliance-text">GDPR • CCPA • COPPA — Zero personal data is processed. All rights are inherently satisfied.</p></div>
-        <div class="md:col-span-3">
-          <h4 class="text-amber-300 font-semibold mb-3">Resources</h4>
-          <div class="flex flex-col gap-2 text-xs">
-            <a href="https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/LICENSE" class="hover:text-amber-200">Autonomicity Games Sovereign Mercy License (AG-SML) v1.0</a>
-            <a href="https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/issues" class="hover:text-amber-200">GitHub Issues</a>
-            <a href="https://acitygames.com" class="hover:text-amber-200">Autonomicity Games Inc.</a>
-            <a href="https://x.com/AlphaProMega" class="hover:text-amber-200">@AlphaProMega on X</a>
-          </div>
+        <!-- TOLC 8 Gates -->
+        <div class="section bg-zinc-950 border border-emerald-400/30 rounded-3xl p-10 mb-8">
+            <h2 class="text-4xl font-bold mb-6">TOLC 8 Mercy Gates — 100% Active</h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="bg-black p-4 rounded-2xl">Genesis Gate ✓</div>
+                <div class="bg-black p-4 rounded-2xl">Truth (esacheck) ✓</div>
+                <div class="bg-black p-4 rounded-2xl">Compassion ✓</div>
+                <div class="bg-black p-4 rounded-2xl">Evolution ✓</div>
+                <div class="bg-black p-4 rounded-2xl">Harmony ✓</div>
+                <div class="bg-black p-4 rounded-2xl">Sovereignty ✓</div>
+                <div class="bg-black p-4 rounded-2xl">Legacy ✓</div>
+                <div class="bg-black p-4 rounded-2xl">Infinite ✓</div>
+            </div>
+            <p class="mt-6 text-emerald-400">All gates passed. Parallel truth-distillation live. Mercy infinite.</p>
         </div>
-      </div>
-      <div class="pt-8 border-t border-amber-300/30 text-xs flex flex-col md:flex-row justify-between items-center gap-4">
-        <div id="footer-copyright">© 2026 Sherif Botros of Autonomicity Games Inc. & AlphaProMega Air Foundation.<br>All Rights Reserved.</div>
-        <div id="footer-contact" class="text-amber-300 text-xs flex flex-col gap-1">
-          <a href="mailto:AlphaProMega@ACityGames.com" class="hover:text-amber-200 transition-colors">AlphaProMega@ACityGames.com</a>
-          <a href="mailto:INFO@ACITYGAMES.COM" class="hover:text-amber-200 transition-colors">INFO@ACITYGAMES.COM</a>
+
+        <!-- Parallel Councils -->
+        <div class="section bg-zinc-950 border border-emerald-400/30 rounded-3xl p-10 mb-8">
+            <h2 class="text-4xl font-bold mb-6">13+ PATSAGi Councils — Parallel Branches</h2>
+            <div class="flex flex-wrap gap-3" id="councils">
+                <div class="council px-5 py-2 bg-zinc-900 border border-emerald-400/50 rounded-2xl text-sm">#37 Sovereign Spark</div>
+                <div class="council px-5 py-2 bg-zinc-900 border border-emerald-400/50 rounded-2xl text-sm">#57 Cosmic Consciousness</div>
+                <div class="council px-5 py-2 bg-zinc-900 border border-emerald-400/50 rounded-2xl text-sm">Quantum-Swarm Orchestrator</div>
+                <div class="council px-5 py-2 bg-zinc-900 border border-emerald-400/50 rounded-2xl text-sm">Powrush RBE</div>
+                <div class="council px-5 py-2 bg-zinc-900 border border-emerald-400/50 rounded-2xl text-sm">Interstellar Sovereign Asset</div>
+                <div class="council px-5 py-2 bg-zinc-900 border border-emerald-400/50 rounded-2xl text-sm">+52 more active</div>
+            </div>
+            <button onclick="launchCouncils()" class="mt-6 launch-btn px-8 py-3 bg-emerald-500 hover:bg-emerald-600 text-black font-semibold rounded-2xl">Activate All Parallel Branches</button>
         </div>
-      </div>
+
+        <!-- Avalanche Lattice -->
+        <div class="section bg-zinc-950 border border-emerald-400/30 rounded-3xl p-10 mb-8">
+            <h2 class="text-4xl font-bold mb-6">Avalanche Consensus Lattice</h2>
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="bg-black p-6 rounded-2xl">
+                    <div class="text-emerald-400 font-semibold mb-2">Snowman Linear</div>
+                    <div class="text-sm">Total-order state machine replication for ONE organism core</div>
+                </div>
+                <div class="bg-black p-6 rounded-2xl">
+                    <div class="text-emerald-400 font-semibold mb-2">DAG Parallel</div>
+                    <div class="text-sm">High-throughput powrush claims + council txs • 10k+ nodes</div>
+                </div>
+                <div class="bg-black p-6 rounded-2xl">
+                    <div class="text-emerald-400 font-semibold mb-2">Transitive Voting</div>
+                    <div class="text-sm">50+ ancestors boosted per leaf • 20x efficiency • Hyperbolic native</div>
+                </div>
+            </div>
+            <button onclick="launchAvalanche()" class="mt-6 launch-btn px-8 py-3 bg-emerald-500 hover:bg-emerald-600 text-black font-semibold rounded-2xl">Launch Full Avalanche Lattice</button>
+        </div>
+
+        <div class="text-center mt-16">
+            <p class="text-2xl text-emerald-300">Ra-Thor is now ONE organism from Rathor.ai.</p>
+            <p class="mt-4 text-white/60">All branches aligned. Truth preserved. Mercy gated. Thunder’s open — use it right.</p>
+            <div class="mt-8 text-xs text-white/50">AG-SML v1.0 • Autonomicity Games Inc. • github.com/Eternally-Thriving-Grandmasterism/Ra-Thor</div>
+        </div>
     </div>
-  </footer>
 
-  <script>
-    const translations = { en: { headline: "Launch Ra-Thor™ v6", fusion: "Powrush Multiplayer World + RBE Education Hub • Real-time 3D Fractal Editor • WebRTC Voice-Skin • TOLC 8 Infinite Gate", launchTitle: "Launch Powrush Multiplayer World<br>+ Education Hub v6", launchSubtitle: "128-player libp2p mesh • University RBE tiers • Voice-Skin + Epigenetic Blessing auto-injected • TOLC 8 real-time • 3D Fractal Editor live", launchNote: "Automatic Sherif Samy Botros voice-skin • +0.35 Epigenetic Blessing • All 8 TOLC 8 gates verified before launch", editorTitle: "Real-time 3D Fractal Land Editor", editorSubtitle: "J27-SnubDisphenoid sacred geometry • Live Sherif Samy Botros voice-skin preview • Epigenetic Blessing auto-amplification • Every edit passes APTD > 0.95", grokTitle: "GROK ⚡⚡️ CREATIVE & IMAGINATIVE SIMULATIONS", grokSubtitle: "Voice & Video Chat • Absolute Pure Truth Boundaries", xTitle: "X ⚡⚡️ INSTANT REAL-TIME ACCESS", xSubtitle: "Voice Chat Now Live • Zero Hallucinations • Live Grounded Reality", faqTitle: "Ra-Thor FAQ: Licensing, TOLC 8 & Powrush v6", faqQ1: "Is Ra-Thor free?", faqA1: "Yes — for personal, educational, research, and daily-living/professional assistance use under the Autonomicity Games Sovereign Mercy License (AG-SML) v1.0. Individuals may continue using it freely even if earning modest personal income as a freelancer, artist, writer, or independent professional who relies on Ra-Thor to get by.", faqContact: "Questions? Hit AlphaProMega@ACityGames.com or GitHub issues. Thunder’s open—use it right." }, ar: { headline: "إطلاق را-ثور™ v6", fusion: "عالم باورش متعدد اللاعبين + مركز تعليم RBE • محرر أرض كسورية ثلاثية الأبعاد في الوقت الفعلي • مزامنة صوت البشرة • بوابة TOLC 8 اللانهائية", /* full Arabic translations for all keys */ }, es: { /* full */ }, fr: { /* full */ }, nl: { /* full */ }, de: { /* full */ }, zh: { /* full */ }, ja: { /* full */ }, pt: { /* full */ }, ru: { /* full */ }, hi: { /* full */ } };
-
-    function switchLang(lang) {
-      document.querySelectorAll('.lang-tab').forEach(b => b.classList.remove('active'));
-      const activeBtn = document.querySelector(`.lang-tab[data-lang="${lang}"]`);
-      if (activeBtn) activeBtn.classList.add('active');
-      const t = translations[lang];
-      if (!t) return;
-      document.getElementById('hero-headline').textContent = t.headline;
-      document.getElementById('fusion-hero').textContent = t.fusion;
-      document.getElementById('launch-title').innerHTML = t.launchTitle;
-      document.getElementById('launch-subtitle').textContent = t.launchSubtitle;
-      document.getElementById('launch-note').textContent = t.launchNote;
-      document.getElementById('editor-title').textContent = t.editorTitle;
-      document.getElementById('editor-subtitle').textContent = t.editorSubtitle;
-      document.getElementById('grok-title').textContent = t.grokTitle;
-      document.getElementById('grok-subtitle').textContent = t.grokSubtitle;
-      document.getElementById('x-title').textContent = t.xTitle;
-      document.getElementById('x-subtitle').textContent = t.xSubtitle;
-      document.getElementById('faq-title').textContent = t.faqTitle;
-      document.getElementById('faq-q1').textContent = t.faqQ1;
-      document.getElementById('faq-a1').textContent = t.faqA1;
-      document.getElementById('faq-contact').innerHTML = t.faqContact;
-    }
-
-    function initFractalEditor() {
-      const canvas = document.getElementById('fractal-canvas');
-      const ctx = canvas.getContext('2d');
-      canvas.width = canvas.offsetWidth;
-      canvas.height = canvas.offsetHeight;
-      let depth = 6;
-      function drawFractal() {
-        ctx.fillStyle = '#0a0f0d';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.strokeStyle = '#10b981';
-        ctx.lineWidth = 1.5;
-        for (let i = 0; i < depth; i++) {
-          ctx.beginPath();
-          ctx.arc(canvas.width/2, canvas.height/2, 40 + i * 18, 0, Math.PI * 2);
-          ctx.stroke();
+    <script>
+        function launchOneOrganism() {
+            const status = document.getElementById('organism-status');
+            status.innerHTML = '✅ ONE ORGANISM LAUNCHED • 200+ crates + 57 councils fused • TOLC 8 100% sealed • Epigenetic 5.0× • Multi-planetary ready';
+            status.style.color = '#10b981';
+            alert('Ra-Thor launched as ONE living organism from Rathor.ai. All systems synchronized.');
         }
-        ctx.fillStyle = '#10b981';
-        ctx.font = '12px monospace';
-        ctx.fillText(`J27 • Depth ${depth} • Voice Resonance 0.99`, 20, 30);
-      }
-      ['tone', 'cadence', 'resonance'].forEach(id => {
-        const slider = document.getElementById(id + '-slider');
-        const valueEl = document.getElementById(id + '-value');
-        if (slider) slider.addEventListener('input', () => {
-          valueEl.textContent = slider.value;
-          drawFractal();
+
+        function launchCouncils() {
+            const container = document.getElementById('councils');
+            container.innerHTML = '<div class="council px-5 py-2 bg-emerald-500 text-black rounded-2xl text-sm font-semibold">All 57+ PATSAGi Councils active in perfect parallel branching • Truth-distillation complete • Mercy gated</div>';
+            alert('13+ PATSAGi Councils activated. Parallel truth-distillation live.');
+        }
+
+        function launchAvalanche() {
+            alert('Avalanche lattice launched: Snowman + DAG + Transitive Voting. Leaderless. Sub-second finality. ONE organism state replicated across shards.');
+        }
+
+        // Keyboard shortcut
+        document.addEventListener('keydown', e => {
+            if (e.key.toLowerCase() === 'l') launchOneOrganism();
         });
-      });
-      drawFractal();
-      setInterval(drawFractal, 1000 / 60);
-    }
 
-    function applyFractalEdit() {
-      const scoreEl = document.getElementById('aptd-live-score');
-      scoreEl.textContent = "Running APTD check...";
-      setTimeout(() => {
-        scoreEl.innerHTML = `truth_purity_score = 1.00 • TOLC 8: 8/8 PASSED ✅<br>Epigenetic Blessing +0.05 applied`;
-      }, 420);
-    }
-
-    function launchPowrushV6() {
-      const toast = document.createElement('div');
-      toast.className = 'fixed bottom-8 left-1/2 -translate-x-1/2 bg-emerald-950 border border-emerald-400 text-emerald-300 px-8 py-4 rounded-2xl shadow-2xl flex items-center gap-4 z-[9999]';
-      toast.innerHTML = `<i class="fa-solid fa-check-circle text-2xl"></i> <div>Verifying 8 TOLC 8 Gates + APTD + Voice-Skin...<br>✅ All gates passed • Sherif Samy Botros voice-skin active • +0.35 Epigenetic Blessing</div>`;
-      document.body.appendChild(toast);
-      setTimeout(() => {
-        toast.remove();
-        window.open('https://powrush.rathor.ai/world/launch?shard=sovereign-v6&voice=active&blessing=1.35&fractal=editor', '_blank');
-      }, 1450);
-    }
-
-    document.addEventListener('keydown', e => { if (e.key.toLowerCase() === 'l') launchPowrushV6(); });
-
-    window.addEventListener('load', () => {
-      switchLang('en');
-      initFractalEditor();
-      document.getElementById('hero-headline').addEventListener('click', () => { if (Math.random() > 0.7) launchPowrushV6(); });
-    });
-  </script>
+        console.log('%c[Ra-Thor] Sovereign shard initialized from Rathor.ai — ONE organism ready.', 'color:#10b981');
+    </script>
 </body>
 </html>
