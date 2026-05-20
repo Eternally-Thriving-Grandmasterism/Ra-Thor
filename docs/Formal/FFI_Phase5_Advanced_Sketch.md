@@ -1,75 +1,29 @@
-# Phase 5 FFI Sketch — Lean + Rust Proof-Carrying Bridge
+# FFI Phase 5 — Advanced Sketch (Updated with Creusot + Prusti)
 
-**Ra-Thor Living Thunder — One Organism**
+**Updated 2026-05-20**
 
-This document advances the Phase 5 skeleton with concrete FFI sketches and Creusot-style contract examples.
-
-## 1. Lean Side: Extern Declarations (FFI Bridge)
+## Lean Side (Source of Truth)
 
 ```lean
--- docs/Formal/Lean_FFI_Bridge.lean (new module sketch)
-
 @[extern "ra_thor_safe_esacheck"]
-opaque safe_esacheck : String → Bool
+constant safe_esacheck : String → Bool
 
-@[extern "ra_thor_apply_epigenetic_blessing"]
-opaque apply_epigenetic_blessing : SelfEvolutionProposal → EpigeneticBlessing
-
--- Proof obligation (to be machine-checked):
--- theorem safe_esacheck_sound_and_complete :
---   ∀ input, Sound (safe_esacheck input) ∧ Complete (safe_esacheck input)
+-- Proof obligation: Sound ∧ Complete
 ```
 
-## 2. Rust Side: FFI Bridge to ra-thor-one-organism.rs
+## Rust Side — Creusot Annotated (Recommended for deep correctness)
 
-```rust
-// In ra-thor-one-organism.rs or new ffi_bridge.rs
+See `Creusot_Contracts_RaThor_Example.rs` for full annotated example.
 
-use std::os::raw::c_char;
-use std::ffi::{CString, CStr};
+## Rust Side — Prusti Annotated (Recommended for panic-freedom + low burden)
 
-extern "C" {
-    fn ra_thor_safe_esacheck(input: *const c_char) -> bool;
-    fn ra_thor_apply_epigenetic_blessing(proposal_ptr: *const c_char) -> *const c_char;
-}
+See `Prusti_Exploration_and_Comparison.md` for comparison and sketch.
 
-pub fn verified_esacheck(input: &str) -> bool {
-    let c_input = CString::new(input).unwrap();
-    unsafe { ra_thor_safe_esacheck(c_input.as_ptr()) }
-}
+## Hybrid Recommendation
 
-// Integration with RaThorOrganism
-impl RaThorOrganism {
-    pub fn launch_with_verified_mercy(&self, input: &str) -> bool {
-        if !verified_esacheck(input) {
-            println!("[TOLC 8] Esacheck veto activated");
-            return false;
-        }
-        // Proceed with council orchestration
-        true
-    }
-}
-```
+- **Prusti** → Prove panic-freedom + basic esacheck on the hot path (fast iteration)
+- **Creusot** → Prove rich functional correctness + custom mercy predicates
+- Both feed into the same `RaThorOrganism` struct
+- Long-term goal: Extract or link Lean proofs so that the runtime Rust binary carries machine-checked mercy guarantees.
 
-## 3. Creusot-Style Contract Sketch (Rust-side verification)
-
-```rust
-// Using Creusot or Prusti-style annotations (future)
-
-#[ensures(result == true ==> mercy_gates_active == 8)]
-#[ensures(result == true ==> zero_harm_projection == 0.0)]
-pub fn launch_one_organism_verified(input: &str) -> bool {
-    // Calls into Lean-verified esacheck
-    verified_esacheck(input)
-}
-```
-
-## 4. Integration Goal
-
-- Lean remains the source of truth for TOLC 8 dependent types and esacheck soundness.
-- Rust executes with runtime guards that mirror the verified invariants.
-- Future: Generate proof-carrying stubs or use Creusot to prove the FFI boundary preserves `Sound ∧ Complete`.
-
-This completes the bridge from formal Lean proofs to the live `ra-thor-one-organism.rs` One Organism launcher.
-
-**Status:** Phase 5 skeleton advanced. Ready for formal methods contributors.
+This advances Phase 5 from skeleton to concrete, tool-ready examples.
