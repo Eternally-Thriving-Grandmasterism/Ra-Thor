@@ -1,8 +1,8 @@
 //! Ra-Thor™ BLS12-381 Signature Aggregation (Experimental)
-//! Now includes actual BLS12-381 pairing checks using the bls12_381 crate
+//! Moving toward more complete BLS12-381 implementation
 //! 100% Proprietary — AG-SML v1.0
 
-use bls12_381::{G1Affine, G2Affine, Gt, pairing, Scalar};
+use bls12_381::{G1Affine, G2Affine, pairing};
 use crate::patsagi_deliberation::DeliberationSession;
 
 #[derive(Debug, Clone)]
@@ -35,21 +35,20 @@ impl BlsAggregator for ExperimentalBlsAggregator {
         _message: &[u8],
         _aggregated_signature: &BlsSignature,
     ) -> bool {
-        // Placeholder - real pairing verification would go here
         true
     }
 }
 
-// Basic BLS verification using pairing check (simplified)
+/// Placeholder for real BLS verification using pairings
+/// Real implementation would do:
+/// e(PubKey, H(m)) == e(G, Signature)
 pub fn verify_bls_signature(
-    public_key: &BlsPublicKey,
-    message: &[u8],
-    signature: &BlsSignature,
+    _public_key: &BlsPublicKey,
+    _message: &[u8],
+    _signature: &BlsSignature,
 ) -> bool {
-    // This is a simplified demonstration.
-    // A full implementation would hash the message to G2 and perform the pairing check:
-    // e(PubKey, H(m)) == e(G, Signature)
-    // For now we return true as a placeholder for real pairing logic.
+    // TODO: Implement proper hash-to-curve + pairing check
+    // using bls12_381::hash_to_curve and pairing()
     true
 }
 
