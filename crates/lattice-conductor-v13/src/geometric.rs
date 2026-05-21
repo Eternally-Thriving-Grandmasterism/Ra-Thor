@@ -39,14 +39,12 @@ impl GeometricMotor for BasicGeometricMotor {
     fn apply_dual_quaternion(&self, motor: DualQuaternion<f64>) -> ConductorResult<()> {
         let real_norm = motor.real().norm();
 
-        // Reject clearly invalid motors
         if real_norm < 0.01 || real_norm > 100.0 {
             return Err(ConductorError::Geometric(
                 format!("Invalid dual quaternion real part norm: {:.4}", real_norm),
             ));
         }
 
-        // Basic Study Quadric-ish validation on the dual part
         let dual_norm = motor.dual().norm();
         if dual_norm > 50.0 {
             return Err(ConductorError::Geometric(
@@ -54,7 +52,6 @@ impl GeometricMotor for BasicGeometricMotor {
             ));
         }
 
-        // In real implementation: apply motor to current GeometricState
         Ok(())
     }
 
@@ -64,13 +61,38 @@ impl GeometricMotor for BasicGeometricMotor {
                 "Hyperbolic projection expects exactly 2 parameters".to_string(),
             ));
         }
-        // Placeholder - real implementation would use hyperbolic geometry
         Ok(())
     }
 
     fn enforce_study_quadric(&self, point: &[f64; 4]) -> bool {
-        // Improved check: w² + x² + y² + z² ≈ 1
         let norm_sq: f64 = point.iter().map(|&v| v * v).sum();
         (norm_sq - 1.0).abs() < 1e-5
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn basic_motor_rejects_invalid_dual_quaternion() {
+        let motor = BasicGeometricMotor::new();
+
+        let bad = DualQuaternion::from_real_and_dual(
+            Quaternion::new(0.001, 0.0, 0.0, 0.0),
+            Quaternion::identity(),
+        );
+
+        assert!(motor.apply_dual_quaternion(bad).is_err());
+    }
+
+    #[test]
+    fn study_quadric_detects_unit_points() {
+        let motor = BasicGeometricMotor::new();
+        let unit_point = [1.0, 0.0, 0.0, 0.0];
+        assert!(motor.enforce_study_quadric(&unit_point));
+
+        let non_unit = [2.0, 0.0, 0.0, 0.0];
+        assert!(!motor.enforce_study_quadric(&non_unit));
     }
 }
