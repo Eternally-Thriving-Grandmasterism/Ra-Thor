@@ -63,22 +63,20 @@ impl SimpleLatticeConductor {
 impl LatticeConductor for SimpleLatticeConductor {
     fn tick(&mut self) -> ConductorResult<()> {
         self.tick_count += 1;
-        // In future: run geometric motor + mercy checks + council updates
+        // Future: integrate motor + mercy validation + council state
         Ok(())
     }
 
     fn conduct_council(&self, _council_id: u64) -> ConductorResult<()> {
-        // Placeholder
         Ok(())
     }
 
     fn orchestrate_swarm_evolution(&mut self) -> ConductorResult<()> {
-        // Placeholder for Quantum Swarm integration
         Ok(())
     }
 
     fn validate_mercy(&self, _operation: &str) -> bool {
-        true // Always pass in this early version
+        true
     }
 
     fn get_geometric_state(&self) -> GeometricState {
@@ -86,7 +84,28 @@ impl LatticeConductor for SimpleLatticeConductor {
     }
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn simple_conductor_starts_with_valid_state() {
+        let conductor = SimpleLatticeConductor::new();
+        let state = conductor.get_geometric_state();
+        assert_eq!(state.valence(), 1.0);
+        assert_eq!(state.tolc_alignment(), 1.0);
+    }
+
+    #[test]
+    fn simple_conductor_tick_increments_counter() {
+        let mut conductor = SimpleLatticeConductor::new();
+        let initial = conductor.tick_count;
+        let _ = conductor.tick();
+        assert_eq!(conductor.tick_count, initial + 1);
+    }
+}
+
 pub mod prelude {
-    pub use crate::{ConductorResult, GeometricMotor, GeometricState, LatticeConductor};
+    pub use crate::{ConductorResult, GeometricMotor, GeometricState, LatticeConductor, SimpleLatticeConductor};
     pub use crate::geometric::BasicGeometricMotor;
 }
