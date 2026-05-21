@@ -2,6 +2,7 @@
 /// Sovereign orchestration heart of the Ra-Thor lattice.
 
 pub mod geometric;
+pub mod coordinator;
 
 pub use geometric::{BasicGeometricMotor, GeometricMotor};
 
@@ -11,118 +12,20 @@ use thiserror::Error;
 
 pub type ConductorResult<T> = Result<T, ConductorError>;
 
-// ... (existing code remains above this point)
-
 // ============================================================================
-// MULTI-AGENT COORDINATION (Exploration - Option A)
+// ADAPTATION SYSTEM CONSTANTS
 // ============================================================================
 
-/// Trait for coordinating multiple conductors
-pub trait ConductorCoordinator {
-    /// Perform a coordinated step across all managed conductors
-    fn coordinate_step(&mut self) -> ConductorResult<()>;
+/// Base mercy recovery rate per successful operation
+const BASE_MERCY_RECOVERY_RATE: f64 = 0.025;
 
-    /// Get the number of conductors being coordinated
-    fn conductor_count(&self) -> usize;
+/// Base self-evolution rate
+const BASE_EVOLUTION_RATE: f64 = 0.01;
 
-    /// Optional: Allow external influence on coordination parameters
-    fn set_coordination_strength(&mut self, strength: f64);
-}
+/// Default swarm influence strength on the system
+const DEFAULT_SWARM_INFLUENCE: f64 = 0.02;
 
-/// Basic multi-conductor simulation / coordinator
-/// This is an exploratory implementation for multi-agent coordination.
-pub struct MultiConductorSimulation {
-    pub conductors: Vec<SimpleLatticeConductor>,
-    pub coordination_strength: f64,
-    pub coordination_events: VecDeque<ConductorEvent>,
-}
+/// Mercy threshold required before group coordination influence is applied
+const COORDINATION_MERCY_THRESHOLD: f64 = 0.6;
 
-impl MultiConductorSimulation {
-    pub fn new() -> Self {
-        Self {
-            conductors: Vec::new(),
-            coordination_strength: 0.3,
-            coordination_events: VecDeque::with_capacity(128),
-        }
-    }
-
-    pub fn with_conductors(conductors: Vec<SimpleLatticeConductor>) -> Self {
-        Self {
-            conductors,
-            coordination_strength: 0.3,
-            coordination_events: VecDeque::with_capacity(128),
-        }
-    }
-
-    pub fn add_conductor(&mut self, conductor: SimpleLatticeConductor) {
-        self.conductors.push(conductor);
-    }
-
-    /// Run a coordinated tick across all conductors with basic influence
-    pub fn coordinated_tick(&mut self) -> ConductorResult<()> {
-        if self.conductors.is_empty() {
-            return Ok(());
-        }
-
-        // First, tick all conductors independently
-        for conductor in &mut self.conductors {
-            let _ = conductor.tick();
-        }
-
-        // Basic multi-agent influence: share evolution momentum
-        // Higher coordination_strength = stronger influence between conductors
-        if self.conductors.len() > 1 && self.coordination_strength > 0.05 {
-            let avg_evolution: f64 = self.conductors
-                .iter()
-                .map(|c| c.state.evolution_level)
-                .sum::<f64>() / self.conductors.len() as f64;
-
-            for conductor in &mut self.conductors {
-                let diff = avg_evolution - conductor.state.evolution_level;
-                // Gentle pull toward average, modulated by coordination_strength
-                conductor.state.evolution_level += diff * self.coordination_strength * 0.1;
-            }
-
-            // Record coordination event
-            self.coordination_events.push_back(ConductorEvent::SwarmEvolved {
-                branches: self.conductors.len() as u32,
-                coherence: self.coordination_strength,
-            });
-
-            if self.coordination_events.len() > 64 {
-                self.coordination_events.pop_front();
-            }
-        }
-
-        Ok(())
-    }
-
-    pub fn set_coordination_strength(&mut self, strength: f64) {
-        self.coordination_strength = strength.clamp(0.0, 1.0);
-    }
-}
-
-impl ConductorCoordinator for MultiConductorSimulation {
-    fn coordinate_step(&mut self) -> ConductorResult<()> {
-        self.coordinated_tick()
-    }
-
-    fn conductor_count(&self) -> usize {
-        self.conductors.len()
-    }
-
-    fn set_coordination_strength(&mut self, strength: f64) {
-        self.set_coordination_strength(strength);
-    }
-}
-
-// ============================================================================
-// END OF MULTI-AGENT COORDINATION EXPLORATION
-// ============================================================================
-
-// (Rest of the existing file continues below)
-
-pub mod prelude {
-    pub use crate::{AdaptiveParameters, ConductorCoordinator, ConductorEvent, ConductorMetrics, ConductorObserver, ConductorResult, GeometricMotor, GeometricState, LatticeConductor, MercyGate, MultiConductorSimulation, Operation, PatsagiCouncilBridge, QuantumSwarm, SimpleLatticeConductor, SimplePatsagiBridge};
-    pub use crate::geometric::BasicGeometricMotor;
-}
+// ... existing code continues ...
