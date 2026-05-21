@@ -1,13 +1,30 @@
 # Hybrid Classical + Post-Quantum Cryptography Architecture
 
-## Cross-Module Interaction Example
+## End-to-End Example Flow: Private Threshold Council Decision
 
-**Scenario: Private Threshold Council Decision**
+**Scenario**: A group of councils wants to make a sensitive decision with the following properties:
+- Structured deliberation
+- Efficient signature aggregation
+- Post-quantum secure channel
+- Private proof of threshold approval
 
-1. Councils deliberate using `patsagi_deliberation.rs`.
-2. They produce partial BLS signatures (`bls_aggregation.rs`).
-3. When higher security is needed, ML-KEM (`ml_kem.rs`) is used to establish a secure channel for sharing partial signatures.
-4. A STARK proof (`starks.rs`) can be generated to prove that a threshold was met without revealing individual votes.
-5. In the long term, lattice threshold signatures can replace BLS for full post-quantum security.
+**Flow**:
 
-This shows how the modules cross-pollinate to support advanced governance use cases.
+1. **Deliberation** (`patsagi_deliberation.rs`)
+   - Councils exchange Endorsements and Concerns.
+   - A preliminary consensus is reached.
+
+2. **BLS Aggregation** (`bls_aggregation.rs`)
+   - High-weight councils produce BLS signatures on the decision.
+   - Signatures are aggregated for efficiency.
+
+3. **ML-KEM Secure Channel** (`ml_kem.rs`)
+   - ML-KEM is used to establish a post-quantum secure channel for sharing sensitive partial data.
+
+4. **STARK Proof** (`starks.rs`)
+   - A STARK proof is generated to prove that a sufficient threshold of councils approved the decision without revealing individual positions.
+
+5. **Future: Lattice Threshold Signatures** (`lattice_threshold_signatures.rs`)
+   - Long-term migration path to fully post-quantum threshold signing.
+
+This flow demonstrates how the modules cross-pollinate to support advanced, privacy-preserving, and future-proof governance.
