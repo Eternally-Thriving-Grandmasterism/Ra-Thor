@@ -199,12 +199,17 @@ pub enum ConductorEvent {
     QuantumBranchSplit { new_branches: u32 },
 }
 
-/// Observer with basic event filtering support
+/// Observer trait with filtering and basic priority support
 pub trait ConductorObserver {
     fn on_event(&self, event: &ConductorEvent);
-    /// Optional: Filter which events this observer cares about
+
     fn is_interested_in(&self, event: &ConductorEvent) -> bool {
-        true // Default: interested in everything
+        true
+    }
+
+    /// Priority for ordering (higher = notified earlier). Default = 0
+    fn priority(&self) -> i32 {
+        0
     }
 }
 
@@ -249,6 +254,8 @@ impl SimpleLatticeConductor {
 
     pub fn register_observer(&mut self, observer: Box<dyn ConductorObserver + Send + Sync>) {
         self.observers.push(observer);
+        // Keep observers sorted by priority (descending)
+        self.observers.sort_by_key(|o| std::cmp::Reverse(o.priority()));
     }
 
     pub fn register_council(&mut self, id: u64, name: &str) {
