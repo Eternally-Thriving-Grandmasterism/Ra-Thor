@@ -272,7 +272,6 @@ impl SimpleLatticeConductor {
     }
 
     fn perform_self_evolution_step(&mut self) {
-        // QuantumSwarm coherence now influences self-evolution speed
         let evolution_boost = (self.quantum_swarm.coherence - 0.5) * 0.03;
         if self.state.mercy_score > 0.75 && self.state.valence > 0.65 {
             self.state.evolution_level += 0.01 + evolution_boost.max(0.0);
@@ -407,9 +406,9 @@ mod tests {
     #[test]
     fn dynamic_gate_threshold_with_low_coherence() {
         let mut conductor = SimpleLatticeConductor::new();
-        conductor.quantum_swarm.coherence = 0.55; // Low coherence
+        conductor.quantum_swarm.coherence = 0.55;
         let borderline = Operation::new("Borderline Action", "Medium harm", 0.68);
-        assert!(!conductor.validate_mercy(&borderline)); // Should be rejected due to low coherence
+        assert!(!conductor.validate_mercy(&borderline));
     }
 
     #[test]
@@ -419,7 +418,6 @@ mod tests {
             Council { id: 2, name: "Truth Council".to_string(), weight: 1.0, council_type: "Truth".to_string() },
         ]);
         let medium_harm = Operation::new("Complex Decision", "Medium", 0.55);
-        // Mercy-weighted council should be more lenient
         assert!(bridge.request_consensus(&medium_harm));
     }
 
@@ -439,7 +437,7 @@ mod tests {
         #[derive(Default)]
         struct EventCounter { count: Arc<Mutex<usize>> }
         impl ConductorObserver for EventCounter {
-            fn on_event(&self, _e: &ConductorEvent) { *self.count.lock().unwrap() += 1; }
+            fn on_event(&self, _event: &ConductorEvent) { *self.count.lock().unwrap() += 1; }
         }
         let counter = Arc::new(Mutex::new(0));
         let observer = EventCounter { count: counter.clone() };
