@@ -1,2 +1,2 @@
 [workspace.dependencies]
-bls-signatures = "0.15"
+ml-kem = "0.2"
