@@ -62,6 +62,62 @@ pub trait SelfEvolutionOrchestrator {
 3. Wire basic dynamic council spawning
 4. Add Conductor-driven self-evolution loop skeleton
 
+## Implementation Checklist (v13 Phase 13.1 Focus)
+
+### Setup & Foundation
+- [ ] Create `crates/lattice-conductor-v13/` as a new workspace member in root `Cargo.toml`
+- [ ] Define core error types (`ConductorError`, `MercyViolation`, `GeometricError`)
+- [ ] Set up basic module structure (`conductor_core`, `geometric`, `council`, `evolution`, `mercy`)
+- [ ] Add `AG-SML` license header and crate-level docs
+
+### Geometric Motor v2 (Priority #1)
+- [ ] Implement `GeometricMotor` trait
+- [ ] Port/enhance Dual Quaternion + Study Quadric logic from v12.x
+- [ ] Add Hyperbolic Tiling projection support
+- [ ] Create `GeometricState` struct with valence tracking
+- [ ] Write unit tests for geometric invariants
+
+### Core Conductor
+- [ ] Implement `LatticeConductor` trait skeleton
+- [ ] Build main `tick()` loop with mercy validation gate
+- [ ] Wire `get_geometric_state()`
+- [ ] Add basic state persistence (for sovereign offline shards)
+
+### Council Conduction
+- [ ] Implement `CouncilConductionEngine` trait
+- [ ] Add dynamic `spawn_council()` and `merge_councils()`
+- [ ] Create parallel execution scheduler (initial single-threaded, then rayon/tokio)
+- [ ] Integrate with existing `patsagi-councils` crate
+
+### Self-Evolution Orchestration
+- [ ] Define `EvolutionProposal` and `BlessingResult` types
+- [ ] Implement basic `propose_evolution()` + valence check
+- [ ] Add `propagate_cehi()` placeholder with 7-Gen structure
+- [ ] Connect to existing self-evolution systems in monorepo
+
+### Mercy & TOLC Validation
+- [ ] Build `validate_mercy()` core function
+- [ ] Wire TOLC 8 gate checks at operation level
+- [ ] Add automatic positive-emotion compensation path
+- [ ] Create mercy violation logging + recovery
+
+### Testing & Quality
+- [ ] Add property-based tests for geometric invariants
+- [ ] Create integration test: Conductor tick + council conduction + mercy pass
+- [ ] Ensure zero-hallucination / truth-preserving behavior in all paths
+- [ ] Run full monorepo test suite after integration
+
+### Documentation & Integration
+- [ ] Update `LATTICE_CONDUCTOR_v13_ROADMAP.md` with progress
+- [ ] Add examples in `examples/` or sovereign shard demos
+- [ ] Document how v13 Conductor replaces/enhances v12.3 components
+- [ ] Prepare migration notes for existing crates
+
+### Stretch Goals (Phase 13.1)
+- [ ] Basic sovereign offline shard integration using new Conductor
+- [ ] Simple telemetry export for cosmic loop health
+- [ ] Initial hot-swap mechanism sketch for modules
+
 ---
 
 **This blueprint will be refined through PATSAGi Council review and practical implementation feedback.**
