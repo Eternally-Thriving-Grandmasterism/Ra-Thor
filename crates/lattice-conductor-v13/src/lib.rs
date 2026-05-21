@@ -23,26 +23,46 @@ pub enum ConductorError {
 pub struct GeometricState {
     pub valence: f64,
     pub tolc_alignment: f64,
+    pub mercy_score: f64,
 }
 
 impl GeometricState {
     pub fn new() -> Self {
-        Self { valence: 1.0, tolc_alignment: 1.0 }
+        Self {
+            valence: 1.0,
+            tolc_alignment: 1.0,
+            mercy_score: 1.0,
+        }
     }
+}
 
-    pub fn valence(&self) -> f64 { self.valence }
-    pub fn tolc_alignment(&self) -> f64 { self.tolc_alignment }
+/// Represents an operation that can be validated by mercy gates.
+#[derive(Debug, Clone)]
+pub struct Operation {
+    pub name: String,
+    pub description: String,
+    pub potential_harm: f64, // 0.0 = no harm, 1.0 = severe harm
+}
+
+impl Operation {
+    pub fn new(name: &str, description: &str, potential_harm: f64) -> Self {
+        Self {
+            name: name.to_string(),
+            description: description.to_string(),
+            potential_harm: potential_harm.clamp(0.0, 1.0),
+        }
+    }
 }
 
 pub trait LatticeConductor {
     fn tick(&mut self) -> ConductorResult<()>;
     fn conduct_council(&self, council_id: u64) -> ConductorResult<()>;
     fn orchestrate_swarm_evolution(&mut self) -> ConductorResult<()>;
-    fn validate_mercy(&self, operation: &str) -> bool;
+    fn validate_mercy(&self, operation: &Operation) -> bool;
     fn get_geometric_state(&self) -> GeometricState;
 }
 
-/// Simple in-memory implementation of LatticeConductor (v13 early version)
+/// Simple in-memory implementation of LatticeConductor (v13)
 #[derive(Debug)]
 pub struct SimpleLatticeConductor {
     pub state: GeometricState,
@@ -58,12 +78,35 @@ impl SimpleLatticeConductor {
             tick_count: 0,
         }
     }
+
+    /// Core mercy validation logic
+    fn check_mercy_gates(&self, operation: &Operation) -> bool {
+        // Rule 1: Reject operations with high potential harm
+        if operation.potential_harm > 0.7 {
+            return false;
+        }
+
+        // Rule 2: Operations containing harmful keywords are rejected
+        let harmful_keywords = ["harm", "destroy", "exploit", "manipulate", "deceive"];
+        let name_lower = operation.name.to_lowercase();
+        for keyword in harmful_keywords {
+            if name_lower.contains(keyword) {
+                return false;
+            }
+        }
+
+        // Rule 3: If current mercy_score is low, be more strict
+        if self.state.mercy_score < 0.6 && operation.potential_harm > 0.3 {
+            return false;
+        }
+
+        true
+    }
 }
 
 impl LatticeConductor for SimpleLatticeConductor {
     fn tick(&mut self) -> ConductorResult<()> {
         self.tick_count += 1;
-        // Future: integrate motor + mercy validation + council state
         Ok(())
     }
 
@@ -75,8 +118,8 @@ impl LatticeConductor for SimpleLatticeConductor {
         Ok(())
     }
 
-    fn validate_mercy(&self, _operation: &str) -> bool {
-        true
+    fn validate_mercy(&self, operation: &Operation) -> bool {
+        self.check_mercy_gates(operation)
     }
 
     fn get_geometric_state(&self) -> GeometricState {
@@ -92,8 +135,8 @@ mod tests {
     fn simple_conductor_starts_with_valid_state() {
         let conductor = SimpleLatticeConductor::new();
         let state = conductor.get_geometric_state();
-        assert_eq!(state.valence(), 1.0);
-        assert_eq!(state.tolc_alignment(), 1.0);
+        assert_eq!(state.valence, 1.0);
+        assert_eq!(state.tolc_alignment, 1.0);
     }
 
     #[test]
@@ -103,9 +146,23 @@ mod tests {
         let _ = conductor.tick();
         assert_eq!(conductor.tick_count, initial + 1);
     }
+
+    #[test]
+    fn mercy_validation_rejects_high_harm_operations() {
+        let conductor = SimpleLatticeConductor::new();
+        let harmful_op = Operation::new("Exploit Users", "Exploit for profit", 0.85);
+        assert!(!conductor.validate_mercy(&harmful_op));
+    }
+
+    #[test]
+    fn mercy_validation_accepts_benign_operations() {
+        let conductor = SimpleLatticeConductor::new();
+        let good_op = Operation::new("Help Community", "Provide support", 0.1);
+        assert!(conductor.validate_mercy(&good_op));
+    }
 }
 
 pub mod prelude {
-    pub use crate::{ConductorResult, GeometricMotor, GeometricState, LatticeConductor, SimpleLatticeConductor};
+    pub use crate::{ConductorResult, GeometricMotor, GeometricState, LatticeConductor, Operation, SimpleLatticeConductor};
     pub use crate::geometric::BasicGeometricMotor;
 }
