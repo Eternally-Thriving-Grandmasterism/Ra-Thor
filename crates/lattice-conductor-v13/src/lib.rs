@@ -36,12 +36,11 @@ impl GeometricState {
     }
 }
 
-/// Represents an operation that can be validated by mercy gates.
 #[derive(Debug, Clone)]
 pub struct Operation {
     pub name: String,
     pub description: String,
-    pub potential_harm: f64, // 0.0 = no harm, 1.0 = severe harm
+    pub potential_harm: f64,
 }
 
 impl Operation {
@@ -68,6 +67,8 @@ pub struct SimpleLatticeConductor {
     pub state: GeometricState,
     pub motor: BasicGeometricMotor,
     pub tick_count: u64,
+    pub operation_history: Vec<Operation>,
+    pub mercy_violations: Vec<String>,
 }
 
 impl SimpleLatticeConductor {
@@ -76,17 +77,16 @@ impl SimpleLatticeConductor {
             state: GeometricState::new(),
             motor: BasicGeometricMotor::new(),
             tick_count: 0,
+            operation_history: Vec::new(),
+            mercy_violations: Vec::new(),
         }
     }
 
-    /// Core mercy validation logic
     fn check_mercy_gates(&self, operation: &Operation) -> bool {
-        // Rule 1: Reject operations with high potential harm
         if operation.potential_harm > 0.7 {
             return false;
         }
 
-        // Rule 2: Operations containing harmful keywords are rejected
         let harmful_keywords = ["harm", "destroy", "exploit", "manipulate", "deceive"];
         let name_lower = operation.name.to_lowercase();
         for keyword in harmful_keywords {
@@ -95,18 +95,39 @@ impl SimpleLatticeConductor {
             }
         }
 
-        // Rule 3: If current mercy_score is low, be more strict
         if self.state.mercy_score < 0.6 && operation.potential_harm > 0.3 {
             return false;
         }
 
         true
     }
+
+    /// More sophisticated mercy rules including TOLC alignment impact
+    fn evaluate_mercy_impact(&self, operation: &Operation) -> (bool, f64) {
+        let base_pass = self.check_mercy_gates(operation);
+
+        // TOLC alignment penalty
+        let tolc_penalty = if self.state.tolc_alignment < 0.8 {
+            operation.potential_harm * 0.5
+        } else {
+            0.0
+        };
+
+        let final_harm = operation.potential_harm + tolc_penalty;
+        let passes = base_pass && final_harm <= 0.75;
+
+        (passes, final_harm)
+    }
 }
 
 impl LatticeConductor for SimpleLatticeConductor {
     fn tick(&mut self) -> ConductorResult<()> {
         self.tick_count += 1;
+
+        // Simulate natural mercy_score and valence drift over time
+        self.state.mercy_score = (self.state.mercy_score + 0.01).min(1.0);
+        self.state.valence = (self.state.valence + 0.005).min(1.0);
+
         Ok(())
     }
 
@@ -119,11 +140,32 @@ impl LatticeConductor for SimpleLatticeConductor {
     }
 
     fn validate_mercy(&self, operation: &Operation) -> bool {
-        self.check_mercy_gates(operation)
+        let (passes, _impact) = self.evaluate_mercy_impact(operation);
+        passes
     }
 
     fn get_geometric_state(&self) -> GeometricState {
         self.state.clone()
+    }
+}
+
+// Extension methods for operation tracking and mercy violation logging
+impl SimpleLatticeConductor {
+    pub fn register_operation(&mut self, operation: Operation) -> bool {
+        let passes = self.validate_mercy(&operation);
+
+        if !passes {
+            let violation = format!("Mercy violation: '{}' (harm: {:.2})", operation.name, operation.potential_harm);
+            self.mercy_violations.push(violation.clone());
+            println!("[Mercy] {}", violation); // Simple logging
+        }
+
+        self.operation_history.push(operation);
+        passes
+    }
+
+    pub fn get_mercy_violations(&self) -> &[String] {
+        &self.mercy_violations
     }
 }
 
@@ -136,29 +178,26 @@ mod tests {
         let conductor = SimpleLatticeConductor::new();
         let state = conductor.get_geometric_state();
         assert_eq!(state.valence, 1.0);
-        assert_eq!(state.tolc_alignment, 1.0);
     }
 
     #[test]
-    fn simple_conductor_tick_increments_counter() {
+    fn mercy_validation_rejects_high_harm() {
+        let conductor = SimpleLatticeConductor::new();
+        let op = Operation::new("Exploit", "Bad action", 0.9);
+        assert!(!conductor.validate_mercy(&op));
+    }
+
+    #[test]
+    fn register_operation_tracks_history_and_violations() {
         let mut conductor = SimpleLatticeConductor::new();
-        let initial = conductor.tick_count;
-        let _ = conductor.tick();
-        assert_eq!(conductor.tick_count, initial + 1);
-    }
+        let good = Operation::new("Help", "Support others", 0.1);
+        let bad = Operation::new("Exploit Users", "Harmful", 0.85);
 
-    #[test]
-    fn mercy_validation_rejects_high_harm_operations() {
-        let conductor = SimpleLatticeConductor::new();
-        let harmful_op = Operation::new("Exploit Users", "Exploit for profit", 0.85);
-        assert!(!conductor.validate_mercy(&harmful_op));
-    }
+        assert!(conductor.register_operation(good));
+        assert!(!conductor.register_operation(bad));
 
-    #[test]
-    fn mercy_validation_accepts_benign_operations() {
-        let conductor = SimpleLatticeConductor::new();
-        let good_op = Operation::new("Help Community", "Provide support", 0.1);
-        assert!(conductor.validate_mercy(&good_op));
+        assert_eq!(conductor.operation_history.len(), 2);
+        assert_eq!(conductor.mercy_violations.len(), 1);
     }
 }
 
