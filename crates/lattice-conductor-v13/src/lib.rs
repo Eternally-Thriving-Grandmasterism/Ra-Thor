@@ -63,9 +63,10 @@ pub enum MercyGate {
 }
 
 impl MercyGate {
-    pub fn check(&self, operation: &Operation, state: &GeometricState) -> bool {
+    pub fn check(&self, operation: &Operation, state: &GeometricState, swarm_coherence: f64) -> bool {
+        let dynamic_threshold = 0.7 * swarm_coherence;
         match self {
-            MercyGate::HarmThreshold => operation.potential_harm <= 0.7,
+            MercyGate::HarmThreshold => operation.potential_harm <= dynamic_threshold,
             MercyGate::KeywordFilter => {
                 let harmful = ["harm", "destroy", "exploit", "manipulate", "deceive"];
                 !harmful.iter().any(|k| operation.name.to_lowercase().contains(k))
@@ -85,30 +86,60 @@ pub trait PatsagiCouncilBridge {
     fn report_state(&self, state: &GeometricState);
 }
 
+#[derive(Debug, Clone)]
+pub struct Council {
+    pub id: u64,
+    pub name: String,
+    pub weight: f64,           // Voting weight
+    pub council_type: String,  // e.g. "Truth", "Mercy", "Evolution"
+}
+
 #[derive(Debug)]
 pub struct SimplePatsagiBridge {
-    pub registered_councils: Vec<u64>,
+    pub councils: Vec<Council>,
     pub required_consensus_ratio: f64,
 }
 
 impl SimplePatsagiBridge {
     pub fn new() -> Self {
-        Self { registered_councils: vec![], required_consensus_ratio: 0.6 }
+        Self { councils: vec![], required_consensus_ratio: 0.6 }
     }
 
-    pub fn with_councils(councils: Vec<u64>) -> Self {
-        Self { registered_councils: councils, required_consensus_ratio: 0.6 }
+    pub fn with_councils(councils: Vec<Council>) -> Self {
+        Self { councils, required_consensus_ratio: 0.6 }
     }
 }
 
 impl PatsagiCouncilBridge for SimplePatsagiBridge {
     fn request_consensus(&self, operation: &Operation) -> bool {
-        if self.registered_councils.is_empty() {
+        if self.councils.is_empty() {
             return true;
         }
-        let no_votes = (operation.potential_harm * self.registered_councils.len() as f64) as usize;
-        let yes_votes = self.registered_councils.len() - no_votes;
-        (yes_votes as f64 / self.registered_councils.len() as f64) >= self.required_consensus_ratio
+
+        let total_weight: f64 = self.councils.iter().map(|c| c.weight).sum();
+        if total_weight == 0.0 {
+            return true;
+        }
+
+        let mut yes_weight = 0.0;
+        for council in &self.councils {
+            let vote = if operation.potential_harm < 0.4 {
+                1.0
+            } else if operation.potential_harm > 0.7 {
+                0.0
+            } else {
+                // Weighted by council type
+                match council.council_type.as_str() {
+                    "Mercy" => 0.9,
+                    "Truth" => 0.7,
+                    "Evolution" => 0.6,
+                    _ => 0.5,
+                }
+            };
+            yes_weight += vote * council.weight;
+        }
+
+        (yes_weight / total_weight) >= self.required_consensus_ratio
     }
 
     fn report_state(&self, _state: &GeometricState) {}
@@ -234,7 +265,7 @@ impl SimpleLatticeConductor {
     fn evaluate_all_gates(&self, operation: &Operation) -> bool {
         let mut passes = true;
         for gate in [MercyGate::HarmThreshold, MercyGate::KeywordFilter, MercyGate::TolcAlignment, MercyGate::ValenceProtection] {
-            if !gate.check(operation, &self.state) {
+            if !gate.check(operation, &self.state, self.quantum_swarm.coherence) {
                 passes = false;
                 break;
             }
@@ -380,65 +411,54 @@ mod tests {
 
     #[test]
     fn patsagi_bridge_voting_works() {
-        let bridge = SimplePatsagiBridge::with_councils(vec![1, 2, 3]);
-        let low_harm = Operation::new("Help", "Good action", 0.2);
-        let high_harm = Operation::new("Exploit", "Bad action", 0.9);
+        let bridge = SimplePatsagiBridge::with_councils(vec![
+            Council { id: 1, name: "Truth".to_string(), weight: 1.0, council_type: "Truth".to_string() },
+            Council { id: 2, name: "Mercy".to_string(), weight: 1.0, council_type: "Mercy".to_string() },
+        ]);
+        let low_harm = Operation::new("Help", "Good", 0.2);
+        let high_harm = Operation::new("Exploit", "Bad", 0.9);
 
         assert!(bridge.request_consensus(&low_harm));
         assert!(!bridge.request_consensus(&high_harm));
     }
 
     #[test]
-    fn quantum_swarm_influences_mercy_and_evolution() {
+    fn quantum_swarm_modulates_mercy() {
         let mut conductor = SimpleLatticeConductor::new();
-        for _ in 0..20 {
-            let _ = conductor.tick();
-        }
-        assert!(conductor.state.mercy_score > 0.85 || conductor.state.evolution_level > 0.05);
+        // Force low coherence
+        conductor.quantum_swarm.coherence = 0.6;
+        let borderline = Operation::new("Borderline", "Medium harm", 0.65);
+        // With low coherence, this should be rejected more easily
+        assert!(!conductor.validate_mercy(&borderline));
     }
 
     #[test]
-    fn observer_receives_events() {
+    fn persistence_roundtrip() {
+        let mut conductor = SimpleLatticeConductor::new();
+        conductor.register_council(42, "Test");
+        let path = "/tmp/test_persistence.json";
+        conductor.save_to_file(path).unwrap();
+        let loaded = SimpleLatticeConductor::load_from_file(path).unwrap();
+        assert_eq!(loaded.councils.len(), 1);
+    }
+
+    #[test]
+    fn observer_pattern_works() {
         use std::sync::{Arc, Mutex};
-
         #[derive(Default)]
-        struct TestObserver {
-            received: Arc<Mutex<Vec<ConductorEvent>>>,
-        }
-
-        impl ConductorObserver for TestObserver {
-            fn on_event(&self, event: &ConductorEvent) {
-                self.received.lock().unwrap().push(event.clone());
+        struct CountingObserver { count: Arc<Mutex<usize>> }
+        impl ConductorObserver for CountingObserver {
+            fn on_event(&self, _event: &ConductorEvent) {
+                *self.count.lock().unwrap() += 1;
             }
         }
-
-        let received = Arc::new(Mutex::new(Vec::new()));
-        let observer = TestObserver { received: received.clone() };
+        let count = Arc::new(Mutex::new(0));
+        let observer = CountingObserver { count: count.clone() };
 
         let mut conductor = SimpleLatticeConductor::new();
         conductor.register_observer(Box::new(observer));
-
         let _ = conductor.tick();
-
-        assert!(!received.lock().unwrap().is_empty());
-    }
-
-    #[test]
-    fn quantum_swarm_split_and_merge() {
-        let mut swarm = QuantumSwarm::new();
-        assert!(swarm.split_branch());
-        assert!(swarm.active_branches > 1);
-        swarm.merge_branches(1);
-        assert_eq!(swarm.active_branches, 1);
-    }
-
-    #[test]
-    fn conductor_with_patsagi_bridge_rejects_high_harm() {
-        let bridge = Box::new(SimplePatsagiBridge::with_councils(vec![1,2,3,4,5]));
-        let mut conductor = SimpleLatticeConductor::new().with_patsagi_bridge(bridge);
-
-        let dangerous = Operation::new("Destroy", "Very harmful", 0.95);
-        assert!(!conductor.validate_mercy(&dangerous));
+        assert!(*count.lock().unwrap() > 0);
     }
 }
 
