@@ -251,6 +251,84 @@ proptest! {
 
 **Recommendation**: Start with tests #1, #2, and #3 as they cover the most critical invariants.
 
+## proptest Strategies for Dual Quaternions
+
+Add these strategies in `tests/strategies/dual_quaternion.rs` (or inside the geometric module for now).
+
+```rust
+use nalgebra::{DualQuaternion, Quaternion, UnitQuaternion, Vector3};
+use proptest::prelude::*;
+
+/// Generates a random (not necessarily unit) dual quaternion
+pub fn arb_dual_quaternion() -> impl Strategy<Value = DualQuaternion<f64>> {
+    (
+        arb_quaternion(),           // real part
+        arb_quaternion(),           // dual part
+    )
+    .prop_map(|(real, dual)| DualQuaternion::from_real_and_dual(real, dual))
+}
+
+/// Generates a unit dual quaternion (represents valid rigid transformation)
+pub fn arb_unit_dual_quaternion() -> impl Strategy<Value = DualQuaternion<f64>> {
+    (
+        arb_unit_quaternion(),      // rotation
+        prop::array::uniform3(-10.0f64..10.0), // translation
+    )
+    .prop_map(|(rot, trans)| {
+        let t = DualQuaternion::from_real_and_dual(
+            Quaternion::new(0.0, trans[0], trans[1], trans[2]),
+            Quaternion::identity(),
+        );
+        // Proper unit dual quaternion construction: q + 0.5 * t * q
+        let dual = 0.5 * t * rot;
+        DualQuaternion::from_real_and_dual(rot.into_inner(), dual.real())
+    })
+}
+
+fn arb_quaternion() -> impl Strategy<Value = Quaternion<f64>> {
+    prop::array::uniform4(-1.0f64..1.0)
+        .prop_map(|[w, x, y, z]| Quaternion::new(w, x, y, z))
+}
+
+fn arb_unit_quaternion() -> impl Strategy<Value = UnitQuaternion<f64>> {
+    prop::array::uniform4(-1.0f64..1.0)
+        .prop_map(|[w, x, y, z]| {
+            let q = Quaternion::new(w, x, y, z);
+            UnitQuaternion::from_quaternion(q)
+        })
+}
+
+/// 4D homogeneous point (for Study quadric tests)
+pub fn arb_point4() -> impl Strategy<Value = [f64; 4]> {
+    prop::array::uniform4(-5.0f64..5.0)
+}
+
+/// Arbitrary 3D translation vector
+pub fn arb_translation() -> impl Strategy<Value = Vector3<f64>> {
+    prop::array::uniform3(-20.0f64..20.0).prop_map(Vector3::from)
+}
+```
+
+### Usage Example in Property Tests
+
+```rust
+use proptest::prelude::*;
+use your_crate::strategies::dual_quaternion::*;
+
+proptest! {
+    #[test]
+    fn dual_quaternion_roundtrip(motor in arb_unit_dual_quaternion()) {
+        let transformed = apply_motor(motor);
+        // Add your geometric assertions here
+    }
+}
+```
+
+**Notes**:
+- Prefer `arb_unit_dual_quaternion()` for most transformation tests (it generates valid rigid motions).
+- Use `arb_dual_quaternion()` when testing robustness against non-unit inputs.
+- These strategies can be extended with filters to enforce additional geometric constraints.
+
 ---
 
 **This blueprint will be refined through PATSAGi Council review and practical implementation feedback.**
