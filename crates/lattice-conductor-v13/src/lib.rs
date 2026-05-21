@@ -63,9 +63,12 @@ pub enum MercyGate {
 }
 
 impl MercyGate {
-    pub fn check(&self, operation: &Operation, state: &GeometricState) -> bool {
+    pub fn check(&self, operation: &Operation, state: &GeometricState, swarm_coherence: f64) -> bool {
         match self {
-            MercyGate::HarmThreshold => operation.potential_harm <= 0.7,
+            MercyGate::HarmThreshold => {
+                let threshold = 0.7 * swarm_coherence; // Swarm coherence affects strictness
+                operation.potential_harm <= threshold
+            }
             MercyGate::KeywordFilter => {
                 let harmful = ["harm", "destroy", "exploit", "manipulate", "deceive"];
                 !harmful.iter().any(|k| operation.name.to_lowercase().contains(k))
@@ -86,19 +89,31 @@ pub trait PatsagiCouncilBridge {
     fn report_state(&self, state: &GeometricState);
 }
 
-/// Simple implementation of PatsagiCouncilBridge
+/// Sophisticated PATSAGi bridge with simple council voting simulation
 #[derive(Debug)]
 pub struct SimplePatsagiBridge {
     pub registered_councils: Vec<u64>,
+    pub required_consensus_ratio: f64, // e.g. 0.6 = 60% of councils must agree
 }
 
 impl SimplePatsagiBridge {
     pub fn new() -> Self {
-        Self { registered_councils: vec![] }
+        Self {
+            registered_councils: vec![],
+            required_consensus_ratio: 0.6,
+        }
     }
 
     pub fn with_councils(councils: Vec<u64>) -> Self {
-        Self { registered_councils: councils }
+        Self {
+            registered_councils: councils,
+            required_consensus_ratio: 0.6,
+        }
+    }
+
+    pub fn with_consensus_ratio(mut self, ratio: f64) -> Self {
+        self.required_consensus_ratio = ratio.clamp(0.0, 1.0);
+        self
     }
 }
 
@@ -107,7 +122,13 @@ impl PatsagiCouncilBridge for SimplePatsagiBridge {
         if self.registered_councils.is_empty() {
             return true;
         }
-        operation.potential_harm < 0.5
+
+        // Simple voting simulation: harm level determines "no" votes
+        let no_votes = (operation.potential_harm * self.registered_councils.len() as f64) as usize;
+        let yes_votes = self.registered_councils.len() - no_votes;
+        let ratio = yes_votes as f64 / self.registered_councils.len() as f64;
+
+        ratio >= self.required_consensus_ratio
     }
 
     fn report_state(&self, _state: &GeometricState) {}
@@ -174,6 +195,11 @@ pub enum ConductorEvent {
     QuantumBranchSplit { new_branches: u32 },
 }
 
+/// Observer trait for external systems to react to conductor events
+pub trait ConductorObserver {
+    fn on_event(&self, event: &ConductorEvent);
+}
+
 #[derive(Debug)]
 pub struct SimpleLatticeConductor {
     pub state: GeometricState,
@@ -186,8 +212,8 @@ pub struct SimpleLatticeConductor {
     pub metrics: ConductorMetrics,
     pub quantum_swarm: QuantumSwarm,
     pub events: Vec<ConductorEvent>,
-    /// Optional PATSAGi bridge for consensus
     pub patsagi_bridge: Option<Box<dyn PatsagiCouncilBridge + Send + Sync>>,
+    pub observers: Vec<Box<dyn ConductorObserver + Send + Sync>>,
 }
 
 impl SimpleLatticeConductor {
@@ -204,12 +230,17 @@ impl SimpleLatticeConductor {
             quantum_swarm: QuantumSwarm::new(),
             events: Vec::new(),
             patsagi_bridge: None,
+            observers: Vec::new(),
         }
     }
 
     pub fn with_patsagi_bridge(mut self, bridge: Box<dyn PatsagiCouncilBridge + Send + Sync>) -> Self {
         self.patsagi_bridge = Some(bridge);
         self
+    }
+
+    pub fn register_observer(&mut self, observer: Box<dyn ConductorObserver + Send + Sync>) {
+        self.observers.push(observer);
     }
 
     pub fn register_council(&mut self, id: u64, name: &str) {
@@ -224,21 +255,13 @@ impl SimpleLatticeConductor {
     fn evaluate_all_gates(&self, operation: &Operation) -> bool {
         let mut passes = true;
 
-        let gates = vec![
-            MercyGate::HarmThreshold,
-            MercyGate::KeywordFilter,
-            MercyGate::TolcAlignment,
-            MercyGate::ValenceProtection,
-        ];
-
-        for gate in gates {
-            if !gate.check(operation, &self.state) {
+        for gate in [MercyGate::HarmThreshold, MercyGate::KeywordFilter, MercyGate::TolcAlignment, MercyGate::ValenceProtection] {
+            if !gate.check(operation, &self.state, self.quantum_swarm.coherence) {
                 passes = false;
                 break;
             }
         }
 
-        // Wire in PATSAGi bridge if present
         if let Some(bridge) = &self.patsagi_bridge {
             if !bridge.request_consensus(operation) {
                 passes = false;
@@ -251,7 +274,9 @@ impl SimpleLatticeConductor {
     fn perform_self_evolution_step(&mut self) {
         if self.state.mercy_score > 0.8 && self.state.valence > 0.7 {
             self.state.evolution_level += 0.01;
-            self.events.push(ConductorEvent::SelfEvolution { level: self.state.evolution_level });
+            let event = ConductorEvent::SelfEvolution { level: self.state.evolution_level };
+            self.emit_event(event.clone());
+            self.notify_observers(&event);
         }
     }
 
@@ -274,7 +299,14 @@ impl SimpleLatticeConductor {
     }
 
     pub fn emit_event(&mut self, event: ConductorEvent) {
-        self.events.push(event);
+        self.events.push(event.clone());
+        self.notify_observers(&event);
+    }
+
+    fn notify_observers(&self, event: &ConductorEvent) {
+        for observer in &self.observers {
+            observer.on_event(event);
+        }
     }
 }
 
@@ -290,12 +322,14 @@ impl LatticeConductor for SimpleLatticeConductor {
                 self.metrics.operations_processed += 1;
                 self.state.mercy_score = (self.state.mercy_score + 0.025).min(1.0);
                 self.state.valence = (self.state.valence + 0.015).min(1.0);
-                self.emit_event(ConductorEvent::OperationApproved { name: op.name.clone() });
+                let event = ConductorEvent::OperationApproved { name: op.name.clone() };
+                self.emit_event(event);
             } else {
                 let violation = format!("Mercy violation: '{}'", op.name);
                 self.mercy_violations.push(violation.clone());
                 self.metrics.mercy_violations += 1;
-                self.emit_event(ConductorEvent::OperationRejected { name: op.name.clone(), reason: "Failed mercy gates".to_string() });
+                let event = ConductorEvent::OperationRejected { name: op.name.clone(), reason: "Failed mercy gates".to_string() };
+                self.emit_event(event);
                 remaining.push(op);
             }
         }
@@ -306,7 +340,7 @@ impl LatticeConductor for SimpleLatticeConductor {
 
         self.perform_self_evolution_step();
 
-        // Quantum Swarm influence on state
+        // Quantum Swarm influence
         let swarm_influence = (self.quantum_swarm.coherence - 0.5) * 0.02;
         self.state.mercy_score = (self.state.mercy_score + swarm_influence).clamp(0.0, 1.0);
         self.state.evolution_level = (self.state.evolution_level + swarm_influence * 0.5).max(0.0);
@@ -385,17 +419,18 @@ mod tests {
     use super::*;
 
     #[test]
-    fn quantum_swarm_influences_state() {
+    fn quantum_swarm_and_patsagi_affect_mercy() {
         let mut conductor = SimpleLatticeConductor::new();
-        for _ in 0..10 {
-            let _ = conductor.tick();
-        }
-        // After several ticks, swarm should have influenced state
-        assert!(conductor.state.mercy_score > 0.9 || conductor.state.evolution_level > 0.0);
+        let bridge = Box::new(SimplePatsagiBridge::with_councils(vec![1, 2, 3]));
+        conductor = conductor.with_patsagi_bridge(bridge);
+
+        // Low harm operation should pass
+        let good_op = Operation::new("Collaborate", "Work together", 0.3);
+        assert!(conductor.validate_mercy(&good_op));
     }
 }
 
 pub mod prelude {
-    pub use crate::{ConductorEvent, ConductorMetrics, ConductorResult, GeometricMotor, GeometricState, LatticeConductor, MercyGate, Operation, PatsagiCouncilBridge, QuantumSwarm, SimpleLatticeConductor, SimplePatsagiBridge};
+    pub use crate::{ConductorEvent, ConductorMetrics, ConductorObserver, ConductorResult, GeometricMotor, GeometricState, LatticeConductor, MercyGate, Operation, PatsagiCouncilBridge, QuantumSwarm, SimpleLatticeConductor, SimplePatsagiBridge};
     pub use crate::geometric::BasicGeometricMotor;
 }
