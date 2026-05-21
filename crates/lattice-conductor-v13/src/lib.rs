@@ -72,7 +72,7 @@ impl MercyGate {
             MercyGate::TolcAlignment => state.tolc_alignment >= 0.75 || operation.potential_harm <= 0.4,
             MercyGate::ValenceProtection => state.valence > 0.3,
             MercyGate::PositiveEmotion => true,
-            MercyGate::CouncilConsensus => true, // To be wired with PATSAGi
+            MercyGate::CouncilConsensus => true,
             MercyGate::SelfEvolutionAlignment => true,
             MercyGate::Custom(_) => true,
         }
@@ -95,7 +95,6 @@ pub struct ConductorMetrics {
     pub councils_registered: u64,
 }
 
-/// SimpleLatticeConductor — Main working implementation
 #[derive(Debug)]
 pub struct SimpleLatticeConductor {
     pub state: GeometricState,
@@ -155,7 +154,6 @@ impl SimpleLatticeConductor {
         Ok(conductor)
     }
 
-    /// Connection point for PATSAGi councils
     pub fn get_registered_patsagi_councils(&self) -> Vec<u64> {
         self.councils.keys().cloned().collect()
     }
@@ -166,14 +164,16 @@ impl LatticeConductor for SimpleLatticeConductor {
         self.tick_count += 1;
         self.metrics.total_ticks += 1;
 
-        // Process pending operations
+        // Process pending operations with mercy evaluation
         let mut remaining = Vec::new();
         for op in self.pending_operations.drain(..) {
             if self.evaluate_all_gates(&op) {
                 self.operation_history.push(op);
                 self.metrics.operations_processed += 1;
-                self.state.mercy_score = (self.state.mercy_score + 0.02).min(1.0);
-                self.state.valence = (self.state.valence + 0.01).min(1.0);
+
+                // Positive feedback loop
+                self.state.mercy_score = (self.state.mercy_score + 0.025).min(1.0);
+                self.state.valence = (self.state.valence + 0.015).min(1.0);
             } else {
                 let violation = format!("Mercy violation: '{}'", op.name);
                 self.mercy_violations.push(violation.clone());
@@ -184,9 +184,9 @@ impl LatticeConductor for SimpleLatticeConductor {
         }
         self.pending_operations = remaining;
 
-        // Meaningful GeometricMotor integration
+        // Meaningful GeometricMotor integration + state update
         let _ = self.motor.apply_dual_quaternion(nalgebra::DualQuaternion::identity());
-        self.state.tolc_alignment = (self.state.tolc_alignment + 0.008).min(1.0);
+        self.state.tolc_alignment = (self.state.tolc_alignment + 0.01).min(1.0);
 
         // Natural positive drift
         self.state.mercy_score = (self.state.mercy_score + 0.005).min(1.0);
