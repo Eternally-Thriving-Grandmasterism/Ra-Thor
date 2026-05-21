@@ -3,7 +3,8 @@
 
 pub mod geometric;
 
-use nalgebra::DualQuaternion;
+pub use geometric::{BasicGeometricMotor, GeometricMotor};
+
 use thiserror::Error;
 
 /// Result type used throughout the Lattice Conductor.
@@ -61,18 +62,7 @@ pub trait LatticeConductor {
     fn get_geometric_state(&self) -> GeometricState;
 }
 
-/// Geometric Motor v2 trait (highest priority for implementation).
-pub trait GeometricMotor {
-    /// Apply a dual quaternion transformation.
-    fn apply_dual_quaternion(&self, motor: DualQuaternion<f64>) -> ConductorResult<()>;
-
-    /// Project using hyperbolic tiling.
-    fn project_hyperbolic(&self, params: &[f64]) -> ConductorResult<()>;
-
-    /// Enforce Study Quadric constraint.
-    fn enforce_study_quadric(&self, point: &[f64; 4]) -> bool;
-}
-
 pub mod prelude {
     pub use crate::{ConductorResult, GeometricMotor, GeometricState, LatticeConductor};
+    pub use crate::geometric::BasicGeometricMotor;
 }
