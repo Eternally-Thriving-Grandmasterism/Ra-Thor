@@ -11,7 +11,7 @@ use thiserror::Error;
 
 pub type ConductorResult<T> = Result<T, ConductorError>;
 
-/// Core geometric + mercy + evolution state of the conductor
+/// Core geometric + mercy + evolution state
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct GeometricState {
     pub valence: f64,
@@ -144,7 +144,7 @@ pub struct ConductorMetrics {
     pub councils_registered: u64,
 }
 
-/// Quantum Swarm - influences mercy gates, self-evolution speed, and emits its own events
+/// Quantum Swarm - influences mercy, evolution speed, and emits rich swarm-specific events
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct QuantumSwarm {
     pub active_branches: u32,
@@ -179,7 +179,7 @@ impl QuantumSwarm {
     }
 }
 
-/// Rich set of conductor events, including distinct Quantum Swarm events
+/// Rich conductor events, including distinct and detailed Quantum Swarm events
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub enum ConductorEvent {
     TickCompleted { tick: u64 },
@@ -189,9 +189,11 @@ pub enum ConductorEvent {
     SelfEvolution { level: f64 },
     MercyViolation { operation: String },
     QuantumBranchSplit { new_branches: u32 },
+    /// New richer swarm-specific event
+    SwarmCoherenceChanged { old_coherence: f64, new_coherence: f64 },
 }
 
-/// Observer with filtering and priority support
+/// Observer with filtering and priority
 pub trait ConductorObserver {
     fn on_event(&self, event: &ConductorEvent);
 
@@ -273,7 +275,6 @@ impl SimpleLatticeConductor {
         passes
     }
 
-    /// Self-evolution with swarm-influenced rate
     fn perform_self_evolution_step(&mut self) {
         let evolution_boost = (self.quantum_swarm.coherence - 0.5) * 0.03;
         if self.state.mercy_score > 0.75 && self.state.valence > 0.65 {
@@ -346,8 +347,13 @@ impl LatticeConductor for SimpleLatticeConductor {
             self.emit_event(ConductorEvent::QuantumBranchSplit { new_branches: self.quantum_swarm.active_branches });
         }
 
+        // Emit richer swarm event with before/after coherence
+        let old_coherence = self.quantum_swarm.coherence;
         self.quantum_swarm.evolve();
-        self.emit_event(ConductorEvent::SwarmEvolved { branches: self.quantum_swarm.active_branches, coherence: self.quantum_swarm.coherence });
+        let new_coherence = self.quantum_swarm.coherence;
+
+        self.emit_event(ConductorEvent::SwarmEvolved { branches: self.quantum_swarm.active_branches, coherence: new_coherence });
+        self.emit_event(ConductorEvent::SwarmCoherenceChanged { old_coherence, new_coherence });
 
         self.state.mercy_score = (self.state.mercy_score + 0.005).min(1.0);
         self.state.valence = (self.state.valence + 0.005).min(1.0);
@@ -366,8 +372,12 @@ impl LatticeConductor for SimpleLatticeConductor {
     }
 
     fn orchestrate_swarm_evolution(&mut self) -> ConductorResult<()> {
+        let old_coherence = self.quantum_swarm.coherence;
         self.quantum_swarm.evolve();
-        self.emit_event(ConductorEvent::SwarmEvolved { branches: self.quantum_swarm.active_branches, coherence: self.quantum_swarm.coherence });
+        let new_coherence = self.quantum_swarm.coherence;
+
+        self.emit_event(ConductorEvent::SwarmEvolved { branches: self.quantum_swarm.active_branches, coherence: new_coherence });
+        self.emit_event(ConductorEvent::SwarmCoherenceChanged { old_coherence, new_coherence });
         Ok(())
     }
 
