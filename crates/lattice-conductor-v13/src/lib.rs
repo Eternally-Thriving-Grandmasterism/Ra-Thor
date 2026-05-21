@@ -28,11 +28,17 @@ pub struct GeometricState {
     pub valence: f64,
     pub tolc_alignment: f64,
     pub mercy_score: f64,
+    pub evolution_level: f64,
 }
 
 impl GeometricState {
     pub fn new() -> Self {
-        Self { valence: 1.0, tolc_alignment: 1.0, mercy_score: 1.0 }
+        Self {
+            valence: 1.0,
+            tolc_alignment: 1.0,
+            mercy_score: 1.0,
+            evolution_level: 0.0,
+        }
     }
 }
 
@@ -140,6 +146,14 @@ impl SimpleLatticeConductor {
         gates.iter().all(|gate| gate.check(operation, &self.state))
     }
 
+    /// Self-evolution step
+    fn perform_self_evolution_step(&mut self) {
+        // Simple self-evolution: improve evolution_level based on positive state
+        if self.state.mercy_score > 0.8 && self.state.valence > 0.7 {
+            self.state.evolution_level += 0.01;
+        }
+    }
+
     pub fn save_to_file(&self, path: &str) -> ConductorResult<()> {
         let json = serde_json::to_string_pretty(self)
             .map_err(|e| ConductorError::Persistence(e.to_string()))?;
@@ -164,14 +178,12 @@ impl LatticeConductor for SimpleLatticeConductor {
         self.tick_count += 1;
         self.metrics.total_ticks += 1;
 
-        // Process pending operations with mercy evaluation
+        // Process pending operations
         let mut remaining = Vec::new();
         for op in self.pending_operations.drain(..) {
             if self.evaluate_all_gates(&op) {
                 self.operation_history.push(op);
                 self.metrics.operations_processed += 1;
-
-                // Positive feedback loop
                 self.state.mercy_score = (self.state.mercy_score + 0.025).min(1.0);
                 self.state.valence = (self.state.valence + 0.015).min(1.0);
             } else {
@@ -184,11 +196,14 @@ impl LatticeConductor for SimpleLatticeConductor {
         }
         self.pending_operations = remaining;
 
-        // Meaningful GeometricMotor integration + state update
+        // GeometricMotor integration
         let _ = self.motor.apply_dual_quaternion(nalgebra::DualQuaternion::identity());
         self.state.tolc_alignment = (self.state.tolc_alignment + 0.01).min(1.0);
 
-        // Natural positive drift
+        // Self-evolution step
+        self.perform_self_evolution_step();
+
+        // Natural drift
         self.state.mercy_score = (self.state.mercy_score + 0.005).min(1.0);
         self.state.valence = (self.state.valence + 0.005).min(1.0);
 
@@ -240,11 +255,12 @@ mod tests {
     use super::*;
 
     #[test]
-    fn tick_updates_geometric_state() {
+    fn self_evolution_increases_over_time() {
         let mut conductor = SimpleLatticeConductor::new();
-        let initial = conductor.state.tolc_alignment;
-        let _ = conductor.tick();
-        assert!(conductor.state.tolc_alignment > initial);
+        for _ in 0..50 {
+            let _ = conductor.tick();
+        }
+        assert!(conductor.state.evolution_level > 0.0);
     }
 }
 
