@@ -1,44 +1,47 @@
 use lattice_conductor_v13::{Operation, SimpleLatticeConductor};
 
 fn main() {
-    println!("=== Sovereign Offline Shard Demo ===\n");
+    println!("=== Sovereign Offline Shard - Multi-Session Simulation ===\n");
 
-    let path = "/tmp/sovereign_conductor.json";
+    let path = "/tmp/sovereign_multi_session.json";
 
-    // Try to load existing state (offline persistence)
+    // Session 1
+    println!("--- Session 1 ---");
     let mut conductor = if let Ok(loaded) = SimpleLatticeConductor::load_from_file(path) {
-        println!("Loaded existing sovereign state from disk.");
+        println!("Loaded previous sovereign state.");
         loaded
     } else {
-        println!("No previous state found. Starting fresh sovereign conductor.");
         let mut c = SimpleLatticeConductor::new();
         c.register_council(1, "Sovereign Core");
         c
     };
 
-    // Queue some operations
-    conductor.queue_operation(Operation::new("Maintain Infrastructure", "Keep systems running", 0.15));
-    conductor.queue_operation(Operation::new("Self Optimize", "Improve local processes", 0.25));
+    conductor.queue_operation(Operation::new("Maintain Systems", "Keep running", 0.2));
+    conductor.queue_operation(Operation::new("Self Optimize", "Improve locally", 0.3));
 
-    // Run several ticks in offline mode
-    for i in 1..=5 {
+    for i in 1..=6 {
         let _ = conductor.tick();
-        println!(
-            "Tick {} | valence={:.3} | evolution={:.3} | swarm_branches={}",
-            i,
-            conductor.state.valence,
-            conductor.state.evolution_level,
-            conductor.quantum_swarm.active_branches
-        );
     }
 
-    // Save state for next offline run
-    if let Err(e) = conductor.save_to_file(path) {
-        eprintln!("Failed to save state: {}", e);
-    } else {
-        println!("\nSovereign state saved to {}", path);
+    println!("After Session 1: evolution={:.3}, valence={:.3}", 
+             conductor.state.evolution_level, conductor.state.valence);
+
+    conductor.save_to_file(path).unwrap();
+
+    // Session 2 (simulating restart)
+    println!("\n--- Session 2 (after restart) ---");
+    let mut conductor2 = SimpleLatticeConductor::load_from_file(path).unwrap();
+
+    conductor2.queue_operation(Operation::new("Continue Evolution", "Build on previous", 0.25));
+
+    for i in 1..=6 {
+        let _ = conductor2.tick();
     }
 
-    println!("\nEvents recorded this session: {}", conductor.get_events().len());
-    println!("=== Offline Shard Demo Complete ===");
+    println!("After Session 2: evolution={:.3}, valence={:.3}", 
+             conductor2.state.evolution_level, conductor2.state.valence);
+
+    conductor2.save_to_file(path).unwrap();
+    println!("\nState successfully persisted across sessions.");
+    println!("=== Multi-Session Simulation Complete ===");
 }
