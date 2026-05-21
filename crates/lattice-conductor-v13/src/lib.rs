@@ -11,19 +11,7 @@ use thiserror::Error;
 
 pub type ConductorResult<T> = Result<T, ConductorError>;
 
-#[derive(Debug, Error)]
-pub enum ConductorError {
-    #[error("Mercy violation: {0}")]
-    MercyViolation(String),
-    #[error("Geometric error: {0}")]
-    Geometric(String),
-    #[error("Council error: {0}")]
-    Council(String),
-    #[error("Persistence error: {0}")]
-    Persistence(String),
-}
-
-/// Core geometric + mercy + evolution state of the lattice
+/// Core state of the lattice (geometric + mercy + evolution)
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct GeometricState {
     pub valence: f64,
@@ -51,7 +39,7 @@ impl Operation {
     }
 }
 
-/// Mercy gates with dynamic strictness influenced by QuantumSwarm coherence
+/// Mercy gates with dynamic strictness driven by QuantumSwarm coherence
 #[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub enum MercyGate {
     HarmThreshold,
@@ -156,7 +144,7 @@ pub struct ConductorMetrics {
     pub councils_registered: u64,
 }
 
-/// Quantum Swarm with coherence that influences multiple systems
+/// Quantum Swarm - influences mercy, evolution, and emits its own events
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct QuantumSwarm {
     pub active_branches: u32,
@@ -191,6 +179,7 @@ impl QuantumSwarm {
     }
 }
 
+/// Rich set of conductor events, including distinct Quantum Swarm events
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub enum ConductorEvent {
     TickCompleted { tick: u64 },
@@ -202,7 +191,7 @@ pub enum ConductorEvent {
     QuantumBranchSplit { new_branches: u32 },
 }
 
-/// Observer with filtering and priority
+/// Observer trait with filtering and priority
 pub trait ConductorObserver {
     fn on_event(&self, event: &ConductorEvent);
 
