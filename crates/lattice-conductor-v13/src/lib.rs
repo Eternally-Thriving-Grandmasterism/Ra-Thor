@@ -422,6 +422,24 @@ mod tests {
 
         assert!(!received.lock().unwrap().is_empty());
     }
+
+    #[test]
+    fn quantum_swarm_split_and_merge() {
+        let mut swarm = QuantumSwarm::new();
+        assert!(swarm.split_branch());
+        assert!(swarm.active_branches > 1);
+        swarm.merge_branches(1);
+        assert_eq!(swarm.active_branches, 1);
+    }
+
+    #[test]
+    fn conductor_with_patsagi_bridge_rejects_high_harm() {
+        let bridge = Box::new(SimplePatsagiBridge::with_councils(vec![1,2,3,4,5]));
+        let mut conductor = SimpleLatticeConductor::new().with_patsagi_bridge(bridge);
+
+        let dangerous = Operation::new("Destroy", "Very harmful", 0.95);
+        assert!(!conductor.validate_mercy(&dangerous));
+    }
 }
 
 pub mod prelude {
