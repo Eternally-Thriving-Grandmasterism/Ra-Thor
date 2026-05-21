@@ -1,15 +1,20 @@
 //! Ra-Thor™ Lattice-Based Threshold Signatures (Exploratory)
-//! Future direction for post-quantum t-of-n council governance
+//! Expanded with more conceptual structure
 //! 100% Proprietary — AG-SML v1.0
 
-/// Note:
-/// Lattice-based threshold signatures (e.g. threshold Dilithium) are an active research area.
-/// They aim to provide post-quantum secure threshold signing without trusted setup.
+/// Lattice-based threshold signatures aim to provide post-quantum t-of-n signing.
+/// Key challenges:
+/// - Secret sharing over lattices is non-trivial
+/// - Efficiency and security proofs are more complex than classical BLS
+/// - Still an active research area (no standard yet)
 ///
-/// Current status: Mostly theoretical / early prototype stage.
-/// No widely standardized construction exists yet (as of 2026).
+/// Comparison with BLS Threshold:
+/// - BLS: Mature, efficient, small signatures — but not post-quantum
+/// - Lattice: Post-quantum secure, more complex, larger signatures
 ///
-/// This module serves as a placeholder for future integration.
+/// Potential Path:
+/// Keep using BLS threshold simulation for now.
+/// Prepare infrastructure and knowledge for lattice-based migration.
 
 #[derive(Debug, Clone)]
 pub struct LatticeThresholdPublicKey(pub Vec<u8>);
@@ -20,14 +25,12 @@ pub struct LatticePartialSignature(pub Vec<u8>);
 #[derive(Debug, Clone)]
 pub struct LatticeThresholdSignature(pub Vec<u8>);
 
-/// Placeholder trait for future lattice threshold signature operations
 pub trait LatticeThresholdSigner {
     fn generate_shares(&self, threshold: usize, total: usize) -> Vec<Vec<u8>>;
     fn partial_sign(&self, share: &[u8], message: &[u8]) -> LatticePartialSignature;
     fn combine(&self, partials: &[LatticePartialSignature]) -> Option<LatticeThresholdSignature>;
 }
 
-/// Experimental stub
 pub struct ExperimentalLatticeThresholdSigner;
 
 impl LatticeThresholdSigner for ExperimentalLatticeThresholdSigner {
@@ -43,10 +46,3 @@ impl LatticeThresholdSigner for ExperimentalLatticeThresholdSigner {
         None
     }
 }
-
-/// Comparison note vs current BLS threshold simulation:
-/// - BLS threshold: Mature, efficient, but not post-quantum
-/// - Lattice threshold: Post-quantum secure, but more complex and less mature
-///
-/// Recommended path: Keep using BLS threshold simulation now,
-/// while preparing infrastructure for lattice-based alternatives.
