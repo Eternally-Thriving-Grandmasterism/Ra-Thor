@@ -5,7 +5,7 @@ pub mod geometric;
 
 pub use geometric::{BasicGeometricMotor, GeometricMotor};
 
-use std::collections::HashMap;
+use std::collections::{HashMap, VecDeque};
 use std::fs;
 use thiserror::Error;
 
@@ -62,12 +62,10 @@ impl MercyGate {
                 !harmful.iter().any(|k| operation.name.to_lowercase().contains(k))
             }
             MercyGate::TolcAlignment => {
-                // Stronger multi-gate effect: low coherence makes TOLC gate stricter
                 let adjusted = if swarm_coherence < 0.7 { 0.85 } else { 0.75 };
                 state.tolc_alignment >= adjusted || operation.potential_harm <= 0.4
             }
             MercyGate::ValenceProtection => {
-                // Stronger multi-gate effect: low coherence raises valence requirement
                 let required_valence = if swarm_coherence < 0.6 { 0.4 } else { 0.3 };
                 state.valence > required_valence
             }
@@ -152,7 +150,7 @@ pub struct ConductorMetrics {
     pub councils_registered: u64,
 }
 
-/// Quantum Swarm - drives dynamic mercy across multiple gates and emits rich events
+/// Quantum Swarm - drives dynamic mercy across multiple gates
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct QuantumSwarm {
     pub active_branches: u32,
@@ -200,7 +198,7 @@ pub enum ConductorEvent {
     SwarmCoherenceChanged { old_coherence: f64, new_coherence: f64 },
 }
 
-/// Observer with filtering, priority, and basic unregistration support
+/// Observer with filtering and priority
 pub trait ConductorObserver {
     fn on_event(&self, event: &ConductorEvent);
 
@@ -213,6 +211,9 @@ pub trait ConductorObserver {
     }
 }
 
+/// Maximum number of events kept in the circular buffer
+const MAX_EVENT_HISTORY: usize = 256;
+
 #[derive(Debug)]
 pub struct SimpleLatticeConductor {
     pub state: GeometricState,
@@ -224,7 +225,8 @@ pub struct SimpleLatticeConductor {
     pub councils: HashMap<u64, String>,
     pub metrics: ConductorMetrics,
     pub quantum_swarm: QuantumSwarm,
-    pub events: Vec<ConductorEvent>,
+    /// Circular buffer of recent events (bounded memory)
+    pub events: VecDeque<ConductorEvent>,
     pub patsagi_bridge: Option<Box<dyn PatsagiCouncilBridge + Send + Sync>>,
     pub observers: Vec<Box<dyn ConductorObserver + Send + Sync>>,
 }
@@ -241,7 +243,7 @@ impl SimpleLatticeConductor {
             councils: HashMap::new(),
             metrics: ConductorMetrics::default(),
             quantum_swarm: QuantumSwarm::new(),
-            events: Vec::new(),
+            events: VecDeque::with_capacity(MAX_EVENT_HISTORY),
             patsagi_bridge: None,
             observers: Vec::new(),
         }
@@ -257,7 +259,6 @@ impl SimpleLatticeConductor {
         self.observers.sort_by_key(|o| std::cmp::Reverse(o.priority()));
     }
 
-    /// Unregister an observer by index (simple but effective)
     pub fn unregister_observer(&mut self, index: usize) {
         if index < self.observers.len() {
             self.observers.remove(index);
@@ -316,7 +317,11 @@ impl SimpleLatticeConductor {
     }
 
     pub fn emit_event(&mut self, event: ConductorEvent) {
-        self.events.push(event.clone());
+        if self.events.len() == MAX_EVENT_HISTORY {
+            self.events.pop_front();
+        }
+        self.events.push_back(event.clone());
+
         for observer in &self.observers {
             if observer.is_interested_in(&event) {
                 observer.on_event(&event);
@@ -324,10 +329,10 @@ impl SimpleLatticeConductor {
         }
     }
 
-    /// Replay recent events to a new observer (basic history replay)
+    /// Replay the most recent N events to a new observer
     pub fn replay_recent_events_to(&self, observer: &dyn ConductorObserver, count: usize) {
         let start = if self.events.len() > count { self.events.len() - count } else { 0 };
-        for event in &self.events[start..] {
+        for event in self.events.range(start..) {
             if observer.is_interested_in(event) {
                 observer.on_event(event);
             }
@@ -432,14 +437,13 @@ impl SimpleLatticeConductor {
         &self.mercy_violations
     }
 
-    pub fn get_events(&self) -> &[ConductorEvent] {
-        &self.events
+    pub fn get_events(&self) -> Vec<&ConductorEvent> {
+        self.events.iter().collect()
     }
 
-    /// Replay recent events to a new observer
     pub fn replay_recent_events_to(&self, observer: &dyn ConductorObserver, count: usize) {
         let start = if self.events.len() > count { self.events.len() - count } else { 0 };
-        for event in &self.events[start..] {
+        for event in self.events.range(start..) {
             if observer.is_interested_in(event) {
                 observer.on_event(event);
             }
