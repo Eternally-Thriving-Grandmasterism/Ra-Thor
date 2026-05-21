@@ -11,7 +11,7 @@ use thiserror::Error;
 
 pub type ConductorResult<T> = Result<T, ConductorError>;
 
-/// Core geometric + mercy + evolution state
+/// Core geometric + mercy + evolution state with deep observability of adaptive layers
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct GeometricState {
     pub valence: f64,
@@ -19,8 +19,13 @@ pub struct GeometricState {
     pub mercy_score: f64,
     pub evolution_level: f64,
 
+    // Layer 1 current rates (observable)
     pub current_mercy_recovery_rate: f64,
     pub current_evolution_rate: f64,
+
+    // Layer 2 current meta-speeds (observable)
+    pub current_evolution_rate_adaptation_speed: f64,
+    pub current_mercy_recovery_adaptation_speed: f64,
 }
 
 impl GeometricState {
@@ -32,11 +37,13 @@ impl GeometricState {
             evolution_level: 0.0,
             current_mercy_recovery_rate: 0.025,
             current_evolution_rate: 0.01,
+            current_evolution_rate_adaptation_speed: 0.0001,
+            current_mercy_recovery_adaptation_speed: 0.0002,
         }
     }
 }
 
-/// Adaptive parameters with 5-layer nested adaptation (meta-meta-meta-meta)
+/// Adaptive parameters with 6-layer nested adaptation (meta-meta-meta-meta-meta)
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct AdaptiveParameters {
     // Layer 1: Core rates
@@ -52,11 +59,14 @@ pub struct AdaptiveParameters {
     pub meta_speed_decay_factor: f64,
     pub meta_speed_increase_factor: f64,
 
-    // Layer 4: Meta-Meta-Meta (how Layer 3 factors adapt)
+    // Layer 4: Meta-Meta-Meta
     pub meta_factor_adaptation_speed: f64,
 
-    // Layer 5 (Meta-Meta-Meta-Meta): How Layer 4 itself adapts
+    // Layer 5: Meta-Meta-Meta-Meta
     pub meta_meta_factor_adaptation_speed: f64,
+
+    // Layer 6 (Meta-Meta-Meta-Meta-Meta): How Layer 5 itself adapts
+    pub meta_meta_meta_factor_adaptation_speed: f64,
 }
 
 impl AdaptiveParameters {
@@ -80,6 +90,9 @@ impl AdaptiveParameters {
 
             // Layer 5
             meta_meta_factor_adaptation_speed: 0.00001,
+
+            // Layer 6
+            meta_meta_meta_factor_adaptation_speed: 0.000002,
         }
     }
 }
@@ -346,7 +359,7 @@ impl SimpleLatticeConductor {
         passes
     }
 
-    /// Self-evolution with 5-layer nested adaptation
+    /// Self-evolution with 6-layer nested adaptation + rich observability
     fn perform_self_evolution_step(&mut self) {
         let p = &mut self.adaptive_params;
 
@@ -360,7 +373,7 @@ impl SimpleLatticeConductor {
         let coherence = self.quantum_swarm.coherence;
         let valence = self.state.valence;
 
-        // === Layer 1 adaptation ===
+        // === Layer 1 ===
         if coherence > 0.75 && valence > 0.7 {
             p.evolution_rate += p.evolution_rate_adaptation_speed;
             p.evolution_rate = p.evolution_rate.min(0.06);
@@ -371,7 +384,7 @@ impl SimpleLatticeConductor {
             p.mercy_recovery_rate = p.mercy_recovery_rate.min(0.07);
         }
 
-        // === Layer 3: Meta-speed adjustment ===
+        // === Layer 3 ===
         if coherence > 0.8 && valence > 0.75 {
             p.evolution_rate_adaptation_speed *= p.meta_speed_decay_factor;
             p.mercy_recovery_adaptation_speed *= p.meta_speed_decay_factor;
@@ -386,7 +399,7 @@ impl SimpleLatticeConductor {
             p.mercy_recovery_adaptation_speed = p.mercy_recovery_adaptation_speed.min(0.0015);
         }
 
-        // === Layer 4: Slow adaptation of meta-factors ===
+        // === Layer 4 ===
         let meta_adapt = p.meta_factor_adaptation_speed;
 
         if coherence > 0.85 && valence > 0.8 {
@@ -395,26 +408,37 @@ impl SimpleLatticeConductor {
             p.meta_speed_increase_factor = (p.meta_speed_increase_factor + meta_adapt * 2.0).min(1.02);
         }
 
-        // === Layer 5 (Meta-Meta-Meta-Meta): Adapt how Layer 4 itself changes ===
-        // This is the deepest layer currently implemented
+        // === Layer 5 ===
         let meta_meta_adapt = p.meta_meta_factor_adaptation_speed;
 
-        // Very long-term behavior: if system has been extremely stable, slightly reduce deepest adaptation speed
         if coherence > 0.88 && valence > 0.82 && self.metrics.mercy_violations < 2 {
             p.meta_factor_adaptation_speed = (p.meta_factor_adaptation_speed - meta_meta_adapt).max(0.00001);
-        }
-        // If system has been chronically unstable, slightly increase deepest adaptation speed
-        else if self.metrics.mercy_violations > 8 || coherence < 0.5 {
+        } else if self.metrics.mercy_violations > 8 || coherence < 0.5 {
             p.meta_factor_adaptation_speed = (p.meta_factor_adaptation_speed + meta_meta_adapt * 1.5).min(0.0002);
         }
+
+        // === Layer 6 (Meta-Meta-Meta-Meta-Meta) ===
+        // How Layer 5 adaptation speed itself evolves over extremely long timescales
+        let meta_meta_meta_adapt = p.meta_meta_meta_factor_adaptation_speed;
+
+        // Extremely long-term stabilization
+        if coherence > 0.9 && valence > 0.85 && self.metrics.mercy_violations < 1 {
+            p.meta_meta_factor_adaptation_speed = (p.meta_meta_factor_adaptation_speed - meta_meta_meta_adapt).max(0.000002);
+        }
+        // Extremely long-term pressure
+        else if self.metrics.mercy_violations > 10 || coherence < 0.45 {
+            p.meta_meta_factor_adaptation_speed = (p.meta_meta_factor_adaptation_speed + meta_meta_meta_adapt * 2.0).min(0.00005);
+        }
+
+        // Update visible state (rich observability across layers)
+        self.state.current_mercy_recovery_rate = p.mercy_recovery_rate;
+        self.state.current_evolution_rate = p.evolution_rate;
+        self.state.current_evolution_rate_adaptation_speed = p.evolution_rate_adaptation_speed;
+        self.state.current_mercy_recovery_adaptation_speed = p.mercy_recovery_adaptation_speed;
 
         // Gentle drift of swarm influence
         let target = 0.022;
         p.swarm_influence_strength = p.swarm_influence_strength * 0.996 + target * 0.004;
-
-        // Update visible state
-        self.state.current_mercy_recovery_rate = p.mercy_recovery_rate;
-        self.state.current_evolution_rate = p.evolution_rate;
     }
 
     pub fn save_to_file(&self, path: &str) -> ConductorResult<()> {
