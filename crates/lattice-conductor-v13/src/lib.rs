@@ -61,8 +61,16 @@ impl MercyGate {
                 let harmful = ["harm", "destroy", "exploit", "manipulate", "deceive"];
                 !harmful.iter().any(|k| operation.name.to_lowercase().contains(k))
             }
-            MercyGate::TolcAlignment => state.tolc_alignment >= 0.75 || operation.potential_harm <= 0.4,
-            MercyGate::ValenceProtection => state.valence > 0.3,
+            MercyGate::TolcAlignment => {
+                // Stronger multi-gate effect: low coherence makes TOLC gate stricter
+                let adjusted = if swarm_coherence < 0.7 { 0.85 } else { 0.75 };
+                state.tolc_alignment >= adjusted || operation.potential_harm <= 0.4
+            }
+            MercyGate::ValenceProtection => {
+                // Stronger multi-gate effect: low coherence raises valence requirement
+                let required_valence = if swarm_coherence < 0.6 { 0.4 } else { 0.3 };
+                state.valence > required_valence
+            }
             MercyGate::PositiveEmotion => true,
             MercyGate::CouncilConsensus => true,
             MercyGate::SelfEvolutionAlignment => true,
@@ -144,7 +152,7 @@ pub struct ConductorMetrics {
     pub councils_registered: u64,
 }
 
-/// Quantum Swarm - influences mercy, evolution speed, and emits rich swarm-specific events
+/// Quantum Swarm - drives dynamic mercy across multiple gates and emits rich events
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct QuantumSwarm {
     pub active_branches: u32,
@@ -179,7 +187,7 @@ impl QuantumSwarm {
     }
 }
 
-/// Rich conductor events, including distinct and detailed Quantum Swarm events
+/// Rich conductor events including distinct Quantum Swarm events
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub enum ConductorEvent {
     TickCompleted { tick: u64 },
@@ -189,11 +197,10 @@ pub enum ConductorEvent {
     SelfEvolution { level: f64 },
     MercyViolation { operation: String },
     QuantumBranchSplit { new_branches: u32 },
-    /// New richer swarm-specific event
     SwarmCoherenceChanged { old_coherence: f64, new_coherence: f64 },
 }
 
-/// Observer with filtering and priority
+/// Observer with filtering, priority, and basic unregistration support
 pub trait ConductorObserver {
     fn on_event(&self, event: &ConductorEvent);
 
@@ -248,6 +255,13 @@ impl SimpleLatticeConductor {
     pub fn register_observer(&mut self, observer: Box<dyn ConductorObserver + Send + Sync>) {
         self.observers.push(observer);
         self.observers.sort_by_key(|o| std::cmp::Reverse(o.priority()));
+    }
+
+    /// Unregister an observer by index (simple but effective)
+    pub fn unregister_observer(&mut self, index: usize) {
+        if index < self.observers.len() {
+            self.observers.remove(index);
+        }
     }
 
     pub fn register_council(&mut self, id: u64, name: &str) {
@@ -309,6 +323,16 @@ impl SimpleLatticeConductor {
             }
         }
     }
+
+    /// Replay recent events to a new observer (basic history replay)
+    pub fn replay_recent_events_to(&self, observer: &dyn ConductorObserver, count: usize) {
+        let start = if self.events.len() > count { self.events.len() - count } else { 0 };
+        for event in &self.events[start..] {
+            if observer.is_interested_in(event) {
+                observer.on_event(event);
+            }
+        }
+    }
 }
 
 impl LatticeConductor for SimpleLatticeConductor {
@@ -347,7 +371,6 @@ impl LatticeConductor for SimpleLatticeConductor {
             self.emit_event(ConductorEvent::QuantumBranchSplit { new_branches: self.quantum_swarm.active_branches });
         }
 
-        // Emit richer swarm event with before/after coherence
         let old_coherence = self.quantum_swarm.coherence;
         self.quantum_swarm.evolve();
         let new_coherence = self.quantum_swarm.coherence;
@@ -411,6 +434,16 @@ impl SimpleLatticeConductor {
 
     pub fn get_events(&self) -> &[ConductorEvent] {
         &self.events
+    }
+
+    /// Replay recent events to a new observer
+    pub fn replay_recent_events_to(&self, observer: &dyn ConductorObserver, count: usize) {
+        let start = if self.events.len() > count { self.events.len() - count } else { 0 };
+        for event in &self.events[start..] {
+            if observer.is_interested_in(event) {
+                observer.on_event(event);
+            }
+        }
     }
 }
 
