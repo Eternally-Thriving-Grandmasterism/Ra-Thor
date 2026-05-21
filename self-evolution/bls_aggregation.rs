@@ -1,18 +1,8 @@
-//! Ra-Thor™ BLS12-381 Signature Aggregation (Experimental)
-//! Path toward more complete BLS12-381 implementation
+//! Ra-Thor™ BLS12-381 Signature Aggregation
+//! Using bls-signatures crate for real BLS12-381 operations
 //! 100% Proprietary — AG-SML v1.0
 
-/// Recommended approach for a more complete implementation:
-///
-/// 1. Use the `bls-signatures` crate (higher-level BLS library)
-///    - Provides easy `sign`, `verify`, and aggregation
-///    - Built on top of `bls12_381`
-///
-/// 2. For advanced use (threshold, ZK), consider `arkworks` ecosystem
-///
-/// Current state: Structural foundation + pairing check placeholder
-
-use bls12_381::pairing;
+use bls_signatures::{PrivateKey, PublicKey, Signature, aggregate, verify};
 use crate::patsagi_deliberation::DeliberationSession;
 
 #[derive(Debug, Clone)]
@@ -35,30 +25,32 @@ pub struct ExperimentalBlsAggregator;
 
 impl BlsAggregator for ExperimentalBlsAggregator {
     fn aggregate(&self, signatures: &[BlsSignature]) -> Option<BlsSignature> {
-        if signatures.is_empty() { return None; }
-        Some(BlsSignature(signatures[0].0.clone()))
+        let sigs: Vec<Signature> = signatures
+            .iter()
+            .filter_map(|s| Signature::from_bytes(&s.0).ok())
+            .collect();
+
+        aggregate(&sigs)
+            .map(|agg| BlsSignature(agg.as_bytes().to_vec()))
+            .ok()
     }
 
     fn verify_aggregated(
         &self,
-        _public_keys: &[BlsPublicKey],
-        _message: &[u8],
-        _aggregated_signature: &BlsSignature,
+        public_keys: &[BlsPublicKey],
+        message: &[u8],
+        aggregated_signature: &BlsSignature,
     ) -> bool {
-        true
-    }
-}
+        let pks: Vec<PublicKey> = public_keys
+            .iter()
+            .filter_map(|pk| PublicKey::from_bytes(&pk.0).ok())
+            .collect();
 
-/// Placeholder for real BLS verification
-/// Real version should use hash_to_curve + pairing check:
-/// e(PK, H(m)) == e(G, sig)
-pub fn verify_bls_signature(
-    _public_key: &BlsPublicKey,
-    _message: &[u8],
-    _signature: &BlsSignature,
-) -> bool {
-    // TODO: Implement using bls-signatures or proper hash_to_curve + pairing
-    true
+        if let Ok(sig) = Signature::from_bytes(&aggregated_signature.0) {
+            return verify(&sig, message, &pks);
+        }
+        false
+    }
 }
 
 pub fn prepare_deliberation_for_bls(deliberation: &DeliberationSession) -> String {
