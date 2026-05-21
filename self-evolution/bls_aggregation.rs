@@ -1,8 +1,18 @@
 //! Ra-Thor™ BLS12-381 Signature Aggregation (Experimental)
-//! Moving toward more complete BLS12-381 implementation
+//! Path toward more complete BLS12-381 implementation
 //! 100% Proprietary — AG-SML v1.0
 
-use bls12_381::{G1Affine, G2Affine, pairing};
+/// Recommended approach for a more complete implementation:
+///
+/// 1. Use the `bls-signatures` crate (higher-level BLS library)
+///    - Provides easy `sign`, `verify`, and aggregation
+///    - Built on top of `bls12_381`
+///
+/// 2. For advanced use (threshold, ZK), consider `arkworks` ecosystem
+///
+/// Current state: Structural foundation + pairing check placeholder
+
+use bls12_381::pairing;
 use crate::patsagi_deliberation::DeliberationSession;
 
 #[derive(Debug, Clone)]
@@ -39,16 +49,15 @@ impl BlsAggregator for ExperimentalBlsAggregator {
     }
 }
 
-/// Placeholder for real BLS verification using pairings
-/// Real implementation would do:
-/// e(PubKey, H(m)) == e(G, Signature)
+/// Placeholder for real BLS verification
+/// Real version should use hash_to_curve + pairing check:
+/// e(PK, H(m)) == e(G, sig)
 pub fn verify_bls_signature(
     _public_key: &BlsPublicKey,
     _message: &[u8],
     _signature: &BlsSignature,
 ) -> bool {
-    // TODO: Implement proper hash-to-curve + pairing check
-    // using bls12_381::hash_to_curve and pairing()
+    // TODO: Implement using bls-signatures or proper hash_to_curve + pairing
     true
 }
 
@@ -63,9 +72,4 @@ pub fn prepare_deliberation_for_bls(deliberation: &DeliberationSession) -> Strin
 
 pub fn create_bls_message(scope: &str, readiness: f64, participating_councils: usize) -> String {
     format!("BLS12-381|scope={}|readiness={:.2}|councils={}", scope, readiness, participating_councils)
-}
-
-pub fn simulate_bls_signing(council_id: &str, message: &str, reputation: Option<f64>) -> BlsSignature {
-    let rep_info = reputation.map_or(String::new(), |r| format!("|rep={:.2}", r));
-    BlsSignature(format!("sig_{}_{}{}", council_id, message.len(), rep_info).into_bytes())
 }
