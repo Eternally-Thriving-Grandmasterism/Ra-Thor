@@ -1,11 +1,11 @@
 //! Ra-Thor™ BLS12-381 Signature Aggregation (Experimental)
 //! Primary curve: BLS12-381
-//! Provides interfaces and integration hooks for multi-council BLS aggregation
+//! Provides interfaces, message preparation, and simulation for multi-council BLS aggregation
 //! 100% Proprietary — AG-SML v1.0
 
 use crate::patsagi_deliberation::DeliberationSession;
 
-/// BLS12-381 is chosen as the primary curve for governance aggregation.
+/// BLS12-381 chosen for strong security and excellent aggregation properties.
 
 #[derive(Debug, Clone)]
 pub struct BlsPublicKey(pub Vec<u8>);
@@ -23,11 +23,16 @@ pub trait BlsAggregator {
     ) -> bool;
 }
 
+/// Experimental BLS Aggregator with simulation support
 pub struct ExperimentalBlsAggregator;
 
 impl BlsAggregator for ExperimentalBlsAggregator {
-    fn aggregate(&self, _signatures: &[BlsSignature]) -> Option<BlsSignature> {
-        None // TODO: Implement with bls12_381 crate
+    fn aggregate(&self, signatures: &[BlsSignature]) -> Option<BlsSignature> {
+        if signatures.is_empty() {
+            return None;
+        }
+        // Simulated aggregation: In real implementation, this would use pairing-based aggregation
+        Some(BlsSignature(signatures[0].0.clone()))
     }
 
     fn verify_aggregated(
@@ -36,11 +41,12 @@ impl BlsAggregator for ExperimentalBlsAggregator {
         _message: &[u8],
         _aggregated_signature: &BlsSignature,
     ) -> bool {
-        false // TODO: Implement with bls12_381 crate
+        // Simulated verification
+        true
     }
 }
 
-/// Prepare a deliberation result for BLS signing
+/// Prepare a deliberation session for BLS signing
 pub fn prepare_deliberation_for_bls(deliberation: &DeliberationSession) -> String {
     format!(
         "BLS12-381|topic={}|consensus={:.4}|messages={}",
@@ -50,10 +56,31 @@ pub fn prepare_deliberation_for_bls(deliberation: &DeliberationSession) -> Strin
     )
 }
 
-/// Create a BLS-signable message from council synthesis data
+/// Create a BLS-signable message from synthesis results
 pub fn create_bls_message(scope: &str, readiness: f64, participating_councils: usize) -> String {
     format!(
         "BLS12-381|scope={}|readiness={:.2}|councils={}",
         scope, readiness, participating_councils
     )
+}
+
+/// Simulated BLS signing flow (for experimentation)
+pub fn simulate_bls_signing(council_id: &str, message: &str) -> BlsSignature {
+    // In a real implementation, this would use a BLS private key
+    let fake_signature = format!("sig_{}_{}", council_id, message.len());
+    BlsSignature(fake_signature.into_bytes())
+}
+
+/// Example usage (for documentation)
+///
+/// ```rust
+/// use crate::bls_aggregation::*;
+/// use crate::patsagi_deliberation::DeliberationSession;
+///
+/// let mut session = DeliberationSession::new("Council Decision");
+/// let prepared = prepare_deliberation_for_bls(&session);
+/// let sig = simulate_bls_signing("Evolution Gate", &prepared);
+/// ```
+pub fn example_bls_flow() {
+    println!("BLS12-381 experimental flow ready.");
 }
