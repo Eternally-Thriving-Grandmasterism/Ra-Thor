@@ -7,7 +7,6 @@ pub use geometric::{BasicGeometricMotor, GeometricMotor};
 
 use thiserror::Error;
 
-/// Result type used throughout the Lattice Conductor.
 pub type ConductorResult<T> = Result<T, ConductorError>;
 
 #[derive(Debug, Error)]
@@ -20,7 +19,6 @@ pub enum ConductorError {
     Council(String),
 }
 
-/// Core state representing the geometric + mercy condition of the lattice.
 #[derive(Debug, Clone)]
 pub struct GeometricState {
     pub valence: f64,
@@ -29,37 +27,63 @@ pub struct GeometricState {
 
 impl GeometricState {
     pub fn new() -> Self {
+        Self { valence: 1.0, tolc_alignment: 1.0 }
+    }
+
+    pub fn valence(&self) -> f64 { self.valence }
+    pub fn tolc_alignment(&self) -> f64 { self.tolc_alignment }
+}
+
+pub trait LatticeConductor {
+    fn tick(&mut self) -> ConductorResult<()>;
+    fn conduct_council(&self, council_id: u64) -> ConductorResult<()>;
+    fn orchestrate_swarm_evolution(&mut self) -> ConductorResult<()>;
+    fn validate_mercy(&self, operation: &str) -> bool;
+    fn get_geometric_state(&self) -> GeometricState;
+}
+
+/// Simple in-memory implementation of LatticeConductor (v13 early version)
+#[derive(Debug)]
+pub struct SimpleLatticeConductor {
+    pub state: GeometricState,
+    pub motor: BasicGeometricMotor,
+    pub tick_count: u64,
+}
+
+impl SimpleLatticeConductor {
+    pub fn new() -> Self {
         Self {
-            valence: 1.0,
-            tolc_alignment: 1.0,
+            state: GeometricState::new(),
+            motor: BasicGeometricMotor::new(),
+            tick_count: 0,
         }
-    }
-
-    pub fn valence(&self) -> f64 {
-        self.valence
-    }
-
-    pub fn tolc_alignment(&self) -> f64 {
-        self.tolc_alignment
     }
 }
 
-/// The central Lattice Conductor trait (v13).
-pub trait LatticeConductor {
-    /// Perform one conduction tick.
-    fn tick(&mut self) -> ConductorResult<()>;
+impl LatticeConductor for SimpleLatticeConductor {
+    fn tick(&mut self) -> ConductorResult<()> {
+        self.tick_count += 1;
+        // In future: run geometric motor + mercy checks + council updates
+        Ok(())
+    }
 
-    /// Conduct a specific council.
-    fn conduct_council(&self, council_id: u64) -> ConductorResult<()>;
+    fn conduct_council(&self, _council_id: u64) -> ConductorResult<()> {
+        // Placeholder
+        Ok(())
+    }
 
-    /// Orchestrate a round of swarm evolution.
-    fn orchestrate_swarm_evolution(&mut self) -> ConductorResult<()>;
+    fn orchestrate_swarm_evolution(&mut self) -> ConductorResult<()> {
+        // Placeholder for Quantum Swarm integration
+        Ok(())
+    }
 
-    /// Validate that an operation passes mercy gates.
-    fn validate_mercy(&self, operation: &str) -> bool;
+    fn validate_mercy(&self, _operation: &str) -> bool {
+        true // Always pass in this early version
+    }
 
-    /// Return current geometric + mercy state.
-    fn get_geometric_state(&self) -> GeometricState;
+    fn get_geometric_state(&self) -> GeometricState {
+        self.state.clone()
+    }
 }
 
 pub mod prelude {
