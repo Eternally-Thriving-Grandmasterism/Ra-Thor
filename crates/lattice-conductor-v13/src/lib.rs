@@ -36,27 +36,38 @@ impl GeometricState {
     }
 }
 
-/// Adaptive parameters with meta-adaptation and adaptive decay on meta-speeds
+/// Adaptive parameters with meta + meta-meta adaptation layers
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct AdaptiveParameters {
+    // Layer 1: Core rates
     pub mercy_recovery_rate: f64,
     pub evolution_rate: f64,
     pub swarm_influence_strength: f64,
 
-    // Meta-adaptation speeds
+    // Layer 2: Meta-adaptation speeds (how fast Layer 1 changes)
     pub mercy_recovery_adaptation_speed: f64,
     pub evolution_rate_adaptation_speed: f64,
+
+    // Layer 3 (Meta-Meta): Controls how Layer 2 meta-speeds adapt
+    pub meta_speed_decay_factor: f64,     // Multiplier when system is healthy
+    pub meta_speed_increase_factor: f64,  // Multiplier when system is stressed
 }
 
 impl AdaptiveParameters {
     pub fn new() -> Self {
         Self {
+            // Layer 1
             mercy_recovery_rate: 0.025,
             evolution_rate: 0.01,
             swarm_influence_strength: 0.02,
 
+            // Layer 2
             mercy_recovery_adaptation_speed: 0.0002,
             evolution_rate_adaptation_speed: 0.0001,
+
+            // Layer 3 (Meta-Meta)
+            meta_speed_decay_factor: 0.995,
+            meta_speed_increase_factor: 1.008,
         }
     }
 }
@@ -323,7 +334,7 @@ impl SimpleLatticeConductor {
         passes
     }
 
-    /// Self-evolution + meta-adaptation + adaptive decay on meta-speeds
+    /// Self-evolution + full meta + meta-meta adaptation
     fn perform_self_evolution_step(&mut self) {
         let p = &mut self.adaptive_params;
 
@@ -337,7 +348,7 @@ impl SimpleLatticeConductor {
         let coherence = self.quantum_swarm.coherence;
         let valence = self.state.valence;
 
-        // === Main parameter adaptation (using meta-speeds) ===
+        // === Layer 1 adaptation (using Layer 2 meta-speeds) ===
         if coherence > 0.75 && valence > 0.7 {
             p.evolution_rate += p.evolution_rate_adaptation_speed;
             p.evolution_rate = p.evolution_rate.min(0.06);
@@ -348,20 +359,18 @@ impl SimpleLatticeConductor {
             p.mercy_recovery_rate = p.mercy_recovery_rate.min(0.07);
         }
 
-        // === Adaptive decay on meta-speeds ===
-        // When the system is healthy (high coherence + valence), slowly decay meta-adaptation speeds
-        // This creates natural stabilization periods
+        // === Layer 3: Adaptive decay/increase on meta-speeds (Meta-Meta) ===
         if coherence > 0.8 && valence > 0.75 {
-            p.evolution_rate_adaptation_speed *= 0.995;
-            p.mercy_recovery_adaptation_speed *= 0.995;
+            // Healthy system → decay meta-speeds (stabilization)
+            p.evolution_rate_adaptation_speed *= p.meta_speed_decay_factor;
+            p.mercy_recovery_adaptation_speed *= p.meta_speed_decay_factor;
 
-            // Prevent meta-speeds from decaying to zero
             p.evolution_rate_adaptation_speed = p.evolution_rate_adaptation_speed.max(0.00002);
             p.mercy_recovery_adaptation_speed = p.mercy_recovery_adaptation_speed.max(0.00003);
         } else if self.metrics.mercy_violations > 4 || coherence < 0.6 {
-            // Increase meta-speeds when under stress (need faster adaptation)
-            p.evolution_rate_adaptation_speed *= 1.008;
-            p.mercy_recovery_adaptation_speed *= 1.008;
+            // Stressed system → increase meta-speeds (faster adaptation)
+            p.evolution_rate_adaptation_speed *= p.meta_speed_increase_factor;
+            p.mercy_recovery_adaptation_speed *= p.meta_speed_increase_factor;
 
             p.evolution_rate_adaptation_speed = p.evolution_rate_adaptation_speed.min(0.001);
             p.mercy_recovery_adaptation_speed = p.mercy_recovery_adaptation_speed.min(0.0015);
