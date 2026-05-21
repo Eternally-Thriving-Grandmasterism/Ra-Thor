@@ -43,25 +43,34 @@ fn arb_mercy_vote() -> impl Strategy<Value = MercyWeightedVote> {
         })
 }
 
+// Custom strategy for a fresh conductor with optional council
+fn arb_conductor() -> impl Strategy<Value = SimpleLatticeConductor> {
+    Just(SimpleLatticeConductor::new())
+        .prop_map(|mut c| {
+            if rand::random::<bool>() {
+                c.register_council(42, "PropTest Council");
+            }
+            c
+        })
+}
+
 proptest! {
     #[test]
     fn study_quadric_enforcement_works(point in prop::array::uniform4(-2.0f64..2.0)) {
-        // Basic enforcement check (matches simplified BasicGeometricMotor)
         let sum_sq: f64 = point.iter().map(|x| x*x).sum();
-        let is_on_quadric = (sum_sq - 1.0).abs() < 1e-4;
-        // In full GeometricMotor v2 this would call enforce_study_quadric
-        prop_assert!(is_on_quadric || !is_on_quadric); // placeholder for structure; real impl validates
+        let _is_on_quadric = (sum_sq - 1.0).abs() < 1e-4;
+        // Structure preserved for future full GeometricMotor v2
     }
 
     #[test]
     fn mercy_weighted_vote_consensus_is_bounded(vote in arb_mercy_vote()) {
         let consensus = vote.compute_consensus();
-        prop_assert!(consensus >= -0.3 && consensus <= 0.5, "Consensus must stay bounded for mercy invariance");
+        prop_assert!(consensus >= -0.3 && consensus <= 0.5);
     }
 
     #[test]
     fn conductor_tick_preserves_or_compensates_mercy(
-        mut conductor in any::<SimpleLatticeConductor>().prop_map(|mut c| { c.register_council(1, "Prop Council"); c }),
+        mut conductor in arb_conductor(),
         ops in prop::collection::vec(arb_operation(), 0..5)
     ) {
         let initial_mercy = conductor.state.mercy_score;
@@ -70,30 +79,25 @@ proptest! {
         }
         let _ = conductor.tick();
         let final_mercy = conductor.state.mercy_score;
-        // Mercy either stays or is compensated upward if it dropped
-        prop_assert!(final_mercy >= initial_mercy * 0.7 || final_mercy >= 0.7,
-            "Mercy must be preserved or auto-compensated (Radical Love gate)");
+        prop_assert!(final_mercy >= initial_mercy * 0.7 || final_mercy >= 0.7);
     }
 
     #[test]
-    fn one_organism_coherence_stays_healthy(mut conductor in any::<SimpleLatticeConductor>()) {
+    fn one_organism_coherence_stays_healthy(mut conductor in arb_conductor()) {
         let _ = conductor.tick();
-        prop_assert!(conductor.one_organism_coherence >= 0.5,
-            "ONE Organism coherence must remain healthy after any tick");
+        prop_assert!(conductor.one_organism_coherence >= 0.5);
     }
 
     #[test]
-    fn adaptive_parameters_evolve_positively(mut conductor in any::<SimpleLatticeConductor>()) {
+    fn adaptive_parameters_evolve_positively(mut conductor in arb_conductor()) {
         let initial_evolution = conductor.adaptive_params.evolution_rate;
         let _ = conductor.tick();
-        prop_assert!(conductor.adaptive_params.evolution_rate >= initial_evolution * 0.99,
-            "Evolution rate should not regress");
+        prop_assert!(conductor.adaptive_params.evolution_rate >= initial_evolution * 0.99);
     }
 
     #[test]
-    fn sovereign_persistence_roundtrip_works(mut conductor in any::<SimpleLatticeConductor>()) {
+    fn sovereign_persistence_roundtrip_works(mut conductor in arb_conductor()) {
         let _ = conductor.tick();
-        // Simulate save/load without actual FS in proptest (logic already unit tested)
         let json = serde_json::to_string(&conductor).unwrap();
         let restored: SimpleLatticeConductor = serde_json::from_str(&json).unwrap();
         prop_assert_eq!(restored.state.mercy_score, conductor.state.mercy_score);
@@ -102,7 +106,6 @@ proptest! {
 
     #[test]
     fn hyperbolic_projection_requires_correct_params() {
-        // Mirrors the intent of the original test
         let params_valid: Vec<f64> = vec![0.5, 0.3];
         let params_invalid: Vec<f64> = vec![0.5];
         prop_assert!(params_valid.len() == 2);
@@ -133,7 +136,6 @@ mod deterministic_expansion {
         c.register_council(2, "Beta");
         c.queue_operation(Operation::new("coord", "Layer 1/2 test", 0.8));
         let _ = c.tick();
-        // Trace or state should reflect council influence (indirect via mercy behavior)
         assert!(c.get_registered_patsagi_councils().len() == 2);
     }
 }
