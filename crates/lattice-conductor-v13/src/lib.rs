@@ -26,6 +26,27 @@ impl GeometricState {
     }
 }
 
+/// Slowly adapting internal parameters of the conductor
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+pub struct AdaptiveParameters {
+    /// How much mercy_score recovers per successful operation / tick
+    pub mercy_recovery_rate: f64,
+    /// Base multiplier for self-evolution growth
+    pub evolution_rate: f64,
+    /// How strongly QuantumSwarm coherence influences the system
+    pub swarm_influence_strength: f64,
+}
+
+impl AdaptiveParameters {
+    pub fn new() -> Self {
+        Self {
+            mercy_recovery_rate: 0.025,
+            evolution_rate: 0.01,
+            swarm_influence_strength: 0.02,
+        }
+    }
+}
+
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct Operation {
     pub name: String,
@@ -211,12 +232,13 @@ pub trait ConductorObserver {
     }
 }
 
-/// Maximum number of events kept in the circular buffer
+/// Maximum number of events kept in circular buffer
 const MAX_EVENT_HISTORY: usize = 256;
 
 #[derive(Debug)]
 pub struct SimpleLatticeConductor {
     pub state: GeometricState,
+    pub adaptive_params: AdaptiveParameters,
     pub motor: BasicGeometricMotor,
     pub tick_count: u64,
     pub operation_history: Vec<Operation>,
@@ -225,7 +247,6 @@ pub struct SimpleLatticeConductor {
     pub councils: HashMap<u64, String>,
     pub metrics: ConductorMetrics,
     pub quantum_swarm: QuantumSwarm,
-    /// Circular buffer of recent events (bounded memory)
     pub events: VecDeque<ConductorEvent>,
     pub patsagi_bridge: Option<Box<dyn PatsagiCouncilBridge + Send + Sync>>,
     pub observers: Vec<Box<dyn ConductorObserver + Send + Sync>>,
@@ -235,6 +256,7 @@ impl SimpleLatticeConductor {
     pub fn new() -> Self {
         Self {
             state: GeometricState::new(),
+            adaptive_params: AdaptiveParameters::new(),
             motor: BasicGeometricMotor::new(),
             tick_count: 0,
             operation_history: Vec::new(),
@@ -290,12 +312,34 @@ impl SimpleLatticeConductor {
         passes
     }
 
+    /// Self-evolution + slow adaptation of internal parameters
     fn perform_self_evolution_step(&mut self) {
-        let evolution_boost = (self.quantum_swarm.coherence - 0.5) * 0.03;
+        let p = &mut self.adaptive_params;
+
+        // Base evolution with swarm boost
+        let evolution_boost = (self.quantum_swarm.coherence - 0.5) * p.swarm_influence_strength;
         if self.state.mercy_score > 0.75 && self.state.valence > 0.65 {
-            self.state.evolution_level += 0.01 + evolution_boost.max(0.0);
+            self.state.evolution_level += p.evolution_rate + evolution_boost.max(0.0);
             self.emit_event(ConductorEvent::SelfEvolution { level: self.state.evolution_level });
         }
+
+        // Slowly adapt parameters over time (very gradual)
+        let coherence = self.quantum_swarm.coherence;
+        let valence = self.state.valence;
+
+        // If swarm is healthy and valence is good, slightly increase evolution_rate
+        if coherence > 0.75 && valence > 0.7 {
+            p.evolution_rate = (p.evolution_rate + 0.0001).min(0.05);
+        }
+
+        // If we have frequent mercy violations, slightly increase mercy_recovery_rate
+        if self.metrics.mercy_violations > 3 {
+            p.mercy_recovery_rate = (p.mercy_recovery_rate + 0.0002).min(0.06);
+        }
+
+        // Slowly pull swarm_influence_strength toward a balanced value
+        let target = 0.02;
+        p.swarm_influence_strength = p.swarm_influence_strength * 0.995 + target * 0.005;
     }
 
     pub fn save_to_file(&self, path: &str) -> ConductorResult<()> {
@@ -329,7 +373,6 @@ impl SimpleLatticeConductor {
         }
     }
 
-    /// Replay the most recent N events to a new observer
     pub fn replay_recent_events_to(&self, observer: &dyn ConductorObserver, count: usize) {
         let start = if self.events.len() > count { self.events.len() - count } else { 0 };
         for event in self.events.range(start..) {
@@ -350,8 +393,11 @@ impl LatticeConductor for SimpleLatticeConductor {
             if self.evaluate_all_gates(&op) {
                 self.operation_history.push(op.clone());
                 self.metrics.operations_processed += 1;
-                self.state.mercy_score = (self.state.mercy_score + 0.025).min(1.0);
+
+                // Use adaptive mercy recovery rate
+                self.state.mercy_score = (self.state.mercy_score + self.adaptive_params.mercy_recovery_rate).min(1.0);
                 self.state.valence = (self.state.valence + 0.015).min(1.0);
+
                 self.emit_event(ConductorEvent::OperationApproved { name: op.name.clone() });
             } else {
                 let violation = format!("Mercy violation: '{}'", op.name);
@@ -368,7 +414,8 @@ impl LatticeConductor for SimpleLatticeConductor {
 
         self.perform_self_evolution_step();
 
-        let swarm_influence = (self.quantum_swarm.coherence - 0.5) * 0.02;
+        // Use adaptive swarm influence
+        let swarm_influence = (self.quantum_swarm.coherence - 0.5) * self.adaptive_params.swarm_influence_strength;
         self.state.mercy_score = (self.state.mercy_score + swarm_influence).clamp(0.0, 1.0);
         self.state.evolution_level = (self.state.evolution_level + swarm_influence * 0.5).max(0.0);
 
@@ -485,6 +532,6 @@ mod tests {
 }
 
 pub mod prelude {
-    pub use crate::{ConductorEvent, ConductorMetrics, ConductorObserver, ConductorResult, GeometricMotor, GeometricState, LatticeConductor, MercyGate, Operation, PatsagiCouncilBridge, QuantumSwarm, SimpleLatticeConductor, SimplePatsagiBridge};
+    pub use crate::{AdaptiveParameters, ConductorEvent, ConductorMetrics, ConductorObserver, ConductorResult, GeometricMotor, GeometricState, LatticeConductor, MercyGate, Operation, PatsagiCouncilBridge, QuantumSwarm, SimpleLatticeConductor, SimplePatsagiBridge};
     pub use crate::geometric::BasicGeometricMotor;
 }
