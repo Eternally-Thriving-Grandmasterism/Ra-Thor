@@ -1,58 +1,73 @@
 //! Ra-Thor™ Lattice Alchemical Evolution Protocol
 //! feat/patsagi-governance-v2
 
-// ... existing code ...
+use ed25519_dalek::{SigningKey, VerifyingKey, Signature, Signer, Verifier};
+use rand::rngs::OsRng;
 
-#[derive(Debug, Clone, Default)]
-pub struct CouncilReputation {
-    pub total_valence_contributed: f64,
-    pub total_decisions: u32,
-    pub successful_approvals: u32,
-    pub vetoes_issued: u32,
-    pub reputation_score: f64,
+pub struct AuditSigner {
+    signing_key: SigningKey,
+    pub verifying_key: VerifyingKey,
+}
+
+impl AuditSigner {
+    pub fn new() -> Self {
+        let mut csprng = OsRng;
+        let signing_key = SigningKey::generate(&mut csprng);
+        let verifying_key = signing_key.verifying_key();
+        Self { signing_key, verifying_key }
+    }
+
+    pub fn sign(&self, message: &[u8]) -> Signature {
+        self.signing_key.sign(message)
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct CouncilVoteRecord {
+    pub timestamp: u64,
+    pub council: String,
+    pub valence_contribution: f64,
+    pub approved: bool,
+    pub vetoed: bool,
+    pub effective_weight: f64,
+    pub reputation_at_time: f64,
+    pub signature: Vec<u8>,
 }
 
 impl LatticeAlchemicalEvolution {
-    pub fn update_council_reputation(
-        &mut self,
-        council_name: &str,
-        valence: f64,
-        approved: bool,
-        vetoed: bool,
-    ) {
-        let rep = self.council_reputation.entry(council_name.to_string()).or_default();
-
-        rep.total_valence_contributed += valence;
-        rep.total_decisions += 1;
-
-        if approved { rep.successful_approvals += 1; }
-        if vetoed { rep.vetoes_issued += 1; }
-
-        let approval_rate = if rep.total_decisions > 0 {
-            rep.successful_approvals as f64 / rep.total_decisions as f64
-        } else { 0.5 };
-
-        let performance = (rep.total_valence_contributed * 800.0).min(0.4);
-        let reliability = approval_rate * 0.5;
-        let risk = (rep.vetoes_issued as f64 * 0.06).min(0.25);
-
-        rep.reputation_score = (reliability + performance - risk).clamp(0.2, 1.0);
+    pub fn log_council_vote(&mut self, mut record: CouncilVoteRecord) {
+        if let Some(signer) = &self.audit_signer {
+            let message = self.create_audit_message(&record);
+            let sig = signer.sign(&message);
+            record.signature = sig.to_bytes().to_vec();
+        }
+        self.vote_history.push(record);
     }
 
-    pub fn bayesian_reputation_update(
-        &mut self,
-        council_name: &str,
-        new_valence: f64,
-        approved: bool,
-    ) {
-        let rep = self.council_reputation.entry(council_name.to_string()).or_default();
-        let prior = rep.reputation_score;
+    fn create_audit_message(&self, record: &CouncilVoteRecord) -> Vec<u8> {
+        let mut msg = Vec::new();
+        msg.extend_from_slice(&record.timestamp.to_le_bytes());
+        msg.extend_from_slice(record.council.as_bytes());
+        msg.extend_from_slice(&record.valence_contribution.to_le_bytes());
+        msg.push(record.approved as u8);
+        msg.push(record.vetoed as u8);
+        msg.extend_from_slice(&record.effective_weight.to_le_bytes());
+        msg
+    }
 
-        let likelihood = if approved {
-            (new_valence * 1200.0).min(0.85)
-        } else { 0.35 };
-
-        let posterior = (prior * 0.6 + likelihood * 0.4).clamp(0.15, 1.0);
-        rep.reputation_score = posterior;
+    pub fn verify_audit_log(&self) -> bool {
+        if let Some(signer) = &self.audit_signer {
+            for record in &self.vote_history {
+                let message = self.create_audit_message(record);
+                if let Ok(sig) = Signature::from_bytes(&record.signature) {
+                    if signer.verify(&message, &sig).is_err() {
+                        return false;
+                    }
+                } else {
+                    return false;
+                }
+            }
+        }
+        true
     }
 }
