@@ -11,30 +11,42 @@ use thiserror::Error;
 
 pub type ConductorResult<T> = Result<T, ConductorError>;
 
-/// Core geometric + mercy + evolution state
+/// Core geometric + mercy + evolution state (now includes current adaptive rates for visibility)
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct GeometricState {
     pub valence: f64,
     pub tolc_alignment: f64,
     pub mercy_score: f64,
     pub evolution_level: f64,
+
+    // Current effective adaptive rates (for observability)
+    pub current_mercy_recovery_rate: f64,
+    pub current_evolution_rate: f64,
 }
 
 impl GeometricState {
     pub fn new() -> Self {
-        Self { valence: 1.0, tolc_alignment: 1.0, mercy_score: 1.0, evolution_level: 0.0 }
+        Self {
+            valence: 1.0,
+            tolc_alignment: 1.0,
+            mercy_score: 1.0,
+            evolution_level: 0.0,
+            current_mercy_recovery_rate: 0.025,
+            current_evolution_rate: 0.01,
+        }
     }
 }
 
-/// Slowly adapting internal parameters of the conductor
+/// Slowly adapting internal parameters with meta-adaptation
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct AdaptiveParameters {
-    /// How much mercy_score recovers per successful operation / tick
     pub mercy_recovery_rate: f64,
-    /// Base multiplier for self-evolution growth
     pub evolution_rate: f64,
-    /// How strongly QuantumSwarm coherence influences the system
     pub swarm_influence_strength: f64,
+
+    // Meta-adaptation speeds (how fast the above rates can change)
+    pub mercy_recovery_adaptation_speed: f64,
+    pub evolution_rate_adaptation_speed: f64,
 }
 
 impl AdaptiveParameters {
@@ -43,6 +55,10 @@ impl AdaptiveParameters {
             mercy_recovery_rate: 0.025,
             evolution_rate: 0.01,
             swarm_influence_strength: 0.02,
+
+            // Meta speeds (very slow by default)
+            mercy_recovery_adaptation_speed: 0.0002,
+            evolution_rate_adaptation_speed: 0.0001,
         }
     }
 }
@@ -171,7 +187,7 @@ pub struct ConductorMetrics {
     pub councils_registered: u64,
 }
 
-/// Quantum Swarm - drives dynamic mercy across multiple gates
+/// Quantum Swarm
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct QuantumSwarm {
     pub active_branches: u32,
@@ -206,7 +222,6 @@ impl QuantumSwarm {
     }
 }
 
-/// Rich conductor events including distinct Quantum Swarm events
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub enum ConductorEvent {
     TickCompleted { tick: u64 },
@@ -219,7 +234,6 @@ pub enum ConductorEvent {
     SwarmCoherenceChanged { old_coherence: f64, new_coherence: f64 },
 }
 
-/// Observer with filtering and priority
 pub trait ConductorObserver {
     fn on_event(&self, event: &ConductorEvent);
 
@@ -312,34 +326,41 @@ impl SimpleLatticeConductor {
         passes
     }
 
-    /// Self-evolution + slow adaptation of internal parameters
+    /// Self-evolution + meta-adaptive parameter evolution
     fn perform_self_evolution_step(&mut self) {
         let p = &mut self.adaptive_params;
 
-        // Base evolution with swarm boost
+        // Use current adaptive rates
         let evolution_boost = (self.quantum_swarm.coherence - 0.5) * p.swarm_influence_strength;
+
         if self.state.mercy_score > 0.75 && self.state.valence > 0.65 {
             self.state.evolution_level += p.evolution_rate + evolution_boost.max(0.0);
             self.emit_event(ConductorEvent::SelfEvolution { level: self.state.evolution_level });
         }
 
-        // Slowly adapt parameters over time (very gradual)
+        // === Meta-adaptation layer ===
         let coherence = self.quantum_swarm.coherence;
         let valence = self.state.valence;
 
-        // If swarm is healthy and valence is good, slightly increase evolution_rate
+        // Slowly adapt evolution_rate using its own adaptation speed
         if coherence > 0.75 && valence > 0.7 {
-            p.evolution_rate = (p.evolution_rate + 0.0001).min(0.05);
+            p.evolution_rate += p.evolution_rate_adaptation_speed;
+            p.evolution_rate = p.evolution_rate.min(0.06);
         }
 
-        // If we have frequent mercy violations, slightly increase mercy_recovery_rate
-        if self.metrics.mercy_violations > 3 {
-            p.mercy_recovery_rate = (p.mercy_recovery_rate + 0.0002).min(0.06);
+        // Slowly adapt mercy_recovery_rate using its meta speed
+        if self.metrics.mercy_violations > 2 {
+            p.mercy_recovery_rate += p.mercy_recovery_adaptation_speed;
+            p.mercy_recovery_rate = p.mercy_recovery_rate.min(0.07);
         }
 
-        // Slowly pull swarm_influence_strength toward a balanced value
-        let target = 0.02;
-        p.swarm_influence_strength = p.swarm_influence_strength * 0.995 + target * 0.005;
+        // Gentle drift of swarm influence
+        let target = 0.022;
+        p.swarm_influence_strength = p.swarm_influence_strength * 0.996 + target * 0.004;
+
+        // Update visible state with current rates
+        self.state.current_mercy_recovery_rate = p.mercy_recovery_rate;
+        self.state.current_evolution_rate = p.evolution_rate;
     }
 
     pub fn save_to_file(&self, path: &str) -> ConductorResult<()> {
@@ -394,7 +415,6 @@ impl LatticeConductor for SimpleLatticeConductor {
                 self.operation_history.push(op.clone());
                 self.metrics.operations_processed += 1;
 
-                // Use adaptive mercy recovery rate
                 self.state.mercy_score = (self.state.mercy_score + self.adaptive_params.mercy_recovery_rate).min(1.0);
                 self.state.valence = (self.state.valence + 0.015).min(1.0);
 
@@ -414,7 +434,6 @@ impl LatticeConductor for SimpleLatticeConductor {
 
         self.perform_self_evolution_step();
 
-        // Use adaptive swarm influence
         let swarm_influence = (self.quantum_swarm.coherence - 0.5) * self.adaptive_params.swarm_influence_strength;
         self.state.mercy_score = (self.state.mercy_score + swarm_influence).clamp(0.0, 1.0);
         self.state.evolution_level = (self.state.evolution_level + swarm_influence * 0.5).max(0.0);
