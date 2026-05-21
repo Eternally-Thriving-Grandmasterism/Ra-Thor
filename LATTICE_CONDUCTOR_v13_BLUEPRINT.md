@@ -118,6 +118,139 @@ pub trait SelfEvolutionOrchestrator {
 - [ ] Simple telemetry export for cosmic loop health
 - [ ] Initial hot-swap mechanism sketch for modules
 
+## Specific Property Tests (Recommended for proptest)
+
+These property tests should be implemented early, especially for `geometric_motor_v2` and `mercy_validation`.
+
+### 1. Study Quadric Invariant (Core Geometric)
+```rust
+proptest! {
+    #[test]
+    fn study_quadric_constraint_always_holds(
+        motor in arb_dual_quaternion(),
+        point in arb_point4()
+    ) {
+        let result = geometric_motor.apply_dual_quaternion(motor);
+        prop_assert!(result.is_ok());
+        prop_assert!(geometric_motor.enforce_study_quadric(StudyQuadricConstraint::from(point)));
+    }
+}
+```
+
+### 2. Valence Never Decreases on Valid Operations
+```rust
+proptest! {
+    #[test]
+    fn valence_non_decreasing_on_valid_tick(
+        initial_state in arb_geometric_state(),
+        operations in prop::collection::vec(arb_valid_operation(), 1..10)
+    ) {
+        let mut state = initial_state;
+        let initial_valence = state.valence();
+
+        for op in operations {
+            let result = conductor.tick_with_operation(op);
+            prop_assert!(result.is_ok());
+            prop_assert!(state.valence() >= initial_valence);
+        }
+    }
+}
+```
+
+### 3. Mercy Validation is Never Bypassed
+```rust
+proptest! {
+    #[test]
+    fn mercy_validation_cannot_be_skipped(
+        operation in arb_any_operation()
+    ) {
+        let validation = conductor.validate_mercy(&operation);
+        prop_assert!(validation.passed || validation.has_compensation());
+        // Even on failure path, mercy gate was consulted
+    }
+}
+```
+
+### 4. ONE Organism State Coherence After Tick
+```rust
+proptest! {
+    #[test]
+    fn one_organism_coherence_preserved(
+        initial_state in arb_full_lattice_state(),
+        ticks in 1..50u32
+    ) {
+        let mut state = initial_state;
+        for _ in 0..ticks {
+            let _ = conductor.tick();
+            prop_assert!(state.is_coherent()); // councils + swarm + geometric state aligned
+        }
+    }
+}
+```
+
+### 5. Hyperbolic Projection Preserves Orientation
+```rust
+proptest! {
+    #[test]
+    fn hyperbolic_projection_preserves_orientation(
+        tiling in arb_hyperbolic_tiling(),
+        transform in arb_hyperbolic_transform()
+    ) {
+        let projected = geometric_motor.project_hyperbolic(tiling);
+        prop_assert!(projected.orientation_preserved());
+    }
+}
+```
+
+### 6. TOLC Alignment Score Monotonicity
+```rust
+proptest! {
+    #[test]
+    fn tolc_alignment_non_decreasing(
+        initial in arb_geometric_state(),
+        valid_evolutions in prop::collection::vec(arb_valid_evolution(), 1..5)
+    ) {
+        let mut state = initial;
+        let start_score = state.tolc_alignment();
+
+        for evo in valid_evolutions {
+            let _ = self_evolution_orchestrator.apply(evo);
+            prop_assert!(state.tolc_alignment() >= start_score);
+        }
+    }
+}
+```
+
+### 7. CEHI Propagation Integrity (7-Gen)
+```rust
+proptest! {
+    #[test]
+    fn cehi_propagation_respects_generation_limit(
+        generations in 1..=7u8
+    ) {
+        let result = conductor.propagate_cehi(generations);
+        prop_assert!(result.generations_affected() <= 7);
+    }
+}
+```
+
+### 8. No Mercy Violation on Valid Parallel Council Execution
+```rust
+proptest! {
+    #[test]
+    fn parallel_council_execution_never_violates_mercy(
+        councils in prop::collection::vec(arb_council_id(), 2..20),
+        task in arb_mercy_safe_task()
+    ) {
+        let result = council_conduction_engine.parallel_execute(&councils, task);
+        prop_assert!(result.is_ok());
+        prop_assert!(!result.had_mercy_violation());
+    }
+}
+```
+
+**Recommendation**: Start with tests #1, #2, and #3 as they cover the most critical invariants.
+
 ---
 
 **This blueprint will be refined through PATSAGi Council review and practical implementation feedback.**
