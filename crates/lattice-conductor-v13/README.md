@@ -2,60 +2,55 @@
 
 **Lattice Conductor v13** — The sovereign orchestration heart of Ra-Thor.
 
-This crate provides the core logic for conducting the Ra-Thor lattice in a mercy-aligned, TOLC-respecting, and self-evolving manner.
+This crate provides a working implementation of a mercy-aligned, self-evolving sovereign conductor with Quantum Swarm integration and PATSAGi council readiness.
 
-## Features
+## Key Features
 
-- `SimpleLatticeConductor`: A working implementation of the `LatticeConductor` trait
-- Advanced `MercyGate` system with multiple validation rules
-- `GeometricMotor` integration (via `nalgebra` Dual Quaternions)
-- Operation queuing and processing during ticks
-- Council registry
-- Metrics and telemetry
-- Persistence (save/load via JSON)
-- Basic PATSAGi council awareness
+- `SimpleLatticeConductor`: Full implementation of `LatticeConductor`
+- Advanced `MercyGate` system with dynamic strictness influenced by `QuantumSwarm`
+- `PatsagiCouncilBridge` trait + `SimplePatsagiBridge` with council voting simulation
+- `ConductorObserver` trait for event-driven architecture
+- `QuantumSwarm` with branching (`split_branch`, `merge_branches`)
+- Self-evolution mechanics
+- Rich event system (`ConductorEvent`)
+- Full persistence support (save/load)
+- Strong offline / sovereign shard capabilities
 
-## Core Concepts
+## Architecture Overview
 
-### LatticeConductor Trait
-The central interface for any conductor implementation.
+```
+SimpleLatticeConductor
+├── GeometricState (valence, tolc_alignment, mercy_score, evolution_level)
+├── QuantumSwarm (with coherence influence on mercy)
+├── Mercy Evaluation (with PATSAGi bridge + swarm-adjusted gates)
+├── Event System + Observer Pattern
+├── Persistence Layer
+└── Council Registry
+```
 
-### MercyGate
-An extensible enum representing different mercy validation rules (Harm, Keywords, TOLC Alignment, Valence, etc.).
-
-### GeometricMotor
-Handles geometric transformations using Dual Quaternions and Study Quadric enforcement.
-
-## Usage Example
+## Usage
 
 ```rust
-use lattice_conductor_v13::{SimpleLatticeConductor, Operation};
+use lattice_conductor_v13::{SimpleLatticeConductor, Operation, SimplePatsagiBridge};
 
-let mut conductor = SimpleLatticeConductor::new();
+let bridge = Box::new(SimplePatsagiBridge::with_councils(vec![1, 2, 3]));
 
-// Register a council
-conductor.register_council(1, "Truth Council");
+let mut conductor = SimpleLatticeConductor::new()
+    .with_patsagi_bridge(bridge);
 
-// Queue an operation
-let op = Operation::new("Support Community", "Help others thrive", 0.15);
-conductor.queue_operation(op);
+conductor.register_council(1, "Core Council");
+conductor.queue_operation(Operation::new("Collaborate", "Work together", 0.3));
 
-// Run a tick (processes pending operations)
 conductor.tick().unwrap();
-
-println!("Current valence: {}", conductor.get_geometric_state().valence);
 ```
+
+## Integration with PATSAGi
+
+See `INTEGRATION_PATSAGI_COUNCILS.md` for the current integration approach and future direction.
 
 ## Status
 
-This is an early but rapidly evolving implementation (v0.1.x) aligned with Ra-Thor v13.x direction.
-
-## Future Directions
-
-- Deeper integration with `patsagi-councils` crate
-- More advanced geometric state evolution
-- Persistent council memory and consensus
-- Full self-evolution orchestration
+Actively evolving as part of Ra-Thor v13.x. Ready for deeper monorepo integration.
 
 ## License
 AG-SML v1.0
