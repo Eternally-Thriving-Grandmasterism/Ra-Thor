@@ -4,62 +4,46 @@ use lattice_conductor_v13::{
 };
 
 fn main() {
-    println!("=== Multi-Conductor Coordination Example ===\n");
+    println!("=== Multi-Conductor Coordination with Adaptive Influence ===\n");
 
-    // Create three conductors with different starting states
-    let mut conductor_a = SimpleLatticeConductor::new();
-    let mut conductor_b = SimpleLatticeConductor::new();
-    let mut conductor_c = SimpleLatticeConductor::new();
+    let mut c1 = SimpleLatticeConductor::new();
+    let mut c2 = SimpleLatticeConductor::new();
+    let mut c3 = SimpleLatticeConductor::new();
 
-    // Give them some initial operations to create differentiation
-    conductor_a.queue_operation(Operation::new("Improve Systems", "General improvement", 0.2));
-    conductor_b.queue_operation(Operation::new("Aggressive Expansion", "Higher risk action", 0.55));
-    conductor_c.queue_operation(Operation::new("Careful Maintenance", "Low risk", 0.15));
+    c1.queue_operation(Operation::new("Steady Progress", "Balanced", 0.25));
+    c2.queue_operation(Operation::new("Bold Move", "Higher risk", 0.5));
+    c3.queue_operation(Operation::new("Careful Work", "Low risk", 0.1));
 
-    // Create simulation with MercyWeightedStrategy
-    let mut simulation = MultiConductorSimulation::with_strategy(Box::new(MercyWeightedStrategy));
-    simulation.add_conductor(conductor_a);
-    simulation.add_conductor(conductor_b);
-    simulation.add_conductor(conductor_c);
+    let mut sim = MultiConductorSimulation::with_strategy(Box::new(MercyWeightedStrategy));
+    sim.add_conductor(c1);
+    sim.add_conductor(c2);
+    sim.add_conductor(c3);
 
-    println!("Running coordinated ticks with MercyWeightedStrategy...\n");
+    println!("Running with MercyWeightedStrategy + adaptive influence...\n");
 
-    for tick in 1..=12 {
-        let _ = simulation.coordinated_tick();
+    for tick in 1..=15 {
+        let _ = sim.coordinated_tick();
 
-        if tick % 3 == 0 {
-            println!("Tick {}:", tick);
-            for (i, conductor) in simulation.conductors.iter().enumerate() {
-                println!(
-                    "  Conductor {} | evolution={:.3} | mercy={:.3} | valence={:.3}",
-                    i,
-                    conductor.state.evolution_level,
-                    conductor.state.mercy_score,
-                    conductor.state.valence
-                );
-            }
-            println!();
+        if tick % 5 == 0 {
+            let avg_evolution = sim.conductors.iter().map(|c| c.state.evolution_level).sum::<f64>() / sim.conductors.len() as f64;
+            let avg_evo_rate = sim.conductors.iter().map(|c| c.adaptive_params.evolution_rate).sum::<f64>() / sim.conductors.len() as f64;
+
+            println!("Tick {} | Avg Evolution: {:.3} | Avg Evo Rate: {:.5}", tick, avg_evolution, avg_evo_rate);
         }
     }
 
-    println!("=== Switching to LeaderFollowerStrategy ===\n");
+    println!("\nSwitching to LeaderFollowerStrategy...");
+    sim.set_strategy(Box::new(LeaderFollowerStrategy));
 
-    // Switch strategy mid-simulation
-    simulation.set_strategy(Box::new(LeaderFollowerStrategy));
-
-    for tick in 13..=20 {
-        let _ = simulation.coordinated_tick();
+    for _ in 0..8 {
+        let _ = sim.coordinated_tick();
     }
 
-    println!("Final state after strategy switch:");
-    for (i, conductor) in simulation.conductors.iter().enumerate() {
-        println!(
-            "  Conductor {} | evolution={:.3} | mercy={:.3}",
-            i,
-            conductor.state.evolution_level,
-            conductor.state.mercy_score
-        );
+    println!("\nFinal adaptive parameters:");
+    for (i, c) in sim.conductors.iter().enumerate() {
+        println!("  Conductor {} | evolution_rate={:.5} | mercy_recovery={:.5}",
+            i, c.adaptive_params.evolution_rate, c.adaptive_params.mercy_recovery_rate);
     }
 
-    println!("\n=== Multi-Conductor Coordination Example Complete ===");
+    println!("\n=== Complete ===");
 }
