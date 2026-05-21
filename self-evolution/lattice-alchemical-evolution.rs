@@ -1,48 +1,58 @@
 //! Ra-Thor™ Lattice Alchemical Evolution Protocol
-//! Experimental PATSAGi Governance Track (feat/patsagi-governance-v2)
-//! Includes deliberation integration
+//! feat/patsagi-governance-v2
 
-use crate::patsagi_deliberation::{CouncilMessage, DeliberationSession, MessageType};
+// ... existing code ...
 
-// ... (rest of file preserved) ...
+#[derive(Debug, Clone, Default)]
+pub struct CouncilReputation {
+    pub total_valence_contributed: f64,
+    pub total_decisions: u32,
+    pub successful_approvals: u32,
+    pub vetoes_issued: u32,
+    pub reputation_score: f64,
+}
 
 impl LatticeAlchemicalEvolution {
-    pub fn run_council_synthesis(&mut self, scope: &str) -> CouncilSynthesisResult {
-        // ... existing weighted + quadratic + median + reputation logic ...
+    pub fn update_council_reputation(
+        &mut self,
+        council_name: &str,
+        valence: f64,
+        approved: bool,
+        vetoed: bool,
+    ) {
+        let rep = self.council_reputation.entry(council_name.to_string()).or_default();
 
-        // === Deliberation Integration ===
-        let mut deliberation = DeliberationSession::new(&format!("Council Synthesis: {}", scope));
+        rep.total_valence_contributed += valence;
+        rep.total_decisions += 1;
 
-        for vote in &votes {
-            if vote.effective_weight > 1.4 {
-                let msg_type = if vote.approved { MessageType::Endorsement } else { MessageType::Concern };
+        if approved { rep.successful_approvals += 1; }
+        if vetoed { rep.vetoes_issued += 1; }
 
-                let message = CouncilMessage {
-                    from_council: vote.council.clone(),
-                    to_council: "Synthesis".to_string(),
-                    message_type: msg_type,
-                    content: format!("Weight: {:.2}", vote.effective_weight),
-                    strength: (vote.effective_weight / 2.0).min(1.0),
-                    timestamp: std::time::SystemTime::now()
-                        .duration_since(std::time::UNIX_EPOCH)
-                        .unwrap()
-                        .as_secs(),
-                };
-                deliberation.send_message(message);
-            }
-        }
+        let approval_rate = if rep.total_decisions > 0 {
+            rep.successful_approvals as f64 / rep.total_decisions as f64
+        } else { 0.5 };
 
-        let deliberation_consensus = deliberation.run_deliberation_round();
+        let performance = (rep.total_valence_contributed * 800.0).min(0.4);
+        let reliability = approval_rate * 0.5;
+        let risk = (rep.vetoes_issued as f64 * 0.06).min(0.25);
 
-        // Blend deliberation result into final score
-        let final_readiness = (evolution_readiness_score * 0.82 + deliberation_consensus * 100.0 * 0.18)
-            .clamp(0.0, 100.0);
+        rep.reputation_score = (reliability + performance - risk).clamp(0.2, 1.0);
+    }
 
-        // ... TOLC 8 enforcement using final_readiness ...
+    pub fn bayesian_reputation_update(
+        &mut self,
+        council_name: &str,
+        new_valence: f64,
+        approved: bool,
+    ) {
+        let rep = self.council_reputation.entry(council_name.to_string()).or_default();
+        let prior = rep.reputation_score;
 
-        CouncilSynthesisResult {
-            // ... fields ...
-            evolution_readiness_score: final_readiness,
-        }
+        let likelihood = if approved {
+            (new_valence * 1200.0).min(0.85)
+        } else { 0.35 };
+
+        let posterior = (prior * 0.6 + likelihood * 0.4).clamp(0.15, 1.0);
+        rep.reputation_score = posterior;
     }
 }
