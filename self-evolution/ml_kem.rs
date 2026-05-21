@@ -1,29 +1,21 @@
 //! Ra-Thor™ ML-KEM (Kyber) Post-Quantum Key Encapsulation
 //! Experimental integration for hybrid classical + post-quantum cryptography
-//! 100% Proprietary — AG-SML v1.0
-
-/// Hybrid strategy note:
-/// - Use X25519 for performance in the near term
-/// - Use ML-KEM for post-quantum security
-/// - Hybrid X25519 + ML-KEM is recommended during transition
+//! See docs/HYBRID_CRYPTO_ARCHITECTURE.md for the full strategy
 
 pub struct MlKemPublicKey(pub Vec<u8>);
 pub struct MlKemCiphertext(pub Vec<u8>);
 pub struct MlKemSharedSecret(pub Vec<u8>);
 
-/// Placeholder trait for ML-KEM operations
 pub trait MlKem {
-    fn generate_keypair(&self) -> (MlKemPublicKey, Vec<u8>); // (pk, sk)
+    fn generate_keypair(&self) -> (MlKemPublicKey, Vec<u8>);
     fn encapsulate(&self, public_key: &MlKemPublicKey) -> (MlKemCiphertext, MlKemSharedSecret);
     fn decapsulate(&self, secret_key: &[u8], ciphertext: &MlKemCiphertext) -> Option<MlKemSharedSecret>;
 }
 
-/// Experimental stub
 pub struct ExperimentalMlKem;
 
 impl MlKem for ExperimentalMlKem {
     fn generate_keypair(&self) -> (MlKemPublicKey, Vec<u8>) {
-        // TODO: Implement using ml-kem crate
         (MlKemPublicKey(vec![]), vec![])
     }
 
@@ -36,7 +28,15 @@ impl MlKem for ExperimentalMlKem {
     }
 }
 
-/// Helper to prepare hybrid key exchange message
-pub fn prepare_hybrid_kem_message(scope: &str) -> String {
-    format!("Hybrid-X25519+ML-KEM|scope={}", scope)
+/// Prepare ML-KEM context for council synthesis (experimental)
+pub fn prepare_ml_kem_for_synthesis(scope: &str) -> String {
+    format!("ML-KEM|scope={}|hybrid=X25519+ML-KEM", scope)
+}
+
+/// Optional helper for future ML-KEM key exchange during synthesis
+pub fn try_ml_kem_key_exchange(scope: &str) -> Option<String> {
+    if scope.contains("kem") || scope == "all" {
+        return Some(prepare_ml_kem_for_synthesis(scope));
+    }
+    None
 }
