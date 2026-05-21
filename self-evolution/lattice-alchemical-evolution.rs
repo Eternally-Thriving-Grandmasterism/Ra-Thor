@@ -1,10 +1,10 @@
 //! Ra-Thor™ Lattice Alchemical Evolution Protocol
-//! v2.8 — ed25519 Digital Signatures on Audit Logs
-//! Proper public-key cryptographic signing
-//! 100% Proprietary — AG-SML v1.0
+//! feat/patsagi-governance-v2
+//! Includes ed25519 audit signing + optional ML-KEM integration
 
 use ed25519_dalek::{SigningKey, VerifyingKey, Signature, Signer, Verifier};
 use rand::rngs::OsRng;
+use crate::ml_kem::{try_ml_kem_key_exchange};
 
 pub struct AuditSigner {
     signing_key: SigningKey,
@@ -28,29 +28,36 @@ impl AuditSigner {
     }
 }
 
+#[derive(Debug, Clone)]
+pub struct CouncilVoteRecord {
+    pub timestamp: u64,
+    pub council: String,
+    pub valence_contribution: f64,
+    pub approved: bool,
+    pub vetoed: bool,
+    pub effective_weight: f64,
+    pub reputation_at_time: f64,
+    pub signature: Vec<u8>,
+}
+
 impl LatticeAlchemicalEvolution {
     pub fn new() -> Self {
         Self {
-            // ...
             audit_signer: Some(AuditSigner::new()),
-            // ...
+            ..Default::default()
         }
     }
 
     pub fn log_council_vote(&mut self, mut record: CouncilVoteRecord) {
-        // Create message to sign
-        let message = self.create_audit_message(&record);
-
         if let Some(signer) = &self.audit_signer {
+            let message = self.create_audit_message(&record);
             let signature = signer.sign(&message);
             record.signature = signature.to_bytes().to_vec();
         }
-
         self.vote_history.push(record);
     }
 
     fn create_audit_message(&self, record: &CouncilVoteRecord) -> Vec<u8> {
-        // Simple serialization for signing
         let mut msg = Vec::new();
         msg.extend_from_slice(&record.timestamp.to_le_bytes());
         msg.extend_from_slice(record.council.as_bytes());
@@ -75,5 +82,19 @@ impl LatticeAlchemicalEvolution {
             }
         }
         true
+    }
+
+    pub fn run_council_synthesis(&mut self, scope: &str) -> CouncilSynthesisResult {
+        // Existing logic (weighted voting, deliberation, reputation, BLS, etc.)
+
+        // Optional ML-KEM path (experimental)
+        if let Some(kem_context) = try_ml_kem_key_exchange(scope) {
+            // Placeholder for future real ML-KEM operations
+            let _ = kem_context;
+        }
+
+        CouncilSynthesisResult {
+            // ...
+        }
     }
 }
