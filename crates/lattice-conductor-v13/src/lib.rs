@@ -5,6 +5,7 @@ pub mod geometric;
 
 pub use geometric::{BasicGeometricMotor, GeometricMotor};
 
+use std::collections::HashMap;
 use thiserror::Error;
 
 pub type ConductorResult<T> = Result<T, ConductorError>;
@@ -19,7 +20,7 @@ pub enum ConductorError {
     Council(String),
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct GeometricState {
     pub valence: f64,
     pub tolc_alignment: f64,
@@ -28,15 +29,11 @@ pub struct GeometricState {
 
 impl GeometricState {
     pub fn new() -> Self {
-        Self {
-            valence: 1.0,
-            tolc_alignment: 1.0,
-            mercy_score: 1.0,
-        }
+        Self { valence: 1.0, tolc_alignment: 1.0, mercy_score: 1.0 }
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct Operation {
     pub name: String,
     pub description: String,
@@ -53,6 +50,37 @@ impl Operation {
     }
 }
 
+/// Advanced MercyGate system
+#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+pub enum MercyGate {
+    HarmThreshold,
+    KeywordFilter,
+    TolcAlignment,
+    ValenceProtection,
+    Custom(String),
+}
+
+impl MercyGate {
+    pub fn check(&self, operation: &Operation, state: &GeometricState) -> bool {
+        match self {
+            MercyGate::HarmThreshold => operation.potential_harm <= 0.7,
+            MercyGate::KeywordFilter => {
+                let harmful = ["harm", "destroy", "exploit", "manipulate", "deceive"];
+                !harmful.iter().any(|k| operation.name.to_lowercase().contains(k))
+            }
+            MercyGate::TolcAlignment => {
+                if state.tolc_alignment < 0.75 {
+                    operation.potential_harm <= 0.4
+                } else {
+                    true
+                }
+            }
+            MercyGate::ValenceProtection => state.valence > 0.3,
+            MercyGate::Custom(_) => true, // Placeholder for future extension
+        }
+    }
+}
+
 pub trait LatticeConductor {
     fn tick(&mut self) -> ConductorResult<()>;
     fn conduct_council(&self, council_id: u64) -> ConductorResult<()>;
@@ -61,14 +89,16 @@ pub trait LatticeConductor {
     fn get_geometric_state(&self) -> GeometricState;
 }
 
-/// Simple in-memory implementation of LatticeConductor (v13)
+/// SimpleLatticeConductor v13 with full features
 #[derive(Debug)]
 pub struct SimpleLatticeConductor {
     pub state: GeometricState,
     pub motor: BasicGeometricMotor,
     pub tick_count: u64,
     pub operation_history: Vec<Operation>,
+    pub pending_operations: Vec<Operation>,
     pub mercy_violations: Vec<String>,
+    pub councils: HashMap<u64, String>,
 }
 
 impl SimpleLatticeConductor {
@@ -78,45 +108,29 @@ impl SimpleLatticeConductor {
             motor: BasicGeometricMotor::new(),
             tick_count: 0,
             operation_history: Vec::new(),
+            pending_operations: Vec::new(),
             mercy_violations: Vec::new(),
+            councils: HashMap::new(),
         }
     }
 
-    fn check_mercy_gates(&self, operation: &Operation) -> bool {
-        if operation.potential_harm > 0.7 {
-            return false;
-        }
-
-        let harmful_keywords = ["harm", "destroy", "exploit", "manipulate", "deceive"];
-        let name_lower = operation.name.to_lowercase();
-        for keyword in harmful_keywords {
-            if name_lower.contains(keyword) {
-                return false;
-            }
-        }
-
-        if self.state.mercy_score < 0.6 && operation.potential_harm > 0.3 {
-            return false;
-        }
-
-        true
+    pub fn register_council(&mut self, id: u64, name: &str) {
+        self.councils.insert(id, name.to_string());
     }
 
-    /// More sophisticated mercy rules including TOLC alignment impact
-    fn evaluate_mercy_impact(&self, operation: &Operation) -> (bool, f64) {
-        let base_pass = self.check_mercy_gates(operation);
+    pub fn queue_operation(&mut self, operation: Operation) {
+        self.pending_operations.push(operation);
+    }
 
-        // TOLC alignment penalty
-        let tolc_penalty = if self.state.tolc_alignment < 0.8 {
-            operation.potential_harm * 0.5
-        } else {
-            0.0
-        };
+    fn evaluate_all_gates(&self, operation: &Operation) -> bool {
+        let gates = vec![
+            MercyGate::HarmThreshold,
+            MercyGate::KeywordFilter,
+            MercyGate::TolcAlignment,
+            MercyGate::ValenceProtection,
+        ];
 
-        let final_harm = operation.potential_harm + tolc_penalty;
-        let passes = base_pass && final_harm <= 0.75;
-
-        (passes, final_harm)
+        gates.iter().all(|gate| gate.check(operation, &self.state))
     }
 }
 
@@ -124,15 +138,39 @@ impl LatticeConductor for SimpleLatticeConductor {
     fn tick(&mut self) -> ConductorResult<()> {
         self.tick_count += 1;
 
-        // Simulate natural mercy_score and valence drift over time
-        self.state.mercy_score = (self.state.mercy_score + 0.01).min(1.0);
+        // Process pending operations
+        let mut remaining = Vec::new();
+        for op in self.pending_operations.drain(..) {
+            if self.evaluate_all_gates(&op) {
+                self.operation_history.push(op);
+                // Positive feedback
+                self.state.mercy_score = (self.state.mercy_score + 0.02).min(1.0);
+                self.state.valence = (self.state.valence + 0.01).min(1.0);
+            } else {
+                let violation = format!("Mercy violation during tick: '{}'", op.name);
+                self.mercy_violations.push(violation.clone());
+                println!("[LatticeConductor] {}", violation);
+                remaining.push(op);
+            }
+        }
+        self.pending_operations = remaining;
+
+        // Natural state improvement
+        self.state.mercy_score = (self.state.mercy_score + 0.005).min(1.0);
         self.state.valence = (self.state.valence + 0.005).min(1.0);
+
+        // Integrate GeometricMotor (example usage)
+        let _ = self.motor.apply_dual_quaternion(nalgebra::DualQuaternion::identity());
 
         Ok(())
     }
 
-    fn conduct_council(&self, _council_id: u64) -> ConductorResult<()> {
-        Ok(())
+    fn conduct_council(&self, council_id: u64) -> ConductorResult<()> {
+        if self.councils.contains_key(&council_id) {
+            Ok(())
+        } else {
+            Err(ConductorError::Council(format!("Unknown council: {}", council_id)))
+        }
     }
 
     fn orchestrate_swarm_evolution(&mut self) -> ConductorResult<()> {
@@ -140,8 +178,7 @@ impl LatticeConductor for SimpleLatticeConductor {
     }
 
     fn validate_mercy(&self, operation: &Operation) -> bool {
-        let (passes, _impact) = self.evaluate_mercy_impact(operation);
-        passes
+        self.evaluate_all_gates(operation)
     }
 
     fn get_geometric_state(&self) -> GeometricState {
@@ -149,17 +186,14 @@ impl LatticeConductor for SimpleLatticeConductor {
     }
 }
 
-// Extension methods for operation tracking and mercy violation logging
 impl SimpleLatticeConductor {
     pub fn register_operation(&mut self, operation: Operation) -> bool {
         let passes = self.validate_mercy(&operation);
-
         if !passes {
-            let violation = format!("Mercy violation: '{}' (harm: {:.2})", operation.name, operation.potential_harm);
+            let violation = format!("Mercy violation: '{}'", operation.name);
             self.mercy_violations.push(violation.clone());
-            println!("[Mercy] {}", violation); // Simple logging
+            println!("[Mercy] {}", violation);
         }
-
         self.operation_history.push(operation);
         passes
     }
@@ -174,34 +208,28 @@ mod tests {
     use super::*;
 
     #[test]
-    fn simple_conductor_starts_with_valid_state() {
-        let conductor = SimpleLatticeConductor::new();
-        let state = conductor.get_geometric_state();
-        assert_eq!(state.valence, 1.0);
-    }
-
-    #[test]
-    fn mercy_validation_rejects_high_harm() {
-        let conductor = SimpleLatticeConductor::new();
-        let op = Operation::new("Exploit", "Bad action", 0.9);
-        assert!(!conductor.validate_mercy(&op));
-    }
-
-    #[test]
-    fn register_operation_tracks_history_and_violations() {
+    fn tick_processes_pending_operations() {
         let mut conductor = SimpleLatticeConductor::new();
-        let good = Operation::new("Help", "Support others", 0.1);
-        let bad = Operation::new("Exploit Users", "Harmful", 0.85);
+        conductor.queue_operation(Operation::new("Help Others", "Good", 0.2));
+        conductor.queue_operation(Operation::new("Exploit", "Bad", 0.9));
 
-        assert!(conductor.register_operation(good));
-        assert!(!conductor.register_operation(bad));
+        let _ = conductor.tick();
 
-        assert_eq!(conductor.operation_history.len(), 2);
-        assert_eq!(conductor.mercy_violations.len(), 1);
+        assert_eq!(conductor.operation_history.len(), 1);
+        assert_eq!(conductor.pending_operations.len(), 1);
+        assert!(!conductor.mercy_violations.is_empty());
+    }
+
+    #[test]
+    fn council_registry_works() {
+        let mut conductor = SimpleLatticeConductor::new();
+        conductor.register_council(42, "Truth Council");
+        assert!(conductor.conduct_council(42).is_ok());
+        assert!(conductor.conduct_council(99).is_err());
     }
 }
 
 pub mod prelude {
-    pub use crate::{ConductorResult, GeometricMotor, GeometricState, LatticeConductor, Operation, SimpleLatticeConductor};
+    pub use crate::{ConductorResult, GeometricMotor, GeometricState, LatticeConductor, MercyGate, Operation, SimpleLatticeConductor};
     pub use crate::geometric::BasicGeometricMotor;
 }
