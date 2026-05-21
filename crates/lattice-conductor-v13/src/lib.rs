@@ -80,6 +80,12 @@ impl MercyGate {
     }
 }
 
+/// Trait for bridging with PATSAGi councils
+pub trait PatsagiCouncilBridge {
+    fn request_consensus(&self, operation: &Operation) -> bool;
+    fn report_state(&self, state: &GeometricState);
+}
+
 pub trait LatticeConductor {
     fn tick(&mut self) -> ConductorResult<()>;
     fn conduct_council(&self, council_id: u64) -> ConductorResult<()>;
@@ -96,7 +102,6 @@ pub struct ConductorMetrics {
     pub councils_registered: u64,
 }
 
-/// Basic Quantum Swarm stub for future deep integration
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct QuantumSwarm {
     pub active_branches: u32,
@@ -212,8 +217,6 @@ impl LatticeConductor for SimpleLatticeConductor {
         self.state.tolc_alignment = (self.state.tolc_alignment + 0.01).min(1.0);
 
         self.perform_self_evolution_step();
-
-        // Quantum Swarm evolution during tick
         self.quantum_swarm.evolve();
 
         self.state.mercy_score = (self.state.mercy_score + 0.005).min(1.0);
@@ -268,7 +271,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn quantum_swarm_evolves_during_tick() {
+    fn quantum_swarm_evolves() {
         let mut conductor = SimpleLatticeConductor::new();
         let initial = conductor.quantum_swarm.active_branches;
         let _ = conductor.tick();
