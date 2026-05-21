@@ -1,5 +1,7 @@
 /// Multi-Agent Coordination Module
-/// Phase 2: Pluggable Coordination Strategies
+///
+/// This module explores coordination between multiple LatticeConductors.
+/// It supports pluggable strategies and mercy-gated group influence.
 
 use crate::{ConductorEvent, ConductorResult, SimpleLatticeConductor};
 use std::collections::VecDeque;
@@ -8,20 +10,23 @@ use std::collections::VecDeque;
 // COORDINATION STRATEGY TRAIT
 // ============================================================================
 
-/// Strategy that defines how multiple conductors coordinate with each other
+/// Defines how a group of conductors should influence each other.
+///
+/// Strategies are responsible for applying coordination effects
+/// (such as evolution alignment, parameter influence, etc).
 pub trait CoordinationStrategy {
-    /// Apply coordination influence across the group of conductors
+    /// Apply coordination effects to the group of conductors.
     fn apply(&self, conductors: &mut [SimpleLatticeConductor], strength: f64);
 
-    /// Name of the strategy (for debugging/logging)
+    /// Human-readable name of the strategy.
     fn name(&self) -> &'static str;
 }
 
 // ============================================================================
-// CONCRETE STRATEGIES
+// BUILT-IN STRATEGIES
 // ============================================================================
 
-/// Simple averaging strategy - conductors gently pull toward group average
+/// Conductors gently average their evolution levels.
 pub struct AverageInfluenceStrategy;
 
 impl CoordinationStrategy for AverageInfluenceStrategy {
@@ -44,7 +49,7 @@ impl CoordinationStrategy for AverageInfluenceStrategy {
     }
 }
 
-/// Mercy-weighted strategy - conductors with higher mercy have more influence
+/// Higher-mercy conductors have stronger influence on the group average.
 pub struct MercyWeightedStrategy;
 
 impl CoordinationStrategy for MercyWeightedStrategy {
@@ -75,7 +80,7 @@ impl CoordinationStrategy for MercyWeightedStrategy {
     }
 }
 
-/// Leader-Follower strategy (first conductor acts as leader)
+/// First conductor acts as leader. Others follow its evolution level.
 pub struct LeaderFollowerStrategy;
 
 impl CoordinationStrategy for LeaderFollowerStrategy {
@@ -98,15 +103,19 @@ impl CoordinationStrategy for LeaderFollowerStrategy {
 }
 
 // ============================================================================
-// MULTI CONDUCTOR SIMULATION (with pluggable strategies)
+// MULTI-CONDUCTOR SIMULATION
 // ============================================================================
 
+/// Trait for anything that can coordinate multiple conductors.
 pub trait ConductorCoordinator {
     fn coordinate_step(&mut self) -> ConductorResult<()>;
     fn conductor_count(&self) -> usize;
     fn set_coordination_strength(&mut self, strength: f64);
 }
 
+/// Simulation that runs multiple conductors together with pluggable coordination strategies.
+///
+/// Coordination is mercy-gated: influence is only applied when average mercy is sufficiently high.
 pub struct MultiConductorSimulation {
     pub conductors: Vec<SimpleLatticeConductor>,
     pub coordination_strength: f64,
@@ -141,15 +150,20 @@ impl MultiConductorSimulation {
         self.strategy = strategy;
     }
 
+    /// Runs one coordinated step across all conductors.
+    ///
+    /// This includes individual ticking + strategy application (when mercy allows).
     pub fn coordinated_tick(&mut self) -> ConductorResult<()> {
         if self.conductors.is_empty() {
             return Ok(());
         }
 
+        // Tick all conductors independently first
         for conductor in &mut self.conductors {
             let _ = conductor.tick();
         }
 
+        // Only apply coordination if group mercy is healthy
         let avg_mercy: f64 = self.conductors
             .iter()
             .map(|c| c.state.mercy_score)
@@ -173,19 +187,5 @@ impl MultiConductorSimulation {
 
     pub fn set_coordination_strength(&mut self, strength: f64) {
         self.coordination_strength = strength.clamp(0.0, 1.0);
-    }
-}
-
-impl ConductorCoordinator for MultiConductorSimulation {
-    fn coordinate_step(&mut self) -> ConductorResult<()> {
-        self.coordinated_tick()
-    }
-
-    fn conductor_count(&self) -> usize {
-        self.conductors.len()
-    }
-
-    fn set_coordination_strength(&mut self, strength: f64) {
-        self.set_coordination_strength(strength);
     }
 }
