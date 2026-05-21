@@ -23,6 +23,7 @@ pub enum ConductorError {
     Persistence(String),
 }
 
+/// Core geometric + mercy + evolution state of the lattice
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct GeometricState {
     pub valence: f64,
@@ -50,6 +51,7 @@ impl Operation {
     }
 }
 
+/// Mercy gates with dynamic strictness influenced by QuantumSwarm coherence
 #[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub enum MercyGate {
     HarmThreshold,
@@ -154,6 +156,7 @@ pub struct ConductorMetrics {
     pub councils_registered: u64,
 }
 
+/// Quantum Swarm with coherence that influences multiple systems
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct QuantumSwarm {
     pub active_branches: u32,
@@ -199,7 +202,7 @@ pub enum ConductorEvent {
     QuantumBranchSplit { new_branches: u32 },
 }
 
-/// Observer trait with filtering and basic priority support
+/// Observer with filtering and priority
 pub trait ConductorObserver {
     fn on_event(&self, event: &ConductorEvent);
 
@@ -207,7 +210,6 @@ pub trait ConductorObserver {
         true
     }
 
-    /// Priority for ordering (higher = notified earlier). Default = 0
     fn priority(&self) -> i32 {
         0
     }
@@ -254,7 +256,6 @@ impl SimpleLatticeConductor {
 
     pub fn register_observer(&mut self, observer: Box<dyn ConductorObserver + Send + Sync>) {
         self.observers.push(observer);
-        // Keep observers sorted by priority (descending)
         self.observers.sort_by_key(|o| std::cmp::Reverse(o.priority()));
     }
 
@@ -283,6 +284,7 @@ impl SimpleLatticeConductor {
         passes
     }
 
+    /// Self-evolution with swarm-influenced rate
     fn perform_self_evolution_step(&mut self) {
         let evolution_boost = (self.quantum_swarm.coherence - 0.5) * 0.03;
         if self.state.mercy_score > 0.75 && self.state.valence > 0.65 {
