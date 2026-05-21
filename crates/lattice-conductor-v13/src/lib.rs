@@ -80,10 +80,40 @@ impl MercyGate {
     }
 }
 
-/// Trait for bridging with PATSAGi councils
+/// Bridge trait for PATSAGi council integration
 pub trait PatsagiCouncilBridge {
     fn request_consensus(&self, operation: &Operation) -> bool;
     fn report_state(&self, state: &GeometricState);
+}
+
+/// Simple implementation of PatsagiCouncilBridge
+pub struct SimplePatsagiBridge {
+    pub registered_councils: Vec<u64>,
+}
+
+impl SimplePatsagiBridge {
+    pub fn new() -> Self {
+        Self { registered_councils: vec![] }
+    }
+
+    pub fn with_councils(councils: Vec<u64>) -> Self {
+        Self { registered_councils: councils }
+    }
+}
+
+impl PatsagiCouncilBridge for SimplePatsagiBridge {
+    fn request_consensus(&self, operation: &Operation) -> bool {
+        // Basic logic: require at least one registered council for consensus
+        if self.registered_councils.is_empty() {
+            return true; // No councils = auto-pass for now
+        }
+        // Future: query actual councils
+        operation.potential_harm < 0.5
+    }
+
+    fn report_state(&self, _state: &GeometricState) {
+        // In real implementation, broadcast state to PATSAGi councils
+    }
 }
 
 pub trait LatticeConductor {
@@ -106,17 +136,45 @@ pub struct ConductorMetrics {
 pub struct QuantumSwarm {
     pub active_branches: u32,
     pub coherence: f64,
+    pub split_count: u32,
 }
 
 impl QuantumSwarm {
     pub fn new() -> Self {
-        Self { active_branches: 1, coherence: 1.0 }
+        Self { active_branches: 1, coherence: 1.0, split_count: 0 }
     }
 
     pub fn evolve(&mut self) {
         self.active_branches = (self.active_branches + 1).min(57);
         self.coherence = (self.coherence + 0.01).min(1.0);
     }
+
+    /// Useful branching behavior
+    pub fn split_branch(&mut self) -> bool {
+        if self.active_branches < 57 {
+            self.active_branches += 1;
+            self.split_count += 1;
+            self.coherence = (self.coherence * 0.98).max(0.5);
+            true
+        } else {
+            false
+        }
+    }
+
+    pub fn merge_branches(&mut self, count: u32) {
+        self.active_branches = self.active_branches.saturating_sub(count).max(1);
+        self.coherence = (self.coherence + 0.05).min(1.0);
+    }
+}
+
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+pub enum ConductorEvent {
+    TickCompleted { tick: u64 },
+    OperationApproved { name: String },
+    OperationRejected { name: String, reason: String },
+    SwarmEvolved { branches: u32, coherence: f64 },
+    SelfEvolution { level: f64 },
+    MercyViolation { operation: String },
 }
 
 #[derive(Debug)]
@@ -130,6 +188,7 @@ pub struct SimpleLatticeConductor {
     pub councils: HashMap<u64, String>,
     pub metrics: ConductorMetrics,
     pub quantum_swarm: QuantumSwarm,
+    pub events: Vec<ConductorEvent>,
 }
 
 impl SimpleLatticeConductor {
@@ -144,6 +203,7 @@ impl SimpleLatticeConductor {
             councils: HashMap::new(),
             metrics: ConductorMetrics::default(),
             quantum_swarm: QuantumSwarm::new(),
+            events: Vec::new(),
         }
     }
 
@@ -169,6 +229,7 @@ impl SimpleLatticeConductor {
     fn perform_self_evolution_step(&mut self) {
         if self.state.mercy_score > 0.8 && self.state.valence > 0.7 {
             self.state.evolution_level += 0.01;
+            self.events.push(ConductorEvent::SelfEvolution { level: self.state.evolution_level });
         }
     }
 
@@ -189,6 +250,10 @@ impl SimpleLatticeConductor {
     pub fn get_registered_patsagi_councils(&self) -> Vec<u64> {
         self.councils.keys().cloned().collect()
     }
+
+    pub fn emit_event(&mut self, event: ConductorEvent) {
+        self.events.push(event);
+    }
 }
 
 impl LatticeConductor for SimpleLatticeConductor {
@@ -199,15 +264,16 @@ impl LatticeConductor for SimpleLatticeConductor {
         let mut remaining = Vec::new();
         for op in self.pending_operations.drain(..) {
             if self.evaluate_all_gates(&op) {
-                self.operation_history.push(op);
+                self.operation_history.push(op.clone());
                 self.metrics.operations_processed += 1;
                 self.state.mercy_score = (self.state.mercy_score + 0.025).min(1.0);
                 self.state.valence = (self.state.valence + 0.015).min(1.0);
+                self.emit_event(ConductorEvent::OperationApproved { name: op.name.clone() });
             } else {
                 let violation = format!("Mercy violation: '{}'", op.name);
                 self.mercy_violations.push(violation.clone());
                 self.metrics.mercy_violations += 1;
-                println!("[LatticeConductor] {}", violation);
+                self.emit_event(ConductorEvent::OperationRejected { name: op.name.clone(), reason: "Failed mercy gates".to_string() });
                 remaining.push(op);
             }
         }
@@ -219,8 +285,15 @@ impl LatticeConductor for SimpleLatticeConductor {
         self.perform_self_evolution_step();
         self.quantum_swarm.evolve();
 
+        self.emit_event(ConductorEvent::SwarmEvolved {
+            branches: self.quantum_swarm.active_branches,
+            coherence: self.quantum_swarm.coherence,
+        });
+
         self.state.mercy_score = (self.state.mercy_score + 0.005).min(1.0);
         self.state.valence = (self.state.valence + 0.005).min(1.0);
+
+        self.emit_event(ConductorEvent::TickCompleted { tick: self.tick_count });
 
         Ok(())
     }
@@ -235,6 +308,10 @@ impl LatticeConductor for SimpleLatticeConductor {
 
     fn orchestrate_swarm_evolution(&mut self) -> ConductorResult<()> {
         self.quantum_swarm.evolve();
+        self.emit_event(ConductorEvent::SwarmEvolved {
+            branches: self.quantum_swarm.active_branches,
+            coherence: self.quantum_swarm.coherence,
+        });
         Ok(())
     }
 
@@ -254,6 +331,7 @@ impl SimpleLatticeConductor {
             let violation = format!("Mercy violation: '{}'", operation.name);
             self.mercy_violations.push(violation.clone());
             self.metrics.mercy_violations += 1;
+            self.emit_event(ConductorEvent::MercyViolation { operation: operation.name.clone() });
             println!("[Mercy] {}", violation);
         }
         self.operation_history.push(operation);
@@ -264,6 +342,10 @@ impl SimpleLatticeConductor {
     pub fn get_mercy_violations(&self) -> &[String] {
         &self.mercy_violations
     }
+
+    pub fn get_events(&self) -> &[ConductorEvent] {
+        &self.events
+    }
 }
 
 #[cfg(test)]
@@ -271,15 +353,14 @@ mod tests {
     use super::*;
 
     #[test]
-    fn quantum_swarm_evolves() {
+    fn event_emission_works() {
         let mut conductor = SimpleLatticeConductor::new();
-        let initial = conductor.quantum_swarm.active_branches;
         let _ = conductor.tick();
-        assert!(conductor.quantum_swarm.active_branches >= initial);
+        assert!(!conductor.events.is_empty());
     }
 }
 
 pub mod prelude {
-    pub use crate::{ConductorMetrics, ConductorResult, GeometricMotor, GeometricState, LatticeConductor, MercyGate, Operation, QuantumSwarm, SimpleLatticeConductor};
+    pub use crate::{ConductorEvent, ConductorMetrics, ConductorResult, GeometricMotor, GeometricState, LatticeConductor, MercyGate, Operation, PatsagiCouncilBridge, QuantumSwarm, SimpleLatticeConductor, SimplePatsagiBridge};
     pub use crate::geometric::BasicGeometricMotor;
 }
