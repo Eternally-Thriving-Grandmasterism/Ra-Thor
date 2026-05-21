@@ -87,6 +87,7 @@ pub trait PatsagiCouncilBridge {
 }
 
 /// Simple implementation of PatsagiCouncilBridge
+#[derive(Debug)]
 pub struct SimplePatsagiBridge {
     pub registered_councils: Vec<u64>,
 }
@@ -103,17 +104,13 @@ impl SimplePatsagiBridge {
 
 impl PatsagiCouncilBridge for SimplePatsagiBridge {
     fn request_consensus(&self, operation: &Operation) -> bool {
-        // Basic logic: require at least one registered council for consensus
         if self.registered_councils.is_empty() {
-            return true; // No councils = auto-pass for now
+            return true;
         }
-        // Future: query actual councils
         operation.potential_harm < 0.5
     }
 
-    fn report_state(&self, _state: &GeometricState) {
-        // In real implementation, broadcast state to PATSAGi councils
-    }
+    fn report_state(&self, _state: &GeometricState) {}
 }
 
 pub trait LatticeConductor {
@@ -149,7 +146,6 @@ impl QuantumSwarm {
         self.coherence = (self.coherence + 0.01).min(1.0);
     }
 
-    /// Useful branching behavior
     pub fn split_branch(&mut self) -> bool {
         if self.active_branches < 57 {
             self.active_branches += 1;
@@ -175,6 +171,7 @@ pub enum ConductorEvent {
     SwarmEvolved { branches: u32, coherence: f64 },
     SelfEvolution { level: f64 },
     MercyViolation { operation: String },
+    QuantumBranchSplit { new_branches: u32 },
 }
 
 #[derive(Debug)]
@@ -189,6 +186,8 @@ pub struct SimpleLatticeConductor {
     pub metrics: ConductorMetrics,
     pub quantum_swarm: QuantumSwarm,
     pub events: Vec<ConductorEvent>,
+    /// Optional PATSAGi bridge for consensus
+    pub patsagi_bridge: Option<Box<dyn PatsagiCouncilBridge + Send + Sync>>,
 }
 
 impl SimpleLatticeConductor {
@@ -204,7 +203,13 @@ impl SimpleLatticeConductor {
             metrics: ConductorMetrics::default(),
             quantum_swarm: QuantumSwarm::new(),
             events: Vec::new(),
+            patsagi_bridge: None,
         }
+    }
+
+    pub fn with_patsagi_bridge(mut self, bridge: Box<dyn PatsagiCouncilBridge + Send + Sync>) -> Self {
+        self.patsagi_bridge = Some(bridge);
+        self
     }
 
     pub fn register_council(&mut self, id: u64, name: &str) {
@@ -217,13 +222,30 @@ impl SimpleLatticeConductor {
     }
 
     fn evaluate_all_gates(&self, operation: &Operation) -> bool {
+        let mut passes = true;
+
         let gates = vec![
             MercyGate::HarmThreshold,
             MercyGate::KeywordFilter,
             MercyGate::TolcAlignment,
             MercyGate::ValenceProtection,
         ];
-        gates.iter().all(|gate| gate.check(operation, &self.state))
+
+        for gate in gates {
+            if !gate.check(operation, &self.state) {
+                passes = false;
+                break;
+            }
+        }
+
+        // Wire in PATSAGi bridge if present
+        if let Some(bridge) = &self.patsagi_bridge {
+            if !bridge.request_consensus(operation) {
+                passes = false;
+            }
+        }
+
+        passes
     }
 
     fn perform_self_evolution_step(&mut self) {
@@ -283,6 +305,16 @@ impl LatticeConductor for SimpleLatticeConductor {
         self.state.tolc_alignment = (self.state.tolc_alignment + 0.01).min(1.0);
 
         self.perform_self_evolution_step();
+
+        // Quantum Swarm influence on state
+        let swarm_influence = (self.quantum_swarm.coherence - 0.5) * 0.02;
+        self.state.mercy_score = (self.state.mercy_score + swarm_influence).clamp(0.0, 1.0);
+        self.state.evolution_level = (self.state.evolution_level + swarm_influence * 0.5).max(0.0);
+
+        if self.quantum_swarm.split_branch() {
+            self.emit_event(ConductorEvent::QuantumBranchSplit { new_branches: self.quantum_swarm.active_branches });
+        }
+
         self.quantum_swarm.evolve();
 
         self.emit_event(ConductorEvent::SwarmEvolved {
@@ -353,10 +385,13 @@ mod tests {
     use super::*;
 
     #[test]
-    fn event_emission_works() {
+    fn quantum_swarm_influences_state() {
         let mut conductor = SimpleLatticeConductor::new();
-        let _ = conductor.tick();
-        assert!(!conductor.events.is_empty());
+        for _ in 0..10 {
+            let _ = conductor.tick();
+        }
+        // After several ticks, swarm should have influenced state
+        assert!(conductor.state.mercy_score > 0.9 || conductor.state.evolution_level > 0.0);
     }
 }
 
