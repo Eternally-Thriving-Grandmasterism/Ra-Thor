@@ -36,7 +36,7 @@ impl GeometricState {
     }
 }
 
-/// Adaptive parameters with meta + meta-meta adaptation layers
+/// Adaptive parameters with 4-layer adaptation (meta-meta-meta)
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct AdaptiveParameters {
     // Layer 1: Core rates
@@ -44,13 +44,16 @@ pub struct AdaptiveParameters {
     pub evolution_rate: f64,
     pub swarm_influence_strength: f64,
 
-    // Layer 2: Meta-adaptation speeds (how fast Layer 1 changes)
+    // Layer 2: Meta speeds
     pub mercy_recovery_adaptation_speed: f64,
     pub evolution_rate_adaptation_speed: f64,
 
-    // Layer 3 (Meta-Meta): Controls how Layer 2 meta-speeds adapt
-    pub meta_speed_decay_factor: f64,     // Multiplier when system is healthy
-    pub meta_speed_increase_factor: f64,  // Multiplier when system is stressed
+    // Layer 3: Meta-Meta factors (how meta-speeds adapt)
+    pub meta_speed_decay_factor: f64,
+    pub meta_speed_increase_factor: f64,
+
+    // Layer 4 (Meta-Meta-Meta): How Layer 3 factors themselves adapt
+    pub meta_factor_adaptation_speed: f64,
 }
 
 impl AdaptiveParameters {
@@ -65,9 +68,12 @@ impl AdaptiveParameters {
             mercy_recovery_adaptation_speed: 0.0002,
             evolution_rate_adaptation_speed: 0.0001,
 
-            // Layer 3 (Meta-Meta)
+            // Layer 3
             meta_speed_decay_factor: 0.995,
             meta_speed_increase_factor: 1.008,
+
+            // Layer 4
+            meta_factor_adaptation_speed: 0.00005,
         }
     }
 }
@@ -334,7 +340,7 @@ impl SimpleLatticeConductor {
         passes
     }
 
-    /// Self-evolution + full meta + meta-meta adaptation
+    /// Self-evolution with full 4-layer adaptation (including meta-meta-meta)
     fn perform_self_evolution_step(&mut self) {
         let p = &mut self.adaptive_params;
 
@@ -348,7 +354,7 @@ impl SimpleLatticeConductor {
         let coherence = self.quantum_swarm.coherence;
         let valence = self.state.valence;
 
-        // === Layer 1 adaptation (using Layer 2 meta-speeds) ===
+        // === Layer 1 adaptation (using Layer 2) ===
         if coherence > 0.75 && valence > 0.7 {
             p.evolution_rate += p.evolution_rate_adaptation_speed;
             p.evolution_rate = p.evolution_rate.min(0.06);
@@ -359,21 +365,33 @@ impl SimpleLatticeConductor {
             p.mercy_recovery_rate = p.mercy_recovery_rate.min(0.07);
         }
 
-        // === Layer 3: Adaptive decay/increase on meta-speeds (Meta-Meta) ===
+        // === Layer 3: Adaptive adjustment of meta-speeds (using Layer 4) ===
         if coherence > 0.8 && valence > 0.75 {
-            // Healthy system → decay meta-speeds (stabilization)
+            // Healthy → decay meta-speeds
             p.evolution_rate_adaptation_speed *= p.meta_speed_decay_factor;
             p.mercy_recovery_adaptation_speed *= p.meta_speed_decay_factor;
 
             p.evolution_rate_adaptation_speed = p.evolution_rate_adaptation_speed.max(0.00002);
             p.mercy_recovery_adaptation_speed = p.mercy_recovery_adaptation_speed.max(0.00003);
         } else if self.metrics.mercy_violations > 4 || coherence < 0.6 {
-            // Stressed system → increase meta-speeds (faster adaptation)
+            // Stressed → increase meta-speeds
             p.evolution_rate_adaptation_speed *= p.meta_speed_increase_factor;
             p.mercy_recovery_adaptation_speed *= p.meta_speed_increase_factor;
 
             p.evolution_rate_adaptation_speed = p.evolution_rate_adaptation_speed.min(0.001);
             p.mercy_recovery_adaptation_speed = p.mercy_recovery_adaptation_speed.min(0.0015);
+        }
+
+        // === Layer 4 (Meta-Meta-Meta): Slowly adapt the meta-factors themselves ===
+        // This is the deepest layer currently implemented
+        let meta_adapt = p.meta_factor_adaptation_speed;
+
+        if coherence > 0.85 && valence > 0.8 {
+            // Very healthy long-term → make decay stronger (more stabilization)
+            p.meta_speed_decay_factor = (p.meta_speed_decay_factor - meta_adapt).max(0.98);
+        } else if self.metrics.mercy_violations > 6 || coherence < 0.55 {
+            // Chronic stress → make increase factor stronger (more aggressive response)
+            p.meta_speed_increase_factor = (p.meta_speed_increase_factor + meta_adapt * 2.0).min(1.02);
         }
 
         // Gentle drift of swarm influence
