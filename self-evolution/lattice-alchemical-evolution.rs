@@ -1,59 +1,78 @@
 //! Ra-Thor™ Lattice Alchemical Evolution Protocol
-//! v2.7 — Cryptographic Signatures on Audit Logs
-//! Tamper-evident logging using chained hashes
+//! v2.8 — ed25519 Digital Signatures on Audit Logs
+//! Proper public-key cryptographic signing
 //! 100% Proprietary — AG-SML v1.0
 
-use sha2::{Sha256, Digest};
+use ed25519_dalek::{SigningKey, VerifyingKey, Signature, Signer, Verifier};
+use rand::rngs::OsRng;
 
-#[derive(Debug, Clone)]
-pub struct CouncilVoteRecord {
-    pub timestamp: u64,
-    pub council: String,
-    pub valence_contribution: f64,
-    pub approved: bool,
-    pub vetoed: bool,
-    pub effective_weight: f64,
-    pub reputation_at_time: f64,
-    pub signature: Vec<u8>,           // Cryptographic signature / chain hash
-    pub previous_hash: Vec<u8>,       // Hash of previous record for chaining
+pub struct AuditSigner {
+    signing_key: SigningKey,
+    pub verifying_key: VerifyingKey,
+}
+
+impl AuditSigner {
+    pub fn new() -> Self {
+        let mut csprng = OsRng;
+        let signing_key = SigningKey::generate(&mut csprng);
+        let verifying_key = signing_key.verifying_key();
+        Self { signing_key, verifying_key }
+    }
+
+    pub fn sign(&self, message: &[u8]) -> Signature {
+        self.signing_key.sign(message)
+    }
+
+    pub fn verify(&self, message: &[u8], signature: &Signature) -> bool {
+        self.verifying_key.verify(message, signature).is_ok()
+    }
 }
 
 impl LatticeAlchemicalEvolution {
-    /// Sign a log entry using chained hashing (tamper-evident)
-    fn sign_record(&self, record: &CouncilVoteRecord, previous_hash: &[u8]) -> Vec<u8> {
-        let mut hasher = Sha256::new();
-        hasher.update(previous_hash);
-        hasher.update(record.timestamp.to_le_bytes());
-        hasher.update(record.council.as_bytes());
-        hasher.update(record.valence_contribution.to_le_bytes());
-        hasher.update([record.approved as u8, record.vetoed as u8]);
-        hasher.update(record.effective_weight.to_le_bytes());
-        hasher.update(record.reputation_at_time.to_le_bytes());
-        hasher.finalize().to_vec()
+    pub fn new() -> Self {
+        Self {
+            // ...
+            audit_signer: Some(AuditSigner::new()),
+            // ...
+        }
     }
 
     pub fn log_council_vote(&mut self, mut record: CouncilVoteRecord) {
-        let previous_hash = self.vote_history
-            .last()
-            .map(|r| r.signature.clone())
-            .unwrap_or_else(|| vec![0u8; 32]);
+        // Create message to sign
+        let message = self.create_audit_message(&record);
 
-        record.previous_hash = previous_hash.clone();
-        record.signature = self.sign_record(&record, &previous_hash);
+        if let Some(signer) = &self.audit_signer {
+            let signature = signer.sign(&message);
+            record.signature = signature.to_bytes().to_vec();
+        }
 
         self.vote_history.push(record);
     }
 
-    /// Verify the integrity of the entire vote history chain
-    pub fn verify_audit_chain(&self) -> bool {
-        let mut prev_hash = vec![0u8; 32];
+    fn create_audit_message(&self, record: &CouncilVoteRecord) -> Vec<u8> {
+        // Simple serialization for signing
+        let mut msg = Vec::new();
+        msg.extend_from_slice(&record.timestamp.to_le_bytes());
+        msg.extend_from_slice(record.council.as_bytes());
+        msg.extend_from_slice(&record.valence_contribution.to_le_bytes());
+        msg.push(record.approved as u8);
+        msg.push(record.vetoed as u8);
+        msg.extend_from_slice(&record.effective_weight.to_le_bytes());
+        msg
+    }
 
-        for record in &self.vote_history {
-            let computed = self.sign_record(record, &prev_hash);
-            if computed != record.signature {
-                return false;
+    pub fn verify_audit_log(&self) -> bool {
+        if let Some(signer) = &self.audit_signer {
+            for record in &self.vote_history {
+                let message = self.create_audit_message(record);
+                if let Ok(sig) = Signature::from_bytes(&record.signature) {
+                    if signer.verify(&message, &sig).is_err() {
+                        return false;
+                    }
+                } else {
+                    return false;
+                }
             }
-            prev_hash = record.signature.clone();
         }
         true
     }
