@@ -1,13 +1,11 @@
 //! Ra-Thor™ BLS12-381 Signature Aggregation (Experimental)
 //! Primary curve: BLS12-381
-//! Provides interfaces and hooks for multi-council BLS aggregation
+//! Provides interfaces and integration hooks for multi-council BLS aggregation
 //! 100% Proprietary — AG-SML v1.0
 
-/// BLS12-381 is chosen as the primary curve for the following reasons:
-/// - Strong ~128-bit security level
-/// - Excellent signature aggregation properties
-/// - Modern standard (used in Ethereum 2.0, Filecoin, etc.)
-/// - Better future-proofing compared to BN254
+use crate::patsagi_deliberation::DeliberationSession;
+
+/// BLS12-381 is chosen as the primary curve for governance aggregation.
 
 #[derive(Debug, Clone)]
 pub struct BlsPublicKey(pub Vec<u8>);
@@ -15,7 +13,6 @@ pub struct BlsPublicKey(pub Vec<u8>);
 #[derive(Debug, Clone)]
 pub struct BlsSignature(pub Vec<u8>);
 
-/// Trait defining BLS aggregation behavior
 pub trait BlsAggregator {
     fn aggregate(&self, signatures: &[BlsSignature]) -> Option<BlsSignature>;
     fn verify_aggregated(
@@ -26,29 +23,11 @@ pub trait BlsAggregator {
     ) -> bool;
 }
 
-/// Experimental stub implementation
-///
-/// Implementation Options:
-///
-/// 1. **bls12_381 crate** (recommended for simplicity)
-///    - Lightweight, focused on BLS12-381
-///    - Good for signature aggregation
-///    - Easier to integrate
-///
-/// 2. **arkworks (ark-bls12-381 + ark-ec)**
-///    - More flexible and powerful
-///    - Better for advanced ZK + pairing work
-///    - Heavier dependency
-///
-/// 3. **blspy** (Python) - Not suitable for Rust core
-///
-/// Current decision: Start with interface. Full implementation can use `bls12_381` crate.
 pub struct ExperimentalBlsAggregator;
 
 impl BlsAggregator for ExperimentalBlsAggregator {
     fn aggregate(&self, _signatures: &[BlsSignature]) -> Option<BlsSignature> {
-        // TODO: Implement using bls12_381 crate
-        None
+        None // TODO: Implement with bls12_381 crate
     }
 
     fn verify_aggregated(
@@ -57,12 +36,24 @@ impl BlsAggregator for ExperimentalBlsAggregator {
         _message: &[u8],
         _aggregated_signature: &BlsSignature,
     ) -> bool {
-        // TODO: Implement using bls12_381 crate
-        false
+        false // TODO: Implement with bls12_381 crate
     }
 }
 
-/// Helper to prepare messages for BLS signing
-pub fn prepare_for_bls_signing(council_id: &str, message: &str) -> String {
-    format!("BLS12-381|{}|{}", council_id, message)
+/// Prepare a deliberation result for BLS signing
+pub fn prepare_deliberation_for_bls(deliberation: &DeliberationSession) -> String {
+    format!(
+        "BLS12-381|topic={}|consensus={:.4}|messages={}",
+        deliberation.topic,
+        deliberation.final_consensus.unwrap_or(0.5),
+        deliberation.messages.len()
+    )
+}
+
+/// Create a BLS-signable message from council synthesis data
+pub fn create_bls_message(scope: &str, readiness: f64, participating_councils: usize) -> String {
+    format!(
+        "BLS12-381|scope={}|readiness={:.2}|councils={}",
+        scope, readiness, participating_councils
+    )
 }
