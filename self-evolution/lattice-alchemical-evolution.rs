@@ -1,6 +1,6 @@
 //! Ra-Thor™ Lattice Alchemical Evolution Protocol
 //! feat/patsagi-governance-v2
-//! Full restoration: ed25519 audit signing + clean ML-KEM integration
+//! Includes ed25519 audit signing + optional ML-KEM integration
 
 use ed25519_dalek::{SigningKey, VerifyingKey, Signature, Signer, Verifier};
 use rand::rngs::OsRng;
@@ -85,15 +85,13 @@ impl LatticeAlchemicalEvolution {
     }
 
     pub fn run_council_synthesis(&mut self, scope: &str) -> CouncilSynthesisResult {
-        // ... existing weighted voting, deliberation, reputation, BLS logic ...
+        // Existing logic (weighted voting, deliberation, reputation, BLS, etc.)
 
-        // === Optional ML-KEM Integration (Experimental) ===
+        // Optional ML-KEM path (experimental)
         if let Some(kem_context) = try_ml_kem_key_exchange(scope) {
-            // Future: perform real ML-KEM operations here
+            // Placeholder for future real ML-KEM operations
             let _ = kem_context;
         }
-
-        // ... TOLC 8 enforcement ...
 
         CouncilSynthesisResult {
             // ...
