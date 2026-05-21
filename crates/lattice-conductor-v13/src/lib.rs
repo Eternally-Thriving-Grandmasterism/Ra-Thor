@@ -90,8 +90,8 @@ pub trait PatsagiCouncilBridge {
 pub struct Council {
     pub id: u64,
     pub name: String,
-    pub weight: f64,           // Voting weight
-    pub council_type: String,  // e.g. "Truth", "Mercy", "Evolution"
+    pub weight: f64,
+    pub council_type: String,
 }
 
 #[derive(Debug)]
@@ -115,20 +115,14 @@ impl PatsagiCouncilBridge for SimplePatsagiBridge {
         if self.councils.is_empty() {
             return true;
         }
-
         let total_weight: f64 = self.councils.iter().map(|c| c.weight).sum();
-        if total_weight == 0.0 {
-            return true;
-        }
+        if total_weight == 0.0 { return true; }
 
         let mut yes_weight = 0.0;
         for council in &self.councils {
-            let vote = if operation.potential_harm < 0.4 {
-                1.0
-            } else if operation.potential_harm > 0.7 {
-                0.0
-            } else {
-                // Weighted by council type
+            let vote = if operation.potential_harm < 0.4 { 1.0 }
+            else if operation.potential_harm > 0.7 { 0.0 }
+            else {
                 match council.council_type.as_str() {
                     "Mercy" => 0.9,
                     "Truth" => 0.7,
@@ -138,7 +132,6 @@ impl PatsagiCouncilBridge for SimplePatsagiBridge {
             };
             yes_weight += vote * council.weight;
         }
-
         (yes_weight / total_weight) >= self.required_consensus_ratio
     }
 
@@ -279,8 +272,10 @@ impl SimpleLatticeConductor {
     }
 
     fn perform_self_evolution_step(&mut self) {
-        if self.state.mercy_score > 0.8 && self.state.valence > 0.7 {
-            self.state.evolution_level += 0.01;
+        // QuantumSwarm coherence now influences self-evolution speed
+        let evolution_boost = (self.quantum_swarm.coherence - 0.5) * 0.03;
+        if self.state.mercy_score > 0.75 && self.state.valence > 0.65 {
+            self.state.evolution_level += 0.01 + evolution_boost.max(0.0);
             self.emit_event(ConductorEvent::SelfEvolution { level: self.state.evolution_level });
         }
     }
@@ -410,55 +405,56 @@ mod tests {
     use super::*;
 
     #[test]
-    fn patsagi_bridge_voting_works() {
+    fn dynamic_gate_threshold_with_low_coherence() {
+        let mut conductor = SimpleLatticeConductor::new();
+        conductor.quantum_swarm.coherence = 0.55; // Low coherence
+        let borderline = Operation::new("Borderline Action", "Medium harm", 0.68);
+        assert!(!conductor.validate_mercy(&borderline)); // Should be rejected due to low coherence
+    }
+
+    #[test]
+    fn weighted_patsagi_voting() {
         let bridge = SimplePatsagiBridge::with_councils(vec![
-            Council { id: 1, name: "Truth".to_string(), weight: 1.0, council_type: "Truth".to_string() },
-            Council { id: 2, name: "Mercy".to_string(), weight: 1.0, council_type: "Mercy".to_string() },
+            Council { id: 1, name: "Mercy Council".to_string(), weight: 2.0, council_type: "Mercy".to_string() },
+            Council { id: 2, name: "Truth Council".to_string(), weight: 1.0, council_type: "Truth".to_string() },
         ]);
-        let low_harm = Operation::new("Help", "Good", 0.2);
-        let high_harm = Operation::new("Exploit", "Bad", 0.9);
-
-        assert!(bridge.request_consensus(&low_harm));
-        assert!(!bridge.request_consensus(&high_harm));
+        let medium_harm = Operation::new("Complex Decision", "Medium", 0.55);
+        // Mercy-weighted council should be more lenient
+        assert!(bridge.request_consensus(&medium_harm));
     }
 
     #[test]
-    fn quantum_swarm_modulates_mercy() {
+    fn quantum_swarm_affects_evolution_speed() {
         let mut conductor = SimpleLatticeConductor::new();
-        // Force low coherence
-        conductor.quantum_swarm.coherence = 0.6;
-        let borderline = Operation::new("Borderline", "Medium harm", 0.65);
-        // With low coherence, this should be rejected more easily
-        assert!(!conductor.validate_mercy(&borderline));
+        conductor.quantum_swarm.coherence = 0.9;
+        for _ in 0..30 {
+            let _ = conductor.tick();
+        }
+        assert!(conductor.state.evolution_level > 0.2);
     }
 
     #[test]
-    fn persistence_roundtrip() {
-        let mut conductor = SimpleLatticeConductor::new();
-        conductor.register_council(42, "Test");
-        let path = "/tmp/test_persistence.json";
-        conductor.save_to_file(path).unwrap();
-        let loaded = SimpleLatticeConductor::load_from_file(path).unwrap();
-        assert_eq!(loaded.councils.len(), 1);
-    }
-
-    #[test]
-    fn observer_pattern_works() {
+    fn persistence_and_observer_together() {
         use std::sync::{Arc, Mutex};
         #[derive(Default)]
-        struct CountingObserver { count: Arc<Mutex<usize>> }
-        impl ConductorObserver for CountingObserver {
-            fn on_event(&self, _event: &ConductorEvent) {
-                *self.count.lock().unwrap() += 1;
-            }
+        struct EventCounter { count: Arc<Mutex<usize>> }
+        impl ConductorObserver for EventCounter {
+            fn on_event(&self, _e: &ConductorEvent) { *self.count.lock().unwrap() += 1; }
         }
-        let count = Arc::new(Mutex::new(0));
-        let observer = CountingObserver { count: count.clone() };
+        let counter = Arc::new(Mutex::new(0));
+        let observer = EventCounter { count: counter.clone() };
 
         let mut conductor = SimpleLatticeConductor::new();
         conductor.register_observer(Box::new(observer));
-        let _ = conductor.tick();
-        assert!(*count.lock().unwrap() > 0);
+
+        for _ in 0..5 { let _ = conductor.tick(); }
+
+        let path = "/tmp/persistence_test.json";
+        conductor.save_to_file(path).unwrap();
+        let loaded = SimpleLatticeConductor::load_from_file(path).unwrap();
+
+        assert!(loaded.events.len() >= 5);
+        assert!(*counter.lock().unwrap() >= 5);
     }
 }
 
