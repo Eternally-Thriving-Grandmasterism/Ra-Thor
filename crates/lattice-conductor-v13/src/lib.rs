@@ -11,7 +11,7 @@ use thiserror::Error;
 
 pub type ConductorResult<T> = Result<T, ConductorError>;
 
-/// Core geometric + mercy + evolution state (now includes current adaptive rates for visibility)
+/// Core geometric + mercy + evolution state
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct GeometricState {
     pub valence: f64,
@@ -19,7 +19,6 @@ pub struct GeometricState {
     pub mercy_score: f64,
     pub evolution_level: f64,
 
-    // Current effective adaptive rates (for observability)
     pub current_mercy_recovery_rate: f64,
     pub current_evolution_rate: f64,
 }
@@ -37,14 +36,14 @@ impl GeometricState {
     }
 }
 
-/// Slowly adapting internal parameters with meta-adaptation
+/// Adaptive parameters with meta-adaptation and adaptive decay on meta-speeds
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct AdaptiveParameters {
     pub mercy_recovery_rate: f64,
     pub evolution_rate: f64,
     pub swarm_influence_strength: f64,
 
-    // Meta-adaptation speeds (how fast the above rates can change)
+    // Meta-adaptation speeds
     pub mercy_recovery_adaptation_speed: f64,
     pub evolution_rate_adaptation_speed: f64,
 }
@@ -56,7 +55,6 @@ impl AdaptiveParameters {
             evolution_rate: 0.01,
             swarm_influence_strength: 0.02,
 
-            // Meta speeds (very slow by default)
             mercy_recovery_adaptation_speed: 0.0002,
             evolution_rate_adaptation_speed: 0.0001,
         }
@@ -76,7 +74,7 @@ impl Operation {
     }
 }
 
-/// Mercy gates with dynamic strictness driven by QuantumSwarm coherence
+/// Mercy gates with dynamic strictness
 #[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub enum MercyGate {
     HarmThreshold,
@@ -246,7 +244,6 @@ pub trait ConductorObserver {
     }
 }
 
-/// Maximum number of events kept in circular buffer
 const MAX_EVENT_HISTORY: usize = 256;
 
 #[derive(Debug)]
@@ -326,11 +323,10 @@ impl SimpleLatticeConductor {
         passes
     }
 
-    /// Self-evolution + meta-adaptive parameter evolution
+    /// Self-evolution + meta-adaptation + adaptive decay on meta-speeds
     fn perform_self_evolution_step(&mut self) {
         let p = &mut self.adaptive_params;
 
-        // Use current adaptive rates
         let evolution_boost = (self.quantum_swarm.coherence - 0.5) * p.swarm_influence_strength;
 
         if self.state.mercy_score > 0.75 && self.state.valence > 0.65 {
@@ -338,27 +334,44 @@ impl SimpleLatticeConductor {
             self.emit_event(ConductorEvent::SelfEvolution { level: self.state.evolution_level });
         }
 
-        // === Meta-adaptation layer ===
         let coherence = self.quantum_swarm.coherence;
         let valence = self.state.valence;
 
-        // Slowly adapt evolution_rate using its own adaptation speed
+        // === Main parameter adaptation (using meta-speeds) ===
         if coherence > 0.75 && valence > 0.7 {
             p.evolution_rate += p.evolution_rate_adaptation_speed;
             p.evolution_rate = p.evolution_rate.min(0.06);
         }
 
-        // Slowly adapt mercy_recovery_rate using its meta speed
         if self.metrics.mercy_violations > 2 {
             p.mercy_recovery_rate += p.mercy_recovery_adaptation_speed;
             p.mercy_recovery_rate = p.mercy_recovery_rate.min(0.07);
+        }
+
+        // === Adaptive decay on meta-speeds ===
+        // When the system is healthy (high coherence + valence), slowly decay meta-adaptation speeds
+        // This creates natural stabilization periods
+        if coherence > 0.8 && valence > 0.75 {
+            p.evolution_rate_adaptation_speed *= 0.995;
+            p.mercy_recovery_adaptation_speed *= 0.995;
+
+            // Prevent meta-speeds from decaying to zero
+            p.evolution_rate_adaptation_speed = p.evolution_rate_adaptation_speed.max(0.00002);
+            p.mercy_recovery_adaptation_speed = p.mercy_recovery_adaptation_speed.max(0.00003);
+        } else if self.metrics.mercy_violations > 4 || coherence < 0.6 {
+            // Increase meta-speeds when under stress (need faster adaptation)
+            p.evolution_rate_adaptation_speed *= 1.008;
+            p.mercy_recovery_adaptation_speed *= 1.008;
+
+            p.evolution_rate_adaptation_speed = p.evolution_rate_adaptation_speed.min(0.001);
+            p.mercy_recovery_adaptation_speed = p.mercy_recovery_adaptation_speed.min(0.0015);
         }
 
         // Gentle drift of swarm influence
         let target = 0.022;
         p.swarm_influence_strength = p.swarm_influence_strength * 0.996 + target * 0.004;
 
-        // Update visible state with current rates
+        // Update visible state
         self.state.current_mercy_recovery_rate = p.mercy_recovery_rate;
         self.state.current_evolution_rate = p.evolution_rate;
     }
