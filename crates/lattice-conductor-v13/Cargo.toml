@@ -1,6 +1,6 @@
 [package]
 name = "lattice-conductor-v13"
-version = "13.8.4"
+version = "13.8.5"
  edition = "2021"
 
 [dependencies]
@@ -11,6 +11,7 @@ nalgebra = { version = "0.33", optional = true, features = ["serde-serialize"] }
 
 [dev-dependencies]
 sovereign-shard-genesis = { path = "../sovereign-shard-genesis" }
+mercy = { path = "../mercy" }
 
 [features]
 default = []
