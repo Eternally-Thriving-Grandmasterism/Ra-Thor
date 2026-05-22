@@ -1,36 +1,44 @@
-# MercyGating System - Cross-Layer Interaction
+# SovereignHealthMonitor + Mercy Integration (Production Examples)
 
-## Cross-Layer Evaluation
+## Overview
 
-The system now supports full cross-layer interaction via `evaluate_with_cross_layer()`.
+The mercy system is now wired into `SovereignHealthMonitor`. You can use mercy evaluation during health checks and blessing requests.
 
-### Example Usage (Production Grade)
+## Example 1: Run Sovereign Check with Mercy
 
 ```rust
-use self_evolution::mercy_gating::*;
+use self_evolution::{init_sovereign_health_monitor, mercy_gating};
 
-let mut kpi = MaatKpi::new();
-kpi.set_score(MaatDimension::Truth, 0.96);
-kpi.set_score(MaatDimension::Balance, 0.94);
+let mut monitor = init_sovereign_health_monitor();
 
-let verdict = evaluate_with_cross_layer(
-    0.82,
-    None,           // Foundational verdict (optional)
-    Some(&kpi),     // Operational Ma'at KPI
-    MercyGateLevel::Integrative,
-);
+// Run normal check (includes light mercy influence)
+let metrics = monitor.run_sovereign_check();
+
+// Or run with stronger mercy evaluation
+let strong_metrics = monitor.run_sovereign_check_with_mercy();
+```
+
+## Example 2: Evaluate Current State
+
+```rust
+let verdict = monitor.evaluate_current_state_mercy(mercy_gating::MercyGateLevel::Integrative);
 
 match verdict {
-    MercyVerdict::Passed { overall_score } => {
-        println!("Passed with cross-layer score: {:.3}", overall_score);
+    mercy_gating::MercyVerdict::RequiresCouncilReview => {
+        println!("Current state may need council attention");
     }
-    MercyVerdict::Mitigated { overall_score, .. } => {
-        println!("Mitigated with synergy: {:.3}", overall_score);
-    }
-    _ => println!("Requires Council Review"),
+    _ => println!("State is within acceptable mercy parameters"),
 }
 ```
 
-This allows Foundational and Operational layers to meaningfully influence Integrative decisions.
+## Example 3: Blessing with Mercy Synergy
+
+```rust
+let result = monitor.request_epigenetic_blessing("Important evolution step", true);
+
+if result.success {
+    println!("Blessing granted with mercy synergy. Tier: {:?}", result.tier);
+}
+```
 
 AG-SML v1.0
