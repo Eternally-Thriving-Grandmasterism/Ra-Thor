@@ -1,41 +1,24 @@
- // ... existing code above ...
+// ... existing code ...
 
-// ==================== ULTIMATE UNIFIED MERCYGATING SYSTEM (Initial Core) ====================
+// ==================== ULTIMATE UNIFIED MERCYGATING SYSTEM ====================
 
-/// Resolution levels for the MercyGating system
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum MercyGateLevel {
-    Seven,      // Foundational 7 Living Mercy Gates
-    EightTolc,  // TOLC-extended 8 Gates
-    SixteenMaat, // Ma'at + Powrush 16-Gate system with KPIs
+    Seven,
+    EightTolc,
+    SixteenMaat,
 }
 
-/// Foundational 7 Living Mercy Gates
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum CoreMercyGate {
-    RadicalLove,
-    BoundlessMercy,
-    Service,
-    Abundance,
-    Truth,
-    Joy,
-    CosmicHarmony,
+    RadicalLove, BoundlessMercy, Service, Abundance, Truth, Joy, CosmicHarmony,
 }
 
-/// TOLC 8 Mercy Gates
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum TolcMercyGate {
-    RadicalLove,
-    BoundlessMercy,
-    Service,
-    Abundance,
-    Truth,
-    Joy,
-    CosmicHarmony,
-    TolcCoherence, // 8th gate
+    RadicalLove, BoundlessMercy, Service, Abundance, Truth, Joy, CosmicHarmony, TolcCoherence,
 }
 
-/// Ma'at 16 Gates (Powrush-MMO granular system)
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum MaatMercyGate {
     DataAccuracy, ClaimSubstantiation, Transparency,
@@ -47,7 +30,6 @@ pub enum MaatMercyGate {
     AttributionCollaboration, EternalFlowContinuity,
 }
 
-/// Unified representation
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum UnifiedMercyGate {
     Core(CoreMercyGate),
@@ -56,7 +38,8 @@ pub enum UnifiedMercyGate {
 }
 
 #[derive(Debug, Clone)]
-pub struct GateScore {
+pub struct GateResult {
+    pub gate: UnifiedMercyGate,
     pub passed: bool,
     pub score: f64,
     pub note: Option<String>,
@@ -74,18 +57,36 @@ pub trait MercyGateEvaluable {
     fn evaluate_mercy(&self, level: MercyGateLevel) -> MercyVerdict;
 }
 
-// Placeholder implementation for SnapshotError to demonstrate wiring
 impl MercyGateEvaluable for SnapshotError {
-    fn evaluate_mercy(&self, _level: MercyGateLevel) -> MercyVerdict {
-        // Basic mapping for now
-        match self {
-            SnapshotError::FileNotFound { .. } => MercyVerdict::Mitigated {
-                overall_score: 0.85,
-                notes: vec!["File absence evaluated through Boundless Mercy + Truth".to_string()],
-            },
-            _ => MercyVerdict::RequiresCouncilReview,
+    fn evaluate_mercy(&self, level: MercyGateLevel) -> MercyVerdict {
+        // Basic intelligent mapping
+        let base_score = match self {
+            SnapshotError::FileNotFound { .. } => 0.82,
+            SnapshotError::ReadError { .. } => 0.78,
+            SnapshotError::ParseError { .. } => 0.65,
+            SnapshotError::UnknownFormat => 0.60,
+        };
+
+        match level {
+            MercyGateLevel::Seven | MercyGateLevel::EightTolc => {
+                if base_score > 0.75 {
+                    MercyVerdict::Mitigated {
+                        overall_score: base_score,
+                        notes: vec!["Evaluated through foundational Mercy Gates".to_string()],
+                    }
+                } else {
+                    MercyVerdict::RequiresCouncilReview
+                }
+            }
+            MercyGateLevel::SixteenMaat => {
+                if base_score > 0.85 {
+                    MercyVerdict::Passed { overall_score: base_score }
+                } else {
+                    MercyVerdict::RequiresCouncilReview
+                }
+            }
         }
     }
 }
 
-// ... rest of existing code ...
+// ... existing code continues ...
