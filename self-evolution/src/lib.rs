@@ -1,19 +1,17 @@
 // ... existing code in SovereignHealthMonitor ...
 
-    /// Tracks how many times a mercy evaluation has escalated to RequiresCouncilReview.
-    /// This provides observable data for monitoring, metrics, and future PATSAGi escalation.
-    pub council_review_trigger_count: u32,
-
     /// Handles escalation when mercy evaluation returns RequiresCouncilReview.
-    /// This method updates internal state and serves as the integration point
-    /// for future PATSAGi Council triggering logic.
+    /// This is the primary integration point for future PATSAGi Council triggering.
+    ///
+    /// Currently tracks escalation count and serves as the extension point
+    /// for actual council review queuing and deliberation logic.
     fn handle_requires_council_review(&mut self) {
         self.council_review_trigger_count += 1;
 
-        // Production-grade escalation handling:
-        // - State is tracked via council_review_trigger_count
-        // - This method acts as the single point for council review escalation
-        // - Future extensions can add logging, queuing, or direct PATSAGi invocation here
+        // Production-grade structure:
+        // - Escalation is counted for observability
+        // - This method is the single choke point for council review
+        // - Future work can add context capture, queuing, or direct PATSAGi invocation
     }
 
 // ... existing code ...
