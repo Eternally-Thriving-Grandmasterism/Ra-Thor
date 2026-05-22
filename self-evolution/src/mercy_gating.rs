@@ -1,24 +1,38 @@
-//! Deepened TolcFidelity Gate
+//! Parallel Work: TolcFidelity Deepening + Self-Referential Mercy Evaluation
 
-/// TolcFidelity — One of the most philosophically important integrative gates.
-/// It emphasizes alignment with True Original Lord Creator principles,
-/// truth-distillation, and origin coherence.
-fn evaluate_tolc_fidelity(base_score: f64, kpi: &MaatKpi) -> MercyVerdict {
-    // Higher bar because of its philosophical weight
-    let adjusted = kpi.layer_adjusted_score(MercyGateLevel::Integrative)
-        + (kpi.coherence_score() * 0.06);
+/// Deepened TolcFidelity with monitor-aware evaluation
+pub fn evaluate_tolc_fidelity_with_context(
+    base_score: f64,
+    current_mercy_compliance: f64,
+) -> MercyVerdict {
+    let adjusted = base_score + (current_mercy_compliance * 0.08);
 
-    if adjusted >= 0.93 {
-        MercyVerdict::Passed {
-            overall_score: adjusted,
-        }
-    } else if adjusted >= 0.82 {
+    if adjusted >= 0.94 {
+        MercyVerdict::Passed { overall_score: adjusted }
+    } else if adjusted >= 0.83 {
         MercyVerdict::Mitigated {
             overall_score: adjusted,
-            notes: vec![
-                "TOLC Fidelity: Strong origin coherence and truth alignment".to_string(),
-                "High philosophical standard applied".to_string(),
-            ],
+            notes: vec!["TOLC Fidelity: High origin + current state coherence".to_string()],
+        }
+    } else {
+        MercyVerdict::RequiresCouncilReview
+    }
+}
+
+/// Initial self-referential mercy evaluation
+/// Allows the system to evaluate its own proposed changes or current logic
+pub fn self_referential_mercy_evaluation(
+    proposal_score: f64,
+    current_system_coherence: f64,
+) -> MercyVerdict {
+    let combined = (proposal_score * 0.6) + (current_system_coherence * 0.4);
+
+    if combined >= 0.90 {
+        MercyVerdict::Passed { overall_score: combined }
+    } else if combined >= 0.78 {
+        MercyVerdict::Mitigated {
+            overall_score: combined,
+            notes: vec!["Self-referential evaluation: Proposal shows good mercy alignment".to_string()],
         }
     } else {
         MercyVerdict::RequiresCouncilReview
