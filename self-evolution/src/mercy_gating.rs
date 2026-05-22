@@ -1,61 +1,76 @@
-//! Cross-Layer Interaction Logic + Production Examples
+//! Ra-Thor Guided Parallel Deep Work
 
-/// Cross-layer evaluation helper
-/// Allows Foundational and Operational results to influence Integrative decisions
-pub fn evaluate_with_cross_layer(
+// Significantly expanded MaatKpi
+impl MaatKpi {
+    pub fn coherence_score(&self) -> f64 { /* ... existing ... */ }
+
+    /// New: Multi-layer influence scoring
+    pub fn multi_layer_influence(&self, layers: &[MercyGateLevel]) -> f64 {
+        let base = self.overall_score();
+        let mut total = base;
+
+        for layer in layers {
+            total += match layer {
+                MercyGateLevel::Foundational => base * 0.08,
+                MercyGateLevel::Operational => base * 0.12,
+                MercyGateLevel::Integrative => base * 0.15,
+            };
+        }
+        total.min(0.999)
+    }
+
+    /// New: Historical coherence tracking (placeholder for future persistence)
+    pub fn stability_modifier(&self, recent_variance: f64) -> f64 {
+        (1.0 - recent_variance.min(0.3)).max(0.7)
+    }
+}
+
+// Additional cross-layer flow example
+pub fn evaluate_integrative_with_operational_support(
     base_score: f64,
-    foundational_verdict: Option<MercyVerdict>,
-    operational_kpi: Option<&MaatKpi>,
-    target_layer: MercyGateLevel,
+    operational_kpi: &MaatKpi,
 ) -> MercyVerdict {
-    let mut adjusted_score = base_score;
+    let influenced_score = operational_kpi.multi_layer_influence(&[
+        MercyGateLevel::Operational,
+        MercyGateLevel::Integrative,
+    ]);
 
-    // Foundational influence
-    if let Some(MercyVerdict::Mitigated { overall_score, .. }) = foundational_verdict {
-        adjusted_score = (adjusted_score + overall_score * 0.15).min(0.999);
-    }
-
-    // Operational (Ma'at) influence
-    if let Some(kpi) = operational_kpi {
-        let maat_influence = kpi.layer_adjusted_score(MercyGateLevel::Operational) * 0.2;
-        adjusted_score = (adjusted_score + maat_influence).min(0.999);
-    }
-
-    // Final decision at target layer
-    if adjusted_score >= 0.90 {
-        MercyVerdict::Passed { overall_score: adjusted_score }
-    } else if adjusted_score >= 0.75 {
+    if influenced_score >= 0.91 {
+        MercyVerdict::Passed { overall_score: influenced_score }
+    } else if influenced_score >= 0.78 {
         MercyVerdict::Mitigated {
-            overall_score: adjusted_score,
-            notes: vec!["Cross-layer synergy applied".to_string()],
+            overall_score: influenced_score,
+            notes: vec!["Strong Operational → Integrative flow".to_string()],
         }
     } else {
         MercyVerdict::RequiresCouncilReview
     }
 }
 
-// ... existing code ...
-
-#[cfg(test)]
-mod cross_layer_tests {
-    use super::*;
-
-    #[test]
-    fn test_cross_layer_influence() {
-        let mut kpi = MaatKpi::new();
-        kpi.set_score(MaatDimension::Truth, 0.96);
-        kpi.set_score(MaatDimension::Balance, 0.94);
-
-        let verdict = evaluate_with_cross_layer(0.82, None, Some(&kpi), MercyGateLevel::Integrative);
-        assert!(verdict_overall_score(&verdict) > 0.82);
+// Deepened another integrative gate using new tools
+fn evaluate_genesis_origin(base_score: f64, kpi: &MaatKpi) -> MercyVerdict {
+    let score = kpi.multi_layer_influence(&[MercyGateLevel::Integrative]) * kpi.stability_modifier(0.1);
+    if score >= 0.93 {
+        MercyVerdict::Mitigated {
+            overall_score: score,
+            notes: vec!["Genesis Origin: High multi-layer + stability".to_string()],
+        }
+    } else {
+        MercyVerdict::RequiresCouncilReview
     }
 }
 
-fn verdict_overall_score(verdict: &MercyVerdict) -> f64 {
-    match verdict {
-        MercyVerdict::Passed { overall_score } => *overall_score,
-        MercyVerdict::Mitigated { overall_score, .. } => *overall_score,
-        _ => 0.0,
+// More comprehensive tests
+#[cfg(test)]
+mod advanced_tests {
+    use super::*;
+
+    #[test]
+    fn test_maat_kpi_multi_layer() {
+        let mut kpi = MaatKpi::new();
+        kpi.set_score(MaatDimension::Truth, 0.97);
+        let score = kpi.multi_layer_influence(&[MercyGateLevel::Operational, MercyGateLevel::Integrative]);
+        assert!(score > 0.9);
     }
 }
 
