@@ -5,6 +5,8 @@ use serde::{Deserialize, Serialize};
 use ed25519_dalek::{Signer, SigningKey, VerifyingKey, Signature};
 use rand_core::OsRng;
 use std::collections::HashMap;
+use chrono::Utc;
+use hex;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SignedTolcDecision {
@@ -50,8 +52,9 @@ impl QuantumSwarmConsensus {
         participating_shards: Vec<String>,
         council_votes: HashMap<String, f64>,
     ) -> SignedTolcDecision {
-        let decision_id = format!("tolc-decision-{}", chrono::Utc::now().timestamp());
-        let timestamp = chrono::Utc::now().timestamp() as u64;
+        let now = Utc::now();
+        let decision_id = format!("tolc-decision-{}", now.timestamp());
+        let timestamp = now.timestamp() as u64;
 
         // Create a deterministic message to sign
         let message = format!(
@@ -79,6 +82,3 @@ impl QuantumSwarmConsensus {
         self.verifying_key
     }
 }
-
-// Note: In production, add hex = "0.4" and chrono = "0.4" to Cargo.toml if not present.
-// For demo, we assume they are available or can be added.
