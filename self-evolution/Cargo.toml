@@ -4,13 +4,14 @@ version.workspace = true
 authors.workspace = true
 edition.workspace = true
 license.workspace = true
-description = "Sovereign Health Monitoring + Self-Evolution v2 Hooks. PATSAGi epigenetic blessing + Quantum Swarm orchestration. ONE Organism integrated."
+description = "Sovereign Health Monitoring + Self-Evolution v2 Hooks with advanced Epigenetic Blessing and Versioned Persistence."
 repository.workspace = true
 
 [dependencies]
 serde = { workspace = true }
 serde_json = "1.0"
 rand = { workspace = true }
+thiserror = "1"
 
 [lib]
 path = "src/lib.rs"
