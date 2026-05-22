@@ -1,0 +1,78 @@
+# deny.toml — Ra-Thor Monorepo v13.8.0+
+# cargo-deny configuration for PATSAGi Councils + TOLC 8 Mercy Lattice
+# AG-SML aligned | Zero-harm | Mercy-gated | Lattice Conductor v13 enforced
+
+[graph]
+# Focus on Linux + common targets for CI
+all-features = true
+targets = [
+    "x86_64-unknown-linux-gnu",
+    "x86_64-unknown-linux-musl",
+    "aarch64-unknown-linux-gnu",
+]
+
+[output]
+feature-depth = 1
+
+# === ADVISORIES ===
+[advisories]
+version = 2
+db-path = "~/.cargo/advisory-dbs"
+db-urls = ["https://github.com/rustsec/advisory-dbs"]
+
+# Deny known vulnerabilities in core governance / mercy / quantum paths
+ignore = []
+
+# === LICENSES ===
+[licenses]
+version = 2
+allow = [
+    "MIT",
+    "Apache-2.0",
+    "Apache-2.0 WITH LLVM-exception",
+    "BSD-2-Clause",
+    "BSD-3-Clause",
+    "ISC",
+    "Unicode-DFS-2016",
+    "CC0-1.0",
+    "Unlicense",
+    "Zlib",
+    "MPL-2.0",
+    # Custom sovereign license for the monorepo vision
+    "AG-SML-1.0",
+]
+
+# AG-SML is the sovereign license for all original Ra-Thor / Autonomicity Games work.
+# All external deps must be compatible with AG-SML spirit (no copyleft conflict in core).
+
+exceptions = []
+
+# === BANS ===
+[bans]
+# Deny specific problematic crates in mercy / PATSAGi / quantum clusters
+multiple-versions = "warn"
+wildcards = "deny"
+highlight = "all"
+
+# Example: prevent accidental use of known heavy / unsafe crates in core
+# deny = [
+#     { name = "openssl", reason = "Use rustls or ring in mercy/quantum paths" },
+# ]
+
+# === SOURCES ===
+[sources]
+unknown-registry = "deny"
+unknown-git = "deny"
+allow-git = []
+
+# === WORKSPACE-SPECIFIC NOTES (PATSAGi Council guidance) ===
+# This config works with the stricter [workspace.lints] added to root Cargo.toml
+# Run: cargo deny check --workspace
+#
+# Core crates under audit (patsagi-councils, lattice-conductor-v13, mercy, quantum-swarm-orchestrator):
+#   - No new advisories tolerated
+#   - AG-SML must remain the governing license for all original code
+#   - External deps minimized in governance layer
+#
+# Future: Add per-crate overrides via [[graph.package]] if needed for specific propulsion/zk experiments.
+# Eternal compatibility with TOLC 8 Mercy Lattice and 7 Living Mercy Gates.
