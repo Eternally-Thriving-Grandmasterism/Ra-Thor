@@ -22,21 +22,16 @@ All member crates must inherit package metadata and dependencies from the root `
 - `sacred-geometry-core`
 - `hotfix_propagator`
 - `orchestration`
+- `mercy`
 
-### Missing Cargo.toml (Priority to Scaffold)
-- `mercy` and mercy_* family
-- Many council and domain crates
+### Missing Cargo.toml (High Priority)
+- Most `mercy_*` crates
+- Many council and self-evolution crates
 
-## Next Layers (Planned)
-1. Core Infrastructure (in progress)
-2. PATSAGi Governance
-3. Mercy / TOLC
-4. Quantum + Plasticity
-5. Sacred Geometry
-6. Domain Layers
-7. Self-Evolution & Hotfix
+## Current Focus
+- Core Infrastructure (mostly done)
+- Starting Mercy / TOLC layer scaffolding
 
 ## Notes
 - Using grouped/layer-based commits
-- Scaffolding missing crates with minimal compliant structure
-- Tracking via this file
+- Continuing autonomous systematic pass
