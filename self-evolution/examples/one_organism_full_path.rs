@@ -1,42 +1,18 @@
-//! ONE Organism Full Path Integration Example
-//!
-//! This example demonstrates the hybrid error handling system in `self-evolution`:
-//!
-//! - Error chaining with `print_error_chain`
-//! - Context attachment via `SnapshotContext`
-//! - Optional pretty diagnostics with `miette`
-//!
-//! ## Run
-//!
-//! ```bash
-//! # Basic run
-//! cargo run --example one_organism_full_path -p self-evolution
-//!
-//! # With pretty miette diagnostics
-//! cargo run --example one_organism_full_path -p self-evolution --features miette
-//! ```
-//!
-//! AG-SML v1.0
+//! ... existing code ...
 
-use self_evolution::{init_sovereign_health_monitor, print_error_chain};
+use self_evolution::{init_sovereign_health_monitor, mercy_gating::*, print_error_chain};
 
 fn main() {
-    println!("=== ONE Organism + Hybrid Error System Demo ===\n");
+    // ...
 
-    let mut monitor = init_sovereign_health_monitor();
+    let err = self_evolution::SnapshotError::FileNotFound { path: "test.json".to_string() };
 
-    // === Scenario 1: File not found ===
-    println!("[1] Trying to load a non-existent file...\n");
-    if let Err(e) = monitor.load_from_file("nonexistent_state.json") {
-        print_error_chain(&e);
+    println!("\n--- Mercy Evaluation Demo ---");
+    let verdict7 = err.evaluate_mercy(MercyGateLevel::Seven);
+    println!("Level 7: {:?}", verdict7);
 
-        #[cfg(feature = "miette")]
-        {
-            println!("\n--- miette Diagnostic Report ---");
-            let report = miette::Report::from(e);
-            eprintln!("{report:?}");
-        }
-    }
+    let verdict16 = err.evaluate_mercy(MercyGateLevel::SixteenMaat);
+    println!("Level 16 (Ma'at): {:?}", verdict16);
 
-    println!("\n=== Demo Complete ===");
+    // ...
 }
