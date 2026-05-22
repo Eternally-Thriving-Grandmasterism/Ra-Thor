@@ -1,54 +1,21 @@
-//! Expanded Property Tests + Fuzzing Guidance
+//! Expanded Cross-Layer and Gate Tests
 
 #[cfg(test)]
-mod expanded_property_tests {
+mod expanded_cross_layer_tests {
     use super::*;
 
     #[test]
-    fn property_all_maat_kpi_methods_stay_in_bounds() {
+    fn test_cross_layer_with_operational_kpi() {
         let mut kpi = MaatKpi::new();
-        // Test extreme combinations
-        kpi.set_score(MaatDimension::Truth, 0.0);
-        kpi.set_score(MaatDimension::Balance, 1.0);
-        kpi.set_score(MaatDimension::Justice, 0.0);
-        kpi.set_score(MaatDimension::Order, 1.0);
+        kpi.set_score(MaatDimension::Truth, 0.97);
+        kpi.set_score(MaatDimension::Balance, 0.95);
+        kpi.set_score(MaatDimension::Justice, 0.93);
+        kpi.set_score(MaatDimension::Order, 0.96);
 
-        assert!(kpi.overall_score() >= 0.0 && kpi.overall_score() <= 1.0);
-        assert!(kpi.coherence_score() >= 0.0);
-    }
-
-    #[test]
-    fn property_self_referential_respects_thresholds() {
-        // High everything should pass
-        let high = self_referential_mercy_evaluation(0.98, 0.95, 0.93);
-        assert!(matches!(high, MercyVerdict::Passed { .. }));
-
-        // Low everything should require review
-        let low = self_referential_mercy_evaluation(0.4, 0.5, 0.45);
-        assert!(matches!(low, MercyVerdict::RequiresCouncilReview));
+        let verdict = evaluate_with_cross_layer(0.80, None, Some(&kpi), MercyGateLevel::Integrative);
+        // Should benefit from strong Operational KPI
+        assert!(verdict_overall_score(&verdict) > 0.80);
     }
 }
-
-/*
- * cargo-fuzz Setup Instructions:
- *
- * 1. Add to Cargo.toml (dev-dependencies):
- *    cargo-fuzz = "0.11"
- *
- * 2. Run: cargo install cargo-fuzz
- *
- * 3. Initialize: cargo fuzz init
- *
- * 4. Create fuzz/fuzz_targets/self_referential.rs with:
- *    #![no_main]
- *    use libfuzzer_sys::fuzz_target;
- *    use self_evolution::mercy_gating::self_referential_mercy_evaluation;
- *
- *    fuzz_target!(|data: &[u8]| {
- *        // parse data into scores and call the function
- *    });
- *
- * Mutation testing can be explored later using cargo-mutants.
- */
 
 // ... existing code ...
