@@ -1,6 +1,6 @@
 //! self-evolution v0.3.0
 //! Sovereign Health Monitoring + Self-Evolution v2 Hooks
-//! Hybrid Error System with Mercy-Gated Evaluation (Phase 2)
+//! Hybrid Error System with Mercy-Gated Evaluation + PATSAGi Council Review (Phase 3)
 //! AG-SML v1.0
 
 use serde::{Deserialize, Serialize};
@@ -205,6 +205,21 @@ impl MercyEvaluable for SnapshotError {
     }
 }
 
+// ==================== PATSAGi COUNCIL REVIEW (Phase 3) ====================
+
+/// Simulated PATSAGi Council review for errors that require deeper alignment check.
+pub fn review_with_patsagi_council(error: &SnapshotError) -> MercyEvaluation {
+    // In a full implementation, this would involve multiple council members
+    // For Phase 3, we simulate a basic consensus
+    match error {
+        SnapshotError::ParseError { .. } | SnapshotError::UnknownFormat => {
+            // These often indicate deeper structural issues
+            MercyEvaluation::RequiresCouncilReview
+        }
+        _ => MercyEvaluation::Passed,
+    }
+}
+
 // ==================== ERROR CHAIN DEBUGGING ====================
 
 pub fn print_error_chain(err: &(dyn std::error::Error + 'static)) {
@@ -261,16 +276,10 @@ impl SovereignHealthMonitor {
     pub fn load_from_file(path: &str) -> Result<Self, SnapshotError> {
         if !Path::new(path).exists() {
             let err = SnapshotError::FileNotFound { path: path.to_string() };
-            // Phase 2: Apply Mercy-Gated evaluation
-            match evaluate_error_with_mercy(&err) {
-                MercyEvaluation::Mitigated { note } => {
-                    // For now, we still return the error but it has been evaluated
-                    // In future phases we can enrich context further
-                }
-                MercyEvaluation::RequiresCouncilReview => {
-                    // Could trigger council review simulation here
-                }
-                _ => {}
+            let evaluation = evaluate_error_with_mercy(&err);
+
+            if evaluation == MercyEvaluation::RequiresCouncilReview {
+                let _ = review_with_patsagi_council(&err);
             }
             return Err(err);
         }
@@ -287,11 +296,8 @@ impl SovereignHealthMonitor {
         }
 
         let err = SnapshotError::UnknownFormat;
-        match evaluate_error_with_mercy(&err) {
-            MercyEvaluation::RequiresCouncilReview => {
-                // Mark for council review
-            }
-            _ => {}
+        if evaluate_error_with_mercy(&err) == MercyEvaluation::RequiresCouncilReview {
+            let _ = review_with_patsagi_council(&err);
         }
         Err(err).with_snapshot_context(format!("while loading from {}", path))
     }
