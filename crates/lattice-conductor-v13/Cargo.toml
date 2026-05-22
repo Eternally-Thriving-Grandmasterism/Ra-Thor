@@ -1,13 +1,16 @@
 [package]
 name = "lattice-conductor-v13"
-version = "13.8.3"
-edition = "2021"
+version = "13.8.4"
+ edition = "2021"
 
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 thiserror = "1.0"
 nalgebra = { version = "0.33", optional = true, features = ["serde-serialize"] }
+
+[dev-dependencies]
+sovereign-shard-genesis = { path = "../sovereign-shard-genesis" }
 
 [features]
 default = []
