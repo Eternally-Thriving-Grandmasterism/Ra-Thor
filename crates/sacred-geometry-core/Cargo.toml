@@ -1,0 +1,17 @@
+[package]
+name = "sacred-geometry-core"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+description.workspace = true
+repository.workspace = true
+
+[dependencies]
+# Sacred Geometry Substrate
+# Platonic, Archimedean, Johnson, Catalan, Hyperbolic Tiling, Kepler-Poinsot layers
+# To be wired with Lattice Conductor, Mercy Gates, and Quantum Swarm
+
+[features]
+default = []
+full = []
