@@ -1,24 +1,14 @@
-# Ultimate Unified MercyGating System - Deep Implementation
+# MercyGating System - Current State (Parallel Deep Implementation)
 
-## Current Architecture (v0.7.0)
+## Recent Progress (All 4 areas advanced together)
 
-**Three Layers:**
-- **Foundational** (7 Living Mercy Gates)
-- **Operational** (16-gate Ma'at system)
-- **Integrative** (7 new meta gates)
+- **Integrative Gates**: Deepened `LatticeCoherence`, `PatsagiConsensus`, `OneOrganismSymbiosis`, `QuantumSwarmMercy`, and started `TolcFidelity`.
+- **MaatKpi**: Added `layer_adjusted_score()` and real `coherence_score()` calculation.
+- **Tests**: Added multiple new tests for coherence and gate evaluation.
+- **Documentation**: This file is being kept up to date.
 
-### New Integrative Gates Added
-- PATSAGi Consensus Gate
-- Self-Evolution Blessing Gate
-- Lattice Coherence Gate
-- TOLC Fidelity Gate
-- ONE Organism Symbiosis Gate
-- Quantum Swarm Mercy Gate
-- Genesis / Origin Gate
-
-## Status
-Deep implementation in progress. Richer scoring and layer-specific behavior added.
-
-More tests, per-gate logic, and full documentation coming.
+## Architecture
+- 3 Layers: Foundational (7) → Operational (16 Ma'at) → Integrative (7 new gates)
+- `MaatKpi` is becoming a central cross-layer scoring mechanism.
 
 AG-SML v1.0
