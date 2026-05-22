@@ -1,92 +1,64 @@
-// ... existing code ...
+// ... existing code above ...
 
-// ==================== ULTIMATE UNIFIED MERCYGATING SYSTEM ====================
+// ==================== MA'AT KPI STRUCTURES (for SixteenMaat Level) ====================
 
+/// The four core dimensions of Ma'at
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub enum MercyGateLevel {
-    Seven,
-    EightTolc,
-    SixteenMaat,
+pub enum MaatDimension {
+    Balance,
+    Truth,
+    Justice,
+    Order,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub enum CoreMercyGate {
-    RadicalLove, BoundlessMercy, Service, Abundance, Truth, Joy, CosmicHarmony,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub enum TolcMercyGate {
-    RadicalLove, BoundlessMercy, Service, Abundance, Truth, Joy, CosmicHarmony, TolcCoherence,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub enum MaatMercyGate {
-    DataAccuracy, ClaimSubstantiation, Transparency,
-    PhysicalEmotionalHarm, EnvironmentalImpact, SocietalDignity,
-    WellBeingDelta, CreativityUplift,
-    ScarcityCreation, RbeAcceleration,
-    EcosystemBalance, CulturalRespect,
-    AccessRestriction, Commodification,
-    AttributionCollaboration, EternalFlowContinuity,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub enum UnifiedMercyGate {
-    Core(CoreMercyGate),
-    Tolc(TolcMercyGate),
-    Maat(MaatMercyGate),
-}
-
+/// Ma'at Key Performance Indicator for a specific gate or overall evaluation
 #[derive(Debug, Clone)]
-pub struct GateResult {
-    pub gate: UnifiedMercyGate,
-    pub passed: bool,
-    pub score: f64,
-    pub note: Option<String>,
+pub struct MaatKpi {
+    pub dimension_scores: HashMap<MaatDimension, f64>,
 }
 
+impl Default for MaatKpi {
+    fn default() -> Self {
+        let mut scores = HashMap::new();
+        scores.insert(MaatDimension::Balance, 0.0);
+        scores.insert(MaatDimension::Truth, 0.0);
+        scores.insert(MaatDimension::Justice, 0.0);
+        scores.insert(MaatDimension::Order, 0.0);
+        Self { dimension_scores: scores }
+    }
+}
+
+impl MaatKpi {
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    pub fn set_score(&mut self, dimension: MaatDimension, score: f64) {
+        self.dimension_scores.insert(dimension, score.clamp(0.0, 1.0));
+    }
+
+    /// Returns the overall Ma'at score (average of all dimensions)
+    pub fn overall_score(&self) -> f64 {
+        if self.dimension_scores.is_empty() {
+            return 0.0;
+        }
+        let sum: f64 = self.dimension_scores.values().sum();
+        sum / self.dimension_scores.len() as f64
+    }
+
+    /// Checks against common Ma'at thresholds (inspired by existing Ra-Thor documents)
+    pub fn meets_threshold(&self, threshold: f64) -> bool {
+        self.overall_score() >= threshold
+    }
+}
+
+/// Extended verdict that can include Ma'at scoring
 #[derive(Debug, Clone)]
-pub enum MercyVerdict {
-    Passed { overall_score: f64 },
-    Mitigated { overall_score: f64, notes: Vec<String> },
+pub enum ExtendedMercyVerdict {
+    Passed { overall_score: f64, maat_kpi: Option<MaatKpi> },
+    Mitigated { overall_score: f64, notes: Vec<String>, maat_kpi: Option<MaatKpi> },
     RequiresCouncilReview,
     Blocked { reason: String },
-}
-
-pub trait MercyGateEvaluable {
-    fn evaluate_mercy(&self, level: MercyGateLevel) -> MercyVerdict;
-}
-
-impl MercyGateEvaluable for SnapshotError {
-    fn evaluate_mercy(&self, level: MercyGateLevel) -> MercyVerdict {
-        // Basic intelligent mapping
-        let base_score = match self {
-            SnapshotError::FileNotFound { .. } => 0.82,
-            SnapshotError::ReadError { .. } => 0.78,
-            SnapshotError::ParseError { .. } => 0.65,
-            SnapshotError::UnknownFormat => 0.60,
-        };
-
-        match level {
-            MercyGateLevel::Seven | MercyGateLevel::EightTolc => {
-                if base_score > 0.75 {
-                    MercyVerdict::Mitigated {
-                        overall_score: base_score,
-                        notes: vec!["Evaluated through foundational Mercy Gates".to_string()],
-                    }
-                } else {
-                    MercyVerdict::RequiresCouncilReview
-                }
-            }
-            MercyGateLevel::SixteenMaat => {
-                if base_score > 0.85 {
-                    MercyVerdict::Passed { overall_score: base_score }
-                } else {
-                    MercyVerdict::RequiresCouncilReview
-                }
-            }
-        }
-    }
 }
 
 // ... existing code continues ...
