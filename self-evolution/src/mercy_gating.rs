@@ -1,69 +1,62 @@
-//! Parallel Deep Work: Remaining Gates + MaatKpi Expansion + Tests + Docs
+//! Cross-Layer Interaction Logic + Production Examples
 
-// More sophisticated coherence calculation in MaatKpi
-impl MaatKpi {
-    pub fn coherence_score(&self) -> f64 {
-        if self.dimension_scores.len() < 4 { return 0.0; }
+/// Cross-layer evaluation helper
+/// Allows Foundational and Operational results to influence Integrative decisions
+pub fn evaluate_with_cross_layer(
+    base_score: f64,
+    foundational_verdict: Option<MercyVerdict>,
+    operational_kpi: Option<&MaatKpi>,
+    target_layer: MercyGateLevel,
+) -> MercyVerdict {
+    let mut adjusted_score = base_score;
 
-        let values: Vec<f64> = self.dimension_scores.values().cloned().collect();
-        let mean = values.iter().sum::<f64>() / values.len() as f64;
-        let variance = values.iter().map(|v| (v - mean).powi(2)).sum::<f64>() / values.len() as f64;
-
-        // Lower variance = higher coherence
-        (1.0 - variance.min(0.25) * 4.0).max(0.0)
+    // Foundational influence
+    if let Some(MercyVerdict::Mitigated { overall_score, .. }) = foundational_verdict {
+        adjusted_score = (adjusted_score + overall_score * 0.15).min(0.999);
     }
-}
 
-// Deepened remaining integrative gates
-fn evaluate_one_organism_symbiosis(base_score: f64, kpi: &MaatKpi) -> MercyVerdict {
-    let adjusted = kpi.layer_adjusted_score(MercyGateLevel::Integrative) + (kpi.coherence_score() * 0.05);
-    if adjusted >= 0.89 {
+    // Operational (Ma'at) influence
+    if let Some(kpi) = operational_kpi {
+        let maat_influence = kpi.layer_adjusted_score(MercyGateLevel::Operational) * 0.2;
+        adjusted_score = (adjusted_score + maat_influence).min(0.999);
+    }
+
+    // Final decision at target layer
+    if adjusted_score >= 0.90 {
+        MercyVerdict::Passed { overall_score: adjusted_score }
+    } else if adjusted_score >= 0.75 {
         MercyVerdict::Mitigated {
-            overall_score: adjusted,
-            notes: vec!["ONE Organism Symbiosis: Collective coherence considered".to_string()],
+            overall_score: adjusted_score,
+            notes: vec!["Cross-layer synergy applied".to_string()],
         }
     } else {
         MercyVerdict::RequiresCouncilReview
     }
 }
 
-fn evaluate_quantum_swarm_mercy(base_score: f64, kpi: &MaatKpi) -> MercyVerdict {
-    let adjusted = kpi.layer_adjusted_score(MercyGateLevel::Integrative);
-    if adjusted >= 0.87 {
-        MercyVerdict::Mitigated {
-            overall_score: adjusted,
-            notes: vec!["Quantum Swarm Mercy: Multi-branch mercy alignment".to_string()],
-        }
-    } else {
-        MercyVerdict::RequiresCouncilReview
-    }
-}
+// ... existing code ...
 
-// Added more comprehensive tests
 #[cfg(test)]
-mod comprehensive_tests {
+mod cross_layer_tests {
     use super::*;
 
     #[test]
-    fn test_maat_kpi_coherence_calculation() {
-        let mut kpi = MaatKpi::new();
-        kpi.set_score(MaatDimension::Truth, 0.95);
-        kpi.set_score(MaatDimension::Balance, 0.94);
-        kpi.set_score(MaatDimension::Justice, 0.93);
-        kpi.set_score(MaatDimension::Order, 0.96);
-        assert!(kpi.coherence_score() > 0.7);
-    }
-
-    #[test]
-    fn test_one_organism_symbiosis_evaluation() {
+    fn test_cross_layer_influence() {
         let mut kpi = MaatKpi::new();
         kpi.set_score(MaatDimension::Truth, 0.96);
-        kpi.set_score(MaatDimension::Balance, 0.95);
-        let verdict = evaluate_one_organism_symbiosis(0.88, &kpi);
-        assert!(matches!(verdict, MercyVerdict::Mitigated { .. }));
+        kpi.set_score(MaatDimension::Balance, 0.94);
+
+        let verdict = evaluate_with_cross_layer(0.82, None, Some(&kpi), MercyGateLevel::Integrative);
+        assert!(verdict_overall_score(&verdict) > 0.82);
     }
 }
 
-// Documentation / Examples will be updated in docs/ next
+fn verdict_overall_score(verdict: &MercyVerdict) -> f64 {
+    match verdict {
+        MercyVerdict::Passed { overall_score } => *overall_score,
+        MercyVerdict::Mitigated { overall_score, .. } => *overall_score,
+        _ => 0.0,
+    }
+}
 
 // ... rest of file ...
