@@ -85,6 +85,19 @@ impl SovereignHealthMonitor {
             "v2 Evolution requires higher mercy compliance or PATSAGi re-review".to_string()
         }
     }
+
+    /// Clean integration helper for ONE Organism symbiosis + quantum swarm
+    pub fn integrate_with_one_organism_symbiosis(&mut self, symbiosis_valence: f64, task: &str) -> String {
+        self.metrics.valence_level = symbiosis_valence.max(self.metrics.valence_level);
+        let health = self.run_sovereign_check();
+        let (blessed, _) = self.request_epigenetic_blessing(task);
+        if blessed {
+            let _ = self.orchestrate_quantum_swarm_evolution(task);
+            format!("ONE Organism Health Check: valence={:.4}, mercy={:.2}, blessed. Swarm engaged.", health.valence_level, health.mercy_compliance)
+        } else {
+            format!("ONE Organism Health Check: valence={:.4}. Awaiting higher mercy alignment.", health.valence_level)
+        }
+    }
 }
 
 pub fn init_sovereign_health_monitor() -> SovereignHealthMonitor {
