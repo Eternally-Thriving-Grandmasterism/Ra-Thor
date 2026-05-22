@@ -1,42 +1,24 @@
-// ... existing code in SovereignHealthMonitor ...
+// ... existing code ...
 
-    /// Requests an epigenetic blessing with synergy from the SelfEvolutionBlessing mercy gate
-    pub fn request_epigenetic_blessing_with_mercy(
+    /// Original method now optionally uses mercy synergy
+    pub fn request_epigenetic_blessing(
         &mut self,
         reason: &str,
-        base_mercy_score: f64,
+        use_mercy_synergy: bool,
     ) -> BlessingResult {
-        let current_level = self.metrics.epigenetic_blessing_level;
-        let success_rate = if self.blessing_history.is_empty() {
-            0.5
-        } else {
-            let successes = self.blessing_history.iter().filter(|b| b.success).count();
-            successes as f64 / self.blessing_history.len() as f64
-        };
+        if use_mercy_synergy {
+            // Use the enhanced version with SelfEvolutionBlessing gate
+            return self.request_epigenetic_blessing_with_mercy(reason, 0.75);
+        }
 
-        // Use the new synergy function from mercy_gating
-        let verdict = mercy_gating::evaluate_self_evolution_blessing(
-            base_mercy_score,
-            current_level,
-            success_rate,
-        );
-
-        let blessing_score = self.calculate_blessing_score(reason);
-
-        // Combine mercy verdict with traditional blessing scoring
-        let final_score = match verdict {
-            mercy_gating::MercyVerdict::Passed { overall_score } => (blessing_score + overall_score) / 2.0,
-            mercy_gating::MercyVerdict::Mitigated { overall_score, .. } => (blessing_score + overall_score * 0.9) / 2.0,
-            mercy_gating::MercyVerdict::RequiresCouncilReview => blessing_score * 0.7,
-            mercy_gating::MercyVerdict::Blocked { .. } => 0.1,
-        };
-
-        let tier = calculate_blessing_tier(final_score);
-        let success = final_score > 0.6;
+        // Original behavior (no mercy synergy)
+        let score = self.calculate_blessing_score(reason);
+        let tier = calculate_blessing_tier(score);
+        let success = score > 0.6;
 
         let result = BlessingResult {
             tier,
-            score: final_score,
+            score,
             success,
             reason: reason.to_string(),
         };
@@ -45,7 +27,7 @@
 
         if success {
             self.metrics.epigenetic_blessing_level =
-                (self.metrics.epigenetic_blessing_level + 0.03).min(0.95);
+                (self.metrics.epigenetic_blessing_level + 0.02).min(0.95);
         }
 
         result
