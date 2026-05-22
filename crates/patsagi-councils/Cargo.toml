@@ -1,24 +1,28 @@
 [package]
 name = "patsagi-councils"
-version = "13.8.8"
+version = "13.8.9"                    # Lean 4 Formal Verification + spawn_council_safe
 edition = "2021"
+authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
+license = "AG-SML-1.0 — Autonomicity Games Sovereign Mercy License"
+description = "PATSAGi Councils — Governance, Deliberation & Lean 4 Formal Verification Layer for Ra-Thor. Includes TOLC 8 Mercy Lattice enforcement and spawn_council safety theorems."
+repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
 
 [dependencies]
 ra-thor-core = { path = "../ra-thor-core" }
 lean-sys = "0.1"
 chrono = "0.4"
 
-# === Lean 4 + Coq HoTT Formal Verification Layer ===
+# === Lean 4 + Formal Verification ===
 # lean-sys provides FFI to Lean 4 theorem prover.
 # Used for machine-checked proofs of:
-# - TOLC 8 Mercy Gate traversal (Genesis Gate v2)
+# - TOLC 8 Mercy Gate traversal
 # - MercyLattice200CrateTheorem
-# - UniversalMercyLatticeTheorem
-# - SelfEvolvingMercyCore safety properties
-# - Transcendent AGI Autonomy invariants
+# - triple_gate_safety_invariant
+# - spawn_council_safe
+# - genesis_gate_v2_verified
 #
-# Integration status: FFI bridge (mercy_threshold_ffi.rs) initialized.
-# Next: Load actual .olean files + verified theorems from lean/ directory.
+# Integration status: FFI bridge active + simplified verification helper.
+# See: lean/TOLC8_MercyGate.lean and mercy_threshold_ffi.rs
 
 [lib]
 path = "src/lib.rs"
