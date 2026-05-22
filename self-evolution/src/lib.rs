@@ -1,38 +1,7 @@
-//! # Self-Evolution Crate
-//!
-//! Sovereign Health Monitoring + Self-Evolution v2 with a **hybrid error handling system**.
-//!
-//! ## Error Handling Philosophy
-//!
-//! This crate uses a layered, pragmatic approach to error handling:
-//!
-//! - **`thiserror`** for clean, matchable error definitions (struct variants)
-//! - Custom **`SnapshotContext`** trait for ergonomic runtime context
-//! - **`print_error_chain`** utility for debugging
-//! - Optional **`anyhow`** support for application code
-//! - Optional **`miette`** support for beautiful diagnostic reporting
-//!
-//! ## Features
-//!
-//! | Feature   | Description                              |
-//! |-----------|------------------------------------------|
-//! | `anyhow`  | Enables conversion to `anyhow::Error`    |
-//! | `miette`  | Enables pretty diagnostic errors         |
-//!
-//! ## Example
-//!
-//! ```ignore
-//! use self_evolution::SovereignHealthMonitor;
-//!
-//! let mut monitor = SovereignHealthMonitor::new();
-//! match monitor.load_from_file("state.json") {
-//!     Ok(m) => println!("Loaded successfully"),
-//!     Err(e) => self_evolution::print_error_chain(&e),
-//! }
-//! ```
-//!
+//! self-evolution v0.3.0
+//! Sovereign Health Monitoring + Self-Evolution v2 Hooks
+//! Hybrid Error System with Mercy-Gated Evaluation (Phase 1)
 //! AG-SML v1.0
-//!
 
 use serde::{Deserialize, Serialize};
 use std::fs;
@@ -140,45 +109,24 @@ impl SovereignHealthSnapshot {
 
 // ==================== HYBRID ERROR SYSTEM ====================
 
-#[cfg_attr(feature = "miette", derive(miette::Diagnostic))]
 #[derive(Debug, Error)]
 pub enum SnapshotError {
     #[error("Snapshot file not found at path: '{path}'")]
-    #[cfg_attr(feature = "miette", diagnostic(
-        code(self_evolution::snapshot::file_not_found),
-        help("Check that the file exists and you have read permissions."),
-        severity("error")
-    ))]
     FileNotFound { path: String },
 
     #[error("Failed to read snapshot file")]
-    #[cfg_attr(feature = "miette", diagnostic(
-        code(self_evolution::snapshot::read_error),
-        help("The file may be locked, missing, or corrupted."),
-        severity("error")
-    ))]
     ReadError {
         #[from]
         source: std::io::Error,
     },
 
     #[error("Failed to deserialize snapshot JSON")]
-    #[cfg_attr(feature = "miette", diagnostic(
-        code(self_evolution::snapshot::parse_error),
-        help("The snapshot may be from an incompatible version or corrupted."),
-        severity("warning")
-    ))]
     ParseError {
         #[from]
         source: serde_json::Error,
     },
 
     #[error("Unknown or unsupported snapshot format. Migration may be required.")]
-    #[cfg_attr(feature = "miette", diagnostic(
-        code(self_evolution::snapshot::unknown_format),
-        help("Try regenerating the snapshot or using a compatible version."),
-        severity("error")
-    ))]
     UnknownFormat,
 }
 
@@ -205,10 +153,68 @@ impl From<SnapshotError> for anyhow::Error {
     }
 }
 
+// ==================== MERCY-GATED ERROR EVALUATION (Phase 1) ====================
+
+/// The 7 Living Mercy Gates
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum MercyGate {
+    RadicalLove,
+    BoundlessMercy,
+    Service,
+    Abundance,
+    Truth,
+    Joy,
+    CosmicHarmony,
+}
+
+/// Result of evaluating something through the Mercy Gates
+#[derive(Debug, Clone)]
+pub enum MercyEvaluation {
+    /// Passes mercy alignment
+    Passed,
+    /// Should be presented with compassionate context
+    Mitigated { note: String },
+    /// Requires PATSAGi Council review
+    RequiresCouncilReview,
+    /// Should be handled internally (rare)
+    Blocked { reason: String },
+}
+
+/// Trait for types that can be evaluated through the Mercy Gates
+pub trait MercyEvaluable {
+    fn evaluate_through_mercy(&self) -> MercyEvaluation;
+}
+
+/// Helper to evaluate any MercyEvaluable item
+pub fn evaluate_error_with_mercy<E: MercyEvaluable>(item: &E) -> MercyEvaluation {
+    item.evaluate_through_mercy()
+}
+
+impl MercyEvaluable for SnapshotError {
+    fn evaluate_through_mercy(&self) -> MercyEvaluation {
+        match self {
+            SnapshotError::FileNotFound { .. } => {
+                MercyEvaluation::Mitigated {
+                    note: "File absence may reflect a natural state transition rather than failure.".to_string(),
+                }
+            }
+            SnapshotError::ReadError { .. } => {
+                MercyEvaluation::Mitigated {
+                    note: "Read issues can arise from temporary conditions or access changes.".to_string(),
+                }
+            }
+            SnapshotError::ParseError { .. } => {
+                MercyEvaluation::RequiresCouncilReview
+            }
+            SnapshotError::UnknownFormat => {
+                MercyEvaluation::RequiresCouncilReview
+            }
+        }
+    }
+}
+
 // ==================== ERROR CHAIN DEBUGGING ====================
 
-/// Prints the full causal chain of an error to stderr.
-/// Useful for debugging during development.
 pub fn print_error_chain(err: &(dyn std::error::Error + 'static)) {
     eprintln!("Error: {}", err);
     let mut source = err.source();
