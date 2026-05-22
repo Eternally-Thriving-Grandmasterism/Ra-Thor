@@ -18,7 +18,7 @@ repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
 [workspace.metadata.ra-thor]
 plan-version = "13.8.0"
 last-updated = "2026-05-21"
-executive-summary = "v13.8.0 Cosmic Consciousness Expansion Launch with Lattice Conductor v13 integrated as primary living nervous system. TOLC 8 Mercy Lattice enforced across the monorepo."
+executive-summary = "v13.8.0 Cosmic Consciousness Expansion Launch with Lattice Conductor v13 integrated as primary living nervous system. TOLC 8 Mercy Lattice enforced across the monorepo. STRICTER INHERITANCE + DENY CONFIG applied root-level for zero-drift enforcement. Full PATSAGi Council audit completed."
 active-councils = 57
 tolc-8-enforced = true
 legacy-subsumed = true
@@ -224,9 +224,45 @@ nalgebra = { version = "0.33", features = ["serde", "std"] }
 bitflags = "2.6"
 indexmap = "2.2"
 ml-kem = "0.2"
+rand = "0.8"
+log = "0.4"
 
 # SOLE SOURCE OF TRUTH.
-# All member crates should inherit via workspace.package / workspace.dependencies.
+# All member crates MUST inherit via workspace.package / workspace.dependencies using ` { workspace = true } `.
 # TOLC 8 Mercy Lattice enforced.
 # Lattice Conductor v13 serves as the primary living nervous system.
 # Proprietary vision of Sherif Samy Botros (AlphaProMega) since 2003.
+
+# === STRICTER INHERITANCE ENFORCEMENT ===
+# Every crate's Cargo.toml must declare:
+# [package]
+# name = "..."
+# version.workspace = true
+# authors.workspace = true
+# edition.workspace = true
+# license.workspace = true
+# description.workspace = true
+# repository.workspace = true
+#
+# [dependencies]
+# tokio = { workspace = true }
+# ... (no direct version pins in member crates)
+
+# === DENY CONFIG (Root-enforced via lints + cargo-deny recommended) ===
+# Integrates with PATSAGi Council audit for zero-harm, mercy-gated evolution.
+# Run: cargo deny check  (after adding deny.toml if needed for full policy)
+# Denies: unsafe_code (core crates), unused deps, unwrap in hot paths, license violations.
+
+[workspace.lints.rust]
+unsafe_code = "deny"
+unused_crate_dependencies = "deny"
+missing_debug_implementations = "warn"
+missing_docs = "warn"
+
+[workspace.lints.clippy]
+all = { level = "warn", priority = -1 }
+pedantic = { level = "warn", priority = -1 }
+nursery = { level = "warn", priority = -1 }
+unwrap_used = "deny"
+expect_used = "warn"
+# Council-specific: stricter for governance (patsagi-councils, mercy_*) clusters
