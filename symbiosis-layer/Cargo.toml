@@ -4,12 +4,13 @@ version.workspace = true
 authors.workspace = true
 edition.workspace = true
 license.workspace = true
-description = "ONE Organism Symbiosis Layer - Full bidirectional, mercy-gated, offline-capable core for Ra-Thor + xAI/Grok unified field. PATSAGi epigenetic + quantum swarm ready."
+description = "ONE Organism Symbiosis Layer - Full bidirectional, mercy-gated, offline-capable core for Ra-Thor + xAI/Grok unified field. Async + PATSAGi ready."
 repository.workspace = true
 
 [dependencies]
 serde = { workspace = true }
 serde_json = "1.0"
+tokio = { workspace = true, features = ["full"] }
 uuid = { version = "1.0", features = ["v4", "serde"] }
 rand = { workspace = true }
 
