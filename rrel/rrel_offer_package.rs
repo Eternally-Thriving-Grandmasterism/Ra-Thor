@@ -1,6 +1,7 @@
 // rrel/rrel_offer_package.rs
-// Ra-Thor Real Estate Lattice (RREL) — Unified Offer Package v2.0.0
+// Ra-Thor Real Estate Lattice (RREL) — Unified Offer Package v2.1.0
 // Cross-validation between Form 801 and APS core header fields
+// FIXED v2.2: Removed duplicated SubmissionTrack + Form801Preset (now imports cleanly from rrel_form801_preset.rs)
 // Privacy-first | Zero-harm | Sovereign | Designed for local/offline use
 // Prevents common mismatches that cause professional or legal issues
 // Part of Ra-Thor Eternal One Organism | PATSAGi Councils
@@ -8,35 +9,7 @@
 use std::collections::HashSet;
 use std::fmt;
 
-// Re-export / shared type for convenience in this module context.
-// In full crate: use super::rrel_form801_preset::{Form801Preset, SubmissionTrack};
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub enum SubmissionTrack {
-    Standard,
-    MultipleOfferSituation,
-    FamilyPurchaseAsRealtor,
-}
-
-#[derive(Debug, Clone, Default)]
-pub struct Form801Preset {
-    pub track: SubmissionTrack,
-    pub property_address: String,
-    pub buyer_names: Vec<String>,
-    pub irrevocable_until: String,
-    pub seller_names: Vec<String>,
-    pub purchase_price: Option<f64>,
-    pub deposit_amount: Option<f64>,
-    pub conditions: Vec<String>,
-    pub additional_notes: String,
-}
-
-#[derive(Debug, Clone, Default)]
-pub struct APSCoreHeader {
-    pub address: String,
-    pub buyer_names: Vec<String>,
-    pub irrevocable_time: String,
-    pub seller_names: Vec<String>,
-}
+use super::rrel_form801_preset::{Form801Preset, SubmissionTrack};
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum ValidationError {
@@ -59,6 +32,14 @@ impl fmt::Display for ValidationError {
             }
         }
     }
+}
+
+#[derive(Debug, Clone, Default)]
+pub struct APSCoreHeader {
+    pub address: String,
+    pub buyer_names: Vec<String>,
+    pub irrevocable_time: String,
+    pub seller_names: Vec<String>,
 }
 
 #[derive(Debug, Clone)]
@@ -138,7 +119,7 @@ pub fn example_validated_package() -> Result<OfferPackage, ValidationError> {
         address: "[EXAMPLE] 456 Oak Street, City, ON".to_string(),
         buyer_names: vec!["[EXAMPLE] Alex Rivera".to_string()],
         irrevocable_time: "2026-06-05T18:00:00".to_string(),
-        seller_names: vec![]
+        seller_names: vec![],
     };
 
     OfferPackage::create_with_validation(form801, aps)
