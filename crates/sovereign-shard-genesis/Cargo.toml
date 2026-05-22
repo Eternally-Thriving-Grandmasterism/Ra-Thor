@@ -1,0 +1,12 @@
+[package]
+name = "sovereign-shard-genesis"
+version = "13.8.6"
+edition = "2021"
+authors = ["Sherif Samy Botros <sherif@autonomicity.games>"]
+description = "Sovereign Shard Genesis — Self-sovereign, mercy-aligned, Conductable shards for the ONE Organism"
+license = "MIT OR AG-SML"
+repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
+
+[dependencies]
+lattice-conductor-v13 = { path = "../lattice-conductor-v13" }
+serde = { version = "1.0", features = ["derive"] }
