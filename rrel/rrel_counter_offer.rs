@@ -1,6 +1,7 @@
 /*!
- * RREL Counter-Offer / Amendment Track (v0.9.0 - Starter)
+ * RREL Counter-Offer / Amendment Track (v1.0.0)
  * Professional handling for counter-offers, amendments, and related compliance.
+ * Deepened PATSAGi Council integration for reminders and alerts.
  * Aligns with RECO / TRESA disclosure and record-keeping expectations.
  */
 
@@ -15,6 +16,14 @@ pub enum CounterOfferStatus {
     Accepted,
     Rejected,
     Withdrawn,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub enum PatsagiAlertLevel {
+    Info,
+    Warning,
+    ActionRequired,
+    Critical,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -63,7 +72,6 @@ impl CounterOffer {
         self.add_note("Marked as sent to other party.");
     }
 
-    /// Simple compliance note for record-keeping
     pub fn generate_compliance_note(&self) -> String {
         format!(
             "Counter-Offer {} | Status: {:?} | Changes: {} | Retain per O. Reg. 579/05",
@@ -72,11 +80,38 @@ impl CounterOffer {
     }
 }
 
-// PATSAGi-friendly reminder hook example
+/// Creates a PATSAGi Council reminder with alert level.
 pub fn create_patsagi_reminder_for_counter_offer(offer: &CounterOffer) -> String {
+    let level = match offer.status {
+        CounterOfferStatus::Draft => PatsagiAlertLevel::Info,
+        CounterOfferStatus::Sent => PatsagiAlertLevel::Warning,
+        CounterOfferStatus::Received => PatsagiAlertLevel::ActionRequired,
+        _ => PatsagiAlertLevel::Info,
+    };
+
     format!(
-        "[PATSAGi Reminder] Counter-Offer {} for {} requires follow-up. Current status: {:?}. Mercy-guided action recommended.",
-        offer.id, offer.property_address, offer.status
+        "[PATSAGi {}] Counter-Offer {} for {} requires follow-up. Current status: {:?}. Mercy-guided action recommended.",
+        match level {
+            PatsagiAlertLevel::Info => "INFO",
+            PatsagiAlertLevel::Warning => "WARNING",
+            PatsagiAlertLevel::ActionRequired => "ACTION REQUIRED",
+            PatsagiAlertLevel::Critical => "CRITICAL",
+        },
+        offer.id,
+        offer.property_address,
+        offer.status
+    )
+}
+
+/// Generates a structured PATSAGi alert for compliance events.
+pub fn generate_patsagi_compliance_alert(
+    context: &str,
+    level: PatsagiAlertLevel,
+    recommended_action: &str,
+) -> String {
+    format!(
+        "[PATSAGi ALERT - {:?}] {} | Recommended: {} | Eternal Mercy Flow active.",
+        level, context, recommended_action
     )
 }
 
@@ -97,5 +132,19 @@ mod tests {
         co.mark_sent();
         assert_eq!(co.status, CounterOfferStatus::Sent);
         assert!(!co.notes.is_empty());
+    }
+
+    #[test]
+    fn test_patsagi_reminder_generation() {
+        let co = CounterOffer::new(
+            "CO-042".to_string(),
+            "O-2042".to_string(),
+            "789 Pine St".to_string(),
+            "Listing Agent".to_string(),
+            "Buyer Agent".to_string(),
+            "Extension of irrevocable period".to_string(),
+        );
+        let reminder = create_patsagi_reminder_for_counter_offer(&co);
+        assert!(reminder.contains("PATSAGi"));
     }
 }
