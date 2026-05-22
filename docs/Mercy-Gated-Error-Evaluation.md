@@ -1,53 +1,24 @@
-# Ultimate Unified MercyGating System
+# Ultimate Unified MercyGating System - Deep Implementation
 
-## Overview
+## Current Architecture (v0.7.0)
 
-The Ultimate Unified MercyGating System provides a hierarchical way to evaluate decisions and states through different resolutions of Mercy Gates:
+**Three Layers:**
+- **Foundational** (7 Living Mercy Gates)
+- **Operational** (16-gate Ma'at system)
+- **Integrative** (7 new meta gates)
 
-- **Level 7**: Foundational Living Mercy Gates
-- **Level 8 (TOLC)**: Extended gates with TOLC coherence
-- **Level 16 (Ma’at)**: Detailed 16-gate system with quantitative Ma’at KPI scoring
+### New Integrative Gates Added
+- PATSAGi Consensus Gate
+- Self-Evolution Blessing Gate
+- Lattice Coherence Gate
+- TOLC Fidelity Gate
+- ONE Organism Symbiosis Gate
+- Quantum Swarm Mercy Gate
+- Genesis / Origin Gate
 
-## Key Components
+## Status
+Deep implementation in progress. Richer scoring and layer-specific behavior added.
 
-### Enums
-- `MercyGateLevel`
-- `CoreMercyGate`, `TolcMercyGate`, `MaatMercyGate`
-- `UnifiedMercyGate`
-
-### Ma’at Scoring
-- `MaatDimension` (Balance, Truth, Justice, Order)
-- `MaatKpi` struct with scoring and threshold checking
-
-### Evaluation
-- `MercyGateEvaluable` trait
-- `evaluate_mercy(level)` method
-
-## Usage
-
-```rust
-let verdict = some_error.evaluate_mercy(MercyGateLevel::SixteenMaat);
-
-match verdict {
-    MercyVerdict::RequiresCouncilReview => {
-        let review = simulate_patsagi_council_review(&verdict);
-        println!("{}", review);
-    }
-    _ => {}
-}
-```
-
-## Current Capabilities
-
-- Multi-level mercy evaluation
-- Ma’at quantitative scoring at highest granularity
-- Integration with error handling and health monitoring
-- PATSAGi Council review hook
-
-## Future Directions
-
-- Full Mercy-Gated Decision Trees
-- Deeper multi-council PATSAGi simulation
-- System-wide coherence metrics
+More tests, per-gate logic, and full documentation coming.
 
 AG-SML v1.0
