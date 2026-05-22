@@ -119,15 +119,33 @@ pub enum SnapshotError {
 impl std::fmt::Display for SnapshotError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            SnapshotError::FileNotFound(p) => write!(f, "Snapshot file not found: {}", p),
-            SnapshotError::ReadError(e) => write!(f, "Failed to read snapshot: {}", e),
-            SnapshotError::ParseError(e) => write!(f, "Failed to parse snapshot: {}", e),
-            SnapshotError::UnknownFormat => write!(f, "Unknown or unsupported snapshot format"),
+            SnapshotError::FileNotFound(path) => {
+                write!(f, "Snapshot file not found at path: '{}'. Please ensure the file exists.", path)
+            }
+            SnapshotError::ReadError(err) => {
+                write!(f, "Failed to read snapshot file: {}", err)
+            }
+            SnapshotError::ParseError(err) => {
+                write!(f, "Failed to deserialize snapshot JSON: {}", err)
+            }
+            SnapshotError::UnknownFormat => {
+                write!(f, "Snapshot is in an unknown or unsupported format. Migration may be required.")
+            }
         }
     }
 }
 
-impl std::error::Error for SnapshotError {}
+impl std::error::Error for SnapshotError {
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+        match self {
+            SnapshotError::ReadError(_) | SnapshotError::ParseError(_) => {
+                // In a more advanced version we could store the original error
+                None
+            }
+            _ => None,
+        }
+    }
+}
 
 // ==================== SOVEREIGN HEALTH MONITOR ====================
 
@@ -172,7 +190,6 @@ impl SovereignHealthMonitor {
         Ok(())
     }
 
-    /// Refactored with proper error handling
     pub fn load_from_file(path: &str) -> Result<Self, SnapshotError> {
         if !Path::new(path).exists() {
             return Err(SnapshotError::FileNotFound(path.to_string()));
@@ -181,12 +198,10 @@ impl SovereignHealthMonitor {
         let json = fs::read_to_string(path)
             .map_err(|e| SnapshotError::ReadError(e.to_string()))?;
 
-        // Try current V2 format first
         if let Ok(snapshot) = serde_json::from_str::<SovereignHealthSnapshot>(&json) {
             return Ok(Self::from_snapshot(snapshot));
         }
 
-        // Fallback to V1 migration
         if let Ok(v1) = serde_json::from_str::<SovereignHealthSnapshotV1>(&json) {
             let v2 = SovereignHealthSnapshot::from_v1(v1);
             return Ok(Self::from_snapshot(v2));
