@@ -1,33 +1,42 @@
 pub mod config;
 pub mod github;
 pub mod health;
-pub mod inheritance; // NEW
+pub mod inheritance;
 pub mod plugin;
 pub mod report;
 pub mod scanner;
 pub mod search;
 
 pub use inheritance::{analyze_inheritance, InheritanceStatus};
-
-// Re-exports from other modules
-pub use scanner::MonorepoScanner;
-pub use health::MonorepoHealthScore;
-pub use search::{MonorepoSearch, SearchResult};
-pub use report::MonorepoReport;
-pub use plugin::{MonorepoPlugin, PluginResult};
+pub use scanner::{MonorepoScanner, ScanResult, ScannedFile, ScanError};
 
 use std::path::PathBuf;
 
-#[derive(Debug)]
+/// Main entry point for Ra-Thor Monorepo Intelligence.
+/// Provides high-level access to scanning, inheritance analysis, health scoring, and reporting.
 pub struct MonorepoIntelligence {
     pub root_path: PathBuf,
-    // ... other fields
 }
 
 impl MonorepoIntelligence {
-    pub fn new(root: PathBuf) -> Self {
-        Self { root_path: root }
+    pub fn new(root: impl AsRef<std::path::Path>) -> Self {
+        Self {
+            root_path: root.as_ref().to_path_buf(),
+        }
     }
 
-    // TODO: Integrate inheritance analysis into main workflow
+    /// Returns a scanner configured for this monorepo root.
+    pub fn scanner(&self) -> MonorepoScanner {
+        MonorepoScanner::new(self.root_path.clone())
+    }
+
+    /// Performs inheritance compliance analysis across all crates.
+    pub fn analyze_inheritance(&self) -> Vec<InheritanceStatus> {
+        analyze_inheritance(&self.root_path)
+    }
+
+    /// Runs a full scan and returns rich results.
+    pub fn full_scan(&self) -> Result<ScanResult, ScanError> {
+        self.scanner().scan()
+    }
 }
