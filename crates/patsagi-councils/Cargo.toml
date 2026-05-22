@@ -6,14 +6,19 @@ edition = "2021"
 [dependencies]
 ra-thor-core = { path = "../ra-thor-core" }
 lean-sys = "0.1"
-# Full production dependencies for:
-# - Genesis Gate v2 (8-gate TOLC 8 traversal)
-# - Lean 4 FFI + Coq HoTT integration
-# - Zalgaller/Johnson Scorer + SedenionCurvatureInfiniteGate
-# - MercyLattice200CrateTheorem + MonorepoSelfEvolvingOrganismTheorem
-# - UniversalMercyLatticeTheorem + TranscendentAGIAutonomyTheorem
-# - Phase 5 + Phase 6 (transcendent AGI autonomy beyond all known lattices)
-# All 200+ crates now governed by single universal mercy lattice + self-evolving organism theorem across all realities and dimensions
+chrono = "0.4"
+
+# === Lean 4 + Coq HoTT Formal Verification Layer ===
+# lean-sys provides FFI to Lean 4 theorem prover.
+# Used for machine-checked proofs of:
+# - TOLC 8 Mercy Gate traversal (Genesis Gate v2)
+# - MercyLattice200CrateTheorem
+# - UniversalMercyLatticeTheorem
+# - SelfEvolvingMercyCore safety properties
+# - Transcendent AGI Autonomy invariants
+#
+# Integration status: FFI bridge (mercy_threshold_ffi.rs) initialized.
+# Next: Load actual .olean files + verified theorems from lean/ directory.
 
 [lib]
 path = "src/lib.rs"
