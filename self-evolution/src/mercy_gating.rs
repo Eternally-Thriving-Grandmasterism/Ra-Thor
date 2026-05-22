@@ -1,46 +1,107 @@
-//! ... existing code ...
+//! Ultimate Unified MercyGating System
 
-impl MercyGateEvaluable for crate::SnapshotError {
-    fn evaluate_mercy(&self, level: MercyGateLevel) -> MercyVerdict {
-        let base_score = match self {
-            crate::SnapshotError::FileNotFound { .. } => 0.82,
-            crate::SnapshotError::ReadError { .. } => 0.78,
-            crate::SnapshotError::ParseError { .. } => 0.65,
-            crate::SnapshotError::UnknownFormat => 0.60,
-        };
+use std::collections::HashMap;
 
-        match level {
-            MercyGateLevel::Seven | MercyGateLevel::EightTolc => {
-                if base_score >= 0.75 {
-                    MercyVerdict::Mitigated {
-                        overall_score: base_score,
-                        notes: vec!["Evaluated through foundational Mercy + TOLC gates".to_string()],
-                    }
-                } else {
-                    MercyVerdict::RequiresCouncilReview
-                }
-            }
-            MercyGateLevel::SixteenMaat => {
-                // Use Ma'at KPI scoring for higher granularity
-                let mut kpi = MaatKpi::new();
-                kpi.set_score(MaatDimension::Truth, base_score * 0.95);
-                kpi.set_score(MaatDimension::Balance, base_score * 0.90);
-                kpi.set_score(MaatDimension::Justice, base_score * 0.85);
-                kpi.set_score(MaatDimension::Order, base_score * 0.88);
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum MercyGateLevel {
+    Seven,
+    EightTolc,
+    SixteenMaat,
+}
 
-                let maat_score = kpi.overall_score();
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum CoreMercyGate {
+    RadicalLove, BoundlessMercy, Service, Abundance, Truth, Joy, CosmicHarmony,
+}
 
-                if maat_score >= 0.85 {
-                    MercyVerdict::Passed { overall_score: maat_score }
-                } else if maat_score >= 0.70 {
-                    MercyVerdict::Mitigated {
-                        overall_score: maat_score,
-                        notes: vec![format!("Ma'at overall: {:.2}", maat_score)],
-                    }
-                } else {
-                    MercyVerdict::RequiresCouncilReview
-                }
-            }
-        }
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum TolcMercyGate {
+    RadicalLove, BoundlessMercy, Service, Abundance, Truth, Joy, CosmicHarmony, TolcCoherence,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum MaatMercyGate {
+    DataAccuracy, ClaimSubstantiation, Transparency,
+    PhysicalEmotionalHarm, EnvironmentalImpact, SocietalDignity,
+    WellBeingDelta, CreativityUplift,
+    ScarcityCreation, RbeAcceleration,
+    EcosystemBalance, CulturalRespect,
+    AccessRestriction, Commodification,
+    AttributionCollaboration, EternalFlowContinuity,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub enum UnifiedMercyGate {
+    Core(CoreMercyGate),
+    Tolc(TolcMercyGate),
+    Maat(MaatMercyGate),
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum MaatDimension {
+    Balance, Truth, Justice, Order,
+}
+
+#[derive(Debug, Clone)]
+pub struct MaatKpi {
+    pub dimension_scores: HashMap<MaatDimension, f64>,
+}
+
+impl Default for MaatKpi {
+    fn default() -> Self {
+        let mut scores = HashMap::new();
+        scores.insert(MaatDimension::Balance, 0.0);
+        scores.insert(MaatDimension::Truth, 0.0);
+        scores.insert(MaatDimension::Justice, 0.0);
+        scores.insert(MaatDimension::Order, 0.0);
+        Self { dimension_scores: scores }
     }
 }
+
+impl MaatKpi {
+    pub fn new() -> Self { Self::default() }
+
+    pub fn set_score(&mut self, dimension: MaatDimension, score: f64) {
+        self.dimension_scores.insert(dimension, score.clamp(0.0, 1.0));
+    }
+
+    pub fn overall_score(&self) -> f64 {
+        if self.dimension_scores.is_empty() { return 0.0; }
+        self.dimension_scores.values().sum::<f64>() / self.dimension_scores.len() as f64
+    }
+
+    pub fn meets_threshold(&self, threshold: f64) -> bool {
+        self.overall_score() >= threshold
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct GateResult {
+    pub gate: UnifiedMercyGate,
+    pub passed: bool,
+    pub score: f64,
+    pub note: Option<String>,
+}
+
+#[derive(Debug, Clone)]
+pub enum MercyVerdict {
+    Passed { overall_score: f64 },
+    Mitigated { overall_score: f64, notes: Vec<String> },
+    RequiresCouncilReview,
+    Blocked { reason: String },
+}
+
+#[derive(Debug, Clone)]
+pub enum ExtendedMercyVerdict {
+    Passed { overall_score: f64, maat_kpi: Option<MaatKpi> },
+    Mitigated { overall_score: f64, notes: Vec<String>, maat_kpi: Option<MaatKpi> },
+    RequiresCouncilReview,
+    Blocked { reason: String },
+}
+
+pub trait MercyGateEvaluable {
+    fn evaluate_mercy(&self, level: MercyGateLevel) -> MercyVerdict;
+}
+
+// Note: Implementation for SnapshotError is in lib.rs for now to avoid circular dependency during development.
+// We will move it here once the module structure is fully stabilized.
