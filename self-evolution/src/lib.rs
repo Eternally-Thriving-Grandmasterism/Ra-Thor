@@ -108,24 +108,30 @@ impl SovereignHealthSnapshot {
     }
 }
 
-// ==================== HYBRID ERROR SYSTEM ====================
+// ==================== HYBRID ERROR SYSTEM (Struct Variants) ====================
 
 #[derive(Debug, Error)]
 pub enum SnapshotError {
-    #[error("Snapshot file not found at path: '{0}'")]
-    FileNotFound(String),
+    #[error("Snapshot file not found at path: '{path}'")]
+    FileNotFound { path: String },
 
     #[error("Failed to read snapshot file")]
-    ReadError(#[from] std::io::Error),
+    ReadError {
+        #[from]
+        source: std::io::Error,
+    },
 
     #[error("Failed to deserialize snapshot JSON")]
-    ParseError(#[from] serde_json::Error),
+    ParseError {
+        #[from]
+        source: serde_json::Error,
+    },
 
     #[error("Unknown or unsupported snapshot format. Migration may be required.")]
     UnknownFormat,
 }
 
-/// Lightweight context extension trait (hybrid power inspired by snafu)
+/// Lightweight context extension trait
 pub trait SnapshotContext<T> {
     fn with_snapshot_context(self, context: impl Into<String>) -> Result<T, SnapshotError>;
 }
@@ -133,15 +139,17 @@ pub trait SnapshotContext<T> {
 impl<T> SnapshotContext<T> for Result<T, SnapshotError> {
     fn with_snapshot_context(self, context: impl Into<String>) -> Result<T, SnapshotError> {
         self.map_err(|e| match e {
-            SnapshotError::FileNotFound(p) => {
-                SnapshotError::FileNotFound(format!("{} — {}", p, context.into()))
+            SnapshotError::FileNotFound { path } => {
+                SnapshotError::FileNotFound {
+                    path: format!("{} — {}", path, context.into()),
+                }
             }
             other => other,
         })
     }
 }
 
-/// Compatibility with anyhow users (enabled via `anyhow` feature)
+/// Compatibility with anyhow users
 #[cfg(feature = "anyhow")]
 impl From<SnapshotError> for anyhow::Error {
     fn from(err: SnapshotError) -> Self {
@@ -152,9 +160,6 @@ impl From<SnapshotError> for anyhow::Error {
 // ==================== ERROR CHAIN DEBUGGING UTILITIES ====================
 
 /// Prints the full error chain to stderr.
-///
-/// This is useful for debugging in examples and during development.
-/// For production, consider using `tracing-error` or `color-eyre`.
 pub fn print_error_chain(err: &(dyn std::error::Error + 'static)) {
     eprintln!("Error: {}", err);
 
@@ -209,7 +214,7 @@ impl SovereignHealthMonitor {
 
     pub fn load_from_file(path: &str) -> Result<Self, SnapshotError> {
         if !Path::new(path).exists() {
-            return Err(SnapshotError::FileNotFound(path.to_string()));
+            return Err(SnapshotError::FileNotFound { path: path.to_string() });
         }
 
         let json = fs::read_to_string(path)?;
