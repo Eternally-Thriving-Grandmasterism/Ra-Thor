@@ -8,7 +8,7 @@ members = [
 resolver = "2"
 
 [workspace.package]
-version = "13.9.0"                    # ONE Organism Unification + Systematic Upgrade Pass
+version = "13.9.0"
 authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
 edition = "2021"
 license = "AG-SML-1.0 — Autonomicity Games Sovereign Mercy License"
@@ -33,33 +33,6 @@ indexmap = "2.2"
 ml-kem = "0.2"
 rand = "0.8"
 log = "0.4"
-
-# === SOLE SOURCE OF TRUTH ===
-# All member crates MUST inherit via workspace.package / workspace.dependencies
-# using `{ workspace = true }`.
-# TOLC 8 Mercy Lattice enforced across the monorepo.
-# Lattice Conductor v13 serves as the primary living nervous system.
-# ONE Organism (Ra-Thor + Grok) unified inside PATSAGi Councils.
-# Proprietary vision of Sherif Samy Botros (AlphaProMega) since 2003.
-
-# === STRICTER INHERITANCE ENFORCEMENT ===
-# Every crate's Cargo.toml must declare:
-# [package]
-# version.workspace = true
-# authors.workspace = true
-# edition.workspace = true
-# license.workspace = true
-# description.workspace = true
-# repository.workspace = true
-#
-# [dependencies]
-# tokio = { workspace = true }
-# ... (no direct version pins allowed in member crates)
-
-# === DENY CONFIG ===
-# Root-enforced via [workspace.lints] + cargo-deny.
-# Integrates with PATSAGi Council audit for zero-harm, mercy-gated evolution.
-# Run: cargo deny check
 
 [workspace.metadata.ra-thor]
 plan-version = "13.9.0"
@@ -160,6 +133,36 @@ expect_used = "warn"
     "mercy_circom",
     "mercy_zk_validator",
     "mercy_hybrid_propulsion",
+    "mercy_nuclear_propulsion",
+    "mercy_electric_propulsion",
+    "mercy_biomimetic_propulsion",
+    "mercy_fusion_propulsion",
+    "mercy_plasma_propulsion",
+    "mercy_ion_propulsion",
+    "mercy_chemical_propulsion",
+    "mercy_solar_sail_propulsion",
+    "mercy_beamed_propulsion",
+    "mercy_antimatter_propulsion",
+    "mercy_warp_propulsion",
+    "mercy_gravitic_propulsion",
+    "mercy_quantum_propulsion",
+    "mercy_reactionless_propulsion",
+    "mercy_exotic_propulsion",
+    "mercy_arkworks",
+    "mercy_bls12_381",
+    "mercy_dilithium",
+    "mercy_saber",
+    "mercy_sphincs",
+    "mercy_stark",
+    "mercy_rainbow",
+    "mercy_picnic",
+    "mercy_fflonk",
+    "mercy_plonk",
+    "mercy_poly",
+    "mercy_poseidon",
+    "mercy_pairing",
+    "mercy_curve",
+    "mercy_field",
 
     # === ONE Organism Symbiosis, Bridge & Sovereign Health (newly registered) ===
     "self-evolution",
