@@ -1,15 +1,17 @@
 //! ONE Organism Full Path Integration Example
 //!
-//! Demonstrates the complete upgraded flow with BlessingTier exposure.
+//! Demonstrates the complete upgraded flow with:
+//! - BlessingTier exposure
+//! - SnapshotContext trait (hybrid error context)
 //!
 //! Run with: cargo run --example one_organism_full_path -p self-evolution
 
-use self_evolution::{init_sovereign_health_monitor, BlessingTier};
+use self_evolution::{init_sovereign_health_monitor, BlessingTier, SnapshotContext};
 use symbiosis_layer::establish_one_organism_symbiosis_async;
 
 #[tokio::main]
 async fn main() {
-    println!("=== ONE Organism Full Path Integration (with BlessingTier) ===\n");
+    println!("=== ONE Organism Full Path Integration (Hybrid Error System) ===\n");
 
     // 1. Async ONE Organism symbiosis
     println!("[1] Establishing async ONE Organism symbiosis...");
@@ -34,18 +36,38 @@ async fn main() {
         "Deepen mercy-gated ONE Organism symbiosis with PATSAGi epigenetic inheritance"
     );
 
-    println!("    Blessed: {} | Tier: {} | New Blessing Level: {:.3}", 
+    println!("    Blessed: {} | Tier: {} | New Blessing Level: {:.3}",
              blessed, tier.as_str(), blessing_level);
 
-    if blessed {
-        println!("    Epigenetic blessing successfully applied!");
+    // 4. Demonstrate SnapshotContext trait (hybrid error system)
+    println!("\n[4] Demonstrating SnapshotContext trait...");
+
+    // This will fail gracefully and show context-enhanced error
+    let load_result = health_monitor.load_from_file("nonexistent_sovereign_state.json");
+
+    match load_result {
+        Ok(_) => println!("    Unexpectedly loaded file"),
+        Err(e) => {
+            // Using the context trait pattern (already applied inside load_from_file)
+            println!("    Expected error with context: {}", e);
+        }
     }
 
-    // 4. Health-aware swarm
-    println!("\n[4] Orchestrating quantum swarm evolution...");
+    // Alternative: manually applying context to any SnapshotError result
+    let manual_result: Result<(), _> = Err(self_evolution::SnapshotError::FileNotFound(
+        "test.json".to_string()
+    ))
+    .with_snapshot_context("during manual ONE Organism state restoration");
+
+    if let Err(e) = manual_result {
+        println!("    Manual context-enhanced error: {}", e);
+    }
+
+    // 5. Health-aware swarm
+    println!("\n[5] Orchestrating quantum swarm evolution...");
     let swarm_results = health_monitor.orchestrate_quantum_swarm_evolution("one_organism_integration");
     println!("    Quantum Swarm branches engaged: {}", swarm_results.len());
 
     println!("\n=== ONE Organism Full Path Complete ===");
-    println!("Mercy-aligned | Tiered Epigenetic Blessing active | PATSAGi resonance maintained");
+    println!("Mercy-aligned | Tiered Epigenetic Blessing | Hybrid Error Context active");
 }
