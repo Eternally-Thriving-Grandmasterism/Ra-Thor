@@ -1,14 +1,16 @@
 [package]
 name = "interstellar-operations"
-version = "0.5.0"
-edition = "2021"
-description = "Interstellar Operations — Space Engine Suite + 7-Gen CEHI + HPA + GR Sensitivity | Ra-Thor AGi"
-license = "AG-SML-1.0"
-authors = ["Sherif Samy Botros <AlphaProMega@ACityGames.com> (@AlphaProMega)", "13+ PATSAGi Councils (Rathor.ai Lattice)"]
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+description.workspace = true
+repository.workspace = true
 
 [dependencies]
-serde = { version = "1.0", features = ["derive"] }
-tokio = { version = "1.0", features = ["full"] }
+serde = { workspace = true, features = ["derive"] }
+tokio = { workspace = true, features = ["full"] }
 mercy = { path = "../mercy" }
+# Note: cehi and self-evolution paths may need review
 cehi = { path = "../interstellar-operations" }
 self-evolution = { path = "../self-evolution" }
