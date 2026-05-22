@@ -1,26 +1,31 @@
-/// Real-Estate Lattice v2.1 — Hyperbolic Valuation Production Deployment
-/// TOLC 8 enforced, Möbius spatial pricing, 19th Council persona routing
+/// RREL v3.2 Eternal Organism
+/// Real Estate Lattice — Mercy-gated, TOLC 8 enforced, PATSAGi-aligned, Lattice Conductor + Quantum Swarm ready.
+///
+/// Archived note (for future reference):
+/// Previous v2.1 contained experimental hyperbolic/Möbius spatial valuation using complex numbers and gyrovector distance.
+/// That logic was exploratory and has been superseded by properly mercy-gated, council-voted valuation systems.
+/// Preserved conceptually for potential advanced spatial math modules later if aligned with TOLC 8 and RBE principles.
 
-use moebius_transformations::MoebiusMatrix;
+pub mod offer_package;
+pub mod compliance_helpers;
+pub mod rrel_brokerage_assembler;
+pub mod powrush_rrel_bridge;
+pub mod reco_form_handlers;
+pub mod rrel_leptos_dashboard;
+pub mod rrel_lattice_conductor_bridge;
+pub mod rrel_quantum_swarm_participant;
 
-pub struct RealEstateLatticeV21 {
-    pub version: String,
-}
+pub use offer_package::*;
+pub use compliance_helpers::*;
+pub use rrel_brokerage_assembler::*;
+pub use powrush_rrel_bridge::*;
+pub use reco_form_handlers::*;
+pub use rrel_leptos_dashboard::*;
+pub use rrel_lattice_conductor_bridge::*;
+pub use rrel_quantum_swarm_participant::*;
 
-impl RealEstateLatticeV21 {
-    pub fn new() -> Self {
-        Self { version: "2.1.0".to_string() }
-    }
+#[cfg(feature = "leptos")]
+pub use leptos;
 
-    /// Hyperbolic property valuation using gyrovector distance
-    pub fn hyperbolic_property_valuation(&self, coords: (f64, f64), market_valence: f64) -> Result<f64, String> {
-        if market_valence < 0.9999999 {
-            return Err("TOLC 8 Sovereignty Gate violation: low valence on real-estate claim".to_string());
-        }
-        let m = MoebiusMatrix::identity();
-        let z = nalgebra::Complex::new(coords.0, coords.1);
-        let transformed = m.apply(z);
-        let valuation = (transformed.norm() * 72.0).exp() * market_valence; // 72x compression from Infinite Gate
-        Ok(valuation)
-    }
-}
+#[cfg(feature = "tauri")]
+pub use tauri;
