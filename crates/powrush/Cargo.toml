@@ -1,7 +1,21 @@
 [package]
 name = "powrush"
-version = "2.1.0"
-edition = "2021"
-authors = ["20 PATSAGi Councils under the Rathor Sovereign Reasoning Engine"]
-license = "AG-SML"
-description = "Powrush RBE v2.1 — Production MMO Launch: Real-time sovereign multiplayer, hyperbolic tiled universe, TOLC 8 non-bypassable on every claim/action/faction sync, RSRE v3.0 + philotic + 20th propulsion hooks"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+description.workspace = true
+repository.workspace = true
+
+[dependencies]
+# Core RBE + MMO engine
+# TOLC 8 non-bypassable security on claims/actions/faction sync
+# Hyperbolic tiled universe + real-time sovereign multiplayer
+
+[features]
+default = []
+mmo = []
+
+# Powrush RBE v2.1
+# Production MMO launch capabilities
+# Integrated with RSRE v3.0, philotic, and propulsion hooks
