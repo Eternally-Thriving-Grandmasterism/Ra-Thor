@@ -2,45 +2,52 @@
 
 ## Overview
 
-This document describes the **Ultimate Unified MercyGating System** developed for Ra-Thor.
+The Ultimate Unified MercyGating System provides a hierarchical way to evaluate decisions and states through different resolutions of Mercy Gates:
 
-It unifies multiple Mercy Gate frameworks into one coherent, hierarchical system:
+- **Level 7**: Foundational Living Mercy Gates
+- **Level 8 (TOLC)**: Extended gates with TOLC coherence
+- **Level 16 (Ma’at)**: Detailed 16-gate system with quantitative Ma’at KPI scoring
 
-- **Level 7**: Core Living Mercy Gates
-- **Level 8 (TOLC)**: Extended TOLC gates
-- **Level 16 (Ma’at)**: Granular Ma’at + Powrush gate system with KPIs
+## Key Components
 
-## Architecture
-
-### Core Components
+### Enums
 - `MercyGateLevel`
-- Gate enums (`CoreMercyGate`, `TolcMercyGate`, `MaatMercyGate`)
-- `MaatKpi` for quantitative Ma’at scoring
-- `MercyGateEvaluable` trait
-- `simulate_patsagi_council_review`
+- `CoreMercyGate`, `TolcMercyGate`, `MaatMercyGate`
+- `UnifiedMercyGate`
 
-## Usage Example
+### Ma’at Scoring
+- `MaatDimension` (Balance, Truth, Justice, Order)
+- `MaatKpi` struct with scoring and threshold checking
+
+### Evaluation
+- `MercyGateEvaluable` trait
+- `evaluate_mercy(level)` method
+
+## Usage
 
 ```rust
-let verdict = error.evaluate_mercy(MercyGateLevel::SixteenMaat);
+let verdict = some_error.evaluate_mercy(MercyGateLevel::SixteenMaat);
 
-if let MercyVerdict::RequiresCouncilReview = verdict {
-    let review = simulate_patsagi_council_review(&verdict);
-    println!("{}", review);
+match verdict {
+    MercyVerdict::RequiresCouncilReview => {
+        let review = simulate_patsagi_council_review(&verdict);
+        println!("{}", review);
+    }
+    _ => {}
 }
 ```
 
-## Current Status
+## Current Capabilities
 
-Phases 1–4 completed:
-- Core evaluation with Ma’at scoring
+- Multi-level mercy evaluation
+- Ma’at quantitative scoring at highest granularity
 - Integration with error handling and health monitoring
-- PATSAGi simulation hook
-- Module organization and documentation started
+- PATSAGi Council review hook
 
-## Future Work
+## Future Directions
+
 - Full Mercy-Gated Decision Trees
-- Deeper PATSAGi multi-council simulation
-- Lattice-wide coherence scoring
+- Deeper multi-council PATSAGi simulation
+- System-wide coherence metrics
 
 AG-SML v1.0
