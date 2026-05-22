@@ -1,6 +1,7 @@
 //! self-evolution v0.3.0
 //! Sovereign Health Monitoring + Self-Evolution v2 Hooks
 //! Advanced PATSAGi Epigenetic Blessing + Versioned Persistence + Hybrid Error System
+//! + Error Chain Debugging Utilities
 //! AG-SML v1.0
 
 use serde::{Deserialize, Serialize};
@@ -148,6 +149,22 @@ impl From<SnapshotError> for anyhow::Error {
     }
 }
 
+// ==================== ERROR CHAIN DEBUGGING UTILITIES ====================
+
+/// Prints the full error chain to stderr.
+///
+/// This is useful for debugging in examples and during development.
+/// For production, consider using `tracing-error` or `color-eyre`.
+pub fn print_error_chain(err: &(dyn std::error::Error + 'static)) {
+    eprintln!("Error: {}", err);
+
+    let mut source = err.source();
+    while let Some(cause) = source {
+        eprintln!("  Caused by: {}", cause);
+        source = cause.source();
+    }
+}
+
 // ==================== SOVEREIGN HEALTH MONITOR ====================
 
 pub struct SovereignHealthMonitor {
@@ -197,7 +214,6 @@ impl SovereignHealthMonitor {
 
         let json = fs::read_to_string(path)?;
 
-        // Version-aware loading with migration support
         if let Ok(snapshot) = serde_json::from_str::<SovereignHealthSnapshot>(&json) {
             return Ok(Self::from_snapshot(snapshot));
         }
