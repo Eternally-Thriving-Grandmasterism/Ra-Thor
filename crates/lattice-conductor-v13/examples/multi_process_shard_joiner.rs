@@ -1,31 +1,30 @@
-//! Multi-process demo: External shard joining the ONE Organism over the network
-//! Run this in a separate terminal while the endpoint (orchestrator) is running.
-
-use reqwest; // For HTTP join request (add to dev-deps if needed)
+use tokio_tungstenite::connect_async;
+use futures_util::{SinkExt, StreamExt};
 use serde_json::json;
-use tokio::time::{sleep, Duration};
 
 #[tokio::main]
 async fn main() {
-    println!("🌌 External Sovereign Shard Joiner starting...");
-    println!("   Connecting to ONE Organism Endpoint at ws://localhost:7878/ws");
+    let url = "ws://127.0.0.1:7878/ws";
+    println!("External shard attempting to join ONE Organism at {}", url);
 
-    // Simulate joining
-    let join_payload = json!({
-        "action": "join_shard",
-        "shard_name": "External-Sovereign-Shard-Alpha",
-        "initial_mercy": 0.92,
-        "evolution_level": 1.2
+    let (mut ws_stream, _) = connect_async(url).await.expect("Failed to connect");
+    println!("Connected to ONE Organism endpoint!");
+
+    // Send join request
+    let join_msg = json!({
+        "type": "join_request",
+        "shard_id": "external-shard-001",
+        "mercy_alignment": 0.94
     });
+    ws_stream.send(tokio_tungstenite::tungstenite::Message::Text(join_msg.to_string())).await.unwrap();
 
-    // In real impl: use tungstenite or reqwest to connect to WS and send join
-    println!("📡 Sending join request: {}", join_payload);
-
-    // Simulate successful join and streaming
-    for i in 0..10 {
-        println!("   [Shard] Tick {} - Receiving Quantum Swarm resonance from lattice...", i);
-        sleep(Duration::from_millis(800)).await;
+    // Listen for updates
+    while let Some(msg) = ws_stream.next().await {
+        match msg {
+            Ok(tokio_tungstenite::tungstenite::Message::Text(text)) => {
+                println!("Received from ONE Organism: {}", text);
+            }
+            _ => {}
+        }
     }
-
-    println!("✅ External shard successfully joined the ONE Organism and is now participating.");
 }
