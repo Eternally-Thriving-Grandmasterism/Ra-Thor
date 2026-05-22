@@ -1,6 +1,6 @@
 //! self-evolution v0.3.0
 //! Sovereign Health Monitoring + Self-Evolution v2 Hooks
-//! Advanced PATSAGi Epigenetic Blessing + Versioned Persistence (thiserror)
+//! Advanced PATSAGi Epigenetic Blessing + Versioned Persistence + Hybrid Error System
 //! AG-SML v1.0
 
 use serde::{Deserialize, Serialize};
@@ -107,11 +107,11 @@ impl SovereignHealthSnapshot {
     }
 }
 
-// ==================== ERROR TYPE (using thiserror) ====================
+// ==================== HYBRID ERROR SYSTEM ====================
 
 #[derive(Debug, Error)]
 pub enum SnapshotError {
-    #[error("Snapshot file not found at path: '{0}'. Please ensure the file exists.")]
+    #[error("Snapshot file not found at path: '{0}'")]
     FileNotFound(String),
 
     #[error("Failed to read snapshot file")]
@@ -122,6 +122,30 @@ pub enum SnapshotError {
 
     #[error("Unknown or unsupported snapshot format. Migration may be required.")]
     UnknownFormat,
+}
+
+/// Lightweight context extension trait (hybrid power inspired by snafu)
+pub trait SnapshotContext<T> {
+    fn with_snapshot_context(self, context: impl Into<String>) -> Result<T, SnapshotError>;
+}
+
+impl<T> SnapshotContext<T> for Result<T, SnapshotError> {
+    fn with_snapshot_context(self, context: impl Into<String>) -> Result<T, SnapshotError> {
+        self.map_err(|e| match e {
+            SnapshotError::FileNotFound(p) => {
+                SnapshotError::FileNotFound(format!("{} — {}", p, context.into()))
+            }
+            other => other,
+        })
+    }
+}
+
+/// Compatibility with anyhow users (enabled via `anyhow` feature)
+#[cfg(feature = "anyhow")]
+impl From<SnapshotError> for anyhow::Error {
+    fn from(err: SnapshotError) -> Self {
+        anyhow::Error::new(err)
+    }
 }
 
 // ==================== SOVEREIGN HEALTH MONITOR ====================
@@ -173,6 +197,7 @@ impl SovereignHealthMonitor {
 
         let json = fs::read_to_string(path)?;
 
+        // Version-aware loading with migration support
         if let Ok(snapshot) = serde_json::from_str::<SovereignHealthSnapshot>(&json) {
             return Ok(Self::from_snapshot(snapshot));
         }
@@ -183,6 +208,7 @@ impl SovereignHealthMonitor {
         }
 
         Err(SnapshotError::UnknownFormat)
+            .with_snapshot_context(format!("while loading from {}", path))
     }
 
     pub fn run_sovereign_check(&mut self) -> SovereignHealthMetrics {
