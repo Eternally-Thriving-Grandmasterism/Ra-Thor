@@ -1,21 +1,25 @@
 [package]
 name = "ra-thor-quantum-swarm-orchestrator"
-version = "0.1.0"
-edition = "2021"
-authors = ["Ra-Thor Core Team <core@rathor.ai>"]
-description = "Quantum Swarm Orchestrator — Mercy-gated, active-inference quantum swarm coordination layer for Ra-Thor. Coordinates thousands of parallel quantum-inspired agents with 7 Living Mercy Gates, 5-Gene Joy Tetrad CEHI feedback, Plasticity Engine v2, and Legal Lattice integration for planetary-scale 200-year+ mercy legacy acceleration."
-license = "Proprietary - All Rights Reserved - Autonomicity Games Inc."
-repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+description.workspace = true
+repository.workspace = true
 keywords = ["quantum", "swarm", "orchestrator", "active-inference", "mercy", "rathor", "plasticity", "hebbian"]
 categories = ["science", "simulation", "embedded", "network-programming"]
 
 [dependencies]
 ra-thor-legal-lattice = { path = "../legal-lattice" }
 ra-thor-plasticity-engine-v2 = { path = "../plasticity-engine-v2" }
-tokio = { version = "1", features = ["full"] }
-serde = { version = "1.0", features = ["derive"] }
-thiserror = "1.0"
-tracing = "0.1"
-chrono = { version = "0.4", features = ["serde"] }
-rand = "0.8"
+tokio = { workspace = true, features = ["full"] }
+serde = { workspace = true, features = ["derive"] }
+thiserror.workspace = true
+tracing.workspace = true
+chrono = { workspace = true, features = ["serde"] }
+rand.workspace = true
 ndarray = "0.15"
+
+# Quantum Swarm Orchestrator
+# Mercy-gated active-inference coordination layer.
+# Coordinates parallel quantum-inspired agents with TOLC 8 enforcement.
