@@ -1,7 +1,38 @@
-//! self-evolution v0.3.0
-//! Sovereign Health Monitoring + Self-Evolution v2 Hooks
-//! Hybrid Error System (thiserror + context + optional anyhow/miette)
+//! # Self-Evolution Crate
+//!
+//! Sovereign Health Monitoring + Self-Evolution v2 with a **hybrid error handling system**.
+//!
+//! ## Error Handling Philosophy
+//!
+//! This crate uses a layered, pragmatic approach to error handling:
+//!
+//! - **`thiserror`** for clean, matchable error definitions (struct variants)
+//! - Custom **`SnapshotContext`** trait for ergonomic runtime context
+//! - **`print_error_chain`** utility for debugging
+//! - Optional **`anyhow`** support for application code
+//! - Optional **`miette`** support for beautiful diagnostic reporting
+//!
+//! ## Features
+//!
+//! | Feature   | Description                              |
+//! |-----------|------------------------------------------|
+//! | `anyhow`  | Enables conversion to `anyhow::Error`    |
+//! | `miette`  | Enables pretty diagnostic errors         |
+//!
+//! ## Example
+//!
+//! ```ignore
+//! use self_evolution::SovereignHealthMonitor;
+//!
+//! let mut monitor = SovereignHealthMonitor::new();
+//! match monitor.load_from_file("state.json") {
+//!     Ok(m) => println!("Loaded successfully"),
+//!     Err(e) => self_evolution::print_error_chain(&e),
+//! }
+//! ```
+//!
 //! AG-SML v1.0
+//!
 
 use serde::{Deserialize, Serialize};
 use std::fs;
@@ -116,14 +147,15 @@ pub enum SnapshotError {
     #[cfg_attr(feature = "miette", diagnostic(
         code(self_evolution::snapshot::file_not_found),
         help("Check that the file exists and you have read permissions."),
-        url("https://docs.rathor.ai/errors#file-not-found")
+        severity("error")
     ))]
     FileNotFound { path: String },
 
     #[error("Failed to read snapshot file")]
     #[cfg_attr(feature = "miette", diagnostic(
         code(self_evolution::snapshot::read_error),
-        help("The file may be locked or corrupted.")
+        help("The file may be locked, missing, or corrupted."),
+        severity("error")
     ))]
     ReadError {
         #[from]
@@ -133,7 +165,8 @@ pub enum SnapshotError {
     #[error("Failed to deserialize snapshot JSON")]
     #[cfg_attr(feature = "miette", diagnostic(
         code(self_evolution::snapshot::parse_error),
-        help("The snapshot may be from an incompatible version.")
+        help("The snapshot may be from an incompatible version or corrupted."),
+        severity("warning")
     ))]
     ParseError {
         #[from]
@@ -143,8 +176,8 @@ pub enum SnapshotError {
     #[error("Unknown or unsupported snapshot format. Migration may be required.")]
     #[cfg_attr(feature = "miette", diagnostic(
         code(self_evolution::snapshot::unknown_format),
-        help("Try using a newer version of the software or regenerating the snapshot."),
-        url("https://docs.rathor.ai/errors#unknown-format")
+        help("Try regenerating the snapshot or using a compatible version."),
+        severity("error")
     ))]
     UnknownFormat,
 }
@@ -174,6 +207,8 @@ impl From<SnapshotError> for anyhow::Error {
 
 // ==================== ERROR CHAIN DEBUGGING ====================
 
+/// Prints the full causal chain of an error to stderr.
+/// Useful for debugging during development.
 pub fn print_error_chain(err: &(dyn std::error::Error + 'static)) {
     eprintln!("Error: {}", err);
     let mut source = err.source();
