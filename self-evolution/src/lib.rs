@@ -1,7 +1,13 @@
-// ... existing code at top ...
+// ... existing code ...
 
-pub mod mercy_gating;
+    pub fn run_sovereign_check(&mut self) -> SovereignHealthMetrics {
+        self.metrics.valence_level = (self.metrics.valence_level + 0.001).min(0.999999);
+        self.metrics.mercy_compliance = (self.metrics.mercy_compliance + 0.005).min(1.0);
 
-pub use mercy_gating::*;
+        // Example integration point for future mercy-based health adjustments
+        // if let Some(mercy_impact) = ... { adjust metrics }
 
-// ... rest of the file, including updated load_from_file and health monitor integration ...
+        self.metrics
+    }
+
+// ... existing code ...
