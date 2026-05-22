@@ -1,0 +1,10 @@
+[package]
+name = "tolc8-genesis-gate"
+version = "13.8.9"
+edition = "2021"
+
+[dependencies]
+lattice-conductor-v13 = { path = "../lattice-conductor-v13" }
+serde = { version = "1.0", features = ["derive"] }
+rand = "0.8"
+sha2 = "0.10"
