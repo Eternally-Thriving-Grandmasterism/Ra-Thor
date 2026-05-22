@@ -1,6 +1,6 @@
 //! self-evolution v0.3.0
 //! Sovereign Health Monitoring + Self-Evolution v2 Hooks
-//! Hybrid Error System with optional miette diagnostics
+//! Hybrid Error System (thiserror + context + optional anyhow/miette)
 //! AG-SML v1.0
 
 use serde::{Deserialize, Serialize};
@@ -107,7 +107,7 @@ impl SovereignHealthSnapshot {
     }
 }
 
-// ==================== HYBRID ERROR SYSTEM + MIETTE ====================
+// ==================== HYBRID ERROR SYSTEM ====================
 
 #[cfg_attr(feature = "miette", derive(miette::Diagnostic))]
 #[derive(Debug, Error)]
@@ -115,19 +115,26 @@ pub enum SnapshotError {
     #[error("Snapshot file not found at path: '{path}'")]
     #[cfg_attr(feature = "miette", diagnostic(
         code(self_evolution::snapshot::file_not_found),
-        help("Ensure the file exists and you have permission to read it.")
+        help("Check that the file exists and you have read permissions."),
+        url("https://docs.rathor.ai/errors#file-not-found")
     ))]
     FileNotFound { path: String },
 
     #[error("Failed to read snapshot file")]
-    #[cfg_attr(feature = "miette", diagnostic(code(self_evolution::snapshot::read_error)))]
+    #[cfg_attr(feature = "miette", diagnostic(
+        code(self_evolution::snapshot::read_error),
+        help("The file may be locked or corrupted.")
+    ))]
     ReadError {
         #[from]
         source: std::io::Error,
     },
 
     #[error("Failed to deserialize snapshot JSON")]
-    #[cfg_attr(feature = "miette", diagnostic(code(self_evolution::snapshot::parse_error)))]
+    #[cfg_attr(feature = "miette", diagnostic(
+        code(self_evolution::snapshot::parse_error),
+        help("The snapshot may be from an incompatible version.")
+    ))]
     ParseError {
         #[from]
         source: serde_json::Error,
@@ -136,7 +143,8 @@ pub enum SnapshotError {
     #[error("Unknown or unsupported snapshot format. Migration may be required.")]
     #[cfg_attr(feature = "miette", diagnostic(
         code(self_evolution::snapshot::unknown_format),
-        help("The snapshot file may be from an older version or corrupted.")
+        help("Try using a newer version of the software or regenerating the snapshot."),
+        url("https://docs.rathor.ai/errors#unknown-format")
     ))]
     UnknownFormat,
 }
