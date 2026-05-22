@@ -4,20 +4,21 @@ use walkdir::WalkDir;
 
 #[derive(Debug, Error)]
 pub enum ScanError {
-    #[error("IO error: {0}")]
+    #[error("IO error accessing path: {0}")]
     Io(#[from] std::io::Error),
 
-    #[error("Walkdir error: {0}")]
+    #[error("Walkdir traversal error: {0}")]
     WalkDir(#[from] walkdir::Error),
 
-    #[error("Other error: {0}")]
+    #[error("{0}")]
     Other(String),
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct ScanResult {
     pub crates_found: usize,
     pub files_scanned: usize,
+    pub errors: Vec<String>,
 }
 
 pub struct MonorepoScanner {
@@ -29,22 +30,26 @@ impl MonorepoScanner {
         Self { root }
     }
 
+    /// Scans the monorepo root and returns basic statistics.
+    /// Continues on non-fatal errors and collects them.
     pub fn scan(&self) -> Result<ScanResult, ScanError> {
-        let mut crates_found = 0;
-        let mut files_scanned = 0;
+        let mut result = ScanResult::default();
 
         for entry in WalkDir::new(&self.root) {
-            let entry = entry?;
-            files_scanned += 1;
+            match entry {
+                Ok(entry) => {
+                    result.files_scanned += 1;
 
-            if entry.file_name() == "Cargo.toml" {
-                crates_found += 1;
+                    if entry.file_name() == "Cargo.toml" {
+                        result.crates_found += 1;
+                    }
+                }
+                Err(e) => {
+                    result.errors.push(format!("Scan error: {}", e));
+                }
             }
         }
 
-        Ok(ScanResult {
-            crates_found,
-            files_scanned,
-        })
+        Ok(result)
     }
 }
