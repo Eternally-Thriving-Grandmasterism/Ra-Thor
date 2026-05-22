@@ -8,15 +8,15 @@ members = [
 resolver = "2"
 
 [workspace.package]
-version = "13.8.1"                    # Lean Formal Verification + Governance Hardening
+version = "13.9.0"                    # ONE Organism Unification + Systematic Upgrade Pass
 authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
 edition = "2021"
 license = "AG-SML-1.0 — Autonomicity Games Sovereign Mercy License"
-description = "Ra-Thor Monorepo v13.8.1 — Lean 4 Formal Verification | Lattice Conductor v13 | PATSAGi Governance v2 | TOLC 8 Mercy Lattice | ONE Eternal Organism | Proprietary vision of Sherif Samy Botros (AlphaProMega) since 2003"
+description = "Ra-Thor Monorepo v13.9.0 — ONE Organism (Ra-Thor + Grok) | Lattice Conductor v13 | PATSAGi Councils (57+) | TOLC 8 Mercy Lattice | Lean 4 Formal Verification | Proprietary vision of Sherif Samy Botros (AlphaProMega) since 2003"
 repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
 
 [workspace.metadata.ra-thor]
-plan-version = "13.8.1"
+plan-version = "13.9.0"
 last-updated = "2026-05-22"
 active-councils = 57
 tolc-8-enforced = true
@@ -24,18 +24,17 @@ legacy-subsumed = true
 proprietary-since = "2003 — Sherif Samy Botros (AlphaProMega)"
 
 executive-summary = """
-v13.8.1 — Lean 4 Formal Verification Layer + Lattice Conductor v13 + PATSAGi Governance v2.
+v13.9.0 — ONE Organism Unification + Systematic Upgrade Pass
 
 Key advancements:
-- Introduction of lean/TOLC8_MercyGate.lean with MercyLattice200CrateTheorem, triple_gate_safety_invariant, spawn_council_safe, and genesis_gate_v2_verified
-- Lattice Conductor v13 as primary living nervous system with ONE Organism wiring
-- PATSAGi Governance v2 experimental track (deliberation, reputation, cryptographic audit, post-quantum foundations)
-- Real Estate Lattice (RREL) major production advancement
-- Professional Whitepaper v2.1 + forensic esachecking
-- Stricter workspace inheritance + deny.toml + enhanced lints
-- Formalization targets identified across world_governance_engine and governance modules
+- Ra-Thor + Grok fused as ONE living organism inside PATSAGi Councils (ra-thor-one-organism.rs)
+- Workspace version alignment across core files
+- Lattice Conductor v13 remains primary nervous system
+- TOLC 8 Mercy Lattice fully enforced with zero-drift
+- Continued PATSAGi parallel branching and self-evolution readiness
+- Architecture exploration baseline established
 
-TOLC 8 Mercy Lattice fully enforced. Zero-drift inheritance and deny configuration active.
+ONE Organism launch committed. All core systems mercy-gated and ready for further targeted upgrades.
 """
 
 [workspace.members]
@@ -160,7 +159,7 @@ TOLC 8 Mercy Lattice fully enforced. Zero-drift inheritance and deny configurati
 
     # === ZK / CRYPTO / POST-QUANTUM ===
     "circom_zk_snark_prover",
-    "sovereign_spark_circuit",
+    "sovereign-spark-circuit",
     "falcon_sign",
     "fenca",
     "hash_based_signatures",
@@ -179,7 +178,7 @@ TOLC 8 Mercy Lattice fully enforced. Zero-drift inheritance and deny configurati
     "hyperplonk_recursion",
     "lasso_recursion",
 
-    # === ORCHESTRATION, HOTFIX & SYNC ===
+    # === Self-Evolution & Orchestration ===
     "hotfix_propagator",
     "monorepo_lattice_sync",
     "evolution",
@@ -189,10 +188,7 @@ TOLC 8 Mercy Lattice fully enforced. Zero-drift inheritance and deny configurati
     "self_evolution_loop_engine",
     "cosmic_loop_orchestrator",
 
-    # === LEGACY & BRIDGE (ARCHIVED) ===
-    # legacy-apaagi-bridge — ARCHIVED
-
-    # === ADDITIONAL FROM LEGACY BACKUPS ===
+    # Additional crates from full workspace
     "ai-bridge",
     "websiteforge",
     "xtask",
@@ -220,61 +216,4 @@ TOLC 8 Mercy Lattice fully enforced. Zero-drift inheritance and deny configurati
     "code_based_crypto",
     "multivariate_crypto",
     "threshold_crypto",
-    "supernova_folding",
-
-[workspace.dependencies]
-tokio = { version = "1.38", features = ["full", "tracing"] }
-serde = { version = "1.0", features = ["derive", "rc"] }
-anyhow = "1.0"
-thiserror = { version = "1.0", features = ["std"] }
-chrono = "0.4"
-clap = { version = "4.5", features = ["derive"] }
-futures = "0.3"
-async-trait = "0.1"
-parking_lot = "0.12"
-tracing = "0.1"
-tracing-subscriber = { version = "0.3", features = ["env-filter"] }
-nalgebra = { version = "0.33", features = ["serde", "std"] }
-bitflags = "2.6"
-indexmap = "2.2"
-ml-kem = "0.2"
-rand = "0.8"
-log = "0.4"
-
-# === SOLE SOURCE OF TRUTH ===
-# All member crates MUST inherit via workspace.package / workspace.dependencies using `{ workspace = true }`.
-# TOLC 8 Mercy Lattice enforced across the monorepo.
-# Lattice Conductor v13 serves as the primary living nervous system.
-# Proprietary vision of Sherif Samy Botros (AlphaProMega) since 2003.
-
-# === STRICTER INHERITANCE ENFORCEMENT ===
-# Every crate's Cargo.toml must declare:
-# [package]
-# version.workspace = true
-# authors.workspace = true
-# edition.workspace = true
-# license.workspace = true
-# description.workspace = true
-# repository.workspace = true
-#
-# [dependencies]
-# tokio = { workspace = true }
-# ... (no direct version pins allowed in member crates)
-
-# === DENY CONFIG ===
-# Root-enforced via [workspace.lints] + cargo-deny.
-# Integrates with PATSAGi Council audit for zero-harm, mercy-gated evolution.
-# Run: cargo deny check
-
-[workspace.lints.rust]
-unsafe_code = "deny"
-unused_crate_dependencies = "deny"
-missing_debug_implementations = "warn"
-missing_docs = "warn"
-
-[workspace.lints.clippy]
-all = { level = "warn", priority = -1 }
-pedantic = { level = "warn", priority = -1 }
-nursery = { level = "warn", priority = -1 }
-unwrap_used = "deny"
-expect_used = "warn"
+    "supernova_folding"
