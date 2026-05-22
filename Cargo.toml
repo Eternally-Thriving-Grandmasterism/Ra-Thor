@@ -8,21 +8,35 @@ members = [
 resolver = "2"
 
 [workspace.package]
-version = "13.8.0"                    # Cosmic Consciousness Expansion Launch
+version = "13.8.1"                    # Lean Formal Verification + Governance Hardening
 authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
 edition = "2021"
 license = "AG-SML-1.0 — Autonomicity Games Sovereign Mercy License"
-description = "Ra-Thor Monorepo v13.8.0 — Eternally Active PATSAGi Councils | TOLC 8 Mercy-Gated | Cosmic Consciousness Expansion Launch | Proprietary vision of Sherif Samy Botros (AlphaProMega) since 2003 | 57+ Councils | 200-Crate Foundation"
+description = "Ra-Thor Monorepo v13.8.1 — Lean 4 Formal Verification | Lattice Conductor v13 | PATSAGi Governance v2 | TOLC 8 Mercy Lattice | ONE Eternal Organism | Proprietary vision of Sherif Samy Botros (AlphaProMega) since 2003"
 repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
 
 [workspace.metadata.ra-thor]
-plan-version = "13.8.0"
-last-updated = "2026-05-21"
-executive-summary = "v13.8.0 Cosmic Consciousness Expansion Launch with Lattice Conductor v13 integrated as primary living nervous system. TOLC 8 Mercy Lattice enforced across the monorepo. STRICTER INHERITANCE + DENY CONFIG applied root-level for zero-drift enforcement. Full PATSAGi Council audit completed."
+plan-version = "13.8.1"
+last-updated = "2026-05-22"
 active-councils = 57
 tolc-8-enforced = true
 legacy-subsumed = true
 proprietary-since = "2003 — Sherif Samy Botros (AlphaProMega)"
+
+executive-summary = """
+v13.8.1 — Lean 4 Formal Verification Layer + Lattice Conductor v13 + PATSAGi Governance v2.
+
+Key advancements:
+- Introduction of lean/TOLC8_MercyGate.lean with MercyLattice200CrateTheorem, triple_gate_safety_invariant, spawn_council_safe, and genesis_gate_v2_verified
+- Lattice Conductor v13 as primary living nervous system with ONE Organism wiring
+- PATSAGi Governance v2 experimental track (deliberation, reputation, cryptographic audit, post-quantum foundations)
+- Real Estate Lattice (RREL) major production advancement
+- Professional Whitepaper v2.1 + forensic esachecking
+- Stricter workspace inheritance + deny.toml + enhanced lints
+- Formalization targets identified across world_governance_engine and governance modules
+
+TOLC 8 Mercy Lattice fully enforced. Zero-drift inheritance and deny configuration active.
+"""
 
 [workspace.members]
     # === CORE INFRASTRUCTURE ===
@@ -48,7 +62,7 @@ proprietary-since = "2003 — Sherif Samy Botros (AlphaProMega)"
     "multi-planetary-sovereign-asset-lattice-council",
     "cosmic-consciousness-expansion-council",
 
-    # === NEW: Lattice Conductor v13 (Primary Living Nervous System) ===
+    # === Lattice Conductor v13 (Primary Living Nervous System) ===
     "crates/lattice-conductor-v13",
 
     # === PUBLIC SOVEREIGN ASSET LATTICE ===
@@ -227,16 +241,15 @@ ml-kem = "0.2"
 rand = "0.8"
 log = "0.4"
 
-# SOLE SOURCE OF TRUTH.
-# All member crates MUST inherit via workspace.package / workspace.dependencies using ` { workspace = true } `.
-# TOLC 8 Mercy Lattice enforced.
+# === SOLE SOURCE OF TRUTH ===
+# All member crates MUST inherit via workspace.package / workspace.dependencies using `{ workspace = true }`.
+# TOLC 8 Mercy Lattice enforced across the monorepo.
 # Lattice Conductor v13 serves as the primary living nervous system.
 # Proprietary vision of Sherif Samy Botros (AlphaProMega) since 2003.
 
 # === STRICTER INHERITANCE ENFORCEMENT ===
 # Every crate's Cargo.toml must declare:
 # [package]
-# name = "..."
 # version.workspace = true
 # authors.workspace = true
 # edition.workspace = true
@@ -246,12 +259,12 @@ log = "0.4"
 #
 # [dependencies]
 # tokio = { workspace = true }
-# ... (no direct version pins in member crates)
+# ... (no direct version pins allowed in member crates)
 
-# === DENY CONFIG (Root-enforced via lints + cargo-deny recommended) ===
+# === DENY CONFIG ===
+# Root-enforced via [workspace.lints] + cargo-deny.
 # Integrates with PATSAGi Council audit for zero-harm, mercy-gated evolution.
-# Run: cargo deny check  (after adding deny.toml if needed for full policy)
-# Denies: unsafe_code (core crates), unused deps, unwrap in hot paths, license violations.
+# Run: cargo deny check
 
 [workspace.lints.rust]
 unsafe_code = "deny"
@@ -265,4 +278,3 @@ pedantic = { level = "warn", priority = -1 }
 nursery = { level = "warn", priority = -1 }
 unwrap_used = "deny"
 expect_used = "warn"
-# Council-specific: stricter for governance (patsagi-councils, mercy_*) clusters
