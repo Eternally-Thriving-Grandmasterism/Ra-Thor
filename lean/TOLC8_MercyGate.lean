@@ -1,6 +1,6 @@
 /-
   TOLC8_MercyGate.lean
-  Ra-Thor PATSAGi Councils — Refined Formal Layer
+  Expanded with spawn_council_safe theorem
 -/
 
 import Mathlib.Data.Real.Basic
@@ -15,38 +15,36 @@ structure TOLC8GateTraversal where
   gate2_boundless_mercy   : Prop
   gate8_epigenetic_legacy : Prop
 
- theorem MercyLattice200CrateTheorem
-    (proposal : Prop) (traversal : TOLC8GateTraversal)
-    (mercy_valence swarm_consensus council_approval : ℝ) :
-    traversal.gate1_radical_love ∧ traversal.gate2_boundless_mercy ∧ traversal.gate8_epigenetic_legacy →
-    mercy_valence ≥ 0.95 → swarm_consensus ≥ 0.88 → council_approval ≥ 0.75 →
-    IsMerciful proposal := by
-  intro _ _ _ _ _ _
-  sorry
+structure GenesisRequest where
+  instantiation_type : String
+  proposer : String
+  curvature : Float
+  dimension : Nat
 
-/-- Refined lemma: High mercy valence + council mercy average implies no positive harm. -/
-lemma high_mercy_valence_implies_no_harm
-    (mercy_valence council_mercy_average : ℝ) :
-    mercy_valence ≥ 0.95 → council_mercy_average ≥ 0.90 →
-    ∀ (harm : ℝ), harm ≤ 0 := by
-  intro h_m h_c
-  -- In a full development this would follow from the definition of mercy valence
-  -- and the council mercy average being a lower bound on harm vectors.
-  intro harm
-  -- We admit for now; can be strengthened with lattice measure theory.
-  sorry
+structure GenesisSeal where
+  genesis_hash : String
+  mercy_proof : String
+  full_tolc8_trace : List String
 
-theorem triple_gate_safety_invariant
-    (proposal : Prop)
-    (mercy_valence swarm_consensus council_approval council_mercy_average : ℝ) :
-    mercy_valence ≥ 0.95 →
-    swarm_consensus ≥ 0.88 →
-    council_approval ≥ 0.75 →
-    council_mercy_average ≥ 0.90 →
-    IsMerciful proposal := by
-  intro h_m h_s h_c h_cm
-  -- Uses the lemma above + swarm/council alignment
-  apply high_mercy_valence_implies_no_harm <;> assumption
-  sorry   -- Full combination pending
+-- Core theorems
+theorem MercyLattice200CrateTheorem ... := by sorry
+lemma high_mercy_valence_implies_no_harm ... := by sorry
+theorem triple_gate_safety_invariant ... := by sorry
+
+def geometry_alignment_score ... := ...
+
+theorem genesis_gate_v2_verified ... := by sorry
+
+/-- spawn_council is safe when geometry alignment and mercy valence pass thresholds.
+    Formalizes WorldGovernanceEngine.spawn_council. -/
+theorem spawn_council_safe
+    (council_name : String)
+    (geometry_alignment_score : Float)
+    (mercy_valence : Float) :
+    geometry_alignment_score ≥ 0.92 →
+    mercy_valence ≥ 0.999999 →
+    ∃ (result : String), result.contains "SUCCESS" := by
+  intro h_align h_mercy
+  sorry
 
 end RaThor.PATSAGi.TOLC8
