@@ -5,6 +5,8 @@
 /// Previous v2.1 contained experimental hyperbolic/Möbius spatial valuation using complex numbers and gyrovector distance.
 /// That logic was exploratory and has been superseded by properly mercy-gated, council-voted valuation systems.
 /// Preserved conceptually for potential advanced spatial math modules later if aligned with TOLC 8 and RBE principles.
+//! RREL v3.2 Eternal Organism — Full module wiring + re-exports
+//! TOLC 8, MercyAligned, PATSAGi, Lattice Conductor ready.
 
 pub mod offer_package;
 pub mod compliance_helpers;
