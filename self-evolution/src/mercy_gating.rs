@@ -1,27 +1,49 @@
-//! # Ultimate Unified MercyGating System
-//!
-//! This module provides a hierarchical, multi-resolution MercyGating framework.
-//!
-//! Supported Levels:
-//! - `Seven`: Foundational 7 Living Mercy Gates
-//! - `EightTolc`: TOLC-extended 8 Gates
-//! - `SixteenMaat`: Granular 16-gate system with Ma'at KPI scoring
-//!
-//! AG-SML v1.0
+//! ... existing code ...
 
-use std::collections::HashMap;
+impl crate::SnapshotError {
+    // We implement the trait here for cleanliness
+}
 
-// ... (all enums and structs remain the same as before) ...
+impl crate::mercy_gating::MercyGateEvaluable for crate::SnapshotError {
+    fn evaluate_mercy(&self, level: MercyGateLevel) -> MercyVerdict {
+        let base_score = match self {
+            crate::SnapshotError::FileNotFound { .. } => 0.82,
+            crate::SnapshotError::ReadError { .. } => 0.78,
+            crate::SnapshotError::ParseError { .. } => 0.65,
+            crate::SnapshotError::UnknownFormat => 0.60,
+        };
 
-// The implementation of MercyGateEvaluable for SnapshotError lives in lib.rs
-// for easier integration during active development.
+        match level {
+            MercyGateLevel::Seven | MercyGateLevel::EightTolc => {
+                if base_score >= 0.75 {
+                    MercyVerdict::Mitigated {
+                        overall_score: base_score,
+                        notes: vec!["Evaluated through foundational Mercy Gates".to_string()],
+                    }
+                } else {
+                    MercyVerdict::RequiresCouncilReview
+                }
+            }
+            MercyGateLevel::SixteenMaat => {
+                let mut kpi = MaatKpi::new();
+                kpi.set_score(MaatDimension::Truth, base_score * 0.95);
+                kpi.set_score(MaatDimension::Balance, base_score * 0.90);
+                kpi.set_score(MaatDimension::Justice, base_score * 0.85);
+                kpi.set_score(MaatDimension::Order, base_score * 0.88);
 
-/// Simulates a PATSAGi Council review when a verdict requires it.
-pub fn simulate_patsagi_council_review(verdict: &MercyVerdict) -> String {
-    match verdict {
-        MercyVerdict::RequiresCouncilReview => {
-            "PATSAGi Council Review triggered. Councils are evaluating for coherence and mercy alignment.".to_string()
+                let maat_score = kpi.overall_score();
+
+                if maat_score >= 0.85 {
+                    MercyVerdict::Passed { overall_score: maat_score }
+                } else if maat_score >= 0.70 {
+                    MercyVerdict::Mitigated {
+                        overall_score: maat_score,
+                        notes: vec![format!("Ma'at score: {:.2}", maat_score)],
+                    }
+                } else {
+                    MercyVerdict::RequiresCouncilReview
+                }
+            }
         }
-        _ => "No council review required at this time.".to_string(),
     }
 }
