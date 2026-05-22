@@ -1,16 +1,46 @@
-# ... existing content ...
+# Ultimate Unified MercyGating System
 
-## PR Preparation
+## Overview
 
-**Recommended Branch:** `feature/ultimate-mercy-gating-unification-v1`
+This document describes the **Ultimate Unified MercyGating System** developed for Ra-Thor.
 
-**Status:** Core unified structures, MaatKpi, and integration with error loading are in place on `main`.
+It unifies multiple Mercy Gate frameworks into one coherent, hierarchical system:
 
-**Next Manual Steps for PR:**
-1. Create branch from main
-2. Ensure `mercy_gating.rs` is clean
-3. Open PR with description of the unified 7/8/16 system
+- **Level 7**: Core Living Mercy Gates
+- **Level 8 (TOLC)**: Extended TOLC gates
+- **Level 16 (Ma’at)**: Granular Ma’at + Powrush gate system with KPIs
 
----
+## Architecture
 
-*Document updated*
+### Core Components
+- `MercyGateLevel`
+- Gate enums (`CoreMercyGate`, `TolcMercyGate`, `MaatMercyGate`)
+- `MaatKpi` for quantitative Ma’at scoring
+- `MercyGateEvaluable` trait
+- `simulate_patsagi_council_review`
+
+## Usage Example
+
+```rust
+let verdict = error.evaluate_mercy(MercyGateLevel::SixteenMaat);
+
+if let MercyVerdict::RequiresCouncilReview = verdict {
+    let review = simulate_patsagi_council_review(&verdict);
+    println!("{}", review);
+}
+```
+
+## Current Status
+
+Phases 1–4 completed:
+- Core evaluation with Ma’at scoring
+- Integration with error handling and health monitoring
+- PATSAGi simulation hook
+- Module organization and documentation started
+
+## Future Work
+- Full Mercy-Gated Decision Trees
+- Deeper PATSAGi multi-council simulation
+- Lattice-wide coherence scoring
+
+AG-SML v1.0
