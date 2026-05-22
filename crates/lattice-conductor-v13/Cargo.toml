@@ -1,26 +1,30 @@
 [package]
 name = "lattice-conductor-v13"
-version = "13.8.8"
-edition = "2021"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+description.workspace = true
+repository.workspace = true
 
 [dependencies]
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
-thiserror = "1.0"
-nalgebra = { version = "0.33", optional = true, features = ["serde-serialize"] }
-chrono = "0.4"
-hex = "0.4"
+serde = { workspace = true, features = ["derive"] }
+serde_json.workspace = true
+thiserror.workspace = true
+nalgebra = { workspace = true, optional = true, features = ["serde-serialize"] }
+chrono.workspace = true
+hex.workspace = true
 
 [dev-dependencies]
 sovereign-shard-genesis = { path = "../sovereign-shard-genesis" }
 mercy = { path = "../mercy" }
-axum = "0.7"
-tokio = { version = "1", features = ["full"] }
-tower-http = { version = "0.5", features = ["fs", "trace"] }
-futures-util = "0.3"
-ed25519-dalek = { version = "2", features = ["rand_core"] }
-tokio-tungstenite = { version = "0.21", features = ["connect"] }
-reqwest = { version = "0.12", features = ["json"] }
+axum.workspace = true
+tokio = { workspace = true, features = ["full"] }
+tower-http = { workspace = true, features = ["fs", "trace"] }
+futures-util.workspace = true
+ed25519-dalek = { workspace = true, features = ["rand_core"] }
+tokio-tungstenite.workspace = true
+reqwest = { workspace = true, features = ["json"] }
 
 [features]
 default = []
