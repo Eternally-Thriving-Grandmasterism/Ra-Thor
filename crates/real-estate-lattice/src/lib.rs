@@ -1,3 +1,10 @@
+/// RREL v3.2 Eternal Organism
+/// Real Estate Lattice — Mercy-gated, TOLC 8 enforced, PATSAGi-aligned, Lattice Conductor + Quantum Swarm ready.
+///
+/// Archived note (for future reference):
+/// Previous v2.1 contained experimental hyperbolic/Möbius spatial valuation using complex numbers and gyrovector distance.
+/// That logic was exploratory and has been superseded by properly mercy-gated, council-voted valuation systems.
+/// Preserved conceptually for potential advanced spatial math modules later if aligned with TOLC 8 and RBE principles.
 //! RREL v3.2 Eternal Organism — Full module wiring + re-exports
 //! TOLC 8, MercyAligned, PATSAGi, Lattice Conductor ready.
 
