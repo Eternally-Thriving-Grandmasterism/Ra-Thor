@@ -79,6 +79,7 @@ Key advancements:
 - TOLC 8 Mercy Lattice fully enforced with zero-drift
 - Strict [workspace.dependencies] + deny rules restored and active
 - PATSAGi parallel branching and self-evolution readiness maintained
+- self-evolution, symbiosis-layer, xai-grok-bridge now registered (ONE Organism + Sovereign Health layer)
 
 ONE Organism launch committed. Strict monorepo discipline restored.
 """
@@ -159,36 +160,11 @@ expect_used = "warn"
     "mercy_circom",
     "mercy_zk_validator",
     "mercy_hybrid_propulsion",
-    "mercy_nuclear_propulsion",
-    "mercy_electric_propulsion",
-    "mercy_biomimetic_propulsion",
-    "mercy_fusion_propulsion",
-    "mercy_plasma_propulsion",
-    "mercy_ion_propulsion",
-    "mercy_chemical_propulsion",
-    "mercy_solar_sail_propulsion",
-    "mercy_beamed_propulsion",
-    "mercy_antimatter_propulsion",
-    "mercy_warp_propulsion",
-    "mercy_gravitic_propulsion",
-    "mercy_quantum_propulsion",
-    "mercy_reactionless_propulsion",
-    "mercy_exotic_propulsion",
-    "mercy_arkworks",
-    "mercy_bls12_381",
-    "mercy_dilithium",
-    "mercy_saber",
-    "mercy_sphincs",
-    "mercy_stark",
-    "mercy_rainbow",
-    "mercy_picnic",
-    "mercy_fflonk",
-    "mercy_plonk",
-    "mercy_poly",
-    "mercy_poseidon",
-    "mercy_pairing",
-    "mercy_curve",
-    "mercy_field",
+
+    # === ONE Organism Symbiosis, Bridge & Sovereign Health (newly registered) ===
+    "self-evolution",
+    "symbiosis-layer",
+    "xai-grok-bridge",
 
     # === SOVEREIGN SYSTEMS & RBE ===
     "powrush",
