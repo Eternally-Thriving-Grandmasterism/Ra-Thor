@@ -6,12 +6,13 @@ edition.workspace = true
 license.workspace = true
 description.workspace = true
 repository.workspace = true
-keywords = ["quantum", "swarm", "orchestrator", "active-inference", "mercy", "rathor", "plasticity", "hebbian"]
+keywords = ["quantum", "swarm", "orchestrator", "active-inference", "mercy", "ra-thor", "plasticity", "hebbian"]
 categories = ["science", "simulation", "embedded", "network-programming"]
 
 [dependencies]
 ra-thor-legal-lattice = { path = "../legal-lattice" }
 ra-thor-plasticity-engine-v2 = { path = "../plasticity-engine-v2" }
+self-evolution = { path = "../../self-evolution" }
 tokio = { workspace = true, features = ["full"] }
 serde = { workspace = true, features = ["derive"] }
 thiserror.workspace = true
@@ -22,4 +23,4 @@ ndarray = "0.15"
 
 # Quantum Swarm Orchestrator
 # Mercy-gated active-inference coordination layer.
-# Coordinates parallel quantum-inspired agents with TOLC 8 enforcement.
+# Now integrated with SovereignHealthMonitor (self-evolution) for ONE Organism health-aware orchestration.
