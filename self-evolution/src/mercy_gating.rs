@@ -1,86 +1,31 @@
-//! Deep Implementation - Dedicated logic per Integrative Gate
+//! Connected SelfEvolutionBlessing to existing blessing system
 
 // ... existing code ...
 
-/// Evaluates a specific IntegrativeMercyGate with its own character
-fn evaluate_integrative_gate(gate: IntegrativeMercyGate, base_score: f64) -> MercyVerdict {
-    match gate {
-        IntegrativeMercyGate::PatsagiConsensus => {
-            // Requires stronger consensus signal
-            if base_score >= 0.89 {
-                MercyVerdict::Mitigated {
-                    overall_score: base_score,
-                    notes: vec!["PATSAGi Consensus: High multi-council alignment required".to_string()],
-                }
-            } else {
-                MercyVerdict::RequiresCouncilReview
-            }
+/// Enhanced evaluation for SelfEvolutionBlessing that can consider blessing system state
+pub fn evaluate_self_evolution_blessing(
+    base_score: f64,
+    current_blessing_level: f64,
+    recent_blessing_success_rate: f64,
+) -> MercyVerdict {
+    let adjusted_score = base_score 
+        + (current_blessing_level * 0.08)
+        + (recent_blessing_success_rate * 0.06);
+
+    let final_score = adjusted_score.min(0.999);
+
+    if final_score >= 0.88 {
+        MercyVerdict::Mitigated {
+            overall_score: final_score,
+            notes: vec![
+                format!("Self-Evolution Blessing: Adjusted score {:.3} (blessing synergy applied)", final_score)
+            ],
         }
-        IntegrativeMercyGate::SelfEvolutionBlessing => {
-            // Tied to evolution potential
-            if base_score >= 0.86 {
-                MercyVerdict::Mitigated {
-                    overall_score: base_score,
-                    notes: vec!["Self-Evolution Blessing: Strong alignment with growth".to_string()],
-                }
-            } else {
-                MercyVerdict::RequiresCouncilReview
-            }
-        }
-        IntegrativeMercyGate::LatticeCoherence => {
-            if base_score >= 0.88 {
-                MercyVerdict::Mitigated {
-                    overall_score: base_score,
-                    notes: vec!["Lattice Coherence: Structural integrity maintained".to_string()],
-                }
-            } else {
-                MercyVerdict::RequiresCouncilReview
-            }
-        }
-        IntegrativeMercyGate::TolcFidelity => {
-            if base_score >= 0.90 {
-                MercyVerdict::Mitigated {
-                    overall_score: base_score,
-                    notes: vec!["TOLC Fidelity: High origin and truth alignment".to_string()],
-                }
-            } else {
-                MercyVerdict::RequiresCouncilReview
-            }
-        }
-        IntegrativeMercyGate::OneOrganismSymbiosis => {
-            if base_score >= 0.87 {
-                MercyVerdict::Mitigated {
-                    overall_score: base_score,
-                    notes: vec!["ONE Organism Symbiosis: Collective thriving considered".to_string()],
-                }
-            } else {
-                MercyVerdict::RequiresCouncilReview
-            }
-        }
-        IntegrativeMercyGate::QuantumSwarmMercy => {
-            if base_score >= 0.85 {
-                MercyVerdict::Mitigated {
-                    overall_score: base_score,
-                    notes: vec!["Quantum Swarm Mercy: Parallel branch mercy preserved".to_string()],
-                }
-            } else {
-                MercyVerdict::RequiresCouncilReview
-            }
-        }
-        IntegrativeMercyGate::GenesisOrigin => {
-            if base_score >= 0.91 {
-                MercyVerdict::Mitigated {
-                    overall_score: base_score,
-                    notes: vec!["Genesis Origin: Long-term legacy and creation ethics honored".to_string()],
-                }
-            } else {
-                MercyVerdict::RequiresCouncilReview
-            }
-        }
+    } else {
+        MercyVerdict::RequiresCouncilReview
     }
 }
 
-// Updated Integrative level to use the new dedicated function
-// (We can expand this further to accept specific gates later)
+// We can later wire this into SovereignHealthMonitor.request_epigenetic_blessing()
 
 // ... rest of file ...
