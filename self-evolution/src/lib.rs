@@ -1,6 +1,6 @@
 //! self-evolution v0.3.0
 //! Sovereign Health Monitoring + Self-Evolution v2 Hooks
-//! Hybrid Error System with Mercy-Gated Evaluation + PATSAGi Council Review (Phase 3)
+//! Hybrid Error System with Mercy-Gated Evaluation + ONE Organism Feedback (Phase 4)
 //! AG-SML v1.0
 
 use serde::{Deserialize, Serialize};
@@ -205,15 +205,11 @@ impl MercyEvaluable for SnapshotError {
     }
 }
 
-// ==================== PATSAGi COUNCIL REVIEW (Phase 3) ====================
+// ==================== PATSAGi COUNCIL REVIEW ====================
 
-/// Simulated PATSAGi Council review for errors that require deeper alignment check.
 pub fn review_with_patsagi_council(error: &SnapshotError) -> MercyEvaluation {
-    // In a full implementation, this would involve multiple council members
-    // For Phase 3, we simulate a basic consensus
     match error {
         SnapshotError::ParseError { .. } | SnapshotError::UnknownFormat => {
-            // These often indicate deeper structural issues
             MercyEvaluation::RequiresCouncilReview
         }
         _ => MercyEvaluation::Passed,
@@ -393,10 +389,34 @@ impl SovereignHealthMonitor {
         }
     }
 
-    pub fn integrate_with_one_organism_symbiosis(&mut self, symbiosis_valence: f64, task: &str) -> String {
+    /// Phase 4: ONE Organism symbiosis now receives mercy evaluation feedback
+    pub fn integrate_with_one_organism_symbiosis(
+        &mut self,
+        symbiosis_valence: f64,
+        task: &str,
+        mercy_evaluation: Option<MercyEvaluation>,
+    ) -> String {
         self.metrics.valence_level = symbiosis_valence.max(self.metrics.valence_level);
+
+        // Feed mercy evaluation result into ONE Organism health
+        if let Some(evaluation) = mercy_evaluation {
+            match evaluation {
+                MercyEvaluation::RequiresCouncilReview => {
+                    // Slightly lower valence when council review is needed
+                    self.metrics.valence_level = (self.metrics.valence_level - 0.02).max(0.0);
+                    self.metrics.mercy_compliance = (self.metrics.mercy_compliance - 0.01).max(0.0);
+                }
+                MercyEvaluation::Mitigated { .. } => {
+                    // Minor positive adjustment for merciful handling
+                    self.metrics.mercy_compliance = (self.metrics.mercy_compliance + 0.005).min(1.0);
+                }
+                _ => {}
+            }
+        }
+
         let health = self.run_sovereign_check();
         let (blessed, _, tier) = self.request_epigenetic_blessing(task);
+
         if blessed {
             let _ = self.orchestrate_quantum_swarm_evolution(task);
             format!("ONE Organism: valence={:.4}, tier={}", health.valence_level, tier.as_str())
