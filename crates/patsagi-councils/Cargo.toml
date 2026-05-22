@@ -1,16 +1,16 @@
 [package]
 name = "patsagi-councils"
-version = "13.8.9"                    # Lean 4 Formal Verification + spawn_council_safe
-edition = "2021"
-authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
-license = "AG-SML-1.0 — Autonomicity Games Sovereign Mercy License"
-description = "PATSAGi Councils — Governance, Deliberation & Lean 4 Formal Verification Layer for Ra-Thor. Includes TOLC 8 Mercy Lattice enforcement and spawn_council safety theorems."
-repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+description.workspace = true
+repository.workspace = true
 
 [dependencies]
 ra-thor-core = { path = "../ra-thor-core" }
 lean-sys = "0.1"
-chrono = "0.4"
+chrono.workspace = true
 
 # === Lean 4 + Formal Verification ===
 # lean-sys provides FFI to Lean 4 theorem prover.
