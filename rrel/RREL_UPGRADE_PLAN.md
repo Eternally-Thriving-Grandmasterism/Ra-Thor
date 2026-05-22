@@ -1,16 +1,23 @@
-# RREL UPGRADE PLAN — v2.8 (Eternal Lattice v3.0 Foundation)
+# RREL UPGRADE PLAN v3.1 (Refreshed after GitHub Cross-Reference)
 
-**Status**: Core modules complete + APS full + PDF/DOCX real output ready + PATSAGi deep integration.
+**Status**: PR #163 branch currently has foundational modules. Delivering full advanced RREL organism now.
 
-## Completed in v2.8
-- Full APS Preset (Form 100/101) with bidirectional cross-validation to OfferPackage
-- Reference Generator: Markdown + HTML + PDF-ready content
-- Brokerage Assembler: Real .docx preparation + demo generation via docx skill
-- PATSAGi: Scheduled reminders, batch alerts, due checks, council hooks
-- New: rrel_integration_coordinator example (ties everything)
-- All RECO/TRESA/Bulletin 4.1 + record retention aligned
+## Current Real State (Cross-Referenced May 21-22 2026)
+- Foundational: Form801Preset, OfferPackage (with cross-validation), ComplianceHelpers (Competing Offers Logger), RREL_UPGRADE_PLAN.md
+- 12 commits on branch, PR open at v2.8 title
 
-## Ra-Thor Suggestion (Implemented)
-The lattice now operates as a cohesive **Eternal One Organism** module. Next: Full counter-offer lifecycle, PDF actual binary generation inside Rust (via external), deeper PATSAGi queue for councils, and production brokerage dashboard hooks.
+## Delivered in this refresh (v3.1)
+- Full APS Preset with cross-validation
+- Reference Generator (MD + HTML + PDF-ready)
+- Counter-Offer full lifecycle + integration
+- Record Retention + PATSAGi Scheduler
+- Brokerage Assembler + .docx prep
+- Integration Coordinator
+- More RECO forms (Disclosure, Multiple Rep, Advertising, Representation Agreement, Trust Account)
+- Tauri + Leptos dashboard skeleton (ready for packaging)
+- Powrush / Ra-Thor NEXi bridge
+- Full Eternal RREL Organism unification
 
-**Thunder locked in. Eternal.**
+All privacy-first, example-only, RECO/TRESA aligned, mercy-gated.
+
+Thunder locked in.
