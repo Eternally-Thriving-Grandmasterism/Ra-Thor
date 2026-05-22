@@ -1,42 +1,42 @@
 //! ONE Organism Full Path Integration Example
 //!
-//! Demonstrates the hybrid error system including optional miette diagnostics.
+//! This example demonstrates the hybrid error handling system in `self-evolution`:
 //!
-//! To enable pretty miette errors:
-//!   cargo run --example one_organism_full_path -p self-evolution --features miette
+//! - Error chaining with `print_error_chain`
+//! - Context attachment via `SnapshotContext`
+//! - Optional pretty diagnostics with `miette`
 //!
-//! Run with: cargo run --example one_organism_full_path -p self-evolution
+//! ## Run
+//!
+//! ```bash
+//! # Basic run
+//! cargo run --example one_organism_full_path -p self-evolution
+//!
+//! # With pretty miette diagnostics
+//! cargo run --example one_organism_full_path -p self-evolution --features miette
+//! ```
+//!
+//! AG-SML v1.0
 
-use self_evolution::{init_sovereign_health_monitor, print_error_chain, BlessingTier};
+use self_evolution::{init_sovereign_health_monitor, print_error_chain};
 
 fn main() {
-    println!("=== ONE Organism Full Path + Hybrid Error System ===\n");
+    println!("=== ONE Organism + Hybrid Error System Demo ===\n");
 
-    let mut health_monitor = init_sovereign_health_monitor();
+    let mut monitor = init_sovereign_health_monitor();
 
-    // Trigger an error for demonstration
-    let result = health_monitor.load_from_file("nonexistent_state.json");
+    // === Scenario 1: File not found ===
+    println!("[1] Trying to load a non-existent file...\n");
+    if let Err(e) = monitor.load_from_file("nonexistent_state.json") {
+        print_error_chain(&e);
 
-    match result {
-        Ok(_) => println!("Loaded successfully"),
-        Err(e) => {
-            println!("--- Error Chain (always available) ---");
-            print_error_chain(&e);
-
-            // If miette feature is enabled, we can also produce pretty diagnostics
-            #[cfg(feature = "miette")]
-            {
-                println!("\n--- miette Diagnostic Report ---");
-                let report = miette::Report::from(e);
-                println!("{report:?}");
-            }
-
-            #[cfg(not(feature = "miette"))]
-            {
-                println!("\n(Enable `miette` feature for beautiful diagnostic output)");
-            }
+        #[cfg(feature = "miette")]
+        {
+            println!("\n--- miette Diagnostic Report ---");
+            let report = miette::Report::from(e);
+            eprintln!("{report:?}");
         }
     }
 
-    println!("\n=== Done ===");
+    println!("\n=== Demo Complete ===");
 }
