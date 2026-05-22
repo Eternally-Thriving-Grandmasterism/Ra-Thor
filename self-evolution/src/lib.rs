@@ -1,6 +1,19 @@
-// ... existing code ...
+// ... existing code in SovereignHealthMonitor ...
 
-    /// Applies mercy verdict influence and handles RequiresCouncilReview more meaningfully.
+    /// Handles cases where mercy evaluation returns RequiresCouncilReview.
+    /// This is the starting point for PATSAGi Council triggering.
+    fn handle_requires_council_review(&mut self) {
+        // Increment a counter or log the event
+        // In the future, this can trigger actual PATSAGi Council review
+        println!("[SovereignHealthMonitor] RequiresCouncilReview triggered - potential PATSAGi review point");
+
+        // Future enhancement:
+        // - Queue for PATSAGi Council
+        // - Notify relevant councils
+        // - Apply additional mercy or coherence checks
+    }
+
+    /// Enhanced apply_mercy_verdict with PATSAGi triggering hook
     pub fn apply_mercy_verdict(&mut self, verdict: &mercy_gating::MercyVerdict) {
         match verdict {
             mercy_gating::MercyVerdict::Passed { overall_score } => {
@@ -17,9 +30,8 @@
                 self.metrics.mercy_compliance =
                     (self.metrics.mercy_compliance - 0.015).max(0.55);
 
-                // Future PATSAGi / Council integration point
-                // TODO: Log or queue for PATSAGi Council review when this verdict occurs
-                // This could eventually trigger multi-council evaluation
+                // Trigger PATSAGi review handling
+                self.handle_requires_council_review();
             }
             mercy_gating::MercyVerdict::Blocked { .. } => {
                 self.metrics.mercy_compliance = (self.metrics.mercy_compliance * 0.7).max(0.4);
