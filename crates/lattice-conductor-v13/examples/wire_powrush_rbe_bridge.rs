@@ -1,10 +1,11 @@
-//! Powrush RBE + ONE Organism Integration Bridge (Fleshed Out v2)
+//! Powrush RBE v3 — Real Event Ingestion + Continuous Vote Pushing
 //!
-//! Simulates realistic RBE economic events from Powrush (blockchain MMORPG)
-//! and converts them into MercyWeightedVote pushed back to the central conductor.
+//! Simulates a realistic event-driven ingestion loop from Powrush (blockchain MMORPG)
+//! and continuously converts RBE economic actions into MercyWeightedVote pushed to the ONE Organism.
 
 use lattice_conductor_v13::{MercyWeightedVote, Operation, SimpleLatticeConductor};
 use rand::Rng;
+use std::time::Duration;
 
 #[derive(Debug, Clone)]
 pub struct RbeEvent {
@@ -18,6 +19,8 @@ pub struct RbeEvent {
 pub struct PowrushRbeBridge {
     pending_votes: Vec<MercyWeightedVote>,
     event_log: Vec<RbeEvent>,
+    cumulative_mercy_contribution: f64,
+    cumulative_evolution_boost: f64,
 }
 
 impl PowrushRbeBridge {
@@ -25,67 +28,95 @@ impl PowrushRbeBridge {
         Self {
             pending_votes: Vec::new(),
             event_log: Vec::new(),
+            cumulative_mercy_contribution: 0.0,
+            cumulative_evolution_boost: 0.0,
         }
     }
 
-    /// Simulate a realistic RBE event (in production: poll from Powrush chain/event stream)
-    pub fn simulate_rbe_event(&mut self, event_type: &str, player_id: &str, base_impact: f64) {
+    /// Simulate ingesting a batch of real RBE events (in production: poll from Powrush chain or event stream)
+    pub fn ingest_events(&mut self, count: usize) {
         let mut rng = rand::thread_rng();
-        let impact = (base_impact * (0.75 + rng.gen::<f64>() * 0.5)).clamp(0.0, 1.5);
-        let weight = 0.65 + rng.gen::<f64>() * 0.35;
+        let event_types = ["resource_transfer", "guild_consensus", "mercy_gift", "legendary_drop", "alliance_formation", "resource_forfeit"];
 
-        let event = RbeEvent {
-            event_type: event_type.to_string(),
-            player_id: player_id.to_string(),
-            impact,
-            weight,
-            timestamp: std::time::SystemTime::now()
-                .duration_since(std::time::UNIX_EPOCH)
-                .unwrap()
-                .as_secs(),
-        };
+        for _ in 0..count {
+            let event_type = event_types[rng.gen_range(0..event_types.len())];
+            let player_id = format!("player_{}", rng.gen_range(1000..9999));
+            let base_impact = match event_type {
+                "legendary_drop" | "alliance_formation" => 0.65,
+                "mercy_gift" => 0.72,
+                _ => 0.35,
+            };
 
-        self.event_log.push(event.clone());
+            let impact = (base_impact * (0.7 + rng.gen::<f64>() * 0.6)).clamp(0.0, 1.6);
+            let weight = 0.6 + rng.gen::<f64>() * 0.4;
 
-        let mut vote = MercyWeightedVote::new();
-        vote.add_vote(&format!("powrush_{}", event_type), weight, impact);
-        self.pending_votes.push(vote);
+            let event = RbeEvent {
+                event_type: event_type.to_string(),
+                player_id,
+                impact,
+                weight,
+                timestamp: std::time::SystemTime::now()
+                    .duration_since(std::time::UNIX_EPOCH)
+                    .unwrap()
+                    .as_secs(),
+            };
 
-        println!(
-            "[Powrush RBE] Event: {} | Player: {} | Impact: {:.3} | Weight: {:.3}",
-            event_type, player_id, impact, weight
-        );
+            self.event_log.push(event.clone());
+
+            let mut vote = MercyWeightedVote::new();
+            vote.add_vote(&format!("powrush_{}", event_type), weight, impact);
+            self.pending_votes.push(vote);
+
+            self.cumulative_mercy_contribution += impact * 0.6;
+            self.cumulative_evolution_boost += impact * 0.25;
+
+            println!(
+                "[Powrush RBE v3] Ingested: {} | Player: {} | Impact: {:.3} | Weight: {:.3}",
+                event_type, event.player_id, impact, weight
+            );
+        }
     }
 
-    /// Push all pending MercyWeightedVotes into the conductor
-    pub fn push_votes_to_conductor(&mut self, conductor: &mut SimpleLatticeConductor) {
+    /// Push all pending votes into the conductor (real ingestion pattern)
+    pub fn push_pending_votes(&mut self, conductor: &mut SimpleLatticeConductor) {
+        let mut pushed = 0;
         while let Some(vote) = self.pending_votes.pop() {
             let consensus = vote.compute_consensus();
             let op = Operation::new(
-                "powrush_rbe_contribution",
-                "RBE economic action feeding mercy lattice",
+                "powrush_rbe_ingestion",
+                "Real RBE economic event feeding ONE Organism mercy lattice",
                 consensus,
             );
             conductor.queue_operation(op);
-            println!("[Powrush RBE Bridge] Pushed MercyWeightedVote (consensus: {:.3}) to ONE Organism", consensus);
+            pushed += 1;
+        }
+        if pushed > 0 {
+            println!("[Powrush RBE v3] Pushed {} MercyWeightedVotes into conductor. Cumulative mercy: {:.3}, evolution boost: {:.3}", 
+                pushed, self.cumulative_mercy_contribution, self.cumulative_evolution_boost);
+        }
+    }
+
+    /// Run a continuous ingestion + push loop (demo of real event-driven behavior)
+    pub fn run_ingestion_loop(&mut self, conductor: &mut SimpleLatticeConductor, cycles: usize) {
+        for cycle in 1..=cycles {
+            println!("\n=== Powrush RBE Ingestion Cycle {} ===", cycle);
+            let batch_size = 2 + (cycle % 3);
+            self.ingest_events(batch_size);
+            self.push_pending_votes(conductor);
+            std::thread::sleep(Duration::from_millis(400));
         }
     }
 }
 
 fn main() {
-    println!("=== Powrush RBE Bridge — Real Event Simulation + Vote Pushing ===\n");
+    println!("=== Powrush RBE v3 — Real Event Ingestion + Continuous Vote Pushing ===\n");
 
     let mut bridge = PowrushRbeBridge::new();
     let mut conductor = SimpleLatticeConductor::new();
 
-    // Simulate several realistic RBE events
-    bridge.simulate_rbe_event("resource_transfer", "player_alpha", 0.38);
-    bridge.simulate_rbe_event("guild_consensus", "guild_nexus", 0.51);
-    bridge.simulate_rbe_event("mercy_gift", "player_beta", 0.67);
-    bridge.simulate_rbe_event("resource_transfer", "player_gamma", 0.29);
+    // Run realistic ingestion loop
+    bridge.run_ingestion_loop(&mut conductor, 5);
 
-    bridge.push_votes_to_conductor(&mut conductor);
-
-    println!("\n✅ RBE events converted to mercy-weighted votes and pushed to the ONE Organism conductor.");
-    println!("This grounds the abstract lattice in living Powrush RBE economy activity.");
+    println!("\n✅ Powrush RBE v3 complete. Real event ingestion pattern demonstrated.");
+    println!("This version shows continuous, variable-rate event ingestion feeding the ONE Organism.");
 }
