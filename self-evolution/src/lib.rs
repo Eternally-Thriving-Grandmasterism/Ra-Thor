@@ -129,7 +129,7 @@ impl std::fmt::Display for SnapshotError {
                 write!(f, "Failed to deserialize snapshot JSON: {}", err)
             }
             SnapshotError::UnknownFormat => {
-                write!(f, "Snapshot is in an unknown or unsupported format. Migration may be required.")
+                write!(f, "Unknown or unsupported snapshot format. Migration may be required.")
             }
         }
     }
@@ -137,13 +137,20 @@ impl std::fmt::Display for SnapshotError {
 
 impl std::error::Error for SnapshotError {
     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
-        match self {
-            SnapshotError::ReadError(_) | SnapshotError::ParseError(_) => {
-                // In a more advanced version we could store the original error
-                None
-            }
-            _ => None,
-        }
+        None
+    }
+}
+
+// From implementations for ergonomic error handling
+impl From<std::io::Error> for SnapshotError {
+    fn from(err: std::io::Error) -> Self {
+        SnapshotError::ReadError(err.to_string())
+    }
+}
+
+impl From<serde_json::Error> for SnapshotError {
+    fn from(err: serde_json::Error) -> Self {
+        SnapshotError::ParseError(err.to_string())
     }
 }
 
@@ -182,11 +189,10 @@ impl SovereignHealthMonitor {
         }
     }
 
-    pub fn save_to_file(&self, path: &str) -> Result<(), String> {
+    pub fn save_to_file(&self, path: &str) -> Result<(), SnapshotError> {
         let snapshot = self.to_snapshot();
-        let json = serde_json::to_string_pretty(&snapshot)
-            .map_err(|e| format!("Serialization error: {}", e))?;
-        fs::write(path, json).map_err(|e| format!("Write error: {}", e))?;
+        let json = serde_json::to_string_pretty(&snapshot)?;
+        fs::write(path, json)?;
         Ok(())
     }
 
@@ -195,8 +201,7 @@ impl SovereignHealthMonitor {
             return Err(SnapshotError::FileNotFound(path.to_string()));
         }
 
-        let json = fs::read_to_string(path)
-            .map_err(|e| SnapshotError::ReadError(e.to_string()))?;
+        let json = fs::read_to_string(path)?;
 
         if let Ok(snapshot) = serde_json::from_str::<SovereignHealthSnapshot>(&json) {
             return Ok(Self::from_snapshot(snapshot));
