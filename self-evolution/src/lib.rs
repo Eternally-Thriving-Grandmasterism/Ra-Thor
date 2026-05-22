@@ -1,6 +1,6 @@
 //! self-evolution v0.3.0
 //! Sovereign Health Monitoring + Self-Evolution v2 Hooks
-//! Hybrid Error System with Mercy-Gated Evaluation (Phase 1)
+//! Hybrid Error System with Mercy-Gated Evaluation (Phase 2)
 //! AG-SML v1.0
 
 use serde::{Deserialize, Serialize};
@@ -153,9 +153,8 @@ impl From<SnapshotError> for anyhow::Error {
     }
 }
 
-// ==================== MERCY-GATED ERROR EVALUATION (Phase 1) ====================
+// ==================== MERCY-GATED ERROR EVALUATION ====================
 
-/// The 7 Living Mercy Gates
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum MercyGate {
     RadicalLove,
@@ -167,25 +166,18 @@ pub enum MercyGate {
     CosmicHarmony,
 }
 
-/// Result of evaluating something through the Mercy Gates
 #[derive(Debug, Clone)]
 pub enum MercyEvaluation {
-    /// Passes mercy alignment
     Passed,
-    /// Should be presented with compassionate context
     Mitigated { note: String },
-    /// Requires PATSAGi Council review
     RequiresCouncilReview,
-    /// Should be handled internally (rare)
     Blocked { reason: String },
 }
 
-/// Trait for types that can be evaluated through the Mercy Gates
 pub trait MercyEvaluable {
     fn evaluate_through_mercy(&self) -> MercyEvaluation;
 }
 
-/// Helper to evaluate any MercyEvaluable item
 pub fn evaluate_error_with_mercy<E: MercyEvaluable>(item: &E) -> MercyEvaluation {
     item.evaluate_through_mercy()
 }
@@ -268,7 +260,19 @@ impl SovereignHealthMonitor {
 
     pub fn load_from_file(path: &str) -> Result<Self, SnapshotError> {
         if !Path::new(path).exists() {
-            return Err(SnapshotError::FileNotFound { path: path.to_string() });
+            let err = SnapshotError::FileNotFound { path: path.to_string() };
+            // Phase 2: Apply Mercy-Gated evaluation
+            match evaluate_error_with_mercy(&err) {
+                MercyEvaluation::Mitigated { note } => {
+                    // For now, we still return the error but it has been evaluated
+                    // In future phases we can enrich context further
+                }
+                MercyEvaluation::RequiresCouncilReview => {
+                    // Could trigger council review simulation here
+                }
+                _ => {}
+            }
+            return Err(err);
         }
 
         let json = fs::read_to_string(path)?;
@@ -282,8 +286,14 @@ impl SovereignHealthMonitor {
             return Ok(Self::from_snapshot(v2));
         }
 
-        Err(SnapshotError::UnknownFormat)
-            .with_snapshot_context(format!("while loading from {}", path))
+        let err = SnapshotError::UnknownFormat;
+        match evaluate_error_with_mercy(&err) {
+            MercyEvaluation::RequiresCouncilReview => {
+                // Mark for council review
+            }
+            _ => {}
+        }
+        Err(err).with_snapshot_context(format!("while loading from {}", path))
     }
 
     pub fn run_sovereign_check(&mut self) -> SovereignHealthMetrics {
