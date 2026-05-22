@@ -1,0 +1,16 @@
+[package]
+name = "mercy"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+description.workspace = true
+repository.workspace = true
+
+[dependencies]
+# Core Mercy Lattice + TOLC 8 enforcement
+# This is the central ethical and zero-harm layer
+
+[features]
+default = []
+full = []
