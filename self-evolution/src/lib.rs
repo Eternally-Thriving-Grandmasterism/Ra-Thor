@@ -10,11 +10,7 @@ use rand::Rng;
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub enum BlessingTier {
-    Minor,
-    Standard,
-    Major,
-    Transcendent,
-    None,
+    Minor, Standard, Major, Transcendent, None,
 }
 
 impl BlessingTier {
@@ -66,7 +62,6 @@ impl Default for SovereignHealthMetrics {
 
 // ==================== VERSIONED SNAPSHOTS ====================
 
-/// Legacy Version 1 (for migration)
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SovereignHealthSnapshotV1 {
     pub metrics: SovereignHealthMetrics,
@@ -74,7 +69,6 @@ pub struct SovereignHealthSnapshotV1 {
     pub recent_blessing_attempts: Vec<bool>,
 }
 
-/// Current Version 2
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SovereignHealthSnapshot {
     pub version: u32,
@@ -111,6 +105,29 @@ impl SovereignHealthSnapshot {
         }
     }
 }
+
+// ==================== ERROR TYPE ====================
+
+#[derive(Debug)]
+pub enum SnapshotError {
+    FileNotFound(String),
+    ReadError(String),
+    ParseError(String),
+    UnknownFormat,
+}
+
+impl std::fmt::Display for SnapshotError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            SnapshotError::FileNotFound(p) => write!(f, "Snapshot file not found: {}", p),
+            SnapshotError::ReadError(e) => write!(f, "Failed to read snapshot: {}", e),
+            SnapshotError::ParseError(e) => write!(f, "Failed to parse snapshot: {}", e),
+            SnapshotError::UnknownFormat => write!(f, "Unknown or unsupported snapshot format"),
+        }
+    }
+}
+
+impl std::error::Error for SnapshotError {}
 
 // ==================== SOVEREIGN HEALTH MONITOR ====================
 
@@ -155,21 +172,27 @@ impl SovereignHealthMonitor {
         Ok(())
     }
 
-    pub fn load_from_file(path: &str) -> Result<Self, String> {
+    /// Refactored with proper error handling
+    pub fn load_from_file(path: &str) -> Result<Self, SnapshotError> {
         if !Path::new(path).exists() {
-            return Err(format!("File not found: {}", path));
+            return Err(SnapshotError::FileNotFound(path.to_string()));
         }
-        let json = fs::read_to_string(path)
-            .map_err(|e| format!("Read error: {}", e))?;
 
-        if let Ok(v2) = serde_json::from_str::<SovereignHealthSnapshot>(&json) {
-            return Ok(Self::from_snapshot(v2));
+        let json = fs::read_to_string(path)
+            .map_err(|e| SnapshotError::ReadError(e.to_string()))?;
+
+        // Try current V2 format first
+        if let Ok(snapshot) = serde_json::from_str::<SovereignHealthSnapshot>(&json) {
+            return Ok(Self::from_snapshot(snapshot));
         }
+
+        // Fallback to V1 migration
         if let Ok(v1) = serde_json::from_str::<SovereignHealthSnapshotV1>(&json) {
             let v2 = SovereignHealthSnapshot::from_v1(v1);
             return Ok(Self::from_snapshot(v2));
         }
-        Err("Failed to parse snapshot".to_string())
+
+        Err(SnapshotError::UnknownFormat)
     }
 
     pub fn run_sovereign_check(&mut self) -> SovereignHealthMetrics {
