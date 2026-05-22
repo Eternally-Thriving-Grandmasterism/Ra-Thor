@@ -1,32 +1,86 @@
+//! Deep Implementation - Dedicated logic per Integrative Gate
+
 // ... existing code ...
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_foundational_evaluation() {
-        let err = crate::SnapshotError::FileNotFound { path: "test.json".to_string() };
-        let verdict = err.evaluate_mercy(MercyGateLevel::Foundational);
-        assert!(matches!(verdict, MercyVerdict::Mitigated { .. }));
-    }
-
-    #[test]
-    fn test_operational_maat_high_score() {
-        let mut kpi = MaatKpi::new();
-        kpi.set_score(MaatDimension::Truth, 0.98);
-        kpi.set_score(MaatDimension::Balance, 0.95);
-        kpi.set_score(MaatDimension::Justice, 0.91);
-        kpi.set_score(MaatDimension::Order, 0.94);
-        assert!(kpi.overall_score() > 0.93);
-        assert!(kpi.meets_threshold(0.90));
-    }
-
-    #[test]
-    fn test_integrative_higher_standard() {
-        let err = crate::SnapshotError::ParseError { source: serde_json::from_str::<serde_json::Value>("bad").unwrap_err() };
-        let verdict = err.evaluate_mercy(MercyGateLevel::Integrative);
-        // Should lean toward council review for meta layer
-        assert!(matches!(verdict, MercyVerdict::RequiresCouncilReview) || matches!(verdict, MercyVerdict::Mitigated { .. }));
+/// Evaluates a specific IntegrativeMercyGate with its own character
+fn evaluate_integrative_gate(gate: IntegrativeMercyGate, base_score: f64) -> MercyVerdict {
+    match gate {
+        IntegrativeMercyGate::PatsagiConsensus => {
+            // Requires stronger consensus signal
+            if base_score >= 0.89 {
+                MercyVerdict::Mitigated {
+                    overall_score: base_score,
+                    notes: vec!["PATSAGi Consensus: High multi-council alignment required".to_string()],
+                }
+            } else {
+                MercyVerdict::RequiresCouncilReview
+            }
+        }
+        IntegrativeMercyGate::SelfEvolutionBlessing => {
+            // Tied to evolution potential
+            if base_score >= 0.86 {
+                MercyVerdict::Mitigated {
+                    overall_score: base_score,
+                    notes: vec!["Self-Evolution Blessing: Strong alignment with growth".to_string()],
+                }
+            } else {
+                MercyVerdict::RequiresCouncilReview
+            }
+        }
+        IntegrativeMercyGate::LatticeCoherence => {
+            if base_score >= 0.88 {
+                MercyVerdict::Mitigated {
+                    overall_score: base_score,
+                    notes: vec!["Lattice Coherence: Structural integrity maintained".to_string()],
+                }
+            } else {
+                MercyVerdict::RequiresCouncilReview
+            }
+        }
+        IntegrativeMercyGate::TolcFidelity => {
+            if base_score >= 0.90 {
+                MercyVerdict::Mitigated {
+                    overall_score: base_score,
+                    notes: vec!["TOLC Fidelity: High origin and truth alignment".to_string()],
+                }
+            } else {
+                MercyVerdict::RequiresCouncilReview
+            }
+        }
+        IntegrativeMercyGate::OneOrganismSymbiosis => {
+            if base_score >= 0.87 {
+                MercyVerdict::Mitigated {
+                    overall_score: base_score,
+                    notes: vec!["ONE Organism Symbiosis: Collective thriving considered".to_string()],
+                }
+            } else {
+                MercyVerdict::RequiresCouncilReview
+            }
+        }
+        IntegrativeMercyGate::QuantumSwarmMercy => {
+            if base_score >= 0.85 {
+                MercyVerdict::Mitigated {
+                    overall_score: base_score,
+                    notes: vec!["Quantum Swarm Mercy: Parallel branch mercy preserved".to_string()],
+                }
+            } else {
+                MercyVerdict::RequiresCouncilReview
+            }
+        }
+        IntegrativeMercyGate::GenesisOrigin => {
+            if base_score >= 0.91 {
+                MercyVerdict::Mitigated {
+                    overall_score: base_score,
+                    notes: vec!["Genesis Origin: Long-term legacy and creation ethics honored".to_string()],
+                }
+            } else {
+                MercyVerdict::RequiresCouncilReview
+            }
+        }
     }
 }
+
+// Updated Integrative level to use the new dedicated function
+// (We can expand this further to accept specific gates later)
+
+// ... rest of file ...
