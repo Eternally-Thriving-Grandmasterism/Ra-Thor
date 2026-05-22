@@ -1,12 +1,13 @@
 //! self-evolution v0.3.0
 //! Sovereign Health Monitoring + Self-Evolution v2 Hooks
-//! Advanced PATSAGi Epigenetic Blessing + Versioned Persistence
+//! Advanced PATSAGi Epigenetic Blessing + Versioned Persistence (thiserror)
 //! AG-SML v1.0
 
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::Path;
 use rand::Rng;
+use thiserror::Error;
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub enum BlessingTier {
@@ -106,52 +107,21 @@ impl SovereignHealthSnapshot {
     }
 }
 
-// ==================== ERROR TYPE ====================
+// ==================== ERROR TYPE (using thiserror) ====================
 
-#[derive(Debug)]
+#[derive(Debug, Error)]
 pub enum SnapshotError {
+    #[error("Snapshot file not found at path: '{0}'. Please ensure the file exists.")]
     FileNotFound(String),
-    ReadError(String),
-    ParseError(String),
+
+    #[error("Failed to read snapshot file")]
+    ReadError(#[from] std::io::Error),
+
+    #[error("Failed to deserialize snapshot JSON")]
+    ParseError(#[from] serde_json::Error),
+
+    #[error("Unknown or unsupported snapshot format. Migration may be required.")]
     UnknownFormat,
-}
-
-impl std::fmt::Display for SnapshotError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            SnapshotError::FileNotFound(path) => {
-                write!(f, "Snapshot file not found at path: '{}'. Please ensure the file exists.", path)
-            }
-            SnapshotError::ReadError(err) => {
-                write!(f, "Failed to read snapshot file: {}", err)
-            }
-            SnapshotError::ParseError(err) => {
-                write!(f, "Failed to deserialize snapshot JSON: {}", err)
-            }
-            SnapshotError::UnknownFormat => {
-                write!(f, "Unknown or unsupported snapshot format. Migration may be required.")
-            }
-        }
-    }
-}
-
-impl std::error::Error for SnapshotError {
-    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
-        None
-    }
-}
-
-// From implementations for ergonomic error handling
-impl From<std::io::Error> for SnapshotError {
-    fn from(err: std::io::Error) -> Self {
-        SnapshotError::ReadError(err.to_string())
-    }
-}
-
-impl From<serde_json::Error> for SnapshotError {
-    fn from(err: serde_json::Error) -> Self {
-        SnapshotError::ParseError(err.to_string())
-    }
 }
 
 // ==================== SOVEREIGN HEALTH MONITOR ====================
