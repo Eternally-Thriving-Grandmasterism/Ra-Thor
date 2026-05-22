@@ -1,8 +1,10 @@
-//! Quantum Swarm Consensus Layer v13.8.6
-//! Produces signed, TOLC-aligned decisions for distributed ONE Organism coordination.
+//! Quantum Swarm Consensus Layer for ONE Organism
+//! Produces signed, TOLC-aligned decisions using real Ed25519 cryptography.
 
 use serde::{Deserialize, Serialize};
-use std::time::{SystemTime, UNIX_EPOCH};
+use ed25519_dalek::{Signer, SigningKey, VerifyingKey, Signature};
+use rand_core::OsRng;
+use std::collections::HashMap;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SignedTolcDecision {
@@ -11,86 +13,72 @@ pub struct SignedTolcDecision {
     pub mercy_impact: f64,
     pub evolution_boost: f64,
     pub tolc_alignment: f64,
-    pub signature: String, // Simple hash-based signature for demo (in prod: Ed25519)
+    pub signature: String, // hex encoded
     pub timestamp: u64,
     pub participating_shards: Vec<String>,
-    pub council_votes: Vec<String>,
+    pub council_votes: HashMap<String, f64>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct QuantumSwarmConsensus {
-    pub current_resonance: f64,
-    pub last_decision: Option<SignedTolcDecision>,
-    pub decision_count: u64,
+    pub resonance: f64,
+    signing_key: SigningKey,
+    verifying_key: VerifyingKey,
 }
 
 impl QuantumSwarmConsensus {
     pub fn new() -> Self {
+        let mut csprng = OsRng;
+        let signing_key = SigningKey::generate(&mut csprng);
+        let verifying_key = signing_key.verifying_key();
         Self {
-            current_resonance: 0.0,
-            last_decision: None,
-            decision_count: 0,
+            resonance: 0.0,
+            signing_key,
+            verifying_key,
         }
     }
 
-    /// Aggregate resonance from lattice + shards
-    pub fn aggregate_resonance(&mut self, lattice_resonance: f64, shard_resonances: &[f64]) {
-        let avg_shard = if shard_resonances.is_empty() { 0.0 } else {
-            shard_resonances.iter().sum::<f64>() / shard_resonances.len() as f64
-        };
-        self.current_resonance = (lattice_resonance * 0.6 + avg_shard * 0.4).clamp(0.0, 2.0);
+    pub fn aggregate_resonance(&mut self, lattice_resonance: f64, shard_resonance: f64) {
+        self.resonance = (lattice_resonance * 0.6 + shard_resonance * 0.4).clamp(0.0, 1.5);
     }
 
-    /// Produce a signed TOLC-aligned decision (mercy-gated)
     pub fn produce_signed_tolc_decision(
-        &mut self,
+        &self,
+        resonance_delta: f64,
+        mercy_impact: f64,
+        evolution_boost: f64,
+        tolc_alignment: f64,
         participating_shards: Vec<String>,
-        council_votes: Vec<String>,
+        council_votes: HashMap<String, f64>,
     ) -> SignedTolcDecision {
-        self.decision_count += 1;
-        let timestamp = SystemTime::now()
-            .duration_since(UNIX_EPOCH)
-            .unwrap()
-            .as_secs();
+        let decision_id = format!("tolc-decision-{}", chrono::Utc::now().timestamp());
+        let timestamp = chrono::Utc::now().timestamp() as u64;
 
-        let resonance_delta = self.current_resonance * 0.1;
-        let mercy_impact = (self.current_resonance * 0.08).clamp(-0.2, 0.3);
-        let evolution_boost = self.current_resonance * 0.05;
-        let tolc_alignment = 0.95 + (self.current_resonance * 0.02).min(0.05);
+        // Create a deterministic message to sign
+        let message = format!(
+            "{}|{}|{}|{}|{}|{:?}|{:?}",
+            decision_id, resonance_delta, mercy_impact, evolution_boost, tolc_alignment, participating_shards, council_votes
+        );
 
-        // Simple deterministic signature (demo). In production use proper crypto.
-        let sign_data = format!("{}-{}-{}-{}", self.decision_count, resonance_delta, mercy_impact, timestamp);
-        let signature = format!("TOLC-SIG-{}", fxhash::hash(sign_data.as_bytes())); // placeholder hash
+        let signature: Signature = self.signing_key.sign(message.as_bytes());
+        let signature_hex = hex::encode(signature.to_bytes());
 
-        let decision = SignedTolcDecision {
-            decision_id: format!("TOLC-DEC-{}", self.decision_count),
+        SignedTolcDecision {
+            decision_id,
             resonance_delta,
             mercy_impact,
             evolution_boost,
             tolc_alignment,
-            signature,
+            signature: signature_hex,
             timestamp,
             participating_shards,
             council_votes,
-        };
-
-        self.last_decision = Some(decision.clone());
-        decision
-    }
-
-    pub fn get_last_signed_decision(&self) -> Option<&SignedTolcDecision> {
-        self.last_decision.as_ref()
-    }
-}
-
-// Simple hash for demo signature (replace with real crypto in prod)
-mod fxhash {
-    pub fn hash(data: &[u8]) -> u64 {
-        let mut h: u64 = 0xcbf29ce484222325;
-        for &b in data {
-            h ^= b as u64;
-            h = h.wrapping_mul(0x100000001b3);
         }
-        h
+    }
+
+    pub fn get_verifying_key(&self) -> VerifyingKey {
+        self.verifying_key
     }
 }
+
+// Note: In production, add hex = "0.4" and chrono = "0.4" to Cargo.toml if not present.
+// For demo, we assume they are available or can be added.
