@@ -1,0 +1,31 @@
+[package]
+name = "lattice-conductor-v13"
+version = "13.8.8"
+edition = "2021"
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+thiserror = "1.0"
+nalgebra = { version = "0.33", optional = true, features = ["serde-serialize"] }
+chrono = "0.4"
+hex = "0.4"
+
+[dev-dependencies]
+sovereign-shard-genesis = { path = "../sovereign-shard-genesis" }
+mercy = { path = "../mercy" }
+axum = "0.7"
+tokio = { version = "1", features = ["full"] }
+tower-http = { version = "0.5", features = ["fs", "trace"] }
+futures-util = "0.3"
+ed25519-dalek = { version = "2", features = ["rand_core"] }
+tokio-tungstenite = { version = "0.21", features = ["connect"] }
+reqwest = { version = "0.12", features = ["json"] }
+
+[features]
+default = []
+geometric = ["nalgebra"]
+
+[lib]
+name = "lattice_conductor_v13"
+path = "src/lib.rs"

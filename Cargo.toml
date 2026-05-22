@@ -1,4 +1,10 @@
 [workspace]
+members = [
+    "crates/lattice-conductor-v13",
+    "crates/mercy",
+    "crates/sovereign-shard-genesis",
+    "crates/tolc8-genesis-gate",
+]
 resolver = "2"
 
 [workspace.package]
