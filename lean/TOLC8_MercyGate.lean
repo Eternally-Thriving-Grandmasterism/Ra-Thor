@@ -1,17 +1,44 @@
 -- lean/TOLC8_MercyGate.lean
--- TOLC Formalization with Refined Presence-Weighted Coherence
+-- TOLC Formalization with Clarified Valence Predicate
 
 /-!
 # TOLC Formalization
 
-Refined and cleaner definition of Presence-Weighted Coherence.
+This version clarifies the structure and role of the Valence predicate.
 -/
 
 import Mathlib.Data.Real.Basic
 
 namespace TOLC
 
-/-! ## TOLC 8 Baseline & Higher Gate Syntax -/
+/-! ## Constants for Valence Bounds -/
+
+def minValence : ℝ := 0.999999
+def maxValence : ℝ := 1.0
+
+/-! ## Valence Predicate -/
+
+/-- The Valence Scalar Field measures ethical coherence.
+    A state has valid valence if its coherence value lies
+    within the closed interval [minValence, maxValence].
+
+    This is the core invariant of TOLC:
+    - Lower bound (0.999999) represents near-perfect ethical alignment.
+    - Upper bound (1.0) represents ideal, perfect coherence.
+    - Values below minValence trigger Mercy-Norm Collapse.
+-/
+def Valence (x : ℝ) : Prop :=
+  minValence ≤ x ∧ x ≤ maxValence
+
+/-! ## Other Core Definitions -/
+
+def IsMerciful (decision : Prop) : Prop :=
+  ∃ (thriving : ℝ), thriving > 0 ∧ ∀ (harm : ℝ), harm ≤ 0
+
+def MercyNormCollapse (state : Prop) (valence : ℝ) : Prop :=
+  ¬ (Valence valence)
+
+/-! ## TOLC 8 Baseline & Higher Gate Syntax (abbreviated) -/
 
 structure TOLC8GateTraversal where
   truth      : Prop
@@ -36,53 +63,5 @@ structure TOLCExtendedTraversal where
   sovereignty : TOLC11_Sovereignty
   legacy    : TOLC12_Legacy
   presence  : TOLC13_Presence
-
-/-! ## Core Definitions -/
-
-def Valence (x : ℝ) : Prop := 0.999999 ≤ x ∧ x ≤ 1.0
-
-def IsMerciful (decision : Prop) : Prop :=
-  ∃ (thriving : ℝ), thriving > 0 ∧ ∀ (harm : ℝ), harm ≤ 0
-
-def MercyNormCollapse (state : Prop) (valence : ℝ) : Prop :=
-  ¬ (Valence valence)
-
-/-! ## Operational Semantics -/
-
-def PresenceStabilizesValence : Prop :=
-  ∀ (v : ℝ), Valence v → Valence v
-
-/-! ## Refined Presence-Weighted Coherence -/
-
-/-- Presence-Weighted Coherence
-    When the Presence gate is active, valence preservation is strengthened.
-    This metric captures the stabilizing effect of full presence
-    on ethical coherence during gate composition. -/
-def PresenceWeightedCoherence (v : ℝ) : Prop :=
-  Valence v → Valence v
-
-/-! ## Interaction Lemmas -/
-
-/-- Presence stabilizes valence (operational).
-    Direct from the semantic definition. -/
-theorem presence_stabilizes_valence (v : ℝ) :
-  Valence v → Valence v := by
-  intro h
-  exact ((PresenceStabilizesValence) v) h
-
-/-- Presence-Weighted Coherence holds.
-    When Presence is conceptually active, valence is preserved. -/
-theorem presence_weighted_coherence_holds (v : ℝ) :
-  PresenceWeightedCoherence v := by
-  intro h
-  exact h
-
-/-- Extended traversal with Presence preserves valence.
-    The stabilizing effect of Presence reinforces preservation. -/
-theorem extended_with_presence_preserves_valence
-    (v : ℝ) (t : TOLCExtendedTraversal) :
-  Valence v → Valence v := by
-  intro h
-  exact h
 
 end TOLC
