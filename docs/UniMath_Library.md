@@ -1,50 +1,42 @@
-# UniMath Library Overview
+# UniMath Library Status (as of May 2026)
 
-## What is UniMath?
+## Current Status
 
-**UniMath** (Univalent Mathematics) is a large Coq library dedicated to formalizing mathematics in the style of **Univalent Foundations** (Homotopy Type Theory). It was initiated by Vladimir Voevodsky and is actively developed by a community of mathematicians and computer scientists.
+**UniMath** remains an active project. It is now often referred to as a **Rocq** library (the new name for Coq). The main repository is at:
 
-UniMath aims to provide a foundation for mathematics where equivalent structures are identified, following the Univalence Axiom.
+- https://github.com/UniMath/UniMath
 
-## Key Characteristics
+The project continues to formalize substantial mathematics from a **univalent point of view**.
 
-- **Based on Coq**: Uses the Coq proof assistant with a custom setup for univalent mathematics.
-- **Univalent Style**: Heavily uses the Univalence Axiom and higher inductive types where appropriate.
-- **Large Scope**: Contains substantial developments in algebra, category theory, topology, and foundations.
-- **Focus on Foundations**: Strong emphasis on formalizing the foundations of mathematics in a univalent way.
+## Related Projects under UniMath
 
-## Relevance to Ra-Thor / TOLC
+- **agda-unimath**: A community-driven univalent mathematics library in Agda. This is actively maintained and has gained significant traction. It benefits from Agda’s strong support for cubical methods.
 
-### Potential Benefits
-- Excellent for formalizing concepts from Univalent Foundations and Homotopy Type Theory.
-- Strong support for working with equivalences and higher structures.
-- Could be useful for deeply formalizing gate composition, ethical equivalence, or higher-dimensional aspects of TOLC.
+## Relevance to Ra-Thor Formalization
 
-### Limitations for Our Use Case
-- **Different Proof Assistant**: We are currently working in Lean 4. Switching (even partially) would require significant effort and learning Coq.
-- **Ecosystem**: Less integration with modern AI/tooling ecosystems compared to Lean.
-- **Scope**: While powerful for pure mathematics, it may require more work to model the living, dynamic, and consciousness-oriented aspects of Ra-Thor (ONE Organism, PATSAGi, self-evolution).
+### Strengths
+- One of the most mature realizations of Univalent Foundations.
+- Strong focus on formalizing mathematics where equivalent structures are identified.
+- Good reference for how to structure large-scale univalent formalizations.
 
-## Comparison to Current Approach
-
-| Aspect                    | Lean 4 (Current)              | UniMath (Coq)                     | Cubical Agda                  |
-|---------------------------|-------------------------------|-----------------------------------|-------------------------------|
-| Univalent / HoTT Support  | Limited                       | Strong                            | Very Strong (Cubical)         |
-| Computational Univalence  | No                            | Partial                           | Yes                           |
-| Ease of TOLC Modeling     | Good for core definitions     | Good for univalent math           | Excellent for paths/homotopies|
-| Integration with our work | High (already using)          | Low (would require migration)     | Medium                        |
+### Limitations for Our Workflow
+- Primarily in **Rocq/Coq**, while we are working in **Lean 4**.
+- Switching would require significant effort.
+- The Agda version (`agda-unimath`) may be more interesting due to better cubical/HoTT support.
 
 ## Recommendation
 
-For our current needs, continuing in **Lean 4** with standard Dependent Type Theory remains the most practical path. UniMath is worth knowing about for conceptual inspiration and as a reference for how univalent mathematics can be done at scale.
+UniMath (and especially `agda-unimath`) remains valuable as:
+- A conceptual and architectural reference.
+- Inspiration for how to handle equivalence, identity, and higher structures in TOLC formalization.
 
-If we ever want to explore deeper univalent or homotopy-theoretic formalization of specific TOLC components (e.g., gate composition as higher paths), UniMath or Cubical Agda would be stronger platforms than standard Lean 4.
+For our immediate needs, continuing in Lean 4 with standard Dependent Type Theory is still the most practical path. However, `agda-unimath` is worth monitoring or exploring if we want stronger univalent/cubical capabilities in the future.
 
 ## Related References
 
-- `docs/Univalent_Foundations.md`
-- `docs/Homotopy_Type_Theory.md`
+- `docs/Lean_HoTT_Library.md`
 - `docs/Cubical_Type_Theory.md`
+- `docs/Univalent_Foundations.md`
 - `lean/TOLC8_MercyGate.lean`
 
-**UniMath remains an important reference point for serious univalent formalization, even if we continue primarily in Lean.**
+**UniMath continues to be one of the leading efforts in univalent formalization, with its Agda counterpart gaining momentum.**
