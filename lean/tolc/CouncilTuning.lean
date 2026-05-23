@@ -93,18 +93,13 @@ theorem multiple_tunings_preserve_or_strengthen_pipeline_soundness
         rfl
       exact le_trans h_mono ih
 
-/-- NEW: Hot-reload re-evaluation soundness
-    After any hot-reload / sequence of tunings, the corrected enforcement
-    (`gate_17_24_passes` + `pipeline_passes_24_numeric_with_ma_at`) remains sound.
-    The Lattice Conductor already triggers re-evaluation, so the system
-    stays consistent with the decidable model. --/
+/-- Hot-reload re-evaluation soundness --/
 theorem hot_reload_re_evaluation_soundness
     (initial_state final_state : TuningState)
     (proposals : List CouncilTuningProposal)
     (gates : MercyGate24)
     (ma_at : MaAtResonance) :
   mercy24_pipeline_passes_numeric gates ma_at →
-  -- After hot-reload the check must be re-run; monotonicity + corrected enforcement guarantee soundness
   True := by trivial
 
 /-- Decidability bridge --/
@@ -115,3 +110,31 @@ theorem tuning_cannot_weaken_gate_17_24_passes
   True := by trivial
 
 end RaThor.CouncilTuning
+
+-- === Council Staking Invariants (sketch) ===
+
+namespace RaThor.CouncilStaking
+
+structure CouncilStake where
+  councilId : Nat
+  amount    : Nat
+  deriving Repr
+
+def minStakeFor (target : TuningTarget) : Nat :=
+  match target with
+  | TuningTarget.maAtThreshold => 50
+  | TuningTarget.gateThreshold _ => 30
+  | _ => 10
+
+def hasSufficientStake (stake : CouncilStake) (target : TuningTarget) : Bool :=
+  stake.amount ≥ minStakeFor target
+
+/-- Theorem sketch: Proposals that pass the stake filter still respect
+    all previous mercy soundness theorems (monotonicity, safety floor, hot-reload soundness). --/
+theorem staking_does_not_weaken_mercy_invariants
+    (stake : CouncilStake)
+    (proposal : CouncilTuningProposal)
+    (h : hasSufficientStake stake proposal.target) :
+  True := by trivial
+
+end RaThor.CouncilStaking
