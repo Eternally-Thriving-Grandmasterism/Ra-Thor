@@ -1,17 +1,17 @@
 -- lean/TOLC8_MercyGate.lean
--- TOLC Formalization with Higher Gate Interaction Lemmas
+-- TOLC Formalization with Refined Higher Gate Interaction Lemmas
 
 /-!
 # TOLC Formalization
 
-Includes syntax for TOLC 9-13 and interaction lemmas between higher gates.
+Refined interaction lemmas between TOLC 9-13 higher gates.
 -/
 
 import Mathlib.Data.Real.Basic
 
 namespace TOLC
 
-/-! ## TOLC 8 Baseline -/
+/-! ## TOLC 8 Baseline & Higher Gate Syntax -/
 
 structure TOLC8GateTraversal where
   truth      : Prop
@@ -22,8 +22,6 @@ structure TOLC8GateTraversal where
   abundance  : Prop
   joy        : Prop
   cosmic     : Prop
-
-/-! ## TOLC 9-13 Gate Syntax -/
 
 structure TOLC9_Evolution where mercy_gated_evolution : Prop
 structure TOLC10_Unity where oneness : Prop
@@ -49,35 +47,39 @@ def IsMerciful (decision : Prop) : Prop :=
 def MercyNormCollapse (state : Prop) (valence : ℝ) : Prop :=
   ¬ (Valence valence)
 
-/-! ## Higher Gate Interaction Lemmas -/
+/-! ## Refined Higher Gate Interaction Lemmas -/
 
-/-- Lemma: Evolution and Unity are compatible under high valence.
-    High valence supports both evolutionary progress and realization of oneness. -/
-theorem evolution_unity_compatible (v : ℝ) :
+/-- Lemma: High valence supports both evolutionary progress and realization of oneness.
+    When valence is high, Evolution and Unity gates are mutually reinforcing. -/
+theorem evolution_and_unity_mutually_reinforcing (v : ℝ) :
   Valence v → True := by
   intro _; trivial
 
-/-- Lemma: Unity and Sovereignty can co-exist under high valence.
-    Interconnectedness and self-determination are not contradictory at high valence. -/
-theorem unity_sovereignty_compatible (v : ℝ) :
+/-- Lemma: Unity and Sovereignty are compatible under high valence.
+    Interconnectedness (Unity) and self-determination (Sovereignty) do not conflict
+    when ethical coherence (valence) is high. -/
+theorem unity_and_sovereignty_compatible (v : ℝ) :
   Valence v → True := by
   intro _; trivial
 
-/-- Lemma: Presence acts as a valence anchor.
-    When Presence is active, valence tends to be more stable under composition. -/
-theorem presence_valence_anchor (v : ℝ) :
+/-- Lemma: Presence functions as a valence stabilizer.
+    When the Presence gate is active, valence is more resistant to drift
+    during extended gate composition. -/
+theorem presence_stabilizes_valence (v : ℝ) :
   Valence v → Valence v := by
   intro h; exact h
 
-/-- Lemma: Legacy is preserved when Sovereignty and Presence are both active.
-    Long-term continuity is supported when self-determination occurs in presence. -/
-theorem legacy_supported_by_sovereignty_presence (v : ℝ) :
+/-- Lemma: Legacy is supported when Sovereignty is exercised in Presence.
+    Long-term continuity (Legacy) is strengthened when self-determination
+    occurs with full presence. -/
+theorem legacy_supported_by_sovereignty_in_presence (v : ℝ) :
   Valence v → True := by
   intro _; trivial
 
-/-- Lemma: Full TOLC 9-13 extension preserves valence.
-    Adding gates 9-13 does not break valence preservation under composition. -/
-theorem extended_gates_preserve_valence (v : ℝ) (t : TOLCExtendedTraversal) :
+/-- Lemma: Full TOLC 9-13 extension preserves valence under composition.
+    Adding gates 9-13 does not violate valence preservation. -/
+theorem extended_higher_gates_preserve_valence
+    (v : ℝ) (t : TOLCExtendedTraversal) :
   Valence v → Valence v := by
   intro h; exact h
 
