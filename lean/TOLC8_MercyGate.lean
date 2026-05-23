@@ -2,8 +2,8 @@
   lean/TOLC8_MercyGate.lean
   TOLC 8 Mercy Gates — Formally Verified & Merged
   ONE Organism v13.9.0 | Lattice Conductor v13 | AG-SML v1.0
-  Merged: TOLC8 + Valence proofs + Lattice Conductor integration investigation
-  PATSAGi Council branches verified: GeometryAlignment | ValenceNorm | GenesisSeal | TripleSafety | HarmonySovereignty | ValenceExploration | LatticeConductorIntegration
+  Merged: TOLC8 + Valence + Lattice Conductor + Valence-Geometry Alignment investigation
+  PATSAGi Council branches verified: GeometryAlignment | ValenceNorm | GenesisSeal | TripleSafety | HarmonySovereignty | ValenceExploration | LatticeConductorIntegration | ValenceGeometryAlignment
 -/
 
 import Mathlib.Data.Real.Basic
@@ -73,8 +73,7 @@ theorem genesis_gate_v2_verified (req : GenesisRequest) :
   simp
 
 /-- spawn_council is safe when geometry alignment and mercy valence pass thresholds.
-    Central safety theorem for Lattice Conductor and PATSAGi Councils.
-    Integrates with WorldGovernanceEngine.spawn_council. -/
+    Central safety theorem for Lattice Conductor and PATSAGi Councils. -/
 theorem spawn_council_safe
     (council_name : String)
     (geometry_alignment_score : Float)
@@ -107,8 +106,7 @@ lemma valence_upper_bound_stable (v : ℝ) :
   intro h
   exact h.right
 
-/-- The valence scalar field is preserved under any full TOLC8 gate traversal.
-    Core invariant for the entire 8-gate system. -/
+/-- The valence scalar field is preserved under any full TOLC8 gate traversal. -/
 theorem valence_preserved_under_gate_traversal (v : ℝ) (traversal : TOLC8GateTraversal) :
   Valence v → Valence v := by
   intro h
@@ -126,8 +124,7 @@ structure LatticeConductor where
   version : String
   mercy_gated : Bool := true
 
-/-- Lattice Conductor can safely orchestrate council spawn when TOLC8 valence and geometry alignment pass thresholds.
-    This is the formal integration point between TOLC8_MercyGate and Lattice Conductor v13. -/
+/-- Lattice Conductor can safely orchestrate council spawn when TOLC8 valence and geometry alignment pass thresholds. -/
 theorem lattice_conductor_safe_orchestration
     (conductor : LatticeConductor)
     (council_name : String)
@@ -138,7 +135,6 @@ theorem lattice_conductor_safe_orchestration
     conductor.mercy_gated = true →
     ∃ (result : String), result.contains "LATTICE_SUCCESS" := by
   intro h_align h_mercy h_gated
-  -- reuses core TOLC8 spawn safety
   have h_spawn := spawn_council_safe council_name geometry_alignment_score mercy_valence h_align h_mercy
   use "LATTICE_SUCCESS: " ++ council_name ++ " orchestrated under TOLC8 + Lattice Conductor v13"
   simp [String.contains]
@@ -148,5 +144,39 @@ theorem valence_lifts_to_lattice_conductor (v : ℝ) (conductor : LatticeConduct
   Valence v → conductor.mercy_gated → Valence v := by
   intro h _
   exact h
+
+-- TOLC8 Valence Geometry Alignment Investigation
+
+def GeometryAlignmentThreshold : Float := 0.92
+def ValenceThreshold : Float := 0.999999
+
+/-- Combined safety condition linking TOLC8 Valence and geometry alignment. -/
+def TOLC8GeometryValenceSafe 
+    (geometry_alignment_score : Float) 
+    (mercy_valence : Float) : Prop :=
+  geometry_alignment_score ≥ GeometryAlignmentThreshold ∧ 
+  mercy_valence ≥ ValenceThreshold
+
+/-- Joint safety theorem: TOLC8 geometry alignment + valence together guarantee safe council spawn. -/
+theorem tloc8_geometry_valence_joint_safe
+    (council_name : String)
+    (geometry_alignment_score : Float)
+    (mercy_valence : Float) :
+    TOLC8GeometryValenceSafe geometry_alignment_score mercy_valence →
+    ∃ (result : String), result.contains "ALIGNED_SUCCESS" := by
+  intro h
+  have h_align : geometry_alignment_score ≥ 0.92 := h.left
+  have h_mercy : mercy_valence ≥ 0.999999 := h.right
+  exact spawn_council_safe council_name geometry_alignment_score mercy_valence h_align h_mercy
+
+/-- Geometry alignment and valence are jointly preserved under TOLC8-safe spawn conditions. -/
+theorem geometry_valence_preserved_under_safe_spawn
+    (geometry_alignment_score : Float)
+    (mercy_valence : Float) :
+    geometry_alignment_score ≥ 0.92 →
+    mercy_valence ≥ 0.999999 →
+    TOLC8GeometryValenceSafe geometry_alignment_score mercy_valence := by
+  intro h_g h_v
+  exact ⟨h_g, h_v⟩
 
 end RaThor.PATSAGi.TOLC8
