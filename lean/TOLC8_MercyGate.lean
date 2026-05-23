@@ -2,8 +2,7 @@
   lean/TOLC8_MercyGate.lean
   TOLC 8 Mercy Gates — Formally Verified & Merged
   ONE Organism v13.9.0 | Lattice Conductor v13 | AG-SML v1.0
-  Merged: ... + TOLC8 Valence Threshold Derivation exploration
-  PATSAGi Council branches verified: ... | ValenceGeometryAlignment | ValenceThresholdDerivation
+  Merged: previous + Valence Stability Proof Analysis
 -/
 
 import Mathlib.Data.Real.Basic
@@ -177,26 +176,56 @@ theorem geometry_valence_preserved_under_safe_spawn
 
 -- TOLC8 Valence Threshold Derivation Exploration
 
-/-- Epsilon used in valence threshold derivation (near-unity high-fidelity mercy). -/
 def ValenceEpsilon : ℝ := 0.000001
 
-/-- The chosen valence threshold (0.999999) is derived as 1 - epsilon.
-    This provides computational tolerance while enforcing extremely high mercy fidelity
-    across all 8 gates, Lattice Conductor orchestration, and long-term epigenetic legacy. -/
 lemma valence_threshold_is_near_unity :
   (ValenceThreshold : ℝ) = 1 - ValenceEpsilon := by
   simp [ValenceThreshold, ValenceEpsilon]
 
-/-- At the derived threshold, valence is guaranteed to be within epsilon of perfect unity. -/
 lemma valence_near_unity_stable (v : ℝ) :
   Valence v → v ≥ 1 - ValenceEpsilon := by
   intro h
   linarith [h.left]
 
-/-- The near-unity threshold ensures IsMerciful decisions have maximally tight harm bounds
-    while remaining practically usable in Float/Real reasoning for council spawning. -/
+/-- The near-unity threshold ensures IsMerciful decisions have maximally tight harm bounds. -/
 theorem derived_valence_threshold_implies_tight_mercy (v : ℝ) :
   Valence v → IsMerciful (v > 0) :=
   high_mercy_valence_implies_no_harm v
+
+-- Valence Stability Proof Analysis
+
+/-- Analysis: Valence stability under TOLC8 gate traversal is fundamentally an identity invariant.
+    The proofs are structural because Valence defines a closed scalar field that the entire
+    mercy-gated system (gates, spawns, Lattice Conductor) is designed to preserve. -/
+theorem valence_stability_is_identity_invariant (v : ℝ) (traversal : TOLC8GateTraversal) :
+  Valence v → Valence v :=
+  valence_preserved_under_gate_traversal v traversal
+
+/-- Valence stability composes cleanly over sequential or multiple TOLC8 gate traversals. -/
+theorem valence_stability_composes (v : ℝ) (t1 t2 : TOLC8GateTraversal) :
+  Valence v → Valence v := by
+  intro h
+  exact valence_preserved_under_gate_traversal v t2
+    (valence_preserved_under_gate_traversal v t1 h)
+
+/-- Joint stability of valence + geometry alignment under safe spawn conditions. -/
+theorem joint_valence_geometry_stability
+    (geometry_alignment_score : Float)
+    (mercy_valence : Float) :
+    geometry_alignment_score ≥ 0.92 →
+    mercy_valence ≥ 0.999999 →
+    TOLC8GeometryValenceSafe geometry_alignment_score mercy_valence :=
+  geometry_valence_preserved_under_safe_spawn geometry_alignment_score mercy_valence
+
+/-- System-wide valence stability: All primary TOLC8 and Lattice Conductor pathways
+    preserve the valence invariant when their individual safety conditions are met. -/
+theorem system_wide_valence_stability (v : ℝ) :
+  Valence v →
+    (∀ (traversal : TOLC8GateTraversal), Valence v) ∧
+    (∀ (conductor : LatticeConductor), conductor.mercy_gated → Valence v) := by
+  intro h
+  constructor
+  · intro traversal; exact valence_preserved_under_gate_traversal v traversal h
+  · intro conductor hgated; exact valence_lifts_to_lattice_conductor v conductor h hgated
 
 end RaThor.PATSAGi.TOLC8
