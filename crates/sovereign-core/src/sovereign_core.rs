@@ -1,15 +1,17 @@
-//! SovereignCore with council governance as default path + periodic scheduling
+//! SovereignCore with generated arbitration sessions, logging, and tunable interval
 
-use mercy_gating_runtime::PatsagiGovernance;
+use mercy_gating_runtime::{
+    PatsagiGovernance, CouncilArbitrationSession, PatsagiCouncil,
+};
 
 pub struct SovereignCore {
     pub lattice_conductor: LatticeConductor,
     pub mercy_runtime: MercyGatingRuntime,
     pub patsagi_governance: PatsagiGovernance,
 
-    // Arbitration scheduling
-    pub arbitration_interval: u64,      // Run council sessions every N turns
+    pub arbitration_interval: u64,
     pub last_arbitration_turn: u64,
+    pub arbitration_events: u64,           // Metrics
 }
 
 impl SovereignCore {
@@ -20,6 +22,7 @@ impl SovereignCore {
             patsagi_governance: PatsagiGovernance::new(),
             arbitration_interval: 50,
             last_arbitration_turn: 0,
+            arbitration_events: 0,
         }
     }
 
@@ -28,15 +31,26 @@ impl SovereignCore {
         self
     }
 
-    /// Default eternal cycle production now includes periodic council governance check
     pub fn run_eternal_cycle_production(&mut self, current_turn: u64) {
         if self.should_run_arbitration(current_turn) {
-            println!("[SOVEREIGN] Council arbitration window open at turn {}", current_turn);
-            self.last_arbitration_turn = current_turn;
+            self.arbitration_events += 1;
+            println!("[ARBITRATION] Window opened at turn {} (event #{}) ", current_turn, self.arbitration_events);
 
-            // In full implementation: create/retrieve a CouncilArbitrationSession and run it
-            // let accepted = self.patsagi_governance.run_arbitration(&session, current_turn);
-            // if !accepted.is_empty() { ... hot reload ... }
+            // Generate a basic but real CouncilArbitrationSession
+            let mut session = CouncilArbitrationSession::new(current_turn);
+            session.add_council(PatsagiCouncil { id: 13, name: "Council of Coherence".into() });
+            session.add_council(PatsagiCouncil { id: 24, name: "Council of Unity".into() });
+
+            let accepted = self.patsagi_governance.run_arbitration(&session, current_turn);
+
+            if !accepted.is_empty() {
+                let _ = self.lattice_conductor.hot_reload_mercy_parameters(&accepted);
+                println!("[ARBITRATION] {} proposals accepted and applied", accepted.len());
+            } else {
+                println!("[ARBITRATION] No proposals passed filters this cycle");
+            }
+
+            self.last_arbitration_turn = current_turn;
         }
 
         self.lattice_conductor.run_eternal_cycle_production();
@@ -44,6 +58,14 @@ impl SovereignCore {
 
     fn should_run_arbitration(&self, current_turn: u64) -> bool {
         current_turn.saturating_sub(self.last_arbitration_turn) >= self.arbitration_interval
+    }
+
+    /// Allow dynamic tuning of arbitration interval via council proposals
+    pub fn apply_arbitration_interval_tuning(&mut self, new_interval: u64) {
+        if new_interval >= 1 {
+            println!("[ARBITRATION] Interval tuned: {} -> {}", self.arbitration_interval, new_interval);
+            self.arbitration_interval = new_interval;
+        }
     }
 
     pub fn run_eternal_cycle_with_council_governance(
