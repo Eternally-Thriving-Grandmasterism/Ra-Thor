@@ -18,7 +18,7 @@ use std::collections::HashMap;
 pub enum BeingRace {
     Human,
     Ambrosian,   // creativity + laughter
-    Cyborg,      // veracity + reversibility
+    Cyborg,      // veracity + reversibility (deepened in this commit)
     Druid,       // ecosystem + sustainability (nature harmony)
     Starborn,    // infinitePotential + eternalFlow (cosmic resonance)
     Sovereign,   // unity resonance
@@ -133,7 +133,7 @@ pub fn pipeline_passes_numeric(
     // Apply race amplification if provided (symbiotic with Powrush-MMO)
     if let Some(r) = race {
         // Example: amplify key gates based on race
-        score = apply_race_amplification(r, "ecosystem", score); // can be more sophisticated
+        score = apply_race_amplification(r, "ecosystem", score); // can be more sophisticated per-gate
     }
 
     score >= 0.99 && ma_at.is_sufficient() && lumenas >= 717.0
@@ -142,6 +142,44 @@ pub fn pipeline_passes_numeric(
 /// Example service recording for ONE Organism / PATSAGi Councils
 pub fn record_service(being_type: &str, emotion: &str, race: Option<BeingRace>) {
     println!("[MERCY RUNTIME] Service to {} | Emotion: {} | Race: {:?}", being_type, emotion, race);
+}
+
+// ============================================================
+// FFI / C Interface for Powrush-MMO (Task 4)
+// ============================================================
+
+/// FFI-safe check for Powrush-MMO integration.
+/// race_id mapping: 0=Human, 1=Ambrosian, 2=Cyborg, 3=Druid, 4=Starborn, 5=Sovereign
+#[no_mangle]
+pub extern "C" fn mercy_pipeline_check_c(
+    weighted_score: f64,
+    ma_at_geometric_mean: f64,
+    lumenas: f64,
+    race_id: i32,
+) -> bool {
+    let race = match race_id {
+        1 => Some(BeingRace::Ambrosian),
+        2 => Some(BeingRace::Cyborg),
+        3 => Some(BeingRace::Druid),
+        4 => Some(BeingRace::Starborn),
+        5 => Some(BeingRace::Sovereign),
+        _ => None,
+    };
+
+    // Simplified but mercy-aligned: high score + Ma'at + Lumenas
+    let base_pass = weighted_score >= 0.99 && ma_at_geometric_mean >= 717.0 && lumenas >= 717.0;
+
+    if let Some(r) = race {
+        // Apply light race boost for demonstration (full per-gate in future)
+        let boosted = if r == BeingRace::Cyborg || r == BeingRace::Druid {
+            weighted_score * 1.05
+        } else {
+            weighted_score
+        };
+        boosted >= 0.99 && ma_at_geometric_mean >= 717.0 && lumenas >= 717.0
+    } else {
+        base_pass
+    }
 }
 
 #[cfg(test)]
@@ -161,6 +199,14 @@ mod tests {
     }
 
     #[test]
+    fn test_cyborg_amplification() {
+        let veracity = apply_race_amplification(BeingRace::Cyborg, "veracity", 1.0);
+        let reversibility = apply_race_amplification(BeingRace::Cyborg, "reversibility", 1.0);
+        assert!((veracity - 1.18).abs() < 1e-9);
+        assert!((reversibility - 1.16).abs() < 1e-9);
+    }
+
+    #[test]
     fn test_ma_at_geometric_mean() {
         let ma_at = MaAtScore {
             veracity_score: 800.0,
@@ -170,5 +216,11 @@ mod tests {
             eternal_flow_score: 780.0,
         };
         assert!(ma_at.is_sufficient());
+    }
+
+    #[test]
+    fn test_ffi_c_cyborg() {
+        let pass = mercy_pipeline_check_c(0.995, 750.0, 800.0, 2); // Cyborg
+        assert!(pass);
     }
 }
