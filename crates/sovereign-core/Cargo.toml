@@ -11,5 +11,6 @@ autonomous-evolution-engine = { path = "../autonomous-evolution-engine" }
 cosmic-harmony-protocol = { path = "../cosmic-harmony-protocol" }
 heaven-co-creation-simulator-v4 = { path = "../heaven-co-creation-simulator-v4" }
 orch-or-biophoton-layer = { path = "../orch-or-biophoton-layer" }
+mercy_gating_runtime = { path = "../mercy_gating_runtime" }
 tokio = { version = "1", features = ["full"] }
 chrono = "0.4"
