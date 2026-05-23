@@ -1,6 +1,8 @@
 // Updated Lattice Conductor v13 with 24-gate hot-swap and council tuning
 // Phase 3 production path
 
+use mercy_gating_runtime::{CouncilTuningProposal, TuningTarget, TuningResult};
+
 pub struct LatticeConductor {
     pub mercy_runtime: MercyGatingRuntime,
     pub mercy_enforcement_active: bool,
@@ -16,16 +18,27 @@ impl LatticeConductor {
         println!("[LATTICE v13] Hot-swapped to full 24-gate numeric enforcement");
     }
 
-    /// Dynamic council tuning (PATSAGi Councils can adjust thresholds live)
-    pub fn apply_patsagi_council_tuning(&mut self, council_id: u32, tuning: CouncilMercyTuning) {
-        if tuning.raise_ma_at_threshold {
-            self.mercy_runtime.ma_at_threshold = tuning.new_ma_at_threshold;
+    /// Dynamic council tuning entry point (called from sovereign_core or PATSAGi layer)
+    pub fn apply_dynamic_council_tuning(
+        &mut self,
+        proposals: &[CouncilTuningProposal],
+    ) -> Vec<TuningResult> {
+        if !self.mercy_enforcement_active {
+            return vec![];
         }
-        if tuning.adjust_race_amplifiers {
-            self.mercy_runtime.apply_race_amplification_overrides(tuning.race_overrides.clone());
+
+        let results = self.mercy_runtime.apply_council_tunings(proposals);
+
+        for result in &results {
+            println!("[LATTICE v13] Dynamic tuning applied → {}", result.message);
         }
-        self.active_patsagi_councils.push(council_id);
-        println!("[LATTICE v13] Council #{} tuning applied — 24-gate mode live", council_id);
+
+        // Re-evaluate mercy after tuning
+        if self.mercy_enforcement_active {
+            let _ = self.mercy_runtime.pipeline_passes_24_numeric_with_ma_at();
+        }
+
+        results
     }
 
     pub fn run_eternal_cycle_production(&mut self) {
