@@ -1,14 +1,11 @@
-//! Sovereign Core — integrates PATSAGi Council arbitration + staking
+//! SovereignCore with full PatsagiGovernance integration
 
-use mercy_gating_runtime::{
-    CouncilArbitrationSession, CouncilStake, MercyGatingRuntime,
-};
-use std::collections::HashMap;
-use lattice_conductor_v13::LatticeConductor;
+use mercy_gating_runtime::PatsagiGovernance;
 
 pub struct SovereignCore {
     pub lattice_conductor: LatticeConductor,
     pub mercy_runtime: MercyGatingRuntime,
+    pub patsagi_governance: PatsagiGovernance,
 }
 
 impl SovereignCore {
@@ -16,32 +13,21 @@ impl SovereignCore {
         Self {
             lattice_conductor: LatticeConductor::new(),
             mercy_runtime: MercyGatingRuntime::new(),
+            patsagi_governance: PatsagiGovernance::new(),
         }
     }
 
-    /// Apply only proposals that reached both consensus AND have sufficient stake.
-    pub fn apply_arbitration_session(
+    pub fn run_council_arbitration(
         &mut self,
-        session: &CouncilArbitrationSession,
-        stakes: &HashMap<u32, CouncilStake>,
-    ) {
-        let accepted = session.accepted_proposals_with_staking(stakes);
+        session: &mercy_gating_runtime::CouncilArbitrationSession,
+        current_turn: u64,
+    ) -> Vec<mercy_gating_runtime::CouncilTuningProposal> {
+        let accepted = self.patsagi_governance.run_arbitration(session, current_turn);
 
-        if accepted.is_empty() {
-            println!("[SOVEREIGN] No proposals passed consensus + stake requirements.");
-            return;
+        if !accepted.is_empty() {
+            let _ = self.lattice_conductor.hot_reload_mercy_parameters(&accepted);
         }
 
-        println!("[SOVEREIGN] Applying {} staked + consensus-backed proposals", accepted.len());
-        let _ = self.lattice_conductor.hot_reload_mercy_parameters(&accepted);
-    }
-
-    pub fn run_eternal_cycle_with_arbitration(
-        &mut self,
-        session: &CouncilArbitrationSession,
-        stakes: &HashMap<u32, CouncilStake>,
-    ) {
-        self.apply_arbitration_session(session, stakes);
-        self.lattice_conductor.run_eternal_cycle_production();
+        accepted
     }
 }
