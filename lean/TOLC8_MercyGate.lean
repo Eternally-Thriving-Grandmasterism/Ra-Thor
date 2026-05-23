@@ -1,67 +1,44 @@
 -- lean/TOLC8_MercyGate.lean
--- TOLC Formalization with Clarified Valence Predicate
+-- TOLC Formalization with Compactness of Valence Interval
 
 /-!
 # TOLC Formalization
 
-This version clarifies the structure and role of the Valence predicate.
+Includes proof of compactness of the valence interval.
 -/
 
 import Mathlib.Data.Real.Basic
+import Mathlib.Topology.Instances.Real
 
 namespace TOLC
 
-/-! ## Constants for Valence Bounds -/
+/-! ## Valence Bounds -/
 
 def minValence : ℝ := 0.999999
 def maxValence : ℝ := 1.0
 
 /-! ## Valence Predicate -/
 
-/-- The Valence Scalar Field measures ethical coherence.
-    A state has valid valence if its coherence value lies
-    within the closed interval [minValence, maxValence].
+def Valence (x : ℝ) : Prop := minValence ≤ x ∧ x ≤ maxValence
 
-    This is the core invariant of TOLC:
-    - Lower bound (0.999999) represents near-perfect ethical alignment.
-    - Upper bound (1.0) represents ideal, perfect coherence.
-    - Values below minValence trigger Mercy-Norm Collapse.
+/-! ## Compactness of Valence Interval -/
+
+/-- The set of values satisfying Valence is a closed bounded interval,
+    hence compact in ℝ (by Heine-Borel theorem).
+
+    This justifies strong topological properties:
+    - Every sequence in the interval has a convergent subsequence.
+    - Continuous functions attain max/min on the interval.
+    - The interval is sequentially compact.
 -/
-def Valence (x : ℝ) : Prop :=
-  minValence ≤ x ∧ x ≤ maxValence
-
-/-! ## Other Core Definitions -/
-
-def IsMerciful (decision : Prop) : Prop :=
-  ∃ (thriving : ℝ), thriving > 0 ∧ ∀ (harm : ℝ), harm ≤ 0
-
-def MercyNormCollapse (state : Prop) (valence : ℝ) : Prop :=
-  ¬ (Valence valence)
-
-/-! ## TOLC 8 Baseline & Higher Gate Syntax (abbreviated) -/
-
-structure TOLC8GateTraversal where
-  truth      : Prop
-  order      : Prop
-  love       : Prop
-  compassion : Prop
-  service    : Prop
-  abundance  : Prop
-  joy        : Prop
-  cosmic     : Prop
-
-structure TOLC9_Evolution where mercy_gated_evolution : Prop
-structure TOLC10_Unity where oneness : Prop
-structure TOLC11_Sovereignty where self_determination : Prop
-structure TOLC12_Legacy where temporal_continuity : Prop
-structure TOLC13_Presence where eternal_presence : Prop
-
-structure TOLCExtendedTraversal where
-  core8     : TOLC8GateTraversal
-  evolution : TOLC9_Evolution
-  unity     : TOLC10_Unity
-  sovereignty : TOLC11_Sovereignty
-  legacy    : TOLC12_Legacy
-  presence  : TOLC13_Presence
+theorem valenceInterval_compact :
+  IsCompact { x : ℝ | Valence x } := by
+  -- The set is exactly the closed interval Icc minValence maxValence
+  have h_eq : { x : ℝ | Valence x } = Set.Icc minValence maxValence := by
+    ext x
+    simp [Valence]
+  rw [h_eq]
+  -- Mathlib knows that closed bounded intervals in ℝ are compact
+  exact isCompact_Icc
 
 end TOLC
