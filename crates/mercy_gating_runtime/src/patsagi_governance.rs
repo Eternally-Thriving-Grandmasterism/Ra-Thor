@@ -70,3 +70,57 @@ impl PatsagiGovernance {
         Err("serde feature not enabled".to_string())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::{CouncilArbitrationSession, PatsagiCouncil, CouncilStake};
+
+    #[test]
+    fn test_run_arbitration_applies_bonus_on_success() {
+        let mut gov = PatsagiGovernance::new();
+        gov.registry.upsert_stake(CouncilStake { council_id: 13, amount: 100, locked_until_turn: 0 });
+        gov.registry.upsert_stake(CouncilStake { council_id: 24, amount: 100, locked_until_turn: 0 });
+
+        let mut session = CouncilArbitrationSession::new(1000);
+        session.add_council(PatsagiCouncil { id: 13, name: "A".into() });
+        session.add_council(PatsagiCouncil { id: 24, name: "B".into() });
+        session.propose_ma_at_increase(13, 750.0, "Test".into());
+        session.propose_ma_at_increase(24, 760.0, "Support".into());
+
+        let accepted = gov.run_arbitration(&session, 1000);
+
+        let stake13 = gov.registry.get_stake(13).unwrap().amount;
+        assert!(stake13 > 100, "Successful council should receive bonus");
+    }
+
+    #[test]
+    fn test_run_arbitration_slashes_low_stake() {
+        let mut gov = PatsagiGovernance::new();
+        gov.registry.upsert_stake(CouncilStake { council_id: 99, amount: 5, locked_until_turn: 0 });
+
+        let mut session = CouncilArbitrationSession::new(1001);
+        session.add_council(PatsagiCouncil { id: 99, name: "LowStake".into() });
+        session.propose_ma_at_increase(99, 900.0, "Risky".into());
+
+        let _ = gov.run_arbitration(&session, 1001);
+
+        let final_stake = gov.registry.get_stake(99).unwrap().amount;
+        assert!(final_stake < 5, "Low-stake high-impact proposal should be slashed");
+    }
+
+    #[test]
+    fn test_serialization_roundtrip() {
+        // This test only runs meaningfully when serde feature is enabled
+        let mut gov = PatsagiGovernance::new();
+        gov.registry.upsert_stake(CouncilStake { council_id: 42, amount: 777, locked_until_turn: 0 });
+
+        #[cfg(feature = "serde")]
+        {
+            let bytes = gov.serialize_registry().expect("serialize should work");
+            let mut gov2 = PatsagiGovernance::new();
+            gov2.deserialize_registry(&bytes).expect("deserialize should work");
+            assert_eq!(gov2.registry.get_stake(42).unwrap().amount, 777);
+        }
+    }
+}
