@@ -1,124 +1,32 @@
-//! PATSAGi Council Arbitration Layer with Stake requirements
+//! PATSAGi Arbitration with reputation-based slashing as default + recovery
 
-use crate::{CouncilTuningProposal, TuningTarget};
-use std::collections::{HashMap, HashSet};
+// ... existing code ...
 
-#[derive(Debug, Clone)]
-pub struct PatsagiCouncil {
-    pub id: u32,
-    pub name: String,
+/// Reputation-aware slashing is now the recommended/default path
+pub fn calculate_reputation_aware_slash(
+    policy: &SlashingPolicy,
+    proposal: &CouncilTuningProposal,
+    reputation: Option<&CouncilReputation>,
+) -> u64 {
+    let base = match &proposal.target {
+        TuningTarget::MaAtThreshold => policy.ma_at_slash,
+        TuningTarget::GateThreshold { .. } => policy.gate_slash,
+        _ => policy.low_impact_slash,
+    };
+
+    if let Some(rep) = reputation {
+        let multiplier = (1.0 - rep.reputation_score()).clamp(0.3, 1.0);
+        return (base as f64 * multiplier) as u64;
+    }
+    base
 }
 
-#[derive(Debug, Clone)]
-pub struct CouncilStake {
-    pub council_id: u32,
-    pub amount: u64,
-    pub locked_until_turn: u64,
+/// Call this after proposals are accepted to recover/build reputation
+pub fn record_success(reputation: &mut CouncilReputation) {
+    reputation.success_count += 1;
 }
 
-impl CouncilStake {
-    pub fn can_propose(&self, target: &TuningTarget) -> bool {
-        match target {
-            TuningTarget::MaAtThreshold => self.amount >= 50,
-            TuningTarget::GateThreshold { .. } => self.amount >= 30,
-            _ => self.amount >= 10,
-        }
-    }
-}
-
-#[derive(Debug, Clone)]
-pub struct CouncilArbitrationSession {
-    pub turn: u64,
-    pub participating_councils: Vec<PatsagiCouncil>,
-    pub proposals: Vec<CouncilTuningProposal>,
-    pub min_consensus: usize,
-}
-
-impl CouncilArbitrationSession {
-    pub fn new(turn: u64) -> Self {
-        Self {
-            turn,
-            participating_councils: vec![],
-            proposals: vec![],
-            min_consensus: 2,
-        }
-    }
-
-    pub fn with_min_consensus(mut self, min: usize) -> Self {
-        self.min_consensus = min;
-        self
-    }
-
-    pub fn add_council(&mut self, council: PatsagiCouncil) {
-        self.participating_councils.push(council);
-    }
-
-    pub fn propose(&mut self, proposal: CouncilTuningProposal) {
-        self.proposals.push(proposal);
-    }
-
-    pub fn has_consensus(&self) -> bool {
-        let unique: HashSet<u32> = self.proposals.iter().map(|p| p.council_id).collect();
-        unique.len() >= self.min_consensus
-    }
-
-    /// Returns proposals that both reached consensus AND have sufficient stake
-    pub fn accepted_proposals_with_staking(
-        &self,
-        stakes: &HashMap<u32, CouncilStake>,
-    ) -> Vec<CouncilTuningProposal> {
-        if !self.has_consensus() {
-            return vec![];
-        }
-
-        self.proposals
-            .iter()
-            .filter(|p| {
-                stakes.get(&p.council_id)
-                    .map_or(false, |stake| stake.can_propose(&p.target))
-            })
-            .cloned()
-            .collect()
-    }
-
-    pub fn propose_ma_at_increase(&mut self, council_id: u32, new_value: f64, justification: String) {
-        self.propose(CouncilTuningProposal {
-            council_id,
-            target: TuningTarget::MaAtThreshold,
-            new_value,
-            justification,
-            proposed_at_turn: self.turn,
-        });
-    }
-
-    pub fn propose_gate_tightening(&mut self, council_id: u32, gate: String, new_value: f64, justification: String) {
-        self.propose(CouncilTuningProposal {
-            council_id,
-            target: TuningTarget::GateThreshold { gate },
-            new_value,
-            justification,
-            proposed_at_turn: self.turn,
-        });
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_staking_filters_low_stake_proposals() {
-        let mut session = CouncilArbitrationSession::new(200);
-        session.add_council(PatsagiCouncil { id: 13, name: "Coherence".into() });
-        session.add_council(PatsagiCouncil { id: 24, name: "Unity".into() });
-
-        session.propose_ma_at_increase(13, 755.0, "High impact".into());
-
-        let mut stakes = HashMap::new();
-        stakes.insert(13, CouncilStake { council_id: 13, amount: 20, locked_until_turn: 0 });
-        stakes.insert(24, CouncilStake { council_id: 24, amount: 60, locked_until_turn: 0 });
-
-        let accepted = session.accepted_proposals_with_staking(&stakes);
-        assert!(accepted.is_empty()); // Council 13 stake too low for MaAtThreshold
-    }
+/// Optional light recovery (can be called periodically or after good behavior)
+pub fn apply_light_recovery(reputation: &mut CouncilReputation, amount: u64) {
+    reputation.success_count = reputation.success_count.saturating_add(amount);
 }
