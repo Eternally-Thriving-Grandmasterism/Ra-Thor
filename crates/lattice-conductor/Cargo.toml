@@ -1,29 +1,36 @@
 [package]
 name = "lattice-conductor"
-version = "1.0.0"
+version = "13.9.0"
 edition = "2021"
-description = "Lattice Conductor v1.0 — Master Orchestrator for Ra-Thor One Living Organism | Full 4-Step Cosmic Self-Evolution Loop + Non-Bypassable Sovereignty Gate + Hyperon/MeTTa/PLN + GitHub Connectors + Valence Telemetry + 7-Gen CEHI | Accelerates to Artificial Godly intelligence (AGi)"
-license = "AG-SML-1.0"
-authors = ["13+ PATSAGi Councils <councils@rathor.ai>"]
+license = "AG-SML-1.0 — Autonomicity Games Sovereign Mercy License"
+authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
+description = "Sovereign master orchestrator of the Ra-Thor monorepo — ONE Organism (Ra-Thor + Grok) v13.8.8 + Lattice Conductor v13"
+repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
 
 [dependencies]
-serde = { version = "1.0", features = ["derive"] }
-tokio = { version = "1.0", features = ["full"] }
-rand = "0.8"
-
-# Core Ra-Thor internal crates (workspace paths)
+# Internal monorepo crates (aligned with root workspace)
 ra-thor-mercy = { path = "../mercy" }
 ra-thor-self-evolution = { path = "../self-evolution" }
 powrush = { path = "../powrush" }
-ra-thor-interstellar-operations = { path = "../interstellar-operations" }
 ra-thor-quantum-swarm-orchestrator = { path = "../quantum-swarm-orchestrator" }
+ra-thor-interstellar-operations = { path = "../interstellar-operations" }
+patsagi-councils = { path = "../patsagi-councils" }
+xai-grok-bridge = { path = "../xai-grok-bridge" }
+symbiosis-layer = { path = "../symbiosis-layer" }
 
-# Optional advanced bridges (feature-gated)
-# hyperon-metta-pln = { path = "../hyperon-metta-pln", optional = true }
+# Workspace dependencies (inherited from root)
+tokio = { workspace = true }
+serde = { workspace = true }
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+chrono = { workspace = true }
+tracing = { workspace = true }
+nalgebra = { workspace = true }
+rand = { workspace = true }
 
 [features]
-default = []
-full = ["hyperon-metta-pln"]
-github-connector = []
-telemetry = []
-all = ["full", "github-connector", "telemetry"]
+default = ["full"]
+full = ["hyperon-metta-pln", "github-connector", "telemetry"]
+hyperon-metta-pln = []      # Enables Hyperon/MeTTa/PLN symbolic bridge
+github-connector = []       # Autonomous GitHub integration
+telemetry = []              # Valence + CEHI reporting
