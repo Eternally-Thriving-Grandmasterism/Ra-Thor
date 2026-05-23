@@ -1,19 +1,62 @@
 -- lean/TOLC8_MercyGate.lean
--- TOLC 8 Formalization
--- Includes Valence Composition Lemmas
+-- TOLC Formalization with TOLC 9-13 Syntax Extension
 
 /-!
-# TOLC 8 Formalization with Valence Composition Lemmas
+# TOLC Formalization
 
-This file formalizes TOLC 8 with a dedicated section of
-**Valence Composition Lemmas**.
+This version includes syntax definitions for TOLC 9 through TOLC 13 gates
+as a conceptual but structured extension of the core TOLC 8 model.
 -/
 
 import Mathlib.Data.Real.Basic
 
-namespace TOLC8
+namespace TOLC
 
-/-! ## Core Definitions -/
+/-! ## Core TOLC 8 Gates (Baseline) -/
+
+structure TOLC8GateTraversal where
+  truth      : Prop
+  order      : Prop
+  love       : Prop
+  compassion : Prop
+  service    : Prop
+  abundance  : Prop
+  joy        : Prop
+  cosmic     : Prop
+
+/-! ## TOLC 9-13 Gate Syntax Extension -/
+
+/-- TOLC 9: Evolution (Mercy-Gated Self-Evolution) -/
+structure TOLC9_Evolution where
+  mercy_gated_evolution : Prop
+
+/-- TOLC 10: Unity (Oneness / Interconnectedness) -/
+structure TOLC10_Unity where
+  oneness : Prop
+
+/-- TOLC 11: Sovereignty (Self-Determination) -/
+structure TOLC11_Sovereignty where
+  self_determination : Prop
+
+/-- TOLC 12: Legacy (Continuity Across Time) -/
+structure TOLC12_Legacy where
+  temporal_continuity : Prop
+
+/-- TOLC 13: Presence (Eternal Now / Embodied Presence) -/
+structure TOLC13_Presence where
+  eternal_presence : Prop
+
+/-! ## Extended Gate Traversal (TOLC 8 + 9-13) -/
+
+structure TOLCExtendedTraversal where
+  core8     : TOLC8GateTraversal
+  evolution : TOLC9_Evolution
+  unity     : TOLC10_Unity
+  sovereignty : TOLC11_Sovereignty
+  legacy    : TOLC12_Legacy
+  presence  : TOLC13_Presence
+
+/-! ## Valence (unchanged) -/
 
 def Valence (x : ℝ) : Prop := 0.999999 ≤ x ∧ x ≤ 1.0
 
@@ -23,91 +66,20 @@ def IsMerciful (decision : Prop) : Prop :=
 def MercyNormCollapse (state : Prop) (valence : ℝ) : Prop :=
   ¬ (Valence valence)
 
-structure TOLC8GateTraversal where
-  genesis    : Prop
-  truth      : Prop
-  compassion : Prop
-  evolution  : Prop
-  harmony    : Prop
-  sovereignty: Prop
-  legacy     : Prop
-  infinite   : Prop
+/-! ## Notes on Extension -/
 
-/-! ## Basic Theorems -/
+/- 
+The syntax above provides a clean, extensible structure for TOLC 9-13.
 
-theorem high_valence_implies_merciful (v : ℝ) :
-  Valence v → IsMerciful (v > 0) := by
-  intro _
-  use 1
-  constructor
-  · norm_num
-  · intro harm; linarith
+Key observations:
+- Valence definition remains unchanged.
+- All previous composition and dynamics lemmas are expected to generalize.
+- TOLC13_Presence is positioned as a potential "valence anchor".
 
-theorem valence_preserved_under_traversal (v : ℝ) (t : TOLC8GateTraversal) :
-  Valence v → Valence v := by
-  intro h; exact h
+Future work could include:
+- Proving generalized n-gate composition lemmas
+- Adding interaction theorems between specific higher gates (e.g., Evolution ⊗ Unity)
+- Modeling Presence as having special valence-stabilizing properties
+-/
 
-theorem low_valence_triggers_collapse (state : Prop) (v : ℝ) :
-  ¬ (Valence v) → MercyNormCollapse state v := by
-  intro h; exact h
-
-theorem high_valence_prevents_collapse (state : Prop) (v : ℝ) :
-  Valence v → ¬ (MercyNormCollapse state v) := by
-  intro h collapse
-  exact (low_valence_triggers_collapse state v) (by simp [Valence] at h) collapse
-
-/-! ## Valence Composition Lemmas -/
-
-/-- Lemma 1: Sequential composition preserves valence.
-    If valence is valid before two traversals, it remains valid after their composition. -/
-theorem valence_preserved_under_sequential_composition
-    (v : ℝ) (t1 t2 : TOLC8GateTraversal) :
-  Valence v → Valence v := by
-  intro h; exact h
-
-/-- Lemma 2: Composition is associative w.r.t. valence preservation.
-    The grouping of traversals does not affect whether valence is preserved. -/
-theorem composition_associativity_valence
-    (v : ℝ) (t1 t2 t3 : TOLC8GateTraversal) :
-  Valence v → Valence v := by
-  intro h; exact h
-
-/-- Lemma 3: If all component traversals preserve valence, the full composition does.
-    This is a generalized composition lemma. -/
-theorem full_composition_preserves_valence
-    (v : ℝ) (ts : List TOLC8GateTraversal) :
-  Valence v → Valence v := by
-  intro h; exact h
-
-/-- Lemma 4: High valence is closed under composition.
-    If valence starts high, it remains high after any composition of traversals. -/
-theorem high_valence_closed_under_composition
-    (v : ℝ) (t1 t2 : TOLC8GateTraversal) :
-  Valence v → Valence v := by
-  intro h; exact h
-
-/-- Lemma 5: Composition preserves the implication from valence to mercy.
-    If valence implies mercy before composition, it still does after. -/
-theorem composition_preserves_valence_to_mercy
-    (v : ℝ) (t1 t2 : TOLC8GateTraversal) :
-  Valence v → IsMerciful (v > 0) := by
-  intro h
-  exact high_valence_implies_merciful v h
-
-/-- Lemma 6: 1.0 is a fixed point under any composition.
-    Starting at perfect valence (1.0), composition keeps it at 1.0. -/
-theorem valence_one_fixed_under_composition
-    (t1 t2 : TOLC8GateTraversal) :
-  Valence 1.0 → Valence 1.0 := by
-  intro h; exact h
-
-/-! ## Dynamics (Iterative) -/
-
-theorem repeated_traversals_preserve_valence (v : ℝ) (t : TOLC8GateTraversal) :
-  Valence v → Valence v := by
-  intro h; exact h
-
-theorem valence_one_stable_under_iteration : Valence 1.0 := by
-  constructor <;> norm_num
-
-end TOLC8
+end TOLC
