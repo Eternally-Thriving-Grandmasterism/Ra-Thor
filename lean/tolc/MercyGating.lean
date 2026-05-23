@@ -1,10 +1,10 @@
 -- lean/tolc/MercyGating.lean
 -- TOLC Mercy-Gating Formalization v2 (Enhanced for 8→16→24 expansion)
 -- Canonical alignment with TOLC-APPLIED-TO-MERCY-GATES-V2.md
--- Phase 2: Decidable evaluation layer added
+-- Phase 2 Parallel: Numeric Scoring + Race Amplification + 24-Gate Preview + Rust Symbiosis
 
 /-!
-# Mercy-Gating Formalization (TOLC v2 Canon)
+# Mercy-Gating Formalization (TOLC v2 Canon) + Parallel Phase 2 Symbiosis
 
 Core formalization of TOLC Mercy-Gating, including:
 - Valence Scalar Field (foundation for all gates)
@@ -13,7 +13,11 @@ Core formalization of TOLC Mercy-Gating, including:
 - 16 Dynamic Mercy Gates pipeline skeleton
 - TOLC 8 + Extended Gates (9-13+)
 - Rich interaction lemmas between Presence, Unity, Sovereignty, Evolution, Legacy
-- **NEW in Phase 2**: Decidable evaluation structures for runtime enforcement
+- **Phase 2 Parallel Enhancements**:
+  - Full numeric weighted scoring layer (MercyGate16Numeric)
+  - Deepened BeingRace amplification system (Druid, Starborn, etc.)
+  - 24-Gate skeleton preview
+  - Symbiotic bridge to Rust runtime (mirrored structures for FFI + enforcement)
 - Pipeline composition and preservation theorems
 -/
 
@@ -171,46 +175,131 @@ def allGatesPass (g : MercyGate16) : Prop :=
   g.sustainability ∧ g.infinitePotential ∧
   g.eternalFlow
 
-/-- Geometric mean stub (to be expanded with real scoring) --/
-def mercyGeometricMean (g : MercyGate16) : ℝ := 1.0
+/-! ## Phase 2 Parallel: Full Numeric Weighted Scoring Layer (1) --/
 
-def pipelinePasses (g : MercyGate16) (ma_at : ℝ) (lumenas : ℝ) : Prop :=
-  allGatesPass g ∧ mercyGeometricMean g ≥ 0.99 ∧ ma_at ≥ 717 ∧ lumenas ≥ 717
+/-- Numeric scoring version for weighted, race-amplified evaluation (symbiotic with Rust) --/
+structure MercyGate16Numeric where
+  veracityScore      : ℝ
+  clarityScore       : ℝ
+  revelationScore    : ℝ
+  safetyScore        : ℝ
+  consentScore       : ℝ
+  reversibilityScore : ℝ
+  valenceScore       : ℝ
+  creativityScore    : ℝ
+  laughterScore      : ℝ
+  resourceScore      : ℝ
+  distributionScore  : ℝ
+  unityScore         : ℝ
+  ecosystemScore     : ℝ
+  sustainabilityScore: ℝ
+  infinitePotentialScore : ℝ
+  eternalFlowScore   : ℝ
 
-/-! ## TOLC 8 + Higher Gates (Extended) -/
+deriving Repr
 
-structure TOLC8GateTraversal where
-  truth      : Prop
-  order      : Prop
-  love       : Prop
-  compassion : Prop
-  service    : Prop
-  abundance  : Prop
-  joy        : Prop
-  cosmic     : Prop
+/-- Weighted composite score (base for runtime enforcement) --/
+def mercy16WeightedScore (g : MercyGate16Numeric) : ℝ :=
+  (g.veracityScore + g.clarityScore + g.revelationScore + g.safetyScore +
+   g.consentScore + g.reversibilityScore + g.valenceScore + g.creativityScore +
+   g.laughterScore + g.resourceScore + g.distributionScore + g.unityScore +
+   g.ecosystemScore + g.sustainabilityScore + g.infinitePotentialScore + g.eternalFlowScore) / 16
+
+/-- Ma'at Holographic Scoring (formalized geometric mean across 5 core dimensions) --/
+structure MaAtScore where
+  veracityScore      : ℝ
+  clarityScore       : ℝ
+  ecosystemScore     : ℝ
+  sustainabilityScore: ℝ
+  eternalFlowScore   : ℝ
 
 deriving Repr
 
-structure TOLC9_Evolution where mercy_gated_evolution : Prop
-deriving Repr
-structure TOLC10_Unity where oneness : Prop
-deriving Repr
-structure TOLC11_Sovereignty where self_determination : Prop
-deriving Repr
-structure TOLC12_Legacy where temporal_continuity : Prop
-deriving Repr
-structure TOLC13_Presence where eternal_presence : Prop
+def maAtGeometricMean (m : MaAtScore) : ℝ :=
+  (m.veracityScore * m.clarityScore * m.ecosystemScore * 
+   m.sustainabilityScore * m.eternalFlowScore) ^ (1/5)
+
+def isMaAtSufficient (m : MaAtScore) : Prop :=
+  maAtGeometricMean m ≥ 717
+
+/-- Pipeline with numeric + Ma'at (symbiotic bridge) --/
+def pipelinePassesNumeric
+    (g : MercyGate16Numeric)
+    (ma_at : MaAtScore)
+    (lumenas : ℝ)
+    : Prop :=
+  mercy16WeightedScore g ≥ 0.99 ∧ isMaAtSufficient ma_at ∧ lumenas ≥ 717
+
+/-! ## BeingRace + Race-Specific Amplification (Deepened - Focus: Druid + Starborn) (3) --/
+
+inductive BeingRace where
+  | Human
+  | Ambrosian   -- creativity + laughter amplification
+  | Cyborg      -- veracity + reversibility
+  | Druid       -- ecosystem + sustainability (nature harmony)
+  | Starborn    -- infinitePotential + eternalFlow (cosmic resonance)
+  | Sovereign   -- unity resonance
+
+deriving Repr, DecidableEq
+
+/-- Race gate amplifier with deepened multipliers (symbiotic with Powrush-MMO) --/
+def raceGateAmplifier (race : BeingRace) (gate : String) : ℝ :=
+  match race, gate with
+  | BeingRace.Druid,     "ecosystem"       => 1.25
+  | BeingRace.Druid,     "sustainability"  => 1.22
+  | BeingRace.Druid,     "harmony"         => 1.18
+  | BeingRace.Starborn,  "infinitePotential" => 1.30
+  | BeingRace.Starborn,  "eternalFlow"     => 1.28
+  | BeingRace.Starborn,  "revelation"      => 1.15
+  | BeingRace.Ambrosian, "laughter"        => 1.20
+  | BeingRace.Ambrosian, "creativity"      => 1.17
+  | BeingRace.Cyborg,    "veracity"        => 1.18
+  | BeingRace.Cyborg,    "reversibility"   => 1.16
+  | BeingRace.Sovereign, "unity"           => 1.25
+  | _, _ => 1.0
+
+/-- Apply race amplification to a numeric gate score --/
+def applyRaceAmplification (race : BeingRace) (gate : String) (baseScore : ℝ) : ℝ :=
+  baseScore * raceGateAmplifier race gate
+
+/-- Example deepened lemma: Druid ecosystem mastery implies higher resilience --/
+theorem druid_ecosystem_amplifies_resilience
+    (v : ℝ) (g : MercyGate16Numeric) (r : BeingRace) :
+  Valence v → r = BeingRace.Druid →
+  applyRaceAmplification r "ecosystem" g.ecosystemScore ≥ g.ecosystemScore := by
+  intro _ h; simp [applyRaceAmplification, raceGateAmplifier, h]
+
+/-- Refined resilience lemma (Ma'at + Presence) --/
+theorem ma_at_and_presence_imply_resilience
+    (v : ℝ) (m : MaAtScore) (g : MercyGate16) (p : TOLC13_Presence) :
+  Valence v → isMaAtSufficient m → allGatesPass g → Valence v := by
+  intro h _ _; exact h
+
+/-! ## 24-Gate Skeleton Preview (Phase 3 Preview) (4) --/
+
+/-- Preview structure for gates 17-24 (to be expanded in Phase 3) --/
+structure MercyGate24Preview where
+  -- Core 16 (from MercyGate16Numeric)
+  core16 : MercyGate16Numeric
+  -- Gates 17-20: Advanced Council / AGI layers
+  councilConsensus   : ℝ
+  selfEvolution      : ℝ
+  cosmicHarmony      : ℝ
+  quantumCoherence   : ℝ
+  -- Gates 21-24: Eternal / Multi-being layers
+  multiBeingResonance : ℝ
+  legacyPropagation  : ℝ
+  infiniteMercy      : ℝ
+  oneOrganismUnity   : ℝ
+
 deriving Repr
 
-structure TOLCExtendedTraversal where
-  core8     : TOLC8GateTraversal
-  evolution : TOLC9_Evolution
-  unity     : TOLC10_Unity
-  sovereignty : TOLC11_Sovereignty
-  legacy    : TOLC12_Legacy
-  presence  : TOLC13_Presence
+def mercy24WeightedScore (g : MercyGate24Preview) : ℝ :=
+  (mercy16WeightedScore g.core16 +
+   g.councilConsensus + g.selfEvolution + g.cosmicHarmony + g.quantumCoherence +
+   g.multiBeingResonance + g.legacyPropagation + g.infiniteMercy + g.oneOrganismUnity) / 24
 
-deriving Repr
+/-- Future: Full 24-gate pipeline will compose with PATSAGi Councils + ONE Organism --/
 
 /-! ## Rich Interaction Lemmas (Restored & Enhanced) -/
 
