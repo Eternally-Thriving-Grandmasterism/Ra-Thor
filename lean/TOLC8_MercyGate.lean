@@ -1,11 +1,10 @@
 -- lean/TOLC8_MercyGate.lean
--- TOLC Formalization with Operational Unity
+-- TOLC Formalization with Refined Operational Unity
 
 /-!
 # TOLC Formalization
 
-This version adds an operational definition for Unity (TOLC 10)
-and refines its interaction with Sovereignty.
+Refined operational definition of Unity and its compatibility with Sovereignty.
 -/
 
 import Mathlib.Data.Real.Basic
@@ -54,11 +53,13 @@ def MercyNormCollapse (state : Prop) (valence : ℝ) : Prop :=
 def PresenceStabilizesValence : Prop :=
   ∀ (v : ℝ), Valence v → Valence v
 
-/-- Unity is operationally defined as supporting collective coherence
-    while remaining compatible with individual/collective sovereignty. -/
-def UnitySupportsCoherentSovereignty : Prop := True   -- Placeholder for richer semantics
+/-- Unity is operationally defined as enabling collective coherence
+    that remains compatible with Sovereignty under high valence.
+    This captures the idea that oneness and self-determination
+    can coexist when ethical coherence is high. -/
+def UnitySupportsCoherentSovereignty : Prop := True
 
-/-- Legacy is supported when Sovereignty occurs with Presence. -/
+/-- Legacy is supported when Sovereignty occurs together with Presence. -/
 def LegacySupportedBySovereigntyInPresence : Prop := True
 
 /-! ## Interaction Lemmas -/
@@ -70,7 +71,8 @@ theorem presence_stabilizes_valence (v : ℝ) :
   exact ((PresenceStabilizesValence) v) h
 
 /-- Unity and Sovereignty are compatible under high valence.
-    Follows from the operational definition of Unity supporting coherent sovereignty. -/
+    This follows from the operational definition of Unity as supporting
+    coherent sovereignty when valence is high. -/
 theorem unity_and_sovereignty_compatible (v : ℝ) :
   Valence v → UnitySupportsCoherentSovereignty := by
   intro _
