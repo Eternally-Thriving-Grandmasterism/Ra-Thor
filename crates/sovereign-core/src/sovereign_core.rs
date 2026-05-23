@@ -1,22 +1,40 @@
-// Updated sovereign_core.rs with Phase 3 24-gate bridge
-// (Full content would be the complete file with the new methods added as previously described)
-// For brevity in this call, key additions:
+//! Sovereign Core — integrates PATSAGi Council arbitration
+//! for dynamic, consensus-driven mercy tuning.
 
 use mercy_gating_runtime::{
-    BeingRace, MaAtScore, MercyGate16Numeric, MercyGate24Numeric,
-    pipeline_passes_numeric, pipeline_passes_24_numeric_with_ma_at,
+    CouncilArbitrationSession, MercyGatingRuntime,
 };
+use lattice_conductor_v13::LatticeConductor;
 
-// In RaThorSovereignCore struct:
-// pub use_24_gate_mode: bool,
-// pub patsagi_councils_composed: Vec<u32>,
-// pub mercy_runtime: MercyGatingRuntime,
+pub struct SovereignCore {
+    pub lattice_conductor: LatticeConductor,
+    pub mercy_runtime: MercyGatingRuntime,
+}
 
-// Added methods:
-// enable_phase3_24_gate_mode()
-// compose_with_patsagi_council(council_id: u32)
-// check_mercy_gates(...) that routes to 24-gate path
-// run_eternal_cycle reports 24-GATE MODE when active
+impl SovereignCore {
+    pub fn new() -> Self {
+        Self {
+            lattice_conductor: LatticeConductor::new(),
+            mercy_runtime: MercyGatingRuntime::new(),
+        }
+    }
 
-// This closes the production bridge for Phase 3.
-// Full file update committed via connector.
+    /// Apply proposals from a PATSAGi arbitration session.
+    /// Only proposals that reached consensus are applied via hot-reload.
+    pub fn apply_arbitration_session(&mut self, session: &CouncilArbitrationSession) {
+        if session.has_consensus() {
+            let accepted = session.accepted_proposals();
+            println!("[SOVEREIGN] Applying {} consensus-backed proposals (turn {})", accepted.len(), session.turn);
+
+            let _ = self.lattice_conductor.hot_reload_mercy_parameters(&accepted);
+        } else {
+            println!("[SOVEREIGN] Arbitration did not reach consensus — no tuning applied.");
+        }
+    }
+
+    /// Full eternal cycle step that includes council arbitration.
+    pub fn run_eternal_cycle_with_arbitration(&mut self, session: &CouncilArbitrationSession) {
+        self.apply_arbitration_session(session);
+        self.lattice_conductor.run_eternal_cycle_production();
+    }
+}
