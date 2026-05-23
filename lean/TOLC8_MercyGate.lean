@@ -1,10 +1,11 @@
 -- lean/TOLC8_MercyGate.lean
--- TOLC Formalization with Uniform Continuity
+-- TOLC Formalization with Equicontinuity Concepts
 
 /-!
 # TOLC Formalization
 
-Includes formalization of uniform continuity on the compact valence interval.
+This version introduces concepts related to equicontinuity
+on the compact valence interval.
 -/
 
 import Mathlib.Data.Real.Basic
@@ -28,20 +29,20 @@ theorem valenceInterval_compact : IsCompact { x : ℝ | Valence x } := by
   rw [h_eq]
   exact isCompact_Icc
 
-/-! ## Uniform Continuity on Compact Sets -/
+/-! ## Equicontinuity Concepts (Conceptual) -/
 
-/-- Any continuous function on the compact valence interval is uniformly continuous.
+/-- A family of functions is equicontinuous on the valence set
+    if the modulus of continuity can be chosen independently of
+    the function in the family.
 
-    This is a direct application of the theorem that continuous functions
-    on compact metric spaces are uniformly continuous.
+    This is a key hypothesis in the Arzelà–Ascoli theorem
+    for extracting convergent subsequences from families of
+    functions defined on the valence interval.
 -/
-theorem continuous_on_valence_is_uniformly_continuous
-    (f : ℝ → ℝ)
-    (hf : ContinuousOn f { x | Valence x }) :
-    UniformContinuousOn f { x | Valence x } := by
-  -- The valence set is compact
-  have h_compact := valenceInterval_compact
-  -- On compact metric spaces, continuous → uniformly continuous
-  exact hf.uniformContinuousOn h_compact
+
+-- Placeholder for future formalization of equicontinuous families
+-- on the valence set. In a more advanced model, one could define:
+--
+-- def EquicontinuousOn (F : Set (ℝ → ℝ)) : Prop := ...
 
 end TOLC
