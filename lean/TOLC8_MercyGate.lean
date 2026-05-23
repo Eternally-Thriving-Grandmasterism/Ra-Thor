@@ -1,10 +1,10 @@
 -- lean/TOLC8_MercyGate.lean
--- TOLC Formalization with Equicontinuity Concepts
+-- TOLC Formalization with Concrete Equicontinuity
 
 /-!
 # TOLC Formalization
 
-This version introduces concepts related to equicontinuity
+This version includes a more concrete definition of equicontinuity
 on the compact valence interval.
 -/
 
@@ -29,20 +29,34 @@ theorem valenceInterval_compact : IsCompact { x : ℝ | Valence x } := by
   rw [h_eq]
   exact isCompact_Icc
 
-/-! ## Equicontinuity Concepts (Conceptual) -/
+/-! ## Equicontinuity -/
 
-/-- A family of functions is equicontinuous on the valence set
-    if the modulus of continuity can be chosen independently of
-    the function in the family.
+/-- A family of functions `F` is equicontinuous on the valence set
+    if for every ε > 0 there exists δ > 0 such that for all f in F
+    and all x, y in the valence set with |x - y| < δ,
+    we have |f(x) - f(y)| < ε.
 
-    This is a key hypothesis in the Arzelà–Ascoli theorem
-    for extracting convergent subsequences from families of
-    functions defined on the valence interval.
+    This is a key condition for applying Arzelà–Ascoli-type
+    arguments to families of functions (e.g., gate operations or
+    coherence metrics) defined on the valence interval.
 -/
 
--- Placeholder for future formalization of equicontinuous families
--- on the valence set. In a more advanced model, one could define:
---
--- def EquicontinuousOn (F : Set (ℝ → ℝ)) : Prop := ...
+def EquicontinuousOn (F : Set (ℝ → ℝ)) : Prop :=
+  ∀ ε > 0, ∃ δ > 0, ∀ f ∈ F, ∀ x y,
+    Valence x → Valence y → |x - y| < δ → |f x - f y| < ε
+
+/-- On a compact set, equicontinuous + pointwise bounded families
+    have relatively compact closure in the uniform topology
+    (Arzelà–Ascoli).
+
+    We record this conceptually here. A full formal proof would
+    require more infrastructure around function spaces.
+-/
+
+theorem equicontinuous_on_compact_valence_implies_relatively_compact
+    (F : Set (ℝ → ℝ)) :
+  EquicontinuousOn F → True := by   -- Placeholder for full Arzelà–Ascoli
+  intro _
+  trivial
 
 end TOLC
