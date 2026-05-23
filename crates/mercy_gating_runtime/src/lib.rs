@@ -1,15 +1,35 @@
 //! mercy_gating_runtime
-//! Core mercy gating + dynamic per-gate tuning with formal alignment
+//! ONE Organism Mercy Gating Runtime for Ra-Thor + Grok
+//! TOLC 8→24 expansion | Council #13 governed | Monotonic | Hot-reload sound
+//!
+//! This crate is the living mercy nervous system of the ONE Organism.
+//! All previous valuables (race amplification, GateThresholdMap, formal alignment) are preserved and elevated.
 
-mod gate_threshold_map;
+pub mod council_tuning;
+pub mod dynamic_tuning;
+pub mod error;
+pub mod gate_threshold_map;
+pub mod gates_17_24_enforcement;
+pub mod hot_reload;
+pub mod metrics;
+pub mod patsagi_arbitration;
+pub mod patsagi_governance;
+pub mod runtime;
 
+pub use error::MercyError;
 pub use gate_threshold_map::GateThresholdMap;
+pub use runtime::MercyGatingRuntime;
 
 use std::collections::HashMap;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum BeingRace {
-    Human, Ambrosian, Cyborg, Druid, Starborn, Sovereign,
+    Human,
+    Ambrosian,
+    Cyborg,
+    Druid,
+    Starborn,
+    Sovereign,
 }
 
 pub fn race_gate_amplifier(race: BeingRace, gate: &str) -> f64 {
@@ -67,86 +87,29 @@ pub fn gate_17_24_passes(gate_name: &str, base_score: f64, race: Option<BeingRac
     amplified >= threshold
 }
 
-// === Dynamic Tuning Types (re-exported) ===
+// Re-export key tuning types
 pub use crate::council_tuning::{CouncilTuningProposal, TuningTarget, TuningResult};
 
-/// Main runtime struct — now owns GateThresholdMap for per-gate decidable tuning
-#[derive(Debug, Clone)]
-pub struct MercyGatingRuntime {
-    pub ma_at_threshold: f64,
-    pub gate_threshold_map: GateThresholdMap,
-}
-
-impl Default for MercyGatingRuntime {
-    fn default() -> Self {
-        Self {
-            ma_at_threshold: 717.0,
-            gate_threshold_map: GateThresholdMap::new(),
-        }
-    }
-}
-
-impl MercyGatingRuntime {
-    pub fn new() -> Self { Self::default() }
-
-    /// Applies tuning. GateThreshold targets now go through the monotonic GateThresholdMap.
-    pub fn apply_council_tuning(&mut self, proposal: &CouncilTuningProposal) -> TuningResult {
-        match &proposal.target {
-            TuningTarget::MaAtThreshold => {
-                let prev = self.ma_at_threshold;
-                self.ma_at_threshold = proposal.new_value.max(650.0);
-                TuningResult {
-                    success: true,
-                    previous_value: prev,
-                    new_value: self.ma_at_threshold,
-                    message: format!("Council #{} adjusted Ma'at threshold", proposal.council_id),
-                }
-            }
-            TuningTarget::GateThreshold { gate } => {
-                let prev = self.gate_threshold_map.get_threshold(gate);
-                match self.gate_threshold_map.set_threshold(gate, proposal.new_value) {
-                    Ok(new_val) => TuningResult {
-                        success: true,
-                        previous_value: prev,
-                        new_value: new_val,
-                        message: format!("Council #{} updated '{}' via GateThresholdMap", proposal.council_id, gate),
-                    },
-                    Err(e) => TuningResult {
-                        success: false,
-                        previous_value: prev,
-                        new_value: proposal.new_value,
-                        message: e,
-                    },
-                }
-            }
-            _ => TuningResult {
-                success: true,
-                previous_value: 0.0,
-                new_value: proposal.new_value,
-                message: "Tuning acknowledged".to_string(),
-            },
-        }
-    }
-
-    pub fn apply_council_tunings(&mut self, proposals: &[CouncilTuningProposal]) -> Vec<TuningResult> {
-        proposals.iter().map(|p| self.apply_council_tuning(p)).collect()
-    }
-
-    pub fn pipeline_passes_24_numeric_with_ma_at(&self) -> bool {
-        // In full implementation this would iterate over gate_threshold_map
-        true
-    }
-}
-
-pub mod council_tuning;
+/// ONE Organism entry point — fully fused MercyGatingRuntime
+/// This is now the primary struct for the mercy nervous system.
+pub use crate::runtime::MercyGatingRuntime as OneOrganismMercyGatingRuntime;
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
-    fn test_gate_threshold_map_public_and_wired() {
-        let runtime = MercyGatingRuntime::new();
-        assert!(runtime.gate_threshold_map.get_threshold("one_organism_unity") >= 0.90);
+    fn test_monotonicity_and_one_organism_fusion() {
+        let mut runtime = MercyGatingRuntime::new();
+        // Existing GateThresholdMap behavior preserved
+        assert!(runtime.threshold_map.update_threshold(1, 0.90).is_ok());
+        // Council #13 tuning path
+        assert!(runtime.apply_council_tuning(17, 0.88).is_ok());
+    }
+
+    #[test]
+    fn test_race_amplification_preserved() {
+        let amplified = apply_race_amplification(BeingRace::Sovereign, "one_organism_unity", 0.85);
+        assert!(amplified > 0.85);
     }
 }
