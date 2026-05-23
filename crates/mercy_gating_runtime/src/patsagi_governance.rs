@@ -1,10 +1,11 @@
-//! PatsagiGovernance - High-level council governance coordinator
+//! PatsagiGovernance with real serialization support
 
 use crate::{
-    CouncilArbitrationSession, CouncilRegistry, CouncilStake, SlashingPolicy,
+    CouncilArbitrationSession, CouncilRegistry, SlashingPolicy,
     calculate_slash_amount, apply_slash,
 };
-use std::collections::HashMap;
+#[cfg(feature = "serde")]
+use bincode;
 
 #[derive(Debug, Clone)]
 pub struct PatsagiGovernance {
@@ -20,17 +21,14 @@ impl PatsagiGovernance {
         }
     }
 
-    /// Full arbitration run: stake check + consensus + slashing + recovery
     pub fn run_arbitration(
         &mut self,
         session: &CouncilArbitrationSession,
         current_turn: u64,
     ) -> Vec<crate::CouncilTuningProposal> {
-        // 1. Filter by stake + consensus
-        let accepted = session.accepted_proposals_with_staking(&self.registry.stakes); // simplified access
+        let accepted = session.accepted_proposals_with_staking(&self.registry.stakes);
 
         if accepted.is_empty() {
-            // Apply slashing to councils that proposed but were filtered
             for proposal in &session.proposals {
                 if let Some(stake) = self.registry.get_stake_mut(proposal.council_id) {
                     if !stake.can_propose(&proposal.target, current_turn) {
@@ -42,25 +40,33 @@ impl PatsagiGovernance {
             return vec![];
         }
 
-        // 2. Apply success bonus to councils whose proposals were accepted
         for proposal in &accepted {
             self.registry.apply_success_bonus(proposal.council_id, self.policy.success_bonus);
         }
 
-        // 3. Return accepted proposals for hot-reload
         accepted
     }
 
-    // Serialization hooks (requires serde + bincode feature)
     #[cfg(feature = "serde")]
     pub fn serialize_registry(&self) -> Result<Vec<u8>, String> {
-        // bincode::serialize(&self.registry).map_err(|e| e.to_string())
-        Ok(vec![]) // placeholder until feature enabled
+        bincode::serialize(&self.registry)
+            .map_err(|e| format!("Serialization failed: {}", e))
     }
 
     #[cfg(feature = "serde")]
     pub fn deserialize_registry(&mut self, data: &[u8]) -> Result<(), String> {
-        // self.registry = bincode::deserialize(data).map_err(|e| e.to_string())?;
+        self.registry = bincode::deserialize(data)
+            .map_err(|e| format!("Deserialization failed: {}", e));
         Ok(())
+    }
+
+    #[cfg(not(feature = "serde"))]
+    pub fn serialize_registry(&self) -> Result<Vec<u8>, String> {
+        Err("serde feature not enabled".to_string())
+    }
+
+    #[cfg(not(feature = "serde"))]
+    pub fn deserialize_registry(&mut self, _data: &[u8]) -> Result<(), String> {
+        Err("serde feature not enabled".to_string())
     }
 }
