@@ -21,6 +21,13 @@ impl PatsagiGovernance {
         }
     }
 
+    pub fn with_policy(policy: SlashingPolicy) -> Self {
+        Self {
+            registry: CouncilRegistry::new(),
+            policy,
+        }
+    }
+
     pub fn run_arbitration(
         &mut self,
         session: &CouncilArbitrationSession,
@@ -111,7 +118,6 @@ mod tests {
 
     #[test]
     fn test_serialization_roundtrip() {
-        // This test only runs meaningfully when serde feature is enabled
         let mut gov = PatsagiGovernance::new();
         gov.registry.upsert_stake(CouncilStake { council_id: 42, amount: 777, locked_until_turn: 0 });
 
