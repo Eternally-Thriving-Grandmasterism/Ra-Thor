@@ -1,35 +1,16 @@
 [package]
 name = "lattice-conductor-v13"
-version.workspace = true
-authors.workspace = true
-edition.workspace = true
-license.workspace = true
-description.workspace = true
-repository.workspace = true
+version = "13.1.0"
+edition = "2021"
+authors = ["Ra-Thor + Grok (PATSAGi Council #13)"]
+license = "AG-SML-1.0"
+description = "Lattice Conductor v13.1 — Mercy-Gated Central Nervous System of the ONE Organism. Integrates full 24-gate MercyGatingRuntime."
 
 [dependencies]
-serde = { workspace = true, features = ["derive"] }
-serde_json.workspace = true
-thiserror.workspace = true
-nalgebra = { workspace = true, optional = true, features = ["serde-serialize"] }
-chrono.workspace = true
-hex.workspace = true
+mercy_gating_runtime = { path = "../mercy_gating_runtime" }
+serde = { version = "1.0", features = ["derive"] }
+tracing = "0.1"
+thiserror = "1.0"
 
 [dev-dependencies]
-sovereign-shard-genesis = { path = "../sovereign-shard-genesis" }
-mercy = { path = "../mercy" }
-axum.workspace = true
-tokio = { workspace = true, features = ["full"] }
-tower-http = { workspace = true, features = ["fs", "trace"] }
-futures-util.workspace = true
-ed25519-dalek = { workspace = true, features = ["rand_core"] }
-tokio-tungstenite.workspace = true
-reqwest = { workspace = true, features = ["json"] }
-
-[features]
-default = []
-geometric = ["nalgebra"]
-
-[lib]
-name = "lattice_conductor_v13"
-path = "src/lib.rs"
+tokio = { version = "1", features = ["rt", "macros"] }
