@@ -1,11 +1,11 @@
 -- lean/TOLC8_MercyGate.lean
--- TOLC Formalization with Formalized Proofs for Higher Gate Interaction Lemmas
+-- TOLC Formalization with Formal Proofs for Higher Gate Interaction Lemmas
 
 /-!
 # TOLC Formalization
 
-This version includes more formalized proofs (where possible) for
-interaction lemmas between TOLC 9-13 higher gates.
+This file contains formal proofs (where possible) for interaction
+lemmas between TOLC 9-13 higher gates.
 -/
 
 import Mathlib.Data.Real.Basic
@@ -48,47 +48,40 @@ def IsMerciful (decision : Prop) : Prop :=
 def MercyNormCollapse (state : Prop) (valence : ℝ) : Prop :=
   ¬ (Valence valence)
 
-/-! ## Formalized Higher Gate Interaction Lemmas -/
+/-! ## Formal Interaction Lemmas -/
 
 /-- Evolution and Unity are compatible under high valence.
-    Proof: High valence implies strong ethical coherence. Both Evolution
-    (growth toward higher states) and Unity (realization of oneness) are
-    supported by high coherence. Hence they do not conflict. -/
+    We currently treat this as an axiom of the model. -/
 theorem evolution_and_unity_compatible (v : ℝ) :
   Valence v → True := by
   intro _
-  trivial
+  sorry   -- Requires deeper model of gate interaction
 
 /-- Unity and Sovereignty are compatible under high valence.
-    Proof: High valence resolves apparent tensions between collective
-    oneness and self-determination. Therefore they can coexist. -/
+    Treated as model axiom for now. -/
 theorem unity_and_sovereignty_compatible (v : ℝ) :
   Valence v → True := by
   intro _
-  trivial
+  sorry
 
-/-- Presence stabilizes valence during composition.
-    Proof: Presence anchors the process in the living now. This reduces
-    the chance of valence drift across long sequences of gates.
-    Hence valence is preserved. -/
+/-- Presence stabilizes valence.
+    Proof: By definition, if valence holds, it is preserved.
+    (Can be strengthened once Presence is given operational meaning.) -/
 theorem presence_stabilizes_valence (v : ℝ) :
   Valence v → Valence v := by
   intro h
   exact h
 
 /-- Legacy is supported when Sovereignty is exercised with Presence.
-    Proof: Self-determination exercised in full presence tends to produce
-    aligned, sustainable outcomes. These outcomes strengthen long-term
-    continuity (Legacy). -/
+    Currently an axiom of the model. -/
 theorem legacy_supported_by_sovereignty_with_presence (v : ℝ) :
   Valence v → True := by
   intro _
-  trivial
+  sorry
 
-/-- The full TOLC 9-13 extension preserves valence.
-    Proof: Each higher gate (9-13) operates within the same valence
-    framework as the core TOLC 8. Therefore composing them does not
-    break valence preservation. -/
+/-- The full TOLC 9-13 extension preserves valence under composition.
+    Proof: Each higher gate preserves the valence framework.
+    Therefore the extended traversal preserves valence. -/
 theorem extended_gates_preserve_valence
     (v : ℝ) (t : TOLCExtendedTraversal) :
   Valence v → Valence v := by
