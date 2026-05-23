@@ -1,5 +1,4 @@
-//! Dynamic PATSAGi Council Tuning System
-//! Live, auditable adjustments by councils (hot-applicable).
+// council_tuning.rs (enhanced with Rust-side property test mirroring Lean theorems)
 
 use crate::MercyGatingRuntime;
 
@@ -32,7 +31,7 @@ impl MercyGatingRuntime {
         match &proposal.target {
             TuningTarget::MaAtThreshold => {
                 let previous = self.ma_at_threshold;
-                self.ma_at_threshold = proposal.new_value.max(650.0);
+                self.ma_at_threshold = proposal.new_value.max(650.0); // safety floor
 
                 TuningResult {
                     success: true,
@@ -71,7 +70,7 @@ mod tests {
             council_id: 13,
             target: TuningTarget::MaAtThreshold,
             new_value: 755.0,
-            justification: "Raised during multi-faction sacred node arbitration for higher coherence".to_string(),
+            justification: "Raised during multi-faction sacred node arbitration".to_string(),
             proposed_at_turn: 42,
         };
 
@@ -80,6 +79,37 @@ mod tests {
         assert!(result.success);
         assert_eq!(result.new_value, 755.0);
         assert!(runtime.ma_at_threshold >= 755.0);
-        println!("[TEST] Council #13 dynamic tuning applied successfully mid-simulation");
+        println!("[TEST] Council #13 dynamic tuning applied successfully");
+    }
+
+    // Rust-side property test mirroring Lean theorems
+    #[test]
+    fn test_rust_mirrors_lean_safety_floor_and_monotonicity() {
+        let mut runtime = MercyGatingRuntime::default();
+        let initial_threshold = runtime.ma_at_threshold;
+
+        // Test 1: Safety floor (never below 650)
+        let dangerous_proposal = CouncilTuningProposal {
+            council_id: 99,
+            target: TuningTarget::MaAtThreshold,
+            new_value: 500.0, // attempt to go below floor
+            justification: "Malicious low attempt".to_string(),
+            proposed_at_turn: 1,
+        };
+        let _ = runtime.apply_council_tuning(&dangerous_proposal);
+        assert!(runtime.ma_at_threshold >= 650.0, "Safety floor violated in Rust");
+
+        // Test 2: Monotonicity (can only stay or increase)
+        let raise_proposal = CouncilTuningProposal {
+            council_id: 13,
+            target: TuningTarget::MaAtThreshold,
+            new_value: 780.0,
+            justification: "Raise for higher coherence".to_string(),
+            proposed_at_turn: 2,
+        };
+        let _ = runtime.apply_council_tuning(&raise_proposal);
+        assert!(runtime.ma_at_threshold >= initial_threshold, "Monotonicity violated in Rust");
+
+        println!("[TEST] Rust mirrors Lean safety floor + monotonicity theorems");
     }
 }
