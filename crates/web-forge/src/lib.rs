@@ -7,6 +7,7 @@ pub mod validation;
 pub mod component_system;
 pub mod sanitizer;
 pub mod html_parser;
+pub mod orchestration;
 
 pub use validation::HtmlValidator;
 pub use sanitizer::{sanitize, default_sanitizer};
