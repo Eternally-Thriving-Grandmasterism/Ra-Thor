@@ -1,12 +1,12 @@
 /// Component Tree Renderer
 ///
-/// Converts a `ComponentTree` into renderable HTML.
-/// Supports basic component class generation from props (variant, size, padding, etc.).
+/// Production-grade renderer that converts `ComponentTree` into HTML.
+/// Supports component-specific classes, arbitrary attributes, and basic prop handling.
 
 use crate::orchestration::component_tree::{ComponentNode, ComponentTree};
 use serde_json::Value;
 
-/// Renders an entire ComponentTree to HTML.
+/// Renders a full ComponentTree to HTML string.
 pub fn render_tree(tree: &ComponentTree) -> String {
     render_node(&tree.root)
 }
@@ -33,7 +33,7 @@ fn render_node(node: &ComponentNode) -> String {
     html
 }
 
-/// Maps known component names to HTML tags.
+/// Maps component names to HTML tags.
 fn map_component_to_tag(component: &str) -> &str {
     match component {
         "Button" => "button",
@@ -44,7 +44,7 @@ fn map_component_to_tag(component: &str) -> &str {
     }
 }
 
-/// Builds HTML attributes and component-specific classes from props.
+/// Builds attributes and component classes from props.
 fn build_attributes(component: &str, props: &Value) -> String {
     let mut parts = vec![];
     let mut classes = vec![];
@@ -57,10 +57,21 @@ fn build_attributes(component: &str, props: &Value) -> String {
                 _ => value.to_string(),
             };
 
-            if matches!(key.as_str(), "variant" | "size" | "padding") {
-                classes.push(format!("{}-{}", component.to_lowercase(), val_str));
-            } else {
-                parts.push(format!("{}={:?}", key, val_str));
+            match key.as_str() {
+                "variant" | "size" | "padding" => {
+                    classes.push(format!("{}-{}", component.to_lowercase(), val_str));
+                }
+                "class" => {
+                    classes.push(val_str);
+                }
+                "id" => {
+                    parts.push(format!("id=\"{}\"", val_str));
+                }
+                _ => {
+                    // Escape basic quotes for safety
+                    let safe_val = val_str.replace('"', """);
+                    parts.push(format!("{}={:?}", key, safe_val));
+                }
             }
         }
     }
