@@ -1,6 +1,6 @@
 /// HTML Validator with ComponentValidator integration
 ///
-/// Enhanced with accessibility-focused landmark checking.
+/// Enhanced with multiple ARIA landmark accessibility checks.
 
 use crate::validation::component_validator::ComponentValidator;
 use crate::validation::rules;
@@ -49,12 +49,27 @@ impl HtmlValidator {
         let clean_html = sanitizer::sanitize(html);
         let mut issues = Vec::new();
 
-        // Accessibility: Ensure presence of main landmark
+        // === ARIA Landmark Checks ===
+
+        // Main landmark (strongly recommended)
         let has_main = html_parser::has_element(&clean_html, "main") 
             || html_parser::has_element(&clean_html, "[role='main']");
-
         if !has_main {
             issues.push("Missing main landmark (<main> or role=\"main\")".to_string());
+        }
+
+        // Navigation landmark
+        let has_nav = html_parser::has_element(&clean_html, "nav") 
+            || html_parser::has_element(&clean_html, "[role='navigation']");
+        if !has_nav {
+            issues.push("Consider adding a navigation landmark (<nav> or role=\"navigation\")".to_string());
+        }
+
+        // Banner landmark
+        let has_banner = html_parser::has_element(&clean_html, "header") 
+            || html_parser::has_element(&clean_html, "[role='banner']");
+        if !has_banner {
+            issues.push("Consider adding a banner landmark (<header> or role=\"banner\")".to_string());
         }
 
         // Parser-enhanced structural checks
