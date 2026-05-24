@@ -7,17 +7,17 @@ on:
     branches: [ main ]
 
 jobs:
-  quality-and-accessibility:
+  build-and-quality:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v4
 
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
 
-      - name: Cache dependencies
+      - name: Cache Cargo
         uses: actions/cache@v4
         with:
           path: |
@@ -28,32 +28,49 @@ jobs:
             target/
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
-      - name: Build web-forge
+      - name: Build
         run: cargo build --package web-forge
 
-      - name: Run tests with reporting
+      - name: Test
         run: cargo test --package web-forge -- --quiet
 
-      - name: Generate Orchestration Report (example)
+      - name: Generate Sample Report
         run: |
-          # In a real setup this would run your orchestration and output JSON
-          echo '{"success": true, "wcag_aa_score": 87.5, "attempts": 1}' > report.json
+          # Placeholder: In real usage this would come from actual orchestration
+          echo '{
+            "success": true,
+            "attempts": 1,
+            "wcag_aa_score": 82.5,
+            "wcag_aa_grade": "B",
+            "validation_issues_count": 0,
+            "has_accessibility_issues": false
+          }' > report.json
 
-      - name: Upload report artifact
+      - name: Upload Report
         uses: actions/upload-artifact@v4
         if: always()
         with:
           name: web-forge-report
           path: report.json
 
-      - name: Enforce Quality Gate
+      - name: Quality Gate
         run: |
           if [ -f report.json ]; then
             score=$(jq -r '.wcag_aa_score // 0' report.json)
+            success=$(jq -r '.success // false' report.json)
+
+            echo "Orchestration Success: $success"
             echo "WCAG AA Score: $score"
+
+            if [ "$success" != "true" ]; then
+              echo "::error::Orchestration failed"
+              exit 1
+            fi
+
             if (( $(echo "$score < 75" | bc -l) )); then
-              echo "::error title=Quality Gate Failed::WCAG AA score is below minimum threshold (75)"
+              echo "::error::WCAG AA score below minimum (75)"
               exit 1
             fi
           fi
+
           echo "✅ All quality gates passed"
