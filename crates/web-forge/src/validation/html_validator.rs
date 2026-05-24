@@ -51,4 +51,17 @@ impl HtmlValidator {
     pub fn is_valid(&self, html: &str) -> bool {
         self.validate(html).is_empty()
     }
+
+    /// Placeholder for future component-specific validation
+    pub fn validate_component(&self, component_name: &str, html_fragment: &str) -> Vec<String> {
+        // In a full implementation, we would look up the component
+        // and call its custom validate() method.
+        let mut issues = vec![];
+
+        if !self.component_validator.is_known_component(component_name) {
+            issues.push(format!("Unknown component: {}", component_name));
+        }
+
+        issues
+    }
 }
