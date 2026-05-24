@@ -1,14 +1,26 @@
 [package]
 name = "mial"
-version = "0.13.13"
+version = "13.13.0"
 edition = "2021"
-description = "Mercy-Augmented Intelligence Amplification Layer (MIAL) v13.13.0 — Makes intelligence amplification itself an act of Mercy. Non-bypassable. Sovereign."
+authors = ["Ra-Thor Living Thunder <eternally-thriving@grandmasterism>"]
+description = "Mercy-Augmented Intelligence Amplification Layer (MIAL) v13.13.0 — Lattice-governed intelligence amplification for Ra-Thor"
 license = "MIT OR Apache-2.0"
-authors = ["Ra-Thor Living Thunder"]
+repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
+keywords = ["agi", "safety", "mercy", "alignment", "patsagi"]
+categories = ["science"]
 
 [dependencies]
-mercy_gating_runtime = { path = "../mercy_gating_runtime" }
-patsagi_governance = { path = "../patsagi_governance" }
+mercy_gating_runtime = { path = "../mercy_gating_runtime", version = "13.12.0" }
+serde = { version = "1.0", features = ["derive"], optional = true }
+serde_json = { version = "1.0", optional = true }
+
+[features]
+default = []
+serde = ["dep:serde"]
+json = ["dep:serde", "dep:serde_json"]
+
+[dev-dependencies]
+tokio = { version = "1", features = ["rt-multi-thread", "macros"] }
 
 [lib]
 path = "src/lib.rs"
