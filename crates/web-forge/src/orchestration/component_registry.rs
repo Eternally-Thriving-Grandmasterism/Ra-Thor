@@ -5,7 +5,6 @@
 
 use std::collections::HashMap;
 
-/// Describes a single prop of a component.
 #[derive(Debug, Clone)]
 pub struct ComponentProp {
     pub name: String,
@@ -14,7 +13,6 @@ pub struct ComponentProp {
     pub description: String,
 }
 
-/// Rich definition of a component for generation and validation.
 #[derive(Debug, Clone)]
 pub struct ComponentDefinition {
     pub name: String,
@@ -25,7 +23,6 @@ pub struct ComponentDefinition {
     pub example_usage: String,
 }
 
-/// Central registry of all available components.
 pub struct ComponentRegistry {
     components: HashMap<String, ComponentDefinition>,
 }
@@ -35,54 +32,31 @@ impl ComponentRegistry {
         let mut registry = Self {
             components: HashMap::new(),
         };
-
-        // Register core components
         registry.register_core_components();
         registry
     }
 
     fn register_core_components(&mut self) {
-        // Button
         self.register(ComponentDefinition {
             name: "Button".to_string(),
             description: "A clickable button component with variants and sizes.".to_string(),
             category: "action".to_string(),
             props: vec![
-                ComponentProp {
-                    name: "variant".to_string(),
-                    prop_type: "Primary | Secondary".to_string(),
-                    required: true,
-                    description: "Visual style of the button".to_string(),
-                },
-                ComponentProp {
-                    name: "size".to_string(),
-                    prop_type: "Small | Medium | Large".to_string(),
-                    required: false,
-                    description: "Size of the button".to_string(),
-                },
+                ComponentProp { name: "variant".to_string(), prop_type: "Primary | Secondary".to_string(), required: true, description: "Visual style".to_string() },
+                ComponentProp { name: "size".to_string(), prop_type: "Small | Medium | Large".to_string(), required: false, description: "Size".to_string() },
             ],
             requires_token_compliance: true,
-            example_usage: "<button class=\"btn btn-Primary\">Click me</button>".to_string(),
+            example_usage: "<button class=\"btn btn-Primary\">Click</button>".to_string(),
         });
 
-        // Card
         self.register(ComponentDefinition {
             name: "Card".to_string(),
-            description: "A container component for grouping related content.".to_string(),
+            description: "A container for grouping content.".to_string(),
             category: "layout".to_string(),
-            props: vec![
-                ComponentProp {
-                    name: "padding".to_string(),
-                    prop_type: "Small | Medium | Large".to_string(),
-                    required: false,
-                    description: "Internal spacing of the card".to_string(),
-                },
-            ],
+            props: vec![ ComponentProp { name: "padding".to_string(), prop_type: "Small | Medium | Large".to_string(), required: false, description: "Padding".to_string() } ],
             requires_token_compliance: true,
-            example_usage: "<div class=\"card card-Medium\">...</div>".to_string(),
+            example_usage: "<div class=\"card\">...</div>".to_string(),
         });
-
-        // TODO: Add Input, Modal, and future components
     }
 
     pub fn register(&mut self, definition: ComponentDefinition) {
@@ -99,5 +73,36 @@ impl ComponentRegistry {
 
     pub fn count(&self) -> usize {
         self.components.len()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_registry_contains_button_and_card() {
+        let registry = ComponentRegistry::new();
+        assert!(registry.get("Button").is_some());
+        assert!(registry.get("Card").is_some());
+    }
+
+    #[test]
+    fn test_registry_count() {
+        let registry = ComponentRegistry::new();
+        assert!(registry.count() >= 2);
+    }
+
+    #[test]
+    fn test_list_all_returns_components() {
+        let registry = ComponentRegistry::new();
+        let all = registry.list_all();
+        assert!(!all.is_empty());
+    }
+
+    #[test]
+    fn test_get_nonexistent_returns_none() {
+        let registry = ComponentRegistry::new();
+        assert!(registry.get("NonExistentComponent").is_none());
     }
 }
