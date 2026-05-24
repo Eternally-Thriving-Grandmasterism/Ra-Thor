@@ -1,0 +1,11 @@
+[package]
+name = "web-forge"
+version = "0.1.0"
+edition = "2021"
+authors = ["Sherif Samy Botros <AlphaProMega@ACityGames.com>"]
+description = "Professional web design and development system for Ra-Thor and Rathor.ai projects. Built with care, layer by layer."
+license = "AG-SML-1.0"
+repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
+
+[dependencies]
+# Future: html templating, validation, i18n tools
