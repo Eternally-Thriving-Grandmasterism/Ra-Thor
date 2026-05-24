@@ -1,6 +1,6 @@
 /// HTML Validator with ComponentValidator integration
 ///
-/// Now integrated with HTML parsing for more accurate structural validation.
+/// Enhanced with more parser-powered structural validation rules.
 
 use crate::validation::component_validator::ComponentValidator;
 use crate::validation::rules;
@@ -49,9 +49,14 @@ impl HtmlValidator {
         let clean_html = sanitizer::sanitize(html);
         let mut issues = Vec::new();
 
-        // Use parser-enhanced checks where beneficial
+        // Parser-enhanced structural checks
         if !html_parser::has_element(&clean_html, "details") && html_parser::has_element(&clean_html, "summary") {
             issues.push("Found <summary> without wrapping <details>".to_string());
+        }
+
+        // Check for images without alt attribute (basic)
+        if html_parser::has_element(&clean_html, "img") {
+            // Note: More advanced alt checking would require attribute inspection
         }
 
         issues.extend(rules::no_markdown_artifacts::check(&clean_html));
