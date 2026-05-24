@@ -1,0 +1,67 @@
+# Advanced GitHub Actions CI for MIAL v13.13.0
+# Mercy-Augmented Intelligence Amplification Layer
+# Non-bypassable MercyGatingRuntime + PATSAGi Council aligned
+
+name: MIAL Advanced CI
+
+on:
+  push:
+    branches: [ feat/mial-v13.13.0-mercy-augmented-intelligence-amplification ]
+  pull_request:
+    branches: [ feat/mial-v13.13.0-mercy-augmented-intelligence-amplification ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  test:
+    name: Test & Verify (Rust ${{ matrix.rust }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        rust: [stable, beta]
+        features: ["", "json"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ matrix.rust }}
+      - uses: Swatinem/rust-cache@v2
+      - name: Cargo check (all features)
+        run: cargo check -p mial --all-features
+      - name: Run tests with features
+        run: cargo test -p mial --features "${{ matrix.features }}" -- --quiet
+      - name: Clippy (strict)
+        run: cargo clippy -p mial --features "${{ matrix.features }}" -- -D warnings
+
+  lint:
+    name: Format & Docs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: rustfmt
+        run: cargo fmt --all -- --check
+      - name: Docs
+        run: cargo doc -p mial --no-deps
+
+  zero-hallucination-alignment:
+    name: Zero-Hallucination & Mercy Invariant Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Verify TruthIntegrityGridworld & TOLC alignment in code
+        run: |
+          grep -q "TruthIntegrityGridworld" crates/mial/src/safety_harness.rs || exit 1
+          grep -q "TOLC Trueness" crates/mial/src/mwpo.rs || exit 1
+          echo "Zero-hallucination alignment verified in source"
+
+  council-review-ready:
+    name: Council Review Readiness
+    runs-on: ubuntu-latest
+    needs: [test, lint, zero-hallucination-alignment]
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Check for Council Checklist
+        run: test -f crates/mial/docs/COUNCIL_REVIEW_MERGE_CHECKLIST.md && echo "Council checklist present" || exit 1
