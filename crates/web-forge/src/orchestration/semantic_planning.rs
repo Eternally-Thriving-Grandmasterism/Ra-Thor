@@ -1,15 +1,22 @@
 /// Semantic Planning Module
 ///
-/// Implements graceful degradation:
-/// - Tries semantic embeddings first
-/// - Falls back cleanly to keyword matching if embeddings fail
-/// - Logs when falling back
+/// Provides semantic (embedding-based) planning capabilities with graceful degradation.
+///
+/// # Features
+/// - OpenAI embedding support via `OpenAIEmbeddingProvider`
+/// - Automatic fallback to keyword matching when embeddings fail
+/// - Pre-computation of component embeddings for fast similarity search
+/// - Cosine similarity scoring
+///
+/// The module is designed to be swappable with `DefaultPlanningStrategy`.
 
 use crate::orchestration::advanced_orchestrator::{PlanningResult, PlanningStrategy};
 use crate::orchestration::component_registry::ComponentRegistry;
 use reqwest::blocking::Client;
 use serde::Deserialize;
 use std::collections::HashMap;
+
+// === OpenAI Response Types ===
 
 #[derive(Debug, Deserialize)]
 struct OpenAIEmbeddingResponse {
@@ -21,6 +28,14 @@ struct EmbeddingData {
     embedding: Vec<f32>,
 }
 
+// === Embedding Providers ===
+
+/// Trait for any embedding provider (OpenAI, local models, etc.).
+pub trait EmbeddingProvider {
+    fn embed(&self, text: &str) -> Option<Vec<f32>>;
+}
+
+/// Production embedding provider using OpenAI's API.
 pub struct OpenAIEmbeddingProvider {
     api_key: String,
     client: Client,
@@ -42,23 +57,14 @@ impl OpenAIEmbeddingProvider {
     }
 }
 
-impl crate::orchestration::semantic_planning::EmbeddingProvider for OpenAIEmbeddingProvider {
+impl EmbeddingProvider for OpenAIEmbeddingProvider {
     fn embed(&self, text: &str) -> Option<Vec<f32>> {
         let url = "https://api.openai.com/v1/embeddings";
+        let body = serde_json::json!({ "model": self.model, "input": text });
 
-        let body = serde_json::json!({
-            "model": self.model,
-            "input": text
-        });
-
-        match self.client
-            .post(url)
-            .bearer_auth(&self.api_key)
-            .json(&body)
-            .send()
-        {
-            Ok(response) if response.status().is_success() => {
-                response.json::<OpenAIEmbeddingResponse>().ok()
+        match self.client.post(url).bearer_auth(&self.api_key).json(&body).send() {
+            Ok(resp) if resp.status().is_success() => {
+                resp.json::<OpenAIEmbeddingResponse>().ok()
                     .and_then(|r| r.data.first().map(|d| d.embedding.clone()))
             }
             _ => None,
@@ -66,10 +72,7 @@ impl crate::orchestration::semantic_planning::EmbeddingProvider for OpenAIEmbedd
     }
 }
 
-pub trait EmbeddingProvider {
-    fn embed(&self, text: &str) -> Option<Vec<f32>>;
-}
-
+/// Mock provider (useful for testing or offline mode).
 pub struct MockEmbeddingProvider;
 
 impl EmbeddingProvider for MockEmbeddingProvider {
@@ -78,7 +81,10 @@ impl EmbeddingProvider for MockEmbeddingProvider {
     }
 }
 
-/// Semantic Planning with graceful degradation
+// === Semantic Planning Strategy ===
+
+/// Planning strategy that uses semantic embeddings when available.
+/// Falls back to keyword matching with clear warnings.
 pub struct SemanticPlanningStrategy<E: EmbeddingProvider> {
     provider: E,
     component_embeddings: HashMap<String, Vec<f32>>,
@@ -94,37 +100,38 @@ impl<E: EmbeddingProvider> SemanticPlanningStrategy<E> {
         }
     }
 
+    /// Pre-computes embeddings for all registered components.
+    /// Call this after construction when using a real embedding provider.
     pub fn precompute_embeddings(&mut self, registry: &ComponentRegistry) {
         self.component_embeddings.clear();
-        let mut success_count = 0;
+        let mut success = 0;
 
         for component in registry.list_all() {
             let text = format!("{}: {}", component.name, component.description);
-            if let Some(embedding) = self.provider.embed(&text) {
-                self.component_embeddings.insert(component.name.clone(), embedding);
-                success_count += 1;
+            if let Some(emb) = self.provider.embed(&text) {
+                self.component_embeddings.insert(component.name.clone(), emb);
+                success += 1;
             }
         }
 
-        self.semantic_available = success_count > 0;
+        self.semantic_available = success > 0;
 
         if !self.semantic_available {
-            eprintln!("[SemanticPlanning] Warning: Could not precompute embeddings. Falling back to keyword matching.");
+            eprintln!("[Warning] Semantic embeddings could not be precomputed. Using keyword fallback.");
         }
     }
 
     fn cosine_similarity(a: &[f32], b: &[f32]) -> f32 {
         let dot: f32 = a.iter().zip(b).map(|(x, y)| x * y).sum();
-        let norm_a: f32 = a.iter().map(|x| x * x).sum::<f32>().sqrt();
-        let norm_b: f32 = b.iter().map(|x| x * x).sum::<f32>().sqrt();
-
-        if norm_a == 0.0 || norm_b == 0.0 { 0.0 } else { dot / (norm_a * norm_b) }
+        let na: f32 = a.iter().map(|x| x * x).sum::<f32>().sqrt();
+        let nb: f32 = b.iter().map(|x| x * x).sum::<f32>().sqrt();
+        if na == 0.0 || nb == 0.0 { 0.0 } else { dot / (na * nb) }
     }
 }
 
 impl<E: EmbeddingProvider> PlanningStrategy for SemanticPlanningStrategy<E> {
     fn plan(&self, prompt: &str, registry: &ComponentRegistry) -> PlanningResult {
-        // Try semantic path if embeddings are available
+        // Semantic path
         if self.semantic_available && !self.component_embeddings.is_empty() {
             if let Some(prompt_emb) = self.provider.embed(prompt) {
                 let mut scored = vec![];
@@ -146,16 +153,16 @@ impl<E: EmbeddingProvider> PlanningStrategy for SemanticPlanningStrategy<E> {
                     };
                 }
             } else {
-                eprintln!("[SemanticPlanning] Embedding call failed. Using keyword fallback.");
+                eprintln!("[Warning] Semantic embedding call failed. Falling back to keywords.");
             }
         }
 
-        // Graceful fallback to keyword matching
+        // Keyword fallback
         let mut scored = vec![];
-        let prompt_lower = prompt.to_lowercase();
+        let lower = prompt.to_lowercase();
 
         for component in registry.list_all() {
-            if prompt_lower.contains(&component.name.to_lowercase()) {
+            if lower.contains(&component.name.to_lowercase()) {
                 scored.push((component.name.clone(), 0.7));
             }
         }
