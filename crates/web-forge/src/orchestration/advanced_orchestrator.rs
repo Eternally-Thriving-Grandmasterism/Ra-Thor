@@ -74,23 +74,20 @@ impl PlanningStrategy for DefaultPlanningStrategy {
                 let name_lower = component.name.to_lowercase();
                 let mut score: f32 = 0.0;
 
-                // Optimized Relevance Scoring
                 if sub_lower == name_lower {
-                    score += 1.0; // Exact match (very strong)
+                    score += 1.0;
                 } else if sub_lower.contains(&name_lower) {
-                    score += 0.75; // Strong partial match
+                    score += 0.75;
                 }
 
-                // Description match (weaker signal)
                 if sub_lower.contains(&component.description.to_lowercase()) {
                     score += 0.35;
                 }
 
-                // Action word boost
-                if sub_lower.contains("create") || sub_lower.contains("add") || sub_lower.contains("build") {
-                    if sub_lower.contains(&name_lower) {
-                        score += 0.15;
-                    }
+                if (sub_lower.contains("create") || sub_lower.contains("add") || sub_lower.contains("build"))
+                    && sub_lower.contains(&name_lower)
+                {
+                    score += 0.15;
                 }
 
                 if score > 0.0 {
@@ -190,5 +187,45 @@ impl AdvancedOrchestrator {
             attempts_used: attempts,
             success: false,
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_planning_detects_button() {
+        let registry = ComponentRegistry::new();
+        let strategy = DefaultPlanningStrategy;
+        let result = strategy.plan("Create a primary button", &registry);
+
+        assert!(!result.scored_components.is_empty());
+        let names: Vec<_> = result.scored_components.iter().map(|(n, _)| n.as_str()).collect();
+        assert!(names.contains(&"Button"));
+    }
+
+    #[test]
+    fn test_planning_multi_intent() {
+        let registry = ComponentRegistry::new();
+        let strategy = DefaultPlanningStrategy;
+        let result = strategy.plan("Create a button and a card", &registry);
+
+        let names: Vec<_> = result.scored_components.iter().map(|(n, _)| n.as_str()).collect();
+        assert!(names.contains(&"Button"));
+        assert!(names.contains(&"Card"));
+    }
+
+    #[test]
+    fn test_prioritized_components_sorted() {
+        let result = PlanningResult {
+            intent: "test".to_string(),
+            scored_components: vec![("Card".to_string(), 0.6), ("Button".to_string(), 0.9)],
+            constraints: vec![],
+            confidence: 0.8,
+        };
+
+        let prioritized = result.prioritized_components();
+        assert_eq!(prioritized[0], "Button");
     }
 }
