@@ -1,6 +1,6 @@
 /// Advanced Orchestrator
 ///
-/// Enhanced Planning phase with relevance scoring and prioritization.
+/// Hybrid Multi-Intent Planning Strategy implemented.
 
 use crate::orchestration::component_registry::ComponentRegistry;
 use crate::orchestration::component_tree::ComponentTree;
@@ -18,18 +18,15 @@ pub struct AdvancedOrchestrationResult {
     pub success: bool,
 }
 
-/// Rich structured output from Planning.
 #[derive(Debug, Clone)]
 pub struct PlanningResult {
     pub intent: String,
-    /// Components with relevance scores (name, score)
     pub scored_components: Vec<(String, f32)>,
     pub constraints: Vec<String>,
     pub confidence: f32,
 }
 
 impl PlanningResult {
-    /// Returns components sorted by relevance (highest first)
     pub fn prioritized_components(&self) -> Vec<String> {
         let mut sorted = self.scored_components.clone();
         sorted.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal));
@@ -37,49 +34,81 @@ impl PlanningResult {
     }
 }
 
-/// Trait for planning strategies.
 pub trait PlanningStrategy {
     fn plan(&self, prompt: &str, registry: &ComponentRegistry) -> PlanningResult;
 }
 
-/// Default planning strategy with relevance scoring.
+/// Hybrid Multi-Intent Planning Strategy
+///
+/// Combines:
+/// - Prompt decomposition (split on 'and', 'with', 'plus')
+/// - Component registry keyword matching
+/// - Relevance scoring
+/// - Deduplication + prioritization
 pub struct DefaultPlanningStrategy;
+
+impl DefaultPlanningStrategy {
+    /// Simple decomposition of prompt into sub-intents
+    fn decompose_prompt(prompt: &str) -> Vec<String> {
+        let separators = [" and ", " with ", " plus ", ", ", " & "];
+        let mut parts = vec![prompt.to_string()];
+
+        for sep in separators {
+            let mut new_parts = vec![];
+            for part in parts {
+                for sub in part.split(sep) {
+                    let trimmed = sub.trim().to_string();
+                    if !trimmed.is_empty() {
+                        new_parts.push(trimmed);
+                    }
+                }
+            }
+            parts = new_parts;
+        }
+
+        parts
+    }
+}
 
 impl PlanningStrategy for DefaultPlanningStrategy {
     fn plan(&self, prompt: &str, registry: &ComponentRegistry) -> PlanningResult {
-        let prompt_lower = prompt.to_lowercase();
-        let mut scored = vec![];
+        let sub_intents = Self::decompose_prompt(prompt);
+        let mut scored_map: std::collections::HashMap<String, f32> = std::collections::HashMap::new();
 
-        for component in registry.list_all() {
-            let name_lower = component.name.to_lowercase();
-            let mut score: f32 = 0.0;
+        for sub in sub_intents {
+            let sub_lower = sub.to_lowercase();
 
-            // Simple relevance scoring
-            if prompt_lower.contains(&name_lower) {
-                score += 0.7;
-            }
-            if prompt_lower.contains(&component.description.to_lowercase()) {
-                score += 0.3;
-            }
+            for component in registry.list_all() {
+                let name_lower = component.name.to_lowercase();
+                let mut score: f32 = 0.0;
 
-            if score > 0.0 {
-                scored.push((component.name.clone(), score.min(1.0)));
+                if sub_lower.contains(&name_lower) {
+                    score += 0.65;
+                }
+                if sub_lower.contains(&component.description.to_lowercase()) {
+                    score += 0.25;
+                }
+
+                if score > 0.0 {
+                    let entry = scored_map.entry(component.name.clone()).or_insert(0.0);
+                    *entry = entry.max(score).min(1.0);
+                }
             }
         }
 
         // Fallback
-        if scored.is_empty() {
-            scored.push(("Button".to_string(), 0.5));
+        if scored_map.is_empty() {
+            scored_map.insert("Button".to_string(), 0.5);
         }
 
-        // Sort by score descending
+        let mut scored: Vec<(String, f32)> = scored_map.into_iter().collect();
         scored.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal));
 
         PlanningResult {
             intent: prompt.to_string(),
-            scored_components: scored.clone(),
+            scored_components: scored,
             constraints: vec![],
-            confidence: if scored.len() > 1 { 0.85 } else { 0.65 },
+            confidence: 0.75,
         }
     }
 }
@@ -113,20 +142,20 @@ impl AdvancedOrchestrator {
         for attempt in 1..=self.max_attempts {
             attempts = attempt;
 
-            // === Phase 1: Planning with scoring ===
+            // Phase 1: Planning (Hybrid Multi-Intent)
             println!("[Phase 1] Planning (attempt {})...", attempt);
             let planning = DefaultPlanningStrategy.plan(prompt, &self.registry);
 
-            println!("[Planning] Prioritized components:");
+            println!("[Planning] Detected components (sorted by relevance):");
             for (name, score) in &planning.scored_components {
                 println!("   - {} (relevance: {:.2})", name, score);
             }
 
-            // === Phase 2: Generation ===
+            // Phase 2: Generation
             println!("[Phase 2] Generation...");
             let generated_json = self.generator.generate(prompt);
 
-            // === Phase 3: Validation ===
+            // Phase 3: Validation
             println!("[Phase 3] Validation...");
             let validator = HtmlValidator::new();
             let issues = validator.validate(&generated_json);
