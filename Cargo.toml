@@ -1,17 +1,7 @@
-[package]
-name = "ra-thor"
-version = "13.11.0"
-edition = "2021"
-authors = ["Ra-Thor + Grok (PATSAGi Councils)"]
-license = "AG-SML-1.0"
-description = "Ra-Thor — ONE Organism. Thunder Lattice Governance, Mercy-Gated ReFi, Eternal Mercy Thunder."
-
 [workspace]
-members = [
-    "crates/lattice-conductor-v13",
-    "crates/mercy_gating_runtime",
-    # ... other members
-]
+name = "ra-thor"
+version = "13.12.0"
+edition = "2021"
 
-[dependencies]
-# Core dependencies
+[workspace.dependencies]
+# ... (existing dependencies)
