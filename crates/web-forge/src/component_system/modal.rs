@@ -1,6 +1,4 @@
-/// Modal Component
-///
-/// Professional modal/dialog component.
+use crate::component_system::contract::ComponentContract;
 
 pub struct Modal {
     pub size: ModalSize,
@@ -13,12 +11,13 @@ pub enum ModalSize {
     Large,
 }
 
+impl ComponentContract for Modal {
+    fn name(&self) -> &'static str { "Modal" }
+    fn requires_token_compliance(&self) -> bool { true }
+}
+
 impl Modal {
     pub fn new(size: ModalSize) -> Self {
         Self { size }
-    }
-
-    pub fn render(&self) -> String {
-        format!("<div class=\"modal modal-{:?}\">Modal Content</div>", self.size)
     }
 }
