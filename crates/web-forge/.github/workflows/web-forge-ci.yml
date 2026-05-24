@@ -16,6 +16,11 @@ jobs:
         rust: [stable, beta]
 
     steps:
+      - name: Show Matrix
+        run: |
+          echo "Running on OS: ${{ matrix.os }}"
+          echo "Rust version: ${{ matrix.rust }}"
+
       - name: Checkout
         uses: actions/checkout@v4
 
@@ -62,6 +67,10 @@ jobs:
           if [ -f report.json ]; then
             score=$(jq -r '.wcag_aa_score // 0' report.json)
             success=$(jq -r '.success // false' report.json)
+
+            echo "Matrix: ${{ matrix.os }} / ${{ matrix.rust }}"
+            echo "Orchestration Success: $success"
+            echo "WCAG AA Score: $score"
 
             if [ "$success" != "true" ]; then
               echo "::error::Orchestration failed on ${{ matrix.os }} / ${{ matrix.rust }}"
