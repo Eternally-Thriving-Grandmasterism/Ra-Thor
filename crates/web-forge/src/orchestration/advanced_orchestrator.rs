@@ -1,6 +1,21 @@
 /// Advanced Orchestrator
 ///
-/// Supports both Default and Semantic planning strategies.
+/// The central coordination engine for Ra-Thor's web generation system.
+///
+/// # Features
+/// - Planning-aware generation (supports both keyword and semantic strategies)
+/// - Component-aware generation via `ComponentAwareGenerator`
+/// - Multi-attempt refinement with issue analysis
+/// - Graceful degradation between planning modes
+///
+/// # Usage
+/// ```ignore
+/// let orchestrator = AdvancedOrchestrator::new()
+///     .with_max_attempts(3)
+///     .with_semantic_planning("sk-...".to_string());
+///
+/// let result = orchestrator.orchestrate("Create a beautiful hero section");
+/// ```
 
 use crate::orchestration::component_registry::ComponentRegistry;
 use crate::orchestration::component_tree::ComponentTree;
@@ -10,6 +25,7 @@ use crate::orchestration::semantic_planning::{SemanticPlanningStrategy, OpenAIEm
 use crate::validation::HtmlValidator;
 use serde_json::from_str;
 
+/// Result returned after an orchestration run.
 #[derive(Debug)]
 pub struct AdvancedOrchestrationResult {
     pub final_html: Option<String>,
@@ -19,6 +35,7 @@ pub struct AdvancedOrchestrationResult {
     pub success: bool,
 }
 
+/// Structured output from any PlanningStrategy.
 #[derive(Debug, Clone)]
 pub struct PlanningResult {
     pub intent: String,
@@ -28,6 +45,7 @@ pub struct PlanningResult {
 }
 
 impl PlanningResult {
+    /// Returns component names sorted by relevance (highest first).
     pub fn prioritized_components(&self) -> Vec<String> {
         let mut sorted = self.scored_components.clone();
         sorted.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal));
@@ -35,10 +53,12 @@ impl PlanningResult {
     }
 }
 
+/// Trait for all planning strategies (keyword-based or semantic).
 pub trait PlanningStrategy {
     fn plan(&self, prompt: &str, registry: &ComponentRegistry) -> PlanningResult;
 }
 
+/// Default keyword-based planning strategy.
 pub struct DefaultPlanningStrategy;
 
 impl PlanningStrategy for DefaultPlanningStrategy {
@@ -65,6 +85,7 @@ impl PlanningStrategy for DefaultPlanningStrategy {
     }
 }
 
+/// The main Advanced Orchestrator.
 pub struct AdvancedOrchestrator {
     max_attempts: usize,
     registry: ComponentRegistry,
@@ -73,6 +94,7 @@ pub struct AdvancedOrchestrator {
 }
 
 impl AdvancedOrchestrator {
+    /// Creates a new orchestrator with default keyword-based planning.
     pub fn new() -> Self {
         Self {
             max_attempts: 3,
@@ -82,12 +104,14 @@ impl AdvancedOrchestrator {
         }
     }
 
+    /// Sets the maximum number of generation + refinement attempts.
     pub fn with_max_attempts(mut self, max: usize) -> Self {
         self.max_attempts = max;
         self
     }
 
-    /// Enable semantic planning using OpenAI embeddings
+    /// Enables semantic planning using OpenAI embeddings.
+    /// Component embeddings are precomputed on call.
     pub fn with_semantic_planning(mut self, api_key: String) -> Self {
         let mut semantic_planner = SemanticPlanningStrategy::new(OpenAIEmbeddingProvider::new(api_key));
         semantic_planner.precompute_embeddings(&self.registry);
@@ -98,9 +122,9 @@ impl AdvancedOrchestrator {
     pub fn orchestrate(&self, prompt: &str) -> AdvancedOrchestrationResult {
         println!("[AdvancedOrchestrator] Starting phased execution...");
 
+        // === Planning ===
         let planning = self.planning_strategy.plan(prompt, &self.registry);
         let top_components = planning.prioritized_components();
-
         println!("[Phase 1] Planning complete. Top components: {:?}", top_components);
 
         let mut attempts = 0;
@@ -110,11 +134,14 @@ impl AdvancedOrchestrator {
         for attempt in 1..=self.max_attempts {
             attempts = attempt;
 
+            // Build generation prompt (with refinement context on retries)
             let generation_prompt = if attempt == 1 {
                 prompt.to_string()
             } else {
-                format!("Original request: {}. Issues: {}. Guidance: {}",
-                        prompt, last_issues.join("; "), refinement_context)
+                format!("Original: {}. Issues: {}. Guidance: {}",
+                        prompt,
+                        last_issues.join("; "),
+                        refinement_context)
             };
 
             println!("[Phase 2] Generation (attempt {})...", attempt);
@@ -139,8 +166,9 @@ impl AdvancedOrchestrator {
                 };
             }
 
+            // Prepare refinement
             last_issues = issues.clone();
-            refinement_context = format!("Fix these issues: {}", issues.join("; "));
+            refinement_context = format!("Fix: {}", issues.join("; "));
 
             println!("[Phase 3] Validation failed on attempt {} ({} issues).", attempt, issues.len());
 
