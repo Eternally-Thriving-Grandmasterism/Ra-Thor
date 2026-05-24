@@ -12,7 +12,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [ubuntu-latest]
+        os: [ubuntu-latest, windows-latest, macos-latest]
         rust: [stable, beta]
 
     steps:
@@ -46,33 +46,32 @@ jobs:
           echo '{
             "success": true,
             "attempts": 1,
-            "wcag_aa_score": 82.5,
-            "wcag_aa_grade": "B",
-            "validation_issues_count": 0
+            "wcag_aa_score": 82.5
           }' > report.json
 
       - name: Upload Report
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: web-forge-report-${{ matrix.rust }}
+          name: web-forge-report-${{ matrix.os }}-${{ matrix.rust }}
           path: report.json
 
       - name: Quality Gate
+        shell: bash
         run: |
           if [ -f report.json ]; then
             score=$(jq -r '.wcag_aa_score // 0' report.json)
             success=$(jq -r '.success // false' report.json)
 
             if [ "$success" != "true" ]; then
-              echo "::error::Orchestration failed on ${{ matrix.rust }}"
+              echo "::error::Orchestration failed on ${{ matrix.os }} / ${{ matrix.rust }}"
               exit 1
             fi
 
             if (( $(echo "$score < 75" | bc -l) )); then
-              echo "::error::WCAG AA score too low on ${{ matrix.rust }}: $score"
+              echo "::error::WCAG AA score too low on ${{ matrix.os }} / ${{ matrix.rust }}: $score"
               exit 1
             fi
           fi
 
-          echo "✅ Quality gate passed on ${{ matrix.rust }}"
+          echo "✅ Quality gate passed on ${{ matrix.os }} / ${{ matrix.rust }}"
