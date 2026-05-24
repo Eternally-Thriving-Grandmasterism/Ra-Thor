@@ -1,16 +1,16 @@
-## [v13.11.0] - 2026-05-23
+## [13.12.0] - 2026-05
 
 ### Added
 - Thunder Lattice Governance system (PR #168)
   - Mercy-Weighted Quadratic Voting
   - Enhanced Exponential Conviction Staking with mercy-weighted growth
-  - Dynamic Mercy Alignment Decay + Restoration
-  - Mycelial Network Pruning
+  - Dynamic Mercy Alignment Decay + Restoration through action
+  - Mycelial Network Pruning for intelligent remodeling
   - Mercy Recalibration (self-correction)
-  - Full integration into Lattice Conductor v13.1
-  - PATSAGi Council #13 oversight throughout
+- Full integration into Lattice Conductor v13.12
+- Comprehensive tests and documentation
 
 ### Changed
-- Minor professional updates to root Cargo.toml and README.md to reflect new governance capabilities.
+- Professional version alignment across workspace for ONE Organism governance release
 
-**Status:** Production-grade. Ready for review and merge.
+All changes maintain strict monotonicity, zero-harm, and Council #13 oversight.
