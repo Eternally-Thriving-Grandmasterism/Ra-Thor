@@ -1,6 +1,6 @@
 /// Automated Reporting Module
 ///
-/// Supports CI pipeline integration with JSON output and quality gates.
+/// Enhanced with clear CI decision helpers.
 
 use crate::orchestration::advanced_orchestrator::AdvancedOrchestrationResult;
 use serde::Serialize;
@@ -45,21 +45,33 @@ impl OrchestrationReport {
         )
     }
 
-    /// Quality gate for CI pipelines.
-    /// Returns true if the result meets minimum acceptable standards.
-    pub fn passes_ci_gate(&self, min_wcag_score: f32) -> bool {
+    /// Returns true if this report indicates the CI pipeline should fail.
+    ///
+    /// This is the recommended method for CI quality gates.
+    pub fn should_fail_ci(&self, min_wcag_score: f32) -> bool {
         if !self.success {
-            return false;
+            return true;
         }
+
         if let Some(score) = self.wcag_aa_score {
             if score < min_wcag_score {
-                return false;
+                return true;
             }
         }
-        true
+
+        // Optionally fail on any accessibility issues
+        if self.has_accessibility_issues {
+            // For strict CI, you may want to return true here.
+            // Currently kept lenient — only score matters by default.
+        }
+
+        false
     }
 
-    /// Serialize report to pretty JSON (useful for CI artifacts).
+    pub fn passes_ci_gate(&self, min_wcag_score: f32) -> bool {
+        !self.should_fail_ci(min_wcag_score)
+    }
+
     pub fn to_json(&self) -> String {
         serde_json::to_string_pretty(self).unwrap_or_else(|_| "{}".to_string())
     }
