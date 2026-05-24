@@ -9,3 +9,4 @@ repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
 
 [dependencies]
 ammonia = "4"
+scraper = "0.19"
