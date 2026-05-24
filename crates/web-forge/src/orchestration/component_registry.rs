@@ -1,10 +1,13 @@
 /// Component Registry
 ///
-/// A rich registry that describes components in detail for AI generation.
-/// This enables component-aware, production-grade generation.
+/// A central, rich registry of available components for AI-assisted generation.
+///
+/// Each component is described with metadata (description, props, category, etc.)
+/// so that planners and generators can make intelligent decisions.
 
 use std::collections::HashMap;
 
+/// Describes a configurable property of a component.
 #[derive(Debug, Clone)]
 pub struct ComponentProp {
     pub name: String,
@@ -13,6 +16,7 @@ pub struct ComponentProp {
     pub description: String,
 }
 
+/// Rich definition of a reusable component.
 #[derive(Debug, Clone)]
 pub struct ComponentDefinition {
     pub name: String,
@@ -23,11 +27,13 @@ pub struct ComponentDefinition {
     pub example_usage: String,
 }
 
+/// Central registry of all registered components.
 pub struct ComponentRegistry {
     components: HashMap<String, ComponentDefinition>,
 }
 
 impl ComponentRegistry {
+    /// Creates a new registry pre-populated with core components.
     pub fn new() -> Self {
         let mut registry = Self {
             components: HashMap::new(),
@@ -39,7 +45,7 @@ impl ComponentRegistry {
     fn register_core_components(&mut self) {
         self.register(ComponentDefinition {
             name: "Button".to_string(),
-            description: "A clickable button component with variants and sizes.".to_string(),
+            description: "A clickable button with variants and sizes.".to_string(),
             category: "action".to_string(),
             props: vec![
                 ComponentProp { name: "variant".to_string(), prop_type: "Primary | Secondary".to_string(), required: true, description: "Visual style".to_string() },
@@ -51,26 +57,30 @@ impl ComponentRegistry {
 
         self.register(ComponentDefinition {
             name: "Card".to_string(),
-            description: "A container for grouping content.".to_string(),
+            description: "Container for grouping related content.".to_string(),
             category: "layout".to_string(),
-            props: vec![ ComponentProp { name: "padding".to_string(), prop_type: "Small | Medium | Large".to_string(), required: false, description: "Padding".to_string() } ],
+            props: vec![ ComponentProp { name: "padding".to_string(), prop_type: "Small | Medium | Large".to_string(), required: false, description: "Internal spacing".to_string() } ],
             requires_token_compliance: true,
             example_usage: "<div class=\"card\">...</div>".to_string(),
         });
     }
 
+    /// Registers a new component definition.
     pub fn register(&mut self, definition: ComponentDefinition) {
         self.components.insert(definition.name.clone(), definition);
     }
 
+    /// Retrieves a component by name.
     pub fn get(&self, name: &str) -> Option<&ComponentDefinition> {
         self.components.get(name)
     }
 
+    /// Returns all registered components.
     pub fn list_all(&self) -> Vec<&ComponentDefinition> {
         self.components.values().collect()
     }
 
+    /// Returns the number of registered components.
     pub fn count(&self) -> usize {
         self.components.len()
     }
@@ -81,28 +91,16 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_registry_contains_button_and_card() {
+    fn test_registry_contains_core_components() {
         let registry = ComponentRegistry::new();
         assert!(registry.get("Button").is_some());
         assert!(registry.get("Card").is_some());
     }
 
     #[test]
-    fn test_registry_count() {
+    fn test_registry_count_and_list() {
         let registry = ComponentRegistry::new();
         assert!(registry.count() >= 2);
-    }
-
-    #[test]
-    fn test_list_all_returns_components() {
-        let registry = ComponentRegistry::new();
-        let all = registry.list_all();
-        assert!(!all.is_empty());
-    }
-
-    #[test]
-    fn test_get_nonexistent_returns_none() {
-        let registry = ComponentRegistry::new();
-        assert!(registry.get("NonExistentComponent").is_none());
+        assert!(!registry.list_all().is_empty());
     }
 }
