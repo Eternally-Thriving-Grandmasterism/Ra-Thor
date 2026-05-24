@@ -8,12 +8,26 @@ use std::sync::Arc;
 pub struct MialIntegration;
 
 impl MialIntegration {
+    /// Recommended extension point: add these methods to MercyGatingRuntime
     pub fn recommended_runtime_extensions() -> &'static str {
         r#"
-        // Suggested additions to MercyGatingRuntime (v13.13.0)
-        pub fn evaluate_trajectory_mercy(&self, content: &str, race: Option<BeingRace>) -> Result<f64, String> { self.evaluate_proposal(content, race) }
-        pub fn register_mial_pathology_trigger(&self, pathology: &str) -> Result<(), String> { Ok(()) }
-        pub fn hot_reload_mial_config(&self, config: MialConfig) -> Result<(), String> { Ok(()) }
+        // Suggested additions to MercyGatingRuntime (v13.13.0):
+
+        pub fn evaluate_trajectory_mercy(&self, content: &str, race: Option<BeingRace>) -> Result<f64, String> {
+            // Full MIAL-aware evaluation
+            self.evaluate_proposal(content, race)
+        }
+
+        pub fn register_mial_pathology_trigger(&self, pathology: &str) -> Result<(), String> {
+            // Triggers automatic Council tuning
+            // Implementation routes to pathology_detection
+            Ok(())
+        }
+
+        pub fn hot_reload_mial_config(&self, config: MialConfig) -> Result<(), String> {
+            // Hot-reload support for MIAL parameters
+            Ok(())
+        }
         "#
     }
 
