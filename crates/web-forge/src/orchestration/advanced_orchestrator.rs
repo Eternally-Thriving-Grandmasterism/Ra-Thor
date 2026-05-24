@@ -1,6 +1,6 @@
 /// Advanced Orchestrator
 ///
-/// Hybrid Multi-Intent Planning Strategy implemented.
+/// Hybrid Multi-Intent Planning with Optimized Relevance Scoring.
 
 use crate::orchestration::component_registry::ComponentRegistry;
 use crate::orchestration::component_tree::ComponentTree;
@@ -38,17 +38,10 @@ pub trait PlanningStrategy {
     fn plan(&self, prompt: &str, registry: &ComponentRegistry) -> PlanningResult;
 }
 
-/// Hybrid Multi-Intent Planning Strategy
-///
-/// Combines:
-/// - Prompt decomposition (split on 'and', 'with', 'plus')
-/// - Component registry keyword matching
-/// - Relevance scoring
-/// - Deduplication + prioritization
+/// Hybrid Multi-Intent Planning Strategy with Optimized Scoring
 pub struct DefaultPlanningStrategy;
 
 impl DefaultPlanningStrategy {
-    /// Simple decomposition of prompt into sub-intents
     fn decompose_prompt(prompt: &str) -> Vec<String> {
         let separators = [" and ", " with ", " plus ", ", ", " & "];
         let mut parts = vec![prompt.to_string()];
@@ -65,7 +58,6 @@ impl DefaultPlanningStrategy {
             }
             parts = new_parts;
         }
-
         parts
     }
 }
@@ -82,23 +74,34 @@ impl PlanningStrategy for DefaultPlanningStrategy {
                 let name_lower = component.name.to_lowercase();
                 let mut score: f32 = 0.0;
 
-                if sub_lower.contains(&name_lower) {
-                    score += 0.65;
+                // Optimized Relevance Scoring
+                if sub_lower == name_lower {
+                    score += 1.0; // Exact match (very strong)
+                } else if sub_lower.contains(&name_lower) {
+                    score += 0.75; // Strong partial match
                 }
+
+                // Description match (weaker signal)
                 if sub_lower.contains(&component.description.to_lowercase()) {
-                    score += 0.25;
+                    score += 0.35;
+                }
+
+                // Action word boost
+                if sub_lower.contains("create") || sub_lower.contains("add") || sub_lower.contains("build") {
+                    if sub_lower.contains(&name_lower) {
+                        score += 0.15;
+                    }
                 }
 
                 if score > 0.0 {
                     let entry = scored_map.entry(component.name.clone()).or_insert(0.0);
-                    *entry = entry.max(score).min(1.0);
+                    *entry = (*entry + score).min(1.0);
                 }
             }
         }
 
-        // Fallback
         if scored_map.is_empty() {
-            scored_map.insert("Button".to_string(), 0.5);
+            scored_map.insert("Button".to_string(), 0.6);
         }
 
         let mut scored: Vec<(String, f32)> = scored_map.into_iter().collect();
@@ -108,7 +111,7 @@ impl PlanningStrategy for DefaultPlanningStrategy {
             intent: prompt.to_string(),
             scored_components: scored,
             constraints: vec![],
-            confidence: 0.75,
+            confidence: 0.8,
         }
     }
 }
@@ -142,20 +145,17 @@ impl AdvancedOrchestrator {
         for attempt in 1..=self.max_attempts {
             attempts = attempt;
 
-            // Phase 1: Planning (Hybrid Multi-Intent)
             println!("[Phase 1] Planning (attempt {})...", attempt);
             let planning = DefaultPlanningStrategy.plan(prompt, &self.registry);
 
-            println!("[Planning] Detected components (sorted by relevance):");
+            println!("[Planning] Prioritized components:");
             for (name, score) in &planning.scored_components {
                 println!("   - {} (relevance: {:.2})", name, score);
             }
 
-            // Phase 2: Generation
             println!("[Phase 2] Generation...");
             let generated_json = self.generator.generate(prompt);
 
-            // Phase 3: Validation
             println!("[Phase 3] Validation...");
             let validator = HtmlValidator::new();
             let issues = validator.validate(&generated_json);
