@@ -1,6 +1,6 @@
 /// HTML Validator with ComponentValidator integration
 ///
-/// Enhanced with more parser-powered structural validation rules.
+/// Enhanced with accessibility-focused landmark checking.
 
 use crate::validation::component_validator::ComponentValidator;
 use crate::validation::rules;
@@ -49,14 +49,17 @@ impl HtmlValidator {
         let clean_html = sanitizer::sanitize(html);
         let mut issues = Vec::new();
 
+        // Accessibility: Ensure presence of main landmark
+        let has_main = html_parser::has_element(&clean_html, "main") 
+            || html_parser::has_element(&clean_html, "[role='main']");
+
+        if !has_main {
+            issues.push("Missing main landmark (<main> or role=\"main\")".to_string());
+        }
+
         // Parser-enhanced structural checks
         if !html_parser::has_element(&clean_html, "details") && html_parser::has_element(&clean_html, "summary") {
             issues.push("Found <summary> without wrapping <details>".to_string());
-        }
-
-        // Check for images without alt attribute (basic)
-        if html_parser::has_element(&clean_html, "img") {
-            // Note: More advanced alt checking would require attribute inspection
         }
 
         issues.extend(rules::no_markdown_artifacts::check(&clean_html));
