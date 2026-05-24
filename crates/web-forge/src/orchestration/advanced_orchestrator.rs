@@ -1,11 +1,12 @@
 /// Advanced Orchestrator
 ///
-/// With strengthened Refinement phase.
+/// Supports both Default and Semantic planning strategies.
 
 use crate::orchestration::component_registry::ComponentRegistry;
 use crate::orchestration::component_tree::ComponentTree;
 use crate::orchestration::generation::ComponentAwareGenerator;
 use crate::orchestration::renderer::render_tree;
+use crate::orchestration::semantic_planning::{SemanticPlanningStrategy, OpenAIEmbeddingProvider};
 use crate::validation::HtmlValidator;
 use serde_json::from_str;
 
@@ -68,6 +69,7 @@ pub struct AdvancedOrchestrator {
     max_attempts: usize,
     registry: ComponentRegistry,
     generator: ComponentAwareGenerator,
+    planning_strategy: Box<dyn PlanningStrategy>,
 }
 
 impl AdvancedOrchestrator {
@@ -76,6 +78,7 @@ impl AdvancedOrchestrator {
             max_attempts: 3,
             registry: ComponentRegistry::new(),
             generator: ComponentAwareGenerator::new(),
+            planning_strategy: Box::new(DefaultPlanningStrategy),
         }
     }
 
@@ -84,35 +87,18 @@ impl AdvancedOrchestrator {
         self
     }
 
-    /// Analyze validation issues and produce targeted refinement guidance
-    fn analyze_issues_for_refinement(&self, issues: &[String]) -> String {
-        let mut guidance = String::new();
-
-        let has_landmark_issues = issues.iter().any(|i| i.contains("main landmark") || i.contains("navigation") || i.contains("banner"));
-        let has_structural_issues = issues.iter().any(|i| i.contains("<summary>") || i.contains("details"));
-        let has_component_issues = issues.iter().any(|i| i.contains("Unknown component") || i.contains("Missing expected"));
-
-        if has_landmark_issues {
-            guidance.push_str("Ensure the output includes proper ARIA landmarks (main, nav, header/banner). ");
-        }
-        if has_structural_issues {
-            guidance.push_str("Fix structural issues with details/summary or required elements. ");
-        }
-        if has_component_issues {
-            guidance.push_str("Use only registered components from the ComponentRegistry. ");
-        }
-
-        if guidance.is_empty() {
-            guidance = "Improve the previous output based on the validation feedback while staying close to the original request.".to_string();
-        }
-
-        guidance
+    /// Enable semantic planning using OpenAI embeddings
+    pub fn with_semantic_planning(mut self, api_key: String) -> Self {
+        let mut semantic_planner = SemanticPlanningStrategy::new(OpenAIEmbeddingProvider::new(api_key));
+        semantic_planner.precompute_embeddings(&self.registry);
+        self.planning_strategy = Box::new(semantic_planner);
+        self
     }
 
     pub fn orchestrate(&self, prompt: &str) -> AdvancedOrchestrationResult {
         println!("[AdvancedOrchestrator] Starting phased execution...");
 
-        let planning = DefaultPlanningStrategy.plan(prompt, &self.registry);
+        let planning = self.planning_strategy.plan(prompt, &self.registry);
         let top_components = planning.prioritized_components();
 
         println!("[Phase 1] Planning complete. Top components: {:?}", top_components);
@@ -124,14 +110,11 @@ impl AdvancedOrchestrator {
         for attempt in 1..=self.max_attempts {
             attempts = attempt;
 
-            // Build refined prompt if this is a retry
             let generation_prompt = if attempt == 1 {
                 prompt.to_string()
             } else {
-                format!("Original request: {}. Previous attempt had issues: {}. Guidance: {}",
-                        prompt,
-                        last_issues.join("; "),
-                        refinement_context)
+                format!("Original request: {}. Issues: {}. Guidance: {}",
+                        prompt, last_issues.join("; "), refinement_context)
             };
 
             println!("[Phase 2] Generation (attempt {})...", attempt);
@@ -156,12 +139,10 @@ impl AdvancedOrchestrator {
                 };
             }
 
-            // Prepare for refinement
             last_issues = issues.clone();
-            refinement_context = self.analyze_issues_for_refinement(&issues);
+            refinement_context = format!("Fix these issues: {}", issues.join("; "));
 
-            println!("[Phase 3] Validation failed on attempt {} with {} issues.", attempt, issues.len());
-            println!("[Refinement] Guidance: {}", refinement_context);
+            println!("[Phase 3] Validation failed on attempt {} ({} issues).", attempt, issues.len());
 
             if attempt < self.max_attempts {
                 println!("[Phase 4] Refinement triggered...");
@@ -183,7 +164,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_planning_basic() {
+    fn test_default_planning() {
         let registry = ComponentRegistry::new();
         let strategy = DefaultPlanningStrategy;
         let result = strategy.plan("Create a button", &registry);
