@@ -1,13 +1,6 @@
 /// Advanced Orchestrator
 ///
-/// Next-generation orchestration engine with phased execution.
-///
-/// Phases:
-/// 1. Planning     - Decide strategy and relevant components
-/// 2. Generation   - Use ComponentAwareGenerator to produce ComponentTree
-/// 3. Validation   - Run HtmlValidator + component contracts
-/// 4. Refinement   - Retry with feedback if validation fails
-/// 5. Finalization - Render final HTML
+/// Enhanced with richer Planning phase and PlanningStrategy.
 
 use crate::orchestration::component_registry::ComponentRegistry;
 use crate::orchestration::component_tree::ComponentTree;
@@ -16,7 +9,6 @@ use crate::orchestration::renderer::render_tree;
 use crate::validation::HtmlValidator;
 use serde_json::from_str;
 
-/// Rich result from advanced orchestration.
 #[derive(Debug)]
 pub struct AdvancedOrchestrationResult {
     pub final_html: Option<String>,
@@ -26,35 +18,47 @@ pub struct AdvancedOrchestrationResult {
     pub success: bool,
 }
 
-/// Trait for planning strategies (future intelligence layer).
-pub trait PlanningStrategy {
-    fn plan(&self, prompt: &str, registry: &ComponentRegistry) -> Vec<String>;
+/// Rich output from the Planning phase.
+#[derive(Debug, Clone)]
+pub struct PlanningResult {
+    pub intent: String,
+    pub suggested_components: Vec<String>,
+    pub constraints: Vec<String>,
+    pub confidence: f32,
 }
 
-/// Default simple planning strategy.
+/// Trait for planning strategies.
+pub trait PlanningStrategy {
+    fn plan(&self, prompt: &str, registry: &ComponentRegistry) -> PlanningResult;
+}
+
+/// Default planning strategy with basic intelligence.
 pub struct DefaultPlanningStrategy;
 
 impl PlanningStrategy for DefaultPlanningStrategy {
-    fn plan(&self, prompt: &str, registry: &ComponentRegistry) -> Vec<String> {
-        // Simple matching against known components
+    fn plan(&self, prompt: &str, registry: &ComponentRegistry) -> PlanningResult {
         let prompt_lower = prompt.to_lowercase();
-        let mut matched = vec![];
+        let mut suggested = vec![];
 
         for component in registry.list_all() {
             if prompt_lower.contains(&component.name.to_lowercase()) {
-                matched.push(component.name.clone());
+                suggested.push(component.name.clone());
             }
         }
 
-        if matched.is_empty() {
-            matched.push("Button".to_string());
+        if suggested.is_empty() {
+            suggested.push("Button".to_string());
         }
 
-        matched
+        PlanningResult {
+            intent: prompt.to_string(),
+            suggested_components: suggested,
+            constraints: vec![],
+            confidence: if suggested.len() > 1 { 0.8 } else { 0.6 },
+        }
     }
 }
 
-/// The Advanced Orchestrator.
 pub struct AdvancedOrchestrator {
     max_attempts: usize,
     registry: ComponentRegistry,
@@ -75,7 +79,6 @@ impl AdvancedOrchestrator {
         self
     }
 
-    /// Main orchestration entry point.
     pub fn orchestrate(&self, prompt: &str) -> AdvancedOrchestrationResult {
         println!("[AdvancedOrchestrator] Starting phased execution...");
 
@@ -85,21 +88,22 @@ impl AdvancedOrchestrator {
         for attempt in 1..=self.max_attempts {
             attempts = attempt;
 
-            // Phase 1: Planning
+            // === Phase 1: Planning (now richer) ===
             println!("[Phase 1] Planning (attempt {})...", attempt);
-            let _planned_components = DefaultPlanningStrategy.plan(prompt, &self.registry);
+            let planning_result = DefaultPlanningStrategy.plan(prompt, &self.registry);
+            println!("[Planning] Suggested components: {:?} (confidence: {:.1})",
+                     planning_result.suggested_components, planning_result.confidence);
 
-            // Phase 2: Generation
+            // === Phase 2: Generation ===
             println!("[Phase 2] Generation...");
             let generated_json = self.generator.generate(prompt);
 
-            // Phase 3: Validation
+            // === Phase 3: Validation ===
             println!("[Phase 3] Validation...");
             let validator = HtmlValidator::new();
             let issues = validator.validate(&generated_json);
 
             if issues.is_empty() {
-                // Success path - try to render
                 println!("[Phase 3] Validation passed.");
 
                 let component_tree = from_str::<ComponentTree>(&generated_json).ok();
@@ -115,15 +119,13 @@ impl AdvancedOrchestrator {
             }
 
             last_issues = issues.clone();
-            println!("[Phase 3] Validation failed with {} issues.", issues.len());
+            println!("[Phase 3] Validation failed ({} issues).", issues.len());
 
-            // Phase 4: Refinement (simple feedback for now)
             if attempt < self.max_attempts {
                 println!("[Phase 4] Refinement triggered...");
             }
         }
 
-        // Failed after max attempts
         AdvancedOrchestrationResult {
             final_html: None,
             component_tree: None,
