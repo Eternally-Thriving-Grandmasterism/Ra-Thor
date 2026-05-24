@@ -3,6 +3,7 @@ use crate::validation::component_validator::ComponentValidator;
 use crate::validation::rules;
 use crate::validation::validate::Validate;
 use crate::component_system::contract::ComponentContract;
+use crate::sanitizer;
 
 pub struct HtmlValidator {
     component_validator: ComponentValidator,
@@ -33,6 +34,13 @@ impl HtmlValidator {
         self.component_validator.register_component(name);
     }
 
+    /// Sanitize then validate HTML (recommended for AI-generated content)
+    pub fn sanitize_and_validate(&self, html: &str) -> (String, Vec<String>) {
+        let clean_html = sanitizer::sanitize(html);
+        let issues = self.validate(&clean_html);
+        (clean_html, issues)
+    }
+
     pub fn validate(&self, html: &str) -> Vec<String> {
         let mut issues = Vec::new();
 
@@ -54,7 +62,6 @@ impl HtmlValidator {
         self.validate(html).is_empty()
     }
 
-    /// Validate using a component that implements ComponentContract + Validate
     pub fn validate_with_component<T: ComponentContract>(&self, component: &T, html_fragment: &str) -> Vec<String> {
         let mut issues = vec![];
 
