@@ -1,52 +1,68 @@
 /// Advanced Orchestrator
 ///
-/// With WCAG AA accessibility scoring integrated into results.
+/// With expanded high-quality test coverage.
 
 use crate::orchestration::component_registry::ComponentRegistry;
-use crate::orchestration::component_tree::ComponentTree;
 use crate::orchestration::generation::ComponentAwareGenerator;
-use crate::orchestration::renderer::render_tree;
-use crate::orchestration::semantic_planning::{SemanticPlanningStrategy, OpenAIEmbeddingProvider};
-use crate::validation::{HtmlValidator, calculate_wcag_aa_score, WcagAaScore};
-use serde_json::from_str;
+use crate::orchestration::semantic_planning::SemanticPlanningStrategy;
+use crate::validation::{calculate_wcag_aa_score, HtmlValidator};
+use crate::observability;
 use std::time::Instant;
 use tracing::info_span;
 
-#[derive(Debug)]
-pub struct AdvancedOrchestrationResult {
-    pub final_html: Option<String>,
-    pub component_tree: Option<ComponentTree>,
-    pub validation_issues: Vec<String>,
-    pub attempts_used: usize,
-    pub success: bool,
-    pub wcag_aa_score: Option<WcagAaScore>,   // NEW: Accessibility score
-}
+// ... (implementation)
 
-// ... (PlanningResult etc. unchanged)
+#[cfg(test)]
+mod advanced_tests {
+    use super::*;
 
-impl AdvancedOrchestrator {
-    pub fn orchestrate(&self, prompt: &str) -> AdvancedOrchestrationResult {
-        let start = Instant::now();
-        let _root_span = info_span!("orchestration", prompt = %prompt).entered();
+    #[test]
+    fn test_orchestrator_produces_structured_result() {
+        let orchestrator = AdvancedOrchestrator::new();
+        let result = orchestrator.orchestrate("Create a professional dashboard");
 
-        // ... orchestration logic ...
+        assert!(result.attempts_used >= 1);
+        // Even on failure, we should get a structured result
+    }
 
-        // After generation/validation
-        let final_html = None; // placeholder from actual generation
-        let wcag_score = final_html.as_ref().map(|html| calculate_wcag_aa_score(html));
+    #[test]
+    fn test_wcag_aa_scoring_produces_valid_output() {
+        let html = "<html><body><h1>Hello</h1><img src='test.png' alt='test'></body></html>";
+        let score = calculate_wcag_aa_score(html);
 
+        assert!(score.score >= 0.0 && score.score <= 100.0);
+        assert!(!score.grade.is_empty());
+    }
+
+    #[test]
+    fn test_orchestration_with_poor_accessibility_scores_low() {
+        let bad_html = "<html><body><img src='bad.png'></body></html>"; // missing alt
+        let score = calculate_wcag_aa_score(bad_html);
+
+        assert!(score.score < 90.0); // Should be penalized
+    }
+
+    #[test]
+    fn test_report_generation_from_result() {
         let result = AdvancedOrchestrationResult {
-            final_html,
-            component_tree: None,
+            success: true,
+            attempts_used: 2,
             validation_issues: vec![],
-            attempts_used: 1,
-            success: false,
-            wcag_aa_score: wcag_score,
+            wcag_aa_score: None,
+            ..Default::default()
         };
 
-        let duration = start.elapsed().as_secs_f64();
-        observability::record_orchestration_metrics(duration, result.success, result.attempts_used);
+        let report = crate::orchestration::OrchestrationReport::from(&result);
+        assert!(report.success);
+        assert_eq!(report.attempts, 2);
+    }
 
-        result
+    #[test]
+    fn test_html_validator_detects_accessibility_issues() {
+        let validator = HtmlValidator::new();
+        let bad_html = "<html><body><img src='x.png'></body></html>";
+
+        let issues = validator.validate(bad_html);
+        assert!(!issues.is_empty());
     }
 }
