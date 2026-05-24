@@ -1,6 +1,6 @@
+use crate::component_system::contract::ComponentContract;
+
 /// Card Component
-///
-/// Professional card container following design tokens.
 
 pub struct Card {
     pub padding: CardPadding,
@@ -13,12 +13,13 @@ pub enum CardPadding {
     Large,
 }
 
+impl ComponentContract for Card {
+    fn name(&self) -> &'static str { "Card" }
+    fn requires_token_compliance(&self) -> bool { true }
+}
+
 impl Card {
     pub fn new(padding: CardPadding) -> Self {
         Self { padding }
-    }
-
-    pub fn render(&self) -> String {
-        format!("<div class=\"card card-{:?}\">Card Content</div>", self.padding)
     }
 }
