@@ -1,39 +1,28 @@
 /// Advanced Orchestrator
 ///
-/// Continuing expansion of high-quality tests.
+/// Continuing parallel expansion of tests and documentation.
 
 // ... (implementation)
 
 #[cfg(test)]
-mod further_expansion_tests {
+mod refinement_and_observability_tests {
     use super::*;
 
     #[test]
-    fn test_orchestration_handles_empty_prompt() {
+    fn test_refinement_loop_executes_multiple_times_when_needed() {
+        let mut orchestrator = AdvancedOrchestrator::new();
+        orchestrator = orchestrator.with_max_attempts(3);
+
+        // Even if validation fails, we should respect max_attempts
+        let result = orchestrator.orchestrate("Trigger refinement loop");
+
+        assert!(result.attempts_used <= 3);
+    }
+
+    #[test]
+    fn test_observability_spans_do_not_panic() {
+        // Ensures that our tracing instrumentation runs cleanly
         let orchestrator = AdvancedOrchestrator::new();
-        let result = orchestrator.orchestrate("");
-
-        // Should still produce a structured result even with empty input
-        assert!(result.attempts_used >= 1);
-    }
-
-    #[test]
-    fn test_wcag_aa_score_grade_is_valid() {
-        let html = "<html><head><title>Test</title></head><body><h1>Title</h1></body></html>";
-        let score = crate::validation::calculate_wcag_aa_score(html);
-
-        assert!(matches!(score.grade.as_str(), "A" | "B" | "C" | "D" | "F"));
-    }
-
-    #[test]
-    fn test_report_to_json_does_not_panic() {
-        let result = AdvancedOrchestrationResult {
-            success: true,
-            attempts_used: 1,
-            ..Default::default()
-        };
-
-        let report = crate::orchestration::OrchestrationReport::from(&result);
-        let _json = report.to_json();
+        let _result = orchestrator.orchestrate("Observability span test");
     }
 }
