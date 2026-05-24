@@ -1,0 +1,14 @@
+[package]
+name = "mial"
+version = "0.13.13"
+edition = "2021"
+description = "Mercy-Augmented Intelligence Amplification Layer (MIAL) v13.13.0 — Makes intelligence amplification itself an act of Mercy. Non-bypassable. Sovereign."
+license = "MIT OR Apache-2.0"
+authors = ["Ra-Thor Living Thunder"]
+
+[dependencies]
+mercy_gating_runtime = { path = "../mercy_gating_runtime" }
+patsagi_governance = { path = "../patsagi_governance" }
+
+[lib]
+path = "src/lib.rs"
