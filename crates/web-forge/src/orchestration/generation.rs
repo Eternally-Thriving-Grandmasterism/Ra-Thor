@@ -1,12 +1,17 @@
 /// Generation Module
 ///
-/// Planning-aware component generator.
+/// Provides planning-aware component generation.
+///
+/// The main entry point is `ComponentAwareGenerator`, which can generate
+/// structured `ComponentTree` output, optionally guided by planning results.
 
 use crate::orchestration::component_registry::ComponentRegistry;
 use crate::orchestration::component_tree::{ComponentNode, ComponentTree};
 use crate::orchestration::GenerationStrategy;
 use serde_json::json;
 
+/// A generator that produces component-aware output.
+/// It can optionally use planning results to prefer certain components.
 pub struct ComponentAwareGenerator {
     registry: ComponentRegistry,
 }
@@ -18,27 +23,27 @@ impl ComponentAwareGenerator {
         }
     }
 
-    /// Generate while preferring components suggested by planning.
+    /// Generate a ComponentTree, preferring components suggested by planning when available.
     pub fn generate_with_planning(&self, prompt: &str, planned_components: &[String]) -> String {
         let mut components_to_use = vec![];
 
-        // Prefer components from planning
+        // Prefer planning suggestions
         for name in planned_components {
             if self.registry.get(name).is_some() {
                 components_to_use.push(name.clone());
             }
         }
 
-        // Fallback to prompt-based mapping if planning gave nothing useful
+        // Fallback to prompt analysis
         if components_to_use.is_empty() {
             components_to_use = self.map_to_components(prompt);
         }
 
         let mut children = vec![];
-        for comp_name in components_to_use {
-            if let Some(def) = self.registry.get(&comp_name) {
+        for name in components_to_use {
+            if let Some(def) = self.registry.get(&name) {
                 let node = ComponentNode {
-                    component: comp_name,
+                    component: name,
                     props: json!({ "variant": "Primary" }),
                     children: vec![],
                     text: Some(format!("Generated {}", def.name)),
@@ -59,11 +64,11 @@ impl ComponentAwareGenerator {
     }
 
     fn map_to_components(&self, prompt: &str) -> Vec<String> {
-        let prompt_lower = prompt.to_lowercase();
+        let lower = prompt.to_lowercase();
         let mut matched = vec![];
 
         for component in self.registry.list_all() {
-            if prompt_lower.contains(&component.name.to_lowercase()) {
+            if lower.contains(&component.name.to_lowercase()) {
                 matched.push(component.name.clone());
             }
         }
