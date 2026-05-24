@@ -1,22 +1,20 @@
 /// Component Contract Declaration
 ///
 /// Truth: Professional components should be able to declare
-/// their own validation expectations and constraints.
-///
-/// This allows the Validation Engine to understand component
-/// contracts and enforce them during generation and editing.
+/// their own validation expectations and provide custom validation logic.
 
 pub trait ComponentContract {
     /// Name of the component
     fn name(&self) -> &'static str;
 
-    /// List of validation rules this component cares about
-    fn required_rules(&self) -> Vec<&'static str> {
-        vec![]
-    }
-
     /// Whether this component requires token compliance
     fn requires_token_compliance(&self) -> bool {
         true
+    }
+
+    /// Custom validation logic provided by the component itself
+    /// Default implementation does nothing.
+    fn validate(&self, _html_fragment: &str) -> Vec<String> {
+        vec![]
     }
 }
