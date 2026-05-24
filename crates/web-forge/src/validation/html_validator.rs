@@ -1,6 +1,8 @@
 /// HTML Validator with ComponentValidator integration
 ///
-/// By default, validate() now sanitizes input first for safety.
+/// Hybrid Strategy: Supports both name-based registration and
+/// instance-based component validation (via ComponentContract).
+
 use crate::validation::component_validator::ComponentValidator;
 use crate::validation::rules;
 use crate::validation::validate::Validate;
@@ -9,6 +11,7 @@ use crate::sanitizer;
 
 pub struct HtmlValidator {
     component_validator: ComponentValidator,
+    registered_components: Vec<Box<dyn ComponentContract>>,
     strict_mode: bool,
 }
 
@@ -16,6 +19,7 @@ impl HtmlValidator {
     pub fn new() -> Self {
         let mut validator = Self {
             component_validator: ComponentValidator::new(),
+            registered_components: Vec::new(),
             strict_mode: false,
         };
 
@@ -32,12 +36,17 @@ impl HtmlValidator {
         self
     }
 
+    /// Register by name (for basic tracking)
     pub fn register_component(&mut self, name: &str) {
         self.component_validator.register_component(name);
     }
 
-    /// Main validation method.
-    /// Automatically sanitizes input first (recommended default behavior).
+    /// Register an actual component instance for validation
+    pub fn register_component_instance(&mut self, component: Box<dyn ComponentContract>) {
+        self.component_validator.register_component(component.name());
+        self.registered_components.push(component);
+    }
+
     pub fn validate(&self, html: &str) -> Vec<String> {
         let clean_html = sanitizer::sanitize(html);
         let mut issues = Vec::new();
@@ -60,13 +69,13 @@ impl HtmlValidator {
         self.validate(html).is_empty()
     }
 
-    /// Explicit sanitize + validate (returns cleaned HTML too)
     pub fn sanitize_and_validate(&self, html: &str) -> (String, Vec<String>) {
         let clean_html = sanitizer::sanitize(html);
-        let issues = self.validate(&clean_html); // already sanitized, but safe to call
+        let issues = self.validate(&clean_html);
         (clean_html, issues)
     }
 
+    /// Validate using a specific component instance
     pub fn validate_with_component<T: ComponentContract>(&self, component: &T, html_fragment: &str) -> Vec<String> {
         let mut issues = vec![];
 
@@ -75,6 +84,17 @@ impl HtmlValidator {
         }
 
         issues.extend(component.validate());
+
+        issues
+    }
+
+    /// Run validation on all registered component instances
+    pub fn validate_registered_components(&self, html_fragment: &str) -> Vec<String> {
+        let mut issues = vec![];
+
+        for component in &self.registered_components {
+            issues.extend(component.validate());
+        }
 
         issues
     }
