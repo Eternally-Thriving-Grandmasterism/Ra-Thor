@@ -1,6 +1,6 @@
 /// Advanced Orchestrator
 ///
-/// Fully planning-aware: Uses PlanningResult to guide generation.
+/// With strengthened Refinement phase.
 
 use crate::orchestration::component_registry::ComponentRegistry;
 use crate::orchestration::component_tree::ComponentTree;
@@ -42,7 +42,6 @@ pub struct DefaultPlanningStrategy;
 
 impl PlanningStrategy for DefaultPlanningStrategy {
     fn plan(&self, prompt: &str, registry: &ComponentRegistry) -> PlanningResult {
-        // Simplified for clarity
         let mut scored = vec![];
         let prompt_lower = prompt.to_lowercase();
 
@@ -85,31 +84,65 @@ impl AdvancedOrchestrator {
         self
     }
 
+    /// Analyze validation issues and produce targeted refinement guidance
+    fn analyze_issues_for_refinement(&self, issues: &[String]) -> String {
+        let mut guidance = String::new();
+
+        let has_landmark_issues = issues.iter().any(|i| i.contains("main landmark") || i.contains("navigation") || i.contains("banner"));
+        let has_structural_issues = issues.iter().any(|i| i.contains("<summary>") || i.contains("details"));
+        let has_component_issues = issues.iter().any(|i| i.contains("Unknown component") || i.contains("Missing expected"));
+
+        if has_landmark_issues {
+            guidance.push_str("Ensure the output includes proper ARIA landmarks (main, nav, header/banner). ");
+        }
+        if has_structural_issues {
+            guidance.push_str("Fix structural issues with details/summary or required elements. ");
+        }
+        if has_component_issues {
+            guidance.push_str("Use only registered components from the ComponentRegistry. ");
+        }
+
+        if guidance.is_empty() {
+            guidance = "Improve the previous output based on the validation feedback while staying close to the original request.".to_string();
+        }
+
+        guidance
+    }
+
     pub fn orchestrate(&self, prompt: &str) -> AdvancedOrchestrationResult {
         println!("[AdvancedOrchestrator] Starting phased execution...");
 
-        // Planning
         let planning = DefaultPlanningStrategy.plan(prompt, &self.registry);
         let top_components = planning.prioritized_components();
 
-        println!("[Phase 1] Planning complete. Using components: {:?}", top_components);
+        println!("[Phase 1] Planning complete. Top components: {:?}", top_components);
 
         let mut attempts = 0;
         let mut last_issues = vec![];
+        let mut refinement_context = String::new();
 
         for attempt in 1..=self.max_attempts {
             attempts = attempt;
 
-            // Generation now uses planning output
+            // Build refined prompt if this is a retry
+            let generation_prompt = if attempt == 1 {
+                prompt.to_string()
+            } else {
+                format!("Original request: {}. Previous attempt had issues: {}. Guidance: {}",
+                        prompt,
+                        last_issues.join("; "),
+                        refinement_context)
+            };
+
             println!("[Phase 2] Generation (attempt {})...", attempt);
-            let generated_json = self.generator.generate_with_planning(prompt, &top_components);
+            let generated_json = self.generator.generate_with_planning(&generation_prompt, &top_components);
 
             println!("[Phase 3] Validation...");
             let validator = HtmlValidator::new();
             let issues = validator.validate(&generated_json);
 
             if issues.is_empty() {
-                println!("[Phase 3] Validation passed.");
+                println!("[Phase 3] Validation passed on attempt {}.\n", attempt);
 
                 let component_tree = from_str::<ComponentTree>(&generated_json).ok();
                 let final_html = component_tree.as_ref().map(|tree| render_tree(tree));
@@ -123,7 +156,12 @@ impl AdvancedOrchestrator {
                 };
             }
 
+            // Prepare for refinement
             last_issues = issues.clone();
+            refinement_context = self.analyze_issues_for_refinement(&issues);
+
+            println!("[Phase 3] Validation failed on attempt {} with {} issues.", attempt, issues.len());
+            println!("[Refinement] Guidance: {}", refinement_context);
 
             if attempt < self.max_attempts {
                 println!("[Phase 4] Refinement triggered...");
@@ -145,7 +183,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_planning_returns_components() {
+    fn test_planning_basic() {
         let registry = ComponentRegistry::new();
         let strategy = DefaultPlanningStrategy;
         let result = strategy.plan("Create a button", &registry);
