@@ -1,9 +1,7 @@
 /// HTML Validator with ComponentValidator integration
-///
-/// Now supports wiring component custom validation logic.
-
 use crate::validation::component_validator::ComponentValidator;
 use crate::validation::rules;
+use crate::validation::validate::Validate;
 use crate::component_system::contract::ComponentContract;
 
 pub struct HtmlValidator {
@@ -56,7 +54,7 @@ impl HtmlValidator {
         self.validate(html).is_empty()
     }
 
-    /// Run validation for a specific component that implements ComponentContract
+    /// Validate using a component that implements ComponentContract + Validate
     pub fn validate_with_component<T: ComponentContract>(&self, component: &T, html_fragment: &str) -> Vec<String> {
         let mut issues = vec![];
 
@@ -64,8 +62,7 @@ impl HtmlValidator {
             issues.push(format!("Component '{}' is not registered", component.name()));
         }
 
-        // Run the component's own custom validation logic
-        issues.extend(component.validate(html_fragment));
+        issues.extend(component.validate());
 
         issues
     }
