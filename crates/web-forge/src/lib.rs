@@ -1,10 +1,11 @@
 //! Web Forge
 //!
-//! Professional web design and development system for Ra-Thor and Rathor.ai.
-//! Built with care, layer by layer.
+//! Professional web design and development system.
 
 pub mod design_system;
 pub mod validation;
-pub mod i18n;
+pub mod component_system;
+pub mod sanitizer;
 
 pub use validation::HtmlValidator;
+pub use sanitizer::{sanitize, default_sanitizer};
