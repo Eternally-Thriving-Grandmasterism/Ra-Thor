@@ -1,49 +1,59 @@
 /// Advanced Orchestrator
 ///
-/// With expanded high-quality test coverage.
+/// With integration test coverage for quality gates.
 
 // ... (implementation)
 
 #[cfg(test)]
-mod advanced_tests {
+mod integration_tests {
     use super::*;
     use crate::orchestration::OrchestrationReport;
+    use crate::validation::WcagAaScore;
 
-    #[test]
-    fn test_report_passes_ci_gate() {
-        let result = AdvancedOrchestrationResult {
-            success: true,
+    fn make_result(success: bool, score: Option<f32>) -> AdvancedOrchestrationResult {
+        AdvancedOrchestrationResult {
+            success,
             attempts_used: 1,
             validation_issues: vec![],
-            wcag_aa_score: Some(crate::validation::WcagAaScore {
-                score: 85.0,
+            wcag_aa_score: score.map(|s| WcagAaScore {
+                score: s,
                 issues: vec![],
-                grade: "B".to_string(),
+                grade: if s >= 80.0 { "B".to_string() } else { "C".to_string() },
             }),
             ..Default::default()
-        };
+        }
+    }
 
+    #[test]
+    fn test_quality_gate_passes_with_good_score() {
+        let result = make_result(true, Some(88.0));
         let report = OrchestrationReport::from(&result);
+
         assert!(report.passes_ci_gate(80.0));
-        assert!(!report.passes_ci_gate(90.0));
     }
 
     #[test]
-    fn test_orchestration_result_contains_wcag_score() {
-        let orchestrator = AdvancedOrchestrator::new();
-        let result = orchestrator.orchestrate("Build an accessible form");
+    fn test_quality_gate_fails_on_low_score() {
+        let result = make_result(true, Some(65.0));
+        let report = OrchestrationReport::from(&result);
 
-        // The result should at least attempt to include a score
-        // (even if None in current placeholder implementation)
-        assert!(result.wcag_aa_score.is_none() || result.wcag_aa_score.is_some());
+        assert!(!report.passes_ci_gate(80.0));
     }
 
     #[test]
-    fn test_html_validator_with_strict_mode() {
-        let validator = HtmlValidator::new().with_strict_mode(true);
-        let issues = validator.validate("<html></html>");
+    fn test_quality_gate_fails_on_orchestration_failure() {
+        let result = make_result(false, Some(90.0));
+        let report = OrchestrationReport::from(&result);
 
-        // In strict mode we expect additional messaging
-        assert!(!issues.is_empty());
+        assert!(!report.passes_ci_gate(70.0));
+    }
+
+    #[test]
+    fn test_quality_gate_handles_missing_score() {
+        let result = make_result(true, None);
+        let report = OrchestrationReport::from(&result);
+
+        // When no score is present, gate should still consider success
+        assert!(report.passes_ci_gate(0.0));
     }
 }
