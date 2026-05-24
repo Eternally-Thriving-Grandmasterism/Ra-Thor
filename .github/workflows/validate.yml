@@ -1,0 +1,37 @@
+name: Validate
+
+on:
+  push:
+    branches: [ main, feat/web-forge-initial ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        cache-dependency-path: crates/web-forge/package.json
+
+    - name: Install dependencies
+      working-directory: crates/web-forge
+      run: npm install
+
+    - name: Run lint
+      working-directory: crates/web-forge
+      run: npm run lint
+
+    - name: Run build
+      working-directory: crates/web-forge
+      run: npm run build
+
+    - name: Run validation
+      working-directory: crates/web-forge
+      run: npm run validate
