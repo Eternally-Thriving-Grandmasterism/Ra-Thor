@@ -29,16 +29,10 @@ jobs:
         with:
           toolchain: ${{ matrix.rust }}
 
-      - name: Cache Cargo
-        uses: actions/cache@v4
+      - name: Cache Rust dependencies (matrix-aware)
+        uses: Swatinem/rust-cache@v2
         with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
-          key: ${{ runner.os }}-cargo-${{ matrix.rust }}-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ matrix.rust }}-${{ matrix.os }}
 
       - name: Build
         run: cargo build --package web-forge
