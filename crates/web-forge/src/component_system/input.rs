@@ -1,6 +1,4 @@
-/// Input Component
-///
-/// Professional form input following design tokens.
+use crate::component_system::contract::ComponentContract;
 
 pub struct Input {
     pub input_type: InputType,
@@ -13,12 +11,13 @@ pub enum InputType {
     Password,
 }
 
+impl ComponentContract for Input {
+    fn name(&self) -> &'static str { "Input" }
+    fn requires_token_compliance(&self) -> bool { true }
+}
+
 impl Input {
     pub fn new(input_type: InputType) -> Self {
         Self { input_type }
-    }
-
-    pub fn render(&self) -> String {
-        format!("<input type=\"{:?}\" class=\"input\" placeholder=\"Enter value...\" />", self.input_type)
     }
 }
