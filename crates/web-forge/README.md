@@ -1,53 +1,97 @@
 # Web Forge
 
-**Professional Web Design & Development System for Ra-Thor**
+**Professional Web Design & Development System** for Ra-Thor and Rathor.ai
 
-> "Building websites brick by brick, like constructing a cathedral — with focus, love, precision, and long-term vision."
+Built layer by layer following the **Cathedral** philosophy — with focus, precision, and long-term vision.
 
-`web-forge` is a dedicated system inside the Ra-Thor monorepo for creating high-quality, maintainable, and mercy-aligned websites. It serves both Ra-Thor’s own presence and future projects under Rathor.ai.
+## Overview
 
-## Philosophy
+`web-forge` is the orchestration and generation foundation inside Ra-Thor. It enables intelligent, component-aware, self-correcting website generation through a modular architecture.
 
-- **Cathedral Approach**: Every layer is built with care. Quality over speed. Structure before features.
-- **Professional Standards**: Clean HTML, reliable interactivity, strong accessibility, and automated validation.
-- **Mercy-Aligned Development**: Tools and processes that reduce friction and support truthful, focused work.
-- **Reusable & Layered**: Design tokens → Components → Templates → Full sites.
-- **Multi-Language Native**: Internationalization is a core concern from the beginning.
+It is designed to be driven by Ra-Thor’s planning and council systems while remaining usable as a standalone professional web development toolkit.
 
-## Goals
+## Core Principles
 
-- Prevent structural issues (e.g. malformed accordions, markdown leakage) through automated validation.
-- Provide reliable multi-language switching.
-- Offer a professional design system aligned with Ra-Thor’s aesthetic and values.
-- Enable consistent, high-quality website development across projects.
+- **Component-First**: Everything revolves around a rich, self-describing component system.
+- **Planning-Aware**: Generation is guided by structured planning (keyword + semantic).
+- **Self-Correcting**: Strong refinement loops with issue analysis.
+- **Graceful Degradation**: Semantic capabilities fall back cleanly when unavailable.
+- **Extensible by Design**: Built for future intelligence, new strategies, and deep Ra-Thor integration.
 
-## Current Status
-
-This crate is in early foundation stage. The first deliverable is a clean, validated landing page template with built-in structural validation and language switching support.
-
-## Structure
+## Architecture
 
 ```
-crates/web-forge/
-├── Cargo.toml
-├── README.md
-├── src/
-│   ├── lib.rs
-│   ├── design_system/
-│   ├── validation/
-│   └── i18n/
-└── examples/
-    └── rathor_current_site.rs
+Prompt
+   │
+   ▼
+PlanningStrategy (Default / Semantic)
+   │
+   ▼
+PlanningResult (scored + prioritized components)
+   │
+   ▼
+ComponentAwareGenerator
+   │
+   ▼
+Validation + Refinement Loop
+   │
+   ▼
+Final Output (ComponentTree + Rendered HTML)
 ```
 
-## How to Contribute
+## Key Components
 
-All contributions should follow the AG-SML license and the broader mercy-aligned principles of the Ra-Thor project.
+| Area                    | Description                                      | Status    |
+|-------------------------|--------------------------------------------------|-----------|
+| Component Registry      | Rich metadata for components                     | Stable    |
+| Planning Strategies     | Keyword + Semantic (embeddings)                  | Strong    |
+| Generation              | Planning-aware component tree generation         | Good      |
+| Renderer                | ComponentTree → HTML                             | Good      |
+| Validation Engine       | Sanitization + structural + accessibility checks | Strong    |
+| Advanced Orchestrator   | Main coordination engine                         | Active    |
+| Refinement              | Issue-aware self-correction                      | Improving |
 
----
+## Usage Example
 
-**Next layers will include:**
-- Design tokens and component system
-- Stronger automated HTML validation
-- Rust-based template generation
-- Full multi-language support tooling
+```rust
+use web_forge::orchestration::AdvancedOrchestrator;
+
+let orchestrator = AdvancedOrchestrator::new()
+    .with_max_attempts(3)
+    .with_semantic_planning("sk-...".to_string());
+
+let result = orchestrator.orchestrate("Create a beautiful primary call-to-action");
+
+if result.success {
+    println!("Generated HTML:\n{}", result.final_html.unwrap_or_default());
+}
+```
+
+## Current Capabilities
+
+- Multi-intent detection during planning
+- Relevance scoring and component prioritization
+- Planning-aware generation
+- Semantic embeddings with automatic fallback
+- Structured refinement with issue categorization
+- Component-aware HTML rendering
+
+## Documentation
+
+See the source modules for detailed documentation:
+- `advanced_orchestrator.rs`
+- `semantic_planning.rs`
+- `generation.rs`
+- `component_registry.rs`
+
+## Future Direction
+
+- Deeper refinement strategies
+- Stronger renderer with full prop/class support
+- Design Token integration
+- Tighter integration with Ra-Thor councils
+- Expanded automated testing
+
+## License
+
+AG-SML-1.0 — Autonomicity Games Sovereign Mercy License
