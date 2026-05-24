@@ -8,4 +8,4 @@ license = "AG-SML-1.0"
 repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
 
 [dependencies]
-# Future: html templating, validation, i18n tools
+ammonia = "4"
