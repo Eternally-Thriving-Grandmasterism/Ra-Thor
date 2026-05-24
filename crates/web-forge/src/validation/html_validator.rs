@@ -1,4 +1,6 @@
 /// HTML Validator with ComponentValidator integration
+///
+/// By default, validate() now sanitizes input first for safety.
 use crate::validation::component_validator::ComponentValidator;
 use crate::validation::rules;
 use crate::validation::validate::Validate;
@@ -34,22 +36,18 @@ impl HtmlValidator {
         self.component_validator.register_component(name);
     }
 
-    /// Sanitize then validate HTML (recommended for AI-generated content)
-    pub fn sanitize_and_validate(&self, html: &str) -> (String, Vec<String>) {
-        let clean_html = sanitizer::sanitize(html);
-        let issues = self.validate(&clean_html);
-        (clean_html, issues)
-    }
-
+    /// Main validation method.
+    /// Automatically sanitizes input first (recommended default behavior).
     pub fn validate(&self, html: &str) -> Vec<String> {
+        let clean_html = sanitizer::sanitize(html);
         let mut issues = Vec::new();
 
-        issues.extend(rules::no_markdown_artifacts::check(html));
-        issues.extend(rules::proper_details::check(html));
-        issues.extend(rules::language_switcher_ids::check(html));
-        issues.extend(rules::required_ids::check(html));
-        issues.extend(rules::accessibility_basic::check(html));
-        issues.extend(rules::token_compliance::check(html));
+        issues.extend(rules::no_markdown_artifacts::check(&clean_html));
+        issues.extend(rules::proper_details::check(&clean_html));
+        issues.extend(rules::language_switcher_ids::check(&clean_html));
+        issues.extend(rules::required_ids::check(&clean_html));
+        issues.extend(rules::accessibility_basic::check(&clean_html));
+        issues.extend(rules::token_compliance::check(&clean_html));
 
         if self.strict_mode && !issues.is_empty() {
             issues.push("Strict mode: All issues must be resolved.".to_string());
@@ -60,6 +58,13 @@ impl HtmlValidator {
 
     pub fn is_valid(&self, html: &str) -> bool {
         self.validate(html).is_empty()
+    }
+
+    /// Explicit sanitize + validate (returns cleaned HTML too)
+    pub fn sanitize_and_validate(&self, html: &str) -> (String, Vec<String>) {
+        let clean_html = sanitizer::sanitize(html);
+        let issues = self.validate(&clean_html); // already sanitized, but safe to call
+        (clean_html, issues)
     }
 
     pub fn validate_with_component<T: ComponentContract>(&self, component: &T, html_fragment: &str) -> Vec<String> {
