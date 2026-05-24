@@ -1,78 +1,153 @@
 /// Semantic Planning Module
 ///
-/// Foundation for semantic embedding-based planning.
-///
-/// This module provides the architecture to move from keyword matching
-/// to true semantic understanding using vector embeddings.
+/// Real semantic embeddings support using OpenAI.
+/// Contains cosine similarity and component embedding pre-computation.
 
 use crate::orchestration::advanced_orchestrator::{PlanningResult, PlanningStrategy};
 use crate::orchestration::component_registry::ComponentRegistry;
+use reqwest::blocking::Client;
+use serde::Deserialize;
 use std::collections::HashMap;
 
-/// Trait for embedding providers.
-/// In production, this can be implemented with:
-/// - Local models (candle + MiniLM)
-/// - External APIs (OpenAI, Cohere, etc.)
+#[derive(Debug, Deserialize)]
+struct OpenAIEmbeddingResponse {
+    data: Vec<EmbeddingData>,
+}
+
+#[derive(Debug, Deserialize)]
+struct EmbeddingData {
+    embedding: Vec<f32>,
+}
+
+/// OpenAI Embedding Provider (real implementation)
+pub struct OpenAIEmbeddingProvider {
+    api_key: String,
+    client: Client,
+    model: String,
+}
+
+impl OpenAIEmbeddingProvider {
+    pub fn new(api_key: String) -> Self {
+        Self {
+            api_key,
+            client: Client::new(),
+            model: "text-embedding-3-small".to_string(),
+        }
+    }
+
+    pub fn with_model(mut self, model: &str) -> Self {
+        self.model = model.to_string();
+        self
+    }
+}
+
+impl crate::orchestration::semantic_planning::EmbeddingProvider for OpenAIEmbeddingProvider {
+    fn embed(&self, text: &str) -> Option<Vec<f32>> {
+        let url = "https://api.openai.com/v1/embeddings";
+
+        let body = serde_json::json!({
+            "model": self.model,
+            "input": text
+        });
+
+        let response = self.client
+            .post(url)
+            .bearer_auth(&self.api_key)
+            .json(&body)
+            .send()
+            .ok()?;
+
+        if !response.status().is_success() {
+            return None;
+        }
+
+        let parsed: OpenAIEmbeddingResponse = response.json().ok()?;
+        parsed.data.first().map(|d| d.embedding.clone())
+    }
+}
+
+/// Embedding Provider Trait
 pub trait EmbeddingProvider {
     fn embed(&self, text: &str) -> Option<Vec<f32>>;
 }
 
-/// Placeholder / Mock embedding provider.
-/// Returns None for now. Replace with real implementation later.
+/// Mock provider
 pub struct MockEmbeddingProvider;
 
 impl EmbeddingProvider for MockEmbeddingProvider {
     fn embed(&self, _text: &str) -> Option<Vec<f32>> {
-        None // TODO: Replace with real embedding model
+        None
     }
 }
 
-/// Semantic Planning Strategy
-///
-/// Uses embeddings (when available) to find semantically relevant components.
+/// Semantic Planning Strategy with real embedding + cosine similarity support
 pub struct SemanticPlanningStrategy<E: EmbeddingProvider> {
-    embedding_provider: E,
-    /// Pre-computed embeddings for components (name -> vector)
+    provider: E,
     component_embeddings: HashMap<String, Vec<f32>>,
 }
 
 impl<E: EmbeddingProvider> SemanticPlanningStrategy<E> {
-    pub fn new(embedding_provider: E) -> Self {
+    pub fn new(provider: E) -> Self {
         Self {
-            embedding_provider,
+            provider,
             component_embeddings: HashMap::new(),
         }
     }
 
-    /// Pre-compute embeddings for all components in the registry.
-    /// Call this after construction when using a real embedding provider.
-    pub fn precompute_component_embeddings(&mut self, registry: &ComponentRegistry) {
+    /// Pre-compute embeddings for components
+    pub fn precompute_embeddings(&mut self, registry: &ComponentRegistry) {
         self.component_embeddings.clear();
 
         for component in registry.list_all() {
             let text = format!("{}: {}", component.name, component.description);
-            if let Some(embedding) = self.embedding_provider.embed(&text) {
+            if let Some(embedding) = self.provider.embed(&text) {
                 self.component_embeddings.insert(component.name.clone(), embedding);
             }
         }
+    }
+
+    fn cosine_similarity(a: &[f32], b: &[f32]) -> f32 {
+        let dot: f32 = a.iter().zip(b).map(|(x, y)| x * y).sum();
+        let norm_a: f32 = a.iter().map(|x| x * x).sum::<f32>().sqrt();
+        let norm_b: f32 = b.iter().map(|x| x * x).sum::<f32>().sqrt();
+
+        if norm_a == 0.0 || norm_b == 0.0 { 0.0 } else { dot / (norm_a * norm_b) }
     }
 }
 
 impl<E: EmbeddingProvider> PlanningStrategy for SemanticPlanningStrategy<E> {
     fn plan(&self, prompt: &str, registry: &ComponentRegistry) -> PlanningResult {
-        // If we have a real embedding provider and precomputed embeddings,
-        // we would compute prompt embedding and do cosine similarity here.
-        //
-        // For now, fall back to basic behavior.
+        // Semantic path
+        if !self.component_embeddings.is_empty() {
+            if let Some(prompt_emb) = self.provider.embed(prompt) {
+                let mut scored = vec![];
 
+                for (name, comp_emb) in &self.component_embeddings {
+                    let sim = Self::cosine_similarity(&prompt_emb, comp_emb);
+                    if sim > 0.25 {
+                        scored.push((name.clone(), sim));
+                    }
+                }
+
+                if !scored.is_empty() {
+                    scored.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal));
+                    return PlanningResult {
+                        intent: prompt.to_string(),
+                        scored_components: scored,
+                        constraints: vec![],
+                        confidence: 0.85,
+                    };
+                }
+            }
+        }
+
+        // Fallback
         let mut scored = vec![];
+        let prompt_lower = prompt.to_lowercase();
 
         for component in registry.list_all() {
-            let name_lower = component.name.to_lowercase();
-            let prompt_lower = prompt.to_lowercase();
-
-            if prompt_lower.contains(&name_lower) {
-                scored.push((component.name.clone(), 0.8));
+            if prompt_lower.contains(&component.name.to_lowercase()) {
+                scored.push((component.name.clone(), 0.7));
             }
         }
 
