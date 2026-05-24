@@ -1,27 +1,30 @@
 /// Component Tree Renderer
 ///
-/// Converts a ComponentTree (JSON structure) into actual HTML.
-/// This closes the loop from generation to renderable output.
+/// Improved production-grade renderer with:
+/// - Better attribute handling from props
+/// - Proper component classes (btn, card, etc.)
 
 use crate::orchestration::component_tree::{ComponentNode, ComponentTree};
+use serde_json::Value;
 
-/// Renders a ComponentTree into HTML.
 pub fn render_tree(tree: &ComponentTree) -> String {
     render_node(&tree.root)
 }
 
-/// Recursively renders a ComponentNode.
 fn render_node(node: &ComponentNode) -> String {
     let tag = map_component_to_tag(&node.component);
+    let attrs = build_attributes(&node.component, &node.props);
 
-    let mut html = format!("<{}>", tag);
+    let mut html = if attrs.is_empty() {
+        format!("<{}>", tag)
+    } else {
+        format!("<{} {}>", tag, attrs)
+    };
 
-    // Add text content if present
     if let Some(text) = &node.text {
         html.push_str(text);
     }
 
-    // Render children
     for child in &node.children {
         html.push_str(&render_node(child));
     }
@@ -30,15 +33,41 @@ fn render_node(node: &ComponentNode) -> String {
     html
 }
 
-/// Maps component names to HTML tags.
-/// In a full system, this would use actual component templates.
 fn map_component_to_tag(component: &str) -> &str {
     match component {
         "Button" => "button",
         "Card" => "div",
         "Input" => "input",
         "Modal" => "div",
-        "div" => "div",
-        _ => "div", // fallback
+        _ => "div",
     }
+}
+
+/// Builds attributes and proper component classes.
+fn build_attributes(component: &str, props: &Value) -> String {
+    let mut parts = vec![];
+    let mut classes = vec![];
+
+    if let Value::Object(map) = props {
+        for (key, value) in map {
+            let val_str = match value {
+                Value::String(s) => s.clone(),
+                Value::Number(n) => n.to_string(),
+                _ => value.to_string(),
+            };
+
+            if key == "variant" || key == "size" || key == "padding" {
+                // Generate proper component classes like btn-Primary, card-Medium
+                classes.push(format!("{}-{}", component.to_lowercase(), val_str));
+            } else {
+                parts.push(format!("{}={:?}", key, val_str));
+            }
+        }
+    }
+
+    if !classes.is_empty() {
+        parts.push(format!("class=\"{}\"", classes.join(" ")));
+    }
+
+    parts.join(" ")
 }
