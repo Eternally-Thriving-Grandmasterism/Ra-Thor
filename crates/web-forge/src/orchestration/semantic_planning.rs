@@ -1,7 +1,9 @@
 /// Semantic Planning Module
 ///
-/// Real semantic embeddings support using OpenAI.
-/// Contains cosine similarity and component embedding pre-computation.
+/// Implements graceful degradation:
+/// - Tries semantic embeddings first
+/// - Falls back cleanly to keyword matching if embeddings fail
+/// - Logs when falling back
 
 use crate::orchestration::advanced_orchestrator::{PlanningResult, PlanningStrategy};
 use crate::orchestration::component_registry::ComponentRegistry;
@@ -19,7 +21,6 @@ struct EmbeddingData {
     embedding: Vec<f32>,
 }
 
-/// OpenAI Embedding Provider (real implementation)
 pub struct OpenAIEmbeddingProvider {
     api_key: String,
     client: Client,
@@ -50,28 +51,25 @@ impl crate::orchestration::semantic_planning::EmbeddingProvider for OpenAIEmbedd
             "input": text
         });
 
-        let response = self.client
+        match self.client
             .post(url)
             .bearer_auth(&self.api_key)
             .json(&body)
             .send()
-            .ok()?;
-
-        if !response.status().is_success() {
-            return None;
+        {
+            Ok(response) if response.status().is_success() => {
+                response.json::<OpenAIEmbeddingResponse>().ok()
+                    .and_then(|r| r.data.first().map(|d| d.embedding.clone()))
+            }
+            _ => None,
         }
-
-        let parsed: OpenAIEmbeddingResponse = response.json().ok()?;
-        parsed.data.first().map(|d| d.embedding.clone())
     }
 }
 
-/// Embedding Provider Trait
 pub trait EmbeddingProvider {
     fn embed(&self, text: &str) -> Option<Vec<f32>>;
 }
 
-/// Mock provider
 pub struct MockEmbeddingProvider;
 
 impl EmbeddingProvider for MockEmbeddingProvider {
@@ -80,10 +78,11 @@ impl EmbeddingProvider for MockEmbeddingProvider {
     }
 }
 
-/// Semantic Planning Strategy with real embedding + cosine similarity support
+/// Semantic Planning with graceful degradation
 pub struct SemanticPlanningStrategy<E: EmbeddingProvider> {
     provider: E,
     component_embeddings: HashMap<String, Vec<f32>>,
+    semantic_available: bool,
 }
 
 impl<E: EmbeddingProvider> SemanticPlanningStrategy<E> {
@@ -91,18 +90,26 @@ impl<E: EmbeddingProvider> SemanticPlanningStrategy<E> {
         Self {
             provider,
             component_embeddings: HashMap::new(),
+            semantic_available: false,
         }
     }
 
-    /// Pre-compute embeddings for components
     pub fn precompute_embeddings(&mut self, registry: &ComponentRegistry) {
         self.component_embeddings.clear();
+        let mut success_count = 0;
 
         for component in registry.list_all() {
             let text = format!("{}: {}", component.name, component.description);
             if let Some(embedding) = self.provider.embed(&text) {
                 self.component_embeddings.insert(component.name.clone(), embedding);
+                success_count += 1;
             }
+        }
+
+        self.semantic_available = success_count > 0;
+
+        if !self.semantic_available {
+            eprintln!("[SemanticPlanning] Warning: Could not precompute embeddings. Falling back to keyword matching.");
         }
     }
 
@@ -117,8 +124,8 @@ impl<E: EmbeddingProvider> SemanticPlanningStrategy<E> {
 
 impl<E: EmbeddingProvider> PlanningStrategy for SemanticPlanningStrategy<E> {
     fn plan(&self, prompt: &str, registry: &ComponentRegistry) -> PlanningResult {
-        // Semantic path
-        if !self.component_embeddings.is_empty() {
+        // Try semantic path if embeddings are available
+        if self.semantic_available && !self.component_embeddings.is_empty() {
             if let Some(prompt_emb) = self.provider.embed(prompt) {
                 let mut scored = vec![];
 
@@ -138,10 +145,12 @@ impl<E: EmbeddingProvider> PlanningStrategy for SemanticPlanningStrategy<E> {
                         confidence: 0.85,
                     };
                 }
+            } else {
+                eprintln!("[SemanticPlanning] Embedding call failed. Using keyword fallback.");
             }
         }
 
-        // Fallback
+        // Graceful fallback to keyword matching
         let mut scored = vec![];
         let prompt_lower = prompt.to_lowercase();
 
