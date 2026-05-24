@@ -1,6 +1,6 @@
 /// Advanced Orchestrator
 ///
-/// Enhanced with richer Planning phase and PlanningStrategy.
+/// Enhanced Planning phase with relevance scoring and prioritization.
 
 use crate::orchestration::component_registry::ComponentRegistry;
 use crate::orchestration::component_tree::ComponentTree;
@@ -18,13 +18,23 @@ pub struct AdvancedOrchestrationResult {
     pub success: bool,
 }
 
-/// Rich output from the Planning phase.
+/// Rich structured output from Planning.
 #[derive(Debug, Clone)]
 pub struct PlanningResult {
     pub intent: String,
-    pub suggested_components: Vec<String>,
+    /// Components with relevance scores (name, score)
+    pub scored_components: Vec<(String, f32)>,
     pub constraints: Vec<String>,
     pub confidence: f32,
+}
+
+impl PlanningResult {
+    /// Returns components sorted by relevance (highest first)
+    pub fn prioritized_components(&self) -> Vec<String> {
+        let mut sorted = self.scored_components.clone();
+        sorted.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal));
+        sorted.into_iter().map(|(name, _)| name).collect()
+    }
 }
 
 /// Trait for planning strategies.
@@ -32,29 +42,44 @@ pub trait PlanningStrategy {
     fn plan(&self, prompt: &str, registry: &ComponentRegistry) -> PlanningResult;
 }
 
-/// Default planning strategy with basic intelligence.
+/// Default planning strategy with relevance scoring.
 pub struct DefaultPlanningStrategy;
 
 impl PlanningStrategy for DefaultPlanningStrategy {
     fn plan(&self, prompt: &str, registry: &ComponentRegistry) -> PlanningResult {
         let prompt_lower = prompt.to_lowercase();
-        let mut suggested = vec![];
+        let mut scored = vec![];
 
         for component in registry.list_all() {
-            if prompt_lower.contains(&component.name.to_lowercase()) {
-                suggested.push(component.name.clone());
+            let name_lower = component.name.to_lowercase();
+            let mut score: f32 = 0.0;
+
+            // Simple relevance scoring
+            if prompt_lower.contains(&name_lower) {
+                score += 0.7;
+            }
+            if prompt_lower.contains(&component.description.to_lowercase()) {
+                score += 0.3;
+            }
+
+            if score > 0.0 {
+                scored.push((component.name.clone(), score.min(1.0)));
             }
         }
 
-        if suggested.is_empty() {
-            suggested.push("Button".to_string());
+        // Fallback
+        if scored.is_empty() {
+            scored.push(("Button".to_string(), 0.5));
         }
+
+        // Sort by score descending
+        scored.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal));
 
         PlanningResult {
             intent: prompt.to_string(),
-            suggested_components: suggested,
+            scored_components: scored.clone(),
             constraints: vec![],
-            confidence: if suggested.len() > 1 { 0.8 } else { 0.6 },
+            confidence: if scored.len() > 1 { 0.85 } else { 0.65 },
         }
     }
 }
@@ -88,11 +113,14 @@ impl AdvancedOrchestrator {
         for attempt in 1..=self.max_attempts {
             attempts = attempt;
 
-            // === Phase 1: Planning (now richer) ===
+            // === Phase 1: Planning with scoring ===
             println!("[Phase 1] Planning (attempt {})...", attempt);
-            let planning_result = DefaultPlanningStrategy.plan(prompt, &self.registry);
-            println!("[Planning] Suggested components: {:?} (confidence: {:.1})",
-                     planning_result.suggested_components, planning_result.confidence);
+            let planning = DefaultPlanningStrategy.plan(prompt, &self.registry);
+
+            println!("[Planning] Prioritized components:");
+            for (name, score) in &planning.scored_components {
+                println!("   - {} (relevance: {:.2})", name, score);
+            }
 
             // === Phase 2: Generation ===
             println!("[Phase 2] Generation...");
