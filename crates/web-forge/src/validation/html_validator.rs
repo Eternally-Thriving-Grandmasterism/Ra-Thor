@@ -1,13 +1,13 @@
 /// HTML Validator with ComponentValidator integration
 ///
-/// Hybrid Strategy: Supports both name-based registration and
-/// instance-based component validation (via ComponentContract).
+/// Now integrated with HTML parsing for more accurate structural validation.
 
 use crate::validation::component_validator::ComponentValidator;
 use crate::validation::rules;
 use crate::validation::validate::Validate;
 use crate::component_system::contract::ComponentContract;
 use crate::sanitizer;
+use crate::html_parser;
 
 pub struct HtmlValidator {
     component_validator: ComponentValidator,
@@ -36,12 +36,10 @@ impl HtmlValidator {
         self
     }
 
-    /// Register by name (for basic tracking)
     pub fn register_component(&mut self, name: &str) {
         self.component_validator.register_component(name);
     }
 
-    /// Register an actual component instance for validation
     pub fn register_component_instance(&mut self, component: Box<dyn ComponentContract>) {
         self.component_validator.register_component(component.name());
         self.registered_components.push(component);
@@ -51,8 +49,12 @@ impl HtmlValidator {
         let clean_html = sanitizer::sanitize(html);
         let mut issues = Vec::new();
 
+        // Use parser-enhanced checks where beneficial
+        if !html_parser::has_element(&clean_html, "details") && html_parser::has_element(&clean_html, "summary") {
+            issues.push("Found <summary> without wrapping <details>".to_string());
+        }
+
         issues.extend(rules::no_markdown_artifacts::check(&clean_html));
-        issues.extend(rules::proper_details::check(&clean_html));
         issues.extend(rules::language_switcher_ids::check(&clean_html));
         issues.extend(rules::required_ids::check(&clean_html));
         issues.extend(rules::accessibility_basic::check(&clean_html));
@@ -75,7 +77,6 @@ impl HtmlValidator {
         (clean_html, issues)
     }
 
-    /// Validate using a specific component instance
     pub fn validate_with_component<T: ComponentContract>(&self, component: &T, html_fragment: &str) -> Vec<String> {
         let mut issues = vec![];
 
@@ -88,7 +89,6 @@ impl HtmlValidator {
         issues
     }
 
-    /// Run validation on all registered component instances
     pub fn validate_registered_components(&self, html_fragment: &str) -> Vec<String> {
         let mut issues = vec![];
 
