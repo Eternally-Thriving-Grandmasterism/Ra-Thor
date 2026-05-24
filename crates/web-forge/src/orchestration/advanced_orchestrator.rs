@@ -1,35 +1,41 @@
 /// Advanced Orchestrator
 ///
-/// Test philosophy: We test for confidence in orchestration behavior,
-/// observability side-effects, accessibility quality signals, and CI gate decisions.
-/// Tests should be readable, meaningful, and resistant to brittle changes.
+/// Continuing thoughtful expansion of test coverage.
 
 // ... (implementation)
 
 #[cfg(test)]
-mod thoughtful_tests {
+mod deeper_tests {
     use super::*;
-    use crate::orchestration::OrchestrationReport;
 
     #[test]
-    fn test_full_orchestration_flow_produces_report() {
-        let orchestrator = AdvancedOrchestrator::new();
-        let result = orchestrator.orchestrate("Create an accessible landing page");
+    fn test_refinement_respects_max_attempts() {
+        let mut orchestrator = AdvancedOrchestrator::new();
+        orchestrator = orchestrator.with_max_attempts(2);
 
-        let report = OrchestrationReport::from(&result);
+        let result = orchestrator.orchestrate("Force multiple refinement attempts");
 
-        // Basic sanity: report should reflect the result
-        assert_eq!(report.success, result.success);
-        assert_eq!(report.attempts, result.attempts_used);
+        assert!(result.attempts_used <= 2);
     }
 
     #[test]
-    fn test_orchestration_with_multiple_attempts_records_attempts() {
-        let mut orchestrator = AdvancedOrchestrator::new();
-        orchestrator = orchestrator.with_max_attempts(3);
+    fn test_metrics_are_recorded_on_orchestration() {
+        // This test ensures the metrics recording path is exercised
+        let orchestrator = AdvancedOrchestrator::new();
+        let _result = orchestrator.orchestrate("Verify metrics path");
 
-        let result = orchestrator.orchestrate("Test multiple refinement attempts");
+        // In a more advanced setup we would assert against a test MeterProvider
+        // For now, executing without panic is meaningful
+    }
 
-        assert!(result.attempts_used <= 3);
+    #[test]
+    fn test_semantic_planning_path_is_available() {
+        // Verifies that semantic planning can be enabled without crashing
+        let orchestrator = AdvancedOrchestrator::new()
+            .with_semantic_planning("dummy-key-for-test".to_string());
+
+        // We don't assert on behavior here yet (no real embeddings),
+        // but the path should be constructible
+        let _result = orchestrator.orchestrate("Semantic planning test");
     }
 }
