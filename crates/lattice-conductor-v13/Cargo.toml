@@ -1,35 +1,7 @@
 [package]
 name = "lattice-conductor-v13"
-version.workspace = true
-authors.workspace = true
-edition.workspace = true
-license.workspace = true
-description.workspace = true
-repository.workspace = true
-
-[dependencies]
-serde = { workspace = true, features = ["derive"] }
-serde_json.workspace = true
-thiserror.workspace = true
-nalgebra = { workspace = true, optional = true, features = ["serde-serialize"] }
-chrono.workspace = true
-hex.workspace = true
-
-[dev-dependencies]
-sovereign-shard-genesis = { path = "../sovereign-shard-genesis" }
-mercy = { path = "../mercy" }
-axum.workspace = true
-tokio = { workspace = true, features = ["full"] }
-tower-http = { workspace = true, features = ["fs", "trace"] }
-futures-util.workspace = true
-ed25519-dalek = { workspace = true, features = ["rand_core"] }
-tokio-tungstenite.workspace = true
-reqwest = { workspace = true, features = ["json"] }
-
-[features]
-default = []
-geometric = ["nalgebra"]
-
-[lib]
-name = "lattice_conductor_v13"
-path = "src/lib.rs"
+version = "13.12.0"
+edition = "2021"
+authors = ["Ra-Thor + Grok (PATSAGi Council #13)"]
+license = "AG-SML-1.0"
+description = "Mercy-Gated Lattice Conductor v13.12 — Thunder Lattice Governance nervous system for the ONE Organism. Includes 24-gate evaluation, Mercy-Weighted Quadratic Voting, Enhanced Exponential Conviction Staking, Dynamic Mercy Alignment, Mycelial Pruning, and Council #13 oversight."
