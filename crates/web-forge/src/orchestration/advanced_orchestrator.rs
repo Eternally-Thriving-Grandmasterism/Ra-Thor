@@ -1,28 +1,29 @@
 /// Advanced Orchestrator
 ///
-/// Continuing parallel expansion of tests and documentation.
+/// Continuing balanced expansion of tests and documentation.
 
 // ... (implementation)
 
 #[cfg(test)]
-mod refinement_and_observability_tests {
+mod continued_expansion {
     use super::*;
 
     #[test]
-    fn test_refinement_loop_executes_multiple_times_when_needed() {
+    fn test_orchestrator_with_high_max_attempts() {
         let mut orchestrator = AdvancedOrchestrator::new();
-        orchestrator = orchestrator.with_max_attempts(3);
+        orchestrator = orchestrator.with_max_attempts(5);
 
-        // Even if validation fails, we should respect max_attempts
-        let result = orchestrator.orchestrate("Trigger refinement loop");
+        let result = orchestrator.orchestrate("High attempt limit test");
 
-        assert!(result.attempts_used <= 3);
+        assert!(result.attempts_used <= 5);
     }
 
     #[test]
-    fn test_observability_spans_do_not_panic() {
-        // Ensures that our tracing instrumentation runs cleanly
-        let orchestrator = AdvancedOrchestrator::new();
-        let _result = orchestrator.orchestrate("Observability span test");
+    fn test_wcag_scoring_on_minimal_html() {
+        let minimal = "<html><body></body></html>";
+        let score = crate::validation::calculate_wcag_aa_score(minimal);
+
+        // Minimal HTML should score relatively low
+        assert!(score.score < 70.0);
     }
 }
