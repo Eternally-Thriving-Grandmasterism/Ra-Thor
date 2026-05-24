@@ -1,12 +1,11 @@
 /// Automated Reporting Module
 ///
-/// Generates structured reports from orchestration results.
-/// Useful for CI/CD, dashboards, logging, and quality tracking.
+/// Supports CI pipeline integration with JSON output and quality gates.
 
 use crate::orchestration::advanced_orchestrator::AdvancedOrchestrationResult;
 use serde::Serialize;
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Clone)]
 pub struct OrchestrationReport {
     pub success: bool,
     pub attempts: usize,
@@ -24,11 +23,12 @@ impl From<&AdvancedOrchestrationResult> for OrchestrationReport {
         Self {
             success: result.success,
             attempts: result.attempts_used,
-            duration_seconds: None, // Can be enriched later
+            duration_seconds: None,
             wcag_aa_score: wcag.map(|s| s.score),
             wcag_aa_grade: wcag.map(|s| s.grade.clone()),
             validation_issues_count: result.validation_issues.len(),
-            has_accessibility_issues: result.validation_issues.iter().any(|i| i.to_lowercase().contains("accessibility") || i.contains("alt") || i.contains("label")),
+            has_accessibility_issues: result.validation_issues.iter()
+                .any(|i| i.to_lowercase().contains("accessibility") || i.contains("alt") || i.contains("label")),
         }
     }
 }
@@ -43,5 +43,24 @@ impl OrchestrationReport {
             self.wcag_aa_grade.as_deref().unwrap_or("N/A"),
             self.validation_issues_count
         )
+    }
+
+    /// Quality gate for CI pipelines.
+    /// Returns true if the result meets minimum acceptable standards.
+    pub fn passes_ci_gate(&self, min_wcag_score: f32) -> bool {
+        if !self.success {
+            return false;
+        }
+        if let Some(score) = self.wcag_aa_score {
+            if score < min_wcag_score {
+                return false;
+            }
+        }
+        true
+    }
+
+    /// Serialize report to pretty JSON (useful for CI artifacts).
+    pub fn to_json(&self) -> String {
+        serde_json::to_string_pretty(self).unwrap_or_else(|_| "{}".to_string())
     }
 }
