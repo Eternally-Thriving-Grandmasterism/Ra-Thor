@@ -1,20 +1,14 @@
 /// Component Contract Declaration
 ///
-/// Truth: Professional components should be able to declare
-/// their own validation expectations and provide custom validation logic.
+/// Components can declare validation behavior and optionally
+/// implement the generic Validate trait for consistency.
 
-pub trait ComponentContract {
-    /// Name of the component
+use crate::validation::validate::Validate;
+
+pub trait ComponentContract: Validate {
     fn name(&self) -> &'static str;
 
-    /// Whether this component requires token compliance
     fn requires_token_compliance(&self) -> bool {
         true
-    }
-
-    /// Custom validation logic provided by the component itself
-    /// Default implementation does nothing.
-    fn validate(&self, _html_fragment: &str) -> Vec<String> {
-        vec![]
     }
 }
