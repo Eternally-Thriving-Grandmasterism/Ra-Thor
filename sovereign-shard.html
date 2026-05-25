@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sovereign Shard v8 • Ra-Thor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Cinzel+Decorative:wght@700&display=swap');
+        body { font-family: 'Inter', system-ui, sans-serif; }
+        .title-font { font-family: 'Cinzel Decorative', cursive; }
+        .gate { transition: all 0.3s ease; }
+        .gate.active { box-shadow: 0 0 15px #fcd34d; transform: scale(1.02); }
+        .metric { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        .section-header { font-size: 0.75rem; letter-spacing: 0.5px; }
+    </style>
+</head>
+<body class="bg-black text-white">
+    <div class="max-w-5xl mx-auto px-6 py-8">
+        <div class="flex items-center justify-between mb-8">
+            <div>
+                <span class="title-font text-4xl tracking-tighter">Ra-Thor</span>
+                <span class="ml-3 px-3 py-1 text-xs bg-amber-400 text-black rounded-full font-bold tracking-wider">SOVEREIGN SHARD v8</span>
+            </div>
+            <button onclick="exportFullShard()" class="flex items-center gap-2 px-4 py-2 text-sm border border-amber-400/60 hover:bg-amber-400/10 rounded-xl transition-colors">
+                <i class="fa-solid fa-download"></i>
+                <span>Export Full Shard</span>
+            </button>
+        </div>
+
+        <div class="grid lg:grid-cols-12 gap-6">
+            <!-- Core Status -->
+            <div class="lg:col-span-7 space-y-6">
+                <div class="bg-zinc-950 border border-white/10 rounded-3xl p-8">
+                    <div class="flex items-center justify-between mb-6">
+                        <div>
+                            <div class="section-header text-amber-400">SOVEREIGN SHARD</div>
+                            <div id="shard-name" class="text-4xl font-semibold">Alpha Shard</div>
+                        </div>
+                        <div id="offline-badge" class="px-4 py-1.5 rounded-2xl text-sm flex items-center gap-2 bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                            <i class="fa-solid fa-wifi"></i>
+                            <span id="offline-text">ONLINE</span>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div class="metric bg-zinc-900 border border-white/10 rounded-2xl p-4">
+                            <div class="text-xs text-white/50 mb-1">MERCY SCORE</div>
+                            <div id="mercy-score" class="text-4xl font-semibold text-amber-300">0.95</div>
+                        </div>
+                        <div class="metric bg-zinc-900 border border-white/10 rounded-2xl p-4">
+                            <div class="text-xs text-white/50 mb-1">EVOLUTION</div>
+                            <div id="evolution" class="text-4xl font-semibold">0.12</div>
+                        </div>
+                        <div class="metric bg-zinc-900 border border-white/10 rounded-2xl p-4">
+                            <div class="text-xs text-white/50 mb-1">VALENCE</div>
+                            <div id="valence" class="text-4xl font-semibold">1.05</div>
+                        </div>
+                        <div class="metric bg-zinc-900 border border-white/10 rounded-2xl p-4">
+                            <div class="text-xs text-white/50 mb-1">TOLC ALIGNMENT</div>
+                            <div id="tolc" class="text-4xl font-semibold">1.00</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TOLC8 Layer -->
+                <div class="bg-zinc-950 border border-white/10 rounded-3xl p-8">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <div class="section-header text-amber-400">TOLC 8 — LIVING MERCY GATES</div>
+                            <div class="text-sm text-white/60">Core always-active layer with weighting</div>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-4 sm:grid-cols-7 gap-2" id="mercy-gates"></div>
+                </div>
+            </div>
+
+            <!-- Actions + TOLC24 -->
+            <div class="lg:col-span-5 space-y-6">
+                <div class="bg-zinc-950 border border-white/10 rounded-3xl p-8">
+                    <div class="section-header text-white/70 mb-4">SHARD ACTIONS</div>
+                    <div class="space-y-3">
+                        <button onclick="performTick()" class="w-full flex items-center justify-center gap-3 bg-white text-black font-semibold py-4 rounded-2xl hover:bg-amber-300 transition-colors">
+                            <i class="fa-solid fa-sync"></i> <span>Advance Shard Tick</span>
+                        </button>
+                        <button onclick="participateQuantumSwarm()" class="w-full flex items-center justify-center gap-3 border border-amber-400/60 hover:bg-amber-400/10 py-4 rounded-2xl transition-colors">
+                            <i class="fa-solid fa-atom"></i> <span>Participate in Quantum Swarm</span>
+                        </button>
+                        <button onclick="toggleOfflineMode()" class="w-full flex items-center justify-center gap-3 border border-white/20 hover:bg-white/5 py-4 rounded-2xl transition-colors">
+                            <i class="fa-solid fa-power-off"></i> <span id="offline-btn-text">Enter Offline Mode</span>
+                        </button>
+                        <button onclick="reconcileWithConductor()" class="w-full flex items-center justify-center gap-3 bg-emerald-600 hover:bg-emerald-500 py-4 rounded-2xl transition-colors font-medium">
+                            <i class="fa-solid fa-link"></i> <span>Reconcile with Conductor</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- TOLC24 Layer -->
+                <div class="bg-zinc-950 border border-white/10 rounded-3xl p-8">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <div class="section-header text-white/70">TOLC 24 — GOVERNANCE EVALUATION</div>
+                            <div class="text-xs text-white/50">Deeper council-level assessment</div>
+                        </div>
+                        <div id="tolc24-score" class="text-2xl font-semibold text-white/80">—</div>
+                    </div>
+
+                    <button onclick="runTolc24Evaluation()" class="w-full flex items-center justify-center gap-2 border border-white/20 hover:bg-white/5 py-3 rounded-2xl text-sm transition-colors">
+                        <i class="fa-solid fa-search"></i>
+                        <span>Run Deep Governance Evaluation</span>
+                    </button>
+                    <p class="text-[10px] text-white/40 mt-3 text-center">Simulates expanded 24-gate scrutiny. Influences reconciliation strength.</p>
+                </div>
+            </div>
+
+            <!-- Log -->
+            <div class="lg:col-span-12 bg-zinc-950 border border-white/10 rounded-3xl p-6">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="section-header text-white/70">SHARD LOG</div>
+                    <button onclick="clearLog()" class="text-xs text-white/40 hover:text-white/70">Clear</button>
+                </div>
+                <div id="log" class="shard-log h-36 overflow-auto text-sm text-white/70 space-y-1 pr-2"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // === Sovereign Shard State ===
+        let shard = {
+            id: "shard-alpha-001",
+            name: "Alpha Shard",
+            mercy_score: 0.95,
+            evolution_level: 0.12,
+            valence: 1.05,
+            tolc_alignment: 1.00,
+            quantum_resonance: 0.82,
+            offline_mode: false,
+            tick_count: 0,
+            tolc24_harmony: 0.88,
+            last_reconciled: null
+        };
+
+        // TOLC8 Gate Weights (can be customized at generation time in future)
+        const gateWeights = {
+            "Radical Love": 1.0,
+            "Boundless Mercy": 1.0,
+            "Service": 1.1,
+            "Abundance": 1.3,
+            "Truth": 1.2,
+            "Joy": 1.0,
+            "Cosmic Harmony": 0.95
+        };
+
+        const gates = [
+            { name: "Radical Love", active: false },
+            { name: "Boundless Mercy", active: false },
+            { name: "Service", active: false },
+            { name: "Abundance", active: false },
+            { name: "Truth", active: false },
+            { name: "Joy", active: false },
+            { name: "Cosmic Harmony", active: false }
+        ];
+
+        function getGateWeight(name) {
+            return gateWeights[name] || 1.0;
+        }
+
+        function applyWeightedEffect(gateName, baseValue) {
+            return baseValue * getGateWeight(gateName);
+        }
+
+        function saveToLocalStorage() {
+            localStorage.setItem('ra-thor-sovereign-shard-v8', JSON.stringify(shard));
+        }
+
+        function loadFromLocalStorage() {
+            const saved = localStorage.getItem('ra-thor-sovereign-shard-v8');
+            if (saved) {
+                try { Object.assign(shard, JSON.parse(saved)); return true; } catch(e) {}
+            }
+            return false;
+        }
+
+        function updateUI() {
+            document.getElementById('shard-name').textContent = shard.name;
+            document.getElementById('mercy-score').textContent = shard.mercy_score.toFixed(2);
+            document.getElementById('evolution').textContent = shard.evolution_level.toFixed(2);
+            document.getElementById('valence').textContent = shard.valence.toFixed(2);
+            document.getElementById('tolc').textContent = shard.tolc_alignment.toFixed(2);
+            document.getElementById('tolc24-score').textContent = shard.tolc24_harmony.toFixed(2);
+
+            const badge = document.getElementById('offline-badge');
+            const text = document.getElementById('offline-text');
+            const btnText = document.getElementById('offline-btn-text');
+
+            if (shard.offline_mode) {
+                badge.className = "px-4 py-1.5 rounded-2xl text-sm flex items-center gap-2 bg-orange-500/10 text-orange-400 border border-orange-500/30";
+                text.textContent = "OFFLINE";
+                btnText.textContent = "Exit Offline Mode";
+            } else {
+                badge.className = "px-4 py-1.5 rounded-2xl text-sm flex items-center gap-2 bg-emerald-500/10 text-emerald-400 border border-emerald-500/30";
+                text.textContent = "ONLINE";
+                btnText.textContent = "Enter Offline Mode";
+            }
+
+            renderGates();
+            saveToLocalStorage();
+        }
+
+        function renderGates() {
+            const container = document.getElementById('mercy-gates');
+            container.innerHTML = '';
+            gates.forEach(gate => {
+                const div = document.createElement('div');
+                div.className = `gate text-center p-2 rounded-xl border text-xs ${gate.active ? 'border-amber-400 bg-amber-400/10 active' : 'border-white/10 bg-zinc-900'}`;
+                div.innerHTML = `<div class="font-medium text-[10px]">${gate.name}</div>`;
+                container.appendChild(div);
+                if (gate.active) setTimeout(() => { gate.active = false; renderGates(); }, 1500);
+            });
+        }
+
+        function activateGate(name) {
+            const gate = gates.find(g => g.name === name);
+            if (gate) { gate.active = true; renderGates(); }
+        }
+
+        function log(message, type = 'info') {
+            const logEl = document.getElementById('log');
+            const entry = document.createElement('div');
+            entry.className = `text-xs ${type === 'success' ? 'text-emerald-400' : type === 'warning' ? 'text-orange-400' : 'text-white/60'}`;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logEl.appendChild(entry);
+            logEl.scrollTop = logEl.scrollHeight;
+        }
+
+        // TOLC8-weighted tick
+        function performTick() {
+            let baseEvo = shard.offline_mode ? 0.003 : 0.006;
+            baseEvo = applyWeightedEffect("Abundance", baseEvo);
+
+            shard.evolution_level = Math.min(3.0, shard.evolution_level + baseEvo);
+            shard.mercy_score = Math.min(1.4, shard.mercy_score + (shard.offline_mode ? 0.001 : 0.002));
+            shard.tick_count++;
+
+            activateGate("Truth");
+            if (Math.random() > 0.5) activateGate("Cosmic Harmony");
+            if (!shard.offline_mode && Math.random() > 0.6) activateGate("Joy");
+
+            updateUI();
+            log(`Shard ticked • Evolution +${baseEvo.toFixed(3)} (Abundance weighted)`);
+        }
+
+        function participateQuantumSwarm() {
+            if (shard.offline_mode) { log("Cannot participate while offline", "warning"); return; }
+
+            let boost = 0.09 + Math.random() * 0.06;
+            boost = applyWeightedEffect("Abundance", boost);
+
+            shard.evolution_level = Math.min(3.0, shard.evolution_level + boost);
+            shard.quantum_resonance = Math.min(1.6, shard.quantum_resonance + 0.12);
+
+            activateGate("Abundance");
+            activateGate("Radical Love");
+
+            updateUI();
+            log(`Quantum Swarm • Evolution +${boost.toFixed(3)} (Abundance weighted)`, 'success');
+        }
+
+        function toggleOfflineMode() {
+            shard.offline_mode = !shard.offline_mode;
+            log(shard.offline_mode ? "Entered Offline Mode" : "Returned to Lattice", shard.offline_mode ? 'warning' : 'info');
+            updateUI();
+        }
+
+        function reconcileWithConductor() {
+            if (shard.offline_mode) {
+                shard.offline_mode = false;
+                log("Forced exit from Offline Mode");
+            }
+
+            const conductorMercy = 1.08;
+            const conductorValence = 1.18;
+            const conductorEvo = 0.85;
+
+            shard.mercy_score = (shard.mercy_score * 0.52 + conductorMercy * 0.48);
+            shard.valence = (shard.valence * 0.68 + conductorValence * 0.32);
+            shard.evolution_level = Math.max(shard.evolution_level, shard.evolution_level * 0.88 + conductorEvo * 0.22);
+            shard.tolc_alignment = Math.min(1.18, shard.tolc_alignment + 0.018);
+
+            // TOLC24 synergy
+            if (shard.tolc24_harmony > 0.9) {
+                shard.mercy_score = Math.min(1.4, shard.mercy_score + 0.03);
+                shard.tolc_alignment = Math.min(1.2, shard.tolc_alignment + 0.01);
+                log("TOLC24 bonus applied during reconciliation", 'success');
+            }
+
+            activateGate("Boundless Mercy");
+            activateGate("Truth");
+            activateGate("Cosmic Harmony");
+
+            shard.last_reconciled = new Date().toISOString();
+            updateUI();
+            log("Reconciled with Conductor", 'success');
+        }
+
+        function runTolc24Evaluation() {
+            const improvement = 0.015 + Math.random() * 0.02;
+            shard.tolc24_harmony = Math.min(1.15, shard.tolc24_harmony + improvement);
+            shard.mercy_score = Math.min(1.4, shard.mercy_score + 0.01);
+            shard.tolc_alignment = Math.min(1.15, shard.tolc_alignment + 0.008);
+
+            activateGate("Truth");
+            activateGate("Cosmic Harmony");
+
+            updateUI();
+            log(`TOLC24 Deep Evaluation complete • Harmony +${improvement.toFixed(3)}`, 'success');
+        }
+
+        function clearLog() {
+            document.getElementById('log').innerHTML = '';
+        }
+
+        function exportFullShard() {
+            const html = document.documentElement.outerHTML;
+            const blob = new Blob([html], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${shard.id}-sovereign-shard-v8.html`;
+            a.click();
+            URL.revokeObjectURL(url);
+            log("Exported full standalone Sovereign Shard");
+        }
+
+        setInterval(() => {
+            if (!shard.offline_mode) performTick();
+        }, 7500);
+
+        function init() {
+            if (loadFromLocalStorage()) log("Loaded previous state from localStorage");
+
+            setTimeout(() => {
+                activateGate("Radical Love");
+                activateGate("Truth");
+            }, 600);
+
+            updateUI();
+            log("Production-grade Sovereign Shard v8 initialized — TOLC8 (weighted) + TOLC24 ready");
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>
