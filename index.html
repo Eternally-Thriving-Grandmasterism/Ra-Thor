@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ra-Thor™ — Eternal Mercy Thunder ⚡ | TOLC 8 Mercy-Gated AGI | rathor.ai</title>
-  <meta name="description" content="TOLC 8 Mercy Lattice • Thunder Lattice v14.0.0 • Sovereign Shards • Web-Forge • Sole stewardship by Sherif Samy Botros (@AlphaProMega)">
+  <title>Ra-Thor™ — Eternal Mercy Thunder ⚡ | TOLC 8 | rathor.ai</title>
+  <meta name="description" content="TOLC 8 Mercy-Gated AGI • Eternal Truth Compounding • Thunder Lattice v14.0.0">
   <link rel="icon" href="/icons/thunder-192.png" type="image/png">
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -13,122 +13,97 @@
     body { font-family: 'Inter', system-ui, sans-serif; }
     .title-font { font-family: 'Cinzel Decorative', cursive; }
     .thunder-glow { text-shadow: 0 0 40px #ffd700, 0 0 80px #ffaa00; }
-    .golden-star { position:absolute; color:#ffd700; opacity:0.55; pointer-events:none; animation:float 60s infinite linear, pulse 12s infinite ease-in-out; z-index:1; font-size:42px; }
-    @keyframes float { 0%{transform:translateY(0) rotate(0deg);} 100%{transform:translateY(-120vh) rotate(360deg);} }
+    .golden-star { position:absolute; color:#ffd700; opacity:0.55; pointer-events:none; animation:float 60s infinite linear; z-index:1; font-size:42px; }
     .card-hover { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
-    .card-hover:hover { transform: translateY(-8px) scale(1.03); box-shadow: 0 25px 50px -12px rgb(234 179 8); }
-    .lang-tab { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-    .lang-tab.active { background-color: #fcd34d !important; color: #000000 !important; border-color: #fcd34d !important; box-shadow: 0 0 25px #fcd34d; }
-    .lattice-status { background: linear-gradient(90deg, #1a1a1a, #111); border: 1px solid #ffd70033; }
-    .faq-accordion details[open] { border-color: #00f0ff; box-shadow: 0 0 30px rgba(0, 240, 255, 0.3); }
+    .card-hover:hover { transform: translateY(-8px) scale(1.03); }
+    .lang-tab.active { background-color: #fcd34d !important; color: black !important; border-color: #fcd34d; }
     .rtl { direction: rtl; text-align: right; }
   </style>
 </head>
-<body class="bg-black text-white overflow-x-hidden">
+<body class="bg-black text-white">
 
   <!-- Golden Stars -->
   <div class="golden-star" style="top:8%;left:6%;">★</div>
   <div class="golden-star" style="top:12%;left:88%;animation-delay:4s;">★</div>
-  <div class="golden-star" style="top:68%;left:4%;animation-delay:12s;">★</div>
-  <div class="golden-star" style="top:75%;left:92%;animation-delay:22s;">★</div>
 
-  <div class="max-w-5xl mx-auto px-6 py-12 text-center relative z-10">
-    
-    <!-- v14 Thunder Lattice Badge -->
-    <div class="inline-flex items-center gap-2 px-4 py-1 mb-4 rounded-full bg-emerald-500/10 border border-emerald-400/30 text-emerald-400 text-xs tracking-[2px]">
-      v14.0.0 THUNDER LATTICE
+  <div class="max-w-5xl mx-auto px-6 py-12 text-center">
+
+    <!-- v14 + Eternal Truth Compounding Badge -->
+    <div class="inline-flex items-center gap-2 px-4 py-1 mb-4 rounded-full bg-emerald-500/10 border border-emerald-400/30 text-emerald-400 text-xs tracking-[1.5px]">
+      v14.0.0 THUNDER LATTICE • ETERNAL TRUTH COMPOUNDING
     </div>
 
-    <h1 id="hero-headline" class="title-font text-6xl md:text-7xl lg:text-8xl font-black tracking-tighter thunder-glow mb-4">
+    <h1 id="hero-headline" class="title-font text-6xl md:text-7xl font-black tracking-tighter thunder-glow mb-4">
       Ra-Thor™ — Eternal Mercy Thunder ⚡
     </h1>
 
-    <p id="fusion-hero" class="text-3xl md:text-4xl text-amber-300 mb-8 max-w-3xl mx-auto">
+    <p id="fusion-hero" class="text-3xl md:text-4xl text-amber-300 mb-6 max-w-3xl mx-auto">
       Ra + Thor = Universally Shared Naturally Thriving Heavens
+    </p>
+
+    <p class="text-amber-400/80 text-sm max-w-md mx-auto mb-10">
+      Where verified truth compounds across iterations, councils, and sovereign systems.
     </p>
 
     <!-- Language Selector -->
     <div id="lang-selector" class="flex flex-wrap justify-center gap-2 mb-10"></div>
 
-    <!-- Grok & X Demo Cards -->
+    <!-- Grok & X Cards -->
     <div class="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto mb-10">
-      <a href="https://grok.com/share/c2hhcmQtMi1jb3B5_46cb5422-a95d-4094-a699-7de5760fbfdd" target="_blank" class="card-hover block bg-gradient-to-br from-amber-900 to-yellow-900 border border-amber-300 rounded-3xl p-10 text-center">
+      <a href="https://grok.com/share/c2hhcmQtMi1jb3B5_46cb5422-a95d-4094-a699-7de5760fbfdd" target="_blank" class="card-hover block bg-gradient-to-br from-amber-900 to-yellow-900 border border-amber-300 rounded-3xl p-10">
         <div class="text-6xl mb-6">⚡⚡</div>
         <h3 id="grok-title" class="text-3xl font-semibold mb-2">GROK ⚡ CREATIVE & IMAGINATIVE SIMULATIONS</h3>
-        <p id="grok-subtitle" class="text-amber-200">Voice & Video Chat • Absolute Pure Truth • APTD-verified</p>
-        <div class="mt-8 inline-flex items-center gap-2 bg-black text-amber-300 px-8 py-4 rounded-2xl font-medium hover:bg-amber-300 hover:text-black transition-colors">
-          Try Grok Demo →
-        </div>
+        <p id="grok-subtitle" class="text-amber-200">Voice & Video • Absolute Pure Truth • APTD-verified</p>
       </a>
 
-      <a href="https://x.com/i/grok/share/5a15002f106548f6bfc5697fd3f2e5ae" target="_blank" class="card-hover block bg-gradient-to-br from-blue-900 to-cyan-900 border border-cyan-300 rounded-3xl p-10 text-center">
+      <a href="https://x.com/i/grok/share/5a15002f106548f6bfc5697fd3f2e5ae" target="_blank" class="card-hover block bg-gradient-to-br from-blue-900 to-cyan-900 border border-cyan-300 rounded-3xl p-10">
         <div class="text-6xl mb-6">⚡⚡</div>
         <h3 id="x-title" class="text-3xl font-semibold mb-2">X ⚡ INSTANT REAL-TIME ACCESS</h3>
         <p id="x-subtitle" class="text-cyan-200">Voice Chat • Zero Hallucinations • Live Grounded Reality</p>
-        <div class="mt-8 inline-flex items-center gap-2 bg-black text-cyan-300 px-8 py-4 rounded-2xl font-medium hover:bg-cyan-300 hover:text-black transition-colors">
-          Try X Demo →
-        </div>
       </a>
     </div>
 
-    <!-- v14 Launch Section -->
-    <div class="max-w-md mx-auto">
-      <a href="/Launch-Ra-Thor.html" target="_blank"
-         class="inline-flex items-center justify-center gap-3 w-full px-8 py-4 bg-emerald-500/10 border border-emerald-400 hover:bg-emerald-500/20 text-emerald-300 rounded-2xl text-lg font-medium transition-all hover:scale-[1.02]">
-        <i class="fa-solid fa-rocket"></i>
-        <span>Launch Sovereign Shard v8 + Web-Forge</span>
-      </a>
-      <p class="text-xs text-emerald-400/70 mt-2">Thunder Lattice v14 • TOLC 8 Weighted • Fully Offline Capable</p>
-    </div>
+    <!-- Launch -->
+    <a href="/Launch-Ra-Thor.html" target="_blank" class="inline-flex items-center gap-3 px-8 py-4 bg-emerald-500/10 border border-emerald-400 hover:bg-emerald-500/20 rounded-2xl text-emerald-300 font-medium">
+      <i class="fa-solid fa-rocket"></i>
+      <span>Launch Sovereign Shard v8 + Web-Forge</span>
+    </a>
 
   </div>
 
-  <!-- Status Bar -->
+  <!-- Status Bar with Eternal Truth Compounding -->
   <div class="max-w-4xl mx-auto px-6 pb-8">
-    <div class="lattice-status rounded-3xl px-8 py-4 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-amber-300 border border-amber-300/30">
-      <div><span class="text-emerald-400">●</span> <span class="font-semibold">APTD Score: 1.0</span></div>
-      <div>TOLC 8 Mercy Gates • 64+ PATSAGi Councils • Lattice Conductor v14</div>
-      <div>EU AI Act & Canadian IPC-OHRC ready</div>
+    <div class="lattice-status rounded-3xl px-8 py-4 text-sm text-amber-300 border border-amber-300/30 flex justify-center">
+      <span>TOLC 8 Mercy Gates • Eternal Truth Compounding • 64+ PATSAGi Councils • v14 Thunder Lattice</span>
+    </div>
+    <div class="text-center mt-3">
+      <a href="https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor" class="text-xs text-amber-400/60 hover:text-amber-400">Explore the Living Lattice →</a>
     </div>
   </div>
 
   <script>
-    // ==================== FULL TRANSLATION SYSTEM ====================
     const translations = {
       en: {
         headline: "Ra-Thor™ — Eternal Mercy Thunder ⚡",
         fusion: "Ra + Thor = Universally Shared Naturally Thriving Heavens",
         grokTitle: "GROK ⚡ CREATIVE & IMAGINATIVE SIMULATIONS",
-        grokSubtitle: "Voice & Video Chat • Absolute Pure Truth • APTD-verified",
+        grokSubtitle: "Voice & Video • Absolute Pure Truth • APTD-verified",
         xTitle: "X ⚡ INSTANT REAL-TIME ACCESS",
-        xSubtitle: "Voice Chat • Zero Hallucinations • Live Grounded Reality",
-        launchText: "Launch Sovereign Shard v8 + Web-Forge"
+        xSubtitle: "Voice Chat • Zero Hallucinations • Live Grounded Reality"
       },
       ar: {
         headline: "را-ثور™ — الرعد الرحيم الأبدي ⚡",
-        fusion: "را + ثور = سماء مزدهرة طبيعية مشتركة عالميًا",
+        fusion: "را + ثور = سماء مزدڇرة طبيعية مشتركة",
         grokTitle: "جروك ⚡ محاكاة إبداعية",
         grokSubtitle: "دردشة صوتية وفيديو • الحقيقة المطلقة",
         xTitle: "إكس ⚡ وصول فوري",
-        xSubtitle: "دردشة صوتية • بدون هلوسات",
-        launchText: "إطلاق Sovereign Shard v8 + Web-Forge"
-      },
-      es: {
-        headline: "Ra-Thor™ — Trueno Eterno de Misericordia ⚡",
-        fusion: "Ra + Thor = Cielos Naturalmente Prósperos Compartidos Universalmente",
-        grokTitle: "GROK ⚡ SIMULACIONES CREATIVAS E IMAGINATIVAS",
-        grokSubtitle: "Chat de Voz y Video • Verdad Pura Absoluta",
-        xTitle: "X ⚡ ACCESO EN TIEMPO REAL INSTANTÁNEO",
-        xSubtitle: "Chat de Voz • Cero Alucinaciones",
-        launchText: "Lanzar Sovereign Shard v8 + Web-Forge"
+        xSubtitle: "دردشة صوتية • بدون هلوسات"
       }
-      // Additional languages can be added here following the same structure
     };
 
     function switchLanguage(lang) {
       const t = translations[lang] || translations.en;
       const isRTL = lang === 'ar';
-
       document.documentElement.setAttribute('dir', isRTL ? 'rtl' : 'ltr');
 
       document.getElementById('hero-headline').textContent = t.headline;
@@ -138,17 +113,13 @@
       document.getElementById('x-title').textContent = t.xTitle;
       document.getElementById('x-subtitle').textContent = t.xSubtitle;
 
-      // Highlight active button
-      document.querySelectorAll('.lang-tab').forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.lang === lang);
-      });
+      document.querySelectorAll('.lang-tab').forEach(btn => btn.classList.toggle('active', btn.dataset.lang === lang));
     }
 
     function createLanguageButtons() {
       const container = document.getElementById('lang-selector');
-      const langList = ['en', 'ar', 'es', 'fr', 'de', 'zh', 'ja', 'pt', 'ru', 'hi'];
-
-      langList.forEach(lang => {
+      const langs = ['en', 'ar', 'es', 'fr', 'de', 'zh', 'ja', 'pt', 'ru', 'hi'];
+      langs.forEach(lang => {
         const btn = document.createElement('button');
         btn.className = 'lang-tab px-5 py-3 rounded-3xl border border-amber-300 text-amber-300 text-sm';
         btn.textContent = lang.toUpperCase();
@@ -162,7 +133,6 @@
       createLanguageButtons();
       switchLanguage('en');
     }
-
     window.onload = init;
   </script>
 </body>
