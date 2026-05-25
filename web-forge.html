@@ -214,7 +214,7 @@
             currentShard = {
                 name: "Sovereign Shard #" + Math.floor(Math.random() * 9999),
                 shardId: generateSecureId('ss'),
-                lineageRootHash: null,
+                lineageRootHash: null,           // Set on first lineage entry using Web Crypto
                 valence: valence,
                 weights: {...weights},
                 evolution: Math.floor(valence * 420),
@@ -329,7 +329,7 @@
         </div>
     </div>
 
-    <!-- Epigenetic Lineage Tracking -->
+    <!-- Epigenetic Lineage Tracking (Interactive + Stats) -->
     <div class="mb-8 border border-emerald-900/40 bg-emerald-950/10 rounded-3xl p-6">
         <div class="flex items-center justify-between mb-4">
             <div>
@@ -343,6 +343,7 @@
             </div>
         </div>
 
+        <!-- Search -->
         <div class="mb-3">
             <input type="text" id="lineage-search" placeholder="Search actions or gates..." 
                    oninput="filterLineage()" 
@@ -356,7 +357,49 @@
         </div>
 
         <div class="mt-3 text-[10px] text-white/40 px-1">
-            Snapshots + high-accuracy reconstruction enabled. Lineage integrity protected with Web Crypto.
+            Snapshots + high-accuracy reconstruction enabled. Lineage integrity protected with Web Crypto. Click any entry to restore that historical state.
+        </div>
+    </div>
+
+    <!-- Debug / Simulation Tools -->
+    <div class="mb-8 border border-zinc-800 rounded-3xl p-5">
+        <div class="flex items-center justify-between mb-3">
+            <h4 class="text-sm font-semibold text-emerald-400">Debug & Simulation Tools</h4>
+            <button onclick="resetShardState()" class="text-xs px-3 py-1 border border-zinc-700 hover:bg-zinc-800 rounded-2xl">Reset Shard</button>
+        </div>
+
+        <div class="flex flex-wrap gap-2">
+            <button onclick="simulateTicks(5)" class="px-4 py-2 text-sm bg-zinc-800 hover:bg-zinc-700 rounded-2xl">Tick ×5</button>
+            <button onclick="simulateReconciles(5)" class="px-4 py-2 text-sm bg-zinc-800 hover:bg-zinc-700 rounded-2xl">Reconcile ×5</button>
+            <button onclick="simulateBalanced(5)" class="px-4 py-2 text-sm bg-emerald-900 hover:bg-emerald-800 rounded-2xl">Balanced ×5</button>
+        </div>
+
+        <div id="debug-panel" class="mt-4 text-xs font-mono bg-zinc-950 p-3 rounded-2xl hidden"></div>
+    </div>
+
+    <!-- Automated Strategy Testing Bots -->
+    <div class="mb-8 border border-emerald-900/50 bg-emerald-950/20 rounded-3xl p-6">
+        <h4 class="text-emerald-400 font-semibold mb-3">Automated Strategy Testing Bots</h4>
+        <p class="text-xs text-white/50 mb-4">Test different strategies with configurable steps.</p>
+
+        <div class="flex items-center gap-2 mb-4">
+            <span class="text-xs text-white/60">Steps:</span>
+            <button onclick="setBotSteps(20)" id="steps-20" class="px-3 py-1 text-xs rounded-2xl border border-emerald-400/40 hover:bg-emerald-400/10">20</button>
+            <button onclick="setBotSteps(50)" id="steps-50" class="px-3 py-1 text-xs rounded-2xl border border-emerald-400 bg-emerald-400 text-black">50</button>
+            <button onclick="setBotSteps(100)" id="steps-100" class="px-3 py-1 text-xs rounded-2xl border border-emerald-400/40 hover:bg-emerald-400/10">100</button>
+        </div>
+
+        <div class="flex flex-wrap gap-2 mb-4">
+            <button onclick="runBot('tick')" class="px-4 py-2 text-sm bg-zinc-800 hover:bg-zinc-700 rounded-2xl">Tick Bot</button>
+            <button onclick="runBot('reconcile')" class="px-4 py-2 text-sm bg-zinc-800 hover:bg-zinc-700 rounded-2xl">Reconcile Bot</button>
+            <button onclick="runBot('balanced')" class="px-4 py-2 text-sm bg-emerald-900 hover:bg-emerald-800 rounded-2xl">Balanced Bot</button>
+            <button onclick="runBot('truthseeker')" class="px-4 py-2 text-sm bg-amber-900 hover:bg-amber-800 rounded-2xl">Truth-Seeker Bot</button>
+            <button onclick="runBot('compassion')" class="px-4 py-2 text-sm bg-rose-900 hover:bg-rose-800 rounded-2xl">Compassion Council Bot</button>
+        </div>
+
+        <div id="bot-results" class="hidden bg-zinc-950 rounded-2xl p-4 text-sm">
+            <div class="font-semibold mb-2 text-emerald-400">Last Bot Results</div>
+            <div id="bot-results-content"></div>
         </div>
     </div>
 
@@ -411,10 +454,8 @@
                 entry.snapshot = { ...state.epigenetic };
             }
 
-            // Set lineageRootHash using Web Crypto on first entry
             if (!state.lineageRootHash && state.lineage.length === 0) {
-                // Will be properly hashed when first lineage entry is recorded
-                state.lineageRootHash = 'pending';
+                state.lineageRootHash = 'pending-first-entry';
             }
 
             state.lineage.unshift(entry);
