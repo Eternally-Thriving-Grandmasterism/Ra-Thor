@@ -6,7 +6,7 @@ Built layer by layer following the **Cathedral** philosophy — with focus, prec
 
 ## Overview
 
-`web-forge` is the orchestration and generation foundation inside Ra-Thor. It enables intelligent, component-aware, self-correcting website generation through a modular architecture.
+`web-forge` is the orchestration and generation foundation inside Ra-Thor. It enables intelligent, component-aware, self-correcting website generation with strong observability, accessibility, and CI integration.
 
 It is designed to be driven by Ra-Thor’s planning and council systems while remaining usable as a standalone professional web development toolkit.
 
@@ -16,6 +16,7 @@ It is designed to be driven by Ra-Thor’s planning and council systems while re
 - **Planning-Aware**: Generation is guided by structured planning (keyword + semantic).
 - **Self-Correcting**: Strong refinement loops with issue analysis.
 - **Graceful Degradation**: Semantic capabilities fall back cleanly when unavailable.
+- **Quality & Observability**: Built-in tracing, metrics, WCAG AA scoring, and automated reporting.
 - **Extensible by Design**: Built for future intelligence, new strategies, and deep Ra-Thor integration.
 
 ## Architecture
@@ -36,20 +37,21 @@ ComponentAwareGenerator
 Validation + Refinement Loop
    │
    ▼
-Final Output (ComponentTree + Rendered HTML)
+Final Output (ComponentTree + Rendered HTML + Report)
 ```
 
 ## Key Components
 
-| Area                    | Description                                      | Status    |
-|-------------------------|--------------------------------------------------|-----------|
-| Component Registry      | Rich metadata for components                     | Stable    |
-| Planning Strategies     | Keyword + Semantic (embeddings)                  | Strong    |
-| Generation              | Planning-aware component tree generation         | Good      |
-| Renderer                | ComponentTree → HTML                             | Good      |
-| Validation Engine       | Sanitization + structural + accessibility checks | Strong    |
-| Advanced Orchestrator   | Main coordination engine                         | Active    |
-| Refinement              | Issue-aware self-correction                      | Improving |
+| Area                    | Description                                           | Status    |
+|-------------------------|-------------------------------------------------------|-----------|
+| Component Registry      | Rich metadata for components                          | Stable    |
+| Planning Strategies     | Keyword + Semantic (embeddings)                       | Strong    |
+| Generation              | Planning-aware component tree generation              | Good      |
+| Renderer                | ComponentTree → HTML                                  | Good      |
+| Validation Engine       | Sanitization + structural + WCAG AA accessibility     | Strong    |
+| Advanced Orchestrator   | Main coordination engine                              | Active    |
+| Observability           | Tracing + Metrics (OpenTelemetry)                     | Strong    |
+| Reporting & CI          | Automated reports + quality gates                     | Strong    |
 
 ## Usage Example
 
@@ -74,15 +76,16 @@ if result.success {
 - Planning-aware generation
 - Semantic embeddings with automatic fallback
 - Structured refinement with issue categorization
+- WCAG AA accessibility scoring and validation
 - Component-aware HTML rendering
+- Built-in observability (tracing + metrics)
+- Automated reporting with `should_fail_ci` for CI gates
 
 ## Documentation
 
-See the source modules for detailed documentation:
-- `advanced_orchestrator.rs`
-- `semantic_planning.rs`
-- `generation.rs`
-- `component_registry.rs`
+See the `docs/` folder for detailed guides:
+- `docs/architecture.md` — System diagrams and flows
+- `docs/observability-reporting-ci.md` — Observability, reporting, and CI integration
 
 ## Future Direction
 
