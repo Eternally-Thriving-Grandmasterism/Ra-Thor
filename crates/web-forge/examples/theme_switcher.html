@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Theme Switcher Example</title>
+  <link rel="stylesheet" href="../design-tokens/css/variables.css">
+  <script>
+    function setTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      // Future: dynamically load different CSS variable sets
+    }
+  </script>
+</head>
+<body>
+  <h1>Theme Switcher Demo</h1>
+  <button onclick="setTheme('default')">Default (Dark)</button>
+  <button onclick="setTheme('light')">Light</button>
+
+  <div style="margin-top: 2rem; padding: 2rem; background: var(--color-background-elevated);">
+    This box uses design tokens.
+  </div>
+</body>
+</html>

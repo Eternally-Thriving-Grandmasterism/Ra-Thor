@@ -16,7 +16,7 @@ The Lattice Conductor is the central nervous system of the entire Ra-Thor monore
 ## Key Architectural Components
 
 - **ONE Organism Unification**  
-  Central hub ensuring all crates (self-evolution, symbiosis-layer, xai-grok-bridge, mercy, quantum-swarm, powrush, etc.) operate as one living entity.
+  Central hub ensuring all crates (self-evolution, symbiosis-layer, xai-grok-bridge, mercy, quantum-swarm, powrush, web-forge, etc.) operate as one living entity.
 
 - **TOLC Compliance Layer**  
   Full TOLC projector pass on every operation (SER 33rd-order derivatives, valence scalar field, mercy norm invariance, up to 1,048,576D consistency).
@@ -40,6 +40,10 @@ The Lattice Conductor is the central nervous system of the entire Ra-Thor monore
 - **Telemetry & Valence Propagation** (feature `telemetry`)  
   Returns `SovereignTickResult` with per-system valence, positive-emotion scores, and 7-Gen CEHI blessings.
 
+## Frontend Generation Layer
+
+`web-forge` (in `crates/web-forge`) serves as a supported professional frontend generation and web design system layer, integrable via the Lattice Conductor for sovereign site and application generation.
+
 ## Main Public API
 
 ```rust
@@ -57,3 +61,4 @@ async fn main() -> anyhow::Result<()> {
 
     Ok(())
 }
+"

@@ -1,0 +1,12 @@
+:root[data-theme="default"] {
+  --color-background-primary: #0a0a0a;
+  --color-background-secondary: #171717;
+  --color-background-elevated: #262626;
+
+  --color-text-primary: #fafafa;
+  --color-text-secondary: #d4d4d4;
+  --color-text-muted: #a3a3a3;
+
+  --color-border-default: #404040;
+  --color-border-strong: #a16207;
+}
