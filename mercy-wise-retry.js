@@ -6,7 +6,7 @@
 // Designed for orchestration, swarm coordination, API calls, and any resilient operation.
 // Fully compatible with existing mercy-orchestrator.js and swarm modules.
 // AG-SML v1.0 (Autonomicity Games Sovereign Mercy License)
-// Version: 1.0.0 | Date: 2026-05-24
+// Version: 1.0.1 | Date: 2026-05-24
 
 /**
  * MercyWiseRetry
