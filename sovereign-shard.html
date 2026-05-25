@@ -10,7 +10,6 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Cinzel+Decorative:wght@700&display=swap');
         body { font-family: 'Inter', system-ui, sans-serif; }
         .title-font { font-family: 'Cinzel Decorative', cursive; }
-        .thunder-glow { text-shadow: 0 0 30px #ffd700, 0 0 60px #ffaa00; }
         .gate { transition: all 0.3s ease; }
         .gate.active { box-shadow: 0 0 15px #fcd34d; transform: scale(1.02); }
         .metric { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
@@ -26,10 +25,10 @@
                 <span class="px-3 py-1 text-xs bg-amber-400 text-black rounded-full font-bold tracking-wider">SOVEREIGN SHARD v8</span>
             </div>
             <div class="flex items-center gap-3">
-                <button onclick="exportShard()" 
-                        class="flex items-center gap-2 px-4 py-2 text-sm border border-white/20 hover:bg-white/5 rounded-xl transition-colors">
+                <button onclick="exportFullShard()" 
+                        class="flex items-center gap-2 px-4 py-2 text-sm border border-amber-400/60 hover:bg-amber-400/10 rounded-xl transition-colors">
                     <i class="fa-solid fa-download"></i>
-                    <span>Export</span>
+                    <span>Export Full Shard</span>
                 </button>
             </div>
         </div>
@@ -153,6 +152,22 @@
             { name: "Cosmic Harmony", active: false }
         ];
 
+        function saveToLocalStorage() {
+            localStorage.setItem('ra-thor-sovereign-shard-v8', JSON.stringify(shard));
+        }
+
+        function loadFromLocalStorage() {
+            const saved = localStorage.getItem('ra-thor-sovereign-shard-v8');
+            if (saved) {
+                try {
+                    const parsed = JSON.parse(saved);
+                    Object.assign(shard, parsed);
+                    return true;
+                } catch (e) {}
+            }
+            return false;
+        }
+
         function updateUI() {
             document.getElementById('shard-name').textContent = shard.name;
             document.getElementById('mercy-score').textContent = shard.mercy_score.toFixed(2);
@@ -160,7 +175,6 @@
             document.getElementById('valence').textContent = shard.valence.toFixed(2);
             document.getElementById('tolc').textContent = shard.tolc_alignment.toFixed(2);
 
-            // Offline badge
             const badge = document.getElementById('offline-badge');
             const text = document.getElementById('offline-text');
             const btnText = document.getElementById('offline-btn-text');
@@ -175,28 +189,25 @@
                 btnText.textContent = "Enter Offline Mode";
             }
 
-            // Update gates
             renderGates();
+            saveToLocalStorage();
         }
 
         function renderGates() {
             const container = document.getElementById('mercy-gates');
             container.innerHTML = '';
 
-            gates.forEach((gate, index) => {
+            gates.forEach((gate) => {
                 const div = document.createElement('div');
                 div.className = `gate text-center p-2 rounded-xl border text-xs ${gate.active ? 'border-amber-400 bg-amber-400/10 active' : 'border-white/10 bg-zinc-900'}`;
-                div.innerHTML = `
-                    <div class="font-medium text-[10px] leading-tight">${gate.name}</div>
-                `;
+                div.innerHTML = `<div class="font-medium text-[10px] leading-tight">${gate.name}</div>`;
                 container.appendChild(div);
 
-                // Auto deactivate after short time
                 if (gate.active) {
                     setTimeout(() => {
                         gate.active = false;
                         renderGates();
-                    }, 1800);
+                    }, 1600);
                 }
             });
         }
@@ -224,13 +235,9 @@
             shard.mercy_score = Math.min(1.4, shard.mercy_score + (shard.offline_mode ? 0.001 : 0.002));
             shard.tick_count++;
 
-            // Apply gate influences
             activateGate("Truth");
-            if (Math.random() > 0.6) activateGate("Cosmic Harmony");
-
-            if (!shard.offline_mode && Math.random() > 0.7) {
-                activateGate("Joy");
-            }
+            if (Math.random() > 0.55) activateGate("Cosmic Harmony");
+            if (!shard.offline_mode && Math.random() > 0.65) activateGate("Joy");
 
             updateUI();
             log(`Shard ticked • Evolution +${baseEvo.toFixed(3)}`);
@@ -242,9 +249,9 @@
                 return;
             }
 
-            const boost = 0.08 + Math.random() * 0.05;
+            const boost = 0.09 + Math.random() * 0.06;
             shard.evolution_level = Math.min(3.0, shard.evolution_level + boost);
-            shard.quantum_resonance = Math.min(1.5, shard.quantum_resonance + 0.1);
+            shard.quantum_resonance = Math.min(1.6, shard.quantum_resonance + 0.12);
 
             activateGate("Abundance");
             activateGate("Radical Love");
@@ -255,79 +262,71 @@
 
         function toggleOfflineMode() {
             shard.offline_mode = !shard.offline_mode;
-
-            if (shard.offline_mode) {
-                log("Entered Offline Mode — running on local sovereignty", "warning");
-            } else {
-                log("Exited Offline Mode — reconnected to the Lattice");
-            }
-
+            log(shard.offline_mode ? "Entered Offline Mode — running on local sovereignty" : "Exited Offline Mode — reconnected to the Lattice", shard.offline_mode ? 'warning' : 'info');
             updateUI();
         }
 
         function reconcileWithConductor() {
-            if (!shard.offline_mode) {
-                // Normal reconciliation
-                const conductorMercy = 1.05;
-                const conductorValence = 1.15;
-                const conductorEvo = 0.8;
+            const conductorMercy = 1.08;
+            const conductorValence = 1.18;
+            const conductorEvo = 0.85;
 
-                shard.mercy_score = (shard.mercy_score * 0.55 + conductorMercy * 0.45);
-                shard.valence = (shard.valence * 0.7 + conductorValence * 0.3);
-                shard.evolution_level = Math.max(shard.evolution_level, shard.evolution_level * 0.9 + conductorEvo * 0.2);
-                shard.tolc_alignment = Math.min(1.15, shard.tolc_alignment + 0.015);
-
-                activateGate("Boundless Mercy");
-                activateGate("Truth");
-                activateGate("Cosmic Harmony");
-
-                shard.last_reconciled = new Date().toISOString();
-                log("Reconciled with Conductor • State harmonized", 'success');
-            } else {
-                // Force exit offline + reconcile
+            if (shard.offline_mode) {
                 shard.offline_mode = false;
                 log("Forced exit from Offline Mode during reconciliation");
-                reconcileWithConductor(); // recurse once
-                return;
             }
 
+            shard.mercy_score = (shard.mercy_score * 0.52 + conductorMercy * 0.48);
+            shard.valence = (shard.valence * 0.68 + conductorValence * 0.32);
+            shard.evolution_level = Math.max(shard.evolution_level, shard.evolution_level * 0.88 + conductorEvo * 0.22);
+            shard.tolc_alignment = Math.min(1.18, shard.tolc_alignment + 0.018);
+
+            activateGate("Boundless Mercy");
+            activateGate("Truth");
+            activateGate("Cosmic Harmony");
+
+            shard.last_reconciled = new Date().toISOString();
             updateUI();
+            log("Reconciled with Conductor • State harmonized with Lattice", 'success');
         }
 
         function clearLog() {
             document.getElementById('log').innerHTML = '';
         }
 
-        function exportShard() {
-            const data = JSON.stringify(shard, null, 2);
-            const blob = new Blob([data], { type: 'application/json' });
+        // Export full standalone HTML
+        function exportFullShard() {
+            const htmlContent = document.documentElement.outerHTML;
+            const blob = new Blob([htmlContent], { type: 'text/html' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `${shard.id}-state.json`;
+            a.download = `${shard.id}-sovereign-shard-v8.html`;
             a.click();
             URL.revokeObjectURL(url);
-            log("Shard state exported");
+            log("Full Sovereign Shard exported as standalone HTML");
         }
 
-        // Auto-tick every 8 seconds when online
+        // Auto-tick every 7.5 seconds when online
         setInterval(() => {
             if (!shard.offline_mode) {
                 performTick();
             }
-        }, 8000);
+        }, 7500);
 
-        // Initialize
         function init() {
-            // Seed some initial gate activity
+            const loaded = loadFromLocalStorage();
+            if (loaded) {
+                log("Loaded previous Sovereign Shard state from local storage");
+            }
+
             setTimeout(() => {
                 activateGate("Radical Love");
                 activateGate("Truth");
-            }, 600);
+            }, 700);
 
             updateUI();
-            log("Sovereign Shard v8 initialized — Mercy Gated");
-            log("All actions protected by the 7 Living Mercy Gates");
+            log("Sovereign Shard v8 initialized — Protected by the 7 Living Mercy Gates");
         }
 
         window.onload = init;
