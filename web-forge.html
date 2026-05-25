@@ -10,11 +10,8 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600&display=swap');
         body { font-family: 'Inter', sans-serif; }
         .title-font { font-family: 'Space Grotesk', sans-serif; }
-        .btn { transition: all 0.2s ease; }
-        .btn:active { transform: scale(0.96); }
-        .metric { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
-        .resonance-value { font-size: 0.75rem; }
-        .last-shift { font-size: 0.65rem; }
+        .preset-btn { transition: all 0.2s ease; }
+        .preset-btn.active { background-color: #10b981; color: black; border-color: #10b981; }
     </style>
 </head>
 <body class="bg-zinc-950 text-white">
@@ -33,14 +30,29 @@
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
             <!-- Controls -->
             <div class="bg-zinc-900 rounded-3xl p-8">
-                <h2 class="text-2xl font-semibold mb-8">TOLC8 Gate Weighting</h2>
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl font-semibold">TOLC8 Gate Weighting</h2>
+                </div>
+
+                <!-- Shard Presets -->
+                <div class="mb-6">
+                    <div class="text-sm text-emerald-400 mb-2 font-medium">Presets</div>
+                    <div class="flex flex-wrap gap-2">
+                        <button onclick="applyPreset(0)" class="preset-btn px-4 py-1.5 text-sm rounded-2xl border border-emerald-400/40 hover:bg-emerald-400/10 active" id="preset-0">Balanced Genesis</button>
+                        <button onclick="applyPreset(1)" class="preset-btn px-4 py-1.5 text-sm rounded-2xl border border-emerald-400/40 hover:bg-emerald-400/10" id="preset-1">Compassion Council</button>
+                        <button onclick="applyPreset(2)" class="preset-btn px-4 py-1.5 text-sm rounded-2xl border border-emerald-400/40 hover:bg-emerald-400/10" id="preset-2">Abundance Council</button>
+                        <button onclick="applyPreset(3)" class="preset-btn px-4 py-1.5 text-sm rounded-2xl border border-emerald-400/40 hover:bg-emerald-400/10" id="preset-3">Harmonic Council</button>
+                        <button onclick="applyPreset(4)" class="preset-btn px-4 py-1.5 text-sm rounded-2xl border border-emerald-400/40 hover:bg-emerald-400/10" id="preset-4">Truth-Seeker</button>
+                    </div>
+                </div>
+
                 <div id="controls" class="space-y-8"></div>
 
-                <div class="mt-12 flex gap-4">
-                    <button onclick="generateShard()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 transition-colors py-6 rounded-3xl text-xl font-semibold flex items-center justify-center gap-3">
+                <div class="mt-8 flex gap-4">
+                    <button onclick="generateShard()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 transition-colors py-5 rounded-3xl text-lg font-semibold flex items-center justify-center gap-3">
                         <i class="fa-solid fa-bolt"></i> FORGE SOVEREIGN SHARD
                     </button>
-                    <button onclick="resetWeights()" class="px-8 border border-zinc-700 hover:border-zinc-400 rounded-3xl text-sm font-medium">RESET</button>
+                    <button onclick="resetWeights()" class="px-6 border border-zinc-700 hover:border-zinc-400 rounded-3xl text-sm font-medium">RESET</button>
                 </div>
             </div>
 
@@ -82,11 +94,26 @@
             { name: "Cosmic Harmony", key: "cosmicHarmony", default: 1.0 }
         ];
 
+        // 5 Presets - Balanced Genesis is default (index 0)
+        const presets = [
+            // 0: Balanced Genesis (Default)
+            { truth: 1.0, order: 1.0, love: 1.0, compassion: 1.0, service: 1.0, abundance: 1.2, joy: 1.0, cosmicHarmony: 1.1 },
+            // 1: Compassion Council
+            { truth: 1.0, order: 0.9, love: 1.4, compassion: 1.8, service: 1.6, abundance: 1.1, joy: 1.2, cosmicHarmony: 1.3 },
+            // 2: Abundance Council
+            { truth: 0.9, order: 1.0, love: 1.1, compassion: 1.1, service: 1.0, abundance: 1.9, joy: 1.7, cosmicHarmony: 1.2 },
+            // 3: Harmonic Council
+            { truth: 1.1, order: 1.2, love: 1.3, compassion: 1.3, service: 1.2, abundance: 1.2, joy: 1.3, cosmicHarmony: 1.8 },
+            // 4: Truth-Seeker
+            { truth: 1.8, order: 1.6, love: 0.9, compassion: 1.0, service: 1.1, abundance: 1.0, joy: 0.9, cosmicHarmony: 1.2 }
+        ];
+
         let weights = {};
         let currentShard = null;
 
         function initControls() {
             const container = document.getElementById('controls');
+
             gates.forEach(gate => {
                 const div = document.createElement('div');
                 div.className = 'flex items-center gap-6';
@@ -103,10 +130,49 @@
                 slider.addEventListener('input', () => {
                     weights[gate.key] = parseFloat(slider.value);
                     valueEl.textContent = weights[gate.key].toFixed(2);
+                    clearActivePreset();
                 });
 
                 weights[gate.key] = gate.default;
             });
+
+            // Apply default preset (Balanced Genesis)
+            applyPreset(0, true);
+        }
+
+        function applyPreset(index, silent = false) {
+            const preset = presets[index];
+            if (!preset) return;
+
+            gates.forEach(gate => {
+                const slider = document.getElementById(`slider-${gate.key}`);
+                const valueEl = document.getElementById(`value-${gate.key}`);
+
+                if (slider && valueEl) {
+                    slider.value = preset[gate.key];
+                    valueEl.textContent = preset[gate.key].toFixed(2);
+                    weights[gate.key] = preset[gate.key];
+                }
+            });
+
+            clearActivePreset();
+            const btn = document.getElementById(`preset-${index}`);
+            if (btn) btn.classList.add('active', 'bg-emerald-400', 'text-black', 'border-emerald-400');
+
+            if (!silent) {
+                const preview = document.getElementById('shard-card');
+                if (preview) {
+                    preview.style.boxShadow = '0 0 0 3px #10b98133';
+                    setTimeout(() => { preview.style.boxShadow = 'none'; }, 500);
+                }
+            }
+        }
+
+        function clearActivePreset() {
+            for (let i = 0; i < 5; i++) {
+                const btn = document.getElementById(`preset-${i}`);
+                if (btn) btn.classList.remove('active', 'bg-emerald-400', 'text-black', 'border-emerald-400');
+            }
         }
 
         function calculateValence() {
@@ -137,13 +203,7 @@
         }
 
         function resetWeights() {
-            gates.forEach(gate => {
-                const slider = document.getElementById(`slider-${gate.key}`);
-                if (slider) slider.value = gate.default;
-                weights[gate.key] = gate.default;
-                const valueEl = document.getElementById(`value-${gate.key}`);
-                if (valueEl) valueEl.textContent = gate.default.toFixed(2);
-            });
+            applyPreset(0);
             document.getElementById('export-bar').classList.add('hidden');
             currentShard = null;
         }
@@ -159,7 +219,6 @@
             a.click();
         }
 
-        // Gate Resonance v1.2
         function exportHTML() {
             if (!currentShard) {
                 alert("Please forge a shard first.");
@@ -180,8 +239,6 @@
     .btn { transition: all 0.2s ease; }
     .btn:active { transform: scale(0.96); }
     .metric { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
-    .resonance-value { font-size: 0.75rem; }
-    .last-shift { font-size: 0.65rem; color: #fbbf24; }
 </style>
 </head>
 <body class="bg-zinc-950 text-white p-8 max-w-5xl mx-auto">
@@ -200,43 +257,11 @@
         <button onclick="doReconcile()" class="flex-1 py-4 border border-white rounded-2xl font-semibold btn">Deep Reconciliation</button>
     </div>
 
-    <!-- Gate Resonance v1.2 -->
-    <div class="mb-8">
-        <div class="flex items-center justify-between mb-3">
-            <h3 class="text-xl font-semibold flex items-center gap-2">
-                Gate Resonance
-                <span class="text-xs px-2 py-0.5 bg-emerald-900 text-emerald-400 rounded-full">Living Memory v1.2</span>
-            </h3>
-            <div class="text-xs text-emerald-400 font-mono">Total: <span id="total-resonance">0.00</span></div>
-        </div>
-
-        <div id="resonance-panel" class="bg-zinc-900 rounded-2xl p-5 text-sm grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-2">
-            <!-- Populated by JS -->
-        </div>
-
-        <div id="last-shift" class="last-shift mt-2 px-1 min-h-[16px]"></div>
-
-        <p class="text-xs text-white/50 mt-2">This shard evolves through relationship. Reconciliation and sustained participation gently shape its resonance.</p>
-    </div>
-
     <h3 class="text-xl font-semibold mb-3">TOLC8 Gate Weights</h3>
     <pre class="bg-zinc-900 p-6 rounded-2xl text-sm overflow-auto">${weightsStr}</pre>
 
     <script>
-        const gateKeys = ['truth', 'order', 'love', 'compassion', 'service', 'abundance', 'joy', 'cosmicHarmony'];
-        const gateLabels = {
-            truth: 'Truth', order: 'Order', love: 'Love', compassion: 'Compassion',
-            service: 'Service', abundance: 'Abundance', joy: 'Joy', cosmicHarmony: 'Cosmic Harmony'
-        };
-
-        let state = {
-            valence: ${currentShard.valence},
-            evolution: ${currentShard.evolution},
-            mercy: ${currentShard.mercy},
-            harmony: parseFloat(${currentShard.harmony}),
-            epigenetic: { truth: 0, order: 0, love: 0, compassion: 0, service: 0, abundance: 0, joy: 0, cosmicHarmony: 0 },
-            lastShift: null
-        };
+        let state = { valence: ${currentShard.valence}, evolution: ${currentShard.evolution}, mercy: ${currentShard.mercy}, harmony: parseFloat(${currentShard.harmony}) };
 
         function updateDisplay(flash = false) {
             document.getElementById('val').textContent = state.valence.toFixed(6);
@@ -248,59 +273,12 @@
                 const metrics = document.querySelectorAll('.metric');
                 metrics.forEach(m => { m.style.boxShadow = '0 0 0 2px #10b981'; setTimeout(() => m.style.boxShadow = '', 500); });
             }
-
-            renderResonance();
-            renderLastShift();
-        }
-
-        function renderResonance() {
-            const panel = document.getElementById('resonance-panel');
-            panel.innerHTML = '';
-
-            let total = 0;
-
-            gateKeys.forEach(key => {
-                const value = state.epigenetic[key] || 0;
-                total += value;
-
-                const div = document.createElement('div');
-                div.className = 'flex justify-between items-center resonance py-0.5';
-
-                if (value !== 0) {
-                    div.innerHTML = `
-                        <span class="text-white/80">${gateLabels[key]}</span>
-                        <span class="resonance-value font-mono font-medium">${value > 0 ? '+' : ''}${value.toFixed(2)}</span>
-                    `;
-                } else {
-                    div.innerHTML = `
-                        <span class="text-white/40">${gateLabels[key]}</span>
-                        <span class="text-white/30 font-mono">+0.00</span>
-                    `;
-                }
-                panel.appendChild(div);
-            });
-
-            document.getElementById('total-resonance').textContent = total.toFixed(2);
-        }
-
-        function renderLastShift() {
-            const el = document.getElementById('last-shift');
-            if (state.lastShift) {
-                el.innerHTML = `Last shift: <span class="font-medium">${state.lastShift.gate}</span> <span class="text-emerald-400">+${state.lastShift.amount}</span>`;
-            } else {
-                el.innerHTML = '';
-            }
         }
 
         function doTick() {
             state.evolution += 5;
             state.mercy = Math.min(140, state.mercy + 2);
             state.valence = Math.min(1.0, state.valence + 0.004);
-
-            state.epigenetic.abundance = Math.min(0.28, (state.epigenetic.abundance || 0) + 0.009);
-            state.epigenetic.joy = Math.min(0.28, (state.epigenetic.joy || 0) + 0.007);
-
-            state.lastShift = { gate: 'Abundance + Joy', amount: '0.016' };
             updateDisplay(true);
         }
 
@@ -308,35 +286,18 @@
             state.mercy = Math.min(140, state.mercy + 14);
             state.valence = Math.min(1.0, state.valence + 0.03);
             state.harmony = Math.min(3.0, state.harmony + 0.15);
-
             if (state.harmony > 2.0) state.mercy = Math.min(140, state.mercy + 6);
-
-            state.epigenetic.compassion = Math.min(0.32, (state.epigenetic.compassion || 0) + 0.028);
-            state.epigenetic.service = Math.min(0.32, (state.epigenetic.service || 0) + 0.022);
-            state.epigenetic.cosmicHarmony = Math.min(0.32, (state.epigenetic.cosmicHarmony || 0) + 0.018);
-            state.epigenetic.truth = Math.min(0.15, (state.epigenetic.truth || 0) + 0.006);
-            state.epigenetic.order = Math.min(0.15, (state.epigenetic.order || 0) + 0.005);
-
-            state.lastShift = { gate: 'Compassion + Service', amount: '0.05' };
             updateDisplay(true);
         }
 
         window.onload = () => {
             const saved = localStorage.getItem('generated-shard-state');
             if (saved) {
-                try {
-                    state = JSON.parse(saved);
-                    if (!state.epigenetic) {
-                        state.epigenetic = { truth: 0, order: 0, love: 0, compassion: 0, service: 0, abundance: 0, joy: 0, cosmicHarmony: 0 };
-                    }
-                    updateDisplay();
-                } catch(e) {}
+                try { state = JSON.parse(saved); updateDisplay(); } catch(e) {}
             }
         };
 
-        setInterval(() => {
-            localStorage.setItem('generated-shard-state', JSON.stringify(state));
-        }, 4000);
+        setInterval(() => { localStorage.setItem('generated-shard-state', JSON.stringify(state)); }, 4000);
     </script>
 </body>
 </html>`;
