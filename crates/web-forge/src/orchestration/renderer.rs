@@ -1,10 +1,20 @@
 /// Component Tree Renderer
 ///
 /// Production-grade renderer that converts `ComponentTree` into HTML.
-/// Supports component-specific classes, arbitrary attributes, and basic prop handling.
+/// Features:
+/// - Proper handling of void elements (self-closing tags)
+/// - Improved attribute escaping
+/// - Support for common props (class, id, style, data-*)
+/// - Component-specific class generation
 
 use crate::orchestration::component_tree::{ComponentNode, ComponentTree};
 use serde_json::Value;
+
+/// Set of HTML void elements that should be self-closing.
+const VOID_ELEMENTS: &[&str] = &[
+    "area", "base", "br", "col", "embed", "hr", "img", "input",
+    "link", "meta", "param", "source", "track", "wbr",
+];
 
 /// Renders a full ComponentTree to HTML string.
 pub fn render_tree(tree: &ComponentTree) -> String {
@@ -14,9 +24,16 @@ pub fn render_tree(tree: &ComponentTree) -> String {
 fn render_node(node: &ComponentNode) -> String {
     let tag = map_component_to_tag(&node.component);
     let attrs = build_attributes(&node.component, &node.props);
+    let is_void = VOID_ELEMENTS.contains(&tag);
 
     let mut html = if attrs.is_empty() {
-        format!("<{}>", tag)
+        if is_void {
+            format!("<{} />", tag)
+        } else {
+            format!("<{}>", tag)
+        }
+    } else if is_void {
+        format!("<{} {} />", tag, attrs)
     } else {
         format!("<{} {}>", tag, attrs)
     };
@@ -29,22 +46,27 @@ fn render_node(node: &ComponentNode) -> String {
         html.push_str(&render_node(child));
     }
 
-    html.push_str(&format!("</{}>", tag));
+    if !is_void {
+        html.push_str(&format!("</{}>", tag));
+    }
+
     html
 }
 
-/// Maps component names to HTML tags.
+/// Maps known component names to HTML tags.
 fn map_component_to_tag(component: &str) -> &str {
     match component {
         "Button" => "button",
         "Card" => "div",
         "Input" => "input",
         "Modal" => "div",
+        "Image" => "img",
+        "Link" => "a",
         _ => "div",
     }
 }
 
-/// Builds attributes and component classes from props.
+/// Builds HTML attributes from props with proper escaping.
 fn build_attributes(component: &str, props: &Value) -> String {
     let mut parts = vec![];
     let mut classes = vec![];
@@ -61,16 +83,14 @@ fn build_attributes(component: &str, props: &Value) -> String {
                 "variant" | "size" | "padding" => {
                     classes.push(format!("{}-{}", component.to_lowercase(), val_str));
                 }
-                "class" => {
-                    classes.push(val_str);
-                }
-                "id" => {
-                    parts.push(format!("id=\"{}\"", val_str));
+                "class" => classes.push(val_str),
+                "id" => parts.push(format!("id=\"{}\"", escape_attribute(&val_str))),
+                "style" => parts.push(format!("style=\"{}\"", escape_attribute(&val_str))),
+                _ if key.starts_with("data-") => {
+                    parts.push(format!("{}={}", key, quote_attribute(&val_str)));
                 }
                 _ => {
-                    // Escape basic quotes for safety
-                    let safe_val = val_str.replace('"', """);
-                    parts.push(format!("{}={:?}", key, safe_val));
+                    parts.push(format!("{}={}", key, quote_attribute(&val_str)));
                 }
             }
         }
@@ -81,4 +101,18 @@ fn build_attributes(component: &str, props: &Value) -> String {
     }
 
     parts.join(" ")
+}
+
+/// Escapes special characters in attribute values.
+fn escape_attribute(value: &str) -> String {
+    value
+        .replace('&', "&")
+        .replace('"', """)
+        .replace('<', "<")
+        .replace('>', ">")
+}
+
+/// Wraps a value in quotes with basic escaping.
+fn quote_attribute(value: &str) -> String {
+    format!("\"{}\"", escape_attribute(value))
 }
