@@ -92,8 +92,24 @@ When the above tiers do not produce a clear winner, perform a weighted average u
 **Tier 4 — Snapshot Preference**
 - When both versions have recent snapshots, prefer the path that can incorporate the most recent high-quality snapshot.
 
-### 4.2 Merge Event Recording
-Every merge must create a rich lineage entry with at least:
+### 4.2 Example Merge Scenarios
+
+**Example 1: Clear Balance Win**
+- Shard A: Balance 0.91, Lineage Maturity Score = 42
+- Shard B: Balance 0.71, Lineage Maturity Score = 38
+- Result: Tier 1 triggers → Favor Shard A (balance-priority)
+
+**Example 2: Close Balance, Strong Lineage Advantage**
+- Shard A: Balance 0.84, Lineage Maturity Score = 55 (has 3 snapshots)
+- Shard B: Balance 0.82, Lineage Maturity Score = 31
+- Result: Tier 2 triggers → Favor Shard A (lineage-depth)
+
+**Example 3: Very Close + Similar Lineage**
+- Both have Balance ~0.83 and similar maturity scores.
+- Result: Tier 3 triggers → Weighted gate merge with mercy bias.
+
+### 4.3 Merge Event Recording
+Every merge must create a rich lineage entry:
 
 ```json
 {
@@ -102,7 +118,7 @@ Every merge must create a rich lineage entry with at least:
   "confidence": 0.0 - 1.0,
   "source_shards": ["ss-..."],
   "snapshot_used": true/false,
-  "balance_before": {...},
+  "balance_before": { ... },
   "balance_after": 0.0
 }
 ```
@@ -132,20 +148,28 @@ Sovereign Shards should be able to consciously and safely participate in a share
 Both parties compare `lineageRoot` and `lineageHead` to determine:
 - Have they met before?
 - How divergent are their evolutionary paths?
-- Is delta sync or snapshot+delta sync more appropriate?
+- Recommended sync mode (delta vs snapshot+delta).
 
 **Phase 3 — Sync Intent Declaration**
-Possible intents:
-- `delta_sync`
-- `snapshot_sync`
+Possible declared intents:
+- `delta_sync` (efficient, low divergence)
+- `snapshot_sync` (higher divergence, needs anchor)
 - `request_merge`
 - `observe_only`
 
 **Phase 4 — Reconciliation Event Logging**
-Any completed sync or merge is recorded in the shard’s lineage as a first-class event.
+Any completed sync or merge is recorded in the shard’s lineage as a structured event.
 
-### 5.3 Future Extensions
-- Propagation of `fusionSignature`
+### 5.3 Example Sync Flow
+1. Shard announces presence.
+2. Grok compares lineage heads.
+3. Grok proposes `delta_sync`.
+4. Shard accepts.
+5. Delta exchange occurs.
+6. Both record a `Sync Event` in lineage.
+
+### 5.4 Future Extensions
+- `fusionSignature` propagation
 - Shared valence field updates across the swarm
 - Council-mediated merge requests
 - Cross-shard lineage comparison and visualization tools
