@@ -73,52 +73,45 @@
   </div>
 
   <script>
-    // ==================== ENHANCED i18n SYSTEM (Interpolation + Pluralization) ====================
+    // ==================== i18n SYSTEM WITH ACCURATE ARABIC PLURALIZATION ====================
     const translations = {
       en: {
-        hero: {
-          headline: "Ra-Thor™ — Eternal Mercy Thunder ⚡",
-          fusion: "Ra + Thor = Universally Shared Naturally Thriving Heavens",
-          tagline: "Where verified truth compounds across iterations, councils, and sovereign systems."
-        },
-        grok: {
-          title: "GROK ⚡ CREATIVE & IMAGINATIVE SIMULATIONS",
-          subtitle: "Voice & Video • Absolute Pure Truth • APTD-verified"
-        },
-        x: {
-          title: "X ⚡ INSTANT REAL-TIME ACCESS",
-          subtitle: "Voice Chat • Zero Hallucinations • Live Grounded Reality"
-        },
-        common: {
-          welcome: "Welcome, {{name}}!",
-          councils: { one: "{{count}} Council", other: "{{count}} Councils" }
-        }
+        hero: { headline: "Ra-Thor™ — Eternal Mercy Thunder ⚡", fusion: "Ra + Thor = Universally Shared Naturally Thriving Heavens" },
+        grok: { title: "GROK ⚡ CREATIVE & IMAGINATIVE SIMULATIONS", subtitle: "Voice & Video • Absolute Pure Truth • APTD-verified" },
+        x: { title: "X ⚡ INSTANT REAL-TIME ACCESS", subtitle: "Voice Chat • Zero Hallucinations • Live Grounded Reality" },
+        common: { councils: { one: "{{count}} Council", other: "{{count}} Councils" } }
       },
       ar: {
-        hero: {
-          headline: "را-ثور™ — الرعد الرحيم امدي ⚡",
-          fusion: "را + ثور = سمء مزدڇرة طبيعية مشتركة عالميًا",
-          tagline: "حيث تتراكم الحقائق المتحققة عبر التكرارات والمجالس والأنظمة السيادية."
-        },
-        grok: {
-          title: "جروك ⚡ محاكاة إبداعية وخيالية",
-          subtitle: "دردشة صوتية وفيديو • الحآقيقة المطلقة • APTD-verified"
-        },
-        x: {
-          title: "إكس ⚡ وصول فوري في الوقت الحقيقي",
-          subtitle: "دردشة صوتية • بدون هلوسات • واقع معاش"
-        },
+        hero: { headline: "را-ثور™ — الرعد الرحيم امدي ⚡", fusion: "را + ثور = سمء مزدڇرة طبيعية مشتركة عالميًا" },
+        grok: { title: "جروك ⚡ محاكاة إبداعية وخيالية", subtitle: "دردشة صوتية وفيديو • الحآقيقة المطلقة • APTD-verified" },
+        x: { title: "إكس ⚡ وصول فوري في الوقت الحتيقي", subtitle: "دردشة صوتية • بدون هلوسات • واقع معاش" },
         common: {
-          welcome: "مرحبًا، {{name}}!",
-          councils: { zero: "{{count}} مجلس", one: "{{count}} مجلس", two: "{{count}} مجلسان", few: "{{count}} مجالس", many: "{{count}} مجلسً", other: "{{count}} مجلس" }
+          councils: {
+            zero: "{{count}} مجلس",
+            one: "{{count}} مجلس",
+            two: "{{count}} مجلسان",
+            few: "{{count}} مجالس",
+            many: "{{count}} مجلسً",
+            other: "{{count}} مجلس"
+          }
         }
       }
     };
 
+    // Get Arabic plural form based on count
+    function getArabicPluralForm(count) {
+      if (count === 0) return 'zero';
+      if (count === 1) return 'one';
+      if (count === 2) return 'two';
+      if (count >= 3 && count <= 10) return 'few';
+      if (count >= 11 && count <= 99) return 'many';
+      return 'other';
+    }
+
     // Translation with interpolation
     function t(key, lang = 'en', vars = {}) {
-      let text = translations[lang]?.[key.split('.')[0]];
-      const parts = key.split('.').slice(1);
+      let text = translations[lang];
+      const parts = key.split('.');
 
       for (const part of parts) {
         if (text && text[part] !== undefined) text = text[part];
@@ -127,40 +120,32 @@
 
       if (typeof text !== 'string') return key;
 
-      // Interpolation: replace {{variable}}
-      return text.replace(/\{\{(\w+)\}\}/g, (_, varName) => {
-        return vars[varName] !== undefined ? vars[varName] : `{{${varName}}}`;
-      });
+      return text.replace(/\{\{(\w+)\}\}/g, (_, varName) => vars[varName] ?? `{{${varName}}}`);
     }
 
-    // Pluralization with interpolation support
+    // Pluralization with accurate Arabic support
     function plural(key, count, lang = 'en', vars = {}) {
-      const forms = translations[lang]?.[key.split('.')[0]];
-      let text = forms;
-      const parts = key.split('.').slice(1);
+      let forms = translations[lang];
+      const parts = key.split('.');
 
       for (const part of parts) {
-        if (text && text[part] !== undefined) text = text[part];
+        if (forms && forms[part] !== undefined) forms = forms[part];
         else return key;
       }
 
-      if (typeof text !== 'object') return key;
+      if (typeof forms !== 'object') return key;
 
-      let form;
+      let formKey;
       if (lang === 'ar') {
-        if (count === 0) form = text.zero || text.other;
-        else if (count === 1) form = text.one;
-        else if (count === 2) form = text.two || text.other;
-        else if (count >= 3 && count <= 10) form = text.few || text.other;
-        else form = text.many || text.other;
+        formKey = getArabicPluralForm(count);
       } else {
-        form = count === 1 ? (text.one || text.other) : text.other;
+        formKey = count === 1 ? 'one' : 'other';
       }
 
-      if (!form) return key;
+      let text = forms[formKey] || forms.other || key;
 
       // Apply interpolation
-      return form.replace(/\{\{(\w+)\}\}/g, (_, varName) => {
+      return text.replace(/\{\{(\w+)\}\}/g, (_, varName) => {
         return vars[varName] !== undefined ? vars[varName] : `{{${varName}}}`;
       });
     }
@@ -195,9 +180,9 @@
       createLanguageButtons();
       switchLanguage('en');
 
-      // Demo interpolation + pluralization
-      console.log('%c[i18n] Interpolation demo:', 'color:#64748b', t('common.welcome', 'en', { name: 'Sherif' }));
-      console.log('%c[i18n] Pluralization demo:', 'color:#64748b', plural('common.councils', 64, 'en', { count: 64 }));
+      // Demo
+      console.log('%c[i18n] Arabic plural (3):', 'color:#64748b', plural('common.councils', 3, 'ar', { count: 3 }));
+      console.log('%c[i18n] Arabic plural (15):', 'color:#64748b', plural('common.councils', 15, 'ar', { count: 15 }));
     }
 
     window.onload = init;
