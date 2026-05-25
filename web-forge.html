@@ -21,8 +21,9 @@
             70% { box-shadow: 0 0 0 8px rgba(52, 211, 153, 0); }
             100% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0); }
         }
-        .lineage-entry { transition: all 0.2s ease; }
+        .lineage-entry { transition: all 0.2s ease; cursor: pointer; }
         .lineage-entry:hover { background-color: #27251f; }
+        .lineage-entry.selected { background-color: #1f3a2e; border-left: 3px solid #10b981; }
     </style>
 </head>
 <body class="bg-zinc-950 text-white">
@@ -251,7 +252,7 @@
     .btn:active { transform: scale(0.96); }
     .metric { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
     .gate-bar { transition: width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.4s ease; }
-    .lineage-entry { transition: all 0.2s ease; }
+    .lineage-entry { transition: all 0.2s ease; cursor: pointer; }
 </style>
 </head>
 <body class="bg-zinc-950 text-white p-8 max-w-5xl mx-auto">
@@ -310,20 +311,21 @@
         </div>
     </div>
 
-    <!-- Epigenetic Lineage Tracking (v2 - High Accuracy + Search) -->
+    <!-- Epigenetic Lineage Tracking (Interactive + Stats) -->
     <div class="mb-8 border border-emerald-900/40 bg-emerald-950/10 rounded-3xl p-6">
         <div class="flex items-center justify-between mb-4">
             <div>
                 <h4 class="text-emerald-400 font-semibold">Epigenetic Lineage</h4>
-                <p class="text-xs text-white/50">High-accuracy evolutionary memory with search</p>
+                <p class="text-xs text-white/50">Click entries to restore historical states</p>
             </div>
             <div class="flex gap-2">
+                <button onclick="showLineageStats()" class="text-xs px-3 py-1 border border-emerald-700 hover:bg-emerald-900/30 rounded-2xl">Stats</button>
                 <button onclick="exportLineage()" class="text-xs px-3 py-1 border border-emerald-700 hover:bg-emerald-900/30 rounded-2xl">Export</button>
                 <button onclick="clearLineage()" class="text-xs px-3 py-1 border border-zinc-700 hover:bg-zinc-800 rounded-2xl">Clear</button>
             </div>
         </div>
 
-        <!-- Search / Filter -->
+        <!-- Search -->
         <div class="mb-3">
             <input type="text" id="lineage-search" placeholder="Search actions or gates..." 
                    oninput="filterLineage()" 
@@ -337,7 +339,7 @@
         </div>
 
         <div class="mt-3 text-[10px] text-white/40 px-1">
-            Snapshots taken periodically for high-accuracy reconstruction. Use search to filter history.
+            Snapshots + high-accuracy reconstruction enabled. Click any entry to restore that historical state.
         </div>
     </div>
 
@@ -397,26 +399,14 @@
             lineage: []
         };
 
-        let currentLineageFilter = '';
-        let botSteps = 50;
+        let selectedLineageIndex = null;
 
         const gateLabels = {
             truth: 'Truth', order: 'Order', love: 'Love', compassion: 'Compassion',
             service: 'Service', abundance: 'Abundance', joy: 'Joy', cosmicHarmony: 'Cosmic Harmony'
         };
 
-        const gateDescriptions = {
-            truth: 'Foundation of clarity and honesty',
-            order: 'Structure, stability and cosmic law',
-            love: 'Connection, compassion and unity',
-            compassion: 'Empathy and mercy toward all beings',
-            service: 'Selfless contribution to the whole',
-            abundance: 'Flow of prosperity and generosity',
-            joy: 'Natural delight and celebration of existence',
-            cosmicHarmony: 'Balance between all forces of creation'
-        };
-
-        // ==================== EPIGENETIC LINEAGE TRACKING v2 ====================
+        // ==================== EPIGENETIC LINEAGE TRACKING v3 (Interactive) ====================
 
         function recordLineage(action, beforeEpigenetic) {
             if (!state.lineage) state.lineage = [];
@@ -437,10 +427,9 @@
                 deltas: deltas,
                 balanceAfter: parseFloat(getBalanceScore()),
                 resonanceAfter: parseFloat(getResonanceStrength().toFixed(2)),
-                snapshot: null   // Will be populated periodically
+                snapshot: null
             };
 
-            // Take full snapshot every 18 entries for high-accuracy reconstruction
             if (state.lineage.length % 18 === 0) {
                 entry.snapshot = { ...state.epigenetic };
             }
@@ -466,15 +455,12 @@
             }
 
             if (summaryContainer) {
-                const total = state.lineage.length;
-                const latest = state.lineage[0];
-                summaryContainer.innerHTML = `
-                    <span class="font-medium">${total} entries</span> • Latest: <span class="text-emerald-400">${latest.action}</span>
-                `;
+                summaryContainer.innerHTML = `<span class="font-medium">${state.lineage.length} entries</span>`;
             }
 
             let html = '';
-            entriesToShow.slice(0, 50).forEach((entry) => {
+            entriesToShow.slice(0, 50).forEach((entry, idx) => {
+                const originalIndex = state.lineage.indexOf(entry);
                 const actionColor = entry.action.includes('Tick') ? 'text-amber-400' : 
                                   entry.action.includes('Reconcile') ? 'text-sky-400' : 'text-emerald-400';
 
@@ -482,17 +468,17 @@
                     `${gateLabels[k] || k}: <span class="${v > 0 ? 'text-emerald-400' : 'text-rose-400'}">${v > 0 ? '+' : ''}${v}</span>`
                 ).join(' &nbsp;');
 
-                const snapshotBadge = entry.snapshot ? `<span class="ml-2 text-[9px] px-1.5 py-px bg-emerald-900/60 rounded">SNAPSHOT</span>` : '';
+                const snapshotBadge = entry.snapshot ? `<span class="ml-2 text-[9px] px-1.5 py-px bg-emerald-900/60 rounded">SNAP</span>` : '';
+                const isSelected = selectedLineageIndex === originalIndex ? 'selected' : '';
 
                 html += `
-                    <div class="lineage-entry flex justify-between items-start py-[5px] px-3 border-b border-white/10 text-xs">
+                    <div onclick="selectLineageEntry(${originalIndex})" class="lineage-entry flex justify-between items-start py-[5px] px-3 border-b border-white/10 text-xs ${isSelected}">
                         <div class="flex-1 min-w-0">
                             <span class="font-medium ${actionColor}">${entry.action}</span>${snapshotBadge}
                             <div class="text-white/60 mt-0.5 text-[10px] leading-tight">${deltaText || '<span class="italic">No significant delta</span>'}</div>
                         </div>
                         <div class="text-right text-white/50 ml-4 whitespace-nowrap">
                             <div>Bal: ${entry.balanceAfter}</div>
-                            <div class="text-[10px]">Res: ${entry.resonanceAfter}</div>
                         </div>
                     </div>
                 `;
@@ -501,12 +487,46 @@
             container.innerHTML = html;
         }
 
+        function selectLineageEntry(index) {
+            selectedLineageIndex = index;
+            renderLineage();
+
+            const entry = state.lineage[index];
+            if (!entry) return;
+
+            if (confirm(`Restore shard to this point in history?\n\nAction: ${entry.action}\nBalance: ${entry.balanceAfter}`)) {
+                restoreStateFromLineage(index);
+            }
+        }
+
+        function restoreStateFromLineage(index) {
+            const reconstructed = reconstructStateAt(index);
+            if (!reconstructed) {
+                alert("Could not reconstruct state.");
+                return;
+            }
+
+            // Apply reconstructed state
+            state.epigenetic = reconstructed;
+
+            // Recalculate derived values
+            const newBalance = parseFloat(getBalanceScore());
+            const newResonance = getResonanceStrength();
+
+            // Update UI
+            updateDisplay(true);
+
+            // Add restoration note
+            recordShift(`Restored to lineage entry #${index}`);
+
+            alert(`State restored from lineage entry #${index}.\nNew Balance: ${newBalance}`);
+        }
+
         function filterLineage() {
             const searchInput = document.getElementById('lineage-search');
             if (!searchInput) return;
 
             const query = searchInput.value.toLowerCase().trim();
-            currentLineageFilter = query;
 
             if (!query) {
                 renderLineage();
@@ -517,7 +537,7 @@
                 if (entry.action.toLowerCase().includes(query)) return true;
                 if (entry.deltas) {
                     return Object.keys(entry.deltas).some(key => 
-                        gateLabels[key]?.toLowerCase().includes(query) || key.toLowerCase().includes(query)
+                        gateLabels[key]?.toLowerCase().includes(query)
                     );
                 }
                 return false;
@@ -543,17 +563,50 @@
         function clearLineage() {
             if (confirm('Clear all epigenetic lineage history?')) {
                 state.lineage = [];
+                selectedLineageIndex = null;
                 renderLineage();
             }
         }
 
-        /**
-         * High-accuracy state reconstruction using snapshots when available.
-         */
+        function showLineageStats() {
+            if (!state.lineage || state.lineage.length === 0) {
+                alert("No lineage data available.");
+                return;
+            }
+
+            const total = state.lineage.length;
+            let tickCount = 0, reconcileCount = 0;
+            const gateChanges = {};
+
+            state.lineage.forEach(entry => {
+                if (entry.action.includes('Tick')) tickCount++;
+                if (entry.action.includes('Reconcile')) reconcileCount++;
+
+                if (entry.deltas) {
+                    Object.keys(entry.deltas).forEach(gate => {
+                        gateChanges[gate] = (gateChanges[gate] || 0) + 1;
+                    });
+                }
+            });
+
+            const mostActiveGate = Object.entries(gateChanges).sort((a, b) => b[1] - a[1])[0];
+
+            const statsText = `
+Epigenetic Lineage Statistics
+
+Total Entries: ${total}
+Tick Actions: ${tickCount}
+Reconcile Actions: ${reconcileCount}
+
+Most Active Gate: ${mostActiveGate ? gateLabels[mostActiveGate[0]] : 'N/A'} (${mostActiveGate ? mostActiveGate[1] : 0} changes)
+            `;
+
+            alert(statsText);
+        }
+
         function reconstructStateAt(index) {
             if (!state.lineage || index >= state.lineage.length) return null;
 
-            // Find nearest snapshot at or before the target index
             let snapshotIndex = -1;
             let snapshotState = null;
 
@@ -566,12 +619,10 @@
             }
 
             if (!snapshotState) {
-                // No snapshot found — fall back to full replay from end
                 snapshotState = { ...state.epigenetic };
                 snapshotIndex = state.lineage.length;
             }
 
-            // Apply deltas forward from snapshot to target index
             for (let i = snapshotIndex - 1; i >= index; i--) {
                 const entry = state.lineage[i];
                 if (!entry.deltas) continue;
@@ -584,7 +635,7 @@
             return snapshotState;
         }
 
-        // ==================== END LINEAGE TRACKING v2 ====================
+        // ==================== END LINEAGE TRACKING v3 ====================
 
         function setBotSteps(steps) {
             botSteps = steps;
@@ -738,6 +789,7 @@
             state.epigenetic = { truth: 0, order: 0, love: 0, compassion: 0, service: 0, abundance: 0, joy: 0, cosmicHarmony: 0 };
             state.shiftHistory = [];
             state.lineage = [];
+            selectedLineageIndex = null;
             updateDisplay();
         }
 
