@@ -13,7 +13,7 @@
         .preset-btn { transition: all 0.2s ease; }
         .preset-btn.active { background-color: #10b981; color: black; border-color: #10b981; }
         .gate-bar { transition: width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.4s ease; }
-        .gate-row:hover .gate-bar { filter: brightness(1.15); }
+        .gate-row:hover .gate-bar { filter: brightness(1.2); }
     </style>
 </head>
 <body class="bg-zinc-950 text-white">
@@ -253,7 +253,7 @@
         <button onclick="doReconcile()" class="flex-1 py-4 border border-white rounded-2xl font-semibold btn">Deep Reconciliation</button>
     </div>
 
-    <!-- Visual TOLC8 Gate Dashboard (Refined) -->
+    <!-- Visual TOLC8 Gate Dashboard -->
     <div class="mb-8">
         <h3 class="text-xl font-semibold mb-4">TOLC8 Gate Dashboard</h3>
 
@@ -342,8 +342,7 @@
                 const value = state.epigenetic[key] || 0;
                 const percentage = Math.min(100, Math.round(value * 100));
 
-                // Dynamic color intensity based on strength
-                const intensity = Math.max(0.6, Math.min(1, value / 0.8));
+                const intensity = Math.max(0.55, Math.min(1, value / 0.75));
                 const barColor = `rgba(52, 211, 153, ${intensity})`;
 
                 const row = document.createElement('div');
@@ -355,19 +354,14 @@
                         <span class="font-mono text-emerald-400">${value.toFixed(2)}</span>
                     </div>
                     <div class="h-3.5 bg-zinc-800 rounded-full overflow-hidden cursor-help" title="${gateDescriptions[key]}">
-                        <div class="h-3.5 gate-bar rounded-full" 
+                        <div class="h-3.5 gate-bar rounded-full shadow-[0_0_6px_rgba(52,211,153,0.3)]" 
                              style="width: ${percentage}%; background-color: ${barColor};">
                         </div>
                     </div>
                 `;
 
-                // Add tooltip on hover
-                row.addEventListener('mouseenter', () => {
-                    row.style.boxShadow = '0 0 0 1px #10b98133';
-                });
-                row.addEventListener('mouseleave', () => {
-                    row.style.boxShadow = 'none';
-                });
+                row.addEventListener('mouseenter', () => { row.style.boxShadow = '0 0 0 1px #10b98133'; });
+                row.addEventListener('mouseleave', () => { row.style.boxShadow = 'none'; });
 
                 container.appendChild(row);
             });
@@ -392,7 +386,7 @@
         function renderShiftHistory() {
             const container = document.getElementById('shift-history');
             if (!state.shiftHistory || state.shiftHistory.length === 0) {
-                container.innerHTML = '<span class="text-white/40">No shifts recorded yet. Engage with the shard to build history.</span>';
+                container.innerHTML = '<span class="text-white/40">No shifts recorded yet.</span>';
                 return;
             }
 
@@ -415,8 +409,11 @@
             state.mercy = Math.min(140, state.mercy + 2);
             state.valence = Math.min(1.0, state.valence + 0.004);
 
-            state.epigenetic.abundance = Math.min(0.28, (state.epigenetic.abundance || 0) + 0.009);
-            state.epigenetic.joy = Math.min(0.28, (state.epigenetic.joy || 0) + 0.007);
+            const beforeAbundance = state.epigenetic.abundance || 0;
+            const beforeJoy = state.epigenetic.joy || 0;
+
+            state.epigenetic.abundance = Math.min(0.28, beforeAbundance + 0.009);
+            state.epigenetic.joy = Math.min(0.28, beforeJoy + 0.007);
 
             recordShift('Tick → Abundance + Joy strengthened');
             updateDisplay(true);
@@ -429,8 +426,11 @@
 
             if (state.harmony > 2.0) state.mercy = Math.min(140, state.mercy + 6);
 
-            state.epigenetic.compassion = Math.min(0.32, (state.epigenetic.compassion || 0) + 0.028);
-            state.epigenetic.service = Math.min(0.32, (state.epigenetic.service || 0) + 0.022);
+            const beforeCompassion = state.epigenetic.compassion || 0;
+            const beforeService = state.epigenetic.service || 0;
+
+            state.epigenetic.compassion = Math.min(0.32, beforeCompassion + 0.028);
+            state.epigenetic.service = Math.min(0.32, beforeService + 0.022);
             state.epigenetic.cosmicHarmony = Math.min(0.32, (state.epigenetic.cosmicHarmony || 0) + 0.018);
 
             recordShift('Reconcile → Compassion + Service strengthened');
