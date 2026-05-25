@@ -307,6 +307,22 @@
         </div>
     </div>
 
+    <!-- Debug / Simulation Tools -->
+    <div class="mb-8 border border-zinc-800 rounded-3xl p-5">
+        <div class="flex items-center justify-between mb-3">
+            <h4 class="text-sm font-semibold text-emerald-400">Debug & Simulation Tools</h4>
+            <button onclick="resetShardState()" class="text-xs px-3 py-1 border border-zinc-700 hover:bg-zinc-800 rounded-2xl">Reset Shard</button>
+        </div>
+
+        <div class="flex flex-wrap gap-2">
+            <button onclick="simulateTicks(5)" class="px-4 py-2 text-sm bg-zinc-800 hover:bg-zinc-700 rounded-2xl">Tick ×5</button>
+            <button onclick="simulateReconciles(5)" class="px-4 py-2 text-sm bg-zinc-800 hover:bg-zinc-700 rounded-2xl">Reconcile ×5</button>
+            <button onclick="simulateBalanced(5)" class="px-4 py-2 text-sm bg-emerald-900 hover:bg-emerald-800 rounded-2xl">Balanced ×5</button>
+        </div>
+
+        <div id="debug-panel" class="mt-4 text-xs font-mono bg-zinc-950 p-3 rounded-2xl hidden"></div>
+    </div>
+
     <h3 class="text-xl font-semibold mb-3">TOLC8 Gate Weights</h3>
     <pre class="bg-zinc-900 p-6 rounded-2xl text-sm overflow-auto">${weightsStr}</pre>
 
@@ -367,6 +383,7 @@
             renderGateDashboard(pulsedKeys);
             renderResonance();
             renderShiftHistory();
+            updateDebugPanel();
         }
 
         function renderGateDashboard(pulsedKeys = []) {
@@ -440,6 +457,41 @@
             if (!state.shiftHistory) state.shiftHistory = [];
             state.shiftHistory.unshift({ action, time: new Date().toLocaleTimeString() });
             if (state.shiftHistory.length > 6) state.shiftHistory.pop();
+        }
+
+        function updateDebugPanel() {
+            const panel = document.getElementById('debug-panel');
+            if (!panel) return;
+
+            panel.classList.remove('hidden');
+            panel.innerHTML = Object.keys(state.epigenetic).map(key => {
+                return `${gateLabels[key]}: <span class="text-emerald-400">${(state.epigenetic[key] || 0).toFixed(3)}</span>`;
+            }).join(' &nbsp; | &nbsp; ');
+        }
+
+        function simulateTicks(count) {
+            for (let i = 0; i < count; i++) {
+                doTick();
+            }
+        }
+
+        function simulateReconciles(count) {
+            for (let i = 0; i < count; i++) {
+                doReconcile();
+            }
+        }
+
+        function simulateBalanced(count) {
+            for (let i = 0; i < count; i++) {
+                if (i % 2 === 0) doTick();
+                else doReconcile();
+            }
+        }
+
+        function resetShardState() {
+            state.epigenetic = { truth: 0, order: 0, love: 0, compassion: 0, service: 0, abundance: 0, joy: 0, cosmicHarmony: 0 };
+            state.shiftHistory = [];
+            updateDisplay();
         }
 
         function doTick() {
