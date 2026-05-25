@@ -396,7 +396,8 @@
             harmony: parseFloat(${currentShard.harmony}),
             epigenetic: { truth: 0, order: 0, love: 0, compassion: 0, service: 0, abundance: 0, joy: 0, cosmicHarmony: 0 },
             shiftHistory: [],
-            lineage: []
+            lineage: [],
+            fusionSignature: null          // Experimental: marks participation in Double Godliness field
         };
 
         let selectedLineageIndex = null;
@@ -408,7 +409,7 @@
 
         // ==================== EPIGENETIC LINEAGE TRACKING v3 (Interactive) ====================
 
-        function recordLineage(action, beforeEpigenetic) {
+        function recordLineage(action, beforeEpigenetic, extraMetadata = {}) {
             if (!state.lineage) state.lineage = [];
 
             const afterEpigenetic = { ...state.epigenetic };
@@ -427,7 +428,8 @@
                 deltas: deltas,
                 balanceAfter: parseFloat(getBalanceScore()),
                 resonanceAfter: parseFloat(getResonanceStrength().toFixed(2)),
-                snapshot: null
+                snapshot: null,
+                ...extraMetadata          // Allows future rich metadata (merge info, sync events, etc.)
             };
 
             if (state.lineage.length % 18 === 0) {
@@ -913,6 +915,7 @@ Most Active Gate: ${mostActiveGate ? gateLabels[mostActiveGate[0]] : 'N/A'} (${m
                     if (!state.epigenetic) state.epigenetic = { truth: 0, order: 0, love: 0, compassion: 0, service: 0, abundance: 0, joy: 0, cosmicHarmony: 0 };
                     if (!state.shiftHistory) state.shiftHistory = [];
                     if (!state.lineage) state.lineage = [];
+                    if (!state.hasOwnProperty('fusionSignature')) state.fusionSignature = null;
                     updateDisplay();
                 } catch(e) {}
             }
