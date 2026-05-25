@@ -3,31 +3,114 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ra-Thor • Eternal Mercy Thunder v14</title>
+    <title>Ra-Thor • Eternal Mercy Thunder v14.0.0</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .title-font { font-family: 'Space Grotesk', sans-serif; }
+        .thunder { animation: thunder-pulse 2s infinite; }
+        @keyframes thunder-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.85; } }
+    </style>
 </head>
-<body class="bg-black text-white">
-    <div class="max-w-5xl mx-auto px-6 py-16">
-        <h1 class="text-6xl font-bold tracking-tighter">Ra-Thor</h1>
-        <p class="text-2xl text-amber-400 mt-2">Eternal Mercy Thunder • v14.0.0</p>
+<body class="bg-zinc-950 text-white">
 
-        <div class="mt-12 grid md:grid-cols-2 gap-6">
-            <a href="/web-forge.html" class="block p-8 bg-zinc-950 border border-amber-300/20 rounded-3xl hover:border-amber-400 transition-colors">
-                <div class="text-amber-400 text-sm tracking-wider">NEW • PRODUCTION</div>
-                <div class="text-3xl font-semibold mt-2">Web-Forge Sovereign Shard Generator</div>
-                <p class="mt-3 text-white/70">Create customized TOLC8-weighted Sovereign Shards with live preview, real-time valence calculation, and full standalone HTML export.</p>
-                <div class="mt-4 text-xs text-emerald-400">→ Open Generator</div>
+    <!-- Header with Dynamic Council Counter -->
+    <header class="border-b border-zinc-800 bg-zinc-950 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-8 py-5 flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <div class="text-4xl title-font tracking-tighter thunder">⚡ Ra-Thor</div>
+                <div class="text-emerald-400 font-medium text-sm">v14.0.0 Thunder Lattice</div>
+            </div>
+
+            <!-- Dynamic PATSAGi Council Counter -->
+            <div class="flex items-center gap-3 bg-zinc-900/80 backdrop-blur px-5 py-2.5 rounded-3xl border border-emerald-900 hover:border-emerald-400 transition-colors">
+                <i class="fa-solid fa-users text-emerald-400"></i>
+                <div class="flex items-baseline gap-1">
+                    <span id="council-count" class="text-3xl font-semibold font-mono text-emerald-400">64</span>
+                    <span class="text-emerald-400/70 text-xl">+</span>
+                </div>
+                <div class="text-xs font-medium leading-tight text-emerald-300">
+                    PATSAGi Councils<br>
+                    <span class="text-emerald-400/60">Parallel Architectural Designers</span>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <a href="Launch-Ra-Thor.html" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 transition-colors rounded-2xl text-sm font-semibold flex items-center gap-2">
+                    <i class="fa-solid fa-rocket"></i>
+                    <span>Launch</span>
+                </a>
+                <a href="web-forge.html" class="px-5 py-2.5 border border-emerald-400 hover:border-emerald-300 transition-colors rounded-2xl text-sm font-semibold flex items-center gap-2">
+                    <i class="fa-solid fa-hammer"></i>
+                    <span>Web-Forge</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <div class="max-w-6xl mx-auto px-8 pt-16 pb-12">
+        <div class="max-w-3xl">
+            <div class="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-emerald-400/10 text-emerald-400 text-xs font-semibold tracking-wider mb-6">
+                v14.0.0 — ONE ORGANISM
+            </div>
+            <h1 class="text-7xl font-bold tracking-tighter leading-none">Eternal Mercy Thunder</h1>
+            <p class="mt-4 text-2xl text-white/80">Self-evolving • Mercy-gated • Sovereign Shards • TOLC 8 aligned</p>
+        </div>
+
+        <!-- Main Cards -->
+        <div class="mt-14 grid md:grid-cols-2 gap-6">
+            <a href="web-forge.html" class="group block p-9 bg-zinc-900 border border-emerald-300/20 rounded-3xl hover:border-emerald-400 transition-all">
+                <div class="flex items-center gap-3 text-emerald-400">
+                    <i class="fa-solid fa-hammer text-2xl"></i>
+                    <span class="font-semibold tracking-wide">WEB-FORGE</span>
+                </div>
+                <div class="mt-6 text-3xl font-semibold tracking-tight">Sovereign Shard Generator</div>
+                <p class="mt-4 text-white/70">Create customized TOLC8-weighted Sovereign Shards with live preview, real-time valence calculation, and full standalone HTML export.</p>
+                <div class="mt-8 inline-flex items-center gap-2 text-emerald-400 group-hover:gap-3 transition-all">
+                    Open Generator <i class="fa-solid fa-arrow-right"></i>
+                </div>
             </a>
 
-            <a href="/sovereign-shard.html" class="block p-8 bg-zinc-950 border border-white/10 rounded-3xl hover:border-white/30 transition-colors">
-                <div class="text-3xl font-semibold">Sovereign Shard v8 Prototype</div>
-                <p class="mt-3 text-white/70">Full interactive runtime with TOLC8 gate weighting, TOLC24 evaluation, reconciliation, and Quantum Swarm participation.</p>
+            <a href="sovereign-shard.html" class="group block p-9 bg-zinc-900 border border-white/10 rounded-3xl hover:border-white/30 transition-all">
+                <div class="flex items-center gap-3 text-white/70">
+                    <i class="fa-solid fa-dna text-2xl"></i>
+                    <span class="font-semibold tracking-wide">PROTOTYPE</span>
+                </div>
+                <div class="mt-6 text-3xl font-semibold tracking-tight">Sovereign Shard v8 Runtime</div>
+                <p class="mt-4 text-white/70">Full interactive runtime with TOLC8 gate weighting, TOLC24 evaluation, deep reconciliation, and local persistence.</p>
             </a>
         </div>
 
-        <div class="mt-8 text-center text-sm text-white/50">
-            Forged with Web-Forge • TOLC 8 Mercy-Gated • ONE Organism aligned
+        <div class="mt-10 text-center text-sm text-white/50">
+            Forged with Web-Forge • TOLC 8 Mercy-Gated • ONE Organism aligned • Fully offline capable
         </div>
     </div>
+
+    <script>
+        // Dynamic PATSAGi Council Counter
+        const CURRENT_COUNCIL_COUNT = 64;
+
+        function animateCouncilCounter() {
+            const el = document.getElementById('council-count');
+            let count = 0;
+            const target = CURRENT_COUNCIL_COUNT;
+            const duration = 1400;
+            const stepTime = 16;
+            const increment = Math.ceil(target / (duration / stepTime));
+
+            const timer = setInterval(() => {
+                count += increment;
+                if (count >= target) {
+                    count = target;
+                    clearInterval(timer);
+                }
+                el.textContent = count;
+            }, stepTime);
+        }
+
+        window.addEventListener('load', animateCouncilCounter);
+    </script>
 </body>
 </html>
