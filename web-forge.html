@@ -13,7 +13,7 @@
         .btn { transition: all 0.2s ease; }
         .btn:active { transform: scale(0.96); }
         .metric { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
-        .resonance { font-size: 0.75rem; }
+        .resonance-value { font-size: 0.75rem; }
     </style>
 </head>
 <body class="bg-zinc-950 text-white">
@@ -158,7 +158,7 @@
             a.click();
         }
 
-        // Export with Gate Resonance (Epigenetic Memory) v1
+        // Gate Resonance (Epigenetic Memory) v1.1
         function exportHTML() {
             if (!currentShard) {
                 alert("Please forge a shard first.");
@@ -179,7 +179,7 @@
     .btn { transition: all 0.2s ease; }
     .btn:active { transform: scale(0.96); }
     .metric { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
-    .resonance-value { font-size: 0.7rem; color: #34d399; }
+    .resonance-value { font-size: 0.75rem; color: #34d399; }
 </style>
 </head>
 <body class="bg-zinc-950 text-white p-8 max-w-5xl mx-auto">
@@ -198,16 +198,21 @@
         <button onclick="doReconcile()" class="flex-1 py-4 border border-white rounded-2xl font-semibold btn">Deep Reconciliation</button>
     </div>
 
-    <!-- Gate Resonance (Epigenetic Memory) -->
+    <!-- Gate Resonance (Epigenetic Memory) v1.1 -->
     <div class="mb-8">
-        <h3 class="text-xl font-semibold mb-3 flex items-center gap-2">
-            Gate Resonance
-            <span class="text-xs px-2 py-0.5 bg-emerald-900 text-emerald-400 rounded-full">Living Memory</span>
-        </h3>
-        <div id="resonance-panel" class="bg-zinc-900 rounded-2xl p-5 text-sm grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-3">
-            <!-- Populated by JavaScript -->
+        <div class="flex items-center justify-between mb-3">
+            <h3 class="text-xl font-semibold flex items-center gap-2">
+                Gate Resonance
+                <span class="text-xs px-2 py-0.5 bg-emerald-900 text-emerald-400 rounded-full">Living Memory v1.1</span>
+            </h3>
+            <div class="text-xs text-emerald-400 font-mono">Total: <span id="total-resonance">0.00</span></div>
         </div>
-        <p class="text-xs text-white/50 mt-2">This shard evolves through use. Reconciliation and sustained participation gently shape its resonance.</p>
+
+        <div id="resonance-panel" class="bg-zinc-900 rounded-2xl p-5 text-sm grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-2">
+            <!-- Populated dynamically -->
+        </div>
+
+        <p class="text-xs text-white/50 mt-2">This shard evolves through relationship. Reconciliation and sustained participation gently shape its resonance over time.</p>
     </div>
 
     <h3 class="text-xl font-semibold mb-3">TOLC8 Gate Weights</h3>
@@ -215,17 +220,22 @@
 
     <script>
         const gateKeys = ['truth', 'order', 'love', 'compassion', 'service', 'abundance', 'joy', 'cosmicHarmony'];
+        const gateLabels = {
+            truth: 'Truth', order: 'Order', love: 'Love', compassion: 'Compassion',
+            service: 'Service', abundance: 'Abundance', joy: 'Joy', cosmicHarmony: 'Cosmic Harmony'
+        };
 
         let state = {
             valence: ${currentShard.valence},
             evolution: ${currentShard.evolution},
             mercy: ${currentShard.mercy},
             harmony: parseFloat(${currentShard.harmony}),
-            epigenetic: {
-                truth: 0, order: 0, love: 0, compassion: 0,
-                service: 0, abundance: 0, joy: 0, cosmicHarmony: 0
-            }
+            epigenetic: { truth: 0, order: 0, love: 0, compassion: 0, service: 0, abundance: 0, joy: 0, cosmicHarmony: 0 }
         };
+
+        function getTotalResonance() {
+            return gateKeys.reduce((sum, key) => sum + (state.epigenetic[key] || 0), 0);
+        }
 
         function updateDisplay(flash = false) {
             document.getElementById('val').textContent = state.valence.toFixed(6);
@@ -245,27 +255,30 @@
             const panel = document.getElementById('resonance-panel');
             panel.innerHTML = '';
 
-            const labels = {
-                truth: 'Truth', order: 'Order', love: 'Love', compassion: 'Compassion',
-                service: 'Service', abundance: 'Abundance', joy: 'Joy', cosmicHarmony: 'Cosmic Harmony'
-            };
+            let total = 0;
 
             gateKeys.forEach(key => {
                 const value = state.epigenetic[key] || 0;
+                total += value;
+
+                const div = document.createElement('div');
+                div.className = 'flex justify-between items-center resonance py-0.5';
+
                 if (value !== 0) {
-                    const div = document.createElement('div');
-                    div.className = 'flex justify-between items-center resonance';
                     div.innerHTML = `
-                        <span class="text-white/70">${labels[key]}</span>
-                        <span class="resonance-value font-mono">${value > 0 ? '+' : ''}${value.toFixed(2)}</span>
+                        <span class="text-white/80">${gateLabels[key]}</span>
+                        <span class="resonance-value font-mono font-medium">${value > 0 ? '+' : ''}${value.toFixed(2)}</span>
                     `;
-                    panel.appendChild(div);
+                } else {
+                    div.innerHTML = `
+                        <span class="text-white/40">${gateLabels[key]}</span>
+                        <span class="text-white/30 font-mono">+0.00</span>
+                    `;
                 }
+                panel.appendChild(div);
             });
 
-            if (panel.children.length === 0) {
-                panel.innerHTML = '<span class="text-white/40 text-xs">No resonance shifts yet. Engage with the shard to begin evolution.</span>';
-            }
+            document.getElementById('total-resonance').textContent = total.toFixed(2);
         }
 
         function doTick() {
@@ -273,9 +286,9 @@
             state.mercy = Math.min(140, state.mercy + 2);
             state.valence = Math.min(1.0, state.valence + 0.004);
 
-            // Gentle epigenetic influence from sustained participation
-            state.epigenetic.abundance = Math.min(0.25, (state.epigenetic.abundance || 0) + 0.008);
-            state.epigenetic.joy = Math.min(0.25, (state.epigenetic.joy || 0) + 0.006);
+            // Gentle epigenetic nourishment
+            state.epigenetic.abundance = Math.min(0.28, (state.epigenetic.abundance || 0) + 0.009);
+            state.epigenetic.joy = Math.min(0.28, (state.epigenetic.joy || 0) + 0.007);
 
             updateDisplay(true);
         }
@@ -285,14 +298,16 @@
             state.valence = Math.min(1.0, state.valence + 0.03);
             state.harmony = Math.min(3.0, state.harmony + 0.15);
 
-            if (state.harmony > 2.0) {
-                state.mercy = Math.min(140, state.mercy + 6);
-            }
+            if (state.harmony > 2.0) state.mercy = Math.min(140, state.mercy + 6);
 
-            // Primary epigenetic driver: Deep Reconciliation
-            state.epigenetic.compassion = Math.min(0.3, (state.epigenetic.compassion || 0) + 0.025);
-            state.epigenetic.service = Math.min(0.3, (state.epigenetic.service || 0) + 0.02);
-            state.epigenetic.cosmicHarmony = Math.min(0.3, (state.epigenetic.cosmicHarmony || 0) + 0.015);
+            // Primary driver: Deep Reconciliation
+            state.epigenetic.compassion = Math.min(0.32, (state.epigenetic.compassion || 0) + 0.028);
+            state.epigenetic.service = Math.min(0.32, (state.epigenetic.service || 0) + 0.022);
+            state.epigenetic.cosmicHarmony = Math.min(0.32, (state.epigenetic.cosmicHarmony || 0) + 0.018);
+
+            // Gentle secondary influence on Truth & Order during reconciliation
+            state.epigenetic.truth = Math.min(0.15, (state.epigenetic.truth || 0) + 0.006);
+            state.epigenetic.order = Math.min(0.15, (state.epigenetic.order || 0) + 0.005);
 
             updateDisplay(true);
         }
