@@ -13,7 +13,6 @@
         .preset-btn { transition: all 0.2s ease; }
         .preset-btn.active { background-color: #10b981; color: black; border-color: #10b981; }
         .resonance-value { font-size: 0.75rem; }
-        .shift-log { font-size: 0.7rem; }
     </style>
 </head>
 <body class="bg-zinc-950 text-white">
@@ -252,14 +251,21 @@
         <button onclick="doReconcile()" class="flex-1 py-4 border border-white rounded-2xl font-semibold btn">Deep Reconciliation</button>
     </div>
 
-    <!-- Gate Resonance with Shift History -->
+    <!-- Gate Resonance + Shift History -->
     <div class="mb-8">
-        <h3 class="text-xl font-semibold mb-3">Gate Resonance</h3>
+        <div class="flex items-center justify-between mb-3">
+            <h3 class="text-xl font-semibold">Gate Resonance</h3>
+            <div class="text-sm">
+                <span class="text-emerald-400">Resonance Strength:</span>
+                <span id="resonance-strength" class="font-mono font-semibold text-emerald-400">0.00</span>
+            </div>
+        </div>
+
         <div id="resonance-panel" class="bg-zinc-900 rounded-2xl p-5 text-sm grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-2"></div>
 
         <div class="mt-4">
             <div class="text-sm text-emerald-400 mb-1 font-medium">Recent Shifts</div>
-            <div id="shift-history" class="bg-zinc-900 rounded-2xl p-4 text-sm min-h-[80px]"></div>
+            <div id="shift-history" class="bg-zinc-900 rounded-2xl p-4 text-sm min-h-[90px]"></div>
         </div>
     </div>
 
@@ -276,11 +282,18 @@
             shiftHistory: []
         };
 
+        function getResonanceStrength() {
+            return Object.values(state.epigenetic).reduce((sum, val) => sum + (val || 0), 0);
+        }
+
         function updateDisplay(flash = false) {
             document.getElementById('val').textContent = state.valence.toFixed(6);
             document.getElementById('evo').textContent = Math.floor(state.evolution);
             document.getElementById('mercy').textContent = Math.floor(state.mercy);
             document.getElementById('harmony').textContent = state.harmony.toFixed(2);
+
+            const strengthEl = document.getElementById('resonance-strength');
+            if (strengthEl) strengthEl.textContent = getResonanceStrength().toFixed(2);
 
             if (flash) {
                 const metrics = document.querySelectorAll('.metric');
@@ -312,13 +325,13 @@
         function renderShiftHistory() {
             const container = document.getElementById('shift-history');
             if (!state.shiftHistory || state.shiftHistory.length === 0) {
-                container.innerHTML = '<span class="text-white/40">No shifts recorded yet. Engage with the shard.</span>';
+                container.innerHTML = '<span class="text-white/40">No shifts recorded yet. Engage with the shard to build history.</span>';
                 return;
             }
 
             container.innerHTML = state.shiftHistory.map(shift => `
-                <div class="flex justify-between py-0.5">
-                    <span class="text-white/70">${shift.action}</span>
+                <div class="flex justify-between items-center py-0.5">
+                    <span class="text-white/80">${shift.action}</span>
                     <span class="text-emerald-400 font-mono text-xs">${shift.time}</span>
                 </div>
             `).join('');
@@ -327,7 +340,7 @@
         function recordShift(action) {
             if (!state.shiftHistory) state.shiftHistory = [];
             state.shiftHistory.unshift({ action, time: new Date().toLocaleTimeString() });
-            if (state.shiftHistory.length > 5) state.shiftHistory.pop();
+            if (state.shiftHistory.length > 6) state.shiftHistory.pop();
         }
 
         function doTick() {
@@ -338,7 +351,7 @@
             state.epigenetic.abundance = Math.min(0.28, (state.epigenetic.abundance || 0) + 0.009);
             state.epigenetic.joy = Math.min(0.28, (state.epigenetic.joy || 0) + 0.007);
 
-            recordShift('Tick → Abundance + Joy');
+            recordShift('Tick → Abundance + Joy strengthened');
             updateDisplay(true);
         }
 
@@ -353,7 +366,7 @@
             state.epigenetic.service = Math.min(0.32, (state.epigenetic.service || 0) + 0.022);
             state.epigenetic.cosmicHarmony = Math.min(0.32, (state.epigenetic.cosmicHarmony || 0) + 0.018);
 
-            recordShift('Reconcile → Compassion + Service');
+            recordShift('Reconcile → Compassion + Service strengthened');
             updateDisplay(true);
         }
 
