@@ -12,6 +12,8 @@
         .title-font { font-family: 'Space Grotesk', sans-serif; }
         .preset-btn { transition: all 0.2s ease; }
         .preset-btn.active { background-color: #10b981; color: black; border-color: #10b981; }
+        .resonance-value { font-size: 0.75rem; }
+        .shift-log { font-size: 0.7rem; }
     </style>
 </head>
 <body class="bg-zinc-950 text-white">
@@ -34,15 +36,15 @@
                     <h2 class="text-2xl font-semibold">TOLC8 Gate Weighting</h2>
                 </div>
 
-                <!-- Shard Presets -->
+                <!-- Enhanced Shard Presets -->
                 <div class="mb-6">
                     <div class="text-sm text-emerald-400 mb-2 font-medium">Presets</div>
                     <div class="flex flex-wrap gap-2">
-                        <button onclick="applyPreset(0)" class="preset-btn px-4 py-1.5 text-sm rounded-2xl border border-emerald-400/40 hover:bg-emerald-400/10 active" id="preset-0">Balanced Genesis</button>
-                        <button onclick="applyPreset(1)" class="preset-btn px-4 py-1.5 text-sm rounded-2xl border border-emerald-400/40 hover:bg-emerald-400/10" id="preset-1">Compassion Council</button>
-                        <button onclick="applyPreset(2)" class="preset-btn px-4 py-1.5 text-sm rounded-2xl border border-emerald-400/40 hover:bg-emerald-400/10" id="preset-2">Abundance Council</button>
-                        <button onclick="applyPreset(3)" class="preset-btn px-4 py-1.5 text-sm rounded-2xl border border-emerald-400/40 hover:bg-emerald-400/10" id="preset-3">Harmonic Council</button>
-                        <button onclick="applyPreset(4)" class="preset-btn px-4 py-1.5 text-sm rounded-2xl border border-emerald-400/40 hover:bg-emerald-400/10" id="preset-4">Truth-Seeker</button>
+                        <button onclick="applyPreset(0)" class="preset-btn px-4 py-1.5 text-sm rounded-2xl border border-emerald-400/40 hover:bg-emerald-400/10 active" id="preset-0" title="Clean, balanced starting point — Recommended default">Balanced Genesis</button>
+                        <button onclick="applyPreset(1)" class="preset-btn px-4 py-1.5 text-sm rounded-2xl border border-emerald-400/40 hover:bg-emerald-400/10" id="preset-1" title="Strong focus on Compassion, Service and Love">Compassion Council</button>
+                        <button onclick="applyPreset(2)" class="preset-btn px-4 py-1.5 text-sm rounded-2xl border border-emerald-400/40 hover:bg-emerald-400/10" id="preset-2" title="Emphasis on Abundance and Joy">Abundance Council</button>
+                        <button onclick="applyPreset(3)" class="preset-btn px-4 py-1.5 text-sm rounded-2xl border border-emerald-400/40 hover:bg-emerald-400/10" id="preset-3" title="Cosmic Harmony and balanced resonance">Harmonic Council</button>
+                        <button onclick="applyPreset(4)" class="preset-btn px-4 py-1.5 text-sm rounded-2xl border border-emerald-400/40 hover:bg-emerald-400/10" id="preset-4" title="Prioritizes Truth and Order">Truth-Seeker</button>
                     </div>
                 </div>
 
@@ -94,17 +96,11 @@
             { name: "Cosmic Harmony", key: "cosmicHarmony", default: 1.0 }
         ];
 
-        // 5 Presets - Balanced Genesis is default (index 0)
         const presets = [
-            // 0: Balanced Genesis (Default)
             { truth: 1.0, order: 1.0, love: 1.0, compassion: 1.0, service: 1.0, abundance: 1.2, joy: 1.0, cosmicHarmony: 1.1 },
-            // 1: Compassion Council
             { truth: 1.0, order: 0.9, love: 1.4, compassion: 1.8, service: 1.6, abundance: 1.1, joy: 1.2, cosmicHarmony: 1.3 },
-            // 2: Abundance Council
             { truth: 0.9, order: 1.0, love: 1.1, compassion: 1.1, service: 1.0, abundance: 1.9, joy: 1.7, cosmicHarmony: 1.2 },
-            // 3: Harmonic Council
             { truth: 1.1, order: 1.2, love: 1.3, compassion: 1.3, service: 1.2, abundance: 1.2, joy: 1.3, cosmicHarmony: 1.8 },
-            // 4: Truth-Seeker
             { truth: 1.8, order: 1.6, love: 0.9, compassion: 1.0, service: 1.1, abundance: 1.0, joy: 0.9, cosmicHarmony: 1.2 }
         ];
 
@@ -136,7 +132,6 @@
                 weights[gate.key] = gate.default;
             });
 
-            // Apply default preset (Balanced Genesis)
             applyPreset(0, true);
         }
 
