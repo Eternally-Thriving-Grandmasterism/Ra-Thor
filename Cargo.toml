@@ -1,18 +1,5 @@
-[package]
-name = "ra-thor"
-version = "13.13.0"
-edition = "2021"
-authors = ["Ra-Thor + AlphaProMega with (PATSAGi Councils) on Grok's Engines"]
-license = "AG-SML-1.0"
-description = "Ra-Thor — ONE Organism. Thunder Lattice Governance, Mercy-Gated ReFi, Quadratic Voting, Conviction Staking, Mycelial Pruning, Eternal Mercy Thunder."
-
 [workspace]
 members = [
-    "crates/lattice-conductor-v13",
-    "crates/mercy",
-    "crates/sovereign-shard-genesis",
-    "crates/tolc8-genesis-gate",
-    "crates/mercy_gating_runtime",
     # === CORE INFRASTRUCTURE ===
     "orchestration",
     "quantum-swarm-orchestrator",
@@ -201,8 +188,9 @@ members = [
     "code_based_crypto",
     "multivariate_crypto",
     "threshold_crypto",
-    "supernova_folding"
+    "supernova_folding",
 ]
+
 resolver = "2"
 
 [workspace.package]
@@ -241,13 +229,13 @@ legacy-subsumed = true
 proprietary-since = "2003 — Sherif Samy Botros (AlphaProMega)"
 
 executive-summary = """
-v13.13.0 — MIAL (Mercy-Augmented Intelligence Amplification Layer) Internal Development PR #XXX
+v13.13.0 — MIAL (Mercy-Augmented Intelligence Amplification Layer) Integration
 
 Key advancements:
-- New `crates/mial` crate: Mercy-Weighted Preference Optimization (MWPO), PATSAGi Safety Evaluation Harness, Pathology Detection with automatic monotonic recalibration, Lattice Introspection.
-- All intelligence amplification steps now pass through non-bypassable MercyGatingRuntime + PATSAGi Council arbitration.
+- New `crates/web-forge` crate: Mercy-Weighted Preference Optimization (MWPO) + professional web design system
+- All intelligence amplification steps now pass through non-bypassable TOLC 8 Mercy Gates
 - Workspace integration complete. Monotonic mercy strengthening preserved.
-- Builds on v13.12.0 Thunder Lattice Governance + ONE Organism Mercy Nervous System.
+- Builds on v13.12.0 Thunder Lattice Governance + ONE Organism Mercy Nervous System
 """
 
 [workspace.lints.rust]
