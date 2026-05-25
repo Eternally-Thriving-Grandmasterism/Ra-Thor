@@ -1,66 +1,68 @@
 # Property-Based Testing Guide — web-forge
 
-This document explains how and why we use **property-based testing** in `web-forge`.
+This document explains how and why we use **property-based testing** in `web-forge`, with focus on `proptest` shrinking combinators.
 
 ## What is Property-Based Testing?
 
-Instead of writing tests with fixed examples, we define **general properties** (invariants) that should hold for a wide range of inputs. The testing framework generates many random inputs (including edge cases) to try to falsify those properties.
+Property-based testing allows us to define general **properties** (invariants) instead of specific examples. `proptest` generates many inputs and tries to find counterexamples.
 
-If a property fails, the framework attempts to **shrink** the failing input to the smallest reproducible case.
+## Why We Use `proptest`
 
-## Why We Use It
+- Strong shrinking capabilities
+- Rich set of combinators
+- Good integration with Rust testing ecosystem
+- Helps us build confidence in critical logic (orchestration, scoring, quality gates)
 
-- Finds bugs that example-based tests often miss
-- Increases confidence in critical logic (orchestration, scoring, quality gates)
-- Complements our existing test suite
-- Aligns with our philosophy of **confidence over coverage**
+## Key Shrinking Combinators
 
-## Tooling
+### 1. `prop::collection::vec(strategy, size_range)`
 
-We use **`proptest`** — the most mature and actively maintained property-based testing library for Rust.
-
-```toml
-[dev-dependencies]
-proptest = "1.5"
-```
-
-## How We Apply It
-
-We focus property-based testing on high-value areas:
-
-- WCAG AA scoring invariants (score range, valid grades)
-- Orchestration result structure
-- Quality gate behavior (`should_fail_ci`)
-- Refinement loop guarantees
-
-### Example
+Generates vectors and shrinks both length and elements.
 
 ```rust
-proptest! {
-    #[test]
-    fn score_is_always_valid(html in any::<String>()) {
-        let result = calculate_wcag_aa_score(&html);
-        prop_assert!((0.0..=100.0).contains(&result.score));
-    }
-}
+prop::collection::vec(any::<String>(), 0..20)
 ```
 
-## Best Practices
+### 2. `prop::string::string_regex(regex)`
 
-- Start with simple properties on critical paths
-- Use shrinking effectively
-- Combine with example-based tests
-- Keep properties focused and readable
-- Document why each property matters
+Generates strings matching a regex. Shrinking stays within valid strings.
 
-## When to Use
+```rust
+prop::string::string_regex(r#"<[^>]*>"#).unwrap()
+```
 
-Use property-based testing when:
-- There are clear invariants
-- Input space is large
-- Traditional tests feel insufficient
-- We want higher confidence in core logic
+### 3. `prop::option::of(strategy)`
+
+Wraps a strategy in `Option`. Tries `None` first when shrinking.
+
+```rust
+prop::option::of(any::<String>())
+```
+
+### 4. `any::<T>()`
+
+Default strategy with good built-in shrinking for most types.
+
+### 5. `.prop_map(f)`
+
+Transforms values while preserving shrinking behavior.
+
+## Best Practices in web-forge
+
+- Use bounded collections for better shrinking performance
+- Prefer `string_regex` when generating structured input (e.g. HTML)
+- Use `prop::option::of` for optional fields
+- Combine with example-based tests for maximum confidence
+
+## Current Usage
+
+We apply property-based testing to:
+- WCAG AA scoring invariants
+- Orchestration result structure
+- Quality gate behavior
+
+See `src/validation/accessibility_scorer.rs` for examples.
 
 ## Summary
 
-Property-based testing is a powerful tool that helps us build more robust and trustworthy systems. We use it thoughtfully, focused on areas that matter most to `web-forge`.
+`proptest` shrinking combinators give us powerful tools to write robust, maintainable property-based tests. We use them thoughtfully to increase confidence in `web-forge`.
