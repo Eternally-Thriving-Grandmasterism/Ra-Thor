@@ -169,10 +169,12 @@ members = [
     "self_evolution_loop_engine",
     "cosmic_loop_orchestrator",
 
-    # Additional supporting crates
-    "ai-bridge",
+    # === WEB / FRONTEND GENERATION ===
     "websiteforge",
     "crates/web-forge",
+
+    # Additional supporting crates
+    "ai-bridge",
     "xtask",
     "common",
     "ra-thor-benchmark",
