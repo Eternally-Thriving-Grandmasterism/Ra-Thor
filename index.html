@@ -73,7 +73,7 @@
   </div>
 
   <script>
-    // ==================== ENHANCED i18n SYSTEM WITH PLURALIZATION ====================
+    // ==================== ENHANCED i18n SYSTEM (Interpolation + Pluralization) ====================
     const translations = {
       en: {
         hero: {
@@ -90,10 +90,8 @@
           subtitle: "Voice Chat • Zero Hallucinations • Live Grounded Reality"
         },
         common: {
-          councils: {
-            one: "Council",
-            other: "Councils"
-          }
+          welcome: "Welcome, {{name}}!",
+          councils: { one: "{{count}} Council", other: "{{count}} Councils" }
         }
       },
       ar: {
@@ -111,47 +109,60 @@
           subtitle: "دردشة صوتية • بدون هلوسات • واقع معاش"
         },
         common: {
-          councils: {
-            zero: "مجلس",
-            one: "مجلس",
-            two: "مجلسان",
-            few: "مجالس",
-            many: "مجلساً",
-            other: "مجلس"
-          }
+          welcome: "مرحبًا، {{name}}!",
+          councils: { zero: "{{count}} مجلس", one: "{{count}} مجلس", two: "{{count}} مجلسان", few: "{{count}} مجالس", many: "{{count}} مجلسً", other: "{{count}} مجلس" }
         }
       }
     };
 
-    // Translation helper with dot notation
-    function t(key, lang = 'en') {
-      const keys = key.split('.');
-      let value = translations[lang] || translations.en;
-      for (const k of keys) {
-        if (value && value[k] !== undefined) value = value[k];
+    // Translation with interpolation
+    function t(key, lang = 'en', vars = {}) {
+      let text = translations[lang]?.[key.split('.')[0]];
+      const parts = key.split('.').slice(1);
+
+      for (const part of parts) {
+        if (text && text[part] !== undefined) text = text[part];
         else return key;
       }
-      return value;
+
+      if (typeof text !== 'string') return key;
+
+      // Interpolation: replace {{variable}}
+      return text.replace(/\{\{(\w+)\}\}/g, (_, varName) => {
+        return vars[varName] !== undefined ? vars[varName] : `{{${varName}}}`;
+      });
     }
 
-    // Pluralization helper
-    function plural(key, count, lang = 'en') {
-      const forms = t(key, lang);
-      if (typeof forms === 'string') return forms;
+    // Pluralization with interpolation support
+    function plural(key, count, lang = 'en', vars = {}) {
+      const forms = translations[lang]?.[key.split('.')[0]];
+      let text = forms;
+      const parts = key.split('.').slice(1);
 
-      // Basic pluralization rules
-      if (lang === 'ar') {
-        // Arabic has complex plural rules
-        if (count === 0) return forms.zero || forms.other;
-        if (count === 1) return forms.one;
-        if (count === 2) return forms.two || forms.other;
-        if (count >= 3 && count <= 10) return forms.few || forms.other;
-        if (count > 10) return forms.many || forms.other;
-        return forms.other;
-      } else {
-        // Default (English-style)
-        return count === 1 ? (forms.one || forms.other) : forms.other;
+      for (const part of parts) {
+        if (text && text[part] !== undefined) text = text[part];
+        else return key;
       }
+
+      if (typeof text !== 'object') return key;
+
+      let form;
+      if (lang === 'ar') {
+        if (count === 0) form = text.zero || text.other;
+        else if (count === 1) form = text.one;
+        else if (count === 2) form = text.two || text.other;
+        else if (count >= 3 && count <= 10) form = text.few || text.other;
+        else form = text.many || text.other;
+      } else {
+        form = count === 1 ? (text.one || text.other) : text.other;
+      }
+
+      if (!form) return key;
+
+      // Apply interpolation
+      return form.replace(/\{\{(\w+)\}\}/g, (_, varName) => {
+        return vars[varName] !== undefined ? vars[varName] : `{{${varName}}}`;
+      });
     }
 
     function switchLanguage(lang) {
@@ -184,8 +195,9 @@
       createLanguageButtons();
       switchLanguage('en');
 
-      // Example usage of pluralization (for future dynamic content)
-      console.log('%c[i18n] Pluralization ready. Example: ' + plural('common.councils', 64, 'en'), 'color:#64748b');
+      // Demo interpolation + pluralization
+      console.log('%c[i18n] Interpolation demo:', 'color:#64748b', t('common.welcome', 'en', { name: 'Sherif' }));
+      console.log('%c[i18n] Pluralization demo:', 'color:#64748b', plural('common.councils', 64, 'en', { count: 64 }));
     }
 
     window.onload = init;
