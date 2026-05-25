@@ -15,6 +15,12 @@
         .gate-bar { transition: width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.4s ease; }
         .gate-row { transition: all 0.2s ease; }
         .gate-row:hover .gate-bar { filter: brightness(1.2); }
+        .pulse { animation: pulse-glow 1.2s ease-out; }
+        @keyframes pulse-glow {
+            0% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.6); }
+            70% { box-shadow: 0 0 0 8px rgba(52, 211, 153, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0); }
+        }
     </style>
 </head>
 <body class="bg-zinc-950 text-white">
@@ -177,6 +183,13 @@
             return Math.min(1.0, total / 8 * 0.92);
         }
 
+        function getBalanceScore() {
+            const values = Object.values(state.epigenetic);
+            const mean = values.reduce((a, b) => a + b, 0) / values.length;
+            const variance = values.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / values.length;
+            return Math.max(0, (1 - Math.sqrt(variance) * 2)).toFixed(2); // 0 to 1
+        }
+
         function generateShard() {
             const valence = calculateValence();
             currentShard = {
@@ -256,7 +269,13 @@
 
     <!-- Visual TOLC8 Gate Dashboard -->
     <div class="mb-8">
-        <h3 class="text-xl font-semibold mb-4">TOLC8 Gate Dashboard</h3>
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-xl font-semibold">TOLC8 Gate Dashboard</h3>
+            <div class="text-sm">
+                <span class="text-emerald-400">Balance:</span>
+                <span id="balance-score" class="font-mono font-semibold text-emerald-400">0.00</span>
+            </div>
+        </div>
 
         <div class="bg-zinc-900 rounded-3xl p-6 space-y-4" id="gate-dashboard">
             <!-- Populated dynamically by JS -->
@@ -316,7 +335,14 @@
             return Object.values(state.epigenetic).reduce((sum, val) => sum + (val || 0), 0);
         }
 
-        function updateDisplay(flash = false) {
+        function getBalanceScore() {
+            const values = Object.values(state.epigenetic);
+            const mean = values.reduce((a, b) => a + b, 0) / values.length;
+            const variance = values.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / values.length;
+            return Math.max(0, (1 - Math.sqrt(variance) * 2)).toFixed(2);
+        }
+
+        function updateDisplay(flash = false, pulsedKeys = []) {
             document.getElementById('val').textContent = state.valence.toFixed(6);
             document.getElementById('evo').textContent = Math.floor(state.evolution);
             document.getElementById('mercy').textContent = Math.floor(state.mercy);
@@ -325,17 +351,20 @@
             const strengthEl = document.getElementById('resonance-strength');
             if (strengthEl) strengthEl.textContent = getResonanceStrength().toFixed(2);
 
+            const balanceEl = document.getElementById('balance-score');
+            if (balanceEl) balanceEl.textContent = getBalanceScore();
+
             if (flash) {
                 const metrics = document.querySelectorAll('.metric');
                 metrics.forEach(m => { m.style.boxShadow = '0 0 0 2px #10b981'; setTimeout(() => m.style.boxShadow = '', 500); });
             }
 
-            renderGateDashboard();
+            renderGateDashboard(pulsedKeys);
             renderResonance();
             renderShiftHistory();
         }
 
-        function renderGateDashboard() {
+        function renderGateDashboard(pulsedKeys = []) {
             const container = document.getElementById('gate-dashboard');
             container.innerHTML = '';
 
@@ -349,13 +378,16 @@
                 const row = document.createElement('div');
                 row.className = 'gate-row group space-y-1.5';
 
+                const isPulsed = pulsedKeys.includes(key);
+                const pulseClass = isPulsed ? 'pulse' : '';
+
                 row.innerHTML = `
                     <div class="flex justify-between text-sm">
                         <span class="text-white/80">${gateLabels[key]}</span>
                         <span class="font-mono text-emerald-400">${value.toFixed(2)}</span>
                     </div>
                     <div class="h-3.5 bg-zinc-800 rounded-full overflow-hidden cursor-help" title="${gateDescriptions[key]}">
-                        <div class="h-3.5 gate-bar rounded-full shadow-[0_0_8px_rgba(52,211,153,0.35)]" 
+                        <div class="h-3.5 gate-bar rounded-full shadow-[0_0_8px_rgba(52,211,153,0.35)] ${pulseClass}" 
                              style="width: ${percentage}%; background-color: ${barColor};">
                         </div>
                     </div>
@@ -410,14 +442,30 @@
             state.mercy = Math.min(140, state.mercy + 2);
             state.valence = Math.min(1.0, state.valence + 0.004);
 
+            const pulsed = [];
+
+            // Boost Truth + Order (new)
+            if ((state.epigenetic.truth || 0) < 0.25) {
+                state.epigenetic.truth = Math.min(0.25, (state.epigenetic.truth || 0) + 0.006);
+                pulsed.push('truth');
+            }
+            if ((state.epigenetic.order || 0) < 0.25) {
+                state.epigenetic.order = Math.min(0.25, (state.epigenetic.order || 0) + 0.006);
+                pulsed.push('order');
+            }
+
+            // Existing
             const beforeAbundance = state.epigenetic.abundance || 0;
             const beforeJoy = state.epigenetic.joy || 0;
 
             state.epigenetic.abundance = Math.min(0.28, beforeAbundance + 0.009);
             state.epigenetic.joy = Math.min(0.28, beforeJoy + 0.007);
 
-            recordShift('Tick → Abundance + Joy strengthened');
-            updateDisplay(true);
+            if (!pulsed.includes('abundance')) pulsed.push('abundance');
+            if (!pulsed.includes('joy')) pulsed.push('joy');
+
+            recordShift('Tick → Truth + Order + Abundance + Joy');
+            updateDisplay(true, pulsed);
         }
 
         function doReconcile() {
@@ -427,6 +475,14 @@
 
             if (state.harmony > 2.0) state.mercy = Math.min(140, state.mercy + 6);
 
+            const pulsed = [];
+
+            // Boost Love (new)
+            if ((state.epigenetic.love || 0) < 0.28) {
+                state.epigenetic.love = Math.min(0.28, (state.epigenetic.love || 0) + 0.007);
+                pulsed.push('love');
+            }
+
             const beforeCompassion = state.epigenetic.compassion || 0;
             const beforeService = state.epigenetic.service || 0;
 
@@ -434,8 +490,10 @@
             state.epigenetic.service = Math.min(0.32, beforeService + 0.022);
             state.epigenetic.cosmicHarmony = Math.min(0.32, (state.epigenetic.cosmicHarmony || 0) + 0.018);
 
-            recordShift('Reconcile → Compassion + Service strengthened');
-            updateDisplay(true);
+            pulsed.push('compassion', 'service', 'cosmicHarmony');
+
+            recordShift('Reconcile → Love + Compassion + Service + Harmony');
+            updateDisplay(true, pulsed);
         }
 
         window.onload = () => {
