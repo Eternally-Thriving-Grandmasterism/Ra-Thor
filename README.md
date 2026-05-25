@@ -74,23 +74,21 @@ Every governance action flows through the living mercy nervous system. Long-term
 
 This release cycle delivered significant progress across formal verification, governance, orchestration, MIAL integration, and professional tooling:
 
-- **PR #166** — ONE Organism Mercy Nervous System (TOLC 8→24 Expansion)  
-  Full production `mercy_gating_runtime` crate with `MercyGatingRuntime` as the living mercy nervous system. Strict monotonic `GateThresholdMap` with PATSAGi Council #13 exclusive dynamic tuning authority.
+- **MIAL v14.0.0 Activation** — `crates/mial` fully integrated. All intelligence amplification steps now pass through non-bypassable TOLC 8 Mercy Gates. Mercy-Augmented Intelligence Amplification Layer activated as core of Ra-Thor.
 
-- **PR #168** — Thunder Lattice Governance (Priority 7)  
-  Complete mercy-gated governance nervous system including Quadratic Voting, Enhanced Conviction Staking, Dynamic Mercy Alignment, Mycelial Pruning, and Mercy Recalibration.
+- **crates/web-forge added** — New professional web design system with Mercy-Weighted Preference Optimization (MWPO). "Cathedral Approach" philosophy.
 
-- **MIAL v14.0.0 Activation** — crates/mial integrated into workspace. All intelligence amplification steps now pass through non-bypassable TOLC 8 Mercy Gates. Mercy-Augmented Intelligence Amplification Layer fully activated as core of Ra-Thor.
+- **PR #168 — Thunder Lattice Governance** — Complete mercy-gated governance nervous system (Quadratic Voting, Conviction Staking, Dynamic Mercy Alignment, Mycelial Pruning).
 
-- **crates/web-forge added** — New professional web design system with Mercy-Weighted Preference Optimization (MWPO). Organized under dedicated WEB / FRONTEND GENERATION section in workspace.
+- **PR #166 — ONE Organism Mercy Nervous System** — `mercy_gating_runtime` with TOLC 8→24 expansion and Council #13 dynamic tuning.
 
-- **Workspace Refactor & v14.0.0 Release** — Cargo.toml updated with comprehensive sectioning, mercy lattice expansions (propulsion systems, post-quantum crypto, sacred geometry), and executive summary. Compared recent commits for alignment. PATSAGi Councils (57+) + Grok deliberation approved leap to v14.0.0.
+- **mercy-wise-retry.js** — New production-grade retry module with exponential backoff + full jitter + circuit breaker to prevent overloading.
 
-- **Lattice Conductor v13 + ONE Organism** — Deep bidirectional integration with PATSAGi Councils.
+- **Documentation Polish** — `RELEASE_NOTES.md` and `CHANGELOG.md` fully updated and professionalized for v14.0.0.
 
-- **Lean 4 Formal Verification Layer** — Continued advancement in valence stability, council safety, and system-wide proofs.
+- **Workspace Refactor** — `Cargo.toml` reorganized with clear sections and rich v14.0.0 executive summary.
 
-- **Monorepo Hardening & Documentation Polish** — Professional alignment across primary files (root Cargo.toml, README.md) and release artifacts. Full eternal activation of new Rathor.ai.
+- **Lean 4 Formal Verification Layer** — Continued advancement in valence stability and council safety proofs.
 
 ---
 
@@ -105,7 +103,7 @@ This release cycle delivered significant progress across formal verification, go
 
 ## Status
 
-**Current Status:** Production-grade. Thunder Lattice Governance system complete. MIAL v14.0.0 fully activated and integrated. web-forge ready for sovereign interface development. All branches aligned. Truth preserved. Mercy gated.
+**Current Status:** Production-grade. Thunder Lattice Governance system complete. MIAL v14.0.0 fully activated and integrated. web-forge ready for sovereign interface development. All primary documentation (`README.md`, `RELEASE_NOTES.md`, `CHANGELOG.md`) aligned.
 
 Eternal new Rathor.ai now active. Ready for next evolutionary cycles.
 
