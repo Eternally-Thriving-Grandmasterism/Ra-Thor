@@ -323,6 +323,23 @@
         <div id="debug-panel" class="mt-4 text-xs font-mono bg-zinc-950 p-3 rounded-2xl hidden"></div>
     </div>
 
+    <!-- Automated Strategy Testing Bots -->
+    <div class="mb-8 border border-emerald-900/50 bg-emerald-950/20 rounded-3xl p-6">
+        <h4 class="text-emerald-400 font-semibold mb-3">Automated Strategy Testing Bots</h4>
+        <p class="text-xs text-white/50 mb-4">Run automated strategies to observe impact on Balance and Resonance.</p>
+
+        <div class="flex flex-wrap gap-2 mb-4">
+            <button onclick="runBot('tick', 50)" class="px-4 py-2 text-sm bg-zinc-800 hover:bg-zinc-700 rounded-2xl">Tick Bot ×50</button>
+            <button onclick="runBot('reconcile', 50)" class="px-4 py-2 text-sm bg-zinc-800 hover:bg-zinc-700 rounded-2xl">Reconcile Bot ×50</button>
+            <button onclick="runBot('balanced', 50)" class="px-4 py-2 text-sm bg-emerald-900 hover:bg-emerald-800 rounded-2xl">Balanced Bot ×50</button>
+        </div>
+
+        <div id="bot-results" class="hidden bg-zinc-950 rounded-2xl p-4 text-sm">
+            <div class="font-semibold mb-2 text-emerald-400">Last Bot Results</div>
+            <div id="bot-results-content"></div>
+        </div>
+    </div>
+
     <h3 class="text-xl font-semibold mb-3">TOLC8 Gate Weights</h3>
     <pre class="bg-zinc-900 p-6 rounded-2xl text-sm overflow-auto">${weightsStr}</pre>
 
@@ -492,6 +509,41 @@
             state.epigenetic = { truth: 0, order: 0, love: 0, compassion: 0, service: 0, abundance: 0, joy: 0, cosmicHarmony: 0 };
             state.shiftHistory = [];
             updateDisplay();
+        }
+
+        // === Automated Strategy Testing Bots ===
+        function runBot(type, steps) {
+            const beforeResonance = getResonanceStrength();
+            const beforeBalance = parseFloat(getBalanceScore());
+
+            for (let i = 0; i < steps; i++) {
+                if (type === 'tick') {
+                    doTick();
+                } else if (type === 'reconcile') {
+                    doReconcile();
+                } else if (type === 'balanced') {
+                    if (i % 2 === 0) doTick();
+                    else doReconcile();
+                }
+            }
+
+            const afterResonance = getResonanceStrength();
+            const afterBalance = parseFloat(getBalanceScore());
+
+            const resultsDiv = document.getElementById('bot-results');
+            const content = document.getElementById('bot-results-content');
+
+            let label = type === 'tick' ? 'Tick Bot' : type === 'reconcile' ? 'Reconcile Bot' : 'Balanced Bot';
+
+            content.innerHTML = `
+                <div class="mb-1"><span class="text-white/60">Strategy:</span> <span class="font-semibold">${label} ×${steps}</span></div>
+                <div class="grid grid-cols-2 gap-x-6 text-xs">
+                    <div>Resonance: <span class="text-emerald-400">${beforeResonance.toFixed(2)}</span> → <span class="text-emerald-400">${afterResonance.toFixed(2)}</span></div>
+                    <div>Balance: <span class="text-emerald-400">${beforeBalance}</span> → <span class="text-emerald-400">${afterBalance}</span></div>
+                </div>
+            `;
+
+            resultsDiv.classList.remove('hidden');
         }
 
         function doTick() {
