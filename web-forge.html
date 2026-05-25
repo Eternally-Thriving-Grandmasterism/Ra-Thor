@@ -12,7 +12,7 @@
         .title-font { font-family: 'Space Grotesk', sans-serif; }
         .preset-btn { transition: all 0.2s ease; }
         .preset-btn.active { background-color: #10b981; color: black; border-color: #10b981; }
-        .resonance-value { font-size: 0.75rem; }
+        .gate-bar { transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
     </style>
 </head>
 <body class="bg-zinc-950 text-white">
@@ -233,6 +233,7 @@
     .btn { transition: all 0.2s ease; }
     .btn:active { transform: scale(0.96); }
     .metric { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+    .gate-bar { transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
 </style>
 </head>
 <body class="bg-zinc-950 text-white p-8 max-w-5xl mx-auto">
@@ -249,6 +250,17 @@
     <div class="flex gap-4 mb-8">
         <button onclick="doTick()" class="flex-1 py-4 bg-emerald-600 hover:bg-emerald-500 rounded-2xl font-semibold btn">Advance Tick</button>
         <button onclick="doReconcile()" class="flex-1 py-4 border border-white rounded-2xl font-semibold btn">Deep Reconciliation</button>
+    </div>
+
+    <!-- Visual TOLC8 Gate Dashboard -->
+    <div class="mb-8">
+        <h3 class="text-xl font-semibold mb-4">TOLC8 Gate Dashboard</h3>
+
+        <div class="bg-zinc-900 rounded-3xl p-6 space-y-5" id="gate-dashboard">
+            <!-- Populated dynamically by JS -->
+        </div>
+
+        <div class="mt-3 text-xs text-white/40 px-1">Gates evolve through your participation. Stronger resonance = wider bars.</div>
     </div>
 
     <!-- Gate Resonance + Shift History -->
@@ -282,6 +294,11 @@
             shiftHistory: []
         };
 
+        const gateLabels = {
+            truth: 'Truth', order: 'Order', love: 'Love', compassion: 'Compassion',
+            service: 'Service', abundance: 'Abundance', joy: 'Joy', cosmicHarmony: 'Cosmic Harmony'
+        };
+
         function getResonanceStrength() {
             return Object.values(state.epigenetic).reduce((sum, val) => sum + (val || 0), 0);
         }
@@ -300,22 +317,44 @@
                 metrics.forEach(m => { m.style.boxShadow = '0 0 0 2px #10b981'; setTimeout(() => m.style.boxShadow = '', 500); });
             }
 
+            renderGateDashboard();
             renderResonance();
             renderShiftHistory();
+        }
+
+        function renderGateDashboard() {
+            const container = document.getElementById('gate-dashboard');
+            container.innerHTML = '';
+
+            Object.keys(state.epigenetic).forEach(key => {
+                const value = state.epigenetic[key] || 0;
+                const percentage = Math.min(100, Math.round(value * 100));
+
+                const div = document.createElement('div');
+                div.className = 'space-y-1';
+                div.innerHTML = `
+                    <div class="flex justify-between text-sm">
+                        <span class="text-white/80">${gateLabels[key]}</span>
+                        <span class="font-mono text-emerald-400">${value.toFixed(2)}</span>
+                    </div>
+                    <div class="h-3 bg-zinc-800 rounded-full overflow-hidden">
+                        <div class="h-3 bg-emerald-400 gate-bar rounded-full" style="width: ${percentage}%"></div>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
         }
 
         function renderResonance() {
             const panel = document.getElementById('resonance-panel');
             panel.innerHTML = '';
 
-            const labels = { truth: 'Truth', order: 'Order', love: 'Love', compassion: 'Compassion', service: 'Service', abundance: 'Abundance', joy: 'Joy', cosmicHarmony: 'Cosmic Harmony' };
-
             Object.keys(state.epigenetic).forEach(key => {
                 const value = state.epigenetic[key] || 0;
                 const div = document.createElement('div');
                 div.className = 'flex justify-between items-center resonance py-0.5';
                 div.innerHTML = `
-                    <span class="text-white/70">${labels[key]}</span>
+                    <span class="text-white/70">${gateLabels[key]}</span>
                     <span class="resonance-value font-mono">${value > 0 ? '+' : ''}${value.toFixed(2)}</span>
                 `;
                 panel.appendChild(div);
