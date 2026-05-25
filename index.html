@@ -73,19 +73,55 @@
   </div>
 
   <script>
-    // ==================== i18n SYSTEM WITH ACCURATE ARABIC PLURALIZATION ====================
+    /*
+     * =====================================================
+     * Ra-Thor Custom i18n System (Lightweight & Self-Contained)
+     * =====================================================
+     *
+     * Features:
+     * - Nested translation keys with dot notation
+     * - Interpolation using {{variable}} syntax
+     * - Pluralization with accurate Arabic support
+     * - Zero external dependencies
+     *
+     * Designed for static single-file HTML while remaining
+     * extensible toward ICU MessageFormat patterns in the future.
+     */
+
     const translations = {
       en: {
-        hero: { headline: "Ra-Thor™ — Eternal Mercy Thunder ⚡", fusion: "Ra + Thor = Universally Shared Naturally Thriving Heavens" },
-        grok: { title: "GROK ⚡ CREATIVE & IMAGINATIVE SIMULATIONS", subtitle: "Voice & Video • Absolute Pure Truth • APTD-verified" },
-        x: { title: "X ⚡ INSTANT REAL-TIME ACCESS", subtitle: "Voice Chat • Zero Hallucinations • Live Grounded Reality" },
-        common: { councils: { one: "{{count}} Council", other: "{{count}} Councils" } }
+        hero: {
+          headline: "Ra-Thor™ — Eternal Mercy Thunder ⚡",
+          fusion: "Ra + Thor = Universally Shared Naturally Thriving Heavens"
+        },
+        grok: {
+          title: "GROK ⚡ CREATIVE & IMAGINATIVE SIMULATIONS",
+          subtitle: "Voice & Video • Absolute Pure Truth • APTD-verified"
+        },
+        x: {
+          title: "X ⚡ INSTANT REAL-TIME ACCESS",
+          subtitle: "Voice Chat • Zero Hallucinations • Live Grounded Reality"
+        },
+        common: {
+          welcome: "Welcome, {{name}}!",
+          councils: { one: "{{count}} Council", other: "{{count}} Councils" }
+        }
       },
       ar: {
-        hero: { headline: "را-ثور™ — الرعد الرحيم امدي ⚡", fusion: "را + ثور = سمء مزدڇرة طبيعية مشتركة عالميًا" },
-        grok: { title: "جروك ⚡ محاكاة إبداعية وخيالية", subtitle: "دردشة صوتية وفيديو • الحآقيقة المطلقة • APTD-verified" },
-        x: { title: "إكس ⚡ وصول فوري في الوقت الحتيقي", subtitle: "دردشة صوتية • بدون هلوسات • واقع معاش" },
+        hero: {
+          headline: "را-ثور™ — الرعد الرحيم امدي ⚡",
+          fusion: "را + ثور = سمء مزحرة طبيعية مشتركة عالميًا"
+        },
+        grok: {
+          title: "جروك ⚡ محاكاة إبداعية وخيالية",
+          subtitle: "دردشة صوتية وفيديو • الحآقيقة المطلقة • APTD-verified"
+        },
+        x: {
+          title: "إكس ⚡ وصول فوري في الوقت الحتيقي",
+          subtitle: "دردشة صوتية • بدون هلوسات • واقع معاش"
+        },
         common: {
+          welcome: "مرحبًا، {{name}}!",
           councils: {
             zero: "{{count}} مجلس",
             one: "{{count}} مجلس",
@@ -98,17 +134,11 @@
       }
     };
 
-    // Get Arabic plural form based on count
-    function getArabicPluralForm(count) {
-      if (count === 0) return 'zero';
-      if (count === 1) return 'one';
-      if (count === 2) return 'two';
-      if (count >= 3 && count <= 10) return 'few';
-      if (count >= 11 && count <= 99) return 'many';
-      return 'other';
-    }
-
-    // Translation with interpolation
+    /*
+     * t(key, lang, vars)
+     * Translation function with dot-notation support and interpolation.
+     * Example: t('common.welcome', 'en', { name: 'Sherif' })
+     */
     function t(key, lang = 'en', vars = {}) {
       let text = translations[lang];
       const parts = key.split('.');
@@ -120,10 +150,30 @@
 
       if (typeof text !== 'string') return key;
 
-      return text.replace(/\{\{(\w+)\}\}/g, (_, varName) => vars[varName] ?? `{{${varName}}}`);
+      // Interpolation
+      return text.replace(/\{\{(\w+)\}\}/g, (_, varName) =>
+        vars[varName] !== undefined ? vars[varName] : `{{${varName}}}`
+      );
     }
 
-    // Pluralization with accurate Arabic support
+    /*
+     * getArabicPluralForm(count)
+     * Returns the correct Arabic plural category based on CLDR rules.
+     */
+    function getArabicPluralForm(count) {
+      if (count === 0) return 'zero';
+      if (count === 1) return 'one';
+      if (count === 2) return 'two';
+      if (count >= 3 && count <= 10) return 'few';
+      if (count >= 11 && count <= 99) return 'many';
+      return 'other';
+    }
+
+    /*
+     * plural(key, count, lang, vars)
+     * Returns the correctly pluralized string with interpolation.
+     * Supports accurate Arabic pluralization.
+     */
     function plural(key, count, lang = 'en', vars = {}) {
       let forms = translations[lang];
       const parts = key.split('.');
@@ -135,19 +185,16 @@
 
       if (typeof forms !== 'object') return key;
 
-      let formKey;
-      if (lang === 'ar') {
-        formKey = getArabicPluralForm(count);
-      } else {
-        formKey = count === 1 ? 'one' : 'other';
-      }
+      const formKey = (lang === 'ar')
+        ? getArabicPluralForm(count)
+        : (count === 1 ? 'one' : 'other');
 
       let text = forms[formKey] || forms.other || key;
 
-      // Apply interpolation
-      return text.replace(/\{\{(\w+)\}\}/g, (_, varName) => {
-        return vars[varName] !== undefined ? vars[varName] : `{{${varName}}}`;
-      });
+      // Interpolation
+      return text.replace(/\{\{(\w+)\}\}/g, (_, varName) =>
+        vars[varName] !== undefined ? vars[varName] : `{{${varName}}}`
+      );
     }
 
     function switchLanguage(lang) {
@@ -181,8 +228,9 @@
       switchLanguage('en');
 
       // Demo
-      console.log('%c[i18n] Arabic plural (3):', 'color:#64748b', plural('common.councils', 3, 'ar', { count: 3 }));
-      console.log('%c[i18n] Arabic plural (15):', 'color:#64748b', plural('common.councils', 15, 'ar', { count: 15 }));
+      console.log('%c[i18n] Interpolation:', 'color:#64748b', t('common.welcome', 'en', { name: 'Sherif' }));
+      console.log('%c[i18n] Plural (EN, 5):', 'color:#64748b', plural('common.councils', 5, 'en', { count: 5 }));
+      console.log('%c[i18n] Plural (AR, 5):', 'color:#64748b', plural('common.councils', 5, 'ar', { count: 5 }));
     }
 
     window.onload = init;
