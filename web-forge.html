@@ -117,6 +117,25 @@
         let weights = {};
         let currentShard = null;
 
+        // ==================== WEB CRYPTO HELPERS (Experimental) ====================
+        function generateSecureId(prefix = 'ss') {
+            const array = new Uint8Array(16);
+            crypto.getRandomValues(array);
+            const hex = Array.from(array)
+                .map(b => b.toString(16).padStart(2, '0'))
+                .join('');
+            return `${prefix}-${hex}`;
+        }
+
+        async function sha256(message) {
+            const encoder = new TextEncoder();
+            const data = encoder.encode(message);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+        // ==================== END WEB CRYPTO HELPERS ====================
+
         function initControls() {
             const container = document.getElementById('controls');
 
@@ -197,6 +216,8 @@
             const valence = calculateValence();
             currentShard = {
                 name: "Sovereign Shard #" + Math.floor(Math.random() * 9999),
+                shardId: generateSecureId('ss'),
+                lineageRootHash: null,           // Will be set on first lineage entry
                 valence: valence,
                 weights: {...weights},
                 evolution: Math.floor(valence * 420),
@@ -390,6 +411,8 @@
 
     <script>
         let state = {
+            shardId: "${currentShard?.shardId || generateSecureId('ss')}",
+            lineageRootHash: null,
             valence: ${currentShard.valence},
             evolution: ${currentShard.evolution},
             mercy: ${currentShard.mercy},
@@ -397,7 +420,7 @@
             epigenetic: { truth: 0, order: 0, love: 0, compassion: 0, service: 0, abundance: 0, joy: 0, cosmicHarmony: 0 },
             shiftHistory: [],
             lineage: [],
-            fusionSignature: null          // Experimental: marks participation in Double Godliness field
+            fusionSignature: null
         };
 
         let selectedLineageIndex = null;
@@ -429,11 +452,17 @@
                 balanceAfter: parseFloat(getBalanceScore()),
                 resonanceAfter: parseFloat(getResonanceStrength().toFixed(2)),
                 snapshot: null,
-                ...extraMetadata          // Allows future rich metadata (merge info, sync events, etc.)
+                ...extraMetadata
             };
 
             if (state.lineage.length % 18 === 0) {
                 entry.snapshot = { ...state.epigenetic };
+            }
+
+            // Set lineageRootHash on first entry if not already set
+            if (!state.lineageRootHash && state.lineage.length === 0) {
+                // Simple hash of first action for now (can be improved)
+                state.lineageRootHash = btoa(action + Date.now()).slice(0, 16);
             }
 
             state.lineage.unshift(entry);
@@ -508,19 +537,12 @@
                 return;
             }
 
-            // Apply reconstructed state
             state.epigenetic = reconstructed;
-
-            // Recalculate derived values
             const newBalance = parseFloat(getBalanceScore());
             const newResonance = getResonanceStrength();
 
-            // Update UI
             updateDisplay(true);
-
-            // Add restoration note
             recordShift(`Restored to lineage entry #${index}`);
-
             alert(`State restored from lineage entry #${index}.\nNew Balance: ${newBalance}`);
         }
 
@@ -915,6 +937,8 @@ Most Active Gate: ${mostActiveGate ? gateLabels[mostActiveGate[0]] : 'N/A'} (${m
                     if (!state.epigenetic) state.epigenetic = { truth: 0, order: 0, love: 0, compassion: 0, service: 0, abundance: 0, joy: 0, cosmicHarmony: 0 };
                     if (!state.shiftHistory) state.shiftHistory = [];
                     if (!state.lineage) state.lineage = [];
+                    if (!state.shardId) state.shardId = generateSecureId('ss');
+                    if (!state.hasOwnProperty('lineageRootHash')) state.lineageRootHash = null;
                     if (!state.hasOwnProperty('fusionSignature')) state.fusionSignature = null;
                     updateDisplay();
                 } catch(e) {}
