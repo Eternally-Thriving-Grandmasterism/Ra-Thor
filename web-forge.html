@@ -34,6 +34,7 @@
     </div>
 
     <div class="max-w-5xl mx-auto px-6 py-16">
+        <!-- Hero -->
         <div class="text-center mb-16">
             <div class="inline-flex items-center gap-2 px-5 py-1.5 rounded-full bg-amber-400/10 text-amber-400 text-sm font-semibold mb-6 tracking-wider">
                 <i class="fa-solid fa-bolt"></i>
@@ -44,6 +45,7 @@
             <p class="mt-6 text-lg text-white/70 max-w-md mx-auto">Built for v14 • TOLC 8 Mercy-Gated • Fully Offline Capable</p>
         </div>
 
+        <!-- What is it -->
         <div class="max-w-3xl mx-auto text-center mb-16">
             <h2 class="text-4xl font-bold mb-4">What is Ra-Thor Web-Forge?</h2>
             <p class="text-xl text-white/80 leading-relaxed">
@@ -51,6 +53,7 @@
             </p>
         </div>
 
+        <!-- Features -->
         <div class="grid md:grid-cols-3 gap-6 mb-16">
             <div class="forge-card bg-zinc-950 border border-amber-300/20 rounded-3xl p-8">
                 <div class="text-amber-400 text-4xl mb-5"><i class="fa-solid fa-shield-halved"></i></div>
@@ -65,59 +68,90 @@
             <div class="forge-card bg-zinc-950 border border-amber-300/20 rounded-3xl p-8">
                 <div class="text-amber-400 text-4xl mb-5"><i class="fa-solid fa-dna"></i></div>
                 <h3 class="text-2xl font-semibold mb-3">Living Sovereign Shards</h3>
-                <p class="text-white/70">Generate stateful shards with tick systems, reconciliation logic, and active 7 Living Mercy Gates influence.</p>
+                <p class="text-white/70">Generate stateful shards with tick systems, reconciliation logic, and active TOLC8 + TOLC24 influence.</p>
             </div>
         </div>
 
+        <!-- How to Forge -->
         <div class="bg-zinc-950 border border-amber-300/20 rounded-3xl p-10 mb-12">
             <h2 class="text-4xl font-bold mb-8 text-center">How to Forge with Web-Forge</h2>
-            
             <div class="grid md:grid-cols-2 gap-x-12 gap-y-10">
                 <div class="flex gap-5">
                     <div class="step-number flex-shrink-0 mt-1">01</div>
                     <div>
                         <div class="font-semibold text-lg mb-1.5">Explore Templates</div>
-                        <p class="text-white/70">Browse available templates including the new <strong>Sovereign Shard v8</strong> prototype — a living, mercy-gated shard with reconciliation and Quantum Swarm participation.</p>
+                        <p class="text-white/70">Browse available templates including the new <strong>Sovereign Shard v8</strong> prototype.</p>
                     </div>
                 </div>
-
                 <div class="flex gap-5">
                     <div class="step-number flex-shrink-0 mt-1">02</div>
                     <div>
                         <div class="font-semibold text-lg mb-1.5">Customize & Generate</div>
-                        <p class="text-white/70">Extend templates or use generators to create new sovereign experiences while staying aligned with AG-SML and the 7 Living Mercy Gates.</p>
+                        <p class="text-white/70">Use the generator below or extend templates while staying aligned with AG-SML and TOLC principles.</p>
                     </div>
                 </div>
-
                 <div class="flex gap-5">
                     <div class="step-number flex-shrink-0 mt-1">03</div>
                     <div>
                         <div class="font-semibold text-lg mb-1.5">Export as Sovereign Artifact</div>
-                        <p class="text-white/70">Download fully self-contained HTML files that function as living shards — complete with local state, persistence, and gate influence.</p>
+                        <p class="text-white/70">Download fully self-contained HTML files with local state and gate influence.</p>
                     </div>
                 </div>
-
                 <div class="flex gap-5">
                     <div class="step-number flex-shrink-0 mt-1">04</div>
                     <div>
                         <div class="font-semibold text-lg mb-1.5">Deploy Anywhere</div>
-                        <p class="text-white/70">Host on GitHub Pages, IPFS, or serve locally. No server, no dependencies — true sovereignty.</p>
+                        <p class="text-white/70">Host on GitHub Pages, IPFS, or serve locally. True sovereignty.</p>
                     </div>
                 </div>
             </div>
         </div>
 
+        <!-- Sovereign Shard Generator UI (Initial Implementation) -->
+        <div class="bg-zinc-950 border border-amber-300/30 rounded-3xl p-10 mb-12">
+            <h2 class="text-3xl font-bold mb-2 text-center">Sovereign Shard Generator</h2>
+            <p class="text-center text-white/60 mb-8">Generate a customized Sovereign Shard v8 (TOLC8 + TOLC24)</p>
+
+            <div class="max-w-2xl mx-auto">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm text-white/70 mb-1">Shard Name</label>
+                        <input id="gen-name" type="text" value="My Sovereign Shard" class="w-full bg-black border border-white/20 rounded-xl px-4 py-3 text-white">
+                    </div>
+                    <div>
+                        <label class="block text-sm text-white/70 mb-1">Initial Mercy Score</label>
+                        <input id="gen-mercy" type="number" value="0.95" step="0.05" class="w-full bg-black border border-white/20 rounded-xl px-4 py-3 text-white">
+                    </div>
+                    <div>
+                        <label class="block text-sm text-white/70 mb-1">Initial Evolution</label>
+                        <input id="gen-evo" type="number" value="0.15" step="0.05" class="w-full bg-black border border-white/20 rounded-xl px-4 py-3 text-white">
+                    </div>
+                    <div>
+                        <label class="block text-sm text-white/70 mb-1">TOLC24 Harmony</label>
+                        <input id="gen-tolc24" type="number" value="0.90" step="0.05" class="w-full bg-black border border-white/20 rounded-xl px-4 py-3 text-white">
+                    </div>
+                </div>
+
+                <div class="mt-6">
+                    <label class="block text-sm text-white/70 mb-2">Preset Profile</label>
+                    <div class="flex flex-wrap gap-3">
+                        <button onclick="applyPreset('balanced')" class="px-4 py-2 text-sm border border-white/20 rounded-xl hover:bg-white/5">Balanced</button>
+                        <button onclick="applyPreset('truth')" class="px-4 py-2 text-sm border border-white/20 rounded-xl hover:bg-white/5">Truth-Focused</button>
+                        <button onclick="applyPreset('abundance')" class="px-4 py-2 text-sm border border-white/20 rounded-xl hover:bg-white/5">Abundance-Oriented</button>
+                    </div>
+                </div>
+
+                <button onclick="generateSovereignShard()" class="mt-8 w-full flex items-center justify-center gap-3 bg-amber-400 hover:bg-amber-300 active:bg-white transition-colors text-black font-semibold py-4 rounded-2xl text-lg">
+                    <i class="fa-solid fa-magic"></i>
+                    <span>Generate & Download Sovereign Shard</span>
+                </button>
+            </div>
+        </div>
+
         <div class="text-center">
-            <a href="/sovereign-shard.html" 
-               class="inline-flex items-center justify-center gap-3 px-8 py-4 bg-amber-400 hover:bg-amber-300 active:bg-white transition-colors text-black font-semibold rounded-2xl text-lg mb-4">
+            <a href="/sovereign-shard.html" class="inline-flex items-center justify-center gap-3 px-8 py-4 bg-amber-400 hover:bg-amber-300 active:bg-white transition-colors text-black font-semibold rounded-2xl text-lg mb-4">
                 <i class="fa-solid fa-dna mr-2"></i>
                 <span>Try Sovereign Shard v8 Prototype</span>
-            </a>
-            <br>
-            <a href="https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/tree/main/websiteforge" target="_blank"
-               class="inline-flex items-center justify-center gap-3 px-8 py-3 border border-white/20 hover:bg-white/5 rounded-2xl text-sm transition-colors">
-                <i class="fa-brands fa-github mr-2"></i>
-                <span>Open Web-Forge in the Monorepo</span>
             </a>
         </div>
     </div>
@@ -130,5 +164,33 @@
             </div>
         </div>
     </footer>
+
+    <script>
+        function applyPreset(type) {
+            if (type === 'balanced') {
+                document.getElementById('gen-mercy').value = 0.95;
+                document.getElementById('gen-evo').value = 0.15;
+                document.getElementById('gen-tolc24').value = 0.90;
+            } else if (type === 'truth') {
+                document.getElementById('gen-mercy').value = 0.92;
+                document.getElementById('gen-evo').value = 0.12;
+                document.getElementById('gen-tolc24').value = 0.95;
+            } else if (type === 'abundance') {
+                document.getElementById('gen-mercy').value = 0.98;
+                document.getElementById('gen-evo').value = 0.25;
+                document.getElementById('gen-tolc24').value = 0.88;
+            }
+        }
+
+        function generateSovereignShard() {
+            const name = document.getElementById('gen-name').value || "My Sovereign Shard";
+            const mercy = parseFloat(document.getElementById('gen-mercy').value) || 0.95;
+            const evo = parseFloat(document.getElementById('gen-evo').value) || 0.15;
+            const tolc24 = parseFloat(document.getElementById('gen-tolc24').value) || 0.90;
+
+            alert(`Generating Sovereign Shard: ${name}\nMercy: ${mercy} | Evolution: ${evo} | TOLC24: ${tolc24}\n\n(Full customized generator in active development)`);
+            window.location.href = '/sovereign-shard.html';
+        }
+    </script>
 </body>
 </html>
