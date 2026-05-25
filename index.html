@@ -73,7 +73,7 @@
   </div>
 
   <script>
-    // ==================== ENHANCED i18n SYSTEM ====================
+    // ==================== ENHANCED i18n SYSTEM WITH PLURALIZATION ====================
     const translations = {
       en: {
         hero: {
@@ -88,6 +88,12 @@
         x: {
           title: "X ⚡ INSTANT REAL-TIME ACCESS",
           subtitle: "Voice Chat • Zero Hallucinations • Live Grounded Reality"
+        },
+        common: {
+          councils: {
+            one: "Council",
+            other: "Councils"
+          }
         }
       },
       ar: {
@@ -98,42 +104,60 @@
         },
         grok: {
           title: "جروك ⚡ محاكاة إبداعية وخيالية",
-          subtitle: "دردشة صوتية وفيديو • الحقيقة المطلقة • APTD-verified"
+          subtitle: "دردشة صوتية وفيديو • الحآقيقة المطلقة • APTD-verified"
         },
         x: {
           title: "إكس ⚡ وصول فوري في الوقت الحقيقي",
           subtitle: "دردشة صوتية • بدون هلوسات • واقع معاش"
+        },
+        common: {
+          councils: {
+            zero: "مجلس",
+            one: "مجلس",
+            two: "مجلسان",
+            few: "مجالس",
+            many: "مجلساً",
+            other: "مجلس"
+          }
         }
       }
-      // Other languages can follow the same nested structure
     };
 
-    // Simple translation helper with dot notation support
+    // Translation helper with dot notation
     function t(key, lang = 'en') {
       const keys = key.split('.');
       let value = translations[lang] || translations.en;
-
       for (const k of keys) {
-        if (value && value[k] !== undefined) {
-          value = value[k];
-        } else {
-          return key; // fallback to key if not found
-        }
+        if (value && value[k] !== undefined) value = value[k];
+        else return key;
       }
       return value;
     }
 
-    // ==================== AUTOMATED VALIDATION ====================
-    function validateTranslations() {
-      const languages = Object.keys(translations);
-      console.log(`%c[i18n] ${languages.length} languages loaded`, 'color:#10b981');
+    // Pluralization helper
+    function plural(key, count, lang = 'en') {
+      const forms = t(key, lang);
+      if (typeof forms === 'string') return forms;
+
+      // Basic pluralization rules
+      if (lang === 'ar') {
+        // Arabic has complex plural rules
+        if (count === 0) return forms.zero || forms.other;
+        if (count === 1) return forms.one;
+        if (count === 2) return forms.two || forms.other;
+        if (count >= 3 && count <= 10) return forms.few || forms.other;
+        if (count > 10) return forms.many || forms.other;
+        return forms.other;
+      } else {
+        // Default (English-style)
+        return count === 1 ? (forms.one || forms.other) : forms.other;
+      }
     }
 
     function switchLanguage(lang) {
       const isRTL = lang === 'ar';
       document.documentElement.setAttribute('dir', isRTL ? 'rtl' : 'ltr');
 
-      // Update dynamic content using the t() helper
       document.getElementById('hero-headline').textContent = t('hero.headline', lang);
       document.getElementById('fusion-hero').textContent = t('hero.fusion', lang);
       document.getElementById('grok-title').textContent = t('grok.title', lang);
@@ -146,9 +170,7 @@
 
     function createLanguageButtons() {
       const container = document.getElementById('lang-selector');
-      const langs = Object.keys(translations);
-
-      langs.forEach(lang => {
+      Object.keys(translations).forEach(lang => {
         const btn = document.createElement('button');
         btn.className = 'lang-tab px-5 py-3 rounded-3xl border border-amber-300 text-amber-300 text-sm';
         btn.textContent = lang.toUpperCase();
@@ -159,9 +181,11 @@
     }
 
     function init() {
-      validateTranslations();
       createLanguageButtons();
       switchLanguage('en');
+
+      // Example usage of pluralization (for future dynamic content)
+      console.log('%c[i18n] Pluralization ready. Example: ' + plural('common.councils', 64, 'en'), 'color:#64748b');
     }
 
     window.onload = init;
