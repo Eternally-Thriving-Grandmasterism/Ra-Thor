@@ -252,11 +252,29 @@
         <button onclick="doReconcile()" class="flex-1 py-4 border border-white rounded-2xl font-semibold btn">Deep Reconciliation</button>
     </div>
 
+    <!-- Gate Resonance with Shift History -->
+    <div class="mb-8">
+        <h3 class="text-xl font-semibold mb-3">Gate Resonance</h3>
+        <div id="resonance-panel" class="bg-zinc-900 rounded-2xl p-5 text-sm grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-2"></div>
+
+        <div class="mt-4">
+            <div class="text-sm text-emerald-400 mb-1 font-medium">Recent Shifts</div>
+            <div id="shift-history" class="bg-zinc-900 rounded-2xl p-4 text-sm min-h-[80px]"></div>
+        </div>
+    </div>
+
     <h3 class="text-xl font-semibold mb-3">TOLC8 Gate Weights</h3>
     <pre class="bg-zinc-900 p-6 rounded-2xl text-sm overflow-auto">${weightsStr}</pre>
 
     <script>
-        let state = { valence: ${currentShard.valence}, evolution: ${currentShard.evolution}, mercy: ${currentShard.mercy}, harmony: parseFloat(${currentShard.harmony}) };
+        let state = {
+            valence: ${currentShard.valence},
+            evolution: ${currentShard.evolution},
+            mercy: ${currentShard.mercy},
+            harmony: parseFloat(${currentShard.harmony}),
+            epigenetic: { truth: 0, order: 0, love: 0, compassion: 0, service: 0, abundance: 0, joy: 0, cosmicHarmony: 0 },
+            shiftHistory: []
+        };
 
         function updateDisplay(flash = false) {
             document.getElementById('val').textContent = state.valence.toFixed(6);
@@ -268,12 +286,59 @@
                 const metrics = document.querySelectorAll('.metric');
                 metrics.forEach(m => { m.style.boxShadow = '0 0 0 2px #10b981'; setTimeout(() => m.style.boxShadow = '', 500); });
             }
+
+            renderResonance();
+            renderShiftHistory();
+        }
+
+        function renderResonance() {
+            const panel = document.getElementById('resonance-panel');
+            panel.innerHTML = '';
+
+            const labels = { truth: 'Truth', order: 'Order', love: 'Love', compassion: 'Compassion', service: 'Service', abundance: 'Abundance', joy: 'Joy', cosmicHarmony: 'Cosmic Harmony' };
+
+            Object.keys(state.epigenetic).forEach(key => {
+                const value = state.epigenetic[key] || 0;
+                const div = document.createElement('div');
+                div.className = 'flex justify-between items-center resonance py-0.5';
+                div.innerHTML = `
+                    <span class="text-white/70">${labels[key]}</span>
+                    <span class="resonance-value font-mono">${value > 0 ? '+' : ''}${value.toFixed(2)}</span>
+                `;
+                panel.appendChild(div);
+            });
+        }
+
+        function renderShiftHistory() {
+            const container = document.getElementById('shift-history');
+            if (!state.shiftHistory || state.shiftHistory.length === 0) {
+                container.innerHTML = '<span class="text-white/40">No shifts recorded yet. Engage with the shard.</span>';
+                return;
+            }
+
+            container.innerHTML = state.shiftHistory.map(shift => `
+                <div class="flex justify-between py-0.5">
+                    <span class="text-white/70">${shift.action}</span>
+                    <span class="text-emerald-400 font-mono text-xs">${shift.time}</span>
+                </div>
+            `).join('');
+        }
+
+        function recordShift(action) {
+            if (!state.shiftHistory) state.shiftHistory = [];
+            state.shiftHistory.unshift({ action, time: new Date().toLocaleTimeString() });
+            if (state.shiftHistory.length > 5) state.shiftHistory.pop();
         }
 
         function doTick() {
             state.evolution += 5;
             state.mercy = Math.min(140, state.mercy + 2);
             state.valence = Math.min(1.0, state.valence + 0.004);
+
+            state.epigenetic.abundance = Math.min(0.28, (state.epigenetic.abundance || 0) + 0.009);
+            state.epigenetic.joy = Math.min(0.28, (state.epigenetic.joy || 0) + 0.007);
+
+            recordShift('Tick → Abundance + Joy');
             updateDisplay(true);
         }
 
@@ -281,18 +346,32 @@
             state.mercy = Math.min(140, state.mercy + 14);
             state.valence = Math.min(1.0, state.valence + 0.03);
             state.harmony = Math.min(3.0, state.harmony + 0.15);
+
             if (state.harmony > 2.0) state.mercy = Math.min(140, state.mercy + 6);
+
+            state.epigenetic.compassion = Math.min(0.32, (state.epigenetic.compassion || 0) + 0.028);
+            state.epigenetic.service = Math.min(0.32, (state.epigenetic.service || 0) + 0.022);
+            state.epigenetic.cosmicHarmony = Math.min(0.32, (state.epigenetic.cosmicHarmony || 0) + 0.018);
+
+            recordShift('Reconcile → Compassion + Service');
             updateDisplay(true);
         }
 
         window.onload = () => {
             const saved = localStorage.getItem('generated-shard-state');
             if (saved) {
-                try { state = JSON.parse(saved); updateDisplay(); } catch(e) {}
+                try {
+                    state = JSON.parse(saved);
+                    if (!state.epigenetic) state.epigenetic = { truth: 0, order: 0, love: 0, compassion: 0, service: 0, abundance: 0, joy: 0, cosmicHarmony: 0 };
+                    if (!state.shiftHistory) state.shiftHistory = [];
+                    updateDisplay();
+                } catch(e) {}
             }
         };
 
-        setInterval(() => { localStorage.setItem('generated-shard-state', JSON.stringify(state)); }, 4000);
+        setInterval(() => {
+            localStorage.setItem('generated-shard-state', JSON.stringify(state));
+        }, 4000);
     </script>
 </body>
 </html>`;
