@@ -1,16 +1,18 @@
 //! Lattice Conductor v14 — Central Nervous System of Ra-Thor Thunder Lattice
-//! v14.0.6+ — Includes Distributed Mercy Mesh + Phase 14.1 Governance Extraction
+//! v14.0.6 — Production-grade: Distributed Mercy Mesh + Full Phase 14.1 Governance + Self-Evolution Integration
 
 pub mod council_arbitration;
 pub mod runtime_self_healing;
 pub mod distributed_mercy_mesh;
-pub mod governance;  // NEW Phase 14.1
+pub mod governance;
 
 pub use council_arbitration::CouncilArbitrationEngine;
 pub use runtime_self_healing::{
     RuntimeSelfHealingEngine, HealthReport, Anomaly, Diagnosis, HealingAction,
 };
-pub use distributed_mercy_mesh::{DistributedMercyMesh, MercyEvent, MercyMeshConfig};
+pub use distributed_mercy_mesh::{DistributedMercyMesh, MercyEvent, MercyMeshConfig, OrganismNode};
+
+// Governance primitives
 pub use governance::{
     mercy_weighted_quadratic_voting::{
         MercyWeightedVote, tally_mercy_weighted_quadratic_votes, proposal_passes_mercy_quadratic,
@@ -18,11 +20,12 @@ pub use governance::{
     enhanced_exponential_conviction_staking::{
         ConvictionStake, apply_enhanced_exponential_conviction, score_self_evolution_proposal_with_mercy,
     },
+    self_evolution_proposal::{SelfEvolutionProposal, ProposalStatus},
 };
 
 use std::sync::atomic::{AtomicBool, Ordering};
 
-/// Lattice Conductor v14 — Orchestration + Self-Healing + Distributed Mercy + Governance
+/// Lattice Conductor v14 — Full orchestration with mercy-gated governance and self-evolution.
 pub struct LatticeConductorV14 {
     pub cosmic_loop_ready: AtomicBool,
     pub arbitration_engine: CouncilArbitrationEngine,
@@ -64,35 +67,34 @@ impl LatticeConductorV14 {
         self.self_healing_engine.as_ref().map(|e| e.run_reflexion_cycle())
     }
 
-    pub fn trigger_mercy_mesh_healing(&self, severity: f64) {
+    pub fn trigger_mercy_mesh_healing(&self, severity: f64, organism_id: &str) {
         if let Some(mesh) = &self.mercy_mesh {
-            mesh.propagate_mercy_event(MercyEvent::HealingTriggered { severity });
+            mesh.propagate_mercy_event(MercyEvent::HealingTriggered {
+                severity,
+                organism_id: organism_id.to_string(),
+            });
             println!("[Lattice Conductor v14] Mercy Mesh healing event propagated");
         }
     }
 
-    /// **Phase 14.1 — Highly visible and auditable mercy-gated governance cycle**
-    /// This function orchestrates the full governance flow with explicit mercy alignment,
-    /// quadratic voting, and conviction staking. Full audit trail produced.
+    /// Production-grade mercy-gated governance cycle with self-evolution support.
     pub fn orchestrate_mercy_gated_governance_cycle(
         &self,
-        proposal_id: &str,
-        votes: &[MercyWeightedVote],
-        stakes: &[ConvictionStake],
+        proposal: &SelfEvolutionProposal,
         threshold: f64,
     ) -> (bool, Vec<String>, f64) {
-        println!("[LATTICE CONDUCTOR v14] Starting mercy-gated governance cycle for: {}", proposal_id);
+        println!("[LATTICE CONDUCTOR v14] Starting governance cycle for self-evolution proposal: {}", proposal.id);
 
-        let (passes, vote_audit) = proposal_passes_mercy_quadratic(votes, threshold);
-        let (self_evo_score, stake_metadata) = score_self_evolution_proposal_with_mercy(proposal_id, stakes);
+        let (passes, audit, final_score) = proposal.evaluate_governance(threshold);
 
-        let mut full_audit = vote_audit;
-        full_audit.extend(stake_metadata);
-        full_audit.push(format!("[GOVERNANCE] Proposal {} | Passes: {} | Self-Evo Score: {:.2}", proposal_id, passes, self_evo_score));
+        let mut full_audit = audit;
+        full_audit.push(format!(
+            "[GOVERNANCE] Proposal {} | Status: {:?} | Passed: {} | Final Score: {:.2}",
+            proposal.id, proposal.status, passes, final_score
+        ));
 
-        println!("[LATTICE CONDUCTOR v14] Governance cycle complete. Audit entries: {}", full_audit.len());
-
-        (passes, full_audit, self_evo_score)
+        println!("[LATTICE CONDUCTOR v14] Governance cycle complete. Audit length: {}", full_audit.len());
+        (passes, full_audit, final_score)
     }
 
     pub fn before_council_arbitration(&self, topic: &str) {
