@@ -1,55 +1,35 @@
-//! Enhanced Exponential Conviction Staking — Phase 14.1 Governance Primitive
-//! Dedicated module with mercy-alignment metadata and auditable scoring.
+//! Enhanced Exponential Conviction Staking with Post-Quantum Signature Support
 
-/// Conviction stake with mercy alignment metadata.
+use crate::post_quantum_signatures::{PostQuantumSignature, create_post_quantum_signature};
+
 #[derive(Debug, Clone)]
 pub struct ConvictionStake {
     pub staker_id: String,
     pub proposal_id: String,
     pub amount: f64,
-    pub time_staked: u64,           // In blocks or seconds
-    pub mercy_alignment_score: f64, // From TOLC 7 Gates + council review
+    pub time_staked: u64,
+    pub mercy_alignment_score: f64,
     pub exponential_multiplier: f64,
+    pub pq_signature: Option<PostQuantumSignature>,
 }
 
 impl ConvictionStake {
+    pub fn new(staker_id: String, proposal_id: String, amount: f64, time_staked: u64) -> Self {
+        Self {
+            staker_id, proposal_id, amount, time_staked,
+            mercy_alignment_score: 0.5,
+            exponential_multiplier: 1.0,
+            pq_signature: None,
+        }
+    }
+
     pub fn calculate_conviction(&self) -> f64 {
-        // Enhanced exponential: conviction grows exponentially with time, modulated by mercy
         let base = self.amount * (1.0 + (self.time_staked as f64 * 0.01).exp());
-        base * self.mercy_alignment_score.max(0.2) // Mercy floor
+        base * self.mercy_alignment_score.max(0.2)
     }
 
-    pub fn to_mercy_metadata(&self) -> String {
-        format!(
-            "stake:{}|amount:{:.2}|time:{}|mercy:{:.3}|conviction:{:.2}",
-            self.staker_id, self.amount, self.time_staked, self.mercy_alignment_score, self.calculate_conviction()
-        )
+    pub fn sign_with_post_quantum(&mut self) {
+        let message = format!("stake:{}:{}", self.proposal_id, self.staker_id).into_bytes();
+        self.pq_signature = Some(create_post_quantum_signature(&self.staker_id, &message));
     }
-}
-
-/// Applies exponential conviction with mercy weighting.
-pub fn apply_enhanced_exponential_conviction(stakes: &[ConvictionStake]) -> Vec<(String, f64)> {
-    stakes
-        .iter()
-        .map(|s| (s.proposal_id.clone(), s.calculate_conviction()))
-        .collect()
-}
-
-/// Auditable scoring for self-evolution loop proposals.
-pub fn score_self_evolution_proposal_with_mercy(
-    proposal_id: &str,
-    stakes: &[ConvictionStake],
-) -> (f64, Vec<String>) {
-    let convictions: Vec<f64> = stakes.iter().map(|s| s.calculate_conviction()).collect();
-    let total_conviction: f64 = convictions.iter().sum();
-    let avg_mercy: f64 = if !stakes.is_empty() {
-        stakes.iter().map(|s| s.mercy_alignment_score).sum::<f64>() / stakes.len() as f64
-    } else {
-        0.5
-    };
-
-    let final_score = total_conviction * avg_mercy;
-    let metadata: Vec<String> = stakes.iter().map(|s| s.to_mercy_metadata()).collect();
-
-    (final_score, metadata)
 }
