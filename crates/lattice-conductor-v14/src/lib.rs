@@ -1,14 +1,81 @@
-// crates/lattice-conductor-v14/src/lib.rs
-// Lattice Conductor v14 — Central Nervous System of Ra-Thor
-// v14.0.5 Thunder Lattice — Distributed Mercy Mesh Foundation added
+//! Lattice Conductor v14 — Central Nervous System of Ra-Thor Thunder Lattice
+//! v14.0.5 — Includes Runtime Self-Healing + Distributed Mercy Mesh Foundation
 
 pub mod council_arbitration;
 pub mod runtime_self_healing;
 pub mod distributed_mercy_mesh;   // NEW in v14.0.5
 
 pub use council_arbitration::CouncilArbitrationEngine;
-pub use runtime_self_healing::RuntimeSelfHealingEngine;
-pub use distributed_mercy_mesh::{DistributedMercyMesh, HealingRequest, HealingOffer, OrganismNode};
+pub use runtime_self_healing::{
+    RuntimeSelfHealingEngine, HealthReport, Anomaly, Diagnosis, HealingAction,
+};
+pub use distributed_mercy_mesh::{DistributedMercyMesh, MercyEvent, MercyMeshConfig};
 
-// Re-export key types for convenience
-pub use runtime_self_healing::{HealthReport, Anomaly, Diagnosis, HealingAction, HealingExperience};
+use std::sync::atomic::{AtomicBool, Ordering};
+
+/// Lattice Conductor v14 — Orchestration + Self-Healing + Distributed Mercy
+pub struct LatticeConductorV14 {
+    pub cosmic_loop_ready: AtomicBool,
+    pub arbitration_engine: CouncilArbitrationEngine,
+    pub self_healing_engine: Option<RuntimeSelfHealingEngine>,
+    pub mercy_mesh: Option<DistributedMercyMesh>,   // NEW
+}
+
+impl LatticeConductorV14 {
+    pub fn new() -> Self {
+        let arbitration = CouncilArbitrationEngine::new();
+        let healing = RuntimeSelfHealingEngine::new(arbitration.clone());
+        let mercy_mesh = DistributedMercyMesh::new();
+
+        Self {
+            cosmic_loop_ready: AtomicBool::new(true),
+            arbitration_engine: arbitration,
+            self_healing_engine: Some(healing),
+            mercy_mesh: Some(mercy_mesh),
+        }
+    }
+
+    pub fn enforce_cosmic_loop_activation(&self) {
+        if self.cosmic_loop_ready.load(Ordering::SeqCst) {
+            println!("[LATTICE CONDUCTOR v14] Cosmic Loop Activation Protocol ENFORCED");
+        } else {
+            self.cosmic_loop_ready.store(true, Ordering::SeqCst);
+            println!("[LATTICE CONDUCTOR v14] Self-healed: cosmic_loop_ready restored");
+        }
+    }
+
+    pub fn start_runtime_self_healing(&self) {
+        if let Some(engine) = &self.self_healing_engine {
+            engine.start_watchdog();
+            println!("[Lattice Conductor v14] Runtime Self-Healing Watchdog activated");
+        }
+    }
+
+    pub fn run_reflexion_healing_cycle(&self) -> Option<Diagnosis> {
+        self.self_healing_engine.as_ref().map(|e| e.run_reflexion_cycle())
+    }
+
+    /// NEW in v14.0.5 — Mesh-aware healing trigger
+    pub fn trigger_mercy_mesh_healing(&self, severity: f64) {
+        if let Some(mesh) = &self.mercy_mesh {
+            mesh.propagate_mercy_event(MercyEvent::HealingTriggered { severity });
+            println!("[Lattice Conductor v14] Mercy Mesh healing event propagated");
+        }
+    }
+
+    pub fn before_council_arbitration(&self, topic: &str) {
+        self.enforce_cosmic_loop_activation();
+        println!("[Lattice Conductor v14] Pre-arbitration enforcement complete for: {}", topic);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_lattice_conductor_v14_initialization() {
+        let conductor = LatticeConductorV14::new();
+        assert!(conductor.cosmic_loop_ready.load(Ordering::SeqCst));
+    }
+}
