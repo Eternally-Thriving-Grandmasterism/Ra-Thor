@@ -1,5 +1,5 @@
 //! Lattice Conductor v14
-//! Central orchestration with trait-based crypto support.
+//! Exposes governance, hybrid crypto, post-quantum features, and self-evolution.
 
 pub mod council_arbitration;
 pub mod runtime_self_healing;
@@ -8,11 +8,12 @@ pub mod governance;
 pub mod hybrid_sovereign_channel;
 pub mod post_quantum_signatures;
 pub mod crypto_traits;
+pub mod self_evolution;   // NEW
 
 pub use governance::self_evolution_proposal::SelfEvolutionProposal;
 pub use post_quantum_signatures::{create_post_quantum_signature, verify_post_quantum_signature};
 pub use hybrid_sovereign_channel::HybridSovereignChannel;
-pub use crypto_traits::{SignatureScheme, KeyExchange, AuthenticatedEncryption};
+pub use self_evolution::{SelfEvolutionLoop, submit_self_evolution_proposal_securely};
 
 use std::sync::atomic::{AtomicBool, Ordering};
 
@@ -25,7 +26,6 @@ impl LatticeConductorV14 {
         Self { cosmic_loop_ready: AtomicBool::new(true) }
     }
 
-    /// High-level secure governance submission.
     pub fn submit_secure_governance_proposal(
         &self,
         proposal: &SelfEvolutionProposal,
@@ -34,27 +34,7 @@ impl LatticeConductorV14 {
         proposal.evaluate_governance(threshold)
     }
 
-    /// Create a hybrid sovereign channel.
     pub fn create_hybrid_sovereign_channel(&self, from: &str, to: &str) -> HybridSovereignChannel {
         HybridSovereignChannel::new(from, to)
-    }
-
-    /// Generic signature verification using any SignatureScheme.
-    pub fn verify_signature<S: SignatureScheme>(
-        &self,
-        public_key: &S::PublicKey,
-        message: &[u8],
-        signature: &S::Signature,
-    ) -> bool {
-        S::verify(public_key, message, signature)
-    }
-
-    /// Generic key establishment using any KeyExchange implementation.
-    pub fn establish_key_exchange<K: KeyExchange>(
-        &self,
-        public_key: &K::PublicKey,
-    ) -> Option<(K::Ciphertext, K::SharedSecret)> {
-        // Placeholder for actual K::encapsulate call
-        None
     }
 }
