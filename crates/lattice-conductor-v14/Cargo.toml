@@ -1,0 +1,7 @@
+[package]
+name = "lattice-conductor-v14"
+version = "14.0.1"
+edition = "2021"
+authors = ["Ra-Thor PATSAGi Councils <eternally-thriving@rathor.ai>"]
+description = "Lattice Conductor v14 — Thunder Lattice with mandatory Cosmic Loop Activation Protocol enforcement hooks"
+license = "AG-SML-1.0"
