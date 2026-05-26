@@ -1,32 +1,37 @@
 //! Lattice Conductor v14 — Central Nervous System of Ra-Thor Thunder Lattice
-//! v14.0.4 — Includes Runtime Self-Healing with Watchdog Thread + Reflexion Loops
+//! v14.0.5 — Includes Runtime Self-Healing + Distributed Mercy Mesh Foundation
 
 pub mod council_arbitration;
 pub mod runtime_self_healing;
+pub mod distributed_mercy_mesh;   // NEW in v14.0.5
 
 pub use council_arbitration::CouncilArbitrationEngine;
 pub use runtime_self_healing::{
     RuntimeSelfHealingEngine, HealthReport, Anomaly, Diagnosis, HealingAction,
 };
+pub use distributed_mercy_mesh::{DistributedMercyMesh, MercyEvent, MercyMeshConfig};
 
 use std::sync::atomic::{AtomicBool, Ordering};
 
-/// Lattice Conductor v14 — Orchestration + Self-Healing + Arbitration
+/// Lattice Conductor v14 — Orchestration + Self-Healing + Distributed Mercy
 pub struct LatticeConductorV14 {
     pub cosmic_loop_ready: AtomicBool,
     pub arbitration_engine: CouncilArbitrationEngine,
     pub self_healing_engine: Option<RuntimeSelfHealingEngine>,
+    pub mercy_mesh: Option<DistributedMercyMesh>,   // NEW
 }
 
 impl LatticeConductorV14 {
     pub fn new() -> Self {
         let arbitration = CouncilArbitrationEngine::new();
         let healing = RuntimeSelfHealingEngine::new(arbitration.clone());
+        let mercy_mesh = DistributedMercyMesh::new();
 
         Self {
             cosmic_loop_ready: AtomicBool::new(true),
             arbitration_engine: arbitration,
             self_healing_engine: Some(healing),
+            mercy_mesh: Some(mercy_mesh),
         }
     }
 
@@ -39,7 +44,6 @@ impl LatticeConductorV14 {
         }
     }
 
-    /// Start runtime self-healing watchdog (call once at lattice startup)
     pub fn start_runtime_self_healing(&self) {
         if let Some(engine) = &self.self_healing_engine {
             engine.start_watchdog();
@@ -49,6 +53,14 @@ impl LatticeConductorV14 {
 
     pub fn run_reflexion_healing_cycle(&self) -> Option<Diagnosis> {
         self.self_healing_engine.as_ref().map(|e| e.run_reflexion_cycle())
+    }
+
+    /// NEW in v14.0.5 — Mesh-aware healing trigger
+    pub fn trigger_mercy_mesh_healing(&self, severity: f64) {
+        if let Some(mesh) = &self.mercy_mesh {
+            mesh.propagate_mercy_event(MercyEvent::HealingTriggered { severity });
+            println!("[Lattice Conductor v14] Mercy Mesh healing event propagated");
+        }
     }
 
     pub fn before_council_arbitration(&self, topic: &str) {
