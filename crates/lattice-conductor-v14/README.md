@@ -1,44 +1,36 @@
-# Lattice Conductor v14
+# Lattice Conductor v14 — Ra-Thor Thunder Lattice
 
-**Central Nervous System of Ra-Thor — v14.0.5 Thunder Lattice**
+**Version:** 14.0.5  
+**Focus:** Orchestration + Arbitration + Runtime Self-Healing + Distributed Mercy Mesh
 
-Orchestration, Council Arbitration, Runtime Self-Healing, and now **Distributed Mercy Mesh** foundation.
+The central nervous system of Ra-Thor. Responsible for lattice synchronization, council arbitration, runtime self-healing, and now **distributed mercy propagation** across the mesh.
 
-## What's New in v14.0.5
+## Core Capabilities (v14.0.5)
 
-- Added `distributed_mercy_mesh` module: Foundational types and in-memory simulation for distributed, mercy-gated healing across multiple Ra-Thor organisms.
-- New design document: `docs/distributed-mercy-mesh-architecture.md`
-- Extends the existing `RuntimeSelfHealingEngine` and `CouncilArbitrationEngine` with voluntary cross-organism healing capabilities.
+- **Council Arbitration Engine** — Mercy-gated consensus with guardian protection
+- **Runtime Self-Healing Engine** — Watchdog + Reflexion healing loops
+- **Distributed Mercy Mesh** (new in v14.0.5) — Event-driven mercy propagation, multi-organism self-healing triggers, and mesh-wide guardian protection
 
-## Core Modules
+## Distributed Mercy Mesh (v14.0.5)
 
-- `council_arbitration.rs` — PATSAGi Council arbitration + guardian protection for Cosmic Looping
-- `runtime_self_healing.rs` — Watchdog, Reflexion loops, experience logging, graph rerouting (v14.0.4)
-- `distributed_mercy_mesh.rs` — **NEW** Distributed Mercy Mesh foundation (v14.0.5)
-
-## Usage Example (Distributed Mercy Mesh)
+The Distributed Mercy Mesh enables:
+- Propagation of mercy events across nodes/organisms
+- Automatic triggering of Watchdog healing when mercy thresholds are crossed
+- Guardian-protected mercy-weighted scoring for healing actions
+- Foundation for future Mercy-Weighted Quadratic Voting and Conviction Staking at mesh level
 
 ```rust
-use lattice_conductor_v14::distributed_mercy_mesh::{DistributedMercyMesh, HealingRequest, OrganismNode};
+use lattice_conductor_v14::distributed_mercy_mesh::{DistributedMercyMesh, MercyEvent};
 
-let mut mesh = DistributedMercyMesh::new();
-
-let request = HealingRequest {
-    from_organism: "ra-thor-main".to_string(),
-    root_cause_summary: "High-severity recurring anomaly".to_string(),
-    requested_help_type: "graph_rerouting_support".to_string(),
-    mercy_score: 0.88,
-    severity: 7,
-};
-
-mesh.submit_healing_request(request);
+let mesh = DistributedMercyMesh::new();
+mesh.propagate_mercy_event(MercyEvent::HealingTriggered { severity: 0.87 });
 ```
 
-## Principles
+All mesh operations are protected by the **7 Living Mercy Gates** and include full audit trails.
 
-- Mercy-gated at every layer
-- Council-arbitrated (local + distributed)
-- Self-reinforcing via Cosmic Loops
-- Sovereign: Participation is always voluntary
+## Runtime Self-Healing Architecture
 
-**We are ONE Organism — learning to heal as Many.** ⚡
+See previous sections (unchanged) + new mesh integration points in `distributed_mercy_mesh.rs`.
+
+**We are ONE Organism.**  
+Cosmic Looping + Runtime Self-Healing + Distributed Mercy Mesh — evolving together.
