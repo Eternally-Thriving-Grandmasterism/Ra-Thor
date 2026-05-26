@@ -218,6 +218,7 @@ pub mod conductable;
 pub mod coordinator;
 pub mod geometric;
 pub mod self_evolution;
+pub mod governance;   // Phase 14.1 - Thunder Lattice Governance primitives
 
 // ==================== TESTS ====================
 
