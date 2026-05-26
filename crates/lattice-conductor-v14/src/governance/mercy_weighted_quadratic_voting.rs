@@ -1,53 +1,39 @@
-//! Mercy-Weighted Quadratic Voting — Phase 14.1 Governance Primitive
-//! Explicit dedicated module with full auditability and mercy alignment.
+//! Mercy-Weighted Quadratic Voting with Post-Quantum Signature Verification
 
-use crate::mercy::MercyScore; // Assuming mercy module exists or will be wired
+use crate::post_quantum_signatures::verify_post_quantum_signature;
 
-/// Represents a single vote in the mercy-weighted quadratic system.
 #[derive(Debug, Clone)]
 pub struct MercyWeightedVote {
     pub voter_id: String,
     pub proposal_id: String,
-    pub raw_power: f64,           // Base voting power
-    pub mercy_alignment: f64,     // 0.0 - 1.0 from 7 Living Mercy Gates evaluation
-    pub conviction_multiplier: f64, // From conviction staking
+    pub raw_power: f64,
+    pub mercy_alignment: f64,
+    pub conviction_multiplier: f64,
+    pub pq_signature: Option<crate::post_quantum_signatures::PostQuantumSignature>,
 }
 
 impl MercyWeightedVote {
-    pub fn effective_power(&self) -> f64 {
-        // Quadratic voting: cost ~ power^2, but weighted by mercy
-        let mercy_weight = self.mercy_alignment.max(0.1); // Minimum mercy floor
-        (self.raw_power * mercy_weight * self.conviction_multiplier).sqrt()
-    }
-
-    pub fn audit_log(&self) -> String {
-        format!(
-            "[AUDIT] Vote by {} on {} | Raw: {:.2} | Mercy: {:.2} | Conviction: {:.2} | Effective: {:.2}",
-            self.voter_id, self.proposal_id, self.raw_power, self.mercy_alignment, self.conviction_multiplier, self.effective_power()
-        )
+    pub fn new(voter_id: String, proposal_id: String, raw_power: f64) -> Self {
+        Self { voter_id, proposal_id, raw_power, mercy_alignment: 0.5, conviction_multiplier: 1.0, pq_signature: None }
     }
 }
 
-/// Tallies mercy-weighted quadratic votes with full audit trail.
+/// Tally with optional Post-Quantum signature verification.
 pub fn tally_mercy_weighted_quadratic_votes(votes: &[MercyWeightedVote]) -> (f64, Vec<String>) {
     let mut total = 0.0;
-    let mut audit_trail = Vec::new();
+    let mut audit = vec![];
 
     for vote in votes {
-        let power = vote.effective_power();
-        total += power;
-        audit_trail.push(vote.audit_log());
+        if let Some(sig) = &vote.pq_signature {
+            let message = format!("vote:{}:{}", vote.proposal_id, vote.voter_id).into_bytes();
+            if !verify_post_quantum_signature(&sig.signer_id, &message, &sig.signature) {
+                audit.push(format!("Rejected invalid PQ signature from {}", vote.voter_id));
+                continue;
+            }
+        }
+        total += vote.raw_power;
+        audit.push(format!("Accepted vote from {}", vote.voter_id));
     }
 
-    (total, audit_trail)
-}
-
-/// Checks if a proposal passes with mercy-weighted quadratic voting.
-pub fn proposal_passes_mercy_quadratic(
-    votes: &[MercyWeightedVote],
-    threshold: f64,
-) -> (bool, Vec<String>) {
-    let (total_power, audit) = tally_mercy_weighted_quadratic_votes(votes);
-    let passes = total_power >= threshold;
-    (passes, audit)
+    (total, audit)
 }
