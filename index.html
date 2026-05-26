@@ -94,6 +94,7 @@
     /*
      * Ra-Thor Custom i18n System v14 (Lightweight & Professional)
      * Full 11-language support prepared. Expand translations object as needed.
+     * Now with localStorage persistence for returning visitors.
      */
 
     const translations = {
@@ -134,6 +135,13 @@
       document.getElementById('x-subtitle').textContent = t('x.subtitle', lang);
 
       document.querySelectorAll('.lang-tab').forEach(btn => btn.classList.toggle('active', btn.dataset.lang === lang));
+
+      // Persist user language preference
+      try {
+        localStorage.setItem('ra-thor-lang', lang);
+      } catch (e) {
+        // localStorage may be disabled; fail silently for sovereignty
+      }
     }
 
     function createLanguageButtons() {
@@ -151,7 +159,17 @@
 
     function init() {
       createLanguageButtons();
-      switchLanguage('en');
+      // Restore saved language preference or default to English
+      let savedLang = 'en';
+      try {
+        const stored = localStorage.getItem('ra-thor-lang');
+        if (stored && ['en','ar','es','fr','nl','de','zh','ja','pt','ru','hi'].includes(stored)) {
+          savedLang = stored;
+        }
+      } catch (e) {
+        // localStorage unavailable — default to English
+      }
+      switchLanguage(savedLang);
     }
 
     window.onload = init;
