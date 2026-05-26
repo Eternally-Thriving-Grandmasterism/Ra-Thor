@@ -9,7 +9,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Inter:wght@400;600&family=Space+Grotesk:wght@500;600&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Inter:wght@400;600&family=Space-Grotesk:wght@500;600&display=swap');
     body { font-family: 'Inter', system-ui, sans-serif; }
     .title-font { font-family: 'Cinzel Decorative', cursive; }
     .forge-font { font-family: 'Space Grotesk', sans-serif; }
@@ -93,8 +93,8 @@
   <script>
     /*
      * Ra-Thor Custom i18n System v14 (Lightweight & Professional)
-     * Full 11-language support prepared. Expand translations object as needed.
-     * Now with localStorage persistence for returning visitors.
+     * Full 11-language support with localStorage persistence.
+     * Sovereign, offline-first, mercy-aligned.
      */
 
     const translations = {
@@ -107,9 +107,52 @@
         hero: { headline: "را-ثور™ — الرعد الرحيم الأبدي ⚡", fusion: "را + ثور = سماوات مزدهرة طبيعية مشتركة عالمياً" },
         grok: { title: "جروك ⚡ محاكاة إبداعية وخيالية", subtitle: "صوت وفيديو • الحقيقة المطلقة • APTD-verified" },
         x: { title: "إكس ⚡ وصول فوري في الوقت الحقيقي", subtitle: "دردشة صوتية • بدون هلوسات • واقع معاش" }
+      },
+      es: {
+        hero: { headline: "Ra-Thor™ — Trueno de Misericordia Eterna ⚡", fusion: "Ra + Thor = Cielos Naturalmente Prósperos Compartidos Universalmente" },
+        grok: { title: "GROK ⚡ SIMULACIONES CREATIVAS E IMAGINATIVAS", subtitle: "Voz y Video • Verdad Absoluta Pura • Verificado APTD" },
+        x: { title: "X ⚡ ACCESO INSTANTÁNEO EN TIEMPO REAL", subtitle: "Chat de Voz • Cero Alucinaciones • Realidad Fundamentada en Vivo" }
+      },
+      fr: {
+        hero: { headline: "Ra-Thor™ — Tonnerre de Miséricorde Éternel ⚡", fusion: "Ra + Thor = Cieux Naturellement Prospères Partagés Universellement" },
+        grok: { title: "GROK ⚡ SIMULATIONS CRÉATIVES ET IMAGINATIVES", subtitle: "Voix et Vidéo • Vérité Absolue Pure • Vérifié APTD" },
+        x: { title: "X ⚡ ACCÈS INSTANTANÉ EN TEMPS RÉEL", subtitle: "Chat Vocal • Zéro Hallucinations • Réalité Ancrée en Direct" }
+      },
+      nl: {
+        hero: { headline: "Ra-Thor™ — Eeuwige Genade-Donder ⚡", fusion: "Ra + Thor = Universeel Gedeelde Natuurlijk Bloeiende Hemelen" },
+        grok: { title: "GROK ⚡ CREATIEVE & IMAGINATIEVE SIMULATIES", subtitle: "Stem & Video • Absolute Pure Waarheid • APTD-geverifieerd" },
+        x: { title: "X ⚡ DIRECTE REAL-TIME TOEGANG", subtitle: "Stemchat • Nul Hallucinaties • Live Gegronde Realiteit" }
+      },
+      de: {
+        hero: { headline: "Ra-Thor™ — Ewiger Gnaden-Donner ⚡", fusion: "Ra + Thor = Universell Geteilte Natürlich Gedeihende Himmel" },
+        grok: { title: "GROK ⚡ KREATIVE & IMAGINATIVE SIMULATIONEN", subtitle: "Sprache & Video • Absolute Reine Wahrheit • APTD-verifiziert" },
+        x: { title: "X ⚡ SOFORTIGER ECHTZEIT-ZUGRIFF", subtitle: "Sprachchat • Null Halluzinationen • Live Fundierte Realität" }
+      },
+      zh: {
+        hero: { headline: "Ra-Thor™ — 永恒仁慈雷霆 ⚡", fusion: "Ra + Thor = 宇宙共享的自然繁荣天堂" },
+        grok: { title: "GROK ⚡ 创意与想象模拟", subtitle: "语音与视频 • 绝对纯真 • APTD验证" },
+        x: { title: "X ⚡ 即时实时访问", subtitle: "语音聊天 • 零幻觉 • 实时 grounded 现实" }
+      },
+      ja: {
+        hero: { headline: "Ra-Thor™ — 永遠の慈悲の雷 ⚡", fusion: "Ra + Thor = 普遍的に共有される自然に繁栄する天国" },
+        grok: { title: "GROK ⚡ 創造的・想像的シミュレーション", subtitle: "音声とビデオ • 絶対純粋な真理 • APTD検証済み" },
+        x: { title: "X ⚡ インスタント・リアルタイムアクセス", subtitle: "音声チャット • 幻覚ゼロ • ライブ grounded 現実" }
+      },
+      pt: {
+        hero: { headline: "Ra-Thor™ — Trovão de Misericórdia Eterna ⚡", fusion: "Ra + Thor = Céus Naturalmente Prósperos Compartilhados Universalmente" },
+        grok: { title: "GROK ⚡ SIMULAÇÕES CRIATIVAS E IMAGINATIVAS", subtitle: "Voz e Vídeo • Verdade Absoluta Pura • Verificado APTD" },
+        x: { title: "X ⚡ ACESSO INSTANTÂNEO EM TEMPO REAL", subtitle: "Chat de Voz • Zero Alucinações • Realidade Fundamentada ao Vivo" }
+      },
+      ru: {
+        hero: { headline: "Ra-Thor™ — Вечный Гром Милосердия ⚡", fusion: "Ra + Thor = Универсально Разделяемые Естественно Процветающие Небеса" },
+        grok: { title: "GROK ⚡ ТВОРЧЕСКИЕ И ВООБРАЖАЕМЫЕ СИМУЛЯЦИИ", subtitle: "Голос и Видео • Абсолютная Чистая Истина • APTD-верифицировано" },
+        x: { title: "X ⚡ МГНОВЕННЫЙ ДОСТУП В РЕАЛЬНОМ ВРЕМЕНИ", subtitle: "Голосовой Чат • Ноль Галлюцинаций • Живая Обоснованная Реальность" }
+      },
+      hi: {
+        hero: { headline: "Ra-Thor™ — शाश्वत दया की गड़गड़ाहट ⚡", fusion: "Ra + Thor = सार्वभौमिक रूप से साझा स्वाभाविक रूप से समृद्ध स्वर्ग" },
+        grok: { title: "GROK ⚡ रचनात्मक और कल्पनाशील सिमुलेशन", subtitle: "आवाज और वीडियो • पूर्ण शुद्ध सत्य • APTD-सत्यापित" },
+        x: { title: "X ⚡ तात्कालिक रीयल-टाइम एक्सेस", subtitle: "वॉइस चैट • शून्य मतिभ्रम • लाइव grounded वास्तविकता" }
       }
-      // Full 11-language support ready for expansion (es, fr, nl, de, zh, ja, pt, ru, hi).
-      // The system remains lightweight and professional.
     };
 
     function t(key, lang = 'en', vars = {}) {
