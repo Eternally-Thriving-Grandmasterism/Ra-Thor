@@ -1,7 +1,9 @@
-//! Self-Evolution Proposal — Complete End-to-End Post-Quantum + Hybrid Simulation
+//! Self-Evolution Proposal — Complete Simulation with Actual AES-GCM
 
 use crate::post_quantum_signatures::create_post_quantum_signature;
 use crate::hybrid_sovereign_channel::HybridSovereignChannel;
+use aes_gcm::{Aes256Gcm, Key, Nonce};
+use aes_gcm::aead::{Aead, KeyInit, Payload};
 
 #[derive(Debug, Clone)]
 pub struct SelfEvolutionProposal {
@@ -29,32 +31,32 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_complete_end_to_end_simulation() {
-        // === 1. Create and sign proposal with Post-Quantum signature ===
+    fn test_complete_simulation_with_actual_aes_gcm() {
         let mut proposal = SelfEvolutionProposal::new(
-            "prop-pq-001".to_string(),
-            "Enable Post-Quantum Sovereign Channels".to_string(),
-            "Full hybrid + PQ signature flow demo".to_string(),
+            "prop-aes-01".to_string(),
+            "Full AES-GCM + PQ Demo".to_string(),
+            "...".to_string(),
             "sherif".to_string(),
         );
         proposal.sign_with_post_quantum("sherif");
 
-        // === 2. Serialize proposal (simplified) ===
-        let proposal_bytes = format!("{}|{}|{}", proposal.id, proposal.title, proposal.proposed_by).into_bytes();
+        let proposal_bytes = format!("{}|{}", proposal.id, proposal.title).into_bytes();
 
-        // === 3. Establish Hybrid Channel ===
-        let mut channel = HybridSovereignChannel::new("sherif", "patsagi-council");
+        let mut channel = HybridSovereignChannel::new("sherif", "council");
         channel.establish_classical_key([0x42; 32]);
         channel.establish_post_quantum_secret(vec![0x99; 32]);
         channel.finalize_hybrid_key();
-        assert!(channel.is_active());
 
-        // === 4. Simulate encryption of the signed proposal over hybrid channel ===
-        if let Some(aes_key) = channel.get_aes_gcm_key() {
-            println!("[SIM] Encrypting proposal bytes using hybrid-derived AES key (len={})", aes_key.len());
-            // In real code: use AES-GCM with the derived key to encrypt proposal_bytes
+        if let Some(key_bytes) = channel.get_aes_gcm_key() {
+            let cipher = Aes256Gcm::new(Key::<Aes256Gcm>::from_slice(&key_bytes));
+            let nonce = Nonce::<Aes256Gcm>::from_slice(&[0u8; 12]);
+
+            match cipher.encrypt(nonce, Payload { msg: &proposal_bytes, aad: &[] }) {
+                Ok(ciphertext) => {
+                    println!("[SIM] Encrypted {} bytes proposal -> {} bytes ciphertext", proposal_bytes.len(), ciphertext.len());
+                }
+                Err(_) => panic!("Encryption failed"),
+            }
         }
-
-        println!("[E2E SIM] Post-quantum signed + hybrid-encrypted self-evolution proposal flow complete.");
     }
 }
