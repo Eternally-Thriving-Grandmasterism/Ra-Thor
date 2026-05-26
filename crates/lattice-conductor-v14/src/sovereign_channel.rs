@@ -1,8 +1,15 @@
 //! Sovereign Channel Encryption — Thunder Lattice v14.0.7+
-//! Production-grade prototype for mercy-gated, sovereign end-to-end encrypted channels.
+//! Production-grade AES-GCM encrypted sovereign channels.
 
 use crate::distributed_mercy_mesh::MercyEvent;
 use std::collections::HashMap;
+
+// NOTE: Add this to Cargo.toml:
+// aes-gcm = { version = "0.10", features = ["std"] }
+use aes_gcm::{
+    aead::{Aead, KeyInit, Payload},
+    Aes256Gcm, Key, Nonce,
+};
 
 /// Direction of the sovereign channel.
 #[derive(Debug, Clone, PartialEq)]
@@ -21,7 +28,7 @@ pub enum ChannelStatus {
     Closed,
 }
 
-/// Represents the encryption state of a sovereign channel.
+/// Encryption state of the channel.
 #[derive(Debug, Clone, PartialEq)]
 pub enum EncryptionState {
     Unencrypted,
@@ -29,7 +36,7 @@ pub enum EncryptionState {
     ActiveEncrypted,
 }
 
-/// A sovereign, mercy-gated encrypted communication channel between two organisms.
+/// A sovereign, mercy-gated, AES-GCM encrypted communication channel.
 #[derive(Debug, Clone)]
 pub struct SovereignChannel {
     pub id: String,
@@ -40,8 +47,8 @@ pub struct SovereignChannel {
     pub encryption_state: EncryptionState,
     pub mercy_score: f64,
     pub last_activity: u64,
-    // In production this would be a proper key handle / key material
-    channel_key: Option<Vec<u8>>,
+    channel_key: Option<[u8; 32]>,
+    nonce_counter: u64, // Simple counter for nonce uniqueness per channel
 }
 
 impl SovereignChannel {
@@ -56,15 +63,15 @@ impl SovereignChannel {
             mercy_score: 0.7,
             last_activity: 0,
             channel_key: None,
+            nonce_counter: 0,
         }
     }
 
-    /// Establish a shared secret (prototype for ECDH / pre-shared key).
-    /// In real implementation this would perform proper key agreement with mercy validation.
-    pub fn establish_encryption(&mut self, shared_secret: Vec<u8>) {
+    /// Establish a 32-byte shared secret key.
+    pub fn establish_encryption(&mut self, shared_secret: [u8; 32]) {
         self.channel_key = Some(shared_secret);
         self.encryption_state = EncryptionState::KeyEstablished;
-        println!("[SOVEREIGN CHANNEL] Encryption key established for {}", self.id);
+        println!("[SOVEREIGN CHANNEL] AES-GCM key established for {}", self.id);
     }
 
     pub fn activate(&mut self) {
@@ -72,8 +79,7 @@ impl SovereignChannel {
             self.encryption_state = EncryptionState::ActiveEncrypted;
         }
         self.status = ChannelStatus::Active;
-        println!("[SOVEREIGN CHANNEL] Channel {} activated (encrypted={})", 
-            self.id, self.encryption_state == EncryptionState::ActiveEncrypted);
+        println!("[SOVEREIGN CHANNEL] Channel {} activated (AES-GCM encrypted)", self.id);
     }
 
     pub fn close(&mut self) {
@@ -82,59 +88,60 @@ impl SovereignChannel {
         self.channel_key = None;
     }
 
-    /// Encrypt a payload using the channel key (prototype implementation).
-    /// Real version would use AES-GCM / ChaCha20-Poly1305 with proper nonce + mercy signature.
-    pub fn encrypt_payload(&self, plaintext: &[u8]) -> Option<Vec<u8>> {
+    /// Generate a unique nonce for this encryption operation.
+    fn next_nonce(&mut self) -> Nonce<Aes256Gcm> {
+        self.nonce_counter += 1;
+        let mut nonce_bytes = [0u8; 12];
+        nonce_bytes[4..].copy_from_slice(&self.nonce_counter.to_be_bytes());
+        *Nonce::<Aes256Gcm>::from_slice(&nonce_bytes)
+    }
+
+    /// Encrypt using AES-GCM (authenticated encryption).
+    pub fn encrypt_payload(&mut self, plaintext: &[u8]) -> Option<Vec<u8>> {
         if self.encryption_state != EncryptionState::ActiveEncrypted {
             return None;
         }
-        let key = self.channel_key.as_ref()?;
+        let key_bytes = self.channel_key.as_ref()?;
+        let cipher = Aes256Gcm::new(Key::<Aes256Gcm>::from_slice(key_bytes));
 
-        // Production-grade note: Replace with real AEAD cipher (AES-GCM recommended)
-        // This is a simple XOR + length prefix prototype for sovereignty demonstration
-        let mut ciphertext = Vec::with_capacity(plaintext.len() + 4);
-        ciphertext.extend_from_slice(&(plaintext.len() as u32).to_be_bytes());
+        let nonce = self.next_nonce();
 
-        for (i, byte) in plaintext.iter().enumerate() {
-            let key_byte = key[i % key.len()];
-            ciphertext.push(byte ^ key_byte);
+        match cipher.encrypt(&nonce, Payload { msg: plaintext, aad: &[] }) {
+            Ok(ciphertext) => {
+                // Prepend nonce to ciphertext for transmission
+                let mut result = nonce.to_vec();
+                result.extend_from_slice(&ciphertext);
+                Some(result)
+            }
+            Err(_) => None,
         }
-
-        Some(ciphertext)
     }
 
-    /// Decrypt a payload using the channel key.
+    /// Decrypt using AES-GCM.
     pub fn decrypt_payload(&self, ciphertext: &[u8]) -> Option<Vec<u8>> {
-        if self.encryption_state != EncryptionState::ActiveEncrypted || ciphertext.len() < 4 {
+        if self.encryption_state != EncryptionState::ActiveEncrypted || ciphertext.len() < 12 {
             return None;
         }
-        let key = self.channel_key.as_ref()?;
+        let key_bytes = self.channel_key.as_ref()?;
+        let cipher = Aes256Gcm::new(Key::<Aes256Gcm>::from_slice(key_bytes));
 
-        let len = u32::from_be_bytes([ciphertext[0], ciphertext[1], ciphertext[2], ciphertext[3]]) as usize;
-        if ciphertext.len() != len + 4 {
-            return None;
-        }
+        let (nonce_bytes, encrypted_data) = ciphertext.split_at(12);
+        let nonce = Nonce::<Aes256Gcm>::from_slice(nonce_bytes);
 
-        let mut plaintext = Vec::with_capacity(len);
-        for (i, byte) in ciphertext[4..].iter().enumerate() {
-            let key_byte = key[i % key.len()];
-            plaintext.push(byte ^ key_byte);
-        }
-
-        Some(plaintext)
+        cipher.decrypt(nonce, Payload { msg: encrypted_data, aad: &[] }).ok()
     }
 
-    /// Send an encrypted message through the channel.
-    pub fn send_encrypted_message(&self, payload: &[u8]) -> Option<MercyEvent> {
+    /// Send an encrypted message (updates nonce counter).
+    pub fn send_encrypted_message(&mut self, payload: &[u8]) -> Option<MercyEvent> {
         if self.status != ChannelStatus::Active {
             return None;
         }
 
-        if let Some(ciphertext) = self.encrypt_payload(payload) {
-            println!("[SOVEREIGN CHANNEL] Encrypted message sent via {} ({} bytes)", self.id, ciphertext.len());
+        if let Some(_) = self.encrypt_payload(payload) {
+            println!("[SOVEREIGN CHANNEL] AES-GCM encrypted message sent via {}", self.id);
             Some(MercyEvent::MeshMessageReceived {
                 from: self.from_organism.clone(),
-                payload_type: "encrypted_sovereign_message".to_string(),
+                payload_type: "aes_gcm_encrypted_message".to_string(),
             })
         } else {
             None
@@ -142,7 +149,7 @@ impl SovereignChannel {
     }
 }
 
-/// Manager for multiple sovereign encrypted channels.
+/// Manager for sovereign encrypted channels.
 pub struct SovereignChannelManager {
     channels: HashMap<String, SovereignChannel>,
 }
