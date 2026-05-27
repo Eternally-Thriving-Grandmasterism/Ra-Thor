@@ -1,5 +1,15 @@
 // crates/lattice-conductor-v14/src/argumentation.rs
-// Phase 3: Stable Extensions Support
+//
+// Ra-Thor Argumentation Graph
+// Supports both practical analysis methods and formal Abstract Argumentation semantics.
+//
+// Formal Semantics Supported:
+// - Grounded Extension   : Most skeptical / safest set of acceptable arguments.
+// - Preferred Extensions : Credulous / maximal admissible sets (can be multiple).
+// - Stable Extensions    : Strong / decisive sets that attack everything outside themselves.
+//
+// These methods allow Ra-Thor and PATSAGi Councils to reason using rigorous
+// formal argumentation theory while remaining aligned with mercy and evolution.
 
 use std::collections::{HashMap, HashSet};
 
@@ -165,8 +175,9 @@ impl ArgumentGraph {
         ranked
     }
 
-    // === Phase 3: Stable Extensions ===
+    // === Formal Abstract Argumentation Semantics ===
 
+    /// Returns arguments that have no attackers.
     pub fn unattacked_arguments(&self) -> Vec<ArgumentId> {
         self.claims
             .keys()
@@ -175,12 +186,15 @@ impl ArgumentGraph {
             .collect()
     }
 
+    /// Internal helper: checks if an argument is defended by a given set.
     fn is_defended(&self, claim_id: ArgumentId, defeated: &HashSet<ArgumentId>) -> bool {
         self.get_attackers(claim_id)
             .iter()
             .all(|attack| defeated.contains(&attack.source_claim_id))
     }
 
+    /// Checks if a set is admissible (conflict-free + self-defending).
+    /// Used as foundation for Preferred and Stable Extensions.
     pub fn is_admissible(&self, set: &HashSet<ArgumentId>) -> bool {
         for &arg in set {
             for attack in self.get_attackers(arg) {
@@ -197,6 +211,8 @@ impl ArgumentGraph {
         true
     }
 
+    /// Computes the Grounded Extension (most skeptical / safest set of acceptable arguments).
+    /// This is the unique, well-founded position that even the most cautious reasoner can accept.
     pub fn grounded_extension(&self) -> Vec<ArgumentId> {
         let mut extension: HashSet<ArgumentId> = HashSet::new();
         let mut changed = true;
@@ -228,6 +244,8 @@ impl ArgumentGraph {
         extension.into_iter().collect()
     }
 
+    /// Finds one maximal admissible set (one Preferred Extension).
+    /// Preferred Extensions are credulous positions that defend themselves.
     pub fn find_maximal_admissible_set(&self) -> HashSet<ArgumentId> {
         let mut current: HashSet<ArgumentId> = self.grounded_extension().into_iter().collect();
 
@@ -242,6 +260,8 @@ impl ArgumentGraph {
         current
     }
 
+    /// Returns up to `max_results` Preferred Extensions (maximal admissible sets).
+    /// These represent multiple defensible but more optimistic positions.
     pub fn preferred_extensions(&self, max_results: usize) -> Vec<HashSet<ArgumentId>> {
         let mut results: Vec<HashSet<ArgumentId>> = Vec::new();
         let grounded: HashSet<ArgumentId> = self.grounded_extension().into_iter().collect();
@@ -270,13 +290,14 @@ impl ArgumentGraph {
         results
     }
 
-    /// Check if a set is a Stable Extension
+    /// Checks if a set is a Stable Extension.
+    /// A set is stable if it is admissible and attacks every argument outside itself.
+    /// Stable Extensions are strong, decisive positions (but may not always exist).
     pub fn is_stable(&self, set: &HashSet<ArgumentId>) -> bool {
         if !self.is_admissible(set) {
             return false;
         }
 
-        // Must attack every argument not in the set
         for &arg in self.claims.keys() {
             if set.contains(&arg) { continue; }
 
@@ -294,10 +315,11 @@ impl ArgumentGraph {
         true
     }
 
-    /// Find Stable Extensions (practical version)
+    /// Returns up to `max_results` Stable Extensions.
+    /// These are the strongest formal positions in the framework.
     pub fn stable_extensions(&self, max_results: usize) -> Vec<HashSet<ArgumentId>> {
         let mut results = Vec::new();
-        let preferreds = self.preferred_extensions(max_results * 2); // search more candidates
+        let preferreds = self.preferred_extensions(max_results * 2);
 
         for pref in preferreds {
             if self.is_stable(&pref) {
