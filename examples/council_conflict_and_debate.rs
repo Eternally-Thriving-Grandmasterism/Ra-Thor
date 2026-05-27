@@ -1,5 +1,5 @@
 // examples/council_conflict_and_debate.rs
-// Phase 2 Start: ArgumentGraph-Aware Persuasion
+// Phase 2: Archetype-Specific Persuasion Sensitivity
 
 use lattice_conductor_v14::{
     CooperativeGame, LatticeConductorEnhancements, GovernanceRiskReport,
@@ -8,8 +8,8 @@ use lattice_conductor_v14::{
 use std::collections::HashSet;
 
 fn main() {
-    println!("=== Phase 2: ArgumentGraph-Aware Persuasion ===\n");
-    println!("Mates! Persuasion now listens to the strength and conflict of arguments.\n");
+    println!("=== Phase 2: Archetype-Specific Persuasion Sensitivity ===\n");
+    println!("Mates! Each council now feels the strength of arguments differently.\n");
 
     let participants = vec!["Dominant".to_string(), "Weak1".to_string(), "Weak2".to_string()];
     let char_fn = |s: &HashSet<String>| -> f64 {
@@ -30,7 +30,7 @@ fn main() {
     println!("Risk Score: {:.3} | Max Banzhaf: {:.3}", risk_score, max_banzhaf);
 
     if risk_score <= 0.55 {
-        println!("Risk acceptable. No persuasion needed.\n");
+        println!("Risk acceptable.\n");
         return;
     }
 
@@ -39,10 +39,9 @@ fn main() {
         max_banzhaf,
         shapley_variance: shapley_var,
         mercy_alignment: 0.88,
-        recommended_action: "ArgumentGraph-aware persuasion".to_string(),
+        recommended_action: "Archetype-specific persuasion sensitivity".to_string(),
     };
 
-    // Build ArgumentGraph
     let mut arg_graph = ArgumentGraph::new();
     let main_claim = arg_graph.add_claim(
         "Strong self-evolution required due to power concentration".to_string(),
@@ -50,14 +49,13 @@ fn main() {
         0.85,
     );
 
-    // Add some supports and attacks to create meaningful graph data
-    arg_graph.add_support(main_claim, main_claim, "Supports evolution for long-term coherence".to_string(), "Truth Council".to_string(), 0.7);
-    arg_graph.add_attack(main_claim, main_claim, "Risk of over-correction".to_string(), "Justice Council".to_string(), 0.4);
+    arg_graph.add_support(main_claim, main_claim, "Supports long-term coherence".to_string(), "Truth Council".to_string(), 0.75);
+    arg_graph.add_attack(main_claim, main_claim, "Risk of disruption".to_string(), "Justice Council".to_string(), 0.35);
 
     let effective = arg_graph.effective_strength(main_claim).unwrap_or(0.5);
     let conflict = arg_graph.conflict_level(main_claim).unwrap_or(0.0);
 
-    println!("\n[ArgumentGraph] Effective Strength: {:.2} | Conflict Level: {:.2}", effective, conflict);
+    println!("\n[ArgumentGraph] Effective Strength: {:.2} | Conflict: {:.2}", effective, conflict);
 
     // ROUND 1
     println!("\n--- ROUND 1: Opening Statements ---");
@@ -72,20 +70,29 @@ fn main() {
         println!("[{}] : {:?}", name, decision);
     }
 
-    // ROUND 2 - Now influenced by ArgumentGraph data
-    println!("\n--- ROUND 2: ArgumentGraph-Aware Persuasion ---");
+    // ROUND 2 - Archetype-specific sensitivity to graph data
+    println!("\n--- ROUND 2: Archetype-Specific Persuasion ---");
 
     let c13_pos = positions.iter().find(|(n, _)| *n == "Council #13").unwrap().1.clone();
 
     for (name, decision) in positions.iter_mut() {
         if *name == "Council #13" { continue; }
 
-        // ArgumentGraph-aware shifting
-        if effective > 0.65 && conflict < 0.4 {
+        // Different sensitivity per archetype
+        let sensitivity = match *name {
+            "Mercy Council" | "Harmony Council" => 0.75, // High sensitivity to evolution
+            "Truth Council" => 0.65,
+            "Justice Council" => 0.45, // More cautious
+            _ => 0.5,
+        };
+
+        let persuasion_threshold = 0.6;
+
+        if effective > persuasion_threshold && conflict < 0.45 {
             if matches!(c13_pos, PatsagiDecision::RequiresSelfEvolution { .. }) {
-                if matches!(decision, PatsagiDecision::Approved { .. }) {
+                if matches!(decision, PatsagiDecision::Approved { .. }) && sensitivity > 0.5 {
                     *decision = PatsagiDecision::RequiresSelfEvolution { priority: 2 };
-                    println!("[{}] persuaded by strong, low-conflict argument (strength: {:.2}).", name, effective);
+                    println!("[{}] persuaded (sensitivity: {:.2}, strength: {:.2}).", name, sensitivity, effective);
                 }
             }
         }
@@ -98,9 +105,9 @@ fn main() {
     println!("\n--- FINAL RESOLUTION ---");
     let final = resolve_conflict_weighted(&positions, &report);
     println!("Final Decision: {:?}", final);
-    println!("\nWe move forward with graph-informed evolution, Mates!\n");
+    println!("\nWe move forward with differentiated, graph-informed evolution, Mates!\n");
 
-    println!("=== Phase 2 Entry Complete ===");
+    println!("=== Phase 2 Progress ===");
 }
 
 fn debate_mercy(report: &GovernanceRiskReport) -> PatsagiDecision {
