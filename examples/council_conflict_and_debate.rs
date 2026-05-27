@@ -1,8 +1,5 @@
 // examples/council_conflict_and_debate.rs
-// Persuasion Dynamics in PATSAGi Council Debate
-//
-// Councils can influence each other during debate rounds.
-// Council #13 has highest persuasion power. Archetype alignment affects influence.
+// Persuasion Dynamics with Argument Quality + Archetype Affinity
 
 use lattice_conductor_v14::{
     CooperativeGame, LatticeConductorEnhancements, GovernanceRiskReport,
@@ -11,7 +8,7 @@ use lattice_conductor_v14::{
 use std::collections::HashSet;
 
 fn main() {
-    println!("=== Persuasion Dynamics in PATSAGi Council Debate ===\n");
+    println!("=== Persuasion with Argument Quality + Archetype Affinity ===\n");
 
     let participants = vec!["Dominant".to_string(), "Weak1".to_string(), "Weak2".to_string()];
     let char_fn = |s: &HashSet<String>| -> f64 {
@@ -41,17 +38,16 @@ fn main() {
         max_banzhaf,
         shapley_variance: shapley_var,
         mercy_alignment: 0.88,
-        recommended_action: "Debate with persuasion dynamics".to_string(),
+        recommended_action: "Persuasion with quality + affinity".to_string(),
     };
 
     let review_request = PatsagiReviewRequest {
         topic: "Persuasion dynamics test".to_string(),
-        summary: "Observe how councils influence each other.".to_string(),
+        summary: "Quality + Archetype Affinity".to_string(),
         mercy_impact_score: report.mercy_alignment,
         requested_by: "lattice-conductor".to_string(),
     };
 
-    // Initial positions
     let mut positions: Vec<(&str, PatsagiDecision)> = vec![
         ("Mercy Council",   debate_mercy(&report)),
         ("Truth Council",   debate_truth(&report)),
@@ -65,36 +61,44 @@ fn main() {
         println!("{}: {:?}", name, decision);
     }
 
-    // === Persuasion Round ===
-    println!("\n--- Persuasion Round ---");
+    // Persuasion round with argument quality + archetype affinity
+    println!("\n--- Persuasion Round (Quality + Affinity) ---");
 
-    // Council #13 has high persuasion power
     let c13_decision = positions.iter().find(|(n, _)| *n == "Council #13").unwrap().1.clone();
 
     for (name, decision) in positions.iter_mut() {
         if *name == "Council #13" { continue; }
 
-        let persuasion_strength = match *name {
-            "Mercy Council" | "Harmony Council" => 0.6, // More open to influence
-            "Truth Council" | "Justice Council" => 0.4,
-            _ => 0.3,
+        // Archetype affinity toward Council #13
+        let affinity = match *name {
+            "Mercy Council" | "Harmony Council" => 0.75,
+            "Truth Council" => 0.55,
+            "Justice Council" => 0.45,
+            _ => 0.4,
         };
 
-        // Strong influence from Council #13
-        if matches!(c13_decision, PatsagiDecision::RequiresSelfEvolution { priority: 4 }) {
-            if persuasion_strength > 0.5 {
+        // Argument quality from Council #13 (higher priority = stronger argument)
+        let argument_quality = if matches!(c13_decision, PatsagiDecision::RequiresSelfEvolution { priority: 4 }) {
+            0.9
+        } else {
+            0.7
+        };
+
+        let influence = affinity * argument_quality;
+
+        if influence > 0.6 {
+            if matches!(c13_decision, PatsagiDecision::RequiresSelfEvolution { .. }) {
                 *decision = PatsagiDecision::RequiresSelfEvolution { priority: 3 };
-                println!("[{}] persuaded by Council #13 toward stronger evolution.", name);
+                println!("[{}] persuaded by Council #13 (influence: {:.2})", name, influence);
             }
         }
     }
 
-    println!("\n--- Positions After Persuasion ---");
+    println!("\n--- After Persuasion ---");
     for (name, decision) in &positions {
         println!("{}: {:?}", name, decision);
     }
 
-    // Final resolution
     let final = resolve_conflict_weighted(&positions, &report);
     println!("\nFinal Decision: {:?}", final);
 
