@@ -1,5 +1,5 @@
 // crates/lattice-conductor-v14/src/logical_fallacy_detection.rs
-// Production-grade Logical Fallacy Detection - Circular Support Detection
+// Updated to fully leverage improved ArgumentGraph claim-to-claim model
 
 use crate::argumentation::{ArgumentGraph, ArgumentId};
 use std::collections::{HashMap, HashSet};
@@ -32,21 +32,21 @@ impl LogicalFallacyDetector {
                 fallacies.push(DetectedFallacy {
                     fallacy_type: FallacyType::UnsupportedClaim,
                     target_claim_id: *id,
-                    description: format!("Claim has no supporting arguments: {}", claim.content),
+                    description: format!("Unsupported claim: {}", claim.content),
                     severity: 0.6,
                 });
             }
         }
 
-        // Circular support detection
-        let circular_claims = Self::detect_circular_support(graph);
-        for claim_id in circular_claims {
+        // Improved circular support detection
+        let circular = Self::detect_circular_support(graph);
+        for claim_id in circular {
             if let Some(claim) = graph.claims.get(&claim_id) {
                 fallacies.push(DetectedFallacy {
                     fallacy_type: FallacyType::CircularSupport,
                     target_claim_id: claim_id,
-                    description: format!("Circular reasoning detected: {}", claim.content),
-                    severity: 0.9,
+                    description: format!("Circular support detected: {}", claim.content),
+                    severity: 0.92,
                 });
             }
         }
@@ -69,26 +69,24 @@ impl LogicalFallacyDetector {
         fallacies
     }
 
-    /// Proper circular support detection using claim dependency graph
+    /// Proper circular detection using claim-to-claim support graph
     pub fn detect_circular_support(graph: &ArgumentGraph) -> HashSet<ArgumentId> {
+        // Build adjacency list: claim -> list of claims it supports
         let mut adj: HashMap<ArgumentId, Vec<ArgumentId>> = HashMap::new();
 
-        // Build graph: claim -> claims that support it
         for support in &graph.supports {
-            adj.entry(support.target_claim_id)
+            adj.entry(support.source_claim_id)
                 .or_default()
-                .push(support.target_claim_id); // simplistic self-reference for demo
+                .push(support.target_claim_id);
         }
 
-        // For a more accurate model, we would map supports between different claims.
-        // Here we use a simplified DFS cycle detection on claim dependencies.
         let mut visited = HashSet::new();
         let mut rec_stack = HashSet::new();
         let mut circular = HashSet::new();
 
         for &claim_id in graph.claims.keys() {
             if !visited.contains(&claim_id) {
-                if Self::has_cycle(claim_id, &adj, &mut visited, &mut rec_stack) {
+                if Self::dfs_has_cycle(claim_id, &adj, &mut visited, &mut rec_stack) {
                     circular.insert(claim_id);
                 }
             }
@@ -97,7 +95,7 @@ impl LogicalFallacyDetector {
         circular
     }
 
-    fn has_cycle(
+    fn dfs_has_cycle(
         node: ArgumentId,
         adj: &HashMap<ArgumentId, Vec<ArgumentId>>,
         visited: &mut HashSet<ArgumentId>,
@@ -109,7 +107,7 @@ impl LogicalFallacyDetector {
         if let Some(neighbors) = adj.get(&node) {
             for &neighbor in neighbors {
                 if !visited.contains(&neighbor) {
-                    if Self::has_cycle(neighbor, adj, visited, rec_stack) {
+                    if Self::dfs_has_cycle(neighbor, adj, visited, rec_stack) {
                         return true;
                     }
                 } else if rec_stack.contains(&neighbor) {
