@@ -1,5 +1,5 @@
 // examples/council_conflict_and_debate.rs
-// Phase 1: Richer Multi-Round Debate with Fallacy Flagging
+// Phase 1: Advanced Multi-Round Debate with Dynamic Fallacy Response
 
 use lattice_conductor_v14::{
     CooperativeGame, LatticeConductorEnhancements, GovernanceRiskReport,
@@ -8,7 +8,7 @@ use lattice_conductor_v14::{
 use std::collections::HashSet;
 
 fn main() {
-    println!("=== Phase 1: Richer Multi-Round Debate + Fallacy Flagging ===\n");
+    println!("=== Phase 1: Advanced Multi-Round Debate + Dynamic Fallacy Response ===\n");
 
     let participants = vec!["Dominant".to_string(), "Weak1".to_string(), "Weak2".to_string()];
     let char_fn = |s: &HashSet<String>| -> f64 {
@@ -38,10 +38,9 @@ fn main() {
         max_banzhaf,
         shapley_variance: shapley_var,
         mercy_alignment: 0.88,
-        recommended_action: "Richer multi-round debate with fallacy flagging".to_string(),
+        recommended_action: "Advanced multi-round debate with dynamic fallacy response".to_string(),
     };
 
-    // Build ArgumentGraph
     let mut arg_graph = ArgumentGraph::new();
     arg_graph.add_claim(
         "Strong self-evolution required due to power concentration".to_string(),
@@ -49,11 +48,8 @@ fn main() {
         0.85,
     );
 
-    // ========== ROUND 1: Opening Statements ==========
-    println!("\n════════════════════════════════════════════════════════════");
-    println!("                      ROUND 1: Opening Statements");
-    println!("════════════════════════════════════════════════════════════");
-
+    // ROUND 1
+    println!("\n--- ROUND 1: Opening Statements ---");
     let mut positions: Vec<(&str, PatsagiDecision)> = vec![
         ("Mercy Council",   debate_mercy(&report)),
         ("Truth Council",   debate_truth(&report)),
@@ -65,47 +61,43 @@ fn main() {
         println!("[{}] : {:?}", name, decision);
     }
 
-    // Detect structural fallacies
-    let fallacies_r1 = LogicalFallacyDetector::detect_structural_fallacies(&arg_graph);
-    println!("\n[Fallacy Check Round 1] {} issues detected.", fallacies_r1.len());
+    let fallacies = LogicalFallacyDetector::detect_structural_fallacies(&arg_graph);
+    println!("\n[Fallacy Detection] {} structural issues found.", fallacies.len());
 
-    // ========== ROUND 2: Rebuttals + Persuasion ==========
-    println!("\n════════════════════════════════════════════════════════════");
-    println!("                 ROUND 2: Rebuttals + Persuasion");
-    println!("════════════════════════════════════════════════════════════");
+    // ROUND 2 - Dynamic shifting based on Council #13 + fallacy awareness
+    println!("\n--- ROUND 2: Rebuttals + Dynamic Response ---");
 
-    // Council #13 exerts strong influence
     let c13_pos = positions.iter().find(|(n, _)| *n == "Council #13").unwrap().1.clone();
 
     for (name, decision) in positions.iter_mut() {
         if *name == "Council #13" { continue; }
 
-        // Simple persuasion: Council #13's strong evolution stance influences others
+        // Dynamic response: If Council #13 pushes strong evolution, others may shift
         if matches!(c13_pos, PatsagiDecision::RequiresSelfEvolution { priority: 4 }) {
-            if matches!(decision, PatsagiDecision::Approved { .. }) {
-                *decision = PatsagiDecision::RequiresSelfEvolution { priority: 2 };
-                println!("[{}] shifts toward evolution after Council #13 input.", name);
+            match decision {
+                PatsagiDecision::Approved { .. } => {
+                    *decision = PatsagiDecision::RequiresSelfEvolution { priority: 2 };
+                    println!("[{}] shifts to evolution (influenced by Council #13).", name);
+                }
+                PatsagiDecision::RequiresSelfEvolution { priority } if *priority < 3 => {
+                    *priority = 3;
+                    println!("[{}] strengthens evolution stance.", name);
+                }
+                _ => {}
             }
         }
     }
 
     for (name, decision) in &positions {
-        println!("[{}] after rebuttal: {:?}", name, decision);
+        println!("[{}] after Round 2: {:?}", name, decision);
     }
 
-    // Detect fallacies again after shifts
-    let fallacies_r2 = LogicalFallacyDetector::detect_structural_fallacies(&arg_graph);
-    println!("\n[Fallacy Check Round 2] {} issues detected.", fallacies_r2.len());
-
     // Final Resolution
-    println!("\n════════════════════════════════════════════════════════════");
-    println!("                        FINAL RESOLUTION");
-    println!("════════════════════════════════════════════════════════════");
-
+    println!("\n--- FINAL RESOLUTION ---");
     let final = resolve_conflict_weighted(&positions, &report);
     println!("Final Decision: {:?}", final);
 
-    println!("\n=== Phase 1 Simulation Complete ===");
+    println!("\n=== Phase 1 Complete ===");
 }
 
 fn debate_mercy(report: &GovernanceRiskReport) -> PatsagiDecision {
