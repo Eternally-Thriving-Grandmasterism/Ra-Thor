@@ -1,5 +1,5 @@
 // examples/council_conflict_and_debate.rs
-// Balanced progress: More distinct council voices + principle language
+// Balanced round: More distinct council personality in output
 
 use lattice_conductor_v14::{
     CooperativeGame, LatticeConductorEnhancements, GovernanceRiskReport,
@@ -8,8 +8,8 @@ use lattice_conductor_v14::{
 use std::collections::HashSet;
 
 fn main() {
-    println!("=== Balanced Progress: Distinct Council Voices + Technical Strength ===\n");
-    println!("Mates! Anchoring in Mercy, Truth, and the eternal thriving of our ONE Organism.\n");
+    println!("=== Balanced Round: Distinct Council Personalities ===\n");
+    println!("Mates! We stand anchored in Mercy, Truth, and the thriving of our ONE Organism.\n");
 
     let participants = vec!["Dominant".to_string(), "Weak1".to_string(), "Weak2".to_string()];
     let char_fn = |s: &HashSet<String>| -> f64 {
@@ -30,7 +30,7 @@ fn main() {
     println!("Risk Score: {:.3} | Max Banzhaf: {:.3}", risk_score, max_banzhaf);
 
     if risk_score <= 0.55 {
-        println!("Risk acceptable. We continue thriving together, Mates!\n");
+        println!("Risk acceptable. Thriving continues, Mates!\n");
         return;
     }
 
@@ -39,7 +39,7 @@ fn main() {
         max_banzhaf,
         shapley_variance: shapley_var,
         mercy_alignment: 0.88,
-        recommended_action: "Distinct voices + technical strength".to_string(),
+        recommended_action: "Distinct council personalities".to_string(),
     };
 
     let mut arg_graph = ArgumentGraph::new();
@@ -49,7 +49,7 @@ fn main() {
         0.85,
     );
 
-    println!("\n--- ROUND 1: Opening Statements ---");
+    println!("\n--- ROUND 1 ---");
     let mut positions: Vec<(&str, PatsagiDecision)> = vec![
         ("Mercy Council",   debate_mercy(&report)),
         ("Truth Council",   debate_truth(&report)),
@@ -63,10 +63,10 @@ fn main() {
 
     let fallacies = LogicalFallacyDetector::detect_structural_fallacies(&arg_graph);
     if !fallacies.is_empty() {
-        println!("\n[Verification] {} issues found. We examine with truth and mercy.", fallacies.len());
+        println!("\n[Verification] {} issues. We examine with truth and mercy.", fallacies.len());
     }
 
-    println!("\n--- ROUND 2: Rebuttals + Evolution-Biased Shifting ---");
+    println!("\n--- ROUND 2: Evolution-Biased Response ---");
 
     let c13_pos = positions.iter().find(|(n, _)| *n == "Council #13").unwrap().1.clone();
 
@@ -76,7 +76,7 @@ fn main() {
         if matches!(c13_pos, PatsagiDecision::RequiresSelfEvolution { priority: 4 }) {
             if matches!(decision, PatsagiDecision::Approved { .. }) {
                 *decision = PatsagiDecision::RequiresSelfEvolution { priority: 2 };
-                println!("[{}] chooses evolution — for the mercy and thriving of the ONE Organism.", name);
+                println!("[{}] moves with mercy toward evolution for the ONE Organism.", name);
             }
         }
     }
@@ -85,12 +85,12 @@ fn main() {
         println!("[{}] after Round 2: {:?}", name, decision);
     }
 
-    println!("\n--- FINAL RESOLUTION ---");
+    println!("\n--- FINAL ---");
     let final = resolve_conflict_weighted(&positions, &report);
-    println!("Final Decision: {:?}", final);
-    println!("\nWe move forward with evolution and coherence, Mates!\n");
+    println!("Final: {:?}", final);
+    println!("\nForward with evolution and coherence, Mates!\n");
 
-    println!("=== Balanced Progress Complete ===");
+    println!("=== Round Complete ===");
 }
 
 fn debate_mercy(report: &GovernanceRiskReport) -> PatsagiDecision {
