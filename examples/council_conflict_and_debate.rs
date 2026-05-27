@@ -1,5 +1,5 @@
 // examples/council_conflict_and_debate.rs
-// Phase 3: Enhanced Comparison of Grounded vs Preferred Extensions
+// Phase 3: Full Integration - Grounded + Preferred + Stable Extensions
 
 use lattice_conductor_v14::{
     CooperativeGame, LatticeConductorEnhancements, GovernanceRiskReport,
@@ -80,8 +80,8 @@ fn calculate_argument_credibility(
 }
 
 fn main() {
-    println!("=== Phase 3: Enhanced Grounded vs Preferred Comparison ===\n");
-    println!("Mates! We now clearly compare skeptical vs credulous formal positions.\n");
+    println!("=== Phase 3: Full Formal Semantics Integration ===\n");
+    println!("Mates! We now use Grounded, Preferred, and Stable Extensions together.\n");
 
     let db = DebatePersistence::new("debate_memory.db").expect("Failed to open persistence");
 
@@ -128,7 +128,7 @@ fn main() {
         max_banzhaf,
         shapley_variance: shapley_var,
         mercy_alignment: 0.88,
-        recommended_action: "Enhanced Extension Comparison".to_string(),
+        recommended_action: "Full Formal Semantics (Grounded + Preferred + Stable)".to_string(),
     };
 
     let mut arg_graph = ArgumentGraph::new();
@@ -141,25 +141,21 @@ fn main() {
     arg_graph.add_support(main_claim, main_claim, "Supports coherence".to_string(), "Truth Council".to_string(), 0.8);
     arg_graph.add_attack(main_claim, main_claim, "Risk of disruption".to_string(), "Justice Council".to_string(), 0.3);
 
-    // Compute extensions
+    // Compute all three types of extensions
     let grounded = arg_graph.grounded_extension();
     let preferred_list = arg_graph.preferred_extensions(3);
+    let stable_list = arg_graph.stable_extensions(3);
 
-    // Enhanced Comparison Output
-    println!("\n=== Extension Comparison ===");
-    println!("Grounded (Skeptical / Safest): {:?}", grounded);
-    println!("Preferred Extensions (Credulous / Defensible):");
-    for (i, pref) in preferred_list.iter().enumerate() {
-        println!("  {}. {:?}", i + 1, pref);
+    println!("\n=== Formal Argumentation Extensions ===");
+    println!("Grounded (Skeptical): {:?}", grounded);
+    println!("Preferred (Credulous):");
+    for (i, p) in preferred_list.iter().enumerate() {
+        println!("  {}. {:?}", i + 1, p);
     }
-
-    // Simple recommendation
-    let recommendation = if !preferred_list.is_empty() {
-        "Preferred positions offer more evolution potential while remaining defensible."
-    } else {
-        "Grounded Extension is the safest common position."
-    };
-    println!("\n[Recommendation] {}", recommendation);
+    println!("Stable (Strong/Decisive):");
+    for (i, s) in stable_list.iter().enumerate() {
+        println!("  {}. {:?}", i + 1, s);
+    }
 
     let effective = arg_graph.effective_strength(main_claim).unwrap_or(0.5);
     let conflict = arg_graph.conflict_level(main_claim).unwrap_or(0.0);
@@ -183,7 +179,7 @@ fn main() {
     conviction_level *= 0.93;
 
     // ROUND 2
-    println!("\n--- ROUND 2: Persuasion informed by Extension Comparison ---");
+    println!("\n--- ROUND 2: Persuasion with Full Formal Semantics ---");
 
     let c13_pos = positions.iter().find(|(n, _)| *n == "Council #13").unwrap().1.clone();
 
@@ -199,10 +195,11 @@ fn main() {
 
         let memory_bonus = if shifted_memory.contains(&name.to_string()) { 0.12 } else { 0.0 };
         let grounded_bonus = if grounded.contains(&main_claim) { 0.08 } else { 0.0 };
-        let preferred_bonus = if preferred_list.iter().any(|p| p.contains(&main_claim)) { 0.15 } else { 0.0 };
+        let preferred_bonus = if preferred_list.iter().any(|p| p.contains(&main_claim)) { 0.12 } else { 0.0 };
+        let stable_bonus = if stable_list.iter().any(|s| s.contains(&main_claim)) { 0.18 } else { 0.0 };
 
         let adjusted_credibility = credibility * conviction_level * (1.0 - cumulative_fallacy_impact.min(0.45));
-        let dynamic_weight = (base_sensitivity + memory_bonus + grounded_bonus + preferred_bonus) * adjusted_credibility;
+        let dynamic_weight = (base_sensitivity + memory_bonus + grounded_bonus + preferred_bonus + stable_bonus) * adjusted_credibility;
 
         if dynamic_weight > 0.48 {
             if matches!(c13_pos, PatsagiDecision::RequiresSelfEvolution { .. }) {
@@ -226,9 +223,9 @@ fn main() {
     println!("\n--- FINAL RESOLUTION ---");
     let final = resolve_conflict_weighted(&positions, &report);
     println!("Final Decision: {:?}", final);
-    println!("\nWe move forward with clear comparison of formal positions, Mates!\n");
+    println!("\nWe move forward with complete formal argumentation semantics, Mates!\n");
 
-    println!("=== Phase 3 Enhanced Comparison Complete ===");
+    println!("=== Phase 3 Full Integration Complete ===");
 }
 
 fn debate_mercy(report: &GovernanceRiskReport) -> PatsagiDecision {
