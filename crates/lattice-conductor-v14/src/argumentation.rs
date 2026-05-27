@@ -319,37 +319,69 @@ impl ArgumentGraph {
         results
     }
 
-    // === Extension Recommendation Layer ===
+    // === Numeric Scoring + Recommendation Layer ===
 
-    /// Provides a structured recommendation based on formal extensions.
-    /// Prioritizes Grounded for safety, then considers Preferred and Stable for evolution potential.
+    /// Returns a scored recommendation based on formal extensions.
+    /// Provides both numeric scores and a textual recommendation.
     pub fn recommend_extensions(&self) -> ExtensionRecommendation {
         let grounded = self.grounded_extension();
         let preferreds = self.preferred_extensions(3);
         let stables = self.stable_extensions(2);
 
-        let recommendation = if !stables.is_empty() {
-            "Stable positions exist — these are strong, decisive, and self-defending."
-        } else if !preferreds.is_empty() {
-            "Multiple defensible positions exist. Grounded offers the safest common ground."
+        // Numeric Scoring
+        let grounded_score = if self.claims.is_empty() { 0.0 } else {
+            grounded.len() as f64 / self.claims.len() as f64
+        };
+
+        let preferred_score = if preferreds.is_empty() { 0.0 } else {
+            preferreds.iter().map(|p| p.len()).sum::<usize>() as f64 / (preferreds.len() as f64 * self.claims.len() as f64)
+        };
+
+        let stable_score = if stables.is_empty() { 0.0 } else {
+            stables.iter().map(|s| s.len()).sum::<usize>() as f64 / (stables.len() as f64 * self.claims.len() as f64)
+        };
+
+        let overall_score = (grounded_score * 0.4) + (preferred_score * 0.35) + (stable_score * 0.25);
+
+        let recommendation = if stable_score > 0.3 {
+            "Strong Stable positions exist. These are decisive and self-defending."
+        } else if preferred_score > 0.2 {
+            "Multiple defensible positions available. Grounded offers the safest foundation."
         } else {
-            "Grounded Extension is the only well-founded position."
+            "Grounded Extension remains the most reliable position."
         };
 
         ExtensionRecommendation {
             grounded,
             preferreds,
             stables,
+            grounded_score,
+            preferred_score,
+            stable_score,
+            overall_score,
             recommendation,
         }
     }
 }
 
-/// Structured recommendation result from formal argumentation analysis.
+/// Structured recommendation with numeric scores for council decision support.
 #[derive(Debug, Clone)]
 pub struct ExtensionRecommendation {
     pub grounded: Vec<ArgumentId>,
     pub preferreds: Vec<HashSet<ArgumentId>>,
     pub stables: Vec<HashSet<ArgumentId>>,
+
+    /// Score of the Grounded Extension (higher = stronger safest position)
+    pub grounded_score: f64,
+
+    /// Score reflecting the richness of Preferred Extensions
+    pub preferred_score: f64,
+
+    /// Score reflecting presence and strength of Stable Extensions
+    pub stable_score: f64,
+
+    /// Combined overall score (weighted)
+    pub overall_score: f64,
+
     pub recommendation: String,
 }
