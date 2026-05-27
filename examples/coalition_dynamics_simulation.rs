@@ -1,71 +1,94 @@
 // examples/coalition_dynamics_simulation.rs
-// Step-by-step simulation of coalition dynamics
-//
-// Shows how Shapley values, Banzhaf power, and Governance Risk Score evolve
-// as a coalition changes over time.
+// Enhanced Coalition Dynamics Simulation
+// Features: Sophisticated membership rules, GovernanceRiskReport logging, risk visualization, rapid concentration + self-correction behavior
 
-use lattice_conductor_v14::{CooperativeGame, LatticeConductorEnhancements};
+use lattice_conductor_v14::{CooperativeGame, LatticeConductorEnhancements, GovernanceRiskReport};
 use std::collections::HashSet;
 
 fn main() {
-    println!("=== Coalition Dynamics Simulation ===\n");
+    println!("=== Enhanced Coalition Dynamics Simulation ===\n");
+    println!("Scenario: Rapid Power Concentration + Self-Correction\n");
 
     let mut current_players: Vec<String> = vec!["A".to_string(), "B".to_string()];
+    let mut risk_history: Vec<f64> = Vec::new();
 
-    for step in 1..=6 {
+    for step in 1..=8 {
         println!("--- Step {} ---", step);
-        println!("Current coalition: {:?}", current_players);
+        println!("Coalition: {:?}", current_players);
 
+        // Sophisticated characteristic function
         let char_fn = |s: &HashSet<String>| -> f64 {
-            let base = s.len() as f64 * 15.0;
-            if s.contains("A") { base + 35.0 } else { base }
+            let mut value = s.len() as f64 * 12.0;
+            if s.contains("A") { value += 30.0; }
+            if s.contains("Dominant") { value += 80.0; }
+            value
         };
 
         let game = CooperativeGame::new(current_players.clone(), char_fn);
-
-        // Calculate metrics
         let shapley = game.shapley_value();
         let banzhaf = game.banzhaf_index();
-        let max_banzhaf = banzhaf.iter().map(|(_, v)| *v).fold(0.0f64, f64::max);
-        let shapley_var = calculate_shapley_variance(&shapley);
 
-        // Composite risk score
+        let max_banzhaf = banzhaf.iter().map(|(_, v)| *v).fold(0.0f64, f64::max);
+        let shapley_var = calculate_variance(&shapley);
+
+        // Use actual GovernanceRiskReport
         let risk_score = LatticeConductorEnhancements::calculate_governance_risk_score(
-            max_banzhaf, shapley_var, 0.92
+            max_banzhaf, shapley_var, 0.90
         );
 
-        println!("Shapley: {:?}", shapley);
-        println!("Max Banzhaf: {:.3}", max_banzhaf);
-        println!("Risk Score: {:.3}", risk_score);
-
-        // Simulate PATSAGi-style decision
-        let decision = if risk_score > 0.75 {
-            "RequiresCouncilArbitration"
-        } else if risk_score > 0.55 {
-            "RequiresSelfEvolution"
-        } else {
-            "Approved"
+        let report = GovernanceRiskReport {
+            risk_score,
+            max_banzhaf,
+            shapley_variance: shapley_var,
+            mercy_alignment: 0.90,
+            recommended_action: if risk_score > 0.75 {
+                "Escalate to Council #13".to_string()
+            } else if risk_score > 0.55 {
+                "Trigger self-evolution".to_string()
+            } else {
+                "No escalation".to_string()
+            },
         };
-        println!("PATSAGi Decision: {}\n", decision);
 
-        // Dynamic membership change
-        if step == 2 {
-            current_players.push("C".to_string());
+        report.log();
+        risk_history.push(risk_score);
+
+        // === Sophisticated Membership Rules ===
+        match step {
+            2 => current_players.push("C".to_string()),           // Healthy growth
+            3 => current_players.push("D".to_string()),
+            5 => {                                                 // Rapid power concentration begins
+                current_players = vec![
+                    "Dominant".to_string(),
+                    "Weak1".to_string(),
+                    "Weak2".to_string(),
+                ];
+            }
+            6 => current_players.push("Weak3".to_string()),      // Further concentration
+            7 => {                                                 // Self-correction trigger
+                if risk_score > 0.70 {
+                    println!("[SELF-CORRECTION] High risk detected. Coalition rebalancing...");
+                    current_players = vec!["A".to_string(), "B".to_string(), "C".to_string()];
+                }
+            }
+            _ => {}
         }
-        if step == 4 {
-            current_players.push("D".to_string());
-        }
-        if step == 5 {
-            // Simulate power concentration scenario
-            current_players = vec!["Dominant".to_string(), "Weak1".to_string(), "Weak2".to_string()];
-        }
+
+        println!();
     }
 
-    println!("=== Simulation Complete ===");
+    // Simple text visualization of risk score over time
+    println!("=== Risk Score Over Time ===");
+    for (i, score) in risk_history.iter().enumerate() {
+        let bar = "█".repeat((score * 20.0) as usize);
+        println!("Step {:>2}: {:.3} {}", i + 1, score, bar);
+    }
+
+    println!("\n=== Simulation Complete ===");
 }
 
-fn calculate_shapley_variance(shapley: &[(String, f64)]) -> f64 {
-    if shapley.is_empty() { return 0.0; }
-    let mean = shapley.iter().map(|(_, v)| *v).sum::<f64>() / shapley.len() as f64;
-    shapley.iter().map(|(_, v)| (v - mean).powi(2)).sum::<f64>() / shapley.len() as f64
+fn calculate_variance(values: &[(String, f64)]) -> f64 {
+    if values.is_empty() { return 0.0; }
+    let mean = values.iter().map(|(_, v)| *v).sum::<f64>() / values.len() as f64;
+    values.iter().map(|(_, v)| (v - mean).powi(2)).sum::<f64>() / values.len() as f64
 }
