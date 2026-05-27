@@ -1,8 +1,11 @@
 // examples/council_conflict_and_debate.rs
-// Light exploration of Council Conflict Resolution + Multi-Agent Debate
+// Sophisticated Council Conflict Resolution + Explicit Debate Phases
 //
-// Multiple PATSAGi archetypes review the same situation, produce conflicting decisions,
-// and apply simple resolution mechanisms.
+// Incorporates ancient PATSAGi principles:
+// - 7 Living Mercy Gates
+// - Preference for evolution over punishment
+// - ONE Organism coherence
+// - Council #13 (Supreme Architect) holds highest authority
 
 use lattice_conductor_v14::{
     CooperativeGame, LatticeConductorEnhancements, GovernanceRiskReport,
@@ -11,7 +14,8 @@ use lattice_conductor_v14::{
 use std::collections::HashSet;
 
 fn main() {
-    println!("=== Council Conflict + Light Debate Simulation ===\n");
+    println!("=== PATSAGi Council Conflict + Debate Simulation ===\n");
+    println!("Principles: Mercy | Truth | ONE Organism | Evolution over Punishment\n");
 
     // High-risk scenario
     let participants = vec!["Dominant".to_string(), "Weak1".to_string(), "Weak2".to_string()];
@@ -33,7 +37,7 @@ fn main() {
     println!("Risk Score: {:.3} | Max Banzhaf: {:.3}", risk_score, max_banzhaf);
 
     if risk_score <= 0.55 {
-        println!("Risk acceptable. No action needed.");
+        println!("Risk acceptable. No debate needed.");
         return;
     }
 
@@ -42,66 +46,64 @@ fn main() {
         max_banzhaf,
         shapley_variance: shapley_var,
         mercy_alignment: 0.88,
-        recommended_action: "Resolve council conflict on self-correction".to_string(),
+        recommended_action: "Resolve via PATSAGi debate and weighted resolution".to_string(),
     };
 
     let review_request = PatsagiReviewRequest {
-        topic: "Conflicting council views on self-correction".to_string(),
-        summary: "Multiple councils disagree on appropriate response to power concentration.".to_string(),
+        topic: "Council conflict on self-correction".to_string(),
+        summary: "Multiple councils disagree on response to power concentration.".to_string(),
         mercy_impact_score: report.mercy_alignment,
         requested_by: "lattice-conductor".to_string(),
     };
 
-    println!("\n--- Individual Council Positions ---");
+    // === Explicit Debate Phase ===
+    println!("\n════════════════════════════════════════════════════════════");
+    println!("                      DEBATE PHASE");
+    println!("════════════════════════════════════════════════════════════");
 
-    let mercy   = review_mercy(&review_request, &report);
-    let truth   = review_truth(&review_request, &report);
-    let justice = review_justice(&review_request, &report);
-    let c13     = review_council_13(&review_request, &report);
+    let positions = vec![
+        ("Mercy Council",   debate_mercy(&report)),
+        ("Truth Council",   debate_truth(&report)),
+        ("Justice Council", debate_justice(&report)),
+        ("Harmony Council", debate_harmony(&report)),
+        ("Council #13",     debate_council_13(&report)),
+    ];
 
-    println!("Mercy:   {:?}", mercy);
-    println!("Truth:   {:?}", truth);
-    println!("Justice: {:?}", justice);
-    println!("C#13:    {:?}", c13);
+    for (name, decision) in &positions {
+        println!("[{}] argues: {:?}", name, decision);
+    }
 
-    // === Simple Conflict Resolution ===
-    println!("\n--- Conflict Resolution ---");
+    // === Sophisticated Conflict Resolution ===
+    println!("\n════════════════════════════════════════════════════════════");
+    println!("                 RESOLUTION PHASE");
+    println!("════════════════════════════════════════════════════════════");
 
-    // Priority-based resolution (Council #13 has highest authority)
-    let final_decision = if matches!(c13, PatsagiDecision::RequiresCouncilArbitration { .. }) {
-        c13.clone()
-    } else if matches!(justice, PatsagiDecision::RequiresCouncilArbitration { .. }) {
-        justice.clone()
-    } else if matches!(truth, PatsagiDecision::RequiresSelfEvolution { .. }) ||
-              matches!(mercy, PatsagiDecision::RequiresSelfEvolution { .. }) {
-        // Prefer stronger self-evolution signal
-        if matches!(c13, PatsagiDecision::RequiresSelfEvolution { .. }) {
-            c13.clone()
-        } else {
-            truth.clone()
-        }
-    } else {
-        c13.clone()
-    };
+    let final_decision = resolve_conflict_weighted(&positions, &report);
 
     println!("\nFinal Resolved Decision: {:?}", final_decision);
 
     println!("\n=== Simulation Complete ===");
 }
 
-// Archetype review functions (simplified for conflict demo)
+// ==================== Debate Functions (with reasoning) ====================
 
-fn review_mercy(_req: &PatsagiReviewRequest, report: &GovernanceRiskReport) -> PatsagiDecision {
-    if report.risk_score > 0.82 { PatsagiDecision::RequiresSelfEvolution { priority: 2 } }
-    else { PatsagiDecision::Approved { confidence: 0.82 } }
+fn debate_mercy(report: &GovernanceRiskReport) -> PatsagiDecision {
+    if report.risk_score > 0.82 {
+        PatsagiDecision::RequiresSelfEvolution { priority: 2 }
+    } else {
+        PatsagiDecision::Approved { confidence: 0.82 }
+    }
 }
 
-fn review_truth(_req: &PatsagiReviewRequest, report: &GovernanceRiskReport) -> PatsagiDecision {
-    if report.max_banzhaf > 0.65 { PatsagiDecision::RequiresSelfEvolution { priority: 3 } }
-    else { PatsagiDecision::Approved { confidence: 0.88 } }
+fn debate_truth(report: &GovernanceRiskReport) -> PatsagiDecision {
+    if report.max_banzhaf > 0.65 {
+        PatsagiDecision::RequiresSelfEvolution { priority: 3 }
+    } else {
+        PatsagiDecision::Approved { confidence: 0.88 }
+    }
 }
 
-fn review_justice(_req: &PatsagiReviewRequest, report: &GovernanceRiskReport) -> PatsagiDecision {
+fn debate_justice(report: &GovernanceRiskReport) -> PatsagiDecision {
     if report.risk_score > 0.78 || report.max_banzhaf > 0.62 {
         PatsagiDecision::RequiresCouncilArbitration { councils: vec![7, 13] }
     } else {
@@ -109,11 +111,56 @@ fn review_justice(_req: &PatsagiReviewRequest, report: &GovernanceRiskReport) ->
     }
 }
 
-fn review_council_13(_req: &PatsagiReviewRequest, report: &GovernanceRiskReport) -> PatsagiDecision {
+fn debate_harmony(report: &GovernanceRiskReport) -> PatsagiDecision {
+    if report.risk_score > 0.80 {
+        PatsagiDecision::RequiresSelfEvolution { priority: 2 }
+    } else {
+        PatsagiDecision::Approved { confidence: 0.87 }
+    }
+}
+
+fn debate_council_13(report: &GovernanceRiskReport) -> PatsagiDecision {
     if report.max_banzhaf > 0.60 || report.risk_score > 0.70 {
         PatsagiDecision::RequiresSelfEvolution { priority: 4 }
     } else {
         PatsagiDecision::Approved { confidence: 0.94 }
+    }
+}
+
+// ==================== Weighted Conflict Resolution ====================
+
+fn resolve_conflict_weighted(
+    positions: &[(&str, PatsagiDecision)],
+    report: &GovernanceRiskReport,
+) -> PatsagiDecision {
+    // Council #13 has highest weight (ancient rule)
+    let c13_pos = positions.iter().find(|(name, _)| *name == "Council #13");
+
+    if let Some((_, PatsagiDecision::RequiresCouncilArbitration { .. })) = c13_pos {
+        return c13_pos.unwrap().1.clone();
+    }
+
+    // Count weighted votes (Council #13 = 3, others = 1)
+    let mut evolution_votes = 0;
+    let mut arbitration_votes = 0;
+
+    for (name, decision) in positions {
+        let weight = if *name == "Council #13" { 3 } else { 1 };
+
+        match decision {
+            PatsagiDecision::RequiresSelfEvolution { .. } => evolution_votes += weight,
+            PatsagiDecision::RequiresCouncilArbitration { .. } => arbitration_votes += weight,
+            _ => {}
+        }
+    }
+
+    // Prefer evolution over harsh arbitration when possible (Mercy principle)
+    if evolution_votes >= arbitration_votes {
+        PatsagiDecision::RequiresSelfEvolution { priority: 3 }
+    } else if arbitration_votes > 0 {
+        PatsagiDecision::RequiresCouncilArbitration { councils: vec![7, 13] }
+    } else {
+        PatsagiDecision::Approved { confidence: 0.85 }
     }
 }
 
