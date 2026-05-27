@@ -1,5 +1,5 @@
 // crates/lattice-conductor-v14/src/argumentation.rs
-// Phase 1 Technical Hardening: More querying and analysis methods
+// Balanced Phase 1: Technical + Style preparation
 
 use std::collections::HashMap;
 
@@ -67,11 +67,8 @@ impl ArgumentGraph {
         provided_by: String,
         strength: f64,
     ) -> Option<ArgumentId> {
-        if !self.claims.contains_key(&source_claim_id) || !self.claims.contains_key(&target_claim_id) {
-            return None;
-        }
-        let id = self.next_id;
-        self.next_id += 1;
+        if !self.claims.contains_key(&source_claim_id) || !self.claims.contains_key(&target_claim_id) { return None; }
+        let id = self.next_id; self.next_id += 1;
         self.supports.push(Support { id, source_claim_id, target_claim_id, content, strength: strength.clamp(0.0, 1.0), provided_by });
         Some(id)
     }
@@ -84,11 +81,8 @@ impl ArgumentGraph {
         provided_by: String,
         strength: f64,
     ) -> Option<ArgumentId> {
-        if !self.claims.contains_key(&source_claim_id) || !self.claims.contains_key(&target_claim_id) {
-            return None;
-        }
-        let id = self.next_id;
-        self.next_id += 1;
+        if !self.claims.contains_key(&source_claim_id) || !self.claims.contains_key(&target_claim_id) { return None; }
+        let id = self.next_id; self.next_id += 1;
         self.attacks.push(Attack { id, source_claim_id, target_claim_id, content, strength: strength.clamp(0.0, 1.0), provided_by });
         Some(id)
     }
@@ -101,40 +95,33 @@ impl ArgumentGraph {
         self.attacks.iter().filter(|a| a.target_claim_id == claim_id).collect()
     }
 
-    /// Get all claims that this claim supports
     pub fn get_supported_claims(&self, claim_id: ArgumentId) -> Vec<ArgumentId> {
-        self.supports.iter()
-            .filter(|s| s.source_claim_id == claim_id)
-            .map(|s| s.target_claim_id)
-            .collect()
+        self.supports.iter().filter(|s| s.source_claim_id == claim_id).map(|s| s.target_claim_id).collect()
     }
 
-    /// Get all claims that this claim attacks
     pub fn get_attacked_claims(&self, claim_id: ArgumentId) -> Vec<ArgumentId> {
-        self.attacks.iter()
-            .filter(|a| a.source_claim_id == claim_id)
-            .map(|a| a.target_claim_id)
-            .collect()
+        self.attacks.iter().filter(|a| a.source_claim_id == claim_id).map(|a| a.target_claim_id).collect()
+    }
+
+    /// Simple conflict level: more attacks relative to supports = higher conflict
+    pub fn conflict_level(&self, claim_id: ArgumentId) -> Option<f64> {
+        let support_count = self.supports.iter().filter(|s| s.target_claim_id == claim_id).count() as f64;
+        let attack_count = self.attacks.iter().filter(|a| a.target_claim_id == claim_id).count() as f64;
+        if support_count + attack_count == 0.0 { return Some(0.0); }
+        Some(attack_count / (support_count + attack_count))
     }
 
     pub fn effective_strength(&self, claim_id: ArgumentId) -> Option<f64> {
         let base = self.claims.get(&claim_id)?.strength;
         let mut score = base;
-
-        for support in &self.supports {
-            if support.target_claim_id == claim_id { score += support.strength * 0.35; }
-        }
-        for attack in &self.attacks {
-            if attack.target_claim_id == claim_id { score -= attack.strength * 0.45; }
-        }
+        for support in &self.supports { if support.target_claim_id == claim_id { score += support.strength * 0.35; } }
+        for attack in &self.attacks { if attack.target_claim_id == claim_id { score -= attack.strength * 0.45; } }
         Some(score.clamp(0.0, 1.0))
     }
 
     pub fn ranked_claims(&self) -> Vec<(ArgumentId, f64)> {
         let mut ranked: Vec<(ArgumentId, f64)> = self.claims.keys()
-            .filter_map(|&id| self.effective_strength(id).map(|s| (id, s)))
-            .collect();
-
+            .filter_map(|&id| self.effective_strength(id).map(|s| (id, s))).collect();
         ranked.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal));
         ranked
     }
