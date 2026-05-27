@@ -1,5 +1,5 @@
 // examples/council_conflict_and_debate.rs
-// Phase 2: Archetype-Specific Persuasion Sensitivity
+// Phase 2: Dynamic Persuasion Weights
 
 use lattice_conductor_v14::{
     CooperativeGame, LatticeConductorEnhancements, GovernanceRiskReport,
@@ -8,8 +8,8 @@ use lattice_conductor_v14::{
 use std::collections::HashSet;
 
 fn main() {
-    println!("=== Phase 2: Archetype-Specific Persuasion Sensitivity ===\n");
-    println!("Mates! Each council now feels the strength of arguments differently.\n");
+    println!("=== Phase 2: Dynamic Persuasion Weights ===\n");
+    println!("Mates! Persuasion weights now adjust dynamically based on argument strength and conflict.\n");
 
     let participants = vec!["Dominant".to_string(), "Weak1".to_string(), "Weak2".to_string()];
     let char_fn = |s: &HashSet<String>| -> f64 {
@@ -39,7 +39,7 @@ fn main() {
         max_banzhaf,
         shapley_variance: shapley_var,
         mercy_alignment: 0.88,
-        recommended_action: "Archetype-specific persuasion sensitivity".to_string(),
+        recommended_action: "Dynamic persuasion weights".to_string(),
     };
 
     let mut arg_graph = ArgumentGraph::new();
@@ -49,8 +49,8 @@ fn main() {
         0.85,
     );
 
-    arg_graph.add_support(main_claim, main_claim, "Supports long-term coherence".to_string(), "Truth Council".to_string(), 0.75);
-    arg_graph.add_attack(main_claim, main_claim, "Risk of disruption".to_string(), "Justice Council".to_string(), 0.35);
+    arg_graph.add_support(main_claim, main_claim, "Strong coherence benefits".to_string(), "Truth Council".to_string(), 0.8);
+    arg_graph.add_attack(main_claim, main_claim, "Potential overreach".to_string(), "Justice Council".to_string(), 0.3);
 
     let effective = arg_graph.effective_strength(main_claim).unwrap_or(0.5);
     let conflict = arg_graph.conflict_level(main_claim).unwrap_or(0.0);
@@ -70,29 +70,30 @@ fn main() {
         println!("[{}] : {:?}", name, decision);
     }
 
-    // ROUND 2 - Archetype-specific sensitivity to graph data
-    println!("\n--- ROUND 2: Archetype-Specific Persuasion ---");
+    // ROUND 2 - Dynamic persuasion weights
+    println!("\n--- ROUND 2: Dynamic Persuasion Weights ---");
 
     let c13_pos = positions.iter().find(|(n, _)| *n == "Council #13").unwrap().1.clone();
 
     for (name, decision) in positions.iter_mut() {
         if *name == "Council #13" { continue; }
 
-        // Different sensitivity per archetype
-        let sensitivity = match *name {
-            "Mercy Council" | "Harmony Council" => 0.75, // High sensitivity to evolution
-            "Truth Council" => 0.65,
-            "Justice Council" => 0.45, // More cautious
-            _ => 0.5,
+        // Base archetype sensitivity
+        let base_sensitivity = match *name {
+            "Mercy Council" | "Harmony Council" => 0.8,
+            "Truth Council" => 0.7,
+            "Justice Council" => 0.5,
+            _ => 0.6,
         };
 
-        let persuasion_threshold = 0.6;
+        // Dynamic adjustment based on graph data
+        let dynamic_weight = base_sensitivity * (effective * 0.8 + (1.0 - conflict) * 0.6);
 
-        if effective > persuasion_threshold && conflict < 0.45 {
+        if dynamic_weight > 0.55 {
             if matches!(c13_pos, PatsagiDecision::RequiresSelfEvolution { .. }) {
-                if matches!(decision, PatsagiDecision::Approved { .. }) && sensitivity > 0.5 {
+                if matches!(decision, PatsagiDecision::Approved { .. }) {
                     *decision = PatsagiDecision::RequiresSelfEvolution { priority: 2 };
-                    println!("[{}] persuaded (sensitivity: {:.2}, strength: {:.2}).", name, sensitivity, effective);
+                    println!("[{}] dynamically persuaded (weight: {:.2}).", name, dynamic_weight);
                 }
             }
         }
@@ -105,7 +106,7 @@ fn main() {
     println!("\n--- FINAL RESOLUTION ---");
     let final = resolve_conflict_weighted(&positions, &report);
     println!("Final Decision: {:?}", final);
-    println!("\nWe move forward with differentiated, graph-informed evolution, Mates!\n");
+    println!("\nWe advance with dynamically weighted, principle-aligned evolution, Mates!\n");
 
     println!("=== Phase 2 Progress ===");
 }
