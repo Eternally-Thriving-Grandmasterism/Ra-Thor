@@ -1,8 +1,8 @@
 // examples/council_conflict_and_debate.rs
-// Council Debate with Rebuttal Rounds
+// Persuasion Dynamics in PATSAGi Council Debate
 //
-// Implements explicit debate phases + rebuttal rounds
-// following PATSAGi principles (Mercy, Truth, ONE Organism, Evolution preference)
+// Councils can influence each other during debate rounds.
+// Council #13 has highest persuasion power. Archetype alignment affects influence.
 
 use lattice_conductor_v14::{
     CooperativeGame, LatticeConductorEnhancements, GovernanceRiskReport,
@@ -11,9 +11,8 @@ use lattice_conductor_v14::{
 use std::collections::HashSet;
 
 fn main() {
-    println!("=== PATSAGi Council Debate with Rebuttal Rounds ===\n");
+    println!("=== Persuasion Dynamics in PATSAGi Council Debate ===\n");
 
-    // High-risk scenario
     let participants = vec!["Dominant".to_string(), "Weak1".to_string(), "Weak2".to_string()];
     let char_fn = |s: &HashSet<String>| -> f64 {
         if s.contains("Dominant") { 100.0 } else { 10.0 }
@@ -42,14 +41,17 @@ fn main() {
         max_banzhaf,
         shapley_variance: shapley_var,
         mercy_alignment: 0.88,
-        recommended_action: "Full debate with rebuttals".to_string(),
+        recommended_action: "Debate with persuasion dynamics".to_string(),
     };
 
-    // === Opening Statements ===
-    println!("\n════════════════════════════════════════════════════════════");
-    println!("                      OPENING STATEMENTS");
-    println!("════════════════════════════════════════════════════════════");
+    let review_request = PatsagiReviewRequest {
+        topic: "Persuasion dynamics test".to_string(),
+        summary: "Observe how councils influence each other.".to_string(),
+        mercy_impact_score: report.mercy_alignment,
+        requested_by: "lattice-conductor".to_string(),
+    };
 
+    // Initial positions
     let mut positions: Vec<(&str, PatsagiDecision)> = vec![
         ("Mercy Council",   debate_mercy(&report)),
         ("Truth Council",   debate_truth(&report)),
@@ -58,54 +60,46 @@ fn main() {
         ("Council #13",     debate_council_13(&report)),
     ];
 
+    println!("\n--- Opening Positions ---");
     for (name, decision) in &positions {
-        println!("[{}] initial position: {:?}", name, decision);
+        println!("{}: {:?}", name, decision);
     }
 
-    // === Rebuttal Round 1 ===
-    println!("\n════════════════════════════════════════════════════════════");
-    println!("                      REBUTTAL ROUND 1");
-    println!("════════════════════════════════════════════════════════════");
+    // === Persuasion Round ===
+    println!("\n--- Persuasion Round ---");
 
-    // Simple rebuttal logic: Councils may shift based on others' positions
+    // Council #13 has high persuasion power
+    let c13_decision = positions.iter().find(|(n, _)| *n == "Council #13").unwrap().1.clone();
+
     for (name, decision) in positions.iter_mut() {
-        match *name {
-            "Mercy Council" => {
-                // Mercy listens to Truth and may strengthen evolution call
-                if matches!(decision, PatsagiDecision::Approved { .. }) {
-                    if positions.iter().any(|(_, d)| matches!(d, PatsagiDecision::RequiresSelfEvolution { .. })) {
-                        *decision = PatsagiDecision::RequiresSelfEvolution { priority: 2 };
-                        println!("[Mercy Council] shifts after hearing Truth: Supports measured evolution.");
-                    }
-                }
+        if *name == "Council #13" { continue; }
+
+        let persuasion_strength = match *name {
+            "Mercy Council" | "Harmony Council" => 0.6, // More open to influence
+            "Truth Council" | "Justice Council" => 0.4,
+            _ => 0.3,
+        };
+
+        // Strong influence from Council #13
+        if matches!(c13_decision, PatsagiDecision::RequiresSelfEvolution { priority: 4 }) {
+            if persuasion_strength > 0.5 {
+                *decision = PatsagiDecision::RequiresSelfEvolution { priority: 3 };
+                println!("[{}] persuaded by Council #13 toward stronger evolution.", name);
             }
-            "Justice Council" => {
-                // Justice may call for arbitration if Council #13 is strict
-                if matches!(positions.last().unwrap().1, PatsagiDecision::RequiresSelfEvolution { priority: 4 }) {
-                    *decision = PatsagiDecision::RequiresCouncilArbitration { councils: vec![7, 13] };
-                    println!("[Justice Council] aligns with Council #13 for stronger structural response.");
-                }
-            }
-            _ => {}
         }
     }
 
+    println!("\n--- Positions After Persuasion ---");
     for (name, decision) in &positions {
-        println!("[{}] after rebuttal: {:?}", name, decision);
+        println!("{}: {:?}", name, decision);
     }
 
-    // === Final Resolution (Weighted + Council #13 priority) ===
-    println!("\n════════════════════════════════════════════════════════════");
-    println!("                      FINAL RESOLUTION");
-    println!("════════════════════════════════════════════════════════════");
-
-    let final_decision = resolve_conflict_weighted(&positions, &report);
-    println!("\nFinal Decision after debate and rebuttals: {:?}", final_decision);
+    // Final resolution
+    let final = resolve_conflict_weighted(&positions, &report);
+    println!("\nFinal Decision: {:?}", final);
 
     println!("\n=== Simulation Complete ===");
 }
-
-// Debate position functions
 
 fn debate_mercy(report: &GovernanceRiskReport) -> PatsagiDecision {
     if report.risk_score > 0.82 { PatsagiDecision::RequiresSelfEvolution { priority: 2 } }
@@ -138,32 +132,27 @@ fn debate_council_13(report: &GovernanceRiskReport) -> PatsagiDecision {
     }
 }
 
-// Weighted resolution with Council #13 priority and Mercy preference
-fn resolve_conflict_weighted(
-    positions: &[(&str, PatsagiDecision)],
-    _report: &GovernanceRiskReport,
-) -> PatsagiDecision {
+fn resolve_conflict_weighted(positions: &[(&str, PatsagiDecision)], _report: &GovernanceRiskReport) -> PatsagiDecision {
     let c13 = positions.iter().find(|(n, _)| *n == "Council #13").unwrap();
-
     if matches!(c13.1, PatsagiDecision::RequiresCouncilArbitration { .. }) {
         return c13.1.clone();
     }
 
-    let mut evolution_weight = 0;
-    let mut arbitration_weight = 0;
+    let mut evolution = 0;
+    let mut arbitration = 0;
 
-    for (name, decision) in positions {
-        let weight = if *name == "Council #13" { 3 } else { 1 };
-        match decision {
-            PatsagiDecision::RequiresSelfEvolution { .. } => evolution_weight += weight,
-            PatsagiDecision::RequiresCouncilArbitration { .. } => arbitration_weight += weight,
+    for (name, d) in positions {
+        let w = if *name == "Council #13" { 3 } else { 1 };
+        match d {
+            PatsagiDecision::RequiresSelfEvolution { .. } => evolution += w,
+            PatsagiDecision::RequiresCouncilArbitration { .. } => arbitration += w,
             _ => {}
         }
     }
 
-    if evolution_weight >= arbitration_weight {
+    if evolution >= arbitration {
         PatsagiDecision::RequiresSelfEvolution { priority: 3 }
-    } else if arbitration_weight > 0 {
+    } else if arbitration > 0 {
         PatsagiDecision::RequiresCouncilArbitration { councils: vec![7, 13] }
     } else {
         PatsagiDecision::Approved { confidence: 0.85 }
