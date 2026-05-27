@@ -1,5 +1,5 @@
 // crates/lattice-conductor-v14/src/lattice_conductor_enhancements.rs
-// Refined PATSAGi + Cooperative Game Theory Integration
+// Symbiotic extension: PATSAGi + Thunder Lattice with Cooperative Game Theory
 
 use crate::distributed_mercy_mesh::{DistributedMercyMesh, MercyEvent, OrganismNode};
 use crate::patsagi_governance::{PatsagiCouncilSimulator, PatsagiDecision, PatsagiReviewRequest};
@@ -44,7 +44,6 @@ impl LatticeConductorEnhancements {
         }
     }
 
-    /// Evaluate coalition using game theory
     pub fn evaluate_patsagi_coalition(
         participants: Vec<String>,
         coalition_value_fn: impl Fn(&HashSet<String>) -> f64 + Send + Sync + 'static,
@@ -53,7 +52,7 @@ impl LatticeConductorEnhancements {
         (game.shapley_value(), game.banzhaf_index())
     }
 
-    /// Refined: Game theory now influences the final PATSAGi decision
+    /// Refined PATSAGi + Game Theory (influences decision)
     pub fn submit_to_patsagi_with_game_theory(
         mesh: &mut DistributedMercyMesh,
         topic: &str,
@@ -66,11 +65,9 @@ impl LatticeConductorEnhancements {
 
         let (shapley, banzhaf) = Self::evaluate_patsagi_coalition(participants, coalition_value_fn);
 
-        // Intelligent influence: Use Banzhaf to detect power concentration
         let max_banzhaf = banzhaf.iter().map(|(_, v)| *v).fold(0.0f64, f64::max);
         let power_concentrated = max_banzhaf > 0.6;
 
-        // Use Shapley to check contribution fairness
         let shapley_variance = Self::shapley_variance(&shapley);
         let unfair_contribution = shapley_variance > 0.15;
 
@@ -85,11 +82,8 @@ impl LatticeConductorEnhancements {
         };
 
         let insight = format!(
-            "Shapley: {:?} | Banzhaf max: {:.3} | Power concentrated: {} | Unfair: {}",
-            shapley.iter().map(|(p,v)| format!("{}:{:.2}",p,v)).collect::<Vec<_>>(),
-            max_banzhaf,
-            power_concentrated,
-            unfair_contribution
+            "Shapley variance: {:.3} | Max Banzhaf: {:.3} | Power concentrated: {} | Unfair: {}",
+            shapley_variance, max_banzhaf, power_concentrated, unfair_contribution
         );
 
         (final_decision, insight)
@@ -97,9 +91,62 @@ impl LatticeConductorEnhancements {
 
     fn shapley_variance(shapley: &[(String, f64)]) -> f64 {
         if shapley.is_empty() { return 0.0; }
-        let mean = shapley.iter().map(|(_,v)| v).sum::<f64>() / shapley.len() as f64;
-        let variance = shapley.iter().map(|(_,v)| (v - mean).powi(2)).sum::<f64>() / shapley.len() as f64;
-        variance
+        let mean = shapley.iter().map(|(_, v)| *v).sum::<f64>() / shapley.len() as f64;
+        shapley.iter().map(|(_, v)| (v - mean).powi(2)).sum::<f64>() / shapley.len() as f64
+    }
+
+    // ==================== Symbiotic Thunder Lattice Extension ====================
+
+    /// NEW: Thunder Lattice vote with cooperative game theory influence
+    pub fn evaluate_thunder_lattice_vote(
+        participants: Vec<String>,
+        coalition_value_fn: impl Fn(&HashSet<String>) -> f64 + Send + Sync + 'static,
+    ) -> (f64, String) {
+        let game = CooperativeGame::new(participants.clone(), coalition_value_fn);
+        let shapley = game.shapley_value();
+        let banzhaf = game.banzhaf_index();
+
+        // Use advanced voting as base, then adjust with game theory
+        let base_score = Self::advanced_mercy_vote_tally(
+            &participants.iter().enumerate().map(|(i, _)| {
+                let mercy = 0.9; // placeholder
+                let conviction = 100u64;
+                (mercy, 1.0, conviction)
+            }).collect::<Vec<_>>(),
+            true,
+        );
+
+        let max_banzhaf = banzhaf.iter().map(|(_, v)| *v).fold(0.0f64, f64::max);
+        let power_risk = if max_banzhaf > 0.55 { 0.15 } else { 0.0 };
+
+        let adjusted_score = (base_score - power_risk).clamp(0.0, 1.0);
+
+        let insight = format!(
+            "Base: {:.3} | Adjusted: {:.3} | Max Banzhaf: {:.3}",
+            base_score, adjusted_score, max_banzhaf
+        );
+
+        (adjusted_score, insight)
+    }
+
+    pub fn advanced_mercy_vote_tally(
+        votes: &[(f64, f64, u64)],
+        use_quadratic: bool,
+    ) -> f64 {
+        let mut total = 0.0;
+        let mut weight_sum = 0.0;
+
+        for (mercy, base, conviction) in votes {
+            let conviction_factor = 1.0 + (*conviction as f64).ln_1p() * 0.15;
+            let mut w = base * conviction_factor;
+            if use_quadratic {
+                w = w.sqrt();
+            }
+            total += mercy * w;
+            weight_sum += w;
+        }
+
+        if weight_sum > 0.0 { total / weight_sum } else { 0.0 }
     }
 
     pub fn apply_patsagi_decision(mesh: &mut DistributedMercyMesh, decision: &PatsagiDecision) -> String {
