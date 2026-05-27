@@ -321,66 +321,69 @@ impl ArgumentGraph {
 
     // === Numeric Scoring + Recommendation Layer ===
 
-    /// Returns a scored recommendation based on formal extensions.
-    /// Provides both numeric scores and a textual recommendation.
+    /// Returns a scored recommendation with Safety vs Evolution dimensions.
     pub fn recommend_extensions(&self) -> ExtensionRecommendation {
         let grounded = self.grounded_extension();
         let preferreds = self.preferred_extensions(3);
         let stables = self.stable_extensions(2);
 
-        // Numeric Scoring
-        let grounded_score = if self.claims.is_empty() { 0.0 } else {
+        // === Scoring ===
+
+        // Safety Score: Higher when Grounded is strong (more cautious & reliable)
+        let safety_score = if self.claims.is_empty() { 0.0 } else {
             grounded.len() as f64 / self.claims.len() as f64
         };
 
-        let preferred_score = if preferreds.is_empty() { 0.0 } else {
-            preferreds.iter().map(|p| p.len()).sum::<usize>() as f64 / (preferreds.len() as f64 * self.claims.len() as f64)
-        };
-
-        let stable_score = if stables.is_empty() { 0.0 } else {
-            stables.iter().map(|s| s.len()).sum::<usize>() as f64 / (stables.len() as f64 * self.claims.len() as f64)
-        };
-
-        let overall_score = (grounded_score * 0.4) + (preferred_score * 0.35) + (stable_score * 0.25);
-
-        let recommendation = if stable_score > 0.3 {
-            "Strong Stable positions exist. These are decisive and self-defending."
-        } else if preferred_score > 0.2 {
-            "Multiple defensible positions available. Grounded offers the safest foundation."
+        // Evolution Potential: Higher when there are rich Preferred or Stable options
+        let evolution_potential = if preferreds.is_empty() && stables.is_empty() {
+            0.1
         } else {
-            "Grounded Extension remains the most reliable position."
+            let pref_avg = if preferreds.is_empty() { 0.0 } else {
+                preferreds.iter().map(|p| p.len()).sum::<usize>() as f64 / (preferreds.len() as f64 * self.claims.len() as f64)
+            };
+            let stable_avg = if stables.is_empty() { 0.0 } else {
+                stables.iter().map(|s| s.len()).sum::<usize>() as f64 / (stables.len() as f64 * self.claims.len() as f64)
+            };
+            (pref_avg * 0.6 + stable_avg * 0.4).min(1.0)
+        };
+
+        // Overall balanced score
+        let overall_score = (safety_score * 0.55) + (evolution_potential * 0.45);
+
+        let recommendation = if evolution_potential > 0.5 {
+            "Good evolution potential exists while maintaining reasonable safety."
+        } else if safety_score > 0.6 {
+            "Strong safety-focused position available (Grounded)."
+        } else {
+            "Balanced consideration between safety and evolution is recommended."
         };
 
         ExtensionRecommendation {
             grounded,
             preferreds,
             stables,
-            grounded_score,
-            preferred_score,
-            stable_score,
+            safety_score,
+            evolution_potential,
             overall_score,
             recommendation,
         }
     }
 }
 
-/// Structured recommendation with numeric scores for council decision support.
+/// Structured recommendation with Safety vs Evolution scoring.
 #[derive(Debug, Clone)]
 pub struct ExtensionRecommendation {
     pub grounded: Vec<ArgumentId>,
     pub preferreds: Vec<HashSet<ArgumentId>>,
     pub stables: Vec<HashSet<ArgumentId>>,
 
-    /// Score of the Grounded Extension (higher = stronger safest position)
-    pub grounded_score: f64,
+    /// Safety Score (0.0–1.0): Higher = stronger cautious/reliable position
+    pub safety_score: f64,
 
-    /// Score reflecting the richness of Preferred Extensions
-    pub preferred_score: f64,
+    /// Evolution Potential (0.0–1.0): Higher = more room for growth and self-correction
+    pub evolution_potential: f64,
 
-    /// Score reflecting presence and strength of Stable Extensions
-    pub stable_score: f64,
-
-    /// Combined overall score (weighted)
+    /// Overall balanced score
     pub overall_score: f64,
 
     pub recommendation: String,
