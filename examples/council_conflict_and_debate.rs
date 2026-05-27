@@ -1,7 +1,5 @@
 // examples/council_conflict_and_debate.rs
-// Ra-Thor Debate Simulation
-// Integrates: Persistence, Cumulative Memory, Argument Credibility,
-// Grounded / Preferred / Stable Extensions
+// Phase 3: Recommendation Engine Integration
 
 use lattice_conductor_v14::{
     CooperativeGame, LatticeConductorEnhancements, GovernanceRiskReport,
@@ -10,8 +8,6 @@ use lattice_conductor_v14::{
 use std::collections::{HashMap, HashSet};
 
 use rusqlite::{Connection, Result as SqlResult};
-
-// === Persistence Layer ===
 
 #[derive(Debug, Clone)]
 struct DebateState {
@@ -72,8 +68,6 @@ impl DebatePersistence {
     }
 }
 
-// === Helper Functions ===
-
 fn calculate_argument_credibility(
     effective_strength: f64,
     conflict_level: f64,
@@ -86,12 +80,11 @@ fn calculate_argument_credibility(
 }
 
 fn main() {
-    println!("=== Ra-Thor Debate Simulation ===\n");
-    println!("Mates! Persistence + Cumulative Memory + Formal Argumentation Semantics active.\n");
+    println!("=== Phase 3: Recommendation Engine Active ===\n");
+    println!("Mates! Formal extensions now produce clear recommendations for councils.\n");
 
     let db = DebatePersistence::new("debate_memory.db").expect("Failed to open persistence");
 
-    // Load previous cumulative memory
     let mut shifted_memory: HashSet<String> = HashSet::new();
     let mut cumulative_fallacy_impact: f64 = 0.15;
     let mut conviction_level: f64 = 1.0;
@@ -106,8 +99,6 @@ fn main() {
     } else {
         println!("[Persistence] Starting fresh.");
     }
-
-    // === Setup ===
 
     let participants = vec!["Dominant".to_string(), "Weak1".to_string(), "Weak2".to_string()];
     let char_fn = |s: &HashSet<String>| -> f64 {
@@ -137,10 +128,9 @@ fn main() {
         max_banzhaf,
         shapley_variance: shapley_var,
         mercy_alignment: 0.88,
-        recommended_action: "Full Semantics + Persistence + Memory".to_string(),
+        recommended_action: "Recommendation Engine".to_string(),
     };
 
-    // Build argument graph
     let mut arg_graph = ArgumentGraph::new();
     let main_claim = arg_graph.add_claim(
         "Strong self-evolution required due to power concentration".to_string(),
@@ -151,24 +141,22 @@ fn main() {
     arg_graph.add_support(main_claim, main_claim, "Supports coherence".to_string(), "Truth Council".to_string(), 0.8);
     arg_graph.add_attack(main_claim, main_claim, "Risk of disruption".to_string(), "Justice Council".to_string(), 0.3);
 
-    // Compute formal extensions
-    let grounded = arg_graph.grounded_extension();
-    let preferred_list = arg_graph.preferred_extensions(3);
-    let stable_list = arg_graph.stable_extensions(3);
+    // Get structured recommendation
+    let recommendation = arg_graph.recommend_extensions();
 
-    println!("\n=== Formal Extensions ===");
-    println!("Grounded: {:?}", grounded);
-    println!("Preferred (up to 3):");
-    for (i, p) in preferred_list.iter().enumerate() { println!("  {}. {:?}", i + 1, p); }
-    println!("Stable (up to 3):");
-    for (i, s) in stable_list.iter().enumerate() { println!("  {}. {:?}", i + 1, s); }
+    println!("\n=== Extension Recommendation ===");
+    println!("Grounded: {:?}", recommendation.grounded);
+    println!("Preferred count: {}", recommendation.preferreds.len());
+    println!("Stable count: {}", recommendation.stables.len());
+    println!("Recommendation: {}", recommendation.recommendation);
 
     let effective = arg_graph.effective_strength(main_claim).unwrap_or(0.5);
     let conflict = arg_graph.conflict_level(main_claim).unwrap_or(0.0);
+
     let credibility = calculate_argument_credibility(effective, conflict, cumulative_fallacy_impact);
 
     // ROUND 1
-    println!("\n--- ROUND 1: Opening Statements ---");
+    println!("\n--- ROUND 1 ---");
     let mut positions: Vec<(&str, PatsagiDecision)> = vec![
         ("Mercy Council",   debate_mercy(&report)),
         ("Truth Council",   debate_truth(&report)),
@@ -180,12 +168,11 @@ fn main() {
         println!("[{}] : {:?}", name, decision);
     }
 
-    // Update memory state
     cumulative_fallacy_impact += 0.08;
     conviction_level *= 0.93;
 
     // ROUND 2
-    println!("\n--- ROUND 2: Persuasion with Formal Semantics ---");
+    println!("\n--- ROUND 2: Persuasion guided by Recommendation ---");
 
     let c13_pos = positions.iter().find(|(n, _)| *n == "Council #13").unwrap().1.clone();
 
@@ -200,9 +187,9 @@ fn main() {
         };
 
         let memory_bonus = if shifted_memory.contains(&name.to_string()) { 0.12 } else { 0.0 };
-        let grounded_bonus = if grounded.contains(&main_claim) { 0.08 } else { 0.0 };
-        let preferred_bonus = if preferred_list.iter().any(|p| p.contains(&main_claim)) { 0.12 } else { 0.0 };
-        let stable_bonus = if stable_list.iter().any(|s| s.contains(&main_claim)) { 0.18 } else { 0.0 };
+        let grounded_bonus = if recommendation.grounded.contains(&main_claim) { 0.08 } else { 0.0 };
+        let preferred_bonus = if recommendation.preferreds.iter().any(|p| p.contains(&main_claim)) { 0.12 } else { 0.0 };
+        let stable_bonus = if recommendation.stables.iter().any(|s| s.contains(&main_claim)) { 0.18 } else { 0.0 };
 
         let adjusted_credibility = credibility * conviction_level * (1.0 - cumulative_fallacy_impact.min(0.45));
         let dynamic_weight = (base_sensitivity + memory_bonus + grounded_bonus + preferred_bonus + stable_bonus) * adjusted_credibility;
@@ -222,19 +209,17 @@ fn main() {
         println!("[{}] after Round 2: {:?}", name, decision);
     }
 
-    // Save final state
     db.save_state(&shifted_memory.iter().cloned().collect::<Vec<_>>(), cumulative_fallacy_impact, conviction_level).ok();
-    println!("\n[Persistence] Final state saved.");
+
+    println!("\n[Persistence] State saved.");
 
     println!("\n--- FINAL RESOLUTION ---");
     let final = resolve_conflict_weighted(&positions, &report);
     println!("Final Decision: {:?}", final);
-    println!("\nWe move forward with clean, integrated formal semantics, Mates!\n");
+    println!("\nWe move forward with recommendation-guided evolution, Mates!\n");
 
-    println!("=== Simulation Complete ===");
+    println!("=== Phase 3 Complete ===");
 }
-
-// === Council Decision Functions ===
 
 fn debate_mercy(report: &GovernanceRiskReport) -> PatsagiDecision {
     if report.risk_score > 0.82 { PatsagiDecision::RequiresSelfEvolution { priority: 2 } }
