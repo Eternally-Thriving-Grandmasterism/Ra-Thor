@@ -1,5 +1,5 @@
 // crates/lattice-conductor-v14/src/lattice_conductor_enhancements.rs
-// Refined integration with functional optimization usage
+// Composite Governance Risk Score Implementation
 
 use crate::distributed_mercy_mesh::{DistributedMercyMesh, MercyEvent, OrganismNode};
 use crate::patsagi_governance::{PatsagiCouncilSimulator, PatsagiDecision, PatsagiReviewRequest};
@@ -52,28 +52,20 @@ impl LatticeConductorEnhancements {
         (game.shapley_value(), game.banzhaf_index())
     }
 
-    /// Fully functional: Uses multi-objective optimization then submits to PATSAGi
-    pub fn optimize_and_submit_to_patsagi(
-        mesh: &mut DistributedMercyMesh,
-        topic: &str,
-        summary: &str,
-        participants: Vec<String>,
-        coalition_value_fn: impl Fn(&HashSet<String>) -> f64 + Send + Sync + 'static,
-        max_size: usize,
-    ) -> (PatsagiDecision, String) {
-        let game = CooperativeGame::new(participants.clone(), coalition_value_fn);
-        let (optimized_coalition, optimization_score) = 
-            game.optimize_coalition_multi_objective(max_size, 0.6, 0.4, 6);
+    /// NEW: Composite Governance Risk Score
+    /// Combines Banzhaf (power concentration) + Shapley variance (unfairness)
+    pub fn calculate_governance_risk_score(
+        max_banzhaf: f64,
+        shapley_variance: f64,
+        mercy_alignment: f64,
+    ) -> f64 {
+        let power_risk = max_banzhaf.clamp(0.0, 1.0);
+        let fairness_risk = shapley_variance.min(1.0);
 
-        let request = Self::request_patsagi_review(mesh, topic, summary);
-        let decision = PatsagiCouncilSimulator::review(&request);
+        let base_risk = (0.55 * power_risk) + (0.45 * fairness_risk);
+        let mercy_factor = 1.0 - (mercy_alignment * 0.15);
 
-        let insight = format!(
-            "Optimized coalition: {:?} (score: {:.2}). PATSAGi decision may be influenced.",
-            optimized_coalition, optimization_score
-        );
-
-        (decision, insight)
+        (base_risk * mercy_factor).clamp(0.0, 1.0)
     }
 
     pub fn submit_to_patsagi_with_game_theory(
@@ -89,21 +81,29 @@ impl LatticeConductorEnhancements {
         let (shapley, banzhaf) = Self::evaluate_patsagi_coalition(participants, coalition_value_fn);
 
         let max_banzhaf = banzhaf.iter().map(|(_, v)| *v).fold(0.0f64, f64::max);
-        let power_concentrated = max_banzhaf > 0.6;
         let shapley_variance = Self::shapley_variance(&shapley);
-        let unfair_contribution = shapley_variance > 0.15;
+        let mercy_alignment = request.mercy_impact_score;
 
-        let final_decision = match (&traditional, power_concentrated, unfair_contribution) {
-            (PatsagiDecision::Approved { .. }, true, _) => {
-                PatsagiDecision::RequiresCouncilArbitration { councils: vec![13] }
-            }
-            (PatsagiDecision::Approved { .. }, _, true) => {
-                PatsagiDecision::RequiresSelfEvolution { priority: 2 }
-            }
-            _ => traditional,
+        // Use composite risk score
+        let risk_score = Self::calculate_governance_risk_score(
+            max_banzhaf,
+            shapley_variance,
+            mercy_alignment,
+        );
+
+        let final_decision = if risk_score > 0.75 {
+            PatsagiDecision::RequiresCouncilArbitration { councils: vec![13] }
+        } else if risk_score > 0.55 {
+            PatsagiDecision::RequiresSelfEvolution { priority: 2 }
+        } else {
+            traditional
         };
 
-        let insight = format!("Shapley variance: {:.3} | Max Banzhaf: {:.3}", shapley_variance, max_banzhaf);
+        let insight = format!(
+            "Risk Score: {:.3} | Max Banzhaf: {:.3} | Shapley Variance: {:.3}",
+            risk_score, max_banzhaf, shapley_variance
+        );
+
         (final_decision, insight)
     }
 
