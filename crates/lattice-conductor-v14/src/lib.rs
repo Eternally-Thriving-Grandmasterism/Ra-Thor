@@ -1,10 +1,11 @@
 //! crates/lattice-conductor-v14/src/lib.rs
-//! v14.1 — Lattice Conductor with Enhancements
+//! v14.1+ with dedicated PATSAGi Governance module
 
 pub mod council_arbitration;
 pub mod runtime_self_healing;
 pub mod distributed_mercy_mesh;
-pub mod lattice_conductor_enhancements;  // NEW v14.1
+pub mod lattice_conductor_enhancements;
+pub mod patsagi_governance;           // NEW dedicated module
 pub mod governance;
 pub mod hybrid_sovereign_channel;
 pub mod post_quantum_signatures;
@@ -18,6 +19,7 @@ pub use distributed_mercy_mesh::{
     MercyGate, MercyAuditEntry, OrganismNode, HealingRequest, HealingOffer,
 };
 pub use lattice_conductor_enhancements::{LatticeConductorEnhancements, LatticeDiagnosticsReport};
+pub use patsagi_governance::{PatsagiReviewRequest, PatsagiDecision, PatsagiCouncilSimulator};
 pub use governance::self_evaluation_proposal::SelfEvaluationProposal;
 pub use post_quantum_signatures::{create_post_quantum_signature, verify_post_quantum_signature};
 pub use hybrid_sovereign_channel::HybridSovereignChannel;
