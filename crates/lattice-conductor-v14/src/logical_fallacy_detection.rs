@@ -1,5 +1,6 @@
 // crates/lattice-conductor-v14/src/logical_fallacy_detection.rs
-// Updated to fully leverage improved ArgumentGraph claim-to-claim model
+// Phase 1 Hardening - Improved circular and structural fallacy detection
+// Fully leverages enhanced ArgumentGraph claim-to-claim model
 
 use crate::argumentation::{ArgumentGraph, ArgumentId};
 use std::collections::{HashMap, HashSet};
@@ -25,33 +26,33 @@ impl LogicalFallacyDetector {
     pub fn detect_structural_fallacies(graph: &ArgumentGraph) -> Vec<DetectedFallacy> {
         let mut fallacies = Vec::new();
 
-        // Unsupported claims
+        // 1. Unsupported claims
         for (id, claim) in &graph.claims {
             let has_support = graph.supports.iter().any(|s| s.target_claim_id == *id);
             if !has_support {
                 fallacies.push(DetectedFallacy {
                     fallacy_type: FallacyType::UnsupportedClaim,
                     target_claim_id: *id,
-                    description: format!("Unsupported claim: {}", claim.content),
-                    severity: 0.6,
+                    description: format!("Claim has no supporting arguments: {}", claim.content),
+                    severity: 0.65,
                 });
             }
         }
 
-        // Improved circular support detection
+        // 2. Circular support detection (using improved claim-to-claim model)
         let circular = Self::detect_circular_support(graph);
         for claim_id in circular {
             if let Some(claim) = graph.claims.get(&claim_id) {
                 fallacies.push(DetectedFallacy {
                     fallacy_type: FallacyType::CircularSupport,
                     target_claim_id: claim_id,
-                    description: format!("Circular support detected: {}", claim.content),
+                    description: format!("Circular support/reasoning detected: {}", claim.content),
                     severity: 0.92,
                 });
             }
         }
 
-        // Weak evidence chain
+        // 3. Weak evidence chain
         for (id, claim) in &graph.claims {
             let support_count = graph.supports.iter().filter(|s| s.target_claim_id == *id).count();
             let attack_count = graph.attacks.iter().filter(|a| a.target_claim_id == *id).count();
@@ -60,8 +61,8 @@ impl LogicalFallacyDetector {
                 fallacies.push(DetectedFallacy {
                     fallacy_type: FallacyType::WeakEvidenceChain,
                     target_claim_id: *id,
-                    description: format!("Weak evidence chain: {}", claim.content),
-                    severity: 0.7,
+                    description: format!("Weak evidence chain detected: {}", claim.content),
+                    severity: 0.75,
                 });
             }
         }
@@ -69,9 +70,9 @@ impl LogicalFallacyDetector {
         fallacies
     }
 
-    /// Proper circular detection using claim-to-claim support graph
+    /// Circular support detection using proper claim-to-claim graph
     pub fn detect_circular_support(graph: &ArgumentGraph) -> HashSet<ArgumentId> {
-        // Build adjacency list: claim -> list of claims it supports
+        // Build adjacency list: source_claim -> target_claims it supports
         let mut adj: HashMap<ArgumentId, Vec<ArgumentId>> = HashMap::new();
 
         for support in &graph.supports {
