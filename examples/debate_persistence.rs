@@ -1,5 +1,5 @@
 // examples/debate_persistence.rs
-// Advanced SQLite Analysis Tools for Debate Persistence
+// Advanced SQLite Analysis: WAL Mode + Performance Experiments
 
 use rusqlite::{Connection, Result};
 use std::time::Instant;
@@ -18,7 +18,11 @@ pub struct DebatePersistence {
 impl DebatePersistence {
     pub fn new(db_path: &str) -> Result<Self> {
         let conn = Connection::open(db_path)?;
+        Self::setup_schema(&conn)?;
+        Ok(Self { conn })
+    }
 
+    fn setup_schema(conn: &Connection) -> Result<()> {
         conn.execute(
             "CREATE TABLE IF NOT EXISTS debate_rounds (
                 id INTEGER PRIMARY KEY,
@@ -33,8 +37,24 @@ impl DebatePersistence {
             "CREATE INDEX IF NOT EXISTS idx_debate_rounds_round ON debate_rounds(round DESC)",
             [],
         )?;
+        Ok(())
+    }
 
-        Ok(Self { conn })
+    /// Enable Write-Ahead Logging mode
+    pub fn enable_wal_mode(&self) -> Result<()> {
+        self.conn.execute("PRAGMA journal_mode = WAL", [])?;
+        Ok(())
+    }
+
+    /// Get current journal mode
+    pub fn get_journal_mode(&self) -> Result<String> {
+        let mut stmt = self.conn.prepare("PRAGMA journal_mode")?;
+        let mut rows = stmt.query([])?;
+        if let Some(row) = rows.next()? {
+            Ok(row.get(0)?)
+        } else {
+            Ok("unknown".to_string())
+        }
     }
 
     pub fn save_round(&self, round: u32, shifted: &[String], fallacies: u32) -> Result<()> {
@@ -71,7 +91,6 @@ impl DebatePersistence {
         }
     }
 
-    /// Analyze main load query plan
     pub fn analyze_load_query(&self) -> Result<String> {
         let mut stmt = self.conn.prepare(
             "EXPLAIN QUERY PLAN SELECT round, shifted_councils, detected_fallacies FROM debate_rounds ORDER BY round DESC LIMIT 1",
@@ -86,24 +105,19 @@ impl DebatePersistence {
         Ok(plan)
     }
 
-    /// Show index information
     pub fn show_index_info(&self) -> Result<String> {
         let mut stmt = self.conn.prepare("PRAGMA index_list(debate_rounds)")?;
         let mut rows = stmt.query([])?;
-        let mut info = String::from("Indexes on debate_rounds:\n");
-
+        let mut info = String::from("Indexes:\n");
         while let Some(row) = rows.next()? {
-            let name: String = row.get(1)?;
-            info.push_str(&format!("- {}\n", name));
+            info.push_str(&format!("- {}\n", row.get::<_, String>(1)?));
         }
         Ok(info)
     }
 
-    /// Compare two query variants
     pub fn compare_query_variants(&self) -> Result<String> {
         let mut result = String::new();
 
-        // Variant 1: ORDER BY + LIMIT
         let mut stmt1 = self.conn.prepare(
             "EXPLAIN QUERY PLAN SELECT round, shifted_councils, detected_fallacies FROM debate_rounds ORDER BY round DESC LIMIT 1",
         )?;
@@ -113,7 +127,6 @@ impl DebatePersistence {
             result.push_str(&format!("  {}\n", row.get::<_, String>(3)?));
         }
 
-        // Variant 2: MAX(round)
         let mut stmt2 = self.conn.prepare(
             "EXPLAIN QUERY PLAN SELECT round, shifted_councils, detected_fallacies FROM debate_rounds WHERE round = (SELECT MAX(round) FROM debate_rounds)",
         )?;
@@ -129,7 +142,7 @@ impl DebatePersistence {
     pub fn benchmark_save(&self, iterations: u32) -> Result<f64> {
         let start = Instant::now();
         for i in 0..iterations {
-            self.save_round(2000 + i, &vec!["Benchmark".to_string()], 0)?;
+            self.save_round(3000 + i, &vec!["Benchmark".to_string()], 0)?;
         }
         Ok(start.elapsed().as_secs_f64() / iterations as f64)
     }
@@ -144,19 +157,23 @@ impl DebatePersistence {
 }
 
 fn main() {
-    println!("=== Advanced SQLite Debate Persistence Analysis ===\n");
+    println!("=== SQLite WAL Mode + Advanced Analysis ===\n");
 
     let db = DebatePersistence::new("debate_memory.db").expect("Failed to open DB");
 
-    println!("Index Info:\n{}", db.show_index_info().unwrap_or_default());
-    println!("Query Plan Analysis:\n{}", db.analyze_load_query().unwrap_or_default());
-    println!("Query Variant Comparison:\n{}", db.compare_query_variants().unwrap_or_default());
+    println!("Journal Mode: {}", db.get_journal_mode().unwrap_or_default());
+    db.enable_wal_mode().ok();
+    println!("After enabling WAL: {}", db.get_journal_mode().unwrap_or_default());
 
-    let save_time = db.benchmark_save(50).unwrap_or(0.0);
-    println!("Avg save time: {:.6}s", save_time);
+    println!("\nIndex Info:\n{}", db.show_index_info().unwrap_or_default());
+    println!("Query Plan:\n{}", db.analyze_load_query().unwrap_or_default());
+    println!("Variant Comparison:\n{}", db.compare_query_variants().unwrap_or_default());
 
-    let load_time = db.benchmark_load(500).unwrap_or(0.0);
-    println!("Avg load time: {:.6}s", load_time);
+    let save_time = db.benchmark_save(30).unwrap_or(0.0);
+    println!("Avg save: {:.6}s", save_time);
 
-    println!("\nAdvanced analysis complete.");
+    let load_time = db.benchmark_load(300).unwrap_or(0.0);
+    println!("Avg load: {:.6}s", load_time);
+
+    println!("\nAdvanced WAL + analysis complete.");
 }
