@@ -1,5 +1,5 @@
 // examples/council_conflict_and_debate.rs
-// Phase 3: Grounded + Preferred Extension Integration
+// Phase 3: Multiple Preferred Extensions Integration
 
 use lattice_conductor_v14::{
     CooperativeGame, LatticeConductorEnhancements, GovernanceRiskReport,
@@ -80,8 +80,8 @@ fn calculate_argument_credibility(
 }
 
 fn main() {
-    println!("=== Phase 3: Grounded + Preferred Extension Integration ===\n");
-    println!("Mates! We now use both skeptical (Grounded) and credulous (Preferred) formal semantics.\n");
+    println!("=== Phase 3: Multiple Preferred Extensions ===\n");
+    println!("Mates! We now consider multiple credulous but defensible positions.\n");
 
     let db = DebatePersistence::new("debate_memory.db").expect("Failed to open persistence");
 
@@ -128,7 +128,7 @@ fn main() {
         max_banzhaf,
         shapley_variance: shapley_var,
         mercy_alignment: 0.88,
-        recommended_action: "Grounded + Preferred Extension".to_string(),
+        recommended_action: "Multiple Preferred Extensions".to_string(),
     };
 
     let mut arg_graph = ArgumentGraph::new();
@@ -141,12 +141,15 @@ fn main() {
     arg_graph.add_support(main_claim, main_claim, "Supports coherence".to_string(), "Truth Council".to_string(), 0.8);
     arg_graph.add_attack(main_claim, main_claim, "Risk of disruption".to_string(), "Justice Council".to_string(), 0.3);
 
-    // Compute both extensions
+    // Compute extensions
     let grounded = arg_graph.grounded_extension();
-    let preferred = arg_graph.preferred_extension();
+    let preferred_list = arg_graph.preferred_extensions(3); // up to 3
 
-    println!("\n[Grounded Extension] (Skeptical): {:?}", grounded);
-    println!("[Preferred Extension] (Credulous):  {:?}", preferred);
+    println!("\n[Grounded Extension]: {:?}", grounded);
+    println!("[Preferred Extensions] (up to 3):");
+    for (i, pref) in preferred_list.iter().enumerate() {
+        println!("  {}: {:?}", i + 1, pref);
+    }
 
     let effective = arg_graph.effective_strength(main_claim).unwrap_or(0.5);
     let conflict = arg_graph.conflict_level(main_claim).unwrap_or(0.0);
@@ -169,8 +172,8 @@ fn main() {
     cumulative_fallacy_impact += 0.08;
     conviction_level *= 0.93;
 
-    // ROUND 2 - Influenced by both extensions
-    println!("\n--- ROUND 2: Persuasion with Grounded + Preferred Semantics ---");
+    // ROUND 2
+    println!("\n--- ROUND 2: Persuasion with Multiple Preferred Extensions ---");
 
     let c13_pos = positions.iter().find(|(n, _)| *n == "Council #13").unwrap().1.clone();
 
@@ -186,9 +189,9 @@ fn main() {
 
         let memory_bonus = if shifted_memory.contains(&name.to_string()) { 0.12 } else { 0.0 };
 
-        // Bonus from formal semantics
+        // Bonus if main claim appears in any Preferred Extension
+        let preferred_bonus = if preferred_list.iter().any(|pref| pref.contains(&main_claim)) { 0.15 } else { 0.0 };
         let grounded_bonus = if grounded.contains(&main_claim) { 0.08 } else { 0.0 };
-        let preferred_bonus = if preferred.contains(&main_claim) { 0.12 } else { 0.0 };
 
         let adjusted_credibility = credibility * conviction_level * (1.0 - cumulative_fallacy_impact.min(0.45));
         let dynamic_weight = (base_sensitivity + memory_bonus + grounded_bonus + preferred_bonus) * adjusted_credibility;
@@ -208,18 +211,16 @@ fn main() {
         println!("[{}] after Round 2: {:?}", name, decision);
     }
 
-    // Save state
-    let shifted_vec: Vec<String> = shifted_memory.iter().cloned().collect();
-    db.save_state(&shifted_vec, cumulative_fallacy_impact, conviction_level).ok();
+    db.save_state(&shifted_memory.iter().cloned().collect::<Vec<_>>(), cumulative_fallacy_impact, conviction_level).ok();
 
     println!("\n[Persistence] State saved.");
 
     println!("\n--- FINAL RESOLUTION ---");
     let final = resolve_conflict_weighted(&positions, &report);
     println!("Final Decision: {:?}", final);
-    println!("\nWe move forward with both skeptical and credulous formal semantics, Mates!\n");
+    println!("\nWe move forward with multiple formal positions, Mates!\n");
 
-    println!("=== Phase 3 Integration Complete ===");
+    println!("=== Phase 3 Progress ===");
 }
 
 fn debate_mercy(report: &GovernanceRiskReport) -> PatsagiDecision {
