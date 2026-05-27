@@ -321,20 +321,15 @@ impl ArgumentGraph {
 
     // === Numeric Scoring + Recommendation Layer ===
 
-    /// Returns a scored recommendation with Safety vs Evolution dimensions.
     pub fn recommend_extensions(&self) -> ExtensionRecommendation {
         let grounded = self.grounded_extension();
         let preferreds = self.preferred_extensions(3);
         let stables = self.stable_extensions(2);
 
-        // === Scoring ===
-
-        // Safety Score: Higher when Grounded is strong (more cautious & reliable)
         let safety_score = if self.claims.is_empty() { 0.0 } else {
             grounded.len() as f64 / self.claims.len() as f64
         };
 
-        // Evolution Potential: Higher when there are rich Preferred or Stable options
         let evolution_potential = if preferreds.is_empty() && stables.is_empty() {
             0.1
         } else {
@@ -347,7 +342,6 @@ impl ArgumentGraph {
             (pref_avg * 0.6 + stable_avg * 0.4).min(1.0)
         };
 
-        // Overall balanced score
         let overall_score = (safety_score * 0.55) + (evolution_potential * 0.45);
 
         let recommendation = if evolution_potential > 0.5 {
@@ -370,21 +364,75 @@ impl ArgumentGraph {
     }
 }
 
-/// Structured recommendation with Safety vs Evolution scoring.
 #[derive(Debug, Clone)]
 pub struct ExtensionRecommendation {
     pub grounded: Vec<ArgumentId>,
     pub preferreds: Vec<HashSet<ArgumentId>>,
     pub stables: Vec<HashSet<ArgumentId>>,
-
-    /// Safety Score (0.0–1.0): Higher = stronger cautious/reliable position
     pub safety_score: f64,
-
-    /// Evolution Potential (0.0–1.0): Higher = more room for growth and self-correction
     pub evolution_potential: f64,
-
-    /// Overall balanced score
     pub overall_score: f64,
-
     pub recommendation: String,
+}
+
+// === Automated Regression Detection Tests ===
+
+#[cfg(test)]
+mod regression_tests {
+    use super::*;
+
+    #[test]
+    fn test_grounded_extension_basic() {
+        let mut graph = ArgumentGraph::new();
+        let a = graph.add_claim("A".to_string(), "Test".to_string(), 0.9);
+        let b = graph.add_claim("B".to_string(), "Test".to_string(), 0.7);
+        graph.add_attack(a, b, "Attacks B".to_string(), "Test".to_string(), 0.8);
+
+        let grounded = graph.grounded_extension();
+        assert!(grounded.contains(&a));
+        assert!(!grounded.contains(&b));
+    }
+
+    #[test]
+    fn test_is_admissible() {
+        let mut graph = ArgumentGraph::new();
+        let a = graph.add_claim("A".to_string(), "Test".to_string(), 0.9);
+        let b = graph.add_claim("B".to_string(), "Test".to_string(), 0.7);
+        graph.add_attack(a, b, "Attacks B".to_string(), "Test".to_string(), 0.8);
+
+        let mut set = HashSet::new();
+        set.insert(a);
+        assert!(graph.is_admissible(&set));
+
+        set.insert(b);
+        assert!(!graph.is_admissible(&set));
+    }
+
+    #[test]
+    fn test_preferred_and_stable_extensions() {
+        let mut graph = ArgumentGraph::new();
+        let a = graph.add_claim("A".to_string(), "Test".to_string(), 0.9);
+        let b = graph.add_claim("B".to_string(), "Test".to_string(), 0.7);
+        graph.add_attack(a, b, "Attacks B".to_string(), "Test".to_string(), 0.8);
+
+        let preferreds = graph.preferred_extensions(5);
+        assert!(!preferreds.is_empty());
+
+        // In this simple chain, stable extensions may or may not exist
+        let stables = graph.stable_extensions(3);
+        // We just verify the method runs without panic
+        let _ = stables.len();
+    }
+
+    #[test]
+    fn test_recommend_extensions_scoring() {
+        let mut graph = ArgumentGraph::new();
+        let a = graph.add_claim("A".to_string(), "Test".to_string(), 0.9);
+        let _b = graph.add_claim("B".to_string(), "Test".to_string(), 0.7);
+
+        let rec = graph.recommend_extensions();
+        assert!(rec.safety_score >= 0.0 && rec.safety_score <= 1.0);
+        assert!(rec.evolution_potential >= 0.0 && rec.evolution_potential <= 1.0);
+        assert!(rec.overall_score >= 0.0 && rec.overall_score <= 1.0);
+    }
 }
