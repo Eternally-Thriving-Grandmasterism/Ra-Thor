@@ -1,8 +1,7 @@
 // examples/debate_persistence.rs
-// SQLite Persistence Layer for Debate State (Round-to-Round Memory)
+// SQLite Persistence with Query Plan Analysis + Optimizations
 
 use rusqlite::{Connection, Result};
-use std::collections::HashMap;
 
 #[derive(Debug, Clone)]
 pub struct DebateState {
@@ -18,6 +17,7 @@ pub struct DebatePersistence {
 impl DebatePersistence {
     pub fn new(db_path: &str) -> Result<Self> {
         let conn = Connection::open(db_path)?;
+
         conn.execute(
             "CREATE TABLE IF NOT EXISTS debate_rounds (
                 id INTEGER PRIMARY KEY,
@@ -27,6 +27,13 @@ impl DebatePersistence {
             )",
             [],
         )?;
+
+        // Optimization: Index on round (critical for ORDER BY + LIMIT)
+        conn.execute(
+            "CREATE INDEX IF NOT EXISTS idx_debate_rounds_round ON debate_rounds(round DESC)",
+            [],
+        )?;
+
         Ok(Self { conn })
     }
 
@@ -63,25 +70,39 @@ impl DebatePersistence {
             Ok(None)
         }
     }
+
+    /// Analyze query execution plan
+    pub fn analyze_load_query(&self) -> Result<String> {
+        let mut stmt = self.conn.prepare(
+            "EXPLAIN QUERY PLAN SELECT round, shifted_councils, detected_fallacies FROM debate_rounds ORDER BY round DESC LIMIT 1",
+        )?;
+
+        let mut rows = stmt.query([])?;
+        let mut plan = String::new();
+        while let Some(row) = rows.next()? {
+            let detail: String = row.get(3)?;
+            plan.push_str(&format!("{}\n", detail));
+        }
+        Ok(plan)
+    }
 }
 
 fn main() {
-    println!("=== SQLite Debate Persistence Demo ===\n");
+    println!("=== SQLite Debate Persistence + Query Plan Analysis ===\n");
 
     let db = DebatePersistence::new("debate_memory.db").expect("Failed to open DB");
 
-    // Simulate saving a round
-    let shifted = vec!["Mercy Council".to_string(), "Truth Council".to_string()];
-    db.save_round(2, &shifted, 1).expect("Failed to save round");
-
-    // Load last round
-    if let Some(state) = db.load_last_round().expect("Failed to load") {
-        println!("Loaded last round: {}", state.round);
-        println!("Shifted councils: {:?}", state.shifted_councils);
-        println!("Fallacies detected: {}", state.detected_fallacies);
-    } else {
-        println!("No previous rounds found.");
+    match db.analyze_load_query() {
+        Ok(plan) => println!("Query Plan:\n{}", plan),
+        Err(e) => println!("Analysis failed: {}", e),
     }
 
-    println!("\nPersistence layer ready for debate memory.");
+    let shifted = vec!["Mercy Council".to_string()];
+    db.save_round(4, &shifted, 0).expect("Failed to save");
+
+    if let Some(state) = db.load_last_round().expect("Failed to load") {
+        println!("Loaded Round {} | Shifted: {:?}", state.round, state.shifted_councils);
+    }
+
+    println!("\nDone.");
 }
