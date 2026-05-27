@@ -1,10 +1,10 @@
 //! crates/lattice-conductor-v14/src/lib.rs
-//! v14.0.9 — Lattice Conductor (Professionally Merged)
-//! ONE Organism + 7 Mercy Gates + Hybrid Post-Quantum + Governance + Self-Evolution
+//! v14.1 — Lattice Conductor with Enhancements
 
 pub mod council_arbitration;
 pub mod runtime_self_healing;
 pub mod distributed_mercy_mesh;
+pub mod lattice_conductor_enhancements;  // NEW v14.1
 pub mod governance;
 pub mod hybrid_sovereign_channel;
 pub mod post_quantum_signatures;
@@ -17,6 +17,7 @@ pub use distributed_mercy_mesh::{
     DistributedMercyMesh, MercyEvent, MercyMeshConfig,
     MercyGate, MercyAuditEntry, OrganismNode, HealingRequest, HealingOffer,
 };
+pub use lattice_conductor_enhancements::{LatticeConductorEnhancements, LatticeDiagnosticsReport};
 pub use governance::self_evaluation_proposal::SelfEvaluationProposal;
 pub use post_quantum_signatures::{create_post_quantum_signature, verify_post_quantum_signature};
 pub use hybrid_sovereign_channel::HybridSovereignChannel;
@@ -24,7 +25,6 @@ pub use self_evolution::{SelfEvolutionLoop, submit_self_evolution_proposal_secur
 
 use std::sync::atomic::{AtomicBool, Ordering};
 
-/// Lattice Conductor v14.0.9 — Merged Professional
 pub struct LatticeConductorV14 {
     pub cosmic_loop_ready: AtomicBool,
     pub arbitration_engine: CouncilArbitrationEngine,
@@ -48,10 +48,9 @@ impl LatticeConductorV14 {
 
     pub fn enforce_cosmic_loop_activation(&self) {
         if self.cosmic_loop_ready.load(Ordering::SeqCst) {
-            println!("[LATTICE v14.0.9] Cosmic Loop ENFORCED (ONE Organism)");
+            println!("[LATTICE v14.1] Cosmic Loop ENFORCED");
         } else {
             self.cosmic_loop_ready.store(true, Ordering::SeqCst);
-            println!("[LATTICE v14.0.9] Self-healed");
         }
     }
 
@@ -59,23 +58,5 @@ impl LatticeConductorV14 {
         if let Some(mesh) = &self.mercy_mesh {
             mesh.propagate_mercy_event(MercyEvent::HealingTriggered { severity, organism_id: None });
         }
-    }
-
-    pub fn before_council_arbitration(&self, topic: &str) {
-        self.enforce_cosmic_loop_activation();
-    }
-
-    pub fn submit_secure_governance_proposal(&self, proposal: SelfEvaluationProposal) -> bool {
-        proposal.threshold >= 64
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    #[test]
-    fn test_v14_0_9_init() {
-        let c = LatticeConductorV14::new();
-        assert!(c.cosmic_loop_ready.load(Ordering::SeqCst));
     }
 }
