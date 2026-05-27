@@ -1,8 +1,10 @@
 // crates/lattice-conductor-v14/src/lattice_conductor_enhancements.rs
-// Advanced Thunder Lattice Voting + PATSAGi Integration
+// Integration of CooperativeGame into PATSAGi flow
 
 use crate::distributed_mercy_mesh::{DistributedMercyMesh, MercyEvent, OrganismNode};
 use crate::patsagi_governance::{PatsagiCouncilSimulator, PatsagiDecision, PatsagiReviewRequest};
+use crate::cooperative_governance::CooperativeGame;
+use std::collections::HashSet;
 
 pub struct LatticeConductorEnhancements;
 
@@ -28,36 +30,9 @@ impl LatticeConductorEnhancements {
         }
     }
 
-    // ==================== Deep Thunder Lattice Voting ====================
+    // ==================== PATSAGi + Cooperative Game Theory Integration ====================
 
-    /// Exponential conviction staking + quadratic voting
-    pub fn advanced_mercy_vote_tally(
-        votes: &[(f64, f64, u64)], // (mercy_alignment, base_weight, conviction_seconds)
-        use_quadratic: bool,
-    ) -> f64 {
-        let mut total: f64 = 0.0;
-        let mut weight_sum: f64 = 0.0;
-
-        for (mercy, base, conviction) in votes {
-            let conviction_factor = if *conviction > 0 {
-                1.0 + (*conviction as f64).ln_1p() * 0.15 // exponential conviction
-            } else { 1.0 };
-
-            let mut effective_weight = base * conviction_factor;
-
-            if use_quadratic {
-                effective_weight = effective_weight.sqrt();
-            }
-
-            total += mercy * effective_weight;
-            weight_sum += effective_weight;
-        }
-
-        if weight_sum > 0.0 { total / weight_sum } else { 0.0 }
-    }
-
-    // ==================== Deep PATSAGi Integration ====================
-
+    /// Creates a PATSAGi review request (existing)
     pub fn request_patsagi_review(
         mesh: &DistributedMercyMesh,
         topic: &str,
@@ -72,46 +47,62 @@ impl LatticeConductorEnhancements {
         }
     }
 
-    pub fn submit_to_patsagi_and_apply(
+    /// NEW: Evaluate a PATSAGi-style coalition using Cooperative Game Theory
+    /// Returns (Shapley Values, Banzhaf Index)
+    pub fn evaluate_patsagi_coalition(
+        participants: Vec<String>,
+        coalition_value_fn: impl Fn(&HashSet<String>) -> f64 + Send + Sync + 'static,
+    ) -> (Vec<(String, f64)>, Vec<(String, f64)>) {
+        let game = CooperativeGame::new(participants, coalition_value_fn);
+        let shapley = game.shapley_value();
+        let banzhaf = game.banzhaf_index();
+        (shapley, banzhaf)
+    }
+
+    /// NEW: Full PATSAGi flow with game-theoretic analysis
+    pub fn submit_to_patsagi_with_game_theory(
         mesh: &mut DistributedMercyMesh,
         topic: &str,
         summary: &str,
-        use_council_13: bool,
+        participants: Vec<String>,
+        coalition_value_fn: impl Fn(&HashSet<String>) -> f64 + Send + Sync + 'static,
     ) -> String {
         let request = Self::request_patsagi_review(mesh, topic, summary);
 
-        let decision = if use_council_13 {
-            PatsagiCouncilSimulator::council_13_review(&request)
-        } else {
-            PatsagiCouncilSimulator::review(&request)
-        };
+        // Get traditional PATSAGi decision
+        let traditional_decision = PatsagiCouncilSimulator::review(&request);
 
-        Self::apply_patsagi_decision(mesh, &decision)
+        // Get game-theoretic analysis
+        let (shapley, banzhaf) = Self::evaluate_patsagi_coalition(participants, coalition_value_fn);
+
+        // Combine insights (simple version for now)
+        let game_insight = format!(
+            "Shapley: {:?} | Banzhaf: {:?}",
+            shapley.iter().map(|(p, v)| format!("{}:{:.2}", p, v)).collect::<Vec<_>>(),
+            banzhaf.iter().map(|(p, v)| format!("{}:{:.3}", p, v)).collect::<Vec<_>>()
+        );
+
+        format!(
+            "Traditional: {} | Game Theory: {}",
+            LatticeConductorEnhancements::apply_patsagi_decision(mesh, &traditional_decision),
+            game_insight
+        )
     }
 
     pub fn apply_patsagi_decision(mesh: &mut DistributedMercyMesh, decision: &PatsagiDecision) -> String {
+        // existing implementation...
         match decision {
-            PatsagiDecision::Approved { confidence } => {
-                format!("PATSAGi APPROVED (confidence {:.2})", confidence)
-            }
-            PatsagiDecision::RequiresSelfEvolution { priority } => {
-                let suggestion = Self::check_and_suggest_self_evolution(mesh)
-                    .unwrap_or_default();
-                format!("PATSAGi requires self-evolution (priority {}). {}", priority, suggestion)
-            }
-            PatsagiDecision::RequiresCouncilArbitration { councils } => {
-                format!("Escalating to PATSAGi Councils {:?}", councils)
-            }
-            PatsagiDecision::Rejected { reason, .. } => {
-                format!("PATSAGi REJECTED: {}", reason)
-            }
+            PatsagiDecision::Approved { confidence } => format!("Approved ({:.2})", confidence),
+            PatsagiDecision::RequiresSelfEvolution { priority } => format!("Self-evolution (priority {})", priority),
+            PatsagiDecision::RequiresCouncilArbitration { councils } => format!("Arbitration {:?}", councils),
+            PatsagiDecision::Rejected { reason, .. } => format!("Rejected: {}", reason),
         }
     }
 
     pub fn check_and_suggest_self_evolution(mesh: &DistributedMercyMesh) -> Option<String> {
         let report = Self::run_full_lattice_diagnostics(mesh);
         if !report.unified_organism_healthy || report.average_mercy_alignment < 0.92 {
-            Some("Self-evolution recommended by PATSAGi".to_string())
+            Some("Self-evolution recommended".to_string())
         } else {
             None
         }
