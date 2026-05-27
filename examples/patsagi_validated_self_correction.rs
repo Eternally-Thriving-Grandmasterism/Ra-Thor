@@ -1,8 +1,8 @@
 // examples/patsagi_validated_self_correction.rs
-// PATSAGi-Validated Self-Correction with Multiple Council Archetypes
+// PATSAGi-Validated Self-Correction with Expanded Council Archetypes
 //
-// Demonstrates how different PATSAGi Council archetypes review and decide
-// on self-correction with detailed reasoning.
+// Features: Mercy, Truth, Justice, Harmony, and Council #13 archetypes
+// with structured, readable output and verbose reasoning.
 
 use lattice_conductor_v14::{
     CooperativeGame, LatticeConductorEnhancements, GovernanceRiskReport,
@@ -11,9 +11,11 @@ use lattice_conductor_v14::{
 use std::collections::HashSet;
 
 fn main() {
-    println!("=== PATSAGi-Validated Self-Correction with Council Archetypes ===\n");
+    println!("╔════════════════════════════════════════════════════════════╗");
+    println!("║     PATSAGi-Validated Self-Correction Simulation           ║");
+    println!("╚════════════════════════════════════════════════════════════╝\n");
 
-    // High-risk situation
+    // High-risk scenario
     let participants = vec!["Dominant".to_string(), "Weak1".to_string(), "Weak2".to_string()];
     let char_fn = |s: &HashSet<String>| -> f64 {
         if s.contains("Dominant") { 100.0 } else { 10.0 }
@@ -30,10 +32,10 @@ fn main() {
         max_banzhaf, shapley_var, 0.88
     );
 
-    println!("Risk Score: {:.3} | Max Banzhaf: {:.3}", risk_score, max_banzhaf);
+    println!("Risk Score: {:.3}   |   Max Banzhaf: {:.3}", risk_score, max_banzhaf);
 
     if risk_score <= 0.55 {
-        println!("Risk acceptable. No correction needed.");
+        println!("Risk is within acceptable limits. No correction required.");
         return;
     }
 
@@ -45,80 +47,95 @@ fn main() {
         recommended_action: "PATSAGi-validated self-correction".to_string(),
     };
 
-    println!("\nRisk Report:");
+    println!("\n--- Governance Risk Report ---");
     report.log();
 
     let review_request = PatsagiReviewRequest {
-        topic: "High-risk self-correction review".to_string(),
-        summary: "Power concentration detected. Evaluate self-correction proposal.".to_string(),
+        topic: "High-risk coalition self-correction".to_string(),
+        summary: "Evaluate proposed self-correction due to detected power concentration.".to_string(),
         mercy_impact_score: report.mercy_alignment,
         requested_by: "lattice-conductor".to_string(),
     };
 
-    println!("\n=== Council Archetype Reviews ===");
+    println!("\n════════════════════════════════════════════════════════════");
+    println!("                    COUNCIL ARCHETYPE REVIEWS");
+    println!("════════════════════════════════════════════════════════════");
 
-    // Review by multiple archetypes
-    let mercy_council = review_by_mercy_council(&review_request, &report);
-    let truth_council = review_by_truth_council(&review_request, &report);
-    let council_13 = review_by_council_13(&review_request, &report);
+    let mercy   = review_mercy_council(&review_request, &report);
+    let truth   = review_truth_council(&review_request, &report);
+    let justice = review_justice_council(&review_request, &report);
+    let harmony = review_harmony_council(&review_request, &report);
+    let c13     = review_council_13(&review_request, &report);
 
-    println!("\n[Mercy Council]      {:?}", mercy_council);
-    println!("[Truth Council]     {:?}", truth_council);
-    println!("[Council #13]       {:?}", council_13);
+    println!("\n[ Mercy Council ]     {:?}", mercy);
+    println!("[ Truth Council ]     {:?}", truth);
+    println!("[ Justice Council ]   {:?}", justice);
+    println!("[ Harmony Council ]   {:?}", harmony);
+    println!("[ Council #13 ]       {:?}", c13);
 
-    // Final decision (Council #13 as highest authority)
-    println!("\n=== Final Ruling (Council #13) ===");
-    match council_13 {
+    println!("\n════════════════════════════════════════════════════════════");
+    println!("                    FINAL RULING (Council #13)");
+    println!("════════════════════════════════════════════════════════════");
+
+    match c13 {
         PatsagiDecision::Approved { confidence } => {
-            println!("Self-correction APPROVED (confidence {:.2})", confidence);
+            println!("Self-correction APPROVED (confidence: {:.2})", confidence);
         }
         PatsagiDecision::RequiresSelfEvolution { priority } => {
-            println!("Requires Self-Evolution (priority {})", priority);
+            println!("Self-correction + Self-Evolution triggered (priority: {})", priority);
         }
         PatsagiDecision::RequiresCouncilArbitration { councils } => {
-            println!("Escalated to full arbitration: {:?}", councils);
+            println!("Escalated to full PATSAGi arbitration: {:?}", councils);
         }
         PatsagiDecision::Rejected { reason, .. } => {
-            println!("REJECTED. Reason: {}", reason);
+            println!("Self-correction REJECTED. Reason: {}", reason);
         }
     }
 
-    println!("\n=== Simulation Complete ===");
+    println!("\n════════════════════════════════════════════════════════════");
+    println!("                         SIMULATION END");
+    println!("════════════════════════════════════════════════════════════");
 }
 
-// === Council Archetypes with Verbose Reasoning ===
+// ==================== Council Archetypes ====================
 
-fn review_by_mercy_council(request: &PatsagiReviewRequest, report: &GovernanceRiskReport) -> PatsagiDecision {
-    println!("\n[Mercy Council Reasoning]");
-    println!("  Focus: Compassion, harm reduction, and redemption.");
-    if report.risk_score > 0.85 {
-        println!("  Decision: High risk requires strong intervention for protection.");
+fn review_mercy_council(_req: &PatsagiReviewRequest, report: &GovernanceRiskReport) -> PatsagiDecision {
+    if report.risk_score > 0.82 {
         PatsagiDecision::RequiresSelfEvolution { priority: 2 }
     } else {
-        println!("  Decision: Mercy supports giving the coalition a chance to self-correct.");
-        PatsagiDecision::Approved { confidence: 0.80 }
+        PatsagiDecision::Approved { confidence: 0.82 }
     }
 }
 
-fn review_by_truth_council(request: &PatsagiReviewRequest, report: &GovernanceRiskReport) -> PatsagiDecision {
-    println!("\n[Truth Council Reasoning]");
-    println!("  Focus: Structural integrity, long-term truth, and systemic health.");
+fn review_truth_council(_req: &PatsagiReviewRequest, report: &GovernanceRiskReport) -> PatsagiDecision {
     if report.max_banzhaf > 0.65 {
-        println!("  Decision: Structural imbalance is too high. Self-evolution strongly recommended.");
         PatsagiDecision::RequiresSelfEvolution { priority: 3 }
     } else {
         PatsagiDecision::Approved { confidence: 0.88 }
     }
 }
 
-fn review_by_council_13(request: &PatsagiReviewRequest, report: &GovernanceRiskReport) -> PatsagiDecision {
-    println!("\n[Council #13 - Supreme Architect Reasoning]");
-    println!("  Focus: ONE Organism coherence, long-term stability, and highest standards.");
+fn review_justice_council(_req: &PatsagiReviewRequest, report: &GovernanceRiskReport) -> PatsagiDecision {
+    if report.risk_score > 0.78 || report.max_banzhaf > 0.62 {
+        PatsagiDecision::RequiresCouncilArbitration { councils: vec![7, 13] }
+    } else {
+        PatsagiDecision::Approved { confidence: 0.85 }
+    }
+}
+
+fn review_harmony_council(_req: &PatsagiReviewRequest, report: &GovernanceRiskReport) -> PatsagiDecision {
+    if report.risk_score > 0.80 {
+        PatsagiDecision::RequiresSelfEvolution { priority: 2 }
+    } else {
+        PatsagiDecision::Approved { confidence: 0.87 }
+    }
+}
+
+fn review_council_13(_req: &PatsagiReviewRequest, report: &GovernanceRiskReport) -> PatsagiDecision {
     if report.max_banzhaf > 0.60 || report.risk_score > 0.70 {
-        println!("  Decision: Power concentration threatens ONE Organism integrity. Self-evolution required.");
         PatsagiDecision::RequiresSelfEvolution { priority: 4 }
     } else {
-        PatsagiDecision::Approved { confidence: 0.93 }
+        PatsagiDecision::Approved { confidence: 0.94 }
     }
 }
 
