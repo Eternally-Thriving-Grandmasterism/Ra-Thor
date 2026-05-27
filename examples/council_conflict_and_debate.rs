@@ -1,14 +1,14 @@
 // examples/council_conflict_and_debate.rs
-// Persuasion Dynamics with Argument Quality + Archetype Affinity
+// Persuasion + ArgumentGraph Integration + Topic-Based Affinity
 
 use lattice_conductor_v14::{
     CooperativeGame, LatticeConductorEnhancements, GovernanceRiskReport,
-    PatsagiReviewRequest, PatsagiDecision,
+    PatsagiReviewRequest, PatsagiDecision, ArgumentGraph,
 };
 use std::collections::HashSet;
 
 fn main() {
-    println!("=== Persuasion with Argument Quality + Archetype Affinity ===\n");
+    println!("=== Persuasion + ArgumentGraph + Topic Affinity ===\n");
 
     let participants = vec!["Dominant".to_string(), "Weak1".to_string(), "Weak2".to_string()];
     let char_fn = |s: &HashSet<String>| -> f64 {
@@ -38,15 +38,26 @@ fn main() {
         max_banzhaf,
         shapley_variance: shapley_var,
         mercy_alignment: 0.88,
-        recommended_action: "Persuasion with quality + affinity".to_string(),
+        recommended_action: "Integrated persuasion + ArgumentGraph".to_string(),
     };
 
     let review_request = PatsagiReviewRequest {
-        topic: "Persuasion dynamics test".to_string(),
-        summary: "Quality + Archetype Affinity".to_string(),
+        topic: "Power concentration & structural integrity".to_string(),
+        summary: "Debate with ArgumentGraph quality and topic affinity.".to_string(),
         mercy_impact_score: report.mercy_alignment,
         requested_by: "lattice-conductor".to_string(),
     };
+
+    // Build ArgumentGraph for richer quality scoring
+    let mut arg_graph = ArgumentGraph::new();
+    let claim_id = arg_graph.add_claim(
+        "Power concentration requires strong self-evolution".to_string(),
+        "Council #13".to_string(),
+        0.85,
+    );
+    arg_graph.add_support(claim_id, "High Banzhaf dominance threatens ONE Organism".to_string(), "Truth Council".to_string(), 0.8);
+
+    let argument_quality = arg_graph.effective_strength(claim_id).unwrap_or(0.75);
 
     let mut positions: Vec<(&str, PatsagiDecision)> = vec![
         ("Mercy Council",   debate_mercy(&report)),
@@ -61,35 +72,27 @@ fn main() {
         println!("{}: {:?}", name, decision);
     }
 
-    // Persuasion round with argument quality + archetype affinity
-    println!("\n--- Persuasion Round (Quality + Affinity) ---");
+    // Persuasion with ArgumentGraph quality + topic affinity
+    println!("\n--- Persuasion Round ---");
 
     let c13_decision = positions.iter().find(|(n, _)| *n == "Council #13").unwrap().1.clone();
 
     for (name, decision) in positions.iter_mut() {
         if *name == "Council #13" { continue; }
 
-        // Archetype affinity toward Council #13
-        let affinity = match *name {
-            "Mercy Council" | "Harmony Council" => 0.75,
-            "Truth Council" => 0.55,
-            "Justice Council" => 0.45,
-            _ => 0.4,
+        // Topic affinity (this debate is about power + structure)
+        let topic_affinity = match *name {
+            "Truth Council" | "Justice Council" => 0.85, // High affinity to structural topics
+            "Mercy Council" | "Harmony Council" => 0.65,
+            _ => 0.5,
         };
 
-        // Argument quality from Council #13 (higher priority = stronger argument)
-        let argument_quality = if matches!(c13_decision, PatsagiDecision::RequiresSelfEvolution { priority: 4 }) {
-            0.9
-        } else {
-            0.7
-        };
+        let influence = topic_affinity * argument_quality;
 
-        let influence = affinity * argument_quality;
-
-        if influence > 0.6 {
+        if influence > 0.65 {
             if matches!(c13_decision, PatsagiDecision::RequiresSelfEvolution { .. }) {
                 *decision = PatsagiDecision::RequiresSelfEvolution { priority: 3 };
-                println!("[{}] persuaded by Council #13 (influence: {:.2})", name, influence);
+                println!("[{}] persuaded (influence: {:.2}, quality: {:.2})", name, influence, argument_quality);
             }
         }
     }
