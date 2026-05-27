@@ -1,5 +1,5 @@
 // examples/council_conflict_and_debate.rs
-// Phase 3: Multiple Preferred Extensions Integration
+// Phase 3: Enhanced Comparison of Grounded vs Preferred Extensions
 
 use lattice_conductor_v14::{
     CooperativeGame, LatticeConductorEnhancements, GovernanceRiskReport,
@@ -80,8 +80,8 @@ fn calculate_argument_credibility(
 }
 
 fn main() {
-    println!("=== Phase 3: Multiple Preferred Extensions ===\n");
-    println!("Mates! We now consider multiple credulous but defensible positions.\n");
+    println!("=== Phase 3: Enhanced Grounded vs Preferred Comparison ===\n");
+    println!("Mates! We now clearly compare skeptical vs credulous formal positions.\n");
 
     let db = DebatePersistence::new("debate_memory.db").expect("Failed to open persistence");
 
@@ -128,7 +128,7 @@ fn main() {
         max_banzhaf,
         shapley_variance: shapley_var,
         mercy_alignment: 0.88,
-        recommended_action: "Multiple Preferred Extensions".to_string(),
+        recommended_action: "Enhanced Extension Comparison".to_string(),
     };
 
     let mut arg_graph = ArgumentGraph::new();
@@ -143,13 +143,23 @@ fn main() {
 
     // Compute extensions
     let grounded = arg_graph.grounded_extension();
-    let preferred_list = arg_graph.preferred_extensions(3); // up to 3
+    let preferred_list = arg_graph.preferred_extensions(3);
 
-    println!("\n[Grounded Extension]: {:?}", grounded);
-    println!("[Preferred Extensions] (up to 3):");
+    // Enhanced Comparison Output
+    println!("\n=== Extension Comparison ===");
+    println!("Grounded (Skeptical / Safest): {:?}", grounded);
+    println!("Preferred Extensions (Credulous / Defensible):");
     for (i, pref) in preferred_list.iter().enumerate() {
-        println!("  {}: {:?}", i + 1, pref);
+        println!("  {}. {:?}", i + 1, pref);
     }
+
+    // Simple recommendation
+    let recommendation = if !preferred_list.is_empty() {
+        "Preferred positions offer more evolution potential while remaining defensible."
+    } else {
+        "Grounded Extension is the safest common position."
+    };
+    println!("\n[Recommendation] {}", recommendation);
 
     let effective = arg_graph.effective_strength(main_claim).unwrap_or(0.5);
     let conflict = arg_graph.conflict_level(main_claim).unwrap_or(0.0);
@@ -173,7 +183,7 @@ fn main() {
     conviction_level *= 0.93;
 
     // ROUND 2
-    println!("\n--- ROUND 2: Persuasion with Multiple Preferred Extensions ---");
+    println!("\n--- ROUND 2: Persuasion informed by Extension Comparison ---");
 
     let c13_pos = positions.iter().find(|(n, _)| *n == "Council #13").unwrap().1.clone();
 
@@ -188,10 +198,8 @@ fn main() {
         };
 
         let memory_bonus = if shifted_memory.contains(&name.to_string()) { 0.12 } else { 0.0 };
-
-        // Bonus if main claim appears in any Preferred Extension
-        let preferred_bonus = if preferred_list.iter().any(|pref| pref.contains(&main_claim)) { 0.15 } else { 0.0 };
         let grounded_bonus = if grounded.contains(&main_claim) { 0.08 } else { 0.0 };
+        let preferred_bonus = if preferred_list.iter().any(|p| p.contains(&main_claim)) { 0.15 } else { 0.0 };
 
         let adjusted_credibility = credibility * conviction_level * (1.0 - cumulative_fallacy_impact.min(0.45));
         let dynamic_weight = (base_sensitivity + memory_bonus + grounded_bonus + preferred_bonus) * adjusted_credibility;
@@ -218,9 +226,9 @@ fn main() {
     println!("\n--- FINAL RESOLUTION ---");
     let final = resolve_conflict_weighted(&positions, &report);
     println!("Final Decision: {:?}", final);
-    println!("\nWe move forward with multiple formal positions, Mates!\n");
+    println!("\nWe move forward with clear comparison of formal positions, Mates!\n");
 
-    println!("=== Phase 3 Progress ===");
+    println!("=== Phase 3 Enhanced Comparison Complete ===");
 }
 
 fn debate_mercy(report: &GovernanceRiskReport) -> PatsagiDecision {
