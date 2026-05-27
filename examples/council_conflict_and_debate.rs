@@ -1,5 +1,5 @@
 // examples/council_conflict_and_debate.rs
-// Phase 2: Cumulative Memory in Persuasion
+// Phase 2: Deep Cumulative Memory (Fallacy Impact + Conviction Decay)
 
 use lattice_conductor_v14::{
     CooperativeGame, LatticeConductorEnhancements, GovernanceRiskReport,
@@ -19,8 +19,8 @@ fn calculate_argument_credibility(
 }
 
 fn main() {
-    println!("=== Phase 2: Cumulative Memory in Persuasion ===\n");
-    println!("Mates! The debate now remembers previous shifts and builds memory.\n");
+    println!("=== Phase 2: Deep Cumulative Memory (Fallacy Impact + Conviction Decay) ===\n");
+    println!("Mates! Memory now carries fallacy impact and conviction decays over time.\n");
 
     let participants = vec!["Dominant".to_string(), "Weak1".to_string(), "Weak2".to_string()];
     let char_fn = |s: &HashSet<String>| -> f64 {
@@ -50,7 +50,7 @@ fn main() {
         max_banzhaf,
         shapley_variance: shapley_var,
         mercy_alignment: 0.88,
-        recommended_action: "Cumulative Memory".to_string(),
+        recommended_action: "Deep Cumulative Memory".to_string(),
     };
 
     let mut arg_graph = ArgumentGraph::new();
@@ -65,14 +65,14 @@ fn main() {
 
     let effective = arg_graph.effective_strength(main_claim).unwrap_or(0.5);
     let conflict = arg_graph.conflict_level(main_claim).unwrap_or(0.0);
-    let fallacy_penalty = 0.1;
 
-    let credibility = calculate_argument_credibility(effective, conflict, fallacy_penalty);
-
-    // Cumulative Memory: track shifted councils
+    // Cumulative state
     let mut shifted_memory: HashSet<String> = HashSet::new();
+    let mut cumulative_fallacy_impact: f64 = 0.15; // Starts with some detected fallacies
+    let mut conviction_level: f64 = 1.0;         // Conviction decays over time
 
-    println!("\n[Credibility] {:.2} | Effective Strength: {:.2}", credibility, effective);
+    let credibility = calculate_argument_credibility(effective, conflict, cumulative_fallacy_impact);
+    println!("\n[Initial Credibility] {:.2} | Cumulative Fallacy Impact: {:.2}", credibility, cumulative_fallacy_impact);
 
     // ROUND 1
     println!("\n--- ROUND 1: Opening Statements ---");
@@ -87,8 +87,12 @@ fn main() {
         println!("[{}] : {:?}", name, decision);
     }
 
-    // ROUND 2 - Cumulative Memory applied
-    println!("\n--- ROUND 2: Persuasion with Cumulative Memory ---");
+    // Simulate more fallacies detected in Round 1
+    cumulative_fallacy_impact += 0.1;
+    conviction_level *= 0.92; // Conviction begins to decay
+
+    // ROUND 2 - Cumulative Memory + Fallacy Impact + Conviction Decay
+    println!("\n--- ROUND 2: Cumulative Memory + Fallacy Impact + Conviction Decay ---");
 
     let c13_pos = positions.iter().find(|(n, _)| *n == "Council #13").unwrap().1.clone();
 
@@ -102,16 +106,19 @@ fn main() {
             _ => 0.6,
         };
 
-        // Cumulative Memory adjustment
-        let memory_bonus = if shifted_memory.contains(&name.to_string()) { 0.15 } else { 0.0 };
-        let dynamic_weight = (base_sensitivity + memory_bonus) * credibility;
+        let memory_bonus = if shifted_memory.contains(&name.to_string()) { 0.12 } else { 0.0 };
 
-        if dynamic_weight > 0.5 {
+        // Apply conviction decay and cumulative fallacy impact
+        let adjusted_credibility = credibility * conviction_level * (1.0 - cumulative_fallacy_impact.min(0.4));
+        let dynamic_weight = (base_sensitivity + memory_bonus) * adjusted_credibility;
+
+        if dynamic_weight > 0.48 {
             if matches!(c13_pos, PatsagiDecision::RequiresSelfEvolution { .. }) {
                 if matches!(decision, PatsagiDecision::Approved { .. }) {
                     *decision = PatsagiDecision::RequiresSelfEvolution { priority: 2 };
                     shifted_memory.insert(name.to_string());
-                    println!("[{}] persuaded with memory (weight: {:.2}, memory bonus: {:.2}).", name, dynamic_weight, memory_bonus);
+                    println!("[{}] persuaded (weight: {:.2}, memory: {:.2}, conviction: {:.2}, fallacy impact: {:.2}).", 
+                             name, dynamic_weight, memory_bonus, conviction_level, cumulative_fallacy_impact);
                 }
             }
         }
@@ -121,10 +128,13 @@ fn main() {
         println!("[{}] after Round 2: {:?}", name, decision);
     }
 
+    // Decay conviction further for future rounds
+    conviction_level *= 0.88;
+
     println!("\n--- FINAL RESOLUTION ---");
     let final = resolve_conflict_weighted(&positions, &report);
     println!("Final Decision: {:?}", final);
-    println!("\nWe move forward with cumulative memory and evolution, Mates!\n");
+    println!("\nWe move forward with deep cumulative memory, Mates!\n");
 
     println!("=== Phase 2 Progress ===");
 }
