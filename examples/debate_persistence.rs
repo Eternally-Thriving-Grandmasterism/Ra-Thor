@@ -1,5 +1,5 @@
 // examples/debate_persistence.rs
-// Advanced SQLite Analysis: Query Plans + Timing Benchmarks
+// Advanced SQLite Analysis Tools for Debate Persistence
 
 use rusqlite::{Connection, Result};
 use std::time::Instant;
@@ -71,7 +71,7 @@ impl DebatePersistence {
         }
     }
 
-    /// Analyze query plan
+    /// Analyze main load query plan
     pub fn analyze_load_query(&self) -> Result<String> {
         let mut stmt = self.conn.prepare(
             "EXPLAIN QUERY PLAN SELECT round, shifted_councils, detected_fallacies FROM debate_rounds ORDER BY round DESC LIMIT 1",
@@ -86,24 +86,60 @@ impl DebatePersistence {
         Ok(plan)
     }
 
-    /// Benchmark save_round
+    /// Show index information
+    pub fn show_index_info(&self) -> Result<String> {
+        let mut stmt = self.conn.prepare("PRAGMA index_list(debate_rounds)")?;
+        let mut rows = stmt.query([])?;
+        let mut info = String::from("Indexes on debate_rounds:\n");
+
+        while let Some(row) = rows.next()? {
+            let name: String = row.get(1)?;
+            info.push_str(&format!("- {}\n", name));
+        }
+        Ok(info)
+    }
+
+    /// Compare two query variants
+    pub fn compare_query_variants(&self) -> Result<String> {
+        let mut result = String::new();
+
+        // Variant 1: ORDER BY + LIMIT
+        let mut stmt1 = self.conn.prepare(
+            "EXPLAIN QUERY PLAN SELECT round, shifted_councils, detected_fallacies FROM debate_rounds ORDER BY round DESC LIMIT 1",
+        )?;
+        let mut rows1 = stmt1.query([])?;
+        result.push_str("Variant 1 (ORDER BY + LIMIT):\n");
+        while let Some(row) = rows1.next()? {
+            result.push_str(&format!("  {}\n", row.get::<_, String>(3)?));
+        }
+
+        // Variant 2: MAX(round)
+        let mut stmt2 = self.conn.prepare(
+            "EXPLAIN QUERY PLAN SELECT round, shifted_councils, detected_fallacies FROM debate_rounds WHERE round = (SELECT MAX(round) FROM debate_rounds)",
+        )?;
+        let mut rows2 = stmt2.query([])?;
+        result.push_str("\nVariant 2 (MAX subquery):\n");
+        while let Some(row) = rows2.next()? {
+            result.push_str(&format!("  {}\n", row.get::<_, String>(3)?));
+        }
+
+        Ok(result)
+    }
+
     pub fn benchmark_save(&self, iterations: u32) -> Result<f64> {
         let start = Instant::now();
         for i in 0..iterations {
-            self.save_round(1000 + i, &vec!["Test Council".to_string()], 0)?;
+            self.save_round(2000 + i, &vec!["Benchmark".to_string()], 0)?;
         }
-        let duration = start.elapsed();
-        Ok(duration.as_secs_f64() / iterations as f64)
+        Ok(start.elapsed().as_secs_f64() / iterations as f64)
     }
 
-    /// Benchmark load_last_round
     pub fn benchmark_load(&self, iterations: u32) -> Result<f64> {
         let start = Instant::now();
         for _ in 0..iterations {
             let _ = self.load_last_round()?;
         }
-        let duration = start.elapsed();
-        Ok(duration.as_secs_f64() / iterations as f64)
+        Ok(start.elapsed().as_secs_f64() / iterations as f64)
     }
 }
 
@@ -112,17 +148,15 @@ fn main() {
 
     let db = DebatePersistence::new("debate_memory.db").expect("Failed to open DB");
 
-    // Query Plan Analysis
-    if let Ok(plan) = db.analyze_load_query() {
-        println!("Query Plan for load_last_round:\n{}", plan);
-    }
+    println!("Index Info:\n{}", db.show_index_info().unwrap_or_default());
+    println!("Query Plan Analysis:\n{}", db.analyze_load_query().unwrap_or_default());
+    println!("Query Variant Comparison:\n{}", db.compare_query_variants().unwrap_or_default());
 
-    // Benchmarks
-    let save_time = db.benchmark_save(100).expect("Benchmark failed");
-    println!("Average save_round time: {:.6} seconds", save_time);
+    let save_time = db.benchmark_save(50).unwrap_or(0.0);
+    println!("Avg save time: {:.6}s", save_time);
 
-    let load_time = db.benchmark_load(1000).expect("Benchmark failed");
-    println!("Average load_last_round time: {:.6} seconds", load_time);
+    let load_time = db.benchmark_load(500).unwrap_or(0.0);
+    println!("Avg load time: {:.6}s", load_time);
 
-    println!("\nAnalysis complete.");
+    println!("\nAdvanced analysis complete.");
 }
