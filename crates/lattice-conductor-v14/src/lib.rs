@@ -1,12 +1,12 @@
 //! crates/lattice-conductor-v14/src/lib.rs
-//! Includes cooperative game theory module for governance
+//! Public exports including structured governance types
 
 pub mod council_arbitration;
 pub mod runtime_self_healing;
 pub mod distributed_mercy_mesh;
 pub mod lattice_conductor_enhancements;
 pub mod patsagi_governance;
-pub mod cooperative_governance;      // NEW
+pub mod cooperative_governance;
 pub mod governance;
 pub mod hybrid_sovereign_channel;
 pub mod post_quantum_signatures;
@@ -19,7 +19,7 @@ pub use distributed_mercy_mesh::{
     DistributedMercyMesh, MercyEvent, MercyMeshConfig,
     MercyGate, MercyAuditEntry, OrganismNode, HealingRequest, HealingOffer,
 };
-pub use lattice_conductor_enhancements::{LatticeConductorEnhancements, LatticeDiagnosticsReport};
+pub use lattice_conductor_enhancements::{LatticeConductorEnhancements, LatticeDiagnosticsReport, GovernanceRiskReport};
 pub use patsagi_governance::{PatsagiReviewRequest, PatsagiDecision, PatsagiCouncilSimulator};
 pub use cooperative_governance::CooperativeGame;
 pub use governance::self_evaluation_proposal::SelfEvaluationProposal;
