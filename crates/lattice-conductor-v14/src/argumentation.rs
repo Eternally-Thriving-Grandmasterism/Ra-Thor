@@ -1,5 +1,5 @@
 // crates/lattice-conductor-v14/src/argumentation.rs
-// Enhanced Production-grade ArgumentGraph with proper claim-to-claim relationships
+// Phase 1 Hardening: Enhanced ArgumentGraph with better querying and evaluation
 
 use std::collections::HashMap;
 
@@ -13,18 +13,16 @@ pub struct Claim {
     pub strength: f64,
 }
 
-/// Support now explicitly links one claim supporting another
 #[derive(Debug, Clone)]
 pub struct Support {
     pub id: ArgumentId,
-    pub source_claim_id: ArgumentId,   // The claim providing support
-    pub target_claim_id: ArgumentId,   // The claim being supported
+    pub source_claim_id: ArgumentId,
+    pub target_claim_id: ArgumentId,
     pub content: String,
     pub strength: f64,
     pub provided_by: String,
 }
 
-/// Attack now explicitly links one claim attacking another
 #[derive(Debug, Clone)]
 pub struct Attack {
     pub id: ArgumentId,
@@ -56,18 +54,11 @@ impl ArgumentGraph {
     pub fn add_claim(&mut self, content: String, proposed_by: String, strength: f64) -> ArgumentId {
         let id = self.next_id;
         self.next_id += 1;
-
-        let claim = Claim {
-            id,
-            content,
-            proposed_by,
-            strength: strength.clamp(0.0, 1.0),
-        };
+        let claim = Claim { id, content, proposed_by, strength: strength.clamp(0.0, 1.0) };
         self.claims.insert(id, claim);
         id
     }
 
-    /// Add support from one claim to another
     pub fn add_support(
         &mut self,
         source_claim_id: ArgumentId,
@@ -79,10 +70,8 @@ impl ArgumentGraph {
         if !self.claims.contains_key(&source_claim_id) || !self.claims.contains_key(&target_claim_id) {
             return None;
         }
-
         let id = self.next_id;
         self.next_id += 1;
-
         self.supports.push(Support {
             id,
             source_claim_id,
@@ -91,11 +80,9 @@ impl ArgumentGraph {
             strength: strength.clamp(0.0, 1.0),
             provided_by,
         });
-
         Some(id)
     }
 
-    /// Add attack from one claim against another
     pub fn add_attack(
         &mut self,
         source_claim_id: ArgumentId,
@@ -107,10 +94,8 @@ impl ArgumentGraph {
         if !self.claims.contains_key(&source_claim_id) || !self.claims.contains_key(&target_claim_id) {
             return None;
         }
-
         let id = self.next_id;
         self.next_id += 1;
-
         self.attacks.push(Attack {
             id,
             source_claim_id,
@@ -119,11 +104,19 @@ impl ArgumentGraph {
             strength: strength.clamp(0.0, 1.0),
             provided_by,
         });
-
         Some(id)
     }
 
-    /// Calculate effective strength considering supports and attacks
+    /// Get all claims that support a given claim
+    pub fn get_supporters(&self, claim_id: ArgumentId) -> Vec<&Support> {
+        self.supports.iter().filter(|s| s.target_claim_id == claim_id).collect()
+    }
+
+    /// Get all claims that attack a given claim
+    pub fn get_attackers(&self, claim_id: ArgumentId) -> Vec<&Attack> {
+        self.attacks.iter().filter(|a| a.target_claim_id == claim_id).collect()
+    }
+
     pub fn effective_strength(&self, claim_id: ArgumentId) -> Option<f64> {
         let base = self.claims.get(&claim_id)?.strength;
         let mut score = base;
@@ -133,13 +126,11 @@ impl ArgumentGraph {
                 score += support.strength * 0.35;
             }
         }
-
         for attack in &self.attacks {
             if attack.target_claim_id == claim_id {
                 score -= attack.strength * 0.45;
             }
         }
-
         Some(score.clamp(0.0, 1.0))
     }
 
