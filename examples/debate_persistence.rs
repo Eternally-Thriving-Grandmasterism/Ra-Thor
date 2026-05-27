@@ -1,5 +1,5 @@
 // examples/debate_persistence.rs
-// Advanced SQLite Experiments: Synchronous, Cache, and Performance
+// Restored + Enhanced SQLite Debate Persistence with Full Analysis Toolkit
 
 use rusqlite::{Connection, Result};
 use std::time::Instant;
@@ -32,10 +32,17 @@ impl DebatePersistence {
             )",
             [],
         )?;
+
         conn.execute(
             "CREATE INDEX IF NOT EXISTS idx_debate_rounds_round ON debate_rounds(round DESC)",
             [],
         )?;
+        Ok(())
+    }
+
+    // === Configuration ===
+    pub fn enable_wal_mode(&self) -> Result<()> {
+        self.conn.execute("PRAGMA journal_mode = WAL", [])?;
         Ok(())
     }
 
@@ -62,6 +69,7 @@ impl DebatePersistence {
         }
     }
 
+    // === Core Operations ===
     pub fn save_round(&self, round: u32, shifted: &[String], fallacies: u32) -> Result<()> {
         let shifted_str = shifted.join(",");
         self.conn.execute(
@@ -76,6 +84,7 @@ impl DebatePersistence {
         let mut stmt = self.conn.prepare(
             "SELECT round, shifted_councils, detected_fallacies FROM debate_rounds ORDER BY round DESC LIMIT 1",
         )?;
+
         let mut rows = stmt.query([])?;
         if let Some(row) = rows.next()? {
             let shifted_str: String = row.get(1)?;
@@ -84,6 +93,7 @@ impl DebatePersistence {
             } else {
                 shifted_str.split(',').map(|s| s.to_string()).collect()
             };
+
             Ok(Some(DebateState {
                 round: row.get(0)?,
                 shifted_councils: shifted,
@@ -94,34 +104,88 @@ impl DebatePersistence {
         }
     }
 
+    // === Analysis Tools (Restored + Enhanced) ===
+    pub fn analyze_load_query(&self) -> Result<String> {
+        let mut stmt = self.conn.prepare(
+            "EXPLAIN QUERY PLAN SELECT round, shifted_councils, detected_fallacies FROM debate_rounds ORDER BY round DESC LIMIT 1",
+        )?;
+
+        let mut rows = stmt.query([])?;
+        let mut plan = String::new();
+        while let Some(row) = rows.next()? {
+            let detail: String = row.get(3)?;
+            plan.push_str(&format!("{}\n", detail));
+        }
+        Ok(plan)
+    }
+
+    pub fn show_index_info(&self) -> Result<String> {
+        let mut stmt = self.conn.prepare("PRAGMA index_list(debate_rounds)")?;
+        let mut rows = stmt.query([])?;
+        let mut info = String::from("Indexes on debate_rounds:\n");
+        while let Some(row) = rows.next()? {
+            info.push_str(&format!("- {}\n", row.get::<_, String>(1)?));
+        }
+        Ok(info)
+    }
+
+    pub fn compare_query_variants(&self) -> Result<String> {
+        let mut result = String::new();
+
+        let mut stmt1 = self.conn.prepare(
+            "EXPLAIN QUERY PLAN SELECT round, shifted_councils, detected_fallacies FROM debate_rounds ORDER BY round DESC LIMIT 1",
+        )?;
+        let mut rows1 = stmt1.query([])?;
+        result.push_str("Variant 1 (ORDER BY + LIMIT):\n");
+        while let Some(row) = rows1.next()? {
+            result.push_str(&format!("  {}\n", row.get::<_, String>(3)?));
+        }
+
+        let mut stmt2 = self.conn.prepare(
+            "EXPLAIN QUERY PLAN SELECT round, shifted_councils, detected_fallacies FROM debate_rounds WHERE round = (SELECT MAX(round) FROM debate_rounds)",
+        )?;
+        let mut rows2 = stmt2.query([])?;
+        result.push_str("\nVariant 2 (MAX subquery):\n");
+        while let Some(row) = rows2.next()? {
+            result.push_str(&format!("  {}\n", row.get::<_, String>(3)?));
+        }
+
+        Ok(result)
+    }
+
+    // === Benchmarks ===
     pub fn benchmark_save(&self, iterations: u32) -> Result<f64> {
         let start = Instant::now();
         for i in 0..iterations {
-            self.save_round(4000 + i, &vec!["Exp".to_string()], 0)?;
+            self.save_round(5000 + i, &vec!["Benchmark".to_string()], 0)?;
+        }
+        Ok(start.elapsed().as_secs_f64() / iterations as f64)
+    }
+
+    pub fn benchmark_load(&self, iterations: u32) -> Result<f64> {
+        let start = Instant::now();
+        for _ in 0..iterations {
+            let _ = self.load_last_round()?;
         }
         Ok(start.elapsed().as_secs_f64() / iterations as f64)
     }
 }
 
 fn main() {
-    println!("=== Advanced SQLite Experiments (Synchronous + Cache) ===\n");
+    println!("=== Restored + Enhanced Debate Persistence Analysis ===\n");
 
     let db = DebatePersistence::new("debate_memory.db").expect("Failed to open DB");
 
-    // Experiment with different synchronous levels
-    for level in ["OFF", "NORMAL", "FULL"] {
-        db.set_synchronous(level).ok();
-        println!("Synchronous = {} | Mode: {}", level, db.get_pragma("journal_mode").unwrap_or_default());
+    println!("Journal Mode: {}", db.get_pragma("journal_mode").unwrap_or_default());
+    println!("\n{}", db.show_index_info().unwrap_or_default());
+    println!("Query Plan Analysis:\n{}", db.analyze_load_query().unwrap_or_default());
+    println!("Query Variant Comparison:\n{}", db.compare_query_variants().unwrap_or_default());
 
-        let time = db.benchmark_save(20).unwrap_or(0.0);
-        println!("  Avg save time: {:.6}s\n", time);
-    }
+    let save_time = db.benchmark_save(30).unwrap_or(0.0);
+    println!("Avg save time: {:.6}s", save_time);
 
-    // Cache size experiment
-    db.set_cache_size(2000);
-    println!("Cache size set to 2000 pages");
-    let time = db.benchmark_save(20).unwrap_or(0.0);
-    println!("Avg save with larger cache: {:.6}s", time);
+    let load_time = db.benchmark_load(300).unwrap_or(0.0);
+    println!("Avg load time: {:.6}s", load_time);
 
-    println!("\nExperiments complete.");
+    println!("\nRestored analysis toolkit active.");
 }
