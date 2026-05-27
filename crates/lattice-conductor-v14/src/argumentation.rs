@@ -1,5 +1,5 @@
 // crates/lattice-conductor-v14/src/argumentation.rs
-// Balanced Phase 1: Technical + Style preparation
+// Parallel technical improvement: Graph-level analysis helper
 
 use std::collections::HashMap;
 
@@ -103,12 +103,18 @@ impl ArgumentGraph {
         self.attacks.iter().filter(|a| a.source_claim_id == claim_id).map(|a| a.target_claim_id).collect()
     }
 
-    /// Simple conflict level: more attacks relative to supports = higher conflict
     pub fn conflict_level(&self, claim_id: ArgumentId) -> Option<f64> {
         let support_count = self.supports.iter().filter(|s| s.target_claim_id == claim_id).count() as f64;
         let attack_count = self.attacks.iter().filter(|a| a.target_claim_id == claim_id).count() as f64;
         if support_count + attack_count == 0.0 { return Some(0.0); }
         Some(attack_count / (support_count + attack_count))
+    }
+
+    /// Overall graph conflict score (average conflict across all claims)
+    pub fn overall_conflict_score(&self) -> f64 {
+        if self.claims.is_empty() { return 0.0; }
+        let total: f64 = self.claims.keys().filter_map(|&id| self.conflict_level(id)).sum();
+        total / self.claims.len() as f64
     }
 
     pub fn effective_strength(&self, claim_id: ArgumentId) -> Option<f64> {
