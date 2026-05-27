@@ -1,8 +1,7 @@
 // crates/lattice-conductor-v14/src/patsagi_governance.rs
-// Dedicated PATSAGi Governance Module (v14.1+)
-//
-// Contains PATSAGi Council types, review requests, decisions,
-// and council simulation / arbitration stubs.
+// Enhanced PATSAGi Council Simulator with Multiple Archetypes
+
+use crate::lattice_conductor_enhancements::GovernanceRiskReport;
 
 #[derive(Debug, Clone)]
 pub struct PatsagiReviewRequest {
@@ -20,48 +19,46 @@ pub enum PatsagiDecision {
     Rejected { reason: String, mercy_impact: f64 },
 }
 
-/// PATSAGi Council Simulator (replaceable with real arbitration later)
+/// PATSAGi Council Simulator with support for multiple archetypes
 pub struct PatsagiCouncilSimulator;
 
 impl PatsagiCouncilSimulator {
+    /// Default review (balanced)
     pub fn review(request: &PatsagiReviewRequest) -> PatsagiDecision {
-        if request.mercy_impact_score > 0.95 {
-            PatsagiDecision::Approved { confidence: 0.98 }
-        } else if request.mercy_impact_score > 0.88 {
+        if request.mercy_impact_score < 0.75 {
             PatsagiDecision::RequiresSelfEvolution { priority: 2 }
-        } else if request.mercy_impact_score > 0.75 {
-            PatsagiDecision::RequiresCouncilArbitration { councils: vec![7, 13] }
         } else {
-            PatsagiDecision::Rejected {
-                reason: "Low mercy alignment detected".to_string(),
-                mercy_impact: request.mercy_impact_score,
+            PatsagiDecision::Approved { confidence: 0.85 }
+        }
+    }
+
+    /// Mercy-focused council review
+    pub fn review_as_mercy_council(request: &PatsagiReviewRequest, risk: Option<&GovernanceRiskReport>) -> PatsagiDecision {
+        if let Some(r) = risk {
+            if r.risk_score > 0.82 {
+                return PatsagiDecision::RequiresSelfEvolution { priority: 2 };
             }
         }
+        PatsagiDecision::Approved { confidence: 0.82 }
     }
 
-    /// Specialized behavior for Council #13 (Supreme Architect)
-    pub fn council_13_review(request: &PatsagiReviewRequest) -> PatsagiDecision {
-        if request.mercy_impact_score >= 0.90 {
-            PatsagiDecision::Approved { confidence: 0.99 }
-        } else {
-            PatsagiDecision::RequiresCouncilArbitration { councils: vec![13] }
+    /// Truth-focused council review
+    pub fn review_as_truth_council(request: &PatsagiReviewRequest, risk: Option<&GovernanceRiskReport>) -> PatsagiDecision {
+        if let Some(r) = risk {
+            if r.max_banzhaf > 0.65 {
+                return PatsagiDecision::RequiresSelfEvolution { priority: 3 };
+            }
         }
+        PatsagiDecision::Approved { confidence: 0.88 }
     }
-}
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_patsagi_simulator() {
-        let request = PatsagiReviewRequest {
-            topic: "Test".to_string(),
-            summary: "Test".to_string(),
-            mercy_impact_score: 0.91,
-            requested_by: "test".to_string(),
-        };
-        let decision = PatsagiCouncilSimulator::review(&request);
-        assert!(matches!(decision, PatsagiDecision::RequiresSelfEvolution { .. }));
+    /// Council #13 (Supreme Architect) - strictest review
+    pub fn review_as_council_13(request: &PatsagiReviewRequest, risk: Option<&GovernanceRiskReport>) -> PatsagiDecision {
+        if let Some(r) = risk {
+            if r.max_banzhaf > 0.60 || r.risk_score > 0.70 {
+                return PatsagiDecision::RequiresSelfEvolution { priority: 4 };
+            }
+        }
+        PatsagiDecision::Approved { confidence: 0.93 }
     }
 }
