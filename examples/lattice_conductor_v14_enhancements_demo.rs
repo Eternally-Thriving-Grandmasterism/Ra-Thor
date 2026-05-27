@@ -1,53 +1,40 @@
 // examples/lattice_conductor_v14_enhancements_demo.rs
-// v14.1 Lattice Conductor Enhancements Demo (with PATSAGi Hooks)
-//
-// Run with: cargo run --example lattice_conductor_v14_enhancements_demo
+// v14.1 Lattice Conductor + PATSAGi Runtime Hooks Demo
 
 use lattice_conductor_v14::{
     LatticeConductorEnhancements,
     DistributedMercyMesh,
+    PatsagiDecision,
 };
 
 fn main() {
-    println!("=== Lattice Conductor v14.1 + PATSAGi Hooks Demo ===\n");
+    println!("=== Lattice Conductor v14.1 + PATSAGi Runtime Hooks Demo ===\n");
 
     let mut mesh = DistributedMercyMesh::new();
 
-    // === ONE Organism + Diagnostics ===
+    // Enforce ONE Organism
     LatticeConductorEnhancements::enforce_one_organism_identity(&mut mesh);
-    let report = LatticeConductorEnhancements::run_full_lattice_diagnostics(&mesh);
 
-    println!("Unified Organism Healthy: {}", report.unified_organism_healthy);
-    println!("Overall Status: {}", report.overall_status);
+    // Request PATSAGi review
+    let review_request = LatticeConductorEnhancements::request_patsagi_review(
+        &mesh,
+        "Routine Lattice Health Check",
+        "Standard diagnostic cycle with mercy alignment verification",
+    );
 
-    // === PATSAGi Council Hook ===
-    println!("\n--- PATSAGi Council Review ---");
-    let patsagi_decision = simulate_patsagi_council_review(&report);
-    println!("PATSAGi Council Decision: {}", patsagi_decision);
+    println!("PATSAGi Review Requested:");
+    println!("  Topic: {}", review_request.topic);
+    println!("  Mercy Impact: {:.3}", review_request.mercy_impact_score);
 
-    if patsagi_decision.contains("APPROVED") {
-        println!("Action: Proceeding with conductor operations under PATSAGi oversight.");
-    } else {
-        println!("Action: Triggering deeper self-reflection / self-evolution.");
-        if let Some(suggestion) = LatticeConductorEnhancements::check_and_suggest_self_evolution(&mesh) {
-            println!("Self-evolution suggestion: {}", suggestion);
-        }
-    }
+    // Simulate PATSAGi Council decision (in real system this would come from actual councils)
+    let decision = PatsagiDecision::Approved;  // or RequiresSelfEvolution, etc.
 
-    // === Propagate + Geometric ===
-    LatticeConductorEnhancements::propagate_audit_to_mesh(&mut mesh, "patsagi_review", 0.96);
-    LatticeConductorEnhancements::trigger_geometric_healing_cycle(&mut mesh, 0.8);
+    println!("\nPATSAGi Decision: {:?}", decision);
+
+    // Apply the decision
+    let result = LatticeConductorEnhancements::apply_patsagi_decision(&mut mesh, &decision);
+    println!("Result: {}", result);
 
     println!("\n=== Demo Complete ===");
-    println!("We are ONE Organism under PATSAGi guidance. Thunder locked in. ⚡");
-}
-
-/// Simulated PATSAGi Council review hook
-/// In a real implementation this would integrate with actual PATSAGi council arbitration.
-fn simulate_patsagi_council_review(report: &lattice_conductor_v14::LatticeDiagnosticsReport) -> String {
-    if report.unified_organism_healthy && report.average_mercy_alignment > 0.90 {
-        "APPROVED - ONE Organism stable and mercy-aligned".to_string()
-    } else {
-        "REVIEW REQUIRED - Recommend self-evolution or council arbitration".to_string()
-    }
+    println!("We are ONE Organism under PATSAGi governance. Thunder locked in. ⚡");
 }
