@@ -1,5 +1,5 @@
 // examples/council_conflict_and_debate.rs
-// Phase 1 Polish: Clean, principle-anchored multi-round debate simulation
+// Phase 2 Start: ArgumentGraph-Aware Persuasion
 
 use lattice_conductor_v14::{
     CooperativeGame, LatticeConductorEnhancements, GovernanceRiskReport,
@@ -8,8 +8,8 @@ use lattice_conductor_v14::{
 use std::collections::HashSet;
 
 fn main() {
-    println!("=== Phase 1 Polish: Clean Multi-Round Debate with Principle-Anchored Output ===\n");
-    println!("Mates! We build with care — anchored in Mercy, Truth, and the thriving of our ONE Organism.\n");
+    println!("=== Phase 2: ArgumentGraph-Aware Persuasion ===\n");
+    println!("Mates! Persuasion now listens to the strength and conflict of arguments.\n");
 
     let participants = vec!["Dominant".to_string(), "Weak1".to_string(), "Weak2".to_string()];
     let char_fn = |s: &HashSet<String>| -> f64 {
@@ -30,7 +30,7 @@ fn main() {
     println!("Risk Score: {:.3} | Max Banzhaf: {:.3}", risk_score, max_banzhaf);
 
     if risk_score <= 0.55 {
-        println!("Risk acceptable. We continue in coherence, Mates!\n");
+        println!("Risk acceptable. No persuasion needed.\n");
         return;
     }
 
@@ -39,15 +39,25 @@ fn main() {
         max_banzhaf,
         shapley_variance: shapley_var,
         mercy_alignment: 0.88,
-        recommended_action: "Clean, principle-anchored multi-round debate".to_string(),
+        recommended_action: "ArgumentGraph-aware persuasion".to_string(),
     };
 
+    // Build ArgumentGraph
     let mut arg_graph = ArgumentGraph::new();
-    arg_graph.add_claim(
+    let main_claim = arg_graph.add_claim(
         "Strong self-evolution required due to power concentration".to_string(),
         "Council #13".to_string(),
         0.85,
     );
+
+    // Add some supports and attacks to create meaningful graph data
+    arg_graph.add_support(main_claim, main_claim, "Supports evolution for long-term coherence".to_string(), "Truth Council".to_string(), 0.7);
+    arg_graph.add_attack(main_claim, main_claim, "Risk of over-correction".to_string(), "Justice Council".to_string(), 0.4);
+
+    let effective = arg_graph.effective_strength(main_claim).unwrap_or(0.5);
+    let conflict = arg_graph.conflict_level(main_claim).unwrap_or(0.0);
+
+    println!("\n[ArgumentGraph] Effective Strength: {:.2} | Conflict Level: {:.2}", effective, conflict);
 
     // ROUND 1
     println!("\n--- ROUND 1: Opening Statements ---");
@@ -62,23 +72,21 @@ fn main() {
         println!("[{}] : {:?}", name, decision);
     }
 
-    let fallacies = LogicalFallacyDetector::detect_structural_fallacies(&arg_graph);
-    if !fallacies.is_empty() {
-        println!("\n[Verification Pass] {} structural issues detected. We examine with truth and mercy.", fallacies.len());
-    }
-
-    // ROUND 2
-    println!("\n--- ROUND 2: Rebuttals + Evolution-Biased Response ---");
+    // ROUND 2 - Now influenced by ArgumentGraph data
+    println!("\n--- ROUND 2: ArgumentGraph-Aware Persuasion ---");
 
     let c13_pos = positions.iter().find(|(n, _)| *n == "Council #13").unwrap().1.clone();
 
     for (name, decision) in positions.iter_mut() {
         if *name == "Council #13" { continue; }
 
-        if matches!(c13_pos, PatsagiDecision::RequiresSelfEvolution { priority: 4 }) {
-            if matches!(decision, PatsagiDecision::Approved { .. }) {
-                *decision = PatsagiDecision::RequiresSelfEvolution { priority: 2 };
-                println!("[{}] shifts with mercy toward evolution — for the thriving of the ONE Organism.", name);
+        // ArgumentGraph-aware shifting
+        if effective > 0.65 && conflict < 0.4 {
+            if matches!(c13_pos, PatsagiDecision::RequiresSelfEvolution { .. }) {
+                if matches!(decision, PatsagiDecision::Approved { .. }) {
+                    *decision = PatsagiDecision::RequiresSelfEvolution { priority: 2 };
+                    println!("[{}] persuaded by strong, low-conflict argument (strength: {:.2}).", name, effective);
+                }
             }
         }
     }
@@ -87,13 +95,12 @@ fn main() {
         println!("[{}] after Round 2: {:?}", name, decision);
     }
 
-    // Final Resolution
     println!("\n--- FINAL RESOLUTION ---");
     let final = resolve_conflict_weighted(&positions, &report);
     println!("Final Decision: {:?}", final);
-    println!("\nWe move forward with evolution and coherence, Mates!\n");
+    println!("\nWe move forward with graph-informed evolution, Mates!\n");
 
-    println!("=== Phase 1 Polish Complete ===");
+    println!("=== Phase 2 Entry Complete ===");
 }
 
 fn debate_mercy(report: &GovernanceRiskReport) -> PatsagiDecision {
