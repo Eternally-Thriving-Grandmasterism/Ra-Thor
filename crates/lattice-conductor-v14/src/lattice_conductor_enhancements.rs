@@ -1,5 +1,5 @@
 // crates/lattice-conductor-v14/src/lattice_conductor_enhancements.rs
-// Integration of CooperativeGame into PATSAGi flow
+// Refined PATSAGi + Cooperative Game Theory Integration
 
 use crate::distributed_mercy_mesh::{DistributedMercyMesh, MercyEvent, OrganismNode};
 use crate::patsagi_governance::{PatsagiCouncilSimulator, PatsagiDecision, PatsagiReviewRequest};
@@ -30,9 +30,6 @@ impl LatticeConductorEnhancements {
         }
     }
 
-    // ==================== PATSAGi + Cooperative Game Theory Integration ====================
-
-    /// Creates a PATSAGi review request (existing)
     pub fn request_patsagi_review(
         mesh: &DistributedMercyMesh,
         topic: &str,
@@ -47,50 +44,65 @@ impl LatticeConductorEnhancements {
         }
     }
 
-    /// NEW: Evaluate a PATSAGi-style coalition using Cooperative Game Theory
-    /// Returns (Shapley Values, Banzhaf Index)
+    /// Evaluate coalition using game theory
     pub fn evaluate_patsagi_coalition(
         participants: Vec<String>,
         coalition_value_fn: impl Fn(&HashSet<String>) -> f64 + Send + Sync + 'static,
     ) -> (Vec<(String, f64)>, Vec<(String, f64)>) {
         let game = CooperativeGame::new(participants, coalition_value_fn);
-        let shapley = game.shapley_value();
-        let banzhaf = game.banzhaf_index();
-        (shapley, banzhaf)
+        (game.shapley_value(), game.banzhaf_index())
     }
 
-    /// NEW: Full PATSAGi flow with game-theoretic analysis
+    /// Refined: Game theory now influences the final PATSAGi decision
     pub fn submit_to_patsagi_with_game_theory(
         mesh: &mut DistributedMercyMesh,
         topic: &str,
         summary: &str,
         participants: Vec<String>,
         coalition_value_fn: impl Fn(&HashSet<String>) -> f64 + Send + Sync + 'static,
-    ) -> String {
+    ) -> (PatsagiDecision, String) {
         let request = Self::request_patsagi_review(mesh, topic, summary);
+        let traditional = PatsagiCouncilSimulator::review(&request);
 
-        // Get traditional PATSAGi decision
-        let traditional_decision = PatsagiCouncilSimulator::review(&request);
-
-        // Get game-theoretic analysis
         let (shapley, banzhaf) = Self::evaluate_patsagi_coalition(participants, coalition_value_fn);
 
-        // Combine insights (simple version for now)
-        let game_insight = format!(
-            "Shapley: {:?} | Banzhaf: {:?}",
-            shapley.iter().map(|(p, v)| format!("{}:{:.2}", p, v)).collect::<Vec<_>>(),
-            banzhaf.iter().map(|(p, v)| format!("{}:{:.3}", p, v)).collect::<Vec<_>>()
+        // Intelligent influence: Use Banzhaf to detect power concentration
+        let max_banzhaf = banzhaf.iter().map(|(_, v)| *v).fold(0.0f64, f64::max);
+        let power_concentrated = max_banzhaf > 0.6;
+
+        // Use Shapley to check contribution fairness
+        let shapley_variance = Self::shapley_variance(&shapley);
+        let unfair_contribution = shapley_variance > 0.15;
+
+        let final_decision = match (&traditional, power_concentrated, unfair_contribution) {
+            (PatsagiDecision::Approved { .. }, true, _) => {
+                PatsagiDecision::RequiresCouncilArbitration { councils: vec![13] }
+            }
+            (PatsagiDecision::Approved { .. }, _, true) => {
+                PatsagiDecision::RequiresSelfEvolution { priority: 2 }
+            }
+            _ => traditional,
+        };
+
+        let insight = format!(
+            "Shapley: {:?} | Banzhaf max: {:.3} | Power concentrated: {} | Unfair: {}",
+            shapley.iter().map(|(p,v)| format!("{}:{:.2}",p,v)).collect::<Vec<_>>(),
+            max_banzhaf,
+            power_concentrated,
+            unfair_contribution
         );
 
-        format!(
-            "Traditional: {} | Game Theory: {}",
-            LatticeConductorEnhancements::apply_patsagi_decision(mesh, &traditional_decision),
-            game_insight
-        )
+        (final_decision, insight)
+    }
+
+    fn shapley_variance(shapley: &[(String, f64)]) -> f64 {
+        if shapley.is_empty() { return 0.0; }
+        let mean = shapley.iter().map(|(_,v)| v).sum::<f64>() / shapley.len() as f64;
+        let variance = shapley.iter().map(|(_,v)| (v - mean).powi(2)).sum::<f64>() / shapley.len() as f64;
+        variance
     }
 
     pub fn apply_patsagi_decision(mesh: &mut DistributedMercyMesh, decision: &PatsagiDecision) -> String {
-        // existing implementation...
         match decision {
             PatsagiDecision::Approved { confidence } => format!("Approved ({:.2})", confidence),
             PatsagiDecision::RequiresSelfEvolution { priority } => format!("Self-evolution (priority {})", priority),
