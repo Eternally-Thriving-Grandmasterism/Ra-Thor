@@ -1,5 +1,5 @@
 // crates/lattice-conductor-v14/src/argumentation.rs
-// Phase 3: Basic Grounded Extension Computation
+// Phase 3: Basic Grounded Extension Computation + Test
 
 use std::collections::{HashMap, HashSet};
 
@@ -165,9 +165,8 @@ impl ArgumentGraph {
         ranked
     }
 
-    // === Phase 3: Grounded Extension (Basic Iterative Version) ===
+    // === Phase 3: Grounded Extension ===
 
-    /// Returns arguments that have no attackers
     pub fn unattacked_arguments(&self) -> Vec<ArgumentId> {
         self.claims
             .keys()
@@ -176,19 +175,16 @@ impl ArgumentGraph {
             .collect()
     }
 
-    /// Check if an argument is defended (all its attackers are defeated)
     fn is_defended(&self, claim_id: ArgumentId, defeated: &HashSet<ArgumentId>) -> bool {
         self.get_attackers(claim_id)
             .iter()
             .all(|attack| defeated.contains(&attack.source_claim_id))
     }
 
-    /// Compute the Grounded Extension using iterative defense
     pub fn grounded_extension(&self) -> Vec<ArgumentId> {
         let mut extension: HashSet<ArgumentId> = HashSet::new();
         let mut changed = true;
 
-        // Start with unattacked arguments
         let mut to_check: HashSet<ArgumentId> = self.unattacked_arguments().into_iter().collect();
 
         while changed {
@@ -206,7 +202,6 @@ impl ArgumentGraph {
                 changed = true;
             }
 
-            // Refresh candidates
             to_check = self.claims.keys()
                 .filter(|&&id| !extension.contains(&id))
                 .filter(|&&id| self.is_defended(id, &extension))
@@ -215,5 +210,33 @@ impl ArgumentGraph {
         }
 
         extension.into_iter().collect()
+    }
+}
+
+// === Tests / Examples for Grounded Extension ===
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_grounded_extension_basic() {
+        let mut graph = ArgumentGraph::new();
+
+        let a = graph.add_claim("Argument A (unattacked)".to_string(), "Council #13".to_string(), 0.9);
+        let b = graph.add_claim("Argument B (attacked by A)".to_string(), "Mercy Council".to_string(), 0.7);
+        let c = graph.add_claim("Argument C (attacked by B)".to_string(), "Truth Council".to_string(), 0.6);
+
+        // A attacks B, B attacks C
+        graph.add_attack(a, b, "Attacks B".to_string(), "Council #13".to_string(), 0.8);
+        graph.add_attack(b, c, "Attacks C".to_string(), "Mercy Council".to_string(), 0.7);
+
+        let grounded = graph.grounded_extension();
+
+        // Only A should be in the grounded extension
+        assert!(grounded.contains(&a));
+        assert!(!grounded.contains(&b));
+        assert!(!grounded.contains(&c));
+        assert_eq!(grounded.len(), 1);
     }
 }
