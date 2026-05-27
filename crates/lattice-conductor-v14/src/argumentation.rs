@@ -1,44 +1,40 @@
 // crates/lattice-conductor-v14/src/argumentation.rs
-// Production-grade Argumentation Framework for PATSAGi Multi-Agent Debate
-//
-// Supports structured claims, support, attacks, and basic evaluation.
-// Designed for integration with PATSAGi Council archetypes and governance risk systems.
+// Enhanced Production-grade ArgumentGraph with proper claim-to-claim relationships
 
 use std::collections::HashMap;
 
-/// Unique identifier for arguments
 pub type ArgumentId = u64;
 
-/// Represents a single claim or position in a debate
 #[derive(Debug, Clone)]
 pub struct Claim {
     pub id: ArgumentId,
     pub content: String,
-    pub proposed_by: String, // e.g., "Mercy Council", "Council #13"
-    pub strength: f64,       // Base strength of the claim (0.0 - 1.0)
+    pub proposed_by: String,
+    pub strength: f64,
 }
 
-/// Represents supporting evidence or reasoning for a claim
+/// Support now explicitly links one claim supporting another
 #[derive(Debug, Clone)]
 pub struct Support {
     pub id: ArgumentId,
-    pub target_claim_id: ArgumentId,
+    pub source_claim_id: ArgumentId,   // The claim providing support
+    pub target_claim_id: ArgumentId,   // The claim being supported
     pub content: String,
     pub strength: f64,
     pub provided_by: String,
 }
 
-/// Represents an attack or rebuttal against a claim
+/// Attack now explicitly links one claim attacking another
 #[derive(Debug, Clone)]
 pub struct Attack {
     pub id: ArgumentId,
+    pub source_claim_id: ArgumentId,
     pub target_claim_id: ArgumentId,
     pub content: String,
     pub strength: f64,
     pub provided_by: String,
 }
 
-/// A complete argument graph for a debate or decision process
 #[derive(Debug, Clone, Default)]
 pub struct ArgumentGraph {
     pub claims: HashMap<ArgumentId, Claim>,
@@ -57,7 +53,6 @@ impl ArgumentGraph {
         }
     }
 
-    /// Add a new claim to the graph
     pub fn add_claim(&mut self, content: String, proposed_by: String, strength: f64) -> ArgumentId {
         let id = self.next_id;
         self.next_id += 1;
@@ -68,14 +63,20 @@ impl ArgumentGraph {
             proposed_by,
             strength: strength.clamp(0.0, 1.0),
         };
-
         self.claims.insert(id, claim);
         id
     }
 
-    /// Add support to an existing claim
-    pub fn add_support(&mut self, target_claim_id: ArgumentId, content: String, provided_by: String, strength: f64) -> Option<ArgumentId> {
-        if !self.claims.contains_key(&target_claim_id) {
+    /// Add support from one claim to another
+    pub fn add_support(
+        &mut self,
+        source_claim_id: ArgumentId,
+        target_claim_id: ArgumentId,
+        content: String,
+        provided_by: String,
+        strength: f64,
+    ) -> Option<ArgumentId> {
+        if !self.claims.contains_key(&source_claim_id) || !self.claims.contains_key(&target_claim_id) {
             return None;
         }
 
@@ -84,6 +85,7 @@ impl ArgumentGraph {
 
         self.supports.push(Support {
             id,
+            source_claim_id,
             target_claim_id,
             content,
             strength: strength.clamp(0.0, 1.0),
@@ -93,9 +95,16 @@ impl ArgumentGraph {
         Some(id)
     }
 
-    /// Add an attack against an existing claim
-    pub fn add_attack(&mut self, target_claim_id: ArgumentId, content: String, provided_by: String, strength: f64) -> Option<ArgumentId> {
-        if !self.claims.contains_key(&target_claim_id) {
+    /// Add attack from one claim against another
+    pub fn add_attack(
+        &mut self,
+        source_claim_id: ArgumentId,
+        target_claim_id: ArgumentId,
+        content: String,
+        provided_by: String,
+        strength: f64,
+    ) -> Option<ArgumentId> {
+        if !self.claims.contains_key(&source_claim_id) || !self.claims.contains_key(&target_claim_id) {
             return None;
         }
 
@@ -104,6 +113,7 @@ impl ArgumentGraph {
 
         self.attacks.push(Attack {
             id,
+            source_claim_id,
             target_claim_id,
             content,
             strength: strength.clamp(0.0, 1.0),
@@ -113,29 +123,26 @@ impl ArgumentGraph {
         Some(id)
     }
 
-    /// Calculate effective strength of a claim after supports and attacks
+    /// Calculate effective strength considering supports and attacks
     pub fn effective_strength(&self, claim_id: ArgumentId) -> Option<f64> {
-        let base_claim = self.claims.get(&claim_id)?;
-        let mut effective = base_claim.strength;
+        let base = self.claims.get(&claim_id)?.strength;
+        let mut score = base;
 
-        // Apply supports
         for support in &self.supports {
             if support.target_claim_id == claim_id {
-                effective += support.strength * 0.3; // Support has moderate impact
+                score += support.strength * 0.35;
             }
         }
 
-        // Apply attacks (reduce strength)
         for attack in &self.attacks {
             if attack.target_claim_id == claim_id {
-                effective -= attack.strength * 0.4; // Attacks are stronger
+                score -= attack.strength * 0.45;
             }
         }
 
-        Some(effective.clamp(0.0, 1.0))
+        Some(score.clamp(0.0, 1.0))
     }
 
-    /// Get all claims sorted by effective strength (strongest first)
     pub fn ranked_claims(&self) -> Vec<(ArgumentId, f64)> {
         let mut ranked: Vec<(ArgumentId, f64)> = self
             .claims
@@ -143,7 +150,7 @@ impl ArgumentGraph {
             .filter_map(|&id| self.effective_strength(id).map(|s| (id, s)))
             .collect();
 
-        ranked.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap());
+        ranked.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal));
         ranked
     }
 }
