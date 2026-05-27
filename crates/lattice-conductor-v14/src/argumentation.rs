@@ -1,5 +1,5 @@
 // crates/lattice-conductor-v14/src/argumentation.rs
-// Phase 1 Hardening: Enhanced ArgumentGraph with better querying and evaluation
+// Phase 1 Technical Hardening: More querying and analysis methods
 
 use std::collections::HashMap;
 
@@ -72,14 +72,7 @@ impl ArgumentGraph {
         }
         let id = self.next_id;
         self.next_id += 1;
-        self.supports.push(Support {
-            id,
-            source_claim_id,
-            target_claim_id,
-            content,
-            strength: strength.clamp(0.0, 1.0),
-            provided_by,
-        });
+        self.supports.push(Support { id, source_claim_id, target_claim_id, content, strength: strength.clamp(0.0, 1.0), provided_by });
         Some(id)
     }
 
@@ -96,25 +89,32 @@ impl ArgumentGraph {
         }
         let id = self.next_id;
         self.next_id += 1;
-        self.attacks.push(Attack {
-            id,
-            source_claim_id,
-            target_claim_id,
-            content,
-            strength: strength.clamp(0.0, 1.0),
-            provided_by,
-        });
+        self.attacks.push(Attack { id, source_claim_id, target_claim_id, content, strength: strength.clamp(0.0, 1.0), provided_by });
         Some(id)
     }
 
-    /// Get all claims that support a given claim
     pub fn get_supporters(&self, claim_id: ArgumentId) -> Vec<&Support> {
         self.supports.iter().filter(|s| s.target_claim_id == claim_id).collect()
     }
 
-    /// Get all claims that attack a given claim
     pub fn get_attackers(&self, claim_id: ArgumentId) -> Vec<&Attack> {
         self.attacks.iter().filter(|a| a.target_claim_id == claim_id).collect()
+    }
+
+    /// Get all claims that this claim supports
+    pub fn get_supported_claims(&self, claim_id: ArgumentId) -> Vec<ArgumentId> {
+        self.supports.iter()
+            .filter(|s| s.source_claim_id == claim_id)
+            .map(|s| s.target_claim_id)
+            .collect()
+    }
+
+    /// Get all claims that this claim attacks
+    pub fn get_attacked_claims(&self, claim_id: ArgumentId) -> Vec<ArgumentId> {
+        self.attacks.iter()
+            .filter(|a| a.source_claim_id == claim_id)
+            .map(|a| a.target_claim_id)
+            .collect()
     }
 
     pub fn effective_strength(&self, claim_id: ArgumentId) -> Option<f64> {
@@ -122,22 +122,16 @@ impl ArgumentGraph {
         let mut score = base;
 
         for support in &self.supports {
-            if support.target_claim_id == claim_id {
-                score += support.strength * 0.35;
-            }
+            if support.target_claim_id == claim_id { score += support.strength * 0.35; }
         }
         for attack in &self.attacks {
-            if attack.target_claim_id == claim_id {
-                score -= attack.strength * 0.45;
-            }
+            if attack.target_claim_id == claim_id { score -= attack.strength * 0.45; }
         }
         Some(score.clamp(0.0, 1.0))
     }
 
     pub fn ranked_claims(&self) -> Vec<(ArgumentId, f64)> {
-        let mut ranked: Vec<(ArgumentId, f64)> = self
-            .claims
-            .keys()
+        let mut ranked: Vec<(ArgumentId, f64)> = self.claims.keys()
             .filter_map(|&id| self.effective_strength(id).map(|s| (id, s)))
             .collect();
 
