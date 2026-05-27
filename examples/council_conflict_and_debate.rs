@@ -1,5 +1,5 @@
 // examples/council_conflict_and_debate.rs
-// Improved Version: Persistence + Deep Cumulative Memory + Grounded Extension
+// Phase 3: Grounded + Preferred Extension Integration
 
 use lattice_conductor_v14::{
     CooperativeGame, LatticeConductorEnhancements, GovernanceRiskReport,
@@ -80,8 +80,8 @@ fn calculate_argument_credibility(
 }
 
 fn main() {
-    println!("=== Improved: Persistence + Cumulative Memory + Grounded Extension ===\n");
-    println!("Mates! Memory is persisted after each round and grounded acceptability is applied broadly.\n");
+    println!("=== Phase 3: Grounded + Preferred Extension Integration ===\n");
+    println!("Mates! We now use both skeptical (Grounded) and credulous (Preferred) formal semantics.\n");
 
     let db = DebatePersistence::new("debate_memory.db").expect("Failed to open persistence");
 
@@ -128,7 +128,7 @@ fn main() {
         max_banzhaf,
         shapley_variance: shapley_var,
         mercy_alignment: 0.88,
-        recommended_action: "Improved Persistence + Memory + Grounded".to_string(),
+        recommended_action: "Grounded + Preferred Extension".to_string(),
     };
 
     let mut arg_graph = ArgumentGraph::new();
@@ -141,14 +141,17 @@ fn main() {
     arg_graph.add_support(main_claim, main_claim, "Supports coherence".to_string(), "Truth Council".to_string(), 0.8);
     arg_graph.add_attack(main_claim, main_claim, "Risk of disruption".to_string(), "Justice Council".to_string(), 0.3);
 
+    // Compute both extensions
     let grounded = arg_graph.grounded_extension();
-    println!("\n[Grounded Extension] Acceptable: {:?}", grounded);
+    let preferred = arg_graph.preferred_extension();
+
+    println!("\n[Grounded Extension] (Skeptical): {:?}", grounded);
+    println!("[Preferred Extension] (Credulous):  {:?}", preferred);
 
     let effective = arg_graph.effective_strength(main_claim).unwrap_or(0.5);
     let conflict = arg_graph.conflict_level(main_claim).unwrap_or(0.0);
 
     let credibility = calculate_argument_credibility(effective, conflict, cumulative_fallacy_impact);
-    println!("[State] Credibility: {:.2} | Fallacy Impact: {:.2} | Conviction: {:.2}", credibility, cumulative_fallacy_impact, conviction_level);
 
     // ROUND 1
     println!("\n--- ROUND 1 ---");
@@ -163,16 +166,11 @@ fn main() {
         println!("[{}] : {:?}", name, decision);
     }
 
-    // Update memory state
     cumulative_fallacy_impact += 0.08;
     conviction_level *= 0.93;
 
-    // Save after Round 1
-    let shifted_vec: Vec<String> = shifted_memory.iter().cloned().collect();
-    db.save_state(&shifted_vec, cumulative_fallacy_impact, conviction_level).ok();
-
-    // ROUND 2
-    println!("\n--- ROUND 2: Memory + Grounded Bonus ---");
+    // ROUND 2 - Influenced by both extensions
+    println!("\n--- ROUND 2: Persuasion with Grounded + Preferred Semantics ---");
 
     let c13_pos = positions.iter().find(|(n, _)| *n == "Council #13").unwrap().1.clone();
 
@@ -188,11 +186,12 @@ fn main() {
 
         let memory_bonus = if shifted_memory.contains(&name.to_string()) { 0.12 } else { 0.0 };
 
-        // Extended grounded bonus: any grounded argument gives benefit
-        let grounded_bonus = if !grounded.is_empty() { 0.08 } else { 0.0 };
+        // Bonus from formal semantics
+        let grounded_bonus = if grounded.contains(&main_claim) { 0.08 } else { 0.0 };
+        let preferred_bonus = if preferred.contains(&main_claim) { 0.12 } else { 0.0 };
 
         let adjusted_credibility = credibility * conviction_level * (1.0 - cumulative_fallacy_impact.min(0.45));
-        let dynamic_weight = (base_sensitivity + memory_bonus + grounded_bonus) * adjusted_credibility;
+        let dynamic_weight = (base_sensitivity + memory_bonus + grounded_bonus + preferred_bonus) * adjusted_credibility;
 
         if dynamic_weight > 0.48 {
             if matches!(c13_pos, PatsagiDecision::RequiresSelfEvolution { .. }) {
@@ -209,19 +208,18 @@ fn main() {
         println!("[{}] after Round 2: {:?}", name, decision);
     }
 
-    // Final save
-    let final_shifted: Vec<String> = shifted_memory.iter().cloned().collect();
-    db.save_state(&final_shifted, cumulative_fallacy_impact, conviction_level)
-        .expect("Failed to save final state");
+    // Save state
+    let shifted_vec: Vec<String> = shifted_memory.iter().cloned().collect();
+    db.save_state(&shifted_vec, cumulative_fallacy_impact, conviction_level).ok();
 
-    println!("\n[Persistence] Final state saved.");
+    println!("\n[Persistence] State saved.");
 
     println!("\n--- FINAL RESOLUTION ---");
     let final = resolve_conflict_weighted(&positions, &report);
     println!("Final Decision: {:?}", final);
-    println!("\nWe move forward with robust memory and formal semantics, Mates!\n");
+    println!("\nWe move forward with both skeptical and credulous formal semantics, Mates!\n");
 
-    println!("=== Implementation Verified & Improved ===");
+    println!("=== Phase 3 Integration Complete ===");
 }
 
 fn debate_mercy(report: &GovernanceRiskReport) -> PatsagiDecision {
