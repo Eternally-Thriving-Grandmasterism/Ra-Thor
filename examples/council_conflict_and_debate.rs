@@ -1,5 +1,5 @@
 // examples/council_conflict_and_debate.rs
-// Phase 3: Recommendation Engine Integration
+// Phase 3: Numeric Scoring + Safety vs Evolution Recommendation
 
 use lattice_conductor_v14::{
     CooperativeGame, LatticeConductorEnhancements, GovernanceRiskReport,
@@ -80,8 +80,8 @@ fn calculate_argument_credibility(
 }
 
 fn main() {
-    println!("=== Phase 3: Recommendation Engine Active ===\n");
-    println!("Mates! Formal extensions now produce clear recommendations for councils.\n");
+    println!("=== Phase 3: Safety vs Evolution Scoring Active ===\n");
+    println!("Mates! Recommendations now include numeric Safety and Evolution scores.\n");
 
     let db = DebatePersistence::new("debate_memory.db").expect("Failed to open persistence");
 
@@ -128,7 +128,7 @@ fn main() {
         max_banzhaf,
         shapley_variance: shapley_var,
         mercy_alignment: 0.88,
-        recommended_action: "Recommendation Engine".to_string(),
+        recommended_action: "Safety vs Evolution Scoring".to_string(),
     };
 
     let mut arg_graph = ArgumentGraph::new();
@@ -141,14 +141,14 @@ fn main() {
     arg_graph.add_support(main_claim, main_claim, "Supports coherence".to_string(), "Truth Council".to_string(), 0.8);
     arg_graph.add_attack(main_claim, main_claim, "Risk of disruption".to_string(), "Justice Council".to_string(), 0.3);
 
-    // Get structured recommendation
-    let recommendation = arg_graph.recommend_extensions();
+    // Get scored recommendation
+    let rec = arg_graph.recommend_extensions();
 
-    println!("\n=== Extension Recommendation ===");
-    println!("Grounded: {:?}", recommendation.grounded);
-    println!("Preferred count: {}", recommendation.preferreds.len());
-    println!("Stable count: {}", recommendation.stables.len());
-    println!("Recommendation: {}", recommendation.recommendation);
+    println!("\n=== Extension Recommendation with Scores ===");
+    println!("Safety Score:        {:.2}", rec.safety_score);
+    println!("Evolution Potential:  {:.2}", rec.evolution_potential);
+    println!("Overall Score:        {:.2}", rec.overall_score);
+    println!("Recommendation: {}", rec.recommendation);
 
     let effective = arg_graph.effective_strength(main_claim).unwrap_or(0.5);
     let conflict = arg_graph.conflict_level(main_claim).unwrap_or(0.0);
@@ -172,7 +172,7 @@ fn main() {
     conviction_level *= 0.93;
 
     // ROUND 2
-    println!("\n--- ROUND 2: Persuasion guided by Recommendation ---");
+    println!("\n--- ROUND 2: Persuasion guided by Safety vs Evolution Scores ---");
 
     let c13_pos = positions.iter().find(|(n, _)| *n == "Council #13").unwrap().1.clone();
 
@@ -187,19 +187,20 @@ fn main() {
         };
 
         let memory_bonus = if shifted_memory.contains(&name.to_string()) { 0.12 } else { 0.0 };
-        let grounded_bonus = if recommendation.grounded.contains(&main_claim) { 0.08 } else { 0.0 };
-        let preferred_bonus = if recommendation.preferreds.iter().any(|p| p.contains(&main_claim)) { 0.12 } else { 0.0 };
-        let stable_bonus = if recommendation.stables.iter().any(|s| s.contains(&main_claim)) { 0.18 } else { 0.0 };
+
+        // Use Safety and Evolution scores to modulate persuasion
+        let safety_influence = rec.safety_score * 0.6;
+        let evolution_influence = rec.evolution_potential * 0.8;
 
         let adjusted_credibility = credibility * conviction_level * (1.0 - cumulative_fallacy_impact.min(0.45));
-        let dynamic_weight = (base_sensitivity + memory_bonus + grounded_bonus + preferred_bonus + stable_bonus) * adjusted_credibility;
+        let dynamic_weight = (base_sensitivity + memory_bonus + safety_influence + evolution_influence) * adjusted_credibility;
 
         if dynamic_weight > 0.48 {
             if matches!(c13_pos, PatsagiDecision::RequiresSelfEvolution { .. }) {
                 if matches!(decision, PatsagiDecision::Approved { .. }) {
                     *decision = PatsagiDecision::RequiresSelfEvolution { priority: 2 };
                     shifted_memory.insert(name.to_string());
-                    println!("[{}] persuaded (weight: {:.2}).", name, dynamic_weight);
+                    println!("[{}] persuaded (weight: {:.2}, safety: {:.2}, evolution: {:.2}).", name, dynamic_weight, rec.safety_score, rec.evolution_potential);
                 }
             }
         }
@@ -216,7 +217,7 @@ fn main() {
     println!("\n--- FINAL RESOLUTION ---");
     let final = resolve_conflict_weighted(&positions, &report);
     println!("Final Decision: {:?}", final);
-    println!("\nWe move forward with recommendation-guided evolution, Mates!\n");
+    println!("\nWe move forward with scored Safety vs Evolution guidance, Mates!\n");
 
     println!("=== Phase 3 Complete ===");
 }
