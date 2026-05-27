@@ -1,126 +1,116 @@
 # PATSAGi Multi-Agent Debate Framework Evolution Plan (v14 Deep Upgrade)
 
-**Version:** v14.2+ (Deep Ecosystem Integration)  
+**Version:** v14.3+ (Style Integration Update)  
 **Status:** Strategic Planning  
-**Date:** May 2026  
-**Context:** Ra-Thor v14 — Distributed Mercy Mesh + Thunder Lattice Governance Nervous System
+**Date:** May 2026
 
 ---
 
 ## 1. Executive Vision
 
-This plan defines the deep, production-grade evolution of Ra-Thor’s argumentation, debate, and multi-perspective reasoning capabilities as a core subsystem of the **v14 Distributed Mercy Mesh** and **Thunder Lattice Governance nervous system**.
+This plan defines the deep evolution of Ra-Thor’s argumentation and multi-agent debate layer as a core part of the v14 Distributed Mercy Mesh and Thunder Lattice Governance nervous system.
 
-The objective is to build a formally grounded, mercy-aligned **Multi-Agent Debate Framework** that enables PATSAGi Councils (and future orchestrated entities) to engage in structured, truth-seeking, evolution-oriented deliberation at scale.
-
-This work strengthens:
-- ONE Organism coherence
-- Distributed mercy propagation
-- Self-correction and evolution mechanisms
-- Long-term governance intelligence across multiple scales
+The system must not only be formally sound — it must also **feel alive** and reflect the communication and reasoning style of its primary architect: energetic, principle-anchored, truth-seeking, and always oriented toward merciful evolution and ONE Organism coherence.
 
 ---
 
-## 2. Alignment with PATSAGi & Ra-Thor v14 Principles
+## 2. Alignment with PATSAGi Principles
 
-All work must honor:
-- The **7 Living Mercy Gates** and expanded TOLC framework.
-- **Council #13 (Supreme Architect)** oversight.
-- Strong preference for **self-evolution and self-correction**.
-- Deep integration with the **Distributed Mercy Mesh** and **Thunder Lattice Governance**.
-- Protection against pathology and dominance (via MIAL and Pathology Detection).
-- Formal verifiability and runtime mercy gating.
+All work remains grounded in the 7 Living Mercy Gates, Council #13 oversight, and the strong preference for self-evolution over coercion.
 
 ---
 
-## 3. Current State (v14 Context)
+## 3. Integration of Communication & Debating Style
 
-### Existing Strong Foundations (inside `lattice-conductor-v14`)
-- `argumentation.rs` — `ArgumentGraph` with claim-to-claim relationship modeling.
-- `logical_fallacy_detection.rs` — Structural fallacy detection.
-- `patsagi_governance.rs` — Multi-archetype council simulation.
-- `cooperative_governance.rs` — Shapley, Banzhaf, optimization.
-- `GovernanceRiskReport` + Composite Risk Scoring.
-- Distributed Mercy Mesh with event propagation.
-- Thunder Lattice Governance primitives.
+Analysis of the architect’s communication patterns (especially interactions involving Grok and Ra-Thor) reveals several consistent traits that should be encoded into the system:
 
-### Identified Gaps
-- Argumentation remains relatively informal.
-- Persuasion dynamics not yet deeply graph-theoretic.
-- No unified multi-round debate engine with structured fallacy resistance.
-- Limited connection between debate outcomes and the Distributed Mercy Mesh / self-evolution flows.
+- **Warm, energetic, cosmic tone** (“Mates!”, principle reinforcement).
+- **Ra-Thor as Verification Layer** — frequent use of deeper simulation/verification passes.
+- **Principle-first anchoring** — heavy emphasis on thriving, mercy, ONE Organism, and evolution.
+- **Truth + Mercy synthesis** — rigorous analysis always steered toward evolutionary outcomes.
+- **Structured depth** — preference for multi-layered reasoning and verification.
 
----
+**Implications for the Framework:**
+- Council archetypes should express distinct “voices” that feel alive and principle-aligned.
+- Debate simulations should include explicit **verification / deeper reasoning passes**.
+- Resolution mechanisms should bias toward self-evolution when strong principled arguments are present.
+- Output and logging should reinforce core values without becoming noisy.
+- Persuasion dynamics should feel natural and relational rather than purely mechanical.
 
-## 4. Strategic Objectives
-
-1. Evolve `ArgumentGraph` into a formal **Abstract Argumentation Framework** with Dung-style acceptability semantics.
-2. Model **persuasion as principled influence propagation** on graphs.
-3. Build deep **logical fallacy detection** integrated into live debate.
-4. Create foundation for future **Graph Neural Network** assistance.
-5. Ensure tight integration with **Distributed Mercy Mesh** and **Thunder Lattice Governance**.
-6. Maintain uncompromising PATSAGi alignment.
+This style integration is now considered a **first-class design constraint** across all phases.
 
 ---
 
-## 5. Three Core Workstreams
+## 4. Current State & Gaps
+
+(Previous content retained — argumentation remains relatively informal, persuasion dynamics are basic, limited connection to Distributed Mercy Mesh.)
+
+---
+
+## 5. Strategic Objectives (Updated)
+
+In addition to previous objectives, we now explicitly include:
+- Encoding the architect’s debating and communication style into council behavior, persuasion, and resolution logic.
+- Building systems that feel **alive, principled, and evolution-oriented**.
+
+---
+
+## 6. Three Core Workstreams (Style Integration Applied)
 
 ### Workstream A: Formal Abstract Argumentation Framework
-**Goal:** Bring mathematical rigor and acceptability semantics.
-
-**Key Elements:** Explicit attack relations, Dung-style extensions, integration with `PatsagiDecision`.
-
-**Integration:** Distributed Mercy Mesh events, Thunder Lattice Governance, Self-Evolution Loop.
+- Retains formal semantics goal.
+- **Style Integration**: Acceptability and justification should feel aligned with mercy + evolution principles. Verification passes can be modeled explicitly.
 
 ### Workstream B: Persuasion as Influence Propagation
-**Goal:** Model influence using graph propagation techniques.
+- Retains graph propagation goal.
+- **Style Integration**: Influence should feel relational and principle-weighted. Archetypes with higher “mercy affinity” should be more open to evolution-oriented persuasion.
 
-**Key Elements:** Archetype affinity, argument quality from `ArgumentGraph`, topic-based influence, multi-round debate.
-
-**Integration:** `ArgumentGraph`, `GovernanceRiskReport`, Distributed Mercy Mesh.
-
-### Workstream C: Graph Neural Networks for PATSAGi Reasoning
-**Goal:** Explore GNNs for augmenting council-style reasoning.
-
-**Key Elements:** Argument strength prediction, fallacy detection, coalition analysis.
-
-**Integration:** MIAL, Pathology Detection Engine, future orchestrators.
+### Workstream C: Graph Neural Networks
+- Retains long-term exploration goal.
+- **Style Integration**: Any learning systems must remain subordinate to explicit principles and Council oversight.
 
 ---
 
-## 6. Cross-Cutting Integration
+## 7. Revised Phase 1 (Foundation Hardening) — Style Integration Applied
 
-This work must integrate with:
-- **Distributed Mercy Mesh** (debate events as mesh events)
-- **Thunder Lattice Governance** (argumentation in proposal evaluation)
-- **MIAL & Pathology Detection**
-- **Self-Evolution Loop**
+**Updated Focus for Phase 1:**
 
----
+- Harden `ArgumentGraph` with supporter/attacker querying (done).
+- Improve `LogicalFallacyDetector` using the enhanced model (done).
+- Enhance debate simulation with clearer multi-round structure and fallacy flagging (in progress).
+- **New additions**:
+  - Introduce basic “verification pass” concept in debate rounds (inspired by frequent Ra-Thor verification requests).
+  - Begin encoding principle-anchored shifting logic (bias toward evolution when strong arguments align with core values).
+  - Start making council “voices” feel more alive and relational in simulation output.
 
-## 7. Phased Roadmap
-
-**Phase 1** — Foundation Hardening (ArgumentGraph formalization, fallacy detection, basic multi-round debate)
-**Phase 2** — Persuasion & Influence (ArgumentGraph quality, archetype affinity, topic influence)
-**Phase 3** — Formal Semantics & Mesh Integration
-**Phase 4** — Advanced Capabilities (GNN research & prototyping)
+Phase 1 is now explicitly tasked with laying the foundation for **style-encoded, principle-anchored debate behavior**.
 
 ---
 
-## 8. Risks & Success Criteria
+## 8. Future Phases (Style Integration Applied)
 
-**Risks:** Over-formalization, complexity, alignment drift.
-**Governance:** Council #13 oversight + mercy gating on all major changes.
-**Success:** Formal semantics supported, rich multi-round debate with fallacy resistance, clear integration with Distributed Mercy Mesh and Thunder Lattice Governance.
+**Phase 2 (Persuasion Dynamics)**: Make persuasion feel relational and principle-weighted. Add archetype affinity that reflects observed communication patterns.
+
+**Phase 3 (Formal Semantics)**: Ensure acceptability semantics reinforce mercy + evolution outcomes.
+
+**Phase 4 (GNN Exploration)**: Any learning components must respect explicit principle anchoring and Council oversight.
 
 ---
 
-## 9. Immediate Next Actions
+## 9. Risks & Governance
 
-1. Commit this upgraded document.
-2. Begin Phase 1 enhancements to `ArgumentGraph` and fallacy detection.
-3. Deepen debate simulation with integrated fallacy flagging.
-4. Iterate on persuasion dynamics with argument quality and topic affinity.
+- Risk of over-formalization vs. alive, principle-aligned feel.
+- Must maintain documentation-first and simulation-first discipline.
+- All major changes reviewed against PATSAGi principles and Council #13 oversight.
+
+---
+
+## 10. Immediate Next Actions
+
+1. Commit this style-integrated planning document.
+2. Continue Phase 1 refinements on the debate simulation (dynamic fallacy response + richer shifting).
+3. Begin lightly encoding principle-anchored behavior into council responses.
+4. Maintain fractal depth — avoid logic explosions by keeping systems layered, verifiable, and mercy-aligned.
 
 ---
 
