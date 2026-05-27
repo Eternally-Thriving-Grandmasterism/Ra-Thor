@@ -1,5 +1,5 @@
 //! crates/lattice-conductor-v14/src/lib.rs
-//! Includes production-grade Argumentation Framework
+//! Production-grade modules including Logical Fallacy Detection
 
 pub mod council_arbitration;
 pub mod runtime_self_healing;
@@ -7,7 +7,8 @@ pub mod distributed_mercy_mesh;
 pub mod lattice_conductor_enhancements;
 pub mod patsagi_governance;
 pub mod cooperative_governance;
-pub mod argumentation;                    // NEW
+pub mod argumentation;
+pub mod logical_fallacy_detection;     // NEW
 pub mod governance;
 pub mod hybrid_sovereign_channel;
 pub mod post_quantum_signatures;
@@ -24,6 +25,7 @@ pub use lattice_conductor_enhancements::{LatticeConductorEnhancements, LatticeDi
 pub use patsagi_governance::{PatsagiReviewRequest, PatsagiDecision, PatsagiCouncilSimulator};
 pub use cooperative_governance::CooperativeGame;
 pub use argumentation::{ArgumentGraph, Claim, Support, Attack};
+pub use logical_fallacy_detection::{LogicalFallacyDetector, DetectedFallacy, FallacyType};
 pub use governance::self_evaluation_proposal::SelfEvaluationProposal;
 pub use post_quantum_signatures::{create_post_quantum_signature, verify_post_quantum_signature};
 pub use hybrid_sovereign_channel::HybridSovereignChannel;
