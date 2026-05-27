@@ -177,7 +177,6 @@ impl ArgumentGraph {
 
     // === Formal Abstract Argumentation Semantics ===
 
-    /// Returns arguments that have no attackers.
     pub fn unattacked_arguments(&self) -> Vec<ArgumentId> {
         self.claims
             .keys()
@@ -186,15 +185,12 @@ impl ArgumentGraph {
             .collect()
     }
 
-    /// Internal helper: checks if an argument is defended by a given set.
     fn is_defended(&self, claim_id: ArgumentId, defeated: &HashSet<ArgumentId>) -> bool {
         self.get_attackers(claim_id)
             .iter()
             .all(|attack| defeated.contains(&attack.source_claim_id))
     }
 
-    /// Checks if a set is admissible (conflict-free + self-defending).
-    /// Used as foundation for Preferred and Stable Extensions.
     pub fn is_admissible(&self, set: &HashSet<ArgumentId>) -> bool {
         for &arg in set {
             for attack in self.get_attackers(arg) {
@@ -211,8 +207,6 @@ impl ArgumentGraph {
         true
     }
 
-    /// Computes the Grounded Extension (most skeptical / safest set of acceptable arguments).
-    /// This is the unique, well-founded position that even the most cautious reasoner can accept.
     pub fn grounded_extension(&self) -> Vec<ArgumentId> {
         let mut extension: HashSet<ArgumentId> = HashSet::new();
         let mut changed = true;
@@ -244,8 +238,6 @@ impl ArgumentGraph {
         extension.into_iter().collect()
     }
 
-    /// Finds one maximal admissible set (one Preferred Extension).
-    /// Preferred Extensions are credulous positions that defend themselves.
     pub fn find_maximal_admissible_set(&self) -> HashSet<ArgumentId> {
         let mut current: HashSet<ArgumentId> = self.grounded_extension().into_iter().collect();
 
@@ -260,8 +252,6 @@ impl ArgumentGraph {
         current
     }
 
-    /// Returns up to `max_results` Preferred Extensions (maximal admissible sets).
-    /// These represent multiple defensible but more optimistic positions.
     pub fn preferred_extensions(&self, max_results: usize) -> Vec<HashSet<ArgumentId>> {
         let mut results: Vec<HashSet<ArgumentId>> = Vec::new();
         let grounded: HashSet<ArgumentId> = self.grounded_extension().into_iter().collect();
@@ -290,9 +280,6 @@ impl ArgumentGraph {
         results
     }
 
-    /// Checks if a set is a Stable Extension.
-    /// A set is stable if it is admissible and attacks every argument outside itself.
-    /// Stable Extensions are strong, decisive positions (but may not always exist).
     pub fn is_stable(&self, set: &HashSet<ArgumentId>) -> bool {
         if !self.is_admissible(set) {
             return false;
@@ -315,8 +302,6 @@ impl ArgumentGraph {
         true
     }
 
-    /// Returns up to `max_results` Stable Extensions.
-    /// These are the strongest formal positions in the framework.
     pub fn stable_extensions(&self, max_results: usize) -> Vec<HashSet<ArgumentId>> {
         let mut results = Vec::new();
         let preferreds = self.preferred_extensions(max_results * 2);
@@ -333,4 +318,38 @@ impl ArgumentGraph {
         }
         results
     }
+
+    // === Extension Recommendation Layer ===
+
+    /// Provides a structured recommendation based on formal extensions.
+    /// Prioritizes Grounded for safety, then considers Preferred and Stable for evolution potential.
+    pub fn recommend_extensions(&self) -> ExtensionRecommendation {
+        let grounded = self.grounded_extension();
+        let preferreds = self.preferred_extensions(3);
+        let stables = self.stable_extensions(2);
+
+        let recommendation = if !stables.is_empty() {
+            "Stable positions exist — these are strong, decisive, and self-defending."
+        } else if !preferreds.is_empty() {
+            "Multiple defensible positions exist. Grounded offers the safest common ground."
+        } else {
+            "Grounded Extension is the only well-founded position."
+        };
+
+        ExtensionRecommendation {
+            grounded,
+            preferreds,
+            stables,
+            recommendation,
+        }
+    }
+}
+
+/// Structured recommendation result from formal argumentation analysis.
+#[derive(Debug, Clone)]
+pub struct ExtensionRecommendation {
+    pub grounded: Vec<ArgumentId>,
+    pub preferreds: Vec<HashSet<ArgumentId>>,
+    pub stables: Vec<HashSet<ArgumentId>>,
+    pub recommendation: String,
 }
