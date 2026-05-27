@@ -1,7 +1,8 @@
 // examples/debate_persistence.rs
-// SQLite Persistence with Query Plan Analysis + Optimizations
+// Advanced SQLite Analysis: Query Plans + Timing Benchmarks
 
 use rusqlite::{Connection, Result};
+use std::time::Instant;
 
 #[derive(Debug, Clone)]
 pub struct DebateState {
@@ -28,7 +29,6 @@ impl DebatePersistence {
             [],
         )?;
 
-        // Optimization: Index on round (critical for ORDER BY + LIMIT)
         conn.execute(
             "CREATE INDEX IF NOT EXISTS idx_debate_rounds_round ON debate_rounds(round DESC)",
             [],
@@ -71,7 +71,7 @@ impl DebatePersistence {
         }
     }
 
-    /// Analyze query execution plan
+    /// Analyze query plan
     pub fn analyze_load_query(&self) -> Result<String> {
         let mut stmt = self.conn.prepare(
             "EXPLAIN QUERY PLAN SELECT round, shifted_councils, detected_fallacies FROM debate_rounds ORDER BY round DESC LIMIT 1",
@@ -85,24 +85,44 @@ impl DebatePersistence {
         }
         Ok(plan)
     }
+
+    /// Benchmark save_round
+    pub fn benchmark_save(&self, iterations: u32) -> Result<f64> {
+        let start = Instant::now();
+        for i in 0..iterations {
+            self.save_round(1000 + i, &vec!["Test Council".to_string()], 0)?;
+        }
+        let duration = start.elapsed();
+        Ok(duration.as_secs_f64() / iterations as f64)
+    }
+
+    /// Benchmark load_last_round
+    pub fn benchmark_load(&self, iterations: u32) -> Result<f64> {
+        let start = Instant::now();
+        for _ in 0..iterations {
+            let _ = self.load_last_round()?;
+        }
+        let duration = start.elapsed();
+        Ok(duration.as_secs_f64() / iterations as f64)
+    }
 }
 
 fn main() {
-    println!("=== SQLite Debate Persistence + Query Plan Analysis ===\n");
+    println!("=== Advanced SQLite Debate Persistence Analysis ===\n");
 
     let db = DebatePersistence::new("debate_memory.db").expect("Failed to open DB");
 
-    match db.analyze_load_query() {
-        Ok(plan) => println!("Query Plan:\n{}", plan),
-        Err(e) => println!("Analysis failed: {}", e),
+    // Query Plan Analysis
+    if let Ok(plan) = db.analyze_load_query() {
+        println!("Query Plan for load_last_round:\n{}", plan);
     }
 
-    let shifted = vec!["Mercy Council".to_string()];
-    db.save_round(4, &shifted, 0).expect("Failed to save");
+    // Benchmarks
+    let save_time = db.benchmark_save(100).expect("Benchmark failed");
+    println!("Average save_round time: {:.6} seconds", save_time);
 
-    if let Some(state) = db.load_last_round().expect("Failed to load") {
-        println!("Loaded Round {} | Shifted: {:?}", state.round, state.shifted_councils);
-    }
+    let load_time = db.benchmark_load(1000).expect("Benchmark failed");
+    println!("Average load_last_round time: {:.6} seconds", load_time);
 
-    println!("\nDone.");
+    println!("\nAnalysis complete.");
 }
