@@ -1,5 +1,5 @@
 // crates/lattice-conductor-v14/src/argumentation.rs
-// Phase 3: Multiple Preferred Extensions Support
+// Phase 3: Stable Extensions Support
 
 use std::collections::{HashMap, HashSet};
 
@@ -165,7 +165,7 @@ impl ArgumentGraph {
         ranked
     }
 
-    // === Phase 3: Multiple Preferred Extensions ===
+    // === Phase 3: Stable Extensions ===
 
     pub fn unattacked_arguments(&self) -> Vec<ArgumentId> {
         self.claims
@@ -228,7 +228,6 @@ impl ArgumentGraph {
         extension.into_iter().collect()
     }
 
-    /// Find one maximal admissible set
     pub fn find_maximal_admissible_set(&self) -> HashSet<ArgumentId> {
         let mut current: HashSet<ArgumentId> = self.grounded_extension().into_iter().collect();
 
@@ -243,43 +242,73 @@ impl ArgumentGraph {
         current
     }
 
-    /// Find multiple Preferred Extensions (multiple maximal admissible sets)
     pub fn preferred_extensions(&self, max_results: usize) -> Vec<HashSet<ArgumentId>> {
         let mut results: Vec<HashSet<ArgumentId>> = Vec::new();
         let grounded: HashSet<ArgumentId> = self.grounded_extension().into_iter().collect();
-
-        // Start with the grounded extension as base
         let mut stack: Vec<HashSet<ArgumentId>> = vec![grounded];
 
         while let Some(current) = stack.pop() {
-            if results.len() >= max_results {
-                break;
-            }
+            if results.len() >= max_results { break; }
 
-            // Try to extend the current set
             let mut extended = false;
-
             for &arg in self.claims.keys() {
                 if current.contains(&arg) { continue; }
-
                 let mut test_set = current.clone();
                 test_set.insert(arg);
-
                 if self.is_admissible(&test_set) {
                     stack.push(test_set);
                     extended = true;
-                    break; // Add one extension at a time for simplicity
+                    break;
                 }
             }
-
             if !extended {
-                // Current set is maximal
                 if !results.iter().any(|r| r == &current) {
                     results.push(current);
                 }
             }
         }
+        results
+    }
 
+    /// Check if a set is a Stable Extension
+    pub fn is_stable(&self, set: &HashSet<ArgumentId>) -> bool {
+        if !self.is_admissible(set) {
+            return false;
+        }
+
+        // Must attack every argument not in the set
+        for &arg in self.claims.keys() {
+            if set.contains(&arg) { continue; }
+
+            let mut attacks_outside = false;
+            for attack in self.get_attackers(arg) {
+                if set.contains(&attack.source_claim_id) {
+                    attacks_outside = true;
+                    break;
+                }
+            }
+            if !attacks_outside {
+                return false;
+            }
+        }
+        true
+    }
+
+    /// Find Stable Extensions (practical version)
+    pub fn stable_extensions(&self, max_results: usize) -> Vec<HashSet<ArgumentId>> {
+        let mut results = Vec::new();
+        let preferreds = self.preferred_extensions(max_results * 2); // search more candidates
+
+        for pref in preferreds {
+            if self.is_stable(&pref) {
+                if !results.iter().any(|r| r == &pref) {
+                    results.push(pref);
+                }
+                if results.len() >= max_results {
+                    break;
+                }
+            }
+        }
         results
     }
 }
