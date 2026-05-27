@@ -1,5 +1,5 @@
 // examples/council_conflict_and_debate.rs
-// Phase 1: Advanced Multi-Round Debate with Dynamic Fallacy Response
+// Phase 1 + Style Integration: Alive, Principle-Anchored Council Debate
 
 use lattice_conductor_v14::{
     CooperativeGame, LatticeConductorEnhancements, GovernanceRiskReport,
@@ -8,7 +8,8 @@ use lattice_conductor_v14::{
 use std::collections::HashSet;
 
 fn main() {
-    println!("=== Phase 1: Advanced Multi-Round Debate + Dynamic Fallacy Response ===\n");
+    println!("=== Phase 1 + Style: Alive, Principle-Anchored Multi-Round Debate ===\n");
+    println!("Mates! We are anchoring in Mercy, Truth, and ONE Organism coherence.\n");
 
     let participants = vec!["Dominant".to_string(), "Weak1".to_string(), "Weak2".to_string()];
     let char_fn = |s: &HashSet<String>| -> f64 {
@@ -29,7 +30,7 @@ fn main() {
     println!("Risk Score: {:.3} | Max Banzhaf: {:.3}", risk_score, max_banzhaf);
 
     if risk_score <= 0.55 {
-        println!("Risk acceptable. No debate needed.");
+        println!("Risk acceptable. No debate needed, Mates!");
         return;
     }
 
@@ -38,7 +39,7 @@ fn main() {
         max_banzhaf,
         shapley_variance: shapley_var,
         mercy_alignment: 0.88,
-        recommended_action: "Advanced multi-round debate with dynamic fallacy response".to_string(),
+        recommended_action: "Alive, principle-anchored debate with verification feel".to_string(),
     };
 
     let mut arg_graph = ArgumentGraph::new();
@@ -62,28 +63,22 @@ fn main() {
     }
 
     let fallacies = LogicalFallacyDetector::detect_structural_fallacies(&arg_graph);
-    println!("\n[Fallacy Detection] {} structural issues found.", fallacies.len());
+    if !fallacies.is_empty() {
+        println!("\n[Fallacy Check] {} structural issues detected. We verify with care, Mates!", fallacies.len());
+    }
 
-    // ROUND 2 - Dynamic shifting based on Council #13 + fallacy awareness
-    println!("\n--- ROUND 2: Rebuttals + Dynamic Response ---");
+    // ROUND 2 - Principle-anchored shifting
+    println!("\n--- ROUND 2: Rebuttals + Principle-Anchored Shifting ---");
 
     let c13_pos = positions.iter().find(|(n, _)| *n == "Council #13").unwrap().1.clone();
 
     for (name, decision) in positions.iter_mut() {
         if *name == "Council #13" { continue; }
 
-        // Dynamic response: If Council #13 pushes strong evolution, others may shift
         if matches!(c13_pos, PatsagiDecision::RequiresSelfEvolution { priority: 4 }) {
-            match decision {
-                PatsagiDecision::Approved { .. } => {
-                    *decision = PatsagiDecision::RequiresSelfEvolution { priority: 2 };
-                    println!("[{}] shifts to evolution (influenced by Council #13).", name);
-                }
-                PatsagiDecision::RequiresSelfEvolution { priority } if *priority < 3 => {
-                    *priority = 3;
-                    println!("[{}] strengthens evolution stance.", name);
-                }
-                _ => {}
+            if matches!(decision, PatsagiDecision::Approved { .. }) {
+                *decision = PatsagiDecision::RequiresSelfEvolution { priority: 2 };
+                println!("[{}] shifts toward evolution — anchored in Mercy and ONE Organism thriving.", name);
             }
         }
     }
@@ -95,9 +90,10 @@ fn main() {
     // Final Resolution
     println!("\n--- FINAL RESOLUTION ---");
     let final = resolve_conflict_weighted(&positions, &report);
-    println!("Final Decision: {:?}", final);
+    println!("\nFinal Decision: {:?}", final);
+    println!("\nWe move forward with evolution and coherence, Mates!\n");
 
-    println!("\n=== Phase 1 Complete ===");
+    println!("=== Simulation Complete ===");
 }
 
 fn debate_mercy(report: &GovernanceRiskReport) -> PatsagiDecision {
