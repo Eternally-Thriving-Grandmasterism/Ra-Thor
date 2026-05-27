@@ -1,75 +1,11 @@
 // examples/council_conflict_and_debate.rs
-// Phase 2: Fully Integrated SQLite Persistence + Deep Cumulative Memory
+// Phase 3: Grounded Extension Integration
 
 use lattice_conductor_v14::{
     CooperativeGame, LatticeConductorEnhancements, GovernanceRiskReport,
     PatsagiReviewRequest, PatsagiDecision, LogicalFallacyDetector, ArgumentGraph,
 };
 use std::collections::{HashMap, HashSet};
-
-// Note: In a real project this would be properly modularized.
-// For the example we include key logic from debate_persistence.rs
-
-use rusqlite::{Connection, Result as SqlResult};
-
-#[derive(Debug, Clone)]
-struct DebateState {
-    shifted_councils: Vec<String>,
-    cumulative_fallacy_impact: f64,
-    conviction_level: f64,
-}
-
-struct DebatePersistence {
-    conn: Connection,
-}
-
-impl DebatePersistence {
-    fn new(db_path: &str) -> SqlResult<Self> {
-        let conn = Connection::open(db_path)?;
-        conn.execute(
-            "CREATE TABLE IF NOT EXISTS debate_state (
-                id INTEGER PRIMARY KEY,
-                shifted_councils TEXT,
-                cumulative_fallacy_impact REAL,
-                conviction_level REAL
-            )",
-            [],
-        )?;
-        Ok(Self { conn })
-    }
-
-    fn save_state(&self, shifted: &[String], fallacy_impact: f64, conviction: f64) -> SqlResult<()> {
-        let shifted_str = shifted.join(",");
-        self.conn.execute(
-            "INSERT OR REPLACE INTO debate_state (id, shifted_councils, cumulative_fallacy_impact, conviction_level)
-             VALUES (1, ?1, ?2, ?3)",
-            rusqlite::params![shifted_str, fallacy_impact, conviction],
-        )?;
-        Ok(())
-    }
-
-    fn load_state(&self) -> SqlResult<Option<DebateState>> {
-        let mut stmt = self.conn.prepare(
-            "SELECT shifted_councils, cumulative_fallacy_impact, conviction_level FROM debate_state WHERE id = 1",
-        )?;
-        let mut rows = stmt.query([])?;
-        if let Some(row) = rows.next()? {
-            let shifted_str: String = row.get(0)?;
-            let shifted = if shifted_str.is_empty() {
-                vec![]
-            } else {
-                shifted_str.split(',').map(|s| s.to_string()).collect()
-            };
-            Ok(Some(DebateState {
-                shifted_councils: shifted,
-                cumulative_fallacy_impact: row.get(1)?,
-                conviction_level: row.get(2)?,
-            }))
-        } else {
-            Ok(None)
-        }
-    }
-}
 
 fn calculate_argument_credibility(
     effective_strength: f64,
@@ -83,26 +19,8 @@ fn calculate_argument_credibility(
 }
 
 fn main() {
-    println!("=== Phase 2: Fully Integrated Persistence + Deep Cumulative Memory ===\n");
-    println!("Mates! The debate now fully persists its memory using SQLite.\n");
-
-    let db = DebatePersistence::new("debate_memory.db").expect("Failed to open persistence");
-
-    // Load previous state
-    let mut shifted_memory: HashSet<String> = HashSet::new();
-    let mut cumulative_fallacy_impact: f64 = 0.15;
-    let mut conviction_level: f64 = 1.0;
-
-    if let Ok(Some(state)) = db.load_state() {
-        for council in state.shifted_councils {
-            shifted_memory.insert(council);
-        }
-        cumulative_fallacy_impact = state.cumulative_fallacy_impact;
-        conviction_level = state.conviction_level;
-        println!("[Persistence] Loaded previous debate state.");
-    } else {
-        println!("[Persistence] No previous state found. Starting fresh.");
-    }
+    println!("=== Phase 3: Grounded Extension Integration ===\n");
+    println!("Mates! We now use formal grounded acceptability in debate.\n");
 
     let participants = vec!["Dominant".to_string(), "Weak1".to_string(), "Weak2".to_string()];
     let char_fn = |s: &HashSet<String>| -> f64 {
@@ -132,7 +50,7 @@ fn main() {
         max_banzhaf,
         shapley_variance: shapley_var,
         mercy_alignment: 0.88,
-        recommended_action: "Fully Integrated Persistence".to_string(),
+        recommended_action: "Grounded Extension Integration".to_string(),
     };
 
     let mut arg_graph = ArgumentGraph::new();
@@ -145,11 +63,15 @@ fn main() {
     arg_graph.add_support(main_claim, main_claim, "Supports coherence".to_string(), "Truth Council".to_string(), 0.8);
     arg_graph.add_attack(main_claim, main_claim, "Risk of disruption".to_string(), "Justice Council".to_string(), 0.3);
 
+    // Compute Grounded Extension
+    let grounded = arg_graph.grounded_extension();
+    println!("\n[Grounded Extension] Acceptable arguments: {:?}", grounded);
+
     let effective = arg_graph.effective_strength(main_claim).unwrap_or(0.5);
     let conflict = arg_graph.conflict_level(main_claim).unwrap_or(0.0);
+    let fallacy_penalty = 0.1;
 
-    let credibility = calculate_argument_credibility(effective, conflict, cumulative_fallacy_impact);
-    println!("\n[State] Credibility: {:.2} | Fallacy Impact: {:.2} | Conviction: {:.2}", credibility, cumulative_fallacy_impact, conviction_level);
+    let credibility = calculate_argument_credibility(effective, conflict, fallacy_penalty);
 
     // ROUND 1
     println!("\n--- ROUND 1: Opening Statements ---");
@@ -164,12 +86,8 @@ fn main() {
         println!("[{}] : {:?}", name, decision);
     }
 
-    // Update cumulative state
-    cumulative_fallacy_impact += 0.08;
-    conviction_level *= 0.93;
-
     // ROUND 2
-    println!("\n--- ROUND 2: Persuasion with Persistent Memory ---");
+    println!("\n--- ROUND 2: Persuasion informed by Grounded Extension ---");
 
     let c13_pos = positions.iter().find(|(n, _)| *n == "Council #13").unwrap().1.clone();
 
@@ -183,16 +101,15 @@ fn main() {
             _ => 0.6,
         };
 
-        let memory_bonus = if shifted_memory.contains(&name.to_string()) { 0.12 } else { 0.0 };
-        let adjusted_credibility = credibility * conviction_level * (1.0 - cumulative_fallacy_impact.min(0.45));
-        let dynamic_weight = (base_sensitivity + memory_bonus) * adjusted_credibility;
+        // Bonus if main claim is in grounded extension
+        let grounded_bonus = if grounded.contains(&main_claim) { 0.1 } else { 0.0 };
+        let dynamic_weight = (base_sensitivity + grounded_bonus) * credibility;
 
-        if dynamic_weight > 0.48 {
+        if dynamic_weight > 0.5 {
             if matches!(c13_pos, PatsagiDecision::RequiresSelfEvolution { .. }) {
                 if matches!(decision, PatsagiDecision::Approved { .. }) {
                     *decision = PatsagiDecision::RequiresSelfEvolution { priority: 2 };
-                    shifted_memory.insert(name.to_string());
-                    println!("[{}] persuaded with persistent memory (weight: {:.2}).", name, dynamic_weight);
+                    println!("[{}] persuaded (weight: {:.2}, grounded bonus applied).", name, dynamic_weight);
                 }
             }
         }
@@ -202,19 +119,12 @@ fn main() {
         println!("[{}] after Round 2: {:?}", name, decision);
     }
 
-    // Save state to SQLite
-    let shifted_vec: Vec<String> = shifted_memory.iter().cloned().collect();
-    db.save_state(&shifted_vec, cumulative_fallacy_impact, conviction_level)
-        .expect("Failed to save debate state");
-
-    println!("\n[Persistence] Debate state saved to SQLite.");
-
     println!("\n--- FINAL RESOLUTION ---");
     let final = resolve_conflict_weighted(&positions, &report);
     println!("Final Decision: {:?}", final);
-    println!("\nWe move forward with fully persistent cumulative memory, Mates!\n");
+    println!("\nWe move forward with formally acceptable arguments, Mates!\n");
 
-    println!("=== Phase 2 Complete ===");
+    println!("=== Phase 3 Integration Complete ===");
 }
 
 fn debate_mercy(report: &GovernanceRiskReport) -> PatsagiDecision {
