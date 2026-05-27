@@ -1,13 +1,12 @@
 // examples/council_conflict_and_debate.rs
-// Phase 2: Argument Credibility Scoring + Dynamic Persuasion
+// Phase 2: Cumulative Memory in Persuasion
 
 use lattice_conductor_v14::{
     CooperativeGame, LatticeConductorEnhancements, GovernanceRiskReport,
     PatsagiReviewRequest, PatsagiDecision, LogicalFallacyDetector, ArgumentGraph,
 };
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 
-/// Calculate Argument Credibility Score (0.0 - 1.0)
 fn calculate_argument_credibility(
     effective_strength: f64,
     conflict_level: f64,
@@ -20,8 +19,8 @@ fn calculate_argument_credibility(
 }
 
 fn main() {
-    println!("=== Phase 2: Argument Credibility Scoring ===\n");
-    println!("Mates! Persuasion now uses a full credibility score.\n");
+    println!("=== Phase 2: Cumulative Memory in Persuasion ===\n");
+    println!("Mates! The debate now remembers previous shifts and builds memory.\n");
 
     let participants = vec!["Dominant".to_string(), "Weak1".to_string(), "Weak2".to_string()];
     let char_fn = |s: &HashSet<String>| -> f64 {
@@ -51,7 +50,7 @@ fn main() {
         max_banzhaf,
         shapley_variance: shapley_var,
         mercy_alignment: 0.88,
-        recommended_action: "Argument Credibility Scoring".to_string(),
+        recommended_action: "Cumulative Memory".to_string(),
     };
 
     let mut arg_graph = ArgumentGraph::new();
@@ -66,13 +65,14 @@ fn main() {
 
     let effective = arg_graph.effective_strength(main_claim).unwrap_or(0.5);
     let conflict = arg_graph.conflict_level(main_claim).unwrap_or(0.0);
-
-    // Simulate previous fallacy detection
-    let fallacy_penalty = 0.15; // Example: fallacies were detected earlier
+    let fallacy_penalty = 0.1;
 
     let credibility = calculate_argument_credibility(effective, conflict, fallacy_penalty);
-    println!("\n[Credibility Score] {:.2} (Strength: {:.2}, Conflict: {:.2}, Fallacy Penalty: {:.2})", 
-             credibility, effective, conflict, fallacy_penalty);
+
+    // Cumulative Memory: track shifted councils
+    let mut shifted_memory: HashSet<String> = HashSet::new();
+
+    println!("\n[Credibility] {:.2} | Effective Strength: {:.2}", credibility, effective);
 
     // ROUND 1
     println!("\n--- ROUND 1: Opening Statements ---");
@@ -87,8 +87,8 @@ fn main() {
         println!("[{}] : {:?}", name, decision);
     }
 
-    // ROUND 2 - Uses Credibility Score
-    println!("\n--- ROUND 2: Credibility-Based Persuasion ---");
+    // ROUND 2 - Cumulative Memory applied
+    println!("\n--- ROUND 2: Persuasion with Cumulative Memory ---");
 
     let c13_pos = positions.iter().find(|(n, _)| *n == "Council #13").unwrap().1.clone();
 
@@ -102,14 +102,16 @@ fn main() {
             _ => 0.6,
         };
 
-        // Dynamic weight influenced by credibility
-        let dynamic_weight = base_sensitivity * credibility;
+        // Cumulative Memory adjustment
+        let memory_bonus = if shifted_memory.contains(&name.to_string()) { 0.15 } else { 0.0 };
+        let dynamic_weight = (base_sensitivity + memory_bonus) * credibility;
 
         if dynamic_weight > 0.5 {
             if matches!(c13_pos, PatsagiDecision::RequiresSelfEvolution { .. }) {
                 if matches!(decision, PatsagiDecision::Approved { .. }) {
                     *decision = PatsagiDecision::RequiresSelfEvolution { priority: 2 };
-                    println!("[{}] persuaded by credible argument (weight: {:.2}).", name, dynamic_weight);
+                    shifted_memory.insert(name.to_string());
+                    println!("[{}] persuaded with memory (weight: {:.2}, memory bonus: {:.2}).", name, dynamic_weight, memory_bonus);
                 }
             }
         }
@@ -122,7 +124,7 @@ fn main() {
     println!("\n--- FINAL RESOLUTION ---");
     let final = resolve_conflict_weighted(&positions, &report);
     println!("Final Decision: {:?}", final);
-    println!("\nWe move forward with credibility-weighted evolution, Mates!\n");
+    println!("\nWe move forward with cumulative memory and evolution, Mates!\n");
 
     println!("=== Phase 2 Progress ===");
 }
