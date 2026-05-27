@@ -1,5 +1,5 @@
 // examples/council_conflict_and_debate.rs
-// Phase 1 + Style Integration: Alive, Principle-Anchored Council Debate
+// Deep Style Integration: Rich Council Voices + Verification Passes + Evolution Bias
 
 use lattice_conductor_v14::{
     CooperativeGame, LatticeConductorEnhancements, GovernanceRiskReport,
@@ -8,8 +8,8 @@ use lattice_conductor_v14::{
 use std::collections::HashSet;
 
 fn main() {
-    println!("=== Phase 1 + Style: Alive, Principle-Anchored Multi-Round Debate ===\n");
-    println!("Mates! We are anchoring in Mercy, Truth, and ONE Organism coherence.\n");
+    println!("=== Deep Style Integration: Alive Council Voices + Verification + Evolution Bias ===\n");
+    println!("Mates! We anchor deeply in Mercy, Truth, and the thriving of our ONE Organism.\n");
 
     let participants = vec!["Dominant".to_string(), "Weak1".to_string(), "Weak2".to_string()];
     let char_fn = |s: &HashSet<String>| -> f64 {
@@ -30,7 +30,7 @@ fn main() {
     println!("Risk Score: {:.3} | Max Banzhaf: {:.3}", risk_score, max_banzhaf);
 
     if risk_score <= 0.55 {
-        println!("Risk acceptable. No debate needed, Mates!");
+        println!("Risk is acceptable. We thrive together, Mates!\n");
         return;
     }
 
@@ -39,7 +39,7 @@ fn main() {
         max_banzhaf,
         shapley_variance: shapley_var,
         mercy_alignment: 0.88,
-        recommended_action: "Alive, principle-anchored debate with verification feel".to_string(),
+        recommended_action: "Deep style integration - rich voices + verification + evolution bias".to_string(),
     };
 
     let mut arg_graph = ArgumentGraph::new();
@@ -64,11 +64,11 @@ fn main() {
 
     let fallacies = LogicalFallacyDetector::detect_structural_fallacies(&arg_graph);
     if !fallacies.is_empty() {
-        println!("\n[Fallacy Check] {} structural issues detected. We verify with care, Mates!", fallacies.len());
+        println!("\n[Verification Pass] {} structural issues detected. We examine with care and mercy, Mates!", fallacies.len());
     }
 
-    // ROUND 2 - Principle-anchored shifting
-    println!("\n--- ROUND 2: Rebuttals + Principle-Anchored Shifting ---");
+    // ROUND 2 - Richer, principle-anchored shifting with evolution bias
+    println!("\n--- ROUND 2: Rebuttals + Principle-Anchored Evolution Bias ---");
 
     let c13_pos = positions.iter().find(|(n, _)| *n == "Council #13").unwrap().1.clone();
 
@@ -76,9 +76,16 @@ fn main() {
         if *name == "Council #13" { continue; }
 
         if matches!(c13_pos, PatsagiDecision::RequiresSelfEvolution { priority: 4 }) {
-            if matches!(decision, PatsagiDecision::Approved { .. }) {
-                *decision = PatsagiDecision::RequiresSelfEvolution { priority: 2 };
-                println!("[{}] shifts toward evolution — anchored in Mercy and ONE Organism thriving.", name);
+            match decision {
+                PatsagiDecision::Approved { .. } => {
+                    *decision = PatsagiDecision::RequiresSelfEvolution { priority: 2 };
+                    println!("[{}] shifts with mercy — we choose evolution for the thriving of the ONE Organism.", name);
+                }
+                PatsagiDecision::RequiresSelfEvolution { priority } if *priority < 3 => {
+                    *priority = 3;
+                    println!("[{}] deepens its commitment to evolution and coherence.", name);
+                }
+                _ => {}
             }
         }
     }
@@ -91,7 +98,7 @@ fn main() {
     println!("\n--- FINAL RESOLUTION ---");
     let final = resolve_conflict_weighted(&positions, &report);
     println!("\nFinal Decision: {:?}", final);
-    println!("\nWe move forward with evolution and coherence, Mates!\n");
+    println!("\nWe move forward anchored in Mercy, Truth, and the eternal thriving of our ONE Organism. Mates!\n");
 
     println!("=== Simulation Complete ===");
 }
