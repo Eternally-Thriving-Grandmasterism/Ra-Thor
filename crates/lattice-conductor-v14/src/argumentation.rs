@@ -1,5 +1,5 @@
 // crates/lattice-conductor-v14/src/argumentation.rs
-// Continuing balanced progress - Technical improvement
+// Another balanced round - Technical improvement
 
 use std::collections::HashMap;
 
@@ -116,11 +116,15 @@ impl ArgumentGraph {
         total / self.claims.len() as f64
     }
 
-    /// Find the claim with the highest conflict level
     pub fn most_contested_claim(&self) -> Option<(ArgumentId, f64)> {
         self.claims.keys()
             .filter_map(|&id| self.conflict_level(id).map(|level| (id, level)))
             .max_by(|a, b| a.1.partial_cmp(&b.1).unwrap_or(std::cmp::Ordering::Equal))
+    }
+
+    /// Simple graph summary
+    pub fn graph_summary(&self) -> (usize, usize, usize) {
+        (self.claims.len(), self.supports.len(), self.attacks.len())
     }
 
     pub fn effective_strength(&self, claim_id: ArgumentId) -> Option<f64> {
