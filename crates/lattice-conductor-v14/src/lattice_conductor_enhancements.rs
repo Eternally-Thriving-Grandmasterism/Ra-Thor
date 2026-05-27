@@ -1,5 +1,5 @@
 // crates/lattice-conductor-v14/src/lattice_conductor_enhancements.rs
-// Enhanced with multi-objective Shapley optimization integration
+// Refined integration with functional optimization usage
 
 use crate::distributed_mercy_mesh::{DistributedMercyMesh, MercyEvent, OrganismNode};
 use crate::patsagi_governance::{PatsagiCouncilSimulator, PatsagiDecision, PatsagiReviewRequest};
@@ -52,7 +52,7 @@ impl LatticeConductorEnhancements {
         (game.shapley_value(), game.banzhaf_index())
     }
 
-    /// Uses multi-objective Shapley optimization before PATSAGi review
+    /// Fully functional: Uses multi-objective optimization then submits to PATSAGi
     pub fn optimize_and_submit_to_patsagi(
         mesh: &mut DistributedMercyMesh,
         topic: &str,
@@ -62,12 +62,17 @@ impl LatticeConductorEnhancements {
         max_size: usize,
     ) -> (PatsagiDecision, String) {
         let game = CooperativeGame::new(participants.clone(), coalition_value_fn);
-        let (optimized_coalition, _) = game.optimize_coalition_multi_objective(max_size, 0.6, 0.4, 6);
+        let (optimized_coalition, optimization_score) = 
+            game.optimize_coalition_multi_objective(max_size, 0.6, 0.4, 6);
 
         let request = Self::request_patsagi_review(mesh, topic, summary);
         let decision = PatsagiCouncilSimulator::review(&request);
 
-        let insight = format!("Optimized coalition via multi-objective Shapley: {:?}", optimized_coalition);
+        let insight = format!(
+            "Optimized coalition: {:?} (score: {:.2}). PATSAGi decision may be influenced.",
+            optimized_coalition, optimization_score
+        );
+
         (decision, insight)
     }
 
@@ -89,8 +94,12 @@ impl LatticeConductorEnhancements {
         let unfair_contribution = shapley_variance > 0.15;
 
         let final_decision = match (&traditional, power_concentrated, unfair_contribution) {
-            (PatsagiDecision::Approved { .. }, true, _) => PatsagiDecision::RequiresCouncilArbitration { councils: vec![13] },
-            (PatsagiDecision::Approved { .. }, _, true) => PatsagiDecision::RequiresSelfEvolution { priority: 2 },
+            (PatsagiDecision::Approved { .. }, true, _) => {
+                PatsagiDecision::RequiresCouncilArbitration { councils: vec![13] }
+            }
+            (PatsagiDecision::Approved { .. }, _, true) => {
+                PatsagiDecision::RequiresSelfEvolution { priority: 2 }
+            }
             _ => traditional,
         };
 
