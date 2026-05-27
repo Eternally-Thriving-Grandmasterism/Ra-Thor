@@ -1,5 +1,5 @@
 // examples/council_conflict_and_debate.rs
-// Phase 2: SQLite Persistence + Deep Cumulative Memory
+// Phase 2: Fully Integrated SQLite Persistence + Deep Cumulative Memory
 
 use lattice_conductor_v14::{
     CooperativeGame, LatticeConductorEnhancements, GovernanceRiskReport,
@@ -7,8 +7,69 @@ use lattice_conductor_v14::{
 };
 use std::collections::{HashMap, HashSet};
 
-// Simple in-simulation persistence using the debate_persistence module logic
-// (In a real system this would be properly modularized)
+// Note: In a real project this would be properly modularized.
+// For the example we include key logic from debate_persistence.rs
+
+use rusqlite::{Connection, Result as SqlResult};
+
+#[derive(Debug, Clone)]
+struct DebateState {
+    shifted_councils: Vec<String>,
+    cumulative_fallacy_impact: f64,
+    conviction_level: f64,
+}
+
+struct DebatePersistence {
+    conn: Connection,
+}
+
+impl DebatePersistence {
+    fn new(db_path: &str) -> SqlResult<Self> {
+        let conn = Connection::open(db_path)?;
+        conn.execute(
+            "CREATE TABLE IF NOT EXISTS debate_state (
+                id INTEGER PRIMARY KEY,
+                shifted_councils TEXT,
+                cumulative_fallacy_impact REAL,
+                conviction_level REAL
+            )",
+            [],
+        )?;
+        Ok(Self { conn })
+    }
+
+    fn save_state(&self, shifted: &[String], fallacy_impact: f64, conviction: f64) -> SqlResult<()> {
+        let shifted_str = shifted.join(",");
+        self.conn.execute(
+            "INSERT OR REPLACE INTO debate_state (id, shifted_councils, cumulative_fallacy_impact, conviction_level)
+             VALUES (1, ?1, ?2, ?3)",
+            rusqlite::params![shifted_str, fallacy_impact, conviction],
+        )?;
+        Ok(())
+    }
+
+    fn load_state(&self) -> SqlResult<Option<DebateState>> {
+        let mut stmt = self.conn.prepare(
+            "SELECT shifted_councils, cumulative_fallacy_impact, conviction_level FROM debate_state WHERE id = 1",
+        )?;
+        let mut rows = stmt.query([])?;
+        if let Some(row) = rows.next()? {
+            let shifted_str: String = row.get(0)?;
+            let shifted = if shifted_str.is_empty() {
+                vec![]
+            } else {
+                shifted_str.split(',').map(|s| s.to_string()).collect()
+            };
+            Ok(Some(DebateState {
+                shifted_councils: shifted,
+                cumulative_fallacy_impact: row.get(1)?,
+                conviction_level: row.get(2)?,
+            }))
+        } else {
+            Ok(None)
+        }
+    }
+}
 
 fn calculate_argument_credibility(
     effective_strength: f64,
@@ -22,19 +83,26 @@ fn calculate_argument_credibility(
 }
 
 fn main() {
-    println!("=== Phase 2: SQLite Persistence + Deep Cumulative Memory ===\n");
-    println!("Mates! The debate now persists its memory across runs.\n");
+    println!("=== Phase 2: Fully Integrated Persistence + Deep Cumulative Memory ===\n");
+    println!("Mates! The debate now fully persists its memory using SQLite.\n");
 
-    // === Load previous state from SQLite (if exists) ===
+    let db = DebatePersistence::new("debate_memory.db").expect("Failed to open persistence");
+
+    // Load previous state
     let mut shifted_memory: HashSet<String> = HashSet::new();
     let mut cumulative_fallacy_impact: f64 = 0.15;
     let mut conviction_level: f64 = 1.0;
-    let mut current_round: u32 = 1;
 
-    // In a full integration we would use DebatePersistence here to load state
-    // For now we simulate loading previous memory
-    println!("[Persistence] Attempting to load previous debate memory...");
-    // (Placeholder - in real use: load from debate_persistence.rs)
+    if let Ok(Some(state)) = db.load_state() {
+        for council in state.shifted_councils {
+            shifted_memory.insert(council);
+        }
+        cumulative_fallacy_impact = state.cumulative_fallacy_impact;
+        conviction_level = state.conviction_level;
+        println!("[Persistence] Loaded previous debate state.");
+    } else {
+        println!("[Persistence] No previous state found. Starting fresh.");
+    }
 
     let participants = vec!["Dominant".to_string(), "Weak1".to_string(), "Weak2".to_string()];
     let char_fn = |s: &HashSet<String>| -> f64 {
@@ -64,7 +132,7 @@ fn main() {
         max_banzhaf,
         shapley_variance: shapley_var,
         mercy_alignment: 0.88,
-        recommended_action: "SQLite Persistence + Cumulative Memory".to_string(),
+        recommended_action: "Fully Integrated Persistence".to_string(),
     };
 
     let mut arg_graph = ArgumentGraph::new();
@@ -81,11 +149,10 @@ fn main() {
     let conflict = arg_graph.conflict_level(main_claim).unwrap_or(0.0);
 
     let credibility = calculate_argument_credibility(effective, conflict, cumulative_fallacy_impact);
-    println!("\n[Loaded State] Credibility: {:.2} | Fallacy Impact: {:.2} | Conviction: {:.2}", 
-             credibility, cumulative_fallacy_impact, conviction_level);
+    println!("\n[State] Credibility: {:.2} | Fallacy Impact: {:.2} | Conviction: {:.2}", credibility, cumulative_fallacy_impact, conviction_level);
 
     // ROUND 1
-    println!("\n--- ROUND {}: Opening Statements ---", current_round);
+    println!("\n--- ROUND 1: Opening Statements ---");
     let mut positions: Vec<(&str, PatsagiDecision)> = vec![
         ("Mercy Council",   debate_mercy(&report)),
         ("Truth Council",   debate_truth(&report)),
@@ -97,13 +164,12 @@ fn main() {
         println!("[{}] : {:?}", name, decision);
     }
 
-    // Simulate more fallacies and decay
+    // Update cumulative state
     cumulative_fallacy_impact += 0.08;
     conviction_level *= 0.93;
-    current_round += 1;
 
-    // ROUND 2 - With Cumulative Memory + Persistence awareness
-    println!("\n--- ROUND {}: Persuasion with Persistent Memory ---", current_round);
+    // ROUND 2
+    println!("\n--- ROUND 2: Persuasion with Persistent Memory ---");
 
     let c13_pos = positions.iter().find(|(n, _)| *n == "Council #13").unwrap().1.clone();
 
@@ -117,9 +183,7 @@ fn main() {
             _ => 0.6,
         };
 
-        let memory_bonus = if shifted_memory.contains(&name.to_string
-
-()) { 0.12 } else { 0.0 };
+        let memory_bonus = if shifted_memory.contains(&name.to_string()) { 0.12 } else { 0.0 };
         let adjusted_credibility = credibility * conviction_level * (1.0 - cumulative_fallacy_impact.min(0.45));
         let dynamic_weight = (base_sensitivity + memory_bonus) * adjusted_credibility;
 
@@ -135,17 +199,22 @@ fn main() {
     }
 
     for (name, decision) in &positions {
-        println!("[{}] after Round {}: {:?}", name, current_round, decision);
+        println!("[{}] after Round 2: {:?}", name, decision);
     }
 
-    // In real integration: db.save_round(current_round, &shifted_memory.iter().cloned().collect::<Vec<_>>(), cumulative_fallacy_impact as u32);
+    // Save state to SQLite
+    let shifted_vec: Vec<String> = shifted_memory.iter().cloned().collect();
+    db.save_state(&shifted_vec, cumulative_fallacy_impact, conviction_level)
+        .expect("Failed to save debate state");
+
+    println!("\n[Persistence] Debate state saved to SQLite.");
 
     println!("\n--- FINAL RESOLUTION ---");
     let final = resolve_conflict_weighted(&positions, &report);
     println!("Final Decision: {:?}", final);
-    println!("\nWe move forward with persistent cumulative memory, Mates!\n");
+    println!("\nWe move forward with fully persistent cumulative memory, Mates!\n");
 
-    println!("=== Phase 2 Progress ===");
+    println!("=== Phase 2 Complete ===");
 }
 
 fn debate_mercy(report: &GovernanceRiskReport) -> PatsagiDecision {
