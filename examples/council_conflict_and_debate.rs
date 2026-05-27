@@ -1,5 +1,5 @@
 // examples/council_conflict_and_debate.rs
-// Phase 2: Dynamic Persuasion Weights
+// Phase 2: Argument Credibility Scoring + Dynamic Persuasion
 
 use lattice_conductor_v14::{
     CooperativeGame, LatticeConductorEnhancements, GovernanceRiskReport,
@@ -7,9 +7,21 @@ use lattice_conductor_v14::{
 };
 use std::collections::HashSet;
 
+/// Calculate Argument Credibility Score (0.0 - 1.0)
+fn calculate_argument_credibility(
+    effective_strength: f64,
+    conflict_level: f64,
+    fallacy_penalty: f64,
+) -> f64 {
+    let base = effective_strength * 0.6;
+    let conflict_adjustment = (1.0 - conflict_level) * 0.3;
+    let credibility = (base + conflict_adjustment) * (1.0 - fallacy_penalty);
+    credibility.clamp(0.0, 1.0)
+}
+
 fn main() {
-    println!("=== Phase 2: Dynamic Persuasion Weights ===\n");
-    println!("Mates! Persuasion weights now adjust dynamically based on argument strength and conflict.\n");
+    println!("=== Phase 2: Argument Credibility Scoring ===\n");
+    println!("Mates! Persuasion now uses a full credibility score.\n");
 
     let participants = vec!["Dominant".to_string(), "Weak1".to_string(), "Weak2".to_string()];
     let char_fn = |s: &HashSet<String>| -> f64 {
@@ -39,7 +51,7 @@ fn main() {
         max_banzhaf,
         shapley_variance: shapley_var,
         mercy_alignment: 0.88,
-        recommended_action: "Dynamic persuasion weights".to_string(),
+        recommended_action: "Argument Credibility Scoring".to_string(),
     };
 
     let mut arg_graph = ArgumentGraph::new();
@@ -49,13 +61,18 @@ fn main() {
         0.85,
     );
 
-    arg_graph.add_support(main_claim, main_claim, "Strong coherence benefits".to_string(), "Truth Council".to_string(), 0.8);
-    arg_graph.add_attack(main_claim, main_claim, "Potential overreach".to_string(), "Justice Council".to_string(), 0.3);
+    arg_graph.add_support(main_claim, main_claim, "Supports coherence".to_string(), "Truth Council".to_string(), 0.8);
+    arg_graph.add_attack(main_claim, main_claim, "Risk of disruption".to_string(), "Justice Council".to_string(), 0.3);
 
     let effective = arg_graph.effective_strength(main_claim).unwrap_or(0.5);
     let conflict = arg_graph.conflict_level(main_claim).unwrap_or(0.0);
 
-    println!("\n[ArgumentGraph] Effective Strength: {:.2} | Conflict: {:.2}", effective, conflict);
+    // Simulate previous fallacy detection
+    let fallacy_penalty = 0.15; // Example: fallacies were detected earlier
+
+    let credibility = calculate_argument_credibility(effective, conflict, fallacy_penalty);
+    println!("\n[Credibility Score] {:.2} (Strength: {:.2}, Conflict: {:.2}, Fallacy Penalty: {:.2})", 
+             credibility, effective, conflict, fallacy_penalty);
 
     // ROUND 1
     println!("\n--- ROUND 1: Opening Statements ---");
@@ -70,15 +87,14 @@ fn main() {
         println!("[{}] : {:?}", name, decision);
     }
 
-    // ROUND 2 - Dynamic persuasion weights
-    println!("\n--- ROUND 2: Dynamic Persuasion Weights ---");
+    // ROUND 2 - Uses Credibility Score
+    println!("\n--- ROUND 2: Credibility-Based Persuasion ---");
 
     let c13_pos = positions.iter().find(|(n, _)| *n == "Council #13").unwrap().1.clone();
 
     for (name, decision) in positions.iter_mut() {
         if *name == "Council #13" { continue; }
 
-        // Base archetype sensitivity
         let base_sensitivity = match *name {
             "Mercy Council" | "Harmony Council" => 0.8,
             "Truth Council" => 0.7,
@@ -86,14 +102,14 @@ fn main() {
             _ => 0.6,
         };
 
-        // Dynamic adjustment based on graph data
-        let dynamic_weight = base_sensitivity * (effective * 0.8 + (1.0 - conflict) * 0.6);
+        // Dynamic weight influenced by credibility
+        let dynamic_weight = base_sensitivity * credibility;
 
-        if dynamic_weight > 0.55 {
+        if dynamic_weight > 0.5 {
             if matches!(c13_pos, PatsagiDecision::RequiresSelfEvolution { .. }) {
                 if matches!(decision, PatsagiDecision::Approved { .. }) {
                     *decision = PatsagiDecision::RequiresSelfEvolution { priority: 2 };
-                    println!("[{}] dynamically persuaded (weight: {:.2}).", name, dynamic_weight);
+                    println!("[{}] persuaded by credible argument (weight: {:.2}).", name, dynamic_weight);
                 }
             }
         }
@@ -106,7 +122,7 @@ fn main() {
     println!("\n--- FINAL RESOLUTION ---");
     let final = resolve_conflict_weighted(&positions, &report);
     println!("Final Decision: {:?}", final);
-    println!("\nWe advance with dynamically weighted, principle-aligned evolution, Mates!\n");
+    println!("\nWe move forward with credibility-weighted evolution, Mates!\n");
 
     println!("=== Phase 2 Progress ===");
 }
