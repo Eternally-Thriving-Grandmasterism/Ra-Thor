@@ -1,5 +1,5 @@
 // crates/lattice-conductor-v14/src/argumentation.rs
-// Phase 3: Admissible Set Checking + Grounded Extension
+// Phase 3: Preferred Extensions (Maximal Admissible Sets)
 
 use std::collections::{HashMap, HashSet};
 
@@ -165,7 +165,7 @@ impl ArgumentGraph {
         ranked
     }
 
-    // === Phase 3: Admissible Sets & Grounded Extension ===
+    // === Phase 3: Admissible Sets & Extensions ===
 
     pub fn unattacked_arguments(&self) -> Vec<ArgumentId> {
         self.claims
@@ -181,9 +181,9 @@ impl ArgumentGraph {
             .all(|attack| defeated.contains(&attack.source_claim_id))
     }
 
-    /// Check if a set of arguments is admissible (conflict-free + self-defending)
+    /// Check if a set is admissible (conflict-free and self-defending)
     pub fn is_admissible(&self, set: &HashSet<ArgumentId>) -> bool {
-        // 1. Conflict-free: No argument in the set attacks another in the set
+        // Conflict-free
         for &arg in set {
             for attack in self.get_attackers(arg) {
                 if set.contains(&attack.source_claim_id) {
@@ -191,14 +191,12 @@ impl ArgumentGraph {
                 }
             }
         }
-
-        // 2. Self-defending: Every argument in the set is defended by the set
+        // Self-defending
         for &arg in set {
             if !self.is_defended(arg, set) {
                 return false;
             }
         }
-
         true
     }
 
@@ -231,5 +229,31 @@ impl ArgumentGraph {
         }
 
         extension.into_iter().collect()
+    }
+
+    /// Find one maximal admissible set (simple greedy approach for Preferred Extension)
+    pub fn find_maximal_admissible_set(&self) -> HashSet<ArgumentId> {
+        let mut current: HashSet<ArgumentId> = self.grounded_extension().into_iter().collect();
+
+        let mut candidates: Vec<ArgumentId> = self.claims.keys()
+            .filter(|&&id| !current.contains(&id))
+            .cloned()
+            .collect();
+
+        for &arg in &candidates {
+            let mut test_set = current.clone();
+            test_set.insert(arg);
+
+            if self.is_admissible(&test_set) {
+                current = test_set;
+            }
+        }
+
+        current
+    }
+
+    /// Return one Preferred Extension (maximal admissible set)
+    pub fn preferred_extension(&self) -> Vec<ArgumentId> {
+        self.find_maximal_admissible_set().into_iter().collect()
     }
 }
