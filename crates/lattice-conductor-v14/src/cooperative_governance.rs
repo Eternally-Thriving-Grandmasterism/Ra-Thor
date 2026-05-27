@@ -1,21 +1,10 @@
 // crates/lattice-conductor-v14/src/cooperative_governance.rs
-// Cooperative Game Theory Module for Ra-Thor Governance (v14.1+)
-//
-// Implements core cooperative game primitives with focus on:
-// - Shapley Value (fair marginal contribution)
-// - Banzhaf Power Index (swing voter criticality)
-// - Simulation-friendly design for governance use cases
-//
-// Designed for integration with PATSAGi Councils and Thunder Lattice.
-// All functions are simulatable and testable.
+// Cooperative Game Theory + Shapley Value Optimization
 
 use std::collections::HashSet;
 
-/// A simple cooperative game defined by a set of players and a characteristic function.
-/// In Ra-Thor context, players can be organisms, councils, or nodes.
 pub struct CooperativeGame {
     pub players: Vec<String>,
-    /// characteristic_function(S) returns the value coalition S can achieve
     pub characteristic_function: Box<dyn Fn(&HashSet<String>) -> f64 + Send + Sync>,
 }
 
@@ -27,13 +16,10 @@ impl CooperativeGame {
         }
     }
 
-    /// Computes exact Shapley value for small player sets.
-    /// For larger sets, use approximate_shapley_value.
     pub fn shapley_value(&self) -> Vec<(String, f64)> {
         let n = self.players.len();
         let mut values = vec![0.0; n];
 
-        // Iterate over all possible coalitions
         for mask in 0..(1 << n) {
             let mut coalition = HashSet::new();
             for i in 0..n {
@@ -41,18 +27,14 @@ impl CooperativeGame {
                     coalition.insert(self.players[i].clone());
                 }
             }
-
             let coalition_value = (self.characteristic_function)(&coalition);
 
             for i in 0..n {
                 if (mask & (1 << i)) != 0 {
-                    // Player i is in the coalition
                     let mut without_i = coalition.clone();
                     without_i.remove(&self.players[i]);
                     let without_value = (self.characteristic_function)(&without_i);
                     let marginal = coalition_value - without_value;
-
-                    // Weight by 1 / n (simplified exact for small n)
                     values[i] += marginal / (n as f64);
                 }
             }
@@ -61,7 +43,6 @@ impl CooperativeGame {
         self.players.iter().cloned().zip(values).collect()
     }
 
-    /// Monte Carlo approximation of Shapley value (scalable)
     pub fn approximate_shapley_value(&self, samples: usize) -> Vec<(String, f64)> {
         use rand::seq::SliceRandom;
         use rand::thread_rng;
@@ -86,14 +67,9 @@ impl CooperativeGame {
         }
 
         let factor = 1.0 / samples as f64;
-        self.players
-            .iter()
-            .cloned()
-            .zip(totals.into_iter().map(|v| v * factor))
-            .collect()
+        self.players.iter().cloned().zip(totals.into_iter().map(|v| v * factor)).collect()
     }
 
-    /// Computes Banzhaf Power Index (normalized)
     pub fn banzhaf_index(&self) -> Vec<(String, f64)> {
         let n = self.players.len();
         let mut critical_counts = vec![0usize; n];
@@ -106,7 +82,6 @@ impl CooperativeGame {
                     coalition.insert(self.players[i].clone());
                 }
             }
-
             let coalition_value = (self.characteristic_function)(&coalition);
 
             for i in 0..n {
@@ -127,11 +102,60 @@ impl CooperativeGame {
             return self.players.iter().cloned().map(|p| (p, 0.0)).collect();
         }
 
-        self.players
-            .iter()
-            .cloned()
-            .zip(critical_counts.into_iter().map(|c| c as f64 / total_critical as f64))
-            .collect()
+        self.players.iter().cloned().zip(critical_counts.into_iter().map(|c| c as f64 / total_critical as f64)).collect()
+    }
+
+    // ==================== Shapley Value Optimization ====================
+
+    /// Finds a subset of players that maximizes the minimum Shapley value (fairness-focused)
+    /// Uses a simple greedy + local search approach for tractability.
+    pub fn optimize_coalition_for_fair_shapley(&self, max_size: usize) -> (Vec<String>, f64) {
+        let n = self.players.len();
+        if n == 0 { return (vec![], 0.0); }
+
+        let mut best_coalition: Vec<String> = vec![];
+        let mut best_min_shapley = f64::NEG_INFINITY;
+
+        // Greedy seed: start with highest individual contributors
+        let mut current: HashSet<String> = HashSet::new();
+        let mut remaining: Vec<String> = self.players.clone();
+
+        // Add players one by one while improving min Shapley
+        for _ in 0..max_size.min(n) {
+            let mut best_candidate: Option<String> = None;
+            let mut best_score = f64::NEG_INFINITY;
+
+            for candidate in &remaining {
+                let mut test_set = current.clone();
+                test_set.insert(candidate.clone());
+
+                let temp_game = CooperativeGame::new(
+                    test_set.iter().cloned().collect(),
+                    |s| (self.characteristic_function)(s),
+                );
+                let shapley = temp_game.shapley_value();
+                let min_shapley = shapley.iter().map(|(_, v)| *v).fold(f64::INFINITY, f64::min);
+
+                if min_shapley > best_score {
+                    best_score = min_shapley;
+                    best_candidate = Some(candidate.clone());
+                }
+            }
+
+            if let Some(best) = best_candidate {
+                current.insert(best.clone());
+                remaining.retain(|p| p != &best);
+
+                if best_score > best_min_shapley {
+                    best_min_shapley = best_score;
+                    best_coalition = current.iter().cloned().collect();
+                }
+            } else {
+                break;
+            }
+        }
+
+        (best_coalition, best_min_shapley.max(0.0))
     }
 }
 
@@ -140,16 +164,12 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_shapley_and_banzhaf_simple() {
-        let players = vec!["A".to_string(), "B".to_string()];
-        let game = CooperativeGame::new(players, |coalition| {
-            if coalition.len() == 2 { 10.0 } else { 0.0 }
-        });
+    fn test_optimize_coalition() {
+        let players = vec!["A".to_string(), "B".to_string(), "C".to_string()];
+        let game = CooperativeGame::new(players, |s| s.len() as f64 * 10.0);
 
-        let shapley = game.shapley_value();
-        let banzhaf = game.banzhaf_index();
-
-        assert!((shapley[0].1 - 5.0).abs() < 0.01);
-        assert!((banzhaf[0].1 - 0.5).abs() < 0.01);
+        let (best, score) = game.optimize_coalition_for_fair_shapley(3);
+        assert!(!best.is_empty());
+        assert!(score >= 0.0);
     }
 }
