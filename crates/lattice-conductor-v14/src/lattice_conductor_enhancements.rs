@@ -1,10 +1,32 @@
 // crates/lattice-conductor-v14/src/lattice_conductor_enhancements.rs
-// Composite Governance Risk Score Implementation
+// Structured Logging for Governance Risk Scores
 
 use crate::distributed_mercy_mesh::{DistributedMercyMesh, MercyEvent, OrganismNode};
 use crate::patsagi_governance::{PatsagiCouncilSimulator, PatsagiDecision, PatsagiReviewRequest};
 use crate::cooperative_governance::CooperativeGame;
 use std::collections::HashSet;
+
+/// Structured report for governance risk analysis
+#[derive(Debug, Clone)]
+pub struct GovernanceRiskReport {
+    pub risk_score: f64,
+    pub max_banzhaf: f64,
+    pub shapley_variance: f64,
+    pub mercy_alignment: f64,
+    pub recommended_action: String,
+}
+
+impl GovernanceRiskReport {
+    pub fn log(&self) {
+        println!("[GOVERNANCE RISK] score={:.3} | max_banzhaf={:.3} | shapley_var={:.3} | mercy={:.3} | action={}",
+            self.risk_score,
+            self.max_banzhaf,
+            self.shapley_variance,
+            self.mercy_alignment,
+            self.recommended_action
+        );
+    }
+}
 
 pub struct LatticeConductorEnhancements;
 
@@ -52,8 +74,6 @@ impl LatticeConductorEnhancements {
         (game.shapley_value(), game.banzhaf_index())
     }
 
-    /// NEW: Composite Governance Risk Score
-    /// Combines Banzhaf (power concentration) + Shapley variance (unfairness)
     pub fn calculate_governance_risk_score(
         max_banzhaf: f64,
         shapley_variance: f64,
@@ -61,20 +81,19 @@ impl LatticeConductorEnhancements {
     ) -> f64 {
         let power_risk = max_banzhaf.clamp(0.0, 1.0);
         let fairness_risk = shapley_variance.min(1.0);
-
         let base_risk = (0.55 * power_risk) + (0.45 * fairness_risk);
         let mercy_factor = 1.0 - (mercy_alignment * 0.15);
-
         (base_risk * mercy_factor).clamp(0.0, 1.0)
     }
 
+    /// Returns both decision and structured risk report
     pub fn submit_to_patsagi_with_game_theory(
         mesh: &mut DistributedMercyMesh,
         topic: &str,
         summary: &str,
         participants: Vec<String>,
         coalition_value_fn: impl Fn(&HashSet<String>) -> f64 + Send + Sync + 'static,
-    ) -> (PatsagiDecision, String) {
+    ) -> (PatsagiDecision, GovernanceRiskReport) {
         let request = Self::request_patsagi_review(mesh, topic, summary);
         let traditional = PatsagiCouncilSimulator::review(&request);
 
@@ -84,11 +103,8 @@ impl LatticeConductorEnhancements {
         let shapley_variance = Self::shapley_variance(&shapley);
         let mercy_alignment = request.mercy_impact_score;
 
-        // Use composite risk score
         let risk_score = Self::calculate_governance_risk_score(
-            max_banzhaf,
-            shapley_variance,
-            mercy_alignment,
+            max_banzhaf, shapley_variance, mercy_alignment
         );
 
         let final_decision = if risk_score > 0.75 {
@@ -99,12 +115,21 @@ impl LatticeConductorEnhancements {
             traditional
         };
 
-        let insight = format!(
-            "Risk Score: {:.3} | Max Banzhaf: {:.3} | Shapley Variance: {:.3}",
-            risk_score, max_banzhaf, shapley_variance
-        );
+        let recommended_action = match final_decision {
+            PatsagiDecision::RequiresCouncilArbitration { .. } => "Escalate to Council #13".to_string(),
+            PatsagiDecision::RequiresSelfEvolution { .. } => "Trigger self-evolution".to_string(),
+            _ => "No escalation".to_string(),
+        };
 
-        (final_decision, insight)
+        let report = GovernanceRiskReport {
+            risk_score,
+            max_banzhaf,
+            shapley_variance,
+            mercy_alignment,
+            recommended_action,
+        };
+
+        (final_decision, report)
     }
 
     fn shapley_variance(shapley: &[(String, f64)]) -> f64 {
