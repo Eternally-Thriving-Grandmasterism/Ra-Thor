@@ -1,5 +1,5 @@
 //! crates/lattice-conductor-v14/src/lib.rs
-//! Public exports including structured governance types
+//! Includes production-grade Argumentation Framework
 
 pub mod council_arbitration;
 pub mod runtime_self_healing;
@@ -7,6 +7,7 @@ pub mod distributed_mercy_mesh;
 pub mod lattice_conductor_enhancements;
 pub mod patsagi_governance;
 pub mod cooperative_governance;
+pub mod argumentation;                    // NEW
 pub mod governance;
 pub mod hybrid_sovereign_channel;
 pub mod post_quantum_signatures;
@@ -22,6 +23,7 @@ pub use distributed_mercy_mesh::{
 pub use lattice_conductor_enhancements::{LatticeConductorEnhancements, LatticeDiagnosticsReport, GovernanceRiskReport};
 pub use patsagi_governance::{PatsagiReviewRequest, PatsagiDecision, PatsagiCouncilSimulator};
 pub use cooperative_governance::CooperativeGame;
+pub use argumentation::{ArgumentGraph, Claim, Support, Attack};
 pub use governance::self_evaluation_proposal::SelfEvaluationProposal;
 pub use post_quantum_signatures::{create_post_quantum_signature, verify_post_quantum_signature};
 pub use hybrid_sovereign_channel::HybridSovereignChannel;
