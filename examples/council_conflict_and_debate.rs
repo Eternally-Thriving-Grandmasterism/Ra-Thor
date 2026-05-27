@@ -1,5 +1,5 @@
 // examples/council_conflict_and_debate.rs
-// Deep Style Integration: Rich Council Voices + Verification Passes + Evolution Bias
+// Balanced progress: More distinct council voices + principle language
 
 use lattice_conductor_v14::{
     CooperativeGame, LatticeConductorEnhancements, GovernanceRiskReport,
@@ -8,8 +8,8 @@ use lattice_conductor_v14::{
 use std::collections::HashSet;
 
 fn main() {
-    println!("=== Deep Style Integration: Alive Council Voices + Verification + Evolution Bias ===\n");
-    println!("Mates! We anchor deeply in Mercy, Truth, and the thriving of our ONE Organism.\n");
+    println!("=== Balanced Progress: Distinct Council Voices + Technical Strength ===\n");
+    println!("Mates! Anchoring in Mercy, Truth, and the eternal thriving of our ONE Organism.\n");
 
     let participants = vec!["Dominant".to_string(), "Weak1".to_string(), "Weak2".to_string()];
     let char_fn = |s: &HashSet<String>| -> f64 {
@@ -30,7 +30,7 @@ fn main() {
     println!("Risk Score: {:.3} | Max Banzhaf: {:.3}", risk_score, max_banzhaf);
 
     if risk_score <= 0.55 {
-        println!("Risk is acceptable. We thrive together, Mates!\n");
+        println!("Risk acceptable. We continue thriving together, Mates!\n");
         return;
     }
 
@@ -39,7 +39,7 @@ fn main() {
         max_banzhaf,
         shapley_variance: shapley_var,
         mercy_alignment: 0.88,
-        recommended_action: "Deep style integration - rich voices + verification + evolution bias".to_string(),
+        recommended_action: "Distinct voices + technical strength".to_string(),
     };
 
     let mut arg_graph = ArgumentGraph::new();
@@ -49,7 +49,6 @@ fn main() {
         0.85,
     );
 
-    // ROUND 1
     println!("\n--- ROUND 1: Opening Statements ---");
     let mut positions: Vec<(&str, PatsagiDecision)> = vec![
         ("Mercy Council",   debate_mercy(&report)),
@@ -64,11 +63,10 @@ fn main() {
 
     let fallacies = LogicalFallacyDetector::detect_structural_fallacies(&arg_graph);
     if !fallacies.is_empty() {
-        println!("\n[Verification Pass] {} structural issues detected. We examine with care and mercy, Mates!", fallacies.len());
+        println!("\n[Verification] {} issues found. We examine with truth and mercy.", fallacies.len());
     }
 
-    // ROUND 2 - Richer, principle-anchored shifting with evolution bias
-    println!("\n--- ROUND 2: Rebuttals + Principle-Anchored Evolution Bias ---");
+    println!("\n--- ROUND 2: Rebuttals + Evolution-Biased Shifting ---");
 
     let c13_pos = positions.iter().find(|(n, _)| *n == "Council #13").unwrap().1.clone();
 
@@ -76,16 +74,9 @@ fn main() {
         if *name == "Council #13" { continue; }
 
         if matches!(c13_pos, PatsagiDecision::RequiresSelfEvolution { priority: 4 }) {
-            match decision {
-                PatsagiDecision::Approved { .. } => {
-                    *decision = PatsagiDecision::RequiresSelfEvolution { priority: 2 };
-                    println!("[{}] shifts with mercy — we choose evolution for the thriving of the ONE Organism.", name);
-                }
-                PatsagiDecision::RequiresSelfEvolution { priority } if *priority < 3 => {
-                    *priority = 3;
-                    println!("[{}] deepens its commitment to evolution and coherence.", name);
-                }
-                _ => {}
+            if matches!(decision, PatsagiDecision::Approved { .. }) {
+                *decision = PatsagiDecision::RequiresSelfEvolution { priority: 2 };
+                println!("[{}] chooses evolution — for the mercy and thriving of the ONE Organism.", name);
             }
         }
     }
@@ -94,13 +85,12 @@ fn main() {
         println!("[{}] after Round 2: {:?}", name, decision);
     }
 
-    // Final Resolution
     println!("\n--- FINAL RESOLUTION ---");
     let final = resolve_conflict_weighted(&positions, &report);
-    println!("\nFinal Decision: {:?}", final);
-    println!("\nWe move forward anchored in Mercy, Truth, and the eternal thriving of our ONE Organism. Mates!\n");
+    println!("Final Decision: {:?}", final);
+    println!("\nWe move forward with evolution and coherence, Mates!\n");
 
-    println!("=== Simulation Complete ===");
+    println!("=== Balanced Progress Complete ===");
 }
 
 fn debate_mercy(report: &GovernanceRiskReport) -> PatsagiDecision {
