@@ -1,7 +1,14 @@
 // crates/lattice-conductor-v14/src/argumentation.rs
 //
 // Ra-Thor Argumentation Graph
-// Phase 2: Context Typing (SuperiorityContext Enum)
+// Supports formal Abstract Argumentation semantics + Phase 1/2 Defeasible Logic
+//
+// Features:
+// - Claim / Support / Attack modeling
+// - Grounded, Preferred, and Stable Extensions
+// - Recommendation Engine with Safety vs Evolution scoring
+// - Phase 1: Strict/Defeasible claims + Contextual Superiority
+// - Phase 2: Recency-based conflict resolution + Opt-in persistence + Context Typing
 
 use std::collections::{HashMap, HashSet};
 
@@ -140,6 +147,8 @@ impl ArgumentGraph {
         Some(id)
     }
 
+    // === Superiority + Phase 2 Conflict Resolution ===
+
     pub fn add_superiority(
         &mut self,
         stronger: ArgumentId,
@@ -153,7 +162,7 @@ impl ArgumentGraph {
             return;
         }
 
-        // Recency wins
+        // Recency wins: remove reverse superiority if present
         if let Some(pos) = self.superiorities.iter().position(|s| {
             s.stronger == weaker && s.weaker == stronger
         }) {
@@ -182,7 +191,7 @@ impl ArgumentGraph {
         })
     }
 
-    // === Opt-in Persistence Support ===
+    // === Opt-in Persistence Support (Phase 2) ===
 
     pub fn get_superiorities(&self) -> Vec<Superiority> {
         self.superiorities.clone()
@@ -192,7 +201,7 @@ impl ArgumentGraph {
         self.superiorities = superiorities;
     }
 
-    // === Query Methods ===
+    // === Query & Analysis Methods ===
 
     pub fn get_supporters(&self, claim_id: ArgumentId) -> Vec<&Support> {
         self.supports.iter().filter(|s| s.target_claim_id == claim_id).collect()
@@ -252,7 +261,7 @@ impl ArgumentGraph {
         ranked
     }
 
-    // === Formal Semantics ===
+    // === Formal Abstract Argumentation Semantics ===
 
     pub fn unattacked_arguments(&self) -> Vec<ArgumentId> {
         self.claims.keys().filter(|&&id| self.get_attackers(id).is_empty()).cloned().collect()
@@ -373,6 +382,8 @@ impl ArgumentGraph {
         results
     }
 
+    // === Recommendation Engine ===
+
     pub fn recommend_extensions(&self) -> ExtensionRecommendation {
         let grounded = self.grounded_extension();
         let preferreds = self.preferred_extensions(3);
@@ -438,4 +449,70 @@ pub struct ExtensionRecommendation {
     pub evolution_potential: f64,
     pub overall_score: f64,
     pub recommendation: String,
+}
+
+// === Regression Tests ===
+
+#[cfg(test)]
+mod regression_tests {
+    use super::*;
+
+    #[test]
+    fn test_set_strict_and_is_strict() {
+        let mut graph = ArgumentGraph::new();
+        let claim = graph.add_claim("Test claim".to_string(), "Test".to_string(), 0.8);
+        assert!(!graph.claims[&claim].is_strict);
+        graph.set_strict(claim, true);
+        assert!(graph.claims[&claim].is_strict);
+    }
+
+    #[test]
+    fn test_add_and_check_superiority() {
+        let mut graph = ArgumentGraph::new();
+        let a = graph.add_claim("Strong".to_string(), "Test".to_string(), 0.9);
+        let b = graph.add_claim("Weak".to_string(), "Test".to_string(), 0.6);
+
+        graph.add_superiority(a, b, Some(SuperiorityContext::General));
+        assert!(graph.is_superior(a, b, Some(SuperiorityContext::General)));
+    }
+
+    #[test]
+    fn test_recommendation_uses_strict_and_superiority() {
+        let mut graph = ArgumentGraph::new();
+        let strong = graph.add_claim("Strong".to_string(), "Test".to_string(), 0.9);
+        let weak = graph.add_claim("Weak".to_string(), "Test".to_string(), 0.5);
+
+        graph.set_strict(strong, true);
+        graph.add_superiority(strong, weak, Some(SuperiorityContext::General));
+
+        let rec = graph.recommend_extensions();
+        assert!(rec.safety_score > 0.0);
+        assert!(rec.evolution_potential > 0.0);
+    }
+
+    #[test]
+    fn test_conflict_resolution_recency_wins() {
+        let mut graph = ArgumentGraph::new();
+        let a = graph.add_claim("A".to_string(), "Test".to_string(), 0.9);
+        let b = graph.add_claim("B".to_string(), "Test".to_string(), 0.6);
+
+        graph.add_superiority(b, a, Some(SuperiorityContext::General));
+        assert!(graph.is_superior(b, a, Some(SuperiorityContext::General)));
+
+        graph.add_superiority(a, b, Some(SuperiorityContext::General));
+        assert!(graph.is_superior(a, b, Some(SuperiorityContext::General)));
+        assert!(!graph.is_superior(b, a, Some(SuperiorityContext::General)));
+    }
+
+    #[test]
+    fn test_duplicate_superiority_ignored() {
+        let mut graph = ArgumentGraph::new();
+        let a = graph.add_claim("A".to_string(), "Test".to_string(), 0.9);
+        let b = graph.add_claim("B".to_string(), "Test".to_string(), 0.6);
+
+        graph.add_superiority(a, b, Some(SuperiorityContext::General));
+        graph.add_superiority(a, b, Some(SuperiorityContext::General));
+
+        assert_eq!(graph.superiorities.len(), 1);
+    }
 }
