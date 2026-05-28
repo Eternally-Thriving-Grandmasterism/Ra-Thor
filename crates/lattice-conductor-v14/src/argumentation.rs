@@ -1,7 +1,7 @@
 // crates/lattice-conductor-v14/src/argumentation.rs
 //
 // Ra-Thor Argumentation Graph
-// Phase 4 Foundation: Configuration + Influence Score
+// Phase 4: Enhanced Configuration + Tests
 
 use std::collections::{HashMap, HashSet};
 
@@ -9,17 +9,32 @@ pub type ArgumentId = u64;
 
 // === Phase 4 Configuration ===
 
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone)]
 pub struct Phase4Config {
     /// Enable influence of superiority/defeaters on Preferred Extensions
     pub enable_extension_influence: bool,
     /// Enable context modifiers on defeaters
     pub enable_defeater_context_modifiers: bool,
+    /// Maximum influence strength allowed (0.0 - 1.0)
+    pub max_influence_strength: f64,
+    /// Whether to log influence decisions
+    pub enable_influence_logging: bool,
+}
+
+impl Default for Phase4Config {
+    fn default() -> Self {
+        Self {
+            enable_extension_influence: false,
+            enable_defeater_context_modifiers: false,
+            max_influence_strength: 0.3,
+            enable_influence_logging: false,
+        }
+    }
 }
 
 impl Phase4Config {
     pub fn new() -> Self {
-        Self::default() // All features disabled by default
+        Self::default()
     }
 
     pub fn with_extension_influence(mut self, enabled: bool) -> Self {
@@ -30,6 +45,21 @@ impl Phase4Config {
     pub fn with_defeater_context_modifiers(mut self, enabled: bool) -> Self {
         self.enable_defeater_context_modifiers = enabled;
         self
+    }
+
+    pub fn with_max_influence_strength(mut self, strength: f64) -> Self {
+        self.max_influence_strength = strength.clamp(0.0, 1.0);
+        self
+    }
+
+    pub fn with_influence_logging(mut self, enabled: bool) -> Self {
+        self.enable_influence_logging = enabled;
+        self
+    }
+
+    /// Returns true if any Phase 4 influence feature is enabled
+    pub fn is_any_influence_enabled(&self) -> bool {
+        self.enable_extension_influence || self.enable_defeater_context_modifiers
     }
 }
 
@@ -89,8 +119,6 @@ pub struct Defeater {
     pub context: Option<SuperiorityContext>,
 }
 
-// === Influence Score (Phase 4 Foundation) ===
-
 #[derive(Debug, Clone, Default)]
 pub struct InfluenceScore {
     pub superiority_contribution: f64,
@@ -118,12 +146,11 @@ impl ArgumentGraph {
             attacks: Vec::new(),
             superiorities: Vec::new(),
             defeaters: Vec::new(),
-            phase4_config: Phase4Config::new(),
+            phase4_config: Phase4Config::default(),
             next_id: 1,
         }
     }
 
-    /// Configure Phase 4 features (opt-in)
     pub fn set_phase4_config(&mut self, config: Phase4Config) {
         self.phase4_config = config;
     }
@@ -200,8 +227,6 @@ impl ArgumentGraph {
         Some(id)
     }
 
-    // === Defeater API ===
-
     pub fn add_defeater(
         &mut self,
         source_claim_id: ArgumentId,
@@ -236,8 +261,6 @@ impl ArgumentGraph {
     pub fn get_defeaters(&self, claim_id: ArgumentId) -> Vec<&Defeater> {
         self.defeaters.iter().filter(|d| d.target_claim_id == claim_id).collect()
     }
-
-    // === Superiority + Conflict Resolution ===
 
     pub fn add_superiority(
         &mut self,
@@ -279,8 +302,6 @@ impl ArgumentGraph {
         })
     }
 
-    // === Opt-in Persistence ===
-
     pub fn get_superiorities(&self) -> Vec<Superiority> {
         self.superiorities.clone()
     }
@@ -288,8 +309,6 @@ impl ArgumentGraph {
     pub fn load_superiorities(&mut self, superiorities: Vec<Superiority>) {
         self.superiorities = superiorities;
     }
-
-    // === Query Methods ===
 
     pub fn get_supporters(&self, claim_id: ArgumentId) -> Vec<&Support> {
         self.supports.iter().filter(|s| s.target_claim_id == claim_id).collect()
@@ -363,8 +382,6 @@ impl ArgumentGraph {
         ranked.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal));
         ranked
     }
-
-    // === Formal Semantics ===
 
     pub fn unattacked_arguments(&self) -> Vec<ArgumentId> {
         self.claims.keys().filter(|&&id| self.get_attackers(id).is_empty()).cloned().collect()
@@ -573,4 +590,53 @@ pub struct ExtensionRecommendation {
     pub evolution_potential: f64,
     pub overall_score: f64,
     pub recommendation: String,
+}
+
+// === Regression Tests for Phase 4 Config ===
+
+#[cfg(test)]
+mod phase4_tests {
+    use super::*;
+
+    #[test]
+    fn test_phase4_config_default_disabled() {
+        let config = Phase4Config::new();
+        assert!(!config.enable_extension_influence);
+        assert!(!config.enable_defeater_context_modifiers);
+        assert!(!config.is_any_influence_enabled());
+    }
+
+    #[test]
+    fn test_phase4_config_builder_pattern() {
+        let config = Phase4Config::new()
+            .with_extension_influence(true)
+            .with_defeater_context_modifiers(true)
+            .with_max_influence_strength(0.5)
+            .with_influence_logging(true);
+
+        assert!(config.enable_extension_influence);
+        assert!(config.enable_defeater_context_modifiers);
+        assert!(config.is_any_influence_enabled());
+        assert_eq!(config.max_influence_strength, 0.5);
+        assert!(config.enable_influence_logging);
+    }
+
+    #[test]
+    fn test_phase4_config_set_on_graph() {
+        let mut graph = ArgumentGraph::new();
+        let config = Phase4Config::new().with_extension_influence(true);
+
+        graph.set_phase4_config(config.clone());
+
+        assert!(graph.get_phase4_config().enable_extension_influence);
+    }
+
+    #[test]
+    fn test_phase4_config_max_strength_clamping() {
+        let config = Phase4Config::new().with_max_influence_strength(1.5);
+        assert_eq!(config.max_influence_strength, 1.0);
+
+        let config2 = Phase4Config::new().with_max_influence_strength(-0.5);
+        assert_eq!(config2.max_influence_strength, 0.0);
+    }
 }
