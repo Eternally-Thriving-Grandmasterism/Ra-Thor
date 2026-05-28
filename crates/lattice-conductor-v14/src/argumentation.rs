@@ -341,14 +341,11 @@ impl ArgumentGraph {
         results
     }
 
-    // === Recommendation Engine with Phase 1 Defeasible Logic ===
-
     pub fn recommend_extensions(&self) -> ExtensionRecommendation {
         let grounded = self.grounded_extension();
         let preferreds = self.preferred_extensions(3);
         let stables = self.stable_extensions(2);
 
-        // Count strict claims in Grounded Extension
         let strict_in_grounded = grounded.iter()
             .filter_map(|&id| self.claims.get(&id))
             .filter(|c| c.is_strict)
@@ -357,7 +354,6 @@ impl ArgumentGraph {
         let total_grounded = grounded.len().max(1) as f64;
         let strict_ratio = strict_in_grounded as f64 / total_grounded;
 
-        // Base scores
         let base_safety = if self.claims.is_empty() { 0.0 } else {
             grounded.len() as f64 / self.claims.len() as f64
         };
@@ -374,16 +370,13 @@ impl ArgumentGraph {
             (pref_avg * 0.6 + stable_avg * 0.4).min(1.0)
         };
 
-        // Phase 1 Adjustment: Strict claims increase Safety
         let safety_score = (base_safety + strict_ratio * 0.25).min(1.0);
 
-        // Phase 1 Adjustment: Superiority relations slightly increase Evolution Potential
         let superiority_bonus = if self.superiorities.is_empty() { 0.0 } else {
             (self.superiorities.len() as f64 / self.claims.len().max(1) as f64) * 0.15
         };
 
         let evolution_potential = (base_evolution + superiority_bonus).min(1.0);
-
         let overall_score = (safety_score * 0.55) + (evolution_potential * 0.45);
 
         let recommendation = if evolution_potential > 0.55 {
@@ -415,4 +408,51 @@ pub struct ExtensionRecommendation {
     pub evolution_potential: f64,
     pub overall_score: f64,
     pub recommendation: String,
+}
+
+// === Regression Tests ===
+
+#[cfg(test)]
+mod regression_tests {
+    use super::*;
+
+    #[test]
+    fn test_set_strict_and_is_strict() {
+        let mut graph = ArgumentGraph::new();
+        let claim = graph.add_claim("Test claim".to_string(), "Test".to_string(), 0.8);
+
+        assert!(!graph.claims[&claim].is_strict);
+
+        graph.set_strict(claim, true);
+        assert!(graph.claims[&claim].is_strict);
+
+        graph.set_strict(claim, false);
+        assert!(!graph.claims[&claim].is_strict);
+    }
+
+    #[test]
+    fn test_add_and_check_superiority() {
+        let mut graph = ArgumentGraph::new();
+        let a = graph.add_claim("Strong".to_string(), "Test".to_string(), 0.9);
+        let b = graph.add_claim("Weak".to_string(), "Test".to_string(), 0.6);
+
+        graph.add_superiority(a, b, Some("test"));
+        assert!(graph.is_superior(a, b, Some("test")));
+        assert!(!graph.is_superior(b, a, Some("test")));
+    }
+
+    #[test]
+    fn test_recommendation_uses_strict_and_superiority() {
+        let mut graph = ArgumentGraph::new();
+        let strong = graph.add_claim("Strong position".to_string(), "Test".to_string(), 0.9);
+        let weak = graph.add_claim("Weak position".to_string(), "Test".to_string(), 0.5);
+
+        graph.set_strict(strong, true);
+        graph.add_superiority(strong, weak, None);
+
+        let rec = graph.recommend_extensions();
+
+        assert!(rec.safety_score > 0.0);
+        assert!(rec.evolution_potential > 0.0);
+    }
 }
