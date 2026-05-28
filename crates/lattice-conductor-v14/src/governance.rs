@@ -1,7 +1,6 @@
 //! Governance & Cooperative Game Theory Layer
 //!
-//! Monte Carlo Shapley approximation + Influence-based value function.
-//! Built with accuracy and scalability in mind.
+//! Monte Carlo Shapley with Stratified Sampling (variance reduction).
 
 use crate::argumentation::ArgumentGraph;
 use rand::seq::SliceRandom;
@@ -28,7 +27,6 @@ impl ValueFunction for DefaultValueFunction {
     }
 }
 
-/// Value function backed by real Phase 4 InfluenceScore.
 pub struct InfluenceBasedValueFunction<'a> {
     graph: &'a ArgumentGraph,
 }
@@ -44,8 +42,8 @@ impl<'a> ValueFunction for InfluenceBasedValueFunction<'a> {
         players
             .iter()
             .filter_map(|p| {
-                if let GovernancePlayer::Claim(claim_id) = p {
-                    Some(self.graph.calculate_influence_score(*claim_id).total)
+                if let GovernancePlayer::Claim(id) = p {
+                    Some(self.graph.calculate_influence_score(*id).total)
                 } else {
                     None
                 }
@@ -54,7 +52,6 @@ impl<'a> ValueFunction for InfluenceBasedValueFunction<'a> {
     }
 }
 
-/// Shapley Value Calculator with Monte Carlo approximation support.
 pub struct ShapleyValueCalculator {
     value_function: Box<dyn ValueFunction>,
 }
@@ -64,45 +61,54 @@ impl ShapleyValueCalculator {
         Self { value_function }
     }
 
-    /// Monte Carlo approximation of Shapley values.
-    /// Samples random permutations and estimates marginal contributions.
-    pub fn calculate_monte_carlo(
+    /// Monte Carlo Shapley with stratified sampling by coalition size.
+    /// Reduces variance compared to pure random sampling.
+    pub fn calculate_stratified_monte_carlo(
         &self,
         players: &[GovernancePlayer],
-        samples: usize,
+        samples_per_stratum: usize,
     ) -> HashMap<GovernancePlayer, f64> {
-        if players.is_empty() || samples == 0 {
+        if players.is_empty() || samples_per_stratum == 0 {
             return HashMap::new();
         }
 
+        let n = players.len();
         let mut sums: HashMap<GovernancePlayer, f64> = HashMap::new();
         let mut rng = thread_rng();
 
-        for _ in 0..samples {
-            let mut permutation = players.to_vec();
-            permutation.shuffle(&mut rng);
+        // Stratify by coalition size (0 to n-1 players before the target player)
+        for size in 0..n {
+            for _ in 0..samples_per_stratum {
+                // Sample a random coalition of exact size `size`
+                let mut others: Vec<_> = players.to_vec();
+                others.shuffle(&mut rng);
 
-            let mut coalition = Vec::new();
-            let mut prev_value = 0.0;
+                let coalition: Vec<_> = others.into_iter().take(size).collect();
+                let base_value = self.value_function.coalition_value(&coalition);
 
-            for player in permutation {
-                coalition.push(player.clone());
-                let new_value = self.value_function.coalition_value(&coalition);
-                let marginal = new_value - prev_value;
+                // For each player not in the coalition, compute marginal contribution
+                for player in players {
+                    if !coalition.contains(player) {
+                        let mut extended = coalition.clone();
+                        extended.push(player.clone());
 
-                *sums.entry(player).or_insert(0.0) += marginal;
-                prev_value = new_value;
+                        let new_value = self.value_function.coalition_value(&extended);
+                        let marginal = new_value - base_value;
+
+                        *sums.entry(player.clone()).or_insert(0.0) += marginal;
+                    }
+                }
             }
         }
 
-        // Average over number of samples
+        // Normalize
+        let total_samples = (n * samples_per_stratum) as f64;
         sums.into_iter()
-            .map(|(player, total)| (player, total / samples as f64))
+            .map(|(p, total)| (p, total / total_samples))
             .collect()
     }
 }
 
-/// Convenience constructor using real influence data.
 pub fn influence_shapley_calculator(graph: &ArgumentGraph) -> ShapleyValueCalculator {
     ShapleyValueCalculator::new(Box::new(InfluenceBasedValueFunction::new(graph)))
 }
@@ -112,14 +118,14 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_monte_carlo_empty() {
+    fn test_stratified_empty() {
         let calc = ShapleyValueCalculator::new(Box::new(DefaultValueFunction));
-        let values = calc.calculate_monte_carlo(&[], 100);
+        let values = calc.calculate_stratified_monte_carlo(&[], 10);
         assert!(values.is_empty());
     }
 
     #[test]
-    fn test_monte_carlo_basic() {
+    fn test_stratified_basic() {
         let mut graph = ArgumentGraph::new();
         let c1 = graph.add_claim("C1".to_string(), "Test".to_string(), 0.8);
         let c2 = graph.add_claim("C2".to_string(), "Test".to_string(), 0.7);
@@ -127,7 +133,7 @@ mod tests {
         let calc = influence_shapley_calculator(&graph);
         let players = vec![GovernancePlayer::Claim(c1), GovernancePlayer::Claim(c2)];
 
-        let values = calc.calculate_monte_carlo(&players, 50);
+        let values = calc.calculate_stratified_monte_carlo(&players, 5);
         assert_eq!(values.len(), 2);
     }
 }
