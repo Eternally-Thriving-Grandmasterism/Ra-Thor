@@ -780,3 +780,88 @@ pub struct ExtensionRecommendation {
     pub overall_score: f64,
     pub recommendation: String,
 }
+
+// === Phase 4 Tests ===
+
+#[cfg(test)]
+mod phase4_tests {
+    use super::*;
+
+    #[test]
+    fn test_phase4_config_default_disabled() {
+        let config = Phase4Config::new();
+        assert!(!config.enable_extension_influence);
+        assert!(!config.is_any_influence_enabled());
+    }
+
+    #[test]
+    fn test_context_modifiers_disabled_by_default() {
+        let mut graph = ArgumentGraph::new();
+        let source = graph.add_claim("Source".to_string(), "Test".to_string(), 0.8);
+        let target = graph.add_claim("Target".to_string(), "Test".to_string(), 0.7);
+
+        graph.add_defeater(source, target, Some(0.6), "Test".to_string(), "".to_string(), Some(SuperiorityContext::Council));
+
+        let config = Phase4Config::new().with_extension_influence(true);
+        graph.set_phase4_config(config);
+
+        let score = graph.calculate_influence_score(target);
+        assert_eq!(score.context_modifier, 0.0);
+    }
+
+    #[test]
+    fn test_council_context_increases_impact_when_enabled() {
+        let mut graph = ArgumentGraph::new();
+        let source = graph.add_claim("Source".to_string(), "Test".to_string(), 0.8);
+        let target = graph.add_claim("Target".to_string(), "Test".to_string(), 0.7);
+
+        graph.add_defeater(source, target, Some(0.6), "Test".to_string(), "".to_string(), Some(SuperiorityContext::Council));
+
+        let config = Phase4Config::new()
+            .with_extension_influence(true)
+            .with_defeater_context_modifiers(true);
+        graph.set_phase4_config(config);
+
+        let score = graph.calculate_influence_score(target);
+
+        // Council context should increase the negative impact (authoritative weight)
+        assert!(score.defeater_contribution < -0.3);
+    }
+
+    #[test]
+    fn test_mercygate_reduces_impact_when_enabled() {
+        let mut graph = ArgumentGraph::new();
+        let source = graph.add_claim("Source".to_string(), "Test".to_string(), 0.8);
+        let target = graph.add_claim("Target".to_string(), "Test".to_string(), 0.7);
+
+        graph.add_defeater(source, target, Some(0.6), "Test".to_string(), "".to_string(), Some(SuperiorityContext::MercyGate));
+
+        let config = Phase4Config::new()
+            .with_extension_influence(true)
+            .with_defeater_context_modifiers(true);
+        graph.set_phase4_config(config);
+
+        let score = graph.calculate_influence_score(target);
+
+        // MercyGate should reduce the negative impact
+        assert!(score.defeater_contribution > -0.4);
+    }
+
+    #[test]
+    fn test_explain_influence_includes_council_context() {
+        let mut graph = ArgumentGraph::new();
+        let source = graph.add_claim("Source".to_string(), "Test".to_string(), 0.8);
+        let target = graph.add_claim("Target".to_string(), "Test".to_string(), 0.7);
+
+        graph.add_defeater(source, target, Some(0.6), "Test".to_string(), "".to_string(), Some(SuperiorityContext::Council));
+
+        let config = Phase4Config::new()
+            .with_extension_influence(true)
+            .with_defeater_context_modifiers(true);
+        graph.set_phase4_config(config);
+
+        let explanation = graph.explain_influence(target);
+        let has_council_note = explanation.context_notes.iter().any(|n| n.contains("Council"));
+        assert!(has_council_note);
+    }
+}
