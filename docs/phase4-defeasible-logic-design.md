@@ -1,6 +1,6 @@
 # Technical Design Document – Phase 4: Defeasible Logic Integration
 
-**Version:** 2.0 (Final Production-Grade)  
+**Version:** 2.1 (Context Modifiers Finalized)  
 **Date:** May 28, 2026  
 **Status:** Complete
 
@@ -9,70 +9,64 @@
 ## 1. Executive Overview
 
 **Objective**  
-Deliver controlled, opt-in structural influence of superiority and defeaters on Preferred Extensions, with strong explainability, mercy-aligned design, and production-grade quality.
+Deliver controlled, opt-in structural influence of superiority and defeaters on Preferred Extensions, with strong explainability and mercy-aligned design.
 
-**Final State**  
-Phase 4 is now complete with a clean, well-documented, and coherent implementation that includes:
-
-- `Phase4Config` with multiple opt-in flags
-- `InfluenceScore` calculation with context weighting
-- Post-filtering / re-ranking of Preferred Extensions
-- Context modifiers on defeaters
-- `MercyGate` and `SelfEvolution` context variants
-- `reason` field on `Defeater` + `context_notes` in explanations
-- Strong documentation and test coverage
-
----
-
-## 2. Scope (Final)
-
-### Included
-
-| Feature | Status |
-|---------|--------|
-| `Phase4Config` + builder pattern | ✅ Complete |
-| `InfluenceScore` model | ✅ Complete |
-| Post-filtering of Preferred Extensions | ✅ Complete |
-| Context modifiers on defeaters | ✅ Complete |
-| `MercyGate` + `SelfEvolution` contexts | ✅ Complete |
-| `reason` on `Defeater` + `context_notes` | ✅ Complete |
-| `explain_influence()` | ✅ Complete |
-| Optional diagnostic logging | ✅ Complete |
-| Full documentation | ✅ Complete |
-| Regression tests | ✅ Strong |
-
-### Explicitly Out of Scope
-
-- Influence on Stable Extensions
-- Breaking changes to core formal semantics
+**Final Achievements**
+- `Phase4Config` with flexible opt-in flags
+- `InfluenceScore` with context-aware weighting
+- Post-filtering of Preferred Extensions
+- Differentiated context modifier behaviors:
+  - `MercyGate`: Compassionate reduction of defeater impact
+  - `Council`: Authoritative amplification of defeater impact
+  - `SelfEvolution`: Evolution-oriented weighting
+- Rich explainability via `context_notes` in `InfluenceExplanation`
+- Strong regression test coverage
 
 ---
 
-## 3. Key Design Decisions
+## 2. Context Modifier Strategy
 
-- All Phase 4 features are **opt-in** and disabled by default.
-- Influence is applied as **post-processing** (non-invasive).
-- New context variants (`MercyGate`, `SelfEvolution`) are mercy-aligned and weighted appropriately.
-- `Defeater.reason` and `InfluenceExplanation.context_notes` improve explainability.
+Phase 4 implements **context-sensitive modification** of defeater impact when `enable_defeater_context_modifiers` is enabled.
+
+### Special Context Behaviors
+
+| Context          | Effect on Defeater Impact | Philosophical Meaning          | Weight |
+|------------------|---------------------------|--------------------------------|--------|
+| `Council`        | **Increased** (×1.25)     | Authoritative / Decisive       | 1.25   |
+| `MercyGate`      | **Reduced** (×0.6)        | Compassion / Protection        | 0.6    |
+| `SelfEvolution`  | Increased (×1.10)        | Growth & Transformation        | 1.10   |
+| `Topic`          | Increased (×1.10)        | Domain relevance               | 1.10   |
+| `General`        | Normal                    | Neutral                        | 1.00   |
+
+### Design Rationale
+
+- `MercyGate` softens negative impact to reflect mercy and compassion.
+- `Council` carries stronger authoritative weight for structural or high-trust guidance.
+- `SelfEvolution` supports growth-oriented reasoning.
+- All special behaviors are fully explainable via `context_notes`.
 
 ---
 
-## 4. Current Implementation Status
+## 3. Explainability
 
-**Production-Grade Quality Achieved**
-
-- Clean module-level and API documentation
-- Coherent architecture with clear separation of concerns
-- All cherry-picked improvements integrated safely
-- Tests cover default-disabled behavior and enabled context modifiers
+`explain_influence()` now returns `context_notes` that clearly describe when special modifiers (especially `MercyGate` and `Council`) have been applied. This supports auditability and PATSAGi Council deliberation.
 
 ---
 
-## 5. Next Steps
+## 4. Test Coverage
 
-- Run full test suite
-- Consider expanding examples in documentation
-- Monitor usage in PATSAGi Council simulations
+Phase 4 includes 7 regression tests covering:
+- Default-disabled safety
+- Impact modification for `Council`, `MercyGate`, and `SelfEvolution`
+- Explanation notes for all special contexts
+
+---
+
+## 5. Current Status
+
+**Production-Grade Complete**
+
+All core Phase 4 features, including differentiated context modifiers and explainability, are implemented, tested, and documented.
 
 ---
 
