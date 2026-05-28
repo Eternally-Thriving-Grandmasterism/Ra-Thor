@@ -439,9 +439,8 @@ impl ArgumentGraph {
                 let mut impact = def.strength * 0.5;
 
                 if self.phase4_config.enable_defeater_context_modifiers {
-                    let weight = self.context_weight(&def.context);
-                    impact *= weight;
-                    score.context_modifier += (weight - 1.0) * def.strength * 0.3;
+                    let ctx = def.context.clone();
+                    impact = self.apply_defeater_context_modifier(impact, &ctx);
                 }
 
                 score.defeater_contribution -= impact;
@@ -463,6 +462,25 @@ impl ArgumentGraph {
         }
 
         score
+    }
+
+    /// Applies context-specific modification to a defeater's impact.
+    ///
+    /// Special behavior:
+    /// - `MercyGate`: Reduces the negative impact (mercy / compassion).
+    /// - Other contexts: Standard multiplicative weighting.
+    fn apply_defeater_context_modifier(&self, base_impact: f64, context: &Option<SuperiorityContext>) -> f64 {
+        match context {
+            Some(SuperiorityContext::MercyGate) => {
+                // MercyGate: Soften the defeater's negative effect (compassionate reduction)
+                base_impact * 0.6
+            }
+            Some(ctx) => {
+                let weight = self.context_weight(&Some(ctx.clone()));
+                base_impact * weight
+            }
+            None => base_impact,
+        }
     }
 
     pub fn explain_influence(&self, claim_id: ArgumentId) -> InfluenceExplanation {
@@ -500,7 +518,9 @@ impl ArgumentGraph {
                 };
 
                 if self.phase4_config.enable_defeater_context_modifiers {
-                    if let Some(ctx) = &def.context {
+                    if let Some(SuperiorityContext::MercyGate) = &def.context {
+                        explanation.context_notes.push("MercyGate reduction applied (defeater softened)".to_string());
+                    } else if let Some(ctx) = &def.context {
                         explanation.context_notes.push(format!("Context {:?} applied", ctx));
                     }
                 }
@@ -731,7 +751,7 @@ impl ArgumentGraph {
             Some(SuperiorityContext::Council) => 1.15,
             Some(SuperiorityContext::Topic)   => 1.10,
             Some(SuperiorityContext::General) => 1.00,
-            Some(SuperiorityContext::MercyGate) => 1.20,
+            Some(SuperiorityContext::MercyGate) => 0.6, // Special reduction handled in apply_defeater_context_modifier
             Some(SuperiorityContext::SelfEvolution) => 1.10,
             Some(SuperiorityContext::Custom(_)) => 1.05,
             None => 1.00,
