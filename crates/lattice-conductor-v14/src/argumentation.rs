@@ -1,7 +1,7 @@
 // crates/lattice-conductor-v14/src/argumentation.rs
 //
 // Ra-Thor Argumentation Graph
-// Phase 2: Conflict Resolution Update (Recency Wins)
+// Phase 2: Conflict Resolution + Tests
 
 use std::collections::{HashMap, HashSet};
 
@@ -131,7 +131,6 @@ impl ArgumentGraph {
         Some(id)
     }
 
-    /// Add superiority with Phase 2 conflict resolution (Recency Wins + Warning)
     pub fn add_superiority(
         &mut self,
         stronger: ArgumentId,
@@ -140,18 +139,15 @@ impl ArgumentGraph {
     ) {
         let ctx = context.map(|c| c.to_string());
 
-        // Check if exact same superiority already exists
         if self.superiorities.iter().any(|s| {
             s.stronger == stronger && s.weaker == weaker && s.context == ctx
         }) {
-            return; // Already exists, nothing to do
+            return;
         }
 
-        // Check for reverse superiority (conflict)
         if let Some(pos) = self.superiorities.iter().position(|s| {
             s.stronger == weaker && s.weaker == stronger
         }) {
-            // Recency wins: remove old reverse superiority
             self.superiorities.remove(pos);
             eprintln!(
                 "[Warning] Superiority conflict resolved by recency: {} > {} (previous reverse removed)",
@@ -159,7 +155,6 @@ impl ArgumentGraph {
             );
         }
 
-        // Add the new superiority
         self.superiorities.push(Superiority {
             stronger,
             weaker,
@@ -231,8 +226,6 @@ impl ArgumentGraph {
         ranked.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal));
         ranked
     }
-
-    // === Formal Semantics (unchanged) ===
 
     pub fn unattacked_arguments(&self) -> Vec<ArgumentId> {
         self.claims.keys().filter(|&&id| self.get_attackers(id).is_empty()).cloned().collect()
@@ -418,4 +411,76 @@ pub struct ExtensionRecommendation {
     pub evolution_potential: f64,
     pub overall_score: f64,
     pub recommendation: String,
+}
+
+// === Regression Tests ===
+
+#[cfg(test)]
+mod regression_tests {
+    use super::*;
+
+    #[test]
+    fn test_set_strict_and_is_strict() {
+        let mut graph = ArgumentGraph::new();
+        let claim = graph.add_claim("Test claim".to_string(), "Test".to_string(), 0.8);
+        assert!(!graph.claims[&claim].is_strict);
+        graph.set_strict(claim, true);
+        assert!(graph.claims[&claim].is_strict);
+    }
+
+    #[test]
+    fn test_add_and_check_superiority() {
+        let mut graph = ArgumentGraph::new();
+        let a = graph.add_claim("Strong".to_string(), "Test".to_string(), 0.9);
+        let b = graph.add_claim("Weak".to_string(), "Test".to_string(), 0.6);
+
+        graph.add_superiority(a, b, Some("test"));
+        assert!(graph.is_superior(a, b, Some("test")));
+    }
+
+    #[test]
+    fn test_recommendation_uses_strict_and_superiority() {
+        let mut graph = ArgumentGraph::new();
+        let strong = graph.add_claim("Strong".to_string(), "Test".to_string(), 0.9);
+        let weak = graph.add_claim("Weak".to_string(), "Test".to_string(), 0.5);
+
+        graph.set_strict(strong, true);
+        graph.add_superiority(strong, weak, None);
+
+        let rec = graph.recommend_extensions();
+        assert!(rec.safety_score > 0.0);
+        assert!(rec.evolution_potential > 0.0);
+    }
+
+    // === Phase 2 Conflict Resolution Tests ===
+
+    #[test]
+    fn test_conflict_resolution_recency_wins() {
+        let mut graph = ArgumentGraph::new();
+        let a = graph.add_claim("A".to_string(), "Test".to_string(), 0.9);
+        let b = graph.add_claim("B".to_string(), "Test".to_string(), 0.6);
+
+        // First declare b > a
+        graph.add_superiority(b, a, None);
+        assert!(graph.is_superior(b, a, None));
+
+        // Then declare the reverse (a > b) - recency should win
+        graph.add_superiority(a, b, None);
+        assert!(graph.is_superior(a, b, None));
+        assert!(!graph.is_superior(b, a, None));
+    }
+
+    #[test]
+    fn test_duplicate_superiority_ignored() {
+        let mut graph = ArgumentGraph::new();
+        let a = graph.add_claim("A".to_string(), "Test".to_string(), 0.9);
+        let b = graph.add_claim("B".to_string(), "Test".to_string(), 0.6);
+
+        graph.add_superiority(a, b, None);
+        graph.add_superiority(a, b, None); // duplicate
+
+        // Should still have only one superiority
+        let count = graph.superiorities.len();
+        assert_eq!(count, 1);
+    }
 }
