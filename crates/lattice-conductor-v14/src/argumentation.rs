@@ -1,19 +1,39 @@
 // crates/lattice-conductor-v14/src/argumentation.rs
 //
 // Ra-Thor Argumentation Graph
-// Supports formal Abstract Argumentation + Defeasible Logic (Phase 1–3)
-//
-// Core Features:
-// - Claim / Support / Attack / Defeater modeling
-// - Grounded, Preferred, and Stable Extensions
-// - Recommendation Engine with Safety vs Evolution scoring
-// - Phase 1: Strict claims + Superiority
-// - Phase 2: Conflict resolution + Opt-in persistence + SuperiorityContext
-// - Phase 3: Defeaters + Context-aware scoring
+// Phase 4 Foundation: Configuration + Influence Score
 
 use std::collections::{HashMap, HashSet};
 
 pub type ArgumentId = u64;
+
+// === Phase 4 Configuration ===
+
+#[derive(Debug, Clone, Default)]
+pub struct Phase4Config {
+    /// Enable influence of superiority/defeaters on Preferred Extensions
+    pub enable_extension_influence: bool,
+    /// Enable context modifiers on defeaters
+    pub enable_defeater_context_modifiers: bool,
+}
+
+impl Phase4Config {
+    pub fn new() -> Self {
+        Self::default() // All features disabled by default
+    }
+
+    pub fn with_extension_influence(mut self, enabled: bool) -> Self {
+        self.enable_extension_influence = enabled;
+        self
+    }
+
+    pub fn with_defeater_context_modifiers(mut self, enabled: bool) -> Self {
+        self.enable_defeater_context_modifiers = enabled;
+        self
+    }
+}
+
+// === Core Types ===
 
 #[derive(Debug, Clone)]
 pub struct Claim {
@@ -44,7 +64,6 @@ pub struct Attack {
     pub provided_by: String,
 }
 
-/// Context type for superiority and defeater relations
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum SuperiorityContext {
     Council,
@@ -60,7 +79,6 @@ pub struct Superiority {
     pub context: Option<SuperiorityContext>,
 }
 
-/// Defeater - weakens a claim without full invalidation (Phase 3)
 #[derive(Debug, Clone)]
 pub struct Defeater {
     pub id: ArgumentId,
@@ -71,6 +89,16 @@ pub struct Defeater {
     pub context: Option<SuperiorityContext>,
 }
 
+// === Influence Score (Phase 4 Foundation) ===
+
+#[derive(Debug, Clone, Default)]
+pub struct InfluenceScore {
+    pub superiority_contribution: f64,
+    pub defeater_contribution: f64,
+    pub context_modifier: f64,
+    pub total: f64,
+}
+
 #[derive(Debug, Clone, Default)]
 pub struct ArgumentGraph {
     pub claims: HashMap<ArgumentId, Claim>,
@@ -78,6 +106,7 @@ pub struct ArgumentGraph {
     pub attacks: Vec<Attack>,
     pub superiorities: Vec<Superiority>,
     pub defeaters: Vec<Defeater>,
+    pub phase4_config: Phase4Config,
     next_id: ArgumentId,
 }
 
@@ -89,8 +118,18 @@ impl ArgumentGraph {
             attacks: Vec::new(),
             superiorities: Vec::new(),
             defeaters: Vec::new(),
+            phase4_config: Phase4Config::new(),
             next_id: 1,
         }
+    }
+
+    /// Configure Phase 4 features (opt-in)
+    pub fn set_phase4_config(&mut self, config: Phase4Config) {
+        self.phase4_config = config;
+    }
+
+    pub fn get_phase4_config(&self) -> &Phase4Config {
+        &self.phase4_config
     }
 
     pub fn add_claim(&mut self, content: String, proposed_by: String, strength: f64) -> ArgumentId {
@@ -161,7 +200,7 @@ impl ArgumentGraph {
         Some(id)
     }
 
-    // === Defeater API (Phase 3) ===
+    // === Defeater API ===
 
     pub fn add_defeater(
         &mut self,
@@ -198,7 +237,7 @@ impl ArgumentGraph {
         self.defeaters.iter().filter(|d| d.target_claim_id == claim_id).collect()
     }
 
-    // === Superiority + Conflict Resolution (Phase 2) ===
+    // === Superiority + Conflict Resolution ===
 
     pub fn add_superiority(
         &mut self,
@@ -302,7 +341,6 @@ impl ArgumentGraph {
             if attack.target_claim_id == claim_id { score -= attack.strength * 0.45; }
         }
 
-        // Defeaters with diminishing returns
         let defeaters: Vec<&Defeater> = self.defeaters.iter()
             .filter(|d| d.target_claim_id == claim_id)
             .collect();
@@ -447,20 +485,6 @@ impl ArgumentGraph {
         results
     }
 
-    // === Context Weight Helper ===
-
-    fn context_weight(&self, context: &Option<SuperiorityContext>) -> f64 {
-        match context {
-            Some(SuperiorityContext::Council) => 1.15,
-            Some(SuperiorityContext::Topic)   => 1.10,
-            Some(SuperiorityContext::General) => 1.00,
-            Some(SuperiorityContext::Custom(_)) => 1.05,
-            None => 1.00,
-        }
-    }
-
-    // === Recommendation Engine ===
-
     pub fn recommend_extensions(&self) -> ExtensionRecommendation {
         let grounded = self.grounded_extension();
         let preferreds = self.preferred_extensions(3);
@@ -526,6 +550,16 @@ impl ArgumentGraph {
             evolution_potential,
             overall_score,
             recommendation,
+        }
+    }
+
+    fn context_weight(&self, context: &Option<SuperiorityContext>) -> f64 {
+        match context {
+            Some(SuperiorityContext::Council) => 1.15,
+            Some(SuperiorityContext::Topic)   => 1.10,
+            Some(SuperiorityContext::General) => 1.00,
+            Some(SuperiorityContext::Custom(_)) => 1.05,
+            None => 1.00,
         }
     }
 }
