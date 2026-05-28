@@ -1,8 +1,11 @@
 //! Governance & Cooperative Game Theory Layer
 //!
-//! Includes Shapley, Banzhaf, and the higher-level PatsagiArbitration module.
+//! Full implementations of Shapley (with variance reduction) and Banzhaf,
+//! plus the higher-level PatsagiArbitration module.
 
 use crate::argumentation::ArgumentGraph;
+use rand::seq::SliceRandom;
+use rand::thread_rng;
 use std::collections::HashMap;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
@@ -50,7 +53,7 @@ impl<'a> ValueFunction for InfluenceBasedValueFunction<'a> {
     }
 }
 
-// === Shapley & Banzhaf (simplified for integration) ===
+// === ShapleyValueCalculator with Stratified + Antithetic Sampling ===
 
 pub struct ShapleyValueCalculator {
     value_function: Box<dyn ValueFunction>,
@@ -60,7 +63,66 @@ impl ShapleyValueCalculator {
     pub fn new(value_function: Box<dyn ValueFunction>) -> Self {
         Self { value_function }
     }
+
+    /// Stratified Monte Carlo Shapley with Antithetic Variates (variance reduction)
+    pub fn calculate_stratified_antithetic(
+        &self,
+        players: &[GovernancePlayer],
+        samples_per_stratum: usize,
+    ) -> HashMap<GovernancePlayer, f64> {
+        if players.is_empty() || samples_per_stratum == 0 {
+            return HashMap::new();
+        }
+
+        let n = players.len();
+        let mut sums: HashMap<GovernancePlayer, f64> = HashMap::new();
+        let mut rng = thread_rng();
+
+        for size in 0..n {
+            for _ in 0..samples_per_stratum {
+                let mut others: Vec<_> = players.to_vec();
+                others.shuffle(&mut rng);
+
+                let coalition: Vec<_> = others.iter().take(size).cloned().collect();
+                let base_value = self.value_function.coalition_value(&coalition);
+
+                // Original sample
+                for player in players {
+                    if !coalition.contains(player) {
+                        let mut extended = coalition.clone();
+                        extended.push(player.clone());
+                        let marginal =
+                            self.value_function.coalition_value(&extended) - base_value;
+                        *sums.entry(player.clone()).or_insert(0.0) += marginal;
+                    }
+                }
+
+                // Antithetic sample (reverse remaining players)
+                let mut antithetic = coalition.clone();
+                let mut remaining: Vec<_> = others.iter().skip(size).cloned().collect();
+                remaining.reverse();
+
+                for player in &remaining {
+                    if !antithetic.contains(player) {
+                        let mut extended = antithetic.clone();
+                        extended.push(player.clone());
+                        let marginal = self.value_function.coalition_value(&extended)
+                            - self.value_function.coalition_value(&antithetic);
+                        *sums.entry(player.clone()).or_insert(0.0) += marginal;
+                        antithetic.push(player.clone());
+                    }
+                }
+            }
+        }
+
+        let total_weight = (n * samples_per_stratum * 2) as f64;
+        sums.into_iter()
+            .map(|(p, total)| (p, total / total_weight))
+            .collect()
+    }
 }
+
+// === BanzhafPowerIndex (Exact + Monte Carlo) ===
 
 pub struct BanzhafPowerIndex {
     value_function: Box<dyn ValueFunction>,
@@ -70,9 +132,85 @@ impl BanzhafPowerIndex {
     pub fn new(value_function: Box<dyn ValueFunction>) -> Self {
         Self { value_function }
     }
+
+    /// Exact Banzhaf calculation
+    pub fn calculate(&self, players: &[GovernancePlayer]) -> HashMap<GovernancePlayer, f64> {
+        let mut counts: HashMap<GovernancePlayer, usize> = HashMap::new();
+        let n = players.len();
+
+        if n == 0 {
+            return HashMap::new();
+        }
+
+        for mask in 0..(1 << n) {
+            let mut coalition = Vec::new();
+            for (i, player) in players.iter().enumerate() {
+                if (mask & (1 << i)) != 0 {
+                    coalition.push(player.clone());
+                }
+            }
+
+            let value_without = self.value_function.coalition_value(&coalition);
+
+            for (i, player) in players.iter().enumerate() {
+                if (mask & (1 << i)) == 0 {
+                    let mut with_player = coalition.clone();
+                    with_player.push(player.clone());
+
+                    let value_with = self.value_function.coalition_value(&with_player);
+                    if value_with > value_without {
+                        *counts.entry(player.clone()).or_insert(0) += 1;
+                    }
+                }
+            }
+        }
+
+        let total = counts.values().sum::<usize>() as f64;
+        if total == 0.0 {
+            return counts.into_iter().map(|(p, _)| (p, 0.0)).collect();
+        }
+
+        counts.into_iter().map(|(p, c)| (p, c as f64 / total)).collect()
+    }
+
+    /// Monte Carlo Banzhaf
+    pub fn calculate_monte_carlo(
+        &self,
+        players: &[GovernancePlayer],
+        samples: usize,
+    ) -> HashMap<GovernancePlayer, f64> {
+        let mut counts: HashMap<GovernancePlayer, usize> = HashMap::new();
+        let mut rng = thread_rng();
+
+        for _ in 0..samples {
+            let mut coalition: Vec<_> = players.to_vec();
+            coalition.shuffle(&mut rng);
+
+            let mid = coalition.len() / 2;
+            let without: Vec<_> = coalition[..mid].to_vec();
+            let value_without = self.value_function.coalition_value(&without);
+
+            for player in &coalition[mid..] {
+                let mut with_player = without.clone();
+                with_player.push(player.clone());
+
+                let value_with = self.value_function.coalition_value(&with_player);
+                if value_with > value_without {
+                    *counts.entry(player.clone()).or_insert(0) += 1;
+                }
+            }
+        }
+
+        let total = counts.values().sum::<usize>() as f64;
+        if total == 0.0 {
+            return counts.into_iter().map(|(p, _)| (p, 0.0)).collect();
+        }
+
+        counts.into_iter().map(|(p, c)| (p, c as f64 / total)).collect()
+    }
 }
 
-// === Patsagi Arbitration Module ===
+// === PatsagiArbitration Module ===
 
 #[derive(Debug, Clone)]
 pub struct ArbitrationReport {
@@ -82,34 +220,37 @@ pub struct ArbitrationReport {
     pub context_notes: Vec<String>,
 }
 
-/// High-level arbitration system for PATSAGi Councils.
-/// Combines Shapley and Banzhaf analysis with Phase 4 influence data.
 pub struct PatsagiArbitration<'a> {
     graph: &'a ArgumentGraph,
-    shapley: ShapleyValueCalculator,
-    banzhaf: BanzhafPowerIndex,
 }
 
 impl<'a> PatsagiArbitration<'a> {
     pub fn new(graph: &'a ArgumentGraph) -> Self {
-        let value_fn = Box::new(InfluenceBasedValueFunction::new(graph));
-        Self {
-            graph,
-            shapley: ShapleyValueCalculator::new(value_fn.clone()),
-            banzhaf: BanzhafPowerIndex::new(value_fn),
-        }
+        Self { graph }
     }
 
-    /// Runs a combined analysis and produces an ArbitrationReport.
     pub fn analyze(&self, players: &[GovernancePlayer]) -> ArbitrationReport {
-        // Placeholder: In full implementation we would call the calculators
+        let value_fn: Box<dyn ValueFunction> =
+            Box::new(InfluenceBasedValueFunction::new(self.graph));
+
+        let shapley = ShapleyValueCalculator::new(value_fn.clone());
+        let banzhaf = BanzhafPowerIndex::new(value_fn);
+
         ArbitrationReport {
-            shapley_values: HashMap::new(),
-            banzhaf_indices: HashMap::new(),
-            summary: "Arbitration analysis completed (foundation ready).".to_string(),
-            context_notes: vec!["Phase 4 influence data integrated.".to_string()],
+            shapley_values: shapley.calculate_stratified_antithetic(players, 4),
+            banzhaf_indices: banzhaf.calculate(players),
+            summary: "Combined Shapley + Banzhaf analysis completed.".to_string(),
+            context_notes: vec!["Phase 4 influence data + variance reduction active.".to_string()],
         }
     }
+}
+
+pub fn influence_shapley_calculator(graph: &ArgumentGraph) -> ShapleyValueCalculator {
+    ShapleyValueCalculator::new(Box::new(InfluenceBasedValueFunction::new(graph)))
+}
+
+pub fn influence_banzhaf_calculator(graph: &ArgumentGraph) -> BanzhafPowerIndex {
+    BanzhafPowerIndex::new(Box::new(InfluenceBasedValueFunction::new(graph)))
 }
 
 #[cfg(test)]
@@ -117,12 +258,40 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_patsagi_arbitration_creation() {
-        let graph = ArgumentGraph::new();
+    fn test_stratified_antithetic() {
+        let mut graph = ArgumentGraph::new();
+        let c1 = graph.add_claim("C1".to_string(), "Test".to_string(), 0.8);
+        let c2 = graph.add_claim("C2".to_string(), "Test".to_string(), 0.7);
+
+        let calc = influence_shapley_calculator(&graph);
+        let players = vec![GovernancePlayer::Claim(c1), GovernancePlayer::Claim(c2)];
+        let values = calc.calculate_stratified_antithetic(&players, 3);
+        assert_eq!(values.len(), 2);
+    }
+
+    #[test]
+    fn test_banzhaf_full() {
+        let mut graph = ArgumentGraph::new();
+        let c1 = graph.add_claim("C1".to_string(), "Test".to_string(), 0.8);
+        let c2 = graph.add_claim("C2".to_string(), "Test".to_string(), 0.7);
+
+        let calc = influence_banzhaf_calculator(&graph);
+        let players = vec![GovernancePlayer::Claim(c1), GovernancePlayer::Claim(c2)];
+
+        let values = calc.calculate(&players);
+        assert_eq!(values.len(), 2);
+    }
+
+    #[test]
+    fn test_patsagi_arbitration() {
+        let mut graph = ArgumentGraph::new();
+        let c1 = graph.add_claim("C1".to_string(), "Test".to_string(), 0.8);
+        let c2 = graph.add_claim("C2".to_string(), "Test".to_string(), 0.7);
+
         let arbitration = PatsagiArbitration::new(&graph);
-        let players: Vec<GovernancePlayer> = vec![];
+        let players = vec![GovernancePlayer::Claim(c1), GovernancePlayer::Claim(c2)];
         let report = arbitration.analyze(&players);
 
-        assert!(report.summary.contains("foundation"));
+        assert!(!report.summary.is_empty());
     }
 }
