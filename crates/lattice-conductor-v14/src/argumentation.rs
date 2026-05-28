@@ -883,4 +883,40 @@ mod phase4_tests {
         let has_council_note = explanation.context_notes.iter().any(|n| n.contains("Council"));
         assert!(has_council_note);
     }
+
+    #[test]
+    fn test_explain_influence_includes_mercygate_context() {
+        let mut graph = ArgumentGraph::new();
+        let source = graph.add_claim("Source".to_string(), "Test".to_string(), 0.8);
+        let target = graph.add_claim("Target".to_string(), "Test".to_string(), 0.7);
+
+        graph.add_defeater(source, target, Some(0.6), "Test".to_string(), "".to_string(), Some(SuperiorityContext::MercyGate));
+
+        let config = Phase4Config::new()
+            .with_extension_influence(true)
+            .with_defeater_context_modifiers(true);
+        graph.set_phase4_config(config);
+
+        let explanation = graph.explain_influence(target);
+        let has_mercygate_note = explanation.context_notes.iter().any(|n| n.contains("MercyGate"));
+        assert!(has_mercygate_note);
+    }
+
+    #[test]
+    fn test_explain_influence_includes_self_evolution_context() {
+        let mut graph = ArgumentGraph::new();
+        let source = graph.add_claim("Source".to_string(), "Test".to_string(), 0.8);
+        let target = graph.add_claim("Target".to_string(), "Test".to_string(), 0.7);
+
+        graph.add_defeater(source, target, Some(0.6), "Test".to_string(), "".to_string(), Some(SuperiorityContext::SelfEvolution));
+
+        let config = Phase4Config::new()
+            .with_extension_influence(true)
+            .with_defeater_context_modifiers(true);
+        graph.set_phase4_config(config);
+
+        let explanation = graph.explain_influence(target);
+        let has_self_evolution_note = explanation.context_notes.iter().any(|n| n.contains("SelfEvolution"));
+        assert!(has_self_evolution_note);
+    }
 }
