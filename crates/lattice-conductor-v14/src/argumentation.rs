@@ -1,7 +1,7 @@
 // crates/lattice-conductor-v14/src/argumentation.rs
 //
 // Ra-Thor Argumentation Graph
-// Phase 4: Context Modifiers on Defeaters (Stage 3)
+// Phase 4: Context Modifier Tests + Finalization
 
 use std::collections::{HashMap, HashSet};
 
@@ -382,8 +382,6 @@ impl ArgumentGraph {
         ranked
     }
 
-    // === Phase 4: Influence Score with Context Modifiers on Defeaters ===
-
     pub fn calculate_influence_score(&self, claim_id: ArgumentId) -> InfluenceScore {
         let mut score = InfluenceScore::default();
 
@@ -391,7 +389,6 @@ impl ArgumentGraph {
             return score;
         }
 
-        // Superiority contribution
         for sup in &self.superiorities {
             if sup.stronger == claim_id {
                 let weight = self.context_weight(&sup.context);
@@ -403,7 +400,6 @@ impl ArgumentGraph {
             }
         }
 
-        // Defeater contribution (with optional context modifiers)
         for def in &self.defeaters {
             if def.target_claim_id == claim_id {
                 let mut impact = def.strength * 0.5;
@@ -502,8 +498,6 @@ impl ArgumentGraph {
 
         influenced.into_iter().map(|(ext, _)| ext).take(max_results).collect()
     }
-
-    // === Formal Semantics ===
 
     pub fn unattacked_arguments(&self) -> Vec<ArgumentId> {
         self.claims.keys().filter(|&&id| self.get_attackers(id).is_empty()).cloned().collect()
@@ -712,4 +706,71 @@ pub struct ExtensionRecommendation {
     pub evolution_potential: f64,
     pub overall_score: f64,
     pub recommendation: String,
+}
+
+// === Phase 4 Tests (including Context Modifiers) ===
+
+#[cfg(test)]
+mod phase4_tests {
+    use super::*;
+
+    #[test]
+    fn test_phase4_config_default_disabled() {
+        let config = Phase4Config::new();
+        assert!(!config.enable_extension_influence);
+        assert!(!config.is_any_influence_enabled());
+    }
+
+    #[test]
+    fn test_context_modifiers_disabled_by_default() {
+        let mut graph = ArgumentGraph::new();
+        let source = graph.add_claim("Source".to_string(), "Test".to_string(), 0.8);
+        let target = graph.add_claim("Target".to_string(), "Test".to_string(), 0.7);
+
+        graph.add_defeater(source, target, Some(0.6), "Test".to_string(), Some(SuperiorityContext::Council));
+
+        let config = Phase4Config::new().with_extension_influence(true);
+        graph.set_phase4_config(config);
+
+        let score = graph.calculate_influence_score(target);
+        // Context modifier should be 0 because the flag is disabled
+        assert_eq!(score.context_modifier, 0.0);
+    }
+
+    #[test]
+    fn test_context_modifiers_affect_score_when_enabled() {
+        let mut graph = ArgumentGraph::new();
+        let source = graph.add_claim("Source".to_string(), "Test".to_string(), 0.8);
+        let target = graph.add_claim("Target".to_string(), "Test".to_string(), 0.7);
+
+        graph.add_defeater(source, target, Some(0.6), "Test".to_string(), Some(SuperiorityContext::Council));
+
+        let config = Phase4Config::new()
+            .with_extension_influence(true)
+            .with_defeater_context_modifiers(true);
+        graph.set_phase4_config(config);
+
+        let score = graph.calculate_influence_score(target);
+
+        // With Council context (weight 1.15), the modifier should be non-zero
+        assert!(score.context_modifier != 0.0);
+    }
+
+    #[test]
+    fn test_explain_influence_includes_context() {
+        let mut graph = ArgumentGraph::new();
+        let source = graph.add_claim("Source".to_string(), "Test".to_string(), 0.8);
+        let target = graph.add_claim("Target".to_string(), "Test".to_string(), 0.7);
+
+        graph.add_defeater(source, target, Some(0.6), "Test".to_string(), Some(SuperiorityContext::Topic));
+
+        let config = Phase4Config::new()
+            .with_extension_influence(true)
+            .with_defeater_context_modifiers(true);
+        graph.set_phase4_config(config);
+
+        let explanation = graph.explain_influence(target);
+        let has_context = explanation.defeater_reasons.iter().any(|r| r.contains("Topic"));
+        assert!(has_context);
+    }
 }
