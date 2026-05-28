@@ -1,7 +1,7 @@
 // crates/lattice-conductor-v14/src/argumentation.rs
 //
 // Ra-Thor Argumentation Graph
-// Phase 3: Defeater Primitive (Initial Implementation)
+// Phase 3: Defeater Primitive + Full Regression Tests
 
 use std::collections::{HashMap, HashSet};
 
@@ -36,7 +36,6 @@ pub struct Attack {
     pub provided_by: String,
 }
 
-/// Context for superiority relations (Phase 2)
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum SuperiorityContext {
     Council,
@@ -52,7 +51,6 @@ pub struct Superiority {
     pub context: Option<SuperiorityContext>,
 }
 
-/// Defeater (Phase 3) - weakens without full attack
 #[derive(Debug, Clone)]
 pub struct Defeater {
     pub id: ArgumentId,
@@ -69,7 +67,7 @@ pub struct ArgumentGraph {
     pub supports: Vec<Support>,
     pub attacks: Vec<Attack>,
     pub superiorities: Vec<Superiority>,
-    pub defeaters: Vec<Defeater>, // Phase 3
+    pub defeaters: Vec<Defeater>,
     next_id: ArgumentId,
 }
 
@@ -242,7 +240,7 @@ impl ArgumentGraph {
         self.superiorities = superiorities;
     }
 
-    // === Query & Analysis Methods ===
+    // === Query Methods ===
 
     pub fn get_supporters(&self, claim_id: ArgumentId) -> Vec<&Support> {
         self.supports.iter().filter(|s| s.target_claim_id == claim_id).collect()
@@ -488,4 +486,113 @@ pub struct ExtensionRecommendation {
     pub evolution_potential: f64,
     pub overall_score: f64,
     pub recommendation: String,
+}
+
+// === Full Regression Tests (Phase 1 + Phase 2 + Phase 3) ===
+
+#[cfg(test)]
+mod regression_tests {
+    use super::*;
+
+    // === Phase 1 Tests ===
+
+    #[test]
+    fn test_set_strict_and_is_strict() {
+        let mut graph = ArgumentGraph::new();
+        let claim = graph.add_claim("Test claim".to_string(), "Test".to_string(), 0.8);
+        assert!(!graph.claims[&claim].is_strict);
+        graph.set_strict(claim, true);
+        assert!(graph.claims[&claim].is_strict);
+    }
+
+    #[test]
+    fn test_add_and_check_superiority() {
+        let mut graph = ArgumentGraph::new();
+        let a = graph.add_claim("Strong".to_string(), "Test".to_string(), 0.9);
+        let b = graph.add_claim("Weak".to_string(), "Test".to_string(), 0.6);
+
+        graph.add_superiority(a, b, Some(SuperiorityContext::General));
+        assert!(graph.is_superior(a, b, Some(SuperiorityContext::General)));
+    }
+
+    #[test]
+    fn test_recommendation_uses_strict_and_superiority() {
+        let mut graph = ArgumentGraph::new();
+        let strong = graph.add_claim("Strong".to_string(), "Test".to_string(), 0.9);
+        let weak = graph.add_claim("Weak".to_string(), "Test".to_string(), 0.5);
+
+        graph.set_strict(strong, true);
+        graph.add_superiority(strong, weak, Some(SuperiorityContext::General));
+
+        let rec = graph.recommend_extensions();
+        assert!(rec.safety_score > 0.0);
+        assert!(rec.evolution_potential > 0.0);
+    }
+
+    // === Phase 2 Tests ===
+
+    #[test]
+    fn test_conflict_resolution_recency_wins() {
+        let mut graph = ArgumentGraph::new();
+        let a = graph.add_claim("A".to_string(), "Test".to_string(), 0.9);
+        let b = graph.add_claim("B".to_string(), "Test".to_string(), 0.6);
+
+        graph.add_superiority(b, a, Some(SuperiorityContext::General));
+        assert!(graph.is_superior(b, a, Some(SuperiorityContext::General)));
+
+        graph.add_superiority(a, b, Some(SuperiorityContext::General));
+        assert!(graph.is_superior(a, b, Some(SuperiorityContext::General)));
+        assert!(!graph.is_superior(b, a, Some(SuperiorityContext::General)));
+    }
+
+    #[test]
+    fn test_duplicate_superiority_ignored() {
+        let mut graph = ArgumentGraph::new();
+        let a = graph.add_claim("A".to_string(), "Test".to_string(), 0.9);
+        let b = graph.add_claim("B".to_string(), "Test".to_string(), 0.6);
+
+        graph.add_superiority(a, b, Some(SuperiorityContext::General));
+        graph.add_superiority(a, b, Some(SuperiorityContext::General));
+
+        assert_eq!(graph.superiorities.len(), 1);
+    }
+
+    // === Phase 3 Defeater Tests ===
+
+    #[test]
+    fn test_add_defeater_basic() {
+        let mut graph = ArgumentGraph::new();
+        let source = graph.add_claim("Source claim".to_string(), "Test".to_string(), 0.8);
+        let target = graph.add_claim("Target claim".to_string(), "Test".to_string(), 0.7);
+
+        let defeater_id = graph.add_defeater(source, target, None, "Test".to_string(), Some(SuperiorityContext::General));
+        assert!(defeater_id.is_some());
+
+        let defeaters = graph.get_defeaters(target);
+        assert_eq!(defeaters.len(), 1);
+        assert_eq!(defeaters[0].strength, 0.8); // should default to source strength
+    }
+
+    #[test]
+    fn test_add_defeater_explicit_strength() {
+        let mut graph = ArgumentGraph::new();
+        let source = graph.add_claim("Source".to_string(), "Test".to_string(), 0.8);
+        let target = graph.add_claim("Target".to_string(), "Test".to_string(), 0.7);
+
+        graph.add_defeater(source, target, Some(0.4), "Test".to_string(), None);
+
+        let defeaters = graph.get_defeaters(target);
+        assert_eq!(defeaters.len(), 1);
+        assert_eq!(defeaters[0].strength, 0.4);
+    }
+
+    #[test]
+    fn test_defeater_invalid_claims() {
+        let mut graph = ArgumentGraph::new();
+        let valid = graph.add_claim("Valid".to_string(), "Test".to_string(), 0.8);
+
+        // Invalid target
+        let result = graph.add_defeater(valid, 999, None, "Test".to_string(), None);
+        assert!(result.is_none());
+    }
 }
