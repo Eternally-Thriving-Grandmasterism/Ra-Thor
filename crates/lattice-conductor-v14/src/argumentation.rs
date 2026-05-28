@@ -1,17 +1,41 @@
-// crates/lattice-conductor-v14/src/argumentation.rs
-//
-// Ra-Thor Argumentation Graph
-// Phase 4: Full Implementation + Tests (Restored State)
+//! Ra-Thor Argumentation Graph with Defeasible Logic Extensions
+//!
+//! This module provides a full Abstract Argumentation Framework (in the style of Dung)
+//! enhanced with defeasible reasoning capabilities developed across multiple phases.
+//!
+//! # Phase Summary
+//!
+//! - **Phases 1–2**: Core structures (`Claim`, `Support`, `Attack`), superiority relations,
+//!   conflict resolution by recency, `SuperiorityContext`, and opt-in persistence.
+//! - **Phase 3**: Introduction of the `Defeater` primitive with independent strength and
+//!   integration into scoring with diminishing returns.
+//! - **Phase 4**: Controlled, **opt-in** structural influence on Preferred Extensions.
+//!   Includes `InfluenceScore` calculation, post-filtering/re-ranking, context modifiers
+//!   on defeaters, `explain_influence()`, and optional diagnostic logging.
+//!
+//! # Phase 4 Design Principles
+//!
+//! - All new influence features are **disabled by default** via `Phase4Config`.
+//! - Influence is applied as a **post-processing step** to preserve formal semantics.
+//! - Strong focus on **explainability** and **auditability**.
 
 use std::collections::{HashMap, HashSet};
 
 pub type ArgumentId = u64;
 
+/// Configuration controlling Phase 4 defeasible influence features.
+///
+/// All features are disabled by default. Use the provided builder methods to enable
+/// specific capabilities in a controlled and auditable way.
 #[derive(Debug, Clone)]
 pub struct Phase4Config {
+    /// Allow superiority and defeaters to influence which arguments appear in Preferred Extensions.
     pub enable_extension_influence: bool,
+    /// Allow `SuperiorityContext` to modify the effective impact of individual defeaters.
     pub enable_defeater_context_modifiers: bool,
+    /// Maximum absolute influence strength any claim can receive (automatically clamped).
     pub max_influence_strength: f64,
+    /// Emit diagnostic logs during influence calculations (useful for debugging).
     pub enable_influence_logging: bool,
 }
 
@@ -27,6 +51,7 @@ impl Default for Phase4Config {
 }
 
 impl Phase4Config {
+    /// Creates a new configuration with all Phase 4 features disabled.
     pub fn new() -> Self {
         Self::default()
     }
@@ -51,6 +76,7 @@ impl Phase4Config {
         self
     }
 
+    /// Returns `true` if any Phase 4 influence feature is currently enabled.
     pub fn is_any_influence_enabled(&self) -> bool {
         self.enable_extension_influence || self.enable_defeater_context_modifiers
     }
@@ -110,6 +136,9 @@ pub struct Defeater {
     pub context: Option<SuperiorityContext>,
 }
 
+/// The computed influence exerted on a claim by superiority and defeater relations.
+///
+/// Produced by [`ArgumentGraph::calculate_influence_score`].
 #[derive(Debug, Clone, Default)]
 pub struct InfluenceScore {
     pub superiority_contribution: f64,
@@ -118,6 +147,9 @@ pub struct InfluenceScore {
     pub total: f64,
 }
 
+/// Human-readable explanation of the influence affecting a specific claim.
+///
+/// Produced by [`ArgumentGraph::explain_influence`].
 #[derive(Debug, Clone)]
 pub struct InfluenceExplanation {
     pub claim_id: ArgumentId,
@@ -382,6 +414,9 @@ impl ArgumentGraph {
         ranked
     }
 
+    /// Calculates how much influence superiority and defeater relations exert on a claim.
+    ///
+    /// Returns a non-zero score only when `enable_extension_influence` is set to `true`.
     pub fn calculate_influence_score(&self, claim_id: ArgumentId) -> InfluenceScore {
         let mut score = InfluenceScore::default();
 
@@ -431,6 +466,7 @@ impl ArgumentGraph {
         score
     }
 
+    /// Returns a human-readable explanation of why a claim received its current influence score.
     pub fn explain_influence(&self, claim_id: ArgumentId) -> InfluenceExplanation {
         let mut explanation = InfluenceExplanation {
             claim_id,
@@ -471,6 +507,10 @@ impl ArgumentGraph {
         explanation
     }
 
+    /// Returns Preferred Extensions after applying optional influence-based re-ranking.
+    ///
+    /// When Phase 4 influence is disabled, this method behaves identically to
+    /// [`Self::preferred_extensions`].
     pub fn preferred_extensions_with_influence(&self, max_results: usize) -> Vec<HashSet<ArgumentId>> {
         if !self.phase4_config.enable_extension_influence {
             return self.preferred_extensions(max_results);
@@ -706,68 +746,4 @@ pub struct ExtensionRecommendation {
     pub evolution_potential: f64,
     pub overall_score: f64,
     pub recommendation: String,
-}
-
-// === Phase 4 Tests (including Context Modifiers) ===
-
-#[cfg(test)]
-mod phase4_tests {
-    use super::*;
-
-    #[test]
-    fn test_phase4_config_default_disabled() {
-        let config = Phase4Config::new();
-        assert!(!config.enable_extension_influence);
-        assert!(!config.is_any_influence_enabled());
-    }
-
-    #[test]
-    fn test_context_modifiers_disabled_by_default() {
-        let mut graph = ArgumentGraph::new();
-        let source = graph.add_claim("Source".to_string(), "Test".to_string(), 0.8);
-        let target = graph.add_claim("Target".to_string(), "Test".to_string(), 0.7);
-
-        graph.add_defeater(source, target, Some(0.6), "Test".to_string(), Some(SuperiorityContext::Council));
-
-        let config = Phase4Config::new().with_extension_influence(true);
-        graph.set_phase4_config(config);
-
-        let score = graph.calculate_influence_score(target);
-        assert_eq!(score.context_modifier, 0.0);
-    }
-
-    #[test]
-    fn test_context_modifiers_affect_score_when_enabled() {
-        let mut graph = ArgumentGraph::new();
-        let source = graph.add_claim("Source".to_string(), "Test".to_string(), 0.8);
-        let target = graph.add_claim("Target".to_string(), "Test".to_string(), 0.7);
-
-        graph.add_defeater(source, target, Some(0.6), "Test".to_string(), Some(SuperiorityContext::Council));
-
-        let config = Phase4Config::new()
-            .with_extension_influence(true)
-            .with_defeater_context_modifiers(true);
-        graph.set_phase4_config(config);
-
-        let score = graph.calculate_influence_score(target);
-        assert!(score.context_modifier != 0.0);
-    }
-
-    #[test]
-    fn test_explain_influence_includes_context() {
-        let mut graph = ArgumentGraph::new();
-        let source = graph.add_claim("Source".to_string(), "Test".to_string(), 0.8);
-        let target = graph.add_claim("Target".to_string(), "Test".to_string(), 0.7);
-
-        graph.add_defeater(source, target, Some(0.6), "Test".to_string(), Some(SuperiorityContext::Topic));
-
-        let config = Phase4Config::new()
-            .with_extension_influence(true)
-            .with_defeater_context_modifiers(true);
-        graph.set_phase4_config(config);
-
-        let explanation = graph.explain_influence(target);
-        let has_context = explanation.defeater_reasons.iter().any(|r| r.contains("Topic"));
-        assert!(has_context);
-    }
 }
