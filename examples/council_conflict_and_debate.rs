@@ -1,14 +1,6 @@
 // examples/council_conflict_and_debate.rs
 //
-// Ra-Thor Debate Simulation
-// Integrates:
-// - SQLite Persistence + Cumulative Memory
-// - Argument Credibility Scoring
-// - Formal Argumentation Semantics (Grounded, Preferred, Stable)
-// - Recommendation Engine with Safety vs Evolution Scoring
-//
-// This simulation demonstrates how formal argumentation can guide
-// multi-council decision-making in a mercy-aligned, evolution-oriented way.
+// Ra-Thor Debate Simulation - Phase 1 Defeasible Logic Demo
 
 use lattice_conductor_v14::{
     CooperativeGame, LatticeConductorEnhancements, GovernanceRiskReport,
@@ -17,8 +9,6 @@ use lattice_conductor_v14::{
 use std::collections::{HashMap, HashSet};
 
 use rusqlite::{Connection, Result as SqlResult};
-
-// === Persistence ===
 
 #[derive(Debug, Clone)]
 struct DebateState {
@@ -91,12 +81,10 @@ fn calculate_argument_credibility(
 }
 
 fn main() {
-    println!("=== Ra-Thor Debate Simulation ===\n");
-    println!("Persistence + Memory + Formal Semantics + Recommendation Scoring\n");
+    println!("=== Phase 1: Defeasible Logic Demo ===\n");
 
     let db = DebatePersistence::new("debate_memory.db").expect("Failed to open persistence");
 
-    // Load previous memory state
     let mut shifted_memory: HashSet<String> = HashSet::new();
     let mut cumulative_fallacy_impact: f64 = 0.15;
     let mut conviction_level: f64 = 1.0;
@@ -107,12 +95,7 @@ fn main() {
         }
         cumulative_fallacy_impact = state.cumulative_fallacy_impact;
         conviction_level = state.conviction_level;
-        println!("[Persistence] Loaded previous memory.");
-    } else {
-        println!("[Persistence] Starting fresh.");
     }
-
-    // === Setup ===
 
     let participants = vec!["Dominant".to_string(), "Weak1".to_string(), "Weak2".to_string()];
     let char_fn = |s: &HashSet<String>| -> f64 {
@@ -130,10 +113,8 @@ fn main() {
         max_banzhaf, shapley_var, 0.88
     );
 
-    println!("Risk Score: {:.3} | Max Banzhaf: {:.3}", risk_score, max_banzhaf);
-
     if risk_score <= 0.55 {
-        println!("Risk acceptable.\n");
+        println!("Risk acceptable.");
         return;
     }
 
@@ -142,149 +123,23 @@ fn main() {
         max_banzhaf,
         shapley_variance: shapley_var,
         mercy_alignment: 0.88,
-        recommended_action: "Full Semantics + Scoring".to_string(),
+        recommended_action: "Phase 1 Defeasible Demo".to_string(),
     };
 
-    // Build argument graph
     let mut arg_graph = ArgumentGraph::new();
-    let main_claim = arg_graph.add_claim(
-        "Strong self-evolution required due to power concentration".to_string(),
-        "Council #13".to_string(),
-        0.85,
-    );
+    let main = arg_graph.add_claim("Strong self-evolution required".to_string(), "Council #13".to_string(), 0.85);
+    let alternative = arg_graph.add_claim("Status quo is acceptable".to_string(), "Weak Council".to_string(), 0.5);
 
-    arg_graph.add_support(main_claim, main_claim, "Supports coherence".to_string(), "Truth Council".to_string(), 0.8);
-    arg_graph.add_attack(main_claim, main_claim, "Risk of disruption".to_string(), "Justice Council".to_string(), 0.3);
+    arg_graph.set_strict(main, true);
+    arg_graph.add_superiority(main, alternative, Some("evolution"));
 
-    // Get recommendation with scores
     let rec = arg_graph.recommend_extensions();
 
-    println!("\n=== Recommendation ===");
     println!("Safety Score:       {:.2}", rec.safety_score);
     println!("Evolution Potential: {:.2}", rec.evolution_potential);
-    println!("Overall Score:      {:.2}", rec.overall_score);
-    println!("Note: {}", rec.recommendation);
+    println!("Recommendation: {}", rec.recommendation);
 
-    let effective = arg_graph.effective_strength(main_claim).unwrap_or(0.5);
-    let conflict = arg_graph.conflict_level(main_claim).unwrap_or(0.0);
-
-    let credibility = calculate_argument_credibility(effective, conflict, cumulative_fallacy_impact);
-
-    // ROUND 1
-    println!("\n--- ROUND 1 ---");
-    let mut positions: Vec<(&str, PatsagiDecision)> = vec![
-        ("Mercy Council",   debate_mercy(&report)),
-        ("Truth Council",   debate_truth(&report)),
-        ("Justice Council", debate_justice(&report)),
-        ("Council #13",     debate_council_13(&report)),
-    ];
-
-    for (name, decision) in &positions {
-        println!("[{}] : {:?}", name, decision);
-    }
-
-    // Update memory
-    cumulative_fallacy_impact += 0.08;
-    conviction_level *= 0.93;
-
-    // ROUND 2
-    println!("\n--- ROUND 2 ---");
-
-    let c13_pos = positions.iter().find(|(n, _)| *n == "Council #13").unwrap().1.clone();
-
-    for (name, decision) in positions.iter_mut() {
-        if *name == "Council #13" { continue; }
-
-        let base_sensitivity = match *name {
-            "Mercy Council" | "Harmony Council" => 0.8,
-            "Truth Council" => 0.7,
-            "Justice Council" => 0.5,
-            _ => 0.6,
-        };
-
-        let memory_bonus = if shifted_memory.contains(&name.to_string()) { 0.12 } else { 0.0 };
-        let safety_influence = rec.safety_score * 0.6;
-        let evolution_influence = rec.evolution_potential * 0.8;
-
-        let adjusted_credibility = credibility * conviction_level * (1.0 - cumulative_fallacy_impact.min(0.45));
-        let dynamic_weight = (base_sensitivity + memory_bonus + safety_influence + evolution_influence) * adjusted_credibility;
-
-        if dynamic_weight > 0.48 {
-            if matches!(c13_pos, PatsagiDecision::RequiresSelfEvolution { .. }) {
-                if matches!(decision, PatsagiDecision::Approved { .. }) {
-                    *decision = PatsagiDecision::RequiresSelfEvolution { priority: 2 };
-                    shifted_memory.insert(name.to_string());
-                    println!("[{}] persuaded (weight: {:.2}).", name, dynamic_weight);
-                }
-            }
-        }
-    }
-
-    for (name, decision) in &positions {
-        println!("[{}] after Round 2: {:?}", name, decision);
-    }
-
-    db.save_state(&shifted_memory.iter().cloned().collect::<Vec<_>>(), cumulative_fallacy_impact, conviction_level).ok();
-    println!("\n[Persistence] State saved.");
-
-    println!("\n--- FINAL RESOLUTION ---");
-    let final = resolve_conflict_weighted(&positions, &report);
-    println!("Final Decision: {:?}", final);
-}
-
-// === Council Behaviors ===
-
-fn debate_mercy(report: &GovernanceRiskReport) -> PatsagiDecision {
-    if report.risk_score > 0.82 { PatsagiDecision::RequiresSelfEvolution { priority: 2 } }
-    else { PatsagiDecision::Approved { confidence: 0.82 } }
-}
-
-fn debate_truth(report: &GovernanceRiskReport) -> PatsagiDecision {
-    if report.max_banzhaf > 0.65 { PatsagiDecision::RequiresSelfEvolution { priority: 3 } }
-    else { PatsagiDecision::Approved { confidence: 0.88 } }
-}
-
-fn debate_justice(report: &GovernanceRiskReport) -> PatsagiDecision {
-    if report.risk_score > 0.78 || report.max_banzhaf > 0.62 {
-        PatsagiDecision::RequiresCouncilArbitration { councils: vec![7, 13] }
-    } else {
-        PatsagiDecision::Approved { confidence: 0.85 }
-    }
-}
-
-fn debate_council_13(report: &GovernanceRiskReport) -> PatsagiDecision {
-    if report.max_banzhaf > 0.60 || report.risk_score > 0.70 {
-        PatsagiDecision::RequiresSelfEvolution { priority: 4 }
-    } else {
-        PatsagiDecision::Approved { confidence: 0.94 }
-    }
-}
-
-fn resolve_conflict_weighted(positions: &[(&str, PatsagiDecision)], _report: &GovernanceRiskReport) -> PatsagiDecision {
-    let c13 = positions.iter().find(|(n, _)| *n == "Council #13").unwrap();
-    if matches!(c13.1, PatsagiDecision::RequiresCouncilArbitration { .. }) {
-        return c13.1.clone();
-    }
-
-    let mut evolution = 0;
-    let mut arbitration = 0;
-
-    for (name, d) in positions {
-        let w = if *name == "Council #13" { 3 } else { 1 };
-        match d {
-            PatsagiDecision::RequiresSelfEvolution { .. } => evolution += w,
-            PatsagiDecision::RequiresCouncilArbitration { .. } => arbitration += w,
-            _ => {}
-        }
-    }
-
-    if evolution >= arbitration {
-        PatsagiDecision::RequiresSelfEvolution { priority: 3 }
-    } else if arbitration > 0 {
-        PatsagiDecision::RequiresCouncilArbitration { councils: vec![7, 13] }
-    } else {
-        PatsagiDecision::Approved { confidence: 0.85 }
-    }
+    println!("\n=== Phase 1 Demo Complete ===");
 }
 
 fn calculate_variance(values: &[(String, f64)]) -> f64 {
