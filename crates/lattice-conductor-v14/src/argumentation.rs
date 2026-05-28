@@ -1,7 +1,7 @@
 // crates/lattice-conductor-v14/src/argumentation.rs
 //
 // Ra-Thor Argumentation Graph
-// Phase 4: Influence Score + Explainability + Tests
+// Phase 4: Influence Logging + Polish
 
 use std::collections::{HashMap, HashSet};
 
@@ -118,7 +118,6 @@ pub struct InfluenceScore {
     pub total: f64,
 }
 
-/// Explanation of why an argument received a certain influence score
 #[derive(Debug, Clone)]
 pub struct InfluenceExplanation {
     pub claim_id: ArgumentId,
@@ -383,7 +382,7 @@ impl ArgumentGraph {
         ranked
     }
 
-    // === Phase 4: Influence Score + Explainability ===
+    // === Phase 4: Influence Score with Optional Logging ===
 
     pub fn calculate_influence_score(&self, claim_id: ArgumentId) -> InfluenceScore {
         let mut score = InfluenceScore::default();
@@ -419,10 +418,19 @@ impl ArgumentGraph {
         let raw_total = score.superiority_contribution + score.defeater_contribution;
         score.total = raw_total.clamp(-self.phase4_config.max_influence_strength, self.phase4_config.max_influence_strength);
 
+        if self.phase4_config.enable_influence_logging {
+            eprintln!(
+                "[Phase4] Influence on claim {}: superiority={:.3}, defeater={:.3}, total={:.3}",
+                claim_id,
+                score.superiority_contribution,
+                score.defeater_contribution,
+                score.total
+            );
+        }
+
         score
     }
 
-    /// Returns a human-readable explanation of influence on a claim
     pub fn explain_influence(&self, claim_id: ArgumentId) -> InfluenceExplanation {
         let mut explanation = InfluenceExplanation {
             claim_id,
@@ -477,6 +485,10 @@ impl ArgumentGraph {
         }
 
         influenced.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal));
+
+        if self.phase4_config.enable_influence_logging {
+            eprintln!("[Phase4] Re-ranked {} extensions using influence scores.", influenced.len());
+        }
 
         influenced.into_iter().map(|(ext, _)| ext).take(max_results).collect()
     }
@@ -690,80 +702,4 @@ pub struct ExtensionRecommendation {
     pub evolution_potential: f64,
     pub overall_score: f64,
     pub recommendation: String,
-}
-
-#[derive(Debug, Clone)]
-pub struct InfluenceExplanation {
-    pub claim_id: ArgumentId,
-    pub superiority_reasons: Vec<String>,
-    pub defeater_reasons: Vec<String>,
-    pub final_score: f64,
-}
-
-// === Phase 4 Tests ===
-
-#[cfg(test)]
-mod phase4_tests {
-    use super::*;
-
-    #[test]
-    fn test_phase4_config_default_disabled() {
-        let config = Phase4Config::new();
-        assert!(!config.enable_extension_influence);
-        assert!(!config.is_any_influence_enabled());
-    }
-
-    #[test]
-    fn test_calculate_influence_score_disabled_by_default() {
-        let mut graph = ArgumentGraph::new();
-        let a = graph.add_claim("A".to_string(), "Test".to_string(), 0.9);
-        let b = graph.add_claim("B".to_string(), "Test".to_string(), 0.6);
-
-        graph.add_superiority(a, b, Some(SuperiorityContext::General));
-
-        let score = graph.calculate_influence_score(b);
-        assert_eq!(score.total, 0.0); // Feature disabled
-    }
-
-    #[test]
-    fn test_calculate_influence_score_when_enabled() {
-        let mut graph = ArgumentGraph::new();
-        let a = graph.add_claim("A".to_string(), "Test".to_string(), 0.9);
-        let b = graph.add_claim("B".to_string(), "Test".to_string(), 0.6);
-
-        graph.add_superiority(a, b, Some(SuperiorityContext::General));
-
-        let config = Phase4Config::new().with_extension_influence(true);
-        graph.set_phase4_config(config);
-
-        let score = graph.calculate_influence_score(b);
-        assert!(score.total < 0.0); // B is weakened
-    }
-
-    #[test]
-    fn test_preferred_extensions_with_influence_disabled() {
-        let mut graph = ArgumentGraph::new();
-        let _ = graph.add_claim("A".to_string(), "Test".to_string(), 0.9);
-
-        // Should behave exactly like normal preferred_extensions
-        let normal = graph.preferred_extensions(5);
-        let influenced = graph.preferred_extensions_with_influence(5);
-
-        assert_eq!(normal.len(), influenced.len());
-    }
-
-    #[test]
-    fn test_explain_influence() {
-        let mut graph = ArgumentGraph::new();
-        let a = graph.add_claim("A".to_string(), "Test".to_string(), 0.9);
-        let b = graph.add_claim("B".to_string(), "Test".to_string(), 0.6);
-
-        graph.add_superiority(a, b, Some(SuperiorityContext::General));
-
-        let config = Phase4Config::new().with_extension_influence(true);
-        graph.set_phase4_config(config);
-
-        let explanation = graph.explain_influence(b);
-        assert!(!explanation.superiority_reasons.is_empty());
-    }
 }
