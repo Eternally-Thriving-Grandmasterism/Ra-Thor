@@ -1,7 +1,7 @@
 // crates/lattice-conductor-v14/src/argumentation.rs
 //
 // Ra-Thor Argumentation Graph
-// Phase 1: Defeasible Logic Integration (Contextual Superiority + Strict/Defeasible Claims)
+// Phase 1: Defeasible Logic Integration
 
 use std::collections::{HashMap, HashSet};
 
@@ -13,7 +13,7 @@ pub struct Claim {
     pub content: String,
     pub proposed_by: String,
     pub strength: f64,
-    pub is_strict: bool, // Phase 1: true = cannot be defeated
+    pub is_strict: bool,
 }
 
 #[derive(Debug, Clone)]
@@ -36,7 +36,6 @@ pub struct Attack {
     pub provided_by: String,
 }
 
-/// Represents a superiority relation (Phase 1)
 #[derive(Debug, Clone)]
 pub struct Superiority {
     pub stronger: ArgumentId,
@@ -49,7 +48,7 @@ pub struct ArgumentGraph {
     pub claims: HashMap<ArgumentId, Claim>,
     pub supports: Vec<Support>,
     pub attacks: Vec<Attack>,
-    pub superiorities: Vec<Superiority>, // Phase 1
+    pub superiorities: Vec<Superiority>,
     next_id: ArgumentId,
 }
 
@@ -342,16 +341,28 @@ impl ArgumentGraph {
         results
     }
 
+    // === Recommendation Engine with Phase 1 Defeasible Logic ===
+
     pub fn recommend_extensions(&self) -> ExtensionRecommendation {
         let grounded = self.grounded_extension();
         let preferreds = self.preferred_extensions(3);
         let stables = self.stable_extensions(2);
 
-        let safety_score = if self.claims.is_empty() { 0.0 } else {
+        // Count strict claims in Grounded Extension
+        let strict_in_grounded = grounded.iter()
+            .filter_map(|&id| self.claims.get(&id))
+            .filter(|c| c.is_strict)
+            .count();
+
+        let total_grounded = grounded.len().max(1) as f64;
+        let strict_ratio = strict_in_grounded as f64 / total_grounded;
+
+        // Base scores
+        let base_safety = if self.claims.is_empty() { 0.0 } else {
             grounded.len() as f64 / self.claims.len() as f64
         };
 
-        let evolution_potential = if preferreds.is_empty() && stables.is_empty() {
+        let base_evolution = if preferreds.is_empty() && stables.is_empty() {
             0.1
         } else {
             let pref_avg = if preferreds.is_empty() { 0.0 } else {
@@ -363,14 +374,24 @@ impl ArgumentGraph {
             (pref_avg * 0.6 + stable_avg * 0.4).min(1.0)
         };
 
+        // Phase 1 Adjustment: Strict claims increase Safety
+        let safety_score = (base_safety + strict_ratio * 0.25).min(1.0);
+
+        // Phase 1 Adjustment: Superiority relations slightly increase Evolution Potential
+        let superiority_bonus = if self.superiorities.is_empty() { 0.0 } else {
+            (self.superiorities.len() as f64 / self.claims.len().max(1) as f64) * 0.15
+        };
+
+        let evolution_potential = (base_evolution + superiority_bonus).min(1.0);
+
         let overall_score = (safety_score * 0.55) + (evolution_potential * 0.45);
 
-        let recommendation = if evolution_potential > 0.5 {
-            "Good evolution potential exists while maintaining reasonable safety."
-        } else if safety_score > 0.6 {
-            "Strong safety-focused position available (Grounded)."
+        let recommendation = if evolution_potential > 0.55 {
+            "Good evolution potential with some strict protections in place."
+        } else if safety_score > 0.65 {
+            "Strong safety posture due to strict claims."
         } else {
-            "Balanced consideration between safety and evolution is recommended."
+            "Balanced position between safety and evolution."
         };
 
         ExtensionRecommendation {
