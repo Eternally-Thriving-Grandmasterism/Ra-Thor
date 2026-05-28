@@ -919,4 +919,52 @@ mod phase4_tests {
         let has_self_evolution_note = explanation.context_notes.iter().any(|n| n.contains("SelfEvolution"));
         assert!(has_self_evolution_note);
     }
+
+    #[test]
+    fn test_mixed_contexts_on_same_claim() {
+        let mut graph = ArgumentGraph::new();
+        let source1 = graph.add_claim("Source1".to_string(), "Test".to_string(), 0.8);
+        let source2 = graph.add_claim("Source2".to_string(), "Test".to_string(), 0.7);
+        let target = graph.add_claim("Target".to_string(), "Test".to_string(), 0.6);
+
+        // One MercyGate defeater (softens) and one Council defeater (strengthens)
+        graph.add_defeater(source1, target, Some(0.5), "Test".to_string(), "".to_string(), Some(SuperiorityContext::MercyGate));
+        graph.add_defeater(source2, target, Some(0.5), "Test".to_string(), "".to_string(), Some(SuperiorityContext::Council));
+
+        let config = Phase4Config::new()
+            .with_extension_influence(true)
+            .with_defeater_context_modifiers(true);
+        graph.set_phase4_config(config);
+
+        let score = graph.calculate_influence_score(target);
+
+        // Net effect should still be negative, but moderated by the MercyGate reduction
+        assert!(score.defeater_contribution < 0.0);
+        assert!(score.context_modifier != 0.0);
+    }
+
+    #[test]
+    fn test_superiority_and_mercygate_defeater_combined() {
+        let mut graph = ArgumentGraph::new();
+        let strong = graph.add_claim("Strong".to_string(), "Test".to_string(), 0.8);
+        let weak = graph.add_claim("Weak".to_string(), "Test".to_string(), 0.6);
+        let defeater_source = graph.add_claim("DefeaterSource".to_string(), "Test".to_string(), 0.7);
+
+        // Superiority: strong > weak
+        graph.add_superiority(strong, weak, Some(SuperiorityContext::General));
+
+        // MercyGate defeater targeting weak
+        graph.add_defeater(defeater_source, weak, Some(0.5), "Test".to_string(), "".to_string(), Some(SuperiorityContext::MercyGate));
+
+        let config = Phase4Config::new()
+            .with_extension_influence(true)
+            .with_defeater_context_modifiers(true);
+        graph.set_phase4_config(config);
+
+        let score = graph.calculate_influence_score(weak);
+
+        // Should have both superiority contribution and softened defeater contribution
+        assert!(score.superiority_contribution > 0.0);
+        assert!(score.defeater_contribution < 0.0);
+    }
 }
