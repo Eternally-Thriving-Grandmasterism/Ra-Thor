@@ -1,7 +1,7 @@
 // crates/lattice-conductor-v14/src/argumentation.rs
 //
 // Ra-Thor Argumentation Graph
-// Phase 4: Influence Logging + Polish
+// Phase 4: Context Modifiers on Defeaters (Stage 3)
 
 use std::collections::{HashMap, HashSet};
 
@@ -382,7 +382,7 @@ impl ArgumentGraph {
         ranked
     }
 
-    // === Phase 4: Influence Score with Optional Logging ===
+    // === Phase 4: Influence Score with Context Modifiers on Defeaters ===
 
     pub fn calculate_influence_score(&self, claim_id: ArgumentId) -> InfluenceScore {
         let mut score = InfluenceScore::default();
@@ -391,6 +391,7 @@ impl ArgumentGraph {
             return score;
         }
 
+        // Superiority contribution
         for sup in &self.superiorities {
             if sup.stronger == claim_id {
                 let weight = self.context_weight(&sup.context);
@@ -402,6 +403,7 @@ impl ArgumentGraph {
             }
         }
 
+        // Defeater contribution (with optional context modifiers)
         for def in &self.defeaters {
             if def.target_claim_id == claim_id {
                 let mut impact = def.strength * 0.5;
@@ -409,21 +411,23 @@ impl ArgumentGraph {
                 if self.phase4_config.enable_defeater_context_modifiers {
                     let weight = self.context_weight(&def.context);
                     impact *= weight;
+                    score.context_modifier += (weight - 1.0) * def.strength * 0.3;
                 }
 
                 score.defeater_contribution -= impact;
             }
         }
 
-        let raw_total = score.superiority_contribution + score.defeater_contribution;
+        let raw_total = score.superiority_contribution + score.defeater_contribution + score.context_modifier;
         score.total = raw_total.clamp(-self.phase4_config.max_influence_strength, self.phase4_config.max_influence_strength);
 
         if self.phase4_config.enable_influence_logging {
             eprintln!(
-                "[Phase4] Influence on claim {}: superiority={:.3}, defeater={:.3}, total={:.3}",
+                "[Phase4] Influence on claim {}: sup={:.3}, def={:.3}, ctx_mod={:.3}, total={:.3}",
                 claim_id,
                 score.superiority_contribution,
                 score.defeater_contribution,
+                score.context_modifier,
                 score.total
             );
         }
@@ -458,7 +462,13 @@ impl ArgumentGraph {
 
         for def in &self.defeaters {
             if def.target_claim_id == claim_id {
-                explanation.defeater_reasons.push(format!("Weakened by defeater from {} (strength {:.2})", def.source_claim_id, def.strength));
+                let mut reason = format!("Weakened by defeater from {} (strength {:.2})", def.source_claim_id, def.strength);
+                if self.phase4_config.enable_defeater_context_modifiers {
+                    if let Some(ctx) = &def.context {
+                        reason.push_str(&format!(" [context: {:?}]", ctx));
+                    }
+                }
+                explanation.defeater_reasons.push(reason);
             }
         }
 
