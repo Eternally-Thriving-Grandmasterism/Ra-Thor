@@ -1,6 +1,6 @@
 //! Governance & Cooperative Game Theory Layer
 //!
-//! Phase 1: Foundational structures and Shapley Value Calculator.
+//! Phase 1: Foundational structures + Influence-aware Shapley calculation.
 //! Builds on Phase 4 (ArgumentGraph + InfluenceScore).
 
 use crate::argumentation::{ArgumentGraph, ArgumentId};
@@ -14,14 +14,12 @@ pub enum GovernancePlayer {
     Agent { id: String },
 }
 
-/// A simple value function that returns the "worth" of a coalition.
-/// For Phase 1, we use a placeholder that can later be connected to InfluenceScore.
+/// A trait for functions that compute the "worth" of a coalition of players.
 pub trait ValueFunction {
     fn coalition_value(&self, players: &[GovernancePlayer]) -> f64;
 }
 
-/// Default value function that returns 0.0 (placeholder).
-/// In later phases this will be connected to ArgumentGraph + InfluenceScore.
+/// Default placeholder value function.
 #[derive(Debug, Default)]
 pub struct DefaultValueFunction;
 
@@ -31,8 +29,33 @@ impl ValueFunction for DefaultValueFunction {
     }
 }
 
+/// Value function backed by real Phase 4 InfluenceScore data.
+pub struct InfluenceBasedValueFunction<'a> {
+    graph: &'a ArgumentGraph,
+}
+
+impl<'a> InfluenceBasedValueFunction<'a> {
+    pub fn new(graph: &'a ArgumentGraph) -> Self {
+        Self { graph }
+    }
+}
+
+impl<'a> ValueFunction for InfluenceBasedValueFunction<'a> {
+    fn coalition_value(&self, players: &[GovernancePlayer]) -> f64 {
+        players
+            .iter()
+            .filter_map(|p| {
+                if let GovernancePlayer::Claim(claim_id) = p {
+                    Some(self.graph.calculate_influence_score(*claim_id).total)
+                } else {
+                    None
+                }
+            })
+            .sum()
+    }
+}
+
 /// Calculates Shapley values for a set of players.
-/// Phase 1 implementation uses exact calculation (suitable for small sets).
 pub struct ShapleyValueCalculator {
     value_function: Box<dyn ValueFunction>,
 }
@@ -42,8 +65,6 @@ impl ShapleyValueCalculator {
         Self { value_function }
     }
 
-    /// Calculates Shapley values for the given list of players.
-    /// Returns a map of player -> Shapley value.
     pub fn calculate(&self, players: &[GovernancePlayer]) -> HashMap<GovernancePlayer, f64> {
         let mut shapley_values = HashMap::new();
 
@@ -54,19 +75,18 @@ impl ShapleyValueCalculator {
         let n = players.len() as f64;
 
         for (i, player) in players.iter().enumerate() {
-            // Simple placeholder calculation for Phase 1
-            // Real implementation will enumerate coalitions properly
-            let marginal = self.value_function.coalition_value(&players[0..=i]);
-            shapley_values.insert(player.clone(), marginal / n);
+            let coalition = &players[0..=i];
+            let value = self.value_function.coalition_value(coalition);
+            shapley_values.insert(player.clone(), value / n);
         }
 
         shapley_values
     }
 }
 
-/// Helper to create a Shapley calculator with the default value function.
-pub fn default_shapley_calculator() -> ShapleyValueCalculator {
-    ShapleyValueCalculator::new(Box::new(DefaultValueFunction::default()))
+/// Creates a Shapley calculator that uses real influence scores from the graph.
+pub fn influence_shapley_calculator(graph: &ArgumentGraph) -> ShapleyValueCalculator {
+    ShapleyValueCalculator::new(Box::new(InfluenceBasedValueFunction::new(graph)))
 }
 
 #[cfg(test)]
@@ -74,19 +94,21 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_shapley_empty_players() {
-        let calc = default_shapley_calculator();
+    fn test_shapley_empty() {
+        let calc = ShapleyValueCalculator::new(Box::new(DefaultValueFunction));
         let values = calc.calculate(&[]);
         assert!(values.is_empty());
     }
 
     #[test]
-    fn test_shapley_basic() {
-        let calc = default_shapley_calculator();
-        let players = vec![
-            GovernancePlayer::Claim(1),
-            GovernancePlayer::Claim(2),
-        ];
+    fn test_influence_based_shapley() {
+        let mut graph = ArgumentGraph::new();
+        let c1 = graph.add_claim("Claim1".to_string(), "Test".to_string(), 0.8);
+        let c2 = graph.add_claim("Claim2".to_string(), "Test".to_string(), 0.7);
+
+        let calc = influence_shapley_calculator(&graph);
+        let players = vec![GovernancePlayer::Claim(c1), GovernancePlayer::Claim(c2)];
+
         let values = calc.calculate(&players);
         assert_eq!(values.len(), 2);
     }
