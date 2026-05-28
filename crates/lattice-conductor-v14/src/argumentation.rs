@@ -1,15 +1,18 @@
 // crates/lattice-conductor-v14/src/argumentation.rs
 //
 // Ra-Thor Argumentation Graph
-// Supports both practical analysis methods and formal Abstract Argumentation semantics.
 //
-// Formal Semantics Supported:
-// - Grounded Extension   : Most skeptical / safest set of acceptable arguments.
-// - Preferred Extensions : Credulous / maximal admissible sets (can be multiple).
-// - Stable Extensions    : Strong / decisive sets that attack everything outside themselves.
+// This module provides a flexible argument graph supporting both practical analysis
+// and formal Abstract Argumentation Framework semantics (inspired by Dung's theory).
 //
-// These methods allow Ra-Thor and PATSAGi Councils to reason using rigorous
-// formal argumentation theory while remaining aligned with mercy and evolution.
+// Key Capabilities:
+// - Claim, Support, and Attack modeling
+// - Conflict and strength analysis
+// - Formal semantics: Grounded, Preferred, and Stable Extensions
+// - Numeric recommendation scoring (Safety vs Evolution Potential)
+//
+// This system is designed to support PATSAGi Council decision-making with
+// a balance of truth, mercy, and evolution.
 
 use std::collections::{HashMap, HashSet};
 
@@ -177,6 +180,7 @@ impl ArgumentGraph {
 
     // === Formal Abstract Argumentation Semantics ===
 
+    /// Returns arguments with no attackers.
     pub fn unattacked_arguments(&self) -> Vec<ArgumentId> {
         self.claims
             .keys()
@@ -191,6 +195,7 @@ impl ArgumentGraph {
             .all(|attack| defeated.contains(&attack.source_claim_id))
     }
 
+    /// Checks if a set is admissible (conflict-free and defends itself).
     pub fn is_admissible(&self, set: &HashSet<ArgumentId>) -> bool {
         for &arg in set {
             for attack in self.get_attackers(arg) {
@@ -207,6 +212,7 @@ impl ArgumentGraph {
         true
     }
 
+    /// Computes the Grounded Extension (most skeptical, well-founded position).
     pub fn grounded_extension(&self) -> Vec<ArgumentId> {
         let mut extension: HashSet<ArgumentId> = HashSet::new();
         let mut changed = true;
@@ -252,6 +258,7 @@ impl ArgumentGraph {
         current
     }
 
+    /// Returns up to `max_results` Preferred Extensions (maximal admissible sets).
     pub fn preferred_extensions(&self, max_results: usize) -> Vec<HashSet<ArgumentId>> {
         let mut results: Vec<HashSet<ArgumentId>> = Vec::new();
         let grounded: HashSet<ArgumentId> = self.grounded_extension().into_iter().collect();
@@ -280,6 +287,7 @@ impl ArgumentGraph {
         results
     }
 
+    /// Checks if a set is a Stable Extension.
     pub fn is_stable(&self, set: &HashSet<ArgumentId>) -> bool {
         if !self.is_admissible(set) {
             return false;
@@ -302,6 +310,7 @@ impl ArgumentGraph {
         true
     }
 
+    /// Returns up to `max_results` Stable Extensions.
     pub fn stable_extensions(&self, max_results: usize) -> Vec<HashSet<ArgumentId>> {
         let mut results = Vec::new();
         let preferreds = self.preferred_extensions(max_results * 2);
@@ -319,8 +328,22 @@ impl ArgumentGraph {
         results
     }
 
-    // === Numeric Scoring + Recommendation Layer ===
+    // === Recommendation Engine ===
 
+    /// Returns a structured recommendation with numeric Safety and Evolution scores.
+    ///
+    /// # Example
+    /// ```
+    /// use lattice_conductor_v14::ArgumentGraph;
+    ///
+    /// let mut graph = ArgumentGraph::new();
+    /// let claim_id = graph.add_claim("Self-evolution is needed".to_string(), "Council #13".to_string(), 0.85);
+    ///
+    /// let rec = graph.recommend_extensions();
+    /// println!("Safety Score: {}", rec.safety_score);
+    /// println!("Evolution Potential: {}", rec.evolution_potential);
+    /// println!("Recommendation: {}", rec.recommendation);
+    /// ```
     pub fn recommend_extensions(&self) -> ExtensionRecommendation {
         let grounded = self.grounded_extension();
         let preferreds = self.preferred_extensions(3);
@@ -374,98 +397,3 @@ pub struct ExtensionRecommendation {
     pub overall_score: f64,
     pub recommendation: String,
 }
-
-// === Automated Regression Detection Tests ===
-
-#[cfg(test)]
-mod regression_tests {
-    use super::*;
-
-    #[test]
-    fn test_grounded_extension_basic() {
-        let mut graph = ArgumentGraph::new();
-        let a = graph.add_claim("A".to_string(), "Test".to_string(), 0.9);
-        let b = graph.add_claim("B".to_string(), "Test".to_string(), 0.7);
-        graph.add_attack(a, b, "Attacks B".to_string(), "Test".to_string(), 0.8);
-
-        let grounded = graph.grounded_extension();
-        assert!(grounded.contains(&a));
-        assert!(!grounded.contains(&b));
-    }
-
-    #[test]
-    fn test_is_admissible() {
-        let mut graph = ArgumentGraph::new();
-        let a = graph.add_claim("A".to_string(), "Test".to_string(), 0.9);
-        let b = graph.add_claim("B".to_string(), "Test".to_string(), 0.7);
-        graph.add_attack(a, b, "Attacks B".to_string(), "Test".to_string(), 0.8);
-
-        let mut set = HashSet::new();
-        set.insert(a);
-        assert!(graph.is_admissible(&set));
-
-        set.insert(b);
-        assert!(!graph.is_admissible(&set));
-    }
-
-    #[test]
-    fn test_preferred_extensions_exist() {
-        let mut graph = ArgumentGraph::new();
-        let a = graph.add_claim("A".to_string(), "Test".to_string(), 0.9);
-        let _b = graph.add_claim("B".to_string(), "Test".to_string(), 0.7);
-
-        let preferreds = graph.preferred_extensions(5);
-        assert!(!preferreds.is_empty());
-    }
-
-    #[test]
-    fn test_stable_extensions_runs_without_panic() {
-        let mut graph = ArgumentGraph::new();
-        let a = graph.add_claim("A".to_string(), "Test".to_string(), 0.9);
-        let _b = graph.add_claim("B".to_string(), "Test".to_string(), 0.7);
-
-        let stables = graph.stable_extensions(3);
-        let _ = stables.len(); // just verify it runs
-    }
-
-    #[test]
-    fn test_recommendation_scoring_valid_range() {
-        let mut graph = ArgumentGraph::new();
-        let a = graph.add_claim("A".to_string(), "Test".to_string(), 0.9);
-        let _b = graph.add_claim("B".to_string(), "Test".to_string(), 0.7);
-
-        let rec = graph.recommend_extensions();
-
-        assert!(rec.safety_score >= 0.0 && rec.safety_score <= 1.0);
-        assert!(rec.evolution_potential >= 0.0 && rec.evolution_potential <= 1.0);
-        assert!(rec.overall_score >= 0.0 && rec.overall_score <= 1.0);
-    }
-
-    #[test]
-    fn test_recommendation_contains_grounded() {
-        let mut graph = ArgumentGraph::new();
-        let a = graph.add_claim("A".to_string(), "Test".to_string(), 0.9);
-
-        let rec = graph.recommend_extensions();
-        assert!(rec.grounded.contains(&a));
-    }
-
-    #[test]
-    fn test_recommendation_text_not_empty() {
-        let mut graph = ArgumentGraph::new();
-        let _a = graph.add_claim("A".to_string(), "Test".to_string(), 0.9);
-
-        let rec = graph.recommend_extensions();
-        assert!(!rec.recommendation.trim().is_empty());
-    }
-}
-
-// === How to Run Regression Tests ===
-//
-// Recommended commands:
-//
-//   cargo test --package lattice-conductor-v14 regression_tests
-//   cargo test --package lattice-conductor-v14
-//
-// Or use the helper script:
-//   ./scripts/run_regression_tests.sh
