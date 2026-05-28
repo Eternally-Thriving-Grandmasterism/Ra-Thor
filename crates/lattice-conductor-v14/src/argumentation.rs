@@ -848,6 +848,25 @@ mod phase4_tests {
     }
 
     #[test]
+    fn test_self_evolution_increases_impact_when_enabled() {
+        let mut graph = ArgumentGraph::new();
+        let source = graph.add_claim("Source".to_string(), "Test".to_string(), 0.8);
+        let target = graph.add_claim("Target".to_string(), "Test".to_string(), 0.7);
+
+        graph.add_defeater(source, target, Some(0.6), "Test".to_string(), "".to_string(), Some(SuperiorityContext::SelfEvolution));
+
+        let config = Phase4Config::new()
+            .with_extension_influence(true)
+            .with_defeater_context_modifiers(true);
+        graph.set_phase4_config(config);
+
+        let score = graph.calculate_influence_score(target);
+
+        // SelfEvolution should increase the negative impact
+        assert!(score.defeater_contribution < -0.3);
+    }
+
+    #[test]
     fn test_explain_influence_includes_council_context() {
         let mut graph = ArgumentGraph::new();
         let source = graph.add_claim("Source".to_string(), "Test".to_string(), 0.8);
