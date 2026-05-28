@@ -1,7 +1,11 @@
 // examples/council_conflict_and_debate.rs
 //
 // Ra-Thor Debate Simulation
-// Phase 3: Full Opt-in SQLite Persistence for Superiority + Defeaters
+// Demonstrates:
+// - Cooperative Game Theory (Shapley / Banzhaf)
+// - Formal Argumentation + Recommendation Engine
+// - Phase 1–3 Defeasible Logic (Strict claims, Superiority, Defeaters, Context)
+// - Opt-in SQLite Persistence
 
 use lattice_conductor_v14::{
     CooperativeGame, LatticeConductorEnhancements, GovernanceRiskReport,
@@ -115,7 +119,7 @@ impl DebatePersistence {
         }
     }
 
-    // === Defeater Persistence (Phase 3) ===
+    // === Defeater Persistence ===
 
     fn save_defeaters(&self, defeaters: &[Defeater]) -> SqlResult<()> {
         let json = serde_json::to_string(defeaters).unwrap_or_default();
@@ -154,7 +158,7 @@ fn calculate_argument_credibility(
 }
 
 fn main() {
-    println!("=== Ra-Thor Debate Simulation (Phase 3 - Full Persistence) ===\n");
+    println!("=== Ra-Thor Debate Simulation (Phase 3) ===\n");
 
     let db = DebatePersistence::new("debate_memory.db").expect("Failed to open persistence");
 
@@ -171,7 +175,6 @@ fn main() {
         println!("[Persistence] Loaded previous memory.");
     }
 
-    // Load previously saved superiorities and defeaters (opt-in)
     let loaded_superiorities = db.load_superiorities().unwrap_or_default();
     let loaded_defeaters = db.load_defeaters().unwrap_or_default();
 
@@ -210,16 +213,14 @@ fn main() {
         max_banzhaf,
         shapley_variance: shapley_var,
         mercy_alignment: 0.88,
-        recommended_action: "Phase 3 Full Persistence Demo".to_string(),
+        recommended_action: "Phase 3 Demo".to_string(),
     };
 
     let mut arg_graph = ArgumentGraph::new();
 
-    // Load previously saved superiority and defeater relations
     if !loaded_superiorities.is_empty() {
         arg_graph.load_superiorities(loaded_superiorities);
     }
-    // Note: load_defeaters would require extending ArgumentGraph (future enhancement)
 
     let main_claim = arg_graph.add_claim(
         "Strong self-evolution required due to power concentration".to_string(),
@@ -234,8 +235,6 @@ fn main() {
 
     arg_graph.set_strict(main_claim, true);
     arg_graph.add_superiority(main_claim, alternative, Some(lattice_conductor_v14::SuperiorityContext::General));
-
-    // Add a defeater for demonstration
     arg_graph.add_defeater(main_claim, alternative, Some(0.35), "Test Council".to_string(), None);
 
     let rec = arg_graph.recommend_extensions();
@@ -245,9 +244,9 @@ fn main() {
     println!("Evolution Potential: {:.2}", rec.evolution_potential);
     println!("Recommendation: {}", rec.recommendation);
 
-    // Save current superiority and defeater relations
+    // Save current state
     let current_superiorities = arg_graph.get_superiorities();
-    let current_defeaters = arg_graph.defeaters.clone(); // direct access for demo
+    let current_defeaters = arg_graph.defeaters.clone();
 
     db.save_superiorities(&current_superiorities).ok();
     db.save_defeaters(&current_defeaters).ok();
@@ -255,7 +254,7 @@ fn main() {
     println!("\n[Persistence] Saved {} superiorities and {} defeaters.",
              current_superiorities.len(), current_defeaters.len());
 
-    println!("\n=== Phase 3 Full Persistence Complete ===");
+    println!("\n=== Phase 3 Demo Complete ===");
 }
 
 fn calculate_variance(values: &[(String, f64)]) -> f64 {
