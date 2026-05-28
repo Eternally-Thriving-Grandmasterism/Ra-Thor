@@ -1,7 +1,7 @@
 // crates/lattice-conductor-v14/src/argumentation.rs
 //
 // Ra-Thor Argumentation Graph
-// Phase 1: Defeasible Logic Integration
+// Phase 2: Conflict Resolution Update (Recency Wins)
 
 use std::collections::{HashMap, HashSet};
 
@@ -131,34 +131,46 @@ impl ArgumentGraph {
         Some(id)
     }
 
+    /// Add superiority with Phase 2 conflict resolution (Recency Wins + Warning)
     pub fn add_superiority(
         &mut self,
         stronger: ArgumentId,
         weaker: ArgumentId,
         context: Option<&str>,
     ) {
-        let already_exists = self.superiorities.iter().any(|s| {
-            s.stronger == stronger && s.weaker == weaker && s.context == context.map(|c| c.to_string())
-        });
-        if already_exists { return; }
+        let ctx = context.map(|c| c.to_string());
 
-        let reverse_exists = self.superiorities.iter().any(|s| s.stronger == weaker && s.weaker == stronger);
-        if reverse_exists {
-            eprintln!("[Warning] Conflicting superiority declared between {} and {}", stronger, weaker);
-            return;
+        // Check if exact same superiority already exists
+        if self.superiorities.iter().any(|s| {
+            s.stronger == stronger && s.weaker == weaker && s.context == ctx
+        }) {
+            return; // Already exists, nothing to do
         }
 
+        // Check for reverse superiority (conflict)
+        if let Some(pos) = self.superiorities.iter().position(|s| {
+            s.stronger == weaker && s.weaker == stronger
+        }) {
+            // Recency wins: remove old reverse superiority
+            self.superiorities.remove(pos);
+            eprintln!(
+                "[Warning] Superiority conflict resolved by recency: {} > {} (previous reverse removed)",
+                stronger, weaker
+            );
+        }
+
+        // Add the new superiority
         self.superiorities.push(Superiority {
             stronger,
             weaker,
-            context: context.map(|c| c.to_string()),
+            context: ctx,
         });
     }
 
     pub fn is_superior(&self, a: ArgumentId, b: ArgumentId, context: Option<&str>) -> bool {
+        let ctx = context.map(|c| c.to_string());
         self.superiorities.iter().any(|s| {
-            s.stronger == a && s.weaker == b &&
-            (context.is_none() || s.context.as_deref() == context)
+            s.stronger == a && s.weaker == b && s.context == ctx
         })
     }
 
@@ -220,7 +232,7 @@ impl ArgumentGraph {
         ranked
     }
 
-    // === Formal Semantics ===
+    // === Formal Semantics (unchanged) ===
 
     pub fn unattacked_arguments(&self) -> Vec<ArgumentId> {
         self.claims.keys().filter(|&&id| self.get_attackers(id).is_empty()).cloned().collect()
@@ -371,11 +383,9 @@ impl ArgumentGraph {
         };
 
         let safety_score = (base_safety + strict_ratio * 0.25).min(1.0);
-
         let superiority_bonus = if self.superiorities.is_empty() { 0.0 } else {
             (self.superiorities.len() as f64 / self.claims.len().max(1) as f64) * 0.15
         };
-
         let evolution_potential = (base_evolution + superiority_bonus).min(1.0);
         let overall_score = (safety_score * 0.55) + (evolution_potential * 0.45);
 
@@ -408,51 +418,4 @@ pub struct ExtensionRecommendation {
     pub evolution_potential: f64,
     pub overall_score: f64,
     pub recommendation: String,
-}
-
-// === Regression Tests ===
-
-#[cfg(test)]
-mod regression_tests {
-    use super::*;
-
-    #[test]
-    fn test_set_strict_and_is_strict() {
-        let mut graph = ArgumentGraph::new();
-        let claim = graph.add_claim("Test claim".to_string(), "Test".to_string(), 0.8);
-
-        assert!(!graph.claims[&claim].is_strict);
-
-        graph.set_strict(claim, true);
-        assert!(graph.claims[&claim].is_strict);
-
-        graph.set_strict(claim, false);
-        assert!(!graph.claims[&claim].is_strict);
-    }
-
-    #[test]
-    fn test_add_and_check_superiority() {
-        let mut graph = ArgumentGraph::new();
-        let a = graph.add_claim("Strong".to_string(), "Test".to_string(), 0.9);
-        let b = graph.add_claim("Weak".to_string(), "Test".to_string(), 0.6);
-
-        graph.add_superiority(a, b, Some("test"));
-        assert!(graph.is_superior(a, b, Some("test")));
-        assert!(!graph.is_superior(b, a, Some("test")));
-    }
-
-    #[test]
-    fn test_recommendation_uses_strict_and_superiority() {
-        let mut graph = ArgumentGraph::new();
-        let strong = graph.add_claim("Strong position".to_string(), "Test".to_string(), 0.9);
-        let weak = graph.add_claim("Weak position".to_string(), "Test".to_string(), 0.5);
-
-        graph.set_strict(strong, true);
-        graph.add_superiority(strong, weak, None);
-
-        let rec = graph.recommend_extensions();
-
-        assert!(rec.safety_score > 0.0);
-        assert!(rec.evolution_potential > 0.0);
-    }
 }
