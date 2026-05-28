@@ -419,18 +419,17 @@ mod regression_tests {
     }
 
     #[test]
-    fn test_stable_extensions_runs() {
+    fn test_stable_extensions_runs_without_panic() {
         let mut graph = ArgumentGraph::new();
         let a = graph.add_claim("A".to_string(), "Test".to_string(), 0.9);
         let _b = graph.add_claim("B".to_string(), "Test".to_string(), 0.7);
 
-        // Should not panic even if no stable extensions exist
         let stables = graph.stable_extensions(3);
-        let _ = stables.len();
+        let _ = stables.len(); // just verify it runs
     }
 
     #[test]
-    fn test_recommendation_scoring_valid() {
+    fn test_recommendation_scoring_valid_range() {
         let mut graph = ArgumentGraph::new();
         let a = graph.add_claim("A".to_string(), "Test".to_string(), 0.9);
         let _b = graph.add_claim("B".to_string(), "Test".to_string(), 0.7);
@@ -440,7 +439,6 @@ mod regression_tests {
         assert!(rec.safety_score >= 0.0 && rec.safety_score <= 1.0);
         assert!(rec.evolution_potential >= 0.0 && rec.evolution_potential <= 1.0);
         assert!(rec.overall_score >= 0.0 && rec.overall_score <= 1.0);
-        assert!(!rec.recommendation.is_empty());
     }
 
     #[test]
@@ -451,14 +449,23 @@ mod regression_tests {
         let rec = graph.recommend_extensions();
         assert!(rec.grounded.contains(&a));
     }
+
+    #[test]
+    fn test_recommendation_text_not_empty() {
+        let mut graph = ArgumentGraph::new();
+        let _a = graph.add_claim("A".to_string(), "Test".to_string(), 0.9);
+
+        let rec = graph.recommend_extensions();
+        assert!(!rec.recommendation.trim().is_empty());
+    }
 }
 
 // === How to Run Regression Tests ===
 //
-// Run all regression tests with:
-//   cargo test --package lattice-conductor-v14 regression_tests
+// Recommended commands:
 //
-// Run all tests in the crate:
+//   cargo test --package lattice-conductor-v14 regression_tests
 //   cargo test --package lattice-conductor-v14
 //
-// These tests help protect core formal argumentation logic from accidental regression.
+// Or use the helper script:
+//   ./scripts/run_regression_tests.sh
