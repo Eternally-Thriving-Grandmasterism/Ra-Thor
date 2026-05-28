@@ -967,4 +967,32 @@ mod phase4_tests {
         assert!(score.superiority_contribution > 0.0);
         assert!(score.defeater_contribution < 0.0);
     }
+
+    #[test]
+    fn test_multiple_superiorities_with_different_contexts() {
+        let mut graph = ArgumentGraph::new();
+        let claim_a = graph.add_claim("ClaimA".to_string(), "Test".to_string(), 0.7);
+        let claim_b = graph.add_claim("ClaimB".to_string(), "Test".to_string(), 0.6);
+        let claim_c = graph.add_claim("ClaimC".to_string(), "Test".to_string(), 0.5);
+
+        // claim_a is superior in a Council context
+        graph.add_superiority(claim_a, claim_b, Some(SuperiorityContext::Council));
+
+        // claim_b is superior in a general context
+        graph.add_superiority(claim_b, claim_c, Some(SuperiorityContext::General));
+
+        let config = Phase4Config::new()
+            .with_extension_influence(true)
+            .with_defeater_context_modifiers(true);
+        graph.set_phase4_config(config);
+
+        let score_b = graph.calculate_influence_score(claim_b);
+        let score_c = graph.calculate_influence_score(claim_c);
+
+        // claim_b should receive positive influence from Council superiority
+        assert!(score_b.superiority_contribution > 0.0);
+
+        // claim_c should receive positive influence (weaker context)
+        assert!(score_c.superiority_contribution > 0.0);
+    }
 }
