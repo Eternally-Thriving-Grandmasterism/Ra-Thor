@@ -1,25 +1,24 @@
 //! Governance & Cooperative Game Theory Layer
 //!
-//! Phase 1: Foundational structures + Influence-aware Shapley calculation.
-//! Builds on Phase 4 (ArgumentGraph + InfluenceScore).
+//! Monte Carlo Shapley approximation + Influence-based value function.
+//! Built with accuracy and scalability in mind.
 
-use crate::argumentation::{ArgumentGraph, ArgumentId};
+use crate::argumentation::ArgumentGraph;
+use rand::seq::SliceRandom;
+use rand::thread_rng;
 use std::collections::HashMap;
 
-/// Represents an entity whose contribution or power can be measured.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum GovernancePlayer {
-    Claim(ArgumentId),
+    Claim(u64),
     CouncilMember { id: String },
     Agent { id: String },
 }
 
-/// A trait for functions that compute the "worth" of a coalition of players.
 pub trait ValueFunction {
     fn coalition_value(&self, players: &[GovernancePlayer]) -> f64;
 }
 
-/// Default placeholder value function.
 #[derive(Debug, Default)]
 pub struct DefaultValueFunction;
 
@@ -29,7 +28,7 @@ impl ValueFunction for DefaultValueFunction {
     }
 }
 
-/// Value function backed by real Phase 4 InfluenceScore data.
+/// Value function backed by real Phase 4 InfluenceScore.
 pub struct InfluenceBasedValueFunction<'a> {
     graph: &'a ArgumentGraph,
 }
@@ -55,7 +54,7 @@ impl<'a> ValueFunction for InfluenceBasedValueFunction<'a> {
     }
 }
 
-/// Calculates Shapley values for a set of players.
+/// Shapley Value Calculator with Monte Carlo approximation support.
 pub struct ShapleyValueCalculator {
     value_function: Box<dyn ValueFunction>,
 }
@@ -65,26 +64,45 @@ impl ShapleyValueCalculator {
         Self { value_function }
     }
 
-    pub fn calculate(&self, players: &[GovernancePlayer]) -> HashMap<GovernancePlayer, f64> {
-        let mut shapley_values = HashMap::new();
-
-        if players.is_empty() {
-            return shapley_values;
+    /// Monte Carlo approximation of Shapley values.
+    /// Samples random permutations and estimates marginal contributions.
+    pub fn calculate_monte_carlo(
+        &self,
+        players: &[GovernancePlayer],
+        samples: usize,
+    ) -> HashMap<GovernancePlayer, f64> {
+        if players.is_empty() || samples == 0 {
+            return HashMap::new();
         }
 
-        let n = players.len() as f64;
+        let mut sums: HashMap<GovernancePlayer, f64> = HashMap::new();
+        let mut rng = thread_rng();
 
-        for (i, player) in players.iter().enumerate() {
-            let coalition = &players[0..=i];
-            let value = self.value_function.coalition_value(coalition);
-            shapley_values.insert(player.clone(), value / n);
+        for _ in 0..samples {
+            let mut permutation = players.to_vec();
+            permutation.shuffle(&mut rng);
+
+            let mut coalition = Vec::new();
+            let mut prev_value = 0.0;
+
+            for player in permutation {
+                coalition.push(player.clone());
+                let new_value = self.value_function.coalition_value(&coalition);
+                let marginal = new_value - prev_value;
+
+                *sums.entry(player).or_insert(0.0) += marginal;
+                prev_value = new_value;
+            }
         }
 
-        shapley_values
+        // Average over number of samples
+        sums.into_iter()
+            .map(|(player, total)| (player, total / samples as f64))
+            .collect()
     }
 }
 
-/// Creates a Shapley calculator that uses real influence scores from the graph.
+/// Convenience constructor using real influence data.
 pub fn influence_shapley_calculator(graph: &ArgumentGraph) -> ShapleyValueCalculator {
     ShapleyValueCalculator::new(Box::new(InfluenceBasedValueFunction::new(graph)))
 }
@@ -94,22 +112,22 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_shapley_empty() {
+    fn test_monte_carlo_empty() {
         let calc = ShapleyValueCalculator::new(Box::new(DefaultValueFunction));
-        let values = calc.calculate(&[]);
+        let values = calc.calculate_monte_carlo(&[], 100);
         assert!(values.is_empty());
     }
 
     #[test]
-    fn test_influence_based_shapley() {
+    fn test_monte_carlo_basic() {
         let mut graph = ArgumentGraph::new();
-        let c1 = graph.add_claim("Claim1".to_string(), "Test".to_string(), 0.8);
-        let c2 = graph.add_claim("Claim2".to_string(), "Test".to_string(), 0.7);
+        let c1 = graph.add_claim("C1".to_string(), "Test".to_string(), 0.8);
+        let c2 = graph.add_claim("C2".to_string(), "Test".to_string(), 0.7);
 
         let calc = influence_shapley_calculator(&graph);
         let players = vec![GovernancePlayer::Claim(c1), GovernancePlayer::Claim(c2)];
 
-        let values = calc.calculate(&players);
+        let values = calc.calculate_monte_carlo(&players, 50);
         assert_eq!(values.len(), 2);
     }
 }
