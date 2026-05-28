@@ -1,7 +1,7 @@
 // crates/lattice-conductor-v14/src/argumentation.rs
 //
 // Ra-Thor Argumentation Graph
-// Phase 3: Defeater Integration into Recommendation Engine
+// Phase 3: Enhanced Context-Aware Scoring
 
 use std::collections::{HashMap, HashSet};
 
@@ -281,40 +281,29 @@ impl ArgumentGraph {
         (self.claims.len(), self.supports.len(), self.attacks.len())
     }
 
-    // === Effective Strength with Defeater Impact (Phase 3) ===
-
     pub fn effective_strength(&self, claim_id: ArgumentId) -> Option<f64> {
         let base = self.claims.get(&claim_id)?.strength;
         let mut score = base;
 
-        // Apply supports
         for support in &self.supports {
-            if support.target_claim_id == claim_id {
-                score += support.strength * 0.35;
-            }
+            if support.target_claim_id == claim_id { score += support.strength * 0.35; }
         }
-
-        // Apply attacks
         for attack in &self.attacks {
-            if attack.target_claim_id == claim_id {
-                score -= attack.strength * 0.45;
-            }
+            if attack.target_claim_id == claim_id { score -= attack.strength * 0.45; }
         }
 
-        // Apply defeaters (Phase 3) with diminishing returns
+        // Defeaters with diminishing returns
         let defeaters: Vec<&Defeater> = self.defeaters.iter()
             .filter(|d| d.target_claim_id == claim_id)
             .collect();
 
         if !defeaters.is_empty() {
-            let total_defeat: f64 = defeaters.iter().map(|d| d.strength).sum();
-            // Diminishing returns: first defeater full impact, subsequent ones reduced
             let mut defeat_impact = 0.0;
             for (i, d) in defeaters.iter().enumerate() {
                 let factor = if i == 0 { 1.0 } else { 0.6f64.powf(i as f64) };
                 defeat_impact += d.strength * factor;
             }
-            score -= defeat_impact * 0.5; // Defeaters have moderate impact
+            score -= defeat_impact * 0.5;
         }
 
         Some(score.clamp(0.0, 1.0))
@@ -448,7 +437,19 @@ impl ArgumentGraph {
         results
     }
 
-    // === Recommendation Engine with Defeater Impact ===
+    // === Context Weight Helper (Phase 3 Enhancement) ===
+
+    fn context_weight(&self, context: &Option<SuperiorityContext>) -> f64 {
+        match context {
+            Some(SuperiorityContext::Council) => 1.15,   // Higher institutional weight
+            Some(SuperiorityContext::Topic)   => 1.10,   // Domain relevance
+            Some(SuperiorityContext::General) => 1.00,   // Baseline
+            Some(SuperiorityContext::Custom(_)) => 1.05, // Slight bonus for specificity
+            None => 1.00,
+        }
+    }
+
+    // === Recommendation Engine with Enhanced Context Awareness ===
 
     pub fn recommend_extensions(&self) -> ExtensionRecommendation {
         let grounded = self.grounded_extension();
@@ -463,12 +464,21 @@ impl ArgumentGraph {
         let total_grounded = grounded.len().max(1) as f64;
         let strict_ratio = strict_in_grounded as f64 / total_grounded;
 
-        // Use effective_strength (which now includes defeater impact)
-        let avg_effective_strength = if self.claims.is_empty() { 0.0 } else {
-            let total: f64 = self.claims.keys()
-                .filter_map(|&id| self.effective_strength(id))
-                .sum();
-            total / self.claims.len() as f64
+        // Calculate context-weighted superiority bonus
+        let mut context_weighted_bonus = 0.0;
+        for sup in &self.superiorities {
+            let weight = self.context_weight(&sup.context);
+            context_weighted_bonus += 0.08 * weight;
+        }
+
+        // Defeater penalty (with context awareness)
+        let defeater_penalty = if self.defeaters.is_empty() { 0.0 } else {
+            let mut penalty = 0.0;
+            for d in &self.defeaters {
+                let weight = self.context_weight(&d.context);
+                penalty += 0.06 * weight;
+            }
+            (penalty / self.claims.len().max(1) as f64).min(0.25)
         };
 
         let base_safety = if self.claims.is_empty() { 0.0 } else {
@@ -487,23 +497,15 @@ impl ArgumentGraph {
             (pref_avg * 0.6 + stable_avg * 0.4).min(1.0)
         };
 
-        // Defeaters slightly reduce Safety (more caution) and can affect Evolution
-        let defeater_penalty = if self.defeaters.is_empty() { 0.0 } else {
-            (self.defeaters.len() as f64 / self.claims.len().max(1) as f64) * 0.12
-        };
-
-        let safety_score = ((base_safety + strict_ratio * 0.25) * (1.0 - defeater_penalty * 0.5)).clamp(0.0, 1.0);
-        let superiority_bonus = if self.superiorities.is_empty() { 0.0 } else {
-            (self.superiorities.len() as f64 / self.claims.len().max(1) as f64) * 0.15
-        };
-        let evolution_potential = (base_evolution + superiority_bonus).min(1.0);
+        let safety_score = ((base_safety + strict_ratio * 0.25) * (1.0 - defeater_penalty)).clamp(0.0, 1.0);
+        let evolution_potential = (base_evolution + context_weighted_bonus.min(0.25)).min(1.0);
 
         let overall_score = (safety_score * 0.55) + (evolution_potential * 0.45);
 
         let recommendation = if evolution_potential > 0.55 {
-            "Good evolution potential with some strict protections in place."
+            "Good evolution potential with context-aware considerations."
         } else if safety_score > 0.65 {
-            "Strong safety posture due to strict claims."
+            "Strong safety posture with strict claims."
         } else {
             "Balanced position between safety and evolution."
         };
