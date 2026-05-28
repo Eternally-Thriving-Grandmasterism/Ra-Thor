@@ -1,11 +1,7 @@
 // examples/council_conflict_and_debate.rs
 //
 // Ra-Thor Debate Simulation
-// Features:
-// - SQLite Persistence + Cumulative Memory
-// - Formal Argumentation + Recommendation Engine
-// - Phase 1: Strict claims + Superiority
-// - Phase 2: Recency conflict resolution + Opt-in persistence for superiority
+// Phase 2: Full Opt-in SQLite Persistence for Superiority Relations
 
 use lattice_conductor_v14::{
     CooperativeGame, LatticeConductorEnhancements, GovernanceRiskReport,
@@ -14,6 +10,7 @@ use lattice_conductor_v14::{
 use std::collections::{HashMap, HashSet};
 
 use rusqlite::{Connection, Result as SqlResult};
+use serde_json;
 
 #[derive(Debug, Clone)]
 struct DebateState {
@@ -29,6 +26,7 @@ struct DebatePersistence {
 impl DebatePersistence {
     fn new(db_path: &str) -> SqlResult<Self> {
         let conn = Connection::open(db_path)?;
+
         conn.execute(
             "CREATE TABLE IF NOT EXISTS debate_state (
                 id INTEGER PRIMARY KEY,
@@ -38,6 +36,16 @@ impl DebatePersistence {
             )",
             [],
         )?;
+
+        // Table for opt-in superiority persistence
+        conn.execute(
+            "CREATE TABLE IF NOT EXISTS superiority_state (
+                id INTEGER PRIMARY KEY,
+                superiorities_json TEXT
+            )",
+            [],
+        )?;
+
         Ok(Self { conn })
     }
 
@@ -72,6 +80,32 @@ impl DebatePersistence {
             Ok(None)
         }
     }
+
+    // === Opt-in Superiority Persistence ===
+
+    fn save_superiorities(&self, superiorities: &[Superiority]) -> SqlResult<()> {
+        let json = serde_json::to_string(superiorities).unwrap_or_default();
+        self.conn.execute(
+            "INSERT OR REPLACE INTO superiority_state (id, superiorities_json)
+             VALUES (1, ?1)",
+            rusqlite::params![json],
+        )?;
+        Ok(())
+    }
+
+    fn load_superiorities(&self) -> SqlResult<Vec<Superiority>> {
+        let mut stmt = self.conn.prepare(
+            "SELECT superiorities_json FROM superiority_state WHERE id = 1",
+        )?;
+        let mut rows = stmt.query([])?;
+        if let Some(row) = rows.next()? {
+            let json: String = row.get(0)?;
+            let superiorities: Vec<Superiority> = serde_json::from_str(&json).unwrap_or_default();
+            Ok(superiorities)
+        } else {
+            Ok(vec![])
+        }
+    }
 }
 
 fn calculate_argument_credibility(
@@ -86,7 +120,7 @@ fn calculate_argument_credibility(
 }
 
 fn main() {
-    println!("=== Ra-Thor Debate Simulation (Phase 2) ===\n");
+    println!("=== Ra-Thor Debate Simulation (Phase 2 - Full Persistence) ===\n");
 
     let db = DebatePersistence::new("debate_memory.db").expect("Failed to open persistence");
 
@@ -101,6 +135,12 @@ fn main() {
         cumulative_fallacy_impact = state.cumulative_fallacy_impact;
         conviction_level = state.conviction_level;
         println!("[Persistence] Loaded previous memory.");
+    }
+
+    // === Optional: Load previously saved superiorities ===
+    let loaded_superiorities = db.load_superiorities().unwrap_or_default();
+    if !loaded_superiorities.is_empty() {
+        println!("[Persistence] Loaded {} previously saved superiority relations.", loaded_superiorities.len());
     }
 
     // === Setup ===
@@ -131,12 +171,16 @@ fn main() {
         max_banzhaf,
         shapley_variance: shapley_var,
         mercy_alignment: 0.88,
-        recommended_action: "Phase 2 Demo".to_string(),
+        recommended_action: "Phase 2 Full Persistence Demo".to_string(),
     };
 
-    // === Argument Graph + Phase 1/2 Features ===
-
     let mut arg_graph = ArgumentGraph::new();
+
+    // Optionally load previously saved superiorities into the graph
+    if !loaded_superiorities.is_empty() {
+        arg_graph.load_superiorities(loaded_superiorities);
+    }
+
     let main_claim = arg_graph.add_claim(
         "Strong self-evolution required due to power concentration".to_string(),
         "Council #13".to_string(),
@@ -158,15 +202,14 @@ fn main() {
     println!("Evolution Potential: {:.2}", rec.evolution_potential);
     println!("Recommendation: {}", rec.recommendation);
 
-    // === Demonstrate Opt-in Persistence ===
+    // === Save superiority relations (opt-in) ===
+    let current_superiorities = arg_graph.get_superiorities();
+    db.save_superiorities(&current_superiorities)
+        .expect("Failed to save superiorities");
 
-    let saved_superiorities = arg_graph.get_superiorities();
-    println!("\n[Persistence] Superiority relations captured for optional saving ({} relations).", saved_superiorities.len());
+    println!("\n[Persistence] Saved {} superiority relations to database.", current_superiorities.len());
 
-    // Example of loading them back (opt-in)
-    // arg_graph.load_superiorities(saved_superiorities);
-
-    println!("\n=== Phase 2 Opt-in Persistence Demo Complete ===");
+    println!("\n=== Phase 2 Full SQLite Persistence Complete ===");
 }
 
 fn calculate_variance(values: &[(String, f64)]) -> f64 {
