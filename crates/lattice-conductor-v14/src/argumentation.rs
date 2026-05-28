@@ -464,16 +464,20 @@ impl ArgumentGraph {
         score
     }
 
-    /// Applies context-specific modification to a defeater's impact.
+    /// Applies context-specific modification to a defeater's negative impact.
     ///
-    /// Special behavior:
-    /// - `MercyGate`: Reduces the negative impact (mercy / compassion).
-    /// - Other contexts: Standard multiplicative weighting.
+    /// Special behaviors:
+    /// - `MercyGate`: Reduces impact (compassionate softening)
+    /// - `Council`: Increases impact (authoritative / decisive weight)
     fn apply_defeater_context_modifier(&self, base_impact: f64, context: &Option<SuperiorityContext>) -> f64 {
         match context {
             Some(SuperiorityContext::MercyGate) => {
-                // MercyGate: Soften the defeater's negative effect (compassionate reduction)
+                // Mercy-aligned reduction
                 base_impact * 0.6
+            }
+            Some(SuperiorityContext::Council) => {
+                // Authoritative / structural weight
+                base_impact * 1.25
             }
             Some(ctx) => {
                 let weight = self.context_weight(&Some(ctx.clone()));
@@ -518,10 +522,17 @@ impl ArgumentGraph {
                 };
 
                 if self.phase4_config.enable_defeater_context_modifiers {
-                    if let Some(SuperiorityContext::MercyGate) = &def.context {
-                        explanation.context_notes.push("MercyGate reduction applied (defeater softened)".to_string());
-                    } else if let Some(ctx) = &def.context {
-                        explanation.context_notes.push(format!("Context {:?} applied", ctx));
+                    match &def.context {
+                        Some(SuperiorityContext::MercyGate) => {
+                            explanation.context_notes.push("MercyGate reduction applied (defeater softened)".to_string());
+                        }
+                        Some(SuperiorityContext::Council) => {
+                            explanation.context_notes.push("Council context applied (authoritative weight)".to_string());
+                        }
+                        Some(ctx) => {
+                            explanation.context_notes.push(format!("Context {:?} applied", ctx));
+                        }
+                        None => {}
                     }
                 }
                 explanation.defeater_reasons.push(reason);
@@ -748,10 +759,10 @@ impl ArgumentGraph {
 
     fn context_weight(&self, context: &Option<SuperiorityContext>) -> f64 {
         match context {
-            Some(SuperiorityContext::Council) => 1.15,
+            Some(SuperiorityContext::Council) => 1.25,
             Some(SuperiorityContext::Topic)   => 1.10,
             Some(SuperiorityContext::General) => 1.00,
-            Some(SuperiorityContext::MercyGate) => 0.6, // Special reduction handled in apply_defeater_context_modifier
+            Some(SuperiorityContext::MercyGate) => 0.6,
             Some(SuperiorityContext::SelfEvolution) => 1.10,
             Some(SuperiorityContext::Custom(_)) => 1.05,
             None => 1.00,
