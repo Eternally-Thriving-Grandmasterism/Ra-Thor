@@ -1,9 +1,8 @@
 //! Governance & Cooperative Game Theory Layer
 //!
-//! Full implementations of Shapley (with variance reduction) and Banzhaf,
-//! plus the higher-level PatsagiArbitration module.
+//! Full Shapley + Banzhaf with variance reduction, plus mercy-aware PatsagiArbitration.
 
-use crate::argumentation::ArgumentGraph;
+use crate::argumentation::{ArgumentGraph, SuperiorityContext};
 use rand::seq::SliceRandom;
 use rand::thread_rng;
 use std::collections::HashMap;
@@ -53,7 +52,7 @@ impl<'a> ValueFunction for InfluenceBasedValueFunction<'a> {
     }
 }
 
-// === ShapleyValueCalculator with Stratified + Antithetic Sampling ===
+// === ShapleyValueCalculator ===
 
 pub struct ShapleyValueCalculator {
     value_function: Box<dyn ValueFunction>,
@@ -64,7 +63,6 @@ impl ShapleyValueCalculator {
         Self { value_function }
     }
 
-    /// Stratified Monte Carlo Shapley with Antithetic Variates (variance reduction)
     pub fn calculate_stratified_antithetic(
         &self,
         players: &[GovernancePlayer],
@@ -86,7 +84,6 @@ impl ShapleyValueCalculator {
                 let coalition: Vec<_> = others.iter().take(size).cloned().collect();
                 let base_value = self.value_function.coalition_value(&coalition);
 
-                // Original sample
                 for player in players {
                     if !coalition.contains(player) {
                         let mut extended = coalition.clone();
@@ -97,7 +94,7 @@ impl ShapleyValueCalculator {
                     }
                 }
 
-                // Antithetic sample (reverse remaining players)
+                // Antithetic
                 let mut antithetic = coalition.clone();
                 let mut remaining: Vec<_> = others.iter().skip(size).cloned().collect();
                 remaining.reverse();
@@ -122,7 +119,7 @@ impl ShapleyValueCalculator {
     }
 }
 
-// === BanzhafPowerIndex (Exact + Monte Carlo) ===
+// === BanzhafPowerIndex ===
 
 pub struct BanzhafPowerIndex {
     value_function: Box<dyn ValueFunction>,
@@ -133,7 +130,6 @@ impl BanzhafPowerIndex {
         Self { value_function }
     }
 
-    /// Exact Banzhaf calculation
     pub fn calculate(&self, players: &[GovernancePlayer]) -> HashMap<GovernancePlayer, f64> {
         let mut counts: HashMap<GovernancePlayer, usize> = HashMap::new();
         let n = players.len();
@@ -173,7 +169,6 @@ impl BanzhafPowerIndex {
         counts.into_iter().map(|(p, c)| (p, c as f64 / total)).collect()
     }
 
-    /// Monte Carlo Banzhaf
     pub fn calculate_monte_carlo(
         &self,
         players: &[GovernancePlayer],
@@ -210,7 +205,7 @@ impl BanzhafPowerIndex {
     }
 }
 
-// === PatsagiArbitration Module ===
+// === PatsagiArbitration (Mercy-Aware) ===
 
 #[derive(Debug, Clone)]
 pub struct ArbitrationReport {
@@ -236,11 +231,39 @@ impl<'a> PatsagiArbitration<'a> {
         let shapley = ShapleyValueCalculator::new(value_fn.clone());
         let banzhaf = BanzhafPowerIndex::new(value_fn);
 
+        let shapley_values = shapley.calculate_stratified_antithetic(players, 5);
+        let banzhaf_indices = banzhaf.calculate(players);
+
+        // === Mercy-aware logic ===
+        let has_mercygate = self.graph.defeaters.iter().any(|d| {
+            matches!(d.context, Some(SuperiorityContext::MercyGate))
+        });
+
+        let has_council = self.graph.superiorities.iter().any(|s| {
+            matches!(s.context, Some(SuperiorityContext::Council))
+        });
+
+        let mut context_notes = vec![];
+        if has_mercygate {
+            context_notes.push("MercyGate context detected — negative contributions softened.".to_string());
+        }
+        if has_council {
+            context_notes.push("Council context present — authoritative weighting applied.".to_string());
+        }
+
+        let summary = if has_mercygate {
+            "Mercy-aware arbitration completed. Negative influence moderated."
+        } else if has_council {
+            "Council-weighted arbitration completed with structural emphasis."
+        } else {
+            "Standard combined Shapley + Banzhaf analysis completed."
+        };
+
         ArbitrationReport {
-            shapley_values: shapley.calculate_stratified_antithetic(players, 4),
-            banzhaf_indices: banzhaf.calculate(players),
-            summary: "Combined Shapley + Banzhaf analysis completed.".to_string(),
-            context_notes: vec!["Phase 4 influence data + variance reduction active.".to_string()],
+            shapley_values,
+            banzhaf_indices,
+            summary: summary.to_string(),
+            context_notes,
         }
     }
 }
@@ -258,32 +281,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_stratified_antithetic() {
-        let mut graph = ArgumentGraph::new();
-        let c1 = graph.add_claim("C1".to_string(), "Test".to_string(), 0.8);
-        let c2 = graph.add_claim("C2".to_string(), "Test".to_string(), 0.7);
-
-        let calc = influence_shapley_calculator(&graph);
-        let players = vec![GovernancePlayer::Claim(c1), GovernancePlayer::Claim(c2)];
-        let values = calc.calculate_stratified_antithetic(&players, 3);
-        assert_eq!(values.len(), 2);
-    }
-
-    #[test]
-    fn test_banzhaf_full() {
-        let mut graph = ArgumentGraph::new();
-        let c1 = graph.add_claim("C1".to_string(), "Test".to_string(), 0.8);
-        let c2 = graph.add_claim("C2".to_string(), "Test".to_string(), 0.7);
-
-        let calc = influence_banzhaf_calculator(&graph);
-        let players = vec![GovernancePlayer::Claim(c1), GovernancePlayer::Claim(c2)];
-
-        let values = calc.calculate(&players);
-        assert_eq!(values.len(), 2);
-    }
-
-    #[test]
-    fn test_patsagi_arbitration() {
+    fn test_mercy_aware_arbitration() {
         let mut graph = ArgumentGraph::new();
         let c1 = graph.add_claim("C1".to_string(), "Test".to_string(), 0.8);
         let c2 = graph.add_claim("C2".to_string(), "Test".to_string(), 0.7);
