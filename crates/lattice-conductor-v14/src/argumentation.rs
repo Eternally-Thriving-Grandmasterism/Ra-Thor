@@ -1,7 +1,15 @@
 // crates/lattice-conductor-v14/src/argumentation.rs
 //
 // Ra-Thor Argumentation Graph
-// Phase 3: Enhanced Context-Aware Scoring
+// Supports formal Abstract Argumentation + Defeasible Logic (Phase 1–3)
+//
+// Core Features:
+// - Claim / Support / Attack / Defeater modeling
+// - Grounded, Preferred, and Stable Extensions
+// - Recommendation Engine with Safety vs Evolution scoring
+// - Phase 1: Strict claims + Superiority
+// - Phase 2: Conflict resolution + Opt-in persistence + SuperiorityContext
+// - Phase 3: Defeaters + Context-aware scoring
 
 use std::collections::{HashMap, HashSet};
 
@@ -36,6 +44,7 @@ pub struct Attack {
     pub provided_by: String,
 }
 
+/// Context type for superiority and defeater relations
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum SuperiorityContext {
     Council,
@@ -51,6 +60,7 @@ pub struct Superiority {
     pub context: Option<SuperiorityContext>,
 }
 
+/// Defeater - weakens a claim without full invalidation (Phase 3)
 #[derive(Debug, Clone)]
 pub struct Defeater {
     pub id: ArgumentId,
@@ -151,7 +161,7 @@ impl ArgumentGraph {
         Some(id)
     }
 
-    // === Defeater (Phase 3) ===
+    // === Defeater API (Phase 3) ===
 
     pub fn add_defeater(
         &mut self,
@@ -188,7 +198,7 @@ impl ArgumentGraph {
         self.defeaters.iter().filter(|d| d.target_claim_id == claim_id).collect()
     }
 
-    // === Superiority + Phase 2 Conflict Resolution ===
+    // === Superiority + Conflict Resolution (Phase 2) ===
 
     pub fn add_superiority(
         &mut self,
@@ -230,7 +240,7 @@ impl ArgumentGraph {
         })
     }
 
-    // === Opt-in Persistence Support ===
+    // === Opt-in Persistence ===
 
     pub fn get_superiorities(&self) -> Vec<Superiority> {
         self.superiorities.clone()
@@ -437,19 +447,19 @@ impl ArgumentGraph {
         results
     }
 
-    // === Context Weight Helper (Phase 3 Enhancement) ===
+    // === Context Weight Helper ===
 
     fn context_weight(&self, context: &Option<SuperiorityContext>) -> f64 {
         match context {
-            Some(SuperiorityContext::Council) => 1.15,   // Higher institutional weight
-            Some(SuperiorityContext::Topic)   => 1.10,   // Domain relevance
-            Some(SuperiorityContext::General) => 1.00,   // Baseline
-            Some(SuperiorityContext::Custom(_)) => 1.05, // Slight bonus for specificity
+            Some(SuperiorityContext::Council) => 1.15,
+            Some(SuperiorityContext::Topic)   => 1.10,
+            Some(SuperiorityContext::General) => 1.00,
+            Some(SuperiorityContext::Custom(_)) => 1.05,
             None => 1.00,
         }
     }
 
-    // === Recommendation Engine with Enhanced Context Awareness ===
+    // === Recommendation Engine ===
 
     pub fn recommend_extensions(&self) -> ExtensionRecommendation {
         let grounded = self.grounded_extension();
@@ -464,14 +474,12 @@ impl ArgumentGraph {
         let total_grounded = grounded.len().max(1) as f64;
         let strict_ratio = strict_in_grounded as f64 / total_grounded;
 
-        // Calculate context-weighted superiority bonus
         let mut context_weighted_bonus = 0.0;
         for sup in &self.superiorities {
             let weight = self.context_weight(&sup.context);
             context_weighted_bonus += 0.08 * weight;
         }
 
-        // Defeater penalty (with context awareness)
         let defeater_penalty = if self.defeaters.is_empty() { 0.0 } else {
             let mut penalty = 0.0;
             for d in &self.defeaters {
