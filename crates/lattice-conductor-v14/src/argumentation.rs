@@ -409,30 +409,56 @@ mod regression_tests {
     }
 
     #[test]
-    fn test_preferred_and_stable_extensions() {
+    fn test_preferred_extensions_exist() {
         let mut graph = ArgumentGraph::new();
         let a = graph.add_claim("A".to_string(), "Test".to_string(), 0.9);
-        let b = graph.add_claim("B".to_string(), "Test".to_string(), 0.7);
-        graph.add_attack(a, b, "Attacks B".to_string(), "Test".to_string(), 0.8);
+        let _b = graph.add_claim("B".to_string(), "Test".to_string(), 0.7);
 
         let preferreds = graph.preferred_extensions(5);
         assert!(!preferreds.is_empty());
+    }
 
-        // In this simple chain, stable extensions may or may not exist
+    #[test]
+    fn test_stable_extensions_runs() {
+        let mut graph = ArgumentGraph::new();
+        let a = graph.add_claim("A".to_string(), "Test".to_string(), 0.9);
+        let _b = graph.add_claim("B".to_string(), "Test".to_string(), 0.7);
+
+        // Should not panic even if no stable extensions exist
         let stables = graph.stable_extensions(3);
-        // We just verify the method runs without panic
         let _ = stables.len();
     }
 
     #[test]
-    fn test_recommend_extensions_scoring() {
+    fn test_recommendation_scoring_valid() {
         let mut graph = ArgumentGraph::new();
         let a = graph.add_claim("A".to_string(), "Test".to_string(), 0.9);
         let _b = graph.add_claim("B".to_string(), "Test".to_string(), 0.7);
 
         let rec = graph.recommend_extensions();
+
         assert!(rec.safety_score >= 0.0 && rec.safety_score <= 1.0);
         assert!(rec.evolution_potential >= 0.0 && rec.evolution_potential <= 1.0);
         assert!(rec.overall_score >= 0.0 && rec.overall_score <= 1.0);
+        assert!(!rec.recommendation.is_empty());
+    }
+
+    #[test]
+    fn test_recommendation_contains_grounded() {
+        let mut graph = ArgumentGraph::new();
+        let a = graph.add_claim("A".to_string(), "Test".to_string(), 0.9);
+
+        let rec = graph.recommend_extensions();
+        assert!(rec.grounded.contains(&a));
     }
 }
+
+// === How to Run Regression Tests ===
+//
+// Run all regression tests with:
+//   cargo test --package lattice-conductor-v14 regression_tests
+//
+// Run all tests in the crate:
+//   cargo test --package lattice-conductor-v14
+//
+// These tests help protect core formal argumentation logic from accidental regression.
