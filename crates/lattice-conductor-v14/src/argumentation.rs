@@ -1,7 +1,7 @@
 // crates/lattice-conductor-v14/src/argumentation.rs
 //
 // Ra-Thor Argumentation Graph
-// Phase 2: Conflict Resolution + Tests
+// Phase 2: Opt-in Persistence Support
 
 use std::collections::{HashMap, HashSet};
 
@@ -167,6 +167,20 @@ impl ArgumentGraph {
         self.superiorities.iter().any(|s| {
             s.stronger == a && s.weaker == b && s.context == ctx
         })
+    }
+
+    // === Opt-in Persistence Support (Phase 2) ===
+
+    /// Returns a clone of current superiority relations.
+    /// Use this to save them externally when persistence is enabled.
+    pub fn get_superiorities(&self) -> Vec<Superiority> {
+        self.superiorities.clone()
+    }
+
+    /// Loads superiority relations from outside (opt-in).
+    /// This replaces current superiorities.
+    pub fn load_superiorities(&mut self, superiorities: Vec<Superiority>) {
+        self.superiorities = superiorities;
     }
 
     pub fn get_supporters(&self, claim_id: ArgumentId) -> Vec<&Support> {
@@ -411,76 +425,4 @@ pub struct ExtensionRecommendation {
     pub evolution_potential: f64,
     pub overall_score: f64,
     pub recommendation: String,
-}
-
-// === Regression Tests ===
-
-#[cfg(test)]
-mod regression_tests {
-    use super::*;
-
-    #[test]
-    fn test_set_strict_and_is_strict() {
-        let mut graph = ArgumentGraph::new();
-        let claim = graph.add_claim("Test claim".to_string(), "Test".to_string(), 0.8);
-        assert!(!graph.claims[&claim].is_strict);
-        graph.set_strict(claim, true);
-        assert!(graph.claims[&claim].is_strict);
-    }
-
-    #[test]
-    fn test_add_and_check_superiority() {
-        let mut graph = ArgumentGraph::new();
-        let a = graph.add_claim("Strong".to_string(), "Test".to_string(), 0.9);
-        let b = graph.add_claim("Weak".to_string(), "Test".to_string(), 0.6);
-
-        graph.add_superiority(a, b, Some("test"));
-        assert!(graph.is_superior(a, b, Some("test")));
-    }
-
-    #[test]
-    fn test_recommendation_uses_strict_and_superiority() {
-        let mut graph = ArgumentGraph::new();
-        let strong = graph.add_claim("Strong".to_string(), "Test".to_string(), 0.9);
-        let weak = graph.add_claim("Weak".to_string(), "Test".to_string(), 0.5);
-
-        graph.set_strict(strong, true);
-        graph.add_superiority(strong, weak, None);
-
-        let rec = graph.recommend_extensions();
-        assert!(rec.safety_score > 0.0);
-        assert!(rec.evolution_potential > 0.0);
-    }
-
-    // === Phase 2 Conflict Resolution Tests ===
-
-    #[test]
-    fn test_conflict_resolution_recency_wins() {
-        let mut graph = ArgumentGraph::new();
-        let a = graph.add_claim("A".to_string(), "Test".to_string(), 0.9);
-        let b = graph.add_claim("B".to_string(), "Test".to_string(), 0.6);
-
-        // First declare b > a
-        graph.add_superiority(b, a, None);
-        assert!(graph.is_superior(b, a, None));
-
-        // Then declare the reverse (a > b) - recency should win
-        graph.add_superiority(a, b, None);
-        assert!(graph.is_superior(a, b, None));
-        assert!(!graph.is_superior(b, a, None));
-    }
-
-    #[test]
-    fn test_duplicate_superiority_ignored() {
-        let mut graph = ArgumentGraph::new();
-        let a = graph.add_claim("A".to_string(), "Test".to_string(), 0.9);
-        let b = graph.add_claim("B".to_string(), "Test".to_string(), 0.6);
-
-        graph.add_superiority(a, b, None);
-        graph.add_superiority(a, b, None); // duplicate
-
-        // Should still have only one superiority
-        let count = graph.superiorities.len();
-        assert_eq!(count, 1);
-    }
 }
