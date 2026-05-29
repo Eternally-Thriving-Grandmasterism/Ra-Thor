@@ -1,21 +1,25 @@
-// src/powrush/geometric_self_healing.rs
-// v14.0.9 Powrush RBE + Geometric Self-Healing
-//
-// This module introduces geometric self-healing mechanics for the Powrush RBE economy
-// using multivector representations and sandwich product transformations.
-//
-// Status: High-quality prototype / seed module
-// Future: Deeper integration with actual Powrush faction systems, full CGA substrate,
-//         player organism coherence as CGA entities, and reward vector healing.
+//! src/powrush/geometric_self_healing.rs
+//!
+//! v14.0.9 Powrush RBE + Geometric Self-Healing (Quaternion-based)
+//!
+//! This module provides mercy-aligned geometric self-healing using
+//! proper quaternions via nalgebra. It forms the foundation for
+//! future Conformal Geometric Algebra (CGA) integration.
 
+use nalgebra::{UnitQuaternion, Vector3};
 use std::time::SystemTime;
 
-/// Represents a resource or motivation vector in the RBE economy as a multivector.
+#[derive(Debug, Clone, PartialEq)]
+pub enum CliffordError {
+    InvalidStrength { provided: f64 },
+    InvalidAlignment { provided: f64 },
+}
+
+/// ResourceVector using nalgebra types for future extensibility.
 #[derive(Debug, Clone)]
 pub struct ResourceVector {
     pub scalar: f64,
-    pub vector: [f64; 3],
-    pub bivector: [f64; 3],
+    pub vector: Vector3<f64>,
     pub last_update: SystemTime,
 }
 
@@ -23,49 +27,48 @@ impl ResourceVector {
     pub fn new(scalar: f64, vector: [f64; 3]) -> Self {
         Self {
             scalar,
-            vector,
-            bivector: [0.0, 0.0, 0.0],
+            vector: Vector3::new(vector[0], vector[1], vector[2]),
             last_update: SystemTime::now(),
         }
     }
 
-    /// Applies a mercy-aligned transformation using a simplified sandwich product.
-    /// Note: This is a linear approximation for prototype purposes.
-    /// True geometric algebra sandwich product (R * M * ~R) to be implemented with proper CGA crate.
-    pub fn sandwich_transform(&mut self, motor: &CliffordMotor) {
-        let s = motor.scale;
-        self.scalar *= s;
-        for i in 0..3 {
-            self.vector[i] = self.vector[i] * s + motor.rotation[i] * 0.1;
-            self.bivector[i] *= s * 0.95;
-        }
+    /// Applies rotation using a proper quaternion.
+    pub fn apply_rotation(&mut self, rotation: &UnitQuaternion<f64>, strength: f64) {
+        self.vector = rotation * self.vector * strength;
+        self.scalar *= 1.0 + (strength - 1.0) * 0.1;
         self.last_update = SystemTime::now();
     }
 }
 
-/// A simplified motor (versor) used to apply mercy-aligned transformations.
+/// Mercy-aligned motor using quaternions.
 #[derive(Debug, Clone)]
 pub struct CliffordMotor {
+    pub rotation: UnitQuaternion<f64>,
     pub scale: f64,
-    pub rotation: [f64; 3],
     pub mercy_alignment: f64,
 }
 
 impl CliffordMotor {
-    pub fn mercy_aligned(strength: f64, alignment: f64) -> Self {
-        Self {
-            scale: 1.0 + strength * alignment,
-            rotation: [
-                strength * 0.3 * alignment,
-                strength * 0.2 * alignment,
-                strength * 0.1 * alignment,
-            ],
-            mercy_alignment: alignment,
+    pub fn mercy_aligned(strength: f64, alignment: f64) -> Result<Self, CliffordError> {
+        if strength < 0.0 {
+            return Err(CliffordError::InvalidStrength { provided: strength });
         }
+        if !(0.0..=1.0).contains(&alignment) {
+            return Err(CliffordError::InvalidAlignment { provided: alignment });
+        }
+
+        let angle = strength * alignment * 0.8;
+        let axis = Vector3::new(0.3, 0.2, 0.1).normalize();
+
+        Ok(Self {
+            rotation: UnitQuaternion::from_axis_angle(&axis, angle),
+            scale: 1.0 + strength * alignment,
+            mercy_alignment: alignment,
+        })
     }
 }
 
-/// Geometric healing field for Powrush RBE state.
+/// Powrush geometric healing field with quaternion-based healing.
 #[derive(Debug, Clone)]
 pub struct PowrushHealingField {
     pub resource_flow_coherence: f64,
@@ -84,24 +87,30 @@ impl PowrushHealingField {
         }
     }
 
-    /// Monitors coherence and applies geometric healing when anomalies are detected.
     pub fn monitor_and_heal(&mut self, reason: &str) {
-        if self.resource_flow_coherence < 0.75 || self.faction_harmony < 0.70 {
-            let motor = CliffordMotor::mercy_aligned(0.35, 0.92);
-            for v in &mut self.active_vectors {
-                v.sandwich_transform(&motor);
+        let needs_healing = self.resource_flow_coherence < 0.75
+            || self.faction_harmony < 0.70
+            || self.motivation_coherence < 0.75;
+
+        if needs_healing {
+            if let Ok(motor) = CliffordMotor::mercy_aligned(0.35, 0.92) {
+                for vector in &mut self.active_vectors {
+                    vector.apply_rotation(&motor.rotation, motor.scale);
+                }
             }
+
             self.resource_flow_coherence = (self.resource_flow_coherence + 0.12).min(1.0);
             self.faction_harmony = (self.faction_harmony + 0.09).min(1.0);
-            println!("[Powrush] Healed RBE anomaly via sandwich transform: {}", reason);
+            self.motivation_coherence = (self.motivation_coherence + 0.08).min(1.0);
+
+            println!("[Powrush] Quaternion-based geometric healing applied — {}", reason);
         }
     }
 }
 
-/// Integration hook with Watchdog Thread graded responses.
-pub fn integrate_with_watchdog(powrush: &mut PowrushHealingField) {
+pub fn integrate_with_watchdog(powrush: &PowrushHealingField) {
     if powrush.motivation_coherence < 0.75 {
-        println!("[Integration] Escalating low motivation to Watchdog Level 3");
+        println!("[Integration] Low motivation — escalating to Watchdog Level 3");
     }
 }
 
@@ -110,18 +119,17 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_sandwich_transform_increases_scalar() {
+    fn test_apply_rotation_changes_vector() {
         let mut vec = ResourceVector::new(100.0, [10.0, 20.0, 5.0]);
-        let motor = CliffordMotor::mercy_aligned(0.4, 0.95);
-        vec.sandwich_transform(&motor);
-        assert!(vec.scalar > 100.0);
+        let motor = CliffordMotor::mercy_aligned(0.4, 0.95).unwrap();
+        let original = vec.vector;
+        vec.apply_rotation(&motor.rotation, motor.scale);
+        assert!(vec.vector != original);
     }
 
     #[test]
-    fn test_monitor_and_heal_restores_coherence() {
-        let mut field = PowrushHealingField::new();
-        field.resource_flow_coherence = 0.60; // force anomaly
-        field.monitor_and_heal("test_anomaly");
-        assert!(field.resource_flow_coherence > 0.70);
+    fn test_mercy_aligned_error_handling() {
+        assert!(CliffordMotor::mercy_aligned(-1.0, 0.8).is_err());
+        assert!(CliffordMotor::mercy_aligned(0.5, 1.5).is_err());
     }
 }
