@@ -1,16 +1,32 @@
-//! Lattice Conductor v14
-//! Exposes governance, hybrid crypto, post-quantum features, and self-evolution.
+//! crates/lattice-conductor-v14/src/lib.rs
+//! Production-grade modules including Logical Fallacy Detection
 
 pub mod council_arbitration;
 pub mod runtime_self_healing;
 pub mod distributed_mercy_mesh;
+pub mod lattice_conductor_enhancements;
+pub mod patsagi_governance;
+pub mod cooperative_governance;
+pub mod argumentation;
+pub mod logical_fallacy_detection;     // NEW
 pub mod governance;
 pub mod hybrid_sovereign_channel;
 pub mod post_quantum_signatures;
 pub mod crypto_traits;
-pub mod self_evolution;   // NEW
+pub mod self_evolution;
 
-pub use governance::self_evolution_proposal::SelfEvolutionProposal;
+pub use council_arbitration::CouncilArbitrationEngine;
+pub use runtime_self_healing::{RuntimeSelfHealingEngine, HealthReport, Anomaly, Diagnosis, HealingAction};
+pub use distributed_mercy_mesh::{
+    DistributedMercyMesh, MercyEvent, MercyMeshConfig,
+    MercyGate, MercyAuditEntry, OrganismNode, HealingRequest, HealingOffer,
+};
+pub use lattice_conductor_enhancements::{LatticeConductorEnhancements, LatticeDiagnosticsReport, GovernanceRiskReport};
+pub use patsagi_governance::{PatsagiReviewRequest, PatsagiDecision, PatsagiCouncilSimulator};
+pub use cooperative_governance::CooperativeGame;
+pub use argumentation::{ArgumentGraph, Claim, Support, Attack};
+pub use logical_fallacy_detection::{LogicalFallacyDetector, DetectedFallacy, FallacyType};
+pub use governance::self_evaluation_proposal::SelfEvaluationProposal;
 pub use post_quantum_signatures::{create_post_quantum_signature, verify_post_quantum_signature};
 pub use hybrid_sovereign_channel::HybridSovereignChannel;
 pub use self_evolution::{SelfEvolutionLoop, submit_self_evolution_proposal_securely};
@@ -19,22 +35,36 @@ use std::sync::atomic::{AtomicBool, Ordering};
 
 pub struct LatticeConductorV14 {
     pub cosmic_loop_ready: AtomicBool,
+    pub arbitration_engine: CouncilArbitrationEngine,
+    pub self_healing_engine: Option<RuntimeSelfHealingEngine>,
+    pub mercy_mesh: Option<DistributedMercyMesh>,
 }
 
 impl LatticeConductorV14 {
     pub fn new() -> Self {
-        Self { cosmic_loop_ready: AtomicBool::new(true) }
+        let arbitration = CouncilArbitrationEngine::new();
+        let healing = RuntimeSelfHealingEngine::new(arbitration.clone());
+        let mercy_mesh = DistributedMercyMesh::new();
+
+        Self {
+            cosmic_loop_ready: AtomicBool::new(true),
+            arbitration_engine: arbitration,
+            self_healing_engine: Some(healing),
+            mercy_mesh: Some(mercy_mesh),
+        }
     }
 
-    pub fn submit_secure_governance_proposal(
-        &self,
-        proposal: &SelfEvolutionProposal,
-        threshold: f64,
-    ) -> (bool, Vec<String>, f64) {
-        proposal.evaluate_governance(threshold)
+    pub fn enforce_cosmic_loop_activation(&self) {
+        if self.cosmic_loop_ready.load(Ordering::SeqCst) {
+            println!("[LATTICE v14.1] Cosmic Loop ENFORCED");
+        } else {
+            self.cosmic_loop_ready.store(true, Ordering::SeqCst);
+        }
     }
 
-    pub fn create_hybrid_sovereign_channel(&self, from: &str, to: &str) -> HybridSovereignChannel {
-        HybridSovereignChannel::new(from, to)
+    pub fn trigger_mercy_mesh_healing(&self, severity: f64) {
+        if let Some(mesh) = &self.mercy_mesh {
+            mesh.propagate_mercy_event(MercyEvent::HealingTriggered { severity, organism_id: None });
+        }
     }
 }
