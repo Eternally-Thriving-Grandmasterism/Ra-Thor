@@ -1,8 +1,7 @@
 //! CgaHealingField — Geometric Healing System for CGA Entities
 //!
 //! Manages and applies mercy-aligned Conformal Geometric Algebra healing
-//! to multiple CgaEntity instances. This forms the basis for
-//! advanced geometric healing mechanics in Powrush RBE.
+//! to multiple CgaEntity instances.
 
 use crate::powrush::cga_entity::CgaEntity;
 use crate::powrush::cga_primitives::Motor;
@@ -26,7 +25,14 @@ impl CgaHealingField {
         self.entities.push(entity);
     }
 
-    /// Applies smooth geometric healing to all entities in the field.
+    /// Applies a Motor to all entities (composition).
+    pub fn apply_motor_to_all(&mut self, motor: &Motor) {
+        for entity in &mut self.entities {
+            entity.apply_motor(motor);
+        }
+    }
+
+    /// Applies smooth geometric healing to all entities.
     pub fn apply_batch_healing(
         &mut self,
         healing_direction: Vector3<f64>,
@@ -46,7 +52,6 @@ impl CgaHealingField {
         }
     }
 
-    /// Applies healing to a specific entity by ID.
     pub fn heal_entity_by_id(
         &mut self,
         entity_id: u64,
