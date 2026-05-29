@@ -39,13 +39,16 @@ impl CgaEntity {
         self.motor.apply_to_point(&self.base_point)
     }
 
-    /// Applies a motor transform.
+    /// Simple translation helper.
+    pub fn translate(&mut self, offset: Vector3<f64>) {
+        let trans_motor = Motor::mercy_aligned_rigid(offset, Vector3::z_axis().into_inner(), 0.0, 1.0);
+        self.apply_motor(&trans_motor);
+    }
+
     pub fn apply_motor(&mut self, motor: &Motor) {
         self.motor = self.motor.compose(motor);
     }
 
-    /// Applies geometric healing with smooth interpolation.
-    /// `progress` in [0.0, 1.0] for gradual healing effect.
     pub fn smooth_heal(&mut self, target_motor: &Motor, progress: f64, mercy: f64) {
         let healing_motor = Motor::mercy_aligned_rigid(
             target_motor.translator.t,
@@ -53,12 +56,10 @@ impl CgaEntity {
             target_motor.rotor.angle,
             mercy,
         );
-
         let interpolated = self.motor.slerp(&healing_motor, progress);
         self.motor = interpolated;
     }
 
-    /// Legacy direct healing (kept for compatibility).
     pub fn apply_geometric_healing(&mut self, healing_motor: &Motor, mercy: f64) {
         self.smooth_heal(healing_motor, 1.0, mercy);
     }
