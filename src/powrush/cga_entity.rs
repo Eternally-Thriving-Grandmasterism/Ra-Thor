@@ -1,7 +1,17 @@
 //! CgaEntity — Living Conformal Geometric Entity for Powrush RBE
 //!
-//! Represents player organisms, faction units, or geometric beings
-//! using Conformal Geometric Algebra.
+//! This module defines `CgaEntity`, a living object that can be
+//! transformed and healed using Conformal Geometric Algebra (CGA).
+//!
+//! Entities are the core of future player organisms and faction units
+//! in the geometric systems of Powrush.
+//!
+//! # Key Features
+//!
+//! - Position represented as `CgaPoint`
+//! - Transform stored as `Motor`
+//! - Smooth healing via `slerp`
+//! - Convenient helpers like `translate()` and `smooth_heal()`
 
 use nalgebra::Vector3;
 use crate::powrush::cga_primitives::{CgaPoint, Motor};
@@ -39,7 +49,6 @@ impl CgaEntity {
         self.motor.apply_to_point(&self.base_point)
     }
 
-    /// Simple translation helper.
     pub fn translate(&mut self, offset: Vector3<f64>) {
         let trans_motor = Motor::mercy_aligned_rigid(offset, Vector3::z_axis().into_inner(), 0.0, 1.0);
         self.apply_motor(&trans_motor);
