@@ -1,0 +1,10 @@
+[package]
+name = "lattice-conductor-v14"
+version = "14.0.2"
+edition = "2021"
+authors = ["Ra-Thor PATSAGi Councils <eternally-thriving@rathor.ai>"]
+description = "Lattice Conductor v14 — Thunder Lattice orchestration layer with mandatory Cosmic Loop Activation Protocol enforcement and PATSAGi Council Arbitration Engine"
+license = "AG-SML-1.0"
+
+[dependencies]
+# Future: tokio for async council sessions, serde for council state serialization
