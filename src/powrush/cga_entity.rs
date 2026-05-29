@@ -1,21 +1,16 @@
 //! CgaEntity — Living Conformal Geometric Entity for Powrush RBE
 //!
-//! This primitive represents a player, faction unit, or geometric organism
-//! using Conformal Geometric Algebra (CGA).
-//! It serves as the foundation for entities that can be transformed,
-//! healed, and animated through unified geometric operations.
+//! Represents player organisms, faction units, or geometric beings
+//! using Conformal Geometric Algebra.
 
 use nalgebra::Vector3;
 use crate::powrush::cga_primitives::{CgaPoint, Motor};
 
-/// A living entity represented in Conformal Geometric Algebra.
 #[derive(Debug, Clone)]
 pub struct CgaEntity {
     pub id: u64,
     pub name: String,
-    /// Current rigid transform as a CGA Motor
     pub motor: Motor,
-    /// Base (rest) position as conformal point
     pub base_point: CgaPoint,
 }
 
@@ -40,33 +35,34 @@ impl CgaEntity {
         }
     }
 
-    /// Returns the current world position after applying the motor.
     pub fn world_position(&self) -> CgaPoint {
         self.motor.apply_to_point(&self.base_point)
     }
 
-    /// Applies a mercy-aligned CGA motor transform to this entity.
+    /// Applies a motor transform.
     pub fn apply_motor(&mut self, motor: &Motor) {
-        // Compose: new_motor = motor * self.motor (simplified for starter)
-        // For full CGA this would use proper geometric product composition.
-        self.motor = Motor {
-            translator: motor.translator,
-            rotor: motor.rotor,
-        };
+        self.motor = self.motor.compose(motor);
     }
 
-    /// Applies geometric healing using a CGA motor (mercy-scaled).
-    pub fn apply_geometric_healing(&mut self, healing_motor: &Motor, mercy: f64) {
-        let scaled = Motor::mercy_aligned_rigid(
-            healing_motor.translator.t,
-            healing_motor.rotor.axis,
-            healing_motor.rotor.angle,
+    /// Applies geometric healing with smooth interpolation.
+    /// `progress` in [0.0, 1.0] for gradual healing effect.
+    pub fn smooth_heal(&mut self, target_motor: &Motor, progress: f64, mercy: f64) {
+        let healing_motor = Motor::mercy_aligned_rigid(
+            target_motor.translator.t,
+            target_motor.rotor.axis,
+            target_motor.rotor.angle,
             mercy,
         );
-        self.apply_motor(&scaled);
+
+        let interpolated = self.motor.slerp(&healing_motor, progress);
+        self.motor = interpolated;
     }
 
-    /// Resets the entity to its base state (useful for healing recovery).
+    /// Legacy direct healing (kept for compatibility).
+    pub fn apply_geometric_healing(&mut self, healing_motor: &Motor, mercy: f64) {
+        self.smooth_heal(healing_motor, 1.0, mercy);
+    }
+
     pub fn reset_to_base(&mut self) {
         self.motor = Motor::mercy_aligned_rigid(
             Vector3::zeros(),
