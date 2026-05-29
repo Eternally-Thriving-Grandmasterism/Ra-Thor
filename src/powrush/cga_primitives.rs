@@ -165,9 +165,7 @@ impl CgaPlane {
         }
     }
 
-    /// Checks if this plane intersects another plane.
     pub fn intersects_plane(&self, other: &CgaPlane) -> bool {
-        // Two planes intersect if their normals are not parallel
         let cross = self.normal.cross(&other.normal);
         cross.norm() > 1e-6
     }
@@ -207,6 +205,30 @@ impl CgaSphere {
     pub fn intersects_plane(&self, plane: &CgaPlane) -> bool {
         let dist = plane.normal.dot(&self.center.to_euclidean()) - plane.distance;
         dist.abs() <= self.radius
+    }
+}
+
+/// Checks if a ray intersects a plane.
+/// Returns the distance along the ray if intersection occurs, None otherwise.
+pub fn ray_intersects_plane(
+    ray_origin: &CgaPoint,
+    ray_direction: Vector3<f64>,
+    plane: &CgaPlane,
+) -> Option<f64> {
+    let origin = ray_origin.to_euclidean();
+    let dir = ray_direction.normalize();
+    let denom = plane.normal.dot(&dir);
+
+    if denom.abs() < 1e-6 {
+        return None; // Ray is parallel to the plane
+    }
+
+    let t = (plane.distance - plane.normal.dot(&origin)) / denom;
+
+    if t >= 0.0 {
+        Some(t)
+    } else {
+        None
     }
 }
 
