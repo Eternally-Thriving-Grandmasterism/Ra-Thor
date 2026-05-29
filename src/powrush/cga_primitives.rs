@@ -3,30 +3,8 @@
 //! This module provides the foundational types for working with
 //! Conformal Geometric Algebra in Powrush.
 //!
-//! # Overview
-//!
-//! - [`CgaPoint`]: Conformal points in 5D
-//! - [`Translator`]: Pure translations
-//! - [`Rotor`]: Rotations
-//! - [`Motor`]: Combined rigid transforms (recommended for most use cases)
-//!
-//! # Example
-//!
-//! ```rust,ignore
-//! use nalgebra::Vector3;
-//! use crate::powrush::cga_primitives::{CgaPoint, Motor, create_mercy_motor};
-//!
-//! let point = CgaPoint::from_euclidean(1.0, 2.0, 3.0);
-//! let motor = create_mercy_motor(
-//!     Vector3::new(0.0, 0.0, 5.0),
-//!     Vector3::new(0.0, 0.0, 1.0),
-//!     1.57,
-//!     0.9,
-//! );
-//!
-//! let transformed = motor.apply_to_point(&point);
-//! let euclidean = transformed.to_euclidean();
-//! ```
+//! Includes transformation primitives and the first geometric objects
+//! prepared for intersection operations.
 
 use nalgebra::{Vector3, Vector5};
 
@@ -42,7 +20,6 @@ impl CgaPoint {
         Self { coords }
     }
 
-    /// Returns the approximate Euclidean (x, y, z) position.
     pub fn to_euclidean(&self) -> Vector3<f64> {
         Vector3::new(self.coords.x, self.coords.y, self.coords.z)
     }
@@ -151,6 +128,34 @@ impl Motor {
         v * cos
             + axis.cross(&v) * sin
             + axis * (axis.dot(&v) * one_minus_cos)
+    }
+}
+
+/// A sphere in Conformal Geometric Algebra.
+/// This is the first geometric object prepared for future intersection operations.
+/// It is designed to be transformed by Motor.
+#[derive(Debug, Clone, Copy)]
+pub struct CgaSphere {
+    pub center: CgaPoint,
+    pub radius: f64,
+}
+
+impl CgaSphere {
+    pub fn new(center: CgaPoint, radius: f64) -> Self {
+        Self { center, radius }
+    }
+
+    /// Applies a Motor transform to this sphere.
+    /// Note: This transforms the center. Full CGA sphere transformation
+    /// would also consider conformal properties.
+    pub fn apply_motor(&self, motor: &Motor) -> CgaSphere {
+        let new_center = motor.apply_to_point(&self.center);
+        // For starter: radius is kept constant.
+        // Later we can add proper scaling support.
+        CgaSphere {
+            center: new_center,
+            radius: self.radius,
+        }
     }
 }
 
