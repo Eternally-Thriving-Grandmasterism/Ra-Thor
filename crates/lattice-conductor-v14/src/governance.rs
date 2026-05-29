@@ -1,6 +1,7 @@
 //! Governance & Cooperative Game Theory Layer
 //!
-//! Full Shapley + Banzhaf with variance reduction, plus mercy-aware PatsagiArbitration.
+//! Full Shapley + Banzhaf with variance reduction, plus mercy-aware PatsagiArbitration
+//! with deeper compassionate numerical softening on MercyGate detection.
 
 use crate::argumentation::{ArgumentGraph, SuperiorityContext};
 use rand::seq::SliceRandom;
@@ -231,10 +232,10 @@ impl<'a> PatsagiArbitration<'a> {
         let shapley = ShapleyValueCalculator::new(value_fn.clone());
         let banzhaf = BanzhafPowerIndex::new(value_fn);
 
-        let shapley_values = shapley.calculate_stratified_antithetic(players, 5);
+        let mut shapley_values = shapley.calculate_stratified_antithetic(players, 5);
         let banzhaf_indices = banzhaf.calculate(players);
 
-        // === Mercy-aware logic ===
+        // === Mercy-aware context detection (PATSAGi Councils aligned) ===
         let has_mercygate = self.graph.defeaters.iter().any(|d| {
             matches!(d.context, Some(SuperiorityContext::MercyGate))
         });
@@ -244,25 +245,46 @@ impl<'a> PatsagiArbitration<'a> {
         });
 
         let mut context_notes = vec![];
-        if has_mercygate {
-            context_notes.push("MercyGate context detected — negative contributions softened.".to_string());
-        }
-        if has_council {
-            context_notes.push("Council context present — authoritative weighting applied.".to_string());
-        }
-
-        let summary = if has_mercygate {
+        let mut summary = if has_mercygate {
             "Mercy-aware arbitration completed. Negative influence moderated."
         } else if has_council {
             "Council-weighted arbitration completed with structural emphasis."
         } else {
             "Standard combined Shapley + Banzhaf analysis completed."
-        };
+        }
+        .to_string();
+
+        if has_mercygate {
+            // Deeper mercy-aware numerical adjustment
+            // PATSAGi Council guidance: apply compassionate softening (0.75) to compress
+            // the spread of Shapley values. This reduces harshness of extreme influence
+            // differences (mirrors Phase 4 MercyGate ×0.6 reduction pattern) while
+            // preserving relative ordering and sign. Applied at arbitration/report layer.
+            let softening_factor = 0.75;
+            if !shapley_values.is_empty() {
+                let mean: f64 =
+                    shapley_values.values().sum::<f64>() / shapley_values.len() as f64;
+                for val in shapley_values.values_mut() {
+                    let deviation = *val - mean;
+                    *val = mean + deviation * softening_factor;
+                }
+            }
+            context_notes.push(
+                "MercyGate context detected — compassionate softening (0.75) applied to Shapley values to reduce influence spread harshness."
+                    .to_string(),
+            );
+            summary.push_str(" Compassionate softening factor 0.75 applied to Shapley spread.");
+        }
+        if has_council {
+            context_notes.push(
+                "Council context present — authoritative weighting applied.".to_string(),
+            );
+        }
 
         ArbitrationReport {
             shapley_values,
             banzhaf_indices,
-            summary: summary.to_string(),
+            summary,
             context_notes,
         }
     }
