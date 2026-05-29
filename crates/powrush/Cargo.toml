@@ -8,14 +8,16 @@ description.workspace = true
 repository.workspace = true
 
 [dependencies]
-# Core RBE + MMO engine
-# TOLC 8 non-bypassable security on claims/actions/faction sync
-# Hyperbolic tiled universe + real-time sovereign multiplayer
+nalgebra.workspace = true
+serde = { workspace = true, features = ["derive"] }
+serde_json = "1.0"
+thiserror.workspace = true
 
 [features]
 default = []
 mmo = []
+full-clifford = []  # Enable when mature CGA Motor sandwich-product is available
 
-# Powrush RBE v2.1
-# Production MMO launch capabilities
-# Integrated with RSRE v3.0, philotic, and propulsion hooks
+# Powrush RBE v2.1 + Clifford Healing Fields v14.1.0
+# Production MMO launch + geometric mercy communion across organisms
+# Integrated with RSRE, PATSAGi Councils, Thunder Lattice v14, MIAL
