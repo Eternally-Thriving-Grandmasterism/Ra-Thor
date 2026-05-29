@@ -1,10 +1,6 @@
 //! Conformal Geometric Algebra (CGA) Primitives for Powrush RBE
 //!
-//! This module provides the foundational types for working with
-//! Conformal Geometric Algebra in Powrush.
-//!
-//! Includes transformation primitives and the first geometric objects
-//! prepared for intersection operations.
+//! Foundational types + first geometric objects with intersection support.
 
 use nalgebra::{Vector3, Vector5};
 
@@ -59,7 +55,7 @@ impl Rotor {
     }
 }
 
-/// Motor = combined Translator + Rotor.
+/// Motor
 #[derive(Debug, Clone, Copy)]
 pub struct Motor {
     pub translator: Translator,
@@ -131,9 +127,7 @@ impl Motor {
     }
 }
 
-/// A sphere in Conformal Geometric Algebra.
-/// This is the first geometric object prepared for future intersection operations.
-/// It is designed to be transformed by Motor.
+/// A sphere in CGA, prepared for intersection operations.
 #[derive(Debug, Clone, Copy)]
 pub struct CgaSphere {
     pub center: CgaPoint,
@@ -145,17 +139,19 @@ impl CgaSphere {
         Self { center, radius }
     }
 
-    /// Applies a Motor transform to this sphere.
-    /// Note: This transforms the center. Full CGA sphere transformation
-    /// would also consider conformal properties.
+    /// Transforms the sphere using a Motor.
     pub fn apply_motor(&self, motor: &Motor) -> CgaSphere {
         let new_center = motor.apply_to_point(&self.center);
-        // For starter: radius is kept constant.
-        // Later we can add proper scaling support.
         CgaSphere {
             center: new_center,
             radius: self.radius,
         }
+    }
+
+    /// Basic point-sphere intersection test.
+    pub fn intersects_point(&self, point: &CgaPoint) -> bool {
+        let diff = point.to_euclidean() - self.center.to_euclidean();
+        diff.norm() <= self.radius
     }
 }
 
