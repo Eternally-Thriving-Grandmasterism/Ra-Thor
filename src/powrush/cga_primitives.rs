@@ -1,6 +1,31 @@
 //! Conformal Geometric Algebra (CGA) Primitives for Powrush RBE
 //!
-//! Foundation layer for unified geometric representations.
+//! This module provides the foundational types for working with
+//! Conformal Geometric Algebra in Powrush.
+//!
+//! # Overview
+//!
+//! - [`CgaPoint`]: Conformal points in 5D
+//! - [`Translator`]: Pure translations
+//! - [`Rotor`]: Rotations
+//! - [`Motor`]: Combined rigid transforms (recommended for most use cases)
+//!
+//! # Example
+//!
+//! ```rust,ignore
+//! use nalgebra::Vector3;
+//! use crate::powrush::cga_primitives::{CgaPoint, Motor, create_mercy_motor};
+//!
+//! let point = CgaPoint::from_euclidean(1.0, 2.0, 3.0);
+//! let motor = create_mercy_motor(
+//!     Vector3::new(0.0, 0.0, 5.0), // translation
+//!     Vector3::new(0.0, 0.0, 1.0), // axis
+//!     1.57,                        // angle (~90 degrees)
+//!     0.9,                         // mercy
+//! );
+//!
+//! let transformed = motor.apply_to_point(&point);
+//! ```
 
 use nalgebra::{Vector3, Vector5};
 
@@ -52,7 +77,7 @@ impl Rotor {
 }
 
 /// Motor = combined Translator + Rotor.
-/// Improved composition and interpolation.
+/// Use this for most rigid transformations in the CGA layer.
 #[derive(Debug, Clone, Copy)]
 pub struct Motor {
     pub translator: Translator,
@@ -72,9 +97,7 @@ impl Motor {
         }
     }
 
-    /// Improved composition: applies self after other.
     pub fn compose(&self, other: &Motor) -> Motor {
-        // Rotation composition
         let new_angle = self.rotor.angle + other.rotor.angle;
         let new_axis = if self.rotor.angle.abs() > 0.01 {
             self.rotor.axis
@@ -82,7 +105,6 @@ impl Motor {
             other.rotor.axis
         };
 
-        // Translation composition (rotate other's translation by self's rotation)
         let rotated_other_trans = self.apply_rotation_to_vector(other.translator.t);
         let new_translation = self.translator.t + rotated_other_trans;
 
@@ -94,10 +116,7 @@ impl Motor {
 
     pub fn slerp(&self, other: &Motor, t: f64) -> Motor {
         let t = t.clamp(0.0, 1.0);
-
         let interp_translation = self.translator.t.lerp(&other.translator.t, t);
-
-        // Simple but improved angle interpolation
         let interp_angle = self.rotor.angle * (1.0 - t) + other.rotor.angle * t;
         let interp_axis = self.rotor.axis.lerp(&other.rotor.axis, t).normalize();
 
