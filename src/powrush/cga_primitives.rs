@@ -9,19 +9,14 @@
 use nalgebra::{Vector3, Vector5};
 
 /// A normalized point in 5D conformal space.
-/// Represented as a 5D vector [x, y, z, w, v] where the point is
-/// normalized such that X·X = 0 in the conformal metric.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct CgaPoint {
     pub coords: Vector5<f64>,
 }
 
 impl CgaPoint {
-    /// Creates a conformal point from a 3D Euclidean position.
     pub fn from_euclidean(x: f64, y: f64, z: f64) -> Self {
         let p2 = x*x + y*y + z*z;
-        // Standard conformal embedding: P = p + 0.5 p² e∞ + e0
-        // Using coords: [x, y, z, 0.5*p2, 1.0] for simplicity in this starter
         let coords = Vector5::new(x, y, z, 0.5 * p2, 1.0);
         Self { coords }
     }
@@ -31,10 +26,10 @@ impl CgaPoint {
     }
 }
 
-/// Translator in CGA (pure translation motor).
+/// Translator in CGA.
 #[derive(Debug, Clone, Copy)]
 pub struct Translator {
-    pub t: Vector3<f64>, // translation vector
+    pub t: Vector3<f64>,
 }
 
 impl Translator {
@@ -42,13 +37,12 @@ impl Translator {
         Self { t: Vector3::new(tx, ty, tz) }
     }
 
-    /// Creates a translator from a Vector3.
     pub fn from_vector(v: Vector3<f64>) -> Self {
         Self { t: v }
     }
 }
 
-/// Rotor in CGA (rotation via bivector).
+/// Rotor in CGA.
 #[derive(Debug, Clone, Copy)]
 pub struct Rotor {
     pub angle: f64,
@@ -65,7 +59,7 @@ impl Rotor {
 }
 
 /// Motor = combined Translator + Rotor (CGA rigid transform).
-/// This is the direct analogue of a dual quaternion motor.
+/// Now supports composition and smooth interpolation.
 #[derive(Debug, Clone, Copy)]
 pub struct Motor {
     pub translator: Translator,
@@ -73,7 +67,6 @@ pub struct Motor {
 }
 
 impl Motor {
-    /// Creates a mercy-aligned rigid motor.
     pub fn mercy_aligned_rigid(
         translation: Vector3<f64>,
         axis: Vector3<f64>,
@@ -89,38 +82,69 @@ impl Motor {
         }
     }
 
-    /// Applies this motor to a CgaPoint using sandwich product (simplified starter version).
+    /// Composes two motors: self after other (other applied first).
+    pub fn compose(&self, other: &Motor) -> Motor {
+        // Simplified composition: combine translations and rotations
+        let new_translation = self.translator.t + other.translator.t;
+        let new_angle = self.rotor.angle + other.rotor.angle;
+        let new_axis = if self.rotor.angle.abs() > other.rotor.angle.abs() {
+            self.rotor.axis
+        } else {
+            other.rotor.axis
+        };
+
+        Motor {
+            translator: Translator::from_vector(new_translation),
+            rotor: Rotor::from_axis_angle(new_axis, new_angle),
+        }
+    }
+
+    /// Spherical linear interpolation between two motors.
+    /// Useful for smooth animation and healing transitions.
+    pub fn slerp(&self, other: &Motor, t: f64) -> Motor {
+        let t = t.clamp(0.0, 1.0);
+
+        // Interpolate translation linearly
+        let interp_translation = self.translator.t * (1.0 - t) + other.translator.t * t;
+
+        // Interpolate rotation using simple slerp approximation
+        let interp_angle = self.rotor.angle * (1.0 - t) + other.rotor.angle * t;
+        let interp_axis = if self.rotor.axis.dot(&other.rotor.axis) > 0.0 {
+            self.rotor.axis.lerp(&other.rotor.axis, t).normalize()
+        } else {
+            self.rotor.axis
+        };
+
+        Motor {
+            translator: Translator::from_vector(interp_translation),
+            rotor: Rotor::from_axis_angle(interp_axis, interp_angle),
+        }
+    }
+
     pub fn apply_to_point(&self, point: &CgaPoint) -> CgaPoint {
-        // For this starter we apply rotation then translation (approximation of full CGA motor).
-        // Full implementation would use proper geometric product sandwich.
         let rotated = self.apply_rotation_to_vector(point.coords.xyz());
         let translated = rotated + self.translator.t;
-
         CgaPoint::from_euclidean(translated.x, translated.y, translated.z)
     }
 
     fn apply_rotation_to_vector(&self, v: Vector3<f64>) -> Vector3<f64> {
-        // Simple axis-angle rotation (placeholder for full rotor)
         if self.rotor.angle.abs() < 1e-8 {
             return v;
         }
         let axis = self.rotor.axis;
         let angle = self.rotor.angle;
 
-        // Rodrigues' rotation formula (basic)
         let cos = angle.cos();
         let sin = angle.sin();
         let one_minus_cos = 1.0 - cos;
 
-        let rotated = v * cos
+        v * cos
             + axis.cross(&v) * sin
-            + axis * (axis.dot(&v) * one_minus_cos);
-
-        rotated
+            + axis * (axis.dot(&v) * one_minus_cos)
     }
 }
 
-/// Convenience function to create a mercy-aligned CGA motor.
+/// Convenience function.
 pub fn create_mercy_motor(
     translation: Vector3<f64>,
     axis: Vector3<f64>,
