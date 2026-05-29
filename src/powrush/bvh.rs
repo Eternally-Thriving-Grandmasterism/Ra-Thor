@@ -1,7 +1,6 @@
 //! Bounding Volume Hierarchy (BVH) with Refitting Support
 //!
-//! Provides both high-quality top-down construction and efficient
-//! bottom-up refitting for dynamic scenes with moving entities.
+//! Supports high-quality construction and efficient queries + refitting.
 
 use nalgebra::Vector3;
 
@@ -38,6 +37,12 @@ impl Aabb {
         }
     }
 
+    pub fn intersects(&self, other: &Aabb) -> bool {
+        self.min.x <= other.max.x && self.max.x >= other.min.x &&
+        self.min.y <= other.max.y && self.max.y >= other.min.y &&
+        self.min.z <= other.max.z && self.max.z >= other.min.z
+    }
+
     pub fn center(&self) -> Vector3<f64> {
         (self.min + self.max) * 0.5
     }
@@ -58,7 +63,6 @@ pub struct Bvh {
 }
 
 impl Bvh {
-    /// Simple bottom-up pairing construction (fast but lower quality).
     pub fn from_spheres(centers: &[Vector3<f64>], radii: &[f64]) -> Self {
         assert_eq!(centers.len(), radii.len());
         let mut nodes = Vec::new();
@@ -103,11 +107,8 @@ impl Bvh {
         Self { nodes, root }
     }
 
-    /// Top-down construction using recursive median split on longest axis.
-    /// Produces higher quality, more balanced trees.
     pub fn from_spheres_top_down(centers: &[Vector3<f64>], radii: &[f64]) -> Self {
         assert_eq!(centers.len(), radii.len());
-
         let mut nodes: Vec<BvhNode> = Vec::new();
 
         fn build(
@@ -127,7 +128,6 @@ impl Bvh {
                 return nodes.len() - 1;
             }
 
-            // Compute bounding box of current group
             let mut min = Vector3::new(f64::INFINITY, f64::INFINITY, f64::INFINITY);
             let mut max = Vector3::new(f64::NEG_INFINITY, f64::NEG_INFINITY, f64::NEG_INFINITY);
 
@@ -139,13 +139,11 @@ impl Bvh {
                 max = max.sup(&(c + half));
             }
 
-            // Choose longest axis
             let size = max - min;
             let axis = if size.x >= size.y && size.x >= size.z { 0 }
                        else if size.y >= size.z { 1 }
                        else { 2 };
 
-            // Sort by center on chosen axis
             indices.sort_by(|&a, &b| {
                 centers[a][axis].partial_cmp(&centers[b][axis]).unwrap()
             });
@@ -170,13 +168,10 @@ impl Bvh {
 
         let mut indices: Vec<usize> = (0..centers.len()).collect();
         let root = build(&mut nodes, centers, radii, &mut indices);
-
         Self { nodes, root }
     }
 
-    /// Bottom-up refitting (call after entities move).
     pub fn refit(&mut self, centers: &[Vector3<f64>], radii: &[f64]) {
-        // Update leaves
         for node in &mut self.nodes {
             if let Some(idx) = node.entity_index {
                 if idx < centers.len() {
@@ -185,7 +180,6 @@ impl Bvh {
             }
         }
 
-        // Propagate up
         for i in (0..self.nodes.len()).rev() {
             let node = &self.nodes[i];
             if node.entity_index.is_none() {
@@ -194,6 +188,42 @@ impl Bvh {
                 }
             }
         }
+    }
+
+    /// Returns indices of entities whose AABBs intersect the query AABB.
+    pub fn query_intersecting_aabb(&self, query: &Aabb) -> Vec<usize> {
+        let mut result = Vec::new();
+        self.traverse_intersecting(self.root, query, &mut result);
+        result
+    }
+
+    fn traverse_intersecting(&self, node_idx: usize, query: &Aabb, result: &mut Vec<usize>) {
+        if node_idx >= self.nodes.len() {
+            return;
+        }
+
+        let node = &self.nodes[node_idx];
+
+        if !node.aabb.intersects(query) {
+            return;
+        }
+
+        if let Some(entity_idx) = node.entity_index {
+            result.push(entity_idx);
+        } else {
+            if let Some(left) = node.left {
+                self.traverse_intersecting(left, query, result);
+            }
+            if let Some(right) = node.right {
+                self.traverse_intersecting(right, query, result);
+            }
+        }
+    }
+
+    /// Convenience: Query entities intersecting a sphere (center + radius).
+    pub fn query_intersecting_sphere(&self, center: Vector3<f64>, radius: f64) -> Vec<usize> {
+        let query_aabb = Aabb::from_center_and_radius(center, radius);
+        self.query_intersecting_aabb(&query_aabb)
     }
 
     pub fn root_aabb(&self) -> Option<Aabb> {
