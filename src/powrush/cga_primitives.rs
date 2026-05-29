@@ -1,6 +1,6 @@
 //! Conformal Geometric Algebra (CGA) Primitives for Powrush RBE
 //!
-//! Foundational types + first geometric objects with intersection support.
+//! Foundational types + geometric objects with intersection support.
 
 use nalgebra::{Vector3, Vector5};
 
@@ -127,7 +127,7 @@ impl Motor {
     }
 }
 
-/// A sphere in CGA, prepared for intersection operations.
+/// A sphere in CGA with intersection support.
 #[derive(Debug, Clone, Copy)]
 pub struct CgaSphere {
     pub center: CgaPoint,
@@ -139,7 +139,6 @@ impl CgaSphere {
         Self { center, radius }
     }
 
-    /// Transforms the sphere using a Motor.
     pub fn apply_motor(&self, motor: &Motor) -> CgaSphere {
         let new_center = motor.apply_to_point(&self.center);
         CgaSphere {
@@ -148,10 +147,17 @@ impl CgaSphere {
         }
     }
 
-    /// Basic point-sphere intersection test.
+    /// Checks if this sphere intersects with a point.
     pub fn intersects_point(&self, point: &CgaPoint) -> bool {
         let diff = point.to_euclidean() - self.center.to_euclidean();
         diff.norm() <= self.radius
+    }
+
+    /// Checks if this sphere intersects with another sphere.
+    pub fn intersects_sphere(&self, other: &CgaSphere) -> bool {
+        let diff = self.center.to_euclidean() - other.center.to_euclidean();
+        let distance = diff.norm();
+        distance <= (self.radius + other.radius)
     }
 }
 
