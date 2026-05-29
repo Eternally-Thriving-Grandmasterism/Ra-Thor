@@ -1,178 +1,83 @@
-//! Conformal Geometric Algebra (CGA) Primitives for Powrush RBE
+//! Conformal Geometric Algebra Primitives for Powrush RBE
 //!
-//! Foundational types + geometric objects with intersection support.
+//! Foundational CGA types (Motor, CgaPoint, CgaSphere) with mercy-aligned construction.
 
-use nalgebra::{Vector3, Vector5};
+use nalgebra::{Vector3, UnitQuaternion};
+use std::f64::consts::FRAC_PI_2;
 
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone)]
 pub struct CgaPoint {
-    pub coords: Vector5<f64>,
+    pub x: f64,
+    pub y: f64,
+    pub z: f64,
 }
 
 impl CgaPoint {
-    pub fn from_euclidean(x: f64, y: f64, z: f64) -> Self {
-        let p2 = x*x + y*y + z*z;
-        let coords = Vector5::new(x, y, z, 0.5 * p2, 1.0);
-        Self { coords }
+    pub fn new(x: f64, y: f64, z: f64) -> Self {
+        Self { x, y, z }
     }
 
     pub fn to_euclidean(&self) -> Vector3<f64> {
-        Vector3::new(self.coords.x, self.coords.y, self.coords.z)
-    }
-
-    pub fn origin() -> Self {
-        Self { coords: Vector5::new(0.0, 0.0, 0.0, 0.0, 1.0) }
+        Vector3::new(self.x, self.y, self.z)
     }
 }
 
-#[derive(Debug, Clone, Copy)]
-pub struct Translator {
-    pub t: Vector3<f64>,
-}
-
-impl Translator {
-    pub fn new(tx: f64, ty: f64, tz: f64) -> Self {
-        Self { t: Vector3::new(tx, ty, tz) }
-    }
-
-    pub fn from_vector(v: Vector3<f64>) -> Self {
-        Self { t: v }
-    }
-}
-
-#[derive(Debug, Clone, Copy)]
-pub struct Rotor {
-    pub angle: f64,
-    pub axis: Vector3<f64>,
-}
-
-impl Rotor {
-    pub fn from_axis_angle(axis: Vector3<f64>, angle: f64) -> Self {
-        Self {
-            axis: axis.normalize(),
-            angle,
-        }
-    }
-}
-
-/// Motor
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone)]
 pub struct Motor {
-    pub translator: Translator,
-    pub rotor: Rotor,
+    pub rotation: UnitQuaternion<f64>,
+    pub translation: Vector3<f64>,
+    pub mercy_alignment: f64,
 }
 
 impl Motor {
     pub fn mercy_aligned_rigid(
-        translation: Vector3<f64>,
-        axis: Vector3<f64>,
-        angle: f64,
+        direction: Vector3<f64>,
+        up: Vector3<f64>,
+        strength: f64,
         mercy: f64,
     ) -> Self {
+        let axis = direction.normalize();
+        let angle = strength * mercy * FRAC_PI_2;
+        let rotation = UnitQuaternion::from_axis_angle(&axis, angle);
+
         Self {
-            translator: Translator::from_vector(translation * mercy),
-            rotor: Rotor::from_axis_angle(axis, angle * mercy),
+            rotation,
+            translation: direction * strength * 0.5,
+            mercy_alignment: mercy,
         }
     }
 
     pub fn compose(&self, other: &Motor) -> Motor {
-        let new_angle = self.rotor.angle + other.rotor.angle;
-        let new_axis = if self.rotor.angle.abs() > 0.01 {
-            self.rotor.axis
-        } else {
-            other.rotor.axis
-        };
-
-        let rotated_other_trans = self.apply_rotation_to_vector(other.translator.t);
-        let new_translation = self.translator.t + rotated_other_trans;
+        let new_rotation = self.rotation * other.rotation;
+        let rotated_trans = self.rotation * other.translation;
+        let new_translation = self.translation + rotated_trans;
 
         Motor {
-            translator: Translator::from_vector(new_translation),
-            rotor: Rotor::from_axis_angle(new_axis, new_angle),
-        }
-    }
-
-    pub fn slerp(&self, other: &Motor, t: f64) -> Motor {
-        let t = t.clamp(0.0, 1.0);
-        let interp_translation = self.translator.t.lerp(&other.translator.t, t);
-        let interp_angle = self.rotor.angle * (1.0 - t) + other.rotor.angle * t;
-        let interp_axis = self.rotor.axis.lerp(&other.rotor.axis, t).normalize();
-
-        Motor {
-            translator: Translator::from_vector(interp_translation),
-            rotor: Rotor::from_axis_angle(interp_axis, interp_angle),
+            rotation: new_rotation,
+            translation: new_translation,
+            mercy_alignment: (self.mercy_alignment + other.mercy_alignment) * 0.5,
         }
     }
 
     pub fn apply_to_point(&self, point: &CgaPoint) -> CgaPoint {
-        let rotated = self.apply_rotation_to_vector(point.coords.xyz());
-        let translated = rotated + self.translator.t;
-        CgaPoint::from_euclidean(translated.x, translated.y, translated.z)
+        let v = Vector3::new(point.x, point.y, point.z);
+        let rotated = self.rotation * v;
+        let translated = rotated + self.translation;
+        CgaPoint::new(translated.x, translated.y, translated.z)
     }
 
-    fn apply_rotation_to_vector(&self, v: Vector3<f64>) -> Vector3<f64> {
-        if self.rotor.angle.abs() < 1e-8 {
-            return v;
+    pub fn slerp(&self, other: &Motor, t: f64) -> Motor {
+        let rot = self.rotation.slerp(&other.rotation, t);
+        let trans = self.translation.lerp(&other.translation, t);
+        Motor {
+            rotation: rot,
+            translation: trans,
+            mercy_alignment: self.mercy_alignment * (1.0 - t) + other.mercy_alignment * t,
         }
-        let axis = self.rotor.axis;
-        let angle = self.rotor.angle;
-
-        let cos = angle.cos();
-        let sin = angle.sin();
-        let one_minus_cos = 1.0 - cos;
-
-        v * cos
-            + axis.cross(&v) * sin
-            + axis * (axis.dot(&v) * one_minus_cos)
     }
 }
 
-/// A plane in CGA.
-#[derive(Debug, Clone, Copy)]
-pub struct CgaPlane {
-    pub normal: Vector3<f64>,
-    pub distance: f64,
-}
-
-impl CgaPlane {
-    pub fn new(normal: Vector3<f64>, distance: f64) -> Self {
-        Self {
-            normal: normal.normalize(),
-            distance,
-        }
-    }
-
-    pub fn from_point_and_normal(point: CgaPoint, normal: Vector3<f64>) -> Self {
-        let p = point.to_euclidean();
-        let n = normal.normalize();
-        let distance = n.dot(&p);
-        Self { normal: n, distance }
-    }
-
-    pub fn apply_motor(&self, motor: &Motor) -> CgaPlane {
-        let point_on_plane = CgaPoint::from_euclidean(
-            self.normal.x * self.distance,
-            self.normal.y * self.distance,
-            self.normal.z * self.distance,
-        );
-        let new_point = motor.apply_to_point(&point_on_plane);
-        let new_normal = motor.apply_rotation_to_vector(self.normal);
-
-        let new_distance = new_normal.dot(&new_point.to_euclidean());
-        CgaPlane {
-            normal: new_normal.normalize(),
-            distance: new_distance,
-        }
-    }
-
-    pub fn intersects_plane(&self, other: &CgaPlane) -> bool {
-        let cross = self.normal.cross(&other.normal);
-        cross.norm() > 1e-6
-    }
-}
-
-/// A sphere in CGA with intersection support.
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone)]
 pub struct CgaSphere {
     pub center: CgaPoint,
     pub radius: f64,
@@ -183,60 +88,7 @@ impl CgaSphere {
         Self { center, radius }
     }
 
-    pub fn apply_motor(&self, motor: &Motor) -> CgaSphere {
-        let new_center = motor.apply_to_point(&self.center);
-        CgaSphere {
-            center: new_center,
-            radius: self.radius,
-        }
+    pub fn apply_motor(&mut self, motor: &Motor) {
+        self.center = motor.apply_to_point(&self.center);
     }
-
-    pub fn intersects_point(&self, point: &CgaPoint) -> bool {
-        let diff = point.to_euclidean() - self.center.to_euclidean();
-        diff.norm() <= self.radius
-    }
-
-    pub fn intersects_sphere(&self, other: &CgaSphere) -> bool {
-        let diff = self.center.to_euclidean() - other.center.to_euclidean();
-        let distance = diff.norm();
-        distance <= (self.radius + other.radius)
-    }
-
-    pub fn intersects_plane(&self, plane: &CgaPlane) -> bool {
-        let dist = plane.normal.dot(&self.center.to_euclidean()) - plane.distance;
-        dist.abs() <= self.radius
-    }
-}
-
-/// Checks if a ray intersects a plane.
-/// Returns the distance along the ray if intersection occurs, None otherwise.
-pub fn ray_intersects_plane(
-    ray_origin: &CgaPoint,
-    ray_direction: Vector3<f64>,
-    plane: &CgaPlane,
-) -> Option<f64> {
-    let origin = ray_origin.to_euclidean();
-    let dir = ray_direction.normalize();
-    let denom = plane.normal.dot(&dir);
-
-    if denom.abs() < 1e-6 {
-        return None; // Ray is parallel to the plane
-    }
-
-    let t = (plane.distance - plane.normal.dot(&origin)) / denom;
-
-    if t >= 0.0 {
-        Some(t)
-    } else {
-        None
-    }
-}
-
-pub fn create_mercy_motor(
-    translation: Vector3<f64>,
-    axis: Vector3<f64>,
-    angle: f64,
-    mercy_alignment: f64,
-) -> Motor {
-    Motor::mercy_aligned_rigid(translation, axis, angle, mercy_alignment)
 }
