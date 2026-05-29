@@ -1,14 +1,11 @@
 //! Conformal Geometric Algebra (CGA) Primitives for Powrush RBE
 //!
 //! Foundation layer for unified geometric representations.
-//! This module begins the migration path toward player organisms
-//! as living CGA entities and deeper mercy-aligned geometric healing.
 //!
-//! 5D Conformal model (Cl(4,1)) starting primitives.
+//! Current focus: Motor with composition and interpolation.
 
 use nalgebra::{Vector3, Vector5};
 
-/// A normalized point in 5D conformal space.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct CgaPoint {
     pub coords: Vector5<f64>,
@@ -26,7 +23,6 @@ impl CgaPoint {
     }
 }
 
-/// Translator in CGA.
 #[derive(Debug, Clone, Copy)]
 pub struct Translator {
     pub t: Vector3<f64>,
@@ -42,7 +38,6 @@ impl Translator {
     }
 }
 
-/// Rotor in CGA.
 #[derive(Debug, Clone, Copy)]
 pub struct Rotor {
     pub angle: f64,
@@ -51,15 +46,12 @@ pub struct Rotor {
 
 impl Rotor {
     pub fn from_axis_angle(axis: Vector3<f64>, angle: f64) -> Self {
-        Self {
-            axis: axis.normalize(),
-            angle,
-        }
+        Self { axis: axis.normalize(), angle }
     }
 }
 
-/// Motor = combined Translator + Rotor (CGA rigid transform).
-/// Now supports composition and smooth interpolation.
+/// Motor = Translator + Rotor
+/// Represents a rigid body transformation in CGA style.
 #[derive(Debug, Clone, Copy)]
 pub struct Motor {
     pub translator: Translator,
@@ -73,25 +65,21 @@ impl Motor {
         angle: f64,
         mercy: f64,
     ) -> Self {
-        let scaled_trans = translation * mercy;
-        let scaled_angle = angle * mercy;
-
         Self {
-            translator: Translator::from_vector(scaled_trans),
-            rotor: Rotor::from_axis_angle(axis, scaled_angle),
+            translator: Translator::from_vector(translation * mercy),
+            rotor: Rotor::from_axis_angle(axis, angle * mercy),
         }
     }
 
-    /// Composes two motors: self after other (other applied first).
+    /// Composes two motors: applies `other` first, then `self`.
     pub fn compose(&self, other: &Motor) -> Motor {
-        // Simplified composition: combine translations and rotations
-        let new_translation = self.translator.t + other.translator.t;
+        // Apply other rotation to self's translation, then add translations
+        let rotated_trans = other.apply_rotation_to_vector(self.translator.t);
+        let new_translation = rotated_trans + other.translator.t;
+
+        // Combine rotations (simple addition for starter; full version would use rotor multiplication)
         let new_angle = self.rotor.angle + other.rotor.angle;
-        let new_axis = if self.rotor.angle.abs() > other.rotor.angle.abs() {
-            self.rotor.axis
-        } else {
-            other.rotor.axis
-        };
+        let new_axis = self.rotor.axis; // Can be improved with proper averaging
 
         Motor {
             translator: Translator::from_vector(new_translation),
@@ -99,16 +87,12 @@ impl Motor {
         }
     }
 
-    /// Spherical linear interpolation between two motors.
-    /// Useful for smooth animation and healing transitions.
+    /// Smooth interpolation between two motors.
     pub fn slerp(&self, other: &Motor, t: f64) -> Motor {
         let t = t.clamp(0.0, 1.0);
-
-        // Interpolate translation linearly
-        let interp_translation = self.translator.t * (1.0 - t) + other.translator.t * t;
-
-        // Interpolate rotation using simple slerp approximation
+        let interp_trans = self.translator.t * (1.0 - t) + other.translator.t * t;
         let interp_angle = self.rotor.angle * (1.0 - t) + other.rotor.angle * t;
+
         let interp_axis = if self.rotor.axis.dot(&other.rotor.axis) > 0.0 {
             self.rotor.axis.lerp(&other.rotor.axis, t).normalize()
         } else {
@@ -116,7 +100,7 @@ impl Motor {
         };
 
         Motor {
-            translator: Translator::from_vector(interp_translation),
+            translator: Translator::from_vector(interp_trans),
             rotor: Rotor::from_axis_angle(interp_axis, interp_angle),
         }
     }
@@ -127,24 +111,18 @@ impl Motor {
         CgaPoint::from_euclidean(translated.x, translated.y, translated.z)
     }
 
-    fn apply_rotation_to_vector(&self, v: Vector3<f64>) -> Vector3<f64> {
-        if self.rotor.angle.abs() < 1e-8 {
-            return v;
-        }
+    pub(crate) fn apply_rotation_to_vector(&self, v: Vector3<f64>) -> Vector3<f64> {
+        if self.rotor.angle.abs() < 1e-8 { return v; }
         let axis = self.rotor.axis;
         let angle = self.rotor.angle;
-
         let cos = angle.cos();
         let sin = angle.sin();
-        let one_minus_cos = 1.0 - cos;
+        let k = 1.0 - cos;
 
-        v * cos
-            + axis.cross(&v) * sin
-            + axis * (axis.dot(&v) * one_minus_cos)
+        v * cos + axis.cross(&v) * sin + axis * (axis.dot(&v) * k)
     }
 }
 
-/// Convenience function.
 pub fn create_mercy_motor(
     translation: Vector3<f64>,
     axis: Vector3<f64>,
