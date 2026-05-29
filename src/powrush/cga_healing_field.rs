@@ -1,10 +1,10 @@
 //! CgaHealingField — Geometric Healing System for CGA Entities
 //!
 //! Manages and applies mercy-aligned Conformal Geometric Algebra healing
-//! to multiple CgaEntity instances.
+//! to multiple CgaEntity instances, with support for intersection-based healing.
 
 use crate::powrush::cga_entity::CgaEntity;
-use crate::powrush::cga_primitives::Motor;
+use crate::powrush::cga_primitives::{Motor, CgaSphere};
 use nalgebra::Vector3;
 
 #[derive(Debug, Clone)]
@@ -25,14 +25,27 @@ impl CgaHealingField {
         self.entities.push(entity);
     }
 
-    /// Applies a Motor to all entities (composition).
     pub fn apply_motor_to_all(&mut self, motor: &Motor) {
         for entity in &mut self.entities {
             entity.apply_motor(motor);
         }
     }
 
-    /// Applies smooth geometric healing to all entities.
+    /// Applies healing to all entities that intersect with the given sphere.
+    pub fn heal_entities_in_sphere(
+        &mut self,
+        healing_sphere: &CgaSphere,
+        healing_motor: &Motor,
+        mercy: f64,
+        progress: f64,
+    ) {
+        for entity in &mut self.entities {
+            if entity.intersects_sphere(healing_sphere) {
+                entity.smooth_heal(healing_motor, progress, mercy);
+            }
+        }
+    }
+
     pub fn apply_batch_healing(
         &mut self,
         healing_direction: Vector3<f64>,
