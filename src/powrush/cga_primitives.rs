@@ -127,6 +127,49 @@ impl Motor {
     }
 }
 
+/// A plane in CGA (represented by normal + distance from origin).
+#[derive(Debug, Clone, Copy)]
+pub struct CgaPlane {
+    pub normal: Vector3<f64>,
+    pub distance: f64, // distance from origin along the normal
+}
+
+impl CgaPlane {
+    pub fn new(normal: Vector3<f64>, distance: f64) -> Self {
+        Self {
+            normal: normal.normalize(),
+            distance,
+        }
+    }
+
+    /// Creates a plane from a point and normal.
+    pub fn from_point_and_normal(point: CgaPoint, normal: Vector3<f64>) -> Self {
+        let p = point.to_euclidean();
+        let n = normal.normalize();
+        let distance = n.dot(&p);
+        Self { normal: n, distance }
+    }
+
+    /// Applies a Motor transform to the plane (approximate for starter).
+    pub fn apply_motor(&self, motor: &Motor) -> CgaPlane {
+        // Transform a point on the plane and the normal
+        let point_on_plane = CgaPoint::from_euclidean(
+            self.normal.x * self.distance,
+            self.normal.y * self.distance,
+            self.normal.z * self.distance,
+        );
+        let new_point = motor.apply_to_point(&point_on_plane);
+        let new_normal = motor.apply_rotation_to_vector(self.normal); // reuse internal method conceptually
+
+        // Reconstruct plane
+        let new_distance = new_normal.dot(&new_point.to_euclidean());
+        CgaPlane {
+            normal: new_normal.normalize(),
+            distance: new_distance,
+        }
+    }
+}
+
 /// A sphere in CGA with intersection support.
 #[derive(Debug, Clone, Copy)]
 pub struct CgaSphere {
@@ -147,17 +190,21 @@ impl CgaSphere {
         }
     }
 
-    /// Checks if this sphere intersects with a point.
     pub fn intersects_point(&self, point: &CgaPoint) -> bool {
         let diff = point.to_euclidean() - self.center.to_euclidean();
         diff.norm() <= self.radius
     }
 
-    /// Checks if this sphere intersects with another sphere.
     pub fn intersects_sphere(&self, other: &CgaSphere) -> bool {
         let diff = self.center.to_euclidean() - other.center.to_euclidean();
         let distance = diff.norm();
         distance <= (self.radius + other.radius)
+    }
+
+    /// Checks if this sphere intersects a plane.
+    pub fn intersects_plane(&self, plane: &CgaPlane) -> bool {
+        let dist = plane.normal.dot(&self.center.to_euclidean()) - plane.distance;
+        dist.abs() <= self.radius
     }
 }
 
