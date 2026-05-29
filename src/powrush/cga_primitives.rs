@@ -127,11 +127,11 @@ impl Motor {
     }
 }
 
-/// A plane in CGA (represented by normal + distance from origin).
+/// A plane in CGA.
 #[derive(Debug, Clone, Copy)]
 pub struct CgaPlane {
     pub normal: Vector3<f64>,
-    pub distance: f64, // distance from origin along the normal
+    pub distance: f64,
 }
 
 impl CgaPlane {
@@ -142,7 +142,6 @@ impl CgaPlane {
         }
     }
 
-    /// Creates a plane from a point and normal.
     pub fn from_point_and_normal(point: CgaPoint, normal: Vector3<f64>) -> Self {
         let p = point.to_euclidean();
         let n = normal.normalize();
@@ -150,23 +149,27 @@ impl CgaPlane {
         Self { normal: n, distance }
     }
 
-    /// Applies a Motor transform to the plane (approximate for starter).
     pub fn apply_motor(&self, motor: &Motor) -> CgaPlane {
-        // Transform a point on the plane and the normal
         let point_on_plane = CgaPoint::from_euclidean(
             self.normal.x * self.distance,
             self.normal.y * self.distance,
             self.normal.z * self.distance,
         );
         let new_point = motor.apply_to_point(&point_on_plane);
-        let new_normal = motor.apply_rotation_to_vector(self.normal); // reuse internal method conceptually
+        let new_normal = motor.apply_rotation_to_vector(self.normal);
 
-        // Reconstruct plane
         let new_distance = new_normal.dot(&new_point.to_euclidean());
         CgaPlane {
             normal: new_normal.normalize(),
             distance: new_distance,
         }
+    }
+
+    /// Checks if this plane intersects another plane.
+    pub fn intersects_plane(&self, other: &CgaPlane) -> bool {
+        // Two planes intersect if their normals are not parallel
+        let cross = self.normal.cross(&other.normal);
+        cross.norm() > 1e-6
     }
 }
 
@@ -201,7 +204,6 @@ impl CgaSphere {
         distance <= (self.radius + other.radius)
     }
 
-    /// Checks if this sphere intersects a plane.
     pub fn intersects_plane(&self, plane: &CgaPlane) -> bool {
         let dist = plane.normal.dot(&self.center.to_euclidean()) - plane.distance;
         dist.abs() <= self.radius
