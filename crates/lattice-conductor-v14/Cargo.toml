@@ -1,10 +1,20 @@
 [package]
 name = "lattice-conductor-v14"
-version = "14.0.2"
+version = "14.2.0"
 edition = "2021"
-authors = ["Ra-Thor PATSAGi Councils <eternally-thriving@rathor.ai>"]
-description = "Lattice Conductor v14 — Thunder Lattice orchestration layer with mandatory Cosmic Loop Activation Protocol enforcement and PATSAGi Council Arbitration Engine"
-license = "AG-SML-1.0"
 
 [dependencies]
-# Future: tokio for async council sessions, serde for council state serialization
+nalgebra = { version = "0.33", features = ["serde-serialize"] }
+thiserror = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tokio = { version = "1", features = ["full"], optional = true }
+axum = { version = "0.7", optional = true }
+
+[features]
+default = []
+full-clifford = []
+web-demo = ["tokio", "axum"]
+
+[lib]
+path = "src/lib.rs"
