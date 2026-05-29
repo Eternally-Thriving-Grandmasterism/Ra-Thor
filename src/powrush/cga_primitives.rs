@@ -18,13 +18,14 @@
 //!
 //! let point = CgaPoint::from_euclidean(1.0, 2.0, 3.0);
 //! let motor = create_mercy_motor(
-//!     Vector3::new(0.0, 0.0, 5.0), // translation
-//!     Vector3::new(0.0, 0.0, 1.0), // axis
-//!     1.57,                        // angle (~90 degrees)
-//!     0.9,                         // mercy
+//!     Vector3::new(0.0, 0.0, 5.0),
+//!     Vector3::new(0.0, 0.0, 1.0),
+//!     1.57,
+//!     0.9,
 //! );
 //!
 //! let transformed = motor.apply_to_point(&point);
+//! let euclidean = transformed.to_euclidean();
 //! ```
 
 use nalgebra::{Vector3, Vector5};
@@ -39,6 +40,11 @@ impl CgaPoint {
         let p2 = x*x + y*y + z*z;
         let coords = Vector5::new(x, y, z, 0.5 * p2, 1.0);
         Self { coords }
+    }
+
+    /// Returns the approximate Euclidean (x, y, z) position.
+    pub fn to_euclidean(&self) -> Vector3<f64> {
+        Vector3::new(self.coords.x, self.coords.y, self.coords.z)
     }
 
     pub fn origin() -> Self {
@@ -77,7 +83,6 @@ impl Rotor {
 }
 
 /// Motor = combined Translator + Rotor.
-/// Use this for most rigid transformations in the CGA layer.
 #[derive(Debug, Clone, Copy)]
 pub struct Motor {
     pub translator: Translator,
