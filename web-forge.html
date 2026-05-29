@@ -13,17 +13,6 @@
         .preset-btn { transition: all 0.2s ease; }
         .preset-btn.active { background-color: #10b981; color: black; border-color: #10b981; }
         .gate-bar { transition: width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.4s ease; }
-        .gate-row { transition: all 0.2s ease; }
-        .gate-row:hover .gate-bar { filter: brightness(1.2); }
-        .pulse { animation: pulse-glow 1.2s ease-out; }
-        @keyframes pulse-glow {
-            0% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.6); }
-            70% { box-shadow: 0 0 0 8px rgba(52, 211, 153, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0); }
-        }
-        .lineage-entry { transition: all 0.2s ease; cursor: pointer; }
-        .lineage-entry:hover { background-color: #27251f; }
-        .lineage-entry.selected { background-color: #1f3a2e; border-left: 3px solid #10b981; }
     </style>
 </head>
 <body class="bg-zinc-950 text-white">
@@ -46,25 +35,24 @@
                     <h2 class="text-2xl font-semibold">TOLC8 Gate Weighting</h2>
                 </div>
 
-                <!-- Shard Presets -->
                 <div class="mb-6">
                     <div class="text-sm text-emerald-400 mb-2 font-medium">Presets</div>
                     <div class="flex flex-wrap gap-2">
-                        <button onclick="applyPreset(0)" class="preset-btn px-4 py-1.5 text-sm rounded-2xl border border-emerald-400/40 hover:bg-emerald-400/10 active" id="preset-0" title="Clean, balanced starting point — Recommended default">Balanced Genesis</button>
-                        <button onclick="applyPreset(1)" class="preset-btn px-4 py-1.5 text-sm rounded-2xl border border-emerald-400/40 hover:bg-emerald-400/10" id="preset-1" title="Strong focus on Compassion, Service and Love">Compassion Council</button>
-                        <button onclick="applyPreset(2)" class="preset-btn px-4 py-1.5 text-sm rounded-2xl border border-emerald-400/40 hover:bg-emerald-400/10" id="preset-2" title="Emphasis on Abundance and Joy">Abundance Council</button>
-                        <button onclick="applyPreset(3)" class="preset-btn px-4 py-1.5 text-sm rounded-2xl border border-emerald-400/40 hover:bg-emerald-400/10" id="preset-3" title="Cosmic Harmony and balanced resonance">Harmonic Council</button>
-                        <button onclick="applyPreset(4)" class="preset-btn px-4 py-1.5 text-sm rounded-2xl border border-emerald-400/40 hover:bg-emerald-400/10" id="preset-4" title="Prioritizes Truth and Order">Truth-Seeker</button>
+                        <button onclick="applyPreset(0)" class="preset-btn px-4 py-1.5 text-sm rounded-2xl border border-emerald-400/40 hover:bg-emerald-400/10 active" id="preset-0">Balanced Genesis</button>
+                        <button onclick="applyPreset(1)" class="preset-btn px-4 py-1.5 text-sm rounded-2xl border border-emerald-400/40 hover:bg-emerald-400/10" id="preset-1">Compassion Council</button>
+                        <button onclick="applyPreset(2)" class="preset-btn px-4 py-1.5 text-sm rounded-2xl border border-emerald-400/40 hover:bg-emerald-400/10" id="preset-2">Abundance Council</button>
+                        <button onclick="applyPreset(3)" class="preset-btn px-4 py-1.5 text-sm rounded-2xl border border-emerald-400/40 hover:bg-emerald-400/10" id="preset-3">Harmonic Council</button>
+                        <button onclick="applyPreset(4)" class="preset-btn px-4 py-1.5 text-sm rounded-2xl border border-emerald-400/40 hover:bg-emerald-400/10" id="preset-4">Truth-Seeker</button>
                     </div>
                 </div>
 
                 <div id="controls" class="space-y-8"></div>
 
                 <div class="mt-8 flex gap-4">
-                    <button onclick="generateShard()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 transition-colors py-5 rounded-3xl text-lg font-semibold flex items-center justify-center gap-3">
-                        <i class="fa-solid fa-bolt"></i> FORGE SOVEREIGN SHARD
+                    <button onclick="generateShard()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 transition-colors py-5 rounded-3xl text-lg font-semibold flex items-center justify-center gap-3" id="forge-btn">
+                        <i class="fa-solid fa-bolt"></i> <span id="forge-btn-text">FORGE SOVEREIGN SHARD</span>
                     </button>
-                    <button onclick="resetWeights()" class="px-6 border border-zinc-700 hover:border-zinc-400 rounded-3xl text-sm font-medium">RESET</button>
+                    <button onclick="resetWeights()" class="px-6 border border-zinc-700 hover:border-zinc-400 rounded-2xl text-sm font-medium">RESET</button>
                 </div>
             </div>
 
@@ -73,7 +61,7 @@
                 <h2 class="text-2xl font-semibold mb-6">Live Sovereign Shard Preview</h2>
                 <div id="preview">
                     <div id="shard-card" class="bg-gradient-to-br from-zinc-800 to-zinc-950 rounded-3xl p-8 flex flex-col justify-center items-center text-center min-h-[420px]">
-                        <div id="shard-name" class="text-3xl font-semibold mb-4">— Waiting for Forge —</div>
+                        <div id="shard-name" class="text-3xl font-semibold mb-4">— Generating —</div>
                         <div class="w-full h-4 bg-zinc-800 rounded-2xl overflow-hidden mb-8">
                             <div id="valence-fill" class="h-full bg-emerald-400 transition-all duration-500 w-0"></div>
                         </div>
@@ -85,7 +73,7 @@
                         </div>
                     </div>
 
-                    <div id="export-bar" class="mt-6 hidden flex gap-4">
+                    <div id="export-bar" class="mt-6 flex gap-4">
                         <button onclick="exportShard()" class="flex-1 py-4 rounded-2xl bg-white text-zinc-950 font-semibold">Export JSON</button>
                         <button onclick="exportHTML()" class="flex-1 py-4 rounded-2xl border border-white font-semibold">Export Standalone HTML</button>
                     </div>
@@ -117,7 +105,6 @@
         let weights = {};
         let currentShard = null;
 
-        // Web Crypto helpers for sovereignty-aligned integrity
         function generateSecureId(prefix = 'ss') {
             const array = new Uint8Array(16);
             crypto.getRandomValues(array);
@@ -125,17 +112,8 @@
             return `${prefix}-${hex}`;
         }
 
-        async function sha256(message) {
-            const encoder = new TextEncoder();
-            const data = encoder.encode(message);
-            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-            const hashArray = Array.from(new Uint8Array(hashBuffer));
-            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-        }
-
         function initControls() {
             const container = document.getElementById('controls');
-
             gates.forEach(gate => {
                 const div = document.createElement('div');
                 div.className = 'flex items-center gap-6';
@@ -168,7 +146,6 @@
             gates.forEach(gate => {
                 const slider = document.getElementById(`slider-${gate.key}`);
                 const valueEl = document.getElementById(`value-${gate.key}`);
-
                 if (slider && valueEl) {
                     slider.value = preset[gate.key];
                     valueEl.textContent = preset[gate.key].toFixed(2);
@@ -179,14 +156,6 @@
             clearActivePreset();
             const btn = document.getElementById(`preset-${index}`);
             if (btn) btn.classList.add('active', 'bg-emerald-400', 'text-black', 'border-emerald-400');
-
-            if (!silent) {
-                const preview = document.getElementById('shard-card');
-                if (preview) {
-                    preview.style.boxShadow = '0 0 0 3px #10b98133';
-                    setTimeout(() => { preview.style.boxShadow = 'none'; }, 500);
-                }
-            }
         }
 
         function clearActivePreset() {
@@ -202,19 +171,12 @@
             return Math.min(1.0, total / 8 * 0.92);
         }
 
-        function getBalanceScore() {
-            const values = Object.values(state.epigenetic);
-            const mean = values.reduce((a, b) => a + b, 0) / values.length;
-            const variance = values.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / values.length;
-            return Math.max(0, (1 - Math.sqrt(variance) * 2)).toFixed(2);
-        }
-
         function generateShard() {
             const valence = calculateValence();
             currentShard = {
                 name: "Sovereign Shard #" + Math.floor(Math.random() * 9999),
                 shardId: generateSecureId('ss'),
-                lineageRootHash: null,           // Set on first lineage entry using Web Crypto
+                lineageRootHash: null,
                 valence: valence,
                 weights: {...weights},
                 evolution: Math.floor(valence * 420),
@@ -229,17 +191,17 @@
             document.getElementById('mercy-value').textContent = currentShard.mercy;
             document.getElementById('harmony-value').textContent = currentShard.harmony;
 
-            document.getElementById('export-bar').classList.remove('hidden');
+            document.getElementById('forge-btn-text').textContent = 'RE-FORGE SHARD';
         }
 
         function resetWeights() {
             applyPreset(0);
-            document.getElementById('export-bar').classList.add('hidden');
             currentShard = null;
+            document.getElementById('forge-btn-text').textContent = 'FORGE SOVEREIGN SHARD';
         }
 
         function exportShard() {
-            if (!currentShard) return;
+            if (!currentShard) { alert("Please forge a shard first."); return; }
             const data = JSON.stringify(currentShard, null, 2);
             const blob = new Blob([data], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
@@ -257,691 +219,38 @@
 
             const weightsStr = JSON.stringify(currentShard.weights, null, 2);
 
+            // Self-contained secure ID generator for exported file
+            const exportIdScript = `
+                function generateSecureId(prefix = 'ss') {
+                    const array = new Uint8Array(16);
+                    crypto.getRandomValues(array);
+                    return prefix + '-' + Array.from(array).map(b => b.toString(16).padStart(2,'0')).join('');
+                }
+            `;
+
             const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>${currentShard.name} • Ra-Thor Sovereign Shard</title>
 <script src="https://cdn.tailwindcss.com"><\/script>
-<style>
-    body { font-family: system-ui, sans-serif; }
-    .btn { transition: all 0.2s ease; }
-    .btn:active { transform: scale(0.96); }
-    .metric { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
-    .gate-bar { transition: width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.4s ease; }
-    .lineage-entry { transition: all 0.2s ease; cursor: pointer; }
-</style>
+<style>body { font-family: system-ui, sans-serif; } .metric { transition: all 0.4s ease; }</style>
 </head>
 <body class="bg-zinc-950 text-white p-8 max-w-5xl mx-auto">
     <h1 class="text-4xl font-bold mb-2">${currentShard.name}</h1>
     <p class="text-emerald-400 mb-8">Generated by Ra-Thor Web-Forge v14.0.0 • TOLC8 Weighted</p>
 
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-        <div class="bg-zinc-900 p-4 rounded-2xl metric"><div class="text-sm text-zinc-400">Valence</div><div id="val" class="text-3xl font-mono">${currentShard.valence.toFixed(6)}</div></div>
-        <div class="bg-zinc-900 p-4 rounded-2xl metric"><div class="text-sm text-zinc-400">Evolution</div><div id="evo" class="text-3xl font-mono">${currentShard.evolution}</div></div>
-        <div class="bg-zinc-900 p-4 rounded-2xl metric"><div class="text-sm text-zinc-400">Mercy Score</div><div id="mercy" class="text-3xl font-mono">${currentShard.mercy}</div></div>
-        <div class="bg-zinc-900 p-4 rounded-2xl metric"><div class="text-sm text-zinc-400">Harmony</div><div id="harmony" class="text-3xl font-mono">${currentShard.harmony}</div></div>
+        <div class="bg-zinc-900 p-4 rounded-2xl metric"><div class="text-sm text-zinc-400">Valence</div><div class="text-3xl font-mono">${currentShard.valence.toFixed(6)}</div></div>
+        <div class="bg-zinc-900 p-4 rounded-2xl metric"><div class="text-sm text-zinc-400">Evolution</div><div class="text-3xl font-mono">${currentShard.evolution}</div></div>
+        <div class="bg-zinc-900 p-4 rounded-2xl metric"><div class="text-sm text-zinc-400">Mercy Score</div><div class="text-3xl font-mono">${currentShard.mercy}</div></div>
+        <div class="bg-zinc-900 p-4 rounded-2xl metric"><div class="text-sm text-zinc-400">Harmony</div><div class="text-3xl font-mono">${currentShard.harmony}</div></div>
     </div>
-
-    <div class="flex gap-4 mb-8">
-        <button onclick="doTick()" class="flex-1 py-4 bg-emerald-600 hover:bg-emerald-500 rounded-2xl font-semibold btn">Advance Tick</button>
-        <button onclick="doReconcile()" class="flex-1 py-4 border border-white rounded-2xl font-semibold btn">Deep Reconciliation</button>
-    </div>
-
-    <!-- Metrics Header -->
-    <div class="mb-2 flex items-end justify-between">
-        <h3 class="text-xl font-semibold">TOLC8 Metrics</h3>
-        <div class="flex gap-6 text-sm">
-            <div>
-                <span class="text-emerald-400">Resonance:</span>
-                <span id="resonance-strength" class="font-mono font-semibold text-emerald-400 ml-1">0.000000</span>
-            </div>
-            <div>
-                <span class="text-emerald-400">Balance:</span>
-                <span id="balance-score" class="font-mono font-semibold text-emerald-400 ml-1">0.00</span>
-            </div>
-        </div>
-    </div>
-
-    <!-- Visual TOLC8 Gate Dashboard -->
-    <div class="mb-8">
-        <div class="bg-zinc-900 rounded-3xl p-6 space-y-4" id="gate-dashboard">
-            <!-- Populated dynamically by JS -->
-        </div>
-        <div class="mt-2 px-1 flex justify-between items-center">
-            <div class="text-xs text-white/40">Gates evolve through participation. Stronger resonance = wider bars.</div>
-            <div class="text-[10px] text-emerald-400/70">Balance rewards even development across all 8 gates</div>
-        </div>
-    </div>
-
-    <!-- Gate Resonance + Shift History -->
-    <div class="mb-8">
-        <div class="flex items-center justify-between mb-3">
-            <h3 class="text-xl font-semibold">Gate Resonance</h3>
-        </div>
-
-        <div id="resonance-panel" class="bg-zinc-900 rounded-2xl p-5 text-sm grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-2"></div>
-
-        <div class="mt-4">
-            <div class="text-sm text-emerald-400 mb-1 font-medium">Recent Shifts</div>
-            <div id="shift-history" class="bg-zinc-900 rounded-2xl p-4 text-sm min-h-[90px]"></div>
-        </div>
-    </div>
-
-    <!-- Epigenetic Lineage Tracking (Interactive + Stats) -->
-    <div class="mb-8 border border-emerald-900/40 bg-emerald-950/10 rounded-3xl p-6">
-        <div class="flex items-center justify-between mb-4">
-            <div>
-                <h4 class="text-emerald-400 font-semibold">Epigenetic Lineage</h4>
-                <p class="text-xs text-white/50">Click entries to restore historical states</p>
-            </div>
-            <div class="flex gap-2">
-                <button onclick="showLineageStats()" class="text-xs px-3 py-1 border border-emerald-700 hover:bg-emerald-900/30 rounded-2xl">Stats</button>
-                <button onclick="exportLineage()" class="text-xs px-3 py-1 border border-emerald-700 hover:bg-emerald-900/30 rounded-2xl">Export</button>
-                <button onclick="clearLineage()" class="text-xs px-3 py-1 border border-zinc-700 hover:bg-zinc-800 rounded-2xl">Clear</button>
-            </div>
-        </div>
-
-        <!-- Search -->
-        <div class="mb-3">
-            <input type="text" id="lineage-search" placeholder="Search actions or gates..." 
-                   oninput="filterLineage()" 
-                   class="w-full bg-zinc-950 border border-white/20 text-sm px-3 py-2 rounded-2xl placeholder:text-white/40 focus:outline-none focus:border-emerald-600">
-        </div>
-
-        <div id="lineage-summary" class="mb-2 px-1 text-xs text-white/60"></div>
-
-        <div id="lineage-panel" class="bg-zinc-950 rounded-2xl p-4 max-h-[320px] overflow-y-auto text-sm">
-            <!-- Populated dynamically -->
-        </div>
-
-        <div class="mt-3 text-[10px] text-white/40 px-1">
-            Snapshots + high-accuracy reconstruction enabled. Lineage integrity protected with Web Crypto. Click any entry to restore that historical state.
-        </div>
-    </div>
-
-    <!-- Debug / Simulation Tools -->
-    <div class="mb-8 border border-zinc-800 rounded-3xl p-5">
-        <div class="flex items-center justify-between mb-3">
-            <h4 class="text-sm font-semibold text-emerald-400">Debug & Simulation Tools</h4>
-            <button onclick="resetShardState()" class="text-xs px-3 py-1 border border-zinc-700 hover:bg-zinc-800 rounded-2xl">Reset Shard</button>
-        </div>
-
-        <div class="flex flex-wrap gap-2">
-            <button onclick="simulateTicks(5)" class="px-4 py-2 text-sm bg-zinc-800 hover:bg-zinc-700 rounded-2xl">Tick ×5</button>
-            <button onclick="simulateReconciles(5)" class="px-4 py-2 text-sm bg-zinc-800 hover:bg-zinc-700 rounded-2xl">Reconcile ×5</button>
-            <button onclick="simulateBalanced(5)" class="px-4 py-2 text-sm bg-emerald-900 hover:bg-emerald-800 rounded-2xl">Balanced ×5</button>
-        </div>
-
-        <div id="debug-panel" class="mt-4 text-xs font-mono bg-zinc-950 p-3 rounded-2xl hidden"></div>
-    </div>
-
-    <!-- Automated Strategy Testing Bots -->
-    <div class="mb-8 border border-emerald-900/50 bg-emerald-950/20 rounded-3xl p-6">
-        <h4 class="text-emerald-400 font-semibold mb-3">Automated Strategy Testing Bots</h4>
-        <p class="text-xs text-white/50 mb-4">Test different strategies with configurable steps.</p>
-
-        <div class="flex items-center gap-2 mb-4">
-            <span class="text-xs text-white/60">Steps:</span>
-            <button onclick="setBotSteps(20)" id="steps-20" class="px-3 py-1 text-xs rounded-2xl border border-emerald-400/40 hover:bg-emerald-400/10">20</button>
-            <button onclick="setBotSteps(50)" id="steps-50" class="px-3 py-1 text-xs rounded-2xl border border-emerald-400 bg-emerald-400 text-black">50</button>
-            <button onclick="setBotSteps(100)" id="steps-100" class="px-3 py-1 text-xs rounded-2xl border border-emerald-400/40 hover:bg-emerald-400/10">100</button>
-        </div>
-
-        <div class="flex flex-wrap gap-2 mb-4">
-            <button onclick="runBot('tick')" class="px-4 py-2 text-sm bg-zinc-800 hover:bg-zinc-700 rounded-2xl">Tick Bot</button>
-            <button onclick="runBot('reconcile')" class="px-4 py-2 text-sm bg-zinc-800 hover:bg-zinc-700 rounded-2xl">Reconcile Bot</button>
-            <button onclick="runBot('balanced')" class="px-4 py-2 text-sm bg-emerald-900 hover:bg-emerald-800 rounded-2xl">Balanced Bot</button>
-            <button onclick="runBot('truthseeker')" class="px-4 py-2 text-sm bg-amber-900 hover:bg-amber-800 rounded-2xl">Truth-Seeker Bot</button>
-            <button onclick="runBot('compassion')" class="px-4 py-2 text-sm bg-rose-900 hover:bg-rose-800 rounded-2xl">Compassion Council Bot</button>
-        </div>
-
-        <div id="bot-results" class="hidden bg-zinc-950 rounded-2xl p-4 text-sm">
-            <div class="font-semibold mb-2 text-emerald-400">Last Bot Results</div>
-            <div id="bot-results-content"></div>
-        </div>
-    </div>
-
-    <h3 class="text-xl font-semibold mb-3">TOLC8 Gate Weights</h3>
-    <pre class="bg-zinc-900 p-6 rounded-2xl text-sm overflow-auto">${weightsStr}</pre>
 
     <script>
-        let state = {
-            shardId: "${currentShard?.shardId || generateSecureId('ss')}",
-            lineageRootHash: null,
-            valence: ${currentShard.valence},
-            evolution: ${currentShard.evolution},
-            mercy: ${currentShard.mercy},
-            harmony: parseFloat(${currentShard.harmony}),
-            epigenetic: { truth: 0, order: 0, love: 0, compassion: 0, service: 0, abundance: 0, joy: 0, cosmicHarmony: 0 },
-            shiftHistory: [],
-            lineage: [],
-            fusionSignature: null
-        };
-
-        let selectedLineageIndex = null;
-
-        const gateLabels = {
-            truth: 'Truth', order: 'Order', love: 'Love', compassion: 'Compassion',
-            service: 'Service', abundance: 'Abundance', joy: 'Joy', cosmicHarmony: 'Cosmic Harmony'
-        };
-
-        function recordLineage(action, beforeEpigenetic, extraMetadata = {}) {
-            if (!state.lineage) state.lineage = [];
-
-            const afterEpigenetic = { ...state.epigenetic };
-            const deltas = {};
-
-            Object.keys(afterEpigenetic).forEach(key => {
-                const diff = (afterEpigenetic[key] || 0) - (beforeEpigenetic[key] || 0);
-                if (Math.abs(diff) > 0.0001) {
-                    deltas[key] = parseFloat(diff.toFixed(4));
-                }
-            });
-
-            const entry = {
-                timestamp: new Date().toISOString(),
-                action: action,
-                deltas: deltas,
-                balanceAfter: parseFloat(getBalanceScore()),
-                resonanceAfter: parseFloat(getResonanceStrength().toFixed(2)),
-                snapshot: null,
-                ...extraMetadata
-            };
-
-            if (state.lineage.length % 18 === 0) {
-                entry.snapshot = { ...state.epigenetic };
-            }
-
-            if (!state.lineageRootHash && state.lineage.length === 0) {
-                state.lineageRootHash = 'pending-first-entry';
-            }
-
-            state.lineage.unshift(entry);
-
-            if (state.lineage.length > 300) state.lineage.pop();
-
-            renderLineage();
-        }
-
-        function renderLineage(filteredEntries = null) {
-            const container = document.getElementById('lineage-panel');
-            const summaryContainer = document.getElementById('lineage-summary');
-            if (!container) return;
-
-            let entriesToShow = filteredEntries || state.lineage;
-
-            if (!entriesToShow || entriesToShow.length === 0) {
-                container.innerHTML = `<div class="text-white/40 text-sm py-6 text-center">No lineage recorded yet.</div>`;
-                if (summaryContainer) summaryContainer.innerHTML = '';
-                return;
-            }
-
-            if (summaryContainer) {
-                summaryContainer.innerHTML = `<span class="font-medium">${state.lineage.length} entries</span>`;
-            }
-
-            let html = '';
-            entriesToShow.slice(0, 50).forEach((entry, idx) => {
-                const originalIndex = state.lineage.indexOf(entry);
-                const actionColor = entry.action.includes('Tick') ? 'text-amber-400' : 
-                                  entry.action.includes('Reconcile') ? 'text-sky-400' : 'text-emerald-400';
-
-                const deltaText = Object.entries(entry.deltas || {}).map(([k, v]) => 
-                    `${gateLabels[k] || k}: <span class="${v > 0 ? 'text-emerald-400' : 'text-rose-400'}">${v > 0 ? '+' : ''}${v}</span>`
-                ).join(' &nbsp;');
-
-                const snapshotBadge = entry.snapshot ? `<span class="ml-2 text-[9px] px-1.5 py-px bg-emerald-900/60 rounded">SNAP</span>` : '';
-                const isSelected = selectedLineageIndex === originalIndex ? 'selected' : '';
-
-                html += `
-                    <div onclick="selectLineageEntry(${originalIndex})" class="lineage-entry flex justify-between items-start py-[5px] px-3 border-b border-white/10 text-xs ${isSelected}">
-                        <div class="flex-1 min-w-0">
-                            <span class="font-medium ${actionColor}">${entry.action}</span>${snapshotBadge}
-                            <div class="text-white/60 mt-0.5 text-[10px] leading-tight">${deltaText || '<span class="italic">No significant delta</span>'}</div>
-                        </div>
-                        <div class="text-right text-white/50 ml-4 whitespace-nowrap">
-                            <div>Bal: ${entry.balanceAfter}</div>
-                        </div>
-                    </div>
-                `;
-            });
-
-            container.innerHTML = html;
-        }
-
-        function selectLineageEntry(index) {
-            selectedLineageIndex = index;
-            renderLineage();
-
-            const entry = state.lineage[index];
-            if (!entry) return;
-
-            if (confirm(`Restore shard to this point in history?\n\nAction: ${entry.action}\nBalance: ${entry.balanceAfter}`)) {
-                restoreStateFromLineage(index);
-            }
-        }
-
-        function restoreStateFromLineage(index) {
-            const reconstructed = reconstructStateAt(index);
-            if (!reconstructed) {
-                alert("Could not reconstruct state.");
-                return;
-            }
-
-            state.epigenetic = reconstructed;
-            const newBalance = parseFloat(getBalanceScore());
-            const newResonance = getResonanceStrength();
-
-            updateDisplay(true);
-            recordShift(`Restored to lineage entry #${index}`);
-            alert(`State restored from lineage entry #${index}.\nNew Balance: ${newBalance}`);
-        }
-
-        function filterLineage() {
-            const searchInput = document.getElementById('lineage-search');
-            if (!searchInput) return;
-
-            const query = searchInput.value.toLowerCase().trim();
-
-            if (!query) {
-                renderLineage();
-                return;
-            }
-
-            const filtered = state.lineage.filter(entry => {
-                if (entry.action.toLowerCase().includes(query)) return true;
-                if (entry.deltas) {
-                    return Object.keys(entry.deltas).some(key => 
-                        gateLabels[key]?.toLowerCase().includes(query)
-                    );
-                }
-                return false;
-            });
-
-            renderLineage(filtered);
-        }
-
-        function exportLineage() {
-            if (!state.lineage || state.lineage.length === 0) {
-                alert("No lineage to export.");
-                return;
-            }
-            const dataStr = JSON.stringify(state.lineage, null, 2);
-            const blob = new Blob([dataStr], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `${currentShard?.name || 'shard'}-lineage.json`;
-            a.click();
-        }
-
-        function clearLineage() {
-            if (confirm('Clear all epigenetic lineage history?')) {
-                state.lineage = [];
-                selectedLineageIndex = null;
-                renderLineage();
-            }
-        }
-
-        function showLineageStats() {
-            if (!state.lineage || state.lineage.length === 0) {
-                alert("No lineage data available.");
-                return;
-            }
-
-            const total = state.lineage.length;
-            let tickCount = 0, reconcileCount = 0;
-            const gateChanges = {};
-
-            state.lineage.forEach(entry => {
-                if (entry.action.includes('Tick')) tickCount++;
-                if (entry.action.includes('Reconcile')) reconcileCount++;
-
-                if (entry.deltas) {
-                    Object.keys(entry.deltas).forEach(gate => {
-                        gateChanges[gate] = (gateChanges[gate] || 0) + 1;
-                    });
-                }
-            });
-
-            const mostActiveGate = Object.entries(gateChanges).sort((a, b) => b[1] - a[1])[0];
-
-            const statsText = `
-Epigenetic Lineage Statistics
-
-Total Entries: ${total}
-Tick Actions: ${tickCount}
-Reconcile Actions: ${reconcileCount}
-
-Most Active Gate: ${mostActiveGate ? gateLabels[mostActiveGate[0]] : 'N/A'} (${mostActiveGate ? mostActiveGate[1] : 0} changes)
-            `;
-
-            alert(statsText);
-        }
-
-        function reconstructStateAt(index) {
-            if (!state.lineage || index >= state.lineage.length) return null;
-
-            let snapshotIndex = -1;
-            let snapshotState = null;
-
-            for (let i = index; i < state.lineage.length; i++) {
-                if (state.lineage[i].snapshot) {
-                    snapshotIndex = i;
-                    snapshotState = { ...state.lineage[i].snapshot };
-                    break;
-                }
-            }
-
-            if (!snapshotState) {
-                snapshotState = { ...state.epigenetic };
-                snapshotIndex = state.lineage.length;
-            }
-
-            for (let i = snapshotIndex - 1; i >= index; i--) {
-                const entry = state.lineage[i];
-                if (!entry.deltas) continue;
-
-                Object.entries(entry.deltas).forEach(([key, delta]) => {
-                    snapshotState[key] = Math.max(0, (snapshotState[key] || 0) + delta);
-                });
-            }
-
-            return snapshotState;
-        }
-
-        function setBotSteps(steps) {
-            botSteps = steps;
-            document.getElementById('steps-20').classList.remove('bg-emerald-400', 'text-black');
-            document.getElementById('steps-50').classList.remove('bg-emerald-400', 'text-black');
-            document.getElementById('steps-100').classList.remove('bg-emerald-400', 'text-black');
-
-            if (steps === 20) document.getElementById('steps-20').classList.add('bg-emerald-400', 'text-black');
-            if (steps === 50) document.getElementById('steps-50').classList.add('bg-emerald-400', 'text-black');
-            if (steps === 100) document.getElementById('steps-100').classList.add('bg-emerald-400', 'text-black');
-        }
-
-        function getResonanceStrength() {
-            return Object.values(state.epigenetic).reduce((sum, val) => sum + (val || 0), 0);
-        }
-
-        function getBalanceScore() {
-            const values = Object.values(state.epigenetic);
-            const mean = values.reduce((a, b) => a + b, 0) / values.length;
-            const variance = values.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / values.length;
-            return Math.max(0, (1 - Math.sqrt(variance) * 2)).toFixed(2);
-        }
-
-        function updateDisplay(flash = false, pulsedKeys = []) {
-            document.getElementById('val').textContent = state.valence.toFixed(6);
-            document.getElementById('evo').textContent = Math.floor(state.evolution);
-            document.getElementById('mercy').textContent = Math.floor(state.mercy);
-            document.getElementById('harmony').textContent = state.harmony.toFixed(2);
-
-            const strengthEl = document.getElementById('resonance-strength');
-            if (strengthEl) strengthEl.textContent = getResonanceStrength().toFixed(2);
-
-            const balanceEl = document.getElementById('balance-score');
-            if (balanceEl) balanceEl.textContent = getBalanceScore();
-
-            if (flash) {
-                const metrics = document.querySelectorAll('.metric');
-                metrics.forEach(m => { m.style.boxShadow = '0 0 0 2px #10b981'; setTimeout(() => m.style.boxShadow = '', 500); });
-            }
-
-            renderGateDashboard(pulsedKeys);
-            renderResonance();
-            renderShiftHistory();
-            updateDebugPanel();
-            renderLineage();
-        }
-
-        function renderGateDashboard(pulsedKeys = []) {
-            const container = document.getElementById('gate-dashboard');
-            container.innerHTML = '';
-
-            Object.keys(state.epigenetic).forEach(key => {
-                const value = state.epigenetic[key] || 0;
-                const percentage = Math.min(100, Math.round(value * 100));
-
-                const intensity = Math.max(0.55, Math.min(1, value / 0.75));
-                const barColor = `rgba(52, 211, 153, ${intensity})`;
-
-                const row = document.createElement('div');
-                row.className = 'gate-row group space-y-1.5';
-
-                const isPulsed = pulsedKeys.includes(key);
-                const pulseClass = isPulsed ? 'pulse' : '';
-
-                row.innerHTML = `
-                    <div class="flex justify-between text-sm">
-                        <span class="text-white/80">${gateLabels[key]}</span>
-                        <span class="font-mono text-emerald-400">${value.toFixed(2)}</span>
-                    </div>
-                    <div class="h-3.5 bg-zinc-800 rounded-full overflow-hidden cursor-help" title="${gateDescriptions[key]}">
-                        <div class="h-3.5 gate-bar rounded-full shadow-[0_0_8px_rgba(52,211,153,0.35)] ${pulseClass}" 
-                             style="width: ${percentage}%; background-color: ${barColor};">
-                        </div>
-                    </div>
-                `;
-
-                row.addEventListener('mouseenter', () => { row.style.boxShadow = '0 0 0 1px #10b98133'; });
-                row.addEventListener('mouseleave', () => { row.style.boxShadow = 'none'; });
-
-                container.appendChild(row);
-            });
-        }
-
-        function renderResonance() {
-            const panel = document.getElementById('resonance-panel');
-            panel.innerHTML = '';
-
-            Object.keys(state.epigenetic).forEach(key => {
-                const value = state.epigenetic[key] || 0;
-                const div = document.createElement('div');
-                div.className = 'flex justify-between items-center resonance py-0.5';
-                div.innerHTML = `
-                    <span class="text-white/70">${gateLabels[key]}</span>
-                    <span class="resonance-value font-mono">${value > 0 ? '+' : ''}${value.toFixed(2)}</span>
-                `;
-                panel.appendChild(div);
-            });
-        }
-
-        function renderShiftHistory() {
-            const container = document.getElementById('shift-history');
-            if (!state.shiftHistory || state.shiftHistory.length === 0) {
-                container.innerHTML = '<span class="text-white/40">No shifts recorded yet.</span>';
-                return;
-            }
-
-            container.innerHTML = state.shiftHistory.map(shift => `
-                <div class="flex justify-between items-center py-[1px]">
-                    <span class="text-white/80 text-sm">${shift.action}</span>
-                    <span class="text-emerald-400 font-mono text-[10px]">${shift.time}</span>
-                </div>
-            `).join('');
-        }
-
-        function recordShift(action) {
-            if (!state.shiftHistory) state.shiftHistory = [];
-            state.shiftHistory.unshift({ action, time: new Date().toLocaleTimeString() });
-            if (state.shiftHistory.length > 6) state.shiftHistory.pop();
-        }
-
-        function updateDebugPanel() {
-            const panel = document.getElementById('debug-panel');
-            if (!panel) return;
-
-            panel.classList.remove('hidden');
-            panel.innerHTML = Object.keys(state.epigenetic).map(key => {
-                return `${gateLabels[key]}: <span class="text-emerald-400">${(state.epigenetic[key] || 0).toFixed(3)}</span>`;
-            }).join(' &nbsp; | &nbsp; ');
-        }
-
-        function simulateTicks(count) {
-            for (let i = 0; i < count; i++) {
-                doTick();
-            }
-        }
-
-        function simulateReconciles(count) {
-            for (let i = 0; i < count; i++) {
-                doReconcile();
-            }
-        }
-
-        function simulateBalanced(count) {
-            for (let i = 0; i < count; i++) {
-                if (i % 2 === 0) doTick();
-                else doReconcile();
-            }
-        }
-
-        function resetShardState() {
-            state.epigenetic = { truth: 0, order: 0, love: 0, compassion: 0, service: 0, abundance: 0, joy: 0, cosmicHarmony: 0 };
-            state.shiftHistory = [];
-            state.lineage = [];
-            selectedLineageIndex = null;
-            updateDisplay();
-        }
-
-        function runBot(type) {
-            const steps = botSteps;
-            const beforeResonance = getResonanceStrength();
-            const beforeBalance = parseFloat(getBalanceScore());
-
-            for (let i = 0; i < steps; i++) {
-                if (type === 'tick') {
-                    doTick();
-                } else if (type === 'reconcile') {
-                    doReconcile();
-                } else if (type === 'balanced') {
-                    if (i % 2 === 0) doTick();
-                    else doReconcile();
-                } else if (type === 'truthseeker') {
-                    if ((state.epigenetic.truth || 0) < 0.3) state.epigenetic.truth = Math.min(0.3, (state.epigenetic.truth || 0) + 0.008);
-                    if ((state.epigenetic.order || 0) < 0.3) state.epigenetic.order = Math.min(0.3, (state.epigenetic.order || 0) + 0.008);
-                    doTick();
-                } else if (type === 'compassion') {
-                    if ((state.epigenetic.compassion || 0) < 0.35) state.epigenetic.compassion = Math.min(0.35, (state.epigenetic.compassion || 0) + 0.01);
-                    if ((state.epigenetic.service || 0) < 0.35) state.epigenetic.service = Math.min(0.35, (state.epigenetic.service || 0) + 0.009);
-                    if ((state.epigenetic.love || 0) < 0.3) state.epigenetic.love = Math.min(0.3, (state.epigenetic.love || 0) + 0.007);
-                    doReconcile();
-                }
-            }
-
-            const afterResonance = getResonanceStrength();
-            const afterBalance = parseFloat(getBalanceScore());
-
-            const resultsDiv = document.getElementById('bot-results');
-            const content = document.getElementById('bot-results-content');
-
-            let label = {
-                tick: 'Tick Bot',
-                reconcile: 'Reconcile Bot',
-                balanced: 'Balanced Bot',
-                truthseeker: 'Truth-Seeker Bot',
-                compassion: 'Compassion Council Bot'
-            }[type] || type;
-
-            content.innerHTML = `
-                <div class="mb-1"><span class="text-white/60">Strategy:</span> <span class="font-semibold">${label} ×${steps}</span></div>
-                <div class="grid grid-cols-2 gap-x-6 text-xs">
-                    <div>Resonance: <span class="text-emerald-400">${beforeResonance.toFixed(2)}</span> → <span class="text-emerald-400">${afterResonance.toFixed(2)}</span></div>
-                    <div>Balance: <span class="text-emerald-400">${beforeBalance}</span> → <span class="text-emerald-400">${afterBalance}</span></div>
-                </div>
-            `;
-
-            resultsDiv.classList.remove('hidden');
-        }
-
-        function doTick() {
-            const beforeEpigenetic = { ...state.epigenetic };
-
-            state.evolution += 5;
-            state.mercy = Math.min(140, state.mercy + 2);
-            state.valence = Math.min(1.0, state.valence + 0.004);
-
-            const pulsed = [];
-
-            if ((state.epigenetic.truth || 0) < 0.25) {
-                state.epigenetic.truth = Math.min(0.25, (state.epigenetic.truth || 0) + 0.006);
-                pulsed.push('truth');
-            }
-            if ((state.epigenetic.order || 0) < 0.25) {
-                state.epigenetic.order = Math.min(0.25, (state.epigenetic.order || 0) + 0.006);
-                pulsed.push('order');
-            }
-
-            const beforeAbundance = state.epigenetic.abundance || 0;
-            const beforeJoy = state.epigenetic.joy || 0;
-
-            state.epigenetic.abundance = Math.min(0.28, beforeAbundance + 0.009);
-            state.epigenetic.joy = Math.min(0.28, beforeJoy + 0.007);
-
-            if (!pulsed.includes('abundance')) pulsed.push('abundance');
-            if (!pulsed.includes('joy')) pulsed.push('joy');
-
-            recordShift('Tick → Truth + Order + Abundance + Joy');
-            recordLineage('Tick', beforeEpigenetic);
-            updateDisplay(true, pulsed);
-        }
-
-        function doReconcile() {
-            const beforeEpigenetic = { ...state.epigenetic };
-
-            state.mercy = Math.min(140, state.mercy + 14);
-            state.valence = Math.min(1.0, state.valence + 0.03);
-            state.harmony = Math.min(3.0, state.harmony + 0.15);
-
-            if (state.harmony > 2.0) state.mercy = Math.min(140, state.mercy + 6);
-
-            const pulsed = [];
-
-            if ((state.epigenetic.love || 0) < 0.28) {
-                state.epigenetic.love = Math.min(0.28, (state.epigenetic.love || 0) + 0.007);
-                pulsed.push('love');
-            }
-
-            const beforeCompassion = state.epigenetic.compassion || 0;
-            const beforeService = state.epigenetic.service || 0;
-
-            state.epigenetic.compassion = Math.min(0.32, beforeCompassion + 0.028);
-            state.epigenetic.service = Math.min(0.32, beforeService + 0.022);
-            state.epigenetic.cosmicHarmony = Math.min(0.32, (state.epigenetic.cosmicHarmony || 0) + 0.018);
-
-            pulsed.push('compassion', 'service', 'cosmicHarmony');
-
-            recordShift('Reconcile → Love + Compassion + Service + Harmony');
-            recordLineage('Reconcile', beforeEpigenetic);
-            updateDisplay(true, pulsed);
-        }
-
-        window.onload = () => {
-            const saved = localStorage.getItem('generated-shard-state');
-            if (saved) {
-                try {
-                    state = JSON.parse(saved);
-                    if (!state.epigenetic) state.epigenetic = { truth: 0, order: 0, love: 0, compassion: 0, service: 0, abundance: 0, joy: 0, cosmicHarmony: 0 };
-                    if (!state.shiftHistory) state.shiftHistory = [];
-                    if (!state.lineage) state.lineage = [];
-                    if (!state.shardId) state.shardId = generateSecureId('ss');
-                    if (!state.hasOwnProperty('lineageRootHash')) state.lineageRootHash = null;
-                    if (!state.hasOwnProperty('fusionSignature')) state.fusionSignature = null;
-                    updateDisplay();
-                } catch(e) {}
-            }
-
-            document.getElementById('steps-50').classList.add('bg-emerald-400', 'text-black');
-        };
-
-        setInterval(() => {
-            localStorage.setItem('generated-shard-state', JSON.stringify(state));
-        }, 4000);
-    </script>
+        ${exportIdScript}
+        console.log('%c[Sovereign Shard] Standalone export loaded successfully', 'color:#10b981');
+    <\/script>
 </body>
 </html>`;
 
@@ -953,7 +262,13 @@ Most Active Gate: ${mostActiveGate ? gateLabels[mostActiveGate[0]] : 'N/A'} (${m
             a.click();
         }
 
-        window.onload = initControls;
+        window.onload = () => {
+            initControls();
+            // Auto-forge a shard on load so the page never looks empty
+            setTimeout(() => {
+                generateShard();
+            }, 150);
+        };
     </script>
 </body>
 </html>
