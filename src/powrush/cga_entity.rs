@@ -1,20 +1,10 @@
 //! CgaEntity — Living Conformal Geometric Entity for Powrush RBE
 //!
-//! This module defines `CgaEntity`, a living object that can be
-//! transformed and healed using Conformal Geometric Algebra (CGA).
-//!
-//! Entities are the core of future player organisms and faction units
-//! in the geometric systems of Powrush.
-//!
-//! # Key Features
-//!
-//! - Position represented as `CgaPoint`
-//! - Transform stored as `Motor`
-//! - Smooth healing via `slerp`
-//! - Convenient helpers like `translate()` and `smooth_heal()`
+//! Represents player organisms, faction units, or geometric beings
+//! using Conformal Geometric Algebra.
 
 use nalgebra::Vector3;
-use crate::powrush::cga_primitives::{CgaPoint, Motor};
+use crate::powrush::cga_primitives::{CgaPoint, Motor, CgaSphere, CgaPlane};
 
 #[derive(Debug, Clone)]
 pub struct CgaEntity {
@@ -80,5 +70,16 @@ impl CgaEntity {
             0.0,
             1.0,
         );
+    }
+
+    /// Checks if this entity intersects a sphere.
+    pub fn intersects_sphere(&self, sphere: &CgaSphere) -> bool {
+        sphere.intersects_point(&self.world_position())
+    }
+
+    /// Checks if this entity intersects a plane.
+    pub fn intersects_plane(&self, plane: &CgaPlane) -> bool {
+        let dist = plane.normal.dot(&self.world_position().to_euclidean()) - plane.distance;
+        dist.abs() <= 0.0 // treating entity as a point for now
     }
 }
