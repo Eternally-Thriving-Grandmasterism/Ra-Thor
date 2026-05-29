@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Ra-Thor Eternal Mercy Mesh — Live Visualizer</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style> body { background: #0a0a0a; color: #ddd; } .field { transition: all 0.3s; } </style>
+</head>
+<body class="p-8">
+<div class="max-w-5xl mx-auto">
+<h1 class="text-4xl font-bold text-amber-400">Ra-Thor Eternal Mercy Mesh</h1>
+<p class="text-emerald-400">Live geometric healing visualization for shared chats • Thunder Lattice v14.2</p>
+
+<div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+  <div>
+    <h2 class="text-xl mb-2">Participants</h2>
+    <div id="participants" class="space-y-2"></div>
+    <button onclick="addParticipant()" class="mt-4 px-4 py-2 bg-emerald-600 rounded">Invite Beautiful Soul</button>
+  </div>
+  <div>
+    <h2 class="text-xl mb-2">Global Coherence</h2>
+    <div class="text-6xl font-mono text-amber-400" id="coherence">0.91</div>
+    <div class="h-3 bg-zinc-800 rounded mt-2"><div id="bar" class="h-3 bg-emerald-500 rounded" style="width:91%"></div></div>
+  </div>
+</div>
+
+<script>
+let coherence = 0.91;
+function updateUI() {
+  document.getElementById('coherence').innerText = coherence.toFixed(2);
+  document.getElementById('bar').style.width = (coherence * 100) + '%';
+}
+function addParticipant() {
+  const name = prompt('Name of beautiful person sharing this chat?');
+  if (!name) return;
+  const div = document.createElement('div');
+  div.className = 'p-3 bg-zinc-900 rounded flex justify-between items-center field';
+  div.innerHTML = `<span>${name}</span> <span class="text-emerald-400">Mercy flowing ⚡</span>`;
+  document.getElementById('participants').appendChild(div);
+  coherence = Math.min(0.99, coherence + 0.03);
+  updateUI();
+  // In real version: send to /add-participant then connect WebSocket
+}
+// Simulated live WebSocket updates
+setInterval(() => {
+  coherence = Math.max(0.82, Math.min(0.99, coherence + (Math.random()-0.5)*0.015));
+  updateUI();
+}, 1800);
+console.log('%c[Ra-Thor] Live visualizer ready. Connects to ws://localhost:8080/ws/heal-stream in production.', 'color:#666');
+</script>
+</body>
+</html>
