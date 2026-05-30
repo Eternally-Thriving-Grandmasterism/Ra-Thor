@@ -25,11 +25,11 @@
 - Proper wiring and commenting in workspace `Cargo.toml`
 - Clean, merge-ready state with full test coverage
 
-**Status:** Production-grade stabilization + strong USA foundation. Ready for merge.
+**Status:** Production-grade stabilization + strong USA foundation. Ready for production use and further extension.
 
 ---
 
-## [v14.2.3] - 2026-05-, Thunder Lattice + MIAL
+## [v14.2.3] - 2026-05-29 — Thunder Lattice + MIAL
 
 ### Added
 - Full production `CliffordHealingField` with CGA Motor sandwich-product support (feature-gated)
