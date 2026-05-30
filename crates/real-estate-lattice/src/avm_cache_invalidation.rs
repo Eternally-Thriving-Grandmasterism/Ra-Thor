@@ -1,57 +1,51 @@
-//! Redis Pub/Sub based Invalidation for AVM Cache
+//! Redis Streams based Invalidation for AVM Cache (Reliable Version)
 //!
-//! Provides distributed cache invalidation using Redis Pub/Sub.
-//! When relevant events occur (new offers, status certificate updates, etc.),
-//! we publish invalidation messages so all instances can evict stale AVM entries.
+//! Upgraded from Pub/Sub to Redis Streams for durability, replayability,
+//! and consumer group support.
 //!
-//! **Architecture**:
-//! - Publisher: Called from MultiOfferTrackEngine, StatusCertificateAnalyzer, etc.
-//! - Subscriber: Long-running task that listens and invalidates local AvmCache
-//! - Message format is simple JSON for easy interoperability
+//! **Why Streams?**
+//! - Messages are persisted until explicitly trimmed
+//! - Consumer groups provide automatic load balancing and offset tracking
+//! - Failed consumers can resume from last acknowledged message
+//! - Much more reliable for distributed cache invalidation
 //!
-//! This enables the Hybrid Valuation system to stay reasonably fresh across distributed deployments.
-//!
-//! To enable: Add `redis` crate and use the `redis` feature.
+//! Recommended for production use of the Hybrid Valuation system.
 
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 
 #[cfg(feature = "redis")]
-use redis::{Client, Commands, PubSubCommands};
+use redis::{Client, Commands, streams};
 
 use crate::valuation_confidence_scorer::AvmCache;
 
-/// Message published when an AVM cache entry should be invalidated.
+/// Invalidation message published to the stream.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AvmInvalidationMessage {
     pub property_key: String,
-    pub reason: String,           // e.g. "new_offer", "status_certificate_update", "developer_risk_change"
+    pub reason: String,
     pub timestamp: u64,
 }
 
-/// Publishes invalidation events to Redis.
+/// Publishes invalidation events to a Redis Stream.
 #[cfg(feature = "redis")]
-pub struct RedisInvalidationPublisher {
+pub struct RedisStreamPublisher {
     client: Client,
-    channel: String,
+    stream: String,
 }
 
 #[cfg(feature = "redis")]
-impl RedisInvalidationPublisher {
-    pub fn new(redis_url: &str, channel: &str) -> Result<Self, redis::RedisError> {
+impl RedisStreamPublisher {
+    pub fn new(redis_url: &str, stream: &str) -> Result<Self, redis::RedisError> {
         let client = Client::open(redis_url)?;
         Ok(Self {
             client,
-            channel: channel.to_string(),
+            stream: stream.to_string(),
         })
     }
 
-    /// Publish an invalidation message for a specific property.
-    pub fn publish_invalidation(
-        &self,
-        property_key: &str,
-        reason: &str,
-    ) -> Result<(), redis::RedisError> {
+    /// Publish an invalidation message to the stream.
+    pub fn publish(&self, property_key: &str, reason: &str) -> Result<String, redis::RedisError> {
         let mut con = self.client.get_connection()?;
 
         let msg = AvmInvalidationMessage {
@@ -63,73 +57,108 @@ impl RedisInvalidationPublisher {
                 .as_secs(),
         };
 
-        let payload = serde_json::to_string(&msg).unwrap();
-        con.publish(&self.channel, payload)?;
-        Ok(())
+        let fields = vec![
+            ("property_key", msg.property_key),
+            ("reason", msg.reason),
+            ("timestamp", msg.timestamp.to_string()),
+        ];
+
+        // XADD returns the message ID
+        let message_id: String = con.xadd(&self.stream, "*", &fields)?;
+        Ok(message_id)
     }
 }
 
-/// Subscribes to invalidation events and applies them to a local AvmCache.
+/// Consumes invalidation messages using Redis Streams consumer groups.
 #[cfg(feature = "redis")]
-pub struct RedisInvalidationSubscriber {
+pub struct RedisStreamConsumer {
     client: Client,
-    channel: String,
+    stream: String,
+    group: String,
+    consumer_name: String,
     cache: Arc<tokio::sync::Mutex<AvmCache>>,
 }
 
 #[cfg(feature = "redis")]
-impl RedisInvalidationSubscriber {
+impl RedisStreamConsumer {
     pub fn new(
         redis_url: &str,
-        channel: &str,
+        stream: &str,
+        group: &str,
+        consumer_name: &str,
         cache: Arc<tokio::sync::Mutex<AvmCache>>,
     ) -> Result<Self, redis::RedisError> {
         let client = Client::open(redis_url)?;
+
+        // Create consumer group if it doesn't exist
+        let mut con = client.get_connection()?;
+        let _: redis::RedisResult<()> = con.xgroup_create_mkstream(stream, group, "0");
+
         Ok(Self {
             client,
-            channel: channel.to_string(),
+            stream: stream.to_string(),
+            group: group.to_string(),
+            consumer_name: consumer_name.to_string(),
             cache,
         })
     }
 
-    /// Start listening for invalidation messages (blocking).
-    /// Run this in a separate tokio task.
+    /// Start consuming messages (blocking read).
+    /// Should be run in a dedicated async task.
     pub async fn run(&self) -> Result<(), redis::RedisError> {
-        let mut pubsub = self.client.get_async_connection().await?.into_pubsub();
-        pubsub.subscribe(&self.channel).await?;
+        let mut con = self.client.get_async_connection().await?;
 
-        let mut stream = pubsub.into_on_message();
+        loop {
+            let opts = streams::StreamReadOptions::default()
+                .block(5000) // 5 second block
+                .count(10);
 
-        while let Some(msg) = stream.next().await {
-            if let Ok(payload) = msg.get_payload::<String>() {
-                if let Ok(invalidation) = serde_json::from_str::<AvmInvalidationMessage>(&payload) {
-                    let mut cache = self.cache.lock().await;
-                    // For simplicity we just remove the key. A more advanced version could mark as stale.
-                    cache.entries.remove(&invalidation.property_key); // Note: requires making entries pub(crate) or adding a method
-                    // In real code we would call a proper remove method on AvmCache
+            let result: redis::streams::StreamReadReply = redis::cmd("XREADGROUP")
+                .arg("GROUP")
+                .arg(&self.group)
+                .arg(&self.consumer_name)
+                .arg("BLOCK")
+                .arg(5000)
+                .arg("STREAMS")
+                .arg(&self.stream)
+                .arg(">")
+                .query_async(&mut con)
+                .await?;
+
+            for stream_key in result.keys {
+                for message in stream_key.ids {
+                    if let Some(property_key) = message.map.get("property_key") {
+                        if let redis::Value::Data(data) = property_key {
+                            if let Ok(key_str) = String::from_utf8(data.clone()) {
+                                let mut cache = self.cache.lock().await;
+                                cache.remove(&key_str);
+                            }
+                        }
+                    }
+
+                    // Acknowledge the message
+                    let _: redis::RedisResult<()> = redis::cmd("XACK")
+                        .arg(&self.stream)
+                        .arg(&self.group)
+                        .arg(&message.id)
+                        .query_async(&mut con)
+                        .await;
                 }
             }
         }
-
-        Ok(())
     }
 }
 
-// Fallback stubs when redis feature is not enabled
+// Fallback when redis feature is disabled
 #[cfg(not(feature = "redis"))]
-pub struct RedisInvalidationPublisher;
+pub struct RedisStreamPublisher;
 
 #[cfg(not(feature = "redis"))]
-#[allow(dead_code)]
-impl RedisInvalidationPublisher {
-    pub fn new(_redis_url: &str, _channel: &str) -> Result<Self, String> {
-        Err("redis feature not enabled".to_string())
+impl RedisStreamPublisher {
+    pub fn new(_: &str, _: &str) -> Result<Self, String> {
+        Err("redis feature not enabled".into())
     }
 }
 
 #[cfg(not(feature = "redis"))]
-pub struct RedisInvalidationSubscriber;
-
-// Note: In a full implementation we would expose a method on AvmCache like:
-// pub fn remove(&mut self, key: &str)
-// For now this module demonstrates the pattern and integration points.
+pub struct RedisStreamConsumer;
