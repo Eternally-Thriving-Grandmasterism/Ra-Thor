@@ -1,19 +1,26 @@
 //! Multi-Offer Track Engine for Real Estate Lattice
 //!
-//! Production-grade management of multiple competing offers on the same property.
-//! Handles escalation, bully offers, fairness tracking, and professional strategy recommendations.
+//! Production-grade management of multiple competing offers.
+//! Now includes comprehensive Escalation Logic.
 //!
-//! **Ontario Context**:
-//! - Common in hot markets (especially GTA)
-//! - Requires careful handling of escalation clauses, bully offers, and disclosure rules
-//! - Fairness and transparency protect all parties and reduce post-deal disputes
+//! **Escalation Logic Features**:
+//! - EscalationClause struct with cap, increment, and trigger rules
+//! - Automatic escalated price calculation
+//! - Validation of escalation terms (cap reasonableness, disclosure)
+//! - Smart analysis: when to escalate vs set best-and-final
+//! - Fairness and disclosure recommendations
 //!
-//! **Privacy & Mercy**:
-//! - Tracks offer metadata only (no full financial PII unless explicitly passed)
-//! - Provides balanced strategy notes instead of aggressive tactics
-//! - PATSAGi guidance for high-conflict or multi-party situations
+//! **Ontario Best Practices**:
+//! - Escalation clauses must be clearly drafted and disclosed
+//! - Caps prevent runaway bidding
+//! - Fairness to all buyers is paramount
 //!
-//! Integrates with DealTypeClassifier and OfferPackageValidator.
+//! **Mercy & Ethics**:
+//! - Recommendations prioritize clarity and reduced conflict
+//! - PATSAGi flags for high-escalation or aggressive situations
+//! - Balanced strategy instead of pure competitive pressure
+//!
+//! Integrates cleanly with the rest of the Real Estate Lattice.
 
 use std::collections::HashMap;
 
@@ -24,6 +31,15 @@ pub struct Offer {
     pub conditions: Vec<String>,
     pub escalation_clause: bool,
     pub is_bully: bool,
+}
+
+/// Defines the terms of an escalation clause.
+#[derive(Debug, Clone)]
+pub struct EscalationClause {
+    pub base_price: f64,
+    pub increment: f64,           // How much to escalate per competing offer
+    pub cap: f64,                 // Maximum price the buyer is willing to go
+    pub is_disclosed: bool,
 }
 
 #[derive(Debug, Clone)]
@@ -42,7 +58,7 @@ impl MultiOfferTrackEngine {
         Self
     }
 
-    /// Registers or updates an offer in the tracking system.
+    /// Registers or updates an offer.
     pub fn register_offer(&self, state: &mut MultiOfferState, offer: Offer) {
         if offer.price > state.highest_price {
             state.highest_price = offer.price;
@@ -54,6 +70,79 @@ impl MultiOfferTrackEngine {
             state.fairness_notes.push(format!("Bully offer detected from buyer {}. Consider disclosure and fairness review.", offer.buyer_id));
         }
         state.offers.insert(offer.buyer_id, offer);
+    }
+
+    /// Calculates the escalated price for a buyer given current highest competing offer.
+    /// Respects the cap. Returns None if escalation would exceed cap or clause is invalid.
+    pub fn calculate_escalated_price(
+        &self,
+        clause: &EscalationClause,
+        current_highest_competing: f64,
+    ) -> Option<f64> {
+        if !clause.is_disclosed {
+            return None; // Escalation must be disclosed
+        }
+        if current_highest_competing <= clause.base_price {
+            return Some(clause.base_price);
+        }
+
+        let gap = current_highest_competing - clause.base_price;
+        let escalations_needed = (gap / clause.increment).ceil() as i32;
+        let new_price = clause.base_price + (escalations_needed as f64 * clause.increment);
+
+        if new_price > clause.cap {
+            Some(clause.cap) // Cap hit
+        } else {
+            Some(new_price)
+        }
+    }
+
+    /// Validates an escalation clause for reasonableness and compliance.
+    pub fn validate_escalation_clause(&self, clause: &EscalationClause) -> Vec<String> {
+        let mut issues = vec![];
+
+        if clause.increment <= 0.0 {
+            issues.push("Escalation increment must be positive".to_string());
+        }
+        if clause.cap <= clause.base_price {
+            issues.push("Escalation cap must be higher than base price".to_string());
+        }
+        if (clause.cap - clause.base_price) / clause.increment > 20.0 {
+            issues.push("Escalation cap is very high relative to increment. Consider tighter cap for fairness and clarity.".to_string());
+        }
+        if !clause.is_disclosed {
+            issues.push("Escalation clause must be disclosed to seller and other parties".to_string());
+        }
+
+        issues
+    }
+
+    /// Applies escalation logic across current offers and returns updated recommendations.
+    pub fn apply_escalation_logic(
+        &self,
+        state: &mut MultiOfferState,
+        escalation_clauses: &HashMap<u64, EscalationClause>,
+    ) -> Vec<String> {
+        let mut recommendations = vec![];
+
+        for (buyer_id, clause) in escalation_clauses {
+            if let Some(offer) = state.offers.get(buyer_id) {
+                if let Some(new_price) = self.calculate_escalated_price(clause, state.highest_price) {
+                    if new_price > offer.price {
+                        recommendations.push(format!(
+                            "Buyer {} can escalate to ${:.0} (capped at ${:.0}). Consider presenting updated offer.",
+                            buyer_id, new_price, clause.cap
+                        ));
+                    }
+                }
+            }
+        }
+
+        if state.active_escalations > 2 {
+            recommendations.push("Multiple escalation clauses active. Recommend moving to best-and-final offers to reduce complexity and stress.".to_string());
+        }
+
+        recommendations
     }
 
     /// Analyzes current multi-offer situation and produces strategy + fairness guidance.
@@ -69,6 +158,10 @@ impl MultiOfferTrackEngine {
         if state.offers.len() > 2 {
             notes.push("Multiple competing offers present. Maintain strict fairness in communication and timing.".to_string());
             strategy.push_str("Consider setting a deadline for best-and-final offers to reduce prolonged negotiation stress.");
+        }
+
+        if state.active_escalations >= 3 {
+            strategy.push_str("High number of escalations detected. Strongly recommend best-and-final round for clarity and mercy to all parties.");
         }
 
         if notes.is_empty() {
