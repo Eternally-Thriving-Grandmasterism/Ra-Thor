@@ -1,6 +1,6 @@
-//! USA Pilot Module — RREL v0.5.21
+//! USA Pilot Module — RREL v14.3 Structured
 //! Central orchestration using the unified 50-state system
-//! Mercy-gated • Quantum Swarm • 13+ PATSAGi Councils
+//! Now aligned with v14.3 Real Estate Lattice patterns
 
 use crate::RREL_VERSION;
 use crate::usa_state_adapters::{UsaStateAdapters, UsState};
@@ -41,7 +41,7 @@ impl UsaPilotModule {
         states: &[UsState],
         game: &mut PowrushGame,
     ) -> Result<UsaPilotReport, crate::RrelError> {
-        info!("🇺🇸 RREL USA Pilot (v{}) — Processing {} states using unified 50-state adapter", RREL_VERSION, states.len());
+        info!("🇺🇸 RREL USA Pilot (v{}) — Processing {} states", RREL_VERSION, states.len());
 
         let mut total_processed = 0;
         let mut total_mercy = 0.0;
@@ -76,7 +76,17 @@ impl UsaPilotModule {
             timestamp: chrono::Utc::now(),
         };
 
-        info!("✅ USA Pilot Report: {} listings processed across {} states | Issues prevented: {}", total_processed, states.len(), issues_prevented);
+        info!("✅ USA Pilot: {} listings across {} states | Issues prevented: {}", total_processed, states.len(), issues_prevented);
         Ok(report)
+    }
+
+    /// Structured entry point for future USA offer flow (parallel to Ontario)
+    pub async fn process_usa_offer_flow(
+        &mut self,
+        _state: UsState,
+        _legal_description: &str,
+    ) -> Result<String, crate::RrelError> {
+        // Placeholder for future deep integration with v14.3 offer + risk engines
+        Ok("USA offer flow processing ready for implementation".to_string())
     }
 }
