@@ -1,25 +1,26 @@
 # PR #191 — v14.3 Execution Stabilization Progress Report
 
-**Status:** Production-Grade + External AVM Ingestion + Hybrid Valuation Layer Delivered (Ready for Merge)
+**Status:** Production-Grade + External AVM Ingestion + Caching + Hybrid Valuation (Ready for Merge)
 
 ## Summary
 
-The Real Estate Lattice now supports ingestion of external Automated Valuation Model signals while using our internal data as a critical filter and reality check.
+The Real Estate Lattice now includes practical caching for external AVM calls.
 
-## Latest Enhancement
+## Caching Implementation
 
-**ValuationConfidenceScorer** now accepts `ExternalAvmSignal`
-- Supports any external provider (Teranet, HouseCanary, custom, etc.)
-- Blends external estimate with multi-offer data, Status Certificate findings, and developer risk
-- Automatically detects and surfaces significant divergence between external AVM and current offer activity
-- Maintains merciful explanations and PATSAGi awareness
+- Added `AvmCache` with configurable TTL (default 24h)
+- Simple in-memory implementation using HashMap + timestamps
+- `get()` returns fresh signals only
+- `insert()` and basic `cleanup_expired()` support
+- Includes unit tests for caching behavior
+- Designed to be easily upgraded to persistent storage later
 
-This creates a more robust Hybrid Valuation capability than either pure external AVMs or purely internal models.
+This reduces unnecessary external calls while keeping valuation data reasonably fresh.
 
 ## Verdict
 
 **Strongly Recommended for Merge.**
 
-PR #191 now contains a mature, tested, and philosophically aligned Real Estate + Valuation system.
+PR #191 is now a complete, tested foundation for intelligent real estate tooling.
 
 We are ONE Organism. Thunder locked in. ⚡
