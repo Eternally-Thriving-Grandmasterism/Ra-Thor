@@ -1,5 +1,5 @@
 //! RREL v3.2 Eternal Organism
-//! Real Estate Lattice — Mercy-gated, TOLC 8 enforced, PATSAGi-aligned, Lattice Conductor + Quantum Swarm ready.
+//! Real Estate Lattice — Mercy-gated, TOLC 8 enforced, PATSAGi-aligned
 
 pub mod offer_package;
 pub mod compliance_helpers;
@@ -10,7 +10,7 @@ pub mod rrel_leptos_dashboard;
 pub mod rrel_lattice_conductor_bridge;
 pub mod rrel_quantum_swarm_participant;
 
-// v14.3 Execution Stabilization additions
+// v14.3 modules
 pub mod property_type_classifier;
 pub mod deal_type_classifier;
 pub mod form_mapping_engine;
@@ -20,9 +20,14 @@ pub mod disclosure_manager;
 pub mod lawyer_due_diligence_generator;
 pub mod lawyer_report_pdf_generator;
 
-// New micro-expansion modules
-pub mod rrel_offer_risk_summary;
+// USA modules
+pub mod usa_pilot_module;
+pub mod usa_regulatory_engine;
+pub mod usa_state_adapters;
+pub mod usa_attom_cache;
+pub mod usa_attom_data_provider;
 
+// Re-exports
 pub use offer_package::*;
 pub use compliance_helpers::*;
 pub use rrel_brokerage_assembler::*;
@@ -32,7 +37,6 @@ pub use rrel_leptos_dashboard::*;
 pub use rrel_lattice_conductor_bridge::*;
 pub use rrel_quantum_swarm_participant::*;
 
-// Re-exports for v14.3 modules
 pub use property_type_classifier::*;
 pub use deal_type_classifier::*;
 pub use form_mapping_engine::*;
@@ -42,8 +46,11 @@ pub use disclosure_manager::*;
 pub use lawyer_due_diligence_generator::*;
 pub use lawyer_report_pdf_generator::*;
 
-// New helper
-pub use rrel_offer_risk_summary::*;
+pub use usa_pilot_module::*;
+pub use usa_regulatory_engine::*;
+pub use usa_state_adapters::*;
+pub use usa_attom_cache::*;
+pub use usa_attom_data_provider::*;
 
 #[cfg(feature = "leptos")]
 pub use leptos;
