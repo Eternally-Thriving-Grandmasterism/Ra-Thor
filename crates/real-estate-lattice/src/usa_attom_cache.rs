@@ -1,5 +1,18 @@
-//! ATTOM API Caching Strategy for RREL
-//! Includes hit-rate metrics for observability.
+//! AttomCache — TTL-based Caching Layer for External Real Estate Data Providers
+//!
+//! Provides efficient, concurrent caching for expensive external API calls
+//! (primarily designed for ATTOM Data, but usable with other providers).
+//!
+//! ## Features
+//! - Separate caches for `PropertyProfile` and `RiskSignals`
+//! - Configurable TTL per entry type
+//! - Atomic hit/miss counters with `hit_rate()` for observability
+//! - Thread-safe via `DashMap`
+//!
+//! This module was introduced as part of PR #191 to reduce API costs
+//! and improve performance when enriching USA offer flows.
+//!
+//! Part of the Real Estate Lattice v14.3 stabilization work.
 
 use dashmap::DashMap;
 use serde::{Deserialize, Serialize};
@@ -19,12 +32,14 @@ impl<T> CacheEntry<T> {
     }
 }
 
+/// High-performance cache for ATTOM (and similar) real estate data providers.
 pub struct AttomCache {
     property_profiles: DashMap<String, CacheEntry<PropertyProfile>>,
     risk_signals: DashMap<String, CacheEntry<RiskSignals>>,
 
-    // Metrics
+    /// Total cache hits (atomic for thread safety)
     pub hits: AtomicU64,
+    /// Total cache misses (atomic for thread safety)
     pub misses: AtomicU64,
 }
 
@@ -111,6 +126,7 @@ impl AttomCache {
         self.risk_signals.insert(key, entry);
     }
 
+    /// Returns current cache hit rate as a float between 0.0 and 1.0
     pub fn hit_rate(&self) -> f64 {
         let hits = self.hits.load(Ordering::Relaxed);
         let misses = self.misses.load(Ordering::Relaxed);
