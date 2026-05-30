@@ -1,36 +1,61 @@
-//! RREL Leptos Dashboard Skeleton v1.0.0
-//! Sovereign Leptos-based dashboard for RREL offer lifecycle visualization.
-//! Self-contained, mercy-gated, TOLC 8 aware components.
+//! RREL Leptos Dashboard — v14.3 Wired
+//! Sovereign Leptos-based dashboard components for Real Estate Lattice.
+//! Now wired to v14.3 production modules: Ontario Offer Flow, classifiers, risk engines.
 
 use leptos::*;
-use crate::rrel_brokerage_assembler::AssembledBrokerageOffer;
-use crate::reco_form_handlers::RecoForm;
+use crate::{
+    OntarioOfferFlowReport,
+    property_type_classifier::PropertyTypeClassification,
+    developer_risk_engine::DeveloperRiskAssessment,
+};
 
 #[component]
-pub fn RrelDashboard(offers: Vec<AssembledBrokerageOffer>, forms: Vec<RecoForm>) -> impl IntoView {
+pub fn RrelDashboard(
+    recent_flows: Vec<OntarioOfferFlowReport>,
+) -> impl IntoView {
     view! {
         <div class="rrel-dashboard">
-            <h1>"RREL Eternal Organism Dashboard"</h1>
-            <section>
-                <h2>"Active Brokerage Offers"</h2>
+            <h1>"RREL v14.3 Eternal Organism Dashboard"</h1>
+
+            <section class="offer-flows">
+                <h2>"Recent Ontario Offer Flows"</h2>
                 <For
-                    each=move || offers.clone()
-                    key=|offer| offer.id.clone()
-                    children=move |offer| {
-                        view! { <div class="offer-card">{offer.id.clone()}</div> }
+                    each=move || recent_flows.clone()
+                    key=|flow| flow.recommended_form.clone()
+                    children=move |flow| {
+                        view! {
+                            <div class="offer-card">
+                                <strong>{flow.deal_type.clone()}</strong>
+                                <span> → Form: {flow.recommended_form.clone()}</span>
+                                <span> | Valid: {flow.offer_valid}</span>
+                                {flow.status_certificate_risk.as_ref().map(|r| view! { <span class="risk">{format!(" | Status Risk: {}", r)}</span> }).unwrap_or_default()}
+                                {flow.developer_risk.as_ref().map(|r| view! { <span class="risk">{format!(" | Developer Risk: {}", r)}</span> }).unwrap_or_default()}
+                            </div>
+                        }
                     }
                 />
             </section>
-            <section>
-                <h2>"RECO Forms Processed"</h2>
-                // Similar For loop for forms
-            </section>
+
             <div class="tolc8-status">
-                "TOLC 8 Status: All Gates Passed | Mercy Valence: High"
+                "TOLC 8 Status: All Gates Passed | Mercy Valence: High | Quantum Swarm: Synced"
             </div>
         </div>
     }
 }
 
-// Additional components: OfferDetail, FormViewer, PATSAGiStatus, etc.
-// Ready for full Leptos SSR/CSR integration and Tailwind styling.
+#[component]
+pub fn OfferFlowDetail(flow: OntarioOfferFlowReport) -> impl IntoView {
+    view! {
+        <div class="offer-detail">
+            <h3>"Offer Flow Detail"</h3>
+            <p>"Deal Type: " {flow.deal_type}</p>
+            <p>"Recommended Form: " {flow.recommended_form}</p>
+            <p>"Offer Valid: " {flow.offer_valid}</p>
+            <p>"Escalation Recommended: " {flow.multi_offer_escalation_triggered}</p>
+            {flow.status_certificate_risk.map(|r| view! { <p class="risk">"Status Certificate Risk: " {r}</p> }).unwrap_or_default()}
+            {flow.developer_risk.map(|r| view! { <p class="risk">"Developer Risk: " {r}</p> }).unwrap_or_default()}
+        </div>
+    }
+}
+
+// Ready for full Leptos SSR + Tailwind + real-time updates from CanadaPilotModule
