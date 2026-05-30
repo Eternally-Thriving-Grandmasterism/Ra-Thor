@@ -1,10 +1,17 @@
-//! USA Pilot Module — RREL v14.3
-//! Now integrated with AttomDataProvider + caching
+//! UsaPilotModule — Central Orchestrator for USA Real Estate Offer Processing
+//!
+//! This module provides the main entry point for processing USA real estate offers
+//! in a mercy-gated, cached, and extensible way.
+//!
+//! It combines:
+//! - Regulatory checks via `UsaRegulatoryEngine`
+//! - External data enrichment via `AttomDataProvider` + `AttomCache`
+//!
+//! Part of PR #191 — v14.3 Execution Stabilization.
 
-use crate::usa_attom_data_provider::{AttomDataProvider, UsaDataProvider};
+use crate::usa_attom_data_provider::AttomDataProvider;
 use crate::usa_regulatory_engine::UsaRegulatoryEngine;
 use crate::usa_state_adapters::{UsaStateAdapters, UsState};
-use crate::RREL_VERSION;
 use patsagi_councils::WorldGovernanceEngine;
 use powrush::PowrushGame;
 use ra_thor_mercy::MercyEngine;
@@ -13,7 +20,9 @@ use serde::{Deserialize, Serialize};
 use tracing::info;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct UsaPilotReport { /* ... existing fields ... */ }
+pub struct UsaPilotReport {
+    // Placeholder for future aggregated pilot reporting
+}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct UsaOfferFlowReport {
@@ -24,7 +33,8 @@ pub struct UsaOfferFlowReport {
     pub federal_issues: Vec<String>,
     pub state_issues: Vec<String>,
     pub summary: String,
-    // New enriched fields from data provider
+
+    /// Enriched data from external provider (e.g. ATTOM via cache)
     pub external_property_profile: Option<crate::usa_attom_cache::PropertyProfile>,
     pub external_risk_signals: Option<crate::usa_attom_cache::RiskSignals>,
 }
@@ -56,13 +66,18 @@ impl UsaPilotModule {
         }
     }
 
+    /// Process a USA offer flow with optional external data enrichment.
+    ///
+    /// When `property_identifier` is provided, the module will attempt to
+    /// enrich the report using the configured data provider (currently stubbed
+    /// with caching). This enables richer due diligence and risk assessment.
     pub async fn process_usa_offer_flow(
         &mut self,
         state: UsState,
         transaction_details: &str,
         price: f64,
         game: &mut PowrushGame,
-        property_identifier: Option<&str>, // e.g. address or parcel ID
+        property_identifier: Option<&str>,
     ) -> Result<UsaOfferFlowReport, crate::RrelError> {
         info!("🇺🇸 Processing USA offer flow for {:?}", state);
 
@@ -71,7 +86,7 @@ impl UsaPilotModule {
             .await
             .map_err(|e| crate::RrelError::Other(format!("Regulatory check failed: {}", e)))?;
 
-        // Enrich with external data provider (cached)
+        // Optional enrichment via cached data provider
         let mut external_profile = None;
         let mut external_risk = None;
 
@@ -90,7 +105,7 @@ impl UsaPilotModule {
             format!("USA offer has regulatory issues in {:?}", state)
         };
 
-        let report = UsaOfferFlowReport {
+        Ok(UsaOfferFlowReport {
             state: format!("{:?}", state),
             passed_regulatory: regulatory_result.passed,
             mercy_valence: regulatory_result.mercy_valence,
@@ -100,8 +115,6 @@ impl UsaPilotModule {
             summary,
             external_property_profile: external_profile,
             external_risk_signals: external_risk,
-        };
-
-        Ok(report)
+        })
     }
 }
