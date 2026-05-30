@@ -1,8 +1,9 @@
 //! ATTOM API Caching Strategy for RREL
-//! Simple, effective, mercy-aware caching layer for external real estate data providers.
+//! Includes hit-rate metrics for observability.
 
 use dashmap::DashMap;
 use serde::{Deserialize, Serialize};
+use std::sync::atomic::{AtomicU64, Ordering};
 use std::time::{Duration, Instant};
 
 #[derive(Debug, Clone)]
@@ -21,6 +22,10 @@ impl<T> CacheEntry<T> {
 pub struct AttomCache {
     property_profiles: DashMap<String, CacheEntry<PropertyProfile>>,
     risk_signals: DashMap<String, CacheEntry<RiskSignals>>,
+
+    // Metrics
+    pub hits: AtomicU64,
+    pub misses: AtomicU64,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -49,6 +54,8 @@ impl AttomCache {
         Self {
             property_profiles: DashMap::new(),
             risk_signals: DashMap::new(),
+            hits: AtomicU64::new(0),
+            misses: AtomicU64::new(0),
         }
     }
 
@@ -60,11 +67,13 @@ impl AttomCache {
         let key = Self::make_key(state, identifier, "profile");
         if let Some(entry) = self.property_profiles.get(&key) {
             if !entry.is_expired() {
+                self.hits.fetch_add(1, Ordering::Relaxed);
                 return Some(entry.value.clone());
             } else {
                 self.property_profiles.remove(&key);
             }
         }
+        self.misses.fetch_add(1, Ordering::Relaxed);
         None
     }
 
@@ -82,11 +91,13 @@ impl AttomCache {
         let key = Self::make_key(state, identifier, "risk");
         if let Some(entry) = self.risk_signals.get(&key) {
             if !entry.is_expired() {
+                self.hits.fetch_add(1, Ordering::Relaxed);
                 return Some(entry.value.clone());
             } else {
                 self.risk_signals.remove(&key);
             }
         }
+        self.misses.fetch_add(1, Ordering::Relaxed);
         None
     }
 
@@ -100,9 +111,18 @@ impl AttomCache {
         self.risk_signals.insert(key, entry);
     }
 
+    pub fn hit_rate(&self) -> f64 {
+        let hits = self.hits.load(Ordering::Relaxed);
+        let misses = self.misses.load(Ordering::Relaxed);
+        let total = hits + misses;
+        if total == 0 { 0.0 } else { hits as f64 / total as f64 }
+    }
+
     pub fn clear(&self) {
         self.property_profiles.clear();
         self.risk_signals.clear();
+        self.hits.store(0, Ordering::Relaxed);
+        self.misses.store(0, Ordering::Relaxed);
     }
 }
 
