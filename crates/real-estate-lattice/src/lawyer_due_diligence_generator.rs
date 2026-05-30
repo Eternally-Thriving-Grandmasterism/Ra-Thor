@@ -97,3 +97,58 @@ impl LawyerDueDiligenceGenerator {
         }
     }
 }
+
+#[cfg(test)]
+mod integration_tests {
+    use super::*;
+    use crate::property_type_classifier::OntarioPropertyType;
+    use crate::deal_type_classifier::DealType;
+    use crate::status_certificate_analyzer::{StatusCertificateAnalyzer, StatusCertificateAnalysis};
+    use crate::developer_risk_engine::DeveloperRiskEngine;
+
+    #[test]
+    fn integration_condo_resale_with_risky_status_certificate() {
+        let status = StatusCertificateAnalyzer::analyze("Special assessment pending. Reserve fund is low.");
+
+        let checklist = LawyerDueDiligenceGenerator::generate(
+            &OntarioPropertyType::Condominium,
+            &DealType::Resale,
+            Some(&status),
+            None,
+        );
+
+        assert!(checklist.priority_items.iter().any(|i| i.contains("Status Certificate")));
+        assert!(checklist.priority_items.iter().any(|i| i.contains("High-risk")));
+    }
+
+    #[test]
+    fn integration_family_transfer_triggers_ethical_flags() {
+        let checklist = LawyerDueDiligenceGenerator::generate(
+            &OntarioPropertyType::Detached,
+            &DealType::FamilyTransfer,
+            None,
+            None,
+        );
+
+        assert!(checklist.ethical_flags.iter().any(|f| f.contains("Family Transfer")));
+        assert!(checklist.ethical_flags.iter().any(|f| f.contains("PATSAGi")));
+    }
+
+    #[test]
+    fn integration_pre_construction_high_risk_developer() {
+        let developer = DeveloperRiskEngine::assess("Unknown Builder Co", "Phase 3");
+
+        let checklist = LawyerDueDiligenceGenerator::generate(
+            &OntarioPropertyType::Condominium,
+            &DealType::PreConstruction,
+            None,
+            Some(&developer),
+        );
+
+        assert!(checklist.priority_items.iter().any(|i| i.contains("Tarion")));
+        // High risk developer should trigger extra scrutiny
+        if developer.overall_risk_score > 0.5 {
+            assert!(checklist.priority_items.iter().any(|i| i.contains("Independent legal opinion")));
+        }
+    }
+}

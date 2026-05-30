@@ -315,3 +315,86 @@ mod tests {
         assert!(strategy.contains("best-and-final"));
     }
 }
+
+// ============================================================
+// INTEGRATION TESTS (cross-module style flows)
+// ============================================================
+
+#[cfg(test)]
+mod integration_tests {
+    use super::*;
+
+    /// Simulates a realistic multi-offer scenario with escalation clauses.
+    /// This tests the engine in a more integrated workflow context.
+    #[test]
+    fn integration_multi_offer_with_escalation_flow() {
+        let engine = MultiOfferTrackEngine::new();
+
+        let mut state = MultiOfferState {
+            offers: HashMap::new(),
+            highest_price: 0.0,
+            active_escalations: 0,
+            fairness_notes: vec![],
+            recommended_strategy: String::new(),
+        };
+
+        // Buyer 1 submits initial offer with escalation
+        engine.register_offer(&mut state, Offer {
+            buyer_id: 1,
+            price: 820_000.0,
+            conditions: vec!["Financing".to_string()],
+            escalation_clause: true,
+            is_bully: false,
+        });
+
+        // Buyer 2 submits higher offer
+        engine.register_offer(&mut state, Offer {
+            buyer_id: 2,
+            price: 835_000.0,
+            conditions: vec![],
+            escalation_clause: true,
+            is_bully: false,
+        });
+
+        let mut clauses = HashMap::new();
+        clauses.insert(1, EscalationClause {
+            base_price: 820_000.0,
+            increment: 5_000.0,
+            cap: 860_000.0,
+            is_disclosed: true,
+        });
+
+        let recs = engine.apply_escalation_logic(&mut state, &clauses);
+        let (notes, strategy) = engine.analyze_and_recommend(&state);
+
+        assert!(state.highest_price >= 835_000.0);
+        assert!(recs.iter().any(|r| r.contains("can escalate")) || state.active_escalations > 0);
+        assert!(!strategy.is_empty());
+    }
+
+    #[test]
+    fn integration_high_competition_triggers_best_and_final() {
+        let engine = MultiOfferTrackEngine::new();
+        let mut state = MultiOfferState {
+            offers: HashMap::new(),
+            highest_price: 950_000.0,
+            active_escalations: 3,
+            fairness_notes: vec!["Multiple strong offers".to_string()],
+            recommended_strategy: String::new(),
+        };
+
+        // Add several offers
+        for i in 3..6 {
+            engine.register_offer(&mut state, Offer {
+                buyer_id: i,
+                price: 940_000.0 + (i as f64 * 2000.0),
+                conditions: vec![],
+                escalation_clause: true,
+                is_bully: false,
+            });
+        }
+
+        let (_, strategy) = engine.analyze_and_recommend(&state);
+        assert!(strategy.contains("best-and-final"));
+    }
+}
