@@ -1,9 +1,9 @@
 //! USA Pilot Module — RREL v14.3 Structured
-//! Central orchestration using the unified 50-state system
-//! Now aligned with v14.3 Real Estate Lattice patterns
+//! Implements real USA offer processing logic using the regulatory engine
 
-use crate::RREL_VERSION;
+use crate::usa_regulatory_engine::UsaRegulatoryEngine;
 use crate::usa_state_adapters::{UsaStateAdapters, UsState};
+use crate::RREL_VERSION;
 use patsagi_councils::WorldGovernanceEngine;
 use powrush::PowrushGame;
 use ra_thor_mercy::MercyEngine;
@@ -21,8 +21,20 @@ pub struct UsaPilotReport {
     pub timestamp: chrono::DateTime<chrono::Utc>,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct UsaOfferFlowReport {
+    pub state: String,
+    pub passed_regulatory: bool,
+    pub mercy_valence: f64,
+    pub quantum_consensus: f64,
+    pub federal_issues: Vec<String>,
+    pub state_issues: Vec<String>,
+    pub summary: String,
+}
+
 pub struct UsaPilotModule {
     state_adapters: UsaStateAdapters,
+    regulatory_engine: UsaRegulatoryEngine,
 }
 
 impl UsaPilotModule {
@@ -32,7 +44,16 @@ impl UsaPilotModule {
         world_governance: WorldGovernanceEngine,
     ) -> Self {
         Self {
-            state_adapters: UsaStateAdapters::new(mercy_engine, quantum_swarm, world_governance),
+            state_adapters: UsaStateAdapters::new(
+                mercy_engine.clone(),
+                quantum_swarm.clone(),
+                world_governance.clone(),
+            ),
+            regulatory_engine: UsaRegulatoryEngine::new(
+                mercy_engine,
+                quantum_swarm,
+                world_governance,
+            ),
         }
     }
 
@@ -51,12 +72,10 @@ impl UsaPilotModule {
 
         for state in states {
             states_covered.push(format!("{:?}", state));
-
             let listings = self.state_adapters.fetch_and_validate_state_listings(*state).await?;
 
             for listing in listings {
                 let result = self.state_adapters.process_state_listing(*state, &listing, game).await?;
-
                 if result.passed {
                     total_processed += 1;
                     total_mercy += result.mercy_valence;
@@ -76,17 +95,40 @@ impl UsaPilotModule {
             timestamp: chrono::Utc::now(),
         };
 
-        info!("✅ USA Pilot: {} listings across {} states | Issues prevented: {}", total_processed, states.len(), issues_prevented);
         Ok(report)
     }
 
-    /// Structured entry point for future USA offer flow (parallel to Ontario)
+    /// Implemented USA offer processing logic (state-aware + regulatory engine)
     pub async fn process_usa_offer_flow(
         &mut self,
-        _state: UsState,
-        _legal_description: &str,
-    ) -> Result<String, crate::RrelError> {
-        // Placeholder for future deep integration with v14.3 offer + risk engines
-        Ok("USA offer flow processing ready for implementation".to_string())
+        state: UsState,
+        transaction_details: &str,
+        price: f64,
+        game: &mut PowrushGame,
+    ) -> Result<UsaOfferFlowReport, crate::RrelError> {
+        info!("🇺🇸 Processing USA offer flow for {:?}", state);
+
+        let regulatory_result = self.regulatory_engine
+            .check_usa_transaction(&format!("{:?}", state), transaction_details, price, game)
+            .await
+            .map_err(|e| crate::RrelError::Other(format!("Regulatory check failed: {}", e)))?;
+
+        let summary = if regulatory_result.passed {
+            format!("USA offer cleared regulatory checks in {:?}", state)
+        } else {
+            format!("USA offer has regulatory issues in {:?}", state)
+        };
+
+        let report = UsaOfferFlowReport {
+            state: format!("{:?}", state),
+            passed_regulatory: regulatory_result.passed,
+            mercy_valence: regulatory_result.mercy_valence,
+            quantum_consensus: regulatory_result.quantum_consensus,
+            federal_issues: regulatory_result.federal_issues,
+            state_issues: regulatory_result.state_issues,
+            summary,
+        };
+
+        Ok(report)
     }
 }
