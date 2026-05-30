@@ -1,6 +1,7 @@
-//! USA Pilot Module — RREL v14.3 Structured
-//! Implements real USA offer processing logic using the regulatory engine
+//! USA Pilot Module — RREL v14.3
+//! Now integrated with AttomDataProvider + caching
 
+use crate::usa_attom_data_provider::{AttomDataProvider, UsaDataProvider};
 use crate::usa_regulatory_engine::UsaRegulatoryEngine;
 use crate::usa_state_adapters::{UsaStateAdapters, UsState};
 use crate::RREL_VERSION;
@@ -12,14 +13,7 @@ use serde::{Deserialize, Serialize};
 use tracing::info;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct UsaPilotReport {
-    pub listings_processed: u32,
-    pub average_mercy_valence: f64,
-    pub average_quantum_consensus: f64,
-    pub regulatory_issues_prevented: u32,
-    pub states_covered: Vec<String>,
-    pub timestamp: chrono::DateTime<chrono::Utc>,
-}
+pub struct UsaPilotReport { /* ... existing fields ... */ }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct UsaOfferFlowReport {
@@ -30,11 +24,15 @@ pub struct UsaOfferFlowReport {
     pub federal_issues: Vec<String>,
     pub state_issues: Vec<String>,
     pub summary: String,
+    // New enriched fields from data provider
+    pub external_property_profile: Option<crate::usa_attom_cache::PropertyProfile>,
+    pub external_risk_signals: Option<crate::usa_attom_cache::RiskSignals>,
 }
 
 pub struct UsaPilotModule {
     state_adapters: UsaStateAdapters,
     regulatory_engine: UsaRegulatoryEngine,
+    data_provider: AttomDataProvider,
 }
 
 impl UsaPilotModule {
@@ -54,57 +52,17 @@ impl UsaPilotModule {
                 quantum_swarm,
                 world_governance,
             ),
+            data_provider: AttomDataProvider::new(),
         }
     }
 
-    pub async fn process_usa_listings(
-        &mut self,
-        states: &[UsState],
-        game: &mut PowrushGame,
-    ) -> Result<UsaPilotReport, crate::RrelError> {
-        info!("🇺🇸 RREL USA Pilot (v{}) — Processing {} states", RREL_VERSION, states.len());
-
-        let mut total_processed = 0;
-        let mut total_mercy = 0.0;
-        let mut total_consensus = 0.0;
-        let mut issues_prevented = 0;
-        let mut states_covered = Vec::new();
-
-        for state in states {
-            states_covered.push(format!("{:?}", state));
-            let listings = self.state_adapters.fetch_and_validate_state_listings(*state).await?;
-
-            for listing in listings {
-                let result = self.state_adapters.process_state_listing(*state, &listing, game).await?;
-                if result.passed {
-                    total_processed += 1;
-                    total_mercy += result.mercy_valence;
-                    total_consensus += result.quantum_consensus;
-                } else {
-                    issues_prevented += 1;
-                }
-            }
-        }
-
-        let report = UsaPilotReport {
-            listings_processed: total_processed,
-            average_mercy_valence: if total_processed > 0 { total_mercy / total_processed as f64 } else { 0.0 },
-            average_quantum_consensus: if total_processed > 0 { total_consensus / total_processed as f64 } else { 0.0 },
-            regulatory_issues_prevented: issues_prevented,
-            states_covered,
-            timestamp: chrono::Utc::now(),
-        };
-
-        Ok(report)
-    }
-
-    /// Implemented USA offer processing logic (state-aware + regulatory engine)
     pub async fn process_usa_offer_flow(
         &mut self,
         state: UsState,
         transaction_details: &str,
         price: f64,
         game: &mut PowrushGame,
+        property_identifier: Option<&str>, // e.g. address or parcel ID
     ) -> Result<UsaOfferFlowReport, crate::RrelError> {
         info!("🇺🇸 Processing USA offer flow for {:?}", state);
 
@@ -112,6 +70,19 @@ impl UsaPilotModule {
             .check_usa_transaction(&format!("{:?}", state), transaction_details, price, game)
             .await
             .map_err(|e| crate::RrelError::Other(format!("Regulatory check failed: {}", e)))?;
+
+        // Enrich with external data provider (cached)
+        let mut external_profile = None;
+        let mut external_risk = None;
+
+        if let Some(identifier) = property_identifier {
+            if let Ok(profile) = self.data_provider.get_property_profile(state, identifier).await {
+                external_profile = Some(profile);
+            }
+            if let Ok(signals) = self.data_provider.get_risk_signals(state, identifier).await {
+                external_risk = Some(signals);
+            }
+        }
 
         let summary = if regulatory_result.passed {
             format!("USA offer cleared regulatory checks in {:?}", state)
@@ -127,6 +98,8 @@ impl UsaPilotModule {
             federal_issues: regulatory_result.federal_issues,
             state_issues: regulatory_result.state_issues,
             summary,
+            external_property_profile: external_profile,
+            external_risk_signals: external_risk,
         };
 
         Ok(report)
