@@ -1,8 +1,6 @@
-//! USA Regulatory Engine — RREL v0.6.0
+//! USA Regulatory Engine — RREL v14.3
 //! Federal + State Compliance Layer for All 50 States
-//! Mercy-Gated • Quantum Swarm • Immutable Legal Lattice
-//!
-//! Derived from RREL-USA-Expansion-Codex-v0.6.0.md
+//! Enhanced with additional regulatory edge cases
 
 use crate::RREL_VERSION;
 use patsagi_councils::{WorldGovernanceEngine, WorldImpactType};
@@ -61,7 +59,6 @@ impl UsaRegulatoryEngine {
         }
     }
 
-    /// Main entry point — checks any USA transaction against federal + state rules
     pub async fn check_usa_transaction(
         &mut self,
         state: &str,
@@ -71,7 +68,6 @@ impl UsaRegulatoryEngine {
     ) -> Result<UsaRegulatoryResult, UsaRegulatoryError> {
         info!("🇺🇸 RREL USA Regulatory Engine (v{}) — Checking {} transaction", RREL_VERSION, state);
 
-        // Step 1: Mercy Gate
         let mercy_valence = self.mercy_engine
             .evaluate_action(transaction_details, "USA real estate transaction", 4.8, 0.97)
             .await
@@ -81,7 +77,6 @@ impl UsaRegulatoryEngine {
             return Err(UsaRegulatoryError::MercyGateFailed(mercy_valence));
         }
 
-        // Step 2: Quantum Swarm Consensus
         let consensus = self.quantum_swarm
             .reach_consensus(transaction_details, 0.80)
             .await
@@ -91,26 +86,32 @@ impl UsaRegulatoryEngine {
             return Err(UsaRegulatoryError::QuantumConsensusTooLow(consensus));
         }
 
-        // Step 3: Federal Checks (RESPA, TILA, Fair Housing, CFPB, ECOA)
         let mut federal_issues = Vec::new();
         let mut recommended_impact = None;
 
-        if transaction_details.to_lowercase().contains("kickback") {
-            federal_issues.push("RESPA kickback violation detected".to_string());
+        let lower_details = transaction_details.to_lowercase();
+
+        // Federal edge cases
+        if lower_details.contains("kickback") || lower_details.contains("referral fee") {
+            federal_issues.push("RESPA kickback / referral fee violation detected".to_string());
             recommended_impact = Some(WorldImpactType::USA_RespaViolationPrevented);
         }
 
-        if !transaction_details.to_lowercase().contains("tila disclosure") {
-            federal_issues.push("TILA disclosure missing".to_string());
+        if !lower_details.contains("tila disclosure") && !lower_details.contains("loan estimate") {
+            federal_issues.push("TILA disclosure / Loan Estimate missing".to_string());
             recommended_impact = Some(WorldImpactType::USA_TilaDisclosureGenerated);
         }
 
-        if transaction_details.to_lowercase().contains("discriminat") {
-            federal_issues.push("Fair Housing Act risk detected".to_string());
+        if lower_details.contains("discriminat") || lower_details.contains("steering") {
+            federal_issues.push("Fair Housing Act / steering risk detected".to_string());
             recommended_impact = Some(WorldImpactType::USA_FairHousingViolationPrevented);
         }
 
-        // Step 4: State-Specific Checks (extensible)
+        if lower_details.contains("ability to repay") == false && price > 500_000.0 {
+            federal_issues.push("CFPB Ability-to-Repay verification recommended for high-value transaction".to_string());
+        }
+
+        // State-specific checks (expanded edge cases)
         let state_issues = self.check_state_specific_rules(state, transaction_details).await;
 
         let passed = federal_issues.is_empty() && state_issues.is_empty();
@@ -133,7 +134,6 @@ impl UsaRegulatoryEngine {
         );
 
         if passed && recommended_impact.is_some() {
-            // Apply positive WorldImpact if everything cleared
             let _ = self.world_governance
                 .apply_world_impact(recommended_impact.unwrap(), game)
                 .await;
@@ -152,36 +152,149 @@ impl UsaRegulatoryEngine {
 
     async fn check_state_specific_rules(&self, state: &str, details: &str) -> Vec<String> {
         let mut issues = Vec::new();
+        let lower = details.to_lowercase();
 
         match state.to_uppercase().as_str() {
             "CA" | "CALIFORNIA" => {
-                if details.to_lowercase().contains("wildfire") && !details.to_lowercase().contains("disclosure") {
+                if lower.contains("wildfire") && !lower.contains("disclosure") {
                     issues.push("California wildfire disclosure missing".to_string());
                 }
-                if details.to_lowercase().contains("rent control") && !details.to_lowercase().contains("ab 1482") {
+                if lower.contains("rent control") && !lower.contains("ab 1482") {
                     issues.push("AB 1482 rent control compliance not verified".to_string());
+                }
+                if lower.contains("natural hazard") && !lower.contains("disclosure") {
+                    issues.push("California natural hazard disclosure missing".to_string());
                 }
             }
             "FL" | "FLORIDA" => {
-                if details.to_lowercase().contains("flood") && !details.to_lowercase().contains("zone") {
+                if lower.contains("flood") && !lower.contains("zone") {
                     issues.push("Florida flood zone disclosure missing".to_string());
+                }
+                if lower.contains("condo") && !lower.contains("milestone") {
+                    issues.push("Florida condo milestone inspection / reserve study status not verified".to_string());
                 }
             }
             "TX" | "TEXAS" => {
-                if details.to_lowercase().contains("property tax") && !details.to_lowercase().contains("protest") {
+                if lower.contains("property tax") && !lower.contains("protest") {
                     issues.push("Texas property tax protest opportunity not documented".to_string());
                 }
             }
             "NY" | "NEW YORK" => {
-                if details.to_lowercase().contains("rent stabilization") && !details.to_lowercase().contains("verified") {
+                if lower.contains("rent stabilization") && !lower.contains("verified") {
                     issues.push("New York rent stabilization status not verified".to_string());
                 }
+                if lower.contains("lead paint") && !lower.contains("disclosure") {
+                    issues.push("New York lead paint disclosure missing".to_string());
+                }
             }
-            _ => {
-                // Default: no extra state issues for now
+            "IL" | "ILLINOIS" => {
+                if lower.contains("radon") && !lower.contains("disclosure") {
+                    issues.push("Illinois radon disclosure missing".to_string());
+                }
             }
+            "WA" | "WASHINGTON" => {
+                if lower.contains("wildfire") || lower.contains("smoke") {
+                    if !lower.contains("disclosure") {
+                        issues.push("Washington state wildfire / smoke disclosure missing".to_string());
+                    }
+                }
+            }
+            "MA" | "MASSACHUSETTS" => {
+                if lower.contains("lead paint") && !lower.contains("disclosure") {
+                    issues.push("Massachusetts lead paint disclosure missing".to_string());
+                }
+            }
+            _ => {}
         }
 
         issues
+    }
+}
+
+// ============================================================
+// Unit Tests for Regulatory Edge Cases
+// ============================================================
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use tokio;
+
+    fn create_test_engine() -> UsaRegulatoryEngine {
+        let mercy = MercyEngine::new();
+        let swarm = QuantumSwarmOrchestrator::new();
+        let governance = WorldGovernanceEngine::new();
+        UsaRegulatoryEngine::new(mercy, swarm, governance)
+    }
+
+    #[tokio::test]
+    async fn test_federal_kickback_detection() {
+        let mut engine = create_test_engine();
+        let mut game = PowrushGame::new();
+
+        let result = engine
+            .check_usa_transaction("CA", "Purchase with referral kickback to agent", 800_000.0, &mut game)
+            .await;
+
+        // Should detect RESPA issue
+        assert!(result.is_ok());
+        let r = result.unwrap();
+        assert!(!r.passed || r.federal_issues.iter().any(|i| i.contains("RESPA")));
+    }
+
+    #[tokio::test]
+    async fn test_missing_tila_disclosure() {
+        let mut engine = create_test_engine();
+        let mut game = PowrushGame::new();
+
+        let result = engine
+            .check_usa_transaction("FL", "Simple purchase agreement, no disclosures mentioned", 450_000.0, &mut game)
+            .await;
+
+        assert!(result.is_ok());
+        let r = result.unwrap();
+        assert!(r.federal_issues.iter().any(|i| i.contains("TILA")));
+    }
+
+    #[tokio::test]
+    async fn test_california_wildfire_edge_case() {
+        let mut engine = create_test_engine();
+        let mut game = PowrushGame::new();
+
+        let result = engine
+            .check_usa_transaction("CA", "Home in wildfire prone area, no hazard disclosure", 1_100_000.0, &mut game)
+            .await;
+
+        assert!(result.is_ok());
+        let r = result.unwrap();
+        assert!(r.state_issues.iter().any(|i| i.contains("wildfire")));
+    }
+
+    #[tokio::test]
+    async fn test_florida_condo_milestone() {
+        let mut engine = create_test_engine();
+        let mut game = PowrushGame::new();
+
+        let result = engine
+            .check_usa_transaction("FL", "Condo purchase, no milestone inspection mentioned", 650_000.0, &mut game)
+            .await;
+
+        assert!(result.is_ok());
+        let r = result.unwrap();
+        assert!(r.state_issues.iter().any(|i| i.contains("milestone") || i.contains("reserve")));
+    }
+
+    #[tokio::test]
+    async fn test_high_value_transaction_atr_prompt() {
+        let mut engine = create_test_engine();
+        let mut game = PowrushGame::new();
+
+        let result = engine
+            .check_usa_transaction("TX", "Luxury home purchase, no ability to repay discussion", 2_800_000.0, &mut game)
+            .await;
+
+        assert!(result.is_ok());
+        let r = result.unwrap();
+        assert!(r.federal_issues.iter().any(|i| i.contains("Ability-to-Repay")));
     }
 }

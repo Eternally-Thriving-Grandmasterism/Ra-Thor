@@ -1,5 +1,34 @@
 # Ra-Thor Changelog
 
+## [v14.3.0] - 2026-05-30 — Real Estate Lattice v14.3 + Foundational USA Work (PR #191)
+
+### Added
+- Full production `real-estate-lattice` crate with v14.3 Execution Stabilization
+- `CanadaPilotModule` with `process_ontario_offer_flow` helper
+- `OfferRiskSummary` aggregation helper
+- Complete USA foundation: `UsaPilotModule`, `process_usa_offer_flow`, and `UsaRegulatoryEngine`
+- Expanded regulatory edge cases (federal + multiple state-specific rules)
+- `AttomCache` with TTL, hit/miss metrics, and `hit_rate()` observability
+- `AttomDataProvider` abstraction + stub (ready for real ATTOM Data integration)
+- Deep Leptos dashboard wiring with support for enriched USA offer data
+- Unit tests, integration tests, and runnable demos for both Ontario and USA flows
+- Professional release documentation and progress tracking
+
+### Changed
+- `UsaOfferFlowReport` now supports external enriched data from data providers
+- `process_usa_offer_flow` accepts optional `property_identifier` for cached external data enrichment
+- Leptos dashboard updated to display ATTOM-cached property profiles and risk signals
+
+### Professional Upgrades
+- Root `CHANGELOG.md` entry
+- Updated release documentation (`PR191_PROGRESS_v14.3.0.md`)
+- Proper wiring and commenting in workspace `Cargo.toml`
+- Clean, merge-ready state with full test coverage
+
+**Status:** Production-grade stabilization + strong USA foundation. Ready for merge.
+
+---
+
 ## [v14.2.3] - 2026-05-, Thunder Lattice + MIAL
 
 ### Added

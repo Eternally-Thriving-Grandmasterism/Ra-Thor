@@ -107,7 +107,7 @@ members = [
     "powrush_rbe_engine",
     "powrush_sovereignty_mechanics",
     "powrush_faction_dynamics",
-    "real-estate-lattice",
+    "real-estate-lattice",          # v14.3 Execution Stabilization + Foundational USA Offer Processing, Caching & Dashboard (PR #191)
     "spatial_economics_bridge",
     "legal-lattice",
 

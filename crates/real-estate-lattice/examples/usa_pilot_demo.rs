@@ -1,60 +1,90 @@
-//! USA Pilot Demo — RREL v0.5.21 (Complete 50-State Unified System)
-//! AlphaProMega Real Estate Inc. — Mercy-Gated • Quantum Swarm • 13+ PATSAGi Councils
+//! USA Pilot Demo — RREL v14.3 (with ATTOM Caching)
+//!
+//! Demonstrates process_usa_offer_flow with AttomDataProvider + caching.
+//!
+//! Run with:
+//!   cargo run --example usa_pilot_demo
 
-use real_estate_lattice::{UsaPilotModule, UsState, RREL_VERSION};
+use real_estate_lattice::{UsaPilotModule, UsaOfferFlowReport};
 use patsagi_councils::WorldGovernanceEngine;
 use powrush::PowrushGame;
 use ra_thor_mercy::MercyEngine;
 use ra_thor_quantum_swarm_orchestrator::QuantumSwarmOrchestrator;
+use real_estate_lattice::usa_state_adapters::UsState;
 
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    tracing_subscriber::fmt::init();
-
-    println!("\n╔════════════════════════════════════════════════════════════════════════════╗");
-    println!("║           🇺🇸 RREL USA PILOT DEMO — v{} (ALL 50 STATES)          ║", RREL_VERSION);
-    println!("║   AlphaProMega Real Estate Inc. — Unified 50-State System                ║");
-    println!("╚════════════════════════════════════════════════════════════════════════════╝\n");
+async fn main() {
+    println!("🇺🇸 RREL v14.3 USA Pilot Demo (with Caching)\n");
 
     let mercy_engine = MercyEngine::new();
     let quantum_swarm = QuantumSwarmOrchestrator::new();
     let world_governance = WorldGovernanceEngine::new();
+
+    let mut pilot = UsaPilotModule::new(
+        mercy_engine,
+        quantum_swarm,
+        world_governance,
+    );
+
     let mut game = PowrushGame::new();
 
-    let mut usa_pilot = UsaPilotModule::new(mercy_engine, quantum_swarm, world_governance);
+    // First call - should MISS cache
+    println!("=== First Call (Cache MISS expected) ===");
+    let report1: UsaOfferFlowReport = pilot
+        .process_usa_offer_flow(
+            UsState::CA,
+            "Residential purchase in Los Angeles",
+            1_250_000.0,
+            &mut game,
+            Some("123 Main St, Los Angeles, CA"),
+        )
+        .await
+        .unwrap();
 
-    // Demo with 10 major states (easily changeable to any combination of 50)
-    let states = vec![
-        UsState::California,
-        UsState::Florida,
-        UsState::Texas,
-        UsState::NewYork,
-        UsState::NewJersey,
-        UsState::Pennsylvania,
-        UsState::Illinois,
-        UsState::Georgia,
-        UsState::Washington,
-        UsState::Massachusetts,
-    ];
+    print_report("California (first call)", &report1);
 
-    println!("🇺🇸 Processing new MLS listings across {} major states using unified 50-state adapter...\n", states.len());
+    // Second call with same identifier - should HIT cache
+    println!("=== Second Call (Cache HIT expected) ===");
+    let report2: UsaOfferFlowReport = pilot
+        .process_usa_offer_flow(
+            UsState::CA,
+            "Residential purchase in Los Angeles",
+            1_250_000.0,
+            &mut game,
+            Some("123 Main St, Los Angeles, CA"),
+        )
+        .await
+        .unwrap();
 
-    let report = usa_pilot.process_usa_listings(&states, &mut game).await?;
+    print_report("California (second call)", &report2);
 
-    println!("╔════════════════════════════════════════════════════════════════════════════╗");
-    println!("║                        USA PILOT REPORT (v0.5.21)                          ║");
-    println!("╚════════════════════════════════════════════════════════════════════════════╝");
-    println!("Listings Processed:           {}", report.listings_processed);
-    println!("Average Mercy Valence:        {:.2}", report.average_mercy_valence);
-    println!("Average Quantum Consensus:    {:.2}", report.average_quantum_consensus);
-    println!("Regulatory Issues Prevented:  {}", report.regulatory_issues_prevented);
-    println!("States Covered:               {:?}", report.states_covered);
-    println!("Timestamp:                    {}", report.timestamp);
-    println!("════════════════════════════════════════════════════════════════════════════\n");
+    // Different property - new MISS
+    println!("=== Different Property (new MISS) ===");
+    let report3: UsaOfferFlowReport = pilot
+        .process_usa_offer_flow(
+            UsState::FL,
+            "Condo purchase in Miami Beach",
+            875_000.0,
+            &mut game,
+            Some("456 Ocean Dr, Miami, FL"),
+        )
+        .await
+        .unwrap();
 
-    println!("\n╔════════════════════════════════════════════════════════════════════════════╗");
-    println!("║           ✅ USA PILOT COMPLETE — 50-STATE SYSTEM FULLY OPERATIONAL        ║");
-    println!("╚════════════════════════════════════════════════════════════════════════════╝\n");
+    print_report("Florida", &report3);
 
-    Ok(())
+    println!("✅ Demo complete. Caching is active in AttomDataProvider.");
+}
+
+fn print_report(title: &str, report: &UsaOfferFlowReport) {
+    println!("Title               : {}", title);
+    println!("State               : {}", report.state);
+    println!("Passed Regulatory   : {}", report.passed_regulatory);
+    if let Some(profile) = &report.external_property_profile {
+        println!("External Profile    : {} | Tax Value: {:?}", profile.data_source, profile.tax_assessed_value);
+    }
+    if let Some(risk) = &report.external_risk_signals {
+        println!("External Risk       : {} | Overall: {:?}", risk.data_source, risk.overall_risk_score);
+    }
+    println!();
 }

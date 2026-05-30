@@ -1,8 +1,16 @@
-//! USA Pilot Module — RREL v0.5.21
-//! Central orchestration using the unified 50-state system
-//! Mercy-gated • Quantum Swarm • 13+ PATSAGi Councils
+//! UsaPilotModule — Central Orchestrator for USA Real Estate Offer Processing
+//!
+//! This module provides the main entry point for processing USA real estate offers
+//! in a mercy-gated, cached, and extensible way.
+//!
+//! It combines:
+//! - Regulatory checks via `UsaRegulatoryEngine`
+//! - External data enrichment via `AttomDataProvider` + `AttomCache`
+//!
+//! Part of PR #191 — v14.3 Execution Stabilization.
 
-use crate::RREL_VERSION;
+use crate::usa_attom_data_provider::AttomDataProvider;
+use crate::usa_regulatory_engine::UsaRegulatoryEngine;
 use crate::usa_state_adapters::{UsaStateAdapters, UsState};
 use patsagi_councils::WorldGovernanceEngine;
 use powrush::PowrushGame;
@@ -13,16 +21,28 @@ use tracing::info;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct UsaPilotReport {
-    pub listings_processed: u32,
-    pub average_mercy_valence: f64,
-    pub average_quantum_consensus: f64,
-    pub regulatory_issues_prevented: u32,
-    pub states_covered: Vec<String>,
-    pub timestamp: chrono::DateTime<chrono::Utc>,
+    // Placeholder for future aggregated pilot reporting
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct UsaOfferFlowReport {
+    pub state: String,
+    pub passed_regulatory: bool,
+    pub mercy_valence: f64,
+    pub quantum_consensus: f64,
+    pub federal_issues: Vec<String>,
+    pub state_issues: Vec<String>,
+    pub summary: String,
+
+    /// Enriched data from external provider (e.g. ATTOM via cache)
+    pub external_property_profile: Option<crate::usa_attom_cache::PropertyProfile>,
+    pub external_risk_signals: Option<crate::usa_attom_cache::RiskSignals>,
 }
 
 pub struct UsaPilotModule {
     state_adapters: UsaStateAdapters,
+    regulatory_engine: UsaRegulatoryEngine,
+    data_provider: AttomDataProvider,
 }
 
 impl UsaPilotModule {
@@ -32,51 +52,69 @@ impl UsaPilotModule {
         world_governance: WorldGovernanceEngine,
     ) -> Self {
         Self {
-            state_adapters: UsaStateAdapters::new(mercy_engine, quantum_swarm, world_governance),
+            state_adapters: UsaStateAdapters::new(
+                mercy_engine.clone(),
+                quantum_swarm.clone(),
+                world_governance.clone(),
+            ),
+            regulatory_engine: UsaRegulatoryEngine::new(
+                mercy_engine,
+                quantum_swarm,
+                world_governance,
+            ),
+            data_provider: AttomDataProvider::new(),
         }
     }
 
-    pub async fn process_usa_listings(
+    /// Process a USA offer flow with optional external data enrichment.
+    ///
+    /// When `property_identifier` is provided, the module will attempt to
+    /// enrich the report using the configured data provider (currently stubbed
+    /// with caching). This enables richer due diligence and risk assessment.
+    pub async fn process_usa_offer_flow(
         &mut self,
-        states: &[UsState],
+        state: UsState,
+        transaction_details: &str,
+        price: f64,
         game: &mut PowrushGame,
-    ) -> Result<UsaPilotReport, crate::RrelError> {
-        info!("🇺🇸 RREL USA Pilot (v{}) — Processing {} states using unified 50-state adapter", RREL_VERSION, states.len());
+        property_identifier: Option<&str>,
+    ) -> Result<UsaOfferFlowReport, crate::RrelError> {
+        info!("🇺🇸 Processing USA offer flow for {:?}", state);
 
-        let mut total_processed = 0;
-        let mut total_mercy = 0.0;
-        let mut total_consensus = 0.0;
-        let mut issues_prevented = 0;
-        let mut states_covered = Vec::new();
+        let regulatory_result = self.regulatory_engine
+            .check_usa_transaction(&format!("{:?}", state), transaction_details, price, game)
+            .await
+            .map_err(|e| crate::RrelError::Other(format!("Regulatory check failed: {}", e)))?;
 
-        for state in states {
-            states_covered.push(format!("{:?}", state));
+        // Optional enrichment via cached data provider
+        let mut external_profile = None;
+        let mut external_risk = None;
 
-            let listings = self.state_adapters.fetch_and_validate_state_listings(*state).await?;
-
-            for listing in listings {
-                let result = self.state_adapters.process_state_listing(*state, &listing, game).await?;
-
-                if result.passed {
-                    total_processed += 1;
-                    total_mercy += result.mercy_valence;
-                    total_consensus += result.quantum_consensus;
-                } else {
-                    issues_prevented += 1;
-                }
+        if let Some(identifier) = property_identifier {
+            if let Ok(profile) = self.data_provider.get_property_profile(state, identifier).await {
+                external_profile = Some(profile);
+            }
+            if let Ok(signals) = self.data_provider.get_risk_signals(state, identifier).await {
+                external_risk = Some(signals);
             }
         }
 
-        let report = UsaPilotReport {
-            listings_processed: total_processed,
-            average_mercy_valence: if total_processed > 0 { total_mercy / total_processed as f64 } else { 0.0 },
-            average_quantum_consensus: if total_processed > 0 { total_consensus / total_processed as f64 } else { 0.0 },
-            regulatory_issues_prevented: issues_prevented,
-            states_covered,
-            timestamp: chrono::Utc::now(),
+        let summary = if regulatory_result.passed {
+            format!("USA offer cleared regulatory checks in {:?}", state)
+        } else {
+            format!("USA offer has regulatory issues in {:?}", state)
         };
 
-        info!("✅ USA Pilot Report: {} listings processed across {} states | Issues prevented: {}", total_processed, states.len(), issues_prevented);
-        Ok(report)
+        Ok(UsaOfferFlowReport {
+            state: format!("{:?}", state),
+            passed_regulatory: regulatory_result.passed,
+            mercy_valence: regulatory_result.mercy_valence,
+            quantum_consensus: regulatory_result.quantum_consensus,
+            federal_issues: regulatory_result.federal_issues,
+            state_issues: regulatory_result.state_issues,
+            summary,
+            external_property_profile: external_profile,
+            external_risk_signals: external_risk,
+        })
     }
 }
