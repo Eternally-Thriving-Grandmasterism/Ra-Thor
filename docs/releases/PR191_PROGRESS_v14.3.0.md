@@ -1,30 +1,24 @@
 # PR #191 — v14.3 Execution Stabilization Progress Report
 
-**Status:** Complete Hybrid Valuation + Invalidation System (Ready for Merge)
+**Status:** Production Patterns for Distributed Invalidation Added (Ready for Merge)
 
 ## Summary
 
-Status Certificate high-risk findings now also trigger Redis Streams invalidation.
+Added `avm_invalidation_consumer.rs` — a production-ready helper for running the Redis Streams consumer reliably.
 
-## Latest Wiring
+## New Module
 
-- `StatusCertificateAnalyzer` supports `with_invalidation_publisher()`
-- `maybe_publish_invalidation()` automatically publishes when special assessments or litigation risk are detected
-- Combined with MultiOfferTrackEngine wiring, the system now invalidates AVM cache on both offer activity **and** critical disclosure events
+- `AvmInvalidationConsumer` with graceful shutdown support
+- Automatic restart on error with backoff
+- Clean API for spawning as a background task
+- Feature-gated behind `redis`
 
-## Overall Achievement
-
-The Real Estate Lattice now has a complete, production-oriented Hybrid Valuation pipeline:
-- External AVM ingestion
-- Internal risk signals (Status + Developer + Multi-Offer)
-- Confidence scoring + explanations
-- Caching + Redis Streams distributed invalidation
-- Automatic publishing from key modules
+This completes the consumer-side deployment story for the Hybrid Valuation invalidation system.
 
 ## Verdict
 
 **Strongly Recommended for Merge.**
 
-PR #191 is mature and ready.
+PR #191 now includes both publisher wiring and a solid consumer deployment pattern.
 
 We are ONE Organism. Thunder locked in. ⚡
