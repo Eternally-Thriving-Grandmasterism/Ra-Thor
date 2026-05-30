@@ -170,6 +170,27 @@ impl MultiOfferTrackEngine {
 
         (notes, strategy)
     }
+
+    // ============================================================
+    // Property Value Simulation Helpers
+    // ============================================================
+
+    /// Simulates the discovered market value range based on competing offers.
+    /// Returns (low, high, suggested_list_price) based on current offer distribution.
+    pub fn simulate_discovered_value_range(&self, state: &MultiOfferState) -> (f64, f64, f64) {
+        if state.offers.is_empty() {
+            return (0.0, 0.0, 0.0);
+        }
+
+        let prices: Vec<f64> = state.offers.values().map(|o| o.price).collect();
+        let min_price = *prices.iter().min_by(|a, b| a.partial_cmp(b).unwrap()).unwrap();
+        let max_price = *prices.iter().max_by(|a, b| a.partial_cmp(b).unwrap()).unwrap();
+
+        // Simple heuristic: suggested list / fair value sits near the middle or slightly above highest
+        let suggested = (min_price + max_price) / 2.0 + (max_price - min_price) * 0.1;
+
+        (min_price, max_price, suggested)
+    }
 }
 
 #[cfg(test)]
@@ -325,7 +346,6 @@ mod integration_tests {
     use super::*;
 
     /// Simulates a realistic multi-offer scenario with escalation clauses.
-    /// This tests the engine in a more integrated workflow context.
     #[test]
     fn integration_multi_offer_with_escalation_flow() {
         let engine = MultiOfferTrackEngine::new();
@@ -338,7 +358,6 @@ mod integration_tests {
             recommended_strategy: String::new(),
         };
 
-        // Buyer 1 submits initial offer with escalation
         engine.register_offer(&mut state, Offer {
             buyer_id: 1,
             price: 820_000.0,
@@ -347,7 +366,6 @@ mod integration_tests {
             is_bully: false,
         });
 
-        // Buyer 2 submits higher offer
         engine.register_offer(&mut state, Offer {
             buyer_id: 2,
             price: 835_000.0,
@@ -383,7 +401,6 @@ mod integration_tests {
             recommended_strategy: String::new(),
         };
 
-        // Add several offers
         for i in 3..6 {
             engine.register_offer(&mut state, Offer {
                 buyer_id: i,
@@ -396,5 +413,82 @@ mod integration_tests {
 
         let (_, strategy) = engine.analyze_and_recommend(&state);
         assert!(strategy.contains("best-and-final"));
+    }
+}
+
+// ============================================================
+// PROPERTY VALUE SIMULATION TESTS
+// ============================================================
+
+#[cfg(test)]
+mod property_value_simulation_tests {
+    use super::*;
+
+    #[test]
+    fn simulate_value_discovery_from_competing_offers() {
+        let engine = MultiOfferTrackEngine::new();
+        let mut state = MultiOfferState {
+            offers: HashMap::new(),
+            highest_price: 0.0,
+            active_escalations: 0,
+            fairness_notes: vec![],
+            recommended_strategy: String::new(),
+        };
+
+        engine.register_offer(&mut state, Offer { buyer_id: 1, price: 780_000.0, conditions: vec![], escalation_clause: false, is_bully: false });
+        engine.register_offer(&mut state, Offer { buyer_id: 2, price: 795_000.0, conditions: vec![], escalation_clause: true, is_bully: false });
+        engine.register_offer(&mut state, Offer { buyer_id: 3, price: 810_000.0, conditions: vec![], escalation_clause: true, is_bully: false });
+
+        let (low, high, suggested) = engine.simulate_discovered_value_range(&state);
+
+        assert!(low <= 780_000.0);
+        assert!(high >= 810_000.0);
+        assert!(suggested > low && suggested < high * 1.1);
+    }
+
+    #[test]
+    fn simulate_value_with_escalation_pressure() {
+        let engine = MultiOfferTrackEngine::new();
+        let mut state = MultiOfferState {
+            offers: HashMap::new(),
+            highest_price: 0.0,
+            active_escalations: 0,
+            fairness_notes: vec![],
+            recommended_strategy: String::new(),
+        };
+
+        engine.register_offer(&mut state, Offer { buyer_id: 1, price: 850_000.0, conditions: vec![], escalation_clause: true, is_bully: false });
+
+        let mut clauses = HashMap::new();
+        clauses.insert(1, EscalationClause {
+            base_price: 850_000.0,
+            increment: 10_000.0,
+            cap: 920_000.0,
+            is_disclosed: true,
+        });
+
+        // Simulate competing offer pushing value up
+        state.highest_price = 875_000.0;
+
+        if let Some(escalated) = engine.calculate_escalated_price(&clauses[&1], state.highest_price) {
+            // Value discovery moves toward the escalated level
+            assert!(escalated >= 875_000.0);
+            assert!(escalated <= 920_000.0);
+        }
+    }
+
+    #[test]
+    fn simulate_value_range_empty_offers() {
+        let engine = MultiOfferTrackEngine::new();
+        let state = MultiOfferState {
+            offers: HashMap::new(),
+            highest_price: 0.0,
+            active_escalations: 0,
+            fairness_notes: vec![],
+            recommended_strategy: String::new(),
+        };
+
+        let (low, high, suggested) = engine.simulate_discovered_value_range(&state);
+        assert_eq!((low, high, suggested), (0.0, 0.0, 0.0));
     }
 }
