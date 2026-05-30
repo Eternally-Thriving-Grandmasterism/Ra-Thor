@@ -171,3 +171,147 @@ impl MultiOfferTrackEngine {
         (notes, strategy)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn default_engine() -> MultiOfferTrackEngine {
+        MultiOfferTrackEngine::new()
+    }
+
+    #[test]
+    fn test_calculate_escalated_price_basic() {
+        let engine = default_engine();
+        let clause = EscalationClause {
+            base_price: 800_000.0,
+            increment: 5_000.0,
+            cap: 850_000.0,
+            is_disclosed: true,
+        };
+        let escalated = engine.calculate_escalated_price(&clause, 812_000.0);
+        assert_eq!(escalated, Some(815_000.0));
+    }
+
+    #[test]
+    fn test_calculate_escalated_price_hits_cap() {
+        let engine = default_engine();
+        let clause = EscalationClause {
+            base_price: 800_000.0,
+            increment: 10_000.0,
+            cap: 820_000.0,
+            is_disclosed: true,
+        };
+        let escalated = engine.calculate_escalated_price(&clause, 850_000.0);
+        assert_eq!(escalated, Some(820_000.0)); // capped
+    }
+
+    #[test]
+    fn test_calculate_escalated_price_below_base() {
+        let engine = default_engine();
+        let clause = EscalationClause {
+            base_price: 800_000.0,
+            increment: 5_000.0,
+            cap: 850_000.0,
+            is_disclosed: true,
+        };
+        let escalated = engine.calculate_escalated_price(&clause, 790_000.0);
+        assert_eq!(escalated, Some(800_000.0));
+    }
+
+    #[test]
+    fn test_calculate_escalated_price_undisclosed_returns_none() {
+        let engine = default_engine();
+        let clause = EscalationClause {
+            base_price: 800_000.0,
+            increment: 5_000.0,
+            cap: 850_000.0,
+            is_disclosed: false,
+        };
+        let escalated = engine.calculate_escalated_price(&clause, 810_000.0);
+        assert!(escalated.is_none());
+    }
+
+    #[test]
+    fn test_validate_escalation_clause_valid() {
+        let engine = default_engine();
+        let clause = EscalationClause {
+            base_price: 700_000.0,
+            increment: 2_500.0,
+            cap: 750_000.0,
+            is_disclosed: true,
+        };
+        assert!(engine.validate_escalation_clause(&clause).is_empty());
+    }
+
+    #[test]
+    fn test_validate_escalation_clause_invalid_increment() {
+        let engine = default_engine();
+        let clause = EscalationClause {
+            base_price: 700_000.0,
+            increment: 0.0,
+            cap: 750_000.0,
+            is_disclosed: true,
+        };
+        let issues = engine.validate_escalation_clause(&clause);
+        assert!(issues.iter().any(|i| i.contains("positive")));
+    }
+
+    #[test]
+    fn test_validate_escalation_clause_undisclosed() {
+        let engine = default_engine();
+        let clause = EscalationClause {
+            base_price: 700_000.0,
+            increment: 5_000.0,
+            cap: 750_000.0,
+            is_disclosed: false,
+        };
+        let issues = engine.validate_escalation_clause(&clause);
+        assert!(issues.iter().any(|i| i.contains("disclosed")));
+    }
+
+    #[test]
+    fn test_apply_escalation_logic_recommends_update() {
+        let engine = default_engine();
+        let mut state = MultiOfferState {
+            offers: HashMap::new(),
+            highest_price: 805_000.0,
+            active_escalations: 1,
+            fairness_notes: vec![],
+            recommended_strategy: String::new(),
+        };
+        state.offers.insert(1, Offer {
+            buyer_id: 1,
+            price: 800_000.0,
+            conditions: vec![],
+            escalation_clause: true,
+            is_bully: false,
+        });
+
+        let mut clauses = HashMap::new();
+        clauses.insert(1, EscalationClause {
+            base_price: 800_000.0,
+            increment: 5_000.0,
+            cap: 850_000.0,
+            is_disclosed: true,
+        });
+
+        let recs = engine.apply_escalation_logic(&mut state, &clauses);
+        assert!(recs.iter().any(|r| r.contains("can escalate")));
+    }
+
+    #[test]
+    fn test_high_escalation_count_recommends_best_and_final() {
+        let engine = default_engine();
+        let mut state = MultiOfferState {
+            offers: HashMap::new(),
+            highest_price: 900_000.0,
+            active_escalations: 4,
+            fairness_notes: vec![],
+            recommended_strategy: String::new(),
+        };
+
+        let (notes, strategy) = engine.analyze_and_recommend(&state);
+        assert!(strategy.contains("best-and-final"));
+    }
+}
