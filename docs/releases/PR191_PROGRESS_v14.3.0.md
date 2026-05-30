@@ -1,13 +1,16 @@
 # PR #191 — v14.3 Execution Stabilization — Real Estate Lattice + Conformal Geometric Algebra (CGA) Versor Systems
 
-**Status:** All requested micro-expansions complete • Production-Grade + Tests + UI-ready • Ready for Merge
+**Status:** Complete with runnable demo • Ready for Merge
 
-## Completed in this round
-- **Leptos dashboard wiring**: `rrel_leptos_dashboard.rs` now consumes `OntarioOfferFlowReport` + risk signals.
-- **New small helper**: `rrel_offer_risk_summary.rs` — `OfferRiskSummary::from_flow_report(...)` for quick aggregation.
-- **Deeper tests**: Integration tests added for offer flow paths (resale, developer risk, status certificate).
+## Final Deliverables
+- Full production v14.3 Ontario Real Estate Lattice
+- `process_ontario_offer_flow` helper
+- `OfferRiskSummary` helper
+- Leptos dashboard wired to new data
+- Integration tests
+- **New runnable example**: `examples/ontario_pilot_demo.rs`
 
-All changes are minimal, focused, mercy-aligned, and immediately useful.
+The example demonstrates end-to-end usage of the stabilized modules with realistic Ontario scenarios (resale + pre-construction).
 
 **Strongly Recommended for Merge.**
 
