@@ -210,3 +210,91 @@ impl UsaRegulatoryEngine {
         issues
     }
 }
+
+// ============================================================
+// Unit Tests for Regulatory Edge Cases
+// ============================================================
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use tokio;
+
+    fn create_test_engine() -> UsaRegulatoryEngine {
+        let mercy = MercyEngine::new();
+        let swarm = QuantumSwarmOrchestrator::new();
+        let governance = WorldGovernanceEngine::new();
+        UsaRegulatoryEngine::new(mercy, swarm, governance)
+    }
+
+    #[tokio::test]
+    async fn test_federal_kickback_detection() {
+        let mut engine = create_test_engine();
+        let mut game = PowrushGame::new();
+
+        let result = engine
+            .check_usa_transaction("CA", "Purchase with referral kickback to agent", 800_000.0, &mut game)
+            .await;
+
+        // Should detect RESPA issue
+        assert!(result.is_ok());
+        let r = result.unwrap();
+        assert!(!r.passed || r.federal_issues.iter().any(|i| i.contains("RESPA")));
+    }
+
+    #[tokio::test]
+    async fn test_missing_tila_disclosure() {
+        let mut engine = create_test_engine();
+        let mut game = PowrushGame::new();
+
+        let result = engine
+            .check_usa_transaction("FL", "Simple purchase agreement, no disclosures mentioned", 450_000.0, &mut game)
+            .await;
+
+        assert!(result.is_ok());
+        let r = result.unwrap();
+        assert!(r.federal_issues.iter().any(|i| i.contains("TILA")));
+    }
+
+    #[tokio::test]
+    async fn test_california_wildfire_edge_case() {
+        let mut engine = create_test_engine();
+        let mut game = PowrushGame::new();
+
+        let result = engine
+            .check_usa_transaction("CA", "Home in wildfire prone area, no hazard disclosure", 1_100_000.0, &mut game)
+            .await;
+
+        assert!(result.is_ok());
+        let r = result.unwrap();
+        assert!(r.state_issues.iter().any(|i| i.contains("wildfire")));
+    }
+
+    #[tokio::test]
+    async fn test_florida_condo_milestone() {
+        let mut engine = create_test_engine();
+        let mut game = PowrushGame::new();
+
+        let result = engine
+            .check_usa_transaction("FL", "Condo purchase, no milestone inspection mentioned", 650_000.0, &mut game)
+            .await;
+
+        assert!(result.is_ok());
+        let r = result.unwrap();
+        assert!(r.state_issues.iter().any(|i| i.contains("milestone") || i.contains("reserve")));
+    }
+
+    #[tokio::test]
+    async fn test_high_value_transaction_atr_prompt() {
+        let mut engine = create_test_engine();
+        let mut game = PowrushGame::new();
+
+        let result = engine
+            .check_usa_transaction("TX", "Luxury home purchase, no ability to repay discussion", 2_800_000.0, &mut game)
+            .await;
+
+        assert!(result.is_ok());
+        let r = result.unwrap();
+        assert!(r.federal_issues.iter().any(|i| i.contains("Ability-to-Repay")));
+    }
+}
