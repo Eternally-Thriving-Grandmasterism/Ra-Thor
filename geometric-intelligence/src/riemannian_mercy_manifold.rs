@@ -1,6 +1,6 @@
 //! RiemannianMercyManifold v14.4
 //!
-//! Includes Berry Phase analog computation.
+//! Includes Berry Curvature calculation.
 
 use crate::polyhedral_harmonic_engine::{PolyhedralResonanceReport, U57LayerDetails};
 use crate::types::EpigeneticBlessing;
@@ -21,6 +21,14 @@ pub struct BerryPhaseResult {
     pub magnitude: f64,
     pub interpretation: String,
     pub suggested_blessings: Vec<EpigeneticBlessing>,
+}
+
+#[derive(Debug, Clone)]
+pub struct BerryCurvatureResult {
+    pub raw_curvature: f64,
+    pub effective_curvature: f64,
+    pub berry_curvature_density: f64,
+    pub notes: String,
 }
 
 #[derive(Debug, Clone)]
@@ -52,7 +60,7 @@ impl Default for RiemannianMercyManifold {
 impl RiemannianMercyManifold {
     pub fn new() -> Self {
         Self {
-            version: "v14.4-berry-phase",
+            version: "v14.4-berry-curvature",
             curvature_params: CurvatureParameters::default(),
         }
     }
@@ -104,13 +112,8 @@ impl RiemannianMercyManifold {
         }
     }
 
-    pub fn rk4_geodesic_step(
-        &self,
-        position: f64,
-        velocity: f64,
-        delta_t: f64,
-        curvature: f64,
-    ) -> (f64, f64) { /* ... */ let accel = |p: f64| -> f64 { -curvature * p };
+    pub fn rk4_geodesic_step(&self, position: f64, velocity: f64, delta_t: f64, curvature: f64) -> (f64, f64) {
+        let accel = |p: f64| -> f64 { -curvature * p };
         let k1_v = accel(position); let k1_p = velocity;
         let k2_v = accel(position + 0.5 * delta_t * k1_p); let k2_p = velocity + 0.5 * delta_t * k1_v;
         let k3_v = accel(position + 0.5 * delta_t * k2_p); let k3_p = velocity + 0.5 * delta_t * k2_v;
@@ -121,7 +124,8 @@ impl RiemannianMercyManifold {
     }
 
     pub fn parallel_transport_approx(&self, vector: f64, curvature: f64, distance: f64) -> f64 {
-        let damping = (1.0 - curvature * distance * 0.1).clamp(0.6, 1.1); vector * damping
+        let damping = (1.0 - curvature * distance * 0.1).clamp(0.6, 1.1);
+        vector * damping
     }
 
     pub fn estimate_holonomy(&self, curvature: f64, loop_area: f64) -> f64 {
@@ -136,47 +140,35 @@ impl RiemannianMercyManifold {
         total.clamp(-2.0, 2.0)
     }
 
-    /// NEW: Berry Phase analog computation
-    /// Treats curvature sequence as a Berry curvature and computes geometric phase.
-    pub fn compute_berry_phase_analog(
-        &self,
-        curvatures: &[f64],
-        areas: &[f64],
-    ) -> BerryPhaseResult {
-        let phase = self.accumulate_holonomy(curvatures, areas);
-        let magnitude = phase.abs();
+    /// Compute local Berry Curvature
+    pub fn compute_berry_curvature(&self, local_curvature: f64) -> BerryCurvatureResult {
+        let effective = (local_curvature * self.curvature_params.mercy_influence)
+            .clamp(0.5, self.curvature_params.max_allowed_curvature);
 
-        let interpretation = if magnitude < 0.1 {
-            "Weak geometric phase. Minimal curvature influence.".to_string()
-        } else if magnitude < 0.5 {
-            "Moderate Berry-like phase. Noticeable geometric effect.".to_string()
+        let density = effective;
+
+        let notes = if effective > 1.0 {
+            "High Berry curvature density. Strong geometric effects expected.".to_string()
         } else {
-            "Strong geometric phase. Significant curvature-induced state evolution.".to_string()
+            "Moderate Berry curvature density.".to_string()
         };
 
-        let mut blessings = vec![];
-        if magnitude > 0.3 {
-            blessings.push(EpigeneticBlessing {
-                blessing_type: "Berry_Phase_Accumulation".to_string(),
-                strength: magnitude.clamp(0.9, 1.4),
-                target_system: "riemannian".to_string(),
-            });
-        }
-
-        BerryPhaseResult {
-            phase,
-            magnitude,
-            interpretation,
-            suggested_blessings: blessings,
+        BerryCurvatureResult {
+            raw_curvature: local_curvature,
+            effective_curvature: effective,
+            berry_curvature_density: density,
+            notes,
         }
     }
 
-    pub fn run_u57_informed_transport_sequence(
-        &self,
-        u57_details: &U57LayerDetails,
-        base_coherence: f64,
-        steps: usize,
-    ) -> GeometricTransportResult {
+    pub fn compute_berry_phase_analog(&self, curvatures: &[f64], areas: &[f64]) -> BerryPhaseResult {
+        let phase = self.accumulate_holonomy(curvatures, areas);
+        let magnitude = phase.abs();
+        let interpretation = if magnitude < 0.1 { "Weak geometric phase.".to_string() } else { "Significant geometric phase.".to_string() };
+        BerryPhaseResult { phase, magnitude, interpretation, suggested_blessings: vec![] }
+    }
+
+    pub fn run_u57_informed_transport_sequence(&self, u57_details: &U57LayerDetails, base_coherence: f64, steps: usize) -> GeometricTransportResult {
         if !u57_details.activated {
             return self.apply_mercy_gated_transport(u57_details, base_coherence);
         }
@@ -190,7 +182,8 @@ impl RiemannianMercyManifold {
         for _ in 0..steps {
             let curv = u57_details.recommended_manifold_curvature;
             let (new_pos, new_vel) = self.rk4_geodesic_step(pos, vel, dt, curv);
-            pos = new_pos; vel = new_vel;
+            pos = new_pos;
+            vel = new_vel;
             let transported = self.parallel_transport_approx(vel, curv, dt * 2.0);
             current_coherence = (current_coherence * 0.985 + transported * 0.015).clamp(0.88, 1.4);
             accumulated_holonomy += self.estimate_holonomy(curv, dt * 1.5);
@@ -208,7 +201,7 @@ impl RiemannianMercyManifold {
                 strength: current_coherence,
                 target_system: "riemannian".to_string(),
             }],
-            notes: format!("RK4 sequence + Berry phase analog ≈ {:.3}", accumulated_holonomy),
+            notes: format!("RK4 sequence complete. Accumulated holonomy ≈ {:.3}", accumulated_holonomy),
         }
     }
 }
