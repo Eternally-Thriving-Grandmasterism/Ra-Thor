@@ -1,12 +1,15 @@
 // crates/lattice-conductor/src/lattice_conductor_v14.rs
 // Lattice Conductor v14.4 — Real Estate Lattice + Geometric Intelligence
 // Powered by geometric-intelligence crate + local engine fallback
+// Now supports parallel batch processing via Rayon
 
 use std::collections::HashMap;
 use std::fmt;
+use std::sync::RwLock;
 
 use geometric_intelligence::{compute_geometric_harmony, GeometricHarmonyScore};
 use ra_thor_quantum_swarm_orchestrator::PolyhedralHarmonicEngine;
+use rayon::prelude::*;
 
 /// TOLC 8 Living Mercy Gates
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -98,13 +101,12 @@ pub enum ConductorError {
     InvariantBroken(String),
 }
 
-/// Lattice Conductor v14.4
+/// Lattice Conductor v14.4 with Rayon parallel batch support
 pub struct LatticeConductor {
     pub version: &'static str,
     mercy_gates: Vec<MercyGate>,
-    attom_cache: HashMap<String, AttomData>,
+    attom_cache: RwLock<HashMap<String, AttomData>>,
     regulatory_rules: HashMap<String, String>,
-    /// Local engine kept for richer analysis or future hybrid use
     geometric_engine: PolyhedralHarmonicEngine,
 }
 
@@ -125,7 +127,7 @@ impl LatticeConductor {
         LatticeConductor {
             version: "v14.4.0-geometric-intelligence",
             mercy_gates: gates,
-            attom_cache: HashMap::new(),
+            attom_cache: RwLock::new(HashMap::new()),
             regulatory_rules: rules,
             geometric_engine: PolyhedralHarmonicEngine::new(),
         }
@@ -157,15 +159,26 @@ impl LatticeConductor {
         Ok(passed)
     }
 
-    pub fn integrate_attom(&mut self, offer: &RealEstateOffer) -> Result<AttomData, ConductorError> {
-        if let Some(cached) = self.attom_cache.get(&offer.id) { return Ok(cached.clone()); }
+    pub fn integrate_attom(&self, offer: &RealEstateOffer) -> Result<AttomData, ConductorError> {
+        {
+            let cache = self.attom_cache.read().unwrap();
+            if let Some(cached) = cache.get(&offer.id) {
+                return Ok(cached.clone());
+            }
+        }
+
         let data = AttomData {
             property_id: format!("ATTOM-{}", offer.id),
             tax_history: vec![offer.price * 0.012, offer.price * 0.011],
             ownership_changes: 2,
             risk_score: 0.12,
         };
-        self.attom_cache.insert(offer.id.clone(), data.clone());
+
+        {
+            let mut cache = self.attom_cache.write().unwrap();
+            cache.insert(offer.id.clone(), data.clone());
+        }
+
         Ok(data)
     }
 
@@ -178,14 +191,12 @@ impl LatticeConductor {
         Ok(true)
     }
 
-    /// Uses the centralized geometric-intelligence crate.
-    /// The local geometric_engine is kept available for richer analysis if needed.
     pub fn compute_geometric_harmony(&self, offer: &RealEstateOffer) -> GeometricHarmonyScore {
         let tolc_proxy: u32 = if offer.price > 1_000_000.0 { 89 } else { 34 };
         compute_geometric_harmony(tolc_proxy, offer.base_valence.value())
     }
 
-    pub fn conduct_real_estate_offer(&mut self, offer: RealEstateOffer) -> Result<ConductedOffer, ConductorError> {
+    pub fn conduct_real_estate_offer(&self, offer: RealEstateOffer) -> Result<ConductedOffer, ConductorError> {
         let passed_gates = self.enforce_mercy_gates(&offer)?;
         let attom = if offer.attom_enriched { Some(self.integrate_attom(&offer)?) } else { None };
         let cleared = self.check_regulatory(&offer)?;
@@ -209,8 +220,11 @@ impl LatticeConductor {
         })
     }
 
-    pub fn conduct_batch(&mut self, offers: Vec<RealEstateOffer>) -> Vec<Result<ConductedOffer, ConductorError>> {
-        offers.into_iter().map(|o| self.conduct_real_estate_offer(o)).collect()
+    /// Parallel batch conduction using Rayon
+    pub fn conduct_batch(&self, offers: Vec<RealEstateOffer>) -> Vec<Result<ConductedOffer, ConductorError>> {
+        offers.into_par_iter()
+            .map(|offer| self.conduct_real_estate_offer(offer))
+            .collect()
     }
 }
 
