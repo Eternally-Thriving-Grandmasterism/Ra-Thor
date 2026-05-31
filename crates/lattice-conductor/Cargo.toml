@@ -19,6 +19,9 @@ patsagi-councils = { path = "../patsagi-councils" }
 xai-grok-bridge = { path = "../xai-grok-bridge" }
 symbiosis-layer = { path = "../symbiosis-layer" }
 
+# Parallelism
+rayon = "1.10"
+
 # Workspace dependencies
 tokio = { workspace = true }
 serde = { workspace = true }
