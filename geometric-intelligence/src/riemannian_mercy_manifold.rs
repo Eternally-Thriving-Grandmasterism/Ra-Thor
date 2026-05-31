@@ -9,6 +9,7 @@
 
         assert!(spread.invariant_spread >= 0.0);
         assert!(spread.total_spread >= spread.invariant_spread);
+        assert!(spread.estimated_gauge_dependent > 0.0);
     }
 
     #[test]
@@ -18,6 +19,7 @@
         let areas = vec![1.0, 1.0, 1.0];
 
         let spread = manifold.compute_wannier_spread(&curvatures, &areas);
-        // High curvature should lead to higher invariant spread
-        assert!(spread.invariant_spread > 0.5);
+
+        assert!(spread.invariant_spread > 0.8);
+        assert!(spread.total_spread > spread.invariant_spread + 0.1);
     }
