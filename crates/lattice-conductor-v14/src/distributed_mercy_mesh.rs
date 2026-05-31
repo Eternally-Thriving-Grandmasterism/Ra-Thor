@@ -14,6 +14,9 @@ use std::time::{SystemTime, UNIX_EPOCH};
 use crate::runtime_self_healing::{HealingAction, HealingExperience};
 use crate::hybrid_sovereign_channel::{HybridSovereignChannelManager, HybridSovereignChannel};
 
+// === NEW: ONE Organism Geometric + Cosmic Loop Integration (v14.3) ===
+use quantum_swarm_orchestrator::QuantumSwarmOrchestrator;
+
 /// The 7 Living Mercy Gates (TOLC aligned) — enforced on all mesh operations
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum MercyGate {
@@ -207,6 +210,55 @@ impl DistributedMercyMesh {
 
     pub fn get_pending_requests(&self) -> &[HealingRequest] { &self.pending_requests }
     pub fn get_audit_log(&self) -> &[MercyAuditEntry] { &self.audit_log }
+}
+
+// === NEW: v14.3 ONE Organism + Geometric Cosmic Loop Integration ===
+
+/// Runs a full v14 Cosmic ONE Organism loop with automatic geometric intelligence participation.
+/// 
+/// This wires PolyhedralHarmonicEngine + RiemannianMercyManifold into the living
+/// Distributed Mercy Mesh and v14 Thunder Lattice cosmic self-nurturing cycles.
+pub fn run_v14_cosmic_one_organism_loop(
+    orchestrator: &mut QuantumSwarmOrchestrator,
+    task: &str,
+    tolc_order: u32,
+) -> CosmicOneOrganismLoopReport {
+    let readiness = orchestrator.prepare_for_cosmic_loop_participation();
+
+    let cycle_report = orchestrator.run_health_aware_swarm_cycle_with_geometric(
+        task,
+        true, // enable_geometric_layer
+        tolc_order,
+    );
+
+    let daily_report = if tolc_order >= 13 {
+        Some(orchestrator.run_daily_cycle_with_geometric(task, true, tolc_order))
+    } else {
+        None
+    };
+
+    CosmicOneOrganismLoopReport {
+        readiness,
+        health_aware_cycle: cycle_report,
+        daily_cycle: daily_report,
+        geometric_layer_engaged: tolc_order >= 8,
+        final_mercury_valence: cycle_report.current_mercury_valence,
+        notes: format!(
+            "v14 Cosmic ONE Organism loop complete. TOLC: {}. Geometric engaged: {}.",
+            tolc_order,
+            tolc_order >= 8
+        ),
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct CosmicOneOrganismLoopReport {
+    pub readiness: quantum_swarm_orchestrator::CosmicLoopReadinessReport,
+    pub health_aware_cycle: quantum_swarm_orchestrator::HealthAwareCycleReport,
+    pub daily_cycle: Option<quantum_swarm_orchestrator::DailyCycleReport>,
+    pub geometric_layer_engaged: bool,
+    pub final_mercury_valence: f64,
+    pub notes: String,
 }
 
 #[cfg(test)]
