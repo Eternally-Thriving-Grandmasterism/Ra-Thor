@@ -1,52 +1,37 @@
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum Z2Invariant {
-    Trivial,      // 0
-    NonTrivial,   // 1
-}
-
 #[derive(Debug, Clone)]
-pub struct TopologicalInsulatorResponse {
-    pub z2_invariant: Z2Invariant,
-    pub has_protected_surface_states: bool,
-    pub bulk_gap: f64,
+pub struct WannierSpreadResult {
+    pub total_spread: f64,
+    pub invariant_spread: f64,      // Ω_I (related to Berry curvature)
+    pub estimated_gauge_dependent: f64,
     pub notes: String,
 }
 
 impl RiemannianMercyManifold {
 
-    /// Analyzes topological insulator-like behavior.
-    pub fn analyze_topological_insulator(
+    /// Computes MLWF-like spread.
+    /// invariant_spread ≈ integral of Berry curvature (Ω_I)
+    pub fn compute_wannier_spread(
         &self,
-        bulk_curvature: f64,
-        surface_phase: f64,
-    ) -> TopologicalInsulatorResponse {
-        let bulk_gap = (bulk_curvature - 0.82).abs();
+        curvatures: &[f64],
+        areas: &[f64],
+    ) -> WannierSpreadResult {
+        let invariant = self.accumulate_holonomy(curvatures, areas).abs();
 
-        // Simple Z2 analog: non-trivial if accumulated phase is significant and odd-like
-        let z2 = if surface_phase.abs() > 0.4 {
-            Z2Invariant::NonTrivial
+        // Simple model: total spread = invariant + small gauge-dependent term
+        let gauge_dependent = (curvatures.len() as f64) * 0.05;
+        let total = invariant + gauge_dependent;
+
+        let notes = if invariant > 0.8 {
+            "High invariant spread. Difficult to localize (topological character).".to_string()
         } else {
-            Z2Invariant::Trivial
+            "Reasonable spread. Good localization possible.".to_string()
         };
 
-        let has_protected = z2 == Z2Invariant::NonTrivial && bulk_gap > 0.1;
-
-        let notes = match z2 {
-            Z2Invariant::NonTrivial => {
-                if has_protected {
-                    "Non-trivial Z2 phase. Protected surface states expected (topological insulator analog).".to_string()
-                } else {
-                    "Non-trivial topology but bulk gap too small.".to_string()
-                }
-            }
-            Z2Invariant::Trivial => "Trivial insulator phase. No protected surface states.".to_string(),
-        };
-
-        TopologicalInsulatorResponse {
-            z2_invariant: z2,
-            has_protected_surface_states: has_protected,
-            bulk_gap,
+        WannierSpreadResult {
+            total_spread: total,
+            invariant_spread: invariant,
+            estimated_gauge_dependent: gauge_dependent,
             notes,
         }
     }
