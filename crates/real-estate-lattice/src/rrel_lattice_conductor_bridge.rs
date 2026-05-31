@@ -1,12 +1,51 @@
 //! RREL ↔ Lattice Conductor Bridge v14.4
 //!
-//! High-level orchestration between RREL assembly and the parallel Lattice Conductor.
+//! High-level orchestration between RREL and the parallel `LatticeConductor`.
 //!
-//! ## Key Methods
+//! This bridge provides both low-level control and high-level convenience methods
+//! for processing Real Estate offers using the high-performance parallel engine
+//! (Rayon + DashMap + Arc caching).
 //!
-//! - `conduct_offers_parallel` — Pure parallel conduction
-//! - `process_and_conduct_offers_parallel` — High-level method that combines assembly + parallel conduction
-//! - `conduct_offers_batch` — Recommended default (parallel)
+//! ## Method Overview
+//!
+//! | Method | Description | Recommended For |
+//! |--------|-------------|-----------------|
+//! | `conduct_offers_parallel` | Pure parallel conduction | When you already have prepared offers |
+//! | `conduct_offers_batch` | Alias for parallel (default) | **Most common usage** |
+//! | `process_and_conduct_offers_parallel` | High-level: assembly + parallel | When you want one-call processing |
+//! | `conduct_offers_sequential` | Sequential fallback | Small batches or debugging |
+//!
+//! ## Usage Example
+//!
+//! ```rust,ignore
+//! use real_estate_lattice::rrel_lattice_conductor_bridge::RrelLatticeConductorBridge;
+//! use lattice_conductor::RealEstateOffer;
+//! use patsagi_councils::PatsagiCouncil;
+//! use std::sync::Arc;
+//!
+//! let coordinator: Arc<dyn PatsagiCouncil> = ...;
+//! let bridge = RrelLatticeConductorBridge::new(coordinator);
+//!
+//! let offers: Vec<RealEstateOffer> = vec![ /* ... */ ];
+//!
+//! // Recommended: Simple parallel batch
+//! let results = bridge.conduct_offers_batch(offers.clone());
+//!
+//! // Explicit parallel
+//! let results = bridge.conduct_offers_parallel(offers.clone());
+//!
+//! // High-level method (future assembler integration)
+//! let results = bridge.process_and_conduct_offers_parallel(offers);
+//!
+//! // Sequential fallback
+//! let results = bridge.conduct_offers_sequential(offers);
+//! ```
+//!
+//! ## When to Use Parallel?
+//!
+//! - Batches of **500+ offers** → Strongly recommended
+//! - High-throughput simulations or bulk processing → Use `conduct_offers_batch`
+//! - Small batches (< 300) → `conduct_offers_sequential` may be simpler
 
 use crate::rrel_brokerage_assembler::RrelBrokerageAssembler;
 use lattice_conductor::{LatticeConductor, RealEstateOffer, ConductedOffer, ConductorError};
@@ -48,7 +87,8 @@ impl RrelLatticeConductorBridge {
         self.conductor.conduct_batch(offers)
     }
 
-    /// Recommended default — uses parallel conduction
+    /// Recommended default batch method.
+    /// Uses the optimized parallel path.
     pub fn conduct_offers_batch(
         &self,
         offers: Vec<RealEstateOffer>,
@@ -56,16 +96,13 @@ impl RrelLatticeConductorBridge {
         self.conduct_offers_parallel(offers)
     }
 
-    /// High-level method: Wires RREL assembly + parallel conduction together.
-    ///
-    /// This is the recommended entry point when you want to go from raw offers
-    /// through assembly and straight into high-performance parallel conduction.
+    /// High-level method that combines RREL assembly concepts with parallel conduction.
+    /// Currently delegates to the parallel conductor. Future versions may enrich offers
+    /// using the internal assembler before conduction.
     pub fn process_and_conduct_offers_parallel(
         &self,
         offers: Vec<RealEstateOffer>,
     ) -> Vec<Result<ConductedOffer, ConductorError>> {
-        // Future: We can enrich offers here using self.assembler before conduction.
-        // For now we pass them directly into the optimized parallel path.
         self.conductor.conduct_batch(offers)
     }
 
