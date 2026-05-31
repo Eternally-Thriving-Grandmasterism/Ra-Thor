@@ -1,51 +1,41 @@
 
 impl RiemannianMercyManifold {
 
-    /// Computes Berry curvature values over a 1D range.
-    /// Returns (curvature_values, berry_curvature_values) suitable for plotting.
-    pub fn compute_berry_curvature_1d(
+    /// Generates 2D Berry Curvature grid data.
+    /// Varies local curvature (x) and mercy_influence (y).
+    /// Returns (x_values, y_values, grid) where grid[y][x] = berry_curvature_density
+    pub fn compute_berry_curvature_2d_grid(
         &self,
-        min_curvature: f64,
-        max_curvature: f64,
-        steps: usize,
-    ) -> (Vec<f64>, Vec<f64>) {
-        let mut curvatures = Vec::with_capacity(steps);
-        let mut berry_values = Vec::with_capacity(steps);
+        curvature_min: f64,
+        curvature_max: f64,
+        mercy_min: f64,
+        mercy_max: f64,
+        resolution: usize,
+    ) -> (Vec<f64>, Vec<f64>, Vec<Vec<f64>>) {
+        let mut x_vals = Vec::with_capacity(resolution);
+        let mut y_vals = Vec::with_capacity(resolution);
+        let mut grid = vec![vec![0.0; resolution]; resolution];
 
-        let step_size = if steps > 1 {
-            (max_curvature - min_curvature) / (steps - 1) as f64
-        } else {
-            0.0
-        };
+        let dx = if resolution > 1 { (curvature_max - curvature_min) / (resolution - 1) as f64 } else { 0.0 };
+        let dy = if resolution > 1 { (mercy_max - mercy_min) / (resolution - 1) as f64 } else { 0.0 };
 
-        for i in 0..steps {
-            let c = min_curvature + i as f64 * step_size;
-            let result = self.compute_berry_curvature(c);
-            curvatures.push(c);
-            berry_values.push(result.berry_curvature_density);
+        for j in 0..resolution {
+            let mercy = mercy_min + j as f64 * dy;
+            y_vals.push(mercy);
+
+            for i in 0..resolution {
+                let curv = curvature_min + i as f64 * dx;
+                if j == 0 { x_vals.push(curv); }
+
+                let effective = (curv * mercy).clamp(0.5, 1.15);
+                grid[j][i] = effective;
+            }
         }
 
-        (curvatures, berry_values)
-    }
-
-    /// Simple ASCII heatmap for Berry curvature over a 1D range.
-    pub fn visualize_berry_curvature_heatmap(
-        &self,
-        min_curvature: f64,
-        max_curvature: f64,
-        steps: usize,
-    ) -> String {
-        let (_, values) = self.compute_berry_curvature_1d(min_curvature, max_curvature, steps);
-        let mut output = String::from("Berry Curvature Heatmap (1D):\n");
-
-        let max_val = values.iter().cloned().fold(0.0_f64, f64::max);
-
-        for (i, &val) in values.iter().enumerate() {
-            let intensity = if max_val > 0.0 { (val / max_val * 10.0) as usize } else { 0 };
-            let bar = "█".repeat(intensity.min(20));
-            output.push_str(&format!("{:.3} | {}\n", min_curvature + i as f64 * (max_curvature - min_curvature) / (steps - 1).max(1) as f64, bar));
+        if x_vals.len() > resolution {
+            x_vals.truncate(resolution);
         }
 
-        output
+        (x_vals, y_vals, grid)
     }
 }
