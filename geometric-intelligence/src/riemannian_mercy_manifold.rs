@@ -3,7 +3,7 @@
 //! Curvature-aware geometric transport + advanced numerical methods
 //! (RK4 geodesic stepping, parallel transport, holonomy estimation).
 
-use crate::polyhedral_harmonic_engine::U57LayerDetails;
+use crate::polyhedral_harmonic_engine::{PolyhedralResonanceReport, U57LayerDetails};
 use crate::types::EpigeneticBlessing;
 
 #[derive(Debug, Clone)]
@@ -49,6 +49,29 @@ impl RiemannianMercyManifold {
         }
     }
 
+    // === High-level Integration Helper ===
+
+    /// High-level helper that consumes a PolyhedralResonanceReport and automatically
+    /// applies Riemannian transport if U57 is active.
+    ///
+    /// This is the recommended entry point when you already have a polyhedral report.
+    pub fn apply_u57_riemannian_transport(
+        &self,
+        polyhedral_report: &PolyhedralResonanceReport,
+        base_coherence: f64,
+    ) -> Option<GeometricTransportResult> {
+        let u57_details = polyhedral_report.u57_details.as_ref()?;
+
+        if !u57_details.activated {
+            return None;
+        }
+
+        // Use the advanced sequence when U57 is active for deeper transport
+        Some(self.run_u57_informed_transport_sequence(u57_details, base_coherence, 8))
+    }
+
+    // === Core Transport Methods ===
+
     pub fn apply_mercy_gated_transport(
         &self,
         u57_details: &U57LayerDetails,
@@ -84,9 +107,8 @@ impl RiemannianMercyManifold {
         }
     }
 
-    // === Advanced Numerical Methods (migrated) ===
+    // === Advanced Numerical Methods ===
 
-    /// RK4 geodesic step on a simple curvature field
     pub fn rk4_geodesic_step(
         &self,
         position: f64,
@@ -140,6 +162,7 @@ impl RiemannianMercyManifold {
             let (new_pos, new_vel) = self.rk4_geodesic_step(pos, vel, dt, curv);
             pos = new_pos;
             vel = new_vel;
+
             let transported = self.parallel_transport_approx(vel, curv, dt * 2.0);
             current_coherence = (current_coherence * 0.985 + transported * 0.015).clamp(0.88, 1.4);
         }
