@@ -82,4 +82,24 @@ mod tests {
         let score = compute_geometric_harmony(200, 0.90);
         assert!(score.u57_active);
     }
+
+    #[test]
+    fn test_apply_u57_riemannian_transport_inactive() {
+        let engine = PolyhedralHarmonicEngine::new();
+        let report = engine.process_resonance(55, 0.95); // U57 not active
+        let result = apply_u57_riemannian_transport(&report, 0.95);
+        assert!(result.is_none());
+    }
+
+    #[test]
+    fn test_apply_u57_riemannian_transport_active() {
+        let engine = PolyhedralHarmonicEngine::new();
+        let report = engine.process_resonance(180, 0.92); // U57 should be active
+        let result = apply_u57_riemannian_transport(&report, 0.92);
+        assert!(result.is_some());
+        if let Some(transport) = result {
+            assert!(transport.transport_applied);
+            assert!(transport.coherence_after_transport > 0.88);
+        }
+    }
 }
