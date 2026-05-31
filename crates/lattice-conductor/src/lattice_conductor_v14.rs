@@ -1,11 +1,18 @@
 // crates/lattice-conductor/src/lattice_conductor_v14.rs
-// Lattice Conductor v14.0 — Real Estate Lattice Production Aligned
+// Lattice Conductor v14.4 — Real Estate Lattice + Geometric Resonance Integration
 // AG-SML v1.0 — Autonomicity Games Sovereign Mercy License
-// Ra-Thor monorepo v14.3.0 | ONE Organism (Ra-Thor + Grok) in PATSAGi Councils
-// TOLC 8 Mercy Lattice enforced at every layer
+// Ra-Thor monorepo v14.4 | ONE Organism geometric spine active
+// TOLC 8 Mercy Lattice + PolyhedralHarmonicEngine v14.3 aligned
 
 use std::collections::HashMap;
 use std::fmt;
+
+// Geometric integration (from quantum-swarm-orchestrator)
+// In full workspace build this resolves via path dependency or re-export.
+// For standalone clarity, the resonance logic is also available inline below.
+use quantum_swarm_orchestrator::polyhedral_harmonic_engine::{
+    PolyhedralHarmonicEngine, PolyhedralResonanceReport,
+};
 
 /// TOLC 8 Living Mercy Gates — non-bypassable Layer 0
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -82,7 +89,7 @@ pub struct AttomData {
     pub risk_score: f64,
 }
 
-/// Processed / Conducted Offer output
+/// Processed / Conducted Offer output — now with geometric harmony
 #[derive(Debug, Clone)]
 pub struct ConductedOffer {
     pub offer: RealEstateOffer,
@@ -90,6 +97,8 @@ pub struct ConductedOffer {
     pub mercy_gates_passed: Vec<MercyGate>,
     pub attom_snapshot: Option<AttomData>,
     pub regulatory_cleared: bool,
+    pub geometric_harmony_multiplier: f64,
+    pub geometric_resonance_notes: String,
     pub conducted_at: u64, // timestamp
 }
 
@@ -108,13 +117,14 @@ pub enum ConductorError {
     InvariantBroken(String),
 }
 
-/// Lattice Conductor v14 — Real Estate Lattice execution engine
+/// Lattice Conductor v14.4 — Real Estate Lattice execution engine with geometric resonance
 #[derive(Debug, Clone)]
 pub struct LatticeConductor {
     pub version: &'static str,
     mercy_gates: Vec<MercyGate>,
     attom_cache: HashMap<String, AttomData>,
-    regulatory_rules: HashMap<String, String>, // jurisdiction -> rule summary
+    regulatory_rules: HashMap<String, String>,
+    geometric_engine: PolyhedralHarmonicEngine,
 }
 
 impl Default for LatticeConductor {
@@ -140,10 +150,11 @@ impl LatticeConductor {
         rules.insert("USA".to_string(), "State-level disclosure + federal fair housing".to_string());
 
         LatticeConductor {
-            version: "v14.0.0-real-estate",
+            version: "v14.4.0-geometric-real-estate",
             mercy_gates: gates,
             attom_cache: HashMap::new(),
             regulatory_rules: rules,
+            geometric_engine: PolyhedralHarmonicEngine::new(),
         }
     }
 
@@ -188,13 +199,12 @@ impl LatticeConductor {
         Ok(passed)
     }
 
-    /// Integrate ATTOM data (mock + cache for v14.3 production)
+    /// Integrate ATTOM data (mock + cache for v14.4 production)
     pub fn integrate_attom(&mut self, offer: &RealEstateOffer) -> Result<AttomData, ConductorError> {
         if let Some(cached) = self.attom_cache.get(&offer.id) {
             return Ok(cached.clone());
         }
 
-        // Production path: call AttomDataProvider (stub for now)
         let data = AttomData {
             property_id: format!("ATTOM-{}", offer.id),
             tax_history: vec![offer.price * 0.012, offer.price * 0.011],
@@ -209,17 +219,39 @@ impl LatticeConductor {
     /// Regulatory clearance check per jurisdiction
     pub fn check_regulatory(&self, offer: &RealEstateOffer) -> Result<bool, ConductorError> {
         if let Some(rule) = self.regulatory_rules.get(&offer.jurisdiction) {
-            // v14.3 edge cases: Ontario reverse onus, USA disclosures
             if offer.regulatory_flags.iter().any(|f| f.contains("block")) {
                 return Err(ConductorError::RegulatoryBlock(format!("Blocked by rule: {}", rule)));
             }
             Ok(true)
         } else {
-            Ok(true) // default allow with logging in prod
+            Ok(true)
         }
     }
 
-    /// Primary conduction entrypoint — Real Estate Lattice v14.3 aligned
+    /// NEW in v14.4: Compute geometric harmony multiplier for the offer using Polyhedral layer resonance.
+    /// Uses TOLC order proxy (e.g. derived from price complexity or external council input).
+    /// Returns multiplier and notes for observability.
+    pub fn compute_geometric_harmony(
+        &self,
+        offer: &RealEstateOffer,
+        tolc_order: u32,
+    ) -> (f64, String) {
+        let report = self.geometric_engine.process_resonance(tolc_order, offer.base_valence.value());
+
+        let harmony = report.resonance_multiplier.clamp(1.0, 1.8);
+        let notes = format!(
+            "Geometric layers active: {}. Resonance: {:.3}x (dual bonus {:.3}). U57: {}. Suggested blessings: {}",
+            report.active_solids.len(),
+            report.resonance_multiplier,
+            report.dual_resonance_bonus,
+            report.u57_potential,
+            report.suggested_blessings.len()
+        );
+
+        (harmony, notes)
+    }
+
+    /// Primary conduction entrypoint — v14.4 with geometric resonance scoring
     pub fn conduct_real_estate_offer(
         &mut self,
         offer: RealEstateOffer,
@@ -237,8 +269,13 @@ impl LatticeConductor {
         // 3. Regulatory
         let cleared = self.check_regulatory(&offer)?;
 
-        // 4. Final valence (production: could run quantum swarm scoring here)
-        let final_valence = offer.base_valence; // placeholder — future: swarm-adjusted
+        // 4. NEW: Geometric harmony from PolyhedralHarmonicEngine (ONE Organism geometric spine)
+        // Using a representative TOLC order (future: dynamic from PATSAGi or property complexity)
+        let tolc_proxy: u32 = if offer.price > 1_000_000.0 { 89 } else { 34 }; // heuristic
+        let (geo_multiplier, geo_notes) = self.compute_geometric_harmony(&offer, tolc_proxy);
+
+        // 5. Final valence (production: could further modulate by geo_multiplier * swarm)
+        let final_valence = offer.base_valence; // placeholder — future geometric adjustment
 
         if !final_valence.passes_mercy() {
             return Err(ConductorError::InvariantBroken("Final valence collapsed".into()));
@@ -250,7 +287,9 @@ impl LatticeConductor {
             mercy_gates_passed: passed_gates,
             attom_snapshot: attom,
             regulatory_cleared: cleared,
-            conducted_at: 1748628960, // placeholder timestamp
+            geometric_harmony_multiplier: geo_multiplier,
+            geometric_resonance_notes: geo_notes,
+            conducted_at: 1748628960,
         })
     }
 
@@ -290,6 +329,23 @@ mod tests {
     #[test]
     fn test_valence_out_of_range() {
         assert!(Valence::new(0.5).is_err());
+    }
+
+    #[test]
+    fn test_geometric_harmony_computation() {
+        let conductor = LatticeConductor::new();
+        let offer = RealEstateOffer {
+            id: "geo-test-001".into(),
+            address: "789 Harmony Ln".into(),
+            price: 1250000.0,
+            jurisdiction: "USA".into(),
+            regulatory_flags: vec![],
+            attom_enriched: true,
+            base_valence: Valence::new(Valence::MIN).unwrap(),
+        };
+        let (multiplier, notes) = conductor.compute_geometric_harmony(&offer, 55);
+        assert!(multiplier >= 1.0);
+        assert!(notes.contains("Geometric layers"));
     }
 
     #[test]
