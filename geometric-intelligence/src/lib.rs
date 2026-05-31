@@ -14,7 +14,7 @@ pub use riemannian_mercy_manifold::{RiemannianMercyManifold, GeometricTransportR
 use crate::polyhedral_harmonic_engine::PolyhedralHarmonicEngine;
 use crate::riemannian_mercy_manifold::RiemannianMercyManifold;
 
-/// High-level helper
+/// High-level helper: Compute geometric harmony for a given TOLC order and coherence.
 pub fn compute_geometric_harmony(tolc_order: u32, base_coherence: f64) -> types::GeometricHarmonyScore {
     let engine = PolyhedralHarmonicEngine::new();
     let report = engine.process_resonance(tolc_order, base_coherence);
@@ -38,6 +38,16 @@ pub fn compute_geometric_harmony(tolc_order: u32, base_coherence: f64) -> types:
         active_layers: report.active_solids,
         u57_active: report.u57_potential,
     }
+}
+
+/// Free function wrapper for applying U57 Riemannian transport.
+/// Creates a default manifold internally for maximum ergonomics.
+pub fn apply_u57_riemannian_transport(
+    polyhedral_report: &PolyhedralResonanceReport,
+    base_coherence: f64,
+) -> Option<GeometricTransportResult> {
+    let manifold = RiemannianMercyManifold::new();
+    manifold.apply_u57_riemannian_transport(polyhedral_report, base_coherence)
 }
 
 #[cfg(test)]
