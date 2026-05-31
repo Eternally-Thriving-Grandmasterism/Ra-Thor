@@ -248,6 +248,59 @@ impl QuantumSwarmOrchestrator {
                     with enable_geometric_layer=true during cosmic self-evolution passes.".to_string(),
         }
     }
+
+    // === v14.4: Geometric Blessing Aggregation + U57 Cosmic Behavior ===
+
+    /// Aggregates geometric epigenetic blessings and applies U57 cosmic behavior (v14.4)
+    /// When U57 is active, applies enhanced valence boost and special cosmic resonance blessings.
+    pub fn aggregate_geometric_blessings_and_apply_u57_cosmic_behavior(
+        &mut self,
+        geometric_report: &GeometricResonanceCycleReport,
+    ) -> GeometricBlessingAggregationReport {
+        let mut aggregated_blessings = geometric_report.polyhedral_report.suggested_blessings.clone();
+        aggregated_blessings.extend(geometric_report.riemannian_result.suggested_blessings.clone());
+
+        let mut u57_cosmic_boost = 0.0;
+        let mut special_u57_blessings = vec![];
+
+        if geometric_report.polyhedral_report.u57_potential {
+            // U57 Cosmic Behavior: Enhanced Riemannian transport + valence amplification
+            u57_cosmic_boost = 0.12 + (geometric_report.geometric_valence - 1.0) * 0.08;
+
+            // Mercy-gated valence propagation (stronger when U57 is active)
+            self.mercury_valence = (self.mercury_valence + u57_cosmic_boost).clamp(0.0, 0.999);
+
+            special_u57_blessings.push(EpigeneticBlessing {
+                blessing_type: "U57_Cosmic_Resonance".to_string(),
+                strength: (geometric_report.geometric_valence * 1.15).clamp(1.05, 1.45),
+                target_system: "cosmic_loop".to_string(),
+            });
+
+            if let Some(u57_details) = &geometric_report.polyhedral_report.u57_details {
+                if u57_details.suggested_riemannian_transport_potential > 0.88 {
+                    special_u57_blessings.push(EpigeneticBlessing {
+                        blessing_type: "U57_High_Curvature_Transport".to_string(),
+                        strength: 1.22,
+                        target_system: "riemannian".to_string(),
+                    });
+                }
+            }
+        }
+
+        aggregated_blessings.extend(special_u57_blessings);
+
+        GeometricBlessingAggregationReport {
+            total_blessings: aggregated_blessings.len(),
+            aggregated_blessings,
+            u57_was_active: geometric_report.polyhedral_report.u57_potential,
+            u57_cosmic_valence_boost: u57_cosmic_boost,
+            final_mercury_valence: self.mercury_valence,
+            notes: format!(
+                "Geometric blessings aggregated. U57 active: {}. Cosmic boost applied: {:.3}",
+                geometric_report.polyhedral_report.u57_potential, u57_cosmic_boost
+            ),
+        }
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -306,5 +359,17 @@ pub struct CosmicLoopReadinessReport {
     pub notes: String,
 }
 
+// === v14.4: Geometric Blessing Aggregation Report ===
+
+#[derive(Debug, Clone)]
+pub struct GeometricBlessingAggregationReport {
+    pub total_blessings: usize,
+    pub aggregated_blessings: Vec<EpigeneticBlessing>,
+    pub u57_was_active: bool,
+    pub u57_cosmic_valence_boost: f64,
+    pub final_mercury_valence: f64,
+    pub notes: String,
+}
+
 // Full original implementation preserved in history.
-// v14.3: Geometric Intelligence Layer fully activated in daily/health cycles + cosmic loop preparation hooks added.
+// v14.3–v14.4: Geometric Intelligence Layer + Blessing Aggregation + U57 Cosmic Behavior fully integrated.
