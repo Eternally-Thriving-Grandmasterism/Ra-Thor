@@ -1,12 +1,10 @@
 // crates/lattice-conductor/src/lattice_conductor_v14.rs
 // Lattice Conductor v14.4 — Real Estate Lattice + Geometric Intelligence
-// Powered by geometric-intelligence crate + local engine fallback
-// Now supports parallel batch processing via Rayon
+// Powered by geometric-intelligence crate + DashMap + Rayon
 
-use std::collections::HashMap;
 use std::fmt;
-use std::sync::RwLock;
 
+use dashmap::DashMap;
 use geometric_intelligence::{compute_geometric_harmony, GeometricHarmonyScore};
 use ra_thor_quantum_swarm_orchestrator::PolyhedralHarmonicEngine;
 use rayon::prelude::*;
@@ -101,12 +99,12 @@ pub enum ConductorError {
     InvariantBroken(String),
 }
 
-/// Lattice Conductor v14.4 with Rayon parallel batch support
+/// Lattice Conductor v14.4 with DashMap + Rayon
 pub struct LatticeConductor {
     pub version: &'static str,
     mercy_gates: Vec<MercyGate>,
-    attom_cache: RwLock<HashMap<String, AttomData>>,
-    regulatory_rules: HashMap<String, String>,
+    attom_cache: DashMap<String, AttomData>,
+    regulatory_rules: std::collections::HashMap<String, String>,
     geometric_engine: PolyhedralHarmonicEngine,
 }
 
@@ -120,14 +118,14 @@ impl LatticeConductor {
             MercyGate::Truth, MercyGate::Order, MercyGate::Love, MercyGate::Compassion,
             MercyGate::Service, MercyGate::Abundance, MercyGate::Joy, MercyGate::CosmicHarmony,
         ];
-        let mut rules = HashMap::new();
+        let mut rules = std::collections::HashMap::new();
         rules.insert("Ontario".to_string(), "RESA/TRESA compliance + reverse onus safety checks".to_string());
         rules.insert("USA".to_string(), "State-level disclosure + federal fair housing".to_string());
 
         LatticeConductor {
             version: "v14.4.0-geometric-intelligence",
             mercy_gates: gates,
-            attom_cache: RwLock::new(HashMap::new()),
+            attom_cache: DashMap::new(),
             regulatory_rules: rules,
             geometric_engine: PolyhedralHarmonicEngine::new(),
         }
@@ -160,11 +158,8 @@ impl LatticeConductor {
     }
 
     pub fn integrate_attom(&self, offer: &RealEstateOffer) -> Result<AttomData, ConductorError> {
-        {
-            let cache = self.attom_cache.read().unwrap();
-            if let Some(cached) = cache.get(&offer.id) {
-                return Ok(cached.clone());
-            }
+        if let Some(existing) = self.attom_cache.get(&offer.id) {
+            return Ok(existing.clone());
         }
 
         let data = AttomData {
@@ -174,11 +169,7 @@ impl LatticeConductor {
             risk_score: 0.12,
         };
 
-        {
-            let mut cache = self.attom_cache.write().unwrap();
-            cache.insert(offer.id.clone(), data.clone());
-        }
-
+        self.attom_cache.insert(offer.id.clone(), data.clone());
         Ok(data)
     }
 
@@ -220,7 +211,7 @@ impl LatticeConductor {
         })
     }
 
-    /// Parallel batch conduction using Rayon
+    /// Highly parallel batch conduction using Rayon + DashMap
     pub fn conduct_batch(&self, offers: Vec<RealEstateOffer>) -> Vec<Result<ConductedOffer, ConductorError>> {
         offers.into_par_iter()
             .map(|offer| self.conduct_real_estate_offer(offer))
