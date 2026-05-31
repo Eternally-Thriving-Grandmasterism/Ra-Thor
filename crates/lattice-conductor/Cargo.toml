@@ -19,8 +19,9 @@ patsagi-councils = { path = "../patsagi-councils" }
 xai-grok-bridge = { path = "../xai-grok-bridge" }
 symbiosis-layer = { path = "../symbiosis-layer" }
 
-# Parallelism
+# Parallelism & Concurrent Data Structures
 rayon = "1.10"
+dashmap = "6"
 
 # Workspace dependencies
 tokio = { workspace = true }
@@ -31,6 +32,14 @@ chrono = { workspace = true }
 tracing = { workspace = true }
 nalgebra = { workspace = true }
 rand = { workspace = true }
+
+[dev-dependencies]
+criterion = { version = "0.5", features = ["html_reports"] }
+
+[[bench]]
+name = "conductor_bench"
+path = "benches/conductor_bench.rs"
+harness = false
 
 [features]
 default = ["full"]
