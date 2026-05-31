@@ -2,19 +2,11 @@
 //!
 //! Sacred Geometry + Riemannian Mercy-Gated Scoring Layer
 //! for the Ra-Thor ONE Organism.
-//!
-//! This crate provides reusable components for:
-//! - Polyhedral harmonic resonance
-//! - Riemannian curvature-aware transport
-//! - High-level geometric harmony scoring
-//!
-//! AG-SML v1.0
 
 pub mod types;
 pub mod polyhedral_harmonic_engine;
 pub mod riemannian_mercy_manifold;
 
-// Re-exports
 pub use types::*;
 pub use polyhedral_harmonic_engine::{PolyhedralHarmonicEngine, PolyhedralResonanceReport, U57LayerDetails};
 pub use riemannian_mercy_manifold::{RiemannianMercyManifold, GeometricTransportResult};
@@ -22,14 +14,13 @@ pub use riemannian_mercy_manifold::{RiemannianMercyManifold, GeometricTransportR
 use crate::polyhedral_harmonic_engine::PolyhedralHarmonicEngine;
 use crate::riemannian_mercy_manifold::RiemannianMercyManifold;
 
-/// High-level helper: Compute geometric harmony for a given TOLC order and coherence.
-/// This is the main entry point recommended for Lattice Conductor and Real Estate use.
+/// High-level helper
 pub fn compute_geometric_harmony(tolc_order: u32, base_coherence: f64) -> types::GeometricHarmonyScore {
     let engine = PolyhedralHarmonicEngine::new();
     let report = engine.process_resonance(tolc_order, base_coherence);
 
     let manifold = RiemannianMercyManifold::new();
-    let transport = if let Some(u57) = &report.u57_details {
+    let _transport = if let Some(u57) = &report.u57_details {
         manifold.apply_mercy_gated_transport(u57, base_coherence)
     } else {
         types::GeometricTransportResult {
@@ -46,5 +37,39 @@ pub fn compute_geometric_harmony(tolc_order: u32, base_coherence: f64) -> types:
         resonance_notes: report.notes,
         active_layers: report.active_solids,
         u57_active: report.u57_potential,
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_polyhedral_basic() {
+        let engine = PolyhedralHarmonicEngine::new();
+        let report = engine.process_resonance(8, 0.95);
+        assert!(report.resonance_multiplier >= 1.0);
+        assert!(!report.u57_potential);
+    }
+
+    #[test]
+    fn test_polyhedral_u57_activation() {
+        let engine = PolyhedralHarmonicEngine::new();
+        let report = engine.process_resonance(150, 0.95);
+        assert!(report.u57_potential);
+        assert!(report.u57_details.is_some());
+    }
+
+    #[test]
+    fn test_compute_geometric_harmony() {
+        let score = compute_geometric_harmony(55, 0.92);
+        assert!(score.multiplier > 1.0);
+        assert!(!score.u57_active);
+    }
+
+    #[test]
+    fn test_geometric_harmony_high_tolc() {
+        let score = compute_geometric_harmony(200, 0.90);
+        assert!(score.u57_active);
     }
 }
