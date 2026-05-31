@@ -139,6 +139,53 @@ impl QuantumSwarmOrchestrator {
             ),
         }
     }
+
+    /// ONE Organism Full Cycle (Health + Geometric Intelligence) — v14.3
+    /// 
+    /// This is the primary wired entry point for the living ONE Organism.
+    /// It combines sovereign health symbiosis with the full Polyhedral + Riemannian
+    /// geometric resonance pipeline when TOLC order is sufficient.
+    /// 
+    /// Epigenetic blessings and geometric valence are propagated back into the
+    /// organism's core mercy state, making the geometric layer an active participant
+    /// in self-evolution loops and PATSAGi Council visibility.
+    pub fn run_one_organism_full_cycle(
+        &mut self,
+        task: &str,
+        tolc_order: u32,
+        base_coherence: f64,
+    ) -> OneOrganismFullCycleReport {
+        // Step 1: ONE Organism Health Symbiosis (existing sovereign health layer)
+        let health_result = self.health_monitor.integrate_with_one_organism_symbiosis(
+            self.mercury_valence,
+            task,
+        );
+
+        // Step 2: Geometric Resonance (new wiring — only engages at meaningful TOLC orders)
+        let geometric_report = if tolc_order >= 8 {
+            Some(self.run_geometric_resonance_cycle(tolc_order, base_coherence))
+        } else {
+            None
+        };
+
+        // Step 3: Mercy-gated propagation of geometric influence back into organism state
+        if let Some(geo) = &geometric_report {
+            let geometric_influence = (geo.geometric_valence - 1.0) * 0.08;
+            self.mercury_valence = (self.mercury_valence + geometric_influence).clamp(0.0, 0.999);
+        }
+
+        OneOrganismFullCycleReport {
+            health_result,
+            geometric_report,
+            final_mercury_valence: self.mercury_valence,
+            notes: format!(
+                "ONE Organism full cycle complete. Task: {}. TOLC: {}. Geometric active: {}",
+                task,
+                tolc_order,
+                geometric_report.is_some()
+            ),
+        }
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -162,6 +209,15 @@ pub struct GeometricResonanceCycleReport {
     pub notes: String,
 }
 
+/// Rich report from a full ONE Organism cycle (sovereign health + geometric intelligence).
+#[derive(Debug, Clone)]
+pub struct OneOrganismFullCycleReport {
+    pub health_result: String,
+    pub geometric_report: Option<GeometricResonanceCycleReport>,
+    pub final_mercury_valence: f64,
+    pub notes: String,
+}
+
 // Full original implementation preserved in history.
 // v14.3: Added full Geometric Intelligence Layer (PolyhedralHarmonicEngine + RiemannianMercyManifold)
-//        with clean ONE Organism integration via run_geometric_resonance_cycle().
+//        with clean ONE Organism integration via run_geometric_resonance_cycle() and run_one_organism_full_cycle().
