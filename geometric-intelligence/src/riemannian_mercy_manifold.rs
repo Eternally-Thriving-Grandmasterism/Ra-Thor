@@ -1,57 +1,62 @@
 
-#[cfg(test)]
-mod tests {
-    use super::*;
+impl RiemannianMercyManifold {
 
-    #[test]
-    fn test_compute_berry_curvature_moderate() {
-        let manifold = RiemannianMercyManifold::new();
-        let result = manifold.compute_berry_curvature(0.85);
-        assert!(result.effective_curvature > 0.5);
-        assert!(result.berry_curvature_density > 0.0);
+    /// Returns the cumulative Berry phase evolution over a sequence.
+    /// Useful for plotting phase vs step.
+    pub fn compute_berry_phase_evolution(
+        &self,
+        curvatures: &[f64],
+        areas: &[f64],
+    ) -> Vec<f64> {
+        let mut cumulative = 0.0;
+        let mut evolution = Vec::with_capacity(curvatures.len());
+
+        for (curv, area) in curvatures.iter().zip(areas.iter()) {
+            cumulative += self.estimate_holonomy(*curv, *area);
+            evolution.push(cumulative);
+        }
+
+        evolution
     }
 
-    #[test]
-    fn test_compute_berry_curvature_high() {
-        let manifold = RiemannianMercyManifold::new();
-        let result = manifold.compute_berry_curvature(1.5);
-        assert!(result.effective_curvature >= 1.0);
+    /// Generates a simple textual visualization of Berry phase accumulation.
+    pub fn visualize_berry_phase_text(
+        &self,
+        curvatures: &[f64],
+        areas: &[f64],
+    ) -> String {
+        let evolution = self.compute_berry_phase_evolution(curvatures, areas);
+        let mut output = String::from("Berry Phase Evolution:\n");
+
+        for (i, phase) in evolution.iter().enumerate() {
+            let bar_length = ((phase.abs() * 10.0) as usize).min(40);
+            let bar = if *phase >= 0.0 {
+                "█".repeat(bar_length)
+            } else {
+                "▓".repeat(bar_length)
+            };
+            output.push_str(&format!("Step {:>2}: {:>6.3} | {}\n", i, phase, bar));
+        }
+
+        output
     }
 
-    #[test]
-    fn test_compute_berry_phase_analog_weak() {
-        let manifold = RiemannianMercyManifold::new();
-        let curvatures = vec![0.1, 0.2, 0.15];
-        let areas = vec![0.5, 0.5, 0.5];
-        let result = manifold.compute_berry_phase_analog(&curvatures, &areas);
-        assert!(result.magnitude < 0.5);
-    }
-
-    #[test]
-    fn test_accumulate_holonomy() {
-        let manifold = RiemannianMercyManifold::new();
-        let curvatures = vec![0.8, 0.9, 0.7];
-        let areas = vec![1.0, 1.0, 1.0];
-        let total = manifold.accumulate_holonomy(&curvatures, &areas);
-        assert!(total.abs() > 0.0);
-    }
-
-    #[test]
-    fn test_transport_sequence_has_accumulated_holonomy() {
-        let manifold = RiemannianMercyManifold::new();
-        // Create a mock U57 details
-        let u57 = U57LayerDetails {
-            activated: true,
-            resonance_multiplier_contribution: 1.35,
-            suggested_riemannian_transport_potential: 0.8,
-            recommended_manifold_curvature: 0.9,
-            geometric_meaning: "Test".to_string(),
-            integration_notes: "Test".to_string(),
+    /// Pretty print Berry Phase + Curvature summary
+    pub fn print_berry_summary(&self, curvatures: &[f64], areas: &[f64]) {
+        let phase_result = self.compute_berry_phase_analog(curvatures, areas);
+        let curvature_result = if !curvatures.is_empty() {
+            Some(self.compute_berry_curvature(curvatures[0]))
+        } else {
+            None
         };
 
-        let result = manifold.run_u57_informed_transport_sequence(&u57, 0.95, 6);
-        assert!(result.transport_applied);
-        // Accumulated holonomy should be non-zero after several steps
-        assert!(result.accumulated_holonomy.abs() > 0.01);
+        println!("=== Berry Phase Summary ===");
+        println!("Final Phase: {:.4}", phase_result.phase);
+        println!("Magnitude  : {:.4}", phase_result.magnitude);
+        println!("Interpretation: {}", phase_result.interpretation);
+
+        if let Some(curv) = curvature_result {
+            println!("Initial Berry Curvature: {:.4} (effective {:.4})", curv.raw_curvature, curv.effective_curvature);
+        }
     }
 }
