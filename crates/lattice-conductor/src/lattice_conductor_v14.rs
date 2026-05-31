@@ -1,8 +1,9 @@
 // crates/lattice-conductor/src/lattice_conductor_v14.rs
 // Lattice Conductor v14.4 — Real Estate Lattice + Geometric Intelligence
-// Powered by geometric-intelligence crate + DashMap + Rayon
+// Powered by geometric-intelligence crate + DashMap + Rayon + Arc caching
 
 use std::fmt;
+use std::sync::Arc;
 
 use dashmap::DashMap;
 use geometric_intelligence::{compute_geometric_harmony, GeometricHarmonyScore};
@@ -99,11 +100,11 @@ pub enum ConductorError {
     InvariantBroken(String),
 }
 
-/// Lattice Conductor v14.4 with DashMap + Rayon
+/// Lattice Conductor v14.4 with DashMap + Rayon + Arc caching
 pub struct LatticeConductor {
     pub version: &'static str,
     mercy_gates: Vec<MercyGate>,
-    attom_cache: DashMap<String, AttomData>,
+    attom_cache: DashMap<String, Arc<AttomData>>,
     regulatory_rules: std::collections::HashMap<String, String>,
     geometric_engine: PolyhedralHarmonicEngine,
 }
@@ -157,13 +158,13 @@ impl LatticeConductor {
         Ok(passed)
     }
 
-    pub fn integrate_attom(&self, offer: &RealEstateOffer) -> Result<AttomData, ConductorError> {
+    pub fn integrate_attom(&self, offer: &RealEstateOffer) -> Result<Arc<AttomData>, ConductorError> {
         use dashmap::mapref::entry::Entry;
 
         let entry = self.attom_cache.entry(offer.id.clone());
 
         match entry {
-            Entry::Occupied(occupied) => Ok(occupied.get().clone()),
+            Entry::Occupied(occupied) => Ok(occupied.get().clone()), // Cheap Arc clone
             Entry::Vacant(vacant) => {
                 let data = AttomData {
                     property_id: format!("ATTOM-{}", offer.id),
@@ -171,8 +172,9 @@ impl LatticeConductor {
                     ownership_changes: 2,
                     risk_score: 0.12,
                 };
-                vacant.insert(data.clone());
-                Ok(data)
+                let arc_data = Arc::new(data);
+                vacant.insert(arc_data.clone());
+                Ok(arc_data)
             }
         }
     }
@@ -193,7 +195,11 @@ impl LatticeConductor {
 
     pub fn conduct_real_estate_offer(&self, offer: RealEstateOffer) -> Result<ConductedOffer, ConductorError> {
         let passed_gates = self.enforce_mercy_gates(&offer)?;
-        let attom = if offer.attom_enriched { Some(self.integrate_attom(&offer)?) } else { None };
+        let attom = if offer.attom_enriched {
+            Some(self.integrate_attom(&offer)?)
+        } else {
+            None
+        };
         let cleared = self.check_regulatory(&offer)?;
 
         let harmony = self.compute_geometric_harmony(&offer);
@@ -203,11 +209,14 @@ impl LatticeConductor {
             return Err(ConductorError::InvariantBroken("Final valence collapsed".into()));
         }
 
+        // Convert Arc<AttomData> back to owned AttomData for the public API
+        let attom_snapshot = attom.map(|arc| (*arc).clone());
+
         Ok(ConductedOffer {
             offer,
             final_valence,
             mercy_gates_passed: passed_gates,
-            attom_snapshot: attom,
+            attom_snapshot,
             regulatory_cleared: cleared,
             geometric_harmony_multiplier: harmony.multiplier,
             geometric_resonance_notes: harmony.resonance_notes,
@@ -215,7 +224,7 @@ impl LatticeConductor {
         })
     }
 
-    /// Highly parallel batch conduction using Rayon + DashMap
+    /// Highly parallel batch conduction using Rayon + DashMap + Arc caching
     pub fn conduct_batch(&self, offers: Vec<RealEstateOffer>) -> Vec<Result<ConductedOffer, ConductorError>> {
         offers.into_par_iter()
             .map(|offer| self.conduct_real_estate_offer(offer))
