@@ -7,10 +7,8 @@
 use std::collections::HashMap;
 use std::fmt;
 
-// Geometric integration (from quantum-swarm-orchestrator)
-// In full workspace build this resolves via path dependency or re-export.
-// For standalone clarity, the resonance logic is also available inline below.
-use quantum_swarm_orchestrator::polyhedral_harmonic_engine::{
+// Correct crate path (from Cargo.toml dependency ra-thor-quantum-swarm-orchestrator)
+use ra_thor_quantum_swarm_orchestrator::{
     PolyhedralHarmonicEngine, PolyhedralResonanceReport,
 };
 
