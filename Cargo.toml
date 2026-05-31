@@ -8,6 +8,9 @@ members = [
     "kernel",
     "monorepo-intelligence",
 
+    # === New Geometric Intelligence Layer ===
+    "geometric-intelligence",
+
     # === GOVERNANCE & PATSAGi COUNCILS (57+ Active) ===
     "patsagi-councils",
     "sovereign-spark-circuit-integration-council",
@@ -230,7 +233,7 @@ legacy-subsumed = true
 proprietary-since = "2003 — Sherif Samy Botros (AlphaProMega)"
 
 executive-summary = """
-v14.4.0 — Geometric Intelligence Expansion: PolyhedralHarmonicEngine + RiemannianMercyManifold v14.4 with RK4, parallel transport, holonomy. Lattice Conductor wired with geometric harmony scoring for Real Estate. ONE Organism geometric spine now participates in practical conduction flows.
+v14.4.0 — Geometric Intelligence Expansion: New `geometric-intelligence` crate. PolyhedralHarmonicEngine + RiemannianMercyManifold v14.4 with RK4, parallel transport, holonomy. Lattice Conductor wired with geometric harmony scoring for Real Estate.
 """
 
 [workspace.lints.rust]
