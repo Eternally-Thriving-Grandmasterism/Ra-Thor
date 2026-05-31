@@ -6,9 +6,11 @@
 //! It combines:
 //! - Regulatory checks via `UsaRegulatoryEngine`
 //! - External data enrichment via `AttomDataProvider` + `AttomCache`
+//! - Geometric / Sacred Harmony assessment via `GeometricHarmonyAdvisor` (v14.4)
 //!
-//! Part of PR #191 — v14.3 Execution Stabilization.
+//! Part of PR #192 — v14.3+ Execution Stabilization + ONE Organism Geometric Integration.
 
+use crate::geometric_harmony_advisor::GeometricHarmonyAdvisor;
 use crate::usa_attom_data_provider::AttomDataProvider;
 use crate::usa_regulatory_engine::UsaRegulatoryEngine;
 use crate::usa_state_adapters::{UsaStateAdapters, UsState};
@@ -43,6 +45,9 @@ pub struct UsaPilotModule {
     state_adapters: UsaStateAdapters,
     regulatory_engine: UsaRegulatoryEngine,
     data_provider: AttomDataProvider,
+
+    // === NEW: Geometric Harmony Advisor (v14.4) ===
+    geometric_advisor: GeometricHarmonyAdvisor,
 }
 
 impl UsaPilotModule {
@@ -63,6 +68,9 @@ impl UsaPilotModule {
                 world_governance,
             ),
             data_provider: AttomDataProvider::new(),
+
+            // === NEW ===
+            geometric_advisor: GeometricHarmonyAdvisor::new(),
         }
     }
 
@@ -116,5 +124,47 @@ impl UsaPilotModule {
             external_property_profile: external_profile,
             external_risk_signals: external_risk,
         })
+    }
+
+    /// NEW (v14.4): Assess geometric / sacred harmony for a property or site.
+    ///
+    /// This brings ONE Organism geometric intelligence (PolyhedralHarmonicEngine + U57 readiness)
+    /// directly into the USA Pilot workflow. Useful for spatial harmony evaluation,
+    /// layout recommendations, and future mercy-aligned valuation enhancements.
+    pub fn assess_geometric_harmony(
+        &self,
+        tolc_order: u32,
+        base_coherence: f64,
+    ) -> crate::geometric_harmony_advisor::GeometricHarmonyAssessment {
+        self.geometric_advisor.assess_property_harmony(tolc_order, base_coherence)
+    }
+
+    /// NEW (v14.4): Enriched version of offer flow that also returns geometric harmony assessment.
+    /// Can be used when deeper due diligence including sacred geometry is desired.
+    pub async fn process_usa_offer_flow_with_geometric_harmony(
+        &mut self,
+        state: UsState,
+        transaction_details: &str,
+        price: f64,
+        game: &mut PowrushGame,
+        property_identifier: Option<&str>,
+        tolc_order: u32,
+    ) -> Result<(UsaOfferFlowReport, Option<crate::geometric_harmony_advisor::GeometricHarmonyAssessment>), crate::RrelError> {
+        
+        let report = self.process_usa_offer_flow(
+            state,
+            transaction_details,
+            price,
+            game,
+            property_identifier,
+        ).await?;
+
+        let geometric_assessment = if tolc_order >= 8 {
+            Some(self.assess_geometric_harmony(tolc_order, 0.91))
+        } else {
+            None
+        };
+
+        Ok((report, geometric_assessment))
     }
 }
