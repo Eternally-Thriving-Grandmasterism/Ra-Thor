@@ -1,5 +1,19 @@
 //! RREL ↔ Lattice Conductor Bridge v14.4
-//! Exposes both sequential and parallel conduction paths.
+//!
+//! ## Parallel Processing Support
+//!
+//! This bridge now exposes high-performance parallel batch conduction:
+//!
+//! - `conduct_offers_parallel(...)` — Uses Rayon + DashMap for maximum throughput
+//! - `conduct_offers_batch(...)` — Recommended default (parallel for large batches)
+//! - `conduct_offers_sequential(...)` — Available for small batches or debugging
+//!
+//! ### When to use parallel?
+//! - Batches of 500+ offers → Strong recommendation
+//! - High-throughput pilots and simulations → Use `conduct_offers_batch`
+//!
+//! The underlying `LatticeConductor` uses Rayon for parallelism and DashMap
+//! for lock-free concurrent ATTOM caching.
 
 use crate::rrel_brokerage_assembler::RrelBrokerageAssembler;
 use lattice_conductor::{LatticeConductor, RealEstateOffer, ConductedOffer, ConductorError};
@@ -33,8 +47,8 @@ impl RrelLatticeConductorBridge {
             .collect()
     }
 
-    /// Parallel batch conduction using Rayon + DashMap
-    /// Recommended for large batches (500+ offers)
+    /// Parallel batch conduction using Rayon + DashMap.
+    /// Recommended for large batches (500+ offers).
     pub fn conduct_offers_parallel(
         &self,
         offers: Vec<RealEstateOffer>,
@@ -42,7 +56,7 @@ impl RrelLatticeConductorBridge {
         self.conductor.conduct_batch(offers)
     }
 
-    /// Default batch method — uses parallel conduction
+    /// Default batch method — uses the parallel path.
     pub fn conduct_offers_batch(
         &self,
         offers: Vec<RealEstateOffer>,
