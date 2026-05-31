@@ -10,6 +10,7 @@ keywords = ["quantum", "swarm", "orchestrator", "active-inference", "mercy", "ra
 categories = ["science", "simulation", "embedded", "network-programming"]
 
 [dependencies]
+geometric-intelligence = { path = "../geometric-intelligence" }
 ra-thor-legal-lattice = { path = "../legal-lattice" }
 ra-thor-plasticity-engine-v2 = { path = "../plasticity-engine-v2" }
 self-evolution = { path = "../../self-evolution" }
@@ -23,4 +24,4 @@ ndarray = "0.15"
 
 # Quantum Swarm Orchestrator
 # Mercy-gated active-inference coordination layer.
-# Now integrated with SovereignHealthMonitor (self-evolution) for ONE Organism health-aware orchestration.
+# Now delegates geometric intelligence to geometric-intelligence crate.
