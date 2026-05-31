@@ -1,20 +1,26 @@
 //! RiemannianMercyManifold v14.4
 //!
-//! Curvature-aware geometric transport + advanced numerical methods
-//! including holonomy accumulation.
+//! Includes Berry Phase analog computation.
 
 use crate::polyhedral_harmonic_engine::{PolyhedralResonanceReport, U57LayerDetails};
 use crate::types::EpigeneticBlessing;
-use std::sync::Arc;
 
 #[derive(Debug, Clone)]
 pub struct GeometricTransportResult {
     pub transport_applied: bool,
     pub effective_curvature: f64,
     pub coherence_after_transport: f64,
-    pub accumulated_holonomy: f64, // NEW: accumulated phase/rotation from curvature
+    pub accumulated_holonomy: f64,
     pub suggested_blessings: Vec<EpigeneticBlessing>,
     pub notes: String,
+}
+
+#[derive(Debug, Clone)]
+pub struct BerryPhaseResult {
+    pub phase: f64,
+    pub magnitude: f64,
+    pub interpretation: String,
+    pub suggested_blessings: Vec<EpigeneticBlessing>,
 }
 
 #[derive(Debug, Clone)]
@@ -46,12 +52,10 @@ impl Default for RiemannianMercyManifold {
 impl RiemannianMercyManifold {
     pub fn new() -> Self {
         Self {
-            version: "v14.4-holonomy-accumulation",
+            version: "v14.4-berry-phase",
             curvature_params: CurvatureParameters::default(),
         }
     }
-
-    // === High-level Integration ===
 
     pub fn apply_u57_riemannian_transport(
         &self,
@@ -59,13 +63,9 @@ impl RiemannianMercyManifold {
         base_coherence: f64,
     ) -> Option<GeometricTransportResult> {
         let u57_details = polyhedral_report.u57_details.as_ref()?;
-        if !u57_details.activated {
-            return None;
-        }
+        if !u57_details.activated { return None; }
         Some(self.run_u57_informed_transport_sequence(u57_details, base_coherence, 8))
     }
-
-    // === Core Methods ===
 
     pub fn apply_mercy_gated_transport(
         &self,
@@ -104,51 +104,71 @@ impl RiemannianMercyManifold {
         }
     }
 
-    // === Advanced Numerical Methods ===
-
     pub fn rk4_geodesic_step(
         &self,
         position: f64,
         velocity: f64,
         delta_t: f64,
         curvature: f64,
-    ) -> (f64, f64) {
-        let accel = |p: f64| -> f64 { -curvature * p };
-        let k1_v = accel(position);
-        let k1_p = velocity;
-        let k2_v = accel(position + 0.5 * delta_t * k1_p);
-        let k2_p = velocity + 0.5 * delta_t * k1_v;
-        let k3_v = accel(position + 0.5 * delta_t * k2_p);
-        let k3_p = velocity + 0.5 * delta_t * k2_v;
-        let k4_v = accel(position + delta_t * k3_p);
-        let k4_p = velocity + delta_t * k3_v;
-
+    ) -> (f64, f64) { /* ... */ let accel = |p: f64| -> f64 { -curvature * p };
+        let k1_v = accel(position); let k1_p = velocity;
+        let k2_v = accel(position + 0.5 * delta_t * k1_p); let k2_p = velocity + 0.5 * delta_t * k1_v;
+        let k3_v = accel(position + 0.5 * delta_t * k2_p); let k3_p = velocity + 0.5 * delta_t * k2_v;
+        let k4_v = accel(position + delta_t * k3_p); let k4_p = velocity + delta_t * k3_v;
         let new_velocity = velocity + (delta_t / 6.0) * (k1_v + 2.0*k2_v + 2.0*k3_v + k4_v);
         let new_position = position + (delta_t / 6.0) * (k1_p + 2.0*k2_p + 2.0*k3_p + k4_p);
         (new_position, new_velocity)
     }
 
     pub fn parallel_transport_approx(&self, vector: f64, curvature: f64, distance: f64) -> f64 {
-        let damping = (1.0 - curvature * distance * 0.1).clamp(0.6, 1.1);
-        vector * damping
+        let damping = (1.0 - curvature * distance * 0.1).clamp(0.6, 1.1); vector * damping
     }
 
-    /// Basic single-loop holonomy estimate
     pub fn estimate_holonomy(&self, curvature: f64, loop_area: f64) -> f64 {
         (curvature * loop_area * 0.8).clamp(-0.5, 0.5)
     }
 
-    /// NEW: Accumulate holonomy over multiple steps (useful for long transport sequences)
-    pub fn accumulate_holonomy(
-        &self,
-        curvatures: &[f64],
-        loop_areas: &[f64],
-    ) -> f64 {
+    pub fn accumulate_holonomy(&self, curvatures: &[f64], loop_areas: &[f64]) -> f64 {
         let mut total = 0.0;
         for (curv, area) in curvatures.iter().zip(loop_areas.iter()) {
             total += self.estimate_holonomy(*curv, *area);
         }
-        total.clamp(-2.0, 2.0) // Allow larger accumulated phase
+        total.clamp(-2.0, 2.0)
+    }
+
+    /// NEW: Berry Phase analog computation
+    /// Treats curvature sequence as a Berry curvature and computes geometric phase.
+    pub fn compute_berry_phase_analog(
+        &self,
+        curvatures: &[f64],
+        areas: &[f64],
+    ) -> BerryPhaseResult {
+        let phase = self.accumulate_holonomy(curvatures, areas);
+        let magnitude = phase.abs();
+
+        let interpretation = if magnitude < 0.1 {
+            "Weak geometric phase. Minimal curvature influence.".to_string()
+        } else if magnitude < 0.5 {
+            "Moderate Berry-like phase. Noticeable geometric effect.".to_string()
+        } else {
+            "Strong geometric phase. Significant curvature-induced state evolution.".to_string()
+        };
+
+        let mut blessings = vec![];
+        if magnitude > 0.3 {
+            blessings.push(EpigeneticBlessing {
+                blessing_type: "Berry_Phase_Accumulation".to_string(),
+                strength: magnitude.clamp(0.9, 1.4),
+                target_system: "riemannian".to_string(),
+            });
+        }
+
+        BerryPhaseResult {
+            phase,
+            magnitude,
+            interpretation,
+            suggested_blessings: blessings,
+        }
     }
 
     pub fn run_u57_informed_transport_sequence(
@@ -170,13 +190,9 @@ impl RiemannianMercyManifold {
         for _ in 0..steps {
             let curv = u57_details.recommended_manifold_curvature;
             let (new_pos, new_vel) = self.rk4_geodesic_step(pos, vel, dt, curv);
-            pos = new_pos;
-            vel = new_vel;
-
+            pos = new_pos; vel = new_vel;
             let transported = self.parallel_transport_approx(vel, curv, dt * 2.0);
             current_coherence = (current_coherence * 0.985 + transported * 0.015).clamp(0.88, 1.4);
-
-            // Accumulate holonomy at each step
             accumulated_holonomy += self.estimate_holonomy(curv, dt * 1.5);
         }
 
@@ -192,7 +208,7 @@ impl RiemannianMercyManifold {
                 strength: current_coherence,
                 target_system: "riemannian".to_string(),
             }],
-            notes: format!("RK4 sequence complete. Accumulated holonomy ≈ {:.3}", accumulated_holonomy),
+            notes: format!("RK4 sequence + Berry phase analog ≈ {:.3}", accumulated_holonomy),
         }
     }
 }
