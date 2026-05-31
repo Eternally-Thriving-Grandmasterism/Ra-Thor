@@ -1,11 +1,12 @@
 // crates/lattice-conductor/src/lattice_conductor_v14.rs
 // Lattice Conductor v14.4 — Real Estate Lattice + Geometric Intelligence
-// Now powered by geometric-intelligence crate
+// Powered by geometric-intelligence crate + local engine fallback
 
 use std::collections::HashMap;
 use std::fmt;
 
 use geometric_intelligence::{compute_geometric_harmony, GeometricHarmonyScore};
+use ra_thor_quantum_swarm_orchestrator::PolyhedralHarmonicEngine;
 
 /// TOLC 8 Living Mercy Gates
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -97,11 +98,14 @@ pub enum ConductorError {
     InvariantBroken(String),
 }
 
+/// Lattice Conductor v14.4
 pub struct LatticeConductor {
     pub version: &'static str,
     mercy_gates: Vec<MercyGate>,
     attom_cache: HashMap<String, AttomData>,
     regulatory_rules: HashMap<String, String>,
+    /// Local engine kept for richer analysis or future hybrid use
+    geometric_engine: PolyhedralHarmonicEngine,
 }
 
 impl Default for LatticeConductor {
@@ -123,6 +127,7 @@ impl LatticeConductor {
             mercy_gates: gates,
             attom_cache: HashMap::new(),
             regulatory_rules: rules,
+            geometric_engine: PolyhedralHarmonicEngine::new(),
         }
     }
 
@@ -154,16 +159,27 @@ impl LatticeConductor {
 
     pub fn integrate_attom(&mut self, offer: &RealEstateOffer) -> Result<AttomData, ConductorError> {
         if let Some(cached) = self.attom_cache.get(&offer.id) { return Ok(cached.clone()); }
-        let data = AttomData { property_id: format!("ATTOM-{}", offer.id), tax_history: vec![], ownership_changes: 0, risk_score: 0.1 };
+        let data = AttomData {
+            property_id: format!("ATTOM-{}", offer.id),
+            tax_history: vec![offer.price * 0.012, offer.price * 0.011],
+            ownership_changes: 2,
+            risk_score: 0.12,
+        };
         self.attom_cache.insert(offer.id.clone(), data.clone());
         Ok(data)
     }
 
     pub fn check_regulatory(&self, offer: &RealEstateOffer) -> Result<bool, ConductorError> {
+        if let Some(rule) = self.regulatory_rules.get(&offer.jurisdiction) {
+            if offer.regulatory_flags.iter().any(|f| f.contains("block")) {
+                return Err(ConductorError::RegulatoryBlock(format!("Blocked by rule: {}", rule)));
+            }
+        }
         Ok(true)
     }
 
-    /// Uses the new geometric-intelligence crate
+    /// Uses the centralized geometric-intelligence crate.
+    /// The local geometric_engine is kept available for richer analysis if needed.
     pub fn compute_geometric_harmony(&self, offer: &RealEstateOffer) -> GeometricHarmonyScore {
         let tolc_proxy: u32 = if offer.price > 1_000_000.0 { 89 } else { 34 };
         compute_geometric_harmony(tolc_proxy, offer.base_valence.value())
@@ -174,10 +190,12 @@ impl LatticeConductor {
         let attom = if offer.attom_enriched { Some(self.integrate_attom(&offer)?) } else { None };
         let cleared = self.check_regulatory(&offer)?;
 
-        // Use new geometric intelligence layer
         let harmony = self.compute_geometric_harmony(&offer);
-
         let final_valence = offer.base_valence;
+
+        if !final_valence.passes_mercy() {
+            return Err(ConductorError::InvariantBroken("Final valence collapsed".into()));
+        }
 
         Ok(ConductedOffer {
             offer,
@@ -193,5 +211,63 @@ impl LatticeConductor {
 
     pub fn conduct_batch(&mut self, offers: Vec<RealEstateOffer>) -> Vec<Result<ConductedOffer, ConductorError>> {
         offers.into_iter().map(|o| self.conduct_real_estate_offer(o)).collect()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_mercy_enforcement_passes() {
+        let conductor = LatticeConductor::new();
+        let offer = RealEstateOffer {
+            id: "test-001".into(),
+            address: "123 Main St".into(),
+            price: 750000.0,
+            jurisdiction: "Ontario".into(),
+            regulatory_flags: vec![],
+            attom_enriched: true,
+            base_valence: Valence::new(0.99999995).unwrap(),
+        };
+        let gates = conductor.enforce_mercy_gates(&offer).unwrap();
+        assert!(gates.len() >= 7);
+    }
+
+    #[test]
+    fn test_valence_out_of_range() {
+        assert!(Valence::new(0.5).is_err());
+    }
+
+    #[test]
+    fn test_geometric_harmony_computation() {
+        let conductor = LatticeConductor::new();
+        let offer = RealEstateOffer {
+            id: "geo-test-001".into(),
+            address: "789 Harmony Ln".into(),
+            price: 1250000.0,
+            jurisdiction: "USA".into(),
+            regulatory_flags: vec![],
+            attom_enriched: true,
+            base_valence: Valence::new(Valence::MIN).unwrap(),
+        };
+        let harmony = conductor.compute_geometric_harmony(&offer);
+        assert!(harmony.multiplier >= 1.0);
+    }
+
+    #[test]
+    fn test_regulatory_block() {
+        let conductor = LatticeConductor::new();
+        let offer = RealEstateOffer {
+            id: "block-001".into(),
+            address: "456 Blocked".into(),
+            price: 500000.0,
+            jurisdiction: "Ontario".into(),
+            regulatory_flags: vec!["block-harm".into()],
+            attom_enriched: false,
+            base_valence: Valence::new(Valence::MIN).unwrap(),
+        };
+        let result = conductor.conduct_real_estate_offer(offer);
+        assert!(matches!(result, Err(ConductorError::RegulatoryBlock(_))));
     }
 }
