@@ -1,0 +1,20 @@
+[package]
+name = "geometric-intelligence"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Sacred Geometry + Riemannian Mercy-Gated Scoring Layer for Ra-Thor ONE Organism"
+repository.workspace = true
+keywords = ["geometry", "sacred-geometry", "riemannian", "mercy", "ra-thor", "one-organism"]
+categories = ["science", "mathematics"]
+
+[dependencies]
+ra-thor-mercy = { path = "../mercy" }
+serde = { workspace = true, features = ["derive"] }
+thiserror.workspace = true
+tracing.workspace = true
+
+[features]
+default = []
+full = []
