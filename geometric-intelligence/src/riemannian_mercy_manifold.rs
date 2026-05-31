@@ -1,38 +1,23 @@
 
-#[derive(Debug, Clone)]
-pub struct WannierSpreadResult {
-    pub total_spread: f64,
-    pub invariant_spread: f64,      // Ω_I (related to Berry curvature)
-    pub estimated_gauge_dependent: f64,
-    pub notes: String,
-}
+    #[test]
+    fn test_wannier_spread() {
+        let manifold = RiemannianMercyManifold::new();
+        let curvatures = vec![0.7, 0.8, 0.9];
+        let areas = vec![1.0, 1.0, 1.0];
 
-impl RiemannianMercyManifold {
+        let spread = manifold.compute_wannier_spread(&curvatures, &areas);
 
-    /// Computes MLWF-like spread.
-    /// invariant_spread ≈ integral of Berry curvature (Ω_I)
-    pub fn compute_wannier_spread(
-        &self,
-        curvatures: &[f64],
-        areas: &[f64],
-    ) -> WannierSpreadResult {
-        let invariant = self.accumulate_holonomy(curvatures, areas).abs();
-
-        // Simple model: total spread = invariant + small gauge-dependent term
-        let gauge_dependent = (curvatures.len() as f64) * 0.05;
-        let total = invariant + gauge_dependent;
-
-        let notes = if invariant > 0.8 {
-            "High invariant spread. Difficult to localize (topological character).".to_string()
-        } else {
-            "Reasonable spread. Good localization possible.".to_string()
-        };
-
-        WannierSpreadResult {
-            total_spread: total,
-            invariant_spread: invariant,
-            estimated_gauge_dependent: gauge_dependent,
-            notes,
-        }
+        assert!(spread.invariant_spread >= 0.0);
+        assert!(spread.total_spread >= spread.invariant_spread);
     }
-}
+
+    #[test]
+    fn test_wannier_spread_high_curvature() {
+        let manifold = RiemannianMercyManifold::new();
+        let curvatures = vec![1.2, 1.3, 1.4];
+        let areas = vec![1.0, 1.0, 1.0];
+
+        let spread = manifold.compute_wannier_spread(&curvatures, &areas);
+        // High curvature should lead to higher invariant spread
+        assert!(spread.invariant_spread > 0.5);
+    }
