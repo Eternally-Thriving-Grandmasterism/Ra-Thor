@@ -1,16 +1,18 @@
 //! RiemannianMercyManifold v14.4
 //!
 //! Curvature-aware geometric transport + advanced numerical methods
-//! (RK4 geodesic stepping, parallel transport, holonomy estimation).
+//! including holonomy accumulation.
 
 use crate::polyhedral_harmonic_engine::{PolyhedralResonanceReport, U57LayerDetails};
 use crate::types::EpigeneticBlessing;
+use std::sync::Arc;
 
 #[derive(Debug, Clone)]
 pub struct GeometricTransportResult {
     pub transport_applied: bool,
     pub effective_curvature: f64,
     pub coherence_after_transport: f64,
+    pub accumulated_holonomy: f64, // NEW: accumulated phase/rotation from curvature
     pub suggested_blessings: Vec<EpigeneticBlessing>,
     pub notes: String,
 }
@@ -44,33 +46,26 @@ impl Default for RiemannianMercyManifold {
 impl RiemannianMercyManifold {
     pub fn new() -> Self {
         Self {
-            version: "v14.4-advanced",
+            version: "v14.4-holonomy-accumulation",
             curvature_params: CurvatureParameters::default(),
         }
     }
 
-    // === High-level Integration Helper ===
+    // === High-level Integration ===
 
-    /// High-level helper that consumes a PolyhedralResonanceReport and automatically
-    /// applies Riemannian transport if U57 is active.
-    ///
-    /// This is the recommended entry point when you already have a polyhedral report.
     pub fn apply_u57_riemannian_transport(
         &self,
         polyhedral_report: &PolyhedralResonanceReport,
         base_coherence: f64,
     ) -> Option<GeometricTransportResult> {
         let u57_details = polyhedral_report.u57_details.as_ref()?;
-
         if !u57_details.activated {
             return None;
         }
-
-        // Use the advanced sequence when U57 is active for deeper transport
         Some(self.run_u57_informed_transport_sequence(u57_details, base_coherence, 8))
     }
 
-    // === Core Transport Methods ===
+    // === Core Methods ===
 
     pub fn apply_mercy_gated_transport(
         &self,
@@ -82,6 +77,7 @@ impl RiemannianMercyManifold {
                 transport_applied: false,
                 effective_curvature: 0.0,
                 coherence_after_transport: base_coherence,
+                accumulated_holonomy: 0.0,
                 suggested_blessings: vec![],
                 notes: "U57 not active".to_string(),
             };
@@ -98,6 +94,7 @@ impl RiemannianMercyManifold {
             transport_applied: true,
             effective_curvature,
             coherence_after_transport: coherence_after,
+            accumulated_holonomy: 0.0,
             suggested_blessings: vec![EpigeneticBlessing {
                 blessing_type: "Riemannian_Mercy_Transport".to_string(),
                 strength: coherence_after,
@@ -117,7 +114,6 @@ impl RiemannianMercyManifold {
         curvature: f64,
     ) -> (f64, f64) {
         let accel = |p: f64| -> f64 { -curvature * p };
-
         let k1_v = accel(position);
         let k1_p = velocity;
         let k2_v = accel(position + 0.5 * delta_t * k1_p);
@@ -129,7 +125,6 @@ impl RiemannianMercyManifold {
 
         let new_velocity = velocity + (delta_t / 6.0) * (k1_v + 2.0*k2_v + 2.0*k3_v + k4_v);
         let new_position = position + (delta_t / 6.0) * (k1_p + 2.0*k2_p + 2.0*k3_p + k4_p);
-
         (new_position, new_velocity)
     }
 
@@ -138,8 +133,22 @@ impl RiemannianMercyManifold {
         vector * damping
     }
 
+    /// Basic single-loop holonomy estimate
     pub fn estimate_holonomy(&self, curvature: f64, loop_area: f64) -> f64 {
         (curvature * loop_area * 0.8).clamp(-0.5, 0.5)
+    }
+
+    /// NEW: Accumulate holonomy over multiple steps (useful for long transport sequences)
+    pub fn accumulate_holonomy(
+        &self,
+        curvatures: &[f64],
+        loop_areas: &[f64],
+    ) -> f64 {
+        let mut total = 0.0;
+        for (curv, area) in curvatures.iter().zip(loop_areas.iter()) {
+            total += self.estimate_holonomy(*curv, *area);
+        }
+        total.clamp(-2.0, 2.0) // Allow larger accumulated phase
     }
 
     pub fn run_u57_informed_transport_sequence(
@@ -156,6 +165,7 @@ impl RiemannianMercyManifold {
         let mut vel = 0.3;
         let dt = 0.1;
         let mut current_coherence = base_coherence;
+        let mut accumulated_holonomy = 0.0;
 
         for _ in 0..steps {
             let curv = u57_details.recommended_manifold_curvature;
@@ -165,20 +175,24 @@ impl RiemannianMercyManifold {
 
             let transported = self.parallel_transport_approx(vel, curv, dt * 2.0);
             current_coherence = (current_coherence * 0.985 + transported * 0.015).clamp(0.88, 1.4);
+
+            // Accumulate holonomy at each step
+            accumulated_holonomy += self.estimate_holonomy(curv, dt * 1.5);
         }
 
-        let holonomy = self.estimate_holonomy(u57_details.recommended_manifold_curvature, 0.5);
+        accumulated_holonomy = accumulated_holonomy.clamp(-2.0, 2.0);
 
         GeometricTransportResult {
             transport_applied: true,
             effective_curvature: u57_details.recommended_manifold_curvature,
             coherence_after_transport: current_coherence,
+            accumulated_holonomy,
             suggested_blessings: vec![EpigeneticBlessing {
                 blessing_type: "Riemannian_RK4_Transport_Sequence".to_string(),
                 strength: current_coherence,
                 target_system: "riemannian".to_string(),
             }],
-            notes: format!("RK4 sequence complete. Holonomy ≈ {:.3}", holonomy),
+            notes: format!("RK4 sequence complete. Accumulated holonomy ≈ {:.3}", accumulated_holonomy),
         }
     }
 }
