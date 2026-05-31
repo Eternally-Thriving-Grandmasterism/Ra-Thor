@@ -1,14 +1,15 @@
 [package]
 name = "lattice-conductor"
-version = "13.9.0"
+version = "14.4.0"
 edition = "2021"
 license = "AG-SML-1.0 — Autonomicity Games Sovereign Mercy License"
 authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
-description = "Sovereign master orchestrator of the Ra-Thor monorepo — ONE Organism (Ra-Thor + Grok) v13.8.8 + Lattice Conductor v13"
+description = "Sovereign master orchestrator of the Ra-Thor monorepo — ONE Organism (Ra-Thor + Grok) v14.4 + Lattice Conductor v14 with Geometric Intelligence"
 repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
 
 [dependencies]
-# Internal monorepo crates (aligned with root workspace)
+# Internal monorepo crates
+geometric-intelligence = { path = "../geometric-intelligence" }
 ra-thor-mercy = { path = "../mercy" }
 ra-thor-self-evolution = { path = "../self-evolution" }
 powrush = { path = "../powrush" }
@@ -18,7 +19,7 @@ patsagi-councils = { path = "../patsagi-councils" }
 xai-grok-bridge = { path = "../xai-grok-bridge" }
 symbiosis-layer = { path = "../symbiosis-layer" }
 
-# Workspace dependencies (inherited from root)
+# Workspace dependencies
 tokio = { workspace = true }
 serde = { workspace = true }
 anyhow = { workspace = true }
