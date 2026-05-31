@@ -1,62 +1,51 @@
 
 impl RiemannianMercyManifold {
 
-    /// Returns the cumulative Berry phase evolution over a sequence.
-    /// Useful for plotting phase vs step.
-    pub fn compute_berry_phase_evolution(
+    /// Computes Berry curvature values over a 1D range.
+    /// Returns (curvature_values, berry_curvature_values) suitable for plotting.
+    pub fn compute_berry_curvature_1d(
         &self,
-        curvatures: &[f64],
-        areas: &[f64],
-    ) -> Vec<f64> {
-        let mut cumulative = 0.0;
-        let mut evolution = Vec::with_capacity(curvatures.len());
+        min_curvature: f64,
+        max_curvature: f64,
+        steps: usize,
+    ) -> (Vec<f64>, Vec<f64>) {
+        let mut curvatures = Vec::with_capacity(steps);
+        let mut berry_values = Vec::with_capacity(steps);
 
-        for (curv, area) in curvatures.iter().zip(areas.iter()) {
-            cumulative += self.estimate_holonomy(*curv, *area);
-            evolution.push(cumulative);
+        let step_size = if steps > 1 {
+            (max_curvature - min_curvature) / (steps - 1) as f64
+        } else {
+            0.0
+        };
+
+        for i in 0..steps {
+            let c = min_curvature + i as f64 * step_size;
+            let result = self.compute_berry_curvature(c);
+            curvatures.push(c);
+            berry_values.push(result.berry_curvature_density);
         }
 
-        evolution
+        (curvatures, berry_values)
     }
 
-    /// Generates a simple textual visualization of Berry phase accumulation.
-    pub fn visualize_berry_phase_text(
+    /// Simple ASCII heatmap for Berry curvature over a 1D range.
+    pub fn visualize_berry_curvature_heatmap(
         &self,
-        curvatures: &[f64],
-        areas: &[f64],
+        min_curvature: f64,
+        max_curvature: f64,
+        steps: usize,
     ) -> String {
-        let evolution = self.compute_berry_phase_evolution(curvatures, areas);
-        let mut output = String::from("Berry Phase Evolution:\n");
+        let (_, values) = self.compute_berry_curvature_1d(min_curvature, max_curvature, steps);
+        let mut output = String::from("Berry Curvature Heatmap (1D):\n");
 
-        for (i, phase) in evolution.iter().enumerate() {
-            let bar_length = ((phase.abs() * 10.0) as usize).min(40);
-            let bar = if *phase >= 0.0 {
-                "█".repeat(bar_length)
-            } else {
-                "▓".repeat(bar_length)
-            };
-            output.push_str(&format!("Step {:>2}: {:>6.3} | {}\n", i, phase, bar));
+        let max_val = values.iter().cloned().fold(0.0_f64, f64::max);
+
+        for (i, &val) in values.iter().enumerate() {
+            let intensity = if max_val > 0.0 { (val / max_val * 10.0) as usize } else { 0 };
+            let bar = "█".repeat(intensity.min(20));
+            output.push_str(&format!("{:.3} | {}\n", min_curvature + i as f64 * (max_curvature - min_curvature) / (steps - 1).max(1) as f64, bar));
         }
 
         output
-    }
-
-    /// Pretty print Berry Phase + Curvature summary
-    pub fn print_berry_summary(&self, curvatures: &[f64], areas: &[f64]) {
-        let phase_result = self.compute_berry_phase_analog(curvatures, areas);
-        let curvature_result = if !curvatures.is_empty() {
-            Some(self.compute_berry_curvature(curvatures[0]))
-        } else {
-            None
-        };
-
-        println!("=== Berry Phase Summary ===");
-        println!("Final Phase: {:.4}", phase_result.phase);
-        println!("Magnitude  : {:.4}", phase_result.magnitude);
-        println!("Interpretation: {}", phase_result.interpretation);
-
-        if let Some(curv) = curvature_result {
-            println!("Initial Berry Curvature: {:.4} (effective {:.4})", curv.raw_curvature, curv.effective_curvature);
-        }
     }
 }
