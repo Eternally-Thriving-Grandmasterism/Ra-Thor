@@ -1,207 +1,57 @@
-//! RiemannianMercyManifold v14.4
-//!
-//! Includes Berry Curvature calculation.
 
-use crate::polyhedral_harmonic_engine::{PolyhedralResonanceReport, U57LayerDetails};
-use crate::types::EpigeneticBlessing;
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-#[derive(Debug, Clone)]
-pub struct GeometricTransportResult {
-    pub transport_applied: bool,
-    pub effective_curvature: f64,
-    pub coherence_after_transport: f64,
-    pub accumulated_holonomy: f64,
-    pub suggested_blessings: Vec<EpigeneticBlessing>,
-    pub notes: String,
-}
-
-#[derive(Debug, Clone)]
-pub struct BerryPhaseResult {
-    pub phase: f64,
-    pub magnitude: f64,
-    pub interpretation: String,
-    pub suggested_blessings: Vec<EpigeneticBlessing>,
-}
-
-#[derive(Debug, Clone)]
-pub struct BerryCurvatureResult {
-    pub raw_curvature: f64,
-    pub effective_curvature: f64,
-    pub berry_curvature_density: f64,
-    pub notes: String,
-}
-
-#[derive(Debug, Clone)]
-pub struct CurvatureParameters {
-    pub base_curvature: f64,
-    pub mercy_influence: f64,
-    pub max_allowed_curvature: f64,
-}
-
-impl Default for CurvatureParameters {
-    fn default() -> Self {
-        Self {
-            base_curvature: 0.82,
-            mercy_influence: 0.95,
-            max_allowed_curvature: 1.15,
-        }
-    }
-}
-
-pub struct RiemannianMercyManifold {
-    pub version: &'static str,
-    pub curvature_params: CurvatureParameters,
-}
-
-impl Default for RiemannianMercyManifold {
-    fn default() -> Self { Self::new() }
-}
-
-impl RiemannianMercyManifold {
-    pub fn new() -> Self {
-        Self {
-            version: "v14.4-berry-curvature",
-            curvature_params: CurvatureParameters::default(),
-        }
+    #[test]
+    fn test_compute_berry_curvature_moderate() {
+        let manifold = RiemannianMercyManifold::new();
+        let result = manifold.compute_berry_curvature(0.85);
+        assert!(result.effective_curvature > 0.5);
+        assert!(result.berry_curvature_density > 0.0);
     }
 
-    pub fn apply_u57_riemannian_transport(
-        &self,
-        polyhedral_report: &PolyhedralResonanceReport,
-        base_coherence: f64,
-    ) -> Option<GeometricTransportResult> {
-        let u57_details = polyhedral_report.u57_details.as_ref()?;
-        if !u57_details.activated { return None; }
-        Some(self.run_u57_informed_transport_sequence(u57_details, base_coherence, 8))
+    #[test]
+    fn test_compute_berry_curvature_high() {
+        let manifold = RiemannianMercyManifold::new();
+        let result = manifold.compute_berry_curvature(1.5);
+        assert!(result.effective_curvature >= 1.0);
     }
 
-    pub fn apply_mercy_gated_transport(
-        &self,
-        u57_details: &U57LayerDetails,
-        base_coherence: f64,
-    ) -> GeometricTransportResult {
-        if !u57_details.activated {
-            return GeometricTransportResult {
-                transport_applied: false,
-                effective_curvature: 0.0,
-                coherence_after_transport: base_coherence,
-                accumulated_holonomy: 0.0,
-                suggested_blessings: vec![],
-                notes: "U57 not active".to_string(),
-            };
-        }
-
-        let effective_curvature = (u57_details.recommended_manifold_curvature
-            * self.curvature_params.mercy_influence)
-            .clamp(0.5, self.curvature_params.max_allowed_curvature);
-
-        let coherence_after = (base_coherence * (1.0 + (effective_curvature - 0.82) * 0.15))
-            .clamp(0.88, 1.35);
-
-        GeometricTransportResult {
-            transport_applied: true,
-            effective_curvature,
-            coherence_after_transport: coherence_after,
-            accumulated_holonomy: 0.0,
-            suggested_blessings: vec![EpigeneticBlessing {
-                blessing_type: "Riemannian_Mercy_Transport".to_string(),
-                strength: coherence_after,
-                target_system: "geometric".to_string(),
-            }],
-            notes: format!("Effective curvature: {:.3}", effective_curvature),
-        }
+    #[test]
+    fn test_compute_berry_phase_analog_weak() {
+        let manifold = RiemannianMercyManifold::new();
+        let curvatures = vec![0.1, 0.2, 0.15];
+        let areas = vec![0.5, 0.5, 0.5];
+        let result = manifold.compute_berry_phase_analog(&curvatures, &areas);
+        assert!(result.magnitude < 0.5);
     }
 
-    pub fn rk4_geodesic_step(&self, position: f64, velocity: f64, delta_t: f64, curvature: f64) -> (f64, f64) {
-        let accel = |p: f64| -> f64 { -curvature * p };
-        let k1_v = accel(position); let k1_p = velocity;
-        let k2_v = accel(position + 0.5 * delta_t * k1_p); let k2_p = velocity + 0.5 * delta_t * k1_v;
-        let k3_v = accel(position + 0.5 * delta_t * k2_p); let k3_p = velocity + 0.5 * delta_t * k2_v;
-        let k4_v = accel(position + delta_t * k3_p); let k4_p = velocity + delta_t * k3_v;
-        let new_velocity = velocity + (delta_t / 6.0) * (k1_v + 2.0*k2_v + 2.0*k3_v + k4_v);
-        let new_position = position + (delta_t / 6.0) * (k1_p + 2.0*k2_p + 2.0*k3_p + k4_p);
-        (new_position, new_velocity)
+    #[test]
+    fn test_accumulate_holonomy() {
+        let manifold = RiemannianMercyManifold::new();
+        let curvatures = vec![0.8, 0.9, 0.7];
+        let areas = vec![1.0, 1.0, 1.0];
+        let total = manifold.accumulate_holonomy(&curvatures, &areas);
+        assert!(total.abs() > 0.0);
     }
 
-    pub fn parallel_transport_approx(&self, vector: f64, curvature: f64, distance: f64) -> f64 {
-        let damping = (1.0 - curvature * distance * 0.1).clamp(0.6, 1.1);
-        vector * damping
-    }
-
-    pub fn estimate_holonomy(&self, curvature: f64, loop_area: f64) -> f64 {
-        (curvature * loop_area * 0.8).clamp(-0.5, 0.5)
-    }
-
-    pub fn accumulate_holonomy(&self, curvatures: &[f64], loop_areas: &[f64]) -> f64 {
-        let mut total = 0.0;
-        for (curv, area) in curvatures.iter().zip(loop_areas.iter()) {
-            total += self.estimate_holonomy(*curv, *area);
-        }
-        total.clamp(-2.0, 2.0)
-    }
-
-    /// Compute local Berry Curvature
-    pub fn compute_berry_curvature(&self, local_curvature: f64) -> BerryCurvatureResult {
-        let effective = (local_curvature * self.curvature_params.mercy_influence)
-            .clamp(0.5, self.curvature_params.max_allowed_curvature);
-
-        let density = effective;
-
-        let notes = if effective > 1.0 {
-            "High Berry curvature density. Strong geometric effects expected.".to_string()
-        } else {
-            "Moderate Berry curvature density.".to_string()
+    #[test]
+    fn test_transport_sequence_has_accumulated_holonomy() {
+        let manifold = RiemannianMercyManifold::new();
+        // Create a mock U57 details
+        let u57 = U57LayerDetails {
+            activated: true,
+            resonance_multiplier_contribution: 1.35,
+            suggested_riemannian_transport_potential: 0.8,
+            recommended_manifold_curvature: 0.9,
+            geometric_meaning: "Test".to_string(),
+            integration_notes: "Test".to_string(),
         };
 
-        BerryCurvatureResult {
-            raw_curvature: local_curvature,
-            effective_curvature: effective,
-            berry_curvature_density: density,
-            notes,
-        }
-    }
-
-    pub fn compute_berry_phase_analog(&self, curvatures: &[f64], areas: &[f64]) -> BerryPhaseResult {
-        let phase = self.accumulate_holonomy(curvatures, areas);
-        let magnitude = phase.abs();
-        let interpretation = if magnitude < 0.1 { "Weak geometric phase.".to_string() } else { "Significant geometric phase.".to_string() };
-        BerryPhaseResult { phase, magnitude, interpretation, suggested_blessings: vec![] }
-    }
-
-    pub fn run_u57_informed_transport_sequence(&self, u57_details: &U57LayerDetails, base_coherence: f64, steps: usize) -> GeometricTransportResult {
-        if !u57_details.activated {
-            return self.apply_mercy_gated_transport(u57_details, base_coherence);
-        }
-
-        let mut pos = 1.0;
-        let mut vel = 0.3;
-        let dt = 0.1;
-        let mut current_coherence = base_coherence;
-        let mut accumulated_holonomy = 0.0;
-
-        for _ in 0..steps {
-            let curv = u57_details.recommended_manifold_curvature;
-            let (new_pos, new_vel) = self.rk4_geodesic_step(pos, vel, dt, curv);
-            pos = new_pos;
-            vel = new_vel;
-            let transported = self.parallel_transport_approx(vel, curv, dt * 2.0);
-            current_coherence = (current_coherence * 0.985 + transported * 0.015).clamp(0.88, 1.4);
-            accumulated_holonomy += self.estimate_holonomy(curv, dt * 1.5);
-        }
-
-        accumulated_holonomy = accumulated_holonomy.clamp(-2.0, 2.0);
-
-        GeometricTransportResult {
-            transport_applied: true,
-            effective_curvature: u57_details.recommended_manifold_curvature,
-            coherence_after_transport: current_coherence,
-            accumulated_holonomy,
-            suggested_blessings: vec![EpigeneticBlessing {
-                blessing_type: "Riemannian_RK4_Transport_Sequence".to_string(),
-                strength: current_coherence,
-                target_system: "riemannian".to_string(),
-            }],
-            notes: format!("RK4 sequence complete. Accumulated holonomy ≈ {:.3}", accumulated_holonomy),
-        }
+        let result = manifold.run_u57_informed_transport_sequence(&u57, 0.95, 6);
+        assert!(result.transport_applied);
+        // Accumulated holonomy should be non-zero after several steps
+        assert!(result.accumulated_holonomy.abs() > 0.01);
     }
 }
