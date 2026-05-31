@@ -67,6 +67,8 @@ members = [
     "mercy_hybrid_propulsion",
     "mercy_nuclear_propulsion",
     "mercy_electric_propulsion",
+    "mercy_biomimetic_propulsion",
+    "mercy_fusion_propulsion",
     "mercy_plasma_propulsion",
     "mercy_ion_propulsion",
     "mercy_chemical_propulsion",
