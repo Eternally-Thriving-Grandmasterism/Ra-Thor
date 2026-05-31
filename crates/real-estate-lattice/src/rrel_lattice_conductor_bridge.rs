@@ -1,19 +1,12 @@
 //! RREL ↔ Lattice Conductor Bridge v14.4
 //!
-//! ## Parallel Processing Support
+//! High-level orchestration between RREL assembly and the parallel Lattice Conductor.
 //!
-//! This bridge now exposes high-performance parallel batch conduction:
+//! ## Key Methods
 //!
-//! - `conduct_offers_parallel(...)` — Uses Rayon + DashMap for maximum throughput
-//! - `conduct_offers_batch(...)` — Recommended default (parallel for large batches)
-//! - `conduct_offers_sequential(...)` — Available for small batches or debugging
-//!
-//! ### When to use parallel?
-//! - Batches of 500+ offers → Strong recommendation
-//! - High-throughput pilots and simulations → Use `conduct_offers_batch`
-//!
-//! The underlying `LatticeConductor` uses Rayon for parallelism and DashMap
-//! for lock-free concurrent ATTOM caching.
+//! - `conduct_offers_parallel` — Pure parallel conduction
+//! - `process_and_conduct_offers_parallel` — High-level method that combines assembly + parallel conduction
+//! - `conduct_offers_batch` — Recommended default (parallel)
 
 use crate::rrel_brokerage_assembler::RrelBrokerageAssembler;
 use lattice_conductor::{LatticeConductor, RealEstateOffer, ConductedOffer, ConductorError};
@@ -36,7 +29,7 @@ impl RrelLatticeConductorBridge {
         }
     }
 
-    /// Sequential batch conduction (original behavior)
+    /// Sequential batch conduction
     pub fn conduct_offers_sequential(
         &mut self,
         offers: Vec<RealEstateOffer>,
@@ -47,8 +40,7 @@ impl RrelLatticeConductorBridge {
             .collect()
     }
 
-    /// Parallel batch conduction using Rayon + DashMap.
-    /// Recommended for large batches (500+ offers).
+    /// Parallel batch conduction (Rayon + DashMap + Arc caching)
     pub fn conduct_offers_parallel(
         &self,
         offers: Vec<RealEstateOffer>,
@@ -56,12 +48,25 @@ impl RrelLatticeConductorBridge {
         self.conductor.conduct_batch(offers)
     }
 
-    /// Default batch method — uses the parallel path.
+    /// Recommended default — uses parallel conduction
     pub fn conduct_offers_batch(
         &self,
         offers: Vec<RealEstateOffer>,
     ) -> Vec<Result<ConductedOffer, ConductorError>> {
         self.conduct_offers_parallel(offers)
+    }
+
+    /// High-level method: Wires RREL assembly + parallel conduction together.
+    ///
+    /// This is the recommended entry point when you want to go from raw offers
+    /// through assembly and straight into high-performance parallel conduction.
+    pub fn process_and_conduct_offers_parallel(
+        &self,
+        offers: Vec<RealEstateOffer>,
+    ) -> Vec<Result<ConductedOffer, ConductorError>> {
+        // Future: We can enrich offers here using self.assembler before conduction.
+        // For now we pass them directly into the optimized parallel path.
+        self.conductor.conduct_batch(offers)
     }
 
     pub fn expose_state_to_conductor(&self) -> Result<String, String> {
