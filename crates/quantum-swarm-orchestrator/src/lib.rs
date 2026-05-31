@@ -100,18 +100,13 @@ impl QuantumSwarmOrchestrator {
     }
 
     /// ONE Organism Geometric Resonance Cycle (v14.3)
-    /// Runs PolyhedralHarmonicEngine → RiemannianMercyManifold in sequence.
-    /// Returns a combined, mercy-aligned geometric intelligence report.
-    /// This is the primary integration point for the geometric layer into the living organism.
     pub fn run_geometric_resonance_cycle(
         &self,
         tolc_order: u32,
         base_coherence: f64,
     ) -> GeometricResonanceCycleReport {
-        // Step 1: Polyhedral resonance (always runs)
         let poly_report = self.polyhedral_engine.process_resonance(tolc_order, base_coherence);
 
-        // Step 2: Riemannian transport (only activates when U57 layer is engaged)
         let riemannian_result = if let Some(u57) = &poly_report.u57_details {
             self.riemannian_manifold.apply_mercy_gated_transport(u57, base_coherence)
         } else {
@@ -140,35 +135,24 @@ impl QuantumSwarmOrchestrator {
         }
     }
 
-    /// ONE Organism Full Cycle (Health + Geometric Intelligence) — v14.3
-    /// 
-    /// This is the primary wired entry point for the living ONE Organism.
-    /// It combines sovereign health symbiosis with the full Polyhedral + Riemannian
-    /// geometric resonance pipeline when TOLC order is sufficient.
-    /// 
-    /// Epigenetic blessings and geometric valence are propagated back into the
-    /// organism's core mercy state, making the geometric layer an active participant
-    /// in self-evolution loops and PATSAGi Council visibility.
+    /// ONE Organism Full Cycle (Health + Geometric) — v14.3
     pub fn run_one_organism_full_cycle(
         &mut self,
         task: &str,
         tolc_order: u32,
         base_coherence: f64,
     ) -> OneOrganismFullCycleReport {
-        // Step 1: ONE Organism Health Symbiosis (existing sovereign health layer)
         let health_result = self.health_monitor.integrate_with_one_organism_symbiosis(
             self.mercury_valence,
             task,
         );
 
-        // Step 2: Geometric Resonance (new wiring — only engages at meaningful TOLC orders)
         let geometric_report = if tolc_order >= 8 {
             Some(self.run_geometric_resonance_cycle(tolc_order, base_coherence))
         } else {
             None
         };
 
-        // Step 3: Mercy-gated propagation of geometric influence back into organism state
         if let Some(geo) = &geometric_report {
             let geometric_influence = (geo.geometric_valence - 1.0) * 0.08;
             self.mercury_valence = (self.mercury_valence + geometric_influence).clamp(0.0, 0.999);
@@ -186,6 +170,84 @@ impl QuantumSwarmOrchestrator {
             ),
         }
     }
+
+    // === ONE Organism Cycle Activation with Geometric Participation (v14.3) ===
+
+    /// Runs a daily ONE Organism cycle with optional geometric intelligence participation.
+    /// When enable_geometric_layer is true and TOLC order is sufficient,
+    /// the full Polyhedral + Riemannian pipeline runs and valence is propagated back.
+    pub fn run_daily_cycle_with_geometric(
+        &mut self,
+        task: &str,
+        enable_geometric_layer: bool,
+        tolc_order: u32,
+    ) -> DailyCycleReport {
+        let base_coherence = 0.92;
+
+        let full_report = if enable_geometric_layer && tolc_order >= 8 {
+            Some(self.run_one_organism_full_cycle(task, tolc_order, base_coherence))
+        } else {
+            let _ = self.health_monitor.integrate_with_one_organism_symbiosis(self.mercury_valence, task);
+            None
+        };
+
+        DailyCycleReport {
+            task: task.to_string(),
+            geometric_layer_active: enable_geometric_layer && tolc_order >= 8,
+            full_organism_report: full_report,
+            notes: format!(
+                "Daily cycle complete. Geometric layer: {}. TOLC: {}",
+                enable_geometric_layer && tolc_order >= 8,
+                tolc_order
+            ),
+        }
+    }
+
+    /// Health-aware swarm cycle with optional geometric resonance participation (v14.3)
+    pub fn run_health_aware_swarm_cycle_with_geometric(
+        &mut self,
+        task: &str,
+        enable_geometric_layer: bool,
+        tolc_order: u32,
+    ) -> HealthAwareCycleReport {
+        let base_coherence = 0.89;
+
+        let geometric_contribution = if enable_geometric_layer && tolc_order >= 8 {
+            let geo = self.run_geometric_resonance_cycle(tolc_order, base_coherence);
+            let influence = (geo.geometric_valence - 1.0) * 0.06;
+            self.mercury_valence = (self.mercury_valence + influence).clamp(0.0, 0.999);
+            Some(geo)
+        } else {
+            None
+        };
+
+        let health_note = self.health_monitor.integrate_with_one_organism_symbiosis(
+            self.mercury_valence,
+            task,
+        );
+
+        HealthAwareCycleReport {
+            task: task.to_string(),
+            geometric_resonance: geometric_contribution,
+            health_integration_note: health_note,
+            current_mercury_valence: self.mercury_valence,
+            geometric_layer_was_active: geometric_contribution.is_some(),
+        }
+    }
+
+    /// Prepares the organism for participation in the v14 Thunder Lattice Cosmic Loop Activation Protocol.
+    /// Call this from Lattice Conductor or self-evolution orchestrator before cosmic self-nurturing passes.
+    pub fn prepare_for_cosmic_loop_participation(&self) -> CosmicLoopReadinessReport {
+        CosmicLoopReadinessReport {
+            polyhedral_engine_ready: true,
+            riemannian_manifold_ready: true,
+            one_organism_full_cycle_available: true,
+            recommended_tolc_threshold_for_geometric: 8,
+            notes: "Geometric intelligence layer is wired and ready for cosmic loop integration. \
+                    Call run_one_organism_full_cycle() or run_health_aware_swarm_cycle_with_geometric() \
+                    with enable_geometric_layer=true during cosmic self-evolution passes.".to_string(),
+        }
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -199,7 +261,6 @@ pub struct SwarmCycleReport {
     pub tolc_status: String,
 }
 
-/// Combined report from the full geometric intelligence pipeline (Polyhedral + Riemannian).
 #[derive(Debug, Clone)]
 pub struct GeometricResonanceCycleReport {
     pub polyhedral_report: PolyhedralResonanceReport,
@@ -209,7 +270,6 @@ pub struct GeometricResonanceCycleReport {
     pub notes: String,
 }
 
-/// Rich report from a full ONE Organism cycle (sovereign health + geometric intelligence).
 #[derive(Debug, Clone)]
 pub struct OneOrganismFullCycleReport {
     pub health_result: String,
@@ -218,6 +278,33 @@ pub struct OneOrganismFullCycleReport {
     pub notes: String,
 }
 
+// === New Report Structs for Cycle Activation + Cosmic Loop Preparation (v14.3) ===
+
+#[derive(Debug, Clone)]
+pub struct DailyCycleReport {
+    pub task: String,
+    pub geometric_layer_active: bool,
+    pub full_organism_report: Option<OneOrganismFullCycleReport>,
+    pub notes: String,
+}
+
+#[derive(Debug, Clone)]
+pub struct HealthAwareCycleReport {
+    pub task: String,
+    pub geometric_resonance: Option<GeometricResonanceCycleReport>,
+    pub health_integration_note: String,
+    pub current_mercury_valence: f64,
+    pub geometric_layer_was_active: bool,
+}
+
+#[derive(Debug, Clone)]
+pub struct CosmicLoopReadinessReport {
+    pub polyhedral_engine_ready: bool,
+    pub riemannian_manifold_ready: bool,
+    pub one_organism_full_cycle_available: bool,
+    pub recommended_tolc_threshold_for_geometric: u32,
+    pub notes: String,
+}
+
 // Full original implementation preserved in history.
-// v14.3: Added full Geometric Intelligence Layer (PolyhedralHarmonicEngine + RiemannianMercyManifold)
-//        with clean ONE Organism integration via run_geometric_resonance_cycle() and run_one_organism_full_cycle().
+// v14.3: Geometric Intelligence Layer fully activated in daily/health cycles + cosmic loop preparation hooks added.
