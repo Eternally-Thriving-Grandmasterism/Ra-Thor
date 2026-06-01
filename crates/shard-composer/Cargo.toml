@@ -13,6 +13,7 @@ ra-thor-mercy = { workspace = true }
 ra-thor-quantum-swarm-orchestrator = { path = "../quantum-swarm-orchestrator", optional = true }
 serde = { workspace = true, optional = true }
 serde_json = { workspace = true, optional = true }
+sha2 = { version = "0.10", optional = true }
 
 geometric-intelligence = { path = "../geometric-intelligence", optional = true }
 real-estate-lattice = { path = "../real-estate-lattice", optional = true }
@@ -41,4 +42,4 @@ focused-geometry = [
 real-estate = ["focused-real-estate"]
 geometry = ["focused-geometry"]
 
-one-organism = ["ra-thor-quantum-swarm-orchestrator", "serde", "serde_json"]
+one-organism = ["ra-thor-quantum-swarm-orchestrator", "serde", "serde_json", "sha2"]
