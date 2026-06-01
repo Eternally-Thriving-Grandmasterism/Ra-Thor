@@ -1,13 +1,10 @@
 // crates/xtask/src/main.rs
 
-use clap::{Parser, Subcommand};
-use ra_thor_mercy::MercyEngine;
-use shard_composer::ShardComposerAdapter;
-use std::process::{self, Command};
-use thiserror::Error;
-use tracing::error;
+use std::path::PathBuf;
 
-// ... (XtaskError and other code remains)
+fn get_adapter_state_path() -> PathBuf {
+    PathBuf::from(".ra-thor/shard-composer-state.json")
+}
 
 fn check_shard(profile: &str) -> Result<()> {
     let feature = get_feature(profile);
@@ -17,10 +14,12 @@ fn check_shard(profile: &str) -> Result<()> {
     );
 
     if result.is_ok() {
-        let mut adapter = ShardComposerAdapter::new();
+        let state_path = get_adapter_state_path();
+        let mut adapter = ShardComposerAdapter::load_from_file(&state_path);
         let blessing = generate_blessing("Check", profile);
-        adapter.apply_epigenetic_blessing(blessing.clone());
-        println!("[ShardComposerAdapter] Status after blessing: {}", adapter.status());
+        adapter.apply_epigenetic_blessing(blessing);
+        let _ = adapter.save_to_file(&state_path);
+        println!("[Persistence] State saved. {}", adapter.status());
     }
     result
 }
@@ -33,10 +32,12 @@ fn build_shard(profile: &str, release: bool) -> Result<()> {
     let result = run_cargo_command(&args, &format!("Building shard '{}'", profile));
 
     if result.is_ok() {
-        let mut adapter = ShardComposerAdapter::new();
+        let state_path = get_adapter_state_path();
+        let mut adapter = ShardComposerAdapter::load_from_file(&state_path);
         let blessing = generate_blessing("Build", profile);
-        adapter.apply_epigenetic_blessing(blessing.clone());
-        println!("[ShardComposerAdapter] Status after blessing: {}", adapter.status());
+        adapter.apply_epigenetic_blessing(blessing);
+        let _ = adapter.save_to_file(&state_path);
+        println!("[Persistence] State saved. {}", adapter.status());
     }
     result
 }
@@ -49,12 +50,14 @@ fn test_shard(profile: &str) -> Result<()> {
     );
 
     if result.is_ok() {
-        let mut adapter = ShardComposerAdapter::new();
+        let state_path = get_adapter_state_path();
+        let mut adapter = ShardComposerAdapter::load_from_file(&state_path);
         let blessing = generate_blessing("Test", profile);
-        adapter.apply_epigenetic_blessing(blessing.clone());
-        println!("[ShardComposerAdapter] Status after blessing: {}", adapter.status());
+        adapter.apply_epigenetic_blessing(blessing);
+        let _ = adapter.save_to_file(&state_path);
+        println!("[Persistence] State saved. {}", adapter.status());
     }
     result
 }
 
-// ... rest of file with generate_blessing and other functions
+// ... rest of the file
