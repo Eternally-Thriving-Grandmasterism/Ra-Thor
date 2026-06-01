@@ -54,15 +54,17 @@ enum Commands {
     ForgeDeploy { prompt: String, platform: Option<String> },
     Clean, Doc, Validate, Audit, Outdated, Status,
 
-    /// Build a Sovereign Shard using shard-composer
-    BuildShard {
-        #[arg(short, long, default_value = "full")]
-        profile: String,
-        #[arg(long)] release: bool,
-    },
+    /// Build a Sovereign Shard
+    BuildShard { profile: String, release: bool },
 
-    /// List available Sovereign Shard profiles
+    /// List available shard profiles
     ListShards,
+
+    /// Check a shard profile (cargo check)
+    CheckShard { profile: String },
+
+    /// Test a shard profile
+    TestShard { profile: String },
 }
 
 fn run_cargo_command(args: &[&str], description: &str) -> Result<()> {
@@ -73,25 +75,37 @@ fn run_cargo_command(args: &[&str], description: &str) -> Result<()> {
     else { Err(XtaskError::CommandFailed(status.code().unwrap_or(-1))) }
 }
 
+fn get_feature(profile: &str) -> String {
+    match profile {
+        "full" => "full".to_string(),
+        "focused-real-estate" | "real-estate" => "focused-real-estate".to_string(),
+        "focused-geometry" | "geometry" => "focused-geometry".to_string(),
+        _ => { eprintln!("Unknown profile '{}', defaulting to full", profile); "full".to_string() }
+    }
+}
+
 fn build_shard(profile: &str, release: bool) -> Result<()> {
-    let feature = match profile {
-        "full" => "full",
-        "focused-real-estate" | "real-estate" => "focused-real-estate",
-        "focused-geometry" | "geometry" => "focused-geometry",
-        _ => { eprintln!("Unknown profile '{}', using 'full'", profile); "full" }
-    };
-    let mut args = vec!["build", "-p", "shard-composer", "--features", feature];
+    let feature = get_feature(profile);
+    let mut args = vec!["build", "-p", "shard-composer", "--features", &feature];
     if release { args.push("--release"); }
     run_cargo_command(&args, &format!("Building shard '{}'", profile))
 }
 
+fn check_shard(profile: &str) -> Result<()> {
+    let feature = get_feature(profile);
+    run_cargo_command(&["check", "-p", "shard-composer", "--features", &feature], &format!("Checking shard '{}'", profile))
+}
+
+fn test_shard(profile: &str) -> Result<()> {
+    let feature = get_feature(profile);
+    run_cargo_command(&["test", "-p", "shard-composer", "--features", &feature], &format!("Testing shard '{}'", profile))
+}
+
 fn list_shards() {
     println!("Available Sovereign Shard profiles:");
-    println!("  full                  → Complete ONE Organism (recommended)");
-    println!("  focused-real-estate   → Real Estate Lattice + Professional Judgment + Geometry");
-    println!("  focused-geometry      → Sacred Geometry + Riemannian layer only");
-    println!("  real-estate           → Alias for focused-real-estate");
-    println!("  geometry              → Alias for focused-geometry");
+    println!("  full                  → Complete ONE Organism");
+    println!("  focused-real-estate   → Real Estate + Professional Judgment");
+    println!("  focused-geometry      → Geometry + Riemannian");
 }
 
 #[tokio::main]
@@ -102,13 +116,11 @@ async fn main() {
     let guard = MercyGuard::new(&engine);
 
     let result = match cli.command {
-        Commands::BuildShard { profile, release } => {
-            println!("🛠️ Building Sovereign Shard: {} (release={})", profile, release);
-            build_shard(&profile, release)
-        }
+        Commands::BuildShard { profile, release } => build_shard(&profile, release),
+        Commands::CheckShard { profile } => check_shard(&profile),
+        Commands::TestShard { profile } => test_shard(&profile),
         Commands::ListShards => { list_shards(); Ok(()) }
-        // ... (other commands remain as before for brevity in this commit)
-        _ => { println!("Command executed (other handlers preserved)"); Ok(()) }
+        _ => { println!("Command not fully implemented in this view"); Ok(()) }
     };
 
     match result {
