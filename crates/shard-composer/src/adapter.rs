@@ -1,6 +1,6 @@
 //! adapter.rs
 //!
-//! RaThorSystemAdapter with strong self-evolution mechanics via epigenetic blessings.
+//! RaThorSystemAdapter with adaptive scaling in epigenetic blessing application.
 
 use ra_thor_quantum_swarm_orchestrator::{
     adapter::RaThorSystemAdapter,
@@ -14,7 +14,7 @@ use std::env;
 use std::fs;
 use std::path::Path;
 
-const CURRENT_VERSION: u32 = 3; // Bumped for new evolution_level field
+const CURRENT_VERSION: u32 = 3;
 
 const DEFAULT_BASE_KEY: &[u8] = b"ra-thor-sovereign-self-evolution";
 const HKDF_INFO: &[u8] = b"shard-composer-hmac-v1";
@@ -36,8 +36,6 @@ pub struct ShardComposerAdapter {
     name: &'static str,
     current_valence: Valence,
     blessings_count: u32,
-
-    // Self-evolution metrics
     evolution_level: f64,
     total_evolution_impact: f64,
     total_mercy_impact: f64,
@@ -156,45 +154,51 @@ impl ShardComposerAdapter {
         adapter
     }
 
-    /// Significantly enhanced blessing application
-    /// Respects multi-dimensional impacts and grows internal evolution state
+    /// Adaptive scaling version of blessing application
     pub fn apply_epigenetic_blessing(&mut self, blessing: EpigeneticBlessing) {
         self.blessings_count += 1;
 
-        // Accumulate impacts
-        self.total_evolution_impact += blessing.evolution_impact;
-        self.total_mercy_impact += blessing.mercy_impact;
+        // Adaptive scaling factor based on current evolution level
+        // Early stage: stronger effect | Later stage: diminishing but still positive returns
+        let scale = if self.evolution_level < 5.0 {
+            1.0 + (self.evolution_level * 0.08)   // Accelerating early
+        } else {
+            1.4 - ((self.evolution_level - 5.0) * 0.03).min(0.6) // Gradual diminishing
+        };
+
+        let scaled_evolution = blessing.evolution_impact * scale;
+        let scaled_mercy = blessing.mercy_impact * scale;
+
+        self.total_evolution_impact += scaled_evolution;
+        self.total_mercy_impact += scaled_mercy;
         self.total_tolc_impact += blessing.tolc_impact;
 
-        // Grow evolution level (core self-evolution mechanic)
-        self.evolution_level += blessing.evolution_impact * 0.8;
+        // Grow evolution level with adaptive scaling
+        self.evolution_level += scaled_evolution * 0.85;
 
-        // Stronger, more meaningful valence improvement
-        let valence_boost = 0.0015 + (blessing.mercy_impact * 0.0008);
+        // Adaptive valence boost
+        let valence_boost = (0.0018 + (scaled_mercy * 0.001)) * scale.max(0.7);
         let new_valence = (self.current_valence.value() + valence_boost).min(0.99999999);
         self.current_valence = Valence(new_valence);
 
         println!(
-            "✨ [ShardComposer] {} applied | str={:.2} | evo+{:.3} | mercy+{:.3} | tolc+{:.3} | level={:.2}",
+            "✨ [ShardComposer] {} | str={:.2} scale={:.2} | evo+{:.3} | level={:.2}",
             blessing.blessing_type,
             blessing.strength,
-            blessing.evolution_impact,
-            blessing.mercy_impact,
-            blessing.tolc_impact,
+            scale,
+            scaled_evolution,
             self.evolution_level
         );
     }
 
     pub fn status(&self) -> String {
         format!(
-            "{} v{} | valence={:.6} | level={:.2} | blessings={} | evo={:.1} mercy={:.1}",
+            "{} v{} | valence={:.6} | level={:.2} | blessings={}",
             self.name,
             self.version,
             self.current_valence.value(),
             self.evolution_level,
-            self.blessings_count,
-            self.total_evolution_impact,
-            self.total_mercy_impact
+            self.blessings_count
         )
     }
 }
