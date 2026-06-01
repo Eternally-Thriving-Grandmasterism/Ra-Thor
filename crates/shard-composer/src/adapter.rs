@@ -1,11 +1,12 @@
 //! adapter.rs
 //!
-//! Tamper-resistant persistence using HMAC-SHA256.
+//! Tamper-resistant persistence with HKDF key derivation.
 
 use ra_thor_quantum_swarm_orchestrator::{
     adapter::RaThorSystemAdapter,
     types::{EpigeneticBlessing, GodlyIntelligenceCoherence, MercyError, SwarmResonance, Valence},
 };
+use hkdf::Hkdf;
 use hmac::{Hmac, Mac};
 use serde::{Deserialize, Serialize};
 use sha2::Sha256;
@@ -14,7 +15,9 @@ use std::path::Path;
 
 const CURRENT_VERSION: u32 = 2;
 
-const HMAC_KEY: &[u8] = b"ra-thor-sovereign-mercy-key-v1";
+// Base material for key derivation (can be enhanced with env var or config later)
+const BASE_KEY_MATERIAL: &[u8] = b"ra-thor-sovereign-self-evolution";
+const HKDF_INFO: &[u8] = b"shard-composer-hmac-v1";
 
 type HmacSha256 = Hmac<Sha256>;
 
@@ -48,15 +51,25 @@ impl ShardComposerAdapter {
         self.blessings_count
     }
 
+    /// Derive HMAC key using HKDF-SHA256
+    fn derive_hmac_key() -> Vec<u8> {
+        let hk = Hkdf::<Sha256>::new(None, BASE_KEY_MATERIAL);
+        let mut okm = [0u8; 32];
+        hk.expand(HKDF_INFO, &mut okm).expect("HKDF expand failed");
+        okm.to_vec()
+    }
+
     fn sign_data(data: &serde_json::Value) -> Option<String> {
-        let mut mac = HmacSha256::new_from_slice(HMAC_KEY).ok()?;
+        let key = Self::derive_hmac_key();
+        let mut mac = HmacSha256::new_from_slice(&key).ok()?;
         mac.update(data.to_string().as_bytes());
         let result = mac.finalize();
         Some(hex::encode(result.into_bytes()))
     }
 
     fn verify_signature(data: &serde_json::Value, signature: &str) -> bool {
-        if let Ok(mut mac) = HmacSha256::new_from_slice(HMAC_KEY) {
+        let key = Self::derive_hmac_key();
+        if let Ok(mut mac) = HmacSha256::new_from_slice(&key) {
             mac.update(data.to_string().as_bytes());
             if let Ok(expected) = hex::decode(signature) {
                 return mac.verify_slice(&expected).is_ok();
@@ -83,7 +96,7 @@ impl ShardComposerAdapter {
         if let Ok(content) = fs::read_to_string(path) {
             if let Ok(signed) = serde_json::from_str::<SignedState>(&content) {
                 if !Self::verify_signature(&signed.data, &signed.signature) {
-                    eprintln!("[Security] HMAC verification failed! Possible tampering detected.");
+                    eprintln!("[Security] HMAC verification failed. Possible tampering.");
                     return Self::new();
                 }
 
