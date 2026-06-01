@@ -1,15 +1,13 @@
 // crates/xtask/src/main.rs
-// ... (imports and previous code)
 
-use ra_thor_quantum_swarm_orchestrator::types::EpigeneticBlessing;
+use clap::{Parser, Subcommand};
+use ra_thor_mercy::MercyEngine;
+use shard_composer::ShardComposerAdapter;
+use std::process::{self, Command};
+use thiserror::Error;
+use tracing::error;
 
-fn generate_blessing(operation: &str, profile: &str) -> EpigeneticBlessing {
-    EpigeneticBlessing {
-        blessing_type: format!("Shard_{}_Success", operation),
-        strength: 1.15,
-        target_system: format!("shard-composer:{}", profile),
-    }
-}
+// ... (XtaskError and other code remains)
 
 fn check_shard(profile: &str) -> Result<()> {
     let feature = get_feature(profile);
@@ -19,11 +17,10 @@ fn check_shard(profile: &str) -> Result<()> {
     );
 
     if result.is_ok() {
+        let mut adapter = ShardComposerAdapter::new();
         let blessing = generate_blessing("Check", profile);
-        println!(
-            "✨ Epigenetic Blessing generated: {} → {} (strength {:.2})",
-            blessing.blessing_type, blessing.target_system, blessing.strength
-        );
+        adapter.apply_epigenetic_blessing(blessing.clone());
+        println!("[ShardComposerAdapter] Status after blessing: {}", adapter.status());
     }
     result
 }
@@ -36,11 +33,10 @@ fn build_shard(profile: &str, release: bool) -> Result<()> {
     let result = run_cargo_command(&args, &format!("Building shard '{}'", profile));
 
     if result.is_ok() {
+        let mut adapter = ShardComposerAdapter::new();
         let blessing = generate_blessing("Build", profile);
-        println!(
-            "✨ Epigenetic Blessing generated: {} → {} (strength {:.2})",
-            blessing.blessing_type, blessing.target_system, blessing.strength
-        );
+        adapter.apply_epigenetic_blessing(blessing.clone());
+        println!("[ShardComposerAdapter] Status after blessing: {}", adapter.status());
     }
     result
 }
@@ -53,13 +49,12 @@ fn test_shard(profile: &str) -> Result<()> {
     );
 
     if result.is_ok() {
+        let mut adapter = ShardComposerAdapter::new();
         let blessing = generate_blessing("Test", profile);
-        println!(
-            "✨ Epigenetic Blessing generated: {} → {} (strength {:.2})",
-            blessing.blessing_type, blessing.target_system, blessing.strength
-        );
+        adapter.apply_epigenetic_blessing(blessing.clone());
+        println!("[ShardComposerAdapter] Status after blessing: {}", adapter.status());
     }
     result
 }
 
-// ... rest of the file
+// ... rest of file with generate_blessing and other functions
