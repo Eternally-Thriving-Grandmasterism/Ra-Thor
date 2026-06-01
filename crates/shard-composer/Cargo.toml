@@ -9,10 +9,9 @@ repository.workspace = true
 publish = false
 
 [dependencies]
-# Core always-available
 ra-thor-mercy = { workspace = true }
+ra-thor-quantum-swarm-orchestrator = { path = "../quantum-swarm-orchestrator", optional = true }
 
-# Optional crates for composition
 geometric-intelligence = { path = "../geometric-intelligence", optional = true }
 real-estate-lattice = { path = "../real-estate-lattice", optional = true }
 quantum-swarm-orchestrator = { path = "../quantum-swarm-orchestrator", optional = true }
@@ -20,8 +19,6 @@ patsagi-councils = { path = "../patsagi-councils", optional = true }
 
 [features]
 default = []
-
-# === Unified ONE Organism ===
 full = [
     "geometric-intelligence/full",
     "real-estate-lattice/full",
@@ -29,7 +26,6 @@ full = [
     "patsagi-councils/full",
 ]
 
-# === Focused Shard Compositions ===
 focused-real-estate = [
     "geometric-intelligence/focused-geometry",
     "real-estate-lattice/focused-real-estate",
@@ -40,6 +36,8 @@ focused-geometry = [
     "geometric-intelligence/focused-geometry",
 ]
 
-# Convenience aliases
 real-estate = ["focused-real-estate"]
 geometry = ["focused-geometry"]
+
+# Enable ONE Organism adapter participation
+one-organism = ["ra-thor-quantum-swarm-orchestrator"]
