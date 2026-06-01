@@ -10,8 +10,11 @@ publish = false
 
 [dependencies]
 ra-thor-mercy = { workspace = true }
+
+# ONE Organism adapter support
 ra-thor-quantum-swarm-orchestrator = { path = "../quantum-swarm-orchestrator", optional = true }
 
+# Optional domain crates
 geometric-intelligence = { path = "../geometric-intelligence", optional = true }
 real-estate-lattice = { path = "../real-estate-lattice", optional = true }
 quantum-swarm-orchestrator = { path = "../quantum-swarm-orchestrator", optional = true }
@@ -19,6 +22,7 @@ patsagi-councils = { path = "../patsagi-councils", optional = true }
 
 [features]
 default = []
+
 full = [
     "geometric-intelligence/full",
     "real-estate-lattice/full",
@@ -39,5 +43,5 @@ focused-geometry = [
 real-estate = ["focused-real-estate"]
 geometry = ["focused-geometry"]
 
-# Enable ONE Organism adapter participation
+# ONE Organism participation
 one-organism = ["ra-thor-quantum-swarm-orchestrator"]
