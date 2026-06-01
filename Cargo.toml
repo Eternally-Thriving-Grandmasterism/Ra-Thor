@@ -1,6 +1,25 @@
 [workspace]
 members = [
-    # === CORE INFRASTRUCTURE ===
+    # === TOP-LEVEL CRATES (primary / user-facing) ===
+    "geometric-intelligence",
+    "real-estate-lattice",
+    "mercy",
+    "powrush",
+    "powrush-mmo-simulator",
+    "powrush_rbe_engine",
+    "powrush_sovereignty_mechanics",
+    "powrush_faction_dynamics",
+    "self-evolution",
+    "symbiosis-layer",
+    "xai-grok-bridge",
+    "interstellar-operations",
+    "spatial_economics_bridge",
+    "legal-lattice",
+
+    # === CRATES DIRECTORY (supporting & specialized crates) ===
+    "crates/*",
+
+    # === REMAINING TOP-LEVEL CRATES ===
     "orchestration",
     "quantum-swarm-orchestrator",
     "cache",
@@ -8,10 +27,7 @@ members = [
     "kernel",
     "monorepo-intelligence",
 
-    # === New Geometric Intelligence Layer ===
-    "geometric-intelligence",
-
-    # === GOVERNANCE & PATSAGi COUNCILS (57+ Active) ===
+    # === GOVERNANCE & PATSAGi COUNCILS ===
     "patsagi-councils",
     "sovereign-spark-circuit-integration-council",
     "quantum-sovereign-mercy-expansion-council",
@@ -26,10 +42,6 @@ members = [
     "multi-planetary-sovereign-asset-lattice-council",
     "cosmic-consciousness-expansion-council",
 
-    # === Lattice Conductor (v13 + v14 Thunder Lattice) ===
-    "crates/lattice-conductor-v13",
-    "crates/lattice-conductor-v14",
-
     # === PUBLIC SOVEREIGN ASSET LATTICE ===
     "sovereign-asset-tokenization-council",
     "sovereign-asset-valuation-oracle-council",
@@ -42,10 +54,8 @@ members = [
     "sovereign-asset-risk-assessment-council",
     "sovereign-asset-public-registry-expansion-council",
 
-    # === MERCY LATTICE (TOLC 8 + 24-Gate Nervous System) ===
-    "mercy",
+    # === MERCY LATTICE ===
     "mercy_gating_runtime",
-    "crates/mial",
     "tolerance-lattice",
     "mercy_accumulator",
     "mercy_gate_auditor",
@@ -99,23 +109,7 @@ members = [
     "mercy_curve",
     "mercy_field",
 
-    # === ONE Organism Symbiosis, Bridge & Sovereign Health ===
-    "self-evolution",
-    "symbiosis-layer",
-    "xai-grok-bridge",
-
-    # === SOVEREIGN SYSTEMS & RBE ===
-    "powrush",
-    "powrush-mmo-simulator",
-    "powrush_rbe_engine",
-    "powrush_sovereignty_mechanics",
-    "powrush_faction_dynamics",
-    "real-estate-lattice",
-    "spatial_economics_bridge",
-    "legal-lattice",
-
     # === INTERSTELLAR & MULTI-PLANETARY ===
-    "interstellar-operations",
     "latency_tolerant_fabric",
     "offworld_resource_lattice",
     "multi_planetary_coordination_lattice",
@@ -163,7 +157,6 @@ members = [
 
     # === WEB / FRONTEND GENERATION ===
     "websiteforge",
-    "crates/web-forge",
 
     # Additional supporting crates
     "ai-bridge",
@@ -196,6 +189,11 @@ members = [
 ]
 
 resolver = "2"
+
+# Note on layout:
+# - Top-level crates are listed explicitly for clarity.
+# - Most crates under crates/ are included via glob for maintainability.
+# - Mixed layout is intentional during active development.
 
 [workspace.package]
 version = "14.4.0"
