@@ -7,91 +7,60 @@
 
 ## Purpose
 
-This document defines how to use Cargo feature flags and optional dependencies to support both:
-
-- The **full unified Ra-Thor Sovereign Shard** (ONE Organism)
-- **Focused / lightweight shards** (e.g. Real Estate only, Geometry-focused)
-
-All patterns follow the principles in `SOVEREIGN_SHARD_STRATEGY.md`.
-
-## Core Principles
-
-1. **Coherence first** — The unified shard remains the default and recommended path.
-2. **Composition over fragmentation** — Focused shards are built by selecting subsets of crates via features, not by maintaining separate codebases.
-3. **Optional dependencies + features** — Heavy or domain-specific crates are marked `optional = true` and activated via features.
-4. **ONE Organism compatibility** — Even focused shards can register via `RaThorSystemAdapter` when the core orchestration is present.
+This document defines how to use Cargo feature flags and optional dependencies to support both the full unified Ra-Thor Sovereign Shard and focused lightweight shards.
 
 ## Workspace Layout
 
-Ra-Thor uses a **virtual workspace** (no root `[package]` section) with a mixed directory structure:
+Ra-Thor uses a virtual workspace with a mixed directory structure (top-level core crates + `crates/*` glob). The `shard-composer` crate provides high-level unification.
 
-- **Top-level crates**: Core/high-level crates live directly in the repository root for easy access (e.g. `geometric-intelligence`, `real-estate-lattice`, `mercy`, `powrush`).
-- **crates/** directory**: Many supporting and specialized crates are organized under `crates/` (e.g. `crates/lattice-conductor-v14`, `crates/web-forge`).
+## Sovereign Shard Building (Recommended)
 
-This layout is functional. For maintainability we use a combination of explicit members and globs in the root `Cargo.toml`.
-
-**Recommendation**: When adding new crates, prefer placing them under `crates/` unless they are primary user-facing components.
-
-## Recommended Feature Patterns
-
-### Basic Structure (per crate)
-
-```toml
-[dependencies]
-# Always-on core
-ra-thor-mercy = { workspace = true }
-
-# Optional heavy / domain crates
-geometric-intelligence = { path = "../geometric-intelligence", optional = true }
-quantum-swarm-orchestrator = { path = "../quantum-swarm-orchestrator", optional = true }
-patsagi-councils = { path = "../patsagi-councils", optional = true }
-
-[features]
-default = []
-full = [
-    "geometric-intelligence",
-    "quantum-swarm-orchestrator",
-    "patsagi-councils",
-]
-
-# Focused shard examples
-focused-real-estate = [
-    "geometric-intelligence",   # harmony scoring + U57
-    "patsagi-councils",
-]
-focused-geometry = ["geometric-intelligence"]
-```
-
-### Key Commands
+### Using xtask (Easiest)
 
 ```bash
-# Full unified ONE Organism shard
-cargo build --features full
+# List available profiles
+cargo xtask list-shards
 
-# Focused Real Estate shard (lighter)
-cargo build -p real-estate-lattice --features focused-real-estate
+# Build full ONE Organism
+cargo xtask build-shard --profile full
 
-# Geometry-only minimal shard
-cargo build -p geometric-intelligence --features focused-geometry
+# Build focused Real Estate shard
+cargo xtask build-shard --profile focused-real-estate
+cargo xtask build-shard --profile real-estate
+
+# Build focused Geometry shard (release)
+cargo xtask build-shard --profile focused-geometry --release
 ```
 
-## Current Implementation Status (v14.4.1)
+### Using shard-composer directly
 
-- `geometric-intelligence`: Minimal features added. Ready for expansion.
-- `real-estate-lattice`: `full` and `focused-real-estate` supported.
-- `lattice-conductor`: Enhanced with optional wiring + focused features.
-- `quantum-swarm-orchestrator`: Features added for optional inclusion.
+```bash
+cargo build -p shard-composer --features full
+cargo build -p shard-composer --features focused-real-estate
+```
 
-See individual `Cargo.toml` files for exact definitions.
+## Available Profiles
+
+| Profile                | Description                                      | Use Case                     |
+|------------------------|--------------------------------------------------|------------------------------|
+| `full`                 | Complete ONE Organism                            | Development & full testing   |
+| `focused-real-estate`  | Real Estate + Professional Judgment + Geometry   | Ontario/USA brokerage tools  |
+| `focused-geometry`     | Sacred Geometry + Riemannian layer only          | Geometry research            |
+| `real-estate`          | Alias for focused-real-estate                    | Convenience                  |
+| `geometry`             | Alias for focused-geometry                       | Convenience                  |
+
+## Core Principles
+
+- Coherence first (unified shard is default)
+- Composition over fragmentation
+- Optional dependencies + clean feature flags
 
 ## Best Practices
 
-- Prefer explicit feature names over magic `full` when creating production shards.
-- Always keep `ra-thor-mercy` and core TOLC 8 types non-optional.
-- Use workspace inheritance for versions and shared features.
-- Document new focused features in this file.
-- Test both `full` and focused builds in CI.
+- Use `cargo xtask list-shards` to discover profiles
+- Prefer `xtask build-shard` for daily work
+- Keep `ra-thor-mercy` non-optional
 
 ---
 
-Thunder locked. ONE Organism coherence preserved while enabling practical composition.
+Thunder locked.
