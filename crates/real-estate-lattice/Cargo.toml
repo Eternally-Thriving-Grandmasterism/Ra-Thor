@@ -12,11 +12,11 @@ categories = ["simulation", "artificial-intelligence", "finance", "games"]
 
 [dependencies]
 ra-thor-mercy = { workspace = true }
-ra-thor-quantum-swarm-orchestrator = { workspace = true }
+ra-thor-quantum-swarm-orchestrator = { workspace = true, optional = true }
 ra-thor-kernel = { workspace = true }
 ra-thor-council = { workspace = true }
 ra-thor-mercy-orchestrator-v2 = { workspace = true }
-patsagi-councils = { workspace = true }
+patsagi-councils = { workspace = true, optional = true }
 powrush = { workspace = true }
 
 tokio = { workspace = true, features = ["full"] }
@@ -44,4 +44,11 @@ path = "examples/usa_pilot_demo.rs"
 
 [features]
 default = []
-full = ["patsagi-councils/full"]
+full = [
+    "ra-thor-quantum-swarm-orchestrator",
+    "patsagi-councils",
+]
+focused-real-estate = [
+    "ra-thor-quantum-swarm-orchestrator",
+    "patsagi-councils",
+]
