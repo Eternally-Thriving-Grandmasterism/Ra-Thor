@@ -1,22 +1,27 @@
 //! adapter.rs
 //!
-//! State persistence with versioning, migration, and SHA256 checksum verification.
+//! Tamper-resistant persistence using HMAC-SHA256.
 
 use ra_thor_quantum_swarm_orchestrator::{
     adapter::RaThorSystemAdapter,
     types::{EpigeneticBlessing, GodlyIntelligenceCoherence, MercyError, SwarmResonance, Valence},
 };
+use hmac::{Hmac, Mac};
 use serde::{Deserialize, Serialize};
-use sha2::{Digest, Sha256};
+use sha2::Sha256;
 use std::fs;
 use std::path::Path;
 
 const CURRENT_VERSION: u32 = 2;
 
+const HMAC_KEY: &[u8] = b"ra-thor-sovereign-mercy-key-v1";
+
+type HmacSha256 = Hmac<Sha256>;
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
-struct PersistedState {
+struct SignedState {
     version: u32,
-    checksum: String,
+    signature: String,
     data: serde_json::Value,
 }
 
@@ -43,37 +48,46 @@ impl ShardComposerAdapter {
         self.blessings_count
     }
 
-    fn compute_checksum(data: &serde_json::Value) -> String {
-        let mut hasher = Sha256::new();
-        hasher.update(data.to_string().as_bytes());
-        format!("{:x}", hasher.finalize())
+    fn sign_data(data: &serde_json::Value) -> Option<String> {
+        let mut mac = HmacSha256::new_from_slice(HMAC_KEY).ok()?;
+        mac.update(data.to_string().as_bytes());
+        let result = mac.finalize();
+        Some(hex::encode(result.into_bytes()))
+    }
+
+    fn verify_signature(data: &serde_json::Value, signature: &str) -> bool {
+        if let Ok(mut mac) = HmacSha256::new_from_slice(HMAC_KEY) {
+            mac.update(data.to_string().as_bytes());
+            if let Ok(expected) = hex::decode(signature) {
+                return mac.verify_slice(&expected).is_ok();
+            }
+        }
+        false
     }
 
     pub fn save_to_file(&self, path: &Path) -> std::io::Result<()> {
         let data = serde_json::to_value(self)?;
-        let checksum = Self::compute_checksum(&data);
+        let signature = Self::sign_data(&data).unwrap_or_default();
 
-        let persisted = PersistedState {
+        let signed = SignedState {
             version: self.version,
-            checksum,
+            signature,
             data,
         };
 
-        let json = serde_json::to_string_pretty(&persisted)?;
+        let json = serde_json::to_string_pretty(&signed)?;
         fs::write(path, json)
     }
 
     pub fn load_from_file(path: &Path) -> Self {
         if let Ok(content) = fs::read_to_string(path) {
-            if let Ok(persisted) = serde_json::from_str::<PersistedState>(&content) {
-                // Verify checksum
-                let computed = Self::compute_checksum(&persisted.data);
-                if computed != persisted.checksum {
-                    eprintln!("[Security] State checksum mismatch! Possible corruption or tampering.");
+            if let Ok(signed) = serde_json::from_str::<SignedState>(&content) {
+                if !Self::verify_signature(&signed.data, &signed.signature) {
+                    eprintln!("[Security] HMAC verification failed! Possible tampering detected.");
                     return Self::new();
                 }
 
-                if let Ok(mut adapter) = serde_json::from_value::<ShardComposerAdapter>(persisted.data) {
+                if let Ok(mut adapter) = serde_json::from_value::<ShardComposerAdapter>(signed.data) {
                     if adapter.version == CURRENT_VERSION {
                         return adapter;
                     }
@@ -81,7 +95,6 @@ impl ShardComposerAdapter {
                         return Self::migrate_forward(adapter);
                     }
                     if adapter.version > CURRENT_VERSION {
-                        eprintln!("[Warning] Newer state version detected. Attempting rollback.");
                         return Self::attempt_rollback(adapter);
                     }
                 }
@@ -90,7 +103,6 @@ impl ShardComposerAdapter {
         Self::new()
     }
 
-    // ... (migrate_forward and attempt_rollback remain similar)
     fn migrate_forward(old: ShardComposerAdapter) -> Self {
         let mut new = Self::new();
         new.blessings_count = old.blessings_count;
