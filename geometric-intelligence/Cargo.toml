@@ -18,3 +18,4 @@ tracing.workspace = true
 [features]
 default = []
 full = []
+focused-geometry = []   # Minimal focused shard: only geometric intelligence
