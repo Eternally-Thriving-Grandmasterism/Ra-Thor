@@ -21,6 +21,17 @@ All patterns follow the principles in `SOVEREIGN_SHARD_STRATEGY.md`.
 3. **Optional dependencies + features** — Heavy or domain-specific crates are marked `optional = true` and activated via features.
 4. **ONE Organism compatibility** — Even focused shards can register via `RaThorSystemAdapter` when the core orchestration is present.
 
+## Workspace Layout
+
+Ra-Thor uses a **virtual workspace** (no root `[package]` section) with a mixed directory structure:
+
+- **Top-level crates**: Core/high-level crates live directly in the repository root for easy access (e.g. `geometric-intelligence`, `real-estate-lattice`, `mercy`, `powrush`).
+- **crates/** directory**: Many supporting and specialized crates are organized under `crates/` (e.g. `crates/lattice-conductor-v14`, `crates/web-forge`).
+
+This layout is functional. For maintainability we use a combination of explicit members and globs in the root `Cargo.toml`.
+
+**Recommendation**: When adding new crates, prefer placing them under `crates/` unless they are primary user-facing components.
+
 ## Recommended Feature Patterns
 
 ### Basic Structure (per crate)
