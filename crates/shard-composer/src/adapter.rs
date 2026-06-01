@@ -1,6 +1,6 @@
 //! adapter.rs
 //!
-//! Advanced state migration including field renaming support.
+//! State persistence with forward migration + rollback support.
 
 use ra_thor_quantum_swarm_orchestrator::{
     adapter::RaThorSystemAdapter,
@@ -10,22 +10,15 @@ use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::Path;
 
-const CURRENT_VERSION: u32 = 2; // Bumped for field rename example
+const CURRENT_VERSION: u32 = 2;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ShardComposerAdapter {
     version: u32,
     name: &'static str,
     current_valence: Valence,
-
-    // New field name (v2+)
     #[serde(default)]
     blessings_count: u32,
-
-    // Keep old name during transition for migration
-    #[serde(rename = "blessings_received", alias = "blessings_received")]
-    #[serde(skip_serializing)]
-    _old_blessings: Option<u32>,
 }
 
 impl ShardComposerAdapter {
@@ -35,7 +28,6 @@ impl ShardComposerAdapter {
             name: "ShardComposer",
             current_valence: Valence(0.99999995),
             blessings_count: 0,
-            _old_blessings: None,
         }
     }
 
@@ -45,39 +37,57 @@ impl ShardComposerAdapter {
 
     pub fn load_from_file(path: &Path) -> Self {
         if let Ok(data) = fs::read_to_string(path) {
-            if let Ok(adapter) = serde_json::from_str::<ShardComposerAdapter>(&data) {
+            // Try current version
+            if let Ok(mut adapter) = serde_json::from_str::<ShardComposerAdapter>(&data) {
                 if adapter.version == CURRENT_VERSION {
                     return adapter;
                 }
+
+                if adapter.version < CURRENT_VERSION {
+                    // Forward migration
+                    return Self::migrate_forward(adapter);
+                }
+
+                if adapter.version > CURRENT_VERSION {
+                    // Rollback / downgrade scenario
+                    println!("[Warning] Saved state is from a newer version (v{}). Attempting best-effort rollback.", adapter.version);
+                    return Self::attempt_rollback(adapter);
+                }
             }
 
+            // Last resort: try raw JSON migration
             if let Ok(old) = serde_json::from_str::<serde_json::Value>(&data) {
-                if let Some(v) = old.get("version").and_then(|v| v.as_u64()) {
-                    match v as u32 {
-                        0 | 1 => return Self::migrate_from_v1(old),
-                        _ => {}
-                    }
-                }
+                return Self::migrate_from_json(old);
             }
         }
         Self::new()
     }
 
-    fn migrate_from_v1(old: serde_json::Value) -> Self {
+    fn migrate_forward(old: ShardComposerAdapter) -> Self {
+        // Simple forward migration (expand as needed)
         let mut new = Self::new();
-
-        // Handle renamed field: blessings_received -> blessings_count
-        if let Some(count) = old.get("blessings_received").and_then(|v| v.as_u64()) {
-            new.blessings_count = count as u32;
-        } else if let Some(count) = old.get("blessings_count").and_then(|v| v.as_u64()) {
-            new.blessings_count = count as u32;
-        }
-
-        if let Some(val) = old.get("current_valence").and_then(|v| v.as_f64()) {
-            new.current_valence = Valence(val);
-        }
-
+        new.blessings_count = old.blessings_count;
+        new.current_valence = old.current_valence;
         new
+    }
+
+    fn attempt_rollback(newer: ShardComposerAdapter) -> Self {
+        // Best-effort rollback: keep what we can
+        let mut adapter = Self::new();
+        adapter.blessings_count = newer.blessings_count;
+        adapter.current_valence = newer.current_valence;
+
+        // Note: Any fields only present in newer versions will be lost.
+        println!("[Rollback] Loaded with potential data loss from newer format.");
+        adapter
+    }
+
+    fn migrate_from_json(old: serde_json::Value) -> Self {
+        let mut adapter = Self::new();
+        if let Some(count) = old.get("blessings_count").or_else(|| old.get("blessings_received")).and_then(|v| v.as_u64()) {
+            adapter.blessings_count = count as u32;
+        }
+        adapter
     }
 
     pub fn save_to_file(&self, path: &Path) -> std::io::Result<()> {
