@@ -8,16 +8,18 @@ description = "Sovereign master orchestrator of the Ra-Thor monorepo — ONE Org
 repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
 
 [dependencies]
-# Internal monorepo crates
-geometric-intelligence = { path = "../geometric-intelligence" }
+# Internal monorepo crates (core)
 ra-thor-mercy = { path = "../mercy" }
 ra-thor-self-evolution = { path = "../self-evolution" }
 powrush = { path = "../powrush" }
-ra-thor-quantum-swarm-orchestrator = { path = "../quantum-swarm-orchestrator" }
-ra-thor-interstellar-operations = { path = "../interstellar-operations" }
-patsagi-councils = { path = "../patsagi-councils" }
-xai-grok-bridge = { path = "../xai-grok-bridge" }
-symbiosis-layer = { path = "../symbiosis-layer" }
+
+# Optional for focused shards and ONE Organism composition
+ geometric-intelligence = { path = "../geometric-intelligence", optional = true }
+ra-thor-quantum-swarm-orchestrator = { path = "../quantum-swarm-orchestrator", optional = true }
+ra-thor-interstellar-operations = { path = "../interstellar-operations", optional = true }
+patsagi-councils = { path = "../patsagi-councils", optional = true }
+xai-grok-bridge = { path = "../xai-grok-bridge", optional = true }
+symbiosis-layer = { path = "../symbiosis-layer", optional = true }
 
 # Parallelism & Concurrent Data Structures
 rayon = "1.10"
@@ -43,7 +45,23 @@ harness = false
 
 [features]
 default = ["full"]
-full = ["hyperon-metta-pln", "github-connector", "telemetry"]
+full = [
+    "geometric-intelligence",
+    "ra-thor-quantum-swarm-orchestrator",
+    "patsagi-councils",
+    "hyperon-metta-pln",
+    "github-connector",
+    "telemetry",
+]
+
+# Focused shard examples
+focused-real-estate = [
+    "geometric-intelligence",
+    "patsagi-councils",
+]
+focused-geometry = ["geometric-intelligence"]
+
+# Marker / activation features (can be enabled independently or via full)
 hyperon-metta-pln = []      # Enables Hyperon/MeTTa/PLN symbolic bridge
 github-connector = []       # Autonomous GitHub integration
 telemetry = []              # Valence + CEHI reporting
