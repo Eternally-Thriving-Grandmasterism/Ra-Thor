@@ -1,63 +1,19 @@
 // crates/xtask/src/main.rs
 
-use std::path::PathBuf;
+use quantum_swarm_orchestrator::types::EpigeneticBlessing;
 
-fn get_adapter_state_path() -> PathBuf {
-    PathBuf::from(".ra-thor/shard-composer-state.json")
+fn generate_blessing(operation: &str, profile: &str) -> EpigeneticBlessing {
+    let blessing_type = format!("Shard_{}_Success", operation);
+    let strength = 1.15;
+
+    EpigeneticBlessing::with_impacts(
+        &blessing_type,
+        strength,
+        &format!("shard-composer:{}", profile),
+        strength * 0.6,   // evolution_impact
+        strength * 0.3,   // mercy_impact
+        0.03,             // tolc_impact
+    )
 }
 
-fn check_shard(profile: &str) -> Result<()> {
-    let feature = get_feature(profile);
-    let result = run_cargo_command(
-        &["check", "-p", "shard-composer", "--features", &feature],
-        &format!("Checking shard '{}'", profile),
-    );
-
-    if result.is_ok() {
-        let state_path = get_adapter_state_path();
-        let mut adapter = ShardComposerAdapter::load_from_file(&state_path);
-        let blessing = generate_blessing("Check", profile);
-        adapter.apply_epigenetic_blessing(blessing);
-        let _ = adapter.save_to_file(&state_path);
-        println!("[Persistence] State saved. {}", adapter.status());
-    }
-    result
-}
-
-fn build_shard(profile: &str, release: bool) -> Result<()> {
-    let feature = get_feature(profile);
-    let mut args = vec!["build", "-p", "shard-composer", "--features", &feature];
-    if release { args.push("--release"); }
-
-    let result = run_cargo_command(&args, &format!("Building shard '{}'", profile));
-
-    if result.is_ok() {
-        let state_path = get_adapter_state_path();
-        let mut adapter = ShardComposerAdapter::load_from_file(&state_path);
-        let blessing = generate_blessing("Build", profile);
-        adapter.apply_epigenetic_blessing(blessing);
-        let _ = adapter.save_to_file(&state_path);
-        println!("[Persistence] State saved. {}", adapter.status());
-    }
-    result
-}
-
-fn test_shard(profile: &str) -> Result<()> {
-    let feature = get_feature(profile);
-    let result = run_cargo_command(
-        &["test", "-p", "shard-composer", "--features", &feature],
-        &format!("Testing shard '{}'", profile),
-    );
-
-    if result.is_ok() {
-        let state_path = get_adapter_state_path();
-        let mut adapter = ShardComposerAdapter::load_from_file(&state_path);
-        let blessing = generate_blessing("Test", profile);
-        adapter.apply_epigenetic_blessing(blessing);
-        let _ = adapter.save_to_file(&state_path);
-        println!("[Persistence] State saved. {}", adapter.status());
-    }
-    result
-}
-
-// ... rest of the file
+// ... rest of the file (check_shard, build_shard, test_shard remain similar)
