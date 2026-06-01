@@ -1,6 +1,6 @@
 //! adapter.rs
 //!
-//! Tamper-resistant persistence with HKDF key derivation.
+//! Tamper-resistant persistence with HKDF + environment variable support.
 
 use ra_thor_quantum_swarm_orchestrator::{
     adapter::RaThorSystemAdapter,
@@ -10,14 +10,17 @@ use hkdf::Hkdf;
 use hmac::{Hmac, Mac};
 use serde::{Deserialize, Serialize};
 use sha2::Sha256;
+use std::env;
 use std::fs;
 use std::path::Path;
 
 const CURRENT_VERSION: u32 = 2;
 
-// Base material for key derivation (can be enhanced with env var or config later)
-const BASE_KEY_MATERIAL: &[u8] = b"ra-thor-sovereign-self-evolution";
+// Default base material (used if env var is not set)
+const DEFAULT_BASE_KEY: &[u8] = b"ra-thor-sovereign-self-evolution";
 const HKDF_INFO: &[u8] = b"shard-composer-hmac-v1";
+
+const ENV_HMAC_KEY: &str = "RA_THOR_HMAC_BASE_KEY";
 
 type HmacSha256 = Hmac<Sha256>;
 
@@ -51,9 +54,13 @@ impl ShardComposerAdapter {
         self.blessings_count
     }
 
-    /// Derive HMAC key using HKDF-SHA256
+    /// Derive HMAC key using HKDF, with optional env var override
     fn derive_hmac_key() -> Vec<u8> {
-        let hk = Hkdf::<Sha256>::new(None, BASE_KEY_MATERIAL);
+        let base_material = env::var(ENV_HMAC_KEY)
+            .map(|s| s.into_bytes())
+            .unwrap_or_else(|_| DEFAULT_BASE_KEY.to_vec());
+
+        let hk = Hkdf::<Sha256>::new(None, &base_material);
         let mut okm = [0u8; 32];
         hk.expand(HKDF_INFO, &mut okm).expect("HKDF expand failed");
         okm.to_vec()
