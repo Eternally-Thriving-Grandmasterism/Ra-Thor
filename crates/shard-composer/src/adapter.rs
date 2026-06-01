@@ -1,6 +1,6 @@
 //! adapter.rs
 //!
-//! RaThorSystemAdapter with versioning, migration, HMAC, HKDF, and meaningful blessing application.
+//! RaThorSystemAdapter with strong self-evolution mechanics via epigenetic blessings.
 
 use ra_thor_quantum_swarm_orchestrator::{
     adapter::RaThorSystemAdapter,
@@ -14,7 +14,7 @@ use std::env;
 use std::fs;
 use std::path::Path;
 
-const CURRENT_VERSION: u32 = 2;
+const CURRENT_VERSION: u32 = 3; // Bumped for new evolution_level field
 
 const DEFAULT_BASE_KEY: &[u8] = b"ra-thor-sovereign-self-evolution";
 const HKDF_INFO: &[u8] = b"shard-composer-hmac-v1";
@@ -37,7 +37,8 @@ pub struct ShardComposerAdapter {
     current_valence: Valence,
     blessings_count: u32,
 
-    // Accumulated impacts from blessings
+    // Self-evolution metrics
+    evolution_level: f64,
     total_evolution_impact: f64,
     total_mercy_impact: f64,
     total_tolc_impact: f64,
@@ -50,6 +51,7 @@ impl ShardComposerAdapter {
             name: "ShardComposer",
             current_valence: Valence(0.99999995),
             blessings_count: 0,
+            evolution_level: 0.0,
             total_evolution_impact: 0.0,
             total_mercy_impact: 0.0,
             total_tolc_impact: 0.0,
@@ -58,6 +60,10 @@ impl ShardComposerAdapter {
 
     pub fn blessings_received(&self) -> u32 {
         self.blessings_count
+    }
+
+    pub fn evolution_level(&self) -> f64 {
+        self.evolution_level
     }
 
     fn derive_hmac_key() -> Vec<u8> {
@@ -132,6 +138,7 @@ impl ShardComposerAdapter {
         let mut new = Self::new();
         new.blessings_count = old.blessings_count;
         new.current_valence = old.current_valence;
+        new.evolution_level = old.evolution_level;
         new.total_evolution_impact = old.total_evolution_impact;
         new.total_mercy_impact = old.total_mercy_impact;
         new.total_tolc_impact = old.total_tolc_impact;
@@ -142,42 +149,49 @@ impl ShardComposerAdapter {
         let mut adapter = Self::new();
         adapter.blessings_count = newer.blessings_count;
         adapter.current_valence = newer.current_valence;
+        adapter.evolution_level = newer.evolution_level;
         adapter.total_evolution_impact = newer.total_evolution_impact;
         adapter.total_mercy_impact = newer.total_mercy_impact;
         adapter.total_tolc_impact = newer.total_tolc_impact;
         adapter
     }
 
-    /// Enhanced application that respects multi-dimensional impacts (evolved from v13)
+    /// Significantly enhanced blessing application
+    /// Respects multi-dimensional impacts and grows internal evolution state
     pub fn apply_epigenetic_blessing(&mut self, blessing: EpigeneticBlessing) {
         self.blessings_count += 1;
 
+        // Accumulate impacts
         self.total_evolution_impact += blessing.evolution_impact;
         self.total_mercy_impact += blessing.mercy_impact;
         self.total_tolc_impact += blessing.tolc_impact;
 
-        // Modulate valence improvement based on mercy_impact
-        let valence_boost = 0.0008 + (blessing.mercy_impact * 0.0003);
+        // Grow evolution level (core self-evolution mechanic)
+        self.evolution_level += blessing.evolution_impact * 0.8;
+
+        // Stronger, more meaningful valence improvement
+        let valence_boost = 0.0015 + (blessing.mercy_impact * 0.0008);
         let new_valence = (self.current_valence.value() + valence_boost).min(0.99999999);
         self.current_valence = Valence(new_valence);
 
         println!(
-            "[ShardComposer] Applied {} | strength={:.2} | evo={:.3} mercy={:.3} tolc={:.3} | total_blessings={}",
+            "✨ [ShardComposer] {} applied | str={:.2} | evo+{:.3} | mercy+{:.3} | tolc+{:.3} | level={:.2}",
             blessing.blessing_type,
             blessing.strength,
             blessing.evolution_impact,
             blessing.mercy_impact,
             blessing.tolc_impact,
-            self.blessings_count
+            self.evolution_level
         );
     }
 
     pub fn status(&self) -> String {
         format!(
-            "{} v{}: valence={:.6}, blessings={}, evo_impact={:.2}, mercy_impact={:.2}",
+            "{} v{} | valence={:.6} | level={:.2} | blessings={} | evo={:.1} mercy={:.1}",
             self.name,
             self.version,
             self.current_valence.value(),
+            self.evolution_level,
             self.blessings_count,
             self.total_evolution_impact,
             self.total_mercy_impact
