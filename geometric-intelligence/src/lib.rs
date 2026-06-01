@@ -2,6 +2,13 @@
 //!
 //! Sacred Geometry + Riemannian Mercy-Gated Scoring Layer
 //! for the Ra-Thor ONE Organism.
+//!
+//! This crate is the canonical source of truth for PolyhedralHarmonicEngine,
+//! RiemannianMercyManifold, and all geometric intelligence types.
+//! Quantum Swarm Orchestrator and Lattice Conductor consume via re-exports or direct use.
+//!
+//! Fully TOLC 8 mercy-gated, PATSAGi aligned, AG-SML v1.0.
+//! Professional numerical care + observability.
 
 pub mod types;
 pub mod polyhedral_harmonic_engine;
@@ -15,7 +22,9 @@ use crate::polyhedral_harmonic_engine::PolyhedralHarmonicEngine;
 use crate::riemannian_mercy_manifold::RiemannianMercyManifold;
 
 /// High-level helper: Compute geometric harmony for a given TOLC order and coherence.
-pub fn compute_geometric_harmony(tolc_order: u32, base_coherence: f64) -> types::GeometricHarmonyScore {
+/// Returns a clean score struct. Internally runs polyhedral resonance and prepares
+/// Riemannian transport when U57 is active.
+pub fn compute_geometric_harmony(tolc_order: u32, base_coherence: f64) -> GeometricHarmonyScore {
     let engine = PolyhedralHarmonicEngine::new();
     let report = engine.process_resonance(tolc_order, base_coherence);
 
@@ -23,16 +32,17 @@ pub fn compute_geometric_harmony(tolc_order: u32, base_coherence: f64) -> types:
     let _transport = if let Some(u57) = &report.u57_details {
         manifold.apply_mercy_gated_transport(u57, base_coherence)
     } else {
-        types::GeometricTransportResult {
+        GeometricTransportResult {
             transport_applied: false,
             effective_curvature: 0.0,
             coherence_after_transport: base_coherence,
+            accumulated_holonomy: 0.0,
             suggested_blessings: vec![],
             notes: "U57 not active".to_string(),
         }
     };
 
-    types::GeometricHarmonyScore {
+    GeometricHarmonyScore {
         multiplier: report.resonance_multiplier,
         resonance_notes: report.notes,
         active_layers: report.active_solids,
