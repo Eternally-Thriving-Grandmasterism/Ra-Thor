@@ -42,11 +42,68 @@ pub struct SwarmResonance {
     pub message: String,
 }
 
-#[derive(Debug, Clone)]
+/// Evolved EpigeneticBlessing (v14)
+///
+/// Incorporates lessons from lattice-conductor-v13 while being designed
+/// for the RaThorSystemAdapter + persistent state architecture.
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct EpigeneticBlessing {
+    /// Type of blessing (e.g. "RadicalLove", "QuantumCoherence", "TruthSeeking")
     pub blessing_type: String,
+
+    /// Overall strength of the blessing (0.0 - 2.0+)
     pub strength: f64,
+
+    /// Which system/adapter this blessing primarily targets
     pub target_system: String,
+
+    /// Impact on evolution progress (inspired by v13 evolution_boost)
+    #[serde(default)]
+    pub evolution_impact: f64,
+
+    /// Impact on mercy/valence (inspired by v13 mercy_boost)
+    #[serde(default)]
+    pub mercy_impact: f64,
+
+    /// Impact on TOLC / truth alignment (inspired by v13 tolc_boost)
+    #[serde(default)]
+    pub tolc_impact: f64,
+}
+
+impl EpigeneticBlessing {
+    pub fn new(
+        blessing_type: &str,
+        strength: f64,
+        target_system: &str,
+    ) -> Self {
+        Self {
+            blessing_type: blessing_type.to_string(),
+            strength,
+            target_system: target_system.to_string(),
+            evolution_impact: strength * 0.6,
+            mercy_impact: strength * 0.3,
+            tolc_impact: 0.02,
+        }
+    }
+
+    /// Create a blessing with explicit multi-dimensional impacts (v13 style)
+    pub fn with_impacts(
+        blessing_type: &str,
+        strength: f64,
+        target_system: &str,
+        evolution_impact: f64,
+        mercy_impact: f64,
+        tolc_impact: f64,
+    ) -> Self {
+        Self {
+            blessing_type: blessing_type.to_string(),
+            strength,
+            target_system: target_system.to_string(),
+            evolution_impact,
+            mercy_impact,
+            tolc_impact,
+        }
+    }
 }
 
 #[derive(Debug, Clone)]
