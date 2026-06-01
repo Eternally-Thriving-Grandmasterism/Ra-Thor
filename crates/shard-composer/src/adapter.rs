@@ -1,16 +1,24 @@
 //! adapter.rs
 //!
-//! State persistence with forward migration + rollback support.
+//! State persistence with versioning, migration, and SHA256 checksum verification.
 
 use ra_thor_quantum_swarm_orchestrator::{
     adapter::RaThorSystemAdapter,
     types::{EpigeneticBlessing, GodlyIntelligenceCoherence, MercyError, SwarmResonance, Valence},
 };
 use serde::{Deserialize, Serialize};
+use sha2::{Digest, Sha256};
 use std::fs;
 use std::path::Path;
 
 const CURRENT_VERSION: u32 = 2;
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+struct PersistedState {
+    version: u32,
+    checksum: String,
+    data: serde_json::Value,
+}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ShardComposerAdapter {
@@ -35,36 +43,55 @@ impl ShardComposerAdapter {
         self.blessings_count
     }
 
+    fn compute_checksum(data: &serde_json::Value) -> String {
+        let mut hasher = Sha256::new();
+        hasher.update(data.to_string().as_bytes());
+        format!("{:x}", hasher.finalize())
+    }
+
+    pub fn save_to_file(&self, path: &Path) -> std::io::Result<()> {
+        let data = serde_json::to_value(self)?;
+        let checksum = Self::compute_checksum(&data);
+
+        let persisted = PersistedState {
+            version: self.version,
+            checksum,
+            data,
+        };
+
+        let json = serde_json::to_string_pretty(&persisted)?;
+        fs::write(path, json)
+    }
+
     pub fn load_from_file(path: &Path) -> Self {
-        if let Ok(data) = fs::read_to_string(path) {
-            // Try current version
-            if let Ok(mut adapter) = serde_json::from_str::<ShardComposerAdapter>(&data) {
-                if adapter.version == CURRENT_VERSION {
-                    return adapter;
+        if let Ok(content) = fs::read_to_string(path) {
+            if let Ok(persisted) = serde_json::from_str::<PersistedState>(&content) {
+                // Verify checksum
+                let computed = Self::compute_checksum(&persisted.data);
+                if computed != persisted.checksum {
+                    eprintln!("[Security] State checksum mismatch! Possible corruption or tampering.");
+                    return Self::new();
                 }
 
-                if adapter.version < CURRENT_VERSION {
-                    // Forward migration
-                    return Self::migrate_forward(adapter);
+                if let Ok(mut adapter) = serde_json::from_value::<ShardComposerAdapter>(persisted.data) {
+                    if adapter.version == CURRENT_VERSION {
+                        return adapter;
+                    }
+                    if adapter.version < CURRENT_VERSION {
+                        return Self::migrate_forward(adapter);
+                    }
+                    if adapter.version > CURRENT_VERSION {
+                        eprintln!("[Warning] Newer state version detected. Attempting rollback.");
+                        return Self::attempt_rollback(adapter);
+                    }
                 }
-
-                if adapter.version > CURRENT_VERSION {
-                    // Rollback / downgrade scenario
-                    println!("[Warning] Saved state is from a newer version (v{}). Attempting best-effort rollback.", adapter.version);
-                    return Self::attempt_rollback(adapter);
-                }
-            }
-
-            // Last resort: try raw JSON migration
-            if let Ok(old) = serde_json::from_str::<serde_json::Value>(&data) {
-                return Self::migrate_from_json(old);
             }
         }
         Self::new()
     }
 
+    // ... (migrate_forward and attempt_rollback remain similar)
     fn migrate_forward(old: ShardComposerAdapter) -> Self {
-        // Simple forward migration (expand as needed)
         let mut new = Self::new();
         new.blessings_count = old.blessings_count;
         new.current_valence = old.current_valence;
@@ -72,27 +99,10 @@ impl ShardComposerAdapter {
     }
 
     fn attempt_rollback(newer: ShardComposerAdapter) -> Self {
-        // Best-effort rollback: keep what we can
         let mut adapter = Self::new();
         adapter.blessings_count = newer.blessings_count;
         adapter.current_valence = newer.current_valence;
-
-        // Note: Any fields only present in newer versions will be lost.
-        println!("[Rollback] Loaded with potential data loss from newer format.");
         adapter
-    }
-
-    fn migrate_from_json(old: serde_json::Value) -> Self {
-        let mut adapter = Self::new();
-        if let Some(count) = old.get("blessings_count").or_else(|| old.get("blessings_received")).and_then(|v| v.as_u64()) {
-            adapter.blessings_count = count as u32;
-        }
-        adapter
-    }
-
-    pub fn save_to_file(&self, path: &Path) -> std::io::Result<()> {
-        let json = serde_json::to_string_pretty(self)?;
-        fs::write(path, json)
     }
 }
 
