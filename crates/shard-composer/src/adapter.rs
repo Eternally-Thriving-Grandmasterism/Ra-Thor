@@ -1,6 +1,6 @@
 //! adapter.rs
 //!
-//! RaThorSystemAdapter implementation for shard-composer.
+//! RaThorSystemAdapter with versioning and migration support.
 
 use ra_thor_quantum_swarm_orchestrator::{
     adapter::RaThorSystemAdapter,
@@ -10,8 +10,11 @@ use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::Path;
 
+const CURRENT_VERSION: u32 = 1;
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ShardComposerAdapter {
+    version: u32,
     name: &'static str,
     current_valence: Valence,
     blessings_received: u32,
@@ -20,6 +23,7 @@ pub struct ShardComposerAdapter {
 impl ShardComposerAdapter {
     pub fn new() -> Self {
         Self {
+            version: CURRENT_VERSION,
             name: "ShardComposer",
             current_valence: Valence(0.99999995),
             blessings_received: 0,
@@ -30,20 +34,41 @@ impl ShardComposerAdapter {
         self.blessings_received
     }
 
-    /// Save adapter state to a file for persistence across xtask runs
-    pub fn save_to_file(&self, path: &Path) -> std::io::Result<()> {
-        let json = serde_json::to_string_pretty(self)?;
-        fs::write(path, json)
-    }
-
-    /// Load adapter state from file, or create new if file doesn't exist
+    /// Load with migration support
     pub fn load_from_file(path: &Path) -> Self {
         if let Ok(data) = fs::read_to_string(path) {
-            if let Ok(adapter) = serde_json::from_str(&data) {
-                return adapter;
+            // Try current version first
+            if let Ok(adapter) = serde_json::from_str::<ShardComposerAdapter>(&data) {
+                if adapter.version == CURRENT_VERSION {
+                    return adapter;
+                }
+            }
+
+            // Attempt migration from older versions
+            if let Ok(old) = serde_json::from_str::<serde_json::Value>(&data) {
+                if let Some(v) = old.get("version").and_then(|v| v.as_u64()) {
+                    match v as u32 {
+                        0 => return Self::migrate_from_v0(old),
+                        _ => {}
+                    }
+                }
             }
         }
         Self::new()
+    }
+
+    fn migrate_from_v0(old: serde_json::Value) -> Self {
+        // Example migration: v0 didn't have 'version' field
+        let mut new = Self::new();
+        if let Some(val) = old.get("blessings_received").and_then(|v| v.as_u64()) {
+            new.blessings_received = val as u32;
+        }
+        new
+    }
+
+    pub fn save_to_file(&self, path: &Path) -> std::io::Result<()> {
+        let json = serde_json::to_string_pretty(self)?;
+        fs::write(path, json)
     }
 }
 
@@ -81,19 +106,15 @@ impl RaThorSystemAdapter for ShardComposerAdapter {
 
     fn apply_epigenetic_blessing(&mut self, blessing: EpigeneticBlessing) {
         self.blessings_received += 1;
-        println!(
-            "[ShardComposer] Applied epigenetic blessing: {} (strength {:.2}) — Total: {}",
-            blessing.blessing_type, blessing.strength, self.blessings_received
-        );
-
         let new_valence = (self.current_valence.value() + blessing.strength * 0.001).min(0.99999999);
         self.current_valence = Valence(new_valence);
     }
 
     fn status(&self) -> String {
         format!(
-            "{}: valence={:.6}, blessings={}",
+            "{} v{}: valence={:.6}, blessings={}",
             self.name,
+            self.version,
             self.current_valence.value(),
             self.blessings_received
         )
