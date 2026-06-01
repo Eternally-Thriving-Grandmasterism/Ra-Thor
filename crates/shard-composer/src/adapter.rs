@@ -1,17 +1,16 @@
 //! adapter.rs
 //!
 //! RaThorSystemAdapter implementation for shard-composer.
-//! Allows the shard composition layer to participate in the ONE Organism.
 
 use ra_thor_quantum_swarm_orchestrator::{
     adapter::RaThorSystemAdapter,
     types::{EpigeneticBlessing, GodlyIntelligenceCoherence, MercyError, SwarmResonance, Valence},
 };
+use serde::{Deserialize, Serialize};
+use std::fs;
+use std::path::Path;
 
-/// Adapter that allows `shard-composer` to participate in the ONE Organism.
-/// 
-/// This enables focused shards to remain connected to the larger living lattice
-/// and receive epigenetic blessings from successful operations.
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ShardComposerAdapter {
     name: &'static str,
     current_valence: Valence,
@@ -29,6 +28,22 @@ impl ShardComposerAdapter {
 
     pub fn blessings_received(&self) -> u32 {
         self.blessings_received
+    }
+
+    /// Save adapter state to a file for persistence across xtask runs
+    pub fn save_to_file(&self, path: &Path) -> std::io::Result<()> {
+        let json = serde_json::to_string_pretty(self)?;
+        fs::write(path, json)
+    }
+
+    /// Load adapter state from file, or create new if file doesn't exist
+    pub fn load_from_file(path: &Path) -> Self {
+        if let Ok(data) = fs::read_to_string(path) {
+            if let Ok(adapter) = serde_json::from_str(&data) {
+                return adapter;
+            }
+        }
+        Self::new()
     }
 }
 
@@ -51,8 +66,6 @@ impl RaThorSystemAdapter for ShardComposerAdapter {
         &mut self,
         resonance: SwarmResonance,
     ) -> Result<(), MercyError> {
-        // Shard composer can react to swarm resonance
-        // For now we simply acknowledge it
         println!("[ShardComposer] Received resonance: {}", resonance.message);
         Ok(())
     }
@@ -69,18 +82,17 @@ impl RaThorSystemAdapter for ShardComposerAdapter {
     fn apply_epigenetic_blessing(&mut self, blessing: EpigeneticBlessing) {
         self.blessings_received += 1;
         println!(
-            "[ShardComposer] Applied epigenetic blessing: {} (strength {:.2}) — Total received: {}",
+            "[ShardComposer] Applied epigenetic blessing: {} (strength {:.2}) — Total: {}",
             blessing.blessing_type, blessing.strength, self.blessings_received
         );
 
-        // Slightly improve valence when blessed
         let new_valence = (self.current_valence.value() + blessing.strength * 0.001).min(0.99999999);
         self.current_valence = Valence(new_valence);
     }
 
     fn status(&self) -> String {
         format!(
-            "{}: valence={:.6}, blessings_received={}",
+            "{}: valence={:.6}, blessings={}",
             self.name,
             self.current_valence.value(),
             self.blessings_received
