@@ -1,23 +1,29 @@
 //! shard-composer
 //!
-//! High-level feature unification crate for Ra-Thor Sovereign Shards.
+//! High-level unification crate for Ra-Thor Sovereign Shards.
 //!
-//! This crate provides convenient feature flags that compose multiple
-//! underlying crates into well-defined shard profiles:
+//! This crate provides convenient feature flags to compose different
+//! shard profiles from the monorepo.
 //!
-//! - `full`         → Complete ONE Organism experience
-//! - `focused-real-estate` → Lightweight Real Estate focused shard
-//! - `focused-geometry`    → Geometry / sacred geometry only
+//! ## Available Profiles
 //!
-//! Usage:
+//! - `full` — Complete ONE Organism
+//! - `focused-real-estate` / `real-estate` — Real Estate focused (includes Professional Judgment Layer)
+//! - `focused-geometry` / `geometry` — Geometry + Riemannian focused
+//!
+//! ## Usage with xtask (Recommended)
+//!
 //! ```bash
-//! cargo build -p shard-composer --features focused-real-estate
-//! cargo build -p shard-composer --features full
+//! cargo xtask build-shard --profile focused-real-estate
+//! cargo xtask build-shard --profile full --release
 //! ```
 //!
-//! This is the recommended entry point for building specific Sovereign Shards.
+//! ## Direct Usage
+//!
+//! ```bash
+//! cargo build -p shard-composer --features focused-real-estate
+//! ```
 
-// Re-export key types for convenience when using the unified shard
 pub use ra_thor_mercy as mercy;
 
 #[cfg(feature = "geometric-intelligence")]
@@ -28,3 +34,6 @@ pub use real_estate_lattice as real_estate;
 
 #[cfg(feature = "quantum-swarm-orchestrator")]
 pub use ra_thor_quantum_swarm_orchestrator as quantum_swarm;
+
+#[cfg(feature = "patsagi-councils")]
+pub use patsagi_councils as patsagi;
