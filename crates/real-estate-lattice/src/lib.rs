@@ -27,6 +27,10 @@ pub mod usa_state_adapters;
 pub mod usa_attom_cache;
 pub mod usa_attom_data_provider;
 
+// === NEW v14.4.1: Ontario Professional Judgment Layer ===
+// Encodes tutoring-derived professional intelligence for dates, timelines, POTL, and balanced conditions.
+pub mod ontario_professional_judgment_layer;
+
 // Re-exports
 pub use offer_package::*;
 pub use compliance_helpers::*;
@@ -51,6 +55,9 @@ pub use usa_regulatory_engine::*;
 pub use usa_state_adapters::*;
 pub use usa_attom_cache::*;
 pub use usa_attom_data_provider::*;
+
+// Re-export new professional judgment layer
+pub use ontario_professional_judgment_layer::*;
 
 #[cfg(feature = "leptos")]
 pub use leptos;
