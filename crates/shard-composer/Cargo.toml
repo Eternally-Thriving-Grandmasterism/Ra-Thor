@@ -15,6 +15,7 @@ serde = { workspace = true, optional = true }
 serde_json = { workspace = true, optional = true }
 sha2 = { version = "0.10", optional = true }
 hmac = { version = "0.12", optional = true }
+hkdf = { version = "0.12", optional = true }
 
 geometric-intelligence = { path = "../geometric-intelligence", optional = true }
 real-estate-lattice = { path = "../real-estate-lattice", optional = true }
@@ -38,9 +39,8 @@ focused-real-estate = [
 
 focused-geometry = [
     "geometric-intelligence/focused-geometry",
-]
 
 real-estate = ["focused-real-estate"]
 geometry = ["focused-geometry"]
 
-one-organism = ["ra-thor-quantum-swarm-orchestrator", "serde", "serde_json", "sha2", "hmac"]
+one-organism = ["ra-thor-quantum-swarm-orchestrator", "serde", "serde_json", "sha2", "hmac", "hkdf"]
