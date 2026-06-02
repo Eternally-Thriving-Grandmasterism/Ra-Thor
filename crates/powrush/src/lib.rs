@@ -3,8 +3,9 @@
 //! ONE Organism aligned | TOLC 8 Mercy Gates | AG-SML v1.0
 
 pub mod clifford_healing_fields;
-pub mod npc;           // v15 Hybrid NPC AI System (Perception, Patrol, Behavior, Integration, Epigenetic)
+pub mod npc;           // v15 Hybrid NPC AI System
 pub mod simulation;    // High-level world simulation / game loop wiring
+pub mod economy;       // RBE Economy + Crafting System (v15.6+)
 
 // Re-exports for convenience
 pub use clifford_healing_fields::{
@@ -31,3 +32,5 @@ pub use npc::{
 };
 
 pub use simulation::WorldSimulation;
+
+pub use economy::{RbeEconomy, CraftingRecipe, get_default_recipes};
