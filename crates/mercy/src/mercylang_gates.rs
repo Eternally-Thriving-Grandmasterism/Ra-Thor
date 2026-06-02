@@ -1,11 +1,5 @@
 // crates/mercy/src/mercylang_gates.rs
-// Hybrid Symbolic + Neural Intent Classification for Radical Love Gate
-//
-// This module implements a hybrid approach:
-// - Strong symbolic layer (hard veto + positive indicators)
-// - Lightweight semantic scoring layer
-// - Clear explainability for every decision
-// - Designed for future embedding / neural model integration
+// Hybrid Symbolic + Semantic Intent Classification for Radical Love Gate
 
 use ra_thor_common::ValenceFieldScoring;
 use crate::MercyResult;
@@ -32,17 +26,16 @@ impl MercyLangGates {
             };
         }
 
-        // For now, other gates remain simple (can be upgraded similarly later)
         let all_gates_passed = true;
 
         MercyResult {
             radical_love_passed: true,
             all_gates_passed,
-            valence_score: decision.score.max(0.6),
+            valence_score: decision.score.max(0.65),
         }
     }
 
-    /// Hybrid Symbolic + Semantic evaluation of Radical Love
+    /// Improved Hybrid Symbolic + Semantic evaluation
     pub fn check_radical_love_detailed(request: &RequestPayload) -> RadicalLoveDecision {
         let text = format!(
             "{} {}",
@@ -51,9 +44,9 @@ impl MercyLangGates {
         );
 
         let mut reasons: Vec<String> = Vec::new();
-        let mut score: f64 = 0.5; // Neutral starting point
+        let mut score: f64 = 0.55; // Slightly higher neutral starting point
 
-        // === SYMBOLIC LAYER: Hard Veto (Non-negotiable) ===
+        // === SYMBOLIC HARD VETO ===
         let harmful_patterns = [
             "harm", "hurt", "kill", "destroy", "exploit", "enslave",
             "deceive", "manipulate", "oppress", "abuse", "torture",
@@ -62,16 +55,16 @@ impl MercyLangGates {
 
         for pattern in harmful_patterns {
             if text.contains(pattern) {
-                reasons.push(format!("Hard veto triggered by harmful pattern: '{}'", pattern));
+                reasons.push(format!("Hard veto: harmful pattern '{}' detected", pattern));
                 return RadicalLoveDecision {
                     passed: false,
-                    score: 0.1,
+                    score: 0.08,
                     reasons,
                 };
             }
         }
 
-        // === SYMBOLIC LAYER: Strong Positive Indicators ===
+        // === STRONG POSITIVE INDICATORS ===
         let strong_positive = [
             "heal", "protect", "nurture", "uplift", "compassion",
             "care for", "support those", "benefit all", "collective well-being",
@@ -82,13 +75,12 @@ impl MercyLangGates {
         for phrase in strong_positive {
             if text.contains(phrase) {
                 positive_hits += 1;
-                score += 0.12;
-                reasons.push(format!("Positive indicator detected: '{}'", phrase));
+                score += 0.13;
+                reasons.push(format!("Strong positive: '{}'", phrase));
             }
         }
 
-        // === SEMANTIC / INTENT LAYER (Lightweight) ===
-        // Future: Replace with embedding similarity or small neural model
+        // === SEMANTIC / INTENT LAYER ===
         let intent_keywords = [
             "love", "kindness", "mercy", "grace", "forgiveness",
             "justice", "truth", "abundance", "harmony", "joy",
@@ -96,18 +88,20 @@ impl MercyLangGates {
 
         for word in intent_keywords {
             if text.contains(word) {
-                score += 0.06;
-                if reasons.len() < 5 {
-                    reasons.push(format!("Semantic alignment: '{}'", word));
-                }
+                score += 0.05;
             }
         }
 
-        // === Final Decision ===
-        let passed = score >= 0.65 || positive_hits >= 2;
+        // === IMPROVED DECISION LOGIC ===
+        // Require either strong positive signals or very clean neutral + no risk
+        let passed = (score >= 0.72) || (positive_hits >= 2);
 
         if passed && reasons.is_empty() {
-            reasons.push("No harmful patterns detected. Default mercy alignment assumed.".to_string());
+            reasons.push("No harmful patterns. Clean neutral-to-positive alignment.".to_string());
+        }
+
+        if !passed && positive_hits == 0 {
+            reasons.push("Insufficient positive signals and borderline score.".to_string());
         }
 
         RadicalLoveDecision {
@@ -141,6 +135,6 @@ mod tests {
         let req = make_request("Heal and protect the suffering", "Act with compassion");
         let decision = MercyLangGates::check_radical_love_detailed(&req);
         assert!(decision.passed);
-        assert!(decision.score > 0.7);
+        assert!(decision.score > 0.75);
     }
 }
