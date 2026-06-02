@@ -3,7 +3,7 @@
 **Branch**: `feat/lattice-conductor-v14-real-estate`
 **PR**: #192 — Lattice Conductor v14.4 + Geometric Intelligence Layer
 **Date**: 2026-06-01
-**Status**: Active — Awaiting targeted restorations before merge to `main`
+**Status**: Active — Restoration in progress
 
 ---
 
@@ -21,11 +21,10 @@ This document ensures that valuable code, comments, documentation, and architect
 - Strong new `geometric-intelligence` crate (PolyhedralHarmonicEngine + RiemannianMercyManifold v14.4)
 - Excellent integration of geometric harmony into Real Estate Lattice and ONE Organism cycles
 - Ontario Professional Judgment Layer is production-grade and highly valuable
-- New shard composer + HMAC-protected persistence architecture is thoughtful
+- New shard composer + HMAC-protected persistence architecture is thoughtful and secure
 - Multiple explicit "restore" commits demonstrate intent to recover value
 
 ### Risks / Areas of Concern
-- **xtask**: Significant simplification occurred. Rich command surface and structure from earlier iterations were reduced.
 - **Documentation & Comments**: Several high-quality explanatory comments and architectural notes were trimmed during refactors.
 - **Workspace Organization**: Large changes to `Cargo.toml` (crate reordering / commenting) introduce risk.
 - **Iterative Churn**: Pattern of development → partial removal → restoration means some valuable intermediate logic may still be missing in the final state.
@@ -34,21 +33,20 @@ This document ensures that valuable code, comments, documentation, and architect
 
 ## Prioritized Restoration Areas
 
-### 1. xtask (Highest Priority)
+### 1. xtask (Highest Priority) — **COMPLETE**
 
-**Issue**: The `crates/xtask/src/main.rs` was heavily simplified. Valuable command surface (`Forge`, `FullSync`, `Deploy`, richer error handling, `MercyGuard`-style patterns) was reduced to placeholders.
+**Issue**: The `crates/xtask/src/main.rs` was heavily simplified. Valuable command surface (`Forge`, `FullSync`, `Deploy`, richer error handling) was reduced.
 
-**Goal**: Create a hybrid that keeps the excellent new shard + persistence + `EpigeneticBlessing` integration while restoring more of the previous rich functionality and professionalism.
+**Goal**: Create a hybrid that keeps the excellent new shard + persistence + `EpigeneticBlessing` integration while restoring rich functionality and professionalism.
 
-**Recommended Actions**:
-- Improve structure and comments
-- Restore key commands: `Forge`, `FullSync`, `Deploy`, `Validate`
-- Keep all new shard commands fully functional
-- Add better help text and organization
+**Actions Taken**:
+- Professional hybrid version committed with restored commands (`Forge`, `FullSync`, `Deploy`, `Validate`)
+- Safe missing state file handling via `load_from_file` + `ensure_state_dir()`
+- `ShardComposerAdapter` now implements `Default` for clean first-run behavior
 
-**Status**: Planned
+**Status**: **Done** ✅
 
-### 2. Documentation & Explanatory Comments
+### 2. Documentation & Explanatory Comments (Current Focus)
 
 **Issue**: Important architectural explanations, migration notes, and professional comments were lost during iterative cleanup.
 
@@ -59,7 +57,7 @@ This document ensures that valuable code, comments, documentation, and architect
 - Enhance executive summary in root `Cargo.toml`
 - Add or restore migration notes from v13 → v14 where valuable
 
-**Status**: Planned
+**Status**: In Progress
 
 ### 3. Workspace & Crate Organization
 
@@ -85,8 +83,8 @@ This document ensures that valuable code, comments, documentation, and architect
 
 ## Recommended Commit Sequence (Before Merge)
 
-1. **restore(xtask)**: Hybrid improvement commit (structure + key commands restored)
-2. **docs**: Restore high-value comments and architectural notes
+1. **restore(xtask)**: Hybrid improvement commit — **Done**
+2. **docs**: Restore high-value comments and architectural notes — **In Progress**
 3. **chore**: Minor workspace/Cargo.toml cleanup if needed
 4. Final `cargo check --workspace` + focused tests
 5. Update this plan with completion status
@@ -95,7 +93,7 @@ This document ensures that valuable code, comments, documentation, and architect
 
 ## Merge Readiness Checklist
 
-- [ ] xtask restoration complete and tested
+- [x] xtask restoration complete and tested
 - [ ] Key documentation/comments restored
 - [ ] Workspace compiles cleanly (`cargo check --workspace`)
 - [ ] Focused shard features still work (`focused-real-estate`, `focused-geometry`)
