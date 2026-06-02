@@ -1,6 +1,6 @@
 //! crates/powrush/src/npc/patrol.rs
 //! Patrol State Machine + Path Following for v15 hybrid NPC AI
-//! v1.0
+//! Production-grade stateful PatrolManager | Dynamic path + blackboard integration | AG-SML v1.0
 
 use super::blackboard::NpcBlackboard;
 use nalgebra::Vector2;
@@ -44,39 +44,82 @@ impl PatrolPath {
     }
 }
 
-pub struct PatrolManager;
+/// Stateful per-NPC patrol manager.
+/// Owns optional path and current state. Integrates perception data from blackboard.
+pub struct PatrolManager {
+    pub path: Option<PatrolPath>,
+    pub state: PatrolState,
+}
 
 impl PatrolManager {
-    pub fn update(blackboard: &mut NpcBlackboard, patrol: &mut PatrolPath, dt: f32, player_detected: bool) {
+    pub fn new() -> Self {
+        Self {
+            path: None,
+            state: PatrolState::Patrolling,
+        }
+    }
+
+    pub fn with_path(path: PatrolPath) -> Self {
+        Self {
+            path: Some(path),
+            state: PatrolState::Patrolling,
+        }
+    }
+
+    /// Called every tick from NpcAgent. Uses blackboard sensory (LOS/audio) to drive state.
+    pub fn update(&mut self, blackboard: &mut NpcBlackboard, my_position: Position, dt: f32) {
+        let player_detected = blackboard.has_line_of_sight || blackboard.audio_strength > 0.4;
+
         if player_detected {
+            self.state = PatrolState::Chasing;
             blackboard.current_patrol_state = "Chasing".to_string();
+            blackboard.record_event("Player detected during patrol");
             return;
         }
 
-        match blackboard.current_patrol_state.as_str() {
-            "Chasing" => {
-                if !player_detected {
-                    blackboard.current_patrol_state = "Investigating".to_string();
-                }
+        if self.state == PatrolState::Chasing && !player_detected {
+            self.state = PatrolState::Investigating;
+            blackboard.current_patrol_state = "Investigating".to_string();
+            if let Some(ref mut p) = self.path {
+                p.current_wait = p.wait_time * 1.5;
             }
-            "Investigating" => {
-                patrol.current_wait -= dt;
-                if patrol.current_wait <= 0.0 {
-                    blackboard.current_patrol_state = "Returning".to_string();
-                }
-            }
-            "Returning" | _ => {
-                if let Some(target) = patrol.current_target() {
-                    // Simple movement toward target (placeholder)
-                    blackboard.current_patrol_target = Some(target);
-
-                    // If close enough, advance
-                    if (blackboard.current_patrol_target.unwrap_or(target) - target).magnitude() < 1.0 {
-                        patrol.advance();
-                        blackboard.current_patrol_state = "Patrolling".to_string();
-                    }
-                }
-            }
+            return;
         }
+
+        match self.state {
+            PatrolState::Investigating => {
+                if let Some(ref mut p) = self.path {
+                    p.current_wait -= dt;
+                    if p.current_wait <= 0.0 {
+                        self.state = PatrolState::Returning;
+                        blackboard.current_patrol_state = "Returning".to_string();
+                    }
+                } else {
+                    self.state = PatrolState::Patrolling;
+                }
+            }
+            PatrolState::Returning | PatrolState::Patrolling => {
+                if let Some(ref mut patrol) = self.path {
+                    if let Some(target) = patrol.current_target() {
+                        blackboard.current_patrol_target = Some(target);
+                        if (my_position - target).magnitude() < 1.5 {
+                            patrol.advance();
+                            self.state = PatrolState::Patrolling;
+                            blackboard.current_patrol_state = "Patrolling".to_string();
+                            blackboard.record_event("Patrol waypoint reached");
+                        }
+                    }
+                } else {
+                    blackboard.current_patrol_state = "Idle".to_string();
+                }
+            }
+            _ => {}
+        }
+    }
+}
+
+impl Default for PatrolManager {
+    fn default() -> Self {
+        Self::new()
     }
 }
