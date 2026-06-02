@@ -1,24 +1,31 @@
 // crates/mercy/src/mercylang_gates.rs
 // MercyLang 7 Living Gates + Radical Love Veto Power — Centralized Ethical Gating
 //
-// This module implements the core 7 Living Mercy Gates evaluation.
-// Radical Love is the supreme first gate and acts as a veto.
-// All other gates are evaluated only after Radical Love passes.
+// This module is the canonical implementation of the 7 Living Mercy Gates
+// for the Ra-Thor lattice.
+//
+// Design:
+// - Radical Love is the supreme first gate and acts as a hard veto.
+// - All other gates are only evaluated if Radical Love passes.
+// - Returns a structured MercyResult with valence scoring.
+//
+// Future: Replace placeholder checks with real analysis (intent, impact, love alignment, etc.)
 
 use ra_thor_common::ValenceFieldScoring;
 use crate::MercyResult;
 use crate::RequestPayload;
 
+/// Centralized evaluator for the 7 Living Mercy Gates.
 pub struct MercyLangGates;
 
 impl MercyLangGates {
-    /// Main entry point for evaluating an action/request against all 7 Living Mercy Gates.
+    /// Evaluate a request/action against all 7 Living Mercy Gates.
+    ///
+    /// Radical Love is checked first. If it fails, all other gates are short-circuited.
     pub async fn evaluate(request: &RequestPayload) -> MercyResult {
-        // === Supreme First Gate: Radical Love ===
         let radical_love_passed = Self::check_radical_love(request);
 
         if !radical_love_passed {
-            // Radical Love failed → immediate veto on all other gates
             return MercyResult {
                 radical_love_passed: false,
                 all_gates_passed: false,
@@ -26,7 +33,6 @@ impl MercyLangGates {
             };
         }
 
-        // Evaluate remaining gates only if Radical Love passed
         let boundless_mercy = Self::check_boundless_mercy(request);
         let service = Self::check_service(request);
         let abundance = Self::check_abundance(request);
@@ -44,10 +50,9 @@ impl MercyLangGates {
         }
     }
 
-    /// Supreme first gate. Must pass before any other processing.
-    /// Currently a placeholder — real version will analyze intent, impact, and love alignment.
+    /// Supreme first gate. Must pass before any further evaluation.
     fn check_radical_love(_request: &RequestPayload) -> bool {
-        // TODO: Implement real Radical Love analysis (intent + non-harm + love alignment)
+        // TODO: Real implementation will analyze intent, non-harm, and love alignment
         true
     }
 
@@ -57,7 +62,7 @@ impl MercyLangGates {
     }
 
     fn check_service(_request: &RequestPayload) -> bool {
-        // TODO: Check for genuine service orientation vs self-interest
+        // TODO: Check for genuine service orientation
         true
     }
 
@@ -72,7 +77,7 @@ impl MercyLangGates {
     }
 
     fn check_joy(_request: &RequestPayload) -> bool {
-        // TODO: Check for genuine joy amplification (not fleeting pleasure)
+        // TODO: Check for genuine joy amplification
         true
     }
 
