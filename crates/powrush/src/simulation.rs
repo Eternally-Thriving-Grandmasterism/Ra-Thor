@@ -1,159 +1,85 @@
-//! # Advanced Simulation Engine
-//!
-//! The multi-player, mercy-gated simulation heart of **Powrush**.
-//!
-//! This engine powers both single-player and future MMO modes. It orchestrates:
-//! - Base game cycles (resources + mercy gates)
-//! - Faction diplomacy and collective resource flows
-//! - Dynamic world events
-//! - Collective joy tracking (5-Gene Joy Tetrad influence)
-//! - Per-player mercy evaluation during collective cycles
-//!
-//! It serves as the bridge between individual `Player` state and planetary-scale
-//! RBE + mercy coordination.
+//! crates/powrush/src/simulation.rs
+//! High-level WorldSimulation / Game Loop for Powrush
+//! Wires NpcIntegration + player state + world mercy + RBE hooks | v15 Hybrid + ONE Organism
+//! AG-SML v1.0
 
-use crate::game::PowrushGame;
-use crate::player::Player;
-use crate::faction::Faction;
-use crate::mercy::{MercyGateStatus, evaluate_all_gates};
-use crate::resources::ResourceType;
-use rand::Rng;
-use serde::{Serialize, Deserialize};
-use chrono::{DateTime, Utc};
+use crate::npc::{NpcFactory, NpcIntegration, Position};
+use nalgebra::Vector2;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct WorldEvent {
-    pub id: u64,
-    pub description: String,
-    pub mercy_impact: f64,
-    pub affected_factions: Vec<Faction>,
-    pub timestamp: DateTime<Utc>,
-    pub joy_boost: f32,
+/// Simple player state for simulation
+#[derive(Debug, Clone)]
+pub struct PlayerState {
+    pub position: Position,
+    pub mercy: f64,
+    pub ascension: f64,
 }
 
-/// Multi-player simulation engine with mercy gating and collective dynamics.
-pub struct SimulationEngine {
-    pub game: PowrushGame,
-    pub world_events: Vec<WorldEvent>,
-    pub diplomacy_matrix: std::collections::HashMap<(Faction, Faction), f64>,
-    pub collective_joy: f32,
+impl Default for PlayerState {
+    fn default() -> Self {
+        Self {
+            position: Vector2::new(0.0, 0.0),
+            mercy: 0.82,
+            ascension: 1.5,
+        }
+    }
 }
 
-impl SimulationEngine {
+/// High-level world simulation that owns the full v15 NPC system
+/// and provides a clean tick() for game loops or server ticks.
+pub struct WorldSimulation {
+    pub npc_integration: NpcIntegration,
+    pub player: PlayerState,
+    pub world_mercy: f64,
+    pub is_post_scarcity: bool,
+    pub collective_joy: f64,
+    pub tick_count: u64,
+}
+
+impl WorldSimulation {
     pub fn new() -> Self {
-        let mut engine = Self {
-            game: PowrushGame::new(),
-            world_events: Vec::new(),
-            diplomacy_matrix: std::collections::HashMap::new(),
-            collective_joy: 72.0,
-        };
-        engine.initialize_diplomacy_matrix();
-        engine
-    }
-
-    fn initialize_diplomacy_matrix(&mut self) {
-        let factions = Faction::all_factions();
-        for &f1 in &factions {
-            for &f2 in &factions {
-                if f1 != f2 {
-                    let bonus = f1.get_diplomacy_bonus(f2);
-                    self.diplomacy_matrix.insert((f1, f2), bonus);
-                }
-            }
-        }
-    }
-
-    /// Run one full multi-player mercy-gated simulation cycle.
-    ///
-    /// This is the main orchestration loop for collective gameplay.
-    pub async fn run_multi_player_cycle(&mut self) -> Result<String, String> {
-        let base_result = self.game.run_simulation_cycle().await?;
-
-        self.update_collective_joy();
-        self.process_faction_diplomacy().await;
-        self.generate_world_events().await;
-
-        // Apply mercy evaluation to every participating player
-        for player in &mut self.game.players {
-            let status = evaluate_all_gates(
-                "participation in collective mercy cycle",
-                "multi-player simulation",
-                4.75,
-                0.93,
-            ).await?;
-
-            player.apply_mercy_result(status);
-
-            if self.collective_joy > 85.0 {
-                player.needs.joy = (player.needs.joy + 3.0).min(100.0);
-            }
-        }
-
-        Ok(format!(
-            "Multi-player cycle {} complete.\n{}\nCollective Joy: {:.1} | World Events: {}",
-            self.game.current_cycle,
-            base_result,
-            self.collective_joy,
-            self.world_events.len()
-        ))
-    }
-
-    fn update_collective_joy(&mut self) {
-        let avg_happiness: f32 = if !self.game.players.is_empty() {
-            self.game.players.iter().map(|p| p.happiness).sum::<f32>() / self.game.players.len() as f32
-        } else {
-            75.0
+        let mut sim = Self {
+            npc_integration: NpcIntegration::default(),
+            player: PlayerState::default(),
+            world_mercy: 0.88,
+            is_post_scarcity: true,
+            collective_joy: 0.94,
+            tick_count: 0,
         };
 
-        self.collective_joy = (self.collective_joy * 0.92 + avg_happiness * 0.08).clamp(40.0, 100.0);
+        // Seed a few NPCs on creation
+        let patrol = vec![Vector2::new(-10., -10.), Vector2::new(10., -10.), Vector2::new(10., 10.)];
+        let n1 = NpcFactory::create_basic(Vector2::new(-5.0, -5.0), Some(patrol));
+        sim.npc_integration.spawn_agent(n1);
+
+        let n2 = NpcFactory::create_merchant(Vector2::new(8.0, 3.0), None);
+        sim.npc_integration.spawn_agent(n2);
+
+        sim
     }
 
-    async fn process_faction_diplomacy(&mut self) {
-        // Future: real resource sharing, alliance bonuses, joint projects
-        for ((f1, f2), bonus) in self.diplomacy_matrix.iter_mut() {
-            if *bonus < 1.8 {
-                *bonus *= 1.002;
-            }
-        }
-    }
+    /// Master simulation tick — call every frame or fixed timestep
+    pub fn tick(&mut self, dt: f32) {
+        self.tick_count += 1;
 
-    async fn generate_world_events(&mut self) {
-        let mut rng = rand::thread_rng();
+        // Gentle player movement simulation
+        self.player.position.x = (self.player.position.x + 0.7) % 40.0;
+        self.player.position.y = 2.0 + (self.tick_count as f32 * 0.08).sin() * 4.0;
 
-        if rng.gen_bool(0.28) {
-            let event = WorldEvent {
-                id: rand::random(),
-                description: "A massive Ambrosian Nectar bloom has occurred! Joy surges across the world.".to_string(),
-                mercy_impact: 0.22,
-                affected_factions: vec![Faction::Ambrosians, Faction::EternalCompassion],
-                timestamp: Utc::now(),
-                joy_boost: 12.0,
-            };
-            self.world_events.push(event);
-            self.collective_joy = (self.collective_joy + 8.0).min(100.0);
-        }
+        let noise_level = if self.tick_count % 4 == 0 { 0.55 } else { 0.18 };
 
-        if rng.gen_bool(0.18) {
-            let event = WorldEvent {
-                id: rand::random(),
-                description: "The Harmonists and Mercy Weavers have completed a joint mercy project.".to_string(),
-                mercy_impact: 0.18,
-                affected_factions: vec![Faction::Harmonists, Faction::MercyWeavers],
-                timestamp: Utc::now(),
-                joy_boost: 7.0,
-            };
-            self.world_events.push(event);
-        }
-    }
-
-    pub fn get_world_summary(&self) -> String {
-        format!(
-            "Cycle: {} | Players: {} | Collective Joy: {:.1} | Events: {} | Abundance: {}",
-            self.game.current_cycle,
-            self.game.players.len(),
+        self.npc_integration.update(
+            self.world_mercy,
+            self.is_post_scarcity,
             self.collective_joy,
-            self.world_events.len(),
-            self.game.get_abundance_summary()
-        )
+            Some(self.player.position),
+            noise_level,
+            dt,
+        );
+
+        // Future: distribute epigenetic blessings here based on NPC mercy/relationship
+    }
+
+    pub fn active_npcs(&self) -> usize {
+        self.npc_integration.active_npc_count()
     }
 }
