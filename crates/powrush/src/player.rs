@@ -1,15 +1,21 @@
 //! # Player System
 //!
-//! Every sentient being in Powrush is represented by a `Player`.
+//! Every sentient being participating in Powrush is represented by a `Player`.
 //!
-//! This module tracks the living state of each participant:
-//! - Happiness and multi-dimensional needs (tied to the **5-Gene Joy Tetrad**)
-//! - Faction loyalty and identity
-//! - Ascension progress
-//! - Mercy compliance history (passes vs violations)
+//! The `Player` is the **fundamental living unit** of the Powrush RBE ecosystem.
+//! It embodies how individuals experience:
+//! - **TOLC principles** at the personal level
+//! - **Mercy gating** through daily actions and decisions
+//! - **RBE abundance** mechanics via needs satisfaction and joy
+//! - **Ascension** as a path of growth and mercy alignment
 //!
-//! The `Player` is the core unit through which **TOLC principles**, mercy gating,
-//! and RBE abundance mechanics are experienced at the individual level.
+//! ## Core Concepts
+//! - **PlayerNeeds**: Multi-dimensional needs system strongly influenced by the **5-Gene Joy Tetrad**
+//! - **Mercy Tracking**: Every player accumulates `total_mercy_passes` and `total_mercy_violations`
+//! - **Happiness**: A composite score influenced by needs fulfillment + mercy history
+//! - **Ascension**: Players can ascend when they reach high joy, happiness, and mercy consistency
+//!
+//! This module works closely with `Faction`, `AscensionLevel`, and the core `PowrushGame` simulation loop.
 
 use crate::faction::Faction;
 use crate::ascension::AscensionLevel;
@@ -17,21 +23,32 @@ use crate::mercy::MercyGateStatus;
 use chrono::{DateTime, Utc};
 use serde::{Serialize, Deserialize};
 
+/// Represents a single participant (sentient being) in the Powrush world.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Player {
     pub id: u64,
     pub name: String,
     pub faction: Faction,
+
+    /// Overall happiness score (0.0 – 100.0)
     pub happiness: f32,
+
+    /// Multi-dimensional needs (deeply tied to 5-Gene Joy Tetrad)
     pub needs: PlayerNeeds,
+
     pub ascension_level: AscensionLevel,
     pub resources_owned: std::collections::HashMap<String, f64>,
+
     pub last_mercy_check: DateTime<Utc>,
     pub total_mercy_passes: u64,
     pub total_mercy_violations: u64,
     pub created_at: DateTime<Utc>,
 }
 
+/// Multi-dimensional needs of a Player.
+///
+/// Joy is especially important as it directly connects to the 5-Gene Joy Tetrad
+/// and influences both happiness and ascension readiness.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PlayerNeeds {
     pub food: f32,
@@ -40,10 +57,13 @@ pub struct PlayerNeeds {
     pub knowledge: f32,
     pub social: f32,
     pub purpose: f32,
-    pub joy: f32,                    // Directly tied to 5-Gene Joy Tetrad
+
+    /// Joy level — strongly influenced by the 5-Gene Joy Tetrad
+    pub joy: f32,
 }
 
 impl Player {
+    /// Create a new player with default starting stats.
     pub fn new(name: String, faction: Faction) -> Self {
         let now = Utc::now();
         Self {
@@ -69,8 +89,10 @@ impl Player {
         }
     }
 
-    /// Update happiness and needs based on world abundance (RBE logic).
-    /// Joy and purpose receive strong boosts from abundance, reflecting post-scarcity design.
+    /// Update happiness and needs based on current world abundance (RBE logic).
+    ///
+    /// This is called every simulation cycle. Abundance boosts most needs,
+    /// with especially strong effects on joy and purpose (post-scarcity design).
     pub fn update_happiness_and_needs(&mut self, world_abundance: f64) {
         let abundance_factor = (world_abundance / 10000.0).min(1.5) as f32;
 
@@ -88,8 +110,10 @@ impl Player {
         self.happiness = (needs_avg * 0.85 + (self.total_mercy_passes as f32 * 0.15)).clamp(0.0, 100.0);
     }
 
-    /// Apply mercy gate result to this player.
-    /// Passed = happiness + joy boost. Failed = significant penalty.
+    /// Apply the result of a mercy gate evaluation to this player.
+    ///
+    /// - Passed: Increases happiness and joy
+    /// - Failed: Applies significant penalty to happiness and joy
     pub fn apply_mercy_result(&mut self, status: MercyGateStatus) {
         match status {
             MercyGateStatus::Passed => {
@@ -106,7 +130,9 @@ impl Player {
         self.last_mercy_check = Utc::now();
     }
 
-    /// Check if player meets basic ascension criteria.
+    /// Returns true if the player meets the basic criteria to ascend.
+    ///
+    /// Ascension requires high happiness, high joy, and a strong history of mercy passes.
     pub fn can_ascend(&self) -> bool {
         self.happiness >= 92.0 &&
         self.needs.joy >= 90.0 &&
