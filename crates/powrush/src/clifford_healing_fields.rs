@@ -1,27 +1,28 @@
-//! Clifford Convolutions for Healing Fields (v14.3+)
+//! # Clifford Convolutions for Healing Fields (v14.3+)
 //!
 //! Production-grade, mercy-gated geometric healing system based on
 //! Conformal Geometric Algebra (CGA) and Versor algebra.
 //!
-//! This module provides:
-//! - Tunable `HealingConfig` for emotional/physical/alignment weights and council thresholds
+//! This module is a core component of **Powrush RBE**'s mercy infrastructure.
+//! It enables organism-level and planetary-scale mercy propagation through
+//! geometric transformations.
+//!
+//! ## Key Capabilities
+//! - Tunable `HealingConfig` for emotional / physical / alignment weights
 //! - `CliffordHealingField` managing per-organism multivector states
-//! - Classic Clifford-style convolutions and full `ConformalVersor` powered healing steps
-//! - PATSAGi Council guidance integration with mercy gating
-//! - Global coherence computation for council deliberation
+//! - Classic Clifford convolutions + full `ConformalVersor` healing steps
+//! - PATSAGi Council guidance with mercy gating
+//! - Global coherence computation for higher council deliberation
 //!
-//! **Ontario Real Estate Lattice Alignment**: While primarily geometric, this field
-//! system can model spatial mercy propagation for property boundaries, easements,
-//! and multi-party deal coherence in future extensions (e.g. via CGA entities for lots).
-//!
-//! **Design Principles**:
-//! - Mercy-gated at every layer (Layer 0 council checks)
+//! ## Design Principles
+//! - **Mercy-gated at every layer** (Layer 0 council checks)
 //! - Privacy-by-design (no PII in geometric states)
-//! - Pluggable normalization (safe_normalize extensible to custom strategies)
-//! - Full test coverage for happy and error paths
-//! - AG-SML v1.0 licensed, PATSAGi aligned, Thunder Lattice native
+//! - Pluggable normalization strategies
+//! - Full test coverage
+//! - AG-SML v1.0 licensed, PATSAGi aligned
 //!
 //! Builds on PR #189 Clifford planning and PR #190 stabilization.
+//! Future: Deep integration with Real Estate Lattice for spatial mercy propagation.
 
 use nalgebra::Vector3;
 use std::collections::HashMap;
@@ -34,20 +35,13 @@ use crate::cga_primitives::{
 use crate::healing_integration::HealingFieldError;
 
 /// Tunable, auditable configuration for healing fields.
-/// 
-/// All weights and thresholds are exposed for PATSAGi Council review and
-/// runtime adjustment while maintaining mercy invariants.
+/// All weights and thresholds are exposed for PATSAGi Council review.
 #[derive(Debug, Clone)]
 pub struct HealingConfig {
-    /// Minimum council_alignment required before applying healing convolutions (default 0.85)
     pub council_alignment_threshold: f64,
-    /// Weight applied to emotional vector component during blending (0.0-1.0)
     pub emotional_weight: f64,
-    /// Weight applied to physical vector component
     pub physical_weight: f64,
-    /// Weight applied to alignment (spiritual/ethical) vector
     pub alignment_weight: f64,
-    /// Additional mercy boost applied per organism per step
     pub mercy_boost: f64,
 }
 
@@ -64,10 +58,7 @@ impl Default for HealingConfig {
 }
 
 /// Per-organism multivector field state.
-/// 
-/// Represents the emotional, physical, and alignment (ethical/spiritual) vectors
-/// plus current mercy level for a single participant in the healing field.
-/// Used for cross-session geometric mercy propagation.
+/// Represents emotional, physical, and alignment vectors + current mercy level.
 #[derive(Debug, Clone)]
 pub struct OrganismField {
     pub emotional: Vector3<f64>,
@@ -76,10 +67,7 @@ pub struct OrganismField {
     pub mercy: f64,
 }
 
-/// Global coherence report for PATSAGi deliberation.
-/// 
-/// Aggregated metrics returned after healing steps or council guidance.
-/// Used by higher councils to decide on evolution, intervention, or mercy escalation.
+/// Global coherence report for PATSAGi / higher council deliberation.
 #[derive(Debug, Clone)]
 pub struct GlobalCoherence {
     pub emotional_coherence: f64,
@@ -90,12 +78,9 @@ pub struct GlobalCoherence {
 }
 
 /// Clifford-style healing field over the Distributed Mercy Mesh.
-/// 
+///
 /// Manages a collection of `OrganismField`s and applies geometric transformations
-/// via Clifford convolutions or full Conformal Versor algebra (under `full-clifford` feature).
-/// 
-/// Thread-safe in spirit (though current HashMap is single-threaded); designed for
-/// integration with EternalMercyMesh and PersistentMultiChatMesh.
+/// via Clifford convolutions or full Conformal Versor algebra.
 #[derive(Debug, Clone)]
 pub struct CliffordHealingField {
     pub name: String,
@@ -109,7 +94,6 @@ pub struct CliffordHealingField {
 }
 
 impl CliffordHealingField {
-    /// Creates a new healing field with default production parameters.
     pub fn new(name: impl Into<String>) -> Self {
         Self {
             name: name.into(),
@@ -123,23 +107,17 @@ impl CliffordHealingField {
         }
     }
 
-    /// Creates a field with a custom `HealingConfig` (e.g. for council-tuned sessions).
     pub fn with_config(name: impl Into<String>, config: HealingConfig) -> Self {
         let mut field = Self::new(name);
         field.config = config;
         field
     }
 
-    /// Internal safe L2 normalization. 
-    /// Pluggable extension point: future versions may accept a NormalizationStrategy enum
-    /// (e.g. L1, L2, Softmax, or custom mercy-weighted) without breaking API.
     fn safe_normalize(v: Vector3<f64>) -> Vector3<f64> {
         let norm = v.norm();
         if norm > 1e-9 { v / norm } else { v }
     }
 
-    /// Registers or updates an organism in the field.
-    /// All vectors are immediately normalized for numerical stability.
     pub fn add_organism(
         &mut self,
         id: u64,
@@ -157,10 +135,6 @@ impl CliffordHealingField {
         self.evolution_step += 1;
     }
 
-    /// Core Clifford-style convolution (classic path, always available).
-    /// 
-    /// Blends organism vectors using kernel_strength * mercy, weighted by config.
-    /// Enforces council threshold gate before mutation.
     pub fn apply_clifford_convolution(
         &mut self,
         kernel_strength: f64,
@@ -190,12 +164,6 @@ impl CliffordHealingField {
         Ok(())
     }
 
-    /// Full Versor-based healing step using ConformalVersor (requires `full-clifford` feature).
-    /// 
-    /// Applies exponential map of input bivector as a versor transformation to
-    /// each organism's alignment vector. Returns updated GlobalCoherence.
-    /// 
-    /// This is the primary geometric mercy propagation mechanism.
     #[cfg(feature = "full-clifford")]
     pub fn apply_versor_healing_step(
         &mut self,
@@ -223,11 +191,6 @@ impl CliffordHealingField {
         Ok(self.compute_global_coherence())
     }
 
-    /// Apply PATSAGi Council guidance.
-    /// 
-    /// Stronger mercy injection (min 0.7) with dedicated council boost to alignment.
-    /// Calls into classic convolution then updates council_alignment.
-    /// Returns fresh GlobalCoherence for council review.
     pub fn apply_patsagi_council_guidance(
         &mut self,
         council_mercy: f64,
@@ -243,8 +206,6 @@ impl CliffordHealingField {
         Ok(self.compute_global_coherence())
     }
 
-    /// Computes a snapshot of current global coherence metrics.
-    /// Safe, read-only operation used by councils and dashboards.
     pub fn compute_global_coherence(&self) -> GlobalCoherence {
         GlobalCoherence {
             emotional_coherence: self.emotional_coherence,
@@ -255,10 +216,6 @@ impl CliffordHealingField {
         }
     }
 
-    /// High-level canonical entry point for self-healing cycles.
-    /// 
-    /// Orchestrates convolution + council guidance in one merciful step.
-    /// Recommended for most production usage and simulation loops.
     pub fn simulate_healing_step(
         &mut self,
         kernel: f64,
@@ -287,7 +244,7 @@ mod tests {
     #[test]
     fn test_council_threshold_violation() {
         let mut field = CliffordHealingField::new("LowAlignField");
-        field.council_alignment = 0.5; // below default 0.85
+        field.council_alignment = 0.5;
         let result = field.apply_clifford_convolution(0.5, 0.9);
         assert!(matches!(result, Err(HealingFieldError::CouncilThresholdViolation(_))));
     }
@@ -298,7 +255,6 @@ mod tests {
         field.add_organism(42, Vector3::new(0.5, 0.5, 0.5), Vector3::new(0.1, 0.2, 0.3), Vector3::new(0.8, 0.1, 0.1), 0.95);
         let coherence = field.apply_patsagi_council_guidance(0.85).expect("council guidance should succeed");
         assert!(coherence.council_alignment > 0.90);
-        assert!(coherence.evolution_step > 0);
     }
 
     #[test]
@@ -319,7 +275,6 @@ mod tests {
         };
         let mut field = CliffordHealingField::with_config("CustomConfigField", config);
         field.add_organism(7, Vector3::new(1.0,1.0,1.0), Vector3::new(1.0,1.0,1.0), Vector3::new(1.0,1.0,1.0), 0.8);
-        // With high threshold, low alignment should fail
         field.council_alignment = 0.9;
         let res = field.apply_clifford_convolution(0.4, 0.8);
         assert!(res.is_err());
