@@ -1,12 +1,11 @@
 //! # Powrush Enemy Perception Systems
 //!
-//! Mercy-aware enemy senses with line of sight and audio propagation.
+//! Mercy-aware enemy senses with line of sight, audio propagation, and visual detection.
 //!
-//! Perception types:
-//! - Visual (line of sight + distance)
-//! - Auditory (sound propagation with distance/wall dampening)
-//! - MercySense (spiritual detection)
-//! - Spiritual (high-mercy / awakened enemies)
+//! Includes:
+//! - Visual detection with line of sight + field of view
+//! - Auditory detection with sound propagation
+//! - MercySense and Spiritual perception
 
 use serde::{Serialize, Deserialize};
 
@@ -24,6 +23,7 @@ pub struct PerceptionProfile {
     pub auditory_range: f32,
     pub mercy_sense_range: f32,
     pub spiritual_range: f32,
+    pub field_of_view: f32, // in degrees (e.g. 90.0 or 120.0)
 }
 
 impl Default for PerceptionProfile {
@@ -33,6 +33,7 @@ impl Default for PerceptionProfile {
             auditory_range: 8.0,
             mercy_sense_range: 6.0,
             spiritual_range: 4.0,
+            field_of_view: 90.0,
         }
     }
 }
@@ -40,7 +41,7 @@ impl Default for PerceptionProfile {
 pub struct PerceptionSystem;
 
 impl PerceptionSystem {
-    /// Simple line of sight check (placeholder for real raycasting)
+    /// Simple line of sight check (placeholder)
     pub fn has_line_of_sight(
         from_x: f32,
         from_y: f32,
@@ -54,29 +55,49 @@ impl PerceptionSystem {
         dist_sq < 400.0
     }
 
-    /// Audio propagation factor (0.0–1.0)
-    /// Simulates distance and wall dampening.
-    /// In a full implementation, this would use map data for realistic sound travel.
+    /// Check if target is within enemy's field of view
+    pub fn is_in_field_of_view(
+        enemy_x: f32,
+        enemy_y: f32,
+        enemy_facing_x: f32,
+        enemy_facing_y: f32,
+        target_x: f32,
+        target_y: f32,
+        fov_degrees: f32,
+    ) -> bool {
+        let dx = target_x - enemy_x;
+        let dy = target_y - enemy_y;
+        let dist = (dx * dx + dy * dy).sqrt();
+
+        if dist < 0.1 {
+            return true;
+        }
+
+        let dot = dx * enemy_facing_x + dy * enemy_facing_y;
+        let cos_half_fov = (fov_degrees.to_radians() / 2.0).cos();
+
+        (dot / dist) > cos_half_fov
+    }
+
+    /// Audio propagation
     pub fn audio_propagation_factor(
         distance: f32,
         noise_level: f32,
         _map_data: Option<&[u8]>,
     ) -> f32 {
-        // Distance dampening
         let distance_factor = (1.0 - (distance / 30.0)).max(0.0);
-
-        // Simple wall dampening approximation (future: real map-based)
-        let wall_dampening = 0.85; // Assume some walls always present
-
+        let wall_dampening = 0.85;
         (distance_factor * noise_level * wall_dampening).clamp(0.0, 1.0)
     }
 
-    /// Main detection check
+    /// Main detection check with full visual system
     pub fn can_detect_player(
         profile: &PerceptionProfile,
         distance: f32,
         from_x: f32,
         from_y: f32,
+        facing_x: f32,
+        facing_y: f32,
         to_x: f32,
         to_y: f32,
         player_mercy: f32,
@@ -84,14 +105,17 @@ impl PerceptionSystem {
         noise_level: f32,
         map_data: Option<&[u8]>,
     ) -> bool {
-        // Visual (requires LOS)
+        // Visual detection
         if distance <= profile.visual_range {
-            if Self::has_line_of_sight(from_x, from_y, to_x, to_y, map_data) {
+            let in_fov = Self::is_in_field_of_view(
+                from_x, from_y, facing_x, facing_y, to_x, to_y, profile.field_of_view,
+            );
+            if in_fov && Self::has_line_of_sight(from_x, from_y, to_x, to_y, map_data) {
                 return true;
             }
         }
 
-        // Auditory (uses audio propagation)
+        // Auditory
         let audio_factor = Self::audio_propagation_factor(distance, noise_level, map_data);
         if audio_factor > 0.25 && distance <= profile.auditory_range {
             return true;
