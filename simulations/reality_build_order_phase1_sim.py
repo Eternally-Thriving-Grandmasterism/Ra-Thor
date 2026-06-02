@@ -1,28 +1,26 @@
 """
-Reality Build Order v1 — Phase 1 + RL + World Model + Mamba Backbone
+Reality Build Order v1 — Phase 1 + RL + World Model + Group 6 Backbone
 
-PATSAGi Council Approved Extension (Group 6: Efficient Long-Horizon Backbone)
+Uses the dedicated production-grade Group 6 module.
 
-Implements:
+Mapping:
 - Group 1–3 (Phase 1): Core Mercy/Truth, Sovereign AGI Substrate, Symbiotic Human-AI Interface
 - Group 4 (Phase 2): Multi-Agent Symbiosis Fabric with learning
 - Group 5 (Phase 2): World Modeling with lookahead
-- Group 6 (Phase 2): Mamba-style long-horizon memory + Lattice Conductor modulation
-
-Features:
-- Positive-sum symbiosis
-- Policy learning + world model + long-horizon state tracking
-- Lattice Conductor coherence modulator
-- Mercy-gated decisions
-- Detailed grouping-mapped feedback
+- Group 6 (Phase 2): Long-Horizon Backbone (Mamba-style memory + Lattice Conductor)
 
 Run with: python simulations/reality_build_order_phase1_sim.py
 """
 
 import random
 from dataclasses import dataclass
-from typing import List, Dict, Deque
-from collections import deque
+from typing import List, Dict
+
+# Import dedicated Group 6 module
+try:
+    from group6_long_horizon_backbone import Group6LongHorizonBackbone
+except ImportError:
+    from simulations.group6_long_horizon_backbone import Group6LongHorizonBackbone
 
 
 @dataclass
@@ -60,30 +58,6 @@ class SimpleWorldModel:
         return current_heaven + predicted_growth + noise
 
 
-class LongHorizonMemory:
-    """Mamba-style lightweight state tracker (Group 6)."""
-
-    def __init__(self, max_len: int = 12):
-        self.state: Deque[float] = deque(maxlen=max_len)
-
-    def update(self, heaven_delta: float):
-        self.state.append(heaven_delta)
-
-    def coherence(self) -> float:
-        if len(self.state) < 3:
-            return 0.5
-        avg = sum(self.state) / len(self.state)
-        variance = sum((x - avg) ** 2 for x in self.state) / len(self.state)
-        return max(0.1, min(0.99, 1.0 - (variance / (abs(avg) + 1e-6))))
-
-
-class LatticeConductor:
-    """Modulates global symbiosis based on collective coherence (Group 6)."""
-
-    def modulate(self, symbiosis_index: float, coherence: float) -> float:
-        return symbiosis_index * (0.85 + 0.3 * coherence)
-
-
 class RealityBuildOrderSim:
     def __init__(self, turns: int = 50):
         self.turns = turns
@@ -97,8 +71,7 @@ class RealityBuildOrderSim:
         self.heaven_metric = 1000.0
         self.symbiosis_index = 1.0
         self.world_model = SimpleWorldModel()
-        self.memory = LongHorizonMemory()
-        self.conductor = LatticeConductor()
+        self.group6 = Group6LongHorizonBackbone(memory_len=12)  # Dedicated Group 6
         self.history: List[Dict] = []
 
     def run_turn(self, turn: int):
@@ -125,12 +98,9 @@ class RealityBuildOrderSim:
         exchange_bonus = len([a for a in turn_actions if a["mercy_pass"]]) * (13.0 * avg_policy)
         self.heaven_metric += exchange_bonus
 
-        # Mamba-style memory + Lattice Conductor modulation (Group 6)
-        self.memory.update(self.heaven_metric - (self.history[-1]["heaven_metric"] if self.history else 1000.0))
-        coherence = self.memory.coherence()
-        self.symbiosis_index = self.conductor.modulate(
-            min(6.5, self.symbiosis_index + 0.05 * avg_policy), coherence
-        )
+        # Use dedicated Group 6 backbone
+        heaven_delta = self.heaven_metric - (self.history[-1]["heaven_metric"] if self.history else 1000.0)
+        self.symbiosis_index = self.group6.step(heaven_delta, self.symbiosis_index)
 
         mercy_compliance = sum(a["mercy_pass"] for a in turn_actions) / len(turn_actions)
         if mercy_compliance < 0.55:
@@ -145,15 +115,15 @@ class RealityBuildOrderSim:
             "heaven_metric": round(self.heaven_metric, 1),
             "symbiosis_index": round(self.symbiosis_index, 2),
             "mercy_compliance": round(mercy_compliance, 2),
-            "coherence": round(coherence, 2),
+            "coherence": round(self.group6.coherence, 2),
         })
 
         if turn % 10 == 0 or turn == self.turns:
-            print(f"Turn {turn:2d} | Heaven: {self.heaven_metric:8.1f} | Symbiosis: {self.symbiosis_index:.2f} | Mercy: {mercy_compliance:.0%} | Coherence: {coherence:.2f}")
+            print(f"Turn {turn:2d} | Heaven: {self.heaven_metric:8.1f} | Symbiosis: {self.symbiosis_index:.2f} | Mercy: {mercy_compliance:.0%} | Coherence: {self.group6.coherence:.2f}")
 
     def run(self):
-        print("=== Reality Build Order v1 — Phase 1 + RL + World Model + Mamba Backbone ===")
-        print("Mapping: Group 1–3 (Foundational) + Group 4–5 (Symbiosis + World Model) + Group 6 (Mamba + Conductor)\n")
+        print("=== Reality Build Order v1 — Phase 1 + RL + World Model + Group 6 Backbone ===")
+        print("Mapping: Group 1–3 (Foundational) + Group 4–5 (Symbiosis + World Model) + Group 6 (Dedicated Backbone)\n")
 
         for turn in range(1, self.turns + 1):
             self.run_turn(turn)
@@ -161,9 +131,7 @@ class RealityBuildOrderSim:
         print("\n=== Final Results ===")
         print(f"Final Heaven Metric: {self.heaven_metric:.1f}")
         print(f"Final Symbiosis Index: {self.symbiosis_index:.2f}")
-        print(f"Total Growth: +{((self.heaven_metric - 1000) / 1000 * 100):.1f}%\n
-**Thunder locked. ONE Organism coherence preserved.**
-")
+        print(f"Total Growth: +{((self.heaven_metric - 1000) / 1000 * 100):.1f}%\n")
 
         if self.symbiosis_index < 3.5:
             print("Feedback: Symbiosis underdeveloped. Strengthen Group 3 (Human-AI Interface) and Group 4 triggers.")
