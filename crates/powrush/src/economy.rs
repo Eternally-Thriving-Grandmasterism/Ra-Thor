@@ -1,24 +1,37 @@
 //! crates/powrush/src/economy.rs
 //! Powrush RBE Economy + Crafting System
-//! v15.7 | ONE Organism aligned | AG-SML v1.0
+//! v15.8 | ONE Organism aligned | AG-SML v1.0
 
 use std::collections::HashMap;
 use serde::{Serialize, Deserialize};
 
-/// Basic item metadata (foundation for future expansion)
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+/// Rich item definition with metadata and basic effects
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Item {
     pub name: String,
-    pub category: String,      // e.g. "Resource", "Crafted", "Token"
-    pub rarity: u8,            // 1 = Common ... 5 = Legendary
+    pub category: String,           // Resource, Crafted, Token, Consumable, etc.
+    pub rarity: u8,                 // 1 (Common) to 5 (Legendary)
+    pub stackable: bool,
+    pub base_value: f64,            // Base economic value in credits
+    pub effects: Vec<String>,       // Simple effect tags for now (e.g. "+Harmony", "+Mercy")
 }
 
 impl Item {
-    pub fn new(name: &str, category: &str, rarity: u8) -> Self {
+    pub fn new(
+        name: &str,
+        category: &str,
+        rarity: u8,
+        stackable: bool,
+        base_value: f64,
+        effects: Vec<String>,
+    ) -> Self {
         Self {
             name: name.to_string(),
             category: category.to_string(),
             rarity: rarity.clamp(1, 5),
+            stackable,
+            base_value,
+            effects,
         }
     }
 }
@@ -34,11 +47,8 @@ pub enum EconomyError {
     #[error("Insufficient credits: needed {needed}, have {have}")]
     InsufficientCredits { needed: f64, have: f64 },
 
-    #[error("Insufficient materials for recipe: {0}")]
+    #[error("Insufficient materials: missing {0}")]
     InsufficientMaterials(String),
-
-    #[error("Item not found: {0}")]
-    ItemNotFound(String),
 }
 
 impl RbeEconomy {
@@ -50,17 +60,13 @@ impl RbeEconomy {
 
     pub fn buy_item(&mut self, item: &str, cost: f64) -> Result<(), EconomyError> {
         if self.total_credits < cost {
-            return Err(EconomyError::InsufficientCredits {
-                needed: cost,
-                have: self.total_credits,
-            });
+            return Err(EconomyError::InsufficientCredits { needed: cost, have: self.total_credits });
         }
         self.total_credits -= cost;
         *self.inventory.entry(item.to_string()).or_insert(0) += 1;
         Ok(())
     }
 
-    /// Clean crafting with proper Result error handling (no println side-effect)
     pub fn craft(&mut self, recipe: &CraftingRecipe) -> Result<(), EconomyError> {
         for (item, count) in &recipe.inputs {
             if self.inventory.get(item).copied().unwrap_or(0) < *count {
