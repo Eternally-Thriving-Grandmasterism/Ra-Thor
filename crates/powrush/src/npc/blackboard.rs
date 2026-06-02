@@ -1,14 +1,38 @@
 //! crates/powrush/src/npc/blackboard.rs
-//! Shared working memory for Perception → Behavior → Patrol
-//! Mercy as first-class data | v1.0 | AG-SML v1.0
+//! Hybrid Blackboard for v15+ NPC AI
+//! Strongly-typed core + Dynamic extension layer for PATSAGi / TOLC evolution
+//! Mercy as first-class auditable data | ONE Organism aligned | AG-SML v1.0
 
 use nalgebra::Vector2;
 use serde::{Serialize, Deserialize};
+use std::collections::HashMap;
 
 pub type Position = Vector2<f32>;
 
+/// Keys for the dynamic extension layer.
+/// Add new keys here when new councils or systems need to store data.
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum BlackboardKey {
+    // === Future PATSAGi / TOLC extension points ===
+    TOLCInfluence,
+    CouncilDecision(String),
+    EvolutionaryState,
+    Custom(String),
+}
+
+/// Flexible value type for dynamic data.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum BlackboardValue {
+    Float(f64),
+    Int(i64),
+    Bool(bool),
+    String(String),
+    Position(Position),
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct NpcBlackboard {
+    // === Core strongly-typed fields (hot path + mercy auditability) ===
     pub last_known_player_position: Option<Position>,
     pub last_seen_time: f32,
     pub current_noise_level: f32,
@@ -35,6 +59,9 @@ pub struct NpcBlackboard {
     pub times_detected_player: u32,
     pub last_mercy_check_result: Option<bool>,
     pub recent_events: Vec<String>,
+
+    // === Dynamic extension layer for future PATSAGi Council / TOLC evolution ===
+    pub dynamic_data: HashMap<BlackboardKey, BlackboardValue>,
 }
 
 impl Default for NpcBlackboard {
@@ -63,6 +90,7 @@ impl Default for NpcBlackboard {
             times_detected_player: 0,
             last_mercy_check_result: None,
             recent_events: vec![],
+            dynamic_data: HashMap::new(),
         }
     }
 }
@@ -82,5 +110,22 @@ impl NpcBlackboard {
         if self.recent_events.len() > 10 {
             self.recent_events.remove(0);
         }
+    }
+
+    // === Dynamic extension helpers ===
+    pub fn set_dynamic(&mut self, key: BlackboardKey, value: BlackboardValue) {
+        self.dynamic_data.insert(key, value);
+    }
+
+    pub fn get_dynamic(&self, key: &BlackboardKey) -> Option<&BlackboardValue> {
+        self.dynamic_data.get(key)
+    }
+
+    pub fn has_dynamic(&self, key: &BlackboardKey) -> bool {
+        self.dynamic_data.contains_key(key)
+    }
+
+    pub fn remove_dynamic(&mut self, key: &BlackboardKey) -> Option<BlackboardValue> {
+        self.dynamic_data.remove(key)
     }
 }
