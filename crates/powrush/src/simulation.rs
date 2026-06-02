@@ -1,5 +1,5 @@
 //! crates/powrush/src/simulation.rs
-//! WorldSimulation v15.12 — Progression Rewards + Memory Integration + Housing Foundation
+//! WorldSimulation v15.13 — Rewards System + Deeper Memory Integration + Housing Foundation
 
 use crate::economy::{RbeEconomy, CraftingRecipe, get_default_recipes};
 use crate::npc::{NpcFactory, NpcIntegration, Position, distribute_epigenetic_blessing, BlackboardKey, BlackboardValue};
@@ -33,8 +33,9 @@ pub struct PlayerState {
     pub ascension: f64,
     pub inventory: PlayerInventory,
     pub harmony: f64,
-    pub relationships: HashMap<usize, f64>, // NPC index -> strength
-    pub total_harmonious_actions: u32,      // Simple progression metric
+    pub relationships: HashMap<usize, f64>,
+    pub total_harmonious_actions: u32,
+    pub harmony_rewards_claimed: u32,   // Progression tracking
 }
 
 impl Default for PlayerState {
@@ -47,6 +48,7 @@ impl Default for PlayerState {
             harmony: 0.75,
             relationships: HashMap::new(),
             total_harmonious_actions: 0,
+            harmony_rewards_claimed: 0,
         }
     }
 }
@@ -142,6 +144,9 @@ impl WorldSimulation {
         if self.tick_count % 3 == 0 { self.simulate_dynamic_trading(); }
         if self.tick_count % 6 == 0 { self.try_player_crafting(); }
 
+        // Check for harmony milestone rewards
+        self.check_harmony_rewards();
+
         if self.tick_count % 2 == 0 { self.log_status(); }
     }
 
@@ -156,7 +161,21 @@ impl WorldSimulation {
         self.npc_integration.npc_system.agents.iter_mut().map(|a| distribute_epigenetic_blessing(&mut a.blackboard)).sum()
     }
 
-    /// Full trading with harmony rewards and memory logging
+    /// Check and grant harmony-based rewards (production-grade progression)
+    fn check_harmony_rewards(&mut self) {
+        let milestones = [5, 15, 30, 50, 100];
+        for &milestone in &milestones {
+            if self.player.total_harmonious_actions >= milestone && self.player.harmony_rewards_claimed < milestone {
+                // Grant reward
+                self.player.inventory.add("Harmony Crystal", 1);
+                self.player.harmony_rewards_claimed = milestone;
+                println!("   [Progression] Harmony milestone reached! Received Harmony Crystal ({} actions)", milestone);
+                break;
+            }
+        }
+    }
+
+    /// Full trading with rewards and memory
     pub fn trade_with_npc(&mut self, npc_index: usize, item: &str, quantity: u32, sell_to_npc: bool) -> Result<f64, String> {
         if npc_index >= self.npc_integration.npc_system.agents.len() { return Err("Invalid NPC".to_string()); }
 
@@ -182,12 +201,15 @@ impl WorldSimulation {
             }
             self.economy.credit(total_value * 0.6);
 
-            // Progression reward: harmony gain for generous trading
-            self.player.harmony = (self.player.harmony + 0.015).min(1.0);
+            // Progression reward
+            self.player.harmony = (self.player.harmony + 0.02).min(1.0);
             self.player.total_harmonious_actions += 1;
 
-            // Memory integration: log trade in NPC blackboard
-            npc.blackboard.record_event(&format!("Player sold {}x {} (harmonious trade)", quantity, item));
+            // Deeper memory integration
+            npc.blackboard.record_event(&format!("Player sold {}x {} (harmonious)", quantity, item));
+            if harmony > 0.8 {
+                npc.blackboard.record_event("This player trades with high harmony. Trust increased.");
+            }
 
             println!("   [Trade] Sold {}x {} to NPC[{}] for {:.1} credits", quantity, item, npc_index, total_value);
         } else {
