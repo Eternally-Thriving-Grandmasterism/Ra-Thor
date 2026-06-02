@@ -1,10 +1,10 @@
 //! # Powrush Enemy Perception Systems
 //!
-//! Mercy-aware enemy senses with line of sight, audio propagation, and visual detection.
+//! Mercy-aware enemy senses with dedicated Visual and Audio Detection Systems.
 //!
 //! Includes:
-//! - Visual detection with line of sight + field of view
-//! - Auditory detection with sound propagation
+//! - Visual Detection (line of sight + field of view)
+//! - Audio Detection (sound propagation + intensity)
 //! - MercySense and Spiritual perception
 
 use serde::{Serialize, Deserialize};
@@ -17,13 +17,22 @@ pub enum PerceptionType {
     Spiritual,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum SoundType {
+    Footstep,
+    Movement,
+    Shout,
+    Explosion,
+    Ability,
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PerceptionProfile {
     pub visual_range: f32,
     pub auditory_range: f32,
     pub mercy_sense_range: f32,
     pub spiritual_range: f32,
-    pub field_of_view: f32, // in degrees (e.g. 90.0 or 120.0)
+    pub field_of_view: f32,
 }
 
 impl Default for PerceptionProfile {
@@ -41,7 +50,7 @@ impl Default for PerceptionProfile {
 pub struct PerceptionSystem;
 
 impl PerceptionSystem {
-    /// Simple line of sight check (placeholder)
+    /// Line of sight check (placeholder)
     pub fn has_line_of_sight(
         from_x: f32,
         from_y: f32,
@@ -55,7 +64,7 @@ impl PerceptionSystem {
         dist_sq < 400.0
     }
 
-    /// Check if target is within enemy's field of view
+    /// Field of view check
     pub fn is_in_field_of_view(
         enemy_x: f32,
         enemy_y: f32,
@@ -68,29 +77,36 @@ impl PerceptionSystem {
         let dx = target_x - enemy_x;
         let dy = target_y - enemy_y;
         let dist = (dx * dx + dy * dy).sqrt();
-
         if dist < 0.1 {
             return true;
         }
-
         let dot = dx * enemy_facing_x + dy * enemy_facing_y;
         let cos_half_fov = (fov_degrees.to_radians() / 2.0).cos();
-
         (dot / dist) > cos_half_fov
     }
 
-    /// Audio propagation
-    pub fn audio_propagation_factor(
+    /// Audio propagation with sound type intensity
+    pub fn audio_detection_strength(
+        sound_type: SoundType,
         distance: f32,
-        noise_level: f32,
+        base_noise_level: f32,
         _map_data: Option<&[u8]>,
     ) -> f32 {
-        let distance_factor = (1.0 - (distance / 30.0)).max(0.0);
-        let wall_dampening = 0.85;
-        (distance_factor * noise_level * wall_dampening).clamp(0.0, 1.0)
+        let intensity = match sound_type {
+            SoundType::Footstep => 0.4,
+            SoundType::Movement => 0.6,
+            SoundType::Shout => 1.2,
+            SoundType::Explosion => 2.0,
+            SoundType::Ability => 1.0,
+        };
+
+        let distance_factor = (1.0 - (distance / 35.0)).max(0.0);
+        let wall_dampening = 0.8;
+
+        (intensity * base_noise_level * distance_factor * wall_dampening).clamp(0.0, 2.0)
     }
 
-    /// Main detection check with full visual system
+    /// Main detection check with full Visual + Audio systems
     pub fn can_detect_player(
         profile: &PerceptionProfile,
         distance: f32,
@@ -103,9 +119,10 @@ impl PerceptionSystem {
         player_mercy: f32,
         enemy_behavior: crate::enemy_behavior::EnemyBehavior,
         noise_level: f32,
+        sound_type: SoundType,
         map_data: Option<&[u8]>,
     ) -> bool {
-        // Visual detection
+        // Visual Detection
         if distance <= profile.visual_range {
             let in_fov = Self::is_in_field_of_view(
                 from_x, from_y, facing_x, facing_y, to_x, to_y, profile.field_of_view,
@@ -115,9 +132,9 @@ impl PerceptionSystem {
             }
         }
 
-        // Auditory
-        let audio_factor = Self::audio_propagation_factor(distance, noise_level, map_data);
-        if audio_factor > 0.25 && distance <= profile.auditory_range {
+        // Audio Detection
+        let audio_strength = Self::audio_detection_strength(sound_type, distance, noise_level, map_data);
+        if audio_strength > 0.3 && distance <= profile.auditory_range {
             return true;
         }
 
