@@ -3,13 +3,13 @@
 **Branch**: `feat/lattice-conductor-v14-real-estate`
 **PR**: #192 — Lattice Conductor v14.4 + Geometric Intelligence Layer
 **Date**: 2026-06-01
-**Status**: Active — Documentation phase (powrush progressing well)
+**Status**: Active — Documentation phase (powrush making strong progress)
 
 ---
 
 ## Purpose
 
-Preserve high-value architectural comments, design intent, and clarity across the monorepo.
+Preserve high-value architectural comments and design clarity across the monorepo before merge.
 
 ---
 
@@ -20,19 +20,20 @@ Preserve high-value architectural comments, design intent, and clarity across th
 - **Status**: Complete ✅
 
 ### quantum-swarm-orchestrator
-- Multiple core files enhanced with ONE Organism, TOLC, and geometric context
+- Core files enhanced with ONE Organism, TOLC, and geometric context
 - **Status**: Largely Complete ✅
 
 ### powrush (Current Focus)
 - `lib.rs` enhanced
 - `clifford_healing_fields.rs` polished
-- `game.rs` enhanced (core heartbeat + mercy/RBE vision)
-- `faction.rs` enhanced (7 Living Mercy Gates alignment + diplomacy)
-- **Status**: Good progress
+- `game.rs` enhanced
+- `faction.rs` enhanced
+- `player.rs` enhanced (further improved)
+- `mercy.rs` enhanced (7 Living Mercy Gates + future integration notes)
+- **Status**: Strong progress
 
 ### Recommended Next
-- Continue in `powrush` (player.rs, mercy.rs, simulation.rs, tolc_integration.rs)
-- Or move to `real-estate-lattice` or `mercy` crate
+- Continue in `powrush` or move to `real-estate-lattice` / `mercy` crate
 
 ---
 
