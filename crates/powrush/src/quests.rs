@@ -1,13 +1,9 @@
 //! # Powrush Quests & Missions System
 //!
-//! Mercy-gated quest and mission framework with dynamic reward economy.
+//! Mercy-gated quest framework with dynamic reward economy + difficulty scaling.
 //!
-//! Rewards scale based on:
-//! - Current mercy compliance
-//! - Player ascension level
-//! - Collective joy / post-scarcity state
+//! Difficulty scales intelligently based on player state so quests feel fair and meaningful.
 
-use crate::events::PowrushEvent;
 use serde::{Serialize, Deserialize};
 use std::collections::HashMap;
 
@@ -17,6 +13,7 @@ pub struct Quest {
     pub title: String,
     pub description: String,
     pub mercy_requirement: f32,
+    pub base_difficulty: f32,      // 1.0 = normal, higher = harder
     pub base_rewards: QuestRewards,
     pub completed: bool,
 }
@@ -46,7 +43,6 @@ impl QuestSystem {
         self.active_quests.insert(quest.id, quest);
     }
 
-    /// Complete quest and return final scaled rewards
     pub fn complete_quest(
         &mut self,
         quest_id: u64,
@@ -73,7 +69,22 @@ impl QuestSystem {
         }
     }
 
-    /// Dynamic reward economy
+    /// Calculate final scaled difficulty for a quest
+    pub fn calculate_difficulty(
+        &self,
+        base_difficulty: f32,
+        ascension_level: f32,
+        current_mercy: f32,
+    ) -> f32 {
+        // Higher ascension = quests feel easier (player is stronger)
+        let ascension_factor = 1.0 - (ascension_level * 0.25);
+
+        // Higher mercy = slightly easier (more aligned = more capable)
+        let mercy_factor = 1.0 - (current_mercy * 0.15);
+
+        (base_difficulty * ascension_factor * mercy_factor).max(0.5)
+    }
+
     fn calculate_final_rewards(
         &self,
         base: &QuestRewards,
