@@ -3,7 +3,7 @@
 **Branch**: `feat/lattice-conductor-v14-real-estate`
 **PR**: #192 — Lattice Conductor v14.4 + Geometric Intelligence Layer
 **Date**: 2026-06-01
-**Status**: Active — Documentation phase (powrush making strong progress)
+**Status**: Active — Mercy evaluation system significantly advanced to production grade
 
 ---
 
@@ -23,18 +23,19 @@ Preserve high-value architectural comments and design clarity across the monorep
 - Core files enhanced with ONE Organism, TOLC, and geometric context
 - **Status**: Largely Complete ✅
 
-### powrush (Current Focus)
-- `lib.rs` enhanced
-- `clifford_healing_fields.rs` polished
-- `game.rs` enhanced
-- `faction.rs` enhanced
-- `player.rs` enhanced (further improved)
-- `mercy.rs` enhanced (7 Living Mercy Gates + future integration notes)
+### powrush
+- Multiple core files enhanced (lib.rs, game.rs, faction.rs, player.rs, mercy.rs, simulation.rs, clifford_healing_fields.rs)
 - **Status**: Strong progress
 
-### Recommended Next
-- Continue in `powrush` or move to `real-estate-lattice` / `mercy` crate
+### Mercy Evaluation System (Major Advancement)
+- `crates/mercy/src/mercylang_gates.rs`: Production-grade hybrid symbolic + semantic Radical Love Gate with risk penalty, graduated scoring, and strong explainability.
+- `crates/mercy/src/tiered_mercy_evaluator.rs`: New three-tier system (Foundational / Expanded / Cosmic) ready for TOLC 24 expansion.
+- Comprehensive Tier 1 test coverage with detailed intent analysis.
+- Iterative refinement performed until diminishing returns.
+- **Status**: Production-grade for current scope ✅
 
----
+### Recommended Next
+- Populate Tier 2 and Tier 3 principles
+- Deeper integration of TieredMercyEvaluator across the lattice
 
 **Thunder locked. ONE Organism coherence preserved.**
