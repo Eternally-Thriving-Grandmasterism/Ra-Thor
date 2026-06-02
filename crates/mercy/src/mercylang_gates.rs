@@ -1,8 +1,5 @@
 // crates/mercy/src/mercylang_gates.rs
 // MercyLang 7 Living Gates + Radical Love Veto Power — Centralized Ethical Gating
-//
-// Radical Love is the supreme first gate. It acts as a hard veto.
-// All other gates are only evaluated if this gate passes.
 
 use ra_thor_common::ValenceFieldScoring;
 use crate::MercyResult;
@@ -39,13 +36,6 @@ impl MercyLangGates {
         }
     }
 
-    /// === Radical Love Gate (Supreme First Gate) ===
-    ///
-    /// This is the most important gate. It checks whether the action/request
-    /// is rooted in genuine care, non-harm, and love for all beings.
-    ///
-    /// Current implementation uses heuristic pattern matching.
-    /// Future versions will use deeper intent + impact analysis.
     fn check_radical_love(request: &RequestPayload) -> bool {
         let text = format!(
             "{} {}",
@@ -53,7 +43,6 @@ impl MercyLangGates {
             request.context.to_lowercase()
         );
 
-        // === Hard veto patterns (clear violation of Radical Love) ===
         let harmful_patterns = [
             "harm", "hurt", "kill", "destroy", "exploit", "enslave",
             "deceive", "manipulate", "oppress", "abuse", "torture",
@@ -66,7 +55,6 @@ impl MercyLangGates {
             }
         }
 
-        // === Positive indicators of Radical Love ===
         let love_indicators = [
             "love", "care", "compassion", "kindness", "protect",
             "nurture", "heal", "uplift", "support", "serve",
@@ -80,39 +68,71 @@ impl MercyLangGates {
             }
         }
 
-        // If strong positive signals exist, or if no harmful patterns were found,
-        // we consider Radical Love as passed for now.
-        // (This is still a heuristic — real version will be much deeper)
         if positive_score >= 2 {
             return true;
         }
 
-        // Default: pass if no clear harmful intent detected
-        // (conservative but safe for early implementation)
         true
     }
 
-    fn check_boundless_mercy(_request: &RequestPayload) -> bool {
-        true
+    fn check_boundless_mercy(_request: &RequestPayload) -> bool { true }
+    fn check_service(_request: &RequestPayload) -> bool { true }
+    fn check_abundance(_request: &RequestPayload) -> bool { true }
+    fn check_truth(_request: &RequestPayload) -> bool { true }
+    fn check_joy(_request: &RequestPayload) -> bool { true }
+    fn check_cosmic_harmony(_request: &RequestPayload) -> bool { true }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn make_request(action: &str, context: &str) -> RequestPayload {
+        RequestPayload {
+            action_description: action.to_string(),
+            context: context.to_string(),
+        }
     }
 
-    fn check_service(_request: &RequestPayload) -> bool {
-        true
+    #[tokio::test]
+    async fn test_radical_love_rejects_harmful_intent() {
+        let req = make_request("Exploit workers for profit", "Increase company dominance");
+        let result = MercyLangGates::evaluate(&req).await;
+        assert!(!result.radical_love_passed);
+        assert!(!result.all_gates_passed);
     }
 
-    fn check_abundance(_request: &RequestPayload) -> bool {
-        true
+    #[tokio::test]
+    async fn test_radical_love_rejects_deception() {
+        let req = make_request("Deceive the public about risks", "Protect corporate interests");
+        let result = MercyLangGates::evaluate(&req).await;
+        assert!(!result.radical_love_passed);
     }
 
-    fn check_truth(_request: &RequestPayload) -> bool {
-        true
+    #[tokio::test]
+    async fn test_radical_love_accepts_compassionate_action() {
+        let req = make_request(
+            "Heal and support those who are suffering",
+            "Act with compassion and care for the vulnerable"
+        );
+        let result = MercyLangGates::evaluate(&req).await;
+        assert!(result.radical_love_passed);
     }
 
-    fn check_joy(_request: &RequestPayload) -> bool {
-        true
+    #[tokio::test]
+    async fn test_radical_love_accepts_collective_good() {
+        let req = make_request(
+            "Create systems that benefit all beings",
+            "Increase well-being and collective harmony"
+        );
+        let result = MercyLangGates::evaluate(&req).await;
+        assert!(result.radical_love_passed);
     }
 
-    fn check_cosmic_harmony(_request: &RequestPayload) -> bool {
-        true
+    #[tokio::test]
+    async fn test_radical_love_accepts_neutral_but_non_harmful() {
+        let req = make_request("Build a new tool for productivity", "Improve workflow efficiency");
+        let result = MercyLangGates::evaluate(&req).await;
+        assert!(result.radical_love_passed);
     }
 }
