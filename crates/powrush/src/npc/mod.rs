@@ -1,5 +1,6 @@
 //! crates/powrush/src/npc/mod.rs
-//! v15 Hybrid NPC AI — Blackboard + Consideration + Utility + Spatial + Relationship + Dialogue
+//! v15 Hybrid NPC AI System
+//! Blackboard + Consideration + Utility + Spatial + Relationship + Dialogue
 //! Mercy as first-class architectural principle | ONE Organism aligned | AG-SML v1.0
 
 // === Core Data Layer ===
@@ -9,7 +10,7 @@ pub mod blackboard;
 pub mod consideration;
 pub mod behavior;
 
-// === Perception & Spatial Awareness ===
+// === Perception & Spatial Layer ===
 pub mod perception;
 pub mod spatial_hash;
 pub mod patrol;
@@ -23,12 +24,16 @@ pub mod system;
 pub mod npc_integration;
 pub mod npc_spawning;
 
-// === Clean Re-exports for External Use ===
-pub use blackboard::NpcBlackboard;
+// === Clean Re-exports ===
+pub use blackboard::{NpcBlackboard, Position, BlackboardKey, BlackboardValue};
 
 pub use consideration::{
-    Consideration, MercyAlignmentConsideration, HealthConsideration,
-    PlayerThreatConsideration, PostScarcityConsideration, PlayerAscensionConsideration,
+    Consideration,
+    MercyAlignmentConsideration,
+    HealthConsideration,
+    PlayerThreatConsideration,
+    PostScarcityConsideration,
+    PlayerAscensionConsideration,
 };
 
 pub use behavior::{NpcAgent, UtilityAction};
