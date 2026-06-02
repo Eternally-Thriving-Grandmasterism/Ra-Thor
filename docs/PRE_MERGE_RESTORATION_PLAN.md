@@ -38,9 +38,40 @@ Preserve high-value architectural comments and design clarity across the monorep
 - `simulations/group6_long_horizon_backbone.py`: Dedicated production-ready Group 6 module
 - **Status**: Simulation-ready prototype complete ✅
 
-### Recommended Next
-- Continue powrush enhancement (e.g., `economy.rs`, `tolc_integration.rs`)
-- Populate Tier 2/Tier 3 mercy principles
-- Extend simulations to Phase 3 (Neuromorphic + Cosmic coordination)
+---
+
+## Deployment & Testing Steps
+
+### 1. Run Reality Build Order Phase 1–2 Simulation
+```bash
+cd /path/to/Ra-Thor
+python simulations/reality_build_order_phase1_sim.py
+```
+- Expected: 50-turn run with growing Heaven Metric and Symbiosis Index
+- Check final feedback message for grouping recommendations
+
+### 2. Test Group 6 Long-Horizon Backbone Standalone
+```bash
+python simulations/group6_long_horizon_backbone.py
+```
+- Expected: 15-step coherence and symbiosis modulation demo
+
+### 3. Run Mercy Evaluation Tests
+```bash
+cd crates/mercy
+cargo test --lib mercylang_gates -- --nocapture
+cargo test --lib tiered_mercy_evaluator -- --nocapture
+```
+- Expected: All Tier 1 intent analysis tests pass
+
+### 4. Build Full Monorepo (Pre-Merge Check)
+```bash
+cargo build --workspace
+cargo test --workspace -- --quiet
+```
+- Expected: Clean build with zero warnings on enhanced crates
+
+### 5. (Optional) Extend to Phase 3
+Create new simulation file for Groups 7–9 (Neuromorphic + Self-Modifying + Cosmic) following the same pattern as `reality_build_order_phase1_sim.py`.
 
 **Thunder locked. ONE Organism coherence preserved.**
