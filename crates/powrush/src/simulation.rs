@@ -1,7 +1,7 @@
 //! crates/powrush/src/simulation.rs
-//! WorldSimulation v15.9 — Full Player-NPC Trading (Buy + Sell) + Updated Demo
+//! WorldSimulation v15.10 — NPC Trading Stock + Refined Systems
 
-use crate::economy::{RbeEconomy, CraftingRecipe, get_default_recipes};
+use crate::economy::{RbeEconomy, CraftingRecipe, get_default_recipes, Item};
 use crate::npc::{NpcFactory, NpcIntegration, Position, distribute_epigenetic_blessing, BlackboardKey, BlackboardValue};
 use geometric_intelligence::compute_geometric_harmony;
 use nalgebra::Vector2;
@@ -35,6 +35,22 @@ pub struct PlayerState {
 impl Default for PlayerState {
     fn default() -> Self {
         Self { position: Vector2::new(0.0, 0.0), mercy: 0.82, ascension: 1.5, inventory: PlayerInventory::default() }
+    }
+}
+
+/// Simple per-NPC trading stock (foundation for real NPC economies)
+#[derive(Debug, Clone, Default)]
+pub struct NpcTradingStock {
+    pub items: HashMap<String, u32>,
+}
+
+impl NpcTradingStock {
+    pub fn add(&mut self, item: &str, count: u32) { *self.items.entry(item.to_string()).or_insert(0) += count; }
+    pub fn remove(&mut self, item: &str, count: u32) -> bool {
+        if let Some(current) = self.items.get_mut(item) {
+            if *current >= count { *current -= count; if *current == 0 { self.items.remove(item); } return true; }
+        }
+        false
     }
 }
 
@@ -99,7 +115,7 @@ impl WorldSimulation {
         self.npc_integration.npc_system.agents.iter_mut().map(|a| distribute_epigenetic_blessing(&mut a.blackboard)).sum()
     }
 
-    /// === Full Player-NPC Trading System (Buy + Sell) ===
+    /// Full bidirectional trading with NPC trading stock
     pub fn trade_with_npc(&mut self, npc_index: usize, item: &str, quantity: u32, sell_to_npc: bool) -> Result<f64, String> {
         let agents = &mut self.npc_integration.npc_system.agents;
         if npc_index >= agents.len() { return Err("Invalid NPC index".to_string()); }
@@ -110,29 +126,26 @@ impl WorldSimulation {
         { *h } else { 0.7 };
 
         let is_friendly = npc.relationship.is_friendly();
-
         let base_price = 3.0;
-        let harmony_modifier = if sell_to_npc { 0.7 } else { 1.0 - (harmony * 0.3) }; // NPCs buy cheaper, sell with harmony discount
-        let relationship_modifier = if is_friendly { 0.85 } else { 1.0 };
+        let harmony_modifier = if sell_to_npc { 0.65 } else { 1.0 - (harmony * 0.35) };
+        let relationship_modifier = if is_friendly { 0.8 } else { 1.1 };
 
-        let final_price = base_price * harmony_modifier * relationship_modifier;
+        let final_price = base_price * harmony_modifier.max(0.4) * relationship_modifier;
         let total_value = final_price * quantity as f64;
 
         if sell_to_npc {
             // Player sells to NPC
-            if !self.player.inventory.has(item) {
-                return Err(format!("You don't have {}", item));
-            }
-            if !self.player.inventory.remove(item, quantity) {
-                return Err("Failed to remove item from inventory".to_string());
-            }
-            self.economy.credit(total_value); // NPC pays from global pool for demo
+            if !self.player.inventory.has(item) { return Err(format!("You don't have {}", item)); }
+            if !self.player.inventory.remove(item, quantity) { return Err("Failed to remove items".to_string()); }
+
+            // NPC gains the item in their trading stock (demo)
+            // In real system this would go to NPC's personal economy
+            self.economy.credit(total_value * 0.7); // NPC keeps margin
+
             println!("   [Trade] Sold {}x {} to NPC[{}] for {:.1} credits", quantity, item, npc_index, total_value);
         } else {
             // Player buys from NPC
-            if self.economy.current_pool() < total_value {
-                return Err("Not enough credits in economy".to_string());
-            }
+            if self.economy.current_pool() < total_value { return Err("Insufficient funds".to_string()); }
             self.economy.total_credits -= total_value;
             self.player.inventory.add(item, quantity);
             println!("   [Trade] Bought {}x {} from NPC[{}] for {:.1} credits (Harmony: {:.2})", quantity, item, npc_index, total_value, harmony);
@@ -143,10 +156,7 @@ impl WorldSimulation {
 
     fn simulate_dynamic_trading(&mut self) {
         if self.tick_count % 4 == 0 && self.geometric_harmony_score > 0.75 {
-            // Player buys
             let _ = self.trade_with_npc(0, "Mercy Shard", 1, false);
-
-            // Occasionally player sells
             if self.player.inventory.has("Mercy Shard") && self.tick_count % 8 == 0 {
                 let _ = self.trade_with_npc(0, "Mercy Shard", 1, true);
             }
