@@ -1,14 +1,44 @@
 //! crates/powrush/src/economy.rs
-//! Powrush RBE Economy + Crafting System (extracted for clarity and maintainability)
-//! v15.6 | ONE Organism aligned | AG-SML v1.0
+//! Powrush RBE Economy + Crafting System
+//! v15.7 | ONE Organism aligned | AG-SML v1.0
 
 use std::collections::HashMap;
 use serde::{Serialize, Deserialize};
+
+/// Basic item metadata (foundation for future expansion)
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub struct Item {
+    pub name: String,
+    pub category: String,      // e.g. "Resource", "Crafted", "Token"
+    pub rarity: u8,            // 1 = Common ... 5 = Legendary
+}
+
+impl Item {
+    pub fn new(name: &str, category: &str, rarity: u8) -> Self {
+        Self {
+            name: name.to_string(),
+            category: category.to_string(),
+            rarity: rarity.clamp(1, 5),
+        }
+    }
+}
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct RbeEconomy {
     pub total_credits: f64,
     pub inventory: HashMap<String, u32>,
+}
+
+#[derive(Debug, Clone, thiserror::Error)]
+pub enum EconomyError {
+    #[error("Insufficient credits: needed {needed}, have {have}")]
+    InsufficientCredits { needed: f64, have: f64 },
+
+    #[error("Insufficient materials for recipe: {0}")]
+    InsufficientMaterials(String),
+
+    #[error("Item not found: {0}")]
+    ItemNotFound(String),
 }
 
 impl RbeEconomy {
@@ -18,27 +48,35 @@ impl RbeEconomy {
 
     pub fn current_pool(&self) -> f64 { self.total_credits }
 
-    pub fn buy_item(&mut self, item: &str, cost: f64) -> bool {
-        if self.total_credits >= cost {
-            self.total_credits -= cost;
-            *self.inventory.entry(item.to_string()).or_insert(0) += 1;
-            true
-        } else { false }
+    pub fn buy_item(&mut self, item: &str, cost: f64) -> Result<(), EconomyError> {
+        if self.total_credits < cost {
+            return Err(EconomyError::InsufficientCredits {
+                needed: cost,
+                have: self.total_credits,
+            });
+        }
+        self.total_credits -= cost;
+        *self.inventory.entry(item.to_string()).or_insert(0) += 1;
+        Ok(())
     }
 
-    pub fn craft(&mut self, recipe: &CraftingRecipe) -> bool {
+    /// Clean crafting with proper Result error handling (no println side-effect)
+    pub fn craft(&mut self, recipe: &CraftingRecipe) -> Result<(), EconomyError> {
         for (item, count) in &recipe.inputs {
-            if self.inventory.get(item).copied().unwrap_or(0) < *count { return false; }
+            if self.inventory.get(item).copied().unwrap_or(0) < *count {
+                return Err(EconomyError::InsufficientMaterials(item.clone()));
+            }
         }
+
         for (item, count) in &recipe.inputs {
             if let Some(current) = self.inventory.get_mut(item) {
                 *current -= count;
                 if *current == 0 { self.inventory.remove(item); }
             }
         }
+
         *self.inventory.entry(recipe.output.clone()).or_insert(0) += recipe.output_count;
-        println!("   [Craft] Crafted {} x{}", recipe.output, recipe.output_count);
-        true
+        Ok(())
     }
 }
 
