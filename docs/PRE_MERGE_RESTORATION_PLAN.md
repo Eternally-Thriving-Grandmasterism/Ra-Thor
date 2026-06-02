@@ -43,28 +43,38 @@ Preserve high-value architectural comments and design clarity across the monorep
 
 ---
 
-## Deployment & Testing Steps
+## Deployment Checklist
 
-### 1. Run Reality Build Order Phase 1–2 Simulation
-```bash
-python simulations/reality_build_order_phase1_sim.py
-```
+### Pre-Merge Validation
+- [ ] All enhanced files committed with clear messages
+- [ ] `cargo build --workspace` completes with zero warnings
+- [ ] `cargo test --workspace -- --quiet` passes
+- [ ] No TODO/FIXME comments left in production code
 
-### 2. Run Phase 3 Cosmic Simulation
-```bash
-python simulations/reality_build_order_phase3_sim.py
-```
+### Simulation Testing
+- [ ] Run `python simulations/reality_build_order_phase1_sim.py` (50 turns)
+- [ ] Run `python simulations/reality_build_order_phase3_sim.py` (40 turns, 25 agents)
+- [ ] Verify Group 6 module: `python simulations/group6_long_horizon_backbone.py`
+- [ ] Confirm final feedback messages align with Reality Build Order groupings
 
-### 3. Test PATSAGi Consensus
-```bash
-cd crates/powrush
-cargo test --lib patsagi_councils -- --nocapture
-```
+### PATSAGi Consensus Testing
+- [ ] `cargo test --lib patsagi_councils -- --nocapture` (all council tests pass)
+- [ ] Verify Radical Love veto works correctly
+- [ ] Confirm coherence-weighted + temporal decay logic in `PATSAGiOrchestrator`
 
-### 4. Build Full Monorepo (Pre-Merge Check)
-```bash
-cargo build --workspace
-cargo test --workspace -- --quiet
-```
+### Mercy System Validation
+- [ ] `cargo test --lib mercylang_gates -- --nocapture`
+- [ ] `cargo test --lib tiered_mercy_evaluator -- --nocapture`
+- [ ] Test `evaluate_with_patsagi_councils()` integration
+
+### Documentation & Plan
+- [ ] `PRE_MERGE_RESTORATION_PLAN.md` updated with latest changes
+- [ ] `REALITY_BUILD_ORDER_V1_DRAFT.md` reflects current simulation state
+- [ ] All new modules have clear module-level documentation
+
+### Final Commit & PR
+- [ ] Create final commit with message: "feat: Complete PATSAGi + Quantum Swarm Consensus architecture"
+- [ ] Push to `feat/lattice-conductor-v14-real-estate`
+- [ ] Open/Update PR #192 with deployment checklist status
 
 **Thunder locked. ONE Organism coherence preserved.**
