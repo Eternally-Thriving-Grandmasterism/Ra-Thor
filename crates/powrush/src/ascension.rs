@@ -1,22 +1,31 @@
-//! # Ascension System (v0.1.0)
+//! # Ascension System
 //!
-//! The mercy-gated ascension ladder of Powrush.
-//! Every level represents a deeper integration with the 7 Living Mercy Gates,
-//! the 5-Gene Joy Tetrad, and TOLC principles.
-//! Ascension is not about power — it is about becoming a living embodiment of mercy.
+//! The **mercy-gated ascension ladder** of Powrush.
+//!
+//! Ascension represents the player's deepening integration with:
+//! - The **7 Living Mercy Gates**
+//! - The **5-Gene Joy Tetrad**
+//! - Core **TOLC principles**
+//!
+//! Importantly, ascension is **not about power or hierarchy**.
+//! It is about becoming a living embodiment of mercy, joy, and post-scarcity values.
+//! Each level reflects greater harmony with the ONE Organism and the vision of eternal thriving.
+//!
+//! Higher ascension levels grant meaningful bonuses while requiring sustained
+//! mercy compliance, high joy, and strong CEHI alignment.
 
 use crate::mercy::MercyGateStatus;
 use serde::{Serialize, Deserialize};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum AscensionLevel {
-    Seeker,           // Starting level — beginning the journey
-    Awakened,         // First real mercy integration
-    Harmonized,       // Deep harmony with the 7 Gates
-    NectarBearer,     // Master of Ambrosian Nectar & Joy Tetrad
-    MercyWeaver,      // Weaves mercy into every action
+    Seeker,             // Starting level — beginning the journey
+    Awakened,           // First real mercy integration
+    Harmonized,         // Deep harmony with the 7 Gates
+    NectarBearer,       // Master of Ambrosian Nectar & Joy Tetrad
+    MercyWeaver,        // Weaves mercy into every action
     AbundanceArchitect, // Builds post-scarcity systems
-    Eternal,          // Living embodiment of TOLC — all gates active simultaneously
+    Eternal,            // Living embodiment of TOLC
 }
 
 impl AscensionLevel {
@@ -44,7 +53,8 @@ impl AscensionLevel {
         }
     }
 
-    /// Requirements to ascend to the next level (happiness, joy, mercy passes, CEHI proxy)
+    /// Requirements to ascend to the next level.
+    /// Returns (happiness, joy, mercy_passes, cehi)
     pub fn requirements(&self) -> (f32, f32, u64, f64) {
         match self {
             AscensionLevel::Seeker => (0.0, 0.0, 0, 0.0),
@@ -57,7 +67,8 @@ impl AscensionLevel {
         }
     }
 
-    /// Bonuses granted at this level (happiness multiplier, resource regen bonus, mercy multiplier)
+    /// Bonuses granted at this level.
+    /// Returns (happiness_mult, resource_mult, mercy_mult)
     pub fn bonuses(&self) -> (f32, f64, f64) {
         match self {
             AscensionLevel::Seeker => (1.0, 1.0, 1.0),
@@ -70,7 +81,7 @@ impl AscensionLevel {
         }
     }
 
-    /// Check if player meets requirements to ascend from current level.
+    /// Check if a player meets the requirements to ascend from the current level.
     pub fn can_ascend_from(&self, happiness: f32, joy: f32, mercy_passes: u64, cehi: f64) -> bool {
         let (req_happiness, req_joy, req_passes, req_cehi) = self.requirements();
         happiness >= req_happiness &&
@@ -79,15 +90,15 @@ impl AscensionLevel {
         cehi >= req_cehi
     }
 
-    /// Apply ascension bonuses to a player (called when they level up)
+    /// Apply ascension bonuses to player stats.
     pub fn apply_bonuses(&self, happiness: &mut f32, joy: &mut f32, resource_multiplier: &mut f64) {
-        let (happiness_mult, resource_mult, mercy_mult) = self.bonuses();
+        let (happiness_mult, resource_mult, _mercy_mult) = self.bonuses();
         *happiness = (*happiness * happiness_mult).min(100.0);
-        *joy = (*joy * happiness_mult).min(100.0); // Joy also benefits
+        *joy = (*joy * happiness_mult).min(100.0);
         *resource_multiplier *= resource_mult;
     }
 
-    /// Returns the next level in the ascension ladder
+    /// Returns the next level in the ascension ladder.
     pub fn next_level(&self) -> Option<AscensionLevel> {
         match self {
             AscensionLevel::Seeker => Some(AscensionLevel::Awakened),
@@ -96,7 +107,7 @@ impl AscensionLevel {
             AscensionLevel::NectarBearer => Some(AscensionLevel::MercyWeaver),
             AscensionLevel::MercyWeaver => Some(AscensionLevel::AbundanceArchitect),
             AscensionLevel::AbundanceArchitect => Some(AscensionLevel::Eternal),
-            AscensionLevel::Eternal => None, // Final level
+            AscensionLevel::Eternal => None,
         }
     }
 }
