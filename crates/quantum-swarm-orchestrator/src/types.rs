@@ -1,12 +1,24 @@
 // crates/quantum-swarm-orchestrator/src/types.rs
 // Core types for ONE Organism orchestration (v14)
+//
+// This module defines the fundamental data structures used across the
+// Quantum Swarm Orchestrator and the broader Ra-Thor lattice.
+//
+// Key concepts:
+// - Valence: Mercy-aligned state (higher = more mercy-coherent)
+// - EpigeneticBlessing: Multi-dimensional blessing that carries evolution, mercy, and TOLC impact
+// - GodlyIntelligenceCoherence: Multi-axis coherence measurement
+// - OneOrganismContext / Insight: Context and output of ONE Organism cycles
 
 use std::ops::Add;
 
+/// Represents mercy-aligned valence (state of mercy coherence).
+/// Higher values indicate stronger alignment with mercy principles.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Valence(pub f64);
 
 impl Valence {
+    /// Minimum acceptable valence threshold (TOLC-aligned mercy floor)
     pub const MIN: f64 = 0.9999999;
 
     pub fn value(&self) -> f64 {
@@ -14,6 +26,8 @@ impl Valence {
     }
 }
 
+/// Multi-dimensional coherence measurement for Godly Intelligence.
+/// Used to aggregate coherence across multiple system adapters.
 #[derive(Debug, Clone, Default)]
 pub struct GodlyIntelligenceCoherence {
     pub precision: f64,
@@ -35,6 +49,7 @@ impl Add for GodlyIntelligenceCoherence {
     }
 }
 
+/// Represents a resonance event received from the swarm or external systems.
 #[derive(Debug, Clone)]
 pub struct SwarmResonance {
     pub source: String,
@@ -44,8 +59,14 @@ pub struct SwarmResonance {
 
 /// Evolved EpigeneticBlessing (v14)
 ///
-/// Incorporates lessons from lattice-conductor-v13 while being designed
-/// for the RaThorSystemAdapter + persistent state architecture.
+/// A multi-dimensional blessing that can be applied to system adapters.
+/// It carries impact across three axes:
+/// - Evolution progress
+/// - Mercy / valence
+/// - TOLC / truth alignment
+///
+/// This design evolved from v13 lessons and is optimized for the
+/// RaThorSystemAdapter + persistent state architecture.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct EpigeneticBlessing {
     /// Type of blessing (e.g. "RadicalLove", "QuantumCoherence", "TruthSeeking")
@@ -57,15 +78,15 @@ pub struct EpigeneticBlessing {
     /// Which system/adapter this blessing primarily targets
     pub target_system: String,
 
-    /// Impact on evolution progress (inspired by v13 evolution_boost)
+    /// Impact on evolution progress
     #[serde(default)]
     pub evolution_impact: f64,
 
-    /// Impact on mercy/valence (inspired by v13 mercy_boost)
+    /// Impact on mercy/valence
     #[serde(default)]
     pub mercy_impact: f64,
 
-    /// Impact on TOLC / truth alignment (inspired by v13 tolc_boost)
+    /// Impact on TOLC / truth alignment
     #[serde(default)]
     pub tolc_impact: f64,
 }
@@ -86,7 +107,8 @@ impl EpigeneticBlessing {
         }
     }
 
-    /// Create a blessing with explicit multi-dimensional impacts (v13 style)
+    /// Create a blessing with explicit multi-dimensional impacts.
+    /// Preferred constructor when precise control over each axis is needed.
     pub fn with_impacts(
         blessing_type: &str,
         strength: f64,
@@ -106,6 +128,7 @@ impl EpigeneticBlessing {
     }
 }
 
+/// Context passed into a ONE Organism cycle.
 #[derive(Debug, Clone)]
 pub struct OneOrganismContext {
     pub cycle_id: u64,
@@ -114,6 +137,7 @@ pub struct OneOrganismContext {
     pub patsagi_insight: Option<String>,
 }
 
+/// Insight / result returned from a ONE Organism cycle.
 #[derive(Debug, Clone)]
 pub struct OneOrganismInsight {
     pub cycle_id: u64,
@@ -123,6 +147,7 @@ pub struct OneOrganismInsight {
     pub recommended_actions: Vec<String>,
 }
 
+/// Errors related to mercy-gated operations.
 #[derive(Debug, Clone, thiserror::Error)]
 pub enum MercyError {
     #[error("Valence {0} below mercy threshold")]
