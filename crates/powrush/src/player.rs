@@ -1,8 +1,15 @@
-//! # Player System (v0.1.0)
+//! # Player System
 //!
-//! Every sentient being in Powrush is represented by a Player.
-//! Happiness, needs, faction loyalty, ascension level, and mercy compliance are all tracked here.
-//! This is the living embodiment of the 5-Gene Joy Tetrad + TOLC principles inside the game.
+//! Every sentient being in Powrush is represented by a `Player`.
+//!
+//! This module tracks the living state of each participant:
+//! - Happiness and multi-dimensional needs (tied to the **5-Gene Joy Tetrad**)
+//! - Faction loyalty and identity
+//! - Ascension progress
+//! - Mercy compliance history (passes vs violations)
+//!
+//! The `Player` is the core unit through which **TOLC principles**, mercy gating,
+//! and RBE abundance mechanics are experienced at the individual level.
 
 use crate::faction::Faction;
 use crate::ascension::AscensionLevel;
@@ -15,7 +22,7 @@ pub struct Player {
     pub id: u64,
     pub name: String,
     pub faction: Faction,
-    pub happiness: f32,              // 0.0 – 100.0
+    pub happiness: f32,
     pub needs: PlayerNeeds,
     pub ascension_level: AscensionLevel,
     pub resources_owned: std::collections::HashMap<String, f64>,
@@ -37,7 +44,6 @@ pub struct PlayerNeeds {
 }
 
 impl Player {
-    /// Create a brand new player with default starting stats.
     pub fn new(name: String, faction: Faction) -> Self {
         let now = Utc::now();
         Self {
@@ -64,10 +70,10 @@ impl Player {
     }
 
     /// Update happiness and needs based on world abundance (RBE logic).
+    /// Joy and purpose receive strong boosts from abundance, reflecting post-scarcity design.
     pub fn update_happiness_and_needs(&mut self, world_abundance: f64) {
         let abundance_factor = (world_abundance / 10000.0).min(1.5) as f32;
 
-        // Needs decay slightly every cycle, then get boosted by abundance
         self.needs.food = (self.needs.food - 3.0 + abundance_factor * 8.0).clamp(0.0, 100.0);
         self.needs.water = (self.needs.water - 2.5 + abundance_factor * 7.5).clamp(0.0, 100.0);
         self.needs.energy = (self.needs.energy - 4.0 + abundance_factor * 9.0).clamp(0.0, 100.0);
@@ -76,7 +82,6 @@ impl Player {
         self.needs.purpose = (self.needs.purpose + abundance_factor * 7.0).clamp(0.0, 100.0);
         self.needs.joy = (self.needs.joy + abundance_factor * 8.5).clamp(0.0, 100.0);
 
-        // Happiness is a weighted average of all needs + mercy compliance
         let needs_avg = (self.needs.food + self.needs.water + self.needs.energy +
                          self.needs.knowledge + self.needs.social + self.needs.purpose + self.needs.joy) / 7.0;
 
@@ -84,6 +89,7 @@ impl Player {
     }
 
     /// Apply mercy gate result to this player.
+    /// Passed = happiness + joy boost. Failed = significant penalty.
     pub fn apply_mercy_result(&mut self, status: MercyGateStatus) {
         match status {
             MercyGateStatus::Passed => {
@@ -100,7 +106,7 @@ impl Player {
         self.last_mercy_check = Utc::now();
     }
 
-    /// Check if player is ready to ascend to next level.
+    /// Check if player meets basic ascension criteria.
     pub fn can_ascend(&self) -> bool {
         self.happiness >= 92.0 &&
         self.needs.joy >= 90.0 &&
