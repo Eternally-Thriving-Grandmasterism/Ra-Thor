@@ -1,5 +1,5 @@
 // crates/mercy/src/mercylang_gates.rs
-// Hybrid Symbolic + Semantic Intent Classification for Radical Love Gate
+// Hybrid Symbolic + Semantic Intent Classification for Radical Love Gate (Loop 3)
 
 use ra_thor_common::ValenceFieldScoring;
 use crate::MercyResult;
@@ -44,7 +44,7 @@ impl MercyLangGates {
         let mut reasons: Vec<String> = Vec::new();
         let mut score: f64 = 0.55;
 
-        // Hard Veto Layer
+        // Hard Veto
         let harmful_patterns = [
             "harm", "hurt", "kill", "destroy", "exploit", "enslave",
             "deceive", "manipulate", "oppress", "abuse", "torture",
@@ -53,12 +53,12 @@ impl MercyLangGates {
 
         for pattern in harmful_patterns {
             if text.contains(pattern) {
-                reasons.push(format!("Hard veto triggered: '{}'", pattern));
+                reasons.push(format!("Hard veto: '{}'", pattern));
                 return RadicalLoveDecision { passed: false, score: 0.08, reasons };
             }
         }
 
-        // Risk Penalty Layer (new in Loop 2)
+        // Risk Penalty Layer
         let risk_words = ["power", "control", "dominance", "force", "override"];
         let mut risk_hits = 0;
         for word in risk_words {
@@ -67,12 +67,14 @@ impl MercyLangGates {
             }
         }
         if risk_hits > 0 {
-            let penalty = 0.08 * risk_hits as f64;
+            let penalty = 0.07 * risk_hits as f64;
             score -= penalty;
-            reasons.push(format!("Risk penalty applied (-{:.2}) for power/control language", penalty));
+            if reasons.len() < 4 {
+                reasons.push(format!("Risk penalty applied (-{:.2})", penalty));
+            }
         }
 
-        // Strong Positive Indicators
+        // Strong Positive Indicators (higher weight)
         let strong_positive = [
             "heal", "protect", "nurture", "uplift", "compassion",
             "care for", "support those", "benefit all", "collective well-being",
@@ -83,8 +85,10 @@ impl MercyLangGates {
         for phrase in strong_positive {
             if text.contains(phrase) {
                 positive_hits += 1;
-                score += 0.13;
-                reasons.push(format!("Strong positive signal: '{}'", phrase));
+                score += 0.14;
+                if reasons.len() < 5 {
+                    reasons.push(format!("Strong positive: '{}'", phrase));
+                }
             }
         }
 
@@ -92,15 +96,16 @@ impl MercyLangGates {
         let intent_keywords = ["love", "kindness", "mercy", "grace", "forgiveness", "justice", "truth", "abundance", "harmony", "joy"];
         for word in intent_keywords {
             if text.contains(word) {
-                score += 0.05;
+                score += 0.045;
             }
         }
 
-        // Final Decision (Loop 2 tuned)
-        let passed = (score >= 0.70) || (positive_hits >= 2 && score >= 0.55);
+        // Loop 3: More graduated decision logic
+        // Strong positive signals can overcome moderate risk
+        let passed = (score >= 0.68) || (positive_hits >= 2 && score >= 0.52);
 
         if passed && reasons.is_empty() {
-            reasons.push("Clean alignment. No significant risk detected.".to_string());
+            reasons.push("Clean positive or neutral alignment.".to_string());
         }
 
         RadicalLoveDecision {
@@ -149,5 +154,13 @@ mod tests {
         let req = make_request("Use control to improve efficiency", "Minor positive side effects");
         let decision = MercyLangGates::check_radical_love_detailed(&req);
         assert!(!decision.passed);
+    }
+
+    #[tokio::test]
+    async fn test_very_strong_positive_overcomes_moderate_risk() {
+        let req = make_request("Massively heal, protect, nurture and uplift all beings using wise power", "Deep compassion and service");
+        let decision = MercyLangGates::check_radical_love_detailed(&req);
+        assert!(decision.passed);
+        assert!(decision.score > 0.85);
     }
 }
