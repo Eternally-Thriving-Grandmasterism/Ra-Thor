@@ -3,7 +3,7 @@
 **Branch**: `feat/lattice-conductor-v14-real-estate`
 **PR**: #192 — Lattice Conductor v14.4 + Geometric Intelligence Layer
 **Date**: 2026-06-01
-**Status**: Active — Restoration in progress
+**Status**: Active — Restoration in progress (Documentation phase)
 
 ---
 
@@ -46,14 +46,17 @@ This document ensures that valuable code, comments, documentation, and architect
 
 **Status**: **Done** ✅
 
-### 2. Documentation & Explanatory Comments (Current Focus)
+### 2. Documentation & Explanatory Comments (Current Focus) — **In Progress**
 
 **Issue**: Important architectural explanations, migration notes, and professional comments were lost during iterative cleanup.
 
 **Goal**: Restore clarity without bloating the code.
 
-**Recommended Actions**:
-- Restore key comments in `quantum-swarm-orchestrator` (ONE Organism + geometric wiring)
+**Actions Taken**:
+- Enhanced `quantum-swarm-orchestrator/src/lib.rs` with restored high-value comments (ONE Organism, Dual Geometric Engines, TOLC 7 Mercy Gates, Cosmic Loop Participation)
+
+**Recommended Next**:
+- Continue with `mercy_gates_engine.rs` and `orchestrator.rs` / `quantum_swarm_orchestrator.rs`
 - Enhance executive summary in root `Cargo.toml`
 - Add or restore migration notes from v13 → v14 where valuable
 
@@ -84,7 +87,7 @@ This document ensures that valuable code, comments, documentation, and architect
 ## Recommended Commit Sequence (Before Merge)
 
 1. **restore(xtask)**: Hybrid improvement commit — **Done**
-2. **docs**: Restore high-value comments and architectural notes — **In Progress**
+2. **docs**: Restore high-value comments and architectural notes in `quantum-swarm-orchestrator` — **In Progress**
 3. **chore**: Minor workspace/Cargo.toml cleanup if needed
 4. Final `cargo check --workspace` + focused tests
 5. Update this plan with completion status
@@ -94,7 +97,7 @@ This document ensures that valuable code, comments, documentation, and architect
 ## Merge Readiness Checklist
 
 - [x] xtask restoration complete and tested
-- [ ] Key documentation/comments restored
+- [ ] Key documentation/comments restored in core crates
 - [ ] Workspace compiles cleanly (`cargo check --workspace`)
 - [ ] Focused shard features still work (`focused-real-estate`, `focused-geometry`)
 - [ ] No critical logic lost from earlier strong iterations
