@@ -1,10 +1,16 @@
-//! # Advanced Simulation Engine (v0.1.0)
+//! # Advanced Simulation Engine
 //!
-//! The multi-player, mercy-gated simulation heart of Powrush.
-//! Handles faction diplomacy, collective resource flows, world events,
-//! and real-time evaluation against the 7 Living Mercy Gates.
+//! The multi-player, mercy-gated simulation heart of **Powrush**.
 //!
-//! This engine powers both Single-Player and future MMO modes.
+//! This engine powers both single-player and future MMO modes. It orchestrates:
+//! - Base game cycles (resources + mercy gates)
+//! - Faction diplomacy and collective resource flows
+//! - Dynamic world events
+//! - Collective joy tracking (5-Gene Joy Tetrad influence)
+//! - Per-player mercy evaluation during collective cycles
+//!
+//! It serves as the bridge between individual `Player` state and planetary-scale
+//! RBE + mercy coordination.
 
 use crate::game::PowrushGame;
 use crate::player::Player;
@@ -25,6 +31,7 @@ pub struct WorldEvent {
     pub joy_boost: f32,
 }
 
+/// Multi-player simulation engine with mercy gating and collective dynamics.
 pub struct SimulationEngine {
     pub game: PowrushGame,
     pub world_events: Vec<WorldEvent>,
@@ -57,20 +64,16 @@ impl SimulationEngine {
     }
 
     /// Run one full multi-player mercy-gated simulation cycle.
+    ///
+    /// This is the main orchestration loop for collective gameplay.
     pub async fn run_multi_player_cycle(&mut self) -> Result<String, String> {
-        // 1. Run base game cycle (resources + mercy)
         let base_result = self.game.run_simulation_cycle().await?;
 
-        // 2. Update collective joy (5-Gene Joy Tetrad influence)
         self.update_collective_joy();
-
-        // 3. Process faction diplomacy & resource sharing
         self.process_faction_diplomacy().await;
-
-        // 4. Generate dynamic world events
         self.generate_world_events().await;
 
-        // 5. Apply mercy evaluation to every player
+        // Apply mercy evaluation to every participating player
         for player in &mut self.game.players {
             let status = evaluate_all_gates(
                 "participation in collective mercy cycle",
@@ -81,7 +84,6 @@ impl SimulationEngine {
 
             player.apply_mercy_result(status);
 
-            // Bonus from collective joy
             if self.collective_joy > 85.0 {
                 player.needs.joy = (player.needs.joy + 3.0).min(100.0);
             }
@@ -108,10 +110,9 @@ impl SimulationEngine {
 
     async fn process_faction_diplomacy(&mut self) {
         // Future: real resource sharing, alliance bonuses, joint projects
-        // For now: gentle positive drift when mercy gates are honored
         for ((f1, f2), bonus) in self.diplomacy_matrix.iter_mut() {
             if *bonus < 1.8 {
-                *bonus *= 1.002; // Slow, mercy-driven improvement
+                *bonus *= 1.002;
             }
         }
     }
@@ -145,7 +146,6 @@ impl SimulationEngine {
         }
     }
 
-    /// Get current world state summary
     pub fn get_world_summary(&self) -> String {
         format!(
             "Cycle: {} | Players: {} | Collective Joy: {:.1} | Events: {} | Abundance: {}",
