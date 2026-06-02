@@ -1,9 +1,10 @@
 //! crates/powrush/src/simulation.rs
 //! High-level WorldSimulation / Game Loop for Powrush
-//! Wires NpcIntegration + Geometric Harmony + RBE Economy Credits | v15 Hybrid + ONE Organism
-//! AG-SML v1.0
+//! Full Geometric Harmony Engine + RBE Economy Integration | v15 Hybrid
+//! ONE Organism + TOLC 8 aligned | AG-SML v1.0
 
 use crate::npc::{NpcFactory, NpcIntegration, Position, distribute_epigenetic_blessing};
+use geometric_intelligence::compute_geometric_harmony; // Full engine integration
 use nalgebra::Vector2;
 
 #[derive(Debug, Clone)]
@@ -23,8 +24,28 @@ impl Default for PlayerState {
     }
 }
 
-/// High-level world simulation with v15 NPC, Geometric Harmony scoring,
-/// and RBE economy credit from epigenetic blessings.
+/// Simple RBE Economy pool that receives credits from NPC epigenetic blessings
+#[derive(Debug, Clone, Default)]
+pub struct RbeEconomy {
+    pub total_credits: f64,
+    pub last_distribution: f64,
+}
+
+impl RbeEconomy {
+    pub fn credit(&mut self, amount: f64) {
+        if amount > 0.0 {
+            self.total_credits += amount;
+            self.last_distribution = amount;
+        }
+    }
+
+    pub fn current_pool(&self) -> f64 {
+        self.total_credits
+    }
+}
+
+/// High-level world simulation with full v15 NPC, Geometric Harmony (real engine),
+/// and structured RBE economy.
 pub struct WorldSimulation {
     pub npc_integration: NpcIntegration,
     pub player: PlayerState,
@@ -33,9 +54,8 @@ pub struct WorldSimulation {
     pub collective_joy: f64,
     pub tick_count: u64,
 
-    // === New: Geometric + Economy ===
     pub geometric_harmony_score: f64,
-    pub economy_credits: f64,
+    pub economy: RbeEconomy,
 }
 
 impl WorldSimulation {
@@ -48,7 +68,7 @@ impl WorldSimulation {
             collective_joy: 0.94,
             tick_count: 0,
             geometric_harmony_score: 0.0,
-            economy_credits: 0.0,
+            economy: RbeEconomy::default(),
         };
 
         let patrol = vec![Vector2::new(-10., -10.), Vector2::new(10., -10.), Vector2::new(10., 10.)];
@@ -78,21 +98,42 @@ impl WorldSimulation {
             dt,
         );
 
-        // === 1. Geometric Harmony Scoring (wired for geometric-intelligence crate) ===
-        self.geometric_harmony_score = self.compute_geometric_harmony();
+        // === Full Geometric Harmony Engine Integration ===
+        self.geometric_harmony_score = self.apply_geometric_harmony();
 
-        // === 2. RBE Economy Credits from Epigenetic Blessings ===
-        let total_blessing = self.distribute_blessings_to_economy();
-        self.economy_credits += total_blessing;
+        // === RBE Economy Credit from Epigenetic Blessings ===
+        let blessing_total = self.distribute_blessings_to_economy();
+        self.economy.credit(blessing_total);
     }
 
-    /// Placeholder that will call geometric-intelligence::compute_geometric_harmony
-    /// once the full engine is integrated. Currently uses spatial spread as proxy.
-    fn compute_geometric_harmony(&self) -> f64 {
-        if self.npc_integration.npc_system.agents.is_empty() {
-            return 0.75;
+    /// Calls the real geometric-intelligence engine.
+    /// Falls back to high-quality proxy if engine returns unexpected result.
+    fn apply_geometric_harmony(&self) -> f64 {
+        // Prepare input for the engine (NPC positions + mercy valence as resonance data)
+        let positions: Vec<(f64, f64, f64)> = self.npc_integration.npc_system.agents
+            .iter()
+            .map(|agent| {
+                (
+                    agent.position.x as f64,
+                    agent.position.y as f64,
+                    agent.blackboard.current_mercy_valence,
+                )
+            })
+            .collect();
+
+        if positions.is_empty() {
+            return 0.78;
         }
-        // Simple proxy: average distance from center + mercy influence
+
+        // Real engine call — this is the full geometric swap
+        match compute_geometric_harmony(&positions) {
+            Ok(score) => score.clamp(0.0, 1.0),
+            Err(_) => self.fallback_geometric_harmony(),
+        }
+    }
+
+    fn fallback_geometric_harmony(&self) -> f64 {
+        // High-quality proxy until engine is fully stable
         let center = Vector2::new(0.0, 0.0);
         let avg_dist: f64 = self.npc_integration.npc_system.agents
             .iter()
@@ -104,10 +145,9 @@ impl WorldSimulation {
             .map(|a| a.blackboard.current_mercy_valence)
             .sum::<f64>() / self.npc_integration.npc_system.agents.len() as f64;
 
-        (0.6 + (avg_dist.min(25.0) / 25.0) * 0.2 + mercy_factor * 0.2).min(0.99)
+        (0.65 + (avg_dist.min(30.0) / 30.0) * 0.2 + mercy_factor * 0.15).min(0.98)
     }
 
-    /// Distributes epigenetic blessings and returns total credits added to economy
     fn distribute_blessings_to_economy(&mut self) -> f64 {
         let mut total = 0.0;
         for agent in &mut self.npc_integration.npc_system.agents {
@@ -118,5 +158,9 @@ impl WorldSimulation {
 
     pub fn active_npcs(&self) -> usize {
         self.npc_integration.active_npc_count()
+    }
+
+    pub fn current_economy_pool(&self) -> f64 {
+        self.economy.current_pool()
     }
 }
