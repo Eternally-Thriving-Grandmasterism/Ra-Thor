@@ -1,90 +1,65 @@
-//! # Powrush Economy System (RBE Core)
-//!
-//! The **Resource-Based Economy (RBE)** engine of Powrush.
-//!
-//! This system ensures that abundance is the default state when mercy gates are honored.
-//! Scarcity only emerges as a temporary signal when mercy alignment drops.
-//!
-//! Core Principles:
-//! - Resources regenerate based on collective mercy compliance
-//! - Ambrosian Nectar (joy currency) is the highest-value resource
-//! - Economy is designed for eternal post-scarcity, not growth-for-growth's-sake
-//!
-//! Integrates directly with:
-//! - `resources.rs` (individual resource logic)
-//! - `mercy.rs` (MercyGate evaluation)
-//! - `ascension.rs` (player progression bonuses)
+//! crates/powrush/src/economy.rs
+//! Powrush RBE Economy + Crafting System (extracted for clarity and maintainability)
+//! v15.6 | ONE Organism aligned | AG-SML v1.0
 
-use crate::resources::{Resource, ResourceType};
-use crate::mercy::MercyGateStatus;
-use serde::{Serialize, Deserialize};
 use std::collections::HashMap;
+use serde::{Serialize, Deserialize};
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Economy {
-    pub resources: HashMap<ResourceType, Resource>,
-    pub collective_joy: f32,
-    pub mercy_compliance: f32, // 0.0–1.0
-    pub cycle: u64,
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+pub struct RbeEconomy {
+    pub total_credits: f64,
+    pub inventory: HashMap<String, u32>,
 }
 
-impl Economy {
-    pub fn new() -> Self {
-        let mut resources = HashMap::new();
-
-        // Initialize core resources with mercy-aligned starting values
-        resources.insert(ResourceType::Food, Resource::new(ResourceType::Food, 800.0, 1.1));
-        resources.insert(ResourceType::Water, Resource::new(ResourceType::Water, 750.0, 1.1));
-        resources.insert(ResourceType::Energy, Resource::new(ResourceType::Energy, 600.0, 1.05));
-        resources.insert(ResourceType::Knowledge, Resource::new(ResourceType::Knowledge, 400.0, 1.2));
-        resources.insert(ResourceType::Materials, Resource::new(ResourceType::Materials, 900.0, 1.0));
-        resources.insert(ResourceType::AmbrosianNectar, Resource::new(ResourceType::AmbrosianNectar, 120.0, 1.5));
-
-        Self {
-            resources,
-            collective_joy: 72.0,
-            mercy_compliance: 0.85,
-            cycle: 0,
-        }
+impl RbeEconomy {
+    pub fn credit(&mut self, amount: f64) {
+        if amount > 0.0 { self.total_credits += amount; }
     }
 
-    /// Advance one economic cycle.
-    /// This is the heartbeat of the RBE.
-    pub fn advance_cycle(&mut self, mercy_status: &MercyGateStatus) {
-        self.cycle += 1;
+    pub fn current_pool(&self) -> f64 { self.total_credits }
 
-        // Update mercy compliance from gate evaluation
-        self.mercy_compliance = mercy_status.overall_compliance();
+    pub fn buy_item(&mut self, item: &str, cost: f64) -> bool {
+        if self.total_credits >= cost {
+            self.total_credits -= cost;
+            *self.inventory.entry(item.to_string()).or_insert(0) += 1;
+            true
+        } else { false }
+    }
 
-        // Regenerate all resources
-        for resource in self.resources.values_mut() {
-            resource.regenerate(self.cycle);
-
-            // Apply mercy effect
-            resource.apply_mercy_effect(mercy_status.all_gates_passed);
-
-            // Special handling for Ambrosian Nectar
-            if resource.resource_type == ResourceType::AmbrosianNectar {
-                resource.nectar_special_regen(self.collective_joy);
+    pub fn craft(&mut self, recipe: &CraftingRecipe) -> bool {
+        for (item, count) in &recipe.inputs {
+            if self.inventory.get(item).copied().unwrap_or(0) < *count { return false; }
+        }
+        for (item, count) in &recipe.inputs {
+            if let Some(current) = self.inventory.get_mut(item) {
+                *current -= count;
+                if *current == 0 { self.inventory.remove(item); }
             }
         }
-
-        // Gentle joy decay / recovery based on mercy
-        if mercy_status.all_gates_passed {
-            self.collective_joy = (self.collective_joy + 1.5).min(100.0);
-        } else {
-            self.collective_joy = (self.collective_joy - 0.8).max(30.0);
-        }
+        *self.inventory.entry(recipe.output.clone()).or_insert(0) += recipe.output_count;
+        println!("   [Craft] Crafted {} x{}", recipe.output, recipe.output_count);
+        true
     }
+}
 
-    /// Get current abundance level (0.0–1.0)
-    pub fn abundance_level(&self) -> f32 {
-        let total = self.resources.values().map(|r| r.amount / r.max_capacity).sum::<f64>() as f32;
-        (total / self.resources.len() as f32).min(1.0)
-    }
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CraftingRecipe {
+    pub name: String,
+    pub inputs: Vec<(String, u32)>,
+    pub output: String,
+    pub output_count: u32,
+}
 
-    /// Check if the economy is in post-scarcity state
-    pub fn is_post_scarcity(&self) -> bool {
-        self.abundance_level() > 0.75 && self.mercy_compliance > 0.8
+impl CraftingRecipe {
+    pub fn new(name: &str, inputs: Vec<(String, u32)>, output: &str, output_count: u32) -> Self {
+        Self { name: name.to_string(), inputs, output: output.to_string(), output_count }
     }
+}
+
+pub fn get_default_recipes() -> Vec<CraftingRecipe> {
+    vec![
+        CraftingRecipe::new("Harmony Crystal", vec![("Mercy Shard".to_string(), 2)], "Harmony Crystal", 1),
+        CraftingRecipe::new("Ascension Token", vec![("Harmony Crystal".to_string(), 1), ("Mercy Shard".to_string(), 3)], "Ascension Token", 1),
+        CraftingRecipe::new("RBE Seed Pack", vec![("Mercy Shard".to_string(), 5)], "RBE Seed Pack", 2),
+    ]
 }
