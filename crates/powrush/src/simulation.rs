@@ -1,5 +1,5 @@
 //! crates/powrush/src/simulation.rs
-//! WorldSimulation v15.11 — Production-grade NPC Trading Stock + Progression Tracking Foundation
+//! WorldSimulation v15.12 — Progression Rewards + Memory Integration + Housing Foundation
 
 use crate::economy::{RbeEconomy, CraftingRecipe, get_default_recipes};
 use crate::npc::{NpcFactory, NpcIntegration, Position, distribute_epigenetic_blessing, BlackboardKey, BlackboardValue};
@@ -25,15 +25,16 @@ impl PlayerInventory {
     pub fn count(&self, item: &str) -> u32 { self.items.get(item).copied().unwrap_or(0) }
 }
 
-// === Player State ===
+// === Player State with Progression ===
 #[derive(Debug, Clone)]
 pub struct PlayerState {
     pub position: Position,
     pub mercy: f64,
     pub ascension: f64,
     pub inventory: PlayerInventory,
-    pub harmony: f64,                    // Player's personal harmony score
-    pub relationships: HashMap<usize, f64>, // NPC index -> relationship strength
+    pub harmony: f64,
+    pub relationships: HashMap<usize, f64>, // NPC index -> strength
+    pub total_harmonious_actions: u32,      // Simple progression metric
 }
 
 impl Default for PlayerState {
@@ -45,11 +46,12 @@ impl Default for PlayerState {
             inventory: PlayerInventory::default(),
             harmony: 0.75,
             relationships: HashMap::new(),
+            total_harmonious_actions: 0,
         }
     }
 }
 
-// === Professional NPC Trading Stock ===
+// === NPC Trading Stock ===
 #[derive(Debug, Clone, Default)]
 pub struct NpcTradingStock {
     pub items: HashMap<String, u32>,
@@ -57,38 +59,21 @@ pub struct NpcTradingStock {
 }
 
 impl NpcTradingStock {
-    pub fn add(&mut self, item: &str, count: u32) {
-        *self.items.entry(item.to_string()).or_insert(0) += count;
-    }
-
+    pub fn add(&mut self, item: &str, count: u32) { *self.items.entry(item.to_string()).or_insert(0) += count; }
     pub fn remove(&mut self, item: &str, count: u32) -> bool {
         if let Some(current) = self.items.get_mut(item) {
-            if *current >= count {
-                *current -= count;
-                if *current == 0 { self.items.remove(item); }
-                return true;
-            }
+            if *current >= count { *current -= count; if *current == 0 { self.items.remove(item); } return true; }
         }
         false
     }
+    pub fn has(&self, item: &str) -> bool { self.items.get(item).copied().unwrap_or(0) > 0 }
+    pub fn count(&self, item: &str) -> u32 { self.items.get(item).copied().unwrap_or(0) }
 
-    pub fn has(&self, item: &str) -> bool {
-        self.items.get(item).copied().unwrap_or(0) > 0
-    }
-
-    pub fn count(&self, item: &str) -> u32 {
-        self.items.get(item).copied().unwrap_or(0)
-    }
-
-    /// Harmony-influenced restocking (production-grade behavior)
     pub fn restock_if_needed(&mut self, current_tick: u64, harmony: f64) {
-        let restock_interval: u64 = if harmony > 0.85 { 8 } else { 20 };
-        if current_tick.saturating_sub(self.last_restock) >= restock_interval {
-            // Simple restock logic (in real system this would pull from world resources)
+        let interval: u64 = if harmony > 0.85 { 8 } else { 20 };
+        if current_tick.saturating_sub(self.last_restock) >= interval {
             self.add("Mercy Shard", 3);
-            if harmony > 0.8 {
-                self.add("Harmony Crystal", 1);
-            }
+            if harmony > 0.8 { self.add("Harmony Crystal", 1); }
             self.last_restock = current_tick;
         }
     }
@@ -104,7 +89,6 @@ pub struct WorldSimulation {
     pub geometric_harmony_score: f64,
     pub economy: RbeEconomy,
     pub recipes: Vec<CraftingRecipe>,
-    // Per-NPC trading stocks (index = NPC index in agents vec)
     pub npc_trading_stocks: Vec<NpcTradingStock>,
 }
 
@@ -113,22 +97,16 @@ impl WorldSimulation {
         let mut sim = Self {
             npc_integration: NpcIntegration::default(),
             player: PlayerState::default(),
-            world_mercy: 0.88,
-            is_post_scarcity: true,
-            collective_joy: 0.94,
-            tick_count: 0,
-            geometric_harmony_score: 0.0,
-            economy: RbeEconomy::default(),
-            recipes: get_default_recipes(),
+            world_mercy: 0.88, is_post_scarcity: true, collective_joy: 0.94,
+            tick_count: 0, geometric_harmony_score: 0.0,
+            economy: RbeEconomy::default(), recipes: get_default_recipes(),
             npc_trading_stocks: vec![],
         };
 
-        // Seed NPCs
         let patrol = vec![Vector2::new(-10., -10.), Vector2::new(10., -10.), Vector2::new(10., 10.)];
         sim.npc_integration.spawn_agent(NpcFactory::create_basic(Vector2::new(-5.0, -5.0), Some(patrol)));
         sim.npc_integration.spawn_agent(NpcFactory::create_merchant(Vector2::new(8.0, 3.0), None));
 
-        // Initialize trading stocks for each NPC
         for _ in 0..sim.npc_integration.npc_system.agents.len() {
             sim.npc_trading_stocks.push(NpcTradingStock::default());
         }
@@ -149,7 +127,6 @@ impl WorldSimulation {
         self.geometric_harmony_score = compute_geometric_harmony(&self.prepare_geometric_input()).unwrap_or(0.83);
         self.update_per_npc_harmony();
 
-        // Restock NPC trading stocks based on their harmony
         for (i, npc) in self.npc_integration.npc_system.agents.iter().enumerate() {
             if i < self.npc_trading_stocks.len() {
                 let harmony = if let Some(BlackboardValue::Float(h)) =
@@ -179,11 +156,9 @@ impl WorldSimulation {
         self.npc_integration.npc_system.agents.iter_mut().map(|a| distribute_epigenetic_blessing(&mut a.blackboard)).sum()
     }
 
-    /// Professional bidirectional trading using NPC trading stock
+    /// Full trading with harmony rewards and memory logging
     pub fn trade_with_npc(&mut self, npc_index: usize, item: &str, quantity: u32, sell_to_npc: bool) -> Result<f64, String> {
-        if npc_index >= self.npc_integration.npc_system.agents.len() {
-            return Err("Invalid NPC index".to_string());
-        }
+        if npc_index >= self.npc_integration.npc_system.agents.len() { return Err("Invalid NPC".to_string()); }
 
         let npc = &self.npc_integration.npc_system.agents[npc_index];
         let harmony = if let Some(BlackboardValue::Float(h)) =
@@ -199,21 +174,25 @@ impl WorldSimulation {
         let total_value = final_price * quantity as f64;
 
         if sell_to_npc {
-            // Player sells to NPC
             if !self.player.inventory.has(item) { return Err(format!("You don't have {}", item)); }
             if !self.player.inventory.remove(item, quantity) { return Err("Failed to remove item".to_string()); }
 
-            // Add to NPC's trading stock
             if npc_index < self.npc_trading_stocks.len() {
                 self.npc_trading_stocks[npc_index].add(item, quantity);
             }
-
             self.economy.credit(total_value * 0.6);
+
+            // Progression reward: harmony gain for generous trading
+            self.player.harmony = (self.player.harmony + 0.015).min(1.0);
+            self.player.total_harmonious_actions += 1;
+
+            // Memory integration: log trade in NPC blackboard
+            npc.blackboard.record_event(&format!("Player sold {}x {} (harmonious trade)", quantity, item));
+
             println!("   [Trade] Sold {}x {} to NPC[{}] for {:.1} credits", quantity, item, npc_index, total_value);
         } else {
-            // Player buys from NPC
             if npc_index >= self.npc_trading_stocks.len() || !self.npc_trading_stocks[npc_index].has(item) {
-                return Err("NPC does not have this item in stock".to_string());
+                return Err("NPC does not have this item".to_string());
             }
             if self.economy.current_pool() < total_value { return Err("Insufficient funds".to_string()); }
 
@@ -255,8 +234,8 @@ impl WorldSimulation {
     }
 
     pub fn log_status(&self) {
-        println!("[Tick {:03}] Harmony: {:.3} | Economy: {:.1} cr | NPCs: {} | Player({:.1}, {:.1})",
-            self.tick_count, self.geometric_harmony_score, self.economy.current_pool(), self.active_npcs(), self.player.position.x, self.player.position.y);
+        println!("[Tick {:03}] Harmony: {:.3} | Economy: {:.1} cr | NPCs: {} | Player({:.1}, {:.1}) | Harmonious Actions: {}",
+            self.tick_count, self.geometric_harmony_score, self.economy.current_pool(), self.active_npcs(), self.player.position.x, self.player.position.y, self.player.total_harmonious_actions);
     }
 
     pub fn active_npcs(&self) -> usize { self.npc_integration.active_npc_count() }
