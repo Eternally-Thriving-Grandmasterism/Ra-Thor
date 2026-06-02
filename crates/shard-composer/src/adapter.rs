@@ -237,3 +237,9 @@ impl RaThorSystemAdapter for ShardComposerAdapter {
         self.status()
     }
 }
+
+impl Default for ShardComposerAdapter {
+    fn default() -> Self {
+        Self::new()
+    }
+}
