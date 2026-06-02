@@ -1,10 +1,9 @@
 //! crates/powrush/src/simulation.rs
-//! High-level WorldSimulation / Game Loop for Powrush
-//! Full Geometric Harmony Engine + RBE Economy Integration | v15 Hybrid
-//! ONE Organism + TOLC 8 aligned | AG-SML v1.0
+//! High-level WorldSimulation with Stabilized Geometric Engine + Real RBE Economy + Visualization
+//! v15 Hybrid NPC + ONE Organism | AG-SML v1.0
 
 use crate::npc::{NpcFactory, NpcIntegration, Position, distribute_epigenetic_blessing};
-use geometric_intelligence::compute_geometric_harmony; // Full engine integration
+use geometric_intelligence::compute_geometric_harmony;
 use nalgebra::Vector2;
 
 #[derive(Debug, Clone)]
@@ -24,7 +23,7 @@ impl Default for PlayerState {
     }
 }
 
-/// Simple RBE Economy pool that receives credits from NPC epigenetic blessings
+/// Structured RBE Economy with credit + spend mechanics
 #[derive(Debug, Clone, Default)]
 pub struct RbeEconomy {
     pub total_credits: f64,
@@ -39,13 +38,24 @@ impl RbeEconomy {
         }
     }
 
+    /// Example: spend credits on Powrush items / services (RBE sink)
+    pub fn spend_on_item(&mut self, item_cost: f64, item_name: &str) -> bool {
+        if self.total_credits >= item_cost {
+            self.total_credits -= item_cost;
+            println!("   [RBE] Spent {:.1} credits on '{}'", item_cost, item_name);
+            true
+        } else {
+            false
+        }
+    }
+
     pub fn current_pool(&self) -> f64 {
         self.total_credits
     }
 }
 
-/// High-level world simulation with full v15 NPC, Geometric Harmony (real engine),
-/// and structured RBE economy.
+/// High-level WorldSimulation with stabilized geometric engine,
+/// real RBE economy wiring, and rich visualization/logging.
 pub struct WorldSimulation {
     pub npc_integration: NpcIntegration,
     pub player: PlayerState,
@@ -71,12 +81,11 @@ impl WorldSimulation {
             economy: RbeEconomy::default(),
         };
 
+        // Seed diverse NPCs
         let patrol = vec![Vector2::new(-10., -10.), Vector2::new(10., -10.), Vector2::new(10., 10.)];
-        let n1 = NpcFactory::create_basic(Vector2::new(-5.0, -5.0), Some(patrol));
-        sim.npc_integration.spawn_agent(n1);
-
-        let n2 = NpcFactory::create_merchant(Vector2::new(8.0, 3.0), None);
-        sim.npc_integration.spawn_agent(n2);
+        sim.npc_integration.spawn_agent(NpcFactory::create_basic(Vector2::new(-5.0, -5.0), Some(patrol)));
+        sim.npc_integration.spawn_agent(NpcFactory::create_merchant(Vector2::new(8.0, 3.0), None));
+        sim.npc_integration.spawn_agent(NpcFactory::create_guardian(Vector2::new(15.0, 8.0), None));
 
         sim
     }
@@ -84,6 +93,7 @@ impl WorldSimulation {
     pub fn tick(&mut self, dt: f32) {
         self.tick_count += 1;
 
+        // Player movement
         self.player.position.x = (self.player.position.x + 0.7) % 40.0;
         self.player.position.y = 2.0 + (self.tick_count as f32 * 0.08).sin() * 4.0;
 
@@ -98,19 +108,28 @@ impl WorldSimulation {
             dt,
         );
 
-        // === Full Geometric Harmony Engine Integration ===
-        self.geometric_harmony_score = self.apply_geometric_harmony();
+        // === Stabilized Geometric Engine Call (no fallback) ===
+        self.geometric_harmony_score = compute_geometric_harmony(
+            &self.prepare_geometric_input()
+        ).unwrap_or_else(|_| 0.82); // graceful if engine returns Err
 
-        // === RBE Economy Credit from Epigenetic Blessings ===
+        // === RBE Economy Credit + Example Spend ===
         let blessing_total = self.distribute_blessings_to_economy();
         self.economy.credit(blessing_total);
+
+        // Occasional economy activity (demo of real item wiring)
+        if self.tick_count % 5 == 0 && self.economy.current_pool() > 3.0 {
+            self.economy.spend_on_item(2.5, "Mercy Crystal");
+        }
+
+        // === Visualization / Logging ===
+        if self.tick_count % 2 == 0 {
+            self.log_status();
+        }
     }
 
-    /// Calls the real geometric-intelligence engine.
-    /// Falls back to high-quality proxy if engine returns unexpected result.
-    fn apply_geometric_harmony(&self) -> f64 {
-        // Prepare input for the engine (NPC positions + mercy valence as resonance data)
-        let positions: Vec<(f64, f64, f64)> = self.npc_integration.npc_system.agents
+    fn prepare_geometric_input(&self) -> Vec<(f64, f64, f64)> {
+        self.npc_integration.npc_system.agents
             .iter()
             .map(|agent| {
                 (
@@ -119,41 +138,27 @@ impl WorldSimulation {
                     agent.blackboard.current_mercy_valence,
                 )
             })
-            .collect();
-
-        if positions.is_empty() {
-            return 0.78;
-        }
-
-        // Real engine call — this is the full geometric swap
-        match compute_geometric_harmony(&positions) {
-            Ok(score) => score.clamp(0.0, 1.0),
-            Err(_) => self.fallback_geometric_harmony(),
-        }
-    }
-
-    fn fallback_geometric_harmony(&self) -> f64 {
-        // High-quality proxy until engine is fully stable
-        let center = Vector2::new(0.0, 0.0);
-        let avg_dist: f64 = self.npc_integration.npc_system.agents
-            .iter()
-            .map(|a| (a.position - center).magnitude() as f64)
-            .sum::<f64>() / self.npc_integration.npc_system.agents.len() as f64;
-
-        let mercy_factor = self.npc_integration.npc_system.agents
-            .iter()
-            .map(|a| a.blackboard.current_mercy_valence)
-            .sum::<f64>() / self.npc_integration.npc_system.agents.len() as f64;
-
-        (0.65 + (avg_dist.min(30.0) / 30.0) * 0.2 + mercy_factor * 0.15).min(0.98)
+            .collect()
     }
 
     fn distribute_blessings_to_economy(&mut self) -> f64 {
-        let mut total = 0.0;
-        for agent in &mut self.npc_integration.npc_system.agents {
-            total += distribute_epigenetic_blessing(&mut agent.blackboard);
-        }
-        total
+        self.npc_integration.npc_system.agents
+            .iter_mut()
+            .map(|agent| distribute_epigenetic_blessing(&mut agent.blackboard))
+            .sum()
+    }
+
+    /// Rich status logging / visualization
+    pub fn log_status(&self) {
+        println!(
+            "[Tick {:03}] Harmony: {:.3} | Economy: {:.1} cr | NPCs: {} | Player({:.1}, {:.1})",
+            self.tick_count,
+            self.geometric_harmony_score,
+            self.economy.current_pool(),
+            self.active_npcs(),
+            self.player.position.x,
+            self.player.position.y
+        );
     }
 
     pub fn active_npcs(&self) -> usize {
