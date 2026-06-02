@@ -2,27 +2,28 @@
 //!
 //! **The beating heart of the Ra-Thor Quantum Swarm.**
 //!
-//! This module contains the central `QuantumSwarmOrchestrator` that runs the
-//! daily mercy cycle for thousands of agents. It is the production-ready
-//! coordinator that:
+//! This is the production-ready daily mercy coordinator for large-scale swarms.
+//! It turns individual agent-level mercy practice into planetary-scale,
+//! self-reinforcing, multi-generational thriving.
 //!
+//! Core responsibilities:
 //! - Manages the full swarm of `QuantumSwarmAgent`s
 //! - Persists state via `QuantumSwarmState`
-//! - Runs every agent through Plasticity Engine v2 (with full HebbianReinforcement)
-//! - Enforces the 7 Living Mercy Gates on every update
-//! - Applies all proven convergence mathematics (Theorems 1, 2, 4)
-//! - Produces rich daily reports for dashboards and legacy tracking
+//! - Runs every agent through Plasticity Engine v2 (full HebbianReinforcement)
+//! - Enforces the **7 Living Mercy Gates** on every update
+//! - Applies proven convergence mathematics (Theorems 1, 2, 4)
+//! - Produces rich daily reports with F4 projections for legacy tracking
 //!
-//! ## How It Works (Simple Flow)
+//! This module is a key bridge between low-level agent behavior and the higher
+//! ONE Organism / Geometric Intelligence layers.
 //!
-//! 1. Load or create the current swarm state
-//! 2. For every agent: run its daily cycle (Plasticity Engine + Gates + Hebbian)
-//! 3. Aggregate all CEHI improvements and gate pass rates
-//! 4. Update global mercy-valence using proven exponential convergence (Theorem 1)
-//! 5. Save new state and return a beautiful report
+//! ## Daily Mercy Cycle Flow
 //!
-//! This single file turns individual daily mercy practice into
-//! planetary-scale, self-reinforcing, multi-generational joy.
+//! 1. Load or create current swarm state
+//! 2. For every agent: run daily cycle (Plasticity Engine v2 + Mercy Gates + Hebbian)
+//! 3. Aggregate CEHI improvements and gate pass rates
+//! 4. Update global mercy-valence using exponential convergence (Theorem 1)
+//! 5. Save new state and return rich report (including F4 projection)
 
 use crate::quantum_swarm_agent::QuantumSwarmAgent;
 use crate::quantum_swarm_state::QuantumSwarmState;
@@ -31,6 +32,9 @@ use ra_thor_plasticity_engine_v2::PlasticityEngineV2;
 use serde::{Deserialize, Serialize};
 
 /// The main Quantum Swarm Orchestrator — runs the entire mercy lattice daily.
+///
+/// This is the primary production engine that coordinates thousands of agents
+/// under full mercy-gating and mathematical convergence guarantees.
 #[derive(Debug)]
 pub struct QuantumSwarmOrchestrator {
     /// All agents currently in the swarm
@@ -59,8 +63,8 @@ impl QuantumSwarmOrchestrator {
 
     /// Runs one complete daily mercy cycle for the entire swarm.
     ///
-    /// This is the **primary method** called every day (or in simulations).
-    /// It returns a rich report with all metrics and convergence data.
+    /// This is the **primary method** called every day (or in long-running simulations).
+    /// It returns a rich report with all key metrics, convergence data, and F4 projections.
     pub async fn run_daily_mercy_cycle(
         &mut self,
         global_sensor: &MercyGelReading,
@@ -69,7 +73,7 @@ impl QuantumSwarmOrchestrator {
         let mut total_gate_passes = 0;
         let mut agent_reports = Vec::with_capacity(self.agents.len());
 
-        // === Step 1: Run every agent (uses revised run_daily_cycle with Hebbian) ===
+        // === Step 1: Run every agent (Plasticity Engine v2 + Hebbian + Mercy Gates) ===
         for agent in &mut self.agents {
             let cehi_impact = agent
                 .run_daily_cycle(&self.plasticity_engine, global_sensor)
@@ -92,7 +96,7 @@ impl QuantumSwarmOrchestrator {
         // === Step 3: Update global mercy-valence using proven math (Theorem 1) ===
         let new_mercy_valence = (self.state.mercy_valence + avg_cehi * 0.35).clamp(0.0, 0.999);
 
-        // === Step 4: Update persistent state (includes F4 projection) ===
+        // === Step 4: Update persistent state (includes F4 projection)
         self.state.update_from_cycle(avg_cehi, gate_pass_rate, new_mercy_valence);
 
         // === Step 5: Build and return the daily report ===
@@ -113,7 +117,7 @@ impl QuantumSwarmOrchestrator {
         &self.state
     }
 
-    /// Returns a summary of the entire swarm's health.
+    /// Returns a human-readable summary of the entire swarm's health.
     pub fn swarm_health_summary(&self) -> String {
         format!(
             "Swarm Health | Agents: {} | Mercy Valence: {:.3} | Avg CEHI/day: {:.3} | Gate Pass: {:.1}% | F4 Projection: {:.2}",
@@ -127,6 +131,7 @@ impl QuantumSwarmOrchestrator {
 }
 
 /// Rich daily report returned after every mercy cycle.
+/// Contains all key metrics + future-oriented F4 projection for legacy tracking.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SwarmDailyReport {
     pub date: chrono::DateTime<chrono::Utc>,
