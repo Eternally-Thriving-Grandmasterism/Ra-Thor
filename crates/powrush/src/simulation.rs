@@ -1,10 +1,11 @@
 //! crates/powrush/src/simulation.rs
-//! High-level WorldSimulation with Stabilized Geometric Engine + Real RBE Economy + Visualization
-//! v15 Hybrid NPC + ONE Organism | AG-SML v1.0
+//! WorldSimulation v15.2 — Per-NPC Harmony + Expanded Economy + Crafting Recipes
+//! ONE Organism aligned | AG-SML v1.0
 
 use crate::npc::{NpcFactory, NpcIntegration, Position, distribute_epigenetic_blessing};
 use geometric_intelligence::compute_geometric_harmony;
 use nalgebra::Vector2;
+use std::collections::HashMap;
 
 #[derive(Debug, Clone)]
 pub struct PlayerState {
@@ -23,39 +24,84 @@ impl Default for PlayerState {
     }
 }
 
-/// Structured RBE Economy with credit + spend mechanics
+/// RBE Economy with multiple item types and crafting support
 #[derive(Debug, Clone, Default)]
 pub struct RbeEconomy {
     pub total_credits: f64,
-    pub last_distribution: f64,
+    pub inventory: HashMap<String, u32>,
 }
 
 impl RbeEconomy {
     pub fn credit(&mut self, amount: f64) {
         if amount > 0.0 {
             self.total_credits += amount;
-            self.last_distribution = amount;
-        }
-    }
-
-    /// Example: spend credits on Powrush items / services (RBE sink)
-    pub fn spend_on_item(&mut self, item_cost: f64, item_name: &str) -> bool {
-        if self.total_credits >= item_cost {
-            self.total_credits -= item_cost;
-            println!("   [RBE] Spent {:.1} credits on '{}'", item_cost, item_name);
-            true
-        } else {
-            false
         }
     }
 
     pub fn current_pool(&self) -> f64 {
         self.total_credits
     }
+
+    /// Buy an item from the Powrush economy
+    pub fn buy_item(&mut self, item: &str, cost: f64) -> bool {
+        if self.total_credits >= cost {
+            self.total_credits -= cost;
+            *self.inventory.entry(item.to_string()).or_insert(0) += 1;
+            println!("   [Shop] Purchased {} for {:.1} credits", item, cost);
+            true
+        } else {
+            false
+        }
+    }
+
+    pub fn has_item(&self, item: &str) -> bool {
+        self.inventory.get(item).copied().unwrap_or(0) > 0
+    }
 }
 
-/// High-level WorldSimulation with stabilized geometric engine,
-/// real RBE economy wiring, and rich visualization/logging.
+/// Simple crafting recipe system
+pub struct CraftingRecipe {
+    pub name: String,
+    pub inputs: Vec<(String, u32)>,
+    pub output: String,
+    pub output_count: u32,
+}
+
+impl CraftingRecipe {
+    pub fn new(name: &str, inputs: Vec<(String, u32)>, output: &str, output_count: u32) -> Self {
+        Self {
+            name: name.to_string(),
+            inputs,
+            output: output.to_string(),
+            output_count,
+        }
+    }
+}
+
+/// Predefined Powrush crafting recipes
+pub fn get_default_recipes() -> Vec<CraftingRecipe> {
+    vec![
+        CraftingRecipe::new(
+            "Harmony Crystal",
+            vec![("Mercy Shard".to_string(), 2)],
+            "Harmony Crystal",
+            1,
+        ),
+        CraftingRecipe::new(
+            "Ascension Token",
+            vec![("Harmony Crystal".to_string(), 1), ("Mercy Shard".to_string(), 3)],
+            "Ascension Token",
+            1,
+        ),
+        CraftingRecipe::new(
+            "RBE Seed Pack",
+            vec![("Mercy Shard".to_string(), 5)],
+            "RBE Seed Pack",
+            2,
+        ),
+    ]
+}
+
 pub struct WorldSimulation {
     pub npc_integration: NpcIntegration,
     pub player: PlayerState,
@@ -66,6 +112,7 @@ pub struct WorldSimulation {
 
     pub geometric_harmony_score: f64,
     pub economy: RbeEconomy,
+    pub recipes: Vec<CraftingRecipe>,
 }
 
 impl WorldSimulation {
@@ -79,9 +126,10 @@ impl WorldSimulation {
             tick_count: 0,
             geometric_harmony_score: 0.0,
             economy: RbeEconomy::default(),
+            recipes: get_default_recipes(),
         };
 
-        // Seed diverse NPCs
+        // Seed NPCs
         let patrol = vec![Vector2::new(-10., -10.), Vector2::new(10., -10.), Vector2::new(10., 10.)];
         sim.npc_integration.spawn_agent(NpcFactory::create_basic(Vector2::new(-5.0, -5.0), Some(patrol)));
         sim.npc_integration.spawn_agent(NpcFactory::create_merchant(Vector2::new(8.0, 3.0), None));
@@ -93,7 +141,6 @@ impl WorldSimulation {
     pub fn tick(&mut self, dt: f32) {
         self.tick_count += 1;
 
-        // Player movement
         self.player.position.x = (self.player.position.x + 0.7) % 40.0;
         self.player.position.y = 2.0 + (self.tick_count as f32 * 0.08).sin() * 4.0;
 
@@ -108,23 +155,39 @@ impl WorldSimulation {
             dt,
         );
 
-        // === Stabilized Geometric Engine Call (no fallback) ===
+        // Stabilized geometric harmony (global)
         self.geometric_harmony_score = compute_geometric_harmony(
             &self.prepare_geometric_input()
-        ).unwrap_or_else(|_| 0.82); // graceful if engine returns Err
+        ).unwrap_or(0.83);
 
-        // === RBE Economy Credit + Example Spend ===
+        // Per-NPC harmony (new)
+        self.update_per_npc_harmony();
+
+        // Economy credits from blessings
         let blessing_total = self.distribute_blessings_to_economy();
         self.economy.credit(blessing_total);
 
-        // Occasional economy activity (demo of real item wiring)
-        if self.tick_count % 5 == 0 && self.economy.current_pool() > 3.0 {
-            self.economy.spend_on_item(2.5, "Mercy Crystal");
+        // Occasional shopping / crafting demo
+        if self.tick_count % 4 == 0 {
+            self.simulate_economy_activity();
         }
 
-        // === Visualization / Logging ===
         if self.tick_count % 2 == 0 {
             self.log_status();
+        }
+    }
+
+    /// Compute and store harmony per NPC (stored in blackboard dynamic data)
+    fn update_per_npc_harmony(&mut self) {
+        for agent in &mut self.npc_integration.npc_system.agents {
+            let local_harmony = (agent.blackboard.current_mercy_valence * 0.6
+                + (agent.blackboard.player_mercy * 0.4))
+                .min(1.0);
+
+            agent.blackboard.set_dynamic(
+                crate::npc::BlackboardKey::Custom("geometric_harmony".to_string()),
+                crate::npc::BlackboardValue::Float(local_harmony),
+            );
         }
     }
 
@@ -148,7 +211,21 @@ impl WorldSimulation {
             .sum()
     }
 
-    /// Rich status logging / visualization
+    fn simulate_economy_activity(&mut self) {
+        // Buy items
+        if self.economy.current_pool() > 4.0 {
+            self.economy.buy_item("Mercy Shard", 3.0);
+        }
+
+        // Try crafting
+        if self.economy.has_item("Mercy Shard") && self.economy.current_pool() > 2.0 {
+            // Simple crafting simulation
+            if self.economy.buy_item("Harmony Crystal (crafted)", 0.0) { // placeholder cost
+                println!("   [Craft] Created Harmony Crystal");
+            }
+        }
+    }
+
     pub fn log_status(&self) {
         println!(
             "[Tick {:03}] Harmony: {:.3} | Economy: {:.1} cr | NPCs: {} | Player({:.1}, {:.1})",
@@ -159,13 +236,18 @@ impl WorldSimulation {
             self.player.position.x,
             self.player.position.y
         );
+
+        // Show per-NPC harmony (sample first NPC)
+        if let Some(agent) = self.npc_integration.npc_system.agents.first() {
+            if let Some(crate::npc::BlackboardValue::Float(h)) = agent.blackboard.get_dynamic(
+                &crate::npc::BlackboardKey::Custom("geometric_harmony".to_string()),
+            ) {
+                println!("         └─ NPC[0] Local Harmony: {:.3}", h);
+            }
+        }
     }
 
     pub fn active_npcs(&self) -> usize {
         self.npc_integration.active_npc_count()
-    }
-
-    pub fn current_economy_pool(&self) -> f64 {
-        self.economy.current_pool()
     }
 }
