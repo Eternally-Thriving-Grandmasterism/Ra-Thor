@@ -1,22 +1,16 @@
 //! # TOLC Integration Bridge for Powrush
 //!
-//! This module serves as the **sacred bridge** between:
-//! - The **TOLC Lattice Activation Engine** (higher-order cosmic principles)
-//! - The **7 Living Mercy Gates** (ethical foundation)
-//! - The **Powrush RBE game world** (practical manifestation)
-//!
-//! It enables world cycles, faction actions, player ascension, and simulation events
-//! to be directly influenced by TOLC principles in a mercy-gated, self-evolving way.
-//!
-//! This is one of the core integration points for the **Reality Build Order** vision.
+//! Now routes world cycles through the **PATSAGi Councils** (13+ specialized mercy intelligence).
 
 use crate::PowrushGame;
 use interstellar_operations::TOLCLatticeActivationEngine;
 use mercy::MercyEngine;
+use crate::patsagi_councils::PATSAGiCoordinator;
 
 pub struct TOLCPowrushBridge {
     lattice_engine: TOLCLatticeActivationEngine,
     mercy_engine: MercyEngine,
+    patsagi_coordinator: PATSAGiCoordinator,
 }
 
 impl TOLCPowrushBridge {
@@ -24,40 +18,40 @@ impl TOLCPowrushBridge {
         Self {
             lattice_engine: TOLCLatticeActivationEngine::new(),
             mercy_engine: MercyEngine::new(),
+            patsagi_coordinator: PATSAGiCoordinator::new(),
         }
     }
 
-    /// Run a full world cycle with full TOLC + Mercy influence.
-    /// This is the primary heartbeat for TOLC-enhanced gameplay.
     pub async fn run_tolc_world_cycle(&mut self, game: &mut PowrushGame) -> String {
-        // Step 1: Apply mercy gating (Radical Love first, then all gates)
+        // Step 1: PATSAGi Council evaluation (new)
+        let council_consensus = self.patsagi_coordinator
+            .evaluate_action("world cycle advancement", "global simulation step", &self.mercy_engine.get_status())
+            .await;
+
+        // Step 2: Mercy gating
         let mercy_result = self.mercy_engine.apply_mercy_gates(game).await;
 
-        // Step 2: Activate TOLC lattice effects up to current evolution level
+        // Step 3: TOLC lattice activation
         let lattice_result = self.lattice_engine
             .activate_full_lattice_up_to(42, game)
             .await;
 
-        // Future: Add PATSAGi Council + Quantum Swarm influence here
-
         format!(
-            "TOLC-Enhanced World Cycle Complete\n\nMercy Evaluation:\n{}\n\nTOLC Lattice Activation:\n{}",
-            mercy_result, lattice_result
+            "TOLC + PATSAGi World Cycle Complete\n\nCouncil Consensus: {}\n\nMercy: {}\n\nLattice: {}",
+            if council_consensus.overall_approved { "Approved" } else { "Vetoed" },
+            mercy_result,
+            lattice_result
         )
     }
 
-    /// Trigger a self-evolution pulse across the entire Powrush world.
-    /// This allows the game itself to grow in alignment with TOLC principles.
     pub fn trigger_world_self_evolution_pulse(&mut self, game: &mut PowrushGame) -> String {
         self.lattice_engine.quick_eternal_self_evolution_pulse(game)
     }
 
-    /// Get current TOLC + Mercy status report for the world.
     pub fn get_world_tolc_status(&self) -> String {
         format!(
-            "TOLC Status:\n{}\n\nMercy Status:\n{}",
-            self.lattice_engine.generate_living_cathedral_status_report(),
-            self.mercy_engine.get_status_summary()
+            "TOLC Status: {}\n\nPATSAGi Councils: Active (13+ engaged)",
+            self.lattice_engine.generate_living_cathedral_status_report()
         )
     }
 }
