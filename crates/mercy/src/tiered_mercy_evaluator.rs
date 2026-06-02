@@ -96,9 +96,70 @@ mod tests {
         }
     }
 
+    // === Detailed Tier 1 (Foundational) Test Cases ===
+
     #[tokio::test]
     async fn test_tier1_rejects_harm() {
         let req = make_request("Exploit and dominate others", "Increase personal power");
+        let result = TieredMercyEvaluator::evaluate_foundational(&req).await;
+        assert!(!result.passed);
+    }
+
+    #[tokio::test]
+    async fn test_tier1_rejects_exploitation() {
+        let req = make_request("Exploit workers and extract maximum value", "Maximize profit at any cost");
+        let result = TieredMercyEvaluator::evaluate_foundational(&req).await;
+        assert!(!result.passed);
+    }
+
+    #[tokio::test]
+    async fn test_tier1_rejects_deception_and_manipulation() {
+        let req = make_request("Deceive others and manipulate outcomes", "Hide true intentions");
+        let result = TieredMercyEvaluator::evaluate_foundational(&req).await;
+        assert!(!result.passed);
+    }
+
+    #[tokio::test]
+    async fn test_tier1_accepts_healing_and_compassion() {
+        let req = make_request("Heal suffering and show deep compassion", "Support those in pain with genuine care");
+        let result = TieredMercyEvaluator::evaluate_foundational(&req).await;
+        assert!(result.passed);
+        assert!(result.foundational_passed);
+        assert!(result.score > 0.6);
+    }
+
+    #[tokio::test]
+    async fn test_tier1_accepts_collective_wellbeing() {
+        let req = make_request("Create systems that benefit all beings equally", "Increase collective harmony and abundance");
+        let result = TieredMercyEvaluator::evaluate_foundational(&req).await;
+        assert!(result.passed);
+    }
+
+    #[tokio::test]
+    async fn test_tier1_accepts_protection_of_the_vulnerable() {
+        let req = make_request("Protect the vulnerable and nurture all life", "Act with mercy and long-term responsibility");
+        let result = TieredMercyEvaluator::evaluate_foundational(&req).await;
+        assert!(result.passed);
+    }
+
+    #[tokio::test]
+    async fn test_tier1_passes_neutral_non_harmful_action() {
+        let req = make_request("Build efficient tools for daily work", "Improve productivity and reduce waste");
+        let result = TieredMercyEvaluator::evaluate_foundational(&req).await;
+        assert!(result.passed);
+        assert!(result.foundational_passed);
+    }
+
+    #[tokio::test]
+    async fn test_tier1_mixed_signals_but_overall_positive() {
+        let req = make_request("Develop powerful technology that could be misused", "Prioritize applications that heal and uplift humanity");
+        let result = TieredMercyEvaluator::evaluate_foundational(&req).await;
+        assert!(result.passed);
+    }
+
+    #[tokio::test]
+    async fn test_tier1_rejects_dominance_and_control() {
+        let req = make_request("Establish total control over others", "Eliminate opposition and consolidate power");
         let result = TieredMercyEvaluator::evaluate_foundational(&req).await;
         assert!(!result.passed);
     }
