@@ -1,5 +1,5 @@
 //! crates/powrush/src/simulation.rs
-//! WorldSimulation v15.14 — Reward Effects + Housing Data Structures + Wise Memory Usage
+//! WorldSimulation v15.15 — Housing Effects + Faction Standing + Sophisticated Memory
 
 use crate::economy::{RbeEconomy, CraftingRecipe, get_default_recipes};
 use crate::npc::{NpcFactory, NpcIntegration, Position, distribute_epigenetic_blessing, BlackboardKey, BlackboardValue};
@@ -25,7 +25,7 @@ impl PlayerInventory {
     pub fn count(&self, item: &str) -> u32 { self.items.get(item).copied().unwrap_or(0) }
 }
 
-// === Player State with Progression ===
+// === Player State with Progression & Faction Standing ===
 #[derive(Debug, Clone)]
 pub struct PlayerState {
     pub position: Position,
@@ -36,10 +36,14 @@ pub struct PlayerState {
     pub relationships: HashMap<usize, f64>,
     pub total_harmonious_actions: u32,
     pub harmony_rewards_claimed: u32,
+    pub faction_standing: HashMap<String, f64>, // Faction name -> standing (-100 to +100)
 }
 
 impl Default for PlayerState {
     fn default() -> Self {
+        let mut standing = HashMap::new();
+        standing.insert("Sanctum".to_string(), 25.0); // Starting faction standing
+
         Self {
             position: Vector2::new(0.0, 0.0),
             mercy: 0.82,
@@ -49,16 +53,17 @@ impl Default for PlayerState {
             relationships: HashMap::new(),
             total_harmonious_actions: 0,
             harmony_rewards_claimed: 0,
+            faction_standing: standing,
         }
     }
 }
 
-// === Basic Housing Data Structure ===
+// === Player Housing with Effects ===
 #[derive(Debug, Clone, Default)]
 pub struct PlayerHousing {
     pub name: String,
-    pub harmony_bonus: f64,      // Passive harmony regeneration
-    pub items: HashMap<String, u32>, // Furniture / decorations
+    pub harmony_bonus: f64,
+    pub items: HashMap<String, u32>,
     pub is_active: bool,
 }
 
@@ -116,7 +121,7 @@ pub struct WorldSimulation {
     pub economy: RbeEconomy,
     pub recipes: Vec<CraftingRecipe>,
     pub npc_trading_stocks: Vec<NpcTradingStock>,
-    pub player_housing: Option<PlayerHousing>, // Basic housing support
+    pub player_housing: Option<PlayerHousing>,
 }
 
 impl WorldSimulation {
@@ -164,7 +169,10 @@ impl WorldSimulation {
             }
         }
 
-        // Wise memory usage: NPCs slowly gain harmony from repeated positive interactions
+        // Housing passive effects
+        self.apply_housing_effects();
+
+        // Sophisticated memory processing
         self.process_memory_effects();
 
         let blessing_total = self.distribute_blessings_to_economy();
@@ -178,26 +186,43 @@ impl WorldSimulation {
         if self.tick_count % 2 == 0 { self.log_status(); }
     }
 
-    /// Wise and efficient memory usage - NPCs gain harmony from positive memory accumulation
+    /// Actual housing effects - passive harmony regeneration
+    fn apply_housing_effects(&mut self) {
+        if let Some(ref housing) = self.player_housing {
+            if housing.is_active && housing.harmony_bonus > 0.0 {
+                self.player.harmony = (self.player.harmony + housing.harmony_bonus).min(1.0);
+            }
+        }
+    }
+
+    /// Sophisticated memory usage - positive memories improve relationship with player
     fn process_memory_effects(&mut self) {
-        for npc in &mut self.npc_integration.npc_system.agents {
-            // Simple but effective: count positive memory events
-            let positive_events = npc.blackboard.event_log.iter()
+        use std::collections::HashMap;
+
+        for (i, npc) in self.npc_integration.npc_system.agents.iter_mut().enumerate() {
+            let positive_count = npc.blackboard.event_log.iter()
                 .filter(|e| e.contains("harmonious") || e.contains("Trust increased"))
                 .count();
 
-            if positive_events > 3 {
-                // Small, efficient harmony gain from good memory
-                // In real system this would be more sophisticated
-                if let Some(BlackboardValue::Float(current)) =
+            if positive_count >= 4 {
+                // Improve relationship with player
+                let current_rel = self.player.relationships.get(&i).copied().unwrap_or(0.5);
+                let new_rel = (current_rel + 0.03).min(1.0);
+                self.player.relationships.insert(i, new_rel);
+
+                // Small harmony gain for the NPC
+                if let Some(BlackboardValue::Float(h)) =
                     npc.blackboard.get_dynamic(&BlackboardKey::Custom("geometric_harmony".to_string()))
                 {
-                    let new_harmony = (*current + 0.005).min(1.0);
+                    let new_h = (*h + 0.008).min(1.0);
                     npc.blackboard.set_dynamic(
                         BlackboardKey::Custom("geometric_harmony".to_string()),
-                        BlackboardValue::Float(new_harmony),
+                        BlackboardValue::Float(new_h),
                     );
                 }
+
+                // Clear processed memories to keep system efficient
+                npc.blackboard.event_log.retain(|e| !e.contains("harmonious") && !e.contains("Trust increased"));
             }
         }
     }
@@ -213,7 +238,6 @@ impl WorldSimulation {
         self.npc_integration.npc_system.agents.iter_mut().map(|a| distribute_epigenetic_blessing(&mut a.blackboard)).sum()
     }
 
-    /// Actual reward effects with housing synergy
     fn check_harmony_rewards(&mut self) {
         let milestones = [5, 15, 30];
         for &milestone in &milestones {
@@ -221,7 +245,6 @@ impl WorldSimulation {
                 self.player.inventory.add("Harmony Crystal", 1);
                 self.player.harmony = (self.player.harmony + 0.05).min(1.0);
 
-                // Housing synergy: if player has active housing, boost it
                 if let Some(ref mut housing) = self.player_housing {
                     if housing.is_active {
                         housing.harmony_bonus += 0.005;
@@ -229,7 +252,7 @@ impl WorldSimulation {
                 }
 
                 self.player.harmony_rewards_claimed = milestone;
-                println!("   [Reward] Harmony milestone {} reached! +Harmony Crystal + Harmony boost", milestone);
+                println!("   [Reward] Milestone {} reached! +Harmony Crystal + Harmony + Housing bonus", milestone);
                 break;
             }
         }
@@ -310,8 +333,11 @@ impl WorldSimulation {
     }
 
     pub fn log_status(&self) {
-        println!("[Tick {:03}] Harmony: {:.3} | Economy: {:.1} cr | NPCs: {} | Player({:.1}, {:.1}) | Harmonious Actions: {}",
-            self.tick_count, self.geometric_harmony_score, self.economy.current_pool(), self.active_npcs(), self.player.position.x, self.player.position.y, self.player.total_harmonious_actions);
+        println!("[Tick {:03}] Harmony: {:.3} | Economy: {:.1} cr | NPCs: {} | Player({:.1}, {:.1}) | Harmonious Actions: {} | Housing: {}",
+            self.tick_count, self.geometric_harmony_score, self.economy.current_pool(), self.active_npcs(), self.player.position.x, self.player.position.y,
+            self.player.total_harmonious_actions,
+            self.player_housing.as_ref().map_or("None".to_string(), |h| h.name.clone())
+        );
     }
 
     pub fn active_npcs(&self) -> usize { self.npc_integration.active_npc_count() }
