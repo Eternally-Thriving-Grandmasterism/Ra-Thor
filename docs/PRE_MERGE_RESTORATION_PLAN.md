@@ -2,8 +2,8 @@
 
 **Branch**: `feat/lattice-conductor-v14-real-estate`
 **PR**: #192 — Lattice Conductor v14.4 + Geometric Intelligence Layer
-**Date**: 2026-06-01
-**Status**: Active — Mercy evaluation system significantly advanced to production grade
+**Date**: 2026-06-02
+**Status**: Active — Powrush + Reality Build Order simulations advancing
 
 ---
 
@@ -24,18 +24,23 @@ Preserve high-value architectural comments and design clarity across the monorep
 - **Status**: Largely Complete ✅
 
 ### powrush
-- Multiple core files enhanced (lib.rs, game.rs, faction.rs, player.rs, mercy.rs, simulation.rs, clifford_healing_fields.rs)
-- **Status**: Strong progress
+- Enhanced files: `lib.rs`, `game.rs`, `faction.rs`, `player.rs`, `mercy.rs`, `simulation.rs`, `clifford_healing_fields.rs`, `ascension.rs`, `resources.rs`
+- **Status**: Strong progress (9 core files enhanced)
 
-### Mercy Evaluation System (Major Advancement)
-- `crates/mercy/src/mercylang_gates.rs`: Production-grade hybrid symbolic + semantic Radical Love Gate with risk penalty, graduated scoring, and strong explainability.
-- `crates/mercy/src/tiered_mercy_evaluator.rs`: New three-tier system (Foundational / Expanded / Cosmic) ready for TOLC 24 expansion.
-- Comprehensive Tier 1 test coverage with detailed intent analysis.
-- Iterative refinement performed until diminishing returns.
-- **Status**: Production-grade for current scope ✅
+### Mercy Evaluation System
+- `crates/mercy/src/mercylang_gates.rs`: Production-grade hybrid Radical Love Gate
+- `crates/mercy/src/tiered_mercy_evaluator.rs`: Three-tier system (Foundational / Expanded / Cosmic)
+- **Status**: Production-grade ✅
+
+### Reality Build Order v1 + Simulations
+- `docs/REALITY_BUILD_ORDER_V1_DRAFT.md`: Complete draft with Day[9] groupings + Daily #447 refinement loop
+- `simulations/reality_build_order_phase1_sim.py`: Full Phase 1–2 prototype (RL + World Model + Group 6 Mamba Backbone)
+- `simulations/group6_long_horizon_backbone.py`: Dedicated production-ready Group 6 module
+- **Status**: Simulation-ready prototype complete ✅
 
 ### Recommended Next
-- Populate Tier 2 and Tier 3 principles
-- Deeper integration of TieredMercyEvaluator across the lattice
+- Continue powrush enhancement (e.g., `economy.rs`, `tolc_integration.rs`)
+- Populate Tier 2/Tier 3 mercy principles
+- Extend simulations to Phase 3 (Neuromorphic + Cosmic coordination)
 
 **Thunder locked. ONE Organism coherence preserved.**
