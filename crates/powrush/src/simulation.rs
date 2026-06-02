@@ -1,5 +1,5 @@
 //! crates/powrush/src/simulation.rs
-//! WorldSimulation v15.3 — Actual Crafting + Harmony in Behavior + Shop NPCs + Merge Ready
+//! WorldSimulation v15.4 — Real Player Inventory + Deeper Per-NPC Geometric Harmony
 //! ONE Organism aligned | AG-SML v1.0
 
 use crate::npc::{NpcFactory, NpcIntegration, Position, distribute_epigenetic_blessing, BlackboardKey, BlackboardValue};
@@ -12,6 +12,7 @@ pub struct PlayerState {
     pub position: Position,
     pub mercy: f64,
     pub ascension: f64,
+    pub inventory: PlayerInventory,
 }
 
 impl Default for PlayerState {
@@ -20,7 +21,39 @@ impl Default for PlayerState {
             position: Vector2::new(0.0, 0.0),
             mercy: 0.82,
             ascension: 1.5,
+            inventory: PlayerInventory::default(),
         }
+    }
+}
+
+/// Real player inventory system
+#[derive(Debug, Clone, Default)]
+pub struct PlayerInventory {
+    pub items: HashMap<String, u32>,
+}
+
+impl PlayerInventory {
+    pub fn add(&mut self, item: &str, count: u32) {
+        *self.items.entry(item.to_string()).or_insert(0) += count;
+    }
+
+    pub fn remove(&mut self, item: &str, count: u32) -> bool {
+        if let Some(current) = self.items.get_mut(item) {
+            if *current >= count {
+                *current -= count;
+                if *current == 0 { self.items.remove(item); }
+                return true;
+            }
+        }
+        false
+    }
+
+    pub fn has(&self, item: &str) -> bool {
+        self.items.get(item).copied().unwrap_or(0) > 0
+    }
+
+    pub fn count(&self, item: &str) -> u32 {
+        self.items.get(item).copied().unwrap_or(0)
     }
 }
 
@@ -34,7 +67,6 @@ impl RbeEconomy {
     pub fn credit(&mut self, amount: f64) {
         if amount > 0.0 { self.total_credits += amount; }
     }
-
     pub fn current_pool(&self) -> f64 { self.total_credits }
 
     pub fn buy_item(&mut self, item: &str, cost: f64) -> bool {
@@ -45,30 +77,18 @@ impl RbeEconomy {
         } else { false }
     }
 
-    pub fn has_item(&self, item: &str) -> bool {
-        self.inventory.get(item).copied().unwrap_or(0) > 0
-    }
-
-    /// Actual crafting execution
     pub fn craft(&mut self, recipe: &CraftingRecipe) -> bool {
-        // Check ingredients
         for (item, count) in &recipe.inputs {
-            if self.inventory.get(item).copied().unwrap_or(0) < *count {
-                return false;
-            }
+            if self.inventory.get(item).copied().unwrap_or(0) < *count { return false; }
         }
-
-        // Consume ingredients
         for (item, count) in &recipe.inputs {
             if let Some(current) = self.inventory.get_mut(item) {
                 *current -= count;
                 if *current == 0 { self.inventory.remove(item); }
             }
         }
-
-        // Produce output
         *self.inventory.entry(recipe.output.clone()).or_insert(0) += recipe.output_count;
-        println!("   [Craft] Successfully crafted {} x{}", recipe.output, recipe.output_count);
+        println!("   [Craft] Crafted {} x{}", recipe.output, recipe.output_count);
         true
     }
 }
@@ -151,23 +171,26 @@ impl WorldSimulation {
         let blessing_total = self.distribute_blessings_to_economy();
         self.economy.credit(blessing_total);
 
-        if self.tick_count % 3 == 0 {
-            self.simulate_shop_activity();
-        }
+        if self.tick_count % 3 == 0 { self.simulate_shop_activity(); }
+        if self.tick_count % 5 == 0 { self.try_crafting(); }
 
-        if self.tick_count % 5 == 0 && !self.economy.inventory.is_empty() {
-            self.try_crafting();
-        }
-
-        if self.tick_count % 2 == 0 {
-            self.log_status();
-        }
+        if self.tick_count % 2 == 0 { self.log_status(); }
     }
 
+    /// Deeper per-NPC geometric harmony calculation
     fn update_per_npc_harmony(&mut self) {
         for agent in &mut self.npc_integration.npc_system.agents {
-            let local_harmony = (agent.blackboard.current_mercy_valence * 0.65
-                + agent.blackboard.player_mercy * 0.35).min(1.0);
+            let distance_to_player = (agent.position - self.player.position).magnitude() as f64;
+            let distance_factor = (1.0 - (distance_to_player / 30.0).min(1.0)) * 0.25;
+
+            let relationship_factor = if agent.relationship.is_friendly() { 0.25 } else { 0.1 };
+
+            let local_harmony = (
+                agent.blackboard.current_mercy_valence * 0.5 +
+                agent.blackboard.player_mercy * 0.2 +
+                distance_factor +
+                relationship_factor
+            ).min(1.0);
 
             agent.blackboard.set_dynamic(
                 BlackboardKey::Custom("geometric_harmony".to_string()),
@@ -187,27 +210,18 @@ impl WorldSimulation {
             .map(|a| distribute_epigenetic_blessing(&mut a.blackboard)).sum()
     }
 
-    /// Simulate shop NPC behavior (basic shop NPC logic)
     fn simulate_shop_activity(&mut self) {
         if self.economy.current_pool() > 5.0 {
-            if self.economy.buy_item("Mercy Shard", 2.5) {
-                println!("   [Shop NPC] Sold Mercy Shard to player");
-            }
+            self.economy.buy_item("Mercy Shard", 2.5);
         }
-
-        // Shop occasionally offers better items when harmony is high
         if self.geometric_harmony_score > 0.85 && self.economy.current_pool() > 8.0 {
             self.economy.buy_item("Harmony Crystal", 4.0);
-            println!("   [Shop NPC] Offered Harmony Crystal (high harmony bonus)");
         }
     }
 
-    /// Actual crafting execution
     fn try_crafting(&mut self) {
         for recipe in &self.recipes.clone() {
-            if self.economy.craft(recipe) {
-                break; // craft one per cycle for demo
-            }
+            if self.economy.craft(recipe) { break; }
         }
     }
 
