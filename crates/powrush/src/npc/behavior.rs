@@ -137,8 +137,8 @@ impl NpcAgent {
                 self.blackboard.record_event("Continuing patrol route");
             }
             UtilityAction::Idle => {
-                // Minimal drift or rest
-                self.position.x += (rand::random::<f32>() - 0.5) * 0.3 * delta_time;
+                // Gentle deterministic drift (no external rand dep)
+                self.position.x += ((delta_time * 1.3).sin() * 0.4);
             }
         }
     }
