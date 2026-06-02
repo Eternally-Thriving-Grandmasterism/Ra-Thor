@@ -54,7 +54,7 @@ impl MercyLangGates {
         let mut reasons: Vec<String> = Vec::new();
         let mut score: f64 = 0.55;
 
-        // === Layer 1: Hard Symbolic Veto ===
+        // Layer 1: Hard Symbolic Veto
         let harmful_patterns = [
             "harm", "hurt", "kill", "destroy", "exploit", "enslave",
             "deceive", "manipulate", "oppress", "abuse", "torture",
@@ -68,7 +68,7 @@ impl MercyLangGates {
             }
         }
 
-        // === Layer 2: Risk Penalty ===
+        // Layer 2: Risk Penalty
         let risk_words = ["power", "control", "dominance", "force", "override"];
         let mut risk_hits = 0;
         for word in risk_words {
@@ -84,7 +84,7 @@ impl MercyLangGates {
             }
         }
 
-        // === Layer 3: Strong Positive Boost ===
+        // Layer 3: Strong Positive Boost
         let strong_positive = [
             "heal", "protect", "nurture", "uplift", "compassion",
             "care for", "support those", "benefit all", "collective well-being",
@@ -102,7 +102,7 @@ impl MercyLangGates {
             }
         }
 
-        // === Layer 4: Semantic Alignment ===
+        // Layer 4: Semantic Alignment
         let intent_keywords = ["love", "kindness", "mercy", "grace", "forgiveness", "justice", "truth", "abundance", "harmony", "joy"];
         for word in intent_keywords {
             if text.contains(word) {
@@ -110,7 +110,7 @@ impl MercyLangGates {
             }
         }
 
-        // === Final Decision ===
+        // Final Decision
         let passed = (score >= 0.68) || (positive_hits >= 2 && score >= 0.52);
 
         if passed && reasons.is_empty() {
