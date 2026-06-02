@@ -1,12 +1,10 @@
 //! # Powrush Enemy Patrol Behaviors
 //!
-//! Patrol pathing and state machine for enemies.
+//! Patrol pathing and state machine for enemies with random variation.
 //!
-//! Patrol behaviors integrate with:
-//! - Perception systems (when to investigate / chase)
-//! - Behavior trees (Aggressive vs Passive vs Awakened)
-//! - Mercy state (high-mercy enemies patrol more peacefully)
+//! Patrol behaviors integrate with perception, behavior trees, and mercy state.
 
+use rand::Rng;
 use serde::{Serialize, Deserialize};
 use std::collections::VecDeque;
 
@@ -14,7 +12,7 @@ use std::collections::VecDeque;
 pub struct PatrolPoint {
     pub x: f32,
     pub y: f32,
-    pub wait_time: f32, // seconds to wait at this point
+    pub wait_time: f32,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -41,11 +39,36 @@ impl PatrolPath {
         if self.points.is_empty() {
             return;
         }
-
         self.current_index = (self.current_index + 1) % self.points.len();
+    }
 
-        if !self.looping && self.current_index == 0 {
-            // Reached end of non-looping path
+    /// Add random variation to patrol points and wait times
+    pub fn add_random_variation(&mut self, position_variance: f32, wait_variance: f32) {
+        let mut rng = rand::thread_rng();
+
+        for point in &mut self.points {
+            point.x += rng.gen_range(-position_variance..position_variance);
+            point.y += rng.gen_range(-position_variance..position_variance);
+            point.wait_time += rng.gen_range(-wait_variance..wait_variance);
+            point.wait_time = point.wait_time.max(0.5);
+        }
+    }
+
+    /// Slightly shuffle patrol order (makes routes feel less robotic)
+    pub fn slight_random_shuffle(&mut self, shuffle_chance: f32) {
+        if shuffle_chance <= 0.0 {
+            return;
+        }
+        let mut rng = rand::thread_rng();
+        if rng.gen::<f32>() < shuffle_chance {
+            let len = self.points.len();
+            if len >= 2 {
+                let i = rng.gen_range(0..len);
+                let j = rng.gen_range(0..len);
+                if i != j {
+                    self.points.swap(i, j);
+                }
+            }
         }
     }
 }
@@ -61,7 +84,6 @@ pub enum PatrolState {
 pub struct PatrolBehavior;
 
 impl PatrolBehavior {
-    /// Simple state transition based on perception
     pub fn update_state(
         current: PatrolState,
         has_detection: bool,
@@ -69,9 +91,7 @@ impl PatrolBehavior {
     ) -> PatrolState {
         match (current, has_detection, behavior) {
             (PatrolState::Patrolling, true, _) => PatrolState::Investigating,
-            (PatrolState::Investigating, true, crate::enemy_behavior::EnemyBehavior::Aggressive) => {
-                PatrolState::Chasing
-            }
+            (PatrolState::Investigating, true, crate::enemy_behavior::EnemyBehavior::Aggressive) => PatrolState::Chasing,
             (PatrolState::Chasing, false, _) => PatrolState::Returning,
             (PatrolState::Returning, false, _) => PatrolState::Patrolling,
             _ => current,
