@@ -1,5 +1,5 @@
 //! crates/powrush/src/simulation.rs
-//! WorldSimulation v15.13 — Rewards System + Deeper Memory Integration + Housing Foundation
+//! WorldSimulation v15.14 — Reward Effects + Housing Data Structures + Wise Memory Usage
 
 use crate::economy::{RbeEconomy, CraftingRecipe, get_default_recipes};
 use crate::npc::{NpcFactory, NpcIntegration, Position, distribute_epigenetic_blessing, BlackboardKey, BlackboardValue};
@@ -35,7 +35,7 @@ pub struct PlayerState {
     pub harmony: f64,
     pub relationships: HashMap<usize, f64>,
     pub total_harmonious_actions: u32,
-    pub harmony_rewards_claimed: u32,   // Progression tracking
+    pub harmony_rewards_claimed: u32,
 }
 
 impl Default for PlayerState {
@@ -50,6 +50,30 @@ impl Default for PlayerState {
             total_harmonious_actions: 0,
             harmony_rewards_claimed: 0,
         }
+    }
+}
+
+// === Basic Housing Data Structure ===
+#[derive(Debug, Clone, Default)]
+pub struct PlayerHousing {
+    pub name: String,
+    pub harmony_bonus: f64,      // Passive harmony regeneration
+    pub items: HashMap<String, u32>, // Furniture / decorations
+    pub is_active: bool,
+}
+
+impl PlayerHousing {
+    pub fn new(name: &str) -> Self {
+        Self {
+            name: name.to_string(),
+            harmony_bonus: 0.01,
+            items: HashMap::new(),
+            is_active: true,
+        }
+    }
+
+    pub fn add_item(&mut self, item: &str, count: u32) {
+        *self.items.entry(item.to_string()).or_insert(0) += count;
     }
 }
 
@@ -92,6 +116,7 @@ pub struct WorldSimulation {
     pub economy: RbeEconomy,
     pub recipes: Vec<CraftingRecipe>,
     pub npc_trading_stocks: Vec<NpcTradingStock>,
+    pub player_housing: Option<PlayerHousing>, // Basic housing support
 }
 
 impl WorldSimulation {
@@ -103,6 +128,7 @@ impl WorldSimulation {
             tick_count: 0, geometric_harmony_score: 0.0,
             economy: RbeEconomy::default(), recipes: get_default_recipes(),
             npc_trading_stocks: vec![],
+            player_housing: Some(PlayerHousing::new("Sanctuary")),
         };
 
         let patrol = vec![Vector2::new(-10., -10.), Vector2::new(10., -10.), Vector2::new(10., 10.)];
@@ -138,16 +164,42 @@ impl WorldSimulation {
             }
         }
 
+        // Wise memory usage: NPCs slowly gain harmony from repeated positive interactions
+        self.process_memory_effects();
+
         let blessing_total = self.distribute_blessings_to_economy();
         self.economy.credit(blessing_total);
 
         if self.tick_count % 3 == 0 { self.simulate_dynamic_trading(); }
         if self.tick_count % 6 == 0 { self.try_player_crafting(); }
 
-        // Check for harmony milestone rewards
         self.check_harmony_rewards();
 
         if self.tick_count % 2 == 0 { self.log_status(); }
+    }
+
+    /// Wise and efficient memory usage - NPCs gain harmony from positive memory accumulation
+    fn process_memory_effects(&mut self) {
+        for npc in &mut self.npc_integration.npc_system.agents {
+            // Simple but effective: count positive memory events
+            let positive_events = npc.blackboard.event_log.iter()
+                .filter(|e| e.contains("harmonious") || e.contains("Trust increased"))
+                .count();
+
+            if positive_events > 3 {
+                // Small, efficient harmony gain from good memory
+                // In real system this would be more sophisticated
+                if let Some(BlackboardValue::Float(current)) =
+                    npc.blackboard.get_dynamic(&BlackboardKey::Custom("geometric_harmony".to_string()))
+                {
+                    let new_harmony = (*current + 0.005).min(1.0);
+                    npc.blackboard.set_dynamic(
+                        BlackboardKey::Custom("geometric_harmony".to_string()),
+                        BlackboardValue::Float(new_harmony),
+                    );
+                }
+            }
+        }
     }
 
     fn update_per_npc_harmony(&mut self) { /* ... */ }
@@ -161,21 +213,28 @@ impl WorldSimulation {
         self.npc_integration.npc_system.agents.iter_mut().map(|a| distribute_epigenetic_blessing(&mut a.blackboard)).sum()
     }
 
-    /// Check and grant harmony-based rewards (production-grade progression)
+    /// Actual reward effects with housing synergy
     fn check_harmony_rewards(&mut self) {
-        let milestones = [5, 15, 30, 50, 100];
+        let milestones = [5, 15, 30];
         for &milestone in &milestones {
             if self.player.total_harmonious_actions >= milestone && self.player.harmony_rewards_claimed < milestone {
-                // Grant reward
                 self.player.inventory.add("Harmony Crystal", 1);
+                self.player.harmony = (self.player.harmony + 0.05).min(1.0);
+
+                // Housing synergy: if player has active housing, boost it
+                if let Some(ref mut housing) = self.player_housing {
+                    if housing.is_active {
+                        housing.harmony_bonus += 0.005;
+                    }
+                }
+
                 self.player.harmony_rewards_claimed = milestone;
-                println!("   [Progression] Harmony milestone reached! Received Harmony Crystal ({} actions)", milestone);
+                println!("   [Reward] Harmony milestone {} reached! +Harmony Crystal + Harmony boost", milestone);
                 break;
             }
         }
     }
 
-    /// Full trading with rewards and memory
     pub fn trade_with_npc(&mut self, npc_index: usize, item: &str, quantity: u32, sell_to_npc: bool) -> Result<f64, String> {
         if npc_index >= self.npc_integration.npc_system.agents.len() { return Err("Invalid NPC".to_string()); }
 
@@ -201,15 +260,10 @@ impl WorldSimulation {
             }
             self.economy.credit(total_value * 0.6);
 
-            // Progression reward
             self.player.harmony = (self.player.harmony + 0.02).min(1.0);
             self.player.total_harmonious_actions += 1;
 
-            // Deeper memory integration
             npc.blackboard.record_event(&format!("Player sold {}x {} (harmonious)", quantity, item));
-            if harmony > 0.8 {
-                npc.blackboard.record_event("This player trades with high harmony. Trust increased.");
-            }
 
             println!("   [Trade] Sold {}x {} to NPC[{}] for {:.1} credits", quantity, item, npc_index, total_value);
         } else {
