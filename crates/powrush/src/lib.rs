@@ -6,6 +6,7 @@ pub mod clifford_healing_fields;
 pub mod npc;           // v15 Hybrid NPC AI System
 pub mod simulation;    // High-level world simulation / game loop wiring
 pub mod economy;       // RBE Economy + Crafting System (v15.6+)
+pub mod powrush_mmo_core; // Production-grade MMO Core: chunked world, authoritative ticks, advanced RBE simulator, epigenetic + geometric feedback (PATSAGi Priority #4 expansion)
 
 // Re-exports for convenience
 pub use clifford_healing_fields::{
@@ -34,3 +35,13 @@ pub use npc::{
 pub use simulation::WorldSimulation;
 
 pub use economy::{RbeEconomy, CraftingRecipe, get_default_recipes};
+
+// Powrush MMO Core re-exports
+pub use powrush_mmo_core::{
+    PowrushMMOWorld,
+    WorldChunk,
+    PlayerSession,
+    EpigeneticState,
+    RBEEconomySimulator,
+    EntitySnapshot,
+};
