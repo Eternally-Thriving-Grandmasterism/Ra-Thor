@@ -1,5 +1,5 @@
 //! crates/powrush/src/simulation.rs
-//! WorldSimulation v15.28 — Resonance Gear Effects Implementation
+//! WorldSimulation v15.29 — Resonance Gear Evolution
 
 use crate::economy::{RbeEconomy, CraftingRecipe, get_default_recipes};
 use crate::npc::{NpcFactory, NpcIntegration, Position, distribute_epigenetic_blessing, BlackboardKey, BlackboardValue};
@@ -25,7 +25,7 @@ impl PlayerInventory {
     pub fn count(&self, item: &str) -> u32 { self.items.get(item).copied().unwrap_or(0) }
 }
 
-// === Player State ===
+// === Player State with Resonance Evolution ===
 #[derive(Debug, Clone)]
 pub struct PlayerState {
     pub position: Position,
@@ -38,6 +38,7 @@ pub struct PlayerState {
     pub harmony_rewards_claimed: u32,
     pub faction_standing: HashMap<String, f64>,
     pub attunement_progress: HashMap<String, u32>,
+    pub resonance_evolution: HashMap<String, u32>, // Evolution level per faction
 }
 
 impl Default for PlayerState {
@@ -50,6 +51,10 @@ impl Default for PlayerState {
         attunement.insert("Forge_Attunement".to_string(), 0);
         attunement.insert("Sanctum_Attunement".to_string(), 0);
 
+        let mut evolution = HashMap::new();
+        evolution.insert("Forge".to_string(), 0);
+        evolution.insert("Sanctum".to_string(), 0);
+
         Self {
             position: Vector2::new(0.0, 0.0),
             mercy: 0.82,
@@ -61,6 +66,7 @@ impl Default for PlayerState {
             harmony_rewards_claimed: 0,
             faction_standing: standing,
             attunement_progress: attunement,
+            resonance_evolution: evolution,
         }
     }
 }
@@ -177,7 +183,8 @@ impl WorldSimulation {
         }
 
         self.apply_housing_effects();
-        self.apply_resonance_effects(); // New: Resonance Gear effects
+        self.apply_resonance_effects();
+        self.update_resonance_evolution(); // New: Resonance Gear Evolution
 
         if self.tick_count % 12 == 0 {
             self.process_memory_effects();
@@ -203,29 +210,24 @@ impl WorldSimulation {
         }
     }
 
-    /// Implement Resonance Gear Effects based on attunement level
+    /// Resonance Gear Effects (scaled by attunement)
     fn apply_resonance_effects(&mut self) {
         let forge_level = self.player.attunement_progress.get("Forge_Attunement").copied().unwrap_or(0);
         let sanctum_level = self.player.attunement_progress.get("Sanctum_Attunement").copied().unwrap_or(0);
 
-        // Forge Resonance Effects
         if forge_level >= 1 {
-            // Honored Forge: Small crafting-related bonus (simulated as slight harmony boost during high activity)
             if self.player.harmony > 0.7 {
                 self.player.harmony = (self.player.harmony + 0.002).min(1.0);
             }
         }
 
         if forge_level >= 2 {
-            // Revered Forge: Stronger geometric harmony interaction
             if self.geometric_harmony_score > 0.85 {
                 self.player.harmony = (self.player.harmony + 0.005).min(1.0);
             }
         }
 
-        // Sanctum Resonance Effects
         if sanctum_level >= 1 {
-            // Honored Sanctum: Improved relationship maintenance
             for rel in self.player.relationships.values_mut() {
                 if *rel > 0.5 {
                     *rel = (*rel + 0.001).min(1.0);
@@ -234,9 +236,47 @@ impl WorldSimulation {
         }
 
         if sanctum_level >= 2 {
-            // Revered Sanctum: Strong harmony restoration
             if self.player.harmony < 0.9 {
                 self.player.harmony = (self.player.harmony + 0.008).min(1.0);
+            }
+        }
+    }
+
+    /// Resonance Gear Evolution - Gear grows stronger with consistent harmonious behavior
+    fn update_resonance_evolution(&mut self) {
+        let forge_level = self.player.attunement_progress.get("Forge_Attunement").copied().unwrap_or(0);
+        let sanctum_level = self.player.attunement_progress.get("Sanctum_Attunement").copied().unwrap_or(0);
+
+        // Evolve Forge resonance when player is highly attuned and maintains high harmony
+        if forge_level >= 2 {
+            let current_evo = self.player.resonance_evolution.get("Forge").copied().unwrap_or(0);
+            if self.player.harmony > 0.85 && self.geometric_harmony_score > 0.8 && current_evo < 5 {
+                if self.tick_count % 50 == 0 { // Slow evolution
+                    if let Some(evo) = self.player.resonance_evolution.get_mut("Forge") {
+                        *evo += 1;
+                        println!("   [Resonance Evolution] Forge Resonance Gear has grown stronger! (Level {})", evo);
+                    }
+                }
+            }
+        }
+
+        // Evolve Sanctum resonance when player maintains strong relationships and harmony
+        if sanctum_level >= 2 {
+            let current_evo = self.player.resonance_evolution.get("Sanctum").copied().unwrap_or(0);
+            let avg_relationship = if !self.player.relationships.is_empty() {
+                self.player.relationships.values().sum::<f64>() / self.player.relationships.len() as f64
+            } else {
+                0.5
+            };
+
+            if avg_relationship > 0.75 && self.player.harmony > 0.85 && current_evo < 5 {
+                if self.tick_count % 50 == 0 {
+                    if let Some(evo) = self.player.resonance_evolution.get_mut("Sanctum") {
+                        *evo += 1;
+                        println!("   [Resonance Evolution] Sanctum Resonance Gear has grown stronger! (Level {})", evo);
+                    }
+                }
+            }
             }
         }
     }
