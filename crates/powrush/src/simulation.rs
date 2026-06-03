@@ -1,5 +1,5 @@
 //! crates/powrush/src/simulation.rs
-//! WorldSimulation v15.18 — Advanced Memory: Decay + Importance Tiers + Summarization
+//! WorldSimulation v15.19 — Cross-NPC Memory Sharing + True Decay
 
 use crate::economy::{RbeEconomy, CraftingRecipe, get_default_recipes};
 use crate::npc::{NpcFactory, NpcIntegration, Position, distribute_epigenetic_blessing, BlackboardKey, BlackboardValue};
@@ -171,7 +171,7 @@ impl WorldSimulation {
 
         self.apply_housing_effects();
 
-        if self.tick_count % 10 == 0 {
+        if self.tick_count % 12 == 0 {
             self.process_memory_effects();
         }
 
@@ -194,13 +194,9 @@ impl WorldSimulation {
         }
     }
 
-    /// Advanced Memory System with:
-    /// - Per-NPC timers
-    /// - Importance tiers (strong vs normal positive events)
-    /// - Light decay + summarization
+    /// Advanced cross-NPC memory sharing + decay
     fn process_memory_effects(&mut self) {
         for (i, npc) in self.npc_integration.npc_system.agents.iter_mut().enumerate() {
-            // Per-NPC timer
             let last_processed = if let Some(BlackboardValue::Float(last)) =
                 npc.blackboard.get_dynamic(&BlackboardKey::Custom("memory_last_processed".to_string()))
             {
@@ -209,34 +205,35 @@ impl WorldSimulation {
                 0
             };
 
-            if self.tick_count.saturating_sub(last_processed) < 15 {
+            if self.tick_count.saturating_sub(last_processed) < 18 {
                 continue;
             }
 
-            let mut strong_positive = 0;
-            let mut normal_positive = 0;
+            // Count strong vs normal positive memories
+            let mut strong = 0;
+            let mut normal = 0;
 
             for event in &npc.blackboard.event_log {
                 if event.contains("Trust increased") || event.contains("consistently positive") {
-                    strong_positive += 1;
+                    strong += 1;
                 } else if event.contains("harmonious") {
-                    normal_positive += 1;
+                    normal += 1;
                 }
             }
 
-            let total_importance = (strong_positive * 2) + normal_positive;
+            let importance = (strong * 2) + normal;
 
-            if total_importance >= 4 {
-                // Improve relationship (stronger effect from important memories)
+            if importance >= 4 {
+                // Relationship improvement (stronger for important memories)
                 let current = self.player.relationships.get(&i).copied().unwrap_or(0.5);
-                let relationship_gain = 0.04 + (strong_positive as f64 * 0.02);
-                self.player.relationships.insert(i, (current + relationship_gain).min(1.0));
+                let gain = 0.04 + (strong as f64 * 0.025);
+                self.player.relationships.insert(i, (current + gain).min(1.0));
 
-                // NPC harmony gain with importance weighting
+                // NPC harmony gain
                 if let Some(BlackboardValue::Float(h)) =
                     npc.blackboard.get_dynamic(&BlackboardKey::Custom("geometric_harmony".to_string()))
                 {
-                    let gain = 0.01 * (total_importance as f64 / 4.0).min(2.5);
+                    let gain = 0.012 * (importance as f64 / 4.0).min(2.5);
                     let new_h = (*h + gain).min(1.0);
                     npc.blackboard.set_dynamic(
                         BlackboardKey::Custom("geometric_harmony".to_string()),
@@ -244,25 +241,53 @@ impl WorldSimulation {
                     );
                 }
 
-                // Summarization
+                // Create summary
                 let summary = format!(
                     "Player has been consistently positive (strong: {}, normal: {}) - Trust growing",
-                    strong_positive, normal_positive
+                    strong, normal
                 );
                 npc.blackboard.record_event(&summary);
 
-                // Remove processed events (decay old weak memories)
+                // === Cross-NPC Memory Sharing (contextual & efficient) ===
+                // Share important summary with nearby/high-harmony NPCs
+                if strong >= 2 || importance >= 8 {
+                    self.share_memory_with_nearby_npcs(i, &summary, npc.blackboard.current_mercy_valence);
+                }
+
+                // Clean up processed events
                 npc.blackboard.event_log.retain(|e| {
                     !e.contains("harmonious") &&
                     !e.contains("Trust increased") &&
                     !e.contains("consistently positive")
                 });
 
-                // Update last processed
                 npc.blackboard.set_dynamic(
                     BlackboardKey::Custom("memory_last_processed".to_string()),
                     BlackboardValue::Float(self.tick_count as f64),
                 );
+            }
+        }
+    }
+
+    /// Share important memory with nearby or high-harmony NPCs (efficient cross-NPC sharing)
+    fn share_memory_with_nearby_npcs(&mut self, source_index: usize, summary: &str, source_mercy: f64) {
+        let source_pos = self.npc_integration.npc_system.agents[source_index].position;
+
+        for (j, npc) in self.npc_integration.npc_system.agents.iter_mut().enumerate() {
+            if j == source_index {
+                continue;
+            }
+
+            let dist = (npc.position - source_pos).magnitude();
+
+            // Share if close or if the source NPC has high mercy
+            if dist < 25.0 || source_mercy > 0.85 {
+                // Only share if the receiving NPC has some relationship with the player already
+                let has_relationship = self.player.relationships.get(&j).is_some();
+
+                if has_relationship || source_mercy > 0.9 {
+                    npc.blackboard.record_event(&format!("[Shared] {}", summary));
+                }
             }
         }
     }
