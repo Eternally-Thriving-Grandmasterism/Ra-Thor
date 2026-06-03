@@ -1,22 +1,33 @@
 //! crates/powrush/src/simulation.rs
-//! WorldSimulation v16.5 — Refactored Entity Storage Layout
+//! WorldSimulation v16.6 — Lightweight Component-Based EntityStorage + AGI Integration Notes
 //! ONE Organism | TOLC 8 Mercy Gates | AG-SML v1.0 | Full backward compatible evolution
 
 /*!
-# v16.5 Refactor: Entity Storage Layout
+# Powrush Proprietary Architecture — v16.6 Update
 
-## Why we refactored
+## EntityStorage Evolution (Component-Based Direction)
 
-Previously, entities were stored directly as `HashMap<EntityId, Entity>` inside `WorldSimulation`.
+We are evolving `EntityStorage` from a monolithic `Entity` struct toward a
+**lightweight component-based model**. This is the recommended path for
+maintainable, flexible, and AGI-friendly simulation code.
 
-We refactored this into a dedicated `EntityStorage` struct for:
+### Design Goals
+- Keep complexity low ("max weight" philosophy)
+- Enable clean separation of concerns
+- Make it natural for Ra-Thor AGI systems to query and influence specific aspects of entities
+- Prepare for future querying, serialization, and parallelism
 
-- Better encapsulation
-- Easier future evolution (generational indices, component separation, querying)
-- Cleaner command application logic
-- Professional, maintainable architecture
+## AGI Integration Vision
 
-This is still a **lightweight** model, aligned with our "max weight" philosophy.
+The architecture is being designed so that Ra-Thor (and future PATSAGi councils)
+can naturally interact with the simulation through:
+
+- Observing component state
+- Issuing high-level `SimulationCommand`s
+- Evaluating actions through Mercy Gates
+- Proposing structural changes over time
+
+This commit begins laying the foundation for that integration.
 */
 
 use crate::economy::{RbeEconomy, CraftingRecipe, get_default_recipes};
@@ -28,30 +39,47 @@ use std::time::Instant;
 use serde::{Serialize, Deserialize};
 use std::fs;
 
-// ==================== ENTITY STORAGE (Refactored v16.5) ====================
+// ==================== ENTITY STORAGE — LIGHTWEIGHT COMPONENT MODEL (v16.6) ====================
 
 pub type EntityId = u64;
 
+/// Core identity component.
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
-pub struct Entity {
-    pub id: EntityId,
-    pub position: Position,
+pub struct EntityType {
     pub entity_type: String,
+}
+
+/// Position component.
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+pub struct PositionComponent {
+    pub position: Position,
+}
+
+/// Harmony component (core to Ra-Thor philosophy).
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+pub struct HarmonyComponent {
     pub harmony: f64,
 }
 
-/// Encapsulates all entity storage and ID generation.
-/// This is the recommended layout for maintainable simulation code.
+/// Lightweight component-based entity storage.
+///
+/// Instead of one large `Entity` struct, we store data in specialized component maps.
+/// This design is more flexible, cache-friendly, and naturally supports
+/// future AGI observation and manipulation of specific entity aspects.
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct EntityStorage {
-    pub entities: HashMap<EntityId, Entity>,
+    pub entity_types: HashMap<EntityId, EntityType>,
+    pub positions:    HashMap<EntityId, PositionComponent>,
+    pub harmonies:    HashMap<EntityId, HarmonyComponent>,
     next_id: EntityId,
 }
 
 impl EntityStorage {
     pub fn new() -> Self {
         Self {
-            entities: HashMap::new(),
+            entity_types: HashMap::new(),
+            positions:    HashMap::new(),
+            harmonies:    HashMap::new(),
             next_id: 1000,
         }
     }
@@ -62,28 +90,45 @@ impl EntityStorage {
         id
     }
 
-    pub fn insert(&mut self, entity: Entity) {
-        self.entities.insert(entity.id, entity);
+    /// Spawn a new entity with basic components.
+    pub fn spawn(&mut self, entity_type: &str, position: Position, harmony: f64) -> EntityId {
+        let id = self.next_id();
+
+        self.entity_types.insert(id, EntityType { entity_type: entity_type.to_string() });
+        self.positions.insert(id, PositionComponent { position });
+        self.harmonies.insert(id, HarmonyComponent { harmony });
+
+        id
     }
 
-    pub fn get(&self, id: EntityId) -> Option<&Entity> {
-        self.entities.get(&id)
+    pub fn get_position(&self, id: EntityId) -> Option<Position> {
+        self.positions.get(&id).map(|p| p.position)
     }
 
-    pub fn get_mut(&mut self, id: EntityId) -> Option<&mut Entity> {
-        self.entities.get_mut(&id)
+    pub fn get_harmony(&self, id: EntityId) -> Option<f64> {
+        self.harmonies.get(&id).map(|h| h.harmony)
     }
 
-    pub fn remove(&mut self, id: EntityId) -> Option<Entity> {
-        self.entities.remove(&id)
+    pub fn set_position(&mut self, id: EntityId, position: Position) {
+        if let Some(comp) = self.positions.get_mut(&id) {
+            comp.position = position;
+        }
+    }
+
+    pub fn set_harmony(&mut self, id: EntityId, harmony: f64) {
+        if let Some(comp) = self.harmonies.get_mut(&id) {
+            comp.harmony = harmony;
+        }
+    }
+
+    pub fn remove(&mut self, id: EntityId) {
+        self.entity_types.remove(&id);
+        self.positions.remove(&id);
+        self.harmonies.remove(&id);
     }
 
     pub fn len(&self) -> usize {
-        self.entities.len()
-    }
-
-    pub fn is_empty(&self) -> bool {
-        self.entities.is_empty()
+        self.entity_types.len()
     }
 }
 
@@ -379,7 +424,7 @@ pub struct WorldSimulation {
     pub session_sync: SessionSyncStub,
     pub session_manager: SessionManager,
     pub rbe_market: RbeMarket,
-    pub entities: EntityStorage,           // Refactored storage
+    pub entities: EntityStorage,
     pub authoritative_mode: bool,
     pub last_tick_duration_ms: f64,
 }
@@ -454,10 +499,10 @@ impl WorldSimulation {
                     self.player.position.y += dy;
                 }
                 SimulationCommand::MoveEntity { entity_id, dx, dy } => {
-                    if let Some(entity) = self.entities.get_mut(entity_id) {
-                        entity.position.x += dx;
-                        entity.position.y += dy;
-                    }
+                    self.entities.set_position(entity_id, Position {
+                        x: self.entities.get_position(entity_id).unwrap_or_default().x + dx,
+                        y: self.entities.get_position(entity_id).unwrap_or_default().y + dy,
+                    });
                 }
                 SimulationCommand::TradeWithNpc { npc_index, item, quantity, sell_to_npc } => {
                     let _ = self.trade_with_npc(npc_index, &item, quantity, sell_to_npc);
@@ -469,14 +514,12 @@ impl WorldSimulation {
                     }
                 }
                 SimulationCommand::SpawnNpc { position, npc_type } => {
-                    let id = self.entities.next_id();
-                    let entity = Entity { id, position, entity_type: npc_type, harmony: 0.5 };
-                    self.entities.insert(entity);
+                    let _id = self.entities.spawn(&npc_type, position, 0.5);
                 }
                 SimulationCommand::ApplyBlessing { target_entity, amount } => {
                     if let Some(id) = target_entity {
-                        if let Some(entity) = self.entities.get_mut(id) {
-                            entity.harmony = (entity.harmony + amount).min(1.0);
+                        if let Some(current) = self.entities.get_harmony(id) {
+                            self.entities.set_harmony(id, (current + amount).min(1.0));
                         }
                     } else {
                         self.player.harmony = (self.player.harmony + amount).min(1.0);
@@ -532,7 +575,7 @@ mod property_tests {
     use super::*;
 
     #[test]
-    fn refactored_entity_storage_works() {
+    fn component_based_entity_storage() {
         let mut world = WorldSimulation::new();
         world.authoritative_tick(0.016);
         assert!(world.tick_count >= 1);
