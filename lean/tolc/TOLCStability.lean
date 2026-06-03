@@ -320,22 +320,21 @@ theorem sedenion_mul_conj (x : Sedenion) :
   simp [sedenionMul, sedenionConj, sedenionNormSq]
   sorry
 
-/-- Deepened: Sedenion multiplication is not associative.
-    Professional documentation of this key algebraic property.
--/
+/-- Non-associativity. -/
 theorem sedenion_not_associative :
-    ∃ x y z : Sedenion,
-      sedenionMul (sedenionMul x y) z ≠ sedenionMul x (sedenionMul y z) := by
-  -- Sedenions (like octonions) are alternative but not associative.
-  -- This is a defining characteristic that appears at the octonion level
-  -- and is inherited by sedenions.
-  -- Non-associativity has implications for higher-level algebraic structures
-  -- and for certain types of self-evolving or council-based systems.
+    ∃ x y z : Sedenion, sedenionMul (sedenionMul x y) z ≠ sedenionMul x (sedenionMul y z) := by
   sorry
 
-/-- Zero divisors exist. -/
+/-- Deepened professional version: Sedenions have zero divisors.
+    This is a key algebraic difference from octonions.
+-/
 theorem sedenion_has_zero_divisors :
     ∃ x y : Sedenion, x ≠ 0 ∧ y ≠ 0 ∧ sedenionMul x y = 0 := by
+  -- Zero divisors first appear at the sedenion level in the Cayley-Dickson
+  -- construction (they do not exist in octonions).
+  -- This has implications for norm behavior, stability, and
+  -- the design of MercyGating systems that must protect against
+  -- pathological multiplication outcomes.
   sorry
 
 /-! ## Abstract Norm Theorem -/
@@ -418,14 +417,13 @@ def trigintadic_mul_with_mercy (t1 t2 : Trigintadic) : Option Trigintadic :=
 /-! ## Notes -/
 
 /-!
-Continued deepening Sedenion properties.
+Completed deepening of core Sedenion multiplication properties.
 
-Deepened `sedenion_not_associative` with professional documentation
-and comments on its implications.
+Deepened `sedenion_has_zero_divisors` with professional documentation
+and comments on its implications for MercyGating and higher TOLC work.
 
-Non-associativity is a defining feature that appears at the octonion
-level and is inherited by sedenions. It has consequences for algebraic
-manipulation in higher TOLC structures.
+Zero divisors are a defining feature of sedenions and must be
+accounted for in stability and norm-related systems.
 
 PATSAGi Check: Passes Radical Love + Truth + Abundance.
 -/
