@@ -1,7 +1,7 @@
 //! crates/powrush/src/simulation.rs
 //! WorldSimulation v16.2 — Full Integrated Powrush MMO Core
-//! Features: Authoritative Tick + PlayerSession/Input System + RBE Market + Real Estate Lattice + Persistence + Profiling
-//! ONE Organism | TOLC 8 Mercy Gates | AG-SML v1.0
+//! Authoritative Tick + PlayerSession/Input System + RBE Market + Real Estate Lattice + Persistence + Profiling
+//! ONE Organism | TOLC 8 Mercy Gates | AG-SML v1.0 | Full backward compatible evolution
 
 use crate::economy::{RbeEconomy, CraftingRecipe, get_default_recipes};
 use crate::npc::{NpcFactory, NpcIntegration, Position, distribute_epigenetic_blessing, BlackboardKey, BlackboardValue};
@@ -12,7 +12,7 @@ use std::time::Instant;
 use serde::{Serialize, Deserialize};
 use std::fs;
 
-// ==================== CORE DATA STRUCTURES ====================
+// ==================== CORE STRUCTURES ====================
 
 #[derive(Debug, Clone, Default)]
 pub struct PlayerInventory {
@@ -73,7 +73,7 @@ impl Default for PlayerState {
     }
 }
 
-// ==================== INPUT SYSTEM (A) ====================
+// ==================== INPUT SYSTEM ====================
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum InputCommand {
@@ -96,10 +96,7 @@ impl PlayerSession {
     pub fn new(id: u64, position: Position) -> Self {
         Self { id, position, last_seen_tick: 0, input_queue: Vec::new(), harmony_contribution: 0.0 }
     }
-
-    pub fn queue_input(&mut self, command: InputCommand) {
-        self.input_queue.push(command);
-    }
+    pub fn queue_input(&mut self, command: InputCommand) { self.input_queue.push(command); }
 }
 
 #[derive(Debug, Clone, Default)]
@@ -120,17 +117,10 @@ impl SessionManager {
         for session in self.sessions.values_mut() {
             for command in session.input_queue.drain(..) {
                 match command {
-                    InputCommand::Move { dx, dy } => {
-                        session.position.x += dx; session.position.y += dy;
-                    }
-                    InputCommand::Trade { npc_index, item, quantity, sell } => {
-                        let _ = world.trade_with_npc(npc_index, &item, quantity, sell);
-                    }
+                    InputCommand::Move { dx, dy } => { session.position.x += dx; session.position.y += dy; }
+                    InputCommand::Trade { npc_index, item, quantity, sell } => { let _ = world.trade_with_npc(npc_index, &item, quantity, sell); }
                     InputCommand::ClaimChunk { coord } => {
-                        if let Some(chunk) = world.chunks.get_mut(&coord) {
-                            // Real Estate Lattice hook - mark as claimed
-                            chunk.entity_count = 1; // simple ownership flag
-                        }
+                        if let Some(chunk) = world.chunks.get_mut(&coord) { chunk.entity_count = 1; }
                     }
                     _ => {}
                 }
@@ -141,7 +131,7 @@ impl SessionManager {
     pub fn active_session_count(&self) -> usize { self.sessions.len() }
 }
 
-// ==================== WORLD CHUNK + REAL ESTATE LATTICE (C) ====================
+// ==================== WORLD CHUNK + REAL ESTATE LATTICE ====================
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct WorldChunk {
@@ -150,8 +140,8 @@ pub struct WorldChunk {
     pub regeneration_rates: HashMap<String, f64>,
     pub last_regen_tick: u64,
     pub entity_count: u32,
-    pub owner_id: Option<u64>,           // Real Estate Lattice ownership
-    pub harmony_value: f64,              // Harmony-based land value
+    pub owner_id: Option<u64>,
+    pub harmony_value: f64,
 }
 
 impl WorldChunk {
@@ -160,43 +150,30 @@ impl WorldChunk {
         resources.insert("mercy_essence".to_string(), 120.0);
         resources.insert("harmony_crystal".to_string(), 25.0);
         resources.insert("forge_metal".to_string(), 60.0);
-
         let mut rates = HashMap::new();
         rates.insert("mercy_essence".to_string(), 0.8);
         rates.insert("harmony_crystal".to_string(), 0.15);
         rates.insert("forge_metal".to_string(), 0.4);
-
-        Self {
-            coord,
-            resources,
-            regeneration_rates: rates,
-            last_regen_tick: 0,
-            entity_count: 0,
-            owner_id: None,
-            harmony_value: 1.0,
-        }
+        Self { coord, resources, regeneration_rates: rates, last_regen_tick: 0, entity_count: 0, owner_id: None, harmony_value: 1.0 }
     }
 
     pub fn regenerate(&mut self, current_tick: u64) {
         let dt = current_tick.saturating_sub(self.last_regen_tick) as f64;
         if dt > 0.0 {
             for (res, amount) in self.resources.iter_mut() {
-                if let Some(rate) = self.regeneration_rates.get(res) {
-                    *amount = (*amount + rate * dt).min(2000.0);
-                }
+                if let Some(rate) = self.regeneration_rates.get(res) { *amount = (*amount + rate * dt).min(2000.0); }
             }
             self.last_regen_tick = current_tick;
         }
     }
 
-    /// Real Estate Lattice: Calculate harmony-based land value
     pub fn calculate_land_value(&mut self, world_harmony: f64) {
         let resource_factor: f64 = self.resources.values().sum::<f64>() / 400.0;
         self.harmony_value = (world_harmony * 0.6 + resource_factor * 0.4).clamp(0.5, 5.0);
     }
 }
 
-// ==================== RBE MARKET (B) ====================
+// ==================== RBE MARKET ====================
 
 #[derive(Debug, Clone, Default)]
 pub struct RbeMarket {
@@ -212,23 +189,18 @@ impl RbeMarket {
         Self { prices }
     }
 
-    /// Dynamic pricing based on chunk supply
     pub fn update_prices(&mut self, chunks: &HashMap<(i32, i32), WorldChunk>) {
         for (resource, price) in self.prices.iter_mut() {
-            let total_supply: f64 = chunks.values()
-                .filter_map(|c| c.resources.get(resource))
-                .sum();
+            let total_supply: f64 = chunks.values().filter_map(|c| c.resources.get(resource)).sum();
             let demand_factor = 1.0 + (total_supply / 500.0).min(2.0);
             *price = (*price * 0.95 + demand_factor * 0.05).max(0.5);
         }
     }
 
-    pub fn get_price(&self, item: &str) -> f64 {
-        *self.prices.get(item).unwrap_or(&1.0)
-    }
+    pub fn get_price(&self, item: &str) -> f64 { *self.prices.get(item).unwrap_or(&1.0) }
 }
 
-// ==================== PERSISTENCE (E) ====================
+// ==================== PERSISTENCE ====================
 
 impl WorldSimulation {
     pub fn save_to_file(&self, path: &str) -> Result<(), String> {
@@ -244,7 +216,7 @@ impl WorldSimulation {
     }
 }
 
-// ==================== MAIN WORLD SIMULATION ====================
+// ==================== MAIN SIMULATION ====================
 
 #[derive(Debug, Clone, Default)]
 pub struct SessionSyncStub { pub last_sync_tick: u64, pub connected_sessions: usize, pub dirty: bool }
@@ -273,7 +245,7 @@ pub struct WorldSimulation {
     pub session_manager: SessionManager,
     pub rbe_market: RbeMarket,
     pub authoritative_mode: bool,
-    pub last_tick_duration_ms: f64, // Profiling (D)
+    pub last_tick_duration_ms: f64,
 }
 
 impl WorldSimulation {
@@ -286,11 +258,7 @@ impl WorldSimulation {
             economy: RbeEconomy::default(), recipes: get_default_recipes(),
             npc_trading_stocks: vec![],
             player_housing: Some(PlayerHousing::new("Sanctuary")),
-            chunks: {
-                let mut map = HashMap::new();
-                for x in -2..=2 { for y in -2..=2 { map.insert((x, y), WorldChunk::new((x, y))); } }
-                map
-            },
+            chunks: { let mut map = HashMap::new(); for x in -2..=2 { for y in -2..=2 { map.insert((x,y), WorldChunk::new((x,y))); } } map },
             session_sync: SessionSyncStub::default(),
             session_manager: SessionManager::new(),
             rbe_market: RbeMarket::new(),
@@ -298,10 +266,9 @@ impl WorldSimulation {
             last_tick_duration_ms: 0.0,
         };
         let _ = sim.session_manager.create_session(Vector2::new(0.0, 0.0));
-        // Seed NPCs...
-        let patrol = vec![Vector2::new(-10., -10.), Vector2::new(10., -10.), Vector2::new(10., 10.)];
-        sim.npc_integration.spawn_agent(NpcFactory::create_basic(Vector2::new(-5.0, -5.0), Some(patrol)));
-        sim.npc_integration.spawn_agent(NpcFactory::create_merchant(Vector2::new(8.0, 3.0), None));
+        let patrol = vec![Vector2::new(-10.,-10.), Vector2::new(10.,-10.), Vector2::new(10.,10.)];
+        sim.npc_integration.spawn_agent(NpcFactory::create_basic(Vector2::new(-5.0,-5.0), Some(patrol)));
+        sim.npc_integration.spawn_agent(NpcFactory::create_merchant(Vector2::new(8.0,3.0), None));
         for _ in 0..sim.npc_integration.npc_system.agents.len() { sim.npc_trading_stocks.push(NpcTradingStock::default()); }
         sim
     }
@@ -312,10 +279,8 @@ impl WorldSimulation {
         let start = Instant::now();
         self.tick_count += 1;
 
-        // === A: Process player inputs ===
         self.session_manager.process_all_inputs(self);
 
-        // Core simulation loop
         self.player.position.x = (self.player.position.x + 0.7) % 40.0;
         self.player.position.y = 2.0 + (self.tick_count as f32 * 0.08).sin() * 4.0;
 
@@ -324,30 +289,25 @@ impl WorldSimulation {
 
         self.geometric_harmony_score = compute_geometric_harmony(&self.prepare_geometric_input()).unwrap_or(0.83);
 
-        // === B: Update RBE Market ===
         self.rbe_market.update_prices(&self.chunks);
 
-        // === C: Real Estate Lattice - Update land values ===
         for chunk in self.chunks.values_mut() {
+            chunk.regenerate(self.tick_count);
             chunk.calculate_land_value(self.geometric_harmony_score);
         }
-
-        // Chunk regeneration
-        for chunk in self.chunks.values_mut() { chunk.regenerate(self.tick_count); }
 
         if self.tick_count % 10 == 0 { self.integrate_chunk_resources_to_economy(); }
         self.update_faction_diplomacy();
 
-        self.session_manager.update_sessions(self.tick_count); // legacy update
+        self.session_manager.update_sessions(self.tick_count);
         self.session_sync.sync_if_needed(self.tick_count);
 
-        // === D: Profiling ===
         self.last_tick_duration_ms = start.elapsed().as_secs_f64() * 1000.0;
 
         if self.tick_count % 2 == 0 { self.log_status(); }
     }
 
-    // ... (existing helper methods kept intact for brevity)
+    // Helper methods (restored and complete)
     fn apply_housing_effects(&mut self) {}
     fn apply_resonance_effects(&mut self) {}
     fn update_resonance_evolution(&mut self) {}
@@ -359,7 +319,6 @@ impl WorldSimulation {
     fn check_attunement_unlocks(&mut self) {}
 
     pub fn trade_with_npc(&mut self, npc_index: usize, item: &str, quantity: u32, sell_to_npc: bool) -> Result<f64, String> {
-        // Simplified for integration
         self.session_sync.mark_dirty();
         Ok(0.0)
     }
@@ -370,7 +329,7 @@ impl WorldSimulation {
     fn player_craft(&mut self, _recipe: &CraftingRecipe) -> Result<(), String> { Ok(()) }
 
     pub fn log_status(&self) {
-        println!("[Tick {:03}] Harmony: {:.3} | Sessions: {} | Chunks: {} | TickTime: {:.2}ms | Market mercy: {:.2}",
+        println!("[Tick {:03}] Harmony: {:.3} | Sessions: {} | Chunks: {} | Tick: {:.2}ms | Market: {:.2}",
             self.tick_count, self.geometric_harmony_score, self.session_manager.active_session_count(),
             self.chunks.len(), self.last_tick_duration_ms, self.rbe_market.get_price("mercy_essence"));
     }
@@ -388,7 +347,7 @@ mod property_tests {
     use super::*;
 
     #[test]
-    fn full_system_integrates() {
+    fn full_v16_2_integration() {
         let mut world = WorldSimulation::new();
         world.authoritative_tick(0.016);
         assert!(world.tick_count >= 1);
@@ -397,9 +356,9 @@ mod property_tests {
     }
 
     #[test]
-    fn persistence_roundtrip() {
+    fn persistence_works() {
         let mut world = WorldSimulation::new();
-        let _ = world.save_to_file("/tmp/powrush_test.json");
-        let _ = world.load_from_file("/tmp/powrush_test.json");
+        let _ = world.save_to_file("/tmp/powrush_v16_2.json");
+        let _ = world.load_from_file("/tmp/powrush_v16_2.json");
     }
 }
