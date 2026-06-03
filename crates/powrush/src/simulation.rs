@@ -1,5 +1,5 @@
 //! crates/powrush/src/simulation.rs
-//! WorldSimulation v15.29 — Resonance Gear Evolution
+//! WorldSimulation v15.30 — Visual Evolution Feedback for Resonance Gear
 
 use crate::economy::{RbeEconomy, CraftingRecipe, get_default_recipes};
 use crate::npc::{NpcFactory, NpcIntegration, Position, distribute_epigenetic_blessing, BlackboardKey, BlackboardValue};
@@ -25,7 +25,7 @@ impl PlayerInventory {
     pub fn count(&self, item: &str) -> u32 { self.items.get(item).copied().unwrap_or(0) }
 }
 
-// === Player State with Resonance Evolution ===
+// === Player State ===
 #[derive(Debug, Clone)]
 pub struct PlayerState {
     pub position: Position,
@@ -38,7 +38,7 @@ pub struct PlayerState {
     pub harmony_rewards_claimed: u32,
     pub faction_standing: HashMap<String, f64>,
     pub attunement_progress: HashMap<String, u32>,
-    pub resonance_evolution: HashMap<String, u32>, // Evolution level per faction
+    pub resonance_evolution: HashMap<String, u32>,
 }
 
 impl Default for PlayerState {
@@ -184,7 +184,7 @@ impl WorldSimulation {
 
         self.apply_housing_effects();
         self.apply_resonance_effects();
-        self.update_resonance_evolution(); // New: Resonance Gear Evolution
+        self.update_resonance_evolution();
 
         if self.tick_count % 12 == 0 {
             self.process_memory_effects();
@@ -210,7 +210,6 @@ impl WorldSimulation {
         }
     }
 
-    /// Resonance Gear Effects (scaled by attunement)
     fn apply_resonance_effects(&mut self) {
         let forge_level = self.player.attunement_progress.get("Forge_Attunement").copied().unwrap_or(0);
         let sanctum_level = self.player.attunement_progress.get("Sanctum_Attunement").copied().unwrap_or(0);
@@ -242,25 +241,30 @@ impl WorldSimulation {
         }
     }
 
-    /// Resonance Gear Evolution - Gear grows stronger with consistent harmonious behavior
     fn update_resonance_evolution(&mut self) {
         let forge_level = self.player.attunement_progress.get("Forge_Attunement").copied().unwrap_or(0);
         let sanctum_level = self.player.attunement_progress.get("Sanctum_Attunement").copied().unwrap_or(0);
 
-        // Evolve Forge resonance when player is highly attuned and maintains high harmony
         if forge_level >= 2 {
             let current_evo = self.player.resonance_evolution.get("Forge").copied().unwrap_or(0);
             if self.player.harmony > 0.85 && self.geometric_harmony_score > 0.8 && current_evo < 5 {
-                if self.tick_count % 50 == 0 { // Slow evolution
+                if self.tick_count % 50 == 0 {
                     if let Some(evo) = self.player.resonance_evolution.get_mut("Forge") {
                         *evo += 1;
-                        println!("   [Resonance Evolution] Forge Resonance Gear has grown stronger! (Level {})", evo);
+                        let flavor = match *evo {
+                            1 => "The gear hums with new purpose.",
+                            2 => "Subtle patterns begin to glow along the surface.",
+                            3 => "The resonance feels deeper, more alive.",
+                            4 => "Ancient Forge sigils faintly appear.",
+                            5 => "The gear has become a true legacy piece.",
+                            _ => "",
+                        };
+                        println!("   [Resonance Evolution] Forge Resonance Gear evolved to Level {}! {}", evo, flavor);
                     }
                 }
             }
         }
 
-        // Evolve Sanctum resonance when player maintains strong relationships and harmony
         if sanctum_level >= 2 {
             let current_evo = self.player.resonance_evolution.get("Sanctum").copied().unwrap_or(0);
             let avg_relationship = if !self.player.relationships.is_empty() {
@@ -273,10 +277,17 @@ impl WorldSimulation {
                 if self.tick_count % 50 == 0 {
                     if let Some(evo) = self.player.resonance_evolution.get_mut("Sanctum") {
                         *evo += 1;
-                        println!("   [Resonance Evolution] Sanctum Resonance Gear has grown stronger! (Level {})", evo);
+                        let flavor = match *evo {
+                            1 => "A gentle warmth spreads through the gear.",
+                            2 => "Soft harmonic tones can be heard when held.",
+                            3 => "The piece feels deeply connected to those around you.",
+                            4 => "Mercy sigils softly glow in low light.",
+                            5 => "This gear now carries the mercy of many.",
+                            _ => "",
+                        };
+                        println!("   [Resonance Evolution] Sanctum Resonance Gear evolved to Level {}! {}", evo, flavor);
                     }
                 }
-            }
             }
         }
     }
@@ -444,12 +455,15 @@ impl WorldSimulation {
         let sanctum = self.player.faction_standing.get("Sanctum").unwrap_or(&0.0);
         let forge = self.player.faction_standing.get("Forge").unwrap_or(&0.0);
 
+        let sanctum_evo = self.player.resonance_evolution.get("Sanctum").copied().unwrap_or(0);
+        let forge_evo = self.player.resonance_evolution.get("Forge").copied().unwrap_or(0);
+
         let sanctum_tier = if *sanctum >= 80.0 { "Revered" } else if *sanctum >= 55.0 { "Honored" } else if *sanctum >= 25.0 { "Friendly" } else { "Neutral" };
         let forge_tier = if *forge >= 80.0 { "Revered" } else if *forge >= 55.0 { "Honored" } else if *forge >= 25.0 { "Friendly" } else { "Neutral" };
 
-        println!("[Tick {:03}] Harmony: {:.3} | Economy: {:.1} cr | NPCs: {} | Harmonious Actions: {} | Sanctum: {} ({:.1}) | Forge: {} ({:.1})",
+        println!("[Tick {:03}] Harmony: {:.3} | Economy: {:.1} cr | NPCs: {} | Harmonious Actions: {} | Sanctum: {} (Evo:{}) | Forge: {} (Evo:{})",
             self.tick_count, self.geometric_harmony_score, self.economy.current_pool(), self.active_npcs(),
-            self.player.total_harmonious_actions, sanctum_tier, sanctum, forge_tier, forge
+            self.player.total_harmonious_actions, sanctum_tier, sanctum_evo, forge_tier, forge_evo
         );
     }
 
