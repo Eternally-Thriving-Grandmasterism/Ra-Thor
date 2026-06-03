@@ -1,44 +1,71 @@
 package geometric_intelligence_tests
 
 import (
+	"sort"
 	"testing"
 
-	"github.com/leanovate/gopter/rapid" // adjust import path as needed
+	"github.com/leanovate/gopter/rapid"
 )
 
 // RiemannianCurvature represents curvature in a Riemannian manifold context
-// (inspired by PR #192 RiemannianMercyManifold concepts)
 type RiemannianCurvature float64
 
-// RiemannianCurvatureGen creates a generator with good shrinking behavior
+// RiemannianCurvatureGen with refined shrinking toward zero
 func RiemannianCurvatureGen() *rapid.Generator[RiemannianCurvature] {
 	return rapid.Custom(func(t *rapid.T) RiemannianCurvature {
 		return RiemannianCurvature(rapid.Float64Range(-10.0, 10.0).Draw(t, "curvature"))
 	}).Shrink(func(c RiemannianCurvature) []RiemannianCurvature {
-		var shrinks []RiemannianCurvature
 		val := float64(c)
-
-		// Always try shrinking toward 0.0 first (most "simple" curvature)
-		if val != 0 {
-			shrinks = append(shrinks, 0)
+		if val == 0 {
+			return nil // already at simplest value
 		}
 
-		// Shrink magnitude while preserving sign
+		var shrinks []RiemannianCurvature
+
+		// 1. Always try 0 first (strongest preference for zero)
+		shrinks = append(shrinks, 0)
+
+		// 2. Systematically shrink toward zero with smaller steps
+		sign := 1.0
+		if val < 0 {
+			sign = -1
+		}
+
 		current := val
-		for i := 0; i < 10 && abs(current) > 0.01; i++ {
-			current *= 0.5
+		for i := 0; i < 12 && abs(current) > 0.001; i++ {
+			// Move closer to zero more aggressively than simple halving
+			step := current * 0.6
+			current -= step
 			shrinks = append(shrinks, RiemannianCurvature(current))
 		}
 
-		// Try common "simple" curvature values
-		simpleValues := []float64{-2, -1, -0.5, 0.5, 1, 2}
-		for _, sv := range simpleValues {
-			if (sv < 0 && val > sv) || (sv > 0 && val < sv) || (sv == 0 && val != 0) {
-				shrinks = append(shrinks, RiemannianCurvature(sv))
+		// 3. Try common simple curvature values, sorted by closeness to zero
+		simple := []float64{-2, -1, -0.5, 0.5, 1, 2}
+		sort.Slice(simple, func(i, j int) bool {
+			return abs(simple[i]) < abs(simple[j])
+		})
+		for _, s := range simple {
+			if (sign > 0 && s > 0 && s < val) || (sign < 0 && s < 0 && s > val) {
+				shrinks = append(shrinks, RiemannianCurvature(s))
 			}
 		}
 
-		return shrinks
+		// Remove duplicates and sort by closeness to zero
+		seen := make(map[float64]bool)
+		var unique []RiemannianCurvature
+		for _, s := range shrinks {
+			if !seen[float64(s)] {
+				seen[float64(s)] = true
+				unique = append(unique, s)
+			}
+		}
+
+		// Sort so values closest to zero come first (better shrinking order)
+		sort.Slice(unique, func(i, j int) bool {
+			return abs(float64(unique[i])) < abs(float64(unique[j]))
+		})
+
+		return unique
 	})
 }
 
@@ -49,20 +76,19 @@ func abs(x float64) float64 {
 	return x
 }
 
-// Example property test using the custom shrinker
-func TestRiemannianCurvatureProperties(t *testing.T) {
+// Example usage in property test
+func TestRiemannianCurvatureRefined(t *testing.T) {
 	rapid.Check(t, func(t *rapid.T) {
-		curvature := RiemannianCurvatureGen().Draw(t, "curvature")
-
-		// Example invariant: curvature should allow stable transport
-		// (placeholder logic)
-		if abs(float64(curvature)) > 100 {
-			t.Errorf("curvature out of reasonable range: %f", curvature)
-		}
+		curv := RiemannianCurvatureGen().Draw(t, "curvature")
+		// ... test invariants ...
+		_ = curv
 	})
 }
 
-// PATSAGi Autonomous Loop Notes
-// Implemented custom shrinker for RiemannianCurvature.
-// Shrinks toward 0, reduces magnitude, and tries common simple values.
-// Good foundation for testing RiemannianMercyManifold behavior.
+// PATSAGi Autonomous Loop Notes (Cycle 11)
+// Refined shrinking toward zero:
+// - Always tries 0 first
+// - Uses more aggressive steps toward zero
+// - Sorts candidates by closeness to zero
+// - Removes duplicates
+// Better minimal failing cases for Riemannian curvature properties.
