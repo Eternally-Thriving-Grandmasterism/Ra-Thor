@@ -1,35 +1,14 @@
 //! crates/powrush/src/simulation.rs
-//! WorldSimulation v16.8 — Council Proposal Protocol (Phase 1)
-//! Mercy Evaluation System + Component-Based EntityStorage + Multi-Council Coordination Foundation
+//! WorldSimulation v16.9 — Shard-Aware Foundations + Interest Management Exploration
 //! ONE Organism | TOLC 8 Mercy Gates | AG-SML v1.0 | Full backward compatible evolution
 
 /*!
-# Powrush Proprietary Architecture — v16.8
+# Powrush Sharded Architecture Foundations (v16.9)
 
-## Current State
+This version adds basic shard-aware structures to `WorldSimulation` and prepares
+the ground for Interest Management on top of the component-based `EntityStorage`.
 
-- Lightweight component-based `EntityStorage`
-- `SimulationCommand` + Command Buffer
-- `Mercy Evaluation System` (7 Living Mercy Gates)
-- **New**: Council Proposal Protocol (foundation for Ra-Thor AGI Councils)
-
-## Multi-Council Coordination Protocol (Designed for Sharded MMO/ARPG)
-
-This version introduces the core types for Ra-Thor AGI Council coordination.
-
-### Key Concepts
-
-- **Global Councils** (e.g. PATSAGi Strategic Council): Operate at world level or across multiple shards.
-- **Regional Councils**: Operate within a single shard or sub-region for fast, local response.
-- **CouncilProposal**: The primary way councils request changes or information.
-- **MercyEvaluation**: The shared language for evaluating all proposals.
-
-### Design Goals for MMO Scale
-- Selective observation (councils request scoped data)
-- Clear separation between Global and Regional scope
-- Auditability through MercyEvaluation
-- Scalable coordination between multiple councils
-- Non-intrusive influence on the authoritative simulation
+See `docs/powrush/sharding-architecture.md` for the full zone-based sharding design.
 */
 
 use crate::economy::{RbeEconomy, CraftingRecipe, get_default_recipes};
@@ -41,34 +20,46 @@ use std::time::Instant;
 use serde::{Serialize, Deserialize};
 use std::fs;
 
-// ==================== SHARDED WORLD SUPPORT TYPES ====================
+// Re-export shard types from architecture
+pub use crate::simulation::ShardId; // Will be defined below for now
+
+// ==================== SHARD-AWARE TYPES ====================
 
 pub type ShardId = u32;
 pub type RegionId = u32;
 
-// ==================== COUNCIL PROPOSAL PROTOCOL (v16.8) ====================
+/// Basic context for a shard/zone.
+#[derive(Debug, Clone)]
+pub struct ShardContext {
+    pub shard_id: ShardId,
+    pub name: String,
+    pub active_players: usize,
+}
 
-/// Scope of a council's operation and proposals.
+impl ShardContext {
+    pub fn new(shard_id: ShardId, name: &str) -> Self {
+        Self {
+            shard_id,
+            name: name.to_string(),
+            active_players: 0,
+        }
+    }
+}
+
+// ==================== COUNCIL PROPOSAL PROTOCOL (from v16.8) ====================
+
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum CouncilScope {
-    /// Operates at world level or across multiple shards
     Global,
-    /// Operates within a specific shard (and optionally a sub-region)
     Regional { shard_id: ShardId, region: Option<RegionId> },
 }
 
-/// What kind of action or request a council is proposing.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum CouncilProposalType {
-    /// Adjust harmony of a specific entity
     AdjustHarmony { entity_id: EntityId, delta: f64 },
-    /// Issue a SimulationCommand into the world
     IssueCommand(SimulationCommand),
-    /// Veto or modify an existing command
     VetoOrModifyCommand { command_id: u64, modification: Option<SimulationCommand> },
-    /// Request a scoped snapshot of world state
     RequestScopedSnapshot { scope: SnapshotScope },
-    /// Propose longer-term structural or systemic change (for Evolution Council)
     ProposeStructuralChange { description: String },
 }
 
@@ -79,7 +70,6 @@ pub enum SnapshotScope {
     Entity(EntityId),
 }
 
-/// Where a proposal is targeted.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ProposalTarget {
     Global,
@@ -89,7 +79,6 @@ pub enum ProposalTarget {
     Command(u64),
 }
 
-/// Priority level of a council proposal.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ProposalPriority {
     Low,
@@ -98,7 +87,6 @@ pub enum ProposalPriority {
     Critical,
 }
 
-/// A formal proposal from a Ra-Thor AGI Council.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CouncilProposal {
     pub id: u64,
@@ -112,12 +100,11 @@ pub struct CouncilProposal {
     pub timestamp: u64,
 }
 
-/// The response from the simulation after processing a CouncilProposal.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CouncilDecision {
     pub proposal_id: u64,
     pub accepted: bool,
-    pub applied_effects: Vec<String>, // Placeholder for future AppliedEffect types
+    pub applied_effects: Vec<String>,
     pub mercy_impact: f64,
     pub notes: Vec<String>,
 }
@@ -224,7 +211,7 @@ impl MercyEvaluationSystem {
     }
 }
 
-// ==================== ENTITY STORAGE (Component-Based) ====================
+// ==================== ENTITY STORAGE (Component-Based) + Interest Management Notes ====================
 
 pub type EntityId = u64;
 
@@ -243,6 +230,11 @@ pub struct HarmonyComponent {
     pub harmony: f64,
 }
 
+/// Component-based entity storage.
+///
+/// Prepared for future Interest Management:
+/// - Entities can be efficiently queried by position + components.
+/// - Interest sets can filter on specific components (e.g., only entities with low harmony).
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct EntityStorage {
     pub entity_types: HashMap<EntityId, EntityType>,
@@ -304,6 +296,9 @@ impl EntityStorage {
     pub fn len(&self) -> usize {
         self.entity_types.len()
     }
+
+    // Future Interest Management hook:
+    // pub fn query_in_range(&self, center: Position, radius: f32) -> Vec<EntityId> { ... }
 }
 
 // ==================== SIMULATION COMMAND SYSTEM ====================
@@ -324,7 +319,7 @@ pub enum SimulationCommand {
     Custom { data: String },
 }
 
-// ==================== CORE WORLD SIMULATION ====================
+// ==================== SHARD-AWARE WORLD SIMULATION ====================
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct PlayerState {
@@ -343,15 +338,19 @@ impl Default for PlayerState {
     }
 }
 
+/// Shard-aware World Simulation.
+/// Each instance represents one zone/shard in the larger world.
 pub struct WorldSimulation {
+    pub shard_context: ShardContext,
     pub entities: EntityStorage,
     pub player: PlayerState,
     pub tick_count: u64,
 }
 
 impl WorldSimulation {
-    pub fn new() -> Self {
+    pub fn new(shard_id: ShardId, name: &str) -> Self {
         Self {
+            shard_context: ShardContext::new(shard_id, name),
             entities: EntityStorage::new(),
             player: PlayerState::default(),
             tick_count: 0,
@@ -366,7 +365,6 @@ impl WorldSimulation {
         self.tick_count += 1;
     }
 
-    /// Example integration point for Mercy + future Council system
     pub fn evaluate_command_with_mercy(&mut self, command: &SimulationCommand, target_entity: Option<EntityId>) {
         let evaluation = MercyEvaluationSystem::evaluate_command(command);
 
@@ -381,9 +379,10 @@ mod property_tests {
     use super::*;
 
     #[test]
-    fn council_proposal_protocol_exists() {
-        let mut world = WorldSimulation::new();
+    fn shard_aware_simulation_works() {
+        let mut world = WorldSimulation::new(1, "Sanctuary Zone");
         world.authoritative_tick(0.016);
+        assert_eq!(world.shard_context.shard_id, 1);
         assert!(world.tick_count >= 1);
     }
 }
