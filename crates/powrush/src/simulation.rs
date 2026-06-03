@@ -1,5 +1,5 @@
 //! crates/powrush/src/simulation.rs
-//! WorldSimulation v15.24 — Negative Standing Penalties + Stronger Faction Mechanics
+//! WorldSimulation v15.25 — Faction-Specific NPCs + Reputation Tiers + Events
 
 use crate::economy::{RbeEconomy, CraftingRecipe, get_default_recipes};
 use crate::npc::{NpcFactory, NpcIntegration, Position, distribute_epigenetic_blessing, BlackboardKey, BlackboardValue};
@@ -228,7 +228,7 @@ impl WorldSimulation {
         }
     }
 
-    /// Faction Mechanics with Negative Standing Penalties
+    /// Faction-Specific NPCs + Reputation Tiers + Events
     pub fn trade_with_npc(&mut self, npc_index: usize, item: &str, quantity: u32, sell_to_npc: bool) -> Result<f64, String> {
         if npc_index >= self.npc_integration.npc_system.agents.len() { return Err("Invalid NPC".to_string()); }
 
@@ -239,23 +239,29 @@ impl WorldSimulation {
 
         let is_friendly = npc.relationship.is_friendly();
 
-        // Multi-faction standing
-        let sanctum = self.player.faction_standing.get("Sanctum").copied().unwrap_or(0.0);
-        let forge = self.player.faction_standing.get("Forge").copied().unwrap_or(0.0);
+        // Determine which faction this NPC belongs to (simple tagging for now)
+        let faction = if npc_index % 2 == 0 { "Sanctum" } else { "Forge" };
 
-        // Use best standing, but apply penalty if overall standing is low
-        let best_standing = sanctum.max(forge);
-        let standing_modifier = if best_standing < -20.0 {
-            1.3 // 30% worse prices for very low standing
+        let standing = self.player.faction_standing.get(faction).copied().unwrap_or(0.0);
+
+        // Reputation tier modifier
+        let tier_modifier = if standing >= 75.0 {
+            0.6 // Revered - excellent prices
+        } else if standing >= 40.0 {
+            0.75 // Honored
+        } else if standing >= 0.0 {
+            0.9 // Friendly/Neutral
+        } else if standing >= -30.0 {
+            1.15 // Unfriendly - worse prices
         } else {
-            1.0 - (best_standing / 200.0)
+            1.35 // Hostile - significant penalty
         };
 
         let base_price = 3.0;
         let harmony_modifier = if sell_to_npc { 0.6 } else { 1.0 - (harmony * 0.4) };
         let relationship_modifier = if is_friendly { 0.75 } else { 1.15 };
 
-        let final_price = base_price * standing_modifier.max(0.5) * harmony_modifier.max(0.35) * relationship_modifier;
+        let final_price = base_price * tier_modifier * harmony_modifier.max(0.35) * relationship_modifier;
         let total_value = final_price * quantity as f64;
 
         if sell_to_npc {
@@ -267,17 +273,17 @@ impl WorldSimulation {
             }
             self.economy.credit(total_value * 0.6);
 
-            // Improve standing
-            if let Some(standing) = self.player.faction_standing.get_mut("Sanctum") {
-                *standing = (*standing + 1.8).min(100.0);
+            // Improve standing with the NPC's faction
+            if let Some(standing) = self.player.faction_standing.get_mut(faction) {
+                *standing = (*standing + 2.0).min(100.0);
             }
 
             self.player.harmony = (self.player.harmony + 0.02).min(1.0);
             self.player.total_harmonious_actions += 1;
 
-            let current = self.player.faction_standing.get("Sanctum").unwrap_or(&0.0);
-            println!("   [Trade] Sold {}x {} to NPC[{}] for {:.1} credits | Sanctum Standing: {:.1}",
-                quantity, item, npc_index, total_value, current);
+            let current = self.player.faction_standing.get(faction).unwrap_or(&0.0);
+            println!("   [Trade] Sold {}x {} to NPC[{}] ({}) for {:.1} credits | Standing: {:.1}",
+                quantity, item, npc_index, faction, total_value, current);
         } else {
             if npc_index >= self.npc_trading_stocks.len() || !self.npc_trading_stocks[npc_index].has(item) {
                 return Err("NPC does not have this item".to_string());
@@ -288,9 +294,9 @@ impl WorldSimulation {
             self.npc_trading_stocks[npc_index].remove(item, quantity);
             self.player.inventory.add(item, quantity);
 
-            let current = self.player.faction_standing.get("Sanctum").unwrap_or(&0.0);
-            println!("   [Trade] Bought {}x {} from NPC[{}] for {:.1} credits (Harmony: {:.2}) | Sanctum Standing: {:.1}",
-                quantity, item, npc_index, total_value, harmony, current);
+            let current = self.player.faction_standing.get(faction).unwrap_or(&0.0);
+            println!("   [Trade] Bought {}x {} from NPC[{}] ({}) for {:.1} credits | Standing: {:.1}",
+                quantity, item, npc_index, faction, total_value, current);
         }
 
         Ok(total_value)
