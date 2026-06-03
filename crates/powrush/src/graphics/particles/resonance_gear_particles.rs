@@ -1,11 +1,11 @@
 // crates/powrush/src/graphics/particles/resonance_gear_particles.rs
 // Resonance Gear Particle System — Powrush RBE
-// Priority #4: Epigenetic + Geometric Feedback Loops (Cycle 4)
-// Evolution Rate Modulation + Layer Flavor
+// Priority #4: Epigenetic + Geometric Feedback Loops (Volatility Effects)
 // AG-SML v1.0 | TOLC 8 aligned
 
 use bevy::prelude::*;
 use bevy_hanabi::prelude::*;
+use rand::Rng; // For volatility-based randomness
 
 #[derive(Debug, Clone, Copy)]
 pub struct EpigeneticModulation {
@@ -23,16 +23,23 @@ impl EpigeneticModulation {
     pub fn visual_intensity(&self) -> f32 { (self.strength * 0.4 + self.volatility * 0.8).clamp(0.8, 3.5) }
     pub fn lifetime_multiplier(&self) -> f32 { (1.0 + self.volatility * 0.6).clamp(0.9, 2.2) }
 
-    /// New: Evolution rate bonus from geometric state
     pub fn evolution_rate_bonus(&self) -> f32 {
-        // Higher layers give stronger but more volatile evolution bonuses
         let base = self.strength * 0.15;
         let layer_bonus = match self.layer {
-            0..=1 => 0.05,
-            2..=3 => 0.12,
-            _     => 0.20,
+            0..=1 => 0.05, 2..=3 => 0.12, _ => 0.20,
         };
         (base + layer_bonus).clamp(0.0, 0.8)
+    }
+
+    /// Returns a surge multiplier (can be >1 during high volatility moments)
+    pub fn volatility_surge_multiplier(&self) -> f32 {
+        if self.volatility > 0.25 {
+            // Higher volatility layers have chance for surges
+            if rand::thread_rng().gen::<f32>() < self.volatility * 0.4 {
+                return 1.0 + (self.volatility * 1.5);
+            }
+        }
+        1.0
     }
 }
 
@@ -121,10 +128,11 @@ fn handle_evolution_changes(
             };
             let pos = player_transform.translation + Vec3::new(0.0, 1.8, 0.0);
             let modl = geometric.layer_modulated_epigenetic_influence();
+            let surge = modl.volatility_surge_multiplier();
             commands.spawn((EffectBundle { effect: new_asset.clone(), transform: Transform::from_translation(pos), ..default() },
                 ResonanceGearParticles { current_evolution: player_state.evolution, gear_type: particles.gear_type, epigenetic_accumulation: particles.epigenetic_accumulation }));
             let vis = modl.visual_intensity(); let life = modl.lifetime_multiplier();
-            let mut burst = modl.burst_multiplier();
+            let mut burst = modl.burst_multiplier() * surge;
             apply_geometric_modulation_to_particles(&geometric, &mut burst, &mut 1.0);
             spawn_evolution_burst(&mut commands, &effects, pos, particles.gear_type, player_state.evolution, burst, life, vis);
         }
@@ -139,7 +147,11 @@ fn spawn_evolution_burst(commands: &mut Commands, effects: &ResonanceEffectAsset
 
 fn apply_epigenetic_feedback(geometric: Res<GeometricResonance>, mut q: Query<&mut ResonanceGearParticles>) {
     let m = geometric.layer_modulated_epigenetic_influence();
-    for mut p in &mut q { p.epigenetic_accumulation = (p.epigenetic_accumulation + m.accumulation_multiplier() * 0.015).clamp(0.0, 12.0); }
+    let surge = m.volatility_surge_multiplier();
+    let rate = m.accumulation_multiplier() * surge;
+    for mut p in &mut q {
+        p.epigenetic_accumulation = (p.epigenetic_accumulation + rate * 0.015).clamp(0.0, 12.0);
+    }
 }
 
 pub fn apply_geometric_modulation_to_particles(g: &GeometricResonance, burst: &mut f32, mult: &mut f32) {
@@ -147,5 +159,4 @@ pub fn apply_geometric_modulation_to_particles(g: &GeometricResonance, burst: &m
     *mult = (*mult + g.harmony_score.clamp(0.0,2.0)*0.45).clamp(0.8,4.5);
 }
 
-// PATSAGi note: Added evolution_rate_bonus() to EpigeneticModulation.
-// Layer-specific evolution bonuses now active. Ready for deeper integration.
+// PATSAGi note: Added volatility surge system. High-volatility layers can now produce occasional strong epigenetic surges.
