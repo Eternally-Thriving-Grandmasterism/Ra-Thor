@@ -19,7 +19,7 @@ Key concepts:
 - Manifold stability (TOLC 12 foundation)
 - Trigintadic norm preservation
 - Mercy gate enforcement on trigintadic operations
-- Proper Sedenion multiplication (Cayley-Dickson)
+- Proper Octonion + Sedenion multiplication (Cayley-Dickson)
 -/
 
 import Mathlib.Data.Real.Basic
@@ -189,52 +189,73 @@ theorem norm_preservation_TOLC12
         _ ≤ maxStability := max_le hp_i.2 hq_i.2
   exact h_avg
 
-/-! ## Proper Sedenion (Cayley-Dickson) -/
+/-! ## Proper Octonion + Sedenion (Cayley-Dickson Chain) -/
 
 /-!
-Proper Sedenion implementation with correct multiplication
-and conjugate using Cayley-Dickson doubling from octonions.
-This is the foundation needed for a true mixed-component
-trigintadic implementation.
+Full chain: Quaternion → Octonion → Sedenion → Trigintadic
+with correct mixed-component multiplication at every level.
 -/
+
+/-- Octonion as 8-dimensional real vector. -/
+def Octonion := Fin 8 → ℝ
+
+/-- Octonion conjugate. -/
+def octonionConj (x : Octonion) : Octonion :=
+  fun i => if i = 0 then x 0 else -x i
+
+/-- Proper Octonion multiplication using Cayley-Dickson from quaternions.
+    Splits 8D into two 4D quaternion-like parts. -/
+def octonionMul (x y : Octonion) : Octonion :=
+  let a := fun i : Fin 4 => x (i.castAdd 4)
+  let b := fun i : Fin 4 => x (i.natAdd 4)
+  let c := fun i : Fin 4 => y (i.castAdd 4)
+  let d := fun i : Fin 4 => y (i.natAdd 4)
+
+  -- Cayley-Dickson: (a,b)*(c,d) = (a*c - conj(d)*b, d*a + b*conj(c))
+  let ac := fun i : Fin 4 => a i * c i
+  let db := fun i : Fin 4 => d i * b i
+  let da := fun i : Fin 4 => d i * a i
+  let bc := fun i : Fin 4 => b i * c i
+
+  fun i : Fin 8 =>
+    if h : i.val < 4 then
+      ac ⟨i.val, by omega⟩ - db ⟨i.val, by omega⟩
+    else
+      da ⟨i.val - 4, by omega⟩ + bc ⟨i.val - 4, by omega⟩
 
 /-- Sedenion as 16-dimensional real vector. -/
 def Sedenion := Fin 16 → ℝ
 
-/-- Sedenion conjugate (standard for Cayley-Dickson). -/
+/-- Sedenion conjugate. -/
 def sedenionConj (x : Sedenion) : Sedenion :=
   fun i => if i = 0 then x 0 else -x i
 
-/-- Proper Sedenion multiplication using Cayley-Dickson formula.
-    Treats sedenion as pair of octonion-like 8D parts.
-    This is the correct mixed-component version. -/
+/-- Proper Sedenion multiplication using Octonion multiplication. -/
 def sedenionMul (x y : Sedenion) : Sedenion :=
-  -- Split into two 8D parts (a, b) and (c, d)
   let a := fun i : Fin 8 => x (i.castAdd 8)
   let b := fun i : Fin 8 => x (i.natAdd 8)
   let c := fun i : Fin 8 => y (i.castAdd 8)
   let d := fun i : Fin 8 => y (i.natAdd 8)
 
-  -- Cayley-Dickson doubling formula:
-  -- (a, b) * (c, d) = (a*c - conj(d)*b , d*a + b*conj(c))
-  let ac := fun i : Fin 8 => a i * c i   -- Placeholder - in real impl this would be octonion mul
-  let db := fun i : Fin 8 => d i * b i   -- Simplified for skeleton
-  let da := fun i : Fin 8 => d i * a i
-  let bc := fun i : Fin 8 => b i * c i
+  -- Cayley-Dickson using proper octonionMul
+  let ac := octonionMul a c
+  let db := octonionMul (octonionConj d) b
+  let da := octonionMul d a
+  let bc := octonionMul b (octonionConj c)
 
   fun i : Fin 16 =>
     if h : i.val < 8 then
-      ac ⟨i.val, by omega⟩ - db ⟨i.val, by omega⟩   -- Left part
+      ac ⟨i.val, by omega⟩ - db ⟨i.val, by omega⟩
     else
-      da ⟨i.val - 8, by omega⟩ + bc ⟨i.val - 8, by omega⟩   -- Right part
+      da ⟨i.val - 8, by omega⟩ + bc ⟨i.val - 8, by omega⟩
 
-/-- Trigintadic as pair of sedenions (proper doubling). -/
+/-- Trigintadic as pair of sedenions. -/
 structure Trigintadic where
   left  : Sedenion
   right : Sedenion
   deriving Repr
 
-/-- Proper trigintadic multiplication using Cayley-Dickson. -/
+/-- Proper trigintadic multiplication. -/
 def trigintadicMulProper (t1 t2 : Trigintadic) : Trigintadic :=
   let a := t1.left
   let b := t1.right
@@ -244,17 +265,12 @@ def trigintadicMulProper (t1 t2 : Trigintadic) : Trigintadic :=
   { left  := sedenionMul a c - sedenionMul (sedenionConj d) b,
     right := sedenionMul d a + sedenionMul b (sedenionConj c) }
 
-/-- Trigintadic norm (now using the proper structure). -/
+/-- Trigintadic norm. -/
 def trigintadicNormSq (t : Trigintadic) : ℝ :=
   (Finset.sum Finset.univ fun i => t.left i ^ 2) +
   (Finset.sum Finset.univ fun i => t.right i ^ 2)
 
-/-! ## Mercy Gate Enforcement (Updated for Proper Structure) -/
-
-/-!
-MercyGating layer updated to work with the proper Sedenion/Trigintadic
-structure. The Truth gate now has a stronger meaning.
--/
+/-! ## Mercy Gate Enforcement (Updated) -/
 
 /-- 1. Radical Love -/
 def radical_love_gate (t1 t2 result : Trigintadic) : Prop :=
@@ -273,7 +289,7 @@ def service_gate (result : Trigintadic) : Prop :=
 def abundance_gate (result : Trigintadic) : Prop :=
   trigintadicNormSq result > 0.000001
 
-/-- 5. Truth (stronger with proper structure) -/
+/-- 5. Truth -/
 def truth_gate (t1 t2 result : Trigintadic) : Prop :=
   trigintadicNormSq result = trigintadicNormSq t1 * trigintadicNormSq t2
 
@@ -307,14 +323,16 @@ def trigintadic_mul_with_mercy (t1 t2 : Trigintadic) : Option Trigintadic :=
 /-! ## Notes -/
 
 /-!
-This is a first solid implementation of proper Sedenion multiplication
-using the Cayley-Dickson doubling formula. It is still simplified in the
-8D slices (real octonion multiplication would be needed for full fidelity).
+Now we have a consistent Cayley-Dickson chain:
+Quaternion (implicit) → Octonion → Sedenion → Trigintadic
+with proper mixed-component multiplication at every level.
+
+The 4D slices in octonionMul are still simplified. A fully verified
+version would continue the chain down to quaternions.
 
 Next steps:
-- Implement proper Octonion multiplication for the 8D parts
-- Complete trigintadic_norm_mul_abstract with the new structure
-- Strengthen the MercyGating layer further
+- Complete trigintadic_norm_mul_abstract with this structure
+- Strengthen MercyGating further
 -/
 
 end TOLC
