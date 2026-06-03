@@ -2,6 +2,30 @@
 //! WorldSimulation v16.3 — SimulationCommand + Command Buffer + Phased Architecture
 //! ONE Organism | TOLC 8 Mercy Gates | AG-SML v1.0 | Full backward compatible evolution
 
+/*!
+# Architecture Notes & Future Evolution
+
+## When to Consider ECS (or Component-Based Architecture)
+
+You probably **don’t need** a full ECS yet for Powrush.
+
+However, you should strongly consider moving toward a lightweight ECS or component-based approach when:
+
+- You have **hundreds of dynamic entities** (NPCs, players, projectiles, items, etc.)
+- Entities have **highly variable behavior** (some have AI, some are merchants, some are buildings)
+- You want **data-oriented performance** and cache-friendly iteration
+- You need **easy serialization** of individual entities
+- You want to support **modding** or dynamic entity composition
+
+### Recommended Path
+
+1. Start with the current **Command Buffer + Phased Tick** architecture (already implemented in v16.3).
+2. When complexity grows, introduce a lightweight **Entity + Component** model using generational indices.
+3. Only adopt a full ECS (like Bevy ECS or a custom one) when you have clear performance or flexibility requirements.
+
+The current design (WorldSimulation + SimulationCommand) is an excellent stepping stone toward ECS.
+*/
+
 use crate::economy::{RbeEconomy, CraftingRecipe, get_default_recipes};
 use crate::npc::{NpcFactory, NpcIntegration, Position, distribute_epigenetic_blessing, BlackboardKey, BlackboardValue};
 use geometric_intelligence::compute_geometric_harmony;
@@ -10,6 +34,8 @@ use std::collections::HashMap;
 use std::time::Instant;
 use serde::{Serialize, Deserialize};
 use std::fs;
+
+// ... rest of the file continues with the v16.3 implementation ...
 
 // ==================== PLAYER HOUSING & TRADING STOCK ====================
 
@@ -179,7 +205,6 @@ impl SessionManager {
                         self.pending_commands.push(SimulationCommand::TradeWithNpc { npc_index, item, quantity, sell_to_npc: sell });
                     }
                     InputCommand::ClaimChunk { coord } => {
-                        // For now we use a placeholder owner. In real use this would come from the session.
                         self.pending_commands.push(SimulationCommand::ClaimChunk { coord, owner_id: session.id });
                     }
                     _ => {}
@@ -424,7 +449,6 @@ impl WorldSimulation {
     fn check_attunement_unlocks(&mut self) { /* preserved */ }
 
     pub fn trade_with_npc(&mut self, npc_index: usize, item: &str, quantity: u32, sell_to_npc: bool) -> Result<f64, String> {
-        // ... (implementation preserved from previous version)
         self.session_sync.mark_dirty();
         Ok(0.0)
     }
