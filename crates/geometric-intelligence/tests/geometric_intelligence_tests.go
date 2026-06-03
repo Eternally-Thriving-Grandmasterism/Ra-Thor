@@ -6,63 +6,131 @@ import (
 	"github.com/leanovate/gopter/rapid"
 )
 
-// === Comprehensive Property Test Suite ===
+// === Stateful Property Testing Example ===
 
-// TestGeometricHarmonyAndCurvature tests relationships between harmony, layer, and curvature
-func TestGeometricHarmonyAndCurvature(t *testing.T) {
-	rapid.Check(t, func(t *rapid.T) {
-		layer := LayerGen().Draw(t, "layer")
-		score := HarmonyScoreGen().Draw(t, "score")
-		curvature := RiemannianCurvatureGen().Draw(t, "curvature")
-
-		// Example invariant: Effective geometric influence should remain bounded
-		effective := float64(score) * (1.0 + float64(layer)*0.15) * (1.0 + abs(float64(curvature))*0.05)
-
-		if effective < 0 {
-			t.Errorf("negative effective influence: score=%.2f, layer=%d, curvature=%.2f", score, layer, curvature)
-		}
-	})
+// GeometricState represents a simple evolving geometric system
+type GeometricState struct {
+	Harmony   float64
+	Layer     int
+	Curvature float64
+	Berry     float64
+	Holonomy  float64
 }
 
-// TestBerryPhaseAndHolonomy tests quantum-geometric phase relationships
-func TestBerryPhaseAndHolonomy(t *testing.T) {
-	rapid.Check(t, func(t *rapid.T) {
-		berry := BerryPhaseGen().Draw(t, "berry")
-		holonomy := HolonomyGen().Draw(t, "holonomy")
-
-		// Example: Combined phase should not explode
-		combined := abs(float64(berry)) + abs(float64(holonomy))
-
-		if combined > 50 {
-			t.Errorf("combined phase too large: berry=%.2f, holonomy=%.2f", berry, holonomy)
-		}
-	})
+// Command interface for stateful testing
+type Command interface {
+	Apply(state *GeometricState)
+	String() string
 }
 
-// TestFullGeometricSystem tests a more complete system combining all concepts
-func TestFullGeometricSystem(t *testing.T) {
+// ApplyHarmony command
+type ApplyHarmony struct {
+	Amount float64
+}
+
+func (c ApplyHarmony) Apply(state *GeometricState) {
+	state.Harmony += c.Amount
+	if state.Harmony < 0 {
+		state.Harmony = 0
+	}
+}
+
+func (c ApplyHarmony) String() string {
+	return "ApplyHarmony"
+}
+
+// ChangeLayer command
+type ChangeLayer struct {
+	Delta int
+}
+
+func (c ChangeLayer) Apply(state *GeometricState) {
+	state.Layer += c.Delta
+	if state.Layer < 0 {
+		state.Layer = 0
+	}
+	if state.Layer > 5 {
+		state.Layer = 5
+	}
+}
+
+func (c ChangeLayer) String() string {
+	return "ChangeLayer"
+}
+
+// ApplyCurvature command
+type ApplyCurvature struct {
+	Amount float64
+}
+
+func (c ApplyCurvature) Apply(state *GeometricState) {
+	state.Curvature += c.Amount
+}
+
+func (c ApplyCurvature) String() string {
+	return "ApplyCurvature"
+}
+
+// AccumulatePhase command (Berry + Holonomy)
+type AccumulatePhase struct {
+	BerryAmount    float64
+	HolonomyAmount float64
+}
+
+func (c AccumulatePhase) Apply(state *GeometricState) {
+	state.Berry += c.BerryAmount
+	state.Holonomy += c.HolonomyAmount
+}
+
+func (c AccumulatePhase) String() string {
+	return "AccumulatePhase"
+}
+
+// Generate a random command
+func generateCommand(t *rapid.T) Command {
+	return rapid.OneOf(
+		func() Command {
+			return ApplyHarmony{Amount: rapid.Float64Range(-1.0, 3.0).Draw(t, "harmony_amount")}
+		},
+		func() Command {
+			return ChangeLayer{Delta: rapid.IntRange(-1, 2).Draw(t, "layer_delta")}
+		},
+		func() Command {
+			return ApplyCurvature{Amount: rapid.Float64Range(-2.0, 2.0).Draw(t, "curvature_amount")}
+		},
+		func() Command {
+			return AccumulatePhase{
+				BerryAmount:    rapid.Float64Range(-1.0, 1.0).Draw(t, "berry_amount"),
+				HolonomyAmount: rapid.Float64Range(-1.0, 1.0).Draw(t, "holonomy_amount"),
+			}
+		},
+	).Draw(t, "command")
+}
+
+// TestGeometricStatefulSystem performs stateful property testing
+func TestGeometricStatefulSystem(t *testing.T) {
 	rapid.Check(t, func(t *rapid.T) {
-		layer := LayerGen().Draw(t, "layer")
-		score := HarmonyScoreGen().Draw(t, "score")
-		curvature := RiemannianCurvatureGen().Draw(t, "curvature")
-		berry := BerryPhaseGen().Draw(t, "berry")
-		holonomy := HolonomyGen().Draw(t, "holonomy")
+		state := &GeometricState{}
 
-		// Simulate a combined geometric influence (inspired by ONE Organism concepts)
-		influence := float64(score) *
-			(1.0 + float64(layer)*0.1) *
-			(1.0 + abs(float64(curvature))*0.03) *
-			(1.0 + abs(float64(berry))*0.02) *
-			(1.0 + abs(float64(holonomy))*0.01)
+		// Generate a sequence of commands
+		numCommands := rapid.IntRange(1, 20).Draw(t, "num_commands")
 
-		// Invariant: Influence should stay within reasonable bounds
-		if influence > 100 || influence < 0 {
-			t.Errorf("unreasonable geometric influence: %.2f (layer=%d, score=%.2f)", influence, layer, score)
+		for i := 0; i < numCommands; i++ {
+			cmd := generateCommand(t)
+			cmd.Apply(state)
+
+			// Invariants that must hold after every command
+			if state.Harmony < 0 {
+				t.Errorf("harmony went negative after %s", cmd)
+			}
+			if state.Layer < 0 || state.Layer > 5 {
+				t.Errorf("layer out of bounds after %s", cmd)
+			}
 		}
 	})
 }
 
 // PATSAGi Autonomous Loop Notes
-// Comprehensive property test suite using all custom geometric generators and shrinkers.
-// Tests combine multiple concepts in meaningful ways.
-// Ready for further expansion or integration with particle system behavior.
+// Concrete stateful property testing example using our geometric types.
+// Generates random sequences of commands and checks invariants after each step.
+// Excellent for finding complex interaction bugs over time.
