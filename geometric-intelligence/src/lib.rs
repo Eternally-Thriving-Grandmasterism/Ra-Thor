@@ -13,10 +13,12 @@
 pub mod types;
 pub mod polyhedral_harmonic_engine;
 pub mod riemannian_mercy_manifold;
+pub mod epigenetic_modulation;
 
 pub use types::*;
 pub use polyhedral_harmonic_engine::{PolyhedralHarmonicEngine, PolyhedralResonanceReport, U57LayerDetails};
 pub use riemannian_mercy_manifold::{RiemannianMercyManifold, GeometricTransportResult};
+pub use epigenetic_modulation::EpigeneticModulation;
 
 use crate::polyhedral_harmonic_engine::PolyhedralHarmonicEngine;
 use crate::riemannian_mercy_manifold::RiemannianMercyManifold;
