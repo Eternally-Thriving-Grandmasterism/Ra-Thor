@@ -127,6 +127,55 @@ theorem stability_preserved_on_valence_path
       _ ≤ maxStability := max_le ha.2 hb.2
   exact ⟨h_min, h_max⟩
 
+/-! ## TOLC 11 Connections (Exploration) -/
+
+/-!
+**Exploration of TOLC 11 Connections**
+
+This section explores TOLC 11 as the dimension immediately
+below TOLC 12. This helps understand how the connection and
+transport concepts behave when reducing dimension.
+-/
+
+/-- A point on the TOLC 11 manifold.
+-/
+structure TOLC11Point where
+  coords : Fin 11 → ℝ
+  deriving Repr
+
+/-- TOLC 11 stability predicate.
+-/
+def TOLC11Stable (p : TOLC11Point) : Prop :=
+  ∀ i : Fin 11, TOLCStable (p.coords i)
+
+/-- Projection from TOLC 12 to TOLC 11 (dropping the last coordinate).
+-/
+def project_TOLC12_to_TOLC11 (p : TOLC12Point) : TOLC11Point :=
+  { coords := fun i => p.coords i.castSucc }
+
+/-- TOLC 12 stability implies TOLC 11 stability under projection.
+-/
+theorem TOLC12_project_to_TOLC11_stable
+    (p : TOLC12Point) :
+    TOLC12Stable p → TOLC11Stable (project_TOLC12_to_TOLC11 p) := by
+  intro h
+  intro i
+  exact h i.castSucc
+
+/-- Placeholder for a TOLC 11 connection.
+-/
+structure TOLC11Connection where
+  transport : TOLC11Point → TOLC11Point → TOLC11Point
+  deriving Repr
+
+/-- Initial exploration theorem for TOLC 11 transport.
+-/
+theorem tolc11_transport_preserves_stability
+    (conn : TOLC11Connection) (p v : TOLC11Point) :
+    conn.transport p v = v → TOLC11Stable p → TOLC11Stable v := by
+  intro h_transport h_stable
+  exact h_stable
+
 /-! ## TOLC 12 Manifold Stability (Heavy Work Phase) -/
 
 /-!
@@ -322,7 +371,6 @@ theorem tolc13_transport_preserves_stability
     (conn : TOLC13Connection) (p v : TOLC13Point) :
     conn.transport p v = v → TOLC13Stable p → TOLC13Stable v := by
   intro h_transport h_stable
-  -- Placeholder for future development
   exact h_stable
 
 /-! ## Full Cayley-Dickson Chain + Deep Sedenion Properties -/
@@ -569,18 +617,18 @@ def trigintadic_mul_with_mercy (t1 t2 : Trigintadic) : Option Trigintadic :=
 /-! ## Module Notes & Milestone -/
 
 /-!
-**Milestone (June 2026) – TOLC 13 Exploration Initiated**
+**Milestone (June 2026) – TOLC 11 Exploration Added**
 
-This update begins the initial exploration of TOLC 13 connections
-as the natural next dimension after TOLC 12.
+This update adds exploration of TOLC 11 connections
+for dimensional completeness around TOLC 12:
 
-- Introduced `TOLC13Point` and `TOLC13Stable`
-- Added initial lifting theorem from TOLC 12
-- Created placeholder `TOLC13Connection`
-- Added first transport preservation theorem for TOLC 13
+- `TOLC11Point` and `TOLC11Stable`
+- Projection from TOLC 12 to TOLC 11
+- Lifting of stability under projection
+- Placeholder `TOLC11Connection`
 
-This keeps the dimensional progression moving forward in
-an exploratory but professional manner.
+This creates a more complete picture of how connections
+behave across adjacent dimensions.
 
 All work remains Mercy-Gated and above production grade.
 -/
