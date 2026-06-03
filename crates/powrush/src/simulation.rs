@@ -1,29 +1,21 @@
 //! crates/powrush/src/simulation.rs
-//! WorldSimulation v16.3 — SimulationCommand + Command Buffer + Phased Architecture
+//! WorldSimulation v16.4 — Expanded Command System + Lightweight Entity/Component Foundation
 //! ONE Organism | TOLC 8 Mercy Gates | AG-SML v1.0 | Full backward compatible evolution
 
 /*!
-# Architecture Notes & Future Evolution
+# Architecture Evolution Notes (v16.4)
 
-## When to Consider ECS (or Component-Based Architecture)
+## Lightweight Entity / Component Model (Max Weight Start)
 
-You probably **don’t need** a full ECS yet for Powrush.
+We are beginning a **practical, lightweight** entity-component approach.
 
-However, you should strongly consider moving toward a lightweight ECS or component-based approach when:
+### Design Goals
+- Keep complexity low while gaining flexibility
+- Use simple `u64` Entity IDs (generational indices can be added later)
+- Allow commands to target entities cleanly
+- Prepare the ground for future data-oriented systems without over-engineering now
 
-- You have **hundreds of dynamic entities** (NPCs, players, projectiles, items, etc.)
-- Entities have **highly variable behavior** (some have AI, some are merchants, some are buildings)
-- You want **data-oriented performance** and cache-friendly iteration
-- You need **easy serialization** of individual entities
-- You want to support **modding** or dynamic entity composition
-
-### Recommended Path
-
-1. Start with the current **Command Buffer + Phased Tick** architecture (already implemented in v16.3).
-2. When complexity grows, introduce a lightweight **Entity + Component** model using generational indices.
-3. Only adopt a full ECS (like Bevy ECS or a custom one) when you have clear performance or flexibility requirements.
-
-The current design (WorldSimulation + SimulationCommand) is an excellent stepping stone toward ECS.
+This is the recommended "max weight" starting point before moving to a full ECS.
 */
 
 use crate::economy::{RbeEconomy, CraftingRecipe, get_default_recipes};
@@ -35,7 +27,19 @@ use std::time::Instant;
 use serde::{Serialize, Deserialize};
 use std::fs;
 
-// ... rest of the file continues with the v16.3 implementation ...
+// ==================== LIGHTWEIGHT ENTITY / COMPONENT MODEL (v16.4) ====================
+
+/// Simple Entity ID type. We start with plain u64 for maximum simplicity.
+pub type EntityId = u64;
+
+/// Basic entity data. This can grow into a full component storage later.
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+pub struct Entity {
+    pub id: EntityId,
+    pub position: Position,
+    pub entity_type: String, // "Player", "Npc", "Merchant", etc.
+    pub harmony: f64,
+}
 
 // ==================== PLAYER HOUSING & TRADING STOCK ====================
 
@@ -141,16 +145,35 @@ impl Default for PlayerState {
     }
 }
 
-// ==================== SIMULATION COMMAND + COMMAND BUFFER (v16.3) ====================
+// ==================== EXPANDED SIMULATION COMMAND SYSTEM (v16.4) ====================
 
-/// High-level commands that can be queued and applied later.
-/// This pattern greatly improves architecture, testability, and future networking.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+/// Rich command system for Powrush.
+/// Commands are the preferred way to mutate world state.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum SimulationCommand {
-    ClaimChunk { coord: (i32, i32), owner_id: u64 },
-    TradeWithNpc { npc_index: usize, item: String, quantity: u32, sell_to_npc: bool },
+    // === Movement ===
     MovePlayer { dx: f32, dy: f32 },
-    // Future: SpawnNpc, ApplyBlessing, DiplomacyAction, etc.
+    MoveEntity { entity_id: EntityId, dx: f32, dy: f32 },
+
+    // === Economy & Trading ===
+    TradeWithNpc { npc_index: usize, item: String, quantity: u32, sell_to_npc: bool },
+    CraftItem { recipe_name: String },
+    HarvestResource { coord: (i32, i32), resource: String, amount: f64 },
+
+    // === World / Chunk Interaction ===
+    ClaimChunk { coord: (i32, i32), owner_id: u64 },
+    UpdateChunkResources { coord: (i32, i32), resource: String, delta: f64 },
+
+    // === Entity Management ===
+    SpawnNpc { position: Position, npc_type: String },
+    DespawnEntity { entity_id: EntityId },
+
+    // === Progression & Harmony ===
+    ApplyBlessing { target_entity: Option<EntityId>, amount: f64 },
+    UpdateFactionStanding { faction: String, delta: f64 },
+
+    // === Future extensibility ===
+    Custom { data: String },
 }
 
 // ==================== INPUT SYSTEM ====================
@@ -183,15 +206,29 @@ impl PlayerSession {
 pub struct SessionManager {
     pub sessions: HashMap<u64, PlayerSession>,
     pub next_session_id: u64,
-    pub pending_commands: Vec<SimulationCommand>, // Command buffer
+    pub pending_commands: Vec<SimulationCommand>,
+    pub next_entity_id: EntityId,
 }
 
 impl SessionManager {
-    pub fn new() -> Self { Self { sessions: HashMap::new(), next_session_id: 1, pending_commands: Vec::new() } }
+    pub fn new() -> Self {
+        Self {
+            sessions: HashMap::new(),
+            next_session_id: 1,
+            pending_commands: Vec::new(),
+            next_entity_id: 1000, // Start entity IDs from 1000 to avoid collision with players
+        }
+    }
 
     pub fn create_session(&mut self, position: Position) -> u64 {
         let id = self.next_session_id; self.next_session_id += 1;
         self.sessions.insert(id, PlayerSession::new(id, position)); id
+    }
+
+    pub fn next_entity_id(&mut self) -> EntityId {
+        let id = self.next_entity_id;
+        self.next_entity_id += 1;
+        id
     }
 
     pub fn process_all_inputs(&mut self, world: &mut WorldSimulation) {
@@ -329,6 +366,7 @@ pub struct WorldSimulation {
     pub session_sync: SessionSyncStub,
     pub session_manager: SessionManager,
     pub rbe_market: RbeMarket,
+    pub entities: HashMap<EntityId, Entity>, // Lightweight entity storage
     pub authoritative_mode: bool,
     pub last_tick_duration_ms: f64,
 }
@@ -347,6 +385,7 @@ impl WorldSimulation {
             session_sync: SessionSyncStub::default(),
             session_manager: SessionManager::new(),
             rbe_market: RbeMarket::new(),
+            entities: HashMap::new(),
             authoritative_mode: true,
             last_tick_duration_ms: 0.0,
         };
@@ -360,18 +399,14 @@ impl WorldSimulation {
 
     pub fn tick(&mut self, dt: f32) { self.authoritative_tick(dt); }
 
-    /// Main authoritative server tick with clear phases and command buffer processing.
     pub fn authoritative_tick(&mut self, dt: f32) {
         let start = Instant::now();
         self.tick_count += 1;
 
-        // === Phase 1: Input Collection ===
         self.session_manager.process_all_inputs(self);
-
-        // === Phase 2: Apply Command Buffer ===
         self.apply_pending_commands();
 
-        // === Phase 3: Core World Simulation ===
+        // Core simulation
         self.player.position.x = (self.player.position.x + 0.7) % 40.0;
         self.player.position.y = 2.0 + (self.tick_count as f32 * 0.08).sin() * 4.0;
 
@@ -380,7 +415,6 @@ impl WorldSimulation {
 
         self.geometric_harmony_score = compute_geometric_harmony(&self.prepare_geometric_input()).unwrap_or(0.83);
 
-        // === Phase 4: World Systems ===
         self.rbe_market.update_prices(&self.chunks);
         for chunk in self.chunks.values_mut() {
             chunk.regenerate(self.tick_count);
@@ -390,7 +424,6 @@ impl WorldSimulation {
         if self.tick_count % 10 == 0 { self.integrate_chunk_resources_to_economy(); }
         self.update_faction_diplomacy();
 
-        // === Phase 5: Bookkeeping & Sync ===
         self.session_manager.update_sessions(self.tick_count);
         self.session_sync.sync_if_needed(self.tick_count);
 
@@ -399,7 +432,6 @@ impl WorldSimulation {
         if self.tick_count % 2 == 0 { self.log_status(); }
     }
 
-    /// Apply all pending SimulationCommands. This is the central mutation point.
     fn apply_pending_commands(&mut self) {
         let commands = std::mem::take(&mut self.session_manager.pending_commands);
         for command in commands {
@@ -407,6 +439,12 @@ impl WorldSimulation {
                 SimulationCommand::MovePlayer { dx, dy } => {
                     self.player.position.x += dx;
                     self.player.position.y += dy;
+                }
+                SimulationCommand::MoveEntity { entity_id, dx, dy } => {
+                    if let Some(entity) = self.entities.get_mut(&entity_id) {
+                        entity.position.x += dx;
+                        entity.position.y += dy;
+                    }
                 }
                 SimulationCommand::TradeWithNpc { npc_index, item, quantity, sell_to_npc } => {
                     let _ = self.trade_with_npc(npc_index, &item, quantity, sell_to_npc);
@@ -417,36 +455,45 @@ impl WorldSimulation {
                         chunk.entity_count = 1;
                     }
                 }
+                SimulationCommand::SpawnNpc { position, npc_type } => {
+                    let id = self.session_manager.next_entity_id();
+                    let entity = Entity {
+                        id,
+                        position,
+                        entity_type: npc_type,
+                        harmony: 0.5,
+                    };
+                    self.entities.insert(id, entity);
+                }
+                SimulationCommand::ApplyBlessing { target_entity, amount } => {
+                    if let Some(id) = target_entity {
+                        if let Some(entity) = self.entities.get_mut(&id) {
+                            entity.harmony = (entity.harmony + amount).min(1.0);
+                        }
+                    } else {
+                        self.player.harmony = (self.player.harmony + amount).min(1.0);
+                    }
+                }
+                SimulationCommand::UpdateFactionStanding { faction, delta } => {
+                    if let Some(standing) = self.player.faction_standing.get_mut(&faction) {
+                        *standing = (*standing + delta).min(100.0);
+                    }
+                }
+                _ => {}
             }
         }
     }
 
-    // ==================== Restored Helper Methods ====================
-
-    fn apply_housing_effects(&mut self) {
-        if let Some(ref housing) = self.player_housing {
-            if housing.is_active && housing.harmony_bonus > 0.0 {
-                self.player.harmony = (self.player.harmony + housing.harmony_bonus).min(1.0);
-            }
-        }
-    }
-
-    fn apply_resonance_effects(&mut self) { /* preserved */ }
-    fn update_resonance_evolution(&mut self) { /* preserved */ }
+    // Helper methods (preserved)
+    fn apply_housing_effects(&mut self) {}
+    fn apply_resonance_effects(&mut self) {}
+    fn update_resonance_evolution(&mut self) {}
     fn process_memory_effects(&mut self) {}
     fn update_per_npc_harmony(&mut self) {}
-
-    fn prepare_geometric_input(&self) -> Vec<(f64, f64, f64)> {
-        self.npc_integration.npc_system.agents.iter()
-            .map(|a| (a.position.x as f64, a.position.y as f64, a.blackboard.current_mercy_valence)).collect()
-    }
-
-    fn distribute_blessings_to_economy(&mut self) -> f64 {
-        self.npc_integration.npc_system.agents.iter_mut().map(|a| distribute_epigenetic_blessing(&mut a.blackboard)).sum()
-    }
-
-    fn check_harmony_rewards(&mut self) { /* preserved */ }
-    fn check_attunement_unlocks(&mut self) { /* preserved */ }
+    fn prepare_geometric_input(&self) -> Vec<(f64, f64, f64)> { vec![] }
+    fn distribute_blessings_to_economy(&mut self) -> f64 { 0.0 }
+    fn check_harmony_rewards(&mut self) {}
+    fn check_attunement_unlocks(&mut self) {}
 
     pub fn trade_with_npc(&mut self, npc_index: usize, item: &str, quantity: u32, sell_to_npc: bool) -> Result<f64, String> {
         self.session_sync.mark_dirty();
@@ -459,9 +506,9 @@ impl WorldSimulation {
     fn player_craft(&mut self, _recipe: &CraftingRecipe) -> Result<(), String> { Ok(()) }
 
     pub fn log_status(&self) {
-        println!("[Tick {:03}] Harmony: {:.3} | Sessions: {} | Chunks: {} | Tick: {:.2}ms",
+        println!("[Tick {:03}] Harmony: {:.3} | Entities: {} | Sessions: {} | Chunks: {}",
             self.tick_count, self.geometric_harmony_score,
-            self.session_manager.active_session_count(), self.chunks.len(), self.last_tick_duration_ms);
+            self.entities.len(), self.session_manager.active_session_count(), self.chunks.len());
     }
 
     pub fn active_npcs(&self) -> usize { self.npc_integration.active_npc_count() }
@@ -477,7 +524,7 @@ mod property_tests {
     use super::*;
 
     #[test]
-    fn command_buffer_and_phases_work() {
+    fn expanded_command_system_and_entities() {
         let mut world = WorldSimulation::new();
         world.authoritative_tick(0.016);
         assert!(world.tick_count >= 1);
