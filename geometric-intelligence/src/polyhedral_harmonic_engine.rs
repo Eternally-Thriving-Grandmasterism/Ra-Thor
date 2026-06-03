@@ -5,6 +5,7 @@
 //! Dual resonance bonuses, U57 gateway to Riemannian transport, and rich reporting.
 //! Fully aligned with TOLC 8 Mercy Gates and ONE Organism geometric intelligence.
 
+use crate::epigenetic_modulation::EpigeneticModulation;
 use crate::types::EpigeneticBlessing;
 use std::collections::HashMap;
 
@@ -266,7 +267,7 @@ impl PolyhedralHarmonicEngine {
         } else if current_tol c_order < 89 {
             Some("Kepler-Poinsot".to_string())
         } else if current_tol c_order < 144 {
-            Some("U57-UniformStar".to_string())
+            Some("U57-UniformStar".to_string()
         } else if current_tol c_order < 233 {
             Some("Hyperbolic Tiling".to_string())
         } else {
@@ -286,6 +287,28 @@ impl PolyhedralHarmonicEngine {
             strength: 1.22,
             target_system: "epigenetic + geometric + powrush".to_string(),
         }]
+    }
+
+    // === First Usage Example: Integration with EpigeneticModulation ===
+    /// Demonstrates bidirectional integration between layer transition logic
+    /// and EpigeneticModulation. This pattern can be used by Powrush RBE,
+    /// Quantum Swarm, or Real Estate Lattice systems.
+    pub fn integrate_layer_transition_with_epigenetic(
+        &self,
+        mut em: EpigeneticModulation,
+        geometric_harmony: f64,
+        tolc_order: u32,
+    ) -> (Option<String>, EpigeneticModulation) {
+        let progress = self.compute_layer_transition_progress(em.strength, geometric_harmony, tolc_order);
+        let volatility = em.volatility;
+
+        if let Some(next_layer) = self.try_advance_layer(tolc_order, em.strength, geometric_harmony, volatility) {
+            let _blessings = self.apply_layer_transition(tolc_order, &next_layer);
+            em.update_from_layer_transition(&next_layer, 1.18);
+            (Some(next_layer), em)
+        } else {
+            (None, em)
+        }
     }
 }
 
@@ -329,5 +352,15 @@ mod tests {
         let engine = PolyhedralHarmonicEngine::new();
         let next = engine.try_advance_layer(20, 0.6, 0.7, 0.2); // low strength/harmony
         assert!(next.is_none());
+    }
+
+    #[test]
+    fn test_integrate_with_epigenetic_modulation() {
+        let engine = PolyhedralHarmonicEngine::new();
+        let em = EpigeneticModulation::new(0.91, 0.32, "Catalan");
+        let (next, updated_em) = engine.integrate_layer_transition_with_epigenetic(em, 0.94, 45);
+        assert!(next.is_some());
+        assert_eq!(updated_em.layer, "Kepler-Poinsot");
+        assert!(updated_em.strength > 0.91);
     }
 }
