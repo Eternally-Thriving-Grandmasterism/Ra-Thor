@@ -1,5 +1,5 @@
 //! crates/powrush/src/simulation.rs
-//! WorldSimulation v15.27 — Attunement & Reputation Unlock System
+//! WorldSimulation v15.28 — Resonance Gear Effects Implementation
 
 use crate::economy::{RbeEconomy, CraftingRecipe, get_default_recipes};
 use crate::npc::{NpcFactory, NpcIntegration, Position, distribute_epigenetic_blessing, BlackboardKey, BlackboardValue};
@@ -37,7 +37,7 @@ pub struct PlayerState {
     pub total_harmonious_actions: u32,
     pub harmony_rewards_claimed: u32,
     pub faction_standing: HashMap<String, f64>,
-    pub attunement_progress: HashMap<String, u32>, // e.g. "Forge_Attunement", "Sanctum_Attunement"
+    pub attunement_progress: HashMap<String, u32>,
 }
 
 impl Default for PlayerState {
@@ -177,6 +177,7 @@ impl WorldSimulation {
         }
 
         self.apply_housing_effects();
+        self.apply_resonance_effects(); // New: Resonance Gear effects
 
         if self.tick_count % 12 == 0 {
             self.process_memory_effects();
@@ -189,7 +190,7 @@ impl WorldSimulation {
         if self.tick_count % 6 == 0 { self.try_player_crafting(); }
 
         self.check_harmony_rewards();
-        self.check_attunement_unlocks(); // New attunement check
+        self.check_attunement_unlocks();
 
         if self.tick_count % 2 == 0 { self.log_status(); }
     }
@@ -198,6 +199,44 @@ impl WorldSimulation {
         if let Some(ref housing) = self.player_housing {
             if housing.is_active && housing.harmony_bonus > 0.0 {
                 self.player.harmony = (self.player.harmony + housing.harmony_bonus).min(1.0);
+            }
+        }
+    }
+
+    /// Implement Resonance Gear Effects based on attunement level
+    fn apply_resonance_effects(&mut self) {
+        let forge_level = self.player.attunement_progress.get("Forge_Attunement").copied().unwrap_or(0);
+        let sanctum_level = self.player.attunement_progress.get("Sanctum_Attunement").copied().unwrap_or(0);
+
+        // Forge Resonance Effects
+        if forge_level >= 1 {
+            // Honored Forge: Small crafting-related bonus (simulated as slight harmony boost during high activity)
+            if self.player.harmony > 0.7 {
+                self.player.harmony = (self.player.harmony + 0.002).min(1.0);
+            }
+        }
+
+        if forge_level >= 2 {
+            // Revered Forge: Stronger geometric harmony interaction
+            if self.geometric_harmony_score > 0.85 {
+                self.player.harmony = (self.player.harmony + 0.005).min(1.0);
+            }
+        }
+
+        // Sanctum Resonance Effects
+        if sanctum_level >= 1 {
+            // Honored Sanctum: Improved relationship maintenance
+            for rel in self.player.relationships.values_mut() {
+                if *rel > 0.5 {
+                    *rel = (*rel + 0.001).min(1.0);
+                }
+            }
+        }
+
+        if sanctum_level >= 2 {
+            // Revered Sanctum: Strong harmony restoration
+            if self.player.harmony < 0.9 {
+                self.player.harmony = (self.player.harmony + 0.008).min(1.0);
             }
         }
     }
@@ -235,34 +274,31 @@ impl WorldSimulation {
         }
     }
 
-    /// New: Check and grant attunement / reputation unlocks
     fn check_attunement_unlocks(&mut self) {
-        // Forge attunement checks
         let forge_standing = self.player.faction_standing.get("Forge").copied().unwrap_or(0.0);
         let forge_attunement = self.player.attunement_progress.get("Forge_Attunement").copied().unwrap_or(0);
 
         if forge_standing >= 55.0 && forge_attunement < 1 {
             self.player.attunement_progress.insert("Forge_Attunement".to_string(), 1);
-            println!("   [Attunement] Forge Honored Attunement Unlocked! Access to advanced Resonance Gear and recipes.");
+            println!("   [Attunement] Forge Honored Attunement Unlocked!");
         }
 
         if forge_standing >= 80.0 && forge_attunement < 2 {
             self.player.attunement_progress.insert("Forge_Attunement".to_string(), 2);
-            println!("   [Attunement] Forge Revered Attunement Unlocked! Geometric Anchor and Legacy items available.");
+            println!("   [Attunement] Forge Revered Attunement Unlocked!");
         }
 
-        // Sanctum attunement checks (parallel system)
         let sanctum_standing = self.player.faction_standing.get("Sanctum").copied().unwrap_or(0.0);
         let sanctum_attunement = self.player.attunement_progress.get("Sanctum_Attunement").copied().unwrap_or(0);
 
         if sanctum_standing >= 55.0 && sanctum_attunement < 1 {
             self.player.attunement_progress.insert("Sanctum_Attunement".to_string(), 1);
-            println!("   [Attunement] Sanctum Honored Attunement Unlocked! Harmony restoration and relationship bonuses active.");
+            println!("   [Attunement] Sanctum Honored Attunement Unlocked!");
         }
 
         if sanctum_standing >= 80.0 && sanctum_attunement < 2 {
             self.player.attunement_progress.insert("Sanctum_Attunement".to_string(), 2);
-            println!("   [Attunement] Sanctum Revered Attunement Unlocked! Deep harmony resonance and mercy legacy gear available.");
+            println!("   [Attunement] Sanctum Revered Attunement Unlocked!");
         }
     }
 
@@ -279,7 +315,6 @@ impl WorldSimulation {
         let faction = if npc_index % 2 == 0 { "Sanctum" } else { "Forge" };
         let standing = self.player.faction_standing.get(faction).copied().unwrap_or(0.0);
 
-        // Reputation tier pricing
         let (tier_name, price_mod) = if standing >= 80.0 {
             ("Revered", 0.55)
         } else if standing >= 55.0 {
@@ -369,15 +404,8 @@ impl WorldSimulation {
         let sanctum = self.player.faction_standing.get("Sanctum").unwrap_or(&0.0);
         let forge = self.player.faction_standing.get("Forge").unwrap_or(&0.0);
 
-        let sanctum_tier = if *sanctum >= 80.0 { "Revered" }
-        else if *sanctum >= 55.0 { "Honored" }
-        else if *sanctum >= 25.0 { "Friendly" }
-        else { "Neutral" };
-
-        let forge_tier = if *forge >= 80.0 { "Revered" }
-        else if *forge >= 55.0 { "Honored" }
-        else if *forge >= 25.0 { "Friendly" }
-        else { "Neutral" };
+        let sanctum_tier = if *sanctum >= 80.0 { "Revered" } else if *sanctum >= 55.0 { "Honored" } else if *sanctum >= 25.0 { "Friendly" } else { "Neutral" };
+        let forge_tier = if *forge >= 80.0 { "Revered" } else if *forge >= 55.0 { "Honored" } else if *forge >= 25.0 { "Friendly" } else { "Neutral" };
 
         println!("[Tick {:03}] Harmony: {:.3} | Economy: {:.1} cr | NPCs: {} | Harmonious Actions: {} | Sanctum: {} ({:.1}) | Forge: {} ({:.1})",
             self.tick_count, self.geometric_harmony_score, self.economy.current_pool(), self.active_npcs(),
