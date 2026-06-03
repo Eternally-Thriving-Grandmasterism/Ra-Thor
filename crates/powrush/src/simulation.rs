@@ -1,5 +1,5 @@
 //! crates/powrush/src/simulation.rs
-//! WorldSimulation v15.26 — Full Faction Expansion (Items, Tiers, Quest Access, Visuals)
+//! WorldSimulation v15.27 — Attunement & Reputation Unlock System
 
 use crate::economy::{RbeEconomy, CraftingRecipe, get_default_recipes};
 use crate::npc::{NpcFactory, NpcIntegration, Position, distribute_epigenetic_blessing, BlackboardKey, BlackboardValue};
@@ -37,6 +37,7 @@ pub struct PlayerState {
     pub total_harmonious_actions: u32,
     pub harmony_rewards_claimed: u32,
     pub faction_standing: HashMap<String, f64>,
+    pub attunement_progress: HashMap<String, u32>, // e.g. "Forge_Attunement", "Sanctum_Attunement"
 }
 
 impl Default for PlayerState {
@@ -44,6 +45,10 @@ impl Default for PlayerState {
         let mut standing = HashMap::new();
         standing.insert("Sanctum".to_string(), 25.0);
         standing.insert("Forge".to_string(), 10.0);
+
+        let mut attunement = HashMap::new();
+        attunement.insert("Forge_Attunement".to_string(), 0);
+        attunement.insert("Sanctum_Attunement".to_string(), 0);
 
         Self {
             position: Vector2::new(0.0, 0.0),
@@ -55,6 +60,7 @@ impl Default for PlayerState {
             total_harmonious_actions: 0,
             harmony_rewards_claimed: 0,
             faction_standing: standing,
+            attunement_progress: attunement,
         }
     }
 }
@@ -183,6 +189,7 @@ impl WorldSimulation {
         if self.tick_count % 6 == 0 { self.try_player_crafting(); }
 
         self.check_harmony_rewards();
+        self.check_attunement_unlocks(); // New attunement check
 
         if self.tick_count % 2 == 0 { self.log_status(); }
     }
@@ -228,7 +235,37 @@ impl WorldSimulation {
         }
     }
 
-    /// Full Faction Expansion: Items, Tiers, Quest Access, Visuals
+    /// New: Check and grant attunement / reputation unlocks
+    fn check_attunement_unlocks(&mut self) {
+        // Forge attunement checks
+        let forge_standing = self.player.faction_standing.get("Forge").copied().unwrap_or(0.0);
+        let forge_attunement = self.player.attunement_progress.get("Forge_Attunement").copied().unwrap_or(0);
+
+        if forge_standing >= 55.0 && forge_attunement < 1 {
+            self.player.attunement_progress.insert("Forge_Attunement".to_string(), 1);
+            println!("   [Attunement] Forge Honored Attunement Unlocked! Access to advanced Resonance Gear and recipes.");
+        }
+
+        if forge_standing >= 80.0 && forge_attunement < 2 {
+            self.player.attunement_progress.insert("Forge_Attunement".to_string(), 2);
+            println!("   [Attunement] Forge Revered Attunement Unlocked! Geometric Anchor and Legacy items available.");
+        }
+
+        // Sanctum attunement checks (parallel system)
+        let sanctum_standing = self.player.faction_standing.get("Sanctum").copied().unwrap_or(0.0);
+        let sanctum_attunement = self.player.attunement_progress.get("Sanctum_Attunement").copied().unwrap_or(0);
+
+        if sanctum_standing >= 55.0 && sanctum_attunement < 1 {
+            self.player.attunement_progress.insert("Sanctum_Attunement".to_string(), 1);
+            println!("   [Attunement] Sanctum Honored Attunement Unlocked! Harmony restoration and relationship bonuses active.");
+        }
+
+        if sanctum_standing >= 80.0 && sanctum_attunement < 2 {
+            self.player.attunement_progress.insert("Sanctum_Attunement".to_string(), 2);
+            println!("   [Attunement] Sanctum Revered Attunement Unlocked! Deep harmony resonance and mercy legacy gear available.");
+        }
+    }
+
     pub fn trade_with_npc(&mut self, npc_index: usize, item: &str, quantity: u32, sell_to_npc: bool) -> Result<f64, String> {
         if npc_index >= self.npc_integration.npc_system.agents.len() { return Err("Invalid NPC".to_string()); }
 
@@ -239,11 +276,10 @@ impl WorldSimulation {
 
         let is_friendly = npc.relationship.is_friendly();
 
-        // Faction-specific NPC
         let faction = if npc_index % 2 == 0 { "Sanctum" } else { "Forge" };
         let standing = self.player.faction_standing.get(faction).copied().unwrap_or(0.0);
 
-        // Reputation Tiers with clear benefits
+        // Reputation tier pricing
         let (tier_name, price_mod) = if standing >= 80.0 {
             ("Revered", 0.55)
         } else if standing >= 55.0 {
@@ -281,17 +317,9 @@ impl WorldSimulation {
             self.player.harmony = (self.player.harmony + 0.02).min(1.0);
             self.player.total_harmonious_actions += 1;
 
-            // Reputation-based unlock feedback
-            let unlock_msg = if standing >= 55.0 {
-                " | Revered Access Unlocked"
-            } else if standing >= 25.0 {
-                " | Friendly Rates Active"
-            } else {
-                ""
-            };
-
-            println!("   [Trade] Sold {}x {} to {} NPC[{}] for {:.1} credits | {} Standing: {:.1}{}",
-                quantity, item, faction, npc_index, total_value, tier_name, standing, unlock_msg);
+            let current = self.player.faction_standing.get(faction).unwrap_or(&0.0);
+            println!("   [Trade] Sold {}x {} to {} NPC[{}] for {:.1} credits | {} Standing: {:.1}",
+                quantity, item, faction, npc_index, total_value, tier_name, current);
         } else {
             if npc_index >= self.npc_trading_stocks.len() || !self.npc_trading_stocks[npc_index].has(item) {
                 return Err("NPC does not have this item".to_string());
@@ -302,8 +330,9 @@ impl WorldSimulation {
             self.npc_trading_stocks[npc_index].remove(item, quantity);
             self.player.inventory.add(item, quantity);
 
+            let current = self.player.faction_standing.get(faction).unwrap_or(&0.0);
             println!("   [Trade] Bought {}x {} from {} NPC[{}] for {:.1} credits | {} Standing: {:.1}",
-                quantity, item, faction, npc_index, total_value, tier_name, standing);
+                quantity, item, faction, npc_index, total_value, tier_name, current);
         }
 
         Ok(total_value)
@@ -340,8 +369,15 @@ impl WorldSimulation {
         let sanctum = self.player.faction_standing.get("Sanctum").unwrap_or(&0.0);
         let forge = self.player.faction_standing.get("Forge").unwrap_or(&0.0);
 
-        let sanctum_tier = if *sanctum >= 80.0 { "Revered" } else if *sanctum >= 55.0 { "Honored" } else if *sanctum >= 25.0 { "Friendly" } else { "Neutral" };
-        let forge_tier = if *forge >= 80.0 { "Revered" } else if *forge >= 55.0 { "Honored" } else if *forge >= 25.0 { "Friendly" } else { "Neutral" };
+        let sanctum_tier = if *sanctum >= 80.0 { "Revered" }
+        else if *sanctum >= 55.0 { "Honored" }
+        else if *sanctum >= 25.0 { "Friendly" }
+        else { "Neutral" };
+
+        let forge_tier = if *forge >= 80.0 { "Revered" }
+        else if *forge >= 55.0 { "Honored" }
+        else if *forge >= 25.0 { "Friendly" }
+        else { "Neutral" };
 
         println!("[Tick {:03}] Harmony: {:.3} | Economy: {:.1} cr | NPCs: {} | Harmonious Actions: {} | Sanctum: {} ({:.1}) | Forge: {} ({:.1})",
             self.tick_count, self.geometric_harmony_score, self.economy.current_pool(), self.active_npcs(),
