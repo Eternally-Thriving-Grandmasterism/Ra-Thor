@@ -1,8 +1,21 @@
-//! # PowrushGame — Core Game Engine (v0.1.0)
+//! # PowrushGame — Core Game Engine
 //!
-//! The central simulation engine for Powrush.
-//! Every action, resource flow, and decision passes through the 7 Living Mercy Gates.
-//! This is the single source of truth for both Single-Player and MMO modes.
+//! The central simulation engine and heartbeat of **Powrush RBE**.
+//!
+//! Every action, resource flow, player update, and decision in Powrush
+//! ultimately passes through this engine. It enforces the **7 Living Mercy Gates**
+//! on every simulation cycle and drives Real Blockchain Economy (RBE) abundance mechanics.
+//!
+//! This is the single source of truth for both single-player and MMO modes.
+//!
+//! ## Core Responsibilities
+//! - Mercy-gated simulation cycles (TOLC-aligned)
+//! - Resource regeneration and abundance tracking (RBE core)
+//! - Player state management and happiness updates
+//! - Future integration point for the real `mercy` crate + Hebbian resonance
+//!
+//! This engine is designed to eventually delegate full mercy evaluation
+//! to `crates/mercy` while keeping the simulation loop clean and performant.
 
 use crate::player::Player;
 use crate::resources::{Resource, ResourceType};
@@ -45,23 +58,27 @@ impl PowrushGame {
             Resource::new(ResourceType::Energy, 5000.0, 0.0),
             Resource::new(ResourceType::Knowledge, 1000.0, 0.0),
             Resource::new(ResourceType::Materials, 8000.0, 0.0),
-            Resource::new(ResourceType::AmbrosianNectar, 500.0, 0.0), // Special Powrush resource
+            Resource::new(ResourceType::AmbrosianNectar, 500.0, 0.0),
         ]
     }
 
-    /// Add a new player to the world.
+    /// Add a new player to the world with a chosen faction.
     pub fn add_player(&mut self, name: String, faction: crate::faction::Faction) {
         let player = Player::new(name, faction);
         self.players.push(player);
     }
 
     /// Run one full mercy-gated simulation cycle.
-    /// This is the core heartbeat of Powrush.
+    ///
+    /// This is the **core heartbeat** of Powrush.
+    /// Every cycle performs:
+    /// - Mercy Gate evaluation
+    /// - Resource regeneration (RBE abundance)
+    /// - Player state updates
     pub async fn run_simulation_cycle(&mut self) -> Result<String, String> {
         self.current_cycle += 1;
         let now = Utc::now();
 
-        // === MERCY GATE CHECK (stub for now — will integrate real ra-thor-mercy crate) ===
         let mercy_status = self.evaluate_mercy_gates().await?;
 
         if mercy_status == MercyGateStatus::Passed {
@@ -71,7 +88,7 @@ impl PowrushGame {
             return Err("Mercy Gate violation detected. Simulation paused for review.".to_string());
         }
 
-        // === RESOURCE REGENERATION (RBE abundance logic) ===
+        // Resource regeneration (RBE abundance logic)
         let mut abundance_this_cycle = 0.0;
         for resource in &mut self.resources {
             let regen = resource.regenerate(self.current_cycle);
@@ -79,7 +96,6 @@ impl PowrushGame {
         }
         self.total_abundance_generated += abundance_this_cycle;
 
-        // === PLAYER UPDATES ===
         for player in &mut self.players {
             player.update_happiness_and_needs(abundance_this_cycle);
         }
@@ -95,15 +111,14 @@ impl PowrushGame {
         ))
     }
 
-    /// Evaluate all 7 Living Mercy Gates (future: real integration with ra-thor-mercy)
+    /// Evaluate all 7 Living Mercy Gates.
+    ///
+    /// Placeholder for now. In production this will delegate to the real
+    /// `crates/mercy` engine + TOLC 7 Gates + CEHI + Hebbian resonance.
     async fn evaluate_mercy_gates(&self) -> Result<MercyGateStatus, String> {
-        // Placeholder: always passes for now.
-        // In production this will call the real Mercy Engine from crates/mercy
-        // and check against TOLC 7 Gates + CEHI + Hebbian resonance.
         Ok(MercyGateStatus::Passed)
     }
 
-    /// Get current world abundance summary
     pub fn get_abundance_summary(&self) -> String {
         let total: f64 = self.resources.iter().map(|r| r.amount).sum();
         format!(

@@ -1,9 +1,16 @@
-//! # Faction System (v0.1.0)
+//! # Faction System
 //!
-//! The seven living factions of Powrush — each deeply aligned with
-//! specific 7 Living Mercy Gates and RBE principles.
-//! Diplomacy, alliances, mercy compliance, and ascension bonuses
-//! are all governed here.
+//! The **seven living factions** of Powrush — each deeply aligned with
+//! specific principles from the **7 Living Mercy Gates** and core RBE values.
+//!
+//! Factions influence:
+//! - Mercy compliance checks
+//! - Diplomacy bonuses between groups
+//! - Ascension and abundance multipliers
+//! - Player identity and role-playing depth
+//!
+//! This system is central to Powrush's identity as a mercy-first,
+//! post-scarcity, truth-seeking civilization simulator.
 
 use crate::mercy::MercyGateStatus;
 use serde::{Serialize, Deserialize};
@@ -44,7 +51,8 @@ impl Faction {
         }
     }
 
-    /// Mercy multiplier bonus for this faction (higher = stronger mercy alignment)
+    /// Mercy multiplier bonus for this faction.
+    /// Higher value = stronger natural alignment with mercy principles.
     pub fn mercy_bonus(&self) -> f64 {
         match self {
             Faction::Ambrosians => 1.25,
@@ -58,6 +66,7 @@ impl Faction {
     }
 
     /// Check if a proposed action complies with this faction's core mercy principles.
+    /// Returns Failed if the action violates the faction's primary gate alignment.
     pub fn check_mercy_compliance(&self, action_description: &str) -> MercyGateStatus {
         let action = action_description.to_lowercase();
 
@@ -81,7 +90,8 @@ impl Faction {
         }
     }
 
-    /// Diplomacy bonus between two factions (higher = better relations)
+    /// Diplomacy bonus between two factions (higher = better relations).
+    /// RBE encourages cooperation, so baseline is always positive.
     pub fn get_diplomacy_bonus(&self, other: Faction) -> f64 {
         match (self, other) {
             (Faction::Ambrosians, Faction::EternalCompassion) | (Faction::EternalCompassion, Faction::Ambrosians) => 1.35,
@@ -89,11 +99,11 @@ impl Faction {
             (Faction::Truthseekers, Faction::EternalCompassion) | (Faction::EternalCompassion, Faction::Truthseekers) => 1.25,
             (Faction::AbundanceBuilders, Faction::PostScarcityEngineers) | (Faction::PostScarcityEngineers, Faction::AbundanceBuilders) => 1.28,
             (Faction::Ambrosians, Faction::Harmonists) | (Faction::Harmonists, Faction::Ambrosians) => 1.15,
-            _ => 1.05, // Neutral positive baseline (RBE encourages cooperation)
+            _ => 1.05,
         }
     }
 
-    /// Returns all seven factions as a vector (useful for UI and simulation)
+    /// Returns all seven factions as a vector.
     pub fn all_factions() -> Vec<Faction> {
         vec![
             Faction::Ambrosians,

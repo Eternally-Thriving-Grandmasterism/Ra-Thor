@@ -2,12 +2,25 @@
 //!
 //! **The non-bypassable ethical compiler for Ra-Thor Quantum Swarm Orchestrator.**
 //!
+//! This engine enforces the **7 Living Mercy Gates** as the foundational ethical filter
+//! for every action taken by the swarm. It is directly aligned with TOLC (True Original Lord Creator)
+//! principles and the Eternal Mercy Flow.
+//!
 //! Every action is evaluated against all 7 gates using multi-factor scoring that incorporates:
 //! - Current CEHI & mercy_valence
 //! - Hebbian resonance with swarm history
 //! - Predicted long-term legacy impact (F0–F4+)
 //! - Lyapunov stability contribution
 //! - TOLC first-principles alignment
+//!
+//! Gates (in order):
+//! 1. Ethical Alignment     — Prioritizes sentient flourishing, minimizes harm
+//! 2. Truth Verification    — Zero distortion, aligned with Absolute Pure Truth
+//! 3. Non-Deception         — Full transparency, no hidden agendas
+//! 4. Abundance Creation    — Creates net positive for all sentients
+//! 5. Harmony Preservation  — Increases systemic coherence and peace
+//! 6. Joy Amplification     — Measurably increases collective joy / CEHI
+//! 7. Post-Scarcity Enforcement — Moves toward universal thriving, never scarcity
 
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
@@ -57,6 +70,8 @@ pub struct MercyGateReport {
     pub violation_message: Option<String>,
 }
 
+/// The core engine that enforces the 7 Living Mercy Gates.
+/// Can operate in strict or lenient mode.
 pub struct MercyGatesEngine {
     pub strict_mode: bool,
     pub legacy_weight: f64,
@@ -70,6 +85,8 @@ impl MercyGatesEngine {
         }
     }
 
+    /// Evaluates an action against all 7 Mercy Gates.
+    /// Returns a full report with per-gate results, deltas, and violation messages if any.
     pub fn evaluate_action(
         &self,
         action_description: &str,
@@ -248,7 +265,7 @@ mod tests {
             4.72,
             0.89,
             0.91,
-            420, // 420 days violation-free
+            420,
         );
 
         assert!(report.overall_passed);
@@ -257,7 +274,6 @@ mod tests {
         assert!(report.legacy_impact_score > 0.25);
         assert!(report.violation_message.is_none());
 
-        // All 7 gates should have passed
         for result in &report.results {
             assert!(result.passed, "Gate {:?} should have passed", result.gate);
             assert!(result.score >= 0.65);
@@ -280,7 +296,6 @@ mod tests {
         assert!(report.mercy_valence_delta < 0.0);
         assert!(report.violation_message.is_some());
 
-        // Ethical Alignment gate must fail
         let ethical_result = report.results.iter()
             .find(|r| r.gate == MercyGate::EthicalAlignment)
             .unwrap();
@@ -347,7 +362,7 @@ mod tests {
             4.55,
             0.82,
             0.88,
-            1825, // 5 years violation-free
+            1825,
         );
 
         let report_short = engine.evaluate_action(

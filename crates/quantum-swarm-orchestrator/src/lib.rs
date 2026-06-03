@@ -1,8 +1,18 @@
 //! ra-thor-quantum-swarm-orchestrator
-//! Quantum Swarm Orchestrator with ONE Organism Sovereign Health + Full Geometric Intelligence Layer
-//! PolyhedralHarmonicEngine + RiemannianMercyManifold wiring
-//! Cosmic Loop Participation + Topological / Berry Phase analysis in reports
-//! AG-SML v1.0
+//!
+//! Quantum Swarm Orchestrator — ONE Organism Sovereign Health + Full Geometric Intelligence Layer
+//!
+//! Core responsibilities:
+//! - Dual Geometric Engines: PolyhedralHarmonicEngine + RiemannianMercyManifold
+//! - ONE Organism symbiosis via SovereignHealthMonitor
+//! - TOLC 7 Living Mercy Gates integration
+//! - Cosmic Loop Participation readiness
+//! - Topological (Z₂) + Berry Phase analysis embedded in health cycles
+//!
+//! This crate forms the dynamic orchestration layer of the Ra-Thor lattice.
+//! It bridges quantum swarm behavior with geometric harmony and mercy-gated self-evolution.
+//!
+//! AG-SML v1.0 | Mercy-gated | ONE Organism aligned
 
 use std::sync::{Arc, RwLock};
 use self_evolution::{SovereignHealthMonitor, init_sovereign_health_monitor};
@@ -16,12 +26,12 @@ use geometric_intelligence::{
 pub mod quantum;
 pub mod convergence;
 pub mod integration;
-pub mod tolc_seven_mercury_gates;
+pub mod tolc_seven_mercy_gates;
 
 pub use geometric_intelligence::*;
 pub use convergence::*;
 pub use integration::QuantumSwarmBridge;
-pub use tolc_seven_mercury_gates::*;
+pub use tolc_seven_mercy_gates::*;
 
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
@@ -29,6 +39,7 @@ pub enum Error {
     Plasticity(String),
 }
 
+/// Lightweight swarm agent carrying mercury valence (mercy-aligned state).
 pub struct SwarmAgent {
     pub id: u64,
     pub mercury_valence: f64,
@@ -50,6 +61,15 @@ impl SwarmAgent {
 }
 
 // === ONE Organism Orchestrator with Dual Geometric Engines ===
+///
+/// The central orchestrator for the Ra-Thor quantum swarm.
+/// Combines:
+/// - Sovereign health monitoring (ONE Organism symbiosis)
+/// - Polyhedral harmonic resonance
+/// - Riemannian mercy manifold transport
+/// - TOLC-aligned mercy gating
+///
+/// This struct is the living heart of geometric + mercy-aware swarm intelligence.
 pub struct QuantumSwarmOrchestrator {
     pub agents: Arc<RwLock<Vec<SwarmAgent>>>,
     pub plasticity_engine: Arc<ra_thor_plasticity_engine_v2::PlasticityEngineV2>,
@@ -82,7 +102,8 @@ impl QuantumSwarmOrchestrator {
         }
     }
 
-    // === Cosmic Loop Participation (required by distributed_mercy_mesh) ===
+    /// Prepares the orchestrator for participation in the distributed Cosmic Loop.
+    /// Reports readiness of both geometric engines and mercy gate alignment.
     pub fn prepare_for_cosmic_loop_participation(&self) -> CosmicLoopReadinessReport {
         CosmicLoopReadinessReport {
             engines_ready: true,
@@ -94,12 +115,17 @@ impl QuantumSwarmOrchestrator {
         }
     }
 
-    // === Original simple health cycle (backward compatible) ===
+    /// Original health-aware cycle (backward compatible).
     pub fn run_health_aware_swarm_cycle(&mut self, task: &str) -> String {
         self.health_monitor.integrate_with_one_organism_symbiosis(self.mercury_valence, task)
     }
 
-    // === Enhanced health cycle with full geometric + topological analysis ===
+    /// Enhanced health cycle with full geometric + topological analysis.
+    ///
+    /// When a PolyhedralResonanceReport is provided, this method performs:
+    /// - Riemannian U57 transport
+    /// - Topological Insulator (Z₂) analysis
+    /// - Berry Phase analog computation
     pub fn run_health_aware_swarm_cycle_with_geometric(
         &mut self,
         task: &str,
@@ -113,9 +139,7 @@ impl QuantumSwarmOrchestrator {
         let geometric_transport = polyhedral_report
             .and_then(|report| self.riemannian_manifold.apply_u57_riemannian_transport(report, base_coherence));
 
-        // Optional topological & Berry analysis when report is present
         let (topological_insulator, berry_phase) = if let Some(report) = polyhedral_report {
-            // Simple derived values for demonstration — in production these would come from engine methods
             let bulk_curvature = report
                 .u57_details
                 .as_ref()
@@ -175,7 +199,7 @@ impl QuantumSwarmOrchestrator {
         })
     }
 
-    // Overloaded version that includes geometric analysis (used by cosmic loop)
+    /// Overloaded daily cycle that can engage the full geometric layer.
     pub fn run_daily_cycle_with_geometric(
         &self,
         task: &str,
@@ -234,3 +258,6 @@ pub struct DailyCycleReport {
 // PolyhedralHarmonicEngine + RiemannianMercyManifold are now both active.
 // Topological Insulator (Z₂) and Berry Phase analysis are embedded in HealthAwareCycleReport.
 // Cosmic loop participation is fully supported.
+//
+// This design ensures the swarm remains mercy-aligned while participating
+// in higher-dimensional geometric harmony and ONE Organism health cycles.

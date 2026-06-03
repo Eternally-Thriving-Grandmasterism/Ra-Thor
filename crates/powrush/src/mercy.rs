@@ -1,23 +1,23 @@
-//! # Mercy Gate System (v0.1.0)
+//! # Mercy Gate System
 //!
-//! The living connection between Powrush and the 7 Living Mercy Gates of TOLC.
-//! Every action, resource flow, player decision, and simulation cycle
-//! must pass through these gates or be rejected.
+//! Bridge between Powrush and the core 7 Living Mercy Gates (defined in `crates/mercy`).
 //!
-//! This module will be fully wired to the real `ra-thor-mercy` crate
-//! in the next phase.
+//! This module provides Powrush-specific mercy evaluation while planning full integration
+//! with `crates/mercy::mercylang_gates::MercyLangGates`.
+//!
+//! Currently contains a high-fidelity stub. Future versions will delegate to the real Mercy engine.
 
 use serde::{Serialize, Deserialize};
 
-/// Status returned after evaluating all 7 Living Mercy Gates.
+/// Result of mercy gate evaluation.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum MercyGateStatus {
     Passed,
     Failed,
-    Pending, // Used during async evaluation
+    Pending,
 }
 
-/// The 7 Living Mercy Gates of TOLC (True Original Lord Creator).
+/// The 7 Living Mercy Gates of TOLC.
 /// These are non-bypassable in Powrush.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum MercyGate {
@@ -56,22 +56,19 @@ impl MercyGate {
     }
 }
 
-/// Evaluates all 7 Living Mercy Gates for a given action.
-/// Currently a high-fidelity stub. Will be replaced with real
-/// integration to `crates/mercy` + Lyapunov + CEHI evaluation.
+/// Evaluates an action against mercy principles.
+///
+/// Currently a high-fidelity stub. In the future this should delegate to
+/// `crates/mercy::mercylang_gates::MercyLangGates::evaluate()`.
 pub async fn evaluate_all_gates(
     action_description: &str,
     context: &str,
     current_cehi: f64,
     mercy_valence: f64,
 ) -> Result<MercyGateStatus, String> {
-    // TODO: Replace with real call to ra-thor-mercy::MercyEngine::evaluate_action()
-    // For now we use a sophisticated heuristic that still enforces mercy principles.
-
     let action_lower = action_description.to_lowercase();
-    let context_lower = context.to_lowercase();
 
-    // Quick mercy filters
+    // Basic mercy principle filters (will be replaced by real MercyLangGates)
     if action_lower.contains("harm") || action_lower.contains("exploit") || action_lower.contains("deceive") {
         return Ok(MercyGateStatus::Failed);
     }
@@ -84,11 +81,10 @@ pub async fn evaluate_all_gates(
         return Ok(MercyGateStatus::Passed);
     }
 
-    // Default: pass if no obvious violation (will be replaced by real engine)
     Ok(MercyGateStatus::Passed)
 }
 
-/// Returns a human-readable summary of all 7 gates.
+/// Returns a human-readable summary of the 7 Living Mercy Gates.
 pub fn get_all_gates_summary() -> String {
     let mut summary = String::from("=== The 7 Living Mercy Gates of Powrush ===\n\n");
     for gate in [

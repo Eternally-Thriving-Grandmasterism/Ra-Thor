@@ -1,47 +1,55 @@
 //! crates/powrush/src/npc/mod.rs
-//! General-purpose NPC / AGiNPC AI infrastructure for Powrush
-//! v14.0.0 | MIAL + MWPO + TOLC 8 Mercy Gates enforced
-//! AG-SML v1.0
+//! v15 Hybrid NPC AI System
+//! Blackboard + Consideration + Utility + Spatial + Relationship + Dialogue + Epigenetic
+//! Mercy as first-class architectural principle | ONE Organism aligned | AG-SML v1.0
 
-pub mod stats;
+// === Core Data Layer ===
+pub mod blackboard;
+
+// === Decision & Utility Layer ===
+pub mod consideration;
 pub mod behavior;
+
+// === Perception & Spatial Layer ===
 pub mod perception;
+pub mod spatial_hash;
 pub mod patrol;
 
-pub use stats::NpcStats;
-pub use behavior::{BehaviorTree, NodeStatus, BehaviorNode};
-pub use perception::NpcPerception;
-pub use patrol::NpcPatrol;
+// === Social & Relationship Layer ===
+pub mod relationship;
+pub mod dialogue;
 
-// Re-export core NPC agent
-pub use crate::npc::NpcAgent;
+// === Epigenetic / RBE Layer ===
+pub mod epigenetic;
 
-/// Core NPC agent — usable by any intelligent entity
-#[derive(Debug)]
-pub struct NpcAgent {
-    pub stats: NpcStats,
-    pub behavior: BehaviorTree,
-    pub perception: NpcPerception,
-    pub patrol: Option<NpcPatrol>,
-    // Future: relationship, dialogue, etc.
-}
+// === High-Level Systems ===
+pub mod system;
+pub mod npc_integration;
+pub mod npc_spawning;
 
-impl NpcAgent {
-    pub fn new(template_id: &str) -> Self {
-        Self {
-            stats: NpcStats::from_template(template_id),
-            behavior: BehaviorTree::default_mercy_aware(),
-            perception: NpcPerception::new(),
-            patrol: None,
-        }
-    }
+// === Clean Re-exports ===
+pub use blackboard::{NpcBlackboard, Position, BlackboardKey, BlackboardValue};
 
-    /// MIAL/MWPO mercy-gated tick
-    pub fn tick(&mut self, world_mercy_valence: f64) -> NodeStatus {
-        // MWPO mercy-weighted decision
-        if world_mercy_valence < 0.999999 {
-            self.behavior.apply_mercy_refinement();
-        }
-        self.behavior.tick(self)
-    }
-}
+pub use consideration::{
+    Consideration,
+    MercyAlignmentConsideration,
+    HealthConsideration,
+    PlayerThreatConsideration,
+    PostScarcityConsideration,
+    PlayerAscensionConsideration,
+};
+
+pub use behavior::{NpcAgent, UtilityAction};
+
+pub use perception::PerceptionSystem;
+pub use spatial_hash::SpatialHash;
+pub use patrol::{PatrolManager, PatrolState, PatrolPath};
+
+pub use relationship::{Relationship, RelationshipLevel};
+pub use dialogue::{DialogueSystem, DialogueResponse, DialogueTone};
+
+pub use system::NpcSystem;
+pub use npc_integration::NpcIntegration;
+pub use npc_spawning::NpcFactory;
+
+pub use epigenetic::distribute_epigenetic_blessing;

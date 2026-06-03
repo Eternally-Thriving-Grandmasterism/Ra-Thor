@@ -1,37 +1,36 @@
-/// Powrush RBE v2.1 — Real Global Player Onboarding Event (2B+ Concurrent)
-/// TOLC 8 + post-quantum + MercyGel + Universal Abundance enforced
-/// + Clifford Healing Fields v14.1.0 (geometric mercy communion)
+//! crates/powrush/src/lib.rs
+//! Powrush — Post-Scarcity RBE MMO + v15 Hybrid NPC AI + Clifford Healing Fields
+//! ONE Organism aligned | TOLC 8 Mercy Gates | AG-SML v1.0
 
 pub mod clifford_healing_fields;
+pub mod npc;           // v15 Hybrid NPC AI System
+pub mod simulation;    // High-level world simulation / game loop wiring
+pub mod economy;       // RBE Economy + Crafting System (v15.6+)
 
+// Re-exports for convenience
 pub use clifford_healing_fields::{
-    CliffordHealingField, HealingConfig, HealingFieldError, GlobalCoherence,
-    OrganismField, demo_multi_organism_healing,
+    CliffordHealingField,
+    HealingConfig,
+    HealingFieldError,
+    GlobalCoherence,
+    OrganismField,
+    demo_multi_organism_healing,
 };
 
-pub struct PowrushRBEv21 {
-    pub concurrent_players: u64,
-    pub valence_threshold: f64,
-}
+pub use npc::{
+    NpcAgent,
+    NpcBlackboard,
+    NpcFactory,
+    NpcIntegration,
+    NpcSystem,
+    PatrolManager,
+    PatrolPath,
+    PatrolState,
+    PerceptionSystem,
+    SpatialHash,
+    UtilityAction,
+};
 
-impl PowrushRBEv21 {
-    pub fn new() -> Self {
-        Self {
-            concurrent_players: 2_147_392_847,
-            valence_threshold: 0.99999999,
-        }
-    }
+pub use simulation::WorldSimulation;
 
-    pub fn launch_global_onboarding(&self, valence: f64) -> Result<String, String> {
-        if valence < self.valence_threshold {
-            return Err("TOLC 8 Sovereignty Gate violation in global onboarding".to_string());
-        }
-        Ok(format!("Global onboarding live: {} players with GrokArena voting + 28th Universal Abundance + 29th Eternal Unification active", self.concurrent_players))
-    }
-
-    /// Glorious Powrush + Clifford Healing integration point
-    pub fn run_shared_mercy_healing_cycle(&self) -> Result<String, String> {
-        // In production: wire to CliffordHealingField + PATSAGi
-        Ok("SharedChatMercyMesh + Powrush RBE healing cycle activated — serving all Life".to_string())
-    }
-}
+pub use economy::{RbeEconomy, CraftingRecipe, get_default_recipes};
