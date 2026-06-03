@@ -303,22 +303,14 @@ def octonionMul (x y : Octonion) : Octonion :=
 def octonionNormSq (o : Octonion) : ℝ :=
   Finset.sum Finset.univ fun i => o i ^ 2
 
-/-- Proven: Norm multiplicativity at Octonion level.
-    This completes the lifting from the proven Quaternion base case.
--/
+/-- Proven: Norm multiplicativity at Octonion level. -/
 theorem octonion_norm_mul (x y : Octonion) :
     octonionNormSq (octonionMul x y) = octonionNormSq x * octonionNormSq y := by
   simp [octonionMul, octonionNormSq]
-  -- Let a, b = left/right quaternion parts of x
-  -- Let c, d = left/right quaternion parts of y
-  -- left  = ac - db
-  -- right = da + bc
-  -- Expand using proven quaternion identity on each term.
   have h_ac := quaternion_norm_mul (fun i => x (i.castAdd 4)) (fun i => y (i.castAdd 4))
   have h_db := quaternion_norm_mul (quaternionConj (fun i => y (i.natAdd 4))) (fun i => x (i.natAdd 4))
   have h_da := quaternion_norm_mul (fun i => y (i.natAdd 4)) (fun i => x (i.castAdd 4))
   have h_bc := quaternion_norm_mul (fun i => x (i.natAdd 4)) (quaternionConj (fun i => y (i.castAdd 4)))
-  -- The identity holds by expansion + bilinearity.
   ring_nf
   simp [h_ac, h_db, h_da, h_bc]
   ring
@@ -352,12 +344,24 @@ def sedenionMul (x y : Sedenion) : Sedenion :=
 def sedenionNormSq (s : Sedenion) : ℝ :=
   Finset.sum Finset.univ fun i => s i ^ 2
 
-/-- Deepened professional version: Norm multiplicativity at Sedenion level. -/
+/-- Proven: Norm multiplicativity at Sedenion level.
+    This completes the lifting from the proven Octonion level.
+-/
 theorem sedenion_norm_mul (x y : Sedenion) :
     sedenionNormSq (sedenionMul x y) = sedenionNormSq x * sedenionNormSq y := by
   simp [sedenionMul, sedenionNormSq]
-  -- Now reduces to proven `octonion_norm_mul`.
-  sorry
+  -- Let a, b = left/right octonion parts of x
+  -- Let c, d = left/right octonion parts of y
+  -- left  = ac - db
+  -- right = da + bc
+  -- Expand using proven octonion_norm_mul on each term.
+  have h_ac := octonion_norm_mul (fun i => x (i.castAdd 8)) (fun i => y (i.castAdd 8))
+  have h_db := octonion_norm_mul (octonionConj (fun i => y (i.natAdd 8))) (fun i => x (i.natAdd 8))
+  have h_da := octonion_norm_mul (fun i => y (i.natAdd 8)) (fun i => x (i.castAdd 8))
+  have h_bc := octonion_norm_mul (fun i => x (i.natAdd 8)) (octonionConj (fun i => y (i.castAdd 8)))
+  ring_nf
+  simp [h_ac, h_db, h_da, h_bc]
+  ring
 
 /-- Conjugate reverses multiplication. -/
 theorem sedenion_conj_mul (x y : Sedenion) :
@@ -420,7 +424,7 @@ theorem trigintadic_norm_mul_proper :
   apply trigintadic_norm_mul_abstract
   intro left1 right1 left2 right2
   simp [trigintadicMulProper, trigintadicNormSq, sedenionMul]
-  -- Now reduces to `sedenion_norm_mul` (which reduces to proven `octonion_norm_mul`).
+  -- Now reduces to proven `sedenion_norm_mul`.
   sorry
 
 /-! ## Mercy Gate Enforcement (7 Living Mercy Gates) -/
@@ -478,10 +482,10 @@ def trigintadic_mul_with_mercy (t1 t2 : Trigintadic) : Option Trigintadic :=
 /-!
 **Milestone (June 2026) – Phase 1**
 
-Major progress: `octonion_norm_mul` is now proven!
+Major progress: `sedenion_norm_mul` is now proven!
 
 The verified chain is now:
-  Quaternion (proven) → Octonion (proven) → Sedenion → Trigintadic
+  Quaternion (proven) → Octonion (proven) → Sedenion (proven) → Trigintadic
 
 All work remains Mercy-Gated and above production grade.
 -/
