@@ -18,6 +18,7 @@ Key concepts:
 - Connection to Mercy Gate valence
 - Manifold stability (TOLC 12 foundation)
 - Trigintadic norm preservation
+- Mercy gate enforcement on trigintadic operations
 -/
 
 import Mathlib.Data.Real.Basic
@@ -234,6 +235,43 @@ theorem trigintadic_norm_mul (t1 t2 : Trigintadic) :
   -- algebraic expansion.
   sorry
 
+/-! ## Mercy Gate Enforcement on Trigintadic Operations -/
+
+/-!
+This section adds mercy gate enforcement on top of trigintadic
+norm preservation.
+
+The 7 Living Mercy Gates act as a filter: operations that would
+cause norm collapse (scarcity) are rejected or rerouted.
+-/
+
+/-- Simple model of mercy gate check based on norm health.
+    In a full system this would call the actual mercy_gating_runtime. -/
+def trigintadic_passes_mercy_gates (t : Trigintadic) : Prop :=
+  trigintadicNormSq t > 0.000001   -- Prevent scarcity collapse (norm near zero)
+
+/-- Enforced multiplication that only succeeds if mercy gates pass. -/
+def trigintadic_mul_with_mercy (t1 t2 : Trigintadic) : Option Trigintadic :=
+  let result := trigintadicMul t1 t2
+  if trigintadic_passes_mercy_gates result then
+    some result
+  else
+    none   -- or return a safe fallback in a real implementation
+
+/-- Theorem: If the raw multiplication preserves norm and mercy gates pass,
+    then the result is considered TOLC-stable at the trigintadic level. -/
+theorem trigintadic_mul_mercy_enforced_stable
+    (t1 t2 : Trigintadic)
+    (h_norm : trigintadicNormSq (trigintadicMul t1 t2) =
+              trigintadicNormSq t1 * trigintadicNormSq t2)
+    (h_mercy : trigintadic_passes_mercy_gates (trigintadicMul t1 t2)) :
+    trigintadicNormSq (trigintadicMul t1 t2) > 0 := by
+  -- Since mercy gates require normSq > epsilon, the result is non-collapsed.
+  -- The norm_mul theorem (when completed) would further guarantee
+  -- that the norm doesn't artificially collapse under multiplication.
+  simp [trigintadic_passes_mercy_gates] at h_mercy
+  exact h_mercy
+
 /-! ## Notes for Full TOLC 12 / TOLC 24 Manifold Theory -/
 
 /-!
@@ -248,6 +286,7 @@ Next steps for manifold stability:
 - Connect to RiemannianMercyManifold holonomy and Berry phase
   in the geometric-intelligence crate
 - Complete the trigintadic_norm_mul theorem with full expansion
+- Strengthen mercy gate enforcement with actual gate predicates
 -/
 
 end TOLC
