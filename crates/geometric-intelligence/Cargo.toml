@@ -1,0 +1,14 @@
+[package]
+name = "geometric-intelligence"
+version = "14.5.0"
+edition = "2021"
+
+[dependencies]
+# Core dependencies will be added here as the crate matures
+
+[dev-dependencies]
+proptest = { version = "1.6", default-features = false, features = ["std"] }
+
+[features]
+default = []
+# Future features for different geometric layers or optimizations
