@@ -1,5 +1,5 @@
 //! crates/powrush/src/simulation.rs
-//! WorldSimulation v15.16 — Refactored Efficient Memory Processing
+//! WorldSimulation v15.17 — Per-NPC Memory Optimization + Importance Weighting
 
 use crate::economy::{RbeEconomy, CraftingRecipe, get_default_recipes};
 use crate::npc::{NpcFactory, NpcIntegration, Position, distribute_epigenetic_blessing, BlackboardKey, BlackboardValue};
@@ -171,10 +171,8 @@ impl WorldSimulation {
 
         self.apply_housing_effects();
 
-        // Efficient memory processing (only every 8 ticks)
-        if self.tick_count % 8 == 0 {
-            self.process_memory_effects();
-        }
+        // Per-NPC memory processing (efficient, staggered)
+        self.process_memory_effects();
 
         let blessing_total = self.distribute_blessings_to_economy();
         self.economy.credit(blessing_total);
@@ -187,7 +185,6 @@ impl WorldSimulation {
         if self.tick_count % 2 == 0 { self.log_status(); }
     }
 
-    /// Apply housing passive effects
     fn apply_housing_effects(&mut self) {
         if let Some(ref housing) = self.player_housing {
             if housing.is_active && housing.harmony_bonus > 0.0 {
@@ -196,33 +193,60 @@ impl WorldSimulation {
         }
     }
 
-    /// Efficient memory processing - runs only every 8 ticks
-    /// Positive memories improve relationship + NPC harmony
+    /// Per-NPC memory processing with importance weighting
+    /// Only processes NPCs that have accumulated meaningful positive memory
     fn process_memory_effects(&mut self) {
         for (i, npc) in self.npc_integration.npc_system.agents.iter_mut().enumerate() {
-            // Count positive events efficiently
-            let positive_count = npc.blackboard.event_log.iter()
+            // Get last processed tick from blackboard (default 0)
+            let last_processed = if let Some(BlackboardValue::Float(last)) =
+                npc.blackboard.get_dynamic(&BlackboardKey::Custom("memory_last_processed".to_string()))
+            {
+                *last as u64
+            } else {
+                0
+            };
+
+            // Only process if enough time has passed (per-NPC timer)
+            if self.tick_count.saturating_sub(last_processed) < 12 {
+                continue;
+            }
+
+            // Count positive events with basic importance weighting
+            let positive_events: Vec<&String> = npc.blackboard.event_log.iter()
                 .filter(|e| e.contains("harmonious") || e.contains("Trust increased"))
-                .count();
+                .collect();
 
-            if positive_count >= 3 {
-                // Improve player relationship with this NPC
+            let importance_weight = positive_events.len() as f64;
+
+            if importance_weight >= 3.0 {
+                // Improve relationship
                 let current = self.player.relationships.get(&i).copied().unwrap_or(0.5);
-                self.player.relationships.insert(i, (current + 0.04).min(1.0));
+                self.player.relationships.insert(i, (current + 0.05).min(1.0));
 
-                // NPC gains harmony from positive memory
+                // NPC harmony gain scaled by importance
                 if let Some(BlackboardValue::Float(h)) =
                     npc.blackboard.get_dynamic(&BlackboardKey::Custom("geometric_harmony".to_string()))
                 {
-                    let new_h = (*h + 0.01).min(1.0);
+                    let gain = 0.012 * (importance_weight / 3.0).min(2.0);
+                    let new_h = (*h + gain).min(1.0);
                     npc.blackboard.set_dynamic(
                         BlackboardKey::Custom("geometric_harmony".to_string()),
                         BlackboardValue::Float(new_h),
                     );
                 }
 
-                // Efficiently clear processed positive memories
+                // Summarize: clear processed events and record a summary
+                let summary = format!("Player has been consistently positive ({} events)", positive_events.len());
+                npc.blackboard.record_event(&summary);
+
+                // Remove the processed positive events
                 npc.blackboard.event_log.retain(|e| !e.contains("harmonious") && !e.contains("Trust increased"));
+
+                // Update last processed time
+                npc.blackboard.set_dynamic(
+                    BlackboardKey::Custom("memory_last_processed".to_string()),
+                    BlackboardValue::Float(self.tick_count as f64),
+                );
             }
         }
     }
