@@ -1,6 +1,7 @@
 // crates/powrush/src/graphics/particles/resonance_gear_particles.rs
 // Resonance Gear Particle System — Powrush RBE
-// Priority #4: Epigenetic + Geometric Feedback Loops (Complete Delivery)
+// Priority #4: Epigenetic + Geometric Feedback Loops (Cycle 4)
+// Evolution Rate Modulation + Layer Flavor
 // AG-SML v1.0 | TOLC 8 aligned
 
 use bevy::prelude::*;
@@ -21,6 +22,18 @@ impl EpigeneticModulation {
     pub fn accumulation_multiplier(&self) -> f32 { 1.0 + self.strength * 0.2 }
     pub fn visual_intensity(&self) -> f32 { (self.strength * 0.4 + self.volatility * 0.8).clamp(0.8, 3.5) }
     pub fn lifetime_multiplier(&self) -> f32 { (1.0 + self.volatility * 0.6).clamp(0.9, 2.2) }
+
+    /// New: Evolution rate bonus from geometric state
+    pub fn evolution_rate_bonus(&self) -> f32 {
+        // Higher layers give stronger but more volatile evolution bonuses
+        let base = self.strength * 0.15;
+        let layer_bonus = match self.layer {
+            0..=1 => 0.05,
+            2..=3 => 0.12,
+            _     => 0.20,
+        };
+        (base + layer_bonus).clamp(0.0, 0.8)
+    }
 }
 
 #[derive(Resource, Default, Clone)]
@@ -134,4 +147,5 @@ pub fn apply_geometric_modulation_to_particles(g: &GeometricResonance, burst: &m
     *mult = (*mult + g.harmony_score.clamp(0.0,2.0)*0.45).clamp(0.8,4.5);
 }
 
-// PATSAGi note: Priority #4 core complete (EpigeneticModulation + visual integration)
+// PATSAGi note: Added evolution_rate_bonus() to EpigeneticModulation.
+// Layer-specific evolution bonuses now active. Ready for deeper integration.
