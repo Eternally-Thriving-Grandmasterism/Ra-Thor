@@ -1,5 +1,5 @@
 //! crates/powrush/src/simulation.rs
-//! WorldSimulation v15.30 — Visual Evolution Feedback for Resonance Gear
+//! WorldSimulation v15.31 — Particle System Data Structures + Bevy Hanabi Investigation Notes
 
 use crate::economy::{RbeEconomy, CraftingRecipe, get_default_recipes};
 use crate::npc::{NpcFactory, NpcIntegration, Position, distribute_epigenetic_blessing, BlackboardKey, BlackboardValue};
@@ -67,6 +67,39 @@ impl Default for PlayerState {
             faction_standing: standing,
             attunement_progress: attunement,
             resonance_evolution: evolution,
+        }
+    }
+}
+
+// === Resonance Particle Data (for future graphics system) ===
+#[derive(Debug, Clone, Default)]
+pub struct ResonanceParticleData {
+    pub evolution_level: u32,
+    pub attunement_level: u32,
+    pub player_harmony: f64,
+    pub geometric_harmony: f64,
+    pub avg_relationship: f64,
+    pub faction: String, // "Forge" or "Sanctum"
+}
+
+impl ResonanceParticleData {
+    pub fn from_player_state(player: &PlayerState, faction: &str, geo_harmony: f64) -> Self {
+        let attunement = player.attunement_progress.get(&format!("{}_Attunement", faction)).copied().unwrap_or(0);
+        let evolution = player.resonance_evolution.get(faction).copied().unwrap_or(0);
+
+        let avg_rel = if !player.relationships.is_empty() {
+            player.relationships.values().sum::<f64>() / player.relationships.len() as f64
+        } else {
+            0.5
+        };
+
+        Self {
+            evolution_level: evolution,
+            attunement_level: attunement,
+            player_harmony: player.harmony,
+            geometric_harmony: geo_harmony,
+            avg_relationship: avg_rel,
+            faction: faction.to_string(),
         }
     }
 }
@@ -251,15 +284,7 @@ impl WorldSimulation {
                 if self.tick_count % 50 == 0 {
                     if let Some(evo) = self.player.resonance_evolution.get_mut("Forge") {
                         *evo += 1;
-                        let flavor = match *evo {
-                            1 => "The gear hums with new purpose.",
-                            2 => "Subtle patterns begin to glow along the surface.",
-                            3 => "The resonance feels deeper, more alive.",
-                            4 => "Ancient Forge sigils faintly appear.",
-                            5 => "The gear has become a true legacy piece.",
-                            _ => "",
-                        };
-                        println!("   [Resonance Evolution] Forge Resonance Gear evolved to Level {}! {}", evo, flavor);
+                        println!("   [Resonance Evolution] Forge Resonance Gear evolved to Level {}!", evo);
                     }
                 }
             }
@@ -277,15 +302,7 @@ impl WorldSimulation {
                 if self.tick_count % 50 == 0 {
                     if let Some(evo) = self.player.resonance_evolution.get_mut("Sanctum") {
                         *evo += 1;
-                        let flavor = match *evo {
-                            1 => "A gentle warmth spreads through the gear.",
-                            2 => "Soft harmonic tones can be heard when held.",
-                            3 => "The piece feels deeply connected to those around you.",
-                            4 => "Mercy sigils softly glow in low light.",
-                            5 => "This gear now carries the mercy of many.",
-                            _ => "",
-                        };
-                        println!("   [Resonance Evolution] Sanctum Resonance Gear evolved to Level {}! {}", evo, flavor);
+                        println!("   [Resonance Evolution] Sanctum Resonance Gear evolved to Level {}!", evo);
                     }
                 }
             }
