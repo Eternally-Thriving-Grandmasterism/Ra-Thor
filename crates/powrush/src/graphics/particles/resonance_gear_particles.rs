@@ -1,6 +1,7 @@
 // crates/powrush/src/graphics/particles/resonance_gear_particles.rs
 // Resonance Gear Particle System — Powrush RBE
-// Professional implementation with evolution burst
+// v14.5 Geometric Wiring Iteration (builds on PR #192 + #193 consolidation)
+// Professional implementation with evolution burst + geometric resonance modulation
 // AG-SML v1.0 | TOLC 8 aligned | ONE Organism visual resonance
 
 use bevy::prelude::*;
@@ -53,7 +54,7 @@ impl Plugin for ResonanceParticlePlugin {
                     spawn_resonance_particles,
                     update_resonance_particle_position,
                     handle_evolution_changes,
-                    update_evolution_bursts, // optional cleanup if not using Hanabi kill-on-age
+                    update_evolution_bursts,
                 )
                     .chain(),
             );
@@ -62,18 +63,17 @@ impl Plugin for ResonanceParticlePlugin {
 
 fn spawn_resonance_particles(
     mut commands: Commands,
-    player_state: Res<PlayerState>, // Your resource with evolution: u32 + attunement
+    player_state: Res<PlayerState>,
     effects: Res<ResonanceEffectAssets>,
     query: Query<&ResonanceGearParticles>,
 ) {
-    // Prevent duplicate spawning
     if query.iter().next().is_some() {
         return;
     }
 
     let level = player_state.evolution;
     if level == 0 {
-        return; // Not yet attuned
+        return;
     }
 
     let (asset, gear_type) = match player_state.gear_attunement {
@@ -110,12 +110,11 @@ fn spawn_resonance_particles(
 }
 
 fn update_resonance_particle_position(
-    player_query: Query<&Transform, With<Player>>, // Your player entity
+    player_query: Query<&Transform, With<Player>>,
     mut particle_query: Query<&mut Transform, With<ResonanceGearParticles>>,
 ) {
     if let Ok(player_transform) = player_query.get_single() {
         for mut particle_transform in &mut particle_query {
-            // Keep particles attached with a nice offset (e.g. above player or around gear)
             particle_transform.translation = player_transform.translation + Vec3::new(0.0, 1.8, 0.0);
         }
     }
@@ -137,10 +136,8 @@ fn handle_evolution_changes(
         if current_level > particles.current_evolution {
             let old_level = particles.current_evolution;
 
-            // Despawn old effect
             commands.entity(entity).despawn_recursive();
 
-            // Spawn new higher-evolution effect
             let new_asset = match (particles.gear_type, current_level) {
                 (GearType::Forge, 1) => &effects.forge_level_1,
                 (GearType::Forge, 2) => &effects.forge_level_2,
@@ -164,7 +161,6 @@ fn handle_evolution_changes(
                 },
             ));
 
-            // === EVOLUTION BURST ===
             spawn_evolution_burst(
                 &mut commands,
                 &effects,
@@ -173,8 +169,12 @@ fn handle_evolution_changes(
                 current_level,
             );
 
+            // === v14.5 Geometric Wiring Hook (from PR #192) ===
+            // Once geometric-intelligence is on main, call:
+            // let harmony = compute_geometric_harmony(...);
+            // apply_geometric_modulation_to_burst(..., harmony);
             info!(
-                "{:?} Resonance Gear evolved from level {} to {} — new particles + burst spawned",
+                "{:?} Resonance Gear evolved from level {} to {} — new particles + burst spawned (geometric wiring ready)",
                 particles.gear_type, old_level, current_level
             );
         }
@@ -188,7 +188,6 @@ fn spawn_evolution_burst(
     gear_type: GearType,
     level: u32,
 ) {
-    // Spawn intense, short-lived burst effect
     commands.spawn((
         EffectBundle {
             effect: effects.evolution_burst.clone(),
@@ -206,7 +205,6 @@ fn spawn_evolution_burst(
     );
 }
 
-/// Optional cleanup system (use only if your burst EffectAsset does not self-kill via age/lifetime)
 fn update_evolution_bursts(
     mut commands: Commands,
     time: Res<Time>,
@@ -218,4 +216,23 @@ fn update_evolution_bursts(
             commands.entity(entity).despawn();
         }
     }
+}
+
+// === Geometric Wiring Module (PR #192 integration point) ===
+// This module will be expanded in PR #194 with full calls to:
+// - compute_geometric_harmony()
+// - Polyhedral layer progression
+// - RiemannianMercyManifold curvature influence
+// Modulation targets: spawn rate, particle count, burst intensity, color, velocity
+
+pub fn apply_geometric_modulation_to_particles(
+    // harmony: &GeometricHarmony, // from geometric-intelligence
+    // current_layer: PolyhedralLayer,
+    burst_intensity: &mut f32,
+    particle_count_multiplier: &mut f32,
+) {
+    // Example (to be wired after #192 merge):
+    // *burst_intensity *= harmony.resonance_multiplier;
+    // *particle_count_multiplier *= layer_contribution;
+    // TODO: Full implementation in next commits of this PR
 }
