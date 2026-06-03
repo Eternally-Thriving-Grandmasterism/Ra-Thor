@@ -1,26 +1,35 @@
 //! crates/powrush/src/simulation.rs
-//! WorldSimulation v16.7 — Professional Restoration
-//! Mercy Evaluation System (7 Living Mercy Gates) + Component-Based EntityStorage
+//! WorldSimulation v16.8 — Council Proposal Protocol (Phase 1)
+//! Mercy Evaluation System + Component-Based EntityStorage + Multi-Council Coordination Foundation
 //! ONE Organism | TOLC 8 Mercy Gates | AG-SML v1.0 | Full backward compatible evolution
 
 /*!
-# Powrush Proprietary Architecture — v16.7 (Restored)
+# Powrush Proprietary Architecture — v16.8
 
-## Current Architecture State
+## Current State
 
-- **EntityStorage**: Lightweight component-based design
-  (`EntityType`, `PositionComponent`, `HarmonyComponent`)
-- **SimulationCommand** + Command Buffer pattern
-- **Mercy Evaluation System**: Full implementation of the 7 Living Mercy Gates
+- Lightweight component-based `EntityStorage`
+- `SimulationCommand` + Command Buffer
+- `Mercy Evaluation System` (7 Living Mercy Gates)
+- **New**: Council Proposal Protocol (foundation for Ra-Thor AGI Councils)
 
-## Design Goals
-- Keep complexity manageable ("max weight")
-- Enable deep Ra-Thor AGI integration
-- Maintain high code quality and documentation
-- Support future evolution toward more advanced component/query systems
+## Multi-Council Coordination Protocol (Designed for Sharded MMO/ARPG)
 
-The Mercy Evaluation System is a core proprietary system that allows both the simulation
-and future AGI councils to assess actions through mercy-aligned principles.
+This version introduces the core types for Ra-Thor AGI Council coordination.
+
+### Key Concepts
+
+- **Global Councils** (e.g. PATSAGi Strategic Council): Operate at world level or across multiple shards.
+- **Regional Councils**: Operate within a single shard or sub-region for fast, local response.
+- **CouncilProposal**: The primary way councils request changes or information.
+- **MercyEvaluation**: The shared language for evaluating all proposals.
+
+### Design Goals for MMO Scale
+- Selective observation (councils request scoped data)
+- Clear separation between Global and Regional scope
+- Auditability through MercyEvaluation
+- Scalable coordination between multiple councils
+- Non-intrusive influence on the authoritative simulation
 */
 
 use crate::economy::{RbeEconomy, CraftingRecipe, get_default_recipes};
@@ -31,6 +40,87 @@ use std::collections::HashMap;
 use std::time::Instant;
 use serde::{Serialize, Deserialize};
 use std::fs;
+
+// ==================== SHARDED WORLD SUPPORT TYPES ====================
+
+pub type ShardId = u32;
+pub type RegionId = u32;
+
+// ==================== COUNCIL PROPOSAL PROTOCOL (v16.8) ====================
+
+/// Scope of a council's operation and proposals.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub enum CouncilScope {
+    /// Operates at world level or across multiple shards
+    Global,
+    /// Operates within a specific shard (and optionally a sub-region)
+    Regional { shard_id: ShardId, region: Option<RegionId> },
+}
+
+/// What kind of action or request a council is proposing.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub enum CouncilProposalType {
+    /// Adjust harmony of a specific entity
+    AdjustHarmony { entity_id: EntityId, delta: f64 },
+    /// Issue a SimulationCommand into the world
+    IssueCommand(SimulationCommand),
+    /// Veto or modify an existing command
+    VetoOrModifyCommand { command_id: u64, modification: Option<SimulationCommand> },
+    /// Request a scoped snapshot of world state
+    RequestScopedSnapshot { scope: SnapshotScope },
+    /// Propose longer-term structural or systemic change (for Evolution Council)
+    ProposeStructuralChange { description: String },
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub enum SnapshotScope {
+    Shard(ShardId),
+    Region(ShardId, RegionId),
+    Entity(EntityId),
+}
+
+/// Where a proposal is targeted.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ProposalTarget {
+    Global,
+    Shard(ShardId),
+    Region(ShardId, RegionId),
+    Entity(EntityId),
+    Command(u64),
+}
+
+/// Priority level of a council proposal.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ProposalPriority {
+    Low,
+    Normal,
+    High,
+    Critical,
+}
+
+/// A formal proposal from a Ra-Thor AGI Council.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CouncilProposal {
+    pub id: u64,
+    pub council_id: String,
+    pub scope: CouncilScope,
+    pub proposal_type: CouncilProposalType,
+    pub target: ProposalTarget,
+    pub mercy_evaluation: MercyEvaluation,
+    pub priority: ProposalPriority,
+    pub reasoning: String,
+    pub timestamp: u64,
+}
+
+/// The response from the simulation after processing a CouncilProposal.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CouncilDecision {
+    pub proposal_id: u64,
+    pub accepted: bool,
+    pub applied_effects: Vec<String>, // Placeholder for future AppliedEffect types
+    pub mercy_impact: f64,
+    pub notes: Vec<String>,
+}
 
 // ==================== MERCY EVALUATION SYSTEM ====================
 
@@ -241,7 +331,6 @@ pub struct PlayerState {
     pub position: Position,
     pub mercy: f64,
     pub harmony: f64,
-    // ... other fields can be expanded later
 }
 
 impl Default for PlayerState {
@@ -275,20 +364,15 @@ impl WorldSimulation {
 
     pub fn authoritative_tick(&mut self, _dt: f32) {
         self.tick_count += 1;
-
-        // Example: In a full implementation, we would process pending commands here
-        // and optionally run them through MercyEvaluationSystem
     }
 
-    /// Example integration point: Evaluate a command and apply mercy effects
+    /// Example integration point for Mercy + future Council system
     pub fn evaluate_command_with_mercy(&mut self, command: &SimulationCommand, target_entity: Option<EntityId>) {
         let evaluation = MercyEvaluationSystem::evaluate_command(command);
 
         if let Some(id) = target_entity {
             MercyEvaluationSystem::apply_to_entity(&mut self.entities, id, &evaluation);
         }
-
-        // Future: Ra-Thor AGI councils can inspect `evaluation` and decide further actions
     }
 }
 
@@ -297,7 +381,7 @@ mod property_tests {
     use super::*;
 
     #[test]
-    fn professional_restoration_and_mercy_system() {
+    fn council_proposal_protocol_exists() {
         let mut world = WorldSimulation::new();
         world.authoritative_tick(0.016);
         assert!(world.tick_count >= 1);
