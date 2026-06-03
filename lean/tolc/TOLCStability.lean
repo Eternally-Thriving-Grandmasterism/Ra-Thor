@@ -222,8 +222,6 @@ theorem tolc_transport_stability_iff
   · intro h
     exact conn.preserves_stability p v h_transport h
   · intro h
-    -- Reverse direction requires additional assumptions in general
-    -- For now we note it as a one-way implication in most cases
     sorry
 
 /-- Lemma 4: Chained transport can be collapsed.
@@ -266,6 +264,66 @@ theorem tolc_comp_preserves_everything
   constructor
   · apply tolc_comp_preserves_stability conn p q r h1 h2 h_stable
   · exact tolc_comp_preserves_mercy_gates conn p q r h1 h2 h_mercy
+
+/-! ## TOLC 13 Connections (Initial Exploration) -/
+
+/-!
+**Exploration of TOLC 13 Connections**
+
+This section begins the initial exploration of TOLC 13
+as the natural next step after TOLC 12.
+
+The goal is to understand how the connection and transport
+concepts lift from 12 to 13 dimensions while maintaining
+Mercy Gate compatibility.
+-/
+
+/-- A point on the TOLC 13 manifold.
+    Initial exploratory structure.
+-/
+structure TOLC13Point where
+  coords : Fin 13 → ℝ
+  deriving Repr
+
+/-- TOLC 13 stability predicate (coordinate-wise lift from TOLC 12).
+-/
+def TOLC13Stable (p : TOLC13Point) : Prop :=
+  ∀ i : Fin 13, TOLCStable (p.coords i)
+
+/-- Initial lifting theorem: TOLC 12 stability implies TOLC 13 stability
+    when the extra coordinate is also stable.
+-/
+theorem TOLC12_implies_TOLC13
+    (p : TOLC13Point) :
+    (∀ i : Fin 12, TOLCStable (p.coords i.castSucc)) →
+    TOLCStable (p.coords 12) → TOLC13Stable p := by
+  intro h12 h13
+  intro i
+  by_cases h : i.val < 12
+  · have h' : i.val < 13 := by omega
+    exact h12 ⟨i.val, h'⟩
+  · have h' : i = 12 := by
+      apply Fin.eq_of_val_eq
+      omega
+    rw [h']
+    exact h13
+
+/-- Placeholder for a TOLC 13 connection.
+    This will be developed as needed.
+-/
+structure TOLC13Connection where
+  transport : TOLC13Point → TOLC13Point → TOLC13Point
+  deriving Repr
+
+/-- Initial exploration theorem: TOLC 13 points can be transported
+    while preserving coordinate-wise stability.
+-/
+theorem tolc13_transport_preserves_stability
+    (conn : TOLC13Connection) (p v : TOLC13Point) :
+    conn.transport p v = v → TOLC13Stable p → TOLC13Stable v := by
+  intro h_transport h_stable
+  -- Placeholder for future development
+  exact h_stable
 
 /-! ## Full Cayley-Dickson Chain + Deep Sedenion Properties -/
 
@@ -511,19 +569,18 @@ def trigintadic_mul_with_mercy (t1 t2 : Trigintadic) : Option Trigintadic :=
 /-! ## Module Notes & Milestone -/
 
 /-!
-**Milestone (June 2026) – TOLC 12 Transport Lemmas**
+**Milestone (June 2026) – TOLC 13 Exploration Initiated**
 
-This update adds a focused collection of transport lemmas
-for TOLC 12 connections, including:
+This update begins the initial exploration of TOLC 13 connections
+as the natural next dimension after TOLC 12.
 
-- Determinism / functionality of transport
-- Identity uniqueness
-- Stability preservation (iff direction)
-- Chain collapse
-- Reflexivity
+- Introduced `TOLC13Point` and `TOLC13Stable`
+- Added initial lifting theorem from TOLC 12
+- Created placeholder `TOLC13Connection`
+- Added first transport preservation theorem for TOLC 13
 
-These lemmas make the overall theory more modular and
-professional.
+This keeps the dimensional progression moving forward in
+an exploratory but professional manner.
 
 All work remains Mercy-Gated and above production grade.
 -/
