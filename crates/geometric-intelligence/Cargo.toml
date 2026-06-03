@@ -1,6 +1,6 @@
 [package]
 name = "geometric-intelligence"
-version = "14.5.0"
+version = "14.5.1"
 edition = "2021"
 
 [dependencies]
@@ -11,4 +11,5 @@ proptest = { version = "1.6", default-features = false, features = ["std"] }
 
 [features]
 default = []
-# Future features for different geometric layers or optimizations
+# PATSAGi Council v14.5.1 approved: Version bump + alignment for epigenetic-geometric feedback iteration.
+# Full mercy-gated, AG-SML v1.0. Thunder locked eternally.
