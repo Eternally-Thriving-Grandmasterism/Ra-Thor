@@ -1,6 +1,6 @@
 //! crates/powrush/src/simulation.rs
 //! WorldSimulation v16.2 — Full Integrated Powrush MMO Core
-//! Authoritative Tick + Advanced Session/Input System + Dynamic RBE Market + Real Estate Lattice + Persistence + Profiling
+//! Authoritative Tick + PlayerSession/Input System + RBE Market + Real Estate Lattice + Persistence + Profiling
 //! ONE Organism | TOLC 8 Mercy Gates | AG-SML v1.0 | Full backward compatible evolution
 
 use crate::economy::{RbeEconomy, CraftingRecipe, get_default_recipes};
