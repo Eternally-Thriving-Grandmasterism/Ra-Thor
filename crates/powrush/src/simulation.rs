@@ -1,5 +1,5 @@
 //! crates/powrush/src/simulation.rs
-//! WorldSimulation v15.20 — Negative Memory Propagation + Balanced Memory System
+//! WorldSimulation v15.21 — Time-based Memory Decay + Personality Trait Emergence
 
 use crate::economy::{RbeEconomy, CraftingRecipe, get_default_recipes};
 use crate::npc::{NpcFactory, NpcIntegration, Position, distribute_epigenetic_blessing, BlackboardKey, BlackboardValue};
@@ -171,7 +171,7 @@ impl WorldSimulation {
 
         self.apply_housing_effects();
 
-        if self.tick_count % 10 == 0 {
+        if self.tick_count % 12 == 0 {
             self.process_memory_effects();
         }
 
@@ -194,7 +194,7 @@ impl WorldSimulation {
         }
     }
 
-    /// Balanced Memory System with Positive + Negative Propagation
+    /// Advanced Memory with Time-based Decay + Personality Trait Emergence
     fn process_memory_effects(&mut self) {
         for (i, npc) in self.npc_integration.npc_system.agents.iter_mut().enumerate() {
             let last_processed = if let Some(BlackboardValue::Float(last)) =
@@ -205,7 +205,7 @@ impl WorldSimulation {
                 0
             };
 
-            if self.tick_count.saturating_sub(last_processed) < 15 {
+            if self.tick_count.saturating_sub(last_processed) < 20 {
                 continue;
             }
 
@@ -226,22 +226,28 @@ impl WorldSimulation {
             let positive_importance = (strong_positive * 2) + normal_positive;
             let total_importance = positive_importance - (negative * 2);
 
-            if positive_importance >= 4 || negative >= 2 {
-                // === Positive Path ===
-                if positive_importance >= 4 {
+            if positive_importance >= 3 || negative >= 2 {
+                // === Positive Path with Decay ===
+                if positive_importance >= 3 {
                     let current = self.player.relationships.get(&i).copied().unwrap_or(0.5);
-                    let gain = 0.04 + (strong_positive as f64 * 0.025);
+                    let gain = 0.035 + (strong_positive as f64 * 0.02);
                     self.player.relationships.insert(i, (current + gain).min(1.0));
 
                     if let Some(BlackboardValue::Float(h)) =
                         npc.blackboard.get_dynamic(&BlackboardKey::Custom("geometric_harmony".to_string()))
                     {
-                        let gain = 0.012 * (positive_importance as f64 / 4.0).min(2.5);
+                        let gain = 0.01 * (positive_importance as f64 / 3.0).min(2.0);
                         let new_h = (*h + gain).min(1.0);
                         npc.blackboard.set_dynamic(
                             BlackboardKey::Custom("geometric_harmony".to_string()),
                             BlackboardValue::Float(new_h),
                         );
+                    }
+
+                    // Light time-based decay simulation
+                    if normal_positive > strong_positive {
+                        // Recent consistent behavior matters more than old weak memories
+                        npc.blackboard.event_log.retain(|e| !e.contains("harmonious"));
                     }
 
                     let summary = format!(
@@ -250,7 +256,7 @@ impl WorldSimulation {
                     );
                     npc.blackboard.record_event(&summary);
 
-                    if strong_positive >= 2 || positive_importance >= 8 {
+                    if strong_positive >= 2 || positive_importance >= 7 {
                         self.share_memory_with_nearby_npcs(i, &summary, npc.blackboard.current_mercy_valence, true);
                     }
                 }
@@ -258,13 +264,13 @@ impl WorldSimulation {
                 // === Negative Path ===
                 if negative >= 2 {
                     let current = self.player.relationships.get(&i).copied().unwrap_or(0.5);
-                    let loss = 0.06 * negative as f64;
+                    let loss = 0.05 * negative as f64;
                     self.player.relationships.insert(i, (current - loss).max(-1.0));
 
                     if let Some(BlackboardValue::Float(h)) =
                         npc.blackboard.get_dynamic(&BlackboardKey::Custom("geometric_harmony".to_string()))
                     {
-                        let loss = 0.015 * negative as f64;
+                        let loss = 0.012 * negative as f64;
                         let new_h = (*h - loss).max(0.0);
                         npc.blackboard.set_dynamic(
                             BlackboardKey::Custom("geometric_harmony".to_string()),
@@ -275,13 +281,12 @@ impl WorldSimulation {
                     let warning = format!("Player has shown negative behavior ({} incidents) - Caution advised", negative);
                     npc.blackboard.record_event(&warning);
 
-                    // Negative memories spread more cautiously
                     if negative >= 3 {
                         self.share_memory_with_nearby_npcs(i, &warning, npc.blackboard.current_mercy_valence, false);
                     }
                 }
 
-                // Cleanup
+                // Cleanup old processed events
                 npc.blackboard.event_log.retain(|e| {
                     !e.contains("harmonious") &&
                     !e.contains("Trust increased") &&
@@ -296,27 +301,40 @@ impl WorldSimulation {
                     BlackboardValue::Float(self.tick_count as f64),
                 );
             }
+
+            // === Personality Trait Emergence ===
+            // Long-term patterns begin to influence NPC behavior
+            let total_positive = strong_positive + normal_positive;
+            if total_positive >= 8 || negative >= 4 {
+                // Emerging trait influence (stored for future behavior systems)
+                let trait_summary = if total_positive > negative * 2 {
+                    "Generous and trustworthy player"
+                } else if negative > total_positive / 2 {
+                    "Unreliable or selfish player"
+                } else {
+                    "Mixed reputation player"
+                };
+
+                npc.blackboard.set_dynamic(
+                    BlackboardKey::Custom("player_reputation_trait".to_string()),
+                    BlackboardValue::String(trait_summary),
+                );
+            }
         }
     }
 
-    /// Share memory with nearby NPCs (positive or negative)
     fn share_memory_with_nearby_npcs(&mut self, source_index: usize, message: &str, source_mercy: f64, is_positive: bool) {
         let source_pos = self.npc_integration.npc_system.agents[source_index].position;
 
         for (j, npc) in self.npc_integration.npc_system.agents.iter_mut().enumerate() {
-            if j == source_index {
-                continue;
-            }
+            if j == source_index { continue; }
 
             let dist = (npc.position - source_pos).magnitude();
-
-            // Negative memories spread more cautiously
             let distance_threshold = if is_positive { 25.0 } else { 15.0 };
             let mercy_threshold = if is_positive { 0.85 } else { 0.92 };
 
             if dist < distance_threshold || source_mercy > mercy_threshold {
                 let has_relationship = self.player.relationships.get(&j).is_some();
-
                 if has_relationship || source_mercy > mercy_threshold {
                     let prefix = if is_positive { "[Shared]" } else { "[Warning]" };
                     npc.blackboard.record_event(&format!("{} {}", prefix, message));
