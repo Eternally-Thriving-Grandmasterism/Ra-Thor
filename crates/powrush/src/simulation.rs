@@ -1,5 +1,5 @@
 //! crates/powrush/src/simulation.rs
-//! WorldSimulation v15.15 — Housing Effects + Faction Standing + Sophisticated Memory
+//! WorldSimulation v15.16 — Refactored Efficient Memory Processing
 
 use crate::economy::{RbeEconomy, CraftingRecipe, get_default_recipes};
 use crate::npc::{NpcFactory, NpcIntegration, Position, distribute_epigenetic_blessing, BlackboardKey, BlackboardValue};
@@ -25,7 +25,7 @@ impl PlayerInventory {
     pub fn count(&self, item: &str) -> u32 { self.items.get(item).copied().unwrap_or(0) }
 }
 
-// === Player State with Progression & Faction Standing ===
+// === Player State ===
 #[derive(Debug, Clone)]
 pub struct PlayerState {
     pub position: Position,
@@ -36,13 +36,13 @@ pub struct PlayerState {
     pub relationships: HashMap<usize, f64>,
     pub total_harmonious_actions: u32,
     pub harmony_rewards_claimed: u32,
-    pub faction_standing: HashMap<String, f64>, // Faction name -> standing (-100 to +100)
+    pub faction_standing: HashMap<String, f64>,
 }
 
 impl Default for PlayerState {
     fn default() -> Self {
         let mut standing = HashMap::new();
-        standing.insert("Sanctum".to_string(), 25.0); // Starting faction standing
+        standing.insert("Sanctum".to_string(), 25.0);
 
         Self {
             position: Vector2::new(0.0, 0.0),
@@ -58,7 +58,7 @@ impl Default for PlayerState {
     }
 }
 
-// === Player Housing with Effects ===
+// === Player Housing ===
 #[derive(Debug, Clone, Default)]
 pub struct PlayerHousing {
     pub name: String,
@@ -169,11 +169,12 @@ impl WorldSimulation {
             }
         }
 
-        // Housing passive effects
         self.apply_housing_effects();
 
-        // Sophisticated memory processing
-        self.process_memory_effects();
+        // Efficient memory processing (only every 8 ticks)
+        if self.tick_count % 8 == 0 {
+            self.process_memory_effects();
+        }
 
         let blessing_total = self.distribute_blessings_to_economy();
         self.economy.credit(blessing_total);
@@ -186,7 +187,7 @@ impl WorldSimulation {
         if self.tick_count % 2 == 0 { self.log_status(); }
     }
 
-    /// Actual housing effects - passive harmony regeneration
+    /// Apply housing passive effects
     fn apply_housing_effects(&mut self) {
         if let Some(ref housing) = self.player_housing {
             if housing.is_active && housing.harmony_bonus > 0.0 {
@@ -195,33 +196,32 @@ impl WorldSimulation {
         }
     }
 
-    /// Sophisticated memory usage - positive memories improve relationship with player
+    /// Efficient memory processing - runs only every 8 ticks
+    /// Positive memories improve relationship + NPC harmony
     fn process_memory_effects(&mut self) {
-        use std::collections::HashMap;
-
         for (i, npc) in self.npc_integration.npc_system.agents.iter_mut().enumerate() {
+            // Count positive events efficiently
             let positive_count = npc.blackboard.event_log.iter()
                 .filter(|e| e.contains("harmonious") || e.contains("Trust increased"))
                 .count();
 
-            if positive_count >= 4 {
-                // Improve relationship with player
-                let current_rel = self.player.relationships.get(&i).copied().unwrap_or(0.5);
-                let new_rel = (current_rel + 0.03).min(1.0);
-                self.player.relationships.insert(i, new_rel);
+            if positive_count >= 3 {
+                // Improve player relationship with this NPC
+                let current = self.player.relationships.get(&i).copied().unwrap_or(0.5);
+                self.player.relationships.insert(i, (current + 0.04).min(1.0));
 
-                // Small harmony gain for the NPC
+                // NPC gains harmony from positive memory
                 if let Some(BlackboardValue::Float(h)) =
                     npc.blackboard.get_dynamic(&BlackboardKey::Custom("geometric_harmony".to_string()))
                 {
-                    let new_h = (*h + 0.008).min(1.0);
+                    let new_h = (*h + 0.01).min(1.0);
                     npc.blackboard.set_dynamic(
                         BlackboardKey::Custom("geometric_harmony".to_string()),
                         BlackboardValue::Float(new_h),
                     );
                 }
 
-                // Clear processed memories to keep system efficient
+                // Efficiently clear processed positive memories
                 npc.blackboard.event_log.retain(|e| !e.contains("harmonious") && !e.contains("Trust increased"));
             }
         }
