@@ -12,6 +12,54 @@ use std::time::Instant;
 use serde::{Serialize, Deserialize};
 use std::fs;
 
+// ==================== PLAYER HOUSING & TRADING STOCK (restored for completeness) ====================
+
+#[derive(Debug, Clone, Default)]
+pub struct PlayerHousing {
+    pub name: String,
+    pub harmony_bonus: f64,
+    pub items: HashMap<String, u32>,
+    pub is_active: bool,
+}
+
+impl PlayerHousing {
+    pub fn new(name: &str) -> Self {
+        Self {
+            name: name.to_string(),
+            harmony_bonus: 0.01,
+            items: HashMap::new(),
+            is_active: true,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Default)]
+pub struct NpcTradingStock {
+    pub items: HashMap<String, u32>,
+    pub last_restock: u64,
+}
+
+impl NpcTradingStock {
+    pub fn add(&mut self, item: &str, count: u32) { *self.items.entry(item.to_string()).or_insert(0) += count; }
+    pub fn remove(&mut self, item: &str, count: u32) -> bool {
+        if let Some(current) = self.items.get_mut(item) {
+            if *current >= count { *current -= count; if *current == 0 { self.items.remove(item); } return true; }
+        }
+        false
+    }
+    pub fn has(&self, item: &str) -> bool { self.items.get(item).copied().unwrap_or(0) > 0 }
+    pub fn count(&self, item: &str) -> u32 { self.items.get(item).copied().unwrap_or(0) }
+
+    pub fn restock_if_needed(&mut self, current_tick: u64, harmony: f64) {
+        let interval: u64 = if harmony > 0.85 { 8 } else { 20 };
+        if current_tick.saturating_sub(self.last_restock) >= interval {
+            self.add("Mercy Shard", 3);
+            if harmony > 0.8 { self.add("Harmony Crystal", 1); }
+            self.last_restock = current_tick;
+        }
+    }
+}
+
 // ==================== PLAYER & INVENTORY ====================
 
 #[derive(Debug, Clone, Default)]
