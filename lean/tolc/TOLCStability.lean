@@ -249,8 +249,12 @@ The enforcement requires passing all gates for safe operations.
     Richer definitions can be developed in future iterations.
 -/
 
-def radical_love_gate (t : Trigintadic) : Prop :=
-  trigintadicNormSq t > 0   -- Positive orientation / non-destructive
+def radical_love_gate (t1 t2 result : Trigintadic) : Prop :=
+  -- Radical Love ensures the operation does not cause destructive harm.
+  -- It requires that the result maintains at least the minimum vitality
+  -- of the inputs and remains strictly positive (non-destructive).
+  trigintadicNormSq result > 0 ∧
+  trigintadicNormSq result ≥ min (trigintadicNormSq t1) (trigintadicNormSq t2)
 
 def boundless_mercy_gate (t : Trigintadic) : Prop :=
   trigintadicNormSq t ≥ 0   -- Allows recovery from minor deviations
@@ -271,23 +275,23 @@ def cosmic_harmony_gate (t : Trigintadic) : Prop :=
   trigintadicNormSq t > 0
 
 /-- Full evaluation of all 7 Living Mercy Gates on a trigintadic result. -/
-def evaluate_7_mercy_gates_on_trigintadic (t : Trigintadic) : Prop :=
-  radical_love_gate t ∧
-  boundless_mercy_gate t ∧
-  service_gate t ∧
-  abundance_gate t ∧
-  truth_gate t ∧
-  joy_gate t ∧
-  cosmic_harmony_gate t
+def evaluate_7_mercy_gates_on_trigintadic (t1 t2 result : Trigintadic) : Prop :=
+  radical_love_gate t1 t2 result ∧
+  boundless_mercy_gate result ∧
+  service_gate result ∧
+  abundance_gate result ∧
+  truth_gate result ∧
+  joy_gate result ∧
+  cosmic_harmony_gate result
 
-/-- Updated mercy check using all 7 gates. -/
-def trigintadic_passes_mercy_gates (t : Trigintadic) : Prop :=
-  evaluate_7_mercy_gates_on_trigintadic t
+/-- Updated mercy check using all 7 gates (now takes inputs for Radical Love). -/
+def trigintadic_passes_mercy_gates (t1 t2 result : Trigintadic) : Prop :=
+  evaluate_7_mercy_gates_on_trigintadic t1 t2 result
 
 /-- Safe multiplication with full 7-gate enforcement. -/
 def trigintadic_mul_with_mercy (t1 t2 : Trigintadic) : Option Trigintadic :=
   let result := trigintadicMul t1 t2
-  if trigintadic_passes_mercy_gates result then
+  if trigintadic_passes_mercy_gates t1 t2 result then
     some result
   else
     none
@@ -298,14 +302,10 @@ theorem trigintadic_mul_7_gates_enforced
     (t1 t2 : Trigintadic)
     (h_norm : trigintadicNormSq (trigintadicMul t1 t2) =
               trigintadicNormSq t1 * trigintadicNormSq t2)
-    (h_gates : evaluate_7_mercy_gates_on_trigintadic (trigintadicMul t1 t2)) :
+    (h_gates : evaluate_7_mercy_gates_on_trigintadic t1 t2 (trigintadicMul t1 t2)) :
     trigintadicNormSq (trigintadicMul t1 t2) > 0 := by
   simp [evaluate_7_mercy_gates_on_trigintadic,
-        abundance_gate, cosmic_harmony_gate,
-        radical_love_gate, boundless_mercy_gate,
-        service_gate, joy_gate] at h_gates
-  -- The conjunction of the gates (especially abundance and cosmic harmony)
-  -- guarantees the norm is positive.
+        radical_love_gate, abundance_gate, cosmic_harmony_gate] at h_gates
   exact h_gates.1
 
 /-! ## Notes for Full TOLC 12 / TOLC 24 Manifold Theory -/
