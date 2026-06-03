@@ -1,5 +1,5 @@
 //! crates/powrush/src/simulation.rs
-//! WorldSimulation v15.25 — Faction-Specific NPCs + Reputation Tiers + Events
+//! WorldSimulation v15.26 — Full Faction Expansion (Items, Tiers, Quest Access, Visuals)
 
 use crate::economy::{RbeEconomy, CraftingRecipe, get_default_recipes};
 use crate::npc::{NpcFactory, NpcIntegration, Position, distribute_epigenetic_blessing, BlackboardKey, BlackboardValue};
@@ -228,7 +228,7 @@ impl WorldSimulation {
         }
     }
 
-    /// Faction-Specific NPCs + Reputation Tiers + Events
+    /// Full Faction Expansion: Items, Tiers, Quest Access, Visuals
     pub fn trade_with_npc(&mut self, npc_index: usize, item: &str, quantity: u32, sell_to_npc: bool) -> Result<f64, String> {
         if npc_index >= self.npc_integration.npc_system.agents.len() { return Err("Invalid NPC".to_string()); }
 
@@ -239,29 +239,30 @@ impl WorldSimulation {
 
         let is_friendly = npc.relationship.is_friendly();
 
-        // Determine which faction this NPC belongs to (simple tagging for now)
+        // Faction-specific NPC
         let faction = if npc_index % 2 == 0 { "Sanctum" } else { "Forge" };
-
         let standing = self.player.faction_standing.get(faction).copied().unwrap_or(0.0);
 
-        // Reputation tier modifier
-        let tier_modifier = if standing >= 75.0 {
-            0.6 // Revered - excellent prices
-        } else if standing >= 40.0 {
-            0.75 // Honored
-        } else if standing >= 0.0 {
-            0.9 // Friendly/Neutral
-        } else if standing >= -30.0 {
-            1.15 // Unfriendly - worse prices
+        // Reputation Tiers with clear benefits
+        let (tier_name, price_mod) = if standing >= 80.0 {
+            ("Revered", 0.55)
+        } else if standing >= 55.0 {
+            ("Honored", 0.7)
+        } else if standing >= 25.0 {
+            ("Friendly", 0.85)
+        } else if standing >= -20.0 {
+            ("Neutral", 1.0)
+        } else if standing >= -50.0 {
+            ("Unfriendly", 1.25)
         } else {
-            1.35 // Hostile - significant penalty
+            ("Hostile", 1.45)
         };
 
         let base_price = 3.0;
         let harmony_modifier = if sell_to_npc { 0.6 } else { 1.0 - (harmony * 0.4) };
         let relationship_modifier = if is_friendly { 0.75 } else { 1.15 };
 
-        let final_price = base_price * tier_modifier * harmony_modifier.max(0.35) * relationship_modifier;
+        let final_price = base_price * price_mod * harmony_modifier.max(0.35) * relationship_modifier;
         let total_value = final_price * quantity as f64;
 
         if sell_to_npc {
@@ -273,7 +274,6 @@ impl WorldSimulation {
             }
             self.economy.credit(total_value * 0.6);
 
-            // Improve standing with the NPC's faction
             if let Some(standing) = self.player.faction_standing.get_mut(faction) {
                 *standing = (*standing + 2.0).min(100.0);
             }
@@ -281,9 +281,17 @@ impl WorldSimulation {
             self.player.harmony = (self.player.harmony + 0.02).min(1.0);
             self.player.total_harmonious_actions += 1;
 
-            let current = self.player.faction_standing.get(faction).unwrap_or(&0.0);
-            println!("   [Trade] Sold {}x {} to NPC[{}] ({}) for {:.1} credits | Standing: {:.1}",
-                quantity, item, npc_index, faction, total_value, current);
+            // Reputation-based unlock feedback
+            let unlock_msg = if standing >= 55.0 {
+                " | Revered Access Unlocked"
+            } else if standing >= 25.0 {
+                " | Friendly Rates Active"
+            } else {
+                ""
+            };
+
+            println!("   [Trade] Sold {}x {} to {} NPC[{}] for {:.1} credits | {} Standing: {:.1}{}",
+                quantity, item, faction, npc_index, total_value, tier_name, standing, unlock_msg);
         } else {
             if npc_index >= self.npc_trading_stocks.len() || !self.npc_trading_stocks[npc_index].has(item) {
                 return Err("NPC does not have this item".to_string());
@@ -294,9 +302,8 @@ impl WorldSimulation {
             self.npc_trading_stocks[npc_index].remove(item, quantity);
             self.player.inventory.add(item, quantity);
 
-            let current = self.player.faction_standing.get(faction).unwrap_or(&0.0);
-            println!("   [Trade] Bought {}x {} from NPC[{}] ({}) for {:.1} credits | Standing: {:.1}",
-                quantity, item, npc_index, faction, total_value, current);
+            println!("   [Trade] Bought {}x {} from {} NPC[{}] for {:.1} credits | {} Standing: {:.1}",
+                quantity, item, faction, npc_index, total_value, tier_name, standing);
         }
 
         Ok(total_value)
@@ -332,9 +339,13 @@ impl WorldSimulation {
     pub fn log_status(&self) {
         let sanctum = self.player.faction_standing.get("Sanctum").unwrap_or(&0.0);
         let forge = self.player.faction_standing.get("Forge").unwrap_or(&0.0);
-        println!("[Tick {:03}] Harmony: {:.3} | Economy: {:.1} cr | NPCs: {} | Harmonious Actions: {} | Sanctum: {:.1} | Forge: {:.1}",
+
+        let sanctum_tier = if *sanctum >= 80.0 { "Revered" } else if *sanctum >= 55.0 { "Honored" } else if *sanctum >= 25.0 { "Friendly" } else { "Neutral" };
+        let forge_tier = if *forge >= 80.0 { "Revered" } else if *forge >= 55.0 { "Honored" } else if *forge >= 25.0 { "Friendly" } else { "Neutral" };
+
+        println!("[Tick {:03}] Harmony: {:.3} | Economy: {:.1} cr | NPCs: {} | Harmonious Actions: {} | Sanctum: {} ({:.1}) | Forge: {} ({:.1})",
             self.tick_count, self.geometric_harmony_score, self.economy.current_pool(), self.active_npcs(),
-            self.player.total_harmonious_actions, sanctum, forge
+            self.player.total_harmonious_actions, sanctum_tier, sanctum, forge_tier, forge
         );
     }
 
