@@ -53,7 +53,7 @@ impl ShardContext {
     }
 }
 
-// ==================== QUADTREE (v16.15 - Excellent) ====================
+// ==================== QUADTREE ====================
 
 #[derive(Debug, Clone, Copy)]
 pub struct Rectangle {
@@ -114,10 +114,10 @@ impl Quadtree {
         let w = self.boundary.width / 2.0;
         let h = self.boundary.height / 2.0;
 
-        let ne = Rectangle { x: x + w, y: y, width: w, height: h };
-        let nw = Rectangle { x: x, y: y, width: w, height: h };
+        let ne = Rectangle { x: x + w, y: y,     width: w, height: h };
+        let nw = Rectangle { x: x,     y: y,     width: w, height: h };
         let se = Rectangle { x: x + w, y: y + h, width: w, height: h };
-        let sw = Rectangle { x: x, y: y + h, width: w, height: h };
+        let sw = Rectangle { x: x,     y: y + h, width: w, height: h };
 
         self.northeast = Some(Box::new(Quadtree::new(ne, self.capacity)));
         self.northwest = Some(Box::new(Quadtree::new(nw, self.capacity)));
@@ -224,7 +224,6 @@ impl EntityStorage {
 
     pub fn set_position(&mut self, id: EntityId, new_pos: Position) {
         if let Some(old) = self.positions.insert(id, PositionComponent { position: new_pos }) {
-            // Best effort removal from old location
             let _ = self.quadtree.remove(id);
         }
         self.quadtree.insert(QuadtreeEntry { id, position: new_pos });
@@ -275,7 +274,7 @@ impl InterestSet {
     }
 }
 
-// ==================== MERCY EVALUATION SYSTEM (Full & Useful) ====================
+// ==================== MERCY EVALUATION SYSTEM ====================
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum MercyGate {
