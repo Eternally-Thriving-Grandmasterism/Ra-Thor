@@ -400,29 +400,34 @@ as possible, leveraging the base cases we already have.
 /-- Specialized concrete version for our implementation.
     Goal: Prove norm multiplicativity directly for `trigintadicMulProper`
     using the lifting strategy from the Quaternion base case.
+
+    Current status: Explicit skeleton with clear dependencies.
+    Blocked on completion of `octonion_norm_mul` and `sedenion_norm_mul`.
 -/
 theorem trigintadic_norm_mul_proper :
     trigintadicNormSq (trigintadicMulProper t1 t2) =
     trigintadicNormSq t1 * trigintadicNormSq t2 := by
-  -- Strategy:
-  -- 1. Apply the abstract theorem (already proven)
-  -- 2. Discharge the local assumption using the structure of
-  --    `trigintadicMulProper` + the chain of norm-preserving
-  --    multiplications from Quaternion upward.
-  --
-  -- Currently blocked by `sorry` in `octonion_norm_mul` and
-  --  `sedenion_norm_mul`. We make the skeleton as clean and
-  --  professional as possible for future completion.
   apply trigintadic_norm_mul_abstract
-  intro s1 s2 t1 t2
-  -- At this point we would use:
-  --   `quaternion_norm_mul` (proven)
-  --   `octonion_norm_mul`   (to be completed)
-  --   `sedenion_norm_mul`    (to be completed)
+  intro left1 right1 left2 right2
+  -- Explicit decomposition:
+  -- t1 = {left := left1, right := right1}
+  -- t2 = {left := left2, right := right2}
   --
-  -- The structure is now explicit and ready for incremental
-  --  completion as the lower-level norm theorems are proven.
+  -- trigintadicMulProper produces:
+  --   left  = sedenionMul left1 left2 - sedenionMul (sedenionConj right2) right1
+  --   right = sedenionMul right2 left1 + sedenionMul right1 (sedenionConj left2)
+  --
+  -- We need to show that the norm of this pair equals
+  --   (‖left1‖² + ‖right1‖²) * (‖left2‖² + ‖right2‖²)
+  --
+  -- This holds if sedenionMul preserves norm (which reduces to
+  --   octonion_norm_mul, which reduces to quaternion_norm_mul).
+  --
+  -- The structure below is now fully explicit and ready for
+  --  incremental completion.
   simp [trigintadicMulProper, trigintadicNormSq, sedenionMul]
+  -- At this point the proof would continue by applying
+  -- `sedenion_norm_mul` (once proven) on the four terms.
   sorry
 
 /-! ## Mercy Gate Enforcement (7 Living Mercy Gates) -/
@@ -483,9 +488,9 @@ def trigintadic_mul_with_mercy (t1 t2 : Trigintadic) : Option Trigintadic :=
 Phase 1 work is in progress:
 - TOLC 12 manifold foundations (light professional groundwork)
 - Parallel transport invariance exploration completed
-- Concrete norm theorem (`trigintadic_norm_mul_proper`) now has
-  a significantly improved, explicit proof skeleton ready for
-  incremental completion.
+- `trigintadic_norm_mul_proper` now has a significantly more explicit
+  and professional proof skeleton with clear decomposition and
+  lifting strategy documented.
 
 All work remains Mercy-Gated and above production grade.
 -/
