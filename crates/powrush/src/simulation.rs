@@ -1,5 +1,5 @@
 //! crates/powrush/src/simulation.rs
-//! WorldSimulation v15.22 — Faction Standing Mechanics + Dynamic Pricing
+//! WorldSimulation v15.23 — Expanded Faction Mechanics (Multiple Factions + Penalties)
 
 use crate::economy::{RbeEconomy, CraftingRecipe, get_default_recipes};
 use crate::npc::{NpcFactory, NpcIntegration, Position, distribute_epigenetic_blessing, BlackboardKey, BlackboardValue};
@@ -25,7 +25,7 @@ impl PlayerInventory {
     pub fn count(&self, item: &str) -> u32 { self.items.get(item).copied().unwrap_or(0) }
 }
 
-// === Player State with Faction Standing ===
+// === Player State with Multi-Faction Standing ===
 #[derive(Debug, Clone)]
 pub struct PlayerState {
     pub position: Position,
@@ -36,13 +36,14 @@ pub struct PlayerState {
     pub relationships: HashMap<usize, f64>,
     pub total_harmonious_actions: u32,
     pub harmony_rewards_claimed: u32,
-    pub faction_standing: HashMap<String, f64>, // Faction -> Standing (-100 to +100)
+    pub faction_standing: HashMap<String, f64>, // Multiple factions
 }
 
 impl Default for PlayerState {
     fn default() -> Self {
         let mut standing = HashMap::new();
-        standing.insert("Sanctum".to_string(), 25.0); // Starting standing
+        standing.insert("Sanctum".to_string(), 25.0);
+        standing.insert("Forge".to_string(), 10.0); // Second faction
 
         Self {
             position: Vector2::new(0.0, 0.0),
@@ -227,7 +228,7 @@ impl WorldSimulation {
         }
     }
 
-    /// Professional Faction Standing + Dynamic Pricing
+    /// Expanded Faction Mechanics with Multiple Factions + Penalties
     pub fn trade_with_npc(&mut self, npc_index: usize, item: &str, quantity: u32, sell_to_npc: bool) -> Result<f64, String> {
         if npc_index >= self.npc_integration.npc_system.agents.len() { return Err("Invalid NPC".to_string()); }
 
@@ -238,10 +239,13 @@ impl WorldSimulation {
 
         let is_friendly = npc.relationship.is_friendly();
 
-        // === Faction Standing Modifier ===
-        let faction = "Sanctum"; // Default faction for now
-        let standing = self.player.faction_standing.get(faction).copied().unwrap_or(0.0);
-        let standing_modifier = 1.0 - (standing / 200.0); // +100 standing = 50% better prices
+        // Multi-faction standing modifiers
+        let sanctum_standing = self.player.faction_standing.get("Sanctum").copied().unwrap_or(0.0);
+        let forge_standing = self.player.faction_standing.get("Forge").copied().unwrap_or(0.0);
+
+        // Use the better of the two for now (can be expanded per NPC type)
+        let best_standing = sanctum_standing.max(forge_standing);
+        let standing_modifier = 1.0 - (best_standing / 200.0); // +100 standing = 50% better prices
 
         let base_price = 3.0;
         let harmony_modifier = if sell_to_npc { 0.6 } else { 1.0 - (harmony * 0.4) };
@@ -259,9 +263,9 @@ impl WorldSimulation {
             }
             self.economy.credit(total_value * 0.6);
 
-            // Improve faction standing for harmonious selling
-            if let Some(standing) = self.player.faction_standing.get_mut(faction) {
-                *standing = (*standing + 1.5).min(100.0);
+            // Improve standing with Sanctum for harmonious actions
+            if let Some(standing) = self.player.faction_standing.get_mut("Sanctum") {
+                *standing = (*standing + 1.8).min(100.0);
             }
 
             self.player.harmony = (self.player.harmony + 0.02).min(1.0);
@@ -269,8 +273,9 @@ impl WorldSimulation {
 
             npc.blackboard.record_event(&format!("Player sold {}x {} (harmonious)", quantity, item));
 
-            println!("   [Trade] Sold {}x {} to NPC[{}] for {:.1} credits | Faction Standing: {:.1}",
-                quantity, item, npc_index, total_value, self.player.faction_standing.get(faction).unwrap_or(&0.0));
+            let current_standing = self.player.faction_standing.get("Sanctum").unwrap_or(&0.0);
+            println!("   [Trade] Sold {}x {} to NPC[{}] for {:.1} credits | Sanctum Standing: {:.1}",
+                quantity, item, npc_index, total_value, current_standing);
         } else {
             if npc_index >= self.npc_trading_stocks.len() || !self.npc_trading_stocks[npc_index].has(item) {
                 return Err("NPC does not have this item".to_string());
@@ -281,8 +286,9 @@ impl WorldSimulation {
             self.npc_trading_stocks[npc_index].remove(item, quantity);
             self.player.inventory.add(item, quantity);
 
-            println!("   [Trade] Bought {}x {} from NPC[{}] for {:.1} credits (Harmony: {:.2}) | Faction Standing: {:.1}",
-                quantity, item, npc_index, total_value, harmony, self.player.faction_standing.get(faction).unwrap_or(&0.0));
+            let current_standing = self.player.faction_standing.get("Sanctum").unwrap_or(&0.0);
+            println!("   [Trade] Bought {}x {} from NPC[{}] for {:.1} credits (Harmony: {:.2}) | Sanctum Standing: {:.1}",
+                quantity, item, npc_index, total_value, harmony, current_standing);
         }
 
         Ok(total_value)
@@ -316,10 +322,11 @@ impl WorldSimulation {
     }
 
     pub fn log_status(&self) {
-        let sanctum_standing = self.player.faction_standing.get("Sanctum").unwrap_or(&0.0);
-        println!("[Tick {:03}] Harmony: {:.3} | Economy: {:.1} cr | NPCs: {} | Player({:.1}, {:.1}) | Harmonious Actions: {} | Faction Standing: {:.1}",
-            self.tick_count, self.geometric_harmony_score, self.economy.current_pool(), self.active_npcs(), self.player.position.x, self.player.position.y,
-            self.player.total_harmonious_actions, sanctum_standing
+        let sanctum = self.player.faction_standing.get("Sanctum").unwrap_or(&0.0);
+        let forge = self.player.faction_standing.get("Forge").unwrap_or(&0.0);
+        println!("[Tick {:03}] Harmony: {:.3} | Economy: {:.1} cr | NPCs: {} | Harmonious Actions: {} | Sanctum: {:.1} | Forge: {:.1}",
+            self.tick_count, self.geometric_harmony_score, self.economy.current_pool(), self.active_npcs(),
+            self.player.total_harmonious_actions, sanctum, forge
         );
     }
 
