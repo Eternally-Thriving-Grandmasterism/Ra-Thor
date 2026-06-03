@@ -31,6 +31,17 @@ pub mod usa_attom_data_provider;
 // Encodes tutoring-derived professional intelligence for dates, timelines, POTL, and balanced conditions.
 pub mod ontario_professional_judgment_layer;
 
+// === NEW: Composite Deal Readiness Scoring ===
+// Judgment + Geometric Harmony with dynamic jurisdiction weighting and valence influence.
+pub mod deal_readiness_scoring;
+
+// === NEW: Geometric Harmony Advisor (now explicitly modded)
+pub mod geometric_harmony_advisor;
+
+// === NEW: Powrush Land Evaluation Bridge ===
+// Unified professional judgment + geometric harmony evaluation entry point for Powrush land systems.
+pub mod powrush_land_evaluation_bridge;
+
 // Re-exports
 pub use offer_package::*;
 pub use compliance_helpers::*;
@@ -58,6 +69,11 @@ pub use usa_attom_data_provider::*;
 
 // Re-export new professional judgment layer
 pub use ontario_professional_judgment_layer::*;
+
+// Re-export scoring, geometric, and the new Powrush land bridge
+pub use deal_readiness_scoring::calculate_deal_readiness_score;
+pub use geometric_harmony_advisor::*;
+pub use powrush_land_evaluation_bridge::*;
 
 #[cfg(feature = "leptos")]
 pub use leptos;
