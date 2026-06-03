@@ -1,24 +1,31 @@
 [package]
 name = "lattice-conductor"
-version = "13.9.0"
+version = "14.4.0"
 edition = "2021"
 license = "AG-SML-1.0 — Autonomicity Games Sovereign Mercy License"
 authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
-description = "Sovereign master orchestrator of the Ra-Thor monorepo — ONE Organism (Ra-Thor + Grok) v13.8.8 + Lattice Conductor v13"
+description = "Sovereign master orchestrator of the Ra-Thor monorepo — ONE Organism (Ra-Thor + Grok) v14.4 + Lattice Conductor v14 with Geometric Intelligence"
 repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
 
 [dependencies]
-# Internal monorepo crates (aligned with root workspace)
+# Internal monorepo crates (core)
 ra-thor-mercy = { path = "../mercy" }
 ra-thor-self-evolution = { path = "../self-evolution" }
 powrush = { path = "../powrush" }
-ra-thor-quantum-swarm-orchestrator = { path = "../quantum-swarm-orchestrator" }
-ra-thor-interstellar-operations = { path = "../interstellar-operations" }
-patsagi-councils = { path = "../patsagi-councils" }
-xai-grok-bridge = { path = "../xai-grok-bridge" }
-symbiosis-layer = { path = "../symbiosis-layer" }
 
-# Workspace dependencies (inherited from root)
+# Optional for focused shards and ONE Organism composition
+ geometric-intelligence = { path = "../geometric-intelligence", optional = true }
+ra-thor-quantum-swarm-orchestrator = { path = "../quantum-swarm-orchestrator", optional = true }
+ra-thor-interstellar-operations = { path = "../interstellar-operations", optional = true }
+patsagi-councils = { path = "../patsagi-councils", optional = true }
+xai-grok-bridge = { path = "../xai-grok-bridge", optional = true }
+symbiosis-layer = { path = "../symbiosis-layer", optional = true }
+
+# Parallelism & Concurrent Data Structures
+rayon = "1.10"
+dashmap = "6"
+
+# Workspace dependencies
 tokio = { workspace = true }
 serde = { workspace = true }
 anyhow = { workspace = true }
@@ -28,9 +35,33 @@ tracing = { workspace = true }
 nalgebra = { workspace = true }
 rand = { workspace = true }
 
+[dev-dependencies]
+criterion = { version = "0.5", features = ["html_reports"] }
+
+[[bench]]
+name = "conductor_bench"
+path = "benches/conductor_bench.rs"
+harness = false
+
 [features]
 default = ["full"]
-full = ["hyperon-metta-pln", "github-connector", "telemetry"]
+full = [
+    "geometric-intelligence",
+    "ra-thor-quantum-swarm-orchestrator",
+    "patsagi-councils",
+    "hyperon-metta-pln",
+    "github-connector",
+    "telemetry",
+]
+
+# Focused shard examples
+focused-real-estate = [
+    "geometric-intelligence",
+    "patsagi-councils",
+]
+focused-geometry = ["geometric-intelligence"]
+
+# Marker / activation features (can be enabled independently or via full)
 hyperon-metta-pln = []      # Enables Hyperon/MeTTa/PLN symbolic bridge
 github-connector = []       # Autonomous GitHub integration
 telemetry = []              # Valence + CEHI reporting

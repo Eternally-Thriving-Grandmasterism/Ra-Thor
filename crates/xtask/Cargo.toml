@@ -12,3 +12,4 @@ serde_json = "1.0"
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 ra-thor-mercy = { path = "../mercy" }
+shard-composer = { path = "../shard-composer", features = ["one-organism"] }
