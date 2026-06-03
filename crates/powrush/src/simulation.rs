@@ -1,4 +1,4 @@
-!// crates/powrush/src/simulation.rs
+//! crates/powrush/src/simulation.rs
 //! WorldSimulation v16.0 — PowrushMMOWorld authoritative_tick + Chunk Persistence + Resource Regeneration + RBE/Faction Diplomacy + Session Sync Stubs
 //! ONE Organism | TOLC 8 Mercy Gates | AG-SML v1.0 | Full backward compatible evolution
 
