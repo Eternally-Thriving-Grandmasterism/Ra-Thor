@@ -1,5 +1,5 @@
 //! crates/powrush/src/simulation.rs
-//! WorldSimulation v15.19 — Cross-NPC Memory Sharing + True Decay
+//! WorldSimulation v15.20 — Negative Memory Propagation + Balanced Memory System
 
 use crate::economy::{RbeEconomy, CraftingRecipe, get_default_recipes};
 use crate::npc::{NpcFactory, NpcIntegration, Position, distribute_epigenetic_blessing, BlackboardKey, BlackboardValue};
@@ -171,7 +171,7 @@ impl WorldSimulation {
 
         self.apply_housing_effects();
 
-        if self.tick_count % 12 == 0 {
+        if self.tick_count % 10 == 0 {
             self.process_memory_effects();
         }
 
@@ -194,7 +194,7 @@ impl WorldSimulation {
         }
     }
 
-    /// Advanced cross-NPC memory sharing + decay
+    /// Balanced Memory System with Positive + Negative Propagation
     fn process_memory_effects(&mut self) {
         for (i, npc) in self.npc_integration.npc_system.agents.iter_mut().enumerate() {
             let last_processed = if let Some(BlackboardValue::Float(last)) =
@@ -205,60 +205,90 @@ impl WorldSimulation {
                 0
             };
 
-            if self.tick_count.saturating_sub(last_processed) < 18 {
+            if self.tick_count.saturating_sub(last_processed) < 15 {
                 continue;
             }
 
-            // Count strong vs normal positive memories
-            let mut strong = 0;
-            let mut normal = 0;
+            let mut strong_positive = 0;
+            let mut normal_positive = 0;
+            let mut negative = 0;
 
             for event in &npc.blackboard.event_log {
                 if event.contains("Trust increased") || event.contains("consistently positive") {
-                    strong += 1;
+                    strong_positive += 1;
                 } else if event.contains("harmonious") {
-                    normal += 1;
+                    normal_positive += 1;
+                } else if event.contains("greedy") || event.contains("broke trust") || event.contains("negative") {
+                    negative += 1;
                 }
             }
 
-            let importance = (strong * 2) + normal;
+            let positive_importance = (strong_positive * 2) + normal_positive;
+            let total_importance = positive_importance - (negative * 2);
 
-            if importance >= 4 {
-                // Relationship improvement (stronger for important memories)
-                let current = self.player.relationships.get(&i).copied().unwrap_or(0.5);
-                let gain = 0.04 + (strong as f64 * 0.025);
-                self.player.relationships.insert(i, (current + gain).min(1.0));
+            if positive_importance >= 4 || negative >= 2 {
+                // === Positive Path ===
+                if positive_importance >= 4 {
+                    let current = self.player.relationships.get(&i).copied().unwrap_or(0.5);
+                    let gain = 0.04 + (strong_positive as f64 * 0.025);
+                    self.player.relationships.insert(i, (current + gain).min(1.0));
 
-                // NPC harmony gain
-                if let Some(BlackboardValue::Float(h)) =
-                    npc.blackboard.get_dynamic(&BlackboardKey::Custom("geometric_harmony".to_string()))
-                {
-                    let gain = 0.012 * (importance as f64 / 4.0).min(2.5);
-                    let new_h = (*h + gain).min(1.0);
-                    npc.blackboard.set_dynamic(
-                        BlackboardKey::Custom("geometric_harmony".to_string()),
-                        BlackboardValue::Float(new_h),
+                    if let Some(BlackboardValue::Float(h)) =
+                        npc.blackboard.get_dynamic(&BlackboardKey::Custom("geometric_harmony".to_string()))
+                    {
+                        let gain = 0.012 * (positive_importance as f64 / 4.0).min(2.5);
+                        let new_h = (*h + gain).min(1.0);
+                        npc.blackboard.set_dynamic(
+                            BlackboardKey::Custom("geometric_harmony".to_string()),
+                            BlackboardValue::Float(new_h),
+                        );
+                    }
+
+                    let summary = format!(
+                        "Player has been consistently positive (strong: {}, normal: {}) - Trust growing",
+                        strong_positive, normal_positive
                     );
+                    npc.blackboard.record_event(&summary);
+
+                    if strong_positive >= 2 || positive_importance >= 8 {
+                        self.share_memory_with_nearby_npcs(i, &summary, npc.blackboard.current_mercy_valence, true);
+                    }
                 }
 
-                // Create summary
-                let summary = format!(
-                    "Player has been consistently positive (strong: {}, normal: {}) - Trust growing",
-                    strong, normal
-                );
-                npc.blackboard.record_event(&summary);
+                // === Negative Path ===
+                if negative >= 2 {
+                    let current = self.player.relationships.get(&i).copied().unwrap_or(0.5);
+                    let loss = 0.06 * negative as f64;
+                    self.player.relationships.insert(i, (current - loss).max(-1.0));
 
-                // === Cross-NPC Memory Sharing (contextual & efficient) ===
-                // Share important summary with nearby/high-harmony NPCs
-                if strong >= 2 || importance >= 8 {
-                    self.share_memory_with_nearby_npcs(i, &summary, npc.blackboard.current_mercy_valence);
+                    if let Some(BlackboardValue::Float(h)) =
+                        npc.blackboard.get_dynamic(&BlackboardKey::Custom("geometric_harmony".to_string()))
+                    {
+                        let loss = 0.015 * negative as f64;
+                        let new_h = (*h - loss).max(0.0);
+                        npc.blackboard.set_dynamic(
+                            BlackboardKey::Custom("geometric_harmony".to_string()),
+                            BlackboardValue::Float(new_h),
+                        );
+                    }
+
+                    let warning = format!("Player has shown negative behavior ({} incidents) - Caution advised", negative);
+                    npc.blackboard.record_event(&warning);
+
+                    // Negative memories spread more cautiously
+                    if negative >= 3 {
+                        self.share_memory_with_nearby_npcs(i, &warning, npc.blackboard.current_mercy_valence, false);
+                    }
                 }
 
-                // Clean up processed events
+                // Cleanup
                 npc.blackboard.event_log.retain(|e| {
                     !e.contains("harmonious") &&
                     !e.contains("Trust increased") &&
-                    !e.contains("consistently positive")
+                    !e.contains("consistently positive") &&
+                    !e.contains("greedy") &&
+                    !e.contains("broke trust") &&
+                    !e.contains("negative")
                 });
 
                 npc.blackboard.set_dynamic(
@@ -269,8 +299,8 @@ impl WorldSimulation {
         }
     }
 
-    /// Share important memory with nearby or high-harmony NPCs (efficient cross-NPC sharing)
-    fn share_memory_with_nearby_npcs(&mut self, source_index: usize, summary: &str, source_mercy: f64) {
+    /// Share memory with nearby NPCs (positive or negative)
+    fn share_memory_with_nearby_npcs(&mut self, source_index: usize, message: &str, source_mercy: f64, is_positive: bool) {
         let source_pos = self.npc_integration.npc_system.agents[source_index].position;
 
         for (j, npc) in self.npc_integration.npc_system.agents.iter_mut().enumerate() {
@@ -280,13 +310,16 @@ impl WorldSimulation {
 
             let dist = (npc.position - source_pos).magnitude();
 
-            // Share if close or if the source NPC has high mercy
-            if dist < 25.0 || source_mercy > 0.85 {
-                // Only share if the receiving NPC has some relationship with the player already
+            // Negative memories spread more cautiously
+            let distance_threshold = if is_positive { 25.0 } else { 15.0 };
+            let mercy_threshold = if is_positive { 0.85 } else { 0.92 };
+
+            if dist < distance_threshold || source_mercy > mercy_threshold {
                 let has_relationship = self.player.relationships.get(&j).is_some();
 
-                if has_relationship || source_mercy > 0.9 {
-                    npc.blackboard.record_event(&format!("[Shared] {}", summary));
+                if has_relationship || source_mercy > mercy_threshold {
+                    let prefix = if is_positive { "[Shared]" } else { "[Warning]" };
+                    npc.blackboard.record_event(&format!("{} {}", prefix, message));
                 }
             }
         }
