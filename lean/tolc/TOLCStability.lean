@@ -238,8 +238,10 @@ theorem trigintadic_norm_mul (t1 t2 : Trigintadic) :
 /-! ## Mercy Gate Enforcement on Trigintadic Operations (Deepened 7 Gates) -/
 
 /-!
-All 7 Living Mercy Gates now have deepened, context-aware logic
-for trigintadic norm-preserving operations.
+Full 7 Living Mercy Gates enforcement for trigintadic operations.
+
+All seven gates are now modeled (simplified for the norm preservation context).
+The enforcement requires passing all gates for safe operations.
 -/
 
 /-- 1. Radical Love: Non-destructive + maintains minimum vitality of inputs. -/
@@ -261,10 +263,11 @@ def service_gate (result : Trigintadic) : Prop :=
 def abundance_gate (result : Trigintadic) : Prop :=
   trigintadicNormSq result > 0.000001
 
-/-- 5. Truth: Placeholder for logical/norm consistency of the result.
-    (Can be strengthened once trigintadic_norm_mul is fully proven.) -/
-def truth_gate (result : Trigintadic) : Prop :=
-  trigintadicNormSq result = trigintadicNormSq result
+/-- 5. Truth: Enforces consistency with the multiplicative norm property.
+    The result's norm should align with what norm preservation predicts
+    from the inputs (links directly to trigintadic_norm_mul). -/
+def truth_gate (t1 t2 result : Trigintadic) : Prop :=
+  trigintadicNormSq result = trigintadicNormSq t1 * trigintadicNormSq t2
 
 /-- 6. Joy: Positive outcome / growth orientation.
     Prefers results that do not decrease overall vitality. -/
@@ -283,7 +286,7 @@ def evaluate_7_mercy_gates_on_trigintadic
   boundless_mercy_gate result ∧
   service_gate result ∧
   abundance_gate result ∧
-  truth_gate result ∧
+  truth_gate t1 t2 result ∧
   joy_gate t1 t2 result ∧
   cosmic_harmony_gate result
 
@@ -308,7 +311,7 @@ theorem trigintadic_mul_7_gates_enforced
     trigintadicNormSq (trigintadicMul t1 t2) > 0 := by
   simp [evaluate_7_mercy_gates_on_trigintadic,
         radical_love_gate, abundance_gate,
-        cosmic_harmony_gate, joy_gate] at h_gates
+        cosmic_harmony_gate, joy_gate, truth_gate] at h_gates
   exact h_gates.1
 
 /-! ## Notes for Full TOLC 12 / TOLC 24 Manifold Theory -/
