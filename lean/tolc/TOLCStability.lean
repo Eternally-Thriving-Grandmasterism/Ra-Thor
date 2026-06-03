@@ -230,9 +230,11 @@ theorem trigintadic_norm_mul (t1 t2 : Trigintadic) :
   ext i
   exact complex_norm_mul (t1.s1 i) (t1.s2 i) (t2.s1 i) (t2.s2 i)
 
-/-- Version 2: Abstract/Future-proof proof.
-    Works for any multiplication that satisfies the local norm identity.
-    Suitable for proper mixed-component Cayley-Dickson implementations. -/
+/-- Version 2: Abstract/Future-proof proof with explicit indexing.
+    This version is designed to work even when trigintadicMul is replaced
+    with a proper mixed-component Cayley-Dickson implementation.
+    The proof skeleton uses explicit Finset.sum and indexing to show
+    exactly where the local identity lifts. -/
 theorem trigintadic_norm_mul_abstract
     (mul : Trigintadic → Trigintadic → Trigintadic)
     (h_local : ∀ a b c d : ℝ,
@@ -240,32 +242,24 @@ theorem trigintadic_norm_mul_abstract
       prod.s1 0 ^ 2 + prod.s2 0 ^ 2 = (a ^ 2 + b ^ 2) * (c ^ 2 + d ^ 2))
     (t1 t2 : Trigintadic) :
     trigintadicNormSq (mul t1 t2) = trigintadicNormSq t1 * trigintadicNormSq t2 := by
-  -- Proof strategy:
-  -- 1. The norm is defined recursively via doubling.
-  -- 2. If the multiplication satisfies the local 2-component identity (h_local),
-  --    then by the recursive structure of Cayley-Dickson, the global norm
-  --    is multiplicative.
-  --
-  -- For the current flat model, this reduces to summing local identities.
-  -- For true mixed implementations, additional lemmas about component mixing
-  -- would be needed, but the high-level structure remains the same.
-  --
-  -- We prove it here for the case where the local identity lifts directly.
   simp [trigintadicNormSq]
-  -- The detailed expansion depends on how `mul` mixes components.
-  -- In a proper implementation, one would use induction on the doubling depth
-  -- or the composition algebra property.
-  --
-  -- For now, we provide the structure and mark the core lifting step.
+  -- Explicit indexing skeleton:
+  -- Left side: sum over all 16 components of the result
+  -- Right side: product of the two total norms
   apply Eq.trans _ (by
-    -- Assuming the multiplication preserves the norm locally per doubling pair
-    have h_sum : (Finset.sum Finset.univ fun i =>
-        (mul t1 t2).s1 i ^ 2 + (mul t1 t2).s2 i ^ 2) =
-      (Finset.sum Finset.univ fun i => t1.s1 i ^ 2 + t1.s2 i ^ 2) *
-      (Finset.sum Finset.univ fun i => t2.s1 i ^ 2 + t2.s2 i ^ 2) := by
-      -- This step requires the local identity to lift across the structure.
-      -- In the simplified model it holds by the previous theorem.
-      -- In a mixed model, one would use the recursive definition.
+    -- Step 1: Expand both sides explicitly
+    have h_expand : (Finset.sum Finset.univ fun i => (mul t1 t2).s1 i ^ 2 + (mul t1 t2).s2 i ^ 2) =
+                  (Finset.sum Finset.univ fun i => t1.s1 i ^ 2 + t1.s2 i ^ 2) *
+                  (Finset.sum Finset.univ fun i => t2.s1 i ^ 2 + t2.s2 i ^ 2) := by
+      -- In a proper mixed implementation, we would use the recursive
+      -- structure of Cayley-Dickson doubling here.
+      -- For now, we show the structure using Finset.sum_congr + ext.
+      apply Finset.sum_congr rfl
+      intro i _
+      -- Apply the local identity (h_local) to each corresponding pair.
+      -- In a true mixed model, the pairing would come from the
+      -- recursive decomposition, not direct indexing.
+      -- This step is where additional lemmas would be needed.
       sorry)
   rfl
 
@@ -361,7 +355,7 @@ Next steps for manifold stability:
   parallel-transported invariants
 - Connect to RiemannianMercyManifold holonomy and Berry phase
   in the geometric-intelligence crate
-- Complete the trigintadic_norm_mul_abstract theorem with full expansion
+- Complete the trigintadic_norm_mul_abstract theorem (explicit indexing version)
 - Continue refining gate predicates with domain-specific meaning
 -/
 
