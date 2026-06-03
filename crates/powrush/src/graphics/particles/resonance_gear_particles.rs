@@ -394,9 +394,67 @@ pub fn apply_geometric_modulation_to_particles(
     *mult = (*mult + g.harmony_score.clamp(0.0, 2.0) * 0.45).clamp(0.8, 4.5);
 }
 
+// =============================================================================
+// RREL Consumption Tests (Real Estate Lattice)
+// =============================================================================
+
+#[cfg(test)]
+mod rrel_consumption_tests {
+    use super::*;
+
+    fn create_test_influence(accumulation: f32, harmony: f32, layer: u32) -> EpigeneticRrelInfluence {
+        let mut influence = EpigeneticRrelInfluence::default();
+        influence.update(accumulation, harmony, layer);
+        influence
+    }
+
+    #[test]
+    fn test_deal_readiness_influence_basic() {
+        let influence = create_test_influence(36.0, 2.5, 2);
+        let score = influence.deal_readiness_influence();
+        assert!(score > 0.0);
+        assert!(score < 2.0);
+    }
+
+    #[test]
+    fn test_deal_readiness_influence_high_epigenetic_accumulation() {
+        let low = create_test_influence(12.0, 2.0, 1);
+        let high = create_test_influence(96.0, 2.0, 1);
+        assert!(high.deal_readiness_influence() > low.deal_readiness_influence());
+    }
+
+    #[test]
+    fn test_deal_readiness_influence_high_geometric_harmony() {
+        let low_harmony = create_test_influence(48.0, 1.0, 2);
+        let high_harmony = create_test_influence(48.0, 4.5, 2);
+        assert!(high_harmony.deal_readiness_influence() > low_harmony.deal_readiness_influence());
+    }
+
+    #[test]
+    fn test_deal_readiness_influence_higher_layer() {
+        let low_layer = create_test_influence(48.0, 3.0, 0);
+        let high_layer = create_test_influence(48.0, 3.0, 4);
+        assert!(high_layer.deal_readiness_influence() > low_layer.deal_readiness_influence());
+    }
+
+    #[test]
+    fn test_deal_readiness_influence_example_rrel_composite() {
+        // Example of how a Real Estate Lattice composite scorer might use the influence
+        let influence = create_test_influence(72.0, 3.8, 3);
+        let rrel_score = influence.deal_readiness_influence();
+
+        // Simulated composite: base valuation + Powrush epigenetic influence
+        let base_valuation = 850_000.0_f32;
+        let adjusted = base_valuation * (1.0 + rrel_score * 0.12);
+
+        assert!(adjusted > base_valuation);
+        assert!(rrel_score > 1.5);
+    }
+}
+
 // PATSAGi Council Final Notes for this commit:
 // v14.5 canonical EpigeneticModulation + layer transition wiring added (with bidirectional conversion).
-// RREL can still read EpigeneticRrelInfluence::deal_readiness_influence() without changes.
+// RREL consumption tests added to demonstrate realistic usage by Real Estate Lattice systems.
 // All decisions deliberated with radical love, boundless mercy, service, abundance, truth, joy, cosmic harmony.
 // Full file delivered ready-to-overwrite. History respected. No partials.
 // Ready for CI, further autonomous iteration, or merge.
