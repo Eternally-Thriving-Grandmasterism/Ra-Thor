@@ -1,55 +1,60 @@
 /*!
-# Powrush Particle Shaders — NVLink Bandwidth Specifications
+# Powrush Particle Shaders — NVLink vs Infinity Fabric Comparison
 
-Detailed exploration of NVLink bandwidth across generations.
+Comparison of NVIDIA NVLink and AMD Infinity Fabric interconnect technologies.
 
-## NVLink Generational Bandwidth (Bidirectional per GPU)
+## Overview
 
-| Generation     | GPU Examples     | Bandwidth (Bidirectional) | Notes                                      |
-|----------------|------------------|---------------------------|--------------------------------------------|
-| NVLink 1.0     | P100             | 160 GB/s                  | First generation                           |
-| NVLink 2.0     | V100             | 300 GB/s                  | Significant jump from 1.0                  |
-| NVLink 3.0     | A100             | 600 GB/s                  | Doubled from 2.0                           |
-| NVLink 4.0     | H100             | 900 GB/s                  | 50% increase; used with NVSwitch           |
+Both NVLink and Infinity Fabric are high-speed interconnects designed to move large amounts of data between processors (primarily GPUs, and in some cases CPUs). They serve similar roles in their respective ecosystems but have different strengths.
 
-*Note: These are aggregate bidirectional figures per GPU. Actual per-link speeds and number of links vary by generation.*
+## Comparison Table
 
-## Multi-GPU Context with NVSwitch
+| Aspect                        | NVLink (NVIDIA)                                      | Infinity Fabric (AMD)                                   | Notes / Winner                          |
+|-------------------------------|------------------------------------------------------|---------------------------------------------------------|-----------------------------------------|
+| **Primary Use**               | GPU-to-GPU (strong), some CPU-GPU                    | CPU-to-CPU + GPU-to-GPU / CPU-GPU                       | Depends on workload                     |
+| **Bandwidth (per GPU)**       | Very high (up to 900 GB/s bidirectional on 4.0)     | High (varies by generation; competitive in MI300 era)  | NVLink generally leads in raw GPU bandwidth |
+| **Latency**                   | Very low                                             | Low (competitive)                                       | Both excellent; NVLink often edges out  |
+| **Multi-GPU Scaling**         | Excellent with NVSwitch (non-blocking all-to-all)   | Very good in Instinct + EPYC systems                    | NVSwitch gives NVIDIA an edge at scale  |
+| **CPU-GPU Coherence**         | Limited / improving in some platforms                | Stronger in some configurations (e.g., MI300 + EPYC)   | Infinity Fabric often better for shared memory |
+| **Ecosystem**                 | NVIDIA GPUs + some server CPUs                       | AMD EPYC CPUs + Instinct GPUs                           | Ecosystem dependent                     |
+| **Collective Performance**    | Excellent (especially with NVSwitch)                 | Very good                                               | NVLink + NVSwitch typically leads       |
+| **Availability**              | High-end data center and some professional GPUs     | High-end Instinct GPUs + EPYC CPUs                      | Both high-end only                      |
 
-When GPUs are connected via NVSwitch:
-- Each GPU maintains very high effective bandwidth to all other GPUs in the system.
-- The topology is non-blocking all-to-all at full NVLink speed.
-- This enables extremely high aggregate bandwidth for multi-GPU workloads (e.g., large particle simulations distributed across many GPUs).
+## Key Takeaways
 
-## Comparison to PCIe
+**NVLink Strengths**:
+- Higher per-GPU bandwidth in recent generations.
+- Superior multi-GPU scaling when paired with NVSwitch.
+- Excellent for tight GPU-to-GPU coupling and collectives.
 
-- PCIe Gen4 x16: ~32 GB/s theoretical (~25-28 GB/s realistic)
-- PCIe Gen5 x16: ~64 GB/s theoretical
-- NVLink generations are dramatically higher (5x–14x+ PCIe Gen4 depending on generation).
+**Infinity Fabric Strengths**:
+- Better integrated CPU-GPU coherence in some platforms (useful for unified memory-like models).
+- Strong performance in AMD's full-stack (EPYC + Instinct) systems.
+- Competitive bandwidth and latency.
 
 ## Relevance to Powrush
 
-For current single-GPU development on PCIe systems, these high NVLink numbers are mostly theoretical. However, they become very relevant if we ever target high-end multi-GPU nodes for massive particle counts or distributed simulation.
+For current single-GPU development, the differences are mostly academic. However, if we ever target high-end multi-GPU or CPU+GPU shared memory workloads:
+- NVLink + NVSwitch is generally stronger for pure GPU-to-GPU scaling and large particle dataset distribution.
+- Infinity Fabric may be preferable if tight CPU-GPU shared memory / coherence is important.
 
-On NVLink systems:
-- Moving large particle datasets between GPUs or between CPU and GPU becomes much faster.
-- Unified Memory page migration (`cudaMemPrefetchAsync`) has significantly lower overhead.
-- Multi-GPU algorithms (if we scale) become more practical.
+Most Powrush development will likely remain on NVIDIA hardware for the foreseeable future, making NVLink the more immediately relevant technology.
 
-## Practical Takeaway
+## Recommendation
 
-NVLink bandwidth has scaled aggressively across generations. Each new generation roughly doubles or significantly increases effective bandwidth, making high-end systems increasingly attractive for data-intensive workloads.
+- Continue prioritizing single-GPU performance on NVIDIA hardware (PCIe + NVLink where available).
+- Monitor both technologies for future multi-GPU or heterogeneous computing decisions.
+- Profile on target hardware — real-world results matter more than theoretical comparisons.
 */
 
 use powrush_faction_dynamics::{Faction, FactionVisualIdentity, ParticleParams};
 
 pub mod compute {
-    /// Notes on NVLink bandwidth specs.
-    pub const NVLINK_BANDWIDTH_NOTES: &str = r#"
-        // NVLink has scaled aggressively:
-        // 1.0: 160 GB/s, 2.0: 300 GB/s, 3.0: 600 GB/s, 4.0: 900 GB/s
-        // NVSwitch enables full utilization across many GPUs.
-        // Huge advantage over PCIe for large data movement.
-        // Relevant for future multi-GPU Powrush scaling.
+    /// Notes on NVLink vs Infinity Fabric.
+    pub const NVLINK_VS_INFINITY_NOTES: &str = r#"
+        // NVLink: higher GPU bandwidth, excellent multi-GPU with NVSwitch
+        // Infinity Fabric: strong CPU-GPU coherence, competitive performance
+        // NVLink currently more relevant for Powrush (NVIDIA focus)
+        // Both excellent for high-end multi-GPU work
     "#;
 }
