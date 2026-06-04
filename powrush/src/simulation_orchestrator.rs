@@ -52,20 +52,30 @@ impl Plugin for PowrushSimulationOrchestratorPlugin {
 }
 
 /// The core custom authoritative simulation tick.
-/// Now demonstrates Bevy Query Filtering for performance and logic separation.
+/// This system demonstrates Bevy Archetype Queries in practice.
+///
+/// === Bevy Archetype Explanation (Powrush context) ===
+/// An Archetype is a unique combination of Component types.
+/// Every unique set of components an entity has = one Archetype.
+///
+/// Examples in Powrush:
+/// - Archetype 1: [SovereignEntity]
+/// - Archetype 2: [SovereignEntity, Active]
+/// - Archetype 3: [SovereignEntity, Active, HumanPlayer]
+/// - Archetype 4: [SovereignEntity, CliffordHealingField] (if attached)
+///
+/// Bevy stores entities in tables per Archetype. Queries are extremely fast
+/// because they only touch the relevant Archetype tables.
+///
+/// The `Changed<SovereignEntity>` filter we use below works at the Archetype level
+/// (Bevy tracks change ticks per archetype + component).
 fn powrush_authoritative_tick(
-    // Only process entities that actually changed this frame (Changed filter)
+    // Archetype-efficient query: only entities whose SovereignEntity changed
     mut changed_entities: Query<&mut SovereignEntity, Changed<SovereignEntity>>,
-
-    // Example of With/Without filtering (commented for clarity)
-    // mut human_entities: Query<&mut SovereignEntity, (With<HumanPlayer>, Without<Inactive>)>,
 
     mut healing_field: ResMut<CliffordHealingField>,
     mut unlock_state: ResMut<ServerUnlockState>,
 ) {
-    // === Changed filter usage ===
-    // Only entities whose SovereignEntity component changed are processed.
-    // This is a major performance win in a large-scale MMORPG tick.
     let mut entity_slice: Vec<_> = changed_entities.iter_mut().collect();
 
     if !entity_slice.is_empty() {
@@ -81,20 +91,18 @@ fn powrush_authoritative_tick(
         unlock_state.apply_rbe_thriving_influence(0, avg_valence);
     }
 
-    // === Other powerful filters (documented for learning) ===
-    // With<T>          : Must have component T
-    // Without<T>       : Must NOT have component T
-    // Changed<T>       : Component T was mutated this frame (used above)
-    // Added<T>         : Component T was just added this frame
-    // Or<(With<A>, With<B>)> : Logical OR of filters
-    //
-    // Example future use:
-    // Query<&SovereignEntity, (With<Active>, Without<Dead>)>
-    // Query<&mut SovereignEntity, Or<(With<HumanPlayer>, With<AGIPlayer>)>>
+    // === Archetype-aware best practices for Powrush ===
+    // 1. Prefer specific queries (with filters) over broad ones
+    // 2. Adding many marker components creates more archetypes (trade-off: faster queries vs memory)
+    // 3. `Changed<T>` is archetype-optimized — use it heavily in simulation ticks
+    // 4. For very large worlds, consider splitting into multiple archetypes intentionally
+    //    (e.g. separate "Player" vs "NPC" archetypes)
 }
 
-// Bevy Query Filtering Summary (Powrush context):
-// - Changed<SovereignEntity> is ideal for authoritative ticks (only dirty entities)
-// - With/Without markers let you separate Human vs AI vs AGI behavior
-// - Filters compose cleanly and are evaluated efficiently by Bevy's archetype system
-// - Always prefer specific filters over broad Query<&mut SovereignEntity> when possible
+// Advanced Archetype Access (for future debugging / tools):
+// You can request the Archetypes resource:
+// fn debug_archetypes(archetypes: Res<Archetypes>) {
+//     for archetype in archetypes.iter() {
+//         println!("Archetype: {:?}", archetype.components());
+//     }
+// }
