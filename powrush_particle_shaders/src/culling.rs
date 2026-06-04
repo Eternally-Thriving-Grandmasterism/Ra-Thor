@@ -1,9 +1,9 @@
 /*!
 # Culling Module
 
-Unified and professional culling pipeline architecture.
+Professional unification of the compute culling pipeline.
 
-Focus: Clean separation of configuration, resources, and dispatch preparation.
+Emphasis on clean separation and clear resource-to-dispatch association.
 */
 
 use crate::{ComputeCullingParams, DrawIndirect};
@@ -50,31 +50,33 @@ impl CullingPass {
         }
     }
 
-    /// Prepares a complete dispatch package with all necessary information.
+    /// Prepares a complete dispatch package, including resource associations.
     pub fn prepare_dispatch(&self) -> CullingDispatchPreparation {
         CullingDispatchPreparation {
             shader_source: self.shader_source(),
             dispatch_size: self.dispatch_size(),
             indirect_buffer: self.create_indirect_buffer(),
+            // Resource associations will be expanded here in future iterations
         }
     }
 }
 
-/// Contains everything needed to record a culling dispatch.
+/// Contains all information needed to record a culling dispatch.
 ///
-/// This struct is designed to be extended with actual buffer handles
-/// when integrating with a real Vulkan backend.
+/// Designed to be extended with actual buffer handles and resource bindings.
 pub struct CullingDispatchPreparation {
     pub shader_source: &'static str,
     pub dispatch_size: u32,
     pub indirect_buffer: DrawIndirect,
 }
 
-/// Container for culling-related GPU resources.
+/// Represents the set of resources required for a culling pass.
 ///
-/// In a full implementation, this would hold actual buffer handles.
+/// In a real implementation, this would contain actual GPU buffer handles
+/// for positions (SoA), visible indices, and the indirect buffer.
 pub struct CullingResources {
     pub indirect: DrawIndirect,
+    // Future: pos_x, pos_y, pos_z, visible_indices buffers
 }
 
 impl CullingResources {

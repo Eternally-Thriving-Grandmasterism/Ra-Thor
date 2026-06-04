@@ -1,15 +1,15 @@
 # Powrush Particle Shaders
 
-## Culling Loop Unification Progress (Phase 1 Priority 2)
+## Culling Loop Unification (Phase 1 Priority 2)
 
-`CullingPass` has been extended with `prepare_dispatch()`, which returns a `CullingDispatchPreparation` struct.
+`CullingDispatchPreparation` and `CullingResources` have been refined to better associate resources with dispatch information.
 
-This continues building a clean, professional interface that separates:
-- Configuration (`CullingPass` + `CullingConfig`)
-- Resource preparation (`CullingResources`)
-- Dispatch information (`CullingDispatchPreparation`)
+The architecture now clearly separates:
+- Configuration
+- Dispatch preparation
+- Resource management
 
-The design is intentionally extensible for future Vulkan integration.
+This design is being built for clean future integration with actual Vulkan buffers and command recording.
 
 ---
 *Phase 1 Consolidation*
