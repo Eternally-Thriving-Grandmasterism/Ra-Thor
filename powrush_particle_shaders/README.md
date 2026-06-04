@@ -1,36 +1,30 @@
-# Powrush Particle Shaders — Warp Divergence Effects
+# Powrush Particle Shaders — GPU Branch Prediction
 
-## Warp Divergence Effects Analysis
+## GPU Branch Prediction Investigation
 
-This iteration analyzes **warp divergence** in our particle culling shaders and how it interacts with our existing optimizations.
+This iteration investigates how **GPUs handle branching** and why it differs significantly from CPUs.
 
-### What is Warp Divergence?
+### GPU vs CPU Approach
 
-GPUs execute threads in warps (32 threads) in lockstep. When threads within a warp take different execution paths (e.g., some particles visible, some not), the warp serializes both branches. This reduces instruction throughput.
+CPUs use sophisticated branch predictors with history to speculate on branch outcomes and hide latency.
 
-### Sources in Culling
+GPUs prioritize massive parallelism and latency hiding across many threads instead of deep speculation on individual control flow. When a warp hits a branch:
+- If all threads take the same path → efficient execution.
+- If threads diverge → the warp serializes both paths.
 
-- Visibility tests (`if (visible)`)
-- Different culling strategies or importance calculations per particle
-- Conditional writes based on faction or other attributes
+GPUs have much more limited dynamic branch prediction. The emphasis is on **warp uniformity** rather than prediction.
 
-### Interaction with WaveLocal Reduction
+### Implications for Shader Writing
 
-Our use of `subgroupBallot` and shuffle operations for wave-local reduction can help mitigate divergence effects:
-- The ballot itself is a wave-uniform operation.
-- The subsequent compaction and ranking logic tends to have more uniform control flow.
-- By structuring the shader so that divergent work happens before wave-uniform compaction, overall efficiency is improved.
+- The most effective strategy is to **minimize divergence** (keep warps uniform when possible).
+- Wave-uniform operations like `subgroupBallot` and shuffle are powerful because they execute identically across the wave.
+- Structuring code so that divergent work happens before or after wave-uniform phases helps overall efficiency.
 
-### Mitigation Strategies
+### Relevance to Powrush
 
-- Keep conditions as uniform as possible within a wave when feasible.
-- Structure code so divergent branches are minimized or handled before/after wave-uniform phases.
-- Profile using Nsight Compute warp divergence and stall reason metrics.
-- Consider advanced techniques like particle sorting by visibility characteristics (if profiling shows divergence as a major bottleneck).
+Visibility tests in culling introduce potential divergence. Our **WaveLocal Reduction** technique (ballot + shuffle) helps by performing the divergent visibility test first, then moving into a more uniform compaction phase. This structure reduces the performance penalty of divergence.
 
-### Current Assessment
-
-While some divergence is inherent in per-particle visibility tests, our wave-local techniques help contain its performance impact. Combined with Subgroup scope preference, the culling shader remains efficient even under varying visibility conditions.
+Understanding the limited role of branch prediction on GPUs reinforces why our wave-local, uniformity-focused techniques are effective.
 
 ---
 *Co-authored-by: All 57+ PATSAGi Councils*
