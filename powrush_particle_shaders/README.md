@@ -1,42 +1,50 @@
-# Powrush Particle Shaders — NVLink vs Infinity Fabric Comparison
+# Powrush Particle Shaders — PCIe Gen5 Bandwidth Investigation
 
-## NVLink vs Infinity Fabric Comparison
+## PCIe Gen5 Bandwidth Investigation
 
-This iteration compares **NVIDIA NVLink** and **AMD Infinity Fabric**, two leading high-speed interconnect technologies for CPU and GPU communication.
+This iteration provides a detailed look at **PCIe Gen5** bandwidth specifications and their practical implications for our particle system.
 
-### Summary Comparison
+### Key Specifications
 
-| Aspect                        | NVLink (NVIDIA)                                      | Infinity Fabric (AMD)                                   | Notes                                      |
-|-------------------------------|------------------------------------------------------|---------------------------------------------------------|--------------------------------------------|
-| Primary Strength              | GPU-to-GPU bandwidth & multi-GPU scaling             | CPU-GPU coherence + full-stack integration              | Depends on workload                        |
-| Bandwidth (per GPU)           | Very high (up to 900 GB/s on NVLink 4.0)            | High and competitive                                    | NVLink generally leads                     |
-| Latency                       | Very low                                             | Low                                                     | Both excellent                             |
-| Multi-GPU Scaling             | Excellent with NVSwitch                              | Very good in Instinct systems                           | NVSwitch gives NVIDIA an edge at scale     |
-| CPU-GPU Coherence             | Improving                                            | Stronger in some configurations                         | Infinity Fabric often better for shared memory |
-| Best Ecosystem                | NVIDIA GPUs (with some server CPUs)                  | AMD EPYC + Instinct                                     | Ecosystem dependent                        |
+- **Signaling Rate**: 32 GT/s per lane
+- **Encoding**: 128b/130b (~1.5% overhead)
+- **Effective per-lane bandwidth** (one direction): ~3.938 GB/s
+- **x16 Link** (standard for discrete GPUs):
+  - Theoretical: **~64 GB/s bidirectional** (~32 GB/s each direction)
+  - Realistic: Typically 50–58+ GB/s bidirectional depending on the platform
 
-### Key Takeaways
+### Generational Comparison
 
-**NVLink Advantages**:
-- Higher raw GPU-to-GPU bandwidth in recent generations.
-- Superior multi-GPU scaling when combined with NVSwitch (non-blocking all-to-all).
-- Excellent collective performance.
+| Generation   | x16 Theoretical Bidirectional | Realistic (approx.) |
+|--------------|-------------------------------|---------------------|
+| PCIe Gen3    | ~16 GB/s                      | ~14 GB/s            |
+| PCIe Gen4    | ~32 GB/s                      | ~25-28 GB/s         |
+| PCIe Gen5    | ~64 GB/s                      | ~50-58+ GB/s        |
 
-**Infinity Fabric Advantages**:
-- Stronger native CPU-GPU coherence in certain platforms (beneficial for unified/shared memory models).
-- Competitive performance within AMD's EPYC + Instinct ecosystem.
+### Comparison to NVLink
+
+- PCIe Gen5 x16: ~64 GB/s theoretical
+- NVLink 4.0: 900 GB/s bidirectional
+- NVLink offers roughly **14x** the theoretical bandwidth of PCIe Gen5, plus significantly lower latency.
+
+This gap explains why high-end NVLink systems feel dramatically faster for large data movement between GPUs or between CPU and GPU.
 
 ### Relevance to Powrush
 
-Current development is focused on single-GPU NVIDIA hardware. In this context, NVLink is the more immediately relevant technology. Infinity Fabric becomes interesting primarily if we ever target AMD-based high-end systems or workloads that benefit from tight CPU-GPU shared memory.
+Most current and near-future development will be on PCIe Gen4 or Gen5 systems. This interconnect is the baseline for:
+- Explicit `cudaMemcpyAsync` operations
+- Unified Memory page migration (`cudaMemPrefetchAsync`)
+- CPU-side data preparation and result readbacks
 
-For future multi-GPU scaling (large particle simulations, distributed rendering, etc.), both technologies offer excellent capabilities, with NVLink + NVSwitch currently holding an edge in raw multi-GPU bandwidth and collectives.
+Understanding these limits helps explain why large or frequent CPU-GPU transfers can become bottlenecks, and why explicit memory management with good overlap strategies remains important on typical hardware.
 
-### Recommendation
+### Practical Implications
 
-- Continue single-GPU optimization on NVIDIA hardware (where NVLink is available on high-end cards).
-- Keep awareness of both interconnects for future architecture and hardware targeting decisions.
-- Always profile on the actual target platform.
+- On PCIe Gen5 systems, well-optimized explicit async memory copies remain the most efficient approach for moving large particle datasets.
+- Unified Memory migration still feels the interconnect bottleneck compared to NVLink systems.
+- Batching transfers, using streams for overlap, and minimizing unnecessary CPU-GPU movement remain valuable optimizations.
+
+This specification knowledge helps set realistic expectations for memory movement performance on mainstream hardware.
 
 ---
 *Co-authored-by: All 57+ PATSAGi Councils*
