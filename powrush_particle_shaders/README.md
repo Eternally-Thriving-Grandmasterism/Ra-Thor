@@ -1,52 +1,45 @@
-# Powrush Particle Shaders — Nsight Systems Timeline Analysis
+# Powrush Particle Shaders — CUDA API Call Overhead Analysis
 
-## Nsight Systems Timeline Analysis Exploration
+## CUDA API Call Overhead Analysis
 
-This iteration explores **system-level timeline analysis** using Nsight Systems, which complements the deep kernel profiling provided by Nsight Compute.
+This iteration analyzes **CUDA API call overhead** and its impact on overall system performance.
 
-### What Nsight Systems Shows
+### What Causes API Overhead
 
-Nsight Systems provides a high-level view of CPU and GPU activity over time, including:
-- CPU thread activity and CUDA API calls
-- GPU kernel execution and idle gaps
-- Memory transfers between host and device
-- Synchronization points and command submission
+Every CUDA API call incurs CPU-side driver overhead for command preparation, validation, and submission. Frequent or expensive calls can make the CPU the bottleneck.
 
-### Key Analysis Areas
+### Common Expensive Patterns
 
-**GPU Utilization & Bubbles**:
-- Identify periods where the GPU is idle.
-- Correlate gaps with CPU activity (e.g., data preparation, API calls, synchronization).
+- Many small kernel launches instead of fewer larger ones
+- Frequent synchronization points
+- Small synchronous memory copies
+- Repeated creation of events or streams
 
-**CPU Overhead**:
-- Time spent in CUDA kernel launches, memory copies, and synchronization.
-- Excessive small launches or frequent sync can indicate optimization opportunities.
+### Impact
 
-**Memory Transfers**:
-- Timing and size of Host ↔ Device transfers.
-- Opportunities to overlap transfers with compute using streams.
-
-**Synchronization**:
-- Points where the CPU waits for the GPU or vice versa.
-- These often create bubbles that reduce overall throughput.
+High API overhead often manifests as:
+- Significant CPU time spent in CUDA API calls
+- GPU idle gaps that correlate with CPU API activity
+- Reduced overall throughput
 
 ### Relevance to Powrush
 
-Our pipeline involves compute culling, visibility updates, and indirect draw execution. Nsight Systems timeline analysis can reveal:
-- Whether culling or visibility work is CPU-bound or GPU-bound.
-- Launch overhead from multiple dispatches.
-- Memory transfer costs when updating particle data.
-- Opportunities to better overlap work using asynchronous streams.
+Our pipeline may involve multiple compute dispatches for culling, WaveLocal Reduction phases, visibility updates, and indirect draw handling. If these result in many small launches or frequent synchronization, API overhead can become a limiting factor.
 
-### Recommended Workflow
+### Mitigation Strategies
 
-1. Capture a timeline of a representative workload or frame.
-2. Focus on regions around culling and visibility buffer updates.
-3. Look for GPU idle gaps and correlate with CPU activity.
-4. Identify expensive API calls or synchronization points.
-5. Compare timelines before and after major optimizations (e.g., WaveLocal Reduction, reduced dispatch count).
+- Batch work into fewer, larger kernel launches when possible
+- Use CUDA streams to overlap compute and data movement
+- Minimize synchronization (prefer events and stream-ordered operations)
+- Reuse events and streams instead of creating them repeatedly
+- Consider persistent kernels or grid-stride loops for repeated small work
+- Profile with Nsight Systems to identify hot API calls and correlate with GPU gaps
 
-Nsight Systems is ideal for system-level bottlenecks and CPU/GPU interaction, while Nsight Compute excels at deep per-kernel optimization.
+### Analysis in Nsight Systems
+
+Examine the CPU row and CUDA API trace. Sort by total time or call count to find expensive or frequent calls. Look for correlation between CPU API activity and GPU idle periods.
+
+This analysis helps ensure the CPU is not becoming the bottleneck in our GPU-driven particle pipeline.
 
 ---
 *Co-authored-by: All 57+ PATSAGi Councils*
