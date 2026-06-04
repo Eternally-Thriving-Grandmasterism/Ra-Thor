@@ -1,60 +1,53 @@
 /*!
-# Powrush Particle Shaders — Memory Operand Details
+# Powrush Particle Shaders — Memory Barriers Investigation
 
-Detailed exploration of Memory Operands used with cooperative matrix load and store operations.
+Investigation of memory barriers and their role in cooperative matrix operations.
 
-## Why Memory Operands Matter
+## What are Memory Barriers?
 
-`OpCooperativeMatrixLoadKHR` and `OpCooperativeMatrixStoreKHR` accept Memory Operands that control:
-- Memory ordering (Acquire/Release semantics)
-- Visibility between threads
-- Caching and coherence behavior
-- Whether the pointer is treated as private or non-private
+Memory barriers control the ordering and visibility of memory operations across threads. They ensure that writes performed by one thread become visible to reads performed by other threads in a well-defined order.
 
-Incorrect memory operands can lead to data races or stale data.
+In SPIR-V, they are expressed through:
+- `OpControlBarrier` (with memory semantics)
+- `OpMemoryBarrier`
+- Memory Operands on load/store instructions (Acquire, Release, AcquireRelease, etc.)
 
-## Key Memory Operands for Cooperative Matrices
+## Key Memory Semantics
 
-### Visibility and Ordering
-- `MakePointerAvailable` / `MakePointerAvailableKHR`
-  - Makes the pointer's value available to other threads/scopes after a store.
-- `MakePointerVisible` / `MakePointerVisibleKHR`
-  - Makes the pointer's value visible to the current thread/scope before a load.
+- **Acquire**: A load operation with Acquire semantics ensures that subsequent loads see all writes that happened-before the releasing store in other threads.
+- **Release**: A store operation with Release semantics makes all prior writes visible to threads that later perform an acquire load.
+- **AcquireRelease**: Combines both Acquire and Release semantics.
+- **SequentiallyConsistent**: Strongest ordering (rarely needed in graphics/compute).
 
-### Privacy
-- `NonPrivatePointer` / `NonPrivatePointerKHR`
-  - Indicates that the pointer may be accessed by multiple threads (required for most cooperative use cases).
+## Memory Barriers and Cooperative Matrices
 
-### Other Common Operands
-- `Volatile`: Prevents caching; always read from memory.
-- `Aligned`: Specifies alignment of the memory access.
+When performing cooperative matrix operations:
 
-## Scope Interaction
+- Memory barriers (via Memory Operands or explicit `OpControlBarrier`) are used to establish ordering between:
+  - Loading data into cooperative matrices
+  - Performing the multiply-accumulate
+  - Storing results
 
-When using **Subgroup scope**:
-- `NonPrivatePointer` is usually required.
-- `MakePointerAvailable` / `MakePointerVisible` may still be needed depending on the surrounding memory operations.
+**Subgroup Scope**:
+- Often lighter barrier requirements due to wave-level ordering guarantees.
+- Memory Operands on cooperative matrix load/store are usually sufficient.
 
-When using **Workgroup scope**:
-- Stronger visibility semantics (AcquireRelease) are often necessary in combination with barriers.
+**Workgroup Scope**:
+- Explicit `OpControlBarrier` with AcquireRelease semantics is typically required between phases.
 
-## Practical Guidance
+## Relevance to Powrush
 
-For Subgroup-scoped cooperative matrices (recommended for Powrush):
-- Always include `NonPrivatePointer`.
-- Use `MakePointerAvailable` after stores and `MakePointerVisible` before loads when mixing with other memory accesses.
-- Start with conservative (safe) operands and optimize only after verifying correctness.
+Because we primarily use **Subgroup-scoped** techniques, memory barrier requirements for future cooperative matrix work will generally be lighter than in workgroup-scoped designs. Our existing wave-local patterns (ballot, shuffle, wave-local reduction) already operate with relatively relaxed synchronization.
 */
 
 use powrush_faction_dynamics::{Faction, FactionVisualIdentity, ParticleParams};
 
 pub mod compute {
-    /// Notes on memory operands for cooperative matrices.
-    pub const MEMORY_OPERAND_NOTES: &str = r#"
-        // Common safe combination for Subgroup scope:
-        // NonPrivatePointer + MakePointerAvailable / MakePointerVisible as needed
+    /// Notes on memory barriers.
+    pub const MEMORY_BARRIER_NOTES: &str = r#"
+        // Subgroup scope: lighter barriers, rely on Memory Operands
+        // Workgroup scope: explicit AcquireRelease barriers usually required
         //
-        // Always validate memory ordering when mixing cooperative
-        // matrix operations with regular loads/stores.
+        // Prefer Subgroup scope to keep synchronization simple.
     "#;
 }
