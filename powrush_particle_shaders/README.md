@@ -1,34 +1,36 @@
-# Powrush Particle Shaders — Cooperative Matrix Scope Parameters
+# Powrush Particle Shaders — Cooperative Matrix Synchronization Primitives
 
-## Cooperative Matrix Scope Parameters Exploration
+## Cooperative Matrix Synchronization Primitives Exploration
 
-This iteration explores the **Scope** parameter in cooperative matrix operations.
+This iteration explores the **synchronization requirements** when using cooperative matrix operations.
 
-### What Scope Means
+### Why Synchronization Is Important
 
-The scope defines which group of threads cooperates on a matrix operation. It directly impacts performance, synchronization requirements, and hardware utilization.
+Because multiple threads cooperate on matrix fragments, memory visibility and ordering must be carefully managed to avoid data races and ensure correct results.
 
-### Available Scopes
+### Synchronization by Scope
 
-- **Subgroup Scope** (`VK_SCOPE_SUBGROUP_KHR`)
-  - Threads in the same wave/warp cooperate.
-  - Best performance and widest support.
-  - Ideal for most workloads.
+**Subgroup Scope**:
+- Generally lighter synchronization requirements.
+- Wave execution often provides implicit ordering.
+- Still requires correct Memory Operands on load/store instructions.
+- Usually does **not** require explicit subgroup barriers for correctness.
 
-- **Workgroup Scope** (`VK_SCOPE_WORKGROUP_KHR`)
-  - Larger group of threads cooperate.
-  - Higher synchronization cost.
-  - Useful for matrices too large for a single subgroup.
+**Workgroup Scope**:
+- Requires stronger synchronization.
+- Typically needs `OpControlBarrier` (or equivalent) with appropriate memory semantics between load, compute, and store phases.
+- Higher complexity and potential for subtle bugs if synchronization is insufficient.
 
-- **Queue Family / Device Scope**
-  - Very large scopes with significant synchronization overhead.
-  - Rarely practical for real-time rendering workloads.
+### Best Practices
 
-### Recommendation for Powrush
+- Strongly prefer **Subgroup scope** for particle system workloads.
+- Always specify appropriate memory semantics on cooperative matrix load and store operations.
+- Use explicit barriers only when necessary (mainly with larger scopes).
+- Validate correctness thoroughly when using cooperative matrices.
 
-For particle culling, visibility buffer operations, and future advanced effects, **Subgroup scope** is strongly recommended. It aligns perfectly with our existing wave-local techniques (ballot, shuffle, wave-local reduction) and offers the best performance-to-complexity ratio.
+### Relevance to Powrush
 
-Larger scopes should only be considered when matrix sizes exceed what a single subgroup can efficiently handle.
+Given our heavy use of wave-local techniques (ballot, shuffle, wave-local reduction), **Subgroup-scoped** cooperative matrices align naturally with our existing architecture and will require the least additional synchronization complexity.
 
 ---
 *Co-authored-by: All 57+ PATSAGi Councils*
