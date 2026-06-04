@@ -1,14 +1,12 @@
 /*!
 # Compute Pipeline Manager
 
-Centralized manager for Vulkan compute pipelines.
-
-Supports:
+Centralized manager for Vulkan compute pipelines with support for:
 - Specialization constants
 - Pipeline layout caching
-- Shader module selection per pipeline type (scaffolding)
+- Pipeline cache persistence (save/load)
 
-This is designed to work with the culling and visibility systems.
+Designed for the Powrush particle system.
 */
 
 use std::collections::HashMap;
@@ -49,14 +47,39 @@ pub struct ComputePipelineManager {
 }
 
 impl ComputePipelineManager {
-    pub fn new(device: ash::Device) -> Self {
-        let pipeline_cache = vk::PipelineCache::null(); // TODO: Real cache
+    /// Creates a new pipeline manager.
+    ///
+    /// If `initial_cache_data` is provided, it will be used to initialize the
+    /// `VkPipelineCache` (enables persistence across runs).
+    pub fn new(device: ash::Device, initial_cache_data: Option<&[u8]>) -> Self {
+        let cache_create_info = vk::PipelineCacheCreateInfo {
+            s_type: vk::StructureType::PIPELINE_CACHE_CREATE_INFO,
+            p_next: std::ptr::null(),
+            flags: vk::PipelineCacheCreateFlags::empty(),
+            initial_data_size: initial_cache_data.map_or(0, |d| d.len()),
+            p_initial_data: initial_cache_data.map_or(std::ptr::null(), |d| d.as_ptr() as *const _),
+        };
+
+        let pipeline_cache = unsafe {
+            device
+                .create_pipeline_cache(&cache_create_info, None)
+                .expect("Failed to create pipeline cache")
+        };
 
         Self {
             device,
             pipeline_cache,
             pipelines: HashMap::new(),
             layouts: HashMap::new(),
+        }
+    }
+
+    /// Returns pipeline cache data that can be saved to disk for persistence.
+    pub fn get_cache_data(&self) -> Vec<u8> {
+        unsafe {
+            self.device
+                .get_pipeline_cache_data(self.pipeline_cache)
+                .expect("Failed to get pipeline cache data")
         }
     }
 
@@ -74,7 +97,7 @@ impl ComputePipelineManager {
     }
 
     fn create_pipeline(&self, create_info: &ComputePipelineCreateInfo) -> vk::Pipeline {
-        // Build specialization info
+        // Build specialization info (same as before)
         let spec_entries: Vec<vk::SpecializationMapEntry> = create_info
             .specialization_constants
             .iter()
@@ -110,22 +133,8 @@ impl ComputePipelineManager {
             None
         };
 
-        // Select shader module based on pipeline type
-        let _shader_module = match create_info.pipeline_type {
-            ComputePipelineType::CullingPrimary => {
-                // TODO: Load or get shader module for WaveLocal Reduction culling
-                vk::ShaderModule::null()
-            }
-            ComputePipelineType::VisibilityWrite => {
-                // TODO: Load or get shader module for visibility buffer writing
-                vk::ShaderModule::null()
-            }
-        };
-
-        // Get pipeline layout
-        // let layout = self.get_pipeline_layout(create_info.pipeline_type);
-
-        // TODO: Build VkComputePipelineCreateInfo and call vkCreateComputePipelines
+        // TODO: Select shader module and pipeline layout
+        // TODO: Call vkCreateComputePipelines with self.pipeline_cache
 
         vk::Pipeline::null()
     }
@@ -135,12 +144,14 @@ impl ComputePipelineManager {
             return layout;
         }
 
-        // TODO: Create real pipeline layout with proper descriptor sets
-        let layout = vk::PipelineLayout::null();
+        let layout = vk::PipelineLayout::null(); // TODO: Create real layout
         self.layouts.insert(ty, layout);
         layout
     }
 
+    /// Destroys all pipelines and the pipeline cache.
+    ///
+    /// Call `get_cache_data()` before destroy if you want to persist it.
     pub fn destroy(&mut self) {
         for (_, pipeline) in self.pipelines.drain() {
             unsafe { self.device.destroy_pipeline(pipeline, None); }

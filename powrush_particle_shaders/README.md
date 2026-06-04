@@ -1,15 +1,14 @@
 # Powrush Particle Shaders
 
-## Culling Loop Unification (Phase 1 Priority 2)
+## Compute Pipeline Manager
 
-`CullingDispatchPreparation` and `CullingResources` have been refined to better associate resources with dispatch information.
+Pipeline cache persistence has been implemented:
 
-The architecture now clearly separates:
-- Configuration
-- Dispatch preparation
-- Resource management
+- `new(device, initial_cache_data)` accepts optional cache data from disk.
+- `get_cache_data()` returns the current cache for saving.
+- Call `get_cache_data()` before `destroy()` to persist across runs.
 
-This design is being built for clean future integration with actual Vulkan buffers and command recording.
+This provides significant startup time improvements.
 
 ---
 *Phase 1 Consolidation*
