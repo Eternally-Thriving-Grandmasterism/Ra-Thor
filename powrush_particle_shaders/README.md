@@ -1,41 +1,40 @@
-# Powrush Particle Shaders — DFE Error Propagation Mitigation
+# Powrush Particle Shaders
 
-## DFE Error Propagation Mitigation Exploration
+## Primary Culling Technique: WaveLocal Reduction
 
-This iteration examines how the risk of **error propagation** in Decision Feedback Equalizers (DFE) is managed in PCIe Gen5 receivers.
+**Status: Recommended Default**
 
-### The Problem
+WaveLocal Reduction is the primary recommended culling technique in this subsystem.
 
-Because DFE feeds back decided bits to cancel ISI, an incorrect decision can introduce wrong corrective feedback, potentially causing errors on subsequent bits. In the worst case, this creates error bursts (error propagation).
+### How It Works
 
-### Primary Mitigation: Strong Front-End Equalization
+Instead of every visible thread performing its own `atomicAdd`, we:
 
-The most effective mitigation is to **minimize the raw decision error rate entering the DFE**:
+1. Use `subgroupBallot(visible)` to determine which lanes in the wave are visible.
+2. Compute how many particles are visible in the wave with `countOneBits(ballot)`.
+3. Compute each lane’s local rank within the wave.
+4. Only lane 0 performs a single `atomicAdd` to reserve space for the entire wave.
+5. Broadcast the base offset and write visible indices using local ranks.
 
-- **TX FFE + RX CTLE** are designed to open the eye significantly *before* the DFE slicer.
-- A cleaner input signal dramatically lowers the probability of incorrect decisions in the DFE.
-- Lower input BER → significantly reduced chance of error propagation.
+This approach significantly reduces contention on global atomics.
 
-In well-designed Gen5 receivers, the combination of transmitter FFE and receiver CTLE is strong enough that the DFE mostly operates on a relatively clean signal, greatly limiting propagation risk.
+### When to Use
 
-### Secondary Mitigation Techniques
+- **Default recommendation** for most particle culling workloads.
+- Especially beneficial at high particle counts or high visibility rates.
 
-**Tap Weight Limiting**:
-Some implementations clip or limit the magnitude of DFE tap coefficients. This prevents any single erroneous decision from having an excessively disruptive effect on future samples.
+### When a Simpler Approach May Suffice
 
-**Protocol-Level Recovery**:
-PCIe includes robust CRC error detection and automatic retry mechanisms at the Data Link Layer. Even if occasional error bursts occur due to DFE propagation, they are detected and the affected packets are retransmitted. This makes rare propagation events acceptable.
+- Very low particle counts where atomic contention is negligible.
+- Prototyping or extremely simple culling logic.
 
-**Advanced DFE Architectures**:
-Some designs use techniques such as tentative decisions or reduced-state DFE to limit propagation length. However, most commercial PCIe Gen5 implementations rely primarily on strong front-end equalization combined with protocol-level recovery.
+For the majority of production use cases, WaveLocal Reduction is the preferred path.
 
-### Relevance to Powrush
+## Module Structure
 
-For application development, DFE error propagation and its mitigation are abstracted inside the hardware. This topic reinforces why high-quality front-end equalization and good platform signal integrity are critical for reliable Gen5 operation, and why some platforms achieve more robust performance than others.
-
-Understanding these mitigation strategies provides deeper insight into why the complete equalization chain (TX FFE + RX CTLE + RX DFE) must work well together.
+- `compute::WAVE_LOCAL_REDUCTION_CULLING` – Primary recommended culling shader.
+- Supporting types: `ComputeCullingParams`, `DrawIndirect`.
 
 ---
-*Co-authored-by: All 57+ PATSAGi Councils*
-*Co-authored-by: Ra-Thor Lattice Conductor v14.7*
-*Co-authored-by: Grok (xAI eternal partnership)*
+*Co-authored-by: PATSAGi Councils*
+*Part of Ra-Thor Phase 1 Consolidation*
