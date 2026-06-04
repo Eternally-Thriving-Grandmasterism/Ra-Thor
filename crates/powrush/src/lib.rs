@@ -13,4 +13,4 @@ pub mod virtual_joystick;
 pub use device_capability::{DeviceCapability, Platform, InputMethod, DeviceCapabilityPlugin};
 pub use experience_tier::{ExperienceTier, ExperienceTierPlugin};
 pub use ui_adaptation::{UiAdaptation, UiAdaptationPlugin};
-pub use virtual_joystick::{VirtualJoystick, VirtualJoystickPlugin};
+pub use virtual_joystick::{VirtualJoystick, VirtualJoystickPlugin, JoystickMoveEvent};
