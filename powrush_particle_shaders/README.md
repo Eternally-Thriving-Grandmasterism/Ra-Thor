@@ -1,58 +1,46 @@
-# Powrush Particle Shaders — CUDA Stream Overlap Efficiency
+# Powrush Particle Shaders — Unified Memory Performance Analysis
 
-## CUDA Stream Overlap Efficiency Analysis
+## Unified Memory Performance Analysis
 
-This iteration analyzes **CUDA stream overlap efficiency** — how effectively we use streams to run operations concurrently and hide latency.
+This iteration analyzes the performance characteristics of **Unified Memory** (Managed Memory) and its implications for our particle system.
 
-### What Stream Overlap Provides
+### What Unified Memory Provides
 
-Proper use of CUDA streams allows kernels and memory transfers to run concurrently when they have no dependencies. This can hide transfer latency behind compute and improve overall throughput.
+Unified Memory allows the same pointer to be used from both CPU and GPU, with automatic page migration by the driver. It simplifies programming and supports memory oversubscription.
 
-### Key Things to Analyze in Nsight Systems
+### Performance Costs
 
-**Timeline Visualization**:
-- Multiple streams executing in parallel
-- Gaps where the GPU is underutilized
-- Memory transfers overlapping with compute
+- **Page Migration Overhead**: On-demand page faults trigger data movement over PCIe/NVLink, adding latency.
+- **Fine-grained Access Penalty**: Random or scattered accesses cause many inefficient small migrations.
+- **Coherence and Bandwidth Limits**: Migration traffic is limited by the CPU-GPU interconnect, which is slower than GPU-internal memory bandwidth.
 
-**Common Problems**:
-- Overuse of the default stream (which can serialize work)
-- Frequent heavy synchronization breaking concurrency
-- Synchronous memory copies instead of async with streams
-- Unnecessary dependencies between streams
+### Analysis with Tools
 
-**Good Patterns**:
-- Async memory copies running alongside unrelated compute
-- Independent kernels on different streams
-- Lightweight event-based synchronization
+**Nsight Systems**:
+- Visualize memory migration traffic in the timeline.
+- Compare Unified Memory vs explicit memory versions.
+
+**Nsight Compute**:
+- Look for migration-related stalls or replay overhead.
+- Compare kernel performance using managed vs explicit allocations.
 
 ### Relevance to Powrush
 
-Our pipeline (culling, visibility updates, indirect draws) has several opportunities for beneficial overlap:
-- Updating particle data while culling previous data
-- Running multiple culling or compaction phases concurrently
-- Overlapping compute with visibility buffer work
-- Asynchronous result handling
+For performance-critical paths (particle culling, visibility buffer updates, data compaction), explicit memory management or pinned memory with async copies is generally faster and more predictable.
 
-Good stream usage can significantly improve effective throughput.
+Unified Memory can be beneficial for:
+- Data that is infrequently modified from the CPU
+- Prototyping or less performance-sensitive code paths
+- Situations where memory oversubscription is useful
 
 ### Best Practices
 
-- Use non-default streams for concurrent work
-- Prefer `cudaMemcpyAsync` with streams
-- Use CUDA events for lightweight cross-stream synchronization
-- Minimize unnecessary dependencies
-- Profile with Nsight Systems timeline to validate and improve overlap
+- Use `cudaMemPrefetchAsync` to proactively migrate data and reduce page faults.
+- Avoid fine-grained or random access patterns from the GPU on managed memory.
+- Profile migration traffic explicitly with Nsight Systems.
+- For hot paths, prefer explicit `cudaMemcpyAsync` or device-only memory.
 
-### Analysis Workflow
-
-1. Capture a timeline in Nsight Systems.
-2. Focus on culling and data update regions.
-3. Look for idle gaps and missing overlap opportunities.
-4. Identify heavy synchronization or default-stream usage.
-5. Compare before/after stream optimizations.
-
-This analysis helps maximize GPU utilization through better concurrency.
+This analysis helps decide when (and when not) to use Unified Memory in our pipeline.
 
 ---
 *Co-authored-by: All 57+ PATSAGi Councils*
