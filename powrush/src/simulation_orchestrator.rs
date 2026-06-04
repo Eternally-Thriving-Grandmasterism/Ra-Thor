@@ -1,75 +1,84 @@
-//! Weighted Trust Reconciliation for Powrush Entity State
+//! Automatic Trust Decay System for Powrush Shards
 //!
-//! Advanced reconciliation that weights incoming state based on the trust
-//! level of the source shard. Aligns with mercy-gated, thriving principles.
+//! Shards gradually lose trust over time if they are inactive or inconsistent.
+//! This encourages ongoing alignment with the larger Ra-Thor lattice and PATSAGi principles.
 
-use crate::entity::SovereignEntity;
+use bevy::prelude::*;
+use std::collections::HashMap;
+use std::time::{SystemTime, UNIX_EPOCH};
 
-/// Trust level of a shard (can be expanded with reputation, PATSAGi alignment, etc.)
-#[derive(Debug, Clone, Copy, PartialEq)]
-pub enum ShardTrust {
-    Low = 0,
-    Medium = 1,
-    High = 2,
-    Sovereign = 3, // Highest trust (e.g. native authoritative shards)
+use crate::simulation_orchestrator::ShardTrust;
+
+/// Tracks trust and activity for each shard
+#[derive(Resource, Default)]
+pub struct ShardTrustTracker {
+    /// shard_id -> (current_trust, last_interaction_unix)
+    pub trusts: HashMap<u64, (ShardTrust, u64)>,
+    pub decay_rate_per_hour: f32, // How much weight is lost per hour of inactivity
 }
 
-impl ShardTrust {
-    pub fn weight(&self) -> f32 {
-        match self {
-            ShardTrust::Low => 0.3,
-            ShardTrust::Medium => 0.6,
-            ShardTrust::High => 0.85,
-            ShardTrust::Sovereign => 0.95,
+impl ShardTrustTracker {
+    pub fn new() -> Self {
+        Self {
+            trusts: HashMap::new(),
+            decay_rate_per_hour: 0.05, // 5% trust weight loss per hour
+        }
+    }
+
+    /// Get current effective trust weight for a shard (with decay applied)
+    pub fn get_effective_trust(&self, shard_id: u64) -> f32 {
+        if let Some((trust_level, last_update)) = self.trusts.get(&shard_id) {
+            let now = SystemTime::now()
+                .duration_since(UNIX_EPOCH)
+                .unwrap_or_default()
+                .as_secs();
+
+            let hours_inactive = ((now - last_update) / 3600) as f32;
+            let decay = (hours_inactive * self.decay_rate_per_hour).min(0.7); // cap decay
+
+            let base_weight = trust_level.weight();
+            (base_weight * (1.0 - decay)).max(0.1) // never go below 10%
+        } else {
+            0.5 // Default medium trust for unknown shards
+        }
+    }
+
+    /// Update trust after successful interaction (migration, state sync, etc.)
+    pub fn record_successful_interaction(&mut self, shard_id: u64, new_trust: ShardTrust) {
+        let now = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap_or_default()
+            .as_secs();
+
+        self.trusts.insert(shard_id, (new_trust, now));
+    }
+
+    /// Manually apply decay (can be called from a periodic system)
+    pub fn apply_decay(&mut self) {
+        let now = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap_or_default()
+            .as_secs();
+
+        for (_, (trust_level, last_update)) in self.trusts.iter_mut() {
+            let hours_inactive = ((now - *last_update) / 3600) as f32;
+            if hours_inactive > 1.0 {
+                // Downgrade trust level if significantly inactive
+                if hours_inactive > 24.0 && *trust_level as u8 > ShardTrust::Low as u8 {
+                    *trust_level = match *trust_level {
+                        ShardTrust::Sovereign => ShardTrust::High,
+                        ShardTrust::High => ShardTrust::Medium,
+                        ShardTrust::Medium => ShardTrust::Low,
+                        ShardTrust::Low => ShardTrust::Low,
+                    };
+                    *last_update = now;
+                }
+            }
         }
     }
 }
 
-/// Weighted trust reconciliation
-/// `incoming_trust` should come from ShardTrust::weight() of the source shard.
-pub fn reconcile_entity_state_weighted(
-    local: &mut SovereignEntity,
-    incoming: &SovereignEntity,
-    incoming_trust: f32, // 0.0 - 1.0
-) {
-    let trust = incoming_trust.clamp(0.0, 1.0);
-    let local_weight = 1.0 - trust;
-
-    // Contributions remain largely additive (RBE core)
-    local.contributions += (incoming.contributions as f32 * trust) as u64;
-
-    // Skills: weighted blend toward higher value
-    for (skill, &incoming_prof) in &incoming.skills {
-        let current = local.skills.get(skill).copied().unwrap_or(0.0);
-        let blended = current * local_weight + incoming_prof * trust;
-        local.skills.insert(skill.clone(), blended.max(current).max(incoming_prof));
-    }
-
-    // Valence: weighted blend with mercy bias toward positive change
-    let valence_delta = incoming.valence - local.valence;
-    if valence_delta > 0.0 {
-        local.valence = local.valence * local_weight + incoming.valence * trust;
-    } else {
-        // Only apply negative change if incoming has very high trust
-        if trust > 0.8 {
-            local.valence = local.valence * local_weight + incoming.valence * trust;
-        }
-    }
-
-    // Timestamp
-    if incoming.last_active_unix > local.last_active_unix {
-        local.last_active_unix = incoming.last_active_unix;
-    }
-
-    // Mercy smoothing
-    local.apply_valence_update(0.015 * trust);
-}
-
-/// Convenience function that uses ShardTrust enum
-pub fn reconcile_with_trust_level(
-    local: &mut SovereignEntity,
-    incoming: &SovereignEntity,
-    trust_level: ShardTrust,
-) {
-    reconcile_entity_state_weighted(local, incoming, trust_level.weight());
+/// System that periodically applies trust decay
+pub fn shard_trust_decay_system(mut tracker: ResMut<ShardTrustTracker>) {
+    tracker.apply_decay();
 }
