@@ -3,34 +3,28 @@
 
 use bevy::prelude::*;
 use bevy_egui::EguiContexts;
-use egui::{pos2, Color32, Sense, Ui, Vec2 as EguiVec2};
+use egui::{Color32, Sense};
 use crate::experience_tier::ExperienceTier;
+
+/// Marker component for the player entity.
+#[derive(Component, Debug, Default)]
+pub struct Player;
 
 /// Resource holding the current virtual joystick state.
 #[derive(Resource, Debug, Default)]
 pub struct VirtualJoystick {
-    /// Normalized movement vector (-1.0 to 1.0).
     pub movement: Vec2,
-    /// Whether the joystick is currently being touched/dragged.
     pub is_active: bool,
-    /// Position of the joystick center (in egui coordinates).
-    pub center: EguiVec2,
-    /// Current touch/drag position.
-    pub current_pos: EguiVec2,
+    pub center: egui::Vec2,
+    pub current_pos: egui::Vec2,
 }
 
 impl VirtualJoystick {
-    pub fn new() -> Self {
-        Self::default()
-    }
-
-    /// Returns the movement direction as a normalized Vec2.
     pub fn direction(&self) -> Vec2 {
         self.movement
     }
 }
 
-/// Plugin that adds the virtual joystick.
 pub struct VirtualJoystickPlugin;
 
 impl Plugin for VirtualJoystickPlugin {
@@ -38,6 +32,7 @@ impl Plugin for VirtualJoystickPlugin {
         app.init_resource::<VirtualJoystick>();
         app.add_systems(Update, (
             show_virtual_joystick.run_if(|tier: Res<ExperienceTier>| *tier == ExperienceTier::MobileTown),
+            apply_virtual_joystick_movement.run_if(|tier: Res<ExperienceTier>| *tier == ExperienceTier::MobileTown),
             reset_joystick_when_inactive,
         ));
     }
@@ -53,25 +48,17 @@ fn show_virtual_joystick(
         .anchor(egui::Align2::LEFT_BOTTOM, egui::vec2(60.0, -120.0))
         .show(ctx, |ui| {
             let size = 120.0;
-            let response = ui.allocate_response(
-                egui::vec2(size, size),
-                Sense::drag(),
-            );
-
+            let response = ui.allocate_response(egui::vec2(size, size), Sense::drag());
             let rect = response.rect;
             let center = rect.center();
 
-            // Draw outer circle (background)
             ui.painter().circle_filled(center, size / 2.0, Color32::from_gray(60));
 
-            // Draw inner circle (knob)
             let knob_radius = size / 4.0;
             let knob_pos = if response.dragged() {
                 let delta = response.drag_delta();
                 let new_pos = joystick.current_pos + delta;
                 let max_distance = size / 2.0 - knob_radius;
-
-                // Clamp to circle
                 let dir = (new_pos - center).normalized();
                 let distance = (new_pos - center).length().min(max_distance);
                 center + dir * distance
@@ -81,7 +68,6 @@ fn show_virtual_joystick(
 
             ui.painter().circle_filled(knob_pos, knob_radius, Color32::from_gray(200));
 
-            // Update joystick state
             if response.dragged() {
                 joystick.is_active = true;
                 joystick.current_pos = knob_pos;
@@ -96,6 +82,24 @@ fn show_virtual_joystick(
                 joystick.is_active = false;
             }
         });
+}
+
+fn apply_virtual_joystick_movement(
+    joystick: Res<VirtualJoystick>,
+    mut query: Query<&mut Transform, With<Player>>,
+    time: Res<Time>,
+) {
+    if !joystick.is_active || joystick.movement == Vec2::ZERO {
+        return;
+    }
+
+    let speed = 300.0;
+    let movement = joystick.movement * speed * time.delta_seconds();
+
+    for mut transform in &mut query {
+        transform.translation.x += movement.x;
+        transform.translation.y += movement.y;
+    }
 }
 
 fn reset_joystick_when_inactive(mut joystick: ResMut<VirtualJoystick>) {
