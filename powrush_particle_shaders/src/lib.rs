@@ -1,40 +1,64 @@
 /*!
-# Powrush Particle Shaders — WaveLocal Reduction
+# Powrush Particle Shaders — Subgroup Shuffle Operations
 
-Implementation of efficient wave-local reductions using ballot intrinsics.
+Investigation of subgroup/wave shuffle intrinsics for efficient intra-wave data exchange.
 
-## What is WaveLocal Reduction?
+## What are Subgroup Shuffle Operations?
 
-WaveLocal Reduction performs aggregate operations (count, sum, prefix sum, etc.) across all lanes in a wave/warp without leaving the wave.
-It is built on top of ballot intrinsics and is much faster than using shared memory or global atomics for intra-wave communication.
+Subgroup shuffle operations allow lanes within the same wave to directly read values from other lanes' registers.
 
-Common use cases in our pipeline:
-- Counting visible particles within a wave
-- Computing local offsets for compact output writing
-- Reducing atomic pressure on global buffers
+Common operations:
+- `subgroupShuffle(value, sourceLane)`
+- `subgroupShuffleUp(value, delta)`
+- `subgroupShuffleDown(value, delta)`
+- `subgroupBroadcast(value, sourceLane)`
+- `subgroupShuffleXor(value, mask)`
+
+These are extremely fast because they operate entirely within the wave's register file.
+
+## Relevance to Our Pipeline
+
+We already used `subgroupBroadcast` in WaveLocal Reduction.
+Shuffle operations can further optimize:
+- Parallel prefix sums / scans
+- Data gathering for compaction
+- Efficient reductions without ballot + countOneBits in some cases
+- Better implementation of wave-local algorithms
 */
 
 use powrush_faction_dynamics::{Faction, FactionVisualIdentity, ParticleParams};
 
 pub mod compute {
-    /// Wave-local reduction helper for counting and ranking visible particles.
-    /// This pattern significantly reduces global atomic contention.
-    pub const WAVE_LOCAL_REDUCTION_CULLING: &str = r#"
+    /// Example demonstrating subgroup shuffle for wave-local prefix sum.
+    /// This can be used as an alternative or complement to ballot-based ranking.
+    pub const SHUFFLE_BASED_PREFIX_SUM: &str = r#"
         enable subgroups;
 
-        struct DrawIndirect {
-            vertex_count: u32,
-            instance_count: u32,
-            first_vertex: u32,
-            first_instance: u32,
-        };
+        @compute @workgroup_size(64)
+        fn main(
+            @builtin(subgroup_invocation_id) lane: u32
+        ) {
+            // Example: Each lane has a value
+            var value: u32 = lane + 1u;  // placeholder
 
-        struct ComputeCullingParams {
-            view_proj: mat4x4<f32>,
-            camera_position: vec3<f32>,
-            max_cull_distance: f32,
-            total_particles: u32,
-        };
+            // Inclusive prefix sum using shuffle up
+            // This is a classic parallel scan pattern using shuffles
+            for (var offset = 1u; offset < 64u; offset *= 2u) {
+                let other = subgroupShuffleUp(value, offset);
+                if (lane >= offset) {
+                    value += other;
+                }
+            }
+
+            // 'value' now contains the inclusive prefix sum within the wave
+        }
+    "#;
+
+    /// Improved WaveLocal Reduction using shuffle for data exchange
+    pub const SHUFFLE_WAVE_LOCAL_REDUCTION: &str = r#"
+        enable subgroups;
+
+        struct DrawIndirect { /* ... */ };
 
         @group(0) @binding(0) var<uniform> params: ComputeCullingParams;
         @group(0) @binding(1) var<storage, read> particle_positions: array<vec3<f32>>;
@@ -49,31 +73,24 @@ pub mod compute {
             let index = global_id.x;
             if (index >= params.total_particles) { return; }
 
-            let pos = particle_positions[index];
-            let visible = distance(pos, params.camera_position) < params.max_cull_distance;
+            let visible = /* culling condition */;
 
-            // Wave-local ballot
+            // Ballot to find active lanes
             let ballot = subgroupBallot(visible);
-            let wave_visible_count = countOneBits(ballot);
+            let wave_count = countOneBits(ballot);
 
-            // Compute local rank within the wave (parallel prefix)
-            let local_rank = countOneBits(ballot & ((1u << lane) - 1u));
-
-            // Only the first lane in the wave performs the global atomic
-            var base_offset: u32 = 0u;
+            // Use shuffle to broadcast base offset
+            var base: u32 = 0u;
             if (lane == 0u) {
-                base_offset = atomicAdd(&draw_indirect.instance_count, wave_visible_count);
+                base = atomicAdd(&draw_indirect.instance_count, wave_count);
             }
-
-            // Broadcast the base offset to all lanes in the wave
-            base_offset = subgroupBroadcast(base_offset, 0u);
+            base = subgroupBroadcast(base, 0u);
 
             if (visible) {
-                let output_index = base_offset + local_rank;
-                visible_indices[output_index] = index;
+                // Compute local rank using ballot + countOneBits (or shuffle-based scan)
+                let rank = countOneBits(ballot & ((1u << lane) - 1u));
+                visible_indices[base + rank] = index;
             }
         }
     "#;
 }
-
-pub mod wgsl { /* existing shaders */ }
