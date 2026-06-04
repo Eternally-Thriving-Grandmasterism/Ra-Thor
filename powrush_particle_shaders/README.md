@@ -1,24 +1,27 @@
-# Powrush Particle Shaders — Advanced Culling Strategies
+# Powrush Particle Shaders — GPU Occlusion Queries
 
-## Compute Shader Culling Strategies
+## Investigation: GPU Occlusion Queries vs Compute Occlusion Culling
 
-Added multiple culling strategies that can be combined:
+**Traditional GPU Occlusion Queries**:
+- Hardware feature (query objects).
+- Good for large objects (buildings, characters).
+- Poor fit for particles: too many queries needed, asynchronous results, overhead.
 
-- **Distance Culling**: Fastest, good first pass.
-- **Frustum Culling**: More accurate than distance alone (uses camera forward + FOV).
-- **Importance Culling**: Filters low-reputation or low-harmony effects.
-- **Combined Strategy** (recommended): Distance + Frustum + Importance.
+**Compute Shader Occlusion Culling (Recommended)**:
+- Sample depth texture directly in compute.
+- Highly flexible and scalable.
+- Can be fused with frustum + importance culling in one pass.
+- No query object overhead.
+- Easier to integrate with our existing indirect draw + batching pipeline.
 
-The WGSL example shows how to implement all three in one compute pass with early-outs for performance.
+## Implementation
+Added `OcclusionCullingParams` and a compute shader sketch that samples a depth texture to perform occlusion culling on particles.
 
-## Recommendations
-- Use **Distance + Frustum** for general cases.
-- Add **Importance** when you have many low-impact effects (low-reputation factions or minor events).
-- For very large scenes, consider hierarchical clustering or multi-pass culling.
+This can be combined with previous culling strategies (distance, frustum, importance) for very robust results.
 
-These strategies work together with the existing indirect draw batching system.
+**Note**: The depth sampling in the shader is simplified. A real implementation requires passing the view-projection matrix and proper screen-space projection.
 
-**The culling system is now flexible and production-grade.**
+The culling system continues to evolve toward production quality.
 
 ---
 *Co-authored-by: All 57+ PATSAGi Councils*
