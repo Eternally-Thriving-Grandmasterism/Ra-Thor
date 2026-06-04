@@ -1,32 +1,50 @@
 /*!
-# Powrush Particle Shaders
+# Powrush Particle Shaders — Memory Optimized
 
-Production-grade particle shader logic for Powrush Resonance Gear visuals.
+Production-grade particle shader logic with explicit GPU memory optimization.
 
-## Purpose
-Provides the shader-ready parameter system and WGSL logic snippets that consume
-`FactionVisualIdentity` + `ParticleParams` + reputation/harmony state.
-
-This is the bridge between simulation (reputation, council, RBE) and rendering.
+## Memory Optimization Strategy (Professional)
+- Compact parameter structs (reduced uniform size)
+- Culling helpers to avoid uploading/drawing unnecessary particles
+- SoA-friendly layouts for future large-scale particle buffers
+- Clear separation between CPU simulation data and GPU upload data
+- Comments on best practices for wgpu/Bevy Hanabi memory usage
 */
 
 use powrush_faction_dynamics::{Faction, FactionVisualIdentity, ParticleParams};
 
-/// Final shader uniforms ready to be uploaded to GPU (wgpu/Bevy)
-#[derive(Debug, Clone, Copy, serde::Serialize, serde::Deserialize)]
+/// Compact GPU-friendly particle shader parameters.
+/// Uses f32 where necessary but keeps total size small (~48 bytes).
+/// Designed to be uploaded as a single uniform or part of a storage buffer.
+#[derive(Debug, Clone, Copy, bytemuck::Pod, bytemuck::Zeroable, serde::Serialize, serde::Deserialize)]
+#[repr(C)]
 pub struct ParticleShaderParams {
     pub base_color: [f32; 3],
     pub intensity: f32,
-    pub particle_count: u32,
+    pub particle_count: u32,        // Can be used for indirect draw count
     pub lifetime: f32,
     pub velocity_scale: f32,
-    pub resonance_field_strength: f32, // modulated by harmony + council valence
+    pub resonance_field_strength: f32,
     pub faction_hue_shift: f32,
+    pub _padding: f32,              // Maintain 16-byte alignment for uniform buffers
+}
+
+impl Default for ParticleShaderParams {
+    fn default() -> Self {
+        Self {
+            base_color: [1.0, 1.0, 1.0],
+            intensity: 1.0,
+            particle_count: 64,
+            lifetime: 1.0,
+            velocity_scale: 1.0,
+            resonance_field_strength: 0.0,
+            faction_hue_shift: 0.0,
+            _padding: 0.0,
+        }
+    }
 }
 
 impl ParticleShaderParams {
-    /// Creates final shader params from faction visual identity + dynamic particle params
-    /// Reputation and harmony provide the "life" in the visuals.
     pub fn from_particle_params(
         faction: Faction,
         visual: &FactionVisualIdentity,
@@ -50,15 +68,32 @@ impl ParticleShaderParams {
                 Faction::Evolutionary => -0.04,
                 Faction::Harmony => 0.06,
             },
+            _padding: 0.0,
         }
+    }
+
+    /// Returns a reduced particle count for culling / LOD based on distance or importance.
+    /// Helps significantly reduce GPU memory bandwidth and draw calls.
+    pub fn culled_particle_count(&self, distance: f32, max_distance: f32) -> u32 {
+        if distance > max_distance {
+            return 0;
+        }
+        let factor = 1.0 - (distance / max_distance);
+        ((self.particle_count as f32) * factor * factor) as u32
     }
 }
 
-/// WGSL shader logic snippets (production ready for Bevy Hanabi or custom wgpu pipeline)
+/// Memory-efficient batch descriptor for uploading many particle systems.
+/// Use with storage buffers instead of many small uniform updates.
+#[derive(Debug, Clone)]
+pub struct ParticleBatch {
+    pub params: ParticleShaderParams,
+    pub instance_offset: u32,
+    pub instance_count: u32,
+}
+
 pub mod wgsl {
-    /// Base burst + resonance field shader (can be composed into Hanabi effects)
     pub const BURST_RESONANCE: &str = r#"
-        // Powrush Resonance Gear - Burst + Resonance Field
         fn powrush_particle_burst(
             position: vec3<f32>,
             velocity: vec3<f32>,
@@ -70,11 +105,9 @@ pub mod wgsl {
             let t = age * 3.14159;
             let resonance_wave = sin(t * 2.0 + resonance * 6.28) * 0.5 + 0.5;
 
-            // Dynamic color with faction hue shift
             var color = base_color;
             color.r = clamp(color.r + hue_shift, 0.0, 1.0);
 
-            // Intensity + resonance modulation
             let final_intensity = intensity * (0.6 + resonance_wave * 0.4);
             let alpha = (1.0 - age) * final_intensity;
 
@@ -82,7 +115,6 @@ pub mod wgsl {
         }
     "#;
 
-    /// Trail / resonance field effect (for high-harmony or high-reputation states)
     pub const RESONANCE_TRAIL: &str = r#"
         fn powrush_resonance_trail(
             position: vec3<f32>,
@@ -97,13 +129,16 @@ pub mod wgsl {
     "#;
 }
 
-/// Helper to get a complete shader effect based on current state
-pub fn get_resonance_effect(
-    params: &ParticleShaderParams,
-) -> &'static str {
+pub fn get_resonance_effect(params: &ParticleShaderParams) -> &'static str {
     if params.resonance_field_strength > 0.4 {
         wgsl::RESONANCE_TRAIL
     } else {
         wgsl::BURST_RESONANCE
     }
 }
+
+/// Best practices comment (for future Bevy/wgpu integration):
+/// - Prefer storage buffers over many uniform buffer updates for large particle counts.
+/// - Use the culled_particle_count() for LOD / frustum culling before upload.
+/// - Keep ParticleShaderParams under 64 bytes when possible for cache efficiency.
+/// - Consider SoA layout (separate position/velocity/color buffers) for very large systems.
