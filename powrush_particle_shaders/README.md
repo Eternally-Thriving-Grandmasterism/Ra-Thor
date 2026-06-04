@@ -1,40 +1,23 @@
 # Powrush Particle Shaders
 
-## Primary Culling Technique: WaveLocal Reduction
+## Culling Architecture (Phase 1 Consolidation)
 
-**Status: Recommended Default**
+The culling system has been unified around **WaveLocal Reduction** as the primary recommended technique.
 
-WaveLocal Reduction is the primary recommended culling technique in this subsystem.
+### Structure
 
-### How It Works
+- `CullingPass` — High-level abstraction for a culling pass.
+- `CullingConfig` — Configuration (workgroup size, etc.).
+- `compute::WAVE_LOCAL_REDUCTION_CULLING` — The shader used by the unified path.
 
-Instead of every visible thread performing its own `atomicAdd`, we:
+### Recommended Flow
 
-1. Use `subgroupBallot(visible)` to determine which lanes in the wave are visible.
-2. Compute how many particles are visible in the wave with `countOneBits(ballot)`.
-3. Compute each lane’s local rank within the wave.
-4. Only lane 0 performs a single `atomicAdd` to reserve space for the entire wave.
-5. Broadcast the base offset and write visible indices using local ranks.
+1. Create `ComputeCullingParams`.
+2. Create `CullingPass`.
+3. Use `CullingPass::shader_source()` and `dispatch_size()` for dispatch.
+4. After dispatch, read `DrawIndirect` and visible indices.
 
-This approach significantly reduces contention on global atomics.
-
-### When to Use
-
-- **Default recommendation** for most particle culling workloads.
-- Especially beneficial at high particle counts or high visibility rates.
-
-### When a Simpler Approach May Suffice
-
-- Very low particle counts where atomic contention is negligible.
-- Prototyping or extremely simple culling logic.
-
-For the majority of production use cases, WaveLocal Reduction is the preferred path.
-
-## Module Structure
-
-- `compute::WAVE_LOCAL_REDUCTION_CULLING` – Primary recommended culling shader.
-- Supporting types: `ComputeCullingParams`, `DrawIndirect`.
+This structure will be further unified in subsequent steps of Phase 1.
 
 ---
-*Co-authored-by: PATSAGi Councils*
 *Part of Ra-Thor Phase 1 Consolidation*
