@@ -1,59 +1,96 @@
 /*!
-# Powrush Particle Shaders — DFE Error Propagation Mitigation
+# Powrush Particle Shaders
 
-Exploration of how error propagation risk in DFE is mitigated in PCIe Gen5.
+Core GPU compute shaders for high-performance particle culling and visibility.
 
-## The Error Propagation Problem
+## Primary Culling Technique: WaveLocal Reduction
 
-In DFE, each decided bit is fed back through weighted taps to cancel ISI on future bits. If a decision is incorrect, the wrong feedback value can cause errors on subsequent bits. In severe cases, a single decision error can trigger a burst of errors (error propagation).
+**Recommended Default Path**
 
-This is one of the main challenges of traditional DFE architectures.
+WaveLocal Reduction uses subgroup ballot and shuffle operations to perform
+counting and compaction *within each wave* before issuing a single atomic
+operation per wave. This dramatically reduces contention on global atomics
+compared to per-thread atomic approaches.
 
-## Primary Mitigation: Strong Front-End Equalization
-
-The most effective and widely used mitigation is to **reduce the raw bit error rate entering the DFE** as much as possible:
-
-- **TX FFE + RX CTLE** work together to significantly open the eye *before* the DFE slicer.
-- A cleaner input signal to the DFE dramatically lowers the probability of incorrect decisions.
-- Lower decision error rate → much lower chance of error propagation.
-
-In well-designed PCIe Gen5 receivers, the combination of TX FFE and CTLE is strong enough that the DFE mostly sees a relatively clean signal, greatly reducing propagation risk.
-
-## Secondary Mitigation Techniques
-
-### Tap Weight Limiting / Clipping
-Some DFE implementations limit the maximum magnitude of tap coefficients. This prevents a single erroneous decision from having an excessively large corrective (or disruptive) effect on future samples.
-
-### Protocol-Level Error Recovery
-PCIe includes robust error detection (CRC) and retry mechanisms at the Data Link Layer. Even if occasional error bursts occur due to DFE propagation, they are detected and the affected Transaction Layer Packets (TLPs) are retransmitted. This makes rare propagation events tolerable.
-
-### DFE Architecture Enhancements
-Some advanced DFE designs use techniques such as:
-- Tentative decision DFE
-- Reduced-state DFE
-- Parallel or look-ahead architectures
-
-These reduce propagation length or probability, but add complexity. Most commercial PCIe Gen5 implementations rely primarily on strong front-end equalization + protocol retry.
-
-## Relevance to Powrush
-
-For application-level work, DFE error propagation and its mitigation are hidden inside the hardware. However, this topic reinforces why:
-- High-quality front-end equalization (good CTLE + TX FFE) is critical for reliable Gen5 operation.
-- Platform quality (motherboard, GPU, signal integrity) has a real impact on how well the full equalization chain performs.
-- Even if occasional errors occur, PCIe’s built-in retry mechanisms provide robust recovery.
-
-Understanding error propagation mitigation helps explain why achieving consistent, high-performance Gen5 links requires both good silicon equalization design *and* good platform-level signal integrity.
+This is the recommended default culling technique for most workloads.
 */
 
-use powrush_faction_dynamics::{Faction, FactionVisualIdentity, ParticleParams};
+/// Parameters for compute culling passes.
+pub struct ComputeCullingParams {
+    pub view_proj: [[f32; 4]; 4],
+    pub camera_position: [f32; 3],
+    pub max_cull_distance: f32,
+    pub total_particles: u32,
+}
+
+/// DrawIndirect structure used by culling output.
+pub struct DrawIndirect {
+    pub vertex_count: u32,
+    pub instance_count: u32,
+    pub first_vertex: u32,
+    pub first_instance: u32,
+}
 
 pub mod compute {
-    /// Notes on DFE error propagation mitigation.
-    pub const DFE_ERROR_PROP_NOTES: &str = r#"
-        // Primary mitigation: strong CTLE + TX FFE front-end
-        // Reduces raw decision error rate into DFE
-        // Secondary: tap limiting + protocol retry (CRC + recovery)
-        // Explains why front-end equalization quality is critical
-        // Platform signal integrity directly affects propagation risk
+    use super::*;
+
+    /// WaveLocal Reduction culling shader.
+    ///
+    /// This is the recommended primary culling technique.
+    /// It uses subgroup ballot + shuffle to minimize global atomic contention.
+    pub const WAVE_LOCAL_REDUCTION_CULLING: &str = r#"
+        enable subgroups;
+
+        struct ComputeCullingParams {
+            view_proj: mat4x4<f32>,
+            camera_position: vec3<f32>,
+            max_cull_distance: f32,
+            total_particles: u32,
+        };
+
+        struct DrawIndirect {
+            vertex_count: u32,
+            instance_count: u32,
+            first_vertex: u32,
+            first_instance: u32,
+        };
+
+        @group(0) @binding(0) var<uniform> params: ComputeCullingParams;
+        @group(0) @binding(1) var<storage, read> particle_positions: array<vec3<f32>>;
+        @group(0) @binding(2) var<storage, read_write> visible_indices: array<u32>;
+        @group(0) @binding(3) var<storage, read_write> draw_indirect: DrawIndirect;
+
+        @compute @workgroup_size(64)
+        fn main(
+            @builtin(global_invocation_id) global_id: vec3<u32>,
+            @builtin(subgroup_invocation_id) lane: u32
+        ) {
+            let index = global_id.x;
+            if (index >= params.total_particles) { return; }
+
+            let pos = particle_positions[index];
+            let visible = distance(pos, params.camera_position) < params.max_cull_distance;
+
+            // Wave-local ballot: which lanes in this wave are visible?
+            let ballot = subgroupBallot(visible);
+            let wave_visible_count = countOneBits(ballot);
+
+            // Compute local rank within the wave using parallel prefix
+            let local_rank = countOneBits(ballot & ((1u << lane) - 1u));
+
+            // Only lane 0 performs the global atomic
+            var base_offset: u32 = 0u;
+            if (lane == 0u) {
+                base_offset = atomicAdd(&draw_indirect.instance_count, wave_visible_count);
+            }
+
+            // Broadcast base offset to all lanes in the wave
+            base_offset = subgroupBroadcast(base_offset, 0u);
+
+            if (visible) {
+                let output_index = base_offset + local_rank;
+                visible_indices[output_index] = index;
+            }
+        }
     "#;
 }
