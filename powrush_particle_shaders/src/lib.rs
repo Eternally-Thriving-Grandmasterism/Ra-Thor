@@ -1,53 +1,58 @@
 /*!
-# Powrush Particle Shaders — Cooperative Matrix Synchronization Primitives
+# Powrush Particle Shaders — Subgroup Barrier Semantics
 
-Exploration of synchronization requirements when using cooperative matrices.
+Exploration of subgroup (wave) barrier semantics and their use with cooperative matrices.
 
-## Why Synchronization Matters
+## What are Subgroup Barriers?
 
-Cooperative matrix operations involve multiple threads working together on matrix fragments.
-Proper memory ordering and visibility are required to ensure correct results, especially when:
-- Loading data into cooperative matrices
-- Performing multiply-accumulate
-- Storing results back to memory
+Subgroup barriers ensure that all threads (lanes) within the same subgroup have reached a certain execution point before any thread is allowed to proceed.
 
-## Synchronization in Cooperative Matrices
+They provide two main guarantees:
 
-### Subgroup Scope (Recommended)
+1. **Execution Barrier**: All threads reach the barrier before any continue.
+2. **Memory Barrier**: Memory operations before the barrier are made visible to operations after the barrier (within the subgroup).
+
+## Barrier Semantics in SPIR-V / Vulkan
+
+Barriers are expressed using `OpControlBarrier` with:
+- `Scope` = `Subgroup`
+- Appropriate `Memory Semantics` (Acquire, Release, AcquireRelease, etc.)
+
+In WGSL (when available), this will likely appear as `subgroupBarrier()` or similar with memory semantics.
+
+## Interaction with Cooperative Matrices
+
+### Subgroup-Scoped Cooperative Matrices
 
 When using `VK_SCOPE_SUBGROUP_KHR`:
-- Many operations have relatively relaxed synchronization requirements because execution within a wave is often implicitly ordered.
-- Memory Operands on `OpCooperativeMatrixLoadKHR` / `StoreKHR` still control visibility (`MakePointerAvailable`, `MakePointerVisible`, `NonPrivatePointer`, etc.).
-- Explicit subgroup barriers are usually not required for correctness within the wave.
+- Explicit subgroup barriers are **often not required** for correctness.
+- Wave execution on most GPUs has strong implicit ordering guarantees.
+- However, barriers can still be useful when mixing cooperative matrix operations with regular global/shared memory accesses to ensure visibility.
 
-### Workgroup Scope
+### Workgroup-Scoped Cooperative Matrices
 
 When using `VK_SCOPE_WORKGROUP_KHR`:
-- Stronger synchronization is typically required.
-- `OpControlBarrier` with appropriate memory semantics is often needed between cooperative matrix operations.
-- Higher risk of data races if synchronization is insufficient.
-
-## Best Practices
-
-- Prefer **Subgroup scope** for most workloads (lower synchronization cost, better performance).
-- Use appropriate **Memory Operands** on load/store instructions even at subgroup scope.
-- When using Workgroup scope, insert proper barriers between phases (load → compute → store).
-- Test thoroughly, as insufficient synchronization can lead to subtle correctness bugs.
+- Subgroup barriers alone are usually **insufficient**.
+- Full workgroup barriers (`OpControlBarrier` with Workgroup scope) are typically required between phases.
 
 ## Relevance to Powrush
 
-For our particle culling, visibility buffer, and future advanced compute workloads, sticking to **Subgroup-scoped** cooperative matrices will minimize synchronization complexity while still providing excellent performance.
+Given our extensive use of wave-local techniques (ballot, shuffle, wave-local reduction), most of our future cooperative matrix usage will likely be at **Subgroup scope**.
+In these cases, explicit barriers can often be avoided or used sparingly, reducing complexity and improving performance.
 */
 
 use powrush_faction_dynamics::{Faction, FactionVisualIdentity, ParticleParams};
 
 pub mod compute {
-    /// Notes on cooperative matrix synchronization.
-    pub const COOPERATIVE_MATRIX_SYNC_NOTES: &str = r#"
-        // Subgroup scope: lighter synchronization
-        // Workgroup scope: requires explicit barriers (OpControlBarrier)
+    /// Notes on subgroup barrier semantics.
+    pub const SUBGROUP_BARRIER_NOTES: &str = r#"
+        // Subgroup scope cooperative matrices:
+        // - Often no explicit barrier needed
+        // - Use memory operands for visibility when necessary
         //
-        // Always use correct Memory Operands on cooperative matrix
-        // load and store operations.
+        // Workgroup scope:
+        // - Usually requires full workgroup barriers
+        //
+        // Prefer Subgroup scope to minimize synchronization complexity.
     "#;
 }
