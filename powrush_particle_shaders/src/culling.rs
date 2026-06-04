@@ -1,14 +1,11 @@
 /*!
 # Culling Module
 
-Unified compute culling system centered around WaveLocal Reduction.
-
-Goal: Clean, maintainable, and efficient culling pipeline.
+Unified culling system with clean architecture.
 */
 
 use crate::{ComputeCullingParams, DrawIndirect};
 
-/// Configuration options for culling.
 pub struct CullingConfig {
     pub workgroup_size: u32,
 }
@@ -19,7 +16,7 @@ impl Default for CullingConfig {
     }
 }
 
-/// High-level representation of a culling pass.
+/// Unified culling pass abstraction.
 pub struct CullingPass {
     pub params: ComputeCullingParams,
     pub config: CullingConfig,
@@ -50,19 +47,20 @@ impl CullingPass {
             first_instance: 0,
         }
     }
-}
 
-/// Container for buffers used during culling.
-///
-/// This helps separate resource management from culling logic.
-pub struct CullingResources {
-    pub indirect: DrawIndirect,
-}
-
-impl CullingResources {
-    pub fn new(pass: &CullingPass) -> Self {
-        Self {
-            indirect: pass.create_indirect_buffer(),
+    /// Prepares everything needed for a culling dispatch.
+    pub fn prepare_dispatch(&self) -> CullingDispatchInfo {
+        CullingDispatchInfo {
+            shader: self.shader_source(),
+            dispatch_size: self.dispatch_size(),
+            indirect: self.create_indirect_buffer(),
         }
     }
+}
+
+/// Contains all information needed to perform a culling dispatch.
+pub struct CullingDispatchInfo {
+    pub shader: &'static str,
+    pub dispatch_size: u32,
+    pub indirect: DrawIndirect,
 }
