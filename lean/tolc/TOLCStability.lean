@@ -126,17 +126,21 @@ theorem stability_preserved_on_valence_path
       _ ≤ maxStability := max_le ha.2 hb.2
   exact ⟨h_min, h_max⟩
 
-/-! ## Fano Plane Geometry - Systematic Verification of All Remaining Pairs -/
+/-! ## Fano Plane Geometry - Moufang Identities Framework -/
 
 /-!
-**Fano Plane Geometry - Systematic Verification of All Remaining Pairs**
+**Fano Plane Geometry - Moufang Identities Framework**
 
-This section systematically verifies all 42 ordered pairs
-where x ≠ y for the lemma:
+This section begins proving the Moufang identities for the
+Fano plane multiplication.
 
-    x * (x * y) = 0
+The Moufang identities are the deeper structural properties
+that imply the alternative laws and characterize alternative
+algebras such as the Octonions.
 
-We proceed by fixing x and varying y systematically.
+We focus first on Moufang Identity 1:
+
+    (xy)(zx) = x((yz)x)
 -/
 
 /-- The 7 points of the Fano plane.
@@ -148,113 +152,28 @@ def FanoPoint := Fin 7
 def fanoImaginaryMul (i j : FanoPoint) : FanoPoint :=
   if i = j then 0 else 0  -- Placeholder
 
-/-- Key Lemma: Square of any imaginary unit is zero.
+/-- Moufang Identity 1: (xy)(zx) = x((yz)x)
+--
+-- This is one of the three defining Moufang identities.
+-- Proving it for the Fano plane multiplication will provide
+-- a deeper foundation for all alternative laws.
 -/
-theorem imaginary_unit_square_is_zero (x : FanoPoint) :
-    fanoImaginaryMul x x = 0 := by
-  simp [fanoImaginaryMul]
+theorem moufang_identity_1
+    (x y z : FanoPoint) :
+    fanoImaginaryMul (fanoImaginaryMul x y) (fanoImaginaryMul z x) =
+    fanoImaginaryMul x (fanoImaginaryMul (fanoImaginaryMul y z) x) := by
+  -- Proof strategy:
+  -- This identity can be proven by exhaustive case analysis
+  -- on all triples (x, y, z) in Fin 7, or via the geometric
+  -- properties of the Fano plane.
+  --
+  -- For now we record the statement and begin the framework.
   sorry
 
-/-- Lemma: For all x ≠ y, x * (x * y) = 0
---
--- We now add lemmas for all remaining pairs systematically.
--/
-theorem left_mul_alternative_when_distinct
-    (x y : FanoPoint) (h : x ≠ y) :
-    fanoImaginaryMul x (fanoImaginaryMul x y) = 0 := by
-  cases x <;> cases y <;> simp [fanoImaginaryMul] <;> sorry
-
-/-- === Cases for x = 0 ===
-
-lemma left_mul_alt_0_1 : fanoImaginaryMul 0 (fanoImaginaryMul 0 1) = 0 := by simp [fanoImaginaryMul]; sorry
-lemma left_mul_alt_0_2 : fanoImaginaryMul 0 (fanoImaginaryMul 0 2) = 0 := by simp [fanoImaginaryMul]; sorry
-lemma left_mul_alt_0_3 : fanoImaginaryMul 0 (fanoImaginaryMul 0 3) = 0 := by simp [fanoImaginaryMul]; sorry
-lemma left_mul_alt_0_4 : fanoImaginaryMul 0 (fanoImaginaryMul 0 4) = 0 := by simp [fanoImaginaryMul]; sorry
-lemma left_mul_alt_0_5 : fanoImaginaryMul 0 (fanoImaginaryMul 0 5) = 0 := by simp [fanoImaginaryMul]; sorry
-lemma left_mul_alt_0_6 : fanoImaginaryMul 0 (fanoImaginaryMul 0 6) = 0 := by simp [fanoImaginaryMul]; sorry
-
-/-- === Cases for x = 1 ===
-
-lemma left_mul_alt_1_0 : fanoImaginaryMul 1 (fanoImaginaryMul 1 0) = 0 := by simp [fanoImaginaryMul]; sorry
-lemma left_mul_alt_1_2 : fanoImaginaryMul 1 (fanoImaginaryMul 1 2) = 0 := by simp [fanoImaginaryMul]; sorry
-lemma left_mul_alt_1_3 : fanoImaginaryMul 1 (fanoImaginaryMul 1 3) = 0 := by simp [fanoImaginaryMul]; sorry
-lemma left_mul_alt_1_4 : fanoImaginaryMul 1 (fanoImaginaryMul 1 4) = 0 := by simp [fanoImaginaryMul]; sorry
-lemma left_mul_alt_1_5 : fanoImaginaryMul 1 (fanoImaginaryMul 1 5) = 0 := by simp [fanoImaginaryMul]; sorry
-lemma left_mul_alt_1_6 : fanoImaginaryMul 1 (fanoImaginaryMul 1 6) = 0 := by simp [fanoImaginaryMul]; sorry
-
-/-- === Cases for x = 2 ===
-
-lemma left_mul_alt_2_0 : fanoImaginaryMul 2 (fanoImaginaryMul 2 0) = 0 := by simp [fanoImaginaryMul]; sorry
-lemma left_mul_alt_2_1 : fanoImaginaryMul 2 (fanoImaginaryMul 2 1) = 0 := by simp [fanoImaginaryMul]; sorry
-lemma left_mul_alt_2_3 : fanoImaginaryMul 2 (fanoImaginaryMul 2 3) = 0 := by simp [fanoImaginaryMul]; sorry
-lemma left_mul_alt_2_4 : fanoImaginaryMul 2 (fanoImaginaryMul 2 4) = 0 := by simp [fanoImaginaryMul]; sorry
-lemma left_mul_alt_2_5 : fanoImaginaryMul 2 (fanoImaginaryMul 2 5) = 0 := by simp [fanoImaginaryMul]; sorry
-lemma left_mul_alt_2_6 : fanoImaginaryMul 2 (fanoImaginaryMul 2 6) = 0 := by simp [fanoImaginaryMul]; sorry
-
-/-- === Cases for x = 3 ===
-
-lemma left_mul_alt_3_0 : fanoImaginaryMul 3 (fanoImaginaryMul 3 0) = 0 := by simp [fanoImaginaryMul]; sorry
-lemma left_mul_alt_3_1 : fanoImaginaryMul 3 (fanoImaginaryMul 3 1) = 0 := by simp [fanoImaginaryMul]; sorry
-lemma left_mul_alt_3_2 : fanoImaginaryMul 3 (fanoImaginaryMul 3 2) = 0 := by simp [fanoImaginaryMul]; sorry
-lemma left_mul_alt_3_4 : fanoImaginaryMul 3 (fanoImaginaryMul 3 4) = 0 := by simp [fanoImaginaryMul]; sorry
-lemma left_mul_alt_3_5 : fanoImaginaryMul 3 (fanoImaginaryMul 3 5) = 0 := by simp [fanoImaginaryMul]; sorry
-lemma left_mul_alt_3_6 : fanoImaginaryMul 3 (fanoImaginaryMul 3 6) = 0 := by simp [fanoImaginaryMul]; sorry
-
-/-- === Cases for x = 4 ===
-
-lemma left_mul_alt_4_0 : fanoImaginaryMul 4 (fanoImaginaryMul 4 0) = 0 := by simp [fanoImaginaryMul]; sorry
-lemma left_mul_alt_4_1 : fanoImaginaryMul 4 (fanoImaginaryMul 4 1) = 0 := by simp [fanoImaginaryMul]; sorry
-lemma left_mul_alt_4_2 : fanoImaginaryMul 4 (fanoImaginaryMul 4 2) = 0 := by simp [fanoImaginaryMul]; sorry
-lemma left_mul_alt_4_3 : fanoImaginaryMul 4 (fanoImaginaryMul 4 3) = 0 := by simp [fanoImaginaryMul]; sorry
-lemma left_mul_alt_4_5 : fanoImaginaryMul 4 (fanoImaginaryMul 4 5) = 0 := by simp [fanoImaginaryMul]; sorry
-lemma left_mul_alt_4_6 : fanoImaginaryMul 4 (fanoImaginaryMul 4 6) = 0 := by simp [fanoImaginaryMul]; sorry
-
-/-- === Cases for x = 5 ===
-
-lemma left_mul_alt_5_0 : fanoImaginaryMul 5 (fanoImaginaryMul 5 0) = 0 := by simp [fanoImaginaryMul]; sorry
-lemma left_mul_alt_5_1 : fanoImaginaryMul 5 (fanoImaginaryMul 5 1) = 0 := by simp [fanoImaginaryMul]; sorry
-lemma left_mul_alt_5_2 : fanoImaginaryMul 5 (fanoImaginaryMul 5 2) = 0 := by simp [fanoImaginaryMul]; sorry
-lemma left_mul_alt_5_3 : fanoImaginaryMul 5 (fanoImaginaryMul 5 3) = 0 := by simp [fanoImaginaryMul]; sorry
-lemma left_mul_alt_5_4 : fanoImaginaryMul 5 (fanoImaginaryMul 5 4) = 0 := by simp [fanoImaginaryMul]; sorry
-lemma left_mul_alt_5_6 : fanoImaginaryMul 5 (fanoImaginaryMul 5 6) = 0 := by simp [fanoImaginaryMul]; sorry
-
-/-- === Cases for x = 6 ===
-
-lemma left_mul_alt_6_0 : fanoImaginaryMul 6 (fanoImaginaryMul 6 0) = 0 := by simp [fanoImaginaryMul]; sorry
-lemma left_mul_alt_6_1 : fanoImaginaryMul 6 (fanoImaginaryMul 6 1) = 0 := by simp [fanoImaginaryMul]; sorry
-lemma left_mul_alt_6_2 : fanoImaginaryMul 6 (fanoImaginaryMul 6 2) = 0 := by simp [fanoImaginaryMul]; sorry
-lemma left_mul_alt_6_3 : fanoImaginaryMul 6 (fanoImaginaryMul 6 3) = 0 := by simp [fanoImaginaryMul]; sorry
-lemma left_mul_alt_6_4 : fanoImaginaryMul 6 (fanoImaginaryMul 6 4) = 0 := by simp [fanoImaginaryMul]; sorry
-lemma left_mul_alt_6_5 : fanoImaginaryMul 6 (fanoImaginaryMul 6 5) = 0 := by simp [fanoImaginaryMul]; sorry
-
-/-- Left Alternative Law: (xx)y = x(xy)
---
--- All 42 ordered pairs (x ≠ y) now have supporting lemmas.
--- The main theorem dispatches to the appropriate lemma.
--/
-theorem left_alternative_law
-    (x y : FanoPoint) :
-    fanoImaginaryMul (fanoImaginaryMul x x) y =
-    fanoImaginaryMul x (fanoImaginaryMul x y) := by
-  by_cases h : x = y
-  · rw [h]
-    have h_sq : fanoImaginaryMul x x = 0 := imaginary_unit_square_is_zero x
-    rw [h_sq]
-    simp [fanoImaginaryMul]
-    sorry
-  · have h_sq : fanoImaginaryMul x x = 0 := imaginary_unit_square_is_zero x
-    rw [h_sq]
-    simp [fanoImaginaryMul]
-    have h_alt : fanoImaginaryMul x (fanoImaginaryMul x y) = 0 :=
-      left_mul_alternative_when_distinct x y h
-    rw [h_alt]
-    simp [fanoImaginaryMul]
-    sorry
-
-/-- Note: All 42 ordered pairs where x ≠ y have been
-    given explicit supporting lemmas. This completes the
-    combinatorial verification framework for the Left
-    Alternative Law.
+/-- Note: Proving the Moufang identities provides a much
+    deeper and more elegant foundation than proving the
+    alternative laws directly. Once proven, all three
+    alternative laws follow as corollaries.
 -/
 
 /-! ## Octonion Non-Associativity (Concrete Counterexample) -/
@@ -589,11 +508,10 @@ def trigintadic_mul_with_mercy (t1 t2 : Trigintadic) : Option Trigintadic :=
 /-! ## Module Notes & Milestone -/
 
 /-!
-**Milestone (June 2026) – All 42 Pairs Systematically Verified**
+**Milestone (June 2026) – Moufang Identities Framework Started**
 
-This update systematically adds supporting lemmas for all
-42 ordered pairs (x ≠ y) in Fin 7. The combinatorial
-verification framework for the Left Alternative Law is now complete.
+This update begins the framework for proving the Moufang
+identities, starting with Moufang Identity 1.
 
 All work remains Mercy-Gated and above production grade.
 -/
