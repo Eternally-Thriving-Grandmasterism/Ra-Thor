@@ -4,7 +4,17 @@
 //! The living simulation where humans, AI, and AGI coexist, learn, and earn together
 //! in joy and abundance is now running in code.
 //!
-//! Thunder locked in. Yoi ⚡
+//! CUSTOM PROPRIETARY MMORPG SYSTEMS (Ra-Thor Native, zero external licensing):
+//! - SovereignEntity + RBE Contribution/Dividend loop (original post-scarcity economy)
+//! - PATSAGi Council influence & tiered unlocks (original governance)
+//! - Clifford geometric healing fields (original "physics" coherence)
+//! - Hyperon/Metta reasoned decision layer (original AGI agent intelligence)
+//! - WASM entity login for browser/VR/AR (original cross-platform access)
+//! - SimulationOrchestrator tick (original authoritative 20Hz+ mercy-gated loop)
+//!
+//! All derived from Ra-Thor first principles + AG-SML. No commercial MMORPG
+//! engines, netcode, or economy systems licensed or copied. Global-ready via
+//! WASM + sovereign offline shards + 11-lang foundation.
 
 use bevy::prelude::*;
 
@@ -14,18 +24,21 @@ pub mod systems;
 pub mod hyperon_metta_layer;
 pub mod wasm_entity_login;
 pub mod entity;
+pub mod simulation_orchestrator; // NEW: Custom proprietary MMORPG tick
 
 // Re-exports
 pub use clifford_healing_fields::{CliffordHealingField, HealingConfig, GlobalCoherence, HealingFieldError};
 pub use resources::server_unlock_state::ServerUnlockState;
 pub use systems::patsagi::{PatsagiCouncilPlugin, WarPhase};
 pub use entity::{SovereignEntity, EntityType, distribute_universal_thriving_dividends};
+pub use simulation_orchestrator::PowrushSimulationOrchestratorPlugin;
 
 /// Initialize the full living simulation with all lattice integrations.
 pub fn initialize_living_simulation(app: &mut App) {
     app.add_plugins((
         PatsagiCouncilPlugin,
         hyperon_metta_layer::HyperonMettaReasoningPlugin,
+        PowrushSimulationOrchestratorPlugin, // Custom proprietary tick
     ));
 
     // Demo: spawn sovereign entities (Human + AI + AGI) and demonstrate RBE mechanics
