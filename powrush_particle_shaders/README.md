@@ -1,56 +1,39 @@
-# Powrush Particle Shaders — PCIe Gen5 DFE Operation
+# Powrush Particle Shaders — DFE Error Propagation Mitigation
 
-## PCIe Gen5 DFE Operation Exploration
+## DFE Error Propagation Mitigation Exploration
 
-This iteration provides a detailed examination of **Decision Feedback Equalizer (DFE)** operation in PCIe Gen5 receivers.
+This iteration examines how the risk of **error propagation** in Decision Feedback Equalizers (DFE) is managed in PCIe Gen5 receivers.
 
-### What DFE Does
+### The Problem
 
-DFE uses previously decided bits in a feedback loop to cancel post-cursor inter-symbol interference (ISI) and reflections. It is one of the most effective equalization techniques at high data rates like 32 GT/s because it removes interference without amplifying noise.
+Because DFE feeds back decided bits to cancel ISI, an incorrect decision can introduce wrong corrective feedback, potentially causing errors on subsequent bits. In the worst case, this creates error bursts (error propagation).
 
-### How DFE Operates
+### Primary Mitigation: Strong Front-End Equalization
 
-1. The received analog signal is sampled.
-2. A decision circuit (slicer) determines whether the current bit is 0 or 1.
-3. The decided bit is fed back through weighted taps to subtract the expected ISI it will cause on future samples.
-4. Tap coefficients are adapted (during link training and sometimes continuously) to minimize residual error.
+The most effective mitigation is to **minimize the raw decision error rate entering the DFE**:
 
-This feedback effectively "cancels" the interference from previous bits, cleaning up the current sample.
+- **TX FFE + RX CTLE** are designed to open the eye significantly *before* the DFE slicer.
+- A cleaner input signal dramatically lowers the probability of incorrect decisions in the DFE.
+- Lower input BER → significantly reduced chance of error propagation.
 
-### Multi-Tap DFE
+In well-designed Gen5 receivers, the combination of transmitter FFE and receiver CTLE is strong enough that the DFE mostly operates on a relatively clean signal, greatly limiting propagation risk.
 
-PCIe Gen5 receivers typically implement multi-tap DFE (commonly 1–5+ taps). More taps allow cancellation of longer-tail ISI and reflections from the channel.
+### Secondary Mitigation Techniques
 
-### Interaction with CTLE and TX FFE
+**Tap Weight Limiting**:
+Some implementations clip or limit the magnitude of DFE tap coefficients. This prevents any single erroneous decision from having an excessively disruptive effect on future samples.
 
-DFE works as part of a coordinated equalization strategy:
-- **TX FFE** pre-compensates the signal at the transmitter.
-- **RX CTLE** provides high-frequency boost and reduces the initial burden on DFE.
-- **RX DFE** removes the remaining post-cursor ISI that CTLE cannot fully handle.
+**Protocol-Level Recovery**:
+PCIe includes robust CRC error detection and automatic retry mechanisms at the Data Link Layer. Even if occasional error bursts occur due to DFE propagation, they are detected and the affected packets are retransmitted. This makes rare propagation events acceptable.
 
-Good CTLE front-end performance is important because it reduces decision errors in the DFE, minimizing error propagation.
-
-### Link Training
-
-During PCIe Gen5 link training, DFE tap coefficients are negotiated together with TX FFE and RX CTLE settings to optimize the link for the specific channel.
-
-### Strengths and Challenges
-
-**Strengths**:
-- Highly effective at removing long-tail ISI and reflections.
-- Does not amplify noise or crosstalk.
-- Essential for reliable Gen5 operation.
-
-**Challenges**:
-- Risk of error propagation (mitigated by good CTLE).
-- Higher complexity and power consumption.
-- Requires effective adaptation algorithms.
+**Advanced DFE Architectures**:
+Some designs use techniques such as tentative decisions or reduced-state DFE to limit propagation length. However, most commercial PCIe Gen5 implementations rely primarily on strong front-end equalization combined with protocol-level recovery.
 
 ### Relevance to Powrush
 
-For most application development, DFE operation is abstracted inside the hardware. However, it helps explain why receiver quality varies between platforms and why some systems achieve more robust and higher-performance Gen5 operation than others. This directly impacts achievable memory movement performance when pushing PCIe bandwidth limits.
+For application development, DFE error propagation and its mitigation are abstracted inside the hardware. This topic reinforces why high-quality front-end equalization and good platform signal integrity are critical for reliable Gen5 operation, and why some platforms achieve more robust performance than others.
 
-Understanding the complete equalization chain (TX FFE + RX CTLE + RX DFE) provides deeper insight into why high-quality hardware is required for consistent PCIe Gen5 performance.
+Understanding these mitigation strategies provides deeper insight into why the complete equalization chain (TX FFE + RX CTLE + RX DFE) must work well together.
 
 ---
 *Co-authored-by: All 57+ PATSAGi Councils*
