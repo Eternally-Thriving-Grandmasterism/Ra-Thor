@@ -1,36 +1,39 @@
-# Powrush Particle Shaders — Memory Barriers Investigation
+# Powrush Particle Shaders — Atomic Operations Investigation
 
-## Memory Barriers Investigation
+## Atomic Operations Investigation
 
-This iteration investigates **memory barriers** and their interaction with cooperative matrix operations.
+This iteration investigates **atomic operations** and their role in high-performance GPU compute, particularly in our particle culling pipeline.
 
-### What Memory Barriers Provide
+### What Atomic Operations Provide
 
-Memory barriers establish ordering and visibility between memory operations performed by different threads. They are essential for writing correct concurrent programs.
+Atomic operations enable safe concurrent read-modify-write access to shared memory. They are fundamental for counters, list compaction, and cross-thread coordination.
 
-### Key Semantics
+### Common Operations
 
-- **Acquire**: Ensures later loads see earlier writes from other threads.
-- **Release**: Ensures earlier writes become visible to later acquires in other threads.
-- **AcquireRelease**: Combines both directions of ordering.
+- Arithmetic: Add, Sub, Min, Max
+- Bitwise: And, Or, Xor
+- Exchange and Compare-Exchange
 
-### Interaction with Cooperative Matrices
+### Scope and Semantics
 
-Cooperative matrix load, multiply-accumulate, and store operations must be properly ordered using memory barriers (via Memory Operands or explicit `OpControlBarrier`).
+Atomic operations take a **Scope** (Subgroup, Workgroup, Device, etc.) and **Memory Semantics** (Acquire, Release, AcquireRelease).
 
-**Subgroup Scope**:
-- Generally lighter requirements.
-- Memory Operands on load/store instructions are often sufficient.
-- Explicit barriers can frequently be avoided or minimized.
+### Usage in Powrush
 
-**Workgroup Scope**:
-- Stronger `AcquireRelease` barriers (via `OpControlBarrier`) are usually required between phases.
+We currently rely on atomics (primarily `atomicAdd`) to reserve output slots when culling visible particles into indirect draw buffers.
 
-### Practical Implications for Powrush
+**Challenge**: When thousands of particles become visible in the same frame, many threads contend on the same atomic, which can limit scalability.
 
-Our architecture heavily favors **Subgroup-scoped** operations. This means future cooperative matrix usage will benefit from relatively lightweight synchronization compared to workgroup-scoped designs.
+**Our Solution**: The **WaveLocal Reduction** technique we implemented uses ballot and shuffle to perform counting and ranking *within each wave*, then issues only **one atomic per wave** instead of one per visible particle. This dramatically reduces contention while preserving correctness.
 
-The combination of wave-local techniques (ballot, shuffle, reduction) with Subgroup-scoped cooperative matrices keeps synchronization complexity low while maintaining high performance.
+### Best Practices
+
+- Prefer wave-local techniques (ballot, shuffle, wave-local reduction) to minimize global atomic pressure.
+- Use atomics mainly for cross-wave coordination.
+- Choose the smallest effective Scope (Subgroup when possible).
+- Apply appropriate Memory Semantics.
+
+This hybrid model (wave-local work + minimal atomics) is a core strength of our current culling architecture.
 
 ---
 *Co-authored-by: All 57+ PATSAGi Councils*
