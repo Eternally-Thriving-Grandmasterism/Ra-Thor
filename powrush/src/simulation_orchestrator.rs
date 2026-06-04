@@ -1,92 +1,124 @@
-//! Cross-Shard State Sync Enhancements
+//! Shard Consensus Protocol for Powrush
 //!
-//! Periodic broadcasting, StateSync message variant, and richer per-shard metrics.
+//! Lightweight consensus mechanism for high-impact decisions across shards.
+//! Influenced by PATSAGi principles: proposals that increase overall thriving
+//! are favored. Uses weighted voting based on ShardTrust.
 
 use bevy::prelude::*;
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 
-use crate::simulation_orchestrator::{CrossShardMessage, GlobalStateSnapshot};
+/// Types of consensus proposals
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq, Hash)]
+pub enum ConsensusTopic {
+    AdjustGlobalCouncilInfluence,
+    ApproveLargeEntityMigration,
+    UpdateHealingFieldParameters,
+    ShardTrustAdjustment,
+    Custom(String),
+}
 
-/// Extended GlobalStateSnapshot with more detailed per-shard metrics
+/// A proposal that shards can vote on
 #[derive(Serialize, Deserialize, Clone, Debug)]
-pub struct GlobalStateSnapshot {
-    pub shard_id: u64,
+pub struct ConsensusProposal {
+    pub id: u64,
+    pub topic: ConsensusTopic,
+    pub proposer_shard_id: u64,
+    pub description: String,
+    pub proposed_value: f32, // Generic value (e.g. new influence level)
     pub timestamp: u64,
-
-    // Global aggregates
-    pub total_contributions: u64,
-    pub average_valence: f32,
-    pub council_influence: f32,
-    pub active_entity_count: u32,
-    pub healing_coherence: f32,
-
-    // Per-shard detailed metrics
-    pub shard_contributions: u64,
-    pub shard_active_entities: u32,
-    pub shard_average_valence: f32,
-    pub shard_council_contribution: f32,
-    pub shard_healing_coherence: f32,
 }
 
-/// Add StateSync variant to CrossShardMessage
-// (Extending the existing enum)
-// In practice we would modify the enum definition, but here we show usage.
-
-/// Periodic state sync broadcasting system
-#[derive(Resource)]
-pub struct StateSyncTimer {
-    pub timer: Timer,
+/// A vote on a proposal
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct ConsensusVote {
+    pub proposal_id: u64,
+    pub voter_shard_id: u64,
+    pub approve: bool,
+    pub trust_weight: f32, // The weight of this vote
 }
 
-impl Default for StateSyncTimer {
-    fn default() -> Self {
-        Self {
-            timer: Timer::from_seconds(30.0, TimerMode::Repeating), // Every 30 seconds
+/// Resource that tracks active consensus proposals and votes
+#[derive(Resource, Default)]
+pub struct ShardConsensus {
+    pub active_proposals: HashMap<u64, ConsensusProposal>,
+    pub votes: HashMap<u64, Vec<ConsensusVote>>, // proposal_id -> votes
+    pub next_proposal_id: u64,
+}
+
+impl ShardConsensus {
+    pub fn create_proposal(
+        &mut self,
+        topic: ConsensusTopic,
+        proposer_shard_id: u64,
+        description: String,
+        proposed_value: f32,
+    ) -> u64 {
+        let id = self.next_proposal_id;
+        self.next_proposal_id += 1;
+
+        let proposal = ConsensusProposal {
+            id,
+            topic,
+            proposer_shard_id,
+            description,
+            proposed_value,
+            timestamp: std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap_or_default()
+                .as_secs(),
+        };
+
+        self.active_proposals.insert(id, proposal);
+        self.votes.insert(id, vec![]);
+
+        id
+    }
+
+    pub fn cast_vote(&mut self, vote: ConsensusVote) {
+        if let Some(votes) = self.votes.get_mut(&vote.proposal_id) {
+            votes.push(vote);
         }
     }
-}
 
-/// System that periodically broadcasts global state to other shards
-pub fn periodic_state_sync_broadcast(
-    time: Res<Time>,
-    mut timer: ResMut<StateSyncTimer>,
-    mut communicator: ResMut<crate::simulation_orchestrator::CrossShardCommunicator>,
-    // In real use these would come from actual queries/resources
-    shard_id: Res<crate::simulation_orchestrator::ShardId>, // placeholder
-) {
-    timer.timer.tick(time.delta());
+    /// Tally votes with trust weighting. Returns (approve_weight, reject_weight)
+    pub fn tally_votes(&self, proposal_id: u64) -> (f32, f32) {
+        let mut approve = 0.0;
+        let mut reject = 0.0;
 
-    if timer.timer.just_finished() {
-        let snapshot = crate::simulation_orchestrator::generate_global_state_snapshot(
-            shard_id.0,
-            0,    // total_contributions (would be queried)
-            0.75, // average_valence
-            0.65, // council_influence
-            42,   // active_entity_count
-            0.88, // healing_coherence
-        );
+        if let Some(votes) = self.votes.get(&proposal_id) {
+            for vote in votes {
+                if vote.approve {
+                    approve += vote.trust_weight;
+                } else {
+                    reject += vote.trust_weight;
+                }
+            }
+        }
 
-        // Send via cross-shard communicator
-        crate::simulation_orchestrator::send_cross_shard_message(
-            &mut communicator,
-            CrossShardMessage::StateSync(snapshot),
-        );
+        (approve, reject)
+    }
+
+    pub fn is_consensus_reached(&self, proposal_id: u64, threshold: f32) -> bool {
+        let (approve, reject) = self.tally_votes(proposal_id);
+        approve > threshold && approve > reject
     }
 }
 
-/// Process StateSync messages in cross-shard communication
-pub fn process_state_sync(
-    snapshot: &GlobalStateSnapshot,
-    tracker: &crate::simulation_orchestrator::ShardTrustTracker,
+/// Event to propose something for shard consensus
+#[derive(Event)]
+pub struct ProposeConsensus {
+    pub topic: ConsensusTopic,
+    pub description: String,
+    pub proposed_value: f32,
+}
+
+/// System that processes consensus proposals and votes coming from other shards
+pub fn process_consensus_messages(
+    mut consensus: ResMut<ShardConsensus>,
+    mut communicator: ResMut<crate::simulation_orchestrator::CrossShardCommunicator>,
 ) {
-    let trust = tracker.get_effective_trust(snapshot.shard_id);
-
-    // Reconcile using weighted trust
-    // (In a real system we would have a local GlobalStateSnapshot resource)
-    println!(
-        "[StateSync] Received from shard {} with effective trust {:.2}",
-        snapshot.shard_id, trust
-    );
-
-    // Here we would call reconcile_global_state(...) on a local snapshot resource
+    // In a real implementation, this would deserialize CrossShardMessage::ConsensusProposal / Vote
+    // and call create_proposal / cast_vote accordingly.
+    // For now this is a placeholder showing the architecture.
 }
