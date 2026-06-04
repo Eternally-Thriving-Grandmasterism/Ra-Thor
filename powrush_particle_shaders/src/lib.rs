@@ -1,76 +1,63 @@
 /*!
-# Powrush Particle Shaders — CTLE and DFE Equalization Techniques
+# Powrush Particle Shaders — PCIe Gen5 Transmitter FFE
 
-Examination of Continuous Time Linear Equalizer (CTLE) and Decision Feedback Equalizer (DFE) used in high-speed SerDes such as PCIe Gen5.
+Exploration of transmitter-side Feed-Forward Equalizer (FFE) used in PCIe Gen5.
 
-## Why Equalization is Needed
+## What is Transmitter FFE?
 
-At 32 GT/s (PCIe Gen5), high-frequency components of the signal are heavily attenuated by the channel (PCB traces, connectors, vias). Without equalization, the received eye is closed and the bit error rate becomes unacceptable.
+FFE (Feed-Forward Equalizer) is applied at the **transmitter** side. It pre-distorts the outgoing signal using a finite impulse response (FIR) filter with multiple taps to compensate for expected channel distortion before the signal enters the channel.
 
-Equalization compensates for channel loss and inter-symbol interference (ISI).
+It is also commonly called TX pre-emphasis or de-emphasis.
 
-## CTLE (Continuous Time Linear Equalizer)
+## How FFE Works
 
-**Role**:
-- Analog filter at the receiver front-end.
-- Provides high-frequency boost (peaking) to compensate for insertion loss.
-- Helps restore high-frequency content that was attenuated by the channel.
+The transmitter uses several taps:
+- **Pre-cursor tap(s)**: Compensate for pre-cursor ISI
+- **Main cursor**: The primary signal strength
+- **Post-cursor tap(s)**: Compensate for post-cursor ISI and reflections
 
-**Strengths**:
-- Relatively simple and low power.
-- Fast response.
-- Good at compensating frequency-dependent loss.
+By boosting transitions (pre-emphasis) and attenuating steady bits (de-emphasis), FFE helps open the eye at the receiver.
 
-**Limitations**:
-- Amplifies noise and crosstalk along with the signal.
-- Cannot fully cancel reflections or long-tail ISI.
-- Limited boost range before noise becomes problematic.
+## Role in PCIe Gen5
 
-## DFE (Decision Feedback Equalizer)
+At 32 GT/s, channel loss is severe. Transmitter FFE works together with receiver equalization:
+- **TX FFE** reduces the burden on the receiver by pre-compensating the signal.
+- **RX CTLE** provides high-frequency boost.
+- **RX multi-tap DFE** cleans up remaining post-cursor ISI.
 
-**Role**:
-- Uses decisions from previously received bits to cancel post-cursor inter-symbol interference (ISI) and reflections.
-- Typically implemented as a feedback filter with one or more taps.
+This combined TX + RX equalization strategy is essential for reliable Gen5 operation.
 
-**Strengths**:
-- Very effective at removing residual ISI and reflections after CTLE.
-- Does not amplify noise (uses decided bits).
-- Essential for closing the eye at Gen5 speeds.
+## Link Training
 
-**Limitations**:
-- More complex and higher power than CTLE.
-- Error propagation risk if a decision error occurs (usually mitigated by good front-end CTLE).
-- Requires training/adaptation.
+PCIe Gen5 uses the Link Training and Status State Machine (LTSSM) to negotiate equalization settings. During the equalization phase, the transmitter and receiver adapt their FFE, CTLE, and DFE coefficients to optimize the link.
 
-## Typical Receiver Architecture (PCIe Gen5)
+Good TX FFE settings (determined during training) are critical for achieving full Gen5 speeds on realistic channels.
 
-Modern high-speed receivers combine multiple techniques:
-1. **CTLE** – First stage, provides high-frequency boost.
-2. **Multi-tap DFE** – Cleans up remaining post-cursor ISI and reflections.
-3. **FFE (Feed-Forward Equalizer)** – Often present at the transmitter side to pre-emphasize the signal.
+## Practical Impact
 
-This combination allows reliable operation at 32 GT/s over realistic channels.
+- Platforms with better transmitter equalization capability and channel design achieve more reliable Gen5 performance.
+- Marginal channels may train with reduced FFE settings or fall back to Gen4 speeds.
+- This is one reason why real-world Gen5 bandwidth varies significantly between different motherboards, risers, and GPU combinations.
 
 ## Relevance to Powrush
 
-For application-level development, CTLE and DFE are abstracted by the hardware. However, understanding them helps explain:
-- Why PCIe Gen5 is significantly harder to implement reliably than Gen4.
-- Why high-quality motherboards, risers, and GPUs are required to achieve good Gen5 performance.
-- Why real-world bandwidth often falls short of theoretical maximum on marginal platforms.
-- Why signal integrity becomes a first-order concern when pushing PCIe bandwidth limits.
+For application-level work, transmitter FFE is hidden inside the hardware and link training process. However, it helps explain why:
+- Achieving consistent full-speed Gen5 operation requires high-quality hardware.
+- Some platforms achieve better memory movement performance than others even on the same generation of PCIe.
+- Careful platform selection matters when trying to maximize PCIe bandwidth for large particle data transfers.
 
-This knowledge provides deeper context for why careful hardware selection and platform design matter when optimizing memory movement performance.
+Understanding the full equalization chain (TX FFE + RX CTLE + RX DFE) provides deeper insight into why PCIe Gen5 is challenging and why platform quality has a real impact on achievable performance.
 */
 
 use powrush_faction_dynamics::{Faction, FactionVisualIdentity, ParticleParams};
 
 pub mod compute {
-    /// Notes on CTLE and DFE.
-    pub const CTLE_DFE_NOTES: &str = r#"
-        // CTLE: high-frequency boost, simple but amplifies noise
-        // DFE: cancels post-cursor ISI, more powerful but complex
-        // Modern receivers combine CTLE + multi-tap DFE
-        // Essential for reliable 32 GT/s operation
-        // Explains why Gen5 platforms vary significantly in quality
+    /// Notes on transmitter FFE.
+    pub const TX_FFE_NOTES: &str = r#"
+        // TX FFE pre-compensates the signal before it enters the channel.
+        // Works together with RX CTLE + DFE.
+        // Critical during Gen5 link training.
+        // Explains platform-to-platform variation in Gen5 performance.
+        // Relevant when pushing maximum PCIe bandwidth.
     "#;
 }
