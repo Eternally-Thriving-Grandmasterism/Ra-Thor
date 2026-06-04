@@ -1,27 +1,23 @@
-# Powrush Particle Shaders — GPU Occlusion Queries
+# Powrush Particle Shaders — Compute Shader Depth Sampling
 
-## Investigation: GPU Occlusion Queries vs Compute Occlusion Culling
+## Implemented: Proper Depth Sampling in Compute
 
-**Traditional GPU Occlusion Queries**:
-- Hardware feature (query objects).
-- Good for large objects (buildings, characters).
-- Poor fit for particles: too many queries needed, asynchronous results, overhead.
+Replaced the placeholder depth sampling with a correct implementation:
 
-**Compute Shader Occlusion Culling (Recommended)**:
-- Sample depth texture directly in compute.
-- Highly flexible and scalable.
-- Can be fused with frustum + importance culling in one pass.
-- No query object overhead.
-- Easier to integrate with our existing indirect draw + batching pipeline.
+- Uses `view_proj` matrix to transform world position → clip space → NDC → UV
+- Samples the depth texture at the projected screen position
+- Compares particle depth against scene depth for occlusion test
+- Integrated with existing indirect draw pipeline
 
-## Implementation
-Added `OcclusionCullingParams` and a compute shader sketch that samples a depth texture to perform occlusion culling on particles.
+## Host Responsibilities
+To use this shader, the application must:
+1. Provide a depth texture (usually the main depth buffer from the previous frame or current prepass).
+2. Upload the current view-projection matrix.
+3. Bind the depth texture and sampler.
 
-This can be combined with previous culling strategies (distance, frustum, importance) for very robust results.
+**Note on Depth Linearization**: The current comparison uses NDC z directly. For more accurate results with perspective projection, depth linearization should be applied on both sides (particle and sampled depth). This can be added in a follow-up iteration.
 
-**Note**: The depth sampling in the shader is simplified. A real implementation requires passing the view-projection matrix and proper screen-space projection.
-
-The culling system continues to evolve toward production quality.
+This brings the occlusion culling system much closer to production readiness.
 
 ---
 *Co-authored-by: All 57+ PATSAGi Councils*
