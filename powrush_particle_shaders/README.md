@@ -2,16 +2,15 @@
 
 ## Culling Architecture (Phase 1 Consolidation)
 
-### Current State
+We are actively unifying the culling system around **WaveLocal Reduction**.
 
-We are unifying the culling loop around **WaveLocal Reduction**.
+### Current Components
 
-`CullingPass` now includes:
-- Shader source access
-- Dispatch size calculation
-- Basic indirect buffer preparation
+- `CullingPass`: Main abstraction for configuring and running a culling pass.
+- `CullingBuffers`: Helper for preparing related GPU buffers.
+- `compute::WAVE_LOCAL_REDUCTION_CULLING`: The core shader.
 
-This is the foundation for a clean, unified culling pipeline.
+The goal is a clean, maintainable, and efficient culling pipeline.
 
 ---
 *Part of Ra-Thor Phase 1 Consolidation*

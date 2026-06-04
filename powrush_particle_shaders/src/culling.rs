@@ -3,7 +3,7 @@
 
 Unified compute culling pipeline built around WaveLocal Reduction.
 
-This module provides a clean structure for particle culling.
+This module is being unified for clarity, maintainability, and performance.
 */
 
 use crate::{ComputeCullingParams, DrawIndirect};
@@ -19,7 +19,7 @@ impl Default for CullingConfig {
     }
 }
 
-/// Represents a culling pass using WaveLocal Reduction.
+/// High-level abstraction for a WaveLocal Reduction culling pass.
 pub struct CullingPass {
     pub params: ComputeCullingParams,
     pub config: CullingConfig,
@@ -33,24 +33,39 @@ impl CullingPass {
         }
     }
 
-    /// Returns the shader source for WaveLocal Reduction culling.
+    /// Returns the recommended WaveLocal Reduction shader source.
     pub fn shader_source(&self) -> &'static str {
         crate::compute::WAVE_LOCAL_REDUCTION_CULLING
     }
 
-    /// Calculates the number of workgroups needed.
+    /// Calculates dispatch size (number of workgroups).
     pub fn dispatch_size(&self) -> u32 {
         (self.params.total_particles + self.config.workgroup_size - 1)
             / self.config.workgroup_size
     }
 
-    /// Prepares a DrawIndirect buffer with default values.
-    pub fn prepare_indirect_buffer(&self) -> DrawIndirect {
+    /// Creates a default DrawIndirect buffer for this pass.
+    pub fn create_indirect_buffer(&self) -> DrawIndirect {
         DrawIndirect {
-            vertex_count: 6, // Assuming triangle list for now
+            vertex_count: 6, // Placeholder for triangle rendering
             instance_count: 0,
             first_vertex: 0,
             first_instance: 0,
+        }
+    }
+}
+
+/// Helper for preparing culling-related GPU buffers.
+///
+/// This struct helps centralize buffer-related logic for better separation of concerns.
+pub struct CullingBuffers {
+    pub indirect: DrawIndirect,
+}
+
+impl CullingBuffers {
+    pub fn new(pass: &CullingPass) -> Self {
+        Self {
+            indirect: pass.create_indirect_buffer(),
         }
     }
 }
