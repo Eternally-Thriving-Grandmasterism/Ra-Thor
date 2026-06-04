@@ -1,57 +1,40 @@
-# Powrush Particle Shaders — NVSwitch Topology Benefits
+# Powrush Particle Shaders — NVLink Bandwidth Specifications
 
-## NVSwitch Topology Benefits Comparison
+## NVLink Bandwidth Specifications Exploration
 
-This iteration compares the advantages of **NVSwitch** topology against traditional multi-GPU interconnects.
+This iteration provides detailed **NVLink bandwidth specifications** across generations and their practical implications.
 
-### What NVSwitch Provides
+### Generational Bandwidth (Bidirectional per GPU)
 
-NVSwitch creates a high-bandwidth, low-latency, non-blocking all-to-all fabric between multiple GPUs in a node. Every GPU can communicate with every other GPU at full NVLink speed simultaneously.
+| Generation   | Example GPUs | Bandwidth (Bidirectional) | Notes                              |
+|--------------|--------------|---------------------------|------------------------------------|
+| NVLink 1.0   | P100         | 160 GB/s                  | First generation                   |
+| NVLink 2.0   | V100         | 300 GB/s                  | Major improvement                  |
+| NVLink 3.0   | A100         | 600 GB/s                  | Doubled from previous              |
+| NVLink 4.0   | H100         | 900 GB/s                  | Further 50% increase with NVSwitch |
 
-### Key Benefits
+### Multi-GPU with NVSwitch
 
-**Full All-to-All Bandwidth**:
-- No sharing or contention between GPU pairs.
-- Consistent high bandwidth between any GPUs.
+NVSwitch enables non-blocking all-to-all communication at full NVLink speed between many GPUs. This provides extremely high effective bandwidth for distributed workloads across 8, 16, or more GPUs in a single node.
 
-**Excellent Scalability**:
-- Performs very well as GPU count grows (8, 16, 32+).
-- Avoids bottlenecks common in mesh or tree topologies.
+### Comparison to PCIe
 
-**Superior Collectives**:
-- Much faster AllReduce, AllGather, Broadcast, etc.
-- Critical for distributed workloads and large-scale simulations.
-
-**Predictable Performance**:
-- More uniform latency and bandwidth characteristics.
-- Easier to optimize multi-GPU algorithms.
-
-### Comparison to Other Setups
-
-**PCIe + NVLink (no switch)**:
-- Good for small GPU counts (2-4).
-- Bandwidth contention increases with more GPUs.
-- Collectives can become bottlenecks.
-
-**Direct NVLink Mesh**:
-- Works for small numbers of GPUs.
-- Does not scale as cleanly to large GPU counts.
-
-**NVSwitch**:
-- Best for larger GPU counts and collective-heavy workloads.
-- Higher cost, only in high-end server systems.
+- PCIe Gen4 x16: ~32 GB/s theoretical
+- PCIe Gen5 x16: ~64 GB/s theoretical
+- NVLink generations offer 5x to 14x+ the bandwidth of PCIe Gen4, with significantly lower latency.
 
 ### Relevance to Powrush
 
-Current development focuses on single-GPU performance (culling, visibility, rendering). In this context, NVSwitch benefits are limited.
+For current single-GPU development on typical PCIe systems, these specifications are mostly aspirational. However, they become highly relevant if we ever target high-end multi-GPU hardware for very large particle simulations or distributed processing.
 
-However, if we ever scale to multi-GPU nodes (massive particle simulations, distributed rendering, multi-GPU AI components), NVSwitch becomes highly valuable for efficient data distribution and fast synchronization across GPUs.
+On NVLink + NVSwitch systems:
+- Moving large particle datasets between GPUs or CPU-GPU becomes much faster.
+- Unified Memory migration overhead drops dramatically.
+- Multi-GPU scaling becomes significantly more practical.
 
-### Recommendation
+### Practical Takeaway
 
-- Prioritize single-GPU optimization on PCIe systems for now.
-- Keep multi-GPU scaling considerations in the architecture for future expansion.
-- On high-end NVSwitch systems, large-scale multi-GPU work becomes significantly more efficient.
+NVLink bandwidth has scaled aggressively. Each generation has delivered major increases, making high-end systems increasingly powerful for data-intensive particle workloads. While current focus remains on PCIe single-GPU optimization, these specifications inform future architecture decisions for large-scale deployments.
 
 ---
 *Co-authored-by: All 57+ PATSAGi Councils*

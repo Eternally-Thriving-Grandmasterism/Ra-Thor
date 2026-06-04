@@ -1,76 +1,55 @@
 /*!
-# Powrush Particle Shaders — NVSwitch Topology Benefits
+# Powrush Particle Shaders — NVLink Bandwidth Specifications
 
-Analysis of NVSwitch topology advantages compared to traditional multi-GPU interconnects.
+Detailed exploration of NVLink bandwidth across generations.
 
-## What is NVSwitch?
+## NVLink Generational Bandwidth (Bidirectional per GPU)
 
-NVSwitch is NVIDIA's high-bandwidth, low-latency switch fabric designed to connect multiple GPUs within a node (e.g., DGX/HGX systems). It enables full NVLink bandwidth communication between any pair of GPUs, creating a non-blocking all-to-all topology.
+| Generation     | GPU Examples     | Bandwidth (Bidirectional) | Notes                                      |
+|----------------|------------------|---------------------------|--------------------------------------------|
+| NVLink 1.0     | P100             | 160 GB/s                  | First generation                           |
+| NVLink 2.0     | V100             | 300 GB/s                  | Significant jump from 1.0                  |
+| NVLink 3.0     | A100             | 600 GB/s                  | Doubled from 2.0                           |
+| NVLink 4.0     | H100             | 900 GB/s                  | 50% increase; used with NVSwitch           |
 
-## Key Benefits of NVSwitch
+*Note: These are aggregate bidirectional figures per GPU. Actual per-link speeds and number of links vary by generation.*
 
-### 1. Full Bandwidth All-to-All Communication
-- Every GPU can communicate with every other GPU at full NVLink speed simultaneously.
-- No bandwidth sharing or contention between pairs (non-blocking).
+## Multi-GPU Context with NVSwitch
 
-### 2. Excellent Scalability
-- Performs very well as the number of GPUs increases (8, 16, 32+ GPUs per node).
-- Avoids the bottlenecks of mesh or tree topologies without a switch.
+When GPUs are connected via NVSwitch:
+- Each GPU maintains very high effective bandwidth to all other GPUs in the system.
+- The topology is non-blocking all-to-all at full NVLink speed.
+- This enables extremely high aggregate bandwidth for multi-GPU workloads (e.g., large particle simulations distributed across many GPUs).
 
-### 3. Superior Collective Performance
-- Much faster AllReduce, AllGather, Broadcast, ReduceScatter, etc.
-- Critical for distributed training and large-scale multi-GPU simulations.
+## Comparison to PCIe
 
-### 4. Reduced Contention and Predictable Performance
-- More uniform latency and bandwidth between any GPU pair.
-- Easier to reason about and optimize multi-GPU algorithms.
-
-### 5. Better CPU-GPU Coherence (on some systems)
-- Some NVSwitch configurations also improve CPU-GPU communication characteristics.
-
-## Comparison to Other Topologies
-
-**Traditional PCIe + NVLink (no switch)**:
-- Good for small numbers of GPUs (2-4).
-- Bandwidth sharing and contention increase with more GPUs.
-- Collectives can become bottlenecks.
-
-**Direct NVLink Mesh (without switch)**:
-- Works well for small GPU counts.
-- Does not scale as cleanly to large numbers of GPUs.
-- More complex wiring and potential hot spots.
-
-**NVSwitch**:
-- Best scaling and collective performance for larger GPU counts.
-- Higher cost and only available in high-end server systems.
+- PCIe Gen4 x16: ~32 GB/s theoretical (~25-28 GB/s realistic)
+- PCIe Gen5 x16: ~64 GB/s theoretical
+- NVLink generations are dramatically higher (5x–14x+ PCIe Gen4 depending on generation).
 
 ## Relevance to Powrush
 
-Current Powrush development targets single-GPU performance (particle culling, visibility, rendering on one GPU). In this context, NVSwitch benefits are limited.
+For current single-GPU development on PCIe systems, these high NVLink numbers are mostly theoretical. However, they become very relevant if we ever target high-end multi-GPU nodes for massive particle counts or distributed simulation.
 
-However, if we ever scale to multi-GPU nodes (e.g., massive particle simulations, distributed rendering, or multi-GPU AI components), NVSwitch becomes highly relevant because:
-- It enables efficient distribution of large particle datasets across GPUs.
-- It provides fast collectives if we need to synchronize state between GPUs.
-- It makes multi-GPU programming more predictable and scalable.
+On NVLink systems:
+- Moving large particle datasets between GPUs or between CPU and GPU becomes much faster.
+- Unified Memory page migration (`cudaMemPrefetchAsync`) has significantly lower overhead.
+- Multi-GPU algorithms (if we scale) become more practical.
 
-For most current workloads, PCIe + single-GPU optimization remains the priority.
+## Practical Takeaway
 
-## Recommendation
-
-- Focus on single-GPU performance for now (PCIe systems).
-- Keep multi-GPU scaling considerations in mind for future architecture decisions.
-- If targeting high-end multi-GPU nodes, NVSwitch systems offer significant advantages for large-scale work.
+NVLink bandwidth has scaled aggressively across generations. Each new generation roughly doubles or significantly increases effective bandwidth, making high-end systems increasingly attractive for data-intensive workloads.
 */
 
 use powrush_faction_dynamics::{Faction, FactionVisualIdentity, ParticleParams};
 
 pub mod compute {
-    /// Notes on NVSwitch.
-    pub const NVSWITCH_NOTES: &str = r#"
-        // NVSwitch excels at large-scale multi-GPU communication.
-        // Full all-to-all bandwidth and fast collectives.
-        // Limited relevance for current single-GPU Powrush focus.
-        // Valuable if we scale to massive multi-GPU simulations.
-        // Prioritize single-GPU optimization on PCIe for now.
+    /// Notes on NVLink bandwidth specs.
+    pub const NVLINK_BANDWIDTH_NOTES: &str = r#"
+        // NVLink has scaled aggressively:
+        // 1.0: 160 GB/s, 2.0: 300 GB/s, 3.0: 600 GB/s, 4.0: 900 GB/s
+        // NVSwitch enables full utilization across many GPUs.
+        // Huge advantage over PCIe for large data movement.
+        // Relevant for future multi-GPU Powrush scaling.
     "#;
 }
