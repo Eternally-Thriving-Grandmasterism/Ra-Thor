@@ -126,21 +126,17 @@ theorem stability_preserved_on_valence_path
       _ ≤ maxStability := max_le ha.2 hb.2
   exact ⟨h_min, h_max⟩
 
-/-! ## Fano Plane Geometry - Moufang Identities Framework -/
+/-! ## Fano Plane Geometry - Beginning Proof of Moufang Identity 1 -/
 
 /-!
-**Fano Plane Geometry - Moufang Identities Framework**
+**Fano Plane Geometry - Beginning Proof of Moufang Identity 1**
 
-This section begins proving the Moufang identities for the
-Fano plane multiplication.
-
-The Moufang identities are the deeper structural properties
-that imply the alternative laws and characterize alternative
-algebras such as the Octonions.
-
-We focus first on Moufang Identity 1:
+This section begins proving Moufang Identity 1:
 
     (xy)(zx) = x((yz)x)
+
+We use a structured approach with case analysis on the
+variables x, y, z.
 -/
 
 /-- The 7 points of the Fano plane.
@@ -154,26 +150,26 @@ def fanoImaginaryMul (i j : FanoPoint) : FanoPoint :=
 
 /-- Moufang Identity 1: (xy)(zx) = x((yz)x)
 --
--- This is one of the three defining Moufang identities.
--- Proving it for the Fano plane multiplication will provide
--- a deeper foundation for all alternative laws.
+-- Proof framework:
+--
+--   We prove this by case analysis on x, y, z in Fin 7.
+--   Since Fin 7 is finite, exhaustive verification is feasible
+--   (though tedious). Alternatively, this can be proven from
+--   the geometric properties of the Fano plane.
+--
+--   For now we establish the structure.
 -/
 theorem moufang_identity_1
     (x y z : FanoPoint) :
     fanoImaginaryMul (fanoImaginaryMul x y) (fanoImaginaryMul z x) =
     fanoImaginaryMul x (fanoImaginaryMul (fanoImaginaryMul y z) x) := by
-  -- Proof strategy:
-  -- This identity can be proven by exhaustive case analysis
-  -- on all triples (x, y, z) in Fin 7, or via the geometric
-  -- properties of the Fano plane.
-  --
-  -- For now we record the statement and begin the framework.
-  sorry
+  -- Case analysis on x, y, z
+  cases x <;> cases y <;> cases z <;> simp [fanoImaginaryMul] <;> sorry
 
-/-- Note: Proving the Moufang identities provides a much
-    deeper and more elegant foundation than proving the
-    alternative laws directly. Once proven, all three
-    alternative laws follow as corollaries.
+/-- Note: This is the structured beginning of the proof.
+    Completing it requires either exhaustive case analysis
+    on all 343 triples in Fin 7 or a geometric argument
+    based on the Fano plane incidence structure.
 -/
 
 /-! ## Octonion Non-Associativity (Concrete Counterexample) -/
@@ -508,10 +504,10 @@ def trigintadic_mul_with_mercy (t1 t2 : Trigintadic) : Option Trigintadic :=
 /-! ## Module Notes & Milestone -/
 
 /-!
-**Milestone (June 2026) – Moufang Identities Framework Started**
+**Milestone (June 2026) – Proof of Moufang Identity 1 Begun**
 
-This update begins the framework for proving the Moufang
-identities, starting with Moufang Identity 1.
+This update begins the proof of Moufang Identity 1
+with a structured case analysis framework.
 
 All work remains Mercy-Gated and above production grade.
 -/
