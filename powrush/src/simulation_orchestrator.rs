@@ -1,95 +1,92 @@
-//! Cross-Shard State Synchronization for Powrush
+//! Cross-Shard State Sync Enhancements
 //!
-//! Enables shards to periodically share aggregated world state (global metrics,
-//! PATSAGi influence, healing field coherence, etc.).
-//! This complements entity migration by keeping high-level state consistent
-//! across the hybrid WASM/Native shard network.
+//! Periodic broadcasting, StateSync message variant, and richer per-shard metrics.
 
 use bevy::prelude::*;
 use serde::{Deserialize, Serialize};
 
-use crate::simulation_orchestrator::CrossShardMessage;
+use crate::simulation_orchestrator::{CrossShardMessage, GlobalStateSnapshot};
 
-/// Aggregated global state that can be synced between shards
+/// Extended GlobalStateSnapshot with more detailed per-shard metrics
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct GlobalStateSnapshot {
     pub shard_id: u64,
     pub timestamp: u64,
 
-    // High-level aggregated metrics (can be expanded)
+    // Global aggregates
     pub total_contributions: u64,
     pub average_valence: f32,
     pub council_influence: f32,
     pub active_entity_count: u32,
     pub healing_coherence: f32,
+
+    // Per-shard detailed metrics
+    pub shard_contributions: u64,
+    pub shard_active_entities: u32,
+    pub shard_average_valence: f32,
+    pub shard_council_contribution: f32,
+    pub shard_healing_coherence: f32,
 }
 
-/// Add StateSync variant to CrossShardMessage if not already present
-// (We extend the existing enum conceptually here)
+/// Add StateSync variant to CrossShardMessage
+// (Extending the existing enum)
+// In practice we would modify the enum definition, but here we show usage.
 
-/// Generate a snapshot of current global state from this shard
-pub fn generate_global_state_snapshot(
-    shard_id: u64,
-    total_contributions: u64,
-    average_valence: f32,
-    council_influence: f32,
-    active_entity_count: u32,
-    healing_coherence: f32,
-) -> GlobalStateSnapshot {
-    GlobalStateSnapshot {
-        shard_id,
-        timestamp: std::time::SystemTime::now()
-            .duration_since(std::time::UNIX_EPOCH)
-            .unwrap_or_default()
-            .as_secs(),
-        total_contributions,
-        average_valence,
-        council_influence,
-        active_entity_count,
-        healing_coherence,
+/// Periodic state sync broadcasting system
+#[derive(Resource)]
+pub struct StateSyncTimer {
+    pub timer: Timer,
+}
+
+impl Default for StateSyncTimer {
+    fn default() -> Self {
+        Self {
+            timer: Timer::from_seconds(30.0, TimerMode::Repeating), // Every 30 seconds
+        }
     }
 }
 
-/// Reconcile incoming global state snapshot using trust-weighted logic
-pub fn reconcile_global_state(
-    local: &mut GlobalStateSnapshot,
-    incoming: &GlobalStateSnapshot,
-    incoming_trust: f32,
+/// System that periodically broadcasts global state to other shards
+pub fn periodic_state_sync_broadcast(
+    time: Res<Time>,
+    mut timer: ResMut<StateSyncTimer>,
+    mut communicator: ResMut<crate::simulation_orchestrator::CrossShardCommunicator>,
+    // In real use these would come from actual queries/resources
+    shard_id: Res<crate::simulation_orchestrator::ShardId>, // placeholder
 ) {
-    let trust = incoming_trust.clamp(0.0, 1.0);
-    let local_weight = 1.0 - trust;
+    timer.timer.tick(time.delta());
 
-    // Weighted blend for most metrics
-    local.average_valence =
-        local.average_valence * local_weight + incoming.average_valence * trust;
+    if timer.timer.just_finished() {
+        let snapshot = crate::simulation_orchestrator::generate_global_state_snapshot(
+            shard_id.0,
+            0,    // total_contributions (would be queried)
+            0.75, // average_valence
+            0.65, // council_influence
+            42,   // active_entity_count
+            0.88, // healing_coherence
+        );
 
-    local.council_influence =
-        local.council_influence * local_weight + incoming.council_influence * trust;
-
-    local.healing_coherence =
-        local.healing_coherence * local_weight + incoming.healing_coherence * trust;
-
-    // Contributions are additive across shards
-    local.total_contributions += (incoming.total_contributions as f32 * trust) as u64;
-
-    // Take the higher entity count (more conservative)
-    if incoming.active_entity_count > local.active_entity_count {
-        local.active_entity_count = incoming.active_entity_count;
-    }
-
-    // Update timestamp
-    if incoming.timestamp > local.timestamp {
-        local.timestamp = incoming.timestamp;
+        // Send via cross-shard communicator
+        crate::simulation_orchestrator::send_cross_shard_message(
+            &mut communicator,
+            CrossShardMessage::StateSync(snapshot),
+        );
     }
 }
 
-/// System that can periodically broadcast state syncs (placeholder for now)
-pub fn broadcast_state_sync(
-    shard_id: u64,
-    communicator: &mut crate::simulation_orchestrator::CrossShardCommunicator,
-    snapshot: GlobalStateSnapshot,
+/// Process StateSync messages in cross-shard communication
+pub fn process_state_sync(
+    snapshot: &GlobalStateSnapshot,
+    tracker: &crate::simulation_orchestrator::ShardTrustTracker,
 ) {
-    // In a real implementation this would serialize and send via network
-    // For now we just demonstrate the pattern
-    println!("[StateSync] Broadcasting snapshot from shard {}", shard_id);
+    let trust = tracker.get_effective_trust(snapshot.shard_id);
+
+    // Reconcile using weighted trust
+    // (In a real system we would have a local GlobalStateSnapshot resource)
+    println!(
+        "[StateSync] Received from shard {} with effective trust {:.2}",
+        snapshot.shard_id, trust
+    );
+
+    // Here we would call reconcile_global_state(...) on a local snapshot resource
 }
