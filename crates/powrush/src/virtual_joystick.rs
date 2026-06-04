@@ -1,16 +1,15 @@
 //! crates/powrush/src/virtual_joystick.rs
 //! Virtual Joystick for Powrush-MMO Mobile Experience
-//! PATSAGi + Ra-Thor approved: Client-Side Prediction + Reconciliation foundation
-//! Eternal even playing field + maximal end-user joy, responsiveness, positive emotion
+//! Rollback Netcode style Server Reconciliation (option 2 locked)
+//! Higher fidelity rollback + replay for eternal even playing field + maximal joy
 
 use bevy::prelude::*;
 use bevy_egui::EguiContexts;
 use egui::{Color32, Sense, Vec2 as EguiVec2};
 use crate::experience_tier::ExperienceTier;
-use crate::simulation::Position; // shared deterministic type
+use crate::simulation::{Position, predict_move_position};
 
-/// Bevy Event carrying joystick input for decoupled CouncilProposal generation.
-/// Sequence number enables Server Reconciliation (rewind + replay) for eternal fair play.
+/// Bevy Event with sequence for rollback reconciliation.
 #[derive(Event, Debug, Clone, Copy, Default)]
 pub struct JoystickMoveEvent {
     pub sequence: u64,
@@ -20,7 +19,15 @@ pub struct JoystickMoveEvent {
     pub intensity: f32,
 }
 
-/// Resource holding current joystick state + prediction buffer for reconciliation.
+/// Snapshot of predicted state at a specific sequence (for rollback).
+#[derive(Debug, Clone, Copy)]
+pub struct PredictedState {
+    pub sequence: u64,
+    pub position: Position,
+    pub harmony: f64, // included for future mercy-aware rollback
+}
+
+/// Resource with input buffer + rollback history.
 #[derive(Resource, Debug, Default)]
 pub struct VirtualJoystick {
     pub movement: Vec2,
@@ -29,9 +36,11 @@ pub struct VirtualJoystick {
     pub current_pos: EguiVec2,
     pub sensitivity: f32,
     pub deadzone: f32,
-    /// Input history buffer for Server Reconciliation (seq + event). Eternal fair play.
     pub pending_inputs: Vec<JoystickMoveEvent>,
     next_sequence: u64,
+    /// Rollback history: past predicted states (ring buffer for efficiency).
+    pub prediction_history: Vec<PredictedState>,
+    pub current_predicted_position: Position,
 }
 
 impl VirtualJoystick {
@@ -45,6 +54,8 @@ impl VirtualJoystick {
             deadzone: 0.1,
             pending_inputs: Vec::new(),
             next_sequence: 1,
+            prediction_history: Vec::new(),
+            current_predicted_position: Position { x: 0.0, y: 0.0 },
         }
     }
 
@@ -52,10 +63,9 @@ impl VirtualJoystick {
         if self.movement.length() < self.deadzone { Vec2::ZERO } else { self.movement * self.sensitivity }
     }
 
-    /// Record input for later reconciliation (called after event send).
     pub fn record_pending(&mut self, event: JoystickMoveEvent) {
         self.pending_inputs.push(event);
-        if self.pending_inputs.len() > 64 { self.pending_inputs.remove(0); } // bounded history
+        if self.pending_inputs.len() > 128 { self.pending_inputs.remove(0); }
     }
 
     pub fn next_sequence(&mut self) -> u64 {
@@ -63,9 +73,43 @@ impl VirtualJoystick {
         self.next_sequence += 1;
         seq
     }
+
+    /// Record current predicted state for future rollback (called after local prediction).
+    pub fn record_prediction_state(&mut self, state: PredictedState) {
+        self.prediction_history.push(state);
+        if self.prediction_history.len() > 128 { self.prediction_history.remove(0); }
+        self.current_predicted_position = state.position;
+    }
+
+    /// Rollback to a specific sequence and return the state (core of Rollback Netcode).
+    /// Then caller replays all newer pending inputs.
+    pub fn rollback_to_sequence(&mut self, target_seq: u64) -> Option<PredictedState> {
+        if let Some(pos) = self.prediction_history.iter().rposition(|s| s.sequence <= target_seq) {
+            let state = self.prediction_history[pos];
+            self.prediction_history.truncate(pos + 1);
+            self.current_predicted_position = state.position;
+            // Remove pending inputs before or at target
+            self.pending_inputs.retain(|e| e.sequence > target_seq);
+            Some(state)
+        } else {
+            None
+        }
+    }
+
+    /// Replay a list of events after rollback using the pure deterministic predictor.
+    pub fn replay_events(&mut self, events: &[JoystickMoveEvent]) {
+        for event in events {
+            self.current_predicted_position = predict_move_position(
+                self.current_predicted_position,
+                event.dx,
+                event.dy,
+            );
+            // In full integration, also re-emit CouncilProposal here if needed
+        }
+    }
 }
 
-/// Plugin with prediction-ready systems.
+/// Plugin
 pub struct VirtualJoystickPlugin;
 
 impl Plugin for VirtualJoystickPlugin {
@@ -76,7 +120,7 @@ impl Plugin for VirtualJoystickPlugin {
             show_virtual_joystick.run_if(|tier: Res<ExperienceTier>| *tier == ExperienceTier::MobileTown),
             reset_joystick_when_inactive,
             emit_joystick_events,
-            apply_local_prediction, // immediate responsive joy (CSP foundation)
+            apply_local_prediction,
         ));
     }
 }
@@ -96,7 +140,6 @@ fn show_virtual_joystick(
             let center = rect.center();
 
             ui.painter().circle_filled(center, size / 2.0, Color32::from_gray(55));
-
             let knob_radius = size / 4.0;
             let knob_pos = if response.dragged() {
                 let delta = response.drag_delta();
@@ -130,7 +173,6 @@ fn reset_joystick_when_inactive(mut joystick: ResMut<VirtualJoystick>) {
     }
 }
 
-/// Emits sequenced event + records for reconciliation. Decoupled for CouncilProposal bridge.
 fn emit_joystick_events(
     mut joystick: ResMut<VirtualJoystick>,
     mut events: EventWriter<JoystickMoveEvent>,
@@ -147,21 +189,22 @@ fn emit_joystick_events(
         };
         events.send(event);
         joystick.record_pending(event);
+
+        // Record predicted state for rollback history
+        let new_pos = predict_move_position(joystick.current_predicted_position, event.dx, event.dy);
+        joystick.record_prediction_state(PredictedState {
+            sequence: seq,
+            position: new_pos,
+            harmony: 0.75, // placeholder; real value from local simulation
+        });
     }
 }
 
-/// Local Client-Side Prediction hook (approved CSP foundation).
-/// Immediately applies movement for joyful responsive feel.
-/// Uses identical deterministic logic as authoritative simulation (see predict_move_position).
-/// Does NOT bypass council truth — reconciliation will correct when authoritative snapshot arrives.
-fn apply_local_prediction(
-    mut joystick: Res<VirtualJoystick>,
-    // In real integration: mut query for local player visual/entity
-) {
-    // Placeholder: in full client, call simulation::predict_move_position on local predicted state here.
-    // Example future:
-    // if let Some(mut pos) = local_player_position {
-    //     *pos = crate::simulation::predict_move_position(*pos, joystick.movement.x, joystick.movement.y);
+/// Local CSP with rollback support hook.
+fn apply_local_prediction(mut joystick: ResMut<VirtualJoystick>) {
+    // Future: when authoritative correction arrives, call:
+    // if let Some(state) = joystick.rollback_to_sequence(correction_seq) {
+    //     joystick.replay_events(&joystick.pending_inputs);
     // }
-    let _ = joystick; // keep resource alive for buffer
+    let _ = joystick;
 }
