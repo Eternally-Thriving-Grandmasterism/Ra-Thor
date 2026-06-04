@@ -1,15 +1,14 @@
 /*!
 # Compute Pipeline Manager
 
-A centralized, cache-friendly manager for Vulkan compute pipelines.
+Centralized manager for Vulkan compute pipelines.
 
-Features:
-- Specialization constant support
-- Pipeline layout caching per type
-- Designed for easy integration with the culling and visibility systems
+Supports:
+- Specialization constants
+- Pipeline layout caching
+- Shader module selection per pipeline type (scaffolding)
 
-This is still a work in progress. Real `vkCreateComputePipelines` calls will be added
-when the full Vulkan device + shader module context is available.
+This is designed to work with the culling and visibility systems.
 */
 
 use std::collections::HashMap;
@@ -51,8 +50,7 @@ pub struct ComputePipelineManager {
 
 impl ComputePipelineManager {
     pub fn new(device: ash::Device) -> Self {
-        // TODO: Create or load a persistent VkPipelineCache from disk
-        let pipeline_cache = vk::PipelineCache::null();
+        let pipeline_cache = vk::PipelineCache::null(); // TODO: Real cache
 
         Self {
             device,
@@ -62,7 +60,6 @@ impl ComputePipelineManager {
         }
     }
 
-    /// Returns a pipeline for the given type, creating it if necessary.
     pub fn get_pipeline(
         &mut self,
         create_info: &ComputePipelineCreateInfo,
@@ -77,7 +74,7 @@ impl ComputePipelineManager {
     }
 
     fn create_pipeline(&self, create_info: &ComputePipelineCreateInfo) -> vk::Pipeline {
-        // === Specialization Constants ===
+        // Build specialization info
         let spec_entries: Vec<vk::SpecializationMapEntry> = create_info
             .specialization_constants
             .iter()
@@ -113,24 +110,32 @@ impl ComputePipelineManager {
             None
         };
 
-        // === TODOs for full implementation ===
-        // 1. Select shader module based on create_info.pipeline_type
-        // 2. Get or create VkPipelineLayout using get_pipeline_layout()
-        // 3. Build VkComputePipelineCreateInfo
-        // 4. Call vkCreateComputePipelines(self.device, self.pipeline_cache, ...)
-        // 5. Handle errors properly
+        // Select shader module based on pipeline type
+        let _shader_module = match create_info.pipeline_type {
+            ComputePipelineType::CullingPrimary => {
+                // TODO: Load or get shader module for WaveLocal Reduction culling
+                vk::ShaderModule::null()
+            }
+            ComputePipelineType::VisibilityWrite => {
+                // TODO: Load or get shader module for visibility buffer writing
+                vk::ShaderModule::null()
+            }
+        };
+
+        // Get pipeline layout
+        // let layout = self.get_pipeline_layout(create_info.pipeline_type);
+
+        // TODO: Build VkComputePipelineCreateInfo and call vkCreateComputePipelines
 
         vk::Pipeline::null()
     }
 
-    /// Returns (or creates) a pipeline layout for the given pipeline type.
     pub fn get_pipeline_layout(&mut self, ty: ComputePipelineType) -> vk::PipelineLayout {
         if let Some(&layout) = self.layouts.get(&ty) {
             return layout;
         }
 
-        // TODO: Create a real VkPipelineLayout with appropriate descriptor set layouts
-        // and push constant ranges based on the needs of this pipeline type.
+        // TODO: Create real pipeline layout with proper descriptor sets
         let layout = vk::PipelineLayout::null();
         self.layouts.insert(ty, layout);
         layout

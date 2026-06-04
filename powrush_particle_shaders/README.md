@@ -2,13 +2,9 @@
 
 ## Compute Pipeline Manager
 
-The manager has been further refined with clearer structure and detailed TODOs
-for completing real pipeline creation.
+Further refined with shader module selection scaffolding based on `ComputePipelineType`.
 
-It now includes:
-- Specialization constant support
-- Pipeline layout caching
-- Clear scaffolding for future implementation
+The manager is becoming more complete and ready for real Vulkan integration.
 
 ---
 *Phase 1 Consolidation*
