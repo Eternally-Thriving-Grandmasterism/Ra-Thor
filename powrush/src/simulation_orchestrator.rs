@@ -1,97 +1,69 @@
-//! Consensus Fault Tolerance for Powrush Shard Consensus
+//! Partial Byzantine Thresholds for Powrush Shard Consensus
 //!
-//! Adds robustness against crashed, slow, or malicious shards.
-//! Uses trust-weighted quorums and proposal expiration rather than full BFT
-//! (appropriate for a mercy-aligned, thriving-focused simulation).
-
-use bevy::prelude::*;
-use std::collections::HashMap;
+//! Adds resistance to malicious or low-trust shards trying to influence consensus.
+//! Uses dynamic thresholds based on the proportion of low-trust votes.
 
 use crate::simulation_orchestrator::ShardConsensus;
-
-/// Configuration for fault-tolerant consensus
-#[derive(Resource)]
-pub struct ConsensusFaultToleranceConfig {
-    pub proposal_timeout_seconds: u64,
-    pub minimum_participation_weight: f32, // e.g. 0.6 = 60% of known trust must vote
-    pub max_proposals_per_shard: u32,
-}
-
-impl Default for ConsensusFaultToleranceConfig {
-    fn default() -> Self {
-        Self {
-            proposal_timeout_seconds: 300, // 5 minutes
-            minimum_participation_weight: 0.6,
-            max_proposals_per_shard: 3,
-        }
-    }
-}
+use crate::simulation_orchestrator::ShardTrust;
 
 impl ShardConsensus {
-    /// Check if a proposal has expired
-    pub fn is_proposal_expired(&self, proposal_id: u64, current_time: u64, timeout: u64) -> bool {
-        if let Some(proposal) = self.active_proposals.get(&proposal_id) {
-            return current_time > proposal.timestamp + timeout;
+    /// Calculate the percentage of vote weight coming from low-trust sources
+    pub fn calculate_low_trust_vote_percentage(&self, proposal_id: u64) -> f32 {
+        if let Some(votes) = self.votes.get(&proposal_id) {
+            if votes.is_empty() {
+                return 0.0;
+            }
+
+            let mut low_trust_weight = 0.0;
+            let mut total_weight = 0.0;
+
+            for vote in votes {
+                total_weight += vote.trust_weight;
+
+                // Consider votes with weight <= 0.5 as "low trust"
+                if vote.trust_weight <= 0.5 {
+                    low_trust_weight += vote.trust_weight;
+                }
+            }
+
+            if total_weight > 0.0 {
+                return low_trust_weight / total_weight;
+            }
         }
-        true
+        0.0
     }
 
-    /// Calculate total trust weight of all known shards (simplified)
-    pub fn estimate_total_trust_weight(&self) -> f32 {
-        // In a real system this would come from ShardTrustTracker
-        // For now we use a placeholder
-        10.0
-    }
-
-    /// Check if enough weighted votes have been cast (crash fault tolerance)
-    pub fn has_sufficient_participation(&self, proposal_id: u64) -> bool {
+    /// Enhanced consensus check with partial Byzantine resistance
+    pub fn is_consensus_reached_byzantine_resistant(
+        &self,
+        proposal_id: u64,
+        base_threshold: f32,
+    ) -> bool {
         let (approve, reject) = self.tally_votes(proposal_id);
-        let total_voted = approve + reject;
-        let estimated_total = self.estimate_total_trust_weight();
-
-        total_voted >= estimated_total * 0.6 // 60% participation threshold
-    }
-
-    /// Enhanced consensus check with fault tolerance
-    pub fn is_consensus_reached_fault_tolerant(&self, proposal_id: u64, timeout: u64, current_time: u64) -> bool {
-        if self.is_proposal_expired(proposal_id, current_time, timeout) {
-            return false;
-        }
 
         if !self.has_sufficient_participation(proposal_id) {
             return false;
         }
 
-        let (approve, reject) = self.tally_votes(proposal_id);
-        approve > reject && approve > 1.2 // weighted threshold
+        let low_trust_ratio = self.calculate_low_trust_vote_percentage(proposal_id);
+
+        // Dynamically increase the required approval threshold
+        // if many low-trust votes are present
+        let adjusted_threshold = if low_trust_ratio > 0.3 {
+            // Require stronger consensus when low-trust participation is high
+            base_threshold + (low_trust_ratio * 0.4)
+        } else {
+            base_threshold
+        };
+
+        approve > reject && approve >= adjusted_threshold
     }
 
-    /// Clean up expired proposals
-    pub fn cleanup_expired_proposals(&mut self, current_time: u64, timeout: u64) {
-        let mut to_remove = vec![];
-
-        for (id, proposal) in self.active_proposals.iter() {
-            if current_time > proposal.timestamp + timeout {
-                to_remove.push(*id);
-            }
-        }
-
-        for id in to_remove {
-            self.active_proposals.remove(&id);
-            self.votes.remove(&id);
-        }
+    /// Check if low-trust shards are dominating the vote (potential attack)
+    pub fn is_low_trust_dominated(&self, proposal_id: u64, threshold: f32) -> bool {
+        self.calculate_low_trust_vote_percentage(proposal_id) > threshold
     }
 }
 
-/// System that maintains consensus fault tolerance (timeouts + cleanup)
-pub fn consensus_fault_tolerance_maintenance(
-    mut consensus: ResMut<ShardConsensus>,
-    config: Res<crate::simulation_orchestrator::ConsensusFaultToleranceConfig>,
-) {
-    let current_time = std::time::SystemTime::now()
-        .duration_since(std::time::UNIX_EPOCH)
-        .unwrap_or_default()
-        .as_secs();
-
-    consensus.cleanup_expired_proposals(current_time, config.proposal_timeout_seconds);
-}
+/// Configuration extension for Byzantine thresholds
+// Can be added to ConsensusFaultToleranceConfig if desired
