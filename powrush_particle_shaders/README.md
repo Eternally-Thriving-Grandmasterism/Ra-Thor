@@ -1,31 +1,46 @@
-# Powrush Particle Shaders — cudaMalloc vs cudaMallocManaged Performance
+# Powrush Particle Shaders — Profiling cudaMemPrefetchAsync Overhead
 
-## cudaMalloc vs cudaMallocManaged Performance Comparison
+## Profiling cudaMemPrefetchAsync Overhead
 
-This iteration provides a direct performance comparison between standard device memory allocation and Unified Memory.
+This section provides guidance on how to **measure and analyze the overhead** of using `cudaMemPrefetchAsync`.
 
-### Summary Comparison
+### Sources of Overhead
 
-| Aspect                        | cudaMalloc (Explicit)                              | cudaMallocManaged (Unified)                        | Winner (Typical)          |
-|-------------------------------|----------------------------------------------------|----------------------------------------------------|---------------------------|
-| Hot Path Performance          | Highest and most predictable                       | Generally lower (migration overhead)               | cudaMalloc                |
-| Programming Complexity        | Higher (manual copies)                             | Lower (single pointer)                             | cudaMallocManaged         |
-| Page Migration / Faults       | None                                               | On-demand migration cost                           | cudaMalloc                |
-| Memory Oversubscription       | Not supported                                      | Supported                                          | cudaMallocManaged         |
-| Peak Bandwidth                | Full GPU HBM                                       | Limited by interconnect during migration           | cudaMalloc                |
-| Best For                      | Performance-critical work                          | Simpler code + occasional CPU access               | Context dependent         |
+While the API call itself is lightweight, the real cost comes from the page migration work it triggers:
+- Driver processing
+- Data movement over the interconnect
+- Potential cache/TLB impact
+- Interaction with concurrent operations
 
-### Key Takeaways
+### How to Profile
 
-- For the core hot paths in Powrush (culling, visibility buffer updates, high-throughput compaction), `cudaMalloc` combined with explicit `cudaMemcpyAsync` is almost always the faster and more predictable choice.
-- `cudaMallocManaged` becomes attractive when you need convenient CPU access to the same data or when faster development time is more important than maximum performance.
-- Even with `cudaMemPrefetchAsync`, Unified Memory rarely matches the performance of well-optimized explicit memory for memory-bound compute kernels.
+**Nsight Systems Timeline**:
+- Capture timelines with and without prefetch calls.
+- Visualize migration traffic triggered by `cudaMemPrefetchAsync`.
+- Check overlap quality and any contention or gaps.
+- Use CUDA events to measure time from prefetch submission to data readiness.
 
-### Recommendation
+**Nsight Compute**:
+- Compare kernel execution time and memory-related stalls with/without prefetching.
+- Look for reductions in page-fault stalls or `memory_replay_overhead`.
 
-- Use `cudaMalloc` + async copies for all performance-critical particle processing.
-- Consider `cudaMallocManaged` only for data that needs frequent or convenient CPU read/write, and always pair it with `cudaMemPrefetchAsync`.
-- When in doubt, profile both approaches — the performance difference can be substantial on memory-intensive workloads.
+**Application Metrics**:
+- Kernel time improvement
+- End-to-end workload time
+- Net benefit calculation (time saved vs migration cost)
+
+### Recommended Workflow
+
+1. Profile baseline (Unified Memory without prefetch).
+2. Add strategic `cudaMemPrefetchAsync` calls before hot kernels.
+3. Re-profile and compare key metrics.
+4. Determine if kernel time reduction outweighs migration cost.
+
+### When It Is Worth It
+
+`cudaMemPrefetchAsync` is usually beneficial when it significantly reduces page faults in performance-critical kernels and migration can be overlapped with other work. It is less useful if data is prefetched too early or if explicit memory copies would be simpler and faster.
+
+This profiling approach helps validate that the optimization is delivering a net performance gain.
 
 ---
 *Co-authored-by: All 57+ PATSAGi Councils*
