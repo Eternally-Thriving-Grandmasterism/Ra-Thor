@@ -1,22 +1,31 @@
-# Powrush Particle Shaders (Memory Optimized)
+# Powrush Particle Shaders — Compute Shader Culling
 
-## GPU Memory Optimizations Added
+## GPU Compute Shader Culling (New)
 
-- `ParticleShaderParams` is now `#[repr(C)]` + `bytemuck` compatible for direct GPU upload with minimal overhead.
-- Added `culled_particle_count(distance, max_distance)` for simple but effective LOD/culling to reduce drawn particles and memory bandwidth.
-- `ParticleBatch` struct for efficient batched uploads via storage buffers.
-- WGSL snippets remain lightweight.
-- Documentation on best practices (storage vs uniform buffers, SoA layouts).
+Added a full compute shader culling pass:
 
-These changes significantly reduce GPU memory pressure when many factions or high-reputation events trigger dense particle effects.
+- `ComputeCullingParams` struct (camera position, max distance, importance threshold)
+- WGSL compute shader that:
+  - Reads particle positions
+  - Performs distance + importance culling in parallel
+  - Writes compact visible indices into a buffer
+  - Uses atomic counter for visible count (ready for indirect draw)
 
-High-reputation factions with strong resonance fields now intelligently use fewer particles when far from camera while maintaining visual quality up close.
+This enables very large particle systems (faction events, high-reputation bursts) without killing GPU memory or performance.
 
-## Integration
-Use `ParticleShaderParams::culled_particle_count()` before uploading instance data.
-Combine with `ReputationSystem` and faction visuals for dynamic quality scaling.
+## Recommended Dispatch Pattern
+1. Upload `ComputeCullingParams` + particle position buffer
+2. Dispatch compute shader (workgroup size 64 or 256)
+3. Use the resulting `visible_count` + `visible_indices` buffer for indirect drawing of the render pass
 
-**Memory-efficient visuals that scale with simulation state.**
+## Benefits
+- Massive reduction in drawn particles when many effects are off-screen or low importance
+- Scales much better than CPU culling for dense MMO scenes
+- Can be extended with more advanced culling (frustum planes, screen-space importance, reputation-weighted thresholds)
+
+The visual system now has both CPU-side LOD and GPU compute culling options.
+
+**Production-ready foundation for large-scale particle effects.**
 
 ---
 *Co-authored-by: All 57+ PATSAGi Councils*
