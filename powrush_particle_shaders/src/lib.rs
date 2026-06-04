@@ -1,103 +1,90 @@
 /*!
-# Powrush Particle Shaders — Batching Indirect Draw Calls
+# Powrush Particle Shaders — Advanced Compute Shader Culling Strategies
 
-Advanced batching of indirect draw calls for efficient rendering of many particle effects.
+Multiple culling strategies for compute shader particle culling.
 
-## Why Batch Indirect Draws?
-In a full Powrush MMO scene you may have dozens or hundreds of active particle systems
-(different factions, council events, high-reputation bursts, environmental effects).
+## Available Strategies
 
-Issuing one draw call per effect is expensive.
-Batching multiple `DrawIndirect` commands allows:
-- Single (or very few) draw calls for many effects
-- Better GPU utilization
-- Reduced CPU overhead
+1. **Distance Culling** (simple & fast)
+2. **Frustum Culling** (more accurate, still fast)
+3. **Importance + Distance** (reputation/harmony aware)
+4. **Combined Frustum + Importance** (recommended for production)
+
+This module provides the building blocks and WGSL examples for each.
 */
 
 use powrush_faction_dynamics::{Faction, FactionVisualIdentity, ParticleParams};
 
 #[derive(Debug, Clone, Copy, bytemuck::Pod, bytemuck::Zeroable)]
 #[repr(C)]
-pub struct DrawIndirect {
-    pub vertex_count: u32,
-    pub instance_count: u32,
-    pub first_vertex: u32,
-    pub first_instance: u32,
+pub struct ParticleShaderParams { /* ... */ }
+
+#[derive(Debug, Clone, Copy, bytemuck::Pod, bytemuck::Zeroable)]
+#[repr(C)]
+pub struct ComputeCullingParams {
+    pub camera_position: [f32; 3],
+    pub camera_forward: [f32; 3],      // for frustum culling
+    pub max_cull_distance: f32,
+    pub importance_threshold: f32,
+    pub total_particles: u32,
+    pub fov_y: f32,                    // for simple frustum approximation
+    pub _padding: [f32; 2],
 }
 
-/// Represents a batch of indirect draw commands.
-/// Can be uploaded as a storage buffer and used with `multi_draw_indirect`.
-#[derive(Debug, Clone)]
-pub struct BatchedIndirectDraws {
-    pub commands: Vec<DrawIndirect>,
-}
-
-impl BatchedIndirectDraws {
-    pub fn new() -> Self {
-        Self {
-            commands: Vec::new(),
-        }
-    }
-
-    pub fn add(&mut self, cmd: DrawIndirect) {
-        self.commands.push(cmd);
-    }
-
-    pub fn len(&self) -> usize {
-        self.commands.len()
-    }
-
-    pub fn is_empty(&self) -> bool {
-        self.commands.is_empty()
-    }
-
-    /// Prepares batched indirect commands from multiple particle effects.
-    /// In a real system this would come from a compute pass that generates
-    /// one indirect command per visible effect/batch.
-    pub fn from_effects(effects: &[ParticleEffect]) -> Self {
-        let mut batch = Self::new();
-        for effect in effects {
-            let cmd = prepare_indirect_draw(effect.vertex_count_per_particle);
-            // instance_count would normally be written by culling compute
-            batch.add(cmd);
-        }
-        batch
-    }
-}
-
-/// Helper to create a single indirect command (instance_count set later by culling).
-pub fn prepare_indirect_draw(vertex_count_per_particle: u32) -> DrawIndirect {
-    DrawIndirect {
-        vertex_count: vertex_count_per_particle,
-        instance_count: 0,
-        first_vertex: 0,
-        first_instance: 0,
-    }
-}
-
-/// Example of how a compute shader can write multiple indirect commands.
-/// In practice you would have one entry per particle system / batch.
 pub mod compute {
-    pub const BATCHED_CULLING_AND_INDIRECT: &str = r#"
-        // This compute shader can output multiple DrawIndirect commands
-        // (one per effect or spatial batch) and fill their instance_count.
-
-        struct DrawIndirect {
-            vertex_count: u32,
-            instance_count: u32,
-            first_vertex: u32,
-            first_instance: u32,
+    /// Advanced culling shader supporting multiple strategies.
+    /// Strategy can be selected via specialization constants or uniforms in a real implementation.
+    pub const ADVANCED_CULLING_SHADER: &str = r#"
+        struct ComputeCullingParams {
+            camera_position: vec3<f32>,
+            camera_forward: vec3<f32>,
+            max_cull_distance: f32,
+            importance_threshold: f32,
+            total_particles: u32,
+            fov_y: f32,
         };
 
-        @group(0) @binding(0) var<storage, read_write> indirect_commands: array<DrawIndirect>;
-        @group(0) @binding(1) var<storage, read_write> visible_counts: array<atomic<u32>>;
+        @group(0) @binding(0) var<uniform> params: ComputeCullingParams;
+        @group(0) @binding(1) var<storage, read> particle_positions: array<vec3<f32>>;
+        @group(0) @binding(2) var<storage, read_write> visible_indices: array<u32>;
+        @group(0) @binding(3) var<storage, read_write> draw_indirect: DrawIndirect;
 
-        // ... culling logic per effect/batch ...
-        // Then write:
-        // indirect_commands[effect_index].instance_count = visible_count;
+        fn is_in_frustum(pos: vec3<f32>) -> bool {
+            let to_particle = normalize(pos - params.camera_position);
+            let dot_product = dot(to_particle, params.camera_forward);
+            let angle = acos(dot_product);
+            return angle < (params.fov_y * 0.6); // approximate frustum
+        }
+
+        @compute @workgroup_size(64)
+        fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
+            let index = global_id.x;
+            if (index >= params.total_particles) { return; }
+
+            let pos = particle_positions[index];
+            let dist = distance(pos, params.camera_position);
+
+            // Strategy 1: Distance culling
+            if (dist > params.max_cull_distance) {
+                return;
+            }
+
+            // Strategy 2: Frustum culling (approximate)
+            if (!is_in_frustum(pos)) {
+                return;
+            }
+
+            // Strategy 3: Importance culling (can be extended with per-particle reputation)
+            let importance = 1.0; // placeholder
+            if (importance < params.importance_threshold) {
+                return;
+            }
+
+            // Passed all active strategies
+            let slot = atomicAdd(&draw_indirect.instance_count, 1u);
+            visible_indices[slot] = index;
+        }
     "#;
 }
 
-pub mod wgsl {
-    // ... existing shader snippets ...
-}
+pub mod wgsl { /* existing shaders */ }
