@@ -1,26 +1,66 @@
 /*!
-# Powrush Particle Shaders — Visibility Buffer Implementation
+# Powrush Particle Shaders — Visibility Buffer Compression
 
-Concrete implementation exploration for Visibility Buffer rendering with particles.
+Optimization of visibility buffer memory usage through bit packing and compact data layouts.
 
-## Implementation Overview
+## Optimization Goals
 
-A Visibility Buffer pipeline typically consists of two main stages:
+- Reduce memory footprint of the visibility buffer
+- Lower memory bandwidth during read/write
+- Maintain sufficient precision for shading and depth testing
+- Keep the format simple to decode in compute shaders
 
-1. **Visibility Pass** (Rasterization or Compute Rasterization)
-   - Render/write particles
-   - Store compact visibility data per pixel
+## Compression Strategy
 
-2. **Shading Pass** (Compute)
-   - Read visibility buffer
-   - Perform shading/lighting only on visible pixels
+Instead of storing multiple 32-bit values, we pack data into fewer channels:
+- 20 bits for particle instance ID (supports >1 million particles)
+- 8 bits for material ID
+- 24 bits for depth (stored as uint, sufficient for most cases)
+- Packed into two 32-bit values (or one 64-bit if using uint64 storage)
 
-This decouples geometry/visibility from shading.
+This significantly reduces bandwidth compared to RGBA32.
 */
 
 use powrush_faction_dynamics::{Faction, FactionVisualIdentity, ParticleParams};
 
-/// Parameters for the visibility buffer pass.
+/// Compact visibility data packed for efficiency.
+/// Total: 52 bits (fits in 64 bits or two u32s).
+#[derive(Debug, Clone, Copy, bytemuck::Pod, bytemuck::Zeroable)]
+#[repr(C)]
+pub struct CompressedParticleVisibility {
+    pub packed_data: u32,      // bits 0-19: particle_id, 20-27: material_id
+    pub depth_packed: u32,     // 24-bit depth stored as uint
+}
+
+impl CompressedParticleVisibility {
+    pub fn new(particle_id: u32, material_id: u8, depth: f32) -> Self {
+        let id_bits = particle_id & 0xFFFFF;           // 20 bits
+        let mat_bits = (material_id as u32) & 0xFF;    // 8 bits
+        let packed = id_bits | (mat_bits << 20);
+
+        // Simple float-to-uint depth packing (can be improved with proper quantization)
+        let depth_bits = (depth * 16777215.0) as u32; // 24-bit
+
+        Self {
+            packed_data: packed,
+            depth_packed: depth_bits,
+        }
+    }
+
+    pub fn particle_id(&self) -> u32 {
+        self.packed_data & 0xFFFFF
+    }
+
+    pub fn material_id(&self) -> u8 {
+        ((self.packed_data >> 20) & 0xFF) as u8
+    }
+
+    pub fn depth(&self) -> f32 {
+        self.depth_packed as f32 / 16777215.0
+    }
+}
+
+/// Parameters remain similar but can be extended for compression context.
 #[derive(Debug, Clone, Copy, bytemuck::Pod, bytemuck::Zeroable)]
 #[repr(C)]
 pub struct VisibilityBufferParams {
@@ -29,69 +69,50 @@ pub struct VisibilityBufferParams {
     pub particle_material_id: u32,
 }
 
-/// Data stored per pixel in the visibility buffer.
-/// Packed into a single u32 or multiple channels depending on needs.
-#[derive(Debug, Clone, Copy, bytemuck::Pod, bytemuck::Zeroable)]
-#[repr(C)]
-pub struct ParticleVisibilityData {
-    pub particle_instance_id: u32,
-    pub material_id: u32,
-    pub depth: f32,                    // Can be packed as uint for storage
-    pub _padding: u32,
-}
-
 pub mod compute {
-    /// Compute shader for shading from a Visibility Buffer.
-    /// This is the second stage of the pipeline.
-    pub const VISIBILITY_BUFFER_SHADING: &str = r#"
+    /// Updated shading pass that works with compressed visibility data.
+    pub const COMPRESSED_VISIBILITY_SHADING: &str = r#"
+        struct CompressedParticleVisibility {
+            packed_data: u32,
+            depth_packed: u32,
+        };
+
         struct VisibilityBufferParams {
             view_proj: mat4x4<f32>,
             screen_size: vec2<u32>,
             particle_material_id: u32,
         };
 
-        struct ParticleVisibilityData {
-            particle_instance_id: u32,
-            material_id: u32,
-            depth: f32,
-            _padding: u32,
-        };
-
         @group(0) @binding(0) var<uniform> params: VisibilityBufferParams;
-        @group(0) @binding(1) var visibility_buffer: texture_storage_2d<rgba32uint, read>;
+        @group(0) @binding(1) var visibility_buffer: texture_storage_2d<rg32uint, read>;
         @group(0) @binding(2) var output_texture: texture_storage_2d<rgba16float, write>;
+
+        fn unpack_visibility(data: CompressedParticleVisibility) -> vec3<u32> {
+            let particle_id = data.packed_data & 0xFFFFFu;
+            let material_id = (data.packed_data >> 20u) & 0xFFu;
+            return vec3<u32>(particle_id, material_id, 0u);
+        }
 
         @compute @workgroup_size(8, 8)
         fn main(@builtin(global_invocation_id) id: vec3<u32>) {
             let coord = vec2<i32>(id.xy);
-
-            // Load visibility data
             let data = textureLoad(visibility_buffer, coord, 0);
-            let particle_id = data.r;
-            let material_id = data.g;
-            let depth = bitcast<f32>(data.b);
 
-            // TODO: Fetch actual particle data using particle_id
-            // TODO: Apply faction colors, resonance effects, lighting, etc.
+            let vis = CompressedParticleVisibility {
+                packed_data: data.r,
+                depth_packed: data.g,
+            };
 
-            let final_color = vec4<f32>(f32(material_id) / 10.0, 0.0, 0.0, 1.0); // placeholder
+            let unpacked = unpack_visibility(vis);
+            let particle_id = unpacked.x;
+            let material_id = unpacked.y;
 
-            textureStore(output_texture, coord, final_color);
+            // TODO: Fetch particle data and shade
+            let color = vec4<f32>(f32(material_id) / 255.0, 0.0, 0.0, 1.0);
+
+            textureStore(output_texture, coord, color);
         }
     "#;
-
-    /// Notes on writing to the Visibility Buffer (Visibility Pass)
-    /// This would typically happen in a fragment shader or compute rasterizer:
-    ///
-    /// ```wgsl
-    /// struct ParticleVisibilityData { ... }
-    ///
-    /// @fragment
-    /// fn fs_main(...) -> @location(0) ParticleVisibilityData {
-    ///     // Compute particle ID, material ID, depth
-    ///     return ParticleVisibilityData { ... };
-    /// }
-    /// ```
 }
 
-pub mod wgsl { /* existing rendering shaders */ }
+pub mod wgsl { /* existing shaders */ }
