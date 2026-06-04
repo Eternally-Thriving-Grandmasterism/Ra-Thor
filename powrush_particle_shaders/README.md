@@ -1,15 +1,15 @@
 # Powrush Particle Shaders
 
-## Structure of Arrays (SoA) Adoption
+## Register Pressure Optimization
 
-We are moving to Structure of Arrays layout for particle positions to improve memory coalescing on the GPU.
+The WaveLocal Reduction culling shader has been refactored to reduce register pressure:
 
-### Current State
+- Positions loaded as separate scalars (`px`, `py`, `pz`)
+- Uses squared distance instead of `distance()`
+- `wave_visible_count` moved inside the `lane == 0` branch
+- Maintains Structure of Arrays and subgroup operations
 
-- Positions are now accessed via separate `pos_x`, `pos_y`, `pos_z` arrays in the WaveLocal Reduction culling shader.
-- This improves coalesced memory access during culling.
-
-This change is part of the ongoing performance and architectural improvements in Phase 1.
+These changes help improve occupancy and latency hiding.
 
 ---
 *Phase 1 Consolidation*

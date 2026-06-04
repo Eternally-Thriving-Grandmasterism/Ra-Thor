@@ -1,20 +1,20 @@
 /*!
 # Compute Shaders
 
-WGSL/GLSL compute shader sources for the particle system.
+WGSL/GLSL compute shader sources.
 */
 
 pub mod culling {
-    /// WaveLocal Reduction culling shader using Structure of Arrays for positions.
+    /// WaveLocal Reduction culling shader (register-pressure optimized).
     ///
-    /// This is the recommended primary culling technique.
+    /// Uses Structure of Arrays + squared distance + tightened variable lifetimes.
     pub const WAVE_LOCAL_REDUCTION_CULLING: &str = r#"
         enable subgroups;
 
         struct ComputeCullingParams {
             view_proj: mat4x4<f32>,
             camera_position: vec3<f32>,
-            max_cull_distance: f32,
+            max_cull_distance_squared: f32,
             total_particles: u32,
         };
 
@@ -27,7 +27,7 @@ pub mod culling {
 
         @group(0) @binding(0) var<uniform> params: ComputeCullingParams;
 
-        // Structure of Arrays for positions (better coalescing)
+        // Structure of Arrays for better coalescing
         @group(0) @binding(1) var<storage, read> pos_x: array<f32>;
         @group(0) @binding(2) var<storage, read> pos_y: array<f32>;
         @group(0) @binding(3) var<storage, read> pos_z: array<f32>;
@@ -43,21 +43,25 @@ pub mod culling {
             let index = global_id.x;
             if (index >= params.total_particles) { return; }
 
-            // Structure of Arrays access
-            let position = vec3<f32>(
-                pos_x[index],
-                pos_y[index],
-                pos_z[index]
-            );
+            // Load position components separately to reduce vec3 pressure
+            let px = pos_x[index];
+            let py = pos_y[index];
+            let pz = pos_z[index];
 
-            let visible = distance(position, params.camera_position) < params.max_cull_distance;
+            // Squared distance (avoids sqrt and vec3 construction)
+            let dx = px - params.camera_position.x;
+            let dy = py - params.camera_position.y;
+            let dz = pz - params.camera_position.z;
+            let dist_squared = dx * dx + dy * dy + dz * dz;
+
+            let visible = dist_squared < params.max_cull_distance_squared;
 
             let ballot = subgroupBallot(visible);
-            let wave_visible_count = countOneBits(ballot);
             let local_rank = countOneBits(ballot & ((1u << lane) - 1u));
 
             var base_offset: u32 = 0u;
             if (lane == 0u) {
+                let wave_visible_count = countOneBits(ballot);
                 base_offset = atomicAdd(&draw_indirect.instance_count, wave_visible_count);
             }
 
