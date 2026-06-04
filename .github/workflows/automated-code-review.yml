@@ -1,0 +1,45 @@
+name: Automated Code Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  automated-review:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check PR body quality
+        id: pr-body
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number
+            });
+            
+            const body = pr.data.body || '';
+            let issues = [];
+            
+            if (body.length < 200) issues.push('PR body is quite short. Consider adding more context per the Eternal Iteration Protocol.');
+            if (!body.includes('Thunder locked in')) issues.push('Missing "Thunder locked in" closing (protocol style).');
+            if (!body.includes('PATSAGi') && !body.includes('Council')) issues.push('Consider referencing PATSAGi Councils alignment.');
+            
+            const output = issues.length > 0 
+              ? '### Automated Review Notes\n' + issues.map(i => '- ' + i).join('\n')
+              : '### Automated Review\nLooks good on basic protocol checks!';
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            });
