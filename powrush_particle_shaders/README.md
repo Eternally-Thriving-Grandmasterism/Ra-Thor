@@ -1,44 +1,36 @@
-# Powrush Particle Shaders — Nsight Compute Atomic Counters
+# Powrush Particle Shaders — Warp Divergence Effects
 
-## Nsight Compute Atomic Counters
+## Warp Divergence Effects Analysis
 
-This section documents the most relevant **Nsight Compute metrics** for analyzing atomic contention in our particle culling kernels.
+This iteration analyzes **warp divergence** in our particle culling shaders and how it interacts with our existing optimizations.
 
-### Key Metrics
+### What is Warp Divergence?
 
-**Memory Workload Analysis**:
-- `atomic_throughput`
-- `l2_atomic_throughput` / `global_atomic_requests`
-- `shared_atomic_requests`
+GPUs execute threads in warps (32 threads) in lockstep. When threads within a warp take different execution paths (e.g., some particles visible, some not), the warp serializes both branches. This reduces instruction throughput.
 
-**Replay & Overhead**:
-- `memory_replay_overhead` — indicates how often operations are replayed due to conflicts.
+### Sources in Culling
 
-**Stall Reasons**:
-- "Long Scoreboard"
-- "Memory Dependency"
-- "Synchronization" — can be triggered by atomic latency/contention.
+- Visibility tests (`if (visible)`)
+- Different culling strategies or importance calculations per particle
+- Conditional writes based on faction or other attributes
 
-**Throughput**:
-- `sm_throughput` and overall kernel throughput (should improve when contention drops).
+### Interaction with WaveLocal Reduction
 
-### Expected Changes with WaveLocal Reduction
+Our use of `subgroupBallot` and shuffle operations for wave-local reduction can help mitigate divergence effects:
+- The ballot itself is a wave-uniform operation.
+- The subsequent compaction and ranking logic tends to have more uniform control flow.
+- By structuring the shader so that divergent work happens before wave-uniform compaction, overall efficiency is improved.
 
-After optimization, you should see:
-- Large reduction in `global_atomic_requests` and `atomic_throughput`
-- Lower `memory_replay_overhead`
-- Fewer memory-related stalls
-- Higher overall `sm_throughput`
+### Mitigation Strategies
 
-These metrics provide quantitative proof that WaveLocal Reduction is effectively reducing atomic contention.
+- Keep conditions as uniform as possible within a wave when feasible.
+- Structure code so divergent branches are minimized or handled before/after wave-uniform phases.
+- Profile using Nsight Compute warp divergence and stall reason metrics.
+- Consider advanced techniques like particle sorting by visibility characteristics (if profiling shows divergence as a major bottleneck).
 
-### How to Use
+### Current Assessment
 
-1. Profile baseline culling kernel with Nsight Compute.
-2. Profile optimized version (with WaveLocal Reduction).
-3. Compare the sections above, focusing on relative improvements.
-
-This gives concrete, hardware-backed evidence of optimization effectiveness.
+While some divergence is inherent in per-particle visibility tests, our wave-local techniques help contain its performance impact. Combined with Subgroup scope preference, the culling shader remains efficient even under varying visibility conditions.
 
 ---
 *Co-authored-by: All 57+ PATSAGi Councils*
