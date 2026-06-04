@@ -1,53 +1,51 @@
-# Powrush Particle Shaders — cudaMemPrefetchAsync Optimization
+# Powrush Particle Shaders — cudaMallocManaged
 
-## cudaMemPrefetchAsync Optimization Exploration
+## cudaMallocManaged Exploration
 
-This iteration explores `cudaMemPrefetchAsync` as a key optimization technique when using **Unified Memory**.
+This iteration provides a focused exploration of `cudaMallocManaged`, the primary allocation function for **Unified Memory**.
 
 ### What It Does
 
-`cudaMemPrefetchAsync` proactively migrates pages of managed memory to a target device (GPU or CPU) before they are accessed. This reduces expensive on-demand page faults during kernel execution and allows migration to be overlapped with other work using streams.
+`cudaMallocManaged` allocates memory accessible from both CPU and GPU via a single pointer. The CUDA driver automatically migrates memory pages between host and device as they are accessed (on-demand page migration).
 
-### Benefits
+### Key Characteristics
 
-- Reduces page fault latency inside kernels
-- Enables overlapping migration with compute or other transfers
-- Improves performance predictability of Unified Memory
-- Gives the programmer explicit control over data placement
+- Single pointer works on both host and device.
+- Automatic page migration via page faults.
+- Supports memory oversubscription.
+- Maintains coherence between CPU and GPU views.
 
-### When and How to Use It
+### Performance Considerations
 
-**Recommended Pattern**:
-- Before launching a GPU kernel that will read managed memory, prefetch the data to the GPU.
-- After GPU processing, if the CPU will soon read the results, prefetch back to the CPU.
-- Use appropriate CUDA streams to allow overlap.
+- **Page Migration Latency**: On-demand migration adds latency compared to explicit copies.
+- **Access Pattern Sensitivity**: Coalesced, sequential access performs much better than random access.
+- **Interconnect Bandwidth**: Migration is limited by PCIe or NVLink speed.
 
-**Example**:
-```c
-cudaMemPrefetchAsync(particleData, size, gpuDevice, stream);
-cudaLaunchKernel(...);  // kernel that accesses particleData
-```
+### Tuning with Related APIs
 
-### Comparison to Explicit Copies
-
-While `cudaMemPrefetchAsync` is convenient, explicit `cudaMemcpyAsync` often has lower overhead and better performance for large, predictable transfers. Use prefetching when the programming simplicity of Unified Memory is valuable and the migration cost is acceptable.
+- `cudaMemPrefetchAsync`: Proactively migrate pages to reduce faults.
+- `cudaMemAdvise`: Provide hints about preferred location and access patterns.
 
 ### Relevance to Powrush
 
-If Unified Memory is used for particle data that occasionally needs CPU access (editing, loading, result inspection), `cudaMemPrefetchAsync` can make GPU-side access much more efficient by migrating data before culling or visibility passes.
+For performance-critical paths (particle culling, visibility buffer updates, high-throughput compaction), explicit device memory with `cudaMemcpyAsync` is generally preferred for speed and predictability.
 
-It can also be used to bring processed results back to the CPU asynchronously.
+`cudaMallocManaged` is more suitable for:
+- Data that occasionally needs CPU read/write access.
+- Prototyping or less performance-sensitive code.
+- Workloads that benefit from memory oversubscription.
+
+When using it for GPU hot paths, always combine with `cudaMemPrefetchAsync`.
 
 ### Best Practices
 
-- Prefetch data to the GPU before compute that will access it.
-- Prefetch results to the CPU after processing when needed.
-- Use streams to overlap migration with other work.
-- Avoid prefetching data that won't be used soon.
-- Combine with `cudaMemAdvise` for preferred locations and access hints.
-- Profile with Nsight Systems to verify reduced page faults and improved kernel performance.
+- Prefetch data to the GPU before kernels access it.
+- Avoid fine-grained random GPU access on managed memory.
+- Profile migration traffic and kernel performance.
+- Use `cudaMemAdvise` to guide the driver.
+- Consider switching hot data structures to explicit memory for maximum performance.
 
-This technique is an important tool for making Unified Memory viable in performance-sensitive parts of the pipeline.
+This provides the foundational allocation mechanism behind Unified Memory and guidance on its effective use.
 
 ---
 *Co-authored-by: All 57+ PATSAGi Councils*
