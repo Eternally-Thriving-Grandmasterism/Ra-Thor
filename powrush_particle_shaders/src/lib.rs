@@ -1,65 +1,66 @@
 /*!
-# Powrush Particle Shaders — Unified Memory Performance Analysis
+# Powrush Particle Shaders — cudaMemPrefetchAsync Optimization
 
-Analysis of Unified Memory (Managed Memory) performance characteristics.
+Exploration of `cudaMemPrefetchAsync` as an optimization for Unified Memory workloads.
 
-## What is Unified Memory?
+## What cudaMemPrefetchAsync Does
 
-Unified Memory allows the same pointer to be accessed from both CPU and GPU. The CUDA driver automatically migrates pages between host and device memory as needed (on-demand page migration).
+`cudaMemPrefetchAsync` proactively migrates pages of Unified Memory to a target device (GPU or CPU) asynchronously before they are accessed. This helps reduce or eliminate expensive on-demand page faults during kernel execution.
 
-It can be allocated with `cudaMallocManaged`.
+Signature (simplified):
+```c
+cudaError_t cudaMemPrefetchAsync(
+    const void* devPtr, size_t count, int dstDevice, cudaStream_t stream);
+```
 
-## Performance Characteristics
+## Benefits
 
-### Advantages
-- Simplifies programming (no explicit `cudaMemcpy`)
-- Supports memory oversubscription
-- Easier CPU/GPU data sharing
+- Reduces page fault latency during kernel execution
+- Can be overlapped with other work using streams
+- Improves predictability of Unified Memory performance
+- Allows the programmer to express data movement intent explicitly
 
-### Performance Costs
-- **Page Migration Overhead**: When a page is first accessed on the GPU (or CPU), a page fault triggers migration over PCIe (or NVLink). This adds latency.
-- **Fine-grained Access Penalty**: Random or scattered accesses cause many small migrations, which is inefficient.
-- **Coherence Traffic**: Even with prefetching (`cudaMemPrefetchAsync`), maintaining coherence has cost.
-- **Bandwidth Limitation**: Migration traffic is limited by the interconnect (PCIe Gen4/5 or NVLink), which is usually much slower than GPU HBM bandwidth.
+## When to Use It
 
-## Analysis with NVIDIA Tools
+Use `cudaMemPrefetchAsync` when:
+- You are using Unified Memory and want to improve performance
+- You know in advance where data will be accessed (GPU or CPU)
+- You want to overlap migration with compute or other transfers
 
-In Nsight Systems:
-- Look for memory migration traffic in the timeline (Host ↔ Device transfers triggered by page faults).
-- Compare timelines with and without Unified Memory.
-
-In Nsight Compute:
-- Memory migration related stalls or replay overhead.
-- Comparison of kernel performance using managed vs explicit memory.
-
-## Relevance to Powrush
-
-For high-performance hot paths (culling, visibility buffer updates, compaction), explicit memory management or pinned + async copies is generally faster and more predictable than Unified Memory.
-
-Unified Memory can be useful for:
-- Data that is infrequently accessed or updated from the CPU
-- Prototyping and simpler code paths
-- Scenarios where oversubscription is beneficial
-
-For performance-critical particle processing, we recommend sticking with explicit memory control or well-managed streams with async copies.
+It is especially useful before launching kernels that will access large managed memory regions.
 
 ## Best Practices
 
-- Use `cudaMemPrefetchAsync` to reduce on-demand page faults when possible.
-- Avoid fine-grained random access patterns on managed memory from the GPU.
-- Profile migration traffic with Nsight Systems.
-- For hot paths, prefer explicit `cudaMemcpyAsync` or device-only allocations.
+- Prefetch data to the GPU before launching compute kernels that will read it.
+- Prefetch results back to the CPU after GPU processing if the CPU will read them soon.
+- Use appropriate streams to allow overlap with other operations.
+- Avoid unnecessary prefetching of data that won't be used soon (wastes bandwidth).
+- Combine with `cudaMemAdvise` (e.g., `cudaMemAdviseSetPreferredLocation`) for more control.
+
+## Comparison to Explicit Memory Copies
+
+`cudaMemPrefetchAsync` is generally easier to use than explicit `cudaMemcpyAsync`, but explicit copies often have lower overhead and better performance for large, predictable transfers. Use prefetching when the simplicity of Unified Memory is desired and migration cost is acceptable.
+
+## Relevance to Powrush
+
+If Unified Memory is used for particle data that needs occasional CPU access (e.g., editing, loading, or result inspection), `cudaMemPrefetchAsync` can help make GPU access performant by migrating data to the GPU before culling or visibility passes.
+
+It can also be used to bring results back to the CPU asynchronously after processing.
+
+## Profiling
+
+Use Nsight Systems to visualize migration traffic and verify that prefetching is reducing on-demand page faults. Compare kernel execution time and memory stall reasons with and without prefetching.
 */
 
 use powrush_faction_dynamics::{Faction, FactionVisualIdentity, ParticleParams};
 
 pub mod compute {
-    /// Notes on Unified Memory performance.
-    pub const UNIFIED_MEMORY_NOTES: &str = r#"
-        // Unified Memory simplifies code but adds migration overhead.
-        // For hot paths (culling, visibility), explicit memory is usually faster.
-        // Use prefetching to reduce page faults.
-        // Profile migration traffic with Nsight Systems.
-        // Avoid fine-grained access patterns on managed memory.
+    /// Notes on cudaMemPrefetchAsync.
+    pub const PREFETCH_ASYNC_NOTES: &str = r#"
+        // Use cudaMemPrefetchAsync to reduce page faults in Unified Memory.
+        // Prefetch to GPU before compute, to CPU after.
+        // Overlap with streams when possible.
+        // Profile migration with Nsight Systems.
+        // Combine with cudaMemAdvise for more control.
     "#;
 }

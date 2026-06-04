@@ -1,46 +1,53 @@
-# Powrush Particle Shaders — Unified Memory Performance Analysis
+# Powrush Particle Shaders — cudaMemPrefetchAsync Optimization
 
-## Unified Memory Performance Analysis
+## cudaMemPrefetchAsync Optimization Exploration
 
-This iteration analyzes the performance characteristics of **Unified Memory** (Managed Memory) and its implications for our particle system.
+This iteration explores `cudaMemPrefetchAsync` as a key optimization technique when using **Unified Memory**.
 
-### What Unified Memory Provides
+### What It Does
 
-Unified Memory allows the same pointer to be used from both CPU and GPU, with automatic page migration by the driver. It simplifies programming and supports memory oversubscription.
+`cudaMemPrefetchAsync` proactively migrates pages of managed memory to a target device (GPU or CPU) before they are accessed. This reduces expensive on-demand page faults during kernel execution and allows migration to be overlapped with other work using streams.
 
-### Performance Costs
+### Benefits
 
-- **Page Migration Overhead**: On-demand page faults trigger data movement over PCIe/NVLink, adding latency.
-- **Fine-grained Access Penalty**: Random or scattered accesses cause many inefficient small migrations.
-- **Coherence and Bandwidth Limits**: Migration traffic is limited by the CPU-GPU interconnect, which is slower than GPU-internal memory bandwidth.
+- Reduces page fault latency inside kernels
+- Enables overlapping migration with compute or other transfers
+- Improves performance predictability of Unified Memory
+- Gives the programmer explicit control over data placement
 
-### Analysis with Tools
+### When and How to Use It
 
-**Nsight Systems**:
-- Visualize memory migration traffic in the timeline.
-- Compare Unified Memory vs explicit memory versions.
+**Recommended Pattern**:
+- Before launching a GPU kernel that will read managed memory, prefetch the data to the GPU.
+- After GPU processing, if the CPU will soon read the results, prefetch back to the CPU.
+- Use appropriate CUDA streams to allow overlap.
 
-**Nsight Compute**:
-- Look for migration-related stalls or replay overhead.
-- Compare kernel performance using managed vs explicit allocations.
+**Example**:
+```c
+cudaMemPrefetchAsync(particleData, size, gpuDevice, stream);
+cudaLaunchKernel(...);  // kernel that accesses particleData
+```
+
+### Comparison to Explicit Copies
+
+While `cudaMemPrefetchAsync` is convenient, explicit `cudaMemcpyAsync` often has lower overhead and better performance for large, predictable transfers. Use prefetching when the programming simplicity of Unified Memory is valuable and the migration cost is acceptable.
 
 ### Relevance to Powrush
 
-For performance-critical paths (particle culling, visibility buffer updates, data compaction), explicit memory management or pinned memory with async copies is generally faster and more predictable.
+If Unified Memory is used for particle data that occasionally needs CPU access (editing, loading, result inspection), `cudaMemPrefetchAsync` can make GPU-side access much more efficient by migrating data before culling or visibility passes.
 
-Unified Memory can be beneficial for:
-- Data that is infrequently modified from the CPU
-- Prototyping or less performance-sensitive code paths
-- Situations where memory oversubscription is useful
+It can also be used to bring processed results back to the CPU asynchronously.
 
 ### Best Practices
 
-- Use `cudaMemPrefetchAsync` to proactively migrate data and reduce page faults.
-- Avoid fine-grained or random access patterns from the GPU on managed memory.
-- Profile migration traffic explicitly with Nsight Systems.
-- For hot paths, prefer explicit `cudaMemcpyAsync` or device-only memory.
+- Prefetch data to the GPU before compute that will access it.
+- Prefetch results to the CPU after processing when needed.
+- Use streams to overlap migration with other work.
+- Avoid prefetching data that won't be used soon.
+- Combine with `cudaMemAdvise` for preferred locations and access hints.
+- Profile with Nsight Systems to verify reduced page faults and improved kernel performance.
 
-This analysis helps decide when (and when not) to use Unified Memory in our pipeline.
+This technique is an important tool for making Unified Memory viable in performance-sensitive parts of the pipeline.
 
 ---
 *Co-authored-by: All 57+ PATSAGi Councils*
