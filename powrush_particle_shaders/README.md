@@ -1,10 +1,10 @@
 # Powrush Particle Shaders
 
-## Culling Unification Progress
+## Culling Unification (Phase 1)
 
-`CullingPass` now includes a `prepare_dispatch()` method that returns a `CullingDispatchInfo` struct.
+`CullingPass` now provides a `prepare()` method that returns a `CullingDispatchPackage`.
 
-This is part of building a clean, high-level interface for the culling system.
+This continues the effort to build a clean, professional, and efficient culling architecture.
 
 ---
 *Phase 1 Consolidation*
