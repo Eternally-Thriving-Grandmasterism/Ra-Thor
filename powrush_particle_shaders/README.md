@@ -1,25 +1,24 @@
-# Powrush Particle Shaders — Batching Indirect Draw Calls
+# Powrush Particle Shaders — Advanced Culling Strategies
 
-## Batching Indirect Draws (New)
+## Compute Shader Culling Strategies
 
-Added support for efficient batching of many indirect draw commands:
+Added multiple culling strategies that can be combined:
 
-- `BatchedIndirectDraws` container
-- `prepare_indirect_draw()` helper
-- Example of compute shader generating multiple `DrawIndirect` commands
-- Pattern for using `multi_draw_indirect` (or equivalent in wgpu/Bevy)
+- **Distance Culling**: Fastest, good first pass.
+- **Frustum Culling**: More accurate than distance alone (uses camera forward + FOV).
+- **Importance Culling**: Filters low-reputation or low-harmony effects.
+- **Combined Strategy** (recommended): Distance + Frustum + Importance.
 
-## Recommended Architecture
-1. One (or few) compute passes that:
-   - Perform culling per effect/batch
-   - Write `instance_count` into an array of `DrawIndirect` commands
-2. One `multi_draw_indirect` call to draw everything
+The WGSL example shows how to implement all three in one compute pass with early-outs for performance.
 
-This dramatically reduces draw call count when you have many active particle systems (different factions, events, environmental effects).
+## Recommendations
+- Use **Distance + Frustum** for general cases.
+- Add **Importance** when you have many low-impact effects (low-reputation factions or minor events).
+- For very large scenes, consider hierarchical clustering or multi-pass culling.
 
-High-reputation factions with strong visual effects can still be batched efficiently with lower-reputation ones.
+These strategies work together with the existing indirect draw batching system.
 
-**This completes a high-performance, GPU-driven particle rendering foundation.**
+**The culling system is now flexible and production-grade.**
 
 ---
 *Co-authored-by: All 57+ PATSAGi Councils*
