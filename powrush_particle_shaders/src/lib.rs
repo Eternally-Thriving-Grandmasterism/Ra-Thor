@@ -1,53 +1,51 @@
 /*!
-# Powrush Particle Shaders — Memory Barriers Investigation
+# Powrush Particle Shaders — Atomic Operations Investigation
 
-Investigation of memory barriers and their role in cooperative matrix operations.
+Investigation of atomic operations in GPU compute shaders.
 
-## What are Memory Barriers?
+## What are Atomic Operations?
 
-Memory barriers control the ordering and visibility of memory operations across threads. They ensure that writes performed by one thread become visible to reads performed by other threads in a well-defined order.
+Atomic operations allow multiple threads to safely perform read-modify-write operations on shared memory locations without data races. They are essential for counters, compaction, reductions, and synchronization.
 
-In SPIR-V, they are expressed through:
-- `OpControlBarrier` (with memory semantics)
-- `OpMemoryBarrier`
-- Memory Operands on load/store instructions (Acquire, Release, AcquireRelease, etc.)
+## Common Atomic Operations (SPIR-V)
 
-## Key Memory Semantics
+- `OpAtomicIAdd` / `OpAtomicISub`
+- `OpAtomicAnd`, `OpAtomicOr`, `OpAtomicXor`
+- `OpAtomicSMin` / `OpAtomicUMin`, `OpAtomicSMax` / `OpAtomicUMax`
+- `OpAtomicExchange`, `OpAtomicCompareExchange`
+- `OpAtomicLoad`, `OpAtomicStore`
 
-- **Acquire**: A load operation with Acquire semantics ensures that subsequent loads see all writes that happened-before the releasing store in other threads.
-- **Release**: A store operation with Release semantics makes all prior writes visible to threads that later perform an acquire load.
-- **AcquireRelease**: Combines both Acquire and Release semantics.
-- **SequentiallyConsistent**: Strongest ordering (rarely needed in graphics/compute).
+## Key Parameters
 
-## Memory Barriers and Cooperative Matrices
+- **Scope**: Subgroup, Workgroup, Device, QueueFamily, etc.
+- **Memory Semantics**: Acquire, Release, AcquireRelease, etc.
+- **Storage Class**: Workgroup, StorageBuffer, Uniform, etc.
 
-When performing cooperative matrix operations:
+## Relevance to Powrush Particle System
 
-- Memory barriers (via Memory Operands or explicit `OpControlBarrier`) are used to establish ordering between:
-  - Loading data into cooperative matrices
-  - Performing the multiply-accumulate
-  - Storing results
+We currently use atomics extensively in compute culling to reserve output slots for visible particles (e.g., `atomicAdd` on `instance_count` in `DrawIndirect`).
 
-**Subgroup Scope**:
-- Often lighter barrier requirements due to wave-level ordering guarantees.
-- Memory Operands on cooperative matrix load/store are usually sufficient.
+**Limitation of Pure Atomic Approach**:
+- High contention when many threads become visible simultaneously.
+- Can become a performance bottleneck at very large particle counts.
 
-**Workgroup Scope**:
-- Explicit `OpControlBarrier` with AcquireRelease semantics is typically required between phases.
+**Our Optimization**:
+- WaveLocal Reduction (using ballot + shuffle) significantly reduces the number of global atomics by counting and ranking within the wave first, then performing only one atomic per wave.
 
-## Relevance to Powrush
-
-Because we primarily use **Subgroup-scoped** techniques, memory barrier requirements for future cooperative matrix work will generally be lighter than in workgroup-scoped designs. Our existing wave-local patterns (ballot, shuffle, wave-local reduction) already operate with relatively relaxed synchronization.
+This hybrid approach (wave-local work + minimal atomics) gives us the best of both worlds: correctness with high performance.
 */
 
 use powrush_faction_dynamics::{Faction, FactionVisualIdentity, ParticleParams};
 
 pub mod compute {
-    /// Notes on memory barriers.
-    pub const MEMORY_BARRIER_NOTES: &str = r#"
-        // Subgroup scope: lighter barriers, rely on Memory Operands
-        // Workgroup scope: explicit AcquireRelease barriers usually required
+    /// Notes on atomic operations.
+    pub const ATOMIC_OPERATIONS_NOTES: &str = r#"
+        // Prefer wave-local techniques (ballot, shuffle, wave-local reduction)
+        // to minimize global atomic contention.
         //
-        // Prefer Subgroup scope to keep synchronization simple.
+        // Use atomics primarily for cross-wave coordination
+        // (e.g., reserving space in output buffers).
+        //
+        // Always choose appropriate Scope and Memory Semantics.
     "#;
 }
