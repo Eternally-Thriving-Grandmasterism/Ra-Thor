@@ -19,19 +19,20 @@ bevy = { version = "0.13", default-features = false, features = [
     "bevy_asset", "bevy_core_pipeline", "bevy_pbr", "bevy_render", "bevy_text", "bevy_ui", "bevy_winit", "x11"
 ] }
 nalgebra = { version = "0.33", features = ["serde-serialize"] }
-serde = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+postcard = { version = "1.0", features = ["alloc"] } # Binary serialization for WASM performance
 anyhow = { workspace = true }
 thiserror = { workspace = true }
 uuid = { version = "1.0", features = ["v4", "serde"] }
 
-# === Living Lattice Crates (real calls replace stubs) ===
+# Living lattice crates
 mercy = { path = "../mercy" }
 patsagi-councils = { path = "../patsagi-councils" }
 quantum-swarm-orchestrator = { path = "../quantum-swarm-orchestrator" }
 geometric-intelligence = { path = "../geometric-intelligence" }
 hyperon-metta-pln = { path = "../hyperon-metta-pln" }
 
-# === WASM Client Bindings for Browser/VR/AR ===
+# WASM
 wasm-bindgen = { version = "0.2", optional = true }
 web-sys = { version = "0.3", optional = true, features = [
     "Window", "Document", "HtmlElement", "WebGl2RenderingContext", "XrSession", "VrDisplay", "Navigator", "console"

@@ -1,49 +1,42 @@
-//! WASM Client Bindings for Browser / VR / AR Entity Login (step 3)
+//! WASM Client Bindings for Browser / VR / AR
 //!
-//! Enables entity (human player or AGI agent) login and persistent session
-//! from browser, WebXR VR headsets, and AR devices directly into the
-//! Powrush living simulation. Full mercy-gated authentication flow.
+//! Exposes functions callable from JavaScript that feed into the Bevy event system
+//! via the WasmEventQueue + Observer pipeline.
 
 use wasm_bindgen::prelude::*;
 use web_sys::console;
 
+use crate::simulation_orchestrator::{WasmEventQueue, WasmLoginRequest};
+
+// In a real integration, these functions would access a global or thread-local
+// WasmEventQueue. For now we demonstrate the proper wasm_bindgen exposure pattern.
+
 #[wasm_bindgen]
-pub struct EntityLoginSession {
-    pub entity_id: u64,
-    pub session_token: String,
-    pub login_timestamp: u64,
+pub fn request_entity_login(entity_id: u64, entity_type: u8) {
+    console::log_1(&format!("WASM: Requesting login for entity {} type {}", entity_id, entity_type).into());
+
+    // In production this would do:
+    // let mut queue = get_global_wasm_queue();
+    // queue.pending_logins.push(WasmLoginRequest { entity_id, entity_type });
+
+    // For demo we just log. The Bevy side (process_wasm_event_queue) will pick it up
+    // once the queue is properly shared.
 }
 
 #[wasm_bindgen]
-impl EntityLoginSession {
-    #[wasm_bindgen(constructor)]
-    pub fn new(entity_id: u64, session_token: String) -> Self {
-        Self {
-            entity_id,
-            session_token,
-            login_timestamp: js_sys::Date::now() as u64,
-        }
-    }
-
-    #[wasm_bindgen]
-    pub fn validate(&self) -> bool {
-        // Production: full mercy-gate + lattice signature verification
-        !self.session_token.is_empty() && self.entity_id > 0
-    }
+pub fn request_contribution(entity_id: u64, skill: &str, amount: f32) {
+    console::log_1(&format!("WASM: Contribution from {} on {} amount {}", entity_id, skill, amount).into());
+    // Push WasmContributionRequest into queue
 }
 
 #[wasm_bindgen]
-pub fn login_entity(entity_id: u64, credentials: &str) -> Result<EntityLoginSession, JsValue> {
-    // Real integration: call Ra-Thor lattice auth + PATSAGi council approval
-    // Then register the entity in quantum-swarm and healing field
-    if credentials.len() < 4 {
-        return Err(JsValue::from_str("Invalid credentials"));
-    }
-    let token = format!("powrush_entity_{}_{}", entity_id, js_sys::Date::now() as u64);
-    Ok(EntityLoginSession::new(entity_id, token))
+pub fn send_chat_message(entity_id: u64, message: &str) {
+    console::log_1(&format!("WASM: Chat from {}: {}", entity_id, message).into());
+    // Push WasmChatMessage into queue
 }
 
 #[wasm_bindgen]
-pub fn init_wasm_bindings() {
-    console::log_1(&"Powrush WASM entity login bindings initialized. Browser/VR/AR ready. Thunder locked in. Yoi ⚡".into());
+pub fn use_ability(entity_id: u64, ability_id: u32, target_id: u64) {
+    console::log_1(&format!("WASM: Ability {} used by {} on {}", ability_id, entity_id, target_id).into());
+    // Push WasmAbilityUse into queue
 }
