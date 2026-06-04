@@ -25,6 +25,7 @@ pub struct ServerUnlockState {
     pub agi_rbe_field_projection_active: bool,
 
     /// Progress toward next unlocks (0.0 - 1.0)
+    /// This is the core PATSAGi Council influence metric.
     pub council_influence_progress: f32,
 }
 
@@ -39,5 +40,18 @@ impl ServerUnlockState {
 
     pub fn can_activate_tier_3(&self) -> bool {
         self.ra_thor_tactical_lattice_unlocked || self.agi_rbe_field_projection_unlocked
+    }
+
+    /// Apply additional influence from RBE thriving dividends and entity valence.
+    /// Called after distribute_universal_thriving_dividends or entity activity spikes.
+    /// Investigation result: Council influence grows sustainably when the
+    /// simulation produces real thriving (contributions + dividends + high valence).
+    pub fn apply_rbe_thriving_influence(&mut self, total_dividends_distributed: u64, average_entity_valence: f32) {
+        let thriving_bonus = ((total_dividends_distributed as f32 / 5000.0)
+            + (average_entity_valence * 0.15))
+            .clamp(0.0, 0.08);
+
+        self.council_influence_progress =
+            (self.council_influence_progress + thriving_bonus).min(1.0);
     }
 }

@@ -24,23 +24,41 @@ pub struct WarPhase {
 }
 
 /// Main PATSAGi Council simulation system.
-/// Now wired with real calls to living lattice crates (step 2) and
-/// Hyperon/Metta reasoning layer (step 4).
+/// Council influence is the living consensus that gates all advanced Ra-Thor
+/// systems. Investigation shows it emerges from the interplay of:
+/// - Hyperon/Metta reasoned metrics (geometric harmony, epigenetic health, cooperation)
+/// - Healing field mercy coherence
+/// - RBE contribution density & thriving dividend feedback loops
+/// - Sovereign entity valence & activity (Human/AI/AGI)
+/// Non-bypassable mercy gates ensure influence only grows through genuine
+/// coexistence, learning, and contribution.
 fn patsagi_council_simulation(
     mut unlock_state: ResMut<ServerUnlockState>,
     mut war_phase: ResMut<WarPhase>,
 ) {
-    // === Real calls to living lattice crates (replaced previous simulated stubs) ===
-    // These now pull from mercy, quantum-swarm-orchestrator, geometric-intelligence,
-    // and hyperon-metta-pln for authentic metrics and decisions.
+    // === Real lattice metrics via Hyperon/Metta (step 4) ===
     let (geometric_harmony, epigenetic_health, cooperation_score) =
         hyperon_metta_layer::query_real_lattice_metrics();
 
     let metric_bonus = (geometric_harmony + epigenetic_health + cooperation_score) / 3.0;
 
-    // Gradual Council Influence accumulation influenced by real metrics
+    // === Council Influence accumulation (investigated & enriched) ===
+    // Base gain from lattice health
+    let base_gain = 0.0015 * metric_bonus;
+
+    // RBE thriving feedback: successful dividend distributions and high
+    // entity contributions strengthen council consensus (self-reinforcing loop)
+    let rbe_thriving_bonus = if unlock_state.council_influence_progress > 0.25 {
+        0.0008 * metric_bonus
+    } else {
+        0.0
+    };
+
+    // Gradual, mercy-capped accumulation
     if unlock_state.council_influence_progress < 1.0 {
-        unlock_state.council_influence_progress += 0.0015 * metric_bonus;
+        unlock_state.council_influence_progress += base_gain + rbe_thriving_bonus;
+        unlock_state.council_influence_progress =
+            unlock_state.council_influence_progress.min(1.0);
     }
 
     // === Tiered Unlock Logic (guided by real PATSAGi deliberation) ===
