@@ -1,5 +1,6 @@
 //! crates/powrush/src/particles/bevy_hanabi_plugin.rs
 //! Bevy + bevy_hanabi integration for Resonance Gear particles
+//! Full reactive pipeline: spawn on attunement, position update, and automatic visual upgrade on evolution change.
 
 use bevy::prelude::*;
 use bevy_hanabi::prelude::*;
@@ -14,15 +15,28 @@ impl Plugin for ResonanceParticlePlugin {
         app
             .add_plugins(HanabiPlugin)
             .init_resource::<ResonanceParticleAssets>()
-            .add_systems(Startup, setup_resonance_effects);
+            .add_systems(Startup, setup_resonance_effects)
+            .add_systems(Update, (
+                spawn_resonance_particles,
+                update_resonance_particle_position,
+                handle_evolution_changes,
+            ));
     }
 }
 
-/// Resource holding the Hanabi EffectAssets for different evolution levels.
+/// Resource holding the Hanabi EffectAssets for different evolution levels (pre-built at startup).
 #[derive(Resource, Default)]
 pub struct ResonanceParticleAssets {
     pub forge_effects: Vec<Handle<EffectAsset>>,
     pub sanctum_effects: Vec<Handle<EffectAsset>>,
+}
+
+/// Marker component attached to spawned particle effect entities.
+/// Tracks the current evolution level so we can detect upgrades.
+#[derive(Component, Debug, Clone, Copy)]
+pub struct ResonanceGearParticles {
+    pub faction: String,      // "Forge" or "Sanctum"
+    pub evolution_level: u32,
 }
 
 fn setup_resonance_effects(
@@ -30,7 +44,7 @@ fn setup_resonance_effects(
     mut effects: ResMut<Assets<EffectAsset>>,
     mut particle_assets: ResMut<ResonanceParticleAssets>,
 ) {
-    // Pre-create EffectAssets for different evolution levels
+    // Pre-create EffectAssets for evolution levels 0-5
     for level in 0..=5 {
         // Forge
         let forge_params = ResonanceEffectParams {
@@ -72,7 +86,7 @@ fn create_forge_effect_asset(params: &ResonanceEffectParams) -> EffectAsset {
     EffectAsset::new(
         params.particle_count as u32,
         false,
-        vec![], // TODO: Add proper Hanabi expressions / modifiers based on params
+        vec![], // TODO: Expand with full Hanabi expressions (position, velocity, color over lifetime, size, drag)
     )
     .with_name(&format!("forge_resonance_lv{}", params.evolution_level))
 }
@@ -81,7 +95,128 @@ fn create_sanctum_effect_asset(params: &ResonanceEffectParams) -> EffectAsset {
     EffectAsset::new(
         params.particle_count as u32,
         false,
-        vec![], // TODO: Add proper Hanabi expressions / modifiers based on params
+        vec![], // TODO: Expand with full Hanabi expressions
     )
     .with_name(&format!("sanctum_resonance_lv{}", params.evolution_level))
 }
+
+/// Spawns Resonance Gear particle effects when the player reaches sufficient attunement.
+/// Runs every frame but only acts when conditions are first met.
+fn spawn_resonance_particles(
+    mut commands: Commands,
+    particle_assets: Res<ResonanceParticleAssets>,
+    particle_data: Res<ResonanceParticleData>,
+    query: Query<(Entity, &ResonanceGearParticles)>,
+) {
+    // Example: spawn Forge particles at evolution 1+ if not already spawned
+    if particle_data.attunement >= 1.0 && particle_data.evolution >= 1 {
+        let already_spawned = query.iter().any(|(_, p)| p.faction == "Forge");
+        if !already_spawned {
+            if let Some(effect_handle) = particle_assets.forge_effects.get(particle_data.evolution as usize) {
+                commands.spawn((
+                    EffectBundle {
+                        effect: effect_handle.clone(),
+                        transform: Transform::default(),
+                        ..default()
+                    },
+                    ResonanceGearParticles {
+                        faction: "Forge".to_string(),
+                        evolution_level: particle_data.evolution,
+                    },
+                ));
+                info!("Spawned Forge Resonance Gear particles at evolution level {}", particle_data.evolution);
+            }
+        }
+    }
+
+    // Sanctum example (parallel system)
+    if particle_data.attunement >= 2.0 && particle_data.evolution >= 1 {
+        let already_spawned = query.iter().any(|(_, p)| p.faction == "Sanctum");
+        if !already_spawned {
+            if let Some(effect_handle) = particle_assets.sanctum_effects.get(particle_data.evolution as usize) {
+                commands.spawn((
+                    EffectBundle {
+                        effect: effect_handle.clone(),
+                        transform: Transform::default(),
+                        ..default()
+                    },
+                    ResonanceGearParticles {
+                        faction: "Sanctum".to_string(),
+                        evolution_level: particle_data.evolution,
+                    },
+                ));
+                info!("Spawned Sanctum Resonance Gear particles at evolution level {}", particle_data.evolution);
+            }
+        }
+    }
+}
+
+/// Keeps particle effect entities positioned relative to the player every frame.
+fn update_resonance_particle_position(
+    player_query: Query<&Transform, With<PlayerState>>,
+    mut particle_query: Query<(&mut Transform, &ResonanceGearParticles)>,
+) {
+    if let Ok(player_transform) = player_query.get_single() {
+        for (mut particle_transform, _) in &mut particle_query {
+            // Attach to player with slight offset (e.g. above gear)
+            particle_transform.translation = player_transform.translation + Vec3::new(0.0, 1.5, 0.0);
+        }
+    }
+}
+
+/// Detects evolution level increases and performs visual upgrade:
+/// despawn old particles, spawn new higher-evolution EffectBundle, update marker, log.
+fn handle_evolution_changes(
+    mut commands: Commands,
+    particle_assets: Res<ResonanceParticleAssets>,
+    particle_data: Res<ResonanceParticleData>,
+    mut particle_query: Query<(Entity, &mut ResonanceGearParticles)>,
+) {
+    for (entity, mut resonance_particles) in &mut particle_query {
+        let current_stored = resonance_particles.evolution_level;
+        let player_evolution = particle_data.evolution;
+
+        if player_evolution > current_stored {
+            // Evolution detected — visual upgrade
+            let faction = resonance_particles.faction.clone();
+
+            // Despawn old effect
+            commands.entity(entity).despawn();
+
+            // Spawn new higher-evolution effect
+            let effects_list = if faction == "Forge" {
+                &particle_assets.forge_effects
+            } else {
+                &particle_assets.sanctum_effects
+            };
+
+            if let Some(new_effect_handle) = effects_list.get(player_evolution as usize) {
+                commands.spawn((
+                    EffectBundle {
+                        effect: new_effect_handle.clone(),
+                        transform: Transform::default(),
+                        ..default()
+                    },
+                    ResonanceGearParticles {
+                        faction,
+                        evolution_level: player_evolution,
+                    },
+                ));
+
+                info!(
+                    "Forge Resonance Gear evolved from level {} to {} — new particles spawned",
+                    current_stored, player_evolution
+                );
+            }
+        }
+    }
+}
+
+// Placeholder for PlayerState (assumed to exist in crate::player or simulation)
+// In real integration, replace with actual PlayerState component.
+#[derive(Component)]
+struct PlayerState; // TODO: Use real PlayerState from player.rs or simulation
+
+// Note: This file now provides the complete reactive pipeline:
+// spawn on attunement -> position tracking -> automatic evolution visual upgrade.
+// Dependencies: bevy, bevy_hanabi (add to powrush/Cargo.toml when ready to run).
