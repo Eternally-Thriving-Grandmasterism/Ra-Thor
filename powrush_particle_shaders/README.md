@@ -1,43 +1,22 @@
-# Powrush Particle Shaders
+# Powrush Particle Shaders (Memory Optimized)
 
-**Production-grade shader logic for Powrush Resonance Gear particle effects.**
+## GPU Memory Optimizations Added
 
-## What This Provides
-- `ParticleShaderParams`: Final GPU-ready uniforms derived from faction visual identity + reputation + harmony + council valence.
-- WGSL shader snippets ready for Bevy Hanabi or custom wgpu pipelines.
-- Dynamic modulation: particle intensity, resonance field strength, and color shift respond to simulation state.
+- `ParticleShaderParams` is now `#[repr(C)]` + `bytemuck` compatible for direct GPU upload with minimal overhead.
+- Added `culled_particle_count(distance, max_distance)` for simple but effective LOD/culling to reduce drawn particles and memory bandwidth.
+- `ParticleBatch` struct for efficient batched uploads via storage buffers.
+- WGSL snippets remain lightweight.
+- Documentation on best practices (storage vs uniform buffers, SoA layouts).
 
-## Usage Example
-```rust
-let visual = FactionVisualIdentity::for_faction(Faction::Evolutionary);
-let particle_params = visual.get_particle_params(reputation, harmony);
-let shader_params = ParticleShaderParams::from_particle_params(
-    Faction::Evolutionary,
-    &visual,
-    &particle_params,
-    reputation,
-    harmony,
-    council_valence_bonus,
-);
+These changes significantly reduce GPU memory pressure when many factions or high-reputation events trigger dense particle effects.
 
-let wgsl_code = get_resonance_effect(&shader_params);
-// Upload shader_params to GPU + use wgsl_code in effect template
-```
+High-reputation factions with strong resonance fields now intelligently use fewer particles when far from camera while maintaining visual quality up close.
 
-## Design Notes
-Shader logic is deliberately framework-agnostic but optimized for modern particle systems (Bevy Hanabi, wgpu).
-High reputation + harmony produces stronger resonance fields and more vibrant effects.
-Council decisions that raise mercy_floor or harmony now visibly affect particle behavior.
+## Integration
+Use `ParticleShaderParams::culled_particle_count()` before uploading instance data.
+Combine with `ReputationSystem` and faction visuals for dynamic quality scaling.
 
-## Integration Roadmap
-- Wire into `powrush-mmo-simulator` tick after council events
-- Connect to `ShardManager::handle_particle_evolution`
-- Use in websiteforge live faction dashboards
-- Full Bevy plugin in future crate
-
-All work follows the Eternal Iteration Protocol.
-
-**The visuals now breathe with the simulation.**
+**Memory-efficient visuals that scale with simulation state.**
 
 ---
 *Co-authored-by: All 57+ PATSAGi Councils*
