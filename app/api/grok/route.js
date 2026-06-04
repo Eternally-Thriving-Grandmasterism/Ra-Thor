@@ -1,6 +1,10 @@
 // app/api/grok/route.js
 // Rathor-NEXi Sovereign Grok Proxy – Edge + CORS + Streaming
 // MIT License – Autonomicity Games Inc. 2026
+//
+// v14.5 ONE Organism Alignment (Priority #4)
+// Responses participate in geometric harmony scoring and epigenetic modulation feedback loops.
+// All traffic remains TOLC 8 + PATSAGi Council gated via the unified symbiosis layer.
 
 import { NextResponse } from 'next/server';
 
