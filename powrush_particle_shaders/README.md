@@ -1,32 +1,34 @@
-# Powrush Particle Shaders — Cooperative Matrix Multiply-Accumulate
+# Powrush Particle Shaders — Cooperative Matrix Formats
 
-## Cooperative Matrix Multiply-Accumulate (CoopMMA) Exploration
+## Cooperative Matrix Formats Exploration
 
-This iteration provides a focused exploration of **Cooperative Matrix Multiply-Accumulate**, one of the most powerful emerging GPU compute primitives.
+This iteration explores the **matrix formats** used in cooperative matrix extensions.
 
-### Core Idea
+### Core Concepts
 
-Cooperative MMA lets threads within a wave (or larger group) work together to perform matrix multiplication and accumulation using specialized hardware units (Tensor Cores / Matrix Cores). It offers dramatically higher throughput than conventional shader math for matrix-heavy workloads.
+Cooperative matrices are not generic. They are defined by:
 
-### Relevance to Powrush Visuals
+- **Element type** (e.g., f16, f32, integers)
+- **Matrix dimensions** (fragment sizes like 16x16, 8x8)
+- **Storage layout** (row/column major or optimized tiled layouts)
 
-Although full support in WGSL is still developing, CoopMMA opens exciting long-term possibilities:
+These parameters are chosen to match the capabilities of the underlying hardware matrix units.
 
-- **Learned culling & LOD**: Small neural networks running in compute shaders to decide particle visibility or detail level based on complex criteria.
-- **Advanced procedural effects**: High-performance matrix transformations for deformation, animation, or resonance field calculations.
-- **Intelligent importance scoring**: Neural evaluation of particle contribution to the scene.
+### Why Formats Matter
 
-These capabilities would significantly increase the "intelligence" and visual quality of large-scale particle systems while maintaining real-time performance.
+- Performance: Certain shapes and types map better to hardware.
+- Precision: Accumulators often use higher precision than multipliers (e.g., f16 × f16 → f32).
+- Data movement: Layout affects how efficiently matrices can be loaded cooperatively from memory.
+- Portability: Different GPUs support different sets of formats.
 
-### Current Status
+### Relevance to Future Powrush Development
 
-As of mid-2026, production-ready WGSL support for cooperative matrices is still maturing. We continue to rely on well-supported subgroup features (ballot, shuffle, wave-local reductions) for current optimizations.
+As cooperative matrix support becomes available in WGSL, understanding formats will be essential for implementing:
+- Small neural networks for intelligent culling or LOD
+- Efficient batch linear algebra on particle attributes
+- Advanced procedural visual effects
 
-The crate documents the direction and potential applications so the architecture can evolve smoothly as the feature becomes available.
-
-### Strategic Outlook
-
-Tracking CoopMMA ensures the Powrush GPU-driven visual system stays aligned with the frontier of real-time graphics and compute capabilities.
+The crate now documents the key concepts so the team can make informed decisions when the feature matures.
 
 ---
 *Co-authored-by: All 57+ PATSAGi Councils*
