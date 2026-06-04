@@ -1,36 +1,31 @@
-# Powrush Particle Shaders — Cooperative Matrix Synchronization Primitives
+# Powrush Particle Shaders — Subgroup Barrier Semantics
 
-## Cooperative Matrix Synchronization Primitives Exploration
+## Subgroup Barrier Semantics Exploration
 
-This iteration explores the **synchronization requirements** when using cooperative matrix operations.
+This iteration explores **subgroup barrier semantics** and how they interact with cooperative matrix operations.
 
-### Why Synchronization Is Important
+### What Subgroup Barriers Provide
 
-Because multiple threads cooperate on matrix fragments, memory visibility and ordering must be carefully managed to avoid data races and ensure correct results.
+Subgroup barriers guarantee both execution ordering and memory visibility across all lanes in a wave.
 
-### Synchronization by Scope
+They are expressed via `OpControlBarrier` (SPIR-V) or equivalent WGSL functions, with appropriate scope and memory semantics.
+
+### Interaction with Cooperative Matrices
 
 **Subgroup Scope**:
-- Generally lighter synchronization requirements.
-- Wave execution often provides implicit ordering.
-- Still requires correct Memory Operands on load/store instructions.
-- Usually does **not** require explicit subgroup barriers for correctness.
+- Often **no explicit barrier** is required for correctness due to strong wave ordering on modern GPUs.
+- Memory visibility is still controlled via Memory Operands on cooperative matrix load/store.
+- Barriers can be added when mixing with regular memory accesses if needed.
 
 **Workgroup Scope**:
-- Requires stronger synchronization.
-- Typically needs `OpControlBarrier` (or equivalent) with appropriate memory semantics between load, compute, and store phases.
-- Higher complexity and potential for subtle bugs if synchronization is insufficient.
+- Subgroup barriers are usually **insufficient**.
+- Full workgroup-scoped barriers are required between load, compute, and store phases.
 
-### Best Practices
+### Practical Guidance for Powrush
 
-- Strongly prefer **Subgroup scope** for particle system workloads.
-- Always specify appropriate memory semantics on cooperative matrix load and store operations.
-- Use explicit barriers only when necessary (mainly with larger scopes).
-- Validate correctness thoroughly when using cooperative matrices.
+Because we already rely heavily on wave-local primitives (ballot, shuffle, wave-local reduction), future cooperative matrix work at **Subgroup scope** will integrate cleanly with minimal additional synchronization.
 
-### Relevance to Powrush
-
-Given our heavy use of wave-local techniques (ballot, shuffle, wave-local reduction), **Subgroup-scoped** cooperative matrices align naturally with our existing architecture and will require the least additional synchronization complexity.
+Prefer Subgroup scope whenever possible to keep synchronization lightweight and performance high.
 
 ---
 *Co-authored-by: All 57+ PATSAGi Councils*
