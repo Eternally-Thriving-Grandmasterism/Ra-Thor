@@ -1,49 +1,51 @@
 /*!
-# Powrush Particle Shaders — Cooperative Matrix Multiply-Accumulate
+# Powrush Particle Shaders — Cooperative Matrix Formats
 
-Exploration of Cooperative Matrix Multiply-Accumulate (CoopMMA) on modern GPUs.
+Exploration of matrix formats used in cooperative matrix extensions.
 
-## What is Cooperative Matrix Multiply-Accumulate?
+## What are Cooperative Matrix Formats?
 
-Cooperative MMA allows a group of threads (wave or larger) to collectively perform matrix multiplication and accumulation with dedicated hardware acceleration.
+In cooperative matrix APIs (e.g. VK_KHR_cooperative_matrix), matrices are not arbitrary. They have specific:
 
-It is the core primitive behind Tensor Cores (NVIDIA), Matrix Cores (AMD), and similar features on other architectures.
+- **Element types** (f16, f32, s8, u8, s32, etc.)
+- **Matrix shapes / fragment sizes** (e.g. 16x16, 8x8, 16x8, 32x8)
+- **Storage layouts** (row-major, column-major, or hardware-optimized tiled layouts)
 
-Key characteristics:
-- Much higher throughput than scalar or vector matrix math
-- Designed for small-to-medium matrix sizes (e.g., 16x16, 8x8 fragments)
-- Threads cooperate to load, compute, and store results
-- Exposed via extensions such as VK_KHR_cooperative_matrix and emerging WGSL support
+These formats are chosen to match the underlying hardware matrix units (Tensor Cores, Matrix Cores) for maximum efficiency.
 
-## Potential Applications in Powrush
+Threads in a cooperative group work together to load, compute on, and store these matrix fragments.
 
-While still emerging in shading languages, CoopMMA could eventually enable:
-- Learned / neural culling and LOD selection
-- Small neural networks for importance scoring or visual effect modulation
-- Advanced procedural deformation or animation of particle batches
-- High-performance batched linear algebra within compute shaders
+## Why Formats Matter
 
-These would represent a significant leap in the complexity and intelligence of real-time particle systems.
+- Different formats have different performance characteristics and precision.
+- Some formats support accumulation in higher precision (e.g., f16 multiply → f32 accumulate).
+- Layout affects how efficiently data can be loaded from memory into the cooperative matrix.
+- Compatibility varies across GPU vendors and generations.
+
+## Relevance to Powrush
+
+As cooperative matrix support matures in WGSL, understanding formats will be important for:
+- Implementing small neural networks for culling or visual effects
+- Efficient batch transformations of particle data
+- Future high-performance procedural effects
+
+The choice of format will impact both performance and numerical behavior.
 */
 
 use powrush_faction_dynamics::{Faction, FactionVisualIdentity, ParticleParams};
 
 pub mod compute {
-    /// Forward-looking notes on Cooperative MMA usage.
-    pub const COOPERATIVE_MMA_NOTES: &str = r#"
-        // Cooperative Matrix Multiply-Accumulate is still maturing in WGSL (2026).
+    /// Notes on cooperative matrix formats for future use.
+    pub const COOPERATIVE_MATRIX_FORMAT_NOTES: &str = r#"
+        // Common cooperative matrix configurations (as of 2026):
+        // - A: f16, 16x16 or 8x8
+        // - B: f16, matching A
+        // - C/D (accumulator): f16 or f32
         //
-        // Example future direction:
+        // Loading typically uses cooperative_matrix_load with specific layouts.
+        // Computation uses cooperative_matrix_multiply_accumulate.
         //
-        // let a = cooperative_matrix_load(...);
-        // let b = cooperative_matrix_load(...);
-        // let c = cooperative_matrix_multiply_accumulate(a, b, c);
-        // cooperative_matrix_store(result, c);
-        //
-        // For now, complex matrix work can be done using
-        // traditional vector math or emerging cooperative vector features.
-        //
-        // This capability is tracked for future adoption in advanced
-        // culling, LOD, or procedural visual effects.
+        // Exact shapes and types depend on the GPU and extension version.
+        // Future WGSL will likely expose these as parameterized types.
     "#;
 }
