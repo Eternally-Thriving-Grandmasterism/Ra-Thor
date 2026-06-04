@@ -1,69 +1,103 @@
-//! Partial Byzantine Thresholds for Powrush Shard Consensus
+//! Dynamic Slashing Penalties for Powrush Shard Trust System
 //!
-//! Adds resistance to malicious or low-trust shards trying to influence consensus.
-//! Uses dynamic thresholds based on the proportion of low-trust votes.
+//! Penalizes shards that exhibit malicious, inconsistent, or negligent behavior.
+//! Penalties are dynamic based on severity, frequency, and current trust level.
 
-use crate::simulation_orchestrator::ShardConsensus;
+use bevy::prelude::*;
+use std::collections::HashMap;
+use std::time::{SystemTime, UNIX_EPOCH};
+
 use crate::simulation_orchestrator::ShardTrust;
 
-impl ShardConsensus {
-    /// Calculate the percentage of vote weight coming from low-trust sources
-    pub fn calculate_low_trust_vote_percentage(&self, proposal_id: u64) -> f32 {
-        if let Some(votes) = self.votes.get(&proposal_id) {
-            if votes.is_empty() {
-                return 0.0;
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum SlashingReason {
+    LowTrustDomination,
+    InconsistentStateSync,
+    SpammingProposals,
+    VotingAgainstStrongConsensus,
+    Other,
+}
+
+#[derive(Resource, Default)]
+pub struct ShardTrustTracker {
+    pub trusts: HashMap<u64, (ShardTrust, u64)>,
+    pub decay_rate: f32,
+    pub interaction_counts: HashMap<u64, u32>,
+    pub slashing_history: HashMap<u64, Vec<(SlashingReason, u64, f32)>>, // (reason, time, severity)
+}
+
+impl ShardTrustTracker {
+    /// Apply a dynamic slashing penalty
+    pub fn apply_slashing_penalty(
+        &mut self,
+        shard_id: u64,
+        reason: SlashingReason,
+        severity: f32, // 0.0 - 1.0
+    ) {
+        let now = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap_or_default()
+            .as_secs();
+
+        let severity = severity.clamp(0.1, 1.0);
+
+        // Record the slashing event
+        self.slashing_history
+            .entry(shard_id)
+            .or_default()
+            .push((reason, now, severity));
+
+        // Apply trust downgrade based on severity and current level
+        if let Some((current_trust, last_update)) = self.trusts.get_mut(&shard_id) {
+            let downgrade_amount = (severity * 2.0) as u8; // severity scales impact
+
+            let new_trust = match *current_trust {
+                ShardTrust::Sovereign if downgrade_amount >= 2 => ShardTrust::High,
+                ShardTrust::High if downgrade_amount >= 2 => ShardTrust::Medium,
+                ShardTrust::Medium if downgrade_amount >= 1 => ShardTrust::Low,
+                ShardTrust::Low => ShardTrust::Low,
+                _ => *current_trust,
+            };
+
+            if new_trust as u8 < *current_trust as u8 {
+                *current_trust = new_trust;
             }
 
-            let mut low_trust_weight = 0.0;
-            let mut total_weight = 0.0;
+            // Also apply temporary weight penalty
+            // (we can extend this later with a separate multiplier)
+        }
+    }
 
-            for vote in votes {
-                total_weight += vote.trust_weight;
+    /// Gradually lift slashing effects over time (rehabilitation)
+    pub fn apply_slashing_rehabilitation(&mut self) {
+        let now = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap_or_default()
+            .as_secs();
 
-                // Consider votes with weight <= 0.5 as "low trust"
-                if vote.trust_weight <= 0.5 {
-                    low_trust_weight += vote.trust_weight;
+        for (shard_id, history) in self.slashing_history.iter_mut() {
+            // Remove old slashing events (older than 7 days)
+            history.retain(|(_, timestamp, _)| now - timestamp < 7 * 24 * 3600);
+
+            // If no recent slashing, slowly allow trust recovery
+            if history.is_empty() {
+                if let Some((trust_level, _)) = self.trusts.get_mut(shard_id) {
+                    // Small chance to recover one level if clean for a while
+                    if (now % 86400) < 3600 {
+                        // once per day window
+                        *trust_level = match *trust_level {
+                            ShardTrust::Low => ShardTrust::Medium,
+                            _ => *trust_level,
+                        };
+                    }
                 }
             }
-
-            if total_weight > 0.0 {
-                return low_trust_weight / total_weight;
-            }
         }
-        0.0
-    }
-
-    /// Enhanced consensus check with partial Byzantine resistance
-    pub fn is_consensus_reached_byzantine_resistant(
-        &self,
-        proposal_id: u64,
-        base_threshold: f32,
-    ) -> bool {
-        let (approve, reject) = self.tally_votes(proposal_id);
-
-        if !self.has_sufficient_participation(proposal_id) {
-            return false;
-        }
-
-        let low_trust_ratio = self.calculate_low_trust_vote_percentage(proposal_id);
-
-        // Dynamically increase the required approval threshold
-        // if many low-trust votes are present
-        let adjusted_threshold = if low_trust_ratio > 0.3 {
-            // Require stronger consensus when low-trust participation is high
-            base_threshold + (low_trust_ratio * 0.4)
-        } else {
-            base_threshold
-        };
-
-        approve > reject && approve >= adjusted_threshold
-    }
-
-    /// Check if low-trust shards are dominating the vote (potential attack)
-    pub fn is_low_trust_dominated(&self, proposal_id: u64, threshold: f32) -> bool {
-        self.calculate_low_trust_vote_percentage(proposal_id) > threshold
     }
 }
 
-/// Configuration extension for Byzantine thresholds
-// Can be added to ConsensusFaultToleranceConfig if desired
+pub fn shard_trust_maintenance_system(mut tracker: ResMut<ShardTrustTracker>) {
+    tracker.apply_hard_decay();
+    tracker.apply_passive_recovery();
+    tracker.apply_slashing_rehabilitation();
+}
