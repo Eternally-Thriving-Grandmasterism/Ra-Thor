@@ -1,53 +1,55 @@
-# Powrush Particle Shaders — Warp Coalescing Optimization
+# Powrush Particle Shaders — Profiling Memory Transactions
 
-## Warp Coalescing Optimization Exploration
+## Profiling Memory Transactions
 
-This iteration explores **warp memory coalescing** and practical optimization strategies relevant to our particle system.
+This section provides guidance on how to **profile memory transactions** using Nsight Compute, with direct relevance to our particle culling and visibility optimizations.
 
-### What is Coalescing?
+### Key Sections in Nsight Compute
 
-A warp achieves peak memory efficiency when its 32 threads access consecutive memory addresses that fit within a single cache line transaction (typically 128 bytes). Poor coalescing results in many small, inefficient memory transactions.
+**Memory Workload Analysis** (most important):
+- `l1tex__t_requests` / `l1tex__t_sectors`
+- `lts__t_requests` / `lts__t_sectors`
+- `dram__sectors`
+- `memory_replay_overhead`
 
-### Why It Matters
+**Memory Efficiency**:
+- Global Load/Store Efficiency
+- L1/L2 Hit Rates
+- Transactions per Request (lower = better coalescing)
 
-Particle culling, visibility buffer updates, and data compaction are often memory-bound. Good coalescing can provide substantial bandwidth and performance gains.
+**Stall Reasons**:
+- "Long Scoreboard"
+- "Memory Dependency" (often correlated with memory issues)
 
-### Key Optimization Techniques
+### Good vs Poor Coalescing Indicators
 
-**1. Data Layout (SoA Preferred)**
-- Store particle attributes as separate arrays (positions as x[], y[], z[]).
-- Field-wise access by consecutive threads leads to natural coalescing.
+**Good Coalescing**:
+- Low number of sectors/transactions relative to requests
+- High global load/store efficiency (ideally >80-90%)
+- Lower memory replay overhead
 
-**2. Linear Thread-to-Data Mapping**
-- Ensure thread `i` accesses data element `i` within the warp.
-- Avoid strided or scattered access patterns.
+**Poor Coalescing**:
+- High transaction count per request
+- Low efficiency percentages
+- Elevated replay overhead and memory stalls
 
-**3. Spatial / Visibility Binning**
-- Group particles that are processed together (by screen tile, frustum region, or visibility) to improve both coalescing and cache locality.
+### Recommended Profiling Workflow
 
-**4. Shared Memory Staging**
-- Use shared memory to reorganize data before global writes, especially during compaction phases.
+1. Profile the baseline culling kernel, focusing on the Memory Workload Analysis section.
+2. Profile after optimizations (WaveLocal Reduction, SoA layout changes, access pattern improvements).
+3. Compare key metrics:
+   - Transaction counts and efficiency
+   - `memory_replay_overhead`
+   - Memory-related stall reasons
+   - Overall kernel throughput
 
-**5. Vectorized Loads/Stores**
-- Use `float4` / `int4` when data alignment permits. This increases effective transaction size and reduces instruction count.
+### Expected Improvements
 
-### Relevance to Our Pipeline
+- WaveLocal Reduction: Should reduce write traffic to visible index buffers.
+- SoA + Linear Access Patterns: Should improve read coalescing for particle data.
+- Vectorized loads/stores: Should increase effective transaction size and efficiency.
 
-- Reading particle positions in the culling shader benefits from linear SoA layout.
-- Writing visible indices after WaveLocal Reduction is more efficient when writes are coalesced and in-order.
-- Visibility buffer updates (raster or compute) are highly sensitive to coalescing quality.
-
-Our wave-local compaction already helps by enabling more ordered writes within the wave.
-
-### Best Practices
-
-- Use SoA layouts for particle data.
-- Maintain linear thread-to-data mapping.
-- Consider binning/sorting for large datasets.
-- Use vector loads/stores where possible.
-- Profile memory transaction efficiency with Nsight Compute.
-
-This optimization area complements our existing wave-local and Subgroup-scoped techniques.
+These metrics provide quantitative proof of memory optimization effectiveness in our pipeline.
 
 ---
 *Co-authored-by: All 57+ PATSAGi Councils*
