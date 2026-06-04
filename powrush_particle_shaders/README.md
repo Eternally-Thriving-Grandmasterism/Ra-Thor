@@ -1,33 +1,32 @@
-# Powrush Particle Shaders — Visibility Buffer Compression
+# Powrush Particle Shaders — SIMD Vectorization for Packing
 
-## Visibility Buffer Compression
+## SIMD Vectorization for Visibility Packing
 
-To reduce memory usage and bandwidth, we optimized the visibility data format:
+This iteration explores using SIMD techniques to accelerate the packing and unpacking of visibility buffer data.
 
-### Compression Strategy
+### GPU Side (WGSL)
 
-- **20 bits** for `particle_instance_id` (supports over 1 million particles)
-- **8 bits** for `material_id`
-- **24 bits** for depth (stored as quantized uint)
-- Packed into two `u32` values (`rg32uint` texture format)
+- Use `vec4<u32>` operations to pack/unpack multiple particles simultaneously.
+- Leverage wave/warp shuffle and ballot operations for even higher efficiency in modern GPUs.
+- Vectorized bit manipulation can significantly increase throughput when many particles are being written to the visibility buffer.
 
-This is significantly more compact than storing multiple separate 32-bit values.
+### CPU Side (Data Preparation)
 
-### Implementation
+- When preparing particle data on the CPU before uploading to GPU, SIMD (AVX2/AVX-512 or NEON) can be used to pack large batches of visibility data very quickly.
+- The `PackedVisibilityBatch` struct demonstrates a batch-oriented approach.
 
-- `CompressedParticleVisibility` struct with packing/unpacking methods.
-- Updated compute shading shader that works with the compressed `rg32uint` format.
-- Clear bit manipulation for encoding/decoding.
+### Benefits
+- Higher packing throughput
+- Better utilization of wide vector registers
+- Reduced CPU/GPU preparation time for large particle counts
 
-### Trade-offs
+### Current Implementation
 
-- Slight loss of depth precision (24-bit vs 32-bit float).
-- Particle ID range limited to ~1M per frame (usually sufficient).
-- Much better memory efficiency and cache performance.
+- `PackedVisibilityBatch` provides a simple batch packing interface.
+- WGSL vectorization notes included for future shader optimization.
+- Compatible with the existing compressed `CompressedParticleVisibility` format.
 
-### Integration
-
-The compressed format works seamlessly with the existing GPU-driven pipeline (culling, indirect draws, scene traversal) and can be used in both rasterization and compute rasterization paths.
+This optimization layer can be applied on top of the bit-packed visibility buffer to further improve performance at scale.
 
 ---
 *Co-authored-by: All 57+ PATSAGi Councils*
