@@ -1,66 +1,65 @@
 /*!
-# Powrush Particle Shaders — CUDA Stream Overlap Efficiency
+# Powrush Particle Shaders — Unified Memory Performance Analysis
 
-Analysis of CUDA stream usage and overlap efficiency.
+Analysis of Unified Memory (Managed Memory) performance characteristics.
 
-## What is Stream Overlap?
+## What is Unified Memory?
 
-CUDA streams allow concurrent execution of kernels and memory copies that have no data dependencies. Good overlap hides memory transfer latency behind compute or runs independent kernels in parallel, improving overall throughput.
+Unified Memory allows the same pointer to be accessed from both CPU and GPU. The CUDA driver automatically migrates pages between host and device memory as needed (on-demand page migration).
 
-## Key Analysis Points in Nsight Systems
+It can be allocated with `cudaMallocManaged`.
 
-### Timeline View
-- Look for multiple streams executing in parallel.
-- Identify gaps where one stream is idle while another has work.
-- Check if memory transfers (H2D/D2H) overlap with compute kernels.
+## Performance Characteristics
 
-### Common Issues
-- Overuse of the default stream (Stream 0), which can serialize operations.
-- Unnecessary synchronization points that break concurrency.
-- Memory copies not using async versions with streams.
-- Dependencies between streams that prevent overlap.
+### Advantages
+- Simplifies programming (no explicit `cudaMemcpy`)
+- Supports memory oversubscription
+- Easier CPU/GPU data sharing
 
-### Positive Patterns
-- Memory transfers running concurrently with unrelated compute.
-- Independent compute kernels running on different streams.
-- Proper use of events for lightweight cross-stream synchronization.
+### Performance Costs
+- **Page Migration Overhead**: When a page is first accessed on the GPU (or CPU), a page fault triggers migration over PCIe (or NVLink). This adds latency.
+- **Fine-grained Access Penalty**: Random or scattered accesses cause many small migrations, which is inefficient.
+- **Coherence Traffic**: Even with prefetching (`cudaMemPrefetchAsync`), maintaining coherence has cost.
+- **Bandwidth Limitation**: Migration traffic is limited by the interconnect (PCIe Gen4/5 or NVLink), which is usually much slower than GPU HBM bandwidth.
+
+## Analysis with NVIDIA Tools
+
+In Nsight Systems:
+- Look for memory migration traffic in the timeline (Host ↔ Device transfers triggered by page faults).
+- Compare timelines with and without Unified Memory.
+
+In Nsight Compute:
+- Memory migration related stalls or replay overhead.
+- Comparison of kernel performance using managed vs explicit memory.
 
 ## Relevance to Powrush
 
-Our pipeline may benefit from stream overlap in several areas:
-- Updating particle data (Host → Device) while culling the previous frame.
-- Overlapping culling compute passes with visibility buffer updates.
-- Asynchronous result processing or readbacks.
-- Running multiple independent culling or compaction phases concurrently.
+For high-performance hot paths (culling, visibility buffer updates, compaction), explicit memory management or pinned + async copies is generally faster and more predictable than Unified Memory.
 
-Good stream usage can hide transfer latency and improve overall frame throughput.
+Unified Memory can be useful for:
+- Data that is infrequently accessed or updated from the CPU
+- Prototyping and simpler code paths
+- Scenarios where oversubscription is beneficial
+
+For performance-critical particle processing, we recommend sticking with explicit memory control or well-managed streams with async copies.
 
 ## Best Practices
 
-- Use non-default streams for work that can run concurrently.
-- Use `cudaMemcpyAsync` with streams instead of synchronous copies.
-- Use CUDA events for lightweight synchronization instead of `cudaStreamSynchronize` or `cudaDeviceSynchronize`.
-- Minimize cross-stream dependencies when possible.
-- Profile with Nsight Systems timeline to visualize and validate overlap.
-
-## Analysis Workflow
-
-1. Capture a timeline with Nsight Systems.
-2. Examine stream activity around culling and data update regions.
-3. Look for idle gaps that could be filled by overlapping transfers or independent compute.
-4. Identify unnecessary synchronization that breaks concurrency.
-5. Compare before/after stream optimization changes.
+- Use `cudaMemPrefetchAsync` to reduce on-demand page faults when possible.
+- Avoid fine-grained random access patterns on managed memory from the GPU.
+- Profile migration traffic with Nsight Systems.
+- For hot paths, prefer explicit `cudaMemcpyAsync` or device-only allocations.
 */
 
 use powrush_faction_dynamics::{Faction, FactionVisualIdentity, ParticleParams};
 
 pub mod compute {
-    /// Notes on stream overlap.
-    pub const STREAM_OVERLAP_NOTES: &str = r#"
-        // Use multiple streams for concurrent work.
-        // Prefer async memory copies with streams.
-        // Use events instead of heavy synchronization.
-        // Profile with Nsight Systems to validate overlap.
-        // Minimize unnecessary cross-stream dependencies.
+    /// Notes on Unified Memory performance.
+    pub const UNIFIED_MEMORY_NOTES: &str = r#"
+        // Unified Memory simplifies code but adds migration overhead.
+        // For hot paths (culling, visibility), explicit memory is usually faster.
+        // Use prefetching to reduce page faults.
+        // Profile migration traffic with Nsight Systems.
+        // Avoid fine-grained access patterns on managed memory.
     "#;
 }
