@@ -1,56 +1,70 @@
-//! Reputation Decay Mechanisms for Powrush Shard Reputation
+//! Reputation Staking for Powrush Shard Reputation System
 //!
-//! Reputation slowly decays over time with inactivity, encouraging ongoing
-//! positive participation in the shard network.
+//! Allows shards to stake reputation as collateral for high-impact actions
+//! (e.g., creating important consensus proposals). Staked reputation can be
+//! slashed for bad behavior, creating skin-in-the-game.
 
 use bevy::prelude::*;
-use std::time::{SystemTime, UNIX_EPOCH};
+use std::collections::HashMap;
 
 use crate::simulation_orchestrator::ShardReputationTracker;
 
 impl ShardReputationTracker {
-    /// Apply time-based reputation decay
-    pub fn apply_reputation_decay(&mut self, decay_rate_per_day: f32) {
-        let now = SystemTime::now()
-            .duration_since(UNIX_EPOCH)
-            .unwrap_or_default()
-            .as_secs();
+    /// Stake reputation (locks a portion of reputation score)
+    pub fn stake_reputation(&mut self, shard_id: u64, amount: f32) -> bool {
+        let current = self.get_reputation(shard_id);
 
-        for (shard_id, score) in self.scores.iter_mut() {
-            // Simple linear decay toward neutral for now
-            // Can be upgraded to exponential later
-            let days_inactive = 1.0; // Placeholder - in real system track last activity
-
-            let decay_amount = decay_rate_per_day * days_inactive;
-
-            if *score > 50.0 {
-                *score = (*score - decay_amount).max(50.0);
-            } else if *score < 50.0 {
-                *score = (*score + decay_amount).min(50.0);
-            }
+        if amount > current * 0.5 {
+            return false; // Cannot stake more than 50% of current reputation
         }
+
+        let staked = self.staked_reputation.entry(shard_id).or_insert(0.0);
+        *staked += amount;
+
+        // Reduce available reputation while staked
+        self.scores.insert(shard_id, current - amount);
+        true
     }
 
-    /// More advanced exponential reputation decay
-    pub fn apply_exponential_reputation_decay(&mut self, decay_rate: f32) {
-        let now = SystemTime::now()
-            .duration_since(UNIX_EPOCH)
-            .unwrap_or_default()
-            .as_secs();
+    /// Unstake reputation (releases locked reputation)
+    pub fn unstake_reputation(&mut self, shard_id: u64, amount: f32) -> bool {
+        let staked = self.staked_reputation.entry(shard_id).or_insert(0.0);
 
-        for score in self.scores.values_mut() {
-            // Decay toward 50.0 using exponential approach
-            let distance_from_neutral = *score - 50.0;
-            let new_distance = distance_from_neutral * (1.0 - decay_rate).exp();
-            *score = 50.0 + new_distance;
+        if amount > *staked {
+            return false;
         }
+
+        *staked -= amount;
+
+        // Return reputation to available score
+        let current = self.get_reputation(shard_id);
+        self.scores.insert(shard_id, current + amount);
+        true
+    }
+
+    /// Slash staked reputation (used for penalties on high-impact actions)
+    pub fn slash_staked_reputation(&mut self, shard_id: u64, amount: f32) {
+        let staked = self.staked_reputation.entry(shard_id).or_insert(0.0);
+        let slash_amount = amount.min(*staked);
+
+        *staked -= slash_amount;
+
+        // Also reduce overall reputation
+        let current = self.get_reputation(shard_id);
+        self.scores.insert(shard_id, (current - slash_amount * 0.5).max(0.0));
+    }
+
+    /// Get total staked reputation for a shard
+    pub fn get_staked_reputation(&self, shard_id: u64) -> f32 {
+        *self.staked_reputation.get(&shard_id).unwrap_or(&0.0)
+    }
+
+    /// Get available (unstaked) reputation
+    pub fn get_available_reputation(&self, shard_id: u64) -> f32 {
+        self.get_reputation(shard_id) - self.get_staked_reputation(shard_id)
     }
 }
 
-/// Periodic system for reputation decay
-pub fn shard_reputation_decay_system(
-    mut tracker: ResMut<ShardReputationTracker>,
-) {
-    // Apply gentle daily decay
-    tracker.apply_reputation_decay(0.5); // 0.5 points per day toward neutral
-}
+// Extend ShardReputationTracker with staked_reputation field
+// (In full implementation, add to struct definition)
+// pub staked_reputation: HashMap<u64, f32>,
