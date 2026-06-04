@@ -1,50 +1,78 @@
 /*!
-# Powrush Particle Shaders — GPU-Driven Rendering
+# Powrush Particle Shaders — GPU-Driven Scene Traversal
 
-Investigation into fully GPU-driven particle rendering.
+Investigation into GPU-driven scene traversal for particle and effect rendering.
 
-## Current State of Our Pipeline
+## What is GPU-Driven Scene Traversal?
 
-We have already achieved a highly GPU-driven setup:
-- Compute shader culling (frustum + distance + importance + Hi-Z)
-- Indirect draw calls with batching
-- Depth buffer sampling for occlusion
-- Minimal CPU involvement after initial data upload
+Traditional rendering has the CPU traverse the scene graph, perform culling, and issue draw calls.
 
-## What is GPU-Driven Rendering?
+**GPU-driven scene traversal** moves this logic to the GPU:
+- The GPU receives a description of the scene (or list of effects).
+- Compute shaders traverse/cull the list.
+- The GPU generates the final draw commands (indirect or direct).
+- Minimal CPU involvement per frame.
 
-GPU-driven rendering means the GPU makes most (or all) decisions about what to draw, how many instances to draw, and in what order — with very little CPU intervention per frame.
+This is a major step toward low-CPU-overhead, highly parallel rendering.
 
-Key techniques include:
-- Compute shaders generating `DrawIndirect` / `DrawIndexedIndirect` commands
-- Multi-draw indirect from GPU-generated command buffers
-- GPU-based sorting and LOD selection
-- Execute indirect / command buffer generation entirely on GPU
+## Application to Powrush Particles
 
-## Benefits
-- Dramatically reduced CPU overhead
-- Better parallelism and latency hiding
-- Scales extremely well to thousands of effects
-- Enables techniques like GPU-driven scene graphs and visibility buffers
+Instead of the CPU iterating over all active particle systems every frame, we can:
+1. Upload an array of `ParticleSystemDescriptor`s to the GPU.
+2. Dispatch a compute shader that traverses this array.
+3. For each system: perform culling (frustum, occlusion, importance).
+4. Generate `DrawIndirect` commands for visible systems.
+5. Execute with `multi_draw_indirect`.
+
+This scales extremely well as the number of effects grows.
 */
 
 use powrush_faction_dynamics::{Faction, FactionVisualIdentity, ParticleParams};
 
-/// Parameters for a fully GPU-driven particle rendering pass.
+/// Descriptor for a particle system / visual effect.
+/// This can be uploaded to the GPU as part of a "scene" buffer.
 #[derive(Debug, Clone, Copy, bytemuck::Pod, bytemuck::Zeroable)]
 #[repr(C)]
-pub struct GPUDrivenParams {
+pub struct ParticleSystemDescriptor {
+    pub position: [f32; 3],
+    pub bounding_radius: f32,
+    pub particle_count: u32,
+    pub importance: f32,           // e.g. based on reputation/harmony
+    pub faction: u32,              // index into Faction enum
+    pub shader_params_index: u32,  // index into ParticleShaderParams buffer
+    pub _padding: [u32; 2],
+}
+
+/// Parameters for a GPU-driven traversal compute pass.
+#[derive(Debug, Clone, Copy, bytemuck::Pod, bytemuck::Zeroable)]
+#[repr(C)]
+pub struct GPUTraversalParams {
     pub view_proj: [[f32; 4]; 4],
     pub camera_position: [f32; 3],
     pub max_cull_distance: f32,
-    pub total_particle_systems: u32,
-    pub frame_index: u32,
+    pub total_systems: u32,
 }
 
 pub mod compute {
-    /// Example of a compute shader that can generate multiple DrawIndirect commands
-    /// for different particle systems entirely on the GPU.
-    pub const GPU_DRIVEN_COMMAND_GENERATION: &str = r#"
+    /// Compute shader that traverses a list of particle systems on the GPU,
+    /// performs culling, and generates DrawIndirect commands.
+    pub const GPU_SCENE_TRAVERSAL_SHADER: &str = r#"
+        struct ParticleSystemDescriptor {
+            position: vec3<f32>,
+            bounding_radius: f32,
+            particle_count: u32,
+            importance: f32,
+            faction: u32,
+            shader_params_index: u32,
+        };
+
+        struct GPUTraversalParams {
+            view_proj: mat4x4<f32>,
+            camera_position: vec3<f32>,
+            max_cull_distance: f32,
+            total_systems: u32,
+        };
+
         struct DrawIndirect {
             vertex_count: u32,
             instance_count: u32,
@@ -52,33 +80,30 @@ pub mod compute {
             first_instance: u32,
         };
 
-        struct GPUDrivenParams {
-            view_proj: mat4x4<f32>,
-            camera_position: vec3<f32>,
-            max_cull_distance: f32,
-            total_particle_systems: u32,
-            frame_index: u32,
-        };
+        @group(0) @binding(0) var<uniform> params: GPUTraversalParams;
+        @group(0) @binding(1) var<storage, read> systems: array<ParticleSystemDescriptor>;
+        @group(0) @binding(2) var<storage, read_write> indirect_commands: array<DrawIndirect>;
+        @group(0) @binding(3) var<storage, read_write> visible_system_count: atomic<u32>;
 
-        @group(0) @binding(0) var<uniform> params: GPUDrivenParams;
-        @group(0) @binding(1) var<storage, read_write> indirect_commands: array<DrawIndirect>;
-        @group(0) @binding(2) var<storage, read_write> visible_counts: array<atomic<u32>>;
+        @compute @workgroup_size(64)
+        fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
+            let index = global_id.x;
+            if (index >= params.total_systems) { return; }
 
-        // This shader would typically be dispatched once per particle system
-        // or use workgroups to process multiple systems.
-        @compute @workgroup_size(1)
-        fn main(@builtin(global_invocation_id) id: vec3<u32>) {
-            let system_index = id.x;
-            if (system_index >= params.total_particle_systems) { return; }
+            let system = systems[index];
+            let dist = distance(system.position, params.camera_position);
 
-            // Perform culling for this system (simplified)
-            // ...
+            // Basic culling (can be extended with frustum, Hi-Z, importance, etc.)
+            if (dist > params.max_cull_distance) {
+                return;
+            }
 
-            // Write the indirect command for this particle system
-            indirect_commands[system_index].vertex_count = 4; // quad
-            indirect_commands[system_index].instance_count = visible_counts[system_index];
-            indirect_commands[system_index].first_vertex = 0;
-            indirect_commands[system_index].first_instance = 0;
+            // Passed culling - generate indirect command
+            let cmd_index = atomicAdd(&visible_system_count, 1u);
+            indirect_commands[cmd_index].vertex_count = 4; // assume quad particles
+            indirect_commands[cmd_index].instance_count = system.particle_count;
+            indirect_commands[cmd_index].first_vertex = 0;
+            indirect_commands[cmd_index].first_instance = 0;
         }
     "#;
 }
