@@ -1,43 +1,64 @@
 /*!
-# Powrush Particle Shaders — cudaMalloc vs cudaMallocManaged Performance Comparison
+# Powrush Particle Shaders — Profiling cudaMemPrefetchAsync Overhead
 
-Direct performance comparison between standard device memory and Unified Memory.
+Guidance on measuring and analyzing the overhead of `cudaMemPrefetchAsync`.
 
-## Comparison Table
+## What Overhead Does cudaMemPrefetchAsync Introduce?
 
-| Aspect                        | cudaMalloc (Explicit Device Memory)                  | cudaMallocManaged (Unified Memory)                        | Winner (Typical Case)      |
-|-------------------------------|-------------------------------------------------------|-----------------------------------------------------------|----------------------------|
-| **Allocation Target**         | GPU device memory only                               | Managed memory (CPU + GPU accessible)                    | cudaMalloc (GPU-only)     |
-| **Data Movement**             | Explicit cudaMemcpy / cudaMemcpyAsync                | Automatic page migration on access                       | Depends on use case       |
-| **Hot Path Performance**      | Highest and most predictable                         | Generally lower due to migration overhead                | cudaMalloc                |
-| **Programming Simplicity**    | Higher (must manage copies manually)                 | Lower (single pointer for CPU and GPU)                   | cudaMallocManaged         |
-| **Page Fault / Migration**    | None                                                 | On-demand page faults + migration cost                   | cudaMalloc                |
-| **Memory Oversubscription**   | Not supported natively                               | Supported                                                | cudaMallocManaged         |
-| **Peak Bandwidth**            | Full GPU HBM bandwidth                               | Limited by interconnect during migration                 | cudaMalloc                |
-| **Access Pattern Sensitivity**| Coalescing important                                 | Coalescing + migration efficiency important              | cudaMalloc (easier)       |
-| **Best Use Case**             | Performance-critical hot paths                       | Simpler code, occasional CPU access, prototyping         | Context dependent         |
+`cudaMemPrefetchAsync` itself has relatively low CPU-side overhead (it returns quickly). The real cost comes from the **page migration work** it triggers:
 
-## Key Takeaways
+- Driver processing of the prefetch request
+- Actual data movement over PCIe/NVLink
+- Potential impact on GPU caches and TLBs
+- Interaction with concurrent memory operations
 
-- For performance-critical paths (particle culling, visibility buffer, high-throughput compaction), `cudaMalloc` + explicit async copies is almost always faster and more predictable.
-- `cudaMallocManaged` shines when you need convenient CPU access to the same data or when development speed matters more than peak performance.
-- Even with `cudaMemPrefetchAsync`, Unified Memory rarely matches the raw performance of well-managed explicit memory for hot compute kernels.
+## How to Profile It
 
-## Recommendation for Powrush
+### Nsight Systems Timeline
+- Capture timelines with and without `cudaMemPrefetchAsync` calls.
+- Look at memory migration traffic (Host ↔ Device transfers) triggered by prefetch operations.
+- Check whether migration overlaps well with compute or causes contention/gaps.
+- Measure the time from prefetch call to when the data appears resident (can use CUDA events around the prefetch).
 
-- Use `cudaMalloc` + `cudaMemcpyAsync` (or pinned memory + streams) for all high-throughput particle processing.
-- Consider `cudaMallocManaged` only for data that needs frequent or convenient CPU read/write access, and always combine it with `cudaMemPrefetchAsync`.
-- Profile both approaches when in doubt — the performance gap can be significant on memory-bound workloads.
+### Nsight Compute
+- Compare kernel execution time and memory stall reasons with and without prefetching.
+- Look for reductions in page-fault-related stalls or `memory_replay_overhead`.
+- Check overall memory efficiency metrics.
+
+### Application-Level Metrics
+- Time from `cudaMemPrefetchAsync` submission to data readiness (using CUDA events).
+- Kernel execution time improvement.
+- End-to-end workload or frame time improvement.
+- Net benefit = (time saved in kernels) - (migration cost + any contention).
+
+## Recommended Workflow
+
+1. Profile baseline (no prefetch or naive Unified Memory).
+2. Add `cudaMemPrefetchAsync` before hot kernels.
+3. Profile again and compare:
+   - Migration traffic volume and timing
+   - Kernel execution time and stall reasons
+   - Overall throughput
+4. Determine if the reduction in kernel time outweighs the migration cost.
+
+## When the Overhead Is Worth It
+
+`cudaMemPrefetchAsync` is usually worth the cost when:
+- It significantly reduces page faults inside performance-critical kernels.
+- Migration can be overlapped with other useful work.
+- The data will be accessed soon after prefetching.
+
+It is less useful when data is prefetched too early (wasted bandwidth) or when explicit memory copies would be simpler and faster.
 */
 
 use powrush_faction_dynamics::{Faction, FactionVisualIdentity, ParticleParams};
 
 pub mod compute {
-    /// Comparison notes.
-    pub const MALLOC_VS_MANAGED_NOTES: &str = r#"
-        // cudaMalloc + explicit copies = best performance for hot paths
-        // cudaMallocManaged + prefetch = simpler but usually slower
-        // Choose based on access pattern and performance needs.
-        // Profile to confirm.
+    /// Notes on profiling prefetch overhead.
+    pub const PREFETCH_OVERHEAD_NOTES: &str = r#"
+        // Profile migration traffic in Nsight Systems.
+        // Compare kernel time and stalls with/without prefetch.
+        // Measure net benefit (kernel time saved vs migration cost).
+        // Overlap prefetch with other work when possible.
     "#;
 }
