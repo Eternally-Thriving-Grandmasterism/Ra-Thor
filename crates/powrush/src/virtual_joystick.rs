@@ -5,12 +5,11 @@ use bevy::prelude::*;
 use bevy_egui::EguiContexts;
 use egui::{Color32, Sense};
 use crate::experience_tier::ExperienceTier;
+use crate::simulation::{WorldSimulation, SimulationCommand};
 
-/// Marker component for the player entity.
 #[derive(Component, Debug, Default)]
 pub struct Player;
 
-/// Resource holding the current virtual joystick state.
 #[derive(Resource, Debug, Default)]
 pub struct VirtualJoystick {
     pub movement: Vec2,
@@ -32,7 +31,7 @@ impl Plugin for VirtualJoystickPlugin {
         app.init_resource::<VirtualJoystick>();
         app.add_systems(Update, (
             show_virtual_joystick.run_if(|tier: Res<ExperienceTier>| *tier == ExperienceTier::MobileTown),
-            apply_virtual_joystick_movement.run_if(|tier: Res<ExperienceTier>| *tier == ExperienceTier::MobileTown),
+            apply_joystick_to_simulation.run_if(|tier: Res<ExperienceTier>| *tier == ExperienceTier::MobileTown),
             reset_joystick_when_inactive,
         ));
     }
@@ -53,8 +52,8 @@ fn show_virtual_joystick(
             let center = rect.center();
 
             ui.painter().circle_filled(center, size / 2.0, Color32::from_gray(60));
-
             let knob_radius = size / 4.0;
+
             let knob_pos = if response.dragged() {
                 let delta = response.drag_delta();
                 let new_pos = joystick.current_pos + delta;
@@ -84,9 +83,9 @@ fn show_virtual_joystick(
         });
 }
 
-fn apply_virtual_joystick_movement(
+fn apply_joystick_to_simulation(
     joystick: Res<VirtualJoystick>,
-    mut query: Query<&mut Transform, With<Player>>,
+    mut simulation: ResMut<WorldSimulation>,
     time: Res<Time>,
 ) {
     if !joystick.is_active || joystick.movement == Vec2::ZERO {
@@ -94,12 +93,17 @@ fn apply_virtual_joystick_movement(
     }
 
     let speed = 300.0;
-    let movement = joystick.movement * speed * time.delta_seconds();
+    let dt = time.delta_seconds();
+    let dx = joystick.movement.x * speed * dt;
+    let dy = joystick.movement.y * speed * dt;
 
-    for mut transform in &mut query {
-        transform.translation.x += movement.x;
-        transform.translation.y += movement.y;
-    }
+    // Use the existing SimulationCommand pattern for authoritative simulation
+    let command = SimulationCommand::MovePlayer { dx, dy };
+    simulation.evaluate_command_with_mercy(&command, None);
+
+    // Update internal player position for immediate feedback
+    simulation.player.position.x += dx;
+    simulation.player.position.y += dy;
 }
 
 fn reset_joystick_when_inactive(mut joystick: ResMut<VirtualJoystick>) {
