@@ -1,61 +1,71 @@
 /*!
-# Powrush Particle Shaders — PCIe Gen5 Bandwidth Investigation
+# Powrush Particle Shaders — PCIe Gen5 Signal Integrity Challenges
 
-Detailed investigation of PCIe Gen5 bandwidth specifications and implications.
+Exploration of the physical-layer difficulties introduced by PCIe Gen5.
 
-## PCIe Gen5 Key Specifications
+## Why Gen5 is Harder
 
-- **Signaling Rate**: 32 GT/s per lane
-- **Encoding**: 128b/130b (very low overhead ~1.5%)
-- **Effective Bandwidth per Lane** (one direction): ~3.938 GB/s
-- **x16 Link (most common for GPUs)**:
-  - Theoretical: **~64 GB/s bidirectional** (~32 GB/s each direction)
-  - Realistic achievable: Typically 50–58+ GB/s bidirectional depending on platform and implementation
+PCIe Gen5 runs at 32 GT/s — double the signaling rate of Gen4. At these frequencies, several physical effects that were manageable at lower speeds become severe.
 
-## Generational Comparison
+## Major Signal Integrity Challenges
 
-| Generation     | x16 Theoretical Bidirectional | Realistic (approx.) | Notes                              |
-|----------------|-------------------------------|---------------------|------------------------------------|
-| PCIe Gen3      | ~16 GB/s                      | ~14 GB/s            | Older baseline                     |
-| PCIe Gen4      | ~32 GB/s                      | ~25-28 GB/s         | Common on current systems          |
-| PCIe Gen5      | ~64 GB/s                      | ~50-58+ GB/s        | Current high-end standard          |
+### 1. Insertion Loss
+- High-frequency signals attenuate significantly traveling through PCB traces, vias, connectors, and cables.
+- Gen5 channels suffer much higher loss than Gen4, reducing eye opening at the receiver.
 
-## Comparison to NVLink
+### 2. Return Loss and Reflections
+- Impedance mismatches cause reflections that distort the received signal.
+- Requires tighter control over PCB stackup, via design, and connector quality.
 
-- PCIe Gen5 x16: ~64 GB/s theoretical
-- NVLink 4.0: 900 GB/s bidirectional
-- NVLink offers roughly **14x** the theoretical bandwidth of PCIe Gen5, with significantly lower latency.
+### 3. Crosstalk (NEXT/FEXT)
+- Adjacent lanes interfere with each other more strongly at higher frequencies.
+- Demands better routing practices and shielding.
 
-This massive difference is why high-end multi-GPU systems feel dramatically faster for large data movement.
+### 4. Jitter
+- Both random jitter (RJ) and deterministic jitter (DJ) become harder to manage.
+- Total jitter budget is significantly tighter at 32 GT/s.
+
+### 5. Limited Channel Reach
+- Maximum reliable trace length is shorter than Gen4.
+- Many legacy designs require retimers, better PCB materials (low-loss laminates), or shorter paths to achieve reliable Gen5 operation.
+
+### 6. Equalization Complexity
+- Gen5 requires more sophisticated transmitter and receiver equalization (CTLE + multi-tap DFE + FFE).
+- Increases design complexity, power consumption, and silicon area.
+
+### 7. Power and Thermal Impact
+- Higher speeds and more complex equalization increase power draw and heat.
+
+### 8. Manufacturing Tolerances
+- Smaller margins mean tighter control over fabrication, materials, and assembly is required.
+- Small variations can push a link out of spec.
+
+## Practical Impact on GPU Systems
+
+- Many consumer and even some server motherboards struggle to achieve full Gen5 speeds reliably without high-quality components or retimers.
+- Real-world bandwidth is often 50-58 GB/s instead of the full 64 GB/s theoretical.
+- High-end GPUs and motherboards marketed as "Gen5 ready" still require careful platform design.
+- Riser cables and extenders become particularly problematic at Gen5 speeds.
 
 ## Relevance to Powrush
 
-Most current and near-future Powrush development and deployment will be on PCIe Gen4 or Gen5 systems. This is the baseline interconnect for:
-- Explicit memory copies (`cudaMemcpyAsync`)
-- Unified Memory page migration
-- CPU-side data preparation and result readback
+Most Powrush development targets typical PCIe systems. Understanding these signal integrity challenges helps explain:
+- Why achieving full theoretical Gen5 bandwidth is non-trivial.
+- Why some high-end builds still fall back to Gen4 behavior.
+- Why careful hardware selection (motherboard, riser quality) matters for maximum performance.
 
-Understanding PCIe Gen5 limits helps explain:
-- Why large particle dataset updates from CPU can become a bottleneck
-- Why `cudaMemPrefetchAsync` on Unified Memory still has noticeable cost on typical hardware
-- Why high-end NVLink systems offer such a large advantage for massive data movement
-
-## Practical Implications
-
-- On PCIe Gen5 systems, explicit async memory copies remain the most efficient way to move large amounts of particle data.
-- Unified Memory migration will still feel the interconnect bottleneck compared to NVLink systems.
-- For most workloads, PCIe Gen5 provides good headroom, but very large or frequent CPU-GPU transfers can still benefit from optimization (batching, compression, asynchronous overlap).
+For most workloads, the difference between good Gen4 and good Gen5 is noticeable but not dramatic. However, pushing the limits of PCIe bandwidth makes signal integrity a first-order concern.
 */
 
 use powrush_faction_dynamics::{Faction, FactionVisualIdentity, ParticleParams};
 
 pub mod compute {
-    /// Notes on PCIe Gen5 bandwidth.
-    pub const PCIE_GEN5_NOTES: &str = r#"
-        // PCIe Gen5 x16: ~64 GB/s theoretical, ~50-58 GB/s realistic
-        // Still the baseline for most systems
-        // Much lower than NVLink (900 GB/s)
-        // Explicit async copies remain best for hot paths
-        // Unified Memory migration feels the PCIe limit
+    /// Notes on PCIe Gen5 signal integrity.
+    pub const PCIE_GEN5_SI_NOTES: &str = r#"
+        // Gen5 at 32 GT/s brings serious signal integrity challenges.
+        // Insertion loss, crosstalk, jitter, and limited reach are major issues.
+        // Real-world systems often fall short of theoretical 64 GB/s.
+        // High-quality platforms and careful design are required.
+        // Relevant when pushing maximum PCIe bandwidth.
     "#;
 }
