@@ -1,7 +1,7 @@
 /*!
 # Culling Module
 
-Professional unification of the compute culling pipeline.
+Unified compute culling pipeline built around WaveLocal Reduction.
 */
 
 use crate::{ComputeCullingParams, DrawIndirect};
@@ -16,7 +16,6 @@ impl Default for CullingConfig {
     }
 }
 
-/// Main abstraction for a WaveLocal Reduction culling pass.
 pub struct CullingPass {
     pub params: ComputeCullingParams,
     pub config: CullingConfig,
@@ -31,7 +30,7 @@ impl CullingPass {
     }
 
     pub fn shader_source(&self) -> &'static str {
-        crate::compute::WAVE_LOCAL_REDUCTION_CULLING
+        crate::compute::culling::WAVE_LOCAL_REDUCTION_CULLING
     }
 
     pub fn dispatch_size(&self) -> u32 {
@@ -48,7 +47,6 @@ impl CullingPass {
         }
     }
 
-    /// Prepares a complete dispatch package.
     pub fn prepare(&self) -> CullingDispatchPackage {
         CullingDispatchPackage {
             shader: self.shader_source(),
@@ -58,14 +56,12 @@ impl CullingPass {
     }
 }
 
-/// Contains everything needed to record a culling dispatch.
 pub struct CullingDispatchPackage {
     pub shader: &'static str,
     pub dispatch_size: u32,
     pub indirect: DrawIndirect,
 }
 
-/// Helper for managing culling-related resources.
 pub struct CullingResources {
     pub indirect: DrawIndirect,
 }
