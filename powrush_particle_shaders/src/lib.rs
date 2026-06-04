@@ -1,60 +1,53 @@
 /*!
-# Powrush Particle Shaders — Cooperative Matrix Scope Parameters
+# Powrush Particle Shaders — Cooperative Matrix Synchronization Primitives
 
-Exploration of scope parameters in cooperative matrix operations.
+Exploration of synchronization requirements when using cooperative matrices.
 
-## What is Scope in Cooperative Matrices?
+## Why Synchronization Matters
 
-Every cooperative matrix operation is associated with a **Scope** that defines which group of threads cooperates to perform the operation.
+Cooperative matrix operations involve multiple threads working together on matrix fragments.
+Proper memory ordering and visibility are required to ensure correct results, especially when:
+- Loading data into cooperative matrices
+- Performing multiply-accumulate
+- Storing results back to memory
 
-The scope determines:
-- How many threads participate
-- Synchronization requirements
-- Which hardware execution units are used
-- Performance characteristics
+## Synchronization in Cooperative Matrices
 
-## Available Scopes (from SPV_KHR_cooperative_matrix / VK_KHR_cooperative_matrix)
+### Subgroup Scope (Recommended)
 
-- **VK_SCOPE_SUBGROUP_KHR** (most common)
-  - Threads within the same subgroup/wave cooperate.
-  - Best performance and broadest hardware support.
-  - Maps directly to wave-level execution.
+When using `VK_SCOPE_SUBGROUP_KHR`:
+- Many operations have relatively relaxed synchronization requirements because execution within a wave is often implicitly ordered.
+- Memory Operands on `OpCooperativeMatrixLoadKHR` / `StoreKHR` still control visibility (`MakePointerAvailable`, `MakePointerVisible`, `NonPrivatePointer`, etc.).
+- Explicit subgroup barriers are usually not required for correctness within the wave.
 
-- **VK_SCOPE_WORKGROUP_KHR**
-  - Threads within the same workgroup cooperate.
-  - Larger scope, more synchronization overhead.
-  - Useful for larger matrices that don't fit in a single wave.
+### Workgroup Scope
 
-- **VK_SCOPE_QUEUE_FAMILY_KHR**
-  - Even larger scope across queue family.
-  - Rarely used for typical workloads.
+When using `VK_SCOPE_WORKGROUP_KHR`:
+- Stronger synchronization is typically required.
+- `OpControlBarrier` with appropriate memory semantics is often needed between cooperative matrix operations.
+- Higher risk of data races if synchronization is insufficient.
 
-- **VK_SCOPE_DEVICE_KHR**
-  - Device-wide scope.
-  - Very rare; high synchronization cost.
+## Best Practices
 
-## Why Scope Matters for Powrush
+- Prefer **Subgroup scope** for most workloads (lower synchronization cost, better performance).
+- Use appropriate **Memory Operands** on load/store instructions even at subgroup scope.
+- When using Workgroup scope, insert proper barriers between phases (load → compute → store).
+- Test thoroughly, as insufficient synchronization can lead to subtle correctness bugs.
 
-For particle culling, visibility, and future neural/procedural effects, `VK_SCOPE_SUBGROUP_KHR` will almost always be the best choice because:
-- It aligns with our existing wave-local reduction and ballot/shuffle work.
-- It has the lowest overhead.
-- It has the widest hardware support.
+## Relevance to Powrush
 
-Larger scopes may be useful for very large matrix operations that exceed subgroup size.
+For our particle culling, visibility buffer, and future advanced compute workloads, sticking to **Subgroup-scoped** cooperative matrices will minimize synchronization complexity while still providing excellent performance.
 */
 
 use powrush_faction_dynamics::{Faction, FactionVisualIdentity, ParticleParams};
 
 pub mod compute {
-    /// Notes on cooperative matrix scopes.
-    pub const COOPERATIVE_MATRIX_SCOPE_NOTES: &str = r#"
-        // Recommended scope for most use cases: Subgroup
+    /// Notes on cooperative matrix synchronization.
+    pub const COOPERATIVE_MATRIX_SYNC_NOTES: &str = r#"
+        // Subgroup scope: lighter synchronization
+        // Workgroup scope: requires explicit barriers (OpControlBarrier)
         //
-        // In SPIR-V: Scope Subgroup
-        // In Vulkan: VK_SCOPE_SUBGROUP_KHR
-        //
-        // Larger scopes (Workgroup, Device) are possible but
-        // come with higher synchronization cost and are
-        // rarely needed for particle system workloads.
+        // Always use correct Memory Operands on cooperative matrix
+        // load and store operations.
     "#;
 }
