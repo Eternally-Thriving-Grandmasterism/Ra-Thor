@@ -1,14 +1,14 @@
 /*!
 # Culling Module
 
-Unified compute culling pipeline built around WaveLocal Reduction.
+Unified compute culling system centered around WaveLocal Reduction.
 
-This module is being unified for clarity, maintainability, and performance.
+Goal: Clean, maintainable, and efficient culling pipeline.
 */
 
 use crate::{ComputeCullingParams, DrawIndirect};
 
-/// Configuration for a culling pass.
+/// Configuration options for culling.
 pub struct CullingConfig {
     pub workgroup_size: u32,
 }
@@ -19,7 +19,7 @@ impl Default for CullingConfig {
     }
 }
 
-/// High-level abstraction for a WaveLocal Reduction culling pass.
+/// High-level representation of a culling pass.
 pub struct CullingPass {
     pub params: ComputeCullingParams,
     pub config: CullingConfig,
@@ -33,21 +33,18 @@ impl CullingPass {
         }
     }
 
-    /// Returns the recommended WaveLocal Reduction shader source.
     pub fn shader_source(&self) -> &'static str {
         crate::compute::WAVE_LOCAL_REDUCTION_CULLING
     }
 
-    /// Calculates dispatch size (number of workgroups).
     pub fn dispatch_size(&self) -> u32 {
         (self.params.total_particles + self.config.workgroup_size - 1)
             / self.config.workgroup_size
     }
 
-    /// Creates a default DrawIndirect buffer for this pass.
     pub fn create_indirect_buffer(&self) -> DrawIndirect {
         DrawIndirect {
-            vertex_count: 6, // Placeholder for triangle rendering
+            vertex_count: 6,
             instance_count: 0,
             first_vertex: 0,
             first_instance: 0,
@@ -55,14 +52,14 @@ impl CullingPass {
     }
 }
 
-/// Helper for preparing culling-related GPU buffers.
+/// Container for buffers used during culling.
 ///
-/// This struct helps centralize buffer-related logic for better separation of concerns.
-pub struct CullingBuffers {
+/// This helps separate resource management from culling logic.
+pub struct CullingResources {
     pub indirect: DrawIndirect,
 }
 
-impl CullingBuffers {
+impl CullingResources {
     pub fn new(pass: &CullingPass) -> Self {
         Self {
             indirect: pass.create_indirect_buffer(),

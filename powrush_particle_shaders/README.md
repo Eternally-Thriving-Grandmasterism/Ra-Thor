@@ -1,16 +1,16 @@
 # Powrush Particle Shaders
 
-## Culling Architecture (Phase 1 Consolidation)
+## Culling Architecture Update (Phase 1)
 
-We are actively unifying the culling system around **WaveLocal Reduction**.
+We are unifying the culling pipeline.
 
 ### Current Components
 
-- `CullingPass`: Main abstraction for configuring and running a culling pass.
-- `CullingBuffers`: Helper for preparing related GPU buffers.
-- `compute::WAVE_LOCAL_REDUCTION_CULLING`: The core shader.
+- `CullingPass`: Configuration and logic
+- `CullingResources`: Buffer preparation helper
+- WaveLocal Reduction shader (primary technique)
 
-The goal is a clean, maintainable, and efficient culling pipeline.
+Progress is steady toward a clean, professional culling system.
 
 ---
-*Part of Ra-Thor Phase 1 Consolidation*
+*Phase 1 Consolidation*
