@@ -1,97 +1,97 @@
-//! Consensus Integration with Cross-Shard Messaging + Automation
+//! Consensus Fault Tolerance for Powrush Shard Consensus
 //!
-//! Production-grade wiring of the Shard Consensus Protocol into the cross-shard
-//! communication layer, plus automatic proposal generation and consensus-driven
-//! trust adjustments.
+//! Adds robustness against crashed, slow, or malicious shards.
+//! Uses trust-weighted quorums and proposal expiration rather than full BFT
+//! (appropriate for a mercy-aligned, thriving-focused simulation).
 
 use bevy::prelude::*;
+use std::collections::HashMap;
 
-use crate::simulation_orchestrator::{CrossShardMessage, ShardConsensus, ConsensusTopic, ConsensusProposal, ConsensusVote};
-use crate::simulation_orchestrator::ShardTrustTracker;
+use crate::simulation_orchestrator::ShardConsensus;
 
-/// Extend CrossShardMessage to support consensus (in real code we modify the enum)
-// For this implementation we handle it via pattern matching in the processor.
-
-/// Process incoming consensus-related cross-shard messages
-pub fn process_consensus_messages(
-    mut consensus: ResMut<ShardConsensus>,
-    mut communicator: ResMut<crate::simulation_orchestrator::CrossShardCommunicator>,
-    tracker: Res<ShardTrustTracker>,
-) {
-    // Simulate receiving consensus messages from the communicator
-    // In production this would deserialize CrossShardMessage variants
-
-    // Example: Process any pending consensus messages from the queue
-    // (This is a simplified version for the current architecture)
-
-    // For demonstration, we assume messages are already converted to
-    // ConsensusProposal / ConsensusVote structs elsewhere.
+/// Configuration for fault-tolerant consensus
+#[derive(Resource)]
+pub struct ConsensusFaultToleranceConfig {
+    pub proposal_timeout_seconds: u64,
+    pub minimum_participation_weight: f32, // e.g. 0.6 = 60% of known trust must vote
+    pub max_proposals_per_shard: u32,
 }
 
-/// Automatic proposal creation for major events
-pub fn automatic_consensus_proposals(
-    mut consensus: ResMut<ShardConsensus>,
-    mut communicator: ResMut<crate::simulation_orchestrator::CrossShardCommunicator>,
-    // These would normally come from real queries
-    current_council_influence: f32,
-    healing_coherence: f32,
-) {
-    // Example 1: Propose adjustment if council influence drops too low
-    if current_council_influence < 0.4 {
-        let id = consensus.create_proposal(
-            ConsensusTopic::AdjustGlobalCouncilInfluence,
-            0, // proposer shard
-            "Council influence critically low. Propose increase.".to_string(),
-            0.65,
-        );
-        println!("[Consensus] Auto-created proposal {} for council influence", id);
-    }
-
-    // Example 2: Propose healing field parameter update if coherence is low
-    if healing_coherence < 0.6 {
-        let id = consensus.create_proposal(
-            ConsensusTopic::UpdateHealingFieldParameters,
-            0,
-            "Healing field coherence degraded. Request parameter adjustment.".to_string(),
-            0.92,
-        );
-        println!("[Consensus] Auto-created proposal {} for healing parameters", id);
-    }
-}
-
-/// Apply consensus-driven trust adjustments when a ShardTrustAdjustment proposal passes
-pub fn apply_consensus_trust_adjustments(
-    mut consensus: ResMut<ShardConsensus>,
-    mut tracker: ResMut<ShardTrustTracker>,
-) {
-    let mut proposals_to_remove = vec![];
-
-    for (id, proposal) in consensus.active_proposals.iter() {
-        if proposal.topic == ConsensusTopic::ShardTrustAdjustment {
-            if consensus.is_consensus_reached(*id, 1.5) { // weighted threshold
-                // Apply the trust change
-                let target_shard = proposal.proposed_value as u64; // simplistic encoding
-                // In real implementation we would decode the adjustment properly
-
-                // Example: Boost trust of a shard that helped significantly
-                tracker.record_successful_interaction(target_shard, crate::simulation_orchestrator::ShardTrust::High);
-
-                println!("[Consensus] Applied trust adjustment from proposal {}", id);
-                proposals_to_remove.push(*id);
-            }
+impl Default for ConsensusFaultToleranceConfig {
+    fn default() -> Self {
+        Self {
+            proposal_timeout_seconds: 300, // 5 minutes
+            minimum_participation_weight: 0.6,
+            max_proposals_per_shard: 3,
         }
     }
+}
 
-    for id in proposals_to_remove {
-        consensus.active_proposals.remove(&id);
-        consensus.votes.remove(&id);
+impl ShardConsensus {
+    /// Check if a proposal has expired
+    pub fn is_proposal_expired(&self, proposal_id: u64, current_time: u64, timeout: u64) -> bool {
+        if let Some(proposal) = self.active_proposals.get(&proposal_id) {
+            return current_time > proposal.timestamp + timeout;
+        }
+        true
+    }
+
+    /// Calculate total trust weight of all known shards (simplified)
+    pub fn estimate_total_trust_weight(&self) -> f32 {
+        // In a real system this would come from ShardTrustTracker
+        // For now we use a placeholder
+        10.0
+    }
+
+    /// Check if enough weighted votes have been cast (crash fault tolerance)
+    pub fn has_sufficient_participation(&self, proposal_id: u64) -> bool {
+        let (approve, reject) = self.tally_votes(proposal_id);
+        let total_voted = approve + reject;
+        let estimated_total = self.estimate_total_trust_weight();
+
+        total_voted >= estimated_total * 0.6 // 60% participation threshold
+    }
+
+    /// Enhanced consensus check with fault tolerance
+    pub fn is_consensus_reached_fault_tolerant(&self, proposal_id: u64, timeout: u64, current_time: u64) -> bool {
+        if self.is_proposal_expired(proposal_id, current_time, timeout) {
+            return false;
+        }
+
+        if !self.has_sufficient_participation(proposal_id) {
+            return false;
+        }
+
+        let (approve, reject) = self.tally_votes(proposal_id);
+        approve > reject && approve > 1.2 // weighted threshold
+    }
+
+    /// Clean up expired proposals
+    pub fn cleanup_expired_proposals(&mut self, current_time: u64, timeout: u64) {
+        let mut to_remove = vec![];
+
+        for (id, proposal) in self.active_proposals.iter() {
+            if current_time > proposal.timestamp + timeout {
+                to_remove.push(*id);
+            }
+        }
+
+        for id in to_remove {
+            self.active_proposals.remove(&id);
+            self.votes.remove(&id);
+        }
     }
 }
 
-// Register new systems in the plugin
-// (In PowrushSimulationOrchestratorPlugin::build)
-// app.add_systems(Update, (
-//     process_consensus_messages,
-//     automatic_consensus_proposals,
-//     apply_consensus_trust_adjustments,
-// ).chain());
+/// System that maintains consensus fault tolerance (timeouts + cleanup)
+pub fn consensus_fault_tolerance_maintenance(
+    mut consensus: ResMut<ShardConsensus>,
+    config: Res<crate::simulation_orchestrator::ConsensusFaultToleranceConfig>,
+) {
+    let current_time = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .unwrap_or_default()
+        .as_secs();
+
+    consensus.cleanup_expired_proposals(current_time, config.proposal_timeout_seconds);
+}
