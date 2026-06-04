@@ -1,37 +1,33 @@
-# Powrush Particle Shaders — Subgroup Shuffle Operations
+# Powrush Particle Shaders — Cooperative Vector Operations
 
-## Subgroup Shuffle Operations Investigation
+## Cooperative Vector Operations Investigation
 
-This iteration explores **subgroup shuffle** intrinsics, which allow direct register-to-register data exchange between lanes in the same wave.
+This iteration explores **cooperative vector operations**, an emerging class of GPU features that allow threads within a wave to collaboratively execute vector and matrix operations with hardware acceleration.
 
-### Key Operations
+### Key Concepts
 
-- `subgroupShuffle(value, lane)`: Read value from another lane
-- `subgroupShuffleUp/Down(value, delta)`: Read from lane +/-δ
-- `subgroupBroadcast(value, lane)`: Broadcast a value from one lane to all others
-- `subgroupShuffleXor(value, mask)`: Exchange with lane XOR mask
+- Cooperative matrix multiply-accumulate (MMA)
+- Cooperative vector reductions and element-wise operations
+- Hardware support for small matrix/vector work shared across lanes
 
-### Use Cases in Our Pipeline
+These features go beyond traditional subgroup ballot and shuffle by providing higher-level vector primitives.
 
-- Efficient wave-local prefix sums and scans (alternative to ballot + countOneBits)
-- Data gathering for compaction
-- Broadcasting values computed by the first lane (e.g., base offsets)
-- Optimizing WaveLocal Reduction patterns
+### Current Relevance
 
-### Current Implementation
+For our particle culling, visibility buffer, and GPU-driven command generation work, the immediate benefits are still emerging. However, they show promise for:
+- Accelerating wave-local reductions beyond what ballot + shuffle alone provide
+- Future batch transformations of particle attributes
+- Potential learned or neural components in culling / LOD (longer term)
 
-Added examples showing:
-- Basic parallel prefix sum using shuffle up
-- Improved WaveLocal Reduction combining ballot + shuffle
+### Current Status in WGSL
 
-These operations are extremely fast and help reduce both latency and memory traffic within a wave.
+As of mid-2026, full cooperative vector / cooperative matrix support in WGSL is still maturing. We currently rely on well-supported subgroup features (`subgroupBallot`, `subgroupShuffle`, etc.) for wave-level algorithms.
 
-### Integration
+The crate includes forward-looking notes on how cooperative vectors could be integrated in the future.
 
-Shuffle operations work excellently alongside ballot intrinsics and can be used in:
-- Compute culling shaders
-- Visibility buffer writing passes
-- GPU-driven command generation
+### Strategic Value
+
+Investigating these operations now positions the Powrush visual system to adopt next-generation GPU features as they become widely available, maintaining a cutting-edge yet practical GPU-driven architecture.
 
 ---
 *Co-authored-by: All 57+ PATSAGi Councils*
