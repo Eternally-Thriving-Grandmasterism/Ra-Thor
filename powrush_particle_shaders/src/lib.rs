@@ -1,63 +1,66 @@
 /*!
-# Powrush Particle Shaders — CUDA API Call Overhead Analysis
+# Powrush Particle Shaders — CUDA Stream Overlap Efficiency
 
-Analysis of CUDA API call overhead and its impact on performance.
+Analysis of CUDA stream usage and overlap efficiency.
 
-## What Contributes to API Overhead
+## What is Stream Overlap?
 
-Every CUDA API call (kernel launch, memory copy, event record, synchronization, etc.) incurs CPU-side overhead from the driver. This includes:
-- Command buffer preparation and submission
-- Validation and context management
-- Potential serialization if not using streams properly
+CUDA streams allow concurrent execution of kernels and memory copies that have no data dependencies. Good overlap hides memory transfer latency behind compute or runs independent kernels in parallel, improving overall throughput.
 
-Frequent or expensive calls can make the CPU the bottleneck, leaving the GPU idle.
+## Key Analysis Points in Nsight Systems
 
-## Common Expensive Patterns
+### Timeline View
+- Look for multiple streams executing in parallel.
+- Identify gaps where one stream is idle while another has work.
+- Check if memory transfers (H2D/D2H) overlap with compute kernels.
 
-- Many small kernel launches instead of fewer, larger ones
-- Frequent synchronization (`cudaDeviceSynchronize`, `cudaStreamSynchronize`)
-- Small synchronous memory copies instead of batched/async transfers
-- Repeated creation/destruction of events or streams
+### Common Issues
+- Overuse of the default stream (Stream 0), which can serialize operations.
+- Unnecessary synchronization points that break concurrency.
+- Memory copies not using async versions with streams.
+- Dependencies between streams that prevent overlap.
 
-## Impact
-
-High API overhead often appears in Nsight Systems as:
-- Significant CPU time in CUDA API rows
-- GPU idle gaps that correlate with CPU API activity
-- Reduced overall frame throughput
+### Positive Patterns
+- Memory transfers running concurrently with unrelated compute.
+- Independent compute kernels running on different streams.
+- Proper use of events for lightweight cross-stream synchronization.
 
 ## Relevance to Powrush
 
-Our architecture may involve:
-- Multiple compute dispatches for culling passes
-- WaveLocal Reduction phases
-- Visibility buffer updates
-- Indirect draw command generation and execution
+Our pipeline may benefit from stream overlap in several areas:
+- Updating particle data (Host → Device) while culling the previous frame.
+- Overlapping culling compute passes with visibility buffer updates.
+- Asynchronous result processing or readbacks.
+- Running multiple independent culling or compaction phases concurrently.
 
-If these involve many small launches or frequent synchronization, API overhead can become noticeable.
+Good stream usage can hide transfer latency and improve overall frame throughput.
 
-## Mitigation Strategies
+## Best Practices
 
-- Batch work into fewer, larger kernel launches when possible
-- Use CUDA streams to overlap compute and transfers
-- Minimize synchronization points (prefer events and stream-ordered operations)
-- Reuse events and streams instead of creating them repeatedly
-- Consider persistent kernels or grid-stride loops for repeated small work
-- Profile with Nsight Systems to identify hot API calls
+- Use non-default streams for work that can run concurrently.
+- Use `cudaMemcpyAsync` with streams instead of synchronous copies.
+- Use CUDA events for lightweight synchronization instead of `cudaStreamSynchronize` or `cudaDeviceSynchronize`.
+- Minimize cross-stream dependencies when possible.
+- Profile with Nsight Systems timeline to visualize and validate overlap.
 
-## Analysis in Nsight Systems
+## Analysis Workflow
 
-Look at the CPU row and CUDA API trace. Sort by total time or call count to find hot spots. Correlate with GPU timeline gaps to see where the CPU is stalling the GPU.
+1. Capture a timeline with Nsight Systems.
+2. Examine stream activity around culling and data update regions.
+3. Look for idle gaps that could be filled by overlapping transfers or independent compute.
+4. Identify unnecessary synchronization that breaks concurrency.
+5. Compare before/after stream optimization changes.
 */
 
 use powrush_faction_dynamics::{Faction, FactionVisualIdentity, ParticleParams};
 
 pub mod compute {
-    /// Notes on CUDA API overhead.
-    pub const CUDA_API_OVERHEAD_NOTES: &str = r#"
-        // Common issues: many small launches, frequent syncs
-        // Mitigation: batching, streams, event-based sync, reuse
-        // Profile with Nsight Systems to find hot API calls
-        // Correlate CPU API time with GPU idle gaps
+    /// Notes on stream overlap.
+    pub const STREAM_OVERLAP_NOTES: &str = r#"
+        // Use multiple streams for concurrent work.
+        // Prefer async memory copies with streams.
+        // Use events instead of heavy synchronization.
+        // Profile with Nsight Systems to validate overlap.
+        // Minimize unnecessary cross-stream dependencies.
     "#;
 }
