@@ -1,34 +1,33 @@
-# Powrush Particle Shaders — Matrix Multiplication Instruction Sets
+# Powrush Particle Shaders — WGSL Cooperative Matrix Support
 
-## Matrix Multiplication Instruction Sets Exploration
+## WGSL Cooperative Matrix Support Investigation
 
-This iteration explores the **low-level matrix multiplication instruction sets** that power modern GPU matrix acceleration.
+This iteration investigates the current state of **cooperative matrix support in WGSL**.
 
-### Key Instruction Families
+### Current Status (mid-2026)
 
-**NVIDIA Tensor Cores**:
-- `mma.sync` instructions with various shapes and precisions
-- Excellent support for mixed-precision (f16, tf32, integers)
+Native cooperative matrix support in WGSL is still under active development by the WebGPU working group. While the underlying platform APIs (Vulkan `VK_KHR_cooperative_matrix`, DX12) have supported cooperative matrices for some time, the shading language layer is catching up.
 
-**AMD Matrix Cores**:
-- MFMA (Matrix Fused Multiply-Add) instructions
-- Flexible shapes and data types
+Full production-ready support with broad implementation availability is expected in the coming months to years, depending on browser and native implementation progress.
 
-**Intel DPAS**:
-- Systolic array-based dot product accumulate instructions
+### Expected Capabilities
 
-### Relationship to Cooperative Matrices
+When support arrives, WGSL will likely provide:
+- An enable directive for cooperative matrices
+- Specialized matrix types or attributes
+- Built-in functions for cooperative load, multiply-accumulate, and store
+- Tight integration with the subgroup execution model
 
-Cooperative matrix extensions provide a higher-level, more portable abstraction over these vendor-specific instructions. When WGSL adds cooperative matrix support, it will map down to the best available hardware instructions on each platform.
+### Strategic Implications for Powrush
 
-### Strategic Value
+Once WGSL cooperative matrix support is stable, it will unlock significant new capabilities for the particle system, including:
+- Small neural networks for intelligent culling and LOD
+- High-throughput batch transformations
+- Advanced procedural and learned visual effects
 
-Understanding these instruction sets helps us anticipate:
-- Performance characteristics of future cooperative matrix code
-- Precision and throughput trade-offs
-- How to best structure workloads when the feature becomes available
+Until then, the architecture continues to leverage mature subgroup features (ballot, shuffle, wave-local reduction) for high-performance GPU-driven rendering.
 
-This knowledge prepares the Powrush visual system for advanced compute techniques such as neural culling, intelligent LOD, and high-performance procedural effects.
+This investigation ensures we are prepared to adopt the feature rapidly when it becomes available.
 
 ---
 *Co-authored-by: All 57+ PATSAGi Councils*
