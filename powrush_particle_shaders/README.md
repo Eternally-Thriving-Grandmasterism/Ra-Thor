@@ -1,33 +1,36 @@
-# Powrush Particle Shaders — WaveLocal Reduction
+# Powrush Particle Shaders — Subgroup Shuffle Operations
 
-## WaveLocal Reduction Implementation
+## Subgroup Shuffle Operations Investigation
 
-This iteration implements **WaveLocal Reduction** using ballot intrinsics for efficient intra-wave aggregation and compaction.
+This iteration explores **subgroup shuffle** intrinsics, which allow direct register-to-register data exchange between lanes in the same wave.
 
-### Key Technique
+### Key Operations
 
-Instead of every visible thread performing an `atomicAdd` to reserve an output slot, we:
+- `subgroupShuffle(value, lane)`: Read value from another lane
+- `subgroupShuffleUp/Down(value, delta)`: Read from lane +/-δ
+- `subgroupBroadcast(value, lane)`: Broadcast a value from one lane to all others
+- `subgroupShuffleXor(value, mask)`: Exchange with lane XOR mask
 
-1. Use `subgroupBallot(visible)` to get a bitmask of active lanes.
-2. Use `countOneBits(ballot)` to compute how many particles are visible in the wave.
-3. Compute each lane's local rank using a parallel prefix sum within the wave.
-4. Only the first lane performs a single global atomic to reserve space for the entire wave.
-5. Broadcast the base offset to all lanes.
+### Use Cases in Our Pipeline
 
-This dramatically reduces atomic contention and improves scalability.
+- Efficient wave-local prefix sums and scans (alternative to ballot + countOneBits)
+- Data gathering for compaction
+- Broadcasting values computed by the first lane (e.g., base offsets)
+- Optimizing WaveLocal Reduction patterns
 
-### Benefits
-- Much lower pressure on global memory atomics.
-- Better performance when many particles become visible simultaneously.
-- Fully compatible with our existing compute culling, Hi-Z, and indirect draw pipeline.
+### Current Implementation
 
-### Implementation
+Added examples showing:
+- Basic parallel prefix sum using shuffle up
+- Improved WaveLocal Reduction combining ballot + shuffle
 
-Added a clean, well-commented WGSL example (`WAVE_LOCAL_REDUCTION_CULLING`) demonstrating the full pattern.
+These operations are extremely fast and help reduce both latency and memory traffic within a wave.
 
-This technique can be applied to:
-- Particle culling
-- Visibility buffer writing
+### Integration
+
+Shuffle operations work excellently alongside ballot intrinsics and can be used in:
+- Compute culling shaders
+- Visibility buffer writing passes
 - GPU-driven command generation
 
 ---
