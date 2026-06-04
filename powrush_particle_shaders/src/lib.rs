@@ -1,51 +1,52 @@
 /*!
-# Powrush Particle Shaders — Atomic Operations Investigation
+# Powrush Particle Shaders — Memory Fence Semantics
 
-Investigation of atomic operations in GPU compute shaders.
+Investigation of memory fence semantics in SPIR-V / Vulkan.
 
-## What are Atomic Operations?
+## What is a Memory Fence?
 
-Atomic operations allow multiple threads to safely perform read-modify-write operations on shared memory locations without data races. They are essential for counters, compaction, reductions, and synchronization.
+A memory fence (`OpMemoryBarrier`) is a standalone synchronization instruction that establishes ordering and visibility between memory operations without being attached to a specific load or store.
 
-## Common Atomic Operations (SPIR-V)
+It takes:
+- A **Scope** (Subgroup, Workgroup, Device, etc.)
+- **Memory Semantics** (Acquire, Release, AcquireRelease, etc.)
 
-- `OpAtomicIAdd` / `OpAtomicISub`
-- `OpAtomicAnd`, `OpAtomicOr`, `OpAtomicXor`
-- `OpAtomicSMin` / `OpAtomicUMin`, `OpAtomicSMax` / `OpAtomicUMax`
-- `OpAtomicExchange`, `OpAtomicCompareExchange`
-- `OpAtomicLoad`, `OpAtomicStore`
+## Key Fence Semantics
 
-## Key Parameters
+- **Acquire Fence**: Ensures that all subsequent memory operations see writes from other threads that happened-before a releasing operation.
+- **Release Fence**: Ensures that all prior memory operations are made visible to other threads that will later perform acquire operations.
+- **AcquireRelease Fence**: Combines both Acquire and Release semantics.
 
-- **Scope**: Subgroup, Workgroup, Device, QueueFamily, etc.
-- **Memory Semantics**: Acquire, Release, AcquireRelease, etc.
-- **Storage Class**: Workgroup, StorageBuffer, Uniform, etc.
+## Fences vs Memory Operands on Instructions
 
-## Relevance to Powrush Particle System
+- Memory Operands on individual loads/stores (e.g., on `OpCooperativeMatrixLoadKHR`) provide localized ordering.
+- Standalone fences (`OpMemoryBarrier`) provide broader ordering guarantees across multiple memory operations.
 
-We currently use atomics extensively in compute culling to reserve output slots for visible particles (e.g., `atomicAdd` on `instance_count` in `DrawIndirect`).
+Fences are useful when you need to establish ordering between groups of operations rather than single instructions.
 
-**Limitation of Pure Atomic Approach**:
-- High contention when many threads become visible simultaneously.
-- Can become a performance bottleneck at very large particle counts.
+## Relevance to Cooperative Matrices and Powrush
 
-**Our Optimization**:
-- WaveLocal Reduction (using ballot + shuffle) significantly reduces the number of global atomics by counting and ranking within the wave first, then performing only one atomic per wave.
+When performing sequences of cooperative matrix load → compute → store mixed with other memory accesses, fences can be used to establish clear ordering points.
 
-This hybrid approach (wave-local work + minimal atomics) gives us the best of both worlds: correctness with high performance.
+**Subgroup Scope**:
+- Fences are often lighter or can be avoided due to wave ordering.
+- Memory Operands on the cooperative matrix instructions are frequently sufficient.
+
+**Workgroup Scope**:
+- Explicit AcquireRelease fences (via `OpMemoryBarrier` or `OpControlBarrier`) are more commonly needed between phases.
+
+Our preference for Subgroup-scoped designs keeps fence usage minimal.
 */
 
 use powrush_faction_dynamics::{Faction, FactionVisualIdentity, ParticleParams};
 
 pub mod compute {
-    /// Notes on atomic operations.
-    pub const ATOMIC_OPERATIONS_NOTES: &str = r#"
-        // Prefer wave-local techniques (ballot, shuffle, wave-local reduction)
-        // to minimize global atomic contention.
+    /// Notes on memory fence semantics.
+    pub const MEMORY_FENCE_NOTES: &str = r#"
+        // Acquire fence: orders subsequent loads
+        // Release fence: orders prior stores
+        // AcquireRelease fence: both directions
         //
-        // Use atomics primarily for cross-wave coordination
-        // (e.g., reserving space in output buffers).
-        //
-        // Always choose appropriate Scope and Memory Semantics.
+        // Prefer Subgroup scope to minimize fence requirements.
     "#;
 }
