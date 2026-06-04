@@ -7,7 +7,9 @@ pub mod clifford_healing_fields;
 pub mod npc;           // v15 Hybrid NPC AI System
 pub mod simulation;    // High-level world simulation / game loop wiring (now v16 PowrushMMO)
 pub mod economy;       // RBE Economy + Crafting System (v15.6+)
-pub mod powrush_mmo_core; // Production-grade MMO Core: chunked world, authoritative ticks, advanced RBE simulator, epigenetic + geometric feedback (PATSAGi Priority #4 expansion)
+pub mod powrush_mmo_core; // Production-grade MMO Core
+pub mod device_capability; // Cross-device capability detection (Option 1 foundation)
+pub mod experience_tier;   // Adaptive experience tiers: MobileTown vs DesktopFull
 
 // Re-exports for convenience
 pub use clifford_healing_fields::{
@@ -35,14 +37,13 @@ pub use npc::{
 
 pub use simulation::{
     WorldSimulation,
-    PowrushMMOWorld,      // Authoritative MMO world entrypoint (type alias)
-    WorldChunk,           // Chunk persistence + resource regen
-    SessionSyncStub,      // Networking/session sync stub
+    PowrushMMOWorld,
+    WorldChunk,
+    SessionSyncStub,
 };
 
 pub use economy::{RbeEconomy, CraftingRecipe, get_default_recipes};
 
-// Powrush MMO Core re-exports
 pub use powrush_mmo_core::{
     PowrushMMOWorld,
     WorldChunk,
@@ -51,3 +52,6 @@ pub use powrush_mmo_core::{
     RBEEconomySimulator,
     EntitySnapshot,
 };
+
+pub use device_capability::{DeviceCapability, Platform, InputMethod, DeviceCapabilityPlugin};
+pub use experience_tier::{ExperienceTier, ExperienceTierPlugin};
