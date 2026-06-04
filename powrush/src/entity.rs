@@ -19,6 +19,8 @@
 use std::collections::HashMap;
 use std::time::{SystemTime, UNIX_EPOCH};
 
+use bevy::prelude::Component;
+
 use crate::clifford_healing_fields::CliffordHealingField;
 use crate::resources::server_unlock_state::ServerUnlockState;
 
@@ -31,7 +33,8 @@ pub enum EntityType {
 }
 
 /// Core sovereign entity participating in Powrush RBE + Ra-Thor lattice.
-#[derive(Debug, Clone)]
+/// Now a proper Bevy Component so it can be queried with ECS Query syntax.
+#[derive(Debug, Clone, Component)]
 pub struct SovereignEntity {
     pub id: u64,
     pub entity_type: EntityType,

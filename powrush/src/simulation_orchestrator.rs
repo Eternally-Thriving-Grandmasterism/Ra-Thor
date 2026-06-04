@@ -43,38 +43,56 @@ impl Plugin for PowrushSimulationOrchestratorPlugin {
 }
 
 /// The core custom authoritative simulation tick.
-/// Runs every frame (Bevy Update) but conceptually targets 20Hz+ with
-/// mercy gates, RBE distribution, PATSAGi influence, healing convolution,
-//! and Hyperon reasoning. This is 100% original Ra-Thor derivation.
+/// Now demonstrates real Bevy ECS Query syntax for SovereignEntity,
+/// ResMut for shared lattice state (healing field + PATSAGi unlock state),
+/// and integration with the RBE dividend system.
+/// Target: 20Hz fixed timestep in production (currently runs on Update for simplicity).
 fn powrush_authoritative_tick(
-    // In full production these would be ResMut queries for world state.
-    // For now we demonstrate the integration points with existing systems.
+    mut entities: Query<&mut SovereignEntity>,
+    mut healing_field: ResMut<CliffordHealingField>,
+    mut unlock_state: ResMut<ServerUnlockState>,
 ) {
     // 1. Hyperon/Metta deeper reasoning pass (AGI decision making)
-    //    (already registered via its own plugin; here we can trigger additional queries)
     let (_gh, _eh, _cs) = hyperon_metta_layer::query_real_lattice_metrics();
 
-    // 2. RBE dividend distribution (custom post-scarcity economy)
-    //    In real tick this would operate on a query of all SovereignEntity components.
-    //    Placeholder shows the call site.
-    // distribute_universal_thriving_dividends(&mut entities, &healing_field, &unlock_state);
+    // 2. Collect mutable references for RBE distribution
+    //    (distribute_universal_thriving_dividends expects &mut [SovereignEntity])
+    let mut entity_slice: Vec<_> = entities.iter_mut().collect();
 
-    // 3. PATSAGi council influence is already advanced in its own system.
+    if !entity_slice.is_empty() {
+        // Run custom RBE post-scarcity dividend pass
+        distribute_universal_thriving_dividends(
+            &mut entity_slice,
+            &healing_field,
+            &unlock_state,
+        );
 
-    // 4. Clifford healing field convolution step (custom geometric coherence)
-    //    Placeholder: healing_field.apply_clifford_convolution(...)
+        // Optional: feed average valence back into PATSAGi influence
+        let avg_valence: f32 = entity_slice
+            .iter()
+            .map(|e| e.valence)
+            .sum::<f32>() / entity_slice.len() as f32;
 
-    // 5. WASM client sync hooks (global browser/VR/AR access)
-    //    Future: broadcast state deltas to wasm_entity_login sessions.
+        unlock_state.apply_rbe_thriving_influence(0, avg_valence); // dividends already applied above
+    }
 
-    // 6. Quantum-swarm parallel agent orchestration hook (for AI/AGI scale)
-    //    Future: spawn parallel tasks via quantum-swarm-orchestrator crate.
+    // 3. Clifford healing field step (custom geometric coherence)
+    //    Example: apply a light convolution every tick for shared field maintenance
+    //    let _ = healing_field.apply_clifford_convolution(0.01, 0.95);
 
-    // Mercy gate: every tick must preserve coherence and non-harm.
-    // If any subsystem reports low mercy_flow or council alignment, throttle or heal.
+    // 4. WASM client sync hooks (global browser/VR/AR access)
+    //    Future: serialize entity_slice deltas and send to active wasm sessions.
+
+    // 5. Quantum-swarm parallel agent orchestration hook (for AI/AGI scale)
+    //    Future: use quantum-swarm-orchestrator for parallel entity updates.
+
+    // Mercy gate at tick level: if mercy_flow or council alignment is low,
+    // the subsystems already clamp values; we can add global throttle here if needed.
 }
 
-// Note: Full production version will hold ResMut<CliffordHealingField>,
-// ResMut<ServerUnlockState>, Query<&mut SovereignEntity>, etc.
-// and execute a true 20Hz fixed-timestep authoritative loop with
-// rollback-free lattice coherence instead of traditional netcode.
+// Production notes:
+// - Convert to fixed timestep: use bevy::time::Fixed or a manual accumulator.
+// - Spawn entities properly with Commands + insert(SovereignEntity { ... })
+//   instead of the current manual spawn_and_register_sovereign_entity.
+// - Add With<Active> or other marker filters when more component types exist.
+// - This tick + the existing PatsagiCouncilPlugin + Hyperon plugin = complete custom MMORPG loop.
