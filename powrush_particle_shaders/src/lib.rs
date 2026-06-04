@@ -1,59 +1,64 @@
 /*!
-# Powrush Particle Shaders — Warp Divergence Performance Impact
+# Powrush Particle Shaders — Warp Coalescing Optimization
 
-Detailed analysis of the performance costs of warp divergence.
+Exploration of warp memory coalescing and optimization strategies.
 
-## Performance Costs of Divergence
+## What is Warp Coalescing?
 
-When a warp diverges:
+On GPUs, a warp (32 threads) achieves maximum memory efficiency when its memory accesses are **coalesced** — meaning threads access consecutive addresses that fall within the same cache line (typically 128 bytes on NVIDIA). The hardware can then combine these into fewer, larger memory transactions.
 
-1. **Reduced Throughput**: The warp executes both sides of the branch serially. In the worst case (50/50 split), throughput for that section can drop by ~50%.
-2. **Increased Latency**: Divergent sections take longer because both paths must run.
-3. **Wasted Resources**: Threads on the inactive path still occupy scheduler slots but perform no useful work.
-4. **Compounded Effects**: Divergence often pairs with uncoalesced memory accesses, further hurting performance.
-5. **Latency Hiding Degradation**: Warps spend more time on divergent branches, reducing the ability to hide memory latency with other work.
+Poor coalescing leads to many small transactions, wasting bandwidth and increasing latency.
 
-## Quantitative Intuition
+## Why It Matters
 
-- Uniform warp: Full throughput (32 threads doing useful work per cycle in the active path).
-- Divergent warp (50/50): Effectively ~16 threads of useful work per cycle during the divergent section.
-- In hot loops with high divergence, this can lead to 1.5x–2x or more slowdown in affected code.
+Memory-bound kernels (common in particle culling, visibility buffer updates, and data compaction) are highly sensitive to coalescing. Good coalescing can provide 2x–4x or more effective bandwidth improvement.
 
-## Impact in Culling Shaders
+## Optimization Strategies
 
-Visibility tests (`if (visible)`) are a primary source of divergence. Particles near decision boundaries (e.g., near frustum planes or distance thresholds) are most likely to cause splits within a warp.
+### 1. Data Layout (SoA vs AoS)
+- **Structure of Arrays (SoA)**: Store particle positions as separate arrays (x[], y[], z[]). When all threads access the same field (e.g., x), accesses are naturally coalesced.
+- **Array of Structures (AoS)**: Storing full particle structs together often leads to strided accesses and poor coalescing when accessing one field.
 
-## How WaveLocal Reduction Helps
+### 2. Access Pattern in Shaders
+- Ensure thread `i` in a warp accesses data element `i` (or at least consecutive elements).
+- Avoid strided or random access patterns within a warp when possible.
 
-Our WaveLocal Reduction technique mitigates some impact:
-- The divergent visibility test happens first.
-- Immediately after, we move into wave-uniform operations (ballot + shuffle for compaction).
-- This limits the duration of divergent execution and moves more work into uniform phases.
+### 3. Particle Sorting / Spatial Binning
+- Group particles that are processed together (e.g., by screen-space tile, frustum region, or visibility) so that nearby particles have data in nearby memory.
+- This improves both coalescing and cache locality.
 
-While divergence is not eliminated, its performance penalty is contained.
+### 4. Shared Memory Staging
+- Use shared memory to gather/scatter data and reorganize it for fully coalesced global memory writes (useful in compaction phases).
 
-## Profiling Recommendations
+### 5. Vectorized Loads/Stores
+- Use `float4` / `int4` loads and stores when data is suitably aligned. This increases effective coalescing and reduces instruction count.
 
-Use Nsight Compute to measure:
-- Warp divergence metrics / stall reasons
-- Instruction throughput in divergent vs uniform sections
-- Overall kernel efficiency before/after divergence-mitigating changes
+## Relevance to Powrush Pipeline
+
+- **Culling Shader**: Reading `particle_positions` benefits from linear layout and consecutive thread indexing. Writing `visible_indices` after WaveLocal Reduction should be coalesced if indices are written in order.
+- **Visibility Buffer**: Writes during rasterization or compute rasterization are highly sensitive to coalescing.
+- **Indirect Draw Buffers**: Writing `DrawIndirect` commands and visible index lists benefits from good coalescing.
+
+Our current wave-local techniques (ballot + shuffle) already help with the compaction phase by enabling ordered writes within the wave.
 
 ## Best Practices
 
-- Structure code to minimize time spent in divergent branches.
-- Move work into wave-uniform phases as early as possible (as done in WaveLocal Reduction).
-- When possible, group particles with similar properties to improve warp uniformity.
+- Prefer SoA layouts for particle data when the access pattern is field-wise.
+- Keep thread-to-data mapping linear within warps.
+- Consider spatial or visibility-based sorting/binning for large particle sets.
+- Use vector loads/stores where alignment allows.
+- Profile memory transactions and bandwidth utilization with Nsight Compute.
 */
 
 use powrush_faction_dynamics::{Faction, FactionVisualIdentity, ParticleParams};
 
 pub mod compute {
-    /// Notes on divergence impact.
-    pub const DIVERGENCE_IMPACT_NOTES: &str = r#"
-        // Divergence can cut effective throughput significantly.
-        // WaveLocal Reduction helps contain the damage by moving to uniform phases quickly.
-        // Profile with Nsight Compute for divergence metrics.
-        // Minimize time spent in divergent code paths.
+    /// Notes on warp coalescing.
+    pub const WARP_COALESCING_NOTES: &str = r#"
+        // Prefer SoA layouts for particle data.
+        // Keep thread indexing linear with data layout.
+        // Use vectorized loads/stores when possible.
+        // Wave-local compaction helps with ordered writes.
+        // Profile memory efficiency with Nsight Compute.
     "#;
 }
