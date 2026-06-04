@@ -13,5 +13,8 @@ pub mod virtual_joystick;
 pub use device_capability::{DeviceCapability, Platform, InputMethod, DeviceCapabilityPlugin};
 pub use experience_tier::{ExperienceTier, ExperienceTierPlugin};
 pub use ui_adaptation::{UiAdaptation, UiAdaptationPlugin};
-pub use virtual_joystick::{VirtualJoystick, VirtualJoystickPlugin, JoystickMoveEvent, PredictedState};
+pub use virtual_joystick::{
+    VirtualJoystick, VirtualJoystickPlugin, JoystickMoveEvent, PredictedState,
+    ReplayLogger, DeterministicReplayLog, ReplayEntry,
+};
 pub use simulation::{Position, predict_move_position};
