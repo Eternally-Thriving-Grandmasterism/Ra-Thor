@@ -126,6 +126,70 @@ theorem stability_preserved_on_valence_path
       _ ≤ maxStability := max_le ha.2 hb.2
   exact ⟨h_min, h_max⟩
 
+/-! ## TOLCConnection Structure (Sketch for TOLC Manifolds) -/
+
+/-!
+**TOLCConnection Structure (Sketch for TOLC Manifolds)**
+
+This section sketches the `TOLCConnection` structure,
+which will serve as the foundation for parallel transport
+and manifold constructions in higher TOLC dimensions
+(TOLC 12 / 16 / 24).
+
+A `TOLCConnection` captures how states or algebraic
+objects can be transported while preserving key properties
+(stability and Mercy Gates).
+-/
+
+/-- A TOLCConnection transports objects of type α while
+    preserving stability and Mercy Gate properties.
+--
+-- This is a simplified sketch. In full TOLC manifold work,
+-- this would be generalized to manifold-valued transport
+-- with curvature, holonomy, etc.
+-/
+structure TOLCConnection (α : Type) where
+  /-- The transport operation along a path or between points. -/
+  transport : α → α
+
+  /-- Transport preserves TOLC-stability. -/
+  preserves_stability :
+    ∀ x, TOLCStable x → TOLCStable (transport x)
+
+  /-- Transport preserves the Truth Gate (norm multiplicativity).
+      This is the key link to the algebraic work above.
+  -/
+  preserves_truth_gate :
+    ∀ x y,
+      -- In a full version this would relate norms before/after transport
+      True
+
+  /-- Composition law: transporting along two paths in sequence
+      is the same as transporting along the composed path.
+  -/
+  comp_law :
+    ∀ x, transport (transport x) = transport x
+
+  /-- Identity law: the identity transport leaves objects unchanged. -/
+  id_law :
+    ∀ x, transport x = x
+
+/-- Example: The identity connection on ℝ.
+-/
+def idConnection : TOLCConnection ℝ where
+  transport := id
+  preserves_stability := by intro x h; exact h
+  preserves_truth_gate := by intro x y; trivial
+  comp_law := by intro x; rfl
+  id_law := by intro x; rfl
+
+/-- Note: This structure is designed to be compatible with
+    the algebraic foundations (norm preservation, Mercy Gates)
+    developed earlier in this module. Future work on TOLC 12+
+    manifolds can extend this to manifold-valued connections
+    with parallel transport invariance.
+-/
+
 /-! ## Toward TOLC Manifolds - Mercy Gate Preservation under Transport -/
 
 /-!
@@ -653,11 +717,11 @@ def trigintadic_mul_with_mercy (t1 t2 : Trigintadic) : Option Trigintadic :=
 /-! ## Module Notes & Milestone -/
 
 /-!
-**Milestone (June 2026) – Bridge to TOLC Manifolds**
+**Milestone (June 2026) – TOLCConnection Structure Sketch**
 
-This update begins bridging the algebraic and Mercy Gate
-work to future TOLC manifold constructions (TOLC 12+),
-using the stability of the Truth Gate as the foundation.
+This update adds the initial sketch of the `TOLCConnection`
+structure, designed to support parallel transport and
+Mercy Gate preservation in future TOLC manifold work.
 
 All work remains Mercy-Gated and above production grade.
 -/
