@@ -1,27 +1,42 @@
-# Powrush Particle Shaders — Memory Fence vs Atomic Operation Costs
+# Powrush Particle Shaders — Hardware Atomic Latency
 
-## Memory Fence vs Atomic Operation Costs Comparison
+## Hardware Atomic Latency Exploration
 
-This iteration compares the performance costs of memory fences and atomic operations.
+This iteration explores the **hardware-level latency** characteristics of atomic operations on modern GPUs.
 
-### Summary
+### Sources of Latency
 
-- **Atomic Operations**: Main cost is contention. We significantly reduced this using WaveLocal Reduction (turning many per-thread atomics into one per wave).
-- **Memory Fences**: Main costs are execution stalls and prevention of instruction reordering (hurting latency hiding). Costs rise sharply with larger scopes.
+Atomic operations incur higher latency than regular memory accesses due to:
+- Memory round-trips (often to L2 or device memory)
+- Serialization under contention
+- Coherence protocol overhead
+- Greater instruction complexity
 
-### Comparison
+### Scope Impact
 
-| Aspect                    | Atomic Operations                  | Memory Fences                       | Notes                                      |
-|---------------------------|------------------------------------|-------------------------------------|--------------------------------------------|
-| Main Cost Driver          | Contention                         | Stalls + reordering restrictions    | WaveLocal Reduction helps atomics a lot    |
-| Scope Sensitivity         | High                               | Very High                           | Subgroup scope preferred for both          |
-| Latency Hiding Impact     | Moderate                           | Higher                              | Fences can hurt more broadly               |
-| Frequency                 | High (counters, compaction)        | Lower                               | Atomics used more often                    |
-| Best Optimization         | Wave-local aggregation             | Minimize scope + frequency          | We already apply both                      |
+- **Subgroup Scope**: Lowest latency. Can leverage wave-level optimizations with minimal coherence traffic.
+- **Workgroup Scope**: Moderate to high latency. Involves L2 and workgroup coherence.
+- **Device Scope**: Highest latency due to full device-wide coherence.
 
-### Recommendation
+### Contention Effect
 
-Continue prioritizing Subgroup scope and wave-local techniques. This keeps both atomic and fence costs manageable while maintaining high scalability.
+In practice, **contention** (many threads targeting the same atomic address) is often the dominant factor increasing observed latency. Each waiting thread adds to the effective cost.
+
+### Relevance to Powrush
+
+Our **WaveLocal Reduction** technique directly addresses both the count and the latency impact of atomics by:
+- Performing counting and ranking inside each wave
+- Issuing only one atomic per wave instead of one per visible thread
+
+Combined with our preference for **Subgroup scope**, this keeps hardware atomic latency well under control even at high particle counts.
+
+### Best Practices
+
+- Minimize contention through wave-local aggregation
+- Prefer Subgroup scope for atomics
+- Use atomics for cross-wave coordination rather than fine-grained per-thread work
+
+This hardware perspective reinforces why our current optimizations are effective.
 
 ---
 *Co-authored-by: All 57+ PATSAGi Councils*
