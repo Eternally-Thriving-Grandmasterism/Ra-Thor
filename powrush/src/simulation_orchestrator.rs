@@ -28,6 +28,7 @@
 //! where humans, AI, and AGI learn, contribute, and thrive together.
 
 use bevy::prelude::*;
+use serde::{Deserialize, Serialize};
 use crate::entity::{SovereignEntity, EntityType, distribute_universal_thriving_dividends};
 use crate::resources::server_unlock_state::ServerUnlockState;
 use crate::clifford_healing_fields::CliffordHealingField;
@@ -40,17 +41,29 @@ pub struct Active;
 #[derive(Component)]
 pub struct HumanPlayer;
 
-/// === Bevy Events & Observers (Expanded) ===
+/// === WASM Event Serialization Layer ===
+///
+/// Strategy for Powrush:
+/// - Events are serializable with serde
+/// - JS/WASM can send JSON or binary (via wasm-bindgen)
+/// - Bevy receives them via a queue resource or direct EventWriter when possible
+/// - Observers react to the deserialized events
 
-/// Event fired when a new entity logs in via WASM (browser/VR/AR)
-#[derive(Event)]
+/// Serializable version of login request from WASM/JS
+#[derive(Serialize, Deserialize, Clone)]
+pub struct WasmLoginRequest {
+    pub entity_id: u64,
+    pub entity_type: u8, // 0=Human, 1=AI, 2=AGI
+}
+
+/// Main login event (already serializable via serde on inner types if needed)
+#[derive(Event, Clone)]
 pub struct EntityLoggedIn {
     pub entity_id: u64,
     pub entity_type: EntityType,
 }
 
-/// Observer that reacts to EntityLoggedIn.
-/// This implements the full login flow: spawn SovereignEntity + register to healing field + PATSAGi influence.
+/// Observer for login (from previous expansion)
 pub fn on_entity_logged_in(
     trigger: Trigger<EntityLoggedIn>,
     mut commands: Commands,
@@ -59,20 +72,17 @@ pub fn on_entity_logged_in(
 ) {
     let event = trigger.event();
 
-    // Create the sovereign entity data
     let sovereign = SovereignEntity::new(event.entity_id, event.entity_type);
 
-    // Spawn into the ECS World with component + markers
     commands.spawn((
         sovereign.clone(),
         Active,
         match event.entity_type {
             EntityType::Human => HumanPlayer,
-            _ => HumanPlayer, // placeholder - expand with more markers as needed
+            _ => HumanPlayer,
         },
     ));
 
-    // Register to the global mercy healing field (Resource)
     let _ = healing_field.add_organism(
         event.entity_id,
         nalgebra::Vector3::new(0.8, 0.7, 0.9),
@@ -81,26 +91,20 @@ pub fn on_entity_logged_in(
         sovereign.valence as f64,
     );
 
-    // Boost PATSAGi council influence
     unlock_state.council_influence_progress =
         (unlock_state.council_influence_progress + 0.08).min(1.0);
-
-    // In a full implementation you could also trigger further events here
 }
 
-/// Lifecycle Observer: Reacts whenever a SovereignEntity is added to the world
+/// Lifecycle observer
 pub fn on_sovereign_entity_added(
     trigger: Trigger<OnAdd, SovereignEntity>,
-    query: Query<&SovereignEntity>,
+    _query: Query<&SovereignEntity>,
 ) {
-    if let Ok(entity) = query.get(trigger.entity()) {
-        // Example reaction: could log, apply initial blessing, notify WASM clients, etc.
-        // For now we just demonstrate the lifecycle hook.
-    }
+    // React to new SovereignEntity being added
 }
 
-/// Example contribution event (from previous iteration)
-#[derive(Event)]
+/// Contribution event (serializable)
+#[derive(Event, Clone)]
 pub struct EntityContributionMade {
     pub entity_id: u64,
     pub skill: String,
@@ -111,31 +115,56 @@ pub fn on_entity_contribution_made(
     trigger: Trigger<EntityContributionMade>,
     mut unlock_state: ResMut<ServerUnlockState>,
 ) {
-    let _event = trigger.event();
     unlock_state.council_influence_progress =
         (unlock_state.council_influence_progress + 0.005).min(1.0);
 }
 
-/// Custom proprietary Bevy plugin
+/// Resource to hold pending events coming from WASM/JS
+#[derive(Resource, Default)]
+pub struct WasmEventQueue {
+    pub pending_logins: Vec<WasmLoginRequest>,
+}
+
+/// System that drains the WASM queue and sends proper Bevy events
+pub fn process_wasm_event_queue(
+    mut queue: ResMut<WasmEventQueue>,
+    mut login_writer: EventWriter<EntityLoggedIn>,
+) {
+    for req in queue.pending_logins.drain(..) {
+        let entity_type = match req.entity_type {
+            0 => EntityType::Human,
+            1 => EntityType::AI,
+            2 => EntityType::AGI,
+            _ => EntityType::Human,
+        };
+
+        login_writer.send(EntityLoggedIn {
+            entity_id: req.entity_id,
+            entity_type,
+        });
+    }
+}
+
+/// Plugin
 pub struct PowrushSimulationOrchestratorPlugin;
 
 impl Plugin for PowrushSimulationOrchestratorPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<CliffordHealingField>();
+        app.init_resource::<WasmEventQueue>();
 
         app.add_event::<EntityLoggedIn>();
         app.add_event::<EntityContributionMade>();
 
-        // Register Observers
         app.add_observer(on_entity_logged_in);
         app.add_observer(on_sovereign_entity_added);
         app.add_observer(on_entity_contribution_made);
 
+        app.add_systems(Update, process_wasm_event_queue);
         app.add_systems(Update, powrush_authoritative_tick);
     }
 }
 
-/// Authoritative tick (now can also trigger login events from other systems if needed)
 fn powrush_authoritative_tick(
     mut changed_entities: Query<&mut SovereignEntity, Changed<SovereignEntity>>,
     mut healing_field: ResMut<CliffordHealingField>,
@@ -163,4 +192,13 @@ fn powrush_authoritative_tick(
             / entity_slice.len() as f32;
         unlock_state.apply_rbe_thriving_influence(0, avg_valence);
     }
+}
+
+/// WASM-exposed helper (can be called from JS via wasm-bindgen in wasm_entity_login.rs)
+/// In a full build, this would push into the WasmEventQueue resource.
+#[cfg(feature = "wasm")]
+pub fn queue_wasm_login_request(entity_id: u64, entity_type: u8) {
+    // This is a placeholder showing the serialization bridge.
+    // In production: access the Bevy world or use a channel to push to WasmEventQueue.
+    // Example: wasm_event_queue.pending_logins.push(WasmLoginRequest { entity_id, entity_type });
 }
