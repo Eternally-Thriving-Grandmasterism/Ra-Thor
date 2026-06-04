@@ -1,30 +1,28 @@
-# Powrush Particle Shaders — GPU-Driven Scene Traversal
+# Powrush Particle Shaders — Visibility Buffer Techniques
 
-## GPU-Driven Scene Traversal
+## Visibility Buffer Investigation
 
-This iteration explores moving scene traversal and visibility determination to the GPU.
+This iteration explores **Visibility Buffer** rendering techniques and their applicability to our GPU-driven particle pipeline.
 
-### Core Idea
+### Core Concept
 
-Instead of the CPU looping over all active particle systems/effects, upload a buffer of `ParticleSystemDescriptor`s and let a compute shader traverse it, cull, and generate draw commands.
+Instead of storing full material properties in a G-Buffer, a Visibility Buffer stores compact identifiers (particle ID, material ID, depth). Shading is then performed in a subsequent pass (often compute) only for pixels that are actually visible.
 
-### Benefits
-- Scales to very large numbers of simultaneous effects
-- Reduces CPU frame time significantly
-- Enables dynamic per-system decisions entirely on GPU
-- Natural fit with our existing compute culling + indirect draw pipeline
+### Benefits for Powrush
+- Lower memory bandwidth than traditional deferred rendering.
+- Excellent fit with our compute culling + indirect draw + GPU scene traversal architecture.
+- Enables decoupled shading (compute shading pass can be scheduled flexibly).
+- Easier to handle many different faction visual styles and resonance effects.
 
-### Architecture
+### Integration Opportunities
 
-1. CPU uploads array of `ParticleSystemDescriptor` (position, bounds, importance, faction, etc.)
-2. Dispatch compute shader that traverses the array
-3. For each system: perform culling (can combine distance, frustum, Hi-Z, importance)
-4. Generate `DrawIndirect` commands for visible systems
-5. Issue `multi_draw_indirect` using the GPU-generated command buffer
+- During particle rasterization (or compute rasterization), write `ParticleVisibilityData` into the visibility buffer.
+- In a later compute pass, read the visibility buffer and perform shading/lighting.
+- Can be combined with our existing Hi-Z occlusion culling and GPU-driven command generation.
 
-The shader sketch provided demonstrates a basic version of this traversal + command generation.
+### Recommended Direction
 
-This represents a major step toward a fully GPU-driven rendering architecture for Powrush visuals.
+For high-performance particle rendering in Powrush, a Visibility Buffer + compute shading approach is very promising. It aligns well with the GPU-driven philosophy we've been building toward.
 
 ---
 *Co-authored-by: All 57+ PATSAGi Councils*
