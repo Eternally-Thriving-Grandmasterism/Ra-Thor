@@ -1,31 +1,43 @@
-# Powrush Particle Shaders — Subgroup Barrier Semantics
+# Powrush Particle Shaders — Memory Operand Details
 
-## Subgroup Barrier Semantics Exploration
+## Memory Operand Details Exploration
 
-This iteration explores **subgroup barrier semantics** and how they interact with cooperative matrix operations.
+This iteration provides a detailed look at the **Memory Operands** used with cooperative matrix load and store operations.
 
-### What Subgroup Barriers Provide
+### Purpose of Memory Operands
 
-Subgroup barriers guarantee both execution ordering and memory visibility across all lanes in a wave.
+Memory Operands control ordering, visibility, and coherence when loading or storing cooperative matrices. They are essential for correctness in multi-threaded execution.
 
-They are expressed via `OpControlBarrier` (SPIR-V) or equivalent WGSL functions, with appropriate scope and memory semantics.
+### Key Operands
 
-### Interaction with Cooperative Matrices
+- `MakePointerAvailable` / `MakePointerAvailableKHR`
+  - Ensures that data written by a store becomes available to other threads/scopes.
+
+- `MakePointerVisible` / `MakePointerVisibleKHR`
+  - Ensures that data is visible to the loading thread/scope before a load occurs.
+
+- `NonPrivatePointer` / `NonPrivatePointerKHR`
+  - Indicates the memory may be accessed by multiple threads (almost always required for cooperative matrices).
+
+- `Volatile`, `Aligned`, and others control caching and alignment behavior.
+
+### Scope-Dependent Usage
 
 **Subgroup Scope**:
-- Often **no explicit barrier** is required for correctness due to strong wave ordering on modern GPUs.
-- Memory visibility is still controlled via Memory Operands on cooperative matrix load/store.
-- Barriers can be added when mixing with regular memory accesses if needed.
+- `NonPrivatePointer` is typically required.
+- Visibility operands (`MakePointerAvailable` / `MakePointerVisible`) are used as needed when mixing with other memory operations.
 
 **Workgroup Scope**:
-- Subgroup barriers are usually **insufficient**.
-- Full workgroup-scoped barriers are required between load, compute, and store phases.
+- Stronger Acquire/Release semantics are often combined with explicit barriers.
 
-### Practical Guidance for Powrush
+### Guidance for Powrush
 
-Because we already rely heavily on wave-local primitives (ballot, shuffle, wave-local reduction), future cooperative matrix work at **Subgroup scope** will integrate cleanly with minimal additional synchronization.
+For recommended **Subgroup-scoped** cooperative matrix usage:
+- Include `NonPrivatePointer`.
+- Apply visibility operands conservatively when combining cooperative matrix operations with regular loads/stores.
+- Validate correctness early.
 
-Prefer Subgroup scope whenever possible to keep synchronization lightweight and performance high.
+These details ensure safe and correct use of cooperative matrices once WGSL support becomes available.
 
 ---
 *Co-authored-by: All 57+ PATSAGi Councils*
