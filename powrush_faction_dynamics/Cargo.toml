@@ -1,0 +1,23 @@
+[package]
+name = "powrush_faction_dynamics"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Powrush Faction Reputation & Standing System — Dynamic reputation tracking, influence multipliers, and council-aware modulation for Ra-Thor Powrush-MMO"
+repository.workspace = true
+keywords = ["powrush", "faction", "reputation", "standing", "dynamics", "mercy", "ra-thor"]
+categories = ["games", "simulation"]
+
+[dependencies]
+serde = { workspace = true, features = ["derive"] }
+thiserror.workspace = true
+tracing.workspace = true
+
+[features]
+default = []
+full = []
+
+[lib]
+name = "powrush_faction_dynamics"
+path = "src/lib.rs"
