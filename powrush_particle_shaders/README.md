@@ -1,29 +1,34 @@
-# Powrush Particle Shaders — SPIR-V Cooperative Matrix Instructions
+# Powrush Particle Shaders — Cooperative Matrix Scope Parameters
 
-## SPIR-V Cooperative Matrix Instructions Investigation
+## Cooperative Matrix Scope Parameters Exploration
 
-This iteration investigates the **SPIR-V instructions** that implement cooperative matrix functionality at the intermediate representation level.
+This iteration explores the **Scope** parameter in cooperative matrix operations.
 
-### Key Instructions
+### What Scope Means
 
-- `OpTypeCooperativeMatrixKHR`: Defines a cooperative matrix type.
-- `OpCooperativeMatrixLoadKHR` / `OpCooperativeMatrixStoreKHR`: Cooperative memory operations.
-- `OpCooperativeMatrixMulAddKHR`: The core matrix multiply-accumulate operation.
-- `OpCooperativeMatrixLengthKHR`: Returns the component count of a matrix.
+The scope defines which group of threads cooperates on a matrix operation. It directly impacts performance, synchronization requirements, and hardware utilization.
 
-### Compilation Flow
+### Available Scopes
 
-When WGSL cooperative matrix support is added, the WGSL-to-SPIR-V compiler will emit these instructions. They are then consumed by the Vulkan driver (via `VK_KHR_cooperative_matrix`) and mapped down to the hardware matrix multiplication instructions.
+- **Subgroup Scope** (`VK_SCOPE_SUBGROUP_KHR`)
+  - Threads in the same wave/warp cooperate.
+  - Best performance and widest support.
+  - Ideal for most workloads.
 
-### Strategic Importance
+- **Workgroup Scope** (`VK_SCOPE_WORKGROUP_KHR`)
+  - Larger group of threads cooperate.
+  - Higher synchronization cost.
+  - Useful for matrices too large for a single subgroup.
 
-Understanding the SPIR-V layer gives us insight into:
-- How future WGSL cooperative matrix code will be structured
-- What operations are fundamentally supported
-- How the compiler and driver will optimize matrix workloads
+- **Queue Family / Device Scope**
+  - Very large scopes with significant synchronization overhead.
+  - Rarely practical for real-time rendering workloads.
 
-This completes the full stack view of cooperative matrix technology:
-Hardware Instructions → SPIR-V → Vulkan Extensions → WGSL (future)
+### Recommendation for Powrush
+
+For particle culling, visibility buffer operations, and future advanced effects, **Subgroup scope** is strongly recommended. It aligns perfectly with our existing wave-local techniques (ballot, shuffle, wave-local reduction) and offers the best performance-to-complexity ratio.
+
+Larger scopes should only be considered when matrix sizes exceed what a single subgroup can efficiently handle.
 
 ---
 *Co-authored-by: All 57+ PATSAGi Councils*
