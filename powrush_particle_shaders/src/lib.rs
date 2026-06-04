@@ -1,49 +1,48 @@
 /*!
-# Powrush Particle Shaders — WGSL Cooperative Matrix Support
+# Powrush Particle Shaders — Vulkan Cooperative Matrix Extensions
 
-Investigation of cooperative matrix support in WGSL (as of mid-2026).
+Investigation of Vulkan cooperative matrix extensions.
 
-## Current Status
+## Main Extensions
 
-As of June 2026, native cooperative matrix support in WGSL is still maturing.
-The WebGPU working group has been actively discussing and prototyping cooperative matrix features, but full standardization and broad implementation support are not yet complete.
+### VK_KHR_cooperative_matrix (Recommended / Portable)
+- The primary cross-vendor extension for cooperative matrices in Vulkan.
+- Defines cooperative matrix types, scopes, and operations.
+- Provides `vkGetPhysicalDeviceCooperativeMatrixPropertiesKHR` to query supported matrix configurations.
+- Works with SPIR-V `CooperativeMatrix` types and instructions.
 
-## Expected / Proposed Features
+### VK_NV_cooperative_matrix (NVIDIA)
+- NVIDIA's original cooperative matrix extension.
+- Still widely supported and used.
+- Largely superseded by the KHR version for new code.
 
-When support lands, WGSL is expected to include:
+### VK_NV_cooperative_matrix2 (NVIDIA)
+- Newer NVIDIA-specific extension with additional features and improved integration.
 
-- An `enable cooperative_matrix;` directive
-- New matrix types or attributes for cooperative matrices
-- Built-in functions for cooperative matrix load, multiply-accumulate, and store
-- Integration with subgroup/wave execution model
+## Key Concepts
 
-These would map down to the underlying platform's cooperative matrix extension (Vulkan, DX12, Metal).
+- **Matrix Scope**: Defines the group of threads that cooperate (most commonly `VK_SCOPE_SUBGROUP_KHR`).
+- **Matrix Properties**: Element type, rows, columns, and stride for A, B, C, and result matrices.
+- **Operations**: Load, Store, and Multiply-Accumulate performed cooperatively.
 
-## Implications for Powrush
+## Relationship to WGSL
 
-Once available, WGSL cooperative matrix support would enable:
-- High-performance small neural networks inside compute shaders
-- Efficient batch matrix operations on particle data
-- Advanced learned culling or procedural effects
+When WGSL gains cooperative matrix support, implementations will typically map WGSL cooperative matrix operations down to `VK_KHR_cooperative_matrix` (or the appropriate vendor extension) under the hood.
 
-Until then, we continue to use well-supported subgroup features (ballot, shuffle, wave-local reductions) for current optimizations.
+## Relevance to Powrush
+
+Understanding these extensions helps us prepare for when WGSL cooperative matrix support becomes available. At that point, we will be able to leverage hardware-accelerated matrix operations directly from compute shaders for advanced particle system features.
 */
 
 use powrush_faction_dynamics::{Faction, FactionVisualIdentity, ParticleParams};
 
 pub mod compute {
-    /// Notes on expected WGSL cooperative matrix support.
-    pub const WGSL_COOPERATIVE_MATRIX_NOTES: &str = r#"
-        // As of mid-2026, WGSL cooperative matrix support is in progress.
-        // Expected pattern (subject to change):
+    /// Notes on Vulkan cooperative matrix extensions.
+    pub const VULKAN_COOPERATIVE_MATRIX_NOTES: &str = r#"
+        // Primary extension to target: VK_KHR_cooperative_matrix
+        // Query supported properties using vkGetPhysicalDeviceCooperativeMatrixPropertiesKHR
+        // Use SPIR-V CooperativeMatrix types for shader code
         //
-        // enable cooperative_matrix;
-        //
-        // let a = cooperative_matrix_load<A_type>(...);
-        // let b = cooperative_matrix_load<B_type>(...);
-        // let c = cooperative_matrix_multiply_accumulate(a, b, c);
-        // cooperative_matrix_store(result, c);
-        //
-        // Exact syntax and capabilities will be defined by the WGSL spec.
+        // When WGSL support lands, it will abstract over these extensions.
     "#;
 }
