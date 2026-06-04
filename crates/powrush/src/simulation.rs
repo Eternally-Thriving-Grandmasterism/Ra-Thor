@@ -1,27 +1,14 @@
 //! crates/powrush/src/simulation.rs
-//! WorldSimulation v16.16 — Fullest Practical Restoration (Best of All Iterations)
-//! Quadtree + Interest Management + ShardManager + Full Mercy System + Council Protocol
+//! WorldSimulation v16.17 — Consolidated ShardManager (B1 Complete)
+//! Quadtree + Interest Management + Advanced ShardManager with RiemannianMercyManifold
+//! Full Mercy System + Council Protocol + Epigenetic Integration
 //! ONE Organism | TOLC 8 Mercy Gates | AG-SML v1.0
-
-/*!
-# Powrush Simulation Core — Complete & Practical (v16.16)
-
-This version represents the **fullest, most useful, and practical** state after reviewing commit history.
-It combines:
-
-- Excellent Quadtree spatial partitioning (v16.15)
-- Complete `MercyEvaluationSystem` with meaningful gate scoring (restored from v16.8/v16.11)
-- Robust `ShardManager` with Regional/Global proposal routing
-- `InterestSet` integrated with Quadtree
-- Clean `CouncilProposal`/`CouncilDecision` protocol
-- Good documentation without excessive duplication
-
-This is the recommended baseline going forward.
-*/
+//! Merged from v16.16 (game sim) + geometric-intelligence advanced routing (canonical)
 
 use crate::economy::{RbeEconomy, CraftingRecipe, get_default_recipes};
 use crate::npc::{NpcType, NpcState, NpcManager};
 use geometric_intelligence::compute_geometric_harmony;
+use geometric_intelligence::RiemannianMercyManifold;
 use nalgebra::Vector2;
 use std::collections::HashMap;
 use std::time::Instant;
@@ -420,21 +407,33 @@ pub struct CouncilDecision {
     pub applied_effects: Vec<String>,
     pub mercy_impact: f64,
     pub notes: Vec<String>,
+    pub epigenetic_blessings: Vec<String>, // Consolidated from geometric-intelligence
 }
 
-// ==================== SHARD MANAGER ====================
+// ==================== SHARD MANAGER (CONSOLIDATED B1 - Canonical Advanced Routing) ====================
 
 pub struct ShardManager {
     pub shards: HashMap<ShardId, WorldSimulation>,
     next_shard_id: ShardId,
+    manifold: RiemannianMercyManifold, // Evolved from geometric-intelligence as canonical
 }
 
 impl ShardManager {
-    pub fn new() -> Self { Self { shards: HashMap::new(), next_shard_id: 1 } }
+    pub fn new() -> Self {
+        Self {
+            shards: HashMap::new(),
+            next_shard_id: 1,
+            manifold: RiemannianMercyManifold::new(),
+        }
+    }
 
     pub fn create_shard(&mut self, name: &str) -> ShardId {
         let id = self.next_shard_id; self.next_shard_id += 1;
         self.shards.insert(id, WorldSimulation::new(id, name)); id
+    }
+
+    pub fn get_shard(&self, id: ShardId) -> Option<&WorldSimulation> {
+        self.shards.get(&id)
     }
 
     pub fn route_proposal(&mut self, proposal: &CouncilProposal) -> Vec<CouncilDecision> {
@@ -455,6 +454,9 @@ impl ShardManager {
     }
 
     fn apply_proposal_to_shard(&mut self, shard: &mut WorldSimulation, proposal: &CouncilProposal) -> CouncilDecision {
+        let mut blessings_notes: Vec<String> = vec![];
+        let mut modulated_impact = proposal.mercy_evaluation.harmony_impact;
+
         match &proposal.proposal_type {
             CouncilProposalType::AdjustHarmony { entity_id, delta } => {
                 if let Some(h) = shard.entities.get_harmony(*entity_id) {
@@ -462,6 +464,17 @@ impl ShardManager {
                 }
             }
             CouncilProposalType::IssueCommand(cmd) => {
+                // B1 Consolidation: Use canonical RiemannianMercyManifold for advanced evaluation + epigenetic
+                let geo_proposal = geometric_intelligence::types::CouncilProposal::new(
+                    &format!("proposal_{}", proposal.id),
+                    &proposal.council_id,
+                    &format!("IssueCommand: {:?}", cmd),
+                    "Hyperbolic",
+                );
+                let (modulated_mercy, _blessings, reason) = self.manifold.evaluate_council_proposal(&geo_proposal);
+                modulated_impact = (modulated_mercy - 1.0) * 0.2;
+                blessings_notes.push(format!("Advanced evaluation: {} (modulated {:.3})", reason, modulated_mercy));
+
                 shard.evaluate_command_with_mercy(cmd, None);
             }
             _ => {}
@@ -471,8 +484,9 @@ impl ShardManager {
             proposal_id: proposal.id,
             accepted: true,
             applied_effects: vec![format!("Shard {}", shard.shard_context.shard_id)],
-            mercy_impact: proposal.mercy_evaluation.harmony_impact,
-            notes: vec!["Routed via ShardManager".into()],
+            mercy_impact: modulated_impact,
+            notes: vec!["Routed via Consolidated ShardManager (geometric-intelligence manifold)".into()],
+            epigenetic_blessings: blessings_notes,
         }
     }
 }
@@ -487,7 +501,7 @@ pub struct PlayerState {
 }
 
 impl Default for PlayerState {
-    fn default() -> Self { Self { position: Vector2::new(0.0, 0.0), mercy: 0.82, harmony: 0.75 } }
+    fn default() -> Self { Self { position: Position { x: 0.0, y: 0.0 }, mercy: 0.82, harmony: 0.75 } }
 }
 
 pub struct WorldSimulation {
@@ -521,6 +535,10 @@ impl WorldSimulation {
         let evaluation = MercyEvaluationSystem::evaluate_command(command);
         if let Some(id) = target_entity {
             MercyEvaluationSystem::apply_to_entity(&mut self.entities, id, &evaluation);
+        }
+        if let SimulationCommand::MovePlayer { dx, dy } = command {
+            self.player.position.x += dx;
+            self.player.position.y += dy;
         }
     }
 }
