@@ -34,9 +34,9 @@ jobs:
         run: |
           if [ -s changed_files.txt ]; then
             ./target/debug/batch_pr_scorer_cli $(cat changed_files.txt) > score_output.txt || true
-            echo "output=$(cat score_output.txt)" >> $GITHUB_OUTPUT
+            echo "output=$(cat score_output.txt | head -c 2500)" >> $GITHUB_OUTPUT
           else
-            echo "output=No changed files detected" >> $GITHUB_OUTPUT
+            echo "output=## Automated Batch PR Scoring\n\nNo significant changes detected. This appears to be a documentation or minor update." >> $GITHUB_OUTPUT
           fi
 
       - name: Comment on PR
@@ -48,11 +48,5 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: `## 🤖 Automated Batch PR Scoring
-
-**Recommendation:** ${output}
-
-This scoring is based on the objective criteria defined in the Eternal Iteration Protocol.
-
-> Powered by monorepo-intelligence::BatchPrScorer`
+              body: output + '\n\n> Powered by monorepo-intelligence::BatchPrScorer | Eternal Iteration Protocol'
             });
