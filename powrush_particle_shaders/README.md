@@ -1,26 +1,20 @@
-# Powrush Particle Shaders — Hierarchical Z-Buffer (Hi-Z)
+# Powrush Particle Shaders — Hardware Occlusion Queries
 
-## Hierarchical Z-Buffer Techniques
+## Hardware Occlusion Queries
 
-Added proper exploration and implementation of Hi-Z occlusion culling:
+This module explores traditional hardware occlusion queries and provides guidance on when (and when not) to use them alongside our compute-based culling system.
 
-- `HiZCullingParams` with support for mip chain information.
-- Dynamic mip level calculation based on particle distance.
-- Sampling from the appropriate level of a pre-built Hi-Z texture (min-depth pyramid).
-- Clear documentation explaining the technique and benefits.
+### Key Takeaways
 
-## How to Use Hi-Z
-1. Build a Hierarchical Z-Buffer (min-depth mip chain) from the main depth buffer each frame (usually in a separate compute pass).
-2. Pass the Hi-Z texture + parameters to the culling compute shader.
-3. The shader automatically selects coarser mips for distant particles.
+- **Hardware queries** are powerful for larger bounding volumes but have limitations for fine-grained particle culling.
+- **Compute shader culling** (with Hi-Z) is generally preferred for high particle counts due to better performance and easier integration with indirect draws.
+- A **hybrid approach** is often optimal: Use compute culling for most particles and hardware queries for important, screen-significant effects.
 
-## Advantages
-- Much faster than sampling the full-resolution depth buffer for every particle.
-- Excellent cache behavior.
-- Naturally adapts to particle screen size.
-- Can be combined with frustum and importance culling.
+### Recommended Strategy
 
-This represents a significant step toward high-performance occlusion culling for large-scale particle effects in Powrush.
+Use the `should_use_hardware_query()` helper to decide per-effect which technique to apply.
+
+For most faction events and Resonance Gear visuals, the existing compute + Hi-Z pipeline will deliver better results.
 
 ---
 *Co-authored-by: All 57+ PATSAGi Councils*
