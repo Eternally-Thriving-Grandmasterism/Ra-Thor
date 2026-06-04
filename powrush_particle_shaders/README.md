@@ -1,39 +1,53 @@
-# Powrush Particle Shaders — Warp Divergence Performance Impact
+# Powrush Particle Shaders — Warp Coalescing Optimization
 
-## Warp Divergence Performance Impact Analysis
+## Warp Coalescing Optimization Exploration
 
-This iteration provides a detailed analysis of the **performance costs** of warp divergence in GPU shaders.
+This iteration explores **warp memory coalescing** and practical optimization strategies relevant to our particle system.
 
-### Main Performance Costs
+### What is Coalescing?
 
-When a warp diverges:
+A warp achieves peak memory efficiency when its 32 threads access consecutive memory addresses that fit within a single cache line transaction (typically 128 bytes). Poor coalescing results in many small, inefficient memory transactions.
 
-- **Throughput Loss**: The warp serializes both branch paths. In a 50/50 split, effective throughput can drop by ~50% during the divergent section.
-- **Increased Latency**: Both paths must execute, extending the time to complete the divergent code.
-- **Wasted Scheduler Resources**: Inactive threads still occupy resources.
-- **Compounded Problems**: Divergence often coincides with uncoalesced memory accesses, amplifying the penalty.
-- **Reduced Latency Hiding**: Warps spend more cycles on divergent branches, leaving less opportunity to hide memory latency.
+### Why It Matters
 
-### Quantitative View
+Particle culling, visibility buffer updates, and data compaction are often memory-bound. Good coalescing can provide substantial bandwidth and performance gains.
 
-- Uniform execution: Full warp throughput.
-- Divergent (50/50): Roughly half the useful work per cycle in that section.
-- In hot loops, sustained high divergence can cause 1.5x–2x slowdowns or worse.
+### Key Optimization Techniques
 
-### Impact in Our Culling Shaders
+**1. Data Layout (SoA Preferred)**
+- Store particle attributes as separate arrays (positions as x[], y[], z[]).
+- Field-wise access by consecutive threads leads to natural coalescing.
 
-Visibility tests are the main source of divergence. Particles near visibility boundaries are most likely to split warps.
+**2. Linear Thread-to-Data Mapping**
+- Ensure thread `i` accesses data element `i` within the warp.
+- Avoid strided or scattered access patterns.
 
-Our **WaveLocal Reduction** technique helps contain the impact:
-- Divergent visibility test occurs first.
-- Immediately followed by wave-uniform compaction (ballot + shuffle).
-- This limits how long the warp stays in a divergent state.
+**3. Spatial / Visibility Binning**
+- Group particles that are processed together (by screen tile, frustum region, or visibility) to improve both coalescing and cache locality.
 
-### Profiling and Mitigation
+**4. Shared Memory Staging**
+- Use shared memory to reorganize data before global writes, especially during compaction phases.
 
-Use Nsight Compute to measure warp divergence metrics and related stall reasons. Focus on minimizing time spent in divergent code and moving work into uniform phases as early as possible.
+**5. Vectorized Loads/Stores**
+- Use `float4` / `int4` when data alignment permits. This increases effective transaction size and reduces instruction count.
 
-This analysis confirms that while some divergence is inevitable, our wave-local techniques significantly mitigate its performance cost.
+### Relevance to Our Pipeline
+
+- Reading particle positions in the culling shader benefits from linear SoA layout.
+- Writing visible indices after WaveLocal Reduction is more efficient when writes are coalesced and in-order.
+- Visibility buffer updates (raster or compute) are highly sensitive to coalescing quality.
+
+Our wave-local compaction already helps by enabling more ordered writes within the wave.
+
+### Best Practices
+
+- Use SoA layouts for particle data.
+- Maintain linear thread-to-data mapping.
+- Consider binning/sorting for large datasets.
+- Use vector loads/stores where possible.
+- Profile memory transaction efficiency with Nsight Compute.
+
+This optimization area complements our existing wave-local and Subgroup-scoped techniques.
 
 ---
 *Co-authored-by: All 57+ PATSAGi Councils*
