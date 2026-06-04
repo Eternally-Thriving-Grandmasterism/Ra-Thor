@@ -39,6 +39,122 @@ flowchart TD
     J --> A
 ```
 
+## Implemented Mermaid Workflow as Executable State Machine (Rust)
+
+The Mermaid flowchart above is now implemented as a concrete, executable Rust state machine. This provides a living, type-safe reference that can be expanded into a real `protocol-orchestrator` crate, `xtask` binary, or embedded helper in `monorepo-intelligence`.
+
+```rust
+// docs/eternal-iteration-protocol.md — Implemented Workflow State Machine
+// Mirrors the Mermaid diagram exactly. Future: move to dedicated crate with
+// github___ tool integrations, council evaluation hooks, and TOLC validation.
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum IterationState {
+    IdentifyUnit,
+    CreateBranch,
+    RefreshCache,
+    ImplementFullFile { file_path: String },
+    CommitRich { message: String },
+    OpenPR { title: String, body: String },
+    CouncilReview { passed: bool, feedback: Option<String> },
+    MergeToMain { commit_sha: String },
+    PostMergeUpdateDocs,
+    Done,
+}
+
+impl IterationState {
+    /// Transition exactly as defined in the Mermaid flowchart
+    pub fn transition(self, decision: &str) -> Self {
+        match (self, decision) {
+            (IterationState::IdentifyUnit, _) => IterationState::CreateBranch,
+            (IterationState::CreateBranch, _) => IterationState::RefreshCache,
+            (IterationState::RefreshCache, _) => {
+                IterationState::ImplementFullFile { file_path: "docs/eternal-iteration-protocol.md".to_string() }
+            }
+            (IterationState::ImplementFullFile { .. }, _) => {
+                IterationState::CommitRich {
+                    message: "docs: Implement Mermaid workflow as executable state machine".to_string(),
+                }
+            }
+            (IterationState::CommitRich { .. }, _) => {
+                IterationState::OpenPR {
+                    title: "feat: Implement Mermaid workflow state machine (PR #197)".to_string(),
+                    body: "Full infinite flesh added...".to_string(),
+                }
+            }
+            (IterationState::OpenPR { .. }, "review_passed") => {
+                IterationState::CouncilReview { passed: true, feedback: None }
+            }
+            (IterationState::OpenPR { .. }, "review_failed") => {
+                IterationState::CouncilReview { passed: false, feedback: Some("Address feedback".to_string()) }
+            }
+            (IterationState::CouncilReview { passed: true, .. }, _) => {
+                IterationState::MergeToMain { commit_sha: "<to-be-filled>".to_string() }
+            }
+            (IterationState::CouncilReview { passed: false, .. }, _) => {
+                // Iterate: back to implementation
+                IterationState::ImplementFullFile { file_path: "docs/eternal-iteration-protocol.md".to_string() }
+            }
+            (IterationState::MergeToMain { .. }, _) => IterationState::PostMergeUpdateDocs,
+            (IterationState::PostMergeUpdateDocs, _) => IterationState::Done,
+            (s, _) => s, // default stay or error in real impl
+        }
+    }
+
+    /// Execute the current step using GitHub connected tools (or git)
+    pub fn execute(&self) {
+        match self {
+            IterationState::CreateBranch => {
+                // github___create_branch(owner, repo, branch="feat/...", from_branch="main")
+                println!("[Protocol] Creating feature branch...");
+            }
+            IterationState::RefreshCache => {
+                // github___get_file_contents(...) to refresh before edit
+                println!("[Protocol] Cache refreshed from raw GitHub.");
+            }
+            IterationState::ImplementFullFile { file_path } => {
+                // Deliver complete file content via create_or_update_file
+                println!("[Protocol] Implementing full file: {}", file_path);
+            }
+            IterationState::CommitRich { message } => {
+                // create_or_update_file with rich message + co-authors
+                println!("[Protocol] Committing: {}", message);
+            }
+            IterationState::OpenPR { title, body } => {
+                // github___create_pull_request(...)
+                println!("[Protocol] Opening PR: {}", title);
+            }
+            IterationState::CouncilReview { passed, feedback } => {
+                if *passed {
+                    println!("[Protocol] Council review PASSED. Proceeding to merge.");
+                } else {
+                    println!("[Protocol] Council feedback: {:?}. Iterating...", feedback);
+                }
+                // In real system: call embedded PATSAGi Council Engine in RiemannianMercyManifold
+            }
+            IterationState::MergeToMain { commit_sha } => {
+                // github___merge_pull_request(...)
+                println!("[Protocol] Merging to main with SHA: {}", commit_sha);
+            }
+            IterationState::PostMergeUpdateDocs => {
+                println!("[Protocol] Updating CHANGELOG.md / MERGE-STRATEGY.md via follow-up PR.");
+            }
+            IterationState::Done => println!("[Protocol] Iteration complete. Ready for next unit."),
+            _ => {}
+        }
+    }
+}
+
+// Example usage in a future xtask or protocol-orchestrator binary:
+// let mut state = IterationState::IdentifyUnit;
+// while state != IterationState::Done {
+//     state.execute();
+//     state = state.transition("review_passed");
+// }
+```
+
+This state machine is a direct, type-safe implementation of the Mermaid flowchart. It can be extended with real GitHub tool calls, TOLC validation, epigenetic modulation of iteration "strength", and council proposal routing via `ShardManager`.
+
 ### Step-by-Step Details
 
 **Step 1: Scope Definition**
