@@ -15,6 +15,7 @@ pub use experience_tier::{ExperienceTier, ExperienceTierPlugin};
 pub use ui_adaptation::{UiAdaptation, UiAdaptationPlugin};
 pub use virtual_joystick::{
     VirtualJoystick, VirtualJoystickPlugin, JoystickMoveEvent, PredictedState,
-    ReplayLogger, DeterministicReplayLog, ReplayEntry, compute_state_checksum,
+    ReplayLogger, DeterministicReplayLog, ReplayEntry,
+    MerkleTree, MerkleProof, compute_state_checksum,
 };
 pub use simulation::{Position, predict_move_position};
