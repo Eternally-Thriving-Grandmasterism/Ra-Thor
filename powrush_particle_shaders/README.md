@@ -1,13 +1,15 @@
 # Powrush Particle Shaders
 
-## Register Pressure Optimization
+## Culling Loop Unification Progress (Phase 1 Priority 2)
 
-Updated `ComputeCullingParams` to use `max_cull_distance_squared` to match the optimized shader.
+`CullingPass` has been extended with `prepare_dispatch()`, which returns a `CullingDispatchPreparation` struct.
 
-When preparing parameters on the host, compute:
-```rust
-let max_dist_squared = max_distance * max_distance;
-```
+This continues building a clean, professional interface that separates:
+- Configuration (`CullingPass` + `CullingConfig`)
+- Resource preparation (`CullingResources`)
+- Dispatch information (`CullingDispatchPreparation`)
+
+The design is intentionally extensible for future Vulkan integration.
 
 ---
 *Phase 1 Consolidation*

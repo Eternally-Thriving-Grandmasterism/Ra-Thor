@@ -1,7 +1,9 @@
 /*!
 # Culling Module
 
-Unified compute culling pipeline built around WaveLocal Reduction.
+Unified and professional culling pipeline architecture.
+
+Focus: Clean separation of configuration, resources, and dispatch preparation.
 */
 
 use crate::{ComputeCullingParams, DrawIndirect};
@@ -16,6 +18,7 @@ impl Default for CullingConfig {
     }
 }
 
+/// High-level abstraction for a WaveLocal Reduction culling pass.
 pub struct CullingPass {
     pub params: ComputeCullingParams,
     pub config: CullingConfig,
@@ -47,21 +50,29 @@ impl CullingPass {
         }
     }
 
-    pub fn prepare(&self) -> CullingDispatchPackage {
-        CullingDispatchPackage {
-            shader: self.shader_source(),
+    /// Prepares a complete dispatch package with all necessary information.
+    pub fn prepare_dispatch(&self) -> CullingDispatchPreparation {
+        CullingDispatchPreparation {
+            shader_source: self.shader_source(),
             dispatch_size: self.dispatch_size(),
-            indirect: self.create_indirect_buffer(),
+            indirect_buffer: self.create_indirect_buffer(),
         }
     }
 }
 
-pub struct CullingDispatchPackage {
-    pub shader: &'static str,
+/// Contains everything needed to record a culling dispatch.
+///
+/// This struct is designed to be extended with actual buffer handles
+/// when integrating with a real Vulkan backend.
+pub struct CullingDispatchPreparation {
+    pub shader_source: &'static str,
     pub dispatch_size: u32,
-    pub indirect: DrawIndirect,
+    pub indirect_buffer: DrawIndirect,
 }
 
+/// Container for culling-related GPU resources.
+///
+/// In a full implementation, this would hold actual buffer handles.
 pub struct CullingResources {
     pub indirect: DrawIndirect,
 }
