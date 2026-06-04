@@ -1,0 +1,25 @@
+[package]
+name = "powrush_rbe_engine"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Powrush Resource-Based Economy (RBE) Core Rules Engine — Production, Contribution-Weighted Distribution, Abundance Metrics & Mercy-Gated Economic Modulation for Ra-Thor Powrush-MMO"
+repository.workspace = true
+keywords = ["powrush", "rbe", "resource-based-economy", "economy", "abundance", "contribution", "mercy", "ra-thor"]
+categories = ["economics", "simulation"]
+
+[dependencies]
+ra-thor-mercy = { path = "../mercy" }
+geometric-intelligence = { path = "../geometric-intelligence" }
+serde = { workspace = true, features = ["derive"] }
+thiserror.workspace = true
+tracing.workspace = true
+
+[features]
+default = []
+full = []
+
+[lib]
+name = "powrush_rbe_engine"
+path = "src/lib.rs"
