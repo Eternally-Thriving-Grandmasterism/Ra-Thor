@@ -1,67 +1,76 @@
 /*!
-# Powrush Particle Shaders — NVLink vs PCIe Latency and Bandwidth
+# Powrush Particle Shaders — NVSwitch Topology Benefits
 
-Analysis of NVLink vs PCIe interconnect performance for CPU-GPU data movement.
+Analysis of NVSwitch topology advantages compared to traditional multi-GPU interconnects.
 
-## Overview
+## What is NVSwitch?
 
-The CPU-GPU interconnect is critical for memory copies, Unified Memory migration, and `cudaMemPrefetchAsync` performance. The two main options are PCIe and NVLink.
+NVSwitch is NVIDIA's high-bandwidth, low-latency switch fabric designed to connect multiple GPUs within a node (e.g., DGX/HGX systems). It enables full NVLink bandwidth communication between any pair of GPUs, creating a non-blocking all-to-all topology.
 
-## PCIe (Most Common)
+## Key Benefits of NVSwitch
 
-- **PCIe Gen4 x16**: ~32 GB/s theoretical bidirectional (~25-28 GB/s realistic)
-- **PCIe Gen5 x16**: ~64 GB/s theoretical
-- Higher latency compared to NVLink
-- Widely available on consumer and many server GPUs
-- Good performance for most workloads, but can become a bottleneck for very high bandwidth or latency-sensitive data movement
+### 1. Full Bandwidth All-to-All Communication
+- Every GPU can communicate with every other GPU at full NVLink speed simultaneously.
+- No bandwidth sharing or contention between pairs (non-blocking).
 
-## NVLink (High-End)
+### 2. Excellent Scalability
+- Performs very well as the number of GPUs increases (8, 16, 32+ GPUs per node).
+- Avoids the bottlenecks of mesh or tree topologies without a switch.
 
-- Much higher aggregate bandwidth (hundreds of GB/s on modern generations)
-- Significantly lower latency than PCIe
-- Excellent for multi-GPU communication and tight CPU-GPU coherence
-- Available on high-end data center GPUs (A100, H100) and some professional workstation cards
-- More expensive and less common on consumer hardware
+### 3. Superior Collective Performance
+- Much faster AllReduce, AllGather, Broadcast, ReduceScatter, etc.
+- Critical for distributed training and large-scale multi-GPU simulations.
 
-## Performance Implications
+### 4. Reduced Contention and Predictable Performance
+- More uniform latency and bandwidth between any GPU pair.
+- Easier to reason about and optimize multi-GPU algorithms.
 
-### Latency
-- NVLink has noticeably lower latency than PCIe.
-- This benefits workloads with frequent small transfers or fine-grained access (including Unified Memory page migration).
+### 5. Better CPU-GPU Coherence (on some systems)
+- Some NVSwitch configurations also improve CPU-GPU communication characteristics.
 
-### Bandwidth
-- NVLink offers dramatically higher bandwidth.
-- This helps large data movements (big particle datasets, frequent updates) and makes Unified Memory more competitive with explicit copies.
+## Comparison to Other Topologies
 
-### Unified Memory Impact
-- On PCIe systems, Unified Memory migration can be a noticeable bottleneck.
-- On NVLink systems, migration is much faster and more efficient, making `cudaMallocManaged` + `cudaMemPrefetchAsync` more attractive for performance-sensitive code.
+**Traditional PCIe + NVLink (no switch)**:
+- Good for small numbers of GPUs (2-4).
+- Bandwidth sharing and contention increase with more GPUs.
+- Collectives can become bottlenecks.
+
+**Direct NVLink Mesh (without switch)**:
+- Works well for small GPU counts.
+- Does not scale as cleanly to large numbers of GPUs.
+- More complex wiring and potential hot spots.
+
+**NVSwitch**:
+- Best scaling and collective performance for larger GPU counts.
+- Higher cost and only available in high-end server systems.
 
 ## Relevance to Powrush
 
-Most development and deployment will likely be on PCIe systems. For these:
-- Prefer explicit memory management (`cudaMalloc` + `cudaMemcpyAsync`) for hot paths.
-- Use `cudaMemPrefetchAsync` carefully and profile its benefit.
+Current Powrush development targets single-GPU performance (particle culling, visibility, rendering on one GPU). In this context, NVSwitch benefits are limited.
 
-On high-end NVLink systems (e.g., H100-class), Unified Memory becomes significantly more viable even for performance-critical work because migration overhead is much lower.
+However, if we ever scale to multi-GPU nodes (e.g., massive particle simulations, distributed rendering, or multi-GPU AI components), NVSwitch becomes highly relevant because:
+- It enables efficient distribution of large particle datasets across GPUs.
+- It provides fast collectives if we need to synchronize state between GPUs.
+- It makes multi-GPU programming more predictable and scalable.
+
+For most current workloads, PCIe + single-GPU optimization remains the priority.
 
 ## Recommendation
 
-- Profile on target hardware. The interconnect makes a big difference in memory movement cost.
-- On PCIe: Be conservative with Unified Memory in hot paths.
-- On NVLink: Unified Memory + prefetching can be a strong option.
-- Always measure — theoretical differences don't always translate 1:1 to application speedup.
+- Focus on single-GPU performance for now (PCIe systems).
+- Keep multi-GPU scaling considerations in mind for future architecture decisions.
+- If targeting high-end multi-GPU nodes, NVSwitch systems offer significant advantages for large-scale work.
 */
 
 use powrush_faction_dynamics::{Faction, FactionVisualIdentity, ParticleParams};
 
 pub mod compute {
-    /// Notes on NVLink vs PCIe.
-    pub const NVLINK_VS_PCIE_NOTES: &str = r#"
-        // NVLink: lower latency, much higher bandwidth
-        // PCIe: good for most cases, but higher latency
-        // Unified Memory benefits more from NVLink
-        // Profile on target hardware
-        // Prefer explicit memory on PCIe for hot paths
+    /// Notes on NVSwitch.
+    pub const NVSWITCH_NOTES: &str = r#"
+        // NVSwitch excels at large-scale multi-GPU communication.
+        // Full all-to-all bandwidth and fast collectives.
+        // Limited relevance for current single-GPU Powrush focus.
+        // Valuable if we scale to massive multi-GPU simulations.
+        // Prioritize single-GPU optimization on PCIe for now.
     "#;
 }
