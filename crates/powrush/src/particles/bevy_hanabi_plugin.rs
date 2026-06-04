@@ -80,26 +80,17 @@ fn setup_resonance_effects(
 fn create_forge_effect_asset(params: &ResonanceEffectParams) -> EffectAsset {
     let mut writer = ExprWriter::new();
 
-    // Position: sphere or geometric (hyperbolic tiling inspired for high evolution)
-    let pos = if params.use_geometric_pattern {
-        writer.lit(Vec3::new(0.0, 0.0, 0.0)).expr() // center, then geometric modifiers can be added
-    } else {
-        writer.lit(Vec3::new(0.0, 0.0, 0.0)).expr()
-    };
-
     let init_pos = InitPositionSphereModifier {
         center: writer.lit(Vec3::ZERO).expr(),
         radius: writer.lit(0.8 + params.evolution_level as f32 * 0.2).expr(),
         dimension: ShapeDimension::Volume,
     };
 
-    // Velocity scaled by evolution
     let init_vel = InitVelocitySphereModifier {
         center: writer.lit(Vec3::ZERO).expr(),
         speed: writer.lit(params.velocity_min..params.velocity_max).expr(),
     };
 
-    // Color over lifetime (amber/gold fade)
     let color_over_lifetime = ColorOverLifetimeModifier {
         gradient: Gradient::new(vec![
             (0.0, params.base_color.into()),
@@ -108,7 +99,6 @@ fn create_forge_effect_asset(params: &ResonanceEffectParams) -> EffectAsset {
         ]),
     };
 
-    // Size over lifetime + evolution scaling
     let size_over_lifetime = SizeOverLifetimeModifier {
         gradient: Gradient::new(vec![
             (0.0, Vec2::splat(params.particle_size * 0.6)),
@@ -117,7 +107,6 @@ fn create_forge_effect_asset(params: &ResonanceEffectParams) -> EffectAsset {
         ]),
     };
 
-    // Drag for natural settling
     let drag = LinearDragModifier {
         drag: writer.lit(0.8 + params.evolution_level as f32 * 0.1).expr(),
     };
@@ -173,8 +162,6 @@ fn create_sanctum_effect_asset(params: &ResonanceEffectParams) -> EffectAsset {
         .update(size_over_lifetime)
         .update(drag)
 }
-
-// ... (spawn_resonance_particles, update_resonance_particle_position, handle_evolution_changes, spawn_evolution_burst, despawn_evolution_bursts, PlayerState placeholder remain exactly as in previous flesh-out for continuity)
 
 fn spawn_resonance_particles(
     mut commands: Commands,
