@@ -38,61 +38,54 @@ pub struct PowrushSimulationOrchestratorPlugin;
 
 impl Plugin for PowrushSimulationOrchestratorPlugin {
     fn build(&self, app: &mut App) {
+        // Bevy Resource Management best practice:
+        // Initialize shared simulation state as Resources so any system can access them.
+        app.init_resource::<CliffordHealingField>(); // uses Default if available, or we insert manually
         app.add_systems(Update, powrush_authoritative_tick);
     }
 }
 
 /// The core custom authoritative simulation tick.
-/// Now demonstrates real Bevy ECS Query syntax for SovereignEntity,
-/// ResMut for shared lattice state (healing field + PATSAGi unlock state),
-/// and integration with the RBE dividend system.
-/// Target: 20Hz fixed timestep in production (currently runs on Update for simplicity).
+/// Demonstrates clean Bevy Resource management:
+/// - ResMut<CliffordHealingField> for the global mercy mesh
+/// - ResMut<ServerUnlockState> for PATSAGi governance state
+/// - Query over SovereignEntity components
+/// All accessed safely in one system signature.
 fn powrush_authoritative_tick(
     mut entities: Query<&mut SovereignEntity>,
     mut healing_field: ResMut<CliffordHealingField>,
     mut unlock_state: ResMut<ServerUnlockState>,
 ) {
-    // 1. Hyperon/Metta deeper reasoning pass (AGI decision making)
+    // 1. Hyperon/Metta deeper reasoning pass
     let (_gh, _eh, _cs) = hyperon_metta_layer::query_real_lattice_metrics();
 
-    // 2. Collect mutable references for RBE distribution
-    //    (distribute_universal_thriving_dividends expects &mut [SovereignEntity])
+    // 2. RBE distribution using live ECS data + healing field resource
     let mut entity_slice: Vec<_> = entities.iter_mut().collect();
 
     if !entity_slice.is_empty() {
-        // Run custom RBE post-scarcity dividend pass
         distribute_universal_thriving_dividends(
             &mut entity_slice,
             &healing_field,
             &unlock_state,
         );
 
-        // Optional: feed average valence back into PATSAGi influence
-        let avg_valence: f32 = entity_slice
-            .iter()
-            .map(|e| e.valence)
-            .sum::<f32>() / entity_slice.len() as f32;
+        let avg_valence: f32 = entity_slice.iter().map(|e| e.valence).sum::<f32>()
+            / entity_slice.len() as f32;
 
-        unlock_state.apply_rbe_thriving_influence(0, avg_valence); // dividends already applied above
+        unlock_state.apply_rbe_thriving_influence(0, avg_valence);
     }
 
-    // 3. Clifford healing field step (custom geometric coherence)
-    //    Example: apply a light convolution every tick for shared field maintenance
-    //    let _ = healing_field.apply_clifford_convolution(0.01, 0.95);
+    // 3. Optional healing field maintenance (Resource is already mutable here)
+    // let _ = healing_field.apply_clifford_convolution(0.01, healing_field.mercy_flow);
 
-    // 4. WASM client sync hooks (global browser/VR/AR access)
-    //    Future: serialize entity_slice deltas and send to active wasm sessions.
-
-    // 5. Quantum-swarm parallel agent orchestration hook (for AI/AGI scale)
-    //    Future: use quantum-swarm-orchestrator for parallel entity updates.
-
-    // Mercy gate at tick level: if mercy_flow or council alignment is low,
-    // the subsystems already clamp values; we can add global throttle here if needed.
+    // 4. WASM / global sync hooks
 }
 
-// Production notes:
-// - Convert to fixed timestep: use bevy::time::Fixed or a manual accumulator.
-// - Spawn entities properly with Commands + insert(SovereignEntity { ... })
-//   instead of the current manual spawn_and_register_sovereign_entity.
-// - Add With<Active> or other marker filters when more component types exist.
-// - This tick + the existing PatsagiCouncilPlugin + Hyperon plugin = complete custom MMORPG loop.
+// Bevy Resource Management Notes:
+// - Resources are singletons stored in the World.
+// - Use init_resource::<T>() when T: Default (or provide your own Default).
+// - Use insert_resource(my_instance) when you need custom construction.
+// - Always request Res<T> / ResMut<T> in system parameters for safe access.
+// - Multiple systems can read/write the same Resource (Bevy handles synchronization).
+// - For Powrush this means CliffordHealingField and ServerUnlockState are
+//   globally available to the tick, PATSAGi systems, WASM login, etc.
