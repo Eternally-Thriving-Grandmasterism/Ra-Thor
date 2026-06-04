@@ -1,79 +1,65 @@
-//! Enhanced Slashing Penalty Mechanisms for Powrush
+//! Reputation-Based Quorum Adjustments for Shard Consensus
 //!
-//! Production-grade dynamic slashing integrated with reputation scoring.
-//! Slashing now directly impacts both discrete trust and continuous reputation.
+//! Dynamically adjusts the required consensus threshold based on the
+//! reputation of participating voters. Higher reputation = lower bar.
+//! Low reputation participation increases the difficulty of passing proposals.
 
-use bevy::prelude::*;
-use std::time::{SystemTime, UNIX_EPOCH};
+use crate::simulation_orchestrator::ShardConsensus;
 
-use crate::simulation_orchestrator::{ShardTrust, ShardTrustTracker, ShardReputationTracker, SlashingReason};
-
-impl ShardTrustTracker {
-    /// Apply slashing with reputation impact
-    pub fn apply_slashing_penalty(
-        &mut self,
-        reputation_tracker: &mut ShardReputationTracker,
-        shard_id: u64,
-        reason: SlashingReason,
-        severity: f32,
-    ) {
-        let now = SystemTime::now()
-            .duration_since(UNIX_EPOCH)
-            .unwrap_or_default()
-            .as_secs();
-
-        let severity = severity.clamp(0.2, 1.0);
-
-        // Record slashing event
-        self.slashing_history
-            .entry(shard_id)
-            .or_default()
-            .push((reason, now, severity));
-
-        // Downgrade discrete trust
-        if let Some((current_trust, _)) = self.trusts.get_mut(&shard_id) {
-            let downgrade_steps = (severity * 2.5) as u8;
-
-            for _ in 0..downgrade_steps {
-                *current_trust = match *current_trust {
-                    ShardTrust::Sovereign => ShardTrust::High,
-                    ShardTrust::High => ShardTrust::Medium,
-                    ShardTrust::Medium => ShardTrust::Low,
-                    ShardTrust::Low => ShardTrust::Low,
-                };
+impl ShardConsensus {
+    /// Calculate average reputation of voters on a proposal
+    pub fn calculate_average_reputation_of_voters(
+        &self,
+        proposal_id: u64,
+        reputation_tracker: &crate::simulation_orchestrator::ShardReputationTracker,
+    ) -> f32 {
+        if let Some(votes) = self.votes.get(&proposal_id) {
+            if votes.is_empty() {
+                return 50.0; // default
             }
-        }
 
-        // Heavily penalize continuous reputation
-        let reputation_penalty = severity * 25.0; // up to -25 points
-        reputation_tracker.record_negative_event(shard_id, reputation_penalty);
+            let mut total_reputation = 0.0;
+            let mut count = 0;
+
+            for vote in votes {
+                let rep = reputation_tracker.get_reputation(vote.voter_shard_id);
+                total_reputation += rep;
+                count += 1;
+            }
+
+            return total_reputation / count as f32;
+        }
+        50.0
     }
 
-    /// Automatic slashing when low-trust shards dominate consensus
-    pub fn auto_slash_for_low_trust_dominance(
-        &mut self,
-        reputation_tracker: &mut ShardReputationTracker,
-        shard_id: u64,
-        dominance_ratio: f32,
-    ) {
-        if dominance_ratio > 0.4 {
-            let severity = (dominance_ratio - 0.3).clamp(0.2, 0.9);
-            self.apply_slashing_penalty(
-                reputation_tracker,
-                shard_id,
-                SlashingReason::LowTrustDomination,
-                severity,
-            );
-        }
-    }
-}
+    /// Reputation-adjusted consensus check
+    pub fn is_consensus_reached_with_reputation(
+        &self,
+        proposal_id: u64,
+        reputation_tracker: &crate::simulation_orchestrator::ShardReputationTracker,
+        base_threshold: f32,
+    ) -> bool {
+        let (approve, reject) = self.tally_votes(proposal_id);
 
-/// System that can trigger automatic slashing based on consensus behavior
-pub fn automatic_slashing_system(
-    mut trust_tracker: ResMut<ShardTrustTracker>,
-    mut reputation_tracker: ResMut<ShardReputationTracker>,
-    // This would normally receive data from consensus system
-) {
-    // Placeholder for integration with consensus fault detection
-    // Example: if low_trust_dominated was detected, call auto_slash_for_low_trust_dominance
+        if !self.has_sufficient_participation(proposal_id) {
+            return false;
+        }
+
+        let avg_reputation = self.calculate_average_reputation_of_voters(
+            proposal_id,
+            reputation_tracker,
+        );
+
+        // Higher average reputation → lower required threshold
+        // Lower average reputation → higher required threshold
+        let reputation_factor = (avg_reputation - 50.0) / 100.0; // -0.5 to +0.5
+        let adjusted_threshold = (base_threshold - reputation_factor * 0.3).clamp(0.8, 2.5);
+
+        approve > reject && approve >= adjusted_threshold
+    }
+
+    /// Minimum reputation required for a vote to count toward quorum
+    pub fn get_minimum_reputation_for_quorum(&self) -> f32 {
+        20.0 // Votes from shards below 20 reputation have reduced influence
+    }
 }
