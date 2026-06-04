@@ -1,38 +1,34 @@
-# Powrush Particle Shaders — GPU Ballot Intrinsics
+# Powrush Particle Shaders — WaveLocal Reduction
 
-## GPU Ballot Intrinsics Exploration
+## WaveLocal Reduction Implementation
 
-This iteration explores **subgroup/wave ballot intrinsics** as a powerful optimization for our culling and visibility buffer pipeline.
+This iteration implements **WaveLocal Reduction** using ballot intrinsics for efficient intra-wave aggregation and compaction.
 
-### What Ballot Enables
+### Key Technique
 
-- Efficient wave-local compaction of visible particles without heavy atomic contention.
-- Parallel prefix sum within a wave using `countOneBits` on the ballot mask.
-- Significantly reduced pressure on global atomic operations.
-- Better scaling when thousands of particles become visible in the same wave.
+Instead of every visible thread performing an `atomicAdd` to reserve an output slot, we:
 
-### Integration with Existing Pipeline
+1. Use `subgroupBallot(visible)` to get a bitmask of active lanes.
+2. Use `countOneBits(ballot)` to compute how many particles are visible in the wave.
+3. Compute each lane's local rank using a parallel prefix sum within the wave.
+4. Only the first lane performs a single global atomic to reserve space for the entire wave.
+5. Broadcast the base offset to all lanes.
 
-The ballot-based approach can replace or complement our current `atomicAdd`-based slot reservation in:
-- Compute culling shaders
+This dramatically reduces atomic contention and improves scalability.
+
+### Benefits
+- Much lower pressure on global memory atomics.
+- Better performance when many particles become visible simultaneously.
+- Fully compatible with our existing compute culling, Hi-Z, and indirect draw pipeline.
+
+### Implementation
+
+Added a clean, well-commented WGSL example (`WAVE_LOCAL_REDUCTION_CULLING`) demonstrating the full pattern.
+
+This technique can be applied to:
+- Particle culling
 - Visibility buffer writing
-- GPU-driven scene traversal command generation
-
-It works especially well combined with Hierarchical Z-Buffer (Hi-Z) culling.
-
-### Current Implementation
-
-- Added `BALLOT_BASED_CULLING` shader sketch demonstrating wave-local compaction.
-- Uses `subgroupBallot`, `countOneBits`, and `subgroupBroadcast`.
-- Shows how to compute local rank within a wave for efficient buffer writing.
-
-### Trade-offs
-
-- Requires subgroup support (available on most modern GPUs).
-- Slightly more complex shader code.
-- Excellent performance gains at high occupancy.
-
-This technique represents an advanced optimization layer on top of our existing compute culling and visibility buffer work.
+- GPU-driven command generation
 
 ---
 *Co-authored-by: All 57+ PATSAGi Councils*
