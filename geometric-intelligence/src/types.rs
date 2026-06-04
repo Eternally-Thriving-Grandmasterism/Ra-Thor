@@ -2,7 +2,7 @@
 //!
 //! Centralized source of truth for EpigeneticBlessing, GeometricHarmonyScore,
 //! GeometricTransportResult, EpigeneticModulation and related mercy-gated geometric types.
-//! Now includes real PATSAGi Council valence modulation for epigenetic bonuses.
+//! Includes rich exploration of PATSAGi Council valence effects on epigenetic modulation.
 //! AG-SML v1.0 | TOLC 8 enforced | ONE Organism participant.
 
 use serde::{Deserialize, Serialize};
@@ -37,13 +37,22 @@ pub struct GeometricTransportResult {
 }
 
 /// EpigeneticModulation — core of evolutionary feedback in the geometric layer.
-/// Now directly modulated by real PATSAGi Council valence (7 Living Mercy Gates).
+/// Directly modulated by real PATSAGi Council valence (7 Living Mercy Gates).
 /// This is the bridge between council evaluation and epigenetic state evolution.
+///
+/// Valence Effects Exploration:
+/// - Higher valence generally increases strength (evolution speed).
+/// - Evolutionary/Infinite councils give extra strength bonus.
+/// - Harmony/Truth councils reduce volatility (more stable, less chaotic evolution).
+/// - Layer factors amplify effects in higher geometries (Hyperbolic > Platonic).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct EpigeneticModulation {
     pub strength: f64,
     pub volatility: f64,
     pub layer: String, // e.g. "Platonic", "Archimedean", "Hyperbolic"
+    /// Optional history of valence applications for exploration and self-evolution tracking
+    #[serde(skip)]
+    pub valence_history: Vec<(f64, String)>, // (valence, council)
 }
 
 impl EpigeneticModulation {
@@ -52,6 +61,7 @@ impl EpigeneticModulation {
             strength: strength.clamp(0.0, 2.0),
             volatility: volatility.clamp(0.0, 1.5),
             layer: layer.to_string(),
+            valence_history: Vec::new(),
         }
     }
 
@@ -82,21 +92,105 @@ impl EpigeneticModulation {
         }
     }
 
-    /// NEW: Apply real PATSAGi Council valence to modulate this epigenetic state.
+    /// Apply real PATSAGi Council valence to modulate this epigenetic state.
     /// This is the direct embedding of living mercy into epigenetic evolution.
     pub fn apply_council_valence(&mut self, valence: f64, council: &str) {
-        // Stronger valence from aligned councils increases strength and can reduce volatility (more stable evolution)
         let alignment_bonus = if council.to_lowercase().contains("evolutionary") || council.to_lowercase().contains("infinite") {
             0.15
         } else {
             0.08
         };
 
+        let old_strength = self.strength;
+        let old_volatility = self.volatility;
+
         self.strength = (self.strength + valence * 0.25 + alignment_bonus).clamp(0.3, 2.0);
-        // High valence from harmony/truth councils tends to stabilize (lower volatility)
+
         if council.to_lowercase().contains("harmony") || council.to_lowercase().contains("truth") {
             self.volatility = (self.volatility * 0.85).max(0.1);
         }
+
+        // Record for exploration and self-evolution tracking
+        self.valence_history.push((valence, council.to_string()));
+
+        // Optional: subtle long-term stabilization from repeated high-valence applications
+        if self.valence_history.len() > 5 {
+            let recent_avg: f64 = self.valence_history.iter().rev().take(5).map(|(v, _)| *v).sum::<f64>() / 5.0;
+            if recent_avg > 0.92 {
+                self.volatility = (self.volatility * 0.95).max(0.05);
+            }
+        }
+    }
+
+    /// NEW: Rich exploration of valence effects.
+    /// Returns a detailed human-readable report of how a specific valence + council would affect this modulation.
+    pub fn explore_valence_impact(&self, valence: f64, council: &str) -> String {
+        let mut sim = self.clone();
+        let old_evolution = sim.evolution_rate_bonus();
+        let old_influence = sim.layer_modulated_epigenetic_influence();
+        let old_vol = sim.volatility;
+
+        sim.apply_council_valence(valence, council);
+
+        let new_evolution = sim.evolution_rate_bonus();
+        let new_influence = sim.layer_modulated_epigenetic_influence();
+        let new_vol = sim.volatility;
+
+        let strength_delta = sim.strength - self.strength;
+        let vol_delta = new_vol - old_vol;
+        let evolution_delta = new_evolution - old_evolution;
+
+        format!(
+            "=== EpigeneticModulation Valence Exploration ===\nCouncil: {} | Valence: {:.4}\n\nBefore:\n  Strength: {:.3} | Volatility: {:.3}\n  Evolution Bonus: {:.3} | Layer Influence: {:.3}\n\nAfter:\n  Strength: {:.3} ({:+.3}) | Volatility: {:.3} ({:+.3})\n  Evolution Bonus: {:.3} ({:+.3}) | Layer Influence: {:.3} ({:+.3})\n\nInterpretation:\n  {} valence from {} council {} evolution rate and {} volatility.\n  Layer ({}) amplification: {:.2}x\n  Net thriving impact: {}",
+            council,
+            valence,
+            self.strength,
+            old_vol,
+            old_evolution,
+            old_influence,
+            sim.strength,
+            strength_delta,
+            new_vol,
+            vol_delta,
+            new_evolution,
+            evolution_delta,
+            new_influence,
+            new_influence - old_influence,
+            if valence > 0.9 { "High" } else if valence > 0.75 { "Moderate" } else { "Low" },
+            council,
+            if strength_delta > 0.1 { "strongly boosts" } else if strength_delta > 0.0 { "mildly increases" } else { "has limited effect on" },
+            if vol_delta < -0.05 { "significantly reduces" } else if vol_delta < 0.0 { "slightly reduces" } else { "does not reduce" },
+            self.layer,
+            match self.layer.as_str() {
+                "Hyperbolic" => 1.35,
+                "Johnson" | "Catalan" => 1.2,
+                _ => 1.0,
+            },
+            if evolution_delta > 0.2 { "High positive" } else if evolution_delta > 0.0 { "Positive" } else { "Neutral to low" }
+        )
+    }
+
+    /// Simulate cumulative effects of multiple council evaluations (for self-evolution exploration)
+    pub fn simulate_council_sequence(&mut self, sequence: &[(f64, &str)]) -> String {
+        let start_strength = self.strength;
+        let start_vol = self.volatility;
+
+        for (valence, council) in sequence {
+            self.apply_council_valence(*valence, council);
+        }
+
+        format!(
+            "Cumulative Epigenetic Evolution over {} council applications:\nStart -> End\n  Strength: {:.3} -> {:.3} (net {:+.3})\n  Volatility: {:.3} -> {:.3} (net {:+.3})\n  Final Evolution Bonus: {:.3}\n  Valence applications recorded: {}",
+            sequence.len(),
+            start_strength,
+            self.strength,
+            self.strength - start_strength,
+            start_vol,
+            self.volatility,
+            self.volatility - start_vol,
+            self.evolution_rate_bonus(),
+            self.valence_history.len()
+        )
     }
 
     /// Returns a blessing influenced by current epigenetic state + council valence
@@ -106,5 +200,34 @@ impl EpigeneticModulation {
             strength: self.evolution_rate_bonus(),
             target_system: "geometric".to_string(),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_epigenetic_modulation_valence_effects() {
+        let mut mod_high = EpigeneticModulation::new(0.8, 0.6, "Hyperbolic");
+        let report = mod_high.explore_valence_impact(0.96, "evolutionary");
+        assert!(report.contains("strongly boosts"));
+        assert!(mod_high.strength > 1.0);
+    }
+
+    #[test]
+    fn test_harmony_council_stabilizes() {
+        let mut mod_stable = EpigeneticModulation::new(1.0, 0.8, "Archimedean");
+        mod_stable.apply_council_valence(0.94, "harmony");
+        assert!(mod_stable.volatility < 0.7);
+    }
+
+    #[test]
+    fn test_cumulative_valence_simulation() {
+        let mut sim = EpigeneticModulation::new(0.7, 0.5, "Platonic");
+        let seq = vec![(0.91, "truth"), (0.88, "service"), (0.95, "evolutionary")];
+        let summary = sim.simulate_council_sequence(&seq);
+        assert!(summary.contains("net"));
+        assert!(sim.strength > 1.1);
     }
 }
