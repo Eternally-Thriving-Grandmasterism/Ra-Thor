@@ -1,39 +1,59 @@
 /*!
-# Powrush Particle Shaders — GPU Branch Prediction
+# Powrush Particle Shaders — Warp Divergence Performance Impact
 
-Investigation of how GPUs handle branch prediction compared to CPUs.
+Detailed analysis of the performance costs of warp divergence.
 
-## GPU vs CPU Branching
+## Performance Costs of Divergence
 
-**CPUs** have sophisticated branch predictors with history tables, allowing speculative execution of likely branches to hide latency.
+When a warp diverges:
 
-**GPUs** take a fundamentally different approach:
-- Designed for massive parallelism and latency hiding through many threads rather than deep speculation on individual threads.
-- When a warp encounters a branch, if all threads agree on the outcome, execution is efficient.
-- If threads diverge, the warp serializes both paths (warp divergence).
-- GPUs have limited or no traditional dynamic branch prediction like CPUs. They rely more on warp uniformity.
+1. **Reduced Throughput**: The warp executes both sides of the branch serially. In the worst case (50/50 split), throughput for that section can drop by ~50%.
+2. **Increased Latency**: Divergent sections take longer because both paths must run.
+3. **Wasted Resources**: Threads on the inactive path still occupy scheduler slots but perform no useful work.
+4. **Compounded Effects**: Divergence often pairs with uncoalesced memory accesses, further hurting performance.
+5. **Latency Hiding Degradation**: Warps spend more time on divergent branches, reducing the ability to hide memory latency with other work.
 
-## Implications for Shader Code
+## Quantitative Intuition
 
-- The best way to avoid branch penalties on GPUs is to **minimize divergence** (keep warps as uniform as possible).
-- Relying on "prediction" is less effective than structuring code for uniformity.
-- Operations like `subgroupBallot` are powerful because they are wave-uniform and help move work into uniform phases.
+- Uniform warp: Full throughput (32 threads doing useful work per cycle in the active path).
+- Divergent warp (50/50): Effectively ~16 threads of useful work per cycle during the divergent section.
+- In hot loops with high divergence, this can lead to 1.5x–2x or more slowdown in affected code.
 
-## Relevance to Powrush Culling
+## Impact in Culling Shaders
 
-Visibility tests (`if (visible)`) introduce potential divergence. Our WaveLocal Reduction technique helps by performing the divergent visibility test first, then moving into wave-uniform compaction using ballot and shuffle. This structure reduces the performance impact of any divergence that does occur.
+Visibility tests (`if (visible)`) are a primary source of divergence. Particles near decision boundaries (e.g., near frustum planes or distance thresholds) are most likely to cause splits within a warp.
 
-Understanding that GPUs do not have strong branch prediction reinforces why techniques that promote warp uniformity (like our wave-local methods) are so effective.
+## How WaveLocal Reduction Helps
+
+Our WaveLocal Reduction technique mitigates some impact:
+- The divergent visibility test happens first.
+- Immediately after, we move into wave-uniform operations (ballot + shuffle for compaction).
+- This limits the duration of divergent execution and moves more work into uniform phases.
+
+While divergence is not eliminated, its performance penalty is contained.
+
+## Profiling Recommendations
+
+Use Nsight Compute to measure:
+- Warp divergence metrics / stall reasons
+- Instruction throughput in divergent vs uniform sections
+- Overall kernel efficiency before/after divergence-mitigating changes
+
+## Best Practices
+
+- Structure code to minimize time spent in divergent branches.
+- Move work into wave-uniform phases as early as possible (as done in WaveLocal Reduction).
+- When possible, group particles with similar properties to improve warp uniformity.
 */
 
 use powrush_faction_dynamics::{Faction, FactionVisualIdentity, ParticleParams};
 
 pub mod compute {
-    /// Notes on GPU branch prediction.
-    pub const GPU_BRANCH_PREDICTION_NOTES: &str = r#"
-        // GPUs have limited branch prediction compared to CPUs.
-        // Focus on minimizing warp divergence instead.
-        // Wave-uniform operations (ballot, shuffle) help structure code for efficiency.
-        // Our WaveLocal Reduction already follows this principle.
+    /// Notes on divergence impact.
+    pub const DIVERGENCE_IMPACT_NOTES: &str = r#"
+        // Divergence can cut effective throughput significantly.
+        // WaveLocal Reduction helps contain the damage by moving to uniform phases quickly.
+        // Profile with Nsight Compute for divergence metrics.
+        // Minimize time spent in divergent code paths.
     "#;
 }
