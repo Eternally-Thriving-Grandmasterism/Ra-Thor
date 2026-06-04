@@ -1,57 +1,49 @@
 /*!
-# Powrush Particle Shaders — Matrix Multiplication Instruction Sets
+# Powrush Particle Shaders — WGSL Cooperative Matrix Support
 
-Exploration of low-level GPU matrix multiplication instruction sets.
+Investigation of cooperative matrix support in WGSL (as of mid-2026).
 
-## Overview
+## Current Status
 
-Modern GPUs provide specialized hardware instructions for matrix multiplication that far outperform traditional scalar or vector FMA (Fused Multiply-Add) operations.
+As of June 2026, native cooperative matrix support in WGSL is still maturing.
+The WebGPU working group has been actively discussing and prototyping cooperative matrix features, but full standardization and broad implementation support are not yet complete.
 
-These instructions are the foundation upon which cooperative matrix APIs are built.
+## Expected / Proposed Features
 
-## Major Instruction Sets
+When support lands, WGSL is expected to include:
 
-### NVIDIA (Tensor Cores)
-- `mma.sync` family in PTX/SASS
-- Shapes such as:
-  - m16n8k8, m16n8k16 (f16, tf32)
-  - m8n8k4, m8n8k16, m16n8k32 (integer)
-- High throughput for mixed-precision computation
+- An `enable cooperative_matrix;` directive
+- New matrix types or attributes for cooperative matrices
+- Built-in functions for cooperative matrix load, multiply-accumulate, and store
+- Integration with subgroup/wave execution model
 
-### AMD (Matrix Cores)
-- MFMA (Matrix Fused Multiply-Add) instructions
-- Examples: v_mfma_f32_16x16x16f16, v_mfma_f32_32x32x8f16
-- Support for various data types and accumulation precisions
+These would map down to the underlying platform's cooperative matrix extension (Vulkan, DX12, Metal).
 
-### Intel
-- DPAS (Dot Product Accumulate Systolic) instructions
-- Used in Xe and Arc architectures for matrix workloads
+## Implications for Powrush
 
-## Connection to Higher-Level APIs
+Once available, WGSL cooperative matrix support would enable:
+- High-performance small neural networks inside compute shaders
+- Efficient batch matrix operations on particle data
+- Advanced learned culling or procedural effects
 
-Cooperative matrix extensions (VK_KHR_cooperative_matrix, etc.) provide a portable abstraction over these low-level instructions.
-WGSL will eventually expose similar high-level constructs that map down to the appropriate hardware instructions.
-
-## Relevance to Powrush
-
-Understanding these instruction sets helps anticipate performance characteristics when cooperative matrix features become available for:
-- Neural culling / importance scoring
-- Advanced procedural effects
-- High-throughput batch linear algebra on particle data
+Until then, we continue to use well-supported subgroup features (ballot, shuffle, wave-local reductions) for current optimizations.
 */
 
 use powrush_faction_dynamics::{Faction, FactionVisualIdentity, ParticleParams};
 
 pub mod compute {
-    /// Notes on matrix multiplication instruction sets.
-    pub const MATRIX_MUL_INSTRUCTION_NOTES: &str = r#"
-        // Low-level matrix multiplication instructions are vendor-specific.
-        // Cooperative matrix APIs abstract over them.
+    /// Notes on expected WGSL cooperative matrix support.
+    pub const WGSL_COOPERATIVE_MATRIX_NOTES: &str = r#"
+        // As of mid-2026, WGSL cooperative matrix support is in progress.
+        // Expected pattern (subject to change):
         //
-        // When WGSL gains cooperative matrix support, the compiler
-        // will map high-level operations down to the best available
-        // hardware instructions on each platform.
+        // enable cooperative_matrix;
         //
-        // For now, we track these capabilities for future optimization.
+        // let a = cooperative_matrix_load<A_type>(...);
+        // let b = cooperative_matrix_load<B_type>(...);
+        // let c = cooperative_matrix_multiply_accumulate(a, b, c);
+        // cooperative_matrix_store(result, c);
+        //
+        // Exact syntax and capabilities will be defined by the WGSL spec.
     "#;
 }
