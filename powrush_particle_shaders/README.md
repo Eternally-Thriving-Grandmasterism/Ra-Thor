@@ -1,23 +1,20 @@
-# Powrush Particle Shaders — Compute Shader Depth Sampling
+# Powrush Particle Shaders — Optimized Depth Sampling
 
-## Implemented: Proper Depth Sampling in Compute
+## Depth Buffer Sampling Optimizations
 
-Replaced the placeholder depth sampling with a correct implementation:
+Significant performance improvements were made to the compute shader depth sampling:
 
-- Uses `view_proj` matrix to transform world position → clip space → NDC → UV
-- Samples the depth texture at the projected screen position
-- Compares particle depth against scene depth for occlusion test
-- Integrated with existing indirect draw pipeline
+- Switched to `textureLoad` (faster than sampling with filtering).
+- Added depth linearization for accurate occlusion tests.
+- Simple mip-level selection (`depth_mip_level`) for coarse-to-fine culling (basic Hi-Z style).
+- Better structured math with clear separation of projection and depth comparison.
 
-## Host Responsibilities
-To use this shader, the application must:
-1. Provide a depth texture (usually the main depth buffer from the previous frame or current prepass).
-2. Upload the current view-projection matrix.
-3. Bind the depth texture and sampler.
+## Recommendations
+- For even higher performance, implement a full Hierarchical Z-Buffer (Hi-Z) pyramid and select mip level based on particle screen size.
+- Pass real near/far plane values instead of hardcoded ones.
+- Combine with previous frustum + importance culling for best results.
 
-**Note on Depth Linearization**: The current comparison uses NDC z directly. For more accurate results with perspective projection, depth linearization should be applied on both sides (particle and sampled depth). This can be added in a follow-up iteration.
-
-This brings the occlusion culling system much closer to production readiness.
+These optimizations make the occlusion culling pass much more efficient, especially when many particles are being tested.
 
 ---
 *Co-authored-by: All 57+ PATSAGi Councils*
