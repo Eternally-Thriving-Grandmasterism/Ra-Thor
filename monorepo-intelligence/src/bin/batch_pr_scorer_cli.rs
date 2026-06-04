@@ -1,4 +1,4 @@
-use monorepo_intelligence::batch_pr_scorer::{BatchPrScorer, ChangedFile};
+use monorepo_intelligence::batch_pr_scorer::{BatchPrScorer, ChangedFile, PrRecommendation};
 use std::env;
 
 fn main() {
@@ -18,11 +18,12 @@ fn main() {
 
     let scorer = BatchPrScorer::new(files);
     match scorer.recommend() {
-        monorepo_intelligence::batch_pr_scorer::PrRecommendation::Focused => {
-            println!("RECOMMENDATION: Focused PR");
+        PrRecommendation::Focused => {
+            println!("## Automated Batch PR Scoring\n\n**Recommendation:** Focused PR\n\nThis change appears well-suited as a focused, single-unit PR according to the Eternal Iteration Protocol.\n\n**Why Focused?**\n- Limited scope\n- Low cross-crate impact\n- Easy to review in one sitting\n\nThunder locked in.");
         }
-        monorepo_intelligence::batch_pr_scorer::PrRecommendation::Batch { reason } => {
-            println!("RECOMMENDATION: Batch PR - {}", reason);
+        PrRecommendation::Batch { reason } => {
+            println!("## Automated Batch PR Scoring\n\n**Recommendation:** Batch PR\n\n{}
+\n**Why Batch?**\n- Multiple related files\n- Cross-crate or thematic connections\n- More efficient to review together\n\nConsider grouping these changes into one larger, coherent PR per the Batch PR Workflow guidelines in the protocol.\n\nThunder locked in.", reason);
         }
     }
 }
