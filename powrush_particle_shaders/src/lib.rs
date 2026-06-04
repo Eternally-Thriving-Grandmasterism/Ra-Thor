@@ -1,50 +1,59 @@
 /*!
-# Powrush Particle Shaders — Hardware Atomic Latency
+# Powrush Particle Shaders — GPU Atomic Contention Metrics
 
-Exploration of hardware-level latency characteristics of atomic operations on modern GPUs.
+Analysis of metrics for measuring and understanding atomic contention on GPUs.
 
-## Sources of Atomic Latency
+## Why Measure Atomic Contention?
 
-Atomic operations have higher latency than regular loads/stores due to several factors:
+Atomic contention is often a hidden scalability limiter in GPU compute. Measuring it helps validate optimizations like WaveLocal Reduction and guides further tuning.
 
-1. **Memory Round-Trips**: Atomics typically require communication with L2 cache or device memory for coherence.
-2. **Serialization under Contention**: When multiple threads/waves target the same address, the hardware must serialize the operations, increasing effective latency.
-3. **Coherence Protocol Overhead**: Maintaining cache coherence across threads adds cost.
-4. **Instruction Complexity**: Atomic instructions are more complex than simple loads/stores.
+## Useful Metrics for Atomic Contention
 
-## Impact of Scope on Latency
+### Direct / Hardware Metrics (via profilers)
+- **Atomic Throughput**: Atomics per second or per cycle.
+- **Memory Replay Overhead**: How often memory operations (including atomics) are replayed due to conflicts.
+- **L2 Atomic Bandwidth / Traffic**: Volume of atomic traffic going to L2.
+- **Coherence Traffic**: Cache line invalidations or transfers caused by atomics.
+- **Stall Reasons**: "Memory Dependency", "Synchronization", or "Long Scoreboard" stalls related to atomics.
 
-- **Subgroup Scope**: Lowest latency. Can sometimes be optimized within the wave (registers or L1). Minimal coherence traffic.
-- **Workgroup Scope**: Moderate to high latency. Usually involves L2 cache and workgroup-wide coherence.
-- **Device Scope**: Highest latency. Full device-wide coherence traffic.
+### Indirect / Application-Level Metrics
+- **Kernel Execution Time** before vs after atomic optimizations.
+- **Number of Global Atomics Issued** (can be counted in shader with debug counters).
+- **Visible Particle Throughput**: Particles processed per ms in culling.
+- **Tail Latency** of culling kernels under high load.
 
-## Contention Amplifies Latency
+## Impact of WaveLocal Reduction
 
-High contention (many threads hitting the same atomic) is often the dominant source of observed latency in practice. Each contending thread may wait for previous operations to complete.
+Our WaveLocal Reduction technique should show clear improvements in:
+- Dramatic reduction in global atomic count (often by 32x or more per wave).
+- Lower memory replay overhead.
+- Reduced kernel execution time under high visibility scenarios.
+- Better scaling as particle count increases.
 
-## Relevance to Powrush
+## Recommended Analysis Approach
 
-We previously addressed atomic contention through **WaveLocal Reduction** (ballot + shuffle to perform one atomic per wave instead of per thread). This technique significantly reduces both the number of atomics issued *and* the effective latency caused by contention.
+1. Profile baseline culling kernel (pure atomicAdd per thread).
+2. Profile after WaveLocal Reduction.
+3. Compare:
+   - Atomic count / throughput
+   - Kernel time
+   - Memory stall reasons
+4. Measure scaling behavior with increasing particle density.
 
-Staying at **Subgroup scope** further helps keep hardware atomic latency low.
-
-## Key Takeaway
-
-Hardware atomic latency is manageable when:
-- Contention is minimized (via wave-local aggregation)
-- Scope is kept as small as possible (Subgroup preferred)
-- Atomics are used judiciously rather than as the primary synchronization mechanism
+Tools: Nsight Compute (NVIDIA), Radeon GPU Profiler (AMD), or equivalent.
 */
 
 use powrush_faction_dynamics::{Faction, FactionVisualIdentity, ParticleParams};
 
 pub mod compute {
-    /// Notes on hardware atomic latency.
-    pub const HARDWARE_ATOMIC_LATENCY_NOTES: &str = r#"
-        // Subgroup scope atomics: lowest latency
-        // Workgroup/Device: significantly higher
-        // Contention is often the biggest real-world amplifier of latency
+    /// Notes on atomic contention metrics.
+    pub const ATOMIC_CONTENTION_METRICS_NOTES: &str = r#"
+        // Key metrics to track:
+        // - Global atomic count (before/after WaveLocal Reduction)
+        // - Kernel execution time under load
+        // - Memory replay / stall reasons
+        // - Scaling behavior with particle count
         //
-        // WaveLocal Reduction helps on both count and effective latency.
+        // Subgroup scope + wave-local work = lower contention metrics.
     "#;
 }
