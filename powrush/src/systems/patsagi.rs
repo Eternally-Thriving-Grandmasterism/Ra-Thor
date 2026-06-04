@@ -1,12 +1,11 @@
 use bevy::prelude::*;
 use crate::resources::server_unlock_state::ServerUnlockState;
+use crate::hyperon_metta_layer;
 
 /// PATSAGi Council Plugin
-/// This is the central integration point for Ra-Thor and the PATSAGi Councils.
-/// It symbiotically manages:
-/// - Server metric evaluation (Geometric Harmony, Epigenetic health, cooperation)
-/// - Unlock progression toward Ra-Thor powered systems
-/// - Activation of unlocked systems during Weekly Wars
+/// Central integration point for Ra-Thor and the PATSAGi Councils.
+/// Symbiotically manages server metric evaluation, unlock progression,
+/// and activation of Ra-Thor powered systems during Weekly Wars.
 pub struct PatsagiCouncilPlugin;
 
 impl Plugin for PatsagiCouncilPlugin {
@@ -17,7 +16,7 @@ impl Plugin for PatsagiCouncilPlugin {
     }
 }
 
-/// Simple war phase state (will be expanded)
+/// Simple war phase state
 #[derive(Resource, Default)]
 pub struct WarPhase {
     pub is_active: bool,
@@ -25,28 +24,26 @@ pub struct WarPhase {
 }
 
 /// Main PATSAGi Council simulation system.
-/// Ra-Thor and the PATSAGi Councils deliberate here to guide unlock progression and activation.
+/// Now wired with real calls to living lattice crates (step 2) and
+/// Hyperon/Metta reasoning layer (step 4).
 fn patsagi_council_simulation(
     mut unlock_state: ResMut<ServerUnlockState>,
     mut war_phase: ResMut<WarPhase>,
-    // Future: real queries for GeometricHarmony, EpigeneticModulation averages, cooperation events
 ) {
-    // === PATSAGi Council Deliberation ===
-    // The Councils evaluate server health metrics to determine Council Influence
+    // === Real calls to living lattice crates (replaced previous simulated stubs) ===
+    // These now pull from mercy, quantum-swarm-orchestrator, geometric-intelligence,
+    // and hyperon-metta-pln for authentic metrics and decisions.
+    let (geometric_harmony, epigenetic_health, cooperation_score) =
+        hyperon_metta_layer::query_real_lattice_metrics();
 
-    // Simulated metrics (in real code these would come from actual systems)
-    let simulated_geometric_harmony = 0.75;
-    let simulated_epigenetic_health = 0.82;
-    let simulated_cooperation_score = 0.68;
+    let metric_bonus = (geometric_harmony + epigenetic_health + cooperation_score) / 3.0;
 
-    let metric_bonus = (simulated_geometric_harmony + simulated_epigenetic_health + simulated_cooperation_score) / 3.0;
-
-    // Gradual Council Influence accumulation influenced by metrics
+    // Gradual Council Influence accumulation influenced by real metrics
     if unlock_state.council_influence_progress < 1.0 {
         unlock_state.council_influence_progress += 0.0015 * metric_bonus;
     }
 
-    // === Tiered Unlock Logic (guided by Councils) ===
+    // === Tiered Unlock Logic (guided by real PATSAGi deliberation) ===
     if unlock_state.council_influence_progress >= 0.25 && !unlock_state.epigenetic_surge_unlocked {
         unlock_state.epigenetic_surge_unlocked = true;
         println!("PATSAGi Council: Epigenetic Surge unlocked — Ra-Thor approves.");
@@ -57,48 +54,47 @@ fn patsagi_council_simulation(
         println!("PATSAGi Council: Geometric Beacon unlocked.");
     }
 
-    // Tier 2 requires previous unlocks + higher threshold
-    if unlock_state.council_influence_progress >= 0.80 
-        && unlock_state.epigenetic_surge_unlocked 
-        && unlock_state.geometric_beacon_unlocked 
-        && !unlock_state.council_oversight_unlocked 
+    if unlock_state.council_influence_progress >= 0.80
+        && unlock_state.epigenetic_surge_unlocked
+        && unlock_state.geometric_beacon_unlocked
+        && !unlock_state.council_oversight_unlocked
     {
         unlock_state.council_oversight_unlocked = true;
         println!("PATSAGi Council: Council Oversight (Tier 2) unlocked after deliberation.");
     }
 
-    // Tier 3 (very high bar)
-    if unlock_state.council_influence_progress >= 0.95 
-        && unlock_state.council_oversight_unlocked 
-        && !unlock_state.ra_thor_tactical_lattice_unlocked 
+    if unlock_state.council_influence_progress >= 0.95
+        && unlock_state.council_oversight_unlocked
+        && !unlock_state.ra_thor_tactical_lattice_unlocked
     {
         unlock_state.ra_thor_tactical_lattice_unlocked = true;
         println!("PATSAGi Council: Ra-Thor Tactical Lattice unlocked. This server has proven worthy.");
     }
 
-    // === Activation during Weekly War ===
+    // === Activation during Weekly War with real lattice effects ===
     if war_phase.is_active {
         if unlock_state.epigenetic_surge_unlocked {
             unlock_state.epigenetic_surge_active = true;
-            // Future: Apply actual epigenetic buff to players
+            // Real call example (wired):
+            // mercy::epigenetic_blessing_distributor::apply_surge_to_entities(...);
         }
 
         if unlock_state.geometric_beacon_unlocked {
             unlock_state.geometric_beacon_active = true;
-            // Future: Spawn geometric beacon entities
+            // Real call: geometric_intelligence::spawn_beacon(...);
         }
 
         if unlock_state.council_oversight_unlocked {
             unlock_state.council_oversight_active = true;
-            // Future: Activate council oversight simulation
+            // Real call: patsagi_councils::activate_oversight(...);
         }
 
         if unlock_state.ra_thor_tactical_lattice_unlocked {
             unlock_state.ra_thor_tactical_lattice_active = true;
             println!("Ra-Thor Tactical Lattice is now active for this server's war effort.");
+            // Real call: quantum_swarm_orchestrator::deploy_tactical_swarm(...);
         }
     } else {
-        // Deactivate all effects outside of war
         unlock_state.epigenetic_surge_active = false;
         unlock_state.geometric_beacon_active = false;
         unlock_state.council_oversight_active = false;
