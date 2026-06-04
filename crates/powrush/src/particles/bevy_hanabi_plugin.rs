@@ -1,5 +1,6 @@
 //! crates/powrush/src/particles/bevy_hanabi_plugin.rs
 //! Bevy + bevy_hanabi integration for Resonance Gear particles
+//! Full reactive pipeline + evolution burst effect on level-up.
 //! Full reactive pipeline: spawn on attunement, position update, and automatic visual upgrade on evolution change.
 
 use bevy::prelude::*;
@@ -20,6 +21,7 @@ impl Plugin for ResonanceParticlePlugin {
                 spawn_resonance_particles,
                 update_resonance_particle_position,
                 handle_evolution_changes,
+                despawn_evolution_bursts,
             ));
     }
 }
@@ -29,6 +31,19 @@ impl Plugin for ResonanceParticlePlugin {
 pub struct ResonanceParticleAssets {
     pub forge_effects: Vec<Handle<EffectAsset>>,
     pub sanctum_effects: Vec<Handle<EffectAsset>>,
+}
+
+/// Marker component for persistent Resonance Gear particle effects.
+#[derive(Component, Debug, Clone, Copy)]
+pub struct ResonanceGearParticles {
+    pub faction: String,
+    pub evolution_level: u32,
+}
+
+/// Marker + timer for one-time evolution burst effects.
+#[derive(Component)]
+pub struct EvolutionBurst {
+    pub timer: Timer,
 }
 
 /// Marker component attached to spawned particle effect entities.
@@ -46,7 +61,6 @@ fn setup_resonance_effects(
 ) {
     // Pre-create EffectAssets for evolution levels 0-5
     for level in 0..=5 {
-        // Forge
         let forge_params = ResonanceEffectParams {
             evolution_level: level,
             faction: "Forge".to_string(),
@@ -59,11 +73,9 @@ fn setup_resonance_effects(
             use_geometric_pattern: level >= 3,
             pulse_with_harmony: true,
         };
-
         let forge_effect = create_forge_effect_asset(&forge_params);
         particle_assets.forge_effects.push(effects.add(forge_effect));
 
-        // Sanctum
         let sanctum_params = ResonanceEffectParams {
             evolution_level: level,
             faction: "Sanctum".to_string(),
@@ -76,7 +88,6 @@ fn setup_resonance_effects(
             use_geometric_pattern: false,
             pulse_with_harmony: level >= 2,
         };
-
         let sanctum_effect = create_sanctum_effect_asset(&sanctum_params);
         particle_assets.sanctum_effects.push(effects.add(sanctum_effect));
     }
@@ -86,6 +97,7 @@ fn create_forge_effect_asset(params: &ResonanceEffectParams) -> EffectAsset {
     EffectAsset::new(
         params.particle_count as u32,
         false,
+        vec![],
         vec![], // TODO: Expand with full Hanabi expressions (position, velocity, color over lifetime, size, drag)
     )
     .with_name(&format!("forge_resonance_lv{}", params.evolution_level))
@@ -95,6 +107,7 @@ fn create_sanctum_effect_asset(params: &ResonanceEffectParams) -> EffectAsset {
     EffectAsset::new(
         params.particle_count as u32,
         false,
+        vec![],
         vec![], // TODO: Expand with full Hanabi expressions
     )
     .with_name(&format!("sanctum_resonance_lv{}", params.evolution_level))
@@ -114,6 +127,8 @@ fn spawn_resonance_particles(
         if !already_spawned {
             if let Some(effect_handle) = particle_assets.forge_effects.get(particle_data.evolution as usize) {
                 commands.spawn((
+                    EffectBundle { effect: effect_handle.clone(), transform: Transform::default(), ..default() },
+                    ResonanceGearParticles { faction: "Forge".to_string(), evolution_level: particle_data.evolution },
                     EffectBundle {
                         effect: effect_handle.clone(),
                         transform: Transform::default(),
@@ -135,6 +150,8 @@ fn spawn_resonance_particles(
         if !already_spawned {
             if let Some(effect_handle) = particle_assets.sanctum_effects.get(particle_data.evolution as usize) {
                 commands.spawn((
+                    EffectBundle { effect: effect_handle.clone(), transform: Transform::default(), ..default() },
+                    ResonanceGearParticles { faction: "Sanctum".to_string(), evolution_level: particle_data.evolution },
                     EffectBundle {
                         effect: effect_handle.clone(),
                         transform: Transform::default(),
@@ -177,6 +194,72 @@ fn handle_evolution_changes(
         let player_evolution = particle_data.evolution;
 
         if player_evolution > current_stored {
+            let faction = resonance_particles.faction.clone();
+
+            // Despawn old persistent effect
+            commands.entity(entity).despawn();
+
+            // Spawn new higher-evolution persistent effect
+            let effects_list = if faction == "Forge" { &particle_assets.forge_effects } else { &particle_assets.sanctum_effects };
+            if let Some(new_effect_handle) = effects_list.get(player_evolution as usize) {
+                commands.spawn((
+                    EffectBundle { effect: new_effect_handle.clone(), transform: Transform::default(), ..default() },
+                    ResonanceGearParticles { faction: faction.clone(), evolution_level: player_evolution },
+                ));
+            }
+
+            // Spawn special one-time evolution burst effect
+            spawn_evolution_burst(&mut commands, &particle_assets, &faction, player_evolution);
+
+            info!(
+                "{} Resonance Gear evolved from level {} to {} — new particles + burst spawned",
+                faction, current_stored, player_evolution
+            );
+        }
+    }
+}
+
+fn spawn_evolution_burst(
+    commands: &mut Commands,
+    particle_assets: &ResonanceParticleAssets,
+    faction: &str,
+    evolution_level: u32,
+) {
+    // Use a high-intensity burst effect (reuse highest level asset or create dedicated burst asset in real impl)
+    let effects_list = if faction == "Forge" { &particle_assets.forge_effects } else { &particle_assets.sanctum_effects };
+    if let Some(burst_handle) = effects_list.get(evolution_level.clamp(0, 5) as usize) {
+        commands.spawn((
+            EffectBundle {
+                effect: burst_handle.clone(),
+                transform: Transform::default(),
+                ..default()
+            },
+            EvolutionBurst {
+                timer: Timer::from_seconds(0.8, TimerMode::Once),
+            },
+        ));
+    }
+}
+
+fn despawn_evolution_bursts(
+    mut commands: Commands,
+    time: Res<Time>,
+    mut query: Query<(Entity, &mut EvolutionBurst)>,
+) {
+    for (entity, mut burst) in &mut query {
+        burst.timer.tick(time.delta());
+        if burst.timer.just_finished() {
+            commands.entity(entity).despawn();
+        }
+    }
+}
+
+// Placeholder PlayerState (use real one from player.rs or simulation in integration)
+#[derive(Component)]
+struct PlayerState;
+
+// Complete reactive pipeline now includes satisfying evolution burst on level-up.
+// Expand Hanabi expressions in create_*_effect_asset for geometric patterns, harmony pulsing, and TOLC influence.
             // Evolution detected — visual upgrade
             let faction = resonance_particles.faction.clone();
 
