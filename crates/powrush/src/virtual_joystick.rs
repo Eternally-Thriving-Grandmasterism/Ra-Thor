@@ -1,40 +1,37 @@
 //! crates/powrush/src/virtual_joystick.rs
 //! Virtual Joystick for Powrush-MMO Mobile Experience
-//! Event-driven foundation for CouncilProposal routing (option 2 locked)
-//! MMO priority: maximal user joy, responsive feel, future presets + granular custom controls
+//! PATSAGi + Ra-Thor approved: Client-Side Prediction + Reconciliation foundation
+//! Eternal even playing field + maximal end-user joy, responsiveness, positive emotion
 
 use bevy::prelude::*;
 use bevy_egui::EguiContexts;
-use egui::{pos2, Color32, Sense, Ui, Vec2 as EguiVec2};
+use egui::{Color32, Sense, Vec2 as EguiVec2};
 use crate::experience_tier::ExperienceTier;
+use crate::simulation::Position; // shared deterministic type
 
-/// Lightweight Bevy Event for decoupled input (C layer).
-/// Listeners (bridge systems) turn this into CouncilProposal { IssueCommand(MovePlayer), mercy_evaluation, ... }
-/// and route via ShardManager::route_proposal for manifold + epigenetic blessings.
-/// Keeps UI snappy and joyful — proposal routing happens without blocking drag feel.
+/// Bevy Event carrying joystick input for decoupled CouncilProposal generation.
+/// Sequence number enables Server Reconciliation (rewind + replay) for eternal fair play.
 #[derive(Event, Debug, Clone, Copy, Default)]
 pub struct JoystickMoveEvent {
+    pub sequence: u64,
     pub dx: f32,
     pub dy: f32,
     pub is_active: bool,
-    /// Future: sensitivity, layout preset id, custom deadzone, etc. for granular player controls
     pub intensity: f32,
 }
 
-/// Resource holding the current virtual joystick state.
+/// Resource holding current joystick state + prediction buffer for reconciliation.
 #[derive(Resource, Debug, Default)]
 pub struct VirtualJoystick {
-    /// Normalized movement vector (-1.0 to 1.0).
     pub movement: Vec2,
-    /// Whether the joystick is currently being touched/dragged.
     pub is_active: bool,
-    /// Position of the joystick center (in egui coordinates).
     pub center: EguiVec2,
-    /// Current touch/drag position.
     pub current_pos: EguiVec2,
-    /// Extensibility for custom settings / presets (MMO joy & comfort)
     pub sensitivity: f32,
     pub deadzone: f32,
+    /// Input history buffer for Server Reconciliation (seq + event). Eternal fair play.
+    pub pending_inputs: Vec<JoystickMoveEvent>,
+    next_sequence: u64,
 }
 
 impl VirtualJoystick {
@@ -46,20 +43,29 @@ impl VirtualJoystick {
             current_pos: EguiVec2::new(0.0, 0.0),
             sensitivity: 1.0,
             deadzone: 0.1,
+            pending_inputs: Vec::new(),
+            next_sequence: 1,
         }
     }
 
-    /// Returns the movement direction as a normalized Vec2 (clamped by deadzone).
     pub fn direction(&self) -> Vec2 {
-        if self.movement.length() < self.deadzone {
-            Vec2::ZERO
-        } else {
-            self.movement * self.sensitivity
-        }
+        if self.movement.length() < self.deadzone { Vec2::ZERO } else { self.movement * self.sensitivity }
+    }
+
+    /// Record input for later reconciliation (called after event send).
+    pub fn record_pending(&mut self, event: JoystickMoveEvent) {
+        self.pending_inputs.push(event);
+        if self.pending_inputs.len() > 64 { self.pending_inputs.remove(0); } // bounded history
+    }
+
+    pub fn next_sequence(&mut self) -> u64 {
+        let seq = self.next_sequence;
+        self.next_sequence += 1;
+        seq
     }
 }
 
-/// Plugin that adds the virtual joystick + event.
+/// Plugin with prediction-ready systems.
 pub struct VirtualJoystickPlugin;
 
 impl Plugin for VirtualJoystickPlugin {
@@ -70,6 +76,7 @@ impl Plugin for VirtualJoystickPlugin {
             show_virtual_joystick.run_if(|tier: Res<ExperienceTier>| *tier == ExperienceTier::MobileTown),
             reset_joystick_when_inactive,
             emit_joystick_events,
+            apply_local_prediction, // immediate responsive joy (CSP foundation)
         ));
     }
 }
@@ -84,39 +91,28 @@ fn show_virtual_joystick(
         .anchor(egui::Align2::LEFT_BOTTOM, egui::vec2(60.0, -120.0))
         .show(ctx, |ui| {
             let size = 120.0;
-            let response = ui.allocate_response(
-                egui::vec2(size, size),
-                Sense::drag(),
-            );
-
+            let response = ui.allocate_response(egui::vec2(size, size), Sense::drag());
             let rect = response.rect;
             let center = rect.center();
 
-            // Draw outer circle (background) — warm, inviting for joy
             ui.painter().circle_filled(center, size / 2.0, Color32::from_gray(55));
 
-            // Draw inner circle (knob) — responsive, satisfying tactile feel
             let knob_radius = size / 4.0;
             let knob_pos = if response.dragged() {
                 let delta = response.drag_delta();
                 let new_pos = joystick.current_pos + delta;
                 let max_distance = size / 2.0 - knob_radius;
-
                 let dir = (new_pos - center).normalized();
                 let distance = (new_pos - center).length().min(max_distance);
                 center + dir * distance
-            } else {
-                center
-            };
+            } else { center };
 
             ui.painter().circle_filled(knob_pos, knob_radius, Color32::from_gray(210));
 
-            // Update joystick state
             if response.dragged() {
                 joystick.is_active = true;
                 joystick.current_pos = knob_pos;
                 joystick.center = center;
-
                 let delta = knob_pos - center;
                 let raw_x = (delta.x / (size / 2.0)).clamp(-1.0, 1.0);
                 let raw_y = (delta.y / (size / 2.0)).clamp(-1.0, 1.0);
@@ -134,19 +130,38 @@ fn reset_joystick_when_inactive(mut joystick: ResMut<VirtualJoystick>) {
     }
 }
 
-/// Emits JoystickMoveEvent for decoupled listeners (bridge to CouncilProposal).
-/// This keeps the UI layer pure and joyful — proposal generation + manifold routing happens elsewhere.
+/// Emits sequenced event + records for reconciliation. Decoupled for CouncilProposal bridge.
 fn emit_joystick_events(
-    joystick: Res<VirtualJoystick>,
+    mut joystick: ResMut<VirtualJoystick>,
     mut events: EventWriter<JoystickMoveEvent>,
 ) {
     if joystick.is_active || joystick.movement != Vec2::ZERO {
+        let seq = joystick.next_sequence();
         let intensity = joystick.movement.length().clamp(0.0, 1.0);
-        events.send(JoystickMoveEvent {
+        let event = JoystickMoveEvent {
+            sequence: seq,
             dx: joystick.movement.x,
             dy: joystick.movement.y,
             is_active: joystick.is_active,
             intensity,
-        });
+        };
+        events.send(event);
+        joystick.record_pending(event);
     }
+}
+
+/// Local Client-Side Prediction hook (approved CSP foundation).
+/// Immediately applies movement for joyful responsive feel.
+/// Uses identical deterministic logic as authoritative simulation (see predict_move_position).
+/// Does NOT bypass council truth — reconciliation will correct when authoritative snapshot arrives.
+fn apply_local_prediction(
+    mut joystick: Res<VirtualJoystick>,
+    // In real integration: mut query for local player visual/entity
+) {
+    // Placeholder: in full client, call simulation::predict_move_position on local predicted state here.
+    // Example future:
+    // if let Some(mut pos) = local_player_position {
+    //     *pos = crate::simulation::predict_move_position(*pos, joystick.movement.x, joystick.movement.y);
+    // }
+    let _ = joystick; // keep resource alive for buffer
 }

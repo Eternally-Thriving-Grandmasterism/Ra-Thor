@@ -14,3 +14,4 @@ pub use device_capability::{DeviceCapability, Platform, InputMethod, DeviceCapab
 pub use experience_tier::{ExperienceTier, ExperienceTierPlugin};
 pub use ui_adaptation::{UiAdaptation, UiAdaptationPlugin};
 pub use virtual_joystick::{VirtualJoystick, VirtualJoystickPlugin, JoystickMoveEvent};
+pub use simulation::{Position, predict_move_position}; // shared for client prediction + reconciliation
