@@ -1,64 +1,67 @@
 /*!
-# Powrush Particle Shaders — Profiling cudaMemPrefetchAsync Overhead
+# Powrush Particle Shaders — NVLink vs PCIe Latency and Bandwidth
 
-Guidance on measuring and analyzing the overhead of `cudaMemPrefetchAsync`.
+Analysis of NVLink vs PCIe interconnect performance for CPU-GPU data movement.
 
-## What Overhead Does cudaMemPrefetchAsync Introduce?
+## Overview
 
-`cudaMemPrefetchAsync` itself has relatively low CPU-side overhead (it returns quickly). The real cost comes from the **page migration work** it triggers:
+The CPU-GPU interconnect is critical for memory copies, Unified Memory migration, and `cudaMemPrefetchAsync` performance. The two main options are PCIe and NVLink.
 
-- Driver processing of the prefetch request
-- Actual data movement over PCIe/NVLink
-- Potential impact on GPU caches and TLBs
-- Interaction with concurrent memory operations
+## PCIe (Most Common)
 
-## How to Profile It
+- **PCIe Gen4 x16**: ~32 GB/s theoretical bidirectional (~25-28 GB/s realistic)
+- **PCIe Gen5 x16**: ~64 GB/s theoretical
+- Higher latency compared to NVLink
+- Widely available on consumer and many server GPUs
+- Good performance for most workloads, but can become a bottleneck for very high bandwidth or latency-sensitive data movement
 
-### Nsight Systems Timeline
-- Capture timelines with and without `cudaMemPrefetchAsync` calls.
-- Look at memory migration traffic (Host ↔ Device transfers) triggered by prefetch operations.
-- Check whether migration overlaps well with compute or causes contention/gaps.
-- Measure the time from prefetch call to when the data appears resident (can use CUDA events around the prefetch).
+## NVLink (High-End)
 
-### Nsight Compute
-- Compare kernel execution time and memory stall reasons with and without prefetching.
-- Look for reductions in page-fault-related stalls or `memory_replay_overhead`.
-- Check overall memory efficiency metrics.
+- Much higher aggregate bandwidth (hundreds of GB/s on modern generations)
+- Significantly lower latency than PCIe
+- Excellent for multi-GPU communication and tight CPU-GPU coherence
+- Available on high-end data center GPUs (A100, H100) and some professional workstation cards
+- More expensive and less common on consumer hardware
 
-### Application-Level Metrics
-- Time from `cudaMemPrefetchAsync` submission to data readiness (using CUDA events).
-- Kernel execution time improvement.
-- End-to-end workload or frame time improvement.
-- Net benefit = (time saved in kernels) - (migration cost + any contention).
+## Performance Implications
 
-## Recommended Workflow
+### Latency
+- NVLink has noticeably lower latency than PCIe.
+- This benefits workloads with frequent small transfers or fine-grained access (including Unified Memory page migration).
 
-1. Profile baseline (no prefetch or naive Unified Memory).
-2. Add `cudaMemPrefetchAsync` before hot kernels.
-3. Profile again and compare:
-   - Migration traffic volume and timing
-   - Kernel execution time and stall reasons
-   - Overall throughput
-4. Determine if the reduction in kernel time outweighs the migration cost.
+### Bandwidth
+- NVLink offers dramatically higher bandwidth.
+- This helps large data movements (big particle datasets, frequent updates) and makes Unified Memory more competitive with explicit copies.
 
-## When the Overhead Is Worth It
+### Unified Memory Impact
+- On PCIe systems, Unified Memory migration can be a noticeable bottleneck.
+- On NVLink systems, migration is much faster and more efficient, making `cudaMallocManaged` + `cudaMemPrefetchAsync` more attractive for performance-sensitive code.
 
-`cudaMemPrefetchAsync` is usually worth the cost when:
-- It significantly reduces page faults inside performance-critical kernels.
-- Migration can be overlapped with other useful work.
-- The data will be accessed soon after prefetching.
+## Relevance to Powrush
 
-It is less useful when data is prefetched too early (wasted bandwidth) or when explicit memory copies would be simpler and faster.
+Most development and deployment will likely be on PCIe systems. For these:
+- Prefer explicit memory management (`cudaMalloc` + `cudaMemcpyAsync`) for hot paths.
+- Use `cudaMemPrefetchAsync` carefully and profile its benefit.
+
+On high-end NVLink systems (e.g., H100-class), Unified Memory becomes significantly more viable even for performance-critical work because migration overhead is much lower.
+
+## Recommendation
+
+- Profile on target hardware. The interconnect makes a big difference in memory movement cost.
+- On PCIe: Be conservative with Unified Memory in hot paths.
+- On NVLink: Unified Memory + prefetching can be a strong option.
+- Always measure — theoretical differences don't always translate 1:1 to application speedup.
 */
 
 use powrush_faction_dynamics::{Faction, FactionVisualIdentity, ParticleParams};
 
 pub mod compute {
-    /// Notes on profiling prefetch overhead.
-    pub const PREFETCH_OVERHEAD_NOTES: &str = r#"
-        // Profile migration traffic in Nsight Systems.
-        // Compare kernel time and stalls with/without prefetch.
-        // Measure net benefit (kernel time saved vs migration cost).
-        // Overlap prefetch with other work when possible.
+    /// Notes on NVLink vs PCIe.
+    pub const NVLINK_VS_PCIE_NOTES: &str = r#"
+        // NVLink: lower latency, much higher bandwidth
+        // PCIe: good for most cases, but higher latency
+        // Unified Memory benefits more from NVLink
+        // Profile on target hardware
+        // Prefer explicit memory on PCIe for hot paths
     "#;
 }
