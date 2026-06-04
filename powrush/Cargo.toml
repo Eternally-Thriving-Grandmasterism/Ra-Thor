@@ -12,7 +12,7 @@ crate-type = ["cdylib", "rlib"]
 [features]
 default = []
 full-clifford = []
-wasm = ["wasm-bindgen", "web-sys"]
+wasm = ["wasm-bindgen", "web-sys", "js-sys"]
 
 [dependencies]
 bevy = { version = "0.13", default-features = false, features = [

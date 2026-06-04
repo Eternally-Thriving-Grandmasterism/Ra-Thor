@@ -11,15 +11,15 @@ use bevy::prelude::*;
 pub mod clifford_healing_fields;
 pub mod resources;
 pub mod systems;
-
-// New modules for the 4 approved steps
 pub mod hyperon_metta_layer;
 pub mod wasm_entity_login;
+pub mod entity;  // NEW: SovereignEntity orchestration
 
 // Re-exports
 pub use clifford_healing_fields::{CliffordHealingField, HealingConfig, GlobalCoherence, HealingFieldError};
 pub use resources::server_unlock_state::ServerUnlockState;
 pub use systems::patsagi::{PatsagiCouncilPlugin, WarPhase};
+pub use entity::{SovereignEntity, EntityType};
 
 /// Initialize the full living simulation with all lattice integrations.
 pub fn initialize_living_simulation(app: &mut App) {
@@ -27,6 +27,15 @@ pub fn initialize_living_simulation(app: &mut App) {
         PatsagiCouncilPlugin,
         hyperon_metta_layer::HyperonMettaReasoningPlugin,
     ));
+
+    // Demo: spawn a few sovereign entities on init (humans + AI + AGI)
+    // In production this would come from WASM login + persistent world state
+    let mut healing_field = CliffordHealingField::new("Powrush Living Simulation");
+    let mut unlock_state = ServerUnlockState::default();
+
+    entity::spawn_and_register_sovereign_entity(1, EntityType::Human, &mut healing_field, &mut unlock_state);
+    entity::spawn_and_register_sovereign_entity(2, EntityType::AI, &mut healing_field, &mut unlock_state);
+    entity::spawn_and_register_sovereign_entity(3, EntityType::AGI, &mut healing_field, &mut unlock_state);
 
     // WASM bindings for entity login (browser/VR/AR)
     #[cfg(feature = "wasm")]
