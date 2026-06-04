@@ -1,39 +1,39 @@
-# Powrush Particle Shaders — Atomic Operations Investigation
+# Powrush Particle Shaders — Memory Fence Semantics
 
-## Atomic Operations Investigation
+## Memory Fence Semantics Investigation
 
-This iteration investigates **atomic operations** and their role in high-performance GPU compute, particularly in our particle culling pipeline.
+This iteration investigates **memory fence semantics** (`OpMemoryBarrier`) and how they relate to cooperative matrix operations.
 
-### What Atomic Operations Provide
+### What Memory Fences Provide
 
-Atomic operations enable safe concurrent read-modify-write access to shared memory. They are fundamental for counters, list compaction, and cross-thread coordination.
+A memory fence establishes ordering and visibility guarantees across memory operations. Unlike memory operands attached to individual loads or stores, a fence applies more broadly to sequences of memory operations.
 
-### Common Operations
+### Key Semantics
 
-- Arithmetic: Add, Sub, Min, Max
-- Bitwise: And, Or, Xor
-- Exchange and Compare-Exchange
+- **Acquire Fence**: Ensures later memory operations see relevant prior writes from other threads.
+- **Release Fence**: Ensures prior writes become visible to threads performing later acquire operations.
+- **AcquireRelease Fence**: Combines both directions.
 
-### Scope and Semantics
+### Fences vs Instruction Memory Operands
 
-Atomic operations take a **Scope** (Subgroup, Workgroup, Device, etc.) and **Memory Semantics** (Acquire, Release, AcquireRelease).
+- Memory Operands on cooperative matrix load/store provide localized ordering.
+- Standalone fences provide ordering across multiple operations or between different types of memory accesses.
 
-### Usage in Powrush
+### Interaction with Cooperative Matrices
 
-We currently rely on atomics (primarily `atomicAdd`) to reserve output slots when culling visible particles into indirect draw buffers.
+When sequencing cooperative matrix load → multiply-accumulate → store (especially when mixed with regular loads/stores), fences help establish clear ordering points.
 
-**Challenge**: When thousands of particles become visible in the same frame, many threads contend on the same atomic, which can limit scalability.
+**Subgroup Scope**:
+- Requirements are generally lighter.
+- Memory Operands on the instructions themselves are often sufficient.
+- Explicit fences can frequently be minimized.
 
-**Our Solution**: The **WaveLocal Reduction** technique we implemented uses ballot and shuffle to perform counting and ranking *within each wave*, then issues only **one atomic per wave** instead of one per visible particle. This dramatically reduces contention while preserving correctness.
+**Workgroup Scope**:
+- Stronger AcquireRelease fences are typically required between phases.
 
-### Best Practices
+### Practical Guidance for Powrush
 
-- Prefer wave-local techniques (ballot, shuffle, wave-local reduction) to minimize global atomic pressure.
-- Use atomics mainly for cross-wave coordination.
-- Choose the smallest effective Scope (Subgroup when possible).
-- Apply appropriate Memory Semantics.
-
-This hybrid model (wave-local work + minimal atomics) is a core strength of our current culling architecture.
+Our architecture favors **Subgroup-scoped** operations. This means memory fence requirements for future cooperative matrix work will generally remain lightweight, consistent with our existing wave-local synchronization style (ballot, shuffle, wave-local reduction).
 
 ---
 *Co-authored-by: All 57+ PATSAGi Councils*
