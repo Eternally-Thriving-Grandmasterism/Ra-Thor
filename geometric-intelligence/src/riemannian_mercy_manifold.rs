@@ -179,7 +179,7 @@ impl RiemannianMercyManifold {
                 target_system: "geometric".to_string(),
             }],
             notes: format!("Effective curvature: {:.3}", effective_curvature),
-        }
+        };
     }
 
     // === Numerical Methods ===
@@ -236,7 +236,7 @@ impl RiemannianMercyManifold {
             effective_curvature: effective,
             berry_curvature_density: density,
             notes,
-        }
+        };
     }
 
     // === Berry Phase ===
@@ -267,7 +267,7 @@ impl RiemannianMercyManifold {
             magnitude,
             interpretation,
             suggested_blessings: blessings,
-        }
+        };
     }
 
     pub fn compute_berry_phase_evolution(&self, curvatures: &[f64], areas: &[f64]) -> Vec<f64> {
@@ -371,7 +371,7 @@ impl RiemannianMercyManifold {
             hall_conductivity: conductivity,
             has_protected_edge_states: has_edge,
             notes,
-        }
+        };
     }
 
     // === Transport Sequence (with Holonomy Accumulation) ===
@@ -416,7 +416,96 @@ impl RiemannianMercyManifold {
                 target_system: "riemannian".to_string(),
             }],
             notes: format!("RK4 sequence complete. Accumulated holonomy ≈ {:.3}", accumulated_holonomy),
+        };
+    }
+}
+
+// ============================================================
+// TOLC 12 Manifold Extension Sketch (v14.4+ forward work)
+// ============================================================
+
+/// Sketch of a TOLC 12 manifold layer.
+/// This extends the existing RiemannianMercyManifold toward
+/// explicit 12-dimensional TOLC manifold structures.
+///
+/// Future goals:
+/// - True 12D tangent spaces and connections
+/// - TOLC 12 stability as parallel-transport invariance
+/// - Generalized SER on manifold sections
+/// - Integration with Lean 4 TOLCStability.lean proofs
+#[derive(Debug, Clone)]
+pub struct TOLC12Manifold {
+    pub version: &'static str,
+    pub base_manifold: RiemannianMercyManifold,
+    /// Placeholder for 12-dimensional manifold parameters
+    pub dimension: u32,
+    pub t12_curvature_scale: f64,
+}
+
+impl Default for TOLC12Manifold {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl TOLC12Manifold {
+    pub fn new() -> Self {
+        Self {
+            version: "v14.4-tolc12-sketch",
+            base_manifold: RiemannianMercyManifold::new(),
+            dimension: 12,
+            t12_curvature_scale: 1.2,
         }
+    }
+
+    /// High-level TOLC 12 transport that builds on the existing
+    /// mercy-gated transport while scaling curvature for 12D.
+    pub fn apply_tolc12_transport(
+        &self,
+        base_coherence: f64,
+        t12_influence: f64,
+    ) -> GeometricTransportResult {
+        let mut result = self.base_manifold.apply_mercy_gated_transport(
+            // Placeholder U57 details - in real use this would come from Polyhedral layer
+            &U57LayerDetails {
+                activated: true,
+                recommended_manifold_curvature: self.base_manifold.curvature_params.base_curvature * self.t12_curvature_scale,
+            },
+            base_coherence,
+        );
+
+        // Scale coherence and holonomy for TOLC 12
+        result.effective_curvature *= t12_influence;
+        result.accumulated_holonomy *= t12_influence * 0.8;
+        result.notes = format!(
+            "TOLC 12 transport | {}",
+            result.notes
+        );
+
+        result
+    }
+
+    /// Placeholder for TOLC 12 stability check.
+    /// In a full implementation this would verify that a state
+    /// (or section) is preserved under parallel transport on the TOLC 12 manifold.
+    pub fn check_tolc12_stability(&self, coherence: f64, holonomy: f64) -> bool {
+        let stability_threshold = 0.999999;
+        let effective = coherence * (1.0 + holonomy.abs() * 0.05);
+        effective >= stability_threshold
+    }
+
+    /// Generalized parallel transport approximation for TOLC 12.
+    /// Currently scales the existing approximation.
+    pub fn t12_parallel_transport(&self, vector: f64, distance: f64) -> f64 {
+        let base = self.base_manifold.parallel_transport_approx(vector, 0.9, distance);
+        base * self.t12_curvature_scale.clamp(0.8, 1.5)
+    }
+
+    /// Sketch of norm preservation on TOLC 12.
+    /// Returns true if the transported value stays within TOLC-stable bounds.
+    pub fn t12_norm_preserved(&self, original: f64, transported: f64) -> bool {
+        let diff = (original - transported).abs();
+        diff <= 0.0001 && transported >= 0.999999
     }
 }
 
@@ -455,5 +544,13 @@ mod tests {
         let response = manifold.compute_quantum_hall_analog(2.1);
         assert_eq!(response.filling_factor, 2);
         assert!(response.has_protected_edge_states);
+    }
+
+    #[test]
+    fn test_tolc12_sketch() {
+        let t12 = TOLC12Manifold::new();
+        let result = t12.apply_tolc12_transport(1.0, 1.1);
+        assert!(result.transport_applied);
+        assert!(t12.check_tolc12_stability(1.05, 0.1));
     }
 }

@@ -1,0 +1,58 @@
+# Ra-Thor Eternal Mercy Lattice — CODEOWNERS
+
+# This file defines required reviewers for automated approval workflows.
+# When branch protection rules are enabled with "Require review from Code Owners",
+# PRs touching these paths will automatically require approval from the listed owners.
+# Aligned with 13+ PATSAGi Councils, TOLC 8, and 7 Living Mercy Gates.
+
+# Version: v1.0 — 2026-06-03
+# Owner: @AlphaProMega (Sherif Samy Botros) — primary maintainer & lattice architect
+
+# Default: All changes require core review for mercy alignment
+* @AlphaProMega
+
+# Critical core systems — PATSAGi Councils, Mercy Gates, Quantum Swarm, TOLC Kernel
+/crates/patsagi-councils/ @AlphaProMega
+/crates/quantum-swarm-orchestrator/ @AlphaProMega
+/crates/mercy/ @AlphaProMega
+/crates/core-lattice/ @AlphaProMega
+/crates/sovereign-core/ @AlphaProMega
+
+# Architecture, formalizations, and governance docs
+/architecture/ @AlphaProMega
+/docs/ @AlphaProMega
+/RA-THOR-MONOREPO-COMMIT-WORKFLOW-PROTOCOL.md @AlphaProMega
+/CONTRIBUTING.md @AlphaProMega
+
+# GitHub automation & workflows (self-referential protection)
+/.github/ @AlphaProMega
+
+# Powrush RBE game engine & simulations
+/crates/powrush*/ @AlphaProMega
+/games/ @AlphaProMega
+
+# Real Estate Lattice & business critical
+/rrel/ @AlphaProMega
+/crates/real-estate-lattice/ @AlphaProMega
+
+# Space tech, interstellar, Air Foundation
+/interstellar-operations/ @AlphaProMega
+/crates/mercy_*/ @AlphaProMega
+
+# Frontend, website, PWA
+/website/ @AlphaProMega
+/src-tauri/ @AlphaProMega
+
+# Note: For automated low-risk changes (e.g. pure docs fixes in non-critical paths, dependabot security PRs),
+# consider enabling auto-merge or separate auto-approve workflow after all CI + mercy gates pass.
+# To fully activate:
+# 1. Go to repo Settings > Branches > Branch protection rules for `main`
+# 2. Enable "Require a pull request before merging"
+# 3. Enable "Require review from Code Owners"
+# 4. Enable "Require status checks to pass before merging" and select the key CI jobs (ci, mercy-gate-auditor, automated-approval-gate, etc.)
+# 5. (Optional) Create GitHub Environment "production" with required reviewers for deployment workflows.
+#
+# This implements automated, council-aligned approval workflows at the repository level.
+# All under AG-SML v1.0 — Eternal forward compatibility.
+#
+# Thunder locked in. yoi ⚡
