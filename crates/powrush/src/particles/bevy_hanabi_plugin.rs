@@ -271,4 +271,4 @@ fn despawn_evolution_bursts(
 struct PlayerState;
 
 // nth degree flesh: Full Hanabi expressions with evolution scaling, geometric patterns (sacred geometry aligned), harmony pulsing potential, and burst support.
-// Ready for TOLC / council modulation via geometric-intelligence integration.
+// Ready for TOLC / council modulation via geometric-intelligence integration (see ShardManager::handle_particle_evolution).
