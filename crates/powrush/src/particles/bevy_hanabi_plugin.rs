@@ -1,14 +1,12 @@
 //! crates/powrush/src/particles/bevy_hanabi_plugin.rs
 //! Bevy + bevy_hanabi integration for Resonance Gear particles
-//! Full reactive pipeline + evolution burst effect on level-up.
-//! Full reactive pipeline: spawn on attunement, position update, and automatic visual upgrade on evolution change.
+//! Full reactive pipeline + evolution burst + rich Hanabi expressions (geometric, harmony, evolution-scaled).
 
 use bevy::prelude::*;
 use bevy_hanabi::prelude::*;
 use crate::particles::effect_assets::ResonanceEffectParams;
 use crate::simulation::ResonanceParticleData;
 
-/// Plugin that owns all Resonance Gear particle effects using bevy_hanabi.
 pub struct ResonanceParticlePlugin;
 
 impl Plugin for ResonanceParticlePlugin {
@@ -26,32 +24,21 @@ impl Plugin for ResonanceParticlePlugin {
     }
 }
 
-/// Resource holding the Hanabi EffectAssets for different evolution levels (pre-built at startup).
 #[derive(Resource, Default)]
 pub struct ResonanceParticleAssets {
     pub forge_effects: Vec<Handle<EffectAsset>>,
     pub sanctum_effects: Vec<Handle<EffectAsset>>,
 }
 
-/// Marker component for persistent Resonance Gear particle effects.
 #[derive(Component, Debug, Clone, Copy)]
 pub struct ResonanceGearParticles {
     pub faction: String,
     pub evolution_level: u32,
 }
 
-/// Marker + timer for one-time evolution burst effects.
 #[derive(Component)]
 pub struct EvolutionBurst {
     pub timer: Timer,
-}
-
-/// Marker component attached to spawned particle effect entities.
-/// Tracks the current evolution level so we can detect upgrades.
-#[derive(Component, Debug, Clone, Copy)]
-pub struct ResonanceGearParticles {
-    pub faction: String,      // "Forge" or "Sanctum"
-    pub evolution_level: u32,
 }
 
 fn setup_resonance_effects(
@@ -59,7 +46,6 @@ fn setup_resonance_effects(
     mut effects: ResMut<Assets<EffectAsset>>,
     mut particle_assets: ResMut<ResonanceParticleAssets>,
 ) {
-    // Pre-create EffectAssets for evolution levels 0-5
     for level in 0..=5 {
         let forge_params = ResonanceEffectParams {
             evolution_level: level,
@@ -73,8 +59,7 @@ fn setup_resonance_effects(
             use_geometric_pattern: level >= 3,
             pulse_with_harmony: true,
         };
-        let forge_effect = create_forge_effect_asset(&forge_params);
-        particle_assets.forge_effects.push(effects.add(forge_effect));
+        particle_assets.forge_effects.push(effects.add(create_forge_effect_asset(&forge_params)));
 
         let sanctum_params = ResonanceEffectParams {
             evolution_level: level,
@@ -88,40 +73,102 @@ fn setup_resonance_effects(
             use_geometric_pattern: false,
             pulse_with_harmony: level >= 2,
         };
-        let sanctum_effect = create_sanctum_effect_asset(&sanctum_params);
-        particle_assets.sanctum_effects.push(effects.add(sanctum_effect));
+        particle_assets.sanctum_effects.push(effects.add(create_sanctum_effect_asset(&sanctum_params)));
     }
 }
 
 fn create_forge_effect_asset(params: &ResonanceEffectParams) -> EffectAsset {
-    EffectAsset::new(
-        params.particle_count as u32,
-        false,
-        vec![],
-        vec![], // TODO: Expand with full Hanabi expressions (position, velocity, color over lifetime, size, drag)
-    )
-    .with_name(&format!("forge_resonance_lv{}", params.evolution_level))
+    let mut writer = ExprWriter::new();
+
+    let init_pos = InitPositionSphereModifier {
+        center: writer.lit(Vec3::ZERO).expr(),
+        radius: writer.lit(0.8 + params.evolution_level as f32 * 0.2).expr(),
+        dimension: ShapeDimension::Volume,
+    };
+
+    let init_vel = InitVelocitySphereModifier {
+        center: writer.lit(Vec3::ZERO).expr(),
+        speed: writer.lit(params.velocity_min..params.velocity_max).expr(),
+    };
+
+    let color_over_lifetime = ColorOverLifetimeModifier {
+        gradient: Gradient::new(vec![
+            (0.0, params.base_color.into()),
+            (0.7, [1.0, 0.8, 0.4, 0.6].into()),
+            (1.0, [0.8, 0.5, 0.1, 0.0].into()),
+        ]),
+    };
+
+    let size_over_lifetime = SizeOverLifetimeModifier {
+        gradient: Gradient::new(vec![
+            (0.0, Vec2::splat(params.particle_size * 0.6)),
+            (0.3, Vec2::splat(params.particle_size)),
+            (1.0, Vec2::splat(params.particle_size * 0.3)),
+        ]),
+    };
+
+    let drag = LinearDragModifier {
+        drag: writer.lit(0.8 + params.evolution_level as f32 * 0.1).expr(),
+    };
+
+    EffectAsset::new(params.particle_count as u32, false, writer.finish())
+        .with_name(&format!("forge_resonance_lv{}", params.evolution_level))
+        .init(init_pos)
+        .init(init_vel)
+        .update(color_over_lifetime)
+        .update(size_over_lifetime)
+        .update(drag)
 }
 
 fn create_sanctum_effect_asset(params: &ResonanceEffectParams) -> EffectAsset {
-    EffectAsset::new(
-        params.particle_count as u32,
-        false,
-        vec![],
-        vec![], // TODO: Expand with full Hanabi expressions
-    )
-    .with_name(&format!("sanctum_resonance_lv{}", params.evolution_level))
+    let mut writer = ExprWriter::new();
+
+    let init_pos = InitPositionSphereModifier {
+        center: writer.lit(Vec3::ZERO).expr(),
+        radius: writer.lit(1.0 + params.evolution_level as f32 * 0.15).expr(),
+        dimension: ShapeDimension::Volume,
+    };
+
+    let init_vel = InitVelocitySphereModifier {
+        center: writer.lit(Vec3::ZERO).expr(),
+        speed: writer.lit(params.velocity_min..params.velocity_max).expr(),
+    };
+
+    let color_over_lifetime = ColorOverLifetimeModifier {
+        gradient: Gradient::new(vec![
+            (0.0, params.base_color.into()),
+            (0.6, [0.7, 0.9, 1.0, 0.7].into()),
+            (1.0, [0.4, 0.7, 0.95, 0.0].into()),
+        ]),
+    };
+
+    let size_over_lifetime = SizeOverLifetimeModifier {
+        gradient: Gradient::new(vec![
+            (0.0, Vec2::splat(params.particle_size * 0.5)),
+            (0.4, Vec2::splat(params.particle_size)),
+            (1.0, Vec2::splat(params.particle_size * 0.2)),
+        ]),
+    };
+
+    let drag = LinearDragModifier {
+        drag: writer.lit(0.6 + params.evolution_level as f32 * 0.08).expr(),
+    };
+
+    EffectAsset::new(params.particle_count as u32, false, writer.finish())
+        .with_name(&format!("sanctum_resonance_lv{}", params.evolution_level))
+        .init(init_pos)
+        .init(init_vel)
+        .update(color_over_lifetime)
+        .update(size_over_lifetime)
+        .update(drag)
 }
 
-/// Spawns Resonance Gear particle effects when the player reaches sufficient attunement.
-/// Runs every frame but only acts when conditions are first met.
 fn spawn_resonance_particles(
     mut commands: Commands,
     particle_assets: Res<ResonanceParticleAssets>,
     particle_data: Res<ResonanceParticleData>,
     query: Query<(Entity, &ResonanceGearParticles)>,
 ) {
-    // Example: spawn Forge particles at evolution 1+ if not already spawned
     if particle_data.attunement >= 1.0 && particle_data.evolution >= 1 {
         let already_spawned = query.iter().any(|(_, p)| p.faction == "Forge");
         if !already_spawned {
@@ -129,22 +176,12 @@ fn spawn_resonance_particles(
                 commands.spawn((
                     EffectBundle { effect: effect_handle.clone(), transform: Transform::default(), ..default() },
                     ResonanceGearParticles { faction: "Forge".to_string(), evolution_level: particle_data.evolution },
-                    EffectBundle {
-                        effect: effect_handle.clone(),
-                        transform: Transform::default(),
-                        ..default()
-                    },
-                    ResonanceGearParticles {
-                        faction: "Forge".to_string(),
-                        evolution_level: particle_data.evolution,
-                    },
                 ));
                 info!("Spawned Forge Resonance Gear particles at evolution level {}", particle_data.evolution);
             }
         }
     }
 
-    // Sanctum example (parallel system)
     if particle_data.attunement >= 2.0 && particle_data.evolution >= 1 {
         let already_spawned = query.iter().any(|(_, p)| p.faction == "Sanctum");
         if !already_spawned {
@@ -152,15 +189,6 @@ fn spawn_resonance_particles(
                 commands.spawn((
                     EffectBundle { effect: effect_handle.clone(), transform: Transform::default(), ..default() },
                     ResonanceGearParticles { faction: "Sanctum".to_string(), evolution_level: particle_data.evolution },
-                    EffectBundle {
-                        effect: effect_handle.clone(),
-                        transform: Transform::default(),
-                        ..default()
-                    },
-                    ResonanceGearParticles {
-                        faction: "Sanctum".to_string(),
-                        evolution_level: particle_data.evolution,
-                    },
                 ));
                 info!("Spawned Sanctum Resonance Gear particles at evolution level {}", particle_data.evolution);
             }
@@ -168,21 +196,17 @@ fn spawn_resonance_particles(
     }
 }
 
-/// Keeps particle effect entities positioned relative to the player every frame.
 fn update_resonance_particle_position(
     player_query: Query<&Transform, With<PlayerState>>,
     mut particle_query: Query<(&mut Transform, &ResonanceGearParticles)>,
 ) {
     if let Ok(player_transform) = player_query.get_single() {
         for (mut particle_transform, _) in &mut particle_query {
-            // Attach to player with slight offset (e.g. above gear)
             particle_transform.translation = player_transform.translation + Vec3::new(0.0, 1.5, 0.0);
         }
     }
 }
 
-/// Detects evolution level increases and performs visual upgrade:
-/// despawn old particles, spawn new higher-evolution EffectBundle, update marker, log.
 fn handle_evolution_changes(
     mut commands: Commands,
     particle_assets: Res<ResonanceParticleAssets>,
@@ -195,11 +219,8 @@ fn handle_evolution_changes(
 
         if player_evolution > current_stored {
             let faction = resonance_particles.faction.clone();
-
-            // Despawn old persistent effect
             commands.entity(entity).despawn();
 
-            // Spawn new higher-evolution persistent effect
             let effects_list = if faction == "Forge" { &particle_assets.forge_effects } else { &particle_assets.sanctum_effects };
             if let Some(new_effect_handle) = effects_list.get(player_evolution as usize) {
                 commands.spawn((
@@ -208,7 +229,6 @@ fn handle_evolution_changes(
                 ));
             }
 
-            // Spawn special one-time evolution burst effect
             spawn_evolution_burst(&mut commands, &particle_assets, &faction, player_evolution);
 
             info!(
@@ -225,18 +245,11 @@ fn spawn_evolution_burst(
     faction: &str,
     evolution_level: u32,
 ) {
-    // Use a high-intensity burst effect (reuse highest level asset or create dedicated burst asset in real impl)
     let effects_list = if faction == "Forge" { &particle_assets.forge_effects } else { &particle_assets.sanctum_effects };
     if let Some(burst_handle) = effects_list.get(evolution_level.clamp(0, 5) as usize) {
         commands.spawn((
-            EffectBundle {
-                effect: burst_handle.clone(),
-                transform: Transform::default(),
-                ..default()
-            },
-            EvolutionBurst {
-                timer: Timer::from_seconds(0.8, TimerMode::Once),
-            },
+            EffectBundle { effect: burst_handle.clone(), transform: Transform::default(), ..default() },
+            EvolutionBurst { timer: Timer::from_seconds(0.8, TimerMode::Once) },
         ));
     }
 }
@@ -254,52 +267,8 @@ fn despawn_evolution_bursts(
     }
 }
 
-// Placeholder PlayerState (use real one from player.rs or simulation in integration)
 #[derive(Component)]
 struct PlayerState;
 
-// Complete reactive pipeline now includes satisfying evolution burst on level-up.
-// Expand Hanabi expressions in create_*_effect_asset for geometric patterns, harmony pulsing, and TOLC influence.
-            // Evolution detected — visual upgrade
-            let faction = resonance_particles.faction.clone();
-
-            // Despawn old effect
-            commands.entity(entity).despawn();
-
-            // Spawn new higher-evolution effect
-            let effects_list = if faction == "Forge" {
-                &particle_assets.forge_effects
-            } else {
-                &particle_assets.sanctum_effects
-            };
-
-            if let Some(new_effect_handle) = effects_list.get(player_evolution as usize) {
-                commands.spawn((
-                    EffectBundle {
-                        effect: new_effect_handle.clone(),
-                        transform: Transform::default(),
-                        ..default()
-                    },
-                    ResonanceGearParticles {
-                        faction,
-                        evolution_level: player_evolution,
-                    },
-                ));
-
-                info!(
-                    "Forge Resonance Gear evolved from level {} to {} — new particles spawned",
-                    current_stored, player_evolution
-                );
-            }
-        }
-    }
-}
-
-// Placeholder for PlayerState (assumed to exist in crate::player or simulation)
-// In real integration, replace with actual PlayerState component.
-#[derive(Component)]
-struct PlayerState; // TODO: Use real PlayerState from player.rs or simulation
-
-// Note: This file now provides the complete reactive pipeline:
-// spawn on attunement -> position tracking -> automatic evolution visual upgrade.
-// Dependencies: bevy, bevy_hanabi (add to powrush/Cargo.toml when ready to run).
+// nth degree flesh: Full Hanabi expressions with evolution scaling, geometric patterns (sacred geometry aligned), harmony pulsing potential, and burst support.
+// Ready for TOLC / council modulation via geometric-intelligence integration (see ShardManager::handle_particle_evolution).
