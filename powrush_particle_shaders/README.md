@@ -1,10 +1,10 @@
 # Powrush Particle Shaders
 
-## Culling Unification (Phase 1)
+## Pipeline Management
 
-`CullingPass` now provides a `prepare()` method that returns a `CullingDispatchPackage`.
+A `ComputePipelineManager` has been introduced to centralize creation and caching of compute pipelines, with support for specialization constants.
 
-This continues the effort to build a clean, professional, and efficient culling architecture.
+This is part of the ongoing architectural unification in Phase 1.
 
 ---
 *Phase 1 Consolidation*
