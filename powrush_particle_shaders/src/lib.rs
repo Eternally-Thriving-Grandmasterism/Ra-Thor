@@ -1,51 +1,57 @@
 /*!
-# Powrush Particle Shaders — Cooperative Matrix Formats
+# Powrush Particle Shaders — Matrix Multiplication Instruction Sets
 
-Exploration of matrix formats used in cooperative matrix extensions.
+Exploration of low-level GPU matrix multiplication instruction sets.
 
-## What are Cooperative Matrix Formats?
+## Overview
 
-In cooperative matrix APIs (e.g. VK_KHR_cooperative_matrix), matrices are not arbitrary. They have specific:
+Modern GPUs provide specialized hardware instructions for matrix multiplication that far outperform traditional scalar or vector FMA (Fused Multiply-Add) operations.
 
-- **Element types** (f16, f32, s8, u8, s32, etc.)
-- **Matrix shapes / fragment sizes** (e.g. 16x16, 8x8, 16x8, 32x8)
-- **Storage layouts** (row-major, column-major, or hardware-optimized tiled layouts)
+These instructions are the foundation upon which cooperative matrix APIs are built.
 
-These formats are chosen to match the underlying hardware matrix units (Tensor Cores, Matrix Cores) for maximum efficiency.
+## Major Instruction Sets
 
-Threads in a cooperative group work together to load, compute on, and store these matrix fragments.
+### NVIDIA (Tensor Cores)
+- `mma.sync` family in PTX/SASS
+- Shapes such as:
+  - m16n8k8, m16n8k16 (f16, tf32)
+  - m8n8k4, m8n8k16, m16n8k32 (integer)
+- High throughput for mixed-precision computation
 
-## Why Formats Matter
+### AMD (Matrix Cores)
+- MFMA (Matrix Fused Multiply-Add) instructions
+- Examples: v_mfma_f32_16x16x16f16, v_mfma_f32_32x32x8f16
+- Support for various data types and accumulation precisions
 
-- Different formats have different performance characteristics and precision.
-- Some formats support accumulation in higher precision (e.g., f16 multiply → f32 accumulate).
-- Layout affects how efficiently data can be loaded from memory into the cooperative matrix.
-- Compatibility varies across GPU vendors and generations.
+### Intel
+- DPAS (Dot Product Accumulate Systolic) instructions
+- Used in Xe and Arc architectures for matrix workloads
+
+## Connection to Higher-Level APIs
+
+Cooperative matrix extensions (VK_KHR_cooperative_matrix, etc.) provide a portable abstraction over these low-level instructions.
+WGSL will eventually expose similar high-level constructs that map down to the appropriate hardware instructions.
 
 ## Relevance to Powrush
 
-As cooperative matrix support matures in WGSL, understanding formats will be important for:
-- Implementing small neural networks for culling or visual effects
-- Efficient batch transformations of particle data
-- Future high-performance procedural effects
-
-The choice of format will impact both performance and numerical behavior.
+Understanding these instruction sets helps anticipate performance characteristics when cooperative matrix features become available for:
+- Neural culling / importance scoring
+- Advanced procedural effects
+- High-throughput batch linear algebra on particle data
 */
 
 use powrush_faction_dynamics::{Faction, FactionVisualIdentity, ParticleParams};
 
 pub mod compute {
-    /// Notes on cooperative matrix formats for future use.
-    pub const COOPERATIVE_MATRIX_FORMAT_NOTES: &str = r#"
-        // Common cooperative matrix configurations (as of 2026):
-        // - A: f16, 16x16 or 8x8
-        // - B: f16, matching A
-        // - C/D (accumulator): f16 or f32
+    /// Notes on matrix multiplication instruction sets.
+    pub const MATRIX_MUL_INSTRUCTION_NOTES: &str = r#"
+        // Low-level matrix multiplication instructions are vendor-specific.
+        // Cooperative matrix APIs abstract over them.
         //
-        // Loading typically uses cooperative_matrix_load with specific layouts.
-        // Computation uses cooperative_matrix_multiply_accumulate.
+        // When WGSL gains cooperative matrix support, the compiler
+        // will map high-level operations down to the best available
+        // hardware instructions on each platform.
         //
-        // Exact shapes and types depend on the GPU and extension version.
-        // Future WGSL will likely expose these as parameterized types.
+        // For now, we track these capabilities for future optimization.
     "#;
 }
