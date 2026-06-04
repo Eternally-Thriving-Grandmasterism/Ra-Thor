@@ -1,71 +1,76 @@
 /*!
-# Powrush Particle Shaders — PCIe Gen5 Signal Integrity Challenges
+# Powrush Particle Shaders — CTLE and DFE Equalization Techniques
 
-Exploration of the physical-layer difficulties introduced by PCIe Gen5.
+Examination of Continuous Time Linear Equalizer (CTLE) and Decision Feedback Equalizer (DFE) used in high-speed SerDes such as PCIe Gen5.
 
-## Why Gen5 is Harder
+## Why Equalization is Needed
 
-PCIe Gen5 runs at 32 GT/s — double the signaling rate of Gen4. At these frequencies, several physical effects that were manageable at lower speeds become severe.
+At 32 GT/s (PCIe Gen5), high-frequency components of the signal are heavily attenuated by the channel (PCB traces, connectors, vias). Without equalization, the received eye is closed and the bit error rate becomes unacceptable.
 
-## Major Signal Integrity Challenges
+Equalization compensates for channel loss and inter-symbol interference (ISI).
 
-### 1. Insertion Loss
-- High-frequency signals attenuate significantly traveling through PCB traces, vias, connectors, and cables.
-- Gen5 channels suffer much higher loss than Gen4, reducing eye opening at the receiver.
+## CTLE (Continuous Time Linear Equalizer)
 
-### 2. Return Loss and Reflections
-- Impedance mismatches cause reflections that distort the received signal.
-- Requires tighter control over PCB stackup, via design, and connector quality.
+**Role**:
+- Analog filter at the receiver front-end.
+- Provides high-frequency boost (peaking) to compensate for insertion loss.
+- Helps restore high-frequency content that was attenuated by the channel.
 
-### 3. Crosstalk (NEXT/FEXT)
-- Adjacent lanes interfere with each other more strongly at higher frequencies.
-- Demands better routing practices and shielding.
+**Strengths**:
+- Relatively simple and low power.
+- Fast response.
+- Good at compensating frequency-dependent loss.
 
-### 4. Jitter
-- Both random jitter (RJ) and deterministic jitter (DJ) become harder to manage.
-- Total jitter budget is significantly tighter at 32 GT/s.
+**Limitations**:
+- Amplifies noise and crosstalk along with the signal.
+- Cannot fully cancel reflections or long-tail ISI.
+- Limited boost range before noise becomes problematic.
 
-### 5. Limited Channel Reach
-- Maximum reliable trace length is shorter than Gen4.
-- Many legacy designs require retimers, better PCB materials (low-loss laminates), or shorter paths to achieve reliable Gen5 operation.
+## DFE (Decision Feedback Equalizer)
 
-### 6. Equalization Complexity
-- Gen5 requires more sophisticated transmitter and receiver equalization (CTLE + multi-tap DFE + FFE).
-- Increases design complexity, power consumption, and silicon area.
+**Role**:
+- Uses decisions from previously received bits to cancel post-cursor inter-symbol interference (ISI) and reflections.
+- Typically implemented as a feedback filter with one or more taps.
 
-### 7. Power and Thermal Impact
-- Higher speeds and more complex equalization increase power draw and heat.
+**Strengths**:
+- Very effective at removing residual ISI and reflections after CTLE.
+- Does not amplify noise (uses decided bits).
+- Essential for closing the eye at Gen5 speeds.
 
-### 8. Manufacturing Tolerances
-- Smaller margins mean tighter control over fabrication, materials, and assembly is required.
-- Small variations can push a link out of spec.
+**Limitations**:
+- More complex and higher power than CTLE.
+- Error propagation risk if a decision error occurs (usually mitigated by good front-end CTLE).
+- Requires training/adaptation.
 
-## Practical Impact on GPU Systems
+## Typical Receiver Architecture (PCIe Gen5)
 
-- Many consumer and even some server motherboards struggle to achieve full Gen5 speeds reliably without high-quality components or retimers.
-- Real-world bandwidth is often 50-58 GB/s instead of the full 64 GB/s theoretical.
-- High-end GPUs and motherboards marketed as "Gen5 ready" still require careful platform design.
-- Riser cables and extenders become particularly problematic at Gen5 speeds.
+Modern high-speed receivers combine multiple techniques:
+1. **CTLE** – First stage, provides high-frequency boost.
+2. **Multi-tap DFE** – Cleans up remaining post-cursor ISI and reflections.
+3. **FFE (Feed-Forward Equalizer)** – Often present at the transmitter side to pre-emphasize the signal.
+
+This combination allows reliable operation at 32 GT/s over realistic channels.
 
 ## Relevance to Powrush
 
-Most Powrush development targets typical PCIe systems. Understanding these signal integrity challenges helps explain:
-- Why achieving full theoretical Gen5 bandwidth is non-trivial.
-- Why some high-end builds still fall back to Gen4 behavior.
-- Why careful hardware selection (motherboard, riser quality) matters for maximum performance.
+For application-level development, CTLE and DFE are abstracted by the hardware. However, understanding them helps explain:
+- Why PCIe Gen5 is significantly harder to implement reliably than Gen4.
+- Why high-quality motherboards, risers, and GPUs are required to achieve good Gen5 performance.
+- Why real-world bandwidth often falls short of theoretical maximum on marginal platforms.
+- Why signal integrity becomes a first-order concern when pushing PCIe bandwidth limits.
 
-For most workloads, the difference between good Gen4 and good Gen5 is noticeable but not dramatic. However, pushing the limits of PCIe bandwidth makes signal integrity a first-order concern.
+This knowledge provides deeper context for why careful hardware selection and platform design matter when optimizing memory movement performance.
 */
 
 use powrush_faction_dynamics::{Faction, FactionVisualIdentity, ParticleParams};
 
 pub mod compute {
-    /// Notes on PCIe Gen5 signal integrity.
-    pub const PCIE_GEN5_SI_NOTES: &str = r#"
-        // Gen5 at 32 GT/s brings serious signal integrity challenges.
-        // Insertion loss, crosstalk, jitter, and limited reach are major issues.
-        // Real-world systems often fall short of theoretical 64 GB/s.
-        // High-quality platforms and careful design are required.
-        // Relevant when pushing maximum PCIe bandwidth.
+    /// Notes on CTLE and DFE.
+    pub const CTLE_DFE_NOTES: &str = r#"
+        // CTLE: high-frequency boost, simple but amplifies noise
+        // DFE: cancels post-cursor ISI, more powerful but complex
+        // Modern receivers combine CTLE + multi-tap DFE
+        // Essential for reliable 32 GT/s operation
+        // Explains why Gen5 platforms vary significantly in quality
     "#;
 }
