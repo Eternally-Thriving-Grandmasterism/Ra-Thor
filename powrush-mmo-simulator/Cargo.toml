@@ -4,13 +4,14 @@ version.workspace = true
 authors.workspace = true
 edition.workspace = true
 license.workspace = true
-description = "Powrush RBE MMO Full Simulation Engine — Mercy-Gated ShardManager Integration for Interest Management, Council Proposal Routing & Epigenetic Evolution in Ra-Thor ONE Organism"
+description = "Powrush RBE MMO Full Simulation Engine — Mercy-Gated ShardManager + RBEconomy Integration for Interest Management, Council Proposal Routing & Real Economy Ticks in Ra-Thor ONE Organism"
 repository.workspace = true
-keywords = ["powrush", "mmo", "rbe", "simulation", "shardmanager", "mercy", "ra-thor", "geometric-intelligence"]
+keywords = ["powrush", "mmo", "rbe", "simulation", "shardmanager", "rbe-economy", "mercy", "ra-thor", "geometric-intelligence"]
 categories = ["games", "simulation"]
 
 [dependencies]
 geometric-intelligence = { path = "../geometric-intelligence" }
+powrush_rbe_engine = { path = "../powrush_rbe_engine" }
 ra-thor-mercy = { path = "../mercy" }
 serde = { workspace = true, features = ["derive"] }
 thiserror.workspace = true
