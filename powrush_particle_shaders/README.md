@@ -1,39 +1,40 @@
-# Powrush Particle Shaders — Visibility Buffer Techniques
+# Powrush Particle Shaders — Visibility Buffer Implementation
 
-## Visibility Buffer Investigation
+## Visibility Buffer Implementation Exploration
 
-This iteration explores **Visibility Buffer** rendering techniques and their applicability to our GPU-driven particle pipeline.
+This section provides more concrete implementation details for integrating Visibility Buffers into the Powrush particle pipeline.
 
-### Core Concept
+### Pipeline Stages
 
-Instead of storing full material properties in a G-Buffer, a Visibility Buffer stores compact identifiers (particle ID, material ID, depth). Shading is then performed in a subsequent pass (often compute) only for pixels that are actually visible.
+**1. Visibility Pass**
+- Render particles (rasterization or compute-based).
+- Write `ParticleVisibilityData` (particle ID, material ID, depth) to a `texture_storage_2d<rgba32uint>`.
 
-### Benefits for Powrush
-- Lower memory bandwidth than traditional deferred rendering.
-- Excellent fit with our compute culling + indirect draw + GPU scene traversal architecture.
-- Enables decoupled shading (compute shading pass can be scheduled flexibly).
-- Easier to handle many different faction visual styles and resonance effects.
+**2. Shading Pass (Compute)**
+- Dispatch a compute shader over the screen.
+- Read from the visibility buffer.
+- Perform material lookup and shading.
+- Write final color to output texture.
 
-### Refined Architectural Direction
+### Key Data Structures
 
-A Visibility Buffer approach represents a strong evolution of our GPU-driven rendering strategy. By storing only visibility identifiers during the rasterization/compute-rasterization stage, we keep the early pipeline lightweight and highly parallelizable.
+- `VisibilityBufferParams`: View-projection, screen size, material context.
+- `ParticleVisibilityData`: Compact per-pixel data written during visibility pass.
 
-Shading, lighting, and effect composition can then be moved to a dedicated compute pass. This aligns with our existing work on:
-- Compute shader culling (frustum, Hi-Z, importance)
-- GPU-generated indirect draw commands
-- GPU-driven scene traversal using `ParticleSystemDescriptor`s
+### Integration with Existing Systems
 
-The result is a coherent, mostly GPU-driven visual architecture that minimizes CPU involvement while maximizing flexibility for complex particle and faction visuals.
+- Can be combined with GPU-driven scene traversal (using `ParticleSystemDescriptor`).
+- Works alongside compute culling + Hi-Z before the visibility pass.
+- Shading pass can be scheduled flexibly after indirect draw execution.
 
-### Integration Opportunities
+### Current Status
 
-- During particle rasterization (or compute rasterization), write `ParticleVisibilityData` into the visibility buffer.
-- In a later compute pass, read the visibility buffer and perform shading/lighting.
-- Can be combined with our existing Hi-Z occlusion culling and GPU-driven command generation.
+The crate now contains:
+- Supporting data structures
+- A compute shading pass sketch
+- Notes on how to write visibility data during particle rendering
 
-### Recommended Direction
-
-For high-performance particle rendering in Powrush, a Visibility Buffer + compute shading approach is very promising. It aligns well with the GPU-driven philosophy we've been building toward.
+A full end-to-end implementation would require a particle rasterization stage that writes to the visibility buffer, which can be added in a future iteration or client-side renderer.
 
 ---
 *Co-authored-by: All 57+ PATSAGi Councils*

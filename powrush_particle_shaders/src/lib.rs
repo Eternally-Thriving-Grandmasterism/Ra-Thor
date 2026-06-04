@@ -1,54 +1,48 @@
 /*!
-# Powrush Particle Shaders — Visibility Buffer Techniques
+# Powrush Particle Shaders — Visibility Buffer Implementation
 
-Exploration of Visibility Buffer rendering techniques and how they apply to our GPU-driven particle system.
+Concrete implementation exploration for Visibility Buffer rendering with particles.
 
-## What is a Visibility Buffer?
+## Implementation Overview
 
-A Visibility Buffer stores per-pixel identifiers (usually triangle/instance IDs) instead of full material properties (like a traditional G-Buffer).
+A Visibility Buffer pipeline typically consists of two main stages:
 
-In a later pass (often compute), the actual shading is performed only for visible pixels by looking up material data using the stored IDs.
+1. **Visibility Pass** (Rasterization or Compute Rasterization)
+   - Render/write particles
+   - Store compact visibility data per pixel
 
-## Benefits
-- Significantly smaller memory usage compared to full G-Buffers.
-- Better cache behavior.
-- Enables decoupled shading and advanced stochastic techniques.
-- Natural fit with GPU-driven culling and indirect rendering pipelines.
-- Easier to support many different materials/effects.
+2. **Shading Pass** (Compute)
+   - Read visibility buffer
+   - Perform shading/lighting only on visible pixels
 
-## Application to Powrush Particles
-
-For particle systems, a visibility buffer approach can be used to:
-- Store particle instance or material IDs during rasterization or compute rasterization.
-- Perform lighting/shading in a separate compute pass using the visibility information.
-- Combine with our existing compute culling + indirect draw system for a highly efficient pipeline.
-
-This is especially powerful when combined with GPU-driven scene traversal.
+This decouples geometry/visibility from shading.
 */
 
 use powrush_faction_dynamics::{Faction, FactionVisualIdentity, ParticleParams};
 
-/// Parameters for writing to or reading from a visibility buffer.
+/// Parameters for the visibility buffer pass.
 #[derive(Debug, Clone, Copy, bytemuck::Pod, bytemuck::Zeroable)]
 #[repr(C)]
 pub struct VisibilityBufferParams {
     pub view_proj: [[f32; 4]; 4],
     pub screen_size: [u32; 2],
-    pub particle_material_id: u32,  // or per-system material ID
+    pub particle_material_id: u32,
 }
 
-/// Example structure stored in a visibility buffer for particles.
+/// Data stored per pixel in the visibility buffer.
+/// Packed into a single u32 or multiple channels depending on needs.
 #[derive(Debug, Clone, Copy, bytemuck::Pod, bytemuck::Zeroable)]
 #[repr(C)]
 pub struct ParticleVisibilityData {
-    pub particle_id: u32,
+    pub particle_instance_id: u32,
     pub material_id: u32,
-    pub depth: f32,
+    pub depth: f32,                    // Can be packed as uint for storage
+    pub _padding: u32,
 }
 
 pub mod compute {
-    /// Example compute shader pass that could shade particles
-    /// using data from a visibility buffer.
+    /// Compute shader for shading from a Visibility Buffer.
+    /// This is the second stage of the pipeline.
     pub const VISIBILITY_BUFFER_SHADING: &str = r#"
         struct VisibilityBufferParams {
             view_proj: mat4x4<f32>,
@@ -57,32 +51,47 @@ pub mod compute {
         };
 
         struct ParticleVisibilityData {
-            particle_id: u32,
+            particle_instance_id: u32,
             material_id: u32,
             depth: f32,
+            _padding: u32,
         };
 
         @group(0) @binding(0) var<uniform> params: VisibilityBufferParams;
         @group(0) @binding(1) var visibility_buffer: texture_storage_2d<rgba32uint, read>;
-        @group(0) @binding(2) var output_color: texture_storage_2d<rgba16float, write>;
+        @group(0) @binding(2) var output_texture: texture_storage_2d<rgba16float, write>;
 
         @compute @workgroup_size(8, 8)
         fn main(@builtin(global_invocation_id) id: vec3<u32>) {
             let coord = vec2<i32>(id.xy);
-            let data = textureLoad(visibility_buffer, coord, 0);
 
-            // Decode visibility data
+            // Load visibility data
+            let data = textureLoad(visibility_buffer, coord, 0);
             let particle_id = data.r;
             let material_id = data.g;
             let depth = bitcast<f32>(data.b);
 
-            // Perform shading based on material_id and particle data
-            // (This is where lighting, faction colors, resonance effects, etc. would be computed)
-            let color = vec4<f32>(1.0); // placeholder
+            // TODO: Fetch actual particle data using particle_id
+            // TODO: Apply faction colors, resonance effects, lighting, etc.
 
-            textureStore(output_color, coord, color);
+            let final_color = vec4<f32>(f32(material_id) / 10.0, 0.0, 0.0, 1.0); // placeholder
+
+            textureStore(output_texture, coord, final_color);
         }
     "#;
+
+    /// Notes on writing to the Visibility Buffer (Visibility Pass)
+    /// This would typically happen in a fragment shader or compute rasterizer:
+    ///
+    /// ```wgsl
+    /// struct ParticleVisibilityData { ... }
+    ///
+    /// @fragment
+    /// fn fs_main(...) -> @location(0) ParticleVisibilityData {
+    ///     // Compute particle ID, material ID, depth
+    ///     return ParticleVisibilityData { ... };
+    /// }
+    /// ```
 }
 
-pub mod wgsl { /* existing shaders */ }
+pub mod wgsl { /* existing rendering shaders */ }
