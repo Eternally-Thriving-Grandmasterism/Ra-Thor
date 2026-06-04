@@ -1,59 +1,59 @@
 /*!
-# Powrush Particle Shaders — GPU Atomic Contention Metrics
+# Powrush Particle Shaders — Nsight Compute Atomic Counters
 
-Analysis of metrics for measuring and understanding atomic contention on GPUs.
+Documentation of relevant Nsight Compute metrics for analyzing atomic contention.
 
-## Why Measure Atomic Contention?
+## Key Nsight Compute Sections for Atomics
 
-Atomic contention is often a hidden scalability limiter in GPU compute. Measuring it helps validate optimizations like WaveLocal Reduction and guides further tuning.
+### Memory Workload Analysis
+- `atomic_throughput`
+- `l2_atomic_throughput` / `l2_atomic_requests`
+- `global_atomic_requests`
+- `shared_atomic_requests` (for workgroup atomics)
 
-## Useful Metrics for Atomic Contention
+### Source Counters / Replay Overhead
+- `memory_replay_overhead`
+- Metrics showing how often memory operations (including atomics) are replayed due to conflicts or hazards.
 
-### Direct / Hardware Metrics (via profilers)
-- **Atomic Throughput**: Atomics per second or per cycle.
-- **Memory Replay Overhead**: How often memory operations (including atomics) are replayed due to conflicts.
-- **L2 Atomic Bandwidth / Traffic**: Volume of atomic traffic going to L2.
-- **Coherence Traffic**: Cache line invalidations or transfers caused by atomics.
-- **Stall Reasons**: "Memory Dependency", "Synchronization", or "Long Scoreboard" stalls related to atomics.
+### Stall Reasons
+- "Long Scoreboard"
+- "Memory Dependency"
+- "Synchronization"
+These can indicate stalls caused by atomic latency or contention.
 
-### Indirect / Application-Level Metrics
-- **Kernel Execution Time** before vs after atomic optimizations.
-- **Number of Global Atomics Issued** (can be counted in shader with debug counters).
-- **Visible Particle Throughput**: Particles processed per ms in culling.
-- **Tail Latency** of culling kernels under high load.
+### Throughput Metrics
+- `sm_throughput`
+- `compute_throughput`
+- Kernel-level throughput metrics that improve when atomic contention is reduced.
 
-## Impact of WaveLocal Reduction
+## How WaveLocal Reduction Affects These Metrics
 
-Our WaveLocal Reduction technique should show clear improvements in:
-- Dramatic reduction in global atomic count (often by 32x or more per wave).
-- Lower memory replay overhead.
-- Reduced kernel execution time under high visibility scenarios.
-- Better scaling as particle count increases.
+After applying WaveLocal Reduction, expect to see:
+- Significant drop in `global_atomic_requests` and `atomic_throughput` (fewer atomics issued overall).
+- Reduction in `memory_replay_overhead`.
+- Improvement in kernel `sm_throughput` and reduction in memory-related stall reasons.
+- Better scaling in throughput metrics as particle count increases.
 
-## Recommended Analysis Approach
+## Recommended Usage
 
-1. Profile baseline culling kernel (pure atomicAdd per thread).
-2. Profile after WaveLocal Reduction.
-3. Compare:
-   - Atomic count / throughput
-   - Kernel time
-   - Memory stall reasons
-4. Measure scaling behavior with increasing particle density.
+1. Run Nsight Compute on the baseline culling kernel.
+2. Run on the optimized version with WaveLocal Reduction.
+3. Compare the atomic-related sections listed above.
+4. Focus on relative changes rather than absolute values.
 
-Tools: Nsight Compute (NVIDIA), Radeon GPU Profiler (AMD), or equivalent.
+These metrics provide concrete evidence of reduced atomic contention and improved efficiency.
 */
 
 use powrush_faction_dynamics::{Faction, FactionVisualIdentity, ParticleParams};
 
 pub mod compute {
-    /// Notes on atomic contention metrics.
-    pub const ATOMIC_CONTENTION_METRICS_NOTES: &str = r#"
-        // Key metrics to track:
-        // - Global atomic count (before/after WaveLocal Reduction)
-        // - Kernel execution time under load
-        // - Memory replay / stall reasons
-        // - Scaling behavior with particle count
+    /// Notes on Nsight Compute atomic counters.
+    pub const NSIGHT_ATOMIC_COUNTERS_NOTES: &str = r#"
+        // Focus on:
+        // - atomic_throughput / global_atomic_requests
+        // - memory_replay_overhead
+        // - Memory-related stall reasons
         //
-        // Subgroup scope + wave-local work = lower contention metrics.
+        // WaveLocal Reduction should show clear improvements in these metrics.
     "#;
 }
