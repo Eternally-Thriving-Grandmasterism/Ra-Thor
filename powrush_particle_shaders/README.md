@@ -1,10 +1,10 @@
 # Powrush Particle Shaders
 
-## Pipeline Management
+## Compute Pipeline Manager
 
-A `ComputePipelineManager` has been introduced to centralize creation and caching of compute pipelines, with support for specialization constants.
+A `ComputePipelineManager` is now implemented with support for specialization constants and caching.
 
-This is part of the ongoing architectural unification in Phase 1.
+It currently contains the structural foundation. Real pipeline creation will be wired up when the Vulkan context is integrated.
 
 ---
 *Phase 1 Consolidation*
