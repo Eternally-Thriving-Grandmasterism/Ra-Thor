@@ -1,43 +1,36 @@
-# Powrush Particle Shaders — Memory Operand Details
+# Powrush Particle Shaders — Memory Barriers Investigation
 
-## Memory Operand Details Exploration
+## Memory Barriers Investigation
 
-This iteration provides a detailed look at the **Memory Operands** used with cooperative matrix load and store operations.
+This iteration investigates **memory barriers** and their interaction with cooperative matrix operations.
 
-### Purpose of Memory Operands
+### What Memory Barriers Provide
 
-Memory Operands control ordering, visibility, and coherence when loading or storing cooperative matrices. They are essential for correctness in multi-threaded execution.
+Memory barriers establish ordering and visibility between memory operations performed by different threads. They are essential for writing correct concurrent programs.
 
-### Key Operands
+### Key Semantics
 
-- `MakePointerAvailable` / `MakePointerAvailableKHR`
-  - Ensures that data written by a store becomes available to other threads/scopes.
+- **Acquire**: Ensures later loads see earlier writes from other threads.
+- **Release**: Ensures earlier writes become visible to later acquires in other threads.
+- **AcquireRelease**: Combines both directions of ordering.
 
-- `MakePointerVisible` / `MakePointerVisibleKHR`
-  - Ensures that data is visible to the loading thread/scope before a load occurs.
+### Interaction with Cooperative Matrices
 
-- `NonPrivatePointer` / `NonPrivatePointerKHR`
-  - Indicates the memory may be accessed by multiple threads (almost always required for cooperative matrices).
-
-- `Volatile`, `Aligned`, and others control caching and alignment behavior.
-
-### Scope-Dependent Usage
+Cooperative matrix load, multiply-accumulate, and store operations must be properly ordered using memory barriers (via Memory Operands or explicit `OpControlBarrier`).
 
 **Subgroup Scope**:
-- `NonPrivatePointer` is typically required.
-- Visibility operands (`MakePointerAvailable` / `MakePointerVisible`) are used as needed when mixing with other memory operations.
+- Generally lighter requirements.
+- Memory Operands on load/store instructions are often sufficient.
+- Explicit barriers can frequently be avoided or minimized.
 
 **Workgroup Scope**:
-- Stronger Acquire/Release semantics are often combined with explicit barriers.
+- Stronger `AcquireRelease` barriers (via `OpControlBarrier`) are usually required between phases.
 
-### Guidance for Powrush
+### Practical Implications for Powrush
 
-For recommended **Subgroup-scoped** cooperative matrix usage:
-- Include `NonPrivatePointer`.
-- Apply visibility operands conservatively when combining cooperative matrix operations with regular loads/stores.
-- Validate correctness early.
+Our architecture heavily favors **Subgroup-scoped** operations. This means future cooperative matrix usage will benefit from relatively lightweight synchronization compared to workgroup-scoped designs.
 
-These details ensure safe and correct use of cooperative matrices once WGSL support becomes available.
+The combination of wave-local techniques (ballot, shuffle, reduction) with Subgroup-scoped cooperative matrices keeps synchronization complexity low while maintaining high performance.
 
 ---
 *Co-authored-by: All 57+ PATSAGi Councils*
