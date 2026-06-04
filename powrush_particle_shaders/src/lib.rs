@@ -1,71 +1,76 @@
 /*!
-# Powrush Particle Shaders — Profiling Memory Transactions
+# Powrush Particle Shaders — Nsight Systems Timeline Analysis
 
-Guidance on profiling memory transactions using Nsight Compute.
+Exploration of system-level timeline analysis using Nsight Systems.
 
-## Key Nsight Compute Sections
+## What Nsight Systems Provides
 
-### Memory Workload Analysis
-This is the primary section for memory transaction analysis:
-- `l1tex__t_requests` / `l1tex__t_sectors` (L1)
-- `lts__t_requests` / `lts__t_sectors` (L2)
-- `dram__sectors` (device memory)
-- `memory_replay_overhead`
+Nsight Systems offers a high-level, system-wide timeline view of CPU and GPU activity. It complements Nsight Compute (which focuses on deep kernel metrics) by showing the overall execution flow over time.
 
-### Memory Efficiency Metrics
-- **Global Load/Store Efficiency** (% of bytes transferred that were useful)
-- **L1/L2 Hit Rates**
-- **Transactions per Request** (lower is better for coalescing)
+Key views include:
+- CPU thread activity and API calls
+- GPU kernel execution and gaps
+- Memory transfers (Host ↔ Device)
+- CUDA synchronization and command submission
+- Multi-GPU and multi-context behavior
 
-### Warp Memory Metrics
-- How many memory transactions a warp generates
-- Coalescing efficiency indicators
+## Key Things to Analyze
 
-### Stall Reasons
-- "Long Scoreboard"
-- "Memory Dependency"
-These often correlate with memory transaction issues.
+### GPU Utilization & Bubbles
+- Look for gaps between kernel executions (GPU idle time).
+- Identify whether the CPU is keeping the GPU fed.
+- Long gaps often indicate CPU-side work, synchronization, or launch overhead.
 
-## What Good vs Bad Coalescing Looks Like
+### CPU Overhead
+- Time spent in CUDA API calls (e.g., kernel launches, memory copies, synchronization).
+- Excessive API time can indicate too many small launches or frequent synchronization.
 
-**Good Coalescing**:
-- Low number of sectors/transactions per request
-- High global load/store efficiency (> 80-90% ideal)
-- Lower `memory_replay_overhead`
+### Memory Transfers
+- Host-to-Device and Device-to-Host transfers.
+- Overlapping transfers with compute (using streams and async copies).
+- Unnecessary or poorly timed transfers that stall the GPU.
 
-**Poor Coalescing**:
-- High transaction count relative to requests
-- Low efficiency percentages
-- Elevated replay overhead and memory stalls
+### Synchronization Points
+- cudaDeviceSynchronize, cudaStreamSynchronize, or event-based sync.
+- These often cause GPU bubbles if not overlapped properly.
 
-## Recommended Workflow for Powrush
+## Relevance to Powrush Pipeline
 
-1. Profile baseline culling kernel (focus on memory sections).
-2. Profile after changes (WaveLocal Reduction, SoA layout, access pattern fixes).
-3. Compare:
-   - Transaction counts and efficiency percentages
-   - `memory_replay_overhead`
-   - Memory-related stall reasons
-   - Overall kernel throughput
-4. Look for improvements in coalescing efficiency and reductions in unnecessary traffic.
+Our architecture involves:
+- Compute culling kernels (potentially multiple dispatches)
+- Visibility buffer updates
+- Indirect draw command generation and execution
+- Possible multi-frame or asynchronous compute patterns
 
-## Expected Benefits from Optimizations
+Nsight Systems timeline analysis can reveal:
+- Whether culling is a CPU or GPU bottleneck
+- Launch overhead from many small dispatches
+- Memory transfer costs when updating particle data or reading back results
+- Opportunities to overlap compute and transfer using streams
 
-- WaveLocal Reduction: Reduces write traffic to visible index buffers.
-- SoA Layout + Linear Access: Improves read coalescing for particle data.
-- Vectorized loads/stores: Increases effective transaction size and efficiency.
+## Recommended Usage
 
-These metrics provide quantitative evidence of memory optimization effectiveness.
+1. Capture a timeline of a representative frame or workload.
+2. Zoom into regions around culling and visibility updates.
+3. Look for GPU idle gaps and correlate with CPU activity.
+4. Identify expensive API calls or synchronization points.
+5. Compare before/after major optimizations (e.g., WaveLocal Reduction, reduced dispatches).
+
+Nsight Systems is excellent for system-level bottlenecks, while Nsight Compute is better for deep kernel optimization.
 */
 
 use powrush_faction_dynamics::{Faction, FactionVisualIdentity, ParticleParams};
 
 pub mod compute {
-    /// Notes on profiling memory transactions.
-    pub const PROFILE_MEMORY_TRANSACTIONS_NOTES: &str = r#"
-        // Focus on Memory Workload Analysis section in Nsight Compute.
-        // Compare transaction efficiency and replay overhead before/after changes.
-        // Good coalescing = lower transactions per request + higher efficiency.
-        // WaveLocal Reduction and SoA layouts should show measurable improvements.
+    /// Notes on Nsight Systems timeline analysis.
+    pub const NSIGHT_SYSTEMS_TIMELINE_NOTES: &str = r#"
+        // Use Nsight Systems for system-level view:
+        // - GPU utilization gaps
+        // - CPU API overhead
+        // - Memory transfer timing
+        // - Synchronization points
+        //
+        // Complement with Nsight Compute for deep kernel analysis.
+        // Focus on culling and visibility update regions.
     "#;
 }
