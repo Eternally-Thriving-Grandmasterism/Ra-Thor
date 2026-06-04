@@ -37,9 +37,47 @@ use crate::hyperon_metta_layer;
 #[derive(Component)]
 pub struct Active;
 
-/// Another marker for type-based filtering (e.g. only process Human players differently).
+/// Another marker for type-based filtering.
 #[derive(Component)]
 pub struct HumanPlayer;
+
+/// === Bevy Events & Observers Investigation ===
+///
+/// Events: Traditional fire-and-forget messages.
+///   - Use EventWriter<T> to send
+///   - Use EventReader<T> to read (in systems)
+///   - Good for decoupled communication
+///
+/// Observers: Newer reactive system (Bevy 0.13+)
+///   - React immediately when something happens (entity added, component inserted, custom trigger)
+///   - More powerful than classic events for many use cases
+///   - Can observe specific entities or global events
+///   - Excellent for Powrush: reacting to new logins, contributions, valence thresholds, etc.
+
+/// Example custom Event for Powrush
+#[derive(Event)]
+pub struct EntityContributionMade {
+    pub entity_id: u64,
+    pub skill: String,
+    pub amount: f32,
+}
+
+/// Example Observer that reacts to contributions
+/// This demonstrates Bevy Observers in the custom Powrush simulation.
+pub fn on_entity_contribution_made(
+    trigger: Trigger<EntityContributionMade>,
+    mut entities: Query<&mut SovereignEntity>,
+    mut unlock_state: ResMut<ServerUnlockState>,
+) {
+    let event = trigger.event();
+
+    // Find the entity and apply some reaction (example: small PATSAGi boost)
+    if let Ok(mut entity) = entities.get_mut(Entity::from_raw(event.entity_id)) {
+        // Could do more sophisticated logic here
+        unlock_state.council_influence_progress =
+            (unlock_state.council_influence_progress + 0.005).min(1.0);
+    }
+}
 
 /// Custom proprietary Bevy plugin that orchestrates the full Powrush MMORPG tick.
 pub struct PowrushSimulationOrchestratorPlugin;
@@ -47,34 +85,23 @@ pub struct PowrushSimulationOrchestratorPlugin;
 impl Plugin for PowrushSimulationOrchestratorPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<CliffordHealingField>();
+
+        // Register the custom event
+        app.add_event::<EntityContributionMade>();
+
+        // Register the Observer (reactive system)
+        app.add_observer(on_entity_contribution_made);
+
         app.add_systems(Update, powrush_authoritative_tick);
     }
 }
 
 /// The core custom authoritative simulation tick.
-/// This system demonstrates Bevy Archetype Queries in practice.
-///
-/// === Bevy Archetype Explanation (Powrush context) ===
-/// An Archetype is a unique combination of Component types.
-/// Every unique set of components an entity has = one Archetype.
-///
-/// Examples in Powrush:
-/// - Archetype 1: [SovereignEntity]
-/// - Archetype 2: [SovereignEntity, Active]
-/// - Archetype 3: [SovereignEntity, Active, HumanPlayer]
-/// - Archetype 4: [SovereignEntity, CliffordHealingField] (if attached)
-///
-/// Bevy stores entities in tables per Archetype. Queries are extremely fast
-/// because they only touch the relevant Archetype tables.
-///
-/// The `Changed<SovereignEntity>` filter we use below works at the Archetype level
-/// (Bevy tracks change ticks per archetype + component).
 fn powrush_authoritative_tick(
-    // Archetype-efficient query: only entities whose SovereignEntity changed
     mut changed_entities: Query<&mut SovereignEntity, Changed<SovereignEntity>>,
-
     mut healing_field: ResMut<CliffordHealingField>,
     mut unlock_state: ResMut<ServerUnlockState>,
+    mut contribution_writer: EventWriter<EntityContributionMade>, // Example of sending events
 ) {
     let mut entity_slice: Vec<_> = changed_entities.iter_mut().collect();
 
@@ -85,24 +112,20 @@ fn powrush_authoritative_tick(
             &unlock_state,
         );
 
+        // Example: Send contribution events for reacted systems (Observers, analytics, etc.)
+        for entity in &entity_slice {
+            if entity.contributions > 0 {
+                contribution_writer.send(EntityContributionMade {
+                    entity_id: entity.id,
+                    skill: "coexistence".to_string(),
+                    amount: 1.0,
+                });
+            }
+        }
+
         let avg_valence: f32 = entity_slice.iter().map(|e| e.valence).sum::<f32>()
             / entity_slice.len() as f32;
 
         unlock_state.apply_rbe_thriving_influence(0, avg_valence);
     }
-
-    // === Archetype-aware best practices for Powrush ===
-    // 1. Prefer specific queries (with filters) over broad ones
-    // 2. Adding many marker components creates more archetypes (trade-off: faster queries vs memory)
-    // 3. `Changed<T>` is archetype-optimized — use it heavily in simulation ticks
-    // 4. For very large worlds, consider splitting into multiple archetypes intentionally
-    //    (e.g. separate "Player" vs "NPC" archetypes)
 }
-
-// Advanced Archetype Access (for future debugging / tools):
-// You can request the Archetypes resource:
-// fn debug_archetypes(archetypes: Res<Archetypes>) {
-//     for archetype in archetypes.iter() {
-//         println!("Archetype: {:?}", archetype.components());
-//     }
-// }
