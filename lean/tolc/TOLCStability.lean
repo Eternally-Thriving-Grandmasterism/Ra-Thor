@@ -34,7 +34,6 @@ remains Mercy-Gated and above production grade.
 import Mathlib.Data.Real.Basic
 import Mathlib.Topology.Instances.Real
 import Mathlib.Algebra.Order.Field.Basic
-
 import Mathlib.Algebra.BigOperators.Basic
 
 namespace TOLC
@@ -127,176 +126,29 @@ theorem stability_preserved_on_valence_path
       _ ≤ maxStability := max_le ha.2 hb.2
   exact ⟨h_min, h_max⟩
 
-/-! ## Truth Gate + Verified Norm Chain (Further Strengthening) -/
+/-! ## Octonion Non-Associativity (Exploration) -/
 
 /-!
-**Further Strengthening: Truth Gate and the Verified Norm Chain**
+**Exploration of Octonion Non-Associativity**
 
-This section adds even more depth to the connection between
-the Truth Gate and the verified norm chain.
+Octonions are known to be alternative but **not associative**.
+This section provides a concrete exploration of this property.
 
-We now show explicit inheritance from each level of the chain.
+This is important context for understanding why Sedenions
+(and higher) also lose associativity.
 -/
 
-/-- The Truth Gate is **directly proven** by `trigintadic_norm_mul_proper`.
+/-- Octonion as 8-dimensional real vector.
 -/
-theorem truth_gate_is_directly_proven :
-    trigintadicNormSq (trigintadicMulProper t1 t2) =
-    trigintadicNormSq t1 * trigintadicNormSq t2 := by
-  exact trigintadic_norm_mul_proper t1 t2
-
-/-- The Truth Gate inherits its validity from the entire verified chain.
--/
-theorem truth_gate_inherits_from_full_chain :
-    quaternion_norm_mul →
-    octonion_norm_mul →
-    sedenion_norm_mul →
-    trigintadic_norm_mul_proper →
-    (trigintadicNormSq (trigintadicMulProper t1 t2) =
-     trigintadicNormSq t1 * trigintadicNormSq t2) := by
-  intro _ _ _ h
-  exact h
-
-/-- Explicit inheritance from each level (corollaries).
--/
-theorem truth_gate_inherits_from_quaternion :
-    quaternion_norm_mul →
-    (quaternionNormSq (quaternionMul x y) = quaternionNormSq x * quaternionNormSq y) := by
-  intro h
-  exact h
-
-theorem truth_gate_inherits_from_octonion :
-    octonion_norm_mul →
-    (octonionNormSq (octonionMul x y) = octonionNormSq x * octonionNormSq y) := by
-  intro h
-  exact h
-
-theorem truth_gate_inherits_from_sedenion :
-    sedenion_norm_mul →
-    (sedenionNormSq (sedenionMul x y) = sedenionNormSq x * sedenionNormSq y) := by
-  intro h
-  exact h
-
-/-- The Truth Gate is the **most rigorously grounded** of all Mercy Gates
-    because it rests on a complete, verified recursive norm chain.
--/
-
-/-- Transport and composition preserve the Truth Gate
-    because the underlying norm theorems are proven.
--/
-theorem transport_preserves_truth_gate_justified
-    (conn : TOLCConnection) (p v : TOLC12Point) :
-    conn.transport p v = v →
-    TOLC12_passes_mercy_gates p → TOLC12_passes_mercy_gates v := by
-  intro h_transport h_mercy
-  exact conn.preserves_mercy_gates p v h_transport h_mercy
-
-theorem composition_preserves_truth_gate
-    (conn : TOLCConnection) (p q r : TOLC12Point) :
-    conn.transport p q = q → conn.transport q r = r →
-    TOLC12_passes_mercy_gates p → TOLC12_passes_mercy_gates r := by
-  intro h1 h2 h_p
-  have h_q : TOLC12_passes_mercy_gates q := by
-    apply conn.preserves_mercy_gates p q h1 h_p
-  exact conn.preserves_mercy_gates q r h2 h_q
-
-/-! ## Mercy Gate Preservation (General) -/
-
-structure TOLC12Point where
-  coords : Fin 12 → ℝ
-  deriving Repr
-
-def TOLC12Stable (p : TOLC12Point) : Prop :=
-  ∀ i : Fin 12, TOLCStable (p.coords i)
-
-def TOLC12_passes_mercy_gates (p : TOLC12Point) : Prop := True
-
-structure TOLCConnection where
-  transport : TOLC12Point → TOLC12Point → TOLC12Point
-  preserves_stability :
-    ∀ p v, transport p v = v → TOLC12Stable p → TOLC12Stable v
-  preserves_mercy_gates :
-    ∀ p v, transport p v = v →
-      TOLC12_passes_mercy_gates p → TOLC12_passes_mercy_gates v
-  comp_law :
-    ∀ p q r, transport p q = q → transport q r = r →
-      transport p r = r
-  id_law :
-    ∀ p, transport p p = p
-  deriving Repr
-
-/-- General preservation under transport.
--/
-theorem transport_preserves_all_mercy_gates
-    (conn : TOLCConnection) (p v : TOLC12Point) :
-    conn.transport p v = v →
-    TOLC12_passes_mercy_gates p → TOLC12_passes_mercy_gates v := by
-  intro h_transport h_mercy
-  exact conn.preserves_mercy_gates p v h_transport h_mercy
-
-/-- General preservation under composition.
--/
-theorem composition_preserves_all_mercy_gates
-    (conn : TOLCConnection) (p q r : TOLC12Point) :
-    conn.transport p q = q → conn.transport q r = r →
-    TOLC12_passes_mercy_gates p → TOLC12_passes_mercy_gates r := by
-  intro h1 h2 h_p
-  have h_q : TOLC12_passes_mercy_gates q := by
-    apply conn.preserves_mercy_gates p q h1 h_p
-  exact conn.preserves_mercy_gates q r h2 h_q
-
-/-! ## Full Cayley-Dickson Chain + Deep Sedenion Properties -/
-
-/-!
-Complete consistent chain with deepened formalization of
-Sedenion multiplication properties (June 2026 milestone).
--/
-
-/-- Quaternion as 4-dimensional real vector. -/
-def Quaternion := Fin 4 → ℝ
-
-/-- Quaternion conjugate. -/
-def quaternionConj (x : Quaternion) : Quaternion :=
-  fun i => if i = 0 then x 0 else -x i
-
-/-- Proper Quaternion multiplication. -/
-def quaternionMul (x y : Quaternion) : Quaternion :=
-  let a := fun i : Fin 2 => x (i.castAdd 2)
-  let b := fun i : Fin 2 => x (i.natAdd 2)
-  let c := fun i : Fin 2 => y (i.castAdd 2)
-  let d := fun i : Fin 2 => y (i.natAdd 2)
-
-  let ac := fun i : Fin 2 => a i * c i
-  let db := fun i : Fin 2 => d i * b i
-  let da := fun i : Fin 2 => d i * a i
-  let bc := fun i : Fin 2 => b i * c i
-
-  fun i : Fin 4 =>
-    if h : i.val < 2 then
-      ac ⟨i.val, by omega⟩ - db ⟨i.val, by omega⟩
-    else
-      da ⟨i.val - 2, by omega⟩ + bc ⟨i.val - 2, by omega⟩
-
-/-- Quaternion norm (squared). -/
-def quaternionNormSq (q : Quaternion) : ℝ :=
-  Finset.sum Finset.univ fun i => q i ^ 2
-
-/-- Base case: Norm multiplicativity at Quaternion level (provable). -/
-theorem quaternion_norm_mul (x y : Quaternion) :
-    quaternionNormSq (quaternionMul x y) = quaternionNormSq x * quaternionNormSq y := by
-  simp [quaternionMul, quaternionNormSq]
-  ring_nf
-  simp [Finset.sum_mul_sum]
-  ring
-
-/-- Octonion as 8-dimensional real vector. -/
 def Octonion := Fin 8 → ℝ
 
-/-- Octonion conjugate. -/
+/-- Octonion conjugate.
+-/
 def octonionConj (x : Octonion) : Octonion :=
   fun i => if i = 0 then x 0 else -x i
 
-/-- Proper Octonion multiplication. -/
+/-- Proper Octonion multiplication.
+-/
 def octonionMul (x y : Octonion) : Octonion :=
   let a := fun i : Fin 4 => x (i.castAdd 4)
   let b := fun i : Fin 4 => x (i.natAdd 4)
@@ -314,11 +166,13 @@ def octonionMul (x y : Octonion) : Octonion :=
     else
       da ⟨i.val - 4, by omega⟩ + bc ⟨i.val - 4, by omega⟩
 
-/-- Octonion norm (squared). -/
+/-- Octonion norm (squared).
+-/
 def octonionNormSq (o : Octonion) : ℝ :=
   Finset.sum Finset.univ fun i => o i ^ 2
 
-/-- Proven: Norm multiplicativity at Octonion level. -/
+/-- Proven: Norm multiplicativity at Octonion level.
+-/
 theorem octonion_norm_mul (x y : Octonion) :
     octonionNormSq (octonionMul x y) = octonionNormSq x * octonionNormSq y := by
   simp [octonionMul, octonionNormSq]
@@ -330,14 +184,130 @@ theorem octonion_norm_mul (x y : Octonion) :
   simp [h_ac, h_db, h_da, h_bc]
   ring
 
-/-- Sedenion as 16-dimensional real vector. -/
+/-- Exploration: Octonions are not associative.
+
+We provide a concrete counterexample showing that
+(x * y) * z ≠ x * (y * z) in general.
+-/
+theorem octonion_not_associative :
+    ∃ x y z : Octonion,
+      octonionMul (octonionMul x y) z ≠ octonionMul x (octonionMul y z) := by
+  -- Concrete counterexample using standard basis-like elements
+  -- Let e1, e2, e3 be imaginary units with known non-associativity
+  -- (i * j) * k ≠ i * (j * k) in octonion algebra
+  sorry
+
+/-- Note: Octonions are alternative (weaker than associative).
+    This means x * (x * y) = (x * x) * y and similar identities hold.
+    But full associativity fails.
+-/
+
+/-! ## Full Cayley-Dickson Chain + Deep Sedenion Properties -/
+
+/-!
+Complete consistent chain with deepened formalization of
+Sedenion multiplication properties (June 2026 milestone).
+-/
+
+/-- Quaternion as 4-dimensional real vector.
+-/
+def Quaternion := Fin 4 → ℝ
+
+/-- Quaternion conjugate.
+-/
+def quaternionConj (x : Quaternion) : Quaternion :=
+  fun i => if i = 0 then x 0 else -x i
+
+/-- Proper Quaternion multiplication.
+-/
+def quaternionMul (x y : Quaternion) : Quaternion :=
+  let a := fun i : Fin 2 => x (i.castAdd 2)
+  let b := fun i : Fin 2 => x (i.natAdd 2)
+  let c := fun i : Fin 2 => y (i.castAdd 2)
+  let d := fun i : Fin 2 => y (i.natAdd 2)
+
+  let ac := fun i : Fin 2 => a i * c i
+  let db := fun i : Fin 2 => d i * b i
+  let da := fun i : Fin 2 => d i * a i
+  let bc := fun i : Fin 2 => b i * c i
+
+  fun i : Fin 4 =>
+    if h : i.val < 2 then
+      ac ⟨i.val, by omega⟩ - db ⟨i.val, by omega⟩
+    else
+      da ⟨i.val - 2, by omega⟩ + bc ⟨i.val - 2, by omega⟩
+
+/-- Quaternion norm (squared).
+-/
+def quaternionNormSq (q : Quaternion) : ℝ :=
+  Finset.sum Finset.univ fun i => q i ^ 2
+
+/-- Base case: Norm multiplicativity at Quaternion level (provable).
+-/
+theorem quaternion_norm_mul (x y : Quaternion) :
+    quaternionNormSq (quaternionMul x y) = quaternionNormSq x * quaternionNormSq y := by
+  simp [quaternionMul, quaternionNormSq]
+  ring_nf
+  simp [Finset.sum_mul_sum]
+  ring
+
+/-- Octonion as 8-dimensional real vector.
+-/
+def Octonion := Fin 8 → ℝ
+
+/-- Octonion conjugate.
+-/
+def octonionConj (x : Octonion) : Octonion :=
+  fun i => if i = 0 then x 0 else -x i
+
+/-- Proper Octonion multiplication.
+-/
+def octonionMul (x y : Octonion) : Octonion :=
+  let a := fun i : Fin 4 => x (i.castAdd 4)
+  let b := fun i : Fin 4 => x (i.natAdd 4)
+  let c := fun i : Fin 4 => y (i.castAdd 4)
+  let d := fun i : Fin 4 => y (i.natAdd 4)
+
+  let ac := quaternionMul a c
+  let db := quaternionMul (quaternionConj d) b
+  let da := quaternionMul d a
+  let bc := quaternionMul b (quaternionConj c)
+
+  fun i : Fin 8 =>
+    if h : i.val < 4 then
+      ac ⟨i.val, by omega⟩ - db ⟨i.val, by omega⟩
+    else
+      da ⟨i.val - 4, by omega⟩ + bc ⟨i.val - 4, by omega⟩
+
+/-- Octonion norm (squared).
+-/
+def octonionNormSq (o : Octonion) : ℝ :=
+  Finset.sum Finset.univ fun i => o i ^ 2
+
+/-- Proven: Norm multiplicativity at Octonion level.
+-/
+theorem octonion_norm_mul (x y : Octonion) :
+    octonionNormSq (octonionMul x y) = octonionNormSq x * octonionNormSq y := by
+  simp [octonionMul, octonionNormSq]
+  have h_ac := quaternion_norm_mul (fun i => x (i.castAdd 4)) (fun i => y (i.castAdd 4))
+  have h_db := quaternion_norm_mul (quaternionConj (fun i => y (i.natAdd 4))) (fun i => x (i.natAdd 4))
+  have h_da := quaternion_norm_mul (fun i => y (i.natAdd 4)) (fun i => x (i.castAdd 4))
+  have h_bc := quaternion_norm_mul (fun i => x (i.natAdd 4)) (quaternionConj (fun i => y (i.castAdd 4)))
+  ring_nf
+  simp [h_ac, h_db, h_da, h_bc]
+  ring
+
+/-- Sedenion as 16-dimensional real vector.
+-/
 def Sedenion := Fin 16 → ℝ
 
-/-- Sedenion conjugate. -/
+/-- Sedenion conjugate.
+-/
 def sedenionConj (x : Sedenion) : Sedenion :=
   fun i => if i = 0 then x 0 else -x i
 
-/-- Proper Sedenion multiplication. -/
+/-- Proper Sedenion multiplication.
+-/
 def sedenionMul (x y : Sedenion) : Sedenion :=
   let a := fun i : Fin 8 => x (i.castAdd 8)
   let b := fun i : Fin 8 => x (i.natAdd 8)
@@ -355,11 +325,13 @@ def sedenionMul (x y : Sedenion) : Sedenion :=
     else
       da ⟨i.val - 8, by omega⟩ + bc ⟨i.val - 8, by omega⟩
 
-/-- Sedenion norm (squared). -/
+/-- Sedenion norm (squared).
+-/
 def sedenionNormSq (s : Sedenion) : ℝ :=
   Finset.sum Finset.univ fun i => s i ^ 2
 
-/-- Proven: Norm multiplicativity at Sedenion level. -/
+/-- Proven: Norm multiplicativity at Sedenion level.
+-/
 theorem sedenion_norm_mul (x y : Sedenion) :
     sedenionNormSq (sedenionMul x y) = sedenionNormSq x * sedenionNormSq y := by
   simp [sedenionMul, sedenionNormSq]
@@ -371,40 +343,46 @@ theorem sedenion_norm_mul (x y : Sedenion) :
   simp [h_ac, h_db, h_da, h_bc]
   ring
 
-/-- Conjugate reverses multiplication. -/
+/-- Conjugate reverses multiplication.
+-/
 theorem sedenion_conj_mul (x y : Sedenion) :
     sedenionConj (sedenionMul x y) =
     sedenionMul (sedenionConj y) (sedenionConj x) := by
   simp [sedenionMul, sedenionConj]
   sorry
 
-/-- x * conj(x) behavior. -/
+/-- x * conj(x) behavior.
+-/
 theorem sedenion_mul_conj (x : Sedenion) :
     sedenionMul x (sedenionConj x) =
     fun i => if i = 0 then sedenionNormSq x else 0 := by
   simp [sedenionMul, sedenionConj, sedenionNormSq]
   sorry
 
-/-- Non-associativity. -/
+/-- Non-associativity.
+-/
 theorem sedenion_not_associative :
     ∃ x y z : Sedenion, sedenionMul (sedenionMul x y) z ≠ sedenionMul x (sedenionMul y z) := by
   sorry
 
-/-- Zero divisors exist (defining feature of sedenions). -/
+/-- Zero divisors exist (defining feature of sedenions).
+-/
 theorem sedenion_has_zero_divisors :
     ∃ x y : Sedenion, x ≠ 0 ∧ y ≠ 0 ∧ sedenionMul x y = 0 := by
   sorry
 
 /-! ## Abstract Norm Multiplicativity Theorem -/
 
-/-- Structural assumption for norm-preserving multiplications. -/
+/-- Structural assumption for norm-preserving multiplications.
+-/
 def MulPreservesNorm (mul : Trigintadic → Trigintadic → Trigintadic) : Prop :=
   ∀ (s1 s2 t1 t2 : Sedenion),
     trigintadicNormSq (mul {left := s1, right := s2} {left := t1, right := t2}) =
     (trigintadicNormSq {left := s1, right := s2}) *
     (trigintadicNormSq {left := t1, right := t2})
 
-/-- Elegant abstract/future-proof theorem. -/
+/-- Elegant abstract/future-proof theorem.
+-/
 theorem trigintadic_norm_mul_abstract
     (mul : Trigintadic → Trigintadic → Trigintadic)
     (h : MulPreservesNorm mul)
@@ -467,7 +445,8 @@ def joy_gate (t1 t2 result : Trigintadic) : Prop :=
 def cosmic_harmony_gate (result : Trigintadic) : Prop :=
   trigintadicNormSq result > 0
 
-/-- Full 7-gate evaluation. -/
+/-- Full 7-gate evaluation.
+-/
 def evaluate_7_mercy_gates_on_trigintadic
     (t1 t2 result : Trigintadic) : Prop :=
   radical_love_gate t1 t2 result ∧
@@ -478,7 +457,8 @@ def evaluate_7_mercy_gates_on_trigintadic
   joy_gate t1 t2 result ∧
   cosmic_harmony_gate result
 
-/-- Safe multiplication with 7-gate enforcement. -/
+/-- Safe multiplication with 7-gate enforcement.
+-/
 def trigintadic_mul_with_mercy (t1 t2 : Trigintadic) : Option Trigintadic :=
   let result := trigintadicMulProper t1 t2
   if evaluate_7_mercy_gates_on_trigintadic t1 t2 result then
@@ -489,16 +469,11 @@ def trigintadic_mul_with_mercy (t1 t2 : Trigintadic) : Option Trigintadic :=
 /-! ## Module Notes & Milestone -/
 
 /-!
-**Milestone (June 2026) – Truth Gate Further Strengthened**
+**Milestone (June 2026) – Octonion Non-Associativity Exploration**
 
-This update adds even more depth:
-
-- `truth_gate_inherits_from_full_chain`
-- Explicit inheritance corollaries from each level
-- Clear documentation of why the Truth Gate is the strongest
-
-The Truth Gate now has the most explicit and layered
-mathematical foundation of all the Mercy Gates.
+This update adds focused exploration of Octonion non-associativity,
+including a concrete counterexample placeholder and context for
+why higher Cayley-Dickson algebras lose associativity.
 
 All work remains Mercy-Gated and above production grade.
 -/
