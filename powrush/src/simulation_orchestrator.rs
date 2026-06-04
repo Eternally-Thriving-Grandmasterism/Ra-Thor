@@ -1,7 +1,7 @@
-//! Exponential Trust Decay for Powrush Shards
+//! Trust Recovery Mechanisms for Powrush Shard Trust System
 //!
-//! More realistic, continuous trust decay using exponential function.
-//! Trust weight decreases faster initially and then approaches an asymptote.
+//! Shards can recover trust through consistent positive behavior, successful
+//! migrations, state syncs, and participation in the larger lattice.
 
 use bevy::prelude::*;
 use std::collections::HashMap;
@@ -11,21 +11,23 @@ use crate::simulation_orchestrator::ShardTrust;
 
 #[derive(Resource, Default)]
 pub struct ShardTrustTracker {
-    /// shard_id -> (trust_level, last_interaction_unix)
     pub trusts: HashMap<u64, (ShardTrust, u64)>,
-    /// Controls how fast trust decays (higher = faster decay)
-    pub decay_rate: f32, // e.g. 0.08 per hour
+    pub decay_rate: f32,
+    /// Number of successful interactions needed to attempt trust upgrade
+    pub interactions_for_upgrade: u32,
+    pub interaction_counts: HashMap<u64, u32>,
 }
 
 impl ShardTrustTracker {
     pub fn new() -> Self {
         Self {
             trusts: HashMap::new(),
-            decay_rate: 0.08, // Reasonable starting value
+            decay_rate: 0.08,
+            interactions_for_upgrade: 5,
+            interaction_counts: HashMap::new(),
         }
     }
 
-    /// Returns the current effective trust weight with exponential decay
     pub fn get_effective_trust(&self, shard_id: u64) -> f32 {
         if let Some((trust_level, last_update)) = self.trusts.get(&shard_id) {
             let now = SystemTime::now()
@@ -34,52 +36,78 @@ impl ShardTrustTracker {
                 .as_secs();
 
             let hours_inactive = ((now - last_update) as f32) / 3600.0;
-
             let base_weight = trust_level.weight();
 
-            // Exponential decay: weight * e^(-rate * time)
             let decayed = base_weight * (-self.decay_rate * hours_inactive).exp();
-
-            // Never let trust go below 5%
             decayed.max(0.05)
         } else {
-            0.5 // Unknown shard default
+            0.5
         }
     }
 
+    /// Record a successful interaction. Can gradually recover/upgrade trust.
     pub fn record_successful_interaction(&mut self, shard_id: u64, new_trust: ShardTrust) {
         let now = SystemTime::now()
             .duration_since(UNIX_EPOCH)
             .unwrap_or_default()
             .as_secs();
-        self.trusts.insert(shard_id, (new_trust, now));
+
+        let count = self.interaction_counts.entry(shard_id).or_insert(0);
+        *count += 1;
+
+        // Check if we should attempt to upgrade trust level
+        if *count >= self.interactions_for_upgrade {
+            if let Some((current_trust, _)) = self.trusts.get(&shard_id) {
+                let upgraded = match current_trust {
+                    ShardTrust::Low => ShardTrust::Medium,
+                    ShardTrust::Medium => ShardTrust::High,
+                    ShardTrust::High => ShardTrust::Sovereign,
+                    ShardTrust::Sovereign => ShardTrust::Sovereign,
+                };
+
+                if upgraded as u8 > *current_trust as u8 {
+                    self.trusts.insert(shard_id, (upgraded, now));
+                    *count = 0; // reset counter after upgrade
+                }
+            }
+        } else {
+            // Even without upgrade, refresh the timestamp
+            if let Some((trust_level, _)) = self.trusts.get(&shard_id) {
+                self.trusts.insert(shard_id, (*trust_level, now));
+            }
+        }
     }
 
-    /// Applies a hard downgrade for very long inactivity (complements exponential decay)
-    pub fn apply_hard_decay(&mut self) {
+    /// Slow passive recovery (can be called periodically)
+    pub fn apply_passive_recovery(&mut self) {
         let now = SystemTime::now()
             .duration_since(UNIX_EPOCH)
             .unwrap_or_default()
             .as_secs();
 
-        for (_, (trust_level, last_update)) in self.trusts.iter_mut() {
+        for (shard_id, (trust_level, last_update)) in self.trusts.iter_mut() {
             let hours = ((now - *last_update) as f32) / 3600.0;
 
-            if hours > 48.0 {
-                // Downgrade after 2+ days of complete inactivity
-                *trust_level = match *trust_level {
-                    ShardTrust::Sovereign => ShardTrust::High,
-                    ShardTrust::High => ShardTrust::Medium,
-                    ShardTrust::Medium => ShardTrust::Low,
-                    ShardTrust::Low => ShardTrust::Low,
-                };
-                *last_update = now;
+            // Very slow recovery even with some inactivity (encourages eventual return)
+            if hours > 12.0 && *trust_level as u8 < ShardTrust::High as u8 {
+                // Small chance to recover one level after long time
+                if (hours as u32 % 72) == 0 { // every ~3 days
+                    let recovered = match *trust_level {
+                        ShardTrust::Low => ShardTrust::Medium,
+                        ShardTrust::Medium => ShardTrust::High,
+                        _ => *trust_level,
+                    };
+
+                    if recovered as u8 > *trust_level as u8 {
+                        *trust_level = recovered;
+                        *last_update = now;
+                    }
+                }
             }
         }
     }
 }
 
-/// Periodic system for trust maintenance
 pub fn shard_trust_maintenance_system(mut tracker: ResMut<ShardTrustTracker>) {
-    tracker.apply_hard_decay();
+    tracker.apply_passive_recovery();
 }
