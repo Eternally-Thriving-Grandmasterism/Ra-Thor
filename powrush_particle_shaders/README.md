@@ -2,9 +2,12 @@
 
 ## Compute Pipeline Manager
 
-A `ComputePipelineManager` is now implemented with support for specialization constants and caching.
+The `ComputePipelineManager` has been further refined with:
+- Specialization constant handling
+- Pipeline layout caching per type
+- Clear structure ready for real Vulkan pipeline creation
 
-It currently contains the structural foundation. Real pipeline creation will be wired up when the Vulkan context is integrated.
+This provides a solid foundation for managing compute pipelines efficiently.
 
 ---
 *Phase 1 Consolidation*
