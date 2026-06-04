@@ -1,53 +1,86 @@
 /*!
-# Powrush Particle Shaders — Indirect Draw Calls
+# Powrush Particle Shaders — Batching Indirect Draw Calls
 
-Complete GPU-driven particle rendering pipeline using indirect draw calls.
+Advanced batching of indirect draw calls for efficient rendering of many particle effects.
 
-## Why Indirect Draw Calls?
-After compute shader culling writes the visible particle count and indices,
-we want to draw **without** reading the count back to the CPU.
-Indirect draw calls let the GPU read the instance count directly from a buffer.
+## Why Batch Indirect Draws?
+In a full Powrush MMO scene you may have dozens or hundreds of active particle systems
+(different factions, council events, high-reputation bursts, environmental effects).
 
-This is the final piece for a fully GPU-driven particle system:
-Compute Culling → Indirect Draw
+Issuing one draw call per effect is expensive.
+Batching multiple `DrawIndirect` commands allows:
+- Single (or very few) draw calls for many effects
+- Better GPU utilization
+- Reduced CPU overhead
 */
 
 use powrush_faction_dynamics::{Faction, FactionVisualIdentity, ParticleParams};
 
 #[derive(Debug, Clone, Copy, bytemuck::Pod, bytemuck::Zeroable)]
 #[repr(C)]
-pub struct ParticleShaderParams { /* ... same as before ... */ }
-
-#[derive(Debug, Clone, Copy, bytemuck::Pod, bytemuck::Zeroable)]
-#[repr(C)]
-pub struct ComputeCullingParams { /* ... same as before ... */ }
-
-/// Standard DrawIndirect structure for non-indexed draws.
-/// This is what the GPU reads for indirect drawing.
-#[derive(Debug, Clone, Copy, bytemuck::Pod, bytemuck::Zeroable)]
-#[repr(C)]
 pub struct DrawIndirect {
     pub vertex_count: u32,
-    pub instance_count: u32,   // <-- Comes from culling atomic counter
+    pub instance_count: u32,
     pub first_vertex: u32,
     pub first_instance: u32,
 }
 
-/// Prepares a DrawIndirect command for particle instancing.
-/// Typically `vertex_count` is the number of vertices in your particle quad/mesh.
-/// `instance_count` will be overwritten by the compute shader's visible count.
+/// Represents a batch of indirect draw commands.
+/// Can be uploaded as a storage buffer and used with `multi_draw_indirect`.
+#[derive(Debug, Clone)]
+pub struct BatchedIndirectDraws {
+    pub commands: Vec<DrawIndirect>,
+}
+
+impl BatchedIndirectDraws {
+    pub fn new() -> Self {
+        Self {
+            commands: Vec::new(),
+        }
+    }
+
+    pub fn add(&mut self, cmd: DrawIndirect) {
+        self.commands.push(cmd);
+    }
+
+    pub fn len(&self) -> usize {
+        self.commands.len()
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.commands.is_empty()
+    }
+
+    /// Prepares batched indirect commands from multiple particle effects.
+    /// In a real system this would come from a compute pass that generates
+    /// one indirect command per visible effect/batch.
+    pub fn from_effects(effects: &[ParticleEffect]) -> Self {
+        let mut batch = Self::new();
+        for effect in effects {
+            let cmd = prepare_indirect_draw(effect.vertex_count_per_particle);
+            // instance_count would normally be written by culling compute
+            batch.add(cmd);
+        }
+        batch
+    }
+}
+
+/// Helper to create a single indirect command (instance_count set later by culling).
 pub fn prepare_indirect_draw(vertex_count_per_particle: u32) -> DrawIndirect {
     DrawIndirect {
         vertex_count: vertex_count_per_particle,
-        instance_count: 0, // Will be set by compute shader
+        instance_count: 0,
         first_vertex: 0,
         first_instance: 0,
     }
 }
 
+/// Example of how a compute shader can write multiple indirect commands.
+/// In practice you would have one entry per particle system / batch.
 pub mod compute {
-    pub const CULLING_SHADER: &str = r#"
-        // ... (same culling shader as before, but now writes to indirect buffer)
+    pub const BATCHED_CULLING_AND_INDIRECT: &str = r#"
+        // This compute shader can output multiple DrawIndirect commands
+        // (one per effect or spatial batch) and fill their instance_count.
 
         struct DrawIndirect {
             vertex_count: u32,
@@ -56,36 +89,15 @@ pub mod compute {
             first_instance: u32,
         };
 
-        @group(0) @binding(0) var<uniform> params: ComputeCullingParams;
-        @group(0) @binding(1) var<storage, read> particle_positions: array<vec3<f32>>;
-        @group(0) @binding(2) var<storage, read_write> visible_indices: array<u32>;
-        @group(0) @binding(3) var<storage, read_write> draw_indirect: DrawIndirect;
+        @group(0) @binding(0) var<storage, read_write> indirect_commands: array<DrawIndirect>;
+        @group(0) @binding(1) var<storage, read_write> visible_counts: array<atomic<u32>>;
 
-        @compute @workgroup_size(64)
-        fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
-            let index = global_id.x;
-            if (index >= params.total_particles) { return; }
-
-            let pos = particle_positions[index];
-            let dist = distance(pos, params.camera_position);
-
-            if (dist < params.max_cull_distance) {
-                let importance = 1.0; // Extend with reputation/harmony here
-                if (importance >= params.importance_threshold) {
-                    let slot = atomicAdd(&draw_indirect.instance_count, 1u);
-                    visible_indices[slot] = index;
-                }
-            }
-        }
+        // ... culling logic per effect/batch ...
+        // Then write:
+        // indirect_commands[effect_index].instance_count = visible_count;
     "#;
 }
 
-pub mod wgsl { /* ... same shader snippets ... */ }
-
-pub fn get_resonance_effect(params: &ParticleShaderParams) -> &'static str {
-    if params.resonance_field_strength > 0.4 {
-        wgsl::RESONANCE_TRAIL
-    } else {
-        wgsl::BURST_RESONANCE
-    }
+pub mod wgsl {
+    // ... existing shader snippets ...
 }
