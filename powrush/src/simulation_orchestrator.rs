@@ -1,113 +1,95 @@
-//! Trust Recovery Mechanisms for Powrush Shard Trust System
+//! Cross-Shard State Synchronization for Powrush
 //!
-//! Shards can recover trust through consistent positive behavior, successful
-//! migrations, state syncs, and participation in the larger lattice.
+//! Enables shards to periodically share aggregated world state (global metrics,
+//! PATSAGi influence, healing field coherence, etc.).
+//! This complements entity migration by keeping high-level state consistent
+//! across the hybrid WASM/Native shard network.
 
 use bevy::prelude::*;
-use std::collections::HashMap;
-use std::time::{SystemTime, UNIX_EPOCH};
+use serde::{Deserialize, Serialize};
 
-use crate::simulation_orchestrator::ShardTrust;
+use crate::simulation_orchestrator::CrossShardMessage;
 
-#[derive(Resource, Default)]
-pub struct ShardTrustTracker {
-    pub trusts: HashMap<u64, (ShardTrust, u64)>,
-    pub decay_rate: f32,
-    /// Number of successful interactions needed to attempt trust upgrade
-    pub interactions_for_upgrade: u32,
-    pub interaction_counts: HashMap<u64, u32>,
+/// Aggregated global state that can be synced between shards
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct GlobalStateSnapshot {
+    pub shard_id: u64,
+    pub timestamp: u64,
+
+    // High-level aggregated metrics (can be expanded)
+    pub total_contributions: u64,
+    pub average_valence: f32,
+    pub council_influence: f32,
+    pub active_entity_count: u32,
+    pub healing_coherence: f32,
 }
 
-impl ShardTrustTracker {
-    pub fn new() -> Self {
-        Self {
-            trusts: HashMap::new(),
-            decay_rate: 0.08,
-            interactions_for_upgrade: 5,
-            interaction_counts: HashMap::new(),
-        }
-    }
+/// Add StateSync variant to CrossShardMessage if not already present
+// (We extend the existing enum conceptually here)
 
-    pub fn get_effective_trust(&self, shard_id: u64) -> f32 {
-        if let Some((trust_level, last_update)) = self.trusts.get(&shard_id) {
-            let now = SystemTime::now()
-                .duration_since(UNIX_EPOCH)
-                .unwrap_or_default()
-                .as_secs();
-
-            let hours_inactive = ((now - last_update) as f32) / 3600.0;
-            let base_weight = trust_level.weight();
-
-            let decayed = base_weight * (-self.decay_rate * hours_inactive).exp();
-            decayed.max(0.05)
-        } else {
-            0.5
-        }
-    }
-
-    /// Record a successful interaction. Can gradually recover/upgrade trust.
-    pub fn record_successful_interaction(&mut self, shard_id: u64, new_trust: ShardTrust) {
-        let now = SystemTime::now()
-            .duration_since(UNIX_EPOCH)
+/// Generate a snapshot of current global state from this shard
+pub fn generate_global_state_snapshot(
+    shard_id: u64,
+    total_contributions: u64,
+    average_valence: f32,
+    council_influence: f32,
+    active_entity_count: u32,
+    healing_coherence: f32,
+) -> GlobalStateSnapshot {
+    GlobalStateSnapshot {
+        shard_id,
+        timestamp: std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
             .unwrap_or_default()
-            .as_secs();
-
-        let count = self.interaction_counts.entry(shard_id).or_insert(0);
-        *count += 1;
-
-        // Check if we should attempt to upgrade trust level
-        if *count >= self.interactions_for_upgrade {
-            if let Some((current_trust, _)) = self.trusts.get(&shard_id) {
-                let upgraded = match current_trust {
-                    ShardTrust::Low => ShardTrust::Medium,
-                    ShardTrust::Medium => ShardTrust::High,
-                    ShardTrust::High => ShardTrust::Sovereign,
-                    ShardTrust::Sovereign => ShardTrust::Sovereign,
-                };
-
-                if upgraded as u8 > *current_trust as u8 {
-                    self.trusts.insert(shard_id, (upgraded, now));
-                    *count = 0; // reset counter after upgrade
-                }
-            }
-        } else {
-            // Even without upgrade, refresh the timestamp
-            if let Some((trust_level, _)) = self.trusts.get(&shard_id) {
-                self.trusts.insert(shard_id, (*trust_level, now));
-            }
-        }
-    }
-
-    /// Slow passive recovery (can be called periodically)
-    pub fn apply_passive_recovery(&mut self) {
-        let now = SystemTime::now()
-            .duration_since(UNIX_EPOCH)
-            .unwrap_or_default()
-            .as_secs();
-
-        for (shard_id, (trust_level, last_update)) in self.trusts.iter_mut() {
-            let hours = ((now - *last_update) as f32) / 3600.0;
-
-            // Very slow recovery even with some inactivity (encourages eventual return)
-            if hours > 12.0 && *trust_level as u8 < ShardTrust::High as u8 {
-                // Small chance to recover one level after long time
-                if (hours as u32 % 72) == 0 { // every ~3 days
-                    let recovered = match *trust_level {
-                        ShardTrust::Low => ShardTrust::Medium,
-                        ShardTrust::Medium => ShardTrust::High,
-                        _ => *trust_level,
-                    };
-
-                    if recovered as u8 > *trust_level as u8 {
-                        *trust_level = recovered;
-                        *last_update = now;
-                    }
-                }
-            }
-        }
+            .as_secs(),
+        total_contributions,
+        average_valence,
+        council_influence,
+        active_entity_count,
+        healing_coherence,
     }
 }
 
-pub fn shard_trust_maintenance_system(mut tracker: ResMut<ShardTrustTracker>) {
-    tracker.apply_passive_recovery();
+/// Reconcile incoming global state snapshot using trust-weighted logic
+pub fn reconcile_global_state(
+    local: &mut GlobalStateSnapshot,
+    incoming: &GlobalStateSnapshot,
+    incoming_trust: f32,
+) {
+    let trust = incoming_trust.clamp(0.0, 1.0);
+    let local_weight = 1.0 - trust;
+
+    // Weighted blend for most metrics
+    local.average_valence =
+        local.average_valence * local_weight + incoming.average_valence * trust;
+
+    local.council_influence =
+        local.council_influence * local_weight + incoming.council_influence * trust;
+
+    local.healing_coherence =
+        local.healing_coherence * local_weight + incoming.healing_coherence * trust;
+
+    // Contributions are additive across shards
+    local.total_contributions += (incoming.total_contributions as f32 * trust) as u64;
+
+    // Take the higher entity count (more conservative)
+    if incoming.active_entity_count > local.active_entity_count {
+        local.active_entity_count = incoming.active_entity_count;
+    }
+
+    // Update timestamp
+    if incoming.timestamp > local.timestamp {
+        local.timestamp = incoming.timestamp;
+    }
+}
+
+/// System that can periodically broadcast state syncs (placeholder for now)
+pub fn broadcast_state_sync(
+    shard_id: u64,
+    communicator: &mut crate::simulation_orchestrator::CrossShardCommunicator,
+    snapshot: GlobalStateSnapshot,
+) {
+    // In a real implementation this would serialize and send via network
+    // For now we just demonstrate the pattern
+    println!("[StateSync] Broadcasting snapshot from shard {}", shard_id);
 }
