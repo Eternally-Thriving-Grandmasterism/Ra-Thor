@@ -1,10 +1,15 @@
 /*!
 # Compute Pipeline Manager
 
-Centralized manager for Vulkan compute pipelines with specialization constant
-and pipeline layout support.
+A centralized, cache-friendly manager for Vulkan compute pipelines.
 
-Intended for use with the Powrush particle culling and visibility systems.
+Features:
+- Specialization constant support
+- Pipeline layout caching per type
+- Designed for easy integration with the culling and visibility systems
+
+This is still a work in progress. Real `vkCreateComputePipelines` calls will be added
+when the full Vulkan device + shader module context is available.
 */
 
 use std::collections::HashMap;
@@ -46,7 +51,8 @@ pub struct ComputePipelineManager {
 
 impl ComputePipelineManager {
     pub fn new(device: ash::Device) -> Self {
-        let pipeline_cache = vk::PipelineCache::null(); // TODO: Create/load real cache
+        // TODO: Create or load a persistent VkPipelineCache from disk
+        let pipeline_cache = vk::PipelineCache::null();
 
         Self {
             device,
@@ -56,6 +62,7 @@ impl ComputePipelineManager {
         }
     }
 
+    /// Returns a pipeline for the given type, creating it if necessary.
     pub fn get_pipeline(
         &mut self,
         create_info: &ComputePipelineCreateInfo,
@@ -70,26 +77,30 @@ impl ComputePipelineManager {
     }
 
     fn create_pipeline(&self, create_info: &ComputePipelineCreateInfo) -> vk::Pipeline {
-        // Build specialization info
-        let spec_entries: Vec<vk::SpecializationMapEntry> =
-            create_info.specialization_constants.iter().enumerate().map(|(i, c)| {
-                vk::SpecializationMapEntry {
-                    constant_id: c.constant_id,
-                    offset: (i * std::mem::size_of::<u32>()) as u32,
-                    size: std::mem::size_of::<u32>() as u64,
-                }
-            }).collect();
+        // === Specialization Constants ===
+        let spec_entries: Vec<vk::SpecializationMapEntry> = create_info
+            .specialization_constants
+            .iter()
+            .enumerate()
+            .map(|(i, c)| vk::SpecializationMapEntry {
+                constant_id: c.constant_id,
+                offset: (i * std::mem::size_of::<u32>()) as u32,
+                size: std::mem::size_of::<u32>() as u64,
+            })
+            .collect();
 
-        let spec_data: Vec<u8> = create_info.specialization_constants.iter().flat_map(|c| {
-            match c.value {
+        let spec_data: Vec<u8> = create_info
+            .specialization_constants
+            .iter()
+            .flat_map(|c| match c.value {
                 SpecializationValue::U32(v) => v.to_ne_bytes().to_vec(),
                 SpecializationValue::I32(v) => v.to_ne_bytes().to_vec(),
                 SpecializationValue::F32(v) => v.to_ne_bytes().to_vec(),
                 SpecializationValue::Bool(v) => {
                     if v { 1u32.to_ne_bytes().to_vec() } else { 0u32.to_ne_bytes().to_vec() }
                 }
-            }
-        }).collect();
+            })
+            .collect();
 
         let _spec_info = if !spec_entries.is_empty() {
             Some(vk::SpecializationInfo {
@@ -102,20 +113,24 @@ impl ComputePipelineManager {
             None
         };
 
-        // TODO: Select shader module based on pipeline_type
-        // TODO: Get or create pipeline layout
-        // TODO: Call vkCreateComputePipelines with cache + spec_info
+        // === TODOs for full implementation ===
+        // 1. Select shader module based on create_info.pipeline_type
+        // 2. Get or create VkPipelineLayout using get_pipeline_layout()
+        // 3. Build VkComputePipelineCreateInfo
+        // 4. Call vkCreateComputePipelines(self.device, self.pipeline_cache, ...)
+        // 5. Handle errors properly
 
         vk::Pipeline::null()
     }
 
-    /// Get or create a pipeline layout for the given pipeline type.
+    /// Returns (or creates) a pipeline layout for the given pipeline type.
     pub fn get_pipeline_layout(&mut self, ty: ComputePipelineType) -> vk::PipelineLayout {
         if let Some(&layout) = self.layouts.get(&ty) {
             return layout;
         }
 
-        // TODO: Create appropriate VkPipelineLayout based on descriptor needs
+        // TODO: Create a real VkPipelineLayout with appropriate descriptor set layouts
+        // and push constant ranges based on the needs of this pipeline type.
         let layout = vk::PipelineLayout::null();
         self.layouts.insert(ty, layout);
         layout
