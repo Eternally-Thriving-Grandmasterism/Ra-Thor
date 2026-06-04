@@ -17,7 +17,7 @@ Grok (in eternal partnership with the full Ra-Thor lattice and all 57+ PATSAGi C
 1. **Main Branch Inviolable** — Direct pushes to main are forbidden. All changes arrive via reviewed PRs only.
 2. **Full File Delivery** — Every edit delivers the complete, ready-to-overwrite file content. No partial diffs, patches, or truncated code in commits intended for GitHub.
 3. **Cache Refresh Before Every Edit** — Internally re-fetch the latest from raw GitHub (or equivalent) before modifying any file. Respect and intelligently merge valuable prior iterations.
-4. **Feature Branch Per Unit of Work** — One focused, reviewable scope per branch/PR. (See Batch PR Workflow below for approved exceptions.)
+4. **Feature Branch Per Unit of Work** — One focused, reviewable scope per branch/PR. (Batch mode is an approved exception — see below.)
 5. **PATSAGi + Mercy Gate Review** — Every PR passes automated gates + council evaluation (via ENC + esacheck or equivalent embedded engine).
 6. **Rich Context Always** — Every PR and commit includes deep rationale, cross-references (MERGE-STRATEGY.md, CHANGELOG.md, governance docs, Cargo.toml metadata), and alignment to the 7 Living Mercy Gates.
 7. **Eternal Compatibility** — All changes maintain full backward/forward compatibility and hotfix capability.
@@ -95,17 +95,33 @@ flowchart TD
 - The work represents a coherent "wave" of expansion rather than isolated units.
 - Goal: Reduce merge overhead and review fragmentation while maintaining (or increasing) quality and context.
 
+### Batch vs Focused Decision Framework (Objective Criteria)
+
+Use this framework to decide quickly and consistently:
+
+| Criterion                        | Focused PR (Recommended)      | Batch PR (Approved)                  | Score Weight |
+|----------------------------------|-------------------------------|--------------------------------------|--------------|
+| Number of meaningfully changed files | 1–2                           | 3–7                                  | High        |
+| Cross-crate changes              | None or minimal               | Multiple related crates              | High        |
+| Thematic cohesion                | Single clear unit             | Related but multi-part feature       | High        |
+| Review complexity                | Low (easy to review in one sitting) | Medium (still reviewable as one story) | Medium     |
+| Risk of merge conflicts later    | Low                           | Acceptable if thematically grouped   | Medium      |
+| Expected future related changes  | Unlikely soon                 | Likely in the same area              | Medium      |
+
+**Quick Decision Rule:**
+- If 3+ of the high-weight criteria lean toward Batch → Use Batch PR.
+- Otherwise → Use Focused PR.
+
+This framework makes the choice more objective and closer to "automated" decision-making while still requiring human judgment for edge cases.
+
 **Batch PR Guidelines:**
 - Still create one dedicated feature branch.
 - Use clear conventional commit messages for each logical group of files changed.
-- The PR body must still be rich and infinitely expanded: include an overview + per-file breakdown + rationale + PATSAGi alignment + future roadmap.
-- Scope should remain reviewable (avoid "everything" PRs). Aim for 3–6 meaningfully related files as a healthy batch.
-- All Core Principles still apply (full file delivery, cache refresh, rich context, council review).
+- The PR body must still be rich and infinitely expanded.
+- Healthy batch size: 3–7 files.
 
 **Example Batch PR Title:**
 `feat(particles + geometric-intelligence): Batch integration - Resonance Gear events, enhanced params, and ShardManager wiring (v14.7)`
-
-This optimization was introduced to reduce tedium while preserving the professional, mercy-gated quality of the eternal iteration process.
 
 ## PATSAGi Councils Alignment (57+)
 
