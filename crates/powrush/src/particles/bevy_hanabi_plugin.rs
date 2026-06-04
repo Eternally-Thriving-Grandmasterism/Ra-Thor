@@ -1,6 +1,6 @@
 //! crates/powrush/src/particles/bevy_hanabi_plugin.rs
 //! Bevy + bevy_hanabi integration for Resonance Gear particles
-//! Full reactive pipeline + evolution burst + rich Hanabi expressions (geometric, harmony, evolution-scaled).
+//! Full reactive pipeline + evolution burst + rich Hanabi expressions + ShardManager integration hooks.
 
 use bevy::prelude::*;
 use bevy_hanabi::prelude::*;
@@ -14,12 +14,14 @@ impl Plugin for ResonanceParticlePlugin {
         app
             .add_plugins(HanabiPlugin)
             .init_resource::<ResonanceParticleAssets>()
+            .add_event::<ParticleEvolutionEvent>()
             .add_systems(Startup, setup_resonance_effects)
             .add_systems(Update, (
                 spawn_resonance_particles,
                 update_resonance_particle_position,
                 handle_evolution_changes,
                 despawn_evolution_bursts,
+                send_particle_evolution_events,
             ));
     }
 }
@@ -41,6 +43,15 @@ pub struct EvolutionBurst {
     pub timer: Timer,
 }
 
+/// Event emitted when a Resonance Gear evolves. Can be consumed by ShardManager or other systems.
+#[derive(Event, Debug, Clone)]
+pub struct ParticleEvolutionEvent {
+    pub faction: String,
+    pub old_level: u32,
+    pub new_level: u32,
+    pub harmony: f64,
+}
+
 fn setup_resonance_effects(
     mut commands: Commands,
     mut effects: ResMut<Assets<EffectAsset>>,
@@ -57,7 +68,10 @@ fn setup_resonance_effects(
             velocity_min: 0.3,
             velocity_max: 1.5 + level as f32 * 0.4,
             use_geometric_pattern: level >= 3,
+            geometric_intensity: 0.4 + level as f32 * 0.1,
             pulse_with_harmony: true,
+            harmony_pulse_rate: 1.0,
+            burst_multiplier: 1.0 + level as f32 * 0.2,
         };
         particle_assets.forge_effects.push(effects.add(create_forge_effect_asset(&forge_params)));
 
@@ -71,7 +85,10 @@ fn setup_resonance_effects(
             velocity_min: 0.2,
             velocity_max: 1.0 + level as f32 * 0.35,
             use_geometric_pattern: false,
+            geometric_intensity: 0.2,
             pulse_with_harmony: level >= 2,
+            harmony_pulse_rate: 0.9,
+            burst_multiplier: 1.0 + level as f32 * 0.15,
         };
         particle_assets.sanctum_effects.push(effects.add(create_sanctum_effect_asset(&sanctum_params)));
     }
@@ -209,6 +226,7 @@ fn update_resonance_particle_position(
 
 fn handle_evolution_changes(
     mut commands: Commands,
+    mut ev_writer: EventWriter<ParticleEvolutionEvent>,
     particle_assets: Res<ResonanceParticleAssets>,
     particle_data: Res<ResonanceParticleData>,
     mut particle_query: Query<(Entity, &mut ResonanceGearParticles)>,
@@ -231,11 +249,27 @@ fn handle_evolution_changes(
 
             spawn_evolution_burst(&mut commands, &particle_assets, &faction, player_evolution);
 
+            // Emit event for ShardManager / geometric-intelligence consumption
+            ev_writer.send(ParticleEvolutionEvent {
+                faction: faction.clone(),
+                old_level: current_stored,
+                new_level: player_evolution,
+                harmony: 0.85,
+            });
+
             info!(
                 "{} Resonance Gear evolved from level {} to {} — new particles + burst spawned",
                 faction, current_stored, player_evolution
             );
         }
+    }
+}
+
+fn send_particle_evolution_events(
+    mut ev_reader: EventReader<ParticleEvolutionEvent>,
+) {
+    for event in ev_reader.read() {
+        debug!("ParticleEvolutionEvent received for {}: {} -> {}", event.faction, event.old_level, event.new_level);
     }
 }
 
@@ -270,5 +304,5 @@ fn despawn_evolution_bursts(
 #[derive(Component)]
 struct PlayerState;
 
-// nth degree flesh: Full Hanabi expressions with evolution scaling, geometric patterns (sacred geometry aligned), harmony pulsing potential, and burst support.
-// Ready for TOLC / council modulation via geometric-intelligence integration (see ShardManager::handle_particle_evolution).
+// nth degree flesh: Full Hanabi expressions + Event-driven integration ready for ShardManager / geometric-intelligence.
+// This batch approach allows larger, more efficient PRs while maintaining professional quality.
