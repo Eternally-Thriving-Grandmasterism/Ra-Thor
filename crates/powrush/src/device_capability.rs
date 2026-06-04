@@ -1,10 +1,8 @@
 //! crates/powrush/src/device_capability.rs
 //! Device Capability Detection for Powrush-MMO
-//! Enables adaptive experiences across PC, Mobile, Web, and future devices.
 
 use bevy::prelude::*;
 
-/// Represents the type of device/platform the game is running on.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum Platform {
     #[default]
@@ -15,7 +13,6 @@ pub enum Platform {
     Unknown,
 }
 
-/// Represents input capabilities of the current device.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum InputMethod {
     #[default]
@@ -25,8 +22,6 @@ pub enum InputMethod {
     Mixed,
 }
 
-/// Resource that describes the current device's capabilities.
-/// Used to drive adaptive UI and feature availability.
 #[derive(Resource, Debug, Clone)]
 pub struct DeviceCapability {
     pub platform: Platform,
@@ -49,22 +44,39 @@ impl Default for DeviceCapability {
 }
 
 impl DeviceCapability {
-    /// Creates a new DeviceCapability with detected values.
-    /// In a real implementation, this would use platform-specific detection.
+    /// Detects platform using compile-time cfg attributes.
     pub fn detect() -> Self {
-        // TODO: Replace with actual platform detection (wasm, mobile, etc.)
-        // For now, we default to a capable Desktop environment.
+        #[cfg(target_arch = "wasm32")]
+        {
+            return Self {
+                platform: Platform::Web,
+                input_method: InputMethod::Touch,
+                screen_width: 800.0,
+                screen_height: 600.0,
+                supports_high_end_graphics: false,
+            };
+        }
+
+        #[cfg(any(target_os = "android", target_os = "ios"))]
+        {
+            return Self {
+                platform: Platform::Mobile,
+                input_method: InputMethod::Touch,
+                screen_width: 400.0,
+                screen_height: 800.0,
+                supports_high_end_graphics: false,
+            };
+        }
+
         Self::default()
     }
 
-    /// Returns true if this device should use the simplified MobileTown experience.
     pub fn is_mobile_like(&self) -> bool {
         matches!(self.platform, Platform::Mobile | Platform::Web) ||
-        (self.screen_width < 900.0 || self.screen_height < 700.0)
+            (self.screen_width < 900.0 || self.screen_height < 700.0)
     }
 }
 
-/// Plugin that inserts the DeviceCapability resource.
 pub struct DeviceCapabilityPlugin;
 
 impl Plugin for DeviceCapabilityPlugin {
