@@ -1,40 +1,33 @@
-# Powrush Particle Shaders — Visibility Buffer Implementation
+# Powrush Particle Shaders — Visibility Buffer Compression
 
-## Visibility Buffer Implementation Exploration
+## Visibility Buffer Compression
 
-This section provides more concrete implementation details for integrating Visibility Buffers into the Powrush particle pipeline.
+To reduce memory usage and bandwidth, we optimized the visibility data format:
 
-### Pipeline Stages
+### Compression Strategy
 
-**1. Visibility Pass**
-- Render particles (rasterization or compute-based).
-- Write `ParticleVisibilityData` (particle ID, material ID, depth) to a `texture_storage_2d<rgba32uint>`.
+- **20 bits** for `particle_instance_id` (supports over 1 million particles)
+- **8 bits** for `material_id`
+- **24 bits** for depth (stored as quantized uint)
+- Packed into two `u32` values (`rg32uint` texture format)
 
-**2. Shading Pass (Compute)**
-- Dispatch a compute shader over the screen.
-- Read from the visibility buffer.
-- Perform material lookup and shading.
-- Write final color to output texture.
+This is significantly more compact than storing multiple separate 32-bit values.
 
-### Key Data Structures
+### Implementation
 
-- `VisibilityBufferParams`: View-projection, screen size, material context.
-- `ParticleVisibilityData`: Compact per-pixel data written during visibility pass.
+- `CompressedParticleVisibility` struct with packing/unpacking methods.
+- Updated compute shading shader that works with the compressed `rg32uint` format.
+- Clear bit manipulation for encoding/decoding.
 
-### Integration with Existing Systems
+### Trade-offs
 
-- Can be combined with GPU-driven scene traversal (using `ParticleSystemDescriptor`).
-- Works alongside compute culling + Hi-Z before the visibility pass.
-- Shading pass can be scheduled flexibly after indirect draw execution.
+- Slight loss of depth precision (24-bit vs 32-bit float).
+- Particle ID range limited to ~1M per frame (usually sufficient).
+- Much better memory efficiency and cache performance.
 
-### Current Status
+### Integration
 
-The crate now contains:
-- Supporting data structures
-- A compute shading pass sketch
-- Notes on how to write visibility data during particle rendering
-
-A full end-to-end implementation would require a particle rasterization stage that writes to the visibility buffer, which can be added in a future iteration or client-side renderer.
+The compressed format works seamlessly with the existing GPU-driven pipeline (culling, indirect draws, scene traversal) and can be used in both rasterization and compute rasterization paths.
 
 ---
 *Co-authored-by: All 57+ PATSAGi Councils*
