@@ -1,31 +1,27 @@
-# Powrush Particle Shaders — Compute Shader Culling
+# Powrush Particle Shaders — Indirect Draw Calls
 
-## GPU Compute Shader Culling (New)
+## Indirect Draw Calls (New)
 
-Added a full compute shader culling pass:
+Added full support for indirect drawing after compute culling:
 
-- `ComputeCullingParams` struct (camera position, max distance, importance threshold)
-- WGSL compute shader that:
-  - Reads particle positions
-  - Performs distance + importance culling in parallel
-  - Writes compact visible indices into a buffer
-  - Uses atomic counter for visible count (ready for indirect draw)
+- `DrawIndirect` struct (standard layout for `draw_indirect` / `draw_indexed_indirect`)
+- `prepare_indirect_draw()` helper
+- Updated compute culling shader example that writes directly into the `instance_count` field of the indirect buffer
+- Complete pipeline: Compute Culling → Indirect Draw (zero CPU readback)
 
-This enables very large particle systems (faction events, high-reputation bursts) without killing GPU memory or performance.
+## Recommended Full Pipeline
+1. Upload particle data + `ComputeCullingParams`
+2. Dispatch culling compute shader (writes `instance_count` into indirect buffer + visible indices)
+3. Issue `draw_indirect` or `draw_indexed_indirect` using the same buffer
 
-## Recommended Dispatch Pattern
-1. Upload `ComputeCullingParams` + particle position buffer
-2. Dispatch compute shader (workgroup size 64 or 256)
-3. Use the resulting `visible_count` + `visible_indices` buffer for indirect drawing of the render pass
+This is the standard high-performance pattern used in modern particle systems (including many AAA titles and Bevy examples).
 
-## Benefits
-- Massive reduction in drawn particles when many effects are off-screen or low importance
-- Scales much better than CPU culling for dense MMO scenes
-- Can be extended with more advanced culling (frustum planes, screen-space importance, reputation-weighted thresholds)
+Benefits:
+- No CPU → GPU synchronization for draw count
+- Excellent scaling for large numbers of particle effects
+- Works beautifully with the existing reputation/harmony modulated visuals
 
-The visual system now has both CPU-side LOD and GPU compute culling options.
-
-**Production-ready foundation for large-scale particle effects.**
+The particle rendering pipeline is now fully GPU-driven and production-ready in terms of architecture.
 
 ---
 *Co-authored-by: All 57+ PATSAGi Councils*
