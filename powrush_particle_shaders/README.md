@@ -1,10 +1,15 @@
 # Powrush Particle Shaders
 
-## Compute Pipeline Manager
+## Structure of Arrays (SoA) Adoption
 
-Further refined with shader module selection scaffolding based on `ComputePipelineType`.
+We are moving to Structure of Arrays layout for particle positions to improve memory coalescing on the GPU.
 
-The manager is becoming more complete and ready for real Vulkan integration.
+### Current State
+
+- Positions are now accessed via separate `pos_x`, `pos_y`, `pos_z` arrays in the WaveLocal Reduction culling shader.
+- This improves coalesced memory access during culling.
+
+This change is part of the ongoing performance and architectural improvements in Phase 1.
 
 ---
 *Phase 1 Consolidation*

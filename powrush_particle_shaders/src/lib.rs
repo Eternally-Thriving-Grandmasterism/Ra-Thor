@@ -2,6 +2,10 @@
 # Powrush Particle Shaders
 
 Core shaders and utilities for the particle system.
+
+## Data Layout
+
+We are moving toward Structure of Arrays (SoA) for better GPU memory coalescing.
 */
 
 pub mod compute;
@@ -13,6 +17,7 @@ pub use pipeline_manager::{
     ComputePipelineManager, ComputePipelineType, SpecializationConstant, SpecializationValue,
 };
 
+/// Parameters for compute culling passes.
 pub struct ComputeCullingParams {
     pub view_proj: [[f32; 4]; 4],
     pub camera_position: [f32; 3],
@@ -20,6 +25,7 @@ pub struct ComputeCullingParams {
     pub total_particles: u32,
 }
 
+/// DrawIndirect structure used by culling output.
 pub struct DrawIndirect {
     pub vertex_count: u32,
     pub instance_count: u32,
