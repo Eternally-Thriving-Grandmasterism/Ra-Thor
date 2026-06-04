@@ -1,42 +1,44 @@
-# Powrush Particle Shaders — Hardware Atomic Latency
+# Powrush Particle Shaders — GPU Atomic Contention Metrics
 
-## Hardware Atomic Latency Exploration
+## GPU Atomic Contention Metrics Analysis
 
-This iteration explores the **hardware-level latency** characteristics of atomic operations on modern GPUs.
+This iteration explores how to **measure and analyze atomic contention** on GPUs, with direct relevance to our particle culling optimizations.
 
-### Sources of Latency
+### Why It Matters
 
-Atomic operations incur higher latency than regular memory accesses due to:
-- Memory round-trips (often to L2 or device memory)
-- Serialization under contention
-- Coherence protocol overhead
-- Greater instruction complexity
+Atomic contention can silently limit scalability. Good metrics help validate that optimizations like WaveLocal Reduction are effective and guide further improvements.
 
-### Scope Impact
+### Useful Metrics
 
-- **Subgroup Scope**: Lowest latency. Can leverage wave-level optimizations with minimal coherence traffic.
-- **Workgroup Scope**: Moderate to high latency. Involves L2 and workgroup coherence.
-- **Device Scope**: Highest latency due to full device-wide coherence.
+**Hardware / Profiler Metrics**:
+- Atomic throughput and replay overhead
+- L2 atomic traffic and coherence traffic
+- Memory-related stall reasons (e.g., Long Scoreboard, Memory Dependency)
 
-### Contention Effect
+**Application-Level Metrics**:
+- Kernel execution time (baseline vs optimized)
+- Number of global atomics issued
+- Visible particle processing rate
+- Scaling behavior under increasing load
 
-In practice, **contention** (many threads targeting the same atomic address) is often the dominant factor increasing observed latency. Each waiting thread adds to the effective cost.
+### Expected Impact of WaveLocal Reduction
 
-### Relevance to Powrush
+After applying WaveLocal Reduction, we should observe:
+- Large reduction in global atomic operations (often ~32x fewer per wave)
+- Lower memory replay overhead
+- Improved kernel execution time, especially under high-visibility scenarios
+- Better scaling as particle counts grow
 
-Our **WaveLocal Reduction** technique directly addresses both the count and the latency impact of atomics by:
-- Performing counting and ranking inside each wave
-- Issuing only one atomic per wave instead of one per visible thread
+### Recommended Analysis Workflow
 
-Combined with our preference for **Subgroup scope**, this keeps hardware atomic latency well under control even at high particle counts.
+1. Profile the baseline culling implementation (per-thread atomicAdd).
+2. Profile after WaveLocal Reduction.
+3. Compare key metrics listed above.
+4. Test scaling with different particle densities.
 
-### Best Practices
+Using tools like Nsight Compute (NVIDIA) or equivalent vendor profilers provides the most detailed hardware metrics.
 
-- Minimize contention through wave-local aggregation
-- Prefer Subgroup scope for atomics
-- Use atomics for cross-wave coordination rather than fine-grained per-thread work
-
-This hardware perspective reinforces why our current optimizations are effective.
+This analysis approach helps confirm that our wave-local optimizations are delivering the expected performance gains.
 
 ---
 *Co-authored-by: All 57+ PATSAGi Councils*
