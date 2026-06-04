@@ -1,46 +1,49 @@
 /*!
-# Powrush Particle Shaders — Cooperative Vector Operations
+# Powrush Particle Shaders — Cooperative Matrix Multiply-Accumulate
 
-Investigation of cooperative vector operations on modern GPUs.
+Exploration of Cooperative Matrix Multiply-Accumulate (CoopMMA) on modern GPUs.
 
-## What are Cooperative Vector Operations?
+## What is Cooperative Matrix Multiply-Accumulate?
 
-Cooperative Vector operations allow a group of threads (typically a wave or subgroup) to collectively perform vector or matrix computations more efficiently than independent threads.
+Cooperative MMA allows a group of threads (wave or larger) to collectively perform matrix multiplication and accumulation with dedicated hardware acceleration.
 
-This includes:
-- Cooperative matrix multiply-accumulate (MMA)
-- Cooperative vector reductions and scans
-- Hardware-accelerated small matrix operations shared across lanes
+It is the core primitive behind Tensor Cores (NVIDIA), Matrix Cores (AMD), and similar features on other architectures.
 
-These features are becoming available in newer GPU architectures (e.g., NVIDIA Blackwell Cooperative Vectors, AMD, Intel extensions) and are exposed through extensions in Vulkan, DX12, and emerging WGSL support.
+Key characteristics:
+- Much higher throughput than scalar or vector matrix math
+- Designed for small-to-medium matrix sizes (e.g., 16x16, 8x8 fragments)
+- Threads cooperate to load, compute, and store results
+- Exposed via extensions such as VK_KHR_cooperative_matrix and emerging WGSL support
 
-## Relevance to Our Pipeline
+## Potential Applications in Powrush
 
-While our current focus is on particle culling, visibility, and command generation, cooperative vector operations can potentially accelerate:
-- Wave-local reductions and prefix sums (complementing ballot and shuffle)
-- Small matrix transformations on particle data (e.g., batch transformations)
-- More advanced compaction or sorting within waves
-- Future work involving neural or learned culling / LOD decisions
+While still emerging in shading languages, CoopMMA could eventually enable:
+- Learned / neural culling and LOD selection
+- Small neural networks for importance scoring or visual effect modulation
+- Advanced procedural deformation or animation of particle batches
+- High-performance batched linear algebra within compute shaders
 
-They represent the next layer of hardware acceleration beyond traditional subgroup ballot and shuffle operations.
+These would represent a significant leap in the complexity and intelligence of real-time particle systems.
 */
 
 use powrush_faction_dynamics::{Faction, FactionVisualIdentity, ParticleParams};
 
 pub mod compute {
-    /// Placeholder / forward-looking example of how cooperative vectors
-    /// might be used in a future culling or transformation pass.
-    pub const COOPERATIVE_VECTOR_NOTES: &str = r#"
-        // Cooperative vector operations are still emerging in WGSL.
-        // Example direction (not yet standard):
+    /// Forward-looking notes on Cooperative MMA usage.
+    pub const COOPERATIVE_MMA_NOTES: &str = r#"
+        // Cooperative Matrix Multiply-Accumulate is still maturing in WGSL (2026).
         //
-        // use cooperative_matrix or cooperative_vector extensions
+        // Example future direction:
         //
-        // let result = cooperative_vector_add(vec_a, vec_b);
-        // or cooperative matrix multiply for batched transforms
+        // let a = cooperative_matrix_load(...);
+        // let b = cooperative_matrix_load(...);
+        // let c = cooperative_matrix_multiply_accumulate(a, b, c);
+        // cooperative_matrix_store(result, c);
         //
-        // For now, we rely on ballot + shuffle for wave-local work.
-        // Future versions of this shader may incorporate cooperative vectors
-        // for higher throughput on vector-heavy operations.
+        // For now, complex matrix work can be done using
+        // traditional vector math or emerging cooperative vector features.
+        //
+        // This capability is tracked for future adoption in advanced
+        // culling, LOD, or procedural visual effects.
     "#;
 }
