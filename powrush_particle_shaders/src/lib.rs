@@ -1,58 +1,60 @@
 /*!
-# Powrush Particle Shaders — Subgroup Barrier Semantics
+# Powrush Particle Shaders — Memory Operand Details
 
-Exploration of subgroup (wave) barrier semantics and their use with cooperative matrices.
+Detailed exploration of Memory Operands used with cooperative matrix load and store operations.
 
-## What are Subgroup Barriers?
+## Why Memory Operands Matter
 
-Subgroup barriers ensure that all threads (lanes) within the same subgroup have reached a certain execution point before any thread is allowed to proceed.
+`OpCooperativeMatrixLoadKHR` and `OpCooperativeMatrixStoreKHR` accept Memory Operands that control:
+- Memory ordering (Acquire/Release semantics)
+- Visibility between threads
+- Caching and coherence behavior
+- Whether the pointer is treated as private or non-private
 
-They provide two main guarantees:
+Incorrect memory operands can lead to data races or stale data.
 
-1. **Execution Barrier**: All threads reach the barrier before any continue.
-2. **Memory Barrier**: Memory operations before the barrier are made visible to operations after the barrier (within the subgroup).
+## Key Memory Operands for Cooperative Matrices
 
-## Barrier Semantics in SPIR-V / Vulkan
+### Visibility and Ordering
+- `MakePointerAvailable` / `MakePointerAvailableKHR`
+  - Makes the pointer's value available to other threads/scopes after a store.
+- `MakePointerVisible` / `MakePointerVisibleKHR`
+  - Makes the pointer's value visible to the current thread/scope before a load.
 
-Barriers are expressed using `OpControlBarrier` with:
-- `Scope` = `Subgroup`
-- Appropriate `Memory Semantics` (Acquire, Release, AcquireRelease, etc.)
+### Privacy
+- `NonPrivatePointer` / `NonPrivatePointerKHR`
+  - Indicates that the pointer may be accessed by multiple threads (required for most cooperative use cases).
 
-In WGSL (when available), this will likely appear as `subgroupBarrier()` or similar with memory semantics.
+### Other Common Operands
+- `Volatile`: Prevents caching; always read from memory.
+- `Aligned`: Specifies alignment of the memory access.
 
-## Interaction with Cooperative Matrices
+## Scope Interaction
 
-### Subgroup-Scoped Cooperative Matrices
+When using **Subgroup scope**:
+- `NonPrivatePointer` is usually required.
+- `MakePointerAvailable` / `MakePointerVisible` may still be needed depending on the surrounding memory operations.
 
-When using `VK_SCOPE_SUBGROUP_KHR`:
-- Explicit subgroup barriers are **often not required** for correctness.
-- Wave execution on most GPUs has strong implicit ordering guarantees.
-- However, barriers can still be useful when mixing cooperative matrix operations with regular global/shared memory accesses to ensure visibility.
+When using **Workgroup scope**:
+- Stronger visibility semantics (AcquireRelease) are often necessary in combination with barriers.
 
-### Workgroup-Scoped Cooperative Matrices
+## Practical Guidance
 
-When using `VK_SCOPE_WORKGROUP_KHR`:
-- Subgroup barriers alone are usually **insufficient**.
-- Full workgroup barriers (`OpControlBarrier` with Workgroup scope) are typically required between phases.
-
-## Relevance to Powrush
-
-Given our extensive use of wave-local techniques (ballot, shuffle, wave-local reduction), most of our future cooperative matrix usage will likely be at **Subgroup scope**.
-In these cases, explicit barriers can often be avoided or used sparingly, reducing complexity and improving performance.
+For Subgroup-scoped cooperative matrices (recommended for Powrush):
+- Always include `NonPrivatePointer`.
+- Use `MakePointerAvailable` after stores and `MakePointerVisible` before loads when mixing with other memory accesses.
+- Start with conservative (safe) operands and optimize only after verifying correctness.
 */
 
 use powrush_faction_dynamics::{Faction, FactionVisualIdentity, ParticleParams};
 
 pub mod compute {
-    /// Notes on subgroup barrier semantics.
-    pub const SUBGROUP_BARRIER_NOTES: &str = r#"
-        // Subgroup scope cooperative matrices:
-        // - Often no explicit barrier needed
-        // - Use memory operands for visibility when necessary
+    /// Notes on memory operands for cooperative matrices.
+    pub const MEMORY_OPERAND_NOTES: &str = r#"
+        // Common safe combination for Subgroup scope:
+        // NonPrivatePointer + MakePointerAvailable / MakePointerVisible as needed
         //
-        // Workgroup scope:
-        // - Usually requires full workgroup barriers
-        //
-        // Prefer Subgroup scope to minimize synchronization complexity.
+        // Always validate memory ordering when mixing cooperative
+        // matrix operations with regular loads/stores.
     "#;
 }
