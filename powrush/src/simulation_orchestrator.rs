@@ -33,34 +33,40 @@ use crate::resources::server_unlock_state::ServerUnlockState;
 use crate::clifford_healing_fields::CliffordHealingField;
 use crate::hyperon_metta_layer;
 
+/// Marker component example for query filtering demonstration.
+#[derive(Component)]
+pub struct Active;
+
+/// Another marker for type-based filtering (e.g. only process Human players differently).
+#[derive(Component)]
+pub struct HumanPlayer;
+
 /// Custom proprietary Bevy plugin that orchestrates the full Powrush MMORPG tick.
 pub struct PowrushSimulationOrchestratorPlugin;
 
 impl Plugin for PowrushSimulationOrchestratorPlugin {
     fn build(&self, app: &mut App) {
-        // Bevy Resource Management best practice:
-        // Initialize shared simulation state as Resources so any system can access them.
-        app.init_resource::<CliffordHealingField>(); // uses Default if available, or we insert manually
+        app.init_resource::<CliffordHealingField>();
         app.add_systems(Update, powrush_authoritative_tick);
     }
 }
 
 /// The core custom authoritative simulation tick.
-/// Demonstrates clean Bevy Resource management:
-/// - ResMut<CliffordHealingField> for the global mercy mesh
-/// - ResMut<ServerUnlockState> for PATSAGi governance state
-/// - Query over SovereignEntity components
-/// All accessed safely in one system signature.
+/// Now demonstrates Bevy Query Filtering for performance and logic separation.
 fn powrush_authoritative_tick(
-    mut entities: Query<&mut SovereignEntity>,
+    // Only process entities that actually changed this frame (Changed filter)
+    mut changed_entities: Query<&mut SovereignEntity, Changed<SovereignEntity>>,
+
+    // Example of With/Without filtering (commented for clarity)
+    // mut human_entities: Query<&mut SovereignEntity, (With<HumanPlayer>, Without<Inactive>)>,
+
     mut healing_field: ResMut<CliffordHealingField>,
     mut unlock_state: ResMut<ServerUnlockState>,
 ) {
-    // 1. Hyperon/Metta deeper reasoning pass
-    let (_gh, _eh, _cs) = hyperon_metta_layer::query_real_lattice_metrics();
-
-    // 2. RBE distribution using live ECS data + healing field resource
-    let mut entity_slice: Vec<_> = entities.iter_mut().collect();
+    // === Changed filter usage ===
+    // Only entities whose SovereignEntity component changed are processed.
+    // This is a major performance win in a large-scale MMORPG tick.
+    let mut entity_slice: Vec<_> = changed_entities.iter_mut().collect();
 
     if !entity_slice.is_empty() {
         distribute_universal_thriving_dividends(
@@ -75,17 +81,20 @@ fn powrush_authoritative_tick(
         unlock_state.apply_rbe_thriving_influence(0, avg_valence);
     }
 
-    // 3. Optional healing field maintenance (Resource is already mutable here)
-    // let _ = healing_field.apply_clifford_convolution(0.01, healing_field.mercy_flow);
-
-    // 4. WASM / global sync hooks
+    // === Other powerful filters (documented for learning) ===
+    // With<T>          : Must have component T
+    // Without<T>       : Must NOT have component T
+    // Changed<T>       : Component T was mutated this frame (used above)
+    // Added<T>         : Component T was just added this frame
+    // Or<(With<A>, With<B>)> : Logical OR of filters
+    //
+    // Example future use:
+    // Query<&SovereignEntity, (With<Active>, Without<Dead>)>
+    // Query<&mut SovereignEntity, Or<(With<HumanPlayer>, With<AGIPlayer>)>>
 }
 
-// Bevy Resource Management Notes:
-// - Resources are singletons stored in the World.
-// - Use init_resource::<T>() when T: Default (or provide your own Default).
-// - Use insert_resource(my_instance) when you need custom construction.
-// - Always request Res<T> / ResMut<T> in system parameters for safe access.
-// - Multiple systems can read/write the same Resource (Bevy handles synchronization).
-// - For Powrush this means CliffordHealingField and ServerUnlockState are
-//   globally available to the tick, PATSAGi systems, WASM login, etc.
+// Bevy Query Filtering Summary (Powrush context):
+// - Changed<SovereignEntity> is ideal for authoritative ticks (only dirty entities)
+// - With/Without markers let you separate Human vs AI vs AGI behavior
+// - Filters compose cleanly and are evaluated efficiently by Bevy's archetype system
+// - Always prefer specific filters over broad Query<&mut SovereignEntity> when possible
