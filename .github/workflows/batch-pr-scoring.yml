@@ -1,0 +1,58 @@
+name: Batch PR Scoring
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  score-batch-pr:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Build scorer
+        run: cargo build --package monorepo-intelligence --bin batch_pr_scorer_cli
+
+      - name: Get changed files
+        id: changed
+        run: |
+          git diff --name-only origin/main...HEAD > changed_files.txt
+          echo "files=$(cat changed_files.txt | tr '\n' ' ')" >> $GITHUB_OUTPUT
+
+      - name: Run Batch PR Scorer
+        id: score
+        run: |
+          if [ -s changed_files.txt ]; then
+            ./target/debug/batch_pr_scorer_cli $(cat changed_files.txt) > score_output.txt || true
+            echo "output=$(cat score_output.txt)" >> $GITHUB_OUTPUT
+          else
+            echo "output=No changed files detected" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Comment on PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const output = '${{ steps.score.outputs.output }}';
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `## 🤖 Automated Batch PR Scoring
+
+**Recommendation:** ${output}
+
+This scoring is based on the objective criteria defined in the Eternal Iteration Protocol.
+
+> Powered by monorepo-intelligence::BatchPrScorer`
+            });
