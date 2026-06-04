@@ -14,6 +14,17 @@ Instead of storing full material properties in a G-Buffer, a Visibility Buffer s
 - Enables decoupled shading (compute shading pass can be scheduled flexibly).
 - Easier to handle many different faction visual styles and resonance effects.
 
+### Refined Architectural Direction
+
+A Visibility Buffer approach represents a strong evolution of our GPU-driven rendering strategy. By storing only visibility identifiers during the rasterization/compute-rasterization stage, we keep the early pipeline lightweight and highly parallelizable.
+
+Shading, lighting, and effect composition can then be moved to a dedicated compute pass. This aligns with our existing work on:
+- Compute shader culling (frustum, Hi-Z, importance)
+- GPU-generated indirect draw commands
+- GPU-driven scene traversal using `ParticleSystemDescriptor`s
+
+The result is a coherent, mostly GPU-driven visual architecture that minimizes CPU involvement while maximizing flexibility for complex particle and faction visuals.
+
 ### Integration Opportunities
 
 - During particle rasterization (or compute rasterization), write `ParticleVisibilityData` into the visibility buffer.
