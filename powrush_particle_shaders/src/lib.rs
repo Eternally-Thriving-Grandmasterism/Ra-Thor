@@ -1,59 +1,41 @@
 /*!
-# Powrush Particle Shaders — Memory Fence Performance Costs
+# Powrush Particle Shaders — Memory Fence vs Atomic Costs
 
-Exploration of the performance costs associated with memory fences.
+Comparison of performance costs: memory fences vs atomic operations.
 
-## What Contributes to Fence Cost?
+## Key Differences
 
-Memory fences have performance costs because they can:
+**Atomic Operations**:
+- Main cost: Contention when many threads hit the same atomic.
+- We mitigated this heavily with WaveLocal Reduction (ballot + shuffle → 1 atomic per wave).
+- Scope sensitivity: High, but Subgroup scope helps a lot.
 
-1. **Stall execution** — Threads wait for prior memory operations to complete and become visible.
-2. **Flush or invalidate caches** — Depending on semantics and scope, fences may cause cache operations.
-3. **Prevent instruction reordering** — Both compiler and hardware reordering is restricted, reducing latency hiding opportunities.
-4. **Increase memory traffic** — Release/Acquire semantics require making data visible across threads/scopes.
+**Memory Fences**:
+- Main cost: Stalls + prevention of instruction reordering (hurts latency hiding).
+- Cache effects and memory traffic from visibility requirements.
+- Scope sensitivity: Very high (Subgroup cheap, Workgroup/Device expensive).
 
-## Cost by Scope
+## Comparison Table
 
-### Subgroup Scope
-- Relatively low cost.
-- Often just a lightweight wave synchronization.
-- Minimal cache impact on most modern GPUs.
-- Good for performance-critical paths.
+| Aspect                    | Atomic Operations             | Memory Fences                    | Notes for Powrush                     |
+|---------------------------|-------------------------------|----------------------------------|---------------------------------------|
+| Main Cost Driver          | Contention                    | Stalls + reordering limits       | WaveLocal Reduction helps atomics     |
+| Scope Sensitivity         | High                          | Very High                        | Subgroup scope best for both          |
+| Latency Hiding Impact     | Moderate                      | Higher                           | Fences can hurt more broadly          |
+| Frequency in our code     | High (counters)               | Lower                            | Atomics used more often               |
+| Optimization Opportunity  | Wave-local aggregation        | Minimize scope + frequency       | We already do this well               |
 
-### Workgroup Scope
-- Moderate to high cost.
-- Requires synchronization across the entire workgroup.
-- Stronger memory visibility guarantees increase traffic and stall time.
+## Conclusion
 
-### Device / QueueFamily Scope
-- Highest cost.
-- Very expensive due to broad visibility requirements across the device or queue family.
-- Should be avoided in performance-critical rendering/compute paths.
-
-## Impact on Our Architecture
-
-Because we strongly prefer **Subgroup-scoped** operations and wave-local techniques (ballot, shuffle, wave-local reduction), memory fence costs in our particle culling and visibility pipelines remain low.
-
-Using stronger scopes or unnecessary fences would introduce avoidable performance penalties.
-
-## Best Practices
-
-- Prefer Subgroup scope whenever possible.
-- Only use stronger fences when functionally required (e.g., Workgroup-scoped cooperative matrices).
-- Combine fences with wave-local work to minimize their frequency and strength.
-- Profile and validate — unnecessary fences are a common source of hidden performance loss.
+Our architecture (strong Subgroup scope preference + WaveLocal Reduction) keeps both atomic and fence costs low. Continue this approach.
 */
 
 use powrush_faction_dynamics::{Faction, FactionVisualIdentity, ParticleParams};
 
 pub mod compute {
-    /// Notes on memory fence performance costs.
-    pub const MEMORY_FENCE_COST_NOTES: &str = r#"
-        // Subgroup fences: low cost
-        // Workgroup fences: moderate-high cost
-        // Device fences: very high cost
-        //
-        // Minimize scope and frequency of fences.
-        // Prefer wave-local techniques to reduce need for strong fences.
+    pub const COMPARISON_NOTES: &str = r#"
+        // Atomic costs mainly from contention (mitigated by wave-local work)
+        // Fence costs from stalls and reordering (mitigated by low frequency + Subgroup scope)
+        // Both benefit strongly from staying at Subgroup scope.
     "#;
 }
