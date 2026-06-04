@@ -1,32 +1,38 @@
-# Powrush Particle Shaders — SIMD Vectorization for Packing
+# Powrush Particle Shaders — GPU Ballot Intrinsics
 
-## SIMD Vectorization for Visibility Packing
+## GPU Ballot Intrinsics Exploration
 
-This iteration explores using SIMD techniques to accelerate the packing and unpacking of visibility buffer data.
+This iteration explores **subgroup/wave ballot intrinsics** as a powerful optimization for our culling and visibility buffer pipeline.
 
-### GPU Side (WGSL)
+### What Ballot Enables
 
-- Use `vec4<u32>` operations to pack/unpack multiple particles simultaneously.
-- Leverage wave/warp shuffle and ballot operations for even higher efficiency in modern GPUs.
-- Vectorized bit manipulation can significantly increase throughput when many particles are being written to the visibility buffer.
+- Efficient wave-local compaction of visible particles without heavy atomic contention.
+- Parallel prefix sum within a wave using `countOneBits` on the ballot mask.
+- Significantly reduced pressure on global atomic operations.
+- Better scaling when thousands of particles become visible in the same wave.
 
-### CPU Side (Data Preparation)
+### Integration with Existing Pipeline
 
-- When preparing particle data on the CPU before uploading to GPU, SIMD (AVX2/AVX-512 or NEON) can be used to pack large batches of visibility data very quickly.
-- The `PackedVisibilityBatch` struct demonstrates a batch-oriented approach.
+The ballot-based approach can replace or complement our current `atomicAdd`-based slot reservation in:
+- Compute culling shaders
+- Visibility buffer writing
+- GPU-driven scene traversal command generation
 
-### Benefits
-- Higher packing throughput
-- Better utilization of wide vector registers
-- Reduced CPU/GPU preparation time for large particle counts
+It works especially well combined with Hierarchical Z-Buffer (Hi-Z) culling.
 
 ### Current Implementation
 
-- `PackedVisibilityBatch` provides a simple batch packing interface.
-- WGSL vectorization notes included for future shader optimization.
-- Compatible with the existing compressed `CompressedParticleVisibility` format.
+- Added `BALLOT_BASED_CULLING` shader sketch demonstrating wave-local compaction.
+- Uses `subgroupBallot`, `countOneBits`, and `subgroupBroadcast`.
+- Shows how to compute local rank within a wave for efficient buffer writing.
 
-This optimization layer can be applied on top of the bit-packed visibility buffer to further improve performance at scale.
+### Trade-offs
+
+- Requires subgroup support (available on most modern GPUs).
+- Slightly more complex shader code.
+- Excellent performance gains at high occupancy.
+
+This technique represents an advanced optimization layer on top of our existing compute culling and visibility buffer work.
 
 ---
 *Co-authored-by: All 57+ PATSAGi Councils*
