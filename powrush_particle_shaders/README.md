@@ -1,37 +1,29 @@
-# Powrush Particle Shaders — Vulkan Cooperative Matrix Extensions
+# Powrush Particle Shaders — SPIR-V Cooperative Matrix Instructions
 
-## Vulkan Cooperative Matrix Extensions Investigation
+## SPIR-V Cooperative Matrix Instructions Investigation
 
-This iteration investigates the **Vulkan cooperative matrix extensions** that provide the underlying platform support for cooperative matrix operations.
+This iteration investigates the **SPIR-V instructions** that implement cooperative matrix functionality at the intermediate representation level.
 
-### Primary Extensions
+### Key Instructions
 
-**VK_KHR_cooperative_matrix**:
-- The main portable, cross-vendor extension.
-- Defines cooperative matrix types, scopes, and operations.
-- Includes device property queries for supported matrix configurations.
+- `OpTypeCooperativeMatrixKHR`: Defines a cooperative matrix type.
+- `OpCooperativeMatrixLoadKHR` / `OpCooperativeMatrixStoreKHR`: Cooperative memory operations.
+- `OpCooperativeMatrixMulAddKHR`: The core matrix multiply-accumulate operation.
+- `OpCooperativeMatrixLengthKHR`: Returns the component count of a matrix.
 
-**VK_NV_cooperative_matrix** and **VK_NV_cooperative_matrix2**:
-- NVIDIA-specific extensions (the original and an enhanced version).
+### Compilation Flow
 
-### Core Concepts
+When WGSL cooperative matrix support is added, the WGSL-to-SPIR-V compiler will emit these instructions. They are then consumed by the Vulkan driver (via `VK_KHR_cooperative_matrix`) and mapped down to the hardware matrix multiplication instructions.
 
-- **Scope**: Usually `VK_SCOPE_SUBGROUP_KHR` — the group of threads that cooperate on matrix operations.
-- **Matrix Properties**: Define supported element types, dimensions, and layouts.
-- **Operations**: Cooperative load, multiply-accumulate, and store.
+### Strategic Importance
 
-### Relationship to WGSL
+Understanding the SPIR-V layer gives us insight into:
+- How future WGSL cooperative matrix code will be structured
+- What operations are fundamentally supported
+- How the compiler and driver will optimize matrix workloads
 
-When WGSL cooperative matrix support becomes available, it will be implemented on top of these Vulkan extensions (or the equivalent on other platforms). WGSL will provide a higher-level, more portable interface while the driver maps down to the appropriate extension.
-
-### Strategic Value for Powrush
-
-Understanding the Vulkan layer helps us anticipate:
-- What matrix sizes and precisions will be available
-- How to structure workloads for best performance
-- When we can begin leveraging these features from WGSL compute shaders
-
-This completes the platform-level view of cooperative matrix technology and prepares the visual architecture for adoption as WGSL support matures.
+This completes the full stack view of cooperative matrix technology:
+Hardware Instructions → SPIR-V → Vulkan Extensions → WGSL (future)
 
 ---
 *Co-authored-by: All 57+ PATSAGi Councils*
