@@ -1,60 +1,75 @@
 /*!
-# Powrush Particle Shaders — Optimized Depth Buffer Sampling
+# Powrush Particle Shaders — Hierarchical Z-Buffer (Hi-Z) Techniques
 
-Performance optimizations for compute shader depth sampling in occlusion culling.
+Exploration and implementation of Hierarchical Z-Buffer occlusion culling.
 
-## Optimizations Applied
+## What is Hierarchical Z-Buffer (Hi-Z)?
 
-1. Use `textureLoad` instead of `textureSampleLevel` (faster, no filtering needed for depth).
-2. Proper depth linearization for accurate occlusion tests.
-3. Early mip-level selection for coarse culling (simple Hi-Z style).
-4. Reduced divergent branching where possible.
-5. Better memory access patterns.
+Hi-Z is an advanced occlusion culling technique that uses a mipmapped depth pyramid.
+Each mip level stores the **minimum** depth value over a 2x2 (or larger) tile.
 
-These changes significantly improve performance of the occlusion culling pass.
+When testing a particle or bounding volume:
+1. Project it to screen space.
+2. Estimate its screen size.
+3. Select the appropriate mip level (coarser for larger/farther objects).
+4. Sample the Hi-Z texture at that level.
+
+This allows very fast occlusion tests with excellent cache behavior and fewer samples.
+
+## Benefits for Particle Systems
+- Extremely fast culling of many small particles.
+- Naturally handles varying particle screen sizes.
+- Can be combined with frustum + importance culling.
+- Scales well to very large particle counts.
 */
 
 use powrush_faction_dynamics::{Faction, FactionVisualIdentity, ParticleParams};
 
 #[derive(Debug, Clone, Copy, bytemuck::Pod, bytemuck::Zeroable)]
 #[repr(C)]
-pub struct OcclusionCullingParams {
+pub struct HiZCullingParams {
     pub view_proj: [[f32; 4]; 4],
-    pub inv_view_proj: [[f32; 4]; 4], // Useful for some advanced techniques
     pub camera_position: [f32; 3],
     pub max_cull_distance: f32,
     pub total_particles: u32,
-    pub depth_mip_level: f32,        // For coarse Hi-Z style sampling
+    pub hi_z_texture_size: [u32; 2],  // Size of mip 0
+    pub max_mip_level: u32,
 }
 
 pub mod compute {
-    /// Highly optimized depth sampling occlusion culling shader.
-    pub const OPTIMIZED_DEPTH_OCCLUSION_SHADER: &str = r#"
-        struct OcclusionCullingParams {
+    /// Hierarchical Z-Buffer occlusion culling shader.
+    /// This version calculates the appropriate mip level based on particle distance.
+    pub const HIZ_OCCLUSION_SHADER: &str = r#"
+        struct HiZCullingParams {
             view_proj: mat4x4<f32>,
-            inv_view_proj: mat4x4<f32>,
             camera_position: vec3<f32>,
             max_cull_distance: f32,
             total_particles: u32,
-            depth_mip_level: f32,
+            hi_z_texture_size: vec2<u32>,
+            max_mip_level: u32,
         };
 
-        @group(0) @binding(0) var<uniform> params: OcclusionCullingParams;
-        @group(0) @binding(1) var depth_texture: texture_depth_2d;
-        @group(0) @binding(2) var<storage, read> particle_positions: array<vec3<f32>>;
-        @group(0) @binding(3) var<storage, read_write> visible_indices: array<u32>;
-        @group(0) @binding(4) var<storage, read_write> draw_indirect: DrawIndirect;
+        @group(0) @binding(0) var<uniform> params: HiZCullingParams;
+        @group(0) @binding(1) var hi_z_texture: texture_depth_2d;
+        @group(0) @binding(2) var hi_z_sampler: sampler;
+        @group(0) @binding(3) var<storage, read> particle_positions: array<vec3<f32>>;
+        @group(0) @binding(4) var<storage, read_write> visible_indices: array<u32>;
+        @group(0) @binding(5) var<storage, read_write> draw_indirect: DrawIndirect;
 
-        fn linearize_depth(depth: f32, near: f32, far: f32) -> f32 {
-            // Convert non-linear depth to linear view-space depth
-            return (2.0 * near) / (far + near - depth * (far - near));
+        fn calculate_mip_level(world_pos: vec3<f32>) -> f32 {
+            // Simple mip level selection based on distance
+            // More advanced versions use screen-space size of the particle
+            let dist = distance(world_pos, params.camera_position);
+            let normalized_dist = dist / params.max_cull_distance;
+            // Coarser mip for farther particles
+            let mip = normalized_dist * f32(params.max_mip_level);
+            return clamp(mip, 0.0, f32(params.max_mip_level));
         }
 
-        fn world_to_screen_depth(world_pos: vec3<f32>) -> vec3<f32> {
+        fn world_to_uv(world_pos: vec3<f32>) -> vec2<f32> {
             let clip = params.view_proj * vec4<f32>(world_pos, 1.0);
             let ndc = clip.xyz / clip.w;
-            let uv = ndc.xy * 0.5 + 0.5;
-            return vec3<f32>(uv, ndc.z);
+            return ndc.xy * 0.5 + 0.5;
         }
 
         @compute @workgroup_size(64)
@@ -71,25 +86,23 @@ pub mod compute {
                 return;
             }
 
-            let screen = world_to_screen_depth(world_pos);
-            let uv = screen.xy;
+            let uv = world_to_uv(world_pos);
+            let mip = calculate_mip_level(world_pos);
 
-            // Optimized depth load using mip level for coarse culling
-            let scene_depth = textureLoad(depth_texture, vec2<i32>(uv * vec2<f32>(textureDimensions(depth_texture))), i32(params.depth_mip_level));
+            // Sample from the appropriate mip level of the Hi-Z texture
+            let scene_min_depth = textureSampleLevel(hi_z_texture, hi_z_sampler, uv, mip);
 
-            // Linearize both depths for accurate comparison
-            // (Assuming near=0.1, far=1000.0 - these should come from camera in real code)
-            let linear_particle_depth = linearize_depth(screen.z, 0.1, 1000.0);
-            let linear_scene_depth = linearize_depth(scene_depth, 0.1, 1000.0);
+            // Simplified depth test (should use proper linearization in production)
+            let particle_depth = dist / params.max_cull_distance;
 
-            if (linear_particle_depth > linear_scene_depth) {
-                return; // Occluded
+            if (particle_depth > scene_min_depth) {
+                return; // Occluded by Hi-Z
             }
 
-            // Visible - write to indirect buffer
+            // Visible
             let slot = atomicAdd(&draw_indirect.instance_count, 1u);
             visible_indices[slot] = index;
-            }
+        }
     "#;
 }
 

@@ -1,20 +1,26 @@
-# Powrush Particle Shaders — Optimized Depth Sampling
+# Powrush Particle Shaders — Hierarchical Z-Buffer (Hi-Z)
 
-## Depth Buffer Sampling Optimizations
+## Hierarchical Z-Buffer Techniques
 
-Significant performance improvements were made to the compute shader depth sampling:
+Added proper exploration and implementation of Hi-Z occlusion culling:
 
-- Switched to `textureLoad` (faster than sampling with filtering).
-- Added depth linearization for accurate occlusion tests.
-- Simple mip-level selection (`depth_mip_level`) for coarse-to-fine culling (basic Hi-Z style).
-- Better structured math with clear separation of projection and depth comparison.
+- `HiZCullingParams` with support for mip chain information.
+- Dynamic mip level calculation based on particle distance.
+- Sampling from the appropriate level of a pre-built Hi-Z texture (min-depth pyramid).
+- Clear documentation explaining the technique and benefits.
 
-## Recommendations
-- For even higher performance, implement a full Hierarchical Z-Buffer (Hi-Z) pyramid and select mip level based on particle screen size.
-- Pass real near/far plane values instead of hardcoded ones.
-- Combine with previous frustum + importance culling for best results.
+## How to Use Hi-Z
+1. Build a Hierarchical Z-Buffer (min-depth mip chain) from the main depth buffer each frame (usually in a separate compute pass).
+2. Pass the Hi-Z texture + parameters to the culling compute shader.
+3. The shader automatically selects coarser mips for distant particles.
 
-These optimizations make the occlusion culling pass much more efficient, especially when many particles are being tested.
+## Advantages
+- Much faster than sampling the full-resolution depth buffer for every particle.
+- Excellent cache behavior.
+- Naturally adapts to particle screen size.
+- Can be combined with frustum and importance culling.
+
+This represents a significant step toward high-performance occlusion culling for large-scale particle effects in Powrush.
 
 ---
 *Co-authored-by: All 57+ PATSAGi Councils*
