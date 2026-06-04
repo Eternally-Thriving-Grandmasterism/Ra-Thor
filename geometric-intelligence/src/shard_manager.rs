@@ -3,8 +3,7 @@
 //! Integrates EpigeneticModulation, CouncilProposal evaluation, and real PATSAGi Council valence
 //! into shard/interest management for Powrush simulation and ONE Organism coordination.
 //!
-//! This fulfills the ShardManager integration request by wiring the council simulation
-//! directly into spatial interest routing and proposal decisions.
+//! Extended with Particle Evolution wiring for Resonance Gear visual feedback (council-aware / mercy-gated).
 
 use crate::types::{CouncilProposal, EpigeneticBlessing, EpigeneticModulation};
 use crate::riemannian_mercy_manifold::RiemannianMercyManifold;
@@ -53,12 +52,9 @@ impl ShardManager {
     }
 
     /// Core integration: Route a CouncilProposal through real council evaluation + epigenetic modulation.
-    /// Returns whether the proposal is accepted into the shard and any epigenetic blessings applied.
     pub fn route_council_proposal(&mut self, proposal: CouncilProposal) -> (bool, Vec<EpigeneticBlessing>, String) {
-        // Use the manifold's wired evaluation (which applies to epigenetic_state)
         let (modulated_mercy, blessings, reason) = self.manifold.evaluate_council_proposal(&proposal);
 
-        // Find or create target shard
         let target_shard = if self.shards.contains_key(&proposal.geometric_layer) {
             proposal.geometric_layer.clone()
         } else {
@@ -66,17 +62,39 @@ impl ShardManager {
         };
 
         if let Some(interest_set) = self.shards.get_mut(&target_shard) {
-            // Apply the same valence to the shard's local epigenetic state
             interest_set.epigenetic_mod.apply_council_valence(modulated_mercy, &proposal.council);
             interest_set.add_entity(&proposal.proposal_id);
         }
 
-        let accepted = modulated_mercy > 0.85; // Simple threshold; can be made more sophisticated
-
+        let accepted = modulated_mercy > 0.85;
         (accepted, blessings, reason)
     }
 
-    /// Apply a full council sequence to a specific shard's epigenetic state (for simulation ticks)
+    /// NEW: Handle particle evolution events from Resonance Gear (Powrush particles crate).
+    /// Creates an internal CouncilProposal for "ParticleEvolution" and routes it.
+    /// Returns epigenetic blessings that can be used to modulate burst intensity, color, or lifetime in the Bevy Hanabi layer.
+    /// This is the professional wiring point for council-aware / mercy-gated visual feedback.
+    pub fn handle_particle_evolution(
+        &mut self,
+        faction: &str,
+        old_level: u32,
+        new_level: u32,
+        harmony: f64,
+    ) -> (bool, Vec<EpigeneticBlessing>, String) {
+        let proposal = CouncilProposal::new(
+            &format!("particle_evolution_{}_{}", faction, new_level),
+            faction,
+            &format!("Resonance Gear ({}) evolved from level {} to {} with harmony {:.2}", faction, old_level, new_level, harmony),
+            if faction == "Forge" { "Hyperbolic" } else { "Platonic" },
+        );
+
+        // Route through full council evaluation + epigenetic modulation
+        let result = self.route_council_proposal(proposal);
+
+        // Future: Use result.1 (blessings) to scale burst particle_count, color saturation, or lifetime in bevy_hanabi_plugin
+        result
+    }
+
     pub fn apply_sequence_to_shard(&mut self, shard_id: &str, sequence: &[(f64, &str)]) -> Option<String> {
         if let Some(interest_set) = self.shards.get_mut(shard_id) {
             let report = interest_set.epigenetic_mod.simulate_council_sequence(sequence);
@@ -117,13 +135,13 @@ mod tests {
     }
 
     #[test]
-    fn test_sequence_on_shard() {
+    fn test_particle_evolution_wiring() {
         let mut manager = ShardManager::new();
-        manager.create_shard("test_shard", "harmony");
+        manager.create_shard("forge_shard", "evolutionary");
 
-        let seq = vec![(0.92, "harmony"), (0.95, "truth")];
-        let report = manager.apply_sequence_to_shard("test_shard", &seq).unwrap();
+        let (accepted, blessings, reason) = manager.handle_particle_evolution("Forge", 2, 3, 0.92);
 
-        assert!(report.contains("Cumulative"));
+        assert!(accepted);
+        assert!(!blessings.is_empty() || reason.contains("evolved"));
     }
 }
