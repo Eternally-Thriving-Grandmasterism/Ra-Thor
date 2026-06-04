@@ -13,13 +13,13 @@ pub mod resources;
 pub mod systems;
 pub mod hyperon_metta_layer;
 pub mod wasm_entity_login;
-pub mod entity;  // NEW: SovereignEntity orchestration
+pub mod entity;
 
 // Re-exports
 pub use clifford_healing_fields::{CliffordHealingField, HealingConfig, GlobalCoherence, HealingFieldError};
 pub use resources::server_unlock_state::ServerUnlockState;
 pub use systems::patsagi::{PatsagiCouncilPlugin, WarPhase};
-pub use entity::{SovereignEntity, EntityType};
+pub use entity::{SovereignEntity, EntityType, distribute_universal_thriving_dividends};
 
 /// Initialize the full living simulation with all lattice integrations.
 pub fn initialize_living_simulation(app: &mut App) {
@@ -28,14 +28,23 @@ pub fn initialize_living_simulation(app: &mut App) {
         hyperon_metta_layer::HyperonMettaReasoningPlugin,
     ));
 
-    // Demo: spawn a few sovereign entities on init (humans + AI + AGI)
-    // In production this would come from WASM login + persistent world state
+    // Demo: spawn sovereign entities (Human + AI + AGI) and demonstrate RBE mechanics
     let mut healing_field = CliffordHealingField::new("Powrush Living Simulation");
     let mut unlock_state = ServerUnlockState::default();
 
-    entity::spawn_and_register_sovereign_entity(1, EntityType::Human, &mut healing_field, &mut unlock_state);
-    entity::spawn_and_register_sovereign_entity(2, EntityType::AI, &mut healing_field, &mut unlock_state);
-    entity::spawn_and_register_sovereign_entity(3, EntityType::AGI, &mut healing_field, &mut unlock_state);
+    let mut entities = vec![
+        entity::spawn_and_register_sovereign_entity(1, EntityType::Human, &mut healing_field, &mut unlock_state),
+        entity::spawn_and_register_sovereign_entity(2, EntityType::AI, &mut healing_field, &mut unlock_state),
+        entity::spawn_and_register_sovereign_entity(3, EntityType::AGI, &mut healing_field, &mut unlock_state),
+    ];
+
+    // Seed some initial contributions (simulating learning & earning activity)
+    entities[0].contribute("coexistence", 12.0);
+    entities[1].contribute("strategy", 9.0);
+    entities[2].contribute("reasoning", 15.0);
+
+    // Apply one full RBE universal thriving dividend distribution pass
+    distribute_universal_thriving_dividends(&mut entities, &healing_field, &unlock_state);
 
     // WASM bindings for entity login (browser/VR/AR)
     #[cfg(feature = "wasm")]

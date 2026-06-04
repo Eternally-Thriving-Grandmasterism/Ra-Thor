@@ -6,6 +6,15 @@
 //! ServerUnlockState, PATSAGi councils, and Hyperon/Metta reasoning.
 //!
 //! Every entity is mercy-gated. Contributions drive universal thriving dividends.
+//!
+//! RBE CONTRIBUTION MECHANICS (investigated & implemented):
+//! - Contribution is recorded via `contribute(skill, amount)`
+//! - Personal thriving dividend = f(contribution_ratio, valence, global_mercy_flow, council_alignment)
+//! - Dividend is applied back as skill growth + valence boost + small contribution feedback
+//! - Global distribution pass uses current lattice state (healing field + PATSAGi progress)
+//! - Non-bypassable mercy gates at every step. Post-scarcity loop: contribute → receive → grow → contribute more.
+//! - Designed for extension into full resource access rights, faction pools, and
+//!   hyperon_metta_pln reasoned fairness proofs.
 
 use std::collections::HashMap;
 use std::time::{SystemTime, UNIX_EPOCH};
@@ -70,6 +79,54 @@ impl SovereignEntity {
             .unwrap_or_default()
             .as_secs();
     }
+
+    /// Calculate this entity's share of the universal thriving dividend.
+    /// total_system_contributions: aggregate across all sovereign entities
+    /// global_mercy_flow: current mercy_flow from CliffordHealingField (0.0-1.0)
+    /// council_alignment: PATSAGi / unlock progress proxy (0.0-1.0)
+    pub fn calculate_personal_thriving_dividend(
+        &self,
+        total_system_contributions: u64,
+        global_mercy_flow: f32,
+        council_alignment: f32,
+    ) -> u64 {
+        if total_system_contributions == 0 {
+            return 50; // base thriving floor for new or low-activity entities
+        }
+
+        let contribution_ratio =
+            self.contributions as f64 / total_system_contributions as f64;
+        let base_share = contribution_ratio * 1000.0; // demo economic scale
+
+        let valence_bonus =
+            (self.valence as f64 * 250.0) * (council_alignment as f64);
+
+        let mercy_multiplier =
+            (global_mercy_flow as f64 * 0.8 + 0.2).clamp(0.5, 1.5);
+
+        let raw_dividend = (base_share + valence_bonus) * mercy_multiplier;
+
+        // Final mercy gate: guaranteed floor + soft upper bound
+        raw_dividend.clamp(10.0, 5000.0) as u64
+    }
+
+    /// Apply a received thriving dividend back into the entity.
+    /// Closes the RBE positive feedback loop: contribution → dividend → growth.
+    pub fn apply_thriving_dividend(&mut self, dividend: u64, mercy_influence: f32) {
+        if !self.skills.is_empty() {
+            for (_skill, prof) in self.skills.iter_mut() {
+                *prof = (*prof + (dividend as f32 / 100.0)).min(10.0);
+            }
+        } else {
+            self.skills
+                .insert("coexistence".to_string(), 0.5 + (dividend as f32 / 500.0));
+        }
+
+        // Feedback into valence (mercy-gated)
+        self.apply_valence_update(mercy_influence + (dividend as f32 / 10000.0));
+        self.contributions += dividend / 5; // gentle recirculation into commons
+        self.touch();
+    }
 }
 
 /// Spawn a new sovereign entity and immediately register it into the living simulation
@@ -96,4 +153,27 @@ pub fn spawn_and_register_sovereign_entity(
         (unlock_state.council_influence_progress + 0.05).min(1.0);
 
     entity
+}
+
+/// Global RBE distribution pass.
+/// Call periodically from PATSAGi council systems, quantum swarm tick,
+/// or dedicated orchestration. Uses live lattice state for fair,
+/// mercy-aligned dividend calculation and application.
+pub fn distribute_universal_thriving_dividends(
+    entities: &mut [SovereignEntity],
+    healing_field: &CliffordHealingField,
+    unlock_state: &ServerUnlockState,
+) {
+    let total_contrib: u64 = entities.iter().map(|e| e.contributions).sum();
+    let global_mercy = healing_field.mercy_flow as f32;
+    let council_align = unlock_state.council_influence_progress;
+
+    for entity in entities.iter_mut() {
+        let dividend = entity.calculate_personal_thriving_dividend(
+            total_contrib,
+            global_mercy,
+            council_align,
+        );
+        entity.apply_thriving_dividend(dividend, global_mercy);
+    }
 }
