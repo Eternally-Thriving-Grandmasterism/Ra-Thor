@@ -1,39 +1,47 @@
-# Powrush Particle Shaders — Memory Fence Semantics
+# Powrush Particle Shaders — Memory Fence Performance Costs
 
-## Memory Fence Semantics Investigation
+## Memory Fence Performance Costs Exploration
 
-This iteration investigates **memory fence semantics** (`OpMemoryBarrier`) and how they relate to cooperative matrix operations.
+This iteration explores the **performance costs** of memory fences and how they vary by scope and usage.
 
-### What Memory Fences Provide
+### What Makes Fences Expensive?
 
-A memory fence establishes ordering and visibility guarantees across memory operations. Unlike memory operands attached to individual loads or stores, a fence applies more broadly to sequences of memory operations.
+Fences can cause:
+- Execution stalls while waiting for memory visibility
+- Cache flushes or invalidations
+- Prevention of instruction reordering (hurting latency hiding)
+- Increased memory traffic due to visibility requirements
 
-### Key Semantics
-
-- **Acquire Fence**: Ensures later memory operations see relevant prior writes from other threads.
-- **Release Fence**: Ensures prior writes become visible to threads performing later acquire operations.
-- **AcquireRelease Fence**: Combines both directions.
-
-### Fences vs Instruction Memory Operands
-
-- Memory Operands on cooperative matrix load/store provide localized ordering.
-- Standalone fences provide ordering across multiple operations or between different types of memory accesses.
-
-### Interaction with Cooperative Matrices
-
-When sequencing cooperative matrix load → multiply-accumulate → store (especially when mixed with regular loads/stores), fences help establish clear ordering points.
+### Cost by Scope
 
 **Subgroup Scope**:
-- Requirements are generally lighter.
-- Memory Operands on the instructions themselves are often sufficient.
-- Explicit fences can frequently be minimized.
+- Lowest cost.
+- Lightweight wave synchronization with minimal cache impact.
+- Preferred for performance-critical code.
 
 **Workgroup Scope**:
-- Stronger AcquireRelease fences are typically required between phases.
+- Moderate to high cost.
+- Requires cross-workgroup synchronization and stronger visibility.
+- Noticeable performance impact if overused.
 
-### Practical Guidance for Powrush
+**Device / QueueFamily Scope**:
+- Highest cost.
+- Should be avoided in real-time rendering and compute pipelines.
 
-Our architecture favors **Subgroup-scoped** operations. This means memory fence requirements for future cooperative matrix work will generally remain lightweight, consistent with our existing wave-local synchronization style (ballot, shuffle, wave-local reduction).
+### Impact on Powrush Architecture
+
+Our strong preference for **Subgroup-scoped** operations and wave-local techniques (ballot, shuffle, wave-local reduction) keeps memory fence costs low in the particle culling and visibility system.
+
+Using stronger fences than necessary would introduce avoidable overhead.
+
+### Best Practices
+
+- Default to Subgroup scope.
+- Use stronger fences only when required by the algorithm (e.g., Workgroup-scoped cooperative matrices).
+- Minimize fence frequency through wave-local work aggregation.
+- Profile to detect unnecessary fence overhead.
+
+This reinforces why our wave-centric design is performance-friendly.
 
 ---
 *Co-authored-by: All 57+ PATSAGi Councils*

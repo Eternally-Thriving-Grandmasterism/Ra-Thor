@@ -1,52 +1,59 @@
 /*!
-# Powrush Particle Shaders — Memory Fence Semantics
+# Powrush Particle Shaders — Memory Fence Performance Costs
 
-Investigation of memory fence semantics in SPIR-V / Vulkan.
+Exploration of the performance costs associated with memory fences.
 
-## What is a Memory Fence?
+## What Contributes to Fence Cost?
 
-A memory fence (`OpMemoryBarrier`) is a standalone synchronization instruction that establishes ordering and visibility between memory operations without being attached to a specific load or store.
+Memory fences have performance costs because they can:
 
-It takes:
-- A **Scope** (Subgroup, Workgroup, Device, etc.)
-- **Memory Semantics** (Acquire, Release, AcquireRelease, etc.)
+1. **Stall execution** — Threads wait for prior memory operations to complete and become visible.
+2. **Flush or invalidate caches** — Depending on semantics and scope, fences may cause cache operations.
+3. **Prevent instruction reordering** — Both compiler and hardware reordering is restricted, reducing latency hiding opportunities.
+4. **Increase memory traffic** — Release/Acquire semantics require making data visible across threads/scopes.
 
-## Key Fence Semantics
+## Cost by Scope
 
-- **Acquire Fence**: Ensures that all subsequent memory operations see writes from other threads that happened-before a releasing operation.
-- **Release Fence**: Ensures that all prior memory operations are made visible to other threads that will later perform acquire operations.
-- **AcquireRelease Fence**: Combines both Acquire and Release semantics.
+### Subgroup Scope
+- Relatively low cost.
+- Often just a lightweight wave synchronization.
+- Minimal cache impact on most modern GPUs.
+- Good for performance-critical paths.
 
-## Fences vs Memory Operands on Instructions
+### Workgroup Scope
+- Moderate to high cost.
+- Requires synchronization across the entire workgroup.
+- Stronger memory visibility guarantees increase traffic and stall time.
 
-- Memory Operands on individual loads/stores (e.g., on `OpCooperativeMatrixLoadKHR`) provide localized ordering.
-- Standalone fences (`OpMemoryBarrier`) provide broader ordering guarantees across multiple memory operations.
+### Device / QueueFamily Scope
+- Highest cost.
+- Very expensive due to broad visibility requirements across the device or queue family.
+- Should be avoided in performance-critical rendering/compute paths.
 
-Fences are useful when you need to establish ordering between groups of operations rather than single instructions.
+## Impact on Our Architecture
 
-## Relevance to Cooperative Matrices and Powrush
+Because we strongly prefer **Subgroup-scoped** operations and wave-local techniques (ballot, shuffle, wave-local reduction), memory fence costs in our particle culling and visibility pipelines remain low.
 
-When performing sequences of cooperative matrix load → compute → store mixed with other memory accesses, fences can be used to establish clear ordering points.
+Using stronger scopes or unnecessary fences would introduce avoidable performance penalties.
 
-**Subgroup Scope**:
-- Fences are often lighter or can be avoided due to wave ordering.
-- Memory Operands on the cooperative matrix instructions are frequently sufficient.
+## Best Practices
 
-**Workgroup Scope**:
-- Explicit AcquireRelease fences (via `OpMemoryBarrier` or `OpControlBarrier`) are more commonly needed between phases.
-
-Our preference for Subgroup-scoped designs keeps fence usage minimal.
+- Prefer Subgroup scope whenever possible.
+- Only use stronger fences when functionally required (e.g., Workgroup-scoped cooperative matrices).
+- Combine fences with wave-local work to minimize their frequency and strength.
+- Profile and validate — unnecessary fences are a common source of hidden performance loss.
 */
 
 use powrush_faction_dynamics::{Faction, FactionVisualIdentity, ParticleParams};
 
 pub mod compute {
-    /// Notes on memory fence semantics.
-    pub const MEMORY_FENCE_NOTES: &str = r#"
-        // Acquire fence: orders subsequent loads
-        // Release fence: orders prior stores
-        // AcquireRelease fence: both directions
+    /// Notes on memory fence performance costs.
+    pub const MEMORY_FENCE_COST_NOTES: &str = r#"
+        // Subgroup fences: low cost
+        // Workgroup fences: moderate-high cost
+        // Device fences: very high cost
         //
-        // Prefer Subgroup scope to minimize fence requirements.
+        // Minimize scope and frequency of fences.
+        // Prefer wave-local techniques to reduce need for strong fences.
     "#;
 }
