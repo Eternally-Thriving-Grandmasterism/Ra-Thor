@@ -1,76 +1,75 @@
-//! Entity State Reconciliation for Powrush Cross-Shard System
+//! Weighted Trust Reconciliation for Powrush Entity State
 //!
-//! Handles merging of SovereignEntity state when entities migrate or receive
-//! state sync messages from other shards. Designed to be mercy-aligned and
-//! conflict-resilient.
+//! Advanced reconciliation that weights incoming state based on the trust
+//! level of the source shard. Aligns with mercy-gated, thriving principles.
 
 use crate::entity::SovereignEntity;
-use std::collections::HashMap;
 
-/// Reconcile incoming entity state with local state.
-/// Rules (mercy-aligned):
-/// - Contributions are additive (RBE nature)
-/// - Skills take the maximum proficiency
-/// - Valence takes the higher value (with small mercy smoothing)
-/// - last_active_unix takes the most recent
-/// - Other fields can be extended with custom merge strategies
-pub fn reconcile_entity_state(
+/// Trust level of a shard (can be expanded with reputation, PATSAGi alignment, etc.)
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum ShardTrust {
+    Low = 0,
+    Medium = 1,
+    High = 2,
+    Sovereign = 3, // Highest trust (e.g. native authoritative shards)
+}
+
+impl ShardTrust {
+    pub fn weight(&self) -> f32 {
+        match self {
+            ShardTrust::Low => 0.3,
+            ShardTrust::Medium => 0.6,
+            ShardTrust::High => 0.85,
+            ShardTrust::Sovereign => 0.95,
+        }
+    }
+}
+
+/// Weighted trust reconciliation
+/// `incoming_trust` should come from ShardTrust::weight() of the source shard.
+pub fn reconcile_entity_state_weighted(
     local: &mut SovereignEntity,
     incoming: &SovereignEntity,
-    incoming_timestamp: u64,
+    incoming_trust: f32, // 0.0 - 1.0
 ) {
-    // Additive contributions (core RBE principle)
-    local.contributions += incoming.contributions;
+    let trust = incoming_trust.clamp(0.0, 1.0);
+    let local_weight = 1.0 - trust;
 
-    // Skills: take the higher value (best known state)
-    for (skill, &prof) in &incoming.skills {
+    // Contributions remain largely additive (RBE core)
+    local.contributions += (incoming.contributions as f32 * trust) as u64;
+
+    // Skills: weighted blend toward higher value
+    for (skill, &incoming_prof) in &incoming.skills {
         let current = local.skills.get(skill).copied().unwrap_or(0.0);
-        if prof > current {
-            local.skills.insert(skill.clone(), prof);
+        let blended = current * local_weight + incoming_prof * trust;
+        local.skills.insert(skill.clone(), blended.max(current).max(incoming_prof));
+    }
+
+    // Valence: weighted blend with mercy bias toward positive change
+    let valence_delta = incoming.valence - local.valence;
+    if valence_delta > 0.0 {
+        local.valence = local.valence * local_weight + incoming.valence * trust;
+    } else {
+        // Only apply negative change if incoming has very high trust
+        if trust > 0.8 {
+            local.valence = local.valence * local_weight + incoming.valence * trust;
         }
     }
 
-    // Valence: biased toward the higher value (encourages thriving)
-    if incoming.valence > local.valence {
-        local.valence = local.valence * 0.3 + incoming.valence * 0.7;
-    }
-
-    // Timestamp: keep the most recent activity
+    // Timestamp
     if incoming.last_active_unix > local.last_active_unix {
         local.last_active_unix = incoming.last_active_unix;
     }
 
-    // Optional: apply a small mercy-gated smoothing
-    local.apply_valence_update(0.01);
+    // Mercy smoothing
+    local.apply_valence_update(0.015 * trust);
 }
 
-/// Reconcile and apply a migrated entity (wrapper around apply_migrated_entity)
-pub fn reconcile_and_apply_migrated_entity(
-    migration_data: &[u8],
-    commands: &mut bevy::prelude::Commands,
-    healing_field: &mut crate::clifford_healing_fields::CliffordHealingField,
-    unlock_state: &mut crate::resources::server_unlock_state::ServerUnlockState,
-) -> Result<SovereignEntity, postcard::Error> {
-    let migration: crate::simulation_orchestrator::SovereignEntityMigration =
-        postcard::from_bytes(migration_data)?;
-
-    // In a real multi-shard system we would look up the local entity first.
-    // For now we assume it's new or we reconcile against a fresh spawn.
-    let mut entity = migration.entity;
-
-    // Spawn + register (basic path)
-    commands.spawn((entity.clone(), crate::simulation_orchestrator::Active));
-
-    let _ = healing_field.add_organism(
-        entity.id,
-        nalgebra::Vector3::new(0.8, 0.7, 0.9),
-        nalgebra::Vector3::new(0.85, 0.75, 0.8),
-        nalgebra::Vector3::new(0.9, 0.85, 0.95),
-        entity.valence as f64,
-    );
-
-    unlock_state.council_influence_progress =
-        (unlock_state.council_influence_progress + 0.05).min(1.0);
-
-    Ok(entity)
+/// Convenience function that uses ShardTrust enum
+pub fn reconcile_with_trust_level(
+    local: &mut SovereignEntity,
+    incoming: &SovereignEntity,
+    trust_level: ShardTrust,
+) {
+    reconcile_entity_state_weighted(local, incoming, trust_level.weight());
 }
