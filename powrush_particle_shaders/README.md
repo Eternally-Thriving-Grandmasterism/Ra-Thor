@@ -1,34 +1,34 @@
-# Powrush Particle Shaders — Cooperative Matrix Formats
+# Powrush Particle Shaders — Matrix Multiplication Instruction Sets
 
-## Cooperative Matrix Formats Exploration
+## Matrix Multiplication Instruction Sets Exploration
 
-This iteration explores the **matrix formats** used in cooperative matrix extensions.
+This iteration explores the **low-level matrix multiplication instruction sets** that power modern GPU matrix acceleration.
 
-### Core Concepts
+### Key Instruction Families
 
-Cooperative matrices are not generic. They are defined by:
+**NVIDIA Tensor Cores**:
+- `mma.sync` instructions with various shapes and precisions
+- Excellent support for mixed-precision (f16, tf32, integers)
 
-- **Element type** (e.g., f16, f32, integers)
-- **Matrix dimensions** (fragment sizes like 16x16, 8x8)
-- **Storage layout** (row/column major or optimized tiled layouts)
+**AMD Matrix Cores**:
+- MFMA (Matrix Fused Multiply-Add) instructions
+- Flexible shapes and data types
 
-These parameters are chosen to match the capabilities of the underlying hardware matrix units.
+**Intel DPAS**:
+- Systolic array-based dot product accumulate instructions
 
-### Why Formats Matter
+### Relationship to Cooperative Matrices
 
-- Performance: Certain shapes and types map better to hardware.
-- Precision: Accumulators often use higher precision than multipliers (e.g., f16 × f16 → f32).
-- Data movement: Layout affects how efficiently matrices can be loaded cooperatively from memory.
-- Portability: Different GPUs support different sets of formats.
+Cooperative matrix extensions provide a higher-level, more portable abstraction over these vendor-specific instructions. When WGSL adds cooperative matrix support, it will map down to the best available hardware instructions on each platform.
 
-### Relevance to Future Powrush Development
+### Strategic Value
 
-As cooperative matrix support becomes available in WGSL, understanding formats will be essential for implementing:
-- Small neural networks for intelligent culling or LOD
-- Efficient batch linear algebra on particle attributes
-- Advanced procedural visual effects
+Understanding these instruction sets helps us anticipate:
+- Performance characteristics of future cooperative matrix code
+- Precision and throughput trade-offs
+- How to best structure workloads when the feature becomes available
 
-The crate now documents the key concepts so the team can make informed decisions when the feature matures.
+This knowledge prepares the Powrush visual system for advanced compute techniques such as neural culling, intelligent LOD, and high-performance procedural effects.
 
 ---
 *Co-authored-by: All 57+ PATSAGi Councils*
