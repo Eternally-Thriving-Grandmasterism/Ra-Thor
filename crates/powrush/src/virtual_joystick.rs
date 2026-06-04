@@ -1,7 +1,7 @@
 //! crates/powrush/src/virtual_joystick.rs
 //! Virtual Joystick for Powrush-MMO Mobile Experience
-//! Deterministic Replay Logging (production grade, lovingly implemented)
-//! Enables perfect replay for desync debugging, anti-cheat, testing, and mercy verification
+//! Deterministic Checksums (production grade, lovingly implemented)
+//! For desync detection, replay verification, and guaranteed determinism
 
 use bevy::prelude::*;
 use bevy_egui::EguiContexts;
@@ -11,9 +11,28 @@ use crate::simulation::{Position, predict_move_position};
 use serde::{Serialize, Deserialize};
 use std::fs;
 
-// ==================== DETERMINISTIC REPLAY LOGGING ====================
+// ==================== DETERMINISTIC CHECKSUM ====================
 
-/// Serializable log entry for deterministic replay.
+/// Computes a deterministic checksum for a predicted state.
+/// Used for fast desync detection and replay verification.
+/// Must be pure and platform-independent.
+pub fn compute_state_checksum(state: &PredictedState) -> u64 {
+    // Simple but effective deterministic hash (position + harmony)
+    // In production this can be upgraded to xxHash or similar without changing API
+    let x_bits = state.position.x.to_bits() as u64;
+    let y_bits = state.position.y.to_bits() as u64;
+    let harmony_bits = state.harmony.to_bits();
+
+    // Fold with sequence for uniqueness
+    let mut hash = state.sequence;
+    hash = hash.wrapping_mul(6364136223846793005).wrapping_add(x_bits);
+    hash = hash.wrapping_mul(6364136223846793005).wrapping_add(y_bits);
+    hash = hash.wrapping_mul(6364136223846793005).wrapping_add(harmony_bits);
+    hash
+}
+
+// ==================== REPLAY LOGGING WITH CHECKSUMS ====================
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum ReplayEntry {
     MoveInput {
@@ -28,16 +47,17 @@ pub enum ReplayEntry {
         tick: u64,
         position: Position,
         harmony: f64,
+        checksum: u64,
         notes: String,
     },
     InitialState {
         tick: u64,
         position: Position,
         harmony: f64,
+        checksum: u64,
     },
 }
 
-/// Complete deterministic replay log.
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct DeterministicReplayLog {
     pub version: u32,
@@ -60,7 +80,8 @@ impl DeterministicReplayLog {
 
     pub fn record_initial_state(&mut self, tick: u64, position: Position, harmony: f64) {
         self.initial_tick = tick;
-        self.entries.push(ReplayEntry::InitialState { tick, position, harmony });
+        let checksum = compute_state_checksum(&PredictedState { sequence: 0, position, harmony });
+        self.entries.push(ReplayEntry::InitialState { tick, position, harmony, checksum });
     }
 
     pub fn record_move(&mut self, sequence: u64, tick: u64, dx: f32, dy: f32, intensity: f32) {
@@ -68,16 +89,15 @@ impl DeterministicReplayLog {
     }
 
     pub fn record_correction(&mut self, sequence: u64, tick: u64, position: Position, harmony: f64, notes: String) {
-        self.entries.push(ReplayEntry::AuthoritativeCorrection { sequence, tick, position, harmony, notes });
+        let checksum = compute_state_checksum(&PredictedState { sequence, position, harmony });
+        self.entries.push(ReplayEntry::AuthoritativeCorrection { sequence, tick, position, harmony, checksum, notes });
     }
 
-    /// Save log to file (production ready).
     pub fn save_to_file(&self, path: &str) -> std::io::Result<()> {
         let json = serde_json::to_string_pretty(self)?;
         fs::write(path, json)
     }
 
-    /// Load log from file.
     pub fn load_from_file(path: &str) -> std::io::Result<Self> {
         let data = fs::read_to_string(path)?;
         let log: Self = serde_json::from_str(&data)?;
@@ -85,7 +105,6 @@ impl DeterministicReplayLog {
     }
 }
 
-/// Resource that manages recording and replay.
 #[derive(Resource, Debug, Default)]
 pub struct ReplayLogger {
     pub log: DeterministicReplayLog,
@@ -129,7 +148,6 @@ impl ReplayLogger {
         }
     }
 
-    /// Begin deterministic replay from loaded log.
     pub fn start_replay(&mut self) {
         self.replaying = true;
         self.recording = false;
@@ -137,7 +155,6 @@ impl ReplayLogger {
         self.current_tick = self.log.initial_tick;
     }
 
-    /// Get next move event for replay (if any).
     pub fn next_replay_move(&mut self) -> Option<JoystickMoveEvent> {
         if !self.replaying { return None; }
 
@@ -160,7 +177,7 @@ impl ReplayLogger {
     }
 }
 
-// ==================== EXISTING TYPES (kept for continuity) ====================
+// ==================== CORE TYPES ====================
 
 #[derive(Event, Debug, Clone, Copy, Default)]
 pub struct JoystickMoveEvent {
@@ -252,14 +269,14 @@ impl VirtualJoystick {
     }
 }
 
-// ==================== PLUGIN & SYSTEMS ====================
+// ==================== PLUGIN ====================
 
 pub struct VirtualJoystickPlugin;
 
 impl Plugin for VirtualJoystickPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<VirtualJoystick>();
-        app.init_resource::<ReplayLogger>(); // Deterministic replay logging
+        app.init_resource::<ReplayLogger>();
         app.add_event::<JoystickMoveEvent>();
         app.add_systems(Update, (
             show_virtual_joystick.run_if(|tier: Res<ExperienceTier>| *tier == ExperienceTier::MobileTown),
@@ -337,13 +354,14 @@ fn emit_joystick_events(
         joystick.record_pending(event);
 
         let new_pos = predict_move_position(joystick.current_predicted_position, event.dx, event.dy);
-        joystick.record_prediction_state(PredictedState {
+        let new_state = PredictedState {
             sequence: seq,
             position: new_pos,
             harmony: 0.75,
-        });
+        };
+        joystick.record_prediction_state(new_state);
 
-        // Deterministic replay logging
+        // Record with checksum support (checksum computed on correction)
         replay_logger.record_move_event(&event, replay_logger.current_tick);
         replay_logger.current_tick += 1;
     }
