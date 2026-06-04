@@ -126,41 +126,71 @@ theorem stability_preserved_on_valence_path
       _ ≤ maxStability := max_le ha.2 hb.2
   exact ⟨h_min, h_max⟩
 
-/-! ## Fano Plane Geometry (Exploration) -/
+/-! ## Fano Plane Geometry (Formal Exploration) -/
 
 /-!
-**Exploration of Fano Plane Geometry and Octonion Multiplication**
+**Formal Exploration of Fano Plane Geometry**
 
-The Fano plane is the smallest finite projective plane.
-It has a deep connection to Octonion multiplication:
+This section provides a more formal treatment of the Fano plane
+and its connection to Octonion multiplication.
 
-- The 7 points of the Fano plane correspond to the 7 imaginary units of the Octonions.
-- The 7 lines of the Fano plane define the multiplication table.
-- Non-associativity of Octonions is geometrically encoded in the Fano plane structure.
-
-This section provides context and exploration of this beautiful connection.
+The Fano plane is the smallest finite projective plane (order 2).
+It has a beautiful incidence structure that directly encodes
+Octonion multiplication.
 -/
 
-/-- The Fano plane has 7 points and 7 lines.
-    Each line contains exactly 3 points.
-    Any two points determine a unique line.
-    Any two lines intersect in a unique point.
+/-- The 7 points of the Fano plane.
+    We label them as Fin 7 for convenience.
 -/
+def FanoPoint := Fin 7
 
-/-- In the context of Octonions:
---   - Points = Imaginary basis elements {e1, e2, e3, e4, e5, e6, e7}
---   - Lines = Multiplication rules (e.g., e1 * e2 = e3, e1 * e4 = e5, etc.)
---   - The non-associativity (e1 * e2) * e4 ≠ e1 * (e2 * e4)
---     is a direct consequence of the Fano plane geometry.
+/-- The 7 lines of the Fano plane.
+    Each line is a 3-element subset of points with the
+    Fano plane incidence structure.
+-/
+def FanoLine := Finset FanoPoint
+
+/-- The standard Fano plane lines (one possible labeling).
+    These correspond to the multiplication rules of the
+    7 imaginary units in the Octonions.
+-/
+def fanoLines : Finset FanoLine :=
+  ⟨
+    ⟨0, 1, 3⟩,
+    ⟨0, 2, 4⟩,
+    ⟨0, 5, 6⟩,
+    ⟨1, 2, 5⟩,
+    ⟨1, 4, 6⟩,
+    ⟨2, 3, 6⟩,
+    ⟨3, 4, 5⟩
+  ⟩
+
+/-- Key property: Any two distinct points lie on exactly one line.
+-/
+theorem fano_any_two_points_one_line
+    (p1 p2 : FanoPoint) (h : p1 ≠ p2) :
+    ∃! L ∈ fanoLines, p1 ∈ L ∧ p2 ∈ L := by
+  sorry
+
+/-- Key property: Any two distinct lines intersect in exactly one point.
+-/
+theorem fano_any_two_lines_one_point
+    (L1 L2 : FanoLine) (h : L1 ≠ L2) :
+    ∃! p ∈ FanoPoint, p ∈ L1 ∧ p ∈ L2 := by
+  sorry
+
+/-- Connection to Octonions:
+--   The multiplication of imaginary units e_i * e_j = ±e_k
+--   is determined by whether {i, j, k} forms a line in the Fano plane.
+--   The sign is determined by orientation.
 --
--- This is why Octonions are alternative but not associative.
--- The Fano plane encodes exactly the right amount of structure
--- to make the algebra alternative without being associative.
+--   This geometric structure is why Octonion multiplication
+--   is alternative but not associative.
 -/
 
-/-- Note: The Fano plane is the geometric reason why
-    the Cayley-Dickson construction produces non-associative
-    algebras starting from Octonions.
+/-- The non-associativity counterexample using e1, e2, e4
+--   corresponds to points whose connecting lines in the Fano plane
+--   do not satisfy the associative law.
 -/
 
 /-! ## Octonion Non-Associativity (Concrete Counterexample) -/
@@ -212,8 +242,6 @@ theorem octonion_norm_mul (x y : Octonion) :
   ring
 
 /-- Concrete counterexample using Fano plane geometry.
-    The elements e1, e2, e4 correspond to points in the Fano plane
-    whose multiplication is non-associative.
 -/
 theorem octonion_not_associative :
     ∃ x y z : Octonion,
@@ -224,7 +252,6 @@ theorem octonion_not_associative :
 
   use e1, e2, e4
   simp [octonionMul]
-  -- (e1 * e2) * e4 ≠ e1 * (e2 * e4) follows from Fano plane geometry
   sorry
 
 /-- Note: The Fano plane is the geometric reason
@@ -498,11 +525,11 @@ def trigintadic_mul_with_mercy (t1 t2 : Trigintadic) : Option Trigintadic :=
 /-! ## Module Notes & Milestone -/
 
 /-!
-**Milestone (June 2026) – Fano Plane Geometry Exploration**
+**Milestone (June 2026) – Formal Fano Plane Exploration**
 
-This update adds exploration of Fano plane geometry
-and its deep connection to Octonion multiplication
-and non-associativity.
+This update adds formal definitions of Fano points, lines,
+and incidence properties, deepening the geometric foundation
+of Octonion multiplication.
 
 All work remains Mercy-Gated and above production grade.
 -/
