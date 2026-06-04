@@ -1,103 +1,84 @@
-//! Dynamic Slashing Penalties for Powrush Shard Trust System
+//! Shard Reputation Scoring System for Powrush
 //!
-//! Penalizes shards that exhibit malicious, inconsistent, or negligent behavior.
-//! Penalties are dynamic based on severity, frequency, and current trust level.
+//! Provides a continuous reputation score for each shard, enabling finer-grained
+//! decision making in reconciliation, consensus, and trust management.
 
 use bevy::prelude::*;
 use std::collections::HashMap;
 use std::time::{SystemTime, UNIX_EPOCH};
 
-use crate::simulation_orchestrator::ShardTrust;
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum SlashingReason {
-    LowTrustDomination,
-    InconsistentStateSync,
-    SpammingProposals,
-    VotingAgainstStrongConsensus,
-    Other,
-}
-
 #[derive(Resource, Default)]
-pub struct ShardTrustTracker {
-    pub trusts: HashMap<u64, (ShardTrust, u64)>,
-    pub decay_rate: f32,
-    pub interaction_counts: HashMap<u64, u32>,
-    pub slashing_history: HashMap<u64, Vec<(SlashingReason, u64, f32)>>, // (reason, time, severity)
+pub struct ShardReputationTracker {
+    /// shard_id -> reputation score (0.0 to 100.0)
+    pub scores: HashMap<u64, f32>,
+    pub default_score: f32,
 }
 
-impl ShardTrustTracker {
-    /// Apply a dynamic slashing penalty
-    pub fn apply_slashing_penalty(
-        &mut self,
-        shard_id: u64,
-        reason: SlashingReason,
-        severity: f32, // 0.0 - 1.0
-    ) {
-        let now = SystemTime::now()
-            .duration_since(UNIX_EPOCH)
-            .unwrap_or_default()
-            .as_secs();
-
-        let severity = severity.clamp(0.1, 1.0);
-
-        // Record the slashing event
-        self.slashing_history
-            .entry(shard_id)
-            .or_default()
-            .push((reason, now, severity));
-
-        // Apply trust downgrade based on severity and current level
-        if let Some((current_trust, last_update)) = self.trusts.get_mut(&shard_id) {
-            let downgrade_amount = (severity * 2.0) as u8; // severity scales impact
-
-            let new_trust = match *current_trust {
-                ShardTrust::Sovereign if downgrade_amount >= 2 => ShardTrust::High,
-                ShardTrust::High if downgrade_amount >= 2 => ShardTrust::Medium,
-                ShardTrust::Medium if downgrade_amount >= 1 => ShardTrust::Low,
-                ShardTrust::Low => ShardTrust::Low,
-                _ => *current_trust,
-            };
-
-            if new_trust as u8 < *current_trust as u8 {
-                *current_trust = new_trust;
-            }
-
-            // Also apply temporary weight penalty
-            // (we can extend this later with a separate multiplier)
+impl ShardReputationTracker {
+    pub fn new() -> Self {
+        Self {
+            scores: HashMap::new(),
+            default_score: 50.0,
         }
     }
 
-    /// Gradually lift slashing effects over time (rehabilitation)
-    pub fn apply_slashing_rehabilitation(&mut self) {
-        let now = SystemTime::now()
-            .duration_since(UNIX_EPOCH)
-            .unwrap_or_default()
-            .as_secs();
+    /// Get current reputation score (clamped 0-100)
+    pub fn get_reputation(&self, shard_id: u64) -> f32 {
+        *self.scores.get(&shard_id).unwrap_or(&self.default_score)
+    }
 
-        for (shard_id, history) in self.slashing_history.iter_mut() {
-            // Remove old slashing events (older than 7 days)
-            history.retain(|(_, timestamp, _)| now - timestamp < 7 * 24 * 3600);
+    /// Convert reputation to a weight suitable for reconciliation/consensus (0.0 - 1.0)
+    pub fn get_reputation_weight(&self, shard_id: u64) -> f32 {
+        let score = self.get_reputation(shard_id);
+        // Map 0-100 to 0.1-0.95 range
+        0.1 + (score / 100.0) * 0.85
+    }
 
-            // If no recent slashing, slowly allow trust recovery
-            if history.is_empty() {
-                if let Some((trust_level, _)) = self.trusts.get_mut(shard_id) {
-                    // Small chance to recover one level if clean for a while
-                    if (now % 86400) < 3600 {
-                        // once per day window
-                        *trust_level = match *trust_level {
-                            ShardTrust::Low => ShardTrust::Medium,
-                            _ => *trust_level,
-                        };
-                    }
-                }
+    /// Update reputation based on positive or negative events
+    pub fn update_reputation(&mut self, shard_id: u64, delta: f32) {
+        let current = self.get_reputation(shard_id);
+        let new_score = (current + delta).clamp(0.0, 100.0);
+        self.scores.insert(shard_id, new_score);
+    }
+
+    /// Apply reputation change from a successful interaction
+    pub fn record_positive_event(&mut self, shard_id: u64, magnitude: f32) {
+        self.update_reputation(shard_id, magnitude.abs());
+    }
+
+    /// Apply reputation penalty
+    pub fn record_negative_event(&mut self, shard_id: u64, severity: f32) {
+        self.update_reputation(shard_id, -severity.abs());
+    }
+
+    /// Periodic reputation normalization / slow drift toward neutral
+    pub fn apply_reputation_drift(&mut self) {
+        for (_, score) in self.scores.iter_mut() {
+            if *score > 50.0 {
+                *score = (*score - 0.1).max(50.0);
+            } else if *score < 50.0 {
+                *score = (*score + 0.1).min(50.0);
             }
         }
     }
 }
 
-pub fn shard_trust_maintenance_system(mut tracker: ResMut<ShardTrustTracker>) {
-    tracker.apply_hard_decay();
-    tracker.apply_passive_recovery();
-    tracker.apply_slashing_rehabilitation();
+/// System for periodic reputation maintenance
+pub fn shard_reputation_maintenance_system(
+    mut tracker: ResMut<ShardReputationTracker>,
+) {
+    tracker.apply_reputation_drift();
+}
+
+/// Integration helper: Get effective trust weight combining discrete trust + reputation
+pub fn get_combined_trust_weight(
+    trust_tracker: &crate::simulation_orchestrator::ShardTrustTracker,
+    reputation_tracker: &ShardReputationTracker,
+    shard_id: u64,
+) -> f32 {
+    let trust_weight = trust_tracker.get_effective_trust(shard_id);
+    let reputation_weight = reputation_tracker.get_reputation_weight(shard_id);
+
+    // Blend the two signals
+    (trust_weight * 0.6 + reputation_weight * 0.4).clamp(0.05, 0.95)
 }
