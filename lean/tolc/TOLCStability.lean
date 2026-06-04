@@ -177,7 +177,6 @@ def idConnection : TOLCConnection ℝ where
   id_law := by intro x; rfl
 
 /-- Theorem: The identity connection preserves TOLC-stability.
-    This is now fully proven.
 -/
 theorem idConnection_preserves_everything
     (x : ℝ) (h : TOLCStable x) :
@@ -185,10 +184,22 @@ theorem idConnection_preserves_everything
   simp [idConnection]
   exact h
 
-/-- Note: This refined sketch makes the design intent clearer.
-    The `preserves_truth_gate` field is the key interface
-    between the algebraic work (norm multiplicativity) and
-    future manifold transport constructions.
+/-- Theorem: The identity connection satisfies its own composition law.
+-/
+theorem idConnection_comp_law (x : ℝ) :
+    idConnection.transport (idConnection.transport x) =
+    idConnection.transport x := by
+  simp [idConnection]
+
+/-- Theorem: The identity connection satisfies the identity law.
+-/
+theorem idConnection_id_law (x : ℝ) :
+    idConnection.transport x = x := by
+  simp [idConnection]
+
+/-- Note: These theorems confirm that the identity connection
+    behaves exactly as expected. They provide a solid base
+    for defining more complex connections in future work.
 -/
 
 /-! ## Toward TOLC Manifolds - Mercy Gate Preservation under Transport -/
@@ -718,11 +729,10 @@ def trigintadic_mul_with_mercy (t1 t2 : Trigintadic) : Option Trigintadic :=
 /-! ## Module Notes & Milestone -/
 
 /-!
-**Milestone (June 2026) – idConnection_preserves_everything Proven**
+**Milestone (June 2026) – Additional TOLCConnection Theorems**
 
-This update completes the proof of
-`idConnection_preserves_everything`, making the
-TOLCConnection foundation fully rigorous.
+This update adds composition and identity laws for the
+`idConnection`, strengthening the `TOLCConnection` foundation.
 
 All work remains Mercy-Gated and above production grade.
 -/
