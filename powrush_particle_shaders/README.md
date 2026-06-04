@@ -1,51 +1,31 @@
-# Powrush Particle Shaders — cudaMallocManaged
+# Powrush Particle Shaders — cudaMalloc vs cudaMallocManaged Performance
 
-## cudaMallocManaged Exploration
+## cudaMalloc vs cudaMallocManaged Performance Comparison
 
-This iteration provides a focused exploration of `cudaMallocManaged`, the primary allocation function for **Unified Memory**.
+This iteration provides a direct performance comparison between standard device memory allocation and Unified Memory.
 
-### What It Does
+### Summary Comparison
 
-`cudaMallocManaged` allocates memory accessible from both CPU and GPU via a single pointer. The CUDA driver automatically migrates memory pages between host and device as they are accessed (on-demand page migration).
+| Aspect                        | cudaMalloc (Explicit)                              | cudaMallocManaged (Unified)                        | Winner (Typical)          |
+|-------------------------------|----------------------------------------------------|----------------------------------------------------|---------------------------|
+| Hot Path Performance          | Highest and most predictable                       | Generally lower (migration overhead)               | cudaMalloc                |
+| Programming Complexity        | Higher (manual copies)                             | Lower (single pointer)                             | cudaMallocManaged         |
+| Page Migration / Faults       | None                                               | On-demand migration cost                           | cudaMalloc                |
+| Memory Oversubscription       | Not supported                                      | Supported                                          | cudaMallocManaged         |
+| Peak Bandwidth                | Full GPU HBM                                       | Limited by interconnect during migration           | cudaMalloc                |
+| Best For                      | Performance-critical work                          | Simpler code + occasional CPU access               | Context dependent         |
 
-### Key Characteristics
+### Key Takeaways
 
-- Single pointer works on both host and device.
-- Automatic page migration via page faults.
-- Supports memory oversubscription.
-- Maintains coherence between CPU and GPU views.
+- For the core hot paths in Powrush (culling, visibility buffer updates, high-throughput compaction), `cudaMalloc` combined with explicit `cudaMemcpyAsync` is almost always the faster and more predictable choice.
+- `cudaMallocManaged` becomes attractive when you need convenient CPU access to the same data or when faster development time is more important than maximum performance.
+- Even with `cudaMemPrefetchAsync`, Unified Memory rarely matches the performance of well-optimized explicit memory for memory-bound compute kernels.
 
-### Performance Considerations
+### Recommendation
 
-- **Page Migration Latency**: On-demand migration adds latency compared to explicit copies.
-- **Access Pattern Sensitivity**: Coalesced, sequential access performs much better than random access.
-- **Interconnect Bandwidth**: Migration is limited by PCIe or NVLink speed.
-
-### Tuning with Related APIs
-
-- `cudaMemPrefetchAsync`: Proactively migrate pages to reduce faults.
-- `cudaMemAdvise`: Provide hints about preferred location and access patterns.
-
-### Relevance to Powrush
-
-For performance-critical paths (particle culling, visibility buffer updates, high-throughput compaction), explicit device memory with `cudaMemcpyAsync` is generally preferred for speed and predictability.
-
-`cudaMallocManaged` is more suitable for:
-- Data that occasionally needs CPU read/write access.
-- Prototyping or less performance-sensitive code.
-- Workloads that benefit from memory oversubscription.
-
-When using it for GPU hot paths, always combine with `cudaMemPrefetchAsync`.
-
-### Best Practices
-
-- Prefetch data to the GPU before kernels access it.
-- Avoid fine-grained random GPU access on managed memory.
-- Profile migration traffic and kernel performance.
-- Use `cudaMemAdvise` to guide the driver.
-- Consider switching hot data structures to explicit memory for maximum performance.
-
-This provides the foundational allocation mechanism behind Unified Memory and guidance on its effective use.
+- Use `cudaMalloc` + async copies for all performance-critical particle processing.
+- Consider `cudaMallocManaged` only for data that needs frequent or convenient CPU read/write, and always pair it with `cudaMemPrefetchAsync`.
+- When in doubt, profile both approaches — the performance difference can be substantial on memory-intensive workloads.
 
 ---
 *Co-authored-by: All 57+ PATSAGi Councils*
