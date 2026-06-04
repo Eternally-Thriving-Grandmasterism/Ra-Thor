@@ -1,20 +1,31 @@
-# Powrush Particle Shaders — Hardware Occlusion Queries
+# Powrush Particle Shaders — GPU-Driven Rendering
 
-## Hardware Occlusion Queries
+## GPU-Driven Rendering Investigation
 
-This module explores traditional hardware occlusion queries and provides guidance on when (and when not) to use them alongside our compute-based culling system.
+We have already built a very strong foundation for GPU-driven particle rendering:
 
-### Key Takeaways
+- Compute culling (multiple strategies + Hi-Z)
+- Indirect draws + batching
+- Occlusion via depth sampling
 
-- **Hardware queries** are powerful for larger bounding volumes but have limitations for fine-grained particle culling.
-- **Compute shader culling** (with Hi-Z) is generally preferred for high particle counts due to better performance and easier integration with indirect draws.
-- A **hybrid approach** is often optimal: Use compute culling for most particles and hardware queries for important, screen-significant effects.
+## Next Level: Fully GPU-Generated Commands
 
-### Recommended Strategy
+The natural next evolution is having compute shaders not only cull particles but also **generate the DrawIndirect commands** themselves. This allows:
 
-Use the `should_use_hardware_query()` helper to decide per-effect which technique to apply.
+- One (or very few) `multi_draw_indirect` calls per frame
+- Dynamic per-system LOD and culling entirely on GPU
+- Reduced CPU work to almost zero after uploading particle data
 
-For most faction events and Resonance Gear visuals, the existing compute + Hi-Z pipeline will deliver better results.
+## Recommended Architecture
+
+1. One or more compute passes that:
+   - Perform culling per particle system
+   - Write `DrawIndirect` commands into a GPU buffer
+2. A single `multi_draw_indirect` call using the GPU-generated command buffer
+
+This pattern is used in many modern engines for high-performance particle and foliage rendering.
+
+The current `powrush_particle_shaders` crate already provides most of the building blocks. Full GPU command generation can be implemented on top of the existing culling shaders.
 
 ---
 *Co-authored-by: All 57+ PATSAGi Councils*
