@@ -1,65 +1,56 @@
-//! Reputation-Based Quorum Adjustments for Shard Consensus
+//! Reputation Decay Mechanisms for Powrush Shard Reputation
 //!
-//! Dynamically adjusts the required consensus threshold based on the
-//! reputation of participating voters. Higher reputation = lower bar.
-//! Low reputation participation increases the difficulty of passing proposals.
+//! Reputation slowly decays over time with inactivity, encouraging ongoing
+//! positive participation in the shard network.
 
-use crate::simulation_orchestrator::ShardConsensus;
+use bevy::prelude::*;
+use std::time::{SystemTime, UNIX_EPOCH};
 
-impl ShardConsensus {
-    /// Calculate average reputation of voters on a proposal
-    pub fn calculate_average_reputation_of_voters(
-        &self,
-        proposal_id: u64,
-        reputation_tracker: &crate::simulation_orchestrator::ShardReputationTracker,
-    ) -> f32 {
-        if let Some(votes) = self.votes.get(&proposal_id) {
-            if votes.is_empty() {
-                return 50.0; // default
+use crate::simulation_orchestrator::ShardReputationTracker;
+
+impl ShardReputationTracker {
+    /// Apply time-based reputation decay
+    pub fn apply_reputation_decay(&mut self, decay_rate_per_day: f32) {
+        let now = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap_or_default()
+            .as_secs();
+
+        for (shard_id, score) in self.scores.iter_mut() {
+            // Simple linear decay toward neutral for now
+            // Can be upgraded to exponential later
+            let days_inactive = 1.0; // Placeholder - in real system track last activity
+
+            let decay_amount = decay_rate_per_day * days_inactive;
+
+            if *score > 50.0 {
+                *score = (*score - decay_amount).max(50.0);
+            } else if *score < 50.0 {
+                *score = (*score + decay_amount).min(50.0);
             }
-
-            let mut total_reputation = 0.0;
-            let mut count = 0;
-
-            for vote in votes {
-                let rep = reputation_tracker.get_reputation(vote.voter_shard_id);
-                total_reputation += rep;
-                count += 1;
-            }
-
-            return total_reputation / count as f32;
         }
-        50.0
     }
 
-    /// Reputation-adjusted consensus check
-    pub fn is_consensus_reached_with_reputation(
-        &self,
-        proposal_id: u64,
-        reputation_tracker: &crate::simulation_orchestrator::ShardReputationTracker,
-        base_threshold: f32,
-    ) -> bool {
-        let (approve, reject) = self.tally_votes(proposal_id);
+    /// More advanced exponential reputation decay
+    pub fn apply_exponential_reputation_decay(&mut self, decay_rate: f32) {
+        let now = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap_or_default()
+            .as_secs();
 
-        if !self.has_sufficient_participation(proposal_id) {
-            return false;
+        for score in self.scores.values_mut() {
+            // Decay toward 50.0 using exponential approach
+            let distance_from_neutral = *score - 50.0;
+            let new_distance = distance_from_neutral * (1.0 - decay_rate).exp();
+            *score = 50.0 + new_distance;
         }
-
-        let avg_reputation = self.calculate_average_reputation_of_voters(
-            proposal_id,
-            reputation_tracker,
-        );
-
-        // Higher average reputation → lower required threshold
-        // Lower average reputation → higher required threshold
-        let reputation_factor = (avg_reputation - 50.0) / 100.0; // -0.5 to +0.5
-        let adjusted_threshold = (base_threshold - reputation_factor * 0.3).clamp(0.8, 2.5);
-
-        approve > reject && approve >= adjusted_threshold
     }
+}
 
-    /// Minimum reputation required for a vote to count toward quorum
-    pub fn get_minimum_reputation_for_quorum(&self) -> f32 {
-        20.0 // Votes from shards below 20 reputation have reduced influence
-    }
+/// Periodic system for reputation decay
+pub fn shard_reputation_decay_system(
+    mut tracker: ResMut<ShardReputationTracker>,
+) {
+    // Apply gentle daily decay
+    tracker.apply_reputation_decay(0.5); // 0.5 points per day toward neutral
 }
