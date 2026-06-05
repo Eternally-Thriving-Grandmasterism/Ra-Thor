@@ -6,10 +6,16 @@ metadata:
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
     nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+    # For future WebSocket routing if desired (currently game WS uses dedicated port 7778 via LoadBalancer)
+    # nginx.ingress.kubernetes.io/websocket-services: "powrush-service"
+    nginx.ingress.kubernetes.io/rate-limit: "100"
 spec:
   ingressClassName: nginx
   rules:
-  - host: powrush.yourdomain.com
+  - host: powrush.local
     http:
       paths:
       - path: /
@@ -19,3 +25,14 @@ spec:
             name: powrush-service
             port:
               number: 8080
+  # Production example (uncomment and replace with your real domain + use cert-manager for TLS)
+  # - host: powrush.yourdomain.com
+  #   http:
+  #     paths:
+  #     - path: /
+  #       pathType: Prefix
+  #       backend:
+  #         service:
+  #           name: powrush-service
+  #           port:
+  #             number: 8080
