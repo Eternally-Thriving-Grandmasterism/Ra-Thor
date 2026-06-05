@@ -1,14 +1,13 @@
 # Powrush Particle Shaders
 
-## Combined Hi-Z Occlusion + Compaction
+## Modular Culling Pipeline (Hi-Z + Compaction)
 
-Refactored `HIZ_OCCLUSION_AND_COMPACTION` for improved clarity:
+Following Option 2, we now have two clean, separate but tightly integrated passes:
 
-- Clear separation between Hi-Z occlusion test (`is_occluded` function)
-- WaveLocal Reduction compaction logic
-- Better comments and structure
+1. `HIZ_OCCLUSION_TEST` — Tests particles against the Hi-Z pyramid and writes visibility flags.
+2. `COMPACTION` — Reads visibility flags and performs WaveLocal Reduction style compaction.
 
-This provides a clean, efficient combined pass for distance + occlusion culling with compaction.
+This design prioritizes clarity, debuggability, and flexibility while maintaining high performance.
 
 ---
 *GPU-Driven Rendering*
