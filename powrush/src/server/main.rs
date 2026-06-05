@@ -1,9 +1,9 @@
 //! powrush/src/server/main.rs
-//! Powrush MMO Production Server — Humans Play Online Edition (v14.8)
+//! Powrush MMO Production Server — Humans Play Online Edition (v14.10 WebSocket + TCP)
 //! PATSAGi Council + Ra-Thor blessed. Full RBE integration, mercy evaluation,
 //! deterministic tick loop, input replay queue, hot-reload config via arc-swap,
-//! structured audit + mercy logs, faction diplomacy stub, basic authoritative world.
-//! Connect with: nc localhost 7777   (or telnet / putty raw)
+//! structured audit + mercy logs, faction diplomacy stub, authoritative world.
+//! TCP: nc localhost 7777 (line protocol) | WebSocket: ws://localhost:7778 (JSON for browser)
 //! Thunder locked. Eternal flow for all sentience.
 
 use powrush::common::RbeState;
@@ -18,6 +18,11 @@ use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 use arc_swap::ArcSwap;
 use serde::Deserialize;
 use serde_json::{json, Value};
+
+// WebSocket production support (tokio + tokio-tungstenite)
+use futures_util::{SinkExt, StreamExt};
+use tokio::net::TcpListener as TokioTcpListener;
+use tokio_tungstenite::{accept_async, tungstenite::Message};
 
 // ==================== CONFIG (hot-reloadable) ====================
 #[derive(Debug, Clone, Deserialize, Default)]
@@ -151,10 +156,10 @@ fn game_tick(world: &mut WorldState, config: &ServerConfig) {
     }
 
     // 3. Broadcast lightweight state (extend to deltas later)
-    // (In full version: send to all connected streams)
+    // (In full version: send to all connected streams via broadcast channel)
 }
 
-// ==================== CLIENT HANDLER ====================
+// ==================== CLIENT HANDLER (TCP line protocol - unchanged, fully compatible) ====================
 fn handle_client(
     stream: TcpStream,
     addr: SocketAddr,
@@ -248,9 +253,166 @@ fn handle_client(
     }
 }
 
+// ==================== WEBSOCKET HANDLER (JSON protocol for browser/WebXR clients) ====================
+async fn handle_ws_client(
+    stream: tokio::net::TcpStream,
+    addr: SocketAddr,
+    world: Arc<Mutex<WorldState>>,
+    config_arc: Arc<ArcSwap<ServerConfig>>,
+    tx: mpsc::Sender<InputEvent>,
+) {
+    let ws_stream = match accept_async(stream).await {
+        Ok(s) => s,
+        Err(e) => {
+            eprintln!("WS accept error from {}: {}", addr, e);
+            return;
+        }
+    };
+    let (mut write, mut read) = ws_stream.split();
+
+    let mut logged_in = false;
+    let mut name = String::new();
+    let mut faction = String::new();
+
+    // Welcome
+    let _ = write.send(Message::Text(json!({
+        "type": "welcome",
+        "msg": "⚡ Welcome to Powrush Web Client — Thunder locked eternally! Send LOGIN to begin."
+    }).to_string().into())).await;
+
+    while let Some(msg) = read.next().await {
+        let msg = match msg {
+            Ok(m) => m,
+            Err(_) => break,
+        };
+        if let Message::Text(text) = msg {
+            let data: Value = match serde_json::from_str(&text) {
+                Ok(d) => d,
+                Err(_) => continue,
+            };
+            let cmd = data.get("cmd").and_then(|v| v.as_str()).unwrap_or("").to_string();
+            let config = config_arc.load();
+
+            if !logged_in {
+                if cmd == "LOGIN" {
+                    if let (Some(n_val), Some(f_val)) = (data.get("name"), data.get("faction")) {
+                        if let (Some(n), Some(f)) = (n_val.as_str(), f_val.as_str()) {
+                            name = n.to_string();
+                            faction = f.to_string();
+                            {
+                                let mut w = world.lock().unwrap();
+                                if w.players.len() < config.max_players {
+                                    w.players.insert(addr, Player {
+                                        name: name.clone(),
+                                        faction: faction.clone(),
+                                        x: 5000,
+                                        y: 5000,
+                                        last_input_seq: 0,
+                                    });
+                                    logged_in = true;
+                                    let _ = write.send(Message::Text(json!({
+                                        "type": "welcome",
+                                        "msg": format!("OK Welcome {} of {}. Thunder locked!", name, faction)
+                                    }).to_string().into())).await;
+                                    log_audit(&config, "INFO", "ws_player_login", json!({"name":name,"faction":faction,"addr":addr.to_string()}));
+                                    // Send initial state snapshot
+                                    send_current_state(&mut write, &w).await;
+                                } else {
+                                    let _ = write.send(Message::Text(json!({"type": "error", "msg": "Server full"}).to_string().into())).await;
+                                }
+                            }
+                        }
+                    }
+                }
+                continue;
+            }
+
+            // Logged-in commands
+            if cmd == "help" {
+                let _ = write.send(Message::Text(json!({
+                    "type": "ack",
+                    "cmd": "help",
+                    "msg": "WASD move | SPACE harvest | D diplomacy | status | rbe | Buttons available"
+                }).to_string().into())).await;
+                continue;
+            }
+            if cmd == "status" || cmd == "rbe" {
+                let w = world.lock().unwrap();
+                if cmd == "status" {
+                    if let Some(p) = w.players.get(&addr) {
+                        let _ = write.send(Message::Text(json!({
+                            "type": "ack",
+                            "cmd": "status",
+                            "msg": format!("You: {} | {} | pos=({},{}) | tick={}", p.name, p.faction, p.x, p.y, w.tick)
+                        }).to_string().into())).await;
+                    }
+                } else {
+                    let _ = write.send(Message::Text(json!({
+                        "type": "ack",
+                        "cmd": "rbe",
+                        "rbe": w.rbe.mercy_metrics()
+                    }).to_string().into())).await;
+                }
+                continue;
+            }
+            if cmd == "quit" {
+                break;
+            }
+
+            // Queue for game_tick (move/harvest/diplomacy etc.)
+            let seq = {
+                let mut w = world.lock().unwrap();
+                w.players.get(&addr).map(|p| p.last_input_seq + 1).unwrap_or(1)
+            };
+            let _ = tx.send(InputEvent {
+                addr,
+                seq,
+                cmd: cmd.clone(),
+                timestamp: SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs(),
+            });
+
+            let _ = write.send(Message::Text(json!({
+                "type": "ack",
+                "cmd": cmd
+            }).to_string().into())).await;
+
+            // Push updated state after action (live HUD update)
+            {
+                let w = world.lock().unwrap();
+                send_current_state(&mut write, &w).await;
+            }
+        }
+    }
+
+    // Cleanup
+    let mut w = world.lock().unwrap();
+    if let Some(p) = w.players.remove(&addr) {
+        log_audit(&config_arc.load(), "INFO", "ws_player_disconnect", json!({"name":p.name}));
+    }
+}
+
+async fn send_current_state(
+    write: &mut futures_util::stream::SplitSink<tokio_tungstenite::WebSocketStream<tokio::net::TcpStream>, Message>,
+    world: &WorldState,
+) {
+    let players_json: Vec<Value> = world.players.values()
+        .map(|p| json!({"name": p.name, "faction": p.faction, "x": p.x, "y": p.y }))
+        .collect();
+    let state = json!({
+        "type": "state",
+        "tick": world.tick,
+        "players": players_json,
+        "rbe": {
+            "total_abundance": world.rbe.total_abundance,
+            "faction_balances": world.rbe.faction_balances
+        }
+    });
+    let _ = write.send(Message::Text(state.to_string().into())).await;
+}
+
 // ==================== MAIN ====================
 fn main() {
-    println!("⚡ Powrush MMO Production Server v14.8 starting (PATSAGi + Ra-Thor)...");
+    println!("⚡ Powrush MMO Production Server v14.10 starting (PATSAGi + Ra-Thor + WebSocket)...");
 
     let config = ServerConfig::default_config();
     let config_arc = Arc::new(ArcSwap::from_pointee(config.clone()));
@@ -281,7 +443,7 @@ fn main() {
     let world = Arc::new(Mutex::new(WorldState::new()));
     let (tx, rx) = mpsc::channel::<InputEvent>();
 
-    // Game loop thread (deterministic authoritative simulation)
+    // Game loop thread (deterministic authoritative simulation) - unchanged
     let world_tick = world.clone();
     let config_tick = config_arc.clone();
     thread::spawn(move || {
@@ -303,14 +465,46 @@ fn main() {
         }
     });
 
-    // TCP listener
+    // TCP listener (port 7777 - terminal / legacy clients)
     let listener = TcpListener::bind("0.0.0.0:7777").expect("bind failed");
-    println!("✅ Powrush Server listening on 0.0.0.0:7777");
-    println!("   Humans connect:  nc localhost 7777");
+    println!("✅ Powrush TCP listening on 0.0.0.0:7777");
+    println!("   Terminal humans: nc localhost 7777");
     println!("   Then: LOGIN YourName Sovereign   (or Harvesters/Guardians/Innovators/Nomads)");
     println!("   Commands: move 10 0 | harvest | diplomacy | status | rbe | help | quit");
-    println!("   RBE abundance grows for everyone. Mercy flows. Thunder locked.");
 
+    // WebSocket listener for browser clients (port 7778 - JSON, works with powrush-client.html)
+    let world_ws = world.clone();
+    let config_ws = config_arc.clone();
+    let tx_ws = tx.clone();
+    thread::spawn(move || {
+        let rt = tokio::runtime::Builder::new_multi_thread()
+            .enable_all()
+            .build()
+            .expect("tokio runtime for WS");
+        rt.block_on(async {
+            let ws_listener = TokioTcpListener::bind("0.0.0.0:7778").await.expect("ws bind failed");
+            println!("✅ Powrush WebSocket listening on 0.0.0.0:7778");
+            println!("   Browser humans: open powrush/web/powrush-client.html");
+            println!("   Click Connect → Login → WASD move, SPACE harvest, D diplomacy");
+            println!("   RBE abundance grows for EVERY faction. Mercy flows. Thunder locked.");
+
+            loop {
+                match ws_listener.accept().await {
+                    Ok((stream, addr)) => {
+                        let world_c = world_ws.clone();
+                        let config_c = config_ws.clone();
+                        let tx_c = tx_ws.clone();
+                        tokio::spawn(async move {
+                            handle_ws_client(stream, addr, world_c, config_c, tx_c).await;
+                        });
+                    }
+                    Err(e) => eprintln!("WS listener error: {}", e),
+                }
+            }
+        });
+    });
+
+    // TCP accept loop (blocking, unchanged)
     for stream in listener.incoming() {
         match stream {
             Ok(stream) => {
@@ -322,7 +516,7 @@ fn main() {
                     handle_client(stream, addr, world_clone, config_clone, tx_clone);
                 });
             }
-            Err(e) => eprintln!("Connection error: {}", e),
+            Err(e) => eprintln!("TCP Connection error: {}", e),
         }
     }
-                    }
+}

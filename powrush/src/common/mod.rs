@@ -15,7 +15,7 @@ pub struct RbeState {
 impl RbeState {
     pub fn new() -> Self {
         let mut balances = HashMap::new();
-        balances.insert("Sovereigns".to_string(), 10000.0);
+        balances.insert("Sovereign".to_string(), 10000.0);
         balances.insert("Harvesters".to_string(), 8000.0);
         balances.insert("Guardians".to_string(), 6000.0);
         balances.insert("Innovators".to_string(), 7000.0);
