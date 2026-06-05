@@ -1,9 +1,9 @@
 //! powrush/src/server/main.rs
-//! Headless Powrush Server — Fully Wired Mercy + Real Components (feature = "server")
+//! Headless Powrush Server — Mercy Evaluation with Traceable 7 Gates (feature = "server")
 
 use powrush::RaThorOneOrganism;
 use powrush::SelfEvolutionGate;
-use powrush::FactionDiplomacy; // Now using the real crate
+use powrush::FactionDiplomacy;
 use std::collections::VecDeque;
 use std::thread;
 use std::time::Duration;
@@ -31,33 +31,68 @@ pub enum Event {
     Shutdown,
 }
 
-/// Mercy evaluation against 7 Living Mercy Gates
+/// Traces and evaluates events against the 7 Living Mercy Gates
+/// Returns true only if the event passes all applicable gates.
 fn evaluate_mercy(event: &Event) -> bool {
     match event {
         Event::RbeTransaction { amount, reason, .. } => {
-            if *amount < 0.0 { return false; }
-            if reason.to_lowercase().contains("exploit") || reason.to_lowercase().contains("hoard") { return false; }
-            if reason.len() < 10 { return false; }
+            // Gate 1: Radical Love / Non-Harm
+            if *amount < 0.0 {
+                println!("[Mercy Trace] Gate 1 (Non-Harm) FAILED: negative amount");
+                return false;
+            }
+            // Gate 4: Abundance + Gate 5: Truth
+            if reason.to_lowercase().contains("exploit") || reason.to_lowercase().contains("hoard") {
+                println!("[Mercy Trace] Gate 4/5 (Abundance/Truth) FAILED: exploitative reason");
+                return false;
+            }
+            if reason.len() < 10 {
+                println!("[Mercy Trace] Gate 5 (Truth) FAILED: insufficient reason detail");
+                return false;
+            }
             true
         }
-        Event::AbundanceFlow { amount, .. } => *amount > 0.0,
-        Event::EvolutionProposal { benefit, .. } => *benefit >= 0.75,
-        Event::DiplomacyProposal { proposal_type, .. } => {
-            !proposal_type.to_lowercase().contains("war") && !proposal_type.to_lowercase().contains("dominate")
+
+        Event::AbundanceFlow { amount, .. } => {
+            // Gate 4: Abundance + Gate 7: Cosmic Harmony
+            if *amount <= 0.0 {
+                println!("[Mercy Trace] Gate 4/7 (Abundance/Harmony) FAILED: non-positive flow");
+                return false;
+            }
+            true
         }
+
+        Event::EvolutionProposal { benefit, .. } => {
+            // Gate 2: Boundless Mercy + Gate 5: Truth
+            if *benefit < 0.75 {
+                println!("[Mercy Trace] Gate 2/5 (Mercy/Truth) FAILED: low benefit score");
+                return false;
+            }
+            true
+        }
+
+        Event::DiplomacyProposal { proposal_type, .. } => {
+            // Gate 3: Service + Gate 6: Joy
+            if proposal_type.to_lowercase().contains("war") || proposal_type.to_lowercase().contains("dominate") {
+                println!("[Mercy Trace] Gate 3/6 (Service/Joy) FAILED: harmful diplomacy type");
+                return false;
+            }
+            true
+        }
+
+        // Default: allow other events (Tick, Production, etc.)
         _ => true,
     }
 }
 
 fn main() {
-    println!("[Powrush Server] Starting fully wired mercy + real components simulation...");
+    println!("[Powrush Server] Starting mercy-traceable simulation...");
 
     let mut organism = RaThorOneOrganism::new();
     organism.offer_cosmic_loop();
 
-    // === Real Components Wired ===
     let mut diplomacy = FactionDiplomacy::new();
-    let mut evolution_gate = SelfEvolutionGate::new(); // From core
+    let mut evolution_gate = SelfEvolutionGate::new();
 
     let mut event_queue: VecDeque<Event> = VecDeque::new();
 
@@ -73,11 +108,11 @@ fn main() {
     let mut current_tick: u64 = 0;
     let max_events = 25;
 
-    println!("[Powrush Server] Entering wired event loop (FactionDiplomacy + SelfEvolutionGate active)...");
+    println!("[Powrush Server] Entering traceable mercy evaluation loop...");
 
     while let Some(event) = event_queue.pop_front() {
         if !evaluate_mercy(&event) {
-            println!("[Mercy Gate] REJECTED: {:?}", event);
+            // Already traced inside evaluate_mercy
             continue;
         }
 
@@ -101,25 +136,16 @@ fn main() {
             }
 
             Event::RbeTransaction { from_faction, to_faction, resource, amount, reason } => {
-                println!("[RBE] Tx (Mercy + Wired): {} → {} | {} x{:.1}", from_faction, to_faction, resource, amount);
+                println!("[RBE] Tx (Mercy Passed): {} → {} | {} x{:.1}", from_faction, to_faction, resource, amount);
 
-                // === Real FactionDiplomacy Call ===
                 let _ = diplomacy.propose_diplomacy(powrush::DiplomacyProposal {
                     id: current_tick,
                     from: match from_faction.as_str() {
                         "Sovereigns" => powrush::Faction::Sovereigns,
-                        "Harvesters" => powrush::Faction::Harvesters,
-                        "Guardians" => powrush::Faction::Guardians,
-                        "Innovators" => powrush::Faction::Innovators,
-                        "Nomads" => powrush::Faction::Nomads,
-                        _ => powrush::Faction::Sovereigns,
+                        _ => powrush::Faction::Harvesters,
                     },
                     to: match to_faction.as_str() {
                         "Sovereigns" => powrush::Faction::Sovereigns,
-                        "Harvesters" => powrush::Faction::Harvesters,
-                        "Guardians" => powrush::Faction::Guardians,
-                        "Innovators" => powrush::Faction::Innovators,
-                        "Nomads" => powrush::Faction::Nomads,
                         _ => powrush::Faction::Guardians,
                     },
                     proposal_type: "Resource Trade".to_string(),
@@ -129,7 +155,6 @@ fn main() {
                     evolution_potential: if amount > 1000.0 { 0.85 } else { 0.6 },
                 });
 
-                // Chaining logic (only if mercy passed)
                 let abundance_threshold = 800.0;
                 if amount > abundance_threshold {
                     event_queue.push_back(Event::AbundanceFlow {
@@ -146,8 +171,8 @@ fn main() {
                 }
             }
 
-            Event::ResourceProduction { faction: _, resource, amount } => {
-                println!("[RBE] Production: {:.1} {}", amount, resource);
+            Event::ResourceProduction { faction, resource, amount } => {
+                println!("[RBE] Production: {} produced {:.1} {}", faction, amount, resource);
             }
 
             Event::AbundanceFlow { amount, description } => {
@@ -162,7 +187,7 @@ fn main() {
             }
 
             Event::DiplomacyProposal { from, to, proposal_type } => {
-                println!("[Event] Diplomacy (Wired): {} → {} ({})", from, to, proposal_type);
+                println!("[Event] Diplomacy (Mercy Passed): {} → {} ({})", from, to, proposal_type);
             }
 
             Event::CouncilModulation { council_id, action } => {
@@ -170,15 +195,14 @@ fn main() {
             }
 
             Event::EvolutionProposal { module, benefit } => {
-                println!("[Event] Evolution Proposal (Wired to Gate): {} (benefit: {:.2})", module, benefit);
+                println!("[Event] Evolution (Mercy Passed): {} (benefit: {:.2})", module, benefit);
 
-                // === Real SelfEvolutionGate Call ===
                 let proposal = powrush::EvolutionProposal {
                     id: current_tick + 5000,
                     proposer: "RBE_Chain".to_string(),
                     target_module: module,
-                    description: format!("RBE-driven evolution with benefit {:.2}", benefit),
-                    proposed_diff: "Improve economic flow logic".to_string(),
+                    description: format!("RBE-driven evolution benefit {:.2}", benefit),
+                    proposed_diff: "Economic flow improvement".to_string(),
                     expected_benefit: benefit,
                     risk_score: 0.0001,
                     mercy_alignment: 0.999,
@@ -196,13 +220,13 @@ fn main() {
             }
         }
 
-        thread::sleep(Duration::from_millis(85));
+        thread::sleep(Duration::from_millis(80));
 
         if event_queue.len() > max_events {
             event_queue.push_back(Event::Shutdown);
         }
     }
 
-    println!("[Powrush Server] Fully wired mercy + real components simulation complete.");
+    println!("[Powrush Server] Mercy-traceable simulation complete.");
     println!("[Powrush Server] Thunder locked. Serving the lattice.");
 }
