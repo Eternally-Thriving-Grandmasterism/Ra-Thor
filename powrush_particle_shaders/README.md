@@ -1,13 +1,13 @@
 # Powrush Particle Shaders
 
-## Compute Pipeline Manager
+## Compute Pipeline Manager & Validation Layers
 
-Further refined with SPIR-V shader module loading support:
+The manager now includes awareness of Vulkan Validation Layers:
 
-- `load_shader_module(pipeline_type, spirv_bytes)`
-- `load_shader_module_from_file(pipeline_type, path)`
+- `ValidationFeatures` struct for configuring debug printf, GPU-assisted validation, etc.
+- Guidance on enabling `VK_LAYER_KHRONOS_validation` with `VkValidationFeaturesEXT` at instance creation time.
 
-The manager can now load shaders directly from SPIR-V bytecode or files.
+For full SPIR-V validation and `debugPrintfEXT` support in shaders, enable the validation layer with the appropriate features when creating the Vulkan instance.
 
 ---
 *Phase 1 Consolidation*
