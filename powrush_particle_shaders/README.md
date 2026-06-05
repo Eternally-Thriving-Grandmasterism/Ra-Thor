@@ -1,16 +1,24 @@
 # Powrush Particle Shaders
 
-## Combined Distance + Hi-Z Culling Test
+## vkCmdDrawIndirectCount Support
 
-Added `DISTANCE_AND_HIZ_TEST` — a clean, high-quality combined pass that performs:
-- Distance culling (early-out)
-- Hi-Z occlusion testing
+Added `COMPACTION_WITH_DRAW_COUNT` shader.
 
-Outputs visibility flags that feed directly into the `COMPACTION` pass.
+This version writes the actual number of draws into a separate `draw_count` buffer,
+enabling the use of `vkCmdDrawIndirectCount` on the host side for fully GPU-driven draw submission.
 
-This creates a modular yet efficient two-pass culling pipeline:
-1. `DISTANCE_AND_HIZ_TEST`
-2. `COMPACTION`
+Host-side usage:
+```c
+vkCmdDrawIndirectCount(
+    cmd,
+    drawCommandsBuffer,
+    0,
+    drawCountBuffer,   // written by COMPACTION_WITH_DRAW_COUNT
+    0,
+    maxDrawCount,
+    sizeof(VkDrawIndirectCommand)
+);
+```
 
 ---
-*GPU-Driven Rendering (Production Quality)*
+*GPU-Driven Rendering*
