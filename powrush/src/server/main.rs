@@ -1,5 +1,5 @@
 //! powrush/src/server/main.rs
-//! Headless Powrush Server — Async Log Batching + Structured Logging with Levels (feature = "server")
+//! Headless Powrush Server — Tuned Async Log Batching (feature = "server")
 
 use powrush::RaThorOneOrganism;
 use powrush::SelfEvolutionGate;
@@ -12,6 +12,12 @@ use std::thread;
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 use serde_json::json;
+
+// === Tuned Batch Flush Parameters ===
+// Trade-off: Larger batch = better throughput / fewer syscalls
+//            Shorter interval = lower latency for log visibility
+const BATCH_SIZE: usize = 128;           // Flush when this many entries collected
+const FLUSH_INTERVAL_MS: u64 = 100;      // Or flush after this many milliseconds
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum LogLevel {
@@ -55,7 +61,6 @@ pub enum Event {
     Shutdown,
 }
 
-// Log entry for batching
 #[derive(Debug, Clone)]
 struct LogEntry {
     level: LogLevel,
@@ -63,29 +68,26 @@ struct LogEntry {
     context: serde_json::Value,
 }
 
-// Global sender for batched structured logging
 static mut LOG_SENDER: Option<Sender<LogEntry>> = None;
 
-/// Initialize the async log batcher (called once at startup)
 fn init_log_batcher() -> Sender<LogEntry> {
     let (tx, rx) = mpsc::channel::<LogEntry>();
 
     thread::spawn(move || {
-        let mut batch: Vec<LogEntry> = Vec::with_capacity(64);
+        let mut batch: Vec<LogEntry> = Vec::with_capacity(BATCH_SIZE);
         let mut last_flush = std::time::Instant::now();
 
         for entry in rx {
             batch.push(entry);
 
-            // Flush conditions: batch size or time-based
-            if batch.len() >= 64 || last_flush.elapsed() > Duration::from_millis(150) {
+            // Tuned flush conditions
+            if batch.len() >= BATCH_SIZE || last_flush.elapsed() >= Duration::from_millis(FLUSH_INTERVAL_MS) {
                 flush_batch(&batch);
                 batch.clear();
                 last_flush = std::time::Instant::now();
             }
         }
 
-        // Final flush on shutdown
         if !batch.is_empty() {
             flush_batch(&batch);
         }
@@ -121,7 +123,6 @@ fn flush_batch(batch: &[LogEntry]) {
     }
 }
 
-/// Public structured logging function (non-blocking, batched)
 fn log_structured(level: LogLevel, message: &str, context: serde_json::Value) {
     unsafe {
         if let Some(sender) = &LOG_SENDER {
@@ -134,7 +135,6 @@ fn log_structured(level: LogLevel, message: &str, context: serde_json::Value) {
     }
 }
 
-// Specialized mercy audit (kept synchronous for high-signal importance)
 fn log_mercy_json(entry: serde_json::Value) {
     if let Ok(mut file) = OpenOptions::new()
         .create(true)
@@ -146,7 +146,6 @@ fn log_mercy_json(entry: serde_json::Value) {
     }
 }
 
-// Specialized error trace (also batched in future iterations)
 fn log_error(entry: serde_json::Value) {
     if let Ok(mut file) = OpenOptions::new()
         .create(true)
@@ -159,7 +158,6 @@ fn log_error(entry: serde_json::Value) {
 }
 
 fn evaluate_mercy(event: &Event) -> bool {
-    // ... (unchanged mercy logic for brevity - same as previous)
     let timestamp = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs();
 
     let (decision, gate_failed, details) = match event {
@@ -197,13 +195,12 @@ fn evaluate_mercy(event: &Event) -> bool {
 }
 
 fn main() {
-    // Initialize async log batcher
     let sender = init_log_batcher();
     unsafe { LOG_SENDER = Some(sender); }
 
-    log_structured(LogLevel::Info, "Powrush Server starting with async log batching", json!({
-        "batch_size": 64,
-        "flush_interval_ms": 150
+    log_structured(LogLevel::Info, "Powrush Server starting with tuned async log batching", json!({
+        "batch_size": BATCH_SIZE,
+        "flush_interval_ms": FLUSH_INTERVAL_MS
     }));
 
     let mut organism = RaThorOneOrganism::new();
@@ -359,7 +356,7 @@ fn main() {
             }
         }
 
-        thread::sleep(Duration::from_millis(55));
+        thread::sleep(Duration::from_millis(50));
 
         if event_queue.len() > max_events {
             event_queue.push_back(Event::Shutdown);
@@ -367,7 +364,7 @@ fn main() {
     }
 
     log_structured(LogLevel::Info, "Simulation complete", json!({}));
-    println!("[Powrush Server] Async log batching active (64 entries / 150ms).");
-    println!("[Powrush Server] Main: powrush_structured_log.jsonl | Mercy: powrush_mercy_audit.jsonl | Errors: powrush_error_trace.jsonl");
+    println!("[Powrush Server] Tuned batching: {} entries / {}ms", BATCH_SIZE, FLUSH_INTERVAL_MS);
+    println!("[Powrush Server] Logs: structured | mercy | error");
     println!("[Powrush Server] Thunder locked. Serving the lattice.");
 }
