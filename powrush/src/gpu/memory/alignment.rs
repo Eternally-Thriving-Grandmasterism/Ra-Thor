@@ -1,102 +1,86 @@
-//! Deep Investigation: GPU Memory Alignment for Powrush-MMO + Ra-Thor AGI (v17.3 Production)
+//! WGSL Buffer Layout Padding Deep Dive for Powrush-MMO (v17.4 Production)
 //!
-//! Expanded professional investigation of GPU memory alignment requirements,
-//! with practical implementations tailored to Powrush-MMO's multi-pass compute pipeline,
-//! vector search, NPC memory, and Ra-Thor AGI integration.
+//! Detailed exploration of WGSL memory layout and padding rules.
+//! Essential knowledge when writing compute shaders that interact with
+//! Powrush-MMO's epigenetic, geometric, vector, and NPC memory data.
 //!
-//! Topics Covered:
-//! - WGSL alignment rules (including newer @align attribute)
-//! - wgpu device limits (minStorageBufferOffsetAlignment, etc.)
-//! - Struct padding strategies for performance and correctness
-//! - Alignment considerations for compute pipelines and indirect dispatch
-//! - Staging buffer alignment when doing async readback
-//! - Real-world impact on Powrush-MMO simulation stability and NPC intelligence
+//! WGSL follows specific layout rules (similar to std140 in GLSL but with some differences).
+//! Understanding these prevents bugs and performance issues.
 //!
 //! All under AG-SML v1.0 • TOLC 8 • 7 Living Mercy Gates
 
 use bytemuck::{Pod, Zeroable};
 
-/// Standard storage buffer alignment (most GPUs).
-pub const STORAGE_BUFFER_ALIGNMENT: u64 = 16;
+/// === WGSL Padding Rules Summary ===
+///
+/// 1. **vec3<T>** has alignment of 16 bytes but size of 12 bytes.
+///    → Almost always needs 4 bytes of padding after it.
+///
+/// 2. Structs and arrays are aligned to the largest alignment of their members.
+///
+/// 3. The `align` and `size` attributes can be used to override defaults (WGSL 2023+).
+///
+/// 4. Storage buffers prefer 16-byte alignment for best performance on most GPUs.
 
-/// Common uniform buffer alignment.
-pub const UNIFORM_BUFFER_ALIGNMENT: u64 = 256;
-
-/// Epigenetic Profile - Production aligned struct for GPU compute.
-/// Uses explicit padding to guarantee 16-byte alignment required by WGSL storage buffers.
+/// Example: Correctly padded struct matching WGSL expectations.
+/// This matches the layout Powrush-MMO uses for GPU compute.
 #[repr(C, align(16))]
 #[derive(Clone, Copy, Debug, Pod, Zeroable)]
-pub struct GpuEpigeneticProfile {
+pub struct CorrectlyPaddedProfile {
+    pub volatility: f32,           // offset 0,  size 4
+    pub stability: f32,            // offset 4,  size 4
+    pub ecological_sensitivity: f32, // offset 8,  size 4
+    pub creative_flow: f32,        // offset 12, size 4
+    pub mercy_alignment: f32,      // offset 16, size 4
+    // Padding to satisfy vec3-like alignment expectations and 16-byte struct alignment
+    pub _padding: [f32; 3],        // offset 20, size 12  → total 32 bytes
+}
+
+/// Incorrect version (common mistake) — will cause misalignment issues.
+#[repr(C)]
+#[derive(Clone, Copy, Debug, Pod, Zeroable)]
+pub struct IncorrectlyPaddedProfile {
     pub volatility: f32,
     pub stability: f32,
     pub ecological_sensitivity: f32,
     pub creative_flow: f32,
     pub mercy_alignment: f32,
-    // 12 bytes padding to reach 16-byte alignment (3 × f32)
-    pub _padding: [f32; 3],
+    // Missing padding! This struct is only 20 bytes.
+    // WGSL may misinterpret or crash on some hardware.
 }
 
-/// Geometric Region with proper alignment.
+/// Vector type with explicit 16-byte alignment (recommended).
 #[repr(C, align(16))]
 #[derive(Clone, Copy, Debug, Pod, Zeroable)]
-pub struct GpuGeometricRegion {
-    pub resonance: f32,
-    pub current_layer: u32,
-    // Padding to maintain 16-byte alignment
-    pub _padding: [f32; 2],
+pub struct AlignedVector4 {
+    pub x: f32,
+    pub y: f32,
+    pub z: f32,
+    pub w: f32,
 }
 
-/// Vector type used for similarity search and NPC memory.
-#[repr(C, align(16))]
-#[derive(Clone, Copy, Debug, Pod, Zeroable)]
-pub struct GpuVector {
-    pub data: [f32; 4], // 16 bytes exactly - ideal for many GPUs
+/// Helper to document padding decisions.
+/// Use this pattern when designing new GPU data structures for Powrush-MMO.
+pub fn explain_padding() {
+    // When designing a struct for WGSL storage buffer:
+    // 1. Start with logical fields
+    // 2. Add padding to reach 16-byte alignment
+    // 3. Use #[repr(C, align(16))]
+    // 4. Verify size with size_of::<T>() % 16 == 0 when possible
 }
 
-/// Calculate buffer size aligned to a specific boundary.
-pub fn aligned_size(size: u64, alignment: u64) -> u64 {
-    (size + alignment - 1) & !(alignment - 1)
-}
-
-/// Create a storage buffer with guaranteed alignment.
-pub fn create_aligned_storage_buffer(
-    device: &wgpu::Device,
-    size: u64,
-    label: Option<&str>,
-) -> wgpu::Buffer {
-    let aligned_size = aligned_size(size, STORAGE_BUFFER_ALIGNMENT);
-
-    device.create_buffer(&wgpu::BufferDescriptor {
-        label,
-        size: aligned_size,
-        usage: wgpu::BufferUsages::STORAGE
-            | wgpu::BufferUsages::COPY_SRC
-            | wgpu::BufferUsages::COPY_DST,
-        mapped_at_creation: false,
-    })
-}
-
-/// Important alignment considerations for Powrush-MMO + Ra-Thor AGI:
+/// Best Practice Recommendation for Powrush-MMO + Ra-Thor AGI:
 ///
-/// 1. **Struct Alignment**: Always use `#[repr(C, align(16))]` for structs in storage buffers.
-///    WGSL requires vec3/vec4 and arrays to be 16-byte aligned in many cases.
+/// Always design GPU structs with explicit padding from the beginning.
+/// This prevents subtle bugs in:
+/// - Epigenetic profile updates
+/// - Geometric layer calculations
+/// - Vector similarity search
+/// - NPC memory storage and recall
 ///
-/// 2. **Buffer Copies**: When copying between buffers (e.g. storage → staging for readback),
-///    both source and destination must respect alignment requirements.
+/// Misaligned data can cause:
+/// - Crashes on some GPUs
+/// - Corrupted simulation state
+/// - NPC behavior that feels broken or unfair to players
 ///
-/// 3. **Indirect Dispatch**: The indirect buffer for `dispatch_workgroups_indirect` must be
-///    aligned to 4 bytes (but using 16-byte alignment is safer and more consistent).
-///
-/// 4. **Staging Buffers**: When doing async readback, the staging buffer should use
-///    `MAP_READ | COPY_DST`. Its size should be aligned for safety.
-///
-/// 5. **Performance Impact**: Misaligned accesses can cause:
-///    - GPU crashes or undefined behavior on some hardware
-///    - Significant performance penalties (cache line splits)
-///    - Silent data corruption in complex simulation passes
-///
-/// 6. **Ra-Thor AGI Impact**: Incorrect alignment in epigenetic or vector data can lead to
-///    corrupted NPC memory and poor decision making by PATSAGi Councils.
-///
-/// Recommendation: Always design GPU data structures with explicit padding from the start.
-/// This module provides the foundation for stable, high-performance GPU compute in Powrush-MMO.
+/// The structs in this module follow production-grade padding discipline.
