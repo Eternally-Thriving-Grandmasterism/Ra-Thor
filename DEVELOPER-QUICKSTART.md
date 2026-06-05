@@ -46,34 +46,40 @@ Many supporting engines and tools also exist in the `js/` folder for browser-bas
 
 ## 3. Explore the Core Systems
 
-### Powrush MMO + RBE (Server, Client & GPU Simulation)
+### Powrush MMO + RBE + Ra-Thor AGI NPC Architecture
 
-Powrush is the core simulation and gameplay layer of Ra-Thor. It combines a production-grade authoritative server, browser client, Resource-Based Economy (RBE) mechanics, and the new GPU Compute Layer for high-performance simulation.
+Powrush combines an authoritative server, browser client, Resource-Based Economy (RBE), GPU-accelerated simulation, and deep integration with Ra-Thor AGI for autonomous, mercy-evaluated NPCs.
 
-**Server-side (`powrush/src/server/`)**
-- Production TCP + WebSocket server with authoritative game loop
-- Deep integration with Ra-Thor AGI (MultiAgentOrchestrator)
-- NPC action exposure, moral evaluation, and rich agent state (EnrichedNpcState readiness)
-- Metrics endpoint, reconciliation system, and audit logging for high-mercy NPC actions
-- Real-time state snapshots sent to connected clients
+#### Server-Side Architecture
+- Production TCP + WebSocket server (`powrush/src/server/main.rs`)
+- Authoritative game loop with tick-based reconciliation
+- Deep integration with `MultiAgentOrchestrator` (Ra-Thor AGI core)
+- NPCs are treated as first-class entities alongside players
+- `NpcActionEvent` captures autonomous NPC decisions (action, mercy_score, approved)
+- High-mercy actions (`mercy_score > 0.85`) are automatically audited
+- Recent NPC actions are exposed via `npcs` command and WebSocket `npc_activity`
 
-**Client-side**
-- Browser-based client (`powrush-client.html`)
-- Receives enriched world state including NPC internal reasoning and moral evaluations
-- Designed for future WebRTC / DataChannel expansion
+#### Ra-Thor AGI NPC Decision System
+The `MultiAgentOrchestrator` serves as the central AGI brain:
 
-**GPU Compute Layer (v14.7.0)**
-- `powrush/src/gpu/compute/` with StagingBufferPool and async readback
-- Accelerates epigenetic, geometric, and NPC behavior simulation
-- Debug utilities for inspecting compute shader output
-- Production-ready patterns for efficient CPU ↔ GPU data movement
+- Maintains `RichAgentState` for each NPC
+- Uses hybrid symbolic + neural reasoning (`NeuralQNetwork` + symbolic goals)
+- Applies `MoralEvaluation` to potential actions
+- Produces `NpcActionEvent`s with associated mercy scores
+- Supports higher-level behaviors (personalized quests, skill tracking)
+- All decisions are processed through the TOLC 8 Mercy Lattice
 
-**RBE + Sovereignty Mechanics**
-- Complete Resource-Based Economy simulation across multiple crates
-- Faction dynamics, sovereignty mechanics, and mercy-gated abundance flows
-- Designed as foundation for blockchain-integrated Powrush MMO
+#### Client Exposure (Current & Planned)
+- **Current**: Basic `npc_activity` in WebSocket snapshots + `npcs` command (action + mercy_score)
+- **Planned**: Full `EnrichedNpcState` exposure (goal, emotional_state, q_values, moral_evaluation, combined_wisdom_score) via WebRTC/DataChannel
+- This will allow players to see not just *what* NPCs do, but *why* (their internal reasoning and moral evaluation)
 
-**Key Crates**
+#### GPU Compute Layer Role
+- Accelerates simulation state (epigenetic fields, geometric data)
+- Provides efficient StagingBufferPool + async readback infrastructure
+- Future opportunity: Accelerate parts of the AGI decision loop or batch NPC inference
+
+#### Key Related Crates
 - `powrush/`
 - `powrush-mmo-simulator/`
 - `powrush_rbe_engine/`
