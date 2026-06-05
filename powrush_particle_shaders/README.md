@@ -2,15 +2,12 @@
 
 ## Compute Pipeline Manager
 
-The manager has been significantly refined with:
+Further refined with SPIR-V shader module loading support:
 
-- Real `vkCreateComputePipelines` implementation
-- Proper error handling using `PipelineError`
-- Shader module registration via `register_shader_module()`
-- Pipeline layout registration via `register_pipeline_layout()`
-- Automatic cache persistence
+- `load_shader_module(pipeline_type, spirv_bytes)`
+- `load_shader_module_from_file(pipeline_type, path)`
 
-This is now a robust foundation ready for integration with a real Vulkan backend.
+The manager can now load shaders directly from SPIR-V bytecode or files.
 
 ---
 *Phase 1 Consolidation*
