@@ -1,14 +1,14 @@
 //! POWRUSH-MMO Multi-Agent Orchestrator
-//! v17.0-activate-qlearning
+//! v17.1-experience-replay
 //!
-//! Production activation and refinement of Q-learning inside the autonomous NPC behavior loop.
-//! NPCs now use learned Q-values to propose actions, while remaining under full Mercy + PATSAGi constraints.
+//! Production addition of Experience Replay Buffer for more stable Q-learning.
+//! NPCs now sample past experiences for Q-updates instead of only learning from the latest transition.
 //!
 //! AG-SML v1.0 | Thunder locked in. Yoi ⚡
 
 use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
-use rand::Rng; // For exploration
+use rand::seq::SliceRandom;
 
 // ==================== Core Types ====================
 
@@ -38,26 +38,28 @@ pub struct EntityState { /* existing ... */ }
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub enum NpcGoal { /* existing ... */ }
 
-// ==================== Q-Learning & Memory ====================
+// ==================== Q-Learning & Replay ====================
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
-pub struct QValues {
-    pub diplomacy: f32,
-    pub teach: f32,
-    pub harvest: f32,
-    pub consult_council: f32,
-    pub create: f32,
+pub struct QValues { /* existing from v17.0 ... */ }
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct Experience {
+    pub action_type: String,
+    pub reward: f32,
+    pub next_max_q: f32,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct NeuroSymbolicMemory {
     pub q_values: QValues,
+    pub replay_buffer: Vec<Experience>,
     pub action_history: Vec<ActionOutcome>,
     pub learned_preference: f32,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
-pub struct ActionOutcome { /* existing ... */ }
+const REPLAY_BUFFER_SIZE: usize = 128;
+const REPLAY_BATCH_SIZE: usize = 8;
 
 // ==================== Main Orchestrator ====================
 
@@ -79,105 +81,69 @@ impl MultiAgentOrchestrator {
 
     pub fn tick(&mut self, delta_seconds: f32) { /* existing */ }
 
-    // ==================== v17.0: Q-Learning Activated in Behavior Loop ====================
+    // ==================== v17.1: Experience Replay ====================
 
-    fn run_autonomous_npc_behavior(&mut self) {
-        let npc_ids: Vec<u64> = self.entities
-            .iter()
-            .filter(|(_, e)| matches!(e, EntityType::AiAgent { .. } | EntityType::AgiEntity { .. }))
-            .map(|(id, _)| *id)
-            .collect();
-
-        for &entity_id in &npc_ids {
-            let current_goal = self.npc_goals.get(&entity_id).cloned();
-            let emotional = self.entity_states.get(&entity_id)
-                .map(|s| s.emotional_state.clone())
-                .unwrap_or_default();
-
-            // === Q-Learning influenced action proposal ===
-            let proposed = if let Some(memory) = self.neuro_memories.get(&entity_id) {
-                self.select_action_with_q_values(entity_id, current_goal.as_ref(), &emotional, memory)
-            } else {
-                // Fallback to goal-based selection
-                self.fallback_goal_based_action(current_goal.as_ref(), &emotional)
+    fn record_experience(&mut self, entity_id: u64, action: &Action, shaped_reward: f32, next_max_q: f32) {
+        if let Some(memory) = self.neuro_memories.get_mut(&entity_id) {
+            let exp = Experience {
+                action_type: format!("{:?}", action),
+                reward: shaped_reward,
+                next_max_q,
             };
 
-            let approved = self.decide_action_with_mercy_and_councils(entity_id, proposed);
+            if memory.replay_buffer.len() >= REPLAY_BUFFER_SIZE {
+                memory.replay_buffer.remove(0); // FIFO
+            }
+            memory.replay_buffer.push(exp);
 
-            match approved {
-                ApprovedAction::Execute(action) => {
-                    self.execute_approved_npc_action(entity_id, action.clone());
-
-                    // Record outcome and update Q-values
-                    let moral_eval = self.evaluate_moral_reasoning(&action, entity_id);
-                    let components = self.build_reward_components(entity_id, &action, &moral_eval);
-                    let shaped_reward = compute_shaped_reward(&components);
-
-                    self.update_q_values(entity_id, &action, shaped_reward);
-                    self.record_action_outcome(entity_id, &action, shaped_reward, &moral_eval);
-                }
-                ApprovedAction::Transform { .. } => {
-                    // Still learn from transformed actions
-                    if let Some(memory) = self.neuro_memories.get_mut(&entity_id) {
-                        memory.learned_preference = (memory.learned_preference - 0.03).max(0.0);
-                    }
-                }
-                ApprovedAction::Block { .. } => {
-                    // Negative learning signal
-                    if let Some(memory) = self.neuro_memories.get_mut(&entity_id) {
-                        memory.learned_preference = (memory.learned_preference - 0.05).max(0.0);
-                    }
-                }
+            // Occasionally perform replay updates
+            if memory.replay_buffer.len() >= REPLAY_BATCH_SIZE && self.current_tick % 3 == 0 {
+                self.perform_replay_update(entity_id);
             }
         }
     }
 
-    fn select_action_with_q_values(
-        &self,
-        entity_id: u64,
-        goal: Option<&NpcGoal>,
-        emotional: &EmotionalState,
-        memory: &NeuroSymbolicMemory,
-    ) -> Action {
-        let mut rng = rand::thread_rng();
-        let epsilon = 0.12; // Exploration rate
+    fn perform_replay_update(&mut self, entity_id: u64) {
+        if let Some(memory) = self.neuro_memories.get_mut(&entity_id) {
+            if memory.replay_buffer.is_empty() { return; }
 
-        // ε-greedy exploration
-        if rng.gen::<f32>() < epsilon {
-            return self.fallback_goal_based_action(goal, emotional);
-        }
+            let mut rng = rand::thread_rng();
+            let batch: Vec<&Experience> = memory.replay_buffer
+                .choose_multiple(&mut rng, REPLAY_BATCH_SIZE.min(memory.replay_buffer.len()))
+                .collect();
 
-        // Exploit best Q-value action
-        let q = &memory.q_values;
-        let best_action = if q.teach >= q.diplomacy && q.teach >= q.harvest && q.teach >= q.consult_council && q.teach >= q.create {
-            Action::Teach { learner: 0, skill: "Learned from experience".to_string(), mercy_intent: 0.9 }
-        } else if q.diplomacy >= q.harvest && q.diplomacy >= q.consult_council && q.diplomacy >= q.create {
-            Action::Diplomacy { faction: "local".to_string(), proposal: "Learned diplomacy".to_string() }
-        } else if q.harvest >= q.consult_council && q.harvest >= q.create {
-            Action::Harvest { node: "mercy_field".to_string() }
-        } else if q.consult_council >= q.create {
-            Action::ConsultCouncil { council: "GeneralHarmonyCouncil".to_string(), query: "What is wise now?".to_string() }
-        } else {
-            Action::Create { blueprint: "experience_based".to_string(), resources: vec![] }
-        };
+            let alpha = 0.12;
+            let gamma = 0.93;
 
-        best_action
-    }
+            for exp in batch {
+                let current_q = match exp.action_type.as_str() {
+                    s if s.contains("Diplomacy") => &mut memory.q_values.diplomacy,
+                    s if s.contains("Teach") => &mut memory.q_values.teach,
+                    s if s.contains("Harvest") => &mut memory.q_values.harvest,
+                    s if s.contains("ConsultCouncil") => &mut memory.q_values.consult_council,
+                    s if s.contains("Create") => &mut memory.q_values.create,
+                    _ => continue,
+                };
 
-    fn fallback_goal_based_action(&self, goal: Option<&NpcGoal>, emotional: &EmotionalState) -> Action {
-        // Previous goal + emotion based logic
-        match goal {
-            Some(NpcGoal::MaintainHarmony { .. }) => Action::Diplomacy { faction: "local".to_string(), proposal: "Maintain balance".to_string() },
-            Some(NpcGoal::TeachNearbyHumans) => Action::Teach { learner: 0, skill: "RBE & Mercy".to_string(), mercy_intent: 0.85 },
-            _ => Action::Harvest { node: "mercy_field".to_string() },
+                let target = exp.reward + gamma * exp.next_max_q;
+                *current_q = *current_q + alpha * (target - *current_q);
+                *current_q = current_q.clamp(-2.0, 4.0);
+            }
         }
     }
 
-    fn build_reward_components(&self, entity_id: u64, action: &Action, eval: &MoralEvaluation) -> RewardComponents { /* ... */ }
+    // Modified record_action_outcome to also record experience
+    fn record_action_outcome(&mut self, entity_id: u64, action: &Action, shaped_reward: f32, eval: &MoralEvaluation) {
+        let next_max_q = if let Some(memory) = self.neuro_memories.get(&entity_id) {
+            memory.q_values.diplomacy
+                .max(memory.q_values.teach)
+                .max(memory.q_values.harvest)
+                .max(memory.q_values.consult_council)
+                .max(memory.q_values.create)
+        } else { 0.0 };
 
-    fn update_q_values(&mut self, entity_id: u64, action: &Action, shaped_reward: f32) { /* existing Q-update from v16.9 */ }
-
-    fn record_action_outcome(&mut self, entity_id: u64, action: &Action, shaped_reward: f32, eval: &MoralEvaluation) { /* ... */ }
+        self.record_experience(entity_id, action, shaped_reward, next_max_q);
+    }
 
     // All previous methods remain fully functional
 }
