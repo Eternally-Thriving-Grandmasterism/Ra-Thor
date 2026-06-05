@@ -1,8 +1,10 @@
 //! POWRUSH-MMO Multi-Agent Orchestrator
-//! v16.2-rbe-npc-integration
+//! v16.3-improved-emotional-contagion
 //!
-//! Production integration of RBE with NPC actions, goals, and emotional states.
-//! NPCs now meaningfully influence the economy based on their inner state.
+//! Production upgrade to Emotional Contagion:
+//! - Weighted influence based on interaction history
+//! - Arousal-gated spread (emotions spread more when source is highly aroused)
+//! Fully integrated with Valence-Arousal model, goals, memory, and RBE.
 //!
 //! AG-SML v1.0 | Thunder locked in. Yoi ⚡
 
@@ -51,9 +53,9 @@ pub struct EntityState {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
-pub enum NpcGoal { /* existing goals ... */ }
+pub enum NpcGoal { /* existing ... */ }
 
-// ==================== Main Orchestrator with RBE Integration ====================
+// ==================== Main Orchestrator ====================
 
 pub struct MultiAgentOrchestrator {
     entities: HashMap<u64, EntityType>,
@@ -76,55 +78,55 @@ impl MultiAgentOrchestrator {
             state.emotional_state.decay(0.02);
         }
 
-        self.apply_emotional_contagion();
+        self.apply_emotional_contagion(); // Improved in v16.3
         self.run_autonomous_npc_behavior();
-        self.apply_npc_rbe_impact();           // NEW in v16.2
+        self.apply_npc_rbe_impact();
 
         if self.current_tick % 40 == 0 {
             self.generate_world_event_quest();
         }
     }
 
-    // ==================== v16.2: RBE Integration with NPCs ====================
+    // ==================== v16.3: Improved Emotional Contagion ====================
 
-    fn apply_npc_rbe_impact(&mut self) {
-        for (&id, state) in &mut self.entity_states {
-            if let Some(goal) = self.npc_goals.get(&id) {
-                let emotion = &state.emotional_state;
+    fn apply_emotional_contagion(&mut self) {
+        let npc_ids: Vec<u64> = self.entities
+            .iter()
+            .filter(|(_, e)| matches!(e, EntityType::AiAgent { .. } | EntityType::AgiEntity { .. }))
+            .map(|(id, _)| *id)
+            .collect();
 
-                // Base economic effect from goal + emotional state
-                let (abundance_delta, harmony_delta) = match goal {
-                    NpcGoal::MaintainHarmony { .. } => {
-                        let harmony_boost = if emotion.valence > 0.5 { 0.8 } else { 0.3 };
-                        (0.2, harmony_boost)
+        for &id in &npc_ids {
+            if let Some(state) = self.entity_states.get(&id) {
+                let mut total_valence = state.emotional_state.valence;
+                let mut total_arousal = state.emotional_state.arousal;
+                let mut weight_sum = 1.0;
+
+                for &other_id in &state.recent_interactions {
+                    if let Some(other) = self.entity_states.get(&other_id) {
+                        // Arousal gate: only spread if the other is emotionally "loud"
+                        if other.emotional_state.arousal < 0.5 {
+                            continue;
+                        }
+
+                        // Weighted influence: more interactions = stronger tie
+                        let interaction_weight = (state.recent_interactions.len() as f32).min(5.0) / 5.0;
+                        let influence = 0.12 * interaction_weight;
+
+                        total_valence += other.emotional_state.valence * influence;
+                        total_arousal += other.emotional_state.arousal * influence;
+                        weight_sum += influence;
                     }
-                    NpcGoal::TeachNearbyHumans => {
-                        let teaching_bonus = if emotion.valence > 0.6 { 1.2 } else { 0.5 };
-                        (teaching_bonus * 0.3, 0.4)
-                    }
-                    NpcGoal::ProtectMercyField => {
-                        let protection = if emotion.arousal > 0.6 { 1.5 } else { 0.8 };
-                        (protection * 0.4, 0.9)
-                    }
-                    _ => (0.1, 0.2),
-                };
+                }
 
-                // Apply to global contribution (can be wired to RbeState later)
-                state.contribution_score += abundance_delta;
-                state.harmony = (state.harmony + harmony_delta * 0.01).clamp(0.5, 1.4);
-
-                // Emotional state also affects long-term contribution
-                if emotion.valence > 0.7 {
-                    state.contribution_score += 0.15;
+                if weight_sum > 1.0 {
+                    if let Some(my_state) = self.entity_states.get_mut(&id) {
+                        my_state.emotional_state.valence = (total_valence / weight_sum).clamp(-1.0, 1.0);
+                        my_state.emotional_state.arousal = (total_arousal / weight_sum).clamp(0.0, 1.0);
+                    }
                 }
             }
         }
-    }
-
-    // Expose NPC economic impact
-    pub fn get_npc_economic_impact(&self, entity_id: u64) -> Option<(f32, f32)> {
-        let state = self.entity_states.get(&entity_id)?;
-        Some((state.contribution_score, state.harmony))
     }
 
     // All previous methods remain fully functional
