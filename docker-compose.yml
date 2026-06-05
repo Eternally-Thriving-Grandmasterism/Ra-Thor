@@ -1,48 +1,31 @@
-# Powrush MMO Production docker-compose v14.11
-# PATSAGi Council + Ra-Thor Thunder approved
-# One command to rule them all: docker compose up --build
-
 version: '3.8'
 
 services:
-  powrush:
+  powrush-server:
     build:
       context: .
       dockerfile: Dockerfile
-    image: powrush-mmo:v14.11
-    container_name: powrush-mmo
-    restart: unless-stopped
+    image: powrush-mmo:latest
+    container_name: powrush-server
     ports:
-      - "7777:7777"   # TCP line protocol (nc localhost 7777)
-      - "7778:7778"   # WebSocket JSON protocol
-      - "8080:8080"   # Beautiful browser client → http://localhost:8080
+      - "7777:7777"      # TCP
+      - "7778:7778"      # WebSocket
+      - "8080:8080"      # HTTP + Client + Metrics
     environment:
       - POWRUSH_TCP_PORT=7777
       - POWRUSH_WS_PORT=7778
       - POWRUSH_HTTP_PORT=8080
       - POWRUSH_TICK_RATE_MS=100
       - POWRUSH_MAX_PLAYERS=128
-      - POWRUSH_WORLD_SIZE=10000
-      - POWRUSH_PRODUCTION_PER_TICK=1.5
-      - RUST_LOG=info
-    volumes:
-      # Persist logs and optional config
-      - powrush_logs:/app/logs
-      # Mount your config if you want to customize outside image
-      # - ./powrush_config.json:/app/powrush_config.json:ro
+    restart: unless-stopped
     healthcheck:
-      test: ["CMD", "nc", "-z", "localhost", "7777"]
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
       interval: 30s
-      timeout: 5s
+      timeout: 10s
       retries: 3
-      start_period: 15s
-    networks:
-      - powrush-net
+      start_period: 10s
 
-volumes:
-  powrush_logs:
-    driver: local
-
-networks:
-  powrush-net:
-    driver: bridge
+# Optional: Add a reverse proxy later for production TLS
+#   powrush-proxy:
+#     image: caddy:2
+#     ...
