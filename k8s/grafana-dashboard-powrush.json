@@ -1,0 +1,35 @@
+{
+  "dashboard": {
+    "title": "Powrush-MMO — Eternal Abundance & Mercy (v14.17+)",
+    "tags": ["powrush", "rbe", "mercy", "ra-thor"],
+    "time": { "from": "now-1h", "to": "now" },
+    "panels": [
+      {
+        "title": "Players Online by Faction",
+        "type": "stat",
+        "targets": [ { "expr": "powrush_players_online", "legendFormat": "{{faction}}" } ]
+      },
+      {
+        "title": "Total RBE Abundance",
+        "type": "graph",
+        "targets": [ { "expr": "powrush_rbe_abundance_total" } ]
+      },
+      {
+        "title": "Mercy Actions per Tick",
+        "type": "graph",
+        "targets": [ { "expr": "rate(powrush_mercy_actions_total[1m])" } ]
+      },
+      {
+        "title": "Current Server Tick",
+        "type": "stat",
+        "targets": [ { "expr": "powrush_current_tick" } ]
+      },
+      {
+        "title": "Reconciliation Events",
+        "type": "graph",
+        "targets": [ { "expr": "powrush_reconciliation_events_total" } ]
+      }
+    ]
+  },
+  "overwrite": true
+}
