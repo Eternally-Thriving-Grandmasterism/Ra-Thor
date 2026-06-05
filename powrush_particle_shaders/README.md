@@ -1,16 +1,13 @@
 # Powrush Particle Shaders
 
-## Visibility Buffer Shading (Compute Pass)
+## Visibility Pass Fragment Shader
 
-Added a clean, high-quality `VISIBILITY_BUFFER_SHADING` compute shader.
+Added `visibility::VISIBILITY_PASS`.
 
-Design goals:
-- Minimal but well-structured base
-- Uses SoA data access
-- Easy to extend with lighting, materials, and effects
-- Only shades pixels that have a valid particle in the visibility buffer
-
-This completes the core of the Visibility Buffer + Deferred Shading stage.
+This minimal, clean fragment shader is used during the rasterization stage
+to write the particle index into the visibility texture. It works together
+with the `VISIBILITY_BUFFER_SHADING` compute shader to form the full
+Visibility Buffer + Deferred Shading pipeline.
 
 ---
 *GPU-Driven Rendering (Production Quality)*
