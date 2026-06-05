@@ -3,19 +3,17 @@
 
 Core shaders and utilities for the particle system.
 
-## Data Layout
+## Architecture
 
-We are moving toward Structure of Arrays (SoA) for better GPU memory coalescing.
+The culling system is unified around **WaveLocal Reduction** as the primary technique.
+See `culling` module for the unified dispatch structure.
 */
 
-pub mod compute;
-pub mod culling;
-pub mod pipeline_manager;
+mod culling;
 
-pub use culling::{CullingConfig, CullingPass, CullingResources};
-pub use pipeline_manager::{
-    ComputePipelineManager, ComputePipelineType, SpecializationConstant, SpecializationValue,
-};
+pub use culling::{CullingConfig, CullingPass};
+
+pub mod compute;
 
 /// Parameters for compute culling passes.
 ///

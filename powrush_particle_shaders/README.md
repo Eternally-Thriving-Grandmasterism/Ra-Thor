@@ -1,21 +1,23 @@
 # Powrush Particle Shaders
 
-## Compute Pipeline Manager
+## Culling Architecture (Phase 1 Consolidation)
 
-Automatic pipeline cache persistence is now supported.
+The culling system has been unified around **WaveLocal Reduction** as the primary recommended technique.
 
-### Usage
+### Structure
 
-```rust
-let cache_path = Some(std::path::PathBuf::from("pipeline_cache.bin"));
-let mut manager = ComputePipelineManager::new(device, cache_path);
+- `CullingPass` — High-level abstraction for a culling pass.
+- `CullingConfig` — Configuration (workgroup size, etc.).
+- `compute::WAVE_LOCAL_REDUCTION_CULLING` — The shader used by the unified path.
 
-// ... use pipelines ...
+### Recommended Flow
 
-manager.destroy(); // Cache is automatically saved
-```
+1. Create `ComputeCullingParams`.
+2. Create `CullingPass`.
+3. Use `CullingPass::shader_source()` and `dispatch_size()` for dispatch.
+4. After dispatch, read `DrawIndirect` and visible indices.
 
-The cache is also saved automatically if the manager is dropped.
+This structure will be further unified in subsequent steps of Phase 1.
 
 ---
-*Phase 1 Consolidation*
+*Part of Ra-Thor Phase 1 Consolidation*
