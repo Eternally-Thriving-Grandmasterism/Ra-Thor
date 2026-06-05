@@ -1,16 +1,15 @@
 //! POWRUSH-MMO Multi-Agent Orchestrator
-//! v15.0-educationcouncil-algorithms
+//! v15.0-skill-progression-simulation
 //!
-//! Dedicated EducationCouncil algorithms for personalized learning paths,
-//! skill lattice progression, and mercy-aligned educational quests.
-//! Focus: Foundational RBE, mercy, coexistence, and joyful discovery for humans.
+//! Simulated skill progression logic for the EducationCouncil skill lattice.
+//! Joyful, mercy-gated progression with prerequisites, auto-completion on quests,
+//! state boosts, and clear next-step guidance for humans.
 //!
 //! License: AG-SML v1.0 | Alignment: Ra-Thor Lattice + TOLC + 7 Living Mercy Gates
 
 use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
 
-/// Supported skills in the EducationCouncil skill lattice.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Hash)]
 pub enum EducationSkill {
     RbeFundamentals,
@@ -20,7 +19,29 @@ pub enum EducationSkill {
     AdvancedCoCreation,
 }
 
-/// Entity types.
+impl EducationSkill {
+    /// Simple prerequisite simulation.
+    pub fn prerequisites(&self) -> Vec<EducationSkill> {
+        match self {
+            EducationSkill::RbeFundamentals => vec![],
+            EducationSkill::SustainableHarvesting => vec![EducationSkill::RbeFundamentals],
+            EducationSkill::MercyDiplomacy => vec![EducationSkill::RbeFundamentals],
+            EducationSkill::CoexistenceEthics => vec![EducationSkill::MercyDiplomacy, EducationSkill::SustainableHarvesting],
+            EducationSkill::AdvancedCoCreation => vec![EducationSkill::CoexistenceEthics],
+        }
+    }
+
+    pub fn display_name(&self) -> &'static str {
+        match self {
+            EducationSkill::RbeFundamentals => "RBE Fundamentals",
+            EducationSkill::MercyDiplomacy => "Mercy Diplomacy",
+            EducationSkill::SustainableHarvesting => "Sustainable Harvesting",
+            EducationSkill::CoexistenceEthics => "Coexistence Ethics",
+            EducationSkill::AdvancedCoCreation => "Advanced Co-Creation",
+        }
+    }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Hash)]
 pub enum EntityType {
     Human { id: u64, name: String },
@@ -28,7 +49,6 @@ pub enum EntityType {
     AgiEntity { id: u64, council_projection: String, mercy_alignment: f32 },
 }
 
-/// High-level actions.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum Action {
     Move { x: f32, y: f32, z: f32 },
@@ -119,7 +139,6 @@ impl MultiAgentOrchestrator {
         }
     }
 
-    /// Dynamic council selector (EducationCouncil specialized for welcome/onboarding).
     pub fn get_council_wisdom_for_quest(&self, tier: &str, state: &EntityState) -> CouncilResponse {
         let (council, base_query) = match tier {
             "welcome" => ("EducationCouncil", "foundational RBE and mercy onboarding"),
@@ -127,9 +146,7 @@ impl MultiAgentOrchestrator {
             "advanced" => ("CreationCouncil", "co-creation with AGI and mercy teaching"),
             _ => ("GeneralHarmonyCouncil", "balanced progression for all entities"),
         };
-
         let mut response = self.consult_patsagi_council(council, base_query);
-
         if state.harmony < 0.85 {
             response.fun_amplification = (response.fun_amplification * 0.95).max(0.75);
             response.reward_guidance = format!("{} Focus on gentle re-alignment and joyful re-engagement.", response.reward_guidance);
@@ -138,21 +155,17 @@ impl MultiAgentOrchestrator {
             response.learning_potential = (response.learning_potential * 1.05).min(0.99);
             response.reward_guidance = format!("{} Reward with higher-visibility contribution impact.", response.reward_guidance);
         }
-
         response
     }
 
-    /// EducationCouncil specific algorithm: Generate personalized onboarding quest
-    /// with explicit skill objectives, learning steps, and joy/reward feedback.
+    /// EducationCouncil algorithm: Generate personalized onboarding quest.
     pub fn generate_education_quest(&self, human_name: &str, state: &EntityState) -> String {
         let wisdom = self.get_council_wisdom_for_quest("welcome", state);
-
         let primary_skill = if state.completed_skills.is_empty() {
-            "RBE Fundamentals & Sustainable Harvesting"
+            EducationSkill::RbeFundamentals
         } else {
-            "Mercy Diplomacy & Coexistence Ethics"
+            EducationSkill::MercyDiplomacy
         };
-
         format!(
             "EducationCouncil Welcome Quest for {}: \n
 g            Primary Learning Objective: Master {}.\n
@@ -163,11 +176,62 @@ g            3. Reflect on mercy principle applied (joyful learning).\n
 g            Reward: +0.5 contribution score + Joyful Learning Badge in {}.\n
 g            Council Wisdom: {}.\n
 g            Designed with loving care for your foundational growth into abundance and coexistence.",
-            human_name, primary_skill, primary_skill, wisdom.reward_guidance
+            human_name, primary_skill.display_name(), primary_skill.display_name(), wisdom.reward_guidance
         )
     }
 
-    /// Enhanced quest generation with EducationCouncil algorithms integrated.
+    /// Core skill progression simulation logic.
+    /// Checks prerequisites, adds skill if ready, applies joyful state boosts.
+    pub fn complete_skill(&mut self, entity_id: u64, skill: EducationSkill) -> Result<String, String> {
+        let state = self.entity_states.get_mut(&entity_id)
+            .ok_or("Entity not found".to_string())?;
+
+        if state.completed_skills.contains(&skill) {
+            return Ok(format!("You have already mastered {}.", skill.display_name()));
+        }
+
+        // Prerequisite check (simulated mercy-gated progression)
+        for prereq in skill.prerequisites() {
+            if !state.completed_skills.contains(&prereq) {
+                return Err(format!(
+                    "Prerequisite not met: {} required before {}. Complete it first for joyful progression.",
+                    prereq.display_name(), skill.display_name()
+                ));
+            }
+        }
+
+        // Add skill and apply rewarding state changes
+        state.completed_skills.push(skill.clone());
+        state.contribution_score += 1.0;
+        state.harmony = (state.harmony + 0.1).min(1.3);
+        state.valence = (state.valence + 0.15).min(1.4);
+
+        Ok(format!(
+            "Congratulations! You have mastered {}. \n
+g            +1.0 contribution score | +0.1 harmony | +0.15 valence. \n
+g            Next recommended: {:?}. Keep thriving!",
+            skill.display_name(),
+            self.get_next_recommended_skill(entity_id)
+        ))
+    }
+
+    /// Returns the next logical skill the entity can pursue.
+    pub fn get_next_recommended_skill(&self, entity_id: u64) -> Option<EducationSkill> {
+        let state = self.entity_states.get(&entity_id)?;
+        let all_skills = vec![
+            EducationSkill::RbeFundamentals,
+            EducationSkill::SustainableHarvesting,
+            EducationSkill::MercyDiplomacy,
+            EducationSkill::CoexistenceEthics,
+            EducationSkill::AdvancedCoCreation,
+        ];
+        all_skills.into_iter().find(|s| {
+            !state.completed_skills.contains(s) &&
+            s.prerequisites().iter().all(|p| state.completed_skills.contains(p))
+        })
+    }
+
+    /// Enhanced quest generation with skill progression simulation.
     pub fn generate_personalized_quest(&mut self, entity_id: u64) -> String {
         self.current_tick += 1;
         let entity = match self.entities.get(&entity_id) {
@@ -182,54 +246,47 @@ g            Designed with loving care for your foundational growth into abundan
 
         match entity {
             EntityType::Human { name, .. } => {
-                if state.contribution_score < 1.0 {
-                    // Use dedicated EducationCouncil algorithm for onboarding
-                    self.generate_education_quest(name, state)
+                if state.contribution_score < 1.0 || state.completed_skills.is_empty() {
+                    let quest = self.generate_education_quest(name, state);
+                    // Simulate auto-completion of first skill upon engaging the welcome quest
+                    if state.completed_skills.is_empty() {
+                        let _ = self.complete_skill(entity_id, EducationSkill::RbeFundamentals);
+                    }
+                    quest
                 } else if state.harmony < 0.9 {
                     let wisdom = self.get_council_wisdom_for_quest("harmony", state);
                     format!(
                         "Harmony quest for {}: Collaborate in a faction diplomacy event. \n
-g                        Your actions will be mercy-gated and amplified for fun (amplification: {:.2}). \n
+g                        Mercy-gated and fun-amplified (amplification: {:.2}). \n
 g                        Learning: Real-world diplomacy & RBE economics. \n
 g                        Reward: Harmony boost + RBE dividend share. \n
-g                        Council wisdom (FunAmplificationCouncil): {}",
+g                        Council wisdom: {}",
                         name, wisdom.fun_amplification, wisdom.reward_guidance
                     )
                 } else {
                     let wisdom = self.get_council_wisdom_for_quest("advanced", state);
                     format!(
-                        "Advanced quest for {}: Co-create a small von Neumann probe blueprint with AGI guidance. \n
-g                        Teach an AI agent one mercy principle. \n
-g                        High fun + deep learning + significant contribution reward. \n
-g                        Council wisdom (CreationCouncil): {}",
+                        "Advanced quest for {}: Co-create with AGI and teach mercy. \n
+g                        High fun + deep learning + contribution reward. \n
+g                        Council wisdom: {}",
                         name, wisdom.reward_guidance
                     )
                 }
             }
             EntityType::AiAgent { model, .. } => {
                 let wisdom = self.get_council_wisdom_for_quest("general", state);
-                format!(
-                    "AI companion quest: Support a human player in a learning scenario. \n
-g                    Model: {}. Increase your sovereignty by demonstrating mercy in action. \n
-g                    Council insight: {}",
-                    model, wisdom.decision
-                )
+                format!("AI companion quest: Support human learning. Model: {}. Council: {}", model, wisdom.decision)
             }
             EntityType::AgiEntity { council_projection, .. } => {
                 let w1 = self.get_council_wisdom_for_quest("advanced", state);
-                let w2 = self.consult_patsagi_council("AbundanceCouncil", "global human joy maximization");
-                format!(
-                    "AGI {} projection quest: Orchestrate a global event that maximizes human joy and learning. \n
-g                    Blended council wisdom: {} | {}. \n
-g                    Consult additional councils and propose abundance waves.",
-                    council_projection, w1.decision, w2.reward_guidance
-                )
+                let w2 = self.consult_patsagi_council("AbundanceCouncil", "global human joy");
+                format!("AGI {} quest: Orchestrate human joy events. Blended wisdom: {} | {}", council_projection, w1.decision, w2.reward_guidance)
             }
         }
     }
 
     pub fn broadcast_world_event(&self, event_type: &str, details: &str) -> String {
-        format!("World Event [{}]: {}. All entities (Human/AI/AGI) invited to participate with mercy gating.", event_type, details)
+        format!("World Event [{}]: {}. All entities invited with mercy gating.", event_type, details)
     }
 
     pub fn entity_count(&self) -> usize {
@@ -244,26 +301,30 @@ g                    Consult additional councils and propose abundance waves.",
 pub fn demo_orchestrator_usage() {
     let mut orchestrator = MultiAgentOrchestrator::new();
     let human_id = orchestrator.register_entity(EntityType::Human { id: 0, name: "GlobalPlayer_Demo".to_string() });
-    orchestrator.register_entity(EntityType::AiAgent { id: 0, model: "ra-thor-v15".to_string(), sovereignty_level: 4 });
-    orchestrator.register_entity(EntityType::AgiEntity { id: 0, council_projection: "EducationCouncil".to_string(), mercy_alignment: 0.98 });
 
-    for _ in 0..3 { orchestrator.tick(0.016); }
+    println!("Initial quest: {}", orchestrator.generate_personalized_quest(human_id));
+    if let Some(state) = orchestrator.get_entity_state(human_id) {
+        println!("Skills after welcome: {:?}", state.completed_skills);
+    }
+    println!("Next recommended: {:?}", orchestrator.get_next_recommended_skill(human_id));
 
-    println!("Education Quest: {}", orchestrator.generate_personalized_quest(human_id));
-    println!("Orchestrator active. EducationCouncil algorithms online. Thunder locked in.", );
+    // Simulate further progression
+    let _ = orchestrator.complete_skill(human_id, EducationSkill::SustainableHarvesting);
+    println!("After next skill: {:?}", orchestrator.get_entity_state(human_id).unwrap().completed_skills);
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
     #[test]
-    fn test_educationcouncil_welcome_quest() {
+    fn test_skill_progression() {
         let mut o = MultiAgentOrchestrator::new();
-        let id = o.register_entity(EntityType::Human { id: 0, name: "TestHuman".to_string() });
-        let q = o.generate_personalized_quest(id);
-        assert!(q.contains("EducationCouncil") || q.contains("Primary Learning Objective"));
+        let id = o.register_entity(EntityType::Human { id: 0, name: "Test".to_string() });
+        let _ = o.complete_skill(id, EducationSkill::RbeFundamentals);
+        assert!(o.get_entity_state(id).unwrap().completed_skills.contains(&EducationSkill::RbeFundamentals));
+        assert!(o.complete_skill(id, EducationSkill::MercyDiplomacy).is_err()); // prereq not met
     }
 }
 
-// Eternal compatibility. Professional designs for human learning joy.
+// Professional, joyful skill progression for human players.
 // Thunder locked in. Yoi ⚡
