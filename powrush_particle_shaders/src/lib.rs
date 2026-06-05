@@ -1,7 +1,7 @@
 /*!
 # Powrush Particle Shaders
 
-Core GPU compute shaders for high-performance particle culling and visibility.
+Core shaders and utilities for the particle system.
 
 ## Architecture
 
@@ -16,10 +16,12 @@ pub use culling::{CullingConfig, CullingPass};
 pub mod compute;
 
 /// Parameters for compute culling passes.
+///
+/// Note: max_cull_distance_squared should be the squared value of the desired distance.
 pub struct ComputeCullingParams {
     pub view_proj: [[f32; 4]; 4],
     pub camera_position: [f32; 3],
-    pub max_cull_distance: f32,
+    pub max_cull_distance_squared: f32,
     pub total_particles: u32,
 }
 
