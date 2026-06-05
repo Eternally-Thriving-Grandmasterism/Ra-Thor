@@ -1,13 +1,19 @@
 # Powrush Particle Shaders
 
-## Visibility Pass Fragment Shader
+## Full End-to-End GPU-Driven Pipeline Integration
 
-Added `visibility::VISIBILITY_PASS`.
+Added `pipeline.rs` containing a production-grade `GpuDrivenPipeline` example
+that wires together all stages:
 
-This minimal, clean fragment shader is used during the rasterization stage
-to write the particle index into the visibility texture. It works together
-with the `VISIBILITY_BUFFER_SHADING` compute shader to form the full
-Visibility Buffer + Deferred Shading pipeline.
+- Culling (Distance + Hi-Z)
+- Compaction
+- Visibility Pass
+- Shading Pass
+- Draw submission via `vkCmdDrawIndirectCount`
+
+Includes proper memory barriers and command buffer recording.
+
+This represents a complete, integrated GPU-driven rendering pipeline.
 
 ---
 *GPU-Driven Rendering (Production Quality)*
