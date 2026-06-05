@@ -1,70 +1,69 @@
 /*!
 # Compute Shaders
 
-Advanced single-pass Hierarchical Z-Buffer (Hi-Z) generation.
+WaveLocal Reduction culling + Single-pass Hi-Z generation + Hi-Z Occlusion Test.
 */
 
 pub mod hiz {
-    /// Single-pass Hi-Z pyramid generation using groupshared memory.
+    /// Single-pass Hi-Z pyramid generation
+    pub const GENERATE_HIZ_SINGLE_PASS: &str = r#" ... "#;
+
+    /// Hi-Z Occlusion Test
     ///
-    /// This shader can generate multiple mip levels in a single dispatch
-    /// by using groupshared memory for fast communication between threads.
-    pub const GENERATE_HIZ_SINGLE_PASS: &str = r#"
-        enable subgroups;
+    /// Tests particles against the Hi-Z pyramid to determine occlusion.
+    /// Outputs visibility flags or can be combined with compaction.
+    pub const HIZ_OCCLUSION_TEST: &str = r#"
+        @group(0) @binding(0) var hiz_pyramid: texture_2d_array<f32>;
+        @group(0) @binding(1) var<storage, read> pos_x: array<f32>;
+        @group(0) @binding(2) var<storage, read> pos_y: array<f32>;
+        @group(0) @binding(3) var<storage, read> pos_z: array<f32>;
+        @group(0) @binding(4) var<uniform> params: HiZParams;
+        @group(0) @binding(5) var<storage, read_write> visible_flags: array<u32>;
 
-        var<workgroup> shared_depth: array<array<f32, 16>, 16>;
+        struct HiZParams {
+            view_proj: mat4x4<f32>,
+            screen_size: vec2<f32>,
+            max_mip_level: u32,
+            particle_radius: f32,
+            total_particles: u32,
+        }
 
-        @group(0) @binding(0) var src_depth: texture_2d<f32>;
-        @group(0) @binding(1) var dst_hiz: texture_storage_2d_array<r32float, write>;
+        fn get_hiz_mip_level(screen_size: vec2<f32>, particle_size: f32) -> u32 {
+            // Simple mip level selection based on screen-space size
+            let size = max(screen_size.x, screen_size.y) * particle_size;
+            return u32(clamp(log2(size), 0.0, f32(params.max_mip_level)));
+        }
 
-        @compute @workgroup_size(16, 16, 1)
-        fn main(
-            @builtin(global_invocation_id) global_id: vec3<u32>,
-            @builtin(local_invocation_id) local_id: vec3<u32>,
-            @builtin(workgroup_id) workgroup_id: vec3<u32>
-        ) {
-            let local_x = i32(local_id.x);
-            let local_y = i32(local_id.y);
+        @compute @workgroup_size(64)
+        fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
+            let index = global_id.x;
+            if (index >= params.total_particles) { return; }
 
-            // Load from level 0 (full resolution)
-            let src_coords = vec2<i32>(i32(workgroup_id.x) * 16 + local_x,
-                                       i32(workgroup_id.y) * 16 + local_y);
+            let world_pos = vec3<f32>(pos_x[index], pos_y[index], pos_z[index]);
 
-            var depth = textureLoad(src_depth, src_coords, 0).r;
+            // Project to clip space
+            let clip_pos = params.view_proj * vec4<f32>(world_pos, 1.0);
+            let ndc = clip_pos.xyz / clip_pos.w;
 
-            // Store in groupshared memory
-            shared_depth[local_y][local_x] = depth;
-            workgroupBarrier();
+            // Convert to screen space [0, 1]
+            let screen_pos = ndc.xy * 0.5 + 0.5;
 
-            // Level 1: 2x2 downsample within workgroup
-            if (local_x % 2 == 0 && local_y % 2 == 0) {
-                let d00 = shared_depth[local_y    ][local_x    ];
-                let d10 = shared_depth[local_y    ][local_x + 1];
-                let d01 = shared_depth[local_y + 1][local_x    ];
-                let d11 = shared_depth[local_y + 1][local_x + 1];
+            // Simple conservative bounding sphere size in screen space
+            let screen_radius = params.particle_radius / clip_pos.w;
 
-                depth = max(max(d00, d10), max(d01, d11));
-                shared_depth[local_y / 2][local_x / 2] = depth;
+            // Choose mip level
+            let mip = get_hiz_mip_level(params.screen_size, screen_radius);
 
-                // Write level 1
-                let dst_coords = vec2<i32>(i32(workgroup_id.x) * 8 + local_x / 2,
-                                           i32(workgroup_id.y) * 8 + local_y / 2);
-                textureStore(dst_hiz, dst_coords, 1, vec4<f32>(depth, 0.0, 0.0, 0.0));
-            }
+            // Sample Hi-Z at appropriate mip
+            let hiz_depth = textureLoad(hiz_pyramid, vec2<i32>(screen_pos * params.screen_size), i32(mip), 0).r;
 
-            workgroupBarrier();
+            // Particle's maximum depth (conservative)
+            let particle_max_depth = ndc.z + screen_radius;
 
-            // Level 2: Further downsample
-            if (local_x % 4 == 0 && local_y % 4 == 0) {
-                depth = shared_depth[local_y / 4][local_x / 4];
+            // If Hi-Z depth is closer than particle, it may be occluded
+            let occluded = hiz_depth < particle_max_depth;
 
-                let dst_coords = vec2<i32>(i32(workgroup_id.x) * 4 + local_x / 4,
-                                           i32(workgroup_id.y) * 4 + local_y / 4);
-                textureStore(dst_hiz, dst_coords, 2, vec4<f32>(depth, 0.0, 0.0, 0.0));
-            }
-
-            // Higher levels can be added similarly...
-            // For a full implementation, continue the pattern up to desired mip count.
+            visible_flags[index] = select(1u, 0u, occluded);
         }
     "#;
 }

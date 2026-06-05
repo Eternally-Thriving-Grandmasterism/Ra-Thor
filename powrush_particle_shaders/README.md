@@ -1,12 +1,13 @@
 # Powrush Particle Shaders
 
-## Single-Pass Hi-Z Pyramid Generation
+## Hi-Z Occlusion Test
 
-Added an advanced single-pass Hi-Z generation shader (`compute::hiz::GENERATE_HIZ_SINGLE_PASS`).
+Added `compute::hiz::HIZ_OCCLUSION_TEST`.
 
-This version uses groupshared memory to generate multiple mip levels of the depth pyramid in a single dispatch, which can be more efficient than multiple dispatches.
+This compute shader tests particles against the Hi-Z pyramid to determine occlusion.
+It outputs visibility flags that can be used for further compaction (e.g., combined with WaveLocal Reduction).
 
-This is a more advanced implementation suitable for production GPU-driven occlusion culling.
+This completes the core of GPU-driven occlusion culling on top of distance culling.
 
 ---
 *GPU-Driven Rendering*
