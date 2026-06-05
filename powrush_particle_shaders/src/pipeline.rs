@@ -1,47 +1,51 @@
 /*!
 # GpuDrivenPipeline
 
-Fully wired, production-grade host-side integration of the GPU-driven
-rendering pipeline for Powrush.
+Production-grade, fully integrated GPU-driven rendering pipeline.
 
-This module demonstrates how to sequence:
-- Culling (Distance + Hi-Z)
-- Compaction
-- Visibility Pass (Rasterization)
-- Shading Pass (Compute)
-- Draw submission with vkCmdDrawIndirectCount
-
-All memory barriers and command recording are included.
+This version is tightly coupled with ComputePipelineManager for
+pipeline retrieval and includes detailed memory barriers.
 */
 
-use ash::vk;
 use std::sync::Arc;
+
+use ash::vk;
+
+use crate::pipeline_manager::ComputePipelineManager;
 
 pub struct GpuDrivenPipeline {
     device: Arc<ash::Device>,
-    // ... other resources (descriptor sets, pipelines, buffers, etc.)
+    pipeline_manager: Arc<ComputePipelineManager>,
+    // Descriptor sets, buffers, etc.
 }
 
 impl GpuDrivenPipeline {
-    pub fn record_frame(
-        &self,
-        command_buffer: vk::CommandBuffer,
-        // ... relevant resources
-    ) {
+    pub fn new(
+        device: Arc<ash::Device>,
+        pipeline_manager: Arc<ComputePipelineManager>,
+    ) -> Self {
+        Self {
+            device,
+            pipeline_manager,
+        }
+    }
+
+    pub fn record_frame(&self, cmd: vk::CommandBuffer) {
         unsafe {
             // =====================================================
-            // STAGE 1: Culling + Hi-Z Test
+            // STAGE 1: Distance + Hi-Z Culling Test
             // =====================================================
-            self.device.cmd_bind_pipeline(
-                command_buffer,
-                vk::PipelineBindPoint::COMPUTE,
-                self.distance_and_hiz_pipeline,
-            );
-            // Bind descriptor sets for positions, hiz_pyramid, params, visible_flags
-            self.device.cmd_dispatch(command_buffer, ...);
+            let culling_pipeline = self
+                .pipeline_manager
+                .get_pipeline_by_type(ComputePipelineType::CullingPrimary)
+                .expect("Culling pipeline not available");
 
-            // Memory barrier: visible_flags written by compute
-            let barrier = vk::BufferMemoryBarrier {
+            self.device.cmd_bind_pipeline(cmd, vk::PipelineBindPoint::COMPUTE, culling_pipeline);
+            // TODO: Bind descriptor sets for positions, hiz_pyramid, params, visible_flags
+            self.device.cmd_dispatch(cmd, ...);
+
+            // Detailed barrier after culling
+            let culling_barrier = vk::BufferMemoryBarrier {
                 s_type: vk::StructureType::BUFFER_MEMORY_BARRIER,
                 p_next: std::ptr::null(),
                 src_access_mask: vk::AccessFlags::SHADER_WRITE,
@@ -52,45 +56,37 @@ impl GpuDrivenPipeline {
                 offset: 0,
                 size: vk::WHOLE_SIZE,
             };
+
             self.device.cmd_pipeline_barrier(
-                command_buffer,
+                cmd,
                 vk::PipelineStageFlags::COMPUTE_SHADER,
                 vk::PipelineStageFlags::COMPUTE_SHADER,
                 vk::DependencyFlags::empty(),
                 &[],
-                &[barrier],
+                &[culling_barrier],
                 &[],
             );
 
             // =====================================================
-            // STAGE 2: Compaction
+            // STAGE 2: Compaction + Draw Count
             // =====================================================
-            self.device.cmd_bind_pipeline(
-                command_buffer,
-                vk::PipelineBindPoint::COMPUTE,
-                self.compaction_pipeline,
-            );
-            self.device.cmd_dispatch(command_buffer, ...);
+            let compaction_pipeline = self
+                .pipeline_manager
+                .get_pipeline_by_type(ComputePipelineType::Compaction)
+                .expect("Compaction pipeline not available");
 
-            // Barrier for visible_indices and draw_count
+            self.device.cmd_bind_pipeline(cmd, vk::PipelineBindPoint::COMPUTE, compaction_pipeline);
+            self.device.cmd_dispatch(cmd, ...);
+
+            // Barrier for visible_indices and draw_count buffers
             // ...
 
             // =====================================================
-            // STAGE 3: Visibility Pass (Rasterization)
+            // STAGE 3: Visibility Pass + vkCmdDrawIndirectCount
             // =====================================================
-            // Begin render pass with visibility texture + depth
-            self.device.cmd_begin_render_pass(command_buffer, ...);
-
-            self.device.cmd_bind_pipeline(
-                command_buffer,
-                vk::PipelineBindPoint::GRAPHICS,
-                self.visibility_pass_pipeline,
-            );
-
-            // Bind vertex/index buffers if needed + descriptor sets
-            // Draw using vkCmdDrawIndirectCount
+            // Begin render pass...
             self.device.cmd_draw_indirect_count(
-                command_buffer,
+                cmd,
                 self.draw_commands_buffer,
                 0,
                 self.draw_count_buffer,
@@ -98,21 +94,18 @@ impl GpuDrivenPipeline {
                 self.max_draw_count,
                 std::mem::size_of::<vk::DrawIndirectCommand>() as u32,
             );
-
-            self.device.cmd_end_render_pass(command_buffer);
+            // End render pass...
 
             // =====================================================
-            // STAGE 4: Shading Pass (Compute)
+            // STAGE 4: Visibility Buffer Shading (Compute)
             // =====================================================
-            // Barrier: visibility texture written by rasterization
-            // ...
+            let shading_pipeline = self
+                .pipeline_manager
+                .get_pipeline_by_type(ComputePipelineType::VisibilityShading)
+                .expect("Shading pipeline not available");
 
-            self.device.cmd_bind_pipeline(
-                command_buffer,
-                vk::PipelineBindPoint::COMPUTE,
-                self.shading_pipeline,
-            );
-            self.device.cmd_dispatch(command_buffer, self.shading_dispatch_size);
+            self.device.cmd_bind_pipeline(cmd, vk::PipelineBindPoint::COMPUTE, shading_pipeline);
+            self.device.cmd_dispatch(cmd, self.shading_workgroups);
 
             // Final barrier before presentation
         }

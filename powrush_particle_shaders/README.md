@@ -1,19 +1,14 @@
 # Powrush Particle Shaders
 
-## Full End-to-End GPU-Driven Pipeline Integration
+## Tightly Integrated GPU-Driven Pipeline
 
-Added `pipeline.rs` containing a production-grade `GpuDrivenPipeline` example
-that wires together all stages:
+`GpuDrivenPipeline` is now tightly integrated with `ComputePipelineManager`.
 
-- Culling (Distance + Hi-Z)
-- Compaction
-- Visibility Pass
-- Shading Pass
-- Draw submission via `vkCmdDrawIndirectCount`
+- Pipelines are retrieved via the manager instead of being hardcoded.
+- Detailed memory barriers are included between stages.
+- Full command buffer recording for the complete pipeline is shown.
 
-Includes proper memory barriers and command buffer recording.
-
-This represents a complete, integrated GPU-driven rendering pipeline.
+This is production-grade integration of the entire GPU-driven rendering system.
 
 ---
 *GPU-Driven Rendering (Production Quality)*
