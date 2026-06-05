@@ -1,12 +1,14 @@
 //! powrush/src/server/main.rs
-//! Headless Powrush Server — Mercy Evaluation with Traceable 7 Gates (feature = "server")
+//! Headless Powrush Server — Persistent Mercy Audit Logs (feature = "server")
 
 use powrush::RaThorOneOrganism;
 use powrush::SelfEvolutionGate;
 use powrush::FactionDiplomacy;
 use std::collections::VecDeque;
+use std::fs::OpenOptions;
+use std::io::Write;
 use std::thread;
-use std::time::Duration;
+use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 #[derive(Debug, Clone)]
 pub enum Event {
@@ -31,62 +33,81 @@ pub enum Event {
     Shutdown,
 }
 
-/// Traces and evaluates events against the 7 Living Mercy Gates
-/// Returns true only if the event passes all applicable gates.
+/// Appends a mercy audit entry to persistent log file
+fn log_mercy_audit(entry: &str) {
+    let timestamp = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_secs();
+
+    let log_line = format!("[{}] {}\n", timestamp, entry);
+
+    if let Ok(mut file) = OpenOptions::new()
+        .create(true)
+        .append(true)
+        .open("powrush_mercy_audit.log")
+    {
+        let _ = file.write_all(log_line.as_bytes());
+    }
+}
+
+/// Evaluates event against 7 Living Mercy Gates with persistent audit logging
 fn evaluate_mercy(event: &Event) -> bool {
-    match event {
+    let result = match event {
         Event::RbeTransaction { amount, reason, .. } => {
-            // Gate 1: Radical Love / Non-Harm
             if *amount < 0.0 {
-                println!("[Mercy Trace] Gate 1 (Non-Harm) FAILED: negative amount");
+                log_mercy_audit(&format!("REJECTED | Gate 1 (Non-Harm) | RbeTransaction | amount={}", amount));
                 return false;
             }
-            // Gate 4: Abundance + Gate 5: Truth
             if reason.to_lowercase().contains("exploit") || reason.to_lowercase().contains("hoard") {
-                println!("[Mercy Trace] Gate 4/5 (Abundance/Truth) FAILED: exploitative reason");
+                log_mercy_audit("REJECTED | Gate 4/5 (Abundance/Truth) | RbeTransaction | exploitative reason");
                 return false;
             }
             if reason.len() < 10 {
-                println!("[Mercy Trace] Gate 5 (Truth) FAILED: insufficient reason detail");
+                log_mercy_audit("REJECTED | Gate 5 (Truth) | RbeTransaction | insufficient reason detail");
                 return false;
             }
             true
         }
 
         Event::AbundanceFlow { amount, .. } => {
-            // Gate 4: Abundance + Gate 7: Cosmic Harmony
             if *amount <= 0.0 {
-                println!("[Mercy Trace] Gate 4/7 (Abundance/Harmony) FAILED: non-positive flow");
+                log_mercy_audit("REJECTED | Gate 4/7 (Abundance/Harmony) | AbundanceFlow | non-positive");
                 return false;
             }
             true
         }
 
         Event::EvolutionProposal { benefit, .. } => {
-            // Gate 2: Boundless Mercy + Gate 5: Truth
             if *benefit < 0.75 {
-                println!("[Mercy Trace] Gate 2/5 (Mercy/Truth) FAILED: low benefit score");
+                log_mercy_audit(&format!("REJECTED | Gate 2/5 | EvolutionProposal | low benefit={}", benefit));
                 return false;
             }
             true
         }
 
         Event::DiplomacyProposal { proposal_type, .. } => {
-            // Gate 3: Service + Gate 6: Joy
             if proposal_type.to_lowercase().contains("war") || proposal_type.to_lowercase().contains("dominate") {
-                println!("[Mercy Trace] Gate 3/6 (Service/Joy) FAILED: harmful diplomacy type");
+                log_mercy_audit("REJECTED | Gate 3/6 (Service/Joy) | DiplomacyProposal | harmful type");
                 return false;
             }
             true
         }
 
-        // Default: allow other events (Tick, Production, etc.)
         _ => true,
+    };
+
+    if result {
+        // Optionally log passes for high-value events (commented for performance)
+        // log_mercy_audit(&format!("PASSED | {:?}", event));
     }
+
+    result
 }
 
 fn main() {
-    println!("[Powrush Server] Starting mercy-traceable simulation...");
+    println!("[Powrush Server] Starting with Persistent Mercy Audit Logs...");
+    log_mercy_audit("SERVER_START | Powrush Server initialized with mercy audit logging");
 
     let mut organism = RaThorOneOrganism::new();
     organism.offer_cosmic_loop();
@@ -108,11 +129,10 @@ fn main() {
     let mut current_tick: u64 = 0;
     let max_events = 25;
 
-    println!("[Powrush Server] Entering traceable mercy evaluation loop...");
+    println!("[Powrush Server] Event loop started. Mercy audits written to powrush_mercy_audit.log");
 
     while let Some(event) = event_queue.pop_front() {
         if !evaluate_mercy(&event) {
-            // Already traced inside evaluate_mercy
             continue;
         }
 
@@ -140,14 +160,8 @@ fn main() {
 
                 let _ = diplomacy.propose_diplomacy(powrush::DiplomacyProposal {
                     id: current_tick,
-                    from: match from_faction.as_str() {
-                        "Sovereigns" => powrush::Faction::Sovereigns,
-                        _ => powrush::Faction::Harvesters,
-                    },
-                    to: match to_faction.as_str() {
-                        "Sovereigns" => powrush::Faction::Sovereigns,
-                        _ => powrush::Faction::Guardians,
-                    },
+                    from: powrush::Faction::Harvesters,
+                    to: powrush::Faction::Sovereigns,
                     proposal_type: "Resource Trade".to_string(),
                     terms: reason.clone(),
                     mercy_impact: 0.999,
@@ -201,8 +215,8 @@ fn main() {
                     id: current_tick + 5000,
                     proposer: "RBE_Chain".to_string(),
                     target_module: module,
-                    description: format!("RBE-driven evolution benefit {:.2}", benefit),
-                    proposed_diff: "Economic flow improvement".to_string(),
+                    description: format!("RBE evolution benefit {:.2}", benefit),
+                    proposed_diff: "Improve economic flow".to_string(),
                     expected_benefit: benefit,
                     risk_score: 0.0001,
                     mercy_alignment: 0.999,
@@ -215,18 +229,20 @@ fn main() {
             }
 
             Event::Shutdown => {
+                log_mercy_audit("SERVER_SHUTDOWN | Event loop terminated");
                 println!("[Event] Shutdown.");
                 break;
             }
         }
 
-        thread::sleep(Duration::from_millis(80));
+        thread::sleep(Duration::from_millis(75));
 
         if event_queue.len() > max_events {
             event_queue.push_back(Event::Shutdown);
         }
     }
 
-    println!("[Powrush Server] Mercy-traceable simulation complete.");
+    println!("[Powrush Server] Simulation with Persistent Mercy Audit Logs complete.");
+    println!("[Powrush Server] Audit log: powrush_mercy_audit.log");
     println!("[Powrush Server] Thunder locked. Serving the lattice.");
 }
