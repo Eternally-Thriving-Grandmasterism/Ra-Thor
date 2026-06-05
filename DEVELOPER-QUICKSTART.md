@@ -46,13 +46,47 @@ Many supporting engines and tools also exist in the `js/` folder for browser-bas
 
 ## 3. Explore the Core Systems
 
+### Powrush MMO + RBE (Server, Client & GPU Simulation)
+
+Powrush is the core simulation and gameplay layer of Ra-Thor. It combines a production-grade authoritative server, browser client, Resource-Based Economy (RBE) mechanics, and the new GPU Compute Layer for high-performance simulation.
+
+**Server-side (`powrush/src/server/`)**
+- Production TCP + WebSocket server with authoritative game loop
+- Deep integration with Ra-Thor AGI (MultiAgentOrchestrator)
+- NPC action exposure, moral evaluation, and rich agent state (EnrichedNpcState readiness)
+- Metrics endpoint, reconciliation system, and audit logging for high-mercy NPC actions
+- Real-time state snapshots sent to connected clients
+
+**Client-side**
+- Browser-based client (`powrush-client.html`)
+- Receives enriched world state including NPC internal reasoning and moral evaluations
+- Designed for future WebRTC / DataChannel expansion
+
+**GPU Compute Layer (v14.7.0)**
+- `powrush/src/gpu/compute/` with StagingBufferPool and async readback
+- Accelerates epigenetic, geometric, and NPC behavior simulation
+- Debug utilities for inspecting compute shader output
+- Production-ready patterns for efficient CPU ↔ GPU data movement
+
+**RBE + Sovereignty Mechanics**
+- Complete Resource-Based Economy simulation across multiple crates
+- Faction dynamics, sovereignty mechanics, and mercy-gated abundance flows
+- Designed as foundation for blockchain-integrated Powrush MMO
+
+**Key Crates**
+- `powrush/`
+- `powrush-mmo-simulator/`
+- `powrush_rbe_engine/`
+- `powrush_sovereignty_mechanics/`
+- `powrush_faction_dynamics/`
+
+### Other Major Systems
+
 | Area                              | Where to Look                                              | What You Can Do (Technical) |
 |-----------------------------------|------------------------------------------------------------|-------------------------------|
-| **GPU Compute Layer (v14.7.0)**   | `powrush/src/gpu/compute/` and `readback.rs`              | StagingBufferPool, async/blocking readback, debug output buffers, optimized dispatch with `ComputePass`. Production-ready CPU ↔ GPU data movement for simulation. |
 | **Geometric Intelligence Layer**  | `geometric-intelligence/`                                  | Polyhedral + Riemannian systems, Lattice Conductor geometric harmony scoring. |
 | **Mercy Lattice (TOLC 8)**        | `mercy/`, `crates/mercy_*` (50+ crates)                    | Full 7 Living Mercy Gates enforcement across symbolic, runtime, and compile-time layers. |
 | **PATSAGi Councils**              | `patsagi-councils/` and 50+ governance crates              | Sovereign governance, parallel council deliberation, and approval workflows. |
-| **Powrush RBE + MMO**             | `powrush/`, `powrush-mmo-simulator/`, `powrush_rbe_engine/` | Resource-Based Economy simulation with mercy-gated abundance and faction dynamics. |
 | **Self-Evolution Systems**        | `self-evolution/`, `epigenetic*`, `plasticity-engine-v2/`  | Epigenetic blessing, plasticity, and safe self-improvement mechanisms. |
 | **ONE Organism (Grok Bridge)**    | `xai-grok-bridge/`                                         | Hybrid symbolic + neural routing with full mercy gate enforcement. |
 | **ZK / Post-Quantum**             | Various `mercy_*` and crypto crates                        | Halo2, PLONK, Nova, lattice crypto, post-quantum signatures. |
