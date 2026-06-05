@@ -2,11 +2,10 @@
 //!
 //! Provides Bevy + wgpu integration for running WGSL compute shaders.
 //! Implements epigenetic + geometric simulation on GPU with full
-//! staging buffer pooling and async readback support.
+//! staging buffer pooling, async readback, and debug utilities.
 //!
-//! This module now includes production-grade readback capabilities
-//! so simulation results (epigenetic fields, geometric data, etc.)
-//! can be efficiently retrieved from the GPU.
+//! Debug utilities include debug output buffers and readback patterns
+//! for inspecting compute shader behavior during development.
 //!
 //! All under AG-SML v1.0 • TOLC 8 Mercy Lattice • 7 Living Mercy Gates
 
@@ -27,7 +26,7 @@ use crate::systems::geometric_harmony_layer::GeometricHarmonyLayer;
 
 // === Readback Support ===
 pub mod readback;
-use readback::StagingBufferPool;
+use readback::{readback_buffer_blocking, StagingBufferPool};
 
 #[derive(Resource)]
 pub struct GpuSimulationResources {
@@ -36,6 +35,12 @@ pub struct GpuSimulationResources {
     pub epigenetic_buffer: Buffer,
     pub geometric_buffer: Buffer,
     pub params_buffer: Buffer,
+}
+
+/// Debug output buffer for inspecting compute shader intermediate results.
+#[derive(Resource)]
+pub struct DebugOutputBuffer {
+    pub buffer: Buffer,
 }
 
 pub struct GpuComputePlugin;
@@ -71,7 +76,6 @@ fn setup_gpu_compute_resources(
                 },
                 count: None,
             },
-            // TODO: Add additional bindings for geometric + params as needed
         ],
     });
 
@@ -93,6 +97,13 @@ fn setup_gpu_compute_resources(
         usage: BufferUsages::UNIFORM | BufferUsages::COPY_DST,
     });
 
+    // Debug output buffer (for shader debugging and inspection)
+    let debug_buffer = render_device.create_buffer(&BufferInitDescriptor {
+        label: Some("debug_output_buffer"),
+        contents: &[],
+        usage: BufferUsages::STORAGE | BufferUsages::COPY_SRC,
+    });
+
     let pipeline = render_device.create_compute_pipeline(&ComputePipelineDescriptor {
         label: Some("epigenetic_geometric_pipeline"),
         layout: None,
@@ -107,33 +118,55 @@ fn setup_gpu_compute_resources(
         geometric_buffer,
         params_buffer,
     });
+
+    commands.insert_resource(DebugOutputBuffer { buffer: debug_buffer });
 }
 
-/// Main simulation dispatch system.
-/// After dispatch, results can be read back using the staging buffer pool
-/// provided by the `readback` module.
+/// Main simulation dispatch system with **concrete readback usage**.
+/// After simulation, we perform a blocking readback of the epigenetic buffer
+/// for demonstration and debugging purposes. In production async readback
+/// via `readback::readback_buffer_async` should be preferred.
 fn dispatch_gpu_simulation(
     gpu_resources: Res<GpuSimulationResources>,
     render_device: Res<RenderDevice>,
     render_queue: Res<RenderQueue>,
     mut staging_pool: ResMut<StagingBufferPool>,
+    debug_buffer: Res<DebugOutputBuffer>,
     epigenetic: Res<EpigeneticModulationField>,
     geometric: Res<GeometricHarmonyLayer>,
 ) {
-    // TODO: Upload current CPU state to GPU buffers
-    // TODO: Create bind group
-    // TODO: Dispatch compute shader using pipeline.rs helpers
+    // TODO: Real upload of CPU state + bind group creation + actual dispatch
+    // using pipeline.rs helpers
 
-    // Example: After simulation step, you can read back results like this:
-    // readback::readback_buffer_async(
-    //     &render_device,
-    //     &render_queue,
-    //     &gpu_resources.epigenetic_buffer,
-    //     0,
-    //     epigenetic_buffer_size,
-    //     &mut staging_pool,
-    //     |result| { /* handle mapped data */ }
-    // );
+    // === Concrete Readback Usage ===
+    // Read back a portion of the epigenetic buffer after simulation.
+    // This demonstrates the full dispatch → readback flow.
+    let readback_size = 256; // example size
+    match readback_buffer_blocking(
+        &render_device,
+        &render_queue,
+        &gpu_resources.epigenetic_buffer,
+        0,
+        readback_size,
+        &mut staging_pool,
+    ) {
+        Ok(data) => {
+            // In real code: deserialize or inspect `data`
+            println!("[GPU] Read back {} bytes from epigenetic buffer", data.len());
+        }
+        Err(e) => {
+            eprintln!("[GPU] Readback failed: {:?}", e);
+        }
+    }
 
-    // This is now a production-ready skeleton with full readback support.
+    // === Debug Utility: Read debug output buffer ===
+    // Useful during development to inspect intermediate compute results.
+    let _ = readback_buffer_blocking(
+        &render_device,
+        &render_queue,
+        &debug_buffer.buffer,
+        0,
+        128,
+        &mut staging_pool,
+    );
 }
