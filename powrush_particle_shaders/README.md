@@ -1,13 +1,12 @@
 # Powrush Particle Shaders
 
-## Compute Pipeline Manager & Validation Layers
+## Hierarchical Z-Buffer (Hi-Z) Generation
 
-The manager now includes awareness of Vulkan Validation Layers:
+Added initial implementation of Hi-Z pyramid generation in `compute::hiz::GENERATE_HIZ_PYRAMID`.
 
-- `ValidationFeatures` struct for configuring debug printf, GPU-assisted validation, etc.
-- Guidance on enabling `VK_LAYER_KHRONOS_validation` with `VkValidationFeaturesEXT` at instance creation time.
+This compute shader downsamples the depth buffer by taking the maximum depth in 2x2 blocks.
 
-For full SPIR-V validation and `debugPrintfEXT` support in shaders, enable the validation layer with the appropriate features when creating the Vulkan instance.
+This is the first step toward GPU-driven occlusion culling on top of our existing WaveLocal Reduction distance culling.
 
 ---
-*Phase 1 Consolidation*
+*Phase 1 Consolidation + GPU-Driven Rendering*
