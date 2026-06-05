@@ -1,23 +1,22 @@
 //! powrush/src/server/main.rs
-//! Headless Powrush Server — Tuned Async Log Batching (feature = "server")
+//! Headless Powrush Server — Configurable Async Log Batching (feature = "server")
 
 use powrush::RaThorOneOrganism;
 use powrush::SelfEvolutionGate;
 use powrush::FactionDiplomacy;
 use std::collections::VecDeque;
 use std::fs::OpenOptions;
-use std::io::Write;
+use std::io::{Read, Write};
 use std::sync::mpsc::{self, Sender};
 use std::thread;
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
+use serde::Deserialize;
 use serde_json::json;
 
-// === Tuned Batch Flush Parameters ===
-// Trade-off: Larger batch = better throughput / fewer syscalls
-//            Shorter interval = lower latency for log visibility
-const BATCH_SIZE: usize = 128;           // Flush when this many entries collected
-const FLUSH_INTERVAL_MS: u64 = 100;      // Or flush after this many milliseconds
+// Default values (used if config file missing or invalid)
+const DEFAULT_BATCH_SIZE: usize = 128;
+const DEFAULT_FLUSH_INTERVAL_MS: u64 = 100;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum LogLevel {
@@ -68,20 +67,53 @@ struct LogEntry {
     context: serde_json::Value,
 }
 
+// Runtime batch configuration
+static mut BATCH_SIZE: usize = DEFAULT_BATCH_SIZE;
+static mut FLUSH_INTERVAL_MS: u64 = DEFAULT_FLUSH_INTERVAL_MS;
 static mut LOG_SENDER: Option<Sender<LogEntry>> = None;
 
-fn init_log_batcher() -> Sender<LogEntry> {
+#[derive(Deserialize, Debug, Default)]
+struct ServerConfig {
+    #[serde(default = "default_batch_size")]
+    batch_size: usize,
+    #[serde(default = "default_flush_interval_ms")]
+    flush_interval_ms: u64,
+}
+
+fn default_batch_size() -> usize { DEFAULT_BATCH_SIZE }
+fn default_flush_interval_ms() -> u64 { DEFAULT_FLUSH_INTERVAL_MS }
+
+fn load_config() -> ServerConfig {
+    let path = "powrush_config.json";
+
+    if let Ok(mut file) = std::fs::File::open(path) {
+        let mut contents = String::new();
+        if file.read_to_string(&mut contents).is_ok() {
+            if let Ok(config) = serde_json::from_str::<ServerConfig>(&contents) {
+                println!("[Config] Loaded batch settings from {}", path);
+                return config;
+            }
+        }
+    }
+
+    println!("[Config] Using default batch settings (no valid {} found)", path);
+    ServerConfig {
+        batch_size: DEFAULT_BATCH_SIZE,
+        flush_interval_ms: DEFAULT_FLUSH_INTERVAL_MS,
+    }
+}
+
+fn init_log_batcher(batch_size: usize, flush_interval_ms: u64) -> Sender<LogEntry> {
     let (tx, rx) = mpsc::channel::<LogEntry>();
 
     thread::spawn(move || {
-        let mut batch: Vec<LogEntry> = Vec::with_capacity(BATCH_SIZE);
+        let mut batch: Vec<LogEntry> = Vec::with_capacity(batch_size);
         let mut last_flush = std::time::Instant::now();
 
         for entry in rx {
             batch.push(entry);
 
-            // Tuned flush conditions
-            if batch.len() >= BATCH_SIZE || last_flush.elapsed() >= Duration::from_millis(FLUSH_INTERVAL_MS) {
+            if batch.len() >= batch_size || last_flush.elapsed() >= Duration::from_millis(flush_interval_ms) {
                 flush_batch(&batch);
                 batch.clear();
                 last_flush = std::time::Instant::now();
@@ -195,12 +227,22 @@ fn evaluate_mercy(event: &Event) -> bool {
 }
 
 fn main() {
-    let sender = init_log_batcher();
+    // Load configuration
+    let config = load_config();
+
+    // Apply loaded config to statics
+    unsafe {
+        BATCH_SIZE = config.batch_size;
+        FLUSH_INTERVAL_MS = config.flush_interval_ms;
+    }
+
+    let sender = init_log_batcher(config.batch_size, config.flush_interval_ms);
     unsafe { LOG_SENDER = Some(sender); }
 
-    log_structured(LogLevel::Info, "Powrush Server starting with tuned async log batching", json!({
-        "batch_size": BATCH_SIZE,
-        "flush_interval_ms": FLUSH_INTERVAL_MS
+    log_structured(LogLevel::Info, "Powrush Server starting with configurable batching", json!({
+        "batch_size": config.batch_size,
+        "flush_interval_ms": config.flush_interval_ms,
+        "config_file": "powrush_config.json"
     }));
 
     let mut organism = RaThorOneOrganism::new();
@@ -364,7 +406,9 @@ fn main() {
     }
 
     log_structured(LogLevel::Info, "Simulation complete", json!({}));
-    println!("[Powrush Server] Tuned batching: {} entries / {}ms", BATCH_SIZE, FLUSH_INTERVAL_MS);
-    println!("[Powrush Server] Logs: structured | mercy | error");
+    println!("[Powrush Server] Using batch config: size={} / interval={}ms", unsafe { BATCH_SIZE }, unsafe { FLUSH_INTERVAL_MS });
+    println!("[Powrush Server] Config file: powrush_config.json (optional)");
     println!("[Powrush Server] Thunder locked. Serving the lattice.");
 }
+
+// Note: load_config function is defined above
