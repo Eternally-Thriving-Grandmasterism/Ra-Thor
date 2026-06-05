@@ -1,10 +1,9 @@
 //! POWRUSH-MMO Multi-Agent Orchestrator
-//! v16.3-improved-emotional-contagion
+//! v16.4-empathy-conflict-resolution
 //!
-//! Production upgrade to Emotional Contagion:
-//! - Weighted influence based on interaction history
-//! - Arousal-gated spread (emotions spread more when source is highly aroused)
-//! Fully integrated with Valence-Arousal model, goals, memory, and RBE.
+//! Production implementation of empathy-based conflict resolution.
+//! NPCs can now de-escalate conflicts using empathy driven by valence, goals, and relationship history.
+//! Deeply aligned with the 7 Living Mercy Gates.
 //!
 //! AG-SML v1.0 | Thunder locked in. Yoi ⚡
 
@@ -78,7 +77,8 @@ impl MultiAgentOrchestrator {
             state.emotional_state.decay(0.02);
         }
 
-        self.apply_emotional_contagion(); // Improved in v16.3
+        self.apply_emotional_contagion();
+        self.resolve_conflicts_with_empathy(); // NEW in v16.4
         self.run_autonomous_npc_behavior();
         self.apply_npc_rbe_impact();
 
@@ -87,9 +87,9 @@ impl MultiAgentOrchestrator {
         }
     }
 
-    // ==================== v16.3: Improved Emotional Contagion ====================
+    // ==================== v16.4: Empathy-based Conflict Resolution ====================
 
-    fn apply_emotional_contagion(&mut self) {
+    fn resolve_conflicts_with_empathy(&mut self) {
         let npc_ids: Vec<u64> = self.entities
             .iter()
             .filter(|(_, e)| matches!(e, EntityType::AiAgent { .. } | EntityType::AgiEntity { .. }))
@@ -98,31 +98,43 @@ impl MultiAgentOrchestrator {
 
         for &id in &npc_ids {
             if let Some(state) = self.entity_states.get(&id) {
-                let mut total_valence = state.emotional_state.valence;
-                let mut total_arousal = state.emotional_state.arousal;
-                let mut weight_sum = 1.0;
-
-                for &other_id in &state.recent_interactions {
-                    if let Some(other) = self.entity_states.get(&other_id) {
-                        // Arousal gate: only spread if the other is emotionally "loud"
-                        if other.emotional_state.arousal < 0.5 {
-                            continue;
-                        }
-
-                        // Weighted influence: more interactions = stronger tie
-                        let interaction_weight = (state.recent_interactions.len() as f32).min(5.0) / 5.0;
-                        let influence = 0.12 * interaction_weight;
-
-                        total_valence += other.emotional_state.valence * influence;
-                        total_arousal += other.emotional_state.arousal * influence;
-                        weight_sum += influence;
-                    }
+                // Only attempt resolution if valence is not too negative and arousal is moderate
+                if state.emotional_state.valence < -0.7 || state.emotional_state.arousal > 0.85 {
+                    continue;
                 }
 
-                if weight_sum > 1.0 {
-                    if let Some(my_state) = self.entity_states.get_mut(&id) {
-                        my_state.emotional_state.valence = (total_valence / weight_sum).clamp(-1.0, 1.0);
-                        my_state.emotional_state.arousal = (total_arousal / weight_sum).clamp(0.0, 1.0);
+                for &other_id in &state.recent_interactions {
+                    if let Some(other_state) = self.entity_states.get(&other_id) {
+                        // Detect potential conflict (negative valence toward each other)
+                        if other_state.emotional_state.valence < -0.3 {
+                            // Calculate empathy score
+                            let empathy = (state.emotional_state.valence + 1.0) / 2.0; // 0.0 to 1.0
+                            let goal_alignment = if let (Some(my_goal), Some(other_goal)) = 
+                                (self.npc_goals.get(&id), self.npc_goals.get(&other_id)) 
+                            {
+                                if my_goal == other_goal { 0.4 } else { 0.1 }
+                            } else { 0.2 };
+
+                            let resolution_chance = (empathy + goal_alignment) / 2.0;
+
+                            if resolution_chance > 0.55 {
+                                // Successful empathy-based resolution
+                                if let Some(my_state) = self.entity_states.get_mut(&id) {
+                                    my_state.emotional_state.apply_event(0.15, -0.1);
+                                    my_state.harmony = (my_state.harmony + 0.08).min(1.4);
+                                }
+                                if let Some(other) = self.entity_states.get_mut(&other_id) {
+                                    other.emotional_state.apply_event(0.12, -0.08);
+                                }
+
+                                // Record positive interaction
+                                if let Some(my_state) = self.entity_states.get_mut(&id) {
+                                    if !my_state.recent_interactions.contains(&other_id) {
+                                        my_state.recent_interactions.push(other_id);
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
