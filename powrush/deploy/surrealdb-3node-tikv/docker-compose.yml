@@ -1,0 +1,97 @@
+# Production-grade 3-node SurrealDB + TiKV cluster for Powrush-MMO
+# PATSAGi-approved for local testing of horizontal scaling & HA
+# Run with: docker compose up -d
+
+version: '3.8'
+
+services:
+  tikv1:
+    image: pingcap/tikv:latest
+    command: --addr 0.0.0.0:20160 --advertise-addr tikv1:20160 --data-dir /data
+    volumes:
+      - tikv1-data:/data
+    networks:
+      - surreal-net
+
+  tikv2:
+    image: pingcap/tikv:latest
+    command: --addr 0.0.0.0:20160 --advertise-addr tikv2:20160 --data-dir /data
+    volumes:
+      - tikv2-data:/data
+    networks:
+      - surreal-net
+
+  tikv3:
+    image: pingcap/tikv:latest
+    command: --addr 0.0.0.0:20160 --advertise-addr tikv3:20160 --data-dir /data
+    volumes:
+      - tikv3-data:/data
+    networks:
+      - surreal-net
+
+  pd:
+    image: pingcap/pd:latest
+    command: --client-urls http://0.0.0.0:2379 --peer-urls http://0.0.0.0:2380 --initial-cluster pd=http://pd:2380 --data-dir /data
+    volumes:
+      - pd-data:/data
+    networks:
+      - surreal-net
+    depends_on:
+      - tikv1
+      - tikv2
+      - tikv3
+
+  surreal1:
+    image: surrealdb/surrealdb:latest
+    command: start --log-level info --auth --user root --pass root tikv://pd:2379
+    ports:
+      - "8001:8000"
+    environment:
+      - SURREAL_PATH=tikv://pd:2379
+    volumes:
+      - surreal1-data:/data
+    networks:
+      - surreal-net
+    depends_on:
+      - pd
+
+  surreal2:
+    image: surrealdb/surrealdb:latest
+    command: start --log-level info --auth --user root --pass root tikv://pd:2379
+    ports:
+      - "8002:8000"
+    environment:
+      - SURREAL_PATH=tikv://pd:2379
+    volumes:
+      - surreal2-data:/data
+    networks:
+      - surreal-net
+    depends_on:
+      - pd
+
+  surreal3:
+    image: surrealdb/surrealdb:latest
+    command: start --log-level info --auth --user root --pass root tikv://pd:2379
+    ports:
+      - "8003:8000"
+    environment:
+      - SURREAL_PATH=tikv://pd:2379
+    volumes:
+      - surreal3-data:/data
+    networks:
+      - surreal-net
+    depends_on:
+      - pd
+
+volumes:
+  tikv1-data:
+  tikv2-data:
+  tikv3-data:
+  pd-data:
+  surreal1-data:
+  surreal2-data:
+  surreal3-data:
+
+networks:
+  surreal-net:
+    driver: bridge
