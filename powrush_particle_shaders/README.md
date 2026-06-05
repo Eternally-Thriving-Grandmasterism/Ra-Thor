@@ -1,12 +1,16 @@
 # Powrush Particle Shaders
 
-## Hierarchical Z-Buffer (Hi-Z) Generation
+## Hierarchical Z-Buffer (Hi-Z) Pyramid Generation
 
-Added initial implementation of Hi-Z pyramid generation in `compute::hiz::GENERATE_HIZ_PYRAMID`.
+Implemented full multi-level Hi-Z pyramid generation support.
 
-This compute shader downsamples the depth buffer by taking the maximum depth in 2x2 blocks.
+The shader `compute::hiz::GENERATE_HIZ_LEVEL` is designed to be dispatched once per mip level, reading from the previous level and writing to the next.
 
-This is the first step toward GPU-driven occlusion culling on top of our existing WaveLocal Reduction distance culling.
+Typical usage:
+1. Start with full-resolution depth (level 0).
+2. Repeatedly dispatch `GENERATE_HIZ_LEVEL` for each subsequent mip level.
+
+This enables GPU-driven occlusion culling on top of WaveLocal Reduction.
 
 ---
-*Phase 1 Consolidation + GPU-Driven Rendering*
+*Phase 1 + GPU-Driven Rendering*
