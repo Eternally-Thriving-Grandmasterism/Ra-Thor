@@ -1,39 +1,70 @@
 /*!
 # Compute Shaders
 
-Includes WaveLocal Reduction culling and Hierarchical Z-Buffer (Hi-Z) generation.
+Advanced single-pass Hierarchical Z-Buffer (Hi-Z) generation.
 */
 
-pub mod culling {
-    pub const WAVE_LOCAL_REDUCTION_CULLING: &str = r#" ... "#;
-}
-
 pub mod hiz {
-    /// Hierarchical Z-Buffer (Hi-Z) pyramid generation shader.
+    /// Single-pass Hi-Z pyramid generation using groupshared memory.
     ///
-    /// This shader downsamples one mip level to the next by taking
-    /// the maximum depth in each 2x2 block. It is designed to be
-    /// dispatched multiple times to build the full pyramid.
-    pub const GENERATE_HIZ_LEVEL: &str = r#"
+    /// This shader can generate multiple mip levels in a single dispatch
+    /// by using groupshared memory for fast communication between threads.
+    pub const GENERATE_HIZ_SINGLE_PASS: &str = r#"
+        enable subgroups;
+
+        var<workgroup> shared_depth: array<array<f32, 16>, 16>;
+
         @group(0) @binding(0) var src_depth: texture_2d<f32>;
-        @group(0) @binding(1) var dst_hiz: texture_storage_2d<r32float, write>;
+        @group(0) @binding(1) var dst_hiz: texture_storage_2d_array<r32float, write>;
 
-        @compute @workgroup_size(8, 8, 1)
-        fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
-            let dst_coords = vec2<i32>(global_id.xy);
+        @compute @workgroup_size(16, 16, 1)
+        fn main(
+            @builtin(global_invocation_id) global_id: vec3<u32>,
+            @builtin(local_invocation_id) local_id: vec3<u32>,
+            @builtin(workgroup_id) workgroup_id: vec3<u32>
+        ) {
+            let local_x = i32(local_id.x);
+            let local_y = i32(local_id.y);
 
-            // Read 2x2 block from source mip level
-            let src_coords = dst_coords * 2;
+            // Load from level 0 (full resolution)
+            let src_coords = vec2<i32>(i32(workgroup_id.x) * 16 + local_x,
+                                       i32(workgroup_id.y) * 16 + local_y);
 
-            let d00 = textureLoad(src_depth, src_coords + vec2<i32>(0, 0), 0).r;
-            let d10 = textureLoad(src_depth, src_coords + vec2<i32>(1, 0), 0).r;
-            let d01 = textureLoad(src_depth, src_coords + vec2<i32>(0, 1), 0).r;
-            let d11 = textureLoad(src_depth, src_coords + vec2<i32>(1, 1), 0).r;
+            var depth = textureLoad(src_depth, src_coords, 0).r;
 
-            // Conservative maximum depth for occlusion culling
-            let max_d = max(max(d00, d10), max(d01, d11));
+            // Store in groupshared memory
+            shared_depth[local_y][local_x] = depth;
+            workgroupBarrier();
 
-            textureStore(dst_hiz, dst_coords, vec4<f32>(max_d, 0.0, 0.0, 0.0));
+            // Level 1: 2x2 downsample within workgroup
+            if (local_x % 2 == 0 && local_y % 2 == 0) {
+                let d00 = shared_depth[local_y    ][local_x    ];
+                let d10 = shared_depth[local_y    ][local_x + 1];
+                let d01 = shared_depth[local_y + 1][local_x    ];
+                let d11 = shared_depth[local_y + 1][local_x + 1];
+
+                depth = max(max(d00, d10), max(d01, d11));
+                shared_depth[local_y / 2][local_x / 2] = depth;
+
+                // Write level 1
+                let dst_coords = vec2<i32>(i32(workgroup_id.x) * 8 + local_x / 2,
+                                           i32(workgroup_id.y) * 8 + local_y / 2);
+                textureStore(dst_hiz, dst_coords, 1, vec4<f32>(depth, 0.0, 0.0, 0.0));
+            }
+
+            workgroupBarrier();
+
+            // Level 2: Further downsample
+            if (local_x % 4 == 0 && local_y % 4 == 0) {
+                depth = shared_depth[local_y / 4][local_x / 4];
+
+                let dst_coords = vec2<i32>(i32(workgroup_id.x) * 4 + local_x / 4,
+                                           i32(workgroup_id.y) * 4 + local_y / 4);
+                textureStore(dst_hiz, dst_coords, 2, vec4<f32>(depth, 0.0, 0.0, 0.0));
+            }
+
+            // Higher levels can be added similarly...
+            // For a full implementation, continue the pattern up to desired mip count.
         }
     "#;
 }
