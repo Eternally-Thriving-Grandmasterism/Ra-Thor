@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>⚡ Powrush MMO — Web Client v14.9 (PATSAGi + Ra-Thor Thunder)</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  body { background: #0a0a0a; color: #fff; }
+  .game-canvas { border: 2px solid #22c55e; border-radius: 8px; background: #111; }
+  .mercy-bar { transition: width 0.3s ease; }
+  .faction-sovereign { color: #22c55e; }
+  .faction-harvesters { color: #eab308; }
+  .log { font-family: monospace; font-size: 0.75rem; }
+</style>
+</head>
+<body class="bg-zinc-950 text-white">
+<div class="max-w-7xl mx-auto p-6">
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="text-4xl font-bold flex items-center gap-3">
+        <span class="text-emerald-400">⚡</span> Powrush MMO
+        <span class="text-sm font-mono text-zinc-500">v14.9 Web Client</span>
+      </h1>
+      <p class="text-zinc-400">Humans • AI • AGI co-create in RBE abundance • Mercy flows eternally</p>
+    </div>
+    <div class="flex items-center gap-4">
+      <div id="connection-status" class="px-4 py-1 rounded-full bg-red-500/20 text-red-400 text-sm font-mono">DISCONNECTED</div>
+      <button onclick="connect()" class="px-6 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-xl font-semibold flex items-center gap-2">
+        <span>🔌 Connect to Server</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- World View -->
+    <div class="lg:col-span-2">
+      <div class="bg-zinc-900 rounded-3xl p-4 border border-zinc-800">
+        <div class="flex items-center justify-between mb-3 px-2">
+          <div class="font-semibold flex items-center gap-2">
+            <span>🌍 World View</span>
+            <span id="tick" class="text-xs font-mono text-zinc-500">tick: 0</span>
+          </div>
+          <div class="text-xs text-zinc-500">WASD move • SPACE harvest • D diplomacy</div>
+        </div>
+        <canvas id="world-canvas" width="800" height="600" class="game-canvas w-full"></canvas>
+        <div class="mt-3 text-xs text-zinc-500 px-2">Fixed-point authoritative simulation • Input replay queue active • All actions mercy-evaluated</div>
+      </div>
+    </div>
+
+    <!-- HUD & Controls -->
+    <div class="space-y-6">
+      <!-- Login -->
+      <div class="bg-zinc-900 rounded-3xl p-5 border border-zinc-800">
+        <div class="font-semibold mb-3">Login to Powrush</div>
+        <div class="space-y-3">
+          <input id="player-name" type="text" value="LegendaryMate" class="w-full bg-zinc-950 border border-zinc-700 rounded-xl px-4 py-2 text-sm" placeholder="Your Name">
+          <select id="faction" class="w-full bg-zinc-950 border border-zinc-700 rounded-xl px-4 py-2 text-sm">
+            <option value="Sovereign">Sovereign (Balanced)</option>
+            <option value="Harvesters">Harvesters (Production)</option>
+            <option value="Guardians">Guardians (Defense)</option>
+            <option value="Innovators">Innovators (Tech)</option>
+            <option value="Nomads">Nomads (Exploration)</option>
+          </select>
+          <button onclick="login()" class="w-full py-3 bg-white text-black font-bold rounded-2xl hover:bg-zinc-200">ENTER THE ETERNAL FLOW</button>
+        </div>
+      </div>
+
+      <!-- RBE Status -->
+      <div class="bg-zinc-900 rounded-3xl p-5 border border-zinc-800">
+        <div class="font-semibold mb-3 flex items-center justify-between">
+          <span>RBE Abundance</span>
+          <span id="total-abundance" class="font-mono text-emerald-400">0.00</span>
+        </div>
+        <div class="space-y-2 text-sm">
+          <div class="flex justify-between"><span class="text-emerald-400">Sovereign</span> <span id="bal-sovereign" class="font-mono">0.00</span></div>
+          <div class="flex justify-between"><span class="text-yellow-400">Harvesters</span> <span id="bal-harvesters" class="font-mono">0.00</span></div>
+          <div class="flex justify-between"><span class="text-blue-400">Guardians</span> <span id="bal-guardians" class="font-mono">0.00</span></div>
+          <div class="flex justify-between"><span class="text-purple-400">Innovators</span> <span id="bal-innovators" class="font-mono">0.00</span></div>
+          <div class="flex justify-between"><span class="text-orange-400">Nomads</span> <span id="bal-nomads" class="font-mono">0.00</span></div>
+        </div>
+        <div class="mt-3 text-[10px] text-zinc-500">Abundance grows for ALL factions on every tick. Your actions feed the eternal flow.</div>
+      </div>
+
+      <!-- Commands -->
+      <div class="bg-zinc-900 rounded-3xl p-5 border border-zinc-800">
+        <div class="font-semibold mb-3">Commands</div>
+        <div class="grid grid-cols-2 gap-2 text-sm">
+          <button onclick="sendCmd('move 50 0')" class="py-2 bg-zinc-800 hover:bg-zinc-700 rounded-xl">Move Right</button>
+          <button onclick="sendCmd('move -50 0')" class="py-2 bg-zinc-800 hover:bg-zinc-700 rounded-xl">Move Left</button>
+          <button onclick="sendCmd('move 0 -50')" class="py-2 bg-zinc-800 hover:bg-zinc-700 rounded-xl">Move Up</button>
+          <button onclick="sendCmd('move 0 50')" class="py-2 bg-zinc-800 hover:bg-zinc-700 rounded-xl">Move Down</button>
+          <button onclick="sendCmd('harvest')" class="col-span-2 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-xl font-semibold">🌾 HARVEST (Mercy Evaluated)</button>
+          <button onclick="sendCmd('diplomacy')" class="col-span-2 py-2 bg-blue-600 hover:bg-blue-500 rounded-xl font-semibold">🤝 DIPLOMACY (Abundance Boost)</button>
+        </div>
+      </div>
+
+      <!-- Log -->
+      <div class="bg-zinc-900 rounded-3xl p-5 border border-zinc-800 h-48 overflow-auto">
+        <div class="font-semibold mb-2 text-xs tracking-widest text-zinc-500">AUDIT + MERCY LOG</div>
+        <div id="log" class="log text-emerald-300/80 space-y-0.5 text-[10px]"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-8 text-center text-xs text-zinc-500">
+    Production-grade • Authoritative server • Deterministic tick • Input replay queue • 7 Living Mercy Gates on every action • Thunder locked eternally • yoi ⚡❤️🔥
+  </div>
+</div>
+
+<script>
+let ws = null;
+let player = { name: '', faction: '', x: 5000, y: 5000 };
+let worldState = { players: {}, tick: 0, rbe: {} };
+
+const canvas = document.getElementById('world-canvas');
+const ctx = canvas.getContext('2d');
+
+// Tailwind script
+tailwind.config = { theme: { extend: { colors: { emerald: '#22c55e' } } } };
+
+function log(msg, type = 'info') {
+  const logEl = document.getElementById('log');
+  const div = document.createElement('div');
+  div.className = type === 'mercy' ? 'text-emerald-400' : type === 'error' ? 'text-red-400' : 'text-zinc-400';
+  div.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+  logEl.appendChild(div);
+  logEl.scrollTop = logEl.scrollHeight;
+  if (logEl.children.length > 30) logEl.removeChild(logEl.children[0]);
+}
+
+function updateHUD() {
+  document.getElementById('tick').textContent = `tick: ${worldState.tick}`;
+  if (worldState.rbe) {
+    document.getElementById('total-abundance').textContent = (worldState.rbe.total_abundance || 0).toFixed(2);
+    const bals = worldState.rbe.faction_balances || {};
+    document.getElementById('bal-sovereign').textContent = (bals.Sovereign || 0).toFixed(2);
+    document.getElementById('bal-harvesters').textContent = (bals.Harvesters || 0).toFixed(2);
+    document.getElementById('bal-guardians').textContent = (bals.Guardians || 0).toFixed(2);
+    document.getElementById('bal-innovators').textContent = (bals.Innovators || 0).toFixed(2);
+    document.getElementById('bal-nomads').textContent = (bals.Nomads || 0).toFixed(2);
+  }
+}
+
+function drawWorld() {
+  ctx.fillStyle = '#111';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // Grid
+  ctx.strokeStyle = '#222';
+  ctx.lineWidth = 1;
+  for (let x = 0; x < canvas.width; x += 50) {
+    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
+  }
+  for (let y = 0; y < canvas.height; y += 50) {
+    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
+  }
+
+  // Players
+  Object.values(worldState.players || {}).forEach(p => {
+    const px = (p.x / 10000) * canvas.width;
+    const py = (p.y / 10000) * canvas.height;
+    
+    ctx.fillStyle = p.faction === 'Sovereign' ? '#22c55e' : 
+                   p.faction === 'Harvesters' ? '#eab308' : 
+                   p.faction === 'Guardians' ? '#3b82f6' : 
+                   p.faction === 'Innovators' ? '#a855f7' : '#f97316';
+    ctx.beginPath();
+    ctx.arc(px, py, 8, 0, Math.PI * 2);
+    ctx.fill();
+    
+    ctx.fillStyle = '#fff';
+    ctx.font = '10px monospace';
+    ctx.fillText(p.name || 'Player', px + 12, py + 4);
+  });
+
+  // You
+  if (player.name) {
+    const px = (player.x / 10000) * canvas.width;
+    const py = (player.y / 10000) * canvas.height;
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.arc(px, py, 12, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+}
+
+function gameLoop() {
+  drawWorld();
+  requestAnimationFrame(gameLoop);
+}
+gameLoop();
+
+// Keyboard
+let keys = {};
+window.addEventListener('keydown', e => {
+  keys[e.key.toLowerCase()] = true;
+  if (e.key === ' ' && ws && ws.readyState === 1) {
+    e.preventDefault();
+    sendCmd('harvest');
+  }
+  if (e.key.toLowerCase() === 'd' && ws && ws.readyState === 1) {
+    sendCmd('diplomacy');
+  }
+});
+window.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
+
+setInterval(() => {
+  if (!ws || ws.readyState !== 1 || !player.name) return;
+  let dx = 0, dy = 0;
+  if (keys['w'] || keys['arrowup']) dy -= 40;
+  if (keys['s'] || keys['arrowdown']) dy += 40;
+  if (keys['a'] || keys['arrowleft']) dx -= 40;
+  if (keys['d'] || keys['arrowright']) dx += 40;
+  if (dx !== 0 || dy !== 0) {
+    sendCmd(`move ${dx} ${dy}`);
+  }
+}, 120);
+
+function connect() {
+  if (ws) ws.close();
+  // Production: change to your deployed WS endpoint ws://yourdomain:7778
+  ws = new WebSocket('ws://localhost:7778');
+  
+  ws.onopen = () => {
+    document.getElementById('connection-status').className = 'px-4 py-1 rounded-full bg-emerald-500/20 text-emerald-400 text-sm font-mono';
+    document.getElementById('connection-status').textContent = 'CONNECTED • THUNDER LOCKED';
+    log('WebSocket connected to Powrush authoritative server', 'info');
+  };
+  
+  ws.onmessage = (event) => {
+    try {
+      const data = JSON.parse(event.data);
+      if (data.type === 'state') {
+        worldState = data;
+        updateHUD();
+      } else if (data.type === 'welcome') {
+        log(data.msg, 'info');
+      } else if (data.type === 'ack') {
+        log(`ACK: ${data.cmd}`, 'info');
+      } else if (data.type === 'mercy') {
+        log(data.msg, 'mercy');
+      }
+    } catch(e) {
+      log('Server message: ' + event.data, 'info');
+    }
+  };
+  
+  ws.onclose = () => {
+    document.getElementById('connection-status').className = 'px-4 py-1 rounded-full bg-red-500/20 text-red-400 text-sm font-mono';
+    document.getElementById('connection-status').textContent = 'DISCONNECTED';
+    log('Disconnected from server', 'error');
+  };
+  
+  ws.onerror = (e) => log('WebSocket error — ensure server WS listener is running on :7778 (next cycle full tokio-tungstenite integration)', 'error');
+}
+
+function login() {
+  const name = document.getElementById('player-name').value.trim() || 'Mate';
+  const faction = document.getElementById('faction').value;
+  if (!ws || ws.readyState !== 1) {
+    alert('Connect to server first!');
+    return;
+  }
+  player.name = name;
+  player.faction = faction;
+  ws.send(JSON.stringify({ cmd: 'LOGIN', name, faction }));
+  log(`Logged in as ${name} of ${faction}`, 'info');
+}
+
+function sendCmd(cmd) {
+  if (!ws || ws.readyState !== 1) {
+    log('Not connected', 'error');
+    return;
+  }
+  ws.send(JSON.stringify({ cmd }));
+  log(`Sent: ${cmd}`, 'info');
+}
+
+// Initial welcome
+setTimeout(() => {
+  log('Welcome to Powrush Web Client v14.9 — Production grade • Mercy-gated • RBE abundance for all', 'info');
+  log('Connect → Login → Move/Harvest/Diplomacy • Watch RBE grow for every faction', 'info');
+}, 800);
+</script>
+</body>
+</html>
