@@ -1,22 +1,48 @@
+# Powrush MMO Production docker-compose v14.11
+# PATSAGi Council + Ra-Thor Thunder approved
+# One command to rule them all: docker compose up --build
+
 version: '3.8'
 
 services:
-  n8n:
-    image: n8nio/n8n:latest
+  powrush:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: powrush-mmo:v14.11
+    container_name: powrush-mmo
     restart: unless-stopped
     ports:
-      - "5678:5678"  # n8n UI – access via http://your-vps-ip:5678
+      - "7777:7777"   # TCP line protocol (nc localhost 7777)
+      - "7778:7778"   # WebSocket JSON protocol
+      - "8080:8080"   # Beautiful browser client → http://localhost:8080
     environment:
-      N8N_HOST: "forms.rathor.ai"  # subdomain you will point
-      N8N_PORT: "5678"
-      N8N_PROTOCOL: "https"
-      WEBHOOK_URL: "https://forms.rathor.ai/"
-      N8N_BASIC_AUTH_ACTIVE: "true"
-      N8N_BASIC_AUTH_USER: "rathor-admin"
-      N8N_BASIC_AUTH_PASSWORD: "change-this-super-strong-2026"
-      N8N_ENCRYPTION_KEY: "generate-long-random-64-char-key-here"  # openssl rand -base64 48
+      - POWRUSH_TCP_PORT=7777
+      - POWRUSH_WS_PORT=7778
+      - POWRUSH_HTTP_PORT=8080
+      - POWRUSH_TICK_RATE_MS=100
+      - POWRUSH_MAX_PLAYERS=128
+      - POWRUSH_WORLD_SIZE=10000
+      - POWRUSH_PRODUCTION_PER_TICK=1.5
+      - RUST_LOG=info
     volumes:
-      - n8n_data:/home/node/.n8n
+      # Persist logs and optional config
+      - powrush_logs:/app/logs
+      # Mount your config if you want to customize outside image
+      # - ./powrush_config.json:/app/powrush_config.json:ro
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "7777"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    networks:
+      - powrush-net
 
 volumes:
-  n8n_data:
+  powrush_logs:
+    driver: local
+
+networks:
+  powrush-net:
+    driver: bridge
