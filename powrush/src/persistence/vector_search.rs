@@ -1,106 +1,100 @@
-//! Dynamic EF Search Adjustment for SurrealDB HNSW Vector Search (v16.4 Production)
+//! Automatic Quality Scaling for SurrealDB Vector Search (v16.5 Production)
 //!
-//! Implements runtime, context-aware adjustment of `ef_search` parameter.
-//! This allows Powrush-MMO to dynamically trade off between search quality and speed
-//! depending on the situation (NPC decision making, real-time events, background tasks, etc.).
+//! Implements automatic, intelligent scaling of vector search quality
+//! based on runtime system conditions.
+//!
+//! Features:
+//! - Automatic downgrade to Fast mode under high load
+//! - Upgrade to HighRecall when system has capacity
+//! - Hysteresis to prevent rapid flipping between modes
+//! - Integration with Bevy schedule and DynamicVectorSearch resource
+//!
+//! This ensures good performance while still delivering high-quality
+//! NPC decisions and player experiences when possible.
 //!
 //! All under AG-SML v1.0 • TOLC 8 • 7 Living Mercy Gates
 
 use bevy::prelude::*;
-use crate::persistence::surreal_persistence::PersistenceError;
+use crate::persistence::vector_search::{DynamicVectorSearch, VectorSearchQuality};
 
-/// Controls the current search quality mode for the entire system or per-context.
-#[derive(Resource, Debug, Clone, Copy, PartialEq, Eq)]
-pub enum VectorSearchQuality {
-    Fast,        // Low latency, acceptable recall
-    Balanced,    // Default good balance
-    HighRecall,  // Maximum accuracy (e.g. important NPC decisions)
+/// Resource to track metrics relevant to quality scaling decisions.
+#[derive(Resource, Debug, Default)]
+pub struct VectorSearchMetrics {
+    pub pending_npc_decisions: u32,
+    pub average_frame_time_ms: f32,
+    pub active_players: u32,
+    pub last_scale_tick: u64,
 }
 
-impl Default for VectorSearchQuality {
-    fn default() -> Self {
-        VectorSearchQuality::Balanced
+/// System that automatically adjusts vector search quality.
+/// This runs every frame or on a fixed timestep.
+pub fn automatic_quality_scaling_system(
+    mut dynamic_search: ResMut<DynamicVectorSearch>,
+    mut metrics: ResMut<VectorSearchMetrics>,
+) {
+    let current = dynamic_search.current_quality;
+    let new_quality = determine_optimal_quality(&metrics, current);
+
+    if new_quality != current {
+        dynamic_search.current_quality = new_quality;
+        dynamic_search.last_adjustment_tick = metrics.last_scale_tick;
+
+        bevy::log::info!(
+            "[VectorSearch] Auto-scaled quality to {:?}",
+            new_quality
+        );
     }
+
+    metrics.last_scale_tick += 1;
 }
 
-/// Resource that holds the current global quality setting.
-/// Can be changed at runtime based on game state or load.
-#[derive(Resource, Debug, Clone)]
-pub struct DynamicVectorSearch {
-    pub current_quality: VectorSearchQuality,
-    pub last_adjustment_tick: u64,
-}
+/// Core logic for deciding the best quality mode.
+/// This can be extended with more sophisticated heuristics.
+fn determine_optimal_quality(
+    metrics: &VectorSearchMetrics,
+    current: VectorSearchQuality,
+) -> VectorSearchQuality {
+    // High load indicators
+    let high_load = metrics.pending_npc_decisions > 50
+        || metrics.average_frame_time_ms > 16.0; // Targeting ~60 FPS
 
-impl Default for DynamicVectorSearch {
-    fn default() -> Self {
-        Self {
-            current_quality: VectorSearchQuality::Balanced,
-            last_adjustment_tick: 0,
+    // Low load / high importance window
+    let low_load = metrics.pending_npc_decisions < 10
+        && metrics.average_frame_time_ms < 8.0;
+
+    match current {
+        VectorSearchQuality::HighRecall => {
+            if high_load {
+                VectorSearchQuality::Balanced
+            } else {
+                VectorSearchQuality::HighRecall
+            }
+        }
+        VectorSearchQuality::Balanced => {
+            if high_load {
+                VectorSearchQuality::Fast
+            } else if low_load {
+                VectorSearchQuality::HighRecall
+            } else {
+                VectorSearchQuality::Balanced
+            }
+        }
+        VectorSearchQuality::Fast => {
+            if low_load {
+                VectorSearchQuality::Balanced
+            } else {
+                VectorSearchQuality::Fast
+            }
         }
     }
 }
 
-/// Returns the recommended `ef_search` value based on current quality mode.
-/// These values can be tuned further based on benchmarking.
-pub fn get_dynamic_ef_search(quality: VectorSearchQuality) -> u32 {
-    match quality {
-        VectorSearchQuality::Fast => 32,
-        VectorSearchQuality::Balanced => 64,
-        VectorSearchQuality::HighRecall => 128,
-    }
-}
+/// Plugin that enables automatic quality scaling.
+pub struct AutomaticQualityScalingPlugin;
 
-/// System that can dynamically adjust search quality based on game conditions.
-/// Example triggers:
-/// - High NPC decision load → lower quality for speed
-/// - Important story/NPC moment → increase to HighRecall
-/// - Low player activity → can afford higher quality
-pub fn dynamic_ef_adjustment_system(
-    mut dynamic_search: ResMut<DynamicVectorSearch>,
-    // In real implementation, you could read game state, NPC queue size, etc.
-) {
-    // Placeholder logic - replace with real conditions
-    // Example: During intense combat or many NPCs deciding, prefer speed
-    // if is_high_load() {
-    //     dynamic_search.current_quality = VectorSearchQuality::Fast;
-    // }
-}
-
-/// Performs a vector search with the currently configured dynamic ef_search.
-pub async fn search_with_dynamic_ef(
-    db: &surrealdb::Surreal<surrealdb::engine::any::Any>,
-    query_vector: Vec<f32>,
-    limit: usize,
-    dynamic_search: &DynamicVectorSearch,
-) -> Result<Vec<serde_json::Value>, PersistenceError> {
-    let ef = get_dynamic_ef_search(dynamic_search.current_quality);
-
-    // In a full implementation, ef would be passed to the query if supported,
-    // or used to choose between pre-created indexes with different HNSW settings.
-    let query = format!(
-        "SELECT id, embedding, mercy_alignment 
-         FROM player_epigenetic_profile 
-         WHERE embedding <{{}} $query_vector 
-         LIMIT {}",
-        limit
-    );
-
-    let result = db
-        .query(&query)
-        .bind(("query_vector", query_vector))
-        .await
-        .map_err(|e| PersistenceError::Load(e.to_string()))?;
-
-    // Process result...
-    Ok(vec![])
-}
-
-/// Plugin to register dynamic vector search systems.
-pub struct DynamicEfSearchPlugin;
-
-impl Plugin for DynamicEfSearchPlugin {
+impl Plugin for AutomaticQualityScalingPlugin {
     fn build(&self, app: &mut App) {
-        app.init_resource::<DynamicVectorSearch>();
-        app.add_systems(Update, dynamic_ef_adjustment_system);
+        app.init_resource::<VectorSearchMetrics>();
+        app.add_systems(Update, automatic_quality_scaling_system);
     }
 }
