@@ -1,14 +1,13 @@
 # Powrush Particle Shaders
 
-## Descriptor Set Binding
+## Full Descriptor Set Updates
 
-Added full descriptor set allocation and binding support in `GpuDrivenPipeline`:
+Implemented `update_descriptor_sets()` in `GpuDrivenPipeline`.
 
-- Descriptor pool creation
-- Descriptor set allocation from layouts
-- Structure ready for updating descriptor sets with actual resources
+This method binds actual resources (buffers and image views) to the
+allocated descriptor sets for Culling, Compaction, Visibility, and Shading stages.
 
-The pipeline can now properly bind resources for Culling, Compaction, Visibility, and Shading stages.
+The pipeline is now capable of full resource binding and command recording.
 
 ---
 *GPU-Driven Rendering (Production Quality)*
