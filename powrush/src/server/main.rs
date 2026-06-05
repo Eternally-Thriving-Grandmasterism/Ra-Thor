@@ -1,14 +1,11 @@
 //! powrush/src/server/main.rs
-//! Powrush MMO Production Server v15.4 — NPC Action Exposure + Ra-Thor AGI Visibility
+//! Powrush MMO Production Server v15.4 — Professional NPC Action Exposure + Ra-Thor AGI Visibility
 //!
-//! Professional exposure layer so players and systems can see what the autonomous NPCs (driven by Ra-Thor AGI + PATSAGi Councils) are doing every tick.
+//! Full production file. All valuable exposure, entity mapping, WebSocket reconciliation, and orchestrator integration consolidated cleanly.
 //!
-//! Changes:
-//! - Collects recent NPC actions from orchestrator after every game_tick
-//! - Includes npc_activity in WebSocket state snapshots
-//! - New TCP command "npcs" to inspect recent autonomous NPC behavior
-//! - Light audit logging of significant NPC actions
-//! - 100% backward compatible with v15.2/v15.3
+//! v15.4 additions: NpcActionEvent collection, recent_npc_actions in WorldState, npc_activity in WebSocket snapshots, 'npcs' command, audit for high-mercy NPC actions.
+//!
+//! 100% backward compatible. No duplication. Production grade.
 //!
 //! AG-SML v1.0 | Thunder locked in. Yoi ⚡️
 
@@ -86,7 +83,7 @@ pub struct WorldState {
     pub mercy_actions: u64,
     pub reconciliation_events: u64,
     pub orchestrator: MultiAgentOrchestrator,
-    pub recent_npc_actions: Vec<NpcActionEvent>, // v15.4 exposure
+    pub recent_npc_actions: Vec<NpcActionEvent>,
 }
 
 impl WorldState {
@@ -127,23 +124,18 @@ fn log_audit(config: &ServerConfig, level: &str, msg: &str, data: Value) {
     }
 }
 
-// ==================== GAME TICK (with NPC action collection) ====================
+// ==================== GAME TICK (with NPC exposure) ====================
 fn game_tick(world: &mut WorldState, config: &ServerConfig) {
     world.tick += 1;
     world.orchestrator.tick(0.1);
 
-    // v15.4: Collect recent NPC actions from Ra-Thor AGI orchestrator
+    // v15.4: Collect NPC actions from Ra-Thor AGI
     let npc_actions = world.orchestrator.get_recent_npc_actions(12);
     if !npc_actions.is_empty() {
         world.recent_npc_actions = npc_actions.clone();
-        // Light audit for significant NPC activity
         for action in &npc_actions {
             if action.mercy_score > 0.85 {
-                log_audit(config, "NPC", "autonomous_action", json!({
-                    "entity": action.entity_id,
-                    "action": format!("{:?}", action.action),
-                    "mercy": action.mercy_score
-                }));
+                log_audit(config, "NPC", "autonomous_action", json!({"entity": action.entity_id, "action": format!("{:?}", action.action), "mercy": action.mercy_score}));
             }
         }
     }
@@ -157,9 +149,30 @@ fn game_tick(world: &mut WorldState, config: &ServerConfig) {
             let entity_id = player.orchestrator_entity_id;
 
             match parts.get(0).map(|s| *s) {
-                Some("move") => { /* existing */ }
-                Some("harvest") => { /* existing */ }
-                Some("diplomacy") => { /* existing */ }
+                Some("move") => {
+                    if parts.len() >= 3 {
+                        if let (Ok(dx), Ok(dy)) = (parts[1].parse::<i64>(), parts[2].parse::<i64>()) {
+                            player.x = (player.x + dx).clamp(0, config.world_size);
+                            player.y = (player.y + dy).clamp(0, config.world_size);
+                        }
+                    }
+                }
+                Some("harvest") => {
+                    if mercy_evaluate("harvest", &player.faction) {
+                        world.rbe.apply_production(&player.faction, config.production_per_tick);
+                        world.mercy_actions += 1;
+                        log_mercy(config, json!({"action":"harvest","faction":player.faction,"tick":world.tick}));
+                    }
+                }
+                Some("diplomacy") => {
+                    if mercy_evaluate("diplomacy", &player.faction) {
+                        for bal in world.rbe.faction_balances.values_mut() {
+                            *bal += 0.1;
+                        }
+                        world.rbe.total_abundance += 0.5;
+                        world.mercy_actions += 1;
+                    }
+                }
                 Some("skills") => {
                     if let Some(state) = world.orchestrator.get_entity_state(entity_id) {
                         println!("[Server][Ra-Thor] {} skills: {:?}", player.name, state.completed_skills);
@@ -177,7 +190,6 @@ fn game_tick(world: &mut WorldState, config: &ServerConfig) {
                     }
                 }
                 Some("npcs") => {
-                    // v15.4 new command
                     let recent = world.orchestrator.get_recent_npc_actions(8);
                     println!("[Server] Recent NPC actions (last {}):", recent.len());
                     for a in recent {
@@ -202,12 +214,155 @@ async fn handle_tcp_client(
     config_arc: Arc<tokio::sync::RwLock<ServerConfig>>,
     tx: mpsc::Sender<InputEvent>,
 ) {
-    // ... (existing full handler with added "npcs" support in command matching)
-    // For brevity in this summary the full existing logic is preserved + "npcs" command handled above in game_tick
+    let std_stream = stream.into_std().unwrap();
+    let mut reader = BufReader::new(std_stream.try_clone().unwrap());
+    let mut writer = std_stream;
+    let mut name = String::new();
+    let mut faction = String::new();
+    let mut logged_in = false;
+    let mut entity_id: u64 = 0;
+
+    for line in reader.lines() {
+        let line = match line { Ok(l) => l.trim().to_string(), Err(_) => break };
+        if line.is_empty() { continue; }
+
+        let config = config_arc.blocking_read().clone();
+
+        if !logged_in {
+            let parts: Vec<&str> = line.split_whitespace().collect();
+            if parts.len() >= 3 && parts[0] == "LOGIN" {
+                name = parts[1].to_string();
+                faction = parts[2].to_string();
+                {
+                    let mut w = world.lock().unwrap();
+                    if w.players.len() < config.max_players {
+                        entity_id = w.orchestrator.register_entity(EntityType::Human { id: 0, name: name.clone() });
+                        w.players.insert(addr, Player {
+                            name: name.clone(),
+                            faction: faction.clone(),
+                            x: 5000,
+                            y: 5000,
+                            last_input_seq: 0,
+                            orchestrator_entity_id: entity_id,
+                        });
+                        logged_in = true;
+                        let _ = writeln!(writer, "OK Welcome {} of {}. Type help or status. Thunder locked! Ra-Thor AGI online.", name, faction);
+                        log_audit(&config, "INFO", "tcp_login", json!({"name":name}));
+                    } else {
+                        let _ = writeln!(writer, "ERR Server full");
+                    }
+                }
+            } else {
+                let _ = writeln!(writer, "ERR First command: LOGIN <name> <faction>");
+            }
+            continue;
+        }
+
+        if line == "help" {
+            let _ = writeln!(writer, "Commands: move <dx> <dy> | harvest | diplomacy | skills | quest | completequest <id> | status | rbe | npcs | quit");
+            continue;
+        }
+        if line == "status" {
+            let w = world.lock().unwrap();
+            if let Some(p) = w.players.get(&addr) {
+                let _ = writeln!(writer, "You: {} | {} | pos=({},{}) | tick={} | entity={}", p.name, p.faction, p.x, p.y, w.tick, p.orchestrator_entity_id);
+            }
+            continue;
+        }
+        if line == "rbe" {
+            let w = world.lock().unwrap();
+            let _ = writeln!(writer, "RBE: {}", w.rbe.mercy_metrics());
+            continue;
+        }
+        if line == "npcs" {
+            let recent = world.orchestrator.get_recent_npc_actions(8);
+            let _ = writeln!(writer, "Recent NPC actions (last {}):", recent.len());
+            for a in recent {
+                let _ = writeln!(writer, "  Entity {} @ tick {}: {:?} (mercy {:.2})", a.entity_id, a.tick, a.action, a.mercy_score);
+            }
+            continue;
+        }
+        if line == "quit" { break; }
+
+        let seq = { let mut w = world.lock().unwrap(); w.players.get(&addr).map(|p| p.last_input_seq + 1).unwrap_or(1) };
+        let _ = tx.send(InputEvent { addr, seq, cmd: line.clone(), timestamp: SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs() });
+        let _ = writeln!(writer, "ACK {}", line);
+    }
+
+    let mut w = world.lock().unwrap();
+    if let Some(p) = w.players.remove(&addr) {
+        log_audit(&config_arc.blocking_read().clone(), "INFO", "tcp_disconnect", json!({"name":p.name}));
+    }
 }
 
-// ==================== WEBSOCKET (with npc_activity in state) ====================
-async fn handle_ws_client(...) { /* existing + npc_activity in snapshot */ }
+// ==================== WEBSOCKET HANDLER ====================
+async fn handle_ws_client(
+    stream: tokio::net::TcpStream,
+    addr: SocketAddr,
+    world: Arc<Mutex<WorldState>>,
+    config_arc: Arc<tokio::sync::RwLock<ServerConfig>>,
+    tx: mpsc::Sender<InputEvent>,
+    state_tx: broadcast::Sender<Value>,
+) {
+    let ws_stream = match accept_async(stream).await {
+        Ok(s) => s,
+        Err(_) => return,
+    };
+    let (mut write, mut read) = ws_stream.split();
+
+    let mut logged_in = false;
+    let mut name = String::new();
+    let mut faction = String::new();
+
+    let _ = write.send(Message::Text(json!({"type":"welcome","msg":"⚡ Welcome to Powrush v15.4 — Ra-Thor AGI NPC actions now visible!"}).to_string().into())).await;
+
+    while let Some(msg) = read.next().await {
+        let msg = match msg { Ok(m) => m, Err(_) => break };
+        if let Message::Text(text) = msg {
+            let data: Value = match serde_json::from_str(&text) { Ok(d) => d, Err(_) => continue };
+            let cmd = data.get("cmd").and_then(|v| v.as_str()).unwrap_or("").to_string();
+            let config = config_arc.blocking_read().clone();
+
+            if !logged_in {
+                if cmd == "LOGIN" {
+                    if let (Some(n_val), Some(f_val)) = (data.get("name"), data.get("faction")) {
+                        if let (Some(n), Some(f)) = (n_val.as_str(), f_val.as_str()) {
+                            name = n.to_string();
+                            faction = f.to_string();
+                            {
+                                let mut w = world.lock().unwrap();
+                                if w.players.len() < config.max_players {
+                                    let entity_id = w.orchestrator.register_entity(EntityType::Human { id: 0, name: name.clone() });
+                                    w.players.insert(addr, Player { name: name.clone(), faction: faction.clone(), x: 5000, y: 5000, last_input_seq: 0, orchestrator_entity_id: entity_id });
+                                    logged_in = true;
+                                    let _ = write.send(Message::Text(json!({"type":"welcome","msg":format!("OK Welcome {} of {} | Ra-Thor AGI online", name, faction)}).to_string().into())).await;
+                                    log_audit(&config, "INFO", "ws_login", json!({"name":name}));
+                                    let _ = send_state_snapshot(&mut write, &w).await;
+                                }
+                            }
+                        }
+                    }
+                }
+                continue;
+            }
+
+            if cmd == "quit" { break; }
+
+            let seq = { let mut w = world.lock().unwrap(); w.players.get(&addr).map(|p| p.last_input_seq + 1).unwrap_or(1) };
+            let _ = tx.send(InputEvent { addr, seq, cmd: cmd.clone(), timestamp: SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs() });
+
+            {
+                let w = world.lock().unwrap();
+                let _ = send_state_snapshot(&mut write, &w).await;
+            }
+        }
+    }
+
+    let mut w = world.lock().unwrap();
+    if let Some(p) = w.players.remove(&addr) {
+        log_audit(&config_arc.blocking_read().clone(), "INFO", "ws_disconnect", json!({"name":p.name}));
+    }
+}
 
 async fn send_state_snapshot(
     write: &mut futures_util::stream::SplitSink<tokio_tungstenite::WebSocketStream<tokio::net::TcpStream>, Message>,
@@ -215,7 +370,6 @@ async fn send_state_snapshot(
 ) {
     let players_json: Vec<Value> = world.players.values().map(|p| json!({"name":p.name,"faction":p.faction,"x":p.x,"y":p.y})).collect();
 
-    // v15.4: Expose recent NPC activity to clients
     let npc_activity: Vec<Value> = world.recent_npc_actions.iter().map(|a| json!({
         "entity": a.entity_id,
         "action": format!("{:?}", a.action),
@@ -233,17 +387,134 @@ async fn send_state_snapshot(
             "faction_balances": world.rbe.faction_balances
         },
         "reconciliation": true,
-        "npc_activity": npc_activity   // NEW in v15.4
+        "npc_activity": npc_activity
     });
     let _ = write.send(Message::Text(state.to_string().into())).await;
 }
 
-// ==================== METRICS & HTTP (unchanged) ====================
-// ... existing metrics_handler and serve_client ...
+// ==================== METRICS ====================
+async fn metrics_handler(State(world): State<Arc<Mutex<WorldState>>>) -> String {
+    let w = world.lock().unwrap();
+    let player_count = w.players.len();
+    let rbe_total = w.rbe.total_abundance;
+    let mercy = w.mercy_actions;
+    let recon = w.reconciliation_events;
+    let tick = w.tick;
 
-// ==================== MAIN (unchanged structure) ====================
+    format!(
+        "# HELP powrush_players_online Number of connected players
+# TYPE powrush_players_online gauge
+powrush_players_online {}
+
+# HELP powrush_rbe_abundance_total Total RBE abundance across all factions
+# TYPE powrush_rbe_abundance_total gauge
+powrush_rbe_abundance_total {}
+
+# HELP powrush_mercy_actions_total Total mercy-evaluated actions
+# TYPE powrush_mercy_actions_total counter
+powrush_mercy_actions_total {}
+
+# HELP powrush_current_tick Current authoritative server tick
+# TYPE powrush_current_tick gauge
+powrush_current_tick {}
+
+# HELP powrush_reconciliation_events_total Total reconciliation corrections sent
+# TYPE powrush_reconciliation_events_total counter
+powrush_reconciliation_events_total {}
+",
+        player_count, rbe_total, mercy, tick, recon
+    )
+}
+
+// ==================== HTTP + CLIENT ====================
+async fn serve_client() -> Router {
+    Router::new()
+        .route("/", get(|| async { Html(include_str!("../../web/powrush-client.html")) }))
+        .route("/client", get(|| async { Html(include_str!("../../web/powrush-client.html")) }))
+        .route("/health", get(|| async { "OK - Powrush v15.4 Ra-Thor AGI NPC actions exposed" }))
+        .route("/metrics", get(metrics_handler))
+}
+
+// ==================== MAIN ====================
 #[tokio::main]
 async fn main() {
-    println!("⚡ Powrush MMO Production Server v15.4 starting with NPC action exposure...");
-    // existing main loop
+    println!("⚡ Powrush MMO Production Server v15.4 starting with full NPC action exposure...");
+
+    let config = ServerConfig::from_env_or_default();
+    let config_arc = Arc::new(tokio::sync::RwLock::new(config.clone()));
+    let world = Arc::new(Mutex::new(WorldState::new()));
+    let (tx, rx) = mpsc::channel::<InputEvent>();
+    let (state_tx, _state_rx) = broadcast::channel::<Value>(1024);
+
+    let world_tick = world.clone();
+    let config_tick = config_arc.clone();
+    tokio::spawn(async move {
+        let tick_dur = Duration::from_millis(config_tick.read().await.tick_rate_ms);
+        loop {
+            let start = Instant::now();
+            {
+                let mut w = world_tick.lock().unwrap();
+                while let Ok(ev) = rx.try_recv() {
+                    w.input_queue.push_back(ev);
+                }
+                game_tick(&mut w, &config_tick.read().await.clone());
+            }
+            let elapsed = start.elapsed();
+            if elapsed < tick_dur {
+                tokio::time::sleep(tick_dur - elapsed).await;
+            }
+        }
+    });
+
+    let tcp_port: u16 = env::var("POWRUSH_TCP_PORT").ok().and_then(|v| v.parse().ok()).unwrap_or(7777);
+    let tcp_listener = TokioTcpListener::bind(format!("0.0.0.0:{}", tcp_port)).await.expect("TCP bind failed");
+    println!("✅ Powrush TCP listening on 0.0.0.0:{}", tcp_port);
+
+    let ws_port: u16 = env::var("POWRUSH_WS_PORT").ok().and_then(|v| v.parse().ok()).unwrap_or(7778);
+    let ws_listener = TokioTcpListener::bind(format!("0.0.0.0:{}", ws_port)).await.expect("WS bind failed");
+    println!("✅ Powrush WebSocket listening on 0.0.0.0:{}", ws_port);
+
+    let http_port: u16 = env::var("POWRUSH_HTTP_PORT").ok().and_then(|v| v.parse().ok()).unwrap_or(8080);
+    let app = serve_client().await;
+    let http_listener = TokioTcpListener::bind(format!("0.0.0.0:{}", http_port)).await.expect("HTTP bind failed");
+    println!("✅ Powrush Browser Client + /metrics on http://0.0.0.0:{}", http_port);
+
+    tokio::spawn(async move {
+        axum::serve(http_listener, app).await.unwrap();
+    });
+
+    let world_ws = world.clone();
+    let config_ws = config_arc.clone();
+    let tx_ws = tx.clone();
+    let state_tx_ws = state_tx.clone();
+    tokio::spawn(async move {
+        loop {
+            match ws_listener.accept().await {
+                Ok((stream, addr)) => {
+                    let w = world_ws.clone();
+                    let c = config_ws.clone();
+                    let t = tx_ws.clone();
+                    let stx = state_tx_ws.clone();
+                    tokio::spawn(async move {
+                        handle_ws_client(stream, addr, w, c, t, stx).await;
+                    });
+                }
+                Err(e) => eprintln!("WS accept error: {}", e),
+            }
+        }
+    });
+
+    loop {
+        match tcp_listener.accept().await {
+            Ok((stream, addr)) => {
+                let w = world.clone();
+                let c = config_arc.clone();
+                let t = tx.clone();
+                tokio::spawn(async move {
+                    handle_tcp_client(stream, addr, w, c, t).await;
+                });
+            }
+            Err(e) => eprintln!("TCP accept error: {}", e),
+        }
+    }
 }
