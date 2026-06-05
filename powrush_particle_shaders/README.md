@@ -1,14 +1,15 @@
 # Powrush Particle Shaders
 
-## Tightly Integrated GPU-Driven Pipeline
+## Production-Grade Pipeline Integration
 
-`GpuDrivenPipeline` is now tightly integrated with `ComputePipelineManager`.
+`GpuDrivenPipeline` has been significantly hardened with:
 
-- Pipelines are retrieved via the manager instead of being hardcoded.
-- Detailed memory barriers are included between stages.
-- Full command buffer recording for the complete pipeline is shown.
+- Proper descriptor set binding for Visibility Pass and Shading Pass
+- Detailed memory barriers between stages
+- Tight integration with `ComputePipelineManager`
+- Full command recording sequence for the complete GPU-driven pipeline
 
-This is production-grade integration of the entire GPU-driven rendering system.
+This is now a strong, production-oriented foundation.
 
 ---
 *GPU-Driven Rendering (Production Quality)*
