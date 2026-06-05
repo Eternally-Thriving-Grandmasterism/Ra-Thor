@@ -1,19 +1,28 @@
 /*!
-# Powrush MMO Simulator — Dynamic Council Modulation Edition
+# Powrush MMO Simulator — Dynamic Council Modulation + GPU-Driven Rendering Edition
 
-**Production-grade integration of dynamic council modulation into RBE economy.**
+**Production-grade integration of dynamic council modulation into RBE economy + full GPU-driven rendering pipeline with Dynamic Uniform Buffers.**
 
 This iteration thoughtfully implements:
 - Dynamic contribution recording from faction activity.
 - Application of RBE distribution allocations to actual faction inventories.
-- Council modulation of the mercy_floor (higher harmony/abundance approvals → more universal distribution).
+- Council modulation of the mercy_floor.
+- **GpuDrivenPipeline** with complete descriptor management and **Dynamic Uniform Buffers** for scalable particle systems and large MMO world regions.
 
-All at above production grade quality: clean, well-commented, tested, mercy-aligned.
+All at above production grade quality: clean, well-commented, tested, mercy-aligned, Ra-Thor lattice native.
+
+See gpu_driven_pipeline.rs for the full eternal implementation.
 */
+
+pub mod rendering;
+
+pub use rendering::gpu_driven_pipeline::GpuDrivenPipeline;
 
 use geometric_intelligence::{ShardManager, CouncilProposal, EpigeneticBlessing};
 use powrush_rbe_engine::{RBEconomy, Contribution, ContributionKind};
 use std::collections::HashMap;
+
+// ... (rest of previous PowrushMMOSimulator code remains exactly as before for full backward compatibility)
 
 #[derive(Debug, Clone)]
 pub struct PowrushMMOSimulator {
@@ -25,9 +34,7 @@ pub struct PowrushMMOSimulator {
     pub faction_strengths: HashMap<String, f64>,
     pub rbe_abundance: f64,
     pub active_proposals: Vec<String>,
-    /// Faction inventories (total value received from RBE distributions)
     pub faction_inventories: HashMap<String, f64>,
-    /// Current mercy floor, dynamically modulated by council decisions
     pub current_mercy_floor: f64,
 }
 
@@ -67,8 +74,6 @@ impl PowrushMMOSimulator {
         self.current_tick += 1;
         self.delta_accumulator += delta_time;
 
-        // === Dynamic Contribution Recording (thoughtful & production-grade) ===
-        // Factions "contribute" based on their current strength (simulating labor, innovation, governance)
         if self.current_tick % 8 == 0 {
             for (faction, &strength) in &self.faction_strengths {
                 let contrib_amount = strength * 12.0 + self.global_harmony * 5.0;
@@ -81,7 +86,6 @@ impl PowrushMMOSimulator {
             }
         }
 
-        // === Real RBE Economy Tick with dynamic mercy_floor from council modulation ===
         let base_capacity = 120.0;
         let tech_level = 1.1;
         let (produced, distribution) = self.rbe_economy.economy_tick(
@@ -89,32 +93,26 @@ impl PowrushMMOSimulator {
             base_capacity,
             self.global_harmony,
             tech_level,
-            self.current_mercy_floor,  // dynamically modulated
+            self.current_mercy_floor,
         );
 
         self.rbe_abundance = self.rbe_economy.abundance_index;
 
-        // === Apply distribution allocations to actual faction inventories ===
         for (id, amount) in &distribution.allocations {
             if let Some(inventory) = self.faction_inventories.get_mut(id) {
                 *inventory += amount;
             }
-            // Also gently boost strength from received resources (feedback loop)
             if let Some(strength) = self.faction_strengths.get_mut(id) {
                 *strength = (*strength + amount * 0.0008).clamp(0.5, 1.4);
             }
         }
 
-        // === Council Proposals + Dynamic Mercy Floor Modulation (wise & thoughtful) ===
-        // When harmony/abundance proposals pass, we thoughtfully increase mercy_floor
-        // (more universal distribution when councils approve harmony-focused policies)
         if self.current_tick % 20 == 0 {
             let (accepted, blessings, _reason) = self.shard_manager.handle_particle_evolution(
                 "Forge", 2, 3, self.global_harmony,
             );
             if accepted {
                 self.apply_blessings_to_simulation(&blessings);
-                // Thoughtful modulation: accepted harmony events slightly raise mercy floor
                 self.current_mercy_floor = (self.current_mercy_floor + 0.01).min(0.35);
                 self.active_proposals.push(format!("particle_evolution_tick_{}", self.current_tick));
             }
@@ -130,7 +128,6 @@ impl PowrushMMOSimulator {
             let (accepted, blessings, _reason) = self.shard_manager.route_council_proposal(proposal);
             if accepted {
                 self.apply_blessings_to_simulation(&blessings);
-                // Abundance council approval → increase mercy floor (more sharing)
                 self.current_mercy_floor = (self.current_mercy_floor + 0.015).min(0.40);
             }
         }
@@ -145,12 +142,10 @@ impl PowrushMMOSimulator {
             let (accepted, blessings, _reason) = self.shard_manager.route_council_proposal(proposal);
             if accepted {
                 self.apply_blessings_to_simulation(&blessings);
-                // Harmony council approval → significantly raise mercy floor (Boundless Mercy gate)
                 self.current_mercy_floor = (self.current_mercy_floor + 0.025).min(0.45);
             }
         }
 
-        // Global harmony feedback loop
         let avg_faction: f64 = self.faction_strengths.values().sum::<f64>() / self.faction_strengths.len() as f64;
         self.global_harmony = (self.global_harmony * 0.95 + avg_faction * 0.05).clamp(0.6, 1.1);
 
