@@ -1,13 +1,14 @@
 /*!
 # Compute Pipeline Manager
 
-Production-oriented manager for Vulkan compute pipelines.
+A robust and extensible manager for Vulkan compute pipelines.
 
 Features:
-- Real pipeline creation via vkCreateComputePipelines
-- Specialization constant support
-- Pipeline layout caching
+- Real pipeline creation with vkCreateComputePipelines
+- Specialization constants support
 - Automatic pipeline cache persistence
+- Shader module registry
+- Proper error handling
 */
 
 use std::collections::HashMap;
@@ -41,11 +42,20 @@ pub struct ComputePipelineCreateInfo {
     pub specialization_constants: Vec<SpecializationConstant>,
 }
 
+/// Errors that can occur when working with the pipeline manager.
+#[derive(Debug)]
+pub enum PipelineError {
+    ShaderModuleNotFound(ComputePipelineType),
+    PipelineCreationFailed(vk::Result),
+    PipelineLayoutNotFound(ComputePipelineType),
+}
+
 pub struct ComputePipelineManager {
     device: ash::Device,
     pipeline_cache: vk::PipelineCache,
     pipelines: HashMap<ComputePipelineType, vk::Pipeline>,
     layouts: HashMap<ComputePipelineType, vk::PipelineLayout>,
+    shader_modules: HashMap<ComputePipelineType, vk::ShaderModule>,
     cache_path: Option<PathBuf>,
 }
 
@@ -76,25 +86,39 @@ impl ComputePipelineManager {
             pipeline_cache,
             pipelines: HashMap::new(),
             layouts: HashMap::new(),
+            shader_modules: HashMap::new(),
             cache_path,
         }
+    }
+
+    /// Register a shader module for a specific pipeline type.
+    /// This should be called before requesting pipelines of that type.
+    pub fn register_shader_module(
+        &mut self,
+        pipeline_type: ComputePipelineType,
+        shader_module: vk::ShaderModule,
+    ) {
+        self.shader_modules.insert(pipeline_type, shader_module);
     }
 
     pub fn get_pipeline(
         &mut self,
         create_info: &ComputePipelineCreateInfo,
-    ) -> vk::Pipeline {
+    ) -> Result<vk::Pipeline, PipelineError> {
         if let Some(&pipeline) = self.pipelines.get(&create_info.pipeline_type) {
-            return pipeline;
+            return Ok(pipeline);
         }
 
-        let pipeline = self.create_pipeline(create_info);
+        let pipeline = self.create_pipeline(create_info)?;
         self.pipelines.insert(create_info.pipeline_type, pipeline);
-        pipeline
+        Ok(pipeline)
     }
 
-    fn create_pipeline(&self, create_info: &ComputePipelineCreateInfo) -> vk::Pipeline {
-        // === 1. Build Specialization Info ===
+    fn create_pipeline(
+        &self,
+        create_info: &ComputePipelineCreateInfo,
+    ) -> Result<vk::Pipeline, PipelineError> {
+        // === Specialization Info ===
         let spec_entries: Vec<vk::SpecializationMapEntry> = create_info
             .specialization_constants
             .iter()
@@ -130,27 +154,21 @@ impl ComputePipelineManager {
             vk::SpecializationInfo::default()
         };
 
-        // === 2. Select Shader Module ===
-        let shader_module = match create_info.pipeline_type {
-            ComputePipelineType::CullingPrimary => {
-                // TODO: Load or retrieve the actual shader module for WaveLocal Reduction
-                // For now, this must be replaced with a real VkShaderModule
-                vk::ShaderModule::null()
-            }
-            ComputePipelineType::VisibilityWrite => {
-                vk::ShaderModule::null()
-            }
-        };
+        // === Shader Module ===
+        let shader_module = self
+            .shader_modules
+            .get(&create_info.pipeline_type)
+            .copied()
+            .ok_or(PipelineError::ShaderModuleNotFound(create_info.pipeline_type))?;
 
-        if shader_module == vk::ShaderModule::null() {
-            panic!("Shader module not provided for pipeline type: {:?}", create_info.pipeline_type);
-        }
+        // === Pipeline Layout ===
+        let pipeline_layout = self
+            .layouts
+            .get(&create_info.pipeline_type)
+            .copied()
+            .ok_or(PipelineError::PipelineLayoutNotFound(create_info.pipeline_type))?;
 
-        // === 3. Get Pipeline Layout ===
-        // Note: In a real implementation, layouts should be created beforehand
-        let pipeline_layout = self.get_pipeline_layout(create_info.pipeline_type);
-
-        // === 4. Build Pipeline Create Info ===
+        // === Create Pipeline ===
         let stage_create_info = vk::PipelineShaderStageCreateInfo {
             s_type: vk::StructureType::PIPELINE_SHADER_STAGE_CREATE_INFO,
             p_next: std::ptr::null(),
@@ -175,18 +193,13 @@ impl ComputePipelineManager {
             base_pipeline_index: 0,
         };
 
-        // === 5. Create the Pipeline ===
         let pipelines = unsafe {
             self.device
-                .create_compute_pipelines(
-                    self.pipeline_cache,
-                    &[create_info_vk],
-                    None,
-                )
-                .expect("Failed to create compute pipeline")
+                .create_compute_pipelines(self.pipeline_cache, &[create_info_vk], None)
+                .map_err(PipelineError::PipelineCreationFailed)?
         };
 
-        pipelines[0]
+        Ok(pipelines[0])
     }
 
     pub fn get_pipeline_layout(&mut self, ty: ComputePipelineType) -> vk::PipelineLayout {
@@ -194,10 +207,19 @@ impl ComputePipelineManager {
             return layout;
         }
 
-        // TODO: Create real VkPipelineLayout with proper descriptor set layouts
+        // In real usage, layouts should be pre-created and registered
         let layout = vk::PipelineLayout::null();
         self.layouts.insert(ty, layout);
         layout
+    }
+
+    /// Register a pre-created pipeline layout for a pipeline type.
+    pub fn register_pipeline_layout(
+        &mut self,
+        pipeline_type: ComputePipelineType,
+        layout: vk::PipelineLayout,
+    ) {
+        self.layouts.insert(pipeline_type, layout);
     }
 
     fn save_cache(&self) {

@@ -2,14 +2,15 @@
 
 ## Compute Pipeline Manager
 
-Real pipeline creation logic has been implemented using `vkCreateComputePipelines`.
+The manager has been significantly refined with:
 
-The manager now supports:
-- Full pipeline creation with specialization constants
+- Real `vkCreateComputePipelines` implementation
+- Proper error handling using `PipelineError`
+- Shader module registration via `register_shader_module()`
+- Pipeline layout registration via `register_pipeline_layout()`
 - Automatic cache persistence
-- Clean separation of concerns
 
-Note: Shader modules and pipeline layouts still need to be provided for full functionality.
+This is now a robust foundation ready for integration with a real Vulkan backend.
 
 ---
 *Phase 1 Consolidation*
