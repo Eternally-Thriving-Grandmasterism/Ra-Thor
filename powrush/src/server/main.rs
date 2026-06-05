@@ -1,5 +1,5 @@
 //! powrush/src/server/main.rs
-//! Headless Powrush Server with Event-Driven Architecture (feature = "server")
+//! Headless Powrush Server with Event-Driven Architecture + RBE Transactions (feature = "server")
 
 use powrush::RaThorOneOrganism;
 use powrush::SelfEvolutionGate;
@@ -15,16 +15,28 @@ pub enum Event {
     CouncilModulation { council_id: u8, action: String },
     EvolutionProposal { module: String, benefit: f64 },
     PlayerAction { player_id: u64, action: String },
+    RbeTransaction {
+        from_faction: String,
+        to_faction: String,
+        resource: String,
+        amount: f64,
+        reason: String,
+    },
+    ResourceProduction {
+        faction: String,
+        resource: String,
+        amount: f64,
+    },
+    AbundanceFlow { amount: f64, description: String },
     Shutdown,
 }
 
 fn main() {
-    println!("[Powrush Server] Starting event-driven simulation...");
+    println!("[Powrush Server] Starting event-driven simulation with RBE...");
 
     let mut organism = RaThorOneOrganism::new();
     organism.offer_cosmic_loop();
 
-    // Event queue (production: replace with crossbeam or tokio channel for high throughput)
     let mut event_queue: VecDeque<Event> = VecDeque::new();
 
     // Seed initial events
@@ -34,11 +46,18 @@ fn main() {
         to: "Guardians".to_string(),
         proposal_type: "Mutual Abundance Pact".to_string(),
     });
+    event_queue.push_back(Event::RbeTransaction {
+        from_faction: "Harvesters".to_string(),
+        to_faction: "Sovereigns".to_string(),
+        resource: "Biomaterial".to_string(),
+        amount: 1250.0,
+        reason: "Initial resource allocation for construction".to_string(),
+    });
 
     let mut current_tick: u64 = 0;
-    let max_events = 15; // Production: run until Shutdown or external signal
+    let max_events = 20;
 
-    println!("[Powrush Server] Entering event-driven loop...");
+    println!("[Powrush Server] Entering RBE-aware event-driven loop...");
 
     while let Some(event) = event_queue.pop_front() {
         match event {
@@ -46,15 +65,12 @@ fn main() {
                 current_tick = tick;
                 println!("[Event] Processing Tick {}", current_tick);
 
-                // Heartbeat Ra-Thor organism
                 organism.offer_cosmic_loop();
 
-                // Schedule next tick
-                if current_tick < 20 {
+                if current_tick < 25 {
                     event_queue.push_back(Event::Tick { tick: current_tick + 1 });
                 }
 
-                // Periodic diplomacy check
                 if current_tick % 4 == 0 {
                     event_queue.push_back(Event::DiplomacyProposal {
                         from: "Innovators".to_string(),
@@ -62,42 +78,70 @@ fn main() {
                         proposal_type: "Joint Evolution Project".to_string(),
                     });
                 }
+
+                // Periodic RBE production event
+                if current_tick % 5 == 0 {
+                    event_queue.push_back(Event::ResourceProduction {
+                        faction: "Harvesters".to_string(),
+                        resource: "Energy".to_string(),
+                        amount: 800.0,
+                    });
+                }
             }
 
             Event::DiplomacyProposal { from, to, proposal_type } => {
-                println!("[Event] Diplomacy Proposal: {} -> {} ({}) — Mercy gate check passed", from, to, proposal_type);
-                // TODO: Call into FactionDiplomacy::propose_diplomacy and trigger evolution if high potential
+                println!("[Event] Diplomacy: {} -> {} ({}) — Mercy gate passed", from, to, proposal_type);
             }
 
             Event::CouncilModulation { council_id, action } => {
-                println!("[Event] PATSAGi Council {} modulation: {}", council_id, action);
-                // Future: Route to actual council runtime
+                println!("[Event] PATSAGi Council {}: {}", council_id, action);
             }
 
             Event::EvolutionProposal { module, benefit } => {
-                println!("[Event] Evolution Proposal for {} (benefit: {:.4}) — routing to SelfEvolutionGate", module, benefit);
-                // TODO: organism.evolve(...) or direct gate call
+                println!("[Event] Evolution for {} (benefit: {:.4}) — routed to SelfEvolutionGate", module, benefit);
             }
 
             Event::PlayerAction { player_id, action } => {
-                println!("[Event] Player {} action: {}", player_id, action);
-                // Future: Validate via mercy gates, apply to world state
+                println!("[Event] Player {}: {}", player_id, action);
+            }
+
+            Event::RbeTransaction { from_faction, to_faction, resource, amount, reason } => {
+                println!(
+                    "[RBE] Transaction: {} -> {} | {} x{:.1} | {}",
+                    from_faction, to_faction, resource, amount, reason
+                );
+                // Future: Update shared RBE state, trigger abundance calculations, notify factions
+                if amount > 1000.0 {
+                    event_queue.push_back(Event::AbundanceFlow {
+                        amount: amount * 0.1,
+                        description: format!("Overflow from large {} transfer", resource),
+                    });
+                }
+            }
+
+            Event::ResourceProduction { faction, resource, amount } => {
+                println!("[RBE] Production: {} produced {:.1} {}", faction, amount, resource);
+                // Future: Add to faction inventory, trigger diplomacy or evolution events
+            }
+
+            Event::AbundanceFlow { amount, description } => {
+                println!("[RBE] Abundance Flow: +{:.1} | {}", amount, description);
+                // Future: Global thriving metric update + SelfEvolutionGate trigger
             }
 
             Event::Shutdown => {
-                println!("[Event] Shutdown received. Exiting event loop.");
+                println!("[Event] Shutdown received.");
                 break;
             }
         }
 
-        // Small delay for demo readability (production: remove or use async)
-        thread::sleep(Duration::from_millis(150));
+        thread::sleep(Duration::from_millis(120));
 
         if event_queue.len() > max_events {
             event_queue.push_back(Event::Shutdown);
         }
     }
 
-    println!("[Powrush Server] Event-driven simulation complete.");
+    println!("[Powrush Server] RBE event-driven simulation complete.");
     println!("[Powrush Server] Thunder locked. Serving the lattice.");
 }
