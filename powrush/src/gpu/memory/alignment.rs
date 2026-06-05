@@ -1,86 +1,87 @@
-//! WGSL Buffer Layout Padding Deep Dive for Powrush-MMO (v17.4 Production)
+//! WGSL Struct Offset Verification for Powrush-MMO (v17.5 Production)
 //!
-//! Detailed exploration of WGSL memory layout and padding rules.
-//! Essential knowledge when writing compute shaders that interact with
-//! Powrush-MMO's epigenetic, geometric, vector, and NPC memory data.
+//! Tools to verify that Rust structs match expected WGSL memory layouts.
+//! Critical for correctness when passing data between CPU (Bevy ECS) and
+//! GPU compute shaders in Powrush-MMO + Ra-Thor AGI.
 //!
-//! WGSL follows specific layout rules (similar to std140 in GLSL but with some differences).
-//! Understanding these prevents bugs and performance issues.
+//! This module provides both documentation of expected offsets and
+//! runtime/compile-time verification helpers.
 //!
 //! All under AG-SML v1.0 • TOLC 8 • 7 Living Mercy Gates
 
 use bytemuck::{Pod, Zeroable};
+use std::mem::{align_of, offset_of, size_of};
 
-/// === WGSL Padding Rules Summary ===
+/// Verified layout for Epigenetic Profile on GPU.
 ///
-/// 1. **vec3<T>** has alignment of 16 bytes but size of 12 bytes.
-///    → Almost always needs 4 bytes of padding after it.
-///
-/// 2. Structs and arrays are aligned to the largest alignment of their members.
-///
-/// 3. The `align` and `size` attributes can be used to override defaults (WGSL 2023+).
-///
-/// 4. Storage buffers prefer 16-byte alignment for best performance on most GPUs.
-
-/// Example: Correctly padded struct matching WGSL expectations.
-/// This matches the layout Powrush-MMO uses for GPU compute.
+/// Expected WGSL layout (with 16-byte alignment):
+/// Offset 0:  volatility            (f32)  size 4
+/// Offset 4:  stability             (f32)  size 4
+/// Offset 8:  ecological_sensitivity (f32)  size 4
+/// Offset 12: creative_flow         (f32)  size 4
+/// Offset 16: mercy_alignment       (f32)  size 4
+/// Offset 20: _padding              [f32;3] size 12
+/// Total size: 32 bytes (multiple of 16)
 #[repr(C, align(16))]
 #[derive(Clone, Copy, Debug, Pod, Zeroable)]
-pub struct CorrectlyPaddedProfile {
-    pub volatility: f32,           // offset 0,  size 4
-    pub stability: f32,            // offset 4,  size 4
-    pub ecological_sensitivity: f32, // offset 8,  size 4
-    pub creative_flow: f32,        // offset 12, size 4
-    pub mercy_alignment: f32,      // offset 16, size 4
-    // Padding to satisfy vec3-like alignment expectations and 16-byte struct alignment
-    pub _padding: [f32; 3],        // offset 20, size 12  → total 32 bytes
-}
-
-/// Incorrect version (common mistake) — will cause misalignment issues.
-#[repr(C)]
-#[derive(Clone, Copy, Debug, Pod, Zeroable)]
-pub struct IncorrectlyPaddedProfile {
+pub struct GpuEpigeneticProfile {
     pub volatility: f32,
     pub stability: f32,
     pub ecological_sensitivity: f32,
     pub creative_flow: f32,
     pub mercy_alignment: f32,
-    // Missing padding! This struct is only 20 bytes.
-    // WGSL may misinterpret or crash on some hardware.
+    pub _padding: [f32; 3],
 }
 
-/// Vector type with explicit 16-byte alignment (recommended).
+/// Verified layout for Geometric Region.
+///
+/// Offset 0: resonance      (f32) size 4
+/// Offset 4: current_layer  (u32) size 4
+/// Offset 8: _padding       [f32;2] size 8
+/// Total: 16 bytes
 #[repr(C, align(16))]
 #[derive(Clone, Copy, Debug, Pod, Zeroable)]
-pub struct AlignedVector4 {
-    pub x: f32,
-    pub y: f32,
-    pub z: f32,
-    pub w: f32,
+pub struct GpuGeometricRegion {
+    pub resonance: f32,
+    pub current_layer: u32,
+    pub _padding: [f32; 2],
 }
 
-/// Helper to document padding decisions.
-/// Use this pattern when designing new GPU data structures for Powrush-MMO.
-pub fn explain_padding() {
-    // When designing a struct for WGSL storage buffer:
-    // 1. Start with logical fields
-    // 2. Add padding to reach 16-byte alignment
-    // 3. Use #[repr(C, align(16))]
-    // 4. Verify size with size_of::<T>() % 16 == 0 when possible
+/// Verified 16-byte aligned vector type.
+#[repr(C, align(16))]
+#[derive(Clone, Copy, Debug, Pod, Zeroable)]
+pub struct GpuVector {
+    pub data: [f32; 4],
 }
 
-/// Best Practice Recommendation for Powrush-MMO + Ra-Thor AGI:
-///
-/// Always design GPU structs with explicit padding from the beginning.
-/// This prevents subtle bugs in:
-/// - Epigenetic profile updates
-/// - Geometric layer calculations
-/// - Vector similarity search
-/// - NPC memory storage and recall
-///
-/// Misaligned data can cause:
-/// - Crashes on some GPUs
-/// - Corrupted simulation state
-/// - NPC behavior that feels broken or unfair to players
-///
-/// The structs in this module follow production-grade padding discipline.
+/// Compile-time + runtime verification of struct layouts.
+/// Call this during development or in tests to ensure layouts haven't drifted.
+pub fn verify_gpu_struct_layouts() {
+    // Epigenetic Profile verification
+    assert_eq!(size_of::<GpuEpigeneticProfile>(), 32, "GpuEpigeneticProfile size mismatch");
+    assert_eq!(align_of::<GpuEpigeneticProfile>(), 16, "GpuEpigeneticProfile alignment mismatch");
+    assert_eq!(offset_of!(GpuEpigeneticProfile, volatility), 0);
+    assert_eq!(offset_of!(GpuEpigeneticProfile, stability), 4);
+    assert_eq!(offset_of!(GpuEpigeneticProfile, ecological_sensitivity), 8);
+    assert_eq!(offset_of!(GpuEpigeneticProfile, creative_flow), 12);
+    assert_eq!(offset_of!(GpuEpigeneticProfile, mercy_alignment), 16);
+    assert_eq!(offset_of!(GpuEpigeneticProfile, _padding), 20);
+
+    // Geometric Region verification
+    assert_eq!(size_of::<GpuGeometricRegion>(), 16);
+    assert_eq!(align_of::<GpuGeometricRegion>(), 16);
+    assert_eq!(offset_of!(GpuGeometricRegion, resonance), 0);
+    assert_eq!(offset_of!(GpuGeometricRegion, current_layer), 4);
+    assert_eq!(offset_of!(GpuGeometricRegion, _padding), 8);
+
+    // Vector verification
+    assert_eq!(size_of::<GpuVector>(), 16);
+    assert_eq!(align_of::<GpuVector>(), 16);
+
+    println!("[GPU Alignment] All struct layouts verified successfully.");
+}
+
+/// Runtime check that can be called at startup.
+pub fn assert_gpu_layouts_valid() {
+    verify_gpu_struct_layouts();
+}
