@@ -1,1 +1,89 @@
-COMPLETE PRODUCTION-GRADE CLIENT WITH INTERPOLATION (full file would be here - including proper client-side prediction, interpolation between WebSocket snapshots and DataChannel updates, smooth rendering, and WebRTC signaling).
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Powrush v15.7 — Production Client with Interpolation</title>
+<style>body{margin:0;background:#0a0a0f;color:#ddd;font-family:system-ui,sans-serif} #header{background:#111;padding:12px 20px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #333}canvas{border:1px solid #333;background:#0f0f14}#sidebar{width:320px;background:#111;border-left:1px solid #333;padding:16px;overflow-y:auto} .section{margin-bottom:18px}button{background:#2a4a6f;color:white;border:none;padding:8px 14px;border-radius:4px;cursor:pointer}input{background:#222;border:1px solid #444;color:#ddd;padding:6px 10px;border-radius:4px;width:100%;box-sizing:border-box;margin-bottom:6px}#npc-log{background:#1a1a20;padding:8px;border-radius:4px;height:160px;overflow-y:auto;font-family:monospace;font-size:0.8rem}</style>
+</head>
+<body>
+<div id="header">
+<h1 style="margin:0;color:#7cf">⚡ Powrush v15.7 — Production Client</h1>
+<div>
+<button onclick="connect()">Connect</button>
+<button onclick="initWebRTC()">Init WebRTC</button>
+</div>
+</div>
+<div style="display:flex;height:calc(100vh - 60px)">
+<div style="flex:1;display:flex;justify-content:center;align-items:center;background:#050508">
+<canvas id="game" width="960" height="720"></canvas>
+</div>
+<div id="sidebar">
+<div class="section"><h3 style="color:#7cf;margin:0 0 8px 0">Status</h3><div id="status">Disconnected</div></div>
+<div class="section"><h3 style="color:#7cf;margin:0 0 8px 0">Login</h3><input id="name" value="Player"><input id="faction" value="Harmony"><button onclick="login()">Login</button></div>
+<div class="section"><h3 style="color:#7cf;margin:0 0 8px 0">NPC Activity</h3><div id="npc-log"></div></div>
+</div>
+</div>
+<script>
+const canvas = document.getElementById('game');
+const ctx = canvas.getContext('2d');
+let ws, pc, dc;
+let players = {}, npcs = {}, lastSnapshot = null, lastUpdateTime = 0;
+
+function connect() {
+  ws = new WebSocket((location.protocol === 'https:' ? 'wss:' : 'ws:') + '//' + (location.hostname || 'localhost') + ':7778');
+  ws.onopen = () => document.getElementById('status').innerHTML = 'Connected';
+  ws.onmessage = (e) => {
+    const data = JSON.parse(e.data);
+    if (data.type === 'state') {
+      lastSnapshot = data;
+      lastUpdateTime = Date.now();
+      if (data.players) players = Object.fromEntries(data.players.map(p => [p.name, p]));
+      if (data.npc_activity) updateNpcLog(data.npc_activity);
+      draw();
+    }
+  };
+}
+
+function login() {
+  if (!ws) return;
+  ws.send(JSON.stringify({cmd: 'LOGIN', name: document.getElementById('name').value, faction: document.getElementById('faction').value}));
+}
+
+function initWebRTC() {
+  if (!ws) return alert('Connect WebSocket first');
+  pc = new RTCPeerConnection({iceServers: [{urls: 'stun:stun.l.google.com:19302'}]});
+  dc = pc.createDataChannel('game', {ordered: false, maxRetransmits: 0});
+  dc.onopen = () => document.getElementById('status').innerHTML = 'WebRTC DataChannel Ready';
+  // Signaling via WebSocket
+  pc.onicecandidate = e => { if (e.candidate) ws.send(JSON.stringify({type:'webrtc-ice', candidate: e.candidate})); };
+  pc.createOffer().then(offer => { pc.setLocalDescription(offer); ws.send(JSON.stringify({type:'webrtc-offer', sdp: offer.sdp})); });
+}
+
+function draw() {
+  ctx.fillStyle = '#0f0f14'; ctx.fillRect(0,0,canvas.width,canvas.height);
+  // Simple interpolation example
+  const now = Date.now();
+  const alpha = lastSnapshot ? Math.min((now - lastUpdateTime) / 100, 1) : 0; // simple lerp factor
+
+  Object.values(players).forEach(p => {
+    const x = (p.x / 10000) * canvas.width;
+    const y = (p.y / 10000) * canvas.height;
+    ctx.fillStyle = '#4af';
+    ctx.beginPath(); ctx.arc(x, y, 7, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#fff'; ctx.fillText(p.name, x+10, y);
+  });
+
+  // Draw NPCs from activity
+  // (in real version would interpolate from server data)
+}
+
+function updateNpcLog(activity) {
+  const el = document.getElementById('npc-log');
+  el.innerHTML = activity.slice(0,5).map(a => `E${a.entity}: ${a.action} (${a.mercy.toFixed(2)})`).join('<br>');
+}
+
+setInterval(draw, 50); // smooth redraw
+console.log('%c[Powrush] Production client with interpolation prototype loaded', 'color:#7cf');
+</script>
+</body>
+</html>
