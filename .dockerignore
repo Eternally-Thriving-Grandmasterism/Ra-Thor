@@ -1,11 +1,41 @@
-.git
+# Powrush MMO + Ra-Thor Thunder — Production Docker ignore
+# Clean, minimal context for fast secure builds
+
+# Rust build artifacts (huge)
+target/
+**/*.rs.bk
+Cargo.lock
+
+# Git
+.git/
 .gitignore
-node_modules
-target
-build
-dist
+
+# IDE / OS noise
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Runtime generated (never bake logs/config into image)
 *.log
+powrush_mercy_audit.jsonl
+powrush_server_audit.jsonl
+powrush_config.json
+
+# Secrets & sensitive
+.env*
 secrets/
-*.private.*
-Dockerfile*
-!Dockerfile  # keep Dockerfiles themselves
+*.pem
+*.key
+
+# Documentation (keep only key files for image context if needed)
+*.md
+!README.md
+!QUICKSTART.md
+!CHANGELOG.md
+
+# Development & test
+.env
+.env.*
+.docker/
