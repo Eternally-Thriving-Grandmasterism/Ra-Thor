@@ -69,15 +69,25 @@ The `MultiAgentOrchestrator` serves as the central AGI brain:
 - Supports higher-level behaviors (personalized quests, skill tracking)
 - All decisions are processed through the TOLC 8 Mercy Lattice
 
-#### Client Exposure (Current & Planned)
+#### Client Exposure Mechanisms
 - **Current**: Basic `npc_activity` in WebSocket snapshots + `npcs` command (action + mercy_score)
 - **Planned**: Full `EnrichedNpcState` exposure (goal, emotional_state, q_values, moral_evaluation, combined_wisdom_score) via WebRTC/DataChannel
 - This will allow players to see not just *what* NPCs do, but *why* (their internal reasoning and moral evaluation)
 
 #### GPU Compute Layer Role
-- Accelerates simulation state (epigenetic fields, geometric data)
-- Provides efficient StagingBufferPool + async readback infrastructure
-- Future opportunity: Accelerate parts of the AGI decision loop or batch NPC inference
+The new GPU Compute Layer accelerates simulation state movement and provides infrastructure for efficient readback. See the dedicated [GPU_COMPUTE_LAYER.md](GPU_COMPUTE_LAYER.md) for full details.
+
+**Key Capabilities:**
+- `StagingBufferPool` for reusable staging buffers
+- `readback_buffer_async()` and blocking readback helpers
+- Optimized dispatch and batching in `pipeline.rs`
+- Debug utilities (`DebugOutputBuffer` + readback patterns)
+
+**Practical Usage Guidance:**
+- Use `StagingBufferPool` for any frequent GPU ↔ CPU transfers in simulation systems
+- Prefer async readback paths in production code when possible
+- Leverage debug utilities during development and testing of compute shaders
+- Coordinate with `MultiAgentOrchestrator` when NPC behavior depends on GPU-updated simulation state
 
 #### Key Related Crates
 - `powrush/`
@@ -119,6 +129,7 @@ Main branch is eternally protected and release-ready.
 - `ARCHITECTURE.md` — Current system architecture
 - `RA-THOR-MONOREPO-COMMIT-WORKFLOW-PROTOCOL.md` — The eternal contribution standard
 - `ETERNAL-LATTICE-LAUNCH-CODEX-v1.0.md` — Visionary foundation
+- `GPU_COMPUTE_LAYER.md` — Dedicated reference for the v14.7.0 GPU Compute Layer
 
 ---
 
