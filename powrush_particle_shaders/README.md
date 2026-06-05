@@ -1,13 +1,16 @@
 # Powrush Particle Shaders
 
-## Modular Culling Pipeline (Hi-Z + Compaction)
+## Combined Distance + Hi-Z Culling Test
 
-Following Option 2, we now have two clean, separate but tightly integrated passes:
+Added `DISTANCE_AND_HIZ_TEST` — a clean, high-quality combined pass that performs:
+- Distance culling (early-out)
+- Hi-Z occlusion testing
 
-1. `HIZ_OCCLUSION_TEST` — Tests particles against the Hi-Z pyramid and writes visibility flags.
-2. `COMPACTION` — Reads visibility flags and performs WaveLocal Reduction style compaction.
+Outputs visibility flags that feed directly into the `COMPACTION` pass.
 
-This design prioritizes clarity, debuggability, and flexibility while maintaining high performance.
+This creates a modular yet efficient two-pass culling pipeline:
+1. `DISTANCE_AND_HIZ_TEST`
+2. `COMPACTION`
 
 ---
-*GPU-Driven Rendering*
+*GPU-Driven Rendering (Production Quality)*
