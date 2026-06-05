@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: powrush-mmo
+  labels:
+    app: powrush
+    environment: production
