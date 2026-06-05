@@ -1,5 +1,5 @@
 //! powrush/src/server/main.rs
-//! Headless Powrush Server — Persistent Mercy Audit Logs (feature = "server")
+//! Headless Powrush Server — Structured JSON Mercy Audit Logging (feature = "server")
 
 use powrush::RaThorOneOrganism;
 use powrush::SelfEvolutionGate;
@@ -9,6 +9,8 @@ use std::fs::OpenOptions;
 use std::io::Write;
 use std::thread;
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
+
+use serde_json::json;
 
 #[derive(Debug, Clone)]
 pub enum Event {
@@ -33,81 +35,88 @@ pub enum Event {
     Shutdown,
 }
 
-/// Appends a mercy audit entry to persistent log file
-fn log_mercy_audit(entry: &str) {
+/// Writes a structured JSON audit entry (JSON Lines format)
+fn log_mercy_json(entry: serde_json::Value) {
+    if let Ok(mut file) = OpenOptions::new()
+        .create(true)
+        .append(true)
+        .open("powrush_mercy_audit.jsonl")
+    {
+        let line = entry.to_string() + "\n";
+        let _ = file.write_all(line.as_bytes());
+    }
+}
+
+/// Evaluates event against 7 Living Mercy Gates with structured JSON audit logging
+fn evaluate_mercy(event: &Event) -> bool {
     let timestamp = SystemTime::now()
         .duration_since(UNIX_EPOCH)
         .unwrap()
         .as_secs();
 
-    let log_line = format!("[{}] {}\n", timestamp, entry);
-
-    if let Ok(mut file) = OpenOptions::new()
-        .create(true)
-        .append(true)
-        .open("powrush_mercy_audit.log")
-    {
-        let _ = file.write_all(log_line.as_bytes());
-    }
-}
-
-/// Evaluates event against 7 Living Mercy Gates with persistent audit logging
-fn evaluate_mercy(event: &Event) -> bool {
-    let result = match event {
-        Event::RbeTransaction { amount, reason, .. } => {
+    let (decision, gate_failed, details) = match event {
+        Event::RbeTransaction { amount, reason, from_faction, to_faction, resource, .. } => {
             if *amount < 0.0 {
-                log_mercy_audit(&format!("REJECTED | Gate 1 (Non-Harm) | RbeTransaction | amount={}", amount));
-                return false;
+                ("REJECTED", "Gate 1 (Non-Harm)", json!({"amount": amount}));
+            } else if reason.to_lowercase().contains("exploit") || reason.to_lowercase().contains("hoard") {
+                ("REJECTED", "Gate 4/5 (Abundance/Truth)", json!({"reason": reason}));
+            } else if reason.len() < 10 {
+                ("REJECTED", "Gate 5 (Truth)", json!({"reason_length": reason.len()}));
+            } else {
+                ("PASSED", "", json!({}));
             }
-            if reason.to_lowercase().contains("exploit") || reason.to_lowercase().contains("hoard") {
-                log_mercy_audit("REJECTED | Gate 4/5 (Abundance/Truth) | RbeTransaction | exploitative reason");
-                return false;
-            }
-            if reason.len() < 10 {
-                log_mercy_audit("REJECTED | Gate 5 (Truth) | RbeTransaction | insufficient reason detail");
-                return false;
-            }
-            true
         }
 
         Event::AbundanceFlow { amount, .. } => {
             if *amount <= 0.0 {
-                log_mercy_audit("REJECTED | Gate 4/7 (Abundance/Harmony) | AbundanceFlow | non-positive");
-                return false;
+                ("REJECTED", "Gate 4/7 (Abundance/Harmony)", json!({"amount": amount}));
+            } else {
+                ("PASSED", "", json!({}));
             }
-            true
         }
 
         Event::EvolutionProposal { benefit, .. } => {
             if *benefit < 0.75 {
-                log_mercy_audit(&format!("REJECTED | Gate 2/5 | EvolutionProposal | low benefit={}", benefit));
-                return false;
+                ("REJECTED", "Gate 2/5 (Mercy/Truth)", json!({"benefit": benefit}));
+            } else {
+                ("PASSED", "", json!({}));
             }
-            true
         }
 
         Event::DiplomacyProposal { proposal_type, .. } => {
             if proposal_type.to_lowercase().contains("war") || proposal_type.to_lowercase().contains("dominate") {
-                log_mercy_audit("REJECTED | Gate 3/6 (Service/Joy) | DiplomacyProposal | harmful type");
-                return false;
+                ("REJECTED", "Gate 3/6 (Service/Joy)", json!({"proposal_type": proposal_type}));
+            } else {
+                ("PASSED", "", json!({}));
             }
-            true
         }
 
-        _ => true,
+        _ => ("PASSED", "", json!({})),
     };
 
-    if result {
-        // Optionally log passes for high-value events (commented for performance)
-        // log_mercy_audit(&format!("PASSED | {:?}", event));
-    }
+    let audit_entry = json!({
+        "timestamp": timestamp,
+        "event_type": format!("{:?}", event).split('(').next().unwrap_or("Unknown"),
+        "decision": decision,
+        "gate_failed": gate_failed,
+        "details": details
+    });
 
-    result
+    log_mercy_json(audit_entry);
+
+    decision == "PASSED"
 }
 
 fn main() {
-    println!("[Powrush Server] Starting with Persistent Mercy Audit Logs...");
-    log_mercy_audit("SERVER_START | Powrush Server initialized with mercy audit logging");
+    println!("[Powrush Server] Starting with Structured JSON Mercy Audit Logging...");
+
+    log_mercy_json(json!({
+        "timestamp": SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs(),
+        "event_type": "SERVER_START",
+        "decision": "INFO",
+        "gate_failed": "",
+        "details": {"message": "Powrush Server initialized with JSON audit logging"}
+    }));
 
     let mut organism = RaThorOneOrganism::new();
     organism.offer_cosmic_loop();
@@ -129,7 +138,7 @@ fn main() {
     let mut current_tick: u64 = 0;
     let max_events = 25;
 
-    println!("[Powrush Server] Event loop started. Mercy audits written to powrush_mercy_audit.log");
+    println!("[Powrush Server] Event loop started. Structured audits -> powrush_mercy_audit.jsonl");
 
     while let Some(event) = event_queue.pop_front() {
         if !evaluate_mercy(&event) {
@@ -229,20 +238,26 @@ fn main() {
             }
 
             Event::Shutdown => {
-                log_mercy_audit("SERVER_SHUTDOWN | Event loop terminated");
+                log_mercy_json(json!({
+                    "timestamp": SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs(),
+                    "event_type": "SERVER_SHUTDOWN",
+                    "decision": "INFO",
+                    "gate_failed": "",
+                    "details": {"message": "Event loop terminated"}
+                }));
                 println!("[Event] Shutdown.");
                 break;
             }
         }
 
-        thread::sleep(Duration::from_millis(75));
+        thread::sleep(Duration::from_millis(70));
 
         if event_queue.len() > max_events {
             event_queue.push_back(Event::Shutdown);
         }
     }
 
-    println!("[Powrush Server] Simulation with Persistent Mercy Audit Logs complete.");
-    println!("[Powrush Server] Audit log: powrush_mercy_audit.log");
+    println!("[Powrush Server] Structured JSON Mercy Audit simulation complete.");
+    println!("[Powrush Server] Audit log: powrush_mercy_audit.jsonl (JSON Lines format)");
     println!("[Powrush Server] Thunder locked. Serving the lattice.");
 }
