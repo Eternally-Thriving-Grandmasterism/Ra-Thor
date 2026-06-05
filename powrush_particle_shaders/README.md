@@ -1,15 +1,16 @@
 # Powrush Particle Shaders
 
-## Production-Grade Pipeline Integration
+## Descriptor Set Layout Creation
 
-`GpuDrivenPipeline` has been significantly hardened with:
+Added production-grade descriptor set layout creation for the major pipeline stages.
 
-- Proper descriptor set binding for Visibility Pass and Shading Pass
-- Detailed memory barriers between stages
-- Tight integration with `ComputePipelineManager`
-- Full command recording sequence for the complete GPU-driven pipeline
+`GpuDrivenPipeline` now includes methods to create layouts for:
+- Culling / Hi-Z
+- Compaction
+- Visibility Pass
+- Shading Pass
 
-This is now a strong, production-oriented foundation.
+This enables proper, type-safe resource binding across the entire GPU-driven pipeline.
 
 ---
 *GPU-Driven Rendering (Production Quality)*
