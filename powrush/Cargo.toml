@@ -19,6 +19,9 @@ arc-swap = "1.7"
 tokio = { version = "1.38", features = ["rt-multi-thread", "net", "time", "macros", "sync"] }
 tokio-tungstenite = "0.23"
 futures-util = "0.3"
+# Production Docker + beautiful browser client serving
+axum = { version = "0.7", features = ["ws", "macros"] }
+tower-http = { version = "0.5", features = ["fs", "trace"] }
 # Ra-Thor lattice integration
 ra-thor-one-organism = { path = ".." }
 self-evolution-gate = { path = "../core" }
