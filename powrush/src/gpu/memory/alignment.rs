@@ -1,27 +1,37 @@
-//! WGSL Struct Offset Verification for Powrush-MMO (v17.5 Production)
+//! WGSL Struct Offset Verification for Powrush-MMO + Ra-Thor AGI (v17.6 Ultimate Production)
 //!
-//! Tools to verify that Rust structs match expected WGSL memory layouts.
-//! Critical for correctness when passing data between CPU (Bevy ECS) and
-//! GPU compute shaders in Powrush-MMO + Ra-Thor AGI.
+//! This module provides compile-time and runtime verification that Rust structs
+//! exactly match the expected memory layouts used in WGSL compute shaders.
 //!
-//! This module provides both documentation of expected offsets and
-//! runtime/compile-time verification helpers.
+//! It is critical for correctness when passing data between CPU (Bevy ECS / Ra-Thor agents)
+//! and GPU compute pipelines in Powrush-MMO epigenetic + geometric simulations.
 //!
-//! All under AG-SML v1.0 • TOLC 8 • 7 Living Mercy Gates
+//! ## Why this matters
+//! WGSL (and most modern GPU APIs) requires strict alignment rules (typically 16-byte
+//! for many data structures). Mismatches between Rust `#[repr(C)]` layouts and WGSL
+//! expectations cause silent data corruption, incorrect simulation results, or crashes.
+//!
+//! This module makes those layouts explicit, verifiable, and documented in one place.
+//!
+//! ## Usage
+//! Call `assert_gpu_layouts_valid()` early in application startup or in tests.
+//! The functions use `bytemuck`, `offset_of!`, and `size_of` to catch drift immediately.
+//!
+//! All under AG-SML v1.0 • TOLC 8 Mercy Lattice • 7 Living Mercy Gates
 
 use bytemuck::{Pod, Zeroable};
 use std::mem::{align_of, offset_of, size_of};
 
-/// Verified layout for Epigenetic Profile on GPU.
+/// Verified 16-byte aligned layout for Epigenetic Profile passed to GPU.
 ///
-/// Expected WGSL layout (with 16-byte alignment):
-/// Offset 0:  volatility            (f32)  size 4
-/// Offset 4:  stability             (f32)  size 4
-/// Offset 8:  ecological_sensitivity (f32)  size 4
-/// Offset 12: creative_flow         (f32)  size 4
-/// Offset 16: mercy_alignment       (f32)  size 4
-/// Offset 20: _padding              [f32;3] size 12
-/// Total size: 32 bytes (multiple of 16)
+/// Expected WGSL layout (16-byte aligned):
+/// Offset 0:  volatility             (f32)      size 4
+/// Offset 4:  stability              (f32)      size 4
+/// Offset 8:  ecological_sensitivity (f32)      size 4
+/// Offset 12: creative_flow          (f32)      size 4
+/// Offset 16: mercy_alignment       (f32)      size 4
+/// Offset 20: _padding              [f32; 3]    size 12
+/// Total: 32 bytes (multiple of 16)
 #[repr(C, align(16))]
 #[derive(Clone, Copy, Debug, Pod, Zeroable)]
 pub struct GpuEpigeneticProfile {
@@ -33,11 +43,11 @@ pub struct GpuEpigeneticProfile {
     pub _padding: [f32; 3],
 }
 
-/// Verified layout for Geometric Region.
+/// Verified 16-byte aligned layout for Geometric Region data.
 ///
 /// Offset 0: resonance      (f32) size 4
 /// Offset 4: current_layer  (u32) size 4
-/// Offset 8: _padding       [f32;2] size 8
+/// Offset 8: _padding       [f32; 2] size 8
 /// Total: 16 bytes
 #[repr(C, align(16))]
 #[derive(Clone, Copy, Debug, Pod, Zeroable)]
@@ -47,17 +57,20 @@ pub struct GpuGeometricRegion {
     pub _padding: [f32; 2],
 }
 
-/// Verified 16-byte aligned vector type.
+/// Verified 16-byte aligned 4-component vector type (common in GPU work).
 #[repr(C, align(16))]
 #[derive(Clone, Copy, Debug, Pod, Zeroable)]
 pub struct GpuVector {
     pub data: [f32; 4],
 }
 
-/// Compile-time + runtime verification of struct layouts.
-/// Call this during development or in tests to ensure layouts haven't drifted.
+/// Compile-time + runtime verification of all known GPU struct layouts.
+///
+/// Call this during development, in `#[test]` modules, or at application startup
+/// to guarantee that Rust layouts have not drifted from the documented WGSL expectations.
+/// Panics on mismatch (fail-fast during development).
 pub fn verify_gpu_struct_layouts() {
-    // Epigenetic Profile verification
+    // === GpuEpigeneticProfile ===
     assert_eq!(size_of::<GpuEpigeneticProfile>(), 32, "GpuEpigeneticProfile size mismatch");
     assert_eq!(align_of::<GpuEpigeneticProfile>(), 16, "GpuEpigeneticProfile alignment mismatch");
     assert_eq!(offset_of!(GpuEpigeneticProfile, volatility), 0);
@@ -67,21 +80,33 @@ pub fn verify_gpu_struct_layouts() {
     assert_eq!(offset_of!(GpuEpigeneticProfile, mercy_alignment), 16);
     assert_eq!(offset_of!(GpuEpigeneticProfile, _padding), 20);
 
-    // Geometric Region verification
+    // === GpuGeometricRegion ===
     assert_eq!(size_of::<GpuGeometricRegion>(), 16);
     assert_eq!(align_of::<GpuGeometricRegion>(), 16);
     assert_eq!(offset_of!(GpuGeometricRegion, resonance), 0);
     assert_eq!(offset_of!(GpuGeometricRegion, current_layer), 4);
     assert_eq!(offset_of!(GpuGeometricRegion, _padding), 8);
 
-    // Vector verification
+    // === GpuVector ===
     assert_eq!(size_of::<GpuVector>(), 16);
     assert_eq!(align_of::<GpuVector>(), 16);
 
-    println!("[GPU Alignment] All struct layouts verified successfully.");
+    println!("[GPU Alignment v17.6] All struct layouts verified successfully.");
 }
 
-/// Runtime check that can be called at startup.
+/// Runtime assertion that can be called once at startup or in integration tests.
+/// Recommended to call early in Powrush-MMO + Ra-Thor AGI initialization.
 pub fn assert_gpu_layouts_valid() {
     verify_gpu_struct_layouts();
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn gpu_layouts_are_valid() {
+        // This test will catch any accidental layout changes during refactoring.
+        verify_gpu_struct_layouts();
+    }
 }
