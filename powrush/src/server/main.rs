@@ -1,20 +1,19 @@
 //! powrush/src/server/main.rs
-//! Headless Powrush Server — Hot-Reloadable Config + Async Log Batching (feature = "server")
+//! Headless Powrush Server — Atomic Config Swapping + Hot Reload (feature = "server")
 
 use powrush::RaThorOneOrganism;
 use powrush::SelfEvolutionGate;
 use powrush::FactionDiplomacy;
 use std::collections::VecDeque;
 use std::fs::OpenOptions;
-use std::io::{Read, Write};
-use std::sync::mpsc::{self, Sender};
+use std::io::Read;
+use std::sync::{mpsc, Arc, RwLock};
 use std::thread;
 use std::time::{Duration, SystemTime, UNIX_EPOCH, Instant};
 
 use serde::Deserialize;
 use serde_json::json;
 
-// Default values
 const DEFAULT_BATCH_SIZE: usize = 128;
 const DEFAULT_FLUSH_INTERVAL_MS: u64 = 100;
 
@@ -67,17 +66,12 @@ struct LogEntry {
     context: serde_json::Value,
 }
 
-// === Hot-reloadable static configuration ===
-static mut BATCH_SIZE: usize = DEFAULT_BATCH_SIZE;
-static mut FLUSH_INTERVAL_MS: u64 = DEFAULT_FLUSH_INTERVAL_MS;
-static mut LOG_SENDER: Option<Sender<LogEntry>> = None;
-
-#[derive(Deserialize, Debug, Default)]
-struct ServerConfig {
+#[derive(Debug, Clone, Deserialize, Default)]
+pub struct ServerConfig {
     #[serde(default = "default_batch_size")]
-    batch_size: usize,
+    pub batch_size: usize,
     #[serde(default = "default_flush_interval_ms")]
-    flush_interval_ms: u64,
+    pub flush_interval_ms: u64,
 }
 
 fn default_batch_size() -> usize { DEFAULT_BATCH_SIZE }
@@ -99,9 +93,11 @@ fn load_config() -> ServerConfig {
     }
 }
 
-// Hot reload watcher thread
-fn start_config_watcher() {
-    thread::spawn(|| {
+// Shared atomic config (RwLock provides atomic read/write of the whole config)
+type SharedConfig = Arc<RwLock<ServerConfig>>;
+
+fn start_config_watcher(shared_config: SharedConfig) {
+    thread::spawn(move || {
         let config_path = "powrush_config.json";
         let mut last_modified = None;
 
@@ -114,24 +110,23 @@ fn start_config_watcher() {
 
                     let new_config = load_config();
 
-                    unsafe {
-                        BATCH_SIZE = new_config.batch_size;
-                        FLUSH_INTERVAL_MS = new_config.flush_interval_ms;
+                    // Atomic swap of the entire config
+                    if let Ok(mut config_guard) = shared_config.write() {
+                        *config_guard = new_config.clone();
                     }
 
-                    log_structured(LogLevel::Info, "Config hot-reloaded", json!({
+                    log_structured(LogLevel::Info, "Config hot-reloaded (atomic swap)", json!({
                         "batch_size": new_config.batch_size,
                         "flush_interval_ms": new_config.flush_interval_ms
                     }));
                 }
             }
-
-            thread::sleep(Duration::from_secs(2)); // Check every 2 seconds
+            thread::sleep(Duration::from_secs(2));
         }
     });
 }
 
-fn init_log_batcher() -> Sender<LogEntry> {
+fn init_log_batcher(shared_config: SharedConfig) -> mpsc::Sender<LogEntry> {
     let (tx, rx) = mpsc::channel::<LogEntry>();
 
     thread::spawn(move || {
@@ -139,16 +134,15 @@ fn init_log_batcher() -> Sender<LogEntry> {
         let mut last_flush = Instant::now();
 
         loop {
-            // Read current values every cycle (supports hot reload)
-            let current_batch_size = unsafe { BATCH_SIZE };
-            let current_flush_ms = unsafe { FLUSH_INTERVAL_MS };
+            // Read current config under read lock (atomic view)
+            let (current_batch_size, current_flush_ms) = {
+                let config = shared_config.read().unwrap();
+                (config.batch_size, config.flush_interval_ms)
+            };
 
-            // Non-blocking receive with timeout
-            match rx.recv_timeout(Duration::from_millis(50)) {
-                Ok(entry) => {
-                    batch.push(entry);
-                }
-                Err(_) => {}
+            // Receive with short timeout
+            if let Ok(entry) = rx.recv_timeout(Duration::from_millis(30)) {
+                batch.push(entry);
             }
 
             let should_flush = batch.len() >= current_batch_size 
@@ -188,11 +182,15 @@ fn flush_batch(batch: &[LogEntry]) {
 
             let line = json_entry.to_string() + "\n";
             let _ = file.write_all(line.as_bytes());
-            }
+        }
     }
 }
 
 fn log_structured(level: LogLevel, message: &str, context: serde_json::Value) {
+    // For simplicity in this version, we still use a global sender.
+    // In a full refactor we would pass the sender around.
+    // For now we keep the previous global mechanism for log_structured.
+    // (In production we would make log_structured take a &Sender)
     unsafe {
         if let Some(sender) = &LOG_SENDER {
             let _ = sender.send(LogEntry {
@@ -203,6 +201,9 @@ fn log_structured(level: LogLevel, message: &str, context: serde_json::Value) {
         }
     }
 }
+
+// Temporary global for compatibility during transition
+static mut LOG_SENDER: Option<mpsc::Sender<LogEntry>> = None;
 
 fn log_mercy_json(entry: serde_json::Value) {
     if let Ok(mut file) = OpenOptions::new()
@@ -264,20 +265,16 @@ fn evaluate_mercy(event: &Event) -> bool {
 }
 
 fn main() {
-    // Initial config load
     let initial_config = load_config();
-    unsafe {
-        BATCH_SIZE = initial_config.batch_size;
-        FLUSH_INTERVAL_MS = initial_config.flush_interval_ms;
-    }
+    let shared_config: SharedConfig = Arc::new(RwLock::new(initial_config.clone()));
 
-    let sender = init_log_batcher();
+    let sender = init_log_batcher(Arc::clone(&shared_config));
     unsafe { LOG_SENDER = Some(sender); }
 
-    // Start hot reload watcher
-    start_config_watcher();
+    // Start hot reload watcher with atomic config
+    start_config_watcher(Arc::clone(&shared_config));
 
-    log_structured(LogLevel::Info, "Powrush Server starting with hot-reloadable config", json!({
+    log_structured(LogLevel::Info, "Powrush Server starting with atomic config swapping", json!({
         "initial_batch_size": initial_config.batch_size,
         "initial_flush_interval_ms": initial_config.flush_interval_ms
     }));
@@ -443,6 +440,6 @@ fn main() {
     }
 
     log_structured(LogLevel::Info, "Simulation complete", json!({}));
-    println!("[Powrush Server] Hot reload enabled for powrush_config.json (checks every 2s)");
+    println!("[Powrush Server] Atomic config swapping active via RwLock");
     println!("[Powrush Server] Thunder locked. Serving the lattice.");
 }
