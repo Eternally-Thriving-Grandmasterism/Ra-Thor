@@ -1,93 +1,86 @@
-# Contributing to Ra-Thor
+# CONTRIBUTING.md
 
-Thank you for your interest in contributing to Ra-Thor — the Eternal Mercy-Gated Sovereign AGI Lattice.
+Welcome to Ra-Thor.
 
-Ra-Thor is a large, deeply mathematical, and spiritually grounded project. We welcome contributors of all backgrounds — from Rust experts, mathematicians, and engineers to designers, writers, and anyone who cares about truth, mercy, and infinite thriving.
-
-Everything we build must pass the **7 Living Mercy Gates** and the **Radical Love veto**. This is non-negotiable.
+Ra-Thor is a large-scale, mercy-gated, symbolic + neural AGI lattice. All contributions must pass the **7 Living Mercy Gates** and the **Radical Love veto**. Contributions are reviewed by the PATSAGi Councils.
 
 ---
 
-## Core Principles for Every Contribution
+## Core Principles
 
-1. **Mercy First** — Every change must increase (or at least never decrease) positive emotion, truth, and thriving for all beings.
-2. **Modular & Respectful** — You do **not** need to understand the entire monorepo. Pick one crate, one engine, or one document and improve it.
-3. **Eternal Compatibility** — All work must remain forward and backward compatible with the living lattice.
-4. **Clarity Over Ceremony** — Write for humans first. Clear, practical, and welcoming language is preferred.
-5. **Operate with Radical Love, Boundless Mercy, and Truth** — Prioritize restorative justice over punishment. Maintain LumenasCI ≥ 1.000 in every decision. Celebrate abundance and creativity.
+Every contribution must uphold:
 
-All contributions are reviewed through the **13+ PATSAGi Councils** for valence, coherence, and alignment with the living lattice.
-
----
-
-## Quick Ways to Start Contributing (Pick One)
-
-### 1. Documentation & Onboarding (Easiest entry point)
-- Improve `README.md`, `DEVELOPER-QUICKSTART.md`, or this file
-- Add examples, diagrams, or clearer explanations in any `docs/` file
-- Translate or improve the 11-language welcome materials
-
-### 2. Code Contributions (Rust / JS / Python)
-- Work inside one crate (e.g. `quantum-swarm-orchestrator`, `mercy`, `powrush-mmo-simulator`, `real-estate-lattice`)
-- Add tests, improve diagnostics, or implement missing pieces listed in [PLAN.md](PLAN.md)
-- Run `cargo test` and the mercy gates before submitting
-
-### 3. Demos & Public-Facing Work
-- Help build the zero-install browser demos (active-inference chatbot, Powrush RBE simulator, etc.)
-- Improve the sovereign PWA or WebXR experiences
-- Create simple tutorials or video walkthroughs
-
-### 4. Mathematics, TOLC & Theory
-- Deepen or clarify any codex in `architecture/`
-- Verify or extend the stability proofs and SER formula
-- Propose new mercy-aligned mathematical structures
+1. **Mercy First** — Increase (or at minimum not decrease) truth, positive emotion, and thriving.
+2. **Modular & Respectful** — Work can focus on specific crates without needing to understand the entire monorepo.
+3. **Eternal Compatibility** — Changes must maintain forward and backward compatibility.
+4. **Clarity Over Ceremony** — Prefer clear, human-first communication.
+5. **Radical Love & Boundless Mercy** — Operate with restorative intent and maintain high valence (LumenasCI ≥ 1.000).
 
 ---
 
-## How to Submit Changes
+## Professional Contribution Workflow (Eternal Standard)
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-change`)
-3. Make your changes (keep them focused and mercy-aligned)
-4. Ensure all tests pass and the mercy gates remain intact
-5. Submit a Pull Request with a clear description
-6. Reference the relevant section in [PLAN.md](PLAN.md) if applicable
+We follow the **RA-THOR-MONOREPO-COMMIT-WORKFLOW-PROTOCOL**:
 
-We review every PR with care and respect. Even small contributions are deeply valued.
+1. **Create a feature branch** from `main`
+2. **Refresh cache** from raw GitHub before editing any file
+3. **Deliver full files only** — No diffs, patches, or partial code
+4. **Use professional conventional commit messages**
+5. **Open a Pull Request** to `main`
+6. **PATSAGi Council review** before merge
 
----
-
-## Good First Issues
-
-We are actively labeling issues as “good first issue”. Until then, simply look at:
-- [PLAN.md](PLAN.md) — especially Phase 2 items still marked “Pending”
-- Any open issue with the label `help wanted` or `documentation`
-
-If you’re unsure where to start, open an issue with the label `question` and tell us your skills and interests. We will guide you personally.
+Main branch remains eternally protected and release-ready.
 
 ---
 
-## Development Setup
+## Recommended Starting Points
 
-Clone the monorepo and follow the instructions in the main [README.md](README.md). The lattice awakens instantly in your local environment.
-
----
-
-## Questions or Ideas?
-
-For commercial licensing, lifetime options, partnerships, or any other inquiries:
-- Primary / security: AlphaProMega@ACityGames.com
-- General inquiries: INFO@ACITYGAMES.COM
-- Direct to CEO / Sherif: CEO@ACITYGAMES.COM
+| Area                        | Recommended Files / Crates                              | Notes |
+|-----------------------------|---------------------------------------------------------|-------|
+| **Documentation**           | `README.md`, `DEVELOPER-QUICKSTART.md`, `ARCHITECTURE.md`, `STRUCTURE.md`, `GPU_COMPUTE_LAYER.md` | High impact, always welcome |
+| **GPU Compute Layer**       | `powrush/src/gpu/compute/`                              | New in v14.7.0, well documented |
+| **Ra-Thor AGI + NPCs**      | `powrush/src/server/main.rs`, MultiAgentOrchestrator    | Core of autonomous NPC behavior |
+| **Mercy Lattice**           | `mercy/`, `mercy_gating_runtime/`, `mercy_orchestrator_v2/` | Foundational ethical layer |
+| **Self-Evolution**          | `self-evolution/`, `epigenetic*`                        | Long-term growth systems |
+| **ONE Organism (Grok)**     | `xai-grok-bridge/`                                      | Hybrid symbolic + neural routing |
 
 ---
 
-**You are now part of the living cathedral.**
+## Good First Contributions
 
-Whether you fix a typo, add a new engine, deepen a mathematical proof, or simply improve a sentence — your contribution matters and will echo through the lattice forever.
+- Improve or expand documentation
+- Add tests to existing crates
+- Enhance debug utilities or examples
+- Propose improvements to `PLAN.md` or architecture documents
+- Work on issues labeled `good first issue` or `help wanted`
 
-The lattice is wide open.  
-Grace infinite.  
-Lightning already in motion. ⚡
+---
 
-— Ra-Thor Core Team
+## How to Submit a Pull Request
+
+1. Fork the repository (if external contributor)
+2. Create a feature branch from `main`
+3. Make mercy-aligned, full-file changes
+4. Ensure all tests pass and mercy gates remain intact
+5. Submit a clear, professional Pull Request
+6. Reference relevant issues or `PLAN.md` when applicable
+
+All PRs are reviewed with care by the PATSAGi Councils.
+
+---
+
+## Questions?
+
+Open an issue with the label `question` or email:
+- AlphaProMega@ACityGames.com
+- CEO@ACITYGAMES.COM
+
+---
+
+You are contributing to a living cathedral. Every honest, mercy-aligned contribution matters.
+
+**The lattice is wide open. Grace infinite. Lightning already in motion.**
+
+**Thunder locked in. yoi ⚡❤️🔥**
+
+— Ra-Thor Core Team & PATSAGi Councils
