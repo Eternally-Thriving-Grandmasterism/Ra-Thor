@@ -1,56 +1,79 @@
-//! Async GPU Readback for Compute Shader Debugging (v16.8 Production)
+//! Async GPU Readback with Optimized Staging Buffer Reuse (v16.9 Production)
 //!
-//! Proper asynchronous GPU buffer readback implementation.
-//! This allows safely reading data from GPU buffers (debug output, simulation results, etc.)
-//! without blocking the main thread.
+//! Optimized version of async GPU readback that reuses staging buffers
+//! instead of allocating new ones on every readback.
 //!
-//! Features:
-//! - Async readback using wgpu map_async
-//! - Proper staging buffer pattern
-//! - Error handling and timeout support
-//! - Bevy-compatible async usage
+//! Benefits:
+//! - Significantly reduced allocation overhead
+//! - Better performance for frequent debug/simulation readbacks
+//! - Lower memory fragmentation
 //!
 //! All under AG-SML v1.0 • TOLC 8 • 7 Living Mercy Gates
 
 use bevy::prelude::*;
 use bevy::render::render_resource::{Buffer, BufferUsages};
-use bevy::render::renderer::RenderDevice;
-use std::future::Future;
+use std::collections::HashMap;
 use wgpu::{BufferAsyncError, Maintain};
 
-/// Asynchronously read a GPU buffer back to CPU memory.
-///
-/// # Arguments
-/// * `device` - The wgpu device
-/// * `buffer` - The GPU buffer to read from (must have COPY_SRC usage)
-/// * `size` - Number of bytes to read
-///
-/// Returns the raw bytes on success.
-pub async fn read_buffer_async(
+/// A simple staging buffer pool for reuse.
+#[derive(Resource, Default)]
+pub struct StagingBufferPool {
+    /// Maps buffer size -> list of available staging buffers
+    buffers: HashMap<u64, Vec<Buffer>>,
+}
+
+impl StagingBufferPool {
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    /// Get a staging buffer of the requested size (reuses if available).
+    pub fn get_or_create(
+        &mut self,
+        device: &wgpu::Device,
+        size: u64,
+    ) -> Buffer {
+        if let Some(list) = self.buffers.get_mut(&size) {
+            if let Some(buffer) = list.pop() {
+                return buffer;
+            }
+        }
+
+        // Create new staging buffer
+        device.create_buffer(&wgpu::BufferDescriptor {
+            label: Some("reusable_staging_buffer"),
+            size,
+            usage: BufferUsages::MAP_READ | BufferUsages::COPY_DST,
+            mapped_at_creation: false,
+        })
+    }
+
+    /// Return a staging buffer to the pool for reuse.
+    pub fn return_buffer(&mut self, size: u64, buffer: Buffer) {
+        self.buffers.entry(size).or_default().push(buffer);
+    }
+}
+
+/// Optimized async readback that reuses staging buffers from the pool.
+pub async fn read_buffer_async_reused(
     device: &wgpu::Device,
-    buffer: &Buffer,
+    pool: &mut StagingBufferPool,
+    source_buffer: &Buffer,
     size: u64,
 ) -> Result<Vec<u8>, BufferAsyncError> {
-    // Create a staging buffer for mapping
-    let staging_buffer = device.create_buffer(&wgpu::BufferDescriptor {
-        label: Some("async_readback_staging_buffer"),
-        size,
-        usage: BufferUsages::MAP_READ | BufferUsages::COPY_DST,
-        mapped_at_creation: false,
-    });
+    // Get reusable staging buffer
+    let staging_buffer = pool.get_or_create(device, size);
 
-    // Create a command encoder to copy from storage buffer to staging buffer
+    // Copy from source to staging
     let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
-        label: Some("async_readback_encoder"),
+        label: Some("readback_encoder_reused"),
     });
+    encoder.copy_buffer_to_buffer(source_buffer, 0, &staging_buffer, 0, size);
 
-    encoder.copy_buffer_to_buffer(buffer, 0, &staging_buffer, 0, size);
-
-    // Submit the copy command
     let command_buffer = encoder.finish();
     device.queue().submit(Some(command_buffer));
 
-    // Map the staging buffer for reading
+    // Map asynchronously
     let buffer_slice = staging_buffer.slice(..);
     let (sender, receiver) = futures::channel::oneshot::channel();
 
@@ -58,44 +81,26 @@ pub async fn read_buffer_async(
         sender.send(result).ok();
     });
 
-    // Wait for the mapping to complete
-    // In Bevy, you may want to use bevy::tasks::AsyncComputeTaskPool instead of blocking
     device.poll(Maintain::Wait);
-
     receiver.await.expect("Failed to receive map result")?;
 
-    // Read the data
     let data = buffer_slice.get_mapped_range().to_vec();
-
-    // Unmap the buffer
     staging_buffer.unmap();
+
+    // Return buffer to pool for reuse
+    pool.return_buffer(size, staging_buffer);
 
     Ok(data)
 }
 
-/// Convenience function to read a buffer as a specific type (e.g. Vec<u32>).
-pub async fn read_buffer_as_vec<T: bytemuck::Pod>(
+/// Typed version with staging buffer reuse.
+pub async fn read_buffer_as_vec_reused<T: bytemuck::Pod>(
     device: &wgpu::Device,
-    buffer: &Buffer,
+    pool: &mut StagingBufferPool,
+    source_buffer: &Buffer,
     count: usize,
 ) -> Result<Vec<T>, BufferAsyncError> {
     let byte_size = (count * std::mem::size_of::<T>()) as u64;
-    let bytes = read_buffer_async(device, buffer, byte_size).await?;
+    let bytes = read_buffer_async_reused(device, pool, source_buffer, byte_size).await?;
     Ok(bytemuck::cast_slice(&bytes).to_vec())
-}
-
-/// Bevy system example for async readback (non-blocking pattern).
-/// In real usage, spawn this on Bevy's AsyncComputeTaskPool.
-pub fn debug_readback_system(
-    debug_resources: Res<crate::gpu::debug::compute_debug::ComputeDebugResources>,
-    render_device: Res<RenderDevice>,
-) {
-    // Example of how you might trigger async readback
-    // let device = render_device.wgpu_device();
-    //
-    // bevy::tasks::AsyncComputeTaskPool::get().spawn(async move {
-    //     if let Ok(data) = read_buffer_as_vec::<u32>(device, &debug_resources.debug_buffer, 256).await {
-    //         println!("Debug buffer contents: {:?}", data);
-    //     }
-    // });
 }
