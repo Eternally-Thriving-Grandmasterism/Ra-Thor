@@ -1,2 +1,11 @@
-<!-- Client updates to receive and display richer NPC data from DataChannel -->
-<!-- Includes handling for neural outputs, Q-values, moral evaluations, embeddings -->
+<script>
+// Client-side handling for richer NPC data from DataChannel
+ws.onmessage = function(event) {
+    const data = JSON.parse(event.data);
+    if (data.type === 'enriched_state' || data.npc_data) {
+        // Parse and display/log neural outputs, Q-values, moral evaluations
+        console.log('Rich NPC Data received:', data);
+        // Future: Update UI panels for Q-values, moral scores, embeddings
+    }
+};
+</script>
