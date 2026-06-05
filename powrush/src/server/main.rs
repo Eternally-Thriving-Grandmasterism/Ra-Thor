@@ -9,7 +9,6 @@
 //!
 //! AG-SML v1.0 | Thunder locked in. Yoi ⚡
 use crate::multi_agent_orchestrator::{RichAgentState, MoralEvaluation, NeuralQNetwork};
-
 use axum::{
     extract::State,
     response::Html,
@@ -20,6 +19,7 @@ use futures_util::{SinkExt, StreamExt};
 use powrush::common::RbeState;
 use powrush::{MultiAgentOrchestrator, EducationSkill, EntityType, NpcActionEvent};
 use serde::Deserialize;
+use serde::Serialize;
 use serde_json::{json, Value};
 use std::collections::{HashMap, VecDeque};
 use std::env;
@@ -32,6 +32,19 @@ use tokio::net::TcpListener as TokioTcpListener;
 use tokio::sync::broadcast;
 use tokio_tungstenite::{accept_async, tungstenite::Message};
 use tower_http::services::ServeFile;
+
+// Example extension for future WebRTC/DataChannel rich data snapshots
+// (Enriched NPC state with neural outputs, Q-values, moral evaluations for player visibility into Ra-Thor AGI reasoning)
+#[derive(Serialize, Debug, Clone)]
+pub struct EnrichedNpcState {
+    pub entity_id: u64,
+    pub goal: String,
+    pub emotional_state: String, // Placeholder - integrate real EmotionalState when defined in multi_agent_orchestrator
+    pub rich_state: Option<RichAgentState>,
+    pub q_values: Option<String>, // Placeholder - integrate real QValues
+    pub moral_evaluation: Option<MoralEvaluation>,
+    pub combined_wisdom_score: f32,
+}
 
 // ==================== CONFIG ====================
 #[derive(Debug, Clone, Deserialize, Default)]
@@ -294,16 +307,6 @@ async fn handle_tcp_client(
     if let Some(p) = w.players.remove(&addr) {
         log_audit(&config_arc.blocking_read().clone(), "INFO", "tcp_disconnect", json!({"name":p.name}));
     }
-// Example extension in game state snapshot
-#[derive(Serialize)]
-pub struct EnrichedNpcState {
-    pub entity_id: u64,
-    pub goal: String,
-    pub emotional_state: EmotionalState,
-    pub rich_state: RichAgentState,
-    pub q_values: Option<QValues>,
-    pub moral_evaluation: Option<MoralEvaluation>,
-    pub combined_wisdom_score: f32,
 }
 
 // ==================== WEBSOCKET HANDLER ====================
@@ -529,4 +532,4 @@ async fn main() {
         }
     }
 }
-// In the WebSocket / DataChannel snapshot logic, include EnrichedNpcState for connected clients.
+// TODO: In send_state_snapshot and WebRTC/DataChannel logic, extend npc_activity to include EnrichedNpcState for connected clients when types are fully defined in multi_agent_orchestrator.
