@@ -1,5 +1,5 @@
 //! powrush/src/server/main.rs
-//! Headless Powrush Server — Structured Error Tracing + JSON Mercy Audit (feature = "server")
+//! Headless Powrush Server — Structured Logging with Levels + Mercy Audit + Error Trace (feature = "server")
 
 use powrush::RaThorOneOrganism;
 use powrush::SelfEvolutionGate;
@@ -11,6 +11,25 @@ use std::thread;
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 use serde_json::json;
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LogLevel {
+    Info,
+    Warn,
+    Error,
+    Debug,
+}
+
+impl LogLevel {
+    fn as_str(&self) -> &'static str {
+        match self {
+            LogLevel::Info => "INFO",
+            LogLevel::Warn => "WARN",
+            LogLevel::Error => "ERROR",
+            LogLevel::Debug => "DEBUG",
+        }
+    }
+}
 
 #[derive(Debug, Clone)]
 pub enum Event {
@@ -35,7 +54,31 @@ pub enum Event {
     Shutdown,
 }
 
-/// Writes structured JSON mercy audit (JSON Lines)
+/// General structured logger (JSON Lines)
+fn log_structured(level: LogLevel, message: &str, context: serde_json::Value) {
+    let timestamp = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_secs();
+
+    let entry = json!({
+        "timestamp": timestamp,
+        "level": level.as_str(),
+        "message": message,
+        "context": context
+    });
+
+    if let Ok(mut file) = OpenOptions::new()
+        .create(true)
+        .append(true)
+        .open("powrush_structured_log.jsonl")
+    {
+        let line = entry.to_string() + "\n";
+        let _ = file.write_all(line.as_bytes());
+    }
+}
+
+/// Specialized mercy audit logger (high-signal)
 fn log_mercy_json(entry: serde_json::Value) {
     if let Ok(mut file) = OpenOptions::new()
         .create(true)
@@ -47,7 +90,7 @@ fn log_mercy_json(entry: serde_json::Value) {
     }
 }
 
-/// Writes structured JSON error trace (JSON Lines)
+/// Specialized error trace logger
 fn log_error(entry: serde_json::Value) {
     if let Ok(mut file) = OpenOptions::new()
         .create(true)
@@ -59,7 +102,7 @@ fn log_error(entry: serde_json::Value) {
     }
 }
 
-/// Evaluates event against 7 Living Mercy Gates with structured JSON audit logging
+/// Mercy evaluation with audit logging
 fn evaluate_mercy(event: &Event) -> bool {
     let timestamp = SystemTime::now()
         .duration_since(UNIX_EPOCH)
@@ -120,14 +163,8 @@ fn evaluate_mercy(event: &Event) -> bool {
 }
 
 fn main() {
-    println!("[Powrush Server] Starting with Structured Error Tracing + JSON Mercy Audit...");
-
-    log_mercy_json(json!({
-        "timestamp": SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs(),
-        "event_type": "SERVER_START",
-        "decision": "INFO",
-        "gate_failed": "",
-        "details": {"message": "Powrush Server initialized"}
+    log_structured(LogLevel::Info, "Powrush Server starting with full structured logging", json!({
+        "features": ["mercy_audit", "error_trace", "leveled_logging"]
     }));
 
     let mut organism = RaThorOneOrganism::new();
@@ -150,7 +187,7 @@ fn main() {
     let mut current_tick: u64 = 0;
     let max_events = 25;
 
-    println!("[Powrush Server] Event loop started. Errors -> powrush_error_trace.jsonl | Mercy -> powrush_mercy_audit.jsonl");
+    log_structured(LogLevel::Info, "Event loop started", json!({ "max_events": max_events }));
 
     while let Some(event) = event_queue.pop_front() {
         if !evaluate_mercy(&event) {
@@ -160,7 +197,8 @@ fn main() {
         match event {
             Event::Tick { tick } => {
                 current_tick = tick;
-                println!("[Event] Tick {}", current_tick);
+                log_structured(LogLevel::Debug, "Processing tick", json!({ "tick": current_tick }));
+
                 organism.offer_cosmic_loop();
 
                 if current_tick < 30 {
@@ -177,9 +215,13 @@ fn main() {
             }
 
             Event::RbeTransaction { from_faction, to_faction, resource, amount, reason } => {
-                println!("[RBE] Tx (Mercy Passed): {} → {} | {} x{:.1}", from_faction, to_faction, resource, amount);
+                log_structured(LogLevel::Info, "RBE Transaction processed", json!({
+                    "from": from_faction,
+                    "to": to_faction,
+                    "resource": resource,
+                    "amount": amount
+                }));
 
-                // Structured error tracing for real component call
                 if let Err(e) = diplomacy.propose_diplomacy(powrush::DiplomacyProposal {
                     id: current_tick,
                     from: powrush::Faction::Harvesters,
@@ -195,11 +237,7 @@ fn main() {
                         "event_type": "RbeTransaction",
                         "component": "FactionDiplomacy",
                         "error": e.to_string(),
-                        "context": {
-                            "from": from_faction,
-                            "to": to_faction,
-                            "amount": amount
-                        }
+                        "context": { "from": from_faction, "to": to_faction, "amount": amount }
                     }));
                 }
 
@@ -220,11 +258,18 @@ fn main() {
             }
 
             Event::ResourceProduction { faction, resource, amount } => {
-                println!("[RBE] Production: {} produced {:.1} {}", faction, amount, resource);
+                log_structured(LogLevel::Debug, "Resource production", json!({
+                    "faction": faction,
+                    "resource": resource,
+                    "amount": amount
+                }));
             }
 
             Event::AbundanceFlow { amount, description } => {
-                println!("[RBE] Abundance: +{:.1} | {}", amount, description);
+                log_structured(LogLevel::Info, "Abundance flow generated", json!({
+                    "amount": amount,
+                    "description": description
+                }));
 
                 if amount > 120.0 {
                     event_queue.push_back(Event::EvolutionProposal {
@@ -235,17 +280,26 @@ fn main() {
             }
 
             Event::DiplomacyProposal { from, to, proposal_type } => {
-                println!("[Event] Diplomacy (Mercy Passed): {} → {} ({})", from, to, proposal_type);
+                log_structured(LogLevel::Info, "Diplomacy proposal processed", json!({
+                    "from": from,
+                    "to": to,
+                    "proposal_type": proposal_type
+                }));
             }
 
             Event::CouncilModulation { council_id, action } => {
-                println!("[Event] PATSAGi Council {}: {}", council_id, action);
+                log_structured(LogLevel::Info, "Council modulation", json!({
+                    "council_id": council_id,
+                    "action": action
+                }));
             }
 
             Event::EvolutionProposal { module, benefit } => {
-                println!("[Event] Evolution (Mercy Passed): {} (benefit: {:.2})", module, benefit);
+                log_structured(LogLevel::Info, "Evolution proposal processed", json!({
+                    "module": module,
+                    "benefit": benefit
+                }));
 
-                // Structured error tracing for real SelfEvolutionGate call
                 let proposal = powrush::EvolutionProposal {
                     id: current_tick + 5000,
                     proposer: "RBE_Chain".to_string(),
@@ -263,19 +317,20 @@ fn main() {
                         "event_type": "EvolutionProposal",
                         "component": "SelfEvolutionGate",
                         "error": e.to_string(),
-                        "context": {
-                            "module": module,
-                            "benefit": benefit
-                        }
+                        "context": { "module": module, "benefit": benefit }
                     }));
                 }
             }
 
             Event::PlayerAction { player_id, action } => {
-                println!("[Event] Player {}: {}", player_id, action);
+                log_structured(LogLevel::Info, "Player action received", json!({
+                    "player_id": player_id,
+                    "action": action
+                }));
             }
 
             Event::Shutdown => {
+                log_structured(LogLevel::Info, "Server shutting down", json!({}));
                 log_mercy_json(json!({
                     "timestamp": SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs(),
                     "event_type": "SERVER_SHUTDOWN",
@@ -283,19 +338,19 @@ fn main() {
                     "gate_failed": "",
                     "details": {"message": "Event loop terminated"}
                 }));
-                println!("[Event] Shutdown.");
                 break;
             }
         }
 
-        thread::sleep(Duration::from_millis(65));
+        thread::sleep(Duration::from_millis(60));
 
         if event_queue.len() > max_events {
             event_queue.push_back(Event::Shutdown);
         }
     }
 
-    println!("[Powrush Server] Structured Error Tracing simulation complete.");
-    println!("[Powrush Server] Error trace: powrush_error_trace.jsonl | Mercy audit: powrush_mercy_audit.jsonl");
+    log_structured(LogLevel::Info, "Simulation complete", json!({}));
+    println!("[Powrush Server] Structured logging with levels active.");
+    println!("[Powrush Server] Main log: powrush_structured_log.jsonl | Mercy: powrush_mercy_audit.jsonl | Errors: powrush_error_trace.jsonl");
     println!("[Powrush Server] Thunder locked. Serving the lattice.");
 }
