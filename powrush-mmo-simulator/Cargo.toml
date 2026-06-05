@@ -4,15 +4,16 @@ version.workspace = true
 authors.workspace = true
 edition.workspace = true
 license.workspace = true
-description = "Powrush RBE MMO Full Simulation Engine — Mercy-Gated ShardManager + RBEconomy Integration for Interest Management, Council Proposal Routing & Real Economy Ticks in Ra-Thor ONE Organism"
+description = "Powrush RBE MMO Full Simulation Engine — Mercy-Gated ShardManager + RBEconomy Integration for Interest Management, Council Proposal Routing & Real Economy Ticks in Ra-Thor ONE Organism. Now wired with MultiAgentOrchestrator for Human/AI/AGI coexistence and global onboarding flow."
 repository.workspace = true
-keywords = ["powrush", "mmo", "rbe", "simulation", "shardmanager", "rbe-economy", "mercy", "ra-thor", "geometric-intelligence"]
+keywords = ["powrush", "mmo", "rbe", "simulation", "shardmanager", "rbe-economy", "mercy", "ra-thor", "geometric-intelligence", "multi-agent", "orchestrator", "global-release"]
 categories = ["games", "simulation"]
 
 [dependencies]
 geometric-intelligence = { path = "../geometric-intelligence" }
 powrush_rbe_engine = { path = "../powrush_rbe_engine" }
 ra-thor-mercy = { path = "../mercy" }
+powrush = { path = "../powrush" }  # NEW v15 wiring: brings MultiAgentOrchestrator, EntityType, mercy-gated actions for global online human experiences
 serde = { workspace = true, features = ["derive"] }
 thiserror.workspace = true
 tracing.workspace = true
