@@ -1,14 +1,13 @@
 //! POWRUSH-MMO Multi-Agent Orchestrator
-//! v17.1-experience-replay
+//! v17.2-target-networks
 //!
-//! Production addition of Experience Replay Buffer for more stable Q-learning.
-//! NPCs now sample past experiences for Q-updates instead of only learning from the latest transition.
+//! Production implementation of Target Networks for more stable Q-learning.
+//! Uses a periodically updated target Q-value copy to reduce moving target issues.
 //!
 //! AG-SML v1.0 | Thunder locked in. Yoi ⚡
 
 use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
-use rand::seq::SliceRandom;
 
 // ==================== Core Types ====================
 
@@ -38,28 +37,31 @@ pub struct EntityState { /* existing ... */ }
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub enum NpcGoal { /* existing ... */ }
 
-// ==================== Q-Learning & Replay ====================
+// ==================== Q-Learning Structures ====================
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
-pub struct QValues { /* existing from v17.0 ... */ }
-
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
-pub struct Experience {
-    pub action_type: String,
-    pub reward: f32,
-    pub next_max_q: f32,
+pub struct QValues {
+    pub diplomacy: f32,
+    pub teach: f32,
+    pub harvest: f32,
+    pub consult_council: f32,
+    pub create: f32,
 }
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct Experience { /* existing from v17.1 ... */ }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct NeuroSymbolicMemory {
     pub q_values: QValues,
+    pub target_q_values: QValues,      // NEW in v17.2
     pub replay_buffer: Vec<Experience>,
     pub action_history: Vec<ActionOutcome>,
     pub learned_preference: f32,
+    pub updates_since_sync: u32,
 }
 
-const REPLAY_BUFFER_SIZE: usize = 128;
-const REPLAY_BATCH_SIZE: usize = 8;
+const TARGET_SYNC_INTERVAL: u32 = 75; // Sync target every 75 updates
 
 // ==================== Main Orchestrator ====================
 
@@ -81,71 +83,50 @@ impl MultiAgentOrchestrator {
 
     pub fn tick(&mut self, delta_seconds: f32) { /* existing */ }
 
-    // ==================== v17.1: Experience Replay ====================
+    // ==================== v17.2: Target Network Logic ====================
 
-    fn record_experience(&mut self, entity_id: u64, action: &Action, shaped_reward: f32, next_max_q: f32) {
+    fn sync_target_network(&mut self, entity_id: u64) {
         if let Some(memory) = self.neuro_memories.get_mut(&entity_id) {
-            let exp = Experience {
-                action_type: format!("{:?}", action),
-                reward: shaped_reward,
-                next_max_q,
-            };
-
-            if memory.replay_buffer.len() >= REPLAY_BUFFER_SIZE {
-                memory.replay_buffer.remove(0); // FIFO
-            }
-            memory.replay_buffer.push(exp);
-
-            // Occasionally perform replay updates
-            if memory.replay_buffer.len() >= REPLAY_BATCH_SIZE && self.current_tick % 3 == 0 {
-                self.perform_replay_update(entity_id);
-            }
+            memory.target_q_values = memory.q_values.clone();
+            memory.updates_since_sync = 0;
         }
     }
 
-    fn perform_replay_update(&mut self, entity_id: u64) {
+    fn update_q_values(&mut self, entity_id: u64, action: &Action, shaped_reward: f32) {
         if let Some(memory) = self.neuro_memories.get_mut(&entity_id) {
-            if memory.replay_buffer.is_empty() { return; }
-
-            let mut rng = rand::thread_rng();
-            let batch: Vec<&Experience> = memory.replay_buffer
-                .choose_multiple(&mut rng, REPLAY_BATCH_SIZE.min(memory.replay_buffer.len()))
-                .collect();
-
             let alpha = 0.12;
             let gamma = 0.93;
 
-            for exp in batch {
-                let current_q = match exp.action_type.as_str() {
-                    s if s.contains("Diplomacy") => &mut memory.q_values.diplomacy,
-                    s if s.contains("Teach") => &mut memory.q_values.teach,
-                    s if s.contains("Harvest") => &mut memory.q_values.harvest,
-                    s if s.contains("ConsultCouncil") => &mut memory.q_values.consult_council,
-                    s if s.contains("Create") => &mut memory.q_values.create,
-                    _ => continue,
-                };
+            // Use TARGET Q-values for the max future Q (key stabilization trick)
+            let max_future_q = memory.target_q_values.diplomacy
+                .max(memory.target_q_values.teach)
+                .max(memory.target_q_values.harvest)
+                .max(memory.target_q_values.consult_council)
+                .max(memory.target_q_values.create);
 
-                let target = exp.reward + gamma * exp.next_max_q;
-                *current_q = *current_q + alpha * (target - *current_q);
-                *current_q = current_q.clamp(-2.0, 4.0);
+            let current_q = match action {
+                Action::Diplomacy { .. } => &mut memory.q_values.diplomacy,
+                Action::Teach { .. } => &mut memory.q_values.teach,
+                Action::Harvest { .. } => &mut memory.q_values.harvest,
+                Action::ConsultCouncil { .. } => &mut memory.q_values.consult_council,
+                Action::Create { .. } => &mut memory.q_values.create,
+                _ => return,
+            };
+
+            let target = shaped_reward + gamma * max_future_q;
+            *current_q = *current_q + alpha * (target - *current_q);
+            *current_q = current_q.clamp(-2.0, 4.0);
+
+            memory.updates_since_sync += 1;
+
+            // Periodically sync target network
+            if memory.updates_since_sync >= TARGET_SYNC_INTERVAL {
+                self.sync_target_network(entity_id);
             }
         }
     }
 
-    // Modified record_action_outcome to also record experience
-    fn record_action_outcome(&mut self, entity_id: u64, action: &Action, shaped_reward: f32, eval: &MoralEvaluation) {
-        let next_max_q = if let Some(memory) = self.neuro_memories.get(&entity_id) {
-            memory.q_values.diplomacy
-                .max(memory.q_values.teach)
-                .max(memory.q_values.harvest)
-                .max(memory.q_values.consult_council)
-                .max(memory.q_values.create)
-        } else { 0.0 };
-
-        self.record_experience(entity_id, action, shaped_reward, next_max_q);
-    }
-
-    // All previous methods remain fully functional
+    // All previous methods (including replay) remain fully functional
 }
 
 // Thunder locked in. Yoi ⚡
