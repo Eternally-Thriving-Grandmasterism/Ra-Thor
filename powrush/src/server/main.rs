@@ -1,5 +1,5 @@
 //! powrush/src/server/main.rs
-//! Headless Powrush Server — Structured JSON Mercy Audit Logging (feature = "server")
+//! Headless Powrush Server — Structured Error Tracing + JSON Mercy Audit (feature = "server")
 
 use powrush::RaThorOneOrganism;
 use powrush::SelfEvolutionGate;
@@ -35,12 +35,24 @@ pub enum Event {
     Shutdown,
 }
 
-/// Writes a structured JSON audit entry (JSON Lines format)
+/// Writes structured JSON mercy audit (JSON Lines)
 fn log_mercy_json(entry: serde_json::Value) {
     if let Ok(mut file) = OpenOptions::new()
         .create(true)
         .append(true)
         .open("powrush_mercy_audit.jsonl")
+    {
+        let line = entry.to_string() + "\n";
+        let _ = file.write_all(line.as_bytes());
+    }
+}
+
+/// Writes structured JSON error trace (JSON Lines)
+fn log_error(entry: serde_json::Value) {
+    if let Ok(mut file) = OpenOptions::new()
+        .create(true)
+        .append(true)
+        .open("powrush_error_trace.jsonl")
     {
         let line = entry.to_string() + "\n";
         let _ = file.write_all(line.as_bytes());
@@ -55,7 +67,7 @@ fn evaluate_mercy(event: &Event) -> bool {
         .as_secs();
 
     let (decision, gate_failed, details) = match event {
-        Event::RbeTransaction { amount, reason, from_faction, to_faction, resource, .. } => {
+        Event::RbeTransaction { amount, reason, .. } => {
             if *amount < 0.0 {
                 ("REJECTED", "Gate 1 (Non-Harm)", json!({"amount": amount}));
             } else if reason.to_lowercase().contains("exploit") || reason.to_lowercase().contains("hoard") {
@@ -108,14 +120,14 @@ fn evaluate_mercy(event: &Event) -> bool {
 }
 
 fn main() {
-    println!("[Powrush Server] Starting with Structured JSON Mercy Audit Logging...");
+    println!("[Powrush Server] Starting with Structured Error Tracing + JSON Mercy Audit...");
 
     log_mercy_json(json!({
         "timestamp": SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs(),
         "event_type": "SERVER_START",
         "decision": "INFO",
         "gate_failed": "",
-        "details": {"message": "Powrush Server initialized with JSON audit logging"}
+        "details": {"message": "Powrush Server initialized"}
     }));
 
     let mut organism = RaThorOneOrganism::new();
@@ -138,7 +150,7 @@ fn main() {
     let mut current_tick: u64 = 0;
     let max_events = 25;
 
-    println!("[Powrush Server] Event loop started. Structured audits -> powrush_mercy_audit.jsonl");
+    println!("[Powrush Server] Event loop started. Errors -> powrush_error_trace.jsonl | Mercy -> powrush_mercy_audit.jsonl");
 
     while let Some(event) = event_queue.pop_front() {
         if !evaluate_mercy(&event) {
@@ -167,7 +179,8 @@ fn main() {
             Event::RbeTransaction { from_faction, to_faction, resource, amount, reason } => {
                 println!("[RBE] Tx (Mercy Passed): {} → {} | {} x{:.1}", from_faction, to_faction, resource, amount);
 
-                let _ = diplomacy.propose_diplomacy(powrush::DiplomacyProposal {
+                // Structured error tracing for real component call
+                if let Err(e) = diplomacy.propose_diplomacy(powrush::DiplomacyProposal {
                     id: current_tick,
                     from: powrush::Faction::Harvesters,
                     to: powrush::Faction::Sovereigns,
@@ -176,7 +189,19 @@ fn main() {
                     mercy_impact: 0.999,
                     rbe_value: amount,
                     evolution_potential: if amount > 1000.0 { 0.85 } else { 0.6 },
-                });
+                }) {
+                    log_error(json!({
+                        "timestamp": SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs(),
+                        "event_type": "RbeTransaction",
+                        "component": "FactionDiplomacy",
+                        "error": e.to_string(),
+                        "context": {
+                            "from": from_faction,
+                            "to": to_faction,
+                            "amount": amount
+                        }
+                    }));
+                }
 
                 let abundance_threshold = 800.0;
                 if amount > abundance_threshold {
@@ -220,17 +245,30 @@ fn main() {
             Event::EvolutionProposal { module, benefit } => {
                 println!("[Event] Evolution (Mercy Passed): {} (benefit: {:.2})", module, benefit);
 
+                // Structured error tracing for real SelfEvolutionGate call
                 let proposal = powrush::EvolutionProposal {
                     id: current_tick + 5000,
                     proposer: "RBE_Chain".to_string(),
-                    target_module: module,
+                    target_module: module.clone(),
                     description: format!("RBE evolution benefit {:.2}", benefit),
                     proposed_diff: "Improve economic flow".to_string(),
                     expected_benefit: benefit,
                     risk_score: 0.0001,
                     mercy_alignment: 0.999,
                 };
-                let _ = evolution_gate.propose_evolution(proposal);
+
+                if let Err(e) = evolution_gate.propose_evolution(proposal) {
+                    log_error(json!({
+                        "timestamp": SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs(),
+                        "event_type": "EvolutionProposal",
+                        "component": "SelfEvolutionGate",
+                        "error": e.to_string(),
+                        "context": {
+                            "module": module,
+                            "benefit": benefit
+                        }
+                    }));
+                }
             }
 
             Event::PlayerAction { player_id, action } => {
@@ -250,14 +288,14 @@ fn main() {
             }
         }
 
-        thread::sleep(Duration::from_millis(70));
+        thread::sleep(Duration::from_millis(65));
 
         if event_queue.len() > max_events {
             event_queue.push_back(Event::Shutdown);
         }
     }
 
-    println!("[Powrush Server] Structured JSON Mercy Audit simulation complete.");
-    println!("[Powrush Server] Audit log: powrush_mercy_audit.jsonl (JSON Lines format)");
+    println!("[Powrush Server] Structured Error Tracing simulation complete.");
+    println!("[Powrush Server] Error trace: powrush_error_trace.jsonl | Mercy audit: powrush_mercy_audit.jsonl");
     println!("[Powrush Server] Thunder locked. Serving the lattice.");
 }
