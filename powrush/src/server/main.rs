@@ -1,5 +1,5 @@
 //! powrush/src/server/main.rs
-//! Headless Powrush Server — Configurable Async Log Batching (feature = "server")
+//! Headless Powrush Server — Hot-Reloadable Config + Async Log Batching (feature = "server")
 
 use powrush::RaThorOneOrganism;
 use powrush::SelfEvolutionGate;
@@ -9,12 +9,12 @@ use std::fs::OpenOptions;
 use std::io::{Read, Write};
 use std::sync::mpsc::{self, Sender};
 use std::thread;
-use std::time::{Duration, SystemTime, UNIX_EPOCH};
+use std::time::{Duration, SystemTime, UNIX_EPOCH, Instant};
 
 use serde::Deserialize;
 use serde_json::json;
 
-// Default values (used if config file missing or invalid)
+// Default values
 const DEFAULT_BATCH_SIZE: usize = 128;
 const DEFAULT_FLUSH_INTERVAL_MS: u64 = 100;
 
@@ -67,7 +67,7 @@ struct LogEntry {
     context: serde_json::Value,
 }
 
-// Runtime batch configuration
+// === Hot-reloadable static configuration ===
 static mut BATCH_SIZE: usize = DEFAULT_BATCH_SIZE;
 static mut FLUSH_INTERVAL_MS: u64 = DEFAULT_FLUSH_INTERVAL_MS;
 static mut LOG_SENDER: Option<Sender<LogEntry>> = None;
@@ -85,43 +85,80 @@ fn default_flush_interval_ms() -> u64 { DEFAULT_FLUSH_INTERVAL_MS }
 
 fn load_config() -> ServerConfig {
     let path = "powrush_config.json";
-
     if let Ok(mut file) = std::fs::File::open(path) {
         let mut contents = String::new();
         if file.read_to_string(&mut contents).is_ok() {
             if let Ok(config) = serde_json::from_str::<ServerConfig>(&contents) {
-                println!("[Config] Loaded batch settings from {}", path);
                 return config;
             }
         }
     }
-
-    println!("[Config] Using default batch settings (no valid {} found)", path);
     ServerConfig {
         batch_size: DEFAULT_BATCH_SIZE,
         flush_interval_ms: DEFAULT_FLUSH_INTERVAL_MS,
     }
 }
 
-fn init_log_batcher(batch_size: usize, flush_interval_ms: u64) -> Sender<LogEntry> {
+// Hot reload watcher thread
+fn start_config_watcher() {
+    thread::spawn(|| {
+        let config_path = "powrush_config.json";
+        let mut last_modified = None;
+
+        loop {
+            if let Ok(metadata) = std::fs::metadata(config_path) {
+                let modified = metadata.modified().ok();
+
+                if last_modified != modified {
+                    last_modified = modified;
+
+                    let new_config = load_config();
+
+                    unsafe {
+                        BATCH_SIZE = new_config.batch_size;
+                        FLUSH_INTERVAL_MS = new_config.flush_interval_ms;
+                    }
+
+                    log_structured(LogLevel::Info, "Config hot-reloaded", json!({
+                        "batch_size": new_config.batch_size,
+                        "flush_interval_ms": new_config.flush_interval_ms
+                    }));
+                }
+            }
+
+            thread::sleep(Duration::from_secs(2)); // Check every 2 seconds
+        }
+    });
+}
+
+fn init_log_batcher() -> Sender<LogEntry> {
     let (tx, rx) = mpsc::channel::<LogEntry>();
 
     thread::spawn(move || {
-        let mut batch: Vec<LogEntry> = Vec::with_capacity(batch_size);
-        let mut last_flush = std::time::Instant::now();
+        let mut batch: Vec<LogEntry> = Vec::new();
+        let mut last_flush = Instant::now();
 
-        for entry in rx {
-            batch.push(entry);
+        loop {
+            // Read current values every cycle (supports hot reload)
+            let current_batch_size = unsafe { BATCH_SIZE };
+            let current_flush_ms = unsafe { FLUSH_INTERVAL_MS };
 
-            if batch.len() >= batch_size || last_flush.elapsed() >= Duration::from_millis(flush_interval_ms) {
+            // Non-blocking receive with timeout
+            match rx.recv_timeout(Duration::from_millis(50)) {
+                Ok(entry) => {
+                    batch.push(entry);
+                }
+                Err(_) => {}
+            }
+
+            let should_flush = batch.len() >= current_batch_size 
+                || last_flush.elapsed() >= Duration::from_millis(current_flush_ms);
+
+            if should_flush && !batch.is_empty() {
                 flush_batch(&batch);
                 batch.clear();
-                last_flush = std::time::Instant::now();
+                last_flush = Instant::now();
             }
-        }
-
-        if !batch.is_empty() {
-            flush_batch(&batch);
         }
     });
 
@@ -151,7 +188,7 @@ fn flush_batch(batch: &[LogEntry]) {
 
             let line = json_entry.to_string() + "\n";
             let _ = file.write_all(line.as_bytes());
-        }
+            }
     }
 }
 
@@ -227,22 +264,22 @@ fn evaluate_mercy(event: &Event) -> bool {
 }
 
 fn main() {
-    // Load configuration
-    let config = load_config();
-
-    // Apply loaded config to statics
+    // Initial config load
+    let initial_config = load_config();
     unsafe {
-        BATCH_SIZE = config.batch_size;
-        FLUSH_INTERVAL_MS = config.flush_interval_ms;
+        BATCH_SIZE = initial_config.batch_size;
+        FLUSH_INTERVAL_MS = initial_config.flush_interval_ms;
     }
 
-    let sender = init_log_batcher(config.batch_size, config.flush_interval_ms);
+    let sender = init_log_batcher();
     unsafe { LOG_SENDER = Some(sender); }
 
-    log_structured(LogLevel::Info, "Powrush Server starting with configurable batching", json!({
-        "batch_size": config.batch_size,
-        "flush_interval_ms": config.flush_interval_ms,
-        "config_file": "powrush_config.json"
+    // Start hot reload watcher
+    start_config_watcher();
+
+    log_structured(LogLevel::Info, "Powrush Server starting with hot-reloadable config", json!({
+        "initial_batch_size": initial_config.batch_size,
+        "initial_flush_interval_ms": initial_config.flush_interval_ms
     }));
 
     let mut organism = RaThorOneOrganism::new();
@@ -406,9 +443,6 @@ fn main() {
     }
 
     log_structured(LogLevel::Info, "Simulation complete", json!({}));
-    println!("[Powrush Server] Using batch config: size={} / interval={}ms", unsafe { BATCH_SIZE }, unsafe { FLUSH_INTERVAL_MS });
-    println!("[Powrush Server] Config file: powrush_config.json (optional)");
+    println!("[Powrush Server] Hot reload enabled for powrush_config.json (checks every 2s)");
     println!("[Powrush Server] Thunder locked. Serving the lattice.");
 }
-
-// Note: load_config function is defined above
