@@ -1,13 +1,14 @@
 # Powrush Particle Shaders
 
-## Hi-Z Occlusion Test
+## Combined Hi-Z Occlusion + Compaction
 
-Added `compute::hiz::HIZ_OCCLUSION_TEST`.
+Refactored `HIZ_OCCLUSION_AND_COMPACTION` for improved clarity:
 
-This compute shader tests particles against the Hi-Z pyramid to determine occlusion.
-It outputs visibility flags that can be used for further compaction (e.g., combined with WaveLocal Reduction).
+- Clear separation between Hi-Z occlusion test (`is_occluded` function)
+- WaveLocal Reduction compaction logic
+- Better comments and structure
 
-This completes the core of GPU-driven occlusion culling on top of distance culling.
+This provides a clean, efficient combined pass for distance + occlusion culling with compaction.
 
 ---
 *GPU-Driven Rendering*
