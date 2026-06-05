@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: powrush-config
+  namespace: powrush-mmo
+data:
+  tick_rate_ms: "100"
+  max_players: "128"
+  world_size: "10000"
+  production_per_tick: "1.5"
+  mercy_log_path: "/app/powrush_mercy_audit.jsonl"
+  audit_log_path: "/app/powrush_server_audit.jsonl"
+  tcp_port: "7777"
+  ws_port: "7778"
+  http_port: "8080"

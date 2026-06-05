@@ -1,0 +1,69 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: powrush-server
+  namespace: powrush-mmo
+  labels:
+    app: powrush-mmo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: powrush-mmo
+  template:
+    metadata:
+      labels:
+        app: powrush-mmo
+    spec:
+      containers:
+      - name: powrush
+        image: powrush-mmo:v14.12
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 7777
+          name: tcp
+        - containerPort: 7778
+          name: websocket
+        - containerPort: 8080
+          name: http
+        env:
+        - name: TCP_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: powrush-config
+              key: tcp_port
+        - name: WS_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: powrush-config
+              key: ws_port
+        - name: HTTP_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: powrush-config
+              key: http_port
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        volumeMounts:
+        - name: logs
+          mountPath: /app
+      volumes:
+      - name: logs
+        emptyDir: {}
