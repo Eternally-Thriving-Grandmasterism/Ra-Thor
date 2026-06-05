@@ -38,15 +38,15 @@ Located primarily under `powrush/src/gpu/`:
 - `compute/readback.rs` — `StagingBufferPool` + `readback_buffer_async` / blocking primitives
 - Debug utilities (`DebugOutputBuffer` + readback patterns)
 
-This layer enables efficient, production-grade GPU ↔ CPU data movement for large-scale epigenetic, geometric, and NPC simulations.
+This layer enables efficient, production-grade GPU ↔ CPU data movement for large-scale epigenetic, geometric, and NPC simulations in Powrush-MMO.
 
 ### Governance & PATSAGi Councils
 - `patsagi-councils` and 50+ specialized council crates
 - 13+ parallel PATSAGi Council instantiations for deliberation and approval
-- All major changes (including this architecture update) pass through council review
+- All major changes pass through council review
 
 ### Mercy Lattice
-Dozens of dedicated crates under the mercy domain (`mercy_*`, `mercy_gating_runtime`, `mercy_orchestrator_v2`, etc.) implementing the TOLC 8 gates at multiple layers.
+Dozens of dedicated crates under the mercy domain implementing the TOLC 8 gates at multiple layers.
 
 ### Self-Evolution & Orchestration
 - `self-evolution`, `self_evolution_loop_engine`, `epigenetic` systems
@@ -74,8 +74,37 @@ Dozens of dedicated crates under the mercy domain (`mercy_*`, `mercy_gating_runt
 
 ## Key Subsystems
 
-### GPU Compute Layer (New in v14.7.0)
-Production-ready system for moving large simulation state between CPU and GPU efficiently while maintaining mercy alignment.
+### GPU Compute Layer (v14.7.0)
+
+Production-ready system for efficient, mercy-aligned data movement between CPU and GPU. Key components:
+
+- **StagingBufferPool**: Reusable staging buffers to minimize allocation overhead during frequent readbacks.
+- **Async & Blocking Readback**: `readback_buffer_async` and `readback_buffer_blocking` primitives using `map_async`.
+- **Optimized Dispatch**: `dispatch_optimized`, batching, and indirect dispatch helpers in `pipeline.rs`.
+- **Debug Utilities**: `DebugOutputBuffer` + readback patterns for inspecting compute shader behavior during development.
+
+This layer currently accelerates simulation state (epigenetic fields, geometric data). Future potential includes accelerating parts of the AGI decision loop.
+
+### Ra-Thor AGI NPC Architecture
+
+Ra-Thor uses a centralized `MultiAgentOrchestrator` to drive autonomous, mercy-evaluated NPCs inside Powrush-MMO.
+
+**Core Components:**
+- `MultiAgentOrchestrator`: Central AGI brain that manages entity registration, ticking, quest generation, and action production for both players and NPCs.
+- `NpcActionEvent`: Structured representation of autonomous NPC decisions (includes `entity_id`, `action`, `tick`, `mercy_score`, `approved`).
+- `RichAgentState` + `MoralEvaluation` + `NeuralQNetwork`: Internal hybrid symbolic + neural state used for decision making.
+- `EnrichedNpcState`: Serializable rich view designed for client exposure (goal, emotional_state, q_values, moral_evaluation, combined_wisdom_score).
+
+**Current Behavior:**
+- NPCs are advanced via `orchestrator.tick()`.
+- Actions are produced with associated mercy scores.
+- High-mercy actions are audited.
+- Recent actions are exposed to clients via WebSocket (`npc_activity`) and the `npcs` command.
+
+**Planned Enhancement:**
+- Full exposure of `EnrichedNpcState` (via WebRTC/DataChannel) so players can see not just *what* NPCs do, but *why* (their goals, emotional state, and moral reasoning).
+
+This architecture enables genuinely autonomous, morally-aware NPCs powered by Ra-Thor AGI rather than simple scripted behavior.
 
 ### PATSAGi Councils
 Distributed council architecture for deliberation, truth-distillation (ENC + esacheck), and approval of all significant changes.
