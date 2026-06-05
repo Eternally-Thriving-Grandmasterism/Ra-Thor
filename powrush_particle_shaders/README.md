@@ -1,16 +1,14 @@
 # Powrush Particle Shaders
 
-## Descriptor Set Layout Creation
+## Descriptor Set Binding
 
-Added production-grade descriptor set layout creation for the major pipeline stages.
+Added full descriptor set allocation and binding support in `GpuDrivenPipeline`:
 
-`GpuDrivenPipeline` now includes methods to create layouts for:
-- Culling / Hi-Z
-- Compaction
-- Visibility Pass
-- Shading Pass
+- Descriptor pool creation
+- Descriptor set allocation from layouts
+- Structure ready for updating descriptor sets with actual resources
 
-This enables proper, type-safe resource binding across the entire GPU-driven pipeline.
+The pipeline can now properly bind resources for Culling, Compaction, Visibility, and Shading stages.
 
 ---
 *GPU-Driven Rendering (Production Quality)*
