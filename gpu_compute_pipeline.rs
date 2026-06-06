@@ -1,6 +1,5 @@
 // gpu_compute_pipeline.rs
-// Ra-Thor v14.9+ — GPU Memory Allocator + Compute Pipeline
-// Production-grade memory allocator with alignment, bucketing, and rich stats.
+// Ra-Thor v14.9+ — GPU Memory Allocator with Improved Fragmentation Metrics
 // AG-SML v1.0 License
 
 use std::collections::HashMap;
@@ -25,7 +24,6 @@ pub struct GpuTaskResult {
     pub message: String,
 }
 
-/// GPU Memory Allocator — Phase 1 Production Upgrade
 pub struct GpuMemoryAllocator {
     free_buffers: HashMap<usize, Vec<Vec<u8>>>,
     total_allocated: usize,
@@ -93,8 +91,28 @@ impl GpuMemoryAllocator {
             self.total_reused as f64 / self.allocation_count as f64
         } else { 0.0 };
 
-        let fragmentation = if self.total_allocated > 0 {
+        let overallocation_ratio = if self.total_allocated > 0 {
             1.0 - (self.current_usage as f64 / self.total_allocated as f64)
+        } else { 0.0 };
+
+        let mut free_block_count = 0;
+        let mut total_free_bytes = 0;
+        let mut largest_free_block = 0;
+
+        for (size, buffers) in &self.free_buffers {
+            free_block_count += buffers.len();
+            total_free_bytes += size * buffers.len();
+            if *size > largest_free_block {
+                largest_free_block = *size;
+            }
+        }
+
+        let average_free_block = if free_block_count > 0 {
+            total_free_bytes / free_block_count
+        } else { 0 };
+
+        let internal_frag_estimate = if self.allocation_count > 0 {
+            (128 * self.allocation_count) as f64
         } else { 0.0 };
 
         GpuMemoryStats {
@@ -104,7 +122,11 @@ impl GpuMemoryAllocator {
             total_reused_count: self.total_reused,
             allocation_count: self.allocation_count,
             reuse_ratio,
-            estimated_fragmentation: fragmentation,
+            overallocation_ratio,
+            free_block_count,
+            largest_free_block_bytes: largest_free_block,
+            average_free_block_bytes: average_free_block,
+            internal_fragmentation_estimate: internal_frag_estimate,
             active_size_classes: self.free_buffers.len(),
         }
     }
@@ -129,7 +151,11 @@ pub struct GpuMemoryStats {
     pub total_reused_count: usize,
     pub allocation_count: usize,
     pub reuse_ratio: f64,
-    pub estimated_fragmentation: f64,
+    pub overallocation_ratio: f64,
+    pub free_block_count: usize,
+    pub largest_free_block_bytes: usize,
+    pub average_free_block_bytes: usize,
+    pub internal_fragmentation_estimate: f64,
     pub active_size_classes: usize,
 }
 
@@ -163,8 +189,8 @@ impl GpuComputePipeline {
             execution_time_ms: elapsed,
             output_size: task.buffer_size / 4,
             message: format!(
-                "GPU task '{}' | {} ms | Reuse: {:.1}% | Frag: {:.1}%",
-                task.name, elapsed, stats.reuse_ratio * 100.0, stats.estimated_fragmentation * 100.0
+                "GPU task '{}' | {} ms | Reuse: {:.1}% | Largest free: {} MB",
+                task.name, elapsed, stats.reuse_ratio * 100.0, stats.largest_free_block_bytes / (1024*1024)
             ),
         })
     }
