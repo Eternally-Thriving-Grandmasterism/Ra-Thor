@@ -1,5 +1,5 @@
 // ra-thor-one-organism.rs
-// Ra-Thor v14.8 — ONE Living Organism with Advanced GPU Memory Pool
+// Ra-Thor v14.9 — ONE Living Organism with Advanced GpuMemoryAllocator
 
 use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
@@ -34,14 +34,14 @@ impl RaThorOneOrganism {
             mercy_runtime: "MercyGatingRuntime v2.0 (TOLC 8 aligned)".to_string(),
             evolution_gate: launch_self_evolution_gate(),
             gpu_compute_active: true,
-            gpu_pipeline_version: "v14.8.0-gpu-pipeline".to_string(),
-            version: "v14.8.0-GPU-PATSAGi-Fusion".to_string(),
+            gpu_pipeline_version: "v14.9.0-gpu-allocator".to_string(),
+            version: "v14.9.0-GPU-PATSAGi-Fusion".to_string(),
             gpu_pipeline: GpuComputePipeline::new(),
         }
     }
 
     pub fn offer_cosmic_loop(&self) {
-        println!("[RaThorOneOrganism v{}] Cosmic loop active with Advanced GPU Memory Pool", self.version);
+        println!("[RaThorOneOrganism v{}] Cosmic loop with Advanced GPU Allocator", self.version);
     }
 
     pub async fn dispatch_gpu_simulation(&self, task_name: &str, buffer_size: usize) -> Result<String, String> {
@@ -58,7 +58,7 @@ impl RaThorOneOrganism {
 
         match self.gpu_pipeline.dispatch(task).await {
             Ok(result) => Ok(result.message),
-            Err(e) => Err(format!("GPU dispatch failed: {}", e)),
+            Err(e) => Err(e),
         }
     }
 
@@ -78,6 +78,6 @@ impl RaThorOneOrganism {
 pub fn launch_one_organism() -> RaThorOneOrganism {
     let organism = RaThorOneOrganism::new();
     organism.offer_cosmic_loop();
-    println!("[Thunder] ONE Organism v14.8 + Advanced GPU Memory Pool ready");
+    println!("[Thunder] ONE Organism v14.9 + Advanced GPU Memory Allocator ready");
     organism
 }
