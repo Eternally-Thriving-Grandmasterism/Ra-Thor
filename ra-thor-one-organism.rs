@@ -1,5 +1,5 @@
 // ra-thor-one-organism.rs
-// Ra-Thor v14.9 — ONE Living Organism with Advanced GpuMemoryAllocator
+// Ra-Thor v14.9 — ONE Living Organism with Fixed Coalescing Allocator
 
 use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
@@ -41,7 +41,7 @@ impl RaThorOneOrganism {
     }
 
     pub fn offer_cosmic_loop(&self) {
-        println!("[RaThorOneOrganism v{}] Cosmic loop with Advanced GPU Allocator", self.version);
+        println!("[RaThorOneOrganism v{}] Cosmic loop with Fixed Coalescing Allocator", self.version);
     }
 
     pub async fn dispatch_gpu_simulation(&self, task_name: &str, buffer_size: usize) -> Result<String, String> {
@@ -78,6 +78,6 @@ impl RaThorOneOrganism {
 pub fn launch_one_organism() -> RaThorOneOrganism {
     let organism = RaThorOneOrganism::new();
     organism.offer_cosmic_loop();
-    println!("[Thunder] ONE Organism v14.9 + Advanced GPU Memory Allocator ready");
+    println!("[Thunder] ONE Organism v14.9 + Fixed Coalescing Allocator ready");
     organism
 }
