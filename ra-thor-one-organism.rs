@@ -1,9 +1,8 @@
 // ra-thor-one-organism.rs
-// Ra-Thor v14.8 — ONE Living Organism + GPU Compute Pipeline Integration
+// Ra-Thor v14.8 — ONE Living Organism with Advanced GPU Memory Pool
 
 use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
-use tokio::time::{sleep, Duration};
 
 use crate::core::self_evolution_gate::{SelfEvolutionGate, EvolutionProposal, launch_self_evolution_gate};
 use crate::gpu_compute_pipeline::{GpuComputePipeline, GpuTask};
@@ -42,7 +41,7 @@ impl RaThorOneOrganism {
     }
 
     pub fn offer_cosmic_loop(&self) {
-        println!("[RaThorOneOrganism v{}] Cosmic loop active with GPU Pipeline", self.version);
+        println!("[RaThorOneOrganism v{}] Cosmic loop active with Advanced GPU Memory Pool", self.version);
     }
 
     pub async fn dispatch_gpu_simulation(&self, task_name: &str, buffer_size: usize) -> Result<String, String> {
@@ -63,6 +62,10 @@ impl RaThorOneOrganism {
         }
     }
 
+    pub async fn get_gpu_memory_stats(&self) -> crate::gpu_compute_pipeline::GpuMemoryStats {
+        self.gpu_pipeline.get_memory_stats().await
+    }
+
     pub fn evolve(&mut self, proposal: EvolutionProposal) -> Result<String, String> {
         self.evolution_gate.propose_evolution(proposal)
     }
@@ -75,6 +78,6 @@ impl RaThorOneOrganism {
 pub fn launch_one_organism() -> RaThorOneOrganism {
     let organism = RaThorOneOrganism::new();
     organism.offer_cosmic_loop();
-    println!("[Thunder] ONE Organism v14.8 + GPU Compute Pipeline ready");
+    println!("[Thunder] ONE Organism v14.8 + Advanced GPU Memory Pool ready");
     organism
 }
