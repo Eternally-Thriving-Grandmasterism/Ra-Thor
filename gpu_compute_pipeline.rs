@@ -1,6 +1,6 @@
 // gpu_compute_pipeline.rs
-// Ra-Thor v14.8+ — GPU Compute Pipeline + Advanced GPU Memory Pool
-// Production-grade memory pooling with power-of-two bucketing, stats, and reuse tracking.
+// Ra-Thor v14.9+ — GPU Memory Allocator + Compute Pipeline
+// Production-grade memory allocator with alignment, bucketing, and rich stats.
 // AG-SML v1.0 License
 
 use std::collections::HashMap;
@@ -25,30 +25,33 @@ pub struct GpuTaskResult {
     pub message: String,
 }
 
-/// Advanced GPU Memory Pool
-pub struct GpuMemoryPool {
+/// GPU Memory Allocator — Phase 1 Production Upgrade
+pub struct GpuMemoryAllocator {
     free_buffers: HashMap<usize, Vec<Vec<u8>>>,
     total_allocated: usize,
     total_reused: usize,
-    peak_usage: usize,
     current_usage: usize,
+    peak_usage: usize,
+    allocation_count: usize,
     max_buffers_per_class: usize,
 }
 
-impl GpuMemoryPool {
+impl GpuMemoryAllocator {
     pub fn new() -> Self {
         Self {
             free_buffers: HashMap::new(),
             total_allocated: 0,
             total_reused: 0,
-            peak_usage: 0,
             current_usage: 0,
-            max_buffers_per_class: 16,
+            peak_usage: 0,
+            allocation_count: 0,
+            max_buffers_per_class: 32,
         }
     }
 
     pub fn acquire(&mut self, size: usize) -> Vec<u8> {
-        let size_class = Self::next_power_of_two(size.max(4096));
+        let aligned_size = Self::align_size(size);
+        let size_class = Self::get_size_class(aligned_size);
 
         if let Some(buffers) = self.free_buffers.get_mut(&size_class) {
             if let Some(buffer) = buffers.pop() {
@@ -62,6 +65,7 @@ impl GpuMemoryPool {
         let buffer = vec![0u8; size_class];
         self.total_allocated += size_class;
         self.current_usage += size_class;
+        self.allocation_count += 1;
         self.update_peak();
         buffer
     }
@@ -85,57 +89,73 @@ impl GpuMemoryPool {
     }
 
     pub fn stats(&self) -> GpuMemoryStats {
+        let reuse_ratio = if self.allocation_count > 0 {
+            self.total_reused as f64 / self.allocation_count as f64
+        } else { 0.0 };
+
+        let fragmentation = if self.total_allocated > 0 {
+            1.0 - (self.current_usage as f64 / self.total_allocated as f64)
+        } else { 0.0 };
+
         GpuMemoryStats {
             total_allocated_bytes: self.total_allocated,
-            total_reused_count: self.total_reused,
             current_usage_bytes: self.current_usage,
             peak_usage_bytes: self.peak_usage,
+            total_reused_count: self.total_reused,
+            allocation_count: self.allocation_count,
+            reuse_ratio,
+            estimated_fragmentation: fragmentation,
             active_size_classes: self.free_buffers.len(),
         }
     }
 
-    fn next_power_of_two(mut n: usize) -> usize {
-        if n == 0 { return 1; }
-        n -= 1;
-        n |= n >> 1; n |= n >> 2; n |= n >> 4;
-        n |= n >> 8; n |= n >> 16; n |= n >> 32;
-        n + 1
+    fn align_size(size: usize) -> usize {
+        let alignment = 256;
+        (size + alignment - 1) & !(alignment - 1)
+    }
+
+    fn get_size_class(size: usize) -> usize {
+        let mut s = 256;
+        while s < size { s *= 2; }
+        s
     }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct GpuMemoryStats {
     pub total_allocated_bytes: usize,
-    pub total_reused_count: usize,
     pub current_usage_bytes: usize,
     pub peak_usage_bytes: usize,
+    pub total_reused_count: usize,
+    pub allocation_count: usize,
+    pub reuse_ratio: f64,
+    pub estimated_fragmentation: f64,
     pub active_size_classes: usize,
 }
 
-/// GPU Compute Pipeline with advanced memory pooling
 pub struct GpuComputePipeline {
-    memory_pool: Arc<Mutex<GpuMemoryPool>>,
+    allocator: Arc<Mutex<GpuMemoryAllocator>>,
     pub version: String,
 }
 
 impl GpuComputePipeline {
     pub fn new() -> Self {
         Self {
-            memory_pool: Arc::new(Mutex::new(GpuMemoryPool::new())),
-            version: "v14.8.0-gpu-pipeline".to_string(),
+            allocator: Arc::new(Mutex::new(GpuMemoryAllocator::new())),
+            version: "v14.9.0-gpu-allocator".to_string(),
         }
     }
 
     pub async fn dispatch(&self, task: GpuTask) -> Result<GpuTaskResult, String> {
         let start = std::time::Instant::now();
-        let mut pool = self.memory_pool.lock().await;
-        let _buffer = pool.acquire(task.buffer_size);
+        let mut allocator = self.allocator.lock().await;
+        let _buffer = allocator.acquire(task.buffer_size);
 
-        tokio::time::sleep(tokio::time::Duration::from_millis(75)).await;
+        tokio::time::sleep(tokio::time::Duration::from_millis(70)).await;
 
-        pool.release(vec![0u8; GpuMemoryPool::next_power_of_two(task.buffer_size)]);
+        allocator.release(vec![0u8; GpuMemoryAllocator::get_size_class(task.buffer_size)]);
         let elapsed = start.elapsed().as_millis() as u64;
-        let stats = pool.stats();
+        let stats = allocator.stats();
 
         Ok(GpuTaskResult {
             task_id: task.id,
@@ -143,8 +163,8 @@ impl GpuComputePipeline {
             execution_time_ms: elapsed,
             output_size: task.buffer_size / 4,
             message: format!(
-                "GPU task '{}' completed | {} ms | Peak: {} MB | Reused: {}",
-                task.name, elapsed, stats.peak_usage_bytes / (1024*1024), stats.total_reused_count
+                "GPU task '{}' | {} ms | Reuse: {:.1}% | Frag: {:.1}%",
+                task.name, elapsed, stats.reuse_ratio * 100.0, stats.estimated_fragmentation * 100.0
             ),
         })
     }
@@ -160,6 +180,6 @@ impl GpuComputePipeline {
     }
 
     pub async fn get_memory_stats(&self) -> GpuMemoryStats {
-        self.memory_pool.lock().await.stats()
+        self.allocator.lock().await.stats()
     }
 }

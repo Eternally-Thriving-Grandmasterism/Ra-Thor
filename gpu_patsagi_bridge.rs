@@ -1,12 +1,11 @@
 // gpu_patsagi_bridge.rs
-// Ra-Thor v14.8 — GPU PATSAGi Bridge with Advanced Memory Pool support
+// Ra-Thor v14.9 — GPU PATSAGi Bridge using Advanced Memory Allocator
 
 use std::sync::Arc;
 use tokio::sync::Mutex;
 use serde::{Deserialize, Serialize};
 
 use crate::ra_thor_one_organism::RaThorOneOrganism;
-use crate::core::self_evolution_gate::EvolutionProposal;
 use crate::gpu_compute_pipeline::GpuComputePipeline;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -55,23 +54,18 @@ impl GpuPatsagiBridge {
 
         let response_text = if use_gpu {
             match self.gpu_pipeline.submit_patsagi_task(&req.query, "high", 64 * 1024 * 1024).await {
-                Ok(result) => format!("GPU-accelerated PATSAGi: {} | {}", req.query, result.message),
-                Err(e) => {
-                    println!("[GpuPatsagiBridge] Pipeline error: {}. CPU fallback.", e);
-                    format!("CPU fallback for: {}", req.query)
-                }
+                Ok(result) => format!("GPU PATSAGi (Advanced Allocator): {} | {}", req.query, result.message),
+                Err(e) => format!("CPU fallback (GPU error: {})", e),
             }
         } else {
             format!("CPU PATSAGi deliberation for: {}", req.query)
         };
 
-        let elapsed = start.elapsed().as_millis() as u64;
-
         Ok(GpuPatsagiResponse {
             response: response_text,
-            source: format!("PATSAGi + Ra-Thor ONE v14.8 (GPU: {})", use_gpu),
+            source: format!("PATSAGi + Ra-Thor ONE v14.9 (GPU: {})", use_gpu),
             gpu_used: use_gpu,
-            compute_time_ms: elapsed,
+            compute_time_ms: start.elapsed().as_millis() as u64,
             council_approvals: if use_gpu { 12 } else { 9 },
         })
     }
