@@ -1,5 +1,5 @@
 // gpu_compute_pipeline.rs
-// Ra-Thor v14.9+ — GPU Memory Allocator with Improved Fragmentation Metrics
+// Ra-Thor v14.9+ — GPU Memory Allocator with Fixed Coalescing Logic
 // AG-SML v1.0 License
 
 use std::collections::HashMap;
@@ -31,6 +31,7 @@ pub struct GpuMemoryAllocator {
     current_usage: usize,
     peak_usage: usize,
     allocation_count: usize,
+    coalesce_count: usize,
     max_buffers_per_class: usize,
 }
 
@@ -43,6 +44,7 @@ impl GpuMemoryAllocator {
             current_usage: 0,
             peak_usage: 0,
             allocation_count: 0,
+            coalesce_count: 0,
             max_buffers_per_class: 32,
         }
     }
@@ -77,7 +79,29 @@ impl GpuMemoryAllocator {
             buffer.fill(0);
             list.push(buffer);
         }
+
         self.current_usage = self.current_usage.saturating_sub(size);
+
+        // Attempt coalescing after storing
+        self.try_coalesce(size);
+    }
+
+    fn try_coalesce(&mut self, size: usize) {
+        let next_size = size * 2;
+
+        if let Some(blocks) = self.free_buffers.get_mut(&size) {
+            if blocks.len() >= 2 {
+                blocks.pop();
+                blocks.pop();
+
+                let merged_list = self.free_buffers.entry(next_size).or_default();
+                if merged_list.len() < self.max_buffers_per_class {
+                    merged_list.push(vec![0u8; next_size]);
+                }
+
+                self.coalesce_count += 1;
+            }
+        }
     }
 
     fn update_peak(&mut self) {
@@ -121,6 +145,7 @@ impl GpuMemoryAllocator {
             peak_usage_bytes: self.peak_usage,
             total_reused_count: self.total_reused,
             allocation_count: self.allocation_count,
+            coalesce_count: self.coalesce_count,
             reuse_ratio,
             overallocation_ratio,
             free_block_count,
@@ -150,6 +175,7 @@ pub struct GpuMemoryStats {
     pub peak_usage_bytes: usize,
     pub total_reused_count: usize,
     pub allocation_count: usize,
+    pub coalesce_count: usize,
     pub reuse_ratio: f64,
     pub overallocation_ratio: f64,
     pub free_block_count: usize,
@@ -189,8 +215,8 @@ impl GpuComputePipeline {
             execution_time_ms: elapsed,
             output_size: task.buffer_size / 4,
             message: format!(
-                "GPU task '{}' | {} ms | Reuse: {:.1}% | Largest free: {} MB",
-                task.name, elapsed, stats.reuse_ratio * 100.0, stats.largest_free_block_bytes / (1024*1024)
+                "GPU task '{}' | {} ms | Coalesced: {}x | Largest free: {} MB",
+                task.name, elapsed, stats.coalesce_count, stats.largest_free_block_bytes / (1024*1024)
             ),
         })
     }

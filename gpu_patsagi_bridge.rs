@@ -1,5 +1,5 @@
 // gpu_patsagi_bridge.rs
-// Ra-Thor v14.9 — GPU PATSAGi Bridge using Advanced Memory Allocator
+// Ra-Thor v14.9 — GPU PATSAGi Bridge with Fixed Coalescing Allocator
 
 use std::sync::Arc;
 use tokio::sync::Mutex;
@@ -54,8 +54,8 @@ impl GpuPatsagiBridge {
 
         let response_text = if use_gpu {
             match self.gpu_pipeline.submit_patsagi_task(&req.query, "high", 64 * 1024 * 1024).await {
-                Ok(result) => format!("GPU PATSAGi (Advanced Allocator): {} | {}", req.query, result.message),
-                Err(e) => format!("CPU fallback (GPU error: {})", e),
+                Ok(result) => format!("GPU PATSAGi (Fixed Coalescing): {} | {}", req.query, result.message),
+                Err(e) => format!("CPU fallback (error: {})", e),
             }
         } else {
             format!("CPU PATSAGi deliberation for: {}", req.query)
