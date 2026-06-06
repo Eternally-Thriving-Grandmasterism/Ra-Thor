@@ -1,5 +1,5 @@
 // gpu_patsagi_bridge.rs
-// Ra-Thor v14.8 — GPU PATSAGi Bridge (integrated with real GPU Compute Pipeline)
+// Ra-Thor v14.8 — GPU PATSAGi Bridge with Advanced Memory Pool support
 
 use std::sync::Arc;
 use tokio::sync::Mutex;
@@ -10,9 +10,7 @@ use crate::core::self_evolution_gate::EvolutionProposal;
 use crate::gpu_compute_pipeline::GpuComputePipeline;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-pub enum ComputeIntensity {
-    Low, Medium, High,
-}
+pub enum ComputeIntensity { Low, Medium, High }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct GpuPatsagiRequest {
@@ -57,9 +55,9 @@ impl GpuPatsagiBridge {
 
         let response_text = if use_gpu {
             match self.gpu_pipeline.submit_patsagi_task(&req.query, "high", 64 * 1024 * 1024).await {
-                Ok(result) => format!("GPU-accelerated PATSAGi response: {} | {}", req.query, result.message),
+                Ok(result) => format!("GPU-accelerated PATSAGi: {} | {}", req.query, result.message),
                 Err(e) => {
-                    println!("[GpuPatsagiBridge] GPU pipeline error: {}. Falling back.", e);
+                    println!("[GpuPatsagiBridge] Pipeline error: {}. CPU fallback.", e);
                     format!("CPU fallback for: {}", req.query)
                 }
             }
