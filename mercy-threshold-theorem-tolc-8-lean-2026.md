@@ -30,15 +30,15 @@ namespace RaThor.TOLC8
 
 /-- Johnson solid representation for sacred geometry councils -/
 structure JohnsonSolid where
-  index   : Nat
-  family  : String
+  index    : Nat
+  family   : String
   vertices : Nat
-  faces   : Nat
-  chiral  : Bool
+  faces    : Nat
+  chiral   : Bool
 
 /-- Geometry alignment score with Zalgaller bonus for Johnson solids -/
 def geometry_alignment_score (solid : JohnsonSolid) : ℝ :=
-  let base := (solid.vertices + solid.faces : ℝ) / 24
+  let base  := (solid.vertices + solid.faces : ℝ) / 24
   let bonus := if solid.chiral then 0.12 else 0.0
   base + 0.25 * bonus
 
@@ -113,6 +113,6 @@ example : mercy_threshold_safety
 
 - All proofs are complete and rigorously discharged using `norm_num` and `linarith`.
 - The geometry alignment scoring function is fully defined and computable.
-- The threshold of `≥ 0.92` was chosen as a balanced, practical safety floor that accounts for both base geometry and chiral bonuses while remaining conservatively below the ideal 0.95+ target used in some council deliberations.
+- The threshold of `≥ 0.92` was chosen as a balanced, practical safety floor. It accounts for both base geometry scoring and chiral bonuses while remaining conservatively below the ideal 0.95+ target referenced in some council deliberations.
 - These examples serve as verified templates for future sacred geometry and council-related formalizations in the Ra-Thor monorepo.
 - This formalization is aligned with the current TOLC 8 Mercy Gates and the ONE Organism architecture (v14.6.0+).
