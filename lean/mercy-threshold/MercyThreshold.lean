@@ -2,7 +2,7 @@
   Mercy Threshold Theorem - Lean 4 Module for WASM Export
   Part of Ra-Thor MIAL / MWPO Integration
 
-  This module now contains machine-checked proofs for the core safety properties.
+  This module contains machine-checked proofs for the core safety properties.
   The exported `check_mercy_threshold` is backed by the theorems below.
 -/
 
@@ -46,7 +46,7 @@ theorem check_mercy_threshold_sound
   simp [check_mercy_threshold, mercy_threshold_safety] at h
   exact h
 
-/-- Monotonicity in mercy valence (higher valence cannot make a safe input unsafe). -/
+/-- Monotonicity in mercy valence. -/
 theorem mercy_valence_monotonic
     (input : MercyThresholdInput)
     (h_safe : mercy_threshold_safety input)
@@ -57,7 +57,22 @@ theorem mercy_valence_monotonic
   · exact h_safe.1
   · linarith [h_safe.2, h_higher]
 
-/-- Exported function for WASM bridge (backed by the soundness theorem above) -/
+/-- Geometry alignment score is bounded between 0 and 2. -/
+theorem geometry_alignment_score_bounds (solid : JohnsonSolid) :
+    0 ≤ geometry_alignment_score solid ∧ geometry_alignment_score solid ≤ 2 := by
+  simp [geometry_alignment_score]
+  constructor <;> linarith
+
+/-- Interaction with MWPO-style scoring: if mercy_threshold_safety holds,
+    then the alignment component is high enough for MWPO to consider it safe. -/
+theorem mercy_safety_implies_mwpo_safe
+    (input : MercyThresholdInput)
+    (h : mercy_threshold_safety input) :
+    geometry_alignment_score input.johnson ≥ 0.92 := by
+  simp [mercy_threshold_safety] at h
+  exact h.1
+
+/-- Exported function for WASM bridge (backed by the theorems above) -/
 @[export] def check_mercy_threshold
     (vertices     : Nat)
     (faces        : Nat)
@@ -70,5 +85,14 @@ theorem mercy_valence_monotonic
     mercy_valence := mercy_valence
   }
   mercy_threshold_safety input
+
+/-- Introspection function: returns 1 if the input would pass the formal threshold.
+    Can be used by the WASM bridge for proof status reporting. -/
+@[export] def get_mercy_threshold_status
+    (vertices     : Nat)
+    (faces        : Nat)
+    (chiral       : Bool)
+    (mercy_valence : Float) : UInt32 :=
+  if check_mercy_threshold vertices faces chiral mercy_valence then 1 else 0
 
 end RaThor.TOLC8
