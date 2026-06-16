@@ -12,6 +12,7 @@ repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
 ra-thor-mercy = { path = "../mercy" }
 ra-thor-self-evolution = { path = "../self-evolution" }
 powrush = { path = "../powrush" }
+mial = { path = "../mial", optional = true }
 
 # Optional for focused shards and ONE Organism composition
  geometric-intelligence = { path = "../geometric-intelligence", optional = true }
@@ -52,6 +53,7 @@ full = [
     "hyperon-metta-pln",
     "github-connector",
     "telemetry",
+    "mial",
 ]
 
 # Focused shard examples
@@ -59,9 +61,10 @@ focused-real-estate = [
     "geometric-intelligence",
     "patsagi-councils",
 ]
-focused-geometry = ["geometric-intelligence"]
+focused-geometry = ["geometric-intelligence", "mial"]
 
 # Marker / activation features (can be enabled independently or via full)
 hyperon-metta-pln = []      # Enables Hyperon/MeTTa/PLN symbolic bridge
 github-connector = []       # Autonomous GitHub integration
 telemetry = []              # Valence + CEHI reporting
+mial = []                   # Enables hybrid Mercy Threshold + MWPO checks
