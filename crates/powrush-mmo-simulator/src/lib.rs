@@ -1,34 +1,9 @@
 pub mod mercy_geometry;
+pub mod gate_logic;
 
-// Re-export key types for convenient use in simulation code
-pub use mercy_geometry::{evaluate_particle_geometry_mercy, evaluate_geometry_mercy_hybrid, MercyGeometryEvaluation, gpu_mercy_modulation_factor};
-
-// === Example integration in main simulation tick ===
-/*
-use powrush_mmo_simulator::mercy_geometry::*;
-use mial::mwpo::{GeometryParams, MercyContext};
-
-pub fn simulation_tick(particles: &mut [ParticleState]) {
-    for particle in particles {
-        let geo = particle.to_geometry_params();
-        let context = MercyContext { /* ... */ valence: 0.999999, .. };
-
-        let evaluation = evaluate_geometry_mercy_hybrid(&geo, &context);
-
-        if evaluation.should_evolve {
-            particle.apply_mercy_evolution(evaluation.resonance);
-        }
-
-        if should_trigger_mercy_evolution(&evaluation) {
-            particle.apply_epigenetic_blessing();
-        }
-
-        // GPU layer modulation
-        let modulation = gpu_mercy_modulation_factor(&evaluation);
-        particle.gpu_dispatch_strength = modulation;
-    }
-}
-*/
+// Re-export key types
+pub use mercy_geometry::{evaluate_particle_geometry_mercy, formally_verify_geometry, MercyGeometryEvaluation};
+pub use gate_logic::{compute_gate_effects, GateEffects, apply_full_gate_logic, SimEntity};
 
 // The rest of the original Powrush-MMO simulator content follows below.
 // (Existing energetic specification and integration notes preserved)
