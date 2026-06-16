@@ -1,10 +1,9 @@
-//! Mercy Geometry Evaluation Integration for Powrush-MMO Simulator
+//! Mercy Geometry Evaluation for Powrush-MMO Simulator
 //!
-//! Includes deep formal verification with automatic proof status logging
-//! via the hybrid WASM bridge.
+//! Uses the formal Lean bridge lemma result when available.
 
 use mial::mwpo::{MercyWeightedPreferenceOptimization, GeometryParams, MercyContext, MercyGeometryScore};
-use mercy_threshold_wasm::MercyThresholdBridge; // for formal WASM path + status
+use mercy_threshold_wasm::MercyThresholdBridge;
 
 #[derive(Debug, Clone)]
 pub struct MercyGeometryEvaluation {
@@ -13,7 +12,7 @@ pub struct MercyGeometryEvaluation {
     pub should_apply_blessing: bool,
     pub resonance: f64,
     pub used_formal_path: bool,
-    pub proof_status: Option<u32>, // from Lean get_mercy_threshold_status
+    pub all_gates_strong: bool,
 }
 
 pub fn evaluate_particle_geometry_mercy(
@@ -31,7 +30,7 @@ pub fn evaluate_particle_geometry_mercy(
                 should_apply_blessing,
                 resonance: score.geometry_resonance,
                 used_formal_path: false,
-                proof_status: None,
+                all_gates_strong: false,
             }
         }
         Err(_) => MercyGeometryEvaluation {
@@ -40,57 +39,45 @@ pub fn evaluate_particle_geometry_mercy(
             should_apply_blessing: false,
             resonance: 0.0,
             used_formal_path: false,
-            proof_status: None,
+            all_gates_strong: false,
         },
     }
 }
 
-pub fn evaluate_geometry_mercy_hybrid(
-    geometry: &GeometryParams,
-    context: &MercyContext,
-) -> MercyGeometryEvaluation {
-    // For now fall back to native; full WASM bridge usage is in formally_verify_geometry
-    evaluate_particle_geometry_mercy(geometry, context)
-}
-
-/// Deep formal verification that automatically calls get_proof_status
-/// from the Lean WASM bridge and logs the result.
+/// Formal verification that uses the Lean bridge lemma result when possible.
 pub fn formally_verify_geometry(
     geometry: &GeometryParams,
     context: &MercyContext,
     bridge: Option<&mut MercyThresholdBridge>,
 ) -> MercyGeometryEvaluation {
-    // If we have a live WASM bridge, use it for formal status
     if let Some(b) = bridge {
-        if let Ok(status) = b.get_proof_status(
-            geometry.vertices as u32, // simplified mapping
+        if let Ok(all_strong) = b.check_all_gates_strong(
+            geometry.vertices as u32,
             geometry.faces as u32,
             geometry.chiral,
             context.valence as f64,
         ) {
-            // Log proof status (in real system this would go to tracing)
-            println!("[Formal Verification] Lean proof status for geometry: {}", status);
+            println!("[Formal] All gates strong (Lean bridge lemma): {}", all_strong);
 
             return MercyGeometryEvaluation {
                 score: MercyGeometryScore {
-                    overall: if status == 1 { 0.99 } else { 0.5 },
-                    love: 0.99,
-                    mercy: 0.99,
-                    truth: 0.99,
-                    abundance: 0.99,
-                    harmony: if status == 1 { 0.99 } else { 0.5 },
-                    geometry_resonance: if status == 1 { 0.99 } else { 0.5 },
+                    overall: if all_strong { 0.99 } else { 0.6 },
+                    love: if all_strong { 0.99 } else { 0.6 },
+                    mercy: if all_strong { 0.99 } else { 0.6 },
+                    truth: if all_strong { 0.99 } else { 0.6 },
+                    abundance: if all_strong { 0.99 } else { 0.6 },
+                    harmony: if all_strong { 0.99 } else { 0.6 },
+                    geometry_resonance: if all_strong { 0.99 } else { 0.6 },
                 },
-                should_evolve: status == 1,
-                should_apply_blessing: status == 1,
-                resonance: if status == 1 { 0.99 } else { 0.5 },
+                should_evolve: all_strong,
+                should_apply_blessing: all_strong,
+                resonance: if all_strong { 0.99 } else { 0.6 },
                 used_formal_path: true,
-                proof_status: Some(status),
+                all_gates_strong: all_strong,
             };
         }
     }
 
-    // Fallback to native evaluation
     let mut eval = evaluate_particle_geometry_mercy(geometry, context);
     eval.used_formal_path = true;
     eval
