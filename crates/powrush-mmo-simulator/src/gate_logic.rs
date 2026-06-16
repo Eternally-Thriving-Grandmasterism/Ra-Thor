@@ -1,8 +1,9 @@
 //! Gate Logic - Core simulation behavior driven by the 7 Living Mercy Gates + Geometry Resonance
 //!
-//! Features: synergies + diminishing returns + negative effects on very low gates + telemetry visibility.
+//! Includes synergies, diminishing returns, negative effects, and telemetry integration.
 
 use crate::mercy_geometry::MercyGeometryEvaluation;
+use tracing::debug;
 
 #[derive(Debug, Clone, Default)]
 pub struct GateEffects {
@@ -15,7 +16,6 @@ pub struct GateEffects {
     pub geometry_structural_bonus: f32,
 }
 
-/// Detailed debug/telemetry info for a gate evaluation.
 #[derive(Debug, Clone)]
 pub struct GateDebugInfo {
     pub raw_abundance: f32,
@@ -36,12 +36,10 @@ pub struct GateDebugInfo {
     pub final_multipliers: GateEffects,
 }
 
-/// Apply diminishing returns
 fn apply_diminishing_returns(value: f32, strength: f32) -> f32 {
     strength * (1.0 - (1.0 / (1.0 + value * 4.0)))
 }
 
-/// Compute gate-driven effects with synergies + diminishing returns + **negative effects on very low gates**.
 pub fn compute_gate_effects(evaluation: &MercyGeometryEvaluation) -> GateEffects {
     let s = &evaluation.score;
 
@@ -61,7 +59,7 @@ pub fn compute_gate_effects(evaluation: &MercyGeometryEvaluation) -> GateEffects
     let joy       = apply_diminishing_returns(raw_joy, 0.5);
     let geometry  = apply_diminishing_returns(raw_geometry, 0.9);
 
-    // === Negative effects for extremely low gates ===
+    // Negative effects for extremely low gates
     let abundance_penalty = if s.abundance < 0.35 { (0.35 - s.abundance) * 1.2 } else { 0.0 };
     let mercy_penalty     = if s.mercy < 0.30 { (0.30 - s.mercy) * 1.5 } else { 0.0 };
     let harmony_penalty   = if s.harmony < 0.35 { (0.35 - s.harmony) * 1.1 } else { 0.0 };
@@ -75,7 +73,6 @@ pub fn compute_gate_effects(evaluation: &MercyGeometryEvaluation) -> GateEffects
     let base_morale = 1.0 + joy;
     let base_geometry = 1.0 + geometry;
 
-    // Synergies
     let love_harmony_synergy = if s.love > 0.85 && s.harmony > 0.85 { 0.22 } else { 0.0 };
     let truth_abundance_synergy = if s.truth > 0.80 && s.abundance > 0.80 { 0.18 } else { 0.0 };
     let mercy_joy_synergy = if s.mercy > 0.90 && s.joy > 0.85 { 0.20 } else { 0.0 };
@@ -97,7 +94,7 @@ pub fn compute_gate_effects(evaluation: &MercyGeometryEvaluation) -> GateEffects
     }
 }
 
-/// Returns detailed debug/telemetry information about how gates were processed.
+/// Returns detailed debug/telemetry information.
 pub fn get_gate_debug_info(evaluation: &MercyGeometryEvaluation) -> GateDebugInfo {
     let s = &evaluation.score;
 
@@ -134,9 +131,32 @@ pub fn get_gate_debug_info(evaluation: &MercyGeometryEvaluation) -> GateDebugInf
         diminished_joy,
         raw_geometry,
         diminished_geometry,
-        applied_synergies: 0.0, // Can be expanded later
+        applied_synergies: 0.0,
         final_multipliers: effects,
     }
+}
+
+/// Emit structured telemetry for gate state (integrates with tracing).
+pub fn emit_gate_telemetry(evaluation: &MercyGeometryEvaluation, entity_id: &str) {
+    let debug = get_gate_debug_info(evaluation);
+    let effects = &debug.final_multipliers;
+
+    debug!(
+        target: "powrush::gates",
+        entity_id = %entity_id,
+        abundance = debug.raw_abundance,
+        diminished_abundance = debug.diminished_abundance,
+        mercy = debug.raw_mercy,
+        diminished_mercy = debug.diminished_mercy,
+        love = debug.raw_love,
+        harmony = debug.raw_harmony,
+        joy = debug.raw_joy,
+        geometry = debug.raw_geometry,
+        resource_mult = effects.resource_multiplier,
+        evolution_stability = effects.evolution_stability,
+        all_gates_strong = evaluation.all_gates_strong,
+        "Gate telemetry emitted"
+    );
 }
 
 // === Application helpers ===
@@ -166,7 +186,11 @@ pub fn apply_geometry_structural_bonus(evaluation: &MercyGeometryEvaluation, bas
     base_stability * effects.geometry_structural_bonus
 }
 
-pub fn apply_full_gate_logic(evaluation: &MercyGeometryEvaluation, entity: &mut SimEntity) {
+/// Full gate logic with automatic telemetry emission.
+pub fn apply_full_gate_logic(evaluation: &MercyGeometryEvaluation, entity: &mut SimEntity, entity_id: &str) {
+    // Emit telemetry on every significant gate evaluation
+    emit_gate_telemetry(evaluation, entity_id);
+
     entity.resource_rate = apply_resource_generation(evaluation, entity.base_resource_rate);
     entity.evolution_stability = apply_evolution_stability(evaluation, entity.base_evolution_stability);
     entity.cooperation = apply_cooperation_bonus(evaluation, entity.base_cooperation);
