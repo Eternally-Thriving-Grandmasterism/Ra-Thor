@@ -2,16 +2,18 @@ use wasmtime::{Engine, Instance, Module, Store, TypedFunc};
 use anyhow::Result;
 
 /// WASM bridge for the formal Lean Mercy Threshold Theorem.
-///
-/// Richer gate score access available via individual getters + check_all_gates_strong.
+/// Richer gate score access (Love, Truth, Mercy, Abundance, Joy, Harmony, Resonance).
 pub struct MercyThresholdBridge {
     store: Store<()>,
     check_fn: TypedFunc<(u32, u32, bool, f64), i32>,
     all_gates_fn: Option<TypedFunc<(u32, u32, bool, f64), i32>>,
     status_fn: Option<TypedFunc<(u32, u32, bool, f64), u32>>,
     love_fn: Option<TypedFunc<(u32, u32, bool), f32>>,
+    truth_fn: Option<TypedFunc<(u32, u32, bool), f32>>,
+    mercy_fn: Option<TypedFunc<(u32, u32, bool, f64), f32>>,
     abundance_fn: Option<TypedFunc<(u32, u32, bool), f32>>,
     joy_fn: Option<TypedFunc<(u32, u32, bool, f64), f32>>,
+    harmony_fn: Option<TypedFunc<(u32, u32, bool), f32>>,
     resonance_fn: Option<TypedFunc<(u32, u32, bool), f32>>,
 }
 
@@ -33,22 +35,24 @@ impl MercyThresholdBridge {
 
         let love_fn = instance.get_typed_func::<(u32, u32, bool), f32>(
             &mut store, "get_love_score").ok();
-
+        let truth_fn = instance.get_typed_func::<(u32, u32, bool), f32>(
+            &mut store, "get_truth_score").ok();
+        let mercy_fn = instance.get_typed_func::<(u32, u32, bool, f64), f32>(
+            &mut store, "get_mercy_score").ok();
         let abundance_fn = instance.get_typed_func::<(u32, u32, bool), f32>(
             &mut store, "get_abundance_score").ok();
-
         let joy_fn = instance.get_typed_func::<(u32, u32, bool, f64), f32>(
             &mut store, "get_joy_score").ok();
-
+        let harmony_fn = instance.get_typed_func::<(u32, u32, bool), f32>(
+            &mut store, "get_harmony_score").ok();
         let resonance_fn = instance.get_typed_func::<(u32, u32, bool), f32>(
             &mut store, "get_geometry_resonance").ok();
 
-        Ok(Self { store, check_fn, all_gates_fn, status_fn, love_fn, abundance_fn, joy_fn, resonance_fn })
+        Ok(Self { store, check_fn, all_gates_fn, status_fn, love_fn, truth_fn, mercy_fn, abundance_fn, joy_fn, harmony_fn, resonance_fn })
     }
 
     pub fn check(&mut self, vertices: u32, faces: u32, chiral: bool, mercy_valence: f64) -> Result<bool> {
-        let result = self.check_fn.call(&mut self.store, (vertices, faces, chiral, mercy_valence))?;
-        Ok(result != 0)
+        Ok(self.check_fn.call(&mut self.store, (vertices, faces, chiral, mercy_valence))? != 0)
     }
 
     pub fn check_all_gates_strong(&mut self, vertices: u32, faces: u32, chiral: bool, mercy_valence: f64) -> Result<bool> {
@@ -62,12 +66,24 @@ impl MercyThresholdBridge {
         self.love_fn.as_mut().map_or(Ok(0.0), |f| f.call(&mut self.store, (vertices, faces, chiral)))
     }
 
+    pub fn get_truth_score(&mut self, vertices: u32, faces: u32, chiral: bool) -> Result<f32> {
+        self.truth_fn.as_mut().map_or(Ok(0.0), |f| f.call(&mut self.store, (vertices, faces, chiral)))
+    }
+
+    pub fn get_mercy_score(&mut self, vertices: u32, faces: u32, chiral: bool, mercy_valence: f64) -> Result<f32> {
+        self.mercy_fn.as_mut().map_or(Ok(0.0), |f| f.call(&mut self.store, (vertices, faces, chiral, mercy_valence)))
+    }
+
     pub fn get_abundance_score(&mut self, vertices: u32, faces: u32, chiral: bool) -> Result<f32> {
         self.abundance_fn.as_mut().map_or(Ok(0.0), |f| f.call(&mut self.store, (vertices, faces, chiral)))
     }
 
     pub fn get_joy_score(&mut self, vertices: u32, faces: u32, chiral: bool, mercy_valence: f64) -> Result<f32> {
         self.joy_fn.as_mut().map_or(Ok(0.0), |f| f.call(&mut self.store, (vertices, faces, chiral, mercy_valence)))
+    }
+
+    pub fn get_harmony_score(&mut self, vertices: u32, faces: u32, chiral: bool) -> Result<f32> {
+        self.harmony_fn.as_mut().map_or(Ok(0.0), |f| f.call(&mut self.store, (vertices, faces, chiral)))
     }
 
     pub fn get_geometry_resonance(&mut self, vertices: u32, faces: u32, chiral: bool) -> Result<f32> {
