@@ -1,10 +1,25 @@
 [package]
 name = "mercy-threshold-wasm"
-version = "0.1.0"
+version = "14.7.0"
 edition = "2021"
+authors = ["Ra-Thor Living Thunder <eternally-thriving@grandmasterism>"]
+description = "WASM-portable Mercy Threshold enforcement bridge for Ra-Thor / MIAL. Supports wasmtime harness for testing and sovereign offline use."
 license = "AG-SML-1.0"
+repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
+
+[lib]
+crate-type = ["cdylib", "rlib"]  # cdylib for wasm32-unknown-unknown, rlib for native/wasmtime tests
 
 [dependencies]
+wasmtime = { version = "25.0", features = ["cranelift"], optional = true }
+anyhow = { version = "1.0", optional = true }
+serde = { version = "1.0", features = ["derive"] }
+
+[features]
+default = ["native"]
+native = ["dep:wasmtime", "dep:anyhow"]   # wasmtime harness for tests/CI
+wasm = []                                # pure WASM target (no wasmtime)
+
+[dev-dependencies]
 wasmtime = { version = "25.0", features = ["cranelift"] }
 anyhow = "1.0"
-serde = { version = "1.0", features = ["derive"] }
