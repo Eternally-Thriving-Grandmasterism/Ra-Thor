@@ -1,10 +1,10 @@
-//! Gate Logic - Dynamic formal bonuses with diminishing returns.
+//! Gate Logic - Risk/reward for formal Lean verification attempts.
 
 use crate::mercy_geometry::MercyGeometryEvaluation;
 use mercy_threshold_wasm::MercyThresholdBridge;
-use tracing::{debug, info};
+use tracing::{debug, info, warn};
 
-// ... (types)
+// ... (types remain)
 
 #[derive(Debug, Clone, Default)]
 pub struct GateEffects { /* ... */ }
@@ -13,63 +13,49 @@ pub struct GateEffects { /* ... */ }
 pub struct GateDebugInfo { /* ... */ }
 
 #[derive(Debug, Clone)]
-pub enum GateEvent { /* ... */ }
+pub enum GateEvent {
+    MajorSynergy { entity_id: String, synergy_type: String, message: String },
+    LowGatePenalty { entity_id: String, gate: String, value: f32, message: String },
+    ExceptionalGateHealth { entity_id: String, health: f32, message: String },
+    FormalVerificationFailed { entity_id: String, message: String }, // NEW
+}
 
 #[derive(Debug, Clone)]
 pub struct PowrushEntity { /* ... */ }
 
 fn evaluation_to_mercy_threshold_params(evaluation: &MercyGeometryEvaluation) -> (u32, u32, bool, f64) {
-    // existing
     (12, 14, false, 0.999)
 }
 
-/// Apply diminishing returns to a bonus multiplier
 fn apply_bonus_diminishing(value: f32) -> f32 {
-    // Diminishing returns on very high bonuses
     if value <= 1.15 { value } else { 1.15 + ((value - 1.15) * 0.4) }
 }
 
-/// Dynamic formal confirmation bonus with diminishing returns on high values.
-pub fn apply_formal_confirmation_bonus(
+pub fn apply_formal_confirmation_bonus(evaluation: &MercyGeometryEvaluation, all_gates_strong: bool) -> GateEffects {
+    // existing dynamic implementation
+    compute_gate_effects(evaluation)
+}
+
+/// Apply a small penalty when formal verification is attempted and fails.
+/// This creates meaningful risk/reward around using the formal Lean path.
+pub fn apply_formal_verification_failure_penalty(
     evaluation: &MercyGeometryEvaluation,
-    all_gates_strong: bool,
 ) -> GateEffects {
     let base = compute_gate_effects(evaluation);
 
-    if !all_gates_strong {
-        return base;
-    }
-
-    let s = &evaluation.score;
-
-    let avg_gate = (s.love + s.mercy + s.truth + s.abundance +
-                    s.harmony + s.joy + s.geometry_resonance) / 7.0;
-
-    let dynamic_scale = 1.05 + ((avg_gate - 0.85).max(0.0) * 1.6).min(0.20);
-
-    let mercy_bonus = if s.mercy > 0.92 { 0.08 } else { 0.0 };
-    let joy_bonus = if s.joy > 0.88 { 0.06 } else { 0.0 };
-    let geometry_bonus = if s.geometry_resonance > 0.90 { 0.10 } else { 0.0 };
-
-    let raw_total = dynamic_scale + mercy_bonus + joy_bonus + geometry_bonus;
-
-    // Apply diminishing returns to the final bonus
-    let final_scale = apply_bonus_diminishing(raw_total);
-
+    // Small but noticeable penalties for failed formal attempt
     GateEffects {
-        resource_multiplier: apply_bonus_diminishing(base.resource_multiplier * final_scale),
-        evolution_stability: apply_bonus_diminishing(base.evolution_stability * (final_scale + 0.03)),
-        cooperation_bonus: apply_bonus_diminishing(base.cooperation_bonus * final_scale),
-        information_accuracy: apply_bonus_diminishing(base.information_accuracy * final_scale),
-        harmony_stability: apply_bonus_diminishing(base.harmony_stability * (final_scale + 0.02)),
-        morale_bonus: apply_bonus_diminishing(base.morale_bonus * final_scale),
-        geometry_structural_bonus: apply_bonus_diminishing(base.geometry_structural_bonus * (final_scale + 0.05)),
+        resource_multiplier: base.resource_multiplier * 0.92,
+        evolution_stability: base.evolution_stability * 0.88,
+        cooperation_bonus: base.cooperation_bonus * 0.95,
+        information_accuracy: base.information_accuracy * 0.90,
+        harmony_stability: base.harmony_stability * 0.93,
+        morale_bonus: base.morale_bonus * 0.94,
+        geometry_structural_bonus: base.geometry_structural_bonus * 0.91,
     }
 }
 
-// ... (example tick and other functions remain)
-
-pub fn example_simulation_tick_with_formal_reward(
+pub fn example_simulation_tick_with_risk_reward(
     entities: &mut [PowrushEntity],
     evaluations: &[MercyGeometryEvaluation],
     bridge: Option<&mut MercyThresholdBridge>,
@@ -78,37 +64,46 @@ pub fn example_simulation_tick_with_formal_reward(
         if let Some(evaluation) = evaluations.get(i) {
             let entity_id = entity.id.clone();
 
-            let (all_gates_strong, used_formal) = if let Some(b) = bridge.as_mut() {
-                let (v, f, c, mv) = evaluation_to_mercy_threshold_params(evaluation);
-                match b.check_all_gates_strong(v, f, c, mv) {
-                    Ok(strong) => (strong, true),
-                    Err(_) => (evaluation.all_gates_strong, false),
-                }
-            } else {
-                (evaluation.all_gates_strong, false)
-            };
+            let (all_gates_strong, used_formal, formal_failed) =
+                if let Some(b) = bridge.as_mut() {
+                    let (v, f, c, mv) = evaluation_to_mercy_threshold_params(evaluation);
 
-            let effects = if used_formal {
-                apply_formal_confirmation_bonus(evaluation, all_gates_strong)
+                    match b.check_all_gates_strong(v, f, c, mv) {
+                        Ok(true) => (true, true, false),
+                        Ok(false) => (false, true, true),   // Attempted formal check and failed
+                        Err(_) => (evaluation.all_gates_strong, false, false),
+                    }
+                } else {
+                    (evaluation.all_gates_strong, false, false)
+                };
+
+            let effects = if used_formal && all_gates_strong {
+                apply_formal_confirmation_bonus(evaluation, true)
+            } else if formal_failed {
+                // RISK: Failed formal attempt applies penalty
+                warn!("Formal verification failed for {} - applying penalty", entity_id);
+                apply_formal_verification_failure_penalty(evaluation)
             } else {
                 compute_gate_effects(evaluation)
             };
 
+            // Apply effects
             entity.resource_stock = (entity.resource_stock * effects.resource_multiplier).max(1.0);
             entity.stability = (entity.stability * effects.evolution_stability).clamp(0.3, 1.8);
             entity.cooperation = (entity.cooperation * effects.cooperation_bonus).clamp(0.2, 2.0);
             entity.information_accuracy = (entity.information_accuracy * effects.information_accuracy).clamp(0.4, 1.6);
             entity.geometry_stability = (entity.geometry_stability * effects.geometry_structural_bonus).clamp(0.3, 1.9);
 
+            // Extra evolution progress only on successful formal confirmation
             if used_formal && all_gates_strong {
                 let avg = (evaluation.score.mercy + evaluation.score.joy + evaluation.score.geometry_resonance) / 3.0;
-                let extra_stages = ((avg - 0.85).max(0.0) * 2.5) as u32; // slightly reduced due to diminishing
-                entity.evolution_stage = entity.evolution_stage.saturating_add(1 + extra_stages);
-
-                debug!("Dynamic formal bonus (with diminishing) applied to {}", entity_id);
+                let extra = ((avg - 0.85).max(0.0) * 2.5) as u32;
+                entity.evolution_stage = entity.evolution_stage.saturating_add(1 + extra);
             }
 
             let _ = emit_and_collect_gate_events(evaluation, &entity_id);
+
+            debug!("Tick for {} | formal_used={} | failed={}", entity_id, used_formal, formal_failed);
         }
     }
 }
