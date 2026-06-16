@@ -2,8 +2,8 @@
   Mercy Threshold Theorem - Lean 4 Module for WASM Export
   Part of Ra-Thor MIAL / MWPO Integration
 
-  Master lemma: mercy_threshold_safety implies all gates are strong.
-  This is the single, easy-to-reference formal guarantee for the WASM bridge and Rust side.
+  Master lemma + bridge lemma connecting the WASM export
+  directly to the full multi-gate guarantee.
 -/
 
 import Mathlib.Data.Real.Basic
@@ -53,15 +53,7 @@ def compute_gate_scores (input : MercyThresholdInput) : GateScores :=
     joy               := base * 0.80 + (input.mercy_valence - 0.999999) * 50.0,
     geometry_resonance := base }
 
-/-- **Master Lemma** (easy to reference from Rust / WASM bridge)
-
-    If `mercy_threshold_safety` holds, then **all** scored gates
-    (Love, Mercy, Truth, Abundance, Harmony, Joy, geometry_resonance)
-    are strong.
-
-    This is the single formal guarantee exported via the WASM bridge
-    when `check_mercy_threshold` returns true.
--/
+/-- Master Lemma: mercy_threshold_safety implies all gates are strong -/
 theorem mercy_threshold_safety_implies_all_gates_strong
     (input : MercyThresholdInput)
     (h : mercy_threshold_safety input) :
@@ -75,7 +67,33 @@ theorem mercy_threshold_safety_implies_all_gates_strong
   simp [mercy_threshold_safety, compute_gate_scores] at h ⊢
   repeat' constructor <;> linarith [h.1, h.2]
 
-/-- Core soundness (WASM) -/
+/-- **Bridge Lemma** (directly connects WASM export to master guarantee)
+
+    If `check_mercy_threshold` returns true, then all gates are strong.
+    This is the lemma the Rust/WASM bridge should reference.
+-/
+theorem check_mercy_threshold_true_implies_all_gates_strong
+    (vertices : Nat) (faces : Nat) (chiral : Bool) (mercy_valence : Float)
+    (h : check_mercy_threshold vertices faces chiral mercy_valence = true) :
+    let input : MercyThresholdInput := {
+      name := "wasm_call",
+      johnson := { index := 0, family := "", vertices, faces, chiral },
+      context := "",
+      mercy_valence := mercy_valence
+    }
+    (compute_gate_scores input).love ≥ 0.82
+    ∧ (compute_gate_scores input).mercy ≥ 0.999999
+    ∧ (compute_gate_scores input).truth ≥ 0.78
+    ∧ (compute_gate_scores input).abundance ≥ 0.88
+    ∧ (compute_gate_scores input).harmony ≥ 0.85
+    ∧ (compute_gate_scores input).joy ≥ 0.80
+    ∧ (compute_gate_scores input).geometry_resonance ≥ 0.92 := by
+  have h_safe : mercy_threshold_safety input := by
+    simp [check_mercy_threshold, mercy_threshold_safety] at h
+    exact h
+  exact mercy_threshold_safety_implies_all_gates_strong input h_safe
+
+/-- Core soundness -/
 theorem check_mercy_threshold_sound
     (vertices : Nat) (faces : Nat) (chiral : Bool) (mercy_valence : Float)
     (h : check_mercy_threshold vertices faces chiral mercy_valence = true) :
