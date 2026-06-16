@@ -7,14 +7,13 @@ on:
       - 'lean/mercy-threshold/**'
       - 'crates/mercy-threshold-wasm/**'
       - 'crates/mial/**'
-      - '.github/workflows/mercy-threshold-wasm-ci.yml'
   pull_request:
     paths:
       - 'lean/mercy-threshold/**'
       - 'crates/mercy-threshold-wasm/**'
 
 jobs:
-  build-and-test:
+  build-wasm-and-test:
     runs-on: ubuntu-latest
 
     steps:
@@ -22,39 +21,34 @@ jobs:
 
       - name: Install Lean 4
         uses: leanprover/lean-action@v1
-        with:
-          lean-version: '4.7.0'   # or latest stable
 
-      - name: Build Lean Mercy Threshold package
+      - name: Build Lean package + generate WASM
         run: |
-          cd lean/mercy-threshold
-          lake build
+          chmod +x scripts/build-mercy-threshold-wasm.sh
+          ./scripts/build-mercy-threshold-wasm.sh
 
-      - name: Setup Rust + WASM target
+      - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
         with:
           targets: wasm32-unknown-unknown
 
-      - name: Build mercy-threshold-wasm (native + wasmtime)
+      - name: Build mercy-threshold-wasm (native harness)
         run: cargo build -p mercy-threshold-wasm --features native
 
-      - name: Run wasmtime harness tests
-        run: cargo test -p mercy-threshold-wasm --features native --test '*'
+      - name: Run wasmtime + mial tests
+        run: |
+          cargo test -p mercy-threshold-wasm --features native
+          cargo test -p mial
 
-      - name: Build pure WASM target (smoke)
+      - name: Build pure WASM target
         run: cargo build -p mercy-threshold-wasm --features wasm --target wasm32-unknown-unknown --release
 
-      - name: Upload WASM artifact (if generated)
+      - name: Upload generated WASM
         uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: mercy-threshold-wasm
-          path: target/wasm32-unknown-unknown/release/*.wasm
+          path: |
+            target/wasm/mercy_threshold.wasm
+            target/wasm32-unknown-unknown/release/*.wasm
           if-no-files-found: warn
-
-  mial-native-tests:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
-      - name: Test mial crate (native)
-        run: cargo test -p mial --features native
