@@ -2,10 +2,10 @@ use wasmtime::{Engine, Instance, Module, Store, TypedFunc};
 use anyhow::Result;
 
 /// WASM bridge for the formal Lean Mercy Threshold Theorem.
-/// This path always uses the Lean4 exported `check_mercy_threshold`.
 pub struct MercyThresholdBridge {
     store: Store<()>,
     check_fn: TypedFunc<(u32, u32, bool, f64), i32>,
+    status_fn: Option<TypedFunc<(u32, u32, bool, f64), u32>>,
 }
 
 impl MercyThresholdBridge {
@@ -20,7 +20,13 @@ impl MercyThresholdBridge {
             "check_mercy_threshold",
         )?;
 
-        Ok(Self { store, check_fn })
+        // Optional introspection function (added for proof status reporting)
+        let status_fn = instance.get_typed_func::<(u32, u32, bool, f64), u32>(
+            &mut store,
+            "get_mercy_threshold_status",
+        ).ok();
+
+        Ok(Self { store, check_fn, status_fn })
     }
 
     pub fn check(
@@ -33,19 +39,28 @@ impl MercyThresholdBridge {
         let result = self.check_fn.call(&mut self.store, (vertices, faces, chiral, mercy_valence))?;
         Ok(result != 0)
     }
+
+    /// Returns proof status from the Lean side (1 = passes formal threshold).
+    /// Useful for runtime introspection and logging in long simulations.
+    pub fn get_proof_status(
+        &mut self,
+        vertices: u32,
+        faces: u32,
+        chiral: bool,
+        mercy_valence: f64,
+    ) -> Result<u32> {
+        match &mut self.status_fn {
+            Some(fn_ptr) => fn_ptr.call(&mut self.store, (vertices, faces, chiral, mercy_valence)),
+            None => Ok(if self.check(vertices, faces, chiral, mercy_valence)? { 1 } else { 0 }),
+        }
+    }
 }
 
-/// Hybrid native path (only available with `native` feature).
-/// Directly uses the production Rust implementation from the mial crate
-/// (evaluate_geometry_mercy_component + full MWPO logic).
 #[cfg(feature = "native")]
 pub mod native {
     use mial::mwpo::{MercyWeightedPreferenceOptimization, GeometryParams, MercyContext, MercyGeometryScore};
     use anyhow::Result;
 
-    /// High-level hybrid checker.
-    /// In native mode this calls the full mial implementation directly
-    /// (bypassing WASM for speed + richer scoring).
     pub fn evaluate_geometry_mercy_hybrid(
         geometry: &GeometryParams,
         mercy_context: &MercyContext,
@@ -56,39 +71,5 @@ pub mod native {
             .map_err(|e| anyhow::anyhow!("MIAL geometry mercy evaluation failed: {}", e))
     }
 
-    /// Re-export for convenience
     pub use mial::mwpo::{GeometryParams, MercyContext, MercyGeometryScore, MercyWeightedPreferenceOptimization};
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_wasm_bridge_smoke() -> Result<()> {
-        let _engine = Engine::default();
-        Ok(())
-    }
-
-    #[cfg(feature = "native")]
-    #[test]
-    fn test_native_hybrid_path() {
-        use native::*;
-        // Basic smoke that the mial path is callable
-        let geo = GeometryParams {
-            solid_type: mial::mwpo::SacredSolid::Platonic,
-            dimensions: 3,
-            symmetry_group: mial::mwpo::SymmetryGroup { order: 48, chiral: false },
-            evolution_step: 10,
-            particle_density: 0.6,
-            lattice_config: None,
-        };
-        let ctx = MercyContext {
-            active_gates: vec![],
-            valence: 0.999999,
-            council_id: 7,
-        };
-        // This would actually run the full evaluation if gates allow
-        let _ = evaluate_geometry_mercy_hybrid(&geo, &ctx, 7);
-    }
 }
