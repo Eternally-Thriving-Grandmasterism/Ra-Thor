@@ -2,6 +2,15 @@ use wasmtime::{Engine, Instance, Module, Store, TypedFunc};
 use anyhow::Result;
 
 /// WASM bridge for the formal Lean Mercy Threshold Theorem.
+///
+/// When `check(...)` returns `true`, the following formal guarantees from Lean hold
+/// (see `lean/mercy-threshold/MercyThreshold.lean`):
+///
+/// - `check_mercy_threshold_true_implies_all_gates_strong` (bridge lemma)
+/// - `mercy_threshold_safety_implies_all_gates_strong` (master lemma)
+///
+/// This means all scored gates (Love, Mercy, Truth, Abundance, Harmony, Joy,
+/// geometry_resonance) are proven strong.
 pub struct MercyThresholdBridge {
     store: Store<()>,
     check_fn: TypedFunc<(u32, u32, bool, f64), i32>,
@@ -20,7 +29,6 @@ impl MercyThresholdBridge {
             "check_mercy_threshold",
         )?;
 
-        // Optional introspection function (added for proof status reporting)
         let status_fn = instance.get_typed_func::<(u32, u32, bool, f64), u32>(
             &mut store,
             "get_mercy_threshold_status",
@@ -29,6 +37,8 @@ impl MercyThresholdBridge {
         Ok(Self { store, check_fn, status_fn })
     }
 
+    /// Returns true if the geometry + mercy valence passes the formal threshold.
+    /// When true, the Lean theorems listed above are guaranteed.
     pub fn check(
         &mut self,
         vertices: u32,
@@ -40,8 +50,7 @@ impl MercyThresholdBridge {
         Ok(result != 0)
     }
 
-    /// Returns proof status from the Lean side (1 = passes formal threshold).
-    /// Useful for runtime introspection and logging in long simulations.
+    /// Returns proof status from the Lean side.
     pub fn get_proof_status(
         &mut self,
         vertices: u32,
