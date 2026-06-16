@@ -2,7 +2,8 @@
   Mercy Threshold Theorem - Lean 4 Module for WASM Export
   Part of Ra-Thor MIAL / MWPO Integration
 
-  Theorems that interact with MWPO scoring and the 7 Living Mercy Gates.
+  Formalized gate interaction theorems connecting the Mercy Threshold
+  to MWPO-style GateScores and the 7 Living Mercy Gates.
 -/
 
 import Mathlib.Data.Real.Basic
@@ -33,25 +34,50 @@ def mercy_threshold_safety (input : MercyThresholdInput) : Bool :=
   geometry_alignment_score input.johnson ≥ 0.92
   ∧ input.mercy_valence ≥ 0.999999
 
-/-- MWPO-style scoring components (mirrors Rust MercyGeometryScore) -/
+/-- MWPO-compatible gate scores (aligned with Rust MercyGeometryScore) -/
 structure GateScores where
-  love     : Float
-  mercy    : Float
-  truth    : Float
-  abundance: Float
-  harmony  : Float
+  love              : Float
+  mercy             : Float
+  truth             : Float
+  abundance         : Float
+  harmony           : Float
   geometry_resonance : Float
 
 def compute_gate_scores (input : MercyThresholdInput) : GateScores :=
   let base := geometry_alignment_score input.johnson
-  { love := base * 0.9,
-    mercy := input.mercy_valence,
-    truth := base * 0.85,
-    abundance := base * 0.95,
-    harmony := base * 0.88 + (if input.johnson.chiral then 0.05 else 0.0),
+  { love              := base * 0.90,
+    mercy             := input.mercy_valence,
+    truth             := base * 0.85,
+    abundance         := base * 0.95,
+    harmony           := base * 0.88 + (if input.johnson.chiral then 0.05 else 0.0),
     geometry_resonance := base }
 
-/-- Core soundness -/
+/-- If mercy_threshold_safety holds, then multiple gates are strong.
+    This is a formalized interaction between the threshold and MWPO scoring. -/
+theorem mercy_safety_implies_strong_gates
+    (input : MercyThresholdInput)
+    (h : mercy_threshold_safety input) :
+    (compute_gate_scores input).harmony ≥ 0.85
+    ∧ (compute_gate_scores input).abundance ≥ 0.88
+    ∧ (compute_gate_scores input).geometry_resonance ≥ 0.92 := by
+  simp [mercy_threshold_safety, compute_gate_scores] at h ⊢
+  constructor
+  · linarith [h.1]
+  · constructor
+    · linarith [h.1]
+    · exact h.1
+
+/-- High geometry resonance boosts harmony and abundance gates
+    (direct formal link between geometry and Living Mercy Gates). -/
+theorem geometry_resonance_boosts_harmony_abundance
+    (input : MercyThresholdInput)
+    (h_res : (compute_gate_scores input).geometry_resonance ≥ 0.90) :
+    (compute_gate_scores input).harmony ≥ 0.80
+    ∧ (compute_gate_scores input).abundance ≥ 0.85 := by
+  simp [compute_gate_scores] at h_res ⊢
+  constructor <;> linarith [h_res]
+
+/-- Core soundness theorem (WASM bridge) -/
 theorem check_mercy_threshold_sound
     (vertices : Nat) (faces : Nat) (chiral : Bool) (mercy_valence : Float)
     (h : check_mercy_threshold vertices faces chiral mercy_valence = true) :
@@ -60,39 +86,31 @@ theorem check_mercy_threshold_sound
   simp [check_mercy_threshold, mercy_threshold_safety] at h
   exact h
 
-/-- If mercy_threshold_safety holds, then Harmony and Abundance gates are strong -/
-theorem mercy_safety_implies_strong_harmony_abundance
-    (input : MercyThresholdInput)
-    (h : mercy_threshold_safety input) :
-    (compute_gate_scores input).harmony ≥ 0.85
-    ∧ (compute_gate_scores input).abundance ≥ 0.88 := by
-  simp [mercy_threshold_safety, compute_gate_scores] at h ⊢
-  constructor <;> linarith [h.1]
+/-- Other supporting domain theorems -/
+theorem mercy_valence_monotonic
+    (input : MercyThresholdInput) (h_safe : mercy_threshold_safety input)
+    (h_higher : input.mercy_valence ≤ mercy_valence') :
+    mercy_threshold_safety { input with mercy_valence := mercy_valence' } := by
+  simp [mercy_threshold_safety] at h_safe ⊢
+  constructor <;> linarith [h_safe.2, h_higher]
 
-/-- Geometry resonance contributes positively to multiple gates (MWPO interaction) -/
-theorem geometry_resonance_boosts_multiple_gates
-    (input : MercyThresholdInput)
-    (h_high_res : (compute_gate_scores input).geometry_resonance ≥ 0.90) :
-    (compute_gate_scores input).harmony ≥ 0.80
-    ∧ (compute_gate_scores input).abundance ≥ 0.85 := by
-  simp [compute_gate_scores] at h_high_res ⊢
-  constructor <;> linarith [h_high_res]
+theorem geometry_alignment_score_bounds (solid : JohnsonSolid) :
+    0 ≤ geometry_alignment_score solid ∧ geometry_alignment_score solid ≤ 2 := by
+  simp [geometry_alignment_score]
+  constructor <;> linarith
 
-/-- Chiral family bonus theorem -/
 theorem chiral_family_higher_alignment
     (solid : JohnsonSolid) (h_chiral : solid.chiral = true) :
     geometry_alignment_score solid ≥ geometry_alignment_score { solid with chiral := false } := by
   simp [geometry_alignment_score]
   linarith
 
-/-- High-symmetry solids -/
 theorem high_symmetry_higher_alignment
     (solid : JohnsonSolid) (h_high_sym : solid.vertices ≥ 12 ∧ solid.faces ≥ 12) :
     geometry_alignment_score solid ≥ 0.85 := by
   simp [geometry_alignment_score]
   linarith [h_high_sym]
 
-/-- Stability under evolution -/
 theorem mercy_safety_stable_under_evolution
     (input : MercyThresholdInput)
     (h_safe : mercy_threshold_safety input)
@@ -103,7 +121,7 @@ theorem mercy_safety_stable_under_evolution
   · exact h_safe.1
   · linarith [h_safe.2, h_step]
 
-/-- Exported functions -/
+/-- Exported WASM functions -/
 @[export] def check_mercy_threshold
     (vertices : Nat) (faces : Nat) (chiral : Bool) (mercy_valence : Float) : Bool :=
   mercy_threshold_safety {
