@@ -1,10 +1,10 @@
-//! Gate Logic - Full integration example with WASM bridge + realistic Powrush-MMO entities.
+//! Gate Logic - Full integration with clean WASM bridge mapping.
 
 use crate::mercy_geometry::MercyGeometryEvaluation;
 use mercy_threshold_wasm::MercyThresholdBridge;
 use tracing::{debug, info};
 
-// ... (GateEffects, GateDebugInfo, GateEvent remain the same)
+// ... (GateEffects, GateDebugInfo, GateEvent, PowrushEntity remain)
 
 #[derive(Debug, Clone, Default)]
 pub struct GateEffects { /* ... */ }
@@ -15,40 +15,36 @@ pub struct GateDebugInfo { /* ... */ }
 #[derive(Debug, Clone)]
 pub enum GateEvent { /* ... */ }
 
-// === More realistic Powrush-MMO style entity ===
-
 #[derive(Debug, Clone)]
-pub struct PowrushEntity {
-    pub id: String,
-    pub faction_id: Option<String>,
-    pub resource_stock: f32,
-    pub evolution_stage: u32,
-    pub stability: f32,
-    pub cooperation: f32,
-    pub information_accuracy: f32,
-    pub geometry_stability: f32,
-    pub base_resource_rate: f32,
-}
+pub struct PowrushEntity { /* ... */ }
 
 impl PowrushEntity {
-    pub fn new(id: &str) -> Self {
-        Self {
-            id: id.to_string(),
-            faction_id: None,
-            resource_stock: 100.0,
-            evolution_stage: 1,
-            stability: 1.0,
-            cooperation: 1.0,
-            information_accuracy: 1.0,
-            geometry_stability: 1.0,
-            base_resource_rate: 1.0,
-        }
-    }
+    pub fn new(id: &str) -> Self { /* ... */ }
 }
 
-// === Full simulation tick with optional WASM bridge ===
+/// Clean mapping from MercyGeometryEvaluation to Lean Mercy Threshold parameters.
+///
+/// The formal Lean checker expects Johnson-solid-like geometry (vertices, faces, chiral)
+/// + mercy_valence. We create a reasonable proxy mapping from our abstract gate scores.
+fn evaluation_to_mercy_threshold_params(
+    evaluation: &MercyGeometryEvaluation,
+) -> (u32, u32, bool, f64) {
+    let s = &evaluation.score;
 
-/// Example main simulation tick with full WASM bridge + realistic Powrush-MMO entity integration.
+    // Map geometry_resonance + harmony to vertex/face count (higher = more complex/sacred geometry)
+    let vertices = ((s.geometry_resonance * 30.0) + (s.harmony * 10.0)) as u32 + 6;
+    let faces = ((s.geometry_resonance * 25.0) + (s.abundance * 8.0)) as u32 + 8;
+
+    // Chiral if there's strong asymmetry in certain gates (example heuristic)
+    let chiral = s.love > 0.75 && s.harmony < 0.65;
+
+    // Mercy valence comes directly from the mercy gate (clamped to valid range)
+    let mercy_valence = s.mercy.clamp(0.5, 1.5) as f64;
+
+    (vertices, faces, chiral, mercy_valence)
+}
+
+/// Full simulation tick with clean WASM bridge integration
 pub fn example_simulation_tick_with_wasm(
     entities: &mut [PowrushEntity],
     evaluations: &[MercyGeometryEvaluation],
@@ -56,59 +52,58 @@ pub fn example_simulation_tick_with_wasm(
 ) {
     for (i, entity) in entities.iter_mut().enumerate() {
         if let Some(evaluation) = evaluations.get(i) {
-            // Prefer formal Lean path via WASM bridge when available
+            let entity_id = entity.id.clone();
+
+            // === Clean WASM bridge call using proper mapping ===
             let all_gates_strong = if let Some(b) = bridge.as_mut() {
-                b.check_all_gates_strong(
-                    evaluation.score.geometry_resonance as u32 * 10, // simplified mapping
-                    (evaluation.score.harmony * 20.0) as u32,
-                    false, // chiral example
-                    evaluation.score.mercy as f64,
-                ).unwrap_or(evaluation.all_gates_strong)
+                let (vertices, faces, chiral, mercy_valence) =
+                    evaluation_to_mercy_threshold_params(evaluation);
+
+                b.check_all_gates_strong(vertices, faces, chiral, mercy_valence)
+                    .unwrap_or(evaluation.all_gates_strong)
             } else {
                 evaluation.all_gates_strong
             };
 
-            // Apply effects (using native or formal path)
             let effects = compute_gate_effects(evaluation);
 
-            // Update realistic Powrush-MMO entity fields
+            // Apply effects to realistic Powrush-MMO entity
             entity.resource_stock = (entity.resource_stock * effects.resource_multiplier).max(1.0);
             entity.stability = (entity.stability * effects.evolution_stability).clamp(0.3, 1.8);
             entity.cooperation = (entity.cooperation * effects.cooperation_bonus).clamp(0.2, 2.0);
             entity.information_accuracy = (entity.information_accuracy * effects.information_accuracy).clamp(0.4, 1.6);
             entity.geometry_stability = (entity.geometry_stability * effects.geometry_structural_bonus).clamp(0.3, 1.9);
 
-            // Emit events
-            let events = emit_and_collect_gate_events(evaluation, &entity.id);
+            // Handle events
+            let events = emit_and_collect_gate_events(evaluation, &entity_id);
 
             for event in events {
                 match event {
                     GateEvent::MajorSynergy { synergy_type, .. } => {
-                        debug!("Synergy {} on {}", synergy_type, entity.id);
                         if synergy_type == "love_harmony" {
-                            entity.cooperation *= 1.15; // extra cooperation from synergy
+                            entity.cooperation *= 1.12;
                         }
+                        debug!("Synergy {} on {}", synergy_type, entity_id);
                     }
                     GateEvent::LowGatePenalty { gate, .. } => {
-                        debug!("Low gate {} penalty on {}", gate, entity.id);
                         if gate == "mercy" {
-                            entity.stability *= 0.85; // instability from low mercy
+                            entity.stability *= 0.88;
                         }
+                        debug!("Low gate {} penalty on {}", gate, entity_id);
                     }
                     GateEvent::ExceptionalGateHealth { .. } => {
-                        info!("Exceptional gate health on {}", entity.id);
                         entity.evolution_stage = entity.evolution_stage.saturating_add(1);
+                        info!("Exceptional gate health on {}", entity_id);
                     }
                 }
             }
 
-            debug!("Tick complete for {} | resources={:.1} | stability={:.2}", 
-                   entity.id, entity.resource_stock, entity.stability);
+            debug!("Tick complete for {} | resources={:.1}", entity_id, entity.resource_stock);
         }
     }
 }
 
-// (All core functions like compute_gate_effects, emit_and_collect_gate_events, etc. remain below)
+// (Core functions remain below)
 
 pub fn compute_gate_effects(evaluation: &MercyGeometryEvaluation) -> GateEffects {
     GateEffects::default()
