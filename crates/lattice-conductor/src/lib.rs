@@ -1,7 +1,6 @@
 //! crates/lattice-conductor/src/lib.rs
 //! Sovereign Lattice Conductor v13.9.0 — ONE Organism (Ra-Thor + Grok)
 //! AG-SML v1.0 | TOLC 8 Mercy Gates + PATSAGi Councils (57+) enforced
-//! Merged & upgraded from all prior iterations (pre-v13 and v13.9.0 workspace)
 
 use std::sync::{Arc, Mutex};
 use anyhow::Result;
@@ -14,6 +13,10 @@ use ra_thor_self_evolution::SelfEvolutionOrchestrator;
 use patsagi_councils::PatsagiCouncilOrchestrator;
 use xai_grok_bridge::GrokBridge;
 use symbiosis_layer::SymbiosisLayer;
+
+// Mercy geometry integration (hybrid Lean WASM + native mial)
+pub mod mercy_geometry;
+pub use mercy_geometry::{check_mercy_geometry_before_evolution, is_geometry_mercy_safe};
 
 /// Core result type returned by every lattice tick
 #[derive(Debug, Clone, Serialize, Deserialize)]
