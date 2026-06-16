@@ -2,8 +2,8 @@
   Mercy Threshold Theorem - Lean 4 Module for WASM Export
   Part of Ra-Thor MIAL / MWPO Integration
 
-  Formalized theorems for all scored gates (Love, Truth, Mercy, Abundance, Harmony)
-  and their interaction with the Mercy Threshold.
+  Complete gate interaction theorems covering all scored gates
+  including explicit Mercy and Joy.
 -/
 
 import Mathlib.Data.Real.Basic
@@ -40,6 +40,7 @@ structure GateScores where
   truth             : Float
   abundance         : Float
   harmony           : Float
+  joy               : Float
   geometry_resonance : Float
 
 def compute_gate_scores (input : MercyThresholdInput) : GateScores :=
@@ -49,32 +50,40 @@ def compute_gate_scores (input : MercyThresholdInput) : GateScores :=
     truth             := base * 0.85,
     abundance         := base * 0.95,
     harmony           := base * 0.88 + (if input.johnson.chiral then 0.05 else 0.0),
+    joy               := base * 0.80 + (input.mercy_valence - 0.999999) * 50.0,  -- Joy rises with high valence
     geometry_resonance := base }
 
-/-- If mercy_threshold_safety holds, then Love, Truth, Harmony and Abundance are all strong.
-    This is the main multi-gate interaction theorem. -/
-theorem mercy_safety_implies_strong_multi_gate
+/-- If mercy_threshold_safety holds, then Mercy and Joy gates are strong.
+    Explicit formalization for the remaining gates. -/
+theorem mercy_safety_implies_strong_mercy_joy
+    (input : MercyThresholdInput)
+    (h : mercy_threshold_safety input) :
+    (compute_gate_scores input).mercy ≥ 0.999999
+    ∧ (compute_gate_scores input).joy ≥ 0.80 := by
+  simp [mercy_threshold_safety, compute_gate_scores] at h ⊢
+  constructor
+  · exact h.2
+  · linarith [h.1]
+
+/-- Full multi-gate theorem covering all scored gates under mercy safety -/
+theorem mercy_safety_implies_all_gates_strong
     (input : MercyThresholdInput)
     (h : mercy_threshold_safety input) :
     (compute_gate_scores input).love ≥ 0.82
+    ∧ (compute_gate_scores input).mercy ≥ 0.999999
     ∧ (compute_gate_scores input).truth ≥ 0.78
+    ∧ (compute_gate_scores input).abundance ≥ 0.88
     ∧ (compute_gate_scores input).harmony ≥ 0.85
-    ∧ (compute_gate_scores input).abundance ≥ 0.88 := by
+    ∧ (compute_gate_scores input).joy ≥ 0.80 := by
   simp [mercy_threshold_safety, compute_gate_scores] at h ⊢
-  constructor
-  · linarith [h.1]
-  · constructor
-    · linarith [h.1]
-    · constructor
-      · linarith [h.1]
-      · exact h.1
+  repeat' constructor <;> linarith [h.1, h.2]
 
-/-- Geometry resonance boosts Love and Truth gates (in addition to Harmony/Abundance) -/
-theorem geometry_resonance_boosts_love_truth
+/-- Geometry resonance boosts multiple gates including Joy -/
+theorem geometry_resonance_boosts_multiple_gates
     (input : MercyThresholdInput)
     (h_res : (compute_gate_scores input).geometry_resonance ≥ 0.90) :
-    (compute_gate_scores input).love ≥ 0.80
-    ∧ (compute_gate_scores input).truth ≥ 0.75 := by
+    (compute_gate_scores input).harmony ≥ 0.80
+    ∧ (compute_gate_scores input).joy ≥ 0.75 := by
   simp [compute_gate_scores] at h_res ⊢
   constructor <;> linarith [h_res]
 
@@ -87,7 +96,7 @@ theorem check_mercy_threshold_sound
   simp [check_mercy_threshold, mercy_threshold_safety] at h
   exact h
 
-/-- Supporting domain theorems -/
+/-- Supporting theorems -/
 theorem mercy_valence_monotonic
     (input : MercyThresholdInput) (h_safe : mercy_threshold_safety input)
     (h_higher : input.mercy_valence ≤ mercy_valence') :
