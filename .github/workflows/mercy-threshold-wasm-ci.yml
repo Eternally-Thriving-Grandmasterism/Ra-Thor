@@ -1,0 +1,60 @@
+name: Mercy Threshold WASM + Wasmtime CI
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'lean/mercy-threshold/**'
+      - 'crates/mercy-threshold-wasm/**'
+      - 'crates/mial/**'
+      - '.github/workflows/mercy-threshold-wasm-ci.yml'
+  pull_request:
+    paths:
+      - 'lean/mercy-threshold/**'
+      - 'crates/mercy-threshold-wasm/**'
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Lean 4
+        uses: leanprover/lean-action@v1
+        with:
+          lean-version: '4.7.0'   # or latest stable
+
+      - name: Build Lean Mercy Threshold package
+        run: |
+          cd lean/mercy-threshold
+          lake build
+
+      - name: Setup Rust + WASM target
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+
+      - name: Build mercy-threshold-wasm (native + wasmtime)
+        run: cargo build -p mercy-threshold-wasm --features native
+
+      - name: Run wasmtime harness tests
+        run: cargo test -p mercy-threshold-wasm --features native --test '*'
+
+      - name: Build pure WASM target (smoke)
+        run: cargo build -p mercy-threshold-wasm --features wasm --target wasm32-unknown-unknown --release
+
+      - name: Upload WASM artifact (if generated)
+        uses: actions/upload-artifact@v4
+        with:
+          name: mercy-threshold-wasm
+          path: target/wasm32-unknown-unknown/release/*.wasm
+          if-no-files-found: warn
+
+  mial-native-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Test mial crate (native)
+        run: cargo test -p mial --features native
