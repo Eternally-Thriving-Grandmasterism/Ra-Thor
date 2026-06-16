@@ -2,7 +2,7 @@
   Mercy Threshold Theorem - Lean 4 Module for WASM Export
   Part of Ra-Thor MIAL / MWPO Integration
 
-  Richer programmatic access to gate scores from WASM.
+  Richer gate score exposure + bridge lemma result.
 -/
 
 import Mathlib.Data.Real.Basic
@@ -36,13 +36,26 @@ def mercy_threshold_safety (input : MercyThresholdInput) : Bool :=
 def compute_geometry_resonance (vertices : Nat) (faces : Nat) (chiral : Bool) : Float :=
   geometry_alignment_score { index := 0, family := "", vertices, faces, chiral }
 
-/-- Programmatic gate access (simple individual getters for WASM interop) -/
+/-- Richer gate score getters for WASM (programmatic access) -/
+@[export] def get_love_score
+    (vertices : Nat) (faces : Nat) (chiral : Bool) : Float :=
+  geometry_alignment_score { index := 0, family := "", vertices, faces, chiral } * 0.90
+
+@[export] def get_abundance_score
+    (vertices : Nat) (faces : Nat) (chiral : Bool) : Float :=
+  geometry_alignment_score { index := 0, family := "", vertices, faces, chiral } * 0.95
+
+@[export] def get_joy_score
+    (vertices : Nat) (faces : Nat) (chiral : Bool) (mercy_valence : Float) : Float :=
+  let base := geometry_alignment_score { index := 0, family := "", vertices, faces, chiral }
+  base * 0.80 + (mercy_valence - 0.999999) * 50.0
+
 @[export] def get_geometry_resonance
     (vertices : Nat) (faces : Nat) (chiral : Bool) : Float :=
   compute_geometry_resonance vertices faces chiral
 
 @[export] def get_harmony_score
-    (vertices : Nat) (faces : Nat) (chiral : Bool) (mercy_valence : Float) : Float :=
+    (vertices : Nat) (faces : Nat) (chiral : Bool) : Float :=
   let base := compute_geometry_resonance vertices faces chiral
   base * 0.88 + (if chiral then 0.05 else 0.0)
 
