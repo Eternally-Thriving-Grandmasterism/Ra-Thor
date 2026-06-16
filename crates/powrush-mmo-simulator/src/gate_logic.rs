@@ -1,6 +1,6 @@
 //! Gate Logic - Core simulation behavior driven by the 7 Living Mercy Gates + Geometry Resonance
 //!
-//! Includes sophisticated gate interactions and synergies.
+//! Includes sophisticated synergies + diminishing returns.
 
 use crate::mercy_geometry::MercyGeometryEvaluation;
 
@@ -15,49 +15,66 @@ pub struct GateEffects {
     pub geometry_structural_bonus: f32,
 }
 
-/// Compute gate-driven effects with **sophisticated synergies** between gates.
+/// Apply diminishing returns to a raw bonus value.
+/// Prevents infinite scaling at very high gate values.
+fn apply_diminishing_returns(value: f32, strength: f32) -> f32 {
+    // Classic diminishing returns: bonus grows slower as value approaches 1.0
+    // Formula: strength * (1.0 - (1.0 / (1.0 + value * 4.0)))
+    strength * (1.0 - (1.0 / (1.0 + value * 4.0)))
+}
+
+/// Compute gate-driven effects with synergies + **diminishing returns**.
 pub fn compute_gate_effects(evaluation: &MercyGeometryEvaluation) -> GateEffects {
     let s = &evaluation.score;
 
-    // Base effects from individual gates
-    let base_resource = 1.0 + (s.abundance - 0.5) * 0.8;
-    let base_evolution = 1.0 + (s.mercy - 0.5) * 0.6;
-    let base_cooperation = 1.0 + (s.love - 0.5) * 0.5;
-    let base_information = 1.0 + (s.truth - 0.5) * 0.7;
-    let base_harmony = 1.0 + (s.harmony - 0.5) * 0.6;
-    let base_morale = 1.0 + (s.joy - 0.5) * 0.5;
-    let base_geometry = 1.0 + (s.geometry_resonance - 0.5) * 0.9;
+    // Raw individual contributions (0.0 - 1.0 range after normalization)
+    let raw_abundance = (s.abundance - 0.5).max(0.0);
+    let raw_mercy     = (s.mercy - 0.5).max(0.0);
+    let raw_love      = (s.love - 0.5).max(0.0);
+    let raw_truth     = (s.truth - 0.5).max(0.0);
+    let raw_harmony   = (s.harmony - 0.5).max(0.0);
+    let raw_joy       = (s.joy - 0.5).max(0.0);
+    let raw_geometry  = (s.geometry_resonance - 0.5).max(0.0);
 
-    // === Sophisticated Synergies ===
+    // Apply diminishing returns to individual contributions
+    let abundance = apply_diminishing_returns(raw_abundance, 0.8);
+    let mercy     = apply_diminishing_returns(raw_mercy, 0.6);
+    let love      = apply_diminishing_returns(raw_love, 0.5);
+    let truth     = apply_diminishing_returns(raw_truth, 0.7);
+    let harmony   = apply_diminishing_returns(raw_harmony, 0.6);
+    let joy       = apply_diminishing_returns(raw_joy, 0.5);
+    let geometry  = apply_diminishing_returns(raw_geometry, 0.9);
 
-    // Love + Harmony synergy (strong cooperation & reduced conflict)
-    let love_harmony_synergy = if s.love > 0.85 && s.harmony > 0.85 { 0.25 } else { 0.0 };
+    // Base effects
+    let base_resource = 1.0 + abundance;
+    let base_evolution = 1.0 + mercy;
+    let base_cooperation = 1.0 + love;
+    let base_information = 1.0 + truth;
+    let base_harmony = 1.0 + harmony;
+    let base_morale = 1.0 + joy;
+    let base_geometry = 1.0 + geometry;
 
-    // Truth + Abundance synergy (better resource discovery & efficiency)
-    let truth_abundance_synergy = if s.truth > 0.80 && s.abundance > 0.80 { 0.20 } else { 0.0 };
+    // === Sophisticated Synergies (still benefit from diminishing returns on base) ===
+    let love_harmony_synergy = if s.love > 0.85 && s.harmony > 0.85 { 0.22 } else { 0.0 };
+    let truth_abundance_synergy = if s.truth > 0.80 && s.abundance > 0.80 { 0.18 } else { 0.0 };
+    let mercy_joy_synergy = if s.mercy > 0.90 && s.joy > 0.85 { 0.20 } else { 0.0 };
+    let geometry_harmony_synergy = if s.geometry_resonance > 0.88 && s.harmony > 0.82 { 0.16 } else { 0.0 };
 
-    // Mercy + Joy synergy (stable + joyful evolution = higher blessing chance)
-    let mercy_joy_synergy = if s.mercy > 0.90 && s.joy > 0.85 { 0.22 } else { 0.0 };
-
-    // Geometry Resonance + Harmony synergy (sacred geometry + harmony = world stability)
-    let geometry_harmony_synergy = if s.geometry_resonance > 0.88 && s.harmony > 0.82 { 0.18 } else { 0.0 };
-
-    // High overall gate health bonus (all gates reasonably high)
     let overall_health = (s.love + s.mercy + s.truth + s.abundance + s.harmony + s.joy + s.geometry_resonance) / 7.0;
-    let overall_synergy = if overall_health > 0.85 { 0.15 } else { 0.0 };
+    let overall_synergy = if overall_health > 0.85 { 0.12 } else { 0.0 };
 
     GateEffects {
-        resource_multiplier: base_resource + truth_abundance_synergy + overall_synergy,
-        evolution_stability: base_evolution + mercy_joy_synergy + overall_synergy,
-        cooperation_bonus: base_cooperation + love_harmony_synergy + overall_synergy,
-        information_accuracy: base_information + truth_abundance_synergy + overall_synergy,
-        harmony_stability: base_harmony + love_harmony_synergy + geometry_harmony_synergy + overall_synergy,
-        morale_bonus: base_morale + mercy_joy_synergy + overall_synergy,
-        geometry_structural_bonus: base_geometry + geometry_harmony_synergy + overall_synergy,
+        resource_multiplier: (base_resource + truth_abundance_synergy + overall_synergy).min(2.8),
+        evolution_stability: (base_evolution + mercy_joy_synergy + overall_synergy).min(2.5),
+        cooperation_bonus: (base_cooperation + love_harmony_synergy + overall_synergy).min(2.3),
+        information_accuracy: (base_information + truth_abundance_synergy + overall_synergy).min(2.4),
+        harmony_stability: (base_harmony + love_harmony_synergy + geometry_harmony_synergy + overall_synergy).min(2.5),
+        morale_bonus: (base_morale + mercy_joy_synergy + overall_synergy).min(2.2),
+        geometry_structural_bonus: (base_geometry + geometry_harmony_synergy + overall_synergy).min(2.9),
     }
 }
 
-// === Application helpers (unchanged interface, now benefit from synergies) ===
+// === Application helpers ===
 
 pub fn apply_resource_generation(evaluation: &MercyGeometryEvaluation, base_amount: f32) -> f32 {
     let effects = compute_gate_effects(evaluation);
