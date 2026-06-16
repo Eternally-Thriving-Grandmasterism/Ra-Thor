@@ -1,6 +1,6 @@
 //! Gate Logic - Core simulation behavior driven by the 7 Living Mercy Gates + Geometry Resonance
 //!
-//! Includes sophisticated synergies + diminishing returns.
+//! Features: synergies + diminishing returns + negative effects on very low gates + telemetry visibility.
 
 use crate::mercy_geometry::MercyGeometryEvaluation;
 
@@ -15,19 +15,36 @@ pub struct GateEffects {
     pub geometry_structural_bonus: f32,
 }
 
-/// Apply diminishing returns to a raw bonus value.
-/// Prevents infinite scaling at very high gate values.
+/// Detailed debug/telemetry info for a gate evaluation.
+#[derive(Debug, Clone)]
+pub struct GateDebugInfo {
+    pub raw_abundance: f32,
+    pub diminished_abundance: f32,
+    pub raw_mercy: f32,
+    pub diminished_mercy: f32,
+    pub raw_love: f32,
+    pub diminished_love: f32,
+    pub raw_truth: f32,
+    pub diminished_truth: f32,
+    pub raw_harmony: f32,
+    pub diminished_harmony: f32,
+    pub raw_joy: f32,
+    pub diminished_joy: f32,
+    pub raw_geometry: f32,
+    pub diminished_geometry: f32,
+    pub applied_synergies: f32,
+    pub final_multipliers: GateEffects,
+}
+
+/// Apply diminishing returns
 fn apply_diminishing_returns(value: f32, strength: f32) -> f32 {
-    // Classic diminishing returns: bonus grows slower as value approaches 1.0
-    // Formula: strength * (1.0 - (1.0 / (1.0 + value * 4.0)))
     strength * (1.0 - (1.0 / (1.0 + value * 4.0)))
 }
 
-/// Compute gate-driven effects with synergies + **diminishing returns**.
+/// Compute gate-driven effects with synergies + diminishing returns + **negative effects on very low gates**.
 pub fn compute_gate_effects(evaluation: &MercyGeometryEvaluation) -> GateEffects {
     let s = &evaluation.score;
 
-    // Raw individual contributions (0.0 - 1.0 range after normalization)
     let raw_abundance = (s.abundance - 0.5).max(0.0);
     let raw_mercy     = (s.mercy - 0.5).max(0.0);
     let raw_love      = (s.love - 0.5).max(0.0);
@@ -36,7 +53,6 @@ pub fn compute_gate_effects(evaluation: &MercyGeometryEvaluation) -> GateEffects
     let raw_joy       = (s.joy - 0.5).max(0.0);
     let raw_geometry  = (s.geometry_resonance - 0.5).max(0.0);
 
-    // Apply diminishing returns to individual contributions
     let abundance = apply_diminishing_returns(raw_abundance, 0.8);
     let mercy     = apply_diminishing_returns(raw_mercy, 0.6);
     let love      = apply_diminishing_returns(raw_love, 0.5);
@@ -45,16 +61,21 @@ pub fn compute_gate_effects(evaluation: &MercyGeometryEvaluation) -> GateEffects
     let joy       = apply_diminishing_returns(raw_joy, 0.5);
     let geometry  = apply_diminishing_returns(raw_geometry, 0.9);
 
-    // Base effects
-    let base_resource = 1.0 + abundance;
-    let base_evolution = 1.0 + mercy;
+    // === Negative effects for extremely low gates ===
+    let abundance_penalty = if s.abundance < 0.35 { (0.35 - s.abundance) * 1.2 } else { 0.0 };
+    let mercy_penalty     = if s.mercy < 0.30 { (0.30 - s.mercy) * 1.5 } else { 0.0 };
+    let harmony_penalty   = if s.harmony < 0.35 { (0.35 - s.harmony) * 1.1 } else { 0.0 };
+    let truth_penalty     = if s.truth < 0.30 { (0.30 - s.truth) * 1.3 } else { 0.0 };
+
+    let base_resource = (1.0 + abundance - abundance_penalty).max(0.6);
+    let base_evolution = (1.0 + mercy - mercy_penalty).max(0.5);
     let base_cooperation = 1.0 + love;
-    let base_information = 1.0 + truth;
-    let base_harmony = 1.0 + harmony;
+    let base_information = (1.0 + truth - truth_penalty).max(0.55);
+    let base_harmony = (1.0 + harmony - harmony_penalty).max(0.6);
     let base_morale = 1.0 + joy;
     let base_geometry = 1.0 + geometry;
 
-    // === Sophisticated Synergies (still benefit from diminishing returns on base) ===
+    // Synergies
     let love_harmony_synergy = if s.love > 0.85 && s.harmony > 0.85 { 0.22 } else { 0.0 };
     let truth_abundance_synergy = if s.truth > 0.80 && s.abundance > 0.80 { 0.18 } else { 0.0 };
     let mercy_joy_synergy = if s.mercy > 0.90 && s.joy > 0.85 { 0.20 } else { 0.0 };
@@ -62,6 +83,8 @@ pub fn compute_gate_effects(evaluation: &MercyGeometryEvaluation) -> GateEffects
 
     let overall_health = (s.love + s.mercy + s.truth + s.abundance + s.harmony + s.joy + s.geometry_resonance) / 7.0;
     let overall_synergy = if overall_health > 0.85 { 0.12 } else { 0.0 };
+
+    let total_synergy = love_harmony_synergy + truth_abundance_synergy + mercy_joy_synergy + geometry_harmony_synergy + overall_synergy;
 
     GateEffects {
         resource_multiplier: (base_resource + truth_abundance_synergy + overall_synergy).min(2.8),
@@ -71,6 +94,48 @@ pub fn compute_gate_effects(evaluation: &MercyGeometryEvaluation) -> GateEffects
         harmony_stability: (base_harmony + love_harmony_synergy + geometry_harmony_synergy + overall_synergy).min(2.5),
         morale_bonus: (base_morale + mercy_joy_synergy + overall_synergy).min(2.2),
         geometry_structural_bonus: (base_geometry + geometry_harmony_synergy + overall_synergy).min(2.9),
+    }
+}
+
+/// Returns detailed debug/telemetry information about how gates were processed.
+pub fn get_gate_debug_info(evaluation: &MercyGeometryEvaluation) -> GateDebugInfo {
+    let s = &evaluation.score;
+
+    let raw_abundance = (s.abundance - 0.5).max(0.0);
+    let raw_mercy     = (s.mercy - 0.5).max(0.0);
+    let raw_love      = (s.love - 0.5).max(0.0);
+    let raw_truth     = (s.truth - 0.5).max(0.0);
+    let raw_harmony   = (s.harmony - 0.5).max(0.0);
+    let raw_joy       = (s.joy - 0.5).max(0.0);
+    let raw_geometry  = (s.geometry_resonance - 0.5).max(0.0);
+
+    let diminished_abundance = apply_diminishing_returns(raw_abundance, 0.8);
+    let diminished_mercy     = apply_diminishing_returns(raw_mercy, 0.6);
+    let diminished_love      = apply_diminishing_returns(raw_love, 0.5);
+    let diminished_truth     = apply_diminishing_returns(raw_truth, 0.7);
+    let diminished_harmony   = apply_diminishing_returns(raw_harmony, 0.6);
+    let diminished_joy       = apply_diminishing_returns(raw_joy, 0.5);
+    let diminished_geometry  = apply_diminishing_returns(raw_geometry, 0.9);
+
+    let effects = compute_gate_effects(evaluation);
+
+    GateDebugInfo {
+        raw_abundance,
+        diminished_abundance,
+        raw_mercy,
+        diminished_mercy,
+        raw_love,
+        diminished_love,
+        raw_truth,
+        diminished_truth,
+        raw_harmony,
+        diminished_harmony,
+        raw_joy,
+        diminished_joy,
+        raw_geometry,
+        diminished_geometry,
+        applied_synergies: 0.0, // Can be expanded later
+        final_multipliers: effects,
     }
 }
 
