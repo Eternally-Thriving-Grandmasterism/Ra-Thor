@@ -2,7 +2,8 @@
   Mercy Threshold Theorem - Lean 4 Module for WASM Export
   Part of Ra-Thor MIAL / MWPO Integration
 
-  This module contains machine-checked proofs.
+  Domain-specific theorems for Powrush-MMO simulation, sacred geometry,
+  and mercy-gated evolution.
 -/
 
 import Mathlib.Data.Real.Basic
@@ -56,19 +57,37 @@ theorem geometry_alignment_score_bounds (solid : JohnsonSolid) :
   simp [geometry_alignment_score]
   constructor <;> linarith
 
-/-- MWPO interaction: Lean safety implies high alignment for MWPO -/
+/-- MWPO interaction -/
 theorem mercy_safety_implies_mwpo_safe
     (input : MercyThresholdInput) (h : mercy_threshold_safety input) :
     geometry_alignment_score input.johnson ≥ 0.92 := by
   simp [mercy_threshold_safety] at h
   exact h.1
 
-/-- Specific family bonus theorem (example for chiral families) -/
+/-- Chiral families receive higher alignment (domain-specific for Powrush sacred geometry) -/
 theorem chiral_family_higher_alignment
     (solid : JohnsonSolid) (h_chiral : solid.chiral = true) :
     geometry_alignment_score solid ≥ geometry_alignment_score { solid with chiral := false } := by
   simp [geometry_alignment_score]
   linarith
+
+/-- High-symmetry solids (common in Powrush world generation) tend toward higher alignment -/
+theorem high_symmetry_higher_alignment
+    (solid : JohnsonSolid) (h_high_sym : solid.vertices ≥ 12 ∧ solid.faces ≥ 12) :
+    geometry_alignment_score solid ≥ 0.85 := by
+  simp [geometry_alignment_score]
+  linarith [h_high_sym]
+
+/-- Stability under small evolution steps (relevant for long-running simulations) -/
+theorem mercy_safety_stable_under_evolution
+    (input : MercyThresholdInput)
+    (h_safe : mercy_threshold_safety input)
+    (h_step : input.mercy_valence ≥ 0.999) :
+    mercy_threshold_safety { input with mercy_valence := input.mercy_valence + 0.0001 } := by
+  simp [mercy_threshold_safety] at h_safe ⊢
+  constructor
+  · exact h_safe.1
+  · linarith [h_safe.2, h_step]
 
 /-- Exported functions -/
 @[export] def check_mercy_threshold
