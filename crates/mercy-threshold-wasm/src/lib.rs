@@ -3,17 +3,15 @@ use anyhow::Result;
 
 /// WASM bridge for the formal Lean Mercy Threshold Theorem.
 ///
-/// When `check(...)` returns `true`, the following formal guarantees from Lean hold
-/// (see `lean/mercy-threshold/MercyThreshold.lean`):
-///
+/// Key formal guarantees (see lean/mercy-threshold/MercyThreshold.lean):
 /// - `check_mercy_threshold_true_implies_all_gates_strong` (bridge lemma)
 /// - `mercy_threshold_safety_implies_all_gates_strong` (master lemma)
 ///
-/// This means all scored gates (Love, Mercy, Truth, Abundance, Harmony, Joy,
-/// geometry_resonance) are proven strong.
+/// New programmatic export: `check_all_gates_strong` returns true when all gates are proven strong.
 pub struct MercyThresholdBridge {
     store: Store<()>,
     check_fn: TypedFunc<(u32, u32, bool, f64), i32>,
+    all_gates_fn: Option<TypedFunc<(u32, u32, bool, f64), i32>>,
     status_fn: Option<TypedFunc<(u32, u32, bool, f64), u32>>,
 }
 
@@ -29,16 +27,19 @@ impl MercyThresholdBridge {
             "check_mercy_threshold",
         )?;
 
+        let all_gates_fn = instance.get_typed_func::<(u32, u32, bool, f64), i32>(
+            &mut store,
+            "check_all_gates_strong",
+        ).ok();
+
         let status_fn = instance.get_typed_func::<(u32, u32, bool, f64), u32>(
             &mut store,
             "get_mercy_threshold_status",
         ).ok();
 
-        Ok(Self { store, check_fn, status_fn })
+        Ok(Self { store, check_fn, all_gates_fn, status_fn })
     }
 
-    /// Returns true if the geometry + mercy valence passes the formal threshold.
-    /// When true, the Lean theorems listed above are guaranteed.
     pub fn check(
         &mut self,
         vertices: u32,
@@ -50,7 +51,24 @@ impl MercyThresholdBridge {
         Ok(result != 0)
     }
 
-    /// Returns proof status from the Lean side.
+    /// Returns true if all gates (Love, Mercy, Truth, Abundance, Harmony, Joy, geometry_resonance)
+    /// are proven strong by the Lean formalization.
+    pub fn check_all_gates_strong(
+        &mut self,
+        vertices: u32,
+        faces: u32,
+        chiral: bool,
+        mercy_valence: f64,
+    ) -> Result<bool> {
+        match &mut self.all_gates_fn {
+            Some(fn_ptr) => {
+                let result = fn_ptr.call(&mut self.store, (vertices, faces, chiral, mercy_valence))?;
+                Ok(result != 0)
+            }
+            None => self.check(vertices, faces, chiral, mercy_valence),
+        }
+    }
+
     pub fn get_proof_status(
         &mut self,
         vertices: u32,
