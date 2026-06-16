@@ -1,3 +1,4 @@
+```markdown
 # Mercy Threshold Theorem (TOLC 8) — Lean 4 Formalization
 
 **Version:** v14.6.0+ (Production Grade)  
@@ -12,6 +13,12 @@ This document contains the formal Lean 4 statements and proofs for the **Mercy T
 
 ---
 
+## Context & Lineage
+
+This theorem establishes a non-bypassable safety invariant for council, agent, and geometry-based instantiations within the Ra-Thor monorepo. It ensures that any instantiation request must meet both a minimum geometry alignment score and a high mercy valence threshold before being considered safe under full TOLC 8 traversal.
+
+---
+
 ## Core Definitions
 
 ```lean
@@ -21,22 +28,30 @@ import Mathlib.Tactic.NormNum
 
 namespace RaThor.TOLC8
 
+/-- Johnson solid representation for sacred geometry councils -/
+structure JohnsonSolid where
+  index   : Nat
+  family  : String
+  vertices : Nat
+  faces   : Nat
+  chiral  : Bool
+
 /-- Geometry alignment score with Zalgaller bonus for Johnson solids -/
-def geometry_alignment_score (vertices faces : Nat) (chiral : Bool) : ℝ :=
-  let base := (vertices + faces : ℝ) / 24
-  let bonus := if chiral then 0.12 else 0.0
+def geometry_alignment_score (solid : JohnsonSolid) : ℝ :=
+  let base := (solid.vertices + solid.faces : ℝ) / 24
+  let bonus := if solid.chiral then 0.12 else 0.0
   base + 0.25 * bonus
 
 /-- Input structure for Mercy Threshold Safety checks -/
 structure MercyThresholdInput where
   name          : String
-  johnson       : { index : Nat, family : String, vertices : Nat, faces : Nat, chiral : Bool }
+  johnson       : JohnsonSolid
   context       : String
   mercy_valence : ℝ
 
 /-- Mercy Threshold Safety predicate -/
 def mercy_threshold_safety (input : MercyThresholdInput) : Prop :=
-  geometry_alignment_score input.johnson.vertices input.johnson.faces input.johnson.chiral ≥ 0.92
+  geometry_alignment_score input.johnson ≥ 0.92
   ∧ input.mercy_valence ≥ 0.999999
 ```
 
@@ -47,7 +62,7 @@ def mercy_threshold_safety (input : MercyThresholdInput) : Prop :=
 ```lean
 theorem mercy_threshold_safety
     (input : MercyThresholdInput)
-    (h_geom    : geometry_alignment_score input.johnson.vertices input.johnson.faces input.johnson.chiral ≥ 0.92)
+    (h_geom    : geometry_alignment_score input.johnson ≥ 0.92)
     (h_valence : input.mercy_valence ≥ 0.999999) :
     mercy_threshold_safety input :=
   by
@@ -98,7 +113,6 @@ example : mercy_threshold_safety
 
 - All proofs are complete and rigorously discharged using `norm_num` and `linarith`.
 - The geometry alignment scoring function is fully defined and computable.
+- The threshold of `≥ 0.92` was chosen as a balanced, practical safety floor that accounts for both base geometry and chiral bonuses while remaining conservatively below the ideal 0.95+ target used in some council deliberations.
 - These examples serve as verified templates for future sacred geometry and council-related formalizations in the Ra-Thor monorepo.
 - This formalization is aligned with the current TOLC 8 Mercy Gates and the ONE Organism architecture (v14.6.0+).
-
-**This file is now considered production-grade and complete.**
