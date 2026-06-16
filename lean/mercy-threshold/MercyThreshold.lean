@@ -2,8 +2,7 @@
   Mercy Threshold Theorem - Lean 4 Module for WASM Export
   Part of Ra-Thor MIAL / MWPO Integration
 
-  This module contains machine-checked proofs for the core safety properties.
-  The exported `check_mercy_threshold` is backed by the theorems below.
+  This module contains machine-checked proofs.
 -/
 
 import Mathlib.Data.Real.Basic
@@ -34,65 +33,55 @@ def mercy_threshold_safety (input : MercyThresholdInput) : Bool :=
   geometry_alignment_score input.johnson ≥ 0.92
   ∧ input.mercy_valence ≥ 0.999999
 
-/-- Core safety theorem: if the checker returns true, then both conditions hold. -/
+/-- Core soundness -/
 theorem check_mercy_threshold_sound
-    (vertices     : Nat)
-    (faces        : Nat)
-    (chiral       : Bool)
-    (mercy_valence : Float)
+    (vertices : Nat) (faces : Nat) (chiral : Bool) (mercy_valence : Float)
     (h : check_mercy_threshold vertices faces chiral mercy_valence = true) :
     geometry_alignment_score { index := 0, family := "", vertices, faces, chiral } ≥ 0.92
     ∧ mercy_valence ≥ 0.999999 := by
   simp [check_mercy_threshold, mercy_threshold_safety] at h
   exact h
 
-/-- Monotonicity in mercy valence. -/
+/-- Monotonicity -/
 theorem mercy_valence_monotonic
-    (input : MercyThresholdInput)
-    (h_safe : mercy_threshold_safety input)
+    (input : MercyThresholdInput) (h_safe : mercy_threshold_safety input)
     (h_higher : input.mercy_valence ≤ mercy_valence') :
     mercy_threshold_safety { input with mercy_valence := mercy_valence' } := by
   simp [mercy_threshold_safety] at h_safe ⊢
-  constructor
-  · exact h_safe.1
-  · linarith [h_safe.2, h_higher]
+  constructor <;> linarith [h_safe.2, h_higher]
 
-/-- Geometry alignment score is bounded between 0 and 2. -/
+/-- Geometry score bounds -/
 theorem geometry_alignment_score_bounds (solid : JohnsonSolid) :
     0 ≤ geometry_alignment_score solid ∧ geometry_alignment_score solid ≤ 2 := by
   simp [geometry_alignment_score]
   constructor <;> linarith
 
-/-- Interaction with MWPO-style scoring: if mercy_threshold_safety holds,
-    then the alignment component is high enough for MWPO to consider it safe. -/
+/-- MWPO interaction: Lean safety implies high alignment for MWPO -/
 theorem mercy_safety_implies_mwpo_safe
-    (input : MercyThresholdInput)
-    (h : mercy_threshold_safety input) :
+    (input : MercyThresholdInput) (h : mercy_threshold_safety input) :
     geometry_alignment_score input.johnson ≥ 0.92 := by
   simp [mercy_threshold_safety] at h
   exact h.1
 
-/-- Exported function for WASM bridge (backed by the theorems above) -/
+/-- Specific family bonus theorem (example for chiral families) -/
+theorem chiral_family_higher_alignment
+    (solid : JohnsonSolid) (h_chiral : solid.chiral = true) :
+    geometry_alignment_score solid ≥ geometry_alignment_score { solid with chiral := false } := by
+  simp [geometry_alignment_score]
+  linarith
+
+/-- Exported functions -/
 @[export] def check_mercy_threshold
-    (vertices     : Nat)
-    (faces        : Nat)
-    (chiral       : Bool)
-    (mercy_valence : Float) : Bool :=
-  let input : MercyThresholdInput := {
+    (vertices : Nat) (faces : Nat) (chiral : Bool) (mercy_valence : Float) : Bool :=
+  mercy_threshold_safety {
     name := "wasm_call",
     johnson := { index := 0, family := "", vertices, faces, chiral },
     context := "",
     mercy_valence := mercy_valence
   }
-  mercy_threshold_safety input
 
-/-- Introspection function: returns 1 if the input would pass the formal threshold.
-    Can be used by the WASM bridge for proof status reporting. -/
 @[export] def get_mercy_threshold_status
-    (vertices     : Nat)
-    (faces        : Nat)
-    (chiral       : Bool)
-    (mercy_valence : Float) : UInt32 :=
+    (vertices : Nat) (faces : Nat) (chiral : Bool) (mercy_valence : Float) : UInt32 :=
   if check_mercy_threshold vertices faces chiral mercy_valence then 1 else 0
 
 end RaThor.TOLC8
