@@ -1,0 +1,10 @@
+[package]
+name = "mercy-threshold-wasm"
+version = "0.1.0"
+edition = "2021"
+license = "AG-SML-1.0"
+
+[dependencies]
+wasmtime = { version = "25.0", features = ["cranelift"] }
+anyhow = "1.0"
+serde = { version = "1.0", features = ["derive"] }
