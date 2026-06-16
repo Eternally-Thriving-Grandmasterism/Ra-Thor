@@ -2,7 +2,7 @@
   Mercy Threshold Theorem - Lean 4 Module for WASM Export
   Part of Ra-Thor MIAL / MWPO Integration
 
-  Richer gate score exposure + bridge lemma result.
+  Even more gate score getters (Truth + Mercy).
 -/
 
 import Mathlib.Data.Real.Basic
@@ -36,7 +36,15 @@ def mercy_threshold_safety (input : MercyThresholdInput) : Bool :=
 def compute_geometry_resonance (vertices : Nat) (faces : Nat) (chiral : Bool) : Float :=
   geometry_alignment_score { index := 0, family := "", vertices, faces, chiral }
 
-/-- Richer gate score getters for WASM (programmatic access) -/
+/-- Additional gate getters (Truth + Mercy) -/
+@[export] def get_truth_score
+    (vertices : Nat) (faces : Nat) (chiral : Bool) : Float :=
+  geometry_alignment_score { index := 0, family := "", vertices, faces, chiral } * 0.85
+
+@[export] def get_mercy_score
+    (vertices : Nat) (faces : Nat) (chiral : Bool) (mercy_valence : Float) : Float :=
+  mercy_valence
+
 @[export] def get_love_score
     (vertices : Nat) (faces : Nat) (chiral : Bool) : Float :=
   geometry_alignment_score { index := 0, family := "", vertices, faces, chiral } * 0.90
