@@ -1,10 +1,10 @@
-//! Gate Logic - Dynamic bonus scaling for formal confirmation.
+//! Gate Logic - Dynamic formal bonuses with diminishing returns.
 
 use crate::mercy_geometry::MercyGeometryEvaluation;
 use mercy_threshold_wasm::MercyThresholdBridge;
 use tracing::{debug, info};
 
-// ... (types remain)
+// ... (types)
 
 #[derive(Debug, Clone, Default)]
 pub struct GateEffects { /* ... */ }
@@ -19,13 +19,17 @@ pub enum GateEvent { /* ... */ }
 pub struct PowrushEntity { /* ... */ }
 
 fn evaluation_to_mercy_threshold_params(evaluation: &MercyGeometryEvaluation) -> (u32, u32, bool, f64) {
-    // existing implementation
+    // existing
     (12, 14, false, 0.999)
 }
 
-/// Dynamic formal confirmation bonus that scales with actual gate strength.
-///
-/// Higher gate values = proportionally larger formal confirmation bonuses.
+/// Apply diminishing returns to a bonus multiplier
+fn apply_bonus_diminishing(value: f32) -> f32 {
+    // Diminishing returns on very high bonuses
+    if value <= 1.15 { value } else { 1.15 + ((value - 1.15) * 0.4) }
+}
+
+/// Dynamic formal confirmation bonus with diminishing returns on high values.
 pub fn apply_formal_confirmation_bonus(
     evaluation: &MercyGeometryEvaluation,
     all_gates_strong: bool,
@@ -38,32 +42,32 @@ pub fn apply_formal_confirmation_bonus(
 
     let s = &evaluation.score;
 
-    // Calculate dynamic scaling factor based on average gate strength
     let avg_gate = (s.love + s.mercy + s.truth + s.abundance +
                     s.harmony + s.joy + s.geometry_resonance) / 7.0;
 
-    // Scale bonus between 1.05x and 1.25x depending on how high the gates are
     let dynamic_scale = 1.05 + ((avg_gate - 0.85).max(0.0) * 1.6).min(0.20);
 
-    // Extra bonus for exceptional individual gates
     let mercy_bonus = if s.mercy > 0.92 { 0.08 } else { 0.0 };
     let joy_bonus = if s.joy > 0.88 { 0.06 } else { 0.0 };
     let geometry_bonus = if s.geometry_resonance > 0.90 { 0.10 } else { 0.0 };
 
-    let total_scale = dynamic_scale + mercy_bonus + joy_bonus + geometry_bonus;
+    let raw_total = dynamic_scale + mercy_bonus + joy_bonus + geometry_bonus;
+
+    // Apply diminishing returns to the final bonus
+    let final_scale = apply_bonus_diminishing(raw_total);
 
     GateEffects {
-        resource_multiplier: base.resource_multiplier * total_scale,
-        evolution_stability: base.evolution_stability * (total_scale + 0.03),
-        cooperation_bonus: base.cooperation_bonus * total_scale,
-        information_accuracy: base.information_accuracy * total_scale,
-        harmony_stability: base.harmony_stability * (total_scale + 0.02),
-        morale_bonus: base.morale_bonus * total_scale,
-        geometry_structural_bonus: base.geometry_structural_bonus * (total_scale + 0.05),
+        resource_multiplier: apply_bonus_diminishing(base.resource_multiplier * final_scale),
+        evolution_stability: apply_bonus_diminishing(base.evolution_stability * (final_scale + 0.03)),
+        cooperation_bonus: apply_bonus_diminishing(base.cooperation_bonus * final_scale),
+        information_accuracy: apply_bonus_diminishing(base.information_accuracy * final_scale),
+        harmony_stability: apply_bonus_diminishing(base.harmony_stability * (final_scale + 0.02)),
+        morale_bonus: apply_bonus_diminishing(base.morale_bonus * final_scale),
+        geometry_structural_bonus: apply_bonus_diminishing(base.geometry_structural_bonus * (final_scale + 0.05)),
     }
 }
 
-// ... (rest of the file with example tick using the dynamic version)
+// ... (example tick and other functions remain)
 
 pub fn example_simulation_tick_with_formal_reward(
     entities: &mut [PowrushEntity],
@@ -97,15 +101,14 @@ pub fn example_simulation_tick_with_formal_reward(
             entity.geometry_stability = (entity.geometry_stability * effects.geometry_structural_bonus).clamp(0.3, 1.9);
 
             if used_formal && all_gates_strong {
-                // Dynamic evolution bonus based on how strong the gates were
                 let avg = (evaluation.score.mercy + evaluation.score.joy + evaluation.score.geometry_resonance) / 3.0;
-                let extra_stages = ((avg - 0.85).max(0.0) * 3.0) as u32;
+                let extra_stages = ((avg - 0.85).max(0.0) * 2.5) as u32; // slightly reduced due to diminishing
                 entity.evolution_stage = entity.evolution_stage.saturating_add(1 + extra_stages);
 
-                info!("Dynamic formal bonus applied to {} (avg_gate={:.2})", entity_id, avg);
+                debug!("Dynamic formal bonus (with diminishing) applied to {}", entity_id);
             }
 
-            let _events = emit_and_collect_gate_events(evaluation, &entity_id);
+            let _ = emit_and_collect_gate_events(evaluation, &entity_id);
         }
     }
 }
