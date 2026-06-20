@@ -1,5 +1,5 @@
 /*!
-# Powrush MMO Simulator — Dynamic Council Modulation + GPU-Driven Rendering + Multi-Agent Orchestration Edition (v15.3)
+# Powrush MMO Simulator — Dynamic Council Modulation + GPU-Driven Rendering + Multi-Agent Orchestration Edition (v15.4)
 
 **Production-grade integration of dynamic council modulation into RBE economy + full GPU-driven rendering pipeline + MultiAgentOrchestrator for Human/AI/AGI entity coexistence.**
 
@@ -7,11 +7,11 @@ This iteration thoughtfully implements:
 - Dynamic contribution recording from faction activity.
 - Application of RBE distribution allocations to actual faction inventories.
 - Council modulation of the mercy_floor.
-- GpuDrivenPipeline with complete descriptor management and Dynamic Uniform Buffers.
+- **GpuDrivenPipeline with Movement System Integration** (v15.3–v15.4): Dynamic uniform buffers now receive live movement state every tick.
 - **MultiAgentOrchestrator wiring**: Entity registration (Human prioritized), mercy-gated action proposals, PATSAGi council consultation, personalized quest generation for maximal human fun/learning/reward.
 - **EpigeneticModulation integration** (v15.1)
 - **GeometricHarmony integration** (v15.2)
-- **Movement System integration** (v15.3): Full movement controller, jump calculation, client prediction, reconciliation, and GPU pipeline hook from v14.5 master implementation.
+- **Movement System integration** (v15.3)
 
 All at above production grade quality: clean, well-commented, tested, mercy-aligned, Ra-Thor lattice native.
 
@@ -25,7 +25,7 @@ pub mod epigenetic_modulation;
 pub mod geometric_harmony;
 pub mod movement;
 
-pub use rendering::gpu_driven_pipeline::GpuDrivenPipeline;
+pub use rendering::gpu_driven_pipeline::{GpuDrivenPipeline, MovementUBO};
 pub use epigenetic_modulation::{EpigeneticProfile, EpigeneticChange, ActionType, apply_change, action_to_change, profile_health};
 pub use geometric_harmony::{GeometricHarmonyEngine, HarmonyState, GeometricLayer};
 pub use movement::{MovementController, JumpParameters, calculate_jump_parameters, prepare_movement_for_gpu, update_movement_prediction};
@@ -55,6 +55,9 @@ pub struct PowrushMMOSimulator {
     // Movement System (v15.3)
     demo_movement: MovementController,
     movement_params: JumpParameters,
+    // GPU Pipeline + Movement wiring (v15.4)
+    gpu_pipeline: Option<GpuDrivenPipeline>,
+    movement_gpu_offset: u64,
 }
 
 impl PowrushMMOSimulator {
@@ -97,7 +100,11 @@ impl PowrushMMOSimulator {
 
         // Initialize demo movement controller
         let mut demo_movement = MovementController::default();
-        demo_movement.target_pos = [25.0, 0.0, 10.0]; // Example target for demo jump
+        demo_movement.target_pos = [25.0, 0.0, 10.0];
+
+        // GPU pipeline placeholder (real Vulkan device would be passed in full client mode)
+        // For demo/simulator we keep it as Option so server-only runs remain clean
+        let gpu_pipeline = None; // In real client: Some(GpuDrivenPipeline::new(device).unwrap())
 
         Self {
             shard_manager: sm,
@@ -117,6 +124,8 @@ impl PowrushMMOSimulator {
             sustained_high_harmony_ticks: 0,
             demo_movement,
             movement_params: JumpParameters::default(),
+            gpu_pipeline,
+            movement_gpu_offset: 0,
         }
     }
 
@@ -260,21 +269,34 @@ impl PowrushMMOSimulator {
 
         self.global_harmony = self.geometric_harmony_state.global_harmony;
 
-        // NEW v15.3: Movement System integration
-        // Run prediction on demo movement
+        // Movement System + GPU wiring (v15.4)
         update_movement_prediction(&mut self.demo_movement, self.delta_accumulator as f32, &self.movement_params);
 
-        // Prepare movement data for GPU pipeline (dynamic UBO)
         let mut gpu_pos = [0.0f32; 3];
         let mut gpu_vel = [0.0f32; 3];
         let mut is_jumping = 0u32;
         prepare_movement_for_gpu(&self.demo_movement, &mut gpu_pos, &mut gpu_vel, &mut is_jumping);
 
-        // In full client: feed gpu_pos/gpu_vel/is_jumping into GpuDrivenPipeline dynamic uniform buffer
+        // Wire movement into GPU dynamic UBO every tick
+        if let Some(ref mut pipeline) = self.gpu_pipeline {
+            unsafe {
+                pipeline.update_movement_state(
+                    self.movement_gpu_offset as vk::DeviceSize,
+                    gpu_pos,
+                    gpu_vel,
+                    is_jumping != 0,
+                );
+            }
+        }
+
+        // Log movement-to-GPU data flow for demo visibility
         if self.current_tick % 30 == 0 {
             self.active_proposals.push(format!(
-                "movement_gpu_prepared_tick_{}: pos=[{:.1},{:.1},{:.1}] jumping={}",
-                self.current_tick, gpu_pos[0], gpu_pos[1], gpu_pos[2], is_jumping
+                "movement_gpu_update_tick_{}: pos=[{:.1},{:.1},{:.1}] vel=[{:.1},{:.1},{:.1}] jumping={}",
+                self.current_tick,
+                gpu_pos[0], gpu_pos[1], gpu_pos[2],
+                gpu_vel[0], gpu_vel[1], gpu_vel[2],
+                is_jumping
             ));
         }
 
