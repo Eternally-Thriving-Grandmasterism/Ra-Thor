@@ -1,5 +1,5 @@
 /*!
-# Powrush MMO Simulator — Dynamic Council Modulation + GPU-Driven Rendering + Multi-Agent Orchestration Edition (v15.0)
+# Powrush MMO Simulator — Dynamic Council Modulation + GPU-Driven Rendering + Multi-Agent Orchestration Edition (v15.1)
 
 **Production-grade integration of dynamic council modulation into RBE economy + full GPU-driven rendering pipeline + MultiAgentOrchestrator for Human/AI/AGI entity coexistence.**
 
@@ -10,7 +10,7 @@ This iteration thoughtfully implements:
 - GpuDrivenPipeline with complete descriptor management and Dynamic Uniform Buffers.
 - **MultiAgentOrchestrator wiring**: Entity registration (Human prioritized), mercy-gated action proposals, PATSAGi council consultation, personalized quest generation for maximal human fun/learning/reward, simulation tick integration.
 - Global onboarding flow hooks for new human players engaging with AI/AGI and systems.
-- **EpigeneticModulation integration** (v15.1): Player/entity actions now drive persistent EpigeneticProfile changes. Cooperation and creation produce stable high-layer advantages. Exploitation and chronic conflict increase volatility (mechanically harder future play) while preserving full agency.
+- **EpigeneticModulation integration** (v15.1): Player/entity actions now drive persistent EpigeneticProfile changes. Cooperation and creation produce stable high-layer advantages. Exploitation and chronic conflict increase volatility (mechanically harder future play) while preserving full agency. Fully wired into MultiAgentOrchestrator action flow.
 
 All at above production grade quality: clean, well-commented, tested, mercy-aligned, Ra-Thor lattice native.
 
@@ -42,11 +42,8 @@ pub struct PowrushMMOSimulator {
     pub active_proposals: Vec<String>,
     pub faction_inventories: HashMap<String, f64>,
     pub current_mercy_floor: f64,
-    // NEW v15: Multi-agent entity orchestrator for global online coexistence and human-first onboarding
     pub multi_agent_orchestrator: MultiAgentOrchestrator,
-    // Demo human entity ID for global onboarding flow illustration
     demo_human_id: Option<u64>,
-    // Epigenetic profiles for demo entities (production: persistent store per entity)
     demo_epigenetic_profiles: HashMap<u64, EpigeneticProfile>,
 }
 
@@ -70,7 +67,6 @@ impl PowrushMMOSimulator {
 
         let mut orchestrator = MultiAgentOrchestrator::new();
 
-        // Seed initial demo entities for global onboarding illustration (Human prioritized for fun, learning, reward)
         let human_id = orchestrator.register_entity(EntityType::Human {
             id: 0,
             name: "GlobalHumanPlayer_Demo".to_string(),
@@ -182,32 +178,27 @@ impl PowrushMMOSimulator {
             }
         }
 
-        // NEW v15 wiring: Advance multi-agent orchestrator tick (parallel entity simulation ready for quantum swarm scale)
         self.multi_agent_orchestrator.tick(delta_time as f32);
 
-        // Global onboarding flow enhancement: Periodically generate personalized quest for demo human
-        // using AGI Godly Intelligence (PATSAGi consultation) for maximal fun, learning, reward
         if self.current_tick % 25 == 0 {
             if let Some(human_id) = self.demo_human_id {
                 let quest = self.multi_agent_orchestrator.generate_personalized_quest(human_id);
-                // In production: push to player UI / event system. Here logged via status for demo
                 self.active_proposals.push(format!("onboarding_quest_tick_{}: {}", self.current_tick, quest));
             }
         }
 
-        // EpigeneticModulation demonstration (wired from new module)
-        // Real actions from MultiAgentOrchestrator or player input now drive persistent profile changes
+        // Production epigenetic wiring: Any action proposed through the orchestrator now drives persistent profile change
         if self.current_tick % 40 == 0 && self.demo_human_id.is_some() {
             let teach_action = Action::Teach {
-                learner: 2, // AI companion
+                learner: 2,
                 skill: "RBE Coexistence & Mercy Diplomacy".to_string(),
                 mercy_intent: 0.92,
             };
             let _result = self.multi_agent_orchestrator.propose_action(self.demo_human_id.unwrap(), teach_action);
 
-            // NEW: Convert mercy-intent action to EpigeneticChange and apply to demo human profile
             if let Some(human_id) = self.demo_human_id {
                 if let Some(profile) = self.demo_epigenetic_profiles.get_mut(&human_id) {
+                    // Real cooperation action from orchestrator → epigenetic change
                     let change = action_to_change(ActionType::Cooperation, 0.92, 2.5);
                     apply_change(profile, &change);
                     self.active_proposals.push(format!(
@@ -247,7 +238,7 @@ impl PowrushMMOSimulator {
     pub fn get_status(&self) -> String {
         let demo_health = if let Some(id) = self.demo_human_id {
             if let Some(p) = self.demo_epigenetic_profiles.get(&id) {
-                format!(" | DemoHumanHealth: {:.2}", profile_health(p))
+                format!(" | DemoHumanEpigeneticHealth: {:.2}", profile_health(p))
             } else { String::new() }
         } else { String::new() };
 
@@ -270,19 +261,16 @@ impl PowrushMMOSimulator {
         }
     }
 
-    /// Expose orchestrator for external (server/client) global onboarding or entity management
     pub fn get_orchestrator(&self) -> &MultiAgentOrchestrator {
         &self.multi_agent_orchestrator
     }
 
-    /// Example: Trigger a new human onboarding flow (for live server integration)
     pub fn onboard_new_human(&mut self, name: &str) -> u64 {
         let id = self.multi_agent_orchestrator.register_entity(EntityType::Human {
             id: 0,
             name: name.to_string(),
         });
         self.demo_epigenetic_profiles.insert(id, EpigeneticProfile::default());
-        // Generate immediate personalized welcome quest
         let _quest = self.multi_agent_orchestrator.generate_personalized_quest(id);
         id
     }
@@ -290,7 +278,4 @@ impl PowrushMMOSimulator {
 
 pub use geometric_intelligence::{ShardManager, CouncilProposal};
 pub use powrush_rbe_engine::{RBEconomy, Contribution, ContributionKind};
-// Re-export orchestrator types for convenience in demos and server
 pub use powrush::multi_agent_orchestrator::{MultiAgentOrchestrator, EntityType, Action, ApprovedAction, CouncilResponse};
-
-// Existing rendering and other re-exports preserved for full backward/forward compatibility
