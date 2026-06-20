@@ -1,5 +1,5 @@
 /*!
-# Powrush MMO Simulator — Dynamic Council Modulation + GPU-Driven Rendering + Multi-Agent Orchestration Edition (v15.1)
+# Powrush MMO Simulator — Dynamic Council Modulation + GPU-Driven Rendering + Multi-Agent Orchestration Edition (v15.2)
 
 **Production-grade integration of dynamic council modulation into RBE economy + full GPU-driven rendering pipeline + MultiAgentOrchestrator for Human/AI/AGI entity coexistence.**
 
@@ -10,7 +10,8 @@ This iteration thoughtfully implements:
 - GpuDrivenPipeline with complete descriptor management and Dynamic Uniform Buffers.
 - **MultiAgentOrchestrator wiring**: Entity registration (Human prioritized), mercy-gated action proposals, PATSAGi council consultation, personalized quest generation for maximal human fun/learning/reward, simulation tick integration.
 - Global onboarding flow hooks for new human players engaging with AI/AGI and systems.
-- **EpigeneticModulation integration** (v15.1): Player/entity actions now drive persistent EpigeneticProfile changes. Cooperation and creation produce stable high-layer advantages. Exploitation and chronic conflict increase volatility (mechanically harder future play) while preserving full agency. Fully wired into MultiAgentOrchestrator action flow.
+- **EpigeneticModulation integration** (v15.1): Player/entity actions now drive persistent EpigeneticProfile changes.
+- **GeometricHarmony integration** (v15.2): Living world layer state and harmony now respond to collective behavior and epigenetic health. Higher layers and harmony provide abundance multipliers and mechanical rewards for cooperation.
 
 All at above production grade quality: clean, well-commented, tested, mercy-aligned, Ra-Thor lattice native.
 
@@ -21,9 +22,11 @@ Thunder locked in. Professional wiring complete for global release preparation.
 
 pub mod rendering;
 pub mod epigenetic_modulation;
+pub mod geometric_harmony;
 
 pub use rendering::gpu_driven_pipeline::GpuDrivenPipeline;
-pub use epigenetic_modulation::{EpigeneticProfile, EpigeneticChange, ActionType, apply_change, action_to_change, profile_health, cooperation_change, creation_change, exploitation_change};
+pub use epigenetic_modulation::{EpigeneticProfile, EpigeneticChange, ActionType, apply_change, action_to_change, profile_health};
+pub use geometric_harmony::{GeometricHarmonyEngine, HarmonyState, GeometricLayer};
 
 use geometric_intelligence::{ShardManager, CouncilProposal, EpigeneticBlessing};
 use powrush_rbe_engine::{RBEconomy, Contribution, ContributionKind};
@@ -45,6 +48,8 @@ pub struct PowrushMMOSimulator {
     pub multi_agent_orchestrator: MultiAgentOrchestrator,
     demo_human_id: Option<u64>,
     demo_epigenetic_profiles: HashMap<u64, EpigeneticProfile>,
+    geometric_harmony_state: HarmonyState,
+    sustained_high_harmony_ticks: u32,
 }
 
 impl PowrushMMOSimulator {
@@ -99,6 +104,8 @@ impl PowrushMMOSimulator {
             multi_agent_orchestrator: orchestrator,
             demo_human_id: Some(human_id),
             demo_epigenetic_profiles: demo_profiles,
+            geometric_harmony_state: HarmonyState::default(),
+            sustained_high_harmony_ticks: 0,
         }
     }
 
@@ -187,7 +194,7 @@ impl PowrushMMOSimulator {
             }
         }
 
-        // Production epigenetic wiring: Any action proposed through the orchestrator now drives persistent profile change
+        // Epigenetic + action wiring
         if self.current_tick % 40 == 0 && self.demo_human_id.is_some() {
             let teach_action = Action::Teach {
                 learner: 2,
@@ -198,7 +205,6 @@ impl PowrushMMOSimulator {
 
             if let Some(human_id) = self.demo_human_id {
                 if let Some(profile) = self.demo_epigenetic_profiles.get_mut(&human_id) {
-                    // Real cooperation action from orchestrator → epigenetic change
                     let change = action_to_change(ActionType::Cooperation, 0.92, 2.5);
                     apply_change(profile, &change);
                     self.active_proposals.push(format!(
@@ -210,8 +216,42 @@ impl PowrushMMOSimulator {
             }
         }
 
+        // NEW v15.2: GeometricHarmony integration - living world response
         let avg_faction: f64 = self.faction_strengths.values().sum::<f64>() / self.faction_strengths.len() as f64;
-        self.global_harmony = (self.global_harmony * 0.95 + avg_faction * 0.05).clamp(0.6, 1.1);
+
+        let avg_epigenetic_health: f64 = if let Some(id) = self.demo_human_id {
+            if let Some(p) = self.demo_epigenetic_profiles.get(&id) {
+                profile_health(p)
+            } else { 1.0 }
+        } else { 1.0 };
+
+        let cooperation_pressure = if self.current_tick % 40 == 0 { 0.8 } else { 0.2 }; // boosted on cooperation ticks
+
+        GeometricHarmonyEngine::update_harmony(
+            &mut self.geometric_harmony_state,
+            avg_faction,
+            avg_epigenetic_health,
+            cooperation_pressure,
+        );
+
+        // Apply layer abundance multiplier to RBE
+        let layer_mult = GeometricHarmonyEngine::layer_abundance_multiplier(&self.geometric_harmony_state);
+        self.rbe_abundance = (self.rbe_abundance * layer_mult * 0.02 + self.rbe_abundance * 0.98).clamp(0.5, 3.0);
+
+        // Attempt layer transition
+        if let Some(new_layer) = GeometricHarmonyEngine::try_layer_transition(
+            &mut self.geometric_harmony_state,
+            self.sustained_high_harmony_ticks,
+        ) {
+            self.active_proposals.push(format!("layer_transition_tick_{}: {:?}", self.current_tick, new_layer));
+            self.sustained_high_harmony_ticks = 0;
+        } else if self.geometric_harmony_state.global_harmony > 1.0 {
+            self.sustained_high_harmony_ticks += 1;
+        } else {
+            self.sustained_high_harmony_ticks = self.sustained_high_harmony_ticks.saturating_sub(1);
+        }
+
+        self.global_harmony = self.geometric_harmony_state.global_harmony;
 
         if self.current_tick % 100 == 0 {
             for shard_id in ["hyperbolic_core", "forge_shard", "platonic_harmony"] {
@@ -242,8 +282,13 @@ impl PowrushMMOSimulator {
             } else { String::new() }
         } else { String::new() };
 
+        let layer_info = format!(" | Layer: {:?} | Harmony: {:.2}", 
+            self.geometric_harmony_state.current_layer,
+            self.geometric_harmony_state.global_harmony
+        );
+
         format!(
-            "Tick: {} | Harmony: {:.3} | RBE: {:.3} | MercyFloor: {:.2} | Inventories: {:?} | Orchestrator Entities: {} | Demo Human Onboarding Active: {}{}",
+            "Tick: {} | Harmony: {:.3} | RBE: {:.3} | MercyFloor: {:.2} | Inventories: {:?} | Orchestrator Entities: {} | Demo Human Onboarding Active: {}{}{}",
             self.current_tick,
             self.global_harmony,
             self.rbe_abundance,
@@ -251,7 +296,8 @@ impl PowrushMMOSimulator {
             self.faction_inventories,
             self.multi_agent_orchestrator.entity_count(),
             self.demo_human_id.is_some(),
-            demo_health
+            demo_health,
+            layer_info
         )
     }
 
