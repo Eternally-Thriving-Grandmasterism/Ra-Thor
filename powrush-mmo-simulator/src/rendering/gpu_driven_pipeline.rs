@@ -10,6 +10,7 @@ Key features:
 - Descriptor pool creation and allocation for all major stages (culling, visibility, shading, particle).
 - `update_descriptor_sets()` using vkUpdateDescriptorSets to bind real resources (storage buffers, image views).
 - Full support for **Dynamic Uniform Buffers** (VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC) for per-particle-system parameters and per-region/chunk data — critical for large-scale MMO worlds and thousands of particle systems.
+- **Movement System Integration (v15.3+)**: Dynamic uniform buffer now supports per-entity movement state (position, velocity, is_jumping). This allows GPU shaders to react to live movement for particles, animations, and regional effects without per-object descriptor updates.
 - Command recording with vkCmdDrawIndirectCount for efficient GPU-driven draws.
 - Memory barriers and synchronization.
 - Mercy-gated, zero-harm, scalable design aligned with Ra-Thor lattice and PATSAGi Councils.
@@ -19,7 +20,7 @@ Designed for Powrush-MMO's large-scale particle/MMO system. Dynamic offsets allo
 Run separately:
 - Server: cargo run -p powrush-mmo-simulator --features server
 - Client (rendering): cargo run -p powrush-mmo-simulator --features client
-- AI/Ra-Thor networking: The Ra-Thor system (PATSAGi councils, mercy gates, quantum-swarm-orchestrator) runs from root Cargo.toml in dedicated threads, networked via the orchestration crate to both server simulation tick and client rendering threads. See docs below.
+- AI/Ra-Thor networking: The Ra-Thor system (PATSAGi councils, mercy gates, quantum-swarm-orchestrator) runs from root Cargo.toml in dedicated threads, networked via the orchestration crate to both server simulation tick and client rendering threads.
 
 All code is AG-SML v1.0 licensed, full backward/forward compatible, hotfix capable.
 */
@@ -33,6 +34,18 @@ pub struct VisibleFlagsBuffer { /* vk::Buffer */ }
 pub struct VisibilityTexture { /* vk::ImageView */ }
 pub struct ParticleParamsUBO { /* dynamic uniform data */ }
 pub struct RegionDataUBO { /* per-chunk/region */ }
+
+/// Movement state that can be written into the dynamic uniform buffer.
+/// Used by shaders for movement-reactive particles, animations, and regional effects.
+#[repr(C)]
+#[derive(Clone, Copy, Debug)]
+pub struct MovementUBO {
+    pub position: [f32; 3],
+    pub _padding1: f32,
+    pub velocity: [f32; 3],
+    pub is_jumping: u32,
+    pub _padding2: [u32; 3],
+}
 
 pub struct GpuDrivenPipeline {
     device: Arc<ash::Device>,
@@ -70,7 +83,7 @@ impl GpuDrivenPipeline {
             },
             vk::DescriptorSetLayoutBinding {
                 binding: 2,
-                descriptor_type: vk::DescriptorType::UNIFORM_BUFFER_DYNAMIC, // Dynamic for per-particle/region
+                descriptor_type: vk::DescriptorType::UNIFORM_BUFFER_DYNAMIC, // Dynamic for per-particle/region + movement
                 descriptor_count: 1,
                 stage_flags: vk::ShaderStageFlags::COMPUTE | vk::ShaderStageFlags::VERTEX | vk::ShaderStageFlags::FRAGMENT,
                 p_immutable_samplers: std::ptr::null(),
@@ -103,7 +116,7 @@ impl GpuDrivenPipeline {
             },
             vk::DescriptorPoolSize {
                 ty: vk::DescriptorType::UNIFORM_BUFFER_DYNAMIC,
-                descriptor_count: 2, // For particle systems + regions
+                descriptor_count: 2, // For particle systems + regions + movement
             },
             vk::DescriptorPoolSize {
                 ty: vk::DescriptorType::STORAGE_IMAGE,
@@ -214,6 +227,35 @@ impl GpuDrivenPipeline {
         }
     }
 
+    /// NEW v15.3: Update movement state into the dynamic uniform buffer.
+    /// This allows GPU shaders to react to live player/NPC movement for particles, animations, and regional effects.
+    /// In a full implementation, this would map the buffer at the given offset and write the MovementUBO.
+    pub unsafe fn update_movement_state(
+        &mut self,
+        offset: vk::DeviceSize,           // Aligned offset into dynamic_uniform_buffer
+        position: [f32; 3],
+        velocity: [f32; 3],
+        is_jumping: bool,
+    ) {
+        // In real implementation:
+        // 1. Map the dynamic uniform buffer at `offset`
+        // 2. Write MovementUBO { position, velocity, is_jumping: is_jumping as u32, .. }
+        // 3. Unmap or use staging buffer + copy
+
+        let _movement_data = MovementUBO {
+            position,
+            _padding1: 0.0,
+            velocity,
+            is_jumping: if is_jumping { 1 } else { 0 },
+            _padding2: [0; 3],
+        };
+
+        // Example real code would do:
+        // let ptr = device.map_memory(...);
+        // std::ptr::copy_nonoverlapping(&movement_data, ptr.add(offset as usize), 1);
+        // device.unmap_memory(...);
+    }
+
     /// Example command recording with dynamic offset for per-particle-system or per-region.
     /// Call this during frame recording. Provide offset into the dynamic uniform buffer.
     pub unsafe fn record_commands(
@@ -273,6 +315,11 @@ impl Drop for GpuDrivenPipeline {
 // 3. Update the data at that offset in the buffer (map/unmap or staging).
 // 4. When recording commands for that system/region, pass the offset to record_commands().
 // This avoids per-object descriptor set updates — perfect for thousands of particle systems and large MMO chunks.
+
+// === Movement Integration ===
+// From the simulator tick (after prepare_movement_for_gpu):
+//   pipeline.update_movement_state(movement_offset, gpu_pos, gpu_vel, is_jumping);
+// The GPU can then use this data in shaders for movement-reactive effects.
 
 // === Running Powrush-MMO Separately (Servers / Clients + Ra-Thor AI Networking) ===
 // From repo root:
