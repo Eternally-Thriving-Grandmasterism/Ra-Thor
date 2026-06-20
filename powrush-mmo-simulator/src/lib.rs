@@ -1,5 +1,5 @@
 /*!
-# Powrush MMO Simulator — Dynamic Council Modulation + GPU-Driven Rendering + Multi-Agent Orchestration Edition (v15.4)
+# Powrush MMO Simulator — Dynamic Council Modulation + GPU-Driven Rendering + Multi-Agent Orchestration Edition (v15.5)
 
 **Production-grade integration of dynamic council modulation into RBE economy + full GPU-driven rendering pipeline + MultiAgentOrchestrator for Human/AI/AGI entity coexistence.**
 
@@ -7,15 +7,13 @@ This iteration thoughtfully implements:
 - Dynamic contribution recording from faction activity.
 - Application of RBE distribution allocations to actual faction inventories.
 - Council modulation of the mercy_floor.
-- **GpuDrivenPipeline with Movement System Integration** (v15.3–v15.4): Dynamic uniform buffers now receive live movement state every tick.
-- **MultiAgentOrchestrator wiring**: Entity registration (Human prioritized), mercy-gated action proposals, PATSAGi council consultation, personalized quest generation for maximal human fun/learning/reward.
-- **EpigeneticModulation integration** (v15.1)
-- **GeometricHarmony integration** (v15.2)
-- **Movement System integration** (v15.3)
+- GpuDrivenPipeline with Movement System Integration.
+- **Ability Unlock Logic** (v15.5): Race-specific ability trees now unlock automatically based on cooperation, innovation, and contribution thresholds.
+- **MultiAgentOrchestrator wiring**, EpigeneticModulation, GeometricHarmony, Movement System, Player Contribution Tracking, and Multi-Race Foundation.
 
 All at above production grade quality: clean, well-commented, tested, mercy-aligned, Ra-Thor lattice native.
 
-See gpu_driven_pipeline.rs for rendering and multi_agent_orchestrator.rs for entity logic.
+See gpu_driven_pipeline.rs, race.rs, ability_tree.rs, and player_contribution.rs for supporting systems.
 
 Thunder locked in. Professional wiring complete for global release preparation.
 */
@@ -24,11 +22,17 @@ pub mod rendering;
 pub mod epigenetic_modulation;
 pub mod geometric_harmony;
 pub mod movement;
+pub mod player_contribution;
+pub mod race;
+pub mod ability_tree;
 
 pub use rendering::gpu_driven_pipeline::{GpuDrivenPipeline, MovementUBO};
 pub use epigenetic_modulation::{EpigeneticProfile, EpigeneticChange, ActionType, apply_change, action_to_change, profile_health};
 pub use geometric_harmony::{GeometricHarmonyEngine, HarmonyState, GeometricLayer};
 pub use movement::{MovementController, JumpParameters, calculate_jump_parameters, prepare_movement_for_gpu, update_movement_prediction};
+pub use player_contribution::{PlayerContributionTracker, ContributionType};
+pub use race::Race;
+pub use ability_tree::{AbilityTree, Ability, AbilityEffect};
 
 use geometric_intelligence::{ShardManager, CouncilProposal, EpigeneticBlessing};
 use powrush_rbe_engine::{RBEconomy, Contribution, ContributionKind};
@@ -52,12 +56,15 @@ pub struct PowrushMMOSimulator {
     demo_epigenetic_profiles: HashMap<u64, EpigeneticProfile>,
     geometric_harmony_state: HarmonyState,
     sustained_high_harmony_ticks: u32,
-    // Movement System (v15.3)
     demo_movement: MovementController,
     movement_params: JumpParameters,
-    // GPU Pipeline + Movement wiring (v15.4)
     gpu_pipeline: Option<GpuDrivenPipeline>,
     movement_gpu_offset: u64,
+    // Player Contribution Tracking
+    player_contributions: PlayerContributionTracker,
+    // Multi-Race + Ability Trees (v15.5)
+    demo_race: Race,
+    ability_trees: HashMap<u64, AbilityTree>,
 }
 
 impl PowrushMMOSimulator {
@@ -98,13 +105,13 @@ impl PowrushMMOSimulator {
         let mut demo_profiles = HashMap::new();
         demo_profiles.insert(human_id, EpigeneticProfile::default());
 
-        // Initialize demo movement controller
         let mut demo_movement = MovementController::default();
         demo_movement.target_pos = [25.0, 0.0, 10.0];
 
-        // GPU pipeline placeholder (real Vulkan device would be passed in full client mode)
-        // For demo/simulator we keep it as Option so server-only runs remain clean
-        let gpu_pipeline = None; // In real client: Some(GpuDrivenPipeline::new(device).unwrap())
+        // Initialize demo race and ability tree
+        let demo_race = Race::Harmonic; // Demo race with strong harmony flavor
+        let mut ability_trees = HashMap::new();
+        ability_trees.insert(human_id, AbilityTree::new(demo_race));
 
         Self {
             shard_manager: sm,
@@ -124,8 +131,11 @@ impl PowrushMMOSimulator {
             sustained_high_harmony_ticks: 0,
             demo_movement,
             movement_params: JumpParameters::default(),
-            gpu_pipeline,
+            gpu_pipeline: None,
             movement_gpu_offset: 0,
+            player_contributions: PlayerContributionTracker::new(),
+            demo_race,
+            ability_trees,
         }
     }
 
@@ -214,7 +224,7 @@ impl PowrushMMOSimulator {
             }
         }
 
-        // Epigenetic wiring
+        // Epigenetic + Action wiring
         if self.current_tick % 40 == 0 && self.demo_human_id.is_some() {
             let teach_action = Action::Teach {
                 learner: 2,
@@ -227,6 +237,16 @@ impl PowrushMMOSimulator {
                 if let Some(profile) = self.demo_epigenetic_profiles.get_mut(&human_id) {
                     let change = action_to_change(ActionType::Cooperation, 0.92, 2.5);
                     apply_change(profile, &change);
+
+                    // Record cooperation contribution
+                    self.player_contributions.record_contribution(
+                        human_id,
+                        ContributionType::Cooperation,
+                        12.0,
+                        self.current_tick,
+                        1.4,
+                    );
+
                     self.active_proposals.push(format!(
                         "epigenetic_cooperation_applied_tick_{}: health={:.2}",
                         self.current_tick,
@@ -269,7 +289,7 @@ impl PowrushMMOSimulator {
 
         self.global_harmony = self.geometric_harmony_state.global_harmony;
 
-        // Movement System + GPU wiring (v15.4)
+        // Movement + GPU wiring
         update_movement_prediction(&mut self.demo_movement, self.delta_accumulator as f32, &self.movement_params);
 
         let mut gpu_pos = [0.0f32; 3];
@@ -277,7 +297,6 @@ impl PowrushMMOSimulator {
         let mut is_jumping = 0u32;
         prepare_movement_for_gpu(&self.demo_movement, &mut gpu_pos, &mut gpu_vel, &mut is_jumping);
 
-        // Wire movement into GPU dynamic UBO every tick
         if let Some(ref mut pipeline) = self.gpu_pipeline {
             unsafe {
                 pipeline.update_movement_state(
@@ -289,15 +308,29 @@ impl PowrushMMOSimulator {
             }
         }
 
-        // Log movement-to-GPU data flow for demo visibility
         if self.current_tick % 30 == 0 {
             self.active_proposals.push(format!(
-                "movement_gpu_update_tick_{}: pos=[{:.1},{:.1},{:.1}] vel=[{:.1},{:.1},{:.1}] jumping={}",
-                self.current_tick,
-                gpu_pos[0], gpu_pos[1], gpu_pos[2],
-                gpu_vel[0], gpu_vel[1], gpu_vel[2],
-                is_jumping
+                "movement_gpu_update_tick_{}: pos=[{:.1},{:.1},{:.1}] jumping={}",
+                self.current_tick, gpu_pos[0], gpu_pos[1], gpu_pos[2], is_jumping
             ));
+        }
+
+        // NEW v15.5: Ability Unlock Logic
+        if let Some(human_id) = self.demo_human_id {
+            if let Some(tree) = self.ability_trees.get_mut(&human_id) {
+                let coop_score = self.player_contributions.get_cooperation_score(human_id);
+                let innovation_score = 12.0; // Demo value (would come from real tracking)
+                let total_contrib = self.player_contributions.calculate_rbe_impact(human_id) * 50.0;
+
+                if let Some(unlocked) = tree.try_unlock_starter(coop_score, innovation_score, total_contrib) {
+                    self.active_proposals.push(format!(
+                        "ability_unlocked_tick_{}: {} ({:?})",
+                        self.current_tick,
+                        unlocked.name,
+                        unlocked.effect_type
+                    ));
+                }
+            }
         }
 
         if self.current_tick % 100 == 0 {
@@ -340,8 +373,18 @@ impl PowrushMMOSimulator {
             " | Movement: Grounded".to_string()
         };
 
+        let ability_info = if let Some(id) = self.demo_human_id {
+            if let Some(tree) = self.ability_trees.get(&id) {
+                if tree.has_abilities() {
+                    " | Ability: Unlocked".to_string()
+                } else {
+                    " | Ability: Locked".to_string()
+                }
+            } else { String::new() }
+        } else { String::new() };
+
         format!(
-            "Tick: {} | Harmony: {:.3} | RBE: {:.3} | MercyFloor: {:.2} | Inventories: {:?} | Orchestrator Entities: {} | Demo Human Onboarding Active: {}{}{}{}",
+            "Tick: {} | Harmony: {:.3} | RBE: {:.3} | MercyFloor: {:.2} | Inventories: {:?} | Orchestrator Entities: {} | Demo Human Onboarding Active: {}{}{}{}{}",
             self.current_tick,
             self.global_harmony,
             self.rbe_abundance,
@@ -351,7 +394,8 @@ impl PowrushMMOSimulator {
             self.demo_human_id.is_some(),
             demo_health,
             layer_info,
-            movement_info
+            movement_info,
+            ability_info
         )
     }
 
@@ -371,6 +415,7 @@ impl PowrushMMOSimulator {
             name: name.to_string(),
         });
         self.demo_epigenetic_profiles.insert(id, EpigeneticProfile::default());
+        self.ability_trees.insert(id, AbilityTree::new(self.demo_race));
         let _quest = self.multi_agent_orchestrator.generate_personalized_quest(id);
         id
     }
