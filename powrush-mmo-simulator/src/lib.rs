@@ -1,5 +1,5 @@
 /*!
-# Powrush MMO Simulator — Dynamic Council Modulation + GPU-Driven Rendering + Multi-Agent Orchestration Edition (v15.2)
+# Powrush MMO Simulator — Dynamic Council Modulation + GPU-Driven Rendering + Multi-Agent Orchestration Edition (v15.3)
 
 **Production-grade integration of dynamic council modulation into RBE economy + full GPU-driven rendering pipeline + MultiAgentOrchestrator for Human/AI/AGI entity coexistence.**
 
@@ -8,14 +8,14 @@ This iteration thoughtfully implements:
 - Application of RBE distribution allocations to actual faction inventories.
 - Council modulation of the mercy_floor.
 - GpuDrivenPipeline with complete descriptor management and Dynamic Uniform Buffers.
-- **MultiAgentOrchestrator wiring**: Entity registration (Human prioritized), mercy-gated action proposals, PATSAGi council consultation, personalized quest generation for maximal human fun/learning/reward, simulation tick integration.
-- Global onboarding flow hooks for new human players engaging with AI/AGI and systems.
-- **EpigeneticModulation integration** (v15.1): Player/entity actions now drive persistent EpigeneticProfile changes.
-- **GeometricHarmony integration** (v15.2): Living world layer state and harmony now respond to collective behavior and epigenetic health. Higher layers and harmony provide abundance multipliers and mechanical rewards for cooperation.
+- **MultiAgentOrchestrator wiring**: Entity registration (Human prioritized), mercy-gated action proposals, PATSAGi council consultation, personalized quest generation for maximal human fun/learning/reward.
+- **EpigeneticModulation integration** (v15.1)
+- **GeometricHarmony integration** (v15.2)
+- **Movement System integration** (v15.3): Full movement controller, jump calculation, client prediction, reconciliation, and GPU pipeline hook from v14.5 master implementation.
 
 All at above production grade quality: clean, well-commented, tested, mercy-aligned, Ra-Thor lattice native.
 
-See gpu_driven_pipeline.rs for rendering and multi_agent_orchestrator.rs (in powrush crate) for entity logic.
+See gpu_driven_pipeline.rs for rendering and multi_agent_orchestrator.rs for entity logic.
 
 Thunder locked in. Professional wiring complete for global release preparation.
 */
@@ -23,10 +23,12 @@ Thunder locked in. Professional wiring complete for global release preparation.
 pub mod rendering;
 pub mod epigenetic_modulation;
 pub mod geometric_harmony;
+pub mod movement;
 
 pub use rendering::gpu_driven_pipeline::GpuDrivenPipeline;
 pub use epigenetic_modulation::{EpigeneticProfile, EpigeneticChange, ActionType, apply_change, action_to_change, profile_health};
 pub use geometric_harmony::{GeometricHarmonyEngine, HarmonyState, GeometricLayer};
+pub use movement::{MovementController, JumpParameters, calculate_jump_parameters, prepare_movement_for_gpu, update_movement_prediction};
 
 use geometric_intelligence::{ShardManager, CouncilProposal, EpigeneticBlessing};
 use powrush_rbe_engine::{RBEconomy, Contribution, ContributionKind};
@@ -50,6 +52,9 @@ pub struct PowrushMMOSimulator {
     demo_epigenetic_profiles: HashMap<u64, EpigeneticProfile>,
     geometric_harmony_state: HarmonyState,
     sustained_high_harmony_ticks: u32,
+    // Movement System (v15.3)
+    demo_movement: MovementController,
+    movement_params: JumpParameters,
 }
 
 impl PowrushMMOSimulator {
@@ -90,6 +95,10 @@ impl PowrushMMOSimulator {
         let mut demo_profiles = HashMap::new();
         demo_profiles.insert(human_id, EpigeneticProfile::default());
 
+        // Initialize demo movement controller
+        let mut demo_movement = MovementController::default();
+        demo_movement.target_pos = [25.0, 0.0, 10.0]; // Example target for demo jump
+
         Self {
             shard_manager: sm,
             rbe_economy: RBEconomy::new(),
@@ -106,6 +115,8 @@ impl PowrushMMOSimulator {
             demo_epigenetic_profiles: demo_profiles,
             geometric_harmony_state: HarmonyState::default(),
             sustained_high_harmony_ticks: 0,
+            demo_movement,
+            movement_params: JumpParameters::default(),
         }
     }
 
@@ -194,7 +205,7 @@ impl PowrushMMOSimulator {
             }
         }
 
-        // Epigenetic + action wiring
+        // Epigenetic wiring
         if self.current_tick % 40 == 0 && self.demo_human_id.is_some() {
             let teach_action = Action::Teach {
                 learner: 2,
@@ -216,16 +227,14 @@ impl PowrushMMOSimulator {
             }
         }
 
-        // NEW v15.2: GeometricHarmony integration - living world response
+        // GeometricHarmony integration
         let avg_faction: f64 = self.faction_strengths.values().sum::<f64>() / self.faction_strengths.len() as f64;
-
         let avg_epigenetic_health: f64 = if let Some(id) = self.demo_human_id {
             if let Some(p) = self.demo_epigenetic_profiles.get(&id) {
                 profile_health(p)
             } else { 1.0 }
         } else { 1.0 };
-
-        let cooperation_pressure = if self.current_tick % 40 == 0 { 0.8 } else { 0.2 }; // boosted on cooperation ticks
+        let cooperation_pressure = if self.current_tick % 40 == 0 { 0.8 } else { 0.2 };
 
         GeometricHarmonyEngine::update_harmony(
             &mut self.geometric_harmony_state,
@@ -234,11 +243,9 @@ impl PowrushMMOSimulator {
             cooperation_pressure,
         );
 
-        // Apply layer abundance multiplier to RBE
         let layer_mult = GeometricHarmonyEngine::layer_abundance_multiplier(&self.geometric_harmony_state);
         self.rbe_abundance = (self.rbe_abundance * layer_mult * 0.02 + self.rbe_abundance * 0.98).clamp(0.5, 3.0);
 
-        // Attempt layer transition
         if let Some(new_layer) = GeometricHarmonyEngine::try_layer_transition(
             &mut self.geometric_harmony_state,
             self.sustained_high_harmony_ticks,
@@ -252,6 +259,24 @@ impl PowrushMMOSimulator {
         }
 
         self.global_harmony = self.geometric_harmony_state.global_harmony;
+
+        // NEW v15.3: Movement System integration
+        // Run prediction on demo movement
+        update_movement_prediction(&mut self.demo_movement, self.delta_accumulator as f32, &self.movement_params);
+
+        // Prepare movement data for GPU pipeline (dynamic UBO)
+        let mut gpu_pos = [0.0f32; 3];
+        let mut gpu_vel = [0.0f32; 3];
+        let mut is_jumping = 0u32;
+        prepare_movement_for_gpu(&self.demo_movement, &mut gpu_pos, &mut gpu_vel, &mut is_jumping);
+
+        // In full client: feed gpu_pos/gpu_vel/is_jumping into GpuDrivenPipeline dynamic uniform buffer
+        if self.current_tick % 30 == 0 {
+            self.active_proposals.push(format!(
+                "movement_gpu_prepared_tick_{}: pos=[{:.1},{:.1},{:.1}] jumping={}",
+                self.current_tick, gpu_pos[0], gpu_pos[1], gpu_pos[2], is_jumping
+            ));
+        }
 
         if self.current_tick % 100 == 0 {
             for shard_id in ["hyperbolic_core", "forge_shard", "platonic_harmony"] {
@@ -287,8 +312,14 @@ impl PowrushMMOSimulator {
             self.geometric_harmony_state.global_harmony
         );
 
+        let movement_info = if self.demo_movement.is_jumping {
+            " | Movement: Jumping".to_string()
+        } else {
+            " | Movement: Grounded".to_string()
+        };
+
         format!(
-            "Tick: {} | Harmony: {:.3} | RBE: {:.3} | MercyFloor: {:.2} | Inventories: {:?} | Orchestrator Entities: {} | Demo Human Onboarding Active: {}{}{}",
+            "Tick: {} | Harmony: {:.3} | RBE: {:.3} | MercyFloor: {:.2} | Inventories: {:?} | Orchestrator Entities: {} | Demo Human Onboarding Active: {}{}{}{}",
             self.current_tick,
             self.global_harmony,
             self.rbe_abundance,
@@ -297,7 +328,8 @@ impl PowrushMMOSimulator {
             self.multi_agent_orchestrator.entity_count(),
             self.demo_human_id.is_some(),
             demo_health,
-            layer_info
+            layer_info,
+            movement_info
         )
     }
 
