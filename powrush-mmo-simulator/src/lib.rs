@@ -1,5 +1,5 @@
 /*!
-# Powrush MMO Simulator — Dynamic Council Modulation + GPU-Driven Rendering + Multi-Agent Orchestration Edition (v15.14)
+# Powrush MMO Simulator — Dynamic Council Modulation + GPU-Driven Rendering + Multi-Agent Orchestration Edition (v15.15)
 
 **Production-grade integration of dynamic council modulation into RBE economy + full GPU-driven rendering pipeline + MultiAgentOrchestrator for Human/AI/AGI entity coexistence.**
 
@@ -9,7 +9,8 @@ This iteration thoughtfully implements:
 - Council modulation of the mercy_floor.
 - GpuDrivenPipeline with Movement System Integration.
 - Network Sync Logic.
-- **Ability Synergy Integration** (v15.14): Active synergy bonuses from unlocked abilities are now applied during simulation ticks.
+- Ability Synergy Integration.
+- **Enhanced Epigenetic Resilience Effects** (v15.15): EpigeneticResilience synergies now have stronger, more meaningful mechanical impact on epigenetic profiles (volatility reduction + positive change application).
 
 All at above production grade quality: clean, well-commented, tested, mercy-aligned, Ra-Thor lattice native.
 
@@ -309,7 +310,7 @@ impl PowrushMMOSimulator {
             ));
         }
 
-        // NEW v15.14: Apply active ability synergy bonuses
+        // Apply active ability synergy bonuses (including enhanced Epigenetic Resilience)
         if let Some(human_id) = self.demo_human_id {
             if let Some(tree) = self.ability_trees.get(&human_id) {
                 let synergies = tree.calculate_synergies();
@@ -317,14 +318,12 @@ impl PowrushMMOSimulator {
                 for synergy in &synergies {
                     match &synergy.bonus_type {
                         SynergyType::HarmonyAmplification { multiplier } => {
-                            // Boost current harmony update
                             self.geometric_harmony_state.global_harmony = 
                                 (self.geometric_harmony_state.global_harmony * *multiplier as f64 * 0.02 + self.geometric_harmony_state.global_harmony * 0.98)
                                 .min(1.4);
                             self.global_harmony = self.geometric_harmony_state.global_harmony;
                         }
                         SynergyType::ContributionBoost { multiplier } => {
-                            // Boost next contribution recording
                             if self.current_tick % 8 == 0 {
                                 for (faction, &strength) in &self.faction_strengths {
                                     let boosted = strength * 12.0 * multiplier;
@@ -337,17 +336,29 @@ impl PowrushMMOSimulator {
                             }
                         }
                         SynergyType::EpigeneticResilience { reduction } => {
+                            // NEW v15.15: Stronger, more meaningful Epigenetic Resilience effect
                             if let Some(profile) = self.demo_epigenetic_profiles.get_mut(&human_id) {
-                                profile.strength = (profile.strength + reduction * 0.1).min(2.5);
+                                // Reduce volatility (make profile more stable)
+                                profile.volatility = (profile.volatility - reduction * 0.8).max(0.1);
+
+                                // Improve overall strength / resilience
+                                profile.strength = (profile.strength + reduction * 0.6).min(3.0);
+
+                                // Occasionally apply a small positive epigenetic change
+                                if self.current_tick % 25 == 0 {
+                                    let resilience_change = EpigeneticChange {
+                                        action: ActionType::Cooperation,
+                                        magnitude: reduction * 0.5,
+                                        cooperation_factor: 1.2,
+                                    };
+                                    apply_change(profile, &resilience_change);
+                                }
                             }
                         }
                         SynergyType::MovementEfficiency { multiplier } => {
-                            // Slight persistent movement improvement
                             self.movement_params.base_height *= 1.0 + (multiplier - 1.0) * 0.02;
                         }
                         SynergyType::GlobalCooldownReduction { .. } => {
-                            // Future: could reduce cooldowns on use
-                            // For now we log it
                             if self.current_tick % 120 == 0 {
                                 self.active_proposals.push(format!("synergy_cooldown_reduction_active_tick_{}", self.current_tick));
                             }
