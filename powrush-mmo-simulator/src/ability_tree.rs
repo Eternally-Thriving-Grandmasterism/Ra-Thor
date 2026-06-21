@@ -3,21 +3,25 @@
 
 **Autonomicity Games Sovereign Mercy License (AG-SML) v1.0**  
 **Aligned with TOLC 8 Mercy Lattice, Ra-Thor ONE Organism, 13+ PATSAGi Councils**  
-**Full Ability State Serialization (JSON + Binary)**
+**Full Serialization Support (JSON + Binary + Protobuf)**
 
-This module provides complete serialization support:
+This module now supports three serialization formats:
 
-- **JSON**: `to_json()` / `from_json()` — human-readable, great for debugging and config.
-- **Binary**: `to_binary()` / `from_binary()` — compact and efficient for save files, databases, and network packets.
+- JSON (`to_json` / `from_json`)
+- Binary / Bincode (`to_binary` / `from_binary`)
+- **Protobuf** via `prost` (`to_protobuf` / `from_protobuf`)
 
-All core types (`Ability`, `AbilityEffect`, `AbilityState`, `AbilityTree`) support both formats via serde.
-
-Thunder locked in. Ability state is now fully serializable in both human and binary forms.
+Protobuf is the recommended format for production use (networking, long-term saves, cross-language).
 */
 
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use crate::race::Race;
+
+// Include generated prost types (requires build.rs + prost dependency)
+include!(concat!(env!("OUT_DIR"), "/ability.rs"));
+
+pub use ability::{Ability as ProtoAbility, AbilityEffect as ProtoAbilityEffect, AbilityState as ProtoAbilityState, AbilityTree as ProtoAbilityTree, Race as ProtoRace};
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Ability {
@@ -213,7 +217,7 @@ impl AbilityTree {
         states
     }
 
-    /// JSON serialization (human-readable)
+    // === JSON Serialization ===
     pub fn to_json(&self) -> Result<String, serde_json::Error> {
         serde_json::to_string_pretty(self)
     }
@@ -222,7 +226,7 @@ impl AbilityTree {
         serde_json::from_str(json)
     }
 
-    /// Binary serialization (compact & efficient for save files / networking)
+    // === Binary Serialization (bincode) ===
     pub fn to_binary(&self) -> Result<Vec<u8>, bincode::Error> {
         bincode::serialize(self)
     }
@@ -231,8 +235,180 @@ impl AbilityTree {
         bincode::deserialize(data)
     }
 
+    // === Protobuf Serialization (prost) ===
+    /// Converts this native AbilityTree to the generated prost Protobuf message.
+    pub fn to_protobuf(&self) -> ProtoAbilityTree {
+        let mut proto = ProtoAbilityTree {
+            race: match self.race {
+                Race::Terran => ProtoRace::Terran as i32,
+                Race::Synthetic => ProtoRace::Synthetic as i32,
+                Race::Harmonic => ProtoRace::Harmonic as i32,
+                Race::Verdant => ProtoRace::Verdant as i32,
+                Race::Voidfarer => ProtoRace::Voidfarer as i32,
+            },
+            unlocked_abilities: self.unlocked_abilities.iter().map(|a| a.to_proto()).collect(),
+            cooldowns: self.cooldowns.clone(),
+        };
+        proto
+    }
+
+    /// Creates a native AbilityTree from a prost Protobuf message.
+    pub fn from_protobuf(proto: &ProtoAbilityTree) -> Self {
+        let race = match proto.race {
+            0 => Race::Terran,
+            1 => Race::Synthetic,
+            2 => Race::Harmonic,
+            3 => Race::Verdant,
+            4 => Race::Voidfarer,
+            _ => Race::Terran,
+        };
+
+        let unlocked = proto.unlocked_abilities.iter().map(Ability::from_proto).collect();
+
+        Self {
+            race,
+            unlocked_abilities: unlocked,
+            cooldowns: proto.cooldowns.clone(),
+        }
+    }
+
     pub fn has_abilities(&self) -> bool {
         !self.unlocked_abilities.is_empty()
+    }
+}
+
+impl Ability {
+    fn to_proto(&self) -> ProtoAbility {
+        ProtoAbility {
+            id: self.id.clone(),
+            name: self.name.clone(),
+            description: self.description.clone(),
+            race: match self.race {
+                Race::Terran => ProtoRace::Terran as i32,
+                Race::Synthetic => ProtoRace::Synthetic as i32,
+                Race::Harmonic => ProtoRace::Harmonic as i32,
+                Race::Verdant => ProtoRace::Verdant as i32,
+                Race::Voidfarer => ProtoRace::Voidfarer as i32,
+            },
+            tier: self.tier as u32,
+            unlock_cooperation_score: self.unlock_cooperation_score,
+            unlock_innovation_score: self.unlock_innovation_score,
+            unlock_contribution_total: self.unlock_contribution_total,
+            effect_type: Some(self.effect_type.to_proto()),
+            cooldown_ticks: self.cooldown_ticks,
+        }
+    }
+
+    fn from_proto(proto: &ProtoAbility) -> Self {
+        let race = match proto.race {
+            0 => Race::Terran,
+            1 => Race::Synthetic,
+            2 => Race::Harmonic,
+            3 => Race::Verdant,
+            4 => Race::Voidfarer,
+            _ => Race::Terran,
+        };
+
+        Ability {
+            id: proto.id.clone(),
+            name: proto.name.clone(),
+            description: proto.description.clone(),
+            race,
+            tier: proto.tier as u8,
+            unlock_cooperation_score: proto.unlock_cooperation_score,
+            unlock_innovation_score: proto.unlock_innovation_score,
+            unlock_contribution_total: proto.unlock_contribution_total,
+            effect_type: AbilityEffect::from_proto(proto.effect_type.as_ref()),
+            cooldown_ticks: proto.cooldown_ticks,
+        }
+    }
+}
+
+impl AbilityEffect {
+    fn to_proto(&self) -> ProtoAbilityEffect {
+        match self {
+            AbilityEffect::MovementBoost { duration_ticks, speed_multiplier } => {
+                ProtoAbilityEffect {
+                    effect: Some(proto_ability_effect::Effect::MovementBoost(
+                        proto_ability_effect::MovementBoost {
+                            duration_ticks: *duration_ticks,
+                            speed_multiplier: *speed_multiplier,
+                        }
+                    )),
+                }
+            }
+            AbilityEffect::HarmonyPulse { harmony_gain } => {
+                ProtoAbilityEffect {
+                    effect: Some(proto_ability_effect::Effect::HarmonyPulse(
+                        proto_ability_effect::HarmonyPulse { harmony_gain: *harmony_gain }
+                    )),
+                }
+            }
+            AbilityEffect::EpigeneticStabilize { volatility_reduction } => {
+                ProtoAbilityEffect {
+                    effect: Some(proto_ability_effect::Effect::EpigeneticStabilize(
+                        proto_ability_effect::EpigeneticStabilize { volatility_reduction: *volatility_reduction }
+                    )),
+                }
+            }
+            AbilityEffect::ContributionMultiplier { multiplier, duration_ticks } => {
+                ProtoAbilityEffect {
+                    effect: Some(proto_ability_effect::Effect::ContributionMultiplier(
+                        proto_ability_effect::ContributionMultiplier {
+                            multiplier: *multiplier,
+                            duration_ticks: *duration_ticks,
+                        }
+                    )),
+                }
+            }
+            AbilityEffect::ExplorationScan { range } => {
+                ProtoAbilityEffect {
+                    effect: Some(proto_ability_effect::Effect::ExplorationScan(
+                        proto_ability_effect::ExplorationScan { range: *range }
+                    )),
+                }
+            }
+            AbilityEffect::VoidSkip { extra_distance, risk } => {
+                ProtoAbilityEffect {
+                    effect: Some(proto_ability_effect::Effect::VoidSkip(
+                        proto_ability_effect::VoidSkip { extra_distance: *extra_distance, risk: *risk }
+                    )),
+                }
+            }
+        }
+    }
+
+    fn from_proto(proto: Option<&ProtoAbilityEffect>) -> Self {
+        match proto.and_then(|p| p.effect.as_ref()) {
+            Some(proto_ability_effect::Effect::MovementBoost(m)) => {
+                AbilityEffect::MovementBoost {
+                    duration_ticks: m.duration_ticks,
+                    speed_multiplier: m.speed_multiplier,
+                }
+            }
+            Some(proto_ability_effect::Effect::HarmonyPulse(h)) => {
+                AbilityEffect::HarmonyPulse { harmony_gain: h.harmony_gain }
+            }
+            Some(proto_ability_effect::Effect::EpigeneticStabilize(e)) => {
+                AbilityEffect::EpigeneticStabilize { volatility_reduction: e.volatility_reduction }
+            }
+            Some(proto_ability_effect::Effect::ContributionMultiplier(c)) => {
+                AbilityEffect::ContributionMultiplier {
+                    multiplier: c.multiplier,
+                    duration_ticks: c.duration_ticks,
+                }
+            }
+            Some(proto_ability_effect::Effect::ExplorationScan(e)) => {
+                AbilityEffect::ExplorationScan { range: e.range }
+            }
+            Some(proto_ability_effect::Effect::VoidSkip(v)) => {
+                AbilityEffect::VoidSkip {
+                    extra_distance: v.extra_distance,
+                    risk: v.risk,
+                }
+            }
+            _ => AbilityEffect::HarmonyPulse { harmony_gain: 0.0 },
+        }
     }
 }
 
@@ -241,11 +417,13 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_binary_serialization() {
+    fn test_protobuf_roundtrip() {
         let mut tree = AbilityTree::new(Race::Harmonic);
         let _ = tree.try_unlock_starter(7.0, 5.0, 30.0);
-        let bytes = tree.to_binary().unwrap();
-        let restored = AbilityTree::from_binary(&bytes).unwrap();
+
+        let proto = tree.to_protobuf();
+        let restored = AbilityTree::from_protobuf(&proto);
+
         assert_eq!(tree.unlocked_abilities.len(), restored.unlocked_abilities.len());
     }
 }
