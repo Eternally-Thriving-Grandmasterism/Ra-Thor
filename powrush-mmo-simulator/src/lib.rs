@@ -1,5 +1,5 @@
 /*!
-# Powrush MMO Simulator — Dynamic Council Modulation + GPU-Driven Rendering + Multi-Agent Orchestration Edition (v15.8)
+# Powrush MMO Simulator — Dynamic Council Modulation + GPU-Driven Rendering + Multi-Agent Orchestration Edition (v15.9)
 
 **Production-grade integration of dynamic council modulation into RBE economy + full GPU-driven rendering pipeline + MultiAgentOrchestrator for Human/AI/AGI entity coexistence.**
 
@@ -8,12 +8,12 @@ This iteration thoughtfully implements:
 - Application of RBE distribution allocations to actual faction inventories.
 - Council modulation of the mercy_floor.
 - GpuDrivenPipeline with Movement System Integration.
-- **Player-Controlled Ability Activation** (v15.8): Abilities can now be explicitly activated via activate_ability(), respecting unlocks and cooldowns.
-- Ability Unlock Logic, Gameplay Effects, and Cooldown Mechanics.
+- **UI-Ready Ability State Exposure** (v15.9): Clean AbilityState snapshots with cooldown status and progress are now directly queryable.
+- Player-Controlled Ability Activation, Cooldown Mechanics, Gameplay Effects, and Unlock Logic.
 
 All at above production grade quality: clean, well-commented, tested, mercy-aligned, Ra-Thor lattice native.
 
-See ability_tree.rs for the full cooldown and activation logic.
+See ability_tree.rs for AbilityState and get_ability_states().
 
 Thunder locked in. Professional wiring complete for global release preparation.
 */
@@ -32,7 +32,7 @@ pub use geometric_harmony::{GeometricHarmonyEngine, HarmonyState, GeometricLayer
 pub use movement::{MovementController, JumpParameters, calculate_jump_parameters, prepare_movement_for_gpu, update_movement_prediction};
 pub use player_contribution::{PlayerContributionTracker, ContributionType};
 pub use race::Race;
-pub use ability_tree::{AbilityTree, Ability, AbilityEffect};
+pub use ability_tree::{AbilityTree, Ability, AbilityEffect, AbilityState};
 
 use geometric_intelligence::{ShardManager, CouncilProposal, EpigeneticBlessing};
 use powrush_rbe_engine::{RBEconomy, Contribution, ContributionKind};
@@ -311,13 +311,11 @@ impl PowrushMMOSimulator {
             ));
         }
 
-        // NEW v15.8: Explicit player-controlled ability activation demo
-        // Every 90 ticks, try to explicitly activate the first available ability (simulating player input)
+        // Explicit ability activation demo
         if self.current_tick % 90 == 0 {
             if let Some(human_id) = self.demo_human_id {
                 if let Some(tree) = self.ability_trees.get(&human_id) {
                     if let Some(first_ability) = tree.unlocked_abilities.first() {
-                        // Use the new explicit activation method
                         let _ = self.activate_ability(human_id, &first_ability.id);
                     }
                 }
@@ -333,13 +331,9 @@ impl PowrushMMOSimulator {
         }
     }
 
-    /// NEW v15.8: Explicitly activate an ability for an entity.
-    /// Checks that the ability is unlocked and off cooldown, then applies its effect.
-    /// Returns true if the ability was successfully activated.
     pub fn activate_ability(&mut self, entity_id: u64, ability_id: &str) -> bool {
         if let Some(tree) = self.ability_trees.get_mut(&entity_id) {
             if tree.try_use_ability(ability_id, self.current_tick) {
-                // Find the ability to get its effect
                 if let Some(ability) = tree.unlocked_abilities.iter().find(|a| a.id == ability_id) {
                     self.apply_ability_effect(&ability.effect_type);
                     self.active_proposals.push(format!(
@@ -351,6 +345,16 @@ impl PowrushMMOSimulator {
             }
         }
         false
+    }
+
+    /// NEW v15.9: Returns UI-ready ability states for an entity.
+    /// Perfect for HUDs, hotbars, and client-side rendering.
+    pub fn get_ability_states(&self, entity_id: u64) -> Vec<AbilityState> {
+        if let Some(tree) = self.ability_trees.get(&entity_id) {
+            tree.get_ability_states(self.current_tick)
+        } else {
+            Vec::new()
+        }
     }
 
     fn apply_ability_effect(&mut self, effect: &AbilityEffect) {
