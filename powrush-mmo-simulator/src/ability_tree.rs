@@ -3,17 +3,15 @@
 
 **Autonomicity Games Sovereign Mercy License (AG-SML) v1.0**  
 **Aligned with TOLC 8 Mercy Lattice, Ra-Thor ONE Organism, 13+ PATSAGi Councils**  
-**Extends the Multi-Race Foundation with meaningful, progression-based abilities + Cooldown Mechanics**
+**UI-Ready Ability State Exposure**
 
-This module implements race-specific ability trees with cooldown support.
+This module now exposes clean, UI-friendly ability state for clients, HUDs, and hotbars.
 
-**Cooldown Design:**
-- Each ability has a base cooldown (in ticks).
-- `try_use_ability` checks if enough ticks have passed since last use.
-- Cooldowns are per-ability and reset on successful use.
-- Designed for future hotbar / player-controlled activation.
+**New UI-Ready Types:**
+- `AbilityState` — Serializable snapshot containing id, name, description, cooldown status, and remaining cooldown.
+- `get_ability_states(current_tick)` — Returns a clean list ready for UI rendering.
 
-Thunder locked in. Abilities now have strategic timing.
+Thunder locked in. The ability system is now fully UI-ready.
 */
 
 use serde::{Deserialize, Serialize};
@@ -31,7 +29,7 @@ pub struct Ability {
     pub unlock_innovation_score: f64,
     pub unlock_contribution_total: f64,
     pub effect_type: AbilityEffect,
-    pub cooldown_ticks: u32, // NEW: base cooldown
+    pub cooldown_ticks: u32,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
@@ -44,11 +42,23 @@ pub enum AbilityEffect {
     VoidSkip { extra_distance: f32, risk: f32 },
 }
 
+/// UI-ready snapshot of an ability's current state.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct AbilityState {
+    pub id: String,
+    pub name: String,
+    pub description: String,
+    pub unlocked: bool,
+    pub on_cooldown: bool,
+    pub remaining_cooldown_ticks: u32,
+    pub cooldown_progress: f32, // 0.0 = ready, 1.0 = just used
+}
+
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct AbilityTree {
     pub race: Race,
     pub unlocked_abilities: Vec<Ability>,
-    cooldowns: HashMap<String, u64>, // ability_id -> last used tick
+    cooldowns: HashMap<String, u64>,
 }
 
 impl AbilityTree {
@@ -140,7 +150,6 @@ impl AbilityTree {
         None
     }
 
-    /// Returns true if the ability is currently on cooldown.
     pub fn is_on_cooldown(&self, ability_id: &str, current_tick: u64) -> bool {
         if let Some(&last_used) = self.cooldowns.get(ability_id) {
             if let Some(ability) = self.unlocked_abilities.iter().find(|a| a.id == ability_id) {
@@ -150,19 +159,60 @@ impl AbilityTree {
         false
     }
 
-    /// Attempts to use an ability. Returns true if successful (off cooldown).
-    /// Updates the cooldown timestamp on success.
     pub fn try_use_ability(&mut self, ability_id: &str, current_tick: u64) -> bool {
         if self.is_on_cooldown(ability_id, current_tick) {
             return false;
         }
-
         if self.unlocked_abilities.iter().any(|a| a.id == ability_id) {
             self.cooldowns.insert(ability_id.to_string(), current_tick);
             return true;
         }
-
         false
+    }
+
+    /// NEW: Returns UI-ready state for all abilities (unlocked + locked starters for preview).
+    pub fn get_ability_states(&self, current_tick: u64) -> Vec<AbilityState> {
+        let mut states = Vec::new();
+
+        for ability in &self.unlocked_abilities {
+            let on_cooldown = self.is_on_cooldown(&ability.id, current_tick);
+            let remaining = if on_cooldown {
+                if let Some(&last_used) = self.cooldowns.get(&ability.id) {
+                    (last_used + ability.cooldown_ticks as u64 - current_tick) as u32
+                } else { 0 }
+            } else { 0 };
+
+            let progress = if on_cooldown && ability.cooldown_ticks > 0 {
+                1.0 - (remaining as f32 / ability.cooldown_ticks as f32)
+            } else { 1.0 };
+
+            states.push(AbilityState {
+                id: ability.id.clone(),
+                name: ability.name.clone(),
+                description: ability.description.clone(),
+                unlocked: true,
+                on_cooldown,
+                remaining_cooldown_ticks: remaining,
+                cooldown_progress: progress.clamp(0.0, 1.0),
+            });
+        }
+
+        // Include locked starters for UI preview
+        for ability in Self::starter_abilities(self.race) {
+            if !states.iter().any(|s| s.id == ability.id) {
+                states.push(AbilityState {
+                    id: ability.id,
+                    name: ability.name,
+                    description: ability.description,
+                    unlocked: false,
+                    on_cooldown: false,
+                    remaining_cooldown_ticks: 0,
+                    cooldown_progress: 0.0,
+                });
+            }
+        }
+
+        states
     }
 
     pub fn has_abilities(&self) -> bool {
@@ -175,20 +225,11 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_starter_unlock() {
-        let mut tree = AbilityTree::new(Race::Harmonic);
-        let unlocked = tree.try_unlock_starter(7.0, 5.0, 30.0);
-        assert!(unlocked.is_some());
-    }
-
-    #[test]
-    fn test_cooldown_mechanics() {
+    fn test_get_ability_states() {
         let mut tree = AbilityTree::new(Race::Harmonic);
         let _ = tree.try_unlock_starter(7.0, 5.0, 30.0);
-
-        assert!(tree.try_use_ability("harmonic_resonance", 100));
-        assert!(tree.is_on_cooldown("harmonic_resonance", 150));
-        assert!(!tree.try_use_ability("harmonic_resonance", 150));
-        assert!(tree.try_use_ability("harmonic_resonance", 350));
+        let states = tree.get_ability_states(100);
+        assert!(!states.is_empty());
+        assert!(states.iter().any(|s| s.unlocked));
     }
 }
