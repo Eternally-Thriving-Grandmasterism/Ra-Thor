@@ -1,5 +1,5 @@
 /*!
-# Powrush MMO Simulator — Dynamic Council Modulation + GPU-Driven Rendering + Multi-Agent Orchestration Edition (v15.12)
+# Powrush MMO Simulator — Dynamic Council Modulation + GPU-Driven Rendering + Multi-Agent Orchestration Edition (v15.13)
 
 **Production-grade integration of dynamic council modulation into RBE economy + full GPU-driven rendering pipeline + MultiAgentOrchestrator for Human/AI/AGI entity coexistence.**
 
@@ -8,8 +8,10 @@ This iteration thoughtfully implements:
 - Application of RBE distribution allocations to actual faction inventories.
 - Council modulation of the mercy_floor.
 - GpuDrivenPipeline with Movement System Integration.
-- **Full Protobuf Support** (v15.12): Complete to_protobuf/from_protobuf conversion + export/import methods on simulator.
-- JSON, Binary, and Protobuf serialization now fully supported with roundtrip conversion.
+- **Network Sync Logic** (v15.13): Clean methods for generating and applying ability state network updates using Protobuf.
+- Full Protobuf, JSON, and Binary serialization support.
+
+Designed as a foundation for future client-server, authoritative server, or P2P multiplayer networking.
 
 All at above production grade quality: clean, well-commented, tested, mercy-aligned, Ra-Thor lattice native.
 
@@ -353,7 +355,8 @@ impl PowrushMMOSimulator {
         }
     }
 
-    // JSON
+    // === Serialization Export/Import ===
+
     pub fn export_ability_state(&self, entity_id: u64) -> Option<String> {
         self.ability_trees.get(&entity_id).and_then(|tree| tree.to_json().ok())
     }
@@ -366,7 +369,6 @@ impl PowrushMMOSimulator {
         false
     }
 
-    // Binary
     pub fn export_ability_state_binary(&self, entity_id: u64) -> Option<Vec<u8>> {
         self.ability_trees.get(&entity_id).and_then(|tree| tree.to_binary().ok())
     }
@@ -379,8 +381,6 @@ impl PowrushMMOSimulator {
         false
     }
 
-    // NEW v15.12: Protobuf
-    /// Export ability state as Protobuf binary (recommended for production).
     pub fn export_ability_state_protobuf(&self, entity_id: u64) -> Option<Vec<u8>> {
         self.ability_trees.get(&entity_id).map(|tree| {
             let proto = tree.to_protobuf();
@@ -388,7 +388,6 @@ impl PowrushMMOSimulator {
         })
     }
 
-    /// Import ability state from Protobuf binary.
     pub fn import_ability_state_protobuf(&mut self, entity_id: u64, data: &[u8]) -> bool {
         if let Ok(proto) = ProtoAbilityTree::decode(data) {
             let tree = AbilityTree::from_protobuf(&proto);
@@ -397,6 +396,30 @@ impl PowrushMMOSimulator {
         }
         false
     }
+
+    // === Network Sync Logic (v15.13) ===
+    /// Generates a compact network update packet for an entity's ability state.
+    /// Uses Protobuf for efficient transmission.
+    ///
+    /// This is the recommended method for sending ability state over the network
+    /// (client -> server, server -> client, or P2P).
+    pub fn get_ability_network_update(&self, entity_id: u64) -> Option<Vec<u8>> {
+        self.export_ability_state_protobuf(entity_id)
+    }
+
+    /// Applies an incoming network update packet to an entity's ability state.
+    ///
+    /// Call this when receiving ability sync data from the network.
+    /// Returns true if the update was successfully applied.
+    pub fn apply_ability_network_update(&mut self, entity_id: u64, data: &[u8]) -> bool {
+        self.import_ability_state_protobuf(entity_id, data)
+    }
+
+    // Future enhancement ideas (commented for roadmap):
+    // - Delta sync (only send changed abilities or cooldowns)
+    // - Versioned sync with sequence numbers
+    // - Authority validation (server-only writes)
+    // - Batching multiple entities into one packet
 
     fn apply_ability_effect(&mut self, effect: &AbilityEffect) {
         match effect {
