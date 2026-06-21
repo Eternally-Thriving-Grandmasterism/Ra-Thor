@@ -1,5 +1,5 @@
 /*!
-# Powrush MMO Simulator — Dynamic Council Modulation + GPU-Driven Rendering + Multi-Agent Orchestration Edition (v15.17)
+# Powrush MMO Simulator — Dynamic Council Modulation + GPU-Driven Rendering + Multi-Agent Orchestration Edition (v15.18)
 
 **Production-grade integration of dynamic council modulation into RBE economy + full GPU-driven rendering pipeline + MultiAgentOrchestrator for Human/AI/AGI entity coexistence.**
 
@@ -12,7 +12,8 @@ This iteration thoughtfully implements:
 - Ability Synergy Integration.
 - Enhanced Epigenetic Resilience Effects.
 - Volatility Hysteresis Logic.
-- **Epigenetic Backlash Events** (v15.17): High-volatility backlash now triggers structured, varied epigenetic events with different severities and effects.
+- Structured Epigenetic Backlash Events.
+- **Epigenetic Repair Mechanisms** (v15.18): Active and passive repair systems that reduce volatility and restore epigenetic stability when conditions are favorable.
 
 All at above production grade quality: clean, well-commented, tested, mercy-aligned, Ra-Thor lattice native.
 
@@ -325,7 +326,7 @@ impl PowrushMMOSimulator {
             ));
         }
 
-        // Apply active ability synergy bonuses + volatility effects with hysteresis
+        // Apply active ability synergy bonuses + volatility effects with hysteresis + repair
         if let Some(human_id) = self.demo_human_id {
             if let Some(profile) = self.demo_epigenetic_profiles.get_mut(&human_id) {
                 // Volatility hysteresis logic
@@ -339,12 +340,10 @@ impl PowrushMMOSimulator {
                     self.active_proposals.push(format!("volatility_risk_exited_tick_{}", self.current_tick));
                 }
 
-                // Epigenetic Backlash Events (when in high-volatility risk state)
+                // Epigenetic Backlash Events (high volatility risk)
                 if self.high_volatility_risk_active {
-                    // Power gain from embracing volatility
                     profile.strength = (profile.strength + 0.025).min(3.5);
 
-                    // NEW v15.17: Structured Epigenetic Backlash Events
                     if self.current_tick % 35 == 0 && rand::random::<f32>() < 0.30 {
                         let severity = if profile.volatility > 1.6 {
                             EpigeneticBacklashSeverity::Major
@@ -363,7 +362,6 @@ impl PowrushMMOSimulator {
                             EpigeneticBacklashSeverity::Moderate => {
                                 profile.strength = (profile.strength - 0.12).max(0.5);
                                 profile.volatility = (profile.volatility + 0.15).min(2.0);
-                                // Small regression in cooperation score
                                 profile.cooperation_score = (profile.cooperation_score - 3.0).max(0.0);
                                 self.active_proposals.push(format!("backlash_moderate_tick_{}", self.current_tick));
                             }
@@ -371,9 +369,8 @@ impl PowrushMMOSimulator {
                                 profile.strength = (profile.strength - 0.22).max(0.4);
                                 profile.volatility = (profile.volatility + 0.25).min(2.0);
                                 profile.cooperation_score = (profile.cooperation_score - 8.0).max(0.0);
-                                // Apply a negative epigenetic change
                                 let backlash_change = EpigeneticChange {
-                                    action: ActionType::Exploration, // Risky action type
+                                    action: ActionType::Exploration,
                                     magnitude: -0.18,
                                     cooperation_factor: 0.6,
                                 };
@@ -383,9 +380,43 @@ impl PowrushMMOSimulator {
                         }
                     }
                 }
+
+                // NEW v15.18: Epigenetic Repair Mechanisms
+                // Passive + active repair when volatility is low and conditions are favorable
+                let is_low_volatility = current_vol < 0.7;
+                let has_stabilizing_synergy = if let Some(tree) = self.ability_trees.get(&human_id) {
+                    tree.calculate_synergies().iter().any(|s| matches!(s.bonus_type, SynergyType::EpigeneticResilience { .. }))
+                } else {
+                    false
+                };
+
+                if is_low_volatility && has_stabilizing_synergy {
+                    // Strong repair when both low volatility + Resilience synergy active
+                    profile.volatility = (profile.volatility - 0.012).max(0.05);
+                    profile.strength = (profile.strength + 0.018).min(3.5);
+
+                    if self.current_tick % 30 == 0 {
+                        let repair_change = EpigeneticChange {
+                            action: ActionType::Cooperation,
+                            magnitude: 0.09,
+                            cooperation_factor: 1.4,
+                        };
+                        apply_change(profile, &repair_change);
+                        self.active_proposals.push(format!("epigenetic_repair_active_tick_{}", self.current_tick));
+                    }
+                } else if is_low_volatility {
+                    // Mild natural repair when volatility is already low
+                    profile.volatility = (profile.volatility - 0.005).max(0.05);
+                    profile.strength = (profile.strength + 0.008).min(3.5);
+                }
+
+                // Additional repair from high global harmony
+                if self.global_harmony > 1.1 && current_vol < 1.0 {
+                    profile.volatility = (profile.volatility - 0.004).max(0.05);
+                }
             }
 
-            // Existing synergy application
+            // Synergy application
             if let Some(tree) = self.ability_trees.get(&human_id) {
                 let synergies = tree.calculate_synergies();
 
