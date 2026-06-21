@@ -1,5 +1,5 @@
 /*!
-# Powrush MMO Simulator — Dynamic Council Modulation + GPU-Driven Rendering + Multi-Agent Orchestration Edition (v15.7)
+# Powrush MMO Simulator — Dynamic Council Modulation + GPU-Driven Rendering + Multi-Agent Orchestration Edition (v15.8)
 
 **Production-grade integration of dynamic council modulation into RBE economy + full GPU-driven rendering pipeline + MultiAgentOrchestrator for Human/AI/AGI entity coexistence.**
 
@@ -8,12 +8,12 @@ This iteration thoughtfully implements:
 - Application of RBE distribution allocations to actual faction inventories.
 - Council modulation of the mercy_floor.
 - GpuDrivenPipeline with Movement System Integration.
-- Ability Unlock Logic + Gameplay Effects + **Cooldown Mechanics** (v15.7): Abilities now respect cooldowns and can be used strategically over time.
-- MultiAgentOrchestrator wiring, EpigeneticModulation, GeometricHarmony, Movement System, Player Contribution Tracking, Multi-Race Foundation, and Ability Trees.
+- **Player-Controlled Ability Activation** (v15.8): Abilities can now be explicitly activated via activate_ability(), respecting unlocks and cooldowns.
+- Ability Unlock Logic, Gameplay Effects, and Cooldown Mechanics.
 
 All at above production grade quality: clean, well-commented, tested, mercy-aligned, Ra-Thor lattice native.
 
-See ability_tree.rs for cooldown implementation.
+See ability_tree.rs for the full cooldown and activation logic.
 
 Thunder locked in. Professional wiring complete for global release preparation.
 */
@@ -67,7 +67,6 @@ pub struct PowrushMMOSimulator {
 
 impl PowrushMMOSimulator {
     pub fn new() -> Self {
-        // ... (same initialization as v15.6)
         let mut sm = ShardManager::new();
         sm.create_shard("hyperbolic_core", "evolutionary");
         sm.create_shard("forge_shard", "forge");
@@ -140,8 +139,6 @@ impl PowrushMMOSimulator {
     pub fn tick(&mut self, delta_time: f64) {
         self.current_tick += 1;
         self.delta_accumulator += delta_time;
-
-        // ... (existing RBE, harmony, movement, epigenetic logic remains)
 
         if self.current_tick % 8 == 0 {
             for (faction, &strength) in &self.faction_strengths {
@@ -314,33 +311,14 @@ impl PowrushMMOSimulator {
             ));
         }
 
-        // Ability Unlock + Cooldown + Effect Application (v15.7)
-        if let Some(human_id) = self.demo_human_id {
-            if let Some(tree) = self.ability_trees.get_mut(&human_id) {
-                let coop_score = self.player_contributions.get_cooperation_score(human_id);
-                let innovation_score = 12.0;
-                let total_contrib = self.player_contributions.calculate_rbe_impact(human_id) * 50.0;
-
-                // Unlock if possible
-                if let Some(unlocked) = tree.try_unlock_starter(coop_score, innovation_score, total_contrib) {
-                    self.apply_ability_effect(&unlocked.effect_type);
-                    self.active_proposals.push(format!(
-                        "ability_unlocked_tick_{}: {} - Effect Applied",
-                        self.current_tick, unlocked.name
-                    ));
-                }
-
-                // NEW: Periodically try to use unlocked abilities if off cooldown
-                if self.current_tick % 80 == 0 { // Demo usage interval
-                    for ability in &tree.unlocked_abilities {
-                        if tree.try_use_ability(&ability.id, self.current_tick) {
-                            self.apply_ability_effect(&ability.effect_type);
-                            self.active_proposals.push(format!(
-                                "ability_used_tick_{}: {} (cooldown started)",
-                                self.current_tick, ability.name
-                            ));
-                            break; // Use one per cycle for demo clarity
-                        }
+        // NEW v15.8: Explicit player-controlled ability activation demo
+        // Every 90 ticks, try to explicitly activate the first available ability (simulating player input)
+        if self.current_tick % 90 == 0 {
+            if let Some(human_id) = self.demo_human_id {
+                if let Some(tree) = self.ability_trees.get(&human_id) {
+                    if let Some(first_ability) = tree.unlocked_abilities.first() {
+                        // Use the new explicit activation method
+                        let _ = self.activate_ability(human_id, &first_ability.id);
                     }
                 }
             }
@@ -353,6 +331,26 @@ impl PowrushMMOSimulator {
                 }
             }
         }
+    }
+
+    /// NEW v15.8: Explicitly activate an ability for an entity.
+    /// Checks that the ability is unlocked and off cooldown, then applies its effect.
+    /// Returns true if the ability was successfully activated.
+    pub fn activate_ability(&mut self, entity_id: u64, ability_id: &str) -> bool {
+        if let Some(tree) = self.ability_trees.get_mut(&entity_id) {
+            if tree.try_use_ability(ability_id, self.current_tick) {
+                // Find the ability to get its effect
+                if let Some(ability) = tree.unlocked_abilities.iter().find(|a| a.id == ability_id) {
+                    self.apply_ability_effect(&ability.effect_type);
+                    self.active_proposals.push(format!(
+                        "ability_activated_tick_{}: {} (explicit activation)",
+                        self.current_tick, ability.name
+                    ));
+                    return true;
+                }
+            }
+        }
+        false
     }
 
     fn apply_ability_effect(&mut self, effect: &AbilityEffect) {
