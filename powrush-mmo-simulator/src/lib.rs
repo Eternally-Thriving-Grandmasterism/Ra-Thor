@@ -3,11 +3,11 @@
 
 **Autonomicity Games Sovereign Mercy License (AG-SML) v1.0**  
 **Aligned with TOLC 8 Mercy Lattice, Ra-Thor ONE Organism, 13+ PATSAGi Councils**  
-**v15.29 — Treaty Expiration Mechanics Implemented**
+**v15.30 — Treaty Renewal Mechanics Implemented**
 
-High-velocity living MMO simulation with epigenetic evolution (drift, hysteresis, backlash, repair, corruption, mutations), mutation-gated + cross-race synergy chains with full stage progression (0/1/2), cross-race diplomacy + active treaties + player-initiated treaty proposals + **treaty expiration mechanics** (finite lifetimes, automatic cleanup, trust penalty on lapse, expiring-soon visibility).
+High-velocity living MMO simulation with epigenetic evolution (drift, hysteresis, backlash, repair, corruption, mutations), mutation-gated + cross-race synergy chains with full stage progression (0/1/2), cross-race diplomacy + active treaties + player-initiated proposals + expiration + **player-initiated treaty renewal** (extend duration + trust bonus before expiry).
 
-Treaties now require active diplomatic maintenance. High-harmony hybrid builds can renew or re-propose before expiry for continuous bonuses.
+High-harmony hybrid builds can now proactively maintain diplomatic relations for continuous powerful bonuses. Treaties require active care but reward sustained cooperation with escalating hybrid power.
 */
 
 pub mod ability_tree;
@@ -72,7 +72,22 @@ impl PowrushMMOSimulator {
         false
     }
 
-    /// Main simulation tick — includes treaty expiration cleanup + player-initiated diplomacy (v15.29)
+    /// Player (or external UI/system) renews an active treaty for the demo hybrid entity.
+    /// Extends the treaty's expiration timer by its full duration and grants a small trust bonus.
+    /// Requires the treaty to be currently active and sufficient trust.
+    pub fn player_renew_treaty(&mut self, r1: Race, r2: Race, treaty: &str) -> bool {
+        if let Some(human_id) = self.demo_human_id {
+            if let Some(tree) = self.ability_trees.get(&human_id) {
+                let unlocked: Vec<Race> = tree.unlocked_abilities.iter().map(|a| a.race).collect::<HashSet<_>>().into_iter().collect();
+                if unlocked.contains(&r1) && unlocked.contains(&r2) {
+                    return self.demo_diplomacy.renew_treaty(r1, r2, treaty, self.current_tick);
+                }
+            }
+        }
+        false
+    }
+
+    /// Main simulation tick — includes treaty expiration cleanup + player-initiated diplomacy + renewal (v15.30)
     pub fn tick(&mut self) {
         self.current_tick += 1;
 
@@ -147,7 +162,7 @@ impl PowrushMMOSimulator {
                             }
                         }
 
-                        // === Cross-Race Diplomacy + Treaty Expiration (v15.29) ===
+                        // === Cross-Race Diplomacy + Treaty Expiration + Renewal (v15.30) ===
                         let unlocked_vec: Vec<Race> = unlocked_races.into_iter().collect();
                         if unlocked_vec.len() >= 2 {
                             // Cleanup any expired treaties first (trust penalty applied on lapse)
@@ -192,7 +207,7 @@ impl PowrushMMOSimulator {
                                 }
                             }
 
-                            // === Player-Initiated Treaty Proposal Processing (v15.29) ===
+                            // === Player-Initiated Treaty Proposal Processing (v15.30) ===
                             if avg_trust > 0.65 {
                                 for i in 0..unlocked_vec.len() {
                                     for j in (i+1)..unlocked_vec.len() {
@@ -221,6 +236,26 @@ impl PowrushMMOSimulator {
                                             && !self.demo_diplomacy.has_pending_proposal(r1, r2, diplomacy::TREATY_HARMONY_ACCORD)
                                         {
                                             let _ = self.demo_diplomacy.sign_treaty(r1, r2, diplomacy::TREATY_HARMONY_ACCORD, self.current_tick);
+                                        }
+                                    }
+                                }
+                            }
+
+                            // Light auto-renew for very high trust + expiring soon treaties (keeps strong diplomatic builds alive)
+                            if avg_trust > 0.88 {
+                                for i in 0..unlocked_vec.len() {
+                                    for j in (i+1)..unlocked_vec.len() {
+                                        let r1 = unlocked_vec[i];
+                                        let r2 = unlocked_vec[j];
+                                        if self.demo_diplomacy.has_active_treaty(r1, r2, diplomacy::TREATY_HARMONY_ACCORD, self.current_tick) {
+                                            // Check if expiring soon (within next 200 ticks)
+                                            if let Some(rel) = self.demo_diplomacy.relations.get(&(if r1 as u8 <= r2 as u8 { (r1, r2) } else { (r2, r1) })) {
+                                                if let Some(t) = rel.active_treaties.iter().find(|t| t.treaty_type == diplomacy::TREATY_HARMONY_ACCORD) {
+                                                    if t.expires_at_tick.saturating_sub(self.current_tick) < 200 {
+                                                        let _ = self.demo_diplomacy.renew_treaty(r1, r2, diplomacy::TREATY_HARMONY_ACCORD, self.current_tick);
+                                                    }
+                                                }
+                                            }
                                         }
                                     }
                                 }
@@ -283,5 +318,5 @@ impl PowrushMMOSimulator {
     // All prior export/import, network sync, and other methods remain unchanged and fully operational.
 }
 
-// Treaty expiration mechanics complete. Treaties now have finite lifetimes with trust penalties on lapse.
-// High-harmony hybrid builds are incentivized to maintain and renew diplomatic relations for continuous bonuses.
+// Treaty renewal mechanics complete. Players (and high-trust hybrid builds) can now proactively extend active treaties before expiry.
+// Strong diplomatic relations are rewarded with continuous bonuses and reduced maintenance burden.
