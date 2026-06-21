@@ -3,11 +3,11 @@
 
 **Autonomicity Games Sovereign Mercy License (AG-SML) v1.0**  
 **Aligned with TOLC 8 Mercy Lattice, Ra-Thor ONE Organism, 13+ PATSAGi Councils**  
-**Ability Synergy Bonuses (v1.7)**
+**Mutation-Specific Synergy Chains (v1.8)**
 
-This version adds **synergy bonuses** — powerful passive effects that activate when certain ability combinations are unlocked.
+This version adds **mutation-specific synergy chains** — escalating, mutation-gated synergy sequences that only fully activate when a player has both a specific epigenetic mutation AND deep investment in a race's ability tree.
 
-Synergies reward building coherent paths within a race's ability tree.
+Chains reward coherent long-term evolutionary paths (e.g. Harmonic Rebirth + full Harmonic tree = Redemption Cascade).
 */
 
 use serde::{Deserialize, Serialize};
@@ -331,8 +331,7 @@ impl AbilityTree {
         }
     }
 
-    // === NEW: Synergy Bonuses ===
-    /// Calculates active synergy bonuses based on currently unlocked abilities.
+    // === Synergy Bonuses (v1.7) ===
     pub fn calculate_synergies(&self) -> Vec<SynergyBonus> {
         let mut bonuses = Vec::new();
         let unlocked_ids: Vec<&String> = self.unlocked_abilities.iter().map(|a| &a.id).collect();
@@ -399,6 +398,63 @@ impl AbilityTree {
                         bonus_type: SynergyType::MovementEfficiency { multiplier: 1.15 },
                     });
                 }
+            }
+        }
+
+        bonuses
+    }
+
+    /// Mutation-Specific Synergy Chains (v1.8)
+    /// These chains only fully activate when the player possesses BOTH a specific epigenetic mutation
+    /// AND the deep ability investment required for that race's advanced tree.
+    /// They represent true evolutionary synergy paths.
+    pub fn calculate_mutation_synergy_chains(&self, active_mutations: &[String]) -> Vec<SynergyBonus> {
+        let mut bonuses = Vec::new();
+        let unlocked_ids: Vec<&String> = self.unlocked_abilities.iter().map(|a| &a.id).collect();
+
+        for mutation in active_mutations {
+            match mutation.as_str() {
+                "harmonic_rebirth" => {
+                    // Redemption path: Harmonic Rebirth + full Harmonic investment
+                    if (self.race == Race::Harmonic || self.race == Race::Verdant)
+                        && unlocked_ids.contains(&&"harmonic_resonant_field".to_string())
+                        && unlocked_ids.contains(&&"harmonic_cosmic_attunement".to_string())
+                    {
+                        bonuses.push(SynergyBonus {
+                            name: "Redemption Cascade Chain".to_string(),
+                            description: "Harmonic Rebirth mutation + full Harmonic tree: Escalating harmony repair, strong corruption cleansing, and passive positive epigenetic drift.".to_string(),
+                            bonus_type: SynergyType::HarmonyAmplification { multiplier: 1.35 },
+                        });
+                        bonuses.push(SynergyBonus {
+                            name: "Redemption Cascade Chain (Stage 2)".to_string(),
+                            description: "Further amplified repair and reduced backlash severity while in high-harmony states.".to_string(),
+                            bonus_type: SynergyType::EpigeneticResilience { reduction: 0.25 },
+                        });
+                    }
+                }
+                "volatile_surge" => {
+                    if unlocked_ids.contains(&&"synthetic_overclock".to_string())
+                        && unlocked_ids.contains(&&"synthetic_systems_mastery".to_string())
+                    {
+                        bonuses.push(SynergyBonus {
+                            name: "Surge Overclock Chain".to_string(),
+                            description: "Volatile Surge mutation + Synthetic power path: Greatly amplified contribution and movement power, at the cost of increased backlash risk.".to_string(),
+                            bonus_type: SynergyType::ContributionBoost { multiplier: 1.45 },
+                        });
+                    }
+                }
+                "corrupted_echo" => {
+                    if unlocked_ids.contains(&&"voidfarer_phase_shift".to_string())
+                        && unlocked_ids.contains(&&"voidfarer_singularity_drive".to_string())
+                    {
+                        bonuses.push(SynergyBonus {
+                            name: "Corrupted Singularity Chain".to_string(),
+                            description: "Corrupted Echo mutation + Voidfarer high-risk path: Massive contribution and innovation gains, but accelerates corruption over time.".to_string(),
+                            bonus_type: SynergyType::ContributionBoost { multiplier: 1.55 },
+                        });
+                    }
+                }
+                _ => {}
             }
         }
 
@@ -484,5 +540,13 @@ mod tests {
         let _ = tree.try_unlock_starter(30.0, 15.0, 150.0);
         let synergies = tree.calculate_synergies();
         assert!(!synergies.is_empty());
+    }
+
+    #[test]
+    fn test_mutation_synergy_chain() {
+        let mut tree = AbilityTree::new(Race::Harmonic);
+        let _ = tree.try_unlock_starter(60.0, 40.0, 350.0);
+        let chains = tree.calculate_mutation_synergy_chains(&vec!["harmonic_rebirth".to_string()]);
+        assert!(!chains.is_empty());
     }
 }
