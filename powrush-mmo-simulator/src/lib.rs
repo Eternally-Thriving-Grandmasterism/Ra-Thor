@@ -3,9 +3,9 @@
 
 **Autonomicity Games Sovereign Mercy License (AG-SML) v1.0**  
 **Aligned with TOLC 8 Mercy Lattice, Ra-Thor ONE Organism, 13+ PATSAGi Councils**  
-**v15.27 — Active Treaty Mechanics Implemented**
+**v15.28 — Player Initiated Treaty Proposals Implemented**
 
-High-velocity living MMO simulation with epigenetic evolution (drift, hysteresis, backlash, repair, corruption, mutations), mutation-gated + cross-race synergy chains with full stage progression (0/1/2), cross-race diplomacy + **active treaties** (HarmonyAccord, TradePact, ResearchExchange, MutualDefense), RBE, geometric harmony, multi-race ability trees, GPU movement pipeline, and full serialization (JSON/Binary/Protobuf + Network Sync).
+High-velocity living MMO simulation with epigenetic evolution (drift, hysteresis, backlash, repair, corruption, mutations), mutation-gated + cross-race synergy chains with full stage progression (0/1/2), cross-race diplomacy + active treaties + **player-initiated treaty proposals** (propose → pending → accept when trust high), RBE, geometric harmony, multi-race ability trees, GPU movement pipeline, and full serialization (JSON/Binary/Protobuf + Network Sync).
 */
 
 pub mod ability_tree;
@@ -57,7 +57,22 @@ impl PowrushMMOSimulator {
         }
     }
 
-    /// Main simulation tick — includes cross-race diplomacy + active treaty mechanics (v15.27)
+    /// Player (or external UI/system) initiates a treaty proposal for the demo hybrid entity.
+    /// Requires the races to be unlocked via abilities and sufficient trust (0.55+).
+    /// Returns true if the proposal was created and is now pending acceptance.
+    pub fn player_propose_treaty(&mut self, r1: Race, r2: Race, treaty: &str) -> bool {
+        if let Some(human_id) = self.demo_human_id {
+            if let Some(tree) = self.ability_trees.get(&human_id) {
+                let unlocked: Vec<Race> = tree.unlocked_abilities.iter().map(|a| a.race).collect::<HashSet<_>>().into_iter().collect();
+                if unlocked.contains(&r1) && unlocked.contains(&r2) {
+                    return self.demo_diplomacy.propose_treaty(r1, r2, treaty);
+                }
+            }
+        }
+        false
+    }
+
+    /// Main simulation tick — includes player-initiated treaty proposal flow (v15.28)
     pub fn tick(&mut self) {
         self.current_tick += 1;
 
@@ -132,7 +147,7 @@ impl PowrushMMOSimulator {
                             }
                         }
 
-                        // === Cross-Race Diplomacy + Active Treaties (v15.27) ===
+                        // === Cross-Race Diplomacy + Player-Initiated Treaty Proposals (v15.28) ===
                         let unlocked_vec: Vec<Race> = unlocked_races.into_iter().collect();
                         if unlocked_vec.len() >= 2 {
                             // Passively improve diplomacy based on sustained high harmony + low volatility
@@ -174,18 +189,35 @@ impl PowrushMMOSimulator {
                                 }
                             }
 
-                            // === Active Treaty Mechanics (v15.27) ===
-                            // Auto-sign HarmonyAccord when trust is high; TradePact when harmony is very high
-                            if avg_trust > 0.78 {
+                            // === Player-Initiated Treaty Proposal Processing (v15.28) ===
+                            // If player (or system) has proposed treaties, accept them when trust is now sufficient.
+                            // This completes the propose → pending → accept flow for player-driven diplomacy.
+                            if avg_trust > 0.65 {
                                 for i in 0..unlocked_vec.len() {
                                     for j in (i+1)..unlocked_vec.len() {
                                         let r1 = unlocked_vec[i];
                                         let r2 = unlocked_vec[j];
-                                        if !self.demo_diplomacy.has_active_treaty(r1, r2, diplomacy::TREATY_HARMONY_ACCORD) {
-                                            let _ = self.demo_diplomacy.sign_treaty(r1, r2, diplomacy::TREATY_HARMONY_ACCORD);
+                                        if self.demo_diplomacy.has_pending_proposal(r1, r2, diplomacy::TREATY_HARMONY_ACCORD) {
+                                            let _ = self.demo_diplomacy.accept_pending_treaty(r1, r2, diplomacy::TREATY_HARMONY_ACCORD);
                                         }
-                                        if self.global_harmony > 2.5 && !self.demo_diplomacy.has_active_treaty(r1, r2, diplomacy::TREATY_TRADE_PACT) {
-                                            let _ = self.demo_diplomacy.sign_treaty(r1, r2, diplomacy::TREATY_TRADE_PACT);
+                                        if self.demo_diplomacy.has_pending_proposal(r1, r2, diplomacy::TREATY_TRADE_PACT) && self.global_harmony > 2.3 {
+                                            let _ = self.demo_diplomacy.accept_pending_treaty(r1, r2, diplomacy::TREATY_TRADE_PACT);
+                                        }
+                                        if self.demo_diplomacy.has_pending_proposal(r1, r2, diplomacy::TREATY_RESEARCH_EXCHANGE) && self.global_harmony > 2.5 {
+                                            let _ = self.demo_diplomacy.accept_pending_treaty(r1, r2, diplomacy::TREATY_RESEARCH_EXCHANGE);
+                                        }
+                                    }
+                                }
+                            }
+
+                            // Legacy auto-sign for very high trust (still useful as fallback)
+                            if avg_trust > 0.82 {
+                                for i in 0..unlocked_vec.len() {
+                                    for j in (i+1)..unlocked_vec.len() {
+                                        let r1 = unlocked_vec[i];
+                                        let r2 = unlocked_vec[j];
+                                        if !self.demo_diplomacy.has_active_treaty(r1, r2, diplomacy::TREATY_HARMONY_ACCORD) && !self.demo_diplomacy.has_pending_proposal(r1, r2, diplomacy::TREATY_HARMONY_ACCORD) {
+                                            let _ = self.demo_diplomacy.sign_treaty(r1, r2, diplomacy::TREATY_HARMONY_ACCORD);
                                         }
                                     }
                                 }
@@ -248,4 +280,4 @@ impl PowrushMMOSimulator {
 }
 
 // All prior systems continue at full fidelity.
-// Active treaties now provide powerful ongoing mechanical bonuses and accelerate hybrid racial mastery.
+// Player-initiated treaty proposals (propose → pending → accept) now enable true player-driven cross-race diplomacy.
