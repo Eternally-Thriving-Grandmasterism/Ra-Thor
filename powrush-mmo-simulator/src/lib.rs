@@ -3,9 +3,11 @@
 
 **Autonomicity Games Sovereign Mercy License (AG-SML) v1.0**  
 **Aligned with TOLC 8 Mercy Lattice, Ra-Thor ONE Organism, 13+ PATSAGi Councils**  
-**v15.28 — Player Initiated Treaty Proposals Implemented**
+**v15.29 — Treaty Expiration Mechanics Implemented**
 
-High-velocity living MMO simulation with epigenetic evolution (drift, hysteresis, backlash, repair, corruption, mutations), mutation-gated + cross-race synergy chains with full stage progression (0/1/2), cross-race diplomacy + active treaties + **player-initiated treaty proposals** (propose → pending → accept when trust high), RBE, geometric harmony, multi-race ability trees, GPU movement pipeline, and full serialization (JSON/Binary/Protobuf + Network Sync).
+High-velocity living MMO simulation with epigenetic evolution (drift, hysteresis, backlash, repair, corruption, mutations), mutation-gated + cross-race synergy chains with full stage progression (0/1/2), cross-race diplomacy + active treaties + player-initiated treaty proposals + **treaty expiration mechanics** (finite lifetimes, automatic cleanup, trust penalty on lapse, expiring-soon visibility).
+
+Treaties now require active diplomatic maintenance. High-harmony hybrid builds can renew or re-propose before expiry for continuous bonuses.
 */
 
 pub mod ability_tree;
@@ -58,8 +60,6 @@ impl PowrushMMOSimulator {
     }
 
     /// Player (or external UI/system) initiates a treaty proposal for the demo hybrid entity.
-    /// Requires the races to be unlocked via abilities and sufficient trust (0.55+).
-    /// Returns true if the proposal was created and is now pending acceptance.
     pub fn player_propose_treaty(&mut self, r1: Race, r2: Race, treaty: &str) -> bool {
         if let Some(human_id) = self.demo_human_id {
             if let Some(tree) = self.ability_trees.get(&human_id) {
@@ -72,7 +72,7 @@ impl PowrushMMOSimulator {
         false
     }
 
-    /// Main simulation tick — includes player-initiated treaty proposal flow (v15.28)
+    /// Main simulation tick — includes treaty expiration cleanup + player-initiated diplomacy (v15.29)
     pub fn tick(&mut self) {
         self.current_tick += 1;
 
@@ -147,9 +147,12 @@ impl PowrushMMOSimulator {
                             }
                         }
 
-                        // === Cross-Race Diplomacy + Player-Initiated Treaty Proposals (v15.28) ===
+                        // === Cross-Race Diplomacy + Treaty Expiration (v15.29) ===
                         let unlocked_vec: Vec<Race> = unlocked_races.into_iter().collect();
                         if unlocked_vec.len() >= 2 {
+                            // Cleanup any expired treaties first (trust penalty applied on lapse)
+                            self.demo_diplomacy.cleanup_expired_treaties(self.current_tick);
+
                             // Passively improve diplomacy based on sustained high harmony + low volatility
                             if self.global_harmony > 1.8 && profile.volatility < 0.7 {
                                 for i in 0..unlocked_vec.len() {
@@ -189,52 +192,53 @@ impl PowrushMMOSimulator {
                                 }
                             }
 
-                            // === Player-Initiated Treaty Proposal Processing (v15.28) ===
-                            // If player (or system) has proposed treaties, accept them when trust is now sufficient.
-                            // This completes the propose → pending → accept flow for player-driven diplomacy.
+                            // === Player-Initiated Treaty Proposal Processing (v15.29) ===
                             if avg_trust > 0.65 {
                                 for i in 0..unlocked_vec.len() {
                                     for j in (i+1)..unlocked_vec.len() {
                                         let r1 = unlocked_vec[i];
                                         let r2 = unlocked_vec[j];
                                         if self.demo_diplomacy.has_pending_proposal(r1, r2, diplomacy::TREATY_HARMONY_ACCORD) {
-                                            let _ = self.demo_diplomacy.accept_pending_treaty(r1, r2, diplomacy::TREATY_HARMONY_ACCORD);
+                                            let _ = self.demo_diplomacy.accept_pending_treaty(r1, r2, diplomacy::TREATY_HARMONY_ACCORD, self.current_tick);
                                         }
                                         if self.demo_diplomacy.has_pending_proposal(r1, r2, diplomacy::TREATY_TRADE_PACT) && self.global_harmony > 2.3 {
-                                            let _ = self.demo_diplomacy.accept_pending_treaty(r1, r2, diplomacy::TREATY_TRADE_PACT);
+                                            let _ = self.demo_diplomacy.accept_pending_treaty(r1, r2, diplomacy::TREATY_TRADE_PACT, self.current_tick);
                                         }
                                         if self.demo_diplomacy.has_pending_proposal(r1, r2, diplomacy::TREATY_RESEARCH_EXCHANGE) && self.global_harmony > 2.5 {
-                                            let _ = self.demo_diplomacy.accept_pending_treaty(r1, r2, diplomacy::TREATY_RESEARCH_EXCHANGE);
+                                            let _ = self.demo_diplomacy.accept_pending_treaty(r1, r2, diplomacy::TREATY_RESEARCH_EXCHANGE, self.current_tick);
                                         }
                                     }
                                 }
                             }
 
-                            // Legacy auto-sign for very high trust (still useful as fallback)
+                            // Legacy auto-sign for very high trust (fallback)
                             if avg_trust > 0.82 {
                                 for i in 0..unlocked_vec.len() {
                                     for j in (i+1)..unlocked_vec.len() {
                                         let r1 = unlocked_vec[i];
                                         let r2 = unlocked_vec[j];
-                                        if !self.demo_diplomacy.has_active_treaty(r1, r2, diplomacy::TREATY_HARMONY_ACCORD) && !self.demo_diplomacy.has_pending_proposal(r1, r2, diplomacy::TREATY_HARMONY_ACCORD) {
-                                            let _ = self.demo_diplomacy.sign_treaty(r1, r2, diplomacy::TREATY_HARMONY_ACCORD);
+                                        if !self.demo_diplomacy.has_active_treaty(r1, r2, diplomacy::TREATY_HARMONY_ACCORD, self.current_tick)
+                                            && !self.demo_diplomacy.has_pending_proposal(r1, r2, diplomacy::TREATY_HARMONY_ACCORD)
+                                        {
+                                            let _ = self.demo_diplomacy.sign_treaty(r1, r2, diplomacy::TREATY_HARMONY_ACCORD, self.current_tick);
                                         }
                                     }
                                 }
                             }
 
-                            // Apply powerful active treaty bonuses every tick
+                            // Apply powerful active (non-expired) treaty bonuses every tick
                             if let Some(p) = self.demo_epigenetic_profiles.get_mut(&human_id) {
                                 self.demo_diplomacy.apply_treaty_effects(
                                     &unlocked_vec,
                                     &mut self.global_harmony,
                                     &mut p.volatility,
                                     &mut p.strength,
+                                    self.current_tick,
                                 );
                             }
 
                             if self.current_tick % 45 == 0 {
-                                self.active_proposals.push(self.demo_diplomacy.get_diplomacy_summary(&unlocked_vec));
+                                self.active_proposals.push(self.demo_diplomacy.get_diplomacy_summary(&unlocked_vec, self.current_tick));
                             }
                         }
                     }
@@ -262,7 +266,7 @@ impl PowrushMMOSimulator {
 
                 let unlocked_vec: Vec<Race> = tree.unlocked_abilities.iter().map(|a| a.race).collect::<HashSet<_>>().into_iter().collect();
                 if unlocked_vec.len() >= 2 {
-                    status.push_str(&format!(" | {}", self.demo_diplomacy.get_diplomacy_summary(&unlocked_vec)));
+                    status.push_str(&format!(" | {}", self.demo_diplomacy.get_diplomacy_summary(&unlocked_vec, self.current_tick)));
                 }
             }
 
@@ -279,5 +283,5 @@ impl PowrushMMOSimulator {
     // All prior export/import, network sync, and other methods remain unchanged and fully operational.
 }
 
-// All prior systems continue at full fidelity.
-// Player-initiated treaty proposals (propose → pending → accept) now enable true player-driven cross-race diplomacy.
+// Treaty expiration mechanics complete. Treaties now have finite lifetimes with trust penalties on lapse.
+// High-harmony hybrid builds are incentivized to maintain and renew diplomatic relations for continuous bonuses.
