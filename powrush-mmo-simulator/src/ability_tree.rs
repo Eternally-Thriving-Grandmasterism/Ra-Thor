@@ -96,7 +96,6 @@ impl AbilityTree {
     }
 
     pub fn starter_abilities(race: Race) -> Vec<Ability> {
-        // ... (unchanged from v1.8)
         match race {
             Race::Terran => vec![Ability {
                 id: "terran_steady_step".to_string(),
@@ -167,7 +166,6 @@ impl AbilityTree {
     }
 
     pub fn advanced_abilities(race: Race) -> Vec<Ability> {
-        // ... (unchanged)
         match race {
             Race::Terran => vec![
                 Ability {
@@ -313,7 +311,6 @@ impl AbilityTree {
     }
 
     pub fn try_unlock_starter(&mut self, cooperation: f64, innovation: f64, total_contribution: f64) -> Option<Ability> {
-        // ... (unchanged logic)
         let all = Self::all_abilities(self.race);
         for ability in all {
             if cooperation >= ability.unlock_cooperation_score
@@ -336,9 +333,7 @@ impl AbilityTree {
         }
     }
 
-    // === Synergy Bonuses (v1.7) ===
     pub fn calculate_synergies(&self) -> Vec<SynergyBonus> {
-        // ... (unchanged from previous)
         let mut bonuses = Vec::new();
         let unlocked_ids: Vec<&String> = self.unlocked_abilities.iter().map(|a| &a.id).collect();
 
@@ -421,11 +416,10 @@ impl AbilityTree {
     pub fn progress_chain_stages(&mut self, chain_key: &str, harmony_level: f32, recent_contribution: f64, volatility: f32) {
         let progress = self.chain_progress.entry(chain_key.to_string()).or_insert(0);
 
-        // Progression rules (tunable for balance)
         let mut advance = 0u32;
 
         if harmony_level > 1.8 {
-            advance += 2; // Strong harmony accelerates redemptive chains
+            advance += 2;
         } else if harmony_level > 1.2 {
             advance += 1;
         }
@@ -435,14 +429,14 @@ impl AbilityTree {
         }
 
         if volatility < 0.6 {
-            advance += 1; // Stability helps long-term chains mature
+            advance += 1;
         }
 
         if advance > 0 {
-            *progress = (*progress + advance).min(120); // Cap at high value
+            *progress = (*progress + advance).min(120);
         }
 
-        // Slow natural decay if conditions are poor (encourages maintenance)
+        // Slow natural decay if conditions are poor
         if harmony_level < 0.9 && volatility > 1.0 {
             if *progress > 0 {
                 *progress -= 1;
@@ -451,7 +445,6 @@ impl AbilityTree {
     }
 
     /// Mutation-Specific Synergy Chains with Stage Progression (v1.9)
-    /// Stages escalate bonuses. Higher stages = stronger effects + new flavor.
     pub fn calculate_mutation_synergy_chains(&self, active_mutations: &[String]) -> Vec<SynergyBonus> {
         let mut bonuses = Vec::new();
         let unlocked_ids: Vec<&String> = self.unlocked_abilities.iter().map(|a| &a.id).collect();
@@ -465,7 +458,6 @@ impl AbilityTree {
                     {
                         let stage = self.get_chain_stage("redemption_cascade");
 
-                        // Stage 0: Base chain
                         bonuses.push(SynergyBonus {
                             name: format!("Redemption Cascade Chain (Stage {})", stage),
                             description: match stage {
@@ -533,7 +525,6 @@ impl AbilityTree {
     }
 
     pub fn is_on_cooldown(&self, ability_id: &str, current_tick: u64) -> bool {
-        // unchanged
         if let Some(&last_used) = self.cooldowns.get(ability_id) {
             if let Some(ability) = self.unlocked_abilities.iter().find(|a| a.id == ability_id) {
                 return current_tick < last_used + ability.cooldown_ticks as u64;
@@ -543,7 +534,6 @@ impl AbilityTree {
     }
 
     pub fn try_use_ability(&mut self, ability_id: &str, current_tick: u64) -> bool {
-        // unchanged
         if self.is_on_cooldown(ability_id, current_tick) {
             return false;
         }
@@ -555,7 +545,6 @@ impl AbilityTree {
     }
 
     pub fn get_ability_states(&self, current_tick: u64) -> Vec<AbilityState> {
-        // unchanged from v1.8
         let mut states = Vec::new();
 
         for ability in &self.unlocked_abilities {
@@ -620,7 +609,6 @@ mod tests {
     fn test_mutation_synergy_chain_with_stages() {
         let mut tree = AbilityTree::new(Race::Harmonic);
         let _ = tree.try_unlock_starter(60.0, 40.0, 350.0);
-        // Simulate some progression
         tree.progress_chain_stages("redemption_cascade", 2.0, 12.0, 0.4);
         tree.progress_chain_stages("redemption_cascade", 2.1, 15.0, 0.3);
         let chains = tree.calculate_mutation_synergy_chains(&vec!["harmonic_rebirth".to_string()]);
