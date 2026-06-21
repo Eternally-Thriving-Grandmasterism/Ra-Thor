@@ -3,18 +3,16 @@
 
 **Autonomicity Games Sovereign Mercy License (AG-SML) v1.0**  
 **Aligned with TOLC 8 Mercy Lattice, Ra-Thor ONE Organism, 13+ PATSAGi Councils**  
-**Full Ability State Serialization Support**
+**Full Ability State Serialization (JSON + Binary)**
 
-This module now provides complete, production-ready serialization for ability state.
+This module provides complete serialization support:
 
-**Serialization Features:**
-- `Ability`, `AbilityEffect`, `AbilityState`, and `AbilityTree` are fully `Serialize` + `Deserialize`.
-- Convenience methods: `to_json()` and `from_json()` for easy save/load and network use.
-- Cooldown state is preserved across serialization.
+- **JSON**: `to_json()` / `from_json()` — human-readable, great for debugging and config.
+- **Binary**: `to_binary()` / `from_binary()` — compact and efficient for save files, databases, and network packets.
 
-Perfect for player save files, database storage, and client-server sync.
+All core types (`Ability`, `AbilityEffect`, `AbilityState`, `AbilityTree`) support both formats via serde.
 
-Thunder locked in. Ability state is now fully serializable.
+Thunder locked in. Ability state is now fully serializable in both human and binary forms.
 */
 
 use serde::{Deserialize, Serialize};
@@ -215,14 +213,22 @@ impl AbilityTree {
         states
     }
 
-    /// NEW: Serialize the entire AbilityTree to JSON string.
+    /// JSON serialization (human-readable)
     pub fn to_json(&self) -> Result<String, serde_json::Error> {
         serde_json::to_string_pretty(self)
     }
 
-    /// NEW: Deserialize an AbilityTree from JSON string.
     pub fn from_json(json: &str) -> Result<Self, serde_json::Error> {
         serde_json::from_str(json)
+    }
+
+    /// Binary serialization (compact & efficient for save files / networking)
+    pub fn to_binary(&self) -> Result<Vec<u8>, bincode::Error> {
+        bincode::serialize(self)
+    }
+
+    pub fn from_binary(data: &[u8]) -> Result<Self, bincode::Error> {
+        bincode::deserialize(data)
     }
 
     pub fn has_abilities(&self) -> bool {
@@ -235,11 +241,11 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_serialization_roundtrip() {
+    fn test_binary_serialization() {
         let mut tree = AbilityTree::new(Race::Harmonic);
         let _ = tree.try_unlock_starter(7.0, 5.0, 30.0);
-        let json = tree.to_json().unwrap();
-        let restored = AbilityTree::from_json(&json).unwrap();
+        let bytes = tree.to_binary().unwrap();
+        let restored = AbilityTree::from_binary(&bytes).unwrap();
         assert_eq!(tree.unlocked_abilities.len(), restored.unlocked_abilities.len());
     }
 }
