@@ -1,5 +1,5 @@
 /*!
-# Powrush MMO Simulator — Dynamic Council Modulation + GPU-Driven Rendering + Multi-Agent Orchestration Edition (v15.11)
+# Powrush MMO Simulator — Dynamic Council Modulation + GPU-Driven Rendering + Multi-Agent Orchestration Edition (v15.12)
 
 **Production-grade integration of dynamic council modulation into RBE economy + full GPU-driven rendering pipeline + MultiAgentOrchestrator for Human/AI/AGI entity coexistence.**
 
@@ -8,8 +8,8 @@ This iteration thoughtfully implements:
 - Application of RBE distribution allocations to actual faction inventories.
 - Council modulation of the mercy_floor.
 - GpuDrivenPipeline with Movement System Integration.
-- **Binary Serialization** (v15.11): Full binary save/load support via to_binary() / from_binary() on AbilityTree, plus export/import methods on the simulator.
-- JSON + Binary serialization, UI-Ready State, Player-Controlled Activation, Cooldowns, Effects, and Unlock Logic.
+- **Full Protobuf Support** (v15.12): Complete to_protobuf/from_protobuf conversion + export/import methods on simulator.
+- JSON, Binary, and Protobuf serialization now fully supported with roundtrip conversion.
 
 All at above production grade quality: clean, well-commented, tested, mercy-aligned, Ra-Thor lattice native.
 
@@ -30,7 +30,7 @@ pub use geometric_harmony::{GeometricHarmonyEngine, HarmonyState, GeometricLayer
 pub use movement::{MovementController, JumpParameters, calculate_jump_parameters, prepare_movement_for_gpu, update_movement_prediction};
 pub use player_contribution::{PlayerContributionTracker, ContributionType};
 pub use race::Race;
-pub use ability_tree::{AbilityTree, Ability, AbilityEffect, AbilityState};
+pub use ability_tree::{AbilityTree, Ability, AbilityEffect, AbilityState, ProtoAbilityTree};
 
 use geometric_intelligence::{ShardManager, CouncilProposal, EpigeneticBlessing};
 use powrush_rbe_engine::{RBEconomy, Contribution, ContributionKind};
@@ -353,7 +353,7 @@ impl PowrushMMOSimulator {
         }
     }
 
-    /// Export ability state as JSON (human-readable)
+    // JSON
     pub fn export_ability_state(&self, entity_id: u64) -> Option<String> {
         self.ability_trees.get(&entity_id).and_then(|tree| tree.to_json().ok())
     }
@@ -366,14 +366,32 @@ impl PowrushMMOSimulator {
         false
     }
 
-    /// NEW v15.11: Export ability state as binary (compact)
+    // Binary
     pub fn export_ability_state_binary(&self, entity_id: u64) -> Option<Vec<u8>> {
         self.ability_trees.get(&entity_id).and_then(|tree| tree.to_binary().ok())
     }
 
-    /// NEW v15.11: Import ability state from binary data
     pub fn import_ability_state_binary(&mut self, entity_id: u64, data: &[u8]) -> bool {
         if let Ok(tree) = AbilityTree::from_binary(data) {
+            self.ability_trees.insert(entity_id, tree);
+            return true;
+        }
+        false
+    }
+
+    // NEW v15.12: Protobuf
+    /// Export ability state as Protobuf binary (recommended for production).
+    pub fn export_ability_state_protobuf(&self, entity_id: u64) -> Option<Vec<u8>> {
+        self.ability_trees.get(&entity_id).map(|tree| {
+            let proto = tree.to_protobuf();
+            proto.encode_to_vec()
+        })
+    }
+
+    /// Import ability state from Protobuf binary.
+    pub fn import_ability_state_protobuf(&mut self, entity_id: u64, data: &[u8]) -> bool {
+        if let Ok(proto) = ProtoAbilityTree::decode(data) {
+            let tree = AbilityTree::from_protobuf(&proto);
             self.ability_trees.insert(entity_id, tree);
             return true;
         }
