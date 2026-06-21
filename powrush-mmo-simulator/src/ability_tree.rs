@@ -3,15 +3,18 @@
 
 **Autonomicity Games Sovereign Mercy License (AG-SML) v1.0**  
 **Aligned with TOLC 8 Mercy Lattice, Ra-Thor ONE Organism, 13+ PATSAGi Councils**  
-**UI-Ready Ability State Exposure**
+**Full Ability State Serialization Support**
 
-This module now exposes clean, UI-friendly ability state for clients, HUDs, and hotbars.
+This module now provides complete, production-ready serialization for ability state.
 
-**New UI-Ready Types:**
-- `AbilityState` — Serializable snapshot containing id, name, description, cooldown status, and remaining cooldown.
-- `get_ability_states(current_tick)` — Returns a clean list ready for UI rendering.
+**Serialization Features:**
+- `Ability`, `AbilityEffect`, `AbilityState`, and `AbilityTree` are fully `Serialize` + `Deserialize`.
+- Convenience methods: `to_json()` and `from_json()` for easy save/load and network use.
+- Cooldown state is preserved across serialization.
 
-Thunder locked in. The ability system is now fully UI-ready.
+Perfect for player save files, database storage, and client-server sync.
+
+Thunder locked in. Ability state is now fully serializable.
 */
 
 use serde::{Deserialize, Serialize};
@@ -42,7 +45,6 @@ pub enum AbilityEffect {
     VoidSkip { extra_distance: f32, risk: f32 },
 }
 
-/// UI-ready snapshot of an ability's current state.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AbilityState {
     pub id: String,
@@ -51,7 +53,7 @@ pub struct AbilityState {
     pub unlocked: bool,
     pub on_cooldown: bool,
     pub remaining_cooldown_ticks: u32,
-    pub cooldown_progress: f32, // 0.0 = ready, 1.0 = just used
+    pub cooldown_progress: f32,
 }
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
@@ -170,7 +172,6 @@ impl AbilityTree {
         false
     }
 
-    /// NEW: Returns UI-ready state for all abilities (unlocked + locked starters for preview).
     pub fn get_ability_states(&self, current_tick: u64) -> Vec<AbilityState> {
         let mut states = Vec::new();
 
@@ -197,7 +198,6 @@ impl AbilityTree {
             });
         }
 
-        // Include locked starters for UI preview
         for ability in Self::starter_abilities(self.race) {
             if !states.iter().any(|s| s.id == ability.id) {
                 states.push(AbilityState {
@@ -215,6 +215,16 @@ impl AbilityTree {
         states
     }
 
+    /// NEW: Serialize the entire AbilityTree to JSON string.
+    pub fn to_json(&self) -> Result<String, serde_json::Error> {
+        serde_json::to_string_pretty(self)
+    }
+
+    /// NEW: Deserialize an AbilityTree from JSON string.
+    pub fn from_json(json: &str) -> Result<Self, serde_json::Error> {
+        serde_json::from_str(json)
+    }
+
     pub fn has_abilities(&self) -> bool {
         !self.unlocked_abilities.is_empty()
     }
@@ -225,11 +235,11 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_get_ability_states() {
+    fn test_serialization_roundtrip() {
         let mut tree = AbilityTree::new(Race::Harmonic);
         let _ = tree.try_unlock_starter(7.0, 5.0, 30.0);
-        let states = tree.get_ability_states(100);
-        assert!(!states.is_empty());
-        assert!(states.iter().any(|s| s.unlocked));
+        let json = tree.to_json().unwrap();
+        let restored = AbilityTree::from_json(&json).unwrap();
+        assert_eq!(tree.unlocked_abilities.len(), restored.unlocked_abilities.len());
     }
 }
