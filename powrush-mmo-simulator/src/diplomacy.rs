@@ -3,13 +3,13 @@
 
 **Autonomicity Games Sovereign Mercy License (AG-SML) v1.0**  
 **Aligned with TOLC 8 Mercy Lattice, Ra-Thor ONE Organism, 13+ PATSAGi Councils**  
-**v1.3 — Treaty Expiration Mechanics**
+**v1.4 — Treaty Renewal Mechanics**
 
 Enables meaningful diplomatic relations + active treaties between the 5 races.
-Treaties now have **finite lifetimes** and automatically expire unless renewed.
-Player-initiated proposals, pending acceptance, and active treaty bonuses remain fully supported.
+Treaties now have **finite lifetimes**, automatically expire unless renewed, and support full **player-initiated renewal**.
 
-Creates deep long-term cooperative hybrid racial identity with meaningful diplomatic maintenance and renewal strategy.
+High-harmony hybrid builds are incentivized to actively maintain and renew diplomatic relations for continuous powerful bonuses.
+Player proposals, pending acceptance, active treaty effects, and expiration cleanup remain fully supported.
 */
 
 use crate::race::Race;
@@ -174,6 +174,35 @@ impl DiplomacyManager {
             entry.trust = (entry.trust + 0.05).min(1.0);
         }
         true
+    }
+
+    /// Player-initiated treaty renewal.
+    /// Extends the expiration timer of an active (non-expired) treaty by its full duration.
+    /// Requires trust >= 0.60. Grants a small trust bonus on success.
+    /// Returns true if the treaty was successfully renewed.
+    pub fn renew_treaty(&mut self, r1: Race, r2: Race, treaty: &str, current_tick: u64) -> bool {
+        if r1 == r2 { return false; }
+        let key = Self::pair_key(r1, r2);
+        let trust = self.get_trust(r1, r2);
+        if trust < 0.60 { return false; }
+
+        if let Some(rel) = self.relations.get_mut(&key) {
+            if let Some(treaty_entry) = rel.active_treaties.iter_mut().find(|t| t.treaty_type == treaty && !t.is_expired(current_tick)) {
+                let duration = Self::get_treaty_duration(treaty);
+                treaty_entry.expires_at_tick = current_tick + duration; // Full duration reset
+                rel.trust = (rel.trust + 0.04).min(1.0);
+
+                // Clear any pending proposal for this treaty
+                if let Some(pending) = self.pending_proposals.get_mut(&key) {
+                    pending.retain(|t| t != treaty);
+                    if pending.is_empty() {
+                        self.pending_proposals.remove(&key);
+                    }
+                }
+                return true;
+            }
+        }
+        false
     }
 
     pub fn has_active_treaty(&self, r1: Race, r2: Race, treaty: &str, current_tick: u64) -> bool {
@@ -353,5 +382,27 @@ mod tests {
         // After expiry it should be gone
         mgr.cleanup_expired_treaties(100 + duration + 10);
         assert!(!mgr.has_active_treaty(Race::Harmonic, Race::Terran, TREATY_HARMONY_ACCORD, 100 + duration + 10));
+    }
+
+    #[test]
+    fn test_treaty_renewal() {
+        let mut mgr = DiplomacyManager::new();
+        mgr.improve_relation(Race::Harmonic, Race::Terran, 0.75);
+
+        assert!(mgr.sign_treaty(Race::Harmonic, Race::Terran, TREATY_HARMONY_ACCORD, 200));
+        let original_expiry = mgr.relations.get(&(Race::Harmonic, Race::Terran))
+            .unwrap().active_treaties[0].expires_at_tick;
+
+        // Advance time close to expiry
+        let duration = TREATY_DURATION_HARMONY;
+        let near_expiry = 200 + duration - 50;
+
+        // Renew should succeed and extend the timer
+        assert!(mgr.renew_treaty(Race::Harmonic, Race::Terran, TREATY_HARMONY_ACCORD, near_expiry));
+
+        let new_expiry = mgr.relations.get(&(Race::Harmonic, Race::Terran))
+            .unwrap().active_treaties[0].expires_at_tick;
+        assert!(new_expiry > original_expiry);
+        assert!(mgr.get_trust(Race::Harmonic, Race::Terran) > 0.75); // trust bonus applied
     }
 }
