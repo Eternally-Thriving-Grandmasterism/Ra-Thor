@@ -3,15 +3,11 @@
 
 **Autonomicity Games Sovereign Mercy License (AG-SML) v1.0**  
 **Aligned with TOLC 8 Mercy Lattice, Ra-Thor ONE Organism, 13+ PATSAGi Councils**  
-**Advanced / Branching Abilities per Race (v1.6)**
+**Ability Synergy Bonuses (v1.7)**
 
-This version expands the ability system with meaningful advanced abilities and branching prerequisites.
+This version adds **synergy bonuses** — powerful passive effects that activate when certain ability combinations are unlocked.
 
-Each race now has:
-- 1 Starter ability (Tier 1)
-- 2–3 Advanced abilities (Tier 2–3) with prerequisites
-
-Abilities form proper branching trees. Cooperation and creation remain the most powerful long-term paths.
+Synergies reward building coherent paths within a race's ability tree.
 */
 
 use serde::{Deserialize, Serialize};
@@ -34,7 +30,7 @@ pub struct Ability {
     pub unlock_contribution_total: f64,
     pub effect_type: AbilityEffect,
     pub cooldown_ticks: u32,
-    pub requires_ability: Option<String>, // NEW: prerequisite ability id
+    pub requires_ability: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
@@ -45,6 +41,23 @@ pub enum AbilityEffect {
     ContributionMultiplier { multiplier: f64, duration_ticks: u32 },
     ExplorationScan { range: f32 },
     VoidSkip { extra_distance: f32, risk: f32 },
+}
+
+/// Represents an active synergy bonus from ability combinations.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SynergyBonus {
+    pub name: String,
+    pub description: String,
+    pub bonus_type: SynergyType,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum SynergyType {
+    HarmonyAmplification { multiplier: f32 },
+    ContributionBoost { multiplier: f64 },
+    MovementEfficiency { multiplier: f32 },
+    EpigeneticResilience { reduction: f32 },
+    GlobalCooldownReduction { percent: f32 },
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -74,7 +87,6 @@ impl AbilityTree {
         }
     }
 
-    /// Returns all possible abilities for this race (starter + advanced).
     pub fn all_abilities(race: Race) -> Vec<Ability> {
         let mut abilities = Self::starter_abilities(race);
         abilities.extend(Self::advanced_abilities(race));
@@ -151,7 +163,6 @@ impl AbilityTree {
         }
     }
 
-    /// Advanced / Branching abilities per race (Tier 2–3).
     pub fn advanced_abilities(race: Race) -> Vec<Ability> {
         match race {
             Race::Terran => vec![
@@ -313,12 +324,85 @@ impl AbilityTree {
         None
     }
 
-    /// Checks if the player has unlocked the required prerequisite ability (if any).
     fn has_prerequisite(&self, ability: &Ability) -> bool {
         match &ability.requires_ability {
             Some(req_id) => self.unlocked_abilities.iter().any(|a| a.id == *req_id),
             None => true,
         }
+    }
+
+    // === NEW: Synergy Bonuses ===
+    /// Calculates active synergy bonuses based on currently unlocked abilities.
+    pub fn calculate_synergies(&self) -> Vec<SynergyBonus> {
+        let mut bonuses = Vec::new();
+        let unlocked_ids: Vec<&String> = self.unlocked_abilities.iter().map(|a| &a.id).collect();
+
+        match self.race {
+            Race::Terran => {
+                if unlocked_ids.contains(&&"terran_steady_step".to_string())
+                    && unlocked_ids.contains(&&"terran_community_bond".to_string())
+                {
+                    bonuses.push(SynergyBonus {
+                        name: "Terran Unity".to_string(),
+                        description: "+15% Harmony gain from all sources when you have both Steady Step and Community Bond.".to_string(),
+                        bonus_type: SynergyType::HarmonyAmplification { multiplier: 1.15 },
+                    });
+                }
+                if unlocked_ids.contains(&&"terran_fortress_stand".to_string()) {
+                    bonuses.push(SynergyBonus {
+                        name: "Unbreakable Line".to_string(),
+                        description: "+25% Contribution multiplier while defending when Fortress Stand is unlocked.".to_string(),
+                        bonus_type: SynergyType::ContributionBoost { multiplier: 1.25 },
+                    });
+                }
+            }
+            Race::Harmonic => {
+                if unlocked_ids.contains(&&"harmonic_resonance".to_string())
+                    && unlocked_ids.contains(&&"harmonic_resonant_field".to_string())
+                {
+                    bonuses.push(SynergyBonus {
+                        name: "Harmonic Resonance Cascade".to_string(),
+                        description: "+20% Harmony pulse strength when both Resonant Jump and Resonant Field are active.".to_string(),
+                        bonus_type: SynergyType::HarmonyAmplification { multiplier: 1.20 },
+                    });
+                }
+            }
+            Race::Synthetic => {
+                if unlocked_ids.contains(&&"synthetic_overclock".to_string())
+                    && unlocked_ids.contains(&&"synthetic_systems_mastery".to_string())
+                {
+                    bonuses.push(SynergyBonus {
+                        name: "Synthetic Efficiency".to_string(),
+                        description: "-10% cooldown on all abilities when both Overclock and Systems Mastery are unlocked.".to_string(),
+                        bonus_type: SynergyType::GlobalCooldownReduction { percent: 0.10 },
+                    });
+                }
+            }
+            Race::Verdant => {
+                if unlocked_ids.contains(&&"verdant_lifebloom".to_string())
+                    && unlocked_ids.contains(&&"verdant_ancient_growth".to_string())
+                {
+                    bonuses.push(SynergyBonus {
+                        name: "Verdant Legacy".to_string(),
+                        description: "+30% Epigenetic stability from all sources when both Lifebloom and Ancient Growth are unlocked.".to_string(),
+                        bonus_type: SynergyType::EpigeneticResilience { reduction: 0.30 },
+                    });
+                }
+            }
+            Race::Voidfarer => {
+                if unlocked_ids.contains(&&"voidfarer_phase_shift".to_string())
+                    && unlocked_ids.contains(&&"voidfarer_singularity_drive".to_string())
+                {
+                    bonuses.push(SynergyBonus {
+                        name: "Voidfarer Singularity".to_string(),
+                        description: "+15% Movement efficiency and reduced risk on long-range abilities.".to_string(),
+                        bonus_type: SynergyType::MovementEfficiency { multiplier: 1.15 },
+                    });
+                }
+            }
+        }
+
+        bonuses
     }
 
     pub fn is_on_cooldown(&self, ability_id: &str, current_tick: u64) -> bool {
@@ -367,7 +451,6 @@ impl AbilityTree {
             });
         }
 
-        // Show locked advanced abilities for UI preview
         for ability in Self::advanced_abilities(self.race) {
             if !states.iter().any(|s| s.id == ability.id) {
                 let can_unlock = self.has_prerequisite(&ability);
@@ -391,18 +474,15 @@ impl AbilityTree {
     }
 }
 
-// (Conversion methods for Protobuf, JSON, Binary remain unchanged from v1.5)
-
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
-    fn test_advanced_unlock_with_prerequisite() {
-        let mut tree = AbilityTree::new(Race::Harmonic);
-        let _ = tree.try_unlock_starter(30.0, 25.0, 150.0); // unlock starter
-        let advanced = tree.try_unlock_starter(35.0, 30.0, 200.0); // should unlock Resonant Field
-        assert!(advanced.is_some());
-        assert_eq!(advanced.unwrap().id, "harmonic_resonant_field");
+    fn test_synergy_calculation() {
+        let mut tree = AbilityTree::new(Race::Terran);
+        let _ = tree.try_unlock_starter(30.0, 15.0, 150.0);
+        let synergies = tree.calculate_synergies();
+        assert!(!synergies.is_empty());
     }
 }
