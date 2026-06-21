@@ -3,9 +3,9 @@
 
 **Autonomicity Games Sovereign Mercy License (AG-SML) v1.0**  
 **Aligned with TOLC 8 Mercy Lattice, Ra-Thor ONE Organism, 13+ PATSAGi Councils**  
-**Mutation-Specific Synergy Chains with Stage Progression (v1.9)**
+**Mutation-Specific Synergy Chains with Stage Progression + Cross-Race Chain Synergy (v1.10)**
 
-This version adds **chain stage progression mechanics** — chains now evolve over time based on sustained conditions (high harmony, consistent contribution, epigenetic stability). Stages unlock escalating bonuses, creating true long-term evolutionary mastery paths.
+This version adds **cross-race chain synergy** — when an entity unlocks abilities or carries mutations spanning multiple races, powerful hybrid synergy chains activate. These create emergent cooperation between racial paths, rewarding diverse builds and mixed-race group play.
 */
 
 use serde::{Deserialize, Serialize};
@@ -524,6 +524,57 @@ impl AbilityTree {
         bonuses
     }
 
+    /// Cross-Race Chain Synergy (v1.10)
+    /// Activates powerful hybrid bonuses when abilities or mutations from multiple different races are present on the same entity.
+    /// Rewards diverse, cooperative, mixed-race builds and creates emergent inter-racial synergy paths.
+    pub fn calculate_cross_race_synergy_chains(&self, active_mutations: &[String]) -> Vec<SynergyBonus> {
+        let mut bonuses = Vec::new();
+        let unlocked_races: std::collections::HashSet<Race> = self.unlocked_abilities.iter().map(|a| a.race).collect();
+
+        if unlocked_races.len() <= 1 {
+            return bonuses; // No cross-race if mono-race build
+        }
+
+        // Cross-Race Example 1: Harmonic Rebirth mutation + Terran abilities present
+        if active_mutations.contains(&"harmonic_rebirth".to_string()) && unlocked_races.contains(&Race::Terran) {
+            let stage = self.get_chain_stage("allied_resonance_cross");
+            bonuses.push(SynergyBonus {
+                name: format!("Allied Resonance Cross-Chain (Stage {})", stage),
+                description: "Harmonic Rebirth + Terran presence: Mixed-race harmony amplification, shared epigenetic stability, and group cooperation bonus.".to_string(),
+                bonus_type: SynergyType::HarmonyAmplification { multiplier: 1.35 + (stage as f32 * 0.08) },
+            });
+        }
+
+        // Cross-Race Example 2: Volatile Surge mutation + Voidfarer high-risk abilities
+        if active_mutations.contains(&"volatile_surge".to_string()) && unlocked_races.contains(&Race::Voidfarer) {
+            bonuses.push(SynergyBonus {
+                name: "Chaotic Void Cross-Chain".to_string(),
+                description: "Volatile Surge mutation + Voidfarer path: Dangerous but extremely high contribution spikes across racial boundaries.".to_string(),
+                bonus_type: SynergyType::ContributionBoost { multiplier: 1.55 },
+            });
+        }
+
+        // Cross-Race Example 3: Corrupted Echo + Synthetic tech corruption hybrid
+        if active_mutations.contains(&"corrupted_echo".to_string()) && unlocked_races.contains(&Race::Synthetic) {
+            bonuses.push(SynergyBonus {
+                name: "Corrupted Tech Hybrid Chain".to_string(),
+                description: "Corrupted Echo mutation + Synthetic mastery: Innovation and contribution gains at the managed cost of epigenetic stability.".to_string(),
+                bonus_type: SynergyType::ContributionBoost { multiplier: 1.45 },
+            });
+        }
+
+        // Additional cross example: Verdant Resilience + Harmonic for ultimate stability hybrid
+        if active_mutations.contains(&"harmonic_rebirth".to_string()) && unlocked_races.contains(&Race::Verdant) {
+            bonuses.push(SynergyBonus {
+                name: "Verdant-Harmonic Redemption Hybrid".to_string(),
+                description: "Harmonic Rebirth + Verdant abilities: Ultimate long-term epigenetic healing and cross-race harmony mastery.".to_string(),
+                bonus_type: SynergyType::EpigeneticResilience { reduction: 0.50 },
+            });
+        }
+
+        bonuses
+    }
+
     pub fn is_on_cooldown(&self, ability_id: &str, current_tick: u64) -> bool {
         if let Some(&last_used) = self.cooldowns.get(ability_id) {
             if let Some(ability) = self.unlocked_abilities.iter().find(|a| a.id == ability_id) {
@@ -615,5 +666,26 @@ mod tests {
         assert!(!chains.is_empty());
         let stage = tree.get_chain_stage("redemption_cascade");
         assert!(stage >= 0);
+    }
+
+    #[test]
+    fn test_cross_race_chain_synergy() {
+        let mut tree = AbilityTree::new(Race::Harmonic);
+        // Simulate unlocking a Terran ability (cross-race build)
+        tree.unlocked_abilities.push(Ability {
+            id: "terran_community_bond".to_string(),
+            name: "Community Bond".to_string(),
+            description: "".to_string(),
+            race: Race::Terran,
+            tier: 2,
+            unlock_cooperation_score: 0.0,
+            unlock_innovation_score: 0.0,
+            unlock_contribution_total: 0.0,
+            effect_type: AbilityEffect::HarmonyPulse { harmony_gain: 0.0 },
+            cooldown_ticks: 0,
+            requires_ability: None,
+        });
+        let cross = tree.calculate_cross_race_synergy_chains(&vec!["harmonic_rebirth".to_string()]);
+        assert!(!cross.is_empty());
     }
 }
