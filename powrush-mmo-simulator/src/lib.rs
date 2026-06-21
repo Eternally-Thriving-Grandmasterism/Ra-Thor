@@ -1,5 +1,5 @@
 /*!
-# Powrush MMO Simulator — Dynamic Council Modulation + GPU-Driven Rendering + Multi-Agent Orchestration Edition (v15.18)
+# Powrush MMO Simulator — Dynamic Council Modulation + GPU-Driven Rendering + Multi-Agent Orchestration Edition (v15.19)
 
 **Production-grade integration of dynamic council modulation into RBE economy + full GPU-driven rendering pipeline + MultiAgentOrchestrator for Human/AI/AGI entity coexistence.**
 
@@ -13,7 +13,8 @@ This iteration thoughtfully implements:
 - Enhanced Epigenetic Resilience Effects.
 - Volatility Hysteresis Logic.
 - Structured Epigenetic Backlash Events.
-- **Epigenetic Repair Mechanisms** (v15.18): Active and passive repair systems that reduce volatility and restore epigenetic stability when conditions are favorable.
+- Epigenetic Repair Mechanisms.
+- **Advanced Epigenetic Corruption + Enhanced Repair Mechanics** (v15.19): Corruption accumulates from sustained high-volatility backlash events. Advanced repair (Resilience synergy + high harmony) actively cleanses corruption with bonus recovery. Corruption amplifies future backlash risk, creating meaningful long-term strategic depth.
 
 All at above production grade quality: clean, well-commented, tested, mercy-aligned, Ra-Thor lattice native.
 
@@ -77,6 +78,7 @@ pub struct PowrushMMOSimulator {
     demo_race: Race,
     ability_trees: HashMap<u64, AbilityTree>,
     high_volatility_risk_active: bool,
+    demo_epigenetic_corruption: HashMap<u64, f32>,  // NEW v15.19: Advanced corruption tracking
 }
 
 impl PowrushMMOSimulator {
@@ -124,6 +126,9 @@ impl PowrushMMOSimulator {
         let mut ability_trees = HashMap::new();
         ability_trees.insert(human_id, AbilityTree::new(demo_race));
 
+        let mut demo_corruption = HashMap::new();
+        demo_corruption.insert(human_id, 0.0);
+
         Self {
             shard_manager: sm,
             rbe_economy: RBEconomy::new(),
@@ -148,6 +153,7 @@ impl PowrushMMOSimulator {
             demo_race,
             ability_trees,
             high_volatility_risk_active: false,
+            demo_epigenetic_corruption: demo_corruption,  // NEW
         }
     }
 
@@ -326,7 +332,7 @@ impl PowrushMMOSimulator {
             ));
         }
 
-        // Apply active ability synergy bonuses + volatility effects with hysteresis + repair
+        // Apply active ability synergy bonuses + volatility effects with hysteresis + repair + ADVANCED CORRUPTION (v15.19)
         if let Some(human_id) = self.demo_human_id {
             if let Some(profile) = self.demo_epigenetic_profiles.get_mut(&human_id) {
                 // Volatility hysteresis logic
@@ -340,7 +346,7 @@ impl PowrushMMOSimulator {
                     self.active_proposals.push(format!("volatility_risk_exited_tick_{}", self.current_tick));
                 }
 
-                // Epigenetic Backlash Events (high volatility risk)
+                // Epigenetic Backlash Events (high volatility risk) + Corruption accumulation
                 if self.high_volatility_risk_active {
                     profile.strength = (profile.strength + 0.025).min(3.5);
 
@@ -376,13 +382,24 @@ impl PowrushMMOSimulator {
                                 };
                                 apply_change(profile, &backlash_change);
                                 self.active_proposals.push(format!("backlash_major_tick_{}", self.current_tick));
+
+                                // NEW v15.19: Major backlash builds epigenetic corruption
+                                if let Some(cor) = self.demo_epigenetic_corruption.get_mut(&human_id) {
+                                    *cor = (*cor + 0.12).min(2.0);
+                                }
                             }
+                        }
+                    }
+
+                    // Sustained high volatility slowly builds corruption
+                    if self.current_tick % 50 == 0 {
+                        if let Some(cor) = self.demo_epigenetic_corruption.get_mut(&human_id) {
+                            *cor = (*cor + 0.008).min(2.0);
                         }
                     }
                 }
 
-                // NEW v15.18: Epigenetic Repair Mechanisms
-                // Passive + active repair when volatility is low and conditions are favorable
+                // NEW v15.19: Advanced Epigenetic Repair + Corruption Cleansing
                 let is_low_volatility = current_vol < 0.7;
                 let has_stabilizing_synergy = if let Some(tree) = self.ability_trees.get(&human_id) {
                     tree.calculate_synergies().iter().any(|s| matches!(s.bonus_type, SynergyType::EpigeneticResilience { .. }))
@@ -394,6 +411,18 @@ impl PowrushMMOSimulator {
                     // Strong repair when both low volatility + Resilience synergy active
                     profile.volatility = (profile.volatility - 0.012).max(0.05);
                     profile.strength = (profile.strength + 0.018).min(3.5);
+
+                    // Advanced corruption cleansing (the core new mechanic)
+                    if let Some(cor) = self.demo_epigenetic_corruption.get_mut(&human_id) {
+                        let cleanse_amount = if self.global_harmony > 1.1 { 0.035 } else { 0.022 };
+                        *cor = (*cor - cleanse_amount).max(0.0);
+
+                        if *cor < 0.05 {
+                            // Bonus recovery when corruption is fully cleansed
+                            profile.strength = (profile.strength + 0.04).min(3.8);
+                            self.active_proposals.push(format!("epigenetic_corruption_fully_cleansed_tick_{}", self.current_tick));
+                        }
+                    }
 
                     if self.current_tick % 30 == 0 {
                         let repair_change = EpigeneticChange {
@@ -408,30 +437,55 @@ impl PowrushMMOSimulator {
                     // Mild natural repair when volatility is already low
                     profile.volatility = (profile.volatility - 0.005).max(0.05);
                     profile.strength = (profile.strength + 0.008).min(3.5);
+
+                    // Mild corruption reduction even without deep synergy
+                    if let Some(cor) = self.demo_epigenetic_corruption.get_mut(&human_id) {
+                        *cor = (*cor - 0.003).max(0.0);
+                    }
                 }
 
                 // Additional repair from high global harmony
                 if self.global_harmony > 1.1 && current_vol < 1.0 {
                     profile.volatility = (profile.volatility - 0.004).max(0.05);
+
+                    if let Some(cor) = self.demo_epigenetic_corruption.get_mut(&human_id) {
+                        *cor = (*cor - 0.002).max(0.0);
+                    }
+                }
+
+                // NEW v15.19: Corruption amplifies future backlash severity (double-edged)
+                if let Some(cor) = self.demo_epigenetic_corruption.get(&human_id) {
+                    if *cor > 0.8 && self.high_volatility_risk_active && self.current_tick % 40 == 0 {
+                        // Corruption makes backlash more likely/severe
+                        if rand::random::<f32>() < 0.25 {
+                            profile.strength = (profile.strength - 0.05).max(0.5);
+                            self.active_proposals.push(format!("corruption_amplified_backlash_tick_{}", self.current_tick));
+                        }
+                    }
                 }
             }
 
-            // Synergy application
+            // Synergy application (corruption slightly reduces some synergy effectiveness)
             if let Some(tree) = self.ability_trees.get(&human_id) {
                 let synergies = tree.calculate_synergies();
 
                 for synergy in &synergies {
+                    let corruption_penalty = if let Some(cor) = self.demo_epigenetic_corruption.get(&human_id) {
+                        (1.0 - (*cor * 0.15).min(0.4)).max(0.6) // Up to 40% penalty at high corruption
+                    } else { 1.0 };
+
                     match &synergy.bonus_type {
                         SynergyType::HarmonyAmplification { multiplier } => {
+                            let effective = multiplier * corruption_penalty;
                             self.geometric_harmony_state.global_harmony = 
-                                (self.geometric_harmony_state.global_harmony * *multiplier as f64 * 0.02 + self.geometric_harmony_state.global_harmony * 0.98)
+                                (self.geometric_harmony_state.global_harmony * effective as f64 * 0.02 + self.geometric_harmony_state.global_harmony * 0.98)
                                 .min(1.4);
                             self.global_harmony = self.geometric_harmony_state.global_harmony;
                         }
                         SynergyType::ContributionBoost { multiplier } => {
                             if self.current_tick % 8 == 0 {
                                 for (faction, &strength) in &self.faction_strengths {
-                                    let boosted = strength * 12.0 * multiplier;
+                                    let boosted = strength * 12.0 * multiplier * corruption_penalty;
                                     self.rbe_economy.record_contribution(Contribution {
                                         id: faction.clone(),
                                         amount: boosted,
@@ -646,7 +700,9 @@ impl PowrushMMOSimulator {
                 if tree.has_abilities() {
                     let synergy_count = tree.calculate_synergies().len();
                     let risk_state = if self.high_volatility_risk_active { " + RISK" } else { "" };
-                    format!(" | Ability: Unlocked + {} synergies{}", synergy_count, risk_state)
+                    let corruption = self.demo_epigenetic_corruption.get(&id).unwrap_or(&0.0);
+                    let corruption_state = if *corruption > 0.8 { " + CORRUPTED" } else if *corruption > 0.3 { " + TAINTED" } else { "" };
+                    format!(" | Ability: Unlocked + {} synergies{}{}", synergy_count, risk_state, corruption_state)
                 } else {
                     " | Ability: Locked".to_string()
                 }
@@ -686,6 +742,7 @@ impl PowrushMMOSimulator {
         });
         self.demo_epigenetic_profiles.insert(id, EpigeneticProfile::default());
         self.ability_trees.insert(id, AbilityTree::new(self.demo_race));
+        self.demo_epigenetic_corruption.insert(id, 0.0);
         let _quest = self.multi_agent_orchestrator.generate_personalized_quest(id);
         id
     }
