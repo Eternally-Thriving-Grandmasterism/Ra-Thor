@@ -1,5 +1,5 @@
 /*!
-# Powrush MMO Simulator — Dynamic Council Modulation + GPU-Driven Rendering + Multi-Agent Orchestration Edition (v15.13)
+# Powrush MMO Simulator — Dynamic Council Modulation + GPU-Driven Rendering + Multi-Agent Orchestration Edition (v15.14)
 
 **Production-grade integration of dynamic council modulation into RBE economy + full GPU-driven rendering pipeline + MultiAgentOrchestrator for Human/AI/AGI entity coexistence.**
 
@@ -8,10 +8,8 @@ This iteration thoughtfully implements:
 - Application of RBE distribution allocations to actual faction inventories.
 - Council modulation of the mercy_floor.
 - GpuDrivenPipeline with Movement System Integration.
-- **Network Sync Logic** (v15.13): Clean methods for generating and applying ability state network updates using Protobuf.
-- Full Protobuf, JSON, and Binary serialization support.
-
-Designed as a foundation for future client-server, authoritative server, or P2P multiplayer networking.
+- Network Sync Logic.
+- **Ability Synergy Integration** (v15.14): Active synergy bonuses from unlocked abilities are now applied during simulation ticks.
 
 All at above production grade quality: clean, well-commented, tested, mercy-aligned, Ra-Thor lattice native.
 
@@ -32,7 +30,7 @@ pub use geometric_harmony::{GeometricHarmonyEngine, HarmonyState, GeometricLayer
 pub use movement::{MovementController, JumpParameters, calculate_jump_parameters, prepare_movement_for_gpu, update_movement_prediction};
 pub use player_contribution::{PlayerContributionTracker, ContributionType};
 pub use race::Race;
-pub use ability_tree::{AbilityTree, Ability, AbilityEffect, AbilityState, ProtoAbilityTree};
+pub use ability_tree::{AbilityTree, Ability, AbilityEffect, AbilityState, SynergyBonus, SynergyType, ProtoAbilityTree};
 
 use geometric_intelligence::{ShardManager, CouncilProposal, EpigeneticBlessing};
 use powrush_rbe_engine::{RBEconomy, Contribution, ContributionKind};
@@ -311,6 +309,62 @@ impl PowrushMMOSimulator {
             ));
         }
 
+        // NEW v15.14: Apply active ability synergy bonuses
+        if let Some(human_id) = self.demo_human_id {
+            if let Some(tree) = self.ability_trees.get(&human_id) {
+                let synergies = tree.calculate_synergies();
+
+                for synergy in &synergies {
+                    match &synergy.bonus_type {
+                        SynergyType::HarmonyAmplification { multiplier } => {
+                            // Boost current harmony update
+                            self.geometric_harmony_state.global_harmony = 
+                                (self.geometric_harmony_state.global_harmony * *multiplier as f64 * 0.02 + self.geometric_harmony_state.global_harmony * 0.98)
+                                .min(1.4);
+                            self.global_harmony = self.geometric_harmony_state.global_harmony;
+                        }
+                        SynergyType::ContributionBoost { multiplier } => {
+                            // Boost next contribution recording
+                            if self.current_tick % 8 == 0 {
+                                for (faction, &strength) in &self.faction_strengths {
+                                    let boosted = strength * 12.0 * multiplier;
+                                    self.rbe_economy.record_contribution(Contribution {
+                                        id: faction.clone(),
+                                        amount: boosted,
+                                        kind: ContributionKind::Innovation,
+                                    });
+                                }
+                            }
+                        }
+                        SynergyType::EpigeneticResilience { reduction } => {
+                            if let Some(profile) = self.demo_epigenetic_profiles.get_mut(&human_id) {
+                                profile.strength = (profile.strength + reduction * 0.1).min(2.5);
+                            }
+                        }
+                        SynergyType::MovementEfficiency { multiplier } => {
+                            // Slight persistent movement improvement
+                            self.movement_params.base_height *= 1.0 + (multiplier - 1.0) * 0.02;
+                        }
+                        SynergyType::GlobalCooldownReduction { .. } => {
+                            // Future: could reduce cooldowns on use
+                            // For now we log it
+                            if self.current_tick % 120 == 0 {
+                                self.active_proposals.push(format!("synergy_cooldown_reduction_active_tick_{}", self.current_tick));
+                            }
+                        }
+                    }
+                }
+
+                if !synergies.is_empty() && self.current_tick % 60 == 0 {
+                    self.active_proposals.push(format!(
+                        "synergies_active_tick_{}: {}",
+                        self.current_tick,
+                        synergies.len()
+                    ));
+                }
+            }
+        }
+
         // Explicit ability activation demo
         if self.current_tick % 90 == 0 {
             if let Some(human_id) = self.demo_human_id {
@@ -355,8 +409,7 @@ impl PowrushMMOSimulator {
         }
     }
 
-    // === Serialization Export/Import ===
-
+    // Serialization methods (unchanged)
     pub fn export_ability_state(&self, entity_id: u64) -> Option<String> {
         self.ability_trees.get(&entity_id).and_then(|tree| tree.to_json().ok())
     }
@@ -397,29 +450,14 @@ impl PowrushMMOSimulator {
         false
     }
 
-    // === Network Sync Logic (v15.13) ===
-    /// Generates a compact network update packet for an entity's ability state.
-    /// Uses Protobuf for efficient transmission.
-    ///
-    /// This is the recommended method for sending ability state over the network
-    /// (client -> server, server -> client, or P2P).
+    // Network sync methods (unchanged)
     pub fn get_ability_network_update(&self, entity_id: u64) -> Option<Vec<u8>> {
         self.export_ability_state_protobuf(entity_id)
     }
 
-    /// Applies an incoming network update packet to an entity's ability state.
-    ///
-    /// Call this when receiving ability sync data from the network.
-    /// Returns true if the update was successfully applied.
     pub fn apply_ability_network_update(&mut self, entity_id: u64, data: &[u8]) -> bool {
         self.import_ability_state_protobuf(entity_id, data)
     }
-
-    // Future enhancement ideas (commented for roadmap):
-    // - Delta sync (only send changed abilities or cooldowns)
-    // - Versioned sync with sequence numbers
-    // - Authority validation (server-only writes)
-    // - Batching multiple entities into one packet
 
     fn apply_ability_effect(&mut self, effect: &AbilityEffect) {
         match effect {
@@ -495,7 +533,8 @@ impl PowrushMMOSimulator {
         let ability_info = if let Some(id) = self.demo_human_id {
             if let Some(tree) = self.ability_trees.get(&id) {
                 if tree.has_abilities() {
-                    " | Ability: Unlocked + Active".to_string()
+                    let synergy_count = tree.calculate_synergies().len();
+                    format!(" | Ability: Unlocked + {} synergies", synergy_count)
                 } else {
                     " | Ability: Locked".to_string()
                 }
