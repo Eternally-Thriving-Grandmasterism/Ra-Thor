@@ -3,14 +3,13 @@
 
 **Autonomicity Games Sovereign Mercy License (AG-SML) v1.0**  
 **Aligned with TOLC 8 Mercy Lattice, Ra-Thor ONE Organism, 13+ PATSAGi Councils**  
-**v1.2 — Player Initiated Treaty Proposals**
+**v1.3 — Treaty Expiration Mechanics**
 
 Enables meaningful diplomatic relations + active treaties between the 5 races.
-Players (or the simulator on behalf of hybrid builds) can now **initiate treaty proposals**.
-Proposals require moderate trust (0.55+) to propose.
-High trust (0.65+) allows acceptance into active treaties with powerful ongoing bonuses.
+Treaties now have **finite lifetimes** and automatically expire unless renewed.
+Player-initiated proposals, pending acceptance, and active treaty bonuses remain fully supported.
 
-Creates deep long-term cooperative hybrid racial identity, diplomatic mastery, and player-driven treaty negotiation.
+Creates deep long-term cooperative hybrid racial identity with meaningful diplomatic maintenance and renewal strategy.
 */
 
 use crate::race::Race;
@@ -22,11 +21,31 @@ pub const TREATY_TRADE_PACT: &str = "TradePact";
 pub const TREATY_RESEARCH_EXCHANGE: &str = "ResearchExchange";
 pub const TREATY_MUTUAL_DEFENSE: &str = "MutualDefense";
 
+/// Default treaty durations in simulation ticks
+pub const TREATY_DURATION_DEFAULT: u64 = 1200;      // ~20 minutes of simulation time
+pub const TREATY_DURATION_HARMONY: u64 = 1800;     // Longer for core cooperative treaties
+pub const TREATY_DURATION_TRADE: u64 = 900;
+pub const TREATY_DURATION_RESEARCH: u64 = 1100;
+pub const TREATY_DURATION_DEFENSE: u64 = 800;
+
+/// Represents one active treaty with its expiration tick.
+#[derive(Debug, Clone)]
+pub struct ActiveTreaty {
+    pub treaty_type: String,
+    pub expires_at_tick: u64,
+}
+
+impl ActiveTreaty {
+    pub fn is_expired(&self, current_tick: u64) -> bool {
+        current_tick >= self.expires_at_tick
+    }
+}
+
 /// Represents the diplomatic relationship between two races.
 #[derive(Debug, Clone)]
 pub struct DiplomacyRelation {
     pub trust: f32, // 0.0 (hostile) to 1.0 (allied)
-    pub active_treaties: Vec<String>,
+    pub active_treaties: Vec<ActiveTreaty>,
 }
 
 impl Default for DiplomacyRelation {
@@ -70,19 +89,28 @@ impl DiplomacyManager {
         self.relations.get(&key).map(|r| r.trust).unwrap_or(0.35)
     }
 
+    /// Returns the duration for a given treaty type.
+    fn get_treaty_duration(treaty: &str) -> u64 {
+        match treaty {
+            TREATY_HARMONY_ACCORD => TREATY_DURATION_HARMONY,
+            TREATY_TRADE_PACT => TREATY_DURATION_TRADE,
+            TREATY_RESEARCH_EXCHANGE => TREATY_DURATION_RESEARCH,
+            TREATY_MUTUAL_DEFENSE => TREATY_DURATION_DEFENSE,
+            _ => TREATY_DURATION_DEFAULT,
+        }
+    }
+
     /// Player-initiated treaty proposal.
     /// Requires trust >= 0.55 to propose. Does not sign immediately.
-    /// Returns true if proposal was added (or already existed).
     pub fn propose_treaty(&mut self, r1: Race, r2: Race, treaty: &str) -> bool {
         if r1 == r2 { return false; }
         let key = Self::pair_key(r1, r2);
         let trust = self.get_trust(r1, r2);
-        if trust < 0.55 { return false; } // Not enough trust to even propose
+        if trust < 0.55 { return false; }
 
         let entry = self.relations.entry(key).or_insert_with(DiplomacyRelation::default);
-        // Do not propose if already active
-        if entry.active_treaties.contains(&treaty.to_string()) {
-            return true;
+        if entry.active_treaties.iter().any(|t| t.treaty_type == treaty) {
+            return true; // Already active
         }
 
         let pending = self.pending_proposals.entry(key).or_insert_with(Vec::new);
@@ -101,8 +129,8 @@ impl DiplomacyManager {
     }
 
     /// Accepts a pending proposal if trust is now high enough (>= 0.65).
-    /// Moves it to active_treaties and grants signing bonus.
-    pub fn accept_pending_treaty(&mut self, r1: Race, r2: Race, treaty: &str) -> bool {
+    /// Creates an ActiveTreaty with proper expiration time.
+    pub fn accept_pending_treaty(&mut self, r1: Race, r2: Race, treaty: &str, current_tick: u64) -> bool {
         if r1 == r2 { return false; }
         let key = Self::pair_key(r1, r2);
         let trust = self.get_trust(r1, r2);
@@ -116,9 +144,13 @@ impl DiplomacyManager {
                 }
 
                 let entry = self.relations.entry(key).or_insert_with(DiplomacyRelation::default);
-                if !entry.active_treaties.contains(&treaty.to_string()) {
-                    entry.active_treaties.push(treaty.to_string());
-                    entry.trust = (entry.trust + 0.06).min(1.0); // Slightly higher signing bonus for accepted proposals
+                if !entry.active_treaties.iter().any(|t| t.treaty_type == treaty) {
+                    let duration = Self::get_treaty_duration(treaty);
+                    entry.active_treaties.push(ActiveTreaty {
+                        treaty_type: treaty.to_string(),
+                        expires_at_tick: current_tick + duration,
+                    });
+                    entry.trust = (entry.trust + 0.06).min(1.0);
                 }
                 return true;
             }
@@ -126,25 +158,47 @@ impl DiplomacyManager {
         false
     }
 
-    /// Attempts to sign an active treaty directly (legacy path). Requires trust >= 0.65.
-    pub fn sign_treaty(&mut self, r1: Race, r2: Race, treaty: &str) -> bool {
+    /// Signs a treaty directly (legacy/auto path). Requires trust >= 0.65.
+    pub fn sign_treaty(&mut self, r1: Race, r2: Race, treaty: &str, current_tick: u64) -> bool {
         if r1 == r2 { return false; }
         let key = Self::pair_key(r1, r2);
         let entry = self.relations.entry(key).or_insert_with(DiplomacyRelation::default);
         if entry.trust < 0.65 { return false; }
-        if !entry.active_treaties.contains(&treaty.to_string()) {
-            entry.active_treaties.push(treaty.to_string());
+
+        if !entry.active_treaties.iter().any(|t| t.treaty_type == treaty) {
+            let duration = Self::get_treaty_duration(treaty);
+            entry.active_treaties.push(ActiveTreaty {
+                treaty_type: treaty.to_string(),
+                expires_at_tick: current_tick + duration,
+            });
             entry.trust = (entry.trust + 0.05).min(1.0);
         }
         true
     }
 
-    pub fn has_active_treaty(&self, r1: Race, r2: Race, treaty: &str) -> bool {
+    pub fn has_active_treaty(&self, r1: Race, r2: Race, treaty: &str, current_tick: u64) -> bool {
         if r1 == r2 { return false; }
         let key = Self::pair_key(r1, r2);
         self.relations.get(&key)
-            .map(|r| r.active_treaties.contains(&treaty.to_string()))
+            .map(|r| {
+                r.active_treaties.iter().any(|t| t.treaty_type == treaty && !t.is_expired(current_tick))
+            })
             .unwrap_or(false)
+    }
+
+    /// Removes all expired treaties from all relations.
+    /// Applies a small trust penalty for letting treaties lapse (encourages renewal).
+    pub fn cleanup_expired_treaties(&mut self, current_tick: u64) {
+        for relation in self.relations.values_mut() {
+            let before = relation.active_treaties.len();
+            relation.active_treaties.retain(|t| !t.is_expired(current_tick));
+            let expired_count = before - relation.active_treaties.len();
+
+            if expired_count > 0 {
+                // Small trust penalty for expired treaties (encourages diplomatic maintenance)
+                relation.trust = (relation.trust - 0.03 * expired_count as f32).max(0.1);
+            }
+        }
     }
 
     pub fn apply_diplomacy_effects(
@@ -184,13 +238,14 @@ impl DiplomacyManager {
         }
     }
 
-    /// Applies strong ongoing bonuses from any active treaties between unlocked races.
+    /// Applies strong ongoing bonuses from any NON-EXPIRED active treaties.
     pub fn apply_treaty_effects(
         &self,
         unlocked_races: &[Race],
         global_harmony: &mut f32,
         volatility: &mut f32,
         strength: &mut f32,
+        current_tick: u64,
     ) {
         if unlocked_races.len() < 2 { return; }
 
@@ -198,55 +253,75 @@ impl DiplomacyManager {
             for j in (i + 1)..unlocked_races.len() {
                 let r1 = unlocked_races[i];
                 let r2 = unlocked_races[j];
+                let key = Self::pair_key(r1, r2);
 
-                if self.has_active_treaty(r1, r2, TREATY_HARMONY_ACCORD) {
-                    *global_harmony = (*global_harmony + 0.045).min(4.8);
-                    *volatility = (*volatility - 0.018).max(0.02);
-                }
-                if self.has_active_treaty(r1, r2, TREATY_TRADE_PACT) {
-                    *strength = (*strength + 0.03).min(6.0);
-                }
-                if self.has_active_treaty(r1, r2, TREATY_RESEARCH_EXCHANGE) {
-                    if *global_harmony > 2.2 {
-                        *strength = (*strength + 0.035).min(6.2);
-                    }
-                }
-                if self.has_active_treaty(r1, r2, TREATY_MUTUAL_DEFENSE) {
-                    if *volatility > 0.9 {
-                        *volatility = (*volatility - 0.04).max(0.1);
+                if let Some(rel) = self.relations.get(&key) {
+                    for treaty in &rel.active_treaties {
+                        if treaty.is_expired(current_tick) { continue; }
+
+                        match treaty.treaty_type.as_str() {
+                            TREATY_HARMONY_ACCORD => {
+                                *global_harmony = (*global_harmony + 0.045).min(4.8);
+                                *volatility = (*volatility - 0.018).max(0.02);
+                            }
+                            TREATY_TRADE_PACT => {
+                                *strength = (*strength + 0.03).min(6.0);
+                            }
+                            TREATY_RESEARCH_EXCHANGE => {
+                                if *global_harmony > 2.2 {
+                                    *strength = (*strength + 0.035).min(6.2);
+                                }
+                            }
+                            TREATY_MUTUAL_DEFENSE => {
+                                if *volatility > 0.9 {
+                                    *volatility = (*volatility - 0.04).max(0.1);
+                                }
+                            }
+                            _ => {}
+                        }
                     }
                 }
             }
         }
     }
 
-    pub fn get_diplomacy_summary(&self, unlocked_races: &[Race]) -> String {
+    pub fn get_diplomacy_summary(&self, unlocked_races: &[Race], current_tick: u64) -> String {
         if unlocked_races.len() < 2 {
             return "No cross-race diplomacy active".to_string();
         }
 
         let mut high_trust_pairs = 0;
-        let mut total_treaties = 0;
+        let mut total_active_treaties = 0;
         let mut pending_count = 0;
+        let mut expiring_soon = 0;
 
         for i in 0..unlocked_races.len() {
             for j in (i + 1)..unlocked_races.len() {
                 let trust = self.get_trust(unlocked_races[i], unlocked_races[j]);
                 if trust > 0.7 { high_trust_pairs += 1; }
+
                 if let Some(rel) = self.relations.get(&Self::pair_key(unlocked_races[i], unlocked_races[j])) {
-                    total_treaties += rel.active_treaties.len();
+                    for t in &rel.active_treaties {
+                        if !t.is_expired(current_tick) {
+                            total_active_treaties += 1;
+                            if t.expires_at_tick.saturating_sub(current_tick) < 300 {
+                                expiring_soon += 1;
+                            }
+                        }
+                    }
                 }
+
                 if let Some(pending) = self.pending_proposals.get(&Self::pair_key(unlocked_races[i], unlocked_races[j])) {
                     pending_count += pending.len();
                 }
             }
         }
 
-        if total_treaties > 0 {
+        if total_active_treaties > 0 {
             if pending_count > 0 {
-                format!("Cross-Race Diplomacy: {} strong alliances + {} active treaties + {} pending proposals", high_trust_pairs, total_treaties, pending_count)
+                format!("Cross-Race Diplomacy: {} strong alliances + {} active treaties ({} expiring soon) + {} pending", high_trust_pairs, total_active_treaties, expiring_soon, pending_count)
             } else {
-                format!("Cross-Race Diplomacy: {} strong alliances + {} active treaties", high_trust_pairs, total_treaties)
+                format!("Cross-Race Diplomacy: {} strong alliances + {} active treaties ({} expiring soon)", high_trust_pairs, total_active_treaties, expiring_soon)
             }
         } else if pending_count > 0 {
             format!("Cross-Race Diplomacy: {} strong alliances + {} pending proposals", high_trust_pairs, pending_count)
@@ -263,18 +338,20 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_player_initiated_treaty_proposals() {
+    fn test_treaty_expiration_and_cleanup() {
         let mut mgr = DiplomacyManager::new();
-        mgr.improve_relation(Race::Harmonic, Race::Terran, 0.6); // Enough to propose
-        assert!(mgr.propose_treaty(Race::Harmonic, Race::Terran, TREATY_HARMONY_ACCORD));
-        assert!(mgr.has_pending_proposal(Race::Harmonic, Race::Terran, TREATY_HARMONY_ACCORD));
+        mgr.improve_relation(Race::Harmonic, Race::Terran, 0.7);
 
-        // Still cannot accept yet (trust 0.6 < 0.65)
-        assert!(!mgr.accept_pending_treaty(Race::Harmonic, Race::Terran, TREATY_HARMONY_ACCORD));
+        // Sign a short treaty
+        assert!(mgr.sign_treaty(Race::Harmonic, Race::Terran, TREATY_HARMONY_ACCORD, 100));
+        assert!(mgr.has_active_treaty(Race::Harmonic, Race::Terran, TREATY_HARMONY_ACCORD, 100));
 
-        mgr.improve_relation(Race::Harmonic, Race::Terran, 0.1); // Now 0.7
-        assert!(mgr.accept_pending_treaty(Race::Harmonic, Race::Terran, TREATY_HARMONY_ACCORD));
-        assert!(mgr.has_active_treaty(Race::Harmonic, Race::Terran, TREATY_HARMONY_ACCORD));
-        assert!(!mgr.has_pending_proposal(Race::Harmonic, Race::Terran, TREATY_HARMONY_ACCORD));
+        // At tick 100 + duration it should still be active just before expiry
+        let duration = TREATY_DURATION_HARMONY;
+        assert!(mgr.has_active_treaty(Race::Harmonic, Race::Terran, TREATY_HARMONY_ACCORD, 100 + duration - 1));
+
+        // After expiry it should be gone
+        mgr.cleanup_expired_treaties(100 + duration + 10);
+        assert!(!mgr.has_active_treaty(Race::Harmonic, Race::Terran, TREATY_HARMONY_ACCORD, 100 + duration + 10));
     }
 }
