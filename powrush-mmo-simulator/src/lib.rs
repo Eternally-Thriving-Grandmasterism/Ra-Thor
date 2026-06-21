@@ -1,5 +1,5 @@
 /*!
-# Powrush MMO Simulator — Dynamic Council Modulation + GPU-Driven Rendering + Multi-Agent Orchestration Edition (v15.16)
+# Powrush MMO Simulator — Dynamic Council Modulation + GPU-Driven Rendering + Multi-Agent Orchestration Edition (v15.17)
 
 **Production-grade integration of dynamic council modulation into RBE economy + full GPU-driven rendering pipeline + MultiAgentOrchestrator for Human/AI/AGI entity coexistence.**
 
@@ -11,7 +11,8 @@ This iteration thoughtfully implements:
 - Network Sync Logic.
 - Ability Synergy Integration.
 - Enhanced Epigenetic Resilience Effects.
-- **Volatility Hysteresis Logic** (v15.16): Volatility state changes are now "sticky" to prevent rapid flickering between high/low risk states.
+- Volatility Hysteresis Logic.
+- **Epigenetic Backlash Events** (v15.17): High-volatility backlash now triggers structured, varied epigenetic events with different severities and effects.
 
 All at above production grade quality: clean, well-commented, tested, mercy-aligned, Ra-Thor lattice native.
 
@@ -39,9 +40,16 @@ use powrush_rbe_engine::{RBEconomy, Contribution, ContributionKind};
 use powrush::multi_agent_orchestrator::{MultiAgentOrchestrator, EntityType, Action, ApprovedAction};
 use std::collections::HashMap;
 
-// Volatility hysteresis thresholds (entry > exit creates stickiness)
+// Volatility hysteresis thresholds
 const VOLATILITY_HIGH_ENTER: f32 = 1.25;
 const VOLATILITY_HIGH_EXIT: f32 = 1.10;
+
+#[derive(Debug, Clone, Copy)]
+pub enum EpigeneticBacklashSeverity {
+    Minor,
+    Moderate,
+    Major,
+}
 
 #[derive(Debug, Clone)]
 pub struct PowrushMMOSimulator {
@@ -67,7 +75,6 @@ pub struct PowrushMMOSimulator {
     player_contributions: PlayerContributionTracker,
     demo_race: Race,
     ability_trees: HashMap<u64, AbilityTree>,
-    // NEW: Track whether we are currently in the high-volatility risk state (for hysteresis)
     high_volatility_risk_active: bool,
 }
 
@@ -321,10 +328,9 @@ impl PowrushMMOSimulator {
         // Apply active ability synergy bonuses + volatility effects with hysteresis
         if let Some(human_id) = self.demo_human_id {
             if let Some(profile) = self.demo_epigenetic_profiles.get_mut(&human_id) {
-                // NEW v15.16: Volatility hysteresis logic
+                // Volatility hysteresis logic
                 let current_vol = profile.volatility;
 
-                // Update high volatility risk state using hysteresis
                 if !self.high_volatility_risk_active && current_vol >= VOLATILITY_HIGH_ENTER {
                     self.high_volatility_risk_active = true;
                     self.active_proposals.push(format!("volatility_risk_entered_tick_{}", self.current_tick));
@@ -333,20 +339,53 @@ impl PowrushMMOSimulator {
                     self.active_proposals.push(format!("volatility_risk_exited_tick_{}", self.current_tick));
                 }
 
-                // Apply effects only when in the high-risk state (sticky)
+                // Epigenetic Backlash Events (when in high-volatility risk state)
                 if self.high_volatility_risk_active {
-                    // Power gain from high volatility
+                    // Power gain from embracing volatility
                     profile.strength = (profile.strength + 0.025).min(3.5);
 
-                    // Risk of backlash (only while in high-risk state)
-                    if self.current_tick % 35 == 0 && rand::random::<f32>() < 0.28 {
-                        profile.strength = (profile.strength - 0.09).max(0.6);
-                        self.active_proposals.push(format!("epigenetic_backlash_tick_{}", self.current_tick));
+                    // NEW v15.17: Structured Epigenetic Backlash Events
+                    if self.current_tick % 35 == 0 && rand::random::<f32>() < 0.30 {
+                        let severity = if profile.volatility > 1.6 {
+                            EpigeneticBacklashSeverity::Major
+                        } else if profile.volatility > 1.35 {
+                            EpigeneticBacklashSeverity::Moderate
+                        } else {
+                            EpigeneticBacklashSeverity::Minor
+                        };
+
+                        match severity {
+                            EpigeneticBacklashSeverity::Minor => {
+                                profile.strength = (profile.strength - 0.06).max(0.7);
+                                profile.volatility = (profile.volatility + 0.08).min(2.0);
+                                self.active_proposals.push(format!("backlash_minor_tick_{}", self.current_tick));
+                            }
+                            EpigeneticBacklashSeverity::Moderate => {
+                                profile.strength = (profile.strength - 0.12).max(0.5);
+                                profile.volatility = (profile.volatility + 0.15).min(2.0);
+                                // Small regression in cooperation score
+                                profile.cooperation_score = (profile.cooperation_score - 3.0).max(0.0);
+                                self.active_proposals.push(format!("backlash_moderate_tick_{}", self.current_tick));
+                            }
+                            EpigeneticBacklashSeverity::Major => {
+                                profile.strength = (profile.strength - 0.22).max(0.4);
+                                profile.volatility = (profile.volatility + 0.25).min(2.0);
+                                profile.cooperation_score = (profile.cooperation_score - 8.0).max(0.0);
+                                // Apply a negative epigenetic change
+                                let backlash_change = EpigeneticChange {
+                                    action: ActionType::Exploration, // Risky action type
+                                    magnitude: -0.18,
+                                    cooperation_factor: 0.6,
+                                };
+                                apply_change(profile, &backlash_change);
+                                self.active_proposals.push(format!("backlash_major_tick_{}", self.current_tick));
+                            }
+                        }
                     }
                 }
             }
 
-            // Existing synergy application (can be further integrated with volatility state later)
+            // Existing synergy application
             if let Some(tree) = self.ability_trees.get(&human_id) {
                 let synergies = tree.calculate_synergies();
 
