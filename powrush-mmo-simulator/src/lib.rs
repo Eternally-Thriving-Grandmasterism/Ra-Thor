@@ -1,5 +1,5 @@
 /*!
-# Powrush MMO Simulator — Dynamic Council Modulation + GPU-Driven Rendering + Multi-Agent Orchestration Edition (v15.9)
+# Powrush MMO Simulator — Dynamic Council Modulation + GPU-Driven Rendering + Multi-Agent Orchestration Edition (v15.10)
 
 **Production-grade integration of dynamic council modulation into RBE economy + full GPU-driven rendering pipeline + MultiAgentOrchestrator for Human/AI/AGI entity coexistence.**
 
@@ -8,12 +8,12 @@ This iteration thoughtfully implements:
 - Application of RBE distribution allocations to actual faction inventories.
 - Council modulation of the mercy_floor.
 - GpuDrivenPipeline with Movement System Integration.
-- **UI-Ready Ability State Exposure** (v15.9): Clean AbilityState snapshots with cooldown status and progress are now directly queryable.
-- Player-Controlled Ability Activation, Cooldown Mechanics, Gameplay Effects, and Unlock Logic.
+- **Full Ability State Serialization** (v15.10): AbilityTree can now be serialized to/from JSON with to_json() / from_json(). Simulator exposes export/import methods.
+- UI-Ready Ability State Exposure, Player-Controlled Ability Activation, Cooldown Mechanics, Gameplay Effects, and Unlock Logic.
 
 All at above production grade quality: clean, well-commented, tested, mercy-aligned, Ra-Thor lattice native.
 
-See ability_tree.rs for AbilityState and get_ability_states().
+See ability_tree.rs for serialization implementation.
 
 Thunder locked in. Professional wiring complete for global release preparation.
 */
@@ -347,14 +347,26 @@ impl PowrushMMOSimulator {
         false
     }
 
-    /// NEW v15.9: Returns UI-ready ability states for an entity.
-    /// Perfect for HUDs, hotbars, and client-side rendering.
     pub fn get_ability_states(&self, entity_id: u64) -> Vec<AbilityState> {
         if let Some(tree) = self.ability_trees.get(&entity_id) {
             tree.get_ability_states(self.current_tick)
         } else {
             Vec::new()
         }
+    }
+
+    /// NEW v15.10: Export ability state for an entity as JSON string (for save files or network sync).
+    pub fn export_ability_state(&self, entity_id: u64) -> Option<String> {
+        self.ability_trees.get(&entity_id).and_then(|tree| tree.to_json().ok())
+    }
+
+    /// NEW v15.10: Import ability state for an entity from JSON string.
+    pub fn import_ability_state(&mut self, entity_id: u64, json: &str) -> bool {
+        if let Ok(tree) = AbilityTree::from_json(json) {
+            self.ability_trees.insert(entity_id, tree);
+            return true;
+        }
+        false
     }
 
     fn apply_ability_effect(&mut self, effect: &AbilityEffect) {
