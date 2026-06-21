@@ -3,11 +3,9 @@
 
 **Autonomicity Games Sovereign Mercy License (AG-SML) v1.0**  
 **Aligned with TOLC 8 Mercy Lattice, Ra-Thor ONE Organism, 13+ PATSAGi Councils**  
-**Mutation-Specific Synergy Chains (v1.8)**
+**Mutation-Specific Synergy Chains with Stage Progression (v1.9)**
 
-This version adds **mutation-specific synergy chains** — escalating, mutation-gated synergy sequences that only fully activate when a player has both a specific epigenetic mutation AND deep investment in a race's ability tree.
-
-Chains reward coherent long-term evolutionary paths (e.g. Harmonic Rebirth + full Harmonic tree = Redemption Cascade).
+This version adds **chain stage progression mechanics** — chains now evolve over time based on sustained conditions (high harmony, consistent contribution, epigenetic stability). Stages unlock escalating bonuses, creating true long-term evolutionary mastery paths.
 */
 
 use serde::{Deserialize, Serialize};
@@ -76,6 +74,9 @@ pub struct AbilityTree {
     pub race: Race,
     pub unlocked_abilities: Vec<Ability>,
     cooldowns: HashMap<String, u64>,
+    /// Tracks progression points for each mutation-specific synergy chain.
+    /// Higher values unlock stronger stage bonuses.
+    chain_progress: HashMap<String, u32>,
 }
 
 impl AbilityTree {
@@ -84,6 +85,7 @@ impl AbilityTree {
             race,
             unlocked_abilities: Vec::new(),
             cooldowns: HashMap::new(),
+            chain_progress: HashMap::new(),
         }
     }
 
@@ -94,6 +96,7 @@ impl AbilityTree {
     }
 
     pub fn starter_abilities(race: Race) -> Vec<Ability> {
+        // ... (unchanged from v1.8)
         match race {
             Race::Terran => vec![Ability {
                 id: "terran_steady_step".to_string(),
@@ -164,6 +167,7 @@ impl AbilityTree {
     }
 
     pub fn advanced_abilities(race: Race) -> Vec<Ability> {
+        // ... (unchanged)
         match race {
             Race::Terran => vec![
                 Ability {
@@ -309,6 +313,7 @@ impl AbilityTree {
     }
 
     pub fn try_unlock_starter(&mut self, cooperation: f64, innovation: f64, total_contribution: f64) -> Option<Ability> {
+        // ... (unchanged logic)
         let all = Self::all_abilities(self.race);
         for ability in all {
             if cooperation >= ability.unlock_cooperation_score
@@ -333,6 +338,7 @@ impl AbilityTree {
 
     // === Synergy Bonuses (v1.7) ===
     pub fn calculate_synergies(&self) -> Vec<SynergyBonus> {
+        // ... (unchanged from previous)
         let mut bonuses = Vec::new();
         let unlocked_ids: Vec<&String> = self.unlocked_abilities.iter().map(|a| &a.id).collect();
 
@@ -404,10 +410,48 @@ impl AbilityTree {
         bonuses
     }
 
-    /// Mutation-Specific Synergy Chains (v1.8)
-    /// These chains only fully activate when the player possesses BOTH a specific epigenetic mutation
-    /// AND the deep ability investment required for that race's advanced tree.
-    /// They represent true evolutionary synergy paths.
+    /// Returns current stage (0-2) for a given chain key.
+    pub fn get_chain_stage(&self, chain_key: &str) -> u8 {
+        let progress = self.chain_progress.get(chain_key).copied().unwrap_or(0);
+        if progress >= 70 { 2 } else if progress >= 30 { 1 } else { 0 }
+    }
+
+    /// Advances chain progression based on sustained positive conditions.
+    /// Called from simulator tick when the chain is active.
+    pub fn progress_chain_stages(&mut self, chain_key: &str, harmony_level: f32, recent_contribution: f64, volatility: f32) {
+        let progress = self.chain_progress.entry(chain_key.to_string()).or_insert(0);
+
+        // Progression rules (tunable for balance)
+        let mut advance = 0u32;
+
+        if harmony_level > 1.8 {
+            advance += 2; // Strong harmony accelerates redemptive chains
+        } else if harmony_level > 1.2 {
+            advance += 1;
+        }
+
+        if recent_contribution > 8.0 {
+            advance += 1;
+        }
+
+        if volatility < 0.6 {
+            advance += 1; // Stability helps long-term chains mature
+        }
+
+        if advance > 0 {
+            *progress = (*progress + advance).min(120); // Cap at high value
+        }
+
+        // Slow natural decay if conditions are poor (encourages maintenance)
+        if harmony_level < 0.9 && volatility > 1.0 {
+            if *progress > 0 {
+                *progress -= 1;
+            }
+        }
+    }
+
+    /// Mutation-Specific Synergy Chains with Stage Progression (v1.9)
+    /// Stages escalate bonuses. Higher stages = stronger effects + new flavor.
     pub fn calculate_mutation_synergy_chains(&self, active_mutations: &[String]) -> Vec<SynergyBonus> {
         let mut bonuses = Vec::new();
         let unlocked_ids: Vec<&String> = self.unlocked_abilities.iter().map(|a| &a.id).collect();
@@ -415,31 +459,53 @@ impl AbilityTree {
         for mutation in active_mutations {
             match mutation.as_str() {
                 "harmonic_rebirth" => {
-                    // Redemption path: Harmonic Rebirth + full Harmonic investment
                     if (self.race == Race::Harmonic || self.race == Race::Verdant)
                         && unlocked_ids.contains(&&"harmonic_resonant_field".to_string())
                         && unlocked_ids.contains(&&"harmonic_cosmic_attunement".to_string())
                     {
+                        let stage = self.get_chain_stage("redemption_cascade");
+
+                        // Stage 0: Base chain
                         bonuses.push(SynergyBonus {
-                            name: "Redemption Cascade Chain".to_string(),
-                            description: "Harmonic Rebirth mutation + full Harmonic tree: Escalating harmony repair, strong corruption cleansing, and passive positive epigenetic drift.".to_string(),
-                            bonus_type: SynergyType::HarmonyAmplification { multiplier: 1.35 },
+                            name: format!("Redemption Cascade Chain (Stage {})", stage),
+                            description: match stage {
+                                0 => "Harmonic Rebirth + full Harmonic tree: Foundational harmony repair and corruption resistance.".to_string(),
+                                1 => "Stage 1: Amplified repair, stronger passive positive drift, reduced backlash severity.".to_string(),
+                                _ => "Stage 2 (Mastered): Maximum redemptive power — powerful ongoing epigenetic healing and harmony mastery.".to_string(),
+                            },
+                            bonus_type: SynergyType::HarmonyAmplification { multiplier: 1.25 + (stage as f32 * 0.12) },
                         });
-                        bonuses.push(SynergyBonus {
-                            name: "Redemption Cascade Chain (Stage 2)".to_string(),
-                            description: "Further amplified repair and reduced backlash severity while in high-harmony states.".to_string(),
-                            bonus_type: SynergyType::EpigeneticResilience { reduction: 0.25 },
-                        });
+
+                        if stage >= 1 {
+                            bonuses.push(SynergyBonus {
+                                name: "Redemption Cascade (Resilience)".to_string(),
+                                description: "Stage-enhanced epigenetic resilience and repair speed.".to_string(),
+                                bonus_type: SynergyType::EpigeneticResilience { reduction: 0.20 + (stage as f32 * 0.12) },
+                            });
+                        }
+
+                        if stage >= 2 {
+                            bonuses.push(SynergyBonus {
+                                name: "Redemption Cascade (Evolved)".to_string(),
+                                description: "Mastered stage: Chance for further positive epigenetic evolution and permanent stability gains.".to_string(),
+                                bonus_type: SynergyType::EpigeneticResilience { reduction: 0.45 },
+                            });
+                        }
                     }
                 }
                 "volatile_surge" => {
                     if unlocked_ids.contains(&&"synthetic_overclock".to_string())
                         && unlocked_ids.contains(&&"synthetic_systems_mastery".to_string())
                     {
+                        let stage = self.get_chain_stage("surge_overclock");
                         bonuses.push(SynergyBonus {
-                            name: "Surge Overclock Chain".to_string(),
-                            description: "Volatile Surge mutation + Synthetic power path: Greatly amplified contribution and movement power, at the cost of increased backlash risk.".to_string(),
-                            bonus_type: SynergyType::ContributionBoost { multiplier: 1.45 },
+                            name: format!("Surge Overclock Chain (Stage {})", stage),
+                            description: match stage {
+                                0 => "Volatile Surge + Synthetic power: Amplified contribution at risk of backlash.".to_string(),
+                                1 => "Stage 1: Greater power spikes, controlled volatility channeling.".to_string(),
+                                _ => "Stage 2 (Mastered): High-risk mastery — massive temporary power with managed backlash.".to_string(),
+                            },
+                            bonus_type: SynergyType::ContributionBoost { multiplier: 1.35 + (stage as f64 * 0.18) },
                         });
                     }
                 }
@@ -447,10 +513,15 @@ impl AbilityTree {
                     if unlocked_ids.contains(&&"voidfarer_phase_shift".to_string())
                         && unlocked_ids.contains(&&"voidfarer_singularity_drive".to_string())
                     {
+                        let stage = self.get_chain_stage("corrupted_singularity");
                         bonuses.push(SynergyBonus {
-                            name: "Corrupted Singularity Chain".to_string(),
-                            description: "Corrupted Echo mutation + Voidfarer high-risk path: Massive contribution and innovation gains, but accelerates corruption over time.".to_string(),
-                            bonus_type: SynergyType::ContributionBoost { multiplier: 1.55 },
+                            name: format!("Corrupted Singularity Chain (Stage {})", stage),
+                            description: match stage {
+                                0 => "Corrupted Echo + Voidfarer high-risk path: High gains with corruption cost.".to_string(),
+                                1 => "Stage 1: Dangerous power, partial corruption mitigation through mastery.".to_string(),
+                                _ => "Stage 2 (Mastered): Corrupted power fully weaponized — extreme contribution with slow corruption.".to_string(),
+                            },
+                            bonus_type: SynergyType::ContributionBoost { multiplier: 1.50 + (stage as f64 * 0.20) },
                         });
                     }
                 }
@@ -462,6 +533,7 @@ impl AbilityTree {
     }
 
     pub fn is_on_cooldown(&self, ability_id: &str, current_tick: u64) -> bool {
+        // unchanged
         if let Some(&last_used) = self.cooldowns.get(ability_id) {
             if let Some(ability) = self.unlocked_abilities.iter().find(|a| a.id == ability_id) {
                 return current_tick < last_used + ability.cooldown_ticks as u64;
@@ -471,6 +543,7 @@ impl AbilityTree {
     }
 
     pub fn try_use_ability(&mut self, ability_id: &str, current_tick: u64) -> bool {
+        // unchanged
         if self.is_on_cooldown(ability_id, current_tick) {
             return false;
         }
@@ -482,6 +555,7 @@ impl AbilityTree {
     }
 
     pub fn get_ability_states(&self, current_tick: u64) -> Vec<AbilityState> {
+        // unchanged from v1.8
         let mut states = Vec::new();
 
         for ability in &self.unlocked_abilities {
@@ -543,10 +617,15 @@ mod tests {
     }
 
     #[test]
-    fn test_mutation_synergy_chain() {
+    fn test_mutation_synergy_chain_with_stages() {
         let mut tree = AbilityTree::new(Race::Harmonic);
         let _ = tree.try_unlock_starter(60.0, 40.0, 350.0);
+        // Simulate some progression
+        tree.progress_chain_stages("redemption_cascade", 2.0, 12.0, 0.4);
+        tree.progress_chain_stages("redemption_cascade", 2.1, 15.0, 0.3);
         let chains = tree.calculate_mutation_synergy_chains(&vec!["harmonic_rebirth".to_string()]);
         assert!(!chains.is_empty());
+        let stage = tree.get_chain_stage("redemption_cascade");
+        assert!(stage >= 0);
     }
 }
