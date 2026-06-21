@@ -1,5 +1,5 @@
 /*!
-# Powrush MMO Simulator — Dynamic Council Modulation + GPU-Driven Rendering + Multi-Agent Orchestration Edition (v15.15)
+# Powrush MMO Simulator — Dynamic Council Modulation + GPU-Driven Rendering + Multi-Agent Orchestration Edition (v15.16)
 
 **Production-grade integration of dynamic council modulation into RBE economy + full GPU-driven rendering pipeline + MultiAgentOrchestrator for Human/AI/AGI entity coexistence.**
 
@@ -10,7 +10,8 @@ This iteration thoughtfully implements:
 - GpuDrivenPipeline with Movement System Integration.
 - Network Sync Logic.
 - Ability Synergy Integration.
-- **Enhanced Epigenetic Resilience Effects** (v15.15): EpigeneticResilience synergies now have stronger, more meaningful mechanical impact on epigenetic profiles (volatility reduction + positive change application).
+- Enhanced Epigenetic Resilience Effects.
+- **Volatility Hysteresis Logic** (v15.16): Volatility state changes are now "sticky" to prevent rapid flickering between high/low risk states.
 
 All at above production grade quality: clean, well-commented, tested, mercy-aligned, Ra-Thor lattice native.
 
@@ -38,6 +39,10 @@ use powrush_rbe_engine::{RBEconomy, Contribution, ContributionKind};
 use powrush::multi_agent_orchestrator::{MultiAgentOrchestrator, EntityType, Action, ApprovedAction};
 use std::collections::HashMap;
 
+// Volatility hysteresis thresholds (entry > exit creates stickiness)
+const VOLATILITY_HIGH_ENTER: f32 = 1.25;
+const VOLATILITY_HIGH_EXIT: f32 = 1.10;
+
 #[derive(Debug, Clone)]
 pub struct PowrushMMOSimulator {
     pub shard_manager: ShardManager,
@@ -62,6 +67,8 @@ pub struct PowrushMMOSimulator {
     player_contributions: PlayerContributionTracker,
     demo_race: Race,
     ability_trees: HashMap<u64, AbilityTree>,
+    // NEW: Track whether we are currently in the high-volatility risk state (for hysteresis)
+    high_volatility_risk_active: bool,
 }
 
 impl PowrushMMOSimulator {
@@ -132,6 +139,7 @@ impl PowrushMMOSimulator {
             player_contributions: PlayerContributionTracker::new(),
             demo_race,
             ability_trees,
+            high_volatility_risk_active: false,
         }
     }
 
@@ -310,8 +318,35 @@ impl PowrushMMOSimulator {
             ));
         }
 
-        // Apply active ability synergy bonuses (including enhanced Epigenetic Resilience)
+        // Apply active ability synergy bonuses + volatility effects with hysteresis
         if let Some(human_id) = self.demo_human_id {
+            if let Some(profile) = self.demo_epigenetic_profiles.get_mut(&human_id) {
+                // NEW v15.16: Volatility hysteresis logic
+                let current_vol = profile.volatility;
+
+                // Update high volatility risk state using hysteresis
+                if !self.high_volatility_risk_active && current_vol >= VOLATILITY_HIGH_ENTER {
+                    self.high_volatility_risk_active = true;
+                    self.active_proposals.push(format!("volatility_risk_entered_tick_{}", self.current_tick));
+                } else if self.high_volatility_risk_active && current_vol <= VOLATILITY_HIGH_EXIT {
+                    self.high_volatility_risk_active = false;
+                    self.active_proposals.push(format!("volatility_risk_exited_tick_{}", self.current_tick));
+                }
+
+                // Apply effects only when in the high-risk state (sticky)
+                if self.high_volatility_risk_active {
+                    // Power gain from high volatility
+                    profile.strength = (profile.strength + 0.025).min(3.5);
+
+                    // Risk of backlash (only while in high-risk state)
+                    if self.current_tick % 35 == 0 && rand::random::<f32>() < 0.28 {
+                        profile.strength = (profile.strength - 0.09).max(0.6);
+                        self.active_proposals.push(format!("epigenetic_backlash_tick_{}", self.current_tick));
+                    }
+                }
+            }
+
+            // Existing synergy application (can be further integrated with volatility state later)
             if let Some(tree) = self.ability_trees.get(&human_id) {
                 let synergies = tree.calculate_synergies();
 
@@ -336,15 +371,10 @@ impl PowrushMMOSimulator {
                             }
                         }
                         SynergyType::EpigeneticResilience { reduction } => {
-                            // NEW v15.15: Stronger, more meaningful Epigenetic Resilience effect
                             if let Some(profile) = self.demo_epigenetic_profiles.get_mut(&human_id) {
-                                // Reduce volatility (make profile more stable)
                                 profile.volatility = (profile.volatility - reduction * 0.8).max(0.1);
-
-                                // Improve overall strength / resilience
                                 profile.strength = (profile.strength + reduction * 0.6).min(3.0);
 
-                                // Occasionally apply a small positive epigenetic change
                                 if self.current_tick % 25 == 0 {
                                     let resilience_change = EpigeneticChange {
                                         action: ActionType::Cooperation,
@@ -545,7 +575,8 @@ impl PowrushMMOSimulator {
             if let Some(tree) = self.ability_trees.get(&id) {
                 if tree.has_abilities() {
                     let synergy_count = tree.calculate_synergies().len();
-                    format!(" | Ability: Unlocked + {} synergies", synergy_count)
+                    let risk_state = if self.high_volatility_risk_active { " + RISK" } else { "" };
+                    format!(" | Ability: Unlocked + {} synergies{}", synergy_count, risk_state)
                 } else {
                     " | Ability: Locked".to_string()
                 }
