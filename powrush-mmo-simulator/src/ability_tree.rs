@@ -3,9 +3,9 @@
 
 **Autonomicity Games Sovereign Mercy License (AG-SML) v1.0**  
 **Aligned with TOLC 8 Mercy Lattice, Ra-Thor ONE Organism, 13+ PATSAGi Councils**  
-**Mutation-Specific Synergy Chains with Stage Progression + Cross-Race Chain Synergy (v1.10)**
+**Mutation-Specific Synergy Chains with Stage Progression + Cross-Race Chain Synergy + Full Cross-Race Stage Progression (v1.11)**
 
-This version adds **cross-race chain synergy** — when an entity unlocks abilities or carries mutations spanning multiple races, powerful hybrid synergy chains activate. These create emergent cooperation between racial paths, rewarding diverse builds and mixed-race group play.
+This version adds **full cross-race chain stage progression** — all hybrid synergy chains now support 0→1→2 stage advancement using the same progress_chain_stages + get_chain_stage system. Cross-race builds mature over sustained positive conditions (high harmony, contribution, low volatility), unlocking escalating hybrid power.
 */
 
 use serde::{Deserialize, Serialize};
@@ -524,9 +524,9 @@ impl AbilityTree {
         bonuses
     }
 
-    /// Cross-Race Chain Synergy (v1.10)
-    /// Activates powerful hybrid bonuses when abilities or mutations from multiple different races are present on the same entity.
-    /// Rewards diverse, cooperative, mixed-race builds and creates emergent inter-racial synergy paths.
+    /// Cross-Race Chain Synergy with Full Stage Progression (v1.11)
+    /// All hybrid chains now mature through 0→1→2 stages using the shared chain_progress system.
+    /// Rewards sustained cross-race cooperation and high-harmony hybrid play.
     pub fn calculate_cross_race_synergy_chains(&self, active_mutations: &[String]) -> Vec<SynergyBonus> {
         let mut bonuses = Vec::new();
         let unlocked_races: std::collections::HashSet<Race> = self.unlocked_abilities.iter().map(|a| a.race).collect();
@@ -535,40 +535,59 @@ impl AbilityTree {
             return bonuses; // No cross-race if mono-race build
         }
 
-        // Cross-Race Example 1: Harmonic Rebirth mutation + Terran abilities present
+        // Cross-Race 1: Harmonic Rebirth + Terran (Allied Resonance) — now fully stage-aware
         if active_mutations.contains(&"harmonic_rebirth".to_string()) && unlocked_races.contains(&Race::Terran) {
             let stage = self.get_chain_stage("allied_resonance_cross");
             bonuses.push(SynergyBonus {
                 name: format!("Allied Resonance Cross-Chain (Stage {})", stage),
-                description: "Harmonic Rebirth + Terran presence: Mixed-race harmony amplification, shared epigenetic stability, and group cooperation bonus.".to_string(),
-                bonus_type: SynergyType::HarmonyAmplification { multiplier: 1.35 + (stage as f32 * 0.08) },
+                description: match stage {
+                    0 => "Harmonic Rebirth + Terran presence: Foundational mixed-race harmony amplification and shared epigenetic stability.".to_string(),
+                    1 => "Stage 1: Stronger group cooperation bonus and faster cross-race harmony recovery.".to_string(),
+                    _ => "Stage 2 (Mastered): Maximum hybrid resonance — powerful ongoing harmony mastery across Terran/Harmonic lines.".to_string(),
+                },
+                bonus_type: SynergyType::HarmonyAmplification { multiplier: 1.35 + (stage as f32 * 0.10) },
             });
         }
 
-        // Cross-Race Example 2: Volatile Surge mutation + Voidfarer high-risk abilities
+        // Cross-Race 2: Volatile Surge + Voidfarer — now stage-aware
         if active_mutations.contains(&"volatile_surge".to_string()) && unlocked_races.contains(&Race::Voidfarer) {
+            let stage = self.get_chain_stage("chaotic_void_cross");
             bonuses.push(SynergyBonus {
-                name: "Chaotic Void Cross-Chain".to_string(),
-                description: "Volatile Surge mutation + Voidfarer path: Dangerous but extremely high contribution spikes across racial boundaries.".to_string(),
-                bonus_type: SynergyType::ContributionBoost { multiplier: 1.55 },
+                name: format!("Chaotic Void Cross-Chain (Stage {})", stage),
+                description: match stage {
+                    0 => "Volatile Surge + Voidfarer: Dangerous but high contribution spikes across racial boundaries.".to_string(),
+                    1 => "Stage 1: Greater risk/reward spikes with partial backlash control.".to_string(),
+                    _ => "Stage 2 (Mastered): Weaponized hybrid volatility — extreme contribution with managed epigenetic cost.".to_string(),
+                },
+                bonus_type: SynergyType::ContributionBoost { multiplier: 1.55 + (stage as f64 * 0.15) },
             });
         }
 
-        // Cross-Race Example 3: Corrupted Echo + Synthetic tech corruption hybrid
+        // Cross-Race 3: Corrupted Echo + Synthetic — now stage-aware
         if active_mutations.contains(&"corrupted_echo".to_string()) && unlocked_races.contains(&Race::Synthetic) {
+            let stage = self.get_chain_stage("corrupted_tech_hybrid");
             bonuses.push(SynergyBonus {
-                name: "Corrupted Tech Hybrid Chain".to_string(),
-                description: "Corrupted Echo mutation + Synthetic mastery: Innovation and contribution gains at the managed cost of epigenetic stability.".to_string(),
-                bonus_type: SynergyType::ContributionBoost { multiplier: 1.45 },
+                name: format!("Corrupted Tech Hybrid Chain (Stage {})", stage),
+                description: match stage {
+                    0 => "Corrupted Echo + Synthetic: Innovation gains at the cost of epigenetic stability.".to_string(),
+                    1 => "Stage 1: Better corruption mitigation through tech mastery.".to_string(),
+                    _ => "Stage 2 (Mastered): Corrupted tech fully integrated — high innovation with controlled long-term cost.".to_string(),
+                },
+                bonus_type: SynergyType::ContributionBoost { multiplier: 1.45 + (stage as f64 * 0.12) },
             });
         }
 
-        // Additional cross example: Verdant Resilience + Harmonic for ultimate stability hybrid
+        // Cross-Race 4: Harmonic Rebirth + Verdant — now stage-aware
         if active_mutations.contains(&"harmonic_rebirth".to_string()) && unlocked_races.contains(&Race::Verdant) {
+            let stage = self.get_chain_stage("verdant_harmonic_redemption");
             bonuses.push(SynergyBonus {
-                name: "Verdant-Harmonic Redemption Hybrid".to_string(),
-                description: "Harmonic Rebirth + Verdant abilities: Ultimate long-term epigenetic healing and cross-race harmony mastery.".to_string(),
-                bonus_type: SynergyType::EpigeneticResilience { reduction: 0.50 },
+                name: format!("Verdant-Harmonic Redemption Hybrid (Stage {})", stage),
+                description: match stage {
+                    0 => "Harmonic Rebirth + Verdant: Foundational long-term epigenetic healing across races.".to_string(),
+                    1 => "Stage 1: Enhanced resilience and faster corruption cleansing.".to_string(),
+                    _ => "Stage 2 (Mastered): Ultimate redemptive hybrid — powerful cross-race healing and permanent stability.".to_string(),
+                },
+                bonus_type: SynergyType::EpigeneticResilience { reduction: 0.50 + (stage as f32 * 0.15) },
             });
         }
 
@@ -576,7 +595,7 @@ impl AbilityTree {
     }
 
     pub fn is_on_cooldown(&self, ability_id: &str, current_tick: u64) -> bool {
-        if let Some(&last_used) = self.cooldowns.get(ability_id) {
+        if let Some(&last_used) = self.cooldowns.get(&ability_id) {
             if let Some(ability) = self.unlocked_abilities.iter().find(|a| a.id == ability_id) {
                 return current_tick < last_used + ability.cooldown_ticks as u64;
             }
@@ -669,9 +688,8 @@ mod tests {
     }
 
     #[test]
-    fn test_cross_race_chain_synergy() {
+    fn test_cross_race_chain_synergy_with_stages() {
         let mut tree = AbilityTree::new(Race::Harmonic);
-        // Simulate unlocking a Terran ability (cross-race build)
         tree.unlocked_abilities.push(Ability {
             id: "terran_community_bond".to_string(),
             name: "Community Bond".to_string(),
@@ -685,7 +703,11 @@ mod tests {
             cooldown_ticks: 0,
             requires_ability: None,
         });
+        // Progress the cross-race chain
+        tree.progress_chain_stages("allied_resonance_cross", 2.2, 14.0, 0.35);
         let cross = tree.calculate_cross_race_synergy_chains(&vec!["harmonic_rebirth".to_string()]);
         assert!(!cross.is_empty());
+        let stage = tree.get_chain_stage("allied_resonance_cross");
+        assert!(stage >= 1);
     }
 }
