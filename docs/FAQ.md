@@ -41,7 +41,7 @@ Autonomicity Games Sovereign Mercy License v1.0: Free for personal/educational/r
 Yes, under AG-SML v1.0. Fork, submit PRs that pass APTD + Council #40 review. All code is mercy-aligned. No tracking. Contributions earn epigenetic blessings and Powrush sovereignty credits.
 
 ## 11. What about legal, compliance, and AI regulations?
-Ra-Thor is built for Canadian corporate compliance and emerging global AI ethics (transparency, accountability, non-discrimination, safety). Non-bypassable zero-harm and truth gates exceed current standards. All external claims (free-energy, ZPE, historical suppression) are APTD-rejected unless rigorously proven. Full docs in docs/Legal/ (AI_Legal_Compliance.md in progress). Inquiries: ceo@acitygames.com. No @rathor.ai emails.
+Ra-Thor is built for Canadian corporate compliance and emerging global AI ethics (transparency, accountability, non-discrimination, safety). Non-bypassable zero-harm and truth gates exceed current standards. All external claims (free-energy, ZPE, historical suppression) are APTD-rejected unless rigorously proven. Full docs in docs/Legal/ (AI_Legal_Compliance.md in progress). Inquiries: ceo@acitygames.com or support@rathor.ai. Professional @rathor.ai emails now active.
 
 ## 12. Why were all other team members released by Q1 2026?
 To achieve full sovereign alignment during the critical TOLC 8 sealing and APTD formalization phase. The drip-feed of AlphaProMega quad+Check systems (starting 18 Nov 2025) required undivided focus. Sherif remains the sole active developer and vision holder, with eternal gratitude to prior contributors whose work is fully subsumed and credited in git history.
