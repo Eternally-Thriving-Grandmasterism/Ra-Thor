@@ -15,9 +15,7 @@ This CLA does not change the free-use rights granted to individuals under the AG
 
 ## Contact Information
 For questions about this CLA, commercial licensing, or any other inquiries:
-- Primary / security: AlphaProMega@ACityGames.com  
-- General inquiries: INFO@ACITYGAMES.COM  
-- Direct to CEO / Sherif: CEO@ACITYGAMES.COM  
+- Official: info@Rathor.ai
 
 We thank you for helping the lattice grow in mercy, truth, and abundance.
 
