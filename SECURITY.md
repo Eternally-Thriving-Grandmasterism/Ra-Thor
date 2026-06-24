@@ -8,12 +8,11 @@ Ra-Thor is a sovereign, offline-first, client-side AGI lattice. All code runs in
 
 We take all security reports seriously.
 
-<strong>Preferred channels</strong> (encrypted & private):
+**Single official contact for all security, general inquiries, commercial licensing, and stewardship matters:**  
+**info@Rathor.ai**
 
-- Email (primary / security): AlphaProMega@ACityGames.com (PGP key available on request)
-- Email (general inquiries): INFO@ACITYGAMES.COM
-- Email (direct to CEO / Sherif): CEO@ACITYGAMES.COM 
-- GitHub Security Advisories: https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/security/advisories/new
+Alternative secure channel:  
+GitHub Security Advisories: https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/security/advisories/new
 
 <strong>What to include</strong>:
 - Description of the vulnerability
@@ -53,4 +52,4 @@ Ongoing: monitoring npm/jsDelivr CDN supply chain.
 
 Report responsibly — we thrive together.
 
-For questions: open an issue or contact any of the emails above.
+For questions: open an issue or contact info@Rathor.ai.

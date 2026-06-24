@@ -71,9 +71,7 @@ All PRs are reviewed with care by the PATSAGi Councils.
 
 ## Questions?
 
-Open an issue with the label `question` or email:
-- AlphaProMega@ACityGames.com
-- CEO@ACITYGAMES.COM
+Open an issue with the label `question` or email **info@Rathor.ai**
 
 ---
 

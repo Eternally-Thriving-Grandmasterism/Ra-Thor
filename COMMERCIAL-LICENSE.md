@@ -22,9 +22,8 @@ Any commercial, enterprise, revenue-generating, or organizational use (including
 Contact us to discuss fair, negotiable commercial licensing terms tailored to your needs.
 
 ## Contact Information
-- Primary / security: AlphaProMega@ACityGames.com  
-- General inquiries: INFO@ACITYGAMES.COM  
-- Direct to CEO / Sherif: CEO@ACITYGAMES.COM  
+**Single official email for all commercial licensing, inquiries, and stewardship matters:**  
+**[info@Rathor.ai](mailto:info@Rathor.ai)**
 
 We look forward to partnering with visionary organizations that align with the 7 Pure Laws and the global transition toward a Resource-Based Economy (RBE).
 

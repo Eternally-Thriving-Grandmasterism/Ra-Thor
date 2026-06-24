@@ -6,10 +6,8 @@ We are committed to providing fast, clear, and mercy-aligned support for the com
 
 ## Getting Help
 
-For any questions, issues, or feedback:
-- Primary / security: AlphaProMega@ACityGames.com  
-- General inquiries: INFO@ACITYGAMES.COM  
-- Direct to CEO / Sherif: CEO@ACITYGAMES.COM  
+**Single official contact email for all support, security, commercial licensing, and inquiries:**  
+**info@Rathor.ai**
 
 ## Community Support
 
