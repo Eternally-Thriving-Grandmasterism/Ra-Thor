@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
   <title>Contact Ra-Thor™ — Eternal Mercy Thunder ⚡️ | rathor.ai</title>
-  <meta name="description" content="Single official contact for Ra-Thor AGi • info@Rathor.ai • Commercial licensing, security, stewardship & inquiries under sole stewardship of Sherif Samy Botros">
+  <meta name="description" content="Single official contact for Ra-Thor AGi • info@Rathor.ai • Commercial licensing, security, stewardship & inquiries">
   <link rel="icon" href="/icons/thunder-192.png" type="image/png">
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -18,7 +18,9 @@
     @keyframes pulse { 0%,100%{transform:scale(1);} 50%{transform:scale(1.15);} }
     .card-hover { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
     .card-hover:hover { transform: translateY(-6px) scale(1.02); box-shadow: 0 25px 50px -12px rgb(234 179 8); }
-    .section-title { font-size: 2.25rem; line-height: 2.5rem; }
+    .lang-tab { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); min-height: 44px; }
+    .lang-tab.active { background-color: #fcd34d !important; color: #000000 !important; border-color: #fcd34d !important; box-shadow: 0 0 25px #fcd34d; }
+    .rtl { direction: rtl; text-align: right; }
   </style>
 </head>
 <body class="bg-black text-white overflow-x-hidden">
@@ -29,77 +31,374 @@
   <div class="golden-star" style="top:78%;left:88%;animation-delay:28s;">★</div>
 
   <div class="min-h-screen flex flex-col items-center justify-center relative px-4 sm:px-6 py-12">
-    <div class="max-w-3xl mx-auto text-center z-10">
-      <!-- Header -->
-      <div class="mb-8">
-        <a href="/" class="inline-flex items-center gap-2 text-amber-400 hover:text-amber-300 transition-colors mb-6">
-          <i class="fa-solid fa-arrow-left"></i>
-          <span>Back to Ra-Thor</span>
-        </a>
-        <h1 class="title-font text-5xl sm:text-6xl font-black tracking-tighter thunder-glow mb-3">Contact Ra-Thor™</h1>
-        <p class="text-2xl text-amber-300">Eternal Mercy Thunder ⚡️</p>
+    <div class="max-w-3xl mx-auto text-center z-10 w-full">
+
+      <!-- Language Selector -->
+      <div id="lang-selector" class="flex flex-wrap justify-center gap-2 mb-8">
+        <button data-lang="en" class="lang-tab active px-4 py-2 rounded-3xl border border-amber-300 text-amber-300 text-sm">English</button>
+        <button data-lang="ar" class="lang-tab px-4 py-2 rounded-3xl border border-amber-300 text-amber-300 text-sm">العربية</button>
+        <button data-lang="es" class="lang-tab px-4 py-2 rounded-3xl border border-amber-300 text-amber-300 text-sm">Español</button>
+        <button data-lang="fr" class="lang-tab px-4 py-2 rounded-3xl border border-amber-300 text-amber-300 text-sm">Français</button>
+        <button data-lang="nl" class="lang-tab px-4 py-2 rounded-3xl border border-amber-300 text-amber-300 text-sm">Nederlands</button>
+        <button data-lang="de" class="lang-tab px-4 py-2 rounded-3xl border border-amber-300 text-amber-300 text-sm">Deutsch</button>
+        <button data-lang="zh" class="lang-tab px-4 py-2 rounded-3xl border border-amber-300 text-amber-300 text-sm">简体中文</button>
+        <button data-lang="ja" class="lang-tab px-4 py-2 rounded-3xl border border-amber-300 text-amber-300 text-sm">日本語</button>
+        <button data-lang="pt" class="lang-tab px-4 py-2 rounded-3xl border border-amber-300 text-amber-300 text-sm">Português</button>
+        <button data-lang="ru" class="lang-tab px-4 py-2 rounded-3xl border border-amber-300 text-amber-300 text-sm">Русский</button>
+        <button data-lang="hi" class="lang-tab px-4 py-2 rounded-3xl border border-amber-300 text-amber-300 text-sm">हिन्दी</button>
       </div>
 
-      <p class="max-w-xl mx-auto text-lg text-white/80 mb-10">
+      <!-- Header -->
+      <div class="mb-8">
+        <a href="/" id="back-link" class="inline-flex items-center gap-2 text-amber-400 hover:text-amber-300 transition-colors mb-6">
+          <i class="fa-solid fa-arrow-left"></i>
+          <span id="back-text">Back to Ra-Thor</span>
+        </a>
+        <h1 id="headline" class="title-font text-5xl sm:text-6xl font-black tracking-tighter thunder-glow mb-3">Contact Ra-Thor™</h1>
+        <p id="subtitle" class="text-2xl text-amber-300">Eternal Mercy Thunder ⚡️</p>
+      </div>
+
+      <p id="intro" class="max-w-xl mx-auto text-lg text-white/80 mb-10">
         Single official point of contact under sole stewardship of <span class="font-semibold text-amber-300">Sherif Samy Botros (@AlphaProMega)</span>
       </p>
 
       <!-- Primary Contact Card -->
       <div class="card-hover bg-zinc-950 border border-amber-300/30 rounded-3xl p-10 mb-8 max-w-xl mx-auto">
         <div class="text-6xl mb-6">⚡️</div>
-        <h2 class="text-3xl font-semibold mb-2">info@Rathor.ai</h2>
-        <p class="text-amber-400 mb-6">The single eternal official email for all entities</p>
+        <h2 id="main-email" class="text-3xl font-semibold mb-2">info@Rathor.ai</h2>
+        <p id="main-subtitle" class="text-amber-400 mb-6">The single eternal official email for all entities</p>
         
         <a href="mailto:info@Rathor.ai" 
            class="inline-flex items-center justify-center gap-3 w-full sm:w-auto px-10 py-4 bg-amber-400 hover:bg-amber-300 text-black font-semibold rounded-2xl text-lg transition-all active:scale-[0.985]">
           <i class="fa-solid fa-envelope"></i>
-          <span>Send Email Now</span>
+          <span id="send-button">Send Email Now</span>
         </a>
-        <p class="text-xs text-white/50 mt-4">We aim to respond within 48 hours</p>
+        <p id="response-time" class="text-xs text-white/50 mt-4">We aim to respond within 48 hours</p>
       </div>
 
-      <!-- Secondary Channel -->
+      <!-- GitHub Card -->
       <div class="card-hover bg-zinc-950 border border-cyan-300/30 rounded-3xl p-8 mb-10 max-w-xl mx-auto">
         <div class="flex items-center justify-center gap-3 mb-4">
           <i class="fa-brands fa-github text-3xl text-cyan-400"></i>
-          <h3 class="text-2xl font-semibold">GitHub Issues</h3>
+          <h3 id="github-title" class="text-2xl font-semibold">GitHub Issues</h3>
         </div>
-        <p class="text-white/70 mb-5">For technical questions, bug reports, or public discussion</p>
+        <p id="github-subtitle" class="text-white/70 mb-5">For technical questions, bug reports, or public discussion</p>
         <a href="https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/issues" target="_blank" rel="noopener"
            class="inline-flex items-center justify-center gap-2 px-8 py-3 border border-cyan-400 hover:bg-cyan-950 text-cyan-300 rounded-2xl transition-all">
-          Open an Issue on GitHub →
+          <span id="github-button">Open an Issue on GitHub →</span>
         </a>
       </div>
 
       <!-- Guidance -->
       <div class="max-w-xl mx-auto text-left bg-zinc-950/60 border border-white/10 rounded-3xl p-8 mb-10">
-        <h4 class="font-semibold text-amber-300 mb-4 flex items-center gap-2">
+        <h4 id="guidance-title" class="font-semibold text-amber-300 mb-4 flex items-center gap-2">
           <i class="fa-solid fa-lightbulb"></i> 
           What to include in your message
         </h4>
-        <ul class="space-y-2 text-white/80 text-sm">
-          <li>• <strong>Commercial licensing</strong> — intended use, scale, and timeline</li>
-          <li>• <strong>Security reports</strong> — steps to reproduce + potential impact</li>
-          <li>• <strong>Stewardship or partnership</strong> — clear context and proposal</li>
-          <li>• <strong>General inquiries</strong> — as much relevant detail as possible</li>
+        <ul class="space-y-2 text-white/80 text-sm" id="guidance-list">
+          <li id="guidance-1">• <strong>Commercial licensing</strong> — intended use, scale, and timeline</li>
+          <li id="guidance-2">• <strong>Security reports</strong> — steps to reproduce + potential impact</li>
+          <li id="guidance-3">• <strong>Stewardship or partnership</strong> — clear context and proposal</li>
+          <li id="guidance-4">• <strong>General inquiries</strong> — as much relevant detail as possible</li>
         </ul>
-        <p class="text-xs text-white/50 mt-5">All communications are handled under the TOLC 8 Mercy Gates and APTD-verified processes.</p>
+        <p id="guidance-note" class="text-xs text-white/50 mt-5">All communications are handled under the TOLC 8 Mercy Gates and APTD-verified processes.</p>
       </div>
 
       <div class="text-center">
-        <a href="/" 
-           class="inline-flex items-center gap-2 text-sm text-amber-400 hover:text-amber-300 transition-colors">
+        <a href="/" class="inline-flex items-center gap-2 text-sm text-amber-400 hover:text-amber-300 transition-colors">
           <i class="fa-solid fa-home"></i>
-          <span>Return to Main Ra-Thor Experience</span>
+          <span id="return-text">Return to Main Ra-Thor Experience</span>
         </a>
       </div>
     </div>
   </div>
 
-  <!-- Footer -->
   <footer class="border-t border-white/10 py-8 text-center text-xs text-white/50">
-    <p>© 2026 Sherif Samy Botros — Sole Steward of Autonomicity Games Inc. &amp; AlphaProMega Air Foundation</p>
-    <p class="mt-1">TOLC 8 Mercy-Gated • APTD-verified • info@Rathor.ai is the single official contact</p>
+    <p id="footer-text">© 2026 Sherif Samy Botros — Sole Steward of Autonomicity Games Inc. &amp; AlphaProMega Air Foundation</p>
+    <p class="mt-1" id="footer-sub">TOLC 8 Mercy-Gated • APTD-verified • info@Rathor.ai is the single official contact</p>
   </footer>
+
+  <script>
+    const translations = {
+      en: {
+        back: "Back to Ra-Thor",
+        headline: "Contact Ra-Thor™",
+        subtitle: "Eternal Mercy Thunder ⚡️",
+        intro: "Single official point of contact under sole stewardship of Sherif Samy Botros (@AlphaProMega)",
+        mainSubtitle: "The single eternal official email for all entities",
+        sendButton: "Send Email Now",
+        responseTime: "We aim to respond within 48 hours",
+        githubTitle: "GitHub Issues",
+        githubSubtitle: "For technical questions, bug reports, or public discussion",
+        githubButton: "Open an Issue on GitHub →",
+        guidanceTitle: "What to include in your message",
+        guidance1: "• <strong>Commercial licensing</strong> — intended use, scale, and timeline",
+        guidance2: "• <strong>Security reports</strong> — steps to reproduce + potential impact",
+        guidance3: "• <strong>Stewardship or partnership</strong> — clear context and proposal",
+        guidance4: "• <strong>General inquiries</strong> — as much relevant detail as possible",
+        guidanceNote: "All communications are handled under the TOLC 8 Mercy Gates and APTD-verified processes.",
+        return: "Return to Main Ra-Thor Experience",
+        footer: "© 2026 Sherif Samy Botros — Sole Steward of Autonomicity Games Inc. & AlphaProMega Air Foundation",
+        footerSub: "TOLC 8 Mercy-Gated • APTD-verified • info@Rathor.ai is the single official contact"
+      },
+      ar: {
+        back: "العودة إلى را-ثور",
+        headline: "تواصل مع را-ثور™",
+        subtitle: "الرعد الرحيم الأبدي ⚡️",
+        intro: "نقطة الاتصال الرسمية الوحيدة تحت الوصاية الوحيدة لشريف سامي بطرس (@AlphaProMega)",
+        mainSubtitle: "البريد الإلكتروني الرسمي الأبدي الوحيد لجميع الكيانات",
+        sendButton: "أرسل بريداً الآن",
+        responseTime: "نسعى للرد خلال 48 ساعة",
+        githubTitle: "مشاكل GitHub",
+        githubSubtitle: "للأسئلة التقنية أو تقارير الأخطاء أو النقاش العام",
+        githubButton: "افتح مشكلة على GitHub →",
+        guidanceTitle: "ما يجب تضمينه في رسالتك",
+        guidance1: "• <strong>الترخيص التجاري</strong> — الاستخدام المقصود والحجم والجدول الزمني",
+        guidance2: "• <strong>تقارير الأمان</strong> — خطوات إعادة الإنتاج + التأثير المحتمل",
+        guidance3: "• <strong>الوصاية أو الشراكة</strong> — سياق واضح واقتراح",
+        guidance4: "• <strong>استفسارات عامة</strong> — أكبر قدر ممكن من التفاصيل ذات الصلة",
+        guidanceNote: "تتم معالجة جميع الاتصالات تحت بوابات TOLC 8 الرحيمة وعمليات APTD المعتمدة.",
+        return: "العودة إلى تجربة را-ثور الرئيسية",
+        footer: "© 2026 شريف سامي بطرس — الوصي الوحيد لشركة Autonomicity Games Inc. ومؤسسة AlphaProMega Air",
+        footerSub: "TOLC 8 Mercy-Gated • APTD-verified • info@Rathor.ai هو جهة الاتصال الرسمية الوحيدة"
+      },
+      es: {
+        back: "Volver a Ra-Thor",
+        headline: "Contacta con Ra-Thor™",
+        subtitle: "Trueno de Misericordia Eterno ⚡️",
+        intro: "Punto de contacto oficial único bajo la administración exclusiva de Sherif Samy Botros (@AlphaProMega)",
+        mainSubtitle: "El único correo electrónico oficial eterno para todas las entidades",
+        sendButton: "Enviar correo ahora",
+        responseTime: "Buscamos responder en 48 horas",
+        githubTitle: "Incidencias de GitHub",
+        githubSubtitle: "Para preguntas técnicas, informes de errores o discusión pública",
+        githubButton: "Abrir una incidencia en GitHub →",
+        guidanceTitle: "Qué incluir en tu mensaje",
+        guidance1: "• <strong>Licencias comerciales</strong> — uso previsto, escala y cronograma",
+        guidance2: "• <strong>Informes de seguridad</strong> — pasos para reproducir + impacto potencial",
+        guidance3: "• <strong>Administración o asociación</strong> — contexto claro y propuesta",
+        guidance4: "• <strong>Consultas generales</strong> — toda la información relevante posible",
+        guidanceNote: "Todas las comunicaciones se gestionan bajo las Puertas de Misericordia TOLC 8 y procesos verificados por APTD.",
+        return: "Volver a la experiencia principal de Ra-Thor",
+        footer: "© 2026 Sherif Samy Botros — Administrador único de Autonomicity Games Inc. y AlphaProMega Air Foundation",
+        footerSub: "TOLC 8 Mercy-Gated • APTD-verified • info@Rathor.ai es el contacto oficial único"
+      },
+      fr: {
+        back: "Retour à Ra-Thor",
+        headline: "Contacter Ra-Thor™",
+        subtitle: "Tonnerre de Miséricorde Éternel ⚡️",
+        intro: "Point de contact officiel unique sous l'intendance exclusive de Sherif Samy Botros (@AlphaProMega)",
+        mainSubtitle: "L'unique adresse e-mail officielle éternelle pour toutes les entités",
+        sendButton: "Envoyer un e-mail maintenant",
+        responseTime: "Nous visons à répondre sous 48 heures",
+        githubTitle: "Issues GitHub",
+        githubSubtitle: "Pour les questions techniques, rapports de bugs ou discussion publique",
+        githubButton: "Ouvrir une issue sur GitHub →",
+        guidanceTitle: "Que inclure dans votre message",
+        guidance1: "• <strong>Licences commerciales</strong> — usage prévu, échelle et calendrier",
+        guidance2: "• <strong>Rapports de sécurité</strong> — étapes de reproduction + impact potentiel",
+        guidance3: "• <strong>Intendance ou partenariat</strong> — contexte clair et proposition",
+        guidance4: "• <strong>Questions générales</strong> — le plus de détails pertinents possible",
+        guidanceNote: "Toutes les communications sont traitées sous les Portes de Miséricorde TOLC 8 et les processus vérifiés APTD.",
+        return: "Retour à l'expérience principale Ra-Thor",
+        footer: "© 2026 Sherif Samy Botros — Intendant unique d'Autonomicity Games Inc. et de la AlphaProMega Air Foundation",
+        footerSub: "TOLC 8 Mercy-Gated • APTD-verified • info@Rathor.ai est le contact officiel unique"
+      },
+      nl: {
+        back: "Terug naar Ra-Thor",
+        headline: "Contacteer Ra-Thor™",
+        subtitle: "Eeuwige Barmhartigheidsbliksem ⚡️",
+        intro: "Enkel officieel contactpunt onder exclusief beheer van Sherif Samy Botros (@AlphaProMega)",
+        mainSubtitle: "Het enige eeuwige officiële e-mailadres voor alle entiteiten",
+        sendButton: "Stuur nu een e-mail",
+        responseTime: "We streven ernaar binnen 48 uur te reageren",
+        githubTitle: "GitHub Issues",
+        githubSubtitle: "Voor technische vragen, bugmeldingen of openbare discussie",
+        githubButton: "Open een issue op GitHub →",
+        guidanceTitle: "Wat in je bericht opnemen",
+        guidance1: "• <strong>Commerciële licenties</strong> — beoogd gebruik, schaal en tijdlijn",
+        guidance2: "• <strong>Beveiligingsrapporten</strong> — stappen om te reproduceren + potentiële impact",
+        guidance3: "• <strong>Beheer of partnerschap</strong> — duidelijke context en voorstel",
+        guidance4: "• <strong>Algemene vragen</strong> — zoveel mogelijk relevante details",
+        guidanceNote: "Alle communicatie wordt afgehandeld onder de TOLC 8 Barmhartigheidspoorten en APTD-geverifieerde processen.",
+        return: "Terug naar de hoofdervaring van Ra-Thor",
+        footer: "© 2026 Sherif Samy Botros — Enige beheerder van Autonomicity Games Inc. & AlphaProMega Air Foundation",
+        footerSub: "TOLC 8 Mercy-Gated • APTD-verified • info@Rathor.ai is het enige officiële contact"
+      },
+      de: {
+        back: "Zurück zu Ra-Thor",
+        headline: "Ra-Thor kontaktieren™",
+        subtitle: "Ewiger Barmherzigkeitsdonner ⚡️",
+        intro: "Einzelner offizieller Kontakt unter alleiniger Verwaltung von Sherif Samy Botros (@AlphaProMega)",
+        mainSubtitle: "Die einzige ewige offizielle E-Mail-Adresse für alle Entitäten",
+        sendButton: "Jetzt E-Mail senden",
+        responseTime: "Wir antworten in der Regel innerhalb von 48 Stunden",
+        githubTitle: "GitHub Issues",
+        githubSubtitle: "Für technische Fragen, Bug-Reports oder öffentliche Diskussion",
+        githubButton: "Ein Issue auf GitHub öffnen →",
+        guidanceTitle: "Was in deine Nachricht aufnehmen",
+        guidance1: "• <strong>Kommerzielle Lizenzen</strong> — beabsichtigte Nutzung, Umfang und Zeitplan",
+        guidance2: "• <strong>Sicherheitsberichte</strong> — Reproduktionsschritte + mögliche Auswirkungen",
+        guidance3: "• <strong>Verwaltung oder Partnerschaft</strong> — klarer Kontext und Vorschlag",
+        guidance4: "• <strong>Allgemeine Anfragen</strong> — so viele relevante Details wie möglich",
+        guidanceNote: "Alle Kommunikation erfolgt unter den TOLC 8 Barmherzigkeitstoren und APTD-verifizierten Prozessen.",
+        return: "Zurück zur Haupt-Ra-Thor-Erfahrung",
+        footer: "© 2026 Sherif Samy Botros — Alleiniger Verwalter von Autonomicity Games Inc. & AlphaProMega Air Foundation",
+        footerSub: "TOLC 8 Mercy-Gated • APTD-verified • info@Rathor.ai ist der einzige offizielle Kontakt"
+      },
+      zh: {
+        back: "返回 Ra-Thor",
+        headline: "联系 Ra-Thor™",
+        subtitle: "永恒慈悲雷霆 ⚡️",
+        intro: "在 Sherif Samy Botros (@AlphaProMega) 唯一管理下的唯一官方联系点",
+        mainSubtitle: "所有实体的唯一永恒官方电子邮件",
+        sendButton: "立即发送邮件",
+        responseTime: "我们力争在 48 小时内回复",
+        githubTitle: "GitHub 问题",
+        githubSubtitle: "用于技术问题、错误报告或公开讨论",
+        githubButton: "在 GitHub 上打开问题 →",
+        guidanceTitle: "消息中应包含的内容",
+        guidance1: "• <strong>商业许可</strong> — 预期用途、规模和时间表",
+        guidance2: "• <strong>安全报告</strong> — 重现步骤 + 潜在影响",
+        guidance3: "• <strong>管理或合作</strong> — 清晰的背景和建议",
+        guidance4: "• <strong>一般咨询</strong> — 尽可能多的相关细节",
+        guidanceNote: "所有通信均在 TOLC 8 慈悲之门和 APTD 验证流程下处理。",
+        return: "返回 Ra-Thor 主体验",
+        footer: "© 2026 Sherif Samy Botros — Autonomicity Games Inc. & AlphaProMega Air Foundation 的唯一管家",
+        footerSub: "TOLC 8 Mercy-Gated • APTD-verified • info@Rathor.ai 是唯一官方联系方式"
+      },
+      ja: {
+        back: "Ra-Thor に戻る",
+        headline: "Ra-Thor™ に連絡する",
+        subtitle: "永遠の慈悲の雷 ⚡️",
+        intro: "Sherif Samy Botros (@AlphaProMega) の唯一の管理下における唯一の公式連絡先",
+        mainSubtitle: "すべてのエンティティのための唯一の永遠の公式メールアドレス",
+        sendButton: "今すぐメールを送る",
+        responseTime: "48時間以内の返信を目指しています",
+        githubTitle: "GitHub Issues",
+        githubSubtitle: "技術的な質問、バグ報告、公開議論用",
+        githubButton: "GitHub で Issue を開く →",
+        guidanceTitle: "メッセージに含める内容",
+        guidance1: "• <strong>商用ライセンス</strong> — 用途、規模、タイムライン",
+        guidance2: "• <strong>セキュリティ報告</strong> — 再現手順 + 潜在的な影響",
+        guidance3: "• <strong>管理またはパートナーシップ</strong> — 明確な文脈と提案",
+        guidance4: "• <strong>一般的な問い合わせ</strong> — 可能な限り多くの関連詳細",
+        guidanceNote: "すべての通信は TOLC 8 Mercy Gates と APTD 検証プロセスで処理されます。",
+        return: "Ra-Thor メイン体験に戻る",
+        footer: "© 2026 Sherif Samy Botros — Autonomicity Games Inc. & AlphaProMega Air Foundation の唯一の管轄者",
+        footerSub: "TOLC 8 Mercy-Gated • APTD-verified • info@Rathor.ai が唯一の公式連絡先"
+      },
+      pt: {
+        back: "Voltar para Ra-Thor",
+        headline: "Contactar Ra-Thor™",
+        subtitle: "Trovão Eterno da Misericórdia ⚡️",
+        intro: "Ponto de contato oficial único sob a administração exclusiva de Sherif Samy Botros (@AlphaProMega)",
+        mainSubtitle: "O único e-mail oficial eterno para todas as entidades",
+        sendButton: "Enviar e-mail agora",
+        responseTime: "Procuramos responder em até 48 horas",
+        githubTitle: "Issues do GitHub",
+        githubSubtitle: "Para perguntas técnicas, relatórios de bugs ou discussão pública",
+        githubButton: "Abrir uma issue no GitHub →",
+        guidanceTitle: "O que incluir na sua mensagem",
+        guidance1: "• <strong>Licenças comerciais</strong> — uso pretendido, escala e cronograma",
+        guidance2: "• <strong>Relatórios de segurança</strong> — passos para reproduzir + impacto potencial",
+        guidance3: "• <strong>Administração ou parceria</strong> — contexto claro e proposta",
+        guidance4: "• <strong>Perguntas gerais</strong> — o máximo de detalhes relevantes possível",
+        guidanceNote: "Todas as comunicações são tratadas sob as Portas de Misericórdia TOLC 8 e processos verificados por APTD.",
+        return: "Voltar à experiência principal de Ra-Thor",
+        footer: "© 2026 Sherif Samy Botros — Administrador único da Autonomicity Games Inc. & AlphaProMega Air Foundation",
+        footerSub: "TOLC 8 Mercy-Gated • APTD-verified • info@Rathor.ai é o contato oficial único"
+      },
+      ru: {
+        back: "Вернуться к Ra-Thor",
+        headline: "Связаться с Ra-Thor™",
+        subtitle: "Вечный Гром Милосердия ⚡️",
+        intro: "Единственная официальная точка контакта под единоличным управлением Sherif Samy Botros (@AlphaProMega)",
+        mainSubtitle: "Единственный вечный официальный email для всех сущностей",
+        sendButton: "Отправить письмо сейчас",
+        responseTime: "Мы стараемся отвечать в течение 48 часов",
+        githubTitle: "Issues на GitHub",
+        githubSubtitle: "Для технических вопросов, отчётов об ошибках или публичного обсуждения",
+        githubButton: "Открыть issue на GitHub →",
+        guidanceTitle: "Что указать в сообщении",
+        guidance1: "• <strong>Коммерческие лицензии</strong> — предполагаемое использование, масштаб и сроки",
+        guidance2: "• <strong>Отчёты по безопасности</strong> — шаги для воспроизведения + потенциальное влияние",
+        guidance3: "• <strong>Управление или партнёрство</strong> — чёткий контекст и предложение",
+        guidance4: "• <strong>Общие запросы</strong> — как можно больше релевантных деталей",
+        guidanceNote: "Вся коммуникация обрабатывается под Вратами Милосердия TOLC 8 и процессами, проверенными APTD.",
+        return: "Вернуться к главному опыту Ra-Thor",
+        footer: "© 2026 Sherif Samy Botros — Единственный управляющий Autonomicity Games Inc. & AlphaProMega Air Foundation",
+        footerSub: "TOLC 8 Mercy-Gated • APTD-verified • info@Rathor.ai — единственный официальный контакт"
+      },
+      hi: {
+        back: "Ra-Thor पर वापस जाएं",
+        headline: "Ra-Thor™ से संपर्क करें",
+        subtitle: "शाश्वत दया का गरज ⚡️",
+        intro: "Sherif Samy Botros (@AlphaProMega) की एकमात्र प्रबंधन के तहत एकमात्र आधिकारिक संपर्क बिंदु",
+        mainSubtitle: "सभी संस्थाओं के लिए एकमात्र शाश्वत आधिकारिक ईमेल",
+        sendButton: "अभी ईमेल भेजें",
+        responseTime: "हम 48 घंटे के भीतर जवाब देने का प्रयास करते हैं",
+        githubTitle: "GitHub Issues",
+        githubSubtitle: "तकनीकी प्रश्नों, बग रिपोर्ट या सार्वजनिक चर्चा के लिए",
+        githubButton: "GitHub पर Issue खोलें →",
+        guidanceTitle: "आपके संदेश में क्या शामिल करें",
+        guidance1: "• <strong>व्यावसायिक लाइसेंस</strong> — इच्छित उपयोग, पैमाना और समयरेखा",
+        guidance2: "• <strong>सुरक्षा रिपोर्ट</strong> — पुनरुत्पादन के चरण + संभावित प्रभाव",
+        guidance3: "• <strong>प्रबंधन या साझेदारी</strong> — स्पष्ट संदर्भ और प्रस्ताव",
+        guidance4: "• <strong>सामान्य पूछताछ</strong> — जितना संभव हो उतना प्रासंगिक विवरण",
+        guidanceNote: "सभी संचार TOLC 8 दया द्वारों और APTD सत्यापित प्रक्रियाओं के तहत संभाले जाते हैं।",
+        return: "Ra-Thor मुख्य अनुभव पर वापस जाएं",
+        footer: "© 2026 Sherif Samy Botros — Autonomicity Games Inc. & AlphaProMega Air Foundation के एकमात्र प्रबंधक",
+        footerSub: "TOLC 8 Mercy-Gated • APTD-verified • info@Rathor.ai एकमात्र आधिकारिक संपर्क है"
+      }
+    };
+
+    function switchLang(lang) {
+      document.querySelectorAll('.lang-tab').forEach(b => b.classList.remove('active'));
+      const activeBtn = document.querySelector(`.lang-tab[data-lang="${lang}"]`);
+      if (activeBtn) activeBtn.classList.add('active');
+
+      const t = translations[lang];
+      if (!t) return;
+
+      document.getElementById('back-text').textContent = t.back;
+      document.getElementById('headline').textContent = t.headline;
+      document.getElementById('subtitle').textContent = t.subtitle;
+      document.getElementById('intro').innerHTML = t.intro;
+      document.getElementById('main-subtitle').textContent = t.mainSubtitle;
+      document.getElementById('send-button').textContent = t.sendButton;
+      document.getElementById('response-time').textContent = t.responseTime;
+      document.getElementById('github-title').textContent = t.githubTitle;
+      document.getElementById('github-subtitle').textContent = t.githubSubtitle;
+      document.getElementById('github-button').textContent = t.githubButton;
+      document.getElementById('guidance-title').innerHTML = `<i class="fa-solid fa-lightbulb"></i> ${t.guidanceTitle}`;
+      document.getElementById('guidance-1').innerHTML = t.guidance1;
+      document.getElementById('guidance-2').innerHTML = t.guidance2;
+      document.getElementById('guidance-3').innerHTML = t.guidance3;
+      document.getElementById('guidance-4').innerHTML = t.guidance4;
+      document.getElementById('guidance-note').textContent = t.guidanceNote;
+      document.getElementById('return-text').textContent = t.return;
+      document.getElementById('footer-text').innerHTML = t.footer;
+      document.getElementById('footer-sub').textContent = t.footerSub;
+
+      // RTL support for Arabic
+      const container = document.querySelector('.max-w-3xl');
+      if (lang === 'ar') {
+        container.classList.add('rtl');
+        document.documentElement.setAttribute('dir', 'rtl');
+      } else {
+        container.classList.remove('rtl');
+        document.documentElement.setAttribute('dir', 'ltr');
+      }
+    }
+
+    document.getElementById('lang-selector').addEventListener('click', function(e) {
+      const btn = e.target.closest('.lang-tab');
+      if (btn) switchLang(btn.getAttribute('data-lang'));
+    });
+
+    // Default to English on load
+    window.addEventListener('load', () => switchLang('en'));
+  </script>
 </body>
 </html>
