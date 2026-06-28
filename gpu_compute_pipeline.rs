@@ -1,5 +1,5 @@
 // gpu_compute_pipeline.rs
-// Ra-Thor v14.9+ — GPU Memory Allocator with Fixed Coalescing Logic
+// Ra-Thor v14.9+ — GPU Memory Allocator + StagingBufferPool + Async Readback + Debug Utilities
 // AG-SML v1.0 License
 
 use std::collections::HashMap;
@@ -82,7 +82,6 @@ impl GpuMemoryAllocator {
 
         self.current_usage = self.current_usage.saturating_sub(size);
 
-        // Attempt coalescing after storing
         self.try_coalesce(size);
     }
 
@@ -185,8 +184,83 @@ pub struct GpuMemoryStats {
     pub active_size_classes: usize,
 }
 
+// === NEW: StagingBufferPool for efficient GPU staging ===
+pub struct StagingBufferPool {
+    allocator: GpuMemoryAllocator,
+    staging_buffers: HashMap<usize, Vec<Vec<u8>>>,
+}
+
+impl StagingBufferPool {
+    pub fn new() -> Self {
+        Self {
+            allocator: GpuMemoryAllocator::new(),
+            staging_buffers: HashMap::new(),
+        }
+    }
+
+    pub fn acquire_staging(&mut self, size: usize) -> Vec<u8> {
+        let class = GpuMemoryAllocator::get_size_class(size);
+        if let Some(buffers) = self.staging_buffers.get_mut(&class) {
+            if let Some(buf) = buffers.pop() {
+                return buf;
+            }
+        }
+        self.allocator.acquire(size)
+    }
+
+    pub fn release_staging(&mut self, buffer: Vec<u8>) {
+        let size = buffer.len();
+        let class = GpuMemoryAllocator::get_size_class(size);
+        let list = self.staging_buffers.entry(class).or_default();
+        if list.len() < 16 {
+            list.push(buffer);
+        } else {
+            self.allocator.release(buffer);
+        }
+    }
+}
+
+// === NEW: Async Readback simulation ===
+pub async fn readback_buffer_async(buffer: Vec<u8>) -> Result<Vec<u8>, String> {
+    // Simulate async GPU readback delay
+    tokio::time::sleep(tokio::time::Duration::from_millis(5)).await;
+    Ok(buffer)
+}
+
+pub fn readback_buffer_blocking(buffer: Vec<u8>) -> Result<Vec<u8>, String> {
+    Ok(buffer)
+}
+
+// === NEW: Debug utilities ===
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DebugOutputBuffer {
+    pub label: String,
+    pub data: Vec<u8>,
+    pub timestamp_ms: u64,
+}
+
+impl DebugOutputBuffer {
+    pub fn new(label: &str, data: Vec<u8>) -> Self {
+        Self {
+            label: label.to_string(),
+            data,
+            timestamp_ms: std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap()
+                .as_millis() as u64,
+        }
+    }
+
+    pub fn inspect(&self) -> String {
+        format!("DEBUG [{} @ {}ms]: {} bytes | first 16: {:02x?}", 
+            self.label, self.timestamp_ms, self.data.len(), 
+            &self.data[..std::cmp::min(16, self.data.len())])
+    }
+}
+
 pub struct GpuComputePipeline {
     allocator: Arc<Mutex<GpuMemoryAllocator>>,
+    staging_pool: Arc<Mutex<StagingBufferPool>>,
     pub version: String,
 }
 
@@ -194,18 +268,27 @@ impl GpuComputePipeline {
     pub fn new() -> Self {
         Self {
             allocator: Arc::new(Mutex::new(GpuMemoryAllocator::new())),
-            version: "v14.9.0-gpu-allocator".to_string(),
+            staging_pool: Arc::new(Mutex::new(StagingBufferPool::new())),
+            version: "v14.9.0-gpu-staging-readback".to_string(),
         }
     }
 
     pub async fn dispatch(&self, task: GpuTask) -> Result<GpuTaskResult, String> {
         let start = std::time::Instant::now();
         let mut allocator = self.allocator.lock().await;
-        let _buffer = allocator.acquire(task.buffer_size);
+        let mut staging = self.staging_pool.lock().await;
 
+        let staging_buf = staging.acquire_staging(task.buffer_size);
+        // Simulate GPU dispatch work
         tokio::time::sleep(tokio::time::Duration::from_millis(70)).await;
 
+        // Concrete readback
+        let readback = readback_buffer_async(staging_buf.clone()).await?;
+        let debug = DebugOutputBuffer::new(&task.name, readback.clone());
+
+        staging.release_staging(staging_buf);
         allocator.release(vec![0u8; GpuMemoryAllocator::get_size_class(task.buffer_size)]);
+
         let elapsed = start.elapsed().as_millis() as u64;
         let stats = allocator.stats();
 
@@ -215,8 +298,8 @@ impl GpuComputePipeline {
             execution_time_ms: elapsed,
             output_size: task.buffer_size / 4,
             message: format!(
-                "GPU task '{}' | {} ms | Coalesced: {}x | Largest free: {} MB",
-                task.name, elapsed, stats.coalesce_count, stats.largest_free_block_bytes / (1024*1024)
+                "GPU task '{}' | {} ms | Coalesced: {}x | Readback: {} bytes | Debug: {}",
+                task.name, elapsed, stats.coalesce_count, readback.len(), debug.inspect()
             ),
         })
     }
