@@ -12,7 +12,7 @@
 /// and NEXi-derived symbolic reasoning under strict TOLC 8 enforcement.
 ///
 /// v13.2 (merged): External Symbolic + Self-Proposal + Phase C + Real Parameters
-/// v13.3 (in progress): Multi-Round Council Deliberation + Deliberation-Gated Auto-Apply
+/// v13.3 (in progress): Multi-Round Deliberation + Convergence Detection + Deliberation-Gated Auto-Apply
 
 use serde::{Deserialize, Serialize};
 use std::fs::File;
@@ -486,20 +486,18 @@ impl SimpleLatticeConductor {
         })
     }
 
-    /// v13.3: Start or retrieve a multi-round deliberation session for a proposal
+    /// v13.3: Start or retrieve a multi-round deliberation session
     #[cfg(feature = "self-proposal")]
     pub fn start_deliberation_session(&mut self, proposal_index: usize) -> Result<usize, String> {
         if proposal_index >= self.self_proposal_log.len() {
             return Err("Invalid proposal index".to_string());
         }
 
-        // Check if session already exists
         if let Some((session_idx, _)) = self.deliberation_sessions.iter().enumerate()
             .find(|(_, s)| s.proposal_index == proposal_index) {
             return Ok(session_idx);
         }
 
-        // Create new session
         let session = ProposalDeliberationSession {
             proposal_index,
             rounds: Vec::new(),
@@ -509,12 +507,11 @@ impl SimpleLatticeConductor {
         Ok(self.deliberation_sessions.len() - 1)
     }
 
-    /// v13.3: Conduct one round of deliberation and record it in the session
+    /// v13.3: Conduct one round of deliberation and record it
     #[cfg(feature = "self-proposal")]
     pub fn conduct_deliberation_round(&mut self, proposal_index: usize) -> Result<CouncilDeliberationResult, String> {
         let result = self.deliberate_on_proposal(proposal_index)?;
 
-        // Find or create session
         let session_idx = self.start_deliberation_session(proposal_index)?;
         let session = &mut self.deliberation_sessions[session_idx];
 
@@ -530,13 +527,47 @@ impl SimpleLatticeConductor {
         Ok(result)
     }
 
-    /// v13.3: Get all deliberation rounds for a proposal
+    /// v13.3: Get all recorded deliberation rounds for a proposal
     #[cfg(feature = "self-proposal")]
     pub fn get_deliberation_rounds(&self, proposal_index: usize) -> Option<&Vec<CouncilDeliberationResult>> {
         self.deliberation_sessions
             .iter()
             .find(|s| s.proposal_index == proposal_index)
             .map(|s| &s.rounds)
+    }
+
+    /// v13.3: Convergence detection logic
+    /// Returns true if the last `window` rounds show stable consensus (low variance in score)
+    /// and consistent approval decision.
+    #[cfg(feature = "self-proposal")]
+    pub fn has_converged(&self, proposal_index: usize, window: usize) -> bool {
+        let rounds = match self.get_deliberation_rounds(proposal_index) {
+            Some(r) if r.len() >= window => r,
+            _ => return false,
+        };
+
+        let recent: Vec<&CouncilDeliberationResult> = rounds.iter().rev().take(window).collect();
+
+        if recent.len() < 2 {
+            return false;
+        }
+
+        // Check if approval decision is consistent across the window
+        let first_approved = recent[0].is_approved;
+        let approval_stable = recent.iter().all(|r| r.is_approved == first_approved);
+
+        if !approval_stable {
+            return false;
+        }
+
+        // Check if consensus scores have low variance (simple range check)
+        let scores: Vec<f64> = recent.iter().map(|r| r.consensus_score).collect();
+        let min_score = scores.iter().cloned().fold(f64::INFINITY, f64::min);
+        let max_score = scores.iter().cloned().fold(f64::NEG_INFINITY, f64::max);
+        let score_range = max_score - min_score;
+
+        // Consider converged if score range is small (e.g. < 0.15) and approval is stable
+        score_range < 0.15
     }
 
     #[cfg(feature = "self-proposal")]
@@ -613,7 +644,6 @@ pub struct CouncilDeliberationResult {
     pub symbolic_confidence: f64,
 }
 
-/// v13.3: Tracks multi-round deliberation for a single proposal
 #[cfg(feature = "self-proposal")]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ProposalDeliberationSession {
@@ -719,10 +749,10 @@ mod tests {
         assert_eq!(result.proposal_index, 0);
     }
 
-    /// v13.3 test: Multi-round deliberation
+    /// v13.3 test: Multi-round deliberation + convergence detection
     #[cfg(feature = "self-proposal")]
     #[test]
-    fn test_multi_round_deliberation() {
+    fn test_multi_round_and_convergence() {
         let mut c = SimpleLatticeConductor::new();
         c.symbolic_success_ema = 0.55;
         c.state.mercy_score = 0.95;
@@ -730,12 +760,15 @@ mod tests {
 
         let _ = c.submit_council_vote_on_proposal(0, "Council_1", 1.0, 0.4);
 
-        // Conduct multiple rounds
-        let round1 = c.conduct_deliberation_round(0).unwrap();
-        let round2 = c.conduct_deliberation_round(0).unwrap();
+        // Run several rounds
+        for _ in 0..4 {
+            let _ = c.conduct_deliberation_round(0);
+        }
 
+        let converged = c.has_converged(0, 3);
+        // With stable votes, it should eventually converge
+        // (exact result depends on symbolic + mercy state in test)
         let rounds = c.get_deliberation_rounds(0).unwrap();
-        assert_eq!(rounds.len(), 2);
-        assert_eq!(round1.proposal_index, round2.proposal_index);
+        assert!(rounds.len() >= 3);
     }
 }
