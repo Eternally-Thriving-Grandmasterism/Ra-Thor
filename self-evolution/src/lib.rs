@@ -45,6 +45,41 @@ pub fn propose_and_bless_evolution(
     Ok(())
 }
 
+/// Advanced conductor-native evolution combining PATSAGi council voting + Quantum Swarm integration.
+/// Demonstrates deeper wiring available through Lattice Conductor v13.
+pub fn council_voted_quantum_evolution(
+    conductor: &mut SimpleLatticeConductor,
+    council_name: &str,
+    mercy_impact: f64,
+    swarm_participation: f64,
+) -> Result<(), String> {
+    let state = &mut conductor.state;
+    let mut trace_log = Vec::new();
+
+    // Council-voted evolution influence
+    conductor
+        .evolution_orchestrator
+        .council_voted_evolution(council_name, mercy_impact, state, &mut trace_log);
+
+    // Quantum Swarm integration hook (Phase 13.2)
+    if swarm_participation > 0.0 {
+        conductor
+            .evolution_orchestrator
+            .integrate_quantum_swarm(swarm_participation, state);
+        trace_log.push(format!(
+            "[Quantum Swarm] Participation {:.2} integrated into evolution",
+            swarm_participation
+        ));
+    }
+
+    // Push traces back into conductor audit
+    for t in trace_log {
+        conductor.audit_traces.push(t);
+    }
+
+    Ok(())
+}
+
 // === Original Self-Evolution Logic (Preserved) ===
 
 // The original SovereignHealthMonitor, EpigeneticBlessing, mercy_history,
@@ -75,5 +110,23 @@ mod tests {
         assert!(result.is_ok());
         let state = conductor.get_geometric_state();
         assert!(state.evolution_level > 0.0);
+    }
+
+    #[test]
+    fn test_council_voted_quantum_evolution() {
+        let mut conductor = SimpleLatticeConductor::new();
+        conductor.register_council(42, "Abundance Council");
+
+        let result = council_voted_quantum_evolution(
+            &mut conductor,
+            "Abundance Council",
+            0.75,
+            0.65,
+        );
+
+        assert!(result.is_ok());
+        let state = conductor.get_geometric_state();
+        assert!(state.evolution_level > 0.0);
+        assert!(state.tolc_alignment > 1.0);
     }
 }
