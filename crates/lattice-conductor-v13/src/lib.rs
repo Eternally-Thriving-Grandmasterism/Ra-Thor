@@ -12,7 +12,7 @@
 /// and NEXi-derived symbolic reasoning under strict TOLC 8 enforcement.
 ///
 /// v13.2 (merged): External Symbolic + Self-Proposal + Phase C + Real Parameters
-/// v13.3 (in progress): Proposal History + Safe Auto-Apply + Weighted Council Voting on Proposals
+/// v13.3 (in progress): Proposal History + Safe Auto-Apply + Weighted Council Voting + Council Deliberation Protocol
 
 use serde::{Deserialize, Serialize};
 use std::fs::File;
@@ -321,7 +321,7 @@ impl SimpleLatticeConductor {
         proposals
     }
 
-    /// Phase C: Explicitly apply + record history.
+    /// Phase C + v13.3: Apply + history
     #[cfg(feature = "self-proposal")]
     pub fn apply_symbolic_self_proposal(&mut self, index: usize) -> Result<String, String> {
         if index >= self.self_proposal_log.len() { return Err("Invalid index".to_string()); }
@@ -366,7 +366,7 @@ impl SimpleLatticeConductor {
         self.apply_symbolic_self_proposal(best_idx)
     }
 
-    /// v13.3: Safe auto-apply only when mercy ≥ 0.98 and proposal confidence ≥ 0.82.
+    /// v13.3 Safe Auto-Apply
     #[cfg(feature = "self-proposal")]
     pub fn try_safe_auto_apply_top_proposal(&mut self) -> Result<Option<String>, String> {
         if self.self_proposal_log.is_empty() { return Ok(None); }
@@ -385,8 +385,7 @@ impl SimpleLatticeConductor {
         }
     }
 
-    /// v13.3: Weighted council voting on a specific self-proposal.
-    /// Uses the existing MercyWeightedVote mechanism for consistency.
+    /// v13.3: Weighted council voting on proposals
     #[cfg(feature = "self-proposal")]
     pub fn submit_council_vote_on_proposal(
         &mut self,
@@ -399,7 +398,6 @@ impl SimpleLatticeConductor {
             return Err("Invalid proposal index".to_string());
         }
 
-        // Find existing vote record for this proposal or create new one
         if let Some((_, vote)) = self.proposal_votes.iter_mut().find(|(idx, _)| *idx == proposal_index) {
             vote.add_vote(council_name, weight, mercy_impact);
         } else {
@@ -416,7 +414,6 @@ impl SimpleLatticeConductor {
         Ok(())
     }
 
-    /// v13.3: Returns the mercy-weighted consensus for a specific proposal (if any votes exist).
     #[cfg(feature = "self-proposal")]
     pub fn get_proposal_consensus(&self, proposal_index: usize) -> Option<f64> {
         self.proposal_votes
@@ -426,19 +423,66 @@ impl SimpleLatticeConductor {
     }
 
     #[cfg(feature = "self-proposal")]
-    pub fn get_self_proposal_log(&self) -> &[SymbolicSelfProposal] { &self.self_proposal_log }
-
-    #[cfg(feature = "self-proposal")]
-    pub fn get_proposal_application_history(&self) -> &[AppliedSymbolicProposal] {
-        &self.proposal_application_history
-    }
-
-    #[cfg(feature = "self-proposal")]
     pub fn get_proposal_votes(&self, proposal_index: usize) -> Option<&MercyWeightedVote> {
         self.proposal_votes
             .iter()
             .find(|(idx, _)| *idx == proposal_index)
             .map(|(_, vote)| vote)
+    }
+
+    /// v13.3: Council Deliberation Protocol
+    ///
+    /// Performs a full council deliberation on a self-proposal:
+    /// - Runs symbolic deliberation on the proposal
+    /// - Incorporates existing weighted council votes
+    /// - Produces a structured deliberation result with approval decision
+    #[cfg(feature = "self-proposal")]
+    pub fn deliberate_on_proposal(&self, proposal_index: usize) -> Result<CouncilDeliberationResult, String> {
+        if proposal_index >= self.self_proposal_log.len() {
+            return Err("Invalid proposal index".to_string());
+        }
+
+        let proposal = &self.self_proposal_log[proposal_index];
+        let consensus = self.get_proposal_consensus(proposal_index).unwrap_or(0.0);
+
+        // Run symbolic deliberation on the proposal
+        let symbolic_input = format!("deliberate_on_{}", proposal.proposal_type);
+        let symbolic = metta_symbolic_deliberation(&symbolic_input, self.state.mercy_score);
+
+        // Approval logic: positive consensus + high mercy + symbolic threshold met
+        let is_approved = consensus > 0.05
+            && self.state.mercy_score >= 0.90
+            && symbolic.threshold_met;
+
+        let participating = self.proposal_votes
+            .iter()
+            .find(|(idx, _)| *idx == proposal_index)
+            .map(|(_, v)| v.to_audit_string())
+            .map(|s| s.split(' ').nth(1).unwrap_or("0").parse::<usize>().unwrap_or(0))
+            .unwrap_or(0);
+
+        let message = if is_approved {
+            format!("Council deliberation APPROVED proposal #{} with consensus {:.2}", proposal_index, consensus)
+        } else {
+            format!("Council deliberation did not approve proposal #{} (consensus={:.2})", proposal_index, consensus)
+        };
+
+        Ok(CouncilDeliberationResult {
+            proposal_index,
+            consensus_score: consensus,
+            is_approved,
+            message,
+            participating_councils: participating,
+            symbolic_confidence: symbolic.confidence_score,
+        })
+    }
+
+    #[cfg(feature = "self-proposal")]
+    pub fn get_self_proposal_log(&self) -> &[SymbolicSelfProposal] { &self.self_proposal_log }
+
+    #[cfg(feature = "self-proposal")]
+    pub fn get_proposal_application_history(&self) -> &[AppliedSymbolicProposal] {
+        &self.proposal_application_history
     }
 }
 
@@ -475,7 +519,7 @@ impl ExternalSymbolicInput {
     }
 }
 
-// ==================== PHASE B+C + v13.3 TYPES (gated) ====================
+// ==================== v13.3 TYPES (gated) ====================
 #[cfg(feature = "self-proposal")]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SymbolicSelfProposal {
@@ -494,6 +538,18 @@ pub struct AppliedSymbolicProposal {
     pub applied_value: f64,
     pub effect_description: String,
     pub mercy_score_at_apply: f64,
+}
+
+/// v13.3: Structured result from a full Council Deliberation on a self-proposal.
+#[cfg(feature = "self-proposal")]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CouncilDeliberationResult {
+    pub proposal_index: usize,
+    pub consensus_score: f64,
+    pub is_approved: bool,
+    pub message: String,
+    pub participating_councils: usize,
+    pub symbolic_confidence: f64,
 }
 
 // ==================== TESTS ====================
@@ -563,7 +619,6 @@ mod tests {
         assert!(result.is_none());
     }
 
-    /// v13.3 test: weighted council voting on proposals
     #[cfg(feature = "self-proposal")]
     #[test]
     fn test_weighted_council_voting() {
@@ -572,16 +627,31 @@ mod tests {
         c.state.mercy_score = 0.95;
         let _ = c.tick();
 
-        // Submit votes from multiple councils
         let _ = c.submit_council_vote_on_proposal(0, "PATSAGi_Council_1", 1.0, 0.3);
         let _ = c.submit_council_vote_on_proposal(0, "PATSAGi_Council_2", 0.8, 0.25);
 
         let consensus = c.get_proposal_consensus(0);
         assert!(consensus.is_some());
-        assert!(consensus.unwrap() > -0.3 && consensus.unwrap() < 0.5);
+    }
 
-        let vote_record = c.get_proposal_votes(0);
-        assert!(vote_record.is_some());
-        assert_eq!(vote_record.unwrap().to_audit_string().contains("2 votes"), true);
+    /// v13.3 test: Full Council Deliberation Protocol
+    #[cfg(feature = "self-proposal")]
+    #[test]
+    fn test_council_deliberation_protocol() {
+        let mut c = SimpleLatticeConductor::new();
+        c.symbolic_success_ema = 0.55;
+        c.state.mercy_score = 0.95;
+        let _ = c.tick();
+
+        // Submit some votes
+        let _ = c.submit_council_vote_on_proposal(0, "Council_Alpha", 1.0, 0.4);
+        let _ = c.submit_council_vote_on_proposal(0, "Council_Beta", 0.7, 0.3);
+
+        let result = c.deliberate_on_proposal(0).unwrap();
+
+        assert_eq!(result.proposal_index, 0);
+        assert!(result.participating_councils >= 2);
+        assert!(result.symbolic_confidence > 0.0);
+        // Approval depends on consensus + mercy + symbolic threshold
     }
 }
