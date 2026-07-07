@@ -12,7 +12,7 @@
 /// and NEXi-derived symbolic reasoning under strict TOLC 8 enforcement.
 ///
 /// v13.2 (merged): External Symbolic + Self-Proposal + Phase C + Real Parameters
-/// v13.3 (in progress): Multi-Round Deliberation + Convergence Detection + Deliberation-Gated Auto-Apply
+/// v13.3 (in progress): Multi-Round Deliberation + Convergence Detection + Minimum Rounds + Deliberation-Gated Auto-Apply
 
 use serde::{Deserialize, Serialize};
 use std::fs::File;
@@ -536,37 +536,41 @@ impl SimpleLatticeConductor {
             .map(|s| &s.rounds)
     }
 
-    /// v13.3: Convergence detection logic
-    /// Returns true if the last `window` rounds show stable consensus (low variance in score)
-    /// and consistent approval decision.
+    /// v13.3: Convergence detection with minimum round requirement.
+    ///
+    /// Returns true only if:
+    /// - At least `min_rounds` total rounds have been conducted, AND
+    /// - The last `window` rounds show stable consensus and consistent approval.
     #[cfg(feature = "self-proposal")]
-    pub fn has_converged(&self, proposal_index: usize, window: usize) -> bool {
+    pub fn has_converged(&self, proposal_index: usize, min_rounds: usize, window: usize) -> bool {
         let rounds = match self.get_deliberation_rounds(proposal_index) {
-            Some(r) if r.len() >= window => r,
-            _ => return false,
+            Some(r) => r,
+            None => return false,
         };
 
-        let recent: Vec<&CouncilDeliberationResult> = rounds.iter().rev().take(window).collect();
-
-        if recent.len() < 2 {
+        if rounds.len() < min_rounds {
             return false;
         }
 
-        // Check if approval decision is consistent across the window
+        if rounds.len() < window {
+            return false;
+        }
+
+        let recent: Vec<&CouncilDeliberationResult> = rounds.iter().rev().take(window).collect();
+
+        // Approval decision must be consistent
         let first_approved = recent[0].is_approved;
         let approval_stable = recent.iter().all(|r| r.is_approved == first_approved);
-
         if !approval_stable {
             return false;
         }
 
-        // Check if consensus scores have low variance (simple range check)
+        // Consensus score must have low variance
         let scores: Vec<f64> = recent.iter().map(|r| r.consensus_score).collect();
         let min_score = scores.iter().cloned().fold(f64::INFINITY, f64::min);
         let max_score = scores.iter().cloned().fold(f64::NEG_INFINITY, f64::max);
         let score_range = max_score - min_score;
 
-        // Consider converged if score range is small (e.g. < 0.15) and approval is stable
         score_range < 0.15
     }
 
@@ -749,10 +753,10 @@ mod tests {
         assert_eq!(result.proposal_index, 0);
     }
 
-    /// v13.3 test: Multi-round deliberation + convergence detection
+    /// v13.3 test: Multi-round deliberation with minimum rounds + convergence
     #[cfg(feature = "self-proposal")]
     #[test]
-    fn test_multi_round_and_convergence() {
+    fn test_multi_round_minimum_and_convergence() {
         let mut c = SimpleLatticeConductor::new();
         c.symbolic_success_ema = 0.55;
         c.state.mercy_score = 0.95;
@@ -760,15 +764,16 @@ mod tests {
 
         let _ = c.submit_council_vote_on_proposal(0, "Council_1", 1.0, 0.4);
 
-        // Run several rounds
-        for _ in 0..4 {
+        // Conduct 5 rounds
+        for _ in 0..5 {
             let _ = c.conduct_deliberation_round(0);
         }
 
-        let converged = c.has_converged(0, 3);
-        // With stable votes, it should eventually converge
-        // (exact result depends on symbolic + mercy state in test)
-        let rounds = c.get_deliberation_rounds(0).unwrap();
-        assert!(rounds.len() >= 3);
+        // Should not converge with min_rounds=6
+        assert!(!c.has_converged(0, 6, 3));
+
+        // Should check convergence with min_rounds=3 and window=3
+        let converged = c.has_converged(0, 3, 3);
+        // Result depends on stability in this test run
     }
 }
