@@ -11,11 +11,11 @@
 /// Primary orchestration layer for conducting councils, self-evolution, geometric state,
 /// and NEXi-derived symbolic reasoning under strict TOLC 8 enforcement.
 ///
-/// v13.2 (Phases A+B+C + real parameters + feature flags):
-/// - Real ConductorSymbolicParameters (no more proxies)
-/// - Phase A: ExternalSymbolicInput (feature "external-symbolic")
-/// - Phase B: SelfProposal generation + logging (feature "self-proposal")
-/// - Phase C: Explicit apply + top-confidence apply (feature "self-proposal")
+/// v13.2 (Phases A+B+C + real parameters + feature flags) — PR #363
+/// - External Symbolic Input (ONE Organism ready)
+/// - Mercy-gated Self-Proposal generation + controlled apply
+/// - Real ConductorSymbolicParameters (directly mutated by Phase C)
+/// - Granular Cargo features for safe rollout
 
 use serde::{Deserialize, Serialize};
 use std::fs::File;
@@ -435,5 +435,25 @@ mod tests {
         let before = c.symbolic_params.base_confidence_threshold;
         let _ = c.apply_top_confidence_proposal();
         assert!(c.symbolic_params.base_confidence_threshold != before || c.symbolic_params.boost_multiplier != 1.0);
+    }
+
+    /// Additional targeted test: verify that apply actually mutates the real parameter fields
+    #[cfg(feature = "self-proposal")]
+    #[test]
+    fn test_phase_c_mutates_real_parameters() {
+        let mut c = SimpleLatticeConductor::new();
+        c.symbolic_success_ema = 0.55;
+        c.state.mercy_score = 0.95;
+        let _ = c.tick();
+        let before_threshold = c.symbolic_params.base_confidence_threshold;
+        let before_boost = c.symbolic_params.boost_multiplier;
+
+        let _ = c.apply_top_confidence_proposal();
+
+        let after_threshold = c.symbolic_params.base_confidence_threshold;
+        let after_boost = c.symbolic_params.boost_multiplier;
+
+        // At least one parameter should have changed
+        assert!(after_threshold != before_threshold || after_boost != before_boost);
     }
 }
