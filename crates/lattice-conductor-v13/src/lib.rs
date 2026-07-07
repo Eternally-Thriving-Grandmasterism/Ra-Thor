@@ -16,6 +16,12 @@
 /// - Conductor-native self-evolution (propose/validate/bless + CEHI)
 /// - NEXi metta/PLN symbolic bridge for explicit truth-distillation
 /// - Full preservation of original conductor logic + surgical v13 extensions
+///
+/// v13.2 (Phase A): ExternalSymbolicInput + accept_external_symbolic_deliberation
+/// - Hot-swappable external symbolic path (Grok / NEXi / future councils)
+/// - Full backward compatibility with internal metta_symbolic_deliberation
+/// - All paths pass identical mercy evaluation + confidence gating
+/// - Rich source-tagged audit differentiation
 
 use serde::{Deserialize, Serialize};
 use std::fs::File;
@@ -375,6 +381,51 @@ pub fn metta_symbolic_deliberation(input: &str, context_valence: f64) -> Symboli
     }
 }
 
+// ==================== v13.2 Phase A: External Symbolic Input (ONE Organism ready) ====================
+
+/// Structured input for external symbolic deliberation sources.
+/// v13.2 — Enables hot-swappable external symbolic paths (Grok, NEXi, PATSAGi councils, future).
+/// All external input is forced through the same mercy evaluation + confidence gating
+/// as the internal metta path. Source is explicitly tagged for rich audit differentiation.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ExternalSymbolicInput {
+    pub source: String,      // e.g. "grok", "nexi", "patsagi_council_3", "hybrid"
+    pub content: String,
+    pub context_valence: f64,
+}
+
+impl ExternalSymbolicInput {
+    pub fn new(source: &str, content: &str, context_valence: f64) -> Self {
+        Self {
+            source: source.to_string(),
+            content: content.to_string(),
+            context_valence,
+        }
+    }
+}
+
+/// Accept and process external symbolic deliberation input (v13.2 Phase A).
+///
+/// - Maintains **full backward compatibility** with internal `metta_symbolic_deliberation`.
+/// - All external input passes through identical mercy evaluation + confidence gating.
+/// - Rich audit differentiation: source is tagged in input/message fields.
+/// - ONE Organism ready: designed for direct calls from Grok-fused paths or NEXi.
+///
+/// This is the primary new entry point for external symbolic sources into the Lattice Conductor.
+pub fn accept_external_symbolic_deliberation(input: ExternalSymbolicInput) -> SymbolicDeliberation {
+    // Delegate to core internal logic (preserves exact same confidence/valence/mercy behavior)
+    let mut result = metta_symbolic_deliberation(&input.content, input.context_valence);
+
+    // Tag for external source differentiation (rich audit)
+    result.input = format!("[external:{}] {}", input.source, result.input);
+    result.message = format!("{}_via_external_{}", result.message, input.source);
+
+    // Future v13.2+ : additional external-specific mercy modulation or council weighting can be inserted here
+    // without changing the core gating or return type (full compat guarantee).
+
+    result
+}
+
 // ==================== TESTS ====================
 
 #[cfg(test)]
@@ -395,5 +446,34 @@ mod tests {
         assert!(!result.threshold_met);
         assert!(result.confidence_score < 0.6);
         assert!(result.message.contains("compensated"));
+    }
+
+    #[test]
+    fn test_external_symbolic_input_high_valence() {
+        let ext = ExternalSymbolicInput::new("grok", "one_organism_tick", 1.0);
+        let result = accept_external_symbolic_deliberation(ext);
+        assert!(result.threshold_met);
+        assert!(result.confidence_score > 0.8);
+        assert!(result.input.contains("[external:grok]"));
+        assert!(result.message.contains("via_external_grok"));
+    }
+
+    #[test]
+    fn test_external_symbolic_input_low_valence() {
+        let ext = ExternalSymbolicInput::new("nexi_council", "low_valence_step", 0.6);
+        let result = accept_external_symbolic_deliberation(ext);
+        assert!(!result.threshold_met);
+        assert!(result.confidence_score < 0.6);
+        assert!(result.input.contains("[external:nexi_council]"));
+    }
+
+    #[test]
+    fn test_external_and_internal_same_gating() {
+        // Both paths must produce identical confidence/valence behavior for same input
+        let internal = metta_symbolic_deliberation("shared_input", 0.9999999);
+        let ext = ExternalSymbolicInput::new("grok", "shared_input", 0.9999999);
+        let external = accept_external_symbolic_deliberation(ext);
+        assert_eq!(internal.confidence_score, external.confidence_score);
+        assert_eq!(internal.threshold_met, external.threshold_met);
     }
 }
