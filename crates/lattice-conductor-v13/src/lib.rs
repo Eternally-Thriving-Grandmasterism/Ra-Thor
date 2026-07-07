@@ -149,19 +149,36 @@ impl SimpleLatticeConductor {
         // v13 extension: NEXi metta/PLN symbolic deliberation at every tick.
         let symbolic = crate::metta_symbolic_deliberation("conductor_tick", self.state.valence);
 
-        // === Confidence-based gating ===
-        // High-confidence symbolic signals apply stronger positive drift.
-        // Low-confidence signals are more conservative.
+        // === Adaptive confidence threshold ===
+        // The threshold adapts based on current mercy_score:
+        // - High mercy → more permissive (easier to accept symbolic signals)
+        // - Low mercy  → stricter (more conservative gating)
+        let base_threshold = 0.78;
+        let mercy_mod = if self.state.mercy_score > 1.25 {
+            -0.07
+        } else if self.state.mercy_score < 0.85 {
+            0.08
+        } else {
+            0.0
+        };
+        let adaptive_threshold = (base_threshold + mercy_mod).clamp(0.68, 0.90);
+
+        // === Confidence-based gating with adaptive threshold ===
         let confidence = symbolic.confidence_score;
-        let (evolution_boost, tolc_boost) = if confidence >= 0.8 {
-            (0.008, 0.012) // Strong signal → accelerate evolution & alignment
+        let (evolution_boost, tolc_boost) = if confidence >= adaptive_threshold {
+            (0.008, 0.012) // Strong trusted signal
         } else {
             (0.002, 0.004) // Conservative adjustment
         };
 
         self.audit_traces.push(format!(
-            "[v13 Symbolic] input={} valence={:.4} threshold_met={} confidence={:.2} gated_boost_evo={:.4} message={}",
-            symbolic.input, symbolic.valence, symbolic.threshold_met, confidence, evolution_boost, symbolic.message
+            "[v13 Symbolic] input={} valence={:.4} conf={:.2} adaptive_thr={:.2} gated_boost={:.4} msg={}",
+            symbolic.input,
+            symbolic.valence,
+            confidence,
+            adaptive_threshold,
+            evolution_boost,
+            symbolic.message
         ));
 
         // Apply gated symbolic influence
