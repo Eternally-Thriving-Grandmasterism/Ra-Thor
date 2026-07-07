@@ -3,9 +3,46 @@
 //! Sovereign Health Monitoring + Self-Evolution Hooks with advanced
 //! Epigenetic Blessing, Versioned Persistence, and hybrid error handling.
 //!
-//! **v13 Update**: Now supports conductor-native orchestration via Lattice Conductor v13.
-//! This crate acts as the high-level facade while the heavy orchestration logic
-//! lives in `lattice-conductor-v13`.
+//! **v13 Update**: Full conductor-native orchestration via Lattice Conductor v13.
+//!
+//! This crate provides a clean high-level facade. The real orchestration power
+//! (PATSAGi council voting, Quantum Swarm integration, symbolic deliberation,
+//! mercy-weighted consensus) lives in `lattice-conductor-v13`.
+//!
+//! ## Quick Start — Conductor-Native Self-Evolution
+//!
+//! ```rust,ignore
+//! use self_evolution::{
+//!     SimpleLatticeConductor,
+//!     propose_and_bless_evolution,
+//!     council_voted_quantum_evolution,
+//! };
+//!
+//! let mut conductor = SimpleLatticeConductor::new();
+//! conductor.register_council(1, "Abundance Council");
+//!
+//! // Simple flow
+//! propose_and_bless_evolution(
+//!     &mut conductor,
+//!     "Increase mercy in resource distribution",
+//!     "Evolution proposal driven by PATSAGi council",
+//!     0.82,
+//! ).unwrap();
+//!
+//! // Advanced flow with council voting + Quantum Swarm
+//! council_voted_quantum_evolution(
+//!     &mut conductor,
+//!     "Abundance Council",
+//!     0.75,   // mercy impact from council
+//!     0.65,   // quantum swarm participation
+//! ).unwrap();
+//!
+//! let state = conductor.get_geometric_state();
+//! println!("Evolution level: {:.3}", state.evolution_level);
+//! ```
+//!
+//! All operations go through the Lattice Conductor, ensuring TOLC 8 alignment,
+//! mercy-weighted voting, and proper audit tracing.
 
 use lattice_conductor_v13::{
     GeometricState, MercyWeightedVote, Operation, SelfEvolutionOrchestrator,
