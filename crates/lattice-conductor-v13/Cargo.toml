@@ -3,8 +3,10 @@ name = "lattice-conductor-v13"
 version = "0.1.0"
 edition = "2021"
 license = "AG-SML-1.0 — Autonomicity Games Sovereign Mercy License"
-description = "Lattice Conductor v13 — Primary living nervous system of the Ra-Thor ONE Organism lattice. Geometric Motor v2, dynamic council conduction, conductor-native self-evolution orchestration, TOLC 8 enforced. NEXi-derived council simulation patterns integrated for symbolic depth."
+description = "Lattice Conductor v13 — Primary living nervous system of the Ra-Thor ONE Organism lattice. Geometric Motor v2 (real DualQuaternion + Study Quadric + hyperbolic), dynamic council conduction, conductor-native self-evolution, TOLC 8 enforced. NEXi-derived patterns integrated."
 
 [dependencies]
 nalgebra = { workspace = true }
-# Future: tokio, serde, tracing, proptest for invariants
+
+[dev-dependencies]
+proptest = "1.5"
