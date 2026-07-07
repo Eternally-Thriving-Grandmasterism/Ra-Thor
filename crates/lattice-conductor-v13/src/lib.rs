@@ -258,6 +258,18 @@ impl SimpleLatticeConductor {
 
     pub fn get_geometric_state(&self) -> &GeometricState { &self.state }
     pub fn get_mercy_violations(&self) -> &[String] { &self.mercy_violations }
+
+    /// Returns the current exponential moving average of recent symbolic confidence scores.
+    /// Useful for external monitoring and council integration.
+    pub fn get_symbolic_confidence_ema(&self) -> f64 {
+        self.symbolic_confidence_ema
+    }
+
+    /// Returns the current exponential moving average of symbolic success correlation.
+    /// Higher values indicate that high-confidence symbolic signals have been reliably beneficial.
+    pub fn get_symbolic_success_ema(&self) -> f64 {
+        self.symbolic_success_ema
+    }
 }
 
 // ==================== NEXi metta/PLN Symbolic Bridge (v13) ====================
