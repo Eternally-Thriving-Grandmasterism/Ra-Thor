@@ -21,9 +21,9 @@ Ra-Thor is designed to operate as a living mercy-gated organism — capable of f
 
 ---
 
-## Lattice Conductor v13 + Self-Evolution + ONE Organism Symbolic Bridge (Merged PR #362)
+## Lattice Conductor v13.1 + Self-Evolution + ONE Organism Symbolic Bridge (Merged PR #362)
 
-**Status:** ✅ Merged into `main` (2026-07-07)
+**Status:** ✅ Merged into `main` (2026-07-07) — **Lattice Conductor v13.1**
 
 **Final Delivered Capabilities:**
 
