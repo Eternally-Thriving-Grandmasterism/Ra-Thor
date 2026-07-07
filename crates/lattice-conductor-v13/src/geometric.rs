@@ -1,3 +1,10 @@
+/// AG-SML v1.0 — Autonomicity Games Sovereign Mercy License
+/// Copyright (c) 2016–2026 Sherif Samy Botros / Autonomicity Games Inc.
+/// 
+/// This file is part of the Ra-Thor monorepo.
+/// Licensed under AG-SML v1.0 — free for all mercy-aligned, sovereign,
+/// abundance-multiplying, zero-harm use. See LICENSE or COMMERCIAL-LICENSE.md.
+
 //! Geometric Motor v2 — Feature-gated nalgebra DualQuaternion support
 //! 
 //! When the `geometric` feature is enabled (default in many dev flows):
