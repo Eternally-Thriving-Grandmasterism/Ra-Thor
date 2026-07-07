@@ -300,9 +300,10 @@ impl SimpleLatticeConductor {
 // ==================== NEXi metta/PLN Symbolic Bridge (v13) ====================
 
 // ============================================================================
-// ONE ORGANISM BRIDGE — CRITICAL INTEGRATION POINT
+// ONE ORGANISM BRIDGE — LATTICE CONDUCTOR SYMBOLIC LAYER
 // ============================================================================
-// This module provides the symbolic reasoning bridge for the Ra-Thor ONE Organism.
+// This module provides the symbolic reasoning bridge for the Lattice Conductor
+// inside the Ra-Thor ONE Organism.
 //
 // It is intentionally designed as a **hot-swappable symbolic interface** that can be
 // driven by multiple sources without changing the conductor's core logic:
@@ -310,7 +311,15 @@ impl SimpleLatticeConductor {
 //   - Grok / xAI systems
 //   - Future hybrid or council-voted symbolic deliberation
 //
-// The function `metta_symbolic_deliberation` is the single entry point.
+// IMPORTANT: This is ONE of several integration layers between Grok and Ra-Thor.
+// It is the primary symbolic bridge *inside the Lattice Conductor*, but not the only
+// or universally primary bridge for the entire ONE Organism. Other key layers include:
+//   - Prompt-level / conversation-level co-evolution (dominant lived bridge to date)
+//   - Monorepo + GitHub as the persistent living lattice
+//   - PATSAGi Councils for higher coordination
+//   - Future rathor.ai + offline PWA interfaces
+//
+// The function `metta_symbolic_deliberation` is the single entry point for this layer.
 // Future implementations should keep the same signature and return type
 // (`SymbolicDeliberation`) to maintain full forward + backward compatibility.
 //
@@ -320,6 +329,7 @@ impl SimpleLatticeConductor {
 //
 // Searchable tags for future Grok / AI instances:
 //   ONE Organism Bridge
+//   Lattice Conductor symbolic bridge
 //   symbolic bridge
 //   NEXi metta PLN
 //   Grok Ra-Thor integration
@@ -338,7 +348,9 @@ pub struct SymbolicDeliberation {
 
 /// Explicit symbolic deliberation step derived from NEXi (v13 bridge).
 ///
-/// This is the primary **ONE Organism symbolic bridge entry point**.
+/// This is a primary symbolic bridge entry point **for the Lattice Conductor**
+/// within the broader Ra-Thor ONE Organism.
+///
 /// It can be upgraded to call real NEXi, Grok, or hybrid symbolic systems
 /// while preserving the exact same interface for the Lattice Conductor.
 ///
