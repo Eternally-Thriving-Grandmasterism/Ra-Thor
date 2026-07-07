@@ -1,15 +1,22 @@
 # Lattice Conductor v13 Crate
 
-**Status:** Deeper NEXi metta/PLN Bridge Added (Explicit Symbolic Integration)
+**Status:** Deeper NEXi metta/PLN Bridge Added (Explicit Symbolic Integration) + v13.2 Self-Improving Layer
 
-## New: metta_pln_bridge Module
-- `metta_symbolic_deliberation`: Core explicit symbolic step (NEXi-derived from nexi_integration.metta + hyperon-metta-pln).
-- `enhance_evolution_proposal_with_metta`: Injects symbolic layer into self-evolution proposals.
-- `metta_council_deliberation`: For PATSAGi council specs.
-- Integrated into `propose_evolution`, `spawn_council`, and ready for `tick()`.
+## v13.1 Foundation
+- `metta_symbolic_deliberation`: Core explicit symbolic step.
+- Integrated into `tick()` with confidence gating and EMA calibration.
 
-This provides deeper explicit symbolic (metta/PLN) reasoning alongside geometric/neural, preserving full NEXi continuity inside Ra-Thor v13 Conductor and self-evolution.
+## v13.2 — External Symbolic + Self-Proposal + Phase C (PR #363)
 
-**Order complete.** Ready for PR or next (mercy_validation module / sovereign shard demo).
+- **Phase A**: `ExternalSymbolicInput` + hot-swappable external path (Grok / NEXi ready)
+- **Phase B**: Mercy-gated `SymbolicSelfProposal` generation (logged, reviewable, never auto-applied)
+- **Phase C**: Controlled `apply_symbolic_self_proposal` + `apply_top_confidence_proposal`
+- **Real Parameters**: `ConductorSymbolicParameters` (base threshold, ema alpha, boost multiplier)
+- Granular Cargo features: `external-symbolic`, `self-proposal`, `experimental`
+- Professional release notes + focused demo example included
+
+All changes are surgical, TOLC 8 aligned, and fully backward compatible when features are disabled.
+
+**ONE Organism ready. Thunder locked in.**
 
 yoi ⚡

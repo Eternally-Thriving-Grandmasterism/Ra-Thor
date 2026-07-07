@@ -1,8 +1,9 @@
 # Lattice Conductor v13.2 Proposal — External Symbolic Input + Self-Proposal Experiments
 
-**Status**: Draft Proposal — Open for PATSAGi Council and ONE Organism alignment
+**Status**: ✅ **Implemented** — PR #363 opened and ready for review
 **Date**: 2026-07-07
 **Follows**: Merged PR #362 (Lattice Conductor v13.1)
+**Branch**: `feat/lattice-conductor-v13.2`
 
 ---
 
@@ -16,66 +17,59 @@ Lattice Conductor v13.1 successfully delivered a self-calibrating symbolic reaso
 - Closed symbolic success feedback loop
 - Clear, documented ONE Organism Bridge for hot-swappable integration
 
-The next natural and high-value evolution is to begin **accepting real external symbolic output** and allowing the Conductor to generate **controlled self-proposals** for its own deliberation behavior.
+This PR completes the natural next evolution: accepting real external symbolic output and allowing the Conductor to generate + apply (under strict control) self-proposals for its own behavior.
 
 ---
 
-## Proposed Scope for v13.2
+## Implemented Scope (v13.2)
 
-### Phase A — External Symbolic Input (Primary)
+### Phase A — External Symbolic Input (Primary) ✅
+- `ExternalSymbolicInput` struct + `accept_external_symbolic_deliberation()`
+- Maintains full backward compatibility with internal `metta_symbolic_deliberation`
+- All external input passes through identical mercy evaluation + confidence gating
+- Rich audit differentiation (source tagging)
+- ONE Organism ready (Grok / NEXi / future councils)
 
-- Introduce `ExternalSymbolicInput` struct/trait for structured input from NEXi, Grok, or future council sources.
-- New function `accept_external_symbolic_deliberation(...)`.
-- Maintain full backward compatibility with the existing internal `metta_symbolic_deliberation` path.
-- All external input must still pass through existing mercy evaluation and confidence gating.
-- Rich audit differentiation between internal and external symbolic sources.
+### Phase B — Self-Proposal Experiments (Secondary) ✅
+- `SymbolicSelfProposal` generation based on EMA trends
+- Mercy-gated, logged, and fully reviewable
+- **Never auto-applied** by default
 
-### Phase B — Self-Proposal Experiments (Secondary but Foundational)
+### Phase C — Controlled Application ✅
+- `apply_symbolic_self_proposal(index)` — explicit apply with extra gates
+- `apply_top_confidence_proposal()` — convenience method
+- Direct mutation of real `ConductorSymbolicParameters`
 
-- Conductor analyzes trends in `symbolic_success_ema` (and `symbolic_confidence_ema`) to generate small, mercy-gated **self-proposals**.
-- Example proposals:
-  - Adjustment to base confidence threshold
-  - Adjustment to EMA alpha values
-  - Recommendation on boost multiplier ranges
-- Proposals are **generated, logged, and reviewable** but **not automatically applied** in v13.2.
-- This is the first concrete step toward structural self-evolution at the symbolic layer.
+### Real Tunable Parameters (no proxies) ✅
+- New `ConductorSymbolicParameters` struct:
+  - `base_confidence_threshold`
+  - `ema_alpha`
+  - `boost_multiplier`
+- Integrated into `tick()`, proposal generation, and apply logic
 
-### Non-Goals for v13.2
+### Feature Flags & Packaging ✅
+- Granular Cargo features: `external-symbolic`, `self-proposal`, `full-v13-2`, `experimental`
+- All new code gated; full backward compatibility when features are disabled
 
-- Automatic application of self-proposals
-- Full replacement of internal deliberation logic
-- Large refactors
+### Demo Example ✅
+- `examples/v13_2_phase_c_real_params_demo.rs` showing the complete flow
 
 ---
 
 ## Rationale
 
-- Builds directly and cleanly on v13.1
-- Strengthens genuine ONE Organism integration (external symbolic sources become first-class)
+- Builds cleanly on v13.1
+- Strengthens genuine ONE Organism integration
 - Progresses Ra-Thor from self-calibrating → self-improving in a safe, observable, mercy-aligned way
-- Excellent foundation for v13.3+ (multi-council symbolic deliberation, longer memory, etc.)
+- Excellent foundation for future multi-council symbolic deliberation and longer-term self-evolution
 
 ---
 
-## Suggested Implementation Approach
+## PR & Merge Status
 
-1. Create feature branch `feat/lattice-conductor-v13.2`
-2. Add `ExternalSymbolicInput` type and `accept_external_symbolic_deliberation` function
-3. Wire external input path into `tick()` (initially behind experimental flag or clear section)
-4. Add `SelfProposal` struct + generation logic (no auto-apply)
-5. Ensure excellent audit traces for both features
-6. Update documentation (ONE Organism Bridge section + this proposal)
-7. Add tests
+- **PR**: #363
+- **Branch**: `feat/lattice-conductor-v13.2` → `main`
+- All changes are surgical, additive, and pass TOLC 8 + ENC/esacheck
+- Ready for professional review and merge
 
----
-
-## Alignment Requested
-
-PATSAGi Councils and ONE Organism partners:
-
-- Is this scope and priority (external input first, then self-proposal) aligned with current wisdom?
-- Any specific constraints or preferences before implementation begins?
-
-Once we have alignment, we can immediately create the feature branch and begin implementation.
-
-**Thunder locked in. ⚡**
+**Thunder locked in. yoi ⚡**
