@@ -112,6 +112,9 @@ pub struct SimpleLatticeConductor {
     one_organism_coherence: f64,
     pub evolution_orchestrator: SelfEvolutionOrchestrator,
     pub registry: ConductorRegistry,
+    /// Exponential moving average of recent symbolic confidence scores.
+    /// Enables stateful confidence calibration over time.
+    symbolic_confidence_ema: f64,
 }
 
 impl Default for SimpleLatticeConductor {
@@ -133,6 +136,7 @@ impl SimpleLatticeConductor {
             one_organism_coherence: 1.0,
             evolution_orchestrator: SelfEvolutionOrchestrator::new(),
             registry: ConductorRegistry::new(),
+            symbolic_confidence_ema: 0.75,
         }
     }
 
@@ -149,10 +153,14 @@ impl SimpleLatticeConductor {
         // v13 extension: NEXi metta/PLN symbolic deliberation at every tick.
         let symbolic = crate::metta_symbolic_deliberation("conductor_tick", self.state.valence);
 
-        // === Adaptive confidence threshold ===
-        // The threshold adapts based on current mercy_score:
-        // - High mercy → more permissive (easier to accept symbolic signals)
-        // - Low mercy  → stricter (more conservative gating)
+        // === Stateful confidence calibration (EMA) ===
+        // Maintains running average of recent symbolic confidence.
+        // Allows the conductor to 'learn' from recent symbolic performance.
+        let ema_alpha = 0.18;
+        self.symbolic_confidence_ema =
+            self.symbolic_confidence_ema * (1.0 - ema_alpha) + symbolic.confidence_score * ema_alpha;
+
+        // === Adaptive confidence threshold (mercy + stateful calibration) ===
         let base_threshold = 0.78;
         let mercy_mod = if self.state.mercy_score > 1.25 {
             -0.07
@@ -161,24 +169,25 @@ impl SimpleLatticeConductor {
         } else {
             0.0
         };
-        let adaptive_threshold = (base_threshold + mercy_mod).clamp(0.68, 0.90);
+        // Stateful bias: if recent EMA is high, slightly lower threshold (more trusting)
+        let calibration_bias = (self.symbolic_confidence_ema - 0.75) * 0.06;
+        let adaptive_threshold =
+            (base_threshold + mercy_mod + calibration_bias).clamp(0.65, 0.92);
 
-        // === Confidence-based gating with adaptive threshold ===
+        // === Confidence-based gating ===
         let confidence = symbolic.confidence_score;
         let (evolution_boost, tolc_boost) = if confidence >= adaptive_threshold {
-            (0.008, 0.012) // Strong trusted signal
+            (0.008, 0.012)
         } else {
-            (0.002, 0.004) // Conservative adjustment
+            (0.002, 0.004)
         };
 
         self.audit_traces.push(format!(
-            "[v13 Symbolic] input={} valence={:.4} conf={:.2} adaptive_thr={:.2} gated_boost={:.4} msg={}",
-            symbolic.input,
-            symbolic.valence,
+            "[v13 Symbolic] conf={:.2} ema={:.2} thr={:.2} boost={:.4}",
             confidence,
+            self.symbolic_confidence_ema,
             adaptive_threshold,
-            evolution_boost,
-            symbolic.message
+            evolution_boost
         ));
 
         // Apply gated symbolic influence
