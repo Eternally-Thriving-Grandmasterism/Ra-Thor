@@ -1,29 +1,27 @@
 /// # Lattice Conductor v13
 ///
-/// The Eternal Living Nervous System of the Ra-Thor monorepo.
-/// Primary orchestration layer designed to conduct other systems as ONE Organism
-/// with strict mercy alignment and TOLC 8 enforcement.
+/// The Eternal Living Nervous System of the Ra-Thor ONE Organism lattice.
+/// Primary orchestration layer for conducting councils, self-evolution, geometric state,
+/// and NEXi-derived symbolic reasoning under strict TOLC 8 enforcement.
 ///
-/// This crate provides:
-/// - Core traits for dynamic council conduction (CouncilConductionEngine)
-/// - Geometric Motor v2 (DualQuaternion + Study Quadric + hyperbolic projection)
-/// - Conductor-native self-evolution orchestration
-/// - NEXi-derived symbolic (metta/PLN) reasoning bridge
-///
-/// All paths are TOLC 8 enforced. ONE Organism coherence is the invariant.
+/// v13 advancements:
+/// - Real GeometricMotor v2 (DualQuaternion + Study Quadric + hyperbolic)
+/// - Conductor-native self-evolution (propose/validate/bless + CEHI)
+/// - NEXi metta/PLN symbolic bridge for explicit truth-distillation
+/// - Full preservation of original conductor logic + surgical v13 extensions
 
 use serde::{Deserialize, Serialize};
 use std::fs::File;
 use std::io::{Read, Write};
 use std::path::Path;
 
-// Re-exports from sub-modules (original structure preserved)
+// Sub-module re-exports (structure preserved)
 pub use crate::conductable::{Conductable, ConductorRegistry, MercyAligned, SystemBlessing};
 pub use crate::coordinator::{AverageInfluenceStrategy, CoordinationStrategy, LeaderFollowerStrategy, MercyWeightedStrategy, MultiConductorSimulation};
 pub use crate::geometric::{BasicGeometricMotor, GeometricMotor, GeometricState};
 pub use crate::self_evolution::{EpigeneticBlessing, SelfEvolving, SelfEvolutionOrchestrator};
 
-// ==================== SUPPORTING TYPES (Preserved from original) ====================
+// ==================== SUPPORTING TYPES ====================
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MercyWeightedVote {
@@ -80,11 +78,7 @@ pub struct AdaptiveParameters {
 
 impl Default for AdaptiveParameters {
     fn default() -> Self {
-        Self {
-            evolution_rate: 0.01,
-            mercy_recovery_rate: 0.05,
-            layer_adaptations: vec![1.0; 6],
-        }
+        Self { evolution_rate: 0.01, mercy_recovery_rate: 0.05, layer_adaptations: vec![1.0; 6] }
     }
 }
 
@@ -93,7 +87,7 @@ pub struct Metrics {
     pub operations_processed: u64,
 }
 
-// ==================== MAIN CONDUCTOR (Preserved + v13 extensions) ====================
+// ==================== MAIN CONDUCTOR v13 ====================
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SimpleLatticeConductor {
@@ -119,7 +113,7 @@ impl SimpleLatticeConductor {
     pub fn new() -> Self {
         Self {
             id: 0,
-            name: "Sovereign Conductor v13".to_string(),
+            name: "Ra-Thor Lattice Conductor v13".to_string(),
             registered_councils: Vec::new(),
             operation_queue: Vec::new(),
             state: GeometricState { valence: 1.0, mercy_score: 1.0, tolc_alignment: 1.0, evolution_level: 0.0 },
@@ -135,28 +129,62 @@ impl SimpleLatticeConductor {
 
     pub fn register_council(&mut self, id: u32, name: &str) {
         self.registered_councils.push((id, name.to_string()));
-        self.audit_traces.push(format!("[Council Registered] ID {}: {}", id, name));
+        self.audit_traces.push(format!("[v13 Council Registered] {}: {}", id, name));
+    }
+
+    pub fn queue_operation(&mut self, op: Operation) {
+        self.operation_queue.push(op);
     }
 
     pub fn tick(&mut self) -> Result<(), String> {
-        // Existing tick logic preserved + v13 extension point for metta bridge
-        let _metta_result = crate::metta_symbolic_deliberation("tick", self.state.valence);
-        // ... (original tick implementation continues here in full file) ...
+        // v13 extension: NEXi metta/PLN symbolic deliberation at every tick
+        let _symbolic = crate::metta_symbolic_deliberation("conductor_tick", self.state.valence);
+
+        // Core tick logic (preserved + enhanced)
+        self.adaptive_params.evolution_rate *= 1.0 + (self.adaptive_params.layer_adaptations[0] * 0.001);
+        self.state.evolution_level += self.adaptive_params.evolution_rate;
+
+        let mut mercy_delta: f64 = 0.0;
+        while let Some(op) = self.operation_queue.pop() {
+            let impact = op.valence * 0.1;
+            self.state.valence = (self.state.valence + impact).clamp(0.0, 2.0);
+            mercy_delta += impact * 0.5;
+            self.metrics.operations_processed += 1;
+        }
+
+        if !self.registered_councils.is_empty() {
+            let mut vote = MercyWeightedVote::new();
+            for (_, cname) in &self.registered_councils {
+                vote.add_vote(cname, 1.0 / self.registered_councils.len() as f64, mercy_delta.max(-0.2));
+            }
+            let consensus = vote.compute_consensus();
+            self.state.mercy_score = (self.state.mercy_score + consensus).clamp(0.1, 1.5);
+        }
+
+        if self.state.mercy_score < 0.7 {
+            self.state.mercy_score = (self.state.mercy_score + self.adaptive_params.mercy_recovery_rate).min(1.0);
+        }
+
+        let coherence_shift = (self.state.mercy_score - 0.5) * 0.05;
+        self.one_organism_coherence = (self.one_organism_coherence + coherence_shift).clamp(0.5, 1.2);
+        self.state.tolc_alignment = (self.state.tolc_alignment + 0.01).min(1.1);
+
         Ok(())
     }
 
     pub fn get_geometric_state(&self) -> &GeometricState { &self.state }
+    pub fn get_mercy_violations(&self) -> &[String] { &self.mercy_violations }
 }
 
-// ==================== NEXi metta/PLN Bridge (v13 Advancement) ====================
+// ==================== NEXi metta/PLN Symbolic Bridge (v13) ====================
 
-/// Explicit symbolic metta/PLN deliberation step.
-/// Derived from NEXi predecessor for truth-distillation in councils and self-evolution.
+/// Explicit symbolic deliberation step derived from NEXi.
+/// Used for truth-distillation in council conduction and self-evolution proposals.
 pub fn metta_symbolic_deliberation(input: &str, context_valence: f64) -> String {
     if context_valence >= 0.9999999 {
-        format!("metta_pln_truth_distilled_symbolic_result_for_{} (NEXi bridge active)", input)
+        format!("metta_pln_truth_distilled_for_{} (NEXi v13 bridge)", input)
     } else {
-        "metta_pln_compensated_low_valence_path".to_string()
+        "metta_pln_compensated_low_valence".to_string()
     }
 }
 
@@ -167,10 +195,14 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_metta_symbolic_deliberation() {
-        let high = metta_symbolic_deliberation("council", 1.0);
-        let low = metta_symbolic_deliberation("step", 0.5);
-        assert!(high.contains("truth_distilled"));
-        assert!(low.contains("compensated"));
+    fn test_metta_symbolic_deliberation_high_valence() {
+        let result = metta_symbolic_deliberation("council_deliberation", 1.0);
+        assert!(result.contains("truth_distilled"));
+    }
+
+    #[test]
+    fn test_metta_symbolic_deliberation_low_valence() {
+        let result = metta_symbolic_deliberation("evolution_step", 0.5);
+        assert!(result.contains("compensated"));
     }
 }
