@@ -115,7 +115,6 @@ pub struct SimpleLatticeConductor {
     /// Exponential moving average of recent symbolic confidence scores.
     symbolic_confidence_ema: f64,
     /// EMA tracking correlation between high-confidence symbolic signals and positive state outcomes.
-    /// Higher values = symbolic reasoning has been reliably beneficial recently.
     symbolic_success_ema: f64,
 }
 
@@ -176,13 +175,27 @@ impl SimpleLatticeConductor {
 
         // === Confidence-based gating ===
         let confidence = symbolic.confidence_score;
-        let (evolution_boost, tolc_boost) = if confidence >= adaptive_threshold {
+        let (mut evolution_boost, mut tolc_boost) = if confidence >= adaptive_threshold {
             (0.008, 0.012)
         } else {
             (0.002, 0.004)
         };
 
-        // Apply gated symbolic influence
+        // === Symbolic success feedback loop ===
+        // If recent high-confidence symbolic signals have correlated with positive outcomes,
+        // slightly amplify the gated boosts (reward successful symbolic reasoning).
+        // If success rate is low, dampen the boosts (be more conservative).
+        let success_multiplier = if confidence >= adaptive_threshold {
+            // Only apply feedback when we actually used the high-confidence path
+            (self.symbolic_success_ema * 0.55 + 0.72).clamp(0.78, 1.22)
+        } else {
+            1.0
+        };
+
+        evolution_boost *= success_multiplier;
+        tolc_boost *= success_multiplier;
+
+        // Apply gated + feedback-modulated symbolic influence
         self.state.evolution_level += evolution_boost;
         self.state.tolc_alignment = (self.state.tolc_alignment + tolc_boost).min(1.25);
 
@@ -216,7 +229,6 @@ impl SimpleLatticeConductor {
         self.state.tolc_alignment = (self.state.tolc_alignment + 0.01).min(1.25);
 
         // === Symbolic success correlation tracking ===
-        // Measures how often high-confidence symbolic signals correlate with positive state changes.
         let mercy_improved = mercy_delta > 0.012;
         let evolution_improved = evolution_boost > 0.004;
         let success_signal = if (mercy_improved || evolution_improved) && confidence >= adaptive_threshold {
@@ -232,11 +244,12 @@ impl SimpleLatticeConductor {
             self.symbolic_success_ema * (1.0 - success_alpha) + success_signal * success_alpha;
 
         self.audit_traces.push(format!(
-            "[v13 Symbolic] conf={:.2} ema={:.2} success_ema={:.2} thr={:.2} boost={:.4}",
+            "[v13 Symbolic] conf={:.2} ema={:.2} success_ema={:.2} thr={:.2} mult={:.2} boost={:.4}",
             confidence,
             self.symbolic_confidence_ema,
             self.symbolic_success_ema,
             adaptive_threshold,
+            success_multiplier,
             evolution_boost
         ));
 
