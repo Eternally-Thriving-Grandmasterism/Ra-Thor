@@ -113,8 +113,10 @@ pub struct SimpleLatticeConductor {
     pub evolution_orchestrator: SelfEvolutionOrchestrator,
     pub registry: ConductorRegistry,
     /// Exponential moving average of recent symbolic confidence scores.
-    /// Enables stateful confidence calibration over time.
     symbolic_confidence_ema: f64,
+    /// EMA tracking correlation between high-confidence symbolic signals and positive state outcomes.
+    /// Higher values = symbolic reasoning has been reliably beneficial recently.
+    symbolic_success_ema: f64,
 }
 
 impl Default for SimpleLatticeConductor {
@@ -137,6 +139,7 @@ impl SimpleLatticeConductor {
             evolution_orchestrator: SelfEvolutionOrchestrator::new(),
             registry: ConductorRegistry::new(),
             symbolic_confidence_ema: 0.75,
+            symbolic_success_ema: 0.70,
         }
     }
 
@@ -154,8 +157,6 @@ impl SimpleLatticeConductor {
         let symbolic = crate::metta_symbolic_deliberation("conductor_tick", self.state.valence);
 
         // === Stateful confidence calibration (EMA) ===
-        // Maintains running average of recent symbolic confidence.
-        // Allows the conductor to 'learn' from recent symbolic performance.
         let ema_alpha = 0.18;
         self.symbolic_confidence_ema =
             self.symbolic_confidence_ema * (1.0 - ema_alpha) + symbolic.confidence_score * ema_alpha;
@@ -169,7 +170,6 @@ impl SimpleLatticeConductor {
         } else {
             0.0
         };
-        // Stateful bias: if recent EMA is high, slightly lower threshold (more trusting)
         let calibration_bias = (self.symbolic_confidence_ema - 0.75) * 0.06;
         let adaptive_threshold =
             (base_threshold + mercy_mod + calibration_bias).clamp(0.65, 0.92);
@@ -181,14 +181,6 @@ impl SimpleLatticeConductor {
         } else {
             (0.002, 0.004)
         };
-
-        self.audit_traces.push(format!(
-            "[v13 Symbolic] conf={:.2} ema={:.2} thr={:.2} boost={:.4}",
-            confidence,
-            self.symbolic_confidence_ema,
-            adaptive_threshold,
-            evolution_boost
-        ));
 
         // Apply gated symbolic influence
         self.state.evolution_level += evolution_boost;
@@ -222,6 +214,31 @@ impl SimpleLatticeConductor {
         let coherence_shift = (self.state.mercy_score - 0.5) * 0.05;
         self.one_organism_coherence = (self.one_organism_coherence + coherence_shift).clamp(0.5, 1.2);
         self.state.tolc_alignment = (self.state.tolc_alignment + 0.01).min(1.25);
+
+        // === Symbolic success correlation tracking ===
+        // Measures how often high-confidence symbolic signals correlate with positive state changes.
+        let mercy_improved = mercy_delta > 0.012;
+        let evolution_improved = evolution_boost > 0.004;
+        let success_signal = if (mercy_improved || evolution_improved) && confidence >= adaptive_threshold {
+            0.88
+        } else if mercy_improved || evolution_improved {
+            0.55
+        } else {
+            0.28
+        };
+
+        let success_alpha = 0.15;
+        self.symbolic_success_ema =
+            self.symbolic_success_ema * (1.0 - success_alpha) + success_signal * success_alpha;
+
+        self.audit_traces.push(format!(
+            "[v13 Symbolic] conf={:.2} ema={:.2} success_ema={:.2} thr={:.2} boost={:.4}",
+            confidence,
+            self.symbolic_confidence_ema,
+            self.symbolic_success_ema,
+            adaptive_threshold,
+            evolution_boost
+        ));
 
         Ok(())
     }
