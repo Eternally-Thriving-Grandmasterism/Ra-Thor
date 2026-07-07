@@ -12,7 +12,7 @@
 /// and NEXi-derived symbolic reasoning under strict TOLC 8 enforcement.
 ///
 /// v13.2 (merged): External Symbolic + Self-Proposal + Phase C + Real Parameters
-/// v13.3 (in progress): Multi-Round Deliberation + Convergence Detection + Minimum Rounds + Deliberation-Gated Auto-Apply
+/// v13.3 (in progress): Multi-Round Deliberation + Convergence + Minimum Rounds + Finalization + Convergence-Gated Auto-Apply
 
 use serde::{Deserialize, Serialize};
 use std::fs::File;
@@ -370,7 +370,7 @@ impl SimpleLatticeConductor {
         self.apply_symbolic_self_proposal(best_idx)
     }
 
-    /// v13.3: Safe auto-apply gated by Council Deliberation
+    /// v13.3: Safe auto-apply now requires BOTH deliberation approval AND convergence with minimum rounds.
     #[cfg(feature = "self-proposal")]
     pub fn try_safe_auto_apply_top_proposal(&mut self) -> Result<Option<String>, String> {
         if self.self_proposal_log.is_empty() { return Ok(None); }
@@ -384,18 +384,27 @@ impl SimpleLatticeConductor {
             return Ok(None);
         }
 
+        // Must have positive deliberation result
         let deliberation = self.deliberate_on_proposal(best_idx)?;
         if !deliberation.is_approved {
             self.audit_traces.push(format!(
-                "[v13.3 SafeAutoApply] Skipped — Council Deliberation did not approve (consensus={:.2})",
+                "[v13.3 SafeAutoApply] Skipped — Deliberation not approved (consensus={:.2})",
                 deliberation.consensus_score
+            ));
+            return Ok(None);
+        }
+
+        // NEW: Require convergence with minimum rounds (default: 3 rounds total, last 3 stable)
+        if !self.has_converged(best_idx, 3, 3) {
+            self.audit_traces.push(format!(
+                "[v13.3 SafeAutoApply] Skipped — Not yet converged (need min 3 rounds + stable window)",
             ));
             return Ok(None);
         }
 
         let msg = self.apply_symbolic_self_proposal(best_idx)?;
         self.audit_traces.push(format!(
-            "[v13.3 SafeAutoApply] Applied after Council Deliberation approval (consensus={:.2})",
+            "[v13.3 SafeAutoApply] Applied after converged Council Deliberation (consensus={:.2})",
             deliberation.consensus_score
         ));
         Ok(Some(msg))
@@ -536,11 +545,7 @@ impl SimpleLatticeConductor {
             .map(|s| &s.rounds)
     }
 
-    /// v13.3: Convergence detection with minimum round requirement.
-    ///
-    /// Returns true only if:
-    /// - At least `min_rounds` total rounds have been conducted, AND
-    /// - The last `window` rounds show stable consensus and consistent approval.
+    /// v13.3: Convergence detection with minimum round requirement
     #[cfg(feature = "self-proposal")]
     pub fn has_converged(&self, proposal_index: usize, min_rounds: usize, window: usize) -> bool {
         let rounds = match self.get_deliberation_rounds(proposal_index) {
@@ -548,30 +553,51 @@ impl SimpleLatticeConductor {
             None => return false,
         };
 
-        if rounds.len() < min_rounds {
-            return false;
-        }
-
-        if rounds.len() < window {
-            return false;
-        }
+        if rounds.len() < min_rounds { return false; }
+        if rounds.len() < window { return false; }
 
         let recent: Vec<&CouncilDeliberationResult> = rounds.iter().rev().take(window).collect();
 
-        // Approval decision must be consistent
         let first_approved = recent[0].is_approved;
         let approval_stable = recent.iter().all(|r| r.is_approved == first_approved);
-        if !approval_stable {
-            return false;
-        }
+        if !approval_stable { return false; }
 
-        // Consensus score must have low variance
         let scores: Vec<f64> = recent.iter().map(|r| r.consensus_score).collect();
         let min_score = scores.iter().cloned().fold(f64::INFINITY, f64::min);
         let max_score = scores.iter().cloned().fold(f64::NEG_INFINITY, f64::max);
         let score_range = max_score - min_score;
 
         score_range < 0.15
+    }
+
+    /// v13.3: Finalize a deliberation session (locks in the last result as final)
+    #[cfg(feature = "self-proposal")]
+    pub fn finalize_deliberation_session(&mut self, proposal_index: usize) -> Result<CouncilDeliberationResult, String> {
+        if proposal_index >= self.self_proposal_log.len() {
+            return Err("Invalid proposal index".to_string());
+        }
+
+        let session_idx = self.start_deliberation_session(proposal_index)?;
+        let session = &mut self.deliberation_sessions[session_idx];
+
+        if session.rounds.is_empty() {
+            return Err("No rounds conducted yet".to_string());
+        }
+
+        // Require convergence with reasonable minimums before finalizing
+        if !self.has_converged(proposal_index, 3, 3) {
+            return Err("Deliberation has not yet converged (min 3 rounds + stable window required)".to_string());
+        }
+
+        let final_result = session.rounds.last().unwrap().clone();
+        session.final_result = Some(final_result.clone());
+
+        self.audit_traces.push(format!(
+            "[v13.3 SessionFinalized] Proposal #{} deliberation finalized after {} rounds",
+            proposal_index, session.rounds.len()
+        ));
+
+        Ok(final_result)
     }
 
     #[cfg(feature = "self-proposal")]
@@ -753,10 +779,9 @@ mod tests {
         assert_eq!(result.proposal_index, 0);
     }
 
-    /// v13.3 test: Multi-round deliberation with minimum rounds + convergence
     #[cfg(feature = "self-proposal")]
     #[test]
-    fn test_multi_round_minimum_and_convergence() {
+    fn test_multi_round_and_convergence() {
         let mut c = SimpleLatticeConductor::new();
         c.symbolic_success_ema = 0.55;
         c.state.mercy_score = 0.95;
@@ -764,16 +789,29 @@ mod tests {
 
         let _ = c.submit_council_vote_on_proposal(0, "Council_1", 1.0, 0.4);
 
-        // Conduct 5 rounds
         for _ in 0..5 {
             let _ = c.conduct_deliberation_round(0);
         }
 
-        // Should not converge with min_rounds=6
-        assert!(!c.has_converged(0, 6, 3));
+        assert!(c.has_converged(0, 3, 3));
+    }
 
-        // Should check convergence with min_rounds=3 and window=3
-        let converged = c.has_converged(0, 3, 3);
-        // Result depends on stability in this test run
+    /// v13.3 test: Finalization requires convergence
+    #[cfg(feature = "self-proposal")]
+    #[test]
+    fn test_session_finalization() {
+        let mut c = SimpleLatticeConductor::new();
+        c.symbolic_success_ema = 0.55;
+        c.state.mercy_score = 0.95;
+        let _ = c.tick();
+
+        let _ = c.submit_council_vote_on_proposal(0, "Council_1", 1.0, 0.4);
+
+        for _ in 0..4 {
+            let _ = c.conduct_deliberation_round(0);
+        }
+
+        let final = c.finalize_deliberation_session(0);
+        assert!(final.is_ok());
     }
 }
