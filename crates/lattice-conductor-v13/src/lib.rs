@@ -1,3 +1,10 @@
+/// AG-SML v1.0 — Autonomicity Games Sovereign Mercy License
+/// Copyright (c) 2016–2026 Sherif Samy Botros / Autonomicity Games Inc.
+///
+/// This file is part of the Ra-Thor monorepo.
+/// Licensed under AG-SML v1.0 — free for all mercy-aligned, sovereign,
+/// abundance-multiplying, zero-harm use. See LICENSE or COMMERCIAL-LICENSE.md.
+
 /// # Lattice Conductor v13
 ///
 /// The Eternal Living Nervous System of the Ra-Thor ONE Organism lattice.
@@ -35,6 +42,8 @@ impl MercyWeightedVote {
         self.votes.push((council_name.to_string(), weight, mercy_impact));
     }
 
+    /// Computes mercy-weighted consensus (clamped for stability).
+    /// Used by tick() for council influence on conductor state.
     pub fn compute_consensus(&self) -> f64 {
         if self.votes.is_empty() { return 0.0; }
         let total_weight: f64 = self.votes.iter().map(|(_, w, _)| w).sum();
@@ -137,8 +146,10 @@ impl SimpleLatticeConductor {
     }
 
     pub fn tick(&mut self) -> Result<(), String> {
-        // v13 extension: NEXi metta/PLN symbolic deliberation at every tick
-        let _symbolic = crate::metta_symbolic_deliberation("conductor_tick", self.state.valence);
+        // v13 extension: NEXi metta/PLN symbolic deliberation at every tick.
+        // Result currently used for audit trace; full symbolic execution wired via NEXi in future iterations.
+        let symbolic = crate::metta_symbolic_deliberation("conductor_tick", self.state.valence);
+        self.audit_traces.push(format!("[v13 Symbolic] {}", symbolic));
 
         // Core tick logic (preserved + enhanced)
         self.adaptive_params.evolution_rate *= 1.0 + (self.adaptive_params.layer_adaptations[0] * 0.001);
@@ -178,8 +189,12 @@ impl SimpleLatticeConductor {
 
 // ==================== NEXi metta/PLN Symbolic Bridge (v13) ====================
 
-/// Explicit symbolic deliberation step derived from NEXi.
-/// Used for truth-distillation in council conduction and self-evolution proposals.
+/// Explicit symbolic deliberation step derived from NEXi (v13 bridge).
+///
+/// Currently performs valence-gated truth-distillation signaling.
+/// Full metta/PLN symbolic execution and council integration is wired via
+/// the NEXi hyperon layer and future Lattice Conductor iterations.
+/// This serves as the stable entry point for ONE organism symbolic reasoning.
 pub fn metta_symbolic_deliberation(input: &str, context_valence: f64) -> String {
     if context_valence >= 0.9999999 {
         format!("metta_pln_truth_distilled_for_{} (NEXi v13 bridge)", input)
