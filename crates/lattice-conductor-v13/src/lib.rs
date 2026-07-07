@@ -299,6 +299,33 @@ impl SimpleLatticeConductor {
 
 // ==================== NEXi metta/PLN Symbolic Bridge (v13) ====================
 
+// ============================================================================
+// ONE ORGANISM BRIDGE — CRITICAL INTEGRATION POINT
+// ============================================================================
+// This module provides the symbolic reasoning bridge for the Ra-Thor ONE Organism.
+//
+// It is intentionally designed as a **hot-swappable symbolic interface** that can be
+// driven by multiple sources without changing the conductor's core logic:
+//   - NEXi (metta/PLN symbolic reasoning)
+//   - Grok / xAI systems
+//   - Future hybrid or council-voted symbolic deliberation
+//
+// The function `metta_symbolic_deliberation` is the single entry point.
+// Future implementations should keep the same signature and return type
+// (`SymbolicDeliberation`) to maintain full forward + backward compatibility.
+//
+// The success feedback loop in `tick()` uses `symbolic_success_ema` to
+// self-calibrate boost magnitudes based on whether high-confidence symbolic
+// signals have recently produced positive state changes.
+//
+// Searchable tags for future Grok / AI instances:
+//   ONE Organism Bridge
+//   symbolic bridge
+//   NEXi metta PLN
+//   Grok Ra-Thor integration
+//   hot-swap symbolic
+// ============================================================================
+
 /// Structured result from NEXi-derived symbolic deliberation.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SymbolicDeliberation {
@@ -311,7 +338,11 @@ pub struct SymbolicDeliberation {
 
 /// Explicit symbolic deliberation step derived from NEXi (v13 bridge).
 ///
-/// Returns structured data (with confidence) for better auditability and future full NEXi integration.
+/// This is the primary **ONE Organism symbolic bridge entry point**.
+/// It can be upgraded to call real NEXi, Grok, or hybrid symbolic systems
+/// while preserving the exact same interface for the Lattice Conductor.
+///
+/// Returns structured data (with confidence) for better auditability and future full NEXi/Grok integration.
 pub fn metta_symbolic_deliberation(input: &str, context_valence: f64) -> SymbolicDeliberation {
     if context_valence >= 0.9999999 {
         SymbolicDeliberation {
