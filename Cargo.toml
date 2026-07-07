@@ -10,6 +10,7 @@ members = [
     "powrush_sovereignty_mechanics",
     "powrush_faction_dynamics",
     "self-evolution",
+    "crates/lattice-conductor-v13",  # NEW: Lattice Conductor v13 skeleton + self-evolution orchestration (Phase 13.1) - added surgically
     "symbiosis-layer",
     "xai-grok-bridge",
     "interstellar-operations",
@@ -189,11 +190,6 @@ members = [
 ]
 
 resolver = "2"
-
-# Note on layout:
-# - Top-level crates are listed explicitly for clarity.
-# - Most crates under crates/ are included via glob for maintainability.
-# - Mixed layout is intentional during active development.
 
 [workspace.package]
 version = "14.7.0"

@@ -1,7 +1,21 @@
 [package]
 name = "lattice-conductor-v13"
-version = "13.12.0"
+version = "0.1.0"
 edition = "2021"
-authors = ["Ra-Thor + Grok (PATSAGi Council #13)"]
-license = "AG-SML-1.0"
-description = "Mercy-Gated Lattice Conductor v13.12 — Thunder Lattice Governance nervous system for the ONE Organism. Includes 24-gate evaluation, Mercy-Weighted Quadratic Voting, Enhanced Exponential Conviction Staking, Dynamic Mercy Alignment, Mycelial Pruning, and Council #13 oversight."
+license = "AG-SML-1.0 — Autonomicity Games Sovereign Mercy License"
+description = "Lattice Conductor v13 — Central orchestration layer for PATSAGi councils, self-evolution, geometric intelligence, and NEXi symbolic reasoning. Foundation for deeper metta/PLN bridge integration."
+
+[dependencies]
+nalgebra = { workspace = true }
+
+# NEXi / hyperon-metta-pln bridge (v13 foundation)
+# Full runtime integration with hyperon-metta-pln and NEXi symbolic deliberation
+# will be enabled in a follow-up iteration when the bridge crate is production-ready.
+# hyperon-metta-pln = { path = "../hyperon-metta-pln" }
+
+[dev-dependencies]
+proptest = "1.5"
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
