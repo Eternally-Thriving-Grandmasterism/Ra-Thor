@@ -11,11 +11,8 @@
 /// Primary orchestration layer for conducting councils, self-evolution, geometric state,
 /// and NEXi-derived symbolic reasoning under strict TOLC 8 enforcement.
 ///
-/// v13.2 (Phases A+B+C + real parameters + feature flags) — PR #363
-/// - External Symbolic Input (ONE Organism ready)
-/// - Mercy-gated Self-Proposal generation + controlled apply
-/// - Real ConductorSymbolicParameters (directly mutated by Phase C)
-/// - Granular Cargo features for safe rollout
+/// v13.2 (merged PR #363): External Symbolic + Self-Proposal + Phase C + Real Parameters
+/// v13.3 (in progress): Proposal Application History + foundation for safe auto-evolution
 
 use serde::{Deserialize, Serialize};
 use std::fs::File;
@@ -31,15 +28,10 @@ pub use crate::self_evolution::{EpigeneticBlessing, SelfEvolving, SelfEvolutionO
 // ==================== REAL PARAMETER STRUCT (v13.2) ====================
 
 /// Real, tunable symbolic parameters for the Lattice Conductor.
-/// These replace all previous hardcoded values and proxies.
-/// Phase C apply methods now mutate these fields directly and safely.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ConductorSymbolicParameters {
-    /// Base threshold for accepting high-confidence symbolic deliberation
     pub base_confidence_threshold: f64,
-    /// Alpha for exponential moving average of confidence
     pub ema_alpha: f64,
-    /// Multiplier applied to evolution/tolc boosts when success is high
     pub boost_multiplier: f64,
 }
 
@@ -138,10 +130,11 @@ pub struct SimpleLatticeConductor {
     symbolic_confidence_ema: f64,
     symbolic_success_ema: f64,
     pub experimental_use_external_symbolic: bool,
-    /// Real tunable symbolic parameters (v13.2)
     pub symbolic_params: ConductorSymbolicParameters,
     #[cfg(feature = "self-proposal")]
     self_proposal_log: Vec<SymbolicSelfProposal>,
+    #[cfg(feature = "self-proposal")]
+    proposal_application_history: Vec<AppliedSymbolicProposal>,
 }
 
 impl Default for SimpleLatticeConductor {
@@ -169,6 +162,8 @@ impl SimpleLatticeConductor {
             symbolic_params: ConductorSymbolicParameters::default(),
             #[cfg(feature = "self-proposal")]
             self_proposal_log: Vec::new(),
+            #[cfg(feature = "self-proposal")]
+            proposal_application_history: Vec::new(),
         }
     }
 
@@ -193,7 +188,6 @@ impl SimpleLatticeConductor {
         #[cfg(not(feature = "external-symbolic"))]
         let symbolic = crate::metta_symbolic_deliberation("conductor_tick", self.state.valence);
 
-        // Use real parameters instead of hard-coded values
         let ema_alpha = self.symbolic_params.ema_alpha;
         self.symbolic_confidence_ema = self.symbolic_confidence_ema * (1.0 - ema_alpha) + symbolic.confidence_score * ema_alpha;
 
@@ -272,7 +266,6 @@ impl SimpleLatticeConductor {
     pub fn get_symbolic_confidence_ema(&self) -> f64 { self.symbolic_confidence_ema }
     pub fn get_symbolic_success_ema(&self) -> f64 { self.symbolic_success_ema }
 
-    // Real parameter accessors (v13.2)
     pub fn get_symbolic_params(&self) -> &ConductorSymbolicParameters { &self.symbolic_params }
     pub fn set_symbolic_params(&mut self, params: ConductorSymbolicParameters) { self.symbolic_params = params; }
 
@@ -324,11 +317,11 @@ impl SimpleLatticeConductor {
         proposals
     }
 
-    /// Phase C: Explicitly apply a logged self-proposal and mutate the real parameters.
+    /// Phase C: Explicitly apply a logged self-proposal and record in history (v13.3 foundation).
     #[cfg(feature = "self-proposal")]
     pub fn apply_symbolic_self_proposal(&mut self, index: usize) -> Result<String, String> {
         if index >= self.self_proposal_log.len() { return Err("Invalid index".to_string()); }
-        let proposal = &self.self_proposal_log[index];
+        let proposal = self.self_proposal_log[index].clone();
         if self.state.mercy_score < 0.92 || proposal.confidence < 0.65 {
             return Err("Gates not met".to_string());
         }
@@ -350,6 +343,14 @@ impl SimpleLatticeConductor {
             _ => "unknown proposal type".to_string(),
         };
 
+        // v13.3: Record in application history
+        self.proposal_application_history.push(AppliedSymbolicProposal {
+            proposal_type: proposal.proposal_type,
+            applied_value: proposal.proposed_value,
+            effect_description: effect.clone(),
+            mercy_score_at_apply: self.state.mercy_score,
+        });
+
         Ok(format!("Phase C applied #{}: {}", index, effect))
     }
 
@@ -364,6 +365,12 @@ impl SimpleLatticeConductor {
 
     #[cfg(feature = "self-proposal")]
     pub fn get_self_proposal_log(&self) -> &[SymbolicSelfProposal] { &self.self_proposal_log }
+
+    /// v13.3: Returns the history of applied self-proposals (foundation for audit + future auto-evolution).
+    #[cfg(feature = "self-proposal")]
+    pub fn get_proposal_application_history(&self) -> &[AppliedSymbolicProposal] {
+        &self.proposal_application_history
+    }
 }
 
 // ==================== SYMBOLIC DELIBERATION ====================
@@ -411,6 +418,17 @@ pub struct SymbolicSelfProposal {
     pub confidence: f64,
 }
 
+/// v13.3: Record of a self-proposal that was actually applied.
+/// Foundation for history, audit, council review, and future safe auto-application.
+#[cfg(feature = "self-proposal")]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct AppliedSymbolicProposal {
+    pub proposal_type: String,
+    pub applied_value: f64,
+    pub effect_description: String,
+    pub mercy_score_at_apply: f64,
+}
+
 // ==================== TESTS ====================
 
 #[cfg(test)]
@@ -437,7 +455,6 @@ mod tests {
         assert!(c.symbolic_params.base_confidence_threshold != before || c.symbolic_params.boost_multiplier != 1.0);
     }
 
-    /// Additional targeted test: verify that apply actually mutates the real parameter fields
     #[cfg(feature = "self-proposal")]
     #[test]
     fn test_phase_c_mutates_real_parameters() {
@@ -453,7 +470,20 @@ mod tests {
         let after_threshold = c.symbolic_params.base_confidence_threshold;
         let after_boost = c.symbolic_params.boost_multiplier;
 
-        // At least one parameter should have changed
         assert!(after_threshold != before_threshold || after_boost != before_boost);
+    }
+
+    /// v13.3 test: verify that applied proposals are recorded in history
+    #[cfg(feature = "self-proposal")]
+    #[test]
+    fn test_proposal_application_history() {
+        let mut c = SimpleLatticeConductor::new();
+        c.symbolic_success_ema = 0.55;
+        c.state.mercy_score = 0.95;
+        let _ = c.tick();
+        let _ = c.apply_top_confidence_proposal();
+        let history = c.get_proposal_application_history();
+        assert!(!history.is_empty());
+        assert!(history[0].mercy_score_at_apply >= 0.92);
     }
 }
