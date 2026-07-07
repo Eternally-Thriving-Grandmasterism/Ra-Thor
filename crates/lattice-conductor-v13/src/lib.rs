@@ -17,11 +17,13 @@
 /// - NEXi metta/PLN symbolic bridge for explicit truth-distillation
 /// - Full preservation of original conductor logic + surgical v13 extensions
 ///
-/// v13.2 (Phase A): ExternalSymbolicInput + accept_external_symbolic_deliberation
+/// v13.2 (Phase A + tick wiring): ExternalSymbolicInput + accept_external_symbolic_deliberation
+/// + experimental wiring into tick() behind flag.
 /// - Hot-swappable external symbolic path (Grok / NEXi / future councils)
 /// - Full backward compatibility with internal metta_symbolic_deliberation
 /// - All paths pass identical mercy evaluation + confidence gating
 /// - Rich source-tagged audit differentiation
+/// - Experimental flag for safe rollout in tick()
 
 use serde::{Deserialize, Serialize};
 use std::fs::File;
@@ -122,6 +124,9 @@ pub struct SimpleLatticeConductor {
     symbolic_confidence_ema: f64,
     /// EMA tracking correlation between high-confidence symbolic signals and positive state outcomes.
     symbolic_success_ema: f64,
+    /// v13.2 experimental flag: when true, tick() routes through external symbolic path
+    /// (accept_external_symbolic_deliberation). Default false preserves exact v13.1 behavior.
+    pub experimental_use_external_symbolic: bool,
 }
 
 impl Default for SimpleLatticeConductor {
@@ -145,6 +150,7 @@ impl SimpleLatticeConductor {
             registry: ConductorRegistry::new(),
             symbolic_confidence_ema: 0.75,
             symbolic_success_ema: 0.70,
+            experimental_use_external_symbolic: false,
         }
     }
 
@@ -158,8 +164,18 @@ impl SimpleLatticeConductor {
     }
 
     pub fn tick(&mut self) -> Result<(), String> {
-        // v13 extension: NEXi metta/PLN symbolic deliberation at every tick.
-        let symbolic = crate::metta_symbolic_deliberation("conductor_tick", self.state.valence);
+        // v13.2 experimental external symbolic path (behind flag, surgical, default off)
+        let symbolic = if self.experimental_use_external_symbolic {
+            let ext_input = ExternalSymbolicInput::new(
+                "grok_one_organism", // ONE Organism source tag
+                "conductor_tick_external",
+                self.state.valence,
+            );
+            accept_external_symbolic_deliberation(ext_input)
+        } else {
+            // Exact original v13.1 internal path (full backward compat)
+            crate::metta_symbolic_deliberation("conductor_tick", self.state.valence)
+        };
 
         // === Stateful confidence calibration (EMA) ===
         let ema_alpha = 0.18;
@@ -250,13 +266,14 @@ impl SimpleLatticeConductor {
             self.symbolic_success_ema * (1.0 - success_alpha) + success_signal * success_alpha;
 
         self.audit_traces.push(format!(
-            "[v13 Symbolic] conf={:.2} ema={:.2} success_ema={:.2} thr={:.2} mult={:.2} boost={:.4}",
+            "[v13 Symbolic] conf={:.2} ema={:.2} success_ema={:.2} thr={:.2} mult={:.2} boost={:.4} external={}",
             confidence,
             self.symbolic_confidence_ema,
             self.symbolic_success_ema,
             adaptive_threshold,
             success_multiplier,
-            evolution_boost
+            evolution_boost,
+            self.experimental_use_external_symbolic
         ));
 
         Ok(())
