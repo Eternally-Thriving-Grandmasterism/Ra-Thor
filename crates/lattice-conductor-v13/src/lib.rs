@@ -12,7 +12,7 @@
 /// and NEXi-derived symbolic reasoning under strict TOLC 8 enforcement.
 ///
 /// v13.2 (merged): External Symbolic + Self-Proposal + Phase C + Real Parameters
-/// v13.3 (in progress): Proposal History + Safe Auto-Apply + Weighted Council Voting + Council Deliberation + Deliberation-Gated Auto-Apply
+/// v13.3 (in progress): Multi-Round Council Deliberation + Deliberation-Gated Auto-Apply
 
 use serde::{Deserialize, Serialize};
 use std::fs::File;
@@ -137,6 +137,8 @@ pub struct SimpleLatticeConductor {
     proposal_application_history: Vec<AppliedSymbolicProposal>,
     #[cfg(feature = "self-proposal")]
     proposal_votes: Vec<(usize, MercyWeightedVote)>,
+    #[cfg(feature = "self-proposal")]
+    deliberation_sessions: Vec<ProposalDeliberationSession>,
 }
 
 impl Default for SimpleLatticeConductor {
@@ -168,6 +170,8 @@ impl SimpleLatticeConductor {
             proposal_application_history: Vec::new(),
             #[cfg(feature = "self-proposal")]
             proposal_votes: Vec::new(),
+            #[cfg(feature = "self-proposal")]
+            deliberation_sessions: Vec::new(),
         }
     }
 
@@ -366,24 +370,20 @@ impl SimpleLatticeConductor {
         self.apply_symbolic_self_proposal(best_idx)
     }
 
-    /// v13.3: Safe auto-apply gated by BOTH high mercy/confidence AND positive Council Deliberation result.
+    /// v13.3: Safe auto-apply gated by Council Deliberation
     #[cfg(feature = "self-proposal")]
     pub fn try_safe_auto_apply_top_proposal(&mut self) -> Result<Option<String>, String> {
-        if self.self_proposal_log.is_empty() {
-            return Ok(None);
-        }
+        if self.self_proposal_log.is_empty() { return Ok(None); }
 
         let (best_idx, best_proposal) = self.self_proposal_log.iter().enumerate()
             .max_by(|a, b| a.1.confidence.partial_cmp(&b.1.confidence).unwrap())
             .map(|(i, p)| (i, p.clone()))
             .unwrap();
 
-        // Must pass original strict gates
         if self.state.mercy_score < 0.98 || best_proposal.confidence < 0.82 {
             return Ok(None);
         }
 
-        // NEW: Must also pass Council Deliberation Protocol
         let deliberation = self.deliberate_on_proposal(best_idx)?;
         if !deliberation.is_approved {
             self.audit_traces.push(format!(
@@ -446,7 +446,7 @@ impl SimpleLatticeConductor {
             .map(|(_, vote)| vote)
     }
 
-    /// v13.3: Council Deliberation Protocol
+    /// v13.3: Council Deliberation Protocol (single round)
     #[cfg(feature = "self-proposal")]
     pub fn deliberate_on_proposal(&self, proposal_index: usize) -> Result<CouncilDeliberationResult, String> {
         if proposal_index >= self.self_proposal_log.len() {
@@ -484,6 +484,59 @@ impl SimpleLatticeConductor {
             participating_councils: participating,
             symbolic_confidence: symbolic.confidence_score,
         })
+    }
+
+    /// v13.3: Start or retrieve a multi-round deliberation session for a proposal
+    #[cfg(feature = "self-proposal")]
+    pub fn start_deliberation_session(&mut self, proposal_index: usize) -> Result<usize, String> {
+        if proposal_index >= self.self_proposal_log.len() {
+            return Err("Invalid proposal index".to_string());
+        }
+
+        // Check if session already exists
+        if let Some((session_idx, _)) = self.deliberation_sessions.iter().enumerate()
+            .find(|(_, s)| s.proposal_index == proposal_index) {
+            return Ok(session_idx);
+        }
+
+        // Create new session
+        let session = ProposalDeliberationSession {
+            proposal_index,
+            rounds: Vec::new(),
+            final_result: None,
+        };
+        self.deliberation_sessions.push(session);
+        Ok(self.deliberation_sessions.len() - 1)
+    }
+
+    /// v13.3: Conduct one round of deliberation and record it in the session
+    #[cfg(feature = "self-proposal")]
+    pub fn conduct_deliberation_round(&mut self, proposal_index: usize) -> Result<CouncilDeliberationResult, String> {
+        let result = self.deliberate_on_proposal(proposal_index)?;
+
+        // Find or create session
+        let session_idx = self.start_deliberation_session(proposal_index)?;
+        let session = &mut self.deliberation_sessions[session_idx];
+
+        session.rounds.push(result.clone());
+
+        self.audit_traces.push(format!(
+            "[v13.3 MultiRound] Round {} completed for proposal #{} (approved={})",
+            session.rounds.len(),
+            proposal_index,
+            result.is_approved
+        ));
+
+        Ok(result)
+    }
+
+    /// v13.3: Get all deliberation rounds for a proposal
+    #[cfg(feature = "self-proposal")]
+    pub fn get_deliberation_rounds(&self, proposal_index: usize) -> Option<&Vec<CouncilDeliberationResult>> {
+        self.deliberation_sessions
+            .iter()
+            .find(|s| s.proposal_index == proposal_index)
+            .map(|s| &s.rounds)
     }
 
     #[cfg(feature = "self-proposal")]
@@ -558,6 +611,15 @@ pub struct CouncilDeliberationResult {
     pub message: String,
     pub participating_councils: usize,
     pub symbolic_confidence: f64,
+}
+
+/// v13.3: Tracks multi-round deliberation for a single proposal
+#[cfg(feature = "self-proposal")]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ProposalDeliberationSession {
+    pub proposal_index: usize,
+    pub rounds: Vec<CouncilDeliberationResult>,
+    pub final_result: Option<CouncilDeliberationResult>,
 }
 
 // ==================== TESTS ====================
@@ -657,19 +719,23 @@ mod tests {
         assert_eq!(result.proposal_index, 0);
     }
 
-    /// v13.3 test: Safe auto-apply now requires positive Council Deliberation
+    /// v13.3 test: Multi-round deliberation
     #[cfg(feature = "self-proposal")]
     #[test]
-    fn test_safe_auto_apply_requires_deliberation() {
+    fn test_multi_round_deliberation() {
         let mut c = SimpleLatticeConductor::new();
         c.symbolic_success_ema = 0.55;
-        c.state.mercy_score = 0.99; // high enough for auto-apply
+        c.state.mercy_score = 0.95;
         let _ = c.tick();
 
-        // Without sufficient positive votes, deliberation should not approve
-        let result = c.try_safe_auto_apply_top_proposal().unwrap();
-        // In this test setup it may return None because deliberation didn't approve
-        // (we didn't submit strong positive votes)
-        // The key is that deliberation is now part of the gate
+        let _ = c.submit_council_vote_on_proposal(0, "Council_1", 1.0, 0.4);
+
+        // Conduct multiple rounds
+        let round1 = c.conduct_deliberation_round(0).unwrap();
+        let round2 = c.conduct_deliberation_round(0).unwrap();
+
+        let rounds = c.get_deliberation_rounds(0).unwrap();
+        assert_eq!(rounds.len(), 2);
+        assert_eq!(round1.proposal_index, round2.proposal_index);
     }
 }
