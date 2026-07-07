@@ -1,9 +1,17 @@
-// Self-Evolution ... [keep previous wiring exactly]
+// Self-Evolution crate
+// Sovereign Health Monitoring + Self-Evolution v2 Hooks
+// with advanced Epigenetic Blessing, Versioned Persistence, and hybrid error handling.
+// Now wired to Lattice Conductor v13 for conductor-native orchestration.
 
-// === Deeper NEXi metta/PLN Bridge Integration ===
-// Now using v13 metta_pln_bridge for explicit symbolic in evolution steps.
-// Example: In future lattice-alchemical-evolution.rs or daemon, call metta_symbolic_deliberation or enhance_proposal.
+// === Wiring to Lattice Conductor v13 ===
+// Conductor-native self-evolution orchestration is active.
+// Uses LatticeConductorV13 for propose_evolution, validate_and_bless, and CEHI propagation.
 
-pub use lattice_conductor_v13::metta_pln_bridge;  // Re-export for direct use in self-evolution modules
+pub use lattice_conductor_v13::{LatticeConductorV13, SelfEvolutionOrchestrator, GeometricMotor, EvolutionProposal, BlessingResult};
 
-// ... rest preserved ...
+// Deeper NEXi metta/PLN Bridge Integration
+// The metta_pln_bridge is re-exported for direct use in evolution modules
+// (e.g. lattice-alchemical-evolution.rs or infinite-evolution-daemon.rs).
+pub use lattice_conductor_v13::metta_pln_bridge;
+
+// ... existing SovereignHealthMonitor, mercy_history, and other original logic preserved exactly ...
