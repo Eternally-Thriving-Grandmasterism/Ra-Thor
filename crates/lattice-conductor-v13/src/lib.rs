@@ -260,13 +260,38 @@ impl SimpleLatticeConductor {
     pub fn get_mercy_violations(&self) -> &[String] { &self.mercy_violations }
 
     /// Returns the current exponential moving average of recent symbolic confidence scores.
-    /// Useful for external monitoring and council integration.
+    ///
+    /// This value reflects how confident the NEXi symbolic bridge has been over recent ticks.
+    /// Useful for external monitoring, PATSAGi council oversight, and debugging calibration behavior.
+    ///
+    /// # Example
+    /// ```rust,ignore
+    /// let conductor = SimpleLatticeConductor::new();
+    /// // ... run several ticks ...
+    /// let conf_ema = conductor.get_symbolic_confidence_ema();
+    /// if conf_ema > 0.85 {
+    ///     println!("Symbolic reasoning has been consistently high-confidence.");
+    /// }
+    /// ```
     pub fn get_symbolic_confidence_ema(&self) -> f64 {
         self.symbolic_confidence_ema
     }
 
     /// Returns the current exponential moving average of symbolic success correlation.
-    /// Higher values indicate that high-confidence symbolic signals have been reliably beneficial.
+    ///
+    /// Higher values indicate that high-confidence symbolic signals have recently
+    /// correlated with positive changes in mercy, evolution, or alignment.
+    /// Useful for observing whether the symbolic reasoning layer is providing net benefit.
+    ///
+    /// # Example
+    /// ```rust,ignore
+    /// let success_ema = conductor.get_symbolic_success_ema();
+    /// if success_ema > 0.75 {
+    ///     println!("High-confidence symbolic signals have been reliably beneficial.");
+    /// } else if success_ema < 0.5 {
+    ///     println!("Consider reviewing recent symbolic deliberation quality.");
+    /// }
+    /// ```
     pub fn get_symbolic_success_ema(&self) -> f64 {
         self.symbolic_success_ema
     }
