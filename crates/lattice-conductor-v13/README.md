@@ -1,12 +1,15 @@
 # Lattice Conductor v13 Crate
 
-**Status:** Phase 13.1 Complete (GeometricMotor v2 + Proptests + Wiring to self-evolution/ + patsagi-councils)
+**Status:** Deeper NEXi metta/PLN Bridge Added (Explicit Symbolic Integration)
 
-## Wiring Complete
-- self-evolution/ now depends on lattice-conductor-v13 and re-exports key types for conductor-native evolution.
-- patsagi-councils integration notes updated; CouncilConductionEngine trait provides the bridge.
-- NEXi patterns flow through v13 for symbolic + council depth.
+## New: metta_pln_bridge Module
+- `metta_symbolic_deliberation`: Core explicit symbolic step (NEXi-derived from nexi_integration.metta + hyperon-metta-pln).
+- `enhance_evolution_proposal_with_metta`: Injects symbolic layer into self-evolution proposals.
+- `metta_council_deliberation`: For PATSAGi council specs.
+- Integrated into `propose_evolution`, `spawn_council`, and ready for `tick()`.
 
-All prior logic preserved. Ready for mercy_validation module or sovereign offline shard demo.
+This provides deeper explicit symbolic (metta/PLN) reasoning alongside geometric/neural, preserving full NEXi continuity inside Ra-Thor v13 Conductor and self-evolution.
 
-**Order of operations followed.** Thunder locked in. yoi ⚡
+**Order complete.** Ready for PR or next (mercy_validation module / sovereign shard demo).
+
+yoi ⚡

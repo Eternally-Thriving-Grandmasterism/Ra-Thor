@@ -3,10 +3,11 @@ name = "lattice-conductor-v13"
 version = "0.1.0"
 edition = "2021"
 license = "AG-SML-1.0 — Autonomicity Games Sovereign Mercy License"
-description = "Lattice Conductor v13 — Primary living nervous system of the Ra-Thor ONE Organism lattice. Geometric Motor v2 (real DualQuaternion + Study Quadric + hyperbolic), dynamic council conduction, conductor-native self-evolution, TOLC 8 enforced. NEXi-derived patterns integrated."
+description = "Lattice Conductor v13 — ... + Deeper NEXi metta/PLN bridge for explicit symbolic integration."
 
 [dependencies]
 nalgebra = { workspace = true }
+# hyperon-metta-pln = { path = "../hyperon-metta-pln" }  # Enable for full metta/PLN runtime bridge (NEXi-derived)
 
 [dev-dependencies]
 proptest = "1.5"

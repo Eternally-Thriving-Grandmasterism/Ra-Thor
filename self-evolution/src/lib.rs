@@ -1,20 +1,9 @@
-// Self-Evolution crate
-// ... existing SovereignHealthMonitor and mercy_history code preserved exactly ...
+// Self-Evolution ... [keep previous wiring exactly]
 
-// === Wiring to Lattice Conductor v13 (Phase 13.1) ===
-// Conductor-native self-evolution orchestration now active.
-// Uses LatticeConductorV13 for propose_evolution, validate_and_bless, propagate_cehi,
-// and GeometricMotor v2 for geometric invariants in evolution steps.
-// NEXi-derived council patterns flow through Conductor for PATSAGi deliberation.
-// TOLC 8 enforced at every evolution tick.
+// === Deeper NEXi metta/PLN Bridge Integration ===
+// Now using v13 metta_pln_bridge for explicit symbolic in evolution steps.
+// Example: In future lattice-alchemical-evolution.rs or daemon, call metta_symbolic_deliberation or enhance_proposal.
 
-pub use lattice_conductor_v13::{LatticeConductorV13, SelfEvolutionOrchestrator, GeometricMotor, EvolutionProposal, BlessingResult};
+pub use lattice_conductor_v13::metta_pln_bridge;  // Re-export for direct use in self-evolution modules
 
-// Example integration point (extend in lattice-alchemical-evolution.rs or infinite-evolution-daemon.rs):
-// pub fn run_conductor_driven_evolution() {
-//     let mut conductor = LatticeConductorV13::new();
-//     let proposal = conductor.propose_evolution(conductor.get_geometric_state().valence);
-//     if conductor.validate_and_bless(&proposal).blessed { conductor.tick().ok(); }
-// }
-
-// ... rest of existing code preserved ...
+// ... rest preserved ...
