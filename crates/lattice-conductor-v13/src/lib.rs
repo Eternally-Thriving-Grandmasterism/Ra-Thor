@@ -12,7 +12,7 @@
 /// and NEXi-derived symbolic reasoning under strict TOLC 8 enforcement.
 ///
 /// v13.2 (merged): External Symbolic + Self-Proposal + Phase C + Real Parameters
-/// v13.3 (in progress): Proposal History + Safe Auto-Apply + Council Voting Foundation
+/// v13.3 (in progress): Proposal History + Safe Auto-Apply + Weighted Council Voting on Proposals
 
 use serde::{Deserialize, Serialize};
 use std::fs::File;
@@ -135,6 +135,8 @@ pub struct SimpleLatticeConductor {
     self_proposal_log: Vec<SymbolicSelfProposal>,
     #[cfg(feature = "self-proposal")]
     proposal_application_history: Vec<AppliedSymbolicProposal>,
+    #[cfg(feature = "self-proposal")]
+    proposal_votes: Vec<(usize, MercyWeightedVote)>,
 }
 
 impl Default for SimpleLatticeConductor {
@@ -164,6 +166,8 @@ impl SimpleLatticeConductor {
             self_proposal_log: Vec::new(),
             #[cfg(feature = "self-proposal")]
             proposal_application_history: Vec::new(),
+            #[cfg(feature = "self-proposal")]
+            proposal_votes: Vec::new(),
         }
     }
 
@@ -317,7 +321,7 @@ impl SimpleLatticeConductor {
         proposals
     }
 
-    /// Phase C: Explicitly apply + record history. v13.3 foundation.
+    /// Phase C: Explicitly apply + record history.
     #[cfg(feature = "self-proposal")]
     pub fn apply_symbolic_self_proposal(&mut self, index: usize) -> Result<String, String> {
         if index >= self.self_proposal_log.len() { return Err("Invalid index".to_string()); }
@@ -362,14 +366,11 @@ impl SimpleLatticeConductor {
         self.apply_symbolic_self_proposal(best_idx)
     }
 
-    /// v13.3: Safe auto-apply for the top proposal.
-    /// Only applies if mercy_score ≥ 0.98 AND proposal confidence ≥ 0.82.
-    /// Returns Some(message) if applied, None if gates not met.
+    /// v13.3: Safe auto-apply only when mercy ≥ 0.98 and proposal confidence ≥ 0.82.
     #[cfg(feature = "self-proposal")]
     pub fn try_safe_auto_apply_top_proposal(&mut self) -> Result<Option<String>, String> {
-        if self.self_proposal_log.is_empty() {
-            return Ok(None);
-        }
+        if self.self_proposal_log.is_empty() { return Ok(None); }
+
         let (best_idx, best_proposal) = self.self_proposal_log.iter().enumerate()
             .max_by(|a, b| a.1.confidence.partial_cmp(&b.1.confidence).unwrap())
             .map(|(i, p)| (i, p.clone()))
@@ -384,12 +385,60 @@ impl SimpleLatticeConductor {
         }
     }
 
+    /// v13.3: Weighted council voting on a specific self-proposal.
+    /// Uses the existing MercyWeightedVote mechanism for consistency.
+    #[cfg(feature = "self-proposal")]
+    pub fn submit_council_vote_on_proposal(
+        &mut self,
+        proposal_index: usize,
+        council_name: &str,
+        weight: f64,
+        mercy_impact: f64,
+    ) -> Result<(), String> {
+        if proposal_index >= self.self_proposal_log.len() {
+            return Err("Invalid proposal index".to_string());
+        }
+
+        // Find existing vote record for this proposal or create new one
+        if let Some((_, vote)) = self.proposal_votes.iter_mut().find(|(idx, _)| *idx == proposal_index) {
+            vote.add_vote(council_name, weight, mercy_impact);
+        } else {
+            let mut new_vote = MercyWeightedVote::new();
+            new_vote.add_vote(council_name, weight, mercy_impact);
+            self.proposal_votes.push((proposal_index, new_vote));
+        }
+
+        self.audit_traces.push(format!(
+            "[v13.3 CouncilVote] Council '{}' voted on proposal #{} (weight={:.2}, mercy_impact={:.2})",
+            council_name, proposal_index, weight, mercy_impact
+        ));
+
+        Ok(())
+    }
+
+    /// v13.3: Returns the mercy-weighted consensus for a specific proposal (if any votes exist).
+    #[cfg(feature = "self-proposal")]
+    pub fn get_proposal_consensus(&self, proposal_index: usize) -> Option<f64> {
+        self.proposal_votes
+            .iter()
+            .find(|(idx, _)| *idx == proposal_index)
+            .map(|(_, vote)| vote.compute_consensus())
+    }
+
     #[cfg(feature = "self-proposal")]
     pub fn get_self_proposal_log(&self) -> &[SymbolicSelfProposal] { &self.self_proposal_log }
 
     #[cfg(feature = "self-proposal")]
     pub fn get_proposal_application_history(&self) -> &[AppliedSymbolicProposal] {
         &self.proposal_application_history
+    }
+
+    #[cfg(feature = "self-proposal")]
+    pub fn get_proposal_votes(&self, proposal_index: usize) -> Option<&MercyWeightedVote> {
+        self.proposal_votes
+            .iter()
+            .find(|(idx, _)| *idx == proposal_index)
+            .map(|(_, vote)| vote)
     }
 }
 
@@ -503,18 +552,36 @@ mod tests {
         assert!(!history.is_empty());
     }
 
-    /// v13.3 test: safe auto-apply only triggers under very high mercy + confidence
     #[cfg(feature = "self-proposal")]
     #[test]
     fn test_safe_auto_apply_gates() {
         let mut c = SimpleLatticeConductor::new();
         c.symbolic_success_ema = 0.55;
-        c.state.mercy_score = 0.95; // below 0.98 threshold
+        c.state.mercy_score = 0.95;
         let _ = c.tick();
         let result = c.try_safe_auto_apply_top_proposal().unwrap();
-        assert!(result.is_none()); // should not auto-apply
+        assert!(result.is_none());
+    }
 
-        c.state.mercy_score = 0.99; // now high enough
-        // Note: in real run the top proposal confidence would also need to be high
+    /// v13.3 test: weighted council voting on proposals
+    #[cfg(feature = "self-proposal")]
+    #[test]
+    fn test_weighted_council_voting() {
+        let mut c = SimpleLatticeConductor::new();
+        c.symbolic_success_ema = 0.55;
+        c.state.mercy_score = 0.95;
+        let _ = c.tick();
+
+        // Submit votes from multiple councils
+        let _ = c.submit_council_vote_on_proposal(0, "PATSAGi_Council_1", 1.0, 0.3);
+        let _ = c.submit_council_vote_on_proposal(0, "PATSAGi_Council_2", 0.8, 0.25);
+
+        let consensus = c.get_proposal_consensus(0);
+        assert!(consensus.is_some());
+        assert!(consensus.unwrap() > -0.3 && consensus.unwrap() < 0.5);
+
+        let vote_record = c.get_proposal_votes(0);
+        assert!(vote_record.is_some());
+        assert_eq!(vote_record.unwrap().to_audit_string().contains("2 votes"), true);
     }
 }
