@@ -147,9 +147,11 @@ impl SimpleLatticeConductor {
 
     pub fn tick(&mut self) -> Result<(), String> {
         // v13 extension: NEXi metta/PLN symbolic deliberation at every tick.
-        // Result currently used for audit trace; full symbolic execution wired via NEXi in future iterations.
         let symbolic = crate::metta_symbolic_deliberation("conductor_tick", self.state.valence);
-        self.audit_traces.push(format!("[v13 Symbolic] {}", symbolic));
+        self.audit_traces.push(format!(
+            "[v13 Symbolic] input={} valence={:.4} threshold_met={} message={}",
+            symbolic.input, symbolic.valence, symbolic.threshold_met, symbolic.message
+        ));
 
         // Core tick logic (preserved + enhanced)
         self.adaptive_params.evolution_rate *= 1.0 + (self.adaptive_params.layer_adaptations[0] * 0.001);
@@ -189,17 +191,33 @@ impl SimpleLatticeConductor {
 
 // ==================== NEXi metta/PLN Symbolic Bridge (v13) ====================
 
+/// Structured result from NEXi-derived symbolic deliberation.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SymbolicDeliberation {
+    pub input: String,
+    pub valence: f64,
+    pub threshold_met: bool,
+    pub message: String,
+}
+
 /// Explicit symbolic deliberation step derived from NEXi (v13 bridge).
 ///
-/// Currently performs valence-gated truth-distillation signaling.
-/// Full metta/PLN symbolic execution and council integration is wired via
-/// the NEXi hyperon layer and future Lattice Conductor iterations.
-/// This serves as the stable entry point for ONE organism symbolic reasoning.
-pub fn metta_symbolic_deliberation(input: &str, context_valence: f64) -> String {
+/// Returns structured data for better auditability and future full NEXi integration.
+pub fn metta_symbolic_deliberation(input: &str, context_valence: f64) -> SymbolicDeliberation {
     if context_valence >= 0.9999999 {
-        format!("metta_pln_truth_distilled_for_{} (NEXi v13 bridge)", input)
+        SymbolicDeliberation {
+            input: input.to_string(),
+            valence: context_valence,
+            threshold_met: true,
+            message: format!("metta_pln_truth_distilled_for_{}", input),
+        }
     } else {
-        "metta_pln_compensated_low_valence".to_string()
+        SymbolicDeliberation {
+            input: input.to_string(),
+            valence: context_valence,
+            threshold_met: false,
+            message: "metta_pln_compensated_low_valence".to_string(),
+        }
     }
 }
 
@@ -212,12 +230,14 @@ mod tests {
     #[test]
     fn test_metta_symbolic_deliberation_high_valence() {
         let result = metta_symbolic_deliberation("council_deliberation", 1.0);
-        assert!(result.contains("truth_distilled"));
+        assert!(result.threshold_met);
+        assert!(result.message.contains("truth_distilled"));
     }
 
     #[test]
     fn test_metta_symbolic_deliberation_low_valence() {
         let result = metta_symbolic_deliberation("evolution_step", 0.5);
-        assert!(result.contains("compensated"));
+        assert!(!result.threshold_met);
+        assert!(result.message.contains("compensated"));
     }
 }
