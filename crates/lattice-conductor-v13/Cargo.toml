@@ -3,11 +3,19 @@ name = "lattice-conductor-v13"
 version = "0.1.0"
 edition = "2021"
 license = "AG-SML-1.0 — Autonomicity Games Sovereign Mercy License"
-description = "Lattice Conductor v13 — ... + Deeper NEXi metta/PLN bridge for explicit symbolic integration."
+description = "Lattice Conductor v13 — Central orchestration layer for PATSAGi councils, self-evolution, geometric intelligence, and NEXi symbolic reasoning. Foundation for deeper metta/PLN bridge integration."
 
 [dependencies]
 nalgebra = { workspace = true }
-# hyperon-metta-pln = { path = "../hyperon-metta-pln" }  # Enable for full metta/PLN runtime bridge (NEXi-derived)
+
+# NEXi / hyperon-metta-pln bridge (v13 foundation)
+# Full runtime integration with hyperon-metta-pln and NEXi symbolic deliberation
+# will be enabled in a follow-up iteration when the bridge crate is production-ready.
+# hyperon-metta-pln = { path = "../hyperon-metta-pln" }
 
 [dev-dependencies]
 proptest = "1.5"
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
