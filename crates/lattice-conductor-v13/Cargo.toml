@@ -16,6 +16,14 @@ nalgebra = { workspace = true }
 [dev-dependencies]
 proptest = "1.5"
 
+[features]
+default = []
+# Granular experimental features for v13.2
+external-symbolic = []          # Phase A: ExternalSymbolicInput + accept path
+self-proposal = []              # Phase B + C: SelfProposal generation + controlled apply
+full-v13-2 = ["external-symbolic", "self-proposal"]
+experimental = ["full-v13-2"]   # Convenient alias for all v13.2 experimental
+
 [package.metadata.docs.rs]
 all-features = true
 rustdoc-args = ["--cfg", "docsrs"]
