@@ -149,8 +149,8 @@ impl SimpleLatticeConductor {
         // v13 extension: NEXi metta/PLN symbolic deliberation at every tick.
         let symbolic = crate::metta_symbolic_deliberation("conductor_tick", self.state.valence);
         self.audit_traces.push(format!(
-            "[v13 Symbolic] input={} valence={:.4} threshold_met={} message={}",
-            symbolic.input, symbolic.valence, symbolic.threshold_met, symbolic.message
+            "[v13 Symbolic] input={} valence={:.4} threshold_met={} confidence={:.2} message={}",
+            symbolic.input, symbolic.valence, symbolic.threshold_met, symbolic.confidence_score, symbolic.message
         ));
 
         // Core tick logic (preserved + enhanced)
@@ -197,18 +197,20 @@ pub struct SymbolicDeliberation {
     pub input: String,
     pub valence: f64,
     pub threshold_met: bool,
+    pub confidence_score: f64,
     pub message: String,
 }
 
 /// Explicit symbolic deliberation step derived from NEXi (v13 bridge).
 ///
-/// Returns structured data for better auditability and future full NEXi integration.
+/// Returns structured data (with confidence) for better auditability and future full NEXi integration.
 pub fn metta_symbolic_deliberation(input: &str, context_valence: f64) -> SymbolicDeliberation {
     if context_valence >= 0.9999999 {
         SymbolicDeliberation {
             input: input.to_string(),
             valence: context_valence,
             threshold_met: true,
+            confidence_score: 0.92,
             message: format!("metta_pln_truth_distilled_for_{}", input),
         }
     } else {
@@ -216,6 +218,7 @@ pub fn metta_symbolic_deliberation(input: &str, context_valence: f64) -> Symboli
             input: input.to_string(),
             valence: context_valence,
             threshold_met: false,
+            confidence_score: 0.45,
             message: "metta_pln_compensated_low_valence".to_string(),
         }
     }
@@ -231,6 +234,7 @@ mod tests {
     fn test_metta_symbolic_deliberation_high_valence() {
         let result = metta_symbolic_deliberation("council_deliberation", 1.0);
         assert!(result.threshold_met);
+        assert!(result.confidence_score > 0.8);
         assert!(result.message.contains("truth_distilled"));
     }
 
@@ -238,6 +242,7 @@ mod tests {
     fn test_metta_symbolic_deliberation_low_valence() {
         let result = metta_symbolic_deliberation("evolution_step", 0.5);
         assert!(!result.threshold_met);
+        assert!(result.confidence_score < 0.6);
         assert!(result.message.contains("compensated"));
     }
 }
