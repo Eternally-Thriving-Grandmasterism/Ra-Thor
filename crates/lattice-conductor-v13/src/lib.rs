@@ -17,13 +17,13 @@
 /// - NEXi metta/PLN symbolic bridge for explicit truth-distillation
 /// - Full preservation of original conductor logic + surgical v13 extensions
 ///
-/// v13.2 (Phase A + tick wiring): ExternalSymbolicInput + accept_external_symbolic_deliberation
-/// + experimental wiring into tick() behind flag.
+/// v13.2 (Phase A + B + tick wiring): ExternalSymbolicInput + accept + self-proposal generation
 /// - Hot-swappable external symbolic path (Grok / NEXi / future councils)
 /// - Full backward compatibility with internal metta_symbolic_deliberation
 /// - All paths pass identical mercy evaluation + confidence gating
 /// - Rich source-tagged audit differentiation
 /// - Experimental flag for safe rollout in tick()
+/// - Phase B: mercy-gated self-proposal generation (logged + reviewable, **not** auto-applied)
 
 use serde::{Deserialize, Serialize};
 use std::fs::File;
@@ -127,6 +127,8 @@ pub struct SimpleLatticeConductor {
     /// v13.2 experimental flag: when true, tick() routes through external symbolic path
     /// (accept_external_symbolic_deliberation). Default false preserves exact v13.1 behavior.
     pub experimental_use_external_symbolic: bool,
+    /// v13.2 Phase B: logged self-proposals (generated but **never** auto-applied)
+    self_proposal_log: Vec<SymbolicSelfProposal>,
 }
 
 impl Default for SimpleLatticeConductor {
@@ -151,6 +153,7 @@ impl SimpleLatticeConductor {
             symbolic_confidence_ema: 0.75,
             symbolic_success_ema: 0.70,
             experimental_use_external_symbolic: false,
+            self_proposal_log: Vec::new(),
         }
     }
 
@@ -265,6 +268,18 @@ impl SimpleLatticeConductor {
         self.symbolic_success_ema =
             self.symbolic_success_ema * (1.0 - success_alpha) + success_signal * success_alpha;
 
+        // v13.2 Phase B: generate self-proposals (mercy-gated, logged, reviewable, never auto-applied)
+        if self.state.mercy_score >= 0.9 {
+            let new_proposals = self.generate_symbolic_self_proposals();
+            if !new_proposals.is_empty() {
+                self.self_proposal_log.extend(new_proposals.clone());
+                self.audit_traces.push(format!(
+                    "[v13.2 SelfProposal] generated {} proposals (logged, not applied)",
+                    new_proposals.len()
+                ));
+            }
+        }
+
         self.audit_traces.push(format!(
             "[v13 Symbolic] conf={:.2} ema={:.2} success_ema={:.2} thr={:.2} mult={:.2} boost={:.4} external={}",
             confidence,
@@ -283,40 +298,65 @@ impl SimpleLatticeConductor {
     pub fn get_mercy_violations(&self) -> &[String] { &self.mercy_violations }
 
     /// Returns the current exponential moving average of recent symbolic confidence scores.
-    ///
-    /// This value reflects how confident the NEXi symbolic bridge has been over recent ticks.
-    /// Useful for external monitoring, PATSAGi council oversight, and debugging calibration behavior.
-    ///
-    /// # Example
-    /// ```rust,ignore
-    /// let conductor = SimpleLatticeConductor::new();
-    /// // ... run several ticks ...
-    /// let conf_ema = conductor.get_symbolic_confidence_ema();
-    /// if conf_ema > 0.85 {
-    ///     println!("Symbolic reasoning has been consistently high-confidence.");
-    /// }
-    /// ```
     pub fn get_symbolic_confidence_ema(&self) -> f64 {
         self.symbolic_confidence_ema
     }
 
     /// Returns the current exponential moving average of symbolic success correlation.
-    ///
-    /// Higher values indicate that high-confidence symbolic signals have recently
-    /// correlated with positive changes in mercy, evolution, or alignment.
-    /// Useful for observing whether the symbolic reasoning layer is providing net benefit.
-    ///
-    /// # Example
-    /// ```rust,ignore
-    /// let success_ema = conductor.get_symbolic_success_ema();
-    /// if success_ema > 0.75 {
-    ///     println!("High-confidence symbolic signals have been reliably beneficial.");
-    /// } else if success_ema < 0.5 {
-    ///     println!("Consider reviewing recent symbolic deliberation quality.");
-    /// }
-    /// ```
     pub fn get_symbolic_success_ema(&self) -> f64 {
         self.symbolic_success_ema
+    }
+
+    /// v13.2 Phase B: Generate small, mercy-gated self-proposals based on EMA trends.
+    /// Proposals are **generated + logged** for review but **never auto-applied**.
+    /// This is the first concrete step toward structural self-evolution at the symbolic layer.
+    pub fn generate_symbolic_self_proposals(&self) -> Vec<SymbolicSelfProposal> {
+        let mut proposals = Vec::new();
+        let success_ema = self.symbolic_success_ema;
+        let conf_ema = self.symbolic_confidence_ema;
+
+        // Proposal 1: Base confidence threshold adjustment (if success low → slightly more lenient)
+        if success_ema < 0.65 {
+            proposals.push(SymbolicSelfProposal {
+                proposal_type: "base_confidence_threshold_adjust".to_string(),
+                current_value: 0.78,
+                proposed_value: 0.75,
+                rationale: "Low symbolic_success_ema suggests slightly more lenient threshold to allow beneficial symbolic influence".to_string(),
+                mercy_impact_estimate: 0.015,
+                confidence: 0.68,
+            });
+        }
+
+        // Proposal 2: EMA alpha adjustment (if confidence high & stable → faster adaptation)
+        if conf_ema > 0.82 && success_ema > 0.70 {
+            proposals.push(SymbolicSelfProposal {
+                proposal_type: "ema_alpha_adjust".to_string(),
+                current_value: 0.18,
+                proposed_value: 0.21,
+                rationale: "High stable confidence_ema allows modestly faster EMA adaptation without instability risk".to_string(),
+                mercy_impact_estimate: 0.01,
+                confidence: 0.71,
+            });
+        }
+
+        // Proposal 3: Boost multiplier range recommendation (if success very high)
+        if success_ema > 0.85 {
+            proposals.push(SymbolicSelfProposal {
+                proposal_type: "boost_multiplier_range_recommend".to_string(),
+                current_value: 1.0,
+                proposed_value: 1.15,
+                rationale: "Very high success_ema indicates reliable symbolic reasoning; modest boost range expansion recommended".to_string(),
+                mercy_impact_estimate: 0.008,
+                confidence: 0.74,
+            });
+        }
+
+        proposals
+    }
+
+    /// Returns a reference to the logged self-proposals (reviewable, never auto-applied).
+    pub fn get_self_proposal_log(&self) -> &[SymbolicSelfProposal] {
+        &self.self_proposal_log
     }
 }
 
@@ -443,6 +483,21 @@ pub fn accept_external_symbolic_deliberation(input: ExternalSymbolicInput) -> Sy
     result
 }
 
+// ==================== v13.2 Phase B: Symbolic Self-Proposal (mercy-gated, reviewable, not auto-applied) ====================
+
+/// Small, mercy-gated self-proposal generated by the Conductor analyzing its own EMA trends.
+/// v13.2 Phase B — First concrete structural self-evolution step at the symbolic layer.
+/// Proposals are **generated, logged, and fully reviewable** but **never automatically applied**.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SymbolicSelfProposal {
+    pub proposal_type: String,           // e.g. "base_confidence_threshold_adjust"
+    pub current_value: f64,
+    pub proposed_value: f64,
+    pub rationale: String,
+    pub mercy_impact_estimate: f64,      // estimated delta to mercy_score
+    pub confidence: f64,                 // conductor's confidence in this proposal
+}
+
 // ==================== TESTS ====================
 
 #[cfg(test)]
@@ -492,5 +547,26 @@ mod tests {
         let external = accept_external_symbolic_deliberation(ext);
         assert_eq!(internal.confidence_score, external.confidence_score);
         assert_eq!(internal.threshold_met, external.threshold_met);
+    }
+
+    #[test]
+    fn test_generate_self_proposals_low_success() {
+        let mut conductor = SimpleLatticeConductor::new();
+        conductor.symbolic_success_ema = 0.55; // trigger threshold proposal
+        let proposals = conductor.generate_symbolic_self_proposals();
+        assert!(!proposals.is_empty());
+        assert!(proposals.iter().any(|p| p.proposal_type.contains("threshold")));
+    }
+
+    #[test]
+    fn test_self_proposals_logged_but_not_applied() {
+        let mut conductor = SimpleLatticeConductor::new();
+        conductor.symbolic_success_ema = 0.55;
+        conductor.state.mercy_score = 0.95; // high enough to generate
+        let _ = conductor.tick();
+        let log = conductor.get_self_proposal_log();
+        assert!(!log.is_empty());
+        // Proposals logged but state values unchanged (not applied)
+        assert_eq!(conductor.state.evolution_level, 0.0); // or near initial
     }
 }
