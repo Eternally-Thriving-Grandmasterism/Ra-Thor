@@ -148,10 +148,25 @@ impl SimpleLatticeConductor {
     pub fn tick(&mut self) -> Result<(), String> {
         // v13 extension: NEXi metta/PLN symbolic deliberation at every tick.
         let symbolic = crate::metta_symbolic_deliberation("conductor_tick", self.state.valence);
+
+        // === Confidence-based gating ===
+        // High-confidence symbolic signals apply stronger positive drift.
+        // Low-confidence signals are more conservative.
+        let confidence = symbolic.confidence_score;
+        let (evolution_boost, tolc_boost) = if confidence >= 0.8 {
+            (0.008, 0.012) // Strong signal → accelerate evolution & alignment
+        } else {
+            (0.002, 0.004) // Conservative adjustment
+        };
+
         self.audit_traces.push(format!(
-            "[v13 Symbolic] input={} valence={:.4} threshold_met={} confidence={:.2} message={}",
-            symbolic.input, symbolic.valence, symbolic.threshold_met, symbolic.confidence_score, symbolic.message
+            "[v13 Symbolic] input={} valence={:.4} threshold_met={} confidence={:.2} gated_boost_evo={:.4} message={}",
+            symbolic.input, symbolic.valence, symbolic.threshold_met, confidence, evolution_boost, symbolic.message
         ));
+
+        // Apply gated symbolic influence
+        self.state.evolution_level += evolution_boost;
+        self.state.tolc_alignment = (self.state.tolc_alignment + tolc_boost).min(1.25);
 
         // Core tick logic (preserved + enhanced)
         self.adaptive_params.evolution_rate *= 1.0 + (self.adaptive_params.layer_adaptations[0] * 0.001);
@@ -180,7 +195,7 @@ impl SimpleLatticeConductor {
 
         let coherence_shift = (self.state.mercy_score - 0.5) * 0.05;
         self.one_organism_coherence = (self.one_organism_coherence + coherence_shift).clamp(0.5, 1.2);
-        self.state.tolc_alignment = (self.state.tolc_alignment + 0.01).min(1.1);
+        self.state.tolc_alignment = (self.state.tolc_alignment + 0.01).min(1.25);
 
         Ok(())
     }
