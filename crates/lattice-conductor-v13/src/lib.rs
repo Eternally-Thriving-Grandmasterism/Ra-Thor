@@ -592,7 +592,7 @@ impl SimpleLatticeConductor {
             proposal_index, session.rounds.len()
         ));
 
-        // NEW: Automatically apply if the final deliberation approved the proposal
+        // Automatically apply if the final deliberation approved it
         if final_result.is_approved {
             match self.apply_symbolic_self_proposal(proposal_index) {
                 Ok(apply_msg) => {
@@ -611,6 +611,43 @@ impl SimpleLatticeConductor {
         }
 
         Ok(final_result)
+    }
+
+    /// v13.3: Persistence - Save deliberation state to JSON file
+    #[cfg(feature = "self-proposal")]
+    pub fn save_deliberation_state(&self, path: &str) -> Result<(), String> {
+        let data = serde_json::to_string_pretty(&(
+            &self.self_proposal_log,
+            &self.proposal_application_history,
+            &self.proposal_votes,
+            &self.deliberation_sessions,
+        )).map_err(|e| e.to_string())?;
+
+        let mut file = File::create(path).map_err(|e| e.to_string())?;
+        file.write_all(data.as_bytes()).map_err(|e| e.to_string())?;
+        Ok(())
+    }
+
+    /// v13.3: Persistence - Load deliberation state from JSON file
+    #[cfg(feature = "self-proposal")]
+    pub fn load_deliberation_state(&mut self, path: &str) -> Result<(), String> {
+        let mut file = File::open(path).map_err(|e| e.to_string())?;
+        let mut data = String::new();
+        file.read_to_string(&mut data).map_err(|e| e.to_string())?;
+
+        let (proposals, history, votes, sessions): (
+            Vec<SymbolicSelfProposal>,
+            Vec<AppliedSymbolicProposal>,
+            Vec<(usize, MercyWeightedVote)>,
+            Vec<ProposalDeliberationSession>,
+        ) = serde_json::from_str(&data).map_err(|e| e.to_string())?;
+
+        self.self_proposal_log = proposals;
+        self.proposal_application_history = history;
+        self.proposal_votes = votes;
+        self.deliberation_sessions = sessions;
+
+        Ok(())
     }
 
     #[cfg(feature = "self-proposal")]
