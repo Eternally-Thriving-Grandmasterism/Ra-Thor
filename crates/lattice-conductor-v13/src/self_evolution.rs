@@ -226,3 +226,39 @@ impl SelfEvolving for SimpleLatticeConductor {
         evolved
     }
 }
+
+// ==================== TESTS ====================
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    #[cfg(feature = "self-proposal")]
+    fn test_generate_meta_proposals_from_conductor_returns_proposals_when_conditions_met() {
+        let mut conductor = SimpleLatticeConductor::new();
+        conductor.state.mercy_score = 0.95;
+        conductor.symbolic_success_ema = 0.82;
+        conductor.symbolic_confidence_ema = 0.81;
+
+        let orchestrator = SelfEvolutionOrchestrator::new();
+        let meta_props = orchestrator.generate_meta_proposals_from_conductor(&conductor);
+
+        assert!(!meta_props.is_empty(), "Expected at least one meta proposal when conditions are met");
+        assert!(meta_props.iter().any(|p| p.proposal_type == "meta_self_evolution_rate_increase"));
+    }
+
+    #[test]
+    #[cfg(feature = "self-proposal")]
+    fn test_generate_meta_proposals_from_conductor_returns_empty_when_conditions_not_met() {
+        let mut conductor = SimpleLatticeConductor::new();
+        conductor.state.mercy_score = 0.70; // too low
+        conductor.symbolic_success_ema = 0.60;
+        conductor.symbolic_confidence_ema = 0.65;
+
+        let orchestrator = SelfEvolutionOrchestrator::new();
+        let meta_props = orchestrator.generate_meta_proposals_from_conductor(&conductor);
+
+        assert!(meta_props.is_empty());
+    }
+}
