@@ -148,12 +148,13 @@ impl SelfEvolutionOrchestrator {
         }
     }
 
-    // ==================== v13.3 META SELF-EVOLUTION INTEGRATION (preserved) ====================
+    // ==================== v13.3 + v13.4 META SELF-EVOLUTION ====================
 
     #[cfg(feature = "self-proposal")]
     use crate::SymbolicSelfProposal;
 
-    /// v13.3 + v13.4: Meta self-audit. Now modulated by the orchestrator's own meta_evolution_rate.
+    /// v13.3 + v13.4: Meta self-audit. Modulated by meta_evolution_rate.
+    /// Now also respects the orchestrator's own meta_audit_threshold (Option 3).
     #[cfg(feature = "self-proposal")]
     pub fn generate_meta_self_evolution_proposals(
         &self,
@@ -163,20 +164,23 @@ impl SelfEvolutionOrchestrator {
         current_boost_multiplier: f64,
     ) -> Vec<SymbolicSelfProposal> {
         let mut meta = Vec::new();
-        let rate_factor = 1.0 + (self.meta_evolution_rate * 8.0); // v13.4 integration
+        let rate_factor = 1.0 + (self.meta_evolution_rate * 8.0);
 
-        if symbolic_success_ema > 0.75 && symbolic_confidence_ema > 0.78 {
+        // v13.4 improvement: meta_audit_threshold now influences generation conditions
+        let effective_threshold = self.meta_audit_threshold;
+
+        if symbolic_success_ema > 0.75 && symbolic_confidence_ema > effective_threshold - 0.05 {
             meta.push(SymbolicSelfProposal {
                 proposal_type: "meta_self_evolution_rate_increase".to_string(),
                 current_value: current_boost_multiplier,
                 proposed_value: (current_boost_multiplier * rate_factor).min(1.8),
-                rationale: format!("High stable success + confidence → accelerate (rate_factor={:.2})", rate_factor),
+                rationale: format!("High stable success + confidence → accelerate (rate_factor={:.2}, threshold={:.2})", rate_factor, effective_threshold),
                 mercy_impact_estimate: 0.012,
                 confidence: 0.81,
             });
         }
 
-        if symbolic_confidence_ema > 0.80 && current_mercy > 0.90 {
+        if symbolic_confidence_ema > effective_threshold && current_mercy > 0.90 {
             meta.push(SymbolicSelfProposal {
                 proposal_type: "meta_mercy_audit_threshold_tighten".to_string(),
                 current_value: 0.92,
