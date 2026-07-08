@@ -5,17 +5,15 @@
 /// Licensed under AG-SML v1.0 — free for all mercy-aligned, sovereign,
 /// abundance-multiplying, zero-harm use. See LICENSE or COMMERCIAL-LICENSE.md.
 
-//! SelfEvolutionOrchestrator — v13.5 Council Specialization + Decision-Type Weighting
+//! SelfEvolutionOrchestrator — v13.5 + Light Self-Critique (Idea 3)
 //!
-//! v13.5: PATSAGi Council Influence over Meta Rate Parameters with specialization.
-//! Different councils can have different influence depending on the type of meta decision.
+//! Added lightweight self-critique before council meta changes.
+//! Uses existing mercy evaluation + trace/history signals.
 //! Mercy-gated. ONE Organism coherent.
 
 use crate::{GeometricState, SimpleLatticeConductor, ConductorSymbolicParameters};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-
-// ==================== v13.5: Decision Types for Meta Governance ====================
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum MetaDecisionType {
@@ -37,7 +35,6 @@ pub struct SelfEvolutionOrchestrator {
     meta_evolution_rate: f64,
     meta_audit_threshold: f64,
     meta_success_ema: f64,
-    // v13.5: Base council weights + decision-type specific multipliers
     council_weights: HashMap<String, f64>,
     decision_type_multipliers: HashMap<(String, MetaDecisionType), f64>,
 }
@@ -83,7 +80,7 @@ impl SelfEvolutionOrchestrator {
         self.meta_evolution_rate = self.meta_evolution_rate * (1.0 - decay_rate) + base_rate * decay_rate;
     }
 
-    // ==================== v13.5 Council Weighting System ====================
+    // ==================== v13.5 Council Weighting (with Decision Types) ====================
 
     pub fn set_council_weight(&mut self, council_name: &str, weight: f64) {
         self.council_weights.insert(council_name.to_string(), weight.clamp(0.5, 2.0));
@@ -93,7 +90,6 @@ impl SelfEvolutionOrchestrator {
         *self.council_weights.get(council_name).unwrap_or(&1.0)
     }
 
-    /// v13.5: Set decision-type specific multiplier for a council (e.g. Truth Council stronger on Threshold decisions)
     pub fn set_council_decision_multiplier(&mut self, council_name: &str, decision: MetaDecisionType, multiplier: f64) {
         self.decision_type_multipliers.insert(
             (council_name.to_string(), decision),
@@ -107,14 +103,61 @@ impl SelfEvolutionOrchestrator {
             .unwrap_or(&1.0)
     }
 
-    /// v13.5: Calculate effective strength for a council on a specific decision type
     pub fn effective_council_strength(&self, council_name: &str, decision: MetaDecisionType, base_strength: f64) -> f64 {
         let base_weight = self.get_council_weight(council_name);
         let type_multiplier = self.get_council_decision_multiplier(council_name, decision);
         (base_strength * base_weight * type_multiplier).clamp(0.0, 1.5)
     }
 
-    // ==================== v13.5 Council Meta Rate Adjust (with Decision-Type Awareness) ====================
+    // ==================== v13.5 Light Self-Critique (Idea 3) ====================
+
+    /// Lightweight self-critique before applying council meta changes.
+    /// Uses recent meta_success_ema, current mercy, and rate stability signals.
+    pub fn perform_meta_critique(
+        &self,
+        council_name: &str,
+        proposal_type: &str,
+        requested_strength: f64,
+        current_mercy: f64,
+    ) -> (bool, String) {
+        let mut concerns = Vec::new();
+        let mut passed = true;
+
+        // Critique 1: Basic mercy gate (already enforced, but logged here for clarity)
+        if current_mercy < 0.90 {
+            concerns.push("Low current mercy".to_string());
+            passed = false;
+        }
+
+        // Critique 2: Meta success EMA health
+        if self.meta_success_ema < 0.75 {
+            concerns.push(format!("Low meta_success_ema ({:.2})", self.meta_success_ema));
+            passed = false;
+        }
+
+        // Critique 3: Avoid rapid successive large changes (simple rate-of-change heuristic)
+        let recent_large_changes = self.evolution_history
+            .iter()
+            .rev()
+            .take(5)
+            .filter(|e| e.contains("increased meta_evolution_rate") || e.contains("decreased meta_evolution_rate"))
+            .count();
+
+        if recent_large_changes >= 3 && requested_strength > 0.7 {
+            concerns.push("Recent rapid meta rate changes detected".to_string());
+            passed = false;
+        }
+
+        let critique_result = if passed {
+            format!("Critique passed for {} on {} (strength={:.2})", council_name, proposal_type, requested_strength)
+        } else {
+            format!("Critique concerns for {} on {}: {}", council_name, proposal_type, concerns.join("; "))
+        };
+
+        (passed, critique_result)
+    }
+
+    // ==================== v13.5 Council Meta Rate Adjust (with Critique) ====================
 
     pub fn council_voted_meta_rate_adjust(
         &mut self,
@@ -124,6 +167,23 @@ impl SelfEvolutionOrchestrator {
         current_mercy: f64,
         trace_log: &mut Vec<String>,
     ) -> Result<String, String> {
+        // Run light self-critique first (Idea 3)
+        let (critique_passed, critique_msg) = self.perform_meta_critique(
+            council_name,
+            proposal_type,
+            strength,
+            current_mercy,
+        );
+
+        trace_log.push(format!("[v13.5 Critique] {}", critique_msg));
+
+        if !critique_passed {
+            // Still allow if mercy is very high (override for strong alignment)
+            if current_mercy < 0.96 {
+                return Err(format!("Meta change blocked by self-critique: {}", critique_msg));
+            }
+        }
+
         if current_mercy < 0.90 {
             return Err(format!("Council meta rate adjust blocked: insufficient mercy ({})", current_mercy));
         }
@@ -131,7 +191,6 @@ impl SelfEvolutionOrchestrator {
             return Err(format!("Council meta rate adjust blocked: meta_success_ema too low"));
         }
 
-        // Determine decision type
         let decision = match proposal_type {
             "increase_meta_rate" | "decrease_meta_rate" => MetaDecisionType::Rate,
             "tighten_meta_threshold" | "loosen_meta_threshold" => MetaDecisionType::Threshold,
@@ -139,7 +198,6 @@ impl SelfEvolutionOrchestrator {
         };
 
         let effective_strength = self.effective_council_strength(council_name, decision, strength);
-
         let adjustment = effective_strength * 0.015;
 
         let effect = match proposal_type {
@@ -163,7 +221,7 @@ impl SelfEvolutionOrchestrator {
         };
 
         let event = format!(
-            "[v13.5 Council Meta] {} voted {} | decision={:?} | effective_strength={:.2}",
+            "[v13.5 Council Meta] {} voted {} | decision={:?} | effective={:.2}",
             council_name, effect, decision, effective_strength
         );
         self.evolution_history.push(event.clone());
@@ -172,7 +230,6 @@ impl SelfEvolutionOrchestrator {
         Ok(effect)
     }
 
-    /// Enhanced council_voted_evolution with meta rate influence (v13.5)
     pub fn council_voted_evolution(
         &mut self,
         council_name: &str,
