@@ -12,7 +12,7 @@
 /// and NEXi-derived symbolic reasoning under strict TOLC 8 enforcement.
 ///
 /// v13.2 (merged): External Symbolic + Self-Proposal + Phase C + Real Parameters
-/// v13.3 (in progress): Multi-Round Deliberation + Convergence + Minimum Rounds + Finalization + Convergence-Gated Auto-Apply
+/// v13.3 (in progress): Multi-Round Deliberation + Convergence + Finalization (auto-apply) + Persistence + Richer Voting
 
 use serde::{Deserialize, Serialize};
 use std::fs::File;
@@ -370,7 +370,7 @@ impl SimpleLatticeConductor {
         self.apply_symbolic_self_proposal(best_idx)
     }
 
-    /// v13.3: Safe auto-apply now requires BOTH deliberation approval AND convergence with minimum rounds.
+    /// v13.3: Safe auto-apply now requires convergence + min rounds
     #[cfg(feature = "self-proposal")]
     pub fn try_safe_auto_apply_top_proposal(&mut self) -> Result<Option<String>, String> {
         if self.self_proposal_log.is_empty() { return Ok(None); }
@@ -384,7 +384,6 @@ impl SimpleLatticeConductor {
             return Ok(None);
         }
 
-        // Must have positive deliberation result
         let deliberation = self.deliberate_on_proposal(best_idx)?;
         if !deliberation.is_approved {
             self.audit_traces.push(format!(
@@ -394,11 +393,8 @@ impl SimpleLatticeConductor {
             return Ok(None);
         }
 
-        // NEW: Require convergence with minimum rounds (default: 3 rounds total, last 3 stable)
         if !self.has_converged(best_idx, 3, 3) {
-            self.audit_traces.push(format!(
-                "[v13.3 SafeAutoApply] Skipped — Not yet converged (need min 3 rounds + stable window)",
-            ));
+            self.audit_traces.push("[v13.3 SafeAutoApply] Skipped — Not yet converged".to_string());
             return Ok(None);
         }
 
@@ -570,7 +566,7 @@ impl SimpleLatticeConductor {
         score_range < 0.15
     }
 
-    /// v13.3: Finalize a deliberation session (locks in the last result as final)
+    /// v13.3: Finalize deliberation session + automatically apply if converged and approved
     #[cfg(feature = "self-proposal")]
     pub fn finalize_deliberation_session(&mut self, proposal_index: usize) -> Result<CouncilDeliberationResult, String> {
         if proposal_index >= self.self_proposal_log.len() {
@@ -584,7 +580,6 @@ impl SimpleLatticeConductor {
             return Err("No rounds conducted yet".to_string());
         }
 
-        // Require convergence with reasonable minimums before finalizing
         if !self.has_converged(proposal_index, 3, 3) {
             return Err("Deliberation has not yet converged (min 3 rounds + stable window required)".to_string());
         }
@@ -596,6 +591,24 @@ impl SimpleLatticeConductor {
             "[v13.3 SessionFinalized] Proposal #{} deliberation finalized after {} rounds",
             proposal_index, session.rounds.len()
         ));
+
+        // NEW: Automatically apply if the final deliberation approved the proposal
+        if final_result.is_approved {
+            match self.apply_symbolic_self_proposal(proposal_index) {
+                Ok(apply_msg) => {
+                    self.audit_traces.push(format!(
+                        "[v13.3 AutoApplyOnFinalize] Automatically applied proposal #{}: {}",
+                        proposal_index, apply_msg
+                    ));
+                }
+                Err(e) => {
+                    self.audit_traces.push(format!(
+                        "[v13.3 AutoApplyOnFinalize] Failed to auto-apply proposal #{}: {}",
+                        proposal_index, e
+                    ));
+                }
+            }
+        }
 
         Ok(final_result)
     }
@@ -796,10 +809,9 @@ mod tests {
         assert!(c.has_converged(0, 3, 3));
     }
 
-    /// v13.3 test: Finalization requires convergence
     #[cfg(feature = "self-proposal")]
     #[test]
-    fn test_session_finalization() {
+    fn test_session_finalization_and_auto_apply() {
         let mut c = SimpleLatticeConductor::new();
         c.symbolic_success_ema = 0.55;
         c.state.mercy_score = 0.95;
