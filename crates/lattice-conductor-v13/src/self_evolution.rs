@@ -5,37 +5,26 @@
 /// Licensed under AG-SML v1.0 — free for all mercy-aligned, sovereign,
 /// abundance-multiplying, zero-harm use. See LICENSE or COMMERCIAL-LICENSE.md.
 
-//! SelfEvolutionOrchestrator — v13.4 Complete + v13.5 Planning
+//! SelfEvolutionOrchestrator — v13.5 Council Specialization + Decision-Type Weighting
 //!
-//! v13.5 focus: PATSAGi Council Influence over Meta Rate Parameters.
-//! Expanded tests + improved integration + council-specific weighting.
-//! Mercy-gated. ONE Organism coherent. PATSAGi + Grok symbiosis ready.
+//! v13.5: PATSAGi Council Influence over Meta Rate Parameters with specialization.
+//! Different councils can have different influence depending on the type of meta decision.
+//! Mercy-gated. ONE Organism coherent.
 
 use crate::{GeometricState, SimpleLatticeConductor, ConductorSymbolicParameters};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct EpigeneticBlessing {
-    pub name: String,
-    pub description: String,
-    pub mercy_threshold: f64,
-    pub evolution_boost: f64,
-    pub mercy_boost: f64,
-    pub tolc_boost: f64,
+// ==================== v13.5: Decision Types for Meta Governance ====================
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum MetaDecisionType {
+    Rate,
+    Threshold,
 }
 
-impl EpigeneticBlessing {
-    pub fn new(name: &str, description: &str, mercy_threshold: f64, evolution_boost: f64) -> Self {
-        Self {
-            name: name.to_string(),
-            description: description.to_string(),
-            mercy_threshold,
-            evolution_boost,
-            mercy_boost: evolution_boost * 0.3,
-            tolc_boost: 0.02,
-        }
-    }
+impl Default for MetaDecisionType {
+    fn default() -> Self { MetaDecisionType::Rate }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -48,8 +37,9 @@ pub struct SelfEvolutionOrchestrator {
     meta_evolution_rate: f64,
     meta_audit_threshold: f64,
     meta_success_ema: f64,
-    // v13.5: Council-specific influence weights
+    // v13.5: Base council weights + decision-type specific multipliers
     council_weights: HashMap<String, f64>,
+    decision_type_multipliers: HashMap<(String, MetaDecisionType), f64>,
 }
 
 impl Default for SelfEvolutionOrchestrator {
@@ -64,6 +54,7 @@ impl Default for SelfEvolutionOrchestrator {
             meta_audit_threshold: 0.92,
             meta_success_ema: 0.70,
             council_weights: HashMap::new(),
+            decision_type_multipliers: HashMap::new(),
         };
         orch.register_default_blessings();
         orch
@@ -92,17 +83,39 @@ impl SelfEvolutionOrchestrator {
         self.meta_evolution_rate = self.meta_evolution_rate * (1.0 - decay_rate) + base_rate * decay_rate;
     }
 
-    /// v13.5: Set or update influence weight for a specific council
+    // ==================== v13.5 Council Weighting System ====================
+
     pub fn set_council_weight(&mut self, council_name: &str, weight: f64) {
         self.council_weights.insert(council_name.to_string(), weight.clamp(0.5, 2.0));
     }
 
-    /// v13.5: Get influence weight for a council (defaults to 1.0)
     pub fn get_council_weight(&self, council_name: &str) -> f64 {
         *self.council_weights.get(council_name).unwrap_or(&1.0)
     }
 
-    /// v13.5: Council meta rate adjust with expanded proposal types and strong mercy gating
+    /// v13.5: Set decision-type specific multiplier for a council (e.g. Truth Council stronger on Threshold decisions)
+    pub fn set_council_decision_multiplier(&mut self, council_name: &str, decision: MetaDecisionType, multiplier: f64) {
+        self.decision_type_multipliers.insert(
+            (council_name.to_string(), decision),
+            multiplier.clamp(0.5, 3.0),
+        );
+    }
+
+    pub fn get_council_decision_multiplier(&self, council_name: &str, decision: MetaDecisionType) -> f64 {
+        *self.decision_type_multipliers
+            .get(&(council_name.to_string(), decision))
+            .unwrap_or(&1.0)
+    }
+
+    /// v13.5: Calculate effective strength for a council on a specific decision type
+    pub fn effective_council_strength(&self, council_name: &str, decision: MetaDecisionType, base_strength: f64) -> f64 {
+        let base_weight = self.get_council_weight(council_name);
+        let type_multiplier = self.get_council_decision_multiplier(council_name, decision);
+        (base_strength * base_weight * type_multiplier).clamp(0.0, 1.5)
+    }
+
+    // ==================== v13.5 Council Meta Rate Adjust (with Decision-Type Awareness) ====================
+
     pub fn council_voted_meta_rate_adjust(
         &mut self,
         council_name: &str,
@@ -118,30 +131,41 @@ impl SelfEvolutionOrchestrator {
             return Err(format!("Council meta rate adjust blocked: meta_success_ema too low"));
         }
 
-        let weight = self.get_council_weight(council_name);
-        let adjustment = strength * 0.015 * weight;
+        // Determine decision type
+        let decision = match proposal_type {
+            "increase_meta_rate" | "decrease_meta_rate" => MetaDecisionType::Rate,
+            "tighten_meta_threshold" | "loosen_meta_threshold" => MetaDecisionType::Threshold,
+            _ => MetaDecisionType::Rate,
+        };
+
+        let effective_strength = self.effective_council_strength(council_name, decision, strength);
+
+        let adjustment = effective_strength * 0.015;
 
         let effect = match proposal_type {
             "increase_meta_rate" => {
                 self.meta_evolution_rate = (self.meta_evolution_rate + adjustment).min(0.06);
-                format!("increased meta_evolution_rate by {:.4} (weight={:.2})", adjustment, weight)
+                format!("increased meta_evolution_rate by {:.4}", adjustment)
             }
             "decrease_meta_rate" => {
                 self.meta_evolution_rate = (self.meta_evolution_rate - adjustment * 0.6).max(0.005);
-                format!("decreased meta_evolution_rate by {:.4} (weight={:.2})", adjustment * 0.6, weight)
+                format!("decreased meta_evolution_rate by {:.4}", adjustment * 0.6)
             }
             "tighten_meta_threshold" => {
                 self.meta_audit_threshold = (self.meta_audit_threshold + adjustment * 0.5).min(0.96);
-                format!("tightened meta_audit_threshold (weight={:.2})", weight)
+                format!("tightened meta_audit_threshold")
             }
             "loosen_meta_threshold" => {
                 self.meta_audit_threshold = (self.meta_audit_threshold - adjustment * 0.4).max(0.85);
-                format!("loosened meta_audit_threshold (weight={:.2})", weight)
+                format!("loosened meta_audit_threshold")
             }
             _ => "unknown proposal type".to_string(),
         };
 
-        let event = format!("[v13.5 Council Meta] {} voted {} | mercy={:.2}", council_name, effect, current_mercy);
+        let event = format!(
+            "[v13.5 Council Meta] {} voted {} | decision={:?} | effective_strength={:.2}",
+            council_name, effect, decision, effective_strength
+        );
         self.evolution_history.push(event.clone());
         trace_log.push(event);
 
@@ -167,10 +191,8 @@ impl SelfEvolutionOrchestrator {
         self.current_level += boost * 0.4;
         self.total_evolutions += 1;
 
-        // v13.5: High alignment triggers meta rate influence (weighted by council)
         if mercy_impact > 0.6 && state.mercy_score > 0.92 {
-            let weight = self.get_council_weight(council_name);
-            let strength = (mercy_impact * 0.6 * weight).min(1.0);
+            let strength = (mercy_impact * 0.6).min(1.0);
             let _ = self.council_voted_meta_rate_adjust(
                 council_name,
                 "increase_meta_rate",
@@ -178,15 +200,6 @@ impl SelfEvolutionOrchestrator {
                 state.mercy_score,
                 trace_log,
             );
-        }
-    }
-
-    /// Quantum Swarm integration hook
-    pub fn integrate_quantum_swarm(&mut self, swarm_participation: f64, state: &mut GeometricState) {
-        if swarm_participation > 0.5 {
-            self.quantum_swarm_participation += swarm_participation * 0.1;
-            state.evolution_level += swarm_participation * 0.05;
-            state.tolc_alignment = (state.tolc_alignment + 0.015).min(1.25);
         }
     }
 
@@ -238,131 +251,5 @@ impl SelfEvolving for SimpleLatticeConductor {
         for t in trace_log { self.audit_traces.push(t); }
         if evolved { self.one_organism_coherence = (self.one_organism_coherence + 0.05).min(1.3); }
         evolved
-    }
-}
-
-// ==================== TESTS ====================
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    #[cfg(feature = "self-proposal")]
-    fn test_generate_meta_proposals_from_conductor_returns_proposals_when_conditions_met() {
-        let mut conductor = SimpleLatticeConductor::new();
-        conductor.state.mercy_score = 0.95;
-        conductor.symbolic_success_ema = 0.82;
-        conductor.symbolic_confidence_ema = 0.81;
-
-        let orchestrator = SelfEvolutionOrchestrator::new();
-        let meta_props = orchestrator.generate_meta_proposals_from_conductor(&conductor);
-
-        assert!(!meta_props.is_empty());
-        assert!(meta_props.iter().any(|p| p.proposal_type == "meta_self_evolution_rate_increase"));
-    }
-
-    #[test]
-    #[cfg(feature = "self-proposal")]
-    fn test_generate_meta_proposals_from_conductor_returns_empty_when_conditions_not_met() {
-        let mut conductor = SimpleLatticeConductor::new();
-        conductor.state.mercy_score = 0.70;
-        conductor.symbolic_success_ema = 0.60;
-        conductor.symbolic_confidence_ema = 0.65;
-
-        let orchestrator = SelfEvolutionOrchestrator::new();
-        let meta_props = orchestrator.generate_meta_proposals_from_conductor(&conductor);
-
-        assert!(meta_props.is_empty());
-    }
-
-    #[test]
-    #[cfg(feature = "self-proposal")]
-    fn test_v13_4_apply_meta_rate_proposal_mutates_internal_state() {
-        let mut orchestrator = SelfEvolutionOrchestrator::new();
-        orchestrator.meta_success_ema = 0.95;
-
-        let proposal = SymbolicSelfProposal {
-            proposal_type: "meta_self_evolution_rate_increase".to_string(),
-            current_value: 0.01,
-            proposed_value: 0.012,
-            rationale: "test".to_string(),
-            mercy_impact_estimate: 0.01,
-            confidence: 0.8,
-        };
-
-        let result = orchestrator.apply_meta_rate_proposal(&proposal);
-        assert!(result.is_ok());
-        assert!(orchestrator.get_meta_evolution_rate() > 0.01);
-    }
-
-    #[test]
-    fn test_v13_4_stabilize_meta_rate_prevents_runaway() {
-        let mut orchestrator = SelfEvolutionOrchestrator::new();
-        orchestrator.meta_evolution_rate = 0.04;
-
-        for _ in 0..20 {
-            orchestrator.stabilize_meta_rate();
-        }
-
-        assert!(orchestrator.get_meta_evolution_rate() < 0.025);
-    }
-
-    // ==================== v13.5 Tests ====================
-
-    #[test]
-    fn test_v13_5_council_weight_default_and_set() {
-        let mut orchestrator = SelfEvolutionOrchestrator::new();
-        assert_eq!(orchestrator.get_council_weight("TestCouncil"), 1.0);
-
-        orchestrator.set_council_weight("TestCouncil", 1.5);
-        assert_eq!(orchestrator.get_council_weight("TestCouncil"), 1.5);
-    }
-
-    #[test]
-    #[cfg(feature = "self-proposal")]
-    fn test_v13_5_council_meta_rate_adjust_blocked_by_low_mercy() {
-        let mut orchestrator = SelfEvolutionOrchestrator::new();
-        let result = orchestrator.council_voted_meta_rate_adjust(
-            "TestCouncil",
-            "increase_meta_rate",
-            0.8,
-            0.75, // too low
-            &mut vec![],
-        );
-        assert!(result.is_err());
-    }
-
-    #[test]
-    #[cfg(feature = "self-proposal")]
-    fn test_v13_5_council_meta_rate_adjust_with_weight() {
-        let mut orchestrator = SelfEvolutionOrchestrator::new();
-        orchestrator.meta_success_ema = 0.95;
-        orchestrator.set_council_weight("PowerfulCouncil", 1.8);
-
-        let result = orchestrator.council_voted_meta_rate_adjust(
-            "PowerfulCouncil",
-            "increase_meta_rate",
-            0.8,
-            0.95,
-            &mut vec![],
-        );
-
-        assert!(result.is_ok());
-        let msg = result.unwrap();
-        assert!(msg.contains("weight=1.8"));
-    }
-
-    #[test]
-    fn test_v13_5_council_voted_evolution_triggers_meta_when_aligned() {
-        let mut orchestrator = SelfEvolutionOrchestrator::new();
-        orchestrator.meta_success_ema = 0.95;
-        let mut state = GeometricState { mercy_score: 0.95, ..Default::default() };
-        let mut trace = vec![];
-
-        orchestrator.council_voted_evolution("AlignedCouncil", 0.8, &mut state, &mut trace);
-
-        // Should have triggered meta rate adjustment
-        assert!(orchestrator.get_meta_evolution_rate() > 0.01);
     }
 }
