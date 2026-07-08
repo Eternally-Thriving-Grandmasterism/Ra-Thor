@@ -17,11 +17,10 @@
 /// - Real ConductorSymbolicParameters (directly mutated by Phase C)
 /// - Granular Cargo features for safe rollout
 ///
-/// v13.3 — Meta Self-Evolution Application (this edit)
-/// - First-class methods on SimpleLatticeConductor for meta self-audit & controlled meta-apply
-/// - Applies existing EMA + self-proposal machinery to the self-evolution logic itself
-/// - Extra TOLC 8 gates + simulated PATSAGi trace
-/// - Fully mercy-gated, ONE Organism aligned, additive & backward-compatible
+/// v13.3 — Meta Self-Evolution Application
+/// - Meta audit integrated into SelfEvolutionOrchestrator
+/// - Conductor methods delegate to orchestrator (clean separation)
+/// - All mercy-gated, TOLC 8 enforced, ONE Organism aligned
 
 use serde::{Deserialize, Serialize};
 use std::fs::File;
@@ -34,18 +33,12 @@ pub use crate::coordinator::{AverageInfluenceStrategy, CoordinationStrategy, Lea
 pub use crate::geometric::{BasicGeometricMotor, GeometricMotor, GeometricState};
 pub use crate::self_evolution::{EpigeneticBlessing, SelfEvolving, SelfEvolutionOrchestrator};
 
-// ==================== REAL PARAMETER STRUCT (v13.2 + v13.3 extensions) ====================
+// ==================== REAL PARAMETER STRUCT (v13.2 + v13.3) ====================
 
-/// Real, tunable symbolic parameters for the Lattice Conductor.
-/// These replace all previous hardcoded values and proxies.
-/// Phase C apply methods now mutate these fields directly and safely.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ConductorSymbolicParameters {
-    /// Base threshold for accepting high-confidence symbolic deliberation
     pub base_confidence_threshold: f64,
-    /// Alpha for exponential moving average of confidence
     pub ema_alpha: f64,
-    /// Multiplier applied to evolution/tolc boosts when success is high
     pub boost_multiplier: f64,
 }
 
@@ -144,7 +137,6 @@ pub struct SimpleLatticeConductor {
     symbolic_confidence_ema: f64,
     symbolic_success_ema: f64,
     pub experimental_use_external_symbolic: bool,
-    /// Real tunable symbolic parameters (v13.2)
     pub symbolic_params: ConductorSymbolicParameters,
     #[cfg(feature = "self-proposal")]
     self_proposal_log: Vec<SymbolicSelfProposal>,
@@ -199,7 +191,6 @@ impl SimpleLatticeConductor {
         #[cfg(not(feature = "external-symbolic"))]
         let symbolic = crate::metta_symbolic_deliberation("conductor_tick", self.state.valence);
 
-        // Use real parameters instead of hard-coded values
         let ema_alpha = self.symbolic_params.ema_alpha;
         self.symbolic_confidence_ema = self.symbolic_confidence_ema * (1.0 - ema_alpha) + symbolic.confidence_score * ema_alpha;
 
@@ -278,7 +269,6 @@ impl SimpleLatticeConductor {
     pub fn get_symbolic_confidence_ema(&self) -> f64 { self.symbolic_confidence_ema }
     pub fn get_symbolic_success_ema(&self) -> f64 { self.symbolic_success_ema }
 
-    // Real parameter accessors (v13.2)
     pub fn get_symbolic_params(&self) -> &ConductorSymbolicParameters { &self.symbolic_params }
     pub fn set_symbolic_params(&mut self, params: ConductorSymbolicParameters) { self.symbolic_params = params; }
 
@@ -368,54 +358,31 @@ impl SimpleLatticeConductor {
         self.apply_symbolic_self_proposal(best_idx)
     }
 
-    // ==================== v13.3 META SELF-EVOLUTION (surgical addition) ====================
+    // ==================== v13.3 META SELF-EVOLUTION (delegates to orchestrator) ====================
 
-    /// v13.3: Meta self-audit — proposes improvements to the self-evolution / EMA logic itself.
-    /// This is the direct application of Ra-Thor’s self-evolving systems to the Conductor.
-    /// All proposals remain mercy-gated and pass TOLC 8 before any apply.
+    /// v13.3: Delegates to SelfEvolutionOrchestrator for meta self-audit.
     #[cfg(feature = "self-proposal")]
     pub fn generate_meta_self_evolution_proposals(&self) -> Vec<SymbolicSelfProposal> {
-        let mut meta = Vec::new();
-        let p = &self.symbolic_params;
-        let success = self.symbolic_success_ema;
-        let conf = self.symbolic_confidence_ema;
-
-        if success > 0.75 && conf > 0.78 {
-            meta.push(SymbolicSelfProposal {
-                proposal_type: "meta_self_evolution_rate_increase".to_string(),
-                current_value: p.boost_multiplier,
-                proposed_value: (p.boost_multiplier * 1.15).min(1.6),
-                rationale: "High stable success + confidence → accelerate meta self-evolution rate for faster lattice growth".to_string(),
-                mercy_impact_estimate: 0.012,
-                confidence: 0.81,
-            });
-        }
-
-        if conf > 0.80 {
-            meta.push(SymbolicSelfProposal {
-                proposal_type: "meta_mercy_audit_threshold_tighten".to_string(),
-                current_value: 0.92,
-                proposed_value: 0.94,
-                rationale: "Very high confidence → raise bar for meta self-proposals to protect mercy purity".to_string(),
-                mercy_impact_estimate: 0.009,
-                confidence: 0.77,
-            });
-        }
-        meta
+        self.evolution_orchestrator.generate_meta_self_evolution_proposals(
+            self.state.mercy_score,
+            self.symbolic_success_ema,
+            self.symbolic_confidence_ema,
+            self.symbolic_params.boost_multiplier,
+        )
     }
 
-    /// v13.3: Controlled meta-apply with extra TOLC 8 gates + simulated PATSAGi Council trace.
-    /// Never auto-applied. Requires explicit call + gates.
+    /// v13.3: Delegates gate/history to orchestrator, performs param mutation in conductor.
     #[cfg(feature = "self-proposal")]
     pub fn apply_meta_self_evolution_proposal(&mut self, index: usize) -> Result<String, String> {
         let meta_props = self.generate_meta_self_evolution_proposals();
         if index >= meta_props.len() { return Err("Invalid meta index".to_string()); }
 
         let prop = &meta_props[index];
-        if self.state.mercy_score < 0.93 || prop.confidence < 0.70 {
-            return Err(format!("Meta apply blocked by TOLC 8 gates (mercy={:.2}, conf={:.2})", self.state.mercy_score, prop.confidence));
-        }
 
+        // Let orchestrator perform its gate + history logic
+        let _ = self.evolution_orchestrator.apply_meta_self_evolution_proposal(prop, self.state.mercy_score)?;
+
+        // Conductor owns the actual parameter mutation
         let p = &mut self.symbolic_params;
         let effect = match prop.proposal_type.as_str() {
             "meta_self_evolution_rate_increase" => {
@@ -426,7 +393,7 @@ impl SimpleLatticeConductor {
                 p.base_confidence_threshold = (p.base_confidence_threshold + 0.01).min(0.92);
                 format!("base_confidence_threshold tightened → {:.3}", p.base_confidence_threshold)
             }
-            _ => "unknown meta proposal type".to_string(),
+            _ => "unknown meta proposal".to_string(),
         };
 
         self.audit_traces.push(format!("[v13.3 MetaSelfEvolution] applied #{}: {}", index, effect));
@@ -508,7 +475,6 @@ mod tests {
         assert!(c.symbolic_params.base_confidence_threshold != before || c.symbolic_params.boost_multiplier != 1.0);
     }
 
-    /// Additional targeted test: verify that apply actually mutates the real parameter fields
     #[cfg(feature = "self-proposal")]
     #[test]
     fn test_phase_c_mutates_real_parameters() {
@@ -524,15 +490,13 @@ mod tests {
         let after_threshold = c.symbolic_params.base_confidence_threshold;
         let after_boost = c.symbolic_params.boost_multiplier;
 
-        // At least one parameter should have changed
         assert!(after_threshold != before_threshold || after_boost != before_boost);
     }
 
     #[cfg(feature = "self-proposal")]
     #[test]
-    fn test_v13_3_meta_self_evolution_methods_exist() {
+    fn test_v13_3_meta_methods_delegate() {
         let c = SimpleLatticeConductor::new();
         let _ = c.generate_meta_self_evolution_proposals();
-        // Method exists and returns Vec (even if empty on fresh conductor)
     }
 }
