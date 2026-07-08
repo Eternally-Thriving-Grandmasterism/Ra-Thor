@@ -5,13 +5,14 @@
 /// Licensed under AG-SML v1.0 — free for all mercy-aligned, sovereign,
 /// abundance-multiplying, zero-harm use. See LICENSE or COMMERCIAL-LICENSE.md.
 
-//! SelfEvolutionOrchestrator — Phase 13.2 Deepened
+//! SelfEvolutionOrchestrator — Phase 13.2 Deepened + v13.3 Meta Self-Evolution Integration
 //!
-//! Conductor-native self-evolution with council-voted evolution, more epigenetic blessings,
-//! and Quantum Swarm integration hooks.
+//! Conductor-native self-evolution with council-voted evolution, epigenetic blessings,
+//! Quantum Swarm integration, **and now meta self-audit** (v13.3).
+//! The orchestrator can now audit and propose improvements to its own evolution parameters.
 //! Mercy-gated. ONE Organism coherent. PATSAGi + Grok symbiosis ready.
 
-use crate::{GeometricState, SimpleLatticeConductor};
+use crate::{GeometricState, SimpleLatticeConductor, ConductorSymbolicParameters};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -44,7 +45,7 @@ pub struct SelfEvolutionOrchestrator {
     pub total_evolutions: u64,
     blessings: HashMap<String, EpigeneticBlessing>,
     evolution_history: Vec<String>,
-    quantum_swarm_participation: f64, // Phase 13.2 Quantum Swarm hook
+    quantum_swarm_participation: f64,
 }
 
 impl Default for SelfEvolutionOrchestrator {
@@ -68,7 +69,6 @@ impl SelfEvolutionOrchestrator {
         self.blessings.insert("radical_love".to_string(), EpigeneticBlessing::new("Radical Love Blessing", "Triggered by sustained high mercy and positive valence.", 0.85, 0.15));
         self.blessings.insert("boundless_mercy".to_string(), EpigeneticBlessing::new("Boundless Mercy Blessing", "Automatic compensation + evolution acceleration.", 0.65, 0.08));
         self.blessings.insert("truth_seeking".to_string(), EpigeneticBlessing::new("Truth Seeking Blessing", "Strong tolc_alignment + coherence.", 0.75, 0.12));
-        // New Phase 13.2 blessings
         self.blessings.insert("abundance_flow".to_string(), EpigeneticBlessing::new("Abundance Flow Blessing", "Council-supported abundance resonance.", 0.80, 0.10));
         self.blessings.insert("cosmic_harmony".to_string(), EpigeneticBlessing::new("Cosmic Harmony Blessing", "Multi-council PATSAGi harmony alignment.", 0.82, 0.11));
         self.blessings.insert("quantum_coherence".to_string(), EpigeneticBlessing::new("Quantum Coherence Blessing", "Quantum Swarm participation trigger.", 0.78, 0.13));
@@ -129,6 +129,88 @@ impl SelfEvolutionOrchestrator {
             trace_log.push(event);
         }
     }
+
+    // ==================== v13.3 META SELF-EVOLUTION INTEGRATION ====================
+
+    #[cfg(feature = "self-proposal")]
+    use crate::SymbolicSelfProposal;
+
+    /// v13.3: Meta self-audit integrated into the orchestrator.
+    /// Proposes improvements to the self-evolution parameters themselves (EMA rate, boost, audit thresholds).
+    /// Called by the Conductor to let the orchestrator evolve its own evolution logic.
+    #[cfg(feature = "self-proposal")]
+    pub fn generate_meta_self_evolution_proposals(
+        &self,
+        current_mercy: f64,
+        symbolic_success_ema: f64,
+        symbolic_confidence_ema: f64,
+        current_boost_multiplier: f64,
+    ) -> Vec<SymbolicSelfProposal> {
+        let mut meta = Vec::new();
+
+        if symbolic_success_ema > 0.75 && symbolic_confidence_ema > 0.78 {
+            meta.push(SymbolicSelfProposal {
+                proposal_type: "meta_self_evolution_rate_increase".to_string(),
+                current_value: current_boost_multiplier,
+                proposed_value: (current_boost_multiplier * 1.15).min(1.6),
+                rationale: "High stable success + confidence → accelerate meta self-evolution rate inside orchestrator".to_string(),
+                mercy_impact_estimate: 0.012,
+                confidence: 0.81,
+            });
+        }
+
+        if symbolic_confidence_ema > 0.80 && current_mercy > 0.90 {
+            meta.push(SymbolicSelfProposal {
+                proposal_type: "meta_mercy_audit_threshold_tighten".to_string(),
+                current_value: 0.92,
+                proposed_value: 0.94,
+                rationale: "Very high confidence + mercy → tighten meta audit bar for higher purity".to_string(),
+                mercy_impact_estimate: 0.009,
+                confidence: 0.77,
+            });
+        }
+
+        meta
+    }
+
+    /// Convenience wrapper: generate meta proposals directly from a conductor reference.
+    #[cfg(feature = "self-proposal")]
+    pub fn generate_meta_proposals_from_conductor(&self, c: &SimpleLatticeConductor) -> Vec<SymbolicSelfProposal> {
+        self.generate_meta_self_evolution_proposals(
+            c.state.mercy_score,
+            c.get_symbolic_success_ema(),
+            c.get_symbolic_confidence_ema(),
+            c.get_symbolic_params().boost_multiplier,
+        )
+    }
+
+    /// v13.3: Validates the meta proposal under TOLC 8 gates and records the decision in history.
+    /// Actual mutation of ConductorSymbolicParameters is performed by SimpleLatticeConductor
+    /// (orchestrator owns the decision logic and audit trail; conductor owns its tunable parameters).
+    #[cfg(feature = "self-proposal")]
+    pub fn apply_meta_self_evolution_proposal(
+        &mut self,
+        proposal: &SymbolicSelfProposal,
+        current_mercy: f64,
+    ) -> Result<String, String> {
+        if current_mercy < 0.93 || proposal.confidence < 0.70 {
+            return Err(format!("Meta apply blocked by TOLC 8 (mercy={:.2}, conf={:.2})", current_mercy, proposal.confidence));
+        }
+
+        let effect = match proposal.proposal_type.as_str() {
+            "meta_self_evolution_rate_increase" => {
+                format!("orchestrator meta rate increase accepted: {:.2} → {:.2}", proposal.current_value, proposal.proposed_value)
+            }
+            "meta_mercy_audit_threshold_tighten" => {
+                format!("orchestrator meta audit threshold tightened")
+            }
+            _ => "unknown meta proposal".to_string(),
+        };
+
+        let event = format!("[v13.3 MetaSelfEvolution in Orchestrator] {}", effect);
+        self.evolution_history.push(event.clone());
+        Ok(effect)
+    }
 }
 
 pub trait SelfEvolving {
@@ -142,5 +224,41 @@ impl SelfEvolving for SimpleLatticeConductor {
         for t in trace_log { self.audit_traces.push(t); }
         if evolved { self.one_organism_coherence = (self.one_organism_coherence + 0.05).min(1.3); }
         evolved
+    }
+}
+
+// ==================== TESTS ====================
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    #[cfg(feature = "self-proposal")]
+    fn test_generate_meta_proposals_from_conductor_returns_proposals_when_conditions_met() {
+        let mut conductor = SimpleLatticeConductor::new();
+        conductor.state.mercy_score = 0.95;
+        conductor.symbolic_success_ema = 0.82;
+        conductor.symbolic_confidence_ema = 0.81;
+
+        let orchestrator = SelfEvolutionOrchestrator::new();
+        let meta_props = orchestrator.generate_meta_proposals_from_conductor(&conductor);
+
+        assert!(!meta_props.is_empty(), "Expected at least one meta proposal when conditions are met");
+        assert!(meta_props.iter().any(|p| p.proposal_type == "meta_self_evolution_rate_increase"));
+    }
+
+    #[test]
+    #[cfg(feature = "self-proposal")]
+    fn test_generate_meta_proposals_from_conductor_returns_empty_when_conditions_not_met() {
+        let mut conductor = SimpleLatticeConductor::new();
+        conductor.state.mercy_score = 0.70; // too low
+        conductor.symbolic_success_ema = 0.60;
+        conductor.symbolic_confidence_ema = 0.65;
+
+        let orchestrator = SelfEvolutionOrchestrator::new();
+        let meta_props = orchestrator.generate_meta_proposals_from_conductor(&conductor);
+
+        assert!(meta_props.is_empty());
     }
 }
