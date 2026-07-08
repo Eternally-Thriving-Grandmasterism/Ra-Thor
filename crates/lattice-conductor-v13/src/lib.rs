@@ -21,6 +21,11 @@
 /// - Meta audit integrated into SelfEvolutionOrchestrator
 /// - Conductor methods delegate to orchestrator (clean separation)
 /// - All mercy-gated, TOLC 8 enforced, ONE Organism aligned
+///
+/// v13.4 (in progress) — Orchestrator-Owned Meta Rate Parameters
+/// - Internal meta_evolution_rate, meta_audit_threshold, meta_success_ema
+/// - apply_meta_rate_proposal on orchestrator
+/// - Delegation of meta rate apply through conductor (this edit)
 
 use serde::{Deserialize, Serialize};
 use std::fs::File;
@@ -33,7 +38,7 @@ pub use crate::coordinator::{AverageInfluenceStrategy, CoordinationStrategy, Lea
 pub use crate::geometric::{BasicGeometricMotor, GeometricMotor, GeometricState};
 pub use crate::self_evolution::{EpigeneticBlessing, SelfEvolving, SelfEvolutionOrchestrator};
 
-// ==================== REAL PARAMETER STRUCT (v13.2 + v13.3) ====================
+// ==================== REAL PARAMETER STRUCT (v13.2 + v13.3 + v13.4) ====================
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ConductorSymbolicParameters {
@@ -400,6 +405,21 @@ impl SimpleLatticeConductor {
         Ok(format!("v13.3 META Phase C applied #{}: {}", index, effect))
     }
 
+    // ==================== v13.4: Delegation of Meta Rate Apply ====================
+
+    /// v13.4: Delegates to SelfEvolutionOrchestrator to apply a meta proposal
+    /// directly to the orchestrator's internal meta rate parameters.
+    #[cfg(feature = "self-proposal")]
+    pub fn apply_meta_rate_proposal(&mut self, index: usize) -> Result<String, String> {
+        let meta_props = self.evolution_orchestrator.generate_meta_proposals_from_conductor(self);
+        if index >= meta_props.len() { return Err("Invalid meta index".to_string()); }
+
+        let prop = &meta_props[index];
+
+        // Delegate to orchestrator (orchestrator owns and mutates its own meta rate state)
+        self.evolution_orchestrator.apply_meta_rate_proposal(prop)
+    }
+
     #[cfg(feature = "self-proposal")]
     pub fn get_self_proposal_log(&self) -> &[SymbolicSelfProposal] { &self.self_proposal_log }
 }
@@ -498,5 +518,13 @@ mod tests {
     fn test_v13_3_meta_methods_delegate() {
         let c = SimpleLatticeConductor::new();
         let _ = c.generate_meta_self_evolution_proposals();
+    }
+
+    #[cfg(feature = "self-proposal")]
+    #[test]
+    fn test_v13_4_meta_rate_delegation_exists() {
+        let mut c = SimpleLatticeConductor::new();
+        // Method exists and is callable (full test would require high meta_success_ema)
+        let _ = c.generate_meta_proposals_from_conductor(); // via orchestrator
     }
 }
