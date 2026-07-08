@@ -153,9 +153,7 @@ impl SelfEvolutionOrchestrator {
     #[cfg(feature = "self-proposal")]
     use crate::SymbolicSelfProposal;
 
-    /// v13.3: Meta self-audit integrated into the orchestrator.
-    /// Proposes improvements to the self-evolution parameters themselves (EMA rate, boost, audit thresholds).
-    /// Called by the Conductor to let the orchestrator evolve its own evolution logic.
+    /// v13.3 + v13.4: Meta self-audit. Now modulated by the orchestrator's own meta_evolution_rate.
     #[cfg(feature = "self-proposal")]
     pub fn generate_meta_self_evolution_proposals(
         &self,
@@ -165,13 +163,14 @@ impl SelfEvolutionOrchestrator {
         current_boost_multiplier: f64,
     ) -> Vec<SymbolicSelfProposal> {
         let mut meta = Vec::new();
+        let rate_factor = 1.0 + (self.meta_evolution_rate * 8.0); // v13.4 integration
 
         if symbolic_success_ema > 0.75 && symbolic_confidence_ema > 0.78 {
             meta.push(SymbolicSelfProposal {
                 proposal_type: "meta_self_evolution_rate_increase".to_string(),
                 current_value: current_boost_multiplier,
-                proposed_value: (current_boost_multiplier * 1.15).min(1.6),
-                rationale: "High stable success + confidence → accelerate meta self-evolution rate inside orchestrator".to_string(),
+                proposed_value: (current_boost_multiplier * rate_factor).min(1.8),
+                rationale: format!("High stable success + confidence → accelerate (rate_factor={:.2})", rate_factor),
                 mercy_impact_estimate: 0.012,
                 confidence: 0.81,
             });
