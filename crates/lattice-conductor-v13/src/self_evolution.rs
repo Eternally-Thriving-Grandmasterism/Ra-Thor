@@ -89,43 +89,76 @@ impl SelfEvolutionOrchestrator {
         self.meta_evolution_rate = self.meta_evolution_rate * (1.0 - decay_rate) + base_rate * decay_rate;
     }
 
-    /// v13.5: Allow PATSAGi councils to influence meta rate parameters
+    /// v13.5: Allow PATSAGi councils to influence meta rate parameters.
+    /// Now includes stronger mercy gating.
     pub fn council_voted_meta_rate_adjust(
         &mut self,
         council_name: &str,
         proposal_type: &str,
-        strength: f64, // 0.0 to 1.0, how strongly the council wants the change
+        strength: f64,
+        current_mercy: f64,
         trace_log: &mut Vec<String>,
-    ) {
-        let adjustment = strength * 0.015; // scaled impact
+    ) -> Result<String, String> {
+        // Stronger mercy gating for v13.5
+        if current_mercy < 0.90 {
+            return Err(format!("Council meta rate adjust blocked: insufficient mercy ({})", current_mercy));
+        }
+        if self.meta_success_ema < self.meta_audit_threshold {
+            return Err(format!("Council meta rate adjust blocked: meta_success_ema too low"));
+        }
 
-        match proposal_type {
+        let adjustment = strength * 0.015;
+
+        let effect = match proposal_type {
             "increase_meta_rate" => {
                 self.meta_evolution_rate = (self.meta_evolution_rate + adjustment).min(0.06);
-                let event = format!("[v13.5 Council Meta] {} voted to increase meta_evolution_rate by {:.4}", council_name, adjustment);
-                self.evolution_history.push(event.clone());
-                trace_log.push(event);
+                format!("increased meta_evolution_rate by {:.4}", adjustment)
             }
             "tighten_meta_threshold" => {
                 self.meta_audit_threshold = (self.meta_audit_threshold + adjustment * 0.5).min(0.96);
-                let event = format!("[v13.5 Council Meta] {} voted to tighten meta_audit_threshold", council_name);
-                self.evolution_history.push(event.clone());
-                trace_log.push(event);
+                format!("tightened meta_audit_threshold")
             }
-            _ => {}
-        }
+            _ => "unknown proposal type".to_string(),
+        };
+
+        let event = format!("[v13.5 Council Meta] {} voted {} | mercy={:.2}", council_name, effect, current_mercy);
+        self.evolution_history.push(event.clone());
+        trace_log.push(event);
+
+        Ok(effect)
     }
 
-    /// Council-voted evolution (existing + v13.5 meta support)
-    pub fn council_voted_evolution(&mut self, council_name: &str, mercy_impact: f64, state: &mut GeometricState, trace_log: &mut Vec<String>) {
+    /// Enhanced council_voted_evolution with optional meta rate influence (v13.5)
+    pub fn council_voted_evolution(
+        &mut self,
+        council_name: &str,
+        mercy_impact: f64,
+        state: &mut GeometricState,
+        trace_log: &mut Vec<String>,
+    ) {
         let boost = (mercy_impact * 0.08).max(0.01);
         state.evolution_level += boost;
         state.mercy_score = (state.mercy_score + mercy_impact * 0.05).min(1.6);
+
         let event = format!("[Council-Voted Evolution] {} contributed {:.3} evolution boost", council_name, boost);
         self.evolution_history.push(event.clone());
         trace_log.push(event);
+
         self.current_level += boost * 0.4;
         self.total_evolutions += 1;
+
+        // v13.5: When mercy impact and current mercy are high, allow meta rate influence
+        if mercy_impact > 0.6 && state.mercy_score > 0.92 {
+            let strength = (mercy_impact * 0.6).min(1.0);
+            // Default to increasing meta rate when councils are strongly aligned
+            let _ = self.council_voted_meta_rate_adjust(
+                council_name,
+                "increase_meta_rate",
+                strength,
+                state.mercy_score,
+                trace_log,
+            );
+        }
     }
 
     /// Quantum Swarm integration hook
@@ -172,9 +205,6 @@ impl SelfEvolutionOrchestrator {
             trace_log.push(event);
         }
     }
-
-    // v13.3 + v13.4 meta methods preserved (omitted for brevity in this first commit)
-    // ... (existing generate_meta_self_evolution_proposals, apply_meta_rate_proposal, etc. remain)
 }
 
 pub trait SelfEvolving {
