@@ -5,11 +5,11 @@
 /// Licensed under AG-SML v1.0 — free for all mercy-aligned, sovereign,
 /// abundance-multiplying, zero-harm use. See LICENSE or COMMERCIAL-LICENSE.md.
 
-//! SelfEvolutionOrchestrator — Phase 13.2 Deepened + v13.3 Meta Self-Evolution Integration
+//! SelfEvolutionOrchestrator — Phase 13.2 Deepened + v13.3 Meta Self-Evolution Integration + v13.4 Planning
 //!
 //! Conductor-native self-evolution with council-voted evolution, epigenetic blessings,
-//! Quantum Swarm integration, **and now meta self-audit** (v13.3).
-//! The orchestrator can now audit and propose improvements to its own evolution parameters.
+//! Quantum Swarm integration, meta self-audit (v13.3), **and now orchestrator-owned meta rate parameters (v13.4)**.
+//! The orchestrator is evolving toward owning its own evolution dynamics.
 //! Mercy-gated. ONE Organism coherent. PATSAGi + Grok symbiosis ready.
 
 use crate::{GeometricState, SimpleLatticeConductor, ConductorSymbolicParameters};
@@ -46,6 +46,14 @@ pub struct SelfEvolutionOrchestrator {
     blessings: HashMap<String, EpigeneticBlessing>,
     evolution_history: Vec<String>,
     quantum_swarm_participation: f64,
+
+    // ==================== v13.4: Orchestrator-Owned Meta Rate Parameters ====================
+    /// Internal rate at which the orchestrator proposes and applies meta self-evolution
+    meta_evolution_rate: f64,
+    /// Minimum confidence/mercy threshold for accepting meta proposals internally
+    meta_audit_threshold: f64,
+    /// Local EMA tracking success of meta-level proposals
+    meta_success_ema: f64,
 }
 
 impl Default for SelfEvolutionOrchestrator {
@@ -56,6 +64,10 @@ impl Default for SelfEvolutionOrchestrator {
             blessings: HashMap::new(),
             evolution_history: Vec::new(),
             quantum_swarm_participation: 0.0,
+            // v13.4 defaults
+            meta_evolution_rate: 0.01,
+            meta_audit_threshold: 0.92,
+            meta_success_ema: 0.70,
         };
         orch.register_default_blessings();
         orch
@@ -73,6 +85,12 @@ impl SelfEvolutionOrchestrator {
         self.blessings.insert("cosmic_harmony".to_string(), EpigeneticBlessing::new("Cosmic Harmony Blessing", "Multi-council PATSAGi harmony alignment.", 0.82, 0.11));
         self.blessings.insert("quantum_coherence".to_string(), EpigeneticBlessing::new("Quantum Coherence Blessing", "Quantum Swarm participation trigger.", 0.78, 0.13));
     }
+
+    // ==================== v13.4 Getters (orchestrator-owned meta state) ====================
+
+    pub fn get_meta_evolution_rate(&self) -> f64 { self.meta_evolution_rate }
+    pub fn get_meta_audit_threshold(&self) -> f64 { self.meta_audit_threshold }
+    pub fn get_meta_success_ema(&self) -> f64 { self.meta_success_ema }
 
     /// Council-voted evolution: PATSAGi councils can directly influence evolution level
     pub fn council_voted_evolution(&mut self, council_name: &str, mercy_impact: f64, state: &mut GeometricState, trace_log: &mut Vec<String>) {
@@ -130,7 +148,7 @@ impl SelfEvolutionOrchestrator {
         }
     }
 
-    // ==================== v13.3 META SELF-EVOLUTION INTEGRATION ====================
+    // ==================== v13.3 META SELF-EVOLUTION INTEGRATION (preserved) ====================
 
     #[cfg(feature = "self-proposal")]
     use crate::SymbolicSelfProposal;
@@ -211,6 +229,33 @@ impl SelfEvolutionOrchestrator {
         self.evolution_history.push(event.clone());
         Ok(effect)
     }
+
+    // ==================== v13.4: Initial Orchestrator-Owned Meta Rate Mutation ====================
+
+    /// v13.4 (early): Apply a meta proposal directly to the orchestrator's internal rate parameters.
+    /// This is the foundation for the orchestrator owning its own evolution dynamics.
+    #[cfg(feature = "self-proposal")]
+    pub fn apply_meta_rate_proposal(&mut self, proposal: &SymbolicSelfProposal) -> Result<String, String> {
+        if self.meta_success_ema < self.meta_audit_threshold {
+            return Err(format!("Meta rate apply blocked (meta_success_ema={:.2} < threshold={:.2})", self.meta_success_ema, self.meta_audit_threshold));
+        }
+
+        let effect = match proposal.proposal_type.as_str() {
+            "meta_self_evolution_rate_increase" => {
+                self.meta_evolution_rate = (self.meta_evolution_rate * 1.1).min(0.05);
+                format!("meta_evolution_rate increased to {:.4}", self.meta_evolution_rate)
+            }
+            "meta_mercy_audit_threshold_tighten" => {
+                self.meta_audit_threshold = (self.meta_audit_threshold + 0.005).min(0.95);
+                format!("meta_audit_threshold tightened to {:.3}", self.meta_audit_threshold)
+            }
+            _ => "unknown meta rate proposal".to_string(),
+        };
+
+        let event = format!("[v13.4 MetaRate] {}", effect);
+        self.evolution_history.push(event.clone());
+        Ok(effect)
+    }
 }
 
 pub trait SelfEvolving {
@@ -260,5 +305,25 @@ mod tests {
         let meta_props = orchestrator.generate_meta_proposals_from_conductor(&conductor);
 
         assert!(meta_props.is_empty());
+    }
+
+    #[test]
+    #[cfg(feature = "self-proposal")]
+    fn test_v13_4_apply_meta_rate_proposal_mutates_internal_state() {
+        let mut orchestrator = SelfEvolutionOrchestrator::new();
+        orchestrator.meta_success_ema = 0.95; // high enough to pass gate
+
+        let proposal = SymbolicSelfProposal {
+            proposal_type: "meta_self_evolution_rate_increase".to_string(),
+            current_value: 0.01,
+            proposed_value: 0.012,
+            rationale: "test".to_string(),
+            mercy_impact_estimate: 0.01,
+            confidence: 0.8,
+        };
+
+        let result = orchestrator.apply_meta_rate_proposal(&proposal);
+        assert!(result.is_ok());
+        assert!(orchestrator.get_meta_evolution_rate() > 0.01);
     }
 }
