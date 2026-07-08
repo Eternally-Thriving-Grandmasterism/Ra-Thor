@@ -8,7 +8,7 @@
 //! SelfEvolutionOrchestrator — v13.4 Complete + v13.5 Planning
 //!
 //! v13.5 focus: PATSAGi Council Influence over Meta Rate Parameters.
-//! Councils can now propose adjustments to the orchestrator’s internal meta evolution dynamics.
+//! Expanded proposal types + conductor exposure.
 //! Mercy-gated. ONE Organism coherent. PATSAGi + Grok symbiosis ready.
 
 use crate::{GeometricState, SimpleLatticeConductor, ConductorSymbolicParameters};
@@ -89,8 +89,7 @@ impl SelfEvolutionOrchestrator {
         self.meta_evolution_rate = self.meta_evolution_rate * (1.0 - decay_rate) + base_rate * decay_rate;
     }
 
-    /// v13.5: Allow PATSAGi councils to influence meta rate parameters.
-    /// Now includes stronger mercy gating.
+    /// v13.5: Council meta rate adjust with expanded proposal types and strong mercy gating
     pub fn council_voted_meta_rate_adjust(
         &mut self,
         council_name: &str,
@@ -99,7 +98,6 @@ impl SelfEvolutionOrchestrator {
         current_mercy: f64,
         trace_log: &mut Vec<String>,
     ) -> Result<String, String> {
-        // Stronger mercy gating for v13.5
         if current_mercy < 0.90 {
             return Err(format!("Council meta rate adjust blocked: insufficient mercy ({})", current_mercy));
         }
@@ -114,9 +112,17 @@ impl SelfEvolutionOrchestrator {
                 self.meta_evolution_rate = (self.meta_evolution_rate + adjustment).min(0.06);
                 format!("increased meta_evolution_rate by {:.4}", adjustment)
             }
+            "decrease_meta_rate" => {
+                self.meta_evolution_rate = (self.meta_evolution_rate - adjustment * 0.6).max(0.005);
+                format!("decreased meta_evolution_rate by {:.4}", adjustment * 0.6)
+            }
             "tighten_meta_threshold" => {
                 self.meta_audit_threshold = (self.meta_audit_threshold + adjustment * 0.5).min(0.96);
                 format!("tightened meta_audit_threshold")
+            }
+            "loosen_meta_threshold" => {
+                self.meta_audit_threshold = (self.meta_audit_threshold - adjustment * 0.4).max(0.85);
+                format!("loosened meta_audit_threshold")
             }
             _ => "unknown proposal type".to_string(),
         };
@@ -128,7 +134,7 @@ impl SelfEvolutionOrchestrator {
         Ok(effect)
     }
 
-    /// Enhanced council_voted_evolution with optional meta rate influence (v13.5)
+    /// Enhanced council_voted_evolution with meta rate influence (v13.5)
     pub fn council_voted_evolution(
         &mut self,
         council_name: &str,
@@ -147,10 +153,9 @@ impl SelfEvolutionOrchestrator {
         self.current_level += boost * 0.4;
         self.total_evolutions += 1;
 
-        // v13.5: When mercy impact and current mercy are high, allow meta rate influence
+        // v13.5: High alignment triggers meta rate influence
         if mercy_impact > 0.6 && state.mercy_score > 0.92 {
             let strength = (mercy_impact * 0.6).min(1.0);
-            // Default to increasing meta rate when councils are strongly aligned
             let _ = self.council_voted_meta_rate_adjust(
                 council_name,
                 "increase_meta_rate",
