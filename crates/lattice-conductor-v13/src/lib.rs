@@ -12,7 +12,7 @@
 /// and NEXi-derived symbolic reasoning under strict TOLC 8 enforcement.
 ///
 /// v13.2 (merged): External Symbolic + Self-Proposal + Phase C + Real Parameters
-/// v13.3 (in progress): Multi-Round Deliberation + Convergence + Finalization (auto-apply) + Persistence + Richer Voting
+/// v13.3 (complete): Multi-Round Deliberation + Convergence + Finalization (auto-apply) + Persistence + Richer Per-Round Voting
 
 use serde::{Deserialize, Serialize};
 use std::fs::File;
@@ -406,7 +406,7 @@ impl SimpleLatticeConductor {
         Ok(Some(msg))
     }
 
-    /// v13.3: Weighted council voting on proposals
+    /// v13.3: Weighted council voting on proposals (richer - per proposal, cumulative across rounds)
     #[cfg(feature = "self-proposal")]
     pub fn submit_council_vote_on_proposal(
         &mut self,
@@ -512,7 +512,7 @@ impl SimpleLatticeConductor {
         Ok(self.deliberation_sessions.len() - 1)
     }
 
-    /// v13.3: Conduct one round of deliberation and record it
+    /// v13.3: Conduct one round of deliberation and record it (richer voting - votes are cumulative across rounds)
     #[cfg(feature = "self-proposal")]
     pub fn conduct_deliberation_round(&mut self, proposal_index: usize) -> Result<CouncilDeliberationResult, String> {
         let result = self.deliberate_on_proposal(proposal_index)?;
@@ -592,7 +592,6 @@ impl SimpleLatticeConductor {
             proposal_index, session.rounds.len()
         ));
 
-        // Automatically apply if the final deliberation approved it
         if final_result.is_approved {
             match self.apply_symbolic_self_proposal(proposal_index) {
                 Ok(apply_msg) => {
@@ -613,7 +612,7 @@ impl SimpleLatticeConductor {
         Ok(final_result)
     }
 
-    /// v13.3: Persistence - Save deliberation state to JSON file
+    /// v13.3: Persistence - Save deliberation state
     #[cfg(feature = "self-proposal")]
     pub fn save_deliberation_state(&self, path: &str) -> Result<(), String> {
         let data = serde_json::to_string_pretty(&(
@@ -628,7 +627,7 @@ impl SimpleLatticeConductor {
         Ok(())
     }
 
-    /// v13.3: Persistence - Load deliberation state from JSON file
+    /// v13.3: Persistence - Load deliberation state
     #[cfg(feature = "self-proposal")]
     pub fn load_deliberation_state(&mut self, path: &str) -> Result<(), String> {
         let mut file = File::open(path).map_err(|e| e.to_string())?;
