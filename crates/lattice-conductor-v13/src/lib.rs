@@ -1,26 +1,19 @@
-    // ==================== v13.5: Council Specialization & Decision-Type Weighting (Idea 1) ====================
+    // ==================== v13.5 Idea 2: Meta Strategy Profile Exposure ====================
 
     #[cfg(feature = "self-proposal")]
-    pub fn set_council_weight(&mut self, council_name: &str, weight: f64) {
-        self.evolution_orchestrator.set_council_weight(council_name, weight);
+    pub fn get_current_meta_profile(&self) -> crate::self_evolution::MetaStrategyProfile {
+        self.evolution_orchestrator.get_current_meta_profile()
     }
 
     #[cfg(feature = "self-proposal")]
-    pub fn set_council_decision_multiplier(&mut self, council_name: &str, decision: crate::self_evolution::MetaDecisionType, multiplier: f64) {
-        self.evolution_orchestrator.set_council_decision_multiplier(council_name, decision, multiplier);
-    }
-
-    #[cfg(feature = "self-proposal")]
-    pub fn council_voted_meta_rate_adjust(
+    pub fn council_propose_meta_profile_switch(
         &mut self,
         council_name: &str,
-        proposal_type: &str,
-        strength: f64,
+        new_profile: crate::self_evolution::MetaStrategyProfile,
     ) -> Result<String, String> {
-        self.evolution_orchestrator.council_voted_meta_rate_adjust(
+        self.evolution_orchestrator.council_propose_meta_profile_switch(
             council_name,
-            proposal_type,
-            strength,
+            new_profile,
             self.state.mercy_score,
             &mut self.audit_traces,
         )
