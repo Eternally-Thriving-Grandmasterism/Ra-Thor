@@ -12,7 +12,7 @@
 //! The orchestrator can now audit and propose improvements to its own evolution parameters.
 //! Mercy-gated. ONE Organism coherent. PATSAGi + Grok symbiosis ready.
 
-use crate::{GeometricState, SimpleLatticeConductor, ConductorSymbolicParameters, SymbolicSelfProposal};
+use crate::{GeometricState, SimpleLatticeConductor, ConductorSymbolicParameters};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -132,9 +132,13 @@ impl SelfEvolutionOrchestrator {
 
     // ==================== v13.3 META SELF-EVOLUTION INTEGRATION ====================
 
+    #[cfg(feature = "self-proposal")]
+    use crate::SymbolicSelfProposal;
+
     /// v13.3: Meta self-audit integrated into the orchestrator.
     /// Proposes improvements to the self-evolution parameters themselves (EMA rate, boost, audit thresholds).
     /// Called by the Conductor to let the orchestrator evolve its own evolution logic.
+    #[cfg(feature = "self-proposal")]
     pub fn generate_meta_self_evolution_proposals(
         &self,
         current_mercy: f64,
@@ -169,8 +173,21 @@ impl SelfEvolutionOrchestrator {
         meta
     }
 
-    /// Optional helper: apply a meta proposal and update orchestrator state (if it held rate state).
-    /// For now delegates mutation to caller (Conductor) for surgical control.
+    /// Convenience wrapper: generate meta proposals directly from a conductor reference.
+    #[cfg(feature = "self-proposal")]
+    pub fn generate_meta_proposals_from_conductor(&self, c: &SimpleLatticeConductor) -> Vec<SymbolicSelfProposal> {
+        self.generate_meta_self_evolution_proposals(
+            c.state.mercy_score,
+            c.get_symbolic_success_ema(),
+            c.get_symbolic_confidence_ema(),
+            c.get_symbolic_params().boost_multiplier,
+        )
+    }
+
+    /// v13.3: Validates the meta proposal under TOLC 8 gates and records the decision in history.
+    /// Actual mutation of ConductorSymbolicParameters is performed by SimpleLatticeConductor
+    /// (orchestrator owns the decision logic and audit trail; conductor owns its tunable parameters).
+    #[cfg(feature = "self-proposal")]
     pub fn apply_meta_self_evolution_proposal(
         &mut self,
         proposal: &SymbolicSelfProposal,
@@ -182,7 +199,6 @@ impl SelfEvolutionOrchestrator {
 
         let effect = match proposal.proposal_type.as_str() {
             "meta_self_evolution_rate_increase" => {
-                // In full version the orchestrator could hold its own rate; here we report intent
                 format!("orchestrator meta rate increase accepted: {:.2} → {:.2}", proposal.current_value, proposal.proposed_value)
             }
             "meta_mercy_audit_threshold_tighten" => {
