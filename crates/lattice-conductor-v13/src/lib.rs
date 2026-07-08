@@ -21,6 +21,10 @@
 /// - Meta audit integrated into SelfEvolutionOrchestrator
 /// - Conductor methods delegate to orchestrator (clean separation)
 /// - All mercy-gated, TOLC 8 enforced, ONE Organism aligned
+///
+/// v13.4 (in progress) — Orchestrator-Owned Meta Rate Parameters
+/// - Internal meta_evolution_rate, meta_audit_threshold, meta_success_ema + stabilization
+/// - Full delegation + getters exposed at conductor level
 
 use serde::{Deserialize, Serialize};
 use std::fs::File;
@@ -33,7 +37,7 @@ pub use crate::coordinator::{AverageInfluenceStrategy, CoordinationStrategy, Lea
 pub use crate::geometric::{BasicGeometricMotor, GeometricMotor, GeometricState};
 pub use crate::self_evolution::{EpigeneticBlessing, SelfEvolving, SelfEvolutionOrchestrator};
 
-// ==================== REAL PARAMETER STRUCT (v13.2 + v13.3) ====================
+// ==================== REAL PARAMETER STRUCT ====================
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ConductorSymbolicParameters {
@@ -272,6 +276,23 @@ impl SimpleLatticeConductor {
     pub fn get_symbolic_params(&self) -> &ConductorSymbolicParameters { &self.symbolic_params }
     pub fn set_symbolic_params(&mut self, params: ConductorSymbolicParameters) { self.symbolic_params = params; }
 
+    // ==================== v13.4: Meta Rate State Getters (delegated) ====================
+
+    #[cfg(feature = "self-proposal")]
+    pub fn get_meta_evolution_rate(&self) -> f64 {
+        self.evolution_orchestrator.get_meta_evolution_rate()
+    }
+
+    #[cfg(feature = "self-proposal")]
+    pub fn get_meta_audit_threshold(&self) -> f64 {
+        self.evolution_orchestrator.get_meta_audit_threshold()
+    }
+
+    #[cfg(feature = "self-proposal")]
+    pub fn get_meta_success_ema(&self) -> f64 {
+        self.evolution_orchestrator.get_meta_success_ema()
+    }
+
     #[cfg(feature = "external-symbolic")]
     pub fn accept_external_symbolic_deliberation(input: ExternalSymbolicInput) -> SymbolicDeliberation {
         let mut result = metta_symbolic_deliberation(&input.content, input.context_valence);
@@ -358,9 +379,8 @@ impl SimpleLatticeConductor {
         self.apply_symbolic_self_proposal(best_idx)
     }
 
-    // ==================== v13.3 META SELF-EVOLUTION (delegates to orchestrator) ====================
+    // ==================== v13.3 META SELF-EVOLUTION ====================
 
-    /// v13.3: Delegates to SelfEvolutionOrchestrator for meta self-audit.
     #[cfg(feature = "self-proposal")]
     pub fn generate_meta_self_evolution_proposals(&self) -> Vec<SymbolicSelfProposal> {
         self.evolution_orchestrator.generate_meta_self_evolution_proposals(
@@ -371,18 +391,14 @@ impl SimpleLatticeConductor {
         )
     }
 
-    /// v13.3: Delegates gate/history to orchestrator, performs param mutation in conductor.
     #[cfg(feature = "self-proposal")]
     pub fn apply_meta_self_evolution_proposal(&mut self, index: usize) -> Result<String, String> {
         let meta_props = self.generate_meta_self_evolution_proposals();
         if index >= meta_props.len() { return Err("Invalid meta index".to_string()); }
 
         let prop = &meta_props[index];
-
-        // Let orchestrator perform its gate + history logic
         let _ = self.evolution_orchestrator.apply_meta_self_evolution_proposal(prop, self.state.mercy_score)?;
 
-        // Conductor owns the actual parameter mutation
         let p = &mut self.symbolic_params;
         let effect = match prop.proposal_type.as_str() {
             "meta_self_evolution_rate_increase" => {
@@ -398,6 +414,17 @@ impl SimpleLatticeConductor {
 
         self.audit_traces.push(format!("[v13.3 MetaSelfEvolution] applied #{}: {}", index, effect));
         Ok(format!("v13.3 META Phase C applied #{}: {}", index, effect))
+    }
+
+    // ==================== v13.4: Meta Rate Delegation + Getters ====================
+
+    #[cfg(feature = "self-proposal")]
+    pub fn apply_meta_rate_proposal(&mut self, index: usize) -> Result<String, String> {
+        let meta_props = self.evolution_orchestrator.generate_meta_proposals_from_conductor(self);
+        if index >= meta_props.len() { return Err("Invalid meta index".to_string()); }
+
+        let prop = &meta_props[index];
+        self.evolution_orchestrator.apply_meta_rate_proposal(prop)
     }
 
     #[cfg(feature = "self-proposal")]
@@ -498,5 +525,14 @@ mod tests {
     fn test_v13_3_meta_methods_delegate() {
         let c = SimpleLatticeConductor::new();
         let _ = c.generate_meta_self_evolution_proposals();
+    }
+
+    #[cfg(feature = "self-proposal")]
+    #[test]
+    fn test_v13_4_meta_rate_delegation_and_getters() {
+        let c = SimpleLatticeConductor::new();
+        let _ = c.get_meta_evolution_rate();
+        let _ = c.get_meta_audit_threshold();
+        let _ = c.get_meta_success_ema();
     }
 }
