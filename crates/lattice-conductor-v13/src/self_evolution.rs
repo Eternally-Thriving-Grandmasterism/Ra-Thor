@@ -5,11 +5,9 @@
 /// Licensed under AG-SML v1.0 — free for all mercy-aligned, sovereign,
 /// abundance-multiplying, zero-harm use. See LICENSE or COMMERCIAL-LICENSE.md.
 
-//! SelfEvolutionOrchestrator — v13.5 + Light Self-Critique (Idea 3)
+//! SelfEvolutionOrchestrator — v13.5 Refined Critique Logic
 //!
-//! Added lightweight self-critique before council meta changes.
-//! Uses existing mercy evaluation + trace/history signals.
-//! Mercy-gated. ONE Organism coherent.
+//! Improved lightweight self-critique with better signals and clarity.
 
 use crate::{GeometricState, SimpleLatticeConductor, ConductorSymbolicParameters};
 use serde::{Deserialize, Serialize};
@@ -80,7 +78,7 @@ impl SelfEvolutionOrchestrator {
         self.meta_evolution_rate = self.meta_evolution_rate * (1.0 - decay_rate) + base_rate * decay_rate;
     }
 
-    // ==================== v13.5 Council Weighting (with Decision Types) ====================
+    // ==================== v13.5 Council Weighting ====================
 
     pub fn set_council_weight(&mut self, council_name: &str, weight: f64) {
         self.council_weights.insert(council_name.to_string(), weight.clamp(0.5, 2.0));
@@ -109,10 +107,10 @@ impl SelfEvolutionOrchestrator {
         (base_strength * base_weight * type_multiplier).clamp(0.0, 1.5)
     }
 
-    // ==================== v13.5 Light Self-Critique (Idea 3) ====================
+    // ==================== Refined Light Self-Critique (v13.5) ====================
 
-    /// Lightweight self-critique before applying council meta changes.
-    /// Uses recent meta_success_ema, current mercy, and rate stability signals.
+    /// Refined lightweight self-critique before council meta changes.
+    /// Uses mercy, meta_success_ema, current rate level, and recent adjustment frequency.
     pub fn perform_meta_critique(
         &self,
         council_name: &str,
@@ -123,41 +121,55 @@ impl SelfEvolutionOrchestrator {
         let mut concerns = Vec::new();
         let mut passed = true;
 
-        // Critique 1: Basic mercy gate (already enforced, but logged here for clarity)
+        // 1. Mercy level
         if current_mercy < 0.90 {
             concerns.push("Low current mercy".to_string());
             passed = false;
         }
 
-        // Critique 2: Meta success EMA health
+        // 2. Meta success health
         if self.meta_success_ema < 0.75 {
             concerns.push(format!("Low meta_success_ema ({:.2})", self.meta_success_ema));
             passed = false;
         }
 
-        // Critique 3: Avoid rapid successive large changes (simple rate-of-change heuristic)
-        let recent_large_changes = self.evolution_history
+        // 3. Current meta evolution rate level (avoid pushing already high rates further)
+        let is_rate_increase = proposal_type.contains("increase_meta_rate");
+        if is_rate_increase && self.meta_evolution_rate > 0.038 && requested_strength > 0.55 {
+            concerns.push(format!("Meta rate already elevated ({:.3})", self.meta_evolution_rate));
+            passed = false;
+        }
+
+        // 4. Recent adjustment frequency (more robust than pure string matching on old messages)
+        let recent_adjustments = self.evolution_history
             .iter()
             .rev()
-            .take(5)
-            .filter(|e| e.contains("increased meta_evolution_rate") || e.contains("decreased meta_evolution_rate"))
+            .take(6)
+            .filter(|entry| entry.contains("meta_evolution_rate") || entry.contains("meta_audit_threshold"))
             .count();
 
-        if recent_large_changes >= 3 && requested_strength > 0.7 {
-            concerns.push("Recent rapid meta rate changes detected".to_string());
+        if recent_adjustments >= 3 && requested_strength > 0.6 {
+            concerns.push("Frequent recent meta adjustments detected".to_string());
+            passed = false;
+        }
+
+        // 5. Slightly stricter on high-strength threshold changes
+        let is_threshold_change = proposal_type.contains("threshold");
+        if is_threshold_change && requested_strength > 0.72 && current_mercy < 0.935 {
+            concerns.push("High-strength threshold change at moderate mercy".to_string());
             passed = false;
         }
 
         let critique_result = if passed {
             format!("Critique passed for {} on {} (strength={:.2})", council_name, proposal_type, requested_strength)
         } else {
-            format!("Critique concerns for {} on {}: {}", council_name, proposal_type, concerns.join("; "))
+            format!("Critique concerns: {}", concerns.join("; "))
         };
 
         (passed, critique_result)
     }
 
-    // ==================== v13.5 Council Meta Rate Adjust (with Critique) ====================
+    // ==================== Council Meta Adjust with Refined Critique ====================
 
     pub fn council_voted_meta_rate_adjust(
         &mut self,
@@ -167,7 +179,6 @@ impl SelfEvolutionOrchestrator {
         current_mercy: f64,
         trace_log: &mut Vec<String>,
     ) -> Result<String, String> {
-        // Run light self-critique first (Idea 3)
         let (critique_passed, critique_msg) = self.perform_meta_critique(
             council_name,
             proposal_type,
@@ -177,11 +188,9 @@ impl SelfEvolutionOrchestrator {
 
         trace_log.push(format!("[v13.5 Critique] {}", critique_msg));
 
-        if !critique_passed {
-            // Still allow if mercy is very high (override for strong alignment)
-            if current_mercy < 0.96 {
-                return Err(format!("Meta change blocked by self-critique: {}", critique_msg));
-            }
+        // Clearer override logic
+        if !critique_passed && current_mercy < 0.955 {
+            return Err(format!("Meta change blocked by self-critique: {}", critique_msg));
         }
 
         if current_mercy < 0.90 {
