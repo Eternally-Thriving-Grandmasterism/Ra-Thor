@@ -1,5 +1,5 @@
 // gpu_compute_pipeline.rs
-// Ra-Thor v14.9+ — GPU Memory Allocator + StagingBufferPool + Async Readback + Debug Utilities + Mercy-Gated Audit + Telemetry Consumers
+// Ra-Thor v14.9+ — GPU Memory Allocator + StagingBufferPool + Async Readback + Debug Utilities + Mercy-Gated Audit + Telemetry Consumers + Disk Persistence
 // AG-SML v1.0 License
 
 use std::collections::HashMap;
@@ -170,7 +170,7 @@ impl GpuMemoryAllocator {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct GpuMemoryStats {
     pub total_allocated_bytes: usize,
-    pub current_usage_bytes: usize,
+    pub current_usage_bytes: self.current_usage,
     pub peak_usage_bytes: usize,
     pub total_reused_count: usize,
     pub allocation_count: usize,
@@ -184,7 +184,7 @@ pub struct GpuMemoryStats {
     pub active_size_classes: usize,
 }
 
-// === NEW: StagingBufferPool for efficient GPU staging ===
+// === StagingBufferPool ===
 pub struct StagingBufferPool {
     allocator: GpuMemoryAllocator,
     staging_buffers: HashMap<usize, Vec<Vec<u8>>>,
@@ -220,9 +220,8 @@ impl StagingBufferPool {
     }
 }
 
-// === NEW: Async Readback simulation ===
+// === Async Readback simulation ===
 pub async fn readback_buffer_async(buffer: Vec<u8>) -> Result<Vec<u8>, String> {
-    // Simulate async GPU readback delay
     tokio::time::sleep(tokio::time::Duration::from_millis(5)).await;
     Ok(buffer)
 }
@@ -231,7 +230,7 @@ pub fn readback_buffer_blocking(buffer: Vec<u8>) -> Result<Vec<u8>, String> {
     Ok(buffer)
 }
 
-// === NEW: Debug utilities ===
+// === Debug utilities ===
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DebugOutputBuffer {
     pub label: String,
@@ -258,7 +257,7 @@ impl DebugOutputBuffer {
     }
 }
 
-// === Mercy Telemetry Consumer ===
+// === Mercy Telemetry + Persistence ===
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct MercyTelemetry {
     pub total_audits: u64,
@@ -306,14 +305,10 @@ impl MercyTelemetry {
     pub fn summary(&self) -> MercyTelemetrySummary {
         let avg = if self.total_audits > 0 {
             self.sum_mercy_norm / self.total_audits as f64
-        } else {
-            0.0
-        };
+        } else { 0.0 };
         let ready_ratio = if self.total_audits > 0 {
             self.total_council_ready as f64 / self.total_audits as f64
-        } else {
-            0.0
-        };
+        } else { 0.0 };
 
         MercyTelemetrySummary {
             total_audits: self.total_audits,
@@ -339,7 +334,7 @@ impl GpuComputePipeline {
             allocator: Arc::new(Mutex::new(GpuMemoryAllocator::new())),
             staging_pool: Arc::new(Mutex::new(StagingBufferPool::new())),
             telemetry: Arc::new(Mutex::new(MercyTelemetry::new())),
-            version: "v14.9.1-gpu-mercy-telemetry".to_string(),
+            version: "v14.9.2-gpu-mercy-persistence".to_string(),
         }
     }
 
@@ -386,8 +381,6 @@ impl GpuComputePipeline {
         self.allocator.lock().await.stats()
     }
 
-    /// Main mercy norm telemetry consumer.
-    /// Call this after receiving an audit to feed self-evolution / observability.
     pub async fn consume_mercy_audit(&self, audit: &MercyGpuAudit) {
         let mut tel = self.telemetry.lock().await;
         tel.consume(audit);
@@ -396,6 +389,26 @@ impl GpuComputePipeline {
     pub async fn get_mercy_telemetry_summary(&self) -> MercyTelemetrySummary {
         let tel = self.telemetry.lock().await;
         tel.summary()
+    }
+
+    /// Persist current mercy telemetry to disk as JSON (for crash recovery / long-term self-evolution history)
+    pub async fn save_mercy_telemetry(&self, path: impl AsRef<std::path::Path>) -> Result<(), String> {
+        let tel = self.telemetry.lock().await;
+        let json = serde_json::to_string_pretty(&*tel)
+            .map_err(|e| format!("Failed to serialize telemetry: {}", e))?;
+        tokio::fs::write(path, json).await
+            .map_err(|e| format!("Failed to write telemetry file: {}", e))
+    }
+
+    /// Load mercy telemetry from disk (replaces current in-memory state)
+    pub async fn load_mercy_telemetry(&self, path: impl AsRef<std::path::Path>) -> Result<(), String> {
+        let data = tokio::fs::read_to_string(path).await
+            .map_err(|e| format!("Failed to read telemetry file: {}", e))?;
+        let loaded: MercyTelemetry = serde_json::from_str(&data)
+            .map_err(|e| format!("Failed to deserialize telemetry: {}", e))?;
+        let mut tel = self.telemetry.lock().await;
+        *tel = loaded;
+        Ok(())
     }
 }
 
@@ -461,7 +474,6 @@ impl GpuComputePipeline {
             ),
         };
 
-        // Auto-consume for built-in telemetry
         self.consume_mercy_audit(&audit).await;
 
         Ok((result, audit))
