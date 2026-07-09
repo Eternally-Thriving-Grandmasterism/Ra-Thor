@@ -1,5 +1,5 @@
 // gpu_compute_pipeline.rs
-// Ra-Thor v14.9+ — GPU Memory Allocator + StagingBufferPool + Async Readback + Debug Utilities + Mercy-Gated Audit + Telemetry Consumers + Disk Persistence
+// Ra-Thor v14.9+ — GPU Memory Allocator + StagingBufferPool + Async Readback + Debug Utilities + Mercy-Gated Audit + Telemetry Consumers + Disk Persistence + Periodic Auto-Save
 // AG-SML v1.0 License
 
 use std::collections::HashMap;
@@ -257,7 +257,7 @@ impl DebugOutputBuffer {
     }
 }
 
-// === Mercy Telemetry + Persistence ===
+// === Mercy Telemetry + Persistence + Auto-Save ===
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct MercyTelemetry {
     pub total_audits: u64,
@@ -325,6 +325,7 @@ pub struct GpuComputePipeline {
     allocator: Arc<Mutex<GpuMemoryAllocator>>,
     staging_pool: Arc<Mutex<StagingBufferPool>>,
     telemetry: Arc<Mutex<MercyTelemetry>>,
+    telemetry_save_path: Option<String>,
     pub version: String,
 }
 
@@ -334,8 +335,13 @@ impl GpuComputePipeline {
             allocator: Arc::new(Mutex::new(GpuMemoryAllocator::new())),
             staging_pool: Arc::new(Mutex::new(StagingBufferPool::new())),
             telemetry: Arc::new(Mutex::new(MercyTelemetry::new())),
-            version: "v14.9.2-gpu-mercy-persistence".to_string(),
+            telemetry_save_path: None,
+            version: "v14.9.3-gpu-mercy-autosave".to_string(),
         }
+    }
+
+    pub fn set_mercy_telemetry_save_path(&mut self, path: impl Into<String>) {
+        self.telemetry_save_path = Some(path.into());
     }
 
     pub async fn dispatch(&self, task: GpuTask) -> Result<GpuTaskResult, String> {
@@ -391,7 +397,6 @@ impl GpuComputePipeline {
         tel.summary()
     }
 
-    /// Persist current mercy telemetry to disk as JSON (for crash recovery / long-term self-evolution history)
     pub async fn save_mercy_telemetry(&self, path: impl AsRef<std::path::Path>) -> Result<(), String> {
         let tel = self.telemetry.lock().await;
         let json = serde_json::to_string_pretty(&*tel)
@@ -400,7 +405,6 @@ impl GpuComputePipeline {
             .map_err(|e| format!("Failed to write telemetry file: {}", e))
     }
 
-    /// Load mercy telemetry from disk (replaces current in-memory state)
     pub async fn load_mercy_telemetry(&self, path: impl AsRef<std::path::Path>) -> Result<(), String> {
         let data = tokio::fs::read_to_string(path).await
             .map_err(|e| format!("Failed to read telemetry file: {}", e))?;
@@ -409,6 +413,30 @@ impl GpuComputePipeline {
         let mut tel = self.telemetry.lock().await;
         *tel = loaded;
         Ok(())
+    }
+
+    /// Start a background task that periodically auto-saves mercy telemetry to the configured path.
+    /// Call set_mercy_telemetry_save_path first.
+    pub fn start_periodic_mercy_telemetry_save(&self, interval_secs: u64) -> Result<tokio::task::JoinHandle<()>, String> {
+        let path = self.telemetry_save_path.clone()
+            .ok_or_else(|| "No telemetry save path configured. Call set_mercy_telemetry_save_path first.".to_string())?;
+        let telemetry = self.telemetry.clone();
+
+        let handle = tokio::spawn(async move {
+            let mut interval = tokio::time::interval(tokio::time::Duration::from_secs(interval_secs));
+            loop {
+                interval.tick().await;
+                let tel = telemetry.lock().await;
+                if let Ok(json) = serde_json::to_string_pretty(&*tel) {
+                    if let Err(e) = tokio::fs::write(&path, json).await {
+                        // In production this would go to proper logging
+                        eprintln!("[Ra-Thor] Periodic mercy telemetry save failed: {}", e);
+                    }
+                }
+            }
+        });
+
+        Ok(handle)
     }
 }
 
