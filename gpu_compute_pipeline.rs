@@ -1,5 +1,5 @@
 // gpu_compute_pipeline.rs
-// Ra-Thor v14.9+ — GPU Memory Allocator + StagingBufferPool + Async Readback + Debug Utilities + Mercy-Gated Audit
+// Ra-Thor v14.9+ — GPU Memory Allocator + StagingBufferPool + Async Readback + Debug Utilities + Mercy-Gated Audit + Telemetry Consumers
 // AG-SML v1.0 License
 
 use std::collections::HashMap;
@@ -258,9 +258,78 @@ impl DebugOutputBuffer {
     }
 }
 
+// === Mercy Telemetry Consumer ===
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct MercyTelemetry {
+    pub total_audits: u64,
+    pub total_council_ready: u64,
+    pub sum_mercy_norm: f64,
+    pub min_mercy_norm: f64,
+    pub max_mercy_norm: f64,
+    pub last_mercy_norm: f64,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct MercyTelemetrySummary {
+    pub total_audits: u64,
+    pub council_ready_ratio: f64,
+    pub avg_mercy_norm: f64,
+    pub min_mercy_norm: f64,
+    pub max_mercy_norm: f64,
+    pub last_mercy_norm: f64,
+}
+
+impl MercyTelemetry {
+    pub fn new() -> Self {
+        Self {
+            min_mercy_norm: 1.0,
+            max_mercy_norm: 0.0,
+            ..Default::default()
+        }
+    }
+
+    pub fn consume(&mut self, audit: &MercyGpuAudit) {
+        self.total_audits += 1;
+        if audit.council_ready {
+            self.total_council_ready += 1;
+        }
+        self.sum_mercy_norm += audit.mercy_norm;
+        if audit.mercy_norm < self.min_mercy_norm {
+            self.min_mercy_norm = audit.mercy_norm;
+        }
+        if audit.mercy_norm > self.max_mercy_norm {
+            self.max_mercy_norm = audit.mercy_norm;
+        }
+        self.last_mercy_norm = audit.mercy_norm;
+    }
+
+    pub fn summary(&self) -> MercyTelemetrySummary {
+        let avg = if self.total_audits > 0 {
+            self.sum_mercy_norm / self.total_audits as f64
+        } else {
+            0.0
+        };
+        let ready_ratio = if self.total_audits > 0 {
+            self.total_council_ready as f64 / self.total_audits as f64
+        } else {
+            0.0
+        };
+
+        MercyTelemetrySummary {
+            total_audits: self.total_audits,
+            council_ready_ratio: ready_ratio,
+            avg_mercy_norm: avg,
+            min_mercy_norm: self.min_mercy_norm,
+            max_mercy_norm: self.max_mercy_norm,
+            last_mercy_norm: self.last_mercy_norm,
+        }
+    }
+}
+
 pub struct GpuComputePipeline {
     allocator: Arc<Mutex<GpuMemoryAllocator>>,
     staging_pool: Arc<Mutex<StagingBufferPool>>,
+    telemetry: Arc<Mutex<MercyTelemetry>>,
     pub version: String,
 }
 
@@ -269,7 +338,8 @@ impl GpuComputePipeline {
         Self {
             allocator: Arc::new(Mutex::new(GpuMemoryAllocator::new())),
             staging_pool: Arc::new(Mutex::new(StagingBufferPool::new())),
-            version: "v14.9.0-gpu-staging-readback".to_string(),
+            telemetry: Arc::new(Mutex::new(MercyTelemetry::new())),
+            version: "v14.9.1-gpu-mercy-telemetry".to_string(),
         }
     }
 
@@ -279,10 +349,8 @@ impl GpuComputePipeline {
         let mut staging = self.staging_pool.lock().await;
 
         let staging_buf = staging.acquire_staging(task.buffer_size);
-        // Simulate GPU dispatch work
         tokio::time::sleep(tokio::time::Duration::from_millis(70)).await;
 
-        // Concrete readback
         let readback = readback_buffer_async(staging_buf.clone()).await?;
         let debug = DebugOutputBuffer::new(&task.name, readback.clone());
 
@@ -317,19 +385,27 @@ impl GpuComputePipeline {
     pub async fn get_memory_stats(&self) -> GpuMemoryStats {
         self.allocator.lock().await.stats()
     }
+
+    /// Main mercy norm telemetry consumer.
+    /// Call this after receiving an audit to feed self-evolution / observability.
+    pub async fn consume_mercy_audit(&self, audit: &MercyGpuAudit) {
+        let mut tel = self.telemetry.lock().await;
+        tel.consume(audit);
+    }
+
+    pub async fn get_mercy_telemetry_summary(&self) -> MercyTelemetrySummary {
+        let tel = self.telemetry.lock().await;
+        tel.summary()
+    }
 }
 
-// === Mercy-Gated Audit Logic for PATSAGi Councils + Lattice Conductor Self-Evolution ===
-// AG-SML v1.0 | Fully TOLC 8 compliant (Truth: pure calculation + stats-driven; Order: additive + pure fn;
-// Non-harm: mercy_norm + council_ready prune low-alignment paths; Abundance: high-fidelity RBE sim feedback;
-// Joy/Harmony: supports thriving Powrush-MMO economies). ENC + esacheck ready. ONE Organism bridge.
-
+// === Mercy-Gated Audit Logic ===
 pub const MERCY_NORM_THRESHOLD: f64 = 0.85;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MercyGpuAudit {
     pub task_id: u64,
-    pub mercy_norm: f64,           // 0.0–1.0 — higher = more aligned with zero-harm + thriving
+    pub mercy_norm: f64,
     pub execution_time_ms: u64,
     pub reuse_ratio: f64,
     pub fragmentation_estimate: f64,
@@ -342,9 +418,7 @@ impl MercyGpuAudit {
         self.mercy_norm >= MERCY_NORM_THRESHOLD
     }
 
-    /// Suggested confidence adjustment for Lattice Conductor EMA / self-evolution
     pub fn suggested_confidence_delta(&self) -> f64 {
-        // Positive when high mercy alignment, negative when low
         (self.mercy_norm - 0.5) * 0.18
     }
 
@@ -356,13 +430,11 @@ impl MercyGpuAudit {
     }
 }
 
-/// Pure, testable mercy-norm calculation (can be called from Lattice Conductor or symbolic layers)
 pub fn calculate_mercy_norm(stats: &GpuMemoryStats, result: &GpuTaskResult, task: &GpuTask) -> f64 {
     let success_factor = if result.success { 1.0 } else { 0.25 };
     let efficiency = (1000.0 / (result.execution_time_ms as f64 + 1.0)).min(1.0);
     let reuse_factor = stats.reuse_ratio.clamp(0.0, 1.0);
     let waste = (stats.internal_fragmentation_estimate / 20000.0).min(0.3);
-    // Bonus for successful coalescing (efficiency signal)
     let coalesce_bonus = (stats.coalesce_count as f64 / (stats.allocation_count as f64 + 1.0)).min(0.15);
 
     let norm = ((success_factor * 0.42) + (efficiency * 0.28) + (reuse_factor * 0.22) - waste + coalesce_bonus).clamp(0.0, 1.0);
@@ -370,8 +442,6 @@ pub fn calculate_mercy_norm(stats: &GpuMemoryStats, result: &GpuTaskResult, task
 }
 
 impl GpuComputePipeline {
-    /// Dispatches + returns (result, MercyGpuAudit) with full self-evolution telemetry.
-    /// All prior behavior preserved. Uses pure calculate_mercy_norm for consistency.
     pub async fn dispatch_with_mercy_audit(&self, task: GpuTask) -> Result<(GpuTaskResult, MercyGpuAudit), String> {
         let result = self.dispatch(task.clone()).await?;
         let stats = self.get_memory_stats().await;
@@ -391,6 +461,24 @@ impl GpuComputePipeline {
             ),
         };
 
+        // Auto-consume for built-in telemetry
+        self.consume_mercy_audit(&audit).await;
+
         Ok((result, audit))
+    }
+
+    pub async fn submit_patsagi_task_with_audit(
+        &self,
+        query: &str,
+        intensity: &str,
+        buffer_size: usize,
+    ) -> Result<(GpuTaskResult, MercyGpuAudit), String> {
+        let task = GpuTask {
+            id: rand::random::<u64>() % 1_000_000_000,
+            name: format!("patsagi_{}", query.replace(' ', "_")),
+            buffer_size,
+            intensity: intensity.to_string(),
+        };
+        self.dispatch_with_mercy_audit(task).await
     }
 }
