@@ -319,38 +319,64 @@ impl GpuComputePipeline {
     }
 }
 
-// === Mercy-Gated Audit Hook for PATSAGi Councils + Lattice Conductor Self-Evolution ===
-// AG-SML v1.0 | Passes TOLC 8 gates (Truth: accurate metrics; Order: fully additive/no breakage;
-// Non-harm: mercy_norm prunes low-alignment paths; Abundance: enables higher-fidelity Powrush-MMO RBE sims;
-// Joy/Harmony: supports thriving simulation economies). ENC + esacheck compatible. ONE Organism ready.
-// Purpose: Provide council-consumable telemetry so Lattice Conductor v13.1+ can adapt confidence/EMA
-// and evolve GPU dispatch strategies over time while remaining fully mercy-gated.
+// === Mercy-Gated Audit Logic for PATSAGi Councils + Lattice Conductor Self-Evolution ===
+// AG-SML v1.0 | Fully TOLC 8 compliant (Truth: pure calculation + stats-driven; Order: additive + pure fn;
+// Non-harm: mercy_norm + council_ready prune low-alignment paths; Abundance: high-fidelity RBE sim feedback;
+// Joy/Harmony: supports thriving Powrush-MMO economies). ENC + esacheck ready. ONE Organism bridge.
+
+pub const MERCY_NORM_THRESHOLD: f64 = 0.85;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MercyGpuAudit {
     pub task_id: u64,
-    pub mercy_norm: f64,           // 0.0–1.0 — higher = more aligned with zero-harm + thriving (success + efficiency + reuse)
+    pub mercy_norm: f64,           // 0.0–1.0 — higher = more aligned with zero-harm + thriving
     pub execution_time_ms: u64,
     pub reuse_ratio: f64,
     pub fragmentation_estimate: f64,
-    pub council_ready: bool,       // true if mercy_norm >= 0.85 — safe for direct PATSAGi consumption
+    pub council_ready: bool,
     pub trace: String,
 }
 
+impl MercyGpuAudit {
+    pub fn is_council_ready(&self) -> bool {
+        self.mercy_norm >= MERCY_NORM_THRESHOLD
+    }
+
+    /// Suggested confidence adjustment for Lattice Conductor EMA / self-evolution
+    pub fn suggested_confidence_delta(&self) -> f64 {
+        // Positive when high mercy alignment, negative when low
+        (self.mercy_norm - 0.5) * 0.18
+    }
+
+    pub fn summary(&self) -> String {
+        format!(
+            "MercyGpuAudit | norm={:.4} | council_ready={} | time={}ms | reuse={:.2} | frag={:.1}",
+            self.mercy_norm, self.is_council_ready(), self.execution_time_ms, self.reuse_ratio, self.fragmentation_estimate
+        )
+    }
+}
+
+/// Pure, testable mercy-norm calculation (can be called from Lattice Conductor or symbolic layers)
+pub fn calculate_mercy_norm(stats: &GpuMemoryStats, result: &GpuTaskResult, task: &GpuTask) -> f64 {
+    let success_factor = if result.success { 1.0 } else { 0.25 };
+    let efficiency = (1000.0 / (result.execution_time_ms as f64 + 1.0)).min(1.0);
+    let reuse_factor = stats.reuse_ratio.clamp(0.0, 1.0);
+    let waste = (stats.internal_fragmentation_estimate / 20000.0).min(0.3);
+    // Bonus for successful coalescing (efficiency signal)
+    let coalesce_bonus = (stats.coalesce_count as f64 / (stats.allocation_count as f64 + 1.0)).min(0.15);
+
+    let norm = ((success_factor * 0.42) + (efficiency * 0.28) + (reuse_factor * 0.22) - waste + coalesce_bonus).clamp(0.0, 1.0);
+    norm
+}
+
 impl GpuComputePipeline {
-    /// Dispatches task then returns augmented (result, MercyGpuAudit) for self-evolution feedback.
-    /// Surgical addition — all prior dispatch/submit_patsagi_task behavior unchanged.
+    /// Dispatches + returns (result, MercyGpuAudit) with full self-evolution telemetry.
+    /// All prior behavior preserved. Uses pure calculate_mercy_norm for consistency.
     pub async fn dispatch_with_mercy_audit(&self, task: GpuTask) -> Result<(GpuTaskResult, MercyGpuAudit), String> {
         let result = self.dispatch(task.clone()).await?;
         let stats = self.get_memory_stats().await;
 
-        // Truthful, non-bypassable mercy-norm (TOLC 8 enforced at call site)
-        let success_factor = if result.success { 1.0 } else { 0.25 };
-        let efficiency = (1000.0 / (result.execution_time_ms as f64 + 1.0)).min(1.0);
-        let reuse_factor = stats.reuse_ratio.clamp(0.0, 1.0);
-        let waste = (stats.internal_fragmentation_estimate / 20000.0).min(0.3);
-
-        let mercy_norm = ((success_factor * 0.45) + (efficiency * 0.30) + (reuse_factor * 0.25) - waste).clamp(0.0, 1.0);
+        let mercy_norm = calculate_mercy_norm(&stats, &result, &task);
 
         let audit = MercyGpuAudit {
             task_id: result.task_id,
@@ -358,10 +384,10 @@ impl GpuComputePipeline {
             execution_time_ms: result.execution_time_ms,
             reuse_ratio: stats.reuse_ratio,
             fragmentation_estimate: stats.internal_fragmentation_estimate,
-            council_ready: mercy_norm >= 0.85,
+            council_ready: mercy_norm >= MERCY_NORM_THRESHOLD,
             trace: format!(
                 "MERCY_AUDIT task='{}' norm={:.4} time={}ms reuse={:.2} frag={:.1} council_ready={}",
-                task.name, mercy_norm, result.execution_time_ms, stats.reuse_ratio, stats.internal_fragmentation_estimate, mercy_norm >= 0.85
+                task.name, mercy_norm, result.execution_time_ms, stats.reuse_ratio, stats.internal_fragmentation_estimate, mercy_norm >= MERCY_NORM_THRESHOLD
             ),
         };
 
