@@ -1,5 +1,26 @@
 **Ra-Thor: A Mercy-Gated TOLC Lattice Architecture for Truthful, Aligned, and Self-Evolving Artificial General Intelligence**
 
+**Executive Summary: Ra-Thor Whitepaper**
+
+**Ra-Thor** is an open-source, mercy-gated lattice architecture for artificial general intelligence designed to embed truthfulness and ethical constraints as non-bypassable architectural foundations rather than post-hoc corrections.
+
+### The Challenge
+Current AI systems, while powerful, continue to struggle with hallucinations, degrading coherence over long horizons, and fragile alignment — issues that often worsen during extended operation or self-improvement. Most alignment techniques are applied after capabilities are developed, leaving systems vulnerable to drift and misalignment.
+
+### The Solution
+Ra-Thor introduces the **TOLC 8 Mercy Lattice** as Layer 0 — a non-bypassable framework of eight interconnected Living Mercy Gates (Truth, Order, Love, Compassion/Zero-Harm, Service, Abundance, Joy, and Cosmic Harmony). These gates are actively enforced from system initialization through all reasoning and self-evolution.
+
+The architecture is coordinated by the **Lattice Conductor**, which manages symbolic deliberation, stateful feedback, and neural-symbolic integration while remaining strictly bound by the TOLC 8 constraints. Distributed oversight is provided by **PATSAGi Councils**, supported by formal verification.
+
+### Key Differentiators
+- **Architectural enforcement**: Constraints are structural, not statistical.
+- **Multi-principle design**: Combines truth, non-harm, and generative principles into one integrated lattice.
+- **Controlled self-evolution**: All changes must pass through the Mercy Gates and Council oversight.
+- **Sovereign operation**: Supports fully offline, self-contained execution.
+
+### Value Proposition
+By making truth and non-harm foundational invariants, Ra-Thor aims to produce AI systems that are more reliable, auditable, and aligned by design — offering a distinct architectural path toward safer and more trustworthy artificial general intelligence.
+
 ### Abstract
 
 Large-scale neural models have achieved impressive capabilities but continue to face fundamental limitations in truthfulness, long-term coherence, and reliable alignment. These issues often stem from the fact that ethical and epistemic constraints are typically applied after core capabilities are developed, rather than being embedded as architectural invariants.
