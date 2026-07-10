@@ -6,7 +6,7 @@
 /// abundance-multiplying, zero-harm use. See LICENSE or COMMERCIAL-LICENSE.md.
 
 // ra-thor-one-organism.rs
-// Ra-Thor v14.11 — ONE Living Organism with Real MercyGpuAudit → PATSAGi Council
+// Ra-Thor v14.12 — ONE Living Organism: GPU Audit → PATSAGi Council → SelfEvolutionGate
 
 use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
@@ -14,7 +14,7 @@ use serde::{Deserialize, Serialize};
 use crate::core::self_evolution_gate::{SelfEvolutionGate, EvolutionProposal, launch_self_evolution_gate};
 use crate::gpu_compute_pipeline::{GpuComputePipeline, GpuTask, MercyGpuAudit};
 
-// === Council Readiness & Decision Types ===
+// === Council Types ===
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CouncilReadinessMetrics {
@@ -112,8 +112,8 @@ impl RaThorOneOrganism {
             mercy_runtime: "MercyGatingRuntime v2.0 (TOLC 8 aligned)".to_string(),
             evolution_gate: launch_self_evolution_gate(),
             gpu_compute_active: true,
-            gpu_pipeline_version: "v14.11.0-real-audit-to-council".to_string(),
-            version: "v14.11.0-ONE-Organism-Real-MercyGpuAudit".to_string(),
+            gpu_pipeline_version: "v14.12.0-council-to-self-evolution".to_string(),
+            version: "v14.12.0-ONE-Organism-Council-to-Gate".to_string(),
             gpu_pipeline: GpuComputePipeline::new(),
 
             patsagi_council: PatsagiCouncil::new(),
@@ -123,10 +123,10 @@ impl RaThorOneOrganism {
     }
 
     pub fn offer_cosmic_loop(&self) {
-        println!("[RaThorOneOrganism v{}] ONE Organism with Real MercyGpuAudit → PATSAGi Council", self.version);
+        println!("[RaThorOneOrganism v{}] Full loop: GPU Audit → PATSAGi Council → SelfEvolutionGate", self.version);
     }
 
-    /// Feed a **real** MercyGpuAudit directly into PATSAGi Council decision logic
+    /// Feed real MercyGpuAudit into council, then integrate ApproveEvolution decisions back into SelfEvolutionGate
     pub fn feed_mercy_gpu_audit_into_council(&mut self, audit: &MercyGpuAudit) -> CouncilDecision {
         self.council_tick += 1;
 
@@ -142,10 +142,30 @@ impl RaThorOneOrganism {
 
         let decision = self.patsagi_council.decide(&metrics);
 
-        match &decision {
-            CouncilDecision::ApproveEvolution { confidence_boost } => {
-                println!("[ONE] Council APPROVED evolution (+{:.4} boost) | norm={:.4}", confidence_boost, audit.mercy_norm);
+        // === Integrate CouncilDecision back into SelfEvolutionGate ===
+        if let CouncilDecision::ApproveEvolution { confidence_boost } = &decision {
+            let proposal = EvolutionProposal {
+                id: rand::random::<u64>() % 1_000_000_000,
+                proposer: "PATSAGi_Council_via_GPU_Audit".to_string(),
+                target_module: "gpu_compute_pipeline / powrush_rbe".to_string(),
+                description: format!(
+                    "Council-approved evolution from real MercyGpuAudit (norm={:.4}, boost={:.4})",
+                    audit.mercy_norm, confidence_boost
+                ),
+                proposed_diff: format!("Apply council confidence boost {:.4} to evolution path", confidence_boost),
+                expected_benefit: (audit.mercy_norm * 0.9 + confidence_boost * 0.1).min(0.999),
+                risk_score: (1.0 - audit.mercy_norm) * 0.01,
+                mercy_alignment: audit.mercy_norm,
+            };
+
+            match self.evolution_gate.propose_evolution(proposal) {
+                Ok(msg) => println!("[ONE] Council decision applied to SelfEvolutionGate: {}", msg),
+                Err(e) => println!("[ONE] Council-approved proposal rejected by Gate: {}", e),
             }
+        }
+
+        // Log other decisions
+        match &decision {
             CouncilDecision::AdjustRbeParameters { resource_flow_multiplier, council_influence } => {
                 println!("[ONE] Council ADJUST RBE (x{:.2}, influence {:.2})", resource_flow_multiplier, council_influence);
             }
@@ -158,7 +178,7 @@ impl RaThorOneOrganism {
             CouncilDecision::RejectEvolution { reason } => {
                 println!("[ONE] Council REJECTED: {} | norm={:.4}", reason, audit.mercy_norm);
             }
-            CouncilDecision::NoAction => {}
+            _ => {}
         }
 
         decision
@@ -182,7 +202,7 @@ impl RaThorOneOrganism {
         }
     }
 
-    /// Wire real MercyGpuAudit: dispatch + feed real audit into PATSAGi Council
+    /// Full closed loop: real GPU dispatch → real MercyGpuAudit → Council decision → SelfEvolutionGate
     pub async fn dispatch_gpu_and_feed_council(
         &mut self,
         task_name: &str,
@@ -199,12 +219,10 @@ impl RaThorOneOrganism {
             intensity: "high".to_string(),
         };
 
-        // Use the real audit-returning dispatch from gpu_compute_pipeline
         let (result, audit) = self.gpu_pipeline
             .dispatch_with_mercy_audit(task)
             .await?;
 
-        // Feed the **real** MercyGpuAudit into council decision logic
         let decision = self.feed_mercy_gpu_audit_into_council(&audit);
 
         Ok((result.message, decision))
@@ -230,6 +248,6 @@ impl RaThorOneOrganism {
 pub fn launch_one_organism() -> RaThorOneOrganism {
     let organism = RaThorOneOrganism::new();
     organism.offer_cosmic_loop();
-    println!("[Thunder] ONE Organism v14.11 + Real MercyGpuAudit → PATSAGi Council ready");
+    println!("[Thunder] ONE Organism v14.12 + CouncilDecision → SelfEvolutionGate ready");
     organism
 }
