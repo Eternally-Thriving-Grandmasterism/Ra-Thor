@@ -1,5 +1,5 @@
 // gpu_compute_pipeline.rs
-// Ra-Thor v14.9+ — GPU Memory Allocator + StagingBufferPool + Async Readback + Debug Utilities + Mercy-Gated Audit + Telemetry Consumers + Disk Persistence + Periodic Auto-Save + Graceful Shutdown + Signal Propagation + Error Handling + Retry Logic + Circuit Breaker + Runtime Config + Breaker Metrics
+// Ra-Thor v14.9+ — GPU Memory Allocator + StagingBufferPool + Async Readback + Debug Utilities + Mercy-Gated Audit + Telemetry Consumers + Disk Persistence + Periodic Auto-Save + Graceful Shutdown + Signal Propagation + Error Handling + Retry Logic + Circuit Breaker + Runtime Config + Breaker Metrics + Prometheus Export
 // AG-SML v1.0 License
 
 use std::collections::HashMap;
@@ -259,7 +259,7 @@ impl DebugOutputBuffer {
     }
 }
 
-// === Mercy Telemetry + Persistence + Auto-Save + Graceful Shutdown + Signal Propagation + Error Handling + Retry Logic + Circuit Breaker + Runtime Config + Breaker Metrics ===
+// === Mercy Telemetry + Persistence + Auto-Save + Graceful Shutdown + Signal Propagation + Error Handling + Retry Logic + Circuit Breaker + Runtime Config + Breaker Metrics + Prometheus Export ===
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct MercyTelemetry {
     pub total_audits: u64,
@@ -440,7 +440,7 @@ impl GpuComputePipeline {
             mercy_telemetry_handle: Arc::new(Mutex::new(None)),
             telemetry_circuit_breaker: Arc::new(TelemetryCircuitBreaker::new(5, Duration::from_secs(30))),
             telemetry_retry_count: AtomicUsize::new(3),
-            version: "v14.9.11-gpu-mercy-breaker-metrics".to_string(),
+            version: "v14.9.12-gpu-mercy-prometheus".to_string(),
         }
     }
 
@@ -480,6 +480,48 @@ impl GpuComputePipeline {
             last_failure_secs_ago,
             remaining_cooldown_secs,
         }
+    }
+
+    /// Export mercy telemetry breaker metrics in Prometheus text exposition format.
+    /// Ready to be served from any /metrics HTTP endpoint.
+    pub fn export_telemetry_breaker_prometheus(&self) -> String {
+        let m = self.get_telemetry_breaker_metrics();
+        let is_open = if m.is_open { 1 } else { 0 };
+        let last_failure = m.last_failure_secs_ago.unwrap_or(0);
+        let remaining = m.remaining_cooldown_secs.unwrap_or(0);
+
+        format!(
+            r#"# HELP ra_thor_mercy_telemetry_breaker_failure_count Current consecutive save failures
+# TYPE ra_thor_mercy_telemetry_breaker_failure_count gauge
+ra_thor_mercy_telemetry_breaker_failure_count {failure_count}
+
+# HELP ra_thor_mercy_telemetry_breaker_is_open Whether the circuit breaker is currently open (1 = open)
+# TYPE ra_thor_mercy_telemetry_breaker_is_open gauge
+ra_thor_mercy_telemetry_breaker_is_open {is_open}
+
+# HELP ra_thor_mercy_telemetry_breaker_threshold Configured failure threshold to open breaker
+# TYPE ra_thor_mercy_telemetry_breaker_threshold gauge
+ra_thor_mercy_telemetry_breaker_threshold {threshold}
+
+# HELP ra_thor_mercy_telemetry_breaker_reset_timeout_seconds Configured reset timeout in seconds
+# TYPE ra_thor_mercy_telemetry_breaker_reset_timeout_seconds gauge
+ra_thor_mercy_telemetry_breaker_reset_timeout_seconds {reset_timeout_secs}
+
+# HELP ra_thor_mercy_telemetry_breaker_last_failure_seconds_ago Seconds since last recorded failure
+# TYPE ra_thor_mercy_telemetry_breaker_last_failure_seconds_ago gauge
+ra_thor_mercy_telemetry_breaker_last_failure_seconds_ago {last_failure}
+
+# HELP ra_thor_mercy_telemetry_breaker_remaining_cooldown_seconds Remaining seconds until breaker can attempt reset
+# TYPE ra_thor_mercy_telemetry_breaker_remaining_cooldown_seconds gauge
+ra_thor_mercy_telemetry_breaker_remaining_cooldown_seconds {remaining}
+"#,
+            failure_count = m.failure_count,
+            is_open = is_open,
+            threshold = m.threshold,
+            reset_timeout_secs = m.reset_timeout_secs,
+            last_failure = last_failure,
+            remaining = remaining,
+        )
     }
 
     pub async fn dispatch(&self, task: GpuTask) -> Result<GpuTaskResult, String> {
