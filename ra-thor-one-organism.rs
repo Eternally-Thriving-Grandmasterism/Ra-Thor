@@ -6,7 +6,7 @@
 /// abundance-multiplying, zero-harm use. See LICENSE or COMMERCIAL-LICENSE.md.
 
 // ra-thor-one-organism.rs
-// Ra-Thor v14.12 — ONE Living Organism: GPU Audit → PATSAGi Council → SelfEvolutionGate
+// Ra-Thor v14.13 — ONE Organism with Hot-Reload / PR Automation Hooks on Approved Evolutions
 
 use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
@@ -14,7 +14,7 @@ use serde::{Deserialize, Serialize};
 use crate::core::self_evolution_gate::{SelfEvolutionGate, EvolutionProposal, launch_self_evolution_gate};
 use crate::gpu_compute_pipeline::{GpuComputePipeline, GpuTask, MercyGpuAudit};
 
-// === Council Types ===
+// === Council + Decision Types ===
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CouncilReadinessMetrics {
@@ -112,8 +112,8 @@ impl RaThorOneOrganism {
             mercy_runtime: "MercyGatingRuntime v2.0 (TOLC 8 aligned)".to_string(),
             evolution_gate: launch_self_evolution_gate(),
             gpu_compute_active: true,
-            gpu_pipeline_version: "v14.12.0-council-to-self-evolution".to_string(),
-            version: "v14.12.0-ONE-Organism-Council-to-Gate".to_string(),
+            gpu_pipeline_version: "v14.13.0-hot-reload-pr-hooks".to_string(),
+            version: "v14.13.0-ONE-Organism-HotReload-PR-Hooks".to_string(),
             gpu_pipeline: GpuComputePipeline::new(),
 
             patsagi_council: PatsagiCouncil::new(),
@@ -123,10 +123,38 @@ impl RaThorOneOrganism {
     }
 
     pub fn offer_cosmic_loop(&self) {
-        println!("[RaThorOneOrganism v{}] Full loop: GPU Audit → PATSAGi Council → SelfEvolutionGate", self.version);
+        println!("[RaThorOneOrganism v{}] Full loop + Hot-Reload / PR Automation Hooks", self.version);
     }
 
-    /// Feed real MercyGpuAudit into council, then integrate ApproveEvolution decisions back into SelfEvolutionGate
+    /// Hot-reload / PR automation hook — called automatically on approved evolutions
+    /// In production this will:
+    /// - Create a git branch
+    /// - Apply the proposed diff / codegen
+    /// - Open a Pull Request via GitHub connector
+    /// - Trigger CI / hot-reload signal
+    fn trigger_evolution_automation_hooks(&self, proposal: &EvolutionProposal) {
+        println!("\n╔════════════════════════════════════════════════════════════════╗");
+        println!("║  HOT-RELOAD / PR AUTOMATION HOOK TRIGGERED                       ║");
+        println!("╠════════════════════════════════════════════════════════════════╣");
+        println!("║ Proposal ID      : {}                                      ║", proposal.id);
+        println!("║ Proposer         : {}                           ║", proposal.proposer);
+        println!("║ Target Module    : {}                    ║", proposal.target_module);
+        println!("║ Expected Benefit : {:.4}                                      ║", proposal.expected_benefit);
+        println!("║ Mercy Alignment  : {:.4}                                      ║", proposal.mercy_alignment);
+        println!("╠════════════════════════════════════════════════════════════════╣");
+        println!("║ Next actions (to be wired via GitHub connectors):              ║");
+        println!("║   • git checkout -b evolution/{}-{}                     ║", proposal.id, proposal.target_module.replace('/', "-"));
+        println!("║   • Apply proposed_diff / codegen patch                        ║");
+        println!("║   • gh pr create --title "Evolution {}" --body "..."        ║", proposal.id);
+        println!("║   • Trigger CI / hot-reload signal                             ║");
+        println!("╚════════════════════════════════════════════════════════════════╝\n");
+
+        // Future implementation:
+        // search_connected_tools("create pull request")
+        // then call_connected_tool(github___create_pull_request, ...)
+    }
+
+    /// Feed real MercyGpuAudit into council → on ApproveEvolution, submit to Gate + trigger hooks
     pub fn feed_mercy_gpu_audit_into_council(&mut self, audit: &MercyGpuAudit) -> CouncilDecision {
         self.council_tick += 1;
 
@@ -142,7 +170,6 @@ impl RaThorOneOrganism {
 
         let decision = self.patsagi_council.decide(&metrics);
 
-        // === Integrate CouncilDecision back into SelfEvolutionGate ===
         if let CouncilDecision::ApproveEvolution { confidence_boost } = &decision {
             let proposal = EvolutionProposal {
                 id: rand::random::<u64>() % 1_000_000_000,
@@ -158,13 +185,16 @@ impl RaThorOneOrganism {
                 mercy_alignment: audit.mercy_norm,
             };
 
-            match self.evolution_gate.propose_evolution(proposal) {
-                Ok(msg) => println!("[ONE] Council decision applied to SelfEvolutionGate: {}", msg),
+            match self.evolution_gate.propose_evolution(proposal.clone()) {
+                Ok(msg) => {
+                    println!("[ONE] Council decision applied to SelfEvolutionGate: {}", msg);
+                    // === HOT-RELOAD / PR AUTOMATION HOOK ===
+                    self.trigger_evolution_automation_hooks(&proposal);
+                }
                 Err(e) => println!("[ONE] Council-approved proposal rejected by Gate: {}", e),
             }
         }
 
-        // Log other decisions
         match &decision {
             CouncilDecision::AdjustRbeParameters { resource_flow_multiplier, council_influence } => {
                 println!("[ONE] Council ADJUST RBE (x{:.2}, influence {:.2})", resource_flow_multiplier, council_influence);
@@ -202,7 +232,6 @@ impl RaThorOneOrganism {
         }
     }
 
-    /// Full closed loop: real GPU dispatch → real MercyGpuAudit → Council decision → SelfEvolutionGate
     pub async fn dispatch_gpu_and_feed_council(
         &mut self,
         task_name: &str,
@@ -248,6 +277,6 @@ impl RaThorOneOrganism {
 pub fn launch_one_organism() -> RaThorOneOrganism {
     let organism = RaThorOneOrganism::new();
     organism.offer_cosmic_loop();
-    println!("[Thunder] ONE Organism v14.12 + CouncilDecision → SelfEvolutionGate ready");
+    println!("[Thunder] ONE Organism v14.13 + Hot-Reload / PR Automation Hooks ready");
     organism
 }
