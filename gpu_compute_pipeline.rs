@@ -1,5 +1,5 @@
 // gpu_compute_pipeline.rs
-// Ra-Thor v14.9+ — GPU Memory Allocator + StagingBufferPool + Async Readback + Debug Utilities + Mercy-Gated Audit + Telemetry Consumers + Disk Persistence + Periodic Auto-Save + Graceful Shutdown + Signal Propagation + Error Handling
+// Ra-Thor v14.9+ — GPU Memory Allocator + StagingBufferPool + Async Readback + Debug Utilities + Mercy-Gated Audit + Telemetry Consumers + Disk Persistence + Periodic Auto-Save + Graceful Shutdown + Signal Propagation + Error Handling + Retry Logic
 // AG-SML v1.0 License
 
 use std::collections::HashMap;
@@ -257,7 +257,7 @@ impl DebugOutputBuffer {
     }
 }
 
-// === Mercy Telemetry + Persistence + Auto-Save + Graceful Shutdown + Signal Propagation + Error Handling ===
+// === Mercy Telemetry + Persistence + Auto-Save + Graceful Shutdown + Signal Propagation + Error Handling + Retry Logic ===
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct MercyTelemetry {
     pub total_audits: u64,
@@ -340,7 +340,7 @@ impl GpuComputePipeline {
             telemetry_save_path: None,
             mercy_telemetry_shutdown: Arc::new(Mutex::new(None)),
             mercy_telemetry_handle: Arc::new(Mutex::new(None)),
-            version: "v14.9.7-gpu-mercy-error-handling".to_string(),
+            version: "v14.9.8-gpu-mercy-retry-logic".to_string(),
         }
     }
 
@@ -401,12 +401,29 @@ impl GpuComputePipeline {
         tel.summary()
     }
 
+    /// Internal retry helper for telemetry file writes (transient I/O resilience)
+    async fn save_with_retry(path: impl AsRef<std::path::Path>, data: String, max_retries: usize) -> Result<(), String> {
+        for attempt in 0..=max_retries {
+            match tokio::fs::write(&path, &data).await {
+                Ok(_) => return Ok(()),
+                Err(e) if attempt < max_retries => {
+                    let backoff_ms = 50 * (1 << attempt); // simple exponential backoff
+                    tokio::time::sleep(std::time::Duration::from_millis(backoff_ms)).await;
+                    continue;
+                }
+                Err(e) => {
+                    return Err(format!("Failed to write telemetry after {} retries: {}", max_retries, e));
+                }
+            }
+        }
+        Err("Unexpected retry loop exit".to_string())
+    }
+
     pub async fn save_mercy_telemetry(&self, path: impl AsRef<std::path::Path>) -> Result<(), String> {
         let tel = self.telemetry.lock().await;
         let json = serde_json::to_string_pretty(&*tel)
             .map_err(|e| format!("Failed to serialize telemetry: {}", e))?;
-        tokio::fs::write(path, json).await
-            .map_err(|e| format!("Failed to write telemetry file: {}", e))
+        Self::save_with_retry(path, json, 3).await
     }
 
     pub async fn load_mercy_telemetry(&self, path: impl AsRef<std::path::Path>) -> Result<(), String> {
@@ -419,8 +436,7 @@ impl GpuComputePipeline {
         Ok(())
     }
 
-    /// Start periodic auto-save of mercy telemetry.
-    /// The real JoinHandle is stored internally. Use shutdown_mercy_telemetry_auto_save() for graceful exit.
+    /// Start periodic auto-save of mercy telemetry (with built-in retry on transient failures).
     pub async fn start_periodic_mercy_telemetry_save(&self, interval_secs: u64) -> Result<(), String> {
         let path = self.telemetry_save_path.clone()
             .ok_or_else(|| "No telemetry save path configured. Call set_mercy_telemetry_save_path first.".to_string())?;
@@ -428,7 +444,6 @@ impl GpuComputePipeline {
 
         let (shutdown_tx, mut shutdown_rx) = tokio::sync::broadcast::channel::<()>(1);
 
-        // Store shutdown sender for propagation
         {
             let mut guard = self.mercy_telemetry_shutdown.lock().await;
             *guard = Some(shutdown_tx.clone());
@@ -442,8 +457,9 @@ impl GpuComputePipeline {
                     _ = interval.tick() => {
                         let tel = telemetry.lock().await;
                         if let Ok(json) = serde_json::to_string_pretty(&*tel) {
-                            if let Err(e) = tokio::fs::write(&path, json).await {
-                                eprintln!("[Ra-Thor] Periodic mercy telemetry save failed: {}", e);
+                            // Retry up to 3 times on transient write failures
+                            if let Err(e) = GpuComputePipeline::save_with_retry(&path, json, 3).await {
+                                eprintln!("[Ra-Thor] Periodic mercy telemetry save failed after retries: {}", e);
                             }
                         }
                     }
@@ -454,7 +470,6 @@ impl GpuComputePipeline {
             }
         });
 
-        // Store the real handle internally for shutdown
         {
             let mut guard = self.mercy_telemetry_handle.lock().await;
             *guard = Some(handle);
@@ -466,7 +481,6 @@ impl GpuComputePipeline {
     /// Gracefully shut down the periodic mercy telemetry auto-save task.
     /// Returns Err on timeout, panic, or if no task was running.
     pub async fn shutdown_mercy_telemetry_auto_save(&self) -> Result<(), String> {
-        // Check if a task was ever started
         let has_handle = {
             let guard = self.mercy_telemetry_handle.lock().await;
             guard.is_some()
@@ -476,7 +490,6 @@ impl GpuComputePipeline {
             return Err("No mercy telemetry auto-save task is running (call start_periodic_mercy_telemetry_save first)".to_string());
         }
 
-        // Propagate shutdown signal
         {
             let guard = self.mercy_telemetry_shutdown.lock().await;
             if let Some(tx) = guard.as_ref() {
@@ -484,7 +497,6 @@ impl GpuComputePipeline {
             }
         }
 
-        // Take the stored handle
         let handle = {
             let mut guard = self.mercy_telemetry_handle.lock().await;
             guard.take()
@@ -493,7 +505,6 @@ impl GpuComputePipeline {
         if let Some(h) = handle {
             match tokio::time::timeout(std::time::Duration::from_secs(5), h).await {
                 Ok(Ok(_)) => {
-                    // Clean graceful exit
                     println!("[Ra-Thor] Mercy telemetry auto-save gracefully shut down.");
                     Ok(())
                 }
