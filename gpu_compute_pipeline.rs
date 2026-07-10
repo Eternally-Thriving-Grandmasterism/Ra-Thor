@@ -1,5 +1,5 @@
 // gpu_compute_pipeline.rs
-// Ra-Thor v14.9+ — GPU Memory Allocator + StagingBufferPool + Async Readback + Debug Utilities + Mercy-Gated Audit + Telemetry Consumers + Disk Persistence + Periodic Auto-Save + Graceful Shutdown + Signal Propagation + Error Handling + Retry Logic + Circuit Breaker + Runtime Config + Breaker Metrics + Prometheus Export
+// Ra-Thor v14.9+ — GPU Memory Allocator + StagingBufferPool + Async Readback + Debug Utilities + Mercy-Gated Audit + Telemetry Consumers + Disk Persistence + Periodic Auto-Save + Graceful Shutdown + Signal Propagation + Error Handling + Retry Logic + Circuit Breaker + Runtime Config + Breaker Metrics + Prometheus Export + HTTP Handler
 // AG-SML v1.0 License
 
 use std::collections::HashMap;
@@ -259,7 +259,7 @@ impl DebugOutputBuffer {
     }
 }
 
-// === Mercy Telemetry + Persistence + Auto-Save + Graceful Shutdown + Signal Propagation + Error Handling + Retry Logic + Circuit Breaker + Runtime Config + Breaker Metrics + Prometheus Export ===
+// === Mercy Telemetry + Persistence + Auto-Save + Graceful Shutdown + Signal Propagation + Error Handling + Retry Logic + Circuit Breaker + Runtime Config + Breaker Metrics + Prometheus Export + HTTP Handler ===
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct MercyTelemetry {
     pub total_audits: u64,
@@ -440,7 +440,7 @@ impl GpuComputePipeline {
             mercy_telemetry_handle: Arc::new(Mutex::new(None)),
             telemetry_circuit_breaker: Arc::new(TelemetryCircuitBreaker::new(5, Duration::from_secs(30))),
             telemetry_retry_count: AtomicUsize::new(3),
-            version: "v14.9.12-gpu-mercy-prometheus".to_string(),
+            version: "v14.9.13-gpu-mercy-prometheus-http-handler".to_string(),
         }
     }
 
@@ -522,6 +522,51 @@ ra_thor_mercy_telemetry_breaker_remaining_cooldown_seconds {remaining}
             last_failure = last_failure,
             remaining = remaining,
         )
+    }
+
+    /// Starts a minimal Prometheus-compatible HTTP metrics server.
+    /// Serves breaker metrics at any path. Suitable for development and internal monitoring.
+    /// Example: pipeline.serve_prometheus_http("0.0.0.0:9090").await
+    pub async fn serve_prometheus_http(&self, addr: &str) -> Result<(), String> {
+        use tokio::net::TcpListener;
+        use tokio::io::{AsyncReadExt, AsyncWriteExt};
+
+        let listener = TcpListener::bind(addr).await
+            .map_err(|e| format!("Failed to bind Prometheus HTTP server on {}: {}", addr, e))?;
+
+        println!("[Ra-Thor] Prometheus metrics HTTP server listening on {}", addr);
+
+        loop {
+            let (mut socket, _) = match listener.accept().await {
+                Ok(s) => s,
+                Err(e) => {
+                    eprintln!("[Ra-Thor] Prometheus accept error: {}", e);
+                    continue;
+                }
+            };
+
+            // Read request (we ignore the body for simplicity)
+            let mut buf = [0u8; 1024];
+            let _ = socket.read(&mut buf).await;
+
+            let metrics = self.export_telemetry_breaker_prometheus();
+            let response = format!(
+                "HTTP/1.1 200 OK
+Content-Type: text/plain; version=0.0.4; charset=utf-8
+Content-Length: {}
+Connection: close
+
+{}",
+                metrics.len(),
+                metrics
+            );
+
+            if let Err(e) = socket.write_all(response.as_bytes()).await {
+                eprintln!("[Ra-Thor] Failed to write Prometheus response: {}", e);
+            }
+
+            let _ = socket.shutdown().await;
+        }
     }
 
     pub async fn dispatch(&self, task: GpuTask) -> Result<GpuTaskResult, String> {
