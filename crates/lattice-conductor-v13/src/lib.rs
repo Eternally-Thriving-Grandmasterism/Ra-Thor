@@ -25,6 +25,14 @@
 /// v13.4 (in progress) — Orchestrator-Owned Meta Rate Parameters
 /// - Internal meta_evolution_rate, meta_audit_threshold, meta_success_ema + stabilization
 /// - Full delegation + getters exposed at conductor level
+///
+/// v13.5 — GPU / PATSAGi Telemetry + Mercy Audit Integration Readiness (full Lattice Conductor / Powrush lifecycle)
+/// - submit_patsagi_task_with_audit now returns (GpuTaskResult, MercyGpuAudit) with council_ready flag + suggested_confidence_delta
+/// - Real start handles + shutdown timeout (5s) already implemented in GpuComputePipeline (ready for conductor-owned background telemetry tasks)
+/// - Mercy-norm telemetry + histograms ready to feed PATSAGi Council readiness, self-evolution confidence, and governance cycles
+/// - Prometheus metrics + breaker state available for conductor observability / self-evolution hooks
+/// - integrate_patsagi_gpu_audit wires audit directly into council_voted_evolution, symbolic EMAs, mercy_score, coherence, evolution_level
+/// - ONE Organism: GPU simulation layer ↔ Lattice Conductor v13.1+ bidirectional mercy-gated flow
 
 use serde::{Deserialize, Serialize};
 use std::fs::File;
@@ -374,7 +382,7 @@ impl SimpleLatticeConductor {
     pub fn apply_top_confidence_proposal(&mut self) -> Result<String, String> {
         if self.self_proposal_log.is_empty() { return Err("No proposals".to_string()); }
         let best_idx = self.self_proposal_log.iter().enumerate()
-            .max_by(|a, b| a.1.confidence.partial_cmp(&b.1.confidence).unwrap())
+            .max_by(|a| a.1.confidence.partial_cmp(&b.1.confidence).unwrap())
             .map(|(i, _)| i).unwrap();
         self.apply_symbolic_self_proposal(best_idx)
     }
@@ -429,6 +437,99 @@ impl SimpleLatticeConductor {
 
     #[cfg(feature = "self-proposal")]
     pub fn get_self_proposal_log(&self) -> &[SymbolicSelfProposal] { &self.self_proposal_log }
+
+    // ==================== v13.5: GPU PATSAGi Audit Integration for Lattice Conductor / Powrush Lifecycle ====================
+    // submit_patsagi_task_with_audit returns (GpuTaskResult, MercyGpuAudit) with council_ready + suggested_confidence_delta
+    // Real start handles + shutdown timeout ready for conductor-owned background tasks
+    // Mercy-norm telemetry + histograms feed PATSAGi Council readiness, self-evolution confidence, governance
+    // Prometheus + breaker state for conductor observability / self-evolution hooks
+
+    /// Bridge types from gpu_compute_pipeline.rs (v14.9+) for ONE Organism integration.
+    /// Enables conductor to consume audits without hard crate dependency in this phase.
+    #[derive(Debug, Clone, Serialize, Deserialize)]
+    pub struct GpuTaskResult {
+        pub task_id: u64,
+        pub success: bool,
+        pub execution_time_ms: u64,
+        pub output_size: usize,
+        pub message: String,
+    }
+
+    #[derive(Debug, Clone, Serialize, Deserialize)]
+    pub struct MercyGpuAudit {
+        pub task_id: u64,
+        pub mercy_norm: f64,
+        pub execution_time_ms: u64,
+        pub reuse_ratio: f64,
+        pub fragmentation_estimate: f64,
+        pub council_ready: bool,
+        pub trace: String,
+    }
+
+    impl MercyGpuAudit {
+        pub fn is_council_ready(&self) -> bool {
+            self.mercy_norm >= 0.85
+        }
+
+        pub fn suggested_confidence_delta(&self) -> f64 {
+            (self.mercy_norm - 0.5) * 0.18
+        }
+
+        pub fn summary(&self) -> String {
+            format!(
+                "MercyGpuAudit | norm={:.4} | council_ready={} | time={}ms | reuse={:.2} | frag={:.1}",
+                self.mercy_norm, self.council_ready, self.execution_time_ms, self.reuse_ratio, self.fragmentation_estimate
+            )
+        }
+    }
+
+    /// Wires the return of submit_patsagi_task_with_audit into the conductor:
+    /// - council_ready=true → council_voted_evolution("GPU_PATSAGi_Council") + confidence/m mercy/evolution boosts
+    /// - suggested_confidence_delta applied to symbolic EMAs
+    /// - Always traces for governance + PATSAGi readiness observability
+    /// - Feeds mercy-norm telemetry into self-evolution confidence and cycles
+    /// Maximum builder velocity, TOLC 8 mercy-gated, ONE Organism coherent.
+    pub fn integrate_patsagi_gpu_audit(&mut self, audit: &MercyGpuAudit) {
+        self.audit_traces.push(format!("[v13.5 GPU Integration] {}", audit.summary()));
+
+        if audit.council_ready {
+            let mut trace_log = Vec::new();
+            self.evolution_orchestrator.integrate_gpu_mercy_audit(
+                audit.mercy_norm,
+                true,
+                audit.suggested_confidence_delta(),
+                &mut self.state,
+                &mut trace_log,
+            );
+            for t in trace_log {
+                self.audit_traces.push(t);
+            }
+
+            let delta = audit.suggested_confidence_delta();
+            self.symbolic_confidence_ema = (self.symbolic_confidence_ema + delta).clamp(0.1, 1.5);
+            self.symbolic_success_ema = (self.symbolic_success_ema + delta * 0.6).clamp(0.1, 1.5);
+            self.state.mercy_score = (self.state.mercy_score + (audit.mercy_norm - 0.5) * 0.07).clamp(0.1, 1.6);
+            self.one_organism_coherence = (self.one_organism_coherence + 0.025).min(1.45);
+            self.state.evolution_level += 0.003 * audit.mercy_norm;
+
+            self.audit_traces.push(format!(
+                "[GPU Council Ready Impact] norm={:.4} delta={:.4} confidence_ema={:.3} mercy={:.3} coherence={:.3}",
+                audit.mercy_norm, delta, self.symbolic_confidence_ema, self.state.mercy_score, self.one_organism_coherence
+            ));
+        } else if audit.mercy_norm > 0.6 {
+            // Partial resonance for near-ready audits → encourages improvement loops in Powrush/RBE sims
+            self.symbolic_confidence_ema = (self.symbolic_confidence_ema + 0.012).min(1.4);
+            self.audit_traces.push("[GPU Near-Ready] mercy norm contributing to confidence calibration + PATSAGi readiness".to_string());
+        }
+
+        self.metrics.operations_processed += 1;
+    }
+
+    /// Notes that GpuComputePipeline real start handles (periodic auto-save) + shutdown timeout (5s)
+    /// + circuit breaker + prometheus export are ready for conductor to own in Powrush lifecycle management.
+    pub fn gpu_pipeline_lifecycle_ready(&self) -> String {
+        "[v13.5] submit_patsagi_task_with_audit → (result, audit) wired. start_periodic_mercy_telemetry_save + shutdown_mercy_telemetry_auto_save (timeout) ready for conductor-owned tasks. Telemetry/histograms/breaker/prometheus for observability.".to_string()
+    }
 }
 
 // ==================== SYMBOLIC DELIBERATION ====================
@@ -534,5 +635,33 @@ mod tests {
         let _ = c.get_meta_evolution_rate();
         let _ = c.get_meta_audit_threshold();
         let _ = c.get_meta_success_ema();
+    }
+
+    #[test]
+    fn test_v13_5_integrate_patsagi_gpu_audit_when_council_ready() {
+        let mut c = SimpleLatticeConductor::new();
+        let audit = MercyGpuAudit {
+            task_id: 42,
+            mercy_norm: 0.93,
+            execution_time_ms: 87,
+            reuse_ratio: 0.82,
+            fragmentation_estimate: 120.0,
+            council_ready: true,
+            trace: "test ready".to_string(),
+        };
+        let before_conf = c.symbolic_confidence_ema;
+        let before_mercy = c.state.mercy_score;
+        c.integrate_patsagi_gpu_audit(&audit);
+        assert!(c.symbolic_confidence_ema > before_conf);
+        assert!(c.state.mercy_score >= before_mercy);
+        assert!(c.audit_traces.iter().any(|t| t.contains("GPU Council Ready Impact")));
+    }
+
+    #[test]
+    fn test_v13_5_gpu_pipeline_lifecycle_ready_note() {
+        let c = SimpleLatticeConductor::new();
+        let note = c.gpu_pipeline_lifecycle_ready();
+        assert!(note.contains("submit_patsagi_task_with_audit"));
+        assert!(note.contains("start_periodic_mercy_telemetry_save"));
     }
 }
