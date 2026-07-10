@@ -1,5 +1,5 @@
 // gpu_compute_pipeline.rs
-// Ra-Thor v14.9+ — GPU Memory Allocator + StagingBufferPool + Async Readback + Debug Utilities + Mercy-Gated Audit + Telemetry Consumers + Disk Persistence + Periodic Auto-Save + Graceful Shutdown + Signal Propagation + Error Handling + Retry Logic + Circuit Breaker
+// Ra-Thor v14.9+ — GPU Memory Allocator + StagingBufferPool + Async Readback + Debug Utilities + Mercy-Gated Audit + Telemetry Consumers + Disk Persistence + Periodic Auto-Save + Graceful Shutdown + Signal Propagation + Error Handling + Retry Logic + Circuit Breaker + Runtime Config
 // AG-SML v1.0 License
 
 use std::collections::HashMap;
@@ -259,7 +259,7 @@ impl DebugOutputBuffer {
     }
 }
 
-// === Mercy Telemetry + Persistence + Auto-Save + Graceful Shutdown + Signal Propagation + Error Handling + Retry Logic + Circuit Breaker ===
+// === Mercy Telemetry + Persistence + Auto-Save + Graceful Shutdown + Signal Propagation + Error Handling + Retry Logic + Circuit Breaker + Runtime Config ===
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct MercyTelemetry {
     pub total_audits: u64,
@@ -323,12 +323,12 @@ impl MercyTelemetry {
     }
 }
 
-/// Simple Circuit Breaker for telemetry persistence (prevents cascading failures on persistent I/O issues)
+/// Simple Circuit Breaker for telemetry persistence with runtime-configurable thresholds
 pub struct TelemetryCircuitBreaker {
     failure_count: AtomicUsize,
     last_failure_time: std::sync::Mutex<Option<Instant>>,
-    failure_threshold: usize,
-    reset_timeout: Duration,
+    failure_threshold: AtomicUsize,
+    reset_timeout: std::sync::Mutex<Duration>,
 }
 
 impl TelemetryCircuitBreaker {
@@ -336,18 +336,20 @@ impl TelemetryCircuitBreaker {
         Self {
             failure_count: AtomicUsize::new(0),
             last_failure_time: std::sync::Mutex::new(None),
-            failure_threshold: threshold,
-            reset_timeout,
+            failure_threshold: AtomicUsize::new(threshold),
+            reset_timeout: std::sync::Mutex::new(reset_timeout),
         }
     }
 
     pub fn is_open(&self) -> bool {
-        if self.failure_count.load(Ordering::Relaxed) < self.failure_threshold {
+        if self.failure_count.load(Ordering::Relaxed) < self.failure_threshold.load(Ordering::Relaxed) {
             return false;
         }
         if let Ok(guard) = self.last_failure_time.lock() {
             if let Some(time) = *guard {
-                return time.elapsed() < self.reset_timeout;
+                if let Ok(timeout) = self.reset_timeout.lock() {
+                    return time.elapsed() < *timeout;
+                }
             }
         }
         false
@@ -366,6 +368,17 @@ impl TelemetryCircuitBreaker {
             *guard = Some(Instant::now());
         }
     }
+
+    /// Runtime configuration
+    pub fn set_threshold(&self, threshold: usize) {
+        self.failure_threshold.store(threshold, Ordering::Relaxed);
+    }
+
+    pub fn set_reset_timeout(&self, timeout: Duration) {
+        if let Ok(mut guard) = self.reset_timeout.lock() {
+            *guard = timeout;
+        }
+    }
 }
 
 pub struct GpuComputePipeline {
@@ -376,6 +389,7 @@ pub struct GpuComputePipeline {
     mercy_telemetry_shutdown: Arc<Mutex<Option<tokio::sync::broadcast::Sender<()>>>>,
     mercy_telemetry_handle: Arc<Mutex<Option<tokio::task::JoinHandle<()>>>>,
     telemetry_circuit_breaker: Arc<TelemetryCircuitBreaker>,
+    telemetry_retry_count: AtomicUsize,
     pub version: String,
 }
 
@@ -389,12 +403,26 @@ impl GpuComputePipeline {
             mercy_telemetry_shutdown: Arc::new(Mutex::new(None)),
             mercy_telemetry_handle: Arc::new(Mutex::new(None)),
             telemetry_circuit_breaker: Arc::new(TelemetryCircuitBreaker::new(5, Duration::from_secs(30))),
-            version: "v14.9.9-gpu-mercy-circuit-breaker".to_string(),
+            telemetry_retry_count: AtomicUsize::new(3),
+            version: "v14.9.10-gpu-mercy-runtime-config".to_string(),
         }
     }
 
     pub fn set_mercy_telemetry_save_path(&mut self, path: impl Into<String>) {
         self.telemetry_save_path = Some(path.into());
+    }
+
+    /// Runtime configuration for resilience thresholds
+    pub fn set_telemetry_retry_count(&self, count: usize) {
+        self.telemetry_retry_count.store(count, Ordering::Relaxed);
+    }
+
+    pub fn set_telemetry_breaker_threshold(&self, threshold: usize) {
+        self.telemetry_circuit_breaker.set_threshold(threshold);
+    }
+
+    pub fn set_telemetry_breaker_reset_timeout(&self, timeout: Duration) {
+        self.telemetry_circuit_breaker.set_reset_timeout(timeout);
     }
 
     pub async fn dispatch(&self, task: GpuTask) -> Result<GpuTaskResult, String> {
@@ -450,12 +478,13 @@ impl GpuComputePipeline {
         tel.summary()
     }
 
-    /// Internal retry helper (with circuit breaker protection)
-    async fn save_with_retry_and_breaker(&self, path: impl AsRef<std::path::Path>, data: String, max_retries: usize) -> Result<(), String> {
+    /// Internal save helper that respects runtime retry count + circuit breaker
+    async fn save_with_retry_and_breaker(&self, path: impl AsRef<std::path::Path>, data: String) -> Result<(), String> {
         let breaker = &self.telemetry_circuit_breaker;
+        let max_retries = self.telemetry_retry_count.load(Ordering::Relaxed);
 
         if breaker.is_open() {
-            return Err("Telemetry circuit breaker is OPEN - skipping save to prevent cascading failures".to_string());
+            return Err("Telemetry circuit breaker is OPEN - skipping save".to_string());
         }
 
         for attempt in 0..=max_retries {
@@ -471,19 +500,19 @@ impl GpuComputePipeline {
                 }
                 Err(e) => {
                     breaker.record_failure();
-                    return Err(format!("Failed to write telemetry after {} retries: {}", max_retries, e));
+                    return Err(format!("Failed after {} retries: {}", max_retries, e));
                 }
             }
         }
         breaker.record_failure();
-        Err("Unexpected retry loop exit".to_string())
+        Err("Retry loop exit".to_string())
     }
 
     pub async fn save_mercy_telemetry(&self, path: impl AsRef<std::path::Path>) -> Result<(), String> {
         let tel = self.telemetry.lock().await;
         let json = serde_json::to_string_pretty(&*tel)
             .map_err(|e| format!("Failed to serialize telemetry: {}", e))?;
-        self.save_with_retry_and_breaker(path, json, 3).await
+        self.save_with_retry_and_breaker(path, json).await
     }
 
     pub async fn load_mercy_telemetry(&self, path: impl AsRef<std::path::Path>) -> Result<(), String> {
@@ -496,12 +525,13 @@ impl GpuComputePipeline {
         Ok(())
     }
 
-    /// Start periodic auto-save with circuit breaker + retry protection.
+    /// Start periodic auto-save (respects runtime config for retries + breaker)
     pub async fn start_periodic_mercy_telemetry_save(&self, interval_secs: u64) -> Result<(), String> {
         let path = self.telemetry_save_path.clone()
             .ok_or_else(|| "No telemetry save path configured. Call set_mercy_telemetry_save_path first.".to_string())?;
         let telemetry = self.telemetry.clone();
         let breaker = self.telemetry_circuit_breaker.clone();
+        let retry_count = self.telemetry_retry_count.clone();
 
         let (shutdown_tx, mut shutdown_rx) = tokio::sync::broadcast::channel::<()>(1);
 
@@ -517,15 +547,13 @@ impl GpuComputePipeline {
                 tokio::select! {
                     _ = interval.tick() => {
                         if breaker.is_open() {
-                            // Circuit open - skip this save cycle to avoid hammering failing storage
                             continue;
                         }
 
                         let tel = telemetry.lock().await;
                         if let Ok(json) = serde_json::to_string_pretty(&*tel) {
-                            // Use breaker-aware save (includes retry)
-                            if let Err(e) = GpuComputePipeline::save_with_retry_and_breaker_static(&path, json, 3, &breaker).await {
-                                // Failure already recorded by the helper
+                            let max_retries = retry_count.load(Ordering::Relaxed);
+                            if let Err(e) = GpuComputePipeline::save_with_retry_and_breaker_static(&path, json, max_retries, &breaker).await {
                                 eprintln!("[Ra-Thor] Periodic mercy telemetry save failed: {}", e);
                             }
                         }
@@ -545,7 +573,6 @@ impl GpuComputePipeline {
         Ok(())
     }
 
-    // Static helper to allow passing breaker into spawned task
     async fn save_with_retry_and_breaker_static(
         path: impl AsRef<std::path::Path>,
         data: String,
@@ -577,7 +604,6 @@ impl GpuComputePipeline {
         Err("Retry loop exit".to_string())
     }
 
-    /// Gracefully shut down the periodic mercy telemetry auto-save task.
     pub async fn shutdown_mercy_telemetry_auto_save(&self) -> Result<(), String> {
         let has_handle = {
             let guard = self.mercy_telemetry_handle.lock().await;
