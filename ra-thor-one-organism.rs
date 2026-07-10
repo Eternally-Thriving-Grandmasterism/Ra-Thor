@@ -6,15 +6,15 @@
 /// abundance-multiplying, zero-harm use. See LICENSE or COMMERCIAL-LICENSE.md.
 
 // ra-thor-one-organism.rs
-// Ra-Thor v14.10 — ONE Living Organism with PATSAGi Council Decision Logic
+// Ra-Thor v14.11 — ONE Living Organism with Real MercyGpuAudit → PATSAGi Council
 
 use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
 
 use crate::core::self_evolution_gate::{SelfEvolutionGate, EvolutionProposal, launch_self_evolution_gate};
-use crate::gpu_compute_pipeline::{GpuComputePipeline, GpuTask};
+use crate::gpu_compute_pipeline::{GpuComputePipeline, GpuTask, MercyGpuAudit};
 
-// === Council Readiness & Decision Types (integrated from PATSAGi governance layer) ===
+// === Council Readiness & Decision Types ===
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CouncilReadinessMetrics {
@@ -35,7 +35,6 @@ pub enum CouncilDecision {
     NoAction,
 }
 
-/// Lightweight PATSAGi Council decision engine embedded in the ONE Organism
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PatsagiCouncil {
     mercy_norm_threshold: f64,
@@ -92,7 +91,6 @@ pub struct RaThorOneOrganism {
     pub version: String,
     gpu_pipeline: GpuComputePipeline,
 
-    // === NEW: PATSAGi Council + Metrics State ===
     patsagi_council: PatsagiCouncil,
     last_council_metrics: Option<CouncilReadinessMetrics>,
     council_tick: u64,
@@ -114,11 +112,10 @@ impl RaThorOneOrganism {
             mercy_runtime: "MercyGatingRuntime v2.0 (TOLC 8 aligned)".to_string(),
             evolution_gate: launch_self_evolution_gate(),
             gpu_compute_active: true,
-            gpu_pipeline_version: "v14.10.0-gpu-patsagi-council".to_string(),
-            version: "v14.10.0-ONE-Organism-PATSAGi-Council".to_string(),
+            gpu_pipeline_version: "v14.11.0-real-audit-to-council".to_string(),
+            version: "v14.11.0-ONE-Organism-Real-MercyGpuAudit".to_string(),
             gpu_pipeline: GpuComputePipeline::new(),
 
-            // PATSAGi Council integration
             patsagi_council: PatsagiCouncil::new(),
             last_council_metrics: None,
             council_tick: 0,
@@ -126,22 +123,17 @@ impl RaThorOneOrganism {
     }
 
     pub fn offer_cosmic_loop(&self) {
-        println!("[RaThorOneOrganism v{}] Cosmic loop with PATSAGi Council Decision Logic", self.version);
+        println!("[RaThorOneOrganism v{}] ONE Organism with Real MercyGpuAudit → PATSAGi Council", self.version);
     }
 
-    /// Feed a GPU audit into PATSAGi Council decision logic and return the resulting governance decision
-    pub fn feed_gpu_audit_into_council_decision(
-        &mut self,
-        mercy_norm: f64,
-        council_ready: bool,
-        suggested_confidence_delta: f64,
-    ) -> CouncilDecision {
+    /// Feed a **real** MercyGpuAudit directly into PATSAGi Council decision logic
+    pub fn feed_mercy_gpu_audit_into_council(&mut self, audit: &MercyGpuAudit) -> CouncilDecision {
         self.council_tick += 1;
 
         let metrics = CouncilReadinessMetrics {
-            council_ready,
-            mercy_norm,
-            suggested_confidence_delta,
+            council_ready: audit.council_ready,
+            mercy_norm: audit.mercy_norm,
+            suggested_confidence_delta: audit.suggested_confidence_delta(),
             evolution_level: self.evolution_stats().get("evolution_level").copied().unwrap_or(0.0) as u32,
             last_updated_tick: self.council_tick,
         };
@@ -150,25 +142,21 @@ impl RaThorOneOrganism {
 
         let decision = self.patsagi_council.decide(&metrics);
 
-        // Execute side effects based on decision (extend as needed)
         match &decision {
             CouncilDecision::ApproveEvolution { confidence_boost } => {
-                println!("[ONE Organism] PATSAGi Council APPROVED evolution (+{:.4} confidence)", confidence_boost);
+                println!("[ONE] Council APPROVED evolution (+{:.4} boost) | norm={:.4}", confidence_boost, audit.mercy_norm);
             }
             CouncilDecision::AdjustRbeParameters { resource_flow_multiplier, council_influence } => {
-                println!(
-                    "[ONE Organism] PATSAGi Council ADJUST RBE (flow x{:.2}, influence {:.2})",
-                    resource_flow_multiplier, council_influence
-                );
+                println!("[ONE] Council ADJUST RBE (x{:.2}, influence {:.2})", resource_flow_multiplier, council_influence);
             }
             CouncilDecision::RequestAdditionalGpuResources { buffer_size_increase } => {
-                println!("[ONE Organism] PATSAGi Council REQUESTS more GPU (+{} buffer)", buffer_size_increase);
+                println!("[ONE] Council REQUEST GPU (+{} buffer)", buffer_size_increase);
             }
             CouncilDecision::EmergencyMercyIntervention { severity } => {
-                println!("[ONE Organism] PATSAGi Council EMERGENCY MERCY (severity {:.2})", severity);
+                println!("[ONE] Council EMERGENCY MERCY (severity {:.2})", severity);
             }
             CouncilDecision::RejectEvolution { reason } => {
-                println!("[ONE Organism] PATSAGi Council REJECTED: {}", reason);
+                println!("[ONE] Council REJECTED: {} | norm={:.4}", reason, audit.mercy_norm);
             }
             CouncilDecision::NoAction => {}
         }
@@ -194,27 +182,32 @@ impl RaThorOneOrganism {
         }
     }
 
-    /// New: Dispatch GPU task and immediately feed result into PATSAGi Council
+    /// Wire real MercyGpuAudit: dispatch + feed real audit into PATSAGi Council
     pub async fn dispatch_gpu_and_feed_council(
         &mut self,
         task_name: &str,
         buffer_size: usize,
     ) -> Result<(String, CouncilDecision), String> {
-        let message = self.dispatch_gpu_simulation(task_name, buffer_size).await?;
+        if !self.gpu_compute_active {
+            return Err("GPU Compute Layer inactive".to_string());
+        }
 
-        // In real integration the GPU dispatch would return a full MercyGpuAudit.
-        // Here we synthesize a representative audit from the task for demonstration.
-        let mercy_norm = 0.82; // placeholder — replace with real audit.mercy_norm
-        let council_ready = true;
-        let suggested_confidence_delta = 0.12;
+        let task = GpuTask {
+            id: rand::random::<u64>() % 1_000_000_000,
+            name: task_name.to_string(),
+            buffer_size,
+            intensity: "high".to_string(),
+        };
 
-        let decision = self.feed_gpu_audit_into_council_decision(
-            mercy_norm,
-            council_ready,
-            suggested_confidence_delta,
-        );
+        // Use the real audit-returning dispatch from gpu_compute_pipeline
+        let (result, audit) = self.gpu_pipeline
+            .dispatch_with_mercy_audit(task)
+            .await?;
 
-        Ok((message, decision))
+        // Feed the **real** MercyGpuAudit into council decision logic
+        let decision = self.feed_mercy_gpu_audit_into_council(&audit);
+
+        Ok((result.message, decision))
     }
 
     pub async fn get_gpu_memory_stats(&self) -> crate::gpu_compute_pipeline::GpuMemoryStats {
@@ -229,7 +222,6 @@ impl RaThorOneOrganism {
         self.evolution_gate.get_evolution_stats()
     }
 
-    /// Expose latest council metrics for external PATSAGi observers
     pub fn get_latest_council_metrics(&self) -> Option<CouncilReadinessMetrics> {
         self.last_council_metrics.clone()
     }
@@ -238,6 +230,6 @@ impl RaThorOneOrganism {
 pub fn launch_one_organism() -> RaThorOneOrganism {
     let organism = RaThorOneOrganism::new();
     organism.offer_cosmic_loop();
-    println!("[Thunder] ONE Organism v14.10 + PATSAGi Council Decision Logic ready");
+    println!("[Thunder] ONE Organism v14.11 + Real MercyGpuAudit → PATSAGi Council ready");
     organism
 }
