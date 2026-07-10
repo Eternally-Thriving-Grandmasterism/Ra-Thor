@@ -1,9 +1,11 @@
 // gpu_compute_pipeline.rs
-// Ra-Thor v14.9+ — GPU Memory Allocator + StagingBufferPool + Async Readback + Debug Utilities + Mercy-Gated Audit + Telemetry Consumers + Disk Persistence + Periodic Auto-Save + Graceful Shutdown + Signal Propagation + Error Handling + Retry Logic
+// Ra-Thor v14.9+ — GPU Memory Allocator + StagingBufferPool + Async Readback + Debug Utilities + Mercy-Gated Audit + Telemetry Consumers + Disk Persistence + Periodic Auto-Save + Graceful Shutdown + Signal Propagation + Error Handling + Retry Logic + Circuit Breaker
 // AG-SML v1.0 License
 
 use std::collections::HashMap;
 use std::sync::Arc;
+use std::sync::atomic::{AtomicUsize, Ordering};
+use std::time::{Duration, Instant};
 use tokio::sync::Mutex;
 use serde::{Deserialize, Serialize};
 
@@ -257,7 +259,7 @@ impl DebugOutputBuffer {
     }
 }
 
-// === Mercy Telemetry + Persistence + Auto-Save + Graceful Shutdown + Signal Propagation + Error Handling + Retry Logic ===
+// === Mercy Telemetry + Persistence + Auto-Save + Graceful Shutdown + Signal Propagation + Error Handling + Retry Logic + Circuit Breaker ===
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct MercyTelemetry {
     pub total_audits: u64,
@@ -321,6 +323,51 @@ impl MercyTelemetry {
     }
 }
 
+/// Simple Circuit Breaker for telemetry persistence (prevents cascading failures on persistent I/O issues)
+pub struct TelemetryCircuitBreaker {
+    failure_count: AtomicUsize,
+    last_failure_time: std::sync::Mutex<Option<Instant>>,
+    failure_threshold: usize,
+    reset_timeout: Duration,
+}
+
+impl TelemetryCircuitBreaker {
+    pub fn new(threshold: usize, reset_timeout: Duration) -> Self {
+        Self {
+            failure_count: AtomicUsize::new(0),
+            last_failure_time: std::sync::Mutex::new(None),
+            failure_threshold: threshold,
+            reset_timeout,
+        }
+    }
+
+    pub fn is_open(&self) -> bool {
+        if self.failure_count.load(Ordering::Relaxed) < self.failure_threshold {
+            return false;
+        }
+        if let Ok(guard) = self.last_failure_time.lock() {
+            if let Some(time) = *guard {
+                return time.elapsed() < self.reset_timeout;
+            }
+        }
+        false
+    }
+
+    pub fn record_success(&self) {
+        self.failure_count.store(0, Ordering::Relaxed);
+        if let Ok(mut guard) = self.last_failure_time.lock() {
+            *guard = None;
+        }
+    }
+
+    pub fn record_failure(&self) {
+        self.failure_count.fetch_add(1, Ordering::Relaxed);
+        if let Ok(mut guard) = self.last_failure_time.lock() {
+            *guard = Some(Instant::now());
+        }
+    }
+}
+
 pub struct GpuComputePipeline {
     allocator: Arc<Mutex<GpuMemoryAllocator>>,
     staging_pool: Arc<Mutex<StagingBufferPool>>,
@@ -328,6 +375,7 @@ pub struct GpuComputePipeline {
     telemetry_save_path: Option<String>,
     mercy_telemetry_shutdown: Arc<Mutex<Option<tokio::sync::broadcast::Sender<()>>>>,
     mercy_telemetry_handle: Arc<Mutex<Option<tokio::task::JoinHandle<()>>>>,
+    telemetry_circuit_breaker: Arc<TelemetryCircuitBreaker>,
     pub version: String,
 }
 
@@ -340,7 +388,8 @@ impl GpuComputePipeline {
             telemetry_save_path: None,
             mercy_telemetry_shutdown: Arc::new(Mutex::new(None)),
             mercy_telemetry_handle: Arc::new(Mutex::new(None)),
-            version: "v14.9.8-gpu-mercy-retry-logic".to_string(),
+            telemetry_circuit_breaker: Arc::new(TelemetryCircuitBreaker::new(5, Duration::from_secs(30))),
+            version: "v14.9.9-gpu-mercy-circuit-breaker".to_string(),
         }
     }
 
@@ -401,21 +450,32 @@ impl GpuComputePipeline {
         tel.summary()
     }
 
-    /// Internal retry helper for telemetry file writes (transient I/O resilience)
-    async fn save_with_retry(path: impl AsRef<std::path::Path>, data: String, max_retries: usize) -> Result<(), String> {
+    /// Internal retry helper (with circuit breaker protection)
+    async fn save_with_retry_and_breaker(&self, path: impl AsRef<std::path::Path>, data: String, max_retries: usize) -> Result<(), String> {
+        let breaker = &self.telemetry_circuit_breaker;
+
+        if breaker.is_open() {
+            return Err("Telemetry circuit breaker is OPEN - skipping save to prevent cascading failures".to_string());
+        }
+
         for attempt in 0..=max_retries {
             match tokio::fs::write(&path, &data).await {
-                Ok(_) => return Ok(()),
+                Ok(_) => {
+                    breaker.record_success();
+                    return Ok(());
+                }
                 Err(e) if attempt < max_retries => {
-                    let backoff_ms = 50 * (1 << attempt); // simple exponential backoff
+                    let backoff_ms = 50 * (1 << attempt);
                     tokio::time::sleep(std::time::Duration::from_millis(backoff_ms)).await;
                     continue;
                 }
                 Err(e) => {
+                    breaker.record_failure();
                     return Err(format!("Failed to write telemetry after {} retries: {}", max_retries, e));
                 }
             }
         }
+        breaker.record_failure();
         Err("Unexpected retry loop exit".to_string())
     }
 
@@ -423,7 +483,7 @@ impl GpuComputePipeline {
         let tel = self.telemetry.lock().await;
         let json = serde_json::to_string_pretty(&*tel)
             .map_err(|e| format!("Failed to serialize telemetry: {}", e))?;
-        Self::save_with_retry(path, json, 3).await
+        self.save_with_retry_and_breaker(path, json, 3).await
     }
 
     pub async fn load_mercy_telemetry(&self, path: impl AsRef<std::path::Path>) -> Result<(), String> {
@@ -436,11 +496,12 @@ impl GpuComputePipeline {
         Ok(())
     }
 
-    /// Start periodic auto-save of mercy telemetry (with built-in retry on transient failures).
+    /// Start periodic auto-save with circuit breaker + retry protection.
     pub async fn start_periodic_mercy_telemetry_save(&self, interval_secs: u64) -> Result<(), String> {
         let path = self.telemetry_save_path.clone()
             .ok_or_else(|| "No telemetry save path configured. Call set_mercy_telemetry_save_path first.".to_string())?;
         let telemetry = self.telemetry.clone();
+        let breaker = self.telemetry_circuit_breaker.clone();
 
         let (shutdown_tx, mut shutdown_rx) = tokio::sync::broadcast::channel::<()>(1);
 
@@ -455,11 +516,17 @@ impl GpuComputePipeline {
             loop {
                 tokio::select! {
                     _ = interval.tick() => {
+                        if breaker.is_open() {
+                            // Circuit open - skip this save cycle to avoid hammering failing storage
+                            continue;
+                        }
+
                         let tel = telemetry.lock().await;
                         if let Ok(json) = serde_json::to_string_pretty(&*tel) {
-                            // Retry up to 3 times on transient write failures
-                            if let Err(e) = GpuComputePipeline::save_with_retry(&path, json, 3).await {
-                                eprintln!("[Ra-Thor] Periodic mercy telemetry save failed after retries: {}", e);
+                            // Use breaker-aware save (includes retry)
+                            if let Err(e) = GpuComputePipeline::save_with_retry_and_breaker_static(&path, json, 3, &breaker).await {
+                                // Failure already recorded by the helper
+                                eprintln!("[Ra-Thor] Periodic mercy telemetry save failed: {}", e);
                             }
                         }
                     }
@@ -478,8 +545,39 @@ impl GpuComputePipeline {
         Ok(())
     }
 
+    // Static helper to allow passing breaker into spawned task
+    async fn save_with_retry_and_breaker_static(
+        path: impl AsRef<std::path::Path>,
+        data: String,
+        max_retries: usize,
+        breaker: &Arc<TelemetryCircuitBreaker>,
+    ) -> Result<(), String> {
+        if breaker.is_open() {
+            return Err("Circuit breaker OPEN".to_string());
+        }
+
+        for attempt in 0..=max_retries {
+            match tokio::fs::write(&path, &data).await {
+                Ok(_) => {
+                    breaker.record_success();
+                    return Ok(());
+                }
+                Err(e) if attempt < max_retries => {
+                    let backoff_ms = 50 * (1 << attempt);
+                    tokio::time::sleep(std::time::Duration::from_millis(backoff_ms)).await;
+                    continue;
+                }
+                Err(e) => {
+                    breaker.record_failure();
+                    return Err(format!("Failed after retries: {}", e));
+                }
+            }
+        }
+        breaker.record_failure();
+        Err("Retry loop exit".to_string())
+    }
+
     /// Gracefully shut down the periodic mercy telemetry auto-save task.
-    /// Returns Err on timeout, panic, or if no task was running.
     pub async fn shutdown_mercy_telemetry_auto_save(&self) -> Result<(), String> {
         let has_handle = {
             let guard = self.mercy_telemetry_handle.lock().await;
@@ -487,7 +585,7 @@ impl GpuComputePipeline {
         };
 
         if !has_handle {
-            return Err("No mercy telemetry auto-save task is running (call start_periodic_mercy_telemetry_save first)".to_string());
+            return Err("No mercy telemetry auto-save task is running".to_string());
         }
 
         {
@@ -508,15 +606,11 @@ impl GpuComputePipeline {
                     println!("[Ra-Thor] Mercy telemetry auto-save gracefully shut down.");
                     Ok(())
                 }
-                Ok(Err(e)) => {
-                    Err(format!("Mercy telemetry saver task panicked during shutdown: {:?}", e))
-                }
-                Err(_) => {
-                    Err("Mercy telemetry saver shutdown timed out after 5 seconds".to_string())
-                }
+                Ok(Err(e)) => Err(format!("Task panicked: {:?}", e)),
+                Err(_) => Err("Shutdown timed out after 5s".to_string()),
             }
         } else {
-            Err("Internal error: handle was unexpectedly missing after check".to_string())
+            Err("Handle missing".to_string())
         }
     }
 }
