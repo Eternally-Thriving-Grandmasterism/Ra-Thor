@@ -6,17 +6,17 @@
 /// abundance-multiplying, zero-harm use. See LICENSE or COMMERCIAL-LICENSE.md.
 
 // ra-thor-one-organism.rs
-// Ra-Thor v14.15 — ONE Organism with Live GitHub PR Creation in Automation Hook
+// Ra-Thor v14.17 — ONE Organism with Live GitHub PR Creation via github_connector
 
 use std::collections::HashMap;
-use std::path::Path;
 use serde::{Deserialize, Serialize};
 use tokio::fs;
 
 use crate::core::self_evolution_gate::{SelfEvolutionGate, EvolutionProposal, launch_self_evolution_gate};
+use crate::github_connector::GitHubConnector;
 use crate::gpu_compute_pipeline::{GpuComputePipeline, GpuTask, MercyGpuAudit};
 
-// === Council + Decision Types (same as v14.14) ===
+// === Council + Decision Types ===
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CouncilReadinessMetrics {
@@ -123,8 +123,8 @@ impl RaThorOneOrganism {
             mercy_runtime: "MercyGatingRuntime v2.0 (TOLC 8 aligned)".to_string(),
             evolution_gate: launch_self_evolution_gate(),
             gpu_compute_active: true,
-            gpu_pipeline_version: "v14.15.0-live-pr-creation-hook".to_string(),
-            version: "v14.15.0-ONE-Organism-Live-PR-Hook".to_string(),
+            gpu_pipeline_version: "v14.17.0-real-github-connector".to_string(),
+            version: "v14.17.0-ONE-Organism-Real-GitHub-Connector".to_string(),
             gpu_pipeline: GpuComputePipeline::new(),
 
             patsagi_council: PatsagiCouncil::new(),
@@ -135,34 +135,29 @@ impl RaThorOneOrganism {
     }
 
     pub fn offer_cosmic_loop(&self) {
-        println!("[RaThorOneOrganism v{}] Full loop + Live GitHub PR Creation Hook", self.version);
+        println!("[RaThorOneOrganism v{}] Full loop + Real GitHub PR Creation via github_connector", self.version);
     }
 
-    /// Live GitHub PR creation hook using connected tools
-    /// This is now the actual implementation point.
+    /// Live GitHub PR creation using the real github_connector module
     async fn trigger_evolution_automation_hooks(&self, proposal: &EvolutionProposal, council_mercy_norm: f64) {
-        println!("\n[Hook] Evolution {} approved by Council + Gate — triggering automation...", proposal.id);
+        println!("\n[Hook] Evolution {} approved — attempting real GitHub PR creation...", proposal.id);
 
-        // === ACTUAL IMPLEMENTATION USING CONNECTED TOOLS ===
-        // In a runtime with GitHub connector access, we do:
-        //
-        // 1. Discover the create PR tool
-        // let tools = search_connected_tools("create pull request in Eternally-Thriving-Grandmasterism/Ra-Thor").await;
-        //
-        // 2. Call it with proper arguments (branch, title, body, etc.)
-        // call_connected_tool("github___create_pull_request", json!({ ... })).await;
-        //
-        // For now we print the exact call that would be made and persist the intent.
+        match GitHubConnector::from_env("Eternally-Thriving-Grandmasterism", "Ra-Thor") {
+            Ok(connector) => {
+                let title = format!(
+                    "Evolution {} — Council-approved from real MercyGpuAudit (norm={:.4})",
+                    proposal.id, council_mercy_norm
+                );
 
-        let pr_title = format!("Evolution {} — Council-approved from real MercyGpuAudit (norm={:.4})", proposal.id, council_mercy_norm);
-        let pr_body = format!(
-            "## ONE Organism Evolution
+                let body = format!(
+                    "## ONE Organism Evolution (auto-generated)
 
 **Proposal ID**: {}
 **Proposer**: {}
-**Target**: {}
+**Target Module**: {}
 **Council Mercy Norm**: {:.4}
 **Expected Benefit**: {:.4}
+**Mercy Alignment**: {:.4}
 
 **Description**:
 {}
@@ -172,32 +167,50 @@ impl RaThorOneOrganism {
 {}
 ```
 
-This PR was automatically proposed by RaThorOneOrganism hot-reload/PR hook (v14.15).
+---
+*This PR was automatically created by RaThorOneOrganism v14.17 hot-reload/PR hook using the live GitHubConnector.*
 ",
-            proposal.id, proposal.proposer, proposal.target_module, council_mercy_norm, proposal.expected_benefit, proposal.description, proposal.proposed_diff
-        );
+                    proposal.id,
+                    proposal.proposer,
+                    proposal.target_module,
+                    council_mercy_norm,
+                    proposal.expected_benefit,
+                    proposal.mercy_alignment,
+                    proposal.description,
+                    proposal.proposed_diff
+                );
 
-        println!("[Hook] Would create PR: {}", pr_title);
-        println!("[Hook] PR body ready ({} chars). In full connector runtime this would call github___create_pull_request now.", pr_body.len());
-
-        // The actual connector call would happen here when the binary has the GitHub token/connector injected.
-        // For this milestone we persist the intent (already done by caller).
+                match connector
+                    .create_evolution_pr(proposal.id, &title, &body, "main")
+                    .await
+                {
+                    Ok(pr) => {
+                        println!("[Hook] SUCCESS — Created real PR #{}: {}", pr.number, pr.html_url);
+                    }
+                    Err(e) => {
+                        eprintln!("[Hook] Failed to create PR via connector: {}", e);
+                    }
+                }
+            }
+            Err(_) => {
+                println!("[Hook] No GITHUB_TOKEN found — skipping real PR creation (still persisted).");
+            }
+        }
     }
 
     async fn persist_approved_evolution(&self, proposal: &EvolutionProposal, hook_triggered: bool, council_mercy_norm: f64) {
         let record = ApprovedEvolutionRecord {
             proposal: proposal.clone(),
             hook_triggered,
-            timestamp_unix: std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_secs(),
+            timestamp_unix: std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap()
+                .as_secs(),
             council_mercy_norm,
         };
 
-        let json_line = serde_json::to_string(&record).unwrap_or_default();
-
-        if let Err(e) = fs::write(&self.approved_evolutions_path, format!("{}\n", json_line)).await {
-            eprintln!("[ONE] Persist error: {}", e);
-        } else {
-            println!("[ONE] Persisted approved evolution {} to {}", proposal.id, self.approved_evolutions_path);
+        if let Ok(json_line) = serde_json::to_string(&record) {
+            let _ = fs::write(&self.approved_evolutions_path, format!("{}\n", json_line)).await;
         }
     }
 
@@ -238,11 +251,24 @@ This PR was automatically proposed by RaThorOneOrganism hot-reload/PR hook (v14.
             }
         }
 
-        // ... (other decision logging same as before) ...
+        match &decision {
+            CouncilDecision::AdjustRbeParameters { resource_flow_multiplier, council_influence } => {
+                println!("[ONE] Council ADJUST RBE (x{:.2}, influence {:.2})", resource_flow_multiplier, council_influence);
+            }
+            CouncilDecision::RequestAdditionalGpuResources { buffer_size_increase } => {
+                println!("[ONE] Council REQUEST GPU (+{} buffer)", buffer_size_increase);
+            }
+            CouncilDecision::EmergencyMercyIntervention { severity } => {
+                println!("[ONE] Council EMERGENCY MERCY (severity {:.2})", severity);
+            }
+            CouncilDecision::RejectEvolution { reason } => {
+                println!("[ONE] Council REJECTED: {} | norm={:.4}", reason, audit.mercy_norm);
+            }
+            _ => {}
+        }
+
         decision
     }
-
-    // ... other methods unchanged for brevity (dispatch_*, get_*, load_*, etc.) ...
 
     pub async fn dispatch_gpu_and_feed_council(
         &mut self,
@@ -261,12 +287,42 @@ This PR was automatically proposed by RaThorOneOrganism hot-reload/PR hook (v14.
         Ok((result.message, decision))
     }
 
-    // ... rest of impl same as v14.14 ...
+    pub async fn get_gpu_memory_stats(&self) -> crate::gpu_compute_pipeline::GpuMemoryStats {
+        self.gpu_pipeline.get_memory_stats().await
+    }
+
+    pub fn evolve(&mut self, proposal: EvolutionProposal) -> Result<String, String> {
+        self.evolution_gate.propose_evolution(proposal)
+    }
+
+    pub fn evolution_stats(&self) -> HashMap<String, f64> {
+        self.evolution_gate.get_evolution_stats()
+    }
+
+    pub fn get_latest_council_metrics(&self) -> Option<CouncilReadinessMetrics> {
+        self.last_council_metrics.clone()
+    }
+
+    pub async fn load_approved_evolutions(&self) -> Result<Vec<ApprovedEvolutionRecord>, String> {
+        let content = fs::read_to_string(&self.approved_evolutions_path).await
+            .map_err(|e| format!("Failed to read {}: {}", self.approved_evolutions_path, e))?;
+
+        let mut records = Vec::new();
+        for line in content.lines() {
+            if line.trim().is_empty() {
+                continue;
+            }
+            if let Ok(record) = serde_json::from_str::<ApprovedEvolutionRecord>(line) {
+                records.push(record);
+            }
+        }
+        Ok(records)
+    }
 }
 
 pub fn launch_one_organism() -> RaThorOneOrganism {
     let organism = RaThorOneOrganism::new();
     organism.offer_cosmic_loop();
-    println!("[Thunder] ONE Organism v14.15 + Live GitHub PR Creation Hook ready");
+    println!("[Thunder] ONE Organism v14.17 + Real GitHubConnector PR creation ready");
     organism
 }
