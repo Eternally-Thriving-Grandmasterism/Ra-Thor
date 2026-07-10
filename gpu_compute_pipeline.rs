@@ -1,5 +1,5 @@
 // gpu_compute_pipeline.rs
-// Ra-Thor v14.9+ — GPU Memory Allocator + StagingBufferPool + Async Readback + Debug Utilities + Mercy-Gated Audit + Telemetry Consumers + Disk Persistence + Periodic Auto-Save + Graceful Shutdown + Signal Propagation + Error Handling + Retry Logic + Circuit Breaker + Runtime Config + Breaker Metrics + Prometheus Export + HTTP Handler
+// Ra-Thor v14.9+ — GPU Memory Allocator + StagingBufferPool + Async Readback + Debug Utilities + Mercy-Gated Audit + Telemetry Consumers + Disk Persistence + Periodic Auto-Save + Graceful Shutdown + Signal Propagation + Error Handling + Retry Logic + Circuit Breaker + Runtime Config + Breaker Metrics + Prometheus Export + HTTP Handler + Histogram Metrics
 // AG-SML v1.0 License
 
 use std::collections::HashMap;
@@ -259,7 +259,7 @@ impl DebugOutputBuffer {
     }
 }
 
-// === Mercy Telemetry + Persistence + Auto-Save + Graceful Shutdown + Signal Propagation + Error Handling + Retry Logic + Circuit Breaker + Runtime Config + Breaker Metrics + Prometheus Export + HTTP Handler ===
+// === Mercy Telemetry + Persistence + Auto-Save + Graceful Shutdown + Signal Propagation + Error Handling + Retry Logic + Circuit Breaker + Runtime Config + Breaker Metrics + Prometheus Export + HTTP Handler + Histogram Metrics ===
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct MercyTelemetry {
     pub total_audits: u64,
@@ -417,6 +417,59 @@ pub struct TelemetryBreakerMetrics {
     pub remaining_cooldown_secs: Option<u64>,
 }
 
+/// Simple histogram for Prometheus-style metrics (fixed buckets)
+pub struct TelemetryHistogram {
+    name: String,
+    buckets: Vec<f64>,
+    counts: Vec<AtomicUsize>,
+    sum: AtomicUsize,
+    count: AtomicUsize,
+}
+
+impl TelemetryHistogram {
+    pub fn new(name: &str, buckets: Vec<f64>) -> Self {
+        let counts = buckets.iter().map(|_| AtomicUsize::new(0)).collect();
+        Self {
+            name: name.to_string(),
+            buckets,
+            counts,
+            sum: AtomicUsize::new(0),
+            count: AtomicUsize::new(0),
+        }
+    }
+
+    pub fn observe(&self, value: f64) {
+        self.count.fetch_add(1, Ordering::Relaxed);
+        self.sum.fetch_add(value as usize, Ordering::Relaxed);
+
+        for (i, bucket) in self.buckets.iter().enumerate() {
+            if value <= *bucket {
+                self.counts[i].fetch_add(1, Ordering::Relaxed);
+                break;
+            }
+        }
+    }
+
+    pub fn export_prometheus(&self) -> String {
+        let mut out = format!("# HELP {}_bucket Histogram for {}
+# TYPE {}_bucket histogram
+", self.name, self.name, self.name);
+
+        let total_count = self.count.load(Ordering::Relaxed);
+        for (i, bucket) in self.buckets.iter().enumerate() {
+            let c = self.counts[i].load(Ordering::Relaxed);
+            out.push_str(&format!("{}_bucket{{le="{}"}}", self.name, bucket));
+            out.push_str(&format!(" {}\n", c));
+        }
+
+        // +Inf bucket
+        out.push_str(&format!("{}_bucket{{le="+Inf"}} {}\n", self.name, total_count));
+        out.push_str(&format!("{}_sum {}\n", self.name, self.sum.load(Ordering::Relaxed)));
+        out.push_str(&format!("{}_count {}\n", self.name, total_count));
+        out
+    }
+}
+
 pub struct GpuComputePipeline {
     allocator: Arc<Mutex<GpuMemoryAllocator>>,
     staging_pool: Arc<Mutex<StagingBufferPool>>,
@@ -426,6 +479,8 @@ pub struct GpuComputePipeline {
     mercy_telemetry_handle: Arc<Mutex<Option<tokio::task::JoinHandle<()>>>>,
     telemetry_circuit_breaker: Arc<TelemetryCircuitBreaker>,
     telemetry_retry_count: AtomicUsize,
+    mercy_norm_histogram: TelemetryHistogram,
+    save_duration_histogram: TelemetryHistogram,
     pub version: String,
 }
 
@@ -440,7 +495,9 @@ impl GpuComputePipeline {
             mercy_telemetry_handle: Arc::new(Mutex::new(None)),
             telemetry_circuit_breaker: Arc::new(TelemetryCircuitBreaker::new(5, Duration::from_secs(30))),
             telemetry_retry_count: AtomicUsize::new(3),
-            version: "v14.9.13-gpu-mercy-prometheus-http-handler".to_string(),
+            mercy_norm_histogram: TelemetryHistogram::new("ra_thor_mercy_norm", vec![0.5, 0.7, 0.8, 0.85, 0.9, 0.95, 1.0]),
+            save_duration_histogram: TelemetryHistogram::new("ra_thor_telemetry_save_duration_ms", vec![10.0, 50.0, 100.0, 200.0, 500.0, 1000.0]),
+            version: "v14.9.14-gpu-mercy-histogram-metrics".to_string(),
         }
     }
 
@@ -461,7 +518,17 @@ impl GpuComputePipeline {
         self.telemetry_circuit_breaker.set_reset_timeout(timeout);
     }
 
-    /// Breaker state metrics for observability (Lattice Conductor / dashboards)
+    /// Record mercy norm for histogram (call from consume_mercy_audit or dispatch_with_mercy_audit)
+    pub fn record_mercy_norm(&self, norm: f64) {
+        self.mercy_norm_histogram.observe(norm);
+    }
+
+    /// Record save duration for histogram
+    pub fn record_save_duration(&self, duration_ms: f64) {
+        self.save_duration_histogram.observe(duration_ms);
+    }
+
+    /// Breaker state metrics for observability
     pub fn get_telemetry_breaker_metrics(&self) -> TelemetryBreakerMetrics {
         let breaker = &self.telemetry_circuit_breaker;
         let failure_count = breaker.current_failure_count();
@@ -482,51 +549,16 @@ impl GpuComputePipeline {
         }
     }
 
-    /// Export mercy telemetry breaker metrics in Prometheus text exposition format.
-    /// Ready to be served from any /metrics HTTP endpoint.
-    pub fn export_telemetry_breaker_prometheus(&self) -> String {
-        let m = self.get_telemetry_breaker_metrics();
-        let is_open = if m.is_open { 1 } else { 0 };
-        let last_failure = m.last_failure_secs_ago.unwrap_or(0);
-        let remaining = m.remaining_cooldown_secs.unwrap_or(0);
-
-        format!(
-            r#"# HELP ra_thor_mercy_telemetry_breaker_failure_count Current consecutive save failures
-# TYPE ra_thor_mercy_telemetry_breaker_failure_count gauge
-ra_thor_mercy_telemetry_breaker_failure_count {failure_count}
-
-# HELP ra_thor_mercy_telemetry_breaker_is_open Whether the circuit breaker is currently open (1 = open)
-# TYPE ra_thor_mercy_telemetry_breaker_is_open gauge
-ra_thor_mercy_telemetry_breaker_is_open {is_open}
-
-# HELP ra_thor_mercy_telemetry_breaker_threshold Configured failure threshold to open breaker
-# TYPE ra_thor_mercy_telemetry_breaker_threshold gauge
-ra_thor_mercy_telemetry_breaker_threshold {threshold}
-
-# HELP ra_thor_mercy_telemetry_breaker_reset_timeout_seconds Configured reset timeout in seconds
-# TYPE ra_thor_mercy_telemetry_breaker_reset_timeout_seconds gauge
-ra_thor_mercy_telemetry_breaker_reset_timeout_seconds {reset_timeout_secs}
-
-# HELP ra_thor_mercy_telemetry_breaker_last_failure_seconds_ago Seconds since last recorded failure
-# TYPE ra_thor_mercy_telemetry_breaker_last_failure_seconds_ago gauge
-ra_thor_mercy_telemetry_breaker_last_failure_seconds_ago {last_failure}
-
-# HELP ra_thor_mercy_telemetry_breaker_remaining_cooldown_seconds Remaining seconds until breaker can attempt reset
-# TYPE ra_thor_mercy_telemetry_breaker_remaining_cooldown_seconds gauge
-ra_thor_mercy_telemetry_breaker_remaining_cooldown_seconds {remaining}
-"#,
-            failure_count = m.failure_count,
-            is_open = is_open,
-            threshold = m.threshold,
-            reset_timeout_secs = m.reset_timeout_secs,
-            last_failure = last_failure,
-            remaining = remaining,
-        )
+    /// Export all mercy telemetry metrics (gauges + histograms) in Prometheus text format.
+    pub fn export_all_prometheus_metrics(&self) -> String {
+        let mut out = self.export_telemetry_breaker_prometheus();
+        out.push_str(&self.mercy_norm_histogram.export_prometheus());
+        out.push_str(&self.save_duration_histogram.export_prometheus());
+        out
     }
 
     /// Starts a minimal Prometheus-compatible HTTP metrics server.
-    /// Serves breaker metrics at any path. Suitable for development and internal monitoring.
-    /// Example: pipeline.serve_prometheus_http("0.0.0.0:9090").await
+    /// Serves all telemetry metrics (gauges + histograms) at any path.
     pub async fn serve_prometheus_http(&self, addr: &str) -> Result<(), String> {
         use tokio::net::TcpListener;
         use tokio::io::{AsyncReadExt, AsyncWriteExt};
@@ -545,11 +577,11 @@ ra_thor_mercy_telemetry_breaker_remaining_cooldown_seconds {remaining}
                 }
             };
 
-            // Read request (we ignore the body for simplicity)
+            // Read request
             let mut buf = [0u8; 1024];
             let _ = socket.read(&mut buf).await;
 
-            let metrics = self.export_telemetry_breaker_prometheus();
+            let metrics = self.export_all_prometheus_metrics();
             let response = format!(
                 "HTTP/1.1 200 OK
 Content-Type: text/plain; version=0.0.4; charset=utf-8
@@ -615,6 +647,7 @@ Connection: close
     pub async fn consume_mercy_audit(&self, audit: &MercyGpuAudit) {
         let mut tel = self.telemetry.lock().await;
         tel.consume(audit);
+        self.record_mercy_norm(audit.mercy_norm);
     }
 
     pub async fn get_mercy_telemetry_summary(&self) -> MercyTelemetrySummary {
@@ -624,6 +657,7 @@ Connection: close
 
     /// Internal save helper that respects runtime retry count + circuit breaker
     async fn save_with_retry_and_breaker(&self, path: impl AsRef<std::path::Path>, data: String) -> Result<(), String> {
+        let start = Instant::now();
         let breaker = &self.telemetry_circuit_breaker;
         let max_retries = self.telemetry_retry_count.load(Ordering::Relaxed);
 
@@ -635,6 +669,8 @@ Connection: close
             match tokio::fs::write(&path, &data).await {
                 Ok(_) => {
                     breaker.record_success();
+                    let duration_ms = start.elapsed().as_millis() as f64;
+                    self.record_save_duration(duration_ms);
                     return Ok(());
                 }
                 Err(e) if attempt < max_retries => {
@@ -644,11 +680,15 @@ Connection: close
                 }
                 Err(e) => {
                     breaker.record_failure();
+                    let duration_ms = start.elapsed().as_millis() as f64;
+                    self.record_save_duration(duration_ms);
                     return Err(format!("Failed after {} retries: {}", max_retries, e));
                 }
             }
         }
         breaker.record_failure();
+        let duration_ms = start.elapsed().as_millis() as f64;
+        self.record_save_duration(duration_ms);
         Err("Retry loop exit".to_string())
     }
 
