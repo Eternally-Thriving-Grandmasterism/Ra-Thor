@@ -1,5 +1,5 @@
 // gpu_compute_pipeline.rs
-// Ra-Thor v14.9+ — GPU Memory Allocator + StagingBufferPool + Async Readback + Debug Utilities + Mercy-Gated Audit + Telemetry Consumers + Disk Persistence + Periodic Auto-Save + Graceful Shutdown + Signal Propagation + Error Handling + Retry Logic + Circuit Breaker + Runtime Config
+// Ra-Thor v14.9+ — GPU Memory Allocator + StagingBufferPool + Async Readback + Debug Utilities + Mercy-Gated Audit + Telemetry Consumers + Disk Persistence + Periodic Auto-Save + Graceful Shutdown + Signal Propagation + Error Handling + Retry Logic + Circuit Breaker + Runtime Config + Breaker Metrics
 // AG-SML v1.0 License
 
 use std::collections::HashMap;
@@ -259,7 +259,7 @@ impl DebugOutputBuffer {
     }
 }
 
-// === Mercy Telemetry + Persistence + Auto-Save + Graceful Shutdown + Signal Propagation + Error Handling + Retry Logic + Circuit Breaker + Runtime Config ===
+// === Mercy Telemetry + Persistence + Auto-Save + Graceful Shutdown + Signal Propagation + Error Handling + Retry Logic + Circuit Breaker + Runtime Config + Breaker Metrics ===
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct MercyTelemetry {
     pub total_audits: u64,
@@ -379,6 +379,42 @@ impl TelemetryCircuitBreaker {
             *guard = timeout;
         }
     }
+
+    // === Metrics getters ===
+    pub fn current_failure_count(&self) -> usize {
+        self.failure_count.load(Ordering::Relaxed)
+    }
+
+    pub fn last_failure_instant(&self) -> Option<Instant> {
+        self.last_failure_time.lock().ok().and_then(|g| *g)
+    }
+
+    pub fn remaining_cooldown(&self) -> Option<Duration> {
+        if !self.is_open() {
+            return None;
+        }
+        if let Ok(guard) = self.last_failure_time.lock() {
+            if let Some(time) = *guard {
+                if let Ok(timeout) = self.reset_timeout.lock() {
+                    let elapsed = time.elapsed();
+                    if elapsed < *timeout {
+                        return Some(*timeout - elapsed);
+                    }
+                }
+            }
+        }
+        None
+    }
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct TelemetryBreakerMetrics {
+    pub failure_count: usize,
+    pub is_open: bool,
+    pub threshold: usize,
+    pub reset_timeout_secs: u64,
+    pub last_failure_secs_ago: Option<u64>,
+    pub remaining_cooldown_secs: Option<u64>,
 }
 
 pub struct GpuComputePipeline {
@@ -404,7 +440,7 @@ impl GpuComputePipeline {
             mercy_telemetry_handle: Arc::new(Mutex::new(None)),
             telemetry_circuit_breaker: Arc::new(TelemetryCircuitBreaker::new(5, Duration::from_secs(30))),
             telemetry_retry_count: AtomicUsize::new(3),
-            version: "v14.9.10-gpu-mercy-runtime-config".to_string(),
+            version: "v14.9.11-gpu-mercy-breaker-metrics".to_string(),
         }
     }
 
@@ -423,6 +459,27 @@ impl GpuComputePipeline {
 
     pub fn set_telemetry_breaker_reset_timeout(&self, timeout: Duration) {
         self.telemetry_circuit_breaker.set_reset_timeout(timeout);
+    }
+
+    /// Breaker state metrics for observability (Lattice Conductor / dashboards)
+    pub fn get_telemetry_breaker_metrics(&self) -> TelemetryBreakerMetrics {
+        let breaker = &self.telemetry_circuit_breaker;
+        let failure_count = breaker.current_failure_count();
+        let is_open = breaker.is_open();
+        let threshold = breaker.failure_threshold.load(Ordering::Relaxed);
+        let reset_timeout_secs = breaker.reset_timeout.lock().map(|d| d.as_secs()).unwrap_or(30);
+
+        let last_failure_secs_ago = breaker.last_failure_instant().map(|t| t.elapsed().as_secs());
+        let remaining_cooldown_secs = breaker.remaining_cooldown().map(|d| d.as_secs());
+
+        TelemetryBreakerMetrics {
+            failure_count,
+            is_open,
+            threshold,
+            reset_timeout_secs,
+            last_failure_secs_ago,
+            remaining_cooldown_secs,
+        }
     }
 
     pub async fn dispatch(&self, task: GpuTask) -> Result<GpuTaskResult, String> {
