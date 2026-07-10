@@ -340,7 +340,7 @@ impl GpuComputePipeline {
             telemetry_save_path: None,
             mercy_telemetry_shutdown: Arc::new(Mutex::new(None)),
             mercy_telemetry_handle: Arc::new(Mutex::new(None)),
-            version: "v14.9.5-gpu-mercy-shutdown-propagation".to_string(),
+            version: "v14.9.6-gpu-mercy-lifecycle".to_string(),
         }
     }
 
@@ -419,15 +419,16 @@ impl GpuComputePipeline {
         Ok(())
     }
 
-    /// Start periodic auto-save. The shutdown signal is now properly stored and propagatable.
-    pub fn start_periodic_mercy_telemetry_save(&self, interval_secs: u64) -> Result<tokio::task::JoinHandle<()>, String> {
+    /// Start periodic auto-save of mercy telemetry.
+    /// The real JoinHandle is stored internally. Use shutdown_mercy_telemetry_auto_save() for graceful exit.
+    pub async fn start_periodic_mercy_telemetry_save(&self, interval_secs: u64) -> Result<(), String> {
         let path = self.telemetry_save_path.clone()
             .ok_or_else(|| "No telemetry save path configured. Call set_mercy_telemetry_save_path first.".to_string())?;
         let telemetry = self.telemetry.clone();
 
         let (shutdown_tx, mut shutdown_rx) = tokio::sync::broadcast::channel::<()>(1);
 
-        // Store the shutdown sender so it can be used later for graceful shutdown
+        // Store shutdown sender for propagation
         {
             let mut guard = self.mercy_telemetry_shutdown.lock().await;
             *guard = Some(shutdown_tx.clone());
@@ -447,31 +448,24 @@ impl GpuComputePipeline {
                         }
                     }
                     _ = shutdown_rx.recv() => {
-                        // Graceful shutdown signal received
                         break;
                     }
                 }
             }
         });
 
-        // Store the handle so shutdown can await it
+        // Store the real handle internally for shutdown
         {
             let mut guard = self.mercy_telemetry_handle.lock().await;
             *guard = Some(handle);
         }
 
-        // Re-create a new handle for the caller if they want to manage it directly
-        // For simplicity we return a dummy handle here; real usage should use the stored one
-        // In production we can return the original handle before moving it into storage.
-        // For this implementation we spawn a second lightweight task that does nothing
-        // to satisfy the return type while keeping the real task stored.
-        let dummy_handle = tokio::spawn(async {});
-        Ok(dummy_handle)
+        Ok(())
     }
 
-    /// Propagate shutdown signal to the background auto-save task and wait for it to exit cleanly.
+    /// Gracefully shut down the periodic mercy telemetry auto-save task with timeout.
     pub async fn shutdown_mercy_telemetry_auto_save(&self) -> Result<(), String> {
-        // Send shutdown signal
+        // Propagate shutdown signal
         {
             let guard = self.mercy_telemetry_shutdown.lock().await;
             if let Some(tx) = guard.as_ref() {
@@ -479,14 +473,24 @@ impl GpuComputePipeline {
             }
         }
 
-        // Await the stored handle for clean termination
+        // Take and await the stored handle with timeout
         let handle = {
             let mut guard = self.mercy_telemetry_handle.lock().await;
             guard.take()
         };
 
         if let Some(h) = handle {
-            let _ = h.await;
+            match tokio::time::timeout(std::time::Duration::from_secs(5), h).await {
+                Ok(Ok(_)) => {
+                    // Clean exit
+                }
+                Ok(Err(e)) => {
+                    eprintln!("[Ra-Thor] Mercy telemetry saver task panicked: {:?}", e);
+                }
+                Err(_) => {
+                    eprintln!("[Ra-Thor] Mercy telemetry saver shutdown timed out after 5s");
+                }
+            }
         }
 
         println!("[Ra-Thor] Mercy telemetry auto-save gracefully shut down.");
