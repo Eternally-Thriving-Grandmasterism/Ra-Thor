@@ -116,6 +116,26 @@ impl SelfEvolutionOrchestrator {
         }
     }
 
+    /// v13.5 GPU Mercy Audit integration hook
+    /// Feeds mercy_norm telemetry from GpuComputePipeline (via submit_patsagi_task_with_audit)
+    /// into council readiness, self-evolution confidence/governance cycles.
+    /// Called by SimpleLatticeConductor::integrate_patsagi_gpu_audit
+    pub fn integrate_gpu_mercy_audit(&mut self, mercy_norm: f64, council_ready: bool, confidence_delta: f64, state: &mut GeometricState, trace_log: &mut Vec<String>) {
+        if council_ready {
+            self.council_voted_evolution("GPU_PATSAGi_Mercy_Council", mercy_norm, state, trace_log);
+        }
+        if mercy_norm >= 0.92 {
+            let event = format!("[GPU High Mercy] norm={:.4} -> extra abundance resonance + confidence lift {:.3}", mercy_norm, confidence_delta);
+            self.evolution_history.push(event.clone());
+            trace_log.push(event);
+            state.mercy_score = (state.mercy_score + 0.03).min(1.6);
+        } else if mercy_norm > 0.75 {
+            let event = format!("[GPU Mercy Resonance] norm={:.4} contributing to PATSAGi readiness", mercy_norm);
+            self.evolution_history.push(event.clone());
+            trace_log.push(event);
+        }
+    }
+
     pub fn try_evolve(&mut self, state: &mut GeometricState, trace_log: &mut Vec<String>) -> bool {
         let mut evolved = false;
         for (key, blessing) in &self.blessings {
@@ -343,5 +363,15 @@ mod tests {
         }
 
         assert!(orchestrator.get_meta_evolution_rate() < 0.025); // should decay toward base
+    }
+
+    #[test]
+    fn test_v13_5_integrate_gpu_mercy_audit_triggers_council_when_ready() {
+        let mut orch = SelfEvolutionOrchestrator::new();
+        let mut state = GeometricState { valence: 1.0, mercy_score: 0.8, tolc_alignment: 1.0, evolution_level: 0.0 };
+        let mut trace = Vec::new();
+        orch.integrate_gpu_mercy_audit(0.91, true, 0.074, &mut state, &mut trace);
+        assert!(state.evolution_level > 0.0);
+        assert!(trace.iter().any(|t| t.contains("GPU_PATSAGi_Mercy_Council")));
     }
 }
