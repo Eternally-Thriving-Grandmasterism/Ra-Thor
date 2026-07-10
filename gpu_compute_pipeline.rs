@@ -1,5 +1,5 @@
 // gpu_compute_pipeline.rs
-// Ra-Thor v14.9+ — GPU Memory Allocator + StagingBufferPool + Async Readback + Debug Utilities + Mercy-Gated Audit + Telemetry Consumers + Disk Persistence + Periodic Auto-Save + Graceful Shutdown + Signal Propagation
+// Ra-Thor v14.9+ — GPU Memory Allocator + StagingBufferPool + Async Readback + Debug Utilities + Mercy-Gated Audit + Telemetry Consumers + Disk Persistence + Periodic Auto-Save + Graceful Shutdown + Signal Propagation + Error Handling
 // AG-SML v1.0 License
 
 use std::collections::HashMap;
@@ -257,7 +257,7 @@ impl DebugOutputBuffer {
     }
 }
 
-// === Mercy Telemetry + Persistence + Auto-Save + Graceful Shutdown + Signal Propagation ===
+// === Mercy Telemetry + Persistence + Auto-Save + Graceful Shutdown + Signal Propagation + Error Handling ===
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct MercyTelemetry {
     pub total_audits: u64,
@@ -340,7 +340,7 @@ impl GpuComputePipeline {
             telemetry_save_path: None,
             mercy_telemetry_shutdown: Arc::new(Mutex::new(None)),
             mercy_telemetry_handle: Arc::new(Mutex::new(None)),
-            version: "v14.9.6-gpu-mercy-lifecycle".to_string(),
+            version: "v14.9.7-gpu-mercy-error-handling".to_string(),
         }
     }
 
@@ -463,8 +463,19 @@ impl GpuComputePipeline {
         Ok(())
     }
 
-    /// Gracefully shut down the periodic mercy telemetry auto-save task with timeout.
+    /// Gracefully shut down the periodic mercy telemetry auto-save task.
+    /// Returns Err on timeout, panic, or if no task was running.
     pub async fn shutdown_mercy_telemetry_auto_save(&self) -> Result<(), String> {
+        // Check if a task was ever started
+        let has_handle = {
+            let guard = self.mercy_telemetry_handle.lock().await;
+            guard.is_some()
+        };
+
+        if !has_handle {
+            return Err("No mercy telemetry auto-save task is running (call start_periodic_mercy_telemetry_save first)".to_string());
+        }
+
         // Propagate shutdown signal
         {
             let guard = self.mercy_telemetry_shutdown.lock().await;
@@ -473,7 +484,7 @@ impl GpuComputePipeline {
             }
         }
 
-        // Take and await the stored handle with timeout
+        // Take the stored handle
         let handle = {
             let mut guard = self.mercy_telemetry_handle.lock().await;
             guard.take()
@@ -482,19 +493,20 @@ impl GpuComputePipeline {
         if let Some(h) = handle {
             match tokio::time::timeout(std::time::Duration::from_secs(5), h).await {
                 Ok(Ok(_)) => {
-                    // Clean exit
+                    // Clean graceful exit
+                    println!("[Ra-Thor] Mercy telemetry auto-save gracefully shut down.");
+                    Ok(())
                 }
                 Ok(Err(e)) => {
-                    eprintln!("[Ra-Thor] Mercy telemetry saver task panicked: {:?}", e);
+                    Err(format!("Mercy telemetry saver task panicked during shutdown: {:?}", e))
                 }
                 Err(_) => {
-                    eprintln!("[Ra-Thor] Mercy telemetry saver shutdown timed out after 5s");
+                    Err("Mercy telemetry saver shutdown timed out after 5 seconds".to_string())
                 }
             }
+        } else {
+            Err("Internal error: handle was unexpectedly missing after check".to_string())
         }
-
-        println!("[Ra-Thor] Mercy telemetry auto-save gracefully shut down.");
-        Ok(())
     }
 }
 
