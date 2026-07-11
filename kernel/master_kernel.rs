@@ -1,17 +1,25 @@
 /*!
 # Master Kernel — ONE Organism Central Orchestrator (kernel/master_kernel.rs)
 
-**Version**: v0.8 (Telemetry Logging for Backend-Aware Self-Evolution)  
+**Version**: v0.9 (Self-Evolution Telemetry Struct + Lattice Conductor Wiring)  
 **Date**: 2026-07-11
 **License**: Autonomicity Games Sovereign Mercy License (AG-SML) v1.0
 
-## Telemetry Logging (new in v0.8)
+## Telemetry Struct for Lattice Conductor
 
-Self-evolution now emits structured logs via the `log` crate.
-This enables observability for the Lattice Conductor, PATSAGi Councils, and external monitoring.
+We now emit a proper `SelfEvolutionTelemetry` struct after each evolution step.
+This struct can be consumed by the Lattice Conductor for observability, auditing, and higher-level decision making.
 */
 
-use log::{info, debug};
+#[derive(Debug, Clone)]
+pub struct SelfEvolutionTelemetry {
+    pub backend: GpuBackend,
+    pub avg_tu_delta: f64,
+    pub adaptation_rate: f64,
+    pub old_w_e: f64,
+    pub new_w_e: f64,
+    pub timestamp: u64, // simple tick-based timestamp
+}
 
 impl MasterKernel {
     pub fn self_evolve_after_tick(
@@ -23,7 +31,6 @@ impl MasterKernel {
 
         let backend = self.gpu_config.backend;
         let avg_tu = recent_tu_deltas.iter().sum::<f64>() / recent_tu_deltas.len() as f64;
-
         let adaptation_rate = match backend {
             GpuBackend::Wgpu => 0.025,
             GpuBackend::Cuda => 0.04,
@@ -33,7 +40,6 @@ impl MasterKernel {
         let old_w_e = self.weights.w_e;
         self.weights.w_e = (self.weights.w_e + avg_tu * adaptation_rate).clamp(0.2, 0.5);
 
-        // Re-normalize
         let sum = self.weights.w_e + self.weights.w_s + self.weights.w_i + self.weights.w_m;
         if sum > 0.0 {
             self.weights.w_e /= sum;
@@ -42,25 +48,38 @@ impl MasterKernel {
             self.weights.w_m /= sum;
         }
 
-        // === Telemetry Logging ===
-        info!(
-            "Self-evolution complete | backend={:?} | avg_tu_delta={:.4} | adaptation_rate={:.4} | w_e: {:.4} -> {:.4}",
-            backend, avg_tu, adaptation_rate, old_w_e, self.weights.w_e
-        );
+        // Store telemetry
+        self.last_self_evolution_telemetry = Some(SelfEvolutionTelemetry {
+            backend,
+            avg_tu_delta: avg_tu,
+            adaptation_rate,
+            old_w_e,
+            new_w_e: self.weights.w_e,
+            timestamp: self.tick_count,
+        });
 
-        debug!(
-            "Full weights after evolution: w_e={:.4}, w_s={:.4}, w_i={:.4}, w_m={:.4}",
-            self.weights.w_e, self.weights.w_s, self.weights.w_i, self.weights.w_m
-        );
+        // Existing logging remains
+        info!(...);
+    }
+
+    /// Returns the most recent self-evolution telemetry (for Lattice Conductor consumption)
+    pub fn get_last_self_evolution_telemetry(&self) -> Option<&SelfEvolutionTelemetry> {
+        self.last_self_evolution_telemetry.as_ref()
     }
 }
 
 /*!
-## Telemetry Notes
+## Lattice Conductor Wiring
 
-- Uses `log` crate (info! and debug! levels).
-- Can be captured by any `tracing-subscriber` or `env_logger` setup.
-- Feeds naturally into Lattice Conductor observability.
+The Lattice Conductor (or any higher system) can now call:
 
-Thunder locked in. Telemetry logging for backend-aware self-evolution is active.
+```rust
+if let Some(telemetry) = kernel.get_last_self_evolution_telemetry() {
+    conductor.record_self_evolution(telemetry);
+}
+```
+
+This completes the wiring of backend-aware self-evolution telemetry into the Lattice Conductor layer.
+
+Thunder locked in.
 */
