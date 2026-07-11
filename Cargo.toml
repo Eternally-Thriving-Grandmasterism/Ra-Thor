@@ -1,39 +1,14 @@
-[workspace]
-members = [
-    # (existing members unchanged)
-]
-
-resolver = "2"
-
-[workspace.package]
-# (existing package metadata unchanged)
-
 [workspace.dependencies]
 # (existing dependencies unchanged)
 
-# === GPU Backend Dependencies (optional, enabled via features) ===
+# === GPU Backend Dependencies ===
 wgpu = { version = "0.19", optional = true }
-cudarc = { version = "0.9", optional = true }   # for the cuda feature
+cudarc = { version = "0.9", optional = true }
+
+# Phase 2: pollster for turning async WGPU calls into sync when needed
+pollster = { version = "0.3", optional = true }
 
 [workspace.features]
-# These features are intended to be activated on the `kernel` crate
-# (or any crate that depends on the GPU pipeline).
-#
-# Usage:
-#   cargo build --features wgpu
-#   cargo build --features cuda
-#   cargo build --features "wgpu cuda"   # both backends available
-
 default = []
 cuda = ["cudarc"]
-wgpu = ["wgpu"]
-
-[workspace.metadata.ra-thor]
-# (existing metadata unchanged)
-
-# GPU Backend Notes (added 2026-07-11 during Phase 1)
-# - `wgpu` feature: Enables portable GPU backend (Vulkan/Metal/DX12 + future WebGPU)
-# - `cuda` feature: Enables NVIDIA CUDA kernel path
-# - Both are optional. Default = Rayon CPU-parallel fallback.
-# - See kernel/gpu_compute_pipeline.rs for dispatch logic.
-# - All paths remain under formal Cubical Agda guarantees (skyrmionProtectionInvariant, etc.)
+wgpu = ["wgpu", "pollster"]   # pollster comes with wgpu feature
