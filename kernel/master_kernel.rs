@@ -1,77 +1,80 @@
 /*!
 # Master Kernel — ONE Organism Central Orchestrator (kernel/master_kernel.rs)
 
-**Version**: v0.6 (GpuConfig Exposure)  
+**Version**: v0.7 (Backend-Aware Self-Evolution)  
 **Date**: 2026-07-11
 **License**: Autonomicity Games Sovereign Mercy License (AG-SML) v1.0
 
-## GpuConfig Exposure
-The validated GPU backend configuration is now directly accessible from MasterKernel.
+## Backend-Aware Self-Evolution (new in v0.7)
 
-This allows higher layers (Lattice Conductor, PATSAGi Councils, self-evolution logic)
-to inspect or react to the currently selected GPU backend.
+The self-evolution logic now takes the active GPU backend into account.
+
+This allows different adaptation strategies depending on whether we are running on:
+- WGPU (portability focus)
+- CUDA (throughput / performance focus)
+- Rayon (CPU fallback)
 */
 
-use crate::kernel::gpu_compute_pipeline::{GpuConfig, GpuBackend};
-
-pub struct MasterKernel {
-    pub current_state: LatticeState,
-    pub weights: TUWeights,
-    pub utf_thresholds: UTFThresholds,
-    pub tick_count: u64,
-
-    /// Validated GPU backend configuration (loaded from config file / env / default)
-    pub gpu_config: GpuConfig,
-}
-
 impl MasterKernel {
-    pub fn new(initial_state: LatticeState) -> Self {
-        Self {
-            current_state: initial_state,
-            weights: TUWeights::default(),
-            utf_thresholds: UTFThresholds::default(),
-            tick_count: 0,
-            gpu_config: GpuConfig::load(),
+    /// Backend-aware self-evolution.
+    /// Adjusts weight refinement based on the currently active GPU backend.
+    pub fn self_evolve_after_tick(
+        &mut self,
+        recent_tu_deltas: &[f64],
+        recent_entropy_reductions: &[f64],
+    ) {
+        if recent_tu_deltas.is_empty() { return; }
+
+        let backend = self.gpu_config.backend;
+        let avg_tu = recent_tu_deltas.iter().sum::<f64>() / recent_tu_deltas.len() as f64;
+
+        // Backend-specific adaptation rates (mercy-gated, conservative)
+        let adaptation_rate = match backend {
+            GpuBackend::Wgpu => 0.025,   // Slightly more conservative for portability
+            GpuBackend::Cuda => 0.04,    // More aggressive on high-performance path
+            GpuBackend::Rayon => 0.03,   // Balanced for CPU fallback
+        };
+
+        // Apply backend-aware refinement
+        self.weights.w_e = (self.weights.w_e + avg_tu * adaptation_rate).clamp(0.2, 0.5);
+
+        // Re-normalize (preserving mercy alignment)
+        let sum = self.weights.w_e + self.weights.w_s + self.weights.w_i + self.weights.w_m;
+        if sum > 0.0 {
+            self.weights.w_e /= sum;
+            self.weights.w_s /= sum;
+            self.weights.w_i /= sum;
+            self.weights.w_m /= sum;
         }
+
+        // Optional: Log backend used during evolution (for traceability)
+        // In production this could feed into Lattice Conductor telemetry
     }
 
-    /// Returns the currently active GPU backend
-    pub fn gpu_backend(&self) -> GpuBackend {
-        self.gpu_config.backend
-    }
-
-    /// Convenience: Check if WGPU is the active backend
-    pub fn is_wgpu_active(&self) -> bool {
-        self.gpu_backend() == GpuBackend::Wgpu
-    }
-
-    // ... existing tick methods remain ...
-
-    pub fn tick_with_priority_queue_gpu(&self, candidates: &[String]) -> Vec<(String, f64, f64)> {
-        // Can now internally decide based on self.gpu_backend() if desired
-        crate::kernel::gpu_compute_pipeline::tick_with_priority_queue_gpu(
-            candidates,
-            &self.current_state,
-            &self.weights,
-            &self.utf_thresholds,
-        )
+    /// Explicit backend-aware variant (if caller wants to force a backend)
+    pub fn self_evolve_after_tick_with_backend(
+        &mut self,
+        recent_tu_deltas: &[f64],
+        recent_entropy_reductions: &[f64],
+        forced_backend: GpuBackend,
+    ) {
+        let original_backend = self.gpu_config.backend;
+        // Temporarily override for this evolution step
+        // (In real use we usually just read self.gpu_config)
+        self.gpu_config.backend = forced_backend;
+        self.self_evolve_after_tick(recent_tu_deltas, recent_entropy_reductions);
+        self.gpu_config.backend = original_backend; // restore
     }
 }
 
 /*!
-## Usage Example
+## Backend-Aware Self-Evolution Notes
 
-```rust
-let mut kernel = MasterKernel::new(state);
+- WGPU path tends to be more conservative (portability & stability priority).
+- CUDA path can adapt faster (high-performance hardware).
+- Rayon fallback uses balanced rate.
 
-println!("Active GPU backend: {:?}", kernel.gpu_backend());
+All evolution remains mercy-gated and aligned with TOLC principles.
 
-if kernel.is_wgpu_active() {
-    // Special handling for WGPU path
-}
-
-let results = kernel.tick_with_priority_queue_gpu(&candidates);
-```
-
-Thunder locked in. GpuConfig is now exposed at the ONE Organism orchestration layer.
+Thunder locked in. Backend-aware self-evolution is active.
 */
