@@ -1,32 +1,36 @@
 /*!
-  TOLC CUDA Kernel for Parallel Deliberation
+  TOLC CUDA Kernel for Parallel Deliberation — Memory Coalescing Optimized
   kernel/cuda/tolc_compute_kernel.cu
 
-  Version: v0.1
+  Version: v0.2 (Coalesced Memory Access)
   Date: 2026-07-11
   License: Autonomicity Games Sovereign Mercy License (AG-SML) v1.0
 
-  This CUDA kernel implements high-throughput batch computation of TOLC Units (TU)
-  and allocation priority for large candidate sets.
+  ## Memory Coalescing Optimization (v0.2)
 
-  It is designed to be called from gpu_compute_pipeline.rs when real GPU acceleration
-  is available. All results are intended to be filtered through the same mercy/UTF gates
-  as the proof-carrying CPU path.
+  Previous version used Array-of-Structures (AoS) layout:
+      action_features[idx * feature_dim + feature]
+  This caused strided memory access within a warp (bad coalescing).
 
-  Formal Alignment:
-  - Mirrors computeTU, allocationDistortionFree, and passes_utf from Cubical Agda.
-  - Skyrmion/mercy protection is applied as a pre-filter on the host before kernel launch.
+  Optimized version uses Structure-of-Arrays (SoA) layout:
+      energy_features[idx], entropy_features[idx], ...
+
+  Result:
+  - Perfect coalescing: 128-byte transactions per warp load.
+  - Significantly higher memory bandwidth utilization.
+  - Better L2 cache behavior on modern NVIDIA GPUs (Ampere+).
+
+  Formal Alignment remains identical to Cubical Agda proofs.
 */
 
 #include <cuda_runtime.h>
 #include <math.h>
 
-// TOLC computation parameters passed from host
 struct TOLCParams {
-    float w_e;           // energy weight
-    float w_s;           // entropy reduction weight
-    float w_i;           // mutual info weight
-    float w_m;           // mercy valence weight
+    float w_e;
+    float w_s;
+    float w_i;
+    float w_m;
     float mercy_valence;
     float free_energy_available;
     float utf_min_energy;
@@ -35,30 +39,33 @@ struct TOLCParams {
     float distortion_penalty;
 };
 
-// CUDA kernel: compute TU + priority for a batch of actions
-// Each thread handles one action.
-// Input: action_features[batch_size][feature_dim] (pre-encoded by host)
-// Output: tu_out[batch_size], priority_out[batch_size]
-__global__ void tolc_compute_tu_priority_batch(
-    const float* __restrict__ action_features,   // [batch_size * feature_dim]
-    float* __restrict__ tu_out,
-    float* __restrict__ priority_out,
+/**
+ * Optimized CUDA kernel with perfect memory coalescing.
+ *
+ * Each thread processes one action.
+ * All threads in a warp read consecutive addresses in each feature array.
+ */
+__global__ void __launch_bounds__(256)
+ tolc_compute_tu_priority_batch_coalesced(
+    const float* __restrict__ energy_features,     // [batch_size] - coalesced
+    const float* __restrict__ entropy_features,    // [batch_size] - coalesced
+    const float* __restrict__ info_features,       // [batch_size] - coalesced
+    const float* __restrict__ mercy_features,      // [batch_size] - coalesced
+    float* __restrict__ tu_out,                    // [batch_size]
+    float* __restrict__ priority_out,              // [batch_size]
     int batch_size,
-    int feature_dim,
     TOLCParams params
 ) {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     if (idx >= batch_size) return;
 
-    // Load features for this action (example layout: [energy_proxy, entropy_proxy, info_proxy, ...])
-    int base = idx * feature_dim;
+    // === Coalesced loads (perfect 128-byte transactions) ===
+    float energy_proxy  = energy_features[idx];
+    float entropy_proxy = entropy_features[idx];
+    float info_proxy    = info_features[idx];
+    float mercy_factor  = mercy_features[idx];
 
-    float energy_proxy   = action_features[base + 0];
-    float entropy_proxy  = action_features[base + 1];
-    float info_proxy     = action_features[base + 2];
-    float mercy_factor   = action_features[base + 3];   // per-action mercy alignment
-
-    // === Core TOLC Unit computation (mirrors computeTU in Agda) ===
+    // === TOLC Unit computation (identical semantics to Agda computeTU) ===
     float delta_f = energy_proxy * 0.85f + params.free_energy_available * 0.05f;
     float neg_delta_s = entropy_proxy * 0.35f + (1.0f - fminf(entropy_proxy, 1.0f)) * 0.2f;
     float i_mutual = info_proxy * 0.30f;
@@ -68,14 +75,13 @@ __global__ void tolc_compute_tu_priority_batch(
                    params.w_i * i_mutual +
                    params.w_m * params.mercy_valence * mercy_factor;
 
-    float tu = raw_tu / 1.0f; // normalization (z_norm)
+    float tu = raw_tu; // normalization applied on host if needed
 
-    // === UTF check (mirrors passes_utf) ===
-    bool passes_utf = (params.free_energy_available >= params.utf_min_energy);
-
-    // === Allocation priority (mirrors allocationDistortionFree) ===
+    // === UTF + Allocation Priority (mirrors allocationDistortionFree) ===
     float priority = 0.0f;
-    if (passes_utf && tu > 0.0f && params.mercy_valence >= 0.9999999f) {
+    if (params.free_energy_available >= params.utf_min_energy &&
+        tu > 0.0f &&
+        params.mercy_valence >= 0.9999999f) {
         priority = tu * params.mercy_valence * (1.0f - params.distortion_penalty);
         priority = fmaxf(priority, 0.0f);
     }
@@ -84,28 +90,29 @@ __global__ void tolc_compute_tu_priority_batch(
     priority_out[idx] = priority;
 }
 
-// Host wrapper function (called from Rust via FFI or cudarc)
-extern "C" void launch_tolc_batch(
-    const float* action_features,
+// Host launcher for the coalesced kernel
+extern "C" void launch_tolc_batch_coalesced(
+    const float* energy_features,
+    const float* entropy_features,
+    const float* info_features,
+    const float* mercy_features,
     float* tu_out,
     float* priority_out,
     int batch_size,
-    int feature_dim,
     TOLCParams params,
     cudaStream_t stream
 ) {
-    int threads = 256;
+    constexpr int threads = 256;
     int blocks = (batch_size + threads - 1) / threads;
 
-    tolc_compute_tu_priority_batch<<<blocks, threads, 0, stream>>>(
-        action_features,
+    tolc_compute_tu_priority_batch_coalesced<<<blocks, threads, 0, stream>>>(
+        energy_features,
+        entropy_features,
+        info_features,
+        mercy_features,
         tu_out,
         priority_out,
         batch_size,
-        feature_dim,
         params
     );
 }
-
-// Optional: more advanced kernel for full SkyrmionKnot topology check on GPU
-// (future extension for higher-dimensional invariants)
