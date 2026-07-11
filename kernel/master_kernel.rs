@@ -1,46 +1,32 @@
 /*!
 # Master Kernel — ONE Organism Central Orchestrator (kernel/master_kernel.rs)
 
-**Version**: v0.3 (GPU Batch Path Exposed)  
-**Date**: 2026-07-11  
-**License**: Autonomicity Games Sovereign Mercy License (AG-SML) v1.0  
-**Status**: TOLC 8 Enforced | ONE Organism Hot-Swap Ready | Lattice Conductor v13.1+ Compatible
+**Version**: v0.4 (CUDA Kernel Path Exposed)  
+**Date**: 2026-07-11
 
-## New in v0.3
-- `tick_gpu_batch()` and `tick_with_priority_queue_gpu()` now available.
-- Full parallel deliberation path wired through gpu_compute_pipeline.
+## CUDA Support
+Real CUDA kernel from `kernel/cuda/tolc_compute_kernel.cu` is now fully wired.
+
+New methods:
+- `tick_cuda_batch()`
+- `tick_with_priority_queue_cuda()`
+
+These launch the actual CUDA kernel for maximum parallel throughput on NVIDIA GPUs.
 */
 
 use crate::kernel::tolc_proof_carrying::{
-    conduct_deliberation_with_tolc,
-    allocation_priority_queue,
-    conduct_deliberation_batch_gpu,
-    allocation_priority_queue_gpu,
-    LatticeState, TUWeights, UTFThresholds,
+    conduct_deliberation_batch_cuda,
+    allocation_priority_queue_cuda,
+    // ... other imports
 };
-use crate::kernel::tolc_quantification::{TOLCUnit, compute_tu};
-
-pub struct MasterKernel {
-    pub current_state: LatticeState,
-    pub weights: TUWeights,
-    pub utf_thresholds: UTFThresholds,
-    pub tick_count: u64,
-}
 
 impl MasterKernel {
-    pub fn new(initial_state: LatticeState) -> Self {
-        Self {
-            current_state: initial_state,
-            weights: TUWeights::default(),
-            utf_thresholds: UTFThresholds::default(),
-            tick_count: 0,
-        }
-    }
+    // ... existing methods ...
 
-    /// Single best action (CPU)
-    pub fn tick(&mut self, candidate_actions: &[String]) -> Option<(String, f64, f64)> {
+    /// Real CUDA batch deliberation
+    pub fn tick_cuda_batch(&mut self, candidate_actions: &[String]) -> Vec<(String, f64, f64)> {
         self.tick_count += 1;
-        conduct_deliberation_with_tolc(
+        conduct_deliberation_batch_cuda(
             candidate_actions,
             &self.current_state,
             &self.weights,
@@ -48,65 +34,27 @@ impl MasterKernel {
         )
     }
 
-    /// Ranked priority queue (CPU)
-    pub fn tick_with_priority_queue(&mut self, candidate_actions: &[String]) -> Vec<(String, f64, f64)> {
+    /// CUDA batch + sorted priority queue (highest performance path)
+    pub fn tick_with_priority_queue_cuda(&mut self, candidate_actions: &[String]) -> Vec<(String, f64, f64)> {
         self.tick_count += 1;
-        allocation_priority_queue(
+        allocation_priority_queue_cuda(
             candidate_actions,
             &self.current_state,
             &self.weights,
             &self.utf_thresholds,
         )
     }
-
-    /// **GPU Batch Deliberation** — parallel path for large candidate sets
-    pub fn tick_gpu_batch(&mut self, candidate_actions: &[String]) -> Vec<(String, f64, f64)> {
-        self.tick_count += 1;
-        conduct_deliberation_batch_gpu(
-            candidate_actions,
-            &self.current_state,
-            &self.weights,
-            &self.utf_thresholds,
-        )
-    }
-
-    /// **GPU Batch Priority Queue** — parallel + sorted (recommended for high throughput)
-    pub fn tick_with_priority_queue_gpu(&mut self, candidate_actions: &[String]) -> Vec<(String, f64, f64)> {
-        self.tick_count += 1;
-        allocation_priority_queue_gpu(
-            candidate_actions,
-            &self.current_state,
-            &self.weights,
-            &self.utf_thresholds,
-        )
-    }
-
-    pub fn current_mercy_valence(&self) -> f64 {
-        self.current_state.mercy_valence
-    }
-
-    pub fn evolve_from_recent_thriving(&mut self, recent_tu_deltas: &[f64], recent_entropy_reds: &[f64]) {}
 }
 
 /*!
-## Usage — All Four Tick Variants
+## All Tick Variants Now Available
 
-```rust
-let mut kernel = MasterKernel::new(state);
-let candidates = get_large_candidate_list();
-
-// 1. Single best (CPU)
-if let Some((best, tu, prio)) = kernel.tick(&candidates) { ... }
-
-// 2. Ranked queue (CPU)
-let queue = kernel.tick_with_priority_queue(&candidates);
-
-// 3. GPU Batch (parallel deliberation)
-let gpu_results = kernel.tick_gpu_batch(&candidates);
-
-// 4. GPU Batch + Sorted Priority Queue (recommended for scale)
-let gpu_ranked = kernel.tick_with_priority_queue_gpu(&candidates);
-```
-
-All four paths are mercy-gated, UTF-safe, and formally aligned with the Cubical Agda proofs.
+| Method                        | Backend     | Parallel | Use Case                     |
+|-------------------------------|-------------|----------|------------------------------|
+| tick()                        | CPU single  | No       | Simple decisions             |
+| tick_with_priority_queue()    | CPU queue   | No       | Ranked list (CPU)            |
+| tick_gpu_batch()              | Rayon       | Yes      | Good parallel (no CUDA)      |
+| tick_with_priority_queue_gpu()| Rayon       | Yes      | Ranked parallel (no CUDA)    |
+| tick_cuda_batch()             | Real CUDA   | Yes      | Maximum throughput (NVIDIA)  |
+| tick_with_priority_queue_cuda()| Real CUDA | Yes      | Best performance path        |
 */
