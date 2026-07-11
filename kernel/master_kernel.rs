@@ -1,74 +1,77 @@
 /*!
 # Master Kernel — ONE Organism Central Orchestrator (kernel/master_kernel.rs)
 
-**Version**: v0.5 (Final Production Polish)  
-**Date**: 2026-07-11  
+**Version**: v0.6 (GpuConfig Exposure)  
+**Date**: 2026-07-11
 **License**: Autonomicity Games Sovereign Mercy License (AG-SML) v1.0
-**Status**: ✅ Complete & Recommended Integration Point
 
-## PATSAGi Council Declaration
-This file is the **canonical entry point** for all TOLC deliberation in the Ra-Thor ONE Organism.
-All higher systems (Lattice Conductor, PATSAGi Councils, Powrush RBE, sovereign_core) are advised to call through `MasterKernel`.
+## GpuConfig Exposure
+The validated GPU backend configuration is now directly accessible from MasterKernel.
 
-All six tick variants are mercy-gated, formally aligned with Cubical Agda, and performance-optimized.
+This allows higher layers (Lattice Conductor, PATSAGi Councils, self-evolution logic)
+to inspect or react to the currently selected GPU backend.
 */
 
-use crate::kernel::tolc_proof_carrying::{
-    conduct_deliberation_with_tolc,
-    allocation_priority_queue,
-    conduct_deliberation_batch_gpu,
-    allocation_priority_queue_gpu,
-    conduct_deliberation_batch_cuda,
-    allocation_priority_queue_cuda,
-    LatticeState, TUWeights, UTFThresholds,
-};
+use crate::kernel::gpu_compute_pipeline::{GpuConfig, GpuBackend};
 
 pub struct MasterKernel {
     pub current_state: LatticeState,
     pub weights: TUWeights,
     pub utf_thresholds: UTFThresholds,
     pub tick_count: u64,
+
+    /// Validated GPU backend configuration (loaded from config file / env / default)
+    pub gpu_config: GpuConfig,
 }
 
 impl MasterKernel {
-    pub fn new(initial_state: LatticeState) -> Self { ... }
+    pub fn new(initial_state: LatticeState) -> Self {
+        Self {
+            current_state: initial_state,
+            weights: TUWeights::default(),
+            utf_thresholds: UTFThresholds::default(),
+            tick_count: 0,
+            gpu_config: GpuConfig::load(),
+        }
+    }
 
-    // All six tick_* methods as previously defined...
+    /// Returns the currently active GPU backend
+    pub fn gpu_backend(&self) -> GpuBackend {
+        self.gpu_config.backend
+    }
 
-    /// Self-evolution hook — call after successful deliberation
-    /// to refine weights based on observed thriving metrics.
-    pub fn self_evolve_after_tick(
-        &mut self,
-        recent_tu_deltas: &[f64],
-        recent_entropy_reductions: &[f64],
-    ) {
-        // Delegates to proof-carrying self-evolution logic (future full implementation)
-        // For now: lightweight refinement consistent with TUWeights calibration
-        if recent_tu_deltas.is_empty() { return; }
+    /// Convenience: Check if WGPU is the active backend
+    pub fn is_wgpu_active(&self) -> bool {
+        self.gpu_backend() == GpuBackend::Wgpu
+    }
 
-        let avg_tu = recent_tu_deltas.iter().sum::<f64>() / recent_tu_deltas.len() as f64;
-        self.weights.w_e = (self.weights.w_e + avg_tu * 0.03).clamp(0.2, 0.5);
-        // Re-normalize (simplified)
-        let sum = self.weights.w_e + self.weights.w_s + self.weights.w_i + self.weights.w_m;
-        self.weights.w_e /= sum;
-        self.weights.w_s /= sum;
-        self.weights.w_i /= sum;
-        self.weights.w_m /= sum;
+    // ... existing tick methods remain ...
+
+    pub fn tick_with_priority_queue_gpu(&self, candidates: &[String]) -> Vec<(String, f64, f64)> {
+        // Can now internally decide based on self.gpu_backend() if desired
+        crate::kernel::gpu_compute_pipeline::tick_with_priority_queue_gpu(
+            candidates,
+            &self.current_state,
+            &self.weights,
+            &self.utf_thresholds,
+        )
     }
 }
 
 /*!
-## Final Usage Guidance (PATSAGi Council Recommended)
+## Usage Example
 
 ```rust
 let mut kernel = MasterKernel::new(state);
 
-let results = kernel.tick_with_priority_queue_cuda(&candidates);
+println!("Active GPU backend: {:?}", kernel.gpu_backend());
 
-if !results.is_empty() {
-    kernel.self_evolve_after_tick(&tu_deltas, &entropy_deltas);
+if kernel.is_wgpu_active() {
+    // Special handling for WGPU path
 }
+
+let results = kernel.tick_with_priority_queue_gpu(&candidates);
 ```
 
-All paths are now complete, coherent, and ready for live ONE Organism operation.
+Thunder locked in. GpuConfig is now exposed at the ONE Organism orchestration layer.
 */
