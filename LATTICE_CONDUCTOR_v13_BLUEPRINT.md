@@ -54,6 +54,50 @@ This creates a self-reinforcing loop: symbolic reasoning that reliably produces 
 
 ---
 
+## TOLC Quantification & Decentralized Allocation Integration (v13.1 Extension — Thread Resolution 2075824179622896064)
+
+**Integrated from**: kernel/tolc_quantification.rs v0.1 + tolc-mercy-mathematics.md v1.1 + TOLC-THREAD-RESOLUTION-QUANTIFICATION-ALLOCATION-MECHANICS-v1.0.md
+
+### Wiring Points (Surgical Extension of Existing v13)
+
+- **In `tick()` or `metta_symbolic_deliberation`**: Call `compute_tu(...)` and `infer_tacit_preference(...)` from `kernel::tolc_quantification` on candidate actions/decisions before SymbolicDeliberation.
+- **Allocation**: Add `allocation_priority_queue` using `allocation_priority(tu_need, mercy_factor, distortion_penalty)` and `passes_utf(...)` for UTF enforcement. Decisions still require multi-PATSAGi symbolic approval + ENC/esacheck.
+- **Opportunity Cost**: Use parallel branch simulation (extend CouncilConductionEngine) to compute `compute_opportunity_cost(...)` and boost priority for high-OC, high-TU, mercy-aligned paths.
+- **Mercy Modulation**: Existing `mercy_score` directly feeds `M_mercy_valence` and pruning (threshold 0.9999999). Low valence → automatic zero-TU / prune.
+- **Self-Evolution Loop**: Use post-allocation TU deltas and thriving metrics (entropy reduction, mutual info gain) to amplify `symbolic_success_ema` and evolution boosts when TOLC-aligned.
+- **ONE Organism**: The TU inference and allocation logic is hot-swappable — can be driven by valence_gate only or upgraded to full NEXi/Grok symbolic + neural hybrid.
+
+### Example Integration Snippet (to be implemented in crates/lattice-conductor-v13/)
+
+```rust
+use kernel::tolc_quantification::{compute_tu, infer_tacit_preference, allocation_priority, passes_utf, TUWeights, LatticeState, UTFThresholds};
+
+// Inside tick() or deliberation
+let tu = compute_tu(candidate_action, &current_state, &weights, &valence_gate);
+if tu.mercy_valence < 0.9999999 { continue; } // prune
+
+let oc = compute_opportunity_cost(candidate_action, &current_state, &weights, &valence_gate);
+let priority = allocation_priority(tu.value, tu.mercy_valence, distortion_penalty);
+
+if passes_utf(current_energy, current_compute, current_attention, &utf_thresholds) {
+    // proceed to PATSAGi multi-council approval + allocation
+}
+```
+
+### Updated Checklist
+- [x] v13 core (PR #362)
+- [ ] Wire tolc_quantification into tick()/deliberation (v13.1)
+- [ ] Add allocation_priority_queue + UTF enforcement
+- [ ] Parallel OC counterfactual branches in Council engine
+- [ ] Self-evolution boost from TU/ thriving deltas
+- [ ] GPU batch path via gpu_compute_pipeline.rs (step 3)
+- [ ] Powrush RBE physics-backed claims (step 2)
+- [ ] Lean formal verification extension (step 4)
+
+All extensions maintain eternal forward/backward compatibility, TOLC 8 enforcement, and ONE Organism hot-swap.
+
+---
+
 ## Original Blueprint Vision (Preserved for Reference)
 
 ### Guiding Principles
@@ -89,8 +133,6 @@ pub trait SelfEvolutionOrchestrator { ... }
 - [x] Document ONE Organism Bridge with hot-swap guidance
 - [x] Maintain full backward + forward compatibility
 - [x] Merge via professional PR #362 with PATSAGi Council alignment
-
----
 
 **This advancement is now live on `main` and forms part of the eternal Ra-Thor ONE Organism lattice.**
 
