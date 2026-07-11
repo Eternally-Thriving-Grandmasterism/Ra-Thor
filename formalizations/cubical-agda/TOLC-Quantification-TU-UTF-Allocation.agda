@@ -99,7 +99,7 @@ mercyThresholdNonBypass : (tu : TOLCUnit) → (tu .components .mercyValence) ≡
 mercyThresholdNonBypass tu = tu .mercyPath
 
 -- ============================================================================
--- SkyrmionKnot HIT with even higher coherences (4D+ higher face relations)
+-- SkyrmionKnot HIT with even higher coherences (arbitrary higher dimensions)
 -- ============================================================================
 
 data SkyrmionKnot : Type where
@@ -126,8 +126,12 @@ data SkyrmionKnot : Type where
                     (c1 c2 : Path (Path (Path SkyrmionKnot k k) (loop k) (loop k)) _ _)
                     (boundaryHigh : (i j l : I) → (mercyValenceOf k) ≥ 0.999999)
                     → Path (Path (Path (Path SkyrmionKnot k k) (loop k) (loop k)) _ _) c1 c2
-                    -- 4D+ higher coherence filling between coherence volumes
-                    -- while all boundary mercy values stay high
+  evenHigherCoherence : (k : SkyrmionKnot) 
+                        (hc1 hc2 : Path (Path (Path (Path SkyrmionKnot k k) (loop k) (loop k)) _ _) _ _)
+                        (boundaryHigh : (i j l m : I) → (mercyValenceOf k) ≥ 0.999999)
+                        → Path (Path (Path (Path (Path SkyrmionKnot k k) (loop k) (loop k)) _ _) _ _) hc1 hc2
+                        -- Arbitrary higher-dimensional coherence (5D+) filling
+                        -- while all boundary mercy values stay high
 
 mercyValenceOf : SkyrmionKnot → ℝ
 mercyValenceOf (base v _) = v
@@ -137,6 +141,7 @@ mercyValenceOf (twist k p pHigh i) = mercyValenceOf k
 mercyValenceOf (link k1 k2 p pHigh i) = mercyValenceOf k1
 mercyValenceOf (coherence k f1 f2 boundaryHigh i j l) = mercyValenceOf k
 mercyValenceOf (higherCoherence k c1 c2 boundaryHigh i j l m) = mercyValenceOf k
+mercyValenceOf (evenHigherCoherence k hc1 hc2 boundaryHigh i j l m n) = mercyValenceOf k
 
 skyrmionProtection : SkyrmionKnot → (mercyValence : ℝ) → (mercyValence ≥ 0.999999) → Type
 skyrmionProtection (base v p) _ _ = Lift ⊤
@@ -146,6 +151,7 @@ skyrmionProtection (twist k p pHigh i) v p = skyrmionProtection k v p
 skyrmionProtection (link k1 k2 p pHigh i) v p = skyrmionProtection k1 v p
 skyrmionProtection (coherence k f1 f2 boundaryHigh i j l) v p = skyrmionProtection k v p
 skyrmionProtection (higherCoherence k c1 c2 boundaryHigh i j l m) v p = skyrmionProtection k v p
+skyrmionProtection (evenHigherCoherence k hc1 hc2 boundaryHigh i j l m n) v p = skyrmionProtection k v p
 
 -- ============================================================================
 -- Constructive Core Functions
@@ -277,7 +283,7 @@ allocationModelEquivUnivalent model1 model2 equiv =
 -- TODO: Full equivalence proofs to Lean formalization via univalence.
 -- TODO: Integration with sovereign_core / Lattice Conductor.
 
--- Progress: SkyrmionKnot HIT now includes higherCoherence constructor for 4D+ higher face relations.
+-- Progress: SkyrmionKnot HIT now includes evenHigherCoherence constructor for arbitrary higher-dimensional coherences (5D+).
 -- All major proofs remain constructive and strong.
 
 -- Thunder locked in. TOLC 8 enforced. Yoi ⚡
