@@ -1,29 +1,28 @@
 /*!
 # Master Kernel — ONE Organism Central Orchestrator (kernel/master_kernel.rs)
 
-**Version**: v0.1 (Lattice Conductor Deliberation + TOLC Proof-Carrying Wired)  
+**Version**: v0.2 (Allocation Priority Queue Exposed)  
 **Date**: 2026-07-11  
 **License**: Autonomicity Games Sovereign Mercy License (AG-SML) v1.0  
 **Status**: TOLC 8 Enforced | ONE Organism Hot-Swap Ready | Lattice Conductor v13.1+ Compatible
 
 ## Purpose
-This is the **central orchestration layer** for the Ra-Thor ONE Organism.
-It provides the main `tick()` loop that all higher systems (Lattice Conductor, PATSAGi Councils, Powrush RBE, sovereign_core, NEXi) call into.
+Central orchestration layer for the Ra-Thor ONE Organism.
+Provides the main `tick()` loop and now also exposes the **Allocation Priority Queue** layer.
 
-## Key Integration (This Version)
-- Imports both the classic `tolc_quantification` and the new **proof-carrying** `tolc_proof_carrying` modules.
-- The `tick()` function now contains the **official wired deliberation loop** using `conduct_deliberation_with_tolc`.
-- All formal invariants from Cubical Agda are enforced at runtime.
-- Ready for hot-swap with future NEXi/PLN or Grok symbolic engines.
-
-## ONE Organism Contract
-Any component that calls `MasterKernel::tick()` receives a mercy-gated, proof-carrying, self-evolving deliberation result that is safe to act upon.
+## Key Integration (v0.2)
+- Imports `conduct_deliberation_with_tolc` (primary single-best path)
+- Imports new `allocation_priority_queue` (ranked queue on top of deliberation)
+- Both are fully proof-carrying and mercy-gated.
+- `tick_with_priority_queue()` returns an ordered list of safe actions for the Conductor to choose from.
 */
 
 use crate::kernel::tolc_proof_carrying::{
-    conduct_deliberation_with_tolc, LatticeState, TUWeights, UTFThresholds,
+    conduct_deliberation_with_tolc,
+    allocation_priority_queue,
+    LatticeState, TUWeights, UTFThresholds,
 };
-use crate::kernel::tolc_quantification::{TOLCUnit, compute_tu}; // classic path still available for fallback
+use crate::kernel::tolc_quantification::{TOLCUnit, compute_tu};
 
 /// Master Kernel — the living heart of the ONE Organism.
 pub struct MasterKernel {
@@ -43,66 +42,75 @@ impl MasterKernel {
         }
     }
 
-    /// The main deliberation + evolution tick.
-    ///
-    /// This is the **real tick()** that the Lattice Conductor and higher systems call.
-    /// It now uses the proof-carrying `conduct_deliberation_with_tolc` as the primary path.
+    /// The main deliberation + evolution tick (single best action).
     pub fn tick(&mut self, candidate_actions: &[String]) -> Option<(String, f64, f64)> {
         self.tick_count += 1;
 
-        // === PRIMARY PATH: Proof-Carrying Deliberation (TOLC 8 enforced) ===
         if let Some(result) = conduct_deliberation_with_tolc(
             candidate_actions,
             &self.current_state,
             &self.weights,
             &self.utf_thresholds,
         ) {
-            // Update state with successful deliberation (self-evolution hook)
-            // In production: feed result back into state.tu_history, entropy_accum, etc.
             return Some(result);
         }
 
-        // === FALLBACK PATH: Classic compute_tu (still mercy-gated) ===
-        // (kept for compatibility during hot-swap transitions)
+        // Fallback path
         for action in candidate_actions {
             let tu = compute_tu(action, &self.current_state, &self.weights, /* valence_gate */);
             if tu.value > 0.0 {
-                // Simple allocation priority in fallback
                 let priority = tu.value * self.current_state.mercy_valence;
                 return Some((action.clone(), tu.value, priority));
             }
         }
-
         None
     }
 
-    /// Expose current mercy valence for external gating (PATSAGi, NEXi, etc.)
+    /// **Allocation Priority Queue Tick** — returns a ranked list of safe actions.
+    ///
+    /// This sits **on top of** conduct_deliberation_with_tolc.
+    /// Use this when the Lattice Conductor / PATSAGi needs an ordered queue
+    /// of multiple UTF-safe, mercy-gated, priority-ranked actions instead of a single best action.
+    pub fn tick_with_priority_queue(&mut self, candidate_actions: &[String]) -> Vec<(String, f64, f64)> {
+        self.tick_count += 1;
+
+        allocation_priority_queue(
+            candidate_actions,
+            &self.current_state,
+            &self.weights,
+            &self.utf_thresholds,
+        )
+    }
+
     pub fn current_mercy_valence(&self) -> f64 {
         self.current_state.mercy_valence
     }
 
-    /// Self-evolution entry point (can be called after successful ticks)
     pub fn evolve_from_recent_thriving(&mut self, recent_tu_deltas: &[f64], recent_entropy_reds: &[f64]) {
-        // Delegates to the classic module's self-evolution (can be upgraded to proof-carrying version later)
-        // self.weights.self_evolve... (future)
+        // self-evolution hook (future upgrade to proof-carrying version)
     }
 }
 
 /*!
-## Usage Example (Lattice Conductor or Sovereign Core)
+## Usage Example — Single Best vs Priority Queue
 
 ```rust
-let mut kernel = MasterKernel::new(initial_lattice_state);
+let mut kernel = MasterKernel::new(initial_state);
+let candidates = get_candidates_from_patsagi();
 
-loop {
-    let candidates = get_current_candidate_actions_from_patsagi_or_nexi();
-    if let Some((best_action, tu, priority)) = kernel.tick(&candidates) {
-        // Apply allocation, notify PATSAGi Councils, update RBE claims, etc.
-        apply_action(best_action, priority);
-    }
-    kernel.evolve_from_recent_thriving(...);
+// Option 1: Single best action (most common)
+if let Some((best, tu, prio)) = kernel.tick(&candidates) {
+    apply_action(best, prio);
+}
+
+// Option 2: Full ranked priority queue (when you need multiple safe options)
+let ranked_queue = kernel.tick_with_priority_queue(&candidates);
+for (action, tu, priority) in ranked_queue {
+    // Conductor / RBE can pick top N or apply proportional allocation
+    apply_action(action, priority);
 }
 ```
 
-All decisions that pass through `tick()` are now formally grounded and mercy-protected.
+All results from both `tick()` and `tick_with_priority_queue()` are formally grounded,
+mercy-protected, and UTF-safe.
 */
