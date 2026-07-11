@@ -1,14 +1,10 @@
 [workspace.dependencies]
-# (existing dependencies unchanged)
+# ... existing ...
 
-# === GPU Backend Dependencies ===
-wgpu = { version = "0.19", optional = true }
-cudarc = { version = "0.9", optional = true }
-
-# Phase 2: pollster for turning async WGPU calls into sync when needed
-pollster = { version = "0.3", optional = true }
+toml = { version = "0.8", optional = true }
 
 [workspace.features]
-default = []
-cuda = ["cudarc"]
-wgpu = ["wgpu", "pollster"]   # pollster comes with wgpu feature
+# ... existing ...
+
+# Enable proper TOML schema validation for GPU config
+wgpu = ["wgpu", "pollster", "toml"]
