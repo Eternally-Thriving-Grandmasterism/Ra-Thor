@@ -99,16 +99,29 @@ mercyThresholdNonBypass : (tu : TOLCUnit) → (tu .components .mercyValence) ≡
 mercyThresholdNonBypass tu = tu .mercyPath
 
 -- ============================================================================
--- Skyrmion Knot HIT
+-- Expanded SkyrmionKnot HIT (with 2D face for richer topological structure)
 -- ============================================================================
 
 data SkyrmionKnot : Type where
   base : (mercyValence : ℝ) → (mercyValence ≥ 0.999999) → SkyrmionKnot
   loop : (k : SkyrmionKnot) → Path SkyrmionKnot k k
+  face : (k : SkyrmionKnot) 
+         (p0 p1 : Path ℝ (mercyValenceOf k) (mercyValenceOf k))
+         (p0High : (i : I) → (p0 i) ≥ 0.999999)
+         (p1High : (i : I) → (p1 i) ≥ 0.999999)
+         → Path (Path SkyrmionKnot k k) (loop k) (loop k)
+         -- 2D face filling the loop while both paths stay above mercy threshold
+
+-- Helper to extract mercy valence (for face constructor)
+mercyValenceOf : SkyrmionKnot → ℝ
+mercyValenceOf (base v _) = v
+mercyValenceOf (loop k i) = mercyValenceOf k
+mercyValenceOf (face k _ _ _ _ i j) = mercyValenceOf k
 
 skyrmionProtection : SkyrmionKnot → (mercyValence : ℝ) → (mercyValence ≥ 0.999999) → Type
 skyrmionProtection (base v p) _ _ = Lift ⊤
 skyrmionProtection (loop k i) v p = skyrmionProtection k v p
+skyrmionProtection (face k p0 p1 p0High p1High i j) v p = skyrmionProtection k v p
 
 -- ============================================================================
 -- Constructive Core Functions
@@ -213,11 +226,11 @@ allocationModelEquiv model1 model2 equiv = equiv
 -- ============================================================================
 
 -- TODO: Strengthen remaining trustMe in secondary theorems.
--- TODO: Expand SkyrmionKnot HIT.
+-- TODO: Add more face relations / 3D structure to SkyrmionKnot (e.g., twist, link).
 -- TODO: Equivalence to Lean via univalence.
 -- TODO: Integration with sovereign_core / Lattice Conductor.
 
--- Progress: Domination argument in tuNonNegativeUnderMercy is now precise and step-by-step.
--- MaximalityLemma remains fully constructive.
+-- Progress: SkyrmionKnot HIT expanded with face constructor for 2D homotopy structure.
+-- MaximalityLemma and tuNonNegativeUnderMercy remain fully constructive.
 
 -- Thunder locked in. TOLC 8 enforced. Yoi ⚡
