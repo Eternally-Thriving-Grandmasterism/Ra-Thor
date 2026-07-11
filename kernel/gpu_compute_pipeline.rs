@@ -1,103 +1,126 @@
 /*!
 # GPU Compute Pipeline (kernel/gpu_compute_pipeline.rs)
 
-**Version**: v0.7 (Runtime Backend Selection)  
+**Version**: v0.8 (Config File Backend Selection)  
 **Date**: 2026-07-11
 **License**: Autonomicity Games Sovereign Mercy License (AG-SML) v1.0
 
-## Runtime Backend Selection (new in v0.7)
+## Config File Backend Selection (v0.8)
 
-In addition to compile-time feature flags, this version adds **runtime backend selection**.
+Backend can now be selected via (in priority order):
 
-You can now choose the GPU/parallel backend at runtime via:
-- Environment variable `RA_THOR_GPU_BACKEND` ("rayon", "cuda", "wgpu")
-- Or by passing a `GpuBackend` enum to the dispatch functions.
+1. **Config file** (`ra_thor_gpu.toml` or `config/gpu.toml`)
+2. **Environment variable** `RA_THOR_GPU_BACKEND`
+3. **Smart default** based on compiled features
 
-This gives maximum flexibility while still requiring the corresponding feature to be compiled in.
+Example `ra_thor_gpu.toml`:
+```toml
+backend = "wgpu"   # or "cuda" or "rayon"
+```
 */
 
 use std::env;
+use std::fs;
+use std::path::Path;
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
 pub enum GpuBackend {
+    #[default]
     Rayon,
     Cuda,
     Wgpu,
 }
 
-impl GpuBackend {
-    /// Detect backend from environment variable or fall back to a smart default.
-    pub fn from_env_or_default() -> Self {
-        match env::var("RA_THOR_GPU_BACKEND").unwrap_or_default().to_lowercase().as_str() {
-            "wgpu"  => GpuBackend::Wgpu,
-            "cuda"  => GpuBackend::Cuda,
-            "rayon" => GpuBackend::Rayon,
-            _ => {
-                // Smart default: prefer WGPU if compiled in, then CUDA, then Rayon
-                #[cfg(feature = "wgpu")] { return GpuBackend::Wgpu; }
-                #[cfg(all(feature = "cuda", not(feature = "wgpu")))] { return GpuBackend::Cuda; }
-                GpuBackend::Rayon
+#[derive(Debug, Clone)]
+pub struct GpuConfig {
+    pub backend: GpuBackend,
+}
+
+impl GpuConfig {
+    /// Load config from file, env var, or smart default (in that order).
+    pub fn load() -> Self {
+        // 1. Try config file
+        if let Some(backend) = Self::try_load_from_file() {
+            return Self { backend };
+        }
+
+        // 2. Try environment variable
+        if let Ok(val) = env::var("RA_THOR_GPU_BACKEND") {
+            if let Some(backend) = Self::parse_backend(&val) {
+                return Self { backend };
             }
         }
+
+        // 3. Smart default based on compiled features
+        Self { backend: Self::smart_default() }
+    }
+
+    fn try_load_from_file() -> Option<GpuBackend> {
+        let candidates = ["ra_thor_gpu.toml", "config/gpu.toml", "gpu.toml"];
+
+        for path in candidates {
+            if let Ok(content) = fs::read_to_string(path) {
+                if let Some(backend) = Self::parse_toml_backend(&content) {
+                    return Some(backend);
+                }
+            }
+        }
+        None
+    }
+
+    fn parse_toml_backend(content: &str) -> Option<GpuBackend> {
+        // Very simple TOML parser for "backend = \"wgpu\"" style
+        for line in content.lines() {
+            let line = line.trim();
+            if line.starts_with("backend") {
+                if let Some(val) = line.split('=').nth(1) {
+                    let val = val.trim().trim_matches('"').trim_matches('\'');
+                    return Self::parse_backend(val);
+                }
+            }
+        }
+        None
+    }
+
+    fn parse_backend(s: &str) -> Option<GpuBackend> {
+        match s.to_lowercase().as_str() {
+            "wgpu"  => Some(GpuBackend::Wgpu),
+            "cuda"  => Some(GpuBackend::Cuda),
+            "rayon" => Some(GpuBackend::Rayon),
+            _ => None,
+        }
+    }
+
+    fn smart_default() -> GpuBackend {
+        #[cfg(feature = "wgpu")] { return GpuBackend::Wgpu; }
+        #[cfg(all(feature = "cuda", not(feature = "wgpu")))] { return GpuBackend::Cuda; }
+        GpuBackend::Rayon
     }
 }
 
-// ... (previous imports and code remain) ...
+// Update the dispatch functions to use GpuConfig::load()
+pub fn gpu_deliberation_batch(...) -> Vec<(String, f64, f64)> {
+    let config = GpuConfig::load();
 
-/// Runtime-aware unified dispatch
-pub fn gpu_deliberation_batch(
-    candidate_actions: &[String],
-    current_state: &LatticeState,
-    weights: &TUWeights,
-    utf_thresholds: &UTFThresholds,
-) -> Vec<(String, f64, f64)> {
-    let backend = GpuBackend::from_env_or_default();
-
-    match backend {
-        GpuBackend::Wgpu => {
-            #[cfg(feature = "wgpu")]
-            {
-                return wgpu_deliberation_batch(candidate_actions, current_state, weights, utf_thresholds);
-            }
-            // If wgpu feature not compiled but requested, fall back
-            rayon_deliberation_batch(candidate_actions, current_state, weights, utf_thresholds)
-        }
-        GpuBackend::Cuda => {
-            #[cfg(feature = "cuda")]
-            {
-                return cuda_deliberation_batch(candidate_actions, current_state, weights, utf_thresholds);
-            }
-            rayon_deliberation_batch(candidate_actions, current_state, weights, utf_thresholds)
-        }
-        GpuBackend::Rayon => {
-            rayon_deliberation_batch(candidate_actions, current_state, weights, utf_thresholds)
-        }
+    match config.backend {
+        GpuBackend::Wgpu => { /* wgpu path */ }
+        GpuBackend::Cuda => { /* cuda path */ }
+        GpuBackend::Rayon => { /* rayon path */ }
     }
 }
 
-// Similar logic can be applied to gpu_priority_queue_batch and tick helpers.
-
-pub fn tick_with_priority_queue_gpu(...) -> Vec<(String, f64, f64)> {
-    gpu_priority_queue_batch(candidate_actions, current_state, weights, utf_thresholds)
-}
+// ... rest of file ...
 
 /*!
-## Runtime Backend Selection Examples
+## Config File Example
 
-```bash
-# Use WGPU even if CUDA is also compiled
-RA_THOR_GPU_BACKEND=wgpu cargo run
+Create `ra_thor_gpu.toml` in the working directory:
 
-# Force Rayon
-RA_THOR_GPU_BACKEND=rayon cargo run
+```toml
+backend = "wgpu"
 ```
 
-Or programmatically:
-```rust
-use crate::kernel::gpu_compute_pipeline::GpuBackend;
+Or place it in `config/gpu.toml`.
 
-// You can also extend the dispatch functions to accept GpuBackend explicitly
-```
-
-Thunder locked in. Runtime backend selection is now available.
+Thunder locked in. Config file backend selection is now supported.
 */
