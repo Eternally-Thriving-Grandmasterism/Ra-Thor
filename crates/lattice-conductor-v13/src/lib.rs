@@ -1,9 +1,20 @@
 pub mod self_evolution_telemetry;
 
-// Re-exports for convenience
+// =============================================================================
+// Clean Public API Re-exports
+// =============================================================================
+// For a clean, ergonomic API, all key public types are re-exported directly
+// at the crate root. Users can simply do:
+//
+//   use lattice_conductor_v13::{ConductorSelfEvolutionRecorder, ...};
+//
+// without needing to know internal module structure.
+// Submodules remain available for advanced use if needed.
+// =============================================================================
+
 pub use self_evolution_telemetry::ConductorSelfEvolutionRecorder;
 
-// Sub-module re-exports (structure preserved)
+// --- Core traits & types ---
 pub use crate::conductable::{Conductable, ConductorRegistry, MercyAligned, SystemBlessing};
 pub use crate::coordinator::{AverageInfluenceStrategy, CoordinationStrategy, LeaderFollowerStrategy, MercyWeightedStrategy, MultiConductorSimulation};
 pub use crate::geometric::{BasicGeometricMotor, GeometricMotor, GeometricState};
