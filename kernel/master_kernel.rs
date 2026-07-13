@@ -1,26 +1,17 @@
 /*!
 # Master Kernel — ONE Organism Central Orchestrator (kernel/master_kernel.rs)
 
-**Version**: v0.10 (Prelude Expansion + MasterKernel Docs Wiring)  
-**Date**: 2026-07-12
+**Version**: v0.11 (Shared Types from Lattice Conductor - No Duplication)  
+**Date**: 2026-07-13
 **License**: Autonomicity Games Sovereign Mercy License (AG-SML) v1.0
 
-## Self-Evolution Telemetry + Lattice Conductor Integration
+## Shared Types from Lattice Conductor
 
-We emit a proper `SelfEvolutionTelemetry` struct after each evolution step.
-This can be consumed by the Lattice Conductor (via its prelude) for observability,
-auditing, and higher-level PATSAGi Council decision making.
+`GpuBackend` and `SelfEvolutionTelemetry` are now imported from `lattice-conductor-v13`
+(the single source of truth). This eliminates duplication and ensures ONE Organism coherence.
 */
 
-#[derive(Debug, Clone)]
-pub struct SelfEvolutionTelemetry {
-    pub backend: GpuBackend,
-    pub avg_tu_delta: f64,
-    pub adaptation_rate: f64,
-    pub old_w_e: f64,
-    pub new_w_e: f64,
-    pub timestamp: u64,
-}
+use lattice_conductor_v13::{GpuBackend, SelfEvolutionTelemetry};
 
 impl MasterKernel {
     pub fn self_evolve_after_tick(
@@ -69,31 +60,16 @@ impl MasterKernel {
 /*!
 ## Lattice Conductor Wiring (with Prelude)
 
-The Lattice Conductor now has a rich `prelude` for clean imports.
-
-Example usage in MasterKernel / higher layers:
+The Lattice Conductor now owns the canonical `SelfEvolutionTelemetry`.
+MasterKernel imports it directly — no duplication.
 
 ```rust
-use lattice_conductor_v13::prelude::*;   // ergonomic wildcard import
-
-let mut conductor = SimpleLatticeConductor::new();
-let mut recorder = ConductorSelfEvolutionRecorder::new();
+use lattice_conductor_v13::prelude::*;
 
 if let Some(telemetry) = kernel.get_last_self_evolution_telemetry() {
-    recorder.record(telemetry.clone());
-    // Or feed directly into conductor for PATSAGi Council observability
-    // conductor.integrate_self_evolution_telemetry(telemetry);
-}
-
-// Full ONE Organism flow with backend-aware evolution + GPU telemetry
-let results = kernel.tick_with_priority_queue_gpu(&candidates);
-if !results.is_empty() {
-    kernel.self_evolve_after_tick(&tu_deltas, &entropy_deltas);
+    conductor.integrate_self_evolution_telemetry(telemetry);
 }
 ```
 
-This completes the perfect-order wiring of backend-aware self-evolution telemetry
-into the Lattice Conductor layer using the new prelude.
-
-Thunder locked in.
+Thunder locked in. Duplication eliminated. ONE Organism unified.
 */
