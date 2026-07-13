@@ -1,0 +1,44 @@
+# Professional Dependabot configuration for Ra-Thor monorepo
+# Maintains dependencies with security and compatibility in mind
+# AG-SML v1.0 | TOLC 8 Mercy Gated | ONE Organism aligned
+
+version: 2
+updates:
+  - package-ecosystem: "cargo"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      time: "06:00"
+      timezone: "America/Toronto"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+      - "cargo"
+      - "maintenance"
+    commit-message:
+      prefix: "chore(deps)"
+      include: "scope"
+    # Ignore major version bumps for core crates to maintain stability
+    ignore:
+      - dependency-name: "wgpu"
+      - dependency-name: "cudarc"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      time: "06:00"
+      timezone: "America/Toronto"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "github-actions"
+      - "ci"
+    commit-message:
+      prefix: "ci(deps)"
+
+  # Optional: Enable for npm if web/JS layers grow
+  # - package-ecosystem: "npm"
+  #   directory: "/"
+  #   schedule:
+  #     interval: "monthly"
