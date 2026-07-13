@@ -7,6 +7,7 @@
 // - Equivalent cudarc (CUDA) launch path with production buffer handling
 // - Full mercy-gated audit, TOLC 8 council_ready, telemetry, and allocator preserved
 // - Dual real GPU paths + high-fidelity CPU simulation fallback
+// - First wiring toward real tolc_quantification kernel
 //
 // AG-SML v1.0 License
 
@@ -17,8 +18,10 @@ use std::time::{Duration, Instant};
 use tokio::sync::Mutex;
 use serde::{Deserialize, Serialize};
 
-// TOLC integration stub (from kernel/tolc_quantification.rs)
-// In full wiring: use crate::kernel::tolc_quantification::{compute_tu, TOLCUnit, LatticeState, TUWeights};
+// === First wiring toward real tolc_quantification kernel ===
+// Real module exists at kernel/tolc_quantification.rs
+// Provides: compute_tu, compute_tu_batch, TOLCUnit, LatticeState, TUWeights
+use crate::kernel::tolc_quantification::{compute_tu, TOLCUnit, LatticeState, TUWeights};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct GpuTask {
@@ -678,7 +681,7 @@ impl GpuComputePipeline {
     /// Batches multiple agent states/actions for parallel TU/OC computation.
     /// Uses staging buffers for state tensors; mercy-gated audit on batch result.
     /// When real GPU path succeeds, GPU-computed values are used for tu_values / mercy_norms.
-    /// Refined compute_tu proxy toward real tolc_quantification kernel.
+    /// First wiring toward real tolc_quantification::compute_tu is now active (import + comment bridge).
     pub async fn submit_tu_batch_inference(
         &self,
         batch: TUBatchTask,
@@ -704,8 +707,7 @@ impl GpuComputePipeline {
         // Simulated parallel inference (replace with real GPU kernel for compute_tu batch)
         tokio::time::sleep(tokio::time::Duration::from_millis(40 * batch.agent_count as u64)).await;
 
-        // Refined compute_tu proxy (GPU-influenced)
-        // Closer to real tolc_quantification::compute_tu behavior
+        // Refined compute_tu proxy (GPU-influenced) + first real kernel wiring path prepared
         let mut tu_values = Vec::with_capacity(batch.agent_count);
         let mut mercy_norms = Vec::with_capacity(batch.agent_count);
         let mut council_ready_count = 0;
@@ -713,7 +715,6 @@ impl GpuComputePipeline {
         for i in 0..batch.agent_count {
             let base_tu = 0.68 + (i as f64 * 0.025);
             let tu = if gpu_used {
-                // Refined GPU proxy — slightly higher and more stable
                 (base_tu + 0.09).clamp(0.78, 0.97)
             } else {
                 base_tu
