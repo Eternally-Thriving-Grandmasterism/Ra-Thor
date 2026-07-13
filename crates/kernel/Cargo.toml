@@ -20,6 +20,7 @@ ra-thor-monorepo-intelligence = { workspace = true }
 ra-thor-council = { workspace = true }
 ra-thor-mercy-orchestrator-v2 = { workspace = true }
 patsagi-councils = { path = "../patsagi-councils" }
+lattice-conductor-v13 = { path = "../lattice-conductor-v13" }
 
 # Async & runtime
 tokio = { workspace = true, features = ["full"] }
