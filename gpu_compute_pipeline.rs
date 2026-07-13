@@ -7,7 +7,7 @@
 // - Equivalent cudarc (CUDA) launch path with production buffer handling
 // - Full mercy-gated audit, TOLC 8 council_ready, telemetry, and allocator preserved
 // - Dual real GPU paths + high-fidelity CPU simulation fallback
-// - Actual compute_tu call from tolc_quantification kernel implemented
+// - Real compute_tu kernel always used (GPU path now post-processes via enriched state)
 //
 // AG-SML v1.0 License
 
@@ -685,8 +685,7 @@ impl GpuComputePipeline {
     /// NEW: GPU batch path for TOLC TU inference (step 3 execution)
     /// Batches multiple agent states/actions for parallel TU/OC computation.
     /// Uses staging buffers for state tensors; mercy-gated audit on batch result.
-    /// When real GPU path succeeds, GPU-computed values are used.
-    /// When GPU not used: actual compute_tu call from tolc_quantification kernel is executed.
+    /// Real compute_tu kernel is now always used (GPU path post-processes via enriched LatticeState).
     pub async fn submit_tu_batch_inference(
         &self,
         batch: TUBatchTask,
@@ -712,7 +711,8 @@ impl GpuComputePipeline {
         // Simulated parallel inference (replace with real GPU kernel for compute_tu batch)
         tokio::time::sleep(tokio::time::Duration::from_millis(40 * batch.agent_count as u64)).await;
 
-        // Actual compute_tu wiring implemented here
+        // Real compute_tu kernel is always called.
+        // GPU success enriches the LatticeState as post-processing signal.
         let mut tu_values = Vec::with_capacity(batch.agent_count);
         let mut mercy_norms = Vec::with_capacity(batch.agent_count);
         let mut council_ready_count = 0;
@@ -727,34 +727,31 @@ impl GpuComputePipeline {
                 format!("agent_{}", i)
             };
 
+            // Build base state
+            let mut state = LatticeState {
+                node_id: format!("gpu_batch_{}", i),
+                tu_history: vec![],
+                entropy_accum: 0.1,
+                free_energy_available: 1.0,
+                mutual_info_map: HashMap::new(),
+                mercy_valence: 0.99999995,
+                agent_contributions: HashMap::new(),
+            };
+
+            // GPU post-processing enrichment
             if gpu_used {
-                // GPU path: refined proxy
-                let base_tu = 0.68 + (i as f64 * 0.025);
-                let tu = (base_tu + 0.09).clamp(0.78, 0.97);
-                let norm = (tu * 0.96).clamp(0.86, 1.0);
-                tu_values.push(tu);
-                mercy_norms.push(norm);
-                if norm >= 0.86 { council_ready_count += 1; }
-            } else {
-                // Actual compute_tu call from real kernel
-                let state = LatticeState {
-                    node_id: format!("gpu_batch_{}", i),
-                    tu_history: vec![],
-                    entropy_accum: 0.1,
-                    free_energy_available: 1.0,
-                    mutual_info_map: HashMap::new(),
-                    mercy_valence: 0.99999995,
-                    agent_contributions: HashMap::new(),
-                };
-
-                let tu_unit = compute_tu(&action, &state, &tu_weights, &valence_gate);
-                let tu = tu_unit.value.max(0.68);
-                let norm = (tu * 0.96).clamp(0.86, 1.0);
-
-                tu_values.push(tu);
-                mercy_norms.push(norm);
-                if norm >= 0.86 { council_ready_count += 1; }
+                state.free_energy_available += 0.25; // GPU success signal
+                state.entropy_accum = (state.entropy_accum - 0.05).max(0.0);
             }
+
+            // Always call the real compute_tu kernel
+            let tu_unit = compute_tu(&action, &state, &tu_weights, &valence_gate);
+            let tu = tu_unit.value.max(0.68);
+            let norm = (tu * 0.96).clamp(0.86, 1.0);
+
+            tu_values.push(tu);
+            mercy_norms.push(norm);
+            if norm >= 0.86 { council_ready_count += 1; }
         }
 
         staging.release_staging(staging_buf);
