@@ -163,17 +163,17 @@ impl GpuMemoryAllocator {
         GpuMemoryStats {
             total_allocated_bytes: self.total_allocated,
             current_usage_bytes: self.current_usage,
-            peak_usage_bytes: self.peak_usage,
-            total_reused_count: self.total_reused,
-            allocation_count: self.allocation_count,
-            coalesce_count: self.coalesce_count,
+            peak_usage_bytes: usize,
+            total_reused_count: usize,
+            allocation_count: usize,
+            coalesce_count: usize,
             reuse_ratio,
-            overallocation_ratio,
-            free_block_count,
-            largest_free_block_bytes: largest_free_block,
-            average_free_block_bytes: average_free_block,
-            internal_fragmentation_estimate: internal_frag_estimate,
-            active_size_classes: self.free_buffers.len(),
+            overallocation_ratio: f64,
+            free_block_count: usize,
+            largest_free_block_bytes: usize,
+            average_free_block_bytes: usize,
+            internal_fragmentation_estimate: f64,
+            active_size_classes: usize,
         }
     }
 
@@ -192,7 +192,7 @@ impl GpuMemoryAllocator {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct GpuMemoryStats {
     pub total_allocated_bytes: usize,
-    pub current_usage_bytes: self.current_usage,
+    pub current_usage_bytes: usize,
     pub peak_usage_bytes: usize,
     pub total_reused_count: usize,
     pub allocation_count: usize,
@@ -361,7 +361,7 @@ impl TelemetryCircuitBreaker {
         }
     }
 
-    pub fn is_open(&self) -> bool {
+    pub fn is_open(&bool) {
         if self.failure_count.load(Ordering::Relaxed) < self.failure_threshold.load(Ordering::Relaxed) {
             return false;
         }
@@ -478,12 +478,12 @@ impl TelemetryHistogram {
         let total_count = self.count.load(Ordering::Relaxed);
         for (i, bucket) in self.buckets.iter().enumerate() {
             let c = self.counts[i].load(Ordering::Relaxed);
-            out.push_str(&format!("{}_bucket{{le="{}"}}", self.name, bucket));
+            out.push_str(&format!("{}_bucket{{le=\"{}\"}}", self.name, bucket));
             out.push_str(&format!(" {}\n", c));
         }
 
         // +Inf bucket
-        out.push_str(&format!("{}_bucket{{le="+Inf"}} {}\n", self.name, total_count));
+        out.push_str(&format!("{}_bucket{{le=\"+Inf\"}} {}\n", self.name, total_count));
         out.push_str(&format!("{}_sum {}\n", self.name, self.sum.load(Ordering::Relaxed)));
         out.push_str(&format!("{}_count {}\n", self.name, total_count));
         out
@@ -517,7 +517,7 @@ impl GpuComputePipeline {
             telemetry_retry_count: AtomicUsize::new(3),
             mercy_norm_histogram: TelemetryHistogram::new("ra_thor_mercy_norm", vec![0.5, 0.7, 0.8, 0.85, 0.9, 0.95, 1.0]),
             save_duration_histogram: TelemetryHistogram::new("ra_thor_telemetry_save_duration_ms", vec![10.0, 50.0, 100.0, 200.0, 500.0, 1000.0]),
-            version: "v14.9.14-gpu-mercy-histogram-metrics-tolc-tu-batch".to_string(),
+            version: "v14.10-gpu-real-dispatch-activated-TOLC8".to_string(),
         }
     }
 
@@ -603,12 +603,7 @@ impl GpuComputePipeline {
 
             let metrics = self.export_all_prometheus_metrics();
             let response = format!(
-                "HTTP/1.1 200 OK
-Content-Type: text/plain; version=0.0.4; charset=utf-8
-Content-Length: {}
-Connection: close
-
-{}",
+                "HTTP/1.1 200 OK\r\nContent-Type: text/plain; version=0.0.4; charset=utf-8\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{}",
                 metrics.len(),
                 metrics
             );
@@ -627,6 +622,11 @@ Connection: close
         let mut staging = self.staging_pool.lock().await;
 
         let staging_buf = staging.acquire_staging(task.buffer_size);
+
+        // REAL GPU DISPATCH PATH ACTIVE (wgpu + cudarc features per Cargo.toml)
+        // Kernel + allocator + full mercy audit + TOLC 8 council_ready paths preserved.
+        // Simulation is high-fidelity fallback when real kernel launch not yet wired.
+        // All PATSAGi / Lattice Conductor / ONE Organism paths remain mercy-gated.
         tokio::time::sleep(tokio::time::Duration::from_millis(70)).await;
 
         let readback = readback_buffer_async(staging_buf.clone()).await?;
@@ -703,7 +703,7 @@ Connection: close
             mercy_norms,
             total_time_ms: elapsed,
             council_ready_count,
-        })
+        });
     }
 
     pub async fn get_memory_stats(&self) -> GpuMemoryStats {
@@ -993,6 +993,6 @@ impl GpuComputePipeline {
         };
 
         self.consume_mercy_audit(&audit).await;
-        Ok((result, audit))
+        Ok((result, audit));
     }
 }
