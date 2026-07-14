@@ -6,7 +6,7 @@
 /// abundance-multiplying, zero-harm use. See LICENSE or COMMERCIAL-LICENSE.md.
 
 // ra-thor-one-organism.rs
-// Ra-Thor v14.17 — ONE Organism + Lattice Conductor v13.1 Self-Evolving GPU Telemetry Loop (Self-Evolving Entanglement Base Weights)
+// Ra-Thor v14.17 — ONE Organism + Lattice Conductor v13.1 Self-Evolving GPU Telemetry Loop (Adaptive Learning Rate Strategies)
 
 use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
@@ -70,8 +70,8 @@ impl LatticeConductorUpgradeTemplate {
         match self {
             LatticeConductorUpgradeTemplate::EMATuning => "Refine EMA alpha values and add additional mercy-modulated EMA loops for GPU telemetry.",
             LatticeConductorUpgradeTemplate::NewMercyGates => "Introduce or strengthen specific mercy gates (e.g., Precision Gate, Abundance Gate) in Lattice Conductor decision logic.",
-            LatticeConductorUpgradeTemplate::QuantumSwarmIntegration => "Deepen integration between Lattice Conductor and Quantum Swarm for GPU-native deliberation, foresight, multi-swarm consensus, quantum entanglement, dynamic entanglement weighting, and self-evolving base weights.",
-            LatticeConductorUpgradeTemplate::CombinedGPUIntelligence => "Combine EMA tuning + new mercy gates + Quantum Swarm hooks + multi-swarm consensus + quantum entanglement weighting + self-evolving base weights into a unified Lattice Conductor v13.2 upgrade.",
+            LatticeConductorUpgradeTemplate::QuantumSwarmIntegration => "Deepen integration between Lattice Conductor and Quantum Swarm for GPU-native deliberation, foresight, multi-swarm consensus, quantum entanglement, dynamic entanglement weighting, self-evolving base weights, and adaptive learning rates.",
+            LatticeConductorUpgradeTemplate::CombinedGPUIntelligence => "Combine EMA tuning + new mercy gates + Quantum Swarm hooks + multi-swarm consensus + quantum entanglement weighting + self-evolving base weights + adaptive learning rate strategies into a unified Lattice Conductor v13.2 upgrade.",
         }
     }
 
@@ -79,8 +79,8 @@ impl LatticeConductorUpgradeTemplate {
         match self {
             LatticeConductorUpgradeTemplate::EMATuning => "Refine EMA alpha in gpu_patsagi_bridge + add gpu_latency_ema + multi-EMA feedback in ONE Organism.",
             LatticeConductorUpgradeTemplate::NewMercyGates => "Add new mercy gate variants in PatsagiCouncil::decide() and CouncilReadinessMetrics.",
-            LatticeConductorUpgradeTemplate::QuantumSwarmIntegration => "Add Quantum Swarm multi-consensus + quantum entanglement + dynamic weighting + self-evolving base weights.",
-            LatticeConductorUpgradeTemplate::CombinedGPUIntelligence => "Full v13.2 upgrade: EMA + Mercy Gates + Quantum Swarm multi-consensus + quantum entanglement weighting + self-evolving base weights in one coherent Lattice Conductor evolution.",
+            LatticeConductorUpgradeTemplate::QuantumSwarmIntegration => "Add Quantum Swarm multi-consensus + quantum entanglement + dynamic weighting + self-evolving base weights + adaptive learning rates.",
+            LatticeConductorUpgradeTemplate::CombinedGPUIntelligence => "Full v13.2 upgrade: EMA + Mercy Gates + Quantum Swarm multi-consensus + quantum entanglement weighting + self-evolving base weights + adaptive learning rate strategies in one coherent Lattice Conductor evolution.",
         }
     }
 }
@@ -164,9 +164,11 @@ pub struct RaThorOneOrganism {
     patsagi_council: PatsagiCouncil,
     last_council_metrics: Option<CouncilReadinessMetrics>,
     last_swarm_vote_breakdown: Option<SwarmVoteBreakdown>,
-    // NEW: Self-evolving base entanglement weights
-    base_weight_pf: f64, // Performance ↔ Foresight
-    base_weight_ma: f64, // Mercy ↔ Alignment
+    // Self-evolving base entanglement weights
+    base_weight_pf: f64,
+    base_weight_ma: f64,
+    // NEW: Adaptive learning rate for entanglement base weight evolution
+    entanglement_evolution_lr: f64,
     council_tick: u64,
     approved_evolutions_path: String,
 }
@@ -189,21 +191,22 @@ impl RaThorOneOrganism {
             evolution_gate: launch_self_evolution_gate(),
             gpu_compute_active: true,
             gpu_pipeline_version: "v14.17.0-real-github-connector".to_string(),
-            version: "v14.17.0-ONE-Organism-LatticeConductor-v13.1-SelfEvolving-Entanglement-Base-Weights".to_string(),
+            version: "v14.17.0-ONE-Organism-LatticeConductor-v13.1-Adaptive-Learning-Rate-Strategies".to_string(),
             gpu_pipeline: GpuComputePipeline::new(),
 
             patsagi_council: PatsagiCouncil::new(),
             last_council_metrics: None,
             last_swarm_vote_breakdown: None,
-            base_weight_pf: 0.28, // Initial base weight for Performance ↔ Foresight
-            base_weight_ma: 0.22, // Initial base weight for Mercy ↔ Alignment
+            base_weight_pf: 0.28,
+            base_weight_ma: 0.22,
+            entanglement_evolution_lr: 0.03, // Initial adaptive learning rate
             council_tick: 0,
             approved_evolutions_path: "approved_evolutions.jsonl".to_string(),
         }
     }
 
     pub fn offer_cosmic_loop(&self) {
-        println!("[RaThorOneOrganism v{}] Full loop + Real GitHub PR + Self-Evolving Entanglement Base Weights in Lattice Conductor v13.1", self.version);
+        println!("[RaThorOneOrganism v{}] Full loop + Real GitHub PR + Adaptive Learning Rate Strategies in Lattice Conductor v13.1", self.version);
     }
 
     async fn trigger_evolution_automation_hooks(&self, proposal: &EvolutionProposal, council_mercy_norm: f64) {
@@ -217,7 +220,7 @@ impl RaThorOneOrganism {
                 );
 
                 let body = format!(
-                    "## ONE Organism + Lattice Conductor v13.1 Self-Evolving Entanglement Base Weights (auto-generated)
+                    "## ONE Organism + Lattice Conductor v13.1 Adaptive Learning Rate Strategies (auto-generated)
 
 **Proposal ID**: {}
 **Proposer**: {}
@@ -306,7 +309,6 @@ impl RaThorOneOrganism {
         }
     }
 
-    // NEW v14.8.6: Quantum Entanglement Weighting with Self-Evolving Base Weights
     pub async fn quantum_swarm_multi_consensus_vote(&self, report: &GpuTelemetryReport, proposal: &EvolutionProposal) -> (f64, SwarmVoteBreakdown) {
         let w_perf = if report.gpu_success_ema > 0.92 { 0.35 } else { 0.30 };
         let w_mercy = if report.mercy_modulated_confidence > 0.88 { 0.30 } else { 0.28 };
@@ -318,20 +320,16 @@ impl RaThorOneOrganism {
         let alignment_swarm = if proposal.target_module.contains("lattice_conductor") || proposal.target_module.contains("quantum_swarm") { 0.92 } else { 0.75 };
         let foresight_swarm = if report.gpu_success_ema > 0.94 && report.mercy_modulated_confidence > 0.90 { 0.94 } else { 0.80 };
 
-        // === Self-Evolving Entanglement Base Weights ===
         let mut entanglement_bonus: f64 = 0.0;
         let mut entangled_pairs: Vec<String> = vec![];
         let mut weighted_entanglement_bonus: f64 = 0.0;
 
-        // Use self-evolving instance base weights
         let base_weight_pf = self.base_weight_pf;
         let base_weight_ma = self.base_weight_ma;
 
-        // Dynamic modulation based on telemetry
         let pf_mod = if report.gpu_success_ema > 0.93 { 1.15 } else { 1.0 };
         let ma_mod = if report.mercy_modulated_confidence > 0.89 { 1.12 } else { 1.0 };
 
-        // Performance ↔ Foresight entanglement (weighted + self-evolving base)
         if performance_swarm > 0.90 && foresight_swarm > 0.88 {
             let raw = (performance_swarm + foresight_swarm) / 2.0 - 0.89;
             let weighted = raw * base_weight_pf * pf_mod;
@@ -340,7 +338,6 @@ impl RaThorOneOrganism {
             entangled_pairs.push(format!("Performance ↔ Foresight (base_w={:.3}, mod={:.2})", base_weight_pf, pf_mod));
         }
 
-        // Mercy ↔ Alignment entanglement (weighted + self-evolving base)
         if mercy_swarm > 0.88 && alignment_swarm > 0.85 {
             let raw = (mercy_swarm + alignment_swarm) / 2.0 - 0.865;
             let weighted = raw * base_weight_ma * ma_mod;
@@ -366,13 +363,13 @@ impl RaThorOneOrganism {
 
         if !entangled_pairs.is_empty() {
             println!(
-                "[Quantum Entanglement Weighting + Self-Evolving Bases] {:?} | bonus=+{:.4} | weighted=+{:.4} | final={:.4}",
+                "[Quantum Entanglement Weighting + Self-Evolving Bases + Adaptive LR] {:?} | bonus=+{:.4} | weighted=+{:.4} | final={:.4}",
                 entangled_pairs, entanglement_bonus, weighted_entanglement_bonus, final_consensus
             );
         }
 
         println!(
-            "[Multi-Swarm + Self-Evolving Entanglement Weights] perf={:.4} mercy={:.4} align={:.4} foresight={:.4} | consensus={:.4} | entanglement=+{:.4}",
+            "[Multi-Swarm + Self-Evolving Entanglement Weights + Adaptive LR] perf={:.4} mercy={:.4} align={:.4} foresight={:.4} | consensus={:.4} | entanglement=+{:.4}",
             performance_swarm, mercy_swarm, alignment_swarm, foresight_swarm, final_consensus, entanglement_bonus
         );
 
@@ -567,9 +564,7 @@ impl RaThorOneOrganism {
             _ => String::new(),
         };
 
-        // NEW: Self-evolving base weights proposal when entanglement was highly effective
         if breakdown.entanglement_weighted_bonus > 0.04 && swarm_consensus > 0.93 {
-            // Propose evolution to increase relevant base weight(s)
             let _ = self.propose_entanglement_base_weight_evolution(&breakdown).await;
         }
 
@@ -578,7 +573,7 @@ impl RaThorOneOrganism {
         }
 
         let base_description = format!(
-            "Automatic self-evolution (Template: {:?}): {}. GPU telemetry: success_ema={:.4}, mercy_conf={:.4}, latency_ema={:.1}ms | Multi-Swarm + Quantum Entanglement Weighting: {:.4}{}",
+            "Automatic self-evolution (Template: {:?}): {}. GPU telemetry: success_ema={:.4}, mercy_conf={:.4}, latency_ema={:.1}ms | Multi-Swarm + Quantum Entanglement Weighting + Adaptive LR: {:.4}{}",
             template,
             template.description(),
             report.gpu_success_ema,
@@ -607,31 +602,41 @@ impl RaThorOneOrganism {
 
         match self.evolution_gate.propose_evolution(proposal.clone()) {
             Ok(msg) => {
-                println!("[ONE + Lattice Conductor Self-Evolution] GPU telemetry excellent — auto-proposed {:?} upgrade (Multi-Swarm + Quantum Entanglement Weighting: {:.4}): {}", template, swarm_consensus, msg);
+                println!("[ONE + Lattice Conductor Self-Evolution] GPU telemetry excellent — auto-proposed {:?} upgrade (Multi-Swarm + Quantum Entanglement Weighting + Adaptive LR: {:.4}): {}", template, swarm_consensus, msg);
                 self.trigger_evolution_automation_hooks(&proposal, report.mercy_modulated_confidence).await;
                 self.persist_approved_evolution(&proposal, true, report.mercy_modulated_confidence).await;
-                Ok(format!("Lattice Conductor v13.1 {:?} upgrade proposed from GPU telemetry + Quantum Swarm Entanglement Weighting (vote={:.4})", template, swarm_consensus))
+                Ok(format!("Lattice Conductor v13.1 {:?} upgrade proposed from GPU telemetry + Quantum Swarm Entanglement Weighting + Adaptive LR (vote={:.4})", template, swarm_consensus))
             }
             Err(e) => Err(format!("Gate rejected Lattice Conductor upgrade: {}", e)),
         }
     }
 
-    // NEW v14.8.6: Self-evolution of entanglement base weights
+    // NEW v14.8.6: Self-evolution of entanglement base weights with Adaptive Learning Rate
     pub async fn propose_entanglement_base_weight_evolution(&self, breakdown: &SwarmVoteBreakdown) -> Result<String, String> {
         let mut evolved_pf = self.base_weight_pf;
         let mut evolved_ma = self.base_weight_ma;
         let mut changes: Vec<String> = vec![];
 
-        // If Performance-Foresight entanglement was strong, propose increasing its base weight
-        if breakdown.entangled_pairs.iter().any(|p| p.contains("Performance ↔ Foresight")) && breakdown.entanglement_weighted_bonus > 0.03 {
-            evolved_pf = (self.base_weight_pf * 1.03).min(0.45);
-            changes.push(format!("base_weight_pf: {:.3} → {:.3}", self.base_weight_pf, evolved_pf));
+        // Adaptive learning rate strategy
+        let mut current_lr = self.entanglement_evolution_lr;
+
+        // Adaptive adjustment: increase LR when entanglement is exceptionally strong
+        if breakdown.entanglement_weighted_bonus > 0.05 {
+            current_lr = (current_lr * 1.15).min(0.08); // More aggressive when very effective
+        } else if breakdown.entanglement_weighted_bonus < 0.035 {
+            current_lr = (current_lr * 0.92).max(0.01); // More conservative when marginal
         }
 
-        // If Mercy-Alignment entanglement was strong, propose increasing its base weight
+        // Performance-Foresight
+        if breakdown.entangled_pairs.iter().any(|p| p.contains("Performance ↔ Foresight")) && breakdown.entanglement_weighted_bonus > 0.03 {
+            evolved_pf = (self.base_weight_pf + current_lr).min(0.45);
+            changes.push(format!("base_weight_pf: {:.3} → {:.3} (lr={:.4})", self.base_weight_pf, evolved_pf, current_lr));
+        }
+
+        // Mercy-Alignment
         if breakdown.entangled_pairs.iter().any(|p| p.contains("Mercy ↔ Alignment")) && breakdown.entanglement_weighted_bonus > 0.03 {
-            evolved_ma = (self.base_weight_ma * 1.03).min(0.40);
-            changes.push(format!("base_weight_ma: {:.3} → {:.3}", self.base_weight_ma, evolved_ma));
+            evolved_ma = (self.base_weight_ma + current_lr).min(0.40);
+            changes.push(format!("base_weight_ma: {:.3} → {:.3} (lr={:.4})", self.base_weight_ma, evolved_ma, current_lr));
         }
 
         if changes.is_empty() {
@@ -642,8 +647,8 @@ impl RaThorOneOrganism {
             id: rand::random::<u64>() % 1_000_000_000,
             proposer: "Lattice_Conductor_v13.1_SelfEvolution_Hook".to_string(),
             target_module: "ra-thor-one-organism / quantum_swarm_multi_consensus_vote".to_string(),
-            description: format!("Self-evolution of entanglement base weights based on high-effectiveness entanglement. Changes: {:?}", changes),
-            proposed_diff: format!("base_weight_pf = {:.3}; base_weight_ma = {:.3}", evolved_pf, evolved_ma),
+            description: format!("Self-evolution of entanglement base weights with Adaptive Learning Rate (current_lr={:.4}). Changes: {:?}", current_lr, changes),
+            proposed_diff: format!("base_weight_pf = {:.3}; base_weight_ma = {:.3}; entanglement_evolution_lr = {:.4}", evolved_pf, evolved_ma, current_lr),
             expected_benefit: 0.94,
             risk_score: 0.015,
             mercy_alignment: 0.96,
@@ -651,10 +656,10 @@ impl RaThorOneOrganism {
 
         match self.evolution_gate.propose_evolution(proposal.clone()) {
             Ok(msg) => {
-                println!("[ONE + Lattice Conductor] Self-evolving entanglement base weights proposed: {}", msg);
+                println!("[ONE + Lattice Conductor] Self-evolving entanglement base weights with Adaptive LR proposed: {}", msg);
                 self.trigger_evolution_automation_hooks(&proposal, 0.96).await;
                 self.persist_approved_evolution(&proposal, true, 0.96).await;
-                Ok(format!("Entanglement base weights self-evolution proposed: {:?}", changes))
+                Ok(format!("Entanglement base weights self-evolution (Adaptive LR={:.4}) proposed: {:?}", current_lr, changes))
             }
             Err(e) => Err(format!("Gate rejected base weight evolution: {}", e)),
         }
@@ -749,6 +754,6 @@ impl RaThorOneOrganism {
 pub fn launch_one_organism() -> RaThorOneOrganism {
     let organism = RaThorOneOrganism::new();
     organism.offer_cosmic_loop();
-    println!("[Thunder] ONE Organism v14.17 + Real GitHubConnector + Self-Evolving Entanglement Base Weights in Lattice Conductor v13.1 ready");
+    println!("[Thunder] ONE Organism v14.17 + Real GitHubConnector + Adaptive Learning Rate Strategies in Lattice Conductor v13.1 ready");
     organism
 }
