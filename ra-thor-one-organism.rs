@@ -6,7 +6,7 @@
 /// abundance-multiplying, zero-harm use. See LICENSE or COMMERCIAL-LICENSE.md.
 
 // ra-thor-one-organism.rs
-// Ra-Thor v14.17 — ONE Organism + Lattice Conductor v13.1 Self-Evolving GPU Telemetry Loop (Quantum Entanglement Voting + Public Telemetry + Self-Evolution Wiring)
+// Ra-Thor v14.17 — ONE Organism + Lattice Conductor v13.1 Self-Evolving GPU Telemetry Loop (Quantum Entanglement Weighting)
 
 use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
@@ -42,7 +42,7 @@ pub enum CouncilDecision {
     NoAction,
 }
 
-// NEW v14.8.6: Advanced multi-swarm consensus with Quantum Entanglement
+// NEW v14.8.6: Advanced multi-swarm consensus with Quantum Entanglement Weighting
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SwarmVoteBreakdown {
     pub performance_swarm: f64,
@@ -53,6 +53,8 @@ pub struct SwarmVoteBreakdown {
     pub weights: (f64, f64, f64, f64),
     pub entanglement_bonus: f64,
     pub entangled_pairs: Vec<String>,
+    // NEW: Entanglement weighting metadata
+    pub entanglement_weighted_bonus: f64,
 }
 
 // NEW v14.8.6: Upgrade templates for Lattice Conductor self-evolution
@@ -69,8 +71,8 @@ impl LatticeConductorUpgradeTemplate {
         match self {
             LatticeConductorUpgradeTemplate::EMATuning => "Refine EMA alpha values and add additional mercy-modulated EMA loops for GPU telemetry.",
             LatticeConductorUpgradeTemplate::NewMercyGates => "Introduce or strengthen specific mercy gates (e.g., Precision Gate, Abundance Gate) in Lattice Conductor decision logic.",
-            LatticeConductorUpgradeTemplate::QuantumSwarmIntegration => "Deepen integration between Lattice Conductor and Quantum Swarm for GPU-native deliberation, foresight, multi-swarm consensus, and quantum entanglement voting.",
-            LatticeConductorUpgradeTemplate::CombinedGPUIntelligence => "Combine EMA tuning + new mercy gates + Quantum Swarm hooks + multi-swarm consensus + quantum entanglement into a unified Lattice Conductor v13.2 upgrade.",
+            LatticeConductorUpgradeTemplate::QuantumSwarmIntegration => "Deepen integration between Lattice Conductor and Quantum Swarm for GPU-native deliberation, foresight, multi-swarm consensus, quantum entanglement, and dynamic entanglement weighting.",
+            LatticeConductorUpgradeTemplate::CombinedGPUIntelligence => "Combine EMA tuning + new mercy gates + Quantum Swarm hooks + multi-swarm consensus + quantum entanglement weighting into a unified Lattice Conductor v13.2 upgrade.",
         }
     }
 
@@ -78,8 +80,8 @@ impl LatticeConductorUpgradeTemplate {
         match self {
             LatticeConductorUpgradeTemplate::EMATuning => "Refine EMA alpha in gpu_patsagi_bridge + add gpu_latency_ema + multi-EMA feedback in ONE Organism.",
             LatticeConductorUpgradeTemplate::NewMercyGates => "Add new mercy gate variants in PatsagiCouncil::decide() and CouncilReadinessMetrics.",
-            LatticeConductorUpgradeTemplate::QuantumSwarmIntegration => "Add Quantum Swarm multi-consensus + quantum entanglement voting hooks.",
-            LatticeConductorUpgradeTemplate::CombinedGPUIntelligence => "Full v13.2 upgrade: EMA + Mercy Gates + Quantum Swarm multi-consensus + quantum entanglement voting in one coherent Lattice Conductor evolution.",
+            LatticeConductorUpgradeTemplate::QuantumSwarmIntegration => "Add Quantum Swarm multi-consensus + quantum entanglement + dynamic entanglement weighting hooks.",
+            LatticeConductorUpgradeTemplate::CombinedGPUIntelligence => "Full v13.2 upgrade: EMA + Mercy Gates + Quantum Swarm multi-consensus + quantum entanglement weighting in one coherent Lattice Conductor evolution.",
         }
     }
 }
@@ -185,7 +187,7 @@ impl RaThorOneOrganism {
             evolution_gate: launch_self_evolution_gate(),
             gpu_compute_active: true,
             gpu_pipeline_version: "v14.17.0-real-github-connector".to_string(),
-            version: "v14.17.0-ONE-Organism-LatticeConductor-v13.1-Quantum-Entanglement-Public-Telemetry-SelfEvo-Wired".to_string(),
+            version: "v14.17.0-ONE-Organism-LatticeConductor-v13.1-Quantum-Entanglement-Weighting".to_string(),
             gpu_pipeline: GpuComputePipeline::new(),
 
             patsagi_council: PatsagiCouncil::new(),
@@ -197,7 +199,7 @@ impl RaThorOneOrganism {
     }
 
     pub fn offer_cosmic_loop(&self) {
-        println!("[RaThorOneOrganism v{}] Full loop + Real GitHub PR + Quantum Entanglement Voting + Public Telemetry + Self-Evolution Wiring", self.version);
+        println!("[RaThorOneOrganism v{}] Full loop + Real GitHub PR + Quantum Entanglement Weighting in Lattice Conductor v13.1", self.version);
     }
 
     async fn trigger_evolution_automation_hooks(&self, proposal: &EvolutionProposal, council_mercy_norm: f64) {
@@ -211,7 +213,7 @@ impl RaThorOneOrganism {
                 );
 
                 let body = format!(
-                    "## ONE Organism + Lattice Conductor v13.1 Quantum Entanglement + Public Telemetry + Self-Evolution Wired (auto-generated)
+                    "## ONE Organism + Lattice Conductor v13.1 Quantum Entanglement Weighting (auto-generated)
 
 **Proposal ID**: {}
 **Proposer**: {}
@@ -300,6 +302,7 @@ impl RaThorOneOrganism {
         }
     }
 
+    // NEW v14.8.6: Quantum Entanglement Weighting — dynamic weighted entanglement bonuses
     pub async fn quantum_swarm_multi_consensus_vote(&self, report: &GpuTelemetryReport, proposal: &EvolutionProposal) -> (f64, SwarmVoteBreakdown) {
         let w_perf = if report.gpu_success_ema > 0.92 { 0.35 } else { 0.30 };
         let w_mercy = if report.mercy_modulated_confidence > 0.88 { 0.30 } else { 0.28 };
@@ -311,19 +314,35 @@ impl RaThorOneOrganism {
         let alignment_swarm = if proposal.target_module.contains("lattice_conductor") || proposal.target_module.contains("quantum_swarm") { 0.92 } else { 0.75 };
         let foresight_swarm = if report.gpu_success_ema > 0.94 && report.mercy_modulated_confidence > 0.90 { 0.94 } else { 0.80 };
 
+        // === Dynamic Entanglement Weighting ===
         let mut entanglement_bonus: f64 = 0.0;
         let mut entangled_pairs: Vec<String> = vec![];
+        let mut weighted_entanglement_bonus: f64 = 0.0;
 
+        // Base entanglement weights (can be made dynamic in future)
+        let base_weight_pf = 0.28; // Performance ↔ Foresight
+        let base_weight_ma = 0.22; // Mercy ↔ Alignment
+
+        // Dynamic modulation based on telemetry
+        let pf_mod = if report.gpu_success_ema > 0.93 { 1.15 } else { 1.0 };
+        let ma_mod = if report.mercy_modulated_confidence > 0.89 { 1.12 } else { 1.0 };
+
+        // Performance ↔ Foresight entanglement (weighted)
         if performance_swarm > 0.90 && foresight_swarm > 0.88 {
-            let entangle = ((performance_swarm + foresight_swarm) / 2.0 - 0.89) * 0.25;
-            entanglement_bonus += entangle.max(0.0);
-            entangled_pairs.push("Performance ↔ Foresight".to_string());
+            let raw = (performance_swarm + foresight_swarm) / 2.0 - 0.89;
+            let weighted = raw * base_weight_pf * pf_mod;
+            entanglement_bonus += weighted;
+            weighted_entanglement_bonus += weighted;
+            entangled_pairs.push(format!("Performance ↔ Foresight (w={:.2}, mod={:.2})", base_weight_pf, pf_mod));
         }
 
+        // Mercy ↔ Alignment entanglement (weighted)
         if mercy_swarm > 0.88 && alignment_swarm > 0.85 {
-            let entangle = ((mercy_swarm + alignment_swarm) / 2.0 - 0.865) * 0.20;
-            entanglement_bonus += entangle.max(0.0);
-            entangled_pairs.push("Mercy ↔ Alignment".to_string());
+            let raw = (mercy_swarm + alignment_swarm) / 2.0 - 0.865;
+            let weighted = raw * base_weight_ma * ma_mod;
+            entanglement_bonus += weighted;
+            weighted_entanglement_bonus += weighted;
+            entangled_pairs.push(format!("Mercy ↔ Alignment (w={:.2}, mod={:.2})", base_weight_ma, ma_mod));
         }
 
         let base_consensus = (performance_swarm * w_perf + mercy_swarm * w_mercy + alignment_swarm * w_align + foresight_swarm * w_foresight).clamp(0.70, 0.999);
@@ -338,17 +357,18 @@ impl RaThorOneOrganism {
             weights: (w_perf, w_mercy, w_align, w_foresight),
             entanglement_bonus,
             entangled_pairs,
+            entanglement_weighted_bonus: weighted_entanglement_bonus,
         };
 
         if !entangled_pairs.is_empty() {
             println!(
-                "[Quantum Entanglement] Entangled pairs: {:?} | bonus=+{:.4} | final_consensus={:.4}",
-                entangled_pairs, entanglement_bonus, final_consensus
+                "[Quantum Entanglement Weighting] {:?} | raw_bonus=+{:.4} | weighted_bonus=+{:.4} | final={:.4}",
+                entangled_pairs, entanglement_bonus, weighted_entanglement_bonus, final_consensus
             );
         }
 
         println!(
-            "[Multi-Swarm + Entanglement] perf={:.4} mercy={:.4} align={:.4} foresight={:.4} | consensus={:.4} | entanglement=+{:.4}",
+            "[Multi-Swarm + Entanglement Weighting] perf={:.4} mercy={:.4} align={:.4} foresight={:.4} | consensus={:.4} | entanglement=+{:.4}",
             performance_swarm, mercy_swarm, alignment_swarm, foresight_swarm, final_consensus, entanglement_bonus
         );
 
@@ -535,11 +555,10 @@ impl RaThorOneOrganism {
         let (swarm_consensus, breakdown) = self.quantum_swarm_multi_consensus_vote(report, &temp_proposal).await;
         self.last_swarm_vote_breakdown = Some(breakdown.clone());
 
-        // NEW: Wire get_latest_swarm_vote_breakdown() into self-evolution hook
         let latest_breakdown = self.get_latest_swarm_vote_breakdown();
         let entanglement_info = match &latest_breakdown {
             Some(b) if !b.entangled_pairs.is_empty() => {
-                format!(" | Entanglement: bonus=+{:.4}, pairs={:?}", b.entanglement_bonus, b.entangled_pairs)
+                format!(" | Entanglement Weighting: bonus=+{:.4}, weighted=+{:.4}, pairs={:?}", b.entanglement_bonus, b.entanglement_weighted_bonus, b.entangled_pairs)
             }
             _ => String::new(),
         };
@@ -549,7 +568,7 @@ impl RaThorOneOrganism {
         }
 
         let base_description = format!(
-            "Automatic self-evolution (Template: {:?}): {}. GPU telemetry: success_ema={:.4}, mercy_conf={:.4}, latency_ema={:.1}ms | Multi-Swarm + Quantum Entanglement: {:.4}{}",
+            "Automatic self-evolution (Template: {:?}): {}. GPU telemetry: success_ema={:.4}, mercy_conf={:.4}, latency_ema={:.1}ms | Multi-Swarm + Quantum Entanglement Weighting: {:.4}{}",
             template,
             template.description(),
             report.gpu_success_ema,
@@ -578,10 +597,10 @@ impl RaThorOneOrganism {
 
         match self.evolution_gate.propose_evolution(proposal.clone()) {
             Ok(msg) => {
-                println!("[ONE + Lattice Conductor Self-Evolution] GPU telemetry excellent — auto-proposed {:?} upgrade (Multi-Swarm + Quantum Entanglement: {:.4}): {}", template, swarm_consensus, msg);
+                println!("[ONE + Lattice Conductor Self-Evolution] GPU telemetry excellent — auto-proposed {:?} upgrade (Multi-Swarm + Quantum Entanglement Weighting: {:.4}): {}", template, swarm_consensus, msg);
                 self.trigger_evolution_automation_hooks(&proposal, report.mercy_modulated_confidence).await;
                 self.persist_approved_evolution(&proposal, true, report.mercy_modulated_confidence).await;
-                Ok(format!("Lattice Conductor v13.1 {:?} upgrade proposed from GPU telemetry + Quantum Swarm Entanglement (vote={:.4})", template, swarm_consensus))
+                Ok(format!("Lattice Conductor v13.1 {:?} upgrade proposed from GPU telemetry + Quantum Swarm Entanglement Weighting (vote={:.4})", template, swarm_consensus))
             }
             Err(e) => Err(format!("Gate rejected Lattice Conductor upgrade: {}", e)),
         }
@@ -676,6 +695,6 @@ impl RaThorOneOrganism {
 pub fn launch_one_organism() -> RaThorOneOrganism {
     let organism = RaThorOneOrganism::new();
     organism.offer_cosmic_loop();
-    println!("[Thunder] ONE Organism v14.17 + Real GitHubConnector + Quantum Entanglement Voting + Public SwarmVoteBreakdown Telemetry + Self-Evolution Wired ready");
+    println!("[Thunder] ONE Organism v14.17 + Real GitHubConnector + Quantum Entanglement Weighting in Lattice Conductor v13.1 ready");
     organism
 }
