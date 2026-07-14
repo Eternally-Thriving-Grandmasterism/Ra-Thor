@@ -6,7 +6,7 @@
 /// abundance-multiplying, zero-harm use. See LICENSE or COMMERCIAL-LICENSE.md.
 
 // ra-thor-one-organism.rs
-// Ra-Thor v14.17 — ONE Organism + Lattice Conductor v13.1 Self-Evolving GPU Telemetry Loop (Sophisticated Plateau Responses)
+// Ra-Thor v14.17 — ONE Organism + Lattice Conductor v13.1 Self-Evolving GPU Telemetry Loop (Severity Calculation for Plateau Responses)
 
 use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
@@ -215,9 +215,11 @@ pub struct RaThorOneOrganism {
     recent_entanglement_improvement_ema: f64,
     plateau_streak: u32,
     last_plateau_detection_tick: u64,
-    // NEW: Sophisticated plateau response state
+    // Sophisticated plateau response state
     exploration_mode_active: bool,
     exploration_mode_until_tick: u64,
+    // NEW: Severity calculation for adaptive responses
+    last_plateau_severity: f64,
     council_tick: u64,
     approved_evolutions_path: String,
 }
@@ -240,7 +242,7 @@ impl RaThorOneOrganism {
             evolution_gate: launch_self_evolution_gate(),
             gpu_compute_active: true,
             gpu_pipeline_version: "v14.17.0-real-github-connector".to_string(),
-            version: "v14.17.0-ONE-Organism-LatticeConductor-v13.1-Sophisticated-Plateau-Responses".to_string(),
+            version: "v14.17.0-ONE-Organism-LatticeConductor-v13.1-Severity-Calculation".to_string(),
             gpu_pipeline: GpuComputePipeline::new(),
 
             patsagi_council: PatsagiCouncil::new(),
@@ -281,13 +283,15 @@ impl RaThorOneOrganism {
             // Sophisticated plateau response state
             exploration_mode_active: false,
             exploration_mode_until_tick: 0,
+            // Severity state
+            last_plateau_severity: 0.0,
             council_tick: 0,
             approved_evolutions_path: "approved_evolutions.jsonl".to_string(),
         }
     }
 
     pub fn offer_cosmic_loop(&self) {
-        println!("[RaThorOneOrganism v{}] Full loop + Real GitHub PR + Sophisticated Plateau Responses in Lattice Conductor v13.1", self.version);
+        println!("[RaThorOneOrganism v{}] Full loop + Real GitHub PR + Severity Calculation in Lattice Conductor v13.1", self.version);
     }
 
     // Runtime switching for Nadam formulation
@@ -319,6 +323,19 @@ impl RaThorOneOrganism {
         )
     }
 
+    // NEW: Severity calculation for plateau responses (0.0–1.0)
+    pub fn calculate_plateau_severity(&self, breakdown: &SwarmVoteBreakdown, report: &GpuTelemetryReport) -> f64 {
+        // Normalized deficits (higher = more severe plateau)
+        let improvement_deficit = ((0.035 - self.recent_entanglement_improvement_ema).max(0.0) / 0.035).min(1.0);
+        let consensus_deficit = ((0.80 - breakdown.consensus_vote).max(0.0) / 0.20).min(1.0);
+        let mercy_deficit = ((0.82 - report.mercy_modulated_confidence).max(0.0) / 0.18).min(1.0);
+
+        // Weighted combination (improvement most important, then swarm consensus, then mercy confidence)
+        let severity = improvement_deficit * 0.45 + consensus_deficit * 0.30 + mercy_deficit * 0.25;
+
+        severity.clamp(0.0, 1.0)
+    }
+
     // Automatic plateau detection heuristic
     pub fn detect_plateau(&mut self, breakdown: &SwarmVoteBreakdown, report: &GpuTelemetryReport) -> bool {
         let improvement = breakdown.entanglement_weighted_bonus.max(0.0);
@@ -345,11 +362,15 @@ impl RaThorOneOrganism {
         }
     }
 
-    // NEW: Sophisticated plateau response (forced cyclical restart + exploration mode)
-    pub async fn handle_detected_plateau(&mut self) -> Option<String> {
+    // NEW: Sophisticated plateau response with severity calculation
+    pub async fn handle_detected_plateau(&mut self, breakdown: &SwarmVoteBreakdown, report: &GpuTelemetryReport) -> Option<String> {
         if self.plateau_streak < 3 {
             return None;
         }
+
+        // Calculate and store severity
+        let severity = self.calculate_plateau_severity(breakdown, report);
+        self.last_plateau_severity = severity;
 
         let mut actions: Vec<String> = vec![];
 
@@ -368,20 +389,21 @@ impl RaThorOneOrganism {
 
         // Action 3: Activate temporary exploration mode (stronger adaptive boosts for next N steps)
         self.exploration_mode_active = true;
-        self.exploration_mode_until_tick = self.council_tick + 25; // ~25 steps of heightened exploration
+        self.exploration_mode_until_tick = self.council_tick + 25;
         actions.push("Activated exploration mode (stronger adaptive LR modulation for next 25 steps)".to_string());
 
-        // Action 4: Temporary LR boost
+        // Action 4: Temporary LR boost (scaled by severity)
+        let lr_boost_factor = 1.2 + (severity * 0.15); // 1.2x to 1.35x depending on severity
         let old_lr = self.entanglement_evolution_lr;
-        self.entanglement_evolution_lr = (old_lr * 1.3).min(0.08);
-        actions.push(format!("Boosted entanglement_evolution_lr {:.4} → {:.4}", old_lr, self.entanglement_evolution_lr));
+        self.entanglement_evolution_lr = (old_lr * lr_boost_factor).min(0.08);
+        actions.push(format!("Boosted entanglement_evolution_lr by factor {:.2} (severity={:.3})", lr_boost_factor, severity));
 
         // Action 5: Recommend deeper upgrade
         actions.push("Recommended Lattice Conductor upgrade (EMA tuning / new mercy gates / Quantum Swarm enhancements)".to_string());
 
         self.plateau_streak = 0;
 
-        let summary = format!("Plateau detected — sophisticated response executed. Actions: {:?}", actions);
+        let summary = format!("Plateau detected (severity={:.3}) — sophisticated response executed. Actions: {:?}", severity, actions);
         println!("[ONE + Lattice Conductor] {}", summary);
 
         Some(summary)
@@ -398,7 +420,7 @@ impl RaThorOneOrganism {
                 );
 
                 let body = format!(
-                    "## ONE Organism + Lattice Conductor v13.1 Sophisticated Plateau Responses (auto-generated)
+                    "## ONE Organism + Lattice Conductor v13.1 Severity Calculation (auto-generated)
 
 **Proposal ID**: {}
 **Proposer**: {}
@@ -408,6 +430,7 @@ impl RaThorOneOrganism {
 **GPU Mercy Confidence**: {:.4}
 **Expected Benefit**: {:.4}
 **Mercy Alignment**: {:.4}
+**Last Plateau Severity**: {:.3}
 
 **Active Optimizer Config**:
 {}
@@ -431,6 +454,7 @@ impl RaThorOneOrganism {
                     0.0,
                     proposal.expected_benefit,
                     proposal.mercy_alignment,
+                    self.last_plateau_severity,
                     self.get_optimizer_config_summary(),
                     proposal.description,
                     proposal.proposed_diff
@@ -475,18 +499,18 @@ impl RaThorOneOrganism {
 
         if report.gpu_success_ema > 0.94 && report.mercy_modulated_confidence > 0.90 {
             format!(
-                "Quantum Swarm Foresight: Excellent GPU performance detected (success_ema={:.4}). Recommend immediate Lattice Conductor upgrade + increased GPU offload + Quantum Swarm parallel deliberation on next dispatch batch. Active Nadam: {:?}. Exploration mode: {}. Mercy valence: {:.4}",
-                report.gpu_success_ema, self.nadam_formulation, self.exploration_mode_active, swarm_confidence
+                "Quantum Swarm Foresight: Excellent GPU performance detected (success_ema={:.4}). Recommend immediate Lattice Conductor upgrade + increased GPU offload + Quantum Swarm parallel deliberation on next dispatch batch. Active Nadam: {:?}. Exploration mode: {}. Last severity: {:.3}. Mercy valence: {:.4}",
+                report.gpu_success_ema, self.nadam_formulation, self.exploration_mode_active, self.last_plateau_severity, swarm_confidence
             )
         } else if report.gpu_latency_ema_ms > 120.0 {
             format!(
-                "Quantum Swarm Analysis: Elevated GPU latency ({:.1}ms). Suggest EMA tuning + swarm-assisted load balancing. Active Nadam: {:?}. Exploration mode: {}. Current swarm confidence: {:.4}",
-                report.gpu_latency_ema_ms, self.nadam_formulation, self.exploration_mode_active, swarm_confidence
+                "Quantum Swarm Analysis: Elevated GPU latency ({:.1}ms). Suggest EMA tuning + swarm-assisted load balancing. Active Nadam: {:?}. Exploration mode: {}. Last severity: {:.3}. Current swarm confidence: {:.4}",
+                report.gpu_latency_ema_ms, self.nadam_formulation, self.exploration_mode_active, self.last_plateau_severity, swarm_confidence
             )
         } else {
             format!(
-                "Quantum Swarm Observation: Stable GPU telemetry. Active Nadam: {:?}. Exploration mode: {}. Continue current mercy-modulated offload policy. Swarm confidence: {:.4}",
-                self.nadam_formulation, self.exploration_mode_active, swarm_confidence
+                "Quantum Swarm Observation: Stable GPU telemetry. Active Nadam: {:?}. Exploration mode: {}. Last severity: {:.3}. Continue current mercy-modulated offload policy. Swarm confidence: {:.4}",
+                self.nadam_formulation, self.exploration_mode_active, self.last_plateau_severity, swarm_confidence
             )
         }
     }
@@ -545,14 +569,14 @@ impl RaThorOneOrganism {
 
         if !entangled_pairs.is_empty() {
             println!(
-                "[Quantum Entanglement Weighting + Self-Evolving Bases + Sophisticated Plateau] {:?} | bonus=+{:.4} | weighted=+{:.4} | final={:.4}",
+                "[Quantum Entanglement Weighting + Self-Evolving Bases + Severity Calculation] {:?} | bonus=+{:.4} | weighted=+{:.4} | final={:.4}",
                 entangled_pairs, entanglement_bonus, weighted_entanglement_bonus, final_consensus
             );
         }
 
         println!(
-            "[Multi-Swarm + Self-Evolving Entanglement Weights + Sophisticated Plateau] perf={:.4} mercy={:.4} align={:.4} foresight={:.4} | consensus={:.4} | entanglement=+{:.4} | Active Nadam: {:?} | Exploration: {}",
-            performance_swarm, mercy_swarm, alignment_swarm, foresight_swarm, final_consensus, entanglement_bonus, self.nadam_formulation, self.exploration_mode_active
+            "[Multi-Swarm + Self-Evolving Entanglement Weights + Severity Calculation] perf={:.4} mercy={:.4} align={:.4} foresight={:.4} | consensus={:.4} | entanglement=+{:.4} | Active Nadam: {:?} | Exploration: {} | Last severity: {:.3}",
+            performance_swarm, mercy_swarm, alignment_swarm, foresight_swarm, final_consensus, entanglement_bonus, self.nadam_formulation, self.exploration_mode_active, self.last_plateau_severity
         );
 
         (final_consensus, breakdown)
@@ -648,7 +672,7 @@ impl RaThorOneOrganism {
 
         let plateau_detected = self.detect_plateau(&breakdown, report);
         if plateau_detected {
-            if let Some(action_summary) = self.handle_detected_plateau().await {
+            if let Some(action_summary) = self.handle_detected_plateau(&breakdown, report).await {
                 println!("[ONE + Lattice Conductor] Plateau response executed: {}", action_summary);
             }
         }
@@ -677,8 +701,8 @@ impl RaThorOneOrganism {
                 proposer: "Lattice_Conductor_v13.1_via_GPU_Telemetry".to_string(),
                 target_module: "gpu_compute_pipeline / lattice_conductor / powrush_rbe".to_string(),
                 description: format!(
-                    "Council-approved from GPU Telemetry Report (success_ema={:.4}, mercy_conf={:.4}) | Active Nadam: {:?} | Exploration: {} | Plateau streak: {}",
-                    report.gpu_success_ema, report.mercy_modulated_confidence, self.nadam_formulation, self.exploration_mode_active, self.plateau_streak
+                    "Council-approved from GPU Telemetry Report (success_ema={:.4}, mercy_conf={:.4}) | Active Nadam: {:?} | Exploration: {} | Last severity: {:.3}",
+                    report.gpu_success_ema, report.mercy_modulated_confidence, self.nadam_formulation, self.exploration_mode_active, self.last_plateau_severity
                 ),
                 proposed_diff: format!("Apply Lattice Conductor GPU boost {:.4}", confidence_boost),
                 expected_benefit: (report.mercy_modulated_confidence * 0.85 + confidence_boost * 0.15).min(0.999),
@@ -768,14 +792,13 @@ impl RaThorOneOrganism {
         }
 
         let base_description = format!(
-            "Automatic self-evolution (Template: {:?}): {}. GPU telemetry: success_ema={:.4}, mercy_conf={:.4}, latency_ema={:.1}ms | Multi-Swarm + Sophisticated Plateau (streak={}, Exploration: {}): {:.4}{}",
+            "Automatic self-evolution (Template: {:?}): {}. GPU telemetry: success_ema={:.4}, mercy_conf={:.4}, latency_ema={:.1}ms | Multi-Swarm + Severity Calculation (severity={:.3}): {:.4}{}",
             template,
             template.description(),
             report.gpu_success_ema,
             report.mercy_modulated_confidence,
             report.gpu_latency_ema_ms,
-            self.plateau_streak,
-            self.exploration_mode_active,
+            self.last_plateau_severity,
             swarm_consensus,
             entanglement_info
         );
@@ -799,16 +822,16 @@ impl RaThorOneOrganism {
 
         match self.evolution_gate.propose_evolution(proposal.clone()) {
             Ok(msg) => {
-                println!("[ONE + Lattice Conductor Self-Evolution] GPU telemetry excellent — auto-proposed {:?} upgrade (Multi-Swarm + Sophisticated Plateau, Exploration: {} : {:.4}): {}", template, self.exploration_mode_active, swarm_consensus, msg);
+                println!("[ONE + Lattice Conductor Self-Evolution] GPU telemetry excellent — auto-proposed {:?} upgrade (Multi-Swarm + Severity Calculation, severity={:.3} : {:.4}): {}", template, self.last_plateau_severity, swarm_consensus, msg);
                 self.trigger_evolution_automation_hooks(&proposal, report.mercy_modulated_confidence).await;
                 self.persist_approved_evolution(&proposal, true, report.mercy_modulated_confidence).await;
-                Ok(format!("Lattice Conductor v13.1 {:?} upgrade proposed from GPU telemetry + Quantum Swarm Entanglement Weighting + Sophisticated Plateau Responses (vote={:.4})", template, swarm_consensus))
+                Ok(format!("Lattice Conductor v13.1 {:?} upgrade proposed from GPU telemetry + Quantum Swarm Entanglement Weighting + Severity Calculation (vote={:.4})", template, swarm_consensus))
             }
             Err(e) => Err(format!("Gate rejected Lattice Conductor upgrade: {}", e)),
         }
     }
 
-    // NEW v14.8.6: Full configurable Nesterov-AdamW (Nadam A or B) with sophisticated plateau handling
+    // NEW v14.8.6: Full configurable Nesterov-AdamW (Nadam A or B) with severity-aware plateau handling
     pub async fn propose_entanglement_base_weight_evolution(&mut self, breakdown: &SwarmVoteBreakdown) -> Result<String, String> {
         let mut evolved_pf = self.base_weight_pf;
         let mut evolved_ma = self.base_weight_ma;
@@ -830,7 +853,7 @@ impl RaThorOneOrganism {
         };
         let plateau_detected = self.detect_plateau(breakdown, &dummy_report);
         if plateau_detected {
-            if let Some(action_summary) = self.handle_detected_plateau().await {
+            if let Some(action_summary) = self.handle_detected_plateau(breakdown, &dummy_report).await {
                 changes.push(action_summary);
             }
         }
@@ -891,8 +914,8 @@ impl RaThorOneOrganism {
             self.adam_v_pf = v;
 
             changes.push(format!(
-                "base_weight_pf: {:.3} → {:.3} (cycle={}, formulation={:?}, Exploration={}, Nadam step={:.5})",
-                self.base_weight_pf, evolved_pf, self.lr_current_cycle, formulation, self.exploration_mode_active, adamw_step
+                "base_weight_pf: {:.3} → {:.3} (cycle={}, formulation={:?}, Exploration={}, Severity={:.3}, Nadam step={:.5})",
+                self.base_weight_pf, evolved_pf, self.lr_current_cycle, formulation, self.exploration_mode_active, self.last_plateau_severity, adamw_step
             ));
         }
 
@@ -923,21 +946,21 @@ impl RaThorOneOrganism {
             self.adam_v_ma = v;
 
             changes.push(format!(
-                "base_weight_ma: {:.3} → {:.3} (cycle={}, formulation={:?}, Exploration={}, Nadam step={:.5})",
-                self.base_weight_ma, evolved_ma, self.lr_current_cycle, formulation, self.exploration_mode_active, adamw_step
+                "base_weight_ma: {:.3} → {:.3} (cycle={}, formulation={:?}, Exploration={}, Severity={:.3}, Nadam step={:.5})",
+                self.base_weight_ma, evolved_ma, self.lr_current_cycle, formulation, self.exploration_mode_active, self.last_plateau_severity, adamw_step
             ));
         }
 
         if changes.is_empty() {
-            return Ok("No base weight evolution needed (Sophisticated Plateau Responses)".to_string());
+            return Ok("No base weight evolution needed (Severity Calculation)".to_string());
         }
 
         let proposal = EvolutionProposal {
             id: rand::random::<u64>() % 1_000_000_000,
             proposer: "Lattice_Conductor_v13.1_SelfEvolution_Hook".to_string(),
-            target_module: "ra-thor-one-organism / quantum_swarm_multi_consensus_vote (Sophisticated Plateau Responses)".to_string(),
-            description: format!("Self-evolution of entanglement base weights with Sophisticated Plateau Responses + Runtime Nadam Switching + Exploration Mode (Active: {:?}, Exploration={}) + Cyclical Restarts (cycle={}, base_lr={:.5}, timestep={}). Changes: {:?}", formulation, self.exploration_mode_active, self.lr_current_cycle, base_lr, timestep, changes),
-            proposed_diff: format!("base_weight_pf = {:.3}; base_weight_ma = {:.3}; nadam_formulation = {:?}; exploration_mode = {}", evolved_pf, evolved_ma, formulation, self.exploration_mode_active),
+            target_module: "ra-thor-one-organism / quantum_swarm_multi_consensus_vote (Severity Calculation)".to_string(),
+            description: format!("Self-evolution of entanglement base weights with Severity Calculation + Runtime Nadam Switching + Exploration Mode (Active: {:?}, Exploration={}, Severity={:.3}) + Cyclical Restarts (cycle={}, base_lr={:.5}, timestep={}). Changes: {:?}", formulation, self.exploration_mode_active, self.last_plateau_severity, self.lr_current_cycle, base_lr, timestep, changes),
+            proposed_diff: format!("base_weight_pf = {:.3}; base_weight_ma = {:.3}; nadam_formulation = {:?}; exploration_mode = {}; severity = {:.3}", evolved_pf, evolved_ma, formulation, self.exploration_mode_active, self.last_plateau_severity),
             expected_benefit: 0.96,
             risk_score: 0.01,
             mercy_alignment: 0.98,
@@ -945,12 +968,12 @@ impl RaThorOneOrganism {
 
         match self.evolution_gate.propose_evolution(proposal.clone()) {
             Ok(msg) => {
-                println!("[ONE + Lattice Conductor] Sophisticated Plateau Responses + Runtime Nadam {:?} + Exploration={} self-evolution proposed: {}", formulation, self.exploration_mode_active, msg);
+                println!("[ONE + Lattice Conductor] Severity Calculation + Runtime Nadam {:?} + Exploration={} self-evolution proposed: {}", formulation, self.exploration_mode_active, msg);
                 self.trigger_evolution_automation_hooks(&proposal, 0.98).await;
                 self.persist_approved_evolution(&proposal, true, 0.98).await;
-                Ok(format!("Entanglement base weights self-evolution via Sophisticated Plateau Responses proposed"))
+                Ok(format!("Entanglement base weights self-evolution via Severity Calculation proposed"))
             }
-            Err(e) => Err(format!("Gate rejected Sophisticated Plateau Responses evolution: {}", e)),
+            Err(e) => Err(format!("Gate rejected Severity Calculation evolution: {}", e)),
         }
     }
 
@@ -1079,6 +1102,6 @@ impl RaThorOneOrganism {
 pub fn launch_one_organism() -> RaThorOneOrganism {
     let organism = RaThorOneOrganism::new();
     organism.offer_cosmic_loop();
-    println!("[Thunder] ONE Organism v14.17 + Real GitHubConnector + Sophisticated Plateau Responses (Forced Cyclical Restart + Exploration Mode) in Lattice Conductor v13.1 ready");
+    println!("[Thunder] ONE Organism v14.17 + Real GitHubConnector + Severity Calculation in Lattice Conductor v13.1 ready");
     organism
 }
