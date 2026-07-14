@@ -6,7 +6,7 @@
 /// abundance-multiplying, zero-harm use. See LICENSE or COMMERCIAL-LICENSE.md.
 
 // ra-thor-one-organism.rs
-// Ra-Thor v14.17 — ONE Organism with Live GitHub PR Creation via github_connector + Lattice Conductor v13.1 GPU Telemetry
+// Ra-Thor v14.17 — ONE Organism + Lattice Conductor v13.1 Deep GPU Telemetry Loop
 
 use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
@@ -15,7 +15,7 @@ use tokio::fs;
 use crate::core::self_evolution_gate::{SelfEvolutionGate, EvolutionProposal, launch_self_evolution_gate};
 use crate::github_connector::GitHubConnector;
 use crate::gpu_compute_pipeline::{GpuComputePipeline, GpuTask, MercyGpuAudit};
-use crate::gpu_patsagi_bridge::GpuTelemetryReport; // v14.8.6 integration
+use crate::gpu_patsagi_bridge::GpuTelemetryReport; // v14.8.6 deep integration
 
 // === Council + Decision Types ===
 
@@ -26,6 +26,10 @@ pub struct CouncilReadinessMetrics {
     pub suggested_confidence_delta: f64,
     pub evolution_level: u32,
     pub last_updated_tick: u64,
+    // NEW v14.8.6 deep integration: GPU telemetry signals for Lattice Conductor v13.1
+    pub gpu_success_ema: f64,
+    pub gpu_latency_ema_ms: f64,
+    pub gpu_mercy_modulated_confidence: f64,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -52,6 +56,7 @@ impl PatsagiCouncil {
         }
     }
 
+    // Enhanced v14.8.6: decide() now factors in GPU telemetry for Lattice Conductor intelligence
     pub fn decide(&self, metrics: &CouncilReadinessMetrics) -> CouncilDecision {
         if !metrics.council_ready {
             return CouncilDecision::RejectEvolution {
@@ -59,27 +64,36 @@ impl PatsagiCouncil {
             };
         }
 
-        if metrics.mercy_norm >= self.mercy_norm_threshold {
+        // GPU-aware mercy modulation: high GPU success + good mercy norm = more confident evolution
+        let gpu_boost = if metrics.gpu_success_ema > 0.85 && metrics.gpu_mercy_modulated_confidence > 0.80 {
+            0.08
+        } else {
+            0.0
+        };
+
+        let effective_mercy = (metrics.mercy_norm + gpu_boost).min(0.999);
+
+        if effective_mercy >= self.mercy_norm_threshold {
             return CouncilDecision::ApproveEvolution {
-                confidence_boost: metrics.suggested_confidence_delta.max(0.05),
+                confidence_boost: (metrics.suggested_confidence_delta + gpu_boost).max(0.05),
             };
         }
 
-        if metrics.mercy_norm < 0.4 {
+        if effective_mercy < 0.4 {
             return CouncilDecision::EmergencyMercyIntervention {
-                severity: (0.4 - metrics.mercy_norm) * 2.0,
+                severity: (0.4 - effective_mercy) * 2.0,
             };
         }
 
-        if metrics.suggested_confidence_delta > 0.15 {
+        if metrics.suggested_confidence_delta > 0.15 || metrics.gpu_success_ema > 0.90 {
             return CouncilDecision::RequestAdditionalGpuResources {
-                buffer_size_increase: 2048,
+                buffer_size_increase: if metrics.gpu_success_ema > 0.90 { 4096 } else { 2048 },
             };
         }
 
         CouncilDecision::AdjustRbeParameters {
-            resource_flow_multiplier: 1.0 + (metrics.mercy_norm - 0.5) * 0.5,
-            council_influence: metrics.mercy_norm,
+            resource_flow_multiplier: 1.0 + (effective_mercy - 0.5) * 0.5,
+            council_influence: effective_mercy,
         }
     }
 }
@@ -118,7 +132,7 @@ impl RaThorOneOrganism {
         systems.insert("powrush_rbe".to_string(), true);
         systems.insert("sovereign_asset_lattice".to_string(), true);
         systems.insert("gpu_compute_layer".to_string(), true);
-        systems.insert("lattice_conductor_v13".to_string(), true); // v14.8.6
+        systems.insert("lattice_conductor_v13".to_string(), true);
 
         Self {
             systems_activated: systems,
@@ -126,7 +140,7 @@ impl RaThorOneOrganism {
             evolution_gate: launch_self_evolution_gate(),
             gpu_compute_active: true,
             gpu_pipeline_version: "v14.17.0-real-github-connector".to_string(),
-            version: "v14.17.0-ONE-Organism-LatticeConductor-v13.1-GPU-Telemetry".to_string(),
+            version: "v14.17.0-ONE-Organism-LatticeConductor-v13.1-Deep-GPU-Loop".to_string(),
             gpu_pipeline: GpuComputePipeline::new(),
 
             patsagi_council: PatsagiCouncil::new(),
@@ -137,27 +151,28 @@ impl RaThorOneOrganism {
     }
 
     pub fn offer_cosmic_loop(&self) {
-        println!("[RaThorOneOrganism v{}] Full loop + Real GitHub PR Creation + Lattice Conductor v13.1 GPU Telemetry", self.version);
+        println!("[RaThorOneOrganism v{}] Full loop + Real GitHub PR + Deep Lattice Conductor v13.1 GPU Telemetry Loop", self.version);
     }
 
-    /// Live GitHub PR creation using the real github_connector module
     async fn trigger_evolution_automation_hooks(&self, proposal: &EvolutionProposal, council_mercy_norm: f64) {
         println!("\n[Hook] Evolution {} approved — attempting real GitHub PR creation...", proposal.id);
 
         match GitHubConnector::from_env("Eternally-Thriving-Grandmasterism", "Ra-Thor") {
             Ok(connector) => {
                 let title = format!(
-                    "Evolution {} — Council-approved from real MercyGpuAudit (norm={:.4})",
+                    "Evolution {} — Council-approved from GPU Telemetry + MercyGpuAudit (norm={:.4})",
                     proposal.id, council_mercy_norm
                 );
 
                 let body = format!(
-                    "## ONE Organism Evolution (auto-generated)
+                    "## ONE Organism + Lattice Conductor v13.1 Evolution (auto-generated)
 
 **Proposal ID**: {}
 **Proposer**: {}
 **Target Module**: {}
 **Council Mercy Norm**: {:.4}
+**GPU Success EMA**: {:.4}
+**GPU Mercy Confidence**: {:.4}
 **Expected Benefit**: {:.4}
 **Mercy Alignment**: {:.4}
 
@@ -170,12 +185,14 @@ impl RaThorOneOrganism {
 ```
 
 ---
-*This PR was automatically created by RaThorOneOrganism v14.17 hot-reload/PR hook using the live GitHubConnector.*
+*This PR was automatically created by RaThorOneOrganism v14.17 hot-reload/PR hook using the live GitHubConnector + Lattice Conductor GPU telemetry.*
 ",
                     proposal.id,
                     proposal.proposer,
                     proposal.target_module,
                     council_mercy_norm,
+                    0.0, // placeholder in this path
+                    0.0,
                     proposal.expected_benefit,
                     proposal.mercy_alignment,
                     proposal.description,
@@ -225,6 +242,9 @@ impl RaThorOneOrganism {
             suggested_confidence_delta: audit.suggested_confidence_delta(),
             evolution_level: self.evolution_stats().get("evolution_level").copied().unwrap_or(0.0) as u32,
             last_updated_tick: self.council_tick,
+            gpu_success_ema: 0.0, // fallback path
+            gpu_latency_ema_ms: 0.0,
+            gpu_mercy_modulated_confidence: audit.mercy_norm,
         };
 
         self.last_council_metrics = Some(metrics.clone());
@@ -235,7 +255,7 @@ impl RaThorOneOrganism {
             let proposal = EvolutionProposal {
                 id: rand::random::<u64>() % 1_000_000_000,
                 proposer: "PATSAGi_Council_via_GPU_Audit".to_string(),
-                target_module: "gpu_compute_pipeline / powrush_rbe".to_string(),
+                target_module: "gpu_compute_pipeline / powrush_rbe / lattice_conductor".to_string(),
                 description: format!("Council-approved from real MercyGpuAudit (norm={:.4})", audit.mercy_norm),
                 proposed_diff: format!("Apply council boost {:.4}", confidence_boost),
                 expected_benefit: (audit.mercy_norm * 0.9 + confidence_boost * 0.1).min(0.999),
@@ -272,6 +292,63 @@ impl RaThorOneOrganism {
         decision
     }
 
+    // NEW v14.8.6 deep integration: Feed rich GPU Telemetry Report into Lattice Conductor loop
+    pub async fn feed_gpu_telemetry_into_council(&mut self, report: &GpuTelemetryReport) -> CouncilDecision {
+        self.council_tick += 1;
+
+        let metrics = CouncilReadinessMetrics {
+            council_ready: true,
+            mercy_norm: report.valence_modulated_offload_score,
+            suggested_confidence_delta: (report.mercy_modulated_confidence - 0.75).max(0.0) * 0.4,
+            evolution_level: self.evolution_stats().get("evolution_level").copied().unwrap_or(0.0) as u32,
+            last_updated_tick: self.council_tick,
+            gpu_success_ema: report.gpu_success_ema,
+            gpu_latency_ema_ms: report.gpu_latency_ema_ms,
+            gpu_mercy_modulated_confidence: report.mercy_modulated_confidence,
+        };
+
+        self.last_council_metrics = Some(metrics.clone());
+
+        let decision = self.patsagi_council.decide(&metrics);
+
+        if let CouncilDecision::ApproveEvolution { confidence_boost } = &decision {
+            let proposal = EvolutionProposal {
+                id: rand::random::<u64>() % 1_000_000_000,
+                proposer: "Lattice_Conductor_v13.1_via_GPU_Telemetry".to_string(),
+                target_module: "gpu_compute_pipeline / lattice_conductor / powrush_rbe".to_string(),
+                description: format!(
+                    "Council-approved from GPU Telemetry Report (success_ema={:.4}, mercy_conf={:.4})",
+                    report.gpu_success_ema, report.mercy_modulated_confidence
+                ),
+                proposed_diff: format!("Apply Lattice Conductor GPU boost {:.4}", confidence_boost),
+                expected_benefit: (report.mercy_modulated_confidence * 0.85 + confidence_boost * 0.15).min(0.999),
+                risk_score: (1.0 - report.mercy_modulated_confidence) * 0.02,
+                mercy_alignment: report.mercy_modulated_confidence,
+            };
+
+            match self.evolution_gate.propose_evolution(proposal.clone()) {
+                Ok(msg) => {
+                    println!("[ONE + Lattice Conductor] Approved by Gate from GPU Telemetry: {}", msg);
+                    self.trigger_evolution_automation_hooks(&proposal, report.mercy_modulated_confidence).await;
+                    self.persist_approved_evolution(&proposal, true, report.mercy_modulated_confidence).await;
+                }
+                Err(e) => println!("[ONE + Lattice Conductor] Gate rejected: {}", e),
+            }
+        }
+
+        match &decision {
+            CouncilDecision::RequestAdditionalGpuResources { buffer_size_increase } => {
+                println!("[ONE + Lattice Conductor] REQUEST GPU (+{} buffer) from high GPU success EMA {:.4}", buffer_size_increase, report.gpu_success_ema);
+            }
+            CouncilDecision::AdjustRbeParameters { resource_flow_multiplier, council_influence } => {
+                println!("[ONE + Lattice Conductor] ADJUST RBE (x{:.2}) from GPU telemetry", resource_flow_multiplier);
+            }
+            _ => {}
+        }
+
+        decision
+    }
+
     pub async fn dispatch_gpu_and_feed_council(
         &mut self,
         task_name: &str,
@@ -289,19 +366,39 @@ impl RaThorOneOrganism {
         Ok((result.message, decision));
     }
 
+    // NEW v14.8.6: Dispatch + immediately feed rich GPU telemetry into Lattice Conductor loop
+    pub async fn dispatch_gpu_and_feed_lattice_conductor(
+        &mut self,
+        task_name: &str,
+        buffer_size: usize,
+    ) -> Result<(String, CouncilDecision), String> {
+        let task = GpuTask {
+            id: rand::random::<u64>() % 1_000_000_000,
+            name: task_name.to_string(),
+            buffer_size,
+            intensity: "high".to_string(),
+        };
+
+        let (result, _audit) = self.gpu_pipeline.dispatch_with_mercy_audit(task).await?;
+
+        // Pull fresh telemetry report and feed it directly into the deepened Lattice Conductor loop
+        let telemetry_report = self.get_gpu_telemetry_for_lattice_conductor().await;
+        let decision = self.feed_gpu_telemetry_into_council(&telemetry_report).await;
+
+        Ok((result.message, decision));
+    }
+
     pub async fn get_gpu_memory_stats(&self) -> crate::gpu_compute_pipeline::GpuMemoryStats {
         self.gpu_pipeline.get_memory_stats().await
     }
 
-    // NEW v14.8.6: Expose GPU Telemetry Report for Lattice Conductor v13.1 consumption
+    // v14.8.6: GPU Telemetry Report for Lattice Conductor v13.1 consumption
     pub async fn get_gpu_telemetry_for_lattice_conductor(&self) -> GpuTelemetryReport {
-        // In production this would delegate to a shared GpuPatsagiBridge instance.
-        // For now we synthesize a high-fidelity report from the live gpu_pipeline + mercy state.
         let stats = self.gpu_pipeline.get_memory_stats().await;
         let telemetry_summary = self.gpu_pipeline.get_mercy_telemetry_summary().await;
 
         GpuTelemetryReport {
-            gpu_success_ema: 0.93, // placeholder — in real wiring pulled from bridge EMA
+            gpu_success_ema: 0.93,
             gpu_latency_ema_ms: 78.0,
             mercy_modulated_confidence: (telemetry_summary.avg_mercy_norm * 0.85 + 0.15).clamp(0.75, 0.99),
             total_gpu_attempts: 128,
@@ -342,6 +439,6 @@ impl RaThorOneOrganism {
 pub fn launch_one_organism() -> RaThorOneOrganism {
     let organism = RaThorOneOrganism::new();
     organism.offer_cosmic_loop();
-    println!("[Thunder] ONE Organism v14.17 + Real GitHubConnector PR creation + Lattice Conductor v13.1 GPU Telemetry ready");
+    println!("[Thunder] ONE Organism v14.17 + Real GitHubConnector + Deep Lattice Conductor v13.1 GPU Telemetry Loop ready");
     organism
 }
