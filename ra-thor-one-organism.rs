@@ -6,7 +6,7 @@
 /// abundance-multiplying, zero-harm use. See LICENSE or COMMERCIAL-LICENSE.md.
 
 // ra-thor-one-organism.rs
-// Ra-Thor v14.17 — ONE Organism + Lattice Conductor v13.1 Self-Evolving GPU Telemetry Loop (Nesterov Acceleration)
+// Ra-Thor v14.17 — ONE Organism + Lattice Conductor v13.1 Self-Evolving GPU Telemetry Loop (Explicit Nesterov State Mutation)
 
 use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
@@ -189,7 +189,7 @@ pub struct RaThorOneOrganism {
     lr_restart_multiplier: f64,
     lr_current_cycle: u64,
     lr_cycle_start_timestep: u64,
-    // NEW: Nesterov acceleration state
+    // Nesterov acceleration state (now explicitly mutated)
     nesterov_momentum_pf: f64,
     nesterov_momentum_ma: f64,
     nesterov_momentum_beta: f64,
@@ -215,7 +215,7 @@ impl RaThorOneOrganism {
             evolution_gate: launch_self_evolution_gate(),
             gpu_compute_active: true,
             gpu_pipeline_version: "v14.17.0-real-github-connector".to_string(),
-            version: "v14.17.0-ONE-Organism-LatticeConductor-v13.1-Nesterov-Acceleration".to_string(),
+            version: "v14.17.0-ONE-Organism-LatticeConductor-v13.1-Explicit-Nesterov-Mutation".to_string(),
             gpu_pipeline: GpuComputePipeline::new(),
 
             patsagi_council: PatsagiCouncil::new(),
@@ -243,7 +243,7 @@ impl RaThorOneOrganism {
             lr_restart_multiplier: 1.5,
             lr_current_cycle: 0,
             lr_cycle_start_timestep: 0,
-            // Nesterov acceleration
+            // Nesterov acceleration state
             nesterov_momentum_pf: 0.0,
             nesterov_momentum_ma: 0.0,
             nesterov_momentum_beta: 0.9,
@@ -253,7 +253,7 @@ impl RaThorOneOrganism {
     }
 
     pub fn offer_cosmic_loop(&self) {
-        println!("[RaThorOneOrganism v{}] Full loop + Real GitHub PR + Nesterov Acceleration in Lattice Conductor v13.1", self.version);
+        println!("[RaThorOneOrganism v{}] Full loop + Real GitHub PR + Explicit Nesterov State Mutation in Lattice Conductor v13.1", self.version);
     }
 
     async fn trigger_evolution_automation_hooks(&self, proposal: &EvolutionProposal, council_mercy_norm: f64) {
@@ -267,7 +267,7 @@ impl RaThorOneOrganism {
                 );
 
                 let body = format!(
-                    "## ONE Organism + Lattice Conductor v13.1 Nesterov Acceleration (auto-generated)
+                    "## ONE Organism + Lattice Conductor v13.1 Explicit Nesterov State Mutation (auto-generated)
 
 **Proposal ID**: {}
 **Proposer**: {}
@@ -410,13 +410,13 @@ impl RaThorOneOrganism {
 
         if !entangled_pairs.is_empty() {
             println!(
-                "[Quantum Entanglement Weighting + Self-Evolving Bases + AdamW + Nesterov] {:?} | bonus=+{:.4} | weighted=+{:.4} | final={:.4}",
+                "[Quantum Entanglement Weighting + Self-Evolving Bases + AdamW + Explicit Nesterov] {:?} | bonus=+{:.4} | weighted=+{:.4} | final={:.4}",
                 entangled_pairs, entanglement_bonus, weighted_entanglement_bonus, final_consensus
             );
         }
 
         println!(
-            "[Multi-Swarm + Self-Evolving Entanglement Weights + AdamW + Nesterov] perf={:.4} mercy={:.4} align={:.4} foresight={:.4} | consensus={:.4} | entanglement=+{:.4}",
+            "[Multi-Swarm + Self-Evolving Entanglement Weights + AdamW + Explicit Nesterov] perf={:.4} mercy={:.4} align={:.4} foresight={:.4} | consensus={:.4} | entanglement=+{:.4}",
             performance_swarm, mercy_swarm, alignment_swarm, foresight_swarm, final_consensus, entanglement_bonus
         );
 
@@ -620,7 +620,7 @@ impl RaThorOneOrganism {
         }
 
         let base_description = format!(
-            "Automatic self-evolution (Template: {:?}): {}. GPU telemetry: success_ema={:.4}, mercy_conf={:.4}, latency_ema={:.1}ms | Multi-Swarm + Quantum Entanglement Weighting + AdamW + Cyclical Restarts + Nesterov: {:.4}{}",
+            "Automatic self-evolution (Template: {:?}): {}. GPU telemetry: success_ema={:.4}, mercy_conf={:.4}, latency_ema={:.1}ms | Multi-Swarm + Quantum Entanglement Weighting + AdamW + Cyclical Restarts + Explicit Nesterov: {:.4}{}",
             template,
             template.description(),
             report.gpu_success_ema,
@@ -649,19 +649,21 @@ impl RaThorOneOrganism {
 
         match self.evolution_gate.propose_evolution(proposal.clone()) {
             Ok(msg) => {
-                println!("[ONE + Lattice Conductor Self-Evolution] GPU telemetry excellent — auto-proposed {:?} upgrade (Multi-Swarm + Quantum Entanglement Weighting + AdamW + Cyclical Restarts + Nesterov: {:.4}): {}", template, swarm_consensus, msg);
+                println!("[ONE + Lattice Conductor Self-Evolution] GPU telemetry excellent — auto-proposed {:?} upgrade (Multi-Swarm + Quantum Entanglement Weighting + AdamW + Cyclical Restarts + Explicit Nesterov: {:.4}): {}", template, swarm_consensus, msg);
                 self.trigger_evolution_automation_hooks(&proposal, report.mercy_modulated_confidence).await;
                 self.persist_approved_evolution(&proposal, true, report.mercy_modulated_confidence).await;
-                Ok(format!("Lattice Conductor v13.1 {:?} upgrade proposed from GPU telemetry + Quantum Swarm Entanglement Weighting + AdamW + Cyclical Restarts + Nesterov Acceleration (vote={:.4})", template, swarm_consensus))
+                Ok(format!("Lattice Conductor v13.1 {:?} upgrade proposed from GPU telemetry + Quantum Swarm Entanglement Weighting + AdamW + Cyclical Restarts + Explicit Nesterov Mutation (vote={:.4})", template, swarm_consensus))
             }
             Err(e) => Err(format!("Gate rejected Lattice Conductor upgrade: {}", e)),
         }
     }
 
-    // NEW v14.8.6: AdamW + Learning Rate Scheduling + Cyclical Restarts + Nesterov Acceleration
-    pub async fn propose_entanglement_base_weight_evolution(&self, breakdown: &SwarmVoteBreakdown) -> Result<String, String> {
+    // NEW v14.8.6: Explicit Nesterov state mutation + persistence
+    pub async fn propose_entanglement_base_weight_evolution(&mut self, breakdown: &SwarmVoteBreakdown) -> Result<String, String> {
         let mut evolved_pf = self.base_weight_pf;
         let mut evolved_ma = self.base_weight_ma;
+        let mut new_nesterov_pf = self.nesterov_momentum_pf;
+        let mut new_nesterov_ma = self.nesterov_momentum_ma;
         let mut changes: Vec<String> = vec![];
 
         // === Learning Rate Scheduling with Cyclical Restarts ===
@@ -684,7 +686,7 @@ impl RaThorOneOrganism {
             breakdown.entanglement_weighted_bonus * 0.8
         } else { 0.0 };
 
-        // === AdamW + Nesterov Acceleration ===
+        // === AdamW + Explicit Nesterov Acceleration with State Mutation ===
         let beta1 = self.adam_beta1;
         let beta2 = self.adam_beta2;
         let epsilon = self.adam_epsilon;
@@ -692,9 +694,9 @@ impl RaThorOneOrganism {
         let nesterov_beta = self.nesterov_momentum_beta;
         let timestep = self.adam_timestep + 1;
 
-        // Performance-Foresight: Nesterov-accelerated AdamW
+        // Performance-Foresight: Nesterov-accelerated AdamW + explicit momentum update
         if gradient_pf > 0.01 {
-            // Nesterov lookahead momentum
+            // Nesterov lookahead (using current momentum)
             let nesterov_lookahead = nesterov_beta * self.nesterov_momentum_pf;
 
             let m = beta1 * self.adam_m_pf + (1.0 - beta1) * gradient_pf;
@@ -705,18 +707,21 @@ impl RaThorOneOrganism {
 
             let adam_step = current_lr * m_hat / (v_hat.sqrt() + epsilon);
 
-            // Apply Nesterov acceleration + AdamW
+            // Nesterov accelerated step
             let nesterov_step = adam_step + nesterov_lookahead;
             evolved_pf = (self.base_weight_pf + nesterov_step) * (1.0 - current_lr * weight_decay);
             evolved_pf = evolved_pf.min(0.48);
 
+            // === Explicit Nesterov momentum mutation (persistence) ===
+            new_nesterov_pf = nesterov_beta * self.nesterov_momentum_pf + gradient_pf;
+
             changes.push(format!(
-                "base_weight_pf: {:.3} → {:.3} (cycle={}, Nesterov+AdamW step={:.5}, nesterov={:.4})",
-                self.base_weight_pf, evolved_pf, self.lr_current_cycle, nesterov_step, nesterov_lookahead
+                "base_weight_pf: {:.3} → {:.3} (cycle={}, Nesterov+AdamW step={:.5}, new_nesterov={:.4})",
+                self.base_weight_pf, evolved_pf, self.lr_current_cycle, nesterov_step, new_nesterov_pf
             ));
         }
 
-        // Mercy-Alignment: Nesterov-accelerated AdamW
+        // Mercy-Alignment: Nesterov-accelerated AdamW + explicit momentum update
         if gradient_ma > 0.01 {
             let nesterov_lookahead = nesterov_beta * self.nesterov_momentum_ma;
 
@@ -732,22 +737,29 @@ impl RaThorOneOrganism {
             evolved_ma = (self.base_weight_ma + nesterov_step) * (1.0 - current_lr * weight_decay);
             evolved_ma = evolved_ma.min(0.42);
 
+            // === Explicit Nesterov momentum mutation (persistence) ===
+            new_nesterov_ma = nesterov_beta * self.nesterov_momentum_ma + gradient_ma;
+
             changes.push(format!(
-                "base_weight_ma: {:.3} → {:.3} (cycle={}, Nesterov+AdamW step={:.5}, nesterov={:.4})",
-                self.base_weight_ma, evolved_ma, self.lr_current_cycle, nesterov_step, nesterov_lookahead
+                "base_weight_ma: {:.3} → {:.3} (cycle={}, Nesterov+AdamW step={:.5}, new_nesterov={:.4})",
+                self.base_weight_ma, evolved_ma, self.lr_current_cycle, nesterov_step, new_nesterov_ma
             ));
         }
 
         if changes.is_empty() {
-            return Ok("No base weight evolution needed (Nesterov + Cyclical Restarts + AdamW)".to_string());
+            return Ok("No base weight evolution needed (Explicit Nesterov Mutation)".to_string());
         }
+
+        // Apply explicit Nesterov state mutation (persistence across proposals)
+        self.nesterov_momentum_pf = new_nesterov_pf;
+        self.nesterov_momentum_ma = new_nesterov_ma;
 
         let proposal = EvolutionProposal {
             id: rand::random::<u64>() % 1_000_000_000,
             proposer: "Lattice_Conductor_v13.1_SelfEvolution_Hook".to_string(),
-            target_module: "ra-thor-one-organism / quantum_swarm_multi_consensus_vote (Nesterov + AdamW)".to_string(),
-            description: format!("Self-evolution of entanglement base weights with Nesterov Acceleration + AdamW + Cyclical Restarts (cycle={}, base_lr={:.5}, timestep={}). Changes: {:?}", self.lr_current_cycle, base_lr, timestep, changes),
-            proposed_diff: format!("base_weight_pf = {:.3}; base_weight_ma = {:.3}; nesterov_momentum_pf={:.4}; nesterov_momentum_ma={:.4}", evolved_pf, evolved_ma, self.nesterov_momentum_pf, self.nesterov_momentum_ma),
+            target_module: "ra-thor-one-organism / quantum_swarm_multi_consensus_vote (Explicit Nesterov Mutation)".to_string(),
+            description: format!("Self-evolution of entanglement base weights with Explicit Nesterov State Mutation + AdamW + Cyclical Restarts (cycle={}, base_lr={:.5}, timestep={}). New Nesterov momentum: pf={:.4}, ma={:.4}. Changes: {:?}", self.lr_current_cycle, base_lr, timestep, self.nesterov_momentum_pf, self.nesterov_momentum_ma, changes),
+            proposed_diff: format!("base_weight_pf = {:.3}; base_weight_ma = {:.3}; nesterov_momentum_pf = {:.4}; nesterov_momentum_ma = {:.4}", evolved_pf, evolved_ma, self.nesterov_momentum_pf, self.nesterov_momentum_ma),
             expected_benefit: 0.96,
             risk_score: 0.01,
             mercy_alignment: 0.98,
@@ -755,12 +767,12 @@ impl RaThorOneOrganism {
 
         match self.evolution_gate.propose_evolution(proposal.clone()) {
             Ok(msg) => {
-                println!("[ONE + Lattice Conductor] Nesterov Acceleration + AdamW + Cyclical Restarts self-evolution proposed: {}", msg);
+                println!("[ONE + Lattice Conductor] Explicit Nesterov State Mutation + AdamW + Cyclical Restarts self-evolution proposed: {}", msg);
                 self.trigger_evolution_automation_hooks(&proposal, 0.98).await;
                 self.persist_approved_evolution(&proposal, true, 0.98).await;
-                Ok(format!("Entanglement base weights self-evolution via Nesterov Acceleration proposed"))
+                Ok(format!("Entanglement base weights self-evolution via Explicit Nesterov Mutation proposed"))
             }
-            Err(e) => Err(format!("Gate rejected Nesterov + AdamW evolution: {}", e)),
+            Err(e) => Err(format!("Gate rejected Explicit Nesterov Mutation evolution: {}", e)),
         }
     }
 
@@ -889,6 +901,6 @@ impl RaThorOneOrganism {
 pub fn launch_one_organism() -> RaThorOneOrganism {
     let organism = RaThorOneOrganism::new();
     organism.offer_cosmic_loop();
-    println!("[Thunder] ONE Organism v14.17 + Real GitHubConnector + Nesterov Acceleration in Lattice Conductor v13.1 ready");
+    println!("[Thunder] ONE Organism v14.17 + Real GitHubConnector + Explicit Nesterov State Mutation in Lattice Conductor v13.1 ready");
     organism
 }
