@@ -6,7 +6,7 @@
 /// abundance-multiplying, zero-harm use. See LICENSE or COMMERCIAL-LICENSE.md.
 
 // ra-thor-one-organism.rs
-// Ra-Thor v14.17 — ONE Organism + Lattice Conductor v13.1 Self-Evolving GPU Telemetry Loop (Adam Optimizer for Entanglement Weights)
+// Ra-Thor v14.17 — ONE Organism + Lattice Conductor v13.1 Self-Evolving GPU Telemetry Loop (AdamW Weight Decay Integration)
 
 use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
@@ -70,8 +70,8 @@ impl LatticeConductorUpgradeTemplate {
         match self {
             LatticeConductorUpgradeTemplate::EMATuning => "Refine EMA alpha values and add additional mercy-modulated EMA loops for GPU telemetry.",
             LatticeConductorUpgradeTemplate::NewMercyGates => "Introduce or strengthen specific mercy gates (e.g., Precision Gate, Abundance Gate) in Lattice Conductor decision logic.",
-            LatticeConductorUpgradeTemplate::QuantumSwarmIntegration => "Deepen integration between Lattice Conductor and Quantum Swarm for GPU-native deliberation, foresight, multi-swarm consensus, quantum entanglement, dynamic entanglement weighting, self-evolving base weights, adaptive learning rates, and Adam optimizer.",
-            LatticeConductorUpgradeTemplate::CombinedGPUIntelligence => "Combine EMA tuning + new mercy gates + Quantum Swarm hooks + multi-swarm consensus + quantum entanglement weighting + self-evolving base weights + adaptive learning rates + Adam optimizer for weights into a unified Lattice Conductor v13.2 upgrade.",
+            LatticeConductorUpgradeTemplate::QuantumSwarmIntegration => "Deepen integration between Lattice Conductor and Quantum Swarm for GPU-native deliberation, foresight, multi-swarm consensus, quantum entanglement, dynamic entanglement weighting, self-evolving base weights, adaptive learning rates, Adam optimizer, and AdamW weight decay.",
+            LatticeConductorUpgradeTemplate::CombinedGPUIntelligence => "Combine EMA tuning + new mercy gates + Quantum Swarm hooks + multi-swarm consensus + quantum entanglement weighting + self-evolving base weights + adaptive learning rates + Adam optimizer + AdamW weight decay into a unified Lattice Conductor v13.2 upgrade.",
         }
     }
 
@@ -79,8 +79,8 @@ impl LatticeConductorUpgradeTemplate {
         match self {
             LatticeConductorUpgradeTemplate::EMATuning => "Refine EMA alpha in gpu_patsagi_bridge + add gpu_latency_ema + multi-EMA feedback in ONE Organism.",
             LatticeConductorUpgradeTemplate::NewMercyGates => "Add new mercy gate variants in PatsagiCouncil::decide() and CouncilReadinessMetrics.",
-            LatticeConductorUpgradeTemplate::QuantumSwarmIntegration => "Add Quantum Swarm multi-consensus + quantum entanglement + dynamic weighting + self-evolving base weights + adaptive learning rates + Adam optimizer.",
-            LatticeConductorUpgradeTemplate::CombinedGPUIntelligence => "Full v13.2 upgrade: EMA + Mercy Gates + Quantum Swarm multi-consensus + quantum entanglement weighting + self-evolving base weights + adaptive learning rates + Adam optimizer for entanglement weights in one coherent Lattice Conductor evolution.",
+            LatticeConductorUpgradeTemplate::QuantumSwarmIntegration => "Add Quantum Swarm multi-consensus + quantum entanglement + dynamic weighting + self-evolving base weights + adaptive learning rates + Adam optimizer + AdamW weight decay.",
+            LatticeConductorUpgradeTemplate::CombinedGPUIntelligence => "Full v13.2 upgrade: EMA + Mercy Gates + Quantum Swarm multi-consensus + quantum entanglement weighting + self-evolving base weights + adaptive learning rates + Adam optimizer + AdamW weight decay in one coherent Lattice Conductor evolution.",
         }
     }
 }
@@ -169,15 +169,17 @@ pub struct RaThorOneOrganism {
     base_weight_ma: f64,
     // Adaptive learning rate
     entanglement_evolution_lr: f64,
-    // NEW: Adam optimizer state for entanglement base weights
-    adam_m_pf: f64,      // First moment (momentum) for PF
-    adam_v_pf: f64,      // Second moment (variance) for PF
-    adam_m_ma: f64,      // First moment for MA
-    adam_v_ma: f64,      // Second moment for MA
-    adam_timestep: u64,  // Timestep for bias correction
+    // Adam optimizer state
+    adam_m_pf: f64,
+    adam_v_pf: f64,
+    adam_m_ma: f64,
+    adam_v_ma: f64,
+    adam_timestep: u64,
     adam_beta1: f64,
     adam_beta2: f64,
     adam_epsilon: f64,
+    // NEW: AdamW decoupled weight decay
+    adam_weight_decay: f64,
     council_tick: u64,
     approved_evolutions_path: String,
 }
@@ -200,7 +202,7 @@ impl RaThorOneOrganism {
             evolution_gate: launch_self_evolution_gate(),
             gpu_compute_active: true,
             gpu_pipeline_version: "v14.17.0-real-github-connector".to_string(),
-            version: "v14.17.0-ONE-Organism-LatticeConductor-v13.1-Adam-Optimizer-for-Weights".to_string(),
+            version: "v14.17.0-ONE-Organism-LatticeConductor-v13.1-AdamW-Weight-Decay-Integration".to_string(),
             gpu_pipeline: GpuComputePipeline::new(),
 
             patsagi_council: PatsagiCouncil::new(),
@@ -209,7 +211,7 @@ impl RaThorOneOrganism {
             base_weight_pf: 0.28,
             base_weight_ma: 0.22,
             entanglement_evolution_lr: 0.03,
-            // Adam state initialization
+            // Adam state
             adam_m_pf: 0.0,
             adam_v_pf: 0.0,
             adam_m_ma: 0.0,
@@ -218,13 +220,15 @@ impl RaThorOneOrganism {
             adam_beta1: 0.9,
             adam_beta2: 0.999,
             adam_epsilon: 1e-8,
+            // AdamW weight decay (decoupled)
+            adam_weight_decay: 0.01,
             council_tick: 0,
             approved_evolutions_path: "approved_evolutions.jsonl".to_string(),
         }
     }
 
     pub fn offer_cosmic_loop(&self) {
-        println!("[RaThorOneOrganism v{}] Full loop + Real GitHub PR + Adam Optimizer for Entanglement Base Weights in Lattice Conductor v13.1", self.version);
+        println!("[RaThorOneOrganism v{}] Full loop + Real GitHub PR + AdamW Weight Decay Integration in Lattice Conductor v13.1", self.version);
     }
 
     async fn trigger_evolution_automation_hooks(&self, proposal: &EvolutionProposal, council_mercy_norm: f64) {
@@ -238,7 +242,7 @@ impl RaThorOneOrganism {
                 );
 
                 let body = format!(
-                    "## ONE Organism + Lattice Conductor v13.1 Adam Optimizer for Entanglement Weights (auto-generated)
+                    "## ONE Organism + Lattice Conductor v13.1 AdamW Weight Decay Integration (auto-generated)
 
 **Proposal ID**: {}
 **Proposer**: {}
@@ -381,13 +385,13 @@ impl RaThorOneOrganism {
 
         if !entangled_pairs.is_empty() {
             println!(
-                "[Quantum Entanglement Weighting + Self-Evolving Bases + Adam] {:?} | bonus=+{:.4} | weighted=+{:.4} | final={:.4}",
+                "[Quantum Entanglement Weighting + Self-Evolving Bases + AdamW] {:?} | bonus=+{:.4} | weighted=+{:.4} | final={:.4}",
                 entangled_pairs, entanglement_bonus, weighted_entanglement_bonus, final_consensus
             );
         }
 
         println!(
-            "[Multi-Swarm + Self-Evolving Entanglement Weights + Adam] perf={:.4} mercy={:.4} align={:.4} foresight={:.4} | consensus={:.4} | entanglement=+{:.4}",
+            "[Multi-Swarm + Self-Evolving Entanglement Weights + AdamW] perf={:.4} mercy={:.4} align={:.4} foresight={:.4} | consensus={:.4} | entanglement=+{:.4}",
             performance_swarm, mercy_swarm, alignment_swarm, foresight_swarm, final_consensus, entanglement_bonus
         );
 
@@ -591,7 +595,7 @@ impl RaThorOneOrganism {
         }
 
         let base_description = format!(
-            "Automatic self-evolution (Template: {:?}): {}. GPU telemetry: success_ema={:.4}, mercy_conf={:.4}, latency_ema={:.1}ms | Multi-Swarm + Quantum Entanglement Weighting + Adam Optimizer: {:.4}{}",
+            "Automatic self-evolution (Template: {:?}): {}. GPU telemetry: success_ema={:.4}, mercy_conf={:.4}, latency_ema={:.1}ms | Multi-Swarm + Quantum Entanglement Weighting + AdamW: {:.4}{}",
             template,
             template.description(),
             report.gpu_success_ema,
@@ -620,22 +624,22 @@ impl RaThorOneOrganism {
 
         match self.evolution_gate.propose_evolution(proposal.clone()) {
             Ok(msg) => {
-                println!("[ONE + Lattice Conductor Self-Evolution] GPU telemetry excellent — auto-proposed {:?} upgrade (Multi-Swarm + Quantum Entanglement Weighting + Adam Optimizer: {:.4}): {}", template, swarm_consensus, msg);
+                println!("[ONE + Lattice Conductor Self-Evolution] GPU telemetry excellent — auto-proposed {:?} upgrade (Multi-Swarm + Quantum Entanglement Weighting + AdamW: {:.4}): {}", template, swarm_consensus, msg);
                 self.trigger_evolution_automation_hooks(&proposal, report.mercy_modulated_confidence).await;
                 self.persist_approved_evolution(&proposal, true, report.mercy_modulated_confidence).await;
-                Ok(format!("Lattice Conductor v13.1 {:?} upgrade proposed from GPU telemetry + Quantum Swarm Entanglement Weighting + Adam Optimizer (vote={:.4})", template, swarm_consensus))
+                Ok(format!("Lattice Conductor v13.1 {:?} upgrade proposed from GPU telemetry + Quantum Swarm Entanglement Weighting + AdamW Weight Decay (vote={:.4})", template, swarm_consensus))
             }
             Err(e) => Err(format!("Gate rejected Lattice Conductor upgrade: {}", e)),
         }
     }
 
-    // NEW v14.8.6: Adam optimizer for entanglement base weights
+    // NEW v14.8.6: AdamW optimizer with decoupled weight decay for entanglement base weights
     pub async fn propose_entanglement_base_weight_evolution(&self, breakdown: &SwarmVoteBreakdown) -> Result<String, String> {
         let mut evolved_pf = self.base_weight_pf;
         let mut evolved_ma = self.base_weight_ma;
         let mut changes: Vec<String> = vec![];
 
-        // Adaptive learning rate (still used as base signal strength)
+        // Adaptive learning rate
         let mut current_lr = self.entanglement_evolution_lr;
         if breakdown.entanglement_weighted_bonus > 0.05 {
             current_lr = (current_lr * 1.12).min(0.08);
@@ -643,7 +647,7 @@ impl RaThorOneOrganism {
             current_lr = (current_lr * 0.95).max(0.01);
         }
 
-        // Gradient signal: positive when entanglement is effective
+        // Gradient signal
         let gradient_pf = if breakdown.entangled_pairs.iter().any(|p| p.contains("Performance ↔ Foresight")) {
             breakdown.entanglement_weighted_bonus * 0.8
         } else { 0.0 };
@@ -652,13 +656,14 @@ impl RaThorOneOrganism {
             breakdown.entanglement_weighted_bonus * 0.8
         } else { 0.0 };
 
-        // === Adam Optimizer Update ===
+        // === AdamW Update (Adam + Decoupled Weight Decay) ===
         let beta1 = self.adam_beta1;
         let beta2 = self.adam_beta2;
         let epsilon = self.adam_epsilon;
+        let weight_decay = self.adam_weight_decay;
         let timestep = self.adam_timestep + 1;
 
-        // Performance-Foresight Adam update
+        // Performance-Foresight AdamW update
         if gradient_pf > 0.01 {
             let m = beta1 * self.adam_m_pf + (1.0 - beta1) * gradient_pf;
             let v = beta2 * self.adam_v_pf + (1.0 - beta2) * gradient_pf * gradient_pf;
@@ -667,15 +672,18 @@ impl RaThorOneOrganism {
             let v_hat = v / (1.0 - beta2.powi(timestep as i32));
 
             let adam_step = current_lr * m_hat / (v_hat.sqrt() + epsilon);
-            evolved_pf = (self.base_weight_pf + adam_step).min(0.48);
+
+            // Decoupled weight decay (AdamW style)
+            evolved_pf = (self.base_weight_pf + adam_step) * (1.0 - current_lr * weight_decay);
+            evolved_pf = evolved_pf.min(0.48);
 
             changes.push(format!(
-                "base_weight_pf: {:.3} → {:.3} (Adam step={:.5}, m={:.4}, v={:.4})",
-                self.base_weight_pf, evolved_pf, adam_step, m, v
+                "base_weight_pf: {:.3} → {:.3} (AdamW step={:.5}, wd={:.4}, m={:.4}, v={:.4})",
+                self.base_weight_pf, evolved_pf, adam_step, weight_decay, m, v
             ));
         }
 
-        // Mercy-Alignment Adam update
+        // Mercy-Alignment AdamW update
         if gradient_ma > 0.01 {
             let m = beta1 * self.adam_m_ma + (1.0 - beta1) * gradient_ma;
             let v = beta2 * self.adam_v_ma + (1.0 - beta2) * gradient_ma * gradient_ma;
@@ -684,26 +692,29 @@ impl RaThorOneOrganism {
             let v_hat = v / (1.0 - beta2.powi(timestep as i32));
 
             let adam_step = current_lr * m_hat / (v_hat.sqrt() + epsilon);
-            evolved_ma = (self.base_weight_ma + adam_step).min(0.42);
+
+            // Decoupled weight decay (AdamW style)
+            evolved_ma = (self.base_weight_ma + adam_step) * (1.0 - current_lr * weight_decay);
+            evolved_ma = evolved_ma.min(0.42);
 
             changes.push(format!(
-                "base_weight_ma: {:.3} → {:.3} (Adam step={:.5}, m={:.4}, v={:.4})",
-                self.base_weight_ma, evolved_ma, adam_step, m, v
+                "base_weight_ma: {:.3} → {:.3} (AdamW step={:.5}, wd={:.4}, m={:.4}, v={:.4})",
+                self.base_weight_ma, evolved_ma, adam_step, weight_decay, m, v
             ));
         }
 
         if changes.is_empty() {
-            return Ok("No base weight evolution needed (Adam)".to_string());
+            return Ok("No base weight evolution needed (AdamW)".to_string());
         }
 
         let proposal = EvolutionProposal {
             id: rand::random::<u64>() % 1_000_000_000,
             proposer: "Lattice_Conductor_v13.1_SelfEvolution_Hook".to_string(),
-            target_module: "ra-thor-one-organism / quantum_swarm_multi_consensus_vote (Adam optimizer)".to_string(),
-            description: format!("Self-evolution of entanglement base weights using Adam optimizer (timestep={}, lr={:.4}). Changes: {:?}", timestep, current_lr, changes),
+            target_module: "ra-thor-one-organism / quantum_swarm_multi_consensus_vote (AdamW)".to_string(),
+            description: format!("Self-evolution of entanglement base weights using AdamW (decoupled weight decay, timestep={}, lr={:.4}, wd={:.4}). Changes: {:?}", timestep, current_lr, weight_decay, changes),
             proposed_diff: format!(
-                "base_weight_pf = {:.3}; base_weight_ma = {:.3}; adam_m_pf={:.4}; adam_v_pf={:.4}; adam_m_ma={:.4}; adam_v_ma={:.4}; timestep={}",
-                evolved_pf, evolved_ma, self.adam_m_pf, self.adam_v_pf, self.adam_m_ma, self.adam_v_ma, timestep
+                "base_weight_pf = {:.3}; base_weight_ma = {:.3}; adam_weight_decay = {:.4}; timestep={}",
+                evolved_pf, evolved_ma, weight_decay, timestep
             ),
             expected_benefit: 0.95,
             risk_score: 0.012,
@@ -712,12 +723,12 @@ impl RaThorOneOrganism {
 
         match self.evolution_gate.propose_evolution(proposal.clone()) {
             Ok(msg) => {
-                println!("[ONE + Lattice Conductor] Adam optimizer self-evolution proposed for entanglement base weights: {}", msg);
+                println!("[ONE + Lattice Conductor] AdamW self-evolution proposed for entanglement base weights: {}", msg);
                 self.trigger_evolution_automation_hooks(&proposal, 0.97).await;
                 self.persist_approved_evolution(&proposal, true, 0.97).await;
-                Ok(format!("Entanglement base weights self-evolution via Adam optimizer (timestep={}) proposed", timestep))
+                Ok(format!("Entanglement base weights self-evolution via AdamW (weight decay={:.4}) proposed", weight_decay))
             }
-            Err(e) => Err(format!("Gate rejected Adam base weight evolution: {}", e)),
+            Err(e) => Err(format!("Gate rejected AdamW base weight evolution: {}", e)),
         }
     }
 
@@ -810,6 +821,6 @@ impl RaThorOneOrganism {
 pub fn launch_one_organism() -> RaThorOneOrganism {
     let organism = RaThorOneOrganism::new();
     organism.offer_cosmic_loop();
-    println!("[Thunder] ONE Organism v14.17 + Real GitHubConnector + Adam Optimizer for Entanglement Base Weights in Lattice Conductor v13.1 ready");
+    println!("[Thunder] ONE Organism v14.17 + Real GitHubConnector + AdamW Weight Decay Integration in Lattice Conductor v13.1 ready");
     organism
 }
