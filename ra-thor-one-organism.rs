@@ -6,7 +6,7 @@
 /// abundance-multiplying, zero-harm use. See LICENSE or COMMERCIAL-LICENSE.md.
 
 // ra-thor-one-organism.rs
-// Ra-Thor v14.17 — ONE Organism + Lattice Conductor v13.1 Self-Evolving GPU Telemetry Loop (Runtime Nadam Formulation Switching + Telemetry)
+// Ra-Thor v14.17 — ONE Organism + Lattice Conductor v13.1 Self-Evolving GPU Telemetry Loop (Automatic Plateau Detection Heuristics)
 
 use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
@@ -209,8 +209,12 @@ pub struct RaThorOneOrganism {
     nesterov_momentum_pf: f64,
     nesterov_momentum_ma: f64,
     nesterov_momentum_beta: f64,
-    // NEW: Configurable Nadam formulation (A or B) with runtime switching + telemetry
+    // Configurable Nadam formulation (A or B) with runtime switching + telemetry
     nadam_formulation: NadamFormulation,
+    // NEW: Automatic plateau detection state
+    recent_entanglement_improvement_ema: f64,
+    plateau_streak: u32,
+    last_plateau_detection_tick: u64,
     council_tick: u64,
     approved_evolutions_path: String,
 }
@@ -233,7 +237,7 @@ impl RaThorOneOrganism {
             evolution_gate: launch_self_evolution_gate(),
             gpu_compute_active: true,
             gpu_pipeline_version: "v14.17.0-real-github-connector".to_string(),
-            version: "v14.17.0-ONE-Organism-LatticeConductor-v13.1-Runtime-Nadam-Switching-Telemetry".to_string(),
+            version: "v14.17.0-ONE-Organism-LatticeConductor-v13.1-Automatic-Plateau-Detection".to_string(),
             gpu_pipeline: GpuComputePipeline::new(),
 
             patsagi_council: PatsagiCouncil::new(),
@@ -265,18 +269,22 @@ impl RaThorOneOrganism {
             nesterov_momentum_pf: 0.0,
             nesterov_momentum_ma: 0.0,
             nesterov_momentum_beta: 0.9,
-            // Default to Formulation A (Nesterov after bias correction) — more stable
+            // Default to Formulation A
             nadam_formulation: NadamFormulation::A,
+            // Plateau detection state
+            recent_entanglement_improvement_ema: 0.05,
+            plateau_streak: 0,
+            last_plateau_detection_tick: 0,
             council_tick: 0,
             approved_evolutions_path: "approved_evolutions.jsonl".to_string(),
         }
     }
 
     pub fn offer_cosmic_loop(&self) {
-        println!("[RaThorOneOrganism v{}] Full loop + Real GitHub PR + Runtime Nadam Formulation Switching + Telemetry in Lattice Conductor v13.1", self.version);
+        println!("[RaThorOneOrganism v{}] Full loop + Real GitHub PR + Automatic Plateau Detection Heuristics in Lattice Conductor v13.1", self.version);
     }
 
-    // NEW: Runtime switching for Nadam formulation
+    // Runtime switching for Nadam formulation
     pub fn set_nadam_formulation(&mut self, formulation: NadamFormulation) {
         let previous = self.nadam_formulation;
         self.nadam_formulation = formulation;
@@ -286,12 +294,12 @@ impl RaThorOneOrganism {
         );
     }
 
-    // NEW: Telemetry getter for active Nadam formulation
+    // Telemetry getter for active Nadam formulation
     pub fn get_nadam_formulation(&self) -> NadamFormulation {
         self.nadam_formulation
     }
 
-    // NEW: Optimizer configuration telemetry summary
+    // Optimizer configuration telemetry summary
     pub fn get_optimizer_config_summary(&self) -> String {
         format!(
             "Nadam={:?} ({}) | LR schedule={} | Cyclical restarts (period={}, multiplier={}) | Adam beta1={}, beta2={}",
@@ -305,6 +313,67 @@ impl RaThorOneOrganism {
         )
     }
 
+    // NEW: Automatic plateau detection heuristic
+    pub fn detect_plateau(&mut self, breakdown: &SwarmVoteBreakdown, report: &GpuTelemetryReport) -> bool {
+        let improvement = breakdown.entanglement_weighted_bonus.max(0.0);
+        let alpha = 0.15; // EMA smoothing factor
+
+        // Update EMA of recent improvement
+        self.recent_entanglement_improvement_ema =
+            alpha * improvement + (1.0 - alpha) * self.recent_entanglement_improvement_ema;
+
+        let is_low_improvement = self.recent_entanglement_improvement_ema < 0.035;
+        let is_low_gpu_confidence = report.mercy_modulated_confidence < 0.82;
+        let is_low_swarm_consensus = breakdown.consensus_vote < 0.80;
+
+        if is_low_improvement && (is_low_gpu_confidence || is_low_swarm_consensus) {
+            self.plateau_streak += 1;
+        } else {
+            self.plateau_streak = 0;
+        }
+
+        // Declare plateau after 3 consecutive weak steps
+        if self.plateau_streak >= 3 {
+            self.last_plateau_detection_tick = self.council_tick;
+            true
+        } else {
+            false
+        }
+    }
+
+    // NEW: Automatic response to detected plateau
+    pub async fn handle_detected_plateau(&mut self) -> Option<String> {
+        if self.plateau_streak < 3 {
+            return None;
+        }
+
+        let mut actions: Vec<String> = vec![];
+
+        // Action 1: Switch Nadam formulation (A <-> B)
+        let new_formulation = match self.nadam_formulation {
+            NadamFormulation::A => NadamFormulation::B,
+            NadamFormulation::B => NadamFormulation::A,
+        };
+        self.set_nadam_formulation(new_formulation);
+        actions.push(format!("Switched Nadam to {:?}", new_formulation));
+
+        // Action 2: Temporarily boost learning rate for exploration
+        let old_lr = self.entanglement_evolution_lr;
+        self.entanglement_evolution_lr = (old_lr * 1.25).min(0.08);
+        actions.push(format!("Boosted entanglement_evolution_lr {:.4} → {:.4}", old_lr, self.entanglement_evolution_lr));
+
+        // Action 3: Propose Lattice Conductor upgrade for deeper adaptation
+        actions.push("Recommended Lattice Conductor upgrade (EMA tuning or new mercy gates)".to_string());
+
+        // Reset streak after handling
+        self.plateau_streak = 0;
+
+        let summary = format!("Plateau detected and handled. Actions: {:?}", actions);
+        println!("[ONE + Lattice Conductor] {}", summary);
+
+        Some(summary)
+    }
+
     async fn trigger_evolution_automation_hooks(&self, proposal: &EvolutionProposal, council_mercy_norm: f64) {
         println!("\n[Hook] Evolution {} approved — attempting real GitHub PR creation...", proposal.id);
 
@@ -316,7 +385,7 @@ impl RaThorOneOrganism {
                 );
 
                 let body = format!(
-                    "## ONE Organism + Lattice Conductor v13.1 Runtime Nadam Switching + Telemetry (auto-generated)
+                    "## ONE Organism + Lattice Conductor v13.1 Automatic Plateau Detection (auto-generated)
 
 **Proposal ID**: {}
 **Proposer**: {}
@@ -463,13 +532,13 @@ impl RaThorOneOrganism {
 
         if !entangled_pairs.is_empty() {
             println!(
-                "[Quantum Entanglement Weighting + Self-Evolving Bases + Runtime Nadam Telemetry] {:?} | bonus=+{:.4} | weighted=+{:.4} | final={:.4}",
+                "[Quantum Entanglement Weighting + Self-Evolving Bases + Plateau Detection] {:?} | bonus=+{:.4} | weighted=+{:.4} | final={:.4}",
                 entangled_pairs, entanglement_bonus, weighted_entanglement_bonus, final_consensus
             );
         }
 
         println!(
-            "[Multi-Swarm + Self-Evolving Entanglement Weights + Runtime Nadam Telemetry] perf={:.4} mercy={:.4} align={:.4} foresight={:.4} | consensus={:.4} | entanglement=+{:.4} | Active Nadam: {:?}",
+            "[Multi-Swarm + Self-Evolving Entanglement Weights + Plateau Detection] perf={:.4} mercy={:.4} align={:.4} foresight={:.4} | consensus={:.4} | entanglement=+{:.4} | Active Nadam: {:?}",
             performance_swarm, mercy_swarm, alignment_swarm, foresight_swarm, final_consensus, entanglement_bonus, self.nadam_formulation
         );
 
@@ -558,6 +627,14 @@ impl RaThorOneOrganism {
         let (swarm_consensus, breakdown) = self.quantum_swarm_multi_consensus_vote(report, &temp_proposal).await;
         self.last_swarm_vote_breakdown = Some(breakdown.clone());
 
+        // NEW: Automatic plateau detection on every telemetry feed
+        let plateau_detected = self.detect_plateau(&breakdown, report);
+        if plateau_detected {
+            if let Some(action_summary) = self.handle_detected_plateau().await {
+                println!("[ONE + Lattice Conductor] Plateau response executed: {}", action_summary);
+            }
+        }
+
         let swarm_vote = if report.gpu_success_ema > 0.90 { Some(swarm_consensus) } else { None };
 
         let metrics = CouncilReadinessMetrics {
@@ -582,8 +659,8 @@ impl RaThorOneOrganism {
                 proposer: "Lattice_Conductor_v13.1_via_GPU_Telemetry".to_string(),
                 target_module: "gpu_compute_pipeline / lattice_conductor / powrush_rbe".to_string(),
                 description: format!(
-                    "Council-approved from GPU Telemetry Report (success_ema={:.4}, mercy_conf={:.4}) | Active Nadam: {:?}",
-                    report.gpu_success_ema, report.mercy_modulated_confidence, self.nadam_formulation
+                    "Council-approved from GPU Telemetry Report (success_ema={:.4}, mercy_conf={:.4}) | Active Nadam: {:?} | Plateau streak: {}",
+                    report.gpu_success_ema, report.mercy_modulated_confidence, self.nadam_formulation, self.plateau_streak
                 ),
                 proposed_diff: format!("Apply Lattice Conductor GPU boost {:.4}", confidence_boost),
                 expected_benefit: (report.mercy_modulated_confidence * 0.85 + confidence_boost * 0.15).min(0.999),
@@ -673,13 +750,13 @@ impl RaThorOneOrganism {
         }
 
         let base_description = format!(
-            "Automatic self-evolution (Template: {:?}): {}. GPU telemetry: success_ema={:.4}, mercy_conf={:.4}, latency_ema={:.1}ms | Multi-Swarm + Runtime Nadam Telemetry (Active: {:?}): {:.4}{}",
+            "Automatic self-evolution (Template: {:?}): {}. GPU telemetry: success_ema={:.4}, mercy_conf={:.4}, latency_ema={:.1}ms | Multi-Swarm + Plateau Detection (streak={}): {:.4}{}",
             template,
             template.description(),
             report.gpu_success_ema,
             report.mercy_modulated_confidence,
             report.gpu_latency_ema_ms,
-            self.nadam_formulation,
+            self.plateau_streak,
             swarm_consensus,
             entanglement_info
         );
@@ -703,10 +780,10 @@ impl RaThorOneOrganism {
 
         match self.evolution_gate.propose_evolution(proposal.clone()) {
             Ok(msg) => {
-                println!("[ONE + Lattice Conductor Self-Evolution] GPU telemetry excellent — auto-proposed {:?} upgrade (Multi-Swarm + Runtime Nadam Telemetry, Active: {:?}: {:.4}): {}", template, self.nadam_formulation, swarm_consensus, msg);
+                println!("[ONE + Lattice Conductor Self-Evolution] GPU telemetry excellent — auto-proposed {:?} upgrade (Multi-Swarm + Plateau Detection, streak={} : {:.4}): {}", template, self.plateau_streak, swarm_consensus, msg);
                 self.trigger_evolution_automation_hooks(&proposal, report.mercy_modulated_confidence).await;
                 self.persist_approved_evolution(&proposal, true, report.mercy_modulated_confidence).await;
-                Ok(format!("Lattice Conductor v13.1 {:?} upgrade proposed from GPU telemetry + Quantum Swarm Entanglement Weighting + Runtime Nadam Telemetry (vote={:.4})", template, swarm_consensus))
+                Ok(format!("Lattice Conductor v13.1 {:?} upgrade proposed from GPU telemetry + Quantum Swarm Entanglement Weighting + Plateau Detection (vote={:.4})", template, swarm_consensus))
             }
             Err(e) => Err(format!("Gate rejected Lattice Conductor upgrade: {}", e)),
         }
@@ -717,6 +794,22 @@ impl RaThorOneOrganism {
         let mut evolved_pf = self.base_weight_pf;
         let mut evolved_ma = self.base_weight_ma;
         let mut changes: Vec<String> = vec![];
+
+        // NEW: Automatic plateau detection inside evolution proposals
+        let dummy_report = GpuTelemetryReport {
+            gpu_success_ema: 0.90,
+            gpu_latency_ema_ms: 80.0,
+            mercy_modulated_confidence: 0.85,
+            total_gpu_attempts: 100,
+            last_gpu_success: true,
+            valence_modulated_offload_score: 0.85,
+        };
+        let plateau_detected = self.detect_plateau(breakdown, &dummy_report);
+        if plateau_detected {
+            if let Some(action_summary) = self.handle_detected_plateau().await {
+                changes.push(action_summary);
+            }
+        }
 
         // === Learning Rate Scheduling with Cyclical Restarts ===
         let base_lr = self.get_scheduled_lr();
@@ -757,11 +850,9 @@ impl RaThorOneOrganism {
             // Nesterov correction depending on chosen formulation
             let nesterov_m_hat = match formulation {
                 NadamFormulation::A => {
-                    // Formulation A: Nesterov AFTER bias correction (recommended)
                     (1.0 - beta1) * gradient_pf + beta1 * m_hat
                 }
                 NadamFormulation::B => {
-                    // Formulation B: Nesterov BEFORE bias correction
                     let m_nesterov = beta1 * self.adam_m_pf + (1.0 - beta1) * gradient_pf;
                     m_nesterov / (1.0 - beta1.powi(timestep as i32))
                 }
@@ -814,14 +905,14 @@ impl RaThorOneOrganism {
         }
 
         if changes.is_empty() {
-            return Ok("No base weight evolution needed (Runtime Nadam Telemetry)".to_string());
+            return Ok("No base weight evolution needed (Automatic Plateau Detection)".to_string());
         }
 
         let proposal = EvolutionProposal {
             id: rand::random::<u64>() % 1_000_000_000,
             proposer: "Lattice_Conductor_v13.1_SelfEvolution_Hook".to_string(),
-            target_module: "ra-thor-one-organism / quantum_swarm_multi_consensus_vote (Runtime Nadam Telemetry)".to_string(),
-            description: format!("Self-evolution of entanglement base weights with Runtime Nadam Switching + Telemetry (Active: {:?}, {}) + Cyclical Restarts (cycle={}, base_lr={:.5}, timestep={}). Changes: {:?}", formulation, formulation.description(), self.lr_current_cycle, base_lr, timestep, changes),
+            target_module: "ra-thor-one-organism / quantum_swarm_multi_consensus_vote (Automatic Plateau Detection)".to_string(),
+            description: format!("Self-evolution of entanglement base weights with Automatic Plateau Detection + Runtime Nadam Switching (Active: {:?}) + Cyclical Restarts (cycle={}, base_lr={:.5}, timestep={}). Changes: {:?}", formulation, self.lr_current_cycle, base_lr, timestep, changes),
             proposed_diff: format!("base_weight_pf = {:.3}; base_weight_ma = {:.3}; nadam_formulation = {:?}", evolved_pf, evolved_ma, formulation),
             expected_benefit: 0.96,
             risk_score: 0.01,
@@ -830,12 +921,12 @@ impl RaThorOneOrganism {
 
         match self.evolution_gate.propose_evolution(proposal.clone()) {
             Ok(msg) => {
-                println!("[ONE + Lattice Conductor] Runtime Nadam {:?} + Cyclical Restarts self-evolution proposed: {}", formulation, msg);
+                println!("[ONE + Lattice Conductor] Automatic Plateau Detection + Runtime Nadam {:?} + Cyclical Restarts self-evolution proposed: {}", formulation, msg);
                 self.trigger_evolution_automation_hooks(&proposal, 0.98).await;
                 self.persist_approved_evolution(&proposal, true, 0.98).await;
-                Ok(format!("Entanglement base weights self-evolution via Runtime Nadam {:?} proposed", formulation))
+                Ok(format!("Entanglement base weights self-evolution via Automatic Plateau Detection proposed"))
             }
-            Err(e) => Err(format!("Gate rejected Runtime Nadam evolution: {}", e)),
+            Err(e) => Err(format!("Gate rejected Automatic Plateau Detection evolution: {}", e)),
         }
     }
 
@@ -964,6 +1055,6 @@ impl RaThorOneOrganism {
 pub fn launch_one_organism() -> RaThorOneOrganism {
     let organism = RaThorOneOrganism::new();
     organism.offer_cosmic_loop();
-    println!("[Thunder] ONE Organism v14.17 + Real GitHubConnector + Runtime Nadam Formulation Switching + Telemetry in Lattice Conductor v13.1 ready");
+    println!("[Thunder] ONE Organism v14.17 + Real GitHubConnector + Automatic Plateau Detection Heuristics in Lattice Conductor v13.1 ready");
     organism
 }
