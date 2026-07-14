@@ -6,7 +6,7 @@
 /// abundance-multiplying, zero-harm use. See LICENSE or COMMERCIAL-LICENSE.md.
 
 // ra-thor-one-organism.rs
-// Ra-Thor v14.17 — ONE Organism + Lattice Conductor v13.1 Self-Evolving GPU Telemetry Loop (Quantum Entanglement Voting + Public Telemetry)
+// Ra-Thor v14.17 — ONE Organism + Lattice Conductor v13.1 Self-Evolving GPU Telemetry Loop (Quantum Entanglement Voting + Public Telemetry + Self-Evolution Wiring)
 
 use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
@@ -162,7 +162,6 @@ pub struct RaThorOneOrganism {
 
     patsagi_council: PatsagiCouncil,
     last_council_metrics: Option<CouncilReadinessMetrics>,
-    // NEW: Public telemetry for full SwarmVoteBreakdown (including quantum entanglement)
     last_swarm_vote_breakdown: Option<SwarmVoteBreakdown>,
     council_tick: u64,
     approved_evolutions_path: String,
@@ -186,7 +185,7 @@ impl RaThorOneOrganism {
             evolution_gate: launch_self_evolution_gate(),
             gpu_compute_active: true,
             gpu_pipeline_version: "v14.17.0-real-github-connector".to_string(),
-            version: "v14.17.0-ONE-Organism-LatticeConductor-v13.1-Quantum-Entanglement-Public-Telemetry".to_string(),
+            version: "v14.17.0-ONE-Organism-LatticeConductor-v13.1-Quantum-Entanglement-Public-Telemetry-SelfEvo-Wired".to_string(),
             gpu_pipeline: GpuComputePipeline::new(),
 
             patsagi_council: PatsagiCouncil::new(),
@@ -198,7 +197,7 @@ impl RaThorOneOrganism {
     }
 
     pub fn offer_cosmic_loop(&self) {
-        println!("[RaThorOneOrganism v{}] Full loop + Real GitHub PR + Quantum Entanglement Voting + Public SwarmVoteBreakdown Telemetry", self.version);
+        println!("[RaThorOneOrganism v{}] Full loop + Real GitHub PR + Quantum Entanglement Voting + Public Telemetry + Self-Evolution Wiring", self.version);
     }
 
     async fn trigger_evolution_automation_hooks(&self, proposal: &EvolutionProposal, council_mercy_norm: f64) {
@@ -212,7 +211,7 @@ impl RaThorOneOrganism {
                 );
 
                 let body = format!(
-                    "## ONE Organism + Lattice Conductor v13.1 Quantum Entanglement + Public Telemetry (auto-generated)
+                    "## ONE Organism + Lattice Conductor v13.1 Quantum Entanglement + Public Telemetry + Self-Evolution Wired (auto-generated)
 
 **Proposal ID**: {}
 **Proposer**: {}
@@ -301,7 +300,6 @@ impl RaThorOneOrganism {
         }
     }
 
-    // NEW v14.8.6: Quantum Entanglement Voting with full public telemetry exposure
     pub async fn quantum_swarm_multi_consensus_vote(&self, report: &GpuTelemetryReport, proposal: &EvolutionProposal) -> (f64, SwarmVoteBreakdown) {
         let w_perf = if report.gpu_success_ema > 0.92 { 0.35 } else { 0.30 };
         let w_mercy = if report.mercy_modulated_confidence > 0.88 { 0.30 } else { 0.28 };
@@ -437,7 +435,6 @@ impl RaThorOneOrganism {
         };
 
         let (swarm_consensus, breakdown) = self.quantum_swarm_multi_consensus_vote(report, &temp_proposal).await;
-        // Expose full SwarmVoteBreakdown (including quantum entanglement) in public telemetry
         self.last_swarm_vote_breakdown = Some(breakdown.clone());
 
         let swarm_vote = if report.gpu_success_ema > 0.90 { Some(swarm_consensus) } else { None };
@@ -536,21 +533,30 @@ impl RaThorOneOrganism {
         };
 
         let (swarm_consensus, breakdown) = self.quantum_swarm_multi_consensus_vote(report, &temp_proposal).await;
-        // Expose full SwarmVoteBreakdown (including quantum entanglement) in public telemetry
         self.last_swarm_vote_breakdown = Some(breakdown.clone());
+
+        // NEW: Wire get_latest_swarm_vote_breakdown() into self-evolution hook
+        let latest_breakdown = self.get_latest_swarm_vote_breakdown();
+        let entanglement_info = match &latest_breakdown {
+            Some(b) if !b.entangled_pairs.is_empty() => {
+                format!(" | Entanglement: bonus=+{:.4}, pairs={:?}", b.entanglement_bonus, b.entangled_pairs)
+            }
+            _ => String::new(),
+        };
 
         if swarm_consensus < 0.82 {
             return Err(format!("Quantum Swarm multi-consensus too low ({:.4}) — upgrade deprioritized", swarm_consensus));
         }
 
         let base_description = format!(
-            "Automatic self-evolution (Template: {:?}): {}. GPU telemetry: success_ema={:.4}, mercy_conf={:.4}, latency_ema={:.1}ms | Multi-Swarm + Quantum Entanglement: {:.4}",
+            "Automatic self-evolution (Template: {:?}): {}. GPU telemetry: success_ema={:.4}, mercy_conf={:.4}, latency_ema={:.1}ms | Multi-Swarm + Quantum Entanglement: {:.4}{}",
             template,
             template.description(),
             report.gpu_success_ema,
             report.mercy_modulated_confidence,
             report.gpu_latency_ema_ms,
-            swarm_consensus
+            swarm_consensus,
+            entanglement_info
         );
 
         let full_description = if !swarm_foresight.is_empty() {
@@ -581,7 +587,6 @@ impl RaThorOneOrganism {
         }
     }
 
-    // NEW: Public getter for full SwarmVoteBreakdown (including quantum entanglement)
     pub fn get_latest_swarm_vote_breakdown(&self) -> Option<SwarmVoteBreakdown> {
         self.last_swarm_vote_breakdown.clone()
     }
@@ -671,6 +676,6 @@ impl RaThorOneOrganism {
 pub fn launch_one_organism() -> RaThorOneOrganism {
     let organism = RaThorOneOrganism::new();
     organism.offer_cosmic_loop();
-    println!("[Thunder] ONE Organism v14.17 + Real GitHubConnector + Quantum Entanglement Voting + Public SwarmVoteBreakdown Telemetry ready");
+    println!("[Thunder] ONE Organism v14.17 + Real GitHubConnector + Quantum Entanglement Voting + Public SwarmVoteBreakdown Telemetry + Self-Evolution Wired ready");
     organism
 }
