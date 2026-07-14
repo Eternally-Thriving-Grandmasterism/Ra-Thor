@@ -6,7 +6,7 @@
 /// abundance-multiplying, zero-harm use. See LICENSE or COMMERCIAL-LICENSE.md.
 
 // ra-thor-one-organism.rs
-// Ra-Thor v14.17 — ONE Organism + Lattice Conductor v13.1 Self-Evolving GPU Telemetry Loop (Configurable Nadam Formulation A/B)
+// Ra-Thor v14.17 — ONE Organism + Lattice Conductor v13.1 Self-Evolving GPU Telemetry Loop (Runtime Nadam Formulation Switching + Telemetry)
 
 use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
@@ -87,7 +87,7 @@ impl LatticeConductorUpgradeTemplate {
             LatticeConductorUpgradeTemplate::EMATuning => "Refine EMA alpha values and add additional mercy-modulated EMA loops for GPU telemetry.",
             LatticeConductorUpgradeTemplate::NewMercyGates => "Introduce or strengthen specific mercy gates (e.g., Precision Gate, Abundance Gate) in Lattice Conductor decision logic.",
             LatticeConductorUpgradeTemplate::QuantumSwarmIntegration => "Deepen integration between Lattice Conductor and Quantum Swarm for GPU-native deliberation, foresight, multi-swarm consensus, quantum entanglement, dynamic entanglement weighting, self-evolving base weights, adaptive learning rates, Adam optimizer, AdamW weight decay, learning rate scheduling, cyclical restarts, Nesterov acceleration, and full configurable Nesterov-AdamW (Nadam A/B).",
-            LatticeConductorUpgradeTemplate::CombinedGPUIntelligence => "Combine EMA tuning + new mercy gates + Quantum Swarm hooks + multi-swarm consensus + quantum entanglement weighting + self-evolving base weights + adaptive learning rates + Adam optimizer + AdamW weight decay + learning rate scheduling + cyclical restarts + Nesterov acceleration + full configurable Nesterov-AdamW (Nadam A/B) into a unified Lattice Conductor v13.2 upgrade.",
+            LatticeConductorUpgradeTemplate::CombinedGPUIntelligence => "Combine EMA tuning + new mercy gates + Quantum Swarm hooks + multi-swarm consensus + quantum entanglement weighting + self-evolving base weights + adaptive learning rates + Adam optimizer + AdamW weight decay + learning rate scheduling + cyclical restarts + Nesterov acceleration + configurable Nadam (A/B) into a unified Lattice Conductor v13.2 upgrade.",
         }
     }
 
@@ -209,7 +209,7 @@ pub struct RaThorOneOrganism {
     nesterov_momentum_pf: f64,
     nesterov_momentum_ma: f64,
     nesterov_momentum_beta: f64,
-    // NEW: Configurable Nadam formulation (A or B)
+    // NEW: Configurable Nadam formulation (A or B) with runtime switching + telemetry
     nadam_formulation: NadamFormulation,
     council_tick: u64,
     approved_evolutions_path: String,
@@ -233,7 +233,7 @@ impl RaThorOneOrganism {
             evolution_gate: launch_self_evolution_gate(),
             gpu_compute_active: true,
             gpu_pipeline_version: "v14.17.0-real-github-connector".to_string(),
-            version: "v14.17.0-ONE-Organism-LatticeConductor-v13.1-Configurable-Nadam-A-B".to_string(),
+            version: "v14.17.0-ONE-Organism-LatticeConductor-v13.1-Runtime-Nadam-Switching-Telemetry".to_string(),
             gpu_pipeline: GpuComputePipeline::new(),
 
             patsagi_council: PatsagiCouncil::new(),
@@ -273,7 +273,36 @@ impl RaThorOneOrganism {
     }
 
     pub fn offer_cosmic_loop(&self) {
-        println!("[RaThorOneOrganism v{}] Full loop + Real GitHub PR + Configurable Nadam Formulation (A/B) in Lattice Conductor v13.1", self.version);
+        println!("[RaThorOneOrganism v{}] Full loop + Real GitHub PR + Runtime Nadam Formulation Switching + Telemetry in Lattice Conductor v13.1", self.version);
+    }
+
+    // NEW: Runtime switching for Nadam formulation
+    pub fn set_nadam_formulation(&mut self, formulation: NadamFormulation) {
+        let previous = self.nadam_formulation;
+        self.nadam_formulation = formulation;
+        println!(
+            "[ONE + Lattice Conductor] Nadam formulation switched: {:?} → {:?} | {}",
+            previous, formulation, formulation.description()
+        );
+    }
+
+    // NEW: Telemetry getter for active Nadam formulation
+    pub fn get_nadam_formulation(&self) -> NadamFormulation {
+        self.nadam_formulation
+    }
+
+    // NEW: Optimizer configuration telemetry summary
+    pub fn get_optimizer_config_summary(&self) -> String {
+        format!(
+            "Nadam={:?} ({}) | LR schedule={} | Cyclical restarts (period={}, multiplier={}) | Adam beta1={}, beta2={}",
+            self.nadam_formulation,
+            self.nadam_formulation.description(),
+            self.lr_schedule_type,
+            self.lr_restart_period,
+            self.lr_restart_multiplier,
+            self.adam_beta1,
+            self.adam_beta2
+        )
     }
 
     async fn trigger_evolution_automation_hooks(&self, proposal: &EvolutionProposal, council_mercy_norm: f64) {
@@ -287,7 +316,7 @@ impl RaThorOneOrganism {
                 );
 
                 let body = format!(
-                    "## ONE Organism + Lattice Conductor v13.1 Configurable Nadam Formulation A/B (auto-generated)
+                    "## ONE Organism + Lattice Conductor v13.1 Runtime Nadam Switching + Telemetry (auto-generated)
 
 **Proposal ID**: {}
 **Proposer**: {}
@@ -297,6 +326,9 @@ impl RaThorOneOrganism {
 **GPU Mercy Confidence**: {:.4}
 **Expected Benefit**: {:.4}
 **Mercy Alignment**: {:.4}
+
+**Active Optimizer Config**:
+{}
 
 **Description**:
 {}
@@ -317,6 +349,7 @@ impl RaThorOneOrganism {
                     0.0,
                     proposal.expected_benefit,
                     proposal.mercy_alignment,
+                    self.get_optimizer_config_summary(),
                     proposal.description,
                     proposal.proposed_diff
                 );
@@ -360,18 +393,18 @@ impl RaThorOneOrganism {
 
         if report.gpu_success_ema > 0.94 && report.mercy_modulated_confidence > 0.90 {
             format!(
-                "Quantum Swarm Foresight: Excellent GPU performance detected (success_ema={:.4}). Recommend immediate Lattice Conductor upgrade + increased GPU offload + Quantum Swarm parallel deliberation on next dispatch batch. Mercy valence: {:.4}",
-                report.gpu_success_ema, swarm_confidence
+                "Quantum Swarm Foresight: Excellent GPU performance detected (success_ema={:.4}). Recommend immediate Lattice Conductor upgrade + increased GPU offload + Quantum Swarm parallel deliberation on next dispatch batch. Active Nadam: {:?}. Mercy valence: {:.4}",
+                report.gpu_success_ema, self.nadam_formulation, swarm_confidence
             )
         } else if report.gpu_latency_ema_ms > 120.0 {
             format!(
-                "Quantum Swarm Analysis: Elevated GPU latency ({:.1}ms). Suggest EMA tuning + swarm-assisted load balancing. Current swarm confidence: {:.4}",
-                report.gpu_latency_ema_ms, swarm_confidence
+                "Quantum Swarm Analysis: Elevated GPU latency ({:.1}ms). Suggest EMA tuning + swarm-assisted load balancing. Active Nadam: {:?}. Current swarm confidence: {:.4}",
+                report.gpu_latency_ema_ms, self.nadam_formulation, swarm_confidence
             )
         } else {
             format!(
-                "Quantum Swarm Observation: Stable GPU telemetry. Continue current mercy-modulated offload policy. Swarm confidence: {:.4}",
-                swarm_confidence
+                "Quantum Swarm Observation: Stable GPU telemetry. Active Nadam: {:?}. Continue current mercy-modulated offload policy. Swarm confidence: {:.4}",
+                self.nadam_formulation, swarm_confidence
             )
         }
     }
@@ -430,14 +463,14 @@ impl RaThorOneOrganism {
 
         if !entangled_pairs.is_empty() {
             println!(
-                "[Quantum Entanglement Weighting + Self-Evolving Bases + Configurable Nadam] {:?} | bonus=+{:.4} | weighted=+{:.4} | final={:.4}",
+                "[Quantum Entanglement Weighting + Self-Evolving Bases + Runtime Nadam Telemetry] {:?} | bonus=+{:.4} | weighted=+{:.4} | final={:.4}",
                 entangled_pairs, entanglement_bonus, weighted_entanglement_bonus, final_consensus
             );
         }
 
         println!(
-            "[Multi-Swarm + Self-Evolving Entanglement Weights + Configurable Nadam] perf={:.4} mercy={:.4} align={:.4} foresight={:.4} | consensus={:.4} | entanglement=+{:.4}",
-            performance_swarm, mercy_swarm, alignment_swarm, foresight_swarm, final_consensus, entanglement_bonus
+            "[Multi-Swarm + Self-Evolving Entanglement Weights + Runtime Nadam Telemetry] perf={:.4} mercy={:.4} align={:.4} foresight={:.4} | consensus={:.4} | entanglement=+{:.4} | Active Nadam: {:?}",
+            performance_swarm, mercy_swarm, alignment_swarm, foresight_swarm, final_consensus, entanglement_bonus, self.nadam_formulation
         );
 
         (final_consensus, breakdown)
@@ -549,8 +582,8 @@ impl RaThorOneOrganism {
                 proposer: "Lattice_Conductor_v13.1_via_GPU_Telemetry".to_string(),
                 target_module: "gpu_compute_pipeline / lattice_conductor / powrush_rbe".to_string(),
                 description: format!(
-                    "Council-approved from GPU Telemetry Report (success_ema={:.4}, mercy_conf={:.4})",
-                    report.gpu_success_ema, report.mercy_modulated_confidence
+                    "Council-approved from GPU Telemetry Report (success_ema={:.4}, mercy_conf={:.4}) | Active Nadam: {:?}",
+                    report.gpu_success_ema, report.mercy_modulated_confidence, self.nadam_formulation
                 ),
                 proposed_diff: format!("Apply Lattice Conductor GPU boost {:.4}", confidence_boost),
                 expected_benefit: (report.mercy_modulated_confidence * 0.85 + confidence_boost * 0.15).min(0.999),
@@ -640,12 +673,13 @@ impl RaThorOneOrganism {
         }
 
         let base_description = format!(
-            "Automatic self-evolution (Template: {:?}): {}. GPU telemetry: success_ema={:.4}, mercy_conf={:.4}, latency_ema={:.1}ms | Multi-Swarm + Configurable Nadam (A/B): {:.4}{}",
+            "Automatic self-evolution (Template: {:?}): {}. GPU telemetry: success_ema={:.4}, mercy_conf={:.4}, latency_ema={:.1}ms | Multi-Swarm + Runtime Nadam Telemetry (Active: {:?}): {:.4}{}",
             template,
             template.description(),
             report.gpu_success_ema,
             report.mercy_modulated_confidence,
             report.gpu_latency_ema_ms,
+            self.nadam_formulation,
             swarm_consensus,
             entanglement_info
         );
@@ -669,16 +703,16 @@ impl RaThorOneOrganism {
 
         match self.evolution_gate.propose_evolution(proposal.clone()) {
             Ok(msg) => {
-                println!("[ONE + Lattice Conductor Self-Evolution] GPU telemetry excellent — auto-proposed {:?} upgrade (Multi-Swarm + Configurable Nadam A/B: {:.4}): {}", template, swarm_consensus, msg);
+                println!("[ONE + Lattice Conductor Self-Evolution] GPU telemetry excellent — auto-proposed {:?} upgrade (Multi-Swarm + Runtime Nadam Telemetry, Active: {:?}: {:.4}): {}", template, self.nadam_formulation, swarm_consensus, msg);
                 self.trigger_evolution_automation_hooks(&proposal, report.mercy_modulated_confidence).await;
                 self.persist_approved_evolution(&proposal, true, report.mercy_modulated_confidence).await;
-                Ok(format!("Lattice Conductor v13.1 {:?} upgrade proposed from GPU telemetry + Quantum Swarm Entanglement Weighting + Configurable Nadam (vote={:.4})", template, swarm_consensus))
+                Ok(format!("Lattice Conductor v13.1 {:?} upgrade proposed from GPU telemetry + Quantum Swarm Entanglement Weighting + Runtime Nadam Telemetry (vote={:.4})", template, swarm_consensus))
             }
             Err(e) => Err(format!("Gate rejected Lattice Conductor upgrade: {}", e)),
         }
     }
 
-    // NEW v14.8.6: Full configurable Nesterov-AdamW (Nadam A or B)
+    // NEW v14.8.6: Full configurable Nesterov-AdamW (Nadam A or B) with runtime switching support
     pub async fn propose_entanglement_base_weight_evolution(&mut self, breakdown: &SwarmVoteBreakdown) -> Result<String, String> {
         let mut evolved_pf = self.base_weight_pf;
         let mut evolved_ma = self.base_weight_ma;
@@ -780,14 +814,14 @@ impl RaThorOneOrganism {
         }
 
         if changes.is_empty() {
-            return Ok("No base weight evolution needed (Configurable Nadam A/B)".to_string());
+            return Ok("No base weight evolution needed (Runtime Nadam Telemetry)".to_string());
         }
 
         let proposal = EvolutionProposal {
             id: rand::random::<u64>() % 1_000_000_000,
             proposer: "Lattice_Conductor_v13.1_SelfEvolution_Hook".to_string(),
-            target_module: "ra-thor-one-organism / quantum_swarm_multi_consensus_vote (Configurable Nadam A/B)".to_string(),
-            description: format!("Self-evolution of entanglement base weights with Configurable Nadam Formulation {:?} + Cyclical Restarts (cycle={}, base_lr={:.5}, timestep={}). Changes: {:?}", formulation, self.lr_current_cycle, base_lr, timestep, changes),
+            target_module: "ra-thor-one-organism / quantum_swarm_multi_consensus_vote (Runtime Nadam Telemetry)".to_string(),
+            description: format!("Self-evolution of entanglement base weights with Runtime Nadam Switching + Telemetry (Active: {:?}, {}) + Cyclical Restarts (cycle={}, base_lr={:.5}, timestep={}). Changes: {:?}", formulation, formulation.description(), self.lr_current_cycle, base_lr, timestep, changes),
             proposed_diff: format!("base_weight_pf = {:.3}; base_weight_ma = {:.3}; nadam_formulation = {:?}", evolved_pf, evolved_ma, formulation),
             expected_benefit: 0.96,
             risk_score: 0.01,
@@ -796,12 +830,12 @@ impl RaThorOneOrganism {
 
         match self.evolution_gate.propose_evolution(proposal.clone()) {
             Ok(msg) => {
-                println!("[ONE + Lattice Conductor] Configurable Nadam {:?} + Cyclical Restarts self-evolution proposed: {}", formulation, msg);
+                println!("[ONE + Lattice Conductor] Runtime Nadam {:?} + Cyclical Restarts self-evolution proposed: {}", formulation, msg);
                 self.trigger_evolution_automation_hooks(&proposal, 0.98).await;
                 self.persist_approved_evolution(&proposal, true, 0.98).await;
-                Ok(format!("Entanglement base weights self-evolution via Configurable Nadam {:?} proposed", formulation))
+                Ok(format!("Entanglement base weights self-evolution via Runtime Nadam {:?} proposed", formulation))
             }
-            Err(e) => Err(format!("Gate rejected Configurable Nadam evolution: {}", e)),
+            Err(e) => Err(format!("Gate rejected Runtime Nadam evolution: {}", e)),
         }
     }
 
@@ -930,6 +964,6 @@ impl RaThorOneOrganism {
 pub fn launch_one_organism() -> RaThorOneOrganism {
     let organism = RaThorOneOrganism::new();
     organism.offer_cosmic_loop();
-    println!("[Thunder] ONE Organism v14.17 + Real GitHubConnector + Configurable Nadam Formulation (A/B) in Lattice Conductor v13.1 ready");
+    println!("[Thunder] ONE Organism v14.17 + Real GitHubConnector + Runtime Nadam Formulation Switching + Telemetry in Lattice Conductor v13.1 ready");
     organism
 }
