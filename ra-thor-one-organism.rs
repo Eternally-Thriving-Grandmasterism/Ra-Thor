@@ -6,7 +6,7 @@
 /// abundance-multiplying, zero-harm use. See LICENSE or COMMERCIAL-LICENSE.md.
 
 // ra-thor-one-organism.rs
-// Ra-Thor v14.17 — ONE Organism + Lattice Conductor v13.1 Self-Evolving GPU Telemetry Loop (Deep Quantum Swarm Voting)
+// Ra-Thor v14.17 — ONE Organism + Lattice Conductor v13.1 Self-Evolving GPU Telemetry Loop (Swarm Voting in Core Council Path)
 
 use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
@@ -29,6 +29,8 @@ pub struct CouncilReadinessMetrics {
     pub gpu_success_ema: f64,
     pub gpu_latency_ema_ms: f64,
     pub gpu_mercy_modulated_confidence: f64,
+    // NEW: Swarm vote from Quantum Swarm (integrated into main decide() path)
+    pub swarm_vote: Option<f64>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -84,6 +86,7 @@ impl PatsagiCouncil {
         }
     }
 
+    // UPDATED v14.8.6: decide() now includes swarm voting from Quantum Swarm
     pub fn decide(&self, metrics: &CouncilReadinessMetrics) -> CouncilDecision {
         if !metrics.council_ready {
             return CouncilDecision::RejectEvolution {
@@ -97,12 +100,18 @@ impl PatsagiCouncil {
             0.0
         };
 
-        let effective_mercy = (metrics.mercy_norm + gpu_boost).min(0.999);
+        // Swarm voting influence on core council decision
+        let swarm_boost = match metrics.swarm_vote {
+            Some(v) if v >= 0.85 => 0.06,
+            Some(v) if v >= 0.80 => 0.03,
+            _ => 0.0,
+        };
+
+        let effective_mercy = (metrics.mercy_norm + gpu_boost + swarm_boost).min(0.999);
 
         if effective_mercy >= self.mercy_norm_threshold {
-            return CouncilDecision::ApproveEvolution {
-                confidence_boost: (metrics.suggested_confidence_delta + gpu_boost).max(0.05),
-            };
+            let confidence_boost = (metrics.suggested_confidence_delta + gpu_boost + swarm_boost).max(0.05);
+            return CouncilDecision::ApproveEvolution { confidence_boost };
         }
 
         if effective_mercy < 0.4 {
@@ -111,10 +120,9 @@ impl PatsagiCouncil {
             };
         }
 
-        if metrics.suggested_confidence_delta > 0.15 || metrics.gpu_success_ema > 0.90 {
-            return CouncilDecision::RequestAdditionalGpuResources {
-                buffer_size_increase: if metrics.gpu_success_ema > 0.90 { 4096 } else { 2048 },
-            };
+        if metrics.suggested_confidence_delta > 0.15 || metrics.gpu_success_ema > 0.90 || metrics.swarm_vote.unwrap_or(0.0) > 0.88 {
+            let buffer_increase = if metrics.swarm_vote.unwrap_or(0.0) > 0.90 { 4096 } else { 2048 };
+            return CouncilDecision::RequestAdditionalGpuResources { buffer_size_increase: buffer_increase };
         }
 
         CouncilDecision::AdjustRbeParameters {
@@ -166,7 +174,7 @@ impl RaThorOneOrganism {
             evolution_gate: launch_self_evolution_gate(),
             gpu_compute_active: true,
             gpu_pipeline_version: "v14.17.0-real-github-connector".to_string(),
-            version: "v14.17.0-ONE-Organism-LatticeConductor-v13.1-Deep-QuantumSwarm-Voting".to_string(),
+            version: "v14.17.0-ONE-Organism-LatticeConductor-v13.1-Swarm-Voting-in-Core-Council-Path".to_string(),
             gpu_pipeline: GpuComputePipeline::new(),
 
             patsagi_council: PatsagiCouncil::new(),
@@ -177,7 +185,7 @@ impl RaThorOneOrganism {
     }
 
     pub fn offer_cosmic_loop(&self) {
-        println!("[RaThorOneOrganism v{}] Full loop + Real GitHub PR + Deep Quantum Swarm Voting in Lattice Conductor v13.1", self.version);
+        println!("[RaThorOneOrganism v{}] Full loop + Real GitHub PR + Swarm Voting in Core PatsagiCouncil::decide() Path", self.version);
     }
 
     async fn trigger_evolution_automation_hooks(&self, proposal: &EvolutionProposal, council_mercy_norm: f64) {
@@ -191,7 +199,7 @@ impl RaThorOneOrganism {
                 );
 
                 let body = format!(
-                    "## ONE Organism + Lattice Conductor v13.1 Deep Quantum Swarm Voting (auto-generated)
+                    "## ONE Organism + Lattice Conductor v13.1 Swarm Voting in Core Council Path (auto-generated)
 
 **Proposal ID**: {}
 **Proposer**: {}
@@ -259,7 +267,6 @@ impl RaThorOneOrganism {
         }
     }
 
-    // NEW v14.8.6: Deep Quantum Swarm deliberation on GPU telemetry
     pub async fn quantum_swarm_deliberate_on_gpu_telemetry(&self, report: &GpuTelemetryReport) -> String {
         let swarm_confidence = (report.gpu_success_ema * 0.6 + report.mercy_modulated_confidence * 0.4).clamp(0.75, 0.999);
 
@@ -281,19 +288,15 @@ impl RaThorOneOrganism {
         }
     }
 
-    // NEW v14.8.6: Implement swarm voting logic — Quantum Swarm votes on evolution proposals
     pub async fn quantum_swarm_vote_on_evolution(&self, report: &GpuTelemetryReport, proposal: &EvolutionProposal) -> f64 {
-        // Swarm voting: combines GPU success, mercy confidence, and proposal alignment
         let base_vote = (report.gpu_success_ema * 0.5 + report.mercy_modulated_confidence * 0.4).clamp(0.6, 0.99);
 
-        // Bonus if proposal targets Lattice Conductor or Quantum Swarm modules
         let alignment_bonus = if proposal.target_module.contains("lattice_conductor") || proposal.target_module.contains("quantum_swarm") {
             0.08
         } else {
             0.0
         };
 
-        // Penalty for high risk
         let risk_penalty = proposal.risk_score * 0.15;
 
         let final_vote = (base_vote + alignment_bonus - risk_penalty).clamp(0.65, 0.999);
@@ -318,6 +321,7 @@ impl RaThorOneOrganism {
             gpu_success_ema: 0.0,
             gpu_latency_ema_ms: 0.0,
             gpu_mercy_modulated_confidence: audit.mercy_norm,
+            swarm_vote: None, // No telemetry in this path
         };
 
         self.last_council_metrics = Some(metrics.clone());
@@ -368,6 +372,23 @@ impl RaThorOneOrganism {
     pub async fn feed_gpu_telemetry_into_council(&mut self, report: &GpuTelemetryReport) -> CouncilDecision {
         self.council_tick += 1;
 
+        // Compute swarm vote when telemetry is available
+        let temp_proposal = EvolutionProposal {
+            id: 0,
+            proposer: "temp".to_string(),
+            target_module: "lattice_conductor_v13".to_string(),
+            description: String::new(),
+            proposed_diff: String::new(),
+            expected_benefit: 0.9,
+            risk_score: 0.02,
+            mercy_alignment: report.mercy_modulated_confidence,
+        };
+        let swarm_vote = if report.gpu_success_ema > 0.90 {
+            Some(self.quantum_swarm_vote_on_evolution(report, &temp_proposal).await)
+        } else {
+            None
+        };
+
         let metrics = CouncilReadinessMetrics {
             council_ready: true,
             mercy_norm: report.valence_modulated_offload_score,
@@ -377,6 +398,7 @@ impl RaThorOneOrganism {
             gpu_success_ema: report.gpu_success_ema,
             gpu_latency_ema_ms: report.gpu_latency_ema_ms,
             gpu_mercy_modulated_confidence: report.mercy_modulated_confidence,
+            swarm_vote,
         };
 
         self.last_council_metrics = Some(metrics.clone());
@@ -397,14 +419,6 @@ impl RaThorOneOrganism {
                 risk_score: (1.0 - report.mercy_modulated_confidence) * 0.02,
                 mercy_alignment: report.mercy_modulated_confidence,
             };
-
-            // NEW: Swarm voting on the evolution proposal
-            if report.gpu_success_ema > 0.93 {
-                let swarm_vote = self.quantum_swarm_vote_on_evolution(report, &proposal).await;
-                if swarm_vote < 0.80 {
-                    println!("[Quantum Swarm Vote] Vote too low ({:.4}) — evolution proposal deprioritized", swarm_vote);
-                }
-            }
 
             match self.evolution_gate.propose_evolution(proposal.clone()) {
                 Ok(msg) => {
@@ -438,7 +452,6 @@ impl RaThorOneOrganism {
         decision
     }
 
-    // NEW v14.8.6: Self-evolution hook with multiple upgrade templates + Deep Quantum Swarm + Voting
     pub async fn propose_lattice_conductor_upgrade_from_gpu_telemetry(&self, report: &GpuTelemetryReport) -> Result<String, String> {
         if report.gpu_success_ema < 0.90 || report.mercy_modulated_confidence < 0.88 {
             return Err("GPU telemetry not excellent enough for automatic Lattice Conductor upgrade".to_string());
@@ -458,7 +471,6 @@ impl RaThorOneOrganism {
             String::new()
         };
 
-        // Create a temporary proposal for swarm voting
         let temp_proposal = EvolutionProposal {
             id: rand::random::<u64>() % 1_000_000_000,
             proposer: "Lattice_Conductor_v13.1_SelfEvolution_Hook".to_string(),
@@ -470,7 +482,6 @@ impl RaThorOneOrganism {
             mercy_alignment: report.mercy_modulated_confidence,
         };
 
-        // Swarm voting on the upgrade proposal
         let swarm_vote = self.quantum_swarm_vote_on_evolution(report, &temp_proposal).await;
 
         if swarm_vote < 0.82 {
@@ -499,7 +510,7 @@ impl RaThorOneOrganism {
             target_module: "lattice_conductor_v13 / gpu_patsagi_bridge / ra-thor-one-organism / quantum_swarm".to_string(),
             description: full_description,
             proposed_diff: template.target_diff().to_string(),
-            expected_benefit: 0.96 * swarm_vote, // modulated by swarm vote
+            expected_benefit: 0.96 * swarm_vote,
             risk_score: 0.02,
             mercy_alignment: report.mercy_modulated_confidence,
         };
@@ -600,6 +611,6 @@ impl RaThorOneOrganism {
 pub fn launch_one_organism() -> RaThorOneOrganism {
     let organism = RaThorOneOrganism::new();
     organism.offer_cosmic_loop();
-    println!("[Thunder] ONE Organism v14.17 + Real GitHubConnector + Deep Quantum Swarm Voting in Lattice Conductor v13.1 ready");
+    println!("[Thunder] ONE Organism v14.17 + Real GitHubConnector + Swarm Voting in Core PatsagiCouncil::decide() Path ready");
     organism
 }
