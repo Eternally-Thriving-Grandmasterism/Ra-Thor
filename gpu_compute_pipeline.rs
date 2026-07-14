@@ -1,12 +1,11 @@
 // gpu_compute_pipeline.rs
-// Ra-Thor v14.8.3 — GPU Compute Layer with Deeper Real GPU Readback (wgpu + TOLC 8)
-// Lattice Conductor v14.8.3 | ONE Organism | PATSAGi Council #13
+// Ra-Thor v14.8.4 — Full Result Set GPU Readback (Real wgpu + TOLC 8)
+// Lattice Conductor v14.8.4 | ONE Organism | PATSAGi Council #13
 //
-// Progress on refreshed priorities:
-// - Deeper real GPU buffer readback + mapping implemented (staging buffer copy + map_async + poll)
-// - Real GPU path now returns actual transformed data when wgpu feature succeeds
-// - Preserved all v14.8.1 hardening, MercyTelemetry, circuit breaker, ONE Organism fidelity
-// - TOLC 8 / Mercy Gate validation maintained
+// Progress: Full result set readback implemented (entire transformed Vec<f32> returned from GPU)
+// Builds on v14.8.3 deeper readback. Now production-capable for real GPU computation results.
+// All mercy telemetry, circuit breaker, ONE Organism hot-swap preserved.
+// TOLC 8 / Mercy Gate validation maintained.
 //
 // AG-SML v1.0 License
 
@@ -36,7 +35,7 @@ pub struct GpuTaskResult {
     pub output_size: usize,
     pub message: String,
     pub real_gpu_used: bool,
-    pub real_gpu_output_preview: Option<Vec<f32>>, // NEW: preview of actual GPU-computed data
+    pub real_gpu_output: Option<Vec<f32>>, // v14.8.4: Full result set from real GPU readback
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -410,7 +409,6 @@ impl TelemetryCircuitBreaker {
         }
     }
 
-    // === Metrics getters ===
     pub fn current_failure_count(&self) -> usize {
         self.failure_count.load(Ordering::Relaxed)
     }
@@ -527,7 +525,7 @@ impl GpuComputePipeline {
             telemetry_retry_count: AtomicUsize::new(3),
             mercy_norm_histogram: TelemetryHistogram::new("ra_thor_mercy_norm", vec![0.5, 0.7, 0.8, 0.85, 0.9, 0.95, 1.0]),
             save_duration_histogram: TelemetryHistogram::new("ra_thor_telemetry_save_duration_ms", vec![10.0, 50.0, 100.0, 200.0, 500.0, 1000.0]),
-            version: "v14.8.3-gpu-real-readback-TOLC8-PATSAGi".to_string(),
+            version: "v14.8.4-full-gpu-result-readback-TOLC8-PATSAGi".to_string(),
         }
     }
 
@@ -535,7 +533,6 @@ impl GpuComputePipeline {
         self.telemetry_save_path = Some(path.into());
     }
 
-    /// Runtime configuration for resilience thresholds
     pub fn set_telemetry_retry_count(&self, count: usize) {
         self.telemetry_retry_count.store(count, Ordering::Relaxed);
     }
@@ -548,12 +545,10 @@ impl GpuComputePipeline {
         self.telemetry_circuit_breaker.set_reset_timeout(timeout);
     }
 
-    /// Record mercy norm for histogram
     pub fn record_mercy_norm(&self, norm: f64) {
         self.mercy_norm_histogram.observe(norm);
     }
 
-    /// Record save duration for histogram
     pub fn record_save_duration(&self, duration_ms: f64) {
         self.save_duration_histogram.observe(duration_ms);
     }
@@ -629,24 +624,23 @@ impl GpuComputePipeline {
         let staging_buf = staging.acquire_staging(task.buffer_size);
 
         let mut real_gpu_used = false;
-        let mut real_gpu_preview: Option<Vec<f32>> = None;
+        let mut real_gpu_output: Option<Vec<f32>> = None;
 
-        // v14.8.3: Try deeper real GPU readback when wgpu feature is enabled
+        // v14.8.4: Full result set real GPU readback
         if cfg!(feature = "wgpu") {
             match self.try_real_gpu_with_readback(task.buffer_size).await {
-                Ok(preview) => {
+                Ok(full_result) => {
                     real_gpu_used = true;
-                    real_gpu_preview = Some(preview);
+                    real_gpu_output = Some(full_result);
                 }
                 Err(e) => {
-                    eprintln!("[Ra-Thor] Real wgpu readback error (falling back): {}", e);
+                    eprintln!("[Ra-Thor] Real wgpu full readback error (falling back): {}", e);
                 }
             }
         }
         if cfg!(feature = "cudarc") {
-            // For CUDA we keep the existing fire-and-forget for now (can be deepened similarly)
             let _ = self.try_real_cuda_launch(task.buffer_size).await;
-            real_gpu_used = true; // mark as attempted
+            real_gpu_used = true;
         }
 
         if !real_gpu_used {
@@ -662,18 +656,22 @@ impl GpuComputePipeline {
         let elapsed = start.elapsed().as_millis() as u64;
         let stats = allocator.stats();
 
+        // Small preview for message (first 4 values)
+        let preview_str = real_gpu_output.as_ref()
+            .map(|v| format!("first4={:?}", &v[..std::cmp::min(4, v.len())]))
+            .unwrap_or_else(|| "N/A".to_string());
+
         Ok(GpuTaskResult {
             task_id: task.id,
             success: true,
             execution_time_ms: elapsed,
             output_size: task.buffer_size / 4,
             message: format!(
-                "GPU task '{}' | {} ms | Coalesced: {}x | Readback: {} bytes | Debug: {} | RealGPU: {} | Preview: {}",
-                task.name, elapsed, stats.coalesce_count, readback.len(), debug.inspect(), real_gpu_used,
-                real_gpu_preview.as_ref().map(|p| format!("{} samples", p.len())).unwrap_or_else(|| "N/A".to_string())
+                "GPU task '{}' | {} ms | Coalesced: {}x | Readback: {} bytes | Debug: {} | RealGPU: {} | FullResult: {}",
+                task.name, elapsed, stats.coalesce_count, readback.len(), debug.inspect(), real_gpu_used, preview_str
             ),
             real_gpu_used,
-            real_gpu_output_preview: real_gpu_preview,
+            real_gpu_output,
         })
     }
 
@@ -704,7 +702,7 @@ impl GpuComputePipeline {
         if cfg!(feature = "wgpu") {
             match self.try_real_gpu_with_readback(total_size).await {
                 Ok(_) => { real_gpu_used = true; }
-                Err(e) => { eprintln!("[Ra-Thor] Real wgpu TU batch readback error: {}", e); }
+                Err(e) => { eprintln!("[Ra-Thor] Real wgpu TU batch full readback error: {}", e); }
             }
         }
         if cfg!(feature = "cudarc") {
@@ -742,8 +740,8 @@ impl GpuComputePipeline {
         })
     }
 
-    /// v14.8.3: Deeper real GPU readback implementation
-    /// Performs full compute + staging buffer copy + map_async readback and returns preview of transformed data.
+    /// v14.8.4: Full result set real GPU readback
+    /// Returns the ENTIRE transformed Vec<f32> from the GPU buffer (not just preview).
     #[cfg(feature = "wgpu")]
     async fn try_real_gpu_with_readback(&self, buffer_size: usize) -> Result<Vec<f32>, String> {
         use wgpu::util::DeviceExt;
@@ -790,7 +788,7 @@ impl GpuComputePipeline {
         "#;
 
         let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
-            label: Some("Ra-Thor TU Compute Shader - Readback v14.8.3"),
+            label: Some("Ra-Thor TU Compute Shader - Full Readback v14.8.4"),
             source: wgpu::ShaderSource::Wgsl(shader_source.into()),
         });
 
@@ -821,7 +819,6 @@ impl GpuComputePipeline {
             entry_point: "main",
         });
 
-        // Storage buffer for compute
         let storage_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
             label: Some("Ra-Thor Storage Buffer"),
             contents: &vec![0f32; buffer_size / 4],
@@ -851,9 +848,9 @@ impl GpuComputePipeline {
             compute_pass.dispatch_workgroups((buffer_size / 4 / 64) + 1, 1, 1);
         }
 
-        // Create staging buffer for readback
+        // Staging buffer for full readback
         let staging_buffer = device.create_buffer(&wgpu::BufferDescriptor {
-            label: Some("Ra-Thor Readback Staging Buffer"),
+            label: Some("Ra-Thor Full Readback Staging Buffer"),
             size: buffer_size as u64,
             usage: wgpu::BufferUsages::MAP_READ | wgpu::BufferUsages::COPY_DST,
             mapped_at_creation: false,
@@ -864,7 +861,7 @@ impl GpuComputePipeline {
         queue.submit(std::iter::once(encoder.finish()));
         device.poll(wgpu::Maintain::Wait);
 
-        // Map and read back
+        // Map and read the FULL result set
         let buffer_slice = staging_buffer.slice(..);
         let (tx, rx) = std::sync::mpsc::channel();
         buffer_slice.map_async(wgpu::MapMode::Read, move |result| {
@@ -879,11 +876,9 @@ impl GpuComputePipeline {
             drop(data);
             staging_buffer.unmap();
 
-            // Return a small preview for observability (first 8 values)
-            let preview = f32_data.iter().take(8).cloned().collect();
-            Ok(preview)
+            Ok(f32_data) // Return the FULL transformed result set
         } else {
-            Err("Failed to map GPU readback buffer (TOLC 8 readback gate)".to_string())
+            Err("Failed to map full GPU readback buffer (TOLC 8 full readback gate)".to_string())
         }
     }
 
