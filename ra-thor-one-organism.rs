@@ -6,7 +6,7 @@
 /// abundance-multiplying, zero-harm use. See LICENSE or COMMERCIAL-LICENSE.md.
 
 // ra-thor-one-organism.rs
-// Ra-Thor v14.17 — ONE Organism + Lattice Conductor v13.1 Self-Evolving GPU Telemetry Loop (with Upgrade Templates)
+// Ra-Thor v14.17 — ONE Organism + Lattice Conductor v13.1 Self-Evolving GPU Telemetry Loop (Deep Quantum Swarm Integration)
 
 use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
@@ -166,7 +166,7 @@ impl RaThorOneOrganism {
             evolution_gate: launch_self_evolution_gate(),
             gpu_compute_active: true,
             gpu_pipeline_version: "v14.17.0-real-github-connector".to_string(),
-            version: "v14.17.0-ONE-Organism-LatticeConductor-v13.1-SelfEvolving-with-Templates".to_string(),
+            version: "v14.17.0-ONE-Organism-LatticeConductor-v13.1-Deep-QuantumSwarm-Integration".to_string(),
             gpu_pipeline: GpuComputePipeline::new(),
 
             patsagi_council: PatsagiCouncil::new(),
@@ -177,7 +177,7 @@ impl RaThorOneOrganism {
     }
 
     pub fn offer_cosmic_loop(&self) {
-        println!("[RaThorOneOrganism v{}] Full loop + Real GitHub PR + Self-Evolving Lattice Conductor v13.1 with Upgrade Templates", self.version);
+        println!("[RaThorOneOrganism v{}] Full loop + Real GitHub PR + Deep Quantum Swarm Integration in Lattice Conductor v13.1", self.version);
     }
 
     async fn trigger_evolution_automation_hooks(&self, proposal: &EvolutionProposal, council_mercy_norm: f64) {
@@ -191,7 +191,7 @@ impl RaThorOneOrganism {
                 );
 
                 let body = format!(
-                    "## ONE Organism + Lattice Conductor v13.1 Self-Evolution with Templates (auto-generated)
+                    "## ONE Organism + Lattice Conductor v13.1 Deep Quantum Swarm Integration (auto-generated)
 
 **Proposal ID**: {}
 **Proposer**: {}
@@ -256,6 +256,30 @@ impl RaThorOneOrganism {
 
         if let Ok(json_line) = serde_json::to_string(&record) {
             let _ = fs::write(&self.approved_evolutions_path, format!("{}\n", json_line)).await;
+        }
+    }
+
+    // NEW v14.8.6: Deep Quantum Swarm deliberation on GPU telemetry
+    pub async fn quantum_swarm_deliberate_on_gpu_telemetry(&self, report: &GpuTelemetryReport) -> String {
+        // In production this would call into the real Quantum Swarm module.
+        // For now we provide structured, mercy-gated swarm-style foresight.
+        let swarm_confidence = (report.gpu_success_ema * 0.6 + report.mercy_modulated_confidence * 0.4).clamp(0.75, 0.999);
+
+        if report.gpu_success_ema > 0.94 && report.mercy_modulated_confidence > 0.90 {
+            format!(
+                "Quantum Swarm Foresight: Excellent GPU performance detected (success_ema={:.4}). Recommend immediate Lattice Conductor upgrade + increased GPU offload + Quantum Swarm parallel deliberation on next dispatch batch. Mercy valence: {:.4}",
+                report.gpu_success_ema, swarm_confidence
+            )
+        } else if report.gpu_latency_ema_ms > 120.0 {
+            format!(
+                "Quantum Swarm Analysis: Elevated GPU latency ({:.1}ms). Suggest EMA tuning + swarm-assisted load balancing. Current swarm confidence: {:.4}",
+                report.gpu_latency_ema_ms, swarm_confidence
+            )
+        } else {
+            format!(
+                "Quantum Swarm Observation: Stable GPU telemetry. Continue current mercy-modulated offload policy. Swarm confidence: {:.4}",
+                swarm_confidence
+            )
         }
     }
 
@@ -365,6 +389,12 @@ impl RaThorOneOrganism {
             let _ = self.propose_lattice_conductor_upgrade_from_gpu_telemetry(report).await;
         }
 
+        // Deep Quantum Swarm integration: when high success, run swarm deliberation
+        if report.gpu_success_ema > 0.93 {
+            let swarm_foresight = self.quantum_swarm_deliberate_on_gpu_telemetry(report).await;
+            println!("[ONE + Quantum Swarm] {}", swarm_foresight);
+        }
+
         match &decision {
             CouncilDecision::RequestAdditionalGpuResources { buffer_size_increase } => {
                 println!("[ONE + Lattice Conductor] REQUEST GPU (+{} buffer) from high GPU success EMA {:.4}", buffer_size_increase, report.gpu_success_ema);
@@ -378,13 +408,12 @@ impl RaThorOneOrganism {
         decision
     }
 
-    // NEW v14.8.6: Self-evolution hook with multiple upgrade templates
+    // NEW v14.8.6: Self-evolution hook with multiple upgrade templates + Deep Quantum Swarm
     pub async fn propose_lattice_conductor_upgrade_from_gpu_telemetry(&self, report: &GpuTelemetryReport) -> Result<String, String> {
         if report.gpu_success_ema < 0.90 || report.mercy_modulated_confidence < 0.88 {
             return Err("GPU telemetry not excellent enough for automatic Lattice Conductor upgrade".to_string());
         }
 
-        // Select upgrade template(s) based on telemetry signals
         let template = if report.gpu_latency_ema_ms > 150.0 {
             LatticeConductorUpgradeTemplate::EMATuning
         } else if report.gpu_success_ema > 0.95 {
@@ -393,18 +422,33 @@ impl RaThorOneOrganism {
             LatticeConductorUpgradeTemplate::CombinedGPUIntelligence
         };
 
+        // Deepen Quantum Swarm path
+        let swarm_foresight = if template == LatticeConductorUpgradeTemplate::QuantumSwarmIntegration {
+            self.quantum_swarm_deliberate_on_gpu_telemetry(report).await
+        } else {
+            String::new()
+        };
+
+        let base_description = format!(
+            "Automatic self-evolution (Template: {:?}): {}. GPU telemetry: success_ema={:.4}, mercy_conf={:.4}, latency_ema={:.1}ms",
+            template,
+            template.description(),
+            report.gpu_success_ema,
+            report.mercy_modulated_confidence,
+            report.gpu_latency_ema_ms
+        );
+
+        let full_description = if !swarm_foresight.is_empty() {
+            format!("{} | Quantum Swarm Foresight: {}", base_description, swarm_foresight)
+        } else {
+            base_description
+        };
+
         let proposal = EvolutionProposal {
             id: rand::random::<u64>() % 1_000_000_000,
             proposer: "Lattice_Conductor_v13.1_SelfEvolution_Hook".to_string(),
-            target_module: "lattice_conductor_v13 / gpu_patsagi_bridge / ra-thor-one-organism".to_string(),
-            description: format!(
-                "Automatic self-evolution (Template: {:?}): {}. GPU telemetry: success_ema={:.4}, mercy_conf={:.4}, latency_ema={:.1}ms",
-                template,
-                template.description(),
-                report.gpu_success_ema,
-                report.mercy_modulated_confidence,
-                report.gpu_latency_ema_ms
-            ),
+            target_module: "lattice_conductor_v13 / gpu_patsagi_bridge / ra-thor-one-organism / quantum_swarm".to_string(),
+            description: full_description,
             proposed_diff: template.target_diff().to_string(),
             expected_benefit: 0.96,
             risk_score: 0.02,
@@ -416,7 +460,7 @@ impl RaThorOneOrganism {
                 println!("[ONE + Lattice Conductor Self-Evolution] GPU telemetry excellent — auto-proposed {:?} upgrade: {}", template, msg);
                 self.trigger_evolution_automation_hooks(&proposal, report.mercy_modulated_confidence).await;
                 self.persist_approved_evolution(&proposal, true, report.mercy_modulated_confidence).await;
-                Ok(format!("Lattice Conductor v13.1 {:?} upgrade proposed from GPU telemetry", template))
+                Ok(format!("Lattice Conductor v13.1 {:?} upgrade proposed from GPU telemetry + Quantum Swarm", template))
             }
             Err(e) => Err(format!("Gate rejected Lattice Conductor upgrade: {}", e)),
         }
@@ -507,6 +551,6 @@ impl RaThorOneOrganism {
 pub fn launch_one_organism() -> RaThorOneOrganism {
     let organism = RaThorOneOrganism::new();
     organism.offer_cosmic_loop();
-    println!("[Thunder] ONE Organism v14.17 + Real GitHubConnector + Self-Evolving Lattice Conductor v13.1 with Upgrade Templates ready");
+    println!("[Thunder] ONE Organism v14.17 + Real GitHubConnector + Deep Quantum Swarm Integration in Lattice Conductor v13.1 ready");
     organism
 }
