@@ -1,11 +1,10 @@
 // gpu_compute_pipeline.rs
-// Ra-Thor v14.8.4 — Full Result Set GPU Readback (Real wgpu + TOLC 8)
-// Lattice Conductor v14.8.4 | ONE Organism | PATSAGi Council #13
+// Ra-Thor v14.8.5 — Production Integration Tests + Benchmarks for Full GPU Readback Layer
+// Lattice Conductor v14.8.5 | ONE Organism | PATSAGi Council #13
 //
-// Progress: Full result set readback implemented (entire transformed Vec<f32> returned from GPU)
-// Builds on v14.8.3 deeper readback. Now production-capable for real GPU computation results.
-// All mercy telemetry, circuit breaker, ONE Organism hot-swap preserved.
-// TOLC 8 / Mercy Gate validation maintained.
+// Added comprehensive integration tests and basic benchmarks for the full result set GPU readback path.
+// Tests cover CPU fallback, real wgpu path (when feature enabled), mercy audit integration, and timing.
+// All tests mercy-gated and TOLC 8 aligned.
 //
 // AG-SML v1.0 License
 
@@ -35,7 +34,7 @@ pub struct GpuTaskResult {
     pub output_size: usize,
     pub message: String,
     pub real_gpu_used: bool,
-    pub real_gpu_output: Option<Vec<f32>>, // v14.8.4: Full result set from real GPU readback
+    pub real_gpu_output: Option<Vec<f32>>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -525,7 +524,7 @@ impl GpuComputePipeline {
             telemetry_retry_count: AtomicUsize::new(3),
             mercy_norm_histogram: TelemetryHistogram::new("ra_thor_mercy_norm", vec![0.5, 0.7, 0.8, 0.85, 0.9, 0.95, 1.0]),
             save_duration_histogram: TelemetryHistogram::new("ra_thor_telemetry_save_duration_ms", vec![10.0, 50.0, 100.0, 200.0, 500.0, 1000.0]),
-            version: "v14.8.4-full-gpu-result-readback-TOLC8-PATSAGi".to_string(),
+            version: "v14.8.5-tests-benchmarks-full-readback-TOLC8-PATSAGi".to_string(),
         }
     }
 
@@ -626,7 +625,6 @@ impl GpuComputePipeline {
         let mut real_gpu_used = false;
         let mut real_gpu_output: Option<Vec<f32>> = None;
 
-        // v14.8.4: Full result set real GPU readback
         if cfg!(feature = "wgpu") {
             match self.try_real_gpu_with_readback(task.buffer_size).await {
                 Ok(full_result) => {
@@ -656,7 +654,6 @@ impl GpuComputePipeline {
         let elapsed = start.elapsed().as_millis() as u64;
         let stats = allocator.stats();
 
-        // Small preview for message (first 4 values)
         let preview_str = real_gpu_output.as_ref()
             .map(|v| format!("first4={:?}", &v[..std::cmp::min(4, v.len())]))
             .unwrap_or_else(|| "N/A".to_string());
@@ -740,8 +737,6 @@ impl GpuComputePipeline {
         })
     }
 
-    /// v14.8.4: Full result set real GPU readback
-    /// Returns the ENTIRE transformed Vec<f32> from the GPU buffer (not just preview).
     #[cfg(feature = "wgpu")]
     async fn try_real_gpu_with_readback(&self, buffer_size: usize) -> Result<Vec<f32>, String> {
         use wgpu::util::DeviceExt;
@@ -788,7 +783,7 @@ impl GpuComputePipeline {
         "#;
 
         let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
-            label: Some("Ra-Thor TU Compute Shader - Full Readback v14.8.4"),
+            label: Some("Ra-Thor TU Compute Shader - Full Readback v14.8.5"),
             source: wgpu::ShaderSource::Wgsl(shader_source.into()),
         });
 
@@ -848,7 +843,6 @@ impl GpuComputePipeline {
             compute_pass.dispatch_workgroups((buffer_size / 4 / 64) + 1, 1, 1);
         }
 
-        // Staging buffer for full readback
         let staging_buffer = device.create_buffer(&wgpu::BufferDescriptor {
             label: Some("Ra-Thor Full Readback Staging Buffer"),
             size: buffer_size as u64,
@@ -861,7 +855,6 @@ impl GpuComputePipeline {
         queue.submit(std::iter::once(encoder.finish()));
         device.poll(wgpu::Maintain::Wait);
 
-        // Map and read the FULL result set
         let buffer_slice = staging_buffer.slice(..);
         let (tx, rx) = std::sync::mpsc::channel();
         buffer_slice.map_async(wgpu::MapMode::Read, move |result| {
@@ -876,7 +869,7 @@ impl GpuComputePipeline {
             drop(data);
             staging_buffer.unmap();
 
-            Ok(f32_data) // Return the FULL transformed result set
+            Ok(f32_data)
         } else {
             Err("Failed to map full GPU readback buffer (TOLC 8 full readback gate)".to_string())
         }
@@ -1223,5 +1216,122 @@ impl GpuComputePipeline {
 
         self.consume_mercy_audit(&audit).await;
         Ok((result, audit));
+    }
+}
+
+// === Production Integration Tests + Benchmarks (v14.8.5) ===
+// Mercy-gated, TOLC 8 aligned, ONE Organism compatible.
+// Run with: cargo test --features wgpu (for real GPU tests)
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use tokio::runtime::Runtime;
+
+    fn new_pipeline() -> GpuComputePipeline {
+        GpuComputePipeline::new()
+    }
+
+    #[tokio::test]
+    async fn test_cpu_fallback_dispatch() {
+        let pipeline = new_pipeline();
+        let task = GpuTask {
+            id: 1,
+            name: "cpu_fallback_test".to_string(),
+            buffer_size: 4096,
+            intensity: "low".to_string(),
+        };
+
+        let result = pipeline.dispatch(task).await.unwrap();
+        assert!(result.success);
+        assert!(!result.real_gpu_used || cfg!(feature = "wgpu")); // may be true only if wgpu feature on
+        assert!(result.execution_time_ms > 0);
+        println!("[TEST] CPU fallback dispatch OK | time={}ms | real_gpu={}", result.execution_time_ms, result.real_gpu_used);
+    }
+
+    #[tokio::test]
+    async fn test_mercy_audit_integration() {
+        let pipeline = new_pipeline();
+        let task = GpuTask {
+            id: 42,
+            name: "mercy_audit_test".to_string(),
+            buffer_size: 8192,
+            intensity: "medium".to_string(),
+        };
+
+        let (result, audit) = pipeline.dispatch_with_mercy_audit(task).await.unwrap();
+        assert!(result.success);
+        assert!(audit.mercy_norm >= 0.0 && audit.mercy_norm <= 1.0);
+        assert!(audit.execution_time_ms > 0);
+        println!("[TEST] Mercy audit OK | norm={:.4} | council_ready={} | time={}ms", audit.mercy_norm, audit.council_ready, audit.execution_time_ms);
+    }
+
+    #[tokio::test]
+    async fn test_tu_batch_inference() {
+        let pipeline = new_pipeline();
+        let batch = TUBatchTask {
+            batch_id: 1001,
+            agent_count: 16,
+            state_size: 256,
+            actions: vec!["move".to_string(); 16],
+        };
+
+        let result = pipeline.submit_tu_batch_inference(batch, "default").await.unwrap();
+        assert_eq!(result.tu_values.len(), 16);
+        assert_eq!(result.mercy_norms.len(), 16);
+        assert!(result.council_ready_count > 0);
+        println!("[TEST] TU batch OK | agents={} | council_ready={}", result.tu_values.len(), result.council_ready_count);
+    }
+
+    // Real GPU full readback test (only runs when wgpu feature is enabled)
+    #[tokio::test]
+    #[cfg(feature = "wgpu")]
+    async fn test_real_gpu_full_readback() {
+        let pipeline = new_pipeline();
+        let task = GpuTask {
+            id: 999,
+            name: "real_gpu_full_readback_test".to_string(),
+            buffer_size: 16384,
+            intensity: "high".to_string(),
+        };
+
+        let result = pipeline.dispatch(task).await.unwrap();
+        assert!(result.success);
+        assert!(result.real_gpu_used, "Real wgpu path should be used when feature is enabled");
+        assert!(result.real_gpu_output.is_some(), "Full GPU result set should be present");
+
+        let full_output = result.real_gpu_output.unwrap();
+        assert!(!full_output.is_empty(), "Full result set must not be empty");
+        // Basic sanity: the shader does val * 1.01 + small entropy, so values should be > 0
+        assert!(full_output.iter().any(|&v| v > 0.0), "Transformed values should be positive");
+
+        println!("[TEST] Real GPU full readback OK | output_len={} | first4={:?}", full_output.len(), &full_output[..std::cmp::min(4, full_output.len())]);
+    }
+
+    // Basic benchmark for dispatch latency (CPU + real GPU when available)
+    #[tokio::test]
+    async fn benchmark_dispatch_latency() {
+        let pipeline = new_pipeline();
+        let task = GpuTask {
+            id: 500,
+            name: "benchmark_dispatch".to_string(),
+            buffer_size: 65536,
+            intensity: "medium".to_string(),
+        };
+
+        let iterations = 5;
+        let mut total_ms = 0u128;
+
+        for i in 0..iterations {
+            let start = Instant::now();
+            let _result = pipeline.dispatch(task.clone()).await.unwrap();
+            let elapsed = start.elapsed().as_millis();
+            total_ms += elapsed;
+            println!("[BENCH] Iteration {} | dispatch time = {} ms", i + 1, elapsed);
+        }
+
+        let avg_ms = total_ms as f64 / iterations as f64;
+        println!("[BENCH] Average dispatch latency over {} iterations: {:.2} ms", iterations, avg_ms);
+        assert!(avg_ms < 5000.0, "Average dispatch should be reasonable (<5s even on CPU fallback)");
     }
 }
