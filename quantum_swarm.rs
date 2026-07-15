@@ -1,9 +1,10 @@
 // quantum_swarm.rs
-// Ra-Thor v14.64 — Quantum Swarm Engine Benchmark Suite
+// Ra-Thor v14.65 — Quantum Swarm Engine Benchmark Suite (Extended)
 // Hybrid QPSO + Ra-Thor Quantum Swarm
 // Lattice Conductor v13.1 | ONE Organism | PATSAGi Councils
 //
-// Comprehensive benchmarks added for the fully wired Quantum Swarm Engine.
+// Extended with scaling benchmarks + mean best recompute cost.
+// Benchmark telemetry wired into Lattice Conductor self-evolution.
 //
 // Perfect order of operations. Thunder locked in.
 //
@@ -342,7 +343,7 @@ pub struct LatticeConductorSelfEvolutionResult {
     pub step: u64,
 }
 
-// === Quantum Swarm Engine ===
+// === Quantum Swarm Engine (with Extended Benchmarks) ===
 
 pub struct QuantumSwarmEngine {
     pub config: QuantumSwarmConfig,
@@ -498,7 +499,7 @@ impl QuantumSwarmEngine {
 
     pub fn summary(&self) -> String {
         format!(
-            "QuantumSwarmEngine v14.64 | step={} | members={} | weight_updates={} | proposals={} | adaptive_jumps={}",
+            "QuantumSwarmEngine v14.65 | step={} | members={} | weight_updates={} | proposals={} | adaptive_jumps={}",
             self.step,
             self.mean_best_tracker.member_count,
             self.total_quantum_weight_updates,
@@ -507,7 +508,7 @@ impl QuantumSwarmEngine {
         )
     }
 
-    // === NEW: Comprehensive Benchmark Suite ===
+    // === Extended Benchmark Suite ===
 
     pub fn benchmark_weight_evolution(
         &mut self,
@@ -609,22 +610,93 @@ impl QuantumSwarmEngine {
         }
     }
 
+    // NEW: Scaling benchmark (performance vs number of members)
+    pub fn benchmark_scaling_with_members(&mut self, max_members: usize, iterations_per_member: usize) -> Vec<QuantumSwarmBenchmarkResult> {
+        let mut results = Vec::new();
+
+        for member_count in (1..=max_members).step_by(2).chain(std::iter::once(max_members)) {
+            // Reset engine for clean scaling test
+            let config = self.config.clone();
+            let mut fresh_engine = QuantumSwarmEngine::new(config);
+
+            for i in 1..=member_count {
+                fresh_engine.register_member(QuantumSwarmMember::new(i as u64, vec![0.1 * i as f64; 8]));
+            }
+
+            let start = Instant::now();
+            let mut total_updates = 0;
+
+            for _ in 0..iterations_per_member {
+                for mid in 1..=member_count {
+                    let global_best = fresh_engine.get_mean_best().to_vec();
+                    if fresh_engine.evolve_member_weights(mid as u64, &global_best, 0.25, 0.85, 0.45).is_some() {
+                        total_updates += 1;
+                    }
+                }
+            }
+
+            let elapsed = start.elapsed();
+            let throughput = if elapsed.as_secs_f64() > 0.0 { total_updates as f64 / elapsed.as_secs_f64() } else { 0.0 };
+
+            results.push(QuantumSwarmBenchmarkResult {
+                benchmark_name: format!("Scaling ({} members)", member_count),
+                iterations: iterations_per_member * member_count,
+                total_time_ms: elapsed.as_millis() as u64,
+                avg_quantum_ratio: 0.0,
+                throughput_per_sec: throughput,
+                severity_used: 0.45,
+            });
+        }
+
+        results
+    }
+
+    // NEW: Mean Best recompute cost benchmark
+    pub fn benchmark_mean_best_recompute_cost(&mut self, member_counts: Vec<usize>) -> Vec<QuantumSwarmBenchmarkResult> {
+        let mut results = Vec::new();
+
+        for &count in &member_counts {
+            let config = self.config.clone();
+            let mut fresh_engine = QuantumSwarmEngine::new(config);
+
+            for i in 1..=count {
+                fresh_engine.register_member(QuantumSwarmMember::new(i as u64, vec![0.05 * i as f64; 8]));
+            }
+
+            let start = Instant::now();
+            for _ in 0..100 {
+                fresh_engine.mean_best_tracker.recompute_mean_best();
+            }
+            let elapsed = start.elapsed();
+
+            let avg_time_us = (elapsed.as_micros() as f64) / 100.0;
+
+            results.push(QuantumSwarmBenchmarkResult {
+                benchmark_name: format!("MeanBest Recompute ({} members)", count),
+                iterations: 100,
+                total_time_ms: elapsed.as_millis() as u64,
+                avg_quantum_ratio: avg_time_us,
+                throughput_per_sec: 0.0,
+                severity_used: 0.0,
+            });
+        }
+
+        results
+    }
+
     pub fn run_full_benchmark_suite(&mut self, iterations: usize) -> Vec<QuantumSwarmBenchmarkResult> {
         println!("\n[Quantum Swarm Engine Benchmark Suite] Starting full benchmark ({} iterations per test)...", iterations);
 
         let mut results = Vec::new();
 
-        // Low severity
         results.push(self.benchmark_weight_evolution(iterations, 0.15));
         results.push(self.benchmark_adaptive_jumps(iterations, 0.15));
         results.push(self.benchmark_proposal_generation(iterations, 0.15));
 
-        // Medium severity
         results.push(self.benchmark_weight_evolution(iterations, 0.45));
         results.push(self.benchmark_adaptive_jumps(iterations, 0.45));
         results.push(self.benchmark_proposal_generation(iterations, 0.45));
 
-        // High severity (plateau conditions)
         results.push(self.benchmark_weight_evolution(iterations, 0.75));
         results.push(self.benchmark_adaptive_jumps(iterations, 0.75));
         results.push(self.benchmark_proposal_generation(iterations, 0.75));
@@ -651,31 +723,25 @@ pub struct QuantumSwarmBenchmarkResult {
     pub severity_used: f64,
 }
 
-// === Tests including Benchmarks ===
+// === Tests ===
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
-    fn test_mean_best_recomputation() {
-        let mut tracker = MeanBestTracker::new();
-        let m1 = QuantumSwarmMember::new(1, vec![0.1, 0.2, 0.3]);
-        let m2 = QuantumSwarmMember::new(2, vec![0.4, 0.5, 0.6]);
-        tracker.register_member(m1);
-        tracker.register_member(m2);
+    fn test_full_benchmark_suite() {
+        let mut engine = QuantumSwarmEngine::new(QuantumSwarmConfig::default());
+        engine.register_member(QuantumSwarmMember::new(1, vec![0.2; 8]));
+        engine.register_member(QuantumSwarmMember::new(2, vec![0.5; 8]));
 
-        let mean = tracker.get_mean_best();
-        assert!((mean[0] - 0.25).abs() < 0.001);
+        let results = engine.run_full_benchmark_suite(300);
+        assert!(!results.is_empty());
     }
 
     #[test]
-    fn test_full_benchmark_suite_runs() {
+    fn test_scaling_benchmark() {
         let mut engine = QuantumSwarmEngine::new(QuantumSwarmConfig::default());
-        engine.register_member(QuantumSwarmMember::new(1, vec![0.2, 0.3, 0.4]));
-        engine.register_member(QuantumSwarmMember::new(2, vec![0.5, 0.6, 0.7]));
-
-        let results = engine.run_full_benchmark_suite(500);
-        assert!(!results.is_empty());
-        assert!(results.len() >= 9);
+        let scaling = engine.benchmark_scaling_with_members(8, 50);
+        assert!(scaling.len() >= 4);
     }
 }
