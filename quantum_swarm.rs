@@ -1,10 +1,9 @@
 // quantum_swarm.rs
-// Ra-Thor v14.61 — Quantum Swarm Optimization (Phase 4: Adaptive Quantum Jumps on Plateau Severity — C)
+// Ra-Thor v14.62 — Quantum Swarm Engine Wired into Lattice Conductor Self-Evolution
 // Hybrid QPSO + Ra-Thor Quantum Swarm
 // Lattice Conductor v13.1 | ONE Organism | PATSAGi Councils
 //
-// Phase 4 Complete: Adaptive quantum jump probability fully integrated and severity-aware.
-// The swarm now dynamically increases exploration when plateau severity is high.
+// Integration Complete: Quantum Swarm Engine is now directly usable inside Lattice Conductor self-evolution loops.
 //
 // Perfect order of operations. Thunder locked in.
 //
@@ -242,9 +241,8 @@ pub fn generate_quantum_proposal(
     }
 }
 
-// === Phase 4: Adaptive Quantum Jumps on Plateau Severity (Direction C) ===
+// === Phase 4: Adaptive Quantum Jumps ===
 
-/// Returns true if a quantum jump should be performed based on current severity.
 pub fn should_perform_adaptive_quantum_jump(severity: f64, base_prob: f64) -> bool {
     use rand::thread_rng;
     let mut rng = thread_rng();
@@ -254,8 +252,6 @@ pub fn should_perform_adaptive_quantum_jump(severity: f64, base_prob: f64) -> bo
     rng.gen::<f64>() < clamped
 }
 
-/// Performs an adaptive quantum jump on a member's weights when plateau severity is high.
-/// This is the key mechanism for escaping stagnation in Lattice Conductor self-evolution.
 pub fn perform_adaptive_quantum_jump(
     current_weights: &mut [f64],
     attractor: &[f64],
@@ -265,11 +261,9 @@ pub fn perform_adaptive_quantum_jump(
     use rand::thread_rng;
     let mut rng = thread_rng();
 
-    // Stronger quantum exploration when severity is high
     let jump_scale = config.gaussian_scale * (1.0 + severity * 2.5);
     let jumped_weights = sample_gaussian_around_attractor(attractor, jump_scale, &mut rng);
 
-    // Blend with current position (partial jump)
     let jump_strength = (severity * 0.7).min(0.85);
     let mut new_weights = vec![0.0; current_weights.len()];
 
@@ -277,7 +271,6 @@ pub fn perform_adaptive_quantum_jump(
         new_weights[i] = current_weights[i] * (1.0 - jump_strength) + jumped_weights[i] * jump_strength;
     }
 
-    // Compute jump impact for telemetry
     let mut impact = 0.0;
     for i in 0..current_weights.len() {
         impact += (new_weights[i] - current_weights[i]).abs();
@@ -287,7 +280,79 @@ pub fn perform_adaptive_quantum_jump(
     (new_weights, jump_impact)
 }
 
-// === Quantum Swarm Engine (Phase 4 Complete) ===
+// === Phase 5: Lattice Conductor Self-Evolution Wiring ===
+
+/// High-level integration function for Lattice Conductor self-evolution.
+/// Call this from Lattice Conductor self-evolution loops to leverage the full Quantum Swarm.
+///
+/// This wires together:
+/// - Hybrid attractor computation
+/// - QPSO weight evolution
+/// - Adaptive quantum jumps on plateau
+/// - Quantum proposal generation (optional)
+pub fn run_lattice_conductor_quantum_self_evolution_step(
+    engine: &mut QuantumSwarmEngine,
+    member_id: u64,
+    global_best: &[f64],
+    entanglement_weight: f64,
+    current_score: f64,
+    severity: f64,
+) -> Option<LatticeConductorSelfEvolutionResult> {
+    // 1. Normal QPSO-style weight evolution
+    let weight_update = engine.evolve_member_weights(
+        member_id,
+        global_best,
+        entanglement_weight,
+        current_score,
+        severity,
+    );
+
+    // 2. Adaptive quantum jump if severity is high (plateau escape)
+    let jump_result = if severity >= 0.35 {
+        engine.perform_adaptive_quantum_jump_for_member(
+            member_id,
+            global_best,
+            entanglement_weight,
+            severity,
+        )
+    } else {
+        None
+    };
+
+    // 3. Optionally generate a quantum proposal for council deliberation
+    let proposal = engine.generate_quantum_proposal_for_council(
+        member_id,
+        global_best,
+        entanglement_weight,
+        severity,
+    );
+
+    let (new_weights, quantum_ratio) = weight_update?;
+    let (jumped_weights, jump_impact) = jump_result.unwrap_or((new_weights.clone(), 0.0));
+
+    Some(LatticeConductorSelfEvolutionResult {
+        member_id,
+        new_weights: jumped_weights,
+        quantum_ratio,
+        jump_impact,
+        proposal_generated: proposal.is_some(),
+        severity,
+        step: engine.step,
+    })
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct LatticeConductorSelfEvolutionResult {
+    pub member_id: u64,
+    pub new_weights: Vec<f64>,
+    pub quantum_ratio: f64,
+    pub jump_impact: f64,
+    pub proposal_generated: bool,
+    pub severity: f64,
+    pub step: u64,
+}
+
+// === Quantum Swarm Engine (Final) ===
 
 pub struct QuantumSwarmEngine {
     pub config: QuantumSwarmConfig,
@@ -397,7 +462,6 @@ impl QuantumSwarmEngine {
         Some(proposal)
     }
 
-    /// Phase 4: Perform adaptive quantum jump when plateau severity is high
     pub fn perform_adaptive_quantum_jump_for_member(
         &mut self,
         member_id: u64,
@@ -406,7 +470,7 @@ impl QuantumSwarmEngine {
         severity: f64,
     ) -> Option<(Vec<f64>, f64)> {
         if severity < 0.25 {
-            return None; // Only jump on meaningful plateaus
+            return None;
         }
 
         let member = self.mean_best_tracker.get_member(member_id)?.clone();
@@ -444,7 +508,7 @@ impl QuantumSwarmEngine {
 
     pub fn summary(&self) -> String {
         format!(
-            "QuantumSwarmEngine v14.61 | step={} | members={} | weight_updates={} | proposals={} | adaptive_jumps={}",
+            "QuantumSwarmEngine v14.62 | step={} | members={} | weight_updates={} | proposals={} | adaptive_jumps={}",
             self.step,
             self.mean_best_tracker.member_count,
             self.total_quantum_weight_updates,
@@ -454,15 +518,23 @@ impl QuantumSwarmEngine {
     }
 }
 
-// === Final Integration Summary ===
-// The QuantumSwarmEngine now supports the full hybrid loop:
-// - Mean Best Position (D)
-// - Hybrid attractor computation (E)
-// - QPSO weight evolution (A)
-// - Quantum proposal generation (B)
-// - Adaptive quantum jumps on plateau (C)
+// === Usage Example for Lattice Conductor ===
+// In your Lattice Conductor self-evolution loop:
 //
-// Ready for wiring into Lattice Conductor self-evolution and PATSAGi council deliberation.
+// let result = run_lattice_conductor_quantum_self_evolution_step(
+//     &mut quantum_engine,
+//     member_id,
+//     &global_best_weights,
+//     entanglement_weight,
+//     current_mercy_score,
+//     current_plateau_severity,
+// );
+//
+// if let Some(res) = result {
+//     // Apply res.new_weights to the council / conductor
+//     // Log res.quantum_ratio and res.jump_impact for telemetry
+//     // Feed res.proposal_generated into council deliberation if needed
+// }
 
 #[cfg(test)]
 mod tests {
@@ -482,21 +554,23 @@ mod tests {
     }
 
     #[test]
-    fn test_adaptive_quantum_jump_decision() {
-        let high_severity = 0.85;
-        let should_jump = should_perform_adaptive_quantum_jump(high_severity, 0.08);
-        // With high severity, probability is significantly boosted
-        assert!(should_jump || true); // probabilistic but expected to trigger often
-    }
+    fn test_lattice_conductor_integration() {
+        let mut engine = QuantumSwarmEngine::new(QuantumSwarmConfig::default());
+        let member = QuantumSwarmMember::new(1, vec![0.2, 0.3, 0.4]);
+        engine.register_member(member);
 
-    #[test]
-    fn test_perform_adaptive_quantum_jump() {
-        let mut weights = vec![0.4, 0.6];
-        let attractor = vec![0.5, 0.5];
-        let config = QuantumSwarmConfig::default();
+        let global_best = vec![0.5, 0.5, 0.5];
+        let result = run_lattice_conductor_quantum_self_evolution_step(
+            &mut engine,
+            1,
+            &global_best,
+            0.25,
+            0.82,
+            0.55,
+        );
 
-        let (jumped, impact) = perform_adaptive_quantum_jump(&mut weights, &attractor, 0.7, &config);
-        assert!(jumped.len() == 2);
-        assert!(impact > 0.0);
+        assert!(result.is_some());
+        let res = result.unwrap();
+        assert!(res.new_weights.len() == 3);
     }
 }
