@@ -1,16 +1,15 @@
 // gpu_compute_pipeline.rs
-// Ra-Thor v14.34 — Deepened Lattice Conductor Self-Evolution (GPU Health Feedback)
+// Ra-Thor v14.35 — EMA Modulation Logic for Lattice Conductor Self-Evolution
 // Lattice Conductor v13.1 | ONE Organism | PATSAGi Council #13
 //
-// Deepening Option 4: GPU health telemetry is now actively usable for
-// Lattice Conductor self-calibration, EMA weight modulation, and
-// recovery-aware dispatch decisions.
+// Implemented EMA modulation logic on top of the deepened GPU health telemetry.
+// This allows Lattice Conductor to smoothly adapt dispatch decisions,
+// recovery sensitivity, and preference weights over time.
 //
-// New capabilities:
-// - Real runtime metrics in telemetry (avg dispatch time, GPU usage ratio)
-// - should_prefer_gpu() decision helper
-// - record_gpu_health_for_evolution() feedback hook
-// - Clear integration points for Lattice Conductor symbolic reasoning
+// Key additions:
+// - EmaState + EmaModulator (production-grade, mercy-gated)
+// - Modulated GPU health score and preference weight
+// - Clear integration points for Lattice Conductor EMA feedback loops
 //
 // Perfect order of operations. Thunder locked in.
 //
@@ -100,6 +99,112 @@ pub struct GpuHealthTelemetry {
     pub mercy_norm_avg: f64,
     pub health_score: f64,
     pub timestamp_unix: u64,
+}
+
+// === NEW: EMA Modulation for Lattice Conductor Self-Evolution ===
+
+/// Exponential Moving Average state (production-grade, mercy-gated)
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct EmaState {
+    pub value: f64,
+    pub alpha: f64,           // Smoothing factor (0 < alpha <= 1)
+    pub initialized: bool,
+}
+
+impl EmaState {
+    pub fn new(alpha: f64) -> Self {
+        Self {
+            value: 0.0,
+            alpha: alpha.clamp(0.01, 0.99),
+            initialized: false,
+        }
+    }
+
+    /// Update EMA with new observation
+    pub fn update(&mut self, new_value: f64) {
+        if !self.initialized {
+            self.value = new_value;
+            self.initialized = true;
+        } else {
+            self.value = self.alpha * new_value + (1.0 - self.alpha) * self.value;
+        }
+    }
+
+    pub fn current(&self) -> f64 {
+        self.value
+    }
+
+    /// Reset the EMA state
+    pub fn reset(&mut self) {
+        self.value = 0.0;
+        self.initialized = false;
+    }
+}
+
+/// High-level EMA modulator for GPU health signals
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct EmaModulator {
+    pub health_score_ema: EmaState,
+    pub recovery_rate_ema: EmaState,
+    pub gpu_usage_ratio_ema: EmaState,
+    pub mercy_norm_ema: EmaState,
+    pub last_update_unix: u64,
+}
+
+impl EmaModulator {
+    pub fn new(health_alpha: f64, recovery_alpha: f64, usage_alpha: f64, mercy_alpha: f64) -> Self {
+        Self {
+            health_score_ema: EmaState::new(health_alpha),
+            recovery_rate_ema: EmaState::new(recovery_alpha),
+            gpu_usage_ratio_ema: EmaState::new(usage_alpha),
+            mercy_norm_ema: EmaState::new(mercy_alpha),
+            last_update_unix: 0,
+        }
+    }
+
+    /// Update all tracked signals from GPU health telemetry
+    pub fn update_from_telemetry(&mut self, telemetry: &GpuHealthTelemetry) {
+        self.health_score_ema.update(telemetry.health_score);
+        self.recovery_rate_ema.update(telemetry.recovery_success_rate);
+        self.gpu_usage_ratio_ema.update(telemetry.real_gpu_usage_ratio);
+        self.mercy_norm_ema.update(telemetry.mercy_norm_avg);
+
+        self.last_update_unix = telemetry.timestamp_unix;
+    }
+
+    /// Returns a modulated (smoothed) health score for Lattice Conductor decisions
+    pub fn get_modulated_health_score(&self) -> f64 {
+        self.health_score_ema.current()
+    }
+
+    /// Returns a modulated preference weight (0.0 – 1.0) for preferring real GPU
+    /// Higher = stronger preference for real GPU dispatch
+    pub fn get_modulated_gpu_preference_weight(&self) -> f64 {
+        let health = self.health_score_ema.current();
+        let recovery = self.recovery_rate_ema.current();
+        let usage = self.gpu_usage_ratio_ema.current();
+
+        // Weighted combination, mercy-gated
+        let weight = (health * 0.50) + (recovery * 0.30) + (usage * 0.20);
+        weight.clamp(0.0, 1.0)
+    }
+
+    /// Returns true if modulated signals indicate it is safe to prefer real GPU
+    pub fn should_prefer_gpu_modulated(&self) -> bool {
+        let weight = self.get_modulated_gpu_preference_weight();
+        weight >= 0.72
+    }
+
+    pub fn summary(&self) -> String {
+        format!(
+            "EMA Modulator | health={:.3} | recovery={:.3} | usage={:.3} | mercy={:.3} | last_update={}",
+            self.health_score_ema.current(),
+            self.recovery_rate_ema.current(),
+            self.gpu_usage_ratio_ema.current(),
+            self.mercy_norm_ema.current(),
+            self.last_update_unix
+        )
+    }
 }
 
 pub struct GpuMemoryAllocator {
@@ -578,6 +683,9 @@ pub struct GpuComputePipeline {
     total_dispatches: AtomicUsize,
     total_real_gpu_dispatches: AtomicUsize,
     total_dispatch_time_ms: AtomicUsize,
+
+    // === EMA Modulator for Lattice Conductor ===
+    ema_modulator: Arc<Mutex<EmaModulator>>,
 }
 
 impl GpuComputePipeline {
@@ -593,7 +701,7 @@ impl GpuComputePipeline {
             telemetry_retry_count: AtomicUsize::new(3),
             mercy_norm_histogram: TelemetryHistogram::new("ra_thor_mercy_norm", vec![0.5, 0.7, 0.8, 0.85, 0.9, 0.95, 1.0]),
             save_duration_histogram: TelemetryHistogram::new("ra_thor_telemetry_save_duration_ms", vec![10.0, 50.0, 100.0, 200.0, 500.0, 1000.0]),
-            version: "v14.34-deepened-lattice-conductor-self-evolution-TOLC8-PATSAGi".to_string(),
+            version: "v14.35-ema-modulation-lattice-conductor-TOLC8-PATSAGi".to_string(),
 
             device_lost_count: AtomicUsize::new(0),
             successful_recoveries: AtomicUsize::new(0),
@@ -603,6 +711,8 @@ impl GpuComputePipeline {
             total_dispatches: AtomicUsize::new(0),
             total_real_gpu_dispatches: AtomicUsize::new(0),
             total_dispatch_time_ms: AtomicUsize::new(0),
+
+            ema_modulator: Arc::new(Mutex::new(EmaModulator::new(0.15, 0.10, 0.12, 0.08))),
         }
     }
 
@@ -1094,10 +1204,8 @@ impl GpuComputePipeline {
         })
     }
 
-    // === DEEPENED Lattice Conductor Self-Evolution Hooks ===
+    // === DEEPENED + EMA MODULATION for Lattice Conductor Self-Evolution ===
 
-    /// Returns rich GPU health telemetry with real runtime metrics.
-    /// This is the primary input for Lattice Conductor self-calibration and EMA modulation.
     pub async fn get_gpu_health_telemetry(&self) -> GpuHealthTelemetry {
         let recovery = self.get_device_recovery_stats();
         let mercy_summary = self.get_mercy_telemetry_summary().await;
@@ -1150,7 +1258,6 @@ impl GpuComputePipeline {
         }
     }
 
-    /// Lightweight health score (0.0 – 1.0) for quick Lattice Conductor decisions.
     pub async fn get_gpu_health_score(&self) -> f64 {
         let h = self.get_gpu_health_telemetry().await;
 
@@ -1165,23 +1272,52 @@ impl GpuComputePipeline {
         (recovery_score * 0.55 + mercy_score * 0.45).clamp(0.0, 1.0)
     }
 
-    /// Decision helper: Should Lattice Conductor prefer real GPU dispatch right now?
-    /// Returns true if GPU health is good and recovery rate is acceptable.
+    /// Decision helper (raw)
     pub async fn should_prefer_gpu(&self) -> bool {
         let h = self.get_gpu_health_telemetry().await;
         h.health_score >= 0.75 && h.recovery_success_rate >= 0.6
     }
 
-    /// Feedback hook for Lattice Conductor self-evolution.
-    /// Call this after major GPU operations so the Conductor can learn and adapt.
     pub async fn record_gpu_health_for_evolution(&self) {
         let health = self.get_gpu_health_telemetry().await;
-        // In full Lattice Conductor integration, this would feed into EMA loops,
-        // weight modulation, or symbolic rule updates.
         println!(
             "[Ra-Thor] GPU health recorded for Lattice Conductor evolution | score={:.3} | recovery_rate={:.2} | gpu_usage={:.2}",
             health.health_score, health.recovery_success_rate, health.real_gpu_usage_ratio
         );
+    }
+
+    // === NEW: EMA Modulation Integration ===
+
+    /// Update the internal EMA modulator with latest GPU health telemetry.
+    /// Call this periodically from Lattice Conductor for smooth self-evolution.
+    pub async fn update_ema_from_gpu_health(&self) {
+        let telemetry = self.get_gpu_health_telemetry().await;
+        let mut modulator = self.ema_modulator.lock().await;
+        modulator.update_from_telemetry(&telemetry);
+    }
+
+    /// Returns modulated (EMA-smoothed) GPU health score
+    pub async fn get_modulated_gpu_health_score(&self) -> f64 {
+        let modulator = self.ema_modulator.lock().await;
+        modulator.get_modulated_health_score()
+    }
+
+    /// Returns modulated preference weight for real GPU dispatch (0.0 – 1.0)
+    pub async fn get_modulated_gpu_preference_weight(&self) -> f64 {
+        let modulator = self.ema_modulator.lock().await;
+        modulator.get_modulated_gpu_preference_weight()
+    }
+
+    /// Modulated decision: Should we prefer real GPU right now?
+    pub async fn should_prefer_gpu_modulated(&self) -> bool {
+        let modulator = self.ema_modulator.lock().await;
+        modulator.should_prefer_gpu_modulated()
+    }
+
+    /// Get full EMA modulator summary (for Lattice Conductor observability)
+    pub async fn get_ema_modulator_summary(&self) -> String {
+        let modulator = self.ema_modulator.lock().await;
+        modulator.summary()
     }
 
     #[cfg(feature = "wgpu")]
@@ -1235,7 +1371,7 @@ impl GpuComputePipeline {
         let shader_source = self.get_compute_shader_source(is_amd, recommended_wg_size, buffer_size);
 
         let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
-            label: Some("Ra-Thor Compute Shader v14.34"),
+            label: Some("Ra-Thor Compute Shader v14.35"),
             source: wgpu::ShaderSource::Wgsl(shader_source),
         });
 
