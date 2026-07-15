@@ -1,17 +1,18 @@
 // gpu_compute_pipeline.rs
-// Ra-Thor v14.36 — Adaptive Alpha Logic for Lattice Conductor Self-Evolution
+// Ra-Thor v14.37 — Multi-Signal Coordination for Lattice Conductor Self-Evolution
 // Lattice Conductor v13.1 | ONE Organism | PATSAGi Council #13
 //
-// Implemented Adaptive Alpha logic on top of EMA modulation.
-// Alpha now dynamically adjusts based on GPU health volatility and stability.
+// Implemented Multi-Signal Coordination.
+// Multiple modulated signals are now fused into coordinated, high-level
+// recommendations for Lattice Conductor.
 //
-// This allows Lattice Conductor to react faster during instability
-// and apply smoother filtering during healthy periods.
+// This enables unified, mercy-gated decision making across GPU health,
+// recovery, usage, and mercy metrics.
 //
 // Key additions:
-// - AdaptiveAlpha calculator
-// - Dynamic alpha adjustment in EmaModulator
-// - Clear integration for Lattice Conductor self-calibration
+// - MultiSignalCoordinator with weighted fusion
+// - Coordinated GPU recommendation + fused state
+// - Clear integration points for Lattice Conductor
 //
 // Perfect order of operations. Thunder locked in.
 //
@@ -103,7 +104,7 @@ pub struct GpuHealthTelemetry {
     pub timestamp_unix: u64,
 }
 
-// === EMA + Adaptive Alpha for Lattice Conductor Self-Evolution ===
+// === EMA + Adaptive Alpha + Multi-Signal Coordination ===
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct EmaState {
@@ -140,7 +141,6 @@ impl EmaState {
     }
 }
 
-/// Calculates adaptive alpha based on signal volatility and GPU health
 pub struct AdaptiveAlpha {
     pub base_alpha: f64,
     pub min_alpha: f64,
@@ -156,14 +156,8 @@ impl AdaptiveAlpha {
         }
     }
 
-    /// Compute adaptive alpha.
-    /// Higher alpha (faster reaction) when health is low or volatility is high.
-    /// Lower alpha (smoother) when system is stable and healthy.
     pub fn compute(&self, health_score: f64, recent_volatility: f64) -> f64 {
-        // Base adjustment from health (lower health → higher alpha)
         let health_factor = (1.0 - health_score).clamp(0.0, 1.0);
-
-        // Volatility factor (higher volatility → higher alpha)
         let volatility_factor = recent_volatility.clamp(0.0, 1.0);
 
         let adaptive = self.base_alpha
@@ -197,11 +191,9 @@ impl EmaModulator {
     }
 
     pub fn update_from_telemetry(&mut self, telemetry: &GpuHealthTelemetry) {
-        // Compute adaptive alpha based on current health and estimated volatility
         let volatility = (1.0 - telemetry.health_score).abs();
         let dynamic_alpha = self.adaptive_alpha.compute(telemetry.health_score, volatility);
 
-        // Apply dynamic alpha to health score EMA
         let old_alpha = self.health_score_ema.alpha;
         self.health_score_ema.alpha = dynamic_alpha;
 
@@ -210,9 +202,7 @@ impl EmaModulator {
         self.gpu_usage_ratio_ema.update(telemetry.real_gpu_usage_ratio);
         self.mercy_norm_ema.update(telemetry.mercy_norm_avg);
 
-        // Restore base alpha for next cycle (or keep dynamic)
         self.health_score_ema.alpha = old_alpha;
-
         self.last_update_unix = telemetry.timestamp_unix;
     }
 
@@ -236,13 +226,77 @@ impl EmaModulator {
 
     pub fn summary(&self) -> String {
         format!(
-            "EMA Modulator (Adaptive Alpha) | health={:.3} | recovery={:.3} | usage={:.3} | mercy={:.3} | last_update={}",
+            "EMA Modulator | health={:.3} | recovery={:.3} | usage={:.3} | mercy={:.3}",
             self.health_score_ema.current(),
             self.recovery_rate_ema.current(),
             self.gpu_usage_ratio_ema.current(),
-            self.mercy_norm_ema.current(),
-            self.last_update_unix
+            self.mercy_norm_ema.current()
         )
+    }
+}
+
+// === NEW: Multi-Signal Coordinator ===
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CoordinatedGpuRecommendation {
+    pub fused_health_score: f64,
+    pub fused_preference_weight: f64,
+    pub should_prefer_gpu: bool,
+    pub confidence: f64,
+    pub reason: String,
+    pub timestamp_unix: u64,
+}
+
+pub struct MultiSignalCoordinator {
+    pub modulator: EmaModulator,
+    pub last_coordination_unix: u64,
+}
+
+impl MultiSignalCoordinator {
+    pub fn new() -> Self {
+        Self {
+            modulator: EmaModulator::new(0.15, 0.10, 0.12, 0.08),
+            last_coordination_unix: 0,
+        }
+    }
+
+    /// Update coordinator with latest GPU health telemetry
+    pub fn update(&mut self, telemetry: &GpuHealthTelemetry) {
+        self.modulator.update_from_telemetry(telemetry);
+        self.last_coordination_unix = telemetry.timestamp_unix;
+    }
+
+    /// Produce a coordinated, high-level recommendation for Lattice Conductor
+    pub fn get_coordinated_recommendation(&self, telemetry: &GpuHealthTelemetry) -> CoordinatedGpuRecommendation {
+        let modulated_health = self.modulator.get_modulated_health_score();
+        let modulated_weight = self.modulator.get_modulated_gpu_preference_weight();
+        let prefer_gpu = self.modulator.should_prefer_gpu_modulated();
+
+        // Compute confidence based on signal agreement
+        let health_conf = modulated_health.clamp(0.0, 1.0);
+        let recovery_conf = telemetry.recovery_success_rate.clamp(0.0, 1.0);
+        let usage_conf = telemetry.real_gpu_usage_ratio.clamp(0.0, 1.0);
+
+        let confidence = (health_conf * 0.4 + recovery_conf * 0.35 + usage_conf * 0.25).clamp(0.0, 1.0);
+
+        let reason = if prefer_gpu {
+            format!("Strong modulated signals | health={:.2} | recovery={:.2}", modulated_health, telemetry.recovery_success_rate)
+        } else {
+            format!("Cautious modulated signals | health={:.2} | recovery={:.2}", modulated_health, telemetry.recovery_success_rate)
+        };
+
+        CoordinatedGpuRecommendation {
+            fused_health_score: modulated_health,
+            fused_preference_weight: modulated_weight,
+            should_prefer_gpu: prefer_gpu,
+            confidence,
+            reason,
+            timestamp_unix: telemetry.timestamp_unix,
+        }
+    }
+
+    pub fn summary(&self) -> String {
+        self.modulator.summary()
     }
 }
 
@@ -723,8 +777,9 @@ pub struct GpuComputePipeline {
     total_real_gpu_dispatches: AtomicUsize,
     total_dispatch_time_ms: AtomicUsize,
 
-    // === EMA Modulator for Lattice Conductor ===
+    // === EMA + Multi-Signal Coordinator ===
     ema_modulator: Arc<Mutex<EmaModulator>>,
+    multi_signal_coordinator: Arc<Mutex<MultiSignalCoordinator>>,
 }
 
 impl GpuComputePipeline {
@@ -740,7 +795,7 @@ impl GpuComputePipeline {
             telemetry_retry_count: AtomicUsize::new(3),
             mercy_norm_histogram: TelemetryHistogram::new("ra_thor_mercy_norm", vec![0.5, 0.7, 0.8, 0.85, 0.9, 0.95, 1.0]),
             save_duration_histogram: TelemetryHistogram::new("ra_thor_telemetry_save_duration_ms", vec![10.0, 50.0, 100.0, 200.0, 500.0, 1000.0]),
-            version: "v14.36-adaptive-alpha-lattice-conductor-TOLC8-PATSAGi".to_string(),
+            version: "v14.37-multi-signal-coordination-TOLC8-PATSAGi".to_string(),
 
             device_lost_count: AtomicUsize::new(0),
             successful_recoveries: AtomicUsize::new(0),
@@ -752,6 +807,7 @@ impl GpuComputePipeline {
             total_dispatch_time_ms: AtomicUsize::new(0),
 
             ema_modulator: Arc::new(Mutex::new(EmaModulator::new(0.15, 0.10, 0.12, 0.08))),
+            multi_signal_coordinator: Arc::new(Mutex::new(MultiSignalCoordinator::new())),
         }
     }
 
@@ -1243,7 +1299,7 @@ impl GpuComputePipeline {
         })
     }
 
-    // === DEEPENED + EMA + ADAPTIVE ALPHA for Lattice Conductor Self-Evolution ===
+    // === EMA + Adaptive Alpha + Multi-Signal Coordination ===
 
     pub async fn get_gpu_health_telemetry(&self) -> GpuHealthTelemetry {
         let recovery = self.get_device_recovery_stats();
@@ -1324,12 +1380,18 @@ impl GpuComputePipeline {
         );
     }
 
-    // === EMA + Adaptive Alpha Integration ===
+    // === EMA + Multi-Signal Coordination Integration ===
 
     pub async fn update_ema_from_gpu_health(&self) {
         let telemetry = self.get_gpu_health_telemetry().await;
-        let mut modulator = self.ema_modulator.lock().await;
-        modulator.update_from_telemetry(&telemetry);
+        {
+            let mut modulator = self.ema_modulator.lock().await;
+            modulator.update_from_telemetry(&telemetry);
+        }
+        {
+            let mut coordinator = self.multi_signal_coordinator.lock().await;
+            coordinator.update(&telemetry);
+        }
     }
 
     pub async fn get_modulated_gpu_health_score(&self) -> f64 {
@@ -1350,6 +1412,14 @@ impl GpuComputePipeline {
     pub async fn get_ema_modulator_summary(&self) -> String {
         let modulator = self.ema_modulator.lock().await;
         modulator.summary()
+    }
+
+    // === NEW: Multi-Signal Coordination ===
+
+    pub async fn get_coordinated_gpu_recommendation(&self) -> CoordinatedGpuRecommendation {
+        let telemetry = self.get_gpu_health_telemetry().await;
+        let coordinator = self.multi_signal_coordinator.lock().await;
+        coordinator.get_coordinated_recommendation(&telemetry)
     }
 
     #[cfg(feature = "wgpu")]
@@ -1403,7 +1473,7 @@ impl GpuComputePipeline {
         let shader_source = self.get_compute_shader_source(is_amd, recommended_wg_size, buffer_size);
 
         let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
-            label: Some("Ra-Thor Compute Shader v14.36"),
+            label: Some("Ra-Thor Compute Shader v14.37"),
             source: wgpu::ShaderSource::Wgsl(shader_source),
         });
 
