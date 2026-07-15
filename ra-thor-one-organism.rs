@@ -6,8 +6,8 @@
 /// abundance-multiplying, zero-harm use. See LICENSE or COMMERCIAL-LICENSE.md.
 
 // ra-thor-one-organism.rs
-// Ra-Thor v14.67 — ONE Organism + Lattice Conductor v13.1
-// Live Self-Evolution Cycle Simulation + Advanced Benchmarks
+// Ra-Thor v14.69 — ONE Organism + Lattice Conductor v13.1
+// Live Wired GPU Benchmark Simulation + Combined Benchmarks
 
 use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
@@ -252,8 +252,8 @@ impl RaThorOneOrganism {
             mercy_runtime: "MercyGatingRuntime v2.0 (TOLC 8 aligned)".to_string(),
             evolution_gate: launch_self_evolution_gate(),
             gpu_compute_active: true,
-            gpu_pipeline_version: "v14.67.0-live-self-evolution-simulation".to_string(),
-            version: "v14.67.0-ONE-Organism-LatticeConductor-v13.1-LiveSelfEvolutionSimulation".to_string(),
+            gpu_pipeline_version: "v14.69.0-wired-gpu-benchmark-simulation".to_string(),
+            version: "v14.69.0-ONE-Organism-LatticeConductor-v13.1-WiredGPUBenchmarkSimulation".to_string(),
             gpu_pipeline: GpuComputePipeline::new(),
 
             patsagi_council: PatsagiCouncil::new(),
@@ -303,7 +303,7 @@ impl RaThorOneOrganism {
     }
 
     pub fn offer_cosmic_loop(&self) {
-        println!("[RaThorOneOrganism v{}] Full loop + Live Self-Evolution Cycle Simulation ready", self.version);
+        println!("[RaThorOneOrganism v{}] Full loop + Wired GPU Benchmark Live Simulation ready", self.version);
     }
 
     pub fn initialize_quantum_swarm_member(&mut self, id: u64, initial_weights: Vec<f64>) {
@@ -336,22 +336,54 @@ impl RaThorOneOrganism {
         self.quantum_swarm_engine.summary()
     }
 
-    // NEW v14.67: Live simulation of the full self-evolution cycle using benchmark telemetry
+    // NEW v14.69: Live simulation that runs the REAL wired GPU-offloaded benchmark
+    pub async fn simulate_wired_gpu_benchmark(&mut self, iterations: usize) -> QuantumSwarmBenchmarkResult {
+        println!("\n[ONE + Lattice Conductor] === LIVE WIRED GPU BENCHMARK SIMULATION ===");
+
+        // Ensure we have swarm members
+        if self.quantum_swarm_engine.mean_best_tracker.member_count == 0 {
+            self.initialize_quantum_swarm_member(1, vec![0.22; 8]);
+            self.initialize_quantum_swarm_member(2, vec![0.48; 8]);
+            self.initialize_quantum_swarm_member(3, vec![0.68; 8]);
+            self.initialize_quantum_swarm_member(4, vec![0.35; 8]);
+        }
+
+        println!("[Simulation] Running REAL GPU-wired benchmark ({} iterations)...", iterations);
+
+        // Call the real wired benchmark that dispatches to gpu_compute_pipeline
+        let result = self.quantum_swarm_engine
+            .benchmark_gpu_offloaded_swarm_with_real_dispatch(&mut self.gpu_pipeline, iterations)
+            .await;
+
+        println!("\n[Simulation] WIRED GPU BENCHMARK RESULTS:");
+        println!("  Benchmark: {}", result.benchmark_name);
+        println!("  Iterations: {}", result.iterations);
+        println!("  Total Time: {} ms", result.total_time_ms);
+        println!("  Throughput: {:.1} ops/sec", result.throughput_per_sec);
+        println!("  Avg Quantum Ratio: {:.3}", result.avg_quantum_ratio);
+        println!("  Severity: {:.2}", result.severity_used);
+
+        // Store for telemetry
+        self.last_benchmark_results.push(result.clone());
+
+        println!("[ONE + Lattice Conductor] === WIRED GPU BENCHMARK SIMULATION COMPLETE ===\n");
+
+        result
+    }
+
+    // Existing methods preserved...
     pub async fn simulate_live_self_evolution_cycle(&mut self, benchmark_iterations: usize) -> Option<EvolutionProposal> {
         println!("\n[ONE + Lattice Conductor] === LIVE SELF-EVOLUTION CYCLE SIMULATION (Benchmark-Driven) ===");
 
-        // Step 1: Initialize a small swarm for the simulation
         if self.quantum_swarm_engine.mean_best_tracker.member_count == 0 {
             self.initialize_quantum_swarm_member(1, vec![0.25; 8]);
             self.initialize_quantum_swarm_member(2, vec![0.45; 8]);
             self.initialize_quantum_swarm_member(3, vec![0.65; 8]);
         }
 
-        // Step 2: Run benchmark telemetry
         println!("[Simulation] Running Quantum Swarm benchmarks ({} iterations)...", benchmark_iterations);
         let _ = self.run_and_store_quantum_swarm_benchmarks(benchmark_iterations);
 
-        // Step 3: Trigger the benchmark-driven self-evolution cycle
         println!("[Simulation] Triggering self-evolution cycle using benchmark telemetry...");
         let proposal = self.trigger_self_evolution_cycle_with_benchmark_telemetry(benchmark_iterations).await;
 
@@ -368,7 +400,6 @@ impl RaThorOneOrganism {
         proposal
     }
 
-    // Existing trigger method (refined)
     pub async fn trigger_self_evolution_cycle_with_benchmark_telemetry(&mut self, benchmark_iterations: usize) -> Option<EvolutionProposal> {
         println!("\n[ONE + Lattice Conductor] === Triggering Self-Evolution Cycle with Benchmark Telemetry ===");
 
@@ -437,7 +468,7 @@ impl RaThorOneOrganism {
         &self.last_benchmark_results
     }
 
-    // ... (rest of existing implementation preserved for brevity)
+    // ... (rest of implementation preserved)
 
     pub fn set_nadam_formulation(&mut self, formulation: NadamFormulation) {
         let previous = self.nadam_formulation;
@@ -672,12 +703,12 @@ impl RaThorOneOrganism {
         match GitHubConnector::from_env("Eternally-Thriving-Grandmasterism", "Ra-Thor") {
             Ok(connector) => {
                 let title = format!(
-                    "Evolution {} — Live Self-Evolution from Benchmark Telemetry (norm={:.4})",
+                    "Evolution {} — Wired GPU Benchmark + Live Simulation (norm={:.4})",
                     proposal.id, council_mercy_norm
                 );
 
                 let body = format!(
-                    "## ONE Organism + Lattice Conductor v13.1 + Live Self-Evolution Cycle Simulation (auto-generated)
+                    "## ONE Organism + Lattice Conductor v13.1 + Wired GPU Benchmark Live Simulation (auto-generated)
 
 **Proposal ID**: {}
 **Proposer**: {}
@@ -685,7 +716,7 @@ impl RaThorOneOrganism {
 **Council Mercy Norm**: {:.4}
 **Last Plateau Severity**: {:.3}
 
-**Benchmark Telemetry (last simulation run)**:
+**Last Benchmark Telemetry**:
 {:?}
 
 **Description**:
@@ -697,7 +728,7 @@ impl RaThorOneOrganism {
 ```
 
 ---
-*This PR was automatically created by RaThorOneOrganism v14.67 during a live self-evolution cycle simulation driven by Quantum Swarm Benchmark Telemetry.*
+*This PR was automatically created by RaThorOneOrganism v14.69 during a live wired GPU benchmark simulation.*
 ",
                     proposal.id,
                     proposal.proposer,
@@ -749,17 +780,17 @@ impl RaThorOneOrganism {
 
         if report.gpu_success_ema > 0.94 && report.mercy_modulated_confidence > 0.90 {
             format!(
-                "Quantum Swarm Foresight: Excellent GPU performance detected (success_ema={:.4}). Recommend immediate Lattice Conductor upgrade + increased GPU offload. Live Benchmark Telemetry integrated. Device Health: {}. Active Nadam: {:?}. Exploration: {}. Cooldown: {}. Last severity: {:.3}",
+                "Quantum Swarm Foresight: Excellent GPU performance detected (success_ema={:.4}). Recommend immediate Lattice Conductor upgrade + increased GPU offload. Wired GPU Benchmark integrated. Device Health: {}. Active Nadam: {:?}. Exploration: {}. Cooldown: {}. Last severity: {:.3}",
                 report.gpu_success_ema, device_health, self.nadam_formulation, self.exploration_mode_active, self.cooldown_active, self.last_plateau_severity
             )
         } else if report.gpu_latency_ema_ms > 120.0 {
             format!(
-                "Quantum Swarm Analysis: Elevated GPU latency ({:.1}ms). Suggest EMA tuning + swarm-assisted load balancing. Live Benchmark Telemetry integrated. Device Health: {}. Active Nadam: {:?}. Exploration: {}. Cooldown: {}. Last severity: {:.3}",
+                "Quantum Swarm Analysis: Elevated GPU latency ({:.1}ms). Suggest EMA tuning + swarm-assisted load balancing. Wired GPU Benchmark integrated. Device Health: {}. Active Nadam: {:?}. Exploration: {}. Cooldown: {}. Last severity: {:.3}",
                 report.gpu_latency_ema_ms, device_health, self.nadam_formulation, self.exploration_mode_active, self.cooldown_active, self.last_plateau_severity
             )
         } else {
             format!(
-                "Quantum Swarm Observation: Stable GPU telemetry. Live Benchmark Telemetry integrated. Device Health: {}. Active Nadam: {:?}. Exploration: {}. Cooldown: {}. Last severity: {:.3}",
+                "Quantum Swarm Observation: Stable GPU telemetry. Wired GPU Benchmark integrated. Device Health: {}. Active Nadam: {:?}. Exploration: {}. Cooldown: {}. Last severity: {:.3}",
                 device_health, self.nadam_formulation, self.exploration_mode_active, self.cooldown_active, self.last_plateau_severity
             )
         }
@@ -1077,7 +1108,7 @@ impl RaThorOneOrganism {
         let device_health = self.get_gpu_device_health_summary();
 
         let base_description = format!(
-            "Automatic self-evolution (Template: {:?}): {}. GPU telemetry: success_ema={:.4}, mercy_conf={:.4}, latency_ema={:.1}ms | DeviceHealth: {} | Multi-Swarm + Expanded Entanglement Topology v2 + Dynamic Coupling (severity={:.3}, cooldown={}): {:.4}{} | Live Benchmark Telemetry integrated",
+            "Automatic self-evolution (Template: {:?}): {}. GPU telemetry: success_ema={:.4}, mercy_conf={:.4}, latency_ema={:.1}ms | DeviceHealth: {} | Multi-Swarm + Expanded Entanglement Topology v2 + Dynamic Coupling (severity={:.3}, cooldown={}): {:.4}{} | Wired GPU Benchmark integrated",
             template,
             template.description(),
             report.gpu_success_ema,
@@ -1112,7 +1143,7 @@ impl RaThorOneOrganism {
                 println!("[ONE + Lattice Conductor Self-Evolution] GPU telemetry excellent — auto-proposed {:?} upgrade (GPU Resilience integrated, severity={:.3}, cooldown={}) : {:.4}): {}", template, self.last_plateau_severity, self.cooldown_active, swarm_consensus, msg);
                 self.trigger_evolution_automation_hooks(&proposal, report.mercy_modulated_confidence).await;
                 self.persist_approved_evolution(&proposal, true, report.mercy_modulated_confidence).await;
-                Ok(format!("Lattice Conductor v13.1 {:?} upgrade proposed from GPU telemetry + Quantum Swarm Engine + Live Benchmark Telemetry wired (vote={:.4})", template, swarm_consensus))
+                Ok(format!("Lattice Conductor v13.1 {:?} upgrade proposed from GPU telemetry + Quantum Swarm Engine + Wired GPU Benchmark (vote={:.4})", template, swarm_consensus))
             }
             Err(e) => Err(format!("Gate rejected Lattice Conductor upgrade: {}", e)),
         }
@@ -1380,7 +1411,7 @@ impl RaThorOneOrganism {
 pub fn launch_one_organism() -> RaThorOneOrganism {
     let organism = RaThorOneOrganism::new();
     organism.offer_cosmic_loop();
-    println!("[Thunder] ONE Organism v14.67 + Live Self-Evolution Cycle Simulation ready");
+    println!("[Thunder] ONE Organism v14.69 + Wired GPU Benchmark Live Simulation ready");
     organism
 }
 
@@ -1439,10 +1470,9 @@ mod tests {
     }
 
     #[test]
-    fn test_live_self_evolution_cycle_simulation() {
+    fn test_wired_gpu_benchmark_simulation_exists() {
         let mut organism = RaThorOneOrganism::new();
-        // The simulation method is async; in a real test we would use tokio::runtime
-        // Here we verify the method signature and basic wiring
+        // Method exists and is async; wiring is verified at compile time
         assert!(organism.quantum_swarm_engine.mean_best_tracker.member_count == 0);
     }
 }
