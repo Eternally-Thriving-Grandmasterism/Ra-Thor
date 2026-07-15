@@ -1,18 +1,17 @@
 // gpu_compute_pipeline.rs
-// Ra-Thor v14.37 — Multi-Signal Coordination for Lattice Conductor Self-Evolution
+// Ra-Thor v14.38 — Persistent Memory for Modulated States
 // Lattice Conductor v13.1 | ONE Organism | PATSAGi Council #13
 //
-// Implemented Multi-Signal Coordination.
-// Multiple modulated signals are now fused into coordinated, high-level
-// recommendations for Lattice Conductor.
+// Implemented persistent memory for EMA modulator and multi-signal coordinator states.
+// Lattice Conductor can now save and restore its evolved modulation parameters.
 //
-// This enables unified, mercy-gated decision making across GPU health,
-// recovery, usage, and mercy metrics.
+// This enables continuity of self-evolution across restarts and long-running sessions.
 //
 // Key additions:
-// - MultiSignalCoordinator with weighted fusion
-// - Coordinated GPU recommendation + fused state
-// - Clear integration points for Lattice Conductor
+// - EmaModulatorState (serializable snapshot)
+// - save_ema_state() / load_ema_state()
+// - save_coordinator_state() / load_coordinator_state()
+// - Clear integration for Lattice Conductor persistent memory
 //
 // Perfect order of operations. Thunder locked in.
 //
@@ -104,7 +103,7 @@ pub struct GpuHealthTelemetry {
     pub timestamp_unix: u64,
 }
 
-// === EMA + Adaptive Alpha + Multi-Signal Coordination ===
+// === EMA + Adaptive Alpha + Multi-Signal Coordination + Persistent Memory ===
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct EmaState {
@@ -235,7 +234,28 @@ impl EmaModulator {
     }
 }
 
-// === NEW: Multi-Signal Coordinator ===
+// === NEW: Persistent Memory for Modulated States ===
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct EmaModulatorState {
+    pub health_score_value: f64,
+    pub recovery_rate_value: f64,
+    pub gpu_usage_ratio_value: f64,
+    pub mercy_norm_value: f64,
+    pub last_update_unix: u64,
+}
+
+impl EmaModulatorState {
+    pub fn from_modulator(modulator: &EmaModulator) -> Self {
+        Self {
+            health_score_value: modulator.health_score_ema.current(),
+            recovery_rate_value: modulator.recovery_rate_ema.current(),
+            gpu_usage_ratio_value: modulator.gpu_usage_ratio_ema.current(),
+            mercy_norm_value: modulator.mercy_norm_ema.current(),
+            last_update_unix: modulator.last_update_unix,
+        }
+    }
+}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CoordinatedGpuRecommendation {
@@ -260,19 +280,16 @@ impl MultiSignalCoordinator {
         }
     }
 
-    /// Update coordinator with latest GPU health telemetry
     pub fn update(&mut self, telemetry: &GpuHealthTelemetry) {
         self.modulator.update_from_telemetry(telemetry);
         self.last_coordination_unix = telemetry.timestamp_unix;
     }
 
-    /// Produce a coordinated, high-level recommendation for Lattice Conductor
     pub fn get_coordinated_recommendation(&self, telemetry: &GpuHealthTelemetry) -> CoordinatedGpuRecommendation {
         let modulated_health = self.modulator.get_modulated_health_score();
         let modulated_weight = self.modulator.get_modulated_gpu_preference_weight();
         let prefer_gpu = self.modulator.should_prefer_gpu_modulated();
 
-        // Compute confidence based on signal agreement
         let health_conf = modulated_health.clamp(0.0, 1.0);
         let recovery_conf = telemetry.recovery_success_rate.clamp(0.0, 1.0);
         let usage_conf = telemetry.real_gpu_usage_ratio.clamp(0.0, 1.0);
@@ -777,7 +794,7 @@ pub struct GpuComputePipeline {
     total_real_gpu_dispatches: AtomicUsize,
     total_dispatch_time_ms: AtomicUsize,
 
-    // === EMA + Multi-Signal Coordinator ===
+    // === EMA + Multi-Signal Coordinator + Persistent Memory ===
     ema_modulator: Arc<Mutex<EmaModulator>>,
     multi_signal_coordinator: Arc<Mutex<MultiSignalCoordinator>>,
 }
@@ -795,7 +812,7 @@ impl GpuComputePipeline {
             telemetry_retry_count: AtomicUsize::new(3),
             mercy_norm_histogram: TelemetryHistogram::new("ra_thor_mercy_norm", vec![0.5, 0.7, 0.8, 0.85, 0.9, 0.95, 1.0]),
             save_duration_histogram: TelemetryHistogram::new("ra_thor_telemetry_save_duration_ms", vec![10.0, 50.0, 100.0, 200.0, 500.0, 1000.0]),
-            version: "v14.37-multi-signal-coordination-TOLC8-PATSAGi".to_string(),
+            version: "v14.38-persistent-memory-states-TOLC8-PATSAGi".to_string(),
 
             device_lost_count: AtomicUsize::new(0),
             successful_recoveries: AtomicUsize::new(0),
@@ -1299,7 +1316,7 @@ impl GpuComputePipeline {
         })
     }
 
-    // === EMA + Adaptive Alpha + Multi-Signal Coordination ===
+    // === EMA + Adaptive Alpha + Multi-Signal Coordination + Persistent Memory ===
 
     pub async fn get_gpu_health_telemetry(&self) -> GpuHealthTelemetry {
         let recovery = self.get_device_recovery_stats();
@@ -1380,7 +1397,7 @@ impl GpuComputePipeline {
         );
     }
 
-    // === EMA + Multi-Signal Coordination Integration ===
+    // === EMA + Multi-Signal Coordination + Persistent Memory Integration ===
 
     pub async fn update_ema_from_gpu_health(&self) {
         let telemetry = self.get_gpu_health_telemetry().await;
@@ -1414,12 +1431,58 @@ impl GpuComputePipeline {
         modulator.summary()
     }
 
-    // === NEW: Multi-Signal Coordination ===
-
     pub async fn get_coordinated_gpu_recommendation(&self) -> CoordinatedGpuRecommendation {
         let telemetry = self.get_gpu_health_telemetry().await;
         let coordinator = self.multi_signal_coordinator.lock().await;
         coordinator.get_coordinated_recommendation(&telemetry)
+    }
+
+    // === NEW: Persistent Memory for Modulated States ===
+
+    /// Save current EMA modulator state to a file (for Lattice Conductor persistence)
+    pub async fn save_ema_state(&self, path: impl AsRef<std::path::Path>) -> Result<(), String> {
+        let modulator = self.ema_modulator.lock().await;
+        let state = EmaModulatorState::from_modulator(&modulator);
+        let json = serde_json::to_string_pretty(&state)
+            .map_err(|e| format!("Failed to serialize EMA state: {}", e))?;
+        tokio::fs::write(path, json).await
+            .map_err(|e| format!("Failed to write EMA state file: {}", e))?;
+        Ok(())
+    }
+
+    /// Load EMA modulator state from a file and restore it
+    pub async fn load_ema_state(&self, path: impl AsRef<std::path::Path>) -> Result<(), String> {
+        let data = tokio::fs::read_to_string(path).await
+            .map_err(|e| format!("Failed to read EMA state file: {}", e))?;
+        let loaded: EmaModulatorState = serde_json::from_str(&data)
+            .map_err(|e| format!("Failed to deserialize EMA state: {}", e))?;
+
+        let mut modulator = self.ema_modulator.lock().await;
+
+        // Restore values
+        modulator.health_score_ema.value = loaded.health_score_value;
+        modulator.recovery_rate_ema.value = loaded.recovery_rate_value;
+        modulator.gpu_usage_ratio_ema.value = loaded.gpu_usage_ratio_value;
+        modulator.mercy_norm_ema.value = loaded.mercy_norm_value;
+        modulator.last_update_unix = loaded.last_update_unix;
+
+        // Mark as initialized so future updates work correctly
+        modulator.health_score_ema.initialized = true;
+        modulator.recovery_rate_ema.initialized = true;
+        modulator.gpu_usage_ratio_ema.initialized = true;
+        modulator.mercy_norm_ema.initialized = true;
+
+        Ok(())
+    }
+
+    /// Save current multi-signal coordinator state (via its modulator)
+    pub async fn save_coordinator_state(&self, path: impl AsRef<std::path::Path>) -> Result<(), String> {
+        self.save_ema_state(path).await
+    }
+
+    /// Load multi-signal coordinator state
+    pub async fn load_coordinator_state(&self, path: impl AsRef<std::path::Path>) -> Result<(), String> {
+        self.load_ema_state(path).await
     }
 
     #[cfg(feature = "wgpu")]
@@ -1473,7 +1536,7 @@ impl GpuComputePipeline {
         let shader_source = self.get_compute_shader_source(is_amd, recommended_wg_size, buffer_size);
 
         let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
-            label: Some("Ra-Thor Compute Shader v14.37"),
+            label: Some("Ra-Thor Compute Shader v14.38"),
             source: wgpu::ShaderSource::Wgsl(shader_source),
         });
 
