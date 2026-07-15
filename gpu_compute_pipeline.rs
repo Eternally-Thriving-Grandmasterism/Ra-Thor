@@ -1,15 +1,17 @@
 // gpu_compute_pipeline.rs
-// Ra-Thor v14.35 — EMA Modulation Logic for Lattice Conductor Self-Evolution
+// Ra-Thor v14.36 — Adaptive Alpha Logic for Lattice Conductor Self-Evolution
 // Lattice Conductor v13.1 | ONE Organism | PATSAGi Council #13
 //
-// Implemented EMA modulation logic on top of the deepened GPU health telemetry.
-// This allows Lattice Conductor to smoothly adapt dispatch decisions,
-// recovery sensitivity, and preference weights over time.
+// Implemented Adaptive Alpha logic on top of EMA modulation.
+// Alpha now dynamically adjusts based on GPU health volatility and stability.
+//
+// This allows Lattice Conductor to react faster during instability
+// and apply smoother filtering during healthy periods.
 //
 // Key additions:
-// - EmaState + EmaModulator (production-grade, mercy-gated)
-// - Modulated GPU health score and preference weight
-// - Clear integration points for Lattice Conductor EMA feedback loops
+// - AdaptiveAlpha calculator
+// - Dynamic alpha adjustment in EmaModulator
+// - Clear integration for Lattice Conductor self-calibration
 //
 // Perfect order of operations. Thunder locked in.
 //
@@ -101,13 +103,12 @@ pub struct GpuHealthTelemetry {
     pub timestamp_unix: u64,
 }
 
-// === NEW: EMA Modulation for Lattice Conductor Self-Evolution ===
+// === EMA + Adaptive Alpha for Lattice Conductor Self-Evolution ===
 
-/// Exponential Moving Average state (production-grade, mercy-gated)
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct EmaState {
     pub value: f64,
-    pub alpha: f64,           // Smoothing factor (0 < alpha <= 1)
+    pub alpha: f64,
     pub initialized: bool,
 }
 
@@ -120,7 +121,6 @@ impl EmaState {
         }
     }
 
-    /// Update EMA with new observation
     pub fn update(&mut self, new_value: f64) {
         if !self.initialized {
             self.value = new_value;
@@ -134,14 +134,46 @@ impl EmaState {
         self.value
     }
 
-    /// Reset the EMA state
     pub fn reset(&mut self) {
         self.value = 0.0;
         self.initialized = false;
     }
 }
 
-/// High-level EMA modulator for GPU health signals
+/// Calculates adaptive alpha based on signal volatility and GPU health
+pub struct AdaptiveAlpha {
+    pub base_alpha: f64,
+    pub min_alpha: f64,
+    pub max_alpha: f64,
+}
+
+impl AdaptiveAlpha {
+    pub fn new(base_alpha: f64, min_alpha: f64, max_alpha: f64) -> Self {
+        Self {
+            base_alpha: base_alpha.clamp(0.01, 0.99),
+            min_alpha: min_alpha.clamp(0.01, 0.5),
+            max_alpha: max_alpha.clamp(0.5, 0.99),
+        }
+    }
+
+    /// Compute adaptive alpha.
+    /// Higher alpha (faster reaction) when health is low or volatility is high.
+    /// Lower alpha (smoother) when system is stable and healthy.
+    pub fn compute(&self, health_score: f64, recent_volatility: f64) -> f64 {
+        // Base adjustment from health (lower health → higher alpha)
+        let health_factor = (1.0 - health_score).clamp(0.0, 1.0);
+
+        // Volatility factor (higher volatility → higher alpha)
+        let volatility_factor = recent_volatility.clamp(0.0, 1.0);
+
+        let adaptive = self.base_alpha
+            + (health_factor * 0.25)
+            + (volatility_factor * 0.20);
+
+        adaptive.clamp(self.min_alpha, self.max_alpha)
+    }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct EmaModulator {
     pub health_score_ema: EmaState,
@@ -149,6 +181,7 @@ pub struct EmaModulator {
     pub gpu_usage_ratio_ema: EmaState,
     pub mercy_norm_ema: EmaState,
     pub last_update_unix: u64,
+    pub adaptive_alpha: AdaptiveAlpha,
 }
 
 impl EmaModulator {
@@ -159,37 +192,43 @@ impl EmaModulator {
             gpu_usage_ratio_ema: EmaState::new(usage_alpha),
             mercy_norm_ema: EmaState::new(mercy_alpha),
             last_update_unix: 0,
+            adaptive_alpha: AdaptiveAlpha::new(0.15, 0.05, 0.45),
         }
     }
 
-    /// Update all tracked signals from GPU health telemetry
     pub fn update_from_telemetry(&mut self, telemetry: &GpuHealthTelemetry) {
+        // Compute adaptive alpha based on current health and estimated volatility
+        let volatility = (1.0 - telemetry.health_score).abs();
+        let dynamic_alpha = self.adaptive_alpha.compute(telemetry.health_score, volatility);
+
+        // Apply dynamic alpha to health score EMA
+        let old_alpha = self.health_score_ema.alpha;
+        self.health_score_ema.alpha = dynamic_alpha;
+
         self.health_score_ema.update(telemetry.health_score);
         self.recovery_rate_ema.update(telemetry.recovery_success_rate);
         self.gpu_usage_ratio_ema.update(telemetry.real_gpu_usage_ratio);
         self.mercy_norm_ema.update(telemetry.mercy_norm_avg);
 
+        // Restore base alpha for next cycle (or keep dynamic)
+        self.health_score_ema.alpha = old_alpha;
+
         self.last_update_unix = telemetry.timestamp_unix;
     }
 
-    /// Returns a modulated (smoothed) health score for Lattice Conductor decisions
     pub fn get_modulated_health_score(&self) -> f64 {
         self.health_score_ema.current()
     }
 
-    /// Returns a modulated preference weight (0.0 – 1.0) for preferring real GPU
-    /// Higher = stronger preference for real GPU dispatch
     pub fn get_modulated_gpu_preference_weight(&self) -> f64 {
         let health = self.health_score_ema.current();
         let recovery = self.recovery_rate_ema.current();
         let usage = self.gpu_usage_ratio_ema.current();
 
-        // Weighted combination, mercy-gated
         let weight = (health * 0.50) + (recovery * 0.30) + (usage * 0.20);
         weight.clamp(0.0, 1.0)
     }
 
-    /// Returns true if modulated signals indicate it is safe to prefer real GPU
     pub fn should_prefer_gpu_modulated(&self) -> bool {
         let weight = self.get_modulated_gpu_preference_weight();
         weight >= 0.72
@@ -197,7 +236,7 @@ impl EmaModulator {
 
     pub fn summary(&self) -> String {
         format!(
-            "EMA Modulator | health={:.3} | recovery={:.3} | usage={:.3} | mercy={:.3} | last_update={}",
+            "EMA Modulator (Adaptive Alpha) | health={:.3} | recovery={:.3} | usage={:.3} | mercy={:.3} | last_update={}",
             self.health_score_ema.current(),
             self.recovery_rate_ema.current(),
             self.gpu_usage_ratio_ema.current(),
@@ -701,7 +740,7 @@ impl GpuComputePipeline {
             telemetry_retry_count: AtomicUsize::new(3),
             mercy_norm_histogram: TelemetryHistogram::new("ra_thor_mercy_norm", vec![0.5, 0.7, 0.8, 0.85, 0.9, 0.95, 1.0]),
             save_duration_histogram: TelemetryHistogram::new("ra_thor_telemetry_save_duration_ms", vec![10.0, 50.0, 100.0, 200.0, 500.0, 1000.0]),
-            version: "v14.35-ema-modulation-lattice-conductor-TOLC8-PATSAGi".to_string(),
+            version: "v14.36-adaptive-alpha-lattice-conductor-TOLC8-PATSAGi".to_string(),
 
             device_lost_count: AtomicUsize::new(0),
             successful_recoveries: AtomicUsize::new(0),
@@ -1204,7 +1243,7 @@ impl GpuComputePipeline {
         })
     }
 
-    // === DEEPENED + EMA MODULATION for Lattice Conductor Self-Evolution ===
+    // === DEEPENED + EMA + ADAPTIVE ALPHA for Lattice Conductor Self-Evolution ===
 
     pub async fn get_gpu_health_telemetry(&self) -> GpuHealthTelemetry {
         let recovery = self.get_device_recovery_stats();
@@ -1272,7 +1311,6 @@ impl GpuComputePipeline {
         (recovery_score * 0.55 + mercy_score * 0.45).clamp(0.0, 1.0)
     }
 
-    /// Decision helper (raw)
     pub async fn should_prefer_gpu(&self) -> bool {
         let h = self.get_gpu_health_telemetry().await;
         h.health_score >= 0.75 && h.recovery_success_rate >= 0.6
@@ -1286,35 +1324,29 @@ impl GpuComputePipeline {
         );
     }
 
-    // === NEW: EMA Modulation Integration ===
+    // === EMA + Adaptive Alpha Integration ===
 
-    /// Update the internal EMA modulator with latest GPU health telemetry.
-    /// Call this periodically from Lattice Conductor for smooth self-evolution.
     pub async fn update_ema_from_gpu_health(&self) {
         let telemetry = self.get_gpu_health_telemetry().await;
         let mut modulator = self.ema_modulator.lock().await;
         modulator.update_from_telemetry(&telemetry);
     }
 
-    /// Returns modulated (EMA-smoothed) GPU health score
     pub async fn get_modulated_gpu_health_score(&self) -> f64 {
         let modulator = self.ema_modulator.lock().await;
         modulator.get_modulated_health_score()
     }
 
-    /// Returns modulated preference weight for real GPU dispatch (0.0 – 1.0)
     pub async fn get_modulated_gpu_preference_weight(&self) -> f64 {
         let modulator = self.ema_modulator.lock().await;
         modulator.get_modulated_gpu_preference_weight()
     }
 
-    /// Modulated decision: Should we prefer real GPU right now?
     pub async fn should_prefer_gpu_modulated(&self) -> bool {
         let modulator = self.ema_modulator.lock().await;
         modulator.should_prefer_gpu_modulated()
     }
 
-    /// Get full EMA modulator summary (for Lattice Conductor observability)
     pub async fn get_ema_modulator_summary(&self) -> String {
         let modulator = self.ema_modulator.lock().await;
         modulator.summary()
@@ -1371,7 +1403,7 @@ impl GpuComputePipeline {
         let shader_source = self.get_compute_shader_source(is_amd, recommended_wg_size, buffer_size);
 
         let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
-            label: Some("Ra-Thor Compute Shader v14.35"),
+            label: Some("Ra-Thor Compute Shader v14.36"),
             source: wgpu::ShaderSource::Wgsl(shader_source),
         });
 
