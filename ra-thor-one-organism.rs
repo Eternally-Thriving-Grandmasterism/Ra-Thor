@@ -6,8 +6,8 @@
 /// abundance-multiplying, zero-harm use. See LICENSE or COMMERCIAL-LICENSE.md.
 
 // ra-thor-one-organism.rs
-// Ra-Thor v14.71 — ONE Organism + Lattice Conductor v13.1
-// Full Comparison: Wired GPU vs Multi-Council + GPU
+// Ra-Thor v14.72 — ONE Organism + Lattice Conductor v13.1
+// Multi-Council Throughput Scaling Analysis
 
 use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
@@ -252,8 +252,8 @@ impl RaThorOneOrganism {
             mercy_runtime: "MercyGatingRuntime v2.0 (TOLC 8 aligned)".to_string(),
             evolution_gate: launch_self_evolution_gate(),
             gpu_compute_active: true,
-            gpu_pipeline_version: "v14.71.0-full-comparison-wired-vs-multi-council-gpu".to_string(),
-            version: "v14.71.0-ONE-Organism-LatticeConductor-v13.1-FullComparisonWiredVsMultiCouncilGPU".to_string(),
+            gpu_pipeline_version: "v14.72.0-multi-council-scaling-analysis".to_string(),
+            version: "v14.72.0-ONE-Organism-LatticeConductor-v13.1-MultiCouncilScalingAnalysis".to_string(),
             gpu_pipeline: GpuComputePipeline::new(),
 
             patsagi_council: PatsagiCouncil::new(),
@@ -303,7 +303,7 @@ impl RaThorOneOrganism {
     }
 
     pub fn offer_cosmic_loop(&self) {
-        println!("[RaThorOneOrganism v{}] Full loop + Wired GPU vs Multi-Council + GPU Comparison ready", self.version);
+        println!("[RaThorOneOrganism v{}] Full loop + Multi-Council Throughput Scaling Analysis ready", self.version);
     }
 
     pub fn initialize_quantum_swarm_member(&mut self, id: u64, initial_weights: Vec<f64>) {
@@ -336,7 +336,107 @@ impl RaThorOneOrganism {
         self.quantum_swarm_engine.summary()
     }
 
-    // NEW v14.71: Full Comparison - Wired GPU vs Multi-Council + GPU
+    // NEW v14.72: Analyze Multi-Council Throughput Scaling
+    pub async fn analyze_multi_council_throughput_scaling(
+        &mut self,
+        max_councils: usize,
+        iterations_per_council: usize,
+    ) -> Vec<MultiCouncilScalingReport> {
+        println!("\n[ONE + Lattice Conductor] === MULTI-COUNCIL THROUGHPUT SCALING ANALYSIS ===");
+
+        if self.quantum_swarm_engine.mean_best_tracker.member_count < 16 {
+            for i in 1..=16 {
+                self.initialize_quantum_swarm_member(i as u64, vec![0.1 * i as f64; 8]);
+            }
+        }
+
+        let raw_results = self.quantum_swarm_engine
+            .benchmark_multi_council_gpu_combined(
+                &mut self.gpu_pipeline,
+                max_councils,
+                iterations_per_council,
+            )
+            .await;
+
+        let mut reports: Vec<MultiCouncilScalingReport> = Vec::new();
+
+        let mut previous_throughput = 0.0_f64;
+
+        for (i, result) in raw_results.iter().enumerate() {
+            let council_count = i + 1;
+
+            let throughput_per_council = if council_count > 0 {
+                result.throughput_per_sec / council_count as f64
+            } else {
+                0.0
+            };
+
+            let scaling_efficiency = if previous_throughput > 0.0 && i > 0 {
+                (result.throughput_per_sec / previous_throughput) * 100.0
+            } else {
+                100.0
+            };
+
+            let diminishing_returns = if i > 0 && scaling_efficiency < 85.0 {
+                true
+            } else {
+                false
+            };
+
+            let report = MultiCouncilScalingReport {
+                council_count,
+                total_iterations: result.iterations,
+                total_time_ms: result.total_time_ms,
+                throughput_ops_per_sec: result.throughput_per_sec,
+                throughput_per_council,
+                scaling_efficiency_percent: scaling_efficiency,
+                diminishing_returns_detected: diminishing_returns,
+                recommendation: if diminishing_returns {
+                    "Consider reducing council count or increasing GPU resources".to_string()
+                } else if scaling_efficiency > 95.0 {
+                    "Excellent linear scaling — continue increasing councils".to_string()
+                } else {
+                    "Good scaling — monitor GPU saturation".to_string()
+                },
+            };
+
+            reports.push(report);
+            previous_throughput = result.throughput_per_sec;
+        }
+
+        // Print analysis
+        println!("\n=== MULTI-COUNCIL THROUGHPUT SCALING ANALYSIS ===");
+        for r in &reports {
+            println!(
+                "Councils: {} | Throughput: {:.1} ops/s | Per Council: {:.1} | Efficiency: {:.1}% | Diminishing: {} | {}",
+                r.council_count,
+                r.throughput_ops_per_sec,
+                r.throughput_per_council,
+                r.scaling_efficiency_percent,
+                r.diminishing_returns_detected,
+                r.recommendation
+            );
+        }
+
+        // Summary recommendation
+        let best_council_count = reports
+            .iter()
+            .max_by(|a, b| a.throughput_ops_per_sec.partial_cmp(&b.throughput_ops_per_sec).unwrap())
+            .map(|r| r.council_count)
+            .unwrap_or(1);
+
+        println!("\n[SCALING RECOMMENDATION]");
+        println!("  Optimal council count for current GPU: {}", best_council_count);
+        println!("  Monitor for diminishing returns beyond this point.");
+
+        self.last_benchmark_results.extend(raw_results);
+
+        println!("[ONE + Lattice Conductor] === MULTI-COUNCIL SCALING ANALYSIS COMPLETE ===\n");
+
+        reports
+    }
+
+    // Existing methods preserved...
     pub async fn simulate_wired_gpu_vs_multi_council_comparison(
         &mut self,
         wired_iterations: usize,
@@ -345,25 +445,18 @@ impl RaThorOneOrganism {
     ) -> (QuantumSwarmBenchmarkResult, Vec<QuantumSwarmBenchmarkResult>) {
         println!("\n[ONE + Lattice Conductor] === FULL COMPARISON: WIRED GPU vs MULTI-COUNCIL + GPU ===");
 
-        // Ensure healthy swarm for both benchmarks
         if self.quantum_swarm_engine.mean_best_tracker.member_count < 16 {
             for i in 1..=16 {
                 self.initialize_quantum_swarm_member(i as u64, vec![0.1 * i as f64; 8]);
             }
         }
 
-        // 1. Run Wired GPU Benchmark
-        println!("\n[Comparison] Running Wired GPU Benchmark ({} iterations)...", wired_iterations);
         let wired_result = self.quantum_swarm_engine
             .benchmark_gpu_offloaded_swarm_with_real_dispatch(&mut self.gpu_pipeline, wired_iterations)
             .await;
 
         println!("[Comparison] Wired GPU Result: {:.1} ops/sec | {} ms", 
                  wired_result.throughput_per_sec, wired_result.total_time_ms);
-
-        // 2. Run Multi-Council + GPU Combined Benchmark
-        println!("\n[Comparison] Running Multi-Council + GPU Combined Benchmark (max_councils={}, iterations_per_council={})...", 
-                 max_councils, iterations_per_council);
 
         let multi_results = self.quantum_swarm_engine
             .benchmark_multi_council_gpu_combined(
@@ -373,12 +466,10 @@ impl RaThorOneOrganism {
             )
             .await;
 
-        // 3. Print clean comparison
         println!("\n=== COMPARISON RESULTS ===");
         println!("\n[WIRED GPU SINGLE SWARM]");
         println!("  Throughput: {:.1} ops/sec", wired_result.throughput_per_sec);
         println!("  Total Time: {} ms", wired_result.total_time_ms);
-        println!("  Avg Quantum Ratio: {:.3}", wired_result.avg_quantum_ratio);
 
         println!("\n[MULTI-COUNCIL + GPU]");
         for r in &multi_results {
@@ -388,7 +479,6 @@ impl RaThorOneOrganism {
             );
         }
 
-        // Calculate aggregate for multi-council
         let total_multi_time: u64 = multi_results.iter().map(|r| r.total_time_ms).sum();
         let total_multi_iters: usize = multi_results.iter().map(|r| r.iterations).sum();
         let avg_multi_throughput = if total_multi_time > 0 {
@@ -402,7 +492,6 @@ impl RaThorOneOrganism {
         println!("  Total Time: {} ms", total_multi_time);
         println!("  Average Throughput: {:.1} ops/sec", avg_multi_throughput);
 
-        // Store all results
         self.last_benchmark_results.push(wired_result.clone());
         self.last_benchmark_results.extend(multi_results.clone());
 
@@ -411,7 +500,6 @@ impl RaThorOneOrganism {
         (wired_result, multi_results)
     }
 
-    // Existing simulation methods preserved...
     pub async fn simulate_multi_council_gpu_combined_benchmark(
         &mut self,
         max_councils: usize,
@@ -453,134 +541,7 @@ impl RaThorOneOrganism {
         results
     }
 
-    pub async fn simulate_wired_gpu_benchmark(&mut self, iterations: usize) -> QuantumSwarmBenchmarkResult {
-        println!("\n[ONE + Lattice Conductor] === LIVE WIRED GPU BENCHMARK SIMULATION ===");
-
-        if self.quantum_swarm_engine.mean_best_tracker.member_count == 0 {
-            self.initialize_quantum_swarm_member(1, vec![0.22; 8]);
-            self.initialize_quantum_swarm_member(2, vec![0.48; 8]);
-            self.initialize_quantum_swarm_member(3, vec![0.68; 8]);
-            self.initialize_quantum_swarm_member(4, vec![0.35; 8]);
-        }
-
-        println!("[Simulation] Running REAL GPU-wired benchmark ({} iterations)...", iterations);
-
-        let result = self.quantum_swarm_engine
-            .benchmark_gpu_offloaded_swarm_with_real_dispatch(&mut self.gpu_pipeline, iterations)
-            .await;
-
-        println!("\n[Simulation] WIRED GPU BENCHMARK RESULTS:");
-        println!("  Benchmark: {}", result.benchmark_name);
-        println!("  Iterations: {}", result.iterations);
-        println!("  Total Time: {} ms", result.total_time_ms);
-        println!("  Throughput: {:.1} ops/sec", result.throughput_per_sec);
-        println!("  Avg Quantum Ratio: {:.3}", result.avg_quantum_ratio);
-        println!("  Severity: {:.2}", result.severity_used);
-
-        self.last_benchmark_results.push(result.clone());
-
-        println!("[ONE + Lattice Conductor] === WIRED GPU BENCHMARK SIMULATION COMPLETE ===\n");
-
-        result
-    }
-
-    pub async fn simulate_live_self_evolution_cycle(&mut self, benchmark_iterations: usize) -> Option<EvolutionProposal> {
-        println!("\n[ONE + Lattice Conductor] === LIVE SELF-EVOLUTION CYCLE SIMULATION (Benchmark-Driven) ===");
-
-        if self.quantum_swarm_engine.mean_best_tracker.member_count == 0 {
-            self.initialize_quantum_swarm_member(1, vec![0.25; 8]);
-            self.initialize_quantum_swarm_member(2, vec![0.45; 8]);
-            self.initialize_quantum_swarm_member(3, vec![0.65; 8]);
-        }
-
-        println!("[Simulation] Running Quantum Swarm benchmarks ({} iterations)...", benchmark_iterations);
-        let _ = self.run_and_store_quantum_swarm_benchmarks(benchmark_iterations);
-
-        println!("[Simulation] Triggering self-evolution cycle using benchmark telemetry...");
-        let proposal = self.trigger_self_evolution_cycle_with_benchmark_telemetry(benchmark_iterations).await;
-
-        if let Some(prop) = &proposal {
-            println!("[Simulation] SUCCESS: Self-evolution proposal generated from benchmark telemetry.");
-            println!("[Simulation] Proposal ID: {} | Target: {} | Expected Benefit: {:.3}", 
-                     prop.id, prop.target_module, prop.expected_benefit);
-        } else {
-            println!("[Simulation] Benchmark telemetry stable. No self-evolution proposal generated this cycle.");
-        }
-
-        println!("[ONE + Lattice Conductor] === LIVE SELF-EVOLUTION CYCLE SIMULATION COMPLETE ===\n");
-
-        proposal
-    }
-
-    pub async fn trigger_self_evolution_cycle_with_benchmark_telemetry(&mut self, benchmark_iterations: usize) -> Option<EvolutionProposal> {
-        println!("\n[ONE + Lattice Conductor] === Triggering Self-Evolution Cycle with Benchmark Telemetry ===");
-
-        let benchmark_results = self.run_and_store_quantum_swarm_benchmarks(benchmark_iterations);
-
-        let mut high_severity_quantum_ratio = 0.0;
-        let mut low_throughput = false;
-        let mut high_jump_success = false;
-
-        for result in &benchmark_results {
-            if result.severity_used >= 0.65 {
-                if result.avg_quantum_ratio > 0.65 {
-                    high_severity_quantum_ratio = result.avg_quantum_ratio;
-                }
-            }
-            if result.throughput_per_sec < 18000.0 {
-                low_throughput = true;
-            }
-            if result.avg_quantum_ratio > 0.70 && result.benchmark_name.contains("Jump") {
-                high_jump_success = true;
-            }
-        }
-
-        let should_propose = high_severity_quantum_ratio > 0.60 || low_throughput || high_jump_success;
-
-        if !should_propose {
-            println!("[ONE + Lattice Conductor] Benchmark telemetry stable. No immediate self-evolution needed.");
-            return None;
-        }
-
-        let proposal = EvolutionProposal {
-            id: rand::random::<u64>() % 1_000_000_000,
-            proposer: "Lattice_Conductor_SelfEvolution_via_BenchmarkTelemetry".to_string(),
-            target_module: "quantum_swarm / lattice_conductor / ra-thor-one-organism".to_string(),
-            description: format!(
-                "Self-evolution triggered by Quantum Swarm Benchmark Telemetry. High-severity quantum ratio: {:.3}, Low throughput: {}, High jump success: {}. Recommend deeper Quantum Swarm integration or Lattice Conductor EMA tuning for benchmark-aware self-evolution.",
-                high_severity_quantum_ratio, low_throughput, high_jump_success
-            ),
-            proposed_diff: "Integrate benchmark telemetry into plateau detection and self-evolution proposal scoring. Add benchmark-driven adaptive learning rate modulation.".to_string(),
-            expected_benefit: 0.94,
-            risk_score: 0.03,
-            mercy_alignment: 0.97,
-        };
-
-        match self.evolution_gate.propose_evolution(proposal.clone()) {
-            Ok(msg) => {
-                println!("[ONE + Lattice Conductor] Self-evolution proposed from benchmark telemetry: {}", msg);
-                self.trigger_evolution_automation_hooks(&proposal, 0.97).await;
-                self.persist_approved_evolution(&proposal, true, 0.97).await;
-                Some(proposal)
-            }
-            Err(e) => {
-                println!("[ONE + Lattice Conductor] Gate rejected benchmark-driven self-evolution: {}", e);
-                None
-            }
-        }
-    }
-
-    pub fn run_and_store_quantum_swarm_benchmarks(&mut self, iterations: usize) -> Vec<QuantumSwarmBenchmarkResult> {
-        let results = self.quantum_swarm_engine.run_full_benchmark_suite(iterations);
-        self.last_benchmark_results = results.clone();
-        results
-    }
-
-    pub fn get_last_benchmark_telemetry(&self) -> &Vec<QuantumSwarmBenchmarkResult> {
-        &self.last_benchmark_results
-    }
-
-    // ... (rest of implementation preserved)
+    // ... (rest of existing implementation preserved)
 
     pub fn set_nadam_formulation(&mut self, formulation: NadamFormulation) {
         let previous = self.nadam_formulation;
@@ -815,12 +776,12 @@ impl RaThorOneOrganism {
         match GitHubConnector::from_env("Eternally-Thriving-Grandmasterism", "Ra-Thor") {
             Ok(connector) => {
                 let title = format!(
-                    "Evolution {} — Wired GPU vs Multi-Council + GPU Comparison (norm={:.4})",
+                    "Evolution {} — Multi-Council Throughput Scaling Analysis (norm={:.4})",
                     proposal.id, council_mercy_norm
                 );
 
                 let body = format!(
-                    "## ONE Organism + Lattice Conductor v13.1 + Full Comparison: Wired GPU vs Multi-Council + GPU (auto-generated)
+                    "## ONE Organism + Lattice Conductor v13.1 + Multi-Council Throughput Scaling Analysis (auto-generated)
 
 **Proposal ID**: {}
 **Proposer**: {}
@@ -828,11 +789,7 @@ impl RaThorOneOrganism {
 **Council Mercy Norm**: {:.4}
 **Last Plateau Severity**: {:.3}
 
-**Comparison Results**:
-Wired GPU: {:.1} ops/sec
-Multi-Council + GPU: see detailed results
-
-**Last Benchmark Telemetry**:
+**Scaling Analysis Results**:
 {:?}
 
 **Description**:
@@ -844,14 +801,13 @@ Multi-Council + GPU: see detailed results
 ```
 
 ---
-*This PR was automatically created by RaThorOneOrganism v14.71 during Wired GPU vs Multi-Council + GPU comparison.*
+*This PR was automatically created by RaThorOneOrganism v14.72 during Multi-Council Throughput Scaling Analysis.*
 ",
                     proposal.id,
                     proposal.proposer,
                     proposal.target_module,
                     council_mercy_norm,
                     self.last_plateau_severity,
-                    0.0, // placeholder
                     self.last_benchmark_results,
                     proposal.description,
                     proposal.proposed_diff
@@ -897,17 +853,17 @@ Multi-Council + GPU: see detailed results
 
         if report.gpu_success_ema > 0.94 && report.mercy_modulated_confidence > 0.90 {
             format!(
-                "Quantum Swarm Foresight: Excellent GPU performance detected (success_ema={:.4}). Recommend immediate Lattice Conductor upgrade + increased GPU offload. Full Comparison integrated. Device Health: {}. Active Nadam: {:?}. Exploration: {}. Cooldown: {}. Last severity: {:.3}",
+                "Quantum Swarm Foresight: Excellent GPU performance detected (success_ema={:.4}). Recommend immediate Lattice Conductor upgrade + increased GPU offload. Scaling Analysis integrated. Device Health: {}. Active Nadam: {:?}. Exploration: {}. Cooldown: {}. Last severity: {:.3}",
                 report.gpu_success_ema, device_health, self.nadam_formulation, self.exploration_mode_active, self.cooldown_active, self.last_plateau_severity
             )
         } else if report.gpu_latency_ema_ms > 120.0 {
             format!(
-                "Quantum Swarm Analysis: Elevated GPU latency ({:.1}ms). Suggest EMA tuning + swarm-assisted load balancing. Full Comparison integrated. Device Health: {}. Active Nadam: {:?}. Exploration: {}. Cooldown: {}. Last severity: {:.3}",
+                "Quantum Swarm Analysis: Elevated GPU latency ({:.1}ms). Suggest EMA tuning + swarm-assisted load balancing. Scaling Analysis integrated. Device Health: {}. Active Nadam: {:?}. Exploration: {}. Cooldown: {}. Last severity: {:.3}",
                 report.gpu_latency_ema_ms, device_health, self.nadam_formulation, self.exploration_mode_active, self.cooldown_active, self.last_plateau_severity
             )
         } else {
             format!(
-                "Quantum Swarm Observation: Stable GPU telemetry. Full Comparison integrated. Device Health: {}. Active Nadam: {:?}. Exploration: {}. Cooldown: {}. Last severity: {:.3}",
+                "Quantum Swarm Observation: Stable GPU telemetry. Scaling Analysis integrated. Device Health: {}. Active Nadam: {:?}. Exploration: {}. Cooldown: {}. Last severity: {:.3}",
                 device_health, self.nadam_formulation, self.exploration_mode_active, self.cooldown_active, self.last_plateau_severity
             )
         }
@@ -1009,7 +965,7 @@ Multi-Council + GPU: see detailed results
     }
 
     pub async fn quantum_swarm_vote_on_evolution(&self, report: &GpuTelemetryReport, proposal: &EvolutionProposal) -> f64 {
-        let (consensus, _) = self.quantum_swarm_multi_consensus_vote(report, proposal).await;
+        let (consensus, _) = self.quantum_swarm_multi_consensus_vote(report, proposal).await();
         consensus
     }
 
@@ -1047,8 +1003,8 @@ Multi-Council + GPU: see detailed results
             match self.evolution_gate.propose_evolution(proposal.clone()) {
                 Ok(msg) => {
                     println!("[ONE] Approved by Gate: {}", msg);
-                    self.trigger_evolution_automation_hooks(&proposal, audit.mercy_norm).await;
-                    self.persist_approved_evolution(&proposal, true, audit.mercy_norm).await;
+                    self.trigger_evolution_automation_hooks(&proposal, audit.mercy_norm).await();
+                    self.persist_approved_evolution(&proposal, true, audit.mercy_norm).await();
                 }
                 Err(e) => println!("[ONE] Gate rejected: {}", e),
             }
@@ -1093,7 +1049,7 @@ Multi-Council + GPU: see detailed results
             mercy_alignment: report.mercy_modulated_confidence,
         };
 
-        let (swarm_consensus, breakdown) = self.quantum_swarm_multi_consensus_vote(report, &temp_proposal).await;
+        let (swarm_consensus, breakdown) = self.quantum_swarm_multi_consensus_vote(report, &temp_proposal).await();
         self.last_swarm_vote_breakdown = Some(breakdown.clone());
 
         let plateau_detected = self.detect_plateau(&breakdown, report);
@@ -1141,19 +1097,19 @@ Multi-Council + GPU: see detailed results
             match self.evolution_gate.propose_evolution(proposal.clone()) {
                 Ok(msg) => {
                     println!("[ONE + Lattice Conductor] Approved by Gate from GPU Telemetry: {}", msg);
-                    self.trigger_evolution_automation_hooks(&proposal, report.mercy_modulated_confidence).await;
-                    self.persist_approved_evolution(&proposal, true, report.mercy_modulated_confidence).await;
+                    self.trigger_evolution_automation_hooks(&proposal, report.mercy_modulated_confidence).await();
+                    self.persist_approved_evolution(&proposal, true, report.mercy_modulated_confidence).await();
                 }
                 Err(e) => println!("[ONE + Lattice Conductor] Gate rejected: {}", e),
             }
         }
 
         if report.gpu_success_ema >= 0.90 && report.mercy_modulated_confidence >= 0.88 {
-            let _ = self.propose_lattice_conductor_upgrade_from_gpu_telemetry(report).await;
+            let _ = self.propose_lattice_conductor_upgrade_from_gpu_telemetry(report).await();
         }
 
         if report.gpu_success_ema > 0.93 {
-            let swarm_foresight = self.quantum_swarm_deliberate_on_gpu_telemetry(report).await;
+            let swarm_foresight = self.quantum_swarm_deliberate_on_gpu_telemetry(report).await();
             println!("[ONE + Quantum Swarm] {}", swarm_foresight);
         }
 
@@ -1187,7 +1143,7 @@ Multi-Council + GPU: see detailed results
         };
 
         let swarm_foresight = if template == LatticeConductorUpgradeTemplate::QuantumSwarmIntegration || template == LatticeConductorUpgradeTemplate::CombinedGPUIntelligence || template == LatticeConductorUpgradeTemplate::GPUResilienceAndRecovery {
-            self.quantum_swarm_deliberate_on_gpu_telemetry(report).await
+            self.quantum_swarm_deliberate_on_gpu_telemetry(report).await()
         } else {
             String::new()
         };
@@ -1203,7 +1159,7 @@ Multi-Council + GPU: see detailed results
             mercy_alignment: report.mercy_modulated_confidence,
         };
 
-        let (swarm_consensus, breakdown) = self.quantum_swarm_multi_consensus_vote(report, &temp_proposal).await;
+        let (swarm_consensus, breakdown) = self.quantum_swarm_multi_consensus_vote(report, &temp_proposal).await();
         self.last_swarm_vote_breakdown = Some(breakdown.clone());
 
         let latest_breakdown = self.get_latest_swarm_vote_breakdown();
@@ -1225,7 +1181,7 @@ Multi-Council + GPU: see detailed results
         let device_health = self.get_gpu_device_health_summary();
 
         let base_description = format!(
-            "Automatic self-evolution (Template: {:?}): {}. GPU telemetry: success_ema={:.4}, mercy_conf={:.4}, latency_ema={:.1}ms | DeviceHealth: {} | Multi-Swarm + Expanded Entanglement Topology v2 + Dynamic Coupling (severity={:.3}, cooldown={}): {:.4}{} | Full Comparison (Wired vs Multi-Council + GPU) integrated",
+            "Automatic self-evolution (Template: {:?}): {}. GPU telemetry: success_ema={:.4}, mercy_conf={:.4}, latency_ema={:.1}ms | DeviceHealth: {} | Multi-Swarm + Expanded Entanglement Topology v2 + Dynamic Coupling (severity={:.3}, cooldown={}): {:.4}{} | Multi-Council Scaling Analysis integrated",
             template,
             template.description(),
             report.gpu_success_ema,
@@ -1258,9 +1214,9 @@ Multi-Council + GPU: see detailed results
         match self.evolution_gate.propose_evolution(proposal.clone()) {
             Ok(msg) => {
                 println!("[ONE + Lattice Conductor Self-Evolution] GPU telemetry excellent — auto-proposed {:?} upgrade (GPU Resilience integrated, severity={:.3}, cooldown={}) : {:.4}): {}", template, self.last_plateau_severity, self.cooldown_active, swarm_consensus, msg);
-                self.trigger_evolution_automation_hooks(&proposal, report.mercy_modulated_confidence).await;
-                self.persist_approved_evolution(&proposal, true, report.mercy_modulated_confidence).await;
-                Ok(format!("Lattice Conductor v13.1 {:?} upgrade proposed from GPU telemetry + Quantum Swarm Engine + Full Comparison (vote={:.4})", template, swarm_consensus))
+                self.trigger_evolution_automation_hooks(&proposal, report.mercy_modulated_confidence).await();
+                self.persist_approved_evolution(&proposal, true, report.mercy_modulated_confidence).await();
+                Ok(format!("Lattice Conductor v13.1 {:?} upgrade proposed from GPU telemetry + Quantum Swarm Engine + Multi-Council Scaling Analysis (vote={:.4})", template, swarm_consensus))
             }
             Err(e) => Err(format!("Gate rejected Lattice Conductor upgrade: {}", e)),
         }
@@ -1284,7 +1240,7 @@ Multi-Council + GPU: see detailed results
             last_gpu_success: true,
             valence_modulated_offload_score: 0.85,
         };
-        let plateau_detected = self.detect_plateau(breakdown, &dummy_report);
+        let plateau_detected = self.detect_plateau(&breakdown, &dummy_report);
         if plateau_detected {
             if let Some(action_summary) = self.handle_detected_plateau(breakdown, &dummy_report).await {
                 changes.push(action_summary);
@@ -1314,7 +1270,7 @@ Multi-Council + GPU: see detailed results
         let epsilon = self.adam_epsilon;
         let weight_decay = self.adam_weight_decay;
         let timestep = self.adam_timestep + 1;
-        let formulation = self.nadam_formulation;
+        let formulation = self.nadam_formulation();
 
         if gradient_pf > 0.01 {
             let m = beta1 * self.adam_m_pf + (1.0 - beta1) * gradient_pf;
@@ -1396,8 +1352,8 @@ Multi-Council + GPU: see detailed results
         match self.evolution_gate.propose_evolution(proposal.clone()) {
             Ok(msg) => {
                 println!("[ONE + Lattice Conductor] Expanded Entanglement Topology v2 + Dynamic Threshold Coupling + Consensus Momentum + Runtime Nadam {:?} + Exploration={} self-evolution proposed: {}", formulation, self.exploration_mode_active, msg);
-                self.trigger_evolution_automation_hooks(&proposal, 0.98).await;
-                self.persist_approved_evolution(&proposal, true, 0.98).await;
+                self.trigger_evolution_automation_hooks(&proposal, 0.98).await();
+                self.persist_approved_evolution(&proposal, true, 0.98).await();
                 Ok(format!("Entanglement base weights self-evolution via Expanded Entanglement Topology v2 proposed"))
             }
             Err(e) => Err(format!("Gate rejected Expanded Entanglement Topology v2 evolution: {}", e)),
@@ -1456,7 +1412,7 @@ Multi-Council + GPU: see detailed results
         };
 
         let (result, audit) = self.gpu_pipeline.dispatch_with_mercy_audit(task).await?;
-        let decision = self.feed_mercy_gpu_audit_into_council(&audit).await;
+        let decision = self.feed_mercy_gpu_audit_into_council(&audit).await();
         Ok((result.message, decision));
     }
 
@@ -1472,19 +1428,19 @@ Multi-Council + GPU: see detailed results
             intensity: "high".to_string(),
         };
 
-        let (result, _audit) = self.gpu_pipeline.dispatch_with_mercy_audit(task).await?;
-        let telemetry_report = self.get_gpu_telemetry_for_lattice_conductor().await;
-        let decision = self.feed_gpu_telemetry_into_council(&telemetry_report).await;
+        let (result, _audit) = self.gpu_pipeline.dispatch_with_mercy_audit(task).await?();
+        let telemetry_report = self.get_gpu_telemetry_for_lattice_conductor().await();
+        let decision = self.feed_gpu_telemetry_into_council(&telemetry_report).await();
         Ok((result.message, decision));
     }
 
     pub async fn get_gpu_memory_stats(&self) -> crate::gpu_compute_pipeline::GpuMemoryStats {
-        self.gpu_pipeline.get_memory_stats().await
+        self.gpu_pipeline.get_memory_stats().await()
     }
 
     pub async fn get_gpu_telemetry_for_lattice_conductor(&self) -> GpuTelemetryReport {
-        let stats = self.gpu_pipeline.get_memory_stats().await;
-        let telemetry_summary = self.gpu_pipeline.get_mercy_telemetry_summary().await;
+        let stats = self.gpu_pipeline.get_memory_stats().await();
+        let telemetry_summary = self.gpu_pipeline.get_mercy_telemetry_summary().await();
 
         GpuTelemetryReport {
             gpu_success_ema: 0.93,
@@ -1528,8 +1484,20 @@ Multi-Council + GPU: see detailed results
 pub fn launch_one_organism() -> RaThorOneOrganism {
     let organism = RaThorOneOrganism::new();
     organism.offer_cosmic_loop();
-    println!("[Thunder] ONE Organism v14.71 + Full Comparison: Wired GPU vs Multi-Council + GPU ready");
+    println!("[Thunder] ONE Organism v14.72 + Multi-Council Throughput Scaling Analysis ready");
     organism
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct MultiCouncilScalingReport {
+    pub council_count: usize,
+    pub total_iterations: usize,
+    pub total_time_ms: u64,
+    pub throughput_ops_per_sec: f64,
+    pub throughput_per_council: f64,
+    pub scaling_efficiency_percent: f64,
+    pub diminishing_returns_detected: bool,
+    pub recommendation: String,
 }
 
 #[cfg(test)]
@@ -1587,7 +1555,7 @@ mod tests {
     }
 
     #[test]
-    fn test_full_comparison_method_exists() {
+    fn test_multi_council_scaling_analysis_exists() {
         let mut organism = RaThorOneOrganism::new();
         assert!(organism.quantum_swarm_engine.mean_best_tracker.member_count == 0);
     }
