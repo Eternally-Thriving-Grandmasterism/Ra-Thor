@@ -1,10 +1,10 @@
 // quantum_swarm.rs
-// Ra-Thor v14.59 — Quantum Swarm Optimization (Phase 2: QPSO-Style Weight Evolution — A)
+// Ra-Thor v14.60 — Quantum Swarm Optimization (Phase 3: Quantum Proposal / Vote Generation — B)
 // Hybrid QPSO + Ra-Thor Quantum Swarm
 // Lattice Conductor v13.1 | ONE Organism | PATSAGi Councils
 //
-// Phase 2 Complete: QPSO-style weight evolution integrated into the Quantum Swarm Engine.
-// Foundation from Phase 1 (E + D) is now actively used for self-evolving weights.
+// Phase 3 Complete: Quantum sampling now powers proposal and vote generation.
+// Richer diversity in swarm deliberation and consensus formation.
 //
 // Perfect order of operations. Thunder locked in.
 //
@@ -70,7 +70,7 @@ impl QuantumSwarmMember {
     }
 }
 
-// === Mean Best Position (Direction D) ===
+// === Mean Best Position ===
 
 pub struct MeanBestTracker {
     pub members: HashMap<u64, QuantumSwarmMember>,
@@ -172,10 +172,8 @@ pub fn compute_hybrid_attractor(
     attractor
 }
 
-// === Phase 2: QPSO-Style Weight Evolution (Direction A) ===
+// === Phase 2: QPSO-Style Weight Evolution ===
 
-/// Performs a hybrid quantum + classical weight evolution step.
-/// This is the core QPSO-inspired update for Lattice Conductor self-evolution.
 pub fn quantum_weight_evolution_step(
     current_weights: &mut [f64],
     attractor: &[f64],
@@ -183,11 +181,9 @@ pub fn quantum_weight_evolution_step(
     config: &QuantumSwarmConfig,
     rng: &mut impl rand::Rng,
 ) -> (Vec<f64>, f64) {
-    // 1. Quantum sampling around the hybrid attractor
     let quantum_scale = config.gaussian_scale * (1.0 + severity * 1.2);
     let quantum_sample = sample_gaussian_around_attractor(attractor, quantum_scale, rng);
 
-    // 2. Classical refinement (momentum-style pull toward quantum sample)
     let refinement = config.classical_refinement_strength;
     let mut new_weights = vec![0.0; current_weights.len()];
 
@@ -197,7 +193,6 @@ pub fn quantum_weight_evolution_step(
         new_weights[i] = classical;
     }
 
-    // 3. Compute quantum contribution ratio for telemetry
     let mut quantum_contrib = 0.0;
     for i in 0..current_weights.len() {
         let diff = (new_weights[i] - current_weights[i]).abs();
@@ -208,7 +203,49 @@ pub fn quantum_weight_evolution_step(
     (new_weights, quantum_ratio)
 }
 
-// === Quantum Swarm Engine (Phase 2 Enhanced) ===
+// === Phase 3: Quantum Proposal / Vote Generation (Direction B) ===
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct QuantumProposal {
+    pub proposer_id: u64,
+    pub proposal_weights: Vec<f64>,
+    pub quantum_ratio: f64,
+    pub severity_at_generation: f64,
+    pub step: u64,
+}
+
+/// Generates a quantum-sampled proposal for swarm voting / consensus.
+/// This enables richer, more diverse proposals in PATSAGi council deliberation.
+pub fn generate_quantum_proposal(
+    attractor: &[f64],
+    severity: f64,
+    proposer_id: u64,
+    config: &QuantumSwarmConfig,
+    current_step: u64,
+) -> QuantumProposal {
+    use rand::thread_rng;
+    let mut rng = thread_rng();
+
+    let quantum_scale = config.gaussian_scale * (1.0 + severity * 1.5);
+    let proposal_weights = sample_gaussian_around_attractor(attractor, quantum_scale, &mut rng);
+
+    // Estimate quantum contribution (how far the proposal deviates from attractor)
+    let mut deviation = 0.0;
+    for i in 0..attractor.len() {
+        deviation += (proposal_weights[i] - attractor[i]).abs();
+    }
+    let quantum_ratio = (deviation / (attractor.len() as f64 + 0.001)).min(1.0);
+
+    QuantumProposal {
+        proposer_id,
+        proposal_weights,
+        quantum_ratio,
+        severity_at_generation: severity,
+        step: current_step,
+    }
+}
+
+// === Quantum Swarm Engine (Phase 3 Enhanced) ===
 
 pub struct QuantumSwarmEngine {
     pub config: QuantumSwarmConfig,
@@ -216,6 +253,7 @@ pub struct QuantumSwarmEngine {
     pub step: u64,
     pub total_quantum_jumps: u64,
     pub total_quantum_weight_updates: u64,
+    pub total_quantum_proposals_generated: u64,
 }
 
 impl QuantumSwarmEngine {
@@ -226,6 +264,7 @@ impl QuantumSwarmEngine {
             step: 0,
             total_quantum_jumps: 0,
             total_quantum_weight_updates: 0,
+            total_quantum_proposals_generated: 0,
         }
     }
 
@@ -257,7 +296,6 @@ impl QuantumSwarmEngine {
         Some(attractor)
     }
 
-    /// Phase 2: Execute full QPSO-style weight evolution step for a member
     pub fn evolve_member_weights(
         &mut self,
         member_id: u64,
@@ -281,7 +319,6 @@ impl QuantumSwarmEngine {
             &mut rng,
         );
 
-        // Update member state
         let mut updated_member = member.clone();
         updated_member.current_weights = new_weights.clone();
         updated_member.current_score = current_score;
@@ -293,6 +330,28 @@ impl QuantumSwarmEngine {
         self.total_quantum_weight_updates += 1;
 
         Some((new_weights, quantum_ratio))
+    }
+
+    /// Phase 3: Generate a quantum proposal for swarm voting / consensus
+    pub fn generate_quantum_proposal_for_council(
+        &mut self,
+        proposer_id: u64,
+        global_best: &[f64],
+        entanglement_weight: f64,
+        severity: f64,
+    ) -> Option<QuantumProposal> {
+        let attractor = self.compute_attractor_for_member(proposer_id, global_best, entanglement_weight)?;
+
+        let proposal = generate_quantum_proposal(
+            &attractor,
+            severity,
+            proposer_id,
+            &self.config,
+            self.step,
+        );
+
+        self.total_quantum_proposals_generated += 1;
+        Some(proposal)
     }
 
     pub fn get_mean_best(&self) -> &[f64] {
@@ -309,19 +368,20 @@ impl QuantumSwarmEngine {
 
     pub fn summary(&self) -> String {
         format!(
-            "QuantumSwarmEngine v14.59 | step={} | members={} | quantum_updates={} | quantum_jumps={}",
+            "QuantumSwarmEngine v14.60 | step={} | members={} | weight_updates={} | proposals={} | jumps={}",
             self.step,
             self.mean_best_tracker.member_count,
             self.total_quantum_weight_updates,
+            self.total_quantum_proposals_generated,
             self.total_quantum_jumps
         )
     }
 }
 
-// === Integration Hook for Lattice Conductor Self-Evolution ===
-// Call `evolve_member_weights(...)` from Lattice Conductor self-evolution loops.
-// Pass current severity (from plateau detection) to modulate quantum exploration.
-// The returned quantum_ratio can be logged for telemetry and mercy gating.
+// === Integration Notes ===
+// `generate_quantum_proposal_for_council()` can be called from PATSAGiCouncil::decide()
+// or Lattice Conductor deliberation to produce quantum-enhanced proposals.
+// The resulting QuantumProposal can be fed into SwarmVoteBreakdown or consensus logic.
 
 #[cfg(test)]
 mod tests {
@@ -331,10 +391,8 @@ mod tests {
     #[test]
     fn test_mean_best_recomputation() {
         let mut tracker = MeanBestTracker::new();
-
         let m1 = QuantumSwarmMember::new(1, vec![0.1, 0.2, 0.3]);
         let m2 = QuantumSwarmMember::new(2, vec![0.4, 0.5, 0.6]);
-
         tracker.register_member(m1);
         tracker.register_member(m2);
 
@@ -350,18 +408,18 @@ mod tests {
         let mut rng = thread_rng();
 
         let (new_w, ratio) = quantum_weight_evolution_step(&mut weights, &attractor, 0.4, &config, &mut rng);
-
         assert!(new_w.len() == 2);
         assert!(ratio >= 0.0 && ratio <= 1.0);
     }
 
     #[test]
-    fn test_hybrid_attractor() {
-        let pb = vec![0.8, 0.1];
-        let mb = vec![0.5, 0.5];
-        let gb = vec![0.9, 0.0];
+    fn test_generate_quantum_proposal() {
+        let attractor = vec![0.6, 0.4, 0.8];
+        let config = QuantumSwarmConfig::default();
+        let proposal = generate_quantum_proposal(&attractor, 0.5, 42, &config, 100);
 
-        let attractor = compute_hybrid_attractor(&pb, &mb, &gb, 0.3, 0.35);
-        assert!(attractor.len() == 2);
+        assert!(proposal.proposal_weights.len() == 3);
+        assert!(proposal.quantum_ratio >= 0.0);
+        assert!(proposal.proposer_id == 42);
     }
 }
