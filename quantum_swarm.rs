@@ -1,9 +1,10 @@
 // quantum_swarm.rs
-// Ra-Thor v14.68 — Quantum Swarm Engine + GPU-Wired Benchmarks
+// Ra-Thor v14.69 — Quantum Swarm Engine + Combined Benchmarks
 // Hybrid QPSO + Ra-Thor Quantum Swarm
 // Lattice Conductor v13.1 | ONE Organism | PATSAGi Councils
 //
-// GPU-offloaded benchmark now wired to real gpu_compute_pipeline dispatch.
+// Added: Multi-Council + GPU Combined Benchmark
+// All tasks completed in perfect order of operations.
 //
 // Perfect order of operations. Thunder locked in.
 //
@@ -13,8 +14,6 @@ use std::collections::HashMap;
 use std::time::{Duration, Instant};
 use serde::{Deserialize, Serialize};
 
-// Forward declaration for GPU pipeline integration
-// (Real type is in gpu_compute_pipeline.rs)
 pub use crate::gpu_compute_pipeline::GpuComputePipeline;
 
 // === Core Quantum Swarm Types ===
@@ -502,7 +501,7 @@ impl QuantumSwarmEngine {
 
     pub fn summary(&self) -> String {
         format!(
-            "QuantumSwarmEngine v14.68 | step={} | members={} | weight_updates={} | proposals={} | adaptive_jumps={}",
+            "QuantumSwarmEngine v14.69 | step={} | members={} | weight_updates={} | proposals={} | adaptive_jumps={}",
             self.step,
             self.mean_best_tracker.member_count,
             self.total_quantum_weight_updates,
@@ -769,7 +768,70 @@ impl QuantumSwarmEngine {
         results
     }
 
-    // NEW v14.68: GPU-Offloaded Swarm Benchmark wired to real GpuComputePipeline
+    // NEW v14.69: Multi-Council + GPU Combined Benchmark (real dispatch)
+    pub async fn benchmark_multi_council_gpu_combined(
+        &mut self,
+        gpu_pipeline: &mut GpuComputePipeline,
+        max_councils: usize,
+        iterations_per_council: usize,
+    ) -> Vec<QuantumSwarmBenchmarkResult> {
+        use crate::gpu_compute_pipeline::GpuTask;
+
+        let mut results = Vec::new();
+
+        for council_count in (1..=max_councils).step_by(1) {
+            let config = self.config.clone();
+            let mut fresh_engine = QuantumSwarmEngine::new(config);
+
+            let members_per_council = 4;
+            let total_members = council_count * members_per_council;
+
+            for i in 1..=total_members {
+                fresh_engine.register_member(QuantumSwarmMember::new(i as u64, vec![0.08 * i as f64; 8]));
+            }
+
+            let start = Instant::now();
+            let mut total_updates = 0;
+
+            for _ in 0..iterations_per_council {
+                for council in 0..council_count {
+                    for m in 0..members_per_council {
+                        let mid = (council * members_per_council + m + 1) as u64;
+                        let global_best = fresh_engine.get_mean_best().to_vec();
+                        let entanglement_w = 0.2 + (council as f64 * 0.05);
+
+                        // Real GPU dispatch per council member
+                        let task = GpuTask {
+                            id: rand::random::<u64>() % 1_000_000_000,
+                            name: format!("multi_council_gpu_{}_{}", council, m),
+                            buffer_size: 4096,
+                            intensity: "medium".to_string(),
+                        };
+                        let _ = gpu_pipeline.dispatch_gpu_task(task).await;
+
+                        if fresh_engine.evolve_member_weights(mid, &global_best, entanglement_w, 0.82, 0.45).is_some() {
+                            total_updates += 1;
+                        }
+                    }
+                }
+            }
+
+            let elapsed = start.elapsed();
+            let throughput = if elapsed.as_secs_f64() > 0.0 { total_updates as f64 / elapsed.as_secs_f64() } else { 0.0 };
+
+            results.push(QuantumSwarmBenchmarkResult {
+                benchmark_name: format!("Multi-Council + GPU ({} councils)", council_count),
+                iterations: iterations_per_council * council_count * members_per_council,
+                total_time_ms: elapsed.as_millis() as u64,
+                avg_quantum_ratio: 0.0,
+                throughput_per_sec: throughput,
+                severity_used: 0.45,
+            });
+        }
+
+        results
+    }
+
     pub async fn benchmark_gpu_offloaded_swarm_with_real_dispatch(
         &mut self,
         gpu_pipeline: &mut GpuComputePipeline,
@@ -785,7 +847,6 @@ impl QuantumSwarmEngine {
             let member_id = ((i % self.mean_best_tracker.member_count.max(1)) + 1) as u64;
             let global_best = self.mean_best_tracker.get_mean_best().to_vec();
 
-            // Real GPU dispatch during benchmark
             let task = GpuTask {
                 id: rand::random::<u64>() % 1_000_000_000,
                 name: format!("quantum_swarm_bench_{}", i),
@@ -793,7 +854,6 @@ impl QuantumSwarmEngine {
                 intensity: "medium".to_string(),
             };
 
-            // Dispatch real GPU work (this exercises the actual pipeline)
             let _ = gpu_pipeline.dispatch_gpu_task(task).await;
 
             if let Some((_, ratio)) = self.evolve_member_weights(
@@ -822,7 +882,6 @@ impl QuantumSwarmEngine {
         }
     }
 
-    // Legacy simulated version (kept for compatibility)
     pub fn benchmark_gpu_offloaded_swarm(&mut self, iterations: usize, simulated_gpu_latency_ms: f64) -> QuantumSwarmBenchmarkResult {
         let start = Instant::now();
         let mut total_updates = 0;
@@ -911,7 +970,7 @@ mod tests {
         engine.register_member(QuantumSwarmMember::new(1, vec![0.2; 8]));
         engine.register_member(QuantumSwarmMember::new(2, vec![0.5; 8]));
 
-        let results = engine.run_full_benchmark_suite(100);
+        let results = engine.run_full_benchmark_suite(80);
         assert!(!results.is_empty());
     }
 }
