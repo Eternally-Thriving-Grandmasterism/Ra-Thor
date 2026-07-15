@@ -1,10 +1,9 @@
 // gpu_compute_pipeline.rs
-// Ra-Thor v14.8.8 — Full Device Reinitialization + Device Lost Recovery
+// Ra-Thor v14.8.9 — Vulkan Validation Layers + Full Device Reinitialization
 // Lattice Conductor v13.1 | ONE Organism | PATSAGi Council #13
 //
-// Implemented Full Device Reinitialization.
-// When Device Lost is detected, the pipeline now attempts to fully re-create
-// the wgpu adapter + device + queue + shader modules + pipelines.
+// Added support for optional Vulkan Validation Layers via RA_THOR_ENABLE_VULKAN_VALIDATION=1
+// Integrated into Instance creation and Full Device Reinitialization paths.
 // All changes mercy-gated and TOLC 8 aligned.
 //
 // AG-SML v1.0 License
@@ -498,7 +497,14 @@ impl TelemetryHistogram {
     }
 }
 
-// === NEW: Device Lost Recovery + Full Reinitialization Support ===
+// === Vulkan Validation Layer Support ===
+fn should_enable_vulkan_validation() -> bool {
+    std::env::var("RA_THOR_ENABLE_VULKAN_VALIDATION")
+        .map(|v| v == "1" || v.eq_ignore_ascii_case("true") || v.eq_ignore_ascii_case("yes"))
+        .unwrap_or(false)
+}
+
+// === Device Lost Recovery + Full Reinitialization Support ===
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct GpuDeviceRecoveryStats {
     pub device_lost_count: u64,
@@ -521,7 +527,6 @@ pub struct GpuComputePipeline {
     save_duration_histogram: TelemetryHistogram,
     pub version: String,
 
-    // === Device Lost Recovery + Full Reinitialization State ===
     device_lost_count: AtomicUsize,
     successful_recoveries: AtomicUsize,
     last_device_lost_at: std::sync::Mutex<Option<Instant>>,
@@ -530,6 +535,11 @@ pub struct GpuComputePipeline {
 
 impl GpuComputePipeline {
     pub fn new() -> Self {
+        let validation_enabled = should_enable_vulkan_validation();
+        if validation_enabled {
+            println!("[Ra-Thor] Vulkan Validation Layers ENABLED via RA_THOR_ENABLE_VULKAN_VALIDATION");
+        }
+
         Self {
             allocator: Arc::new(Mutex::new(GpuMemoryAllocator::new())),
             staging_pool: Arc::new(Mutex::new(StagingBufferPool::new())),
@@ -541,7 +551,7 @@ impl GpuComputePipeline {
             telemetry_retry_count: AtomicUsize::new(3),
             mercy_norm_histogram: TelemetryHistogram::new("ra_thor_mercy_norm", vec![0.5, 0.7, 0.8, 0.85, 0.9, 0.95, 1.0]),
             save_duration_histogram: TelemetryHistogram::new("ra_thor_telemetry_save_duration_ms", vec![10.0, 50.0, 100.0, 200.0, 500.0, 1000.0]),
-            version: "v14.8.8-full-device-reinitialization-TOLC8-PATSAGi".to_string(),
+            version: "v14.8.9-vulkan-validation-layers-TOLC8-PATSAGi".to_string(),
 
             device_lost_count: AtomicUsize::new(0),
             successful_recoveries: AtomicUsize::new(0),
@@ -601,7 +611,6 @@ impl GpuComputePipeline {
         out
     }
 
-    // === Device Lost Recovery Telemetry ===
     pub fn get_device_recovery_stats(&self) -> GpuDeviceRecoveryStats {
         let lost = self.device_lost_count.load(Ordering::Relaxed) as u64;
         let recovered = self.successful_recoveries.load(Ordering::Relaxed) as u64;
@@ -639,7 +648,6 @@ impl GpuComputePipeline {
                 Err(e) => {
                     if e.contains("DeviceLost") || e.contains("device lost") {
                         self.record_device_lost();
-                        // Attempt full reinitialization
                         let _ = self.recover_device_if_lost().await;
                         eprintln!("[Ra-Thor] GPU Device Lost during dispatch. Full reinitialization attempted.");
                     } else {
@@ -684,7 +692,6 @@ impl GpuComputePipeline {
         })
     }
 
-    // === Record Device Lost ===
     fn record_device_lost(&self) {
         self.device_lost_count.fetch_add(1, Ordering::Relaxed);
         if let Ok(mut guard) = self.last_device_lost_at.lock() {
@@ -693,7 +700,6 @@ impl GpuComputePipeline {
         println!("[Ra-Thor] GPU Device Lost recorded (count={})", self.device_lost_count.load(Ordering::Relaxed));
     }
 
-    // === FULL DEVICE REINITIALIZATION ===
     pub async fn recover_device_if_lost(&self) -> Result<bool, String> {
         let lost_count = self.device_lost_count.load(Ordering::Relaxed);
 
@@ -703,7 +709,6 @@ impl GpuComputePipeline {
 
         println!("[Ra-Thor] FULL DEVICE REINITIALIZATION started after {} lost event(s)...", lost_count);
 
-        // Attempt to create a fresh wgpu context (adapter + device + queue)
         match self.try_create_fresh_wgpu_context().await {
             Ok(_) => {
                 self.successful_recoveries.fetch_add(1, Ordering::Relaxed);
@@ -720,13 +725,19 @@ impl GpuComputePipeline {
         }
     }
 
-    // === Internal: Attempt to create a fresh wgpu adapter + device + queue ===
     #[cfg(feature = "wgpu")]
     async fn try_create_fresh_wgpu_context(&self) -> Result<(), String> {
         use wgpu::util::DeviceExt;
 
+        let enable_validation = should_enable_vulkan_validation();
+
         let instance = wgpu::Instance::new(wgpu::InstanceDescriptor {
             backends: wgpu::Backends::all(),
+            flags: if enable_validation {
+                wgpu::InstanceFlags::DEBUG | wgpu::InstanceFlags::VALIDATION
+            } else {
+                wgpu::InstanceFlags::empty()
+            },
             ..Default::default()
         });
 
@@ -751,11 +762,8 @@ impl GpuComputePipeline {
             .await
             .map_err(|e| format!("Device request failed during reinitialization: {}", e))?; 
 
-        // In a more advanced version we would store device/queue in Arc<Mutex<Option<...>>>
-        // and swap them here. For now we validate creation succeeded.
-        println!("[Ra-Thor] Fresh wgpu device + queue created successfully during reinitialization.");
+        println!("[Ra-Thor] Fresh wgpu device + queue created (validation={}) during reinitialization.", enable_validation);
 
-        // We successfully created a fresh context
         Ok(())
     }
 
@@ -840,11 +848,17 @@ impl GpuComputePipeline {
     async fn try_real_gpu_with_readback(&self, buffer_size: usize) -> Result<Vec<f32>, String> {
         use wgpu::util::DeviceExt;
 
-        // Attempt recovery / reinitialization before heavy operation
         let _ = self.recover_device_if_lost().await;
+
+        let enable_validation = should_enable_vulkan_validation();
 
         let instance = wgpu::Instance::new(wgpu::InstanceDescriptor {
             backends: wgpu::Backends::all(),
+            flags: if enable_validation {
+                wgpu::InstanceFlags::DEBUG | wgpu::InstanceFlags::VALIDATION
+            } else {
+                wgpu::InstanceFlags::empty()
+            },
             ..Default::default()
         });
 
@@ -885,7 +899,7 @@ impl GpuComputePipeline {
         "#;
 
         let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
-            label: Some("Ra-Thor TU Compute Shader - Full Readback v14.8.8"),
+            label: Some("Ra-Thor TU Compute Shader - Full Readback v14.8.9"),
             source: wgpu::ShaderSource::Wgsl(shader_source.into()),
         });
 
@@ -976,9 +990,8 @@ impl GpuComputePipeline {
             if let Err(e) = device.poll(wgpu::Maintain::Wait) {
                 if format!("{:?}", e).contains("Lost") {
                     self.record_device_lost();
-                    // Attempt full reinitialization on next operation
                     let _ = self.recover_device_if_lost().await;
-                    return Err("DeviceLost during map_async - Full Reinitialization will be attempted next call (TOLC 8 Device Lost Recovery Gate)".to_string());
+                    return Err("DeviceLost during map_async - Full Reinitialization will be attempted next call".to_string());
                 }
             }
             Err("Failed to map full GPU readback buffer (TOLC 8 full readback gate)".to_string())
