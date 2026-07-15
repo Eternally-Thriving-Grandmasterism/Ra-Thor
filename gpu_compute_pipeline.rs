@@ -1,9 +1,9 @@
 // gpu_compute_pipeline.rs
-// Ra-Thor v14.8.9 — Vulkan Validation Layers + Full Device Reinitialization
+// Ra-Thor v14.20 — CUDA Path Hardening + Full Device Recovery Integration
 // Lattice Conductor v13.1 | ONE Organism | PATSAGi Council #13
 //
-// Added support for optional Vulkan Validation Layers via RA_THOR_ENABLE_VULKAN_VALIDATION=1
-// Integrated into Instance creation and Full Device Reinitialization paths.
+// Added robust CUDA error checking, pre-launch validation, and full integration
+// with the Device Lost Recovery + device health telemetry system.
 // All changes mercy-gated and TOLC 8 aligned.
 //
 // AG-SML v1.0 License
@@ -497,14 +497,7 @@ impl TelemetryHistogram {
     }
 }
 
-// === Vulkan Validation Layer Support ===
-fn should_enable_vulkan_validation() -> bool {
-    std::env::var("RA_THOR_ENABLE_VULKAN_VALIDATION")
-        .map(|v| v == "1" || v.eq_ignore_ascii_case("true") || v.eq_ignore_ascii_case("yes"))
-        .unwrap_or(false)
-}
-
-// === Device Lost Recovery + Full Reinitialization Support ===
+// === NEW: Device Lost Recovery + Full Reinitialization Support ===
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct GpuDeviceRecoveryStats {
     pub device_lost_count: u64,
@@ -527,6 +520,7 @@ pub struct GpuComputePipeline {
     save_duration_histogram: TelemetryHistogram,
     pub version: String,
 
+    // === Device Lost Recovery + Full Reinitialization State ===
     device_lost_count: AtomicUsize,
     successful_recoveries: AtomicUsize,
     last_device_lost_at: std::sync::Mutex<Option<Instant>>,
@@ -535,11 +529,6 @@ pub struct GpuComputePipeline {
 
 impl GpuComputePipeline {
     pub fn new() -> Self {
-        let validation_enabled = should_enable_vulkan_validation();
-        if validation_enabled {
-            println!("[Ra-Thor] Vulkan Validation Layers ENABLED via RA_THOR_ENABLE_VULKAN_VALIDATION");
-        }
-
         Self {
             allocator: Arc::new(Mutex::new(GpuMemoryAllocator::new())),
             staging_pool: Arc::new(Mutex::new(StagingBufferPool::new())),
@@ -551,7 +540,7 @@ impl GpuComputePipeline {
             telemetry_retry_count: AtomicUsize::new(3),
             mercy_norm_histogram: TelemetryHistogram::new("ra_thor_mercy_norm", vec![0.5, 0.7, 0.8, 0.85, 0.9, 0.95, 1.0]),
             save_duration_histogram: TelemetryHistogram::new("ra_thor_telemetry_save_duration_ms", vec![10.0, 50.0, 100.0, 200.0, 500.0, 1000.0]),
-            version: "v14.8.9-vulkan-validation-layers-TOLC8-PATSAGi".to_string(),
+            version: "v14.20-cuda-hardened-device-recovery-TOLC8-PATSAGi".to_string(),
 
             device_lost_count: AtomicUsize::new(0),
             successful_recoveries: AtomicUsize::new(0),
@@ -611,6 +600,7 @@ impl GpuComputePipeline {
         out
     }
 
+    // === Device Lost Recovery Telemetry ===
     pub fn get_device_recovery_stats(&self) -> GpuDeviceRecoveryStats {
         let lost = self.device_lost_count.load(Ordering::Relaxed) as u64;
         let recovered = self.successful_recoveries.load(Ordering::Relaxed) as u64;
@@ -657,8 +647,21 @@ impl GpuComputePipeline {
             }
         }
         if cfg!(feature = "cudarc") {
-            let _ = self.try_real_cuda_launch(task.buffer_size).await;
-            real_gpu_used = true;
+            // NEW v14.20: Attempt recovery before CUDA path as well
+            let _ = self.recover_device_if_lost().await;
+
+            match self.try_real_cuda_launch(task.buffer_size).await {
+                Ok(_) => { real_gpu_used = true; }
+                Err(e) => {
+                    if e.contains("CUDA") || e.contains("launch") || e.contains("device") {
+                        self.record_device_lost();
+                        let _ = self.recover_device_if_lost().await;
+                        eprintln!("[Ra-Thor] CUDA launch failure detected. Device recovery attempted: {}", e);
+                    } else {
+                        eprintln!("[Ra-Thor] CUDA launch error: {}", e);
+                    }
+                }
+            }
         }
 
         if !real_gpu_used {
@@ -692,6 +695,7 @@ impl GpuComputePipeline {
         })
     }
 
+    // === Record Device Lost ===
     fn record_device_lost(&self) {
         self.device_lost_count.fetch_add(1, Ordering::Relaxed);
         if let Ok(mut guard) = self.last_device_lost_at.lock() {
@@ -700,6 +704,7 @@ impl GpuComputePipeline {
         println!("[Ra-Thor] GPU Device Lost recorded (count={})", self.device_lost_count.load(Ordering::Relaxed));
     }
 
+    // === FULL DEVICE REINITIALIZATION ===
     pub async fn recover_device_if_lost(&self) -> Result<bool, String> {
         let lost_count = self.device_lost_count.load(Ordering::Relaxed);
 
@@ -725,11 +730,12 @@ impl GpuComputePipeline {
         }
     }
 
+    // === Internal: Attempt to create a fresh wgpu adapter + device + queue ===
     #[cfg(feature = "wgpu")]
     async fn try_create_fresh_wgpu_context(&self) -> Result<(), String> {
         use wgpu::util::DeviceExt;
 
-        let enable_validation = should_enable_vulkan_validation();
+        let enable_validation = crate::gpu_compute_pipeline::should_enable_vulkan_validation(); // reuse existing helper if visible, else duplicate logic
 
         let instance = wgpu::Instance::new(wgpu::InstanceDescriptor {
             backends: wgpu::Backends::all(),
@@ -762,8 +768,7 @@ impl GpuComputePipeline {
             .await
             .map_err(|e| format!("Device request failed during reinitialization: {}", e))?; 
 
-        println!("[Ra-Thor] Fresh wgpu device + queue created (validation={}) during reinitialization.", enable_validation);
-
+        println!("[Ra-Thor] Fresh wgpu device + queue created successfully during reinitialization.");
         Ok(())
     }
 
@@ -810,8 +815,16 @@ impl GpuComputePipeline {
             }
         }
         if cfg!(feature = "cudarc") {
-            let _ = self.try_real_cuda_launch(total_size).await;
-            real_gpu_used = true;
+            let _ = self.recover_device_if_lost().await;
+            match self.try_real_cuda_launch(total_size).await {
+                Ok(_) => { real_gpu_used = true; }
+                Err(e) => {
+                    if e.contains("CUDA") || e.contains("launch") {
+                        self.record_device_lost();
+                        let _ = self.recover_device_if_lost().await;
+                    }
+                }
+            }
         }
 
         if !real_gpu_used {
@@ -850,7 +863,7 @@ impl GpuComputePipeline {
 
         let _ = self.recover_device_if_lost().await;
 
-        let enable_validation = should_enable_vulkan_validation();
+        let enable_validation = crate::gpu_compute_pipeline::should_enable_vulkan_validation();
 
         let instance = wgpu::Instance::new(wgpu::InstanceDescriptor {
             backends: wgpu::Backends::all(),
@@ -899,7 +912,7 @@ impl GpuComputePipeline {
         "#;
 
         let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
-            label: Some("Ra-Thor TU Compute Shader - Full Readback v14.8.9"),
+            label: Some("Ra-Thor TU Compute Shader - Full Readback v14.20"),
             source: wgpu::ShaderSource::Wgsl(shader_source.into()),
         });
 
@@ -998,11 +1011,27 @@ impl GpuComputePipeline {
         }
     }
 
+    // === NEW v14.20: Hardened CUDA launch with pre-validation + error recovery ===
     #[cfg(feature = "cudarc")]
     async fn try_real_cuda_launch(&self, buffer_size: usize) -> Result<(), String> {
         use cudarc::driver::{CudaDevice, LaunchConfig};
 
+        // Best-effort recovery before critical CUDA operation
+        let _ = self.recover_device_if_lost().await;
+
         let dev = CudaDevice::new(0).map_err(|e| format!("CUDA device error: {}", e))?; 
+
+        // NEW: Pre-launch safety validation
+        if buffer_size == 0 || buffer_size % 4 != 0 {
+            return Err(format!("Invalid buffer_size for CUDA launch: {} (must be > 0 and multiple of 4)", buffer_size));
+        }
+
+        let n = (buffer_size / 4) as u32;
+        if n == 0 {
+            return Err("Buffer too small for CUDA launch (n=0)".to_string());
+        }
+
+        let cfg = LaunchConfig::for_num_elems(n);
 
         let ptx = r#"
             .version 7.0
@@ -1044,14 +1073,28 @@ impl GpuComputePipeline {
 
         let kernel = module.get_func("main").map_err(|e| format!("Kernel not found: {}", e))?; 
 
-        let n = (buffer_size / 4) as u32;
-        let cfg = LaunchConfig::for_num_elems(n);
+        // Launch with error checking
+        let launch_result = unsafe {
+            kernel.launch(cfg, (&n, ))
+        };
 
-        unsafe {
-            kernel.launch(cfg, (&n, )).map_err(|e| format!("CUDA launch error: {}", e))?; 
+        match launch_result {
+            Ok(_) => {
+                // Success path
+                Ok(())
+            }
+            Err(e) => {
+                // CUDA launch failed — record as device loss and attempt recovery
+                self.record_device_lost();
+                let _ = self.recover_device_if_lost().await;
+                Err(format!("CUDA launch error (device loss recorded + recovery attempted): {}", e))
+            }
         }
+    }
 
-        Ok(());
+    #[cfg(not(feature = "cudarc"))]
+    async fn try_real_cuda_launch(&self, _buffer_size: usize) -> Result<(), String> {
+        Err("cudarc feature not enabled".to_string())
     }
 
     pub async fn get_memory_stats(&self) -> GpuMemoryStats {
@@ -1445,4 +1488,11 @@ mod tests {
         println!("[BENCH] Average dispatch latency: {:.2} ms", avg_ms);
         assert!(avg_ms < 5000.0);
     }
+}
+
+// Helper visible to other modules if needed
+pub fn should_enable_vulkan_validation() -> bool {
+    std::env::var("RA_THOR_ENABLE_VULKAN_VALIDATION")
+        .map(|v| v == "1" || v.eq_ignore_ascii_case("true") || v.eq_ignore_ascii_case("yes"))
+        .unwrap_or(false)
 }
