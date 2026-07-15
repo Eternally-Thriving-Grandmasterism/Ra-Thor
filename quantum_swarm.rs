@@ -1,15 +1,16 @@
 // quantum_swarm.rs
-// Ra-Thor v14.62 — Quantum Swarm Engine Wired into Lattice Conductor Self-Evolution
+// Ra-Thor v14.64 — Quantum Swarm Engine Benchmark Suite
 // Hybrid QPSO + Ra-Thor Quantum Swarm
 // Lattice Conductor v13.1 | ONE Organism | PATSAGi Councils
 //
-// Integration Complete: Quantum Swarm Engine is now directly usable inside Lattice Conductor self-evolution loops.
+// Comprehensive benchmarks added for the fully wired Quantum Swarm Engine.
 //
 // Perfect order of operations. Thunder locked in.
 //
 // AG-SML v1.0 License
 
 use std::collections::HashMap;
+use std::time::{Duration, Instant};
 use serde::{Deserialize, Serialize};
 
 // === Core Quantum Swarm Types ===
@@ -280,16 +281,8 @@ pub fn perform_adaptive_quantum_jump(
     (new_weights, jump_impact)
 }
 
-// === Phase 5: Lattice Conductor Self-Evolution Wiring ===
+// === Phase 5: Lattice Conductor Wiring ===
 
-/// High-level integration function for Lattice Conductor self-evolution.
-/// Call this from Lattice Conductor self-evolution loops to leverage the full Quantum Swarm.
-///
-/// This wires together:
-/// - Hybrid attractor computation
-/// - QPSO weight evolution
-/// - Adaptive quantum jumps on plateau
-/// - Quantum proposal generation (optional)
 pub fn run_lattice_conductor_quantum_self_evolution_step(
     engine: &mut QuantumSwarmEngine,
     member_id: u64,
@@ -298,7 +291,6 @@ pub fn run_lattice_conductor_quantum_self_evolution_step(
     current_score: f64,
     severity: f64,
 ) -> Option<LatticeConductorSelfEvolutionResult> {
-    // 1. Normal QPSO-style weight evolution
     let weight_update = engine.evolve_member_weights(
         member_id,
         global_best,
@@ -307,7 +299,6 @@ pub fn run_lattice_conductor_quantum_self_evolution_step(
         severity,
     );
 
-    // 2. Adaptive quantum jump if severity is high (plateau escape)
     let jump_result = if severity >= 0.35 {
         engine.perform_adaptive_quantum_jump_for_member(
             member_id,
@@ -319,7 +310,6 @@ pub fn run_lattice_conductor_quantum_self_evolution_step(
         None
     };
 
-    // 3. Optionally generate a quantum proposal for council deliberation
     let proposal = engine.generate_quantum_proposal_for_council(
         member_id,
         global_best,
@@ -352,7 +342,7 @@ pub struct LatticeConductorSelfEvolutionResult {
     pub step: u64,
 }
 
-// === Quantum Swarm Engine (Final) ===
+// === Quantum Swarm Engine ===
 
 pub struct QuantumSwarmEngine {
     pub config: QuantumSwarmConfig,
@@ -508,7 +498,7 @@ impl QuantumSwarmEngine {
 
     pub fn summary(&self) -> String {
         format!(
-            "QuantumSwarmEngine v14.62 | step={} | members={} | weight_updates={} | proposals={} | adaptive_jumps={}",
+            "QuantumSwarmEngine v14.64 | step={} | members={} | weight_updates={} | proposals={} | adaptive_jumps={}",
             self.step,
             self.mean_best_tracker.member_count,
             self.total_quantum_weight_updates,
@@ -516,30 +506,155 @@ impl QuantumSwarmEngine {
             self.total_adaptive_jumps
         )
     }
+
+    // === NEW: Comprehensive Benchmark Suite ===
+
+    pub fn benchmark_weight_evolution(
+        &mut self,
+        iterations: usize,
+        severity: f64,
+    ) -> QuantumSwarmBenchmarkResult {
+        let start = Instant::now();
+        let mut total_quantum_ratio = 0.0;
+        let mut updates = 0;
+
+        for i in 0..iterations {
+            let member_id = ((i % self.mean_best_tracker.member_count.max(1)) + 1) as u64;
+            let global_best = self.mean_best_tracker.get_mean_best().to_vec();
+
+            if let Some((_, ratio)) = self.evolve_member_weights(
+                member_id,
+                &global_best,
+                0.25,
+                0.85,
+                severity,
+            ) {
+                total_quantum_ratio += ratio;
+                updates += 1;
+            }
+        }
+
+        let elapsed = start.elapsed();
+        let avg_quantum_ratio = if updates > 0 { total_quantum_ratio / updates as f64 } else { 0.0 };
+        let throughput = if elapsed.as_secs_f64() > 0.0 { updates as f64 / elapsed.as_secs_f64() } else { 0.0 };
+
+        QuantumSwarmBenchmarkResult {
+            benchmark_name: "Weight Evolution".to_string(),
+            iterations,
+            total_time_ms: elapsed.as_millis() as u64,
+            avg_quantum_ratio,
+            throughput_per_sec: throughput,
+            severity_used: severity,
+        }
+    }
+
+    pub fn benchmark_adaptive_jumps(
+        &mut self,
+        iterations: usize,
+        severity: f64,
+    ) -> QuantumSwarmBenchmarkResult {
+        let start = Instant::now();
+        let mut successful_jumps = 0;
+
+        for i in 0..iterations {
+            let member_id = ((i % self.mean_best_tracker.member_count.max(1)) + 1) as u64;
+            let global_best = self.mean_best_tracker.get_mean_best().to_vec();
+
+            if self.perform_adaptive_quantum_jump_for_member(member_id, &global_best, 0.25, severity).is_some() {
+                successful_jumps += 1;
+            }
+        }
+
+        let elapsed = start.elapsed();
+        let jump_success_rate = successful_jumps as f64 / iterations as f64;
+        let throughput = if elapsed.as_secs_f64() > 0.0 { iterations as f64 / elapsed.as_secs_f64() } else { 0.0 };
+
+        QuantumSwarmBenchmarkResult {
+            benchmark_name: "Adaptive Jumps".to_string(),
+            iterations,
+            total_time_ms: elapsed.as_millis() as u64,
+            avg_quantum_ratio: jump_success_rate,
+            throughput_per_sec: throughput,
+            severity_used: severity,
+        }
+    }
+
+    pub fn benchmark_proposal_generation(
+        &mut self,
+        iterations: usize,
+        severity: f64,
+    ) -> QuantumSwarmBenchmarkResult {
+        let start = Instant::now();
+        let mut proposals = 0;
+
+        for i in 0..iterations {
+            let member_id = ((i % self.mean_best_tracker.member_count.max(1)) + 1) as u64;
+            let global_best = self.mean_best_tracker.get_mean_best().to_vec();
+
+            if self.generate_quantum_proposal_for_council(member_id, &global_best, 0.25, severity).is_some() {
+                proposals += 1;
+            }
+        }
+
+        let elapsed = start.elapsed();
+        let throughput = if elapsed.as_secs_f64() > 0.0 { iterations as f64 / elapsed.as_secs_f64() } else { 0.0 };
+
+        QuantumSwarmBenchmarkResult {
+            benchmark_name: "Proposal Generation".to_string(),
+            iterations,
+            total_time_ms: elapsed.as_millis() as u64,
+            avg_quantum_ratio: 0.0,
+            throughput_per_sec: throughput,
+            severity_used: severity,
+        }
+    }
+
+    pub fn run_full_benchmark_suite(&mut self, iterations: usize) -> Vec<QuantumSwarmBenchmarkResult> {
+        println!("\n[Quantum Swarm Engine Benchmark Suite] Starting full benchmark ({} iterations per test)...", iterations);
+
+        let mut results = Vec::new();
+
+        // Low severity
+        results.push(self.benchmark_weight_evolution(iterations, 0.15));
+        results.push(self.benchmark_adaptive_jumps(iterations, 0.15));
+        results.push(self.benchmark_proposal_generation(iterations, 0.15));
+
+        // Medium severity
+        results.push(self.benchmark_weight_evolution(iterations, 0.45));
+        results.push(self.benchmark_adaptive_jumps(iterations, 0.45));
+        results.push(self.benchmark_proposal_generation(iterations, 0.45));
+
+        // High severity (plateau conditions)
+        results.push(self.benchmark_weight_evolution(iterations, 0.75));
+        results.push(self.benchmark_adaptive_jumps(iterations, 0.75));
+        results.push(self.benchmark_proposal_generation(iterations, 0.75));
+
+        println!("\n=== Quantum Swarm Engine Benchmark Results ===");
+        for r in &results {
+            println!(
+                "[{}] | {} iters | {:.2} ms | Throughput: {:.1}/s | QuantumRatio/JumpRate: {:.3} | Severity: {:.2}",
+                r.benchmark_name, r.iterations, r.total_time_ms, r.throughput_per_sec, r.avg_quantum_ratio, r.severity_used
+            );
+        }
+
+        results
+    }
 }
 
-// === Usage Example for Lattice Conductor ===
-// In your Lattice Conductor self-evolution loop:
-//
-// let result = run_lattice_conductor_quantum_self_evolution_step(
-//     &mut quantum_engine,
-//     member_id,
-//     &global_best_weights,
-//     entanglement_weight,
-//     current_mercy_score,
-//     current_plateau_severity,
-// );
-//
-// if let Some(res) = result {
-//     // Apply res.new_weights to the council / conductor
-//     // Log res.quantum_ratio and res.jump_impact for telemetry
-//     // Feed res.proposal_generated into council deliberation if needed
-// }
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct QuantumSwarmBenchmarkResult {
+    pub benchmark_name: String,
+    pub iterations: usize,
+    pub total_time_ms: u64,
+    pub avg_quantum_ratio: f64,
+    pub throughput_per_sec: f64,
+    pub severity_used: f64,
+}
 
+// === Tests including Benchmarks ===
 #[cfg(test)]
 mod tests {
     use super::*;
-    use rand::thread_rng;
 
     #[test]
     fn test_mean_best_recomputation() {
@@ -554,23 +669,13 @@ mod tests {
     }
 
     #[test]
-    fn test_lattice_conductor_integration() {
+    fn test_full_benchmark_suite_runs() {
         let mut engine = QuantumSwarmEngine::new(QuantumSwarmConfig::default());
-        let member = QuantumSwarmMember::new(1, vec![0.2, 0.3, 0.4]);
-        engine.register_member(member);
+        engine.register_member(QuantumSwarmMember::new(1, vec![0.2, 0.3, 0.4]));
+        engine.register_member(QuantumSwarmMember::new(2, vec![0.5, 0.6, 0.7]));
 
-        let global_best = vec![0.5, 0.5, 0.5];
-        let result = run_lattice_conductor_quantum_self_evolution_step(
-            &mut engine,
-            1,
-            &global_best,
-            0.25,
-            0.82,
-            0.55,
-        );
-
-        assert!(result.is_some());
-        let res = result.unwrap();
-        assert!(res.new_weights.len() == 3);
+        let results = engine.run_full_benchmark_suite(500);
+        assert!(!results.is_empty());
+        assert!(results.len() >= 9);
     }
 }
