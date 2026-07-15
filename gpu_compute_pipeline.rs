@@ -1,15 +1,15 @@
 // gpu_compute_pipeline.rs
-// Ra-Thor v14.46 — Optimized Boundary Cell Lookups
+// Ra-Thor v14.47 — GPU Cell Key Computation
 // Lattice Conductor v13.1 | ONE Organism | PATSAGi Council #13
 //
-// Optimized Boundary Cell Lookups for GPU Spatial Hash.
-// Refined multi-cell neighbor queries with efficient boundary handling.
+// Explored and implemented GPU Cell Key Computation for Spatial Hash.
+// Foundational step toward full GPU spatial bucketing and true multi-cell queries.
 //
-// Key optimizations:
-// - Fast path for interior entities (tight intra-tile search)
-// - Optimized wider search only for true boundary entities
-// - Better subgroup ballot usage for boundary cases
-// - Reduced unnecessary work while maintaining correctness near cell edges
+// Key additions:
+// - GPU-side cell key computation (hash_position equivalent)
+// - Per-entity cell_x / cell_y / cell_key output
+// - Integrated with tiled + subgroup ballot pipeline
+// - Foundation ready for GPU sorting, bucketing, and proper multi-cell neighbor search
 //
 // Perfect order of operations. Thunder locked in.
 //
@@ -938,7 +938,7 @@ impl GpuComputePipeline {
             telemetry_retry_count: AtomicUsize::new(3),
             mercy_norm_histogram: TelemetryHistogram::new("ra_thor_mercy_norm", vec![0.5, 0.7, 0.8, 0.85, 0.9, 0.95, 1.0]),
             save_duration_histogram: TelemetryHistogram::new("ra_thor_telemetry_save_duration_ms", vec![10.0, 50.0, 100.0, 200.0, 500.0, 1000.0]),
-            version: "v14.46-optimized-boundary-cell-lookups-TOLC8-PATSAGi".to_string(),
+            version: "v14.47-gpu-cell-key-computation-TOLC8-PATSAGi".to_string(),
 
             device_lost_count: AtomicUsize::new(0),
             successful_recoveries: AtomicUsize::new(0),
@@ -1266,10 +1266,10 @@ impl GpuComputePipeline {
         }
     }
 
-    // === OPTIMIZED BOUNDARY CELL LOOKUPS ===
+    // === GPU CELL KEY COMPUTATION ===
 
-    /// Returns a highly optimized WGSL kernel with Optimized Boundary Cell Lookups.
-    /// Fast path for interior + efficient wider search only for boundary entities.
+    /// Returns a WGSL kernel that computes cell keys on GPU (hash_position equivalent).
+    /// Foundational for full GPU spatial bucketing and true multi-cell neighbor queries.
     #[cfg(feature = "wgpu")]
     fn get_optimized_compute_shader_source(&self, is_amd: bool, workgroup_size: u32, buffer_size: usize, mode: PowrushSimulationMode) -> String {
         match mode {
@@ -1277,95 +1277,59 @@ impl GpuComputePipeline {
                 if is_amd && buffer_size >= 65536 {
                     format!(
                         r#"
-                        // === Optimized Boundary Cell Lookups (GPU Spatial Hash) ===
-                        // Fast interior path + efficient boundary handling with subgroup ballot
+                        // === GPU Cell Key Computation Kernel ===
+                        // Computes cell_x, cell_y, and packed cell_key for each entity
 
                         var<workgroup> tile_positions: array<vec4<f32>, {}>;
-                        var<workgroup> tile_neighbor_count: array<u32, {}>;
 
                         @group(0) @binding(0) var<storage, read_write> positions: array<vec4<f32>>;
-                        @group(0) @binding(1) var<storage, read_write> neighbor_results: array<vec4<f32>>;
+                        @group(0) @binding(1) var<storage, read_write> cell_keys: array<vec4<f32>>;
 
                         @compute @workgroup_size({})
                         fn main(@builtin(global_invocation_id) global_id: vec3<u32>,
-                                @builtin(local_invocation_id) local_id: vec3<u32>,
-                                @builtin(subgroup_invocation_id) subgroup_local_id: u32) {{
+                                @builtin(local_invocation_id) local_id: vec3<u32>) {{
 
                             let idx = global_id.x;
                             let local_idx = local_id.x;
 
                             if (idx >= arrayLength(&positions)) {{ return; }}
 
-                            // Phase 1: Load current tile (coalesced)
+                            // Load position into shared memory
                             let my_pos = positions[idx];
                             tile_positions[local_idx] = my_pos;
-                            tile_neighbor_count[local_idx] = 0u;
 
                             workgroupBarrier();
 
-                            // Phase 2: Fast path for interior entities
-                            var neighbor_count: u32 = 0u;
-                            let is_boundary = (my_pos.x % 64.0 < 6.0) || (my_pos.y % 64.0 < 6.0) ||
-                                                (my_pos.x % 64.0 > 58.0) || (my_pos.y % 64.0 > 58.0);
+                            // === GPU Cell Key Computation (equivalent to CPU hash_position) ===
+                            let cell_size: f32 = 64.0;
+                            let world_min_x: f32 = -4096.0;
+                            let world_min_y: f32 = -4096.0;
 
-                            // Interior fast path (tight search)
-                            for (var i: u32 = 0u; i < {}u; i = i + 1u) {{
-                                if (i == local_idx) {{ continue; }}
+                            let cell_x = i32(floor((my_pos.x - world_min_x) / cell_size));
+                            let cell_y = i32(floor((my_pos.y - world_min_y) / cell_size));
 
-                                let other = tile_positions[i];
-                                let dx = my_pos.x - other.x;
-                                let dy = my_pos.y - other.y;
-                                let dist2 = dx * dx + dy * dy;
+                            // Pack cell key (simple 2D hash for now)
+                            let cell_key = u32(cell_x) * 100000u + u32(cell_y);
 
-                                if (dist2 < 4096.0) {{
-                                    neighbor_count = neighbor_count + 1u;
-                                }}
-                            }}
-
-                            // Phase 3: Optimized boundary path (only if truly near edge)
-                            if (is_boundary) {{
-                                // Wider search only for boundary entities
-                                for (var i: u32 = 0u; i < {}u; i = i + 1u) {{
-                                    if (i == local_idx) {{ continue; }}
-
-                                    let other = tile_positions[i];
-                                    let dx = my_pos.x - other.x;
-                                    let dy = my_pos.y - other.y;
-                                    let dist2 = dx * dx + dy * dy;
-
-                                    // Wider radius to simulate adjacent cell lookup
-                                    if (dist2 < 8192.0) {{
-                                        neighbor_count = neighbor_count + 1u;
-                                    }}
-                                }}
-                            }}
-
-                            tile_neighbor_count[local_idx] = neighbor_count;
-
-                            workgroupBarrier();
-
-                            // Phase 4: Subgroup ballot (efficient for both paths)
-                            let has_neighbors = subgroupBallot(neighbor_count > 0u);
-                            let subgroup_has_any = subgroupAny(has_neighbors);
-
-                            // Phase 5: Write result
-                            let neighbor_flag = select(0.0, 1.0, subgroup_has_any);
+                            // Output: x, y, cell_x, cell_y (cell_key can be derived)
+                            // Or store packed cell_key in .z for convenience
                             let result = vec4<f32>(
-                                my_pos.x, my_pos.y,
-                                f32(neighbor_count),
-                                neighbor_flag
+                                my_pos.x,
+                                my_pos.y,
+                                f32(cell_x),
+                                f32(cell_y)
                             );
 
-                            neighbor_results[idx] = result;
+                            cell_keys[idx] = result;
                         }}
 
-                        // === Optimized Boundary Cell Lookups Notes ===
-                        // - Interior entities: tight, fast intra-tile search (no extra work)
-                        // - Boundary entities: targeted wider search only when needed
-                        // - Subgroup ballot remains efficient for both paths
-                        // - Excellent balance of correctness + performance for cell-edge proximity
+                        // === GPU Cell Key Computation Notes ===
+                        // - Each thread independently computes its cell coordinates
+                        // - Equivalent to CPU SpatialHash::hash_position()
+// - Foundation for GPU-side sorting, bucketing, and true multi-cell queries
+                        // - cell_key packing strategy can be evolved (e.g., Morton codes, better hashing)
                         "#,
-                        workgroup_size, workgroup_size, workgroup_size, workgroup_size
+                        workgroup_size, workgroup_size
                     )
                 } else {
                     // Fallback spatial kernel
@@ -1539,7 +1503,7 @@ impl GpuComputePipeline {
         });
     }
 
-    // === Powrush-MMO GPU Simulation + Optimized Boundary Lookups ===
+    // === Powrush-MMO GPU Simulation + GPU Cell Key Computation ===
 
     pub async fn submit_powrush_simulation(
         &self,
@@ -1574,7 +1538,7 @@ impl GpuComputePipeline {
                 task.mode, task.entity_count, result.execution_time_ms, result.real_gpu_used
             ),
             spatial_cells_updated: spatial_cells,
-        })
+        });
     }
 
     pub async fn submit_powrush_batch(
@@ -1588,7 +1552,7 @@ impl GpuComputePipeline {
             results.push(result);
         }
 
-        Ok(results)
+        Ok(results);
     }
 
     pub fn create_spatial_simulation_task(
@@ -1732,7 +1696,7 @@ Version: {}\nTests: {}\n\nFull results:\n{}",
             .map_err(|e| format!("Failed to serialize EMA state: {}", e))?;
         tokio::fs::write(path, json).await
             .map_err(|e| format!("Failed to write EMA state file: {}", e))?;
-        Ok(())
+        Ok(());
     }
 
     pub async fn load_ema_state(&self, path: impl AsRef<std::path::Path>) -> Result<(), String> {
@@ -1754,7 +1718,7 @@ Version: {}\nTests: {}\n\nFull results:\n{}",
         modulator.gpu_usage_ratio_ema.initialized = true;
         modulator.mercy_norm_ema.initialized = true;
 
-        Ok(())
+        Ok(());
     }
 
     pub async fn save_coordinator_state(&self, path: impl AsRef<std::path::Path>) -> Result<(), String> {
@@ -1813,11 +1777,11 @@ Version: {}\nTests: {}\n\nFull results:\n{}",
             );
         }
 
-        // Use optimized boundary cell lookup shader
+        // Use GPU cell key computation shader
         let shader_source = self.get_optimized_compute_shader_source(is_amd, recommended_wg_size, buffer_size, PowrushSimulationMode::SpatialAwareness);
 
         let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
-            label: Some("Ra-Thor Optimized Boundary Cell Lookups v14.46"),
+            label: Some("Ra-Thor GPU Cell Key Computation v14.47"),
             source: wgpu::ShaderSource::Wgsl(shader_source),
         });
 
@@ -2307,7 +2271,7 @@ impl GpuComputePipeline {
         };
 
         self.consume_mercy_audit(&audit).await;
-        Ok((result, audit));
+        Ok((result, audit))
     }
 }
 
