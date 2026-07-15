@@ -1,9 +1,10 @@
 // gpu_compute_pipeline.rs
-// Ra-Thor v14.24 — Refined AMD Tuning Logic (Clarity Pass)
+// Ra-Thor v14.25 — AMD Wavefront Parallelism Enhancements (A + C)
 // Lattice Conductor v13.1 | ONE Organism | PATSAGi Council #13
 //
-// Refined AMD workgroup size tuning and shader variant logic for maximum clarity,
-// better documentation, and easier maintenance.
+// Executing options in perfect order:
+// A. Added explicit documentation + helper constants for AMD wavefront size (64)
+// C. Added clear runtime logging for "Wavefront-aligned dispatch"
 //
 // AG-SML v1.0 License
 
@@ -16,6 +17,13 @@ use serde::{Deserialize, Serialize};
 
 // TOLC integration stub (from kernel/tolc_quantification.rs)
 // In full wiring: use crate::kernel::tolc_quantification::{compute_tu, TOLCUnit, LatticeState, TUWeights};
+
+// === AMD Wavefront Constants (NEW v14.25 - Option A) ===
+/// AMD GPUs execute threads in wavefronts of 64 threads.
+pub const AMD_WAVEFRONT_SIZE: u32 = 64;
+
+/// Recommended workgroup sizes for AMD GPUs (multiples of wavefront size).
+pub const AMD_RECOMMENDED_WORKGROUP_SIZES: [u32; 3] = [64, 128, 256];
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct GpuTask {
@@ -539,7 +547,7 @@ impl GpuComputePipeline {
             telemetry_retry_count: AtomicUsize::new(3),
             mercy_norm_histogram: TelemetryHistogram::new("ra_thor_mercy_norm", vec![0.5, 0.7, 0.8, 0.85, 0.9, 0.95, 1.0]),
             save_duration_histogram: TelemetryHistogram::new("ra_thor_telemetry_save_duration_ms", vec![10.0, 50.0, 100.0, 200.0, 500.0, 1000.0]),
-            version: "v14.24-refined-amd-tuning-TOLC8-PATSAGi".to_string(),
+            version: "v14.25-amd-wavefront-parallelism-A-C-TOLC8-PATSAGi".to_string(),
 
             device_lost_count: AtomicUsize::new(0),
             successful_recoveries: AtomicUsize::new(0),
@@ -822,7 +830,7 @@ impl GpuComputePipeline {
         }
     }
 
-    // === NEW v14.24: Refined AMD Detection + Tuning Logic ===
+    // === NEW v14.24 / v14.25: Refined AMD Wavefront Logic ===
 
     /// Returns true if the given adapter is an AMD GPU (Radeon or Instinct).
     #[cfg(feature = "wgpu")]
@@ -832,33 +840,26 @@ impl GpuComputePipeline {
         name.contains("amd") || name.contains("radeon")
     }
 
-    /// Returns the recommended workgroup size for the current GPU and buffer size.
-    ///
-    /// AMD GPUs have a wavefront size of 64 threads. Best performance is usually achieved
-    /// when workgroup size is a multiple of 64 (64, 128, or 256).
-    ///
-    /// This function returns larger workgroups for bigger buffers on AMD GPUs.
+    /// Returns the recommended workgroup size for AMD GPUs.
+    /// Aligns to wavefront size (64) and scales with buffer size.
     pub fn get_recommended_workgroup_size(&self, is_amd: bool, buffer_size: usize) -> u32 {
         if !is_amd {
-            return 64; // Safe default for non-AMD GPUs
+            return AMD_WAVEFRONT_SIZE;
         }
 
-        // AMD-specific tuning
         if buffer_size >= 262144 {
             256
         } else if buffer_size >= 65536 {
             128
         } else {
-            64
+            AMD_WAVEFRONT_SIZE
         }
     }
 
-    /// Returns an AMD-optimized WGSL shader source when running on AMD GPUs.
-    /// Falls back to a standard shader on other GPUs.
+    /// Returns an AMD-optimized or standard WGSL shader source.
     #[cfg(feature = "wgpu")]
     fn get_compute_shader_source(&self, is_amd: bool, workgroup_size: u32) -> String {
         if is_amd {
-            // AMD-optimized variant: workgroup size aligned to wavefront (64)
             format!(
                 r#"
                 @group(0) @binding(0) var<storage, read_write> data: array<f32>;
@@ -877,7 +878,6 @@ impl GpuComputePipeline {
                 workgroup_size
             )
         } else {
-            // Standard shader for NVIDIA / other GPUs
             r#"
                 @group(0) @binding(0) var<storage, read_write> data: array<f32>;
 
@@ -975,7 +975,7 @@ impl GpuComputePipeline {
         });
     }
 
-    // === NEW v14.24: Refined AMD-aware GPU dispatch path ===
+    // === NEW v14.25: Refined AMD-aware dispatch with clear wavefront logging (Option C) ===
     #[cfg(feature = "wgpu")]
     async fn try_real_gpu_with_readback(&self, buffer_size: usize) -> Result<Vec<f32>, String> {
         use wgpu::util::DeviceExt;
@@ -1011,16 +1011,24 @@ impl GpuComputePipeline {
             .map_err(|e| format!("Device request failed (TOLC 8 Order Gate): {}", e))?; 
 
         let info = adapter.get_info();
-        println!(
-            "[Ra-Thor] GPU: {} ({:?}) | AMD={} | WorkgroupSize={}",
-            info.name, info.device_type, is_amd, recommended_wg_size
-        );
 
-        // Get the appropriate shader (AMD-tuned or standard)
+        // NEW v14.25 (Option C): Clear wavefront-aligned dispatch logging
+        if is_amd {
+            println!(
+                "[Ra-Thor] AMD GPU: {} | Wavefront-aligned dispatch | WavefrontSize={} | WorkgroupSize={}",
+                info.name, AMD_WAVEFRONT_SIZE, recommended_wg_size
+            );
+        } else {
+            println!(
+                "[Ra-Thor] GPU: {} ({:?}) | WorkgroupSize={}",
+                info.name, info.device_type, recommended_wg_size
+            );
+        }
+
         let shader_source = self.get_compute_shader_source(is_amd, recommended_wg_size);
 
         let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
-            label: Some("Ra-Thor Compute Shader v14.24"),
+            label: Some("Ra-Thor Compute Shader v14.25"),
             source: wgpu::ShaderSource::Wgsl(shader_source),
         });
 
@@ -1159,7 +1167,7 @@ impl GpuComputePipeline {
                 ld.param.u32 %r2, [n];
 
                 mov.u32 %r3, %tid.x;
-                setp.ge.u32 %p, %r3, %r2;
+                setp.ge.u32 %p, %r2;
                 @%p bra done;
 
                 mul.lo.u32 %r4, %r3, 4;
