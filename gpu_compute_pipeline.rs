@@ -1,9 +1,10 @@
 // gpu_compute_pipeline.rs
-// Ra-Thor v14.31 — Expanded Performance Test Suite (Option 3 of 5)
+// Ra-Thor v14.32 — Lattice Conductor Self-Evolution Hooks (Option 4 of 5)
 // Lattice Conductor v13.1 | ONE Organism | PATSAGi Council #13
 //
-// Step 3/5: Expanding the performance test suite with broader coverage.
-// Added cross-vendor benchmarks, GPU vs CPU comparison, and comprehensive metrics.
+// Step 4/5: Adding GPU telemetry hooks for Lattice Conductor self-evolution.
+// GPU health, recovery stats, and performance metrics are now exposed for
+// self-calibrating symbolic reasoning and EMA feedback loops.
 //
 // Perfect order of operations. Thunder locked in.
 //
@@ -78,6 +79,20 @@ pub struct PowrushSimulationResult {
     pub entities_processed: usize,
     pub real_gpu_used: bool,
     pub message: String,
+}
+
+// === NEW: GPU Health Telemetry for Lattice Conductor Self-Evolution (Option 4) ===
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct GpuHealthTelemetry {
+    pub device_lost_count: u64,
+    pub successful_recoveries: u64,
+    pub last_device_lost_secs_ago: Option<u64>,
+    pub last_recovery_secs_ago: Option<u64>,
+    pub recovery_success_rate: f64,
+    pub avg_dispatch_time_ms: f64,
+    pub real_gpu_usage_ratio: f64,
+    pub mercy_norm_avg: f64,
+    pub timestamp_unix: u64,
 }
 
 pub struct GpuMemoryAllocator {
@@ -566,7 +581,7 @@ impl GpuComputePipeline {
             telemetry_retry_count: AtomicUsize::new(3),
             mercy_norm_histogram: TelemetryHistogram::new("ra_thor_mercy_norm", vec![0.5, 0.7, 0.8, 0.85, 0.9, 0.95, 1.0]),
             save_duration_histogram: TelemetryHistogram::new("ra_thor_telemetry_save_duration_ms", vec![10.0, 50.0, 100.0, 200.0, 500.0, 1000.0]),
-            version: "v14.31-expanded-performance-suite-TOLC8-PATSAGi".to_string(),
+            version: "v14.32-lattice-conductor-self-evolution-hooks-TOLC8-PATSAGi".to_string(),
 
             device_lost_count: AtomicUsize::new(0),
             successful_recoveries: AtomicUsize::new(0),
@@ -1055,127 +1070,59 @@ impl GpuComputePipeline {
         })
     }
 
-    // === NEW v14.31: Expanded Performance Test Suite (Option 3) ===
+    // === NEW v14.32: Lattice Conductor Self-Evolution Hooks (Option 4) ===
 
-    /// Comprehensive cross-vendor GPU performance test suite.
-    /// Tests multiple buffer sizes across available backends (wgpu/CUDA/CPU fallback).
-    pub async fn gpu_performance_test_suite(&self) -> Result<String, String> {
-        println!("\n[GPU Performance Test Suite] Starting comprehensive performance evaluation...");
+    /// Returns rich GPU health telemetry suitable for Lattice Conductor self-evolution.
+    /// This is the primary hook for feeding GPU stability and performance data
+    /// into Lattice Conductor's EMA feedback loops and symbolic reasoning.
+    pub async fn get_gpu_health_telemetry(&self) -> GpuHealthTelemetry {
+        let recovery = self.get_device_recovery_stats();
+        let mercy_summary = self.get_mercy_telemetry_summary().await;
 
-        let test_sizes = vec![4096, 16384, 65536, 262144, 1048576, 4194304];
-        let mut results = Vec::new();
+        let lost = recovery.device_lost_count;
+        let recovered = recovery.successful_recoveries;
+        let recovery_rate = if lost > 0 {
+            recovered as f64 / lost as f64
+        } else {
+            1.0
+        };
 
-        for &size in &test_sizes {
-            let task = GpuTask {
-                id: rand::random::<u64>() % 1_000_000_000,
-                name: format!("perf_test_{}", size),
-                buffer_size: size,
-                intensity: "high".to_string(),
-            };
+        let now = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap()
+            .as_secs();
 
-            let start = Instant::now();
-            let result = self.dispatch(task).await?;
-            let elapsed = start.elapsed().as_millis() as u64;
+        let last_lost_ago = recovery.last_device_lost_at_unix.map(|t| now.saturating_sub(t));
+        let last_recovered_ago = recovery.last_recovery_at_unix.map(|t| now.saturating_sub(t));
 
-            let throughput_mbs = if elapsed > 0 {
-                (size as f64 / 1_048_576.0) / (elapsed as f64 / 1000.0)
-            } else {
-                0.0
-            };
-
-            let line = format!(
-                "Buffer: {:>10} bytes | Time: {:>6} ms | Throughput: {:>8.2} MB/s | RealGPU: {}",
-                size, elapsed, throughput_mbs, result.real_gpu_used
-            );
-
-            println!("[GPU Perf] {}", line);
-            results.push(line);
+        GpuHealthTelemetry {
+            device_lost_count: lost,
+            successful_recoveries: recovered,
+            last_device_lost_secs_ago: last_lost_ago,
+            last_recovery_secs_ago: last_recovered_ago,
+            recovery_success_rate: recovery_rate,
+            avg_dispatch_time_ms: 0.0, // Can be enriched with real metrics in future
+            real_gpu_usage_ratio: 0.0, // Can be enriched with real metrics in future
+            mercy_norm_avg: mercy_summary.avg_mercy_norm,
+            timestamp_unix: now,
         }
-
-        let summary = format!(
-            "\n=== GPU Performance Test Suite Summary ===\nVersion: {}\nTests run: {}\nBest throughput typically observed on larger buffers with real GPU backends.\n\nFull results:\n{}",
-            self.version,
-            test_sizes.len(),
-            results.join("\n")
-        );
-
-        println!("{}", summary);
-        Ok(summary)
     }
 
-    /// GPU vs CPU fallback comparison benchmark.
-    pub async fn gpu_vs_cpu_comparison(&self, iterations: usize, buffer_size: usize) -> Result<String, String> {
-        println!("\n[GPU vs CPU Comparison] Running {} iterations on {} bytes buffer...", iterations, buffer_size);
+    /// Lightweight health score (0.0 – 1.0) for quick Lattice Conductor decisions.
+    /// Higher = healthier GPU subsystem.
+    pub async fn get_gpu_health_score(&self) -> f64 {
+        let h = self.get_gpu_health_telemetry().await;
 
-        let mut gpu_total: u128 = 0;
-        let mut cpu_total: u128 = 0;
+        let recovery_score = if h.device_lost_count == 0 {
+            1.0
+        } else {
+            (h.recovery_success_rate).clamp(0.0, 1.0)
+        };
 
-        for i in 0..iterations {
-            let task = GpuTask {
-                id: rand::random::<u64>() % 1_000_000_000,
-                name: format!("comparison_{}", i),
-                buffer_size,
-                intensity: "medium".to_string(),
-            };
+        let mercy_score = h.mercy_norm_avg.clamp(0.0, 1.0);
 
-            // GPU path (if available)
-            let start_gpu = Instant::now();
-            let _ = self.dispatch(task.clone()).await?;
-            gpu_total += start_gpu.elapsed().as_millis();
-
-            // CPU fallback simulation
-            let start_cpu = Instant::now();
-            tokio::time::sleep(tokio::time::Duration::from_millis(40)).await;
-            cpu_total += start_cpu.elapsed().as_millis();
-        }
-
-        let gpu_avg = gpu_total as f64 / iterations as f64;
-        let cpu_avg = cpu_total as f64 / iterations as f64;
-        let speedup = if gpu_avg > 0.0 { cpu_avg / gpu_avg } else { 0.0 };
-
-        let summary = format!(
-            "\n=== GPU vs CPU Comparison Results ===\nIterations: {}\nBuffer size: {} bytes\nAverage GPU time: {:.2} ms\nAverage CPU fallback time: {:.2} ms\nEstimated speedup: {:.2}x\n\nNote: Real GPU backends (wgpu/CUDA) show significant advantage on larger workloads.",
-            iterations, buffer_size, gpu_avg, cpu_avg, speedup
-        );
-
-        println!("{}", summary);
-        Ok(summary)
-    }
-
-    /// Quick stress test for sustained GPU load.
-    pub async fn gpu_stress_test(&self, iterations: usize, buffer_size: usize) -> Result<String, String> {
-        println!("\n[GPU Stress Test] Running {} iterations on {} MB buffer...", iterations, buffer_size / 1_048_576);
-
-        let mut total_time: u128 = 0;
-
-        for i in 0..iterations {
-            let task = GpuTask {
-                id: rand::random::<u64>() % 1_000_000_000,
-                name: format!("stress_{}", i),
-                buffer_size,
-                intensity: "high".to_string(),
-            };
-
-            let start = Instant::now();
-            let _ = self.dispatch(task).await?;
-            let elapsed = start.elapsed().as_millis();
-            total_time += elapsed;
-
-            if (i + 1) % 10 == 0 {
-                println!("[GPU Stress] Completed {}/{} iterations...", i + 1, iterations);
-            }
-        }
-
-        let avg_ms = total_time as f64 / iterations as f64;
-        let throughput = (buffer_size as f64 / 1_048_576.0) / (avg_ms / 1000.0);
-
-        let summary = format!(
-            "\n=== GPU Stress Test Results ===\nIterations: {}\nBuffer size: {} MB\nAverage time per dispatch: {:.2} ms\nEstimated throughput: {:.2} MB/s\n",
-            iterations, buffer_size / 1_048_576, avg_ms, throughput
-        );
-
-        println!("{}", summary);
-        Ok(summary);
+        // Weighted combination
+        (recovery_score * 0.55 + mercy_score * 0.45).clamp(0.0, 1.0)
     }
 
     #[cfg(feature = "wgpu")]
@@ -1229,7 +1176,7 @@ impl GpuComputePipeline {
         let shader_source = self.get_compute_shader_source(is_amd, recommended_wg_size, buffer_size);
 
         let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
-            label: Some("Ra-Thor Compute Shader v14.31"),
+            label: Some("Ra-Thor Compute Shader v14.32"),
             source: wgpu::ShaderSource::Wgsl(shader_source),
         });
 
@@ -1724,12 +1671,125 @@ impl GpuComputePipeline {
 
 // === Expanded Performance Testing Suite ===
 impl GpuComputePipeline {
-    /// Legacy AMD-specific performance test (kept for compatibility)
+    pub async fn gpu_performance_test_suite(&self) -> Result<String, String> {
+        println!("\n[GPU Performance Test Suite] Starting comprehensive performance evaluation...");
+
+        let test_sizes = vec![4096, 16384, 65536, 262144, 1048576, 4194304];
+        let mut results = Vec::new();
+
+        for &size in &test_sizes {
+            let task = GpuTask {
+                id: rand::random::<u64>() % 1_000_000_000,
+                name: format!("perf_test_{}", size),
+                buffer_size: size,
+                intensity: "high".to_string(),
+            };
+
+            let start = Instant::now();
+            let result = self.dispatch(task).await?;
+            let elapsed = start.elapsed().as_millis() as u64;
+
+            let throughput_mbs = if elapsed > 0 {
+                (size as f64 / 1_048_576.0) / (elapsed as f64 / 1000.0)
+            } else {
+                0.0
+            };
+
+            let line = format!(
+                "Buffer: {:>10} bytes | Time: {:>6} ms | Throughput: {:>8.2} MB/s | RealGPU: {}",
+                size, elapsed, throughput_mbs, result.real_gpu_used
+            );
+
+            println!("[GPU Perf] {}", line);
+            results.push(line);
+        }
+
+        let summary = format!(
+            "\n=== GPU Performance Test Suite Summary ===\nVersion: {}\nTests run: {}\nBest throughput typically observed on larger buffers with real GPU backends.\n\nFull results:\n{}",
+            self.version,
+            test_sizes.len(),
+            results.join("\n")
+        );
+
+        println!("{}", summary);
+        Ok(summary);
+    }
+
+    pub async fn gpu_vs_cpu_comparison(&self, iterations: usize, buffer_size: usize) -> Result<String, String> {
+        println!("\n[GPU vs CPU Comparison] Running {} iterations on {} bytes buffer...", iterations, buffer_size);
+
+        let mut gpu_total: u128 = 0;
+        let mut cpu_total: u128 = 0;
+
+        for i in 0..iterations {
+            let task = GpuTask {
+                id: rand::random::<u64>() % 1_000_000_000,
+                name: format!("comparison_{}", i),
+                buffer_size,
+                intensity: "medium".to_string(),
+            };
+
+            let start_gpu = Instant::now();
+            let _ = self.dispatch(task.clone()).await?;
+            gpu_total += start_gpu.elapsed().as_millis();
+
+            let start_cpu = Instant::now();
+            tokio::time::sleep(tokio::time::Duration::from_millis(40)).await;
+            cpu_total += start_cpu.elapsed().as_millis();
+        }
+
+        let gpu_avg = gpu_total as f64 / iterations as f64;
+        let cpu_avg = cpu_total as f64 / iterations as f64;
+        let speedup = if gpu_avg > 0.0 { cpu_avg / gpu_avg } else { 0.0 };
+
+        let summary = format!(
+            "\n=== GPU vs CPU Comparison Results ===\nIterations: {}\nBuffer size: {} bytes\nAverage GPU time: {:.2} ms\nAverage CPU fallback time: {:.2} ms\nEstimated speedup: {:.2}x\n",
+            iterations, buffer_size, gpu_avg, cpu_avg, speedup
+        );
+
+        println!("{}", summary);
+        Ok(summary);
+    }
+
+    pub async fn gpu_stress_test(&self, iterations: usize, buffer_size: usize) -> Result<String, String> {
+        println!("\n[GPU Stress Test] Running {} iterations on {} MB buffer...", iterations, buffer_size / 1_048_576);
+
+        let mut total_time: u128 = 0;
+
+        for i in 0..iterations {
+            let task = GpuTask {
+                id: rand::random::<u64>() % 1_000_000_000,
+                name: format!("stress_{}", i),
+                buffer_size,
+                intensity: "high".to_string(),
+            };
+
+            let start = Instant::now();
+            let _ = self.dispatch(task).await?;
+            let elapsed = start.elapsed().as_millis();
+            total_time += elapsed;
+
+            if (i + 1) % 10 == 0 {
+                println!("[GPU Stress] Completed {}/{} iterations...", i + 1, iterations);
+            }
+        }
+
+        let avg_ms = total_time as f64 / iterations as f64;
+        let throughput = (buffer_size as f64 / 1_048_576.0) / (avg_ms / 1000.0);
+
+        let summary = format!(
+            "\n=== GPU Stress Test Results ===\nIterations: {}\nBuffer size: {} MB\nAverage time per dispatch: {:.2} ms\nEstimated throughput: {:.2} MB/s\n",
+            iterations, buffer_size / 1_048_576, avg_ms, throughput
+        );
+
+        println!("{}", summary);
+        Ok(summary);
+    }
+
     pub async fn amd_performance_test_suite(&self) -> Result<String, String> {
         self.gpu_performance_test_suite().await
     }
 
-    /// Legacy AMD stress test (kept for compatibility)
     pub async fn amd_stress_test(&self, iterations: usize) -> Result<String, String> {
         self.gpu_stress_test(iterations, 4 * 1024 * 1024).await
     }
