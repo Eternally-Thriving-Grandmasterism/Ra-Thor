@@ -1,10 +1,9 @@
 // gpu_compute_pipeline.rs
-// Ra-Thor v14.22 — AMD GPU Performance Testing Suite
+// Ra-Thor v14.23 — AMD Workgroup Size Tuning + Shader Variants
 // Lattice Conductor v13.1 | ONE Organism | PATSAGi Council #13
 //
-// Added comprehensive AMD GPU performance testing + benchmarking capabilities.
-// Includes AMD-optimized workgroup sizes, larger buffer stress tests,
-// and clear performance comparison output.
+// Added AMD-optimized workgroup size selection and AMD-specific shader variants
+// for better performance on Radeon / Instinct GPUs via wgpu (Vulkan).
 //
 // AG-SML v1.0 License
 
@@ -540,7 +539,7 @@ impl GpuComputePipeline {
             telemetry_retry_count: AtomicUsize::new(3),
             mercy_norm_histogram: TelemetryHistogram::new("ra_thor_mercy_norm", vec![0.5, 0.7, 0.8, 0.85, 0.9, 0.95, 1.0]),
             save_duration_histogram: TelemetryHistogram::new("ra_thor_telemetry_save_duration_ms", vec![10.0, 50.0, 100.0, 200.0, 500.0, 1000.0]),
-            version: "v14.22-amd-performance-testing-TOLC8-PATSAGi".to_string(),
+            version: "v14.23-amd-workgroup-tuning-TOLC8-PATSAGi".to_string(),
 
             device_lost_count: AtomicUsize::new(0),
             successful_recoveries: AtomicUsize::new(0),
@@ -823,6 +822,33 @@ impl GpuComputePipeline {
         }
     }
 
+    // NEW v14.23: Detect if current adapter is AMD
+    #[cfg(feature = "wgpu")]
+    fn is_amd_gpu(&self, adapter: &wgpu::Adapter) -> bool {
+        let info = adapter.get_info();
+        let name = info.name.to_lowercase();
+        name.contains("amd") || name.contains("radeon")
+    }
+
+    // NEW v14.23: Get recommended workgroup size for AMD GPUs
+    // AMD GPUs have wavefront size of 64. Best performance often comes from
+    // workgroup sizes that are multiples of 64 (64, 128, 256).
+    pub fn get_recommended_workgroup_size(&self, is_amd: bool, buffer_size: usize) -> u32 {
+        if is_amd {
+            // AMD prefers larger workgroups aligned to wavefront size (64)
+            if buffer_size >= 262144 {
+                256 // Best for very large buffers on AMD
+            } else if buffer_size >= 65536 {
+                128
+            } else {
+                64
+            }
+        } else {
+            // Default / NVIDIA-friendly size
+            64
+        }
+    }
+
     pub async fn submit_patsagi_task(&self, query: &str, intensity: &str, buffer_size: usize) -> Result<GpuTaskResult, String> {
         let task = GpuTask {
             id: rand::random::<u64>() % 1_000_000_000,
@@ -903,7 +929,7 @@ impl GpuComputePipeline {
         });
     }
 
-    // === NEW v14.21: AMD-improved real GPU path with better adapter selection ===
+    // === NEW v14.23: AMD Workgroup Tuning + Shader Variants ===
     #[cfg(feature = "wgpu")]
     async fn try_real_gpu_with_readback(&self, buffer_size: usize) -> Result<Vec<f32>, String> {
         use wgpu::util::DeviceExt;
@@ -923,6 +949,7 @@ impl GpuComputePipeline {
         });
 
         let adapter = self.select_best_adapter(&instance).await?;
+        let is_amd = self.is_amd_gpu(&adapter);
 
         let (device, queue) = adapter
             .request_device(
@@ -937,26 +964,54 @@ impl GpuComputePipeline {
             .map_err(|e| format!("Device request failed (TOLC 8 Order Gate): {}", e))?; 
 
         let info = adapter.get_info();
-        println!("[Ra-Thor] Using GPU: {} ({:?}) | AMD support improvements active", info.name, info.device_type);
+        let recommended_wg_size = self.get_recommended_workgroup_size(is_amd, buffer_size);
 
-        let shader_source = r#"
-            @group(0) @binding(0) var<storage, read_write> data: array<f32>;
+        println!(
+            "[Ra-Thor] Using GPU: {} ({:?}) | AMD={} | Recommended workgroup size: {}",
+            info.name, info.device_type, is_amd, recommended_wg_size
+        );
 
-            @compute @workgroup_size(64)
-            fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
-                let idx = global_id.x;
-                if (idx < arrayLength(&data)) {
-                    let val = data[idx];
-                    let transformed = val * 1.01 + 0.001;
-                    let entropy_factor = (transformed - val) * 0.1;
-                    data[idx] = transformed + entropy_factor;
+        // NEW v14.23: Choose shader variant based on GPU type
+        let shader_source = if is_amd {
+            // AMD-optimized shader: larger workgroup size aligned to wavefront (64)
+            format!(
+                r#"
+                @group(0) @binding(0) var<storage, read_write> data: array<f32>;
+
+                @compute @workgroup_size({})
+                fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {{
+                    let idx = global_id.x;
+                    if (idx < arrayLength(&data)) {{
+                        let val = data[idx];
+                        let transformed = val * 1.01 + 0.001;
+                        let entropy_factor = (transformed - val) * 0.1;
+                        data[idx] = transformed + entropy_factor;
+                    }}
+                }}
+                "#,
+                recommended_wg_size
+            )
+        } else {
+            // Standard shader for other GPUs
+            r#"
+                @group(0) @binding(0) var<storage, read_write> data: array<f32>;
+
+                @compute @workgroup_size(64)
+                fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
+                    let idx = global_id.x;
+                    if (idx < arrayLength(&data)) {
+                        let val = data[idx];
+                        let transformed = val * 1.01 + 0.001;
+                        let entropy_factor = (transformed - val) * 0.1;
+                        data[idx] = transformed + entropy_factor;
+                    }
                 }
-            }
-        "#;
+            "#.to_string()
+        };
 
         let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
-            label: Some("Ra-Thor TU Compute Shader - Full Readback v14.22"),
-            source: wgpu::ShaderSource::Wgsl(shader_source.into()),
+            label: Some("Ra-Thor TU Compute Shader - AMD Tuned v14.23"),
+            source: wgpu::ShaderSource::Wgsl(shader_source),
         });
 
         let bind_group_layout = device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
@@ -1012,7 +1067,10 @@ impl GpuComputePipeline {
             });
             compute_pass.set_pipeline(&compute_pipeline);
             compute_pass.set_bind_group(0, &bind_group, &[]);
-            compute_pass.dispatch_workgroups((buffer_size / 4 / 64) + 1, 1, 1);
+
+            // Use recommended workgroup size for dispatch
+            let workgroups = (buffer_size / 4 / recommended_wg_size as usize) + 1;
+            compute_pass.dispatch_workgroups(workgroups as u32, 1, 1);
         }
 
         let staging_buffer = device.create_buffer(&wgpu::BufferDescriptor {
@@ -1426,12 +1484,11 @@ impl GpuComputePipeline {
 // === NEW v14.22: AMD GPU Performance Testing Suite ===
 impl GpuComputePipeline {
     /// Comprehensive AMD GPU Performance Test
-    /// Run this on an AMD machine to measure real performance characteristics.
     pub async fn amd_performance_test_suite(&self) -> Result<String, String> {
         println!("\n[AMD Performance Test] Starting AMD GPU Performance Test Suite...");
         println!("[AMD Performance Test] This test is optimized for AMD Radeon / Instinct GPUs via wgpu (Vulkan).");
 
-        let test_sizes = vec![4096, 16384, 65536, 262144, 1048576]; // 4KB → 1MB
+        let test_sizes = vec![4096, 16384, 65536, 262144, 1048576];
         let mut results = Vec::new();
 
         for &size in &test_sizes {
@@ -1471,11 +1528,11 @@ impl GpuComputePipeline {
         Ok(summary);
     }
 
-    /// Quick AMD stress test with larger buffers (more representative of real workloads)
+    /// Quick AMD stress test with larger buffers
     pub async fn amd_stress_test(&self, iterations: usize) -> Result<String, String> {
         println!("\n[AMD Stress Test] Running {} iterations on large buffers...", iterations);
 
-        let large_size = 4 * 1024 * 1024; // 4 MB
+        let large_size = 4 * 1024 * 1024;
         let mut total_time: u128 = 0;
 
         for i in 0..iterations {
@@ -1613,7 +1670,6 @@ mod tests {
         assert!(avg_ms < 5000.0);
     }
 
-    // NEW v14.22: AMD Performance Test (can be run manually on AMD hardware)
     #[tokio::test]
     #[ignore]
     async fn amd_gpu_performance_test() {
