@@ -6,7 +6,7 @@
 /// abundance-multiplying, zero-harm use. See LICENSE or COMMERCIAL-LICENSE.md.
 
 // ra-thor-one-organism.rs
-// Ra-Thor v14.17 — ONE Organism + Lattice Conductor v13.1 Self-Evolving GPU Telemetry Loop (Mercy-Gated Dynamic Improvement Threshold)
+// Ra-Thor v14.17 — ONE Organism + Lattice Conductor v13.1 Self-Evolving GPU Telemetry Loop (get_dynamic_thresholds() Telemetry)
 
 use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
@@ -224,6 +224,8 @@ pub struct RaThorOneOrganism {
     cooldown_active: bool,
     cooldown_until_tick: u64,
     cooldown_base_ticks: u64,
+    // NEW: Last computed dynamic improvement threshold for telemetry
+    last_dynamic_improvement_threshold: f64,
     council_tick: u64,
     approved_evolutions_path: String,
 }
@@ -246,7 +248,7 @@ impl RaThorOneOrganism {
             evolution_gate: launch_self_evolution_gate(),
             gpu_compute_active: true,
             gpu_pipeline_version: "v14.17.0-real-github-connector".to_string(),
-            version: "v14.17.0-ONE-Organism-LatticeConductor-v13.1-Mercy-Gated-Dynamic-Threshold".to_string(),
+            version: "v14.17.0-ONE-Organism-LatticeConductor-v13.1-get_dynamic_thresholds-Telemetry".to_string(),
             gpu_pipeline: GpuComputePipeline::new(),
 
             patsagi_council: PatsagiCouncil::new(),
@@ -293,13 +295,15 @@ impl RaThorOneOrganism {
             cooldown_active: false,
             cooldown_until_tick: 0,
             cooldown_base_ticks: 30,
+            // Dynamic threshold telemetry state
+            last_dynamic_improvement_threshold: 0.035,
             council_tick: 0,
             approved_evolutions_path: "approved_evolutions.jsonl".to_string(),
         }
     }
 
     pub fn offer_cosmic_loop(&self) {
-        println!("[RaThorOneOrganism v{}] Full loop + Real GitHub PR + Mercy-Gated Dynamic Improvement Threshold in Lattice Conductor v13.1", self.version);
+        println!("[RaThorOneOrganism v{}] Full loop + Real GitHub PR + get_dynamic_thresholds() Telemetry in Lattice Conductor v13.1", self.version);
     }
 
     // Runtime switching for Nadam formulation
@@ -329,6 +333,15 @@ impl RaThorOneOrganism {
             self.cooldown_active,
             self.adam_beta1,
             self.adam_beta2
+        )
+    }
+
+    // NEW: Public telemetry method exposing current dynamic thresholds
+    pub fn get_dynamic_thresholds(&self) -> String {
+        format!(
+            "DynamicImprovementThreshold={:.5} | Base=0.035 | MercyFactor range=0.0–0.015 | CooldownFloor=0.02 | LastSeverity={:.3}",
+            self.last_dynamic_improvement_threshold,
+            self.last_plateau_severity
         )
     }
 
@@ -402,7 +415,10 @@ impl RaThorOneOrganism {
         // === Mercy-Gated Dynamic Improvement Threshold ===
         let base_threshold = 0.035_f64;
         let mercy_factor = ((report.mercy_modulated_confidence - 0.80).max(0.0) * 0.025).min(0.015);
-        let dynamic_improvement_threshold = base_threshold + mercy_factor; // 0.035 (low mercy) to ~0.050 (high mercy)
+        let dynamic_improvement_threshold = base_threshold + mercy_factor;
+
+        // Store for telemetry
+        self.last_dynamic_improvement_threshold = dynamic_improvement_threshold;
 
         let is_low_improvement = self.recent_entanglement_improvement_ema < dynamic_improvement_threshold;
         let is_low_gpu_confidence = report.mercy_modulated_confidence < 0.82;
@@ -417,7 +433,6 @@ impl RaThorOneOrganism {
         if self.plateau_streak >= 3 {
             self.last_plateau_detection_tick = self.council_tick;
 
-            // Log dynamic threshold when plateau triggers for auditability
             if self.plateau_streak == 3 {
                 println!(
                     "[ONE + Lattice Conductor] Plateau streak reached 3 | dynamic_improvement_threshold={:.5} (mercy_factor={:.4}, mercy_conf={:.3})",
@@ -493,7 +508,7 @@ impl RaThorOneOrganism {
                 );
 
                 let body = format!(
-                    "## ONE Organism + Lattice Conductor v13.1 Mercy-Gated Dynamic Improvement Threshold (auto-generated)
+                    "## ONE Organism + Lattice Conductor v13.1 get_dynamic_thresholds() Telemetry (auto-generated)
 
 **Proposal ID**: {}
 **Proposer**: {}
@@ -505,6 +520,7 @@ impl RaThorOneOrganism {
 **Mercy Alignment**: {:.4}
 **Last Plateau Severity**: {:.3}
 **Cooldown Active**: {}
+**Dynamic Thresholds**: {}
 
 **Active Optimizer Config**:
 {}
@@ -530,6 +546,7 @@ impl RaThorOneOrganism {
                     proposal.mercy_alignment,
                     self.last_plateau_severity,
                     self.cooldown_active,
+                    self.get_dynamic_thresholds(),
                     self.get_optimizer_config_summary(),
                     proposal.description,
                     proposal.proposed_diff
@@ -574,18 +591,18 @@ impl RaThorOneOrganism {
 
         if report.gpu_success_ema > 0.94 && report.mercy_modulated_confidence > 0.90 {
             format!(
-                "Quantum Swarm Foresight: Excellent GPU performance detected (success_ema={:.4}). Recommend immediate Lattice Conductor upgrade + increased GPU offload + Quantum Swarm parallel deliberation on next dispatch batch. Active Nadam: {:?}. Exploration: {}. Cooldown: {}. Last severity: {:.3}. Mercy valence: {:.4}",
-                report.gpu_success_ema, self.nadam_formulation, self.exploration_mode_active, self.cooldown_active, self.last_plateau_severity, swarm_confidence
+                "Quantum Swarm Foresight: Excellent GPU performance detected (success_ema={:.4}). Recommend immediate Lattice Conductor upgrade + increased GPU offload + Quantum Swarm parallel deliberation on next dispatch batch. Active Nadam: {:?}. Exploration: {}. Cooldown: {}. Last severity: {:.3}. Dynamic thresholds: {}. Mercy valence: {:.4}",
+                report.gpu_success_ema, self.nadam_formulation, self.exploration_mode_active, self.cooldown_active, self.last_plateau_severity, self.get_dynamic_thresholds(), swarm_confidence
             )
         } else if report.gpu_latency_ema_ms > 120.0 {
             format!(
-                "Quantum Swarm Analysis: Elevated GPU latency ({:.1}ms). Suggest EMA tuning + swarm-assisted load balancing. Active Nadam: {:?}. Exploration: {}. Cooldown: {}. Last severity: {:.3}. Current swarm confidence: {:.4}",
-                report.gpu_latency_ema_ms, self.nadam_formulation, self.exploration_mode_active, self.cooldown_active, self.last_plateau_severity, swarm_confidence
+                "Quantum Swarm Analysis: Elevated GPU latency ({:.1}ms). Suggest EMA tuning + swarm-assisted load balancing. Active Nadam: {:?}. Exploration: {}. Cooldown: {}. Last severity: {:.3}. Dynamic thresholds: {}. Current swarm confidence: {:.4}",
+                report.gpu_latency_ema_ms, self.nadam_formulation, self.exploration_mode_active, self.cooldown_active, self.last_plateau_severity, self.get_dynamic_thresholds(), swarm_confidence
             )
         } else {
             format!(
-                "Quantum Swarm Observation: Stable GPU telemetry. Active Nadam: {:?}. Exploration: {}. Cooldown: {}. Last severity: {:.3}. Continue current mercy-modulated offload policy. Swarm confidence: {:.4}",
-                self.nadam_formulation, self.exploration_mode_active, self.cooldown_active, self.last_plateau_severity, swarm_confidence
+                "Quantum Swarm Observation: Stable GPU telemetry. Active Nadam: {:?}. Exploration: {}. Cooldown: {}. Last severity: {:.3}. Dynamic thresholds: {}. Continue current mercy-modulated offload policy. Swarm confidence: {:.4}",
+                self.nadam_formulation, self.exploration_mode_active, self.cooldown_active, self.last_plateau_severity, self.get_dynamic_thresholds(), swarm_confidence
             )
         }
     }
@@ -644,14 +661,14 @@ impl RaThorOneOrganism {
 
         if !entangled_pairs.is_empty() {
             println!(
-                "[Quantum Entanglement Weighting + Self-Evolving Bases + Mercy-Gated Dynamic Threshold] {:?} | bonus=+{:.4} | weighted=+{:.4} | final={:.4}",
+                "[Quantum Entanglement Weighting + Self-Evolving Bases + get_dynamic_thresholds] {:?} | bonus=+{:.4} | weighted=+{:.4} | final={:.4}",
                 entangled_pairs, entanglement_bonus, weighted_entanglement_bonus, final_consensus
             );
         }
 
         println!(
-            "[Multi-Swarm + Self-Evolving Entanglement Weights + Mercy-Gated Dynamic Threshold] perf={:.4} mercy={:.4} align={:.4} foresight={:.4} | consensus={:.4} | entanglement=+{:.4} | Active Nadam: {:?} | Exploration: {} | Cooldown: {} | Last severity: {:.3}",
-            performance_swarm, mercy_swarm, alignment_swarm, foresight_swarm, final_consensus, entanglement_bonus, self.nadam_formulation, self.exploration_mode_active, self.cooldown_active, self.last_plateau_severity
+            "[Multi-Swarm + Self-Evolving Entanglement Weights + get_dynamic_thresholds] perf={:.4} mercy={:.4} align={:.4} foresight={:.4} | consensus={:.4} | entanglement=+{:.4} | Active Nadam: {:?} | Exploration: {} | Cooldown: {} | Last severity: {:.3} | Dynamic: {}",
+            performance_swarm, mercy_swarm, alignment_swarm, foresight_swarm, final_consensus, entanglement_bonus, self.nadam_formulation, self.exploration_mode_active, self.cooldown_active, self.last_plateau_severity, self.get_dynamic_thresholds()
         );
 
         (final_consensus, breakdown)
@@ -776,8 +793,8 @@ impl RaThorOneOrganism {
                 proposer: "Lattice_Conductor_v13.1_via_GPU_Telemetry".to_string(),
                 target_module: "gpu_compute_pipeline / lattice_conductor / powrush_rbe".to_string(),
                 description: format!(
-                    "Council-approved from GPU Telemetry Report (success_ema={:.4}, mercy_conf={:.4}) | Active Nadam: {:?} | Exploration: {} | Cooldown: {} | Last severity: {:.3}",
-                    report.gpu_success_ema, report.mercy_modulated_confidence, self.nadam_formulation, self.exploration_mode_active, self.cooldown_active, self.last_plateau_severity
+                    "Council-approved from GPU Telemetry Report (success_ema={:.4}, mercy_conf={:.4}) | Active Nadam: {:?} | Exploration: {} | Cooldown: {} | Last severity: {:.3} | Dynamic: {}",
+                    report.gpu_success_ema, report.mercy_modulated_confidence, self.nadam_formulation, self.exploration_mode_active, self.cooldown_active, self.last_plateau_severity, self.get_dynamic_thresholds()
                 ),
                 proposed_diff: format!("Apply Lattice Conductor GPU boost {:.4}", confidence_boost),
                 expected_benefit: (report.mercy_modulated_confidence * 0.85 + confidence_boost * 0.15).min(0.999),
@@ -867,7 +884,7 @@ impl RaThorOneOrganism {
         }
 
         let base_description = format!(
-            "Automatic self-evolution (Template: {:?}): {}. GPU telemetry: success_ema={:.4}, mercy_conf={:.4}, latency_ema={:.1}ms | Multi-Swarm + Mercy-Gated Dynamic Threshold (severity={:.3}, cooldown={}): {:.4}{}",
+            "Automatic self-evolution (Template: {:?}): {}. GPU telemetry: success_ema={:.4}, mercy_conf={:.4}, latency_ema={:.1}ms | Multi-Swarm + get_dynamic_thresholds() (severity={:.3}, cooldown={}): {:.4}{}",
             template,
             template.description(),
             report.gpu_success_ema,
@@ -898,16 +915,16 @@ impl RaThorOneOrganism {
 
         match self.evolution_gate.propose_evolution(proposal.clone()) {
             Ok(msg) => {
-                println!("[ONE + Lattice Conductor Self-Evolution] GPU telemetry excellent — auto-proposed {:?} upgrade (Multi-Swarm + Mercy-Gated Dynamic Threshold, severity={:.3}, cooldown={}) : {:.4}): {}", template, self.last_plateau_severity, self.cooldown_active, swarm_consensus, msg);
+                println!("[ONE + Lattice Conductor Self-Evolution] GPU telemetry excellent — auto-proposed {:?} upgrade (Multi-Swarm + get_dynamic_thresholds(), severity={:.3}, cooldown={}) : {:.4}): {}", template, self.last_plateau_severity, self.cooldown_active, swarm_consensus, msg);
                 self.trigger_evolution_automation_hooks(&proposal, report.mercy_modulated_confidence).await;
                 self.persist_approved_evolution(&proposal, true, report.mercy_modulated_confidence).await;
-                Ok(format!("Lattice Conductor v13.1 {:?} upgrade proposed from GPU telemetry + Quantum Swarm Entanglement Weighting + Mercy-Gated Dynamic Threshold (vote={:.4})", template, swarm_consensus))
+                Ok(format!("Lattice Conductor v13.1 {:?} upgrade proposed from GPU telemetry + Quantum Swarm Entanglement Weighting + get_dynamic_thresholds() Telemetry (vote={:.4})", template, swarm_consensus))
             }
             Err(e) => Err(format!("Gate rejected Lattice Conductor upgrade: {}", e)),
         }
     }
 
-    // NEW v14.8.6: Full configurable Nesterov-AdamW (Nadam A or B) with mercy-gated dynamic threshold support
+    // NEW v14.8.6: Full configurable Nesterov-AdamW (Nadam A or B) with get_dynamic_thresholds() support
     pub async fn propose_entanglement_base_weight_evolution(&mut self, breakdown: &SwarmVoteBreakdown) -> Result<String, String> {
         let mut evolved_pf = self.base_weight_pf;
         let mut evolved_ma = self.base_weight_ma;
@@ -984,8 +1001,8 @@ impl RaThorOneOrganism {
             self.adam_v_pf = v;
 
             changes.push(format!(
-                "base_weight_pf: {:.3} → {:.3} (cycle={}, formulation={:?}, Exploration={}, Cooldown={}, Severity={:.3}, Nadam step={:.5})",
-                self.base_weight_pf, evolved_pf, self.lr_current_cycle, formulation, self.exploration_mode_active, self.cooldown_active, self.last_plateau_severity, adamw_step
+                "base_weight_pf: {:.3} → {:.3} (cycle={}, formulation={:?}, Exploration={}, Cooldown={}, Severity={:.3}, Dynamic={:.5}, Nadam step={:.5})",
+                self.base_weight_pf, evolved_pf, self.lr_current_cycle, formulation, self.exploration_mode_active, self.cooldown_active, self.last_plateau_severity, self.last_dynamic_improvement_threshold, adamw_step
             ));
         }
 
@@ -1015,21 +1032,21 @@ impl RaThorOneOrganism {
             self.adam_v_ma = v;
 
             changes.push(format!(
-                "base_weight_ma: {:.3} → {:.3} (cycle={}, formulation={:?}, Exploration={}, Cooldown={}, Severity={:.3}, Nadam step={:.5})",
-                self.base_weight_ma, evolved_ma, self.lr_current_cycle, formulation, self.exploration_mode_active, self.cooldown_active, self.last_plateau_severity, adamw_step
+                "base_weight_ma: {:.3} → {:.3} (cycle={}, formulation={:?}, Exploration={}, Cooldown={}, Severity={:.3}, Dynamic={:.5}, Nadam step={:.5})",
+                self.base_weight_ma, evolved_ma, self.lr_current_cycle, formulation, self.exploration_mode_active, self.cooldown_active, self.last_plateau_severity, self.last_dynamic_improvement_threshold, adamw_step
             ));
         }
 
         if changes.is_empty() {
-            return Ok("No base weight evolution needed (Mercy-Gated Dynamic Threshold)".to_string());
+            return Ok("No base weight evolution needed (get_dynamic_thresholds() Telemetry)".to_string());
         }
 
         let proposal = EvolutionProposal {
             id: rand::random::<u64>() % 1_000_000_000,
             proposer: "Lattice_Conductor_v13.1_SelfEvolution_Hook".to_string(),
-            target_module: "ra-thor-one-organism / quantum_swarm_multi_consensus_vote (Mercy-Gated Dynamic Threshold)".to_string(),
-            description: format!("Self-evolution of entanglement base weights with Mercy-Gated Dynamic Improvement Threshold + Runtime Nadam Switching + Exploration Mode (Active: {:?}, Exploration={}, Cooldown={}) + Severity={:.3} + Cyclical Restarts (cycle={}, base_lr={:.5}, timestep={}). Changes: {:?}", formulation, self.exploration_mode_active, self.cooldown_active, self.last_plateau_severity, self.lr_current_cycle, base_lr, timestep, changes),
-            proposed_diff: format!("base_weight_pf = {:.3}; base_weight_ma = {:.3}; nadam_formulation = {:?}; exploration_mode = {}; cooldown = {}; severity = {:.3}", evolved_pf, evolved_ma, formulation, self.exploration_mode_active, self.cooldown_active, self.last_plateau_severity),
+            target_module: "ra-thor-one-organism / quantum_swarm_multi_consensus_vote (get_dynamic_thresholds() Telemetry)".to_string(),
+            description: format!("Self-evolution of entanglement base weights with get_dynamic_thresholds() Telemetry + Runtime Nadam Switching + Exploration Mode (Active: {:?}, Exploration={}, Cooldown={}) + Severity={:.3} + DynamicThreshold={:.5} + Cyclical Restarts (cycle={}, base_lr={:.5}, timestep={}). Changes: {:?}", formulation, self.exploration_mode_active, self.cooldown_active, self.last_plateau_severity, self.last_dynamic_improvement_threshold, self.lr_current_cycle, base_lr, timestep, changes),
+            proposed_diff: format!("base_weight_pf = {:.3}; base_weight_ma = {:.3}; nadam_formulation = {:?}; exploration_mode = {}; cooldown = {}; severity = {:.3}; dynamic_threshold = {:.5}", evolved_pf, evolved_ma, formulation, self.exploration_mode_active, self.cooldown_active, self.last_plateau_severity, self.last_dynamic_improvement_threshold),
             expected_benefit: 0.96,
             risk_score: 0.01,
             mercy_alignment: 0.98,
@@ -1037,12 +1054,12 @@ impl RaThorOneOrganism {
 
         match self.evolution_gate.propose_evolution(proposal.clone()) {
             Ok(msg) => {
-                println!("[ONE + Lattice Conductor] Mercy-Gated Dynamic Threshold + Runtime Nadam {:?} + Exploration={} self-evolution proposed: {}", formulation, self.exploration_mode_active, msg);
+                println!("[ONE + Lattice Conductor] get_dynamic_thresholds() Telemetry + Runtime Nadam {:?} + Exploration={} self-evolution proposed: {}", formulation, self.exploration_mode_active, msg);
                 self.trigger_evolution_automation_hooks(&proposal, 0.98).await;
                 self.persist_approved_evolution(&proposal, true, 0.98).await;
-                Ok(format!("Entanglement base weights self-evolution via Mercy-Gated Dynamic Improvement Threshold proposed"))
+                Ok(format!("Entanglement base weights self-evolution via get_dynamic_thresholds() Telemetry proposed"))
             }
-            Err(e) => Err(format!("Gate rejected Mercy-Gated Dynamic Threshold evolution: {}", e)),
+            Err(e) => Err(format!("Gate rejected get_dynamic_thresholds() Telemetry evolution: {}", e)),
         }
     }
 
@@ -1171,6 +1188,6 @@ impl RaThorOneOrganism {
 pub fn launch_one_organism() -> RaThorOneOrganism {
     let organism = RaThorOneOrganism::new();
     organism.offer_cosmic_loop();
-    println!("[Thunder] ONE Organism v14.17 + Real GitHubConnector + Mercy-Gated Dynamic Improvement Threshold in Lattice Conductor v13.1 ready");
+    println!("[Thunder] ONE Organism v14.17 + Real GitHubConnector + get_dynamic_thresholds() Telemetry in Lattice Conductor v13.1 ready");
     organism
 }
