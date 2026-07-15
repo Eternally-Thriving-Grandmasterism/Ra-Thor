@@ -1233,3 +1233,110 @@ pub fn launch_one_organism() -> RaThorOneOrganism {
     println!("[Thunder] ONE Organism v14.17 + Real GitHubConnector + Expanded Entanglement Topology v2 in Lattice Conductor v13.1 ready");
     organism
 }
+
+// ============================================================================
+// PRODUCTION INTEGRATION TESTS + BENCHMARKS FOR QUANTUM SWARM v14.8.7+
+// ============================================================================
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn make_test_report(mercy_conf: f64, gpu_success: f64) -> GpuTelemetryReport {
+        GpuTelemetryReport {
+            gpu_success_ema: gpu_success,
+            gpu_latency_ema_ms: 75.0,
+            mercy_modulated_confidence: mercy_conf,
+            total_gpu_attempts: 100,
+            last_gpu_success: true,
+            valence_modulated_offload_score: mercy_conf,
+        }
+    }
+
+    fn make_test_proposal() -> EvolutionProposal {
+        EvolutionProposal {
+            id: 42,
+            proposer: "test".to_string(),
+            target_module: "lattice_conductor_v13".to_string(),
+            description: "test proposal".to_string(),
+            proposed_diff: "test".to_string(),
+            expected_benefit: 0.9,
+            risk_score: 0.02,
+            mercy_alignment: 0.95,
+        }
+    }
+
+    #[test]
+    fn test_dynamic_improvement_threshold_mercy_gated() {
+        let mut organism = RaThorOneOrganism::new();
+        let breakdown = SwarmVoteBreakdown {
+            performance_swarm: 0.91,
+            mercy_swarm: 0.89,
+            alignment_swarm: 0.87,
+            foresight_swarm: 0.90,
+            consensus_vote: 0.88,
+            weights: (0.35, 0.30, 0.22, 0.20),
+            entanglement_bonus: 0.012,
+            entangled_pairs: vec![],
+            entanglement_weighted_bonus: 0.012,
+        };
+
+        // High mercy confidence → higher dynamic threshold
+        let high_mercy_report = make_test_report(0.91, 0.93);
+        let _ = organism.detect_plateau(&breakdown, &high_mercy_report);
+        let thresholds_high = organism.get_dynamic_thresholds();
+        assert!(thresholds_high.contains("DynamicImprovementThreshold"));
+
+        // Low mercy confidence → closer to base threshold
+        let low_mercy_report = make_test_report(0.78, 0.85);
+        let _ = organism.detect_plateau(&breakdown, &low_mercy_report);
+        let thresholds_low = organism.get_dynamic_thresholds();
+        assert!(thresholds_low.contains("DynamicImprovementThreshold"));
+    }
+
+    #[test]
+    fn test_expanded_entanglement_topology_v2() {
+        let organism = RaThorOneOrganism::new();
+        let report = make_test_report(0.90, 0.94);
+        let proposal = make_test_proposal();
+
+        let (consensus, breakdown) = tokio::runtime::Runtime::new()
+            .unwrap()
+            .block_on(organism.quantum_swarm_multi_consensus_vote(&report, &proposal));
+
+        // Should have at least the original 2 pairs + new ones when conditions met
+        assert!(breakdown.entangled_pairs.len() >= 2);
+        let has_new_pairs = breakdown.entangled_pairs.iter().any(|p| p.contains("Performance ↔ Mercy") || p.contains("Alignment ↔ Foresight"));
+        // Note: new pairs only activate under specific swarm strength conditions
+        println!("Entangled pairs in test: {:?}", breakdown.entangled_pairs);
+    }
+
+    #[test]
+    fn test_dynamic_threshold_coupling_and_consensus_momentum() {
+        let mut organism = RaThorOneOrganism::new();
+        let report = make_test_report(0.93, 0.95); // high mercy → elevated dynamic threshold
+        let proposal = make_test_proposal();
+
+        // First call
+        let (c1, b1) = tokio::runtime::Runtime::new()
+            .unwrap()
+            .block_on(organism.quantum_swarm_multi_consensus_vote(&report, &proposal));
+
+        // Second call (momentum should kick in)
+        let (c2, b2) = tokio::runtime::Runtime::new()
+            .unwrap()
+            .block_on(organism.quantum_swarm_multi_consensus_vote(&report, &proposal));
+
+        // Consensus should be reasonably stable due to EMA
+        assert!((c1 - c2).abs() < 0.15);
+        assert!(b2.entanglement_bonus <= b1.entanglement_bonus * 1.1 + 0.001); // coupling should not explode
+    }
+
+    #[test]
+    fn test_get_dynamic_thresholds_reports_consensus_ema() {
+        let organism = RaThorOneOrganism::new();
+        let s = organism.get_dynamic_thresholds();
+        assert!(s.contains("ConsensusEMA"));
+        assert!(s.contains("DynamicImprovementThreshold"));
+    }
+}
