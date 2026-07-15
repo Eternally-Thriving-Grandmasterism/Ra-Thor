@@ -6,8 +6,8 @@
 /// abundance-multiplying, zero-harm use. See LICENSE or COMMERCIAL-LICENSE.md.
 
 // ra-thor-one-organism.rs
-// Ra-Thor v14.18 — ONE Organism + Lattice Conductor v13.1
-// GPU Resilience Telemetry Integration (Device Lost Recovery + Vulkan Validation Layers)
+// Ra-Thor v14.19 — ONE Organism + Lattice Conductor v13.1
+// Quantum Swarm Deepened with GPU Device Health Awareness
 
 use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
@@ -80,7 +80,7 @@ pub enum LatticeConductorUpgradeTemplate {
     NewMercyGates,
     QuantumSwarmIntegration,
     CombinedGPUIntelligence,
-    GPUResilienceAndRecovery, // NEW v14.18 — prioritizes Device Lost Recovery + Validation Layers integration
+    GPUResilienceAndRecovery,
 }
 
 impl LatticeConductorUpgradeTemplate {
@@ -247,15 +247,15 @@ impl RaThorOneOrganism {
         systems.insert("sovereign_asset_lattice".to_string(), true);
         systems.insert("gpu_compute_layer".to_string(), true);
         systems.insert("lattice_conductor_v13".to_string(), true);
-        systems.insert("gpu_device_recovery".to_string(), true); // NEW v14.18
+        systems.insert("gpu_device_recovery".to_string(), true);
 
         Self {
             systems_activated: systems,
             mercy_runtime: "MercyGatingRuntime v2.0 (TOLC 8 aligned)".to_string(),
             evolution_gate: launch_self_evolution_gate(),
             gpu_compute_active: true,
-            gpu_pipeline_version: "v14.18.0-gpu-resilience-integrated".to_string(),
-            version: "v14.18.0-ONE-Organism-LatticeConductor-v13.1-GPU-Resilience-Telemetry-Integrated".to_string(),
+            gpu_pipeline_version: "v14.19.0-quantum-swarm-gpu-health-aware".to_string(),
+            version: "v14.19.0-ONE-Organism-LatticeConductor-v13.1-Quantum-Swarm-GPU-Health-Aware".to_string(),
             gpu_pipeline: GpuComputePipeline::new(),
 
             patsagi_council: PatsagiCouncil::new(),
@@ -312,7 +312,7 @@ impl RaThorOneOrganism {
     }
 
     pub fn offer_cosmic_loop(&self) {
-        println!("[RaThorOneOrganism v{}] Full loop + Real GitHub PR + GPU Resilience Telemetry Integration in Lattice Conductor v13.1", self.version);
+        println!("[RaThorOneOrganism v{}] Full loop + Real GitHub PR + Quantum Swarm with GPU Device Health Awareness", self.version);
     }
 
     // Runtime switching for Nadam formulation
@@ -372,13 +372,31 @@ impl RaThorOneOrganism {
         )
     }
 
+    // NEW v14.19: Compute device-health-modulated swarm weights
+    fn get_device_health_modulated_weights(&self) -> (f64, f64, f64, f64) {
+        let stats = self.gpu_pipeline.get_device_recovery_stats();
+
+        if stats.device_lost_count == 0 {
+            return (0.35, 0.30, 0.22, 0.20); // Normal healthy weights
+        }
+
+        // When device has been lost, reduce performance swarm weight and boost stabilizing swarms
+        let lost_penalty = (stats.device_lost_count as f64).min(5.0) * 0.04;
+
+        let w_perf = (0.35 - lost_penalty).max(0.20);
+        let w_mercy = 0.30 + lost_penalty * 0.6;
+        let w_align = 0.22 + lost_penalty * 0.3;
+        let w_foresight = 0.20 + lost_penalty * 0.1;
+
+        (w_perf, w_mercy, w_align, w_foresight)
+    }
+
     // NEW v14.18: Severity calculation now also considers GPU device health
     pub fn calculate_plateau_severity(&self, breakdown: &SwarmVoteBreakdown, report: &GpuTelemetryReport) -> f64 {
         let improvement_deficit = ((0.035 - self.recent_entanglement_improvement_ema).max(0.0) / 0.035).min(1.0);
         let consensus_deficit = ((0.80 - breakdown.consensus_vote).max(0.0) / 0.20).min(1.0);
         let mercy_deficit = ((0.82 - report.mercy_modulated_confidence).max(0.0) / 0.18).min(1.0);
 
-        // NEW: Penalize severity if device has been lost recently
         let device_health_penalty = {
             let stats = self.gpu_pipeline.get_device_recovery_stats();
             if stats.device_lost_count > 2 {
@@ -451,19 +469,16 @@ impl RaThorOneOrganism {
         self.recent_entanglement_improvement_ema =
             alpha * improvement + (1.0 - alpha) * self.recent_entanglement_improvement_ema;
 
-        // === Mercy-Gated Dynamic Improvement Threshold ===
         let base_threshold = 0.035_f64;
         let mercy_factor = ((report.mercy_modulated_confidence - 0.80).max(0.0) * 0.025).min(0.015);
         let dynamic_improvement_threshold = base_threshold + mercy_factor;
 
-        // Store for telemetry
         self.last_dynamic_improvement_threshold = dynamic_improvement_threshold;
 
         let is_low_improvement = self.recent_entanglement_improvement_ema < dynamic_improvement_threshold;
         let is_low_gpu_confidence = report.mercy_modulated_confidence < 0.82;
         let is_low_swarm_consensus = breakdown.consensus_vote < 0.80;
 
-        // NEW v14.18: Also consider device recovery health as a negative signal
         let stats = self.gpu_pipeline.get_device_recovery_stats();
         let device_health_concern = stats.device_lost_count > 1;
 
@@ -500,7 +515,6 @@ impl RaThorOneOrganism {
 
         let mut actions: Vec<String> = vec![];
 
-        // Action 1: Switch Nadam formulation
         let new_formulation = match self.nadam_formulation {
             NadamFormulation::A => NadamFormulation::B,
             NadamFormulation::B => NadamFormulation::A,
@@ -508,28 +522,23 @@ impl RaThorOneOrganism {
         self.set_nadam_formulation(new_formulation);
         actions.push(format!("Switched Nadam to {:?}", new_formulation));
 
-        // Action 2: Forced cyclical restart
         self.lr_current_cycle += 1;
         self.lr_cycle_start_timestep = self.adam_timestep;
         actions.push(format!("Forced cyclical restart (now cycle {})", self.lr_current_cycle));
 
-        // Action 3: Severity-based exploration mode duration
         let exploration_duration = 20 + (severity * 30.0) as u64;
         self.exploration_mode_active = true;
         self.exploration_mode_until_tick = self.council_tick + exploration_duration;
         actions.push(format!("Activated exploration mode for {} ticks (severity={:.3})", exploration_duration, severity));
 
-        // Action 4: Severity-scaled LR boost
         let lr_boost_factor = 1.2 + (severity * 0.15);
         let old_lr = self.entanglement_evolution_lr;
         self.entanglement_evolution_lr = (old_lr * lr_boost_factor).min(0.08);
         actions.push(format!("Boosted entanglement_evolution_lr by factor {:.2} (severity={:.3})", lr_boost_factor, severity));
 
-        // Action 5: Activate adaptive cooldown
         self.activate_cooldown(severity);
         actions.push(format!("Activated adaptive cooldown (severity={:.3})", severity));
 
-        // NEW v14.18: If device lost count is high, recommend GPU Resilience upgrade
         let stats = self.gpu_pipeline.get_device_recovery_stats();
         if stats.device_lost_count > 1 {
             actions.push("Recommended GPUResilienceAndRecovery upgrade (Device Lost Recovery + Vulkan Validation integration)".to_string());
@@ -556,7 +565,7 @@ impl RaThorOneOrganism {
                 );
 
                 let body = format!(
-                    "## ONE Organism + Lattice Conductor v13.1 + GPU Resilience Telemetry (auto-generated)
+                    "## ONE Organism + Lattice Conductor v13.1 + GPU Resilience Telemetry + Quantum Swarm GPU Health Awareness (auto-generated)
 
 **Proposal ID**: {}
 **Proposer**: {}
@@ -583,7 +592,7 @@ impl RaThorOneOrganism {
 ```
 
 ---
-*This PR was automatically created by RaThorOneOrganism v14.18 hot-reload/PR hook using the live GitHubConnector + Lattice Conductor GPU telemetry + Device Recovery integration.*
+*This PR was automatically created by RaThorOneOrganism v14.19 hot-reload/PR hook using the live GitHubConnector + Lattice Conductor GPU telemetry + Quantum Swarm GPU Health Awareness.*
 ",
                     proposal.id,
                     proposal.proposer,
@@ -658,12 +667,10 @@ impl RaThorOneOrganism {
         }
     }
 
-    // Quantum Swarm multi-consensus with Dynamic Threshold Coupling + Light Consensus Momentum + Expanded Entanglement Topology v2 + GPU Device Health
+    // Quantum Swarm multi-consensus with Dynamic Threshold Coupling + Light Consensus Momentum + Expanded Entanglement Topology v2 + GPU Device Health Adaptive Weights
     pub async fn quantum_swarm_multi_consensus_vote(&self, report: &GpuTelemetryReport, proposal: &EvolutionProposal) -> (f64, SwarmVoteBreakdown) {
-        let w_perf = if report.gpu_success_ema > 0.92 { 0.35 } else { 0.30 };
-        let w_mercy = if report.mercy_modulated_confidence > 0.88 { 0.30 } else { 0.28 };
-        let w_align = 0.22;
-        let w_foresight = 0.20;
+        // NEW v14.19: Use device-health-modulated weights
+        let (w_perf, w_mercy, w_align, w_foresight) = self.get_device_health_modulated_weights();
 
         let performance_swarm = (report.gpu_success_ema * 0.7 + (1.0 - (report.gpu_latency_ema_ms / 200.0).min(1.0)) * 0.3).clamp(0.6, 0.99);
         let mercy_swarm = report.mercy_modulated_confidence.clamp(0.65, 0.99);
@@ -680,7 +687,6 @@ impl RaThorOneOrganism {
         let pf_mod = if report.gpu_success_ema > 0.93 { 1.15 } else { 1.0 };
         let ma_mod = if report.mercy_modulated_confidence > 0.89 { 1.12 } else { 1.0 };
 
-        // === Existing Entanglement Pairs ===
         if performance_swarm > 0.90 && foresight_swarm > 0.88 {
             let raw = (performance_swarm + foresight_swarm) / 2.0 - 0.89;
             let weighted = raw * base_weight_pf * pf_mod;
@@ -697,7 +703,6 @@ impl RaThorOneOrganism {
             entangled_pairs.push(format!("Mercy ↔ Alignment (base_w={:.3}, mod={:.2})", base_weight_ma, ma_mod));
         }
 
-        // === NEW Expanded Entanglement Topology v2 ===
         if performance_swarm > 0.88 && mercy_swarm > 0.86 {
             let raw = (performance_swarm + mercy_swarm) / 2.0 - 0.87;
             let weighted = raw * base_weight_pf * 0.95;
@@ -716,7 +721,6 @@ impl RaThorOneOrganism {
 
         let base_consensus = (performance_swarm * w_perf + mercy_swarm * w_mercy + alignment_swarm * w_align + foresight_swarm * w_foresight).clamp(0.70, 0.999);
 
-        // === Dynamic Threshold Coupling ===
         let dynamic_threshold = self.last_dynamic_improvement_threshold;
         let coupling_factor = if dynamic_threshold > 0.042 {
             0.92
@@ -728,7 +732,6 @@ impl RaThorOneOrganism {
 
         let adjusted_entanglement_bonus = entanglement_bonus * coupling_factor;
 
-        // === Light Consensus Momentum (EMA) ===
         let alpha = 0.25;
         let smoothed_consensus = alpha * (base_consensus + adjusted_entanglement_bonus) + (1.0 - alpha) * self.consensus_vote_ema;
         let final_consensus = smoothed_consensus.clamp(0.70, 0.999);
@@ -752,11 +755,10 @@ impl RaThorOneOrganism {
             );
         }
 
-        // NEW v14.18: Include GPU device health in swarm logging
         let device_health = self.get_gpu_device_health_summary();
         println!(
-            "[Multi-Swarm + Expanded Entanglement Topology v2] perf={:.4} mercy={:.4} align={:.4} foresight={:.4} | consensus={:.4} | entanglement=+{:.4} (4 pairs active) | DeviceHealth: {} | Active Nadam: {:?} | Exploration: {} | Cooldown: {} | Last severity: {:.3} | Dynamic: {}",
-            performance_swarm, mercy_swarm, alignment_swarm, foresight_swarm, final_consensus, device_health, self.nadam_formulation, self.exploration_mode_active, self.cooldown_active, self.last_plateau_severity, self.get_dynamic_thresholds()
+            "[Multi-Swarm + Expanded Entanglement Topology v2 + GPU Health Adaptive Weights] perf={:.4} mercy={:.4} align={:.4} foresight={:.4} | consensus={:.4} | entanglement=+{:.4} (4 pairs) | DeviceHealth: {} | Weights (perf/mercy/align/foresight) = ({:.2}, {:.2}, {:.2}, {:.2}) | Active Nadam: {:?} | Exploration: {} | Cooldown: {} | Last severity: {:.3}",
+            performance_swarm, mercy_swarm, alignment_swarm, foresight_swarm, final_consensus, device_health, w_perf, w_mercy, w_align, w_foresight, self.nadam_formulation, self.exploration_mode_active, self.cooldown_active, self.last_plateau_severity
         );
 
         (final_consensus, breakdown)
@@ -929,7 +931,6 @@ impl RaThorOneOrganism {
             return Err("GPU telemetry not excellent enough for automatic Lattice Conductor upgrade".to_string());
         }
 
-        // NEW v14.18: Bias toward GPUResilienceAndRecovery template when device has been lost
         let stats = self.gpu_pipeline.get_device_recovery_stats();
         let template = if stats.device_lost_count > 1 {
             LatticeConductorUpgradeTemplate::GPUResilienceAndRecovery
@@ -1021,7 +1022,6 @@ impl RaThorOneOrganism {
         }
     }
 
-    // NEW v14.8.6: Full configurable Nesterov-AdamW with Expanded Entanglement Topology v2 support
     pub async fn propose_entanglement_base_weight_evolution(&mut self, breakdown: &SwarmVoteBreakdown) -> Result<String, String> {
         let mut evolved_pf = self.base_weight_pf;
         let mut evolved_ma = self.base_weight_ma;
@@ -1160,7 +1160,6 @@ impl RaThorOneOrganism {
         }
     }
 
-    // Learning rate scheduling with Cyclical Restarts (SGDR-style)
     pub fn get_scheduled_lr(&self) -> f64 {
         let t = self.adam_timestep as f64;
         let warmup = self.lr_warmup_steps as f64;
@@ -1285,7 +1284,7 @@ impl RaThorOneOrganism {
 pub fn launch_one_organism() -> RaThorOneOrganism {
     let organism = RaThorOneOrganism::new();
     organism.offer_cosmic_loop();
-    println!("[Thunder] ONE Organism v14.18 + Real GitHubConnector + GPU Resilience Telemetry Integration (Device Recovery + Vulkan Validation) ready");
+    println!("[Thunder] ONE Organism v14.19 + Real GitHubConnector + Quantum Swarm with GPU Device Health Awareness ready");
     organism
 }
 
@@ -1336,13 +1335,11 @@ mod tests {
             entanglement_weighted_bonus: 0.012,
         };
 
-        // High mercy confidence → higher dynamic threshold
         let high_mercy_report = make_test_report(0.91, 0.93);
         let _ = organism.detect_plateau(&breakdown, &high_mercy_report);
         let thresholds_high = organism.get_dynamic_thresholds();
         assert!(thresholds_high.contains("DynamicImprovementThreshold"));
 
-        // Low mercy confidence → closer to base threshold
         let low_mercy_report = make_test_report(0.78, 0.85);
         let _ = organism.detect_plateau(&breakdown, &low_mercy_report);
         let thresholds_low = organism.get_dynamic_thresholds();
@@ -1360,7 +1357,6 @@ mod tests {
             .block_on(organism.quantum_swarm_multi_consensus_vote(&report, &proposal));
 
         assert!(breakdown.entangled_pairs.len() >= 2);
-        let has_new_pairs = breakdown.entangled_pairs.iter().any(|p| p.contains("Performance ↔ Mercy") || p.contains("Alignment ↔ Foresight"));
         println!("Entangled pairs in test: {:?}", breakdown.entangled_pairs);
     }
 
