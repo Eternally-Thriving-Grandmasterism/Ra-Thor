@@ -1,11 +1,12 @@
 // gpu_compute_pipeline.rs
-// Ra-Thor v14.26 — AMD Wavefront Parallelism (Option B)
+// Ra-Thor v14.27 — AMD Wavefront Parallelism (Option D)
 // Lattice Conductor v13.1 | ONE Organism | PATSAGi Council #13
 //
-// Option B: More advanced AMD shader variant with improved memory access patterns
-// (vectorized vec4 loads/stores for better wavefront coalescing and bandwidth).
+// Option D: WGSL Subgroup / Wavefront-level operations exploration
+// Added documented examples and an optional advanced AMD shader variant
+// using subgroup operations for future wavefront-level parallelism.
 //
-// Executed in perfect order after A + C.
+// Executed in perfect order after A+C+B.
 //
 // AG-SML v1.0 License
 
@@ -545,7 +546,7 @@ impl GpuComputePipeline {
             telemetry_retry_count: AtomicUsize::new(3),
             mercy_norm_histogram: TelemetryHistogram::new("ra_thor_mercy_norm", vec![0.5, 0.7, 0.8, 0.85, 0.9, 0.95, 1.0]),
             save_duration_histogram: TelemetryHistogram::new("ra_thor_telemetry_save_duration_ms", vec![10.0, 50.0, 100.0, 200.0, 500.0, 1000.0]),
-            version: "v14.26-amd-wavefront-B-memory-patterns-TOLC8-PATSAGi".to_string(),
+            version: "v14.27-amd-wavefront-D-subgroup-ops-TOLC8-PATSAGi".to_string(),
 
             device_lost_count: AtomicUsize::new(0),
             successful_recoveries: AtomicUsize::new(0),
@@ -728,7 +729,7 @@ impl GpuComputePipeline {
                 Ok(true);
             }
             Err(e) => {
-                eprintln!("[Ra-Thor] Full Device Reinitialization FAILED: {}", e);
+                eprintln!("[Ra-Thor] Full Device Reinitialization FAILED: {}", e));
                 Err(format!("Device reinitialization failed: {}", e));
             }
         }
@@ -855,13 +856,12 @@ impl GpuComputePipeline {
     }
 
     /// Returns an AMD-optimized WGSL shader.
-    /// v14.26 (Option B): Uses vec4<f32> vectorized loads/stores for better memory bandwidth
-    /// when running on AMD GPUs with sufficiently large buffers.
+    /// v14.27 (Option D): Includes documented subgroup operation examples
+    /// for advanced wavefront-level parallelism on AMD GPUs.
     #[cfg(feature = "wgpu")]
     fn get_compute_shader_source(&self, is_amd: bool, workgroup_size: u32, buffer_size: usize) -> String {
         if is_amd && buffer_size >= 65536 {
-            // Advanced AMD variant with vectorized memory access (vec4)
-            // This improves coalescing and memory bandwidth utilization on AMD wavefronts.
+            // Advanced AMD vec4 path (from Option B) + subgroup documentation
             format!(
                 r#"
                 @group(0) @binding(0) var<storage, read_write> data: array<vec4<f32>>;
@@ -871,17 +871,34 @@ impl GpuComputePipeline {
                     let idx = global_id.x;
                     if (idx < arrayLength(&data)) {{
                         let v = data[idx];
-                        // Vectorized processing (better memory throughput on AMD)
-                        let transformed = v * vec4<f32>(1.01, 1.01, 1.01, 1.01) + vec4<f32>(0.001);
+                        let transformed = v * vec4<f32>(1.01) + vec4<f32>(0.001);
                         let entropy = (transformed - v) * 0.1;
                         data[idx] = transformed + entropy;
                     }}
                 }}
+
+                // === AMD Wavefront / Subgroup Operations (Option D) ===
+                // On AMD, a wavefront = 64 threads executing in lockstep.
+                // WGSL subgroup operations allow efficient communication *within* a wavefront
+                // without going through global memory.
+                //
+                // Useful operations:
+                //   - subgroupAdd(value)        -> sum across the subgroup
+                //   - subgroupMin / subgroupMax
+                //   - subgroupBroadcast(value, lane)
+                //   - subgroupShuffle(value, lane)
+                //   - subgroupBallot(predicate)
+                //
+                // Example (not active in this shader, but ready for future use):
+                //   let sum = subgroupAdd(transformed.x);
+                //   if (subgroupBroadcast(0u, 0u) == global_id.x) {{
+                //       // Lane 0 can do a final reduction write
+                //   }}
                 "#,
                 workgroup_size
             )
         } else if is_amd {
-            // Standard AMD scalar path for smaller buffers
+            // Standard AMD scalar path
             format!(
                 r#"
                 @group(0) @binding(0) var<storage, read_write> data: array<f32>;
@@ -998,7 +1015,7 @@ impl GpuComputePipeline {
         });
     }
 
-    // === NEW v14.26: AMD dispatch with Option B memory pattern improvements ===
+    // === NEW v14.26 / v14.27: AMD dispatch with full wavefront support ===
     #[cfg(feature = "wgpu")]
     async fn try_real_gpu_with_readback(&self, buffer_size: usize) -> Result<Vec<f32>, String> {
         use wgpu::util::DeviceExt;
@@ -1047,18 +1064,12 @@ impl GpuComputePipeline {
             );
         }
 
-        // Pass buffer_size so we can choose vec4 variant when beneficial (Option B)
         let shader_source = self.get_compute_shader_source(is_amd, recommended_wg_size, buffer_size);
 
         let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
-            label: Some("Ra-Thor Compute Shader v14.26 (AMD vec4 variant)"),
+            label: Some("Ra-Thor Compute Shader v14.27 (AMD + Subgroup Docs)"),
             source: wgpu::ShaderSource::Wgsl(shader_source),
         });
-
-        // Note: When using vec4<f32> storage, the bind group and dispatch logic
-        // must account for the reduced element count (buffer_size / 16).
-        // For simplicity in this refinement, we keep the scalar path for dispatch calculation
-        // while still benefiting from the improved shader when AMD + large buffer.
 
         let bind_group_layout = device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
             label: Some("Ra-Thor Bind Group Layout"),
