@@ -6,7 +6,8 @@
 /// abundance-multiplying, zero-harm use. See LICENSE or COMMERCIAL-LICENSE.md.
 
 // ra-thor-one-organism.rs
-// Ra-Thor v14.17 — ONE Organism + Lattice Conductor v13.1 Self-Evolving GPU Telemetry Loop (Expanded Entanglement Topology v2)
+// Ra-Thor v14.18 — ONE Organism + Lattice Conductor v13.1
+// GPU Resilience Telemetry Integration (Device Lost Recovery + Vulkan Validation Layers)
 
 use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
@@ -14,7 +15,7 @@ use tokio::fs;
 
 use crate::core::self_evolution_gate::{SelfEvolutionGate, EvolutionProposal, launch_self_evolution_gate};
 use crate::github_connector::GitHubConnector;
-use crate::gpu_compute_pipeline::{GpuComputePipeline, GpuTask, MercyGpuAudit};
+use crate::gpu_compute_pipeline::{GpuComputePipeline, GpuTask, MercyGpuAudit, GpuDeviceRecoveryStats};
 use crate::gpu_patsagi_bridge::GpuTelemetryReport;
 
 // === Council + Decision Types ===
@@ -79,6 +80,7 @@ pub enum LatticeConductorUpgradeTemplate {
     NewMercyGates,
     QuantumSwarmIntegration,
     CombinedGPUIntelligence,
+    GPUResilienceAndRecovery, // NEW v14.18 — prioritizes Device Lost Recovery + Validation Layers integration
 }
 
 impl LatticeConductorUpgradeTemplate {
@@ -88,6 +90,7 @@ impl LatticeConductorUpgradeTemplate {
             LatticeConductorUpgradeTemplate::NewMercyGates => "Introduce or strengthen specific mercy gates (e.g., Precision Gate, Abundance Gate) in Lattice Conductor decision logic.",
             LatticeConductorUpgradeTemplate::QuantumSwarmIntegration => "Deepen integration between Lattice Conductor and Quantum Swarm for GPU-native deliberation, foresight, multi-swarm consensus, quantum entanglement, dynamic entanglement weighting, self-evolving base weights, adaptive learning rates, Adam optimizer, AdamW weight decay, learning rate scheduling, cyclical restarts, Nesterov acceleration, and full configurable Nesterov-AdamW (Nadam A/B).",
             LatticeConductorUpgradeTemplate::CombinedGPUIntelligence => "Combine EMA tuning + new mercy gates + Quantum Swarm hooks + multi-swarm consensus + quantum entanglement weighting + self-evolving base weights + adaptive learning rates + Adam optimizer + AdamW weight decay + learning rate scheduling + cyclical restarts + Nesterov acceleration + configurable Nadam (A/B) into a unified Lattice Conductor v13.2 upgrade.",
+            LatticeConductorUpgradeTemplate::GPUResilienceAndRecovery => "Prioritize GPU Device Lost Recovery, Full Device Reinitialization, Vulkan Validation Layers integration, and resilience telemetry into Lattice Conductor decision making and self-evolution proposals.",
         }
     }
 
@@ -97,6 +100,7 @@ impl LatticeConductorUpgradeTemplate {
             LatticeConductorUpgradeTemplate::NewMercyGates => "Add new mercy gate variants in PatsagiCouncil::decide() and CouncilReadinessMetrics.",
             LatticeConductorUpgradeTemplate::QuantumSwarmIntegration => "Add Quantum Swarm multi-consensus + quantum entanglement + dynamic weighting + self-evolving base weights + adaptive learning rates + Adam optimizer + AdamW weight decay + learning rate scheduling + cyclical restarts + Nesterov acceleration + configurable Nadam (A/B).",
             LatticeConductorUpgradeTemplate::CombinedGPUIntelligence => "Full v13.2 upgrade: EMA + Mercy Gates + Quantum Swarm multi-consensus + quantum entanglement weighting + self-evolving base weights + adaptive learning rates + Adam optimizer + AdamW weight decay + learning rate scheduling + cyclical restarts + Nesterov acceleration + configurable Nadam (A/B) in one coherent Lattice Conductor evolution.",
+            LatticeConductorUpgradeTemplate::GPUResilienceAndRecovery => "Integrate GpuDeviceRecoveryStats, device_lost_count, successful_recoveries, and Vulkan Validation Layers into ONE Organism + Lattice Conductor self-evolution loop and plateau detection.",
         }
     }
 }
@@ -243,14 +247,15 @@ impl RaThorOneOrganism {
         systems.insert("sovereign_asset_lattice".to_string(), true);
         systems.insert("gpu_compute_layer".to_string(), true);
         systems.insert("lattice_conductor_v13".to_string(), true);
+        systems.insert("gpu_device_recovery".to_string(), true); // NEW v14.18
 
         Self {
             systems_activated: systems,
             mercy_runtime: "MercyGatingRuntime v2.0 (TOLC 8 aligned)".to_string(),
             evolution_gate: launch_self_evolution_gate(),
             gpu_compute_active: true,
-            gpu_pipeline_version: "v14.17.0-real-github-connector".to_string(),
-            version: "v14.17.0-ONE-Organism-LatticeConductor-v13.1-Expanded-Entanglement-Topology-v2".to_string(),
+            gpu_pipeline_version: "v14.18.0-gpu-resilience-integrated".to_string(),
+            version: "v14.18.0-ONE-Organism-LatticeConductor-v13.1-GPU-Resilience-Telemetry-Integrated".to_string(),
             gpu_pipeline: GpuComputePipeline::new(),
 
             patsagi_council: PatsagiCouncil::new(),
@@ -307,7 +312,7 @@ impl RaThorOneOrganism {
     }
 
     pub fn offer_cosmic_loop(&self) {
-        println!("[RaThorOneOrganism v{}] Full loop + Real GitHub PR + Expanded Entanglement Topology v2 in Lattice Conductor v13.1", self.version);
+        println!("[RaThorOneOrganism v{}] Full loop + Real GitHub PR + GPU Resilience Telemetry Integration in Lattice Conductor v13.1", self.version);
     }
 
     // Runtime switching for Nadam formulation
@@ -350,14 +355,43 @@ impl RaThorOneOrganism {
         )
     }
 
-    // NEW: Severity calculation for plateau responses (0.0–1.0)
+    // NEW v14.18: GPU Device Health + Resilience Telemetry Integration
+    pub fn get_gpu_device_health_summary(&self) -> String {
+        let stats: GpuDeviceRecoveryStats = self.gpu_pipeline.get_device_recovery_stats();
+        let validation_active = std::env::var("RA_THOR_ENABLE_VULKAN_VALIDATION")
+            .map(|v| v == "1" || v.eq_ignore_ascii_case("true"))
+            .unwrap_or(false);
+
+        format!(
+            "DeviceLostCount={} | SuccessfulRecoveries={} | LastLostAgo={:?}s | LastRecoveryAgo={:?}s | VulkanValidation={}",
+            stats.device_lost_count,
+            stats.successful_recoveries,
+            stats.last_device_lost_at_unix.map(|t| t as i64),
+            stats.last_recovery_at_unix.map(|t| t as i64),
+            validation_active
+        )
+    }
+
+    // NEW v14.18: Severity calculation now also considers GPU device health
     pub fn calculate_plateau_severity(&self, breakdown: &SwarmVoteBreakdown, report: &GpuTelemetryReport) -> f64 {
         let improvement_deficit = ((0.035 - self.recent_entanglement_improvement_ema).max(0.0) / 0.035).min(1.0);
         let consensus_deficit = ((0.80 - breakdown.consensus_vote).max(0.0) / 0.20).min(1.0);
         let mercy_deficit = ((0.82 - report.mercy_modulated_confidence).max(0.0) / 0.18).min(1.0);
 
-        let severity = improvement_deficit * 0.45 + consensus_deficit * 0.30 + mercy_deficit * 0.25;
-        severity.clamp(0.0, 1.0)
+        // NEW: Penalize severity if device has been lost recently
+        let device_health_penalty = {
+            let stats = self.gpu_pipeline.get_device_recovery_stats();
+            if stats.device_lost_count > 2 {
+                0.12
+            } else if stats.device_lost_count > 0 {
+                0.06
+            } else {
+                0.0
+            }
+        };
+
+        let base_severity = improvement_deficit * 0.45 + consensus_deficit * 0.30 + mercy_deficit * 0.25;
+        (base_severity + device_health_penalty).clamp(0.0, 1.0)
     }
 
     // NEW: Activate adaptive cooldown based on severity
@@ -390,7 +424,7 @@ impl RaThorOneOrganism {
         }
     }
 
-    // Automatic plateau detection heuristic with Mercy-Gated Dynamic Improvement Threshold
+    // Automatic plateau detection heuristic with Mercy-Gated Dynamic Improvement Threshold + GPU Device Health
     pub fn detect_plateau(&mut self, breakdown: &SwarmVoteBreakdown, report: &GpuTelemetryReport) -> bool {
         self.update_cooldown(breakdown.entanglement_weighted_bonus);
 
@@ -429,7 +463,11 @@ impl RaThorOneOrganism {
         let is_low_gpu_confidence = report.mercy_modulated_confidence < 0.82;
         let is_low_swarm_consensus = breakdown.consensus_vote < 0.80;
 
-        if is_low_improvement && (is_low_gpu_confidence || is_low_swarm_consensus) {
+        // NEW v14.18: Also consider device recovery health as a negative signal
+        let stats = self.gpu_pipeline.get_device_recovery_stats();
+        let device_health_concern = stats.device_lost_count > 1;
+
+        if is_low_improvement && (is_low_gpu_confidence || is_low_swarm_consensus || device_health_concern) {
             self.plateau_streak += 1;
         } else {
             self.plateau_streak = 0;
@@ -440,8 +478,8 @@ impl RaThorOneOrganism {
 
             if self.plateau_streak == 3 {
                 println!(
-                    "[ONE + Lattice Conductor] Plateau streak reached 3 | dynamic_improvement_threshold={:.5} (mercy_factor={:.4}, mercy_conf={:.3})",
-                    dynamic_improvement_threshold, mercy_factor, report.mercy_modulated_confidence
+                    "[ONE + Lattice Conductor] Plateau streak reached 3 | dynamic_improvement_threshold={:.5} (mercy_factor={:.4}, mercy_conf={:.3}, device_lost={})",
+                    dynamic_improvement_threshold, mercy_factor, report.mercy_modulated_confidence, stats.device_lost_count
                 );
             }
 
@@ -491,12 +529,17 @@ impl RaThorOneOrganism {
         self.activate_cooldown(severity);
         actions.push(format!("Activated adaptive cooldown (severity={:.3})", severity));
 
-        // Action 6: Recommend deeper upgrade
-        actions.push("Recommended Lattice Conductor upgrade (EMA tuning / new mercy gates / Quantum Swarm enhancements)".to_string());
+        // NEW v14.18: If device lost count is high, recommend GPU Resilience upgrade
+        let stats = self.gpu_pipeline.get_device_recovery_stats();
+        if stats.device_lost_count > 1 {
+            actions.push("Recommended GPUResilienceAndRecovery upgrade (Device Lost Recovery + Vulkan Validation integration)".to_string());
+        } else {
+            actions.push("Recommended Lattice Conductor upgrade (EMA tuning / new mercy gates / Quantum Swarm enhancements)".to_string());
+        }
 
         self.plateau_streak = 0;
 
-        let summary = format!("Plateau detected (severity={:.3}) — sophisticated response with mercy-gated dynamic threshold + consensus momentum + expanded entanglement executed. Actions: {:?}", severity, actions);
+        let summary = format!("Plateau detected (severity={:.3}) — sophisticated response with mercy-gated dynamic threshold + consensus momentum + expanded entanglement + GPU device health executed. Actions: {:?}", severity, actions);
         println!("[ONE + Lattice Conductor] {}", summary);
 
         Some(summary)
@@ -513,7 +556,7 @@ impl RaThorOneOrganism {
                 );
 
                 let body = format!(
-                    "## ONE Organism + Lattice Conductor v13.1 Expanded Entanglement Topology v2 (auto-generated)
+                    "## ONE Organism + Lattice Conductor v13.1 + GPU Resilience Telemetry (auto-generated)
 
 **Proposal ID**: {}
 **Proposer**: {}
@@ -526,6 +569,7 @@ impl RaThorOneOrganism {
 **Last Plateau Severity**: {:.3}
 **Cooldown Active**: {}
 **Dynamic Thresholds + Consensus Momentum**: {}
+**GPU Device Health**: {}
 
 **Active Optimizer Config**:
 {}
@@ -539,7 +583,7 @@ impl RaThorOneOrganism {
 ```
 
 ---
-*This PR was automatically created by RaThorOneOrganism v14.17 hot-reload/PR hook using the live GitHubConnector + Lattice Conductor GPU telemetry.*
+*This PR was automatically created by RaThorOneOrganism v14.18 hot-reload/PR hook using the live GitHubConnector + Lattice Conductor GPU telemetry + Device Recovery integration.*
 ",
                     proposal.id,
                     proposal.proposer,
@@ -552,6 +596,7 @@ impl RaThorOneOrganism {
                     self.last_plateau_severity,
                     self.cooldown_active,
                     self.get_dynamic_thresholds(),
+                    self.get_gpu_device_health_summary(),
                     self.get_optimizer_config_summary(),
                     proposal.description,
                     proposal.proposed_diff
@@ -593,26 +638,27 @@ impl RaThorOneOrganism {
 
     pub async fn quantum_swarm_deliberate_on_gpu_telemetry(&self, report: &GpuTelemetryReport) -> String {
         let swarm_confidence = (report.gpu_success_ema * 0.6 + report.mercy_modulated_confidence * 0.4).clamp(0.75, 0.999);
+        let device_health = self.get_gpu_device_health_summary();
 
         if report.gpu_success_ema > 0.94 && report.mercy_modulated_confidence > 0.90 {
             format!(
-                "Quantum Swarm Foresight: Excellent GPU performance detected (success_ema={:.4}). Recommend immediate Lattice Conductor upgrade + increased GPU offload + Quantum Swarm parallel deliberation on next dispatch batch. Active Nadam: {:?}. Exploration: {}. Cooldown: {}. Last severity: {:.3}. Dynamic thresholds + Consensus Momentum + Expanded Topology: {}. Mercy valence: {:.4}",
-                report.gpu_success_ema, self.nadam_formulation, self.exploration_mode_active, self.cooldown_active, self.last_plateau_severity, self.get_dynamic_thresholds(), swarm_confidence
+                "Quantum Swarm Foresight: Excellent GPU performance detected (success_ema={:.4}). Recommend immediate Lattice Conductor upgrade + increased GPU offload. Device Health: {}. Active Nadam: {:?}. Exploration: {}. Cooldown: {}. Last severity: {:.3}. Dynamic thresholds + Consensus Momentum + Expanded Topology: {}. Mercy valence: {:.4}",
+                report.gpu_success_ema, device_health, self.nadam_formulation, self.exploration_mode_active, self.cooldown_active, self.last_plateau_severity, self.get_dynamic_thresholds(), swarm_confidence
             )
         } else if report.gpu_latency_ema_ms > 120.0 {
             format!(
-                "Quantum Swarm Analysis: Elevated GPU latency ({:.1}ms). Suggest EMA tuning + swarm-assisted load balancing. Active Nadam: {:?}. Exploration: {}. Cooldown: {}. Last severity: {:.3}. Dynamic thresholds + Consensus Momentum + Expanded Topology: {}. Current swarm confidence: {:.4}",
-                report.gpu_latency_ema_ms, self.nadam_formulation, self.exploration_mode_active, self.cooldown_active, self.last_plateau_severity, self.get_dynamic_thresholds(), swarm_confidence
+                "Quantum Swarm Analysis: Elevated GPU latency ({:.1}ms). Suggest EMA tuning + swarm-assisted load balancing. Device Health: {}. Active Nadam: {:?}. Exploration: {}. Cooldown: {}. Last severity: {:.3}. Dynamic thresholds + Consensus Momentum + Expanded Topology: {}. Current swarm confidence: {:.4}",
+                report.gpu_latency_ema_ms, device_health, self.nadam_formulation, self.exploration_mode_active, self.cooldown_active, self.last_plateau_severity, self.get_dynamic_thresholds(), swarm_confidence
             )
         } else {
             format!(
-                "Quantum Swarm Observation: Stable GPU telemetry. Active Nadam: {:?}. Exploration: {}. Cooldown: {}. Last severity: {:.3}. Dynamic thresholds + Consensus Momentum + Expanded Topology: {}. Continue current mercy-modulated offload policy. Swarm confidence: {:.4}",
-                self.nadam_formulation, self.exploration_mode_active, self.cooldown_active, self.last_plateau_severity, self.get_dynamic_thresholds(), swarm_confidence
+                "Quantum Swarm Observation: Stable GPU telemetry. Device Health: {}. Active Nadam: {:?}. Exploration: {}. Cooldown: {}. Last severity: {:.3}. Dynamic thresholds + Consensus Momentum + Expanded Topology: {}. Continue current mercy-modulated offload policy. Swarm confidence: {:.4}",
+                device_health, self.nadam_formulation, self.exploration_mode_active, self.cooldown_active, self.last_plateau_severity, self.get_dynamic_thresholds(), swarm_confidence
             )
         }
     }
 
-    // Quantum Swarm multi-consensus with Dynamic Threshold Coupling + Light Consensus Momentum + Expanded Entanglement Topology v2
+    // Quantum Swarm multi-consensus with Dynamic Threshold Coupling + Light Consensus Momentum + Expanded Entanglement Topology v2 + GPU Device Health
     pub async fn quantum_swarm_multi_consensus_vote(&self, report: &GpuTelemetryReport, proposal: &EvolutionProposal) -> (f64, SwarmVoteBreakdown) {
         let w_perf = if report.gpu_success_ema > 0.92 { 0.35 } else { 0.30 };
         let w_mercy = if report.mercy_modulated_confidence > 0.88 { 0.30 } else { 0.28 };
@@ -652,16 +698,14 @@ impl RaThorOneOrganism {
         }
 
         // === NEW Expanded Entanglement Topology v2 ===
-        // Pair 3: Performance ↔ Mercy (execution strength meets mercy alignment)
         if performance_swarm > 0.88 && mercy_swarm > 0.86 {
             let raw = (performance_swarm + mercy_swarm) / 2.0 - 0.87;
-            let weighted = raw * base_weight_pf * 0.95; // slightly lower weight than primary pairs
+            let weighted = raw * base_weight_pf * 0.95;
             entanglement_bonus += weighted;
             weighted_entanglement_bonus += weighted;
             entangled_pairs.push(format!("Performance ↔ Mercy (new) (weighted={:.4})", weighted));
         }
 
-        // Pair 4: Alignment ↔ Foresight (long-term alignment with future vision)
         if alignment_swarm > 0.85 && foresight_swarm > 0.87 {
             let raw = (alignment_swarm + foresight_swarm) / 2.0 - 0.86;
             let weighted = raw * base_weight_ma * 0.95;
@@ -708,9 +752,11 @@ impl RaThorOneOrganism {
             );
         }
 
+        // NEW v14.18: Include GPU device health in swarm logging
+        let device_health = self.get_gpu_device_health_summary();
         println!(
-            "[Multi-Swarm + Expanded Entanglement Topology v2] perf={:.4} mercy={:.4} align={:.4} foresight={:.4} | consensus={:.4} | entanglement=+{:.4} (4 pairs active) | Active Nadam: {:?} | Exploration: {} | Cooldown: {} | Last severity: {:.3} | Dynamic: {}",
-            performance_swarm, mercy_swarm, alignment_swarm, foresight_swarm, final_consensus, adjusted_entanglement_bonus, self.nadam_formulation, self.exploration_mode_active, self.cooldown_active, self.last_plateau_severity, self.get_dynamic_thresholds()
+            "[Multi-Swarm + Expanded Entanglement Topology v2] perf={:.4} mercy={:.4} align={:.4} foresight={:.4} | consensus={:.4} | entanglement=+{:.4} (4 pairs active) | DeviceHealth: {} | Active Nadam: {:?} | Exploration: {} | Cooldown: {} | Last severity: {:.3} | Dynamic: {}",
+            performance_swarm, mercy_swarm, alignment_swarm, foresight_swarm, final_consensus, device_health, self.nadam_formulation, self.exploration_mode_active, self.cooldown_active, self.last_plateau_severity, self.get_dynamic_thresholds()
         );
 
         (final_consensus, breakdown)
@@ -830,13 +876,15 @@ impl RaThorOneOrganism {
         let decision = self.patsagi_council.decide(&metrics);
 
         if let CouncilDecision::ApproveEvolution { confidence_boost } = &decision {
+            let device_health = self.get_gpu_device_health_summary();
+
             let proposal = EvolutionProposal {
                 id: rand::random::<u64>() % 1_000_000_000,
                 proposer: "Lattice_Conductor_v13.1_via_GPU_Telemetry".to_string(),
                 target_module: "gpu_compute_pipeline / lattice_conductor / powrush_rbe".to_string(),
                 description: format!(
-                    "Council-approved from GPU Telemetry Report (success_ema={:.4}, mercy_conf={:.4}) | Active Nadam: {:?} | Exploration: {} | Cooldown: {} | Last severity: {:.3} | Dynamic + Momentum + Expanded Topology: {}",
-                    report.gpu_success_ema, report.mercy_modulated_confidence, self.nadam_formulation, self.exploration_mode_active, self.cooldown_active, self.last_plateau_severity, self.get_dynamic_thresholds()
+                    "Council-approved from GPU Telemetry Report (success_ema={:.4}, mercy_conf={:.4}) | DeviceHealth: {} | Active Nadam: {:?} | Exploration: {} | Cooldown: {} | Last severity: {:.3} | Dynamic + Momentum + Expanded Topology: {}",
+                    report.gpu_success_ema, report.mercy_modulated_confidence, device_health, self.nadam_formulation, self.exploration_mode_active, self.cooldown_active, self.last_plateau_severity, self.get_dynamic_thresholds()
                 ),
                 proposed_diff: format!("Apply Lattice Conductor GPU boost {:.4}", confidence_boost),
                 expected_benefit: (report.mercy_modulated_confidence * 0.85 + confidence_boost * 0.15).min(0.999),
@@ -881,7 +929,11 @@ impl RaThorOneOrganism {
             return Err("GPU telemetry not excellent enough for automatic Lattice Conductor upgrade".to_string());
         }
 
-        let template = if report.gpu_latency_ema_ms > 150.0 {
+        // NEW v14.18: Bias toward GPUResilienceAndRecovery template when device has been lost
+        let stats = self.gpu_pipeline.get_device_recovery_stats();
+        let template = if stats.device_lost_count > 1 {
+            LatticeConductorUpgradeTemplate::GPUResilienceAndRecovery
+        } else if report.gpu_latency_ema_ms > 150.0 {
             LatticeConductorUpgradeTemplate::EMATuning
         } else if report.gpu_success_ema > 0.95 {
             LatticeConductorUpgradeTemplate::QuantumSwarmIntegration
@@ -889,7 +941,7 @@ impl RaThorOneOrganism {
             LatticeConductorUpgradeTemplate::CombinedGPUIntelligence
         };
 
-        let swarm_foresight = if template == LatticeConductorUpgradeTemplate::QuantumSwarmIntegration || template == LatticeConductorUpgradeTemplate::CombinedGPUIntelligence {
+        let swarm_foresight = if template == LatticeConductorUpgradeTemplate::QuantumSwarmIntegration || template == LatticeConductorUpgradeTemplate::CombinedGPUIntelligence || template == LatticeConductorUpgradeTemplate::GPUResilienceAndRecovery {
             self.quantum_swarm_deliberate_on_gpu_telemetry(report).await
         } else {
             String::new()
@@ -925,13 +977,16 @@ impl RaThorOneOrganism {
             return Err(format!("Quantum Swarm multi-consensus too low ({:.4}) — upgrade deprioritized", swarm_consensus));
         }
 
+        let device_health = self.get_gpu_device_health_summary();
+
         let base_description = format!(
-            "Automatic self-evolution (Template: {:?}): {}. GPU telemetry: success_ema={:.4}, mercy_conf={:.4}, latency_ema={:.1}ms | Multi-Swarm + Expanded Entanglement Topology v2 + Dynamic Coupling (severity={:.3}, cooldown={}): {:.4}{}",
+            "Automatic self-evolution (Template: {:?}): {}. GPU telemetry: success_ema={:.4}, mercy_conf={:.4}, latency_ema={:.1}ms | DeviceHealth: {} | Multi-Swarm + Expanded Entanglement Topology v2 + Dynamic Coupling (severity={:.3}, cooldown={}): {:.4}{}",
             template,
             template.description(),
             report.gpu_success_ema,
             report.mercy_modulated_confidence,
             report.gpu_latency_ema_ms,
+            device_health,
             self.last_plateau_severity,
             self.cooldown_active,
             swarm_consensus,
@@ -957,10 +1012,10 @@ impl RaThorOneOrganism {
 
         match self.evolution_gate.propose_evolution(proposal.clone()) {
             Ok(msg) => {
-                println!("[ONE + Lattice Conductor Self-Evolution] GPU telemetry excellent — auto-proposed {:?} upgrade (Expanded Entanglement Topology v2 + Dynamic Coupling, severity={:.3}, cooldown={}) : {:.4}): {}", template, self.last_plateau_severity, self.cooldown_active, swarm_consensus, msg);
+                println!("[ONE + Lattice Conductor Self-Evolution] GPU telemetry excellent — auto-proposed {:?} upgrade (GPU Resilience integrated, severity={:.3}, cooldown={}) : {:.4}): {}", template, self.last_plateau_severity, self.cooldown_active, swarm_consensus, msg);
                 self.trigger_evolution_automation_hooks(&proposal, report.mercy_modulated_confidence).await;
                 self.persist_approved_evolution(&proposal, true, report.mercy_modulated_confidence).await;
-                Ok(format!("Lattice Conductor v13.1 {:?} upgrade proposed from GPU telemetry + Quantum Swarm Expanded Entanglement Topology v2 (vote={:.4})", template, swarm_consensus))
+                Ok(format!("Lattice Conductor v13.1 {:?} upgrade proposed from GPU telemetry + Quantum Swarm + GPU Device Recovery integration (vote={:.4})", template, swarm_consensus))
             }
             Err(e) => Err(format!("Gate rejected Lattice Conductor upgrade: {}", e)),
         }
@@ -1230,7 +1285,7 @@ impl RaThorOneOrganism {
 pub fn launch_one_organism() -> RaThorOneOrganism {
     let organism = RaThorOneOrganism::new();
     organism.offer_cosmic_loop();
-    println!("[Thunder] ONE Organism v14.17 + Real GitHubConnector + Expanded Entanglement Topology v2 in Lattice Conductor v13.1 ready");
+    println!("[Thunder] ONE Organism v14.18 + Real GitHubConnector + GPU Resilience Telemetry Integration (Device Recovery + Vulkan Validation) ready");
     organism
 }
 
@@ -1304,32 +1359,27 @@ mod tests {
             .unwrap()
             .block_on(organism.quantum_swarm_multi_consensus_vote(&report, &proposal));
 
-        // Should have at least the original 2 pairs + new ones when conditions met
         assert!(breakdown.entangled_pairs.len() >= 2);
         let has_new_pairs = breakdown.entangled_pairs.iter().any(|p| p.contains("Performance ↔ Mercy") || p.contains("Alignment ↔ Foresight"));
-        // Note: new pairs only activate under specific swarm strength conditions
         println!("Entangled pairs in test: {:?}", breakdown.entangled_pairs);
     }
 
     #[test]
     fn test_dynamic_threshold_coupling_and_consensus_momentum() {
         let mut organism = RaThorOneOrganism::new();
-        let report = make_test_report(0.93, 0.95); // high mercy → elevated dynamic threshold
+        let report = make_test_report(0.93, 0.95);
         let proposal = make_test_proposal();
 
-        // First call
         let (c1, b1) = tokio::runtime::Runtime::new()
             .unwrap()
             .block_on(organism.quantum_swarm_multi_consensus_vote(&report, &proposal));
 
-        // Second call (momentum should kick in)
         let (c2, b2) = tokio::runtime::Runtime::new()
             .unwrap()
             .block_on(organism.quantum_swarm_multi_consensus_vote(&report, &proposal));
 
-        // Consensus should be reasonably stable due to EMA
         assert!((c1 - c2).abs() < 0.15);
-        assert!(b2.entanglement_bonus <= b1.entanglement_bonus * 1.1 + 0.001); // coupling should not explode
+        assert!(b2.entanglement_bonus <= b1.entanglement_bonus * 1.1 + 0.001);
     }
 
     #[test]
