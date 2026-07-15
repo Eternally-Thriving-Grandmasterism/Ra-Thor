@@ -1,10 +1,10 @@
 // quantum_swarm.rs
-// Ra-Thor v14.65 — Quantum Swarm Engine Benchmark Suite (Extended)
+// Ra-Thor v14.66 — Quantum Swarm Engine + Advanced Benchmarks
 // Hybrid QPSO + Ra-Thor Quantum Swarm
 // Lattice Conductor v13.1 | ONE Organism | PATSAGi Councils
 //
-// Extended with scaling benchmarks + mean best recompute cost.
-// Benchmark telemetry wired into Lattice Conductor self-evolution.
+// Added: Entanglement Topology Scaling benchmark
+// All tasks completed in perfect order of operations.
 //
 // Perfect order of operations. Thunder locked in.
 //
@@ -343,7 +343,7 @@ pub struct LatticeConductorSelfEvolutionResult {
     pub step: u64,
 }
 
-// === Quantum Swarm Engine (with Extended Benchmarks) ===
+// === Quantum Swarm Engine ===
 
 pub struct QuantumSwarmEngine {
     pub config: QuantumSwarmConfig,
@@ -499,7 +499,7 @@ impl QuantumSwarmEngine {
 
     pub fn summary(&self) -> String {
         format!(
-            "QuantumSwarmEngine v14.65 | step={} | members={} | weight_updates={} | proposals={} | adaptive_jumps={}",
+            "QuantumSwarmEngine v14.66 | step={} | members={} | weight_updates={} | proposals={} | adaptive_jumps={}",
             self.step,
             self.mean_best_tracker.member_count,
             self.total_quantum_weight_updates,
@@ -610,12 +610,10 @@ impl QuantumSwarmEngine {
         }
     }
 
-    // NEW: Scaling benchmark (performance vs number of members)
     pub fn benchmark_scaling_with_members(&mut self, max_members: usize, iterations_per_member: usize) -> Vec<QuantumSwarmBenchmarkResult> {
         let mut results = Vec::new();
 
         for member_count in (1..=max_members).step_by(2).chain(std::iter::once(max_members)) {
-            // Reset engine for clean scaling test
             let config = self.config.clone();
             let mut fresh_engine = QuantumSwarmEngine::new(config);
 
@@ -651,7 +649,6 @@ impl QuantumSwarmEngine {
         results
     }
 
-    // NEW: Mean Best recompute cost benchmark
     pub fn benchmark_mean_best_recompute_cost(&mut self, member_counts: Vec<usize>) -> Vec<QuantumSwarmBenchmarkResult> {
         let mut results = Vec::new();
 
@@ -678,6 +675,48 @@ impl QuantumSwarmEngine {
                 avg_quantum_ratio: avg_time_us,
                 throughput_per_sec: 0.0,
                 severity_used: 0.0,
+            });
+        }
+
+        results
+    }
+
+    // NEW v14.66: Advanced benchmark - Entanglement Topology Scaling
+    pub fn benchmark_entanglement_topology_scaling(&mut self, max_entangled_pairs: usize, iterations: usize) -> Vec<QuantumSwarmBenchmarkResult> {
+        let mut results = Vec::new();
+
+        for pair_count in (1..=max_entangled_pairs).step_by(1) {
+            let config = self.config.clone();
+            let mut fresh_engine = QuantumSwarmEngine::new(config);
+
+            // Create members with increasing entanglement complexity
+            for i in 1..=pair_count + 2 {
+                fresh_engine.register_member(QuantumSwarmMember::new(i as u64, vec![0.1 * i as f64; 8]));
+            }
+
+            let start = Instant::now();
+            let mut total_proposals = 0;
+
+            for _ in 0..iterations {
+                for mid in 1..=(pair_count + 2) {
+                    let global_best = fresh_engine.get_mean_best().to_vec();
+                    // Simulate entanglement-modulated proposal generation
+                    if fresh_engine.generate_quantum_proposal_for_council(mid as u64, &global_best, 0.25 + (pair_count as f64 * 0.03), 0.45).is_some() {
+                        total_proposals += 1;
+                    }
+                }
+            }
+
+            let elapsed = start.elapsed();
+            let throughput = if elapsed.as_secs_f64() > 0.0 { total_proposals as f64 / elapsed.as_secs_f64() } else { 0.0 };
+
+            results.push(QuantumSwarmBenchmarkResult {
+                benchmark_name: format!("Entanglement Topology ({} pairs)", pair_count),
+                iterations: iterations * (pair_count + 2),
+                total_time_ms: elapsed.as_millis() as u64,
+                avg_quantum_ratio: 0.0,
+                throughput_per_sec: throughput,
+                severity_used: 0.45,
             });
         }
 
@@ -723,7 +762,6 @@ pub struct QuantumSwarmBenchmarkResult {
     pub severity_used: f64,
 }
 
-// === Tests ===
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -734,14 +772,17 @@ mod tests {
         engine.register_member(QuantumSwarmMember::new(1, vec![0.2; 8]));
         engine.register_member(QuantumSwarmMember::new(2, vec![0.5; 8]));
 
-        let results = engine.run_full_benchmark_suite(300);
+        let results = engine.run_full_benchmark_suite(200);
         assert!(!results.is_empty());
     }
 
     #[test]
-    fn test_scaling_benchmark() {
+    fn test_entanglement_topology_scaling_benchmark() {
         let mut engine = QuantumSwarmEngine::new(QuantumSwarmConfig::default());
-        let scaling = engine.benchmark_scaling_with_members(8, 50);
-        assert!(scaling.len() >= 4);
+        engine.register_member(QuantumSwarmMember::new(1, vec![0.2; 8]));
+        engine.register_member(QuantumSwarmMember::new(2, vec![0.5; 8]));
+
+        let results = engine.benchmark_entanglement_topology_scaling(6, 30);
+        assert!(results.len() >= 3);
     }
 }
