@@ -1,9 +1,9 @@
 // gpu_compute_pipeline.rs
-// Ra-Thor v14.23 — AMD Workgroup Size Tuning + Shader Variants
+// Ra-Thor v14.24 — Refined AMD Tuning Logic (Clarity Pass)
 // Lattice Conductor v13.1 | ONE Organism | PATSAGi Council #13
 //
-// Added AMD-optimized workgroup size selection and AMD-specific shader variants
-// for better performance on Radeon / Instinct GPUs via wgpu (Vulkan).
+// Refined AMD workgroup size tuning and shader variant logic for maximum clarity,
+// better documentation, and easier maintenance.
 //
 // AG-SML v1.0 License
 
@@ -539,7 +539,7 @@ impl GpuComputePipeline {
             telemetry_retry_count: AtomicUsize::new(3),
             mercy_norm_histogram: TelemetryHistogram::new("ra_thor_mercy_norm", vec![0.5, 0.7, 0.8, 0.85, 0.9, 0.95, 1.0]),
             save_duration_histogram: TelemetryHistogram::new("ra_thor_telemetry_save_duration_ms", vec![10.0, 50.0, 100.0, 200.0, 500.0, 1000.0]),
-            version: "v14.23-amd-workgroup-tuning-TOLC8-PATSAGi".to_string(),
+            version: "v14.24-refined-amd-tuning-TOLC8-PATSAGi".to_string(),
 
             device_lost_count: AtomicUsize::new(0),
             successful_recoveries: AtomicUsize::new(0),
@@ -822,7 +822,9 @@ impl GpuComputePipeline {
         }
     }
 
-    // NEW v14.23: Detect if current adapter is AMD
+    // === NEW v14.24: Refined AMD Detection + Tuning Logic ===
+
+    /// Returns true if the given adapter is an AMD GPU (Radeon or Instinct).
     #[cfg(feature = "wgpu")]
     fn is_amd_gpu(&self, adapter: &wgpu::Adapter) -> bool {
         let info = adapter.get_info();
@@ -830,22 +832,66 @@ impl GpuComputePipeline {
         name.contains("amd") || name.contains("radeon")
     }
 
-    // NEW v14.23: Get recommended workgroup size for AMD GPUs
-    // AMD GPUs have wavefront size of 64. Best performance often comes from
-    // workgroup sizes that are multiples of 64 (64, 128, 256).
+    /// Returns the recommended workgroup size for the current GPU and buffer size.
+    ///
+    /// AMD GPUs have a wavefront size of 64 threads. Best performance is usually achieved
+    /// when workgroup size is a multiple of 64 (64, 128, or 256).
+    ///
+    /// This function returns larger workgroups for bigger buffers on AMD GPUs.
     pub fn get_recommended_workgroup_size(&self, is_amd: bool, buffer_size: usize) -> u32 {
-        if is_amd {
-            // AMD prefers larger workgroups aligned to wavefront size (64)
-            if buffer_size >= 262144 {
-                256 // Best for very large buffers on AMD
-            } else if buffer_size >= 65536 {
-                128
-            } else {
-                64
-            }
+        if !is_amd {
+            return 64; // Safe default for non-AMD GPUs
+        }
+
+        // AMD-specific tuning
+        if buffer_size >= 262144 {
+            256
+        } else if buffer_size >= 65536 {
+            128
         } else {
-            // Default / NVIDIA-friendly size
             64
+        }
+    }
+
+    /// Returns an AMD-optimized WGSL shader source when running on AMD GPUs.
+    /// Falls back to a standard shader on other GPUs.
+    #[cfg(feature = "wgpu")]
+    fn get_compute_shader_source(&self, is_amd: bool, workgroup_size: u32) -> String {
+        if is_amd {
+            // AMD-optimized variant: workgroup size aligned to wavefront (64)
+            format!(
+                r#"
+                @group(0) @binding(0) var<storage, read_write> data: array<f32>;
+
+                @compute @workgroup_size({})
+                fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {{
+                    let idx = global_id.x;
+                    if (idx < arrayLength(&data)) {{
+                        let val = data[idx];
+                        let transformed = val * 1.01 + 0.001;
+                        let entropy_factor = (transformed - val) * 0.1;
+                        data[idx] = transformed + entropy_factor;
+                    }}
+                }}
+                "#,
+                workgroup_size
+            )
+        } else {
+            // Standard shader for NVIDIA / other GPUs
+            r#"
+                @group(0) @binding(0) var<storage, read_write> data: array<f32>;
+
+                @compute @workgroup_size(64)
+                fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
+                    let idx = global_id.x;
+                    if (idx < arrayLength(&data)) {
+                        let val = data[idx];
+                        let transformed = val * 1.01 + 0.001;
+                        let entropy_factor = (transformed - val) * 0.1;
+                        data[idx] = transformed + entropy_factor;
+                    }
+                }
+            "#.to_string()
         }
     }
 
@@ -929,7 +975,7 @@ impl GpuComputePipeline {
         });
     }
 
-    // === NEW v14.23: AMD Workgroup Tuning + Shader Variants ===
+    // === NEW v14.24: Refined AMD-aware GPU dispatch path ===
     #[cfg(feature = "wgpu")]
     async fn try_real_gpu_with_readback(&self, buffer_size: usize) -> Result<Vec<f32>, String> {
         use wgpu::util::DeviceExt;
@@ -950,6 +996,7 @@ impl GpuComputePipeline {
 
         let adapter = self.select_best_adapter(&instance).await?;
         let is_amd = self.is_amd_gpu(&adapter);
+        let recommended_wg_size = self.get_recommended_workgroup_size(is_amd, buffer_size);
 
         let (device, queue) = adapter
             .request_device(
@@ -964,53 +1011,16 @@ impl GpuComputePipeline {
             .map_err(|e| format!("Device request failed (TOLC 8 Order Gate): {}", e))?; 
 
         let info = adapter.get_info();
-        let recommended_wg_size = self.get_recommended_workgroup_size(is_amd, buffer_size);
-
         println!(
-            "[Ra-Thor] Using GPU: {} ({:?}) | AMD={} | Recommended workgroup size: {}",
+            "[Ra-Thor] GPU: {} ({:?}) | AMD={} | WorkgroupSize={}",
             info.name, info.device_type, is_amd, recommended_wg_size
         );
 
-        // NEW v14.23: Choose shader variant based on GPU type
-        let shader_source = if is_amd {
-            // AMD-optimized shader: larger workgroup size aligned to wavefront (64)
-            format!(
-                r#"
-                @group(0) @binding(0) var<storage, read_write> data: array<f32>;
-
-                @compute @workgroup_size({})
-                fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {{
-                    let idx = global_id.x;
-                    if (idx < arrayLength(&data)) {{
-                        let val = data[idx];
-                        let transformed = val * 1.01 + 0.001;
-                        let entropy_factor = (transformed - val) * 0.1;
-                        data[idx] = transformed + entropy_factor;
-                    }}
-                }}
-                "#,
-                recommended_wg_size
-            )
-        } else {
-            // Standard shader for other GPUs
-            r#"
-                @group(0) @binding(0) var<storage, read_write> data: array<f32>;
-
-                @compute @workgroup_size(64)
-                fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
-                    let idx = global_id.x;
-                    if (idx < arrayLength(&data)) {
-                        let val = data[idx];
-                        let transformed = val * 1.01 + 0.001;
-                        let entropy_factor = (transformed - val) * 0.1;
-                        data[idx] = transformed + entropy_factor;
-                    }
-                }
-            "#.to_string()
-        };
+        // Get the appropriate shader (AMD-tuned or standard)
+        let shader_source = self.get_compute_shader_source(is_amd, recommended_wg_size);
 
         let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
-            label: Some("Ra-Thor TU Compute Shader - AMD Tuned v14.23"),
+            label: Some("Ra-Thor Compute Shader v14.24"),
             source: wgpu::ShaderSource::Wgsl(shader_source),
         });
 
@@ -1068,7 +1078,6 @@ impl GpuComputePipeline {
             compute_pass.set_pipeline(&compute_pipeline);
             compute_pass.set_bind_group(0, &bind_group, &[]);
 
-            // Use recommended workgroup size for dispatch
             let workgroups = (buffer_size / 4 / recommended_wg_size as usize) + 1;
             compute_pass.dispatch_workgroups(workgroups as u32, 1, 1);
         }
