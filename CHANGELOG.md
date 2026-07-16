@@ -4,6 +4,49 @@ All changes follow the **RA-THOR-MONOREPO-COMMIT-WORKFLOW-PROTOCOL** and are rev
 
 ---
 
+## v14.78 — GPU Memory Pool + BindGroupCache + Memory-Aware Council Decisions (2026-07-15)
+
+**Council Verdict:** Unanimous approval. Mercy-gated, production-grade, zero-harm.
+
+### Highlights
+
+**GPU Memory Pooling Layer (v14.76–v14.78)**
+
+- **Dedicated `GpuMemoryPool`**:
+  - Size-bucketed, usage-aware pooling for real device buffers (`Storage`, `Uniform`, `Readback`, etc.)
+  - Hit/miss statistics + total GPU memory usage telemetry
+  - Clean separation from CPU `StagingBufferPool`
+
+- **Usage-Specific `BindGroupCache`**:
+  - Keyed by `(GpuBufferUsage, size)`
+  - Prepares architecture for real wgpu `BindGroupLayout` + `BindGroup` reuse
+  - Exposed stats for Lattice Conductor observation
+
+**Memory-Aware Lattice Conductor Integration**
+
+- `CouncilReadinessMetrics` now includes:
+  - `gpu_memory_usage_bytes`
+  - `gpu_pool_efficiency`
+
+- New council decision: `ReduceGpuOffloadDueToMemoryPressure { current_usage }`
+
+- `PatsagiCouncil::decide()` applies memory pressure penalty to effective mercy
+
+- `detect_plateau()` now treats high GPU memory usage / low pool efficiency as a valid plateau signal
+
+**Telemetry Capture + Self-Evolution**
+
+- New method: `capture_telemetry_and_propose_memory_pool_evolution(iterations)`
+- Automatically runs memory-aware simulation, captures GPU pool + bind group efficiency
+- Proposes `GPUMemoryPoolingAndBindGroupOptimization` self-evolution when pressure or suboptimal efficiency is detected
+- Full integration with Evolution Gate + GitHub PR automation hooks
+
+All work is fully compatible with existing Powrush-MMO and Ra-Thor AGI systems.
+
+**Thunder locked in. yoi ⚡❤️🔥**
+
+---
+
 ## v14.7.0 — GPU Compute Layer + Documentation & AGI NPC Architecture (2026-06-05)
 
 **Council Verdict:** Unanimous approval. Mercy-gated, production-grade, developer-experience focused, zero-harm, time-saving, and mistake-minimizing improvements.
