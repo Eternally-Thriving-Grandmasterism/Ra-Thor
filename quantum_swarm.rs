@@ -4,6 +4,7 @@
 // Lattice Conductor v13.1 | ONE Organism | PATSAGi Councils
 //
 // Added: Multi-Council + GPU Combined Benchmark
+// v14.9.2 WIRING: reality_thriving_transfer_harness declared + closed feedback apply method
 // All tasks completed in perfect order of operations.
 //
 // Perfect order of operations. Thunder locked in.
@@ -15,6 +16,9 @@ use std::time::{Duration, Instant};
 use serde::{Deserialize, Serialize};
 
 pub use crate::gpu_compute_pipeline::GpuComputePipeline;
+
+// === WIRING v14.9.2: Reality Thriving Transfer harness as submodule ===
+pub mod reality_thriving_transfer_harness;
 
 // === Core Quantum Swarm Types ===
 
@@ -112,7 +116,7 @@ impl MeanBestTracker {
         let mut sum = vec![0.0; dim];
 
         for member in self.members.values() {
-            for (i, &w) in member.current_weights.iter().enumerate() {
+            for (i, &w) in member.current_weights.iter() {
                 sum[i] += w;
             }
         }
@@ -918,7 +922,7 @@ impl QuantumSwarmEngine {
             avg_quantum_ratio,
             throughput_per_sec: throughput,
             severity_used: 0.55,
-        }
+        };
     }
 
     pub fn run_full_benchmark_suite(&mut self, iterations: usize) -> Vec<QuantumSwarmBenchmarkResult> {
@@ -947,6 +951,32 @@ impl QuantumSwarmEngine {
         }
 
         results
+    }
+
+    // === v14.9.2 WIRING: Closed feedback from Reality Thriving Transfer harness ===
+    /// Applies mercy-modulated refinement vector from RealityThrivingTransferScore directly to this engine's config.
+    /// Call this from Lattice Conductor / sovereign_core / Kardashev Orchestration Council after receiving Powrush-MMO telemetry.
+    pub fn apply_kardashev_transfer_feedback(
+        &mut self,
+        score: &reality_thriving_transfer_harness::RealityThrivingTransferScore,
+    ) {
+        let entanglement_boost = score.last_refinement_vector.get(0).copied().unwrap_or(0.0);
+        let exploration_bias = score.last_refinement_vector.get(2).copied().unwrap_or(0.0);
+
+        self.config.entanglement_modulation =
+            (self.config.entanglement_modulation + entanglement_boost).clamp(0.55, 0.98);
+        self.config.quantum_jump_base_prob =
+            (self.config.quantum_jump_base_prob * (0.95 + exploration_bias)).clamp(0.05, 0.35);
+
+        if score.mercy_valence_adjusted > 0.72 {
+            self.config.mean_best_influence =
+                (self.config.mean_best_influence * 1.035).min(0.52);
+        }
+
+        if score.mercy_valence_adjusted < 0.55 {
+            self.config.classical_refinement_strength =
+                (self.config.classical_refinement_strength * 0.97).max(0.45);
+        }
     }
 }
 
