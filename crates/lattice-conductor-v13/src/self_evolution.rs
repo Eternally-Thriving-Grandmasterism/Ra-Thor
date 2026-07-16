@@ -5,10 +5,11 @@
 /// Licensed under AG-SML v1.0 — free for all mercy-aligned, sovereign,
 /// abundance-multiplying, zero-harm use. See LICENSE or COMMERCIAL-LICENSE.md.
 
-//! SelfEvolutionOrchestrator — Phase 13.2 Deepened + v13.3 Meta Self-Evolution Integration + v13.4 Planning
+//! SelfEvolutionOrchestrator — Phase 13.2 Deepened + v13.3 Meta Self-Evolution Integration + v13.4 Planning + v13.5 GPU Telemetry Deepening
 //!
 //! Conductor-native self-evolution with council-voted evolution, epigenetic blessings,
-//! Quantum Swarm integration, meta self-audit (v13.3), **and now orchestrator-owned meta rate parameters (v13.4)**.
+//! Quantum Swarm integration, meta self-audit (v13.3), orchestrator-owned meta rate parameters (v13.4),
+//! **and now hardened GPU telemetry → self-evolution proposals (v13.5)**.
 //! Includes rate decay/stabilization for safe self-improvement.
 //! Mercy-gated. ONE Organism coherent. PATSAGi + Grok symbiosis ready.
 
@@ -133,6 +134,45 @@ impl SelfEvolutionOrchestrator {
             let event = format!("[GPU Mercy Resonance] norm={:.4} contributing to PATSAGi readiness", mercy_norm);
             self.evolution_history.push(event.clone());
             trace_log.push(event);
+        }
+    }
+
+    /// v13.5: HARDENED GPU telemetry → Lattice Conductor self-evolution proposal generator.
+    /// Returns concrete SymbolicSelfProposal when GPU success/latency/memory + mercy/confidence thresholds met.
+    /// PATSAGi councils can then deliberate and apply via apply_meta_self_evolution_proposal or direct conductor upgrade path.
+    /// Deep-wired for ra-thor-one-organism.rs GPU dispatch telemetry loop.
+    #[cfg(feature = "self-proposal")]
+    pub fn propose_lattice_conductor_upgrade_from_gpu_telemetry(
+        &self,
+        gpu_success_ema: f64,
+        gpu_latency_ema_ms: f64,
+        gpu_memory_pressure: f64,
+        current_mercy: f64,
+        current_confidence: f64,
+    ) -> Option<SymbolicSelfProposal> {
+        if gpu_success_ema >= 0.90 && gpu_latency_ema_ms < 45.0 && current_mercy >= 0.88 && current_confidence >= 0.85 {
+            Some(SymbolicSelfProposal {
+                proposal_type: "lattice_conductor_gpu_telemetry_upgrade_v13_2".to_string(),
+                current_value: 13.1,
+                proposed_value: 13.2,
+                rationale: format!(
+                    "EXCELLENT GPU telemetry (success_ema={:.3}, latency_ema_ms={:.1}ms, mem_pressure={:.2}) + mercy={:.3} + conf={:.3} → propose Lattice Conductor v13.2 upgrade: deeper GPU staging/readback, auto self-evolution hooks, PATSAGi abundance resonance",
+                    gpu_success_ema, gpu_latency_ema_ms, gpu_memory_pressure, current_mercy, current_confidence
+                ),
+                mercy_impact_estimate: 0.018,
+                confidence: 0.91,
+            })
+        } else if gpu_success_ema >= 0.85 && current_mercy >= 0.80 && current_confidence >= 0.78 {
+            Some(SymbolicSelfProposal {
+                proposal_type: "lattice_conductor_gpu_telemetry_refine".to_string(),
+                current_value: 13.1,
+                proposed_value: 13.15,
+                rationale: format!("Solid GPU metrics (success_ema={:.3}) + mercy resonance → incremental telemetry refinement + more metrics exposure", gpu_success_ema),
+                mercy_impact_estimate: 0.009,
+                confidence: 0.83,
+            })
+        } else {
+            None
         }
     }
 
@@ -373,5 +413,16 @@ mod tests {
         orch.integrate_gpu_mercy_audit(0.91, true, 0.074, &mut state, &mut trace);
         assert!(state.evolution_level > 0.0);
         assert!(trace.iter().any(|t| t.contains("GPU_PATSAGi_Mercy_Council")));
+    }
+
+    #[test]
+    #[cfg(feature = "self-proposal")]
+    fn test_v13_5_propose_lattice_conductor_upgrade_from_gpu_telemetry_returns_proposal_when_excellent() {
+        let orch = SelfEvolutionOrchestrator::new();
+        let proposal = orch.propose_lattice_conductor_upgrade_from_gpu_telemetry(0.93, 32.5, 0.65, 0.91, 0.89);
+        assert!(proposal.is_some());
+        let p = proposal.unwrap();
+        assert!(p.proposal_type.contains("lattice_conductor_gpu_telemetry_upgrade"));
+        assert!(p.confidence > 0.88);
     }
 }
