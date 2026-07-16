@@ -282,77 +282,69 @@
 
   <script>
     // ============================================
-    // External JSON Translation System v2.7 (Best Fix)
+    // External JSON Translation System v2.8 (Best Reliability)
     // ============================================
     let currentTranslations = {};
     const loadedLanguages = {};
 
+    // Apply translations directly and reliably (modeled after the old working version)
     function applyTranslations() {
       const t = currentTranslations;
-      if (!t || Object.keys(t).length === 0) {
-        console.warn('applyTranslations called with empty translations');
-        return;
-      }
+      if (!t || Object.keys(t).length === 0) return;
 
-      // Direct element updates - most reliable method
-      const directUpdates = [
-        { id: 'hero-headline', key: 'headline' },
-        { id: 'fusion-hero', key: 'fusion' },
-        { id: 'grok-title', key: 'grokTitle' },
-        { id: 'grok-subtitle', key: 'grokSubtitle' },
-        { id: 'x-title', key: 'xTitle' },
-        { id: 'x-subtitle', key: 'xSubtitle' },
-        { id: 'vibe-title', key: 'vibeTitle' },
-        { id: 'vibe-subtitle', key: 'vibeSubtitle' },
-        { id: 'demo-note', key: 'demoNote' },
-        { id: 'footer-trademarks-title', key: 'footerTrademarksTitle' },
-        { id: 'footer-privacy-title', key: 'footerPrivacyTitle' },
-        { id: 'footer-compliance-title', key: 'footerComplianceTitle' },
-        { id: 'faq-title', key: 'faqTitle' },
-        { id: 'faq-q1', key: 'faqQ1' },
-        { id: 'faq-q2', key: 'faqQ2' },
-        { id: 'faq-q3', key: 'faqQ3' },
-        { id: 'faq-q4', key: 'faqQ4' },
-        { id: 'faq-q5', key: 'faqQ5' },
-        { id: 'faq-q6', key: 'faqQ6' },
-        { id: 'faq-q7', key: 'faqQ7' },
-        { id: 'faq-q8', key: 'faqQ8' }
-      ];
+      // Direct synchronous updates (same pattern as the old reliable version)
+      const setText = (id, key) => {
+        const el = document.getElementById(id);
+        if (el && t[key]) el.textContent = t[key];
+      };
 
-      // Apply textContent updates
-      directUpdates.forEach(item => {
-        const el = document.getElementById(item.id);
-        if (el && t[item.key]) {
-          el.textContent = t[item.key];
-        }
-      });
+      const setHTML = (id, key) => {
+        const el = document.getElementById(id);
+        if (el && t[key]) el.innerHTML = t[key];
+      };
 
-      // HTML content updates (for links, bold, etc.)
-      const htmlUpdates = [
-        { id: 'footer-trademarks-text', key: 'footerTrademarksText' },
-        { id: 'footer-privacy-text', key: 'footerPrivacyText' },
-        { id: 'footer-compliance-text', key: 'footerComplianceText' },
-        { id: 'footer-copyright', key: 'footerCopyright' },
-        { id: 'footer-contact', key: 'footerContact' },
-        { id: 'faq-a1', key: 'faqA1' },
-        { id: 'faq-a2', key: 'faqA2' },
-        { id: 'faq-a3', key: 'faqA3' },
-        { id: 'faq-a4', key: 'faqA4' },
-        { id: 'faq-a5', key: 'faqA5' },
-        { id: 'faq-a6', key: 'faqA6' },
-        { id: 'faq-a7', key: 'faqA7' },
-        { id: 'faq-a8', key: 'faqA8' },
-        { id: 'faq-contact', key: 'faqContact' }
-      ];
+      // Core content
+      setText('hero-headline', 'headline');
+      setText('fusion-hero', 'fusion');
+      setText('grok-title', 'grokTitle');
+      setText('grok-subtitle', 'grokSubtitle');
+      setText('x-title', 'xTitle');
+      setText('x-subtitle', 'xSubtitle');
+      setText('vibe-title', 'vibeTitle');
+      setText('vibe-subtitle', 'vibeSubtitle');
+      setText('demo-note', 'demoNote');
 
-      htmlUpdates.forEach(item => {
-        const el = document.getElementById(item.id);
-        if (el && t[item.key]) {
-          el.innerHTML = t[item.key];
-        }
-      });
+      // Footer
+      setText('footer-trademarks-title', 'footerTrademarksTitle');
+      setHTML('footer-trademarks-text', 'footerTrademarksText');
+      setText('footer-privacy-title', 'footerPrivacyTitle');
+      setText('footer-privacy-text', 'footerPrivacyText');
+      setText('footer-compliance-title', 'footerComplianceTitle');
+      setText('footer-compliance-text', 'footerComplianceText');
+      setHTML('footer-copyright', 'footerCopyright');
+      setHTML('footer-contact', 'footerContact');
 
-      // RTL handling
+      // FAQ
+      setText('faq-title', 'faqTitle');
+      setText('faq-q1', 'faqQ1');
+      setHTML('faq-a1', 'faqA1');
+      setText('faq-q2', 'faqQ2');
+      setHTML('faq-a2', 'faqA2');
+      setText('faq-q3', 'faqQ3');
+      setHTML('faq-a3', 'faqA3');
+      setText('faq-q4', 'faqQ4');
+      setHTML('faq-a4', 'faqA4');
+      setText('faq-q5', 'faqQ5');
+      setHTML('faq-a5', 'faqA5');
+      setText('faq-q6', 'faqQ6');
+      setHTML('faq-a6', 'faqA6');
+      setText('faq-q7', 'faqQ7');
+      setHTML('faq-a7', 'faqA7');
+      setText('faq-q8', 'faqQ8');
+      setHTML('faq-a8', 'faqA8');
+      setHTML('faq-contact', 'faqContact');
+
+      // RTL for Arabic
       const faqSection = document.getElementById('faq');
       if (faqSection) {
         if (document.documentElement.lang === 'ar') {
@@ -366,6 +358,7 @@
     }
 
     async function loadTranslations(lang) {
+      // If already loaded, use synchronously (like the old version)
       if (loadedLanguages[lang]) {
         currentTranslations = loadedLanguages[lang];
         applyTranslations();
@@ -374,35 +367,34 @@
 
       try {
         const res = await fetch(`./locales/${lang}.json`);
-        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
         const data = await res.json();
         loadedLanguages[lang] = data;
         currentTranslations = data;
         applyTranslations();
       } catch (error) {
-        console.error(`Error loading ${lang}.json:`, error);
+        console.warn(`Could not load ${lang}.json, falling back to English`, error);
         if (lang !== 'en') {
-          // Fallback to English
           await loadTranslations('en');
         }
       }
     }
 
     function switchLang(lang) {
-      // 1. Update active tab immediately
+      // Update active tab
       document.querySelectorAll('.lang-tab').forEach(b => b.classList.remove('active'));
       const activeBtn = document.querySelector(`.lang-tab[data-lang="${lang}"]`);
       if (activeBtn) activeBtn.classList.add('active');
 
-      // 2. Set document language
+      // Set document language
       document.documentElement.lang = lang;
 
-      // 3. Load and apply translations
+      // Load + apply (uses cache synchronously when available)
       loadTranslations(lang);
     }
 
-    // Event listener for language tabs
+    // Language selector
     document.getElementById('lang-selector').addEventListener('click', function(e) {
       const btn = e.target.closest('.lang-tab');
       if (btn) {
@@ -410,7 +402,7 @@
       }
     });
 
-    // Initial load - English
+    // Initial load
     window.addEventListener('load', () => {
       document.documentElement.lang = 'en';
       loadTranslations('en');
