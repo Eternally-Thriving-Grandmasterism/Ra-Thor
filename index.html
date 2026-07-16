@@ -282,12 +282,13 @@
 
   <script>
     // ============================================
-    // NEW: External JSON Translation System (v2.5)
+    // External JSON Translation System v2.6 (Fixed)
     // ============================================
     let currentTranslations = {};
-    const loadedLanguages = {}; // Simple in-memory cache
+    const loadedLanguages = {};
 
     async function loadTranslations(lang) {
+      // If already cached, use it immediately
       if (loadedLanguages[lang]) {
         currentTranslations = loadedLanguages[lang];
         applyTranslations();
@@ -295,15 +296,15 @@
       }
 
       try {
-        const response = await fetch(`./locales/${lang}.json`);
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        
-        const translations = await response.json();
-        loadedLanguages[lang] = translations;
-        currentTranslations = translations;
+        const res = await fetch(`./locales/${lang}.json`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+        const data = await res.json();
+        loadedLanguages[lang] = data;
+        currentTranslations = data;
         applyTranslations();
-      } catch (error) {
-        console.warn(`Could not load ${lang}.json. Falling back to English.`, error);
+      } catch (err) {
+        console.warn(`Failed to load ${lang}.json, falling back to English`, err);
         if (lang !== 'en') {
           await loadTranslations('en');
         }
@@ -314,77 +315,86 @@
       const t = currentTranslations;
       if (!t || Object.keys(t).length === 0) return;
 
-      const map = {
-        'hero-headline': t.headline,
-        'fusion-hero': t.fusion,
-        'grok-title': t.grokTitle,
-        'grok-subtitle': t.grokSubtitle,
-        'x-title': t.xTitle,
-        'x-subtitle': t.xSubtitle,
-        'vibe-title': t.vibeTitle,
-        'vibe-subtitle': t.vibeSubtitle,
-        'demo-note': t.demoNote,
-        'footer-trademarks-title': t.footerTrademarksTitle,
-        'footer-trademarks-text': t.footerTrademarksText,
-        'footer-privacy-title': t.footerPrivacyTitle,
-        'footer-privacy-text': t.footerPrivacyText,
-        'footer-compliance-title': t.footerComplianceTitle,
-        'footer-compliance-text': t.footerComplianceText,
-        'footer-copyright': t.footerCopyright,
-        'footer-contact': t.footerContact,
-        'faq-title': t.faqTitle,
-        'faq-q1': t.faqQ1,
-        'faq-a1': t.faqA1,
-        'faq-q2': t.faqQ2,
-        'faq-a2': t.faqA2,
-        'faq-q3': t.faqQ3,
-        'faq-a3': t.faqA3,
-        'faq-q4': t.faqQ4,
-        'faq-a4': t.faqA4,
-        'faq-q5': t.faqQ5,
-        'faq-a5': t.faqA5,
-        'faq-q6': t.faqQ6,
-        'faq-a6': t.faqA6,
-        'faq-q7': t.faqQ7,
-        'faq-a7': t.faqA7,
-        'faq-q8': t.faqQ8,
-        'faq-a8': t.faqA8,
-        'faq-contact': t.faqContact
+      // Update all elements
+      const updates = {
+        'hero-headline': { el: 'hero-headline', key: 'headline', html: false },
+        'fusion-hero': { el: 'fusion-hero', key: 'fusion', html: false },
+        'grok-title': { el: 'grok-title', key: 'grokTitle', html: false },
+        'grok-subtitle': { el: 'grok-subtitle', key: 'grokSubtitle', html: false },
+        'x-title': { el: 'x-title', key: 'xTitle', html: false },
+        'x-subtitle': { el: 'x-subtitle', key: 'xSubtitle', html: false },
+        'vibe-title': { el: 'vibe-title', key: 'vibeTitle', html: false },
+        'vibe-subtitle': { el: 'vibe-subtitle', key: 'vibeSubtitle', html: false },
+        'demo-note': { el: 'demo-note', key: 'demoNote', html: false },
+        'footer-trademarks-title': { el: 'footer-trademarks-title', key: 'footerTrademarksTitle', html: false },
+        'footer-trademarks-text': { el: 'footer-trademarks-text', key: 'footerTrademarksText', html: true },
+        'footer-privacy-title': { el: 'footer-privacy-title', key: 'footerPrivacyTitle', html: false },
+        'footer-privacy-text': { el: 'footer-privacy-text', key: 'footerPrivacyText', html: false },
+        'footer-compliance-title': { el: 'footer-compliance-title', key: 'footerComplianceTitle', html: false },
+        'footer-compliance-text': { el: 'footer-compliance-text', key: 'footerComplianceText', html: false },
+        'footer-copyright': { el: 'footer-copyright', key: 'footerCopyright', html: true },
+        'footer-contact': { el: 'footer-contact', key: 'footerContact', html: true },
+        'faq-title': { el: 'faq-title', key: 'faqTitle', html: false },
+        'faq-q1': { el: 'faq-q1', key: 'faqQ1', html: false },
+        'faq-a1': { el: 'faq-a1', key: 'faqA1', html: true },
+        'faq-q2': { el: 'faq-q2', key: 'faqQ2', html: false },
+        'faq-a2': { el: 'faq-a2', key: 'faqA2', html: true },
+        'faq-q3': { el: 'faq-q3', key: 'faqQ3', html: false },
+        'faq-a3': { el: 'faq-a3', key: 'faqA3', html: true },
+        'faq-q4': { el: 'faq-q4', key: 'faqQ4', html: false },
+        'faq-a4': { el: 'faq-a4', key: 'faqA4', html: true },
+        'faq-q5': { el: 'faq-q5', key: 'faqQ5', html: false },
+        'faq-a5': { el: 'faq-a5', key: 'faqA5', html: true },
+        'faq-q6': { el: 'faq-q6', key: 'faqQ6', html: false },
+        'faq-a6': { el: 'faq-a6', key: 'faqA6', html: true },
+        'faq-q7': { el: 'faq-q7', key: 'faqQ7', html: false },
+        'faq-a7': { el: 'faq-a7', key: 'faqA7', html: true },
+        'faq-q8': { el: 'faq-q8', key: 'faqQ8', html: false },
+        'faq-a8': { el: 'faq-a8', key: 'faqA8', html: true },
+        'faq-contact': { el: 'faq-contact', key: 'faqContact', html: true }
       };
 
-      Object.keys(map).forEach(id => {
-        const el = document.getElementById(id);
-        if (el && map[id]) {
-          if (id.includes('Text') || id.includes('A') || id.includes('contact') || id.includes('copyright')) {
-            el.innerHTML = map[id];
+      Object.keys(updates).forEach(id => {
+        const cfg = updates[id];
+        const element = document.getElementById(cfg.el);
+        const value = t[cfg.key];
+
+        if (element && value) {
+          if (cfg.html) {
+            element.innerHTML = value;
           } else {
-            el.textContent = map[id];
+            element.textContent = value;
           }
         }
       });
 
-      // RTL handling
-      const faqSection = document.getElementById('faq');
-      if (faqSection) {
+      // RTL support for Arabic
+      const faq = document.getElementById('faq');
+      if (faq) {
         if (document.documentElement.lang === 'ar') {
-          faqSection.classList.add('rtl');
-          faqSection.setAttribute('dir', 'rtl');
+          faq.classList.add('rtl');
+          faq.setAttribute('dir', 'rtl');
         } else {
-          faqSection.classList.remove('rtl');
-          faqSection.setAttribute('dir', 'ltr');
+          faq.classList.remove('rtl');
+          faq.setAttribute('dir', 'ltr');
         }
       }
     }
 
     function switchLang(lang) {
+      // Update active tab immediately
       document.querySelectorAll('.lang-tab').forEach(b => b.classList.remove('active'));
-      const activeBtn = document.querySelector(`.lang-tab[data-lang="${lang}"]`);
-      if (activeBtn) activeBtn.classList.add('active');
+      const btn = document.querySelector(`.lang-tab[data-lang="${lang}"]`);
+      if (btn) btn.classList.add('active');
 
+      // Set document language
       document.documentElement.lang = lang;
+
+      // Load + apply translations
       loadTranslations(lang);
     }
 
+    // Language selector handler
     document.getElementById('lang-selector').addEventListener('click', function(e) {
       const btn = e.target.closest('.lang-tab');
       if (btn) {
@@ -392,6 +402,7 @@
       }
     });
 
+    // Initial load
     window.addEventListener('load', () => {
       document.documentElement.lang = 'en';
       loadTranslations('en');
