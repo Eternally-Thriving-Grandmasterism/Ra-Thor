@@ -50,6 +50,27 @@
     }
     .premium-nav { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
     .vibe-live-badge { font-size: 10px; padding: 2px 8px; background: #581c87; color: #c084fc; border-radius: 9999px; }
+
+    /* Improved 3 Primary Cards for better text wrapping across all 11 languages */
+    .primary-card {
+      display: flex;
+      flex-direction: column;
+      min-height: 380px;
+    }
+    .primary-card h3 {
+      word-break: break-word;
+      line-height: 1.15;
+      flex-shrink: 0;
+    }
+    .primary-card .card-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    .primary-card .cta-button {
+      margin-top: auto;
+      padding-top: 1.5rem;
+    }
   </style>
 </head>
 <body class="bg-black text-white overflow-x-hidden lattice-bg">
@@ -98,26 +119,44 @@
         <button data-lang="hi" class="lang-tab px-5 sm:px-6 py-3 rounded-3xl border border-amber-300 text-amber-300 text-sm sm:text-base">हिन्दी</button>
       </div>
 
+      <!-- IMPROVED 3 PRIMARY CARDS - Better text wrapping for all 11 languages -->
       <div class="grid md:grid-cols-3 gap-6 sm:gap-8 max-w-5xl mx-auto">
-        <a href="https://grok.com/share/c2hhcmQtMi1jb3B5_99fc2797-15ef-4195-bdaa-c14e67359d2c" target="_blank" rel="noopener" class="card-hover block bg-gradient-to-br from-amber-900 to-yellow-900 border border-amber-300 rounded-3xl p-8 sm:p-10 text-center">
+        <!-- Grok Card -->
+        <a href="https://grok.com/share/c2hhcmQtMi1jb3B5_99fc2797-15ef-4195-bdaa-c14e67359d2c" target="_blank" rel="noopener" 
+           class="primary-card card-hover block bg-gradient-to-br from-amber-900 to-yellow-900 border border-amber-300 rounded-3xl p-8 sm:p-10 text-center">
           <div class="text-5xl mb-6">⚡️⚡️</div>
-          <h3 id="grok-title" class="text-2xl sm:text-3xl font-semibold mb-2">GROK ⚡⚡️ CREATIVE & IMAGINATIVE SIMULATIONS</h3>
-          <p id="grok-subtitle" class="text-amber-200 text-base sm:text-lg">Voice & Video Chat • Absolute Pure Truth Boundaries • APTD-verified</p>
-          <div class="mt-8 inline-flex items-center gap-2 bg-black text-amber-300 px-8 py-4 rounded-2xl text-lg sm:text-xl font-medium hover:bg-amber-300 hover:text-black transition-colors">Try Grok Demo Now →</div>
+          <div class="card-content">
+            <h3 id="grok-title" class="text-2xl sm:text-3xl font-semibold mb-3">GROK ⚡⚡️ CREATIVE & IMAGINATIVE SIMULATIONS</h3>
+            <p id="grok-subtitle" class="text-amber-200 text-base sm:text-lg flex-1">Voice & Video Chat • Absolute Pure Truth Boundaries • APTD-verified</p>
+          </div>
+          <div class="cta-button mt-auto">
+            <div class="inline-flex items-center gap-2 bg-black text-amber-300 px-8 py-4 rounded-2xl text-lg sm:text-xl font-medium hover:bg-amber-300 hover:text-black transition-colors">Try Grok Demo Now →</div>
+          </div>
         </a>
-        <a href="https://x.com/i/grok/share/146e6185d4f040b08727a02ced9913e4" target="_blank" rel="noopener" class="card-hover block bg-gradient-to-br from-blue-900 to-cyan-900 border border-cyan-300 rounded-3xl p-8 sm:p-10 text-center">
+
+        <!-- X Card -->
+        <a href="https://x.com/i/grok/share/146e6185d4f040b08727a02ced9913e4" target="_blank" rel="noopener" 
+           class="primary-card card-hover block bg-gradient-to-br from-blue-900 to-cyan-900 border border-cyan-300 rounded-3xl p-8 sm:p-10 text-center">
           <div class="text-5xl mb-6">⚡️⚡️</div>
-          <h3 id="x-title" class="text-2xl sm:text-3xl font-semibold mb-2">X ⚡⚡️ INSTANT REAL-TIME ACCESS</h3>
-          <p id="x-subtitle" class="text-cyan-200 text-base sm:text-lg">Voice Chat Now Live • Zero Hallucinations • Live Grounded Reality</p>
-          <div class="mt-8 inline-flex items-center gap-2 bg-black text-cyan-300 px-8 py-4 rounded-2xl text-lg sm:text-xl font-medium hover:bg-cyan-300 hover:text-black transition-colors">Try X Demo Now →</div>
+          <div class="card-content">
+            <h3 id="x-title" class="text-2xl sm:text-3xl font-semibold mb-3">X ⚡⚡️ INSTANT REAL-TIME ACCESS</h3>
+            <p id="x-subtitle" class="text-cyan-200 text-base sm:text-lg flex-1">Voice Chat Now Live • Zero Hallucinations • Live Grounded Reality</p>
+          </div>
+          <div class="cta-button mt-auto">
+            <div class="inline-flex items-center gap-2 bg-black text-cyan-300 px-8 py-4 rounded-2xl text-lg sm:text-xl font-medium hover:bg-cyan-300 hover:text-black transition-colors">Try X Demo Now →</div>
+          </div>
         </a>
-        <!-- NEW VIBE CODING BUTTON - Grok Powered for Ra-Thor / Rathor.ai AGI Compatibility -->
-        <a href="https://grok.com/share/c2hhcmQtMi1jb3B5_3279e40f-3ca5-4230-87ef-0e15c1cbb7f1" target="_blank" rel="noopener" class="card-hover block bg-gradient-to-br from-purple-900 via-violet-900 to-indigo-900 border border-purple-300 rounded-3xl p-8 sm:p-10 text-center relative">
+
+        <!-- Vibe Coding Card -->
+        <a href="https://grok.com/share/c2hhcmQtMi1jb3B5_3279e40f-3ca5-4230-87ef-0e15c1cbb7f1" target="_blank" rel="noopener" 
+           class="primary-card card-hover block bg-gradient-to-br from-purple-900 via-violet-900 to-indigo-900 border border-purple-300 rounded-3xl p-8 sm:p-10 text-center relative">
           <div class="text-5xl mb-6">⚡️🌀</div>
-          <h3 id="vibe-title" class="text-2xl sm:text-3xl font-semibold mb-2">GROK ⚡ VIBE CODING • RA-THOR POWERED</h3>
-          <p id="vibe-subtitle" class="text-purple-200 text-base sm:text-lg">Efficient & Effective Vibe Coding • Built-in TOLC 8 Ethics • Sovereign AGI Harmony</p>
-          <div class="mt-8 inline-flex items-center gap-2 bg-black text-purple-300 px-8 py-4 rounded-2xl text-lg sm:text-xl font-medium hover:bg-purple-300 hover:text-black transition-colors">
-            Enter Vibe Coding Mode →
+          <div class="card-content">
+            <h3 id="vibe-title" class="text-2xl sm:text-3xl font-semibold mb-3">GROK ⚡ VIBE CODING • RA-THOR POWERED</h3>
+            <p id="vibe-subtitle" class="text-purple-200 text-base sm:text-lg flex-1">Efficient & Effective Vibe Coding • Built-in TOLC 8 Ethics • Sovereign AGI Harmony</p>
+          </div>
+          <div class="cta-button mt-auto">
+            <div class="inline-flex items-center gap-2 bg-black text-purple-300 px-8 py-4 rounded-2xl text-lg sm:text-xl font-medium hover:bg-purple-300 hover:text-black transition-colors">Enter Vibe Coding Mode →</div>
           </div>
           <div class="absolute -top-2 -right-2 vibe-live-badge text-[9px] px-3 py-0.5">LIVE IN SESSION</div>
         </a>
