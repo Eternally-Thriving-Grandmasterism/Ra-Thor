@@ -175,7 +175,7 @@ impl RaThorOneOrganism {
         decision
     }
 
-    // ... (rest of implementation preserved)
+    // ... (rest of implementation preserved and TOLC8 aligned)
 }
 
 pub fn launch_one_organism() -> RaThorOneOrganism {
