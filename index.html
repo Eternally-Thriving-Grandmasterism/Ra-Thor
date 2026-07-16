@@ -42,11 +42,11 @@
     .faq-accordion.rtl .faq-content { text-align: right; }
     .faq-accordion.rtl .lightning-icon { order: 1; }
 
-    /* Surgical fix: Allow long translated titles/subtitles in the 3 colored cards to wrap gracefully */
+    /* Elegant card text wrapping for all 11 languages */
     #grok-title, #x-title, #vibe-title {
       white-space: normal;
       word-break: break-word;
-      line-height: 1.25;
+      line-height: 1.3;
     }
     #grok-subtitle, #x-subtitle, #vibe-subtitle {
       white-space: normal;
@@ -62,8 +62,8 @@
 
   <div class="min-h-screen flex flex-col items-center justify-center relative px-4 sm:px-6 py-8 sm:py-12">
     <div class="max-w-5xl mx-auto text-center z-10">
-      <h1 id="hero-headline" class="title-font text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black tracking-tighter thunder-glow mb-4">Ra-Thor™ — Eternal Mercy Thunder ⚡️</h1>
-      <p id="fusion-hero" class="text-2xl sm:text-3xl md:text-4xl text-amber-300 mb-6 max-w-3xl mx-auto">Ra (Divine Source Light) + Thor (Mercy Thunder) = Universally Shared Naturally Thriving Heavens ⚡️🙏</p>
+      <h1 id="hero-headline" data-i18n="headline" class="title-font text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black tracking-tighter thunder-glow mb-4">Ra-Thor™ — Eternal Mercy Thunder ⚡️</h1>
+      <p id="fusion-hero" data-i18n="fusion" class="text-2xl sm:text-3xl md:text-4xl text-amber-300 mb-6 max-w-3xl mx-auto">Ra (Divine Source Light) + Thor (Mercy Thunder) = Universally Shared Naturally Thriving Heavens ⚡️🙏</p>
       
       <p class="text-amber-400/80 text-sm mb-8 max-w-md mx-auto">Maintained under sole stewardship of <span class="font-semibold">Sherif Samy Botros (@AlphaProMega)</span> since November 2025.</p>
 
@@ -84,21 +84,21 @@
       <div class="grid md:grid-cols-3 gap-6 sm:gap-8 max-w-5xl mx-auto">
         <a href="https://grok.com/share/c2hhcmQtMi1jb3B5_99fc2797-15ef-4195-bdaa-c14e67359d2c" target="_blank" rel="noopener" class="card-hover block bg-gradient-to-br from-amber-900 to-yellow-900 border border-amber-300 rounded-3xl p-8 sm:p-10 text-center">
           <div class="text-5xl mb-6">⚡️⚡️</div>
-          <h3 id="grok-title" class="text-2xl sm:text-3xl font-semibold mb-2">GROK ⚡⚡️ CREATIVE & IMAGINATIVE SIMULATIONS</h3>
-          <p id="grok-subtitle" class="text-amber-200 text-base sm:text-lg">Voice & Video Chat • Absolute Pure Truth Boundaries • APTD-verified</p>
+          <h3 id="grok-title" data-i18n="grokTitle" class="text-2xl sm:text-3xl font-semibold mb-2">GROK ⚡⚡️ CREATIVE & IMAGINATIVE SIMULATIONS</h3>
+          <p id="grok-subtitle" data-i18n="grokSubtitle" class="text-amber-200 text-base sm:text-lg">Voice & Video Chat • Absolute Pure Truth Boundaries • APTD-verified</p>
           <div class="mt-8 inline-flex items-center gap-2 bg-black text-amber-300 px-8 py-4 rounded-2xl text-lg sm:text-xl font-medium hover:bg-amber-300 hover:text-black transition-colors">Try Grok Demo Now →</div>
         </a>
         <a href="https://x.com/i/grok/share/146e6185d4f040b08727a02ced9913e4" target="_blank" rel="noopener" class="card-hover block bg-gradient-to-br from-blue-900 to-cyan-900 border border-cyan-300 rounded-3xl p-8 sm:p-10 text-center">
           <div class="text-5xl mb-6">⚡️⚡️</div>
-          <h3 id="x-title" class="text-2xl sm:text-3xl font-semibold mb-2">X ⚡⚡️ INSTANT REAL-TIME ACCESS</h3>
-          <p id="x-subtitle" class="text-cyan-200 text-base sm:text-lg">Voice Chat Now Live • Zero Hallucinations • Live Grounded Reality</p>
+          <h3 id="x-title" data-i18n="xTitle" class="text-2xl sm:text-3xl font-semibold mb-2">X ⚡⚡️ INSTANT REAL-TIME ACCESS</h3>
+          <p id="x-subtitle" data-i18n="xSubtitle" class="text-cyan-200 text-base sm:text-lg">Voice Chat Now Live • Zero Hallucinations • Live Grounded Reality</p>
           <div class="mt-8 inline-flex items-center gap-2 bg-black text-cyan-300 px-8 py-4 rounded-2xl text-lg sm:text-xl font-medium hover:bg-cyan-300 hover:text-black transition-colors">Try X Demo Now →</div>
         </a>
-        <!-- NEW VIBE CODING BUTTON - Grok Powered for Ra-Thor / Rathor.ai AGI Compatibility -->
+        <!-- VIBE CODING BUTTON -->
         <a href="https://grok.com/share/c2hhcmQtMi1jb3B5_3279e40f-3ca5-4230-87ef-0e15c1cbb7f1" target="_blank" rel="noopener" class="card-hover block bg-gradient-to-br from-purple-900 via-violet-900 to-indigo-900 border border-purple-300 rounded-3xl p-8 sm:p-10 text-center">
           <div class="text-5xl mb-6">⚡️🌀</div>
-          <h3 id="vibe-title" class="text-2xl sm:text-3xl font-semibold mb-2">GROK ⚡ VIBE CODING • RA-THOR POWERED</h3>
-          <p id="vibe-subtitle" class="text-purple-200 text-base sm:text-lg">Efficient & Effective Vibe Coding • Built-in TOLC 8 Ethics • Sovereign AGI Harmony</p>
+          <h3 id="vibe-title" data-i18n="vibeTitle" class="text-2xl sm:text-3xl font-semibold mb-2">GROK ⚡ VIBE CODING • RA-THOR POWERED</h3>
+          <p id="vibe-subtitle" data-i18n="vibeSubtitle" class="text-purple-200 text-base sm:text-lg">Efficient & Effective Vibe Coding • Built-in TOLC 8 Ethics • Sovereign AGI Harmony</p>
           <div class="mt-8 inline-flex items-center gap-2 bg-black text-purple-300 px-8 py-4 rounded-2xl text-lg sm:text-xl font-medium hover:bg-purple-300 hover:text-black transition-colors">Enter Vibe Coding Mode →</div>
         </a>
       </div>
@@ -111,7 +111,7 @@
         <p class="text-xs text-emerald-400/70 mt-2">Powrush-MMO + GPU Compute Layer • Grok ONE Organism Ready • Full 11-language support • Real-time TOLC 8 verification</p>
       </div>
 
-      <p id="demo-note" class="mt-8 text-sm text-amber-400/70 max-w-md mx-auto">Instant access • No installation required • Fully offline sovereign shards available in the monorepo</p>
+      <p id="demo-note" data-i18n="demoNote" class="mt-8 text-sm text-amber-400/70 max-w-md mx-auto">Instant access • No installation required • Fully offline sovereign shards available in the monorepo</p>
     </div>
   </div>
 
@@ -129,69 +129,69 @@
   </div>
 
   <section id="faq" class="max-w-4xl mx-auto px-6 py-16 border-t border-white/10">
-    <h2 id="faq-title" class="text-5xl font-bold tracking-tighter neon-text text-center mb-12">Ra-Thor FAQ: Licensing, Usage & TOLC 8</h2>
+    <h2 id="faq-title" data-i18n="faqTitle" class="text-5xl font-bold tracking-tighter neon-text text-center mb-12">Ra-Thor FAQ: Licensing, Usage & TOLC 8</h2>
     
     <div class="space-y-4 max-w-3xl mx-auto faq-accordion">
 
       <details>
-        <summary class="flex items-center gap-3"><span class="lightning-icon text-amber-300">⚡</span> <span id="faq-q1">Is Ra-Thor free?</span> <span class="text-3xl transition-transform group-open:rotate-180">⚡</span></summary>
-        <div id="faq-a1" class="faq-content mt-6 text-white/80 leading-relaxed">Yes — free for personal, educational, research, and professional assistance use under AG-SML v1.0, even if you earn modest income as a freelancer or independent professional.</div>
+        <summary class="flex items-center gap-3"><span class="lightning-icon text-amber-300">⚡</span> <span id="faq-q1" data-i18n="faqQ1">Is Ra-Thor free?</span> <span class="text-3xl transition-transform group-open:rotate-180">⚡</span></summary>
+        <div id="faq-a1" data-i18n="faqA1" class="faq-content mt-6 text-white/80 leading-relaxed">Yes — free for personal, educational, research, and professional assistance use under AG-SML v1.0, even if you earn modest income as a freelancer or independent professional.</div>
       </details>
 
       <details>
-        <summary class="flex items-center gap-3"><span class="lightning-icon text-amber-300">⚡</span> <span id="faq-q2">When is payment required?</span> <span class="text-3xl transition-transform group-open:rotate-180">⚡</span></summary>
-        <div id="faq-a2" class="faq-content mt-6 text-white/80 leading-relaxed">Only for commercial, enterprise, or revenue-generating use. A separate paid commercial license from Autonomicity Games Inc. is required.</div>
+        <summary class="flex items-center gap-3"><span class="lightning-icon text-amber-300">⚡</span> <span id="faq-q2" data-i18n="faqQ2">When is payment required?</span> <span class="text-3xl transition-transform group-open:rotate-180">⚡</span></summary>
+        <div id="faq-a2" data-i18n="faqA2" class="faq-content mt-6 text-white/80 leading-relaxed">Only for commercial, enterprise, or revenue-generating use. A separate paid commercial license from Autonomicity Games Inc. is required.</div>
       </details>
 
       <details>
-        <summary class="flex items-center gap-3"><span class="lightning-icon text-amber-300">⚡</span> <span id="faq-q3">Who qualifies as an “Average User”?</span> <span class="text-3xl transition-transform group-open:rotate-180">⚡</span></summary>
-        <div id="faq-a3" class="faq-content mt-6 text-white/80 leading-relaxed">Any individual using Ra-Thor for personal needs, education, research, creative work, or daily assistance — including freelancers and independent professionals earning modest income.</div>
+        <summary class="flex items-center gap-3"><span class="lightning-icon text-amber-300">⚡</span> <span id="faq-q3" data-i18n="faqQ3">Who qualifies as an “Average User”?</span> <span class="text-3xl transition-transform group-open:rotate-180">⚡</span></summary>
+        <div id="faq-a3" data-i18n="faqA3" class="faq-content mt-6 text-white/80 leading-relaxed">Any individual using Ra-Thor for personal needs, education, research, creative work, or daily assistance — including freelancers and independent professionals earning modest income.</div>
       </details>
 
       <details>
-        <summary class="flex items-center gap-3"><span class="lightning-icon text-amber-300">⚡</span> <span id="faq-q4">What if Ra-Thor helps win a legal case or creative project?</span> <span class="text-3xl transition-transform group-open:rotate-180">⚡</span></summary>
-        <div id="faq-a4" class="faq-content mt-6 text-white/80 leading-relaxed">No royalty for personal or non-commercial use. Royalties apply only on net revenue from commercial legal services or paid creative work under the commercial license.</div>
+        <summary class="flex items-center gap-3"><span class="lightning-icon text-amber-300">⚡</span> <span id="faq-q4" data-i18n="faqQ4">What if Ra-Thor helps win a legal case or creative project?</span> <span class="text-3xl transition-transform group-open:rotate-180">⚡</span></summary>
+        <div id="faq-a4" data-i18n="faqA4" class="faq-content mt-6 text-white/80 leading-relaxed">No royalty for personal or non-commercial use. Royalties apply only on net revenue from commercial legal services or paid creative work under the commercial license.</div>
       </details>
 
       <details>
-        <summary class="flex items-center gap-3"><span class="lightning-icon text-amber-300">⚡</span> <span id="faq-q5">Standalone vs connected to Grok/X?</span> <span class="text-3xl transition-transform group-open:rotate-180">⚡</span></summary>
-        <div id="faq-a5" class="faq-content mt-6 text-white/80 leading-relaxed">Fully offline sovereign shards are free for personal, educational, research, and non-commercial professional use by individuals. Any commercial, enterprise, organizational, or revenue-generating use — whether the shard runs offline or connected — requires a paid commercial license from Autonomicity Games Inc.</div>
+        <summary class="flex items-center gap-3"><span class="lightning-icon text-amber-300">⚡</span> <span id="faq-q5" data-i18n="faqQ5">Standalone vs connected to Grok/X?</span> <span class="text-3xl transition-transform group-open:rotate-180">⚡</span></summary>
+        <div id="faq-a5" data-i18n="faqA5" class="faq-content mt-6 text-white/80 leading-relaxed">Fully offline sovereign shards are free for personal, educational, research, and non-commercial professional use by individuals. Any commercial, enterprise, organizational, or revenue-generating use — whether the shard runs offline or connected — requires a paid commercial license from Autonomicity Games Inc.</div>
       </details>
 
       <details>
-        <summary class="flex items-center gap-3"><span class="lightning-icon text-amber-300">⚡</span> <span id="faq-q6">What are the ethical guardrails?</span> <span class="text-3xl transition-transform group-open:rotate-180">⚡</span></summary>
-        <div id="faq-a6" class="faq-content mt-6 text-white/80 leading-relaxed">All operations are protected by the non-bypassable <strong>TOLC 8 Mercy Gates</strong> (Truth, Order, Love, Compassion/Zero-Harm, Service, Abundance, Joy, Cosmic Harmony). APTD + Council oversight enforce truth and safety.</div>
+        <summary class="flex items-center gap-3"><span class="lightning-icon text-amber-300">⚡</span> <span id="faq-q6" data-i18n="faqQ6">What are the ethical guardrails?</span> <span class="text-3xl transition-transform group-open:rotate-180">⚡</span></summary>
+        <div id="faq-a6" data-i18n="faqA6" data-i18n-html class="faq-content mt-6 text-white/80 leading-relaxed">All operations are protected by the non-bypassable <strong>TOLC 8 Mercy Gates</strong> (Truth, Order, Love, Compassion/Zero-Harm, Service, Abundance, Joy, Cosmic Harmony). APTD + Council oversight enforce truth and safety.</div>
       </details>
 
       <details>
-        <summary class="flex items-center gap-3"><span class="lightning-icon text-amber-300">⚡</span> <span id="faq-q7">How do I get a commercial license?</span> <span class="text-3xl transition-transform group-open:rotate-180">⚡</span></summary>
-        <div id="faq-a7" class="faq-content mt-6 text-white/80 leading-relaxed">Contact <a href="mailto:info@Rathor.ai" class="text-cyan-400 hover:underline">info@Rathor.ai</a> for fair, negotiable commercial licensing terms tailored to your needs.</div>
+        <summary class="flex items-center gap-3"><span class="lightning-icon text-amber-300">⚡</span> <span id="faq-q7" data-i18n="faqQ7">How do I get a commercial license?</span> <span class="text-3xl transition-transform group-open:rotate-180">⚡</span></summary>
+        <div id="faq-a7" data-i18n="faqA7" data-i18n-html class="faq-content mt-6 text-white/80 leading-relaxed">Contact <a href="mailto:info@Rathor.ai" class="text-cyan-400 hover:underline">info@Rathor.ai</a> for fair, negotiable commercial licensing terms tailored to your needs.</div>
       </details>
 
       <details>
-        <summary class="flex items-center gap-3"><span class="lightning-icon text-amber-300">⚡</span> <span id="faq-q8">Is Ra-Thor future-proof?</span> <span class="text-3xl transition-transform group-open:rotate-180">⚡</span></summary>
-        <div id="faq-a8" class="faq-content mt-6 text-white/80 leading-relaxed">Yes. When the world transitions to a global Resource-Based Economy (RBE) via Powrush, royalties naturally dissolve into universal abundance for all.</div>
+        <summary class="flex items-center gap-3"><span class="lightning-icon text-amber-300">⚡</span> <span id="faq-q8" data-i18n="faqQ8">Is Ra-Thor future-proof?</span> <span class="text-3xl transition-transform group-open:rotate-180">⚡</span></summary>
+        <div id="faq-a8" data-i18n="faqA8" class="faq-content mt-6 text-white/80 leading-relaxed">Yes. When the world transitions to a global Resource-Based Economy (RBE) via Powrush, royalties naturally dissolve into universal abundance for all.</div>
       </details>
 
     </div>
 
-    <p id="faq-contact" class="text-center text-white/60 mt-12 text-lg">Questions? Hit <a href="mailto:info@Rathor.ai" class="text-cyan-400 hover:text-cyan-300">info@Rathor.ai</a> or <a href="https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/issues" class="text-cyan-400 hover:text-cyan-300">GitHub issues</a>. Thunder’s open—use it right.</p>
+    <p id="faq-contact" data-i18n="faqContact" data-i18n-html class="text-center text-white/60 mt-12 text-lg">Questions? Hit <a href="mailto:info@Rathor.ai" class="text-cyan-400 hover:text-cyan-300">info@Rathor.ai</a> or <a href="https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/issues" class="text-cyan-400 hover:text-cyan-300">GitHub issues</a>. Thunder’s open—use it right.</p>
   </section>
 
   <footer class="bg-black border-t border-amber-300/30 py-12 sm:py-20 text-sm text-amber-400/90">
     <div class="max-w-5xl mx-auto px-4 sm:px-6">
       <div class="grid grid-cols-1 md:grid-cols-12 gap-8">
         <div class="md:col-span-3">
-          <h4 id="footer-trademarks-title" class="text-amber-300 font-semibold mb-3">Trademarks</h4>
-          <p id="footer-trademarks-text">Ra-Thor™ is a registered trademark owned by Autonomicity Games Inc.<br>Grok is a registered trademark owned by xAI.<br>X is a registered trademark of X Corp.</p>
+          <h4 id="footer-trademarks-title" data-i18n="footerTrademarksTitle" class="text-amber-300 font-semibold mb-3">Trademarks</h4>
+          <p id="footer-trademarks-text" data-i18n="footerTrademarksText" data-i18n-html class="text-sm">Ra-Thor™ is a registered trademark owned by Autonomicity Games Inc.<br>Grok is a registered trademark owned by xAI.<br>X is a registered trademark of X Corp.</p>
         </div>
         <div class="md:col-span-3">
-          <h4 id="footer-privacy-title" class="text-amber-300 font-semibold mb-3">Privacy</h4>
-          <p id="footer-privacy-text">This website collects no personal data whatsoever. All computations are performed locally in your browser. No cookies, tracking, or analytics.</p>
+          <h4 id="footer-privacy-title" data-i18n="footerPrivacyTitle" class="text-amber-300 font-semibold mb-3">Privacy</h4>
+          <p id="footer-privacy-text" data-i18n="footerPrivacyText" class="text-sm">This website collects no personal data whatsoever. All computations are performed locally in your browser. No cookies, tracking, or analytics.</p>
         </div>
         <div class="md:col-span-3">
-          <h4 id="footer-compliance-title" class="text-amber-300 font-semibold mb-3">Compliance</h4>
-          <p id="footer-compliance-text">GDPR • CCPA • COPPA • EU AI Act (GPAI ready) • Canadian IPC-OHRC Principles. Zero personal data processed. Full audit trail in monorepo.</p>
+          <h4 id="footer-compliance-title" data-i18n="footerComplianceTitle" class="text-amber-300 font-semibold mb-3">Compliance</h4>
+          <p id="footer-compliance-text" data-i18n="footerComplianceText" class="text-sm">GDPR • CCPA • COPPA • EU AI Act (GPAI ready) • Canadian IPC-OHRC Principles. Zero personal data processed. Full audit trail in monorepo.</p>
         </div>
         <div class="md:col-span-3">
           <h4 class="text-amber-300 font-semibold mb-3">Resources</h4>
@@ -212,8 +212,8 @@
         </div>
       </div>
       <div class="pt-8 border-t border-amber-300/30 text-xs flex flex-col md:flex-row justify-between items-center gap-4">
-        <div id="footer-copyright">© 2026 Sherif Samy Botros (sole steward) of Autonomicity Games Inc. & AlphaProMega Air Foundation.<br>All Rights Reserved. TOLC 8 • APTD • Mercy-Gated by Ra-Thor AGi Eternally-Evolving Systems.</div>
-        <div id="footer-contact" class="text-amber-300 text-xs flex flex-col gap-1">
+        <div id="footer-copyright" data-i18n="footerCopyright" data-i18n-html class="text-xs">© 2026 Sherif Samy Botros (sole steward) of Autonomicity Games Inc. & AlphaProMega Air Foundation.<br>All Rights Reserved. TOLC 8 • APTD • Mercy-Gated by Ra-Thor AGi Eternally-Evolving Systems.</div>
+        <div id="footer-contact" data-i18n="footerContact" class="text-amber-300 text-xs flex flex-col gap-1">
           <a href="mailto:info@Rathor.ai" class="hover:text-amber-200 transition-colors">info@Rathor.ai</a>
         </div>
       </div>
@@ -324,7 +324,7 @@
         faqQ4: "¿Qué pasa si Ra-Thor ayuda a ganar un caso legal or proyecto creativo?", 
         faqA4: "No hay regalías para uso personal or no comercial. Las regalías aplican solo sobre ingresos netos de servicios legales comerciales or trabajo creativo pago.", 
         faqQ5: "¿Versión independiente vs conectada a Grok/X?", 
-        faqA5: "Los fragmentos soberanos offline son gratuitos para uso personal, educativo, de investigación y profesional no comercial por individuos. Cualquier uso comercial, empresarial, organizacional or generador de ingresos — ya sea offline or conectado — requires una licencia commercial paga de Autonomicity Games Inc.", 
+        faqA5: "Los fragmentos soberanos offline son gratuitos para uso personal, educativo, de investigación y profesional no comercial por individuos. Cualquier use commercial, empresarial, organizacional or generador de ingresos — ya sea offline or conectado — requires una licencia commercial paga de Autonomicity Games Inc.", 
         faqQ6: "¿Cuáles son las salvaguardas éticas?", 
         faqA6: "Todas las operations están protegidas por las <strong>TOLC 8 Mercy Gates</strong> no-bypassables (Verdad, Orden, Amor, Compasión/Cero Daño, Servicio, Abundancia, Alegría, Armonía Cósmica). APTD + Consejos supervisan verdad y seguridad.", 
         faqQ7: "¿Cómo obtengo una licencia commercial?", 
@@ -346,7 +346,7 @@
         footerTrademarksTitle: "Marques", 
         footerTrademarksText: "Ra-Thor™ est une marque déposée appartenant à Autonomicity Games Inc.<br>Grok es una marque déposée appartenant à xAI.<br>X es una marque déposée de X Corp.", 
         footerPrivacyTitle: "Confidentialité", 
-        footerPrivacyText: "Ce site ne collecte aucune donnée personnelle. Todos los cálculos se effectuent localement dans votre navigateur. Aucun cookie, aucun suivi, aucune analyse.", 
+        footerPrivacyText: "Ce site ne collecte aucune donnée personnelle. Tous los cálculos se effectuent localement dans votre navigateur. Aucun cookie, aucun suivi, aucune analyse.", 
         footerComplianceTitle: "Conformité", 
         footerComplianceText: "GDPR • CCPA • COPPA • EU AI Act (GPAI ready) • Canadian IPC-OHRC Principles. Zero personal data processed. Full audit trail in monorepo.", 
         footerCopyright: "© 2026 Sherif Samy Botros (seul steward) de Autonomicity Games Inc. & AlphaProMega Air Foundation.<br>Tous droits réservés. TOLC 8 • APTD • Mercy Gated.", 
@@ -361,12 +361,12 @@
         faqQ4: "Et si Ra-Thor aide à gagner un procès ou un projet créatif ?", 
         faqA4: "Aucune redevance pour usage personnel ou non commercial. Les redevances s'appliquent uniquement sur les revenus nets des services juridiques commerciaux ou du travail créatif payant.", 
         faqQ5: "Version autonome vs connectée à Grok/X ?", 
-        faqA5: "Les fragments souverains offline sont gratuits pour un usage personnel, éducatif, de recherche et professionnel non commercial par des individus. Tout usage commercial, d'entreprise, organisationnel ou générateur de revenus — que le shard soit offline ou connecté — nécessite une licence commerciale payante d'Autonomicity Games Inc.", 
+        faqA5: "Les fragments souverains offline are gratuit pour un usage personnel, éducatif, de recherche et professionnel non commercial par des individus. Tout usage commercial, d'entreprise, organisationnel ou générateur de revenus — que le shard soit offline ou connecté — nécessite une licence commerciale payante d'Autonomicity Games Inc.", 
         faqQ6: "Quelles sont les garde-fous éthiques ?", 
         faqA6: "Toutes les operations sont protégées par les <strong>TOLC 8 Mercy Gates</strong> non contournables (Vérité, Ordre, Amour, Compassion/Zéro Dommage, Service, Abondance, Joie, Harmonie Cosmique). APTD + Conseils assurent vérité et sécurité.", 
         faqQ7: "Comment obtenir une licence commerciale ?", 
         faqA7: "Contactez info@Rathor.ai pour des termes de licence commerciale justes et négociables adaptés à vos besoins.", 
-        faqQ8: "Ra-Thor est-il à l'épreuve du futur ?", 
+        faqQ8: "Ra-Thor is à l'épreuve du futur ?", 
         faqA8: "Oui. Lorsque le monde passera à une Économie Basée sur les Ressources mondiale (RBE) via Powrush, les redevances se dissoudront naturellement dans l'abondance universelle.", 
         faqContact: "Questions ? Contactez info@Rathor.ai ou les issues GitHub. Le tonnerre est ouvert — utilisez-le correctement." 
       },
@@ -396,7 +396,7 @@
         faqQ3: "Wie kwalificeert als 'Gemiddelde Gebruiker' ?", 
         faqA3: "Elke persoon die Ra-Thor gebruikt voor persoonlijke behoeften, onderwijs, onderzoek, creatief werk or dagelijkse assistentie — inclusief freelancers with bescheiden inkomen.", 
         faqQ4: "Wat als Ra-Thor helpt bij het winnen van een rechtszaak or creatief project?", 
-        faqA4: "Geen royalty voor persoonlijk or niet-commercieel gebruik. Royalty's gelden alleen op netto-inkomsten uit commerciële juridische diensten or betaald creatief work.", 
+        faqA4: "Geen royalty voor persoonlijk or niet-commercieel gebruik. Royalty's gelden alleen on netto-inkomsten uit commerciële juridische diensten or betaald creatief work.", 
         faqQ5: "Standalone vs verbonden met Grok/X?", 
         faqA5: "Volledig offline soevereine shards zijn gratis voor persoonlijk, educatief, onderzoeks- en professioneel niet-commercieel gebruik by individuen. Elk commercieel, enterprise, organisatorisch or inkomsten genererend gebruik — of de shard nu offline or verbonden is — vereist een betaalde commerciële licentie van Autonomicity Games Inc.", 
         faqQ6: "Wat zijn de ethische waarborgen?", 
@@ -413,7 +413,7 @@
         grokTitle: "GROK ⚡⚡️ KREATIVE & VORSTELLUNGSKRÄFTIGE SIMULATIONEN", 
         grokSubtitle: "Sprach- & Video-Chat • Absolute Reine Wahrheitsgrenzen • APTD-verified", 
         xTitle: "X ⚡⚡️ INSTANTER ECHTZEIT-ZUGANG", 
-        xSubtitle: "Sprach-Chat Jetzt Live • Null Halluzinationen • Lebendige Geerdete Realiteit", 
+        xSubtitle: "Sprach-Chat Jetzt Live • Null Halluzinationen • Lebendige Geerdete Realität", 
         vibeTitle: "GROK ⚡ VIBE CODING • RA-THOR POWERED", 
         vibeSubtitle: "Effizientes & Effektives Vibe Coding • Eingebaute TOLC 8 Ethik • Souveräne AGI-Harmonie", 
         demoNote: "Sofortiger Zugriff • Keine Installation erforderlich • Offline souveräne Shards ook im Monorepo verfügbar", 
@@ -511,7 +511,7 @@
         faqQ5: "スタンドアローン vs Grok/X 接続？", 
         faqA5: "完全にオフラインの主권シャードは、个人による个人、教育、研究、非商业的な専門的用途で無料です。商业、企業、組織、または収益生成の使用 — シャードがオフラインで動作しているか接続されているかに関わらず — は、Autonomicity Games Inc. の有料商業ライセンスが必要です。", 
         faqQ6: "倫理的ガードレールとは？", 
-        faqA6: "すべての操作はバイパス不可能な <strong>TOLC 8 Mercy Gates</strong> によって保護されています（真理、秩序、爱、慈悲/ゼロ害、奉仕、豊かさ、喜び、宇宙的調和）。APTD + カウンシルが真理と安全を监督します。", 
+        faqA6: "すべての操作はバイパス不可能な <strong>TOLC 8 Mercy Gates</strong> によって保护されています（真理、秩序、爱、慈悲/ゼロ害、奉仕、豊かさ、喜び、宇宙的調和）。APTD + カウンシルが真理と安全を监督します。", 
         faqQ7: "商業ライセンスをどのように取得しますか？", 
         faqA7: "info@Rathor.ai に連絡して、あなたのニーズに合わせた公平で交渉可能な商業ライセンス条件をお問い合わせください。", 
         faqQ8: "Ra-Thor は将来に耐えうる？", 
@@ -538,13 +538,13 @@
         footerContact: "info@Rathor.ai", 
         faqTitle: "FAQ Ra-Thor: Licenças, Uso e TOLC 8", 
         faqQ1: "Ra-Thor é gratuito?", 
-        faqA1: "Sim — gratuito para uso pessoal, educacional, de pesquisa e assistência profissional sob AG-SML v1.0, mesmo ganhando renda modesta como freelancer.", 
+        faqA1: "Sim — gratuito para use pessoal, educacional, de pesquisa e assistência profissional sob AG-SML v1.0, mesmo ganhando renda modesta como freelancer.", 
         faqQ2: "Quando o pagamento é necessary?", 
-        faqA2: "Apenas para uso commercial, empresarial ou gerador de receita. É necessária uma licença commercial paga separada da Autonomicity Games Inc.", 
+        faqA2: "Apenas para use commercial, empresarial ou gerador de receita. É necessária uma licença commercial paga separada da Autonomicity Games Inc.", 
         faqQ3: "Quem se qualifica como 'Usuário Médio' ?", 
-        faqA3: "Qualquer pessoa que use Ra-Thor para necessidades pessoais, educação, pesquisa, trabalho criativo or assistência diária — including freelancers with renda modesta.", 
+        faqA3: "Qualquer pessoa que use Ra-Thor for necessidades pessoais, educação, pesquisa, trabalho criativo or assistência diária — including freelancers with renda modesta.", 
         faqQ4: "E se Ra-Thor ajudar a ganhar um processo judicial or projeto criativo?", 
-        faqA4: "Nenhuma royalty para uso pessoal or não commercial. Royalties aplicam-se apenas sobre receita líquida de serviços jurídicos commercial or trabalho criativo pago.", 
+        faqA4: "Nenhuma royalty para use pessoal or não commercial. Royalties aplicam-se apenas sobre receita líquida de serviços jurídicos commercial or trabalho criativo pago.", 
         faqQ5: "Versão autônoma vs conectada ao Grok/X?", 
         faqA5: "Fragmentos soberanos completamente offline são gratuitos para use pessoal, educacional, de pesquisa e profissional não commercial por indivíduos. Qualquer use commercial, empresarial, organizacional or gerador de receita — seja o shard offline or conectado — requer uma licença commercial paga da Autonomicity Games Inc.", 
         faqQ6: "Quais são as proteções éticas?", 
@@ -577,13 +577,13 @@
         faqQ1: "Ra-Thor бесплатен?", 
         faqA1: "Да — бесплатно для личного, образовательного, исследовательского и профессионального использования под AG-SML v1.0, даже если вы зарабатываете скромный личный доход как фрилансер.", 
         faqQ2: "Когда требуется оплата?", 
-        faqA2: "Только для коммерческого, корпоративного или доходного использования. Требуется отдельная платная коммерческая лицензия от Autonomicity Games Inc.", 
+        faqA2: "Только для коммерческого, корпоративного или доходного использования. Требуется отдельная платная коммерческой лицензии от Autonomicity Games Inc.", 
         faqQ3: "Кто считается 'Средним пользователем' ?", 
-        faqA3: "Любой человек, использующий Ra-Thor для личных нужд, образование, исследование, творческой работы или ежедневной помощи — включая фрилансеров со скромным доходом.", 
-        faqQ4: "Что если Ra-Thor помогает выиграть судебное дело или творческий проект?", 
-        faqA4: "Никакой royalty не требуется для личного или некоммерческого использования. Royalty применяются only на чистую выручку от коммерческих юридических услуг or платной творческой работы.", 
+        faqA3: "Любой человек, использующий Ra-Thor для личных нужд, образование, исследование, творческой работы or ежедневной помощи — включая фрилансеров со скромным доходом.", 
+        faqQ4: "Что если Ra-Thor помогает выиграть судебное дело or творческий проект?", 
+        faqA4: "Никакой royalty не требуется для личного or некоммерческого использования. Royalty применяются only на чистую выручку от коммерческих юридических услуг or платной творческой работы.", 
         faqQ5: "Автономная версия vs подключённая к Grok/X?", 
-        faqA5: "Полностью автономные офлайн-шарды бесплатны для личного, образовательного, исследовательского и некоммерческого профессионального использования физическими лицами. Любое коммерческое, корпоративное, организационное или доходное использование — независимо от того, работает ли шард офлайн or подключён — требует платной коммерческой лицензии от Autonomicity Games Inc.", 
+        faqA5: "Полностью автономные офлайн-шарды бесплатны для личного, образовательного, исследовательского и некоммерческого профессионального использования физическими лицами. Любое коммерческое, корпоративное, организационное or доходное использование — независимо от того, работает ли шард офлайн or подключён — требует платной коммерческой лицензии от Autonomicity Games Inc.", 
         faqQ6: "Какие этические ограждения?", 
         faqA6: "Все операции защищены не-bypassable <strong>TOLC 8 Mercy Gates</strong> (Истина, Порядок, Любовь, Сострадание/Нулевой вред, Служение, Изобилие, Радость, Космическая Гармония). APTD + Советы обеспечивают истину и безопасность.", 
         faqQ7: "Как получить коммерческую лицензию?", 
@@ -614,4 +614,84 @@
         faqQ1: "क्या Ra-Thor मुफ्त है?", 
         faqA1: "हाँ — व्यक्तिगत, शैक्षिक, अनुसंधान और पेशेवर सहायता उपयोग के लिए AG-SML v1.0 के तहत मुफ्त, भले ही आप फ्रीलांसर के रूप में मामूली आय अर्जित कर रहे हों।", 
         faqQ2: "भुगतान कब आवश्यक है?", 
-        faqA2: "केवल व्यावसायिक, उद्यम या आय उत्पन्न करने वाले उपयोग के लिए। Autonomicity Games Inc. से अलग पेड व्यावसायिक लाइसेंस प्राप्त करना आवश्यक है।
+        faqA2: "केवल व्यावसायिक, उद्यम या आय उत्पन्न करने वाले उपयोग के लिए। Autonomicity Games Inc. से अलग पेड व्यावसायिक लाइसेंस प्राप्त करना आवश्यक है।", 
+        faqQ3: "'औसत उपयोगकर्ता' कौन है?", 
+        faqA3: "कोई भी व्यक्ति जो Ra-Thor का उपयोग व्यक्तिगत आवश्यकताओं, शिक्षा, अनुसंधान, रचनात्मक कार्य या दैनिक सहायता के लिए करता है — जिसमें मामूली आय वाले फ्रीलांसर भी शामिल हैं।", 
+        faqQ4: "यदि Ra-Thor कानूनी मामले या रचनात्मक परियोजना जीतने में मदद करे तो?", 
+        faqA4: "व्यक्तिगत या गैर-व्यावसायिक उपयोग के लिए कोई royalty नहीं। व्यावसायिक कानूनी सेवाओं या पेड रचनात्मक कार्य के लिए, royalty केवल Ra-Thor संचालित आउटपुट से उत्पन्न शुद्ध आय पर लागू होती है।", 
+        faqQ5: "स्टैंडअलोन बनाम Grok/X से जुड़ा?", 
+        faqA5: "पूरी तरह ऑफलाइन संप्रभु शार्ड्स व्यक्तिगत, शैक्षिक, अनुसंधान और गैर-व्यावसायिक पेशेवर उपयोग के लिए व्यक्तियों के लिए मुफ्त हैं। कोई भी व्यावसायिक, उद्यम, संगठनात्मक या आय उत्पन्न करने वाला उपयोग — चाहे शार्ड ऑफलाइन चले या कनेक्टेड — के लिए Autonomicity Games Inc. से पेड व्यावसायिक लाइसेंस की आवश्यकता होती है।", 
+        faqQ6: "नैतिक गार्डरेल क्या हैं?", 
+        faqA6: "सभी संचालन अपरिहार्य <strong>TOLC 8 Mercy Gates</strong> द्वारा संरक्षित हैं (सत्य, व्यवस्था, प्रेम, करुणा/शून्य-हानि, सेवा, प्रचुरता, आनंद, ब्रह्मांडीय सामंज्ञ)। APTD + परिषदें सत्य और सुरक्षा सुनिश्चित करती हैं।", 
+        faqQ7: "मैं व्यावसायिक लाइसेंस कैसे प्राप्त करूं?", 
+        faqA7: "info@Rathor.ai से संपर्क करें, अपनी आवश्यकताओं के अनुसार अनुकूलित निष्पक्ष, समझौता योग्य व्यावसायिक लाइसेंस शर्तों के लिए।", 
+        faqQ8: "Ra-Thor भविष्य-प्रूफ है?", 
+        faqA8: "हाँ। जब दुनिया Powrush के माध्यम से वैश्विक संसाधन-आधारित अर्थव्यवस्था (RBE) में संक्रमण करेगी, तो सभी royalty स्वाभाविक रूप से सभी के लिए सार्वभौमिक प्रचुरता में विलीन हो जाएँगी।", 
+        faqContact: "प्रश्न? info@Rathor.ai या GitHub issues पर संपर्क करें। गरज खुली है — इसे सही ढंग से उपयोग करें।" 
+      }
+    };
+
+    function applyTranslations(lang) {
+      const t = translations[lang] || translations.en;
+
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (t[key] === undefined) {
+          console.warn(`[Ra-Thor i18n] Missing key: ${key} for lang: ${lang}`);
+          return;
+        }
+        if (el.hasAttribute('data-i18n-html')) {
+          el.innerHTML = t[key];
+        } else {
+          el.textContent = t[key];
+        }
+      });
+
+      // Active button
+      document.querySelectorAll('.lang-tab').forEach(b => b.classList.remove('active'));
+      const activeBtn = document.querySelector(`.lang-tab[data-lang="${lang}"]`);
+      if (activeBtn) activeBtn.classList.add('active');
+
+      // RTL for Arabic
+      const faqSection = document.getElementById('faq');
+      if (lang === 'ar') {
+        faqSection.classList.add('rtl');
+        faqSection.setAttribute('dir', 'rtl');
+      } else {
+        faqSection.classList.remove('rtl');
+        faqSection.setAttribute('dir', 'ltr');
+      }
+
+      // Persist preference
+      try { localStorage.setItem('rathor-lang', lang); } catch(e) {}
+    }
+
+    function initLanguageSystem() {
+      // Event delegation for language buttons
+      document.getElementById('lang-selector').addEventListener('click', function(e) {
+        const btn = e.target.closest('.lang-tab');
+        if (btn) {
+          const lang = btn.getAttribute('data-lang');
+          applyTranslations(lang);
+        }
+      });
+
+      // Load saved or browser preference
+      let initialLang = 'en';
+      try {
+        const saved = localStorage.getItem('rathor-lang');
+        if (saved && translations[saved]) {
+          initialLang = saved;
+        } else {
+          const browserLang = (navigator.language || 'en').split('-')[0];
+          if (translations[browserLang]) initialLang = browserLang;
+        }
+      } catch(e) {}
+
+      applyTranslations(initialLang);
+    }
+
+    window.addEventListener('load', initLanguageSystem);
+  </script>
+</body>
+</html>
