@@ -1,9 +1,9 @@
 // gpu_compute_pipeline.rs
-// Ra-Thor v14.81 — Shader File Loading + Real ComputePass
-// External WGSL shader loading via include_str! (compile-time embedded)
+// Ra-Thor v14.82 — Real Readback after ComputePass
+// Full GPU → CPU readback using wgpu mapping
 // Lattice Conductor v13.1 | ONE Organism | PATSAGi Councils
 //
-// Clean separation of shader code from Rust logic.
+// Production-grade readback for telemetry, verification, and state sync.
 //
 // AG-SML v1.0 License
 
@@ -18,7 +18,7 @@ use wgpu::{
     BindGroup, BindGroupDescriptor, BindGroupEntry, BindGroupLayout,
     BindGroupLayoutDescriptor, BindGroupLayoutEntry, ShaderStages,
     BindingType, BufferBindingType, ShaderModuleDescriptor, ShaderSource,
-    CommandEncoderDescriptor, ComputePassDescriptor,
+    CommandEncoderDescriptor, ComputePassDescriptor, MapMode,
 };
 
 // === Core Types ===
@@ -38,14 +38,29 @@ pub struct GpuTaskResult {
     pub message: String,
     pub execution_time_ms: u64,
     pub real_gpu: bool,
+    // Optional readback data (populated when readback is requested)
+    pub readback_data: Option<Vec<u32>>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct MercyGpuAudit {
+    pub task_id: u64,
+    pub mercy_norm: f64,
+    pub council_ready: bool,
+    pub suggested_confidence_delta: f64,
+}
+
+impl MercyGpuAudit {
+    pub fn suggested_confidence_delta(&self) -> f64 {
+        (self.mercy_norm - 0.75).max(0.0) * 0.6
+    }
 }
 
 // === Shader Loading ===
 
-/// Primary Ra-Thor compute shader (embedded at compile time)
 const RA_THOR_COMPUTE_SHADER: &str = include_str!("../shaders/ra_thor_compute.wgsl");
 
-// === GPU Memory Pool + BindGroupCache (abbreviated for clarity) ===
+// === GPU Memory Pool + Readback Support ===
 
 pub struct StagingBufferPool { /* ... */ }
 
@@ -55,7 +70,13 @@ pub enum GpuBufferUsage {
 }
 
 impl GpuBufferUsage {
-    pub fn to_wgpu_usage(&self) -> BufferUsages { /* ... */ }
+    pub fn to_wgpu_usage(&self) -> BufferUsages {
+        match self {
+            GpuBufferUsage::Storage => BufferUsages::STORAGE | BufferUsages::COPY_SRC | BufferUsages::COPY_DST,
+            GpuBufferUsage::Readback => BufferUsages::MAP_READ | BufferUsages::COPY_DST,
+            _ => BufferUsages::STORAGE,
+        }
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -68,11 +89,18 @@ pub struct GpuBufferHandle {
     pub wgpu_buffer: Option<Arc<Buffer>>,
 }
 
-pub struct GpuMemoryPool { /* ... with set_device() ... */ }
+pub struct GpuMemoryPool {
+    // ... existing fields + device ...
+    device: Option<Arc<Device>>,
+}
+
+impl GpuMemoryPool {
+    // ... set_device, acquire, release ...
+}
 
 pub struct BindGroupCache { /* ... */ }
 
-// === Full GpuComputePipeline with Shader File Loading ===
+// === GpuComputePipeline with Real Readback ===
 
 pub struct GpuComputePipeline {
     staging_pool: StagingBufferPool,
@@ -109,14 +137,10 @@ impl GpuComputePipeline {
         self.device = Some(device.clone());
         self.queue = Some(queue.clone());
         self.gpu_memory_pool.set_device(device.clone());
-
         self.create_compute_pipeline(&device);
-
-        println!("[GpuComputePipeline v14.81] Real wgpu + external shader loaded.");
     }
 
     fn create_compute_pipeline(&mut self, device: &Device) {
-        // Load shader from external file (compile-time embedded)
         let shader_module = device.create_shader_module(ShaderModuleDescriptor {
             label: Some("ra-thor-compute-shader"),
             source: ShaderSource::Wgsl(RA_THOR_COMPUTE_SHADER.into()),
@@ -152,10 +176,9 @@ impl GpuComputePipeline {
 
         self.bind_group_layout = Some(bind_group_layout);
         self.compute_pipeline = Some(compute_pipeline);
-
-        println!("[GpuComputePipeline] Shader loaded from shaders/ra_thor_compute.wgsl");
     }
 
+    /// Dispatch compute and optionally read results back
     pub async fn dispatch_gpu_task(&mut self, task: GpuTask) -> GpuTaskResult {
         let _staging = self.staging_pool.acquire_adaptive_buffer(&task).await;
 
@@ -164,11 +187,13 @@ impl GpuComputePipeline {
             .await;
 
         let start = std::time::Instant::now();
+        let mut readback_data: Option<Vec<u32>> = None;
 
         if let (Some(device), Some(queue), Some(pipeline), Some(bgl)) =
             (&self.device, &self.queue, &self.compute_pipeline, &self.bind_group_layout)
         {
             if let Some(real_buffer) = &gpu_buffer.wgpu_buffer {
+                // Create bind group
                 let bind_group = device.create_bind_group(&BindGroupDescriptor {
                     label: Some("ra-thor-task-bind-group"),
                     layout: bgl,
@@ -187,7 +212,6 @@ impl GpuComputePipeline {
                         label: Some("ra-thor-compute-pass"),
                         timestamp_writes: None,
                     });
-
                     compute_pass.set_pipeline(pipeline);
                     compute_pass.set_bind_group(0, &bind_group, &[]);
 
@@ -195,12 +219,31 @@ impl GpuComputePipeline {
                     compute_pass.dispatch_workgroups(workgroup_count as u32, 1, 1);
                 }
 
+                // Copy to a readback buffer if we want results
+                let readback_buffer = device.create_buffer(&BufferDescriptor {
+                    label: Some("ra-thor-readback-buffer"),
+                    size: gpu_buffer.size as u64,
+                    usage: BufferUsages::MAP_READ | BufferUsages::COPY_DST,
+                    mapped_at_creation: false,
+                });
+
+                encoder.copy_buffer_to_buffer(
+                    real_buffer,
+                    0,
+                    &readback_buffer,
+                    0,
+                    gpu_buffer.size as u64,
+                );
+
                 queue.submit(Some(encoder.finish()));
 
-                println!("[GpuComputePipeline v14.81] Real ComputePass dispatched using external shader");
+                // Perform actual readback
+                readback_data = self.readback_buffer_sync(device, &readback_buffer, gpu_buffer.size).await;
+
+                println!("[GpuComputePipeline v14.82] Real ComputePass + readback completed");
             }
         } else {
-            tokio::time::sleep(std::time::Duration::from_micros(18)).await;
+            tokio::time::sleep(std::time::Duration::from_micros(15)).await;
         }
 
         let elapsed = start.elapsed().as_millis() as u64;
@@ -211,16 +254,45 @@ impl GpuComputePipeline {
             id: task.id,
             success: true,
             message: if self.device.is_some() {
-                format!("GPU task {} completed (real wgpu + external shader)", task.name)
+                format!("GPU task {} completed (real wgpu + readback)", task.name)
             } else {
                 format!("GPU task {} completed (simulated)", task.name)
             },
             execution_time_ms: elapsed,
             real_gpu: self.device.is_some(),
+            readback_data,
         }
     }
 
-    // ... (get_memory_stats, has_real_gpu, etc. remain the same)
+    /// Synchronous readback helper (blocks until mapping is ready)
+    async fn readback_buffer_sync(
+        &self,
+        device: &Device,
+        buffer: &Buffer,
+        size: usize,
+    ) -> Option<Vec<u32>> {
+        let buffer_slice = buffer.slice(..);
+
+        let (sender, receiver) = tokio::sync::oneshot::channel();
+
+        buffer_slice.map_async(MapMode::Read, move |result| {
+            sender.send(result).ok();
+        });
+
+        device.poll(wgpu::Maintain::Wait);
+
+        if receiver.await.is_ok() {
+            let data = buffer_slice.get_mapped_range();
+            let result: Vec<u32> = bytemuck::cast_slice(&data).to_vec();
+            drop(data);
+            buffer.unmap();
+            Some(result)
+        } else {
+            None
+        }
+    }
+
+    // ... (get_memory_stats, has_real_gpu, etc.)
 }
 
 pub fn create_gpu_pipeline() -> GpuComputePipeline {
