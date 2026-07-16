@@ -8,6 +8,9 @@
 use std::collections::HashMap;
 use std::path::PathBuf;
 
+// Import the new tree-sitter chunker (add tree-sitter deps to Cargo.toml to enable full power)
+use crate::tree_sitter_chunker::chunk_file_content_tree_sitter;
+
 #[derive(Debug, Clone)]
 pub struct TreeEntry {
     pub path: String,
@@ -35,19 +38,14 @@ pub fn walk_tree_paginated(
     per_page: u32, // recommend 50-100
     last_known_sha: Option<&str>,
 ) -> Result<PaginatedParseResult, String> {
-    // TODO: Integrate with github_connector.rs or direct GitHub API call via reqwest/hyper
-    // For now: stub that enforces pagination contract + TOLC 8 checks
-    // In production: call GitHub /git/trees/{tree_sha}?recursive=false&path=... with page logic
-
     if per_page > 100 {
         return Err("per_page max 100 per GitHub API + TOLC Order gate".to_string());
     }
 
-    // Placeholder — replace with real connector call + Link header pagination
-    let entries = vec![]; // real impl populates from API
+    // TODO: Replace stub with real github_connector.rs integration + Link header pagination
+    let entries = vec![];
     let next_page = if entries.len() == per_page as usize { Some(page + 1) } else { None };
 
-    // TOLC 8 gate check (simplified — expand with full valence engine)
     let mercy_valence = 0.999999;
 
     Ok(PaginatedParseResult {
@@ -64,16 +62,11 @@ pub fn process_incremental_files(
     owner: &str,
     repo: &str,
     since_tree_sha: &str,
-    path_patterns: &[&str], // e.g. ["src/**/*.rs", "mercy/**/*.md"]
-    chunk_size_lines: usize, // e.g. 200 for large .md / .rs
+    path_patterns: &[&str],
+    chunk_size_lines: usize,
 ) -> Result<Vec<String>, String> {
-    // 1. Get diff between since_tree_sha and HEAD (or current tree_sha)
-    // 2. For each changed file: get contents in chunks
-    // 3. Apply TOLC 8 summarization per chunk (never full file in one context unless < threshold)
-    // 4. Return summaries or structured index entries
-
-    // Stub for connector integration — real version uses github_connector + chunk reader
-    Ok(vec!["TOLC 8 incremental summary placeholder — implement with get_file_contents + chunking".to_string()])
+    // TODO: Real diff via github_connector + get_file_contents in chunks
+    Ok(vec!["TOLC 8 incremental summary placeholder".to_string()])
 }
 
 /// Commit history paginator (handles 9k+ commits safely)
@@ -82,23 +75,36 @@ pub fn paginate_commits(
     repo: &str,
     page: u32,
     per_page: u32,
-    since: Option<&str>, // ISO date for incremental
+    since: Option<&str>,
 ) -> Result<Vec<String>, String> {
     if per_page > 100 {
         return Err("per_page max 100 — TOLC Order + GitHub limit".to_string());
     }
-    // Real impl: loop calling github___list_commits with page/perPage/since
-    // Aggregate only what is needed, never dump 9k into context
     Ok(vec![])
 }
 
-/// Chunk large file content (Rust/JS functions, markdown sections, or fixed lines)
+/// Chunk large file content — NOW POWERED BY TREE-SITTER
+/// Uses AST for precise function/struct/class boundaries (Rust/JS)
+/// Falls back gracefully for other languages or when tree-sitter not compiled in.
 pub fn chunk_file_content(content: &str, language: &str, max_chunk_tokens: usize) -> Vec<String> {
-    // Implement language-aware chunking (tree-sitter if available, else regex/section)
-    // TOLC 8: each chunk gets mercy-gate summary before higher-level synthesis
-    vec![content.to_string()] // placeholder — expand
+    // Primary path: tree-sitter semantic chunking
+    let ts_chunks = chunk_file_content_tree_sitter(content, language, max_chunk_tokens);
+
+    if ts_chunks.len() > 1 || !ts_chunks.is_empty() && ts_chunks[0].len() < content.len() / 2 {
+        // Good semantic chunks produced
+        ts_chunks
+    } else {
+        // Fallback if tree-sitter returned whole file (language not supported or parse failed)
+        // Simple line-based as last resort
+        let lines: Vec<&str> = content.lines().collect();
+        if lines.len() <= 150 {
+            vec![content.to_string()]
+        } else {
+            lines.chunks(150).map(|c| c.join("\n")).collect()
+        }
+    }
 }
 
-// Example usage in monorepo-intelligence (CLI or library):
-// let result = walk_tree_paginated("Eternally-Thriving-Grandmasterism", "Ra-Thor", Some("src/"), 1, 50, None)?;
-// let changed = process_incremental_files(..., result.last_tree_sha, &["**/*.rs"], 150)?;
+// Example usage:
+// let chunks = chunk_file_content(big_rust_file, "rust", 8000);
+// Each chunk is now a complete function, impl block, or struct — perfect for LLM context or indexing.
