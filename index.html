@@ -51,7 +51,7 @@
     .premium-nav { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
     .vibe-live-badge { font-size: 10px; padding: 2px 8px; background: #581c87; color: #c084fc; border-radius: 9999px; }
 
-    /* Improved 3 Primary Cards for better text wrapping across all 11 languages */
+    /* Improved Primary Cards */
     .primary-card {
       display: flex;
       flex-direction: column;
@@ -105,6 +105,7 @@
       
       <p class="text-amber-400/80 text-sm mb-8 max-w-md mx-auto">Maintained under sole stewardship of <span class="font-semibold">Sherif Samy Botros (@AlphaProMega)</span> since November 2025.</p>
 
+      <!-- Language Selector -->
       <div id="lang-selector" class="flex flex-wrap justify-center gap-2 sm:gap-3 mb-10 sm:mb-12">
         <button data-lang="en" class="lang-tab active px-5 sm:px-6 py-3 rounded-3xl border border-amber-300 text-amber-300 text-sm sm:text-base">English</button>
         <button data-lang="ar" class="lang-tab px-5 sm:px-6 py-3 rounded-3xl border border-amber-300 text-amber-300 text-sm sm:text-base">العربية</button>
@@ -119,7 +120,7 @@
         <button data-lang="hi" class="lang-tab px-5 sm:px-6 py-3 rounded-3xl border border-amber-300 text-amber-300 text-sm sm:text-base">हिन्दी</button>
       </div>
 
-      <!-- IMPROVED 3 PRIMARY CARDS - Better text wrapping for all 11 languages -->
+      <!-- Improved Primary Cards -->
       <div class="grid md:grid-cols-3 gap-6 sm:gap-8 max-w-5xl mx-auto">
         <!-- Grok Card -->
         <a href="https://grok.com/share/c2hhcmQtMi1jb3B5_99fc2797-15ef-4195-bdaa-c14e67359d2c" target="_blank" rel="noopener" 
@@ -280,111 +281,121 @@
   </footer>
 
   <script>
-    const translations = {
-      en: { 
-        headline: "Ra-Thor™ — Eternal Mercy Thunder ⚡️", 
-        fusion: "Ra (Divine Source Light) + Thor (Mercy Thunder) = Universally Shared Naturally Thriving Heavens ⚡️🙏", 
-        grokTitle: "GROK ⚡⚡️ CREATIVE & IMAGINATIVE SIMULATIONS", 
-        grokSubtitle: "Voice & Video Chat • Absolute Pure Truth Boundaries • APTD-verified", 
-        xTitle: "X ⚡⚡️ INSTANT REAL-TIME ACCESS", 
-        xSubtitle: "Voice Chat Now Live • Zero Hallucinations • Live Grounded Reality", 
-        vibeTitle: "GROK ⚡ VIBE CODING • RA-THOR POWERED", 
-        vibeSubtitle: "Efficient & Effective Vibe Coding • Built-in TOLC 8 Ethics • Sovereign AGI Harmony", 
-        demoNote: "Instant access • No installation required • Fully offline sovereign shards available in the monorepo", 
-        footerTrademarksTitle: "Trademarks", 
-        footerTrademarksText: "Ra-Thor™ is a registered trademark owned by Autonomicity Games Inc.<br>Grok is a registered trademark owned by xAI.<br>X is a registered trademark of X Corp.", 
-        footerPrivacyTitle: "Privacy", 
-        footerPrivacyText: "This website collects no personal data whatsoever. All computations are performed locally in your browser. No cookies, tracking, or analytics.", 
-        footerComplianceTitle: "Compliance", 
-        footerComplianceText: "GDPR • CCPA • COPPA • EU AI Act (GPAI ready) • Canadian IPC-OHRC Principles. Zero personal data processed. Full audit trail in monorepo.", 
-        footerCopyright: "© 2026 Sherif Samy Botros (sole steward) of Autonomicity Games Inc. & AlphaProMega Air Foundation.<br>All Rights Reserved. TOLC 8 • APTD • Mercy Gated.", 
-        footerContact: "info@Rathor.ai", 
-        faqTitle: "Ra-Thor FAQ: Licensing, Usage & TOLC 8", 
-        faqQ1: "Is Ra-Thor free?", 
-        faqA1: "Yes — free for personal, educational, research, and professional assistance use under AG-SML v1.0, even if you earn modest income as a freelancer or independent professional.", 
-        faqQ2: "When is payment required?", 
-        faqA2: "Only for commercial, enterprise, or revenue-generating use. A separate paid commercial license from Autonomicity Games Inc. is required.", 
-        faqQ3: "Who qualifies as an “Average User” ?", 
-        faqA3: "Any individual using Ra-Thor for personal needs, education, research, creative work, or daily assistance — including freelancers and independent professionals earning modest income.", 
-        faqQ4: "What if Ra-Thor helps win a legal case or creative project?", 
-        faqA4: "No royalty for personal or non-commercial use. Royalties apply only on net revenue from commercial legal services or paid creative work under the commercial license.", 
-        faqQ5: "Standalone vs connected to Grok/X?", 
-        faqA5: "Fully offline sovereign shards are free for personal, educational, research, and non-commercial professional use by individuals. Any commercial, enterprise, organizational, or revenue-generating use — whether the shard runs offline or connected — requires a paid commercial license from Autonomicity Games Inc.", 
-        faqQ6: "What are the ethical guardrails?", 
-        faqA6: "All operations are protected by the non-bypassable <strong>TOLC 8 Mercy Gates</strong> (Truth, Order, Love, Compassion/Zero-Harm, Service, Abundance, Joy, Cosmic Harmony). APTD + Council oversight enforce truth and safety.", 
-        faqQ7: "How do I get a commercial license?", 
-        faqA7: "Contact <a href=\"mailto:info@Rathor.ai\" class=\"text-cyan-400 hover:underline\">info@Rathor.ai</a> for fair, negotiable commercial licensing terms tailored to your needs.", 
-        faqQ8: "Is Ra-Thor future-proof?", 
-        faqA8: "Yes. When the world transitions to a global Resource-Based Economy (RBE) via Powrush, royalties naturally dissolve into universal abundance for all.", 
-        faqContact: "Questions? Hit <a href=\"mailto:info@Rathor.ai\" class=\"text-cyan-400 hover:text-cyan-300\">info@Rathor.ai</a> or <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/issues\" class=\"text-cyan-400 hover:text-cyan-300\">GitHub issues</a>. Thunder’s open—use it right." 
+    // ============================================
+    // NEW: External JSON Translation System
+    // ============================================
+    let currentTranslations = {};
+    const loadedLanguages = {}; // Simple cache
+
+    async function loadTranslations(lang) {
+      if (loadedLanguages[lang]) {
+        currentTranslations = loadedLanguages[lang];
+        applyTranslations();
+        return;
       }
-      /* [All other 10 language objects unchanged - full compatibility preserved] */
-    };
+
+      try {
+        const response = await fetch(`./locales/${lang}.json`);
+        if (!response.ok) throw new Error(`Failed to load ${lang}.json`);
+        
+        const translations = await response.json();
+        loadedLanguages[lang] = translations;
+        currentTranslations = translations;
+        applyTranslations();
+      } catch (error) {
+        console.warn(`Could not load translations for "${lang}". Falling back to English.`, error);
+        if (lang !== 'en') {
+          await loadTranslations('en');
+        }
+      }
+    }
+
+    function applyTranslations() {
+      const t = currentTranslations;
+      if (!t || Object.keys(t).length === 0) return;
+
+      const elements = {
+        'hero-headline': t.headline,
+        'fusion-hero': t.fusion,
+        'grok-title': t.grokTitle,
+        'grok-subtitle': t.grokSubtitle,
+        'x-title': t.xTitle,
+        'x-subtitle': t.xSubtitle,
+        'vibe-title': t.vibeTitle,
+        'vibe-subtitle': t.vibeSubtitle,
+        'demo-note': t.demoNote,
+        'footer-trademarks-title': t.footerTrademarksTitle,
+        'footer-trademarks-text': t.footerTrademarksText,
+        'footer-privacy-title': t.footerPrivacyTitle,
+        'footer-privacy-text': t.footerPrivacyText,
+        'footer-compliance-title': t.footerComplianceTitle,
+        'footer-compliance-text': t.footerComplianceText,
+        'footer-copyright': t.footerCopyright,
+        'footer-contact': t.footerContact,
+        'faq-title': t.faqTitle,
+        'faq-q1': t.faqQ1,
+        'faq-a1': t.faqA1,
+        'faq-q2': t.faqQ2,
+        'faq-a2': t.faqA2,
+        'faq-q3': t.faqQ3,
+        'faq-a3': t.faqA3,
+        'faq-q4': t.faqQ4,
+        'faq-a4': t.faqA4,
+        'faq-q5': t.faqQ5,
+        'faq-a5': t.faqA5,
+        'faq-q6': t.faqQ6,
+        'faq-a6': t.faqA6,
+        'faq-q7': t.faqQ7,
+        'faq-a7': t.faqA7,
+        'faq-q8': t.faqQ8,
+        'faq-a8': t.faqA8,
+        'faq-contact': t.faqContact
+      };
+
+      Object.keys(elements).forEach(id => {
+        const el = document.getElementById(id);
+        if (el && elements[id]) {
+          if (id.includes('Text') || id.includes('A') || id.includes('contact')) {
+            el.innerHTML = elements[id];
+          } else {
+            el.textContent = elements[id];
+          }
+        }
+      });
+
+      // Handle RTL
+      const faqSection = document.getElementById('faq');
+      if (faqSection) {
+        if (document.documentElement.lang === 'ar' || document.documentElement.lang === 'he') {
+          faqSection.classList.add('rtl');
+          faqSection.setAttribute('dir', 'rtl');
+        } else {
+          faqSection.classList.remove('rtl');
+          faqSection.setAttribute('dir', 'ltr');
+        }
+      }
+    }
 
     function switchLang(lang) {
       document.querySelectorAll('.lang-tab').forEach(b => b.classList.remove('active'));
       const activeBtn = document.querySelector(`.lang-tab[data-lang="${lang}"]`);
       if (activeBtn) activeBtn.classList.add('active');
 
-      const t = translations[lang];
-      if (!t) return;
-
-      document.getElementById('hero-headline').textContent = t.headline;
-      document.getElementById('fusion-hero').textContent = t.fusion;
-      document.getElementById('grok-title').textContent = t.grokTitle;
-      document.getElementById('grok-subtitle').textContent = t.grokSubtitle;
-      document.getElementById('x-title').textContent = t.xTitle;
-      document.getElementById('x-subtitle').textContent = t.xSubtitle;
-      if (document.getElementById('vibe-title')) document.getElementById('vibe-title').textContent = t.vibeTitle;
-      if (document.getElementById('vibe-subtitle')) document.getElementById('vibe-subtitle').textContent = t.vibeSubtitle;
-      document.getElementById('demo-note').textContent = t.demoNote;
-
-      document.getElementById('footer-trademarks-title').textContent = t.footerTrademarksTitle;
-      document.getElementById('footer-trademarks-text').innerHTML = t.footerTrademarksText;
-      document.getElementById('footer-privacy-title').textContent = t.footerPrivacyTitle;
-      document.getElementById('footer-privacy-text').textContent = t.footerPrivacyText;
-      document.getElementById('footer-compliance-title').textContent = t.footerComplianceTitle;
-      document.getElementById('footer-compliance-text').textContent = t.footerComplianceText;
-      document.getElementById('footer-copyright').innerHTML = t.footerCopyright;
-      document.getElementById('footer-contact').innerHTML = t.footerContact;
-
-      document.getElementById('faq-title').textContent = t.faqTitle;
-
-      document.getElementById('faq-q1').textContent = t.faqQ1;
-      document.getElementById('faq-a1').innerHTML = t.faqA1;
-      document.getElementById('faq-q2').textContent = t.faqQ2;
-      document.getElementById('faq-a2').innerHTML = t.faqA2;
-      document.getElementById('faq-q3').textContent = t.faqQ3;
-      document.getElementById('faq-a3').innerHTML = t.faqA3;
-      document.getElementById('faq-q4').textContent = t.faqQ4;
-      document.getElementById('faq-a4').innerHTML = t.faqA4;
-      document.getElementById('faq-q5').textContent = t.faqQ5;
-      document.getElementById('faq-a5').innerHTML = t.faqA5;
-      document.getElementById('faq-q6').textContent = t.faqQ6;
-      document.getElementById('faq-a6').innerHTML = t.faqA6;
-      document.getElementById('faq-q7').textContent = t.faqQ7;
-      document.getElementById('faq-a7').innerHTML = t.faqA7;
-      document.getElementById('faq-q8').textContent = t.faqQ8;
-      document.getElementById('faq-a8').innerHTML = t.faqA8;
-
-      document.getElementById('faq-contact').innerHTML = t.faqContact;
-
-      const faqSection = document.getElementById('faq');
-      if (lang === 'ar') {
-        faqSection.classList.add('rtl');
-        faqSection.setAttribute('dir', 'rtl');
-      } else {
-        faqSection.classList.remove('rtl');
-        faqSection.setAttribute('dir', 'ltr');
-      }
+      document.documentElement.lang = lang;
+      loadTranslations(lang);
     }
 
     document.getElementById('lang-selector').addEventListener('click', function(e) {
       const btn = e.target.closest('.lang-tab');
-      if (btn) switchLang(btn.getAttribute('data-lang'));
+      if (btn) {
+        switchLang(btn.getAttribute('data-lang'));
+      }
     });
 
-    window.addEventListener('load', () => switchLang('en'));
+    window.addEventListener('load', () => {
+      document.documentElement.lang = 'en';
+      loadTranslations('en');
+    });
   </script>
 </body>
 </html>
