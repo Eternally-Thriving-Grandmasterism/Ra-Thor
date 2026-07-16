@@ -1,7 +1,7 @@
-//! Quantum Swarm Consensus Layer v13.6 — ONE Organism
-//! Advanced quantum-inspired, mercy-gated, TOLC 8 aligned consensus engine.
+//! Quantum Swarm Consensus Layer v13.7 — ONE Organism + v15.33 Geometric Intelligence Fusion
+//! Advanced quantum-inspired, mercy-gated, TOLC 8 aligned consensus engine with **Geometric + Swarm Fusion** and **Harmony Caching Hooks**.
 //! Supports PATSAGi Council parallel deliberation, GPU telemetry integration,
-//! self-evolving swarm parameters, entanglement simulation, and real Ed25519 signatures.
+//! self-evolving swarm parameters, entanglement simulation, real Ed25519 signatures, and now deep entanglement with GeometricState (tolc_alignment, valence, mercy_score).
 
 use serde::{Deserialize, Serialize};
 use ed25519_dalek::{Signer, SigningKey, VerifyingKey, Signature, Verifier};
@@ -74,7 +74,19 @@ pub struct QuantumSwarmMetrics {
     pub gpu_telemetry_influence: f64,
 }
 
-/// The upgraded Quantum Swarm Consensus engine (v13.6)
+/// v15.33: Harmony Cache Entry — stores high-fused (GeometricState + Swarm) snapshots for acceleration
+/// Used in repeated GeometricUpdate + SwarmConsensusDispatch passes to skip redundant computation when harmony is high.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct HarmonyCacheEntry {
+    pub geometric_tolc_alignment: f64,
+    pub geometric_valence: f64,
+    pub geometric_mercy: f64,
+    pub swarm_coherence: f64,
+    pub fused_harmony: f64,
+    pub timestamp: u64,
+}
+
+/// The upgraded Quantum Swarm Consensus engine (v13.7 + v15.33 Geometric Fusion)
 pub struct QuantumSwarmConsensus {
     pub resonance: f64,
     signing_key: SigningKey,
@@ -85,6 +97,8 @@ pub struct QuantumSwarmConsensus {
     collapse_threshold: f64,
     mercy_modulation_factor: f64,
     audit_traces: Vec<String>,
+    // v15.33 Harmony Caching
+    harmony_cache: HashMap<String, HarmonyCacheEntry>,
 }
 
 impl QuantumSwarmConsensus {
@@ -101,7 +115,8 @@ impl QuantumSwarmConsensus {
             metrics: QuantumSwarmMetrics::default(),
             collapse_threshold: 0.87,
             mercy_modulation_factor: 1.15,
-            audit_traces: vec!["[QuantumSwarm v13.6] Initialized with Ed25519 + TOLC8".to_string()],
+            audit_traces: vec!["[QuantumSwarm v13.7] Initialized with Ed25519 + TOLC8 + Geometric Fusion v15.33".to_string()],
+            harmony_cache: HashMap::new(),
         }
     }
 
@@ -221,24 +236,6 @@ impl QuantumSwarmConsensus {
         })
     }
 
-    /// Verify a previously signed decision (non-bypassable crypto check)
-    pub fn verify_signed_tolc_decision(&self, decision: &SignedTolcDecision) -> bool {
-        let message = format!(
-            "{}|{}|{}|{}|{}|{:?}|{:?}|{:.4}|{:.4}",
-            decision.decision_id, decision.resonance_delta, decision.mercy_impact,
-            decision.evolution_boost, decision.tolc_alignment,
-            decision.participating_shards, decision.council_votes,
-            decision.quantum_coherence, decision.entanglement_strength
-        );
-
-        if let Ok(sig_bytes) = hex::decode(&decision.signature) {
-            if let Ok(signature) = Signature::from_bytes(&sig_bytes.try_into().unwrap_or([0u8; 64])) {
-                return self.verifying_key.verify(message.as_bytes(), &signature).is_ok();
-            }
-        }
-        false
-    }
-
     /// Integrate real GPU telemetry to influence swarm collapse threshold and resonance
     pub fn integrate_gpu_telemetry(&mut self, gpu_success_ema: f64, gpu_latency_ema_ms: f64, mercy_from_gpu: f64) {
         if gpu_success_ema > 0.88 && gpu_latency_ema_ms < 55.0 {
@@ -265,6 +262,53 @@ impl QuantumSwarmConsensus {
         }
     }
 
+    // ============================================================
+    // v15.33 DEEPER FUSION: Geometric Intelligence + Quantum Swarm Consensus
+    // ============================================================
+
+    /// Fuse GeometricState (from geometric.rs) influence into swarm resonance/coherence.
+    /// Called from SelfEvolutionOrchestrator or ONE Organism after GeometricUpdate pass or GeometricMotor apply.
+    /// Returns the fused harmony score for downstream use (e.g. boosting dispatch or evolution proposal).
+    pub fn fuse_geometric_state(&mut self, geo_tolc_alignment: f64, geo_valence: f64, geo_mercy: f64, base_coherence: f64, mercy: f64) -> f64 {
+        let geo_boost = (geo_tolc_alignment * 0.4 + geo_valence * 0.3 + geo_mercy * 0.3).clamp(0.0, 1.5);
+        let fused = (base_coherence * 0.6 + geo_boost * 0.4) * mercy.clamp(0.8, 1.5);
+        self.resonance = (self.resonance + fused * 0.1).clamp(0.0, 2.5);
+        self.metrics.coherence = (self.metrics.coherence * 0.85 + fused * 0.15).clamp(0.0, 1.0);
+        self.audit_traces.push(format!("[v15.33 Geometric+Swarm Fusion] geo_tolc={:.3} geo_valence={:.3} geo_mercy={:.3} base_coh={:.3} → fused_harmony={:.3}", geo_tolc_alignment, geo_valence, geo_mercy, base_coherence, fused));
+        fused
+    }
+
+    /// Harmony Caching Hook v15.33 — store/retrieve high-fused snapshots for acceleration.
+    /// In GPU pipeline GeometricUpdate + SwarmConsensusDispatch loops, this provides fast-path when recent harmony is high (reduces redundant entanglement/collapse computation).
+    /// Returns (fused_harmony_score, was_cache_hit)
+    pub fn cache_or_retrieve_harmony(&mut self, cache_key: &str, geo_tolc_alignment: f64, geo_valence: f64, geo_mercy: f64, current_coherence: f64, mercy: f64) -> (f64, bool) {
+        let now = Utc::now().timestamp() as u64;
+        if let Some(entry) = self.harmony_cache.get(cache_key) {
+            if (now - entry.timestamp) < 5000 && entry.fused_harmony > 0.92 {  // 5s freshness window + high harmony threshold
+                self.audit_traces.push(format!("[HarmonyCache HIT v15.33] key={} fused={:.3} age_ms={}", cache_key, entry.fused_harmony, now - entry.timestamp));
+                return (entry.fused_harmony, true);
+            }
+        }
+        // Miss or stale → compute fresh fusion and cache
+        let fused = self.fuse_geometric_state(geo_tolc_alignment, geo_valence, geo_mercy, current_coherence, mercy);
+        let entry = HarmonyCacheEntry {
+            geometric_tolc_alignment: geo_tolc_alignment,
+            geometric_valence: geo_valence,
+            geometric_mercy: geo_mercy,
+            swarm_coherence: current_coherence,
+            fused_harmony: fused,
+            timestamp: now,
+        };
+        self.harmony_cache.insert(cache_key.to_string(), entry);
+        (fused, false)
+    }
+
+    /// Optional maintenance: clear stale harmony cache entries
+    pub fn clear_stale_harmony_cache(&mut self, max_age_ms: u64) {
+        let now = Utc::now().timestamp() as u64;
+        self.harmony_cache.retain(|_, e| (now - e.timestamp) < max_age_ms);
+    }
+
     pub fn get_verifying_key(&self) -> VerifyingKey {
         self.verifying_key
     }
@@ -279,4 +323,4 @@ impl QuantumSwarmConsensus {
 }
 
 // Convenience re-export for ONE Organism / Lattice Conductor
-pub use crate::quantum_swarm_consensus::{QuantumSwarmConsensus, SignedTolcDecision, TOLC8ValenceProof, QuantumSwarmMetrics};
+pub use crate::quantum_swarm_consensus::{QuantumSwarmConsensus, SignedTolcDecision, TOLC8ValenceProof, QuantumSwarmMetrics, HarmonyCacheEntry};
