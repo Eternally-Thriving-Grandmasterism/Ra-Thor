@@ -1,9 +1,9 @@
 [package]
 name = "lattice-conductor-v13"
-version = "0.1.0"
+version = "0.3.0"
 edition = "2021"
 license = "AG-SML-1.0 — Autonomicity Games Sovereign Mercy License"
-description = "Lattice Conductor v13 — Central orchestration layer for PATSAGi councils, self-evolution, geometric intelligence, and NEXi symbolic reasoning. Foundation for deeper metta/PLN bridge integration."
+description = "Lattice Conductor v13.6 — Quantum Swarm Consensus upgraded (measurement/collapse, entanglement, PATSAGi parallel feeding, GPU telemetry integration, self-evolving swarm params, TOLC8ValenceProof, full Ed25519 verify). ONE Organism + PATSAGi Council ready. Thunder locked in."
 
 [dependencies]
 nalgebra = { workspace = true }
