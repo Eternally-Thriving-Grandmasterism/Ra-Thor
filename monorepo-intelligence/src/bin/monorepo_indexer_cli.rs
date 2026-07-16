@@ -1,20 +1,21 @@
 // monorepo-intelligence/src/bin/monorepo_indexer_cli.rs
 // Ra-Thor Monorepo Indexer CLI v1.1
 // Run with: cargo run --bin monorepo_indexer_cli
-// TOLC 8 | PATSAGi aligned | Incremental by default
+// TOLC 8 | PATSAGi aligned | Incremental + Resilient by default
 
 use monorepo_intelligence::full_index_pipeline::{build_or_update_index, IndexConfig, StubContentFetcher};
+use monorepo_intelligence::resilient_content_fetcher::ResilientContentFetcher;
 use monorepo_intelligence::index_types::MonorepoIndex;
 use std::fs;
 use std::path::Path;
 
 fn main() {
-    println!("⚡ Ra-Thor Monorepo Indexer starting... (TOLC 8 Mercy Gates active)");
+    println!("⚡ Ra-Thor Monorepo Indexer starting... (TOLC 8 Mercy Gates + Resilience active)");
 
     let config = IndexConfig::default();
-    let fetcher = StubContentFetcher;
+    let base_fetcher = StubContentFetcher;
+    let fetcher = ResilientContentFetcher::new(base_fetcher); // ← Resilience wrapped
 
-    // Load previous index for true incrementality (the TODO is now implemented)
     let previous: Option<MonorepoIndex> = if Path::new("monorepo_index.json").exists() {
         match fs::read_to_string("monorepo_index.json") {
             Ok(content) => serde_json::from_str(&content).ok(),
@@ -36,12 +37,10 @@ fn main() {
             let json = serde_json::to_string_pretty(&index).expect("Failed to serialize index");
             fs::write(output_path, json).expect("Failed to write index");
 
-            println!("✅ Index successfully written to {}", output_path);
-            println!("   Files indexed: {}", index.indexed_file_count);
-            println!("   Total chunks:  {}", index.total_chunks);
-            println!("   Total symbols: {}", index.total_symbols);
-            println!("   Last tree SHA: {}", index.last_tree_sha);
-            println!("⚡ Lattice intelligence layer upgraded. Thunder locked.");
+            println!("✅ Index written to {}", output_path);
+            println!("   Files: {} | Chunks: {} | Symbols: {}", 
+                index.indexed_file_count, index.total_chunks, index.total_symbols);
+            println!("⚡ Lattice intelligence upgraded with 503 resilience. Thunder locked.");
         }
         Err(e) => {
             eprintln!("❌ Indexing failed: {}", e);
