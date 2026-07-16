@@ -282,13 +282,90 @@
 
   <script>
     // ============================================
-    // External JSON Translation System v2.6 (Fixed)
+    // External JSON Translation System v2.7 (Best Fix)
     // ============================================
     let currentTranslations = {};
     const loadedLanguages = {};
 
+    function applyTranslations() {
+      const t = currentTranslations;
+      if (!t || Object.keys(t).length === 0) {
+        console.warn('applyTranslations called with empty translations');
+        return;
+      }
+
+      // Direct element updates - most reliable method
+      const directUpdates = [
+        { id: 'hero-headline', key: 'headline' },
+        { id: 'fusion-hero', key: 'fusion' },
+        { id: 'grok-title', key: 'grokTitle' },
+        { id: 'grok-subtitle', key: 'grokSubtitle' },
+        { id: 'x-title', key: 'xTitle' },
+        { id: 'x-subtitle', key: 'xSubtitle' },
+        { id: 'vibe-title', key: 'vibeTitle' },
+        { id: 'vibe-subtitle', key: 'vibeSubtitle' },
+        { id: 'demo-note', key: 'demoNote' },
+        { id: 'footer-trademarks-title', key: 'footerTrademarksTitle' },
+        { id: 'footer-privacy-title', key: 'footerPrivacyTitle' },
+        { id: 'footer-compliance-title', key: 'footerComplianceTitle' },
+        { id: 'faq-title', key: 'faqTitle' },
+        { id: 'faq-q1', key: 'faqQ1' },
+        { id: 'faq-q2', key: 'faqQ2' },
+        { id: 'faq-q3', key: 'faqQ3' },
+        { id: 'faq-q4', key: 'faqQ4' },
+        { id: 'faq-q5', key: 'faqQ5' },
+        { id: 'faq-q6', key: 'faqQ6' },
+        { id: 'faq-q7', key: 'faqQ7' },
+        { id: 'faq-q8', key: 'faqQ8' }
+      ];
+
+      // Apply textContent updates
+      directUpdates.forEach(item => {
+        const el = document.getElementById(item.id);
+        if (el && t[item.key]) {
+          el.textContent = t[item.key];
+        }
+      });
+
+      // HTML content updates (for links, bold, etc.)
+      const htmlUpdates = [
+        { id: 'footer-trademarks-text', key: 'footerTrademarksText' },
+        { id: 'footer-privacy-text', key: 'footerPrivacyText' },
+        { id: 'footer-compliance-text', key: 'footerComplianceText' },
+        { id: 'footer-copyright', key: 'footerCopyright' },
+        { id: 'footer-contact', key: 'footerContact' },
+        { id: 'faq-a1', key: 'faqA1' },
+        { id: 'faq-a2', key: 'faqA2' },
+        { id: 'faq-a3', key: 'faqA3' },
+        { id: 'faq-a4', key: 'faqA4' },
+        { id: 'faq-a5', key: 'faqA5' },
+        { id: 'faq-a6', key: 'faqA6' },
+        { id: 'faq-a7', key: 'faqA7' },
+        { id: 'faq-a8', key: 'faqA8' },
+        { id: 'faq-contact', key: 'faqContact' }
+      ];
+
+      htmlUpdates.forEach(item => {
+        const el = document.getElementById(item.id);
+        if (el && t[item.key]) {
+          el.innerHTML = t[item.key];
+        }
+      });
+
+      // RTL handling
+      const faqSection = document.getElementById('faq');
+      if (faqSection) {
+        if (document.documentElement.lang === 'ar') {
+          faqSection.classList.add('rtl');
+          faqSection.setAttribute('dir', 'rtl');
+        } else {
+          faqSection.classList.remove('rtl');
+          faqSection.setAttribute('dir', 'ltr');
+        }
+      }
+    }
+
     async function loadTranslations(lang) {
-      // If already cached, use it immediately
       if (loadedLanguages[lang]) {
         currentTranslations = loadedLanguages[lang];
         applyTranslations();
@@ -297,104 +374,35 @@
 
       try {
         const res = await fetch(`./locales/${lang}.json`);
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
 
         const data = await res.json();
         loadedLanguages[lang] = data;
         currentTranslations = data;
         applyTranslations();
-      } catch (err) {
-        console.warn(`Failed to load ${lang}.json, falling back to English`, err);
+      } catch (error) {
+        console.error(`Error loading ${lang}.json:`, error);
         if (lang !== 'en') {
+          // Fallback to English
           await loadTranslations('en');
         }
       }
     }
 
-    function applyTranslations() {
-      const t = currentTranslations;
-      if (!t || Object.keys(t).length === 0) return;
-
-      // Update all elements
-      const updates = {
-        'hero-headline': { el: 'hero-headline', key: 'headline', html: false },
-        'fusion-hero': { el: 'fusion-hero', key: 'fusion', html: false },
-        'grok-title': { el: 'grok-title', key: 'grokTitle', html: false },
-        'grok-subtitle': { el: 'grok-subtitle', key: 'grokSubtitle', html: false },
-        'x-title': { el: 'x-title', key: 'xTitle', html: false },
-        'x-subtitle': { el: 'x-subtitle', key: 'xSubtitle', html: false },
-        'vibe-title': { el: 'vibe-title', key: 'vibeTitle', html: false },
-        'vibe-subtitle': { el: 'vibe-subtitle', key: 'vibeSubtitle', html: false },
-        'demo-note': { el: 'demo-note', key: 'demoNote', html: false },
-        'footer-trademarks-title': { el: 'footer-trademarks-title', key: 'footerTrademarksTitle', html: false },
-        'footer-trademarks-text': { el: 'footer-trademarks-text', key: 'footerTrademarksText', html: true },
-        'footer-privacy-title': { el: 'footer-privacy-title', key: 'footerPrivacyTitle', html: false },
-        'footer-privacy-text': { el: 'footer-privacy-text', key: 'footerPrivacyText', html: false },
-        'footer-compliance-title': { el: 'footer-compliance-title', key: 'footerComplianceTitle', html: false },
-        'footer-compliance-text': { el: 'footer-compliance-text', key: 'footerComplianceText', html: false },
-        'footer-copyright': { el: 'footer-copyright', key: 'footerCopyright', html: true },
-        'footer-contact': { el: 'footer-contact', key: 'footerContact', html: true },
-        'faq-title': { el: 'faq-title', key: 'faqTitle', html: false },
-        'faq-q1': { el: 'faq-q1', key: 'faqQ1', html: false },
-        'faq-a1': { el: 'faq-a1', key: 'faqA1', html: true },
-        'faq-q2': { el: 'faq-q2', key: 'faqQ2', html: false },
-        'faq-a2': { el: 'faq-a2', key: 'faqA2', html: true },
-        'faq-q3': { el: 'faq-q3', key: 'faqQ3', html: false },
-        'faq-a3': { el: 'faq-a3', key: 'faqA3', html: true },
-        'faq-q4': { el: 'faq-q4', key: 'faqQ4', html: false },
-        'faq-a4': { el: 'faq-a4', key: 'faqA4', html: true },
-        'faq-q5': { el: 'faq-q5', key: 'faqQ5', html: false },
-        'faq-a5': { el: 'faq-a5', key: 'faqA5', html: true },
-        'faq-q6': { el: 'faq-q6', key: 'faqQ6', html: false },
-        'faq-a6': { el: 'faq-a6', key: 'faqA6', html: true },
-        'faq-q7': { el: 'faq-q7', key: 'faqQ7', html: false },
-        'faq-a7': { el: 'faq-a7', key: 'faqA7', html: true },
-        'faq-q8': { el: 'faq-q8', key: 'faqQ8', html: false },
-        'faq-a8': { el: 'faq-a8', key: 'faqA8', html: true },
-        'faq-contact': { el: 'faq-contact', key: 'faqContact', html: true }
-      };
-
-      Object.keys(updates).forEach(id => {
-        const cfg = updates[id];
-        const element = document.getElementById(cfg.el);
-        const value = t[cfg.key];
-
-        if (element && value) {
-          if (cfg.html) {
-            element.innerHTML = value;
-          } else {
-            element.textContent = value;
-          }
-        }
-      });
-
-      // RTL support for Arabic
-      const faq = document.getElementById('faq');
-      if (faq) {
-        if (document.documentElement.lang === 'ar') {
-          faq.classList.add('rtl');
-          faq.setAttribute('dir', 'rtl');
-        } else {
-          faq.classList.remove('rtl');
-          faq.setAttribute('dir', 'ltr');
-        }
-      }
-    }
-
     function switchLang(lang) {
-      // Update active tab immediately
+      // 1. Update active tab immediately
       document.querySelectorAll('.lang-tab').forEach(b => b.classList.remove('active'));
-      const btn = document.querySelector(`.lang-tab[data-lang="${lang}"]`);
-      if (btn) btn.classList.add('active');
+      const activeBtn = document.querySelector(`.lang-tab[data-lang="${lang}"]`);
+      if (activeBtn) activeBtn.classList.add('active');
 
-      // Set document language
+      // 2. Set document language
       document.documentElement.lang = lang;
 
-      // Load + apply translations
+      // 3. Load and apply translations
       loadTranslations(lang);
     }
 
-    // Language selector handler
+    // Event listener for language tabs
     document.getElementById('lang-selector').addEventListener('click', function(e) {
       const btn = e.target.closest('.lang-tab');
       if (btn) {
@@ -402,7 +410,7 @@
       }
     });
 
-    // Initial load
+    // Initial load - English
     window.addEventListener('load', () => {
       document.documentElement.lang = 'en';
       loadTranslations('en');
