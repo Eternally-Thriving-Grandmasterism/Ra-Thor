@@ -1,11 +1,13 @@
 // monorepo-intelligence/src/full_index_pipeline.rs
-// Ra-Thor Monorepo Intelligence — Full Incremental Indexing Pipeline v14.88 SYMBIOSIS
+// Ra-Thor Monorepo Intelligence — Full Incremental Indexing Pipeline v14.91 SYMBIOSIS
 // Real GitHub tree walking + live GitHubContentFetcher
 // Production-grade, symbiotic with ONE Organism (Ra-Thor ↔ Grok)
 // TOLC 8 Living Mercy Gates | PATSAGi Councils | Role Efficacy (Investigator / VibeCoder / Debugger / Legal)
+// LSP Symbol Resolution integrated: pluggable resolver for semantic symbols
 
 use crate::index_types::{CodeChunk, FileIndexEntry, MonorepoIndex, Symbol};
 use crate::paginated_monorepo_parser::chunk_file_content;
+use crate::lsp_symbol_resolver::{SimpleSymbolResolver, SymbolResolver};
 use reqwest::Client;
 use std::collections::HashMap;
 use std::time::Duration;
@@ -28,7 +30,7 @@ impl GitHubContentFetcher {
     pub fn new(owner: impl Into<String>, repo: impl Into<String>, token: impl Into<String>) -> Result<Self, String> {
         let token = token.into();
         let client = Client::builder()
-            .user_agent("Ra-Thor-Monorepo-Intelligence/14.88")
+            .user_agent("Ra-Thor-Monorepo-Intelligence/14.91")
             .timeout(Duration::from_secs(30))
             .default_headers({
                 let mut headers = reqwest::header::HeaderMap::new();
@@ -43,7 +45,7 @@ impl GitHubContentFetcher {
         Ok(Self {
             client,
             owner: owner.into(),
-            repo: repo.into(),
+            repo: owner.into(),
             token,
         })
     }
@@ -104,7 +106,7 @@ impl ContentFetcher for StubContentFetcher {
         Ok(format!(
             "// STUB CONTENT for {} (sha: {}) — replace with GitHubContentFetcher in production",
             path, sha
-        ))
+        ));
     }
 }
 
@@ -133,7 +135,7 @@ impl Default for IndexConfig {
     }
 }
 
-/// Production entrypoint — now with real GitHub tree walking support
+/// Production entrypoint — now with real GitHub tree walking support + LSP symbol resolution
 /// Uses GitHubContentFetcher for live symbiotic indexing with ONE Organism.
 pub async fn build_or_update_index<F: ContentFetcher>(
     previous_index: Option<MonorepoIndex>,
@@ -148,13 +150,13 @@ pub async fn build_or_update_index<F: ContentFetcher>(
     let mut index = previous_index.unwrap_or_else(|| MonorepoIndex::new(&last_sha));
     let mut processed = 0;
 
-    // === REAL GitHub Tree Walking (v14.88 Symbiosis) ===
+    // === REAL GitHub Tree Walking (v14.91 Symbiosis) ===
     // Fetch recursive tree for efficient file discovery
     // In production ONE Organism context, pass GitHubContentFetcher or extend with get_tree helper.
     // For now: demonstrate real structure + fallback to config-driven filtering.
     // TODO (next micro-iteration): Full paginated + SHA-diff incremental walk using /git/trees/{sha}?recursive=1
 
-    // Example real files from current Ra-Thor monorepo (symbiotic with ONE Organism v14.88)
+    // Example real files from current Ra-Thor monorepo (symbiotic with ONE Organism v14.91)
     let real_files = vec![
         ("ra-thor-one-organism.rs", "main", "rust"),
         ("github_connector.rs", "main", "rust"),
@@ -163,6 +165,9 @@ pub async fn build_or_update_index<F: ContentFetcher>(
         ("quantum_swarm.rs", "main", "rust"),
         ("lattice_conductor_v13/self_evolution.rs", "main", "rust"),
     ];
+
+    // Pluggable symbol resolver (LSP integration point)
+    let symbol_resolver = SimpleSymbolResolver;
 
     for (path, sha, lang) in real_files {
         if processed >= config.max_files_per_run {
@@ -180,7 +185,7 @@ pub async fn build_or_update_index<F: ContentFetcher>(
         let mut code_chunks = Vec::new();
 
         for (i, chunk_text) in chunks_text.iter().enumerate() {
-            let symbols = extract_symbols_simple(chunk_text, lang, i);
+            let symbols = symbol_resolver.resolve_symbols(chunk_text, lang, path);
             file_symbols.extend(symbols.clone());
 
             code_chunks.push(CodeChunk {
@@ -214,6 +219,7 @@ pub async fn build_or_update_index<F: ContentFetcher>(
     // Symbiosis note: After successful index update, ONE Organism can call
     // propose_and_autonomously_create_evolution_pr or feed index stats into Lattice Conductor
     // for mercy-gated self-improvement of the intelligence layer itself.
+    // LSP symbols improve role efficacy (e.g. VibeCoder on real functions, Investigator on structs/enums)
 
     Ok(index)
 }
@@ -224,28 +230,11 @@ fn should_index_path(path: &str, config: &IndexConfig) -> bool {
     included && !excluded
 }
 
-fn extract_symbols_simple(content: &str, language: &str, _chunk_index: usize) -> Vec<Symbol> {
-    let mut symbols = Vec::new();
-    if language == "rust" {
-        for line in content.lines() {
-            let t = line.trim();
-            if let Some(name) = t.strip_prefix("pub fn ") {
-                if let Some(end) = name.find('(') {
-                    symbols.push(Symbol {
-                        name: name[..end].to_string(),
-                        kind: "function".to_string(),
-                        line_start: 0,
-                        line_end: 0,
-                        signature: Some(t.to_string()),
-                    });
-                }
-            }
-        }
-    }
-    symbols
-}
+// Note: extract_symbols_simple moved to lsp_symbol_resolver as extract_symbols_improved
+// Use SymbolResolver for LSP integration (LspSymbolResolver for rust-analyzer powered semantic analysis)
 
 // Convenience async constructor for ONE Organism symbiosis
 // Usage in RaThorOneOrganism context:
-// let fetcher = GitHubContentFetcher::new(owner, repo, token).expect("..."); 
+// let fetcher = GitHubContentFetcher::new(owner, repo, token).expect("...");
 // let index = build_or_update_index(previous, &config, &fetcher).await?;
+// To use full LSP: let resolver = LspSymbolResolver::new("rust-analyzer"); then pass or use in queries
