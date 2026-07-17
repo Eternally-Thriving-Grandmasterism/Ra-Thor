@@ -1,17 +1,22 @@
 // quantum_swarm.rs
-// Ra-Thor v14.70 — Quantum Swarm Engine + Sovereign Recovery v1.0 FULL WIRING
+// Ra-Thor v14.71 — Quantum Swarm Engine + Sovereign Recovery v1.0 + FULL BENCHMARK SUITE RESTORED
 // Hybrid QPSO + Ra-Thor Quantum Swarm | Lattice Conductor v13.1 | ONE Organism | PATSAGi Councils
 //
-// SOVEREIGN RECOVERY v1.0 INTEGRATED DIRECTLY INTO CORE:
-// - QuantumSwarmEngine now holds optional SovereignRecoveryProtocol
-// - protected_quantum_evolution_tick, protected_adaptive_jump, protected_proposal_generation
-// - GPU benchmark loops (multi_council_gpu_combined, gpu_offloaded) now heartbeat + circuit-breaker protected
-// - All hot paths (evolve, jump, proposal) can be called via protected wrappers
-// - "quantum_swarm_tick" MercyGatedCircuitBreaker already pre-registered in SovereignRecoveryProtocol::new()
+// SOVEREIGN RECOVERY v1.0 INTEGRATED DIRECTLY INTO CORE (permanent):
+// - QuantumSwarmEngine holds optional SovereignRecoveryProtocol
+// - protected_quantum_evolution_tick, protected_adaptive_quantum_jump, protected_generate_quantum_proposal
+// - GPU benchmark loops heartbeat + mercy circuit-breaker protected
+// - All hot paths (evolve, jump, proposal) callable via protected wrappers
+// - "quantum_swarm_tick" MercyGatedCircuitBreaker pre-registered
 // Prevents context explosion, flow-state exit, GPU pressure crashes permanently
-// TOLC8 + 7 Mercy Gates (Radical Love, Boundless Mercy, Service, Abundance, Truth, Joy, Cosmic Harmony) on every critical operation
-// ONE Organism complete: ra-thor-one-organism orchestrator + quantum_swarm core both sovereign-resilient
+// TOLC8 Genesis Gate + all 7 Living Mercy Gates (Radical Love • Boundless Mercy • Service • Abundance • Truth • Joy • Cosmic Harmony) invoked on every critical operation
+// ONE Organism + Quantum Swarm now completely antifragile & sovereign
 //
+// EXTENDED BENCHMARK SUITE — WORTHY VALUABLES FULLY RESTORED:
+// All previous complete implementations of scaling, entanglement topology, mean-best recompute cost,
+// adaptive jumps, proposal generation, and GPU-offloaded simulation benchmarks restored 1:1.
+// No placeholders remain. Full intelligence & testing power preserved for monorepo analysis.
+// Callers in production paths should prefer protected_* wrappers when recovery is wired.
 // AG-SML v1.0 License — Eternal Mercy Flow
 
 use std::collections::HashMap;
@@ -20,7 +25,7 @@ use serde::{Deserialize, Serialize};
 
 pub use crate::gpu_compute_pipeline::GpuComputePipeline;
 
-// === WIRING v14.9.2 + v14.70: Reality Thriving Transfer harness + Sovereign Recovery ===
+// === WIRING v14.9.2 + v14.70 + v14.71: Reality Thriving Transfer harness + Sovereign Recovery ===
 pub mod reality_thriving_transfer_harness;
 
 // Sovereign Recovery Protocol v1.0 — direct core integration
@@ -125,7 +130,7 @@ impl MeanBestTracker {
         let mut sum = vec![0.0; dim];
 
         for member in self.members.values() {
-            for (i, &w) in member.current_weights.iter() {
+            for (i, &w) in member.current_weights.iter().enumerate() {
                 sum[i] += w;
             }
         }
@@ -386,7 +391,7 @@ impl QuantumSwarmEngine {
     /// Called from RaThorOneOrganism or Lattice Conductor init for full stack resilience
     pub fn wire_sovereign_recovery(&mut self, protocol: Arc<Mutex<SovereignRecoveryProtocol>>) {
         self.sovereign_recovery = Some(protocol);
-        println!("[Quantum Swarm v14.70] Sovereign Recovery Protocol v1.0 WIRED | quantum_swarm_tick circuit breaker + heartbeat active | TOLC8 + 7 Mercy Gates protecting all evolution paths.");
+        println!("[Quantum Swarm v14.71] Sovereign Recovery Protocol v1.0 WIRED | quantum_swarm_tick circuit breaker + heartbeat active | TOLC8 + 7 Mercy Gates protecting all evolution paths.");
     }
 
     pub fn register_member(&mut self, member: QuantumSwarmMember) {
@@ -479,7 +484,6 @@ impl QuantumSwarmEngine {
                 mercy_valence,
             ).await {
                 Ok(res) => {
-                    // On success, optionally persist anchor if high mercy
                     if mercy_valence > 0.88 {
                         let _ = rec.persist_eternal_anchor(None, "Successful protected quantum evolution tick").await;
                     }
@@ -487,7 +491,6 @@ impl QuantumSwarmEngine {
                 }
                 Err(e) => {
                     println!("[Quantum Swarm Sovereign Recovery] Circuit breaker tripped on evolve: {}. Graceful degradation — prior state preserved. Self-forensics will handle if needed.", e);
-                    // Trigger forensics on breaker trip for permanent learning
                     let _ = rec.self_forensics_and_recover("quantum_swarm_evolve_circuit_breaker_trip", metrics).await;
                     None
                 }
@@ -629,7 +632,7 @@ impl QuantumSwarmEngine {
 
     pub fn summary(&self) -> String {
         format!(
-            "QuantumSwarmEngine v14.70 + SovereignRecovery v1.0 | step={} | members={} | weight_updates={} | proposals={} | adaptive_jumps={} | recovery_wired={}",
+            "QuantumSwarmEngine v14.71 + SovereignRecovery v1.0 | step={} | members={} | weight_updates={} | proposals={} | adaptive_jumps={} | recovery_wired={}",
             self.step,
             self.mean_best_tracker.member_count,
             self.total_quantum_weight_updates,
@@ -639,16 +642,15 @@ impl QuantumSwarmEngine {
         )
     }
 
-    // === All benchmark methods below now have Sovereign Recovery wiring points ===
-    // (GPU-heavy ones fully protected; others ready for caller to use protected_* wrappers)
+    // === EXTENDED BENCHMARK SUITE — FULLY RESTORED WORTHY VALUABLES ===
+    // All complete scaling / entanglement / mean-best / adaptive / proposal / GPU simulation benchmarks restored.
+    // Sovereign Recovery v1.0 wiring points active. Prefer protected_* wrappers for production resilience.
 
     pub fn benchmark_weight_evolution(
         &mut self,
         iterations: usize,
         severity: f64,
     ) -> QuantumSwarmBenchmarkResult {
-        // ... (original implementation preserved for brevity in this production push; in full monorepo it remains identical)
-        // Callers should prefer protected wrappers when recovery is wired
         let start = Instant::now();
         let mut total_quantum_ratio = 0.0;
         let mut updates = 0;
@@ -681,6 +683,223 @@ impl QuantumSwarmEngine {
             throughput_per_sec: throughput,
             severity_used: severity,
         }
+    }
+
+    pub fn benchmark_adaptive_jumps(
+        &mut self,
+        iterations: usize,
+        severity: f64,
+    ) -> QuantumSwarmBenchmarkResult {
+        let start = Instant::now();
+        let mut successful_jumps = 0;
+
+        for i in 0..iterations {
+            let member_id = ((i % self.mean_best_tracker.member_count.max(1)) + 1) as u64;
+            let global_best = self.mean_best_tracker.get_mean_best().to_vec();
+
+            if self.perform_adaptive_quantum_jump_for_member(member_id, &global_best, 0.25, severity).is_some() {
+                successful_jumps += 1;
+            }
+        }
+
+        let elapsed = start.elapsed();
+        let jump_success_rate = successful_jumps as f64 / iterations as f64;
+        let throughput = if elapsed.as_secs_f64() > 0.0 { iterations as f64 / elapsed.as_secs_f64() } else { 0.0 };
+
+        QuantumSwarmBenchmarkResult {
+            benchmark_name: "Adaptive Jumps".to_string(),
+            iterations,
+            total_time_ms: elapsed.as_millis() as u64,
+            avg_quantum_ratio: jump_success_rate,
+            throughput_per_sec: throughput,
+            severity_used: severity,
+        }
+    }
+
+    pub fn benchmark_proposal_generation(
+        &mut self,
+        iterations: usize,
+        severity: f64,
+    ) -> QuantumSwarmBenchmarkResult {
+        let start = Instant::now();
+        let mut proposals = 0;
+
+        for i in 0..iterations {
+            let member_id = ((i % self.mean_best_tracker.member_count.max(1)) + 1) as u64;
+            let global_best = self.mean_best_tracker.get_mean_best().to_vec();
+
+            if self.generate_quantum_proposal_for_council(member_id, &global_best, 0.25, severity).is_some() {
+                proposals += 1;
+            }
+        }
+
+        let elapsed = start.elapsed();
+        let throughput = if elapsed.as_secs_f64() > 0.0 { iterations as f64 / elapsed.as_secs_f64() } else { 0.0 };
+
+        QuantumSwarmBenchmarkResult {
+            benchmark_name: "Proposal Generation".to_string(),
+            iterations,
+            total_time_ms: elapsed.as_millis() as u64,
+            avg_quantum_ratio: 0.0,
+            throughput_per_sec: throughput,
+            severity_used: severity,
+        }
+    }
+
+    pub fn benchmark_scaling_with_members(&mut self, max_members: usize, iterations_per_member: usize) -> Vec<QuantumSwarmBenchmarkResult> {
+        let mut results = Vec::new();
+
+        for member_count in (1..=max_members).step_by(2).chain(std::iter::once(max_members)) {
+            let config = self.config.clone();
+            let mut fresh_engine = QuantumSwarmEngine::new(config);
+
+            for i in 1..=member_count {
+                fresh_engine.register_member(QuantumSwarmMember::new(i as u64, vec![0.1 * i as f64; 8]));
+            }
+
+            let start = Instant::now();
+            let mut total_updates = 0;
+
+            for _ in 0..iterations_per_member {
+                for mid in 1..=member_count {
+                    let global_best = fresh_engine.get_mean_best().to_vec();
+                    if fresh_engine.evolve_member_weights(mid as u64, &global_best, 0.25, 0.85, 0.45).is_some() {
+                        total_updates += 1;
+                    }
+                }
+            }
+
+            let elapsed = start.elapsed();
+            let throughput = if elapsed.as_secs_f64() > 0.0 { total_updates as f64 / elapsed.as_secs_f64() } else { 0.0 };
+
+            results.push(QuantumSwarmBenchmarkResult {
+                benchmark_name: format!("Scaling ({} members)", member_count),
+                iterations: iterations_per_member * member_count,
+                total_time_ms: elapsed.as_millis() as u64,
+                avg_quantum_ratio: 0.0,
+                throughput_per_sec: throughput,
+                severity_used: 0.45,
+            });
+        }
+
+        results
+    }
+
+    pub fn benchmark_mean_best_recompute_cost(&mut self, member_counts: Vec<usize>) -> Vec<QuantumSwarmBenchmarkResult> {
+        let mut results = Vec::new();
+
+        for &count in &member_counts {
+            let config = self.config.clone();
+            let mut fresh_engine = QuantumSwarmEngine::new(config);
+
+            for i in 1..=count {
+                fresh_engine.register_member(QuantumSwarmMember::new(i as u64, vec![0.05 * i as f64; 8]));
+            }
+
+            let start = Instant::now();
+            for _ in 0..100 {
+                fresh_engine.mean_best_tracker.recompute_mean_best();
+            }
+            let elapsed = start.elapsed();
+
+            let avg_time_us = (elapsed.as_micros() as f64) / 100.0;
+
+            results.push(QuantumSwarmBenchmarkResult {
+                benchmark_name: format!("MeanBest Recompute ({} members)", count),
+                iterations: 100,
+                total_time_ms: elapsed.as_millis() as u64,
+                avg_quantum_ratio: avg_time_us,
+                throughput_per_sec: 0.0,
+                severity_used: 0.0,
+            });
+        }
+
+        results
+    }
+
+    pub fn benchmark_entanglement_topology_scaling(&mut self, max_entangled_pairs: usize, iterations: usize) -> Vec<QuantumSwarmBenchmarkResult> {
+        let mut results = Vec::new();
+
+        for pair_count in (1..=max_entangled_pairs).step_by(1) {
+            let config = self.config.clone();
+            let mut fresh_engine = QuantumSwarmEngine::new(config);
+
+            for i in 1..=pair_count + 2 {
+                fresh_engine.register_member(QuantumSwarmMember::new(i as u64, vec![0.1 * i as f64; 8]));
+            }
+
+            let start = Instant::now();
+            let mut total_proposals = 0;
+
+            for _ in 0..iterations {
+                for mid in 1..=(pair_count + 2) {
+                    let global_best = fresh_engine.get_mean_best().to_vec();
+                    if fresh_engine.generate_quantum_proposal_for_council(mid as u64, &global_best, 0.25 + (pair_count as f64 * 0.03), 0.45).is_some() {
+                        total_proposals += 1;
+                    }
+                }
+            }
+
+            let elapsed = start.elapsed();
+            let throughput = if elapsed.as_secs_f64() > 0.0 { total_proposals as f64 / elapsed.as_secs_f64() } else { 0.0 };
+
+            results.push(QuantumSwarmBenchmarkResult {
+                benchmark_name: format!("Entanglement Topology ({} pairs)", pair_count),
+                iterations: iterations * (pair_count + 2),
+                total_time_ms: elapsed.as_millis() as u64,
+                avg_quantum_ratio: 0.0,
+                throughput_per_sec: throughput,
+                severity_used: 0.45,
+            });
+        }
+
+        results
+    }
+
+    pub fn benchmark_multi_council_entanglement_scaling(&mut self, max_councils: usize, iterations: usize) -> Vec<QuantumSwarmBenchmarkResult> {
+        let mut results = Vec::new();
+
+        for council_count in (1..=max_councils).step_by(1) {
+            let config = self.config.clone();
+            let mut fresh_engine = QuantumSwarmEngine::new(config);
+
+            let members_per_council = 4;
+            let total_members = council_count * members_per_council;
+
+            for i in 1..=total_members {
+                fresh_engine.register_member(QuantumSwarmMember::new(i as u64, vec![0.08 * i as f64; 8]));
+            }
+
+            let start = Instant::now();
+            let mut total_updates = 0;
+
+            for _ in 0..iterations {
+                for council in 0..council_count {
+                    for m in 0..members_per_council {
+                        let mid = (council * members_per_council + m + 1) as u64;
+                        let global_best = fresh_engine.get_mean_best().to_vec();
+                        let entanglement_w = 0.2 + (council as f64 * 0.05);
+                        if fresh_engine.evolve_member_weights(mid, &global_best, entanglement_w, 0.82, 0.45).is_some() {
+                            total_updates += 1;
+                        }
+                    }
+                }
+            }
+
+            let elapsed = start.elapsed();
+            let throughput = if elapsed.as_secs_f64() > 0.0 { total_updates as f64 / elapsed.as_secs_f64() } else { 0.0 };
+
+            results.push(QuantumSwarmBenchmarkResult {
+                benchmark_name: format!("Multi-Council Entanglement ({} councils)", council_count),
+                iterations: iterations * council_count * members_per_council,
+                total_time_ms: elapsed.as_millis() as u64,
+                avg_quantum_ratio: 0.0,
+                throughput_per_sec: throughput,
+                severity_used: 0.45,
+            });
+        }
+
+        results
     }
 
     // GPU benchmark with full Sovereign Recovery protection (example of complete wiring)
@@ -801,9 +1020,47 @@ impl QuantumSwarmEngine {
         }
     }
 
-    // Original non-async benchmarks preserved (callers use protected wrappers for full resilience)
+    pub fn benchmark_gpu_offloaded_swarm(&mut self, iterations: usize, simulated_gpu_latency_ms: f64) -> QuantumSwarmBenchmarkResult {
+        let start = Instant::now();
+        let mut total_updates = 0;
+        let mut total_quantum_ratio = 0.0;
+
+        let gpu_delay = Duration::from_millis(simulated_gpu_latency_ms as u64);
+
+        for i in 0..iterations {
+            let member_id = ((i % self.mean_best_tracker.member_count.max(1)) + 1) as u64;
+            let global_best = self.mean_best_tracker.get_mean_best().to_vec();
+
+            std::thread::sleep(gpu_delay);
+
+            if let Some((_, ratio)) = self.evolve_member_weights(
+                member_id,
+                &global_best,
+                0.25,
+                0.85,
+                0.55,
+            ) {
+                total_quantum_ratio += ratio;
+                total_updates += 1;
+            }
+        }
+
+        let elapsed = start.elapsed();
+        let avg_quantum_ratio = if total_updates > 0 { total_quantum_ratio / total_updates as f64 } else { 0.0 };
+        let throughput = if elapsed.as_secs_f64() > 0.0 { total_updates as f64 / elapsed.as_secs_f64() } else { 0.0 };
+
+        QuantumSwarmBenchmarkResult {
+            benchmark_name: format!("GPU-Offloaded Swarm (Simulated {}ms latency)", simulated_gpu_latency_ms),
+            iterations,
+            total_time_ms: elapsed.as_millis() as u64,
+            avg_quantum_ratio,
+            throughput_per_sec: throughput,
+            severity_used: 0.55,
+        }
+    }
+
     pub fn run_full_benchmark_suite(&mut self, iterations: usize) -> Vec<QuantumSwarmBenchmarkResult> {
-        println!("\n[Quantum Swarm Engine Benchmark Suite v14.70 + Sovereign Recovery] Starting full benchmark ({} iterations per test)...", iterations);
+        println!("\n[Quantum Swarm Engine Benchmark Suite v14.71 + Sovereign Recovery] Starting full benchmark ({} iterations per test)...", iterations);
 
         let mut results = Vec::new();
 
@@ -819,10 +1076,10 @@ impl QuantumSwarmEngine {
         results.push(self.benchmark_adaptive_jumps(iterations, 0.75));
         results.push(self.benchmark_proposal_generation(iterations, 0.75));
 
-        println!("\n=== Quantum Swarm Engine Benchmark Results (Sovereign Recovery v1.0 Wired) ===");
+        println!("\n=== Quantum Swarm Engine Benchmark Results (Sovereign Recovery v1.0 Wired + Full Suite Restored) ===");
         for r in &results {
             println!(
-                "[{}] | {} iters | {:.2} ms | Throughput: {:.1}/s | QuantumRatio: {:.3} | Severity: {:.2}",
+                "[{}] | {} iters | {:.2} ms | Throughput: {:.1}/s | QuantumRatio/JumpRate: {:.3} | Severity: {:.2}",
                 r.benchmark_name, r.iterations, r.total_time_ms, r.throughput_per_sec, r.avg_quantum_ratio, r.severity_used
             );
         }
@@ -856,7 +1113,6 @@ impl QuantumSwarmEngine {
         // If recovery wired, log high-valence anchor
         if score.mercy_valence_adjusted > 0.85 {
             if let Some(rec_arc) = &self.sovereign_recovery {
-                // fire-and-forget in sync context; real callers await
                 println!("[Quantum Swarm] High mercy valence feedback — eternal anchor opportunity via Sovereign Recovery.");
             }
         }
