@@ -1,19 +1,26 @@
 // monorepo-intelligence/src/index_types.rs
-// Ra-Thor Monorepo Intelligence — Core Index Data Types
+// Ra-Thor Monorepo Intelligence — Core Index Data Types v14.92
 // TOLC 8 Living Mercy Gates aligned | AG-SML v1.0+ compatible
 // ONE Organism | Sovereign, queryable, incremental monorepo knowledge
+// Extended for full LSP symbol resolution (range, container_name)
 
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 /// A single extracted symbol (function, struct, trait, impl block, class, etc.)
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+/// Now LSP-enhanced: range and container for precise location and context
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct Symbol {
     pub name: String,
     pub kind: String,           // "function", "struct", "impl", "trait", "class", "method", etc.
     pub line_start: usize,
     pub line_end: usize,
     pub signature: Option<String>,
+    // LSP extensions (populated by LspSymbolResolver)
+    #[serde(default)]
+    pub range: Option<(usize, usize, usize, usize)>, // start_line, start_char, end_line, end_char
+    #[serde(default)]
+    pub container_name: Option<String>,
 }
 
 /// A semantically chunked piece of code with its extracted symbols
