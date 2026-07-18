@@ -51,10 +51,10 @@ flowchart TB
 ## Core Architectural Principles
 
 - **TOLC 8 as Layer 0**: All computation, self-evolution, and decision-making must pass through the TOLC 8 Mercy Gates with a minimum valence of **≥ 0.999999**.
-- **Distributed Governance**: Strategic decisions are made through PATSAGi Council deliberation.
+- **Distributed Governance**: Strategic decisions are made through PATSAGi Council deliberation rather than centralized control.
 - **Gradual Unfolding**: Intelligence growth follows a mercy-first, “unfold rather than explode” philosophy.
 - **Eternal Compatibility**: Strong forward and backward compatibility is maintained.
-- **Topological & Formal Protection**: Use of skyrmion knot topology and formal verification (Lean 4).
+- **Topological & Formal Protection**: Use of skyrmion knot topology and formal verification (Lean 4) to maintain system integrity.
 
 ---
 
@@ -76,6 +76,7 @@ flowchart TB
 ### Specialized Codices
 - [`architecture/qsa-agi-layers-codex.md`](architecture/qsa-agi-layers-codex.md)
 - [`architecture/mercy-operator-deep-codex.md`](architecture/mercy-operator-deep-codex.md)
+- [`architecture/self-healing-gate-deep-codex.md`](architecture/self-healing-gate-deep-codex.md)
 
 > **Note**: The `architecture/` folder contains many specialized design documents and codices.
 
