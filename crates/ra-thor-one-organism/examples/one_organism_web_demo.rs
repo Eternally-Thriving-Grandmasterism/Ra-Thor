@@ -7,9 +7,9 @@
 //!
 //! Endpoints:
 //!   GET  /health
-//!   GET  /status              — cosmic loop, roles, extended surfaces
-//!   GET  /api/status          — MercyGatedApi status
-//!   POST /api                 — MercyApiRequest body
+//!   GET  /status
+//!   GET  /api/status
+//!   POST /api                 MercyApiRequest JSON
 //!   POST /quantum/tick        { "severity": 0.45 }
 //!   POST /gpu/dispatch        { "task_name": "...", "dispatch_time_ms": 12, "real_gpu": false, "elements": 4096 }
 //!   POST /github/queue        { "role": "VibeCoder", "target_module": "...", "description": "...", "expected_benefit": 0.7, "mercy_alignment": 0.92 }
@@ -54,7 +54,7 @@ struct StatusBody {
     shared_confidence: f64,
     handoff_count: u64,
     gpu_dispatches: u64,
-    github_intended_prs: u64,
+    github_intended_prs: usize,
     quantum_weight_updates: u64,
     quantum_adaptive_jumps: u64,
     quantum_summary: String,
@@ -134,7 +134,6 @@ fn parse_role(s: &str) -> OrganismRole {
 #[tokio::main]
 async fn main() {
     let mut core = launch_one_organism_core();
-    // Warm surfaces
     let _ = core.quantum_evolution_tick(0.2);
     let shared: SharedOrganism = Arc::new(Mutex::new(core));
 
@@ -217,7 +216,7 @@ async fn api_request(
 ) -> (StatusCode, Json<serde_json::Value>) {
     let mut o = org.lock().await;
     let resp = o.handle_api_request(req);
-    let code = if resp.allowed {
+    let code = if resp.accepted {
         StatusCode::OK
     } else {
         StatusCode::FORBIDDEN
@@ -290,7 +289,7 @@ async fn role_handoff(
 ) -> Json<serde_json::Value> {
     let mut o = org.lock().await;
     let role = parse_role(&body.role);
-    let ok = o.handoff_role(role.clone(), &body.reason);
+    let ok = o.handoff_role(role, &body.reason);
     Json(serde_json::json!({
         "ok": ok,
         "active_role": o.role_orchestrator.active_role.as_str(),
@@ -309,7 +308,6 @@ async fn healing_reflexion(State(org): State<SharedOrganism>) -> Json<serde_json
     }))
 }
 
-// Silence unused import warning when ApiRequestKind not used in handlers directly
 #[allow(dead_code)]
 fn _keep_api_kinds() {
     let _ = ApiRequestKind::HealthCheck;
