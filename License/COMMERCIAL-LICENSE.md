@@ -12,7 +12,7 @@ Permission is hereby granted, free of charge, to any individual person (the "Ave
 This free use is explicitly allowed even if the individual earns modest personal income as a freelancer, artist, writer, or independent professional who cannot afford paid commercial tools.
 
 **Commercial Use Strictly Prohibited Without Paid License**  
-Any commercial use, enterprise deployment, incorporation into paid products/services, revenue-generating activity, resale, sublicensing, or use by companies/organizations requires a separate paid commercial license from Autonomicity Games Inc. (contact: AlphaProMega@ACityGames.com).
+Any commercial use, enterprise deployment, incorporation into paid products/services, revenue-generating activity, resale, sublicensing, or use by companies/organizations requires a separate paid commercial license from Autonomicity Games Inc. (contact: **info@Rathor.ai**).
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
