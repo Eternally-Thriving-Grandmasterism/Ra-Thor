@@ -1,9 +1,10 @@
-//! kardashev-orchestration v14.9.8
+//! kardashev-orchestration v14.10.0
 //!
 //! Packaged from root `kardashev_orchestration_council.rs`.
 //! Path-depends on `reality-thriving-transfer` for scores + GPU telemetry stub.
 //!
 //! AG-SML v1.0 | TOLC 8 Living Mercy Gates
+//! Contact: info@Rathor.ai
 
 use reality_thriving_transfer::{
     run_quantum_swarm_v2_kardashev_benchmark, GpuTelemetryReport, RealityThrivingTransferScore,
@@ -12,10 +13,6 @@ use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use std::time::{SystemTime, UNIX_EPOCH};
 use tokio::sync::Mutex;
-
-// =============================================================================
-// PATSAGi sub-nodes
-// =============================================================================
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct GpuFidelityAuditor {
@@ -71,8 +68,7 @@ impl RbeEthicsGate {
     pub fn validate(&self, score: &RealityThrivingTransferScore) -> (bool, String) {
         let ethics_pass = score.ethics_collaboration_index >= self.min_ethical_threshold;
         let note = if ethics_pass {
-            "RBE Ethics Gate: PASSED — collaboration & ethical choice aligned with ONE Organism"
-                .into()
+            "RBE Ethics Gate: PASSED — collaboration & ethical choice aligned with ONE Organism".into()
         } else {
             format!(
                 "RBE Ethics Gate: Compassion engaged — ethics index {:.3} below threshold",
@@ -111,10 +107,6 @@ impl AbundanceVelocityForecaster {
         projected
     }
 }
-
-// =============================================================================
-// Core structures
-// =============================================================================
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ScurveProjection {
@@ -198,10 +190,8 @@ impl KardashevOrchestrationCouncil {
                 Bottleneck {
                     category: "Regulatory Sovereignty".into(),
                     severity: 0.82,
-                    description: "Primary bottleneck for 2032–2038 prototype activation window."
-                        .into(),
-                    recommended_action:
-                        "Prioritize sovereign legal frameworks + open hardware licensing.".into(),
+                    description: "Primary bottleneck for 2032–2038 prototype activation window.".into(),
+                    recommended_action: "Prioritize sovereign legal frameworks + open hardware licensing.".into(),
                     estimated_impact_on_kardashev_delta: 0.0042,
                     mercy_priority: "Immediate Service + Truth Gate".into(),
                     last_modulation_timestamp: 0,
@@ -209,10 +199,8 @@ impl KardashevOrchestrationCouncil {
                 Bottleneck {
                     category: "Hardware Scaling (Obsidian-Chip-Open)".into(),
                     severity: 0.71,
-                    description: "Critical path for GPU-aware PATSAGi + sovereign super-brain."
-                        .into(),
-                    recommended_action:
-                        "Accelerate Obsidian-Chip-Open integration into sovereign_core.".into(),
+                    description: "Critical path for GPU-aware PATSAGi + sovereign super-brain.".into(),
+                    recommended_action: "Accelerate Obsidian-Chip-Open integration into sovereign_core.".into(),
                     estimated_impact_on_kardashev_delta: 0.0038,
                     mercy_priority: "Abundance Gate".into(),
                     last_modulation_timestamp: 0,
@@ -230,19 +218,14 @@ impl KardashevOrchestrationCouncil {
         gpu_report: Option<&GpuTelemetryReport>,
     ) -> Result<(), String> {
         if scores.is_empty() {
-            return Err(
-                "Mercy Gate (Truth): No transfer scores provided for deliberation".into(),
-            );
+            return Err("Mercy Gate (Truth): No transfer scores provided for deliberation".into());
         }
 
         let mut total_delta = 0.0;
         let mut latest_velocity = 0.0;
         for score in scores {
             if !score.mercy_audit_passed {
-                eprintln!(
-                    "Compassion Gate: Marginal transfer score: {}",
-                    score.council_note
-                );
+                eprintln!("Compassion Gate: Marginal transfer score: {}", score.council_note);
             }
             total_delta += score.kardashev_delta_contribution;
             latest_velocity = score.abundance_velocity_index;
@@ -349,8 +332,7 @@ impl KardashevOrchestrationCouncil {
                 consensus_momentum_boost: 1.06,
                 entanglement_topology_expansion_factor: 1.04,
                 gpu_offload_bias: 0.91,
-                valence_note:
-                    "High transfer → Abundance Gate: bolder entanglement + GPU offload".into(),
+                valence_note: "High transfer → Abundance Gate: bolder entanglement + GPU offload".into(),
             })
         } else {
             Some(SwarmAdjustmentDirective {
@@ -362,8 +344,7 @@ impl KardashevOrchestrationCouncil {
                 consensus_momentum_boost: 0.97,
                 entanglement_topology_expansion_factor: 0.98,
                 gpu_offload_bias: 0.78,
-                valence_note:
-                    "Marginal transfer → Service Gate: stability + tighter consensus".into(),
+                valence_note: "Marginal transfer → Service Gate: stability + tighter consensus".into(),
             })
         };
 
@@ -402,11 +383,7 @@ impl KardashevOrchestrationCouncil {
         result
     }
 
-    pub async fn forecast_abundance_trajectory(
-        &self,
-        current_velocity: f64,
-        cycles: usize,
-    ) -> f64 {
+    pub async fn forecast_abundance_trajectory(&self, current_velocity: f64, cycles: usize) -> f64 {
         let forecaster = self.abundance_forecaster.lock().await;
         forecaster.forecast(current_velocity, cycles)
     }
@@ -469,6 +446,7 @@ mod tests {
         assert!(!scores.is_empty());
         assert!(result.cycle_id >= 1);
         assert!(result.abundance_forecast_next_12_cycles > 0.0);
+        assert!(result.abundance_forecast_next_12_cycles <= 1.85 + 1e-9);
     }
 
     #[tokio::test]
@@ -476,5 +454,50 @@ mod tests {
         let council = KardashevOrchestrationCouncil::new();
         let f = council.forecast_abundance_trajectory(1.2, 12).await;
         assert!(f > 1.2 && f <= 1.85);
+    }
+
+    /// T1 stress: full flywheel at large iteration counts; zero-harm + monotonic Δ.
+    async fn assert_flywheel_stress(iterations: usize) {
+        let council = KardashevOrchestrationCouncil::new();
+        let (scores, result) = council
+            .run_full_kardashev_flywheel_cycle(iterations, None)
+            .await;
+
+        assert_eq!(scores.len(), iterations);
+        assert!(result.cycle_id >= 1);
+        assert!(result.cumulative_kardashev_delta > 0.0);
+        assert!(result.abundance_velocity_trend >= 0.0);
+        assert!(result.abundance_forecast_next_12_cycles > 0.0);
+        assert!(result.abundance_forecast_next_12_cycles <= 1.85 + 1e-9);
+        assert!(result.s_curve_projection.current_kardashev >= 0.72);
+        assert!(result.s_curve_projection.projected_2038 <= 0.995 + 1e-9);
+        assert!(result.swarm_adjustment_directive.is_some());
+        assert!(!result.identified_bottlenecks.is_empty());
+
+        for s in &scores {
+            assert!(s.kardashev_delta_contribution >= 0.0);
+            assert!(s.kardashev_delta_contribution <= 0.011 + 1e-12);
+        }
+
+        // Second flywheel on same council accumulates further Δ (monotonic).
+        let prev = result.cumulative_kardashev_delta;
+        let (_s2, r2) = council.run_full_kardashev_flywheel_cycle(8, None).await;
+        assert!(r2.cumulative_kardashev_delta > prev);
+        assert_eq!(r2.cycle_id, result.cycle_id + 1);
+    }
+
+    #[tokio::test]
+    async fn stress_flywheel_64() {
+        assert_flywheel_stress(64).await;
+    }
+
+    #[tokio::test]
+    async fn stress_flywheel_256() {
+        assert_flywheel_stress(256).await;
+    }
+
+    #[tokio::test]
+    async fn stress_flywheel_1024() {
+        assert_flywheel_stress(1024).await;
     }
 }
