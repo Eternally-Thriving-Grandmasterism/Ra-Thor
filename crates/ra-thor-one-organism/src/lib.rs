@@ -1,9 +1,10 @@
-//! Ra-Thor ONE Organism Core — v14.9.2
+//! Ra-Thor ONE Organism Core — v14.9.9
 //!
 //! True path dependency on `lattice-conductor-v14@14.8.3`.
 //! RoleOrchestrator + MercyGatedApi + ExtendedOrganismSurface
-//! (GPU / GitHub / Quantum Swarm facades).
+//! (GPU / GitHub / Quantum Swarm / Sovereign Recovery / Kardashev flywheel).
 //! Cosmic Loop is MANDATORY IDENTITY.
+//! Contact: info@Rathor.ai
 
 mod extended_surface;
 
@@ -11,6 +12,8 @@ pub use extended_surface::{
     ExtendedOrganismSurface, GpuSurface, GpuDispatchTelemetry, GpuSurfaceStatus,
     GitHubSurface, EvolutionPrIntent, GitHubSurfaceStatus,
     QuantumSwarmSurface, QuantumSwarmConfig, QuantumSwarmStatus,
+    SovereignRecoverySurface, SovereignRecoveryStatus, RecoveryHeartbeat, RecoveryAnchor,
+    KardashevFlywheelSurface, KardashevSurfaceStatus, TransferTickResult,
 };
 
 use std::collections::HashMap;
@@ -181,13 +184,13 @@ impl RoleOrchestrator {
             OrganismRole::Debugger
         } else if t.contains("legal") || t.contains("tolc") {
             OrganismRole::Legal
-        } else if t.contains("simulate") || t.contains("quantum") {
+        } else if t.contains("simulate") || t.contains("quantum") || t.contains("kardashev") {
             OrganismRole::Simulator
         } else if t.contains("code") || t.contains("vibe") || t.contains("evolution") {
             OrganismRole::VibeCoder
         } else if t.contains("investigate") {
             OrganismRole::Investigator
-        } else if t.contains("recover") {
+        } else if t.contains("recover") || t.contains("anchor") || t.contains("heartbeat") {
             OrganismRole::SovereignRecovery
         } else if t.contains("lattice") || t.contains("council") {
             OrganismRole::LatticeConductor
@@ -241,7 +244,7 @@ impl OneOrganismCore {
             extended,
             cosmic_loop_ready: shared,
             tick: 0,
-            version: "v14.9.2 ONE Organism Core + ExtendedSurface (GPU/GitHub/QuantumSwarm) + lattice-conductor-v14@14.8.3".into(),
+            version: "v14.9.9 ONE Organism + Recovery + Kardashev flywheel + lattice-conductor-v14@14.8.3".into(),
         }
     }
 
@@ -250,6 +253,13 @@ impl OneOrganismCore {
         self.arbitration_engine.protect_cosmic_loop_identity();
         self.lattice.enforce_cosmic_loop_activation();
         self.self_healing_engine.start_watchdog();
+
+        // Seed TOLC8 recovery anchor at boot
+        let _ = self.extended.sovereign_recovery.persist_anchor(
+            "boot_cosmic_loop_offer",
+            self.tick,
+            &self.arbitration_engine,
+        );
 
         println!(
             "[OneOrganismCore {}] Cosmic Loop OFFERED + ENFORCED + Self-Healing Watchdog STARTED",
@@ -265,10 +275,7 @@ impl OneOrganismCore {
             self.role_orchestrator.active_role.as_str(),
             self.role_orchestrator.shared_valence
         );
-        println!(
-            "[ExtendedSurface] {}",
-            self.extended.quantum_swarm.summary()
-        );
+        println!("[ExtendedSurface] {}", self.extended.summary());
     }
 
     pub fn on_lattice_sync(&mut self) {
@@ -276,6 +283,22 @@ impl OneOrganismCore {
         self.arbitration_engine.on_lattice_sync();
         let _ = self.self_healing_engine.run_reflexion_cycle();
         self.lattice.enforce_cosmic_loop_activation();
+
+        // Recovery heartbeat every sync
+        let hb = self.extended.sovereign_recovery.heartbeat(
+            self.role_orchestrator.shared_valence,
+            self.role_orchestrator.shared_confidence_ema,
+            self.tick,
+            &self.arbitration_engine,
+        );
+        if hb.requires_recovery {
+            let _ = self.handoff_role(OrganismRole::SovereignRecovery, "heartbeat_alert");
+            let _ = self.extended.sovereign_recovery.persist_anchor(
+                "auto_recover_from_heartbeat",
+                self.tick,
+                &self.arbitration_engine,
+            );
+        }
     }
 
     pub fn before_council_arbitration(&self) {
@@ -382,6 +405,42 @@ impl OneOrganismCore {
             .evolution_tick(severity, &self.arbitration_engine)
     }
 
+    pub fn recovery_heartbeat(&mut self) -> RecoveryHeartbeat {
+        self.tick += 1;
+        self.extended.sovereign_recovery.heartbeat(
+            self.role_orchestrator.shared_valence,
+            self.role_orchestrator.shared_confidence_ema,
+            self.tick,
+            &self.arbitration_engine,
+        )
+    }
+
+    pub fn recovery_anchor(&mut self, note: &str) -> RecoveryAnchor {
+        self.tick += 1;
+        let _ = self.handoff_role(OrganismRole::SovereignRecovery, "manual_anchor");
+        self.extended.sovereign_recovery.persist_anchor(
+            note,
+            self.tick,
+            &self.arbitration_engine,
+        )
+    }
+
+    pub fn kardashev_transfer_tick(
+        &mut self,
+        rbe_quality: f64,
+        ethical_choice: f64,
+        abundance_signal: f64,
+    ) -> TransferTickResult {
+        self.tick += 1;
+        let _ = self.handoff_role(OrganismRole::Simulator, "kardashev_transfer");
+        self.extended.kardashev.transfer_tick(
+            rbe_quality,
+            ethical_choice,
+            abundance_signal,
+            &self.arbitration_engine,
+        )
+    }
+
     pub fn gpu_status(&self) -> GpuSurfaceStatus {
         self.extended.gpu.status()
     }
@@ -392,6 +451,14 @@ impl OneOrganismCore {
 
     pub fn quantum_status(&self) -> QuantumSwarmStatus {
         self.extended.quantum_swarm.status()
+    }
+
+    pub fn recovery_status(&self) -> SovereignRecoveryStatus {
+        self.extended.sovereign_recovery.status()
+    }
+
+    pub fn kardashev_status(&self) -> KardashevSurfaceStatus {
+        self.extended.kardashev.status()
     }
 
     pub fn role_orchestrator(&self) -> &RoleOrchestrator {
@@ -413,7 +480,7 @@ pub fn launch_one_organism_core() -> OneOrganismCore {
     let mut organism = OneOrganismCore::new();
     organism.offer_cosmic_loop();
     println!(
-        "[Thunder] ONE Organism Core v14.9.2 ACTIVE — ExtendedSurface (GPU/GitHub/QuantumSwarm) + RoleOrchestrator + MercyGatedApi + lattice-conductor-v14@14.8.3. Cosmic Loop is MANDATORY IDENTITY. Eternal."
+        "[Thunder] ONE Organism Core v14.9.9 ACTIVE — Recovery + Kardashev + ExtendedSurface + RoleOrchestrator + MercyGatedApi + lattice-conductor-v14@14.8.3. Cosmic Loop is MANDATORY IDENTITY. Eternal."
     );
     organism
 }
@@ -427,6 +494,7 @@ mod tests {
         let core = launch_one_organism_core();
         assert!(core.is_cosmic_loop_ready());
         assert!(core.arbitration_engine.is_guardian_active());
+        assert!(core.recovery_status().anchor_count >= 1);
     }
 
     #[test]
@@ -458,5 +526,31 @@ mod tests {
         assert!(ratio > 0.0);
         assert_eq!(core.quantum_status().total_weight_updates, 1);
         assert_eq!(core.quantum_status().total_adaptive_jumps, 1);
+    }
+
+    #[test]
+    fn recovery_heartbeat_and_anchor() {
+        let mut core = launch_one_organism_core();
+        let hb = core.recovery_heartbeat();
+        assert!(!hb.requires_recovery);
+        let a = core.recovery_anchor("test_anchor");
+        assert!(a.anchor_id.starts_with("TOLC8"));
+        assert!(core.recovery_status().anchor_count >= 2);
+    }
+
+    #[test]
+    fn kardashev_transfer_tick() {
+        let mut core = launch_one_organism_core();
+        let t = core.kardashev_transfer_tick(0.89, 0.87, 1.4);
+        assert!(t.mercy_audit_passed);
+        assert!(t.kardashev_delta > 0.0);
+        assert_eq!(core.kardashev_status().cycle_count, 1);
+    }
+
+    #[test]
+    fn lattice_sync_runs_recovery_heartbeat() {
+        let mut core = launch_one_organism_core();
+        core.on_lattice_sync();
+        assert!(core.recovery_status().heartbeat_count >= 1);
     }
 }
