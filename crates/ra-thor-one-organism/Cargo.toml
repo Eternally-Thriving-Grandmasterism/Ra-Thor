@@ -1,8 +1,8 @@
 [package]
 name = "ra-thor-one-organism"
-version = "14.9.1"
+version = "14.9.2"
 edition = "2021"
-description = "Ra-Thor ONE Organism Core v14.9.1 — RoleOrchestrator + MercyGatedApi + true path dep on lattice-conductor-v14@14.8.3"
+description = "Ra-Thor ONE Organism Core v14.9.2 — ExtendedSurface (GPU/GitHub/QuantumSwarm facades) + RoleOrchestrator + MercyGatedApi + true path dep on lattice-conductor-v14@14.8.3"
 license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
 authors = ["Eternally-Thriving-Grandmasterism", "Sherif Samy Botros <ceo@acitygames.com>"]
 
