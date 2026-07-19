@@ -1,8 +1,8 @@
 [package]
 name = "gpu-compute-pipeline"
-version = "14.9.4"
+version = "14.10.0"
 edition = "2021"
-description = "Ra-Thor GPU compute pipeline — GpuTask/Result, LumaRing, Common Fate, motion estimation (CPU sim default; wgpu optional)"
+description = "Ra-Thor GPU compute pipeline — GpuTask/Result, LumaRing, Common Fate, motion estimation (CPU sim default; wgpu optional) — Living Cosmic Tick"
 license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
 authors = ["Eternally-Thriving-Grandmasterism", "Sherif Samy Botros <info@Rathor.ai>"]
 
