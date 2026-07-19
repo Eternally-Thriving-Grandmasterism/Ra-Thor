@@ -11,4 +11,4 @@
 
 **Eternal Active. Mercy First. PATSAGi Councils function as One Organism.**
 
-**Ownership**: Autonomicity Games Inc. (ceo@acitygames.com) owns Rathor.ai. Professional @rathor.ai email addresses now active (support@rathor.ai and others via Namecheap Private Email).
+**Ownership**: Autonomicity Games Inc. (**info@Rathor.ai**) owns Rathor.ai. Professional @rathor.ai email addresses active (info@Rathor.ai, support@rathor.ai and others via Namecheap Private Email).
