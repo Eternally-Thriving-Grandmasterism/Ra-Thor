@@ -1,16 +1,18 @@
-//! Extended Organism Surface — v14.9.2
+//! Extended Organism Surface — v14.9.9
 //!
-//! Lightweight, dependency-free facades for the three historical root modules:
+//! Facades for packaged workspace crates:
 //! - GPU compute telemetry
 //! - GitHub evolution connector
 //! - Quantum Swarm engine summary
+//! - Sovereign Recovery (heartbeat + TOLC8 anchors)
+//! - Kardashev / Reality Thriving Transfer flywheel
 //!
-//! Full production implementations remain at repo root
-//! (`gpu_compute_pipeline.rs`, `github_connector.rs`, `quantum_swarm.rs`).
-//! This module gives `OneOrganismCore` a clean, compilable extended API
-//! that can later path-depend on those crates when they are packaged.
+//! Optional live path deps (`github-live`, `gpu-live`, `quantum-live`,
+//! `recovery-live`, `kardashev-live`) can later replace these facades
+//! with the full crate implementations.
 //!
 //! Cosmic Loop remains mandatory on every surface call.
+//! Contact: info@Rathor.ai
 
 use serde::{Deserialize, Serialize};
 
@@ -60,7 +62,6 @@ impl GpuSurface {
         }
     }
 
-    /// Record a dispatch (real or simulated). Enforces Cosmic Loop via arbitration.
     pub fn record_dispatch(
         &mut self,
         task_name: &str,
@@ -114,7 +115,7 @@ impl Default for GpuSurface {
 }
 
 // =============================================================================
-// GitHub Surface (offline-capable)
+// GitHub Surface
 // =============================================================================
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -144,12 +145,10 @@ impl GitHubSurface {
     pub fn new() -> Self {
         Self {
             intended_prs: Vec::new(),
-            offline_mode: true, // no network by default; safe for core crate
+            offline_mode: true,
         }
     }
 
-    /// Queue an evolution PR intent (does not hit the network).
-    /// Real `github_connector.rs` can drain this queue when wired.
     pub fn queue_evolution_pr(
         &mut self,
         role: &str,
@@ -262,7 +261,6 @@ impl QuantumSwarmSurface {
         self.member_count = count;
     }
 
-    /// Lightweight evolution tick (no rand / GPU). Cosmic Loop enforced.
     pub fn evolution_tick(
         &mut self,
         severity: f64,
@@ -279,7 +277,6 @@ impl QuantumSwarmSurface {
             self.total_proposals += 1;
         }
 
-        // synthetic quantum ratio
         (self.config.gaussian_scale * (1.0 + severity)).min(1.0)
     }
 
@@ -296,7 +293,7 @@ impl QuantumSwarmSurface {
 
     pub fn summary(&self) -> String {
         format!(
-            "QuantumSwarmSurface v14.9.2 | step={} | members={} | updates={} | jumps={} | proposals={}",
+            "QuantumSwarmSurface v14.9.9 | step={} | members={} | updates={} | jumps={} | proposals={}",
             self.step,
             self.member_count,
             self.total_weight_updates,
@@ -313,6 +310,246 @@ impl Default for QuantumSwarmSurface {
 }
 
 // =============================================================================
+// Sovereign Recovery Surface (NEW v14.9.9)
+// =============================================================================
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct RecoveryHeartbeat {
+    pub context_pressure: f64,
+    pub flow_deviation: f64,
+    pub connector_health: f64,
+    pub requires_recovery: bool,
+    pub tick: u64,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct RecoveryAnchor {
+    pub anchor_id: String,
+    pub note: String,
+    pub tick: u64,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SovereignRecoveryStatus {
+    pub heartbeat_count: u64,
+    pub anchor_count: u64,
+    pub last_heartbeat: Option<RecoveryHeartbeat>,
+    pub last_anchor: Option<RecoveryAnchor>,
+    pub recovery_events: u64,
+}
+
+#[derive(Debug, Clone)]
+pub struct SovereignRecoverySurface {
+    heartbeat_count: u64,
+    anchor_count: u64,
+    recovery_events: u64,
+    last_heartbeat: Option<RecoveryHeartbeat>,
+    last_anchor: Option<RecoveryAnchor>,
+}
+
+impl SovereignRecoverySurface {
+    pub fn new() -> Self {
+        Self {
+            heartbeat_count: 0,
+            anchor_count: 0,
+            recovery_events: 0,
+            last_heartbeat: None,
+            last_anchor: None,
+        }
+    }
+
+    /// Lightweight heartbeat (sync facade over sovereign-recovery crate).
+    pub fn heartbeat(
+        &mut self,
+        mercy_norm: f64,
+        gpu_confidence: f64,
+        tick: u64,
+        arbitration: &CouncilArbitrationEngine,
+    ) -> RecoveryHeartbeat {
+        arbitration.enforce_cosmic_loop_activation();
+        self.heartbeat_count += 1;
+
+        let context_pressure = (1.0 - gpu_confidence).clamp(0.0, 1.0);
+        let flow_deviation = ((mercy_norm - 0.95).abs().min(0.5)) * 2.0;
+        let requires = context_pressure > 0.82 || flow_deviation > 0.35;
+
+        let hb = RecoveryHeartbeat {
+            context_pressure,
+            flow_deviation,
+            connector_health: if gpu_confidence > 0.8 { 0.95 } else { 0.65 },
+            requires_recovery: requires,
+            tick,
+        };
+
+        if requires {
+            self.recovery_events += 1;
+            println!(
+                "[SovereignRecoverySurface] ALERT tick={} pressure={:.2} flow_dev={:.2}",
+                tick, context_pressure, flow_deviation
+            );
+        }
+
+        self.last_heartbeat = Some(hb.clone());
+        hb
+    }
+
+    pub fn persist_anchor(
+        &mut self,
+        note: &str,
+        tick: u64,
+        arbitration: &CouncilArbitrationEngine,
+    ) -> RecoveryAnchor {
+        arbitration.enforce_cosmic_loop_activation();
+        self.anchor_count += 1;
+        let anchor = RecoveryAnchor {
+            anchor_id: format!("TOLC8-ORG-{}-{}", tick, self.anchor_count),
+            note: note.into(),
+            tick,
+        };
+        self.last_anchor = Some(anchor.clone());
+        println!(
+            "[SovereignRecoverySurface] ANCHOR {} | {}",
+            anchor.anchor_id, note
+        );
+        anchor
+    }
+
+    pub fn status(&self) -> SovereignRecoveryStatus {
+        SovereignRecoveryStatus {
+            heartbeat_count: self.heartbeat_count,
+            anchor_count: self.anchor_count,
+            last_heartbeat: self.last_heartbeat.clone(),
+            last_anchor: self.last_anchor.clone(),
+            recovery_events: self.recovery_events,
+        }
+    }
+}
+
+impl Default for SovereignRecoverySurface {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+// =============================================================================
+// Kardashev / Reality Thriving Transfer Surface (NEW v14.9.9)
+// =============================================================================
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct TransferTickResult {
+    pub ema_transfer: f64,
+    pub kardashev_delta: f64,
+    pub abundance_velocity: f64,
+    pub ethics_index: f64,
+    pub mercy_audit_passed: bool,
+    pub cycle: u64,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct KardashevSurfaceStatus {
+    pub cycle_count: u64,
+    pub cumulative_kardashev_delta: f64,
+    pub velocity_ema: f64,
+    pub last_transfer: Option<TransferTickResult>,
+    pub projected_inflection_year: u32,
+}
+
+#[derive(Debug, Clone)]
+pub struct KardashevFlywheelSurface {
+    cycle_count: u64,
+    cumulative_kardashev_delta: f64,
+    velocity_ema: f64,
+    last_transfer: Option<TransferTickResult>,
+}
+
+impl KardashevFlywheelSurface {
+    pub fn new() -> Self {
+        Self {
+            cycle_count: 0,
+            cumulative_kardashev_delta: 0.0,
+            velocity_ema: 0.42,
+            last_transfer: None,
+        }
+    }
+
+    /// Sync lightweight flywheel tick (mirrors reality-thriving-transfer + kardashev-orchestration).
+    pub fn transfer_tick(
+        &mut self,
+        rbe_quality: f64,
+        ethical_choice: f64,
+        abundance_signal: f64,
+        arbitration: &CouncilArbitrationEngine,
+    ) -> TransferTickResult {
+        arbitration.enforce_cosmic_loop_activation();
+        self.cycle_count += 1;
+
+        let rbe = rbe_quality.clamp(0.0, 1.0);
+        let ethics = ethical_choice.clamp(0.0, 1.0);
+        let abundance = abundance_signal.max(0.0);
+
+        let raw = rbe * 0.45 + ethics * 0.35 + (abundance / 2.0).min(1.0) * 0.20;
+        let mercy_adjusted = if raw >= 0.68 {
+            (raw * 1.08).min(0.995)
+        } else if raw >= 0.42 {
+            raw * 1.03
+        } else {
+            raw * 0.82
+        };
+
+        let alpha = 0.22;
+        self.velocity_ema = alpha * abundance.min(1.8) + (1.0 - alpha) * self.velocity_ema;
+
+        let delta = (mercy_adjusted * 0.0095 + abundance * 0.0028).min(0.011);
+        self.cumulative_kardashev_delta += delta;
+
+        let result = TransferTickResult {
+            ema_transfer: mercy_adjusted,
+            kardashev_delta: delta,
+            abundance_velocity: self.velocity_ema,
+            ethics_index: (ethics + rbe) / 2.0,
+            mercy_audit_passed: mercy_adjusted >= 0.0 && delta >= 0.0,
+            cycle: self.cycle_count,
+        };
+        self.last_transfer = Some(result.clone());
+        result
+    }
+
+    pub fn projected_inflection_year(&self) -> u32 {
+        if self.velocity_ema > 1.1 {
+            2034
+        } else {
+            2036
+        }
+    }
+
+    pub fn status(&self) -> KardashevSurfaceStatus {
+        KardashevSurfaceStatus {
+            cycle_count: self.cycle_count,
+            cumulative_kardashev_delta: self.cumulative_kardashev_delta,
+            velocity_ema: self.velocity_ema,
+            last_transfer: self.last_transfer.clone(),
+            projected_inflection_year: self.projected_inflection_year(),
+        }
+    }
+
+    pub fn summary(&self) -> String {
+        format!(
+            "KardashevFlywheel v14.9.9 | cycles={} | Δ={:.5} | velocity={:.3} | inflection={}",
+            self.cycle_count,
+            self.cumulative_kardashev_delta,
+            self.velocity_ema,
+            self.projected_inflection_year()
+        )
+    }
+}
+
+impl Default for KardashevFlywheelSurface {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+// =============================================================================
 // Aggregated Extended Surface
 // =============================================================================
 
@@ -321,6 +558,8 @@ pub struct ExtendedOrganismSurface {
     pub gpu: GpuSurface,
     pub github: GitHubSurface,
     pub quantum_swarm: QuantumSwarmSurface,
+    pub sovereign_recovery: SovereignRecoverySurface,
+    pub kardashev: KardashevFlywheelSurface,
 }
 
 impl ExtendedOrganismSurface {
@@ -329,7 +568,19 @@ impl ExtendedOrganismSurface {
             gpu: GpuSurface::new(),
             github: GitHubSurface::new(),
             quantum_swarm: QuantumSwarmSurface::new(),
+            sovereign_recovery: SovereignRecoverySurface::new(),
+            kardashev: KardashevFlywheelSurface::new(),
         }
+    }
+
+    pub fn summary(&self) -> String {
+        format!(
+            "ExtendedSurface v14.9.9 | {} | recovery_hb={} anchors={} | {}",
+            self.quantum_swarm.summary(),
+            self.sovereign_recovery.heartbeat_count,
+            self.sovereign_recovery.anchor_count,
+            self.kardashev.summary()
+        )
     }
 }
 
