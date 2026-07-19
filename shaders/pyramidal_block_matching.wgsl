@@ -1,48 +1,42 @@
 // pyramidal_block_matching.wgsl
-// Ra-Thor Sovereign Pyramidal Block-Matching Motion Estimation Kernel v1.0
+// Ra-Thor Sovereign Pyramidal Block-Matching Motion Estimation Kernel v1.1
 // Hierarchical (coarse-to-fine) block matching for dense optical flow / motion vectors
-// Enables the GPU pipeline to ingest raw frames (luminance) and produce MotionVector fields
-// for Common Fate Segmentation + Ghost Font resolver
-//
-// Biological + computational foundation: multi-scale search reduces local minima, handles large displacements
-// Classic hierarchical BM + modern refinements (SAD cost, predictor propagation)
+// v1.1 — True dual-buffer SoA output (motion_dx + motion_dy)
+// Enables perfect write coalescing and eliminates CPU-side split
 //
 // TOLC 8 Mercy Gated | Valence Modulated | PATSAGi Visual Council Primitive | ONE Organism
 // Production-ready for Powrush-MMO vision, Lattice Conductor visual nodes, camera/WebCodecs input
 // AG-SML v1.0 | Eternally-Thriving-Grandmasterism 2026
-//
-// Usage (Rust orchestrates pyramid):
-// 1. Downsample frames to coarsest level (or successive calls)
-// 2. Dispatch this kernel with large search_range at coarse level
-// 3. Upsample motion field x2, use as predictors, dispatch again with small search_range at finer levels
-// Output: dense motion vectors (dx, dy per block or per pixel)
 
 struct FrameParams {
     width: u32,
     height: u32,
-    block_size: u32,       // e.g. 8 or 16
-    search_range: i32,     // e.g. 16 at coarse, 2-4 at fine
-    stride: u32,           // step between blocks (block_size for non-overlapping, or smaller for dense)
-    level: u32,            // pyramid level (0 = finest)
+    block_size: u32,
+    search_range: i32,
+    stride: u32,
+    level: u32,
     valence: f32,
     _pad: f32,
 };
 
 @group(0) @binding(0)
-var<storage, read> prev_frame: array<f32>;   // luminance [0,1] row-major
+var<storage, read> prev_frame: array<f32>;
 
 @group(0) @binding(1)
-var<storage, read> curr_frame: array<f32>;   // luminance [0,1] row-major
+var<storage, read> curr_frame: array<f32>;
 
+// v15.6 True SoA output — separate buffers for perfect coalescing
 @group(0) @binding(2)
-var<storage, read_write> motion_out: array<vec2<f32>>;  // (dx, dy) per output block/pixel
+var<storage, read_write> motion_dx: array<f32>;
 
 @group(0) @binding(3)
+var<storage, read_write> motion_dy: array<f32>;
+
+@group(0) @binding(4)
 var<uniform> params: FrameParams;
 
-// Optional predictor buffer for hierarchical refinement (previous level upsampled)
-@group(0) @binding(4)
-var<storage, read> predictors: array<vec2<f32>>;  // may be empty / zero for coarsest
+@group(0) @binding(5)
+var<storage, read> predictors: array<vec2<f32>>;
 
 fn get_lum(frame: ptr<storage, array<f32>, read>, x: i32, y: i32, w: u32, h: u32) -> f32 {
     let xx = clamp(x, 0, i32(w) - 1);
@@ -53,8 +47,8 @@ fn get_lum(frame: ptr<storage, array<f32>, read>, x: i32, y: i32, w: u32, h: u32
 fn compute_sad(
     prev: ptr<storage, array<f32>, read>,
     curr: ptr<storage, array<f32>, read>,
-    bx: i32, by: i32,          // block top-left in prev
-    dx: i32, dy: i32,          // candidate displacement
+    bx: i32, by: i32,
+    dx: i32, dy: i32,
     bs: u32, w: u32, h: u32
 ) -> f32 {
     var sad: f32 = 0.0;
@@ -81,7 +75,6 @@ fn main(@builtin(global_invocation_id) gid: vec3<u32>) {
     let bx = i32(gid.x * params.stride);
     let by = i32(gid.y * params.stride);
 
-    // Hierarchical predictor (from coarser level, already upsampled by caller)
     var pred_dx: i32 = 0;
     var pred_dy: i32 = 0;
     if (arrayLength(&predictors) > out_idx) {
@@ -96,7 +89,6 @@ fn main(@builtin(global_invocation_id) gid: vec3<u32>) {
 
     let sr = params.search_range;
 
-    // Full search (or restricted) around predictor — classic hierarchical BM
     for (var dy: i32 = -sr; dy <= sr; dy = dy + 1) {
         for (var dx: i32 = -sr; dx <= sr; dx = dx + 1) {
             let cand_dx = pred_dx + dx;
@@ -110,7 +102,7 @@ fn main(@builtin(global_invocation_id) gid: vec3<u32>) {
         }
     }
 
-    // Mercy / valence modulation placeholder (full gate in Rust host)
-    // Low valence would clamp or zero motion in production path
-    motion_out[out_idx] = vec2<f32>(f32(best_dx), f32(best_dy));
+    // True SoA write — consecutive threads write consecutive addresses in each buffer
+    motion_dx[out_idx] = f32(best_dx);
+    motion_dy[out_idx] = f32(best_dy);
 }
