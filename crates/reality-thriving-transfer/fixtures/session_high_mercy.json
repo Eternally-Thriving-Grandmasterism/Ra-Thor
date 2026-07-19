@@ -1,0 +1,15 @@
+{
+  "schema": "powrush_telemetry_v1",
+  "source": "powrush-mmo-fixture",
+  "label": "high_mercy_council_session",
+  "telemetry": {
+    "gameplay_hours": 86.5,
+    "rbe_decision_quality_avg": 0.91,
+    "peaceful_resolution_rate": 0.94,
+    "collaboration_events": 420,
+    "ethical_choice_score": 0.89,
+    "adaptation_events": 175,
+    "abundance_velocity_signals": 1.55,
+    "innovation_contribution": 0.81
+  }
+}
