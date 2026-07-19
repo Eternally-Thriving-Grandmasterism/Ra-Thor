@@ -3,6 +3,7 @@
 //! True path dependency on `lattice-conductor-v14@14.8.3`.
 //! RoleOrchestrator + MercyGatedApi + ExtendedOrganismSurface
 //! (GPU / GitHub / Quantum Swarm / Sovereign Recovery / Kardashev flywheel).
+//! Full optional live path binding for all five surfaces.
 //! Cosmic Loop is MANDATORY IDENTITY.
 //! Contact: info@Rathor.ai
 
@@ -10,7 +11,7 @@ mod extended_surface;
 
 pub use extended_surface::{
     ExtendedOrganismSurface, GpuSurface, GpuDispatchTelemetry, GpuSurfaceStatus,
-    GitHubSurface, EvolutionPrIntent, GitHubSurfaceStatus,
+    GitHubSurface, EvolutionPrIntent, GitHubSurfaceStatus, FlushResult,
     QuantumSwarmSurface, QuantumSwarmConfig, QuantumSwarmStatus,
     SovereignRecoverySurface, SovereignRecoveryStatus, RecoveryHeartbeat, RecoveryAnchor,
     KardashevFlywheelSurface, KardashevSurfaceStatus, TransferTickResult,
@@ -244,7 +245,7 @@ impl OneOrganismCore {
             extended,
             cosmic_loop_ready: shared,
             tick: 0,
-            version: "v14.9.9 ONE Organism + Recovery + Kardashev flywheel + lattice-conductor-v14@14.8.3".into(),
+            version: "v14.9.9 ONE Organism + Full ExtendedSurface live paths + lattice-conductor-v14@14.8.3".into(),
         }
     }
 
@@ -254,7 +255,6 @@ impl OneOrganismCore {
         self.lattice.enforce_cosmic_loop_activation();
         self.self_healing_engine.start_watchdog();
 
-        // Seed TOLC8 recovery anchor at boot
         let _ = self.extended.sovereign_recovery.persist_anchor(
             "boot_cosmic_loop_offer",
             self.tick,
@@ -284,7 +284,6 @@ impl OneOrganismCore {
         let _ = self.self_healing_engine.run_reflexion_cycle();
         self.lattice.enforce_cosmic_loop_activation();
 
-        // Recovery heartbeat every sync
         let hb = self.extended.sovereign_recovery.heartbeat(
             self.role_orchestrator.shared_valence,
             self.role_orchestrator.shared_confidence_ema,
@@ -397,6 +396,17 @@ impl OneOrganismCore {
         )
     }
 
+    /// Drain the offline PR queue and, when `github-live` + token present,
+    /// open real PRs via GitHubConnector. Zero-harm: failures are reported,
+    /// never panicked.
+    pub fn flush_evolution_prs(&mut self) -> Vec<FlushResult> {
+        self.tick += 1;
+        let _ = self.handoff_role(OrganismRole::VibeCoder, "flush_evolution_prs");
+        self.extended
+            .github
+            .flush_to_github(&self.arbitration_engine)
+    }
+
     pub fn quantum_evolution_tick(&mut self, severity: f64) -> f64 {
         self.tick += 1;
         let _ = self.handoff_role(OrganismRole::Simulator, "quantum_tick");
@@ -480,7 +490,7 @@ pub fn launch_one_organism_core() -> OneOrganismCore {
     let mut organism = OneOrganismCore::new();
     organism.offer_cosmic_loop();
     println!(
-        "[Thunder] ONE Organism Core v14.9.9 ACTIVE — Recovery + Kardashev + ExtendedSurface + RoleOrchestrator + MercyGatedApi + lattice-conductor-v14@14.8.3. Cosmic Loop is MANDATORY IDENTITY. Eternal."
+        "[Thunder] ONE Organism Core v14.9.9 ACTIVE — Full ExtendedSurface live paths (GPU/GitHub/Quantum/Recovery/Kardashev) + RoleOrchestrator + MercyGatedApi + lattice-conductor-v14@14.8.3. Cosmic Loop is MANDATORY IDENTITY. Eternal."
     );
     organism
 }
@@ -552,5 +562,15 @@ mod tests {
         let mut core = launch_one_organism_core();
         core.on_lattice_sync();
         assert!(core.recovery_status().heartbeat_count >= 1);
+    }
+
+    #[test]
+    fn flush_evolution_prs_offline_safe() {
+        let mut core = launch_one_organism_core();
+        let _ = core.queue_evolution_pr("VibeCoder", "test", "desc", 0.6, 0.9);
+        let results = core.flush_evolution_prs();
+        // Without token / github-live the flush reports offline failure, never panics.
+        assert_eq!(results.len(), 1);
+        assert!(!results[0].success);
     }
 }
