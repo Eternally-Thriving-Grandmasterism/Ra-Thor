@@ -4,7 +4,7 @@ version = "14.8.3"
 edition = "2021"
 description = "Lattice Conductor v14.8.3 — CouncilArbitration + RuntimeSelfHealing + MercyGatedApi (in-process, Cosmic Loop enforced) + Distributed Mercy Mesh"
 license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
-authors = ["Eternally-Thriving-Grandmasterism", "Sherif Samy Botros <ceo@acitygames.com>"]
+authors = ["Eternally-Thriving-Grandmasterism", "Sherif Samy Botros <info@Rathor.ai>"]
 
 [dependencies]
 nalgebra = { version = "0.33", features = ["serde-serialize"] }
