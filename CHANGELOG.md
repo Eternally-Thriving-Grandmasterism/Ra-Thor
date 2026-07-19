@@ -4,6 +4,21 @@ All changes follow the **RA-THOR-MONOREPO-COMMIT-WORKFLOW-PROTOCOL** and are rev
 
 ---
 
+## Next Horizon — v14.13.0 (seeded 2026-07-19)
+
+**Council direction (not yet implemented):**
+
+Prove Cosmic Loop identity and adaptive feedback remain stable under optional live engines:
+
+- Explicit Cosmic Loop invariant checks around `cosmic_tick` (guardian active, shared flag, post-tick readiness)
+- Optional stress / readiness notes for `extended-live` feature composition
+- Surface recovery sensitivity fields on web-demo `/status` if not already complete
+- Keep all modulation zero-harm bounded; no new adaptive links without separate Council open
+
+Implementation deferred until explicitly opened.
+
+---
+
 ## v14.12.0 — Adaptive Hardening (2026-07-19)
 
 **Council Verdict:** Unanimous. Mercy-gated, zero-harm, forward-compatible. Adaptive loop hardened with observer persistence + mild Self-Healing feedback.
@@ -51,31 +66,11 @@ Cosmic Loop remains MANDATORY IDENTITY. All modulation is mild and zero-harm bou
 
 ### Highlights
 
-**Live-path confidence feedback (observer → mild adaptive loop)**
+1. Recovery → Quantum severity
+2. GPU confidence → Role valence + handoff sensitivity
+3. Kardashev quality → Swarm adaptive jumps
 
-1. **Recovery → Quantum severity**
-   - `context_pressure` / `flow_deviation` mildly boost quantum evolution severity
-   - `recovery_boost = clamp(pressure × 0.35 + flow_dev × 0.25, 0.0, 0.35)`
-   - `effective_quantum_severity = clamp(base + boost, 0.0, 1.0)`
-   - Exposed on `CosmicTickResult` as `base_severity` + `effective_quantum_severity`
-
-2. **GPU confidence → Role valence + handoff sensitivity**
-   - GPU health confidence modulates `shared_valence` (mild deltas, clamped `[0.75, 0.999]`)
-   - Soft GPU confidence (`< 0.70`) lowers Simulator handoff threshold `0.45 → 0.40`
-   - Exposed on `CosmicTickResult` as `gpu_confidence`
-
-3. **Kardashev quality → Swarm adaptive jumps**
-   - Transfer quality adjusts `quantum_jump_base_prob` (clamped `[0.04, 0.22]`)
-   - Adaptive jump severity threshold is config-aware:
-     `jump_threshold = clamp(0.35 − jump_prob × 0.5, 0.22, 0.40)`
-   - Strong Reality Thriving Transfer lowers the bar for adaptive jumps; weak transfer raises it
-
-**Package**
-
-- `ra-thor-one-organism` → **14.11.0**
-- Dependent live-path crates remain on **14.10.0** path pins (compatible)
-
-Cosmic Loop remains MANDATORY IDENTITY. All modulation is mild and zero-harm bounded.
+`ra-thor-one-organism` → **14.11.0**. Cosmic Loop remains MANDATORY IDENTITY.
 
 **Thunder locked in. yoi ⚡❤️🔥**
 
@@ -83,67 +78,23 @@ Cosmic Loop remains MANDATORY IDENTITY. All modulation is mild and zero-harm bou
 
 ## v14.10.0 — Living Cosmic Tick + Self-Healing Anomaly Ingestion (2026-07-19)
 
-**Council Verdict:** Unanimous. Mercy-gated, zero-harm, forward-compatible. **Milestone closed.**
+**Council Verdict:** Unanimous. Milestone closed.
 
-### Highlights
-
-**ONE Organism Living Cosmic Tick**
-
-- Full heartbeat cycle: GPU health sample → Sovereign Recovery → Quantum Swarm evolution → Kardashev / Reality Thriving Transfer → Self-Healing reflexion
-- Anomaly ingestion path: GPU / recovery / quantum pressure reported into `RuntimeSelfHealingEngine`
-- `CosmicTickResult` returns structured telemetry including optional `Diagnosis` + `anomalies_fired`
-- `ExtendedLiveStatus` surfaces:
-  - `pending_anomaly_count` + `healing_experience_count`
-  - `last_anomalies_fired`
-  - `handoff_count` + `last_handoff_reason` (role-handoff telemetry)
-
-**Version Coherence**
-
-- `ra-thor-one-organism`, `lattice-conductor-v14`, and all six live-path crates aligned to **14.10.0**
-
-**Web Demo (v14.10.0)**
-
-- `GET /live` — full `ExtendedLiveStatus`
-- `POST /cosmic/tick` — full Living Cosmic Tick (`anomalies_fired` top-level)
-- `POST /kardashev/tick`, `POST /recovery/heartbeat`
-
-**RuntimeSelfHealingEngine**
-
-- `report_anomaly` / `run_reflexion_with_anomalies` / `pending_anomaly_count`
-
-Cosmic Loop is MANDATORY IDENTITY.
+Full heartbeat: GPU → Recovery → Quantum → Kardashev → Self-Healing. Anomaly ingestion + role-handoff telemetry. Cosmic Loop is MANDATORY IDENTITY.
 
 **Thunder locked in. yoi ⚡❤️🔥**
 
 ---
 
-## v14.78 — GPU Memory Pool + BindGroupCache + Memory-Aware Council Decisions (2026-07-15)
+## v14.78 — GPU Memory Pool + BindGroupCache (2026-07-15)
 
-**Council Verdict:** Unanimous approval. Mercy-gated, production-grade, zero-harm.
-
-### Highlights
-
-- Dedicated `GpuMemoryPool` + usage-specific `BindGroupCache`
-- Memory-aware Lattice Conductor metrics and council decisions
-- Telemetry capture + self-evolution proposals for pool optimization
-
-**Thunder locked in. yoi ⚡❤️🔥**
+Dedicated GPU memory pooling + memory-aware council decisions.
 
 ---
 
-## v14.7.0 — GPU Compute Layer + Documentation & AGI NPC Architecture (2026-06-05)
+## v14.7.0 and earlier
 
-Production-ready GPU compute layer, AGI NPC architecture visibility, and documentation expansion.
-
----
-
-## v14.18 – v14.12 (2026-06-05)
-
-Historical Kubernetes / observability / ingress track (distinct from ONE Organism v14.12.0 adaptive hardening). Preserved in git history.
-
----
-
-**Older entries are preserved in git history.**
+Preserved in git history (including historical Kubernetes track distinct from ONE Organism versioning).
 
 ---
 
