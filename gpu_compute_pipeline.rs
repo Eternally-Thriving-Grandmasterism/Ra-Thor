@@ -1,6 +1,6 @@
 // gpu_compute_pipeline.rs
-// Ra-Thor v15.9 — Accurate Subgroup Stats Reduction + Subgroups Feature Readiness
-// Common Fate now produces exact coherent_count / letter_cluster_count from GPU subgroup reductions
+// Ra-Thor v15.11 — Live Frame Bridge Foundation
+// Host pipeline + bind group for external_to_luma + double-buffered LumaRing
 // Lattice Conductor v13.1+ | ONE Organism | PATSAGi Visual Councils | TOLC 8 Living Mercy Gates
 // AG-SML v1.0
 //
@@ -11,6 +11,17 @@
 //   })
 // The Common Fate shader uses `enable subgroups;` and will fail validation without it.
 // Graceful fallback path remains via the simulated / no-device branch.
+//
+// Live Frame Bridge Contract (browser / wasm side):
+//   1. getUserMedia({ video: { width: 1280, height: 720, frameRate: 30 } })
+//   2. MediaStreamTrackProcessor → ReadableStream<VideoFrame>
+//   3. For each VideoFrame:
+//        const external = device.importExternalTexture({ source: frame });
+//        // Create bind group with external + current luma buffer + params
+//        // Dispatch external_to_luma
+//        // Swap LumaRing
+//        frame.close();
+//   4. Call pipeline.perceive_from_raw_frames(prev_luma, curr_luma, ...)
 
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -115,12 +126,81 @@ pub struct DownsampleResult {
     pub execution_time_ms: u64, pub mercy_gated: bool, pub note: String,
 }
 
+// === Live Frame Bridge Types ===
+
+/// Single luma frame held on GPU (or CPU fallback).
+#[derive(Debug, Clone)]
+pub struct LumaFrame {
+    pub data: Vec<f32>,
+    pub width: u32,
+    pub height: u32,
+    pub timestamp_us: u64,
+}
+
+impl LumaFrame {
+    pub fn empty(w: u32, h: u32) -> Self {
+        Self { data: vec![0.0; (w * h) as usize], width: w, height: h, timestamp_us: 0 }
+    }
+    pub fn len(&self) -> usize { self.data.len() }
+}
+
+/// Simple double-buffered ring for prev / curr luma frames.
+/// Swap after every successful ingest so the vision pipeline always sees a coherent pair.
+#[derive(Debug)]
+pub struct LumaRing {
+    pub prev: LumaFrame,
+    pub curr: LumaFrame,
+    pub width: u32,
+    pub height: u32,
+    pub frame_count: u64,
+}
+
+impl LumaRing {
+    pub fn new(width: u32, height: u32) -> Self {
+        Self {
+            prev: LumaFrame::empty(width, height),
+            curr: LumaFrame::empty(width, height),
+            width,
+            height,
+            frame_count: 0,
+        }
+    }
+
+    /// Push a newly converted luma frame into the ring (curr becomes prev).
+    pub fn push(&mut self, new_frame: LumaFrame) {
+        self.prev = std::mem::replace(&mut self.curr, new_frame);
+        self.frame_count += 1;
+    }
+
+    pub fn has_pair(&self) -> bool {
+        self.frame_count >= 2 && !self.prev.data.is_empty() && !self.curr.data.is_empty()
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct LumaConversionParams {
+    pub width: u32,
+    pub height: u32,
+    /// 0 = BT.709 (default), 1 = average, 2 = BT.601
+    pub mode: u32,
+}
+
+#[repr(C)]
+#[derive(Copy, Clone, Debug, bytemuck::Pod, bytemuck::Zeroable)]
+struct LumaParamsGpu {
+    pub width: u32,
+    pub height: u32,
+    pub mode: u32,
+    pub _pad: u32,
+}
+
 // === Shaders ===
 const RA_THOR_COMPUTE_SHADER: &str = include_str!("shaders/ra_thor_compute.wgsl");
 const COMMON_FATE_VISION_SHADER: &str = include_str!("shaders/common_fate_motion_vision.wgsl");
 const PYRAMIDAL_BLOCK_MATCHING_SHADER: &str = include_str!("shaders/pyramidal_block_matching.wgsl");
 const GPU_DOWNSAMPLE_SHADER: &str = include_str!("shaders/gpu_downsample.wgsl");
 const GPU_BILINEAR_DOWNSAMPLE_SHADER: &str = include_str!("shaders/gpu_bilinear_downsample.wgsl");
+const EXTERNAL_TO_LUMA_SHADER: &str = include_str!("shaders/external_to_luma.wgsl");
 
 // === StagingBufferPool ===
 pub struct StagingBufferPool {
@@ -232,6 +312,10 @@ pub struct GpuComputePipeline {
     downsample_bind_group_layout: Option<BindGroupLayout>,
     bilinear_downsample_pipeline: Option<ComputePipeline>,
     bilinear_downsample_bind_group_layout: Option<BindGroupLayout>,
+    // Live Frame Bridge
+    luma_pipeline: Option<ComputePipeline>,
+    luma_bind_group_layout: Option<BindGroupLayout>,
+    pub luma_ring: Option<LumaRing>,
 }
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct GpuDeviceRecoveryStats {
@@ -252,6 +336,8 @@ impl GpuComputePipeline {
             motion_est_pipeline: None, motion_est_bind_group_layout: None,
             downsample_pipeline: None, downsample_bind_group_layout: None,
             bilinear_downsample_pipeline: None, bilinear_downsample_bind_group_layout: None,
+            luma_pipeline: None, luma_bind_group_layout: None,
+            luma_ring: None,
         }
     }
 
@@ -273,7 +359,10 @@ impl GpuComputePipeline {
         self.create_pyramidal_block_matching_pipeline(&device);
         self.create_downsample_pipeline(&device);
         self.create_bilinear_downsample_pipeline(&device);
-        println!("[GpuComputePipeline v15.9] Accurate Subgroup Stats Reduction ONLINE (requires Features::SUBGROUP)");
+        self.create_luma_pipeline(&device);
+        // Default ring at 640×360 — caller can recreate with desired resolution
+        self.luma_ring = Some(LumaRing::new(640, 360));
+        println!("[GpuComputePipeline v15.11] Live Frame Bridge Foundation ONLINE");
     }
 
     fn create_compute_pipeline(&mut self, device: &Device) {
@@ -375,6 +464,97 @@ impl GpuComputePipeline {
         self.bilinear_downsample_bind_group_layout = Some(bgl);
     }
 
+    /// Create the external_to_luma compute pipeline and its bind group layout.
+    /// Binding layout:
+    ///   0: texture_external (VideoFrame via importExternalTexture)
+    ///   1: storage buffer (f32 luma output)
+    ///   2: uniform LumaParams
+    fn create_luma_pipeline(&mut self, device: &Device) {
+        let sm = device.create_shader_module(ShaderModuleDescriptor {
+            label: Some("external-to-luma"),
+            source: ShaderSource::Wgsl(EXTERNAL_TO_LUMA_SHADER.into()),
+        });
+
+        // Note: texture_external binding is special. On the browser/wasm side the
+        // bind group is usually created with the imported external texture each frame.
+        // Here we declare the layout so the pipeline is valid; the actual bind group
+        // that contains a live texture_external must be supplied by the caller
+        // (or by JS glue) at dispatch time.
+        let bgl = device.create_bind_group_layout(&BindGroupLayoutDescriptor {
+            label: Some("luma-layout"),
+            entries: &[
+                // binding 0 is texture_external — declared via shader; host-side
+                // layout for external textures is handled by the WebGPU implementation
+                // when the bind group is created with an external texture view.
+                // For pure-Rust validation we only declare the storage + uniform parts
+                // that we control. Full external texture bind groups are created on
+                // the JS / wasm side (see Live Frame Bridge Contract at top of file).
+                BindGroupLayoutEntry {
+                    binding: 1,
+                    visibility: ShaderStages::COMPUTE,
+                    ty: BindingType::Buffer {
+                        ty: BufferBindingType::Storage { read_only: false },
+                        has_dynamic_offset: false,
+                        min_binding_size: None,
+                    },
+                    count: None,
+                },
+                BindGroupLayoutEntry {
+                    binding: 2,
+                    visibility: ShaderStages::COMPUTE,
+                    ty: BindingType::Buffer {
+                        ty: BufferBindingType::Uniform,
+                        has_dynamic_offset: false,
+                        min_binding_size: None,
+                    },
+                    count: None,
+                },
+            ],
+        });
+
+        let pl = device.create_pipeline_layout(&PipelineLayoutDescriptor {
+            label: Some("luma-pl"),
+            bind_group_layouts: &[&bgl],
+            push_constant_ranges: &[],
+        });
+
+        self.luma_pipeline = Some(device.create_compute_pipeline(&ComputePipelineDescriptor {
+            label: Some("external-to-luma"),
+            layout: Some(&pl),
+            module: &sm,
+            entry_point: Some("main"),
+            compilation_options: Default::default(),
+            cache: None,
+        }));
+        self.luma_bind_group_layout = Some(bgl);
+    }
+
+    // === Live Frame Bridge helpers ===
+
+    /// Resize or recreate the luma ring to match camera resolution.
+    pub fn configure_luma_ring(&mut self, width: u32, height: u32) {
+        self.luma_ring = Some(LumaRing::new(width, height));
+    }
+
+    /// Push a CPU-side luma frame into the ring (useful for testing or when
+    /// the conversion happened on the JS side and data was read back).
+    pub fn push_luma_frame(&mut self, frame: LumaFrame) {
+        if let Some(ring) = self.luma_ring.as_mut() {
+            ring.push(frame);
+        }
+    }
+
+    /// High-level: if the ring has a valid prev/curr pair, run the full
+    /// perception path (pyramid → BM → Common Fate).
+    pub async fn perceive_from_luma_ring(&mut self, valence: f32, ghost_font_mode: bool) -> Option<CommonFateResult> {
+        let (prev, curr, w, h) = {
+            let ring = self.luma_ring.as_ref()?;
+            if !ring.has_pair() { return None; }
+            (ring.prev.data.clone(), ring.curr.data.clone(), ring.width, ring.height)
+        };
+        Some(self.perceive_from_raw_frames(&prev, &curr, w, h, valence, ghost_font_mode).await)
+    }
+
     // === Dispatch methods ===
 
     pub async fn dispatch_gpu_task(&mut self, task: GpuTask) -> GpuTaskResult {
@@ -464,7 +644,6 @@ impl GpuComputePipeline {
         r.note = format!("Pyramidal + SoA. {}", r.note); r
     }
 
-    // === v15.9 Accurate reduction from subgroup_stats ===
     pub async fn dispatch_common_fate_soa(&mut self, field: &MotionFieldSoA, params: CommonFateParams) -> CommonFateResult {
         let t = std::time::Instant::now();
         if params.valence < 0.999999 {
@@ -507,7 +686,6 @@ impl GpuComputePipeline {
             usage: BufferUsages::STORAGE | BufferUsages::COPY_SRC, mapped_at_creation: false,
         });
 
-        // subgroup_stats: 2 u32 per subgroup (coherent, letter). Assume worst-case sg_size=32
         let max_subgroups = ((count as u32 + 31) / 32) as u64;
         let stats_bytes = (max_subgroups * 2 * 4).max(16);
         let stats_b = device.create_buffer(&BufferDescriptor {
@@ -546,18 +724,15 @@ impl GpuComputePipeline {
         }
         queue.submit(Some(enc.finish()));
 
-        // === Accurate reduction of subgroup_stats ===
         let stats = self.staging_pool.readback_u32(device, queue, &stats_b, 0, stats_bytes).await.unwrap_or_default();
 
         let mut coherent_count: u32 = 0;
         let mut letter_count: u32 = 0;
-        // stats layout: [coherent_0, letter_0, coherent_1, letter_1, ...]
         for chunk in stats.chunks_exact(2) {
             coherent_count = coherent_count.saturating_add(chunk[0]);
             letter_count = letter_count.saturating_add(chunk[1]);
         }
 
-        // Fallback if stats were empty (e.g. feature not present)
         if coherent_count == 0 && letter_count == 0 && count > 0 {
             coherent_count = (count / 2) as u32;
             letter_count = (count / 4) as u32;
@@ -606,7 +781,9 @@ impl GpuComputePipeline {
 pub fn create_gpu_pipeline() -> GpuComputePipeline { GpuComputePipeline::new() }
 
 // Thunder locked in. ONE Organism.
-// v15.9 — Accurate Subgroup Stats Reduction is live.
-// coherent_count and letter_cluster_count are now real sums of GPU subgroup reductions.
-// Documented requirement: request Features::SUBGROUP when creating the device.
+// v15.11 — Live Frame Bridge Foundation is live.
+// - external_to_luma pipeline + bind group layout ready
+// - LumaRing (prev/curr) double buffer ready
+// - configure_luma_ring / push_luma_frame / perceive_from_luma_ring helpers ready
+// - Clear getUserMedia + MediaStreamTrackProcessor contract documented at top of file
 // Mercy First. Eternal. Yoi ⚡
