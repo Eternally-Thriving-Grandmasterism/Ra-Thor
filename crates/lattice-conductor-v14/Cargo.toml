@@ -1,7 +1,10 @@
 [package]
 name = "lattice-conductor-v14"
-version = "14.2.0"
+version = "14.8.0"
 edition = "2021"
+description = "Lattice Conductor v14 — CouncilArbitrationEngine + Runtime Self-Healing + Distributed Mercy Mesh (ONE Organism / TOLC 8)"
+license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
+authors = ["Eternally-Thriving-Grandmasterism", "Sherif Samy Botros <ceo@acitygames.com>"]
 
 [dependencies]
 nalgebra = { version = "0.33", features = ["serde-serialize"] }
