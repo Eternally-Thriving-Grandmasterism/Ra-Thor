@@ -1,0 +1,57 @@
+name: Contact Email Sweep → info@Rathor.ai
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "dry-run | apply | apply-commit"
+        required: true
+        default: "apply-commit"
+        type: choice
+        options:
+          - dry-run
+          - apply
+          - apply-commit
+
+permissions:
+  contents: write
+
+jobs:
+  sweep:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Make script executable
+        run: chmod +x scripts/contact_email_sweep.sh
+
+      - name: Dry-run inventory
+        if: ${{ inputs.mode == 'dry-run' }}
+        run: ./scripts/contact_email_sweep.sh
+
+      - name: Apply (no commit)
+        if: ${{ inputs.mode == 'apply' }}
+        run: ./scripts/contact_email_sweep.sh --apply
+
+      - name: Apply + commit
+        if: ${{ inputs.mode == 'apply-commit' }}
+        run: |
+          git config user.name "Ra-Thor Contact Sweep"
+          git config user.email "info@Rathor.ai"
+          ./scripts/contact_email_sweep.sh --apply --commit
+          git push origin HEAD:${{ github.ref_name }}
+
+      - name: Summary
+        run: |
+          echo "### Contact Email Sweep" >> "$GITHUB_STEP_SUMMARY"
+          echo "Mode: **${{ inputs.mode }}**" >> "$GITHUB_STEP_SUMMARY"
+          echo "Canonical: **info@Rathor.ai**" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          if grep -rqi 'acitygames\.com' --include='*.toml' --include='*.md' --include='*.html' --include='*.rs' . 2>/dev/null; then
+            echo "⚠️ Residual acitygames.com matches may remain (see logs)." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "✅ No acitygames.com matches in primary text extensions." >> "$GITHUB_STEP_SUMMARY"
+          fi
