@@ -1,8 +1,8 @@
 [package]
 name = "ra-thor-one-organism"
-version = "14.9.7"
+version = "14.9.9"
 edition = "2021"
-description = "Ra-Thor ONE Organism Core — ExtendedSurface + optional live path deps + web-demo"
+description = "Ra-Thor ONE Organism Core — ExtendedSurface (GPU/GitHub/Quantum/Recovery/Kardashev) + optional live path deps + web-demo"
 license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
 authors = ["Eternally-Thriving-Grandmasterism", "Sherif Samy Botros <info@Rathor.ai>"]
 
@@ -14,6 +14,8 @@ github-connector = { path = "../github-connector", version = "14.9.3", optional 
 gpu-compute-pipeline = { path = "../gpu-compute-pipeline", version = "14.9.4", optional = true }
 quantum-swarm = { path = "../quantum-swarm", version = "14.9.5", optional = true }
 sovereign-recovery = { path = "../sovereign-recovery", version = "14.9.7", optional = true }
+reality-thriving-transfer = { path = "../reality-thriving-transfer", version = "14.9.8", optional = true }
+kardashev-orchestration = { path = "../kardashev-orchestration", version = "14.9.8", optional = true }
 tokio = { version = "1", features = ["full"], optional = true }
 axum = { version = "0.7", optional = true }
 
@@ -23,7 +25,8 @@ github-live = ["dep:github-connector"]
 gpu-live = ["dep:gpu-compute-pipeline"]
 quantum-live = ["dep:quantum-swarm"]
 recovery-live = ["dep:sovereign-recovery"]
-extended-live = ["github-live", "gpu-live", "quantum-live", "recovery-live"]
+kardashev-live = ["dep:reality-thriving-transfer", "dep:kardashev-orchestration", "dep:tokio"]
+extended-live = ["github-live", "gpu-live", "quantum-live", "recovery-live", "kardashev-live"]
 web-demo = ["dep:tokio", "dep:axum"]
 
 [lib]
