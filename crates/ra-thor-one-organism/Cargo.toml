@@ -21,9 +21,9 @@ axum = { version = "0.7", optional = true }
 
 [features]
 default = []
-github-live = ["dep:github-connector"]
-gpu-live = ["dep:gpu-compute-pipeline"]
-quantum-live = ["dep:quantum-swarm"]
+github-live = ["dep:github-connector", "dep:tokio"]
+gpu-live = ["dep:gpu-compute-pipeline", "dep:tokio"]
+quantum-live = ["dep:quantum-swarm", "dep:tokio"]
 recovery-live = ["dep:sovereign-recovery", "dep:tokio"]
 kardashev-live = ["dep:reality-thriving-transfer", "dep:kardashev-orchestration", "dep:tokio"]
 extended-live = ["github-live", "gpu-live", "quantum-live", "recovery-live", "kardashev-live"]
