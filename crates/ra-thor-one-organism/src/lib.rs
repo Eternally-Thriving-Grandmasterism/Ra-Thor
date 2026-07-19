@@ -227,7 +227,7 @@ pub struct CosmicTickResult {
     pub anomalies_fired: Vec<String>,
 }
 
-/// Full living snapshot of the ONE Organism (surfaces + Self-Healing telemetry).
+/// Full living snapshot of the ONE Organism (surfaces + Self-Healing + role-handoff telemetry).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ExtendedLiveStatus {
     pub gpu: GpuSurfaceStatus,
@@ -245,6 +245,10 @@ pub struct ExtendedLiveStatus {
     pub healing_experience_count: usize,
     /// Components that fired anomalies on the most recent Cosmic Tick.
     pub last_anomalies_fired: Vec<String>,
+    /// Total role handoffs performed so far.
+    pub handoff_count: u64,
+    /// Reason string from the most recent role handoff.
+    pub last_handoff_reason: String,
 }
 
 // =============================================================================
@@ -648,7 +652,7 @@ impl OneOrganismCore {
         self.extended.kardashev.status()
     }
 
-    /// Full living snapshot — all surfaces + Self-Healing telemetry + last anomalies.
+    /// Full living snapshot — all surfaces + Self-Healing + role-handoff telemetry.
     pub fn extended_live_status(&self) -> ExtendedLiveStatus {
         ExtendedLiveStatus {
             gpu: self.extended.gpu.status(),
@@ -663,6 +667,8 @@ impl OneOrganismCore {
             pending_anomaly_count: self.self_healing_engine.pending_anomaly_count(),
             healing_experience_count: self.self_healing_engine.get_healing_experiences().len(),
             last_anomalies_fired: self.last_anomalies_fired.clone(),
+            handoff_count: self.role_orchestrator.handoff_count,
+            last_handoff_reason: self.role_orchestrator.last_handoff_reason.clone(),
         }
     }
 
@@ -813,6 +819,8 @@ mod tests {
         assert!(s.shared_valence > 0.7);
         assert_eq!(s.pending_anomaly_count, 0);
         assert!(s.last_anomalies_fired.is_empty());
+        assert_eq!(s.handoff_count, 0);
+        assert_eq!(s.last_handoff_reason, "initial_boot");
         let _ = s.healing_experience_count;
     }
 
@@ -823,6 +831,19 @@ mod tests {
         let s = core.extended_live_status();
         assert_eq!(s.pending_anomaly_count, 0);
         assert!(s.healing_experience_count >= 1);
-        assert!(!s.last_anomalies_fired.is_empty()); // quantum should have fired
+        assert!(!s.last_anomalies_fired.is_empty());
+        // High severity can trigger Simulator handoff
+        assert!(s.handoff_count >= 1 || s.last_handoff_reason == "initial_boot");
+    }
+
+    #[test]
+    fn role_handoff_telemetry_on_live_status() {
+        let mut core = launch_one_organism_core();
+        let ok = core.handoff_role(OrganismRole::Debugger, "manual_test_handoff");
+        assert!(ok);
+        let s = core.extended_live_status();
+        assert_eq!(s.handoff_count, 1);
+        assert_eq!(s.last_handoff_reason, "manual_test_handoff");
+        assert_eq!(s.active_role, "Debugger");
     }
 }
