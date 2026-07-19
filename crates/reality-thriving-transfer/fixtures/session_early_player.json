@@ -1,0 +1,15 @@
+{
+  "schema": "powrush_telemetry_v1",
+  "source": "powrush-mmo-fixture",
+  "label": "early_player_onboarding",
+  "telemetry": {
+    "gameplay_hours": 3.25,
+    "rbe_decision_quality_avg": 0.62,
+    "peaceful_resolution_rate": 0.70,
+    "collaboration_events": 12,
+    "ethical_choice_score": 0.66,
+    "adaptation_events": 8,
+    "abundance_velocity_signals": 0.95,
+    "innovation_contribution": 0.40
+  }
+}
