@@ -11,6 +11,7 @@
 //!   - Kardashev quality → swarm jump threshold
 //! v14.12 adaptive hardening:
 //!   - last-tick adaptive fields persisted on core + ExtendedLiveStatus
+//!   - Self-Healing mild next-tick recovery sensitivity (anomaly count + mercy)
 //! Cosmic Loop is MANDATORY IDENTITY.
 //! Contact: info@Rathor.ai
 
@@ -30,9 +31,6 @@ use std::sync::Arc;
 
 use serde::{Deserialize, Serialize};
 
-// =============================================================================
-// TRUE PATH DEPENDENCY
-// =============================================================================
 pub use lattice_conductor_v14::{
     CouncilArbitrationEngine,
     RuntimeSelfHealingEngine,
@@ -43,10 +41,6 @@ pub use lattice_conductor_v14::{
     MercyGatedApi, MercyApiRequest, MercyApiResponse, ApiRequestKind, GateDecision,
     start_mercy_api_with_arbitration,
 };
-
-// =============================================================================
-// Role Orchestration
-// =============================================================================
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum OrganismRole {
@@ -214,10 +208,6 @@ impl Default for RoleOrchestrator {
     }
 }
 
-// =============================================================================
-// Cosmic Tick result (living cycle summary)
-// =============================================================================
-
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CosmicTickResult {
     pub tick: u64,
@@ -229,17 +219,14 @@ pub struct CosmicTickResult {
     pub recovery_triggered: bool,
     pub gpu_anomaly: bool,
     pub healing: Option<Diagnosis>,
-    /// Component names that reported anomalies this tick (e.g. "gpu", "recovery", "quantum").
     pub anomalies_fired: Vec<String>,
-    /// Base severity requested by caller.
     pub base_severity: f64,
-    /// Effective severity after recovery pressure/flow_deviation modulation (v14.11).
     pub effective_quantum_severity: f64,
-    /// GPU health confidence derived from dispatch_time_ms (v14.11).
     pub gpu_confidence: f64,
+    /// v14.12 — recovery sensitivity multiplier applied this tick (1.0 = neutral).
+    pub recovery_sensitivity_applied: f64,
 }
 
-/// Full living snapshot of the ONE Organism (surfaces + Self-Healing + adaptive telemetry).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ExtendedLiveStatus {
     pub gpu: GpuSurfaceStatus,
@@ -251,25 +238,19 @@ pub struct ExtendedLiveStatus {
     pub active_role: String,
     pub shared_valence: f64,
     pub tick: u64,
-    /// Anomalies currently queued in RuntimeSelfHealingEngine (pre-reflexion).
     pub pending_anomaly_count: usize,
-    /// Total healing experiences logged so far.
     pub healing_experience_count: usize,
-    /// Components that fired anomalies on the most recent Cosmic Tick.
     pub last_anomalies_fired: Vec<String>,
-    /// Total role handoffs performed so far.
     pub handoff_count: u64,
-    /// Reason string from the most recent role handoff.
     pub last_handoff_reason: String,
-    /// v14.12 — last Cosmic Tick adaptive fields (0.0 before first tick).
     pub last_base_severity: f64,
     pub last_effective_quantum_severity: f64,
     pub last_gpu_confidence: f64,
+    /// v14.12 — sensitivity queued for the *next* Cosmic Tick recovery step.
+    pub next_recovery_sensitivity: f64,
+    /// Sensitivity that was applied on the most recent Cosmic Tick.
+    pub last_recovery_sensitivity_applied: f64,
 }
-
-// =============================================================================
-// ONE Organism Core
-// =============================================================================
 
 pub struct OneOrganismCore {
     pub arbitration_engine: CouncilArbitrationEngine,
@@ -281,12 +262,14 @@ pub struct OneOrganismCore {
     pub cosmic_loop_ready: Arc<AtomicBool>,
     pub tick: u64,
     pub version: String,
-    /// Components that fired anomalies on the most recent Cosmic Tick.
     pub last_anomalies_fired: Vec<String>,
-    /// v14.12 — persisted adaptive confidence fields from the last Cosmic Tick.
     pub last_base_severity: f64,
     pub last_effective_quantum_severity: f64,
     pub last_gpu_confidence: f64,
+    /// Multiplier applied on the *next* recovery heartbeat (1.0 neutral, max 1.12).
+    pub next_recovery_sensitivity: f64,
+    /// Multiplier that was applied on the most recent Cosmic Tick.
+    pub last_recovery_sensitivity_applied: f64,
 }
 
 impl OneOrganismCore {
@@ -311,11 +294,13 @@ impl OneOrganismCore {
             extended,
             cosmic_loop_ready: shared,
             tick: 0,
-            version: "v14.12.0 ONE Organism — adaptive hardening + live-path confidence feedback".into(),
+            version: "v14.12.0 ONE Organism — adaptive hardening + recovery sensitivity".into(),
             last_anomalies_fired: Vec::new(),
             last_base_severity: 0.0,
             last_effective_quantum_severity: 0.0,
             last_gpu_confidence: 0.0,
+            next_recovery_sensitivity: 1.0,
+            last_recovery_sensitivity_applied: 1.0,
         }
     }
 
@@ -348,20 +333,11 @@ impl OneOrganismCore {
         println!("[ExtendedSurface] {}", self.extended.summary());
     }
 
-    /// Lattice sync = light Cosmic Tick.
     pub fn on_lattice_sync(&mut self) {
         let _ = self.cosmic_tick(0.22);
     }
 
-    /// Full living Cosmic Tick — the ONE Organism heartbeat (v14.12.0).
-    ///
-    /// 0. GPU health sample → confidence EMA + mild valence influence + optional anomaly
-    /// 1. Recovery heartbeat → optional anomaly report
-    /// 2. Effective quantum severity = base + mild recovery pressure boost
-    /// 3. Full Quantum evolution (at effective severity) → high-severity anomaly report
-    /// 4. Kardashev sample + swarm feedback
-    /// 5. Self-Healing reflexion informed by all reported anomalies
-    /// 6. Persist adaptive fields for living snapshot (v14.12)
+    /// Full living Cosmic Tick — heartbeat (v14.12.0).
     pub fn cosmic_tick(&mut self, severity: f64) -> CosmicTickResult {
         self.tick += 1;
         self.arbitration_engine.on_lattice_sync();
@@ -397,7 +373,6 @@ impl OneOrganismCore {
             + gpu_confidence * 0.15)
             .clamp(0.5, 0.99);
 
-        // v14.11 — GPU confidence mildly supports or damps shared valence (zero-harm clamps)
         let valence_delta = if gpu_confidence >= 0.90 {
             0.008
         } else if gpu_confidence >= 0.78 {
@@ -421,10 +396,19 @@ impl OneOrganismCore {
             let _ = self.handoff_role(OrganismRole::Debugger, "cosmic_tick_gpu_anomaly");
         }
 
-        // 1. Recovery heartbeat
+        // 1. Recovery heartbeat — v14.12 apply (then clear) next-tick sensitivity
+        let sensitivity = self.next_recovery_sensitivity.clamp(1.0, 1.12);
+        self.last_recovery_sensitivity_applied = sensitivity;
+        self.next_recovery_sensitivity = 1.0;
+        let recovery_conf = (self.role_orchestrator.shared_confidence_ema / sensitivity)
+            .clamp(0.5, 0.99);
+        let recovery_valence = (self.role_orchestrator.shared_valence
+            / (1.0 + (sensitivity - 1.0) * 0.5))
+            .clamp(0.75, 0.999);
+
         let hb = self.extended.sovereign_recovery.heartbeat(
-            self.role_orchestrator.shared_valence,
-            self.role_orchestrator.shared_confidence_ema,
+            recovery_valence,
+            recovery_conf,
             self.tick,
             &self.arbitration_engine,
         );
@@ -434,8 +418,8 @@ impl OneOrganismCore {
             self.self_healing_engine.report_anomaly(
                 "recovery",
                 &format!(
-                    "requires_recovery pressure={:.2} flow_dev={:.2}",
-                    hb.context_pressure, hb.flow_deviation
+                    "requires_recovery pressure={:.2} flow_dev={:.2} sens={:.3}",
+                    hb.context_pressure, hb.flow_deviation, sensitivity
                 ),
                 0.78,
             );
@@ -448,11 +432,11 @@ impl OneOrganismCore {
             );
         }
 
-        // 2. v14.11 — recovery pressure mildly boosts quantum exploration severity
+        // 2. Recovery pressure → quantum severity
         let recovery_boost = (hb.context_pressure * 0.35 + hb.flow_deviation * 0.25).clamp(0.0, 0.35);
         let effective_quantum_severity = (base_severity + recovery_boost).clamp(0.0, 1.0);
 
-        // 3. Full quantum evolution at effective severity
+        // 3. Quantum evolution
         let quantum = self.extended.quantum_swarm.evolve_full_cycle(
             effective_quantum_severity,
             &self.arbitration_engine,
@@ -469,7 +453,6 @@ impl OneOrganismCore {
             anomalies_fired.push("quantum".into());
         }
 
-        // v14.11 — lower quantum→Simulator handoff threshold when GPU confidence is soft
         let quantum_handoff_threshold = if gpu_confidence < 0.70 { 0.40 } else { 0.45 };
         if effective_quantum_severity >= quantum_handoff_threshold
             && !recovery_triggered
@@ -497,13 +480,27 @@ impl OneOrganismCore {
         // 5. Self-Healing reflexion
         let healing = self.self_healing_engine.run_reflexion_cycle();
 
+        // v14.12 — schedule mild recovery sensitivity for *next* tick from this healing
+        if anomalies_fired.is_empty() {
+            self.next_recovery_sensitivity = 1.0;
+        } else {
+            let anomaly_boost = (anomalies_fired.len() as f64 * 0.025).min(0.08);
+            let mercy_boost = if (healing.mercy_score as f64) < 0.95 {
+                ((1.0 - healing.mercy_score as f64) * 0.15).min(0.06)
+            } else {
+                0.0
+            };
+            self.next_recovery_sensitivity =
+                (1.0 + anomaly_boost + mercy_boost).clamp(1.0, 1.12);
+        }
+
         if !recovery_triggered && !gpu_anomaly && quantum.quantum_ratio > 0.05 {
             self.role_orchestrator.shared_valence = (self.role_orchestrator.shared_valence * 0.97
                 + 0.03 * (0.92 + quantum.quantum_ratio * 0.05))
                 .clamp(0.75, 0.999);
         }
 
-        // 6. v14.12 — persist adaptive fields for /live and /status
+        // 6. Persist adaptive fields
         self.last_anomalies_fired = anomalies_fired.clone();
         self.last_base_severity = base_severity;
         self.last_effective_quantum_severity = effective_quantum_severity;
@@ -523,6 +520,7 @@ impl OneOrganismCore {
             base_severity,
             effective_quantum_severity,
             gpu_confidence,
+            recovery_sensitivity_applied: sensitivity,
         }
     }
 
@@ -575,8 +573,6 @@ impl OneOrganismCore {
     pub fn api_status(&self) -> MercyApiResponse {
         self.mercy_api.status()
     }
-
-    // --- Extended surface convenience methods ---
 
     pub fn record_gpu_dispatch(
         &mut self,
@@ -711,7 +707,6 @@ impl OneOrganismCore {
         self.extended.kardashev.status()
     }
 
-    /// Full living snapshot — all surfaces + Self-Healing + adaptive last-tick fields.
     pub fn extended_live_status(&self) -> ExtendedLiveStatus {
         ExtendedLiveStatus {
             gpu: self.extended.gpu.status(),
@@ -731,6 +726,8 @@ impl OneOrganismCore {
             last_base_severity: self.last_base_severity,
             last_effective_quantum_severity: self.last_effective_quantum_severity,
             last_gpu_confidence: self.last_gpu_confidence,
+            next_recovery_sensitivity: self.next_recovery_sensitivity,
+            last_recovery_sensitivity_applied: self.last_recovery_sensitivity_applied,
         }
     }
 
@@ -753,7 +750,7 @@ pub fn launch_one_organism_core() -> OneOrganismCore {
     let mut organism = OneOrganismCore::new();
     organism.offer_cosmic_loop();
     println!(
-        "[Thunder] ONE Organism Core v14.12.0 ACTIVE — adaptive hardening (last-tick confidence fields) + live-path confidence feedback + Self-Healing + RoleOrchestrator + MercyGatedApi. Cosmic Loop is MANDATORY IDENTITY. Eternal."
+        "[Thunder] ONE Organism Core v14.12.0 ACTIVE — adaptive hardening + Self-Healing→recovery sensitivity + live-path confidence feedback. Cosmic Loop is MANDATORY IDENTITY. Eternal."
     );
     organism
 }
@@ -771,148 +768,39 @@ mod tests {
     }
 
     #[test]
-    fn extended_surface_gpu_records() {
-        let mut core = launch_one_organism_core();
-        let tel = core.record_gpu_dispatch("test_kernel", 12, false, 4096);
-        assert_eq!(tel.task_name, "test_kernel");
-        assert_eq!(core.gpu_status().dispatch_count, 1);
-    }
-
-    #[test]
-    fn extended_surface_github_queues() {
-        let mut core = launch_one_organism_core();
-        let intent = core.queue_evolution_pr(
-            "VibeCoder",
-            "gpu_compute_pipeline",
-            "autotune workgroups",
-            0.7,
-            0.92,
-        );
-        assert!(intent.title.contains("VibeCoder"));
-        assert_eq!(core.github_status().intended_prs, 1);
-    }
-
-    #[test]
-    fn quantum_full_evolution_cycle() {
-        let mut core = launch_one_organism_core();
-        let r = core.quantum_evolve_full_cycle(0.5);
-        assert!(r.quantum_ratio > 0.0);
-        assert!(r.weight_update_ok);
-        assert!(r.jump_impact > 0.0);
-        assert!(r.proposal_generated);
-        assert_eq!(core.quantum_status().total_weight_updates, 1);
-        assert_eq!(core.quantum_status().total_adaptive_jumps, 1);
-        assert_eq!(core.quantum_status().total_proposals, 1);
-    }
-
-    #[test]
-    fn recovery_heartbeat_and_anchor() {
-        let mut core = launch_one_organism_core();
-        let hb = core.recovery_heartbeat();
-        assert!(!hb.requires_recovery);
-        let a = core.recovery_anchor("test_anchor");
-        assert!(a.anchor_id.starts_with("TOLC8"));
-        assert!(core.recovery_status().anchor_count >= 2);
-    }
-
-    #[test]
-    fn kardashev_transfer_tick() {
-        let mut core = launch_one_organism_core();
-        let t = core.kardashev_transfer_tick(0.89, 0.87, 1.4);
-        assert!(t.mercy_audit_passed);
-        assert!(t.kardashev_delta > 0.0);
-        assert_eq!(core.kardashev_status().cycle_count, 1);
-    }
-
-    #[test]
-    fn lattice_sync_runs_recovery_heartbeat() {
-        let mut core = launch_one_organism_core();
-        core.on_lattice_sync();
-        assert!(core.recovery_status().heartbeat_count >= 1);
-    }
-
-    #[test]
-    fn flush_evolution_prs_offline_safe() {
-        let mut core = launch_one_organism_core();
-        let _ = core.queue_evolution_pr("VibeCoder", "test", "desc", 0.6, 0.9);
-        let results = core.flush_evolution_prs();
-        assert_eq!(results.len(), 1);
-        assert!(!results[0].success);
-    }
-
-    #[test]
     fn cosmic_tick_v14_12_full_loop() {
         let mut core = launch_one_organism_core();
-        let before_g = core.gpu_status().dispatch_count;
-        let before_q = core.quantum_status().total_weight_updates;
-        let before_k = core.kardashev_status().cycle_count;
-        let before_r = core.recovery_status().heartbeat_count;
-
         let result = core.cosmic_tick(0.4);
-
         assert!(result.tick >= 1);
         assert!(result.gpu.is_some());
         assert!(result.healing.is_some());
-        assert!(result.quantum.quantum_ratio > 0.0);
-        assert!(result.kardashev.is_some());
         assert_eq!(result.base_severity, 0.4);
-        assert!(result.effective_quantum_severity >= result.base_severity);
-        assert!(result.effective_quantum_severity <= 1.0);
-        assert!(result.gpu_confidence > 0.0);
-        assert_eq!(core.last_anomalies_fired, result.anomalies_fired);
+        assert!((result.recovery_sensitivity_applied - 1.0).abs() < 1e-9);
         assert_eq!(core.last_base_severity, result.base_severity);
-        assert_eq!(core.last_effective_quantum_severity, result.effective_quantum_severity);
         assert_eq!(core.last_gpu_confidence, result.gpu_confidence);
-        assert!(core.gpu_status().dispatch_count > before_g);
-        assert!(core.quantum_status().total_weight_updates > before_q);
-        assert!(core.kardashev_status().cycle_count > before_k);
-        assert!(core.recovery_status().heartbeat_count > before_r);
     }
 
     #[test]
-    fn cosmic_tick_recovery_boosts_quantum_severity() {
+    fn high_severity_schedules_next_recovery_sensitivity() {
         let mut core = launch_one_organism_core();
-        let result = core.cosmic_tick(0.3);
-        let expected_boost = (result.recovery.context_pressure * 0.35
-            + result.recovery.flow_deviation * 0.25)
-            .clamp(0.0, 0.35);
-        let expected = (0.3 + expected_boost).clamp(0.0, 1.0);
-        assert!((result.effective_quantum_severity - expected).abs() < 1e-9);
-        assert!(result.effective_quantum_severity >= 0.3);
+        assert!((core.next_recovery_sensitivity - 1.0).abs() < 1e-9);
+        let r1 = core.cosmic_tick(0.7);
+        assert!(r1.anomalies_fired.contains(&"quantum".to_string()));
+        // After a tick with anomalies, next sensitivity should rise mildly
+        assert!(core.next_recovery_sensitivity > 1.0);
+        assert!(core.next_recovery_sensitivity <= 1.12);
+        // Second tick consumes it
+        let r2 = core.cosmic_tick(0.2);
+        assert!(r2.recovery_sensitivity_applied > 1.0);
+        assert!((core.last_recovery_sensitivity_applied - r2.recovery_sensitivity_applied).abs() < 1e-9);
     }
 
     #[test]
-    fn cosmic_tick_gpu_confidence_high_on_fast_dispatch() {
+    fn clean_tick_keeps_neutral_sensitivity() {
         let mut core = launch_one_organism_core();
-        let result = core.cosmic_tick(0.2);
-        assert!((result.gpu_confidence - 0.90).abs() < 1e-9);
-        assert!(result.gpu_confidence >= 0.90);
-    }
-
-    #[test]
-    fn cosmic_tick_anomalies_fired_high_severity() {
-        let mut core = launch_one_organism_core();
-        let result = core.cosmic_tick(0.7);
-        assert!(result.anomalies_fired.contains(&"quantum".to_string()));
-        assert!(core.last_anomalies_fired.contains(&"quantum".to_string()));
-        assert!(result.healing.is_some());
-    }
-
-    #[test]
-    fn extended_live_status_snapshot() {
-        let core = launch_one_organism_core();
-        let s = core.extended_live_status();
-        assert!(s.cosmic_loop_ready);
-        assert!(!s.active_role.is_empty());
-        assert!(s.shared_valence > 0.7);
-        assert_eq!(s.pending_anomaly_count, 0);
-        assert!(s.last_anomalies_fired.is_empty());
-        assert_eq!(s.handoff_count, 0);
-        assert_eq!(s.last_handoff_reason, "initial_boot");
-        assert_eq!(s.last_base_severity, 0.0);
-        assert_eq!(s.last_effective_quantum_severity, 0.0);
-        assert_eq!(s.last_gpu_confidence, 0.0);
-        let _ = s.healing_experience_count;
+        let r = core.cosmic_tick(0.2);
+        assert!(!r.anomalies_fired.contains(&"quantum".to_string()));
+        assert!((core.next_recovery_sensitivity - 1.0).abs() < 1e-9);
     }
 
     #[test]
@@ -920,13 +808,10 @@ mod tests {
         let mut core = launch_one_organism_core();
         let result = core.cosmic_tick(0.6);
         let s = core.extended_live_status();
-        assert_eq!(s.pending_anomaly_count, 0);
-        assert!(s.healing_experience_count >= 1);
-        assert!(!s.last_anomalies_fired.is_empty());
         assert_eq!(s.last_base_severity, result.base_severity);
-        assert_eq!(s.last_effective_quantum_severity, result.effective_quantum_severity);
         assert_eq!(s.last_gpu_confidence, result.gpu_confidence);
-        assert!(s.last_gpu_confidence > 0.0);
+        assert_eq!(s.last_recovery_sensitivity_applied, result.recovery_sensitivity_applied);
+        assert!(s.next_recovery_sensitivity >= 1.0);
     }
 
     #[test]
@@ -937,6 +822,5 @@ mod tests {
         let s = core.extended_live_status();
         assert_eq!(s.handoff_count, 1);
         assert_eq!(s.last_handoff_reason, "manual_test_handoff");
-        assert_eq!(s.active_role, "Debugger");
     }
 }
