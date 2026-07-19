@@ -225,6 +225,7 @@ pub struct CosmicTickResult {
     pub healing: Option<Diagnosis>,
 }
 
+/// Full living snapshot of the ONE Organism (surfaces + Self-Healing telemetry).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ExtendedLiveStatus {
     pub gpu: GpuSurfaceStatus,
@@ -236,6 +237,10 @@ pub struct ExtendedLiveStatus {
     pub active_role: String,
     pub shared_valence: f64,
     pub tick: u64,
+    /// Anomalies currently queued in RuntimeSelfHealingEngine (pre-reflexion).
+    pub pending_anomaly_count: usize,
+    /// Total healing experiences logged so far.
+    pub healing_experience_count: usize,
 }
 
 // =============================================================================
@@ -627,6 +632,7 @@ impl OneOrganismCore {
         self.extended.kardashev.status()
     }
 
+    /// Full living snapshot — all surfaces + Self-Healing telemetry.
     pub fn extended_live_status(&self) -> ExtendedLiveStatus {
         ExtendedLiveStatus {
             gpu: self.extended.gpu.status(),
@@ -638,6 +644,8 @@ impl OneOrganismCore {
             active_role: self.role_orchestrator.active_role.as_str().into(),
             shared_valence: self.role_orchestrator.shared_valence,
             tick: self.tick,
+            pending_anomaly_count: self.self_healing_engine.pending_anomaly_count(),
+            healing_experience_count: self.self_healing_engine.get_healing_experiences().len(),
         }
     }
 
@@ -775,5 +783,20 @@ mod tests {
         assert!(s.cosmic_loop_ready);
         assert!(!s.active_role.is_empty());
         assert!(s.shared_valence > 0.7);
+        // New Self-Healing telemetry fields
+        assert_eq!(s.pending_anomaly_count, 0); // clean after boot
+        // healing_experience_count may be 0 at pure boot
+        let _ = s.healing_experience_count;
+    }
+
+    #[test]
+    fn extended_live_status_after_cosmic_tick() {
+        let mut core = launch_one_organism_core();
+        let _ = core.cosmic_tick(0.6); // severity high enough to potentially report quantum anomaly
+        let s = core.extended_live_status();
+        // After reflexion, pending anomalies should be drained
+        assert_eq!(s.pending_anomaly_count, 0);
+        // At least one healing experience should have been logged
+        assert!(s.healing_experience_count >= 1);
     }
 }
