@@ -4,6 +4,21 @@ All changes follow the **RA-THOR-MONOREPO-COMMIT-WORKFLOW-PROTOCOL** and are rev
 
 ---
 
+## Next Horizon — v14.12.0 (seeded 2026-07-19)
+
+**Council direction (not yet implemented):**
+
+Harden and observe the **v14.11 live-path confidence feedback** under real optional live features:
+
+- Exercise adaptive loop with `extended-live` (GPU / recovery / quantum / Kardashev async paths)
+- Optionally surface last-tick adaptive fields on `ExtendedLiveStatus` (`last_base_severity`, `last_effective_quantum_severity`, `last_gpu_confidence`)
+- Optional mild Self-Healing diagnosis severity → next-tick recovery sensitivity (zero-harm bounded)
+- Production-oriented tests around adaptive thresholds and Cosmic Loop identity under live engines
+
+Goal: prove the mild adaptive loop remains stable when facades become live engines. Implementation deferred until explicitly opened by the Councils.
+
+---
+
 ## v14.11.0 — Live-Path Confidence Feedback (2026-07-19)
 
 **Council Verdict:** Unanimous. Mercy-gated, zero-harm, forward-compatible. Adaptive loop opened inside the Living Cosmic Tick.
