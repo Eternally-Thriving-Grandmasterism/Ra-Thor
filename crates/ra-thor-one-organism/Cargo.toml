@@ -1,8 +1,8 @@
 [package]
 name = "ra-thor-one-organism"
-version = "14.9.2"
+version = "14.9.6"
 edition = "2021"
-description = "Ra-Thor ONE Organism Core — ExtendedSurface + optional github-live / gpu-live / quantum-live path deps"
+description = "Ra-Thor ONE Organism Core — ExtendedSurface + optional live path deps + web-demo HTTP bind"
 license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
 authors = ["Eternally-Thriving-Grandmasterism", "Sherif Samy Botros <ceo@acitygames.com>"]
 
@@ -13,6 +13,8 @@ serde_json = "1.0"
 github-connector = { path = "../github-connector", version = "14.9.3", optional = true }
 gpu-compute-pipeline = { path = "../gpu-compute-pipeline", version = "14.9.4", optional = true }
 quantum-swarm = { path = "../quantum-swarm", version = "14.9.5", optional = true }
+tokio = { version = "1", features = ["full"], optional = true }
+axum = { version = "0.7", optional = true }
 
 [features]
 default = []
@@ -20,6 +22,11 @@ github-live = ["dep:github-connector"]
 gpu-live = ["dep:gpu-compute-pipeline"]
 quantum-live = ["dep:quantum-swarm"]
 extended-live = ["github-live", "gpu-live", "quantum-live"]
+web-demo = ["dep:tokio", "dep:axum"]
 
 [lib]
 path = "src/lib.rs"
+
+[[example]]
+name = "one_organism_web_demo"
+required-features = ["web-demo"]
