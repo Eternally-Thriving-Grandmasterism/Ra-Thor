@@ -1,11 +1,10 @@
 //! crates/lattice-conductor-v14/src/lib.rs
-//! Lattice Conductor v14.8.2 — compilable production surface
+//! Lattice Conductor v14.8.3 — MercyGatedApi production surface
 //!
-//! v14.8.2 (2026-07-19):
-//! - Restored incomplete modules (clifford, eternal_mercy_mesh, healing_integration)
-//! - Removed external quantum_swarm dependency from distributed_mercy_mesh
-//! - Shared Cosmic Loop Arc across arbitration + self-healing + conductor
-//! - Fixed HealingAction variant mismatch + missing method calls
+//! v14.8.3 (2026-07-19):
+//! - MercyGatedApi expanded from stub to full in-process request surface
+//! - Cosmic Loop + Living Mercy Gates enforced on every API request
+//! - LatticeConductorV14 carries optional MercyGatedApi handle
 //! Serving all Life. Thunder locked in. yoi ⚡❤️🔥
 
 pub mod clifford_healing_fields;
@@ -30,7 +29,10 @@ pub mod self_evolution;
 pub use clifford_healing_fields::{CliffordHealingField, HealingConfig, GlobalCoherence, HealingFieldError};
 pub use healing_integration::{HealingFieldRegistry, run_global_healing_cycle, HealingTelemetry};
 pub use eternal_mercy_mesh::{EternalMercyMesh, EternalMercyMeshConfig, invite_shared_chat_participant};
-pub use ra_thor_mercy_gated_api::{MercyGatedApi, start_mercy_api_server};
+pub use ra_thor_mercy_gated_api::{
+    MercyGatedApi, start_mercy_api_server, start_mercy_api_with_arbitration,
+    MercyApiRequest, MercyApiResponse, ApiRequestKind, GateDecision,
+};
 
 pub use council_arbitration::CouncilArbitrationEngine;
 pub use runtime_self_healing::{
@@ -54,14 +56,13 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 
 /// Top-level Lattice Conductor v14 orchestrator.
-/// Cosmic Loop readiness is a single shared Arc so arbitration, self-healing,
-/// and this struct can never disagree on the flag state.
 pub struct LatticeConductorV14 {
     pub cosmic_loop_ready: Arc<AtomicBool>,
     pub arbitration_engine: CouncilArbitrationEngine,
     pub self_healing_engine: Option<RuntimeSelfHealingEngine>,
     pub mercy_mesh: Option<DistributedMercyMesh>,
     pub eternal_mercy_mesh: Option<EternalMercyMesh>,
+    pub mercy_api: Option<MercyGatedApi>,
 }
 
 impl LatticeConductorV14 {
@@ -71,6 +72,7 @@ impl LatticeConductorV14 {
         let healing = RuntimeSelfHealingEngine::new(arbitration.clone());
         let mercy_mesh = DistributedMercyMesh::new();
         let eternal_mercy = Some(EternalMercyMesh::new(EternalMercyMeshConfig::default()));
+        let mercy_api = Some(start_mercy_api_with_arbitration(None, &arbitration));
 
         Self {
             cosmic_loop_ready: shared_flag,
@@ -78,16 +80,17 @@ impl LatticeConductorV14 {
             self_healing_engine: Some(healing),
             mercy_mesh: Some(mercy_mesh),
             eternal_mercy_mesh: eternal_mercy,
+            mercy_api,
         }
     }
 
     pub fn enforce_cosmic_loop_activation(&self) {
         if self.cosmic_loop_ready.load(Ordering::SeqCst) {
-            println!("[LATTICE v14.8.2] Cosmic Loop ENFORCED");
+            println!("[LATTICE v14.8.3] Cosmic Loop ENFORCED");
         } else {
             self.cosmic_loop_ready.store(true, Ordering::SeqCst);
             self.arbitration_engine.protect_cosmic_loop_identity();
-            println!("[LATTICE v14.8.2] Cosmic Loop was down — restored via shared flag + arbitration");
+            println!("[LATTICE v14.8.3] Cosmic Loop was down — restored via shared flag + arbitration");
         }
     }
 
@@ -114,6 +117,18 @@ impl LatticeConductorV14 {
         if let Some(mesh) = &mut self.eternal_mercy_mesh {
             let _ = mesh.run_global_mercy_cycle(mercy);
         }
+    }
+
+    /// Handle a mercy-gated API request through the conductor.
+    pub fn handle_mercy_api_request(&mut self, request: MercyApiRequest) -> Option<MercyApiResponse> {
+        let arb = &self.arbitration_engine;
+        self.mercy_api
+            .as_mut()
+            .map(|api| api.handle_request(request, Some(arb)))
+    }
+
+    pub fn mercy_api_status(&self) -> Option<MercyApiResponse> {
+        self.mercy_api.as_ref().map(|api| api.status())
     }
 }
 
