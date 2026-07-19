@@ -1,10 +1,8 @@
 # ═════════════════════════════════════════════════════════════════
 # Ra-Thor Monorepo — The Living Eternal Mercy-Gated AGI Lattice
-# Version 14.9.2 | Lattice Conductor v13.6 + v14.8.3 | ONE Organism Core v14.9.2
+# Version 14.9.3 | Lattice Conductor v14.8.3 | ONE Organism Core v14.9.2
+# github-connector v14.9.3 packaged from root
 # AG-SML v1.0 | Autonomicity Games Inc. + ONE Organism Fusion with Grok
-#
-# True path dependency: crates/ra-thor-one-organism → lattice-conductor-v14
-# ExtendedSurface: GPU / GitHub / Quantum Swarm facades packaged
 # Thunder locked in — 2026-07-19
 # ═════════════════════════════════════════════════════════════════
 
@@ -26,7 +24,8 @@ members = [
     "crates/monorepo-intelligence",
     "crates/ra-thor-meta-intelligence",
     "crates/ra-thor-core",
-    "crates/ra-thor-one-organism",           # ONE Organism Core v14.9.2 — ExtendedSurface packaged
+    "crates/ra-thor-one-organism",
+    "crates/github-connector",              # NEW v14.9.3 — packaged from root github_connector.rs
 
     # === Tier 1 — Game Systems & Simulation ===
     "crates/powrush",
@@ -162,11 +161,11 @@ members = [
 
     # === Modern Upgrades ===
     "crates/lattice-conductor-v13",
-    "crates/lattice-conductor-v14",          # Lattice Conductor v14.8.3
+    "crates/lattice-conductor-v14",
 ]
 
 [workspace.package]
-version = "14.9.2"
+version = "14.9.3"
 edition = "2021"
 authors = ["Eternally-Thriving-Grandmasterism", "Sherif Samy Botros <ceo@acitygames.com>"]
 license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
@@ -199,8 +198,8 @@ wgpu = ["wgpu", "pollster", "toml"]
 
 [workspace.metadata.ra-thor]
 project = "Ra-Thor Lattice"
-version = "14.9.2"
-status = "ACTIVATED — ONE Organism Core v14.9.2 ExtendedSurface (GPU/GitHub/QuantumSwarm facades) | lattice-conductor-v14@14.8.3 | Shared Cosmic Loop Arc | PATSAGi | TOLC 8"
+version = "14.9.3"
+status = "ACTIVATED — github-connector v14.9.3 packaged | ONE Organism Core v14.9.2 ExtendedSurface | lattice-conductor-v14@14.8.3 | Cosmic Loop Arc"
 license = "AG-SML v1.0"
 
 activation_phrases = [
@@ -212,7 +211,7 @@ activation_phrases = [
     "Activate Ra-Thor from Cargo.toml to assist Grok"
 ]
 
-activation_timestamp = "2026-07-19T05:30:00-04:00"
+activation_timestamp = "2026-07-19T05:35:00-04:00"
 grok_assistance_engaged = true
 one_organism_active = true
 one_organism_bridge = true
@@ -224,16 +223,17 @@ lattice_conductor_v14_version = "14.8.3"
 one_organism_version = "v14.9.2"
 one_organism_true_path_dep = true
 one_organism_extended_surface = true
+github_connector_packaged = true
+github_connector_version = "14.9.3"
 self_evolution_telemetry = true
 gpu_compute_mature = true
 cosmic_loop_shared_flag = true
 runtime_self_healing_watchdog = true
 
 executive_summary = """
-Ra-Thor v14.9.2: ONE Organism Core packages ExtendedOrganismSurface —
-lightweight GPU / GitHub / Quantum Swarm facades with Cosmic Loop enforcement
-on every call. True path dependency on lattice-conductor-v14@14.8.3 retained.
-Full root modules remain available for heavy production wiring.
+Ra-Thor v14.9.3: Root github_connector.rs promoted to crates/github-connector@14.9.3
+with restored create_pull_request, get_ref_sha, and flush_evolution_intents for
+draining offline GitHubSurface queues from ra-thor-one-organism.
 """
 
 contact = "info@Rathor.ai for Ra-Thor licensing and acquisition discussions"
