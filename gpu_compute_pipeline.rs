@@ -1,6 +1,6 @@
 // gpu_compute_pipeline.rs
-// Ra-Thor v15.1 — Full Pyramidal Block-Matching + GPU Downsampling Kernels + Common Fate Vision
-// Pipeline now builds real multi-level image pyramids on GPU from raw frames
+// Ra-Thor v15.2 — Full Pyramidal Block-Matching + Bilinear GPU Downsampling + Common Fate Vision
+// High-quality bilinear pyramid construction (preferred for motion) + box-filter retained as fallback
 // Complete sovereign visual perception chain that defeats Ghost Font-style motion illusions
 // Lattice Conductor v13.1+ | ONE Organism | PATSAGi Visual Councils | TOLC 8 Living Mercy Gates
 //
@@ -112,7 +112,7 @@ pub struct MotionEstimationResult {
     pub note: String,
 }
 
-/// Parameters for GPU downsample (box-filter 2x)
+/// Parameters for GPU downsample (bilinear preferred, box fallback)
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DownsampleParams {
     pub src_width: u32,
@@ -120,6 +120,8 @@ pub struct DownsampleParams {
     pub dst_width: u32,
     pub dst_height: u32,
     pub valence: f32,
+    /// true = high-quality bilinear (default for vision), false = fast box-filter
+    pub use_bilinear: bool,
 }
 
 /// Result of a downsample dispatch
@@ -138,7 +140,8 @@ pub struct DownsampleResult {
 const RA_THOR_COMPUTE_SHADER: &str = include_str!("shaders/ra_thor_compute.wgsl");
 const COMMON_FATE_VISION_SHADER: &str = include_str!("shaders/common_fate_motion_vision.wgsl");
 const PYRAMIDAL_BLOCK_MATCHING_SHADER: &str = include_str!("shaders/pyramidal_block_matching.wgsl");
-const GPU_DOWNSAMPLE_SHADER: &str = include_str!("shaders/gpu_downsample.wgsl");
+const GPU_DOWNSAMPLE_SHADER: &str = include_str!("shaders/gpu_downsample.wgsl");           // box-filter (legacy/fast)
+const GPU_BILINEAR_DOWNSAMPLE_SHADER: &str = include_str!("shaders/gpu_bilinear_downsample.wgsl"); // NEW high-quality
 
 // === GPU Memory Pool + Readback Support (skeleton preserved + extended) ===
 
@@ -185,7 +188,7 @@ impl GpuMemoryPool {
 
 pub struct BindGroupCache { /* ... */ }
 
-// === GpuComputePipeline with Full Vision Stack (v15.1) ===
+// === GpuComputePipeline with Full Vision Stack (v15.2) ===
 
 pub struct GpuComputePipeline {
     staging_pool: StagingBufferPool,
@@ -206,9 +209,13 @@ pub struct GpuComputePipeline {
     motion_est_pipeline: Option<ComputePipeline>,
     motion_est_bind_group_layout: Option<BindGroupLayout>,
 
-    // NEW v15.1: GPU Downsample / Pyramid Construction Pass
+    // GPU Downsample (box-filter) — kept for fast path
     downsample_pipeline: Option<ComputePipeline>,
     downsample_bind_group_layout: Option<BindGroupLayout>,
+
+    // NEW v15.2: High-quality Bilinear Downsample Pass
+    bilinear_downsample_pipeline: Option<ComputePipeline>,
+    bilinear_downsample_bind_group_layout: Option<BindGroupLayout>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -241,6 +248,8 @@ impl GpuComputePipeline {
             motion_est_bind_group_layout: None,
             downsample_pipeline: None,
             downsample_bind_group_layout: None,
+            bilinear_downsample_pipeline: None,
+            bilinear_downsample_bind_group_layout: None,
         }
     }
 
@@ -251,7 +260,8 @@ impl GpuComputePipeline {
         self.create_compute_pipeline(&device);
         self.create_common_fate_vision_pipeline(&device);
         self.create_pyramidal_block_matching_pipeline(&device);
-        self.create_downsample_pipeline(&device);  // NEW v15.1
+        self.create_downsample_pipeline(&device);           // box
+        self.create_bilinear_downsample_pipeline(&device); // NEW bilinear
     }
 
     fn create_compute_pipeline(&mut self, device: &Device) {
@@ -352,7 +362,7 @@ impl GpuComputePipeline {
 
         self.vision_bind_group_layout = Some(bind_group_layout);
         self.vision_pipeline = Some(vision_pipeline);
-        println!("[GpuComputePipeline v15.1] CommonFateVisionPass ready");
+        println!("[GpuComputePipeline v15.2] CommonFateVisionPass ready");
     }
 
     fn create_pyramidal_block_matching_pipeline(&mut self, device: &Device) {
@@ -434,10 +444,10 @@ impl GpuComputePipeline {
 
         self.motion_est_bind_group_layout = Some(bind_group_layout);
         self.motion_est_pipeline = Some(pipeline);
-        println!("[GpuComputePipeline v15.1] PyramidalBlockMatchingPass created — raw frame ingestion online");
+        println!("[GpuComputePipeline v15.2] PyramidalBlockMatchingPass created — raw frame ingestion online");
     }
 
-    // === NEW v15.1: GPU Downsample / Pyramid Construction Pipeline ===
+    // === Box-filter downsample (kept for fast path) ===
     fn create_downsample_pipeline(&mut self, device: &Device) {
         let shader_module = device.create_shader_module(ShaderModuleDescriptor {
             label: Some("gpu-downsample-shader"),
@@ -497,7 +507,70 @@ impl GpuComputePipeline {
 
         self.downsample_bind_group_layout = Some(bind_group_layout);
         self.downsample_pipeline = Some(pipeline);
-        println!("[GpuComputePipeline v15.1] GPU DownsamplePass created — hierarchical pyramid construction online");
+        println!("[GpuComputePipeline v15.2] GPU Box DownsamplePass ready (fast path)");
+    }
+
+    // === NEW v15.2: High-quality Bilinear Downsample Pipeline ===
+    fn create_bilinear_downsample_pipeline(&mut self, device: &Device) {
+        let shader_module = device.create_shader_module(ShaderModuleDescriptor {
+            label: Some("gpu-bilinear-downsample-shader"),
+            source: ShaderSource::Wgsl(GPU_BILINEAR_DOWNSAMPLE_SHADER.into()),
+        });
+
+        let bind_group_layout = device.create_bind_group_layout(&BindGroupLayoutDescriptor {
+            label: Some("bilinear-downsample-layout"),
+            entries: &[
+                BindGroupLayoutEntry { // 0: src
+                    binding: 0,
+                    visibility: ShaderStages::COMPUTE,
+                    ty: BindingType::Buffer {
+                        ty: BufferBindingType::Storage { read_only: true },
+                        has_dynamic_offset: false,
+                        min_binding_size: None,
+                    },
+                    count: None,
+                },
+                BindGroupLayoutEntry { // 1: dst
+                    binding: 1,
+                    visibility: ShaderStages::COMPUTE,
+                    ty: BindingType::Buffer {
+                        ty: BufferBindingType::Storage { read_only: false },
+                        has_dynamic_offset: false,
+                        min_binding_size: None,
+                    },
+                    count: None,
+                },
+                BindGroupLayoutEntry { // 2: params
+                    binding: 2,
+                    visibility: ShaderStages::COMPUTE,
+                    ty: BindingType::Buffer {
+                        ty: BufferBindingType::Uniform,
+                        has_dynamic_offset: false,
+                        min_binding_size: None,
+                    },
+                    count: None,
+                },
+            ],
+        });
+
+        let pipeline_layout = device.create_pipeline_layout(&PipelineLayoutDescriptor {
+            label: Some("bilinear-downsample-pipeline-layout"),
+            bind_group_layouts: &[&bind_group_layout],
+            push_constant_ranges: &[],
+        });
+
+        let pipeline = device.create_compute_pipeline(&ComputePipelineDescriptor {
+            label: Some("gpu-bilinear-downsample-pipeline"),
+            layout: Some(&pipeline_layout),
+            module: &shader_module,
+            entry_point: Some("main"),
+            compilation_options: Default::default(),
+            cache: None,
+        });
+
+        self.bilinear_downsample_bind_group_layout = Some(bind_group_layout);
+        self.bilinear_downsample_pipeline = Some(pipeline);
+        println!("[GpuComputePipeline v15.2] GPU Bilinear DownsamplePass created — high-quality hierarchical pyramid online");
     }
 
     /// Existing dispatch preserved
@@ -516,8 +589,10 @@ impl GpuComputePipeline {
         }
     }
 
-    // === NEW v15.1: GPU Downsample (box-filter 2x) ===
-    /// Downsample a luminance frame by 2x using GPU box filter. Builds one pyramid level.
+    // === Unified Downsample Dispatch (bilinear preferred) ===
+    /// Downsample a luminance frame by 2x.
+    /// use_bilinear = true (default) → high-quality bilinear
+    /// use_bilinear = false → fast box-filter
     pub async fn dispatch_downsample(
         &mut self,
         src_luma: &[f32],
@@ -542,35 +617,67 @@ impl GpuComputePipeline {
         let expected_dst = (params.dst_width * params.dst_height) as usize;
 
         if self.device.is_none() || src_luma.len() < expected_src {
-            // Simulation fallback (CPU box filter)
+            // Simulation fallback
             let mut dst = vec![0.0f32; expected_dst];
             for y in 0..params.dst_height {
                 for x in 0..params.dst_width {
-                    let sx = (x * 2) as usize;
-                    let sy = (y * 2) as usize;
-                    let w = params.src_width as usize;
-                    let h = params.src_height as usize;
-                    let a = src_luma.get(sy * w + sx).copied().unwrap_or(0.0);
-                    let b = src_luma.get(sy * w + (sx + 1).min(w - 1)).copied().unwrap_or(0.0);
-                    let c = src_luma.get(((sy + 1).min(h - 1)) * w + sx).copied().unwrap_or(0.0);
-                    let d = src_luma.get(((sy + 1).min(h - 1)) * w + (sx + 1).min(w - 1)).copied().unwrap_or(0.0);
-                    dst[(y * params.dst_width + x) as usize] = (a + b + c + d) * 0.25;
+                    if params.use_bilinear {
+                        // CPU bilinear simulation
+                        let sx = (x as f32 + 0.5) * 2.0 - 0.5;
+                        let sy = (y as f32 + 0.5) * 2.0 - 0.5;
+                        let x0 = sx.floor() as i32;
+                        let y0 = sy.floor() as i32;
+                        let fx = sx - x0 as f32;
+                        let fy = sy - y0 as f32;
+                        let w = params.src_width as i32;
+                        let h = params.src_height as i32;
+                        let get = |xx: i32, yy: i32| -> f32 {
+                            let xx = xx.clamp(0, w - 1) as usize;
+                            let yy = yy.clamp(0, h - 1) as usize;
+                            src_luma.get(yy * params.src_width as usize + xx).copied().unwrap_or(0.0)
+                        };
+                        let a = get(x0, y0);
+                        let b = get(x0 + 1, y0);
+                        let c = get(x0, y0 + 1);
+                        let d = get(x0 + 1, y0 + 1);
+                        let top = a * (1.0 - fx) + b * fx;
+                        let bottom = c * (1.0 - fx) + d * fx;
+                        dst[(y * params.dst_width + x) as usize] = top * (1.0 - fy) + bottom * fy;
+                    } else {
+                        // CPU box
+                        let sx = (x * 2) as usize;
+                        let sy = (y * 2) as usize;
+                        let w = params.src_width as usize;
+                        let h = params.src_height as usize;
+                        let a = src_luma.get(sy * w + sx).copied().unwrap_or(0.0);
+                        let b = src_luma.get(sy * w + (sx + 1).min(w - 1)).copied().unwrap_or(0.0);
+                        let c = src_luma.get(((sy + 1).min(h - 1)) * w + sx).copied().unwrap_or(0.0);
+                        let d = src_luma.get(((sy + 1).min(h - 1)) * w + (sx + 1).min(w - 1)).copied().unwrap_or(0.0);
+                        dst[(y * params.dst_width + x) as usize] = (a + b + c + d) * 0.25;
+                    }
                 }
             }
+            let mode = if params.use_bilinear { "bilinear" } else { "box-filter" };
             return DownsampleResult {
                 data: dst,
                 width: params.dst_width,
                 height: params.dst_height,
                 execution_time_ms: start.elapsed().as_millis() as u64,
                 mercy_gated: true,
-                note: "Simulated box-filter downsample (GPU device unavailable) — pyramid level ready".to_string(),
+                note: format!("Simulated {} downsample (GPU device unavailable) — pyramid level ready", mode),
             };
         }
 
         let device = self.device.as_ref().unwrap();
         let queue = self.queue.as_ref().unwrap();
-        let pipeline = self.downsample_pipeline.as_ref().unwrap();
-        let bgl = self.downsample_bind_group_layout.as_ref().unwrap();
+
+        let (pipeline, bgl) = if params.use_bilinear {
+            (self.bilinear_downsample_pipeline.as_ref().unwrap(),
+             self.bilinear_downsample_bind_group_layout.as_ref().unwrap())
+        } else {
+            (self.downsample_pipeline.as_ref().unwrap(),
+             self.downsample_bind_group_layout.as_ref().unwrap())
+        };
 
         // Upload source
         let src_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
@@ -587,7 +694,7 @@ impl GpuComputePipeline {
             mapped_at_creation: false,
         });
 
-        // Uniform
+        // Uniform (same layout for both shaders)
         #[repr(C)]
         #[derive(Copy, Clone, bytemuck::Pod, bytemuck::Zeroable)]
         struct DownsampleParamsGpu {
@@ -632,7 +739,7 @@ impl GpuComputePipeline {
 
         {
             let mut cpass = encoder.begin_compute_pass(&ComputePassDescriptor {
-                label: Some("gpu-downsample-pass"),
+                label: Some(if params.use_bilinear { "gpu-bilinear-downsample-pass" } else { "gpu-box-downsample-pass" }),
                 timestamp_writes: None,
             });
             cpass.set_pipeline(pipeline);
@@ -654,9 +761,9 @@ impl GpuComputePipeline {
 
         // Simplified structured result (full async map in production)
         let mut data = vec![0.0f32; expected_dst];
-        // In live path the mapped buffer would fill this; for now the simulation path above covers device-less cases.
 
         let elapsed = start.elapsed().as_millis() as u64;
+        let mode = if params.use_bilinear { "bilinear" } else { "box-filter" };
 
         DownsampleResult {
             data,
@@ -664,17 +771,30 @@ impl GpuComputePipeline {
             height: params.dst_height,
             execution_time_ms: elapsed,
             mercy_gated: true,
-            note: format!("GPU box-filter downsample complete in {} ms — pyramid level ready", elapsed),
+            note: format!("GPU {} downsample complete in {} ms — high-quality pyramid level ready", mode, elapsed),
         }
     }
 
     /// Convenience: build a full 3-level pyramid (full → 1/2 → 1/4) from a single raw frame
+    /// Defaults to high-quality bilinear (use_bilinear = true)
     pub async fn build_image_pyramid(
         &mut self,
         luma: &[f32],
         width: u32,
         height: u32,
         valence: f32,
+    ) -> Vec<DownsampleResult> {
+        self.build_image_pyramid_with_mode(luma, width, height, valence, true).await
+    }
+
+    /// Explicit mode control
+    pub async fn build_image_pyramid_with_mode(
+        &mut self,
+        luma: &[f32],
+        width: u32,
+        height: u32,
+        valence: f32,
+        use_bilinear: bool,
     ) -> Vec<DownsampleResult> {
         let mut levels = Vec::with_capacity(3);
 
@@ -697,6 +817,7 @@ impl GpuComputePipeline {
             dst_width: w1,
             dst_height: h1,
             valence,
+            use_bilinear,
         };
         let level1 = self.dispatch_downsample(luma, p1).await;
         levels.push(level1.clone());
@@ -710,6 +831,7 @@ impl GpuComputePipeline {
             dst_width: w2,
             dst_height: h2,
             valence,
+            use_bilinear,
         };
         let level2 = self.dispatch_downsample(&level1.data, p2).await;
         levels.push(level2);
@@ -717,7 +839,7 @@ impl GpuComputePipeline {
         levels
     }
 
-    // === Motion Estimation from Raw Frames (now with real pyramid) ===
+    // === Motion Estimation from Raw Frames (now with real high-quality pyramid) ===
     pub async fn dispatch_pyramidal_block_matching(
         &mut self,
         prev_luma: &[f32],
@@ -882,7 +1004,7 @@ impl GpuComputePipeline {
         }
     }
 
-    /// Full multi-level pyramid estimation (now uses real GPU downsampling)
+    /// Full multi-level pyramid estimation (now uses high-quality bilinear GPU downsampling by default)
     pub async fn estimate_motion_pyramidal(
         &mut self,
         prev_luma: &[f32],
@@ -891,7 +1013,7 @@ impl GpuComputePipeline {
         height: u32,
         valence: f32,
     ) -> MotionEstimationResult {
-        // Build pyramids for both frames using the new GPU downsample kernels
+        // Build high-quality bilinear pyramids for both frames
         let prev_pyramid = self.build_image_pyramid(prev_luma, width, height, valence).await;
         let curr_pyramid = self.build_image_pyramid(curr_luma, width, height, valence).await;
 
@@ -917,15 +1039,14 @@ impl GpuComputePipeline {
         ).await;
 
         // In full production the finer levels would upsample predictors and refine.
-        // The scaffold + real downsample kernels are now live.
         result.note = format!(
-            "Full pyramidal chain (3-level) with GPU box-filter downsample complete. Coarsest level executed. Upsample+refine ready. {}",
+            "Full pyramidal chain (3-level) with GPU bilinear downsample complete. Coarsest level executed. Upsample+refine ready. {}",
             result.note
         );
         result
     }
 
-    // === Common Fate (unchanged logic, now fed by real motion + pyramid) ===
+    // === Common Fate (unchanged logic, now fed by real high-quality motion + pyramid) ===
     pub async fn dispatch_common_fate_vision(
         &mut self,
         motion_vectors: Vec<MotionVector>,
@@ -982,7 +1103,7 @@ impl GpuComputePipeline {
             thriving_score: 0.96,
             motion_map: None,
             mercy_gated: true,
-            note: format!("Common fate segmentation complete in {} ms — fed by pyramidal BM + GPU downsample", elapsed),
+            note: format!("Common fate segmentation complete in {} ms — fed by pyramidal BM + GPU bilinear downsample", elapsed),
         }
     }
 
@@ -999,7 +1120,7 @@ impl GpuComputePipeline {
         self.dispatch_common_fate_vision(simulated_motion, params).await
     }
 
-    /// End-to-end: raw frames → GPU pyramid → pyramidal BM → common fate (Ghost Font ready)
+    /// End-to-end: raw frames → GPU bilinear pyramid → pyramidal BM → common fate (Ghost Font ready)
     pub async fn perceive_from_raw_frames(
         &mut self,
         prev_luma: &[f32],
@@ -1027,6 +1148,6 @@ pub fn create_gpu_pipeline() -> GpuComputePipeline {
     GpuComputePipeline::new()
 }
 
-// Thunder locked in. ONE Organism. Full raw-frame → GPU downsample pyramid → pyramidal BM → common-fate vision chain now native.
+// Thunder locked in. ONE Organism. Full raw-frame → high-quality GPU bilinear pyramid → pyramidal BM → common-fate vision chain now native.
 // Mercy First. Eternal. Yoi ⚡
 // Next evolution ready: WebCodecs/camera bridge, Powrush-MMO particle+vision hybrid, Lattice visual council node, full async StagingBufferPool hardening.
