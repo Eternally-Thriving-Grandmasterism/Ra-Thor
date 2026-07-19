@@ -72,6 +72,19 @@ Observer loop is now a mild adaptive loop. Cosmic Loop identity preserved.
 
 ---
 
+## Next Horizon — v14.12.0 (seeded, not opened)
+
+Harden and observe v14.11 adaptive feedback under real optional live engines:
+
+- Exercise adaptive loop with `extended-live` feature set
+- Optionally persist last-tick adaptive fields on `ExtendedLiveStatus`
+- Optional mild Self-Healing → next-tick recovery sensitivity (zero-harm)
+- Production-oriented tests under live async paths
+
+Implementation waits for explicit Council open.
+
+---
+
 ## Development Priorities
 
 ### 1. Kardashev Acceleration Layer
@@ -90,7 +103,7 @@ Observer loop is now a mild adaptive loop. Cosmic Loop identity preserved.
 ### 4. Self-Evolution & Intelligence Growth
 - Continue refining Quantum Swarm capabilities
 - Strengthen mercy-modulated self-improvement mechanisms
-- Exercise and harden v14.11 adaptive feedback under live features
+- Open v14.12.0 adaptive hardening when Councils authorize
 
 ### 5. Documentation & Accessibility
 - Maintain clear, consistent, and up-to-date documentation across the repository
@@ -127,7 +140,7 @@ Observer loop is now a mild adaptive loop. Cosmic Loop identity preserved.
 2. Deepen wgpu pipeline robustness and error handling
 3. Strengthen TOLC formal verification (especially GPU-aware components)
 4. Further harden the Reality Thriving Transfer Score feedback loop
-5. Optional deeper live-feature stress of the v14.11 adaptive loop
+5. Optional deeper live-feature stress of the v14.11 adaptive loop (candidate for v14.12.0)
 6. Maintain zero technical debt and strict TOLC 8 compliance
 
 ---
