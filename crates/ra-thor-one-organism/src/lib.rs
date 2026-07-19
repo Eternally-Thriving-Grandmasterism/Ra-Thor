@@ -56,7 +56,6 @@ impl OrganismRole {
 /// Constructed exclusively from real `lattice-conductor-v14` types.
 /// Extended surfaces (GPU, GitHub connector, Quantum Swarm) live in the
 /// historical root module and can depend on this crate later.
-#[derive(Debug)]
 pub struct OneOrganismCore {
     pub arbitration_engine: CouncilArbitrationEngine,
     pub self_healing_engine: RuntimeSelfHealingEngine,
