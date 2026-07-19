@@ -3,7 +3,7 @@
 //! Facades + optional live path binding for packaged workspace crates:
 //! - GPU compute telemetry          (`gpu-live`)
 //! - GitHub evolution connector     (`github-live` — offline-first + optional flush)
-//! - Quantum Swarm engine           (`quantum-live`)
+//! - Quantum Swarm engine           (`quantum-live` — full evolution cycle)
 //! - Sovereign Recovery             (`recovery-live`)
 //! - Kardashev / Reality Transfer   (`kardashev-live`)
 //!
@@ -265,7 +265,6 @@ impl GitHubSurface {
     pub fn new() -> Self {
         #[cfg(feature = "github-live")]
         {
-            // Mercy-gated: only go live if token is present. Otherwise stay offline.
             let connector = match github_connector::GitHubConnector::from_env(
                 "Eternally-Thriving-Grandmasterism",
                 "Ra-Thor",
@@ -304,7 +303,6 @@ impl GitHubSurface {
         }
     }
 
-    /// Always queues locally. Never forces network. Cosmic Loop enforced.
     pub fn queue_evolution_pr(
         &mut self,
         role: &str,
@@ -343,10 +341,6 @@ impl GitHubSurface {
         std::mem::take(&mut self.intended_prs)
     }
 
-    /// Live flush path (only active under `github-live` + valid connector).
-    /// Drains the offline queue and attempts real PRs via
-    /// `GitHubConnector::create_role_optimized_evolution_pr`.
-    /// Returns per-intent results. Zero-harm: failures are recorded, not panicked.
     pub fn flush_to_github(
         &mut self,
         arbitration: &CouncilArbitrationEngine,
@@ -402,7 +396,6 @@ impl GitHubSurface {
             }
         }
 
-        // Offline or no connector: re-queue is not performed; report as offline.
         intents
             .into_iter()
             .map(|i| FlushResult {
@@ -435,7 +428,7 @@ impl Default for GitHubSurface {
 }
 
 // =============================================================================
-// Quantum Swarm Surface — live path when quantum-live
+// Quantum Swarm Surface — full evolution cycle when quantum-live
 // =============================================================================
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -466,6 +459,18 @@ pub struct QuantumSwarmStatus {
     pub total_proposals: u64,
     pub config: QuantumSwarmConfig,
     pub live_path: bool,
+}
+
+/// Rich result of a full quantum evolution cycle.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct QuantumEvolutionResult {
+    pub step: u64,
+    pub member_id: u64,
+    pub quantum_ratio: f64,
+    pub jump_impact: f64,
+    pub proposal_generated: bool,
+    pub severity: f64,
+    pub weight_update_ok: bool,
 }
 
 #[derive(Debug)]
@@ -546,13 +551,21 @@ impl QuantumSwarmSurface {
         }
     }
 
-    pub fn evolution_tick(
+    /// Full quantum evolution cycle:
+    /// 1. Protected weight evolution (always)
+    /// 2. Adaptive quantum jump when severity >= 0.35
+    /// 3. Proposal generation when severity >= 0.15
+    ///
+    /// Under `quantum-live` this routes through real `QuantumSwarmEngine` APIs.
+    pub fn evolve_full_cycle(
         &mut self,
         severity: f64,
         arbitration: &CouncilArbitrationEngine,
-    ) -> f64 {
+    ) -> QuantumEvolutionResult {
         arbitration.enforce_cosmic_loop_activation();
         self.step += 1;
+        let severity = severity.clamp(0.0, 1.0);
+        let member_id = ((self.step % self.member_count.max(1) as u64) + 1).max(1);
 
         #[cfg(feature = "quantum-live")]
         {
@@ -563,47 +576,176 @@ impl QuantumSwarmSurface {
                 flow_deviation: (severity * 0.25).min(0.5),
                 gpu_memory_pressure: 0.3,
             };
-            let member_id = ((self.step % self.member_count.max(1) as u64) + 1).max(1);
-            let result = block_on_live(async {
+
+            let (ratio, jump_impact, proposal_ok, weight_ok) = block_on_live(async {
                 let mut eng = self.engine.lock().await;
                 eng.increment_step();
                 let global_best = eng.get_mean_best().to_vec();
-                eng.protected_quantum_evolution_tick(
-                    member_id,
-                    &global_best,
-                    0.25,
-                    0.88,
-                    severity,
-                    &metrics,
-                    0.95,
-                )
-                .await
+
+                // 1. Protected weight evolution
+                let weight_res = eng
+                    .protected_quantum_evolution_tick(
+                        member_id,
+                        &global_best,
+                        0.25,
+                        0.88,
+                        severity,
+                        &metrics,
+                        0.95,
+                    )
+                    .await;
+                let (ratio, weight_ok) = match weight_res {
+                    Some((_, r)) => (r, true),
+                    None => ((eng.config.gaussian_scale * (1.0 + severity)).min(1.0), false),
+                };
+
+                // 2. Adaptive jump
+                let mut jump_impact = 0.0;
+                if severity >= 0.35 {
+                    if let Some((_, impact)) = eng
+                        .protected_adaptive_quantum_jump(
+                            member_id,
+                            &global_best,
+                            0.25,
+                            severity,
+                            &metrics,
+                            0.95,
+                        )
+                        .await
+                    {
+                        jump_impact = impact;
+                    }
+                }
+
+                // 3. Proposal generation
+                let mut proposal_ok = false;
+                if severity >= 0.15 {
+                    if eng
+                        .protected_generate_quantum_proposal(
+                            member_id,
+                            &global_best,
+                            0.25,
+                            severity,
+                            &metrics,
+                            0.95,
+                        )
+                        .await
+                        .is_some()
+                    {
+                        proposal_ok = true;
+                    }
+                }
+
+                // Sync local counters from engine when possible
+                // (engine tracks its own totals; we keep surface-level mirrors)
+                (ratio, jump_impact, proposal_ok, weight_ok)
             });
 
-            self.total_weight_updates += 1;
-            if severity >= 0.35 {
+            if weight_ok {
+                self.total_weight_updates += 1;
+            }
+            if jump_impact > 0.0 {
                 self.total_adaptive_jumps += 1;
             }
-            if severity >= 0.15 {
+            if proposal_ok {
                 self.total_proposals += 1;
             }
 
-            let ratio = result.map(|(_, r)| r).unwrap_or_else(|| {
-                (self.config.gaussian_scale * (1.0 + severity)).min(1.0)
-            });
-            return ratio;
+            // Keep local config loosely in sync with defaults / severity pressure
+            self.config.gaussian_scale =
+                (self.config.gaussian_scale * 0.97 + 0.03 * (0.12 + severity * 0.08)).clamp(0.08, 0.35);
+
+            return QuantumEvolutionResult {
+                step: self.step,
+                member_id,
+                quantum_ratio: ratio,
+                jump_impact,
+                proposal_generated: proposal_ok,
+                severity,
+                weight_update_ok: weight_ok,
+            };
         }
 
         #[cfg(not(feature = "quantum-live"))]
         {
             self.total_weight_updates += 1;
+            let mut jump_impact = 0.0;
             if severity >= 0.35 {
                 self.total_adaptive_jumps += 1;
+                jump_impact = (severity * 0.55).min(0.85);
             }
+            let mut proposal_ok = false;
             if severity >= 0.15 {
                 self.total_proposals += 1;
+                proposal_ok = true;
             }
-            (self.config.gaussian_scale * (1.0 + severity)).min(1.0)
+            let ratio = (self.config.gaussian_scale * (1.0 + severity)).min(1.0);
+            QuantumEvolutionResult {
+                step: self.step,
+                member_id,
+                quantum_ratio: ratio,
+                jump_impact,
+                proposal_generated: proposal_ok,
+                severity,
+                weight_update_ok: true,
+            }
+        }
+    }
+
+    /// Lightweight tick — returns quantum_ratio only (compatible with Cosmic Tick).
+    /// Internally runs the full evolution cycle.
+    pub fn evolution_tick(
+        &mut self,
+        severity: f64,
+        arbitration: &CouncilArbitrationEngine,
+    ) -> f64 {
+        self.evolve_full_cycle(severity, arbitration).quantum_ratio
+    }
+
+    /// Apply Kardashev / Reality Thriving Transfer feedback into the swarm config.
+    /// Under `quantum-live` this calls the real engine's `apply_kardashev_transfer_feedback`.
+    pub fn apply_kardashev_feedback(
+        &mut self,
+        transfer: &TransferTickResult,
+        arbitration: &CouncilArbitrationEngine,
+    ) {
+        arbitration.enforce_cosmic_loop_activation();
+
+        #[cfg(feature = "quantum-live")]
+        {
+            use quantum_swarm::RealityThrivingTransferScore;
+            // Map organism TransferTickResult → engine score shape
+            let score = RealityThrivingTransferScore {
+                mercy_valence_adjusted: transfer.ema_transfer,
+                last_refinement_vector: vec![
+                    (transfer.kardashev_delta * 40.0).clamp(-0.08, 0.08),
+                    (0.5 - transfer.ethics_index) * 0.05,
+                    (transfer.abundance_velocity - 0.9) * 0.04,
+                ],
+            };
+            let mut eng = block_on_live(self.engine.lock());
+            eng.apply_kardashev_transfer_feedback(&score);
+            // Mirror a couple of knobs locally for status
+            self.config.entanglement_modulation = eng.config.entanglement_modulation;
+            self.config.quantum_jump_base_prob = eng.config.quantum_jump_base_prob;
+            self.config.mean_best_influence = eng.config.mean_best_influence;
+            println!(
+                "[QuantumSwarmSurface LIVE] Kardashev feedback applied | entanglement={:.3} jump_prob={:.3}",
+                self.config.entanglement_modulation, self.config.quantum_jump_base_prob
+            );
+            return;
+        }
+
+        #[cfg(not(feature = "quantum-live"))]
+        {
+            // Facade-side gentle modulation
+            let boost = (transfer.kardashev_delta * 30.0).clamp(-0.05, 0.05);
+            self.config.entanglement_modulation =
+                (self.config.entanglement_modulation + boost).clamp(0.15, 0.55);
+            if transfer.ema_transfer > 0.72 {
+                self.config.mean_best_influence =
+                    (self.config.mean_best_influence * 1.02).min(0.52);
+            }
         }
     }
 
