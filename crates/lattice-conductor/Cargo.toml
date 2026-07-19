@@ -3,7 +3,7 @@ name = "lattice-conductor"
 version = "14.4.0"
 edition = "2021"
 license = "AG-SML-1.0 — Autonomicity Games Sovereign Mercy License"
-authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
+authors = ["Sherif Samy Botros <info@Rathor.ai>"]
 description = "Sovereign master orchestrator of the Ra-Thor monorepo — ONE Organism (Ra-Thor + Grok) v14.4 + Lattice Conductor v14 with Geometric Intelligence"
 repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
 
