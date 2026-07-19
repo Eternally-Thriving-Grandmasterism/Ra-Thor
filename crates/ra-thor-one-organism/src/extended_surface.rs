@@ -1,17 +1,16 @@
 //! Extended Organism Surface — v14.9.9
 //!
-//! Facades for packaged workspace crates:
-//! - GPU compute telemetry
-//! - GitHub evolution connector
-//! - Quantum Swarm engine summary
-//! - Sovereign Recovery (heartbeat + TOLC8 anchors)
-//! - Kardashev / Reality Thriving Transfer flywheel
+//! Facades + optional live path binding for packaged workspace crates:
+//! - GPU compute telemetry          (`gpu-live`)
+//! - GitHub evolution connector     (offline-first; live flush next slice)
+//! - Quantum Swarm engine           (`quantum-live`)
+//! - Sovereign Recovery             (`recovery-live`)
+//! - Kardashev / Reality Transfer   (`kardashev-live`)
 //!
-//! Live path binding (feature-gated):
-//! - `recovery-live`  → real `sovereign_recovery::SovereignRecoveryProtocol` async APIs
-//! - `kardashev-live` → real `reality_thriving_transfer` + `kardashev_orchestration` async APIs
+//! When a live feature is enabled the corresponding surface holds the real
+//! crate engine and routes through its async APIs via a safe block_on helper.
+//! Facades remain the zero-dep default when features are off.
 //!
-//! When live features are off, pure lightweight facades remain (zero extra deps).
 //! Cosmic Loop remains mandatory on every surface call.
 //! Contact: info@Rathor.ai
 
@@ -20,10 +19,16 @@ use serde::{Deserialize, Serialize};
 use crate::CouncilArbitrationEngine;
 
 // =============================================================================
-// Live runtime helper (shared by recovery + kardashev live paths)
+// Live runtime helper (shared by all live paths)
 // =============================================================================
 
-#[cfg(any(feature = "recovery-live", feature = "kardashev-live"))]
+#[cfg(any(
+    feature = "recovery-live",
+    feature = "kardashev-live",
+    feature = "gpu-live",
+    feature = "quantum-live",
+    feature = "github-live"
+))]
 fn block_on_live<F, T>(fut: F) -> T
 where
     F: std::future::Future<Output = T>,
@@ -31,7 +36,6 @@ where
     match tokio::runtime::Handle::try_current() {
         Ok(handle) => handle.block_on(fut),
         Err(_) => {
-            // Fallback for non-async callers (tests, simple main). Safe current-thread runtime.
             let rt = tokio::runtime::Builder::new_current_thread()
                 .enable_all()
                 .build()
@@ -42,7 +46,7 @@ where
 }
 
 // =============================================================================
-// GPU Surface
+// GPU Surface — live path when gpu-live
 // =============================================================================
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -63,15 +67,32 @@ pub struct GpuSurfaceStatus {
     pub last_telemetry: Option<GpuDispatchTelemetry>,
     pub pool_efficiency: f64,
     pub memory_usage_bytes: usize,
+    pub live_path: bool,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct GpuSurface {
     dispatch_count: u64,
     total_dispatch_time_ms: u64,
     last_telemetry: Option<GpuDispatchTelemetry>,
     pool_efficiency: f64,
     memory_usage_bytes: usize,
+    #[cfg(feature = "gpu-live")]
+    pipeline: std::sync::Arc<tokio::sync::Mutex<gpu_compute_pipeline::GpuComputePipeline>>,
+}
+
+impl Clone for GpuSurface {
+    fn clone(&self) -> Self {
+        Self {
+            dispatch_count: self.dispatch_count,
+            total_dispatch_time_ms: self.total_dispatch_time_ms,
+            last_telemetry: self.last_telemetry.clone(),
+            pool_efficiency: self.pool_efficiency,
+            memory_usage_bytes: self.memory_usage_bytes,
+            #[cfg(feature = "gpu-live")]
+            pipeline: self.pipeline.clone(),
+        }
+    }
 }
 
 impl GpuSurface {
@@ -82,9 +103,15 @@ impl GpuSurface {
             last_telemetry: None,
             pool_efficiency: 0.93,
             memory_usage_bytes: 512 * 1024 * 1024,
+            #[cfg(feature = "gpu-live")]
+            pipeline: std::sync::Arc::new(tokio::sync::Mutex::new(
+                gpu_compute_pipeline::GpuComputePipeline::new(),
+            )),
         }
     }
 
+    /// Record a dispatch. When `gpu-live` is on, routes through real
+    /// `GpuComputePipeline::dispatch_gpu_task` and uses measured timing.
     pub fn record_dispatch(
         &mut self,
         task_name: &str,
@@ -95,29 +122,77 @@ impl GpuSurface {
     ) -> GpuDispatchTelemetry {
         arbitration.enforce_cosmic_loop_activation();
 
-        self.dispatch_count += 1;
-        self.total_dispatch_time_ms += dispatch_time_ms;
+        #[cfg(feature = "gpu-live")]
+        {
+            use gpu_compute_pipeline::GpuTask;
+            let task = GpuTask {
+                id: self.dispatch_count + 1,
+                name: task_name.into(),
+                buffer_size: elements.max(64),
+                intensity: if elements > 8192 {
+                    "high".into()
+                } else {
+                    "medium".into()
+                },
+            };
+            let result = block_on_live(async {
+                let mut pipe = self.pipeline.lock().await;
+                if real_gpu {
+                    pipe.mark_real_gpu(true);
+                }
+                pipe.dispatch_gpu_task(task).await
+            });
 
-        let workgroups = ((elements + 63) / 64) as u32;
-        let tel = GpuDispatchTelemetry {
-            task_id: self.dispatch_count,
-            task_name: task_name.into(),
-            real_gpu,
-            dispatch_time_ms,
-            readback_available: true,
-            elements_processed: elements,
-            workgroups_dispatched: workgroups,
-        };
-        self.last_telemetry = Some(tel.clone());
+            self.dispatch_count += 1;
+            let measured = result.execution_time_ms.max(1);
+            self.total_dispatch_time_ms += measured;
 
-        if dispatch_time_ms > 80 {
-            println!(
-                "[GpuSurface] anomaly: {}ms on {} — Debugger handoff recommended",
-                dispatch_time_ms, task_name
-            );
+            let workgroups = ((elements + 63) / 64) as u32;
+            let tel = GpuDispatchTelemetry {
+                task_id: self.dispatch_count,
+                task_name: task_name.into(),
+                real_gpu: result.real_gpu,
+                dispatch_time_ms: measured,
+                readback_available: result.readback_data.is_some(),
+                elements_processed: elements,
+                workgroups_dispatched: workgroups,
+            };
+            self.last_telemetry = Some(tel.clone());
+
+            if measured > 80 {
+                println!(
+                    "[GpuSurface LIVE] anomaly: {}ms on {} — Debugger handoff recommended",
+                    measured, task_name
+                );
+            }
+            return tel;
         }
 
-        tel
+        #[cfg(not(feature = "gpu-live"))]
+        {
+            self.dispatch_count += 1;
+            self.total_dispatch_time_ms += dispatch_time_ms;
+
+            let workgroups = ((elements + 63) / 64) as u32;
+            let tel = GpuDispatchTelemetry {
+                task_id: self.dispatch_count,
+                task_name: task_name.into(),
+                real_gpu,
+                dispatch_time_ms,
+                readback_available: true,
+                elements_processed: elements,
+                workgroups_dispatched: workgroups,
+            };
+            self.last_telemetry = Some(tel.clone());
+
+            if dispatch_time_ms > 80 {
+                println!(
+                    "[GpuSurface] anomaly: {}ms on {} — Debugger handoff recommended",
+                    dispatch_time_ms, task_name
+                );
+            }
+            tel
+        }
     }
 
     pub fn status(&self) -> GpuSurfaceStatus {
@@ -127,6 +202,7 @@ impl GpuSurface {
             last_telemetry: self.last_telemetry.clone(),
             pool_efficiency: self.pool_efficiency,
             memory_usage_bytes: self.memory_usage_bytes,
+            live_path: cfg!(feature = "gpu-live"),
         }
     }
 }
@@ -138,7 +214,7 @@ impl Default for GpuSurface {
 }
 
 // =============================================================================
-// GitHub Surface
+// GitHub Surface (offline-first; live flush reserved for next Council slice)
 // =============================================================================
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -156,6 +232,7 @@ pub struct GitHubSurfaceStatus {
     pub intended_prs: usize,
     pub last_intent: Option<EvolutionPrIntent>,
     pub offline_mode: bool,
+    pub live_path: bool,
 }
 
 #[derive(Debug, Clone)]
@@ -215,6 +292,7 @@ impl GitHubSurface {
             intended_prs: self.intended_prs.len(),
             last_intent: self.intended_prs.last().cloned(),
             offline_mode: self.offline_mode,
+            live_path: cfg!(feature = "github-live"),
         }
     }
 }
@@ -226,7 +304,7 @@ impl Default for GitHubSurface {
 }
 
 // =============================================================================
-// Quantum Swarm Surface
+// Quantum Swarm Surface — live path when quantum-live
 // =============================================================================
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -256,9 +334,10 @@ pub struct QuantumSwarmStatus {
     pub total_adaptive_jumps: u64,
     pub total_proposals: u64,
     pub config: QuantumSwarmConfig,
+    pub live_path: bool,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct QuantumSwarmSurface {
     config: QuantumSwarmConfig,
     step: u64,
@@ -266,24 +345,79 @@ pub struct QuantumSwarmSurface {
     total_weight_updates: u64,
     total_adaptive_jumps: u64,
     total_proposals: u64,
+    #[cfg(feature = "quantum-live")]
+    engine: std::sync::Arc<tokio::sync::Mutex<quantum_swarm::QuantumSwarmEngine>>,
+}
+
+impl Clone for QuantumSwarmSurface {
+    fn clone(&self) -> Self {
+        Self {
+            config: self.config.clone(),
+            step: self.step,
+            member_count: self.member_count,
+            total_weight_updates: self.total_weight_updates,
+            total_adaptive_jumps: self.total_adaptive_jumps,
+            total_proposals: self.total_proposals,
+            #[cfg(feature = "quantum-live")]
+            engine: self.engine.clone(),
+        }
+    }
 }
 
 impl QuantumSwarmSurface {
     pub fn new() -> Self {
-        Self {
-            config: QuantumSwarmConfig::default(),
-            step: 0,
-            member_count: 0,
-            total_weight_updates: 0,
-            total_adaptive_jumps: 0,
-            total_proposals: 0,
+        #[cfg(feature = "quantum-live")]
+        {
+            use quantum_swarm::{QuantumSwarmConfig as QConfig, QuantumSwarmEngine, QuantumSwarmMember};
+            let mut eng = QuantumSwarmEngine::new(QConfig::default());
+            // Seed a small council of members for immediate live use
+            for id in 1..=4 {
+                eng.register_member(QuantumSwarmMember::new(id, vec![0.25 + id as f64 * 0.05; 8]));
+            }
+            eng.wire_default_recovery();
+            return Self {
+                config: QuantumSwarmConfig::default(),
+                step: 0,
+                member_count: 4,
+                total_weight_updates: 0,
+                total_adaptive_jumps: 0,
+                total_proposals: 0,
+                engine: std::sync::Arc::new(tokio::sync::Mutex::new(eng)),
+            };
+        }
+
+        #[cfg(not(feature = "quantum-live"))]
+        {
+            Self {
+                config: QuantumSwarmConfig::default(),
+                step: 0,
+                member_count: 0,
+                total_weight_updates: 0,
+                total_adaptive_jumps: 0,
+                total_proposals: 0,
+            }
         }
     }
 
     pub fn register_members(&mut self, count: usize) {
         self.member_count = count;
+        #[cfg(feature = "quantum-live")]
+        {
+            use quantum_swarm::QuantumSwarmMember;
+            let mut eng = block_on_live(self.engine.lock());
+            for id in 1..=count as u64 {
+                if eng.mean_best_tracker.get_member(id).is_none() {
+                    eng.register_member(QuantumSwarmMember::new(
+                        id,
+                        vec![0.2 + (id as f64) * 0.03; 8],
+                    ));
+                }
+            }
+        }
     }
 
+    /// Evolution tick. When `quantum-live` is on, routes through real
+    /// `QuantumSwarmEngine::protected_quantum_evolution_tick`.
     pub fn evolution_tick(
         &mut self,
         severity: f64,
@@ -291,16 +425,58 @@ impl QuantumSwarmSurface {
     ) -> f64 {
         arbitration.enforce_cosmic_loop_activation();
         self.step += 1;
-        self.total_weight_updates += 1;
 
-        if severity >= 0.35 {
-            self.total_adaptive_jumps += 1;
-        }
-        if severity >= 0.15 {
-            self.total_proposals += 1;
+        #[cfg(feature = "quantum-live")]
+        {
+            use quantum_swarm::CouncilReadinessMetrics;
+            let metrics = CouncilReadinessMetrics {
+                resonance: 0.94,
+                context_pressure: (severity * 0.4).min(1.0),
+                flow_deviation: (severity * 0.25).min(0.5),
+                gpu_memory_pressure: 0.3,
+            };
+            let member_id = ((self.step % self.member_count.max(1) as u64) + 1).max(1);
+            let result = block_on_live(async {
+                let mut eng = self.engine.lock().await;
+                eng.increment_step();
+                let global_best = eng.get_mean_best().to_vec();
+                eng.protected_quantum_evolution_tick(
+                    member_id,
+                    &global_best,
+                    0.25,
+                    0.88,
+                    severity,
+                    &metrics,
+                    0.95,
+                )
+                .await
+            });
+
+            self.total_weight_updates += 1;
+            if severity >= 0.35 {
+                self.total_adaptive_jumps += 1;
+            }
+            if severity >= 0.15 {
+                self.total_proposals += 1;
+            }
+
+            let ratio = result.map(|(_, r)| r).unwrap_or_else(|| {
+                (self.config.gaussian_scale * (1.0 + severity)).min(1.0)
+            });
+            return ratio;
         }
 
-        (self.config.gaussian_scale * (1.0 + severity)).min(1.0)
+        #[cfg(not(feature = "quantum-live"))]
+        {
+            self.total_weight_updates += 1;
+            if severity >= 0.35 {
+                self.total_adaptive_jumps += 1;
+            }
+            if severity >= 0.15 {
+                self.total_proposals += 1;
+            }
+            (self.config.gaussian_scale * (1.0 + severity)).min(1.0)
+        }
     }
 
     pub fn status(&self) -> QuantumSwarmStatus {
@@ -311,17 +487,19 @@ impl QuantumSwarmSurface {
             total_adaptive_jumps: self.total_adaptive_jumps,
             total_proposals: self.total_proposals,
             config: self.config.clone(),
+            live_path: cfg!(feature = "quantum-live"),
         }
     }
 
     pub fn summary(&self) -> String {
         format!(
-            "QuantumSwarmSurface v14.9.9 | step={} | members={} | updates={} | jumps={} | proposals={}",
+            "QuantumSwarmSurface v14.9.9 | step={} | members={} | updates={} | jumps={} | proposals={} | live={}",
             self.step,
             self.member_count,
             self.total_weight_updates,
             self.total_adaptive_jumps,
-            self.total_proposals
+            self.total_proposals,
+            cfg!(feature = "quantum-live")
         )
     }
 }
@@ -333,7 +511,7 @@ impl Default for QuantumSwarmSurface {
 }
 
 // =============================================================================
-// Sovereign Recovery Surface (NEW v14.9.9) — live path when recovery-live
+// Sovereign Recovery Surface — live path when recovery-live
 // =============================================================================
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -400,8 +578,6 @@ impl SovereignRecoverySurface {
         }
     }
 
-    /// Heartbeat. When `recovery-live` is enabled, calls real
-    /// `SovereignRecoveryProtocol::heartbeat_check` async API.
     pub fn heartbeat(
         &mut self,
         mercy_norm: f64,
@@ -467,7 +643,6 @@ impl SovereignRecoverySurface {
         }
     }
 
-    /// Persist TOLC8 anchor. Live path calls `persist_eternal_anchor`.
     pub fn persist_anchor(
         &mut self,
         note: &str,
@@ -479,10 +654,8 @@ impl SovereignRecoverySurface {
 
         #[cfg(feature = "recovery-live")]
         {
-            let live_anchor = block_on_live(
-                self.protocol
-                    .persist_eternal_anchor(None, note),
-            );
+            let live_anchor =
+                block_on_live(self.protocol.persist_eternal_anchor(None, note));
             let anchor = RecoveryAnchor {
                 anchor_id: live_anchor.anchor_id,
                 note: live_anchor.recovery_note,
@@ -527,8 +700,7 @@ impl Default for SovereignRecoverySurface {
 }
 
 // =============================================================================
-// Kardashev / Reality Thriving Transfer Surface (NEW v14.9.9)
-// Live path when kardashev-live
+// Kardashev / Reality Thriving Transfer Surface — live path when kardashev-live
 // =============================================================================
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -596,10 +768,6 @@ impl KardashevFlywheelSurface {
         }
     }
 
-    /// Transfer / flywheel tick.
-    /// When `kardashev-live` is enabled, constructs PowrushTelemetry, calls real
-    /// `RealityThrivingTransferCalculator::compute_transfer_score` then
-    /// `KardashevOrchestrationCouncil::deliberate_acceleration_cycle`.
     pub fn transfer_tick(
         &mut self,
         rbe_quality: f64,
@@ -629,7 +797,6 @@ impl KardashevFlywheelSurface {
                 Ok(s) => s,
                 Err(e) => {
                     eprintln!("[KardashevFlywheelSurface LIVE] Mercy Gate: {}", e);
-                    // Safe zero-harm fallback result
                     let result = TransferTickResult {
                         ema_transfer: 0.0,
                         kardashev_delta: 0.0,
