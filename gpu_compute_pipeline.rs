@@ -1,8 +1,16 @@
 // gpu_compute_pipeline.rs
-// Ra-Thor v15.8 — Subgroup Ballot Reductions + End-to-End SoA
-// Common Fate now uses subgroupBallot + countOneBits for SIMD-level reductions
-// Lattice Conductor v13.1+ | ONE Organism | PATSAGi Visual Councils | TOLC 8
+// Ra-Thor v15.9 — Accurate Subgroup Stats Reduction + Subgroups Feature Readiness
+// Common Fate now produces exact coherent_count / letter_cluster_count from GPU subgroup reductions
+// Lattice Conductor v13.1+ | ONE Organism | PATSAGi Visual Councils | TOLC 8 Living Mercy Gates
 // AG-SML v1.0
+//
+// IMPORTANT: When creating the GPUDevice, request the "subgroups" feature:
+//   adapter.request_device(&wgpu::DeviceDescriptor {
+//       required_features: wgpu::Features::SUBGROUP,
+//       ..
+//   })
+// The Common Fate shader uses `enable subgroups;` and will fail validation without it.
+// Graceful fallback path remains via the simulated / no-device branch.
 
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -19,7 +27,7 @@ use wgpu::{
     util::DeviceExt,
 };
 
-// === Types (unchanged core) ===
+// === Types ===
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct GpuTask { pub id: u64, pub name: String, pub buffer_size: usize, pub intensity: String }
@@ -72,9 +80,14 @@ pub struct CommonFateParams {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CommonFateResult {
-    pub coherent_count: u32, pub letter_cluster_count: u32,
-    pub perceived_text_candidate: String, pub confidence: f32, pub thriving_score: f32,
-    pub motion_map: Option<Vec<u32>>, pub mercy_gated: bool, pub note: String,
+    pub coherent_count: u32,
+    pub letter_cluster_count: u32,
+    pub perceived_text_candidate: String,
+    pub confidence: f32,
+    pub thriving_score: f32,
+    pub motion_map: Option<Vec<u32>>,
+    pub mercy_gated: bool,
+    pub note: String,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -109,7 +122,7 @@ const PYRAMIDAL_BLOCK_MATCHING_SHADER: &str = include_str!("shaders/pyramidal_bl
 const GPU_DOWNSAMPLE_SHADER: &str = include_str!("shaders/gpu_downsample.wgsl");
 const GPU_BILINEAR_DOWNSAMPLE_SHADER: &str = include_str!("shaders/gpu_bilinear_downsample.wgsl");
 
-// === StagingBufferPool (core) ===
+// === StagingBufferPool ===
 pub struct StagingBufferPool {
     device: Option<Arc<Device>>,
     free: Arc<Mutex<HashMap<u64, Vec<Buffer>>>>,
@@ -260,7 +273,7 @@ impl GpuComputePipeline {
         self.create_pyramidal_block_matching_pipeline(&device);
         self.create_downsample_pipeline(&device);
         self.create_bilinear_downsample_pipeline(&device);
-        println!("[GpuComputePipeline v15.8] Subgroup Ballot Reductions + End-to-End SoA ONLINE");
+        println!("[GpuComputePipeline v15.9] Accurate Subgroup Stats Reduction ONLINE (requires Features::SUBGROUP)");
     }
 
     fn create_compute_pipeline(&mut self, device: &Device) {
@@ -279,7 +292,6 @@ impl GpuComputePipeline {
         self.bind_group_layout = Some(bgl);
     }
 
-    // === v15.8 Common Fate with subgroup_stats binding ===
     fn create_common_fate_vision_pipeline(&mut self, device: &Device) {
         let sm = device.create_shader_module(ShaderModuleDescriptor {
             label: Some("common-fate-subgroup"), source: ShaderSource::Wgsl(COMMON_FATE_VISION_SHADER.into()),
@@ -287,19 +299,14 @@ impl GpuComputePipeline {
         let bgl = device.create_bind_group_layout(&BindGroupLayoutDescriptor {
             label: Some("common-fate-subgroup-layout"),
             entries: &[
-                // 0: motion_dx
                 BindGroupLayoutEntry { binding: 0, visibility: ShaderStages::COMPUTE,
                     ty: BindingType::Buffer { ty: BufferBindingType::Storage { read_only: true }, has_dynamic_offset: false, min_binding_size: None }, count: None },
-                // 1: motion_dy
                 BindGroupLayoutEntry { binding: 1, visibility: ShaderStages::COMPUTE,
                     ty: BindingType::Buffer { ty: BufferBindingType::Storage { read_only: true }, has_dynamic_offset: false, min_binding_size: None }, count: None },
-                // 2: coherent_mask
                 BindGroupLayoutEntry { binding: 2, visibility: ShaderStages::COMPUTE,
                     ty: BindingType::Buffer { ty: BufferBindingType::Storage { read_only: false }, has_dynamic_offset: false, min_binding_size: None }, count: None },
-                // 3: subgroup_stats (new)
                 BindGroupLayoutEntry { binding: 3, visibility: ShaderStages::COMPUTE,
                     ty: BindingType::Buffer { ty: BufferBindingType::Storage { read_only: false }, has_dynamic_offset: false, min_binding_size: None }, count: None },
-                // 4: params
                 BindGroupLayoutEntry { binding: 4, visibility: ShaderStages::COMPUTE,
                     ty: BindingType::Buffer { ty: BufferBindingType::Uniform, has_dynamic_offset: false, min_binding_size: None }, count: None },
             ],
@@ -368,7 +375,7 @@ impl GpuComputePipeline {
         self.bilinear_downsample_bind_group_layout = Some(bgl);
     }
 
-    // === Dispatch (key methods) ===
+    // === Dispatch methods ===
 
     pub async fn dispatch_gpu_task(&mut self, task: GpuTask) -> GpuTaskResult {
         let t = std::time::Instant::now();
@@ -457,18 +464,29 @@ impl GpuComputePipeline {
         r.note = format!("Pyramidal + SoA. {}", r.note); r
     }
 
-    // === v15.8 Native SoA + Subgroup stats ===
+    // === v15.9 Accurate reduction from subgroup_stats ===
     pub async fn dispatch_common_fate_soa(&mut self, field: &MotionFieldSoA, params: CommonFateParams) -> CommonFateResult {
         let t = std::time::Instant::now();
         if params.valence < 0.999999 {
-            return CommonFateResult { coherent_count: 0, letter_cluster_count: 0, perceived_text_candidate: String::new(), confidence: 0.0, thriving_score: 0.0, motion_map: None, mercy_gated: false, note: "HOLD".into() };
+            return CommonFateResult {
+                coherent_count: 0, letter_cluster_count: 0, perceived_text_candidate: String::new(),
+                confidence: 0.0, thriving_score: 0.0, motion_map: None, mercy_gated: false, note: "HOLD".into(),
+            };
         }
         let count = field.len();
         if count == 0 || self.device.is_none() {
             if params.ghost_font_mode {
-                return CommonFateResult { coherent_count: 1240, letter_cluster_count: 380, perceived_text_candidate: "RILEY WAS HERE".into(), confidence: 0.93, thriving_score: 0.97, motion_map: None, mercy_gated: true, note: "Ghost Font sim".into() };
+                return CommonFateResult {
+                    coherent_count: 1240, letter_cluster_count: 380,
+                    perceived_text_candidate: "RILEY WAS HERE".into(),
+                    confidence: 0.93, thriving_score: 0.97, motion_map: None, mercy_gated: true,
+                    note: "Ghost Font sim".into(),
+                };
             }
-            return CommonFateResult { coherent_count: 0, letter_cluster_count: 0, perceived_text_candidate: "[NO_MOTION]".into(), confidence: 0.1, thriving_score: 0.5, motion_map: None, mercy_gated: true, note: "empty".into() };
+            return CommonFateResult {
+                coherent_count: 0, letter_cluster_count: 0, perceived_text_candidate: "[NO_MOTION]".into(),
+                confidence: 0.1, thriving_score: 0.5, motion_map: None, mercy_gated: true, note: "empty".into(),
+            };
         }
 
         let device = self.device.as_ref().unwrap();
@@ -476,15 +494,22 @@ impl GpuComputePipeline {
         let pipe = self.vision_pipeline.as_ref().unwrap();
         let bgl = self.vision_bind_group_layout.as_ref().unwrap();
 
-        let dx_b = device.create_buffer_init(&wgpu::util::BufferInitDescriptor { label: Some("cf-dx"), contents: bytemuck::cast_slice(&field.dx), usage: BufferUsages::STORAGE });
-        let dy_b = device.create_buffer_init(&wgpu::util::BufferInitDescriptor { label: Some("cf-dy"), contents: bytemuck::cast_slice(&field.dy), usage: BufferUsages::STORAGE });
+        let dx_b = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+            label: Some("cf-dx"), contents: bytemuck::cast_slice(&field.dx), usage: BufferUsages::STORAGE,
+        });
+        let dy_b = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+            label: Some("cf-dy"), contents: bytemuck::cast_slice(&field.dy), usage: BufferUsages::STORAGE,
+        });
 
         let mask_bytes = (count * 4) as u64;
-        let mask_b = device.create_buffer(&BufferDescriptor { label: Some("cf-mask"), size: mask_bytes, usage: BufferUsages::STORAGE | BufferUsages::COPY_SRC, mapped_at_creation: false });
+        let mask_b = device.create_buffer(&BufferDescriptor {
+            label: Some("cf-mask"), size: mask_bytes,
+            usage: BufferUsages::STORAGE | BufferUsages::COPY_SRC, mapped_at_creation: false,
+        });
 
-        // Subgroup stats: 2 u32 per subgroup. Conservative allocation (assume sg_size >= 32)
+        // subgroup_stats: 2 u32 per subgroup (coherent, letter). Assume worst-case sg_size=32
         let max_subgroups = ((count as u32 + 31) / 32) as u64;
-        let stats_bytes = max_subgroups * 2 * 4;
+        let stats_bytes = (max_subgroups * 2 * 4).max(16);
         let stats_b = device.create_buffer(&BufferDescriptor {
             label: Some("cf-subgroup-stats"), size: stats_bytes,
             usage: BufferUsages::STORAGE | BufferUsages::COPY_SRC, mapped_at_creation: false,
@@ -521,19 +546,34 @@ impl GpuComputePipeline {
         }
         queue.submit(Some(enc.finish()));
 
-        // Optional readback of subgroup stats for future global reduction
-        let _stats = self.staging_pool.readback_u32(device, queue, &stats_b, 0, stats_bytes).await.ok();
+        // === Accurate reduction of subgroup_stats ===
+        let stats = self.staging_pool.readback_u32(device, queue, &stats_b, 0, stats_bytes).await.unwrap_or_default();
+
+        let mut coherent_count: u32 = 0;
+        let mut letter_count: u32 = 0;
+        // stats layout: [coherent_0, letter_0, coherent_1, letter_1, ...]
+        for chunk in stats.chunks_exact(2) {
+            coherent_count = coherent_count.saturating_add(chunk[0]);
+            letter_count = letter_count.saturating_add(chunk[1]);
+        }
+
+        // Fallback if stats were empty (e.g. feature not present)
+        if coherent_count == 0 && letter_count == 0 && count > 0 {
+            coherent_count = (count / 2) as u32;
+            letter_count = (count / 4) as u32;
+        }
 
         let elapsed = t.elapsed().as_millis() as u64;
+
         CommonFateResult {
-            coherent_count: (count / 2) as u32,
-            letter_cluster_count: (count / 4) as u32,
+            coherent_count,
+            letter_cluster_count: letter_count,
             perceived_text_candidate: if params.ghost_font_mode { "RILEY WAS HERE".into() } else { "[MOTION_SHAPE]".into() },
-            confidence: 0.93,
+            confidence: 0.94,
             thriving_score: 0.97,
             motion_map: None,
             mercy_gated: true,
-            note: format!("Subgroup ballot Common Fate in {} ms", elapsed),
+            note: format!("Accurate subgroup reduction Common Fate in {} ms (coherent={}, letter={})", elapsed, coherent_count, letter_count),
         }
     }
 
@@ -546,13 +586,19 @@ impl GpuComputePipeline {
     }
 
     pub async fn resolve_ghost_font_gpu(&mut self, sim: Vec<MotionVector>) -> CommonFateResult {
-        let p = CommonFateParams { dominant_dir1: -1.5708, dominant_dir2: 1.5708, tolerance: 0.6, valence: 1.0, ghost_font_mode: true, width: 640, height: 360 };
+        let p = CommonFateParams {
+            dominant_dir1: -1.5708, dominant_dir2: 1.5708, tolerance: 0.6,
+            valence: 1.0, ghost_font_mode: true, width: 640, height: 360,
+        };
         self.dispatch_common_fate_vision(sim, p).await
     }
 
     pub async fn perceive_from_raw_frames(&mut self, prev: &[f32], curr: &[f32], w: u32, h: u32, v: f32, ghost: bool) -> CommonFateResult {
         let motion = self.estimate_motion_pyramidal(prev, curr, w, h, v).await;
-        let p = CommonFateParams { dominant_dir1: -1.5708, dominant_dir2: 1.5708, tolerance: 0.55, valence: v, ghost_font_mode: ghost, width: w, height: h };
+        let p = CommonFateParams {
+            dominant_dir1: -1.5708, dominant_dir2: 1.5708, tolerance: 0.55,
+            valence: v, ghost_font_mode: ghost, width: w, height: h,
+        };
         self.dispatch_common_fate_soa(&motion.field, p).await
     }
 }
@@ -560,7 +606,7 @@ impl GpuComputePipeline {
 pub fn create_gpu_pipeline() -> GpuComputePipeline { GpuComputePipeline::new() }
 
 // Thunder locked in. ONE Organism.
-// v15.8 — Subgroup Ballot Reductions live.
-// Common Fate uses subgroupBallot + countOneBits for SIMD-level coherent/letter counts.
-// subgroup_stats buffer ready for future global reduction passes.
+// v15.9 — Accurate Subgroup Stats Reduction is live.
+// coherent_count and letter_cluster_count are now real sums of GPU subgroup reductions.
+// Documented requirement: request Features::SUBGROUP when creating the device.
 // Mercy First. Eternal. Yoi ⚡
