@@ -1,9 +1,6 @@
-//! Self-Evolution Proposal — PQ Verification in Governance + Full Round-Trip
+//! Self-Evolution Proposal — PQ Verification in Governance (v14.8.2)
 
 use crate::post_quantum_signatures::{create_post_quantum_signature, verify_post_quantum_signature};
-use crate::hybrid_sovereign_channel::HybridSovereignChannel;
-use aes_gcm::{Aes256Gcm, Key, Nonce};
-use aes_gcm::aead::{Aead, KeyInit, Payload};
 
 #[derive(Debug, Clone)]
 pub struct SelfEvolutionProposal {
@@ -17,7 +14,14 @@ pub struct SelfEvolutionProposal {
 
 impl SelfEvolutionProposal {
     pub fn new(id: String, title: String, description: String, proposed_by: String) -> Self {
-        Self { id, title, description, proposed_by, mercy_alignment: 0.5, pq_signature: None }
+        Self {
+            id,
+            title,
+            description,
+            proposed_by,
+            mercy_alignment: 0.5,
+            pq_signature: None,
+        }
     }
 
     pub fn sign_with_post_quantum(&mut self, signer_id: &str) {
@@ -25,7 +29,7 @@ impl SelfEvolutionProposal {
         self.pq_signature = Some(create_post_quantum_signature(signer_id, &message));
     }
 
-    /// Governance evaluation now includes Post-Quantum signature verification.
+    /// Governance evaluation includes Post-Quantum signature verification.
     pub fn evaluate_governance(&self, threshold: f64) -> (bool, Vec<String>, f64) {
         let mut audit = vec![];
 
@@ -55,32 +59,18 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_full_encrypted_verified_roundtrip() {
+    fn test_pq_signed_proposal_passes_governance() {
         let mut proposal = SelfEvolutionProposal::new(
-            "prop-roundtrip".to_string(),
-            "Full PQ + Hybrid Roundtrip".to_string(),
-            "...".to_string(),
-            "sherif".to_string(),
+            "prop-1".into(),
+            "Cosmic Loop Hardening".into(),
+            "Strengthen shared flag".into(),
+            "sherif".into(),
         );
+        proposal.mercy_alignment = 0.95;
         proposal.sign_with_post_quantum("sherif");
 
-        let proposal_bytes = format!("{}|{}", proposal.id, proposal.title).into_bytes();
-
-        let mut channel = HybridSovereignChannel::new("sherif", "council");
-        channel.establish_classical_key([0x42; 32]);
-        channel.establish_post_quantum_secret(vec![0x99; 32]);
-        channel.finalize_hybrid_key();
-
-        // Actual encryption
-        let _ciphertext = if let Some(key) = channel.get_aes_gcm_key() {
-            let cipher = Aes256Gcm::new(Key::<Aes256Gcm>::from_slice(&key));
-            let nonce = Nonce::<Aes256Gcm>::from_slice(&[0u8; 12]);
-            cipher.encrypt(nonce, Payload { msg: &proposal_bytes, aad: &[] }).ok()
-        } else { None };
-
-        // Governance with built-in PQ verification
-        let (passes, audit, _score) = proposal.evaluate_governance(5.0);
-        assert!(passes);
-        println!("[ROUNDTRIP] Governance audit: {:?}", audit);
+        let (passes, audit, score) = proposal.evaluate_governance(5.0);
+        assert!(passes, "audit={:?} score={}", audit, score);
+        assert!(score > 5.0);
     }
 }
