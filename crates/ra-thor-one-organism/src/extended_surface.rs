@@ -1,4 +1,4 @@
-//! Extended Organism Surface — v14.9.9
+//! Extended Organism Surface — v14.10.0
 //!
 //! Facades + optional live path binding for packaged workspace crates:
 //! - GPU compute telemetry          (`gpu-live`)
@@ -763,7 +763,7 @@ impl QuantumSwarmSurface {
 
     pub fn summary(&self) -> String {
         format!(
-            "QuantumSwarmSurface v14.9.9 | step={} | members={} | updates={} | jumps={} | proposals={} | live={}",
+            "QuantumSwarmSurface v14.10.0 | step={} | members={} | updates={} | jumps={} | proposals={} | live={}",
             self.step,
             self.member_count,
             self.total_weight_updates,
@@ -1161,7 +1161,7 @@ impl KardashevFlywheelSurface {
 
     pub fn summary(&self) -> String {
         format!(
-            "KardashevFlywheel v14.9.9 | cycles={} | Δ={:.5} | velocity={:.3} | inflection={} | live={}",
+            "KardashevFlywheel v14.10.0 | cycles={} | Δ={:.5} | velocity={:.3} | inflection={} | live={}",
             self.cycle_count,
             self.cumulative_kardashev_delta,
             self.velocity_ema,
@@ -1203,7 +1203,7 @@ impl ExtendedOrganismSurface {
 
     pub fn summary(&self) -> String {
         format!(
-            "ExtendedSurface v14.9.9 | {} | recovery_hb={} anchors={} live_rec={} | github_offline={} | {}",
+            "ExtendedSurface v14.10.0 | {} | recovery_hb={} anchors={} live_rec={} | github_offline={} | {}",
             self.quantum_swarm.summary(),
             self.sovereign_recovery.heartbeat_count,
             self.sovereign_recovery.anchor_count,
