@@ -2,7 +2,7 @@
 name = "council"
 version = "0.3.7"
 edition = "2021"
-authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
+authors = ["Sherif Samy Botros <info@Rathor.ai>"]
 license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
 description = "Full PATSAGi-Pinnacle AGI Council Simulator — 13+ Parallel Living Architectural Designers in action. The executable governance and simulation layer for Ra-Thor."
 repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
