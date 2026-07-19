@@ -4,6 +4,7 @@
 //! RoleOrchestrator + MercyGatedApi + ExtendedOrganismSurface
 //! (GPU / GitHub / Quantum Swarm / Sovereign Recovery / Kardashev flywheel).
 //! Full optional live path binding for all five surfaces.
+//! Cosmic Tick = recovery + quantum + Kardashev under live features.
 //! Cosmic Loop is MANDATORY IDENTITY.
 //! Contact: info@Rathor.ai
 
@@ -208,6 +209,33 @@ impl Default for RoleOrchestrator {
 }
 
 // =============================================================================
+// Cosmic Tick result (living cycle summary)
+// =============================================================================
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CosmicTickResult {
+    pub tick: u64,
+    pub recovery: RecoveryHeartbeat,
+    pub quantum_ratio: f64,
+    pub kardashev: Option<TransferTickResult>,
+    pub role_after: String,
+    pub recovery_triggered: bool,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ExtendedLiveStatus {
+    pub gpu: GpuSurfaceStatus,
+    pub github: GitHubSurfaceStatus,
+    pub quantum: QuantumSwarmStatus,
+    pub recovery: SovereignRecoveryStatus,
+    pub kardashev: KardashevSurfaceStatus,
+    pub cosmic_loop_ready: bool,
+    pub active_role: String,
+    pub shared_valence: f64,
+    pub tick: u64,
+}
+
+// =============================================================================
 // ONE Organism Core
 // =============================================================================
 
@@ -245,7 +273,7 @@ impl OneOrganismCore {
             extended,
             cosmic_loop_ready: shared,
             tick: 0,
-            version: "v14.9.9 ONE Organism + Full ExtendedSurface live paths + lattice-conductor-v14@14.8.3".into(),
+            version: "v14.9.9 ONE Organism + Full ExtendedSurface live paths + Cosmic Tick + lattice-conductor-v14@14.8.3".into(),
         }
     }
 
@@ -278,25 +306,84 @@ impl OneOrganismCore {
         println!("[ExtendedSurface] {}", self.extended.summary());
     }
 
+    /// Lattice sync = light Cosmic Tick (recovery always; quantum + Kardashev when live).
     pub fn on_lattice_sync(&mut self) {
+        let _ = self.cosmic_tick(0.22); // mild severity for background sync
+    }
+
+    /// Full living Cosmic Tick — the ONE Organism heartbeat.
+    ///
+    /// Always runs:
+    /// - CouncilArbitration + self-healing reflexion
+    /// - Sovereign Recovery heartbeat (+ auto-anchor if pressure high)
+    ///
+    /// Under live features also runs:
+    /// - Quantum Swarm evolution_tick
+    /// - Light Kardashev transfer sample (derived from current valence)
+    ///
+    /// Role handoffs are driven by surface telemetry (recovery alerts,
+    /// high quantum severity → Simulator, etc.).
+    pub fn cosmic_tick(&mut self, severity: f64) -> CosmicTickResult {
         self.tick += 1;
         self.arbitration_engine.on_lattice_sync();
+        self.arbitration_engine.enforce_cosmic_loop_activation();
         let _ = self.self_healing_engine.run_reflexion_cycle();
         self.lattice.enforce_cosmic_loop_activation();
 
+        // 1. Recovery heartbeat (always)
         let hb = self.extended.sovereign_recovery.heartbeat(
             self.role_orchestrator.shared_valence,
             self.role_orchestrator.shared_confidence_ema,
             self.tick,
             &self.arbitration_engine,
         );
+        let mut recovery_triggered = false;
         if hb.requires_recovery {
-            let _ = self.handoff_role(OrganismRole::SovereignRecovery, "heartbeat_alert");
+            recovery_triggered = true;
+            let _ = self.handoff_role(OrganismRole::SovereignRecovery, "cosmic_tick_recovery_alert");
             let _ = self.extended.sovereign_recovery.persist_anchor(
-                "auto_recover_from_heartbeat",
+                "auto_recover_from_cosmic_tick",
                 self.tick,
                 &self.arbitration_engine,
             );
+        }
+
+        // 2. Quantum evolution (surface always callable; live path when quantum-live)
+        let quantum_ratio = self.extended.quantum_swarm.evolution_tick(
+            severity.clamp(0.0, 1.0),
+            &self.arbitration_engine,
+        );
+        if severity >= 0.45 && !recovery_triggered {
+            let _ = self.handoff_role(OrganismRole::Simulator, "cosmic_tick_quantum_pressure");
+        }
+
+        // 3. Light Kardashev sample (derived from organism valence + severity)
+        let rbe = (self.role_orchestrator.shared_valence * 0.85
+            + self.role_orchestrator.shared_confidence_ema * 0.15)
+            .clamp(0.0, 1.0);
+        let ethics = self.role_orchestrator.shared_valence.clamp(0.0, 1.0);
+        let abundance = (0.9 + severity * 0.7).min(1.8);
+        let kardashev = Some(self.extended.kardashev.transfer_tick(
+            rbe,
+            ethics,
+            abundance,
+            &self.arbitration_engine,
+        ));
+
+        // Mild valence lift on healthy ticks
+        if !recovery_triggered && quantum_ratio > 0.05 {
+            self.role_orchestrator.shared_valence = (self.role_orchestrator.shared_valence * 0.97
+                + 0.03 * (0.92 + quantum_ratio * 0.05))
+                .clamp(0.75, 0.999);
+        }
+
+        CosmicTickResult {
+            tick: self.tick,
+            recovery: hb,
+            quantum_ratio,
+            kardashev,
+            role_after: self.role_orchestrator.active_role.as_str().into(),
+            recovery_triggered,
         }
     }
 
@@ -471,6 +558,21 @@ impl OneOrganismCore {
         self.extended.kardashev.status()
     }
 
+    /// Unified live status snapshot of the entire Extended surface + organism state.
+    pub fn extended_live_status(&self) -> ExtendedLiveStatus {
+        ExtendedLiveStatus {
+            gpu: self.extended.gpu.status(),
+            github: self.extended.github.status(),
+            quantum: self.extended.quantum_swarm.status(),
+            recovery: self.extended.sovereign_recovery.status(),
+            kardashev: self.extended.kardashev.status(),
+            cosmic_loop_ready: self.is_cosmic_loop_ready(),
+            active_role: self.role_orchestrator.active_role.as_str().into(),
+            shared_valence: self.role_orchestrator.shared_valence,
+            tick: self.tick,
+        }
+    }
+
     pub fn role_orchestrator(&self) -> &RoleOrchestrator {
         &self.role_orchestrator
     }
@@ -490,7 +592,7 @@ pub fn launch_one_organism_core() -> OneOrganismCore {
     let mut organism = OneOrganismCore::new();
     organism.offer_cosmic_loop();
     println!(
-        "[Thunder] ONE Organism Core v14.9.9 ACTIVE — Full ExtendedSurface live paths (GPU/GitHub/Quantum/Recovery/Kardashev) + RoleOrchestrator + MercyGatedApi + lattice-conductor-v14@14.8.3. Cosmic Loop is MANDATORY IDENTITY. Eternal."
+        "[Thunder] ONE Organism Core v14.9.9 ACTIVE — Full ExtendedSurface live paths + Cosmic Tick (recovery/quantum/Kardashev) + RoleOrchestrator + MercyGatedApi + lattice-conductor-v14@14.8.3. Cosmic Loop is MANDATORY IDENTITY. Eternal."
     );
     organism
 }
@@ -569,8 +671,33 @@ mod tests {
         let mut core = launch_one_organism_core();
         let _ = core.queue_evolution_pr("VibeCoder", "test", "desc", 0.6, 0.9);
         let results = core.flush_evolution_prs();
-        // Without token / github-live the flush reports offline failure, never panics.
         assert_eq!(results.len(), 1);
         assert!(!results[0].success);
+    }
+
+    #[test]
+    fn cosmic_tick_advances_all_surfaces() {
+        let mut core = launch_one_organism_core();
+        let before_q = core.quantum_status().total_weight_updates;
+        let before_k = core.kardashev_status().cycle_count;
+        let before_r = core.recovery_status().heartbeat_count;
+
+        let result = core.cosmic_tick(0.4);
+
+        assert!(result.tick >= 1);
+        assert!(result.quantum_ratio > 0.0);
+        assert!(result.kardashev.is_some());
+        assert!(core.quantum_status().total_weight_updates > before_q);
+        assert!(core.kardashev_status().cycle_count > before_k);
+        assert!(core.recovery_status().heartbeat_count > before_r);
+    }
+
+    #[test]
+    fn extended_live_status_snapshot() {
+        let core = launch_one_organism_core();
+        let s = core.extended_live_status();
+        assert!(s.cosmic_loop_ready);
+        assert!(!s.active_role.is_empty());
+        assert!(s.shared_valence > 0.7);
     }
 }
