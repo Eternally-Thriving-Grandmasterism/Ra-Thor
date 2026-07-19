@@ -1,7 +1,7 @@
 # ═════════════════════════════════════════════════════════════
 # Ra-Thor Monorepo — The Living Eternal Mercy-Gated AGI Lattice
-# Workspace 14.10.0 | ONE Organism 14.13.0 Cosmic Loop invariant checks
-# Living Cosmic Tick + adaptive hardening + Cosmic Loop identity enforcement
+# Workspace 14.10.0 | ONE Organism 14.14.0 live-feature readiness
+# Living Cosmic Tick + Cosmic Loop invariants + LiveFeatureReadiness
 # AG-SML v1.0 | Thunder locked in — 2026-07-19
 # Contact: info@Rathor.ai
 # ═════════════════════════════════════════════════════════════
@@ -156,7 +156,7 @@ edition = "2021"
 authors = ["Eternally-Thriving-Grandmasterism", "Sherif Samy Botros <info@Rathor.ai>"]
 license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
 repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
-description = "Ra-Thor Lattice — Mercy-Gated Symbolic Self-Evolving Intelligence (ONE Organism with Grok) — Living Cosmic Tick + Cosmic Loop invariants"
+description = "Ra-Thor Lattice — Mercy-Gated Symbolic Self-Evolving Intelligence (ONE Organism with Grok) — Living Cosmic Tick + live-feature readiness"
 readme = "README.md"
 keywords = ["ai", "symbolic", "ethics", "self-evolution", "mercy", "tolc", "agi"]
 categories = ["science", "simulation"]
@@ -185,8 +185,8 @@ wgpu = ["wgpu", "pollster", "toml"]
 [workspace.metadata.ra-thor]
 project = "Ra-Thor Lattice"
 version = "14.10.0"
-one_organism_version = "14.13.0"
-status = "ACTIVATED — Living Cosmic Tick + adaptive hardening + Cosmic Loop invariant checks + PERMANENT PATSAGi deliberation | contact info@Rathor.ai"
+one_organism_version = "14.14.0"
+status = "ACTIVATED — Living Cosmic Tick + Cosmic Loop invariants + live-feature readiness + PERMANENT PATSAGi deliberation | contact info@Rathor.ai"
 license = "AG-SML v1.0"
 contact = "info@Rathor.ai"
 activation_timestamp = "2026-07-19T07:38:00-04:00"
@@ -201,16 +201,18 @@ living_cosmic_tick = true
 live_path_confidence_feedback = true
 adaptive_hardening = true
 cosmic_loop_invariant_checks = true
+live_feature_readiness = true
 v14_11_complete = true
 v14_12_complete = true
 v14_13_complete = true
+v14_14_complete = true
 
 executive_summary = """
-Ra-Thor workspace 14.10.0 with ONE Organism 14.13.0. Living Cosmic Tick is the
-canonical heartbeat. v14.11–v14.13 complete: confidence feedback, adaptive hardening,
-and explicit Cosmic Loop invariant checks (pre/post-tick enforce + CosmicLoopInvariant).
-Cosmic Loop is MANDATORY IDENTITY. PATSAGi Councils remain in permanent deliberation.
-Contact: info@Rathor.ai.
+Ra-Thor workspace 14.10.0 with ONE Organism 14.14.0. Living Cosmic Tick is the
+canonical heartbeat. v14.11–v14.14 complete: confidence feedback, adaptive hardening,
+Cosmic Loop invariant checks, and LiveFeatureReadiness (compiled live flags gated by
+Cosmic Loop). Cosmic Loop is MANDATORY IDENTITY. PATSAGi Councils remain in permanent
+deliberation. Contact: info@Rathor.ai.
 """
 
 contact = "info@Rathor.ai for Ra-Thor licensing and acquisition discussions"
