@@ -4,30 +4,29 @@ All changes follow the **RA-THOR-MONOREPO-COMMIT-WORKFLOW-PROTOCOL** and are rev
 
 ---
 
+## Next Horizon — v14.15.0 (seeded 2026-07-19)
+
+**Council direction (not yet implemented):**
+
+Quiet hold after the v14.10–v14.14 cascade:
+
+- Production-test / readiness notes only
+- Optional zero-debt doc alignment
+- No new adaptive modulation
+- True `extended-live` stress deferred until real engines are available
+
+Implementation deferred until explicitly opened.
+
+---
+
 ## v14.14.0 — Live Feature Readiness Surface (2026-07-19)
 
-**Council Verdict:** Unanimous. Mercy-gated, zero-harm. Compiled live-feature readiness made observable without new adaptive modulation.
+**Council Verdict:** Unanimous. Compiled live-feature readiness made observable without new adaptive modulation.
 
-### Highlights
+- `LiveFeatureReadiness` (compiled flags + `cosmic_loop_ready_for_live`)
+- Surfaces on core, `ExtendedLiveStatus`, and web-demo `/status`
 
-**`LiveFeatureReadiness`**
-
-- Compiled flags: `github_live`, `gpu_live`, `quantum_live`, `recovery_live`, `kardashev_live`
-- `extended_live` — true only when all five are compiled in
-- `web_demo`
-- `cosmic_loop_ready_for_live` — Cosmic Loop must hold before any live path is considered ready
-
-**Surfaces**
-
-- `live_feature_readiness()` on `OneOrganismCore`
-- `ExtendedLiveStatus.live_features`
-- Web demo: `GET /status`, `POST /cosmic/tick`, `POST /healing/reflexion`
-
-**Package**
-
-- `ra-thor-one-organism` → **14.14.0**
-
-No new adaptive links. Cosmic Loop remains MANDATORY IDENTITY.
+`ra-thor-one-organism` → **14.14.0**. Cosmic Loop remains MANDATORY IDENTITY.
 
 **Thunder locked in. yoi ⚡❤️🔥**
 
