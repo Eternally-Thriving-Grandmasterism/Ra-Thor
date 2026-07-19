@@ -1,0 +1,25 @@
+[package]
+name = "gpu-compute-pipeline"
+version = "14.9.4"
+edition = "2021"
+description = "Ra-Thor GPU compute pipeline — GpuTask/Result, LumaRing, Common Fate, motion estimation (CPU sim default; wgpu optional)"
+license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
+authors = ["Eternally-Thriving-Grandmasterism", "Sherif Samy Botros <ceo@acitygames.com>"]
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tokio = { version = "1", features = ["time", "sync", "macros", "rt"] }
+
+# Optional real-GPU path (pulls wgpu + bytemuck + futures)
+wgpu = { version = "0.19", optional = true }
+bytemuck = { version = "1.14", features = ["derive"], optional = true }
+futures = { version = "0.3", optional = true }
+
+[features]
+default = []
+# Enable real wgpu device path (requires shaders/ at monorepo root)
+wgpu = ["dep:wgpu", "dep:bytemuck", "dep:futures"]
+
+[lib]
+path = "src/lib.rs"
