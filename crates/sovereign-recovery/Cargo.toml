@@ -1,8 +1,8 @@
 [package]
 name = "sovereign-recovery"
-version = "14.9.7"
+version = "14.10.0"
 edition = "2021"
-description = "Ra-Thor Sovereign Recovery Protocol v1.0 — heartbeats, mercy circuit breakers, TOLC8 anchors, recovery codex"
+description = "Ra-Thor Sovereign Recovery Protocol — heartbeats, mercy circuit breakers, TOLC8 anchors, recovery codex (Living Cosmic Tick)"
 license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
 authors = ["Eternally-Thriving-Grandmasterism", "Sherif Samy Botros <info@Rathor.ai>"]
 
