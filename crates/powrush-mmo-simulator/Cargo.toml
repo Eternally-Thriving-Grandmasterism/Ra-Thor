@@ -2,7 +2,7 @@
 name = "powrush-mmo-simulator"
 version = "0.3.8"
 edition = "2021"
-authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
+authors = ["Sherif Samy Botros <info@Rathor.ai>"]
 license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
 description = "Powrush MMO Reality Simulator — Mercy-gated Resource-Based Economy simulation layer for Ra-Thor. Integrated with MIAL geometry mercy evaluation + hybrid Lean/Rust threshold bridge."
 keywords = ["powrush", "rbe", "mmo", "simulation", "mercy", "economy", "geometry", "mial"]
