@@ -1,4 +1,4 @@
-//! ONE Organism Web Demo — v14.11.0
+//! ONE Organism Web Demo — v14.12.0
 //!
 //! Run:
 //!   cargo run -p ra-thor-one-organism --example one_organism_web_demo --features web-demo
@@ -7,8 +7,8 @@
 //!
 //! Endpoints:
 //!   GET  /health
-//!   GET  /status                includes last_anomalies_fired + last_handoff_reason
-//!   GET  /live                  Full ExtendedLiveStatus (surfaces + Self-Healing + role-handoff telemetry)
+//!   GET  /status                includes last adaptive fields + last_anomalies_fired + handoff
+//!   GET  /live                  Full ExtendedLiveStatus (incl. last-tick adaptive fields)
 //!   GET  /api/status
 //!   POST /api                   MercyApiRequest JSON
 //!   POST /cosmic/tick           { "severity": 0.4 }  → Living Cosmic Tick + adaptive confidence fields
@@ -70,6 +70,10 @@ struct StatusBody {
     kardashev_cycles: u64,
     /// Components that fired anomalies on the most recent Cosmic Tick.
     last_anomalies_fired: Vec<String>,
+    /// v14.12 — last Cosmic Tick adaptive fields (0.0 before first tick).
+    last_base_severity: f64,
+    last_effective_quantum_severity: f64,
+    last_gpu_confidence: f64,
 }
 
 #[derive(Debug, Deserialize)]
@@ -205,13 +209,13 @@ async fn main() {
         .unwrap_or_else(|e| panic!("bind {}: {}", addr, e));
 
     println!("══════════════════════════════════════════════════");
-    println!("  ONE Organism Web Demo v14.11.0 — Live-Path Confidence Feedback");
+    println!("  ONE Organism Web Demo v14.12.0 — Adaptive Hardening");
     println!("  Listening on http://127.0.0.1:{}", port);
     println!("  GET  /health  /status  /live  /api/status");
     println!("  POST /cosmic/tick  /quantum/tick  /gpu/dispatch");
     println!("  POST /github/queue  /role/handoff  /healing/reflexion");
     println!("  POST /kardashev/tick  /recovery/heartbeat");
-    println!("  /cosmic/tick exposes base_severity, effective_quantum_severity, gpu_confidence");
+    println!("  /status + /live expose last_base_severity / last_effective_quantum_severity / last_gpu_confidence");
     println!("  Cosmic Loop is MANDATORY IDENTITY. Eternal.");
     println!("  Thunder locked in. yoi ⚡");
     println!("══════════════════════════════════════════════════");
@@ -253,10 +257,13 @@ async fn status(State(org): State<SharedOrganism>) -> Json<StatusBody> {
         recovery_heartbeats: live.recovery.heartbeat_count,
         kardashev_cycles: live.kardashev.cycle_count,
         last_anomalies_fired: live.last_anomalies_fired,
+        last_base_severity: live.last_base_severity,
+        last_effective_quantum_severity: live.last_effective_quantum_severity,
+        last_gpu_confidence: live.last_gpu_confidence,
     })
 }
 
-/// Full living snapshot — all surfaces + Self-Healing + role-handoff telemetry.
+/// Full living snapshot — all surfaces + Self-Healing + adaptive last-tick fields.
 async fn live_status(State(org): State<SharedOrganism>) -> Json<serde_json::Value> {
     let o = org.lock().await;
     let live = o.extended_live_status();
@@ -286,7 +293,7 @@ async fn api_request(
     )
 }
 
-/// Full Living Cosmic Tick + v14.11 adaptive confidence fields promoted top-level.
+/// Full Living Cosmic Tick + adaptive confidence fields promoted top-level.
 async fn cosmic_tick(
     State(org): State<SharedOrganism>,
     Json(body): Json<CosmicTickBody>,
