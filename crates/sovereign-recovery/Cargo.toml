@@ -1,0 +1,15 @@
+[package]
+name = "sovereign-recovery"
+version = "14.9.7"
+edition = "2021"
+description = "Ra-Thor Sovereign Recovery Protocol v1.0 — heartbeats, mercy circuit breakers, TOLC8 anchors, recovery codex"
+license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
+authors = ["Eternally-Thriving-Grandmasterism", "Sherif Samy Botros <ceo@acitygames.com>"]
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tokio = { version = "1", features = ["sync", "macros", "rt"] }
+
+[lib]
+path = "src/lib.rs"
