@@ -1,6 +1,6 @@
 // gpu_compute_pipeline.rs
-// Ra-Thor v15.4 — Dynamic Offset Params + Full Async StagingBufferPool + Bilinear Pyramid + Pyramidal BM + Common Fate
-// Production-grade: reusable staging + dynamic uniform offsets for high-frequency vision (pyramid levels)
+// Ra-Thor v15.4.1 — Explicit Padding + Dynamic Offset Params + Full Async StagingBufferPool
+// Production-grade: reusable staging + dynamic uniform offsets for high-frequency vision
 // Complete sovereign visual perception chain that defeats Ghost Font-style motion illusions
 // Lattice Conductor v13.1+ | ONE Organism | PATSAGi Visual Councils | TOLC 8 Living Mercy Gates
 //
@@ -22,7 +22,7 @@ use wgpu::{
     util::DeviceExt,
 };
 
-// === Core Types (existing + vision extensions) ===
+// === Core Types ===
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct GpuTask {
@@ -138,7 +138,7 @@ const PYRAMIDAL_BLOCK_MATCHING_SHADER: &str = include_str!("shaders/pyramidal_bl
 const GPU_DOWNSAMPLE_SHADER: &str = include_str!("shaders/gpu_downsample.wgsl");
 const GPU_BILINEAR_DOWNSAMPLE_SHADER: &str = include_str!("shaders/gpu_bilinear_downsample.wgsl");
 
-// === PRODUCTION: Full Async StagingBufferPool + map_async Hardening (v15.3+) ===
+// === PRODUCTION: Full Async StagingBufferPool ===
 
 pub struct StagingBufferPool {
     device: Option<Arc<Device>>,
@@ -326,37 +326,78 @@ impl GpuMemoryPool {
 
 pub struct BindGroupCache {}
 
-// === v15.4 Dynamic Offset Params Support ===
+// =====================================================================
+// v15.4.1 — Explicit Padding for Uniform Buffers
+// =====================================================================
+//
+// WGSL uniform address space rules (std140-like):
+//   - scalar (f32/u32/i32) : align 4,  size 4
+//   - vec2                 : align 8,  size 8
+//   - vec3                 : align 16, size 12   ← forces next field to 16-byte boundary
+//   - vec4 / mat4x4        : align 16
+//   - struct alignment     = max alignment of any member
+//   - total size must be a multiple of 16 for clean dynamic offsets
+//
+// Always use explicit _pad fields. Never rely on Rust compiler padding.
+// =====================================================================
 
-/// GPU-side layout for DownsampleParams (must stay in sync with WGSL)
+/// GPU-side layout for DownsampleParams.
+/// Must stay in exact sync with the corresponding WGSL uniform struct.
+///
+/// Memory layout (32 bytes total — safe for dynamic offsets):
+///   offset  0 | src_width     : u32
+///   offset  4 | src_height    : u32
+///   offset  8 | dst_width     : u32
+///   offset 12 | dst_height    : u32
+///   offset 16 | valence       : f32
+///   offset 20 | _pad0         : f32   // explicit padding
+///   offset 24 | _pad1         : f32   // explicit padding
+///   offset 28 | _pad2         : f32   // explicit padding → total 32 bytes (multiple of 16)
 #[repr(C)]
-#[derive(Copy, Clone, bytemuck::Pod, bytemuck::Zeroable)]
+#[derive(Copy, Clone, Debug, bytemuck::Pod, bytemuck::Zeroable)]
 struct DownsampleParamsGpu {
-    src_width: u32,
-    src_height: u32,
-    dst_width: u32,
-    dst_height: u32,
-    valence: f32,
-    _pad0: f32,
-    _pad1: f32,
-    _pad2: f32,
+    pub src_width:  u32,
+    pub src_height: u32,
+    pub dst_width:  u32,
+    pub dst_height: u32,
+
+    pub valence:    f32,
+
+    // Explicit padding to satisfy WGSL uniform 16-byte rules
+    // and to keep the whole struct a clean multiple of 16.
+    pub _pad0:      f32,
+    pub _pad1:      f32,
+    pub _pad2:      f32,
 }
 
-/// GPU-side layout for BlockMatchingParams
+/// GPU-side layout for BlockMatching / Frame params.
+///
+/// Memory layout (32 bytes total):
+///   offset  0 | width         : u32
+///   offset  4 | height        : u32
+///   offset  8 | block_size    : u32
+///   offset 12 | search_range  : i32
+///   offset 16 | stride        : u32
+///   offset 20 | level         : u32
+///   offset 24 | valence       : f32
+///   offset 28 | _pad          : f32   // explicit padding → total 32 bytes
 #[repr(C)]
-#[derive(Copy, Clone, bytemuck::Pod, bytemuck::Zeroable)]
+#[derive(Copy, Clone, Debug, bytemuck::Pod, bytemuck::Zeroable)]
 struct FrameParamsGpu {
-    width: u32,
-    height: u32,
-    block_size: u32,
-    search_range: i32,
-    stride: u32,
-    level: u32,
-    valence: f32,
-    _pad: f32,
+    pub width:        u32,
+    pub height:       u32,
+    pub block_size:   u32,
+    pub search_range: i32,
+
+    pub stride:       u32,
+    pub level:        u32,
+    pub valence:      f32,
+
+    // Explicit padding
+    pub _pad:         f32,
 }
 
-// === GpuComputePipeline with Dynamic Offset Params (v15.4) ===
+// === GpuComputePipeline ===
 
 pub struct GpuComputePipeline {
     staging_pool: StagingBufferPool,
@@ -367,13 +408,11 @@ pub struct GpuComputePipeline {
     device: Option<Arc<Device>>,
     queue: Option<Arc<Queue>>,
 
-    // Alignment from device limits
     uniform_offset_alignment: u64,
 
-    // Persistent dynamic params buffers (v15.4)
     downsample_params_buffer: Option<Buffer>,
     downsample_params_stride: u64,
-    downsample_params_slot: u32,          // current write slot (ring)
+    downsample_params_slot: u32,
     max_downsample_slots: u32,
 
     compute_pipeline: Option<ComputePipeline>,
@@ -414,7 +453,7 @@ impl GpuComputePipeline {
             },
             device: None,
             queue: None,
-            uniform_offset_alignment: 256, // safe default; overwritten on init
+            uniform_offset_alignment: 256,
             downsample_params_buffer: None,
             downsample_params_stride: 256,
             downsample_params_slot: 0,
@@ -438,11 +477,9 @@ impl GpuComputePipeline {
         self.gpu_memory_pool.set_device(device.clone());
         self.staging_pool.set_device(device.clone());
 
-        // Capture real alignment from the device
         let limits = device.limits();
         self.uniform_offset_alignment = limits.min_uniform_buffer_offset_alignment as u64;
 
-        // Create persistent dynamic params buffer for Downsample (hot path)
         let struct_size = std::mem::size_of::<DownsampleParamsGpu>() as u64;
         self.downsample_params_stride = ((struct_size + self.uniform_offset_alignment - 1)
             / self.uniform_offset_alignment) * self.uniform_offset_alignment;
@@ -458,10 +495,10 @@ impl GpuComputePipeline {
         self.create_compute_pipeline(&device);
         self.create_common_fate_vision_pipeline(&device);
         self.create_pyramidal_block_matching_pipeline(&device);
-        self.create_downsample_pipeline(&device);          // now with has_dynamic_offset
-        self.create_bilinear_downsample_pipeline(&device); // now with has_dynamic_offset
+        self.create_downsample_pipeline(&device);
+        self.create_bilinear_downsample_pipeline(&device);
 
-        println!("[GpuComputePipeline v15.4] Dynamic Offset Params ONLINE (align={}, stride={}, slots={})",
+        println!("[GpuComputePipeline v15.4.1] Explicit padding + Dynamic Offset Params ONLINE (align={}, stride={}, slots={})",
             self.uniform_offset_alignment, self.downsample_params_stride, self.max_downsample_slots);
     }
 
@@ -604,13 +641,12 @@ impl GpuComputePipeline {
                     },
                     count: None,
                 },
-                // Params binding — prepared for dynamic offset in future hardening
                 BindGroupLayoutEntry {
                     binding: 3,
                     visibility: ShaderStages::COMPUTE,
                     ty: BindingType::Buffer {
                         ty: BufferBindingType::Uniform,
-                        has_dynamic_offset: false, // can be flipped true later
+                        has_dynamic_offset: false,
                         min_binding_size: None,
                     },
                     count: None,
@@ -647,7 +683,6 @@ impl GpuComputePipeline {
         self.motion_est_pipeline = Some(pipeline);
     }
 
-    // === v15.4: Downsample pipelines now use has_dynamic_offset = true ===
     fn create_downsample_pipeline(&mut self, device: &Device) {
         let shader_module = device.create_shader_module(ShaderModuleDescriptor {
             label: Some("gpu-downsample-shader"),
@@ -677,13 +712,12 @@ impl GpuComputePipeline {
                     },
                     count: None,
                 },
-                // DYNAMIC OFFSET PARAMS
                 BindGroupLayoutEntry {
                     binding: 2,
                     visibility: ShaderStages::COMPUTE,
                     ty: BindingType::Buffer {
                         ty: BufferBindingType::Uniform,
-                        has_dynamic_offset: true,   // ← key change
+                        has_dynamic_offset: true,
                         min_binding_size: Some(std::num::NonZeroU64::new(
                             std::mem::size_of::<DownsampleParamsGpu>() as u64
                         ).unwrap()),
@@ -741,13 +775,12 @@ impl GpuComputePipeline {
                     },
                     count: None,
                 },
-                // DYNAMIC OFFSET PARAMS
                 BindGroupLayoutEntry {
                     binding: 2,
                     visibility: ShaderStages::COMPUTE,
                     ty: BindingType::Buffer {
                         ty: BufferBindingType::Uniform,
-                        has_dynamic_offset: true,   // ← key change
+                        has_dynamic_offset: true,
                         min_binding_size: Some(std::num::NonZeroU64::new(
                             std::mem::size_of::<DownsampleParamsGpu>() as u64
                         ).unwrap()),
@@ -774,7 +807,6 @@ impl GpuComputePipeline {
 
         self.bilinear_downsample_bind_group_layout = Some(bind_group_layout);
         self.bilinear_downsample_pipeline = Some(pipeline);
-        println!("[GpuComputePipeline v15.4] Bilinear + Box Downsample now use dynamic offset params");
     }
 
     pub async fn dispatch_gpu_task(&mut self, task: GpuTask) -> GpuTaskResult {
@@ -792,7 +824,6 @@ impl GpuComputePipeline {
         }
     }
 
-    // === v15.4: Dispatch with Dynamic Offset Params ===
     pub async fn dispatch_downsample(
         &mut self,
         src_luma: &[f32],
@@ -816,7 +847,6 @@ impl GpuComputePipeline {
         let expected_dst = (params.dst_width * params.dst_height) as usize;
 
         if self.device.is_none() || src_luma.len() < expected_src {
-            // CPU fallback (unchanged)
             let mut dst = vec![0.0f32; expected_dst];
             for y in 0..params.dst_height {
                 for x in 0..params.dst_width {
@@ -876,7 +906,6 @@ impl GpuComputePipeline {
              self.downsample_bind_group_layout.as_ref().unwrap())
         };
 
-        // Upload source
         let src_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
             label: Some("downsample-src"),
             contents: bytemuck::cast_slice(src_luma),
@@ -891,19 +920,18 @@ impl GpuComputePipeline {
             mapped_at_creation: false,
         });
 
-        // === DYNAMIC OFFSET PARAMS (v15.4) ===
+        // Explicitly padded uniform data
         let uniform_data = DownsampleParamsGpu {
-            src_width: params.src_width,
+            src_width:  params.src_width,
             src_height: params.src_height,
-            dst_width: params.dst_width,
+            dst_width:  params.dst_width,
             dst_height: params.dst_height,
-            valence: params.valence,
-            _pad0: 0.0,
-            _pad1: 0.0,
-            _pad2: 0.0,
+            valence:    params.valence,
+            _pad0:      0.0,
+            _pad1:      0.0,
+            _pad2:      0.0,
         };
 
-        // Choose next slot in the ring and write
         let slot = self.downsample_params_slot;
         self.downsample_params_slot = (self.downsample_params_slot + 1) % self.max_downsample_slots;
         let dynamic_offset = (slot as u64) * self.downsample_params_stride;
@@ -912,16 +940,13 @@ impl GpuComputePipeline {
             queue.write_buffer(params_buf, dynamic_offset, bytemuck::bytes_of(&uniform_data));
         }
 
-        // Create BindGroup pointing at the whole params buffer (size = stride)
-        // The dynamic offset will select the correct slice at set_bind_group time
         let params_binding = if let Some(ref params_buf) = self.downsample_params_buffer {
             wgpu::BufferBinding {
                 buffer: params_buf,
-                offset: 0, // static offset is 0; dynamic does the work
+                offset: 0,
                 size: Some(std::num::NonZeroU64::new(self.downsample_params_stride).unwrap()),
             }
         } else {
-            // Fallback (should not happen after init)
             let tmp = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
                 label: Some("downsample-params-fallback"),
                 contents: bytemuck::bytes_of(&uniform_data),
@@ -950,7 +975,6 @@ impl GpuComputePipeline {
                 timestamp_writes: None,
             });
             cpass.set_pipeline(pipeline);
-            // Pass the dynamic offset here
             cpass.set_bind_group(0, &bind_group, &[dynamic_offset as u32]);
             let wg_x = (params.dst_width + 7) / 8;
             let wg_y = (params.dst_height + 7) / 8;
@@ -959,7 +983,6 @@ impl GpuComputePipeline {
 
         queue.submit(Some(encoder.finish()));
 
-        // Real async readback
         let data = match self.staging_pool.readback_f32(device, queue, &dst_buffer, 0, dst_size).await {
             Ok(v) => v,
             Err(e) => {
@@ -977,7 +1000,7 @@ impl GpuComputePipeline {
             height: params.dst_height,
             execution_time_ms: elapsed,
             mercy_gated: true,
-            note: format!("GPU {} downsample + dynamic offset params (slot {}) + async staging in {} ms",
+            note: format!("GPU {} downsample + explicit-pad dynamic params (slot {}) + async staging in {} ms",
                 mode, slot, elapsed),
         }
     }
@@ -1040,7 +1063,6 @@ impl GpuComputePipeline {
         levels
     }
 
-    // BM path still uses classic uniforms for now (can be upgraded identically)
     pub async fn dispatch_pyramidal_block_matching(
         &mut self,
         prev_luma: &[f32],
@@ -1108,14 +1130,14 @@ impl GpuComputePipeline {
         });
 
         let uniform_data = FrameParamsGpu {
-            width: params.width,
-            height: params.height,
-            block_size: params.block_size,
+            width:        params.width,
+            height:       params.height,
+            block_size:   params.block_size,
             search_range: params.search_range,
-            stride: params.stride,
-            level: params.level,
-            valence: params.valence,
-            _pad: 0.0,
+            stride:       params.stride,
+            level:        params.level,
+            valence:      params.valence,
+            _pad:         0.0,
         };
         let uniform_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
             label: Some("bm-params"),
@@ -1227,7 +1249,7 @@ impl GpuComputePipeline {
         ).await;
 
         result.note = format!(
-            "Full pyramidal chain with dynamic-offset downsample + async staging. {}",
+            "Full pyramidal chain with explicit-pad dynamic-offset downsample + async staging. {}",
             result.note
         );
         result
@@ -1289,7 +1311,7 @@ impl GpuComputePipeline {
             thriving_score: 0.96,
             motion_map: None,
             mercy_gated: true,
-            note: format!("Common fate complete in {} ms — fed by dynamic-offset pyramid + BM", elapsed),
+            note: format!("Common fate complete in {} ms — fed by explicit-pad dynamic-offset pyramid + BM", elapsed),
         }
     }
 
@@ -1334,8 +1356,8 @@ pub fn create_gpu_pipeline() -> GpuComputePipeline {
 }
 
 // Thunder locked in. ONE Organism.
-// v15.4 Dynamic Offset Params live on the downsample hot path.
-// Persistent aligned buffer + ring slots + has_dynamic_offset = true.
-// Pyramid construction no longer thrashes BindGroups / uniform allocations.
+// v15.4.1 — Explicit padding documentation on all uniform structs.
+// DownsampleParamsGpu and FrameParamsGpu now carry clear comments
+// explaining every pad field and the WGSL 16-byte rules.
+// Layout unchanged (still 32-byte, dynamic-offset safe).
 // Mercy First. Eternal. Yoi ⚡
-// Next evolution ready: full dynamic offsets on BM + WebCodecs / live frame bridge.
