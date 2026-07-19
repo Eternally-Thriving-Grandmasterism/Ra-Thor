@@ -1,27 +1,24 @@
 //! Runtime Self-Healing Engine for Ra-Thor v14 Thunder Lattice
 //! Includes Watchdog Thread + Advanced Reflexion Loops with Experience Logging + Graph Rerouting
 //!
-//! This module provides runtime (live execution) self-healing capabilities.
-//! It works symbiotically with the Cosmic Loop Activation Protocol.
-//!
-//! Core Pattern: Monitor → Diagnose → Reflect → Heal (Reflexion-inspired)
-//! All healing actions are mercy-gated and council-arbitrated.
-//! Advanced: Structured experience logging + Graph-based council task rerouting
-//!
 //! v14.8.1 (2026-07-19):
 //! - Shares the exact same Arc<AtomicBool> cosmic_loop_ready with CouncilArbitrationEngine
 //! - Removed invalid diagnosis.severity reference (compile fix)
 //! - Watchdog and arbitration engine can no longer drift out of sync
+//!
+//! v14.9.6: Serialize on Diagnosis / HealthReport for HTTP JSON surface
 
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
+use serde::{Deserialize, Serialize};
+
 use crate::CouncilArbitrationEngine;
 
 /// Structured healing experience for logging and future self-evolution via Cosmic Loops
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct HealingExperience {
     pub timestamp: u64,
     pub root_cause: String,
@@ -32,7 +29,7 @@ pub struct HealingExperience {
 }
 
 /// Runtime health status of key lattice components
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct HealthReport {
     pub cosmic_loop_ready: bool,
     pub tol_c_gates_healthy: bool,
@@ -42,7 +39,7 @@ pub struct HealthReport {
 }
 
 /// Anomaly detected during monitoring
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Anomaly {
     pub component: String,
     pub description: String,
@@ -50,7 +47,7 @@ pub struct Anomaly {
 }
 
 /// Diagnosis result from Reflexion loop
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Diagnosis {
     pub root_cause: String,
     pub recommended_action: String,
@@ -58,7 +55,8 @@ pub struct Diagnosis {
 }
 
 /// Healing action that can be executed
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
 pub enum HealingAction {
     RestoreCosmicLoop,
     RestartComponent(String),
@@ -68,7 +66,7 @@ pub enum HealingAction {
 }
 
 /// Simple weighted graph for council task routing (for graph rerouting feature)
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CouncilTaskGraph {
     pub nodes: Vec<String>,
     pub edges: Vec<(String, String, f32)>,
@@ -215,7 +213,6 @@ impl RuntimeSelfHealingEngine {
         if diagnosis.root_cause.contains("Cosmic Loop") {
             HealingAction::RestoreCosmicLoop
         } else if diagnosis.root_cause.to_lowercase().contains("council") {
-            // Advanced: Suggest graph rerouting for council tasks
             HealingAction::RerouteCouncilTask {
                 from: "Council#13".to_string(),
                 to: "Evolution".to_string(),
@@ -317,14 +314,11 @@ mod tests {
         let flag_from_arb = arb.cosmic_loop_flag();
         let engine = RuntimeSelfHealingEngine::new(arb);
 
-        // Must be the same Arc
         assert!(Arc::ptr_eq(&flag_from_arb, &engine.cosmic_loop_ready));
 
-        // Change via engine visible via original flag
         engine.cosmic_loop_ready.store(false, Ordering::SeqCst);
         assert!(!flag_from_arb.load(Ordering::SeqCst));
 
-        // Restore via reflexion
         engine.run_reflexion_cycle();
         assert!(flag_from_arb.load(Ordering::SeqCst));
     }
