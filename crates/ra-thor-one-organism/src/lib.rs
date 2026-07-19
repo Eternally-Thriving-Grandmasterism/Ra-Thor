@@ -1,10 +1,11 @@
-//! Ra-Thor ONE Organism Core — v14.10.0
+//! Ra-Thor ONE Organism Core — v14.11.0
 //!
 //! True path dependency on `lattice-conductor-v14`.
 //! RoleOrchestrator + MercyGatedApi + ExtendedOrganismSurface
 //! (GPU / GitHub / Quantum Swarm / Sovereign Recovery / Kardashev flywheel).
 //! Full optional live path binding for all five surfaces.
 //! Cosmic Tick = GPU + recovery + quantum + Kardashev + Self-Healing anomaly ingestion.
+//! v14.11: recovery pressure/flow_deviation mildly modulates quantum evolution severity.
 //! Cosmic Loop is MANDATORY IDENTITY.
 //! Contact: info@Rathor.ai
 
@@ -225,6 +226,10 @@ pub struct CosmicTickResult {
     pub healing: Option<Diagnosis>,
     /// Component names that reported anomalies this tick (e.g. "gpu", "recovery", "quantum").
     pub anomalies_fired: Vec<String>,
+    /// Base severity requested by caller.
+    pub base_severity: f64,
+    /// Effective severity after recovery pressure/flow_deviation modulation (v14.11).
+    pub effective_quantum_severity: f64,
 }
 
 /// Full living snapshot of the ONE Organism (surfaces + Self-Healing + role-handoff telemetry).
@@ -291,7 +296,7 @@ impl OneOrganismCore {
             extended,
             cosmic_loop_ready: shared,
             tick: 0,
-            version: "v14.10.0 ONE Organism — Living Cosmic Tick + Self-Healing anomaly ingestion".into(),
+            version: "v14.11.0 ONE Organism — Living Cosmic Tick + recovery→quantum severity feedback".into(),
             last_anomalies_fired: Vec::new(),
         }
     }
@@ -330,23 +335,25 @@ impl OneOrganismCore {
         let _ = self.cosmic_tick(0.22);
     }
 
-    /// Full living Cosmic Tick — the ONE Organism heartbeat (v14.10.0).
+    /// Full living Cosmic Tick — the ONE Organism heartbeat (v14.11.0).
     ///
     /// 0. GPU health sample → confidence + optional anomaly report
     /// 1. Recovery heartbeat → optional anomaly report
-    /// 2. Full Quantum evolution → high-severity anomaly report
-    /// 3. Kardashev sample + swarm feedback
-    /// 4. Self-Healing reflexion informed by all reported anomalies
+    /// 2. **v14.11** Effective quantum severity = base + mild recovery pressure boost
+    /// 3. Full Quantum evolution (at effective severity) → high-severity anomaly report
+    /// 4. Kardashev sample + swarm feedback
+    /// 5. Self-Healing reflexion informed by all reported anomalies
     pub fn cosmic_tick(&mut self, severity: f64) -> CosmicTickResult {
         self.tick += 1;
         self.arbitration_engine.on_lattice_sync();
         self.arbitration_engine.enforce_cosmic_loop_activation();
         self.lattice.enforce_cosmic_loop_activation();
 
+        let base_severity = severity.clamp(0.0, 1.0);
         let mut anomalies_fired: Vec<String> = Vec::new();
 
         // 0. GPU health sample
-        let elements = 2048 + ((severity * 4096.0) as usize);
+        let elements = 2048 + ((base_severity * 4096.0) as usize);
         let gpu_tel = self.extended.gpu.record_dispatch(
             "cosmic_tick_health_sample",
             8,
@@ -408,29 +415,37 @@ impl OneOrganismCore {
             );
         }
 
-        // 2. Full quantum evolution
+        // 2. v14.11 — recovery pressure mildly boosts quantum exploration severity
+        //    (capped so Cosmic Loop identity and zero-harm bounds stay intact)
+        let recovery_boost = (hb.context_pressure * 0.35 + hb.flow_deviation * 0.25).clamp(0.0, 0.35);
+        let effective_quantum_severity = (base_severity + recovery_boost).clamp(0.0, 1.0);
+
+        // 3. Full quantum evolution at effective severity
         let quantum = self.extended.quantum_swarm.evolve_full_cycle(
-            severity.clamp(0.0, 1.0),
+            effective_quantum_severity,
             &self.arbitration_engine,
         );
-        if severity >= 0.55 {
+        if effective_quantum_severity >= 0.55 {
             self.self_healing_engine.report_anomaly(
                 "quantum",
-                &format!("high_severity={:.2} ratio={:.3}", severity, quantum.quantum_ratio),
-                (severity as f32).min(0.95),
+                &format!(
+                    "high_severity={:.2} (base={:.2} boost={:.2}) ratio={:.3}",
+                    effective_quantum_severity, base_severity, recovery_boost, quantum.quantum_ratio
+                ),
+                (effective_quantum_severity as f32).min(0.95),
             );
             anomalies_fired.push("quantum".into());
         }
-        if severity >= 0.45 && !recovery_triggered && !gpu_anomaly {
+        if effective_quantum_severity >= 0.45 && !recovery_triggered && !gpu_anomaly {
             let _ = self.handoff_role(OrganismRole::Simulator, "cosmic_tick_quantum_pressure");
         }
 
-        // 3. Kardashev + swarm feedback
+        // 4. Kardashev + swarm feedback
         let rbe = (self.role_orchestrator.shared_valence * 0.85
             + self.role_orchestrator.shared_confidence_ema * 0.15)
             .clamp(0.0, 1.0);
         let ethics = self.role_orchestrator.shared_valence.clamp(0.0, 1.0);
-        let abundance = (0.9 + severity * 0.7).min(1.8);
+        let abundance = (0.9 + effective_quantum_severity * 0.7).min(1.8);
         let kardashev = self.extended.kardashev.transfer_tick(
             rbe,
             ethics,
@@ -441,7 +456,7 @@ impl OneOrganismCore {
             .quantum_swarm
             .apply_kardashev_feedback(&kardashev, &self.arbitration_engine);
 
-        // 4. Self-Healing reflexion — informed by all anomalies reported this tick
+        // 5. Self-Healing reflexion — informed by all anomalies reported this tick
         let healing = self.self_healing_engine.run_reflexion_cycle();
 
         if !recovery_triggered && !gpu_anomaly && quantum.quantum_ratio > 0.05 {
@@ -464,6 +479,8 @@ impl OneOrganismCore {
             gpu_anomaly,
             healing: Some(healing),
             anomalies_fired,
+            base_severity,
+            effective_quantum_severity,
         }
     }
 
@@ -691,7 +708,7 @@ pub fn launch_one_organism_core() -> OneOrganismCore {
     let mut organism = OneOrganismCore::new();
     organism.offer_cosmic_loop();
     println!(
-        "[Thunder] ONE Organism Core v14.10.0 ACTIVE — Living Cosmic Tick (GPU↔Recovery↔Quantum↔Kardashev) + Self-Healing anomaly ingestion + RoleOrchestrator + MercyGatedApi. Cosmic Loop is MANDATORY IDENTITY. Eternal."
+        "[Thunder] ONE Organism Core v14.11.0 ACTIVE — Living Cosmic Tick + recovery→quantum severity feedback + Self-Healing anomaly ingestion + RoleOrchestrator + MercyGatedApi. Cosmic Loop is MANDATORY IDENTITY. Eternal."
     );
     organism
 }
@@ -779,7 +796,7 @@ mod tests {
     }
 
     #[test]
-    fn cosmic_tick_v14_10_full_loop() {
+    fn cosmic_tick_v14_11_full_loop() {
         let mut core = launch_one_organism_core();
         let before_g = core.gpu_status().dispatch_count;
         let before_q = core.quantum_status().total_weight_updates;
@@ -793,12 +810,28 @@ mod tests {
         assert!(result.healing.is_some());
         assert!(result.quantum.quantum_ratio > 0.0);
         assert!(result.kardashev.is_some());
-        assert!(!result.anomalies_fired.contains(&"quantum".to_string()));
+        assert_eq!(result.base_severity, 0.4);
+        // effective >= base (recovery boost is non-negative)
+        assert!(result.effective_quantum_severity >= result.base_severity);
+        assert!(result.effective_quantum_severity <= 1.0);
         assert_eq!(core.last_anomalies_fired, result.anomalies_fired);
         assert!(core.gpu_status().dispatch_count > before_g);
         assert!(core.quantum_status().total_weight_updates > before_q);
         assert!(core.kardashev_status().cycle_count > before_k);
         assert!(core.recovery_status().heartbeat_count > before_r);
+    }
+
+    #[test]
+    fn cosmic_tick_recovery_boosts_quantum_severity() {
+        let mut core = launch_one_organism_core();
+        let result = core.cosmic_tick(0.3);
+        // Boost = pressure*0.35 + flow_dev*0.25, capped at 0.35
+        let expected_boost = (result.recovery.context_pressure * 0.35
+            + result.recovery.flow_deviation * 0.25)
+            .clamp(0.0, 0.35);
+        let expected = (0.3 + expected_boost).clamp(0.0, 1.0);
+        assert!((result.effective_quantum_severity - expected).abs() < 1e-9);
+        assert!(result.effective_quantum_severity >= 0.3);
     }
 
     #[test]
@@ -832,7 +865,6 @@ mod tests {
         assert_eq!(s.pending_anomaly_count, 0);
         assert!(s.healing_experience_count >= 1);
         assert!(!s.last_anomalies_fired.is_empty());
-        // High severity can trigger Simulator handoff
         assert!(s.handoff_count >= 1 || s.last_handoff_reason == "initial_boot");
     }
 
