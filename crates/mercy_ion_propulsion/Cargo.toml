@@ -2,7 +2,7 @@
 name = "mercy_ion_propulsion"
 version = "0.3.9"
 edition = "2021"
-authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
+authors = ["Sherif Samy Botros <info@Rathor.ai>"]
 license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
 description = "Mercy-Ion-Propulsion — Mercy-gated ion propulsion, Hall-effect thrusters, gridded ion engines, and high-specific-impulse deep-space drive systems for Ra-Thor starship fleets and long-duration interstellar operations."
 repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
