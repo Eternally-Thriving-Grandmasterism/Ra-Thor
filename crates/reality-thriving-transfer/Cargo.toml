@@ -4,7 +4,7 @@ version = "14.9.8"
 edition = "2021"
 description = "Ra-Thor Reality Thriving Transfer Score closed feedback loop + Kardashev benchmark harness"
 license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
-authors = ["Eternally-Thriving-Grandmasterism", "Sherif Samy Botros <ceo@acitygames.com>"]
+authors = ["Eternally-Thriving-Grandmasterism", "Sherif Samy Botros <info@Rathor.ai>"]
 
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
