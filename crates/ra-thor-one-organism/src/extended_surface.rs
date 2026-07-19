@@ -1,4 +1,4 @@
-//! Extended Organism Surface — v14.10.0
+//! Extended Organism Surface — v14.11.0
 //!
 //! Facades + optional live path binding for packaged workspace crates:
 //! - GPU compute telemetry          (`gpu-live`)
@@ -10,6 +10,9 @@
 //! When a live feature is enabled the corresponding surface holds the real
 //! crate engine and routes through its async APIs via a safe block_on helper.
 //! Facades remain the zero-dep default when features are off.
+//!
+//! v14.11: Kardashev transfer quality couples into quantum_jump_base_prob and
+//! adaptive-jump severity threshold (live-path confidence feedback).
 //!
 //! Cosmic Loop remains mandatory on every surface call.
 //! Contact: info@Rathor.ai
@@ -551,9 +554,15 @@ impl QuantumSwarmSurface {
         }
     }
 
+    /// Adaptive jump severity threshold (v14.11).
+    /// Higher quantum_jump_base_prob (from strong Kardashev feedback) lowers the bar.
+    fn adaptive_jump_threshold(&self) -> f64 {
+        (0.35 - self.config.quantum_jump_base_prob * 0.5).clamp(0.22, 0.40)
+    }
+
     /// Full quantum evolution cycle:
     /// 1. Protected weight evolution (always)
-    /// 2. Adaptive quantum jump when severity >= 0.35
+    /// 2. Adaptive quantum jump when severity >= dynamic threshold (v14.11)
     /// 3. Proposal generation when severity >= 0.15
     ///
     /// Under `quantum-live` this routes through real `QuantumSwarmEngine` APIs.
@@ -566,6 +575,7 @@ impl QuantumSwarmSurface {
         self.step += 1;
         let severity = severity.clamp(0.0, 1.0);
         let member_id = ((self.step % self.member_count.max(1) as u64) + 1).max(1);
+        let jump_threshold = self.adaptive_jump_threshold();
 
         #[cfg(feature = "quantum-live")]
         {
@@ -582,7 +592,6 @@ impl QuantumSwarmSurface {
                 eng.increment_step();
                 let global_best = eng.get_mean_best().to_vec();
 
-                // 1. Protected weight evolution
                 let weight_res = eng
                     .protected_quantum_evolution_tick(
                         member_id,
@@ -599,9 +608,8 @@ impl QuantumSwarmSurface {
                     None => ((eng.config.gaussian_scale * (1.0 + severity)).min(1.0), false),
                 };
 
-                // 2. Adaptive jump
                 let mut jump_impact = 0.0;
-                if severity >= 0.35 {
+                if severity >= jump_threshold {
                     if let Some((_, impact)) = eng
                         .protected_adaptive_quantum_jump(
                             member_id,
@@ -617,7 +625,6 @@ impl QuantumSwarmSurface {
                     }
                 }
 
-                // 3. Proposal generation
                 let mut proposal_ok = false;
                 if severity >= 0.15 {
                     if eng
@@ -636,8 +643,6 @@ impl QuantumSwarmSurface {
                     }
                 }
 
-                // Sync local counters from engine when possible
-                // (engine tracks its own totals; we keep surface-level mirrors)
                 (ratio, jump_impact, proposal_ok, weight_ok)
             });
 
@@ -651,7 +656,6 @@ impl QuantumSwarmSurface {
                 self.total_proposals += 1;
             }
 
-            // Keep local config loosely in sync with defaults / severity pressure
             self.config.gaussian_scale =
                 (self.config.gaussian_scale * 0.97 + 0.03 * (0.12 + severity * 0.08)).clamp(0.08, 0.35);
 
@@ -670,7 +674,7 @@ impl QuantumSwarmSurface {
         {
             self.total_weight_updates += 1;
             let mut jump_impact = 0.0;
-            if severity >= 0.35 {
+            if severity >= jump_threshold {
                 self.total_adaptive_jumps += 1;
                 jump_impact = (severity * 0.55).min(0.85);
             }
@@ -693,7 +697,6 @@ impl QuantumSwarmSurface {
     }
 
     /// Lightweight tick — returns quantum_ratio only (compatible with Cosmic Tick).
-    /// Internally runs the full evolution cycle.
     pub fn evolution_tick(
         &mut self,
         severity: f64,
@@ -703,7 +706,12 @@ impl QuantumSwarmSurface {
     }
 
     /// Apply Kardashev / Reality Thriving Transfer feedback into the swarm config.
-    /// Under `quantum-live` this calls the real engine's `apply_kardashev_transfer_feedback`.
+    ///
+    /// v14.11 tighter coupling:
+    /// - entanglement_modulation drifts with kardashev_delta
+    /// - quantum_jump_base_prob rises with high-quality transfer (and falls with weak)
+    /// - mean_best_influence strengthens when ema_transfer is healthy
+    /// Adaptive jump threshold in evolve_full_cycle reads quantum_jump_base_prob.
     pub fn apply_kardashev_feedback(
         &mut self,
         transfer: &TransferTickResult,
@@ -714,7 +722,6 @@ impl QuantumSwarmSurface {
         #[cfg(feature = "quantum-live")]
         {
             use quantum_swarm::RealityThrivingTransferScore;
-            // Map organism TransferTickResult → engine score shape
             let score = RealityThrivingTransferScore {
                 mercy_valence_adjusted: transfer.ema_transfer,
                 last_refinement_vector: vec![
@@ -725,28 +732,41 @@ impl QuantumSwarmSurface {
             };
             let mut eng = block_on_live(self.engine.lock());
             eng.apply_kardashev_transfer_feedback(&score);
-            // Mirror a couple of knobs locally for status
             self.config.entanglement_modulation = eng.config.entanglement_modulation;
             self.config.quantum_jump_base_prob = eng.config.quantum_jump_base_prob;
             self.config.mean_best_influence = eng.config.mean_best_influence;
-            println!(
-                "[QuantumSwarmSurface LIVE] Kardashev feedback applied | entanglement={:.3} jump_prob={:.3}",
-                self.config.entanglement_modulation, self.config.quantum_jump_base_prob
-            );
-            return;
         }
 
-        #[cfg(not(feature = "quantum-live"))]
-        {
-            // Facade-side gentle modulation
-            let boost = (transfer.kardashev_delta * 30.0).clamp(-0.05, 0.05);
-            self.config.entanglement_modulation =
-                (self.config.entanglement_modulation + boost).clamp(0.15, 0.55);
-            if transfer.ema_transfer > 0.72 {
-                self.config.mean_best_influence =
-                    (self.config.mean_best_influence * 1.02).min(0.52);
-            }
+        // Always apply local coupling (facade + mirror after live) so jump threshold moves.
+        let delta_boost = (transfer.kardashev_delta * 30.0).clamp(-0.05, 0.05);
+        self.config.entanglement_modulation =
+            (self.config.entanglement_modulation + delta_boost).clamp(0.15, 0.55);
+
+        // v14.11: transfer quality → jump probability
+        let jump_delta = if transfer.mercy_audit_passed && transfer.ema_transfer > 0.75 {
+            0.012
+        } else if transfer.ema_transfer > 0.55 {
+            0.004
+        } else if transfer.ema_transfer < 0.35 {
+            -0.008
+        } else {
+            0.0
+        };
+        self.config.quantum_jump_base_prob =
+            (self.config.quantum_jump_base_prob + jump_delta).clamp(0.04, 0.22);
+
+        if transfer.ema_transfer > 0.72 {
+            self.config.mean_best_influence =
+                (self.config.mean_best_influence * 1.02).min(0.52);
         }
+
+        println!(
+            "[QuantumSwarmSurface] Kardashev feedback | entanglement={:.3} jump_prob={:.3} jump_threshold={:.2} ema={:.3}",
+            self.config.entanglement_modulation,
+            self.config.quantum_jump_base_prob,
+            self.adaptive_jump_threshold(),
+            transfer.ema_transfer
+        );
     }
 
     pub fn status(&self) -> QuantumSwarmStatus {
@@ -763,12 +783,13 @@ impl QuantumSwarmSurface {
 
     pub fn summary(&self) -> String {
         format!(
-            "QuantumSwarmSurface v14.10.0 | step={} | members={} | updates={} | jumps={} | proposals={} | live={}",
+            "QuantumSwarmSurface v14.11.0 | step={} | members={} | updates={} | jumps={} | proposals={} | jump_p={:.3} | live={}",
             self.step,
             self.member_count,
             self.total_weight_updates,
             self.total_adaptive_jumps,
             self.total_proposals,
+            self.config.quantum_jump_base_prob,
             cfg!(feature = "quantum-live")
         )
     }
@@ -1161,7 +1182,7 @@ impl KardashevFlywheelSurface {
 
     pub fn summary(&self) -> String {
         format!(
-            "KardashevFlywheel v14.10.0 | cycles={} | Δ={:.5} | velocity={:.3} | inflection={} | live={}",
+            "KardashevFlywheel v14.11.0 | cycles={} | Δ={:.5} | velocity={:.3} | inflection={} | live={}",
             self.cycle_count,
             self.cumulative_kardashev_delta,
             self.velocity_ema,
@@ -1203,7 +1224,7 @@ impl ExtendedOrganismSurface {
 
     pub fn summary(&self) -> String {
         format!(
-            "ExtendedSurface v14.10.0 | {} | recovery_hb={} anchors={} live_rec={} | github_offline={} | {}",
+            "ExtendedSurface v14.11.0 | {} | recovery_hb={} anchors={} live_rec={} | github_offline={} | {}",
             self.quantum_swarm.summary(),
             self.sovereign_recovery.heartbeat_count,
             self.sovereign_recovery.anchor_count,
