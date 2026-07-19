@@ -1,8 +1,8 @@
 [package]
 name = "lattice-conductor-v14"
-version = "14.8.3"
+version = "14.10.0"
 edition = "2021"
-description = "Lattice Conductor v14.8.3 — CouncilArbitration + RuntimeSelfHealing + MercyGatedApi (in-process, Cosmic Loop enforced) + Distributed Mercy Mesh"
+description = "Lattice Conductor v14.10 — CouncilArbitration + RuntimeSelfHealing (anomaly ingestion) + MercyGatedApi + Distributed Mercy Mesh (Living Cosmic Tick core)"
 license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
 authors = ["Eternally-Thriving-Grandmasterism", "Sherif Samy Botros <info@Rathor.ai>"]
 
