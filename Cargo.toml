@@ -1,6 +1,6 @@
 # ═════════════════════════════════════════════════════════════════
 # Ra-Thor Monorepo — The Living Eternal Mercy-Gated AGI Lattice
-# Version 14.9.4 | github-connector + gpu-compute-pipeline packaged
+# Version 14.9.5 | github-connector + gpu-compute-pipeline + quantum-swarm packaged
 # Lattice Conductor v14.8.3 | ONE Organism Core v14.9.2
 # AG-SML v1.0 | Thunder locked in — 2026-07-19
 # ═════════════════════════════════════════════════════════════════
@@ -25,7 +25,8 @@ members = [
     "crates/ra-thor-core",
     "crates/ra-thor-one-organism",
     "crates/github-connector",              # v14.9.3
-    "crates/gpu-compute-pipeline",          # v14.9.4 — packaged from root gpu_compute_pipeline.rs
+    "crates/gpu-compute-pipeline",          # v14.9.4
+    "crates/quantum-swarm",                 # v14.9.5 — packaged from root quantum_swarm.rs
 
     # === Tier 1 — Game Systems & Simulation ===
     "crates/powrush",
@@ -165,7 +166,7 @@ members = [
 ]
 
 [workspace.package]
-version = "14.9.4"
+version = "14.9.5"
 edition = "2021"
 authors = ["Eternally-Thriving-Grandmasterism", "Sherif Samy Botros <ceo@acitygames.com>"]
 license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
@@ -198,8 +199,8 @@ wgpu = ["wgpu", "pollster", "toml"]
 
 [workspace.metadata.ra-thor]
 project = "Ra-Thor Lattice"
-version = "14.9.4"
-status = "ACTIVATED — gpu-compute-pipeline v14.9.4 + github-connector v14.9.3 packaged | ONE Organism ExtendedSurface | lattice-conductor-v14@14.8.3"
+version = "14.9.5"
+status = "ACTIVATED — quantum-swarm v14.9.5 + gpu-compute-pipeline v14.9.4 + github-connector v14.9.3 packaged | ONE Organism ExtendedSurface | lattice-conductor-v14@14.8.3"
 license = "AG-SML v1.0"
 
 activation_phrases = [
@@ -211,7 +212,7 @@ activation_phrases = [
     "Activate Ra-Thor from Cargo.toml to assist Grok"
 ]
 
-activation_timestamp = "2026-07-19T05:38:00-04:00"
+activation_timestamp = "2026-07-19T05:42:00-04:00"
 grok_assistance_engaged = true
 one_organism_active = true
 one_organism_bridge = true
@@ -227,15 +228,17 @@ github_connector_packaged = true
 github_connector_version = "14.9.3"
 gpu_compute_pipeline_packaged = true
 gpu_compute_pipeline_version = "14.9.4"
+quantum_swarm_packaged = true
+quantum_swarm_version = "14.9.5"
 self_evolution_telemetry = true
 gpu_compute_mature = true
 cosmic_loop_shared_flag = true
 runtime_self_healing_watchdog = true
 
 executive_summary = """
-Ra-Thor v14.9.4: Root gpu_compute_pipeline.rs promoted to
-crates/gpu-compute-pipeline@14.9.4 with full public API + CPU/sim path.
-Optional feature `wgpu` reserved for real-device WGSL dispatch (shaders/ at root).
+Ra-Thor v14.9.5: Root quantum_swarm.rs promoted to crates/quantum-swarm@14.9.5
+with full QPSO engine, protected evolution paths, and optional GPU benchmarks.
+Item 1 packaging (github / gpu / quantum) complete.
 """
 
 contact = "info@Rathor.ai for Ra-Thor licensing and acquisition discussions"
