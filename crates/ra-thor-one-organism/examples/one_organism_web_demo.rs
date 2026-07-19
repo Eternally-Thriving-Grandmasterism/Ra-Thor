@@ -7,8 +7,8 @@
 //!
 //! Endpoints:
 //!   GET  /health
-//!   GET  /status                includes last_anomalies_fired
-//!   GET  /live                  Full ExtendedLiveStatus (surfaces + Self-Healing + last_anomalies_fired)
+//!   GET  /status                includes last_anomalies_fired + last_handoff_reason
+//!   GET  /live                  Full ExtendedLiveStatus (surfaces + Self-Healing + role-handoff telemetry)
 //!   GET  /api/status
 //!   POST /api                   MercyApiRequest JSON
 //!   POST /cosmic/tick           { "severity": 0.4 }  → full Living Cosmic Tick (+ anomalies_fired top-level)
@@ -58,6 +58,7 @@ struct StatusBody {
     shared_valence: f64,
     shared_confidence: f64,
     handoff_count: u64,
+    last_handoff_reason: String,
     gpu_dispatches: u64,
     github_intended_prs: usize,
     quantum_weight_updates: u64,
@@ -210,7 +211,7 @@ async fn main() {
     println!("  POST /cosmic/tick  /quantum/tick  /gpu/dispatch");
     println!("  POST /github/queue  /role/handoff  /healing/reflexion");
     println!("  POST /kardashev/tick  /recovery/heartbeat");
-    println!("  last_anomalies_fired surfaced on /status + /live + /cosmic/tick");
+    println!("  last_anomalies_fired + last_handoff_reason on /status + /live");
     println!("  Cosmic Loop is MANDATORY IDENTITY. Eternal.");
     println!("  Thunder locked in. yoi ⚡");
     println!("══════════════════════════════════════════════════");
@@ -240,7 +241,8 @@ async fn status(State(org): State<SharedOrganism>) -> Json<StatusBody> {
         active_role: live.active_role,
         shared_valence: live.shared_valence,
         shared_confidence: o.role_orchestrator.shared_confidence_ema,
-        handoff_count: o.role_orchestrator.handoff_count,
+        handoff_count: live.handoff_count,
+        last_handoff_reason: live.last_handoff_reason,
         gpu_dispatches: live.gpu.dispatch_count,
         github_intended_prs: live.github.intended_prs,
         quantum_weight_updates: live.quantum.total_weight_updates,
@@ -254,7 +256,7 @@ async fn status(State(org): State<SharedOrganism>) -> Json<StatusBody> {
     })
 }
 
-/// Full living snapshot — all surfaces + Self-Healing telemetry + last_anomalies_fired.
+/// Full living snapshot — all surfaces + Self-Healing + role-handoff telemetry.
 async fn live_status(State(org): State<SharedOrganism>) -> Json<serde_json::Value> {
     let o = org.lock().await;
     let live = o.extended_live_status();
@@ -368,6 +370,7 @@ async fn role_handoff(
         "ok": ok,
         "active_role": o.role_orchestrator.active_role.as_str(),
         "handoff_count": o.role_orchestrator.handoff_count,
+        "last_handoff_reason": o.role_orchestrator.last_handoff_reason,
         "shared_valence": o.role_orchestrator.shared_valence,
     }))
 }
