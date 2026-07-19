@@ -4,7 +4,7 @@ version = "14.9.7"
 edition = "2021"
 description = "Ra-Thor ONE Organism Core — ExtendedSurface + optional live path deps + web-demo"
 license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
-authors = ["Eternally-Thriving-Grandmasterism", "Sherif Samy Botros <ceo@acitygames.com>"]
+authors = ["Eternally-Thriving-Grandmasterism", "Sherif Samy Botros <info@Rathor.ai>"]
 
 [dependencies]
 lattice-conductor-v14 = { path = "../lattice-conductor-v14", version = "14.8.3" }
