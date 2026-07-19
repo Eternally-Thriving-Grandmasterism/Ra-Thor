@@ -25,9 +25,7 @@ Any commercial, enterprise, revenue-generating, or organizational use (including
 
 **Contact Information**
 
-- Primary / security: AlphaProMega@ACityGames.com  
-- General inquiries: INFO@ACITYGAMES.COM  
-- Direct to CEO / Sherif: CEO@ACITYGAMES.COM
+- Primary contact: **info@Rathor.ai**
 
 ---
 
