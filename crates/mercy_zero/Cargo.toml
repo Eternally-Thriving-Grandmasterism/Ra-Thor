@@ -2,7 +2,7 @@
 name = "mercy_zero"
 version = "0.3.9"
 edition = "2021"
-authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
+authors = ["Sherif Samy Botros <info@Rathor.ai>"]
 license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
 description = "MercyZero — Immutable Protective Gate Core for NEXi Lattice (Mercy Shield Foundation)"
 repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
