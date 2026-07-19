@@ -28,7 +28,7 @@ Examples of unacceptable behavior include:
 ## Enforcement
 
 Project maintainers are responsible for clarifying and enforcing these standards.  
-Instances of abusive, harassing, or otherwise unacceptable behavior may be reported to the project team at AlphaProMega@ACityGames.com, INFO@ACITYGAMES.COM, or CEO@ACITYGAMES.COM.  
+Instances of abusive, harassing, or otherwise unacceptable behavior may be reported to the project team at **info@Rathor.ai**.  
 All complaints will be reviewed and responded to fairly and appropriately.
 
 ## Scope
