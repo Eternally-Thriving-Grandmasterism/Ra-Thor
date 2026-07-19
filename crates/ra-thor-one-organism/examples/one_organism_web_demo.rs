@@ -7,11 +7,11 @@
 //!
 //! Endpoints:
 //!   GET  /health
-//!   GET  /status
-//!   GET  /live                  Full ExtendedLiveStatus (surfaces + Self-Healing)
+//!   GET  /status                includes last_anomalies_fired
+//!   GET  /live                  Full ExtendedLiveStatus (surfaces + Self-Healing + last_anomalies_fired)
 //!   GET  /api/status
 //!   POST /api                   MercyApiRequest JSON
-//!   POST /cosmic/tick           { "severity": 0.4 }  → full Living Cosmic Tick
+//!   POST /cosmic/tick           { "severity": 0.4 }  → full Living Cosmic Tick (+ anomalies_fired top-level)
 //!   POST /quantum/tick          { "severity": 0.45 }
 //!   POST /gpu/dispatch          { "task_name": "...", "dispatch_time_ms": 12, "real_gpu": false, "elements": 4096 }
 //!   POST /github/queue          { "role": "VibeCoder", "target_module": "...", "description": "...", "expected_benefit": 0.7, "mercy_alignment": 0.92 }
@@ -67,6 +67,8 @@ struct StatusBody {
     healing_experience_count: usize,
     recovery_heartbeats: u64,
     kardashev_cycles: u64,
+    /// Components that fired anomalies on the most recent Cosmic Tick.
+    last_anomalies_fired: Vec<String>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -208,6 +210,7 @@ async fn main() {
     println!("  POST /cosmic/tick  /quantum/tick  /gpu/dispatch");
     println!("  POST /github/queue  /role/handoff  /healing/reflexion");
     println!("  POST /kardashev/tick  /recovery/heartbeat");
+    println!("  last_anomalies_fired surfaced on /status + /live + /cosmic/tick");
     println!("  Cosmic Loop is MANDATORY IDENTITY. Eternal.");
     println!("  Thunder locked in. yoi ⚡");
     println!("══════════════════════════════════════════════════");
@@ -247,10 +250,11 @@ async fn status(State(org): State<SharedOrganism>) -> Json<StatusBody> {
         healing_experience_count: live.healing_experience_count,
         recovery_heartbeats: live.recovery.heartbeat_count,
         kardashev_cycles: live.kardashev.cycle_count,
+        last_anomalies_fired: live.last_anomalies_fired,
     })
 }
 
-/// Full living snapshot — all surfaces + Self-Healing telemetry.
+/// Full living snapshot — all surfaces + Self-Healing telemetry + last_anomalies_fired.
 async fn live_status(State(org): State<SharedOrganism>) -> Json<serde_json::Value> {
     let o = org.lock().await;
     let live = o.extended_live_status();
@@ -281,14 +285,17 @@ async fn api_request(
 }
 
 /// Full Living Cosmic Tick (GPU → Recovery → Quantum → Kardashev → Self-Healing).
+/// anomalies_fired is promoted to the top level for easy observation.
 async fn cosmic_tick(
     State(org): State<SharedOrganism>,
     Json(body): Json<CosmicTickBody>,
 ) -> Json<serde_json::Value> {
     let mut o = org.lock().await;
     let result = o.cosmic_tick(body.severity);
+    let anomalies = result.anomalies_fired.clone();
     Json(serde_json::json!({
         "ok": true,
+        "anomalies_fired": anomalies,
         "cosmic_tick": result,
         "live": o.extended_live_status(),
     }))
@@ -374,6 +381,7 @@ async fn healing_reflexion(State(org): State<SharedOrganism>) -> Json<serde_json
         "cosmic_loop_ready": o.is_cosmic_loop_ready(),
         "pending_anomaly_count": o.self_healing_engine.pending_anomaly_count(),
         "healing_experience_count": o.self_healing_engine.get_healing_experiences().len(),
+        "last_anomalies_fired": o.last_anomalies_fired.clone(),
     }))
 }
 
