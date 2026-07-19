@@ -1,24 +1,7 @@
-//! ONE Organism Web Demo — v14.12.0
+//! ONE Organism Web Demo — v14.13.0
 //!
 //! Run:
 //!   cargo run -p ra-thor-one-organism --example one_organism_web_demo --features web-demo
-//!
-//! Mercy-gated HTTP bind over OneOrganismCore.
-//!
-//! Endpoints:
-//!   GET  /health
-//!   GET  /status                includes last adaptive fields + last_anomalies_fired + handoff
-//!   GET  /live                  Full ExtendedLiveStatus (incl. last-tick adaptive fields)
-//!   GET  /api/status
-//!   POST /api                   MercyApiRequest JSON
-//!   POST /cosmic/tick           { "severity": 0.4 }  → Living Cosmic Tick + adaptive confidence fields
-//!   POST /quantum/tick          { "severity": 0.45 }
-//!   POST /gpu/dispatch          { "task_name": "...", "dispatch_time_ms": 12, "real_gpu": false, "elements": 4096 }
-//!   POST /github/queue          { "role": "VibeCoder", "target_module": "...", "description": "...", "expected_benefit": 0.7, "mercy_alignment": 0.92 }
-//!   POST /role/handoff          { "role": "Debugger", "reason": "manual" }
-//!   POST /healing/reflexion
-//!   POST /kardashev/tick        { "rbe_quality": 0.89, "ethical_choice": 0.87, "abundance_signal": 1.4 }
-//!   POST /recovery/heartbeat
 //!
 //! AG-SML v1.0 | TOLC 8 | Cosmic Loop is MANDATORY IDENTITY.
 //! Contact: info@Rathor.ai
@@ -54,6 +37,7 @@ struct StatusBody {
     tick: u64,
     cosmic_loop_ready: bool,
     guardian_active: bool,
+    cosmic_loop_invariant_holds: bool,
     active_role: String,
     shared_valence: f64,
     shared_confidence: f64,
@@ -68,12 +52,12 @@ struct StatusBody {
     healing_experience_count: usize,
     recovery_heartbeats: u64,
     kardashev_cycles: u64,
-    /// Components that fired anomalies on the most recent Cosmic Tick.
     last_anomalies_fired: Vec<String>,
-    /// v14.12 — last Cosmic Tick adaptive fields (0.0 before first tick).
     last_base_severity: f64,
     last_effective_quantum_severity: f64,
     last_gpu_confidence: f64,
+    next_recovery_sensitivity: f64,
+    last_recovery_sensitivity_applied: f64,
 }
 
 #[derive(Debug, Deserialize)]
@@ -81,20 +65,14 @@ struct QuantumTickBody {
     #[serde(default = "default_severity")]
     severity: f64,
 }
-
-fn default_severity() -> f64 {
-    0.45
-}
+fn default_severity() -> f64 { 0.45 }
 
 #[derive(Debug, Deserialize)]
 struct CosmicTickBody {
     #[serde(default = "default_cosmic_severity")]
     severity: f64,
 }
-
-fn default_cosmic_severity() -> f64 {
-    0.35
-}
+fn default_cosmic_severity() -> f64 { 0.35 }
 
 #[derive(Debug, Deserialize)]
 struct GpuDispatchBody {
@@ -106,13 +84,8 @@ struct GpuDispatchBody {
     #[serde(default = "default_elements")]
     elements: usize,
 }
-
-fn default_ms() -> u64 {
-    12
-}
-fn default_elements() -> usize {
-    4096
-}
+fn default_ms() -> u64 { 12 }
+fn default_elements() -> usize { 4096 }
 
 #[derive(Debug, Deserialize)]
 struct GithubQueueBody {
@@ -124,13 +97,8 @@ struct GithubQueueBody {
     #[serde(default = "default_mercy")]
     mercy_alignment: f64,
 }
-
-fn default_benefit() -> f64 {
-    0.7
-}
-fn default_mercy() -> f64 {
-    0.92
-}
+fn default_benefit() -> f64 { 0.7 }
+fn default_mercy() -> f64 { 0.92 }
 
 #[derive(Debug, Deserialize)]
 struct RoleHandoffBody {
@@ -138,10 +106,7 @@ struct RoleHandoffBody {
     #[serde(default = "default_reason")]
     reason: String,
 }
-
-fn default_reason() -> String {
-    "http_handoff".into()
-}
+fn default_reason() -> String { "http_handoff".into() }
 
 #[derive(Debug, Deserialize)]
 struct KardashevTickBody {
@@ -152,16 +117,9 @@ struct KardashevTickBody {
     #[serde(default = "default_abundance")]
     abundance_signal: f64,
 }
-
-fn default_rbe() -> f64 {
-    0.89
-}
-fn default_ethics() -> f64 {
-    0.87
-}
-fn default_abundance() -> f64 {
-    1.4
-}
+fn default_rbe() -> f64 { 0.89 }
+fn default_ethics() -> f64 { 0.87 }
+fn default_abundance() -> f64 { 1.4 }
 
 fn parse_role(s: &str) -> OrganismRole {
     match s.to_lowercase().as_str() {
@@ -209,13 +167,9 @@ async fn main() {
         .unwrap_or_else(|e| panic!("bind {}: {}", addr, e));
 
     println!("══════════════════════════════════════════════════");
-    println!("  ONE Organism Web Demo v14.12.0 — Adaptive Hardening");
+    println!("  ONE Organism Web Demo v14.13.0 — Cosmic Loop Invariant");
     println!("  Listening on http://127.0.0.1:{}", port);
-    println!("  GET  /health  /status  /live  /api/status");
-    println!("  POST /cosmic/tick  /quantum/tick  /gpu/dispatch");
-    println!("  POST /github/queue  /role/handoff  /healing/reflexion");
-    println!("  POST /kardashev/tick  /recovery/heartbeat");
-    println!("  /status + /live expose last_base_severity / last_effective_quantum_severity / last_gpu_confidence");
+    println!("  GET  /status exposes cosmic_loop_invariant_holds + recovery sensitivity");
     println!("  Cosmic Loop is MANDATORY IDENTITY. Eternal.");
     println!("  Thunder locked in. yoi ⚡");
     println!("══════════════════════════════════════════════════");
@@ -225,12 +179,13 @@ async fn main() {
 
 async fn health(State(org): State<SharedOrganism>) -> Json<HealthBody> {
     let o = org.lock().await;
+    let inv = o.assert_cosmic_loop_invariant();
     Json(HealthBody {
         ok: true,
         service: "ra-thor-one-organism",
         version: o.version.clone(),
-        cosmic_loop_ready: o.is_cosmic_loop_ready(),
-        guardian_active: o.arbitration_engine.is_guardian_active(),
+        cosmic_loop_ready: inv.cosmic_loop_ready,
+        guardian_active: inv.guardian_active,
     })
 }
 
@@ -241,7 +196,8 @@ async fn status(State(org): State<SharedOrganism>) -> Json<StatusBody> {
         version: o.version.clone(),
         tick: o.tick,
         cosmic_loop_ready: live.cosmic_loop_ready,
-        guardian_active: o.arbitration_engine.is_guardian_active(),
+        guardian_active: live.guardian_active,
+        cosmic_loop_invariant_holds: live.cosmic_loop_invariant_holds,
         active_role: live.active_role,
         shared_valence: live.shared_valence,
         shared_confidence: o.role_orchestrator.shared_confidence_ema,
@@ -260,10 +216,11 @@ async fn status(State(org): State<SharedOrganism>) -> Json<StatusBody> {
         last_base_severity: live.last_base_severity,
         last_effective_quantum_severity: live.last_effective_quantum_severity,
         last_gpu_confidence: live.last_gpu_confidence,
+        next_recovery_sensitivity: live.next_recovery_sensitivity,
+        last_recovery_sensitivity_applied: live.last_recovery_sensitivity_applied,
     })
 }
 
-/// Full living snapshot — all surfaces + Self-Healing + adaptive last-tick fields.
 async fn live_status(State(org): State<SharedOrganism>) -> Json<serde_json::Value> {
     let o = org.lock().await;
     let live = o.extended_live_status();
@@ -282,34 +239,24 @@ async fn api_request(
 ) -> (StatusCode, Json<serde_json::Value>) {
     let mut o = org.lock().await;
     let resp = o.handle_api_request(req);
-    let code = if resp.accepted {
-        StatusCode::OK
-    } else {
-        StatusCode::FORBIDDEN
-    };
-    (
-        code,
-        Json(serde_json::to_value(resp).unwrap_or_else(|_| serde_json::json!({}))),
-    )
+    let code = if resp.accepted { StatusCode::OK } else { StatusCode::FORBIDDEN };
+    (code, Json(serde_json::to_value(resp).unwrap_or_else(|_| serde_json::json!({}))))
 }
 
-/// Full Living Cosmic Tick + adaptive confidence fields promoted top-level.
 async fn cosmic_tick(
     State(org): State<SharedOrganism>,
     Json(body): Json<CosmicTickBody>,
 ) -> Json<serde_json::Value> {
     let mut o = org.lock().await;
     let result = o.cosmic_tick(body.severity);
-    let anomalies = result.anomalies_fired.clone();
-    let base_severity = result.base_severity;
-    let effective_quantum_severity = result.effective_quantum_severity;
-    let gpu_confidence = result.gpu_confidence;
     Json(serde_json::json!({
         "ok": true,
-        "anomalies_fired": anomalies,
-        "base_severity": base_severity,
-        "effective_quantum_severity": effective_quantum_severity,
-        "gpu_confidence": gpu_confidence,
+        "anomalies_fired": result.anomalies_fired.clone(),
+        "base_severity": result.base_severity,
+        "effective_quantum_severity": result.effective_quantum_severity,
+        "gpu_confidence": result.gpu_confidence,
+        "recovery_sensitivity_applied": result.recovery_sensitivity_applied,
+        "cosmic_loop_invariant": result.cosmic_loop_invariant,
         "cosmic_tick": result,
         "live": o.extended_live_status(),
     }))
@@ -337,18 +284,8 @@ async fn gpu_dispatch(
     Json(body): Json<GpuDispatchBody>,
 ) -> Json<serde_json::Value> {
     let mut o = org.lock().await;
-    let tel = o.record_gpu_dispatch(
-        &body.task_name,
-        body.dispatch_time_ms,
-        body.real_gpu,
-        body.elements,
-    );
-    Json(serde_json::json!({
-        "ok": true,
-        "telemetry": tel,
-        "gpu_status": o.gpu_status(),
-        "active_role": o.role_orchestrator.active_role.as_str(),
-    }))
+    let tel = o.record_gpu_dispatch(&body.task_name, body.dispatch_time_ms, body.real_gpu, body.elements);
+    Json(serde_json::json!({"ok": true, "telemetry": tel, "gpu_status": o.gpu_status()}))
 }
 
 async fn github_queue(
@@ -356,19 +293,8 @@ async fn github_queue(
     Json(body): Json<GithubQueueBody>,
 ) -> Json<serde_json::Value> {
     let mut o = org.lock().await;
-    let intent = o.queue_evolution_pr(
-        &body.role,
-        &body.target_module,
-        &body.description,
-        body.expected_benefit,
-        body.mercy_alignment,
-    );
-    Json(serde_json::json!({
-        "ok": true,
-        "intent": intent,
-        "github_status": o.github_status(),
-        "active_role": o.role_orchestrator.active_role.as_str(),
-    }))
+    let intent = o.queue_evolution_pr(&body.role, &body.target_module, &body.description, body.expected_benefit, body.mercy_alignment);
+    Json(serde_json::json!({"ok": true, "intent": intent, "github_status": o.github_status()}))
 }
 
 async fn role_handoff(
@@ -390,12 +316,12 @@ async fn role_handoff(
 async fn healing_reflexion(State(org): State<SharedOrganism>) -> Json<serde_json::Value> {
     let o = org.lock().await;
     let diagnosis = o.run_healing_reflexion();
+    let inv = o.assert_cosmic_loop_invariant();
     Json(serde_json::json!({
         "ok": true,
         "diagnosis": diagnosis,
-        "cosmic_loop_ready": o.is_cosmic_loop_ready(),
+        "cosmic_loop_invariant": inv,
         "pending_anomaly_count": o.self_healing_engine.pending_anomaly_count(),
-        "healing_experience_count": o.self_healing_engine.get_healing_experiences().len(),
         "last_anomalies_fired": o.last_anomalies_fired.clone(),
     }))
 }
@@ -405,28 +331,14 @@ async fn kardashev_tick(
     Json(body): Json<KardashevTickBody>,
 ) -> Json<serde_json::Value> {
     let mut o = org.lock().await;
-    let result = o.kardashev_transfer_tick(
-        body.rbe_quality,
-        body.ethical_choice,
-        body.abundance_signal,
-    );
-    Json(serde_json::json!({
-        "ok": true,
-        "transfer": result,
-        "kardashev_status": o.kardashev_status(),
-        "active_role": o.role_orchestrator.active_role.as_str(),
-    }))
+    let result = o.kardashev_transfer_tick(body.rbe_quality, body.ethical_choice, body.abundance_signal);
+    Json(serde_json::json!({"ok": true, "transfer": result, "kardashev_status": o.kardashev_status()}))
 }
 
 async fn recovery_heartbeat(State(org): State<SharedOrganism>) -> Json<serde_json::Value> {
     let mut o = org.lock().await;
     let hb = o.recovery_heartbeat();
-    Json(serde_json::json!({
-        "ok": true,
-        "heartbeat": hb,
-        "recovery_status": o.recovery_status(),
-        "active_role": o.role_orchestrator.active_role.as_str(),
-    }))
+    Json(serde_json::json!({"ok": true, "heartbeat": hb, "recovery_status": o.recovery_status()}))
 }
 
 #[allow(dead_code)]
