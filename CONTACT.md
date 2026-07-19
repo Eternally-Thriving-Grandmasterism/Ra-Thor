@@ -17,8 +17,23 @@
 ### Policy (as of 2026-07-19)
 
 - All new files, Cargo.toml `authors`, LICENSE blocks, docs, and website footers use **info@Rathor.ai** only.
-- Existing crate `authors` fields are being swept to the canonical address.
 - Workspace default: `authors = ["Eternally-Thriving-Grandmasterism", "Sherif Samy Botros <info@Rathor.ai>"]`
+
+### Automated sweep
+
+```bash
+# Dry-run (list files that still contain acitygames.com)
+./scripts/contact_email_sweep.sh
+
+# Apply replacements in-place
+./scripts/contact_email_sweep.sh --apply
+
+# Apply + git commit
+./scripts/contact_email_sweep.sh --apply --commit
+```
+
+**GitHub Actions:** Actions → *Contact Email Sweep → info@Rathor.ai* → Run workflow  
+Modes: `dry-run` | `apply` | `apply-commit` (default).
 
 **Live site:** https://rathor.ai  
 **Monorepo:** https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor
