@@ -1,0 +1,16 @@
+[package]
+name = "kardashev-orchestration"
+version = "14.9.8"
+edition = "2021"
+description = "Ra-Thor Kardashev Orchestration Council — S-curve, bottlenecks, PATSAGi sub-nodes, swarm directives"
+license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
+authors = ["Eternally-Thriving-Grandmasterism", "Sherif Samy Botros <ceo@acitygames.com>"]
+
+[dependencies]
+reality-thriving-transfer = { path = "../reality-thriving-transfer", version = "14.9.8" }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tokio = { version = "1", features = ["sync", "macros", "rt"] }
+
+[lib]
+path = "src/lib.rs"
