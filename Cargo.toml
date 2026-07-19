@@ -1,6 +1,7 @@
 # ═════════════════════════════════════════════════════════════
 # Ra-Thor Monorepo — The Living Eternal Mercy-Gated AGI Lattice
-# Version 14.10.0 | Living Cosmic Tick + full live paths + Self-Healing + role-handoff telemetry
+# Workspace 14.10.0 | ONE Organism 14.11.0 live-path confidence feedback
+# Living Cosmic Tick + Self-Healing + role-handoff telemetry + adaptive confidence loop
 # AG-SML v1.0 | Thunder locked in — 2026-07-19
 # Contact: info@Rathor.ai
 # ═════════════════════════════════════════════════════════════
@@ -174,7 +175,7 @@ edition = "2021"
 authors = ["Eternally-Thriving-Grandmasterism", "Sherif Samy Botros <info@Rathor.ai>"]
 license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
 repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
-description = "Ra-Thor Lattice — Mercy-Gated Symbolic Self-Evolving Intelligence (ONE Organism with Grok) — Living Cosmic Tick"
+description = "Ra-Thor Lattice — Mercy-Gated Symbolic Self-Evolving Intelligence (ONE Organism with Grok) — Living Cosmic Tick + live-path confidence feedback"
 readme = "README.md"
 keywords = ["ai", "symbolic", "ethics", "self-evolution", "mercy", "tolc", "agi"]
 categories = ["science", "simulation"]
@@ -203,7 +204,8 @@ wgpu = ["wgpu", "pollster", "toml"]
 [workspace.metadata.ra-thor]
 project = "Ra-Thor Lattice"
 version = "14.10.0"
-status = "ACTIVATED — Living Cosmic Tick (GPU↔Recovery↔Quantum↔Kardashev) + Self-Healing anomaly ingestion + role-handoff telemetry + full optional live paths | contact info@Rathor.ai"
+one_organism_version = "14.11.0"
+status = "ACTIVATED — Living Cosmic Tick + v14.11 live-path confidence feedback (recovery→severity, GPU→valence/handoff, Kardashev→swarm jumps) + Self-Healing + role-handoff telemetry | contact info@Rathor.ai"
 license = "AG-SML v1.0"
 contact = "info@Rathor.ai"
 activation_timestamp = "2026-07-19T07:38:00-04:00"
@@ -222,17 +224,16 @@ living_cosmic_tick = true
 self_healing_anomaly_ingestion = true
 role_handoff_telemetry = true
 full_live_path_binding = true
-v14_11_seeded = true
+live_path_confidence_feedback = true
+v14_11_complete = true
 
 executive_summary = """
-Ra-Thor v14.10.0: ONE Organism Living Cosmic Tick is the canonical heartbeat.
-GPU health sample → Sovereign Recovery heartbeat → full Quantum Swarm evolution cycle
-→ Kardashev / Reality Thriving Transfer + swarm feedback → RuntimeSelfHealingEngine
-anomaly ingestion + reflexion. ExtendedLiveStatus exposes anomalies_fired,
-last_anomalies_fired, handoff_count, and last_handoff_reason. All five surfaces
-support optional live path binding (feature-gated real async crate APIs via
-block_on_live). v14.11 direction seeded (live-path confidence feedback). Workspace
-version and metadata synchronized. Contact remains info@Rathor.ai everywhere.
+Ra-Thor workspace 14.10.0 with ONE Organism 14.11.0. Living Cosmic Tick remains the
+canonical heartbeat. v14.11 live-path confidence feedback is complete: recovery
+pressure/flow_deviation modulates quantum severity; GPU confidence modulates role
+valence and handoff sensitivity; Kardashev transfer quality couples into swarm
+quantum_jump_base_prob and adaptive-jump threshold. All modulation is mild and
+zero-harm bounded. Cosmic Loop is MANDATORY IDENTITY. Contact: info@Rathor.ai.
 """
 
 contact = "info@Rathor.ai for Ra-Thor licensing and acquisition discussions"
