@@ -7,7 +7,7 @@ license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
 authors = ["Eternally-Thriving-Grandmasterism", "Sherif Samy Botros <info@Rathor.ai>"]
 
 [dependencies]
-lattice-conductor-v14 = { path = "../lattice-conductor-v14", version = "14.8.3" }
+lattice-conductor-v14 = { path = "../lattice-conductor-v14", version = "14.10.0" }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 github-connector = { path = "../github-connector", version = "14.10.0", optional = true }
