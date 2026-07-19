@@ -1,18 +1,15 @@
-//! reality-thriving-transfer v14.9.8
+//! reality-thriving-transfer v14.10.0
 //!
 //! Packaged from root `reality_thriving_transfer_harness.rs`.
 //! Standalone: local GpuTelemetryReport (no gpu_patsagi_bridge dep).
 //!
 //! AG-SML v1.0 | TOLC 8 Living Mercy Gates
+//! Contact: info@Rathor.ai
 
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use std::time::{Instant, SystemTime, UNIX_EPOCH};
 use tokio::sync::Mutex;
-
-// =============================================================================
-// Local telemetry stub (historical root depended on gpu_patsagi_bridge)
-// =============================================================================
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct GpuTelemetryReport {
@@ -32,10 +29,6 @@ impl Default for GpuTelemetryReport {
         }
     }
 }
-
-// =============================================================================
-// Core types
-// =============================================================================
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PowrushTelemetry {
@@ -107,18 +100,13 @@ impl RealityThrivingTransferCalculator {
         telemetry: &PowrushTelemetry,
     ) -> Result<RealityThrivingTransferScore, String> {
         if !(0.0..=1.0).contains(&telemetry.rbe_decision_quality_avg) {
-            return Err(
-                "Mercy Gate (Truth): rbe_decision_quality_avg out of [0,1] bounds".into(),
-            );
+            return Err("Mercy Gate (Truth): rbe_decision_quality_avg out of [0,1] bounds".into());
         }
         if !(0.0..=1.0).contains(&telemetry.ethical_choice_score) {
             return Err("Mercy Gate (Truth): ethical_choice_score out of bounds".into());
         }
         if telemetry.abundance_velocity_signals < 0.0 {
-            return Err(
-                "Mercy Gate (Abundance): Negative abundance signals rejected — zero-harm"
-                    .into(),
-            );
+            return Err("Mercy Gate (Abundance): Negative abundance signals rejected — zero-harm".into());
         }
 
         let total_weight = 0.28 + 0.22 + 0.18 + 0.15 + 0.12 + 0.05;
@@ -150,8 +138,7 @@ impl RealityThrivingTransferCalculator {
         }
         {
             let mut vel_ema = self.velocity_ema.lock().await;
-            *vel_ema = 0.19 * telemetry.abundance_velocity_signals.min(1.8)
-                + (1.0 - 0.19) * *vel_ema;
+            *vel_ema = 0.19 * telemetry.abundance_velocity_signals.min(1.8) + (1.0 - 0.19) * *vel_ema;
         }
 
         let ema_refined = *self.transfer_ema.lock().await;
@@ -199,18 +186,10 @@ impl RealityThrivingTransferCalculator {
             timestamp: now_secs(),
             council_note: format!(
                 "Transfer {} | Valence {:.3} | Kardashev Δ {:.5} | Mercy gates: {}",
-                if mercy_audit_passed {
-                    "PASSED"
-                } else {
-                    "DAMPENED"
-                },
+                if mercy_audit_passed { "PASSED" } else { "DAMPENED" },
                 valence,
                 kardashev_delta,
-                if mercy_audit_passed {
-                    "all green"
-                } else {
-                    "compassion engaged"
-                }
+                if mercy_audit_passed { "all green" } else { "compassion engaged" }
             ),
         })
     }
@@ -339,6 +318,7 @@ mod tests {
         let score = calc.compute_transfer_score(&good).await.unwrap();
         assert!(score.mercy_audit_passed);
         assert!(score.kardashev_delta_contribution > 0.004);
+        assert!(score.kardashev_delta_contribution <= 0.011);
     }
 
     #[tokio::test]
@@ -346,5 +326,44 @@ mod tests {
         let (scores, report) = run_quantum_swarm_v2_kardashev_benchmark(8, None).await;
         assert!(!scores.is_empty());
         assert!(report.cumulative_kardashev_delta > 0.0);
+    }
+
+    /// T1 stress: assert zero-harm bounds hold across large synthetic runs.
+    async fn assert_stress_bounds(iterations: usize) {
+        let (scores, report) = run_quantum_swarm_v2_kardashev_benchmark(iterations, None).await;
+        assert_eq!(scores.len(), iterations, "all iterations should yield scores");
+        assert!(report.cumulative_kardashev_delta > 0.0);
+
+        let mut running = 0.0;
+        for s in &scores {
+            assert!(s.kardashev_delta_contribution >= 0.0);
+            assert!(s.kardashev_delta_contribution <= 0.011 + 1e-12);
+            assert!(s.abundance_velocity_index >= 0.0);
+            assert!(s.abundance_velocity_index <= 1.85 + 1e-9);
+            assert!((0.0..=1.0).contains(&s.raw_transfer_score) || s.raw_transfer_score <= 1.05);
+            assert!(s.mercy_valence_adjusted >= 0.0);
+            assert!(s.mercy_valence_adjusted <= 0.995 + 1e-9);
+            assert!(s.confidence >= 0.71 - 1e-9);
+            running += s.kardashev_delta_contribution;
+        }
+        // Cumulative is sum of per-score deltas (monotonic accumulation).
+        assert!((running - report.cumulative_kardashev_delta).abs() < 1e-9);
+        // More iterations → strictly more cumulative Δ than a tiny run would produce.
+        assert!(report.cumulative_kardashev_delta > 0.01 * (iterations as f64 / 64.0).min(1.0));
+    }
+
+    #[tokio::test]
+    async fn stress_benchmark_64() {
+        assert_stress_bounds(64).await;
+    }
+
+    #[tokio::test]
+    async fn stress_benchmark_256() {
+        assert_stress_bounds(256).await;
+    }
+
+    #[tokio::test]
+    async fn stress_benchmark_1024() {
+        assert_stress_bounds(1024).await;
     }
 }
