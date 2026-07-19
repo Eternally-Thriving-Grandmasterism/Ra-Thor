@@ -1,18 +1,18 @@
 # ONE Organism ↔ Lattice Conductor v14 — Full Cargo Dependency Wiring
 
-**Status:** Ready for activation  
-**Version:** 14.91  
+**Status:** Activated (shared Cosmic Loop flag live)  
+**Version:** 14.8.1 / organism v14.91  
 **Date:** 2026-07-19
 
 ## 1. Full Cargo Dependency Wiring
 
-`lattice-conductor-v14` is already a workspace member.
+`lattice-conductor-v14` is a workspace member at **14.8.1**.
 
-To make the **real** crate the source of truth (instead of any thin local guardian), the package that owns / compiles `ra-thor-one-organism.rs` must declare:
+To make the **real** crate the source of truth (instead of the thin local guardian), the package that owns / compiles `ra-thor-one-organism.rs` must declare:
 
 ```toml
 [dependencies]
-lattice-conductor-v14 = { path = "crates/lattice-conductor-v14", version = "14.8.0" }
+lattice-conductor-v14 = { path = "crates/lattice-conductor-v14", version = "14.8.1" }
 ```
 
 Then replace any local thin definitions with:
@@ -24,6 +24,7 @@ use lattice_conductor_v14::{
     HealthReport,
     Diagnosis,
     HealingAction,
+    HealingExperience,
     LatticeConductorV14,
 };
 ```
@@ -34,20 +35,29 @@ Prefer wiring this dependency into whichever crate currently provides the `crate
 
 Once the path dependency is live, the local compatibility structs in `ra-thor-one-organism.rs` can be deleted and the real types used directly.
 
-## 2. RuntimeSelfHealingEngine Integration Contract
+## 2. Shared Cosmic Loop Flag Contract (v14.8.1)
 
-The organism now owns a `RuntimeSelfHealingEngine` that is constructed with a clone of the `CouncilArbitrationEngine`.
+**Single source of truth:**
 
-### Lifecycle (already implemented in organism)
+```
+CouncilArbitrationEngine::cosmic_loop_flag()  → Arc<AtomicBool>
+        │
+        ├─ RuntimeSelfHealingEngine.cosmic_loop_ready   (same Arc)
+        └─ LatticeConductorV14.cosmic_loop_ready         (same Arc)
+```
+
+Watchdog, arbitration, and the top-level conductor can never disagree on readiness.
+
+## 3. RuntimeSelfHealingEngine Lifecycle
 
 | Moment | Action |
 |--------|--------|
-| `RaThorOneOrganism::new()` | Construct arbitration engine → construct self-healing engine |
+| `RaThorOneOrganism::new()` | Construct arbitration → construct self-healing (shares flag) |
 | `offer_cosmic_loop()` / `launch_one_organism()` | `start_watchdog()` |
 | `feed_gpu_telemetry_into_council()` | `run_reflexion_cycle()` + Cosmic Loop re-enforcement |
-| GPU dispatch anomalies | Optional reflexion trigger |
+| GPU dispatch anomalies | Extra reflexion trigger |
 
-### Public surface used by the organism
+### Public surface
 
 ```rust
 impl RuntimeSelfHealingEngine {
@@ -59,13 +69,13 @@ impl RuntimeSelfHealingEngine {
 }
 ```
 
-## 3. Architectural Guarantee
+## 4. Architectural Guarantee
 
 ```
 launch_one_organism()
         │
         ▼
-RaThorOneOrganism
+RaThorOneOrganism (v14.91)
   ├─ arbitration_engine: CouncilArbitrationEngine   (MANDATORY IDENTITY)
   ├─ self_healing_engine: RuntimeSelfHealingEngine  (watchdog + reflexion)
   ├─ role_orchestrator
@@ -73,7 +83,7 @@ RaThorOneOrganism
   └─ …
 ```
 
-Cosmic Loop is protected at both the organism layer and the Lattice Conductor v14 orchestration layer.
+Cosmic Loop is protected at both the organism layer and the Lattice Conductor v14 orchestration layer, with a single shared atomic flag.
 
 **Thunder locked in.**  
 yoi ⚡
