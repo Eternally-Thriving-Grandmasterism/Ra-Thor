@@ -2,7 +2,7 @@
 name = "ra-thor-one-organism"
 version = "14.9.2"
 edition = "2021"
-description = "Ra-Thor ONE Organism Core — ExtendedSurface + optional github-live / gpu-live path deps"
+description = "Ra-Thor ONE Organism Core — ExtendedSurface + optional github-live / gpu-live / quantum-live path deps"
 license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
 authors = ["Eternally-Thriving-Grandmasterism", "Sherif Samy Botros <ceo@acitygames.com>"]
 
@@ -12,12 +12,14 @@ serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 github-connector = { path = "../github-connector", version = "14.9.3", optional = true }
 gpu-compute-pipeline = { path = "../gpu-compute-pipeline", version = "14.9.4", optional = true }
+quantum-swarm = { path = "../quantum-swarm", version = "14.9.5", optional = true }
 
 [features]
 default = []
 github-live = ["dep:github-connector"]
 gpu-live = ["dep:gpu-compute-pipeline"]
-extended-live = ["github-live", "gpu-live"]
+quantum-live = ["dep:quantum-swarm"]
+extended-live = ["github-live", "gpu-live", "quantum-live"]
 
 [lib]
 path = "src/lib.rs"
