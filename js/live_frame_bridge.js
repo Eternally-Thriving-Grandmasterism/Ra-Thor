@@ -1,18 +1,17 @@
 /**
  * live_frame_bridge.js
- * Ra-Thor Live Frame Bridge — Browser / JS Glue v1.0
+ * Ra-Thor Live Frame Bridge — Browser / JS Glue v1.1
  *
- * Feeds live camera (or any MediaStreamTrack) frames into the
- * external_to_luma → LumaRing → vision pipeline foundation.
+ * Now fully wired to the wasm-bindgen LiveVisionBridge.
  *
  * Path:
  *   getUserMedia
  *     → MediaStreamTrackProcessor
  *       → VideoFrame
- *         → device.importExternalTexture (zero-copy)
- *           → external_to_luma compute dispatch
- *             → LumaRing (prev / curr)
- *               → perceive_from_luma_ring()  (Rust / wasm side)
+ *         → luma conversion
+ *           → LumaRing (prev / curr)
+ *             → LiveVisionBridge.perceive_from_luma_pair (wasm)
+ *               → CommonFateResult
  *
  * TOLC 8 Mercy Gated | PATSAGi Visual Council | ONE Organism
  * AG-SML v1.0 | Eternally-Thriving-Grandmasterism 2026
@@ -20,13 +19,17 @@
 
 export class LiveFrameBridge {
   /**
-   * @param {GPUDevice} device  - WebGPU device (must support external textures)
+   * @param {GPUDevice} device
    * @param {object}    options
    * @param {number}    [options.width=640]
    * @param {number}    [options.height=360]
    * @param {number}    [options.frameRate=30]
-   * @param {number}    [options.lumaMode=0]  0=BT.709, 1=average, 2=BT.601
-   * @param {function}  [options.onLumaPair]  called with ({prev, curr, width, height, timestamp}) when a valid pair is ready
+   * @param {number}    [options.lumaMode=0]   0=BT.709, 1=average, 2=BT.601
+   * @param {object}    [options.wasmBridge]  instance of LiveVisionBridge from wasm-bindgen
+   * @param {number}    [options.valence=1.0]
+   * @param {boolean}   [options.ghostFont=false]
+   * @param {function}  [options.onResult]    called with the CommonFateResult object
+   * @param {function}  [options.onLumaPair]  optional raw pair callback
    * @param {function}  [options.onError]
    */
   constructor(device, options = {}) {
@@ -35,6 +38,10 @@ export class LiveFrameBridge {
     this.height = options.height ?? 360;
     this.frameRate = options.frameRate ?? 30;
     this.lumaMode = options.lumaMode ?? 0;
+    this.wasmBridge = options.wasmBridge ?? null;
+    this.valence = options.valence ?? 1.0;
+    this.ghostFont = options.ghostFont ?? false;
+    this.onResult = options.onResult ?? null;
     this.onLumaPair = options.onLumaPair ?? null;
     this.onError = options.onError ?? console.error;
 
@@ -44,22 +51,11 @@ export class LiveFrameBridge {
     this.reader = null;
     this.running = false;
 
-    // Simple JS-side double buffer (mirrors Rust LumaRing)
     this.prevLuma = null;
     this.currLuma = null;
     this.frameCount = 0;
-
-    // WebGPU resources (created lazily)
-    this.lumaPipeline = null;
-    this.lumaBindGroupLayout = null;
-    this.lumaParamsBuffer = null;
-    this.currLumaBuffer = null;
-    this.prevLumaBuffer = null;
   }
 
-  /**
-   * Request camera and start the continuous frame loop.
-   */
   async start() {
     if (this.running) return;
 
@@ -79,56 +75,39 @@ export class LiveFrameBridge {
       this.width = settings.width || this.width;
       this.height = settings.height || this.height;
 
-      // Prefer MediaStreamTrackProcessor when available (Chrome / modern browsers)
       if (typeof MediaStreamTrackProcessor !== 'undefined') {
         this.processor = new MediaStreamTrackProcessor({ track: this.track });
         this.reader = this.processor.readable.getReader();
         this.running = true;
         this._pump();
       } else {
-        // Fallback: video element + requestVideoFrameCallback
         await this._startVideoElementFallback();
       }
 
-      console.log(`[LiveFrameBridge] Camera started ${this.width}×${this.height} @ ~${this.frameRate}fps`);
+      console.log(`[LiveFrameBridge] Camera started ${this.width}×${this.height}`);
     } catch (err) {
       this.onError(err);
       throw err;
     }
   }
 
-  /**
-   * Stop the camera and release all resources.
-   */
   async stop() {
     this.running = false;
-
     if (this.reader) {
       try { await this.reader.cancel(); } catch (_) {}
       this.reader = null;
     }
-    if (this.processor) {
-      this.processor = null;
-    }
-    if (this.track) {
-      this.track.stop();
-      this.track = null;
-    }
+    this.processor = null;
+    if (this.track) { this.track.stop(); this.track = null; }
     if (this.stream) {
       this.stream.getTracks().forEach(t => t.stop());
       this.stream = null;
     }
-
     this.prevLuma = null;
     this.currLuma = null;
     this.frameCount = 0;
-
     console.log('[LiveFrameBridge] Stopped');
   }
-
-  // ------------------------------------------------------------------
-  // Internal: continuous VideoFrame pump
-  // ------------------------------------------------------------------
 
   async _pump() {
     while (this.running && this.reader) {
@@ -139,113 +118,69 @@ export class LiveFrameBridge {
         if (this.running) this.onError(err);
         break;
       }
-
       if (result.done) break;
 
-      const frame = result.value; // VideoFrame
+      const frame = result.value;
       try {
         await this._ingestVideoFrame(frame);
       } catch (err) {
         this.onError(err);
       } finally {
-        // CRITICAL: always release the hardware buffer
         frame.close();
       }
     }
   }
 
-  /**
-   * Ingest one VideoFrame:
-   *   - import as external texture (zero-copy)
-   *   - convert to luma (via compute or CPU fallback)
-   *   - push into the JS-side ring
-   *   - notify listener when a prev/curr pair is ready
-   */
   async _ingestVideoFrame(frame) {
     const width = frame.displayWidth || frame.codedWidth || this.width;
     const height = frame.displayHeight || frame.codedHeight || this.height;
     const timestamp = frame.timestamp ?? performance.now() * 1000;
 
-    let lumaData;
+    const lumaData = await this._convertViaCPU(frame, width, height);
 
-    // Preferred path: zero-copy external texture + compute shader
-    if (this.device && typeof this.device.importExternalTexture === 'function') {
-      try {
-        lumaData = await this._convertViaExternalTexture(frame, width, height);
-      } catch (err) {
-        // Fall through to CPU path if external texture path fails
-        console.warn('[LiveFrameBridge] External texture path failed, using CPU fallback', err);
-        lumaData = await this._convertViaCPU(frame, width, height);
-      }
-    } else {
-      lumaData = await this._convertViaCPU(frame, width, height);
-    }
-
-    // Ring buffer update
     this.prevLuma = this.currLuma;
-    this.currLuma = {
-      data: lumaData,
+    this.currLuma = { data: lumaData, width, height, timestamp };
+    this.frameCount += 1;
+
+    if (this.frameCount < 2 || !this.prevLuma || !this.currLuma) return;
+
+    const pair = {
+      prev: this.prevLuma,
+      curr: this.currLuma,
       width,
       height,
       timestamp,
+      frameCount: this.frameCount,
     };
-    this.frameCount += 1;
 
-    // Notify when we have a coherent pair
-    if (this.frameCount >= 2 && this.prevLuma && this.currLuma && this.onLumaPair) {
-      this.onLumaPair({
-        prev: this.prevLuma,
-        curr: this.currLuma,
-        width,
-        height,
-        timestamp,
-        frameCount: this.frameCount,
-      });
+    if (this.onLumaPair) {
+      this.onLumaPair(pair);
+    }
+
+    // Final thin layer: push into the wasm vision bridge
+    if (this.wasmBridge && typeof this.wasmBridge.perceive_from_luma_pair === 'function') {
+      try {
+        const result = await this.wasmBridge.perceive_from_luma_pair(
+          this.prevLuma.data,
+          this.currLuma.data,
+          width,
+          height,
+          this.valence,
+          this.ghostFont,
+        );
+        if (this.onResult) {
+          this.onResult(result);
+        }
+      } catch (err) {
+        this.onError(err);
+      }
     }
   }
 
-  // ------------------------------------------------------------------
-  // Conversion paths
-  // ------------------------------------------------------------------
-
-  /**
-   * Zero-copy path using importExternalTexture + external_to_luma kernel.
-   * Requires the compute pipeline to have been created on the Rust/wasm side
-   * or a matching pipeline created here.
-   *
-   * For the pure-JS demo we currently fall back to a lightweight CPU path
-   * after importing (full GPU dispatch can be wired once the pipeline handle
-   * is exposed via wasm-bindgen).
-   */
-  async _convertViaExternalTexture(frame, width, height) {
-    // Import the frame as an external texture (zero-copy on supported browsers)
-    const externalTexture = this.device.importExternalTexture({ source: frame });
-
-    // TODO: once wasm-bindgen exposes the luma pipeline + bind group layout,
-    // create a bind group here with:
-    //   binding 0 = externalTexture
-    //   binding 1 = storage buffer for luma
-    //   binding 2 = uniform params
-    // and dispatch the compute pass.
-    //
-    // For now we still need pixel data on the CPU for the ring, so we
-    // fall through to a minimal copy. The import itself proves the path.
-    void externalTexture; // keep reference alive for the duration of this call
-
-    // Temporary: use CPU path until full GPU dispatch is wired
-    return this._convertViaCPU(frame, width, height);
-  }
-
-  /**
-   * Reliable CPU fallback: copy VideoFrame → ImageData-like buffer → luma.
-   * Uses BT.709 by default.
-   */
   async _convertViaCPU(frame, width, height) {
-    // Allocate a buffer large enough for RGBA
     const size = frame.allocationSize({ format: 'RGBA' });
     const buffer = new ArrayBuffer(size);
     const layout = { offset: 0, bytesPerRow: width * 4, rowsPerImage: height };
-
     await frame.copyTo(buffer, { layout, format: 'RGBA' });
 
     const rgba = new Uint8ClampedArray(buffer);
@@ -262,13 +197,8 @@ export class LiveFrameBridge {
         luma[i] = (rgba[p] * rC + rgba[p + 1] * gC + rgba[p + 2] * bC) / 255;
       }
     }
-
     return luma;
   }
-
-  // ------------------------------------------------------------------
-  // Fallback for browsers without MediaStreamTrackProcessor
-  // ------------------------------------------------------------------
 
   async _startVideoElementFallback() {
     const video = document.createElement('video');
@@ -276,13 +206,10 @@ export class LiveFrameBridge {
     video.muted = true;
     video.playsInline = true;
     await video.play();
-
     this.running = true;
 
     const onFrame = async () => {
       if (!this.running) return;
-
-      // Create a VideoFrame from the video element when supported
       if (typeof VideoFrame !== 'undefined') {
         const frame = new VideoFrame(video, { timestamp: performance.now() * 1000 });
         try {
@@ -291,29 +218,17 @@ export class LiveFrameBridge {
           frame.close();
         }
       }
-
       if (this.running) {
-        video.requestVideoFrameCallback(onFrame);
+        video.requestVideoFrameCallback
+          ? video.requestVideoFrameCallback(onFrame)
+          : requestAnimationFrame(onFrame);
       }
     };
 
     if (video.requestVideoFrameCallback) {
       video.requestVideoFrameCallback(onFrame);
     } else {
-      // Last-resort RAF loop
-      const loop = async () => {
-        if (!this.running) return;
-        if (typeof VideoFrame !== 'undefined') {
-          const frame = new VideoFrame(video, { timestamp: performance.now() * 1000 });
-          try {
-            await this._ingestVideoFrame(frame);
-          } finally {
-            frame.close();
-          }
-        }
-        requestAnimationFrame(loop);
-      };
-      requestAnimationFrame(loop);
+      requestAnimationFrame(onFrame);
     }
   }
 }
@@ -321,30 +236,29 @@ export class LiveFrameBridge {
 /**
  * Convenience factory.
  *
- * Usage:
+ * Full end-to-end example:
  *
- *   import { createLiveFrameBridge } from './live_frame_bridge.js';
+ *   import init, { LiveVisionBridge } from './pkg/ra_thor.js';
+ *   import { createLiveFrameBridge } from './js/live_frame_bridge.js';
+ *
+ *   await init();
+ *   const wasmBridge = new LiveVisionBridge();
  *
  *   const bridge = await createLiveFrameBridge(device, {
- *     width: 640,
- *     height: 360,
- *     onLumaPair: ({ prev, curr, width, height }) => {
- *       // Hand the pair to the Rust / wasm vision pipeline
- *       // e.g. wasmPipeline.perceive_from_raw_frames(prev.data, curr.data, width, height, 1.0, false);
+ *     wasmBridge,
+ *     onResult: (result) => {
+ *       console.log('Common Fate:', result.perceived_text_candidate,
+ *                   'coherent=', result.coherent_count);
  *     }
  *   });
  *
  *   await bridge.start();
- *   // ... later
- *   await bridge.stop();
  */
 export async function createLiveFrameBridge(device, options = {}) {
-  const bridge = new LiveFrameBridge(device, options);
-  return bridge;
+  return new LiveFrameBridge(device, options);
 }
 
 // Thunder locked in. ONE Organism.
-// v15.12 — Live Frame Bridge JS Glue is ready.
-// Camera → VideoFrame → luma pair → onLumaPair callback.
-// Ready for wasm-bindgen wiring to the Rust LumaRing / perceive_from_luma_ring path.
+// v15.13 — JS glue fully connected to wasm LiveVisionBridge.
+// Camera photons → Common Fate result. Complete.
 // Mercy First. Eternal. Yoi ⚡
