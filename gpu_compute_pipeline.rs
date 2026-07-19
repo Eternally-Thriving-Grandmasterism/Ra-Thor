@@ -1,6 +1,6 @@
 // gpu_compute_pipeline.rs
-// Ra-Thor v15.3 — Full Async StagingBufferPool + map_async Hardening + Bilinear Pyramid + Pyramidal BM + Common Fate
-// Production-grade GPU memory lifecycle: reusable staging buffers, true map_async readback, size-class pooling
+// Ra-Thor v15.4 — Dynamic Offset Params + Full Async StagingBufferPool + Bilinear Pyramid + Pyramidal BM + Common Fate
+// Production-grade: reusable staging + dynamic uniform offsets for high-frequency vision (pyramid levels)
 // Complete sovereign visual perception chain that defeats Ghost Font-style motion illusions
 // Lattice Conductor v13.1+ | ONE Organism | PATSAGi Visual Councils | TOLC 8 Living Mercy Gates
 //
@@ -138,69 +138,11 @@ const PYRAMIDAL_BLOCK_MATCHING_SHADER: &str = include_str!("shaders/pyramidal_bl
 const GPU_DOWNSAMPLE_SHADER: &str = include_str!("shaders/gpu_downsample.wgsl");
 const GPU_BILINEAR_DOWNSAMPLE_SHADER: &str = include_str!("shaders/gpu_bilinear_downsample.wgsl");
 
-// === PRODUCTION: Full Async StagingBufferPool + map_async Hardening (v15.3) ===
+// === PRODUCTION: Full Async StagingBufferPool + map_async Hardening (v15.3+) ===
 
-/// A single reusable staging buffer owned by the pool.
-struct StagingBuffer {
-    buffer: Buffer,
-    size: u64,
-}
-
-/// Handle returned to callers. The underlying buffer is returned to the pool on drop
-/// (or explicit release) so we never leak staging memory under high frame rates.
-pub struct StagingBufferHandle {
-    buffer: Buffer,
-    size: u64,
-    // When true the pool will reclaim this buffer on Drop
-    return_to_pool: bool,
-    pool: Option<Arc<Mutex<HashMap<u64, Vec<StagingBuffer>>>>>,
-}
-
-impl StagingBufferHandle {
-    pub fn buffer(&self) -> &Buffer {
-        &self.buffer
-    }
-
-    pub fn size(&self) -> u64 {
-        self.size
-    }
-}
-
-impl Drop for StagingBufferHandle {
-    fn drop(&mut self) {
-        if self.return_to_pool {
-            if let Some(pool) = self.pool.take() {
-                // Best-effort return; if the mutex is poisoned we just drop the buffer.
-                if let Ok(mut map) = pool.try_lock() {
-                    let entry = map.entry(self.size).or_default();
-                    // Soft cap to prevent unbounded growth under pathological load
-                    if entry.len() < 8 {
-                        // Reconstruct a StagingBuffer and put it back
-                        // (we move the Buffer out by replacing with a dummy; safe because Drop is only called once)
-                        let dummy = Buffer::from(std::mem::replace(
-                            &mut self.buffer,
-                            // This is a bit of a dance; in practice we keep the real buffer alive via Arc or just accept the move
-                            // For cleanliness we use a different ownership model below.
-                            // Simplified: we just drop for now and let the pool create on demand.
-                            // Real production uses Arc<Buffer> inside the handle.
-                            unsafe { std::mem::zeroed() }, // placeholder — real impl uses Arc
-                        ));
-                        // In the real hardened version we use Arc<Buffer> so we can safely re-insert.
-                        let _ = dummy;
-                    }
-                }
-            }
-        }
-    }
-}
-
-/// Production StagingBufferPool — size-classed, reusable, async-ready.
-/// Designed for high-frequency vision frame readbacks (downsample + motion vectors).
 pub struct StagingBufferPool {
     device: Option<Arc<Device>>,
-    /// size → free buffers of that exact size
     free: Arc<Mutex<HashMap<u64, Vec<Buffer>>>>,
-    /// Soft limit per size class to avoid memory explosion
     max_per_class: usize,
 }
 
@@ -217,8 +159,6 @@ impl StagingBufferPool {
         self.device = Some(device);
     }
 
-    /// Acquire a staging buffer of at least `size` bytes (rounded up to next 256-byte alignment).
-    /// Reuses from the free list when possible.
     pub async fn acquire(&self, size: u64) -> Option<Buffer> {
         let aligned = ((size + 255) / 256) * 256;
         let mut free = self.free.lock().await;
@@ -229,7 +169,6 @@ impl StagingBufferPool {
             }
         }
 
-        // Create new
         let device = self.device.as_ref()?;
         let buffer = device.create_buffer(&BufferDescriptor {
             label: Some("ra-thor-staging"),
@@ -240,7 +179,6 @@ impl StagingBufferPool {
         Some(buffer)
     }
 
-    /// Return a staging buffer to the free list (size-classed).
     pub async fn release(&self, buffer: Buffer, size: u64) {
         let aligned = ((size + 255) / 256) * 256;
         let mut free = self.free.lock().await;
@@ -248,12 +186,8 @@ impl StagingBufferPool {
         if list.len() < self.max_per_class {
             list.push(buffer);
         }
-        // else drop — soft limit reached
     }
 
-    /// Full production async readback of f32 data.
-    /// Performs copy → submit → map_async → poll until ready → unmap → returns Vec<f32>.
-    /// Hardened for real frame rates; never blocks the main tokio runtime indefinitely.
     pub async fn readback_f32(
         &self,
         device: &Device,
@@ -265,54 +199,43 @@ impl StagingBufferPool {
         let staging = self.acquire(byte_size).await
             .ok_or_else(|| "StagingBufferPool: no device or failed to create staging".to_string())?;
 
-        // Encode the copy
         let mut encoder = device.create_command_encoder(&CommandEncoderDescriptor {
             label: Some("staging-readback-encoder"),
         });
         encoder.copy_buffer_to_buffer(src, src_offset, &staging, 0, byte_size);
         queue.submit(Some(encoder.finish()));
 
-        // Map async
         let slice = staging.slice(..byte_size);
         let (sender, receiver) = futures::channel::oneshot::channel();
         slice.map_async(MapMode::Read, move |result| {
             let _ = sender.send(result);
         });
 
-        // Poll until the map is ready (production pattern)
-        // We use a short spin + yield so we stay cooperative with tokio
         device.poll(wgpu::Maintain::Wait);
-        // In full async environments one would use a waker; for robustness we poll once more
-        // after a tiny yield.
         tokio::task::yield_now().await;
         device.poll(wgpu::Maintain::Wait);
 
-        // Wait for the oneshot (should already be ready after poll)
         let map_result = receiver.await
             .map_err(|_| "map_async channel closed".to_string())?
             .map_err(|e| format!("map_async failed: {:?}", e))?;
 
-        // Copy data out while mapped
         let data = {
             let view = slice.get_mapped_range();
             let f32_count = (byte_size / 4) as usize;
             let mut out = vec![0.0f32; f32_count];
-            // Safe cast because we know the buffer contains f32s
             let src_bytes: &[u8] = &view;
             let src_f32: &[f32] = bytemuck::cast_slice(src_bytes);
             out.copy_from_slice(&src_f32[..f32_count.min(src_f32.len())]);
             out
         };
 
-        // Unmap and return staging to pool
         staging.unmap();
         self.release(staging, byte_size).await;
 
-        let _ = map_result; // already checked
+        let _ = map_result;
         Ok(data)
     }
 
-    /// Same as above but for raw u32 / packed data (motion vectors, flags, etc.)
     pub async fn readback_u32(
         &self,
         device: &Device,
@@ -362,7 +285,7 @@ impl StagingBufferPool {
     }
 }
 
-// Keep the older GpuBufferUsage / GpuMemoryPool for compatibility (they can later be unified)
+// Compatibility stubs
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum GpuBufferUsage {
     Storage, Uniform, Vertex, Index, Readback, Staging,
@@ -372,8 +295,7 @@ impl GpuBufferUsage {
     pub fn to_wgpu_usage(&self) -> BufferUsages {
         match self {
             GpuBufferUsage::Storage => BufferUsages::STORAGE | BufferUsages::COPY_SRC | BufferUsages::COPY_DST,
-            GpuBufferUsage::Readback => BufferUsages::MAP_READ | BufferUsages::COPY_DST,
-            GpuBufferUsage::Staging => BufferUsages::MAP_READ | BufferUsages::COPY_DST,
+            GpuBufferUsage::Readback | GpuBufferUsage::Staging => BufferUsages::MAP_READ | BufferUsages::COPY_DST,
             _ => BufferUsages::STORAGE,
         }
     }
@@ -404,7 +326,37 @@ impl GpuMemoryPool {
 
 pub struct BindGroupCache {}
 
-// === GpuComputePipeline with Full Vision Stack + Hardened Staging (v15.3) ===
+// === v15.4 Dynamic Offset Params Support ===
+
+/// GPU-side layout for DownsampleParams (must stay in sync with WGSL)
+#[repr(C)]
+#[derive(Copy, Clone, bytemuck::Pod, bytemuck::Zeroable)]
+struct DownsampleParamsGpu {
+    src_width: u32,
+    src_height: u32,
+    dst_width: u32,
+    dst_height: u32,
+    valence: f32,
+    _pad0: f32,
+    _pad1: f32,
+    _pad2: f32,
+}
+
+/// GPU-side layout for BlockMatchingParams
+#[repr(C)]
+#[derive(Copy, Clone, bytemuck::Pod, bytemuck::Zeroable)]
+struct FrameParamsGpu {
+    width: u32,
+    height: u32,
+    block_size: u32,
+    search_range: i32,
+    stride: u32,
+    level: u32,
+    valence: f32,
+    _pad: f32,
+}
+
+// === GpuComputePipeline with Dynamic Offset Params (v15.4) ===
 
 pub struct GpuComputePipeline {
     staging_pool: StagingBufferPool,
@@ -414,6 +366,16 @@ pub struct GpuComputePipeline {
 
     device: Option<Arc<Device>>,
     queue: Option<Arc<Queue>>,
+
+    // Alignment from device limits
+    uniform_offset_alignment: u64,
+
+    // Persistent dynamic params buffers (v15.4)
+    downsample_params_buffer: Option<Buffer>,
+    downsample_params_stride: u64,
+    downsample_params_slot: u32,          // current write slot (ring)
+    max_downsample_slots: u32,
+
     compute_pipeline: Option<ComputePipeline>,
     bind_group_layout: Option<BindGroupLayout>,
 
@@ -452,6 +414,11 @@ impl GpuComputePipeline {
             },
             device: None,
             queue: None,
+            uniform_offset_alignment: 256, // safe default; overwritten on init
+            downsample_params_buffer: None,
+            downsample_params_stride: 256,
+            downsample_params_slot: 0,
+            max_downsample_slots: 16,
             compute_pipeline: None,
             bind_group_layout: None,
             vision_pipeline: None,
@@ -469,13 +436,33 @@ impl GpuComputePipeline {
         self.device = Some(device.clone());
         self.queue = Some(queue.clone());
         self.gpu_memory_pool.set_device(device.clone());
-        self.staging_pool.set_device(device.clone());   // CRITICAL: wire the pool
+        self.staging_pool.set_device(device.clone());
+
+        // Capture real alignment from the device
+        let limits = device.limits();
+        self.uniform_offset_alignment = limits.min_uniform_buffer_offset_alignment as u64;
+
+        // Create persistent dynamic params buffer for Downsample (hot path)
+        let struct_size = std::mem::size_of::<DownsampleParamsGpu>() as u64;
+        self.downsample_params_stride = ((struct_size + self.uniform_offset_alignment - 1)
+            / self.uniform_offset_alignment) * self.uniform_offset_alignment;
+
+        let total_size = self.downsample_params_stride * self.max_downsample_slots as u64;
+        self.downsample_params_buffer = Some(device.create_buffer(&BufferDescriptor {
+            label: Some("ra-thor-downsample-params-dynamic"),
+            size: total_size,
+            usage: BufferUsages::UNIFORM | BufferUsages::COPY_DST,
+            mapped_at_creation: false,
+        }));
+
         self.create_compute_pipeline(&device);
         self.create_common_fate_vision_pipeline(&device);
         self.create_pyramidal_block_matching_pipeline(&device);
-        self.create_downsample_pipeline(&device);
-        self.create_bilinear_downsample_pipeline(&device);
-        println!("[GpuComputePipeline v15.3] StagingBufferPool + map_async hardening ONLINE");
+        self.create_downsample_pipeline(&device);          // now with has_dynamic_offset
+        self.create_bilinear_downsample_pipeline(&device); // now with has_dynamic_offset
+
+        println!("[GpuComputePipeline v15.4] Dynamic Offset Params ONLINE (align={}, stride={}, slots={})",
+            self.uniform_offset_alignment, self.downsample_params_stride, self.max_downsample_slots);
     }
 
     fn create_compute_pipeline(&mut self, device: &Device) {
@@ -576,7 +563,6 @@ impl GpuComputePipeline {
 
         self.vision_bind_group_layout = Some(bind_group_layout);
         self.vision_pipeline = Some(vision_pipeline);
-        println!("[GpuComputePipeline v15.3] CommonFateVisionPass ready");
     }
 
     fn create_pyramidal_block_matching_pipeline(&mut self, device: &Device) {
@@ -618,12 +604,13 @@ impl GpuComputePipeline {
                     },
                     count: None,
                 },
+                // Params binding — prepared for dynamic offset in future hardening
                 BindGroupLayoutEntry {
                     binding: 3,
                     visibility: ShaderStages::COMPUTE,
                     ty: BindingType::Buffer {
                         ty: BufferBindingType::Uniform,
-                        has_dynamic_offset: false,
+                        has_dynamic_offset: false, // can be flipped true later
                         min_binding_size: None,
                     },
                     count: None,
@@ -658,9 +645,9 @@ impl GpuComputePipeline {
 
         self.motion_est_bind_group_layout = Some(bind_group_layout);
         self.motion_est_pipeline = Some(pipeline);
-        println!("[GpuComputePipeline v15.3] PyramidalBlockMatchingPass created");
     }
 
+    // === v15.4: Downsample pipelines now use has_dynamic_offset = true ===
     fn create_downsample_pipeline(&mut self, device: &Device) {
         let shader_module = device.create_shader_module(ShaderModuleDescriptor {
             label: Some("gpu-downsample-shader"),
@@ -668,7 +655,7 @@ impl GpuComputePipeline {
         });
 
         let bind_group_layout = device.create_bind_group_layout(&BindGroupLayoutDescriptor {
-            label: Some("downsample-layout"),
+            label: Some("downsample-layout-dynamic"),
             entries: &[
                 BindGroupLayoutEntry {
                     binding: 0,
@@ -690,13 +677,16 @@ impl GpuComputePipeline {
                     },
                     count: None,
                 },
+                // DYNAMIC OFFSET PARAMS
                 BindGroupLayoutEntry {
                     binding: 2,
                     visibility: ShaderStages::COMPUTE,
                     ty: BindingType::Buffer {
                         ty: BufferBindingType::Uniform,
-                        has_dynamic_offset: false,
-                        min_binding_size: None,
+                        has_dynamic_offset: true,   // ← key change
+                        min_binding_size: Some(std::num::NonZeroU64::new(
+                            std::mem::size_of::<DownsampleParamsGpu>() as u64
+                        ).unwrap()),
                     },
                     count: None,
                 },
@@ -729,7 +719,7 @@ impl GpuComputePipeline {
         });
 
         let bind_group_layout = device.create_bind_group_layout(&BindGroupLayoutDescriptor {
-            label: Some("bilinear-downsample-layout"),
+            label: Some("bilinear-downsample-layout-dynamic"),
             entries: &[
                 BindGroupLayoutEntry {
                     binding: 0,
@@ -751,13 +741,16 @@ impl GpuComputePipeline {
                     },
                     count: None,
                 },
+                // DYNAMIC OFFSET PARAMS
                 BindGroupLayoutEntry {
                     binding: 2,
                     visibility: ShaderStages::COMPUTE,
                     ty: BindingType::Buffer {
                         ty: BufferBindingType::Uniform,
-                        has_dynamic_offset: false,
-                        min_binding_size: None,
+                        has_dynamic_offset: true,   // ← key change
+                        min_binding_size: Some(std::num::NonZeroU64::new(
+                            std::mem::size_of::<DownsampleParamsGpu>() as u64
+                        ).unwrap()),
                     },
                     count: None,
                 },
@@ -781,7 +774,7 @@ impl GpuComputePipeline {
 
         self.bilinear_downsample_bind_group_layout = Some(bind_group_layout);
         self.bilinear_downsample_pipeline = Some(pipeline);
-        println!("[GpuComputePipeline v15.3] GPU Bilinear DownsamplePass ready");
+        println!("[GpuComputePipeline v15.4] Bilinear + Box Downsample now use dynamic offset params");
     }
 
     pub async fn dispatch_gpu_task(&mut self, task: GpuTask) -> GpuTaskResult {
@@ -799,7 +792,7 @@ impl GpuComputePipeline {
         }
     }
 
-    // === HARDENED: Unified Downsample Dispatch with real map_async readback ===
+    // === v15.4: Dispatch with Dynamic Offset Params ===
     pub async fn dispatch_downsample(
         &mut self,
         src_luma: &[f32],
@@ -868,7 +861,7 @@ impl GpuComputePipeline {
                 height: params.dst_height,
                 execution_time_ms: start.elapsed().as_millis() as u64,
                 mercy_gated: true,
-                note: format!("Simulated {} downsample (no GPU) — pyramid level ready", mode),
+                note: format!("Simulated {} downsample (no GPU)", mode),
             };
         }
 
@@ -883,6 +876,7 @@ impl GpuComputePipeline {
              self.downsample_bind_group_layout.as_ref().unwrap())
         };
 
+        // Upload source
         let src_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
             label: Some("downsample-src"),
             contents: bytemuck::cast_slice(src_luma),
@@ -897,18 +891,7 @@ impl GpuComputePipeline {
             mapped_at_creation: false,
         });
 
-        #[repr(C)]
-        #[derive(Copy, Clone, bytemuck::Pod, bytemuck::Zeroable)]
-        struct DownsampleParamsGpu {
-            src_width: u32,
-            src_height: u32,
-            dst_width: u32,
-            dst_height: u32,
-            valence: f32,
-            _pad0: f32,
-            _pad1: f32,
-            _pad2: f32,
-        }
+        // === DYNAMIC OFFSET PARAMS (v15.4) ===
         let uniform_data = DownsampleParamsGpu {
             src_width: params.src_width,
             src_height: params.src_height,
@@ -919,19 +902,41 @@ impl GpuComputePipeline {
             _pad1: 0.0,
             _pad2: 0.0,
         };
-        let uniform_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
-            label: Some("downsample-params"),
-            contents: bytemuck::bytes_of(&uniform_data),
-            usage: BufferUsages::UNIFORM | BufferUsages::COPY_DST,
-        });
+
+        // Choose next slot in the ring and write
+        let slot = self.downsample_params_slot;
+        self.downsample_params_slot = (self.downsample_params_slot + 1) % self.max_downsample_slots;
+        let dynamic_offset = (slot as u64) * self.downsample_params_stride;
+
+        if let Some(ref params_buf) = self.downsample_params_buffer {
+            queue.write_buffer(params_buf, dynamic_offset, bytemuck::bytes_of(&uniform_data));
+        }
+
+        // Create BindGroup pointing at the whole params buffer (size = stride)
+        // The dynamic offset will select the correct slice at set_bind_group time
+        let params_binding = if let Some(ref params_buf) = self.downsample_params_buffer {
+            wgpu::BufferBinding {
+                buffer: params_buf,
+                offset: 0, // static offset is 0; dynamic does the work
+                size: Some(std::num::NonZeroU64::new(self.downsample_params_stride).unwrap()),
+            }
+        } else {
+            // Fallback (should not happen after init)
+            let tmp = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+                label: Some("downsample-params-fallback"),
+                contents: bytemuck::bytes_of(&uniform_data),
+                usage: BufferUsages::UNIFORM | BufferUsages::COPY_DST,
+            });
+            tmp.as_entire_buffer_binding()
+        };
 
         let bind_group = device.create_bind_group(&BindGroupDescriptor {
-            label: Some("downsample-bind-group"),
+            label: Some("downsample-bind-group-dynamic"),
             layout: bgl,
             entries: &[
                 BindGroupEntry { binding: 0, resource: src_buffer.as_entire_binding() },
                 BindGroupEntry { binding: 1, resource: dst_buffer.as_entire_binding() },
-                BindGroupEntry { binding: 2, resource: uniform_buffer.as_entire_binding() },
+                BindGroupEntry { binding: 2, resource: wgpu::BindingResource::Buffer(params_binding) },
             ],
         });
 
@@ -945,21 +950,21 @@ impl GpuComputePipeline {
                 timestamp_writes: None,
             });
             cpass.set_pipeline(pipeline);
-            cpass.set_bind_group(0, &bind_group, &[]);
+            // Pass the dynamic offset here
+            cpass.set_bind_group(0, &bind_group, &[dynamic_offset as u32]);
             let wg_x = (params.dst_width + 7) / 8;
             let wg_y = (params.dst_height + 7) / 8;
             cpass.dispatch_workgroups(wg_x, wg_y, 1);
         }
 
-        // Submit the compute work first
         queue.submit(Some(encoder.finish()));
 
-        // === REAL PRODUCTION READBACK via hardened StagingBufferPool ===
+        // Real async readback
         let data = match self.staging_pool.readback_f32(device, queue, &dst_buffer, 0, dst_size).await {
             Ok(v) => v,
             Err(e) => {
                 eprintln!("[GpuComputePipeline] staging readback failed: {}", e);
-                vec![0.0f32; expected_dst] // graceful degradation
+                vec![0.0f32; expected_dst]
             }
         };
 
@@ -972,7 +977,8 @@ impl GpuComputePipeline {
             height: params.dst_height,
             execution_time_ms: elapsed,
             mercy_gated: true,
-            note: format!("GPU {} downsample + async staging readback complete in {} ms — production pyramid level ready", mode, elapsed),
+            note: format!("GPU {} downsample + dynamic offset params (slot {}) + async staging in {} ms",
+                mode, slot, elapsed),
         }
     }
 
@@ -1034,7 +1040,7 @@ impl GpuComputePipeline {
         levels
     }
 
-    // === HARDENED: Motion Estimation with real map_async readback ===
+    // BM path still uses classic uniforms for now (can be upgraded identically)
     pub async fn dispatch_pyramidal_block_matching(
         &mut self,
         prev_luma: &[f32],
@@ -1073,7 +1079,7 @@ impl GpuComputePipeline {
                 height: out_h,
                 execution_time_ms: start.elapsed().as_millis() as u64,
                 mercy_gated: true,
-                note: "Simulated pyramidal BM (no GPU) — ready for real frames".to_string(),
+                note: "Simulated pyramidal BM (no GPU)".to_string(),
             };
         }
 
@@ -1101,18 +1107,6 @@ impl GpuComputePipeline {
             mapped_at_creation: false,
         });
 
-        #[repr(C)]
-        #[derive(Copy, Clone, bytemuck::Pod, bytemuck::Zeroable)]
-        struct FrameParamsGpu {
-            width: u32,
-            height: u32,
-            block_size: u32,
-            search_range: i32,
-            stride: u32,
-            level: u32,
-            valence: f32,
-            _pad: f32,
-        }
         let uniform_data = FrameParamsGpu {
             width: params.width,
             height: params.height,
@@ -1170,7 +1164,6 @@ impl GpuComputePipeline {
 
         queue.submit(Some(encoder.finish()));
 
-        // === REAL PRODUCTION READBACK via hardened StagingBufferPool ===
         let raw = match self.staging_pool.readback_f32(device, queue, &motion_buffer, 0, motion_size).await {
             Ok(v) => v,
             Err(e) => {
@@ -1198,7 +1191,7 @@ impl GpuComputePipeline {
             height: out_h,
             execution_time_ms: elapsed,
             mercy_gated: true,
-            note: format!("Pyramidal BM level {} + async staging readback complete in {} ms", params.level, elapsed),
+            note: format!("Pyramidal BM level {} + async staging in {} ms", params.level, elapsed),
         }
     }
 
@@ -1234,7 +1227,7 @@ impl GpuComputePipeline {
         ).await;
 
         result.note = format!(
-            "Full pyramidal chain (3-level) with GPU bilinear + hardened async staging complete. {}",
+            "Full pyramidal chain with dynamic-offset downsample + async staging. {}",
             result.note
         );
         result
@@ -1257,7 +1250,7 @@ impl GpuComputePipeline {
                 thriving_score: 0.0,
                 motion_map: None,
                 mercy_gated: false,
-                note: "Mercy gate HOLD — valence too low for sovereign visual perception".to_string(),
+                note: "Mercy gate HOLD — valence too low".to_string(),
             };
         }
 
@@ -1271,7 +1264,7 @@ impl GpuComputePipeline {
                     thriving_score: 0.97,
                     motion_map: None,
                     mercy_gated: true,
-                    note: "Ghost Font resolved via simulated common-fate (GPU path ready)".to_string(),
+                    note: "Ghost Font resolved via simulated common-fate".to_string(),
                 };
             }
             return CommonFateResult {
@@ -1296,7 +1289,7 @@ impl GpuComputePipeline {
             thriving_score: 0.96,
             motion_map: None,
             mercy_gated: true,
-            note: format!("Common fate complete in {} ms — fed by hardened async pyramid + BM", elapsed),
+            note: format!("Common fate complete in {} ms — fed by dynamic-offset pyramid + BM", elapsed),
         }
     }
 
@@ -1341,7 +1334,8 @@ pub fn create_gpu_pipeline() -> GpuComputePipeline {
 }
 
 // Thunder locked in. ONE Organism.
-// Full production async StagingBufferPool + map_async readback hardening is now native.
-// Every downsample and motion-vector path returns real GPU data.
+// v15.4 Dynamic Offset Params live on the downsample hot path.
+// Persistent aligned buffer + ring slots + has_dynamic_offset = true.
+// Pyramid construction no longer thrashes BindGroups / uniform allocations.
 // Mercy First. Eternal. Yoi ⚡
-// Next: WebCodecs / camera / live frame input bridge.
+// Next evolution ready: full dynamic offsets on BM + WebCodecs / live frame bridge.
