@@ -7,6 +7,10 @@
 //! - Watchdog and arbitration engine can no longer drift out of sync
 //!
 //! v14.9.6: Serialize on Diagnosis / HealthReport for HTTP JSON surface
+//!
+//! v14.10.0: Cosmic Tick anomaly ingestion — report_anomaly / run_reflexion_with_anomalies
+//! so GPU, recovery, and quantum pressure from ONE Organism inform diagnosis.
+//! Contact: info@Rathor.ai
 
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex};
@@ -36,9 +40,10 @@ pub struct HealthReport {
     pub council_liveness: bool,
     pub quantum_swarm_coherent: bool,
     pub last_check_timestamp: u64,
+    pub pending_anomaly_count: usize,
 }
 
-/// Anomaly detected during monitoring
+/// Anomaly detected during monitoring (also ingestible from Cosmic Tick)
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Anomaly {
     pub component: String,
@@ -121,6 +126,8 @@ pub struct RuntimeSelfHealingEngine {
     watchdog_running: Arc<AtomicBool>,
     healing_experiences: Arc<Mutex<Vec<HealingExperience>>>,
     task_graph: Arc<Mutex<CouncilTaskGraph>>,
+    /// Anomalies ingested from Cosmic Tick / external surfaces (drained on reflexion)
+    pending_anomalies: Arc<Mutex<Vec<Anomaly>>>,
 }
 
 impl RuntimeSelfHealingEngine {
@@ -134,7 +141,31 @@ impl RuntimeSelfHealingEngine {
             watchdog_running: Arc::new(AtomicBool::new(false)),
             healing_experiences: Arc::new(Mutex::new(Vec::new())),
             task_graph: Arc::new(Mutex::new(CouncilTaskGraph::new())),
+            pending_anomalies: Arc::new(Mutex::new(Vec::new())),
         }
+    }
+
+    /// Ingest a single anomaly from Cosmic Tick or any surface (GPU, recovery, quantum…).
+    pub fn report_anomaly(&self, component: &str, description: &str, severity: f32) {
+        if let Ok(mut q) = self.pending_anomalies.lock() {
+            q.push(Anomaly {
+                component: component.into(),
+                description: description.into(),
+                severity: severity.clamp(0.0, 1.0),
+            });
+            // Cap queue
+            if q.len() > 32 {
+                q.remove(0);
+            }
+        }
+    }
+
+    /// Batch-ingest anomalies then run one reflexion cycle informed by them.
+    pub fn run_reflexion_with_anomalies(&self, anomalies: &[Anomaly]) -> Diagnosis {
+        for a in anomalies {
+            self.report_anomaly(&a.component, &a.description, a.severity);
+        }
+        self.run_reflexion_cycle()
     }
 
     /// Start the Watchdog Thread (runs in background)
@@ -170,17 +201,30 @@ impl RuntimeSelfHealingEngine {
         self.watchdog_running.store(false, Ordering::SeqCst);
     }
 
-    /// Run one advanced Reflexion-style healing cycle
+    /// Run one advanced Reflexion-style healing cycle (consumes pending anomalies).
     pub fn run_reflexion_cycle(&self) -> Diagnosis {
         let report = self.collect_health_report();
-        let diagnosis = self.diagnose(&report);
-        let action = self.reflect_and_decide_action(&diagnosis);
+        let anomalies = self.drain_anomalies();
+        let diagnosis = self.diagnose(&report, &anomalies);
+        let action = self.reflect_and_decide_action(&diagnosis, &anomalies);
         self.execute_healing_action(action);
         self.log_healing_experience(&diagnosis);
         diagnosis
     }
 
+    fn drain_anomalies(&self) -> Vec<Anomaly> {
+        self.pending_anomalies
+            .lock()
+            .map(|mut q| std::mem::take(&mut *q))
+            .unwrap_or_default()
+    }
+
     fn collect_health_report(&self) -> HealthReport {
+        let pending = self
+            .pending_anomalies
+            .lock()
+            .map(|q| q.len())
+            .unwrap_or(0);
         HealthReport {
             cosmic_loop_ready: self.cosmic_loop_ready.load(Ordering::SeqCst),
             tol_c_gates_healthy: true,
@@ -190,36 +234,83 @@ impl RuntimeSelfHealingEngine {
                 .duration_since(UNIX_EPOCH)
                 .map(|d| d.as_secs())
                 .unwrap_or(0),
+            pending_anomaly_count: pending,
         }
     }
 
-    fn diagnose(&self, report: &HealthReport) -> Diagnosis {
+    fn diagnose(&self, report: &HealthReport, anomalies: &[Anomaly]) -> Diagnosis {
         if !report.cosmic_loop_ready {
-            Diagnosis {
+            return Diagnosis {
                 root_cause: "Cosmic Loop flag was unexpectedly disabled".to_string(),
                 recommended_action: "Restore immediately + run council arbitration".to_string(),
                 mercy_score: 0.98,
+            };
+        }
+
+        // Highest-severity anomaly drives diagnosis when present
+        if let Some(top) = anomalies.iter().max_by(|a, b| {
+            a.severity
+                .partial_cmp(&b.severity)
+                .unwrap_or(std::cmp::Ordering::Equal)
+        }) {
+            if top.severity >= 0.7 {
+                return Diagnosis {
+                    root_cause: format!("[{}] {}", top.component, top.description),
+                    recommended_action: format!(
+                        "Heal {} component; protect Cosmic Loop; log experience",
+                        top.component
+                    ),
+                    mercy_score: (1.0 - top.severity * 0.35).clamp(0.55, 0.97),
+                };
+            } else if top.severity >= 0.4 {
+                return Diagnosis {
+                    root_cause: format!("[{}] {}", top.component, top.description),
+                    recommended_action: "LogAndMonitor + mild council reweight".to_string(),
+                    mercy_score: 0.92,
+                };
             }
-        } else {
-            Diagnosis {
-                root_cause: "No critical anomalies detected".to_string(),
-                recommended_action: "Continue monitoring".to_string(),
-                mercy_score: 1.0,
-            }
+        }
+
+        Diagnosis {
+            root_cause: "No critical anomalies detected".to_string(),
+            recommended_action: "Continue monitoring".to_string(),
+            mercy_score: 1.0,
         }
     }
 
-    fn reflect_and_decide_action(&self, diagnosis: &Diagnosis) -> HealingAction {
+    fn reflect_and_decide_action(
+        &self,
+        diagnosis: &Diagnosis,
+        anomalies: &[Anomaly],
+    ) -> HealingAction {
         if diagnosis.root_cause.contains("Cosmic Loop") {
-            HealingAction::RestoreCosmicLoop
-        } else if diagnosis.root_cause.to_lowercase().contains("council") {
-            HealingAction::RerouteCouncilTask {
+            return HealingAction::RestoreCosmicLoop;
+        }
+        if let Some(a) = anomalies.iter().find(|a| a.severity >= 0.7) {
+            if a.component.to_lowercase().contains("gpu") {
+                return HealingAction::RestartComponent("gpu_surface".into());
+            }
+            if a.component.to_lowercase().contains("recovery") {
+                return HealingAction::RerouteCouncilTask {
+                    from: "Council#13".into(),
+                    to: "Harmony".into(),
+                };
+            }
+            if a.component.to_lowercase().contains("quantum") {
+                return HealingAction::RerouteCouncilTask {
+                    from: "Council#13".into(),
+                    to: "Evolution".into(),
+                };
+            }
+            return HealingAction::RestartComponent(a.component.clone());
+        }
+        if diagnosis.root_cause.to_lowercase().contains("council") {
+            return HealingAction::RerouteCouncilTask {
                 from: "Council#13".to_string(),
                 to: "Evolution".to_string(),
-            }
-        } else {
-            HealingAction::LogAndMonitor
+            };
         }
+        HealingAction::LogAndMonitor
     }
 
     fn execute_healing_action(&self, action: HealingAction) {
@@ -228,6 +319,12 @@ impl RuntimeSelfHealingEngine {
                 println!("[Self-Healing] Executing: RestoreCosmicLoop");
                 self.cosmic_loop_ready.store(true, Ordering::SeqCst);
 
+                if let Ok(mut arb) = self.arbitration_engine.lock() {
+                    let _ = arb.protect_cosmic_loop_identity();
+                }
+            }
+            HealingAction::RestartComponent(name) => {
+                println!("[Self-Healing] Executing: RestartComponent({})", name);
                 if let Ok(mut arb) = self.arbitration_engine.lock() {
                     let _ = arb.protect_cosmic_loop_identity();
                 }
@@ -246,7 +343,7 @@ impl RuntimeSelfHealingEngine {
                 }
             }
             HealingAction::LogAndMonitor => {}
-            _ => {}
+            HealingAction::NoAction => {}
         }
     }
 
@@ -266,7 +363,8 @@ impl RuntimeSelfHealingEngine {
                 "Monitored".to_string()
             },
             mercy_score: diagnosis.mercy_score,
-            graph_reroute_used: diagnosis.root_cause.to_lowercase().contains("council"),
+            graph_reroute_used: diagnosis.root_cause.to_lowercase().contains("council")
+                || diagnosis.recommended_action.to_lowercase().contains("reweight"),
         };
 
         if let Ok(mut history) = self.healing_experiences.lock() {
@@ -289,6 +387,13 @@ impl RuntimeSelfHealingEngine {
             .lock()
             .map(|g| g.clone())
             .unwrap_or_else(|_| CouncilTaskGraph::new())
+    }
+
+    pub fn pending_anomaly_count(&self) -> usize {
+        self.pending_anomalies
+            .lock()
+            .map(|q| q.len())
+            .unwrap_or(0)
     }
 }
 
@@ -335,5 +440,19 @@ mod tests {
 
         let graph = engine.get_task_graph();
         assert!(!graph.nodes.is_empty());
+    }
+
+    #[test]
+    fn test_anomaly_ingestion_from_cosmic_tick() {
+        let arb = CouncilArbitrationEngine::new();
+        let engine = RuntimeSelfHealingEngine::new(arb);
+
+        engine.report_anomaly("gpu", "dispatch_time_ms > 80", 0.85);
+        assert_eq!(engine.pending_anomaly_count(), 1);
+
+        let d = engine.run_reflexion_cycle();
+        assert!(d.root_cause.contains("gpu") || d.root_cause.contains("dispatch"));
+        assert_eq!(engine.pending_anomaly_count(), 0); // drained
+        assert!(!engine.get_healing_experiences().is_empty());
     }
 }
