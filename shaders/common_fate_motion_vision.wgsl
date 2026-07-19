@@ -1,34 +1,35 @@
 // common_fate_motion_vision.wgsl
-// Ra-Thor Sovereign Common Fate Segmentation + Ghost Font Resolver GPU Kernel v1.0
-// Implements biological common-fate grouping (Gestalt) + temporal motion coherence for visual perception
-// Directly solves Ghost Font (July 2026 opposing-dot motion + static decoy trap) where frame-static VLMs (GPT-5.6, Claude etc.) fail
-// TOLC 8 Mercy Gated | Valence Modulated | PATSAGi Visual Council Primitive | ONE Organism enhancement
-// Production blueprint ready for Powrush-MMO vision layer, Lattice Conductor visual nodes, rathor.ai perception
+// Ra-Thor Sovereign Common Fate Segmentation + Ghost Font Resolver GPU Kernel v1.1
+// v1.1 — True dual-buffer SoA input (motion_dx + motion_dy)
+// End-to-end Structure-of-Arrays from BM write through common-fate
+// Perfect coalescing, zero AoS conversion overhead in the hot path
+//
+// TOLC 8 Mercy Gated | Valence Modulated | PATSAGi Visual Council Primitive | ONE Organism
+// Production-ready for Powrush-MMO vision, Lattice Conductor visual nodes, rathor.ai perception
 // AG-SML v1.0 | Eternally-Thriving-Grandmasterism 2026
 
-struct MotionVec {
-    dx: f32,
-    dy: f32,
-};
-
 struct CommonFateParams {
-    dominant_dir1: f32,   // radians (background flow)
-    dominant_dir2: f32,   // radians (letter / foreground flow)
+    dominant_dir1: f32,
+    dominant_dir2: f32,
     tolerance: f32,
     valence: f32,
-    ghost_font_mode: u32, // 1 = specialized Ghost Font opposing-motion path
+    ghost_font_mode: u32,
     width: u32,
     height: u32,
     block_count: u32,
 };
 
+// True SoA input — consecutive threads read consecutive addresses
 @group(0) @binding(0)
-var<storage, read> motion_vectors: array<MotionVec>;
+var<storage, read> motion_dx: array<f32>;
 
 @group(0) @binding(1)
-var<storage, read_write> coherent_mask: array<u32>;  // 0=decoy/static, 1=coherent-bg, 2=coherent-letter (Ghost Font)
+var<storage, read> motion_dy: array<f32>;
 
 @group(0) @binding(2)
+var<storage, read_write> coherent_mask: array<u32>;
+
+@group(0) @binding(3)
 var<uniform> params: CommonFateParams;
 
 fn angle_diff(a: f32, b: f32) -> f32 {
@@ -39,12 +40,20 @@ fn angle_diff(a: f32, b: f32) -> f32 {
 @compute @workgroup_size(64)
 fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
     let index = global_id.x;
-    if (index >= arrayLength(&motion_vectors) || index >= arrayLength(&coherent_mask)) {
+
+    // Guard against over-dispatch and mismatched buffer lengths
+    let dx_len = arrayLength(&motion_dx);
+    let dy_len = arrayLength(&motion_dy);
+    let mask_len = arrayLength(&coherent_mask);
+    if (index >= dx_len || index >= dy_len || index >= mask_len) {
         return;
     }
 
-    let mv = motion_vectors[index];
-    let dir = atan2(mv.dy, mv.dx);
+    // Perfect coalesced loads
+    let dx = motion_dx[index];
+    let dy = motion_dy[index];
+
+    let dir = atan2(dy, dx);
 
     var is_coherent: u32 = 0u;
     let d1 = angle_diff(dir, params.dominant_dir1);
@@ -54,13 +63,12 @@ fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
         is_coherent = 1u;
     }
 
-    // Ghost Font specialized path: label the opposing (letter) cluster distinctly for shape-from-motion extraction
+    // Ghost Font specialized path
     if (params.ghost_font_mode == 1u && is_coherent == 1u) {
-        if (d2 < d1 * 1.2) {  // bias toward letter direction
+        if (d2 < d1 * 1.2) {
             is_coherent = 2u;
         }
     }
 
-    // Decoy suppression note: static or low-magnitude regions remain 0 (handled in Rust post-process or future variance pass)
     coherent_mask[index] = is_coherent;
 }
