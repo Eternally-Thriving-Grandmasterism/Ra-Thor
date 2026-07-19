@@ -7,16 +7,39 @@
 //! - Sovereign Recovery (heartbeat + TOLC8 anchors)
 //! - Kardashev / Reality Thriving Transfer flywheel
 //!
-//! Optional live path deps (`github-live`, `gpu-live`, `quantum-live`,
-//! `recovery-live`, `kardashev-live`) can later replace these facades
-//! with the full crate implementations.
+//! Live path binding (feature-gated):
+//! - `recovery-live`  → real `sovereign_recovery::SovereignRecoveryProtocol` async APIs
+//! - `kardashev-live` → real `reality_thriving_transfer` + `kardashev_orchestration` async APIs
 //!
+//! When live features are off, pure lightweight facades remain (zero extra deps).
 //! Cosmic Loop remains mandatory on every surface call.
 //! Contact: info@Rathor.ai
 
 use serde::{Deserialize, Serialize};
 
 use crate::CouncilArbitrationEngine;
+
+// =============================================================================
+// Live runtime helper (shared by recovery + kardashev live paths)
+// =============================================================================
+
+#[cfg(any(feature = "recovery-live", feature = "kardashev-live"))]
+fn block_on_live<F, T>(fut: F) -> T
+where
+    F: std::future::Future<Output = T>,
+{
+    match tokio::runtime::Handle::try_current() {
+        Ok(handle) => handle.block_on(fut),
+        Err(_) => {
+            // Fallback for non-async callers (tests, simple main). Safe current-thread runtime.
+            let rt = tokio::runtime::Builder::new_current_thread()
+                .enable_all()
+                .build()
+                .expect("[ExtendedSurface] failed to build fallback runtime for live path");
+            rt.block_on(fut)
+        }
+    }
+}
 
 // =============================================================================
 // GPU Surface
@@ -310,7 +333,7 @@ impl Default for QuantumSwarmSurface {
 }
 
 // =============================================================================
-// Sovereign Recovery Surface (NEW v14.9.9)
+// Sovereign Recovery Surface (NEW v14.9.9) — live path when recovery-live
 // =============================================================================
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -336,15 +359,32 @@ pub struct SovereignRecoveryStatus {
     pub last_heartbeat: Option<RecoveryHeartbeat>,
     pub last_anchor: Option<RecoveryAnchor>,
     pub recovery_events: u64,
+    pub live_path: bool,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct SovereignRecoverySurface {
     heartbeat_count: u64,
     anchor_count: u64,
     recovery_events: u64,
     last_heartbeat: Option<RecoveryHeartbeat>,
     last_anchor: Option<RecoveryAnchor>,
+    #[cfg(feature = "recovery-live")]
+    protocol: std::sync::Arc<sovereign_recovery::SovereignRecoveryProtocol>,
+}
+
+impl Clone for SovereignRecoverySurface {
+    fn clone(&self) -> Self {
+        Self {
+            heartbeat_count: self.heartbeat_count,
+            anchor_count: self.anchor_count,
+            recovery_events: self.recovery_events,
+            last_heartbeat: self.last_heartbeat.clone(),
+            last_anchor: self.last_anchor.clone(),
+            #[cfg(feature = "recovery-live")]
+            protocol: self.protocol.clone(),
+        }
+    }
 }
 
 impl SovereignRecoverySurface {
@@ -355,10 +395,13 @@ impl SovereignRecoverySurface {
             recovery_events: 0,
             last_heartbeat: None,
             last_anchor: None,
+            #[cfg(feature = "recovery-live")]
+            protocol: std::sync::Arc::new(sovereign_recovery::SovereignRecoveryProtocol::new()),
         }
     }
 
-    /// Lightweight heartbeat (sync facade over sovereign-recovery crate).
+    /// Heartbeat. When `recovery-live` is enabled, calls real
+    /// `SovereignRecoveryProtocol::heartbeat_check` async API.
     pub fn heartbeat(
         &mut self,
         mercy_norm: f64,
@@ -369,30 +412,62 @@ impl SovereignRecoverySurface {
         arbitration.enforce_cosmic_loop_activation();
         self.heartbeat_count += 1;
 
-        let context_pressure = (1.0 - gpu_confidence).clamp(0.0, 1.0);
-        let flow_deviation = ((mercy_norm - 0.95).abs().min(0.5)) * 2.0;
-        let requires = context_pressure > 0.82 || flow_deviation > 0.35;
-
-        let hb = RecoveryHeartbeat {
-            context_pressure,
-            flow_deviation,
-            connector_health: if gpu_confidence > 0.8 { 0.95 } else { 0.65 },
-            requires_recovery: requires,
-            tick,
-        };
-
-        if requires {
-            self.recovery_events += 1;
-            println!(
-                "[SovereignRecoverySurface] ALERT tick={} pressure={:.2} flow_dev={:.2}",
-                tick, context_pressure, flow_deviation
-            );
+        #[cfg(feature = "recovery-live")]
+        {
+            use sovereign_recovery::CouncilReadinessMetrics;
+            let metrics = CouncilReadinessMetrics {
+                mercy_norm,
+                gpu_mercy_modulated_confidence: gpu_confidence,
+                gpu_memory_usage_bytes: 256 * 1024 * 1024,
+                council_ready: true,
+                council_resonance: 0.94,
+                last_gpu_readback_available: gpu_confidence > 0.75,
+                last_updated_tick: tick,
+                evolution_level: 1,
+            };
+            let live_hb = block_on_live(self.protocol.heartbeat_check(&metrics));
+            let hb = RecoveryHeartbeat {
+                context_pressure: live_hb.context_pressure,
+                flow_deviation: live_hb.flow_state_deviation,
+                connector_health: live_hb.connector_health,
+                requires_recovery: live_hb.requires_recovery,
+                tick,
+            };
+            if hb.requires_recovery {
+                self.recovery_events += 1;
+            }
+            self.last_heartbeat = Some(hb.clone());
+            return hb;
         }
 
-        self.last_heartbeat = Some(hb.clone());
-        hb
+        #[cfg(not(feature = "recovery-live"))]
+        {
+            let context_pressure = (1.0 - gpu_confidence).clamp(0.0, 1.0);
+            let flow_deviation = ((mercy_norm - 0.95).abs().min(0.5)) * 2.0;
+            let requires = context_pressure > 0.82 || flow_deviation > 0.35;
+
+            let hb = RecoveryHeartbeat {
+                context_pressure,
+                flow_deviation,
+                connector_health: if gpu_confidence > 0.8 { 0.95 } else { 0.65 },
+                requires_recovery: requires,
+                tick,
+            };
+
+            if requires {
+                self.recovery_events += 1;
+                println!(
+                    "[SovereignRecoverySurface] ALERT tick={} pressure={:.2} flow_dev={:.2}",
+                    tick, context_pressure, flow_deviation
+                );
+            }
+
+            self.last_heartbeat = Some(hb.clone());
+            hb
+        }
     }
 
+    /// Persist TOLC8 anchor. Live path calls `persist_eternal_anchor`.
     pub fn persist_anchor(
         &mut self,
         note: &str,
@@ -401,17 +476,36 @@ impl SovereignRecoverySurface {
     ) -> RecoveryAnchor {
         arbitration.enforce_cosmic_loop_activation();
         self.anchor_count += 1;
-        let anchor = RecoveryAnchor {
-            anchor_id: format!("TOLC8-ORG-{}-{}", tick, self.anchor_count),
-            note: note.into(),
-            tick,
-        };
-        self.last_anchor = Some(anchor.clone());
-        println!(
-            "[SovereignRecoverySurface] ANCHOR {} | {}",
-            anchor.anchor_id, note
-        );
-        anchor
+
+        #[cfg(feature = "recovery-live")]
+        {
+            let live_anchor = block_on_live(
+                self.protocol
+                    .persist_eternal_anchor(None, note),
+            );
+            let anchor = RecoveryAnchor {
+                anchor_id: live_anchor.anchor_id,
+                note: live_anchor.recovery_note,
+                tick,
+            };
+            self.last_anchor = Some(anchor.clone());
+            return anchor;
+        }
+
+        #[cfg(not(feature = "recovery-live"))]
+        {
+            let anchor = RecoveryAnchor {
+                anchor_id: format!("TOLC8-ORG-{}-{}", tick, self.anchor_count),
+                note: note.into(),
+                tick,
+            };
+            self.last_anchor = Some(anchor.clone());
+            println!(
+                "[SovereignRecoverySurface] ANCHOR {} | {}",
+                anchor.anchor_id, note
+            );
+            anchor
+        }
     }
 
     pub fn status(&self) -> SovereignRecoveryStatus {
@@ -421,6 +515,7 @@ impl SovereignRecoverySurface {
             last_heartbeat: self.last_heartbeat.clone(),
             last_anchor: self.last_anchor.clone(),
             recovery_events: self.recovery_events,
+            live_path: cfg!(feature = "recovery-live"),
         }
     }
 }
@@ -433,6 +528,7 @@ impl Default for SovereignRecoverySurface {
 
 // =============================================================================
 // Kardashev / Reality Thriving Transfer Surface (NEW v14.9.9)
+// Live path when kardashev-live
 // =============================================================================
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -452,14 +548,34 @@ pub struct KardashevSurfaceStatus {
     pub velocity_ema: f64,
     pub last_transfer: Option<TransferTickResult>,
     pub projected_inflection_year: u32,
+    pub live_path: bool,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct KardashevFlywheelSurface {
     cycle_count: u64,
     cumulative_kardashev_delta: f64,
     velocity_ema: f64,
     last_transfer: Option<TransferTickResult>,
+    #[cfg(feature = "kardashev-live")]
+    calculator: std::sync::Arc<reality_thriving_transfer::RealityThrivingTransferCalculator>,
+    #[cfg(feature = "kardashev-live")]
+    council: std::sync::Arc<kardashev_orchestration::KardashevOrchestrationCouncil>,
+}
+
+impl Clone for KardashevFlywheelSurface {
+    fn clone(&self) -> Self {
+        Self {
+            cycle_count: self.cycle_count,
+            cumulative_kardashev_delta: self.cumulative_kardashev_delta,
+            velocity_ema: self.velocity_ema,
+            last_transfer: self.last_transfer.clone(),
+            #[cfg(feature = "kardashev-live")]
+            calculator: self.calculator.clone(),
+            #[cfg(feature = "kardashev-live")]
+            council: self.council.clone(),
+        }
+    }
 }
 
 impl KardashevFlywheelSurface {
@@ -469,10 +585,21 @@ impl KardashevFlywheelSurface {
             cumulative_kardashev_delta: 0.0,
             velocity_ema: 0.42,
             last_transfer: None,
+            #[cfg(feature = "kardashev-live")]
+            calculator: std::sync::Arc::new(
+                reality_thriving_transfer::RealityThrivingTransferCalculator::new(),
+            ),
+            #[cfg(feature = "kardashev-live")]
+            council: std::sync::Arc::new(
+                kardashev_orchestration::KardashevOrchestrationCouncil::new(),
+            ),
         }
     }
 
-    /// Sync lightweight flywheel tick (mirrors reality-thriving-transfer + kardashev-orchestration).
+    /// Transfer / flywheel tick.
+    /// When `kardashev-live` is enabled, constructs PowrushTelemetry, calls real
+    /// `RealityThrivingTransferCalculator::compute_transfer_score` then
+    /// `KardashevOrchestrationCouncil::deliberate_acceleration_cycle`.
     pub fn transfer_tick(
         &mut self,
         rbe_quality: f64,
@@ -483,35 +610,97 @@ impl KardashevFlywheelSurface {
         arbitration.enforce_cosmic_loop_activation();
         self.cycle_count += 1;
 
-        let rbe = rbe_quality.clamp(0.0, 1.0);
-        let ethics = ethical_choice.clamp(0.0, 1.0);
-        let abundance = abundance_signal.max(0.0);
+        #[cfg(feature = "kardashev-live")]
+        {
+            use reality_thriving_transfer::PowrushTelemetry;
 
-        let raw = rbe * 0.45 + ethics * 0.35 + (abundance / 2.0).min(1.0) * 0.20;
-        let mercy_adjusted = if raw >= 0.68 {
-            (raw * 1.08).min(0.995)
-        } else if raw >= 0.42 {
-            raw * 1.03
-        } else {
-            raw * 0.82
-        };
+            let telemetry = PowrushTelemetry {
+                gameplay_hours: 120.0 + self.cycle_count as f64 * 0.5,
+                rbe_decision_quality_avg: rbe_quality.clamp(0.0, 1.0),
+                peaceful_resolution_rate: ((rbe_quality + ethical_choice) / 2.0).clamp(0.0, 1.0),
+                collaboration_events: 400 + (self.cycle_count * 3),
+                ethical_choice_score: ethical_choice.clamp(0.0, 1.0),
+                adaptation_events: 90 + self.cycle_count,
+                abundance_velocity_signals: abundance_signal.max(0.0),
+                innovation_contribution: (rbe_quality * 0.6 + ethical_choice * 0.4).clamp(0.0, 1.0),
+            };
 
-        let alpha = 0.22;
-        self.velocity_ema = alpha * abundance.min(1.8) + (1.0 - alpha) * self.velocity_ema;
+            let score = match block_on_live(self.calculator.compute_transfer_score(&telemetry)) {
+                Ok(s) => s,
+                Err(e) => {
+                    eprintln!("[KardashevFlywheelSurface LIVE] Mercy Gate: {}", e);
+                    // Safe zero-harm fallback result
+                    let result = TransferTickResult {
+                        ema_transfer: 0.0,
+                        kardashev_delta: 0.0,
+                        abundance_velocity: self.velocity_ema,
+                        ethics_index: 0.0,
+                        mercy_audit_passed: false,
+                        cycle: self.cycle_count,
+                    };
+                    self.last_transfer = Some(result.clone());
+                    return result;
+                }
+            };
 
-        let delta = (mercy_adjusted * 0.0095 + abundance * 0.0028).min(0.011);
-        self.cumulative_kardashev_delta += delta;
+            let deliberation =
+                block_on_live(self.council.deliberate_acceleration_cycle(&[score.clone()], None));
 
-        let result = TransferTickResult {
-            ema_transfer: mercy_adjusted,
-            kardashev_delta: delta,
-            abundance_velocity: self.velocity_ema,
-            ethics_index: (ethics + rbe) / 2.0,
-            mercy_audit_passed: mercy_adjusted >= 0.0 && delta >= 0.0,
-            cycle: self.cycle_count,
-        };
-        self.last_transfer = Some(result.clone());
-        result
+            self.cumulative_kardashev_delta = deliberation.cumulative_kardashev_delta;
+            self.velocity_ema = deliberation.abundance_velocity_trend;
+
+            let result = TransferTickResult {
+                ema_transfer: score.ema_refined_transfer,
+                kardashev_delta: score.kardashev_delta_contribution,
+                abundance_velocity: deliberation.abundance_velocity_trend,
+                ethics_index: score.ethics_collaboration_index,
+                mercy_audit_passed: deliberation.mercy_audit_passed,
+                cycle: self.cycle_count,
+            };
+            self.last_transfer = Some(result.clone());
+            println!(
+                "[KardashevFlywheelSurface LIVE] cycle={} Δ={:.5} velocity={:.3} ethics_pass={} inflection={}",
+                self.cycle_count,
+                result.kardashev_delta,
+                result.abundance_velocity,
+                result.mercy_audit_passed,
+                deliberation.s_curve_projection.inflection_year
+            );
+            return result;
+        }
+
+        #[cfg(not(feature = "kardashev-live"))]
+        {
+            let rbe = rbe_quality.clamp(0.0, 1.0);
+            let ethics = ethical_choice.clamp(0.0, 1.0);
+            let abundance = abundance_signal.max(0.0);
+
+            let raw = rbe * 0.45 + ethics * 0.35 + (abundance / 2.0).min(1.0) * 0.20;
+            let mercy_adjusted = if raw >= 0.68 {
+                (raw * 1.08).min(0.995)
+            } else if raw >= 0.42 {
+                raw * 1.03
+            } else {
+                raw * 0.82
+            };
+
+            let alpha = 0.22;
+            self.velocity_ema = alpha * abundance.min(1.8) + (1.0 - alpha) * self.velocity_ema;
+
+            let delta = (mercy_adjusted * 0.0095 + abundance * 0.0028).min(0.011);
+            self.cumulative_kardashev_delta += delta;
+
+            let result = TransferTickResult {
+                ema_transfer: mercy_adjusted,
+                kardashev_delta: delta,
+                abundance_velocity: self.velocity_ema,
+                ethics_index: (ethics + rbe) / 2.0,
+                mercy_audit_passed: mercy_adjusted >= 0.0 && delta >= 0.0,
+                cycle: self.cycle_count,
+            };
+            self.last_transfer = Some(result.clone());
+            result
+        }
     }
 
     pub fn projected_inflection_year(&self) -> u32 {
@@ -529,16 +718,18 @@ impl KardashevFlywheelSurface {
             velocity_ema: self.velocity_ema,
             last_transfer: self.last_transfer.clone(),
             projected_inflection_year: self.projected_inflection_year(),
+            live_path: cfg!(feature = "kardashev-live"),
         }
     }
 
     pub fn summary(&self) -> String {
         format!(
-            "KardashevFlywheel v14.9.9 | cycles={} | Δ={:.5} | velocity={:.3} | inflection={}",
+            "KardashevFlywheel v14.9.9 | cycles={} | Δ={:.5} | velocity={:.3} | inflection={} | live={}",
             self.cycle_count,
             self.cumulative_kardashev_delta,
             self.velocity_ema,
-            self.projected_inflection_year()
+            self.projected_inflection_year(),
+            cfg!(feature = "kardashev-live")
         )
     }
 }
@@ -575,10 +766,11 @@ impl ExtendedOrganismSurface {
 
     pub fn summary(&self) -> String {
         format!(
-            "ExtendedSurface v14.9.9 | {} | recovery_hb={} anchors={} | {}",
+            "ExtendedSurface v14.9.9 | {} | recovery_hb={} anchors={} live_rec={} | {}",
             self.quantum_swarm.summary(),
             self.sovereign_recovery.heartbeat_count,
             self.sovereign_recovery.anchor_count,
+            cfg!(feature = "recovery-live"),
             self.kardashev.summary()
         )
     }
