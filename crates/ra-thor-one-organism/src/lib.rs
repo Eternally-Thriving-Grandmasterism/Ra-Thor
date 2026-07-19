@@ -243,6 +243,8 @@ pub struct ExtendedLiveStatus {
     pub pending_anomaly_count: usize,
     /// Total healing experiences logged so far.
     pub healing_experience_count: usize,
+    /// Components that fired anomalies on the most recent Cosmic Tick.
+    pub last_anomalies_fired: Vec<String>,
 }
 
 // =============================================================================
@@ -259,6 +261,8 @@ pub struct OneOrganismCore {
     pub cosmic_loop_ready: Arc<AtomicBool>,
     pub tick: u64,
     pub version: String,
+    /// Components that fired anomalies on the most recent Cosmic Tick.
+    pub last_anomalies_fired: Vec<String>,
 }
 
 impl OneOrganismCore {
@@ -284,6 +288,7 @@ impl OneOrganismCore {
             cosmic_loop_ready: shared,
             tick: 0,
             version: "v14.10.0 ONE Organism — Living Cosmic Tick + Self-Healing anomaly ingestion".into(),
+            last_anomalies_fired: Vec::new(),
         }
     }
 
@@ -440,6 +445,9 @@ impl OneOrganismCore {
                 + 0.03 * (0.92 + quantum.quantum_ratio * 0.05))
                 .clamp(0.75, 0.999);
         }
+
+        // Persist for /status and ExtendedLiveStatus
+        self.last_anomalies_fired = anomalies_fired.clone();
 
         CosmicTickResult {
             tick: self.tick,
@@ -640,7 +648,7 @@ impl OneOrganismCore {
         self.extended.kardashev.status()
     }
 
-    /// Full living snapshot — all surfaces + Self-Healing telemetry.
+    /// Full living snapshot — all surfaces + Self-Healing telemetry + last anomalies.
     pub fn extended_live_status(&self) -> ExtendedLiveStatus {
         ExtendedLiveStatus {
             gpu: self.extended.gpu.status(),
@@ -654,6 +662,7 @@ impl OneOrganismCore {
             tick: self.tick,
             pending_anomaly_count: self.self_healing_engine.pending_anomaly_count(),
             healing_experience_count: self.self_healing_engine.get_healing_experiences().len(),
+            last_anomalies_fired: self.last_anomalies_fired.clone(),
         }
     }
 
@@ -778,8 +787,8 @@ mod tests {
         assert!(result.healing.is_some());
         assert!(result.quantum.quantum_ratio > 0.0);
         assert!(result.kardashev.is_some());
-        // Low severity → no quantum anomaly expected
         assert!(!result.anomalies_fired.contains(&"quantum".to_string()));
+        assert_eq!(core.last_anomalies_fired, result.anomalies_fired);
         assert!(core.gpu_status().dispatch_count > before_g);
         assert!(core.quantum_status().total_weight_updates > before_q);
         assert!(core.kardashev_status().cycle_count > before_k);
@@ -789,8 +798,9 @@ mod tests {
     #[test]
     fn cosmic_tick_anomalies_fired_high_severity() {
         let mut core = launch_one_organism_core();
-        let result = core.cosmic_tick(0.7); // high enough for quantum anomaly
+        let result = core.cosmic_tick(0.7);
         assert!(result.anomalies_fired.contains(&"quantum".to_string()));
+        assert!(core.last_anomalies_fired.contains(&"quantum".to_string()));
         assert!(result.healing.is_some());
     }
 
@@ -802,6 +812,7 @@ mod tests {
         assert!(!s.active_role.is_empty());
         assert!(s.shared_valence > 0.7);
         assert_eq!(s.pending_anomaly_count, 0);
+        assert!(s.last_anomalies_fired.is_empty());
         let _ = s.healing_experience_count;
     }
 
@@ -812,5 +823,6 @@ mod tests {
         let s = core.extended_live_status();
         assert_eq!(s.pending_anomaly_count, 0);
         assert!(s.healing_experience_count >= 1);
+        assert!(!s.last_anomalies_fired.is_empty()); // quantum should have fired
     }
 }
