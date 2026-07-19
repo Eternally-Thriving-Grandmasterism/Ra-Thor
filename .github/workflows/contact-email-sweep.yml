@@ -24,6 +24,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
 
       - name: Make script executable
         run: chmod +x scripts/contact_email_sweep.sh
@@ -36,22 +37,41 @@ jobs:
         if: ${{ inputs.mode == 'apply' }}
         run: ./scripts/contact_email_sweep.sh --apply
 
-      - name: Apply + commit
+      - name: Apply + commit + push
         if: ${{ inputs.mode == 'apply-commit' }}
         run: |
+          set -euo pipefail
           git config user.name "Ra-Thor Contact Sweep"
           git config user.email "info@Rathor.ai"
+
+          # Always sync to latest main before mutating
+          git fetch origin "${{ github.ref_name }}"
+          git reset --hard "origin/${{ github.ref_name }}"
+
           ./scripts/contact_email_sweep.sh --apply --commit
-          git push origin HEAD:${{ github.ref_name }}
+
+          # Retry push with rebase if remote moved
+          for i in 1 2 3; do
+            if git push origin HEAD:"${{ github.ref_name }}"; then
+              echo "✅ Pushed on attempt $i"
+              exit 0
+            fi
+            echo "Push rejected (attempt $i) — pull --rebase and retry"
+            git pull --rebase origin "${{ github.ref_name }}" || git rebase --abort || true
+            sleep 2
+          done
+          echo "❌ Failed to push after 3 attempts"
+          exit 1
 
       - name: Summary
+        if: always()
         run: |
           echo "### Contact Email Sweep" >> "$GITHUB_STEP_SUMMARY"
           echo "Mode: **${{ inputs.mode }}**" >> "$GITHUB_STEP_SUMMARY"
           echo "Canonical: **info@Rathor.ai**" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
           if grep -rqi 'acitygames\.com' --include='*.toml' --include='*.md' --include='*.html' --include='*.rs' . 2>/dev/null; then
-            echo "⚠️ Residual acitygames.com matches may remain (see logs)." >> "$GITHUB_STEP_SUMMARY"
+            echo "⚠️ Residual acitygames.com matches may remain (policy tables / historical notes)." >> "$GITHUB_STEP_SUMMARY"
           else
             echo "✅ No acitygames.com matches in primary text extensions." >> "$GITHUB_STEP_SUMMARY"
           fi
