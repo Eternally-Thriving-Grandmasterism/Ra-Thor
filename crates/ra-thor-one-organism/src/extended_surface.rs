@@ -2,7 +2,7 @@
 //!
 //! Facades + optional live path binding for packaged workspace crates:
 //! - GPU compute telemetry          (`gpu-live`)
-//! - GitHub evolution connector     (offline-first; live flush next slice)
+//! - GitHub evolution connector     (`github-live` — offline-first + optional flush)
 //! - Quantum Swarm engine           (`quantum-live`)
 //! - Sovereign Recovery             (`recovery-live`)
 //! - Kardashev / Reality Transfer   (`kardashev-live`)
@@ -110,8 +110,6 @@ impl GpuSurface {
         }
     }
 
-    /// Record a dispatch. When `gpu-live` is on, routes through real
-    /// `GpuComputePipeline::dispatch_gpu_task` and uses measured timing.
     pub fn record_dispatch(
         &mut self,
         task_name: &str,
@@ -214,7 +212,7 @@ impl Default for GpuSurface {
 }
 
 // =============================================================================
-// GitHub Surface (offline-first; live flush reserved for next Council slice)
+// GitHub Surface — offline-first + optional live flush when github-live
 // =============================================================================
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -233,22 +231,80 @@ pub struct GitHubSurfaceStatus {
     pub last_intent: Option<EvolutionPrIntent>,
     pub offline_mode: bool,
     pub live_path: bool,
+    pub connector_ready: bool,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct FlushResult {
+    pub title: String,
+    pub success: bool,
+    pub html_url: Option<String>,
+    pub error: Option<String>,
+}
+
+#[derive(Debug)]
 pub struct GitHubSurface {
     intended_prs: Vec<EvolutionPrIntent>,
     offline_mode: bool,
+    #[cfg(feature = "github-live")]
+    connector: Option<std::sync::Arc<github_connector::GitHubConnector>>,
+}
+
+impl Clone for GitHubSurface {
+    fn clone(&self) -> Self {
+        Self {
+            intended_prs: self.intended_prs.clone(),
+            offline_mode: self.offline_mode,
+            #[cfg(feature = "github-live")]
+            connector: self.connector.clone(),
+        }
+    }
 }
 
 impl GitHubSurface {
     pub fn new() -> Self {
-        Self {
-            intended_prs: Vec::new(),
-            offline_mode: true,
+        #[cfg(feature = "github-live")]
+        {
+            // Mercy-gated: only go live if token is present. Otherwise stay offline.
+            let connector = match github_connector::GitHubConnector::from_env(
+                "Eternally-Thriving-Grandmasterism",
+                "Ra-Thor",
+            ) {
+                Ok(c) => {
+                    println!(
+                        "[GitHubSurface LIVE] Connector ready | owner={} repo={} | rate_limit={}",
+                        c.owner(),
+                        c.repo(),
+                        c.get_rate_limit_remaining()
+                    );
+                    Some(std::sync::Arc::new(c))
+                }
+                Err(e) => {
+                    println!(
+                        "[GitHubSurface] No live token ({}), staying offline-first. Queue only.",
+                        e.message
+                    );
+                    None
+                }
+            };
+            let offline = connector.is_none();
+            return Self {
+                intended_prs: Vec::new(),
+                offline_mode: offline,
+                connector,
+            };
+        }
+
+        #[cfg(not(feature = "github-live"))]
+        {
+            Self {
+                intended_prs: Vec::new(),
+                offline_mode: true,
+            }
         }
     }
 
+    /// Always queues locally. Never forces network. Cosmic Loop enforced.
     pub fn queue_evolution_pr(
         &mut self,
         role: &str,
@@ -287,12 +343,87 @@ impl GitHubSurface {
         std::mem::take(&mut self.intended_prs)
     }
 
+    /// Live flush path (only active under `github-live` + valid connector).
+    /// Drains the offline queue and attempts real PRs via
+    /// `GitHubConnector::create_role_optimized_evolution_pr`.
+    /// Returns per-intent results. Zero-harm: failures are recorded, not panicked.
+    pub fn flush_to_github(
+        &mut self,
+        arbitration: &CouncilArbitrationEngine,
+    ) -> Vec<FlushResult> {
+        arbitration.enforce_cosmic_loop_activation();
+        arbitration.before_council_arbitration();
+
+        let intents = self.drain_intents();
+        if intents.is_empty() {
+            return Vec::new();
+        }
+
+        #[cfg(feature = "github-live")]
+        {
+            if let Some(conn) = &self.connector {
+                let mut results = Vec::with_capacity(intents.len());
+                for intent in intents {
+                    let res = block_on_live(conn.create_role_optimized_evolution_pr(
+                        &intent.role,
+                        &intent.target_module,
+                        &intent.description,
+                        intent.expected_benefit,
+                        intent.mercy_alignment,
+                    ));
+                    match res {
+                        Ok(pr) => {
+                            println!(
+                                "[GitHubSurface LIVE] PR #{} opened | {}",
+                                pr.number, pr.html_url
+                            );
+                            results.push(FlushResult {
+                                title: intent.title,
+                                success: true,
+                                html_url: Some(pr.html_url),
+                                error: None,
+                            });
+                        }
+                        Err(e) => {
+                            eprintln!(
+                                "[GitHubSurface LIVE] Mercy Circuit: failed to open PR for '{}': {}",
+                                intent.title, e.message
+                            );
+                            results.push(FlushResult {
+                                title: intent.title,
+                                success: false,
+                                html_url: None,
+                                error: Some(e.message),
+                            });
+                        }
+                    }
+                }
+                return results;
+            }
+        }
+
+        // Offline or no connector: re-queue is not performed; report as offline.
+        intents
+            .into_iter()
+            .map(|i| FlushResult {
+                title: i.title,
+                success: false,
+                html_url: None,
+                error: Some("offline_mode or no live connector".into()),
+            })
+            .collect()
+    }
+
     pub fn status(&self) -> GitHubSurfaceStatus {
         GitHubSurfaceStatus {
             intended_prs: self.intended_prs.len(),
             last_intent: self.intended_prs.last().cloned(),
             offline_mode: self.offline_mode,
             live_path: cfg!(feature = "github-live"),
+            #[cfg(feature = "github-live")]
+            connector_ready: self.connector.is_some(),
+            #[cfg(not(feature = "github-live"))]
+            connector_ready: false,
         }
     }
 }
@@ -370,7 +501,6 @@ impl QuantumSwarmSurface {
         {
             use quantum_swarm::{QuantumSwarmConfig as QConfig, QuantumSwarmEngine, QuantumSwarmMember};
             let mut eng = QuantumSwarmEngine::new(QConfig::default());
-            // Seed a small council of members for immediate live use
             for id in 1..=4 {
                 eng.register_member(QuantumSwarmMember::new(id, vec![0.25 + id as f64 * 0.05; 8]));
             }
@@ -416,8 +546,6 @@ impl QuantumSwarmSurface {
         }
     }
 
-    /// Evolution tick. When `quantum-live` is on, routes through real
-    /// `QuantumSwarmEngine::protected_quantum_evolution_tick`.
     pub fn evolution_tick(
         &mut self,
         severity: f64,
@@ -933,11 +1061,12 @@ impl ExtendedOrganismSurface {
 
     pub fn summary(&self) -> String {
         format!(
-            "ExtendedSurface v14.9.9 | {} | recovery_hb={} anchors={} live_rec={} | {}",
+            "ExtendedSurface v14.9.9 | {} | recovery_hb={} anchors={} live_rec={} | github_offline={} | {}",
             self.quantum_swarm.summary(),
             self.sovereign_recovery.heartbeat_count,
             self.sovereign_recovery.anchor_count,
             cfg!(feature = "recovery-live"),
+            self.github.offline_mode,
             self.kardashev.summary()
         )
     }
