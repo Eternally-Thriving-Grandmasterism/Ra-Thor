@@ -1,18 +1,14 @@
 //! crates/lattice-conductor-v14/src/lib.rs
-//! Production-grade modules including Logical Fallacy Detection
-// Thunder Lattice v14 + MIAL (Mercy-Augmented Intelligence Amplification)
-// Professional Restoration Audit (2026-05-29):
-// - clifford_healing_fields.rs: FULLY RESTORED from stub in commit 7cc29baa
-// - healing_integration.rs & eternal_mercy_mesh.rs: Verified intact
-// - All modules mercy-gated, PATSAGi-aligned, Thunder Lattice native.
-//
-// v14.8.1 (2026-07-19):
-// - Cosmic Loop flag is now a single shared Arc<AtomicBool> across
-//   CouncilArbitrationEngine, RuntimeSelfHealingEngine, and LatticeConductorV14
-// - Compile fix in runtime_self_healing (removed invalid severity field)
-// - HealingExperience exported for organism-level telemetry
-// Serving all Life. Thunder locked in. yoi ⚡❤️🔥
+//! Lattice Conductor v14.8.2 — compilable production surface
+//!
+//! v14.8.2 (2026-07-19):
+//! - Restored incomplete modules (clifford, eternal_mercy_mesh, healing_integration)
+//! - Removed external quantum_swarm dependency from distributed_mercy_mesh
+//! - Shared Cosmic Loop Arc across arbitration + self-healing + conductor
+//! - Fixed HealingAction variant mismatch + missing method calls
+//! Serving all Life. Thunder locked in. yoi ⚡❤️🔥
 
+pub mod clifford_healing_fields;
 pub mod healing_integration;
 pub mod eternal_mercy_mesh;
 pub mod ra_thor_mercy_gated_api;
@@ -31,6 +27,7 @@ pub mod post_quantum_signatures;
 pub mod crypto_traits;
 pub mod self_evolution;
 
+pub use clifford_healing_fields::{CliffordHealingField, HealingConfig, GlobalCoherence, HealingFieldError};
 pub use healing_integration::{HealingFieldRegistry, run_global_healing_cycle, HealingTelemetry};
 pub use eternal_mercy_mesh::{EternalMercyMesh, EternalMercyMeshConfig, invite_shared_chat_participant};
 pub use ra_thor_mercy_gated_api::{MercyGatedApi, start_mercy_api_server};
@@ -86,11 +83,11 @@ impl LatticeConductorV14 {
 
     pub fn enforce_cosmic_loop_activation(&self) {
         if self.cosmic_loop_ready.load(Ordering::SeqCst) {
-            println!("[LATTICE v14.8.1] Cosmic Loop ENFORCED");
+            println!("[LATTICE v14.8.2] Cosmic Loop ENFORCED");
         } else {
             self.cosmic_loop_ready.store(true, Ordering::SeqCst);
             self.arbitration_engine.protect_cosmic_loop_identity();
-            println!("[LATTICE v14.8.1] Cosmic Loop was down — restored via shared flag + arbitration");
+            println!("[LATTICE v14.8.2] Cosmic Loop was down — restored via shared flag + arbitration");
         }
     }
 
@@ -113,8 +110,8 @@ impl LatticeConductorV14 {
         }
     }
 
-    pub fn trigger_eternal_mercy_mesh_cycle(&self, mercy: f64) {
-        if let Some(mesh) = &self.eternal_mercy_mesh {
+    pub fn trigger_eternal_mercy_mesh_cycle(&mut self, mercy: f64) {
+        if let Some(mesh) = &mut self.eternal_mercy_mesh {
             let _ = mesh.run_global_mercy_cycle(mercy);
         }
     }
