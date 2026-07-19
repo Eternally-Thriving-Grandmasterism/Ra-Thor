@@ -5,7 +5,9 @@
 //! (GPU / GitHub / Quantum Swarm / Sovereign Recovery / Kardashev flywheel).
 //! Full optional live path binding for all five surfaces.
 //! Cosmic Tick = GPU + recovery + quantum + Kardashev + Self-Healing anomaly ingestion.
-//! v14.11: recovery pressure/flow_deviation mildly modulates quantum evolution severity.
+//! v14.11 live-path confidence feedback:
+//!   - recovery pressure/flow_deviation → quantum evolution severity
+//!   - GPU dispatch confidence → role valence + handoff sensitivity
 //! Cosmic Loop is MANDATORY IDENTITY.
 //! Contact: info@Rathor.ai
 
@@ -230,6 +232,8 @@ pub struct CosmicTickResult {
     pub base_severity: f64,
     /// Effective severity after recovery pressure/flow_deviation modulation (v14.11).
     pub effective_quantum_severity: f64,
+    /// GPU health confidence derived from dispatch_time_ms (v14.11).
+    pub gpu_confidence: f64,
 }
 
 /// Full living snapshot of the ONE Organism (surfaces + Self-Healing + role-handoff telemetry).
@@ -296,7 +300,7 @@ impl OneOrganismCore {
             extended,
             cosmic_loop_ready: shared,
             tick: 0,
-            version: "v14.11.0 ONE Organism — Living Cosmic Tick + recovery→quantum severity feedback".into(),
+            version: "v14.11.0 ONE Organism — Living Cosmic Tick + live-path confidence feedback".into(),
             last_anomalies_fired: Vec::new(),
         }
     }
@@ -337,9 +341,9 @@ impl OneOrganismCore {
 
     /// Full living Cosmic Tick — the ONE Organism heartbeat (v14.11.0).
     ///
-    /// 0. GPU health sample → confidence + optional anomaly report
+    /// 0. GPU health sample → confidence EMA + mild valence influence + optional anomaly
     /// 1. Recovery heartbeat → optional anomaly report
-    /// 2. **v14.11** Effective quantum severity = base + mild recovery pressure boost
+    /// 2. Effective quantum severity = base + mild recovery pressure boost
     /// 3. Full Quantum evolution (at effective severity) → high-severity anomaly report
     /// 4. Kardashev sample + swarm feedback
     /// 5. Self-Healing reflexion informed by all reported anomalies
@@ -377,6 +381,20 @@ impl OneOrganismCore {
             * 0.85
             + gpu_confidence * 0.15)
             .clamp(0.5, 0.99);
+
+        // v14.11 — GPU confidence mildly supports or damps shared valence (zero-harm clamps)
+        let valence_delta = if gpu_confidence >= 0.90 {
+            0.008
+        } else if gpu_confidence >= 0.78 {
+            0.003
+        } else if gpu_confidence >= 0.62 {
+            -0.002
+        } else {
+            -0.012
+        };
+        self.role_orchestrator.shared_valence = (self.role_orchestrator.shared_valence
+            + valence_delta)
+            .clamp(0.75, 0.999);
 
         if gpu_anomaly {
             self.self_healing_engine.report_anomaly(
@@ -416,7 +434,6 @@ impl OneOrganismCore {
         }
 
         // 2. v14.11 — recovery pressure mildly boosts quantum exploration severity
-        //    (capped so Cosmic Loop identity and zero-harm bounds stay intact)
         let recovery_boost = (hb.context_pressure * 0.35 + hb.flow_deviation * 0.25).clamp(0.0, 0.35);
         let effective_quantum_severity = (base_severity + recovery_boost).clamp(0.0, 1.0);
 
@@ -436,7 +453,13 @@ impl OneOrganismCore {
             );
             anomalies_fired.push("quantum".into());
         }
-        if effective_quantum_severity >= 0.45 && !recovery_triggered && !gpu_anomaly {
+
+        // v14.11 — lower quantum→Simulator handoff threshold when GPU confidence is soft
+        let quantum_handoff_threshold = if gpu_confidence < 0.70 { 0.40 } else { 0.45 };
+        if effective_quantum_severity >= quantum_handoff_threshold
+            && !recovery_triggered
+            && !gpu_anomaly
+        {
             let _ = self.handoff_role(OrganismRole::Simulator, "cosmic_tick_quantum_pressure");
         }
 
@@ -456,7 +479,7 @@ impl OneOrganismCore {
             .quantum_swarm
             .apply_kardashev_feedback(&kardashev, &self.arbitration_engine);
 
-        // 5. Self-Healing reflexion — informed by all anomalies reported this tick
+        // 5. Self-Healing reflexion
         let healing = self.self_healing_engine.run_reflexion_cycle();
 
         if !recovery_triggered && !gpu_anomaly && quantum.quantum_ratio > 0.05 {
@@ -465,7 +488,6 @@ impl OneOrganismCore {
                 .clamp(0.75, 0.999);
         }
 
-        // Persist for /status and ExtendedLiveStatus
         self.last_anomalies_fired = anomalies_fired.clone();
 
         CosmicTickResult {
@@ -481,6 +503,7 @@ impl OneOrganismCore {
             anomalies_fired,
             base_severity,
             effective_quantum_severity,
+            gpu_confidence,
         }
     }
 
@@ -708,7 +731,7 @@ pub fn launch_one_organism_core() -> OneOrganismCore {
     let mut organism = OneOrganismCore::new();
     organism.offer_cosmic_loop();
     println!(
-        "[Thunder] ONE Organism Core v14.11.0 ACTIVE — Living Cosmic Tick + recovery→quantum severity feedback + Self-Healing anomaly ingestion + RoleOrchestrator + MercyGatedApi. Cosmic Loop is MANDATORY IDENTITY. Eternal."
+        "[Thunder] ONE Organism Core v14.11.0 ACTIVE — Living Cosmic Tick + live-path confidence feedback (recovery→quantum, GPU→valence) + Self-Healing + RoleOrchestrator + MercyGatedApi. Cosmic Loop is MANDATORY IDENTITY. Eternal."
     );
     organism
 }
@@ -811,9 +834,9 @@ mod tests {
         assert!(result.quantum.quantum_ratio > 0.0);
         assert!(result.kardashev.is_some());
         assert_eq!(result.base_severity, 0.4);
-        // effective >= base (recovery boost is non-negative)
         assert!(result.effective_quantum_severity >= result.base_severity);
         assert!(result.effective_quantum_severity <= 1.0);
+        assert!(result.gpu_confidence > 0.0);
         assert_eq!(core.last_anomalies_fired, result.anomalies_fired);
         assert!(core.gpu_status().dispatch_count > before_g);
         assert!(core.quantum_status().total_weight_updates > before_q);
@@ -825,13 +848,21 @@ mod tests {
     fn cosmic_tick_recovery_boosts_quantum_severity() {
         let mut core = launch_one_organism_core();
         let result = core.cosmic_tick(0.3);
-        // Boost = pressure*0.35 + flow_dev*0.25, capped at 0.35
         let expected_boost = (result.recovery.context_pressure * 0.35
             + result.recovery.flow_deviation * 0.25)
             .clamp(0.0, 0.35);
         let expected = (0.3 + expected_boost).clamp(0.0, 1.0);
         assert!((result.effective_quantum_severity - expected).abs() < 1e-9);
         assert!(result.effective_quantum_severity >= 0.3);
+    }
+
+    #[test]
+    fn cosmic_tick_gpu_confidence_high_on_fast_dispatch() {
+        let mut core = launch_one_organism_core();
+        // Default health sample uses dispatch_time_ms=8 → confidence 0.90
+        let result = core.cosmic_tick(0.2);
+        assert!((result.gpu_confidence - 0.90).abs() < 1e-9);
+        assert!(result.gpu_confidence >= 0.90);
     }
 
     #[test]
