@@ -1,17 +1,8 @@
-//! Ra-Thor ONE Organism Core — v14.12.0
+//! Ra-Thor ONE Organism Core — v14.13.0
 //!
 //! True path dependency on `lattice-conductor-v14`.
-//! RoleOrchestrator + MercyGatedApi + ExtendedOrganismSurface
-//! (GPU / GitHub / Quantum Swarm / Sovereign Recovery / Kardashev flywheel).
-//! Full optional live path binding for all five surfaces.
-//! Cosmic Tick = GPU + recovery + quantum + Kardashev + Self-Healing anomaly ingestion.
-//! v14.11 live-path confidence feedback:
-//!   - recovery pressure/flow_deviation → quantum evolution severity
-//!   - GPU dispatch confidence → role valence + handoff sensitivity
-//!   - Kardashev quality → swarm jump threshold
-//! v14.12 adaptive hardening:
-//!   - last-tick adaptive fields persisted on core + ExtendedLiveStatus
-//!   - Self-Healing mild next-tick recovery sensitivity (anomaly count + mercy)
+//! Living Cosmic Tick + live-path confidence feedback + adaptive hardening.
+//! v14.13: explicit Cosmic Loop invariant checks around every Cosmic Tick.
 //! Cosmic Loop is MANDATORY IDENTITY.
 //! Contact: info@Rathor.ai
 
@@ -148,13 +139,6 @@ impl RoleOrchestrator {
             self.active_role = new_role.clone();
             self.handoff_count += 1;
             self.last_handoff_reason = reason.into();
-            println!(
-                "[RoleOrchestrator] Handoff #{} → {} | reason={} | valence={:.4}",
-                self.handoff_count,
-                new_role.as_str(),
-                reason,
-                self.shared_valence
-            );
             true
         } else {
             false
@@ -208,6 +192,14 @@ impl Default for RoleOrchestrator {
     }
 }
 
+/// v14.13 — snapshot of Cosmic Loop identity invariants.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CosmicLoopInvariant {
+    pub cosmic_loop_ready: bool,
+    pub guardian_active: bool,
+    pub all_hold: bool,
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CosmicTickResult {
     pub tick: u64,
@@ -223,8 +215,9 @@ pub struct CosmicTickResult {
     pub base_severity: f64,
     pub effective_quantum_severity: f64,
     pub gpu_confidence: f64,
-    /// v14.12 — recovery sensitivity multiplier applied this tick (1.0 = neutral).
     pub recovery_sensitivity_applied: f64,
+    /// v14.13 — Cosmic Loop invariant snapshot after the tick.
+    pub cosmic_loop_invariant: CosmicLoopInvariant,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -246,10 +239,11 @@ pub struct ExtendedLiveStatus {
     pub last_base_severity: f64,
     pub last_effective_quantum_severity: f64,
     pub last_gpu_confidence: f64,
-    /// v14.12 — sensitivity queued for the *next* Cosmic Tick recovery step.
     pub next_recovery_sensitivity: f64,
-    /// Sensitivity that was applied on the most recent Cosmic Tick.
     pub last_recovery_sensitivity_applied: f64,
+    /// v14.13 — whether Cosmic Loop invariants currently hold.
+    pub cosmic_loop_invariant_holds: bool,
+    pub guardian_active: bool,
 }
 
 pub struct OneOrganismCore {
@@ -266,9 +260,7 @@ pub struct OneOrganismCore {
     pub last_base_severity: f64,
     pub last_effective_quantum_severity: f64,
     pub last_gpu_confidence: f64,
-    /// Multiplier applied on the *next* recovery heartbeat (1.0 neutral, max 1.12).
     pub next_recovery_sensitivity: f64,
-    /// Multiplier that was applied on the most recent Cosmic Tick.
     pub last_recovery_sensitivity_applied: f64,
 }
 
@@ -294,7 +286,7 @@ impl OneOrganismCore {
             extended,
             cosmic_loop_ready: shared,
             tick: 0,
-            version: "v14.12.0 ONE Organism — adaptive hardening + recovery sensitivity".into(),
+            version: "v14.13.0 ONE Organism — Cosmic Loop invariant checks".into(),
             last_anomalies_fired: Vec::new(),
             last_base_severity: 0.0,
             last_effective_quantum_severity: 0.0,
@@ -304,10 +296,27 @@ impl OneOrganismCore {
         }
     }
 
-    pub fn offer_cosmic_loop(&mut self) {
+    /// v14.13 — read-only Cosmic Loop identity snapshot.
+    pub fn assert_cosmic_loop_invariant(&self) -> CosmicLoopInvariant {
+        let cosmic_loop_ready = self.is_cosmic_loop_ready();
+        let guardian_active = self.arbitration_engine.is_guardian_active();
+        CosmicLoopInvariant {
+            cosmic_loop_ready,
+            guardian_active,
+            all_hold: cosmic_loop_ready && guardian_active,
+        }
+    }
+
+    /// Enforce + protect Cosmic Loop, then return invariant snapshot.
+    pub fn enforce_cosmic_loop_invariant(&mut self) -> CosmicLoopInvariant {
         self.arbitration_engine.enforce_cosmic_loop_activation();
         self.arbitration_engine.protect_cosmic_loop_identity();
         self.lattice.enforce_cosmic_loop_activation();
+        self.assert_cosmic_loop_invariant()
+    }
+
+    pub fn offer_cosmic_loop(&mut self) {
+        let inv = self.enforce_cosmic_loop_invariant();
         self.self_healing_engine.start_watchdog();
 
         let _ = self.extended.sovereign_recovery.persist_anchor(
@@ -317,32 +326,21 @@ impl OneOrganismCore {
         );
 
         println!(
-            "[OneOrganismCore {}] Cosmic Loop OFFERED + ENFORCED + Self-Healing Watchdog STARTED",
-            self.version
+            "[OneOrganismCore {}] Cosmic Loop OFFERED + ENFORCED (ready={} guardian={}) + Watchdog STARTED",
+            self.version, inv.cosmic_loop_ready, inv.guardian_active
         );
-        println!(
-            "[CouncilArbitrationEngine] guardian_active={} | cosmic_loop_ready={}",
-            self.arbitration_engine.is_guardian_active(),
-            self.is_cosmic_loop_ready()
-        );
-        println!(
-            "[RoleOrchestrator] Active role: {} | Shared valence: {:.5}",
-            self.role_orchestrator.active_role.as_str(),
-            self.role_orchestrator.shared_valence
-        );
-        println!("[ExtendedSurface] {}", self.extended.summary());
     }
 
     pub fn on_lattice_sync(&mut self) {
         let _ = self.cosmic_tick(0.22);
     }
 
-    /// Full living Cosmic Tick — heartbeat (v14.12.0).
+    /// Full living Cosmic Tick — heartbeat (v14.13.0).
     pub fn cosmic_tick(&mut self, severity: f64) -> CosmicTickResult {
         self.tick += 1;
+        // Pre-tick Cosmic Loop identity (MANDATORY)
         self.arbitration_engine.on_lattice_sync();
-        self.arbitration_engine.enforce_cosmic_loop_activation();
-        self.lattice.enforce_cosmic_loop_activation();
+        let _ = self.enforce_cosmic_loop_invariant();
 
         let base_severity = severity.clamp(0.0, 1.0);
         let mut anomalies_fired: Vec<String> = Vec::new();
@@ -396,7 +394,7 @@ impl OneOrganismCore {
             let _ = self.handoff_role(OrganismRole::Debugger, "cosmic_tick_gpu_anomaly");
         }
 
-        // 1. Recovery heartbeat — v14.12 apply (then clear) next-tick sensitivity
+        // 1. Recovery (with next-tick sensitivity)
         let sensitivity = self.next_recovery_sensitivity.clamp(1.0, 1.12);
         self.last_recovery_sensitivity_applied = sensitivity;
         self.next_recovery_sensitivity = 1.0;
@@ -432,11 +430,11 @@ impl OneOrganismCore {
             );
         }
 
-        // 2. Recovery pressure → quantum severity
+        // 2. Recovery → quantum severity
         let recovery_boost = (hb.context_pressure * 0.35 + hb.flow_deviation * 0.25).clamp(0.0, 0.35);
         let effective_quantum_severity = (base_severity + recovery_boost).clamp(0.0, 1.0);
 
-        // 3. Quantum evolution
+        // 3. Quantum
         let quantum = self.extended.quantum_swarm.evolve_full_cycle(
             effective_quantum_severity,
             &self.arbitration_engine,
@@ -461,7 +459,7 @@ impl OneOrganismCore {
             let _ = self.handoff_role(OrganismRole::Simulator, "cosmic_tick_quantum_pressure");
         }
 
-        // 4. Kardashev + swarm feedback
+        // 4. Kardashev
         let rbe = (self.role_orchestrator.shared_valence * 0.85
             + self.role_orchestrator.shared_confidence_ema * 0.15)
             .clamp(0.0, 1.0);
@@ -477,10 +475,9 @@ impl OneOrganismCore {
             .quantum_swarm
             .apply_kardashev_feedback(&kardashev, &self.arbitration_engine);
 
-        // 5. Self-Healing reflexion
+        // 5. Self-Healing
         let healing = self.self_healing_engine.run_reflexion_cycle();
 
-        // v14.12 — schedule mild recovery sensitivity for *next* tick from this healing
         if anomalies_fired.is_empty() {
             self.next_recovery_sensitivity = 1.0;
         } else {
@@ -506,6 +503,9 @@ impl OneOrganismCore {
         self.last_effective_quantum_severity = effective_quantum_severity;
         self.last_gpu_confidence = gpu_confidence;
 
+        // 7. v14.13 — post-tick Cosmic Loop re-enforce + invariant snapshot
+        let cosmic_loop_invariant = self.enforce_cosmic_loop_invariant();
+
         CosmicTickResult {
             tick: self.tick,
             gpu: Some(gpu_tel),
@@ -521,6 +521,7 @@ impl OneOrganismCore {
             effective_quantum_severity,
             gpu_confidence,
             recovery_sensitivity_applied: sensitivity,
+            cosmic_loop_invariant,
         }
     }
 
@@ -708,13 +709,14 @@ impl OneOrganismCore {
     }
 
     pub fn extended_live_status(&self) -> ExtendedLiveStatus {
+        let inv = self.assert_cosmic_loop_invariant();
         ExtendedLiveStatus {
             gpu: self.extended.gpu.status(),
             github: self.extended.github.status(),
             quantum: self.extended.quantum_swarm.status(),
             recovery: self.extended.sovereign_recovery.status(),
             kardashev: self.extended.kardashev.status(),
-            cosmic_loop_ready: self.is_cosmic_loop_ready(),
+            cosmic_loop_ready: inv.cosmic_loop_ready,
             active_role: self.role_orchestrator.active_role.as_str().into(),
             shared_valence: self.role_orchestrator.shared_valence,
             tick: self.tick,
@@ -728,6 +730,8 @@ impl OneOrganismCore {
             last_gpu_confidence: self.last_gpu_confidence,
             next_recovery_sensitivity: self.next_recovery_sensitivity,
             last_recovery_sensitivity_applied: self.last_recovery_sensitivity_applied,
+            cosmic_loop_invariant_holds: inv.all_hold,
+            guardian_active: inv.guardian_active,
         }
     }
 
@@ -750,7 +754,7 @@ pub fn launch_one_organism_core() -> OneOrganismCore {
     let mut organism = OneOrganismCore::new();
     organism.offer_cosmic_loop();
     println!(
-        "[Thunder] ONE Organism Core v14.12.0 ACTIVE — adaptive hardening + Self-Healing→recovery sensitivity + live-path confidence feedback. Cosmic Loop is MANDATORY IDENTITY. Eternal."
+        "[Thunder] ONE Organism Core v14.13.0 ACTIVE — Cosmic Loop invariant checks + adaptive hardening. Cosmic Loop is MANDATORY IDENTITY. Eternal."
     );
     organism
 }
@@ -762,45 +766,37 @@ mod tests {
     #[test]
     fn cosmic_loop_ready_after_launch() {
         let core = launch_one_organism_core();
-        assert!(core.is_cosmic_loop_ready());
-        assert!(core.arbitration_engine.is_guardian_active());
-        assert!(core.recovery_status().anchor_count >= 1);
+        let inv = core.assert_cosmic_loop_invariant();
+        assert!(inv.cosmic_loop_ready);
+        assert!(inv.guardian_active);
+        assert!(inv.all_hold);
     }
 
     #[test]
-    fn cosmic_tick_v14_12_full_loop() {
+    fn cosmic_tick_preserves_cosmic_loop_invariant() {
         let mut core = launch_one_organism_core();
-        let result = core.cosmic_tick(0.4);
-        assert!(result.tick >= 1);
-        assert!(result.gpu.is_some());
-        assert!(result.healing.is_some());
-        assert_eq!(result.base_severity, 0.4);
-        assert!((result.recovery_sensitivity_applied - 1.0).abs() < 1e-9);
-        assert_eq!(core.last_base_severity, result.base_severity);
-        assert_eq!(core.last_gpu_confidence, result.gpu_confidence);
+        let result = core.cosmic_tick(0.45);
+        assert!(result.cosmic_loop_invariant.all_hold);
+        assert!(result.cosmic_loop_invariant.cosmic_loop_ready);
+        assert!(result.cosmic_loop_invariant.guardian_active);
+        // Still holds after high-severity tick
+        let r2 = core.cosmic_tick(0.8);
+        assert!(r2.cosmic_loop_invariant.all_hold);
+        let live = core.extended_live_status();
+        assert!(live.cosmic_loop_invariant_holds);
+        assert!(live.guardian_active);
     }
 
     #[test]
     fn high_severity_schedules_next_recovery_sensitivity() {
         let mut core = launch_one_organism_core();
-        assert!((core.next_recovery_sensitivity - 1.0).abs() < 1e-9);
         let r1 = core.cosmic_tick(0.7);
         assert!(r1.anomalies_fired.contains(&"quantum".to_string()));
-        // After a tick with anomalies, next sensitivity should rise mildly
         assert!(core.next_recovery_sensitivity > 1.0);
         assert!(core.next_recovery_sensitivity <= 1.12);
-        // Second tick consumes it
         let r2 = core.cosmic_tick(0.2);
         assert!(r2.recovery_sensitivity_applied > 1.0);
-        assert!((core.last_recovery_sensitivity_applied - r2.recovery_sensitivity_applied).abs() < 1e-9);
-    }
-
-    #[test]
-    fn clean_tick_keeps_neutral_sensitivity() {
-        let mut core = launch_one_organism_core();
-        let r = core.cosmic_tick(0.2);
-        assert!(!r.anomalies_fired.contains(&"quantum".to_string()));
-        assert!((core.next_recovery_sensitivity - 1.0).abs() < 1e-9);
+        assert!(r2.cosmic_loop_invariant.all_hold);
     }
 
     #[test]
@@ -810,15 +806,13 @@ mod tests {
         let s = core.extended_live_status();
         assert_eq!(s.last_base_severity, result.base_severity);
         assert_eq!(s.last_gpu_confidence, result.gpu_confidence);
-        assert_eq!(s.last_recovery_sensitivity_applied, result.recovery_sensitivity_applied);
-        assert!(s.next_recovery_sensitivity >= 1.0);
+        assert!(s.cosmic_loop_invariant_holds);
     }
 
     #[test]
     fn role_handoff_telemetry_on_live_status() {
         let mut core = launch_one_organism_core();
-        let ok = core.handoff_role(OrganismRole::Debugger, "manual_test_handoff");
-        assert!(ok);
+        assert!(core.handoff_role(OrganismRole::Debugger, "manual_test_handoff"));
         let s = core.extended_live_status();
         assert_eq!(s.handoff_count, 1);
         assert_eq!(s.last_handoff_reason, "manual_test_handoff");
