@@ -223,6 +223,8 @@ pub struct CosmicTickResult {
     pub recovery_triggered: bool,
     pub gpu_anomaly: bool,
     pub healing: Option<Diagnosis>,
+    /// Component names that reported anomalies this tick (e.g. "gpu", "recovery", "quantum").
+    pub anomalies_fired: Vec<String>,
 }
 
 /// Full living snapshot of the ONE Organism (surfaces + Self-Healing telemetry).
@@ -332,6 +334,8 @@ impl OneOrganismCore {
         self.arbitration_engine.enforce_cosmic_loop_activation();
         self.lattice.enforce_cosmic_loop_activation();
 
+        let mut anomalies_fired: Vec<String> = Vec::new();
+
         // 0. GPU health sample
         let elements = 2048 + ((severity * 4096.0) as usize);
         let gpu_tel = self.extended.gpu.record_dispatch(
@@ -364,6 +368,7 @@ impl OneOrganismCore {
                 &format!("dispatch_time_ms={} > 80", gpu_tel.dispatch_time_ms),
                 0.85,
             );
+            anomalies_fired.push("gpu".into());
             let _ = self.handoff_role(OrganismRole::Debugger, "cosmic_tick_gpu_anomaly");
         }
 
@@ -385,6 +390,7 @@ impl OneOrganismCore {
                 ),
                 0.78,
             );
+            anomalies_fired.push("recovery".into());
             let _ = self.handoff_role(OrganismRole::SovereignRecovery, "cosmic_tick_recovery_alert");
             let _ = self.extended.sovereign_recovery.persist_anchor(
                 "auto_recover_from_cosmic_tick",
@@ -404,6 +410,7 @@ impl OneOrganismCore {
                 &format!("high_severity={:.2} ratio={:.3}", severity, quantum.quantum_ratio),
                 (severity as f32).min(0.95),
             );
+            anomalies_fired.push("quantum".into());
         }
         if severity >= 0.45 && !recovery_triggered && !gpu_anomaly {
             let _ = self.handoff_role(OrganismRole::Simulator, "cosmic_tick_quantum_pressure");
@@ -444,6 +451,7 @@ impl OneOrganismCore {
             recovery_triggered,
             gpu_anomaly,
             healing: Some(healing),
+            anomalies_fired,
         }
     }
 
@@ -770,10 +778,20 @@ mod tests {
         assert!(result.healing.is_some());
         assert!(result.quantum.quantum_ratio > 0.0);
         assert!(result.kardashev.is_some());
+        // Low severity → no quantum anomaly expected
+        assert!(!result.anomalies_fired.contains(&"quantum".to_string()));
         assert!(core.gpu_status().dispatch_count > before_g);
         assert!(core.quantum_status().total_weight_updates > before_q);
         assert!(core.kardashev_status().cycle_count > before_k);
         assert!(core.recovery_status().heartbeat_count > before_r);
+    }
+
+    #[test]
+    fn cosmic_tick_anomalies_fired_high_severity() {
+        let mut core = launch_one_organism_core();
+        let result = core.cosmic_tick(0.7); // high enough for quantum anomaly
+        assert!(result.anomalies_fired.contains(&"quantum".to_string()));
+        assert!(result.healing.is_some());
     }
 
     #[test]
@@ -783,20 +801,16 @@ mod tests {
         assert!(s.cosmic_loop_ready);
         assert!(!s.active_role.is_empty());
         assert!(s.shared_valence > 0.7);
-        // New Self-Healing telemetry fields
-        assert_eq!(s.pending_anomaly_count, 0); // clean after boot
-        // healing_experience_count may be 0 at pure boot
+        assert_eq!(s.pending_anomaly_count, 0);
         let _ = s.healing_experience_count;
     }
 
     #[test]
     fn extended_live_status_after_cosmic_tick() {
         let mut core = launch_one_organism_core();
-        let _ = core.cosmic_tick(0.6); // severity high enough to potentially report quantum anomaly
+        let _ = core.cosmic_tick(0.6);
         let s = core.extended_live_status();
-        // After reflexion, pending anomalies should be drained
         assert_eq!(s.pending_anomaly_count, 0);
-        // At least one healing experience should have been logged
         assert!(s.healing_experience_count >= 1);
     }
 }
