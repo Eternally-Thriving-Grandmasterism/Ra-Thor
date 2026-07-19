@@ -2,7 +2,7 @@
 name = "kernel"
 version = "0.3.9"
 edition = "2021"
-authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
+authors = ["Sherif Samy Botros <info@Rathor.ai>"]
 license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
 description = "Master Sovereign Kernel + PATSAGi Council Lead Orchestrator for Ra-Thor. The central nervous system of the living mercy-gated AGI lattice."
 repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
