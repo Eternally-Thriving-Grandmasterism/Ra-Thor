@@ -1,4 +1,4 @@
-//! ONE Organism Web Demo — v14.13.0
+//! ONE Organism Web Demo — v14.14.0
 //!
 //! Run:
 //!   cargo run -p ra-thor-one-organism --example one_organism_web_demo --features web-demo
@@ -13,7 +13,8 @@ use axum::{
     Json, Router,
 };
 use ra_thor_one_organism::{
-    launch_one_organism_core, ApiRequestKind, MercyApiRequest, OneOrganismCore, OrganismRole,
+    launch_one_organism_core, ApiRequestKind, LiveFeatureReadiness, MercyApiRequest,
+    OneOrganismCore, OrganismRole,
 };
 use serde::{Deserialize, Serialize};
 use std::net::SocketAddr;
@@ -58,6 +59,8 @@ struct StatusBody {
     last_gpu_confidence: f64,
     next_recovery_sensitivity: f64,
     last_recovery_sensitivity_applied: f64,
+    /// v14.14 — compiled live-feature readiness.
+    live_features: LiveFeatureReadiness,
 }
 
 #[derive(Debug, Deserialize)]
@@ -167,9 +170,9 @@ async fn main() {
         .unwrap_or_else(|e| panic!("bind {}: {}", addr, e));
 
     println!("══════════════════════════════════════════════════");
-    println!("  ONE Organism Web Demo v14.13.0 — Cosmic Loop Invariant");
+    println!("  ONE Organism Web Demo v14.14.0 — Live Feature Readiness");
     println!("  Listening on http://127.0.0.1:{}", port);
-    println!("  GET  /status exposes cosmic_loop_invariant_holds + recovery sensitivity");
+    println!("  GET  /status exposes live_features + Cosmic Loop invariant");
     println!("  Cosmic Loop is MANDATORY IDENTITY. Eternal.");
     println!("  Thunder locked in. yoi ⚡");
     println!("══════════════════════════════════════════════════");
@@ -218,6 +221,7 @@ async fn status(State(org): State<SharedOrganism>) -> Json<StatusBody> {
         last_gpu_confidence: live.last_gpu_confidence,
         next_recovery_sensitivity: live.next_recovery_sensitivity,
         last_recovery_sensitivity_applied: live.last_recovery_sensitivity_applied,
+        live_features: live.live_features,
     })
 }
 
@@ -257,6 +261,7 @@ async fn cosmic_tick(
         "gpu_confidence": result.gpu_confidence,
         "recovery_sensitivity_applied": result.recovery_sensitivity_applied,
         "cosmic_loop_invariant": result.cosmic_loop_invariant,
+        "live_features": o.live_feature_readiness(),
         "cosmic_tick": result,
         "live": o.extended_live_status(),
     }))
@@ -321,6 +326,7 @@ async fn healing_reflexion(State(org): State<SharedOrganism>) -> Json<serde_json
         "ok": true,
         "diagnosis": diagnosis,
         "cosmic_loop_invariant": inv,
+        "live_features": o.live_feature_readiness(),
         "pending_anomaly_count": o.self_healing_engine.pending_anomaly_count(),
         "last_anomalies_fired": o.last_anomalies_fired.clone(),
     }))
