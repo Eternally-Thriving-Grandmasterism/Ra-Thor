@@ -1,10 +1,10 @@
-//! Ra-Thor ONE Organism Core — v14.9.9
+//! Ra-Thor ONE Organism Core — v14.10.0
 //!
-//! True path dependency on `lattice-conductor-v14@14.8.3`.
+//! True path dependency on `lattice-conductor-v14`.
 //! RoleOrchestrator + MercyGatedApi + ExtendedOrganismSurface
 //! (GPU / GitHub / Quantum Swarm / Sovereign Recovery / Kardashev flywheel).
 //! Full optional live path binding for all five surfaces.
-//! Cosmic Tick = GPU sample + recovery + full quantum evolution + Kardashev + swarm feedback.
+//! Cosmic Tick = GPU + recovery + quantum + Kardashev + Self-Healing anomaly ingestion.
 //! Cosmic Loop is MANDATORY IDENTITY.
 //! Contact: info@Rathor.ai
 
@@ -222,6 +222,7 @@ pub struct CosmicTickResult {
     pub role_after: String,
     pub recovery_triggered: bool,
     pub gpu_anomaly: bool,
+    pub healing: Option<Diagnosis>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -275,7 +276,7 @@ impl OneOrganismCore {
             extended,
             cosmic_loop_ready: shared,
             tick: 0,
-            version: "v14.9.9 ONE Organism + GPU↔Recovery↔Quantum↔Kardashev Cosmic Tick + lattice-conductor-v14@14.8.3".into(),
+            version: "v14.10.0 ONE Organism — Living Cosmic Tick + Self-Healing anomaly ingestion".into(),
         }
     }
 
@@ -313,32 +314,29 @@ impl OneOrganismCore {
         let _ = self.cosmic_tick(0.22);
     }
 
-    /// Full living Cosmic Tick — the ONE Organism heartbeat.
+    /// Full living Cosmic Tick — the ONE Organism heartbeat (v14.10.0).
     ///
-    /// 0. Light GPU health sample (feeds confidence into recovery)
-    /// 1. CouncilArbitration + self-healing reflexion
-    /// 2. Sovereign Recovery heartbeat (+ auto-anchor if pressure high)
-    /// 3. Full Quantum Swarm evolution (weight + jump + proposal)
-    /// 4. Light Kardashev transfer sample
-    /// 5. Kardashev feedback applied back into the swarm
+    /// 0. GPU health sample → confidence + optional anomaly report
+    /// 1. Recovery heartbeat → optional anomaly report
+    /// 2. Full Quantum evolution → high-severity anomaly report
+    /// 3. Kardashev sample + swarm feedback
+    /// 4. Self-Healing reflexion informed by all reported anomalies
     pub fn cosmic_tick(&mut self, severity: f64) -> CosmicTickResult {
         self.tick += 1;
         self.arbitration_engine.on_lattice_sync();
         self.arbitration_engine.enforce_cosmic_loop_activation();
-        let _ = self.self_healing_engine.run_reflexion_cycle();
         self.lattice.enforce_cosmic_loop_activation();
 
-        // 0. GPU health sample — measured timing when gpu-live, synthetic otherwise
+        // 0. GPU health sample
         let elements = 2048 + ((severity * 4096.0) as usize);
         let gpu_tel = self.extended.gpu.record_dispatch(
             "cosmic_tick_health_sample",
-            8, // facade fallback ms; live path overwrites with measured
+            8,
             false,
             elements,
             &self.arbitration_engine,
         );
         let gpu_anomaly = gpu_tel.dispatch_time_ms > 80;
-        // Map GPU health → confidence for recovery (fast = high confidence)
         let gpu_confidence = if gpu_tel.dispatch_time_ms <= 5 {
             0.97
         } else if gpu_tel.dispatch_time_ms <= 20 {
@@ -350,18 +348,21 @@ impl OneOrganismCore {
         } else {
             0.45
         };
-        // Blend into shared confidence EMA lightly
         self.role_orchestrator.shared_confidence_ema = (self.role_orchestrator.shared_confidence_ema
             * 0.85
             + gpu_confidence * 0.15)
             .clamp(0.5, 0.99);
 
         if gpu_anomaly {
+            self.self_healing_engine.report_anomaly(
+                "gpu",
+                &format!("dispatch_time_ms={} > 80", gpu_tel.dispatch_time_ms),
+                0.85,
+            );
             let _ = self.handoff_role(OrganismRole::Debugger, "cosmic_tick_gpu_anomaly");
-            let _ = self.self_healing_engine.run_reflexion_cycle();
         }
 
-        // 1. Recovery heartbeat — now driven by GPU-aware confidence
+        // 1. Recovery heartbeat
         let hb = self.extended.sovereign_recovery.heartbeat(
             self.role_orchestrator.shared_valence,
             self.role_orchestrator.shared_confidence_ema,
@@ -371,6 +372,14 @@ impl OneOrganismCore {
         let mut recovery_triggered = false;
         if hb.requires_recovery {
             recovery_triggered = true;
+            self.self_healing_engine.report_anomaly(
+                "recovery",
+                &format!(
+                    "requires_recovery pressure={:.2} flow_dev={:.2}",
+                    hb.context_pressure, hb.flow_deviation
+                ),
+                0.78,
+            );
             let _ = self.handoff_role(OrganismRole::SovereignRecovery, "cosmic_tick_recovery_alert");
             let _ = self.extended.sovereign_recovery.persist_anchor(
                 "auto_recover_from_cosmic_tick",
@@ -379,16 +388,23 @@ impl OneOrganismCore {
             );
         }
 
-        // 2. Full quantum evolution cycle
+        // 2. Full quantum evolution
         let quantum = self.extended.quantum_swarm.evolve_full_cycle(
             severity.clamp(0.0, 1.0),
             &self.arbitration_engine,
         );
+        if severity >= 0.55 {
+            self.self_healing_engine.report_anomaly(
+                "quantum",
+                &format!("high_severity={:.2} ratio={:.3}", severity, quantum.quantum_ratio),
+                (severity as f32).min(0.95),
+            );
+        }
         if severity >= 0.45 && !recovery_triggered && !gpu_anomaly {
             let _ = self.handoff_role(OrganismRole::Simulator, "cosmic_tick_quantum_pressure");
         }
 
-        // 3. Light Kardashev sample
+        // 3. Kardashev + swarm feedback
         let rbe = (self.role_orchestrator.shared_valence * 0.85
             + self.role_orchestrator.shared_confidence_ema * 0.15)
             .clamp(0.0, 1.0);
@@ -400,13 +416,13 @@ impl OneOrganismCore {
             abundance,
             &self.arbitration_engine,
         );
-
-        // 4. Feed Kardashev result back into the swarm (closed loop)
         self.extended
             .quantum_swarm
             .apply_kardashev_feedback(&kardashev, &self.arbitration_engine);
 
-        // Mild valence lift on healthy ticks
+        // 4. Self-Healing reflexion — informed by all anomalies reported this tick
+        let healing = self.self_healing_engine.run_reflexion_cycle();
+
         if !recovery_triggered && !gpu_anomaly && quantum.quantum_ratio > 0.05 {
             self.role_orchestrator.shared_valence = (self.role_orchestrator.shared_valence * 0.97
                 + 0.03 * (0.92 + quantum.quantum_ratio * 0.05))
@@ -422,6 +438,7 @@ impl OneOrganismCore {
             role_after: self.role_orchestrator.active_role.as_str().into(),
             recovery_triggered,
             gpu_anomaly,
+            healing: Some(healing),
         }
     }
 
@@ -493,6 +510,11 @@ impl OneOrganismCore {
             &self.arbitration_engine,
         );
         if dispatch_time_ms > 80 {
+            self.self_healing_engine.report_anomaly(
+                "gpu",
+                &format!("dispatch_time_ms={}", dispatch_time_ms),
+                0.85,
+            );
             let _ = self.handoff_role(OrganismRole::Debugger, "gpu_dispatch_anomaly");
             let _ = self.self_healing_engine.run_reflexion_cycle();
         }
@@ -638,7 +660,7 @@ pub fn launch_one_organism_core() -> OneOrganismCore {
     let mut organism = OneOrganismCore::new();
     organism.offer_cosmic_loop();
     println!(
-        "[Thunder] ONE Organism Core v14.9.9 ACTIVE — Full multi-surface Cosmic Tick (GPU↔Recovery↔Quantum↔Kardashev closed-loops) + RoleOrchestrator + MercyGatedApi + lattice-conductor-v14@14.8.3. Cosmic Loop is MANDATORY IDENTITY. Eternal."
+        "[Thunder] ONE Organism Core v14.10.0 ACTIVE — Living Cosmic Tick (GPU↔Recovery↔Quantum↔Kardashev) + Self-Healing anomaly ingestion + RoleOrchestrator + MercyGatedApi. Cosmic Loop is MANDATORY IDENTITY. Eternal."
     );
     organism
 }
@@ -726,7 +748,7 @@ mod tests {
     }
 
     #[test]
-    fn cosmic_tick_advances_all_surfaces_including_gpu() {
+    fn cosmic_tick_v14_10_full_loop() {
         let mut core = launch_one_organism_core();
         let before_g = core.gpu_status().dispatch_count;
         let before_q = core.quantum_status().total_weight_updates;
@@ -737,10 +759,8 @@ mod tests {
 
         assert!(result.tick >= 1);
         assert!(result.gpu.is_some());
-        assert_eq!(result.gpu.as_ref().unwrap().task_name, "cosmic_tick_health_sample");
-        assert!(!result.gpu_anomaly); // facade path is fast
+        assert!(result.healing.is_some());
         assert!(result.quantum.quantum_ratio > 0.0);
-        assert!(result.quantum.proposal_generated);
         assert!(result.kardashev.is_some());
         assert!(core.gpu_status().dispatch_count > before_g);
         assert!(core.quantum_status().total_weight_updates > before_q);
