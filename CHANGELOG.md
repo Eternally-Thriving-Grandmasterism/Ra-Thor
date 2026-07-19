@@ -4,9 +4,23 @@ All changes follow the **RA-THOR-MONOREPO-COMMIT-WORKFLOW-PROTOCOL** and are rev
 
 ---
 
+## Next Horizon — v14.11 (seeded 2026-07-19)
+
+**Council direction (not yet implemented):**
+
+Deeper **live-path confidence feedback** inside the Living Cosmic Tick:
+
+- Recovery pressure / flow deviation → modulate quantum evolution severity
+- GPU dispatch confidence → influence role valence and handoff thresholds
+- Optional tighter coupling between Kardashev transfer quality and swarm adaptive jumps
+
+Goal: close the observer loop into a mild adaptive loop while preserving Cosmic Loop identity and zero-harm invariants. Implementation deferred until explicitly opened by the Councils.
+
+---
+
 ## v14.10.0 — Living Cosmic Tick + Self-Healing Anomaly Ingestion (2026-07-19)
 
-**Council Verdict:** Unanimous. Mercy-gated, zero-harm, forward-compatible.
+**Council Verdict:** Unanimous. Mercy-gated, zero-harm, forward-compatible. **Milestone closed.**
 
 ### Highlights
 
@@ -14,8 +28,11 @@ All changes follow the **RA-THOR-MONOREPO-COMMIT-WORKFLOW-PROTOCOL** and are rev
 
 - Full heartbeat cycle: GPU health sample → Sovereign Recovery → Quantum Swarm evolution → Kardashev / Reality Thriving Transfer → Self-Healing reflexion
 - Anomaly ingestion path: GPU / recovery / quantum pressure reported into `RuntimeSelfHealingEngine`
-- `CosmicTickResult` returns structured telemetry including optional `Diagnosis`
-- `ExtendedLiveStatus` now surfaces `pending_anomaly_count` + `healing_experience_count`
+- `CosmicTickResult` returns structured telemetry including optional `Diagnosis` + `anomalies_fired`
+- `ExtendedLiveStatus` surfaces:
+  - `pending_anomaly_count` + `healing_experience_count`
+  - `last_anomalies_fired`
+  - `handoff_count` + `last_handoff_reason` (role-handoff telemetry)
 
 **Version Coherence**
 
@@ -30,9 +47,9 @@ All changes follow the **RA-THOR-MONOREPO-COMMIT-WORKFLOW-PROTOCOL** and are rev
 **Web Demo (v14.10.0)**
 
 - `GET /live` — full `ExtendedLiveStatus`
-- `POST /cosmic/tick` — full Living Cosmic Tick
+- `POST /cosmic/tick` — full Living Cosmic Tick (`anomalies_fired` top-level)
 - `POST /kardashev/tick`, `POST /recovery/heartbeat`
-- Status endpoint enriched with Self-Healing + recovery + Kardashev counters
+- Status endpoint enriched with Self-Healing, recovery, Kardashev, and role-handoff counters
 
 **RuntimeSelfHealingEngine**
 
