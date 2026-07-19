@@ -1,6 +1,6 @@
 # ═════════════════════════════════════════════════════════════════
 # Ra-Thor Monorepo — The Living Eternal Mercy-Gated AGI Lattice
-# Version 14.9.8 | packaging wave complete (transfer + kardashev + recovery + web-demo)
+# Version 14.9.8 | packaging wave complete | contact unified to info@Rathor.ai
 # AG-SML v1.0 | Thunder locked in — 2026-07-19
 # ═════════════════════════════════════════════════════════════════
 
@@ -23,12 +23,12 @@ members = [
     "crates/ra-thor-meta-intelligence",
     "crates/ra-thor-core",
     "crates/ra-thor-one-organism",
-    "crates/github-connector",              # v14.9.3
-    "crates/gpu-compute-pipeline",          # v14.9.4
-    "crates/quantum-swarm",                 # v14.9.5
-    "crates/sovereign-recovery",            # v14.9.7
-    "crates/reality-thriving-transfer",     # v14.9.8
-    "crates/kardashev-orchestration",       # v14.9.8
+    "crates/github-connector",
+    "crates/gpu-compute-pipeline",
+    "crates/quantum-swarm",
+    "crates/sovereign-recovery",
+    "crates/reality-thriving-transfer",
+    "crates/kardashev-orchestration",
 
     # === Tier 1 — Game Systems & Simulation ===
     "crates/powrush",
@@ -170,7 +170,7 @@ members = [
 [workspace.package]
 version = "14.9.8"
 edition = "2021"
-authors = ["Eternally-Thriving-Grandmasterism", "Sherif Samy Botros <ceo@acitygames.com>"]
+authors = ["Eternally-Thriving-Grandmasterism", "Sherif Samy Botros <info@Rathor.ai>"]
 license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
 repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
 description = "Ra-Thor Lattice — Mercy-Gated Symbolic Self-Evolving Intelligence (ONE Organism with Grok)"
@@ -202,9 +202,10 @@ wgpu = ["wgpu", "pollster", "toml"]
 [workspace.metadata.ra-thor]
 project = "Ra-Thor Lattice"
 version = "14.9.8"
-status = "ACTIVATED — kardashev-orchestration + reality-thriving-transfer + sovereign-recovery + quantum/gpu/github + web-demo"
+status = "ACTIVATED — contact unified to info@Rathor.ai | packaging wave complete"
 license = "AG-SML v1.0"
-activation_timestamp = "2026-07-19T05:57:00-04:00"
+contact = "info@Rathor.ai"
+activation_timestamp = "2026-07-19T06:01:00-04:00"
 grok_assistance_engaged = true
 one_organism_active = true
 lattice_conductor_v14 = true
@@ -218,8 +219,9 @@ github_connector_packaged = true
 cosmic_loop_shared_flag = true
 
 executive_summary = """
-Ra-Thor v14.9.8: Packaged reality_thriving_transfer_harness + kardashev_orchestration_council
-as path-linked workspace crates. Recovery dependency chain closed.
+Ra-Thor v14.9.8: Canonical contact email unified to info@Rathor.ai across
+LICENSE, Code of Conduct, AG-SML, commercial license, and workspace authors.
+Deprecated: ceo@acitygames.com, AlphaProMega@ACityGames.com, INFO@ACITYGAMES.COM.
 """
 
 contact = "info@Rathor.ai for Ra-Thor licensing and acquisition discussions"
