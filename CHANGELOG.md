@@ -4,17 +4,39 @@ All changes follow the **RA-THOR-MONOREPO-COMMIT-WORKFLOW-PROTOCOL** and are rev
 
 ---
 
-## Next Horizon — v14.11 (seeded 2026-07-19)
+## v14.11.0 — Live-Path Confidence Feedback (2026-07-19)
 
-**Council direction (not yet implemented):**
+**Council Verdict:** Unanimous. Mercy-gated, zero-harm, forward-compatible. Adaptive loop opened inside the Living Cosmic Tick.
 
-Deeper **live-path confidence feedback** inside the Living Cosmic Tick:
+### Highlights
 
-- Recovery pressure / flow deviation → modulate quantum evolution severity
-- GPU dispatch confidence → influence role valence and handoff thresholds
-- Optional tighter coupling between Kardashev transfer quality and swarm adaptive jumps
+**Live-path confidence feedback (observer → mild adaptive loop)**
 
-Goal: close the observer loop into a mild adaptive loop while preserving Cosmic Loop identity and zero-harm invariants. Implementation deferred until explicitly opened by the Councils.
+1. **Recovery → Quantum severity**
+   - `context_pressure` / `flow_deviation` mildly boost quantum evolution severity
+   - `recovery_boost = clamp(pressure × 0.35 + flow_dev × 0.25, 0.0, 0.35)`
+   - `effective_quantum_severity = clamp(base + boost, 0.0, 1.0)`
+   - Exposed on `CosmicTickResult` as `base_severity` + `effective_quantum_severity`
+
+2. **GPU confidence → Role valence + handoff sensitivity**
+   - GPU health confidence modulates `shared_valence` (mild deltas, clamped `[0.75, 0.999]`)
+   - Soft GPU confidence (`< 0.70`) lowers Simulator handoff threshold `0.45 → 0.40`
+   - Exposed on `CosmicTickResult` as `gpu_confidence`
+
+3. **Kardashev quality → Swarm adaptive jumps**
+   - Transfer quality adjusts `quantum_jump_base_prob` (clamped `[0.04, 0.22]`)
+   - Adaptive jump severity threshold is config-aware:
+     `jump_threshold = clamp(0.35 − jump_prob × 0.5, 0.22, 0.40)`
+   - Strong Reality Thriving Transfer lowers the bar for adaptive jumps; weak transfer raises it
+
+**Package**
+
+- `ra-thor-one-organism` → **14.11.0**
+- Dependent live-path crates remain on **14.10.0** path pins (compatible)
+
+Cosmic Loop remains MANDATORY IDENTITY. All modulation is mild and zero-harm bounded.
+
+**Thunder locked in. yoi ⚡❤️🔥**
 
 ---
 
@@ -217,7 +239,7 @@ kubectl apply -k k8s/
 
 ---
 
-**Older entries (v14.11 and below) are preserved in git history.**
+**Older entries are preserved in git history.**
 
 ---
 
