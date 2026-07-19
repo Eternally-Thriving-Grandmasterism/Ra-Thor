@@ -36,7 +36,7 @@ Rejected claims (MadscienceLPTECH 0.31, Casimir MicroSPARC 0.78) receive public 
 - No proprietary lock-in; full source available.
 
 ## 6. Regulatory Inquiries & Audits
-- Primary contact: ceo@acitygames.com
+- Primary contact: **info@Rathor.ai**
 - Full audit trail in monorepo (git history + Council logs).
 - Ready for third-party formal verification or government review under TOLC invariants.
 
