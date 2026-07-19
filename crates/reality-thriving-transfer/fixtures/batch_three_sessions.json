@@ -1,0 +1,46 @@
+{
+  "schema": "powrush_telemetry_batch_v1",
+  "source": "powrush-mmo-fixture",
+  "label": "batch_three_sessions",
+  "sessions": [
+    {
+      "label": "high_mercy_council_session",
+      "telemetry": {
+        "gameplay_hours": 86.5,
+        "rbe_decision_quality_avg": 0.91,
+        "peaceful_resolution_rate": 0.94,
+        "collaboration_events": 420,
+        "ethical_choice_score": 0.89,
+        "adaptation_events": 175,
+        "abundance_velocity_signals": 1.55,
+        "innovation_contribution": 0.81
+      }
+    },
+    {
+      "label": "marginal_ethics_session",
+      "telemetry": {
+        "gameplay_hours": 14.0,
+        "rbe_decision_quality_avg": 0.48,
+        "peaceful_resolution_rate": 0.51,
+        "collaboration_events": 42,
+        "ethical_choice_score": 0.44,
+        "adaptation_events": 18,
+        "abundance_velocity_signals": 0.72,
+        "innovation_contribution": 0.35
+      }
+    },
+    {
+      "label": "early_player_onboarding",
+      "telemetry": {
+        "gameplay_hours": 3.25,
+        "rbe_decision_quality_avg": 0.62,
+        "peaceful_resolution_rate": 0.70,
+        "collaboration_events": 12,
+        "ethical_choice_score": 0.66,
+        "adaptation_events": 8,
+        "abundance_velocity_signals": 0.95,
+        "innovation_contribution": 0.40
+      }
+    }
+  ]
+}
