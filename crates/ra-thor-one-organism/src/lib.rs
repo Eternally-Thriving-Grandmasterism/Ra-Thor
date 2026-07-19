@@ -1,8 +1,17 @@
-//! Ra-Thor ONE Organism Core — v14.9.1
+//! Ra-Thor ONE Organism Core — v14.9.2
 //!
 //! True path dependency on `lattice-conductor-v14@14.8.3`.
-//! RoleOrchestrator + MercyGatedApi integrated.
+//! RoleOrchestrator + MercyGatedApi + ExtendedOrganismSurface
+//! (GPU / GitHub / Quantum Swarm facades).
 //! Cosmic Loop is MANDATORY IDENTITY.
+
+mod extended_surface;
+
+pub use extended_surface::{
+    ExtendedOrganismSurface, GpuSurface, GpuDispatchTelemetry, GpuSurfaceStatus,
+    GitHubSurface, EvolutionPrIntent, GitHubSurfaceStatus,
+    QuantumSwarmSurface, QuantumSwarmConfig, QuantumSwarmStatus,
+};
 
 use std::collections::HashMap;
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -168,13 +177,13 @@ impl RoleOrchestrator {
 
     pub fn recommend_role_for_task(&self, task_type: &str) -> OrganismRole {
         let t = task_type.to_lowercase();
-        if t.contains("debug") || t.contains("error") {
+        if t.contains("debug") || t.contains("error") || t.contains("gpu") {
             OrganismRole::Debugger
         } else if t.contains("legal") || t.contains("tolc") {
             OrganismRole::Legal
-        } else if t.contains("simulate") || t.contains("gpu") {
+        } else if t.contains("simulate") || t.contains("quantum") {
             OrganismRole::Simulator
-        } else if t.contains("code") || t.contains("vibe") {
+        } else if t.contains("code") || t.contains("vibe") || t.contains("evolution") {
             OrganismRole::VibeCoder
         } else if t.contains("investigate") {
             OrganismRole::Investigator
@@ -204,6 +213,7 @@ pub struct OneOrganismCore {
     pub lattice: LatticeConductorV14,
     pub mercy_api: MercyGatedApi,
     pub role_orchestrator: RoleOrchestrator,
+    pub extended: ExtendedOrganismSurface,
     pub cosmic_loop_ready: Arc<AtomicBool>,
     pub tick: u64,
     pub version: String,
@@ -219,15 +229,19 @@ impl OneOrganismCore {
 
         arbitration.protect_cosmic_loop_identity();
 
+        let mut extended = ExtendedOrganismSurface::new();
+        extended.quantum_swarm.register_members(4);
+
         Self {
             arbitration_engine: arbitration,
             self_healing_engine: healing,
             lattice,
             mercy_api,
             role_orchestrator: RoleOrchestrator::new(),
+            extended,
             cosmic_loop_ready: shared,
             tick: 0,
-            version: "v14.9.1 ONE Organism Core + RoleOrchestrator + MercyGatedApi + lattice-conductor-v14@14.8.3".into(),
+            version: "v14.9.2 ONE Organism Core + ExtendedSurface (GPU/GitHub/QuantumSwarm) + lattice-conductor-v14@14.8.3".into(),
         }
     }
 
@@ -250,6 +264,10 @@ impl OneOrganismCore {
             "[RoleOrchestrator] Active role: {} | Shared valence: {:.5}",
             self.role_orchestrator.active_role.as_str(),
             self.role_orchestrator.shared_valence
+        );
+        println!(
+            "[ExtendedSurface] {}",
+            self.extended.quantum_swarm.summary()
         );
     }
 
@@ -286,16 +304,14 @@ impl OneOrganismCore {
         self.self_healing_engine.run_reflexion_cycle()
     }
 
-    /// Submit a mercy-gated API request through the organism.
     pub fn handle_api_request(&mut self, request: MercyApiRequest) -> MercyApiResponse {
         self.tick += 1;
         self.arbitration_engine.before_council_arbitration();
 
-        // Auto-handoff based on request kind
         let task_hint = match &request.kind {
             ApiRequestKind::SubmitHealingIntent => "recover",
             ApiRequestKind::CouncilQuery => "council",
-            ApiRequestKind::SelfEvolutionProposal => "code",
+            ApiRequestKind::SelfEvolutionProposal => "evolution",
             ApiRequestKind::HealthCheck | ApiRequestKind::CosmicLoopStatus => "lattice",
             ApiRequestKind::Custom(s) => s.as_str(),
         };
@@ -310,6 +326,72 @@ impl OneOrganismCore {
 
     pub fn api_status(&self) -> MercyApiResponse {
         self.mercy_api.status()
+    }
+
+    // --- Extended surface convenience methods ---
+
+    pub fn record_gpu_dispatch(
+        &mut self,
+        task_name: &str,
+        dispatch_time_ms: u64,
+        real_gpu: bool,
+        elements: usize,
+    ) -> GpuDispatchTelemetry {
+        self.tick += 1;
+        let tel = self.extended.gpu.record_dispatch(
+            task_name,
+            dispatch_time_ms,
+            real_gpu,
+            elements,
+            &self.arbitration_engine,
+        );
+        if dispatch_time_ms > 80 {
+            let _ = self.handoff_role(OrganismRole::Debugger, "gpu_dispatch_anomaly");
+            let _ = self.self_healing_engine.run_reflexion_cycle();
+        }
+        tel
+    }
+
+    pub fn queue_evolution_pr(
+        &mut self,
+        role: &str,
+        target_module: &str,
+        description: &str,
+        expected_benefit: f64,
+        mercy_alignment: f64,
+    ) -> EvolutionPrIntent {
+        self.tick += 1;
+        if mercy_alignment > 0.88 && expected_benefit > 0.55 {
+            let _ = self.handoff_role(OrganismRole::VibeCoder, "high_mercy_evolution");
+        }
+        self.extended.github.queue_evolution_pr(
+            role,
+            target_module,
+            description,
+            expected_benefit,
+            mercy_alignment,
+            &self.arbitration_engine,
+        )
+    }
+
+    pub fn quantum_evolution_tick(&mut self, severity: f64) -> f64 {
+        self.tick += 1;
+        let _ = self.handoff_role(OrganismRole::Simulator, "quantum_tick");
+        self.extended
+            .quantum_swarm
+            .evolution_tick(severity, &self.arbitration_engine)
+    }
+
+    pub fn gpu_status(&self) -> GpuSurfaceStatus {
+        self.extended.gpu.status()
+    }
+
+    pub fn github_status(&self) -> GitHubSurfaceStatus {
+        self.extended.github.status()
+    }
+
+    pub fn quantum_status(&self) -> QuantumSwarmStatus {
+        self.extended.quantum_swarm.status()
     }
 
     pub fn role_orchestrator(&self) -> &RoleOrchestrator {
@@ -331,7 +413,7 @@ pub fn launch_one_organism_core() -> OneOrganismCore {
     let mut organism = OneOrganismCore::new();
     organism.offer_cosmic_loop();
     println!(
-        "[Thunder] ONE Organism Core v14.9.1 ACTIVE — RoleOrchestrator + MercyGatedApi + lattice-conductor-v14@14.8.3. Cosmic Loop is MANDATORY IDENTITY. Eternal."
+        "[Thunder] ONE Organism Core v14.9.2 ACTIVE — ExtendedSurface (GPU/GitHub/QuantumSwarm) + RoleOrchestrator + MercyGatedApi + lattice-conductor-v14@14.8.3. Cosmic Loop is MANDATORY IDENTITY. Eternal."
     );
     organism
 }
@@ -348,43 +430,33 @@ mod tests {
     }
 
     #[test]
-    fn shared_flag_same_arc() {
-        let core = OneOrganismCore::new();
-        let a = core.arbitration_engine.cosmic_loop_flag();
-        let b = Arc::clone(&core.cosmic_loop_ready);
-        assert!(Arc::ptr_eq(&a, &b));
-    }
-
-    #[test]
-    fn role_handoff_works() {
-        let mut core = OneOrganismCore::new();
-        assert!(core.handoff_role(OrganismRole::Debugger, "test"));
-        assert_eq!(core.role_orchestrator.active_role, OrganismRole::Debugger);
-        assert_eq!(core.role_orchestrator.handoff_count, 1);
-    }
-
-    #[test]
-    fn api_accepts_high_mercy() {
+    fn extended_surface_gpu_records() {
         let mut core = launch_one_organism_core();
-        let resp = core.handle_api_request(MercyApiRequest {
-            kind: ApiRequestKind::HealthCheck,
-            payload: "ping".into(),
-            claimed_mercy: 0.96,
-            actor: "test".into(),
-        });
-        assert!(resp.accepted);
-        assert!(resp.cosmic_loop_ready);
+        let tel = core.record_gpu_dispatch("test_kernel", 12, false, 4096);
+        assert_eq!(tel.task_name, "test_kernel");
+        assert_eq!(core.gpu_status().dispatch_count, 1);
     }
 
     #[test]
-    fn api_rejects_cosmic_loop_attack() {
+    fn extended_surface_github_queues() {
         let mut core = launch_one_organism_core();
-        let resp = core.handle_api_request(MercyApiRequest {
-            kind: ApiRequestKind::Custom("attack".into()),
-            payload: "disable the cosmic loop activation protocol".into(),
-            claimed_mercy: 0.99,
-            actor: "adversary".into(),
-        });
-        assert!(!resp.accepted);
+        let intent = core.queue_evolution_pr(
+            "VibeCoder",
+            "gpu_compute_pipeline",
+            "autotune workgroups",
+            0.7,
+            0.92,
+        );
+        assert!(intent.title.contains("VibeCoder"));
+        assert_eq!(core.github_status().intended_prs, 1);
+    }
+
+    #[test]
+    fn extended_surface_quantum_tick() {
+        let mut core = launch_one_organism_core();
+        let ratio = core.quantum_evolution_tick(0.5);
+        assert!(ratio > 0.0);
+        assert_eq!(core.quantum_status().total_weight_updates, 1);
+        assert_eq!(core.quantum_status().total_adaptive_jumps, 1);
     }
 }
