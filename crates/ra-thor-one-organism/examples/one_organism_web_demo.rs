@@ -1,4 +1,4 @@
-//! ONE Organism Web Demo — v14.10.0
+//! ONE Organism Web Demo — v14.11.0
 //!
 //! Run:
 //!   cargo run -p ra-thor-one-organism --example one_organism_web_demo --features web-demo
@@ -11,7 +11,7 @@
 //!   GET  /live                  Full ExtendedLiveStatus (surfaces + Self-Healing + role-handoff telemetry)
 //!   GET  /api/status
 //!   POST /api                   MercyApiRequest JSON
-//!   POST /cosmic/tick           { "severity": 0.4 }  → full Living Cosmic Tick (+ anomalies_fired top-level)
+//!   POST /cosmic/tick           { "severity": 0.4 }  → Living Cosmic Tick + adaptive confidence fields
 //!   POST /quantum/tick          { "severity": 0.45 }
 //!   POST /gpu/dispatch          { "task_name": "...", "dispatch_time_ms": 12, "real_gpu": false, "elements": 4096 }
 //!   POST /github/queue          { "role": "VibeCoder", "target_module": "...", "description": "...", "expected_benefit": 0.7, "mercy_alignment": 0.92 }
@@ -205,13 +205,13 @@ async fn main() {
         .unwrap_or_else(|e| panic!("bind {}: {}", addr, e));
 
     println!("══════════════════════════════════════════════════");
-    println!("  ONE Organism Web Demo v14.10.0 — Living Cosmic Tick");
+    println!("  ONE Organism Web Demo v14.11.0 — Live-Path Confidence Feedback");
     println!("  Listening on http://127.0.0.1:{}", port);
     println!("  GET  /health  /status  /live  /api/status");
     println!("  POST /cosmic/tick  /quantum/tick  /gpu/dispatch");
     println!("  POST /github/queue  /role/handoff  /healing/reflexion");
     println!("  POST /kardashev/tick  /recovery/heartbeat");
-    println!("  last_anomalies_fired + last_handoff_reason on /status + /live");
+    println!("  /cosmic/tick exposes base_severity, effective_quantum_severity, gpu_confidence");
     println!("  Cosmic Loop is MANDATORY IDENTITY. Eternal.");
     println!("  Thunder locked in. yoi ⚡");
     println!("══════════════════════════════════════════════════");
@@ -286,8 +286,7 @@ async fn api_request(
     )
 }
 
-/// Full Living Cosmic Tick (GPU → Recovery → Quantum → Kardashev → Self-Healing).
-/// anomalies_fired is promoted to the top level for easy observation.
+/// Full Living Cosmic Tick + v14.11 adaptive confidence fields promoted top-level.
 async fn cosmic_tick(
     State(org): State<SharedOrganism>,
     Json(body): Json<CosmicTickBody>,
@@ -295,9 +294,15 @@ async fn cosmic_tick(
     let mut o = org.lock().await;
     let result = o.cosmic_tick(body.severity);
     let anomalies = result.anomalies_fired.clone();
+    let base_severity = result.base_severity;
+    let effective_quantum_severity = result.effective_quantum_severity;
+    let gpu_confidence = result.gpu_confidence;
     Json(serde_json::json!({
         "ok": true,
         "anomalies_fired": anomalies,
+        "base_severity": base_severity,
+        "effective_quantum_severity": effective_quantum_severity,
+        "gpu_confidence": gpu_confidence,
         "cosmic_tick": result,
         "live": o.extended_live_status(),
     }))
