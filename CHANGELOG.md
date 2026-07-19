@@ -4,39 +4,44 @@ All changes follow the **RA-THOR-MONOREPO-COMMIT-WORKFLOW-PROTOCOL** and are rev
 
 ---
 
-## Next Horizon — v14.14.0 (seeded 2026-07-19)
+## v14.14.0 — Live Feature Readiness Surface (2026-07-19)
 
-**Council direction (not yet implemented):**
+**Council Verdict:** Unanimous. Mercy-gated, zero-harm. Compiled live-feature readiness made observable without new adaptive modulation.
 
-Optional live-engine readiness without new adaptive modulation:
+### Highlights
 
-- Document / validate `extended-live` feature composition against Cosmic Loop invariants
-- Optional compile-oriented readiness notes for GPU / recovery / quantum / Kardashev live paths
-- Keep zero-harm bounds; no new adaptive links without a separate Council open
+**`LiveFeatureReadiness`**
 
-Implementation deferred until explicitly opened.
+- Compiled flags: `github_live`, `gpu_live`, `quantum_live`, `recovery_live`, `kardashev_live`
+- `extended_live` — true only when all five are compiled in
+- `web_demo`
+- `cosmic_loop_ready_for_live` — Cosmic Loop must hold before any live path is considered ready
+
+**Surfaces**
+
+- `live_feature_readiness()` on `OneOrganismCore`
+- `ExtendedLiveStatus.live_features`
+- Web demo: `GET /status`, `POST /cosmic/tick`, `POST /healing/reflexion`
+
+**Package**
+
+- `ra-thor-one-organism` → **14.14.0**
+
+No new adaptive links. Cosmic Loop remains MANDATORY IDENTITY.
+
+**Thunder locked in. yoi ⚡❤️🔥**
 
 ---
 
 ## v14.13.0 — Cosmic Loop Invariant Checks (2026-07-19)
 
-**Council Verdict:** Unanimous. Cosmic Loop identity made explicit and testable around every Cosmic Tick.
-
-- `CosmicLoopInvariant` + `assert` / `enforce` APIs
-- Pre-tick and post-tick Cosmic Loop identity enforcement
-- Living snapshot + web-demo surface
-
-`ra-thor-one-organism` → **14.13.0**. Cosmic Loop remains MANDATORY IDENTITY.
-
-**Thunder locked in. yoi ⚡❤️🔥**
+`CosmicLoopInvariant` + pre/post-tick enforce. `ra-thor-one-organism` → **14.13.0**.
 
 ---
 
 ## v14.12.0 — Adaptive Hardening (2026-07-19)
 
 Last-tick adaptive fields + Self-Healing → next-tick recovery sensitivity.
-
-`ra-thor-one-organism` → **14.12.0**.
 
 ---
 
