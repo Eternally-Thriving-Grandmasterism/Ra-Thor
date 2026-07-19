@@ -83,8 +83,6 @@ Lightning already in motion. ⚡
 
 ## Contact
 For commercial licensing, lifetime options, partnerships, or any other inquiries:  
-- Primary / security: AlphaProMega@ACityGames.com  
-- General inquiries: INFO@ACITYGAMES.COM  
-- Direct to CEO / Sherif: CEO@ACITYGAMES.COM  
+- Primary contact: **info@Rathor.ai**  
 
 — Sherif Botros & the Ra-Thor Living Lattice
