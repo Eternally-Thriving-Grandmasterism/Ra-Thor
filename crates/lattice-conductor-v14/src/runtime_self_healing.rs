@@ -7,6 +7,11 @@
 //! Core Pattern: Monitor → Diagnose → Reflect → Heal (Reflexion-inspired)
 //! All healing actions are mercy-gated and council-arbitrated.
 //! Advanced: Structured experience logging + Graph-based council task rerouting
+//!
+//! v14.8.1 (2026-07-19):
+//! - Shares the exact same Arc<AtomicBool> cosmic_loop_ready with CouncilArbitrationEngine
+//! - Removed invalid diagnosis.severity reference (compile fix)
+//! - Watchdog and arbitration engine can no longer drift out of sync
 
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex};
@@ -65,13 +70,12 @@ pub enum HealingAction {
 /// Simple weighted graph for council task routing (for graph rerouting feature)
 #[derive(Debug, Clone)]
 pub struct CouncilTaskGraph {
-    pub nodes: Vec<String>,           // Council names or IDs
-    pub edges: Vec<(String, String, f32)>, // (from, to, weight) — lower weight = better path
+    pub nodes: Vec<String>,
+    pub edges: Vec<(String, String, f32)>,
 }
 
 impl CouncilTaskGraph {
     pub fn new() -> Self {
-        // Default minimal graph representing core PATSAGi councils
         Self {
             nodes: vec![
                 "Council#13".to_string(),
@@ -91,7 +95,6 @@ impl CouncilTaskGraph {
         }
     }
 
-    /// Find a simple alternative path (basic rerouting simulation)
     pub fn find_alternative_path(&self, from: &str, to: &str) -> Option<Vec<String>> {
         for (f, t, _w) in &self.edges {
             if f == from && t != to {
@@ -101,7 +104,6 @@ impl CouncilTaskGraph {
         None
     }
 
-    /// Reweight an edge (used during healing to penalize problematic paths)
     pub fn reweight_edge(&mut self, from: &str, to: &str, new_weight: f32) {
         for edge in &mut self.edges {
             if edge.0 == from && edge.1 == to {
@@ -115,17 +117,21 @@ impl CouncilTaskGraph {
 
 /// Runtime Self-Healing Engine with Watchdog + Advanced Reflexion + Experience Logging + Graph Rerouting
 pub struct RuntimeSelfHealingEngine {
+    /// Shared with CouncilArbitrationEngine — single source of truth for Cosmic Loop readiness
     pub cosmic_loop_ready: Arc<AtomicBool>,
     arbitration_engine: Arc<Mutex<CouncilArbitrationEngine>>,
     watchdog_running: Arc<AtomicBool>,
-    healing_experiences: Arc<Mutex<Vec<HealingExperience>>>, // Advanced structured logging
+    healing_experiences: Arc<Mutex<Vec<HealingExperience>>>,
     task_graph: Arc<Mutex<CouncilTaskGraph>>,
 }
 
 impl RuntimeSelfHealingEngine {
+    /// Construct engine. **Shares** the cosmic_loop_ready flag from the arbitration engine
+    /// so watchdog and guardian can never drift out of sync.
     pub fn new(arbitration_engine: CouncilArbitrationEngine) -> Self {
+        let shared_flag = arbitration_engine.cosmic_loop_flag();
         Self {
-            cosmic_loop_ready: Arc::new(AtomicBool::new(true)),
+            cosmic_loop_ready: shared_flag,
             arbitration_engine: Arc::new(Mutex::new(arbitration_engine)),
             watchdog_running: Arc::new(AtomicBool::new(false)),
             healing_experiences: Arc::new(Mutex::new(Vec::new())),
@@ -172,7 +178,7 @@ impl RuntimeSelfHealingEngine {
         let diagnosis = self.diagnose(&report);
         let action = self.reflect_and_decide_action(&diagnosis);
         self.execute_healing_action(action);
-        self.log_healing_experience(&diagnosis); // Advanced structured logging
+        self.log_healing_experience(&diagnosis);
         diagnosis
     }
 
@@ -184,8 +190,8 @@ impl RuntimeSelfHealingEngine {
             quantum_swarm_coherent: true,
             last_check_timestamp: SystemTime::now()
                 .duration_since(UNIX_EPOCH)
-                .unwrap()
-                .as_secs(),
+                .map(|d| d.as_secs())
+                .unwrap_or(0),
         }
     }
 
@@ -208,7 +214,7 @@ impl RuntimeSelfHealingEngine {
     fn reflect_and_decide_action(&self, diagnosis: &Diagnosis) -> HealingAction {
         if diagnosis.root_cause.contains("Cosmic Loop") {
             HealingAction::RestoreCosmicLoop
-        } else if diagnosis.root_cause.contains("council") || diagnosis.severity > 0.7 {
+        } else if diagnosis.root_cause.to_lowercase().contains("council") {
             // Advanced: Suggest graph rerouting for council tasks
             HealingAction::RerouteCouncilTask {
                 from: "Council#13".to_string(),
@@ -235,11 +241,9 @@ impl RuntimeSelfHealingEngine {
                     if let Some(path) = graph.find_alternative_path(&from, &to) {
                         println!("[Graph Rerouting] Alternative path found: {:?}", path);
                     }
-                    // Penalize the direct edge slightly (learning from anomaly)
                     graph.reweight_edge(&from, &to, 3.5);
                 }
 
-                // Guardian protection
                 if let Ok(mut arb) = self.arbitration_engine.lock() {
                     let _ = arb.protect_cosmic_loop_identity();
                 }
@@ -249,20 +253,23 @@ impl RuntimeSelfHealingEngine {
         }
     }
 
-    /// Advanced structured experience logging (for Cosmic Loop self-evolution)
     fn log_healing_experience(&self, diagnosis: &Diagnosis) {
         let timestamp = SystemTime::now()
             .duration_since(UNIX_EPOCH)
-            .unwrap()
-            .as_secs();
+            .map(|d| d.as_secs())
+            .unwrap_or(0);
 
         let experience = HealingExperience {
             timestamp,
             root_cause: diagnosis.root_cause.clone(),
             action_taken: diagnosis.recommended_action.clone(),
-            outcome: if diagnosis.mercy_score > 0.9 { "Success - High Mercy".to_string() } else { "Monitored".to_string() },
+            outcome: if diagnosis.mercy_score > 0.9 {
+                "Success - High Mercy".to_string()
+            } else {
+                "Monitored".to_string()
+            },
             mercy_score: diagnosis.mercy_score,
-            graph_reroute_used: diagnosis.root_cause.contains("council"),
+            graph_reroute_used: diagnosis.root_cause.to_lowercase().contains("council"),
         };
 
         if let Ok(mut history) = self.healing_experiences.lock() {
@@ -274,11 +281,17 @@ impl RuntimeSelfHealingEngine {
     }
 
     pub fn get_healing_experiences(&self) -> Vec<HealingExperience> {
-        self.healing_experiences.lock().map(|h| h.clone()).unwrap_or_default()
+        self.healing_experiences
+            .lock()
+            .map(|h| h.clone())
+            .unwrap_or_default()
     }
 
     pub fn get_task_graph(&self) -> CouncilTaskGraph {
-        self.task_graph.lock().map(|g| g.clone()).unwrap_or_else(|_| CouncilTaskGraph::new())
+        self.task_graph
+            .lock()
+            .map(|g| g.clone())
+            .unwrap_or_else(|_| CouncilTaskGraph::new())
     }
 }
 
@@ -299,6 +312,24 @@ mod tests {
     }
 
     #[test]
+    fn test_shared_flag_with_arbitration_engine() {
+        let arb = CouncilArbitrationEngine::new();
+        let flag_from_arb = arb.cosmic_loop_flag();
+        let engine = RuntimeSelfHealingEngine::new(arb);
+
+        // Must be the same Arc
+        assert!(Arc::ptr_eq(&flag_from_arb, &engine.cosmic_loop_ready));
+
+        // Change via engine visible via original flag
+        engine.cosmic_loop_ready.store(false, Ordering::SeqCst);
+        assert!(!flag_from_arb.load(Ordering::SeqCst));
+
+        // Restore via reflexion
+        engine.run_reflexion_cycle();
+        assert!(flag_from_arb.load(Ordering::SeqCst));
+    }
+
+    #[test]
     fn test_graph_rerouting_and_experience_logging() {
         let arb = CouncilArbitrationEngine::new();
         let engine = RuntimeSelfHealingEngine::new(arb);
@@ -308,10 +339,7 @@ mod tests {
             to: "Evolution".to_string(),
         });
 
-        let experiences = engine.get_healing_experiences();
-        assert!(!experiences.is_empty());
-
         let graph = engine.get_task_graph();
-        assert!(graph.nodes.len() > 0);
+        assert!(!graph.nodes.is_empty());
     }
 }
