@@ -13,11 +13,14 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 use std::time::{SystemTime, UNIX_EPOCH};
 
+use serde::{Deserialize, Serialize};
+
 use crate::distributed_mercy_mesh::MercyGate;
 use crate::CouncilArbitrationEngine;
 
 /// Kind of request accepted by the mercy-gated API.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
 pub enum ApiRequestKind {
     HealthCheck,
     CosmicLoopStatus,
@@ -28,7 +31,7 @@ pub enum ApiRequestKind {
 }
 
 /// Inbound request.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MercyApiRequest {
     pub kind: ApiRequestKind,
     pub payload: String,
@@ -37,14 +40,15 @@ pub struct MercyApiRequest {
 }
 
 /// Outcome of a gated evaluation.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
 pub enum GateDecision {
     Allowed,
     Rejected { reason: String },
 }
 
 /// Outbound response.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MercyApiResponse {
     pub accepted: bool,
     pub decision: GateDecision,
