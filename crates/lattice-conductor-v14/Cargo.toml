@@ -1,8 +1,8 @@
 [package]
 name = "lattice-conductor-v14"
-version = "14.8.1"
+version = "14.8.2"
 edition = "2021"
-description = "Lattice Conductor v14.8.1 — CouncilArbitrationEngine + Runtime Self-Healing (shared Cosmic Loop flag) + Distributed Mercy Mesh (ONE Organism / TOLC 8)"
+description = "Lattice Conductor v14.8.2 — CouncilArbitrationEngine + RuntimeSelfHealing (shared Cosmic Loop) + Distributed Mercy Mesh + restored healing surface (ONE Organism / TOLC 8)"
 license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
 authors = ["Eternally-Thriving-Grandmasterism", "Sherif Samy Botros <ceo@acitygames.com>"]
 
