@@ -1,8 +1,8 @@
 [package]
 name = "reality-thriving-transfer"
-version = "14.9.8"
+version = "14.10.0"
 edition = "2021"
-description = "Ra-Thor Reality Thriving Transfer Score closed feedback loop + Kardashev benchmark harness"
+description = "Ra-Thor Reality Thriving Transfer Score closed feedback loop + Kardashev benchmark harness (Living Cosmic Tick)"
 license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
 authors = ["Eternally-Thriving-Grandmasterism", "Sherif Samy Botros <info@Rathor.ai>"]
 
