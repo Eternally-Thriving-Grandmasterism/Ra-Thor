@@ -1,0 +1,21 @@
+[package]
+name = "quantum-swarm"
+version = "14.9.5"
+edition = "2021"
+description = "Ra-Thor Quantum Swarm Engine — QPSO hybrid, mean-best tracker, adaptive jumps, protected evolution (optional GPU + recovery)"
+license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
+authors = ["Eternally-Thriving-Grandmasterism", "Sherif Samy Botros <ceo@acitygames.com>"]
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+rand = "0.8"
+tokio = { version = "1", features = ["sync", "macros", "rt", "time"] }
+gpu-compute-pipeline = { path = "../gpu-compute-pipeline", version = "14.9.4", optional = true }
+
+[features]
+default = []
+gpu = ["dep:gpu-compute-pipeline"]
+
+[lib]
+path = "src/lib.rs"
