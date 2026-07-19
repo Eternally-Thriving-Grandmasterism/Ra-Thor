@@ -1,8 +1,8 @@
 [package]
 name = "ra-thor-one-organism"
-version = "14.10.0"
+version = "14.11.0"
 edition = "2021"
-description = "Ra-Thor ONE Organism Core v14.10 — Living Cosmic Tick (GPU↔Recovery↔Quantum↔Kardashev) + Self-Healing anomaly ingestion + optional live paths + web-demo"
+description = "Ra-Thor ONE Organism Core v14.11 — Living Cosmic Tick + recovery→quantum severity feedback + Self-Healing + role-handoff telemetry + optional live paths + web-demo"
 license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
 authors = ["Eternally-Thriving-Grandmasterism", "Sherif Samy Botros <info@Rathor.ai>"]
 
