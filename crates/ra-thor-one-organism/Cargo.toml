@@ -1,8 +1,8 @@
 [package]
 name = "ra-thor-one-organism"
-version = "14.12.0"
+version = "14.13.0"
 edition = "2021"
-description = "Ra-Thor ONE Organism Core v14.12 — Living Cosmic Tick + live-path confidence feedback + last-tick adaptive fields on living snapshot + optional live paths + web-demo"
+description = "Ra-Thor ONE Organism Core v14.13 — Living Cosmic Tick + adaptive hardening + Cosmic Loop invariant checks + optional live paths + web-demo"
 license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
 authors = ["Eternally-Thriving-Grandmasterism", "Sherif Samy Botros <info@Rathor.ai>"]
 
