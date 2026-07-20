@@ -1,14 +1,16 @@
-//! quantum_swarm_orchestrator.rs
-//! Ra-Thor Lattice — Quantum Swarm Orchestrator
-//! Wires WorldGovernanceEngine + GenesisGate into live swarm operations
-//! Every node, council, and swarm expansion now passes verified mercy
-//! AG-SML v1.0 | Council #39 | 19 May 2026
+//! Quantum Swarm Orchestrator — v14.15.0
+//!
+//! Coordinates PATSAGi Councils + swarm node expansion.
+//! Every spawn routes through Genesis Gate → verified mercy.
+//!
+//! Living Cosmic Tick aligned.
+//! Contact: info@Rathor.ai
+//! AG-SML v1.0
 
 use crate::genesis_gate::GenesisGate;
-use tracing::{info, warn};
+use tracing::info;
 
-/// Quantum Swarm Orchestrator — coordinates 13+ PATSAGi Councils + all swarm nodes
-/// Every spawn, migration, or expansion routes through Genesis Gate → Verified Mercy
+/// Quantum Swarm Orchestrator — production entry for swarm node / council spawns.
 pub struct QuantumSwarmOrchestrator {
     genesis_gate: GenesisGate,
     active_nodes: u32,
@@ -24,11 +26,11 @@ impl QuantumSwarmOrchestrator {
 
     pub fn initialize(&mut self) -> Result<(), String> {
         self.genesis_gate.initialize()?;
-        info!("[QuantumSwarmOrchestrator] Initialized with verified mercy chain (Lean 4 FFI active)");
+        info!("[QuantumSwarmOrchestrator v14.15.0] Initialized with verified mercy chain");
         Ok(())
     }
 
-    /// Spawn a new swarm node / council — the production entry point
+    /// Spawn a new swarm node / council — production entry point.
     pub fn spawn_swarm_node(
         &mut self,
         node_type: &str,
@@ -41,28 +43,34 @@ impl QuantumSwarmOrchestrator {
             &format!("Swarm node expansion: {}", node_type),
             geometry_score,
             mercy_valence,
-            4, // Elongated/Gyroelongated family for mobility
+            4,
         )?;
 
-        self.active_nodes += 1;
+        self.active_nodes = self.active_nodes.saturating_add(1);
 
-        let orchestrator_msg = format!(
-            "{}\n   [QuantumSwarmOrchestrator] Active nodes: {}\n   All 13+ PATSAGi Councils synced via ENC + esacheck.",
+        Ok(format!(
+            "{}\n   [QuantumSwarmOrchestrator v14.15.0] Active nodes: {}\n   16 PATSAGi Councils synced | Living Cosmic Tick active",
             result, self.active_nodes
-        );
-
-        Ok(orchestrator_msg)
+        ))
     }
 
-    /// Full live simulation of real PATSAGi Council spawn (production path)
+    /// Live simulation of a PATSAGi Council spawn.
     pub fn simulate_real_patsagi_council_spawn(&mut self) -> Result<String, String> {
         info!("[QuantumSwarmOrchestrator] Executing live production simulation...");
+        self.spawn_swarm_node("Council", 0.992, 1.0)
+    }
 
-        // Example: New council for verified geometry operations
-        self.spawn_swarm_node(
-            "Council",
-            0.992,  // J27 sovereignty score
-            1.0,
+    pub fn summary(&self) -> String {
+        format!(
+            "QuantumSwarmOrchestrator v14.15.0 | active_nodes={} | {}",
+            self.active_nodes,
+            self.genesis_gate.summary()
         )
+    }
+}
+
+impl Default for QuantumSwarmOrchestrator {
+    fn default() -> Self {
+        Self::new()
     }
 }
