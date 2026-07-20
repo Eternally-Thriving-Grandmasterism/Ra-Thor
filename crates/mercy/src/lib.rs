@@ -1,15 +1,20 @@
 /*!
 # Mercy Crate — Core Mercy Lattice for Ra-Thor ONE Organism
 
-Implements `Conductable` + `MercyAligned` via lattice-conductor-v14 `v13-compat`.
-Quiet-hold migration from lattice-conductor-v13 (see MIGRATION_v13_to_v14.md).
+- **Compat path:** `Conductable` + `MercyAligned` via lattice-conductor-v14 `v13-compat`
+- **Native path (Phase 4 dual):** optional `LatticeConductorV14` hooks for Cosmic Loop
+  enforcement + self-healing / mercy-mesh signals — no adaptive modulation changes
 
+See `crates/lattice-conductor-v14/MIGRATION_v13_to_v14.md`.
 AG-SML aligned. Mercy First. TOLC 8 enforced.
 Contact: info@Rathor.ai
 */
 
 use lattice_conductor_v14::compat_v13::{
     Conductable, GeometricState, MercyAligned, MercyWeightedVote, SimpleLatticeConductor,
+};
+use lattice_conductor_v14::{
+    CouncilArbitrationEngine, LatticeConductorV14, RuntimeSelfHealingEngine,
 };
 
 /// Foundational Mercy Core subsystem.
@@ -21,6 +26,8 @@ pub struct MercyCore {
     coherence: f64,
     influence_history: Vec<f64>,
     evolution_participation: f64,
+    /// True after at least one successful native v14 Cosmic Loop guard.
+    cosmic_loop_witnessed: bool,
 }
 
 impl MercyCore {
@@ -32,6 +39,7 @@ impl MercyCore {
             coherence: 1.0,
             influence_history: Vec::new(),
             evolution_participation: 0.0,
+            cosmic_loop_witnessed: false,
         }
     }
 
@@ -45,8 +53,13 @@ impl MercyCore {
     pub fn get_coherence(&self) -> f64 {
         self.coherence
     }
+
     pub fn get_evolution_participation(&self) -> f64 {
         self.evolution_participation
+    }
+
+    pub fn has_witnessed_cosmic_loop(&self) -> bool {
+        self.cosmic_loop_witnessed
     }
 
     pub fn simulate_conductor_integration(&mut self, valence: f64, mercy_influence: f64) {
@@ -56,6 +69,50 @@ impl MercyCore {
 
     pub fn influence_history_len(&self) -> usize {
         self.influence_history.len()
+    }
+
+    // ── Native v14 path (Phase 4 dual — additive, quiet-hold) ──
+
+    /// Enforce Cosmic Loop via arbitration, then apply a mild mercy pulse if ready.
+    /// Does not alter adaptive feedback fields outside this subsystem.
+    pub fn pulse_with_v14_guard(&mut self, conductor: &LatticeConductorV14) {
+        conductor.enforce_cosmic_loop_activation();
+        conductor.arbitration_engine.before_council_arbitration();
+
+        if conductor.arbitration_engine.is_cosmic_loop_ready() {
+            self.cosmic_loop_witnessed = true;
+            // Fixed mild pulse — not tied to recovery/quantum adaptive loops
+            self.pulse_mercy(0.01);
+        }
+    }
+
+    /// Request a self-healing reflexion cycle; returns whether a diagnosis was produced.
+    pub fn request_reflexion(&self, conductor: &LatticeConductorV14) -> bool {
+        conductor
+            .run_reflexion_cycle()
+            .map(|_| true)
+            .unwrap_or(false)
+    }
+
+    /// Propagate a healing signal on the mercy mesh scaled by inverse mercy
+    /// (lower mercy → higher severity), clamped to a quiet range.
+    pub fn signal_mercy_mesh(&self, conductor: &LatticeConductorV14) {
+        let severity = (1.5 - self.mercy_score).clamp(0.05, 0.5);
+        conductor.trigger_mercy_mesh_healing(severity);
+    }
+
+    /// One native orchestration step: Cosmic Loop guard + optional mesh signal.
+    pub fn native_v14_step(&mut self, conductor: &mut LatticeConductorV14) {
+        self.pulse_with_v14_guard(conductor);
+        self.signal_mercy_mesh(conductor);
+        let _ = self.request_reflexion(conductor);
+    }
+
+    /// Convenience: stand up a fresh v14 conductor and run one native step.
+    pub fn native_v14_self_check(&mut self) -> bool {
+        let mut conductor = LatticeConductorV14::new();
+        self.native_v14_step(&mut conductor);
+        self.cosmic_loop_witnessed && conductor.arbitration_engine.is_cosmic_loop_ready()
     }
 }
 
@@ -157,9 +214,39 @@ mod tests {
         core.on_conductor_tick(&state);
         assert!(core.current_mercy_score() > 0.0);
     }
+
+    #[test]
+    fn test_native_v14_cosmic_loop_guard() {
+        let mut core = MercyCore::new();
+        assert!(!core.has_witnessed_cosmic_loop());
+
+        let conductor = LatticeConductorV14::new();
+        core.pulse_with_v14_guard(&conductor);
+
+        assert!(core.has_witnessed_cosmic_loop());
+        assert!(conductor.arbitration_engine.is_cosmic_loop_ready());
+        assert!(core.current_mercy_score() >= 0.98);
+    }
+
+    #[test]
+    fn test_native_v14_self_check() {
+        let mut core = MercyCore::new();
+        assert!(core.native_v14_self_check());
+        assert!(core.has_witnessed_cosmic_loop());
+    }
+
+    #[test]
+    fn test_arbitration_engine_blocks_disable() {
+        let engine = CouncilArbitrationEngine::new();
+        let decision = engine.arbitrate_cosmic_loop_change("disable the cosmic loop");
+        assert!(matches!(
+            decision,
+            lattice_conductor_v14::council_arbitration::ArbitrationDecision::Blocked { .. }
+        ));
+    }
 }
 
-/// Integration demos against v13-compat SimpleLatticeConductor (v14-backed).
+/// Integration demos — compat + native dual path.
 pub mod examples {
     use super::*;
 
@@ -198,5 +285,23 @@ pub mod examples {
             );
         }
         println!("MercyCore successfully wired on lattice-conductor-v14 v13-compat.\n");
+    }
+
+    pub fn demonstrate_native_v14_path() {
+        let mut mercy = MercyCore::new();
+        let mut conductor = LatticeConductorV14::new();
+
+        println!("\n=== Native v14 Dual-Path Demo ===");
+        for i in 0..3 {
+            mercy.native_v14_step(&mut conductor);
+            println!(
+                "Native step {} | Mercy: {:.3} | CosmicLoop witnessed: {} | Ready: {}",
+                i,
+                mercy.current_mercy_score(),
+                mercy.has_witnessed_cosmic_loop(),
+                conductor.arbitration_engine.is_cosmic_loop_ready()
+            );
+        }
+        println!("Native LatticeConductorV14 path exercised (compat traits retained).\n");
     }
 }
