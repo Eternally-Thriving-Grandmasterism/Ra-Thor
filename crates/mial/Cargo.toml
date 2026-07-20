@@ -1,16 +1,18 @@
 [package]
 name = "mial"
-version = "13.13.0"
+version = "14.15.0"
 edition = "2021"
-authors = ["Ra-Thor Living Thunder <eternally-thriving@grandmasterism>"]
-description = "Mercy-Augmented Intelligence Amplification Layer (MIAL) v13.13.0 — Lattice-governed intelligence amplification for Ra-Thor"
-license = "MIT OR Apache-2.0"
+authors = ["Sherif Samy Botros <info@Rathor.ai>", "Eternally-Thriving-Grandmasterism"]
+description = "Mercy-Augmented Intelligence Amplification Layer (MIAL) — Lattice-governed intelligence amplification + geometry mercy evaluation for Ra-Thor. Living Cosmic Tick + ONE Organism 14.15.0 readiness."
+license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
 repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
-keywords = ["agi", "safety", "mercy", "alignment", "patsagi"]
-categories = ["science"]
+keywords = ["agi", "safety", "mercy", "alignment", "patsagi", "geometry", "one-organism"]
+categories = ["science", "simulation"]
 
 [dependencies]
-mercy_gating_runtime = { path = "../mercy_gating_runtime", version = "13.12.0" }
+mercy_gating_runtime = { path = "../mercy_gating_runtime" }
+nalgebra = { version = "0.33", features = ["serde-serialize"] }
+thiserror = "1.0"
 serde = { version = "1.0", features = ["derive"], optional = true }
 serde_json = { version = "1.0", optional = true }
 
