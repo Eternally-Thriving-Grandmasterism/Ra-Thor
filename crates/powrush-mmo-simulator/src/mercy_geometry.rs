@@ -14,6 +14,9 @@ use mial::mwpo::{
 };
 use mercy_threshold_wasm::MercyThresholdBridge;
 
+// Re-export the score type so downstream crates can use it cleanly
+pub use mial::mwpo::MercyGeometryScore;
+
 // =============================================================================
 // Core evaluation type
 // =============================================================================
