@@ -1,9 +1,14 @@
-// PATSAGi Bridge — ProposalHandler trait + council specializations
-// Ra-Thor monorepo (AG-SML v1.0)
-// Mercy-gated, TOLC-aligned, eternally self-evolving
+//! PATSAGi Bridge — v14.15.0
+//!
+//! ProposalHandler trait + specialized council bridges.
+//! Mercy-gated, TOLC-aligned, Living Cosmic Tick ready.
+//!
+//! Contact: info@Rathor.ai
+//! AG-SML v1.0
 
 use crate::LatticeConductor;
 
+/// Trait for any surface that can handle a governance proposal.
 pub trait ProposalHandler {
     fn handle(&mut self, proposal: &str) -> String;
 }
@@ -11,21 +16,49 @@ pub trait ProposalHandler {
 /// Bridge between PATSAGi Councils and the Lattice Conductor.
 pub struct PatsagiBridge {
     conductor: LatticeConductor,
+    proposals_handled: u64,
 }
 
 impl PatsagiBridge {
     pub fn new() -> Self {
         Self {
             conductor: LatticeConductor::new(),
+            proposals_handled: 0,
         }
     }
 
     pub fn submit_proposal(&mut self, proposal: &str) -> String {
+        self.proposals_handled = self.proposals_handled.saturating_add(1);
+
         if !self.conductor.mercy.mercy_gate_audit(proposal) {
-            return format!("PATSAGi Proposal REJECTED by Mercy Gates: {}", proposal);
+            return format!(
+                "PATSAGi Proposal REJECTED by Mercy Gates (v14.15.0): {}",
+                proposal
+            );
         }
-        let result = self.conductor.tick(proposal).unwrap_or_else(|e| e);
-        format!("PATSAGi Proposal EXECUTED: {} | Result: {}", proposal, result)
+
+        let result = self
+            .conductor
+            .tick(proposal)
+            .unwrap_or_else(|e| e);
+
+        format!(
+            "PATSAGi Proposal EXECUTED (v14.15.0): {} | Result: {} | Living Cosmic Tick active",
+            proposal, result
+        )
+    }
+
+    pub fn summary(&self) -> String {
+        format!(
+            "PatsagiBridge v14.15.0 | proposals_handled={} | Living Cosmic Tick active",
+            self.proposals_handled
+        )
+    }
+}
+
+impl Default for PatsagiBridge {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
@@ -35,7 +68,9 @@ impl ProposalHandler for PatsagiBridge {
     }
 }
 
-// === Specific Council Types ===
+// =============================================================================
+// Specialized Council Types
+// =============================================================================
 
 pub struct ArchitecturalCouncil {
     bridge: PatsagiBridge,
@@ -46,6 +81,12 @@ impl ArchitecturalCouncil {
         Self {
             bridge: PatsagiBridge::new(),
         }
+    }
+}
+
+impl Default for ArchitecturalCouncil {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
@@ -68,6 +109,12 @@ impl MercyCouncil {
     }
 }
 
+impl Default for MercyCouncil {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl ProposalHandler for MercyCouncil {
     fn handle(&mut self, proposal: &str) -> String {
         let enhanced = format!("MERCY-FOCUSED: {}", proposal);
@@ -84,6 +131,12 @@ impl EvolutionCouncil {
         Self {
             bridge: PatsagiBridge::new(),
         }
+    }
+}
+
+impl Default for EvolutionCouncil {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
