@@ -10,12 +10,12 @@ authors = ["Eternally-Thriving-Grandmasterism", "Sherif Samy Botros <info@Rathor
 lattice-conductor-v14 = { path = "../lattice-conductor-v14", version = "14.15.0" }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-github-connector = { path = "../github-connector", version = "14.10.0", optional = true }
-gpu-compute-pipeline = { path = "../gpu-compute-pipeline", version = "14.10.0", optional = true }
-quantum-swarm = { path = "../quantum-swarm", version = "14.10.0", optional = true }
-sovereign-recovery = { path = "../sovereign-recovery", version = "14.10.0", optional = true }
-reality-thriving-transfer = { path = "../reality-thriving-transfer", version = "14.10.0", optional = true }
-kardashev-orchestration = { path = "../kardashev-orchestration", version = "14.10.0", optional = true }
+github-connector = { path = "../github-connector", version = "14.15.0", optional = true }
+gpu-compute-pipeline = { path = "../gpu-compute-pipeline", version = "14.15.0", optional = true }
+quantum-swarm = { path = "../quantum-swarm", version = "14.15.0", optional = true }
+sovereign-recovery = { path = "../sovereign-recovery", version = "14.15.0", optional = true }
+reality-thriving-transfer = { path = "../reality-thriving-transfer", version = "14.15.0", optional = true }
+kardashev-orchestration = { path = "../kardashev-orchestration", version = "14.15.0", optional = true }
 tokio = { version = "1", features = ["full"], optional = true }
 axum = { version = "0.7", optional = true }
 
