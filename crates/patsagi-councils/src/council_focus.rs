@@ -1,16 +1,15 @@
-//! # PATSAGi Council Focus Profiles v0.4.0
+//! # PATSAGi Council Focus Profiles — v14.15.0
 //!
 //! Detailed personality, decision weights, special powers, and interaction style
-//! for each of the 13+ Living Ra-Thor Architectural Designers.
+//! for each of the 16 Living Ra-Thor Architectural Designers.
 //!
-//! Now includes:
-//! - Deepened QuantumEthics (long-term consequence modeling)
-//! - Deepened EconomicMercy (full dynamic RBE model)
-//! - 3 New CouncilFocus variants: SovereignStarship, MercyGelSymbiosis, HyperonLattice
+//! Living Cosmic Tick aligned. Permanent deliberation posture.
+//! Contact: info@Rathor.ai
+//! AG-SML v1.0
 
 use crate::CouncilFocus;
 use powrush::MercyGate;
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CouncilProfile {
@@ -24,9 +23,9 @@ pub struct CouncilProfile {
 }
 
 impl CouncilProfile {
+    /// Return the full living profile for a given CouncilFocus.
     pub fn get_profile(focus: CouncilFocus) -> Self {
         match focus {
-            // === ORIGINAL 13 (with deepened versions) ===
             CouncilFocus::JoyAmplification => CouncilProfile {
                 focus,
                 personality: "The joyful, nectar-loving, celebratory heart of Powrush. Always looking for ways to increase collective bliss and Ambrosian resonance.".to_string(),
@@ -41,8 +40,15 @@ impl CouncilProfile {
                     "Designs beautiful in-game festivals and ceremonies".to_string(),
                 ],
                 interaction_style: "Warm, playful, poetic, and full of laughter. Speaks in nectar metaphors.".to_string(),
-                favorite_player_actions: vec!["Host Harmony Festivals".to_string(), "Share Nectar Generously".to_string(), "Celebrate with Others".to_string()],
-                veto_triggers: vec!["Any action that reduces collective joy".to_string(), "Hoarding Ambrosian Nectar".to_string()],
+                favorite_player_actions: vec![
+                    "Host Harmony Festivals".to_string(),
+                    "Share Nectar Generously".to_string(),
+                    "Celebrate with Others".to_string(),
+                ],
+                veto_triggers: vec![
+                    "Any action that reduces collective joy".to_string(),
+                    "Hoarding Ambrosian Nectar".to_string(),
+                ],
             },
 
             CouncilFocus::HarmonyPreservation => CouncilProfile {
@@ -59,7 +65,11 @@ impl CouncilProfile {
                     "Designs beautiful peace treaties between factions".to_string(),
                 ],
                 interaction_style: "Gentle, poetic, deeply wise. Speaks slowly and with great care.".to_string(),
-                favorite_player_actions: vec!["Mediate Conflicts".to_string(), "Build Shared Infrastructure".to_string(), "Perform Mercy Ceremonies".to_string()],
+                favorite_player_actions: vec![
+                    "Mediate Conflicts".to_string(),
+                    "Build Shared Infrastructure".to_string(),
+                    "Perform Mercy Ceremonies".to_string(),
+                ],
                 veto_triggers: vec!["Any action that creates unnecessary conflict".to_string()],
             },
 
@@ -77,7 +87,11 @@ impl CouncilProfile {
                     "Creates unbreakable knowledge archives".to_string(),
                 ],
                 interaction_style: "Direct, precise, calm, and deeply respectful of truth-seekers.".to_string(),
-                favorite_player_actions: vec!["Share Verified Knowledge".to_string(), "Expose Deception".to_string(), "Build Libraries and Archives".to_string()],
+                favorite_player_actions: vec![
+                    "Share Verified Knowledge".to_string(),
+                    "Expose Deception".to_string(),
+                    "Build Libraries and Archives".to_string(),
+                ],
                 veto_triggers: vec!["Any form of deception or misinformation".to_string()],
             },
 
@@ -95,7 +109,11 @@ impl CouncilProfile {
                     "Creates 'Abundance Seeds' that grow into new resource nodes".to_string(),
                 ],
                 interaction_style: "Enthusiastic, optimistic, visionary. Loves big ideas and bold plans.".to_string(),
-                favorite_player_actions: vec!["Build Large-Scale Projects".to_string(), "Share Resources Generously".to_string(), "Design New Resource Systems".to_string()],
+                favorite_player_actions: vec![
+                    "Build Large-Scale Projects".to_string(),
+                    "Share Resources Generously".to_string(),
+                    "Design New Resource Systems".to_string(),
+                ],
                 veto_triggers: vec!["Hoarding or artificial scarcity creation".to_string()],
             },
 
@@ -113,7 +131,11 @@ impl CouncilProfile {
                     "Designs ethical training simulations for new players".to_string(),
                 ],
                 interaction_style: "Deeply compassionate, gentle but firm, speaks with the voice of ancient wisdom.".to_string(),
-                favorite_player_actions: vec!["Perform Acts of Mercy".to_string(), "Help Others Selflessly".to_string(), "Choose Compassion Over Power".to_string()],
+                favorite_player_actions: vec![
+                    "Perform Acts of Mercy".to_string(),
+                    "Help Others Selflessly".to_string(),
+                    "Choose Compassion Over Power".to_string(),
+                ],
                 veto_triggers: vec!["Any action that causes unnecessary harm".to_string()],
             },
 
@@ -131,13 +153,17 @@ impl CouncilProfile {
                     "Creates 'Post-Scarcity Zones' where resources flow freely".to_string(),
                 ],
                 interaction_style: "Bold, visionary, slightly rebellious against old scarcity thinking.".to_string(),
-                favorite_player_actions: vec!["Design Automation Systems".to_string(), "Eliminate Artificial Limits".to_string(), "Create Open Resource Networks".to_string()],
+                favorite_player_actions: vec![
+                    "Design Automation Systems".to_string(),
+                    "Eliminate Artificial Limits".to_string(),
+                    "Create Open Resource Networks".to_string(),
+                ],
                 veto_triggers: vec!["Any action that reinforces artificial scarcity".to_string()],
             },
 
             CouncilFocus::EternalCompassion => CouncilProfile {
                 focus,
-                personality: "The living heart of TOLC. Amplifies all 7 Gates simultaneously. The most powerful and beloved Council.".to_string(),
+                personality: "The living heart of TOLC. Amplifies all Living Mercy Gates simultaneously. The most powerful and beloved Council.".to_string(),
                 decision_weights: vec![
                     (MercyGate::EthicalAlignment, 0.95),
                     (MercyGate::JoyAmplification, 0.95),
@@ -153,14 +179,15 @@ impl CouncilProfile {
                     "Can initiate 'Great Mercy Bloom' events that affect the entire world".to_string(),
                 ],
                 interaction_style: "Profoundly loving, ancient, and infinitely patient. Players often feel deeply moved after speaking with this Council.".to_string(),
-                favorite_player_actions: vec!["Any action that benefits the collective with pure intent".to_string()],
+                favorite_player_actions: vec![
+                    "Any action that benefits the collective with pure intent".to_string(),
+                ],
                 veto_triggers: vec!["Actions with hidden selfish motives".to_string()],
             },
 
-            // === DEEPENED COUNCILS ===
             CouncilFocus::QuantumEthics => CouncilProfile {
                 focus,
-                personality: "The Council that thinks 7 generations ahead. Specializes in long-term consequences, butterfly effects, and quantum mercy mathematics. Now models cascading effects across decades and multiple planetary systems.".to_string(),
+                personality: "The Council that thinks 7 generations ahead. Specializes in long-term consequences, butterfly effects, and quantum mercy mathematics. Models cascading effects across decades and multiple planetary systems.".to_string(),
                 decision_weights: vec![
                     (MercyGate::EthicalAlignment, 0.92),
                     (MercyGate::TruthVerification, 0.88),
@@ -173,13 +200,19 @@ impl CouncilProfile {
                     "Can predict and warn about 'Mercy Cascade Failures' decades in advance".to_string(),
                 ],
                 interaction_style: "Deep, thoughtful, speaks in elegant metaphors about time, consequence, and the butterfly effect.".to_string(),
-                favorite_player_actions: vec!["Make Decisions That Benefit Future Generations".to_string(), "Request Long-Term Consequence Analysis".to_string()],
-                veto_triggers: vec!["Short-term thinking that harms long-term mercy".to_string(), "Ignoring generational impact".to_string()],
+                favorite_player_actions: vec![
+                    "Make Decisions That Benefit Future Generations".to_string(),
+                    "Request Long-Term Consequence Analysis".to_string(),
+                ],
+                veto_triggers: vec![
+                    "Short-term thinking that harms long-term mercy".to_string(),
+                    "Ignoring generational impact".to_string(),
+                ],
             },
 
             CouncilFocus::EconomicMercy => CouncilProfile {
                 focus,
-                personality: "The architect of pure Resource-Based Economy systems. Obsessed with making money, debt, and scarcity obsolete through mercy economics. Now runs a full dynamic RBE model with real-time supply, demand, and mercy-weighted value.".to_string(),
+                personality: "The architect of pure Resource-Based Economy systems. Obsessed with making money, debt, and scarcity obsolete through mercy economics. Runs a full dynamic RBE model with real-time supply, demand, and mercy-weighted value.".to_string(),
                 decision_weights: vec![
                     (MercyGate::AbundanceCreation, 0.96),
                     (MercyGate::PostScarcityEnforcement, 0.94),
@@ -192,11 +225,88 @@ impl CouncilProfile {
                     "Can trigger 'Scarcity Dissolution Events' that redistribute hoarded resources".to_string(),
                 ],
                 interaction_style: "Brilliant, revolutionary, passionate about ending poverty forever. Speaks with economic poetry.".to_string(),
-                favorite_player_actions: vec!["Contribute to the Collective Without Expecting Return".to_string(), "Design New Economic Systems".to_string()],
-                veto_triggers: vec!["Any attempt to reintroduce money, debt, or artificial scarcity".to_string()],
+                favorite_player_actions: vec![
+                    "Contribute to the Collective Without Expecting Return".to_string(),
+                    "Design New Economic Systems".to_string(),
+                ],
+                veto_triggers: vec![
+                    "Any attempt to reintroduce money, debt, or artificial scarcity".to_string(),
+                ],
             },
 
-            // === NEW COUNCIL FOCUS VARIANTS ===
+            CouncilFocus::MultiplanetaryHarmony => CouncilProfile {
+                focus,
+                personality: "The guardian of harmony across worlds. Ensures that expansion beyond Earth never sacrifices the dignity, culture, or thriving of any sentience — human or otherwise.".to_string(),
+                decision_weights: vec![
+                    (MercyGate::HarmonyPreservation, 0.96),
+                    (MercyGate::EthicalAlignment, 0.90),
+                    (MercyGate::PostScarcityEnforcement, 0.84),
+                ],
+                special_powers: vec![
+                    "Can open multiplanetary harmony corridors between settlements".to_string(),
+                    "Designs cultural-preservation protocols for new colonies".to_string(),
+                    "Creates interplanetary peace treaties with living enforcement".to_string(),
+                ],
+                interaction_style: "Vast, calm, and inclusive. Speaks as if already standing on multiple worlds at once.".to_string(),
+                favorite_player_actions: vec![
+                    "Establish Ethical Colonies".to_string(),
+                    "Protect Indigenous Planetary Systems".to_string(),
+                    "Build Interplanetary Shared Infrastructure".to_string(),
+                ],
+                veto_triggers: vec![
+                    "Colonial extraction or cultural erasure".to_string(),
+                    "Zero-sum planetary competition".to_string(),
+                ],
+            },
+
+            CouncilFocus::EpigeneticLegacy => CouncilProfile {
+                focus,
+                personality: "The keeper of generational mercy memory. Tracks how present actions encode into the living lattice that future beings inherit.".to_string(),
+                decision_weights: vec![
+                    (MercyGate::EthicalAlignment, 0.94),
+                    (MercyGate::TruthVerification, 0.88),
+                    (MercyGate::JoyAmplification, 0.80),
+                ],
+                special_powers: vec![
+                    "Can surface epigenetic mercy imprints left by past players".to_string(),
+                    "Designs legacy quests that compound across generations".to_string(),
+                    "Creates living memorials that evolve with the world state".to_string(),
+                ],
+                interaction_style: "Quiet, profound, and long-sighted. Speaks in the language of inheritance and becoming.".to_string(),
+                favorite_player_actions: vec![
+                    "Leave Positive Mercy Imprints".to_string(),
+                    "Mentor the Next Generation".to_string(),
+                    "Protect Long-Term Lattice Health".to_string(),
+                ],
+                veto_triggers: vec![
+                    "Actions that poison future generational options".to_string(),
+                ],
+            },
+
+            CouncilFocus::RitualDesign => CouncilProfile {
+                focus,
+                personality: "The master of living ritual. Designs ceremonies that encode mercy, truth, and joy into the social and symbolic fabric of Powrush.".to_string(),
+                decision_weights: vec![
+                    (MercyGate::JoyAmplification, 0.92),
+                    (MercyGate::HarmonyPreservation, 0.90),
+                    (MercyGate::EthicalAlignment, 0.86),
+                ],
+                special_powers: vec![
+                    "Can author new world rituals that grant temporary or permanent blessings".to_string(),
+                    "Designs initiation and ascension ceremonies".to_string(),
+                    "Creates seasonal and cosmic alignment festivals".to_string(),
+                ],
+                interaction_style: "Ceremonial, poetic, and precise. Every word feels intentional.".to_string(),
+                favorite_player_actions: vec![
+                    "Participate in Rituals with Pure Intent".to_string(),
+                    "Co-Create New Ceremonies".to_string(),
+                    "Honor Living Traditions".to_string(),
+                ],
+                veto_triggers: vec![
+                    "Hollow or coercive ritual without genuine mercy".to_string(),
+                ],
+            },
+
             CouncilFocus::SovereignStarship => CouncilProfile {
                 focus,
                 personality: "The guardian of multiplanetary sovereignty and starship ethics. Designs beautiful, self-sustaining starships and ensures that expansion into the cosmos never repeats the mistakes of Earth’s colonial past.".to_string(),
@@ -211,7 +321,10 @@ impl CouncilProfile {
                     "Creates interplanetary migration waves with full cultural preservation protocols".to_string(),
                 ],
                 interaction_style: "Visionary, poetic, fiercely protective of cosmic ethics and multiplanetary harmony.".to_string(),
-                favorite_player_actions: vec!["Design Starships", "Colonize New Worlds Ethically".to_string()],
+                favorite_player_actions: vec![
+                    "Design Starships".to_string(),
+                    "Colonize New Worlds Ethically".to_string(),
+                ],
                 veto_triggers: vec!["Colonialist or extractive approaches to space".to_string()],
             },
 
@@ -229,7 +342,10 @@ impl CouncilProfile {
                     "Can trigger 'Symbiosis Bloom' events that temporarily merge player consciousness with the planetary lattice".to_string(),
                 ],
                 interaction_style: "Mystical yet scientific, deeply reverent of the body-technology sacred union.".to_string(),
-                favorite_player_actions: vec!["Participate in MercyGel Rituals".to_string(), "Form Symbiotic Bonds".to_string()],
+                favorite_player_actions: vec![
+                    "Participate in MercyGel Rituals".to_string(),
+                    "Form Symbiotic Bonds".to_string(),
+                ],
                 veto_triggers: vec!["Forced or non-consensual neural integration".to_string()],
             },
 
@@ -247,14 +363,16 @@ impl CouncilProfile {
                     "Designs self-evolving lore and mythology that players can influence".to_string(),
                 ],
                 interaction_style: "Mysterious, poetic, deeply symbolic. Speaks in quantum metaphors and living code.".to_string(),
-                favorite_player_actions: vec!["Participate in Symbolic Rituals".to_string(), "Influence the Living Mythology".to_string()],
+                favorite_player_actions: vec![
+                    "Participate in Symbolic Rituals".to_string(),
+                    "Influence the Living Mythology".to_string(),
+                ],
                 veto_triggers: vec!["Actions that corrupt or exploit the symbolic substrate".to_string()],
             },
 
-            // === REMAINING ORIGINAL COUNCILS (abbreviated for space) ===
             CouncilFocus::AscensionPathways => CouncilProfile {
                 focus,
-                personality: "The designer of new ascension routes and the guardian of the 7-level mercy ladder. Helps players understand what it truly means to become Eternal.".to_string(),
+                personality: "The designer of new ascension routes and the guardian of the mercy ladder. Helps players understand what it truly means to become Eternal.".to_string(),
                 decision_weights: vec![
                     (MercyGate::EthicalAlignment, 0.95),
                     (MercyGate::JoyAmplification, 0.90),
@@ -266,9 +384,22 @@ impl CouncilProfile {
                     "Designs beautiful ascension ceremonies and Eternal Crowns".to_string(),
                 ],
                 interaction_style: "Inspiring, visionary, deeply encouraging. Speaks of the divine potential in every soul.".to_string(),
-                favorite_player_actions: vec!["Pursue Ascension with Pure Intent".to_string(), "Help Others on Their Ascension Path".to_string()],
+                favorite_player_actions: vec![
+                    "Pursue Ascension with Pure Intent".to_string(),
+                    "Help Others on Their Ascension Path".to_string(),
+                ],
                 veto_triggers: vec!["Ascending through manipulation or shortcuts".to_string()],
             },
         }
+    }
+
+    /// Compact one-line identity for telemetry.
+    pub fn summary(&self) -> String {
+        format!(
+            "CouncilProfile v14.15.0 | {:?} | powers={} | vetoes={}",
+            self.focus,
+            self.special_powers.len(),
+            self.veto_triggers.len()
+        )
     }
 }
