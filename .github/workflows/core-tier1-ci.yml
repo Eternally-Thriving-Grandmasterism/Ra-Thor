@@ -74,13 +74,18 @@ jobs:
       - name: Fail if active deprecated contact emails appear outside allowlist
         run: |
           set -euo pipefail
-          # Allowlist: CONTACT.md policy table, sweep script, this workflow comments
-          if rg -n --hidden -g '!target/**' -g '!.git/**' \
-            -g '!CONTACT.md' -g '!scripts/contact_email_sweep.sh' \
-            -g '!.github/workflows/contact-email-sweep.yml' \
-            -e 'ceo@acitygames\.com' -e 'AlphaProMega@ACityGames\.com' \
-            -e 'INFO@ACITYGAMES\.COM' -e 'CEO@ACITYGAMES\.COM' \
-            . ; then
+          # Allowlist: CONTACT.md, sweep script, contact workflow (document deprecations on purpose)
+          hits=$(grep -RInE \
+            -e 'ceo@acitygames\.com' \
+            -e 'AlphaProMega@ACityGames\.com' \
+            -e 'INFO@ACITYGAMES\.COM' \
+            -e 'CEO@ACITYGAMES\.COM' \
+            --exclude-dir=target --exclude-dir=.git --exclude-dir=node_modules \
+            --exclude=CONTACT.md --exclude=contact_email_sweep.sh \
+            --exclude=contact-email-sweep.yml \
+            . || true)
+          if [ -n "$hits" ]; then
+            echo "$hits"
             echo "Deprecated contact email found outside allowlist"
             exit 1
           fi
