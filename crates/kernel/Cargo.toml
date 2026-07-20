@@ -20,7 +20,8 @@ ra-thor-monorepo-intelligence = { workspace = true }
 ra-thor-council = { workspace = true }
 ra-thor-mercy-orchestrator-v2 = { workspace = true }
 patsagi-councils = { path = "../patsagi-councils" }
-lattice-conductor-v13 = { path = "../lattice-conductor-v13" }
+# Phase 2: v14 lineage with optional v13 trait surface
+lattice-conductor-v14 = { path = "../lattice-conductor-v14", features = ["v13-compat"] }
 
 # Async & runtime
 tokio = { workspace = true, features = ["full"] }
