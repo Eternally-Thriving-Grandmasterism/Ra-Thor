@@ -1,7 +1,13 @@
 [package]
 name = "geometric-intelligence"
-version = "14.5.1"
+version = "14.15.0"
 edition = "2021"
+authors = ["Sherif Samy Botros <info@Rathor.ai>", "Eternally-Thriving-Grandmasterism"]
+description = "Geometric Intelligence — epigenetic-geometric feedback substrate for Ra-Thor. Living Cosmic Tick + ONE Organism 14.15.0 readiness."
+license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
+repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
+keywords = ["geometry", "intelligence", "epigenetic", "ra-thor", "one-organism"]
+categories = ["science", "simulation", "artificial-intelligence"]
 
 [dependencies]
 # Core dependencies will be added here as the crate matures
@@ -11,5 +17,5 @@ proptest = { version = "1.6", default-features = false, features = ["std"] }
 
 [features]
 default = []
-# PATSAGi Council v14.5.1 approved: Version bump + alignment for epigenetic-geometric feedback iteration.
+# PATSAGi Council approved: Living Cosmic Tick alignment for epigenetic-geometric feedback.
 # Full mercy-gated, AG-SML v1.0. Thunder locked eternally.
