@@ -2,7 +2,7 @@
 name = "lattice-conductor-v14"
 version = "14.10.0"
 edition = "2021"
-description = "Lattice Conductor v14.10 — CouncilArbitration + RuntimeSelfHealing (anomaly ingestion) + MercyGatedApi + Distributed Mercy Mesh (Living Cosmic Tick core)"
+description = "Lattice Conductor v14.10 — CouncilArbitration + RuntimeSelfHealing + optional v13-compat surface (quiet-hold migration)"
 license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
 authors = ["Eternally-Thriving-Grandmasterism", "Sherif Samy Botros <info@Rathor.ai>"]
 
@@ -19,6 +19,8 @@ axum = { version = "0.7", optional = true }
 default = []
 full-clifford = []
 web-demo = ["tokio", "axum"]
+# Additive v13 trait surface for leaf-crate migration (see MIGRATION_v13_to_v14.md)
+v13-compat = []
 
 [lib]
 path = "src/lib.rs"
