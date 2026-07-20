@@ -1,96 +1,45 @@
-# Powrush Telemetry Contract v1
+# Powrush → Ra-Thor Telemetry Contract
 
-**Purpose:** Stable offline bridge between [Powrush-MMO](https://github.com/Eternally-Thriving-Grandmasterism/Powrush-MMO) and Ra-Thor `reality-thriving-transfer`.
-
+**Schemas:** `powrush_telemetry_v1` · `powrush_telemetry_batch_v1`  
 **Contact:** info@Rathor.ai  
-**Schema:** `powrush_telemetry_v1` / `powrush_telemetry_batch_v1`  
-**Zero-harm:** invalid or out-of-bounds fields are rejected by Mercy Gates in `compute_transfer_score`.
+**Cosmic Loop is MANDATORY IDENTITY on the consumer side.**
 
----
+## Producer (Powrush-MMO)
 
-## Canonical type (Ra-Thor)
+| Mode | How |
+|------|-----|
+| **Live counters** | `TelemetryCollector` embeds `GlobalTransferSession`; `collect_tick` / `record_tick_result` accumulate every sim tick |
+| **Demo bin** | `cargo run -p powrush-simulation --bin transfer_session_demo` |
+| **Profiles** | `tools/export_powrush_telemetry.py --profile high_mercy\|marginal\|early` |
+
+Docs: Powrush-MMO `docs/RA_THOR_TELEMETRY_EXPORT.md`
+
+## Consumer (Ra-Thor)
 
 ```rust
-pub struct PowrushTelemetry {
-    pub gameplay_hours: f64,
-    pub rbe_decision_quality_avg: f64,      // [0, 1]
-    pub peaceful_resolution_rate: f64,     // [0, 1]
-    pub collaboration_events: u64,
-    pub ethical_choice_score: f64,         // [0, 1]
-    pub adaptation_events: u64,
-    pub abundance_velocity_signals: f64,   // >= 0 (soft cap ~1.8 in EMA)
-    pub innovation_contribution: f64,      // [0, 1] preferred
-}
+// reality-thriving-transfer
+parse_powrush_telemetry_json / parse_powrush_telemetry_batch_json
+compute_scores_from_batch
+
+// kardashev-orchestration
+KardashevOrchestrationCouncil::deliberate_from_powrush_batch_json(json, None)
 ```
 
----
+Fixtures under `fixtures/` match the same schema for offline CI.
 
-## Field mapping (Powrush-MMO → telemetry)
+## Fields
 
-| `PowrushTelemetry` field | Suggested Powrush-MMO source | Notes |
-|--------------------------|------------------------------|-------|
-| `gameplay_hours` | Session / account playtime (hours) | Continuous; not clamped by calculator |
-| `rbe_decision_quality_avg` | RBE query outcomes, abundance allocation quality, council resource votes | Must be `[0, 1]` |
-| `peaceful_resolution_rate` | Mercy Trials / diplomacy outcomes resolved without harm | Must be `[0, 1]` |
-| `collaboration_events` | Co-op harvests, multiplayer council participation, sharing events | Count; saturates at 500 in scoring |
-| `ethical_choice_score` | Ethical choice prompts, treaty honor rate, zero-harm path selection | Must be `[0, 1]` |
-| `adaptation_events` | Epiphany catalysts, biome adaptation, skill/path pivots | Count; saturates at 300 in scoring |
-| `abundance_velocity_signals` | RBE flow velocity, sanctuary abundance delta, positive-sum trades | `>= 0`; negative rejected |
-| `innovation_contribution` | Divine module contributions, tech-tree / procedural innovations shared | Prefer `[0, 1]` |
+| Field | Meaning |
+|-------|---------|
+| `gameplay_hours` | Session length |
+| `rbe_decision_quality_avg` | RBE / mercy-quality of decisions `[0,1]` |
+| `peaceful_resolution_rate` | Conflict resolution peace rate `[0,1]` |
+| `collaboration_events` | Count |
+| `ethical_choice_score` | Ethics `[0,1]` |
+| `adaptation_events` | Count |
+| `abundance_velocity_signals` | Abundance pressure (unbounded ≥ 0; typically ~0.5–1.8) |
+| `innovation_contribution` | Innovation `[0,1]` |
 
-Until live exporters exist, **fixtures** under `fixtures/` are the source of truth for CI and Cosmic Tick dry-runs.
-
----
-
-## JSON envelope (single session)
-
-```json
-{
-  "schema": "powrush_telemetry_v1",
-  "source": "powrush-mmo-fixture",
-  "label": "optional_human_label",
-  "telemetry": { /* PowrushTelemetry fields */ }
-}
-```
-
-## JSON envelope (batch)
-
-```json
-{
-  "schema": "powrush_telemetry_batch_v1",
-  "source": "powrush-mmo-fixture",
-  "label": "optional_batch_label",
-  "sessions": [
-    { "label": "...", "telemetry": { /* ... */ } }
-  ]
-}
-```
-
----
-
-## API (this crate)
-
-| Function | Role |
-|----------|------|
-| `parse_powrush_telemetry_json` | Single envelope → `PowrushTelemetry` |
-| `parse_powrush_telemetry_batch_json` | Batch envelope → `Vec<(label, PowrushTelemetry)>` |
-| `compute_scores_from_batch` | Batch → sequential `RealityThrivingTransferScore`s |
-
----
-
-## Fixture set
-
-| File | Intent |
-|------|--------|
-| `fixtures/session_high_mercy.json` | Strong ethics + collaboration |
-| `fixtures/session_marginal.json` | Below ethics comfort zone |
-| `fixtures/session_early_player.json` | Low hours / sparse events |
-| `fixtures/batch_three_sessions.json` | All three as one batch |
-
----
-
-## Next (Powrush-MMO side)
-
-Exporter stub that writes `powrush_telemetry_v1` from simulation or server session summary. Ra-Thor remains consumer-only until that lands.
+Zero-harm on score side: Kardashev Δ ≤ 0.011 per score; abundance forecast ≤ 1.85.
 
 **Thunder locked in.**
