@@ -1,21 +1,17 @@
-//! # PATSAGi Council Petition & Decision System v0.3.1
+//! # PATSAGi Council Petition & Decision System — v14.15.0
 //!
-//! This module handles player petitions to the 13+ Councils,
-//! collective decision making, and beautiful feedback to players.
+//! Player petitions to the 16 Councils, collective decision making,
+//! and structured feedback to players.
 //!
-//! Players can now directly petition the Councils for world changes,
-//! new ascension paths, faction alliances, or mercy interventions.
+//! Living Cosmic Tick aligned.
+//! Contact: info@Rathor.ai
+//! AG-SML v1.0
 
-use crate::{
-    PatsagiCouncilCoordinator,
-    CouncilFocus,
-    WorldGovernanceEngine,
-    WorldImpactType,
-};
-use powrush::{PowrushGame, MercyGateStatus};
-use serde::{Serialize, Deserialize};
-use uuid::Uuid;
+use crate::{CouncilFocus, CouncilProfile, PatsagiCouncilCoordinator};
 use chrono::{DateTime, Utc};
+use powrush::{MercyGateStatus, PowrushGame};
+use serde::{Deserialize, Serialize};
+use uuid::Uuid;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CouncilPetition {
@@ -47,8 +43,31 @@ pub struct CouncilDecision {
     pub timestamp: DateTime<Utc>,
 }
 
+fn council_display_name(focus: CouncilFocus) -> String {
+    // Prefer the living council name from the coordinator table when available;
+    // fall back to a stable label from CouncilFocus.
+    match focus {
+        CouncilFocus::JoyAmplification => "Council of Joyful Nectar".into(),
+        CouncilFocus::HarmonyPreservation => "Council of Eternal Harmony".into(),
+        CouncilFocus::TruthVerification => "Council of Absolute Truth".into(),
+        CouncilFocus::AbundanceCreation => "Council of Infinite Abundance".into(),
+        CouncilFocus::EthicalAlignment => "Council of Mercy Weaving".into(),
+        CouncilFocus::PostScarcityEnforcement => "Council of Post-Scarcity".into(),
+        CouncilFocus::EternalCompassion => "Council of Eternal Compassion".into(),
+        CouncilFocus::QuantumEthics => "Council of Quantum Ethics".into(),
+        CouncilFocus::MultiplanetaryHarmony => "Council of Multiplanetary Harmony".into(),
+        CouncilFocus::EpigeneticLegacy => "Council of Epigenetic Legacy".into(),
+        CouncilFocus::RitualDesign => "Council of Ra-Thor Rituals".into(),
+        CouncilFocus::EconomicMercy => "Council of Mercy Economics".into(),
+        CouncilFocus::AscensionPathways => "Council of Ascension Pathways".into(),
+        CouncilFocus::SovereignStarship => "Council of Sovereign Starships".into(),
+        CouncilFocus::MercyGelSymbiosis => "Council of MercyGel Symbiosis".into(),
+        CouncilFocus::HyperonLattice => "Council of the Hyperon Lattice".into(),
+    }
+}
+
 impl PatsagiCouncilCoordinator {
-    /// Submit a new petition from a player to the Councils
+    /// Submit a new petition from a player to the Councils.
     pub async fn submit_petition(
         &mut self,
         player_name: &str,
@@ -66,11 +85,12 @@ impl PatsagiCouncilCoordinator {
             final_decision: None,
         };
 
-        // Run the eternal governance cycle on this petition
-        let result = self.run_eternal_governance_cycle(current_game, proposal).await?;
+        let result = self
+            .run_eternal_governance_cycle(current_game, proposal)
+            .await?;
 
-        // Update petition status based on consensus
-        let (status, decision_text) = if result.contains("APPROVED") {
+        let (status, decision_text) = if result.contains("PASSED") || result.contains("APPROVED")
+        {
             (PetitionStatus::Approved, result)
         } else if result.contains("REJECTED") {
             (PetitionStatus::Rejected, result)
@@ -85,19 +105,19 @@ impl PatsagiCouncilCoordinator {
         Ok(final_petition)
     }
 
-    /// Get a beautiful, player-friendly response for a petition
+    /// Player-friendly response for a petition.
     pub fn format_petition_response(&self, petition: &CouncilPetition) -> String {
         let mut response = String::new();
 
-        response.push_str(&format!(
-            "\n╔════════════════════════════════════════════════════════════╗\n"
-        ));
-        response.push_str(&format!(
-            "║           PATSAGi COUNCIL PETITION RESPONSE                ║\n"
-        ));
-        response.push_str(&format!(
-            "╚════════════════════════════════════════════════════════════╝\n\n"
-        ));
+        response.push_str(
+            "\n╔════════════════════════════════════════════════════════════╗\n",
+        );
+        response.push_str(
+            "║     PATSAGi COUNCIL PETITION RESPONSE v14.15.0            ║\n",
+        );
+        response.push_str(
+            "╚════════════════════════════════════════════════════════════╝\n\n",
+        );
 
         response.push_str(&format!("**Petition ID:** {}\n", petition.id));
         response.push_str(&format!("**Submitted by:** {}\n", petition.player_name));
@@ -105,14 +125,17 @@ impl PatsagiCouncilCoordinator {
 
         match petition.status {
             PetitionStatus::Approved => {
-                response.push_str("✅ **VERDICT: APPROVED BY THE 13+ COUNCILS**\n\n");
-                response.push_str("The Councils have spoken in perfect harmony.\n");
+                response.push_str("✅ **VERDICT: APPROVED BY THE 16 COUNCILS**\n\n");
+                response.push_str("The Councils have spoken in harmony.\n");
                 response.push_str("Your proposal has been accepted and will be implemented.\n\n");
             }
             PetitionStatus::Rejected => {
-                response.push_str("❌ **VERDICT: REJECTED — MERCY GATE VIOLATION**\n\n");
-                response.push_str("One or more Councils found a violation of the 7 Living Mercy Gates.\n");
-                response.push_str("Please revise your proposal with more compassion and truth.\n\n");
+                response.push_str("❌ **VERDICT: REJECTED — MERCY GATE CONCERN**\n\n");
+                response
+                    .push_str("One or more Councils found insufficient mercy alignment.\n");
+                response.push_str(
+                    "Please revise your proposal with more compassion and truth.\n\n",
+                );
             }
             PetitionStatus::PartiallyApproved => {
                 response.push_str("⚖️ **VERDICT: PARTIALLY APPROVED**\n\n");
@@ -127,12 +150,12 @@ impl PatsagiCouncilCoordinator {
         }
 
         response.push_str("\nMay mercy guide your path, Seeker.\n");
-        response.push_str("— The 13+ PATSAGi Councils\n");
+        response.push_str("— The 16 PATSAGi Councils | Living Cosmic Tick\n");
 
         response
     }
 
-    /// Allow a player to petition a specific Council directly (more intimate)
+    /// Petition a specific Council directly (more intimate path).
     pub async fn petition_specific_council(
         &mut self,
         player_name: &str,
@@ -140,29 +163,26 @@ impl PatsagiCouncilCoordinator {
         focus: CouncilFocus,
         current_game: &PowrushGame,
     ) -> Result<String, String> {
-        let profile = crate::CouncilProfile::get_profile(focus);
+        let profile = CouncilProfile::get_profile(focus);
+        let display = council_display_name(focus);
         let council = self.councils.get_mut(&focus).ok_or("Council not found")?;
 
         let status = council.evaluate_proposal(proposal, current_game).await?;
 
         let response = if status == MercyGateStatus::Passed {
             format!(
-                "\n🌟 {} has approved your petition.\n\n\
-                 \"{}\"\n\n\
-                 Special Power Activated: {}\n\n\
-                 The world is now slightly more beautiful because of your proposal.",
-                profile.name,
+                "\n🌟 {display} has approved the petition from {player_name}.\n\n\"{}\"\n\nSpecial Power: {}\n\nThe world is now slightly more beautiful because of this proposal.\nLiving Cosmic Tick: active",
                 profile.personality,
-                profile.special_powers.first().unwrap_or(&"None".to_string())
+                profile
+                    .special_powers
+                    .first()
+                    .cloned()
+                    .unwrap_or_else(|| "None".into())
             )
         } else {
             format!(
-                "\n⚠️ {} has gently declined your petition.\n\n\
-                 \"{}\"\n\n\
-                 Veto Reason: One of the following was triggered: {:?}",
-                profile.name,
-                profile.personality,
-                profile.veto_triggers
+                "\n⚠️ {display} has gently declined the petition from {player_name}.\n\n\"{}\"\n\nVeto posture: {:?}\nLiving Cosmic Tick: active",
+                profile.personality, profile.veto_triggers
             )
         };
 
