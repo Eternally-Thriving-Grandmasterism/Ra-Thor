@@ -1,7 +1,13 @@
 [package]
 name = "tolc8-genesis-gate"
-version = "0.1.0"
+version = "14.15.0"
 edition = "2021"
+authors = ["Sherif Samy Botros <info@Rathor.ai>", "Eternally-Thriving-Grandmasterism"]
+description = "TOLC 8 Genesis Gate — mandatory first filter for instantiations. Living Cosmic Tick + ONE Organism 14.15.0 readiness."
+license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
+repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
+keywords = ["tolc8", "genesis-gate", "mercy", "ra-thor", "one-organism"]
+categories = ["science", "simulation"]
 
 [dependencies]
 lattice-conductor-v13 = { path = "../lattice-conductor-v13" }
