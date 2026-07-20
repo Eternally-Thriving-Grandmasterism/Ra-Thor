@@ -1,11 +1,13 @@
 [package]
 name = "mercy"
-version = "14.0.0"
+version = "14.15.0"
 edition = "2021"
-authors = ["Sherif Samy Botros <info@Rathor.ai>"]
-description = "Mercy Lattice Core — dual path: native LatticeConductorV14 Cosmic Loop hooks + v13-compat Conductable/MercyAligned"
-license = "MIT OR AG-SML"
+authors = ["Sherif Samy Botros <info@Rathor.ai>", "Eternally-Thriving-Grandmasterism"]
+description = "Mercy Lattice Core — dual path: native LatticeConductorV14 Cosmic Loop hooks + v13-compat Conductable/MercyAligned. Living Cosmic Tick + ONE Organism 14.15.0 readiness."
+license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
 repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
+keywords = ["mercy", "lattice", "cosmic-loop", "one-organism", "ra-thor"]
+categories = ["science", "simulation"]
 
 [dependencies]
 # Native v14 + optional Conductable surface
