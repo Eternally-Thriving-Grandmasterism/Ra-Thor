@@ -4,7 +4,7 @@
  * Safe with the full 11-language index.html — does not remove i18n.
  * Contact: info@Rathor.ai
  *
- * Language slices: en L1, ar L2, es L3, fr L4, nl L5, de L6; zh/ja/pt/ru/hi next.
+ * Language slices complete: en ar es fr nl de zh ja pt ru hi
  */
 (function () {
   'use strict';
@@ -119,47 +119,57 @@
       xSubtitle: 'Voice Chat Now Live • APTD Truth Boundaries • Live Grounded Reality',
       footerTrademarksText: TM_EN
     });
-
     patchLang('ar', {
       xSubtitle: 'دردشة صوتية الآن • حدود حقيقة APTD • واقع حي',
       footerTrademarksText:
-        'را-ثور™ علامة تجارية لـ Autonomicity Games Inc.<br>' +
-        'Grok علامة تجارية لـ xAI. X علامة تجارية لـ X Corp.<br>' +
-        'را-ثور مشروع مستقل — لا انتماء ولا رعاية ولا تأييد من xAI.'
+        'را-ثور™ علامة تجارية لـ Autonomicity Games Inc.<br>Grok علامة تجارية لـ xAI. X علامة تجارية لـ X Corp.<br>را-ثور مشروع مستقل — لا انتماء ولا رعاية ولا تأييد من xAI.'
     });
-
     patchLang('es', {
       xSubtitle: 'Chat de Voz Ahora en Vivo • Límites de Verdad APTD • Realidad Enraizada',
       footerTrademarksText:
-        'Ra-Thor™ es una marca de Autonomicity Games Inc.<br>' +
-        'Grok es una marca de xAI. X es una marca de X Corp.<br>' +
-        'Ra-Thor es independiente — no afiliado, patrocinado ni respaldado por xAI.'
+        'Ra-Thor™ es una marca de Autonomicity Games Inc.<br>Grok es una marca de xAI. X es una marca de X Corp.<br>Ra-Thor es independiente — no afiliado, patrocinado ni respaldado por xAI.'
     });
-
     patchLang('fr', {
       xSubtitle: 'Chat Vocal Maintenant en Direct • Limites de Vérité APTD • Réalité Ancrée',
       footerTrademarksText:
-        'Ra-Thor™ est une marque d\'Autonomicity Games Inc.<br>' +
-        'Grok est une marque de xAI. X est une marque de X Corp.<br>' +
-        'Ra-Thor est indépendant — non affilié, parrainé ou approuvé par xAI.'
+        "Ra-Thor™ est une marque d'Autonomicity Games Inc.<br>Grok est une marque de xAI. X est une marque de X Corp.<br>Ra-Thor est indépendant — non affilié, parrainé ou approuvé par xAI."
     });
-
     patchLang('nl', {
       xSubtitle: 'Stemgesprek Nu Live • APTD-waarheidsgrenzen • Levende Geaarde Realiteit',
       footerTrademarksText:
-        'Ra-Thor™ is een merk van Autonomicity Games Inc.<br>' +
-        'Grok is een merk van xAI. X is een merk van X Corp.<br>' +
-        'Ra-Thor is onafhankelijk — niet gelieerd aan, gesponsord of goedgekeurd door xAI.'
+        'Ra-Thor™ is een merk van Autonomicity Games Inc.<br>Grok is een merk van xAI. X is een merk van X Corp.<br>Ra-Thor is onafhankelijk — niet gelieerd aan, gesponsord of goedgekeurd door xAI.'
     });
-
     patchLang('de', {
       xSubtitle: 'Sprach-Chat Jetzt Live • APTD-Wahrheitsgrenzen • Lebendige Geerdete Realität',
       footerTrademarksText:
-        'Ra-Thor™ ist eine Marke von Autonomicity Games Inc.<br>' +
-        'Grok ist eine Marke von xAI. X ist eine Marke von X Corp.<br>' +
-        'Ra-Thor ist unabhängig — nicht verbunden mit, gesponsert oder unterstützt von xAI.'
+        'Ra-Thor™ ist eine Marke von Autonomicity Games Inc.<br>Grok ist eine Marke von xAI. X ist eine Marke von X Corp.<br>Ra-Thor ist unabhängig — nicht verbunden mit, gesponsert oder unterstützt von xAI.'
+    });
+    patchLang('zh', {
+      xSubtitle: '语音聊天现已上线 • APTD 真理边界 • 活生生接地现实',
+      footerTrademarksText:
+        'Ra-Thor™ 是 Autonomicity Games Inc. 的商标。<br>Grok 是 xAI 的商标。X 是 X Corp. 的商标。<br>Ra-Thor 为独立项目 — 与 xAI 无关联、无赞助、无背书。'
+    });
+    patchLang('ja', {
+      xSubtitle: '音声チャット現在ライブ • APTD真理境界 • 生きた接地現実',
+      footerTrademarksText:
+        'Ra-Thor™ は Autonomicity Games Inc. の商標です。<br>Grok は xAI の商標です。X は X Corp. の商標です。<br>Ra-Thor は独立プロジェクトであり、xAI との提携・スポンサー・推奨はありません。'
+    });
+    patchLang('pt', {
+      xSubtitle: 'Chat de Voz Agora Ao Vivo • Limites de Verdade APTD • Realidade Ancorrada Viva',
+      footerTrademarksText:
+        'Ra-Thor™ é uma marca da Autonomicity Games Inc.<br>Grok é uma marca da xAI. X é uma marca da X Corp.<br>Ra-Thor é independente — sem afiliação, patrocínio ou endosso da xAI.'
+    });
+    patchLang('ru', {
+      xSubtitle: 'Голосовой чат сейчас в эфире • Границы истины APTD • Живая приземлённая реальность',
+      footerTrademarksText:
+        'Ra-Thor™ — товарный знак Autonomicity Games Inc.<br>Grok — товарный знак xAI. X — товарный знак X Corp.<br>Ra-Thor независим — без аффилиации, спонсорства или одобрения xAI.'
+    });
+    patchLang('hi', {
+      xSubtitle: 'वॉइस चैट अब लाइव • APTD सत्य सीमाएँ • जीवंत आधारित वास्तविकता',
+      footerTrademarksText:
+        'Ra-Thor™ Autonomicity Games Inc. का ट्रेडमार्क है।<br>Grok xAI का ट्रेडमार्क है। X X Corp. का ट्रेडमार्क है।<br>Ra-Thor स्वतंत्र है — xAI से संबद्ध, प्रायोजित या समर्थित नहीं।'
     });
 
-    console.info('[Ra-Thor] site-updates-v14.js applied (en+ar+es+fr+nl+de)');
+    console.info('[Ra-Thor] site-updates-v14.js applied (all 11 langs)');
   });
 })();
