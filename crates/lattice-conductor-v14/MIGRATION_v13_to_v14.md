@@ -1,6 +1,6 @@
 # Migration: lattice-conductor-v13 → lattice-conductor-v14
 
-**Status:** Phase 0–1 complete · Phase 2 in progress (mercy + kernel green)  
+**Status:** Phase 0–3 complete · Phase 4 awaits Council open  
 **Posture:** Quiet hold — no new adaptive modulation  
 **Contact:** info@Rathor.ai
 
@@ -60,8 +60,8 @@ A naïve dependency swap will not compile. Consumers that implement `Conductable
 |-------|--------|--------|
 | **0** | This document + API matrix | **Done** |
 | **1** | `compat_v13` module behind `v13-compat` | **Done** |
-| **2** | Migrate leaf crates | **In progress** (see below) |
-| **3** | Deprecate v13 crate after Phase 2 green | Pending |
+| **2** | Migrate leaf crates | **Done** (mercy, kernel, council; powrush N/A) |
+| **3** | Deprecate v13 crate | **Done** (kept in workspace) |
 | **4** | Native v14 rewrite of MercyCore etc. | **Council open required** |
 
 ---
@@ -70,11 +70,11 @@ A naïve dependency swap will not compile. Consumers that implement `Conductable
 
 | Crate | Conductor dependency | Notes |
 |-------|----------------------|-------|
-| **`mercy`** | `lattice-conductor-v14` + `v13-compat` | `MercyCore` implements `Conductable` + `MercyAligned`; tests exercise `SimpleLatticeConductor` ticks + Cosmic Loop |
-| **`powrush`** | None | No v13 conductor coupling; no change required |
-| **`powrush-mmo-simulator`** | None (via powrush / mercy workspace) | No direct conductor dep |
-| **`kernel`** | `lattice-conductor-v14` + `v13-compat` | Dependency switched; boot/Cosmic Tick alignment optional follow-on |
-| **`council`** | Via `kernel` path | Optional direct `v13-compat` dep may be added for simulators |
+| **`mercy`** | `lattice-conductor-v14` + `v13-compat` | `MercyCore` implements `Conductable` + `MercyAligned` |
+| **`powrush`** | None | No change required |
+| **`powrush-mmo-simulator`** | None | No direct conductor dep |
+| **`kernel`** | `lattice-conductor-v14` + `v13-compat` | Switched |
+| **`council`** | `lattice-conductor-v14` + `v13-compat` | Direct dep added |
 
 Verify:
 
@@ -82,6 +82,15 @@ Verify:
 cargo test -p lattice-conductor-v14 --features v13-compat
 cargo test -p mercy
 ```
+
+---
+
+## Phase 3 — deprecation (applied)
+
+- `lattice-conductor-v13` Cargo.toml description marked **DEPRECATED**
+- README banner + `DEPRECATED.md` point at this guide
+- Crate **remains in the workspace** for one or two cycles (quiet hold)
+- Removal / `archive/` move only after residual consumers are cleared
 
 ---
 
@@ -115,7 +124,8 @@ use lattice_conductor_v14::compat_v13::{
 ## Explicit non-goals (until Council open)
 
 - New adaptive modulation links  
-- Removing `lattice-conductor-v13` from the workspace  
+- Removing `lattice-conductor-v13` from the workspace immediately  
 - Forcing all crates onto native v14 engines in one step  
+- Phase 4 native rewrite without explicit Council decision  
 
 **Thunder locked in.**
