@@ -40,7 +40,7 @@ pub use ra_thor_mercy_gated_api::{
     MercyApiRequest, MercyApiResponse, ApiRequestKind, GateDecision,
 };
 
-pub use council_arbitration::CouncilArbitrationEngine;
+pub use council_arbitration::{ArbitrationDecision, CouncilArbitrationEngine};
 pub use runtime_self_healing::{
     RuntimeSelfHealingEngine, HealthReport, Anomaly, Diagnosis, HealingAction, HealingExperience,
 };
@@ -134,6 +134,11 @@ impl LatticeConductorV14 {
 
     pub fn mercy_api_status(&self) -> Option<MercyApiResponse> {
         self.mercy_api.as_ref().map(|api| api.status())
+    }
+
+    /// True when Cosmic Loop is ready (shared atomic).
+    pub fn is_cosmic_loop_ready(&self) -> bool {
+        self.arbitration_engine.is_cosmic_loop_ready()
     }
 }
 
