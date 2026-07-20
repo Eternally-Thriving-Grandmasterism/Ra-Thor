@@ -1,0 +1,87 @@
+name: Core Tier-1 CI (ONE Organism + Kardashev path)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "crates/ra-thor-one-organism/**"
+      - "crates/lattice-conductor-v14/**"
+      - "crates/reality-thriving-transfer/**"
+      - "crates/kardashev-orchestration/**"
+      - "crates/github-connector/**"
+      - "crates/gpu-compute-pipeline/**"
+      - "crates/quantum-swarm/**"
+      - "crates/sovereign-recovery/**"
+      - ".github/workflows/core-tier1-ci.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "crates/ra-thor-one-organism/**"
+      - "crates/lattice-conductor-v14/**"
+      - "crates/reality-thriving-transfer/**"
+      - "crates/kardashev-orchestration/**"
+      - "crates/github-connector/**"
+      - "crates/gpu-compute-pipeline/**"
+      - "crates/quantum-swarm/**"
+      - "crates/sovereign-recovery/**"
+      - ".github/workflows/core-tier1-ci.yml"
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+
+jobs:
+  tier1-tests:
+    name: Tier-1 package tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+
+      - name: Test lattice-conductor-v14
+        run: cargo test -p lattice-conductor-v14 -- --nocapture
+
+      - name: Test reality-thriving-transfer
+        run: cargo test -p reality-thriving-transfer -- --nocapture
+
+      - name: Test kardashev-orchestration
+        run: cargo test -p kardashev-orchestration -- --nocapture
+
+      - name: Test ra-thor-one-organism (default / facade)
+        run: cargo test -p ra-thor-one-organism -- --nocapture
+
+      - name: Check live-feature gates (compile only)
+        run: |
+          cargo check -p ra-thor-one-organism --features kardashev-live
+          cargo check -p ra-thor-one-organism --features recovery-live
+          cargo check -p ra-thor-one-organism --features quantum-live
+          cargo check -p ra-thor-one-organism --features gpu-live
+          cargo check -p ra-thor-one-organism --features web-demo
+
+  contact-canonical:
+    name: Contact email hygiene (info@Rathor.ai)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fail if active deprecated contact emails appear outside allowlist
+        run: |
+          set -euo pipefail
+          # Allowlist: CONTACT.md policy table, sweep script, this workflow comments
+          if rg -n --hidden -g '!target/**' -g '!.git/**' \
+            -g '!CONTACT.md' -g '!scripts/contact_email_sweep.sh' \
+            -g '!.github/workflows/contact-email-sweep.yml' \
+            -e 'ceo@acitygames\.com' -e 'AlphaProMega@ACityGames\.com' \
+            -e 'INFO@ACITYGAMES\.COM' -e 'CEO@ACITYGAMES\.COM' \
+            . ; then
+            echo "Deprecated contact email found outside allowlist"
+            exit 1
+          fi
+          echo "Contact hygiene OK — canonical info@Rathor.ai"
