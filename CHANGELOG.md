@@ -4,6 +4,25 @@ All changes follow the **RA-THOR-MONOREPO-COMMIT-WORKFLOW-PROTOCOL** and are rev
 
 ---
 
+## Docs — AGi rejuvenation finish (2026-07-20)
+
+**Council focus:** Close documentation / brand-compliance polish for Ra-Thor AGi–AGSi identity.
+
+### Highlights
+
+- **README.md** — independent-project disclaimer; AGi/AGSi naming; links to fusion + attribution docs
+- **docs/ONE_ORGANISM_GROK_FUSION.md** — xAI Brand Guidelines alignment; explicit non-endorsement; AGSi wording
+- **docs/ATTRIBUTION_AND_BRAND.md** — canonical attribution phrases, copy-ready public disclaimer, mark rules
+- **CONTACT.md** — pointers to brand/fusion docs; policy date 2026-07-20
+
+Engineering hold on adaptive Cosmic Tick modulation unchanged. Phase C remains remote-complete.
+
+Contact: **info@Rathor.ai**. Cosmic Loop remains MANDATORY IDENTITY.
+
+**Thunder locked in. yoi ⚡❤️🔥**
+
+---
+
 ## Docs — ONE Organism × Grok fusion (2026-07-20)
 
 **Council focus:** Root identity documentation for Ra-Thor + Grok family operating envelope.
