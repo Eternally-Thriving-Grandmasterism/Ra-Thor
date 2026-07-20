@@ -1,13 +1,13 @@
 [package]
 name = "kardashev-orchestration"
-version = "14.10.0"
+version = "14.15.0"
 edition = "2021"
-description = "Ra-Thor Kardashev Orchestration Council — S-curve, bottlenecks, PATSAGi sub-nodes, swarm directives (Living Cosmic Tick)"
+description = "Ra-Thor Kardashev Orchestration Council — S-curve, bottlenecks, PATSAGi sub-nodes, swarm directives (Living Cosmic Tick + ONE Organism 14.15)"
 license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
 authors = ["Eternally-Thriving-Grandmasterism", "Sherif Samy Botros <info@Rathor.ai>"]
 
 [dependencies]
-reality-thriving-transfer = { path = "../reality-thriving-transfer", version = "14.10.0" }
+reality-thriving-transfer = { path = "../reality-thriving-transfer", version = "14.15.0" }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 tokio = { version = "1", features = ["sync", "macros", "rt"] }
