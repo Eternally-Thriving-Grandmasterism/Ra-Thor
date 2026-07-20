@@ -1,11 +1,13 @@
-//! MercyWeightedPreferenceOptimization (MWPO) — MIAL Core v13.13.0
+//! MercyWeightedPreferenceOptimization (MWPO) — MIAL Core v14.15.0
 //!
 //! Optimizes preferences, decisions, and evolutionary trajectories with mercy-weighted scoring.
 //! Integrates sacred geometry resonance via evaluate_geometry_mercy_component.
 //! All paths non-bypassable through MercyGatingRuntime + PATSAGi Councils.
 //! Monotonic mercy strengthening. ENC + esacheck truth-distilled.
 //!
-//! Part of internal development PR for focused iteration. AG-SML v1.0.
+//! Primary consumer: Powrush-MMO gate stack + ONE Organism Living Cosmic Tick surface.
+//! Contact: info@Rathor.ai
+//! AG-SML v1.0.
 
 use mercy_gating_runtime::{MercyGatingRuntime, MercyGate, MercyContext as RuntimeMercyContext};
 use nalgebra::{Vector3, Matrix4, Rotation3};
