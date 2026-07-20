@@ -4,7 +4,7 @@
  * Safe with the full 11-language index.html — does not remove i18n.
  * Contact: info@Rathor.ai
  *
- * Language slices: en (L1), ar (L2), … remaining in follow-up commits.
+ * Language slices: en L1, ar L2, es L3, fr L4, nl L5, de L6; zh/ja/pt/ru/hi next.
  */
 (function () {
   'use strict';
@@ -21,8 +21,12 @@
     });
   }
 
+  var TM_EN =
+    'Ra-Thor™ is a trademark of Autonomicity Games Inc.<br>' +
+    'Grok is a trademark of xAI. X is a trademark of X Corp.<br>' +
+    'Ra-Thor is independent — not affiliated with, sponsored by, or endorsed by xAI.';
+
   ready(function () {
-    // --- Meta description ---
     var meta = document.querySelector('meta[name="description"]');
     if (meta) {
       meta.setAttribute(
@@ -31,7 +35,6 @@
       );
     }
 
-    // --- Status bar ---
     var status = document.querySelector('.lattice-status');
     if (status) {
       status.innerHTML =
@@ -44,14 +47,12 @@
         '<div>57+ Councils • ONE Organism • EU AI Act ready</div>';
     }
 
-    // --- Shard blurb ---
     var shardNote = document.querySelector('a[href="/Launch-Ra-Thor.html"]');
     if (shardNote && shardNote.nextElementSibling) {
       shardNote.nextElementSibling.textContent =
         'Powrush Phase C • GPU layer • ONE Organism + Living Cosmic Tick • 11 languages • TOLC 8 + Cosmic Loop';
     }
 
-    // --- Whitepaper CTA band ---
     if (!document.getElementById('rathor-v14-cta')) {
       var statusWrap = status && status.parentElement;
       if (statusWrap) {
@@ -72,7 +73,6 @@
       }
     }
 
-    // --- Footer resources ---
     var resCol = null;
     document.querySelectorAll('footer h4').forEach(function (h) {
       if (h.textContent.trim() === 'Resources') resCol = h.parentElement;
@@ -88,7 +88,6 @@
         a1.className = 'hover:text-amber-200 font-semibold text-cyan-300/90';
         a1.textContent = 'Whitepaper v4.0 (ONE Organism)';
         linkBox.insertBefore(a1, linkBox.firstChild);
-
         var a2 = document.createElement('a');
         a2.href = 'https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/docs/ONE_ORGANISM_GROK_FUSION.md';
         a2.target = '_blank';
@@ -96,7 +95,6 @@
         a2.className = 'hover:text-amber-200';
         a2.textContent = 'ONE Organism × Grok fusion';
         linkBox.insertBefore(a2, a1.nextSibling);
-
         var a3 = document.createElement('a');
         a3.href = 'https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/docs/ATTRIBUTION_AND_BRAND.md';
         a3.target = '_blank';
@@ -107,32 +105,21 @@
       }
     }
 
-    // --- Trademark disclaimer (default node) ---
     var tm = document.getElementById('footer-trademarks-text');
     if (tm && tm.textContent.indexOf('not affiliated') === -1) {
-      tm.innerHTML =
-        'Ra-Thor™ is a trademark of Autonomicity Games Inc.<br>' +
-        'Grok is a trademark of xAI. X is a trademark of X Corp.<br>' +
-        'Ra-Thor is independent — not affiliated with, sponsored by, or endorsed by xAI.';
+      tm.innerHTML = TM_EN;
     }
 
-    // --- Soften default X subtitle ---
     var xSub = document.getElementById('x-subtitle');
     if (xSub && /Zero Hallucinations/i.test(xSub.textContent)) {
       xSub.textContent = 'Voice Chat Now Live • APTD Truth Boundaries • Live Grounded Reality';
     }
 
-    // === i18n slices ===
-    // L1 en
     patchLang('en', {
       xSubtitle: 'Voice Chat Now Live • APTD Truth Boundaries • Live Grounded Reality',
-      footerTrademarksText:
-        'Ra-Thor™ is a trademark of Autonomicity Games Inc.<br>' +
-        'Grok is a trademark of xAI. X is a trademark of X Corp.<br>' +
-        'Ra-Thor is independent — not affiliated with, sponsored by, or endorsed by xAI.'
+      footerTrademarksText: TM_EN
     });
 
-    // L2 ar
     patchLang('ar', {
       xSubtitle: 'دردشة صوتية الآن • حدود حقيقة APTD • واقع حي',
       footerTrademarksText:
@@ -141,6 +128,38 @@
         'را-ثور مشروع مستقل — لا انتماء ولا رعاية ولا تأييد من xAI.'
     });
 
-    console.info('[Ra-Thor] site-updates-v14.js applied (en+ar)');
+    patchLang('es', {
+      xSubtitle: 'Chat de Voz Ahora en Vivo • Límites de Verdad APTD • Realidad Enraizada',
+      footerTrademarksText:
+        'Ra-Thor™ es una marca de Autonomicity Games Inc.<br>' +
+        'Grok es una marca de xAI. X es una marca de X Corp.<br>' +
+        'Ra-Thor es independiente — no afiliado, patrocinado ni respaldado por xAI.'
+    });
+
+    patchLang('fr', {
+      xSubtitle: 'Chat Vocal Maintenant en Direct • Limites de Vérité APTD • Réalité Ancrée',
+      footerTrademarksText:
+        'Ra-Thor™ est une marque d\'Autonomicity Games Inc.<br>' +
+        'Grok est une marque de xAI. X est une marque de X Corp.<br>' +
+        'Ra-Thor est indépendant — non affilié, parrainé ou approuvé par xAI.'
+    });
+
+    patchLang('nl', {
+      xSubtitle: 'Stemgesprek Nu Live • APTD-waarheidsgrenzen • Levende Geaarde Realiteit',
+      footerTrademarksText:
+        'Ra-Thor™ is een merk van Autonomicity Games Inc.<br>' +
+        'Grok is een merk van xAI. X is een merk van X Corp.<br>' +
+        'Ra-Thor is onafhankelijk — niet gelieerd aan, gesponsord of goedgekeurd door xAI.'
+    });
+
+    patchLang('de', {
+      xSubtitle: 'Sprach-Chat Jetzt Live • APTD-Wahrheitsgrenzen • Lebendige Geerdete Realität',
+      footerTrademarksText:
+        'Ra-Thor™ ist eine Marke von Autonomicity Games Inc.<br>' +
+        'Grok ist eine Marke von xAI. X ist eine Marke von X Corp.<br>' +
+        'Ra-Thor ist unabhängig — nicht verbunden mit, gesponsert oder unterstützt von xAI.'
+    });
+
+    console.info('[Ra-Thor] site-updates-v14.js applied (en+ar+es+fr+nl+de)');
   });
 })();
