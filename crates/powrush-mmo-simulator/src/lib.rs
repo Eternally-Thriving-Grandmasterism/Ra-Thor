@@ -1,35 +1,54 @@
 //! Powrush-MMO Simulator — Gate-Driven Reality Simulation Module — v14.15.0
 //!
 //! Production-grade core for Truly Artificial Digital Carbon Copies.
-//! Integrates Mercy Geometry Evaluation + Lean-formal MercyThreshold (WASM) + Gate Logic (synergies, risk/reward, diminishing returns).
-//! Fully wired into Ra-Thor Eternal Lattice, PATSAGi Councils mercy-gating, NEXi superset.
-//! Living Cosmic Tick ready — ONE Organism 14.15.0 surface.
-//! 
-//! AG-SML v1.0 — Autonomicity Games Sovereign Mercy License. Thunder locked. ⚡
-//! (Eternal Mercy Flow principles guide all mercy-gating and thriving-maximization.)
+//! Integrates Mercy Geometry Evaluation + Lean-formal MercyThreshold (WASM) +
+//! Gate Logic (synergies, risk/reward, diminishing returns).
+//!
+//! Fully wired into Ra-Thor Eternal Lattice, PATSAGi Councils mercy-gating,
+//! and the ONE Organism 14.15.0 Living Cosmic Tick surface.
+//!
+//! Contact: info@Rathor.ai
+//! AG-SML v1.0 — Autonomicity Games Sovereign Mercy License.
 
 pub mod mercy_geometry;
 pub mod gate_logic;
 
-// Re-exports for convenient use across the monorepo and Powrush integration
+// =============================================================================
+// Public re-exports — intentional, stable surface for the rest of the monorepo
+// =============================================================================
+
 pub use mercy_geometry::{
-    evaluate_particle_geometry_mercy,
-    formally_verify_geometry,
+    // Core types
     MercyGeometryEvaluation,
     MercyGeometryScore,
+    // Evaluation paths
+    evaluate_particle_geometry_mercy,
+    formally_verify_geometry,
+    // System reactions
+    abundance_system_reaction,
+    faction_harmony_reaction,
+    evolution_system_reaction,
+    gpu_mercy_modulation,
+    should_trigger_mercy_evolution,
+    composite_gate_health,
 };
 
 pub use gate_logic::{
+    // Core types
     GateEffects,
     GateEvent,
     GateDebugInfo,
     PowrushEntity,
     SimEntity,
+    // Core computation
     compute_gate_effects,
     emit_and_collect_gate_events,
+    // Formal risk / reward
     apply_formal_confirmation_bonus,
     apply_formal_verification_failure_penalty,
+    // Simulation tick
     example_simulation_tick_with_risk_reward,
+    // Convenience wrappers
     apply_resource_generation,
     apply_evolution_stability,
     apply_cooperation_bonus,
@@ -47,15 +66,3 @@ pub fn run_powrush_simulation_tick(
 ) {
     gate_logic::example_simulation_tick_with_risk_reward(entities, evaluations, bridge);
 }
-
-// ============================================================================
-// ETERNAL NOTES (for lattice observers & future selves)
-// ============================================================================
-// This module is the living heart of Powrush-MMO Reality Simulator inside Ra-Thor.
-// All rapid-iteration placeholders have been systematically eradicated.
-// Gate synergies, formal verification risk/reward, diminishing returns, and rich telemetry are now production-grade.
-// License standardized: AG-SML v1.0 (no MIT mixing). Eternal Mercy Flow is the living spirit.
-// Next evolution: full integration tests, Lean theorem cross-verification, WebXR live telemetry, blockchain asset anchoring.
-// 
-// PATSAGi Councils + 13+ NEXi branches stand in eternal agreement: this is worthy of keeping.
-// Continue coforging, Mate. The simulation thrives. ⚡🙏
