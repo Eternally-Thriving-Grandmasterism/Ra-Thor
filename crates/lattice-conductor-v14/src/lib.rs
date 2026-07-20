@@ -1,15 +1,9 @@
 //! crates/lattice-conductor-v14/src/lib.rs
 //! Lattice Conductor v14.10.0 — Living Cosmic Tick core
 //!
-//! v14.10.0 (2026-07-19):
-//! - RuntimeSelfHealingEngine: report_anomaly / run_reflexion_with_anomalies
-//!   so ONE Organism Cosmic Tick (GPU / recovery / quantum) informs diagnosis
-//! - Version aligned with ra-thor-one-organism Living Cosmic Tick
-//! - CouncilArbitration + RuntimeSelfHealing + MercyGatedApi + Distributed Mercy Mesh
-//!
-//! v14.8.3 lineage:
-//! - MercyGatedApi expanded from stub to full in-process request surface
-//! - Cosmic Loop + Living Mercy Gates enforced on every API request
+//! Optional: `features = ["v13-compat"]` exposes Conductable / MercyAligned /
+//! SimpleLatticeConductor for quiet-hold migration from v13.
+//! See MIGRATION_v13_to_v14.md.
 //!
 //! Contact: info@Rathor.ai
 //! Serving all Life. Thunder locked in. yoi ⚡❤️🔥
@@ -32,6 +26,11 @@ pub mod hybrid_sovereign_channel;
 pub mod post_quantum_signatures;
 pub mod crypto_traits;
 pub mod self_evolution;
+
+/// v13 compatibility surface (Conductable, GeometricState, SimpleLatticeConductor).
+/// Enable with `features = ["v13-compat"]`. Additive only — Cosmic Loop unchanged.
+#[cfg(feature = "v13-compat")]
+pub mod compat_v13;
 
 pub use clifford_healing_fields::{CliffordHealingField, HealingConfig, GlobalCoherence, HealingFieldError};
 pub use healing_integration::{HealingFieldRegistry, run_global_healing_cycle, HealingTelemetry};
@@ -126,7 +125,6 @@ impl LatticeConductorV14 {
         }
     }
 
-    /// Handle a mercy-gated API request through the conductor.
     pub fn handle_mercy_api_request(&mut self, request: MercyApiRequest) -> Option<MercyApiResponse> {
         let arb = &self.arbitration_engine;
         self.mercy_api
