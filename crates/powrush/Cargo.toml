@@ -1,7 +1,10 @@
 [package]
 name = "powrush"
-version = "0.15.0"
+version = "14.15.0"
 edition = "2021"
+authors = ["Eternally-Thriving-Grandmasterism", "Sherif Samy Botros <info@Rathor.ai>"]
+license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
+description = "Powrush RBE engine — Resource-Based Economy core for Ra-Thor. Clifford Healing Fields + geometric mercy communion. Living Cosmic Tick + ONE Organism 14.15 readiness."
 
 [dependencies]
 nalgebra.workspace = true
@@ -17,6 +20,6 @@ default = []
 mmo = []
 full-clifford = []  # Enable when mature CGA Motor sandwich-product is available
 
-# Powrush RBE v2.1 + Clifford Healing Fields v14.1.0
+# Powrush RBE v2.1 + Clifford Healing Fields
 # Production MMO launch + geometric mercy communion across organisms
-# Integrated with RSRE, PATSAGi Councils, Thunder Lattice v14, MIAL
+# Integrated with RSRE, PATSAGi Councils, Thunder Lattice, MIAL, ONE Organism 14.15
