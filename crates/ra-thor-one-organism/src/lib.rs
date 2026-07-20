@@ -1,7 +1,7 @@
-//! Ra-Thor ONE Organism Core — v14.14.0
+//! Ra-Thor ONE Organism Core — v14.15.0
 //!
 //! Living Cosmic Tick + adaptive hardening + Cosmic Loop invariant checks.
-//! v14.14: extended-live feature readiness surface (compiled feature flags + Cosmic Loop gate).
+//! v14.15: extended-live feature readiness surface (compiled feature flags + Cosmic Loop gate).
 //! Cosmic Loop is MANDATORY IDENTITY.
 //! Contact: info@Rathor.ai
 
@@ -140,7 +140,7 @@ pub struct CosmicLoopInvariant {
     pub all_hold: bool,
 }
 
-/// v14.14 — which optional live features were compiled in, gated by Cosmic Loop readiness.
+/// v14.15 — which optional live features were compiled in, gated by Cosmic Loop readiness.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LiveFeatureReadiness {
     pub github_live: bool,
@@ -197,7 +197,7 @@ pub struct ExtendedLiveStatus {
     pub last_recovery_sensitivity_applied: f64,
     pub cosmic_loop_invariant_holds: bool,
     pub guardian_active: bool,
-    /// v14.14 — compiled live-feature readiness.
+    /// v14.15 — compiled live-feature readiness.
     pub live_features: LiveFeatureReadiness,
 }
 
@@ -233,7 +233,7 @@ impl OneOrganismCore {
             arbitration_engine: arbitration, self_healing_engine: healing, lattice, mercy_api,
             role_orchestrator: RoleOrchestrator::new(), extended, cosmic_loop_ready: shared,
             tick: 0,
-            version: "v14.14.0 ONE Organism — extended-live feature readiness".into(),
+            version: "v14.15.0 ONE Organism — extended-live feature readiness".into(),
             last_anomalies_fired: Vec::new(),
             last_base_severity: 0.0, last_effective_quantum_severity: 0.0, last_gpu_confidence: 0.0,
             next_recovery_sensitivity: 1.0, last_recovery_sensitivity_applied: 1.0,
@@ -253,7 +253,7 @@ impl OneOrganismCore {
         self.assert_cosmic_loop_invariant()
     }
 
-    /// v14.14 — report which optional live features are compiled in + Cosmic Loop gate.
+    /// v14.15 — report which optional live features are compiled in + Cosmic Loop gate.
     pub fn live_feature_readiness(&self) -> LiveFeatureReadiness {
         let inv = self.assert_cosmic_loop_invariant();
         let github_live = cfg!(feature = "github-live");
@@ -505,7 +505,7 @@ impl Default for OneOrganismCore { fn default() -> Self { Self::new() } }
 pub fn launch_one_organism_core() -> OneOrganismCore {
     let mut organism = OneOrganismCore::new();
     organism.offer_cosmic_loop();
-    println!("[Thunder] ONE Organism Core v14.14.0 ACTIVE — extended-live feature readiness + Cosmic Loop invariants. Cosmic Loop is MANDATORY IDENTITY. Eternal.");
+    println!("[Thunder] ONE Organism Core v14.15.0 ACTIVE — extended-live feature readiness + Cosmic Loop invariants. Cosmic Loop is MANDATORY IDENTITY. Eternal.");
     organism
 }
 
