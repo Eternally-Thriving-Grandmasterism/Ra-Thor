@@ -1,10 +1,8 @@
-# Production Readiness — ONE Organism (v14.15.0)
+# Production Readiness — ONE Organism (v14.15.1 polish)
 
-**Status:** Quiet hold after the v14.10–v14.14 cascade.  
+**Status:** Quiet hold on adaptive modulation; hygiene + Phase C bridge closed.  
 **Contact:** info@Rathor.ai  
 **Cosmic Loop is MANDATORY IDENTITY.**
-
-This note records how to verify the living lattice without introducing new adaptive modulation.
 
 ---
 
@@ -13,77 +11,98 @@ This note records how to verify the living lattice without introducing new adapt
 ```bash
 # Default (facade) build — Cosmic Loop + adaptive fields + live readiness surface
 cargo test -p ra-thor-one-organism
+cargo test -p lattice-conductor-v14
 ```
 
 Expected:
 
-- `cosmic_loop_ready_after_launch` — guardian active + loop ready
-- `cosmic_tick_preserves_cosmic_loop_invariant` — pre/post-tick identity holds
-- `live_feature_readiness_default_build` — live flags off; `cosmic_loop_ready_for_live` true
-- Recovery-sensitivity and adaptive-field tests pass
+- Cosmic Loop ready after launch; guardian active
+- Cosmic Tick preserves invariant pre/post
+- Live-feature readiness reports compile-time flags; `cosmic_loop_ready_for_live` true on default
+
+**Root `ra-thor-one-organism.rs` is retired** — use `crates/ra-thor-one-organism` only (`TIER_MAP.md`).
 
 ---
 
-## 2. Living snapshot / web demo
+## 2. Kardashev / Phase C path
+
+```bash
+cargo test -p reality-thriving-transfer
+cargo test -p kardashev-orchestration
+```
+
+Includes:
+
+- T1 sequential stress (64 / 256 / 1024)
+- T2 concurrent shared-council stress
+- Fixture batch → scores → council (`batch_three_sessions.json`)
+
+Powrush offline exporter: sibling repo `Powrush-MMO` (`tools/export_powrush_telemetry.py`, `simulation/src/telemetry.rs`).
+
+---
+
+## 3. Living snapshot / web demo
 
 ```bash
 cargo run -p ra-thor-one-organism --example one_organism_web_demo --features web-demo
 ```
 
-| Endpoint | What to confirm |
-|----------|-----------------|
+| Endpoint | Confirm |
+|----------|---------|
 | `GET /health` | `cosmic_loop_ready`, `guardian_active` |
-| `GET /status` | `cosmic_loop_invariant_holds`, adaptive last-tick fields, `live_features` |
-| `GET /live` | Full `ExtendedLiveStatus` incl. `live_features` |
-| `POST /cosmic/tick` | `cosmic_loop_invariant`, `live_features`, adaptive fields |
-
-Default build: all `*_live` flags in `live_features` are `false`; `cosmic_loop_ready_for_live` must be `true`.
+| `GET /status` | invariant, adaptive last-tick, `live_features` |
+| `GET /live` | Full `ExtendedLiveStatus` |
+| `POST /cosmic/tick` | invariant + adaptive fields |
 
 ---
 
-## 3. Optional live features
+## 4. Optional live features (compile only ≠ production proof)
 
 ```bash
-# Individual live paths (require matching crates + tokio)
-cargo check -p ra-thor-one-organism --features gpu-live
-cargo check -p ra-thor-one-organism --features recovery-live
-cargo check -p ra-thor-one-organism --features quantum-live
 cargo check -p ra-thor-one-organism --features kardashev-live
-cargo check -p ra-thor-one-organism --features github-live
-
-# Full composition
 cargo check -p ra-thor-one-organism --features extended-live
+cargo check -p ra-thor-one-organism --features web-demo
 ```
 
-`LiveFeatureReadiness.extended_live` is true only when all five live features are compiled in **and** Cosmic Loop holds.
-
-True async stress of live engines is **deferred** until a local/runtime harness is available. Do not treat compile-success as production proof of live engine behavior.
+Do not treat compile-success as proof of live engine behavior under load.
 
 ---
 
-## 4. Zero-harm bounds (do not relax)
+## 5. CI
 
-- Recovery sensitivity: clamped `[1.0, 1.12]`, one-shot per tick
-- Quantum severity boost from recovery: clamped `[0.0, 0.35]`
-- Shared valence: clamped `[0.75, 0.999]`
-- No new adaptive links without a separate Council open
+| Workflow | Scope |
+|----------|--------|
+| `core-tier1-ci.yml` | Focused Tier-1 packages + live-feature `cargo check` + contact hygiene |
+| `ci.yml` / `ra-thor-ci.yml` | Broader workspace (heavier) |
+
+Prefer Tier-1 focused runs while iterating the living organism.
 
 ---
 
-## 5. Version map
+## 6. Zero-harm bounds (do not relax)
+
+- Recovery sensitivity: `[1.0, 1.12]`, one-shot
+- Quantum severity boost from recovery: `[0.0, 0.35]`
+- Shared valence: `[0.75, 0.999]`
+- Kardashev Δ per score: ≤ 0.011; abundance forecast ≤ 1.85
+
+---
+
+## 7. Version map
 
 | Package | Version |
 |---------|---------|
-| Workspace | 14.10.0 |
-| `ra-thor-one-organism` | **14.14.0** (feature surface); readiness notes = **v14.15.0** |
-| Live-path crates | 14.10.0 path pins |
+| Workspace | 14.10.0+ / voice 14.15 |
+| `ra-thor-one-organism` | **14.15.0** |
+| `lattice-conductor-v14` | **14.15.0** |
+| Live-path / Kardashev crates | **14.15.0** path pins |
 
 ---
 
-## 6. Council posture
+## 8. Council posture
 
-- v14.10–v14.14 cascade is closed and voice-aligned
-- v14.15 is a **quiet hold**: notes only, no new modulation
-- Further code evolution waits on explicit Council open or real engine harness
+- v14.10–v14.15 cascade closed
+- Phase C offline bridge closed (contract + fixtures + exporter + batch→council)
+- Next real gains: local green proof, live Powrush counters, true `extended-live` soak
 
 **Thunder locked in.**

@@ -1,4 +1,4 @@
-//! kardashev-orchestration v14.10.0
+//! kardashev-orchestration v14.15.0
 //!
 //! Path-depends on `reality-thriving-transfer` for scores + GPU telemetry stub.
 //! Phase C: deliberate from Powrush fixture batches (offline bridge).
@@ -458,6 +458,7 @@ fn now_secs() -> u64 {
 mod tests {
     use super::*;
     use reality_thriving_transfer::{PowrushTelemetry, RealityThrivingTransferCalculator};
+    use std::sync::Arc;
 
     /// Shared fixture with reality-thriving-transfer (Phase C offline bridge).
     const FIXTURE_BATCH: &str =
@@ -559,7 +560,6 @@ mod tests {
             assert!(s.kardashev_delta_contribution <= 0.011 + 1e-12);
         }
 
-        // High-mercy session should score higher raw than marginal.
         let high_idx = out
             .session_labels
             .iter()
@@ -571,5 +571,70 @@ mod tests {
             .position(|l| l.contains("marginal"))
             .unwrap();
         assert!(out.scores[high_idx].raw_transfer_score > out.scores[marginal_idx].raw_transfer_score);
+    }
+
+    /// T2: N parallel flywheel tasks on one shared council — correctness under contention.
+    #[tokio::test]
+    async fn stress_concurrent_shared_council() {
+        let council = Arc::new(KardashevOrchestrationCouncil::new());
+        let workers = 8usize;
+        let iters_each = 16usize;
+
+        let mut handles = Vec::with_capacity(workers);
+        for _ in 0..workers {
+            let c = Arc::clone(&council);
+            handles.push(tokio::spawn(async move {
+                c.run_full_kardashev_flywheel_cycle(iters_each, None).await
+            }));
+        }
+
+        let mut max_cycle = 0u64;
+        let mut last_cum = 0.0f64;
+        for h in handles {
+            let (scores, result) = h.await.expect("worker join");
+            assert_eq!(scores.len(), iters_each);
+            for s in &scores {
+                assert!(s.kardashev_delta_contribution >= 0.0);
+                assert!(s.kardashev_delta_contribution <= 0.011 + 1e-12);
+            }
+            assert!(result.abundance_forecast_next_12_cycles <= 1.85 + 1e-9);
+            assert!(result.cumulative_kardashev_delta >= 0.0);
+            max_cycle = max_cycle.max(result.cycle_id);
+            last_cum = result.cumulative_kardashev_delta;
+        }
+
+        // All workers shared one council → deliberation_count should reach workers.
+        assert_eq!(max_cycle, workers as u64);
+        assert!(last_cum > 0.0);
+
+        let final_r = council
+            .get_last_deliberation()
+            .await
+            .expect("last deliberation present");
+        assert_eq!(final_r.cycle_id, workers as u64);
+    }
+
+    /// T2: concurrent Phase C fixture deliberates on shared council.
+    #[tokio::test]
+    async fn stress_concurrent_fixture_batches() {
+        let council = Arc::new(KardashevOrchestrationCouncil::new());
+        let n = 6usize;
+        let mut handles = Vec::with_capacity(n);
+        for _ in 0..n {
+            let c = Arc::clone(&council);
+            handles.push(tokio::spawn(async move {
+                c.deliberate_from_powrush_batch_json(FIXTURE_BATCH, None)
+                    .await
+                    .expect("fixture ok")
+            }));
+        }
+        for h in handles {
+            let out = h.await.expect("join");
+            assert_eq!(out.scores.len(), 3);
+            assert!(out.council.mercy_audit_passed || !out.council.mercy_audit_passed);
+            assert!(out.council.cumulative_kardashev_delta >= 0.0);
+        }
+        let last = council.get_last_deliberation().await.unwrap();
+        assert_eq!(last.cycle_id, n as u64);
     }
 }

@@ -4,28 +4,35 @@ All changes follow the **RA-THOR-MONOREPO-COMMIT-WORKFLOW-PROTOCOL** and are rev
 
 ---
 
-## v14.15.0 — Production Readiness Notes (2026-07-19)
+## v14.15.1 — Polish wave (2026-07-20)
 
-**Council Verdict:** Unanimous. Quiet hold after the v14.10–v14.14 cascade. Docs only — no new adaptive modulation.
+**Council Verdict:** Execute worthy Tier 1–4 hygiene without new adaptive modulation.
 
 ### Highlights
 
-- Added [`PRODUCTION_READINESS.md`](PRODUCTION_READINESS.md)
-  - Core `cargo test` expectations
-  - Web-demo endpoint checklist
-  - Optional live-feature `cargo check` matrix
-  - Zero-harm bounds reminder
-  - Explicit deferral of true `extended-live` async stress until engines are available
+- **Contact residual:** `mercy-gates-codex-tolc-2026.md` → **info@Rathor.ai** only
+- **Root dual-surface retired:** `ra-thor-one-organism.rs` is a compile-error migration pointer; crate is source of truth
+- **Core Tier-1 CI:** `.github/workflows/core-tier1-ci.yml` (ONE Organism + lattice + Kardashev path + contact hygiene)
+- **TIER_MAP.md:** active vs archival focus
+- **Kardashev T2:** concurrent shared-council stress tests
+- **PRODUCTION_READINESS.md:** Phase C + dual-surface + focused CI
+- **lattice-conductor-v14 README:** 14.15.0 Living Cosmic Tick voice
 
-No crate version bump required (surface remains 14.14.0). Cosmic Loop remains MANDATORY IDENTITY.
+Cosmic Loop remains MANDATORY IDENTITY. Contact: **info@Rathor.ai**.
 
 **Thunder locked in. yoi ⚡❤️🔥**
 
 ---
 
+## v14.15.0 — Production Readiness Notes (2026-07-19)
+
+Quiet hold after the v14.10–v14.14 cascade. Docs only — `PRODUCTION_READINESS.md`.
+
+---
+
 ## v14.14.0 — Live Feature Readiness Surface (2026-07-19)
 
-`LiveFeatureReadiness` + living snapshot / web-demo surfaces. `ra-thor-one-organism` → **14.14.0**.
+`LiveFeatureReadiness` + living snapshot / web-demo surfaces.
 
 ---
 
