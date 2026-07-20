@@ -1,6 +1,6 @@
 # Migration: lattice-conductor-v13 → lattice-conductor-v14
 
-**Status:** Phase 0–3 complete · Phase 4 dual-path started (compat retained)  
+**Status:** Phase 0–3 complete · Phase 4 dual-path soaking  
 **Posture:** Quiet hold — no new adaptive modulation  
 **Contact:** info@Rathor.ai
 
@@ -30,26 +30,28 @@ v13 and v14 are **not** drop-in replacements.
 | **1** | `compat_v13` module behind `v13-compat` | **Done** |
 | **2** | Migrate leaf crates | **Done** |
 | **3** | Deprecate v13 crate | **Done** (kept in workspace) |
-| **4** | Native v14 path on MercyCore | **Dual-path started** (see below) |
+| **4** | Native v14 dual-path | **Soaking** (mercy + kernel + council) |
 
 ---
 
-## Phase 2 leaf status
+## Phase 2 / 4 leaf status
 
-| Crate | Conductor dependency | Notes |
-|-------|----------------------|-------|
-| **`mercy`** | `lattice-conductor-v14` + `v13-compat` | Dual path (compat + native) |
-| **`powrush`** | None | No change required |
-| **`kernel`** | `lattice-conductor-v14` + `v13-compat` | Switched |
-| **`council`** | `lattice-conductor-v14` + `v13-compat` | Direct dep |
+| Crate | Dependency | Native dual-path |
+|-------|------------|------------------|
+| **`mercy`** | v14 + `v13-compat` | `pulse_with_v14_guard`, `native_v14_step`, … |
+| **`kernel`** | v14 + `v13-compat` | `lattice_v14_boot::{enforce_cosmic_loop_on_boot, …}` |
+| **`council`** | v14 + `v13-compat` | `lattice_v14_guard::{ensure_cosmic_loop_for_session, …}` |
+| **`powrush`** | None | N/A |
 
-Residual `lattice-conductor-v13` string hits are **docs / historical only** — no other crate `Cargo.toml` depends on v13.
+Residual `lattice-conductor-v13` string hits are **docs / historical only**.
 
 Verify:
 
 ```bash
 cargo test -p lattice-conductor-v14 --features v13-compat
 cargo test -p mercy
+cargo test -p kernel
+cargo test -p council
 ```
 
 ---
@@ -61,22 +63,28 @@ cargo test -p mercy
 
 ---
 
-## Phase 4 — dual path (started)
+## Phase 4 — dual path (soaking)
 
-**Policy:** Native engines are available **without** removing `v13-compat`.
+**Policy:** Native engines available **without** removing `v13-compat`.
 
-`MercyCore` now exposes:
-
+### MercyCore
 | Method | Role |
 |--------|------|
-| `pulse_with_v14_guard(&LatticeConductorV14)` | Cosmic Loop enforce + mild pulse |
-| `request_reflexion` | Self-healing reflexion probe |
-| `signal_mercy_mesh` | Mesh healing severity from mercy score |
-| `native_v14_step` / `native_v14_self_check` | Combined native step |
+| `pulse_with_v14_guard` | Cosmic Loop enforce + mild pulse |
+| `request_reflexion` / `signal_mercy_mesh` | Healing probes |
+| `native_v14_step` / `native_v14_self_check` | Combined |
 
-Compat traits (`Conductable`, `MercyAligned`) and `SimpleLatticeConductor` tests remain.
+### Kernel
+- `enforce_cosmic_loop_on_boot()`
+- `arbitration_rejects_disable()`
 
-**Not yet:** removing the `v13-compat` feature or deleting trait impls — that is a later Council decision after dual-path soak.
+### Council
+- `ensure_cosmic_loop_for_session()`
+- `proposal_respects_cosmic_loop(&str)`
+
+Public re-export: `ArbitrationDecision` from `lattice-conductor-v14`.
+
+**Not yet:** removing `v13-compat` or trait impls — later Council decision after soak.
 
 ---
 
@@ -87,10 +95,8 @@ lattice-conductor-v14 = { path = "../lattice-conductor-v14", features = ["v13-co
 ```
 
 ```rust
-// Compat
 use lattice_conductor_v14::compat_v13::{Conductable, MercyAligned, SimpleLatticeConductor};
-// Native
-use lattice_conductor_v14::LatticeConductorV14;
+use lattice_conductor_v14::{ArbitrationDecision, LatticeConductorV14};
 ```
 
 ---
