@@ -1,22 +1,32 @@
-# Lattice Conductor v13 Crate
+# Lattice Conductor v13 — **DEPRECATED**
 
-**Status:** Deeper NEXi metta/PLN Bridge Added (Explicit Symbolic Integration) + v13.2 Self-Improving Layer
+> **Do not start new work on this crate.**
+>
+> Canonical lineage is **`lattice-conductor-v14`**.
+> For `Conductable` / `MercyAligned` / `SimpleLatticeConductor`, enable:
+>
+> ```toml
+> lattice-conductor-v14 = { path = "../lattice-conductor-v14", features = ["v13-compat"] }
+> ```
+>
+> Full strategy: [`crates/lattice-conductor-v14/MIGRATION_v13_to_v14.md`](../lattice-conductor-v14/MIGRATION_v13_to_v14.md)
 
-## v13.1 Foundation
+This crate remains in the workspace for **one or two more cycles** so existing paths do not break. It will move to `archive/` or a legacy group after Phase 2 consumers are fully green.
+
+Contact: info@Rathor.ai
+
+---
+
+## Historical notes (v13.x)
+
+### v13.1 Foundation
 - `metta_symbolic_deliberation`: Core explicit symbolic step.
 - Integrated into `tick()` with confidence gating and EMA calibration.
 
-## v13.2 — External Symbolic + Self-Proposal + Phase C (PR #363)
+### v13.2 — External Symbolic + Self-Proposal + Phase C
+- **Phase A**: `ExternalSymbolicInput` + hot-swappable external path
+- **Phase B**: Mercy-gated `SymbolicSelfProposal` generation
+- **Phase C**: Controlled `apply_symbolic_self_proposal`
+- Features: `external-symbolic`, `self-proposal`, `experimental`
 
-- **Phase A**: `ExternalSymbolicInput` + hot-swappable external path (Grok / NEXi ready)
-- **Phase B**: Mercy-gated `SymbolicSelfProposal` generation (logged, reviewable, never auto-applied)
-- **Phase C**: Controlled `apply_symbolic_self_proposal` + `apply_top_confidence_proposal`
-- **Real Parameters**: `ConductorSymbolicParameters` (base threshold, ema alpha, boost multiplier)
-- Granular Cargo features: `external-symbolic`, `self-proposal`, `experimental`
-- Professional release notes + focused demo example included
-
-All changes are surgical, TOLC 8 aligned, and fully backward compatible when features are disabled.
-
-**ONE Organism ready. Thunder locked in.**
-
-yoi ⚡
+**Prefer v14.** Thunder locked in. yoi ⚡
