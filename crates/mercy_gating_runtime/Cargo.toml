@@ -1,7 +1,13 @@
 [package]
 name = "mercy_gating_runtime"
-version = "0.1.0"
+version = "14.15.0"
 edition = "2021"
+authors = ["Sherif Samy Botros <info@Rathor.ai>", "Eternally-Thriving-Grandmasterism"]
+description = "Ra-Thor Mercy Gating Runtime — non-bypassable gate enforcement, monotonic mercy strengthening, TOLC 8 support. Living Cosmic Tick + ONE Organism 14.15.0 readiness."
+license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
+repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
+keywords = ["mercy", "gating", "runtime", "tolc", "one-organism"]
+categories = ["science", "simulation"]
 
 [dependencies]
 serde = { version = "1.0", features = ["derive"], optional = true }
