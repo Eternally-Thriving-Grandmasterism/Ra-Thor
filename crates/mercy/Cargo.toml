@@ -2,11 +2,12 @@
 name = "mercy"
 version = "13.8.3"
 edition = "2021"
-authors = ["Sherif Samy Botros <sherif@autonomicity.games>"]
-description = "Mercy Lattice Core — Foundational mercy-weighted coordination subsystem for Ra-Thor ONE Organism"
+authors = ["Sherif Samy Botros <info@Rathor.ai>"]
+description = "Mercy Lattice Core — Foundational mercy-weighted coordination subsystem for Ra-Thor ONE Organism (v14 conductor via v13-compat)"
 license = "MIT OR AG-SML"
 repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
 
 [dependencies]
-lattice-conductor-v13 = { path = "../lattice-conductor-v13", version = "13.8.2" }
+# Phase 2 migration: native lineage is v14; Conductable/MercyAligned via feature v13-compat
+lattice-conductor-v14 = { path = "../lattice-conductor-v14", features = ["v13-compat"] }
 serde = { version = "1.0", features = ["derive"] }
