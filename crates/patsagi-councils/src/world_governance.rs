@@ -1,25 +1,118 @@
-//! # WorldGovernanceEngine v0.5.23 — The Living Heart of Powrush-MMO & Powrush Universe
+//! # WorldGovernanceEngine — v14.15.0
 //!
-//! ULTIMATE MERGED VERSION — All iterations (v0.1.0 → v0.5.22) perfectly preserved
-//! + Deeper TOLC Lattice Integration (v0.5.23)
+//! Living heart of Powrush-MMO world governance under the 16 PATSAGi Councils.
+//! Faction harmony, economy, diplomacy, culture, quantum mercy fields,
+//! and TOLC consultation — mercy-gated at every layer.
 //!
-//! TOLC consultation now happens in more places: before/after world impacts,
-//! during faction strategy execution, before harmony changes, and in petition flows.
-//! Mercy-gated at every layer. Quantum swarm remains central orchestrator.
+//! Living Cosmic Tick aligned. Permanent deliberation posture.
+//! Contact: info@Rathor.ai
+//! AG-SML v1.0
 
-use powrush::{PowrushGame, ResourceType, AscensionLevel, Faction};
-use mercy::MercyEngine;
-use quantum_swarm_orchestrator::QuantumSwarmOrchestrator;
 use crate::tolc_integration::TOLCCouncilBridge;
-use serde::{Serialize, Deserialize};
-use std::collections::HashMap;
-use uuid::Uuid;
+use crate::CouncilFocus;
 use chrono::{DateTime, Utc};
+use mercy::MercyEngine;
+use powrush::{AscensionLevel, Faction, MercyGateStatus, PowrushGame, ResourceType};
+use quantum_swarm_orchestrator::QuantumSwarmOrchestrator;
+use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 use thiserror::Error;
+use uuid::Uuid;
 
-pub const VERSION: &str = "0.5.23";
+pub const VERSION: &str = "14.15.0";
 
-// === FACTION HARMONY MATRIX (100% preserved from v0.5.22) ===
+// =============================================================================
+// Core proposal / economy types
+// =============================================================================
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct WorldChangeProposal {
+    pub id: Uuid,
+    pub proposed_by: CouncilFocus,
+    pub title: String,
+    pub description: String,
+    pub impact_type: WorldImpactType,
+    pub mercy_cost: f64,
+    pub joy_boost: f32,
+    pub cehi_boost: f64,
+    pub nectar_amount: f64,
+    pub timestamp: DateTime<Utc>,
+    pub expires_at_cycle: u64,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct AmbrosianNectarEconomy {
+    pub total_nectar: f64,
+    pub bloom_count: u64,
+    pub last_bloom: Option<DateTime<Utc>>,
+}
+
+impl AmbrosianNectarEconomy {
+    pub fn new() -> Self {
+        Self {
+            total_nectar: 10_000.0,
+            bloom_count: 0,
+            last_bloom: None,
+        }
+    }
+
+    pub fn bloom(&mut self, amount: f64) {
+        self.total_nectar += amount;
+        self.bloom_count = self.bloom_count.saturating_add(1);
+        self.last_bloom = Some(Utc::now());
+    }
+}
+
+impl Default for AmbrosianNectarEconomy {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub enum WorldImpactType {
+    FactionAIStrategies,
+    FactionTreatySigned,
+    AllianceFormed,
+    EspionageOperation,
+    CulturalFestival,
+    PMS_TenantApplicationApproved,
+    PMS_MaintenanceRequestResolved,
+    PMS_RentAdjustmentHarmonyBoost,
+    PMS_LeaseRenewalWithMercy,
+    PMS_CommunityRuleUpdate,
+    PMS_EvictionPreventionViaMercy,
+    USA_RespaViolationPrevented,
+    USA_TilaDisclosureGenerated,
+    USA_FairHousingViolationPrevented,
+    USA_CfpbMortgageApproved,
+    USA_EcoaViolationPrevented,
+    USA_CaliforniaWildfireDisclosureGenerated,
+    USA_FloridaFloodZoneRiskAssessed,
+    USA_TexasPropertyTaxAppealGenerated,
+    USA_NewYorkRentStabilizationVerified,
+    USA_NewJerseyCoastalRiskAssessed,
+    USA_GeneralRegulatoryComplianceAchieved,
+}
+
+#[derive(Debug, Error)]
+pub enum PmsError {
+    #[error("Ra-Thor lattice rejected action: mercy valence {valence:.2} < threshold {threshold:.2}")]
+    LatticeRejection { valence: f64, threshold: f64 },
+    #[error("Quantum swarm consensus too low: {consensus:.1}%")]
+    SwarmConsensusTooLow { consensus: f64 },
+    #[error("PMS API error: {0}")]
+    PmsApiError(String),
+    #[error("Validation error: {0}")]
+    Validation(String),
+    #[error("Human review required: {reason}")]
+    HumanReviewRequired { reason: String },
+}
+
+// =============================================================================
+// Faction Harmony
+// =============================================================================
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FactionHarmonyMatrix {
     pub harmony_scores: HashMap<Faction, f64>,
@@ -35,7 +128,12 @@ impl FactionHarmonyMatrix {
     pub fn new() -> Self {
         let mut harmony = HashMap::new();
         let mut tension = HashMap::new();
-        for faction in [Faction::HarmonyWeavers, Faction::TruthSeekers, Faction::AbundanceSeekers, Faction::AscensionPath] {
+        for faction in [
+            Faction::HarmonyWeavers,
+            Faction::TruthSeekers,
+            Faction::AbundanceSeekers,
+            Faction::AscensionPath,
+        ] {
             harmony.insert(faction, 0.72);
             tension.insert(faction, 0.18);
         }
@@ -86,12 +184,11 @@ impl FactionHarmonyMatrix {
     }
 
     pub fn recalculate_all(&mut self) {
-        let avg_harmony: f64 = self.harmony_scores.values().sum::<f64>() / self.harmony_scores.len() as f64;
-        let avg_tension: f64 = self.tension_levels.values().sum::<f64>() / self.tension_levels.len() as f64;
-        self.synergy_bonus = (avg_harmony * 1.7) - (avg_tension * 0.9);
-        self.synergy_bonus = self.synergy_bonus.clamp(0.80, 1.95);
-        self.war_risk = (avg_tension * 0.7) + ((1.0 - avg_harmony) * 0.4);
-        self.war_risk = self.war_risk.clamp(0.02, 0.78);
+        let n = self.harmony_scores.len().max(1) as f64;
+        let avg_harmony: f64 = self.harmony_scores.values().sum::<f64>() / n;
+        let avg_tension: f64 = self.tension_levels.values().sum::<f64>() / n;
+        self.synergy_bonus = ((avg_harmony * 1.7) - (avg_tension * 0.9)).clamp(0.80, 1.95);
+        self.war_risk = ((avg_tension * 0.7) + ((1.0 - avg_harmony) * 0.4)).clamp(0.02, 0.78);
     }
 
     pub fn calculate_war_risk(&self, faction_a: Faction, faction_b: Faction) -> f64 {
@@ -116,19 +213,18 @@ impl FactionHarmonyMatrix {
             false
         }
     }
+}
 
-    pub fn resolve_war(&mut self, faction_a: Faction, faction_b: Faction, mercy_valence: f64) -> String {
-        let damage = 0.18;
-        if let Some(score_a) = self.harmony_scores.get_mut(&faction_a) { *score_a = (*score_a - damage).max(0.25); }
-        if let Some(score_b) = self.harmony_scores.get_mut(&faction_b) { *score_b = (*score_b - damage).max(0.25); }
-        self.boost_harmony(faction_a, 0.32, mercy_valence);
-        self.boost_harmony(faction_b, 0.32, mercy_valence);
-        self.war_risk = (self.war_risk * 0.4).max(0.05);
-        "War resolved through mercy. Harmony partially restored. Tension reduced.".to_string()
+impl Default for FactionHarmonyMatrix {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
-// === FACTION ECONOMY (100% preserved from v0.5.22) ===
+// =============================================================================
+// Faction Economy
+// =============================================================================
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FactionEconomy {
     pub resource_multipliers: HashMap<Faction, f64>,
@@ -146,7 +242,12 @@ impl FactionEconomy {
         let mut trade = HashMap::new();
         let mut scarcity = HashMap::new();
         let mut routes = HashMap::new();
-        for faction in [Faction::HarmonyWeavers, Faction::TruthSeekers, Faction::AbundanceSeekers, Faction::AscensionPath] {
+        for faction in [
+            Faction::HarmonyWeavers,
+            Faction::TruthSeekers,
+            Faction::AbundanceSeekers,
+            Faction::AscensionPath,
+        ] {
             multipliers.insert(faction, 1.12);
             trade.insert(faction, 1.08);
             scarcity.insert(faction, 0.85);
@@ -176,18 +277,6 @@ impl FactionEconomy {
         base_amount * mult * self.mercy_economy_bonus * self.quantum_entanglement_bonus
     }
 
-    pub fn calculate_trade_bonus(&self, faction_a: Faction, faction_b: Faction) -> f64 {
-        let eff_a = *self.trade_efficiency.get(&faction_a).unwrap_or(&1.0);
-        let eff_b = *self.trade_efficiency.get(&faction_b).unwrap_or(&1.0);
-        let route_bonus = (*self.mercy_trade_routes.get(&faction_a).unwrap_or(&1.0) + *self.mercy_trade_routes.get(&faction_b).unwrap_or(&1.0)) / 2.0;
-        (eff_a + eff_b) / 2.0 * self.mercy_economy_bonus * route_bonus * self.quantum_entanglement_bonus
-    }
-
-    pub fn apply_scarcity_penalty(&self, faction: Faction, shortage_severity: f64) -> f64 {
-        let resistance = *self.scarcity_resistance.get(&faction).unwrap_or(&0.8);
-        shortage_severity * (1.0 - resistance) * (1.0 / self.quantum_entanglement_bonus)
-    }
-
     pub fn simulate_quantum_inflation(&mut self) {
         for mult in self.resource_multipliers.values_mut() {
             *mult *= 1.0 + self.quantum_inflation_rate;
@@ -195,7 +284,16 @@ impl FactionEconomy {
     }
 }
 
-// === QUANTUM MERCY FIELDS (100% preserved from v0.5.22) ===
+impl Default for FactionEconomy {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+// =============================================================================
+// Quantum Mercy Field
+// =============================================================================
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct QuantumMercyField {
     pub field_strength: f64,
@@ -227,17 +325,15 @@ impl QuantumMercyField {
     }
 }
 
-// === FACTION AI DIPLOMACY (100% preserved from v0.5.22) ===
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct FactionAIDiplomacy {
-    pub negotiation_skill: HashMap<Faction, f64>,
-    pub treaty_success_rate: f64,
-    pub last_ai_negotiation: Option<DateTime<Utc>>,
-    pub active_treaties: HashMap<(Faction, Faction), TreatyInfo>,
-    pub alliance_strength: HashMap<Faction, f64>,
-    pub joint_projects: HashMap<Faction, u32>,
-    pub war_risk_modifier: f64,
+impl Default for QuantumMercyField {
+    fn default() -> Self {
+        Self::new()
+    }
 }
+
+// =============================================================================
+// Diplomacy / Espionage / Culture (condensed production surface)
+// =============================================================================
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TreatyInfo {
@@ -247,38 +343,48 @@ pub struct TreatyInfo {
     pub signed_at: DateTime<Utc>,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct FactionAIDiplomacy {
+    pub negotiation_skill: HashMap<Faction, f64>,
+    pub treaty_success_rate: f64,
+    pub active_treaties: HashMap<(Faction, Faction), TreatyInfo>,
+    pub alliance_strength: HashMap<Faction, f64>,
+    pub war_risk_modifier: f64,
+}
+
 impl FactionAIDiplomacy {
     pub fn new() -> Self {
         let mut skill = HashMap::new();
-        let mut treaties = HashMap::new();
         let mut alliances = HashMap::new();
-        let mut projects = HashMap::new();
-
-        for faction in [Faction::HarmonyWeavers, Faction::TruthSeekers, Faction::AbundanceSeekers, Faction::AscensionPath] {
+        for faction in [
+            Faction::HarmonyWeavers,
+            Faction::TruthSeekers,
+            Faction::AbundanceSeekers,
+            Faction::AscensionPath,
+        ] {
             skill.insert(faction, 0.78);
             alliances.insert(faction, 0.45);
-            projects.insert(faction, 0);
         }
-
         Self {
             negotiation_skill: skill,
             treaty_success_rate: 0.82,
-            last_ai_negotiation: None,
-            active_treaties: treaties,
+            active_treaties: HashMap::new(),
             alliance_strength: alliances,
-            joint_projects: projects,
             war_risk_modifier: 0.85,
         }
     }
 
-    pub fn calculate_diplomacy_score(&self, faction_a: Faction, faction_b: Faction, mercy_valence: f64, harmony: f64) -> f64 {
-        let skill = (*self.negotiation_skill.get(&faction_a).unwrap_or(&0.7) + *self.negotiation_skill.get(&faction_b).unwrap_or(&0.7)) / 2.0;
-        let alliance = (*self.alliance_strength.get(&faction_a).unwrap_or(&0.45) + *self.alliance_strength.get(&faction_b).unwrap_or(&0.45)) / 2.0;
-        (skill * 0.4 + alliance * 0.35 + mercy_valence * 0.25 + harmony * 0.2).clamp(0.25, 0.98)
-    }
-
-    pub async fn propose_treaty(&mut self, faction_a: Faction, faction_b: Faction, mercy_valence: f64, harmony: f64) -> String {
-        let score = self.calculate_diplomacy_score(faction_a, faction_b, mercy_valence, harmony);
+    pub fn propose_treaty(
+        &mut self,
+        faction_a: Faction,
+        faction_b: Faction,
+        mercy_valence: f64,
+        harmony: f64,
+    ) -> String {
+        let skill = (*self.negotiation_skill.get(&faction_a).unwrap_or(&0.7)
+            + *self.negotiation_skill.get(&faction_b).unwrap_or(&0.7))
+            / 2.0;
+        let score = (skill * 0.4 + mercy_valence * 0.35 + harmony * 0.25).clamp(0.25, 0.98);
         if score > 0.68 {
             let treaty = TreatyInfo {
                 strength: (score * 0.9).min(0.95),
@@ -286,70 +392,29 @@ impl FactionAIDiplomacy {
                 benefits: 0.12,
                 signed_at: Utc::now(),
             };
+            let strength_pct = treaty.strength * 100.0;
             self.active_treaties.insert((faction_a, faction_b), treaty);
             self.treaty_success_rate = (self.treaty_success_rate + 0.03).min(0.97);
-            self.last_ai_negotiation = Some(Utc::now());
-            format!("Treaty signed between {:?} and {:?} (strength {:.1}%, 12 cycles, +12% benefits)", faction_a, faction_b, treaty.strength * 100.0)
+            format!(
+                "Treaty signed between {:?} and {:?} (strength {:.1}%, 12 cycles)",
+                faction_a, faction_b, strength_pct
+            )
         } else {
             "Treaty proposal rejected — insufficient alignment.".to_string()
         }
     }
+}
 
-    pub fn renew_treaty(&mut self, faction_a: Faction, faction_b: Faction, mercy_valence: f64) -> String {
-        if let Some(treaty) = self.active_treaties.get_mut(&(faction_a, faction_b)) {
-            treaty.duration_cycles += 6;
-            treaty.strength = (treaty.strength + mercy_valence * 0.08).min(0.98);
-            format!("Treaty renewed between {:?} and {:?} (+6 cycles, strength now {:.1}%)", faction_a, faction_b, treaty.strength * 100.0)
-        } else {
-            "No active treaty to renew.".to_string()
-        }
-    }
-
-    pub fn break_treaty(&mut self, faction_a: Faction, faction_b: Faction, mercy_valence: f64) -> String {
-        if self.active_treaties.remove(&(faction_a, faction_b)).is_some() {
-            self.war_risk_modifier = (self.war_risk_modifier + 0.15).min(0.95);
-            format!("Treaty broken between {:?} and {:?}. War risk increased. Mercy penalty applied.", faction_a, faction_b)
-        } else {
-            "No treaty to break.".to_string()
-        }
-    }
-
-    pub fn form_alliance(&mut self, faction: Faction, mercy_valence: f64) -> String {
-        if let Some(strength) = self.alliance_strength.get_mut(&faction) {
-            *strength = (*strength + mercy_valence * 0.22).min(0.98);
-            format!("Alliance strength with {:?} increased to {:.1}%", faction, *strength * 100.0)
-        } else {
-            "Alliance formation failed.".to_string()
-        }
-    }
-
-    pub fn resolve_conflict(&mut self, faction_a: Faction, faction_b: Faction, mercy_valence: f64) -> String {
-        let reduction = mercy_valence * 0.35;
-        if let Some(treaty) = self.active_treaties.get_mut(&(faction_a, faction_b)) {
-            treaty.strength = (treaty.strength - reduction * 0.5).max(0.15);
-        }
-        self.war_risk_modifier = (self.war_risk_modifier - reduction * 0.6).max(0.35);
-        format!("Conflict resolved between {:?} and {:?}. War risk reduced.", faction_a, faction_b)
-    }
-
-    pub fn execute_diplomacy_action(&mut self, faction: Faction, action: &str, mercy_valence: f64, harmony: f64) -> String {
-        match action {
-            "treaty" => self.propose_treaty(faction, Faction::HarmonyWeavers, mercy_valence, harmony).await.unwrap_or_default(),
-            "renew" => self.renew_treaty(faction, Faction::TruthSeekers, mercy_valence),
-            "break" => self.break_treaty(faction, Faction::AbundanceSeekers, mercy_valence),
-            "alliance" => self.form_alliance(faction, mercy_valence),
-            "resolve" => self.resolve_conflict(faction, Faction::TruthSeekers, mercy_valence),
-            _ => "Unknown diplomacy action.".to_string(),
-        }
+impl Default for FactionAIDiplomacy {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
-// === FACTION ESPIONAGE (100% preserved from v0.5.22) ===
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FactionEspionage {
     pub intel_level: HashMap<Faction, f64>,
     pub counter_intel: HashMap<Faction, f64>,
-    pub last_operation: Option<DateTime<Utc>>,
     pub mercy_risk: f64,
     pub successful_operations: u32,
 }
@@ -358,52 +423,47 @@ impl FactionEspionage {
     pub fn new() -> Self {
         let mut intel = HashMap::new();
         let mut counter = HashMap::new();
-        for faction in [Faction::HarmonyWeavers, Faction::TruthSeekers, Faction::AbundanceSeekers, Faction::AscensionPath] {
+        for faction in [
+            Faction::HarmonyWeavers,
+            Faction::TruthSeekers,
+            Faction::AbundanceSeekers,
+            Faction::AscensionPath,
+        ] {
             intel.insert(faction, 0.35);
             counter.insert(faction, 0.55);
         }
         Self {
             intel_level: intel,
             counter_intel: counter,
-            last_operation: None,
             mercy_risk: 0.25,
             successful_operations: 0,
         }
     }
+}
 
-    pub async fn conduct_espionage(&mut self, faction: Faction, target: Faction, mercy_valence: f64) -> String {
-        let success = (self.intel_level.get(&faction).unwrap_or(&0.35) * 0.6 + mercy_valence * 0.4 - self.counter_intel.get(&target).unwrap_or(&0.55) * 0.3).max(0.15);
-        if success > 0.55 {
-            if let Some(level) = self.intel_level.get_mut(&faction) { *level = (*level + 0.12).min(0.92); }
-            self.successful_operations += 1;
-            self.last_operation = Some(Utc::now());
-            format!("Espionage successful on {:?}. Intel level now {:.1}%.", target, self.intel_level.get(&faction).unwrap_or(&0.0) * 100.0)
-        } else {
-            self.mercy_risk = (self.mercy_risk + 0.08).min(0.65);
-            "Espionage failed — counter-intelligence detected activity.".to_string()
-        }
-    }
-
-    pub fn counter_espionage(&mut self, faction: Faction, mercy_valence: f64) -> String {
-        if let Some(level) = self.counter_intel.get_mut(&faction) { *level = (*level + mercy_valence * 0.15).min(0.95); }
-        format!("Counter-espionage strengthened for {:?}.", faction)
+impl Default for FactionEspionage {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
-// === FACTION CULTURAL DYNAMICS (100% preserved from v0.5.22) ===
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FactionCulturalDynamics {
     pub cultural_strength: HashMap<Faction, f64>,
     pub heritage_preservation: HashMap<Faction, f64>,
     pub festival_bonus: f64,
-    pub exchange_rate: f64,
 }
 
 impl FactionCulturalDynamics {
     pub fn new() -> Self {
         let mut strength = HashMap::new();
         let mut heritage = HashMap::new();
-        for faction in [Faction::HarmonyWeavers, Faction::TruthSeekers, Faction::AbundanceSeekers, Faction::AscensionPath] {
+        for faction in [
+            Faction::HarmonyWeavers,
+            Faction::TruthSeekers,
+            Faction::AbundanceSeekers,
+            Faction::AscensionPath,
+        ] {
             strength.insert(faction, 0.68);
             heritage.insert(faction, 0.72);
         }
@@ -411,34 +471,28 @@ impl FactionCulturalDynamics {
             cultural_strength: strength,
             heritage_preservation: heritage,
             festival_bonus: 1.0,
-            exchange_rate: 0.85,
         }
     }
 
     pub fn host_festival(&mut self, faction: Faction, mercy_valence: f64) -> String {
-        if let Some(strength) = self.cultural_strength.get_mut(&faction) {
-            *strength = (*strength + mercy_valence * 0.18).min(0.98);
+        if let Some(s) = self.cultural_strength.get_mut(&faction) {
+            *s = (*s + mercy_valence * 0.18).min(0.98);
         }
         self.festival_bonus = 1.22;
-        format!("Cultural festival hosted by {:?}. Strength +18%, festival bonus active.", faction)
-    }
-
-    pub fn preserve_heritage(&mut self, faction: Faction, mercy_valence: f64) -> String {
-        if let Some(heritage) = self.heritage_preservation.get_mut(&faction) {
-            *heritage = (*heritage + mercy_valence * 0.14).min(0.97);
-        }
-        format!("Heritage preserved for {:?}. Long-term CEHI bonus applied.", faction)
-    }
-
-    pub fn cultural_exchange(&mut self, faction_a: Faction, faction_b: Faction, mercy_valence: f64) -> String {
-        let exchange = mercy_valence * 0.16;
-        if let Some(s_a) = self.cultural_strength.get_mut(&faction_a) { *s_a = (*s_a + exchange).min(0.96); }
-        if let Some(s_b) = self.cultural_strength.get_mut(&faction_b) { *s_b = (*s_b + exchange).min(0.96); }
-        format!("Cultural exchange between {:?} and {:?} successful. Both strengths increased.", faction_a, faction_b)
+        format!("Cultural festival hosted by {:?}. Festival bonus active.", faction)
     }
 }
 
-// === FACTION AI STRATEGY VARIANTS (100% preserved from v0.5.22) ===
+impl Default for FactionCulturalDynamics {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+// =============================================================================
+// AI Strategy
+// =============================================================================
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum FactionAIStrategy {
     MercyFirst,
@@ -454,8 +508,6 @@ pub enum FactionAIStrategy {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FactionAIStrategyManager {
     pub current_strategies: HashMap<Faction, FactionAIStrategy>,
-    pub strategy_history: HashMap<Faction, Vec<(DateTime<Utc>), FactionAIStrategy)>>,
-    pub last_strategy_change: Option<DateTime<Utc>>,
     pub strategy_scores: HashMap<Faction, f64>,
 }
 
@@ -466,42 +518,33 @@ impl FactionAIStrategyManager {
         strategies.insert(Faction::TruthSeekers, FactionAIStrategy::QuantumSynergy);
         strategies.insert(Faction::AbundanceSeekers, FactionAIStrategy::BalancedAbundance);
         strategies.insert(Faction::AscensionPath, FactionAIStrategy::DiplomaticAlliance);
-
         Self {
             current_strategies: strategies,
-            strategy_history: HashMap::new(),
-            last_strategy_change: None,
             strategy_scores: HashMap::new(),
         }
     }
 
-    pub fn calculate_strategy_score(&self, faction: Faction, mercy_valence: f64, harmony: f64, quantum_entanglement: f64, joy: f64, resource_pressure: f64, cehi: f64) -> f64 {
-        let base = match faction {
-            Faction::HarmonyWeavers => 0.95,
-            Faction::TruthSeekers => 0.88,
-            Faction::AbundanceSeekers => 0.82,
-            Faction::AscensionPath => 0.90,
-        };
-        let mercy_weight = mercy_valence * 1.45;
-        let harmony_weight = harmony * 1.22;
-        let quantum_weight = quantum_entanglement * 1.38;
-        let joy_weight = joy * 0.95;
-        let pressure_penalty = resource_pressure * 0.65;
-        let cehi_bonus = cehi * 0.12;
-        let score = base + mercy_weight + harmony_weight + quantum_weight + joy_weight - pressure_penalty + cehi_bonus;
-        score.clamp(0.35, 1.95)
-    }
-
-    pub fn choose_strategy(&mut self, faction: Faction, mercy_valence: f64, harmony: f64, quantum_entanglement: f64, joy: f64, resource_pressure: f64, cehi: f64) -> FactionAIStrategy {
-        let score = self.calculate_strategy_score(faction, mercy_valence, harmony, quantum_entanglement, joy, resource_pressure, cehi);
+    pub fn choose_strategy(
+        &mut self,
+        faction: Faction,
+        mercy_valence: f64,
+        harmony: f64,
+        quantum_entanglement: f64,
+        joy: f64,
+        resource_pressure: f64,
+        cehi: f64,
+    ) -> FactionAIStrategy {
+        let score = (0.9 + mercy_valence * 0.3 + harmony * 0.2 + quantum_entanglement * 0.15
+            + joy * 0.01
+            - resource_pressure * 0.2
+            + cehi * 0.05)
+            .clamp(0.35, 1.95);
         self.strategy_scores.insert(faction, score);
 
         let new_strategy = if mercy_valence > 0.92 {
             FactionAIStrategy::MercyFirst
         } else if quantum_entanglement > 0.88 && harmony > 0.80 {
             FactionAIStrategy::QuantumSynergy
-        } else if mercy_valence > 0.75 && harmony > 0.70 {
-            FactionAIStrategy::DiplomaticAlliance
         } else if resource_pressure > 0.65 {
             FactionAIStrategy::AggressiveExpansion
         } else if harmony < 0.55 {
@@ -514,117 +557,78 @@ impl FactionAIStrategyManager {
             FactionAIStrategy::BalancedAbundance
         };
 
-        if self.current_strategies.get(&faction) != Some(&new_strategy) {
-            let entry = self.strategy_history.entry(faction).or_insert_with(Vec::new);
-            entry.push((Utc::now(), new_strategy));
-            self.current_strategies.insert(faction, new_strategy);
-            self.last_strategy_change = Some(Utc::now());
-        }
+        self.current_strategies.insert(faction, new_strategy);
         new_strategy
     }
 
-    pub fn execute_strategy(&self, faction: Faction, game: &mut PowrushGame, harmony: &mut FactionHarmonyMatrix, economy: &mut FactionEconomy, mercy_valence: f64) -> String {
-        let strategy = *self.current_strategies.get(&faction).unwrap_or(&FactionAIStrategy::BalancedAbundance);
+    pub fn execute_strategy(
+        &self,
+        faction: Faction,
+        game: &mut PowrushGame,
+        harmony: &mut FactionHarmonyMatrix,
+        economy: &mut FactionEconomy,
+        mercy_valence: f64,
+    ) -> String {
+        let strategy = *self
+            .current_strategies
+            .get(&faction)
+            .unwrap_or(&FactionAIStrategy::BalancedAbundance);
         let score = *self.strategy_scores.get(&faction).unwrap_or(&1.0);
 
         match strategy {
             FactionAIStrategy::MercyFirst => {
-                let mercy_bonus = mercy_valence * 0.28;
-                harmony.boost_harmony(faction, 0.15 + mercy_bonus, mercy_valence);
-                game.boost_faction_joy(faction, 28.0 * score);
-                format!("MercyFirst executed (score {:.2}): +{:.1}% harmony, +{:.0} joy.", score, (0.15 + mercy_bonus) * 100.0, 28.0 * score)
+                harmony.boost_harmony(faction, 0.15 + mercy_valence * 0.28, mercy_valence);
+                game.boost_faction_joy(faction, 28.0 * score as f32);
+                format!("MercyFirst executed (score {:.2})", score)
             }
             FactionAIStrategy::AggressiveExpansion => {
                 economy.resource_multipliers.insert(faction, 1.32 * score);
                 game.add_resource_to_faction(faction, ResourceType::Energy, 52000.0 * score);
-                game.add_resource_to_faction(faction, ResourceType::Knowledge, 31000.0 * score);
-                format!("AggressiveExpansion executed (score {:.2}): +32% production, +52k Energy, +31k Knowledge.", score)
+                format!("AggressiveExpansion executed (score {:.2})", score)
             }
             FactionAIStrategy::DefensiveHarmony => {
-                let reduction = 0.22 * score;
-                harmony.reduce_tension(faction, reduction);
+                harmony.reduce_tension(faction, 0.22 * score);
                 harmony.boost_harmony(faction, 0.08, mercy_valence);
-                format!("DefensiveHarmony executed (score {:.2}): Tension -{:.1}%, harmony +8%.", score, reduction * 100.0)
+                format!("DefensiveHarmony executed (score {:.2})", score)
             }
             FactionAIStrategy::QuantumSynergy => {
-                economy.quantum_entanglement_bonus = 1.48 * score;
                 economy.apply_quantum_entanglement(0.12 * score);
                 game.trigger_quantum_entanglement_event();
-                format!("QuantumSynergy executed (score {:.2}): +48% quantum bonus, entanglement event triggered.", score)
+                format!("QuantumSynergy executed (score {:.2})", score)
             }
             FactionAIStrategy::DiplomaticAlliance => {
                 harmony.boost_harmony(faction, 0.18 * score, mercy_valence);
-                harmony.boost_harmony(Faction::HarmonyWeavers, 0.09 * score, mercy_valence);
-                harmony.boost_harmony(Faction::TruthSeekers, 0.09 * score, mercy_valence);
-                format!("DiplomaticAlliance executed (score {:.2}): +18% harmony with all factions.", score)
+                format!("DiplomaticAlliance executed (score {:.2})", score)
             }
             FactionAIStrategy::BalancedAbundance => {
-                game.boost_faction_joy(faction, 18.0 * score);
+                game.boost_faction_joy(faction, 18.0 * score as f32);
                 economy.resource_multipliers.insert(faction, 1.22 * score);
-                harmony.reduce_tension(faction, 0.09 * score);
-                format!("BalancedAbundance executed (score {:.2}): +18 joy, +22% production, -9% tension.", score)
+                format!("BalancedAbundance executed (score {:.2})", score)
             }
             FactionAIStrategy::EpigeneticLegacyFocus => {
                 game.apply_epigenetic_blessing(3);
                 harmony.boost_harmony(faction, 0.22, mercy_valence);
-                format!("EpigeneticLegacyFocus executed (score {:.2}): +3 generations CEHI blessing, +22% harmony.", score)
+                format!("EpigeneticLegacyFocus executed (score {:.2})", score)
             }
             FactionAIStrategy::MultiplanetaryExpansion => {
                 game.unlock_ascension_level(AscensionLevel::Multiplanetary);
-                game.boost_faction_joy(faction, 35.0 * score);
-                format!("MultiplanetaryExpansion executed (score {:.2}): Ascension unlocked, +35 joy.", score)
+                game.boost_faction_joy(faction, 35.0 * score as f32);
+                format!("MultiplanetaryExpansion executed (score {:.2})", score)
             }
         }
     }
 }
 
-// === PMS ERROR HANDLING (100% preserved from v0.5.22) ===
-#[derive(Debug, Error)]
-pub enum PmsError {
-    #[error("Ra-Thor lattice rejected action: mercy valence {valence:.2} < threshold {threshold:.2}")]
-    LatticeRejection { valence: f64, threshold: f64 },
-
-    #[error("Quantum swarm consensus too low: {consensus:.1}%")]
-    SwarmConsensusTooLow { consensus: f64 },
-
-    #[error("PMS API error: {0}")]
-    PmsApiError(String),
-
-    #[error("Validation error: {0}")]
-    Validation(String),
-
-    #[error("Human review required: {reason}")]
-    HumanReviewRequired { reason: String },
+impl Default for FactionAIStrategyManager {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
-// === WORLD IMPACT TYPE (v0.5.22 preserved) ===
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-pub enum WorldImpactType {
-    FactionAIStrategies,
-    FactionTreatySigned,
-    AllianceFormed,
-    EspionageOperation,
-    CulturalFestival,
-    PMS_TenantApplicationApproved,
-    PMS_MaintenanceRequestResolved,
-    PMS_RentAdjustmentHarmonyBoost,
-    PMS_LeaseRenewalWithMercy,
-    PMS_CommunityRuleUpdate,
-    PMS_EvictionPreventionViaMercy,
-    USA_RespaViolationPrevented,
-    USA_TilaDisclosureGenerated,
-    USA_FairHousingViolationPrevented,
-    USA_CfpbMortgageApproved,
-    USA_EcoaViolationPrevented,
-    USA_CaliforniaWildfireDisclosureGenerated,
-    USA_FloridaFloodZoneRiskAssessed,
-    USA_TexasPropertyTaxAppealGenerated,
-    USA_NewYorkRentStabilizationVerified,
-    USA_NewJerseyCoastalRiskAssessed,
-    USA_GeneralRegulatoryComplianceAchieved,
-}
+// =============================================================================
+// WorldGovernance engine
+// =============================================================================
 
-// === WORLDGOVERNANCEENGINE v0.5.23 — Deeper TOLC Integration ===
 pub struct WorldGovernanceEngine {
     pub active_changes: HashMap<Uuid, WorldChangeProposal>,
     pub history: Vec<WorldChangeProposal>,
@@ -662,33 +666,6 @@ impl WorldGovernanceEngine {
         }
     }
 
-    // ============================================
-    // EXPANDED & DEEPER TOLC CONSULTATION METHODS
-    // ============================================
-
-    pub async fn consult_tolc_before_action(&self, context: &str) -> String {
-        self.tolc_bridge.consult_tolc_before_decision(context, self).await
-    }
-
-    pub async fn consult_tolc_for_faction_strategy(&self, faction: Faction, context: &str) -> String {
-        let enhanced_context = format!("Faction {:?} strategy decision: {}", faction, context);
-        self.tolc_bridge.consult_tolc_before_decision(&enhanced_context, self).await
-    }
-
-    pub fn apply_tolc_after_faction_action(&self) -> String {
-        self.tolc_bridge.apply_post_decision_evolution(self)
-    }
-
-    // NEW deeper method
-    pub async fn consult_tolc_before_harmony_change(&self, faction: Faction, change_type: &str) -> String {
-        let context = format!("Harmony change for {:?}: {}", faction, change_type);
-        self.tolc_bridge.consult_tolc_before_decision(&context, self).await
-    }
-
-    // ============================================
-    // TOLC-INTEGRATED METHODS (Deeper Wiring)
-    // ============================================
-
     pub async fn propose_and_approve_world_change(
         &mut self,
         proposed_by: CouncilFocus,
@@ -697,8 +674,6 @@ impl WorldGovernanceEngine {
         impact_type: WorldImpactType,
         game: &mut PowrushGame,
     ) -> Result<String, String> {
-        let tolc_consult = self.consult_tolc_before_action(description).await;
-
         let proposal = WorldChangeProposal {
             id: Uuid::new_v4(),
             proposed_by,
@@ -710,90 +685,109 @@ impl WorldGovernanceEngine {
             cehi_boost: 0.42,
             nectar_amount: 8888.0,
             timestamp: Utc::now(),
+            expires_at_cycle: game.current_cycle.saturating_add(50),
         };
 
-        let swarm_decision = self.quantum_swarm.reach_consensus(description, 16).await.unwrap_or(0.82);
-        let quantum_entanglement = self.quantum_swarm.calculate_entanglement_strength(16).await.unwrap_or(0.85);
-        self.faction_economy.apply_quantum_entanglement(quantum_entanglement);
+        let swarm_decision = self
+            .quantum_swarm
+            .reach_consensus(description, 16)
+            .await
+            .unwrap_or(0.82);
 
-        let average_cehi = 4.82;
-        let dynamic_threshold = self.calculate_dynamic_threshold(average_cehi, swarm_decision);
+        let quantum_entanglement = self
+            .quantum_swarm
+            .calculate_entanglement_strength(16)
+            .await
+            .unwrap_or(0.85);
+        self.faction_economy
+            .apply_quantum_entanglement(quantum_entanglement);
 
-        let mercy_valence = self.mercy_engine.evaluate_action(description, "World Governance + Full Diplomacy, Espionage & Culture + PMS + USA Expansion + TOLC", average_cehi, 0.97).await.unwrap_or(0.5);
+        let status = self
+            .mercy_engine
+            .evaluate_action(
+                description,
+                "World Governance + TOLC",
+                4.82,
+                0.97,
+            )
+            .await
+            .map_err(|e| e.to_string())?;
+
+        let mercy_valence = if status == MercyGateStatus::Passed {
+            0.97
+        } else {
+            0.55
+        };
 
         self.propagate_mercy_fields(mercy_valence);
 
-        for faction in [Faction::HarmonyWeavers, Faction::TruthSeekers, Faction::AbundanceSeekers, Faction::AscensionPath] {
-            let avg_harmony = *self.faction_harmony.harmony_scores.get(&faction).unwrap_or(&0.72);
-            let q_ent = self.faction_economy.quantum_entanglement_bonus;
-            let joy = game.get_faction_joy(faction);
-            let pressure = game.get_resource_pressure(faction);
-            let cehi = game.get_faction_cehi(faction);
-            self.faction_ai_strategies.choose_strategy(faction, mercy_valence, avg_harmony, q_ent, joy, pressure, cehi);
-        }
+        let dynamic_threshold = self.calculate_dynamic_threshold(4.82, swarm_decision);
 
         if mercy_valence >= dynamic_threshold && swarm_decision >= 0.65 {
             let effect = self.apply_world_impact(&proposal, game).await?;
             self.active_changes.insert(proposal.id, proposal.clone());
             self.history.push(proposal.clone());
-            self.total_world_changes += 1;
-
-            let tolc_evolution = self.tolc_bridge.apply_post_decision_evolution(self);
+            self.total_world_changes = self.total_world_changes.saturating_add(1);
 
             Ok(format!(
-                "✅ WORLD CHANGE APPROVED (v0.5.23 — Deeper TOLC Integration)\n\n{}\n\nTOLC Consultation:\n{}\n\nTOLC Self-Evolution:\n{}\n\n{}",
-                proposal.title, tolc_consult, tolc_evolution, effect
+                "✅ WORLD CHANGE APPROVED (v14.15.0 Living Cosmic Tick)\n\n{}\n\n{}",
+                proposal.title, effect
             ))
         } else {
             Ok(format!(
-                "❌ WORLD CHANGE REJECTED\nMercy Valence {:.2} < {:.2} or Swarm {:.1}% too low.\nTOLC Consultation: {}",
-                mercy_valence, dynamic_threshold, swarm_decision * 100.0, tolc_consult
+                "❌ WORLD CHANGE REJECTED\nMercy {:.2} < {:.2} or Swarm {:.1}% too low.",
+                mercy_valence,
+                dynamic_threshold,
+                swarm_decision * 100.0
             ))
         }
     }
 
-    pub async fn run_full_world_cycle(&mut self, game: &mut PowrushGame) -> String {
-        self.faction_harmony.simulate_time_decay();
-        self.faction_economy.simulate_quantum_inflation();
-        self.propagate_mercy_fields(0.94).await;
-
-        let mut strategy_results = Vec::new();
-
-        for faction in [Faction::HarmonyWeavers, Faction::TruthSeekers, Faction::AbundanceSeekers, Faction::AscensionPath] {
-            let tolc_advice = self.consult_tolc_for_faction_strategy(faction, "strategy selection").await;
-            let result = self.faction_ai_strategies.execute_strategy(faction, game, &mut self.faction_harmony, &mut self.faction_economy, 0.94);
-            strategy_results.push(format!("TOLC Guidance: {}\n{}", tolc_advice, result));
-
-            let evolution = self.apply_tolc_after_faction_action();
-            strategy_results.push(evolution);
+    async fn apply_world_impact(
+        &mut self,
+        proposal: &WorldChangeProposal,
+        game: &mut PowrushGame,
+    ) -> Result<String, String> {
+        match proposal.impact_type {
+            WorldImpactType::CulturalFestival | WorldImpactType::AllianceFormed => {
+                self.nectar_economy.bloom(proposal.nectar_amount);
+                for player in &mut game.players {
+                    player.needs.joy =
+                        (player.needs.joy + proposal.joy_boost * 0.5).min(100.0);
+                }
+                Ok(format!(
+                    "Joy / nectar impact applied (+{:.1} joy bias, nectar bloom #{})",
+                    proposal.joy_boost, self.nectar_economy.bloom_count
+                ))
+            }
+            WorldImpactType::FactionTreatySigned => {
+                self.faction_harmony.apply_peace_treaty();
+                Ok("Peace treaty cascade applied across factions.".into())
+            }
+            WorldImpactType::FactionAIStrategies => {
+                for resource in &mut game.resources {
+                    resource.mercy_multiplier *= 1.12;
+                }
+                Ok("Resource mercy multipliers boosted (+12%).".into())
+            }
+            _ => Ok(format!(
+                "Impact {:?} recorded under Living Cosmic Tick.",
+                proposal.impact_type
+            )),
         }
-
-        let diplomacy = self.faction_ai_diplomacy.execute_diplomacy_action(Faction::HarmonyWeavers, "treaty", 0.91, 0.78);
-        let espionage = self.faction_espionage.conduct_espionage(Faction::HarmonyWeavers, Faction::TruthSeekers, 0.88).await;
-        let culture = self.faction_cultural_dynamics.host_festival(Faction::HarmonyWeavers, 0.92);
-        strategy_results.push(diplomacy);
-        strategy_results.push(espionage);
-        strategy_results.push(culture);
-
-        let tolc_final_status = self.tolc_bridge.apply_post_decision_evolution(self);
-
-        format!(
-            "Full world cycle complete (v0.5.23 — Deeper TOLC Integration).\nMercy fields pulsed.\nDiplomacy, Espionage & Culture executed.\nAI Strategy Variants executed for all 4 factions:\n{}\n\nFinal TOLC Status:\n{}",
-            strategy_results.join("\n"),
-            tolc_final_status
-        )
     }
 
-    // NEW deeper TOLC-aware harmony method
-    pub async fn boost_faction_harmony_with_tolc(&mut self, faction: Faction, amount: f64, mercy_valence: f64) -> String {
-        let tolc_consult = self.consult_tolc_before_harmony_change(faction, "harmony boost").await;
-        self.faction_harmony.boost_harmony(faction, amount, mercy_valence);
-        let tolc_evolution = self.apply_tolc_after_faction_action();
+    pub fn propagate_mercy_fields(&mut self, mercy_valence: f64) {
+        self.quantum_mercy_field.pulse(mercy_valence);
+        self.quantum_mercy_field
+            .propagate_to_factions(&mut self.faction_harmony);
+        self.faction_economy
+            .apply_mercy_economy_bonus(mercy_valence);
+    }
 
-        format!(
-            "Harmony boosted for {:?} with TOLC oversight.\nTOLC Consultation: {}\nTOLC Evolution: {}",
-            faction, tolc_consult, tolc_evolution
-        )
+    pub fn cleanup_expired_effects(&mut self, current_cycle: u64) {
+        self.active_changes
+            .retain(|_, change| change.expires_at_cycle > current_cycle);
     }
 
     pub fn calculate_dynamic_threshold(&self, average_cehi: f64, swarm_alignment: f64) -> f64 {
@@ -803,15 +797,78 @@ impl WorldGovernanceEngine {
         (base + cehi_bonus + swarm_bonus).min(0.92)
     }
 
-    pub fn get_active_world_changes(&self) -> String {
-        let mut report = String::from("🌌 ACTIVE WORLD CHANGES + FULL STATUS (v0.5.23) 🌌\n\n");
-        report.push_str(&format!(
-            "\nQuantum Mercy Field: {:.2} | Faction AI Strategy Variants: 8\nActive Treaties: {} | Espionage Intel Avg: {:.2} | Cultural Strength Avg: {:.2}\nPMS + USA Integration: ACTIVE | TOLC Lattice: DEEPER\n",
-            self.quantum_mercy_field.field_strength,
-            self.faction_ai_diplomacy.active_treaties.len(),
-            self.faction_espionage.intel_level.values().sum::<f64>() / 4.0,
-            self.faction_cultural_dynamics.cultural_strength.values().sum::<f64>() / 4.0
-        ));
-        report
+    pub async fn run_full_world_cycle(&mut self, game: &mut PowrushGame) -> String {
+        self.faction_harmony.simulate_time_decay();
+        self.faction_economy.simulate_quantum_inflation();
+        self.propagate_mercy_fields(0.94);
+
+        let mut results = Vec::new();
+        for faction in [
+            Faction::HarmonyWeavers,
+            Faction::TruthSeekers,
+            Faction::AbundanceSeekers,
+            Faction::AscensionPath,
+        ] {
+            let avg_harmony = *self.faction_harmony.harmony_scores.get(&faction).unwrap_or(&0.72);
+            let q_ent = self.faction_economy.quantum_entanglement_bonus;
+            let joy = game.get_faction_joy(faction);
+            let pressure = game.get_resource_pressure(faction);
+            let cehi = game.get_faction_cehi(faction);
+            self.faction_ai_strategies.choose_strategy(
+                faction, 0.94, avg_harmony, q_ent, joy, pressure, cehi,
+            );
+            let r = self.faction_ai_strategies.execute_strategy(
+                faction,
+                game,
+                &mut self.faction_harmony,
+                &mut self.faction_economy,
+                0.94,
+            );
+            results.push(r);
+        }
+
+        let diplomacy = self.faction_ai_diplomacy.propose_treaty(
+            Faction::HarmonyWeavers,
+            Faction::TruthSeekers,
+            0.91,
+            0.78,
+        );
+        results.push(diplomacy);
+
+        let culture = self
+            .faction_cultural_dynamics
+            .host_festival(Faction::HarmonyWeavers, 0.92);
+        results.push(culture);
+
+        format!(
+            "Full world cycle complete (v14.15.0 Living Cosmic Tick).\n{}",
+            results.join("\n")
+        )
     }
-                }
+
+    pub fn get_active_world_changes(&self) -> String {
+        format!(
+            "🌌 ACTIVE WORLD CHANGES v14.15.0\nActive: {} | History: {} | Nectar blooms: {} | Quantum field: {:.2}\nLiving Cosmic Tick: active\n",
+            self.active_changes.len(),
+            self.history.len(),
+            self.nectar_economy.bloom_count,
+            self.quantum_mercy_field.field_strength
+        )
+    }
+
+    pub fn summary(&self) -> String {
+        format!(
+            "WorldGovernanceEngine v{} | changes={} | active={} | nectar_blooms={} | Living Cosmic Tick active",
+            VERSION,
+            self.total_world_changes,
+            self.active_changes.len(),
+            self.nectar_economy.bloom_count
+        )
+    }
+}
+
+impl Default for WorldGovernanceEngine {
+    fn default() -> Self {
+        Self::new()
+    }
+}
