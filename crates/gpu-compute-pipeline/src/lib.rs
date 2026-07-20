@@ -1,4 +1,4 @@
-//! gpu-compute-pipeline v14.9.4
+//! gpu-compute-pipeline v14.15.0
 //!
 //! Packaged from root `gpu_compute_pipeline.rs`.
 //! Default build: CPU / simulation path (no wgpu dependency).
@@ -9,6 +9,7 @@
 //! Quantum Swarm facades.
 //!
 //! AG-SML v1.0 | TOLC 8 | Live Frame Bridge contract preserved.
+//! Living Cosmic Tick ready — ONE Organism 14.15.0 surface.
 
 use serde::{Deserialize, Serialize};
 use std::time::Instant;
@@ -294,7 +295,7 @@ impl GpuComputePipeline {
     pub fn mark_real_gpu(&mut self, enabled: bool) {
         self.real_gpu = enabled;
         if enabled {
-            println!("[GpuComputePipeline v14.9.4] real_gpu = true");
+            println!("[GpuComputePipeline v14.15.0] real_gpu = true");
         }
     }
 
