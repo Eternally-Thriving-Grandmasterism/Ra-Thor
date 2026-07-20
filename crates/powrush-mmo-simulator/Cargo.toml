@@ -1,18 +1,19 @@
 [package]
 name = "powrush-mmo-simulator"
-version = "0.3.8"
+version = "14.15.0"
 edition = "2021"
-authors = ["Sherif Samy Botros <info@Rathor.ai>"]
+authors = ["Eternally-Thriving-Grandmasterism", "Sherif Samy Botros <info@Rathor.ai>"]
 license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
-description = "Powrush MMO Reality Simulator — Mercy-gated Resource-Based Economy simulation layer for Ra-Thor. Integrated with MIAL geometry mercy evaluation + hybrid Lean/Rust threshold bridge."
-keywords = ["powrush", "rbe", "mmo", "simulation", "mercy", "economy", "geometry", "mial"]
+description = "Powrush MMO Reality Simulator — Mercy-gated Resource-Based Economy simulation layer for Ra-Thor. Integrated with MIAL geometry mercy evaluation + hybrid Lean/Rust threshold bridge. Living Cosmic Tick + ONE Organism 14.15 readiness."
+keywords = ["powrush", "rbe", "mmo", "simulation", "mercy", "economy", "geometry", "mial", "one-organism"]
 categories = ["simulation", "game-development"]
 
 [dependencies]
 # Core Powrush engine
 powrush = { path = "../powrush" }
 
-# Mercy-gated Ra-Thor core
+# Mercy-gated Ra-Thor core (workspace path aliases — transitional)
+# Note: names will be normalized to current crate layout in next cascade
 ra-thor-mercy = { workspace = true }
 ra-thor-quantum-swarm-orchestrator = { workspace = true }
 ra-thor-evolution = { workspace = true }
