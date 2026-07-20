@@ -3,14 +3,13 @@ name = "lattice-conductor-v13"
 version = "0.3.0"
 edition = "2021"
 license = "AG-SML-1.0 — Autonomicity Games Sovereign Mercy License"
-description = "Lattice Conductor v13.6 — Quantum Swarm Consensus upgraded (measurement/collapse, entanglement, PATSAGi parallel feeding, GPU telemetry integration, self-evolving swarm params, TOLC8ValenceProof, full Ed25519 verify). ONE Organism + PATSAGi Council ready. Thunder locked in."
+authors = ["Eternally-Thriving-Grandmasterism", "Sherif Samy Botros <info@Rathor.ai>"]
+description = "DEPRECATED — use lattice-conductor-v14 with features = [\"v13-compat\"] (see crates/lattice-conductor-v14/MIGRATION_v13_to_v14.md). Legacy v13.6 Quantum Swarm / PATSAGi surface retained for one more cycle."
 
 [dependencies]
 nalgebra = { workspace = true }
 
 # NEXi / hyperon-metta-pln bridge (v13 foundation)
-# Full runtime integration with hyperon-metta-pln and NEXi symbolic deliberation
-# will be enabled in a follow-up iteration when the bridge crate is production-ready.
 # hyperon-metta-pln = { path = "../hyperon-metta-pln" }
 
 [dev-dependencies]
@@ -18,11 +17,10 @@ proptest = "1.5"
 
 [features]
 default = []
-# Granular experimental features for v13.2
-external-symbolic = []          # Phase A: ExternalSymbolicInput + accept path
-self-proposal = []              # Phase B + C: SelfProposal generation + controlled apply
+external-symbolic = []
+self-proposal = []
 full-v13-2 = ["external-symbolic", "self-proposal"]
-experimental = ["full-v13-2"]   # Convenient alias for all v13.2 experimental
+experimental = ["full-v13-2"]
 
 [package.metadata.docs.rs]
 all-features = true
