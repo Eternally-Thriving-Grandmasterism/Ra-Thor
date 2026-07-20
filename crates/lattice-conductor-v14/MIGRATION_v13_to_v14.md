@@ -1,6 +1,6 @@
 # Migration: lattice-conductor-v13 → lattice-conductor-v14
 
-**Status:** Phase 0 documented + Phase 1 `v13-compat` scaffolding available  
+**Status:** Phase 0–1 complete · Phase 2 in progress (mercy + kernel green)  
 **Posture:** Quiet hold — no new adaptive modulation  
 **Contact:** info@Rathor.ai
 
@@ -54,22 +54,40 @@ A naïve dependency swap will not compile. Consumers that implement `Conductable
 
 ---
 
-## Phased plan (unchanged intent)
+## Phased plan
 
-| Phase | Action | Risk |
-|-------|--------|------|
-| **0** | This document + API matrix | Zero |
-| **1** | `compat_v13` module behind `v13-compat` feature | Additive only |
-| **2** | Migrate leaf crates: `mercy` → powrush path → `kernel` → `council` | Controlled |
-| **3** | Deprecate v13 crate after Phase 2 green | Docs / metadata |
+| Phase | Action | Status |
+|-------|--------|--------|
+| **0** | This document + API matrix | **Done** |
+| **1** | `compat_v13` module behind `v13-compat` | **Done** |
+| **2** | Migrate leaf crates | **In progress** (see below) |
+| **3** | Deprecate v13 crate after Phase 2 green | Pending |
 | **4** | Native v14 rewrite of MercyCore etc. | **Council open required** |
+
+---
+
+## Phase 2 leaf status
+
+| Crate | Conductor dependency | Notes |
+|-------|----------------------|-------|
+| **`mercy`** | `lattice-conductor-v14` + `v13-compat` | `MercyCore` implements `Conductable` + `MercyAligned`; tests exercise `SimpleLatticeConductor` ticks + Cosmic Loop |
+| **`powrush`** | None | No v13 conductor coupling; no change required |
+| **`powrush-mmo-simulator`** | None (via powrush / mercy workspace) | No direct conductor dep |
+| **`kernel`** | `lattice-conductor-v14` + `v13-compat` | Dependency switched; boot/Cosmic Tick alignment optional follow-on |
+| **`council`** | Via `kernel` path | Optional direct `v13-compat` dep may be added for simulators |
+
+Verify:
+
+```bash
+cargo test -p lattice-conductor-v14 --features v13-compat
+cargo test -p mercy
+```
 
 ---
 
 ## Phase 1 usage
 
 ```toml
-# In a leaf crate (e.g. mercy)
 lattice-conductor-v14 = { path = "../lattice-conductor-v14", features = ["v13-compat"] }
 ```
 
@@ -78,9 +96,6 @@ use lattice_conductor_v14::compat_v13::{
     Conductable, MercyAligned, GeometricState, MercyWeightedVote,
     SimpleLatticeConductor, ConductorRegistry,
 };
-
-// Native v14 still available without the feature:
-// use lattice_conductor_v14::LatticeConductorV14;
 ```
 
 - Default features remain pure v14 (Cosmic Loop identity untouched).
