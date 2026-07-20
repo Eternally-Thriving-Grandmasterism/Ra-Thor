@@ -22,6 +22,9 @@ ra-thor-evolution = { workspace = true }
 ra-thor-plasticity-engine-v2 = { workspace = true }
 ra-thor-monorepo-intelligence = { workspace = true }
 
+# Phase 2: direct access to v14 Cosmic Loop + optional v13 trait surface
+lattice-conductor-v14 = { path = "../lattice-conductor-v14", features = ["v13-compat"] }
+
 # Async & runtime
 tokio = { workspace = true, features = ["full"] }
 async-trait = { workspace = true }
