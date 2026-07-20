@@ -13,9 +13,7 @@ Contact: info@Rathor.ai
 use lattice_conductor_v14::compat_v13::{
     Conductable, GeometricState, MercyAligned, MercyWeightedVote, SimpleLatticeConductor,
 };
-use lattice_conductor_v14::{
-    CouncilArbitrationEngine, LatticeConductorV14, RuntimeSelfHealingEngine,
-};
+use lattice_conductor_v14::{CouncilArbitrationEngine, LatticeConductorV14};
 
 /// Foundational Mercy Core subsystem.
 #[derive(Debug, Clone)]
@@ -74,14 +72,12 @@ impl MercyCore {
     // ── Native v14 path (Phase 4 dual — additive, quiet-hold) ──
 
     /// Enforce Cosmic Loop via arbitration, then apply a mild mercy pulse if ready.
-    /// Does not alter adaptive feedback fields outside this subsystem.
     pub fn pulse_with_v14_guard(&mut self, conductor: &LatticeConductorV14) {
         conductor.enforce_cosmic_loop_activation();
         conductor.arbitration_engine.before_council_arbitration();
 
         if conductor.arbitration_engine.is_cosmic_loop_ready() {
             self.cosmic_loop_witnessed = true;
-            // Fixed mild pulse — not tied to recovery/quantum adaptive loops
             self.pulse_mercy(0.01);
         }
     }
@@ -94,8 +90,7 @@ impl MercyCore {
             .unwrap_or(false)
     }
 
-    /// Propagate a healing signal on the mercy mesh scaled by inverse mercy
-    /// (lower mercy → higher severity), clamped to a quiet range.
+    /// Propagate a healing signal on the mercy mesh scaled by inverse mercy.
     pub fn signal_mercy_mesh(&self, conductor: &LatticeConductorV14) {
         let severity = (1.5 - self.mercy_score).clamp(0.05, 0.5);
         conductor.trigger_mercy_mesh_healing(severity);
