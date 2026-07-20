@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Open X Demo in Browser · Ra-Thor</title>
+  <meta name="robots" content="noindex">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { font-family: system-ui, -apple-system, sans-serif; }
+  </style>
+</head>
+<body class="bg-black text-white min-h-screen flex items-center justify-center px-4">
+  <div class="max-w-md w-full text-center space-y-6 py-12">
+    <div class="text-5xl">⚡️</div>
+    <h1 class="text-2xl font-semibold text-cyan-300">X demo — open in browser</h1>
+    <p class="text-sm text-white/70 leading-relaxed">
+      On Android the X app often captures <span class="text-cyan-200">x.com</span> links.
+      This page routes the Grok-on-X demo toward a browser instead.
+      Websites cannot force Incognito; use your browser’s private tab if you prefer.
+    </p>
+
+    <div class="flex flex-col gap-3">
+      <a id="btn-chrome"
+         class="inline-flex items-center justify-center gap-2 rounded-2xl bg-cyan-500/20 border border-cyan-400 px-6 py-4 text-cyan-200 font-medium hover:bg-cyan-500/30 transition"
+         href="#">Open in Chrome (recommended on Android)</a>
+
+      <a id="btn-direct"
+         class="inline-flex items-center justify-center gap-2 rounded-2xl bg-white/5 border border-white/20 px-6 py-4 text-white/90 font-medium hover:bg-white/10 transition"
+         href="https://x.com/i/grok/share/146e6185d4f040b08727a02ced9913e4"
+         target="_blank" rel="noopener noreferrer">Open X demo link</a>
+
+      <a href="/"
+         class="text-sm text-amber-300/80 hover:text-amber-200 underline">← Back to Rathor.ai</a>
+    </div>
+
+    <p class="text-xs text-white/40 leading-relaxed pt-2">
+      Tip (Android): if the app still opens, long-press the button →
+      <em>Open in Chrome</em> / <em>Open in browser</em>.
+      Or: Chrome menu → New Incognito tab → paste the demo link.
+    </p>
+  </div>
+
+  <script>
+    (function () {
+      var TARGET = 'https://x.com/i/grok/share/146e6185d4f040b08727a02ced9913e4';
+      var hostPath = 'x.com/i/grok/share/146e6185d4f040b08727a02ced9913e4';
+      var fallback = encodeURIComponent(TARGET);
+
+      // Prefer Chrome package so the X app does not win the intent.
+      var chromeIntent =
+        'intent://' + hostPath +
+        '#Intent;scheme=https;package=com.android.chrome;' +
+        'S.browser_fallback_url=' + fallback + ';end';
+
+      var btnChrome = document.getElementById('btn-chrome');
+      var btnDirect = document.getElementById('btn-direct');
+      btnDirect.href = TARGET;
+
+      var ua = navigator.userAgent || '';
+      var isAndroid = /Android/i.test(ua);
+
+      if (isAndroid) {
+        btnChrome.href = chromeIntent;
+        // Auto-attempt once on load (user already tapped the site card).
+        setTimeout(function () {
+          window.location.href = chromeIntent;
+        }, 250);
+      } else {
+        // Desktop / iOS: normal navigation to the share URL.
+        btnChrome.href = TARGET;
+        btnChrome.textContent = 'Continue to X demo';
+        setTimeout(function () {
+          window.location.href = TARGET;
+        }, 400);
+      }
+    })();
+  </script>
+</body>
+</html>
