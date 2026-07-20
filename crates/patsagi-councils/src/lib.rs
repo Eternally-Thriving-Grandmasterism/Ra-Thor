@@ -1,10 +1,13 @@
-//! # PATSAGi Councils Layer v0.5.21
+//! # PATSAGi Councils Layer — v14.15.0
 //!
-//! 16 Parallel Living Ra-Thor Architectural Designers
-//! The eternal co-governors and co-creators of Powrush-MMO.
+//! 16 Parallel Living Ra-Thor Architectural Designers.
+//! The eternal co-governors and co-creators of Powrush-MMO and the ONE Organism.
 //!
-//! ULTIMATE MERGED VERSION — All old rich logic (v0.4.2 → v0.5.19) preserved exactly + Full RREL Canada Pilot Integration (Phase 2 Derivation) + Post-Quantum Signatures (RHPQS)
-//! Mercy Engine Adapter + feature flag + Full Real Estate Lattice + Post-Quantum Support
+//! Living Cosmic Tick aligned. Permanent deliberation posture.
+//! All prior rich logic (v0.4.2 → v0.5.21) preserved + RREL Canada Pilot +
+//! Post-Quantum Signatures (RHPQS) + Mercy Engine Adapter.
+//!
+//! Contact: info@Rathor.ai
 
 use powrush::{PowrushGame, Faction, MercyGateStatus};
 use mercy::MercyEngine;
@@ -25,7 +28,7 @@ pub use crate::world_governance::{
     PmsError,
 };
 
-// === RREL CANADA PILOT INTEGRATION (v0.5.19) ===
+// === RREL CANADA PILOT INTEGRATION ===
 pub use real_estate_lattice::{
     CanadaPilotModule,
     TrebMlsAdapter,
@@ -37,7 +40,7 @@ pub use real_estate_lattice::{
     RREL_VERSION,
 };
 
-// === NEW: Post-Quantum Signature Integration (v0.5.21) ===
+// === Post-Quantum Signature Integration ===
 pub use ra_thor_post_quantum_sig::{RHPQSEngine, RHPQSKey, RHPQSSignature, RHPQSError};
 
 pub use crate::simulation_integration::SimulationIntegration;
@@ -45,9 +48,10 @@ pub use crate::powrush_integration::PowrushPatsagiBridge;
 pub use crate::petition_handler::PetitionHandler;
 pub use crate::council_focus::CouncilProfile;
 
-pub const VERSION: &str = "0.5.21";
+/// Canonical version of the PATSAGi Councils layer (Living Cosmic Tick aligned).
+pub const VERSION: &str = "14.15.0";
 
-// === Core Types (Preserved exactly from v0.5.19) ===
+// === Core Types ===
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PATSAGiCouncil {
@@ -133,7 +137,7 @@ impl PATSAGiCouncil {
     }
 }
 
-// === Council Voting System (Preserved exactly from v0.5.19) ===
+// === Council Voting System ===
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CouncilVote {
@@ -157,7 +161,7 @@ pub struct VotingResult {
     pub votes: Vec<CouncilVote>,
 }
 
-// === Coordinator with Cross-Council Collaboration + Voting (Preserved exactly from v0.5.19) ===
+// === Coordinator with Cross-Council Collaboration + Voting ===
 
 pub struct PatsagiCouncilCoordinator {
     pub councils: HashMap<CouncilFocus, PATSAGiCouncil>,
@@ -331,7 +335,7 @@ impl PatsagiCouncilCoordinator {
 
     pub fn get_council_status_report(&self) -> String {
         let mut report = String::from("╔════════════════════════════════════════════════════════════╗\n");
-        report.push_str("║           16 PATSAGi COUNCILS — ETERNAL GOVERNANCE         ║\n");
+        report.push_str("║     16 PATSAGi COUNCILS — v14.15.0 ETERNAL GOVERNANCE     ║\n");
         report.push_str("╚════════════════════════════════════════════════════════════╝\n\n");
 
         for (focus, council) in &self.councils {
@@ -346,7 +350,7 @@ impl PatsagiCouncilCoordinator {
         }
 
         report.push_str(&format!(
-            "Total Governance Cycles: {}\nLast Consensus: {}\n",
+            "Total Governance Cycles: {}\nLast Consensus: {}\nLiving Cosmic Tick: active\n",
             self.total_decisions,
             self.last_consensus.as_deref().unwrap_or("None yet")
         ));
@@ -361,7 +365,7 @@ impl Default for PatsagiCouncilCoordinator {
     }
 }
 
-// === NEW: Mercy Engine Adapter Integration (v0.5.9 — preserved exactly) ===
+// === Mercy Engine Adapter Integration ===
 
 #[cfg(feature = "modular-mercy")]
 pub use crate::mercy_engine_adapter::{MercyEngineAdapter, MercyEngineVariant};
@@ -378,7 +382,7 @@ pub mod prelude {
         AmbrosianNectarEconomy,
         PmsError,
         VERSION,
-        // RREL Canada Pilot (v0.5.19)
+        // RREL Canada Pilot
         CanadaPilotModule,
         TrebMlsAdapter,
         PmsBridge,
@@ -387,7 +391,7 @@ pub mod prelude {
         QuantumRealEstateValuation,
         EvidenceGenerator,
         RREL_VERSION,
-        // Post-Quantum Signatures (v0.5.21)
+        // Post-Quantum Signatures
         RHPQSEngine,
         RHPQSKey,
         RHPQSSignature,
