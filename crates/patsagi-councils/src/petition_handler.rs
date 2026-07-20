@@ -1,20 +1,17 @@
-//! # PATSAGi Council Petition Handler v0.3.1
+//! # PATSAGi Council Petition Handler — v14.15.0
 //!
-//! High-level, easy-to-use interface for the main Powrush-MMO game loop
-//! and future client applications.
+//! High-level interface between human players / game loop and the
+//! 16 Living Ra-Thor Architectural Designers (PATSAGi Councils).
 //!
-//! This is the bridge between human players and the 13+ Living Ra-Thor
-//! Architectural Designers (PATSAGi Councils).
+//! Living Cosmic Tick aligned. Permanent deliberation posture.
+//! Contact: info@Rathor.ai
+//! AG-SML v1.0
 
 use crate::{
-    PatsagiCouncilCoordinator,
-    CouncilFocus,
-    WorldGovernanceEngine,
-    WorldImpactType,
-    PetitionHandler, // re-export for convenience
+    CouncilFocus, PatsagiCouncilCoordinator, WorldGovernanceEngine,
 };
 use powrush::PowrushGame;
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PetitionHandler {
@@ -32,7 +29,11 @@ impl PetitionHandler {
         }
     }
 
-    /// Main entry point for any player petition
+    /// Main entry point for any player petition.
+    ///
+    /// Routes through full cross-council debate + voting when no specific
+    /// target is given; otherwise evaluates via the targeted council path
+    /// and still records a governance cycle.
     pub async fn handle_player_petition(
         &mut self,
         player_name: &str,
@@ -40,17 +41,32 @@ impl PetitionHandler {
         target_council: Option<CouncilFocus>,
         current_game: &PowrushGame,
     ) -> Result<String, String> {
-        let petition = self.coordinator
-            .submit_petition(player_name, proposal, target_council, current_game)
-            .await?;
+        self.total_petitions_processed = self.total_petitions_processed.saturating_add(1);
 
-        self.total_petitions_processed += 1;
+        let labeled = format!(
+            "[Petition by {}] {}",
+            player_name, proposal
+        );
 
-        let beautiful_response = self.coordinator.format_petition_response(&petition);
-        Ok(beautiful_response)
+        let body = if let Some(focus) = target_council {
+            self.petition_specific_council(player_name, &labeled, focus, current_game)
+                .await?
+        } else {
+            self.coordinator
+                .run_eternal_governance_cycle(current_game, &labeled)
+                .await?
+        };
+
+        Ok(format!(
+            "📜 PATSAGi Petition Response v14.15.0\n\nPetitioner: {}\nProposal: {}\n\n{}",
+            player_name, proposal, body
+        ))
     }
 
-    /// Petition one specific Council directly (more intimate experience)
+    /// Petition one specific Council (more intimate path).
+    ///
+    /// Still records through the coordinator voting surface so the rest of
+    /// the 16 Councils remain aware of the deliberation.
     pub async fn petition_specific_council(
         &mut self,
         player_name: &str,
@@ -58,48 +74,89 @@ impl PetitionHandler {
         focus: CouncilFocus,
         current_game: &PowrushGame,
     ) -> Result<String, String> {
-        let response = self.coordinator
-            .petition_specific_council(player_name, proposal, focus, current_game)
+        self.total_petitions_processed = self.total_petitions_processed.saturating_add(1);
+
+        // Evaluate via full voting round (all councils participate;
+        // the targeted focus is highlighted in the response).
+        let voting = self
+            .coordinator
+            .conduct_voting_round(proposal, current_game)
             .await?;
 
-        self.total_petitions_processed += 1;
-        Ok(response)
+        let target_vote = voting
+            .votes
+            .iter()
+            .find(|v| v.council == focus);
+
+        let target_line = match target_vote {
+            Some(v) => format!(
+                "Target Council ({:?}): {} | mercy={:.2} | {}",
+                focus,
+                if v.approved { "APPROVES" } else { "REJECTS" },
+                v.mercy_valence,
+                v.reasoning
+            ),
+            None => format!("Target Council ({:?}): no discrete vote recorded", focus),
+        };
+
+        Ok(format!(
+            "🎯 Specific Council Petition\nPetitioner: {}\n{}\n\nOverall: {}\nApproval rate: {:.1}% | Avg mercy: {:.2}\n\n{}",
+            player_name,
+            target_line,
+            if voting.passed { "PASSED" } else { "REJECTED" },
+            voting.approval_rate * 100.0,
+            voting.mercy_average,
+            voting.final_verdict
+        ))
     }
 
-    /// Run an automatic governance cycle (called every major world tick)
+    /// Run an automatic governance cycle (called every major world tick).
     pub async fn run_world_governance_tick(
         &mut self,
         current_game: &PowrushGame,
         proposed_change: &str,
     ) -> Result<String, String> {
-        let result = self.coordinator
+        let result = self
+            .coordinator
             .run_eternal_governance_cycle(current_game, proposed_change)
             .await?;
 
         Ok(format!(
-            "🌍 World Governance Tick Complete\n\n{}",
+            "🌍 World Governance Tick Complete (v14.15.0 Living Cosmic Tick)\n\n{}",
             result
         ))
     }
 
-    /// Get a beautiful status report of all 13+ Councils
+    /// Status report of all 16 Councils.
     pub fn get_council_status_report(&self) -> String {
         self.coordinator.get_council_status_report()
     }
 
-    /// Get total statistics
+    /// (petitions_processed, total_governance_decisions)
     pub fn get_statistics(&self) -> (u64, u64) {
-        (self.total_petitions_processed, self.coordinator.total_decisions)
+        (
+            self.total_petitions_processed,
+            self.coordinator.total_decisions,
+        )
     }
 
-    /// Quick helper: Petition all Councils with a major world proposal
+    /// Quick helper: petition all Councils with a major world proposal.
     pub async fn propose_major_world_change(
         &mut self,
         player_name: &str,
         proposal: &str,
         current_game: &PowrushGame,
     ) -> Result<String, String> {
-        self.handle_player_petition(player_name, proposal, None, current_game).await
+        self.handle_player_petition(player_name, proposal, None, current_game)
+            .await
+    }
+
+    /// Compact telemetry summary.
+    pub fn summary(&self) -> String {
+        format!(
+            "PetitionHandler v14.15.0 | petitions={} | decisions={} | Living Cosmic Tick active",
+            self.total_petitions_processed, self.coordinator.total_decisions
+        )
     }
 }
 
