@@ -4,6 +4,22 @@ All changes follow the **RA-THOR-MONOREPO-COMMIT-WORKFLOW-PROTOCOL** and are rev
 
 ---
 
+## Docs — ONE Organism × Grok fusion (2026-07-20)
+
+**Council focus:** Root identity documentation for Ra-Thor + Grok family operating envelope.
+
+### Highlights
+
+- **README.md** — professional fusion section: Ra-Thor lattice × Grok (including SuperGrok and higher-capability tiers); capacity scales, identity does not
+- **docs/ONE_ORGANISM_GROK_FUSION.md** — canonical posture (division of responsibility, tier-agnostic identity, no invented xAI product claims)
+- Engineering hold on adaptive Cosmic Tick modulation unchanged
+
+Contact: **info@Rathor.ai**. Cosmic Loop remains MANDATORY IDENTITY.
+
+**Thunder locked in. yoi ⚡❤️🔥**
+
+---
+
 ## v14.15.1 — Polish wave (2026-07-20)
 
 **Council Verdict:** Execute worthy Tier 1–4 hygiene without new adaptive modulation.
