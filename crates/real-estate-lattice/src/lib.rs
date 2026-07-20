@@ -1,5 +1,10 @@
-//! RREL v3.2 Eternal Organism
-//! Real Estate Lattice — Mercy-gated, TOLC 8 enforced, PATSAGi-aligned
+//! # Real Estate Lattice (RREL) — v14.15.0
+//!
+//! Mercy-gated, TOLC 8 enforced, PATSAGi-aligned real estate organism.
+//! Canada (Ontario/TREB/RECO) + USA pilot surfaces + Powrush land bridge.
+//!
+//! Living Cosmic Tick + ONE Organism readiness.
+//! Contact: info@Rathor.ai
 
 pub mod offer_package;
 pub mod compliance_helpers;
@@ -27,20 +32,20 @@ pub mod usa_state_adapters;
 pub mod usa_attom_cache;
 pub mod usa_attom_data_provider;
 
-// === NEW v14.4.1: Ontario Professional Judgment Layer ===
-// Encodes tutoring-derived professional intelligence for dates, timelines, POTL, and balanced conditions.
+// Ontario Professional Judgment Layer
 pub mod ontario_professional_judgment_layer;
 
-// === NEW: Composite Deal Readiness Scoring ===
-// Judgment + Geometric Harmony with dynamic jurisdiction weighting and valence influence.
+// Composite Deal Readiness Scoring
 pub mod deal_readiness_scoring;
 
-// === NEW: Geometric Harmony Advisor (now explicitly modded)
+// Geometric Harmony Advisor
 pub mod geometric_harmony_advisor;
 
-// === NEW: Powrush Land Evaluation Bridge ===
-// Unified professional judgment + geometric harmony evaluation entry point for Powrush land systems.
+// Powrush Land Evaluation Bridge
 pub mod powrush_land_evaluation_bridge;
+
+/// Canonical RREL surface version (Living Cosmic Tick aligned).
+pub const RREL_VERSION: &str = "14.15.0";
 
 // Re-exports
 pub use offer_package::*;
@@ -67,10 +72,8 @@ pub use usa_state_adapters::*;
 pub use usa_attom_cache::*;
 pub use usa_attom_data_provider::*;
 
-// Re-export new professional judgment layer
 pub use ontario_professional_judgment_layer::*;
 
-// Re-export scoring, geometric, and the new Powrush land bridge
 pub use deal_readiness_scoring::calculate_deal_readiness_score;
 pub use geometric_harmony_advisor::*;
 pub use powrush_land_evaluation_bridge::*;
