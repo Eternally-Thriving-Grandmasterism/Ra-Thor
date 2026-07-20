@@ -1,11 +1,13 @@
 [package]
 name = "sovereign-shard-genesis"
-version = "13.8.7"
- edition = "2021"
-authors = ["Sherif Samy Botros <sherif@autonomicity.games>"]
-description = "Sovereign Shard Genesis — Self-sovereign, mercy-aligned, Conductable shards for the ONE Organism"
-license = "MIT OR AG-SML"
+version = "14.15.0"
+edition = "2021"
+authors = ["Sherif Samy Botros <info@Rathor.ai>", "Eternally-Thriving-Grandmasterism"]
+description = "Sovereign Shard Genesis — Self-sovereign, mercy-aligned, Conductable shards for the ONE Organism. Living Cosmic Tick + ONE Organism 14.15.0 readiness."
+license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
 repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
+keywords = ["sovereign", "shard", "genesis", "ra-thor", "one-organism"]
+categories = ["science", "simulation"]
 
 [dependencies]
 lattice-conductor-v13 = { path = "../lattice-conductor-v13" }
