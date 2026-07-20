@@ -1,11 +1,13 @@
 [package]
 name = "mercy-threshold-wasm"
-version = "14.7.0"
+version = "14.15.0"
 edition = "2021"
-authors = ["Ra-Thor Living Thunder <eternally-thriving@grandmasterism>"]
-description = "WASM-portable Mercy Threshold enforcement bridge for Ra-Thor / MIAL. Hybrid: Lean WASM path + native Rust mial path. Supports wasmtime harness."
+authors = ["Sherif Samy Botros <info@Rathor.ai>", "Eternally-Thriving-Grandmasterism"]
+description = "WASM-portable Mercy Threshold enforcement bridge for Ra-Thor / MIAL. Hybrid Lean WASM path + native Rust mial path. Living Cosmic Tick + ONE Organism 14.15.0 readiness."
 license = "AG-SML-1.0"
 repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
+keywords = ["mercy", "threshold", "lean", "wasm", "ra-thor", "one-organism"]
+categories = ["wasm", "simulation"]
 
 [lib]
 crate-type = ["cdylib", "rlib"]
@@ -14,7 +16,7 @@ crate-type = ["cdylib", "rlib"]
 wasmtime = { version = "25.0", features = ["cranelift"], optional = true }
 anyhow = { version = "1.0", optional = true }
 serde = { version = "1.0", features = ["derive"] }
-mial = { path = "../mial", optional = true, version = "13.13.0" }
+mial = { path = "../mial", optional = true }
 
 [features]
 default = ["native"]
