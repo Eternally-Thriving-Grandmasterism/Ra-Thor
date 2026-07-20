@@ -1,0 +1,17 @@
+[package]
+name = "ra-thor-core"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Ra-Thor Core types & traits — joy protocols, TOLC surfaces, shared organism primitives. Living Cosmic Tick + ONE Organism 14.15.0."
+repository.workspace = true
+keywords = ["ra-thor", "core", "tolc", "one-organism"]
+categories = ["science", "simulation"]
+
+[dependencies]
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+
+[lib]
+path = "src/lib.rs"
