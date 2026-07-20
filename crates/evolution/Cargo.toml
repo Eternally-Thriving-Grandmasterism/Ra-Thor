@@ -1,10 +1,13 @@
 [package]
 name = "evolution"
-version = "0.2.0"
+version = "14.15.0"
 edition = "2021"
-description = "Ra-Thor self-evolution and proposal management crate"
-license = "AG-SML v1.0"
+authors = ["Sherif Samy Botros <info@Rathor.ai>", "Eternally-Thriving-Grandmasterism"]
+description = "Ra-Thor self-evolution and proposal management crate. Living Cosmic Tick + ONE Organism 14.15.0 readiness."
+license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
 repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
+keywords = ["ra-thor", "evolution", "self-evolution", "one-organism"]
+categories = ["science", "simulation"]
 
 [dependencies]
 github-client = { path = "../github-client" }
