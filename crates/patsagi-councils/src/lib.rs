@@ -4,54 +4,75 @@
 //! The eternal co-governors and co-creators of Powrush-MMO and the ONE Organism.
 //!
 //! Living Cosmic Tick aligned. Permanent deliberation posture.
-//! All prior rich logic (v0.4.2 → v0.5.21) preserved + RREL Canada Pilot +
-//! Post-Quantum Signatures (RHPQS) + Mercy Engine Adapter.
-//!
 //! Contact: info@Rathor.ai
 
-use powrush::{PowrushGame, Faction, MercyGateStatus};
-use mercy::MercyEngine;
-use quantum_swarm_orchestrator::QuantumSwarmOrchestrator;
-use serde::{Serialize, Deserialize};
-use uuid::Uuid;
+// =============================================================================
+// Module graph
+// =============================================================================
+
+pub mod council_decision;
+pub mod council_focus;
+pub mod example_integration;
+pub mod genesis_gate;
+pub mod genesis_gate_v2;
+pub mod mercy_engine_adapter;
+pub mod mercy_threshold;
+pub mod mercy_threshold_ffi;
+pub mod patsagi_bridge;
+pub mod petition_handler;
+pub mod powrush_integration;
+// pub mod powrush_libp2p_mesh; // optional: requires libp2p + powrush_multiplayer
+pub mod quantum_swarm_orchestrator;
+pub mod self_evolving_mercy_core;
+pub mod simulation_integration;
+pub mod tolc_integration;
+pub mod world_governance;
+pub mod world_governance_engine;
+
+// =============================================================================
+// External deps used by the core coordinator surface
+// =============================================================================
+
 use chrono::{DateTime, Utc};
+use mercy::MercyEngine;
+use powrush::{MercyGateStatus, PowrushGame};
+use quantum_swarm_orchestrator::QuantumSwarmOrchestrator;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use uuid::Uuid;
 
 #[cfg(feature = "modular-mercy")]
 use crate::mercy_engine_adapter::{MercyEngineAdapter, MercyEngineVariant};
 
+// =============================================================================
+// Public re-exports
+// =============================================================================
+
 pub use crate::world_governance::{
-    WorldGovernanceEngine,
-    WorldImpactType,
-    WorldChangeProposal,
-    AmbrosianNectarEconomy,
-    PmsError,
+    AmbrosianNectarEconomy, PmsError, WorldChangeProposal, WorldGovernanceEngine, WorldImpactType,
 };
 
-// === RREL CANADA PILOT INTEGRATION ===
-pub use real_estate_lattice::{
-    CanadaPilotModule,
-    TrebMlsAdapter,
-    PmsBridge,
-    PmsProvider,
-    RecoEnforcementEngine,
-    QuantumRealEstateValuation,
-    EvidenceGenerator,
-    RREL_VERSION,
-};
-
-// === Post-Quantum Signature Integration ===
-pub use ra_thor_post_quantum_sig::{RHPQSEngine, RHPQSKey, RHPQSSignature, RHPQSError};
-
-pub use crate::simulation_integration::SimulationIntegration;
-pub use crate::powrush_integration::PowrushPatsagiBridge;
-pub use crate::petition_handler::PetitionHandler;
 pub use crate::council_focus::CouncilProfile;
+pub use crate::petition_handler::PetitionHandler;
+pub use crate::powrush_integration::PowrushPatsagiBridge;
+pub use crate::simulation_integration::SimulationIntegration;
+
+// Optional RREL / PQ surfaces (present when those crates are in the graph)
+#[allow(unused_imports)]
+pub use real_estate_lattice::{
+    CanadaPilotModule, EvidenceGenerator, PmsBridge, PmsProvider, QuantumRealEstateValuation,
+    RecoEnforcementEngine, TrebMlsAdapter, RREL_VERSION,
+};
+
+#[allow(unused_imports)]
+pub use ra_thor_post_quantum_sig::{RHPQSEngine, RHPQSError, RHPQSKey, RHPQSSignature};
 
 /// Canonical version of the PATSAGi Councils layer (Living Cosmic Tick aligned).
 pub const VERSION: &str = "14.15.0";
 
-// === Core Types ===
+// =============================================================================
+// Core types
+// =============================================================================
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PATSAGiCouncil {
@@ -121,15 +142,20 @@ impl PATSAGiCouncil {
     pub async fn evaluate_proposal(
         &mut self,
         proposal: &str,
-        current_game: &PowrushGame,
+        _current_game: &PowrushGame,
     ) -> Result<MercyGateStatus, String> {
         let mercy_engine = MercyEngine::new();
         let status = mercy_engine
-            .evaluate_action(proposal, "PATSAGi Council evaluation", self.cehi, self.mercy_valence)
+            .evaluate_action(
+                proposal,
+                "PATSAGi Council evaluation",
+                self.cehi,
+                self.mercy_valence,
+            )
             .await?;
 
         if status == MercyGateStatus::Passed {
-            self.decisions_made += 1;
+            self.decisions_made = self.decisions_made.saturating_add(1);
             self.last_decision = Some(proposal.to_string());
         }
 
@@ -137,7 +163,9 @@ impl PATSAGiCouncil {
     }
 }
 
-// === Council Voting System ===
+// =============================================================================
+// Voting
+// =============================================================================
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CouncilVote {
@@ -161,7 +189,9 @@ pub struct VotingResult {
     pub votes: Vec<CouncilVote>,
 }
 
-// === Coordinator with Cross-Council Collaboration + Voting ===
+// =============================================================================
+// Coordinator
+// =============================================================================
 
 pub struct PatsagiCouncilCoordinator {
     pub councils: HashMap<CouncilFocus, PATSAGiCouncil>,
@@ -172,9 +202,7 @@ pub struct PatsagiCouncilCoordinator {
 
 impl PatsagiCouncilCoordinator {
     pub fn new() -> Self {
-        let mut councils = HashMap::new();
-
-        let focuses = vec![
+        let focuses = [
             CouncilFocus::JoyAmplification,
             CouncilFocus::HarmonyPreservation,
             CouncilFocus::TruthVerification,
@@ -193,6 +221,7 @@ impl PatsagiCouncilCoordinator {
             CouncilFocus::HyperonLattice,
         ];
 
+        let mut councils = HashMap::new();
         for focus in focuses {
             councils.insert(focus, PATSAGiCouncil::new(focus));
         }
@@ -217,7 +246,6 @@ impl PatsagiCouncilCoordinator {
         for (focus, council) in &mut self.councils {
             let status = council.evaluate_proposal(proposal, game).await?;
             let mercy_valence = council.mercy_valence;
-
             let approved = status == MercyGateStatus::Passed;
             let reasoning = format!(
                 "{} Council {} the proposal (mercy valence {:.2})",
@@ -233,27 +261,27 @@ impl PatsagiCouncilCoordinator {
                 reasoning,
                 timestamp: Utc::now(),
             });
-
             total_mercy += mercy_valence;
         }
 
         let total_votes = votes.len();
         let approvals = votes.iter().filter(|v| v.approved).count();
         let rejections = total_votes - approvals;
-        let approval_rate = approvals as f64 / total_votes as f64;
-        let mercy_average = total_mercy / total_votes as f64;
-
+        let approval_rate = approvals as f64 / total_votes.max(1) as f64;
+        let mercy_average = total_mercy / total_votes.max(1) as f64;
         let passed = approval_rate >= 0.6 && mercy_average >= 0.7;
 
         let final_verdict = if passed {
             format!(
                 "✅ PROPOSAL PASSED — {:.1}% approval, {:.2} avg mercy valence\nAll 16 Councils reached beautiful consensus.",
-                approval_rate * 100.0, mercy_average
+                approval_rate * 100.0,
+                mercy_average
             )
         } else {
             format!(
                 "❌ PROPOSAL REJECTED — {:.1}% approval, {:.2} avg mercy valence\nMore mercy alignment required.",
-                approval_rate * 100.0, mercy_average
+                approval_rate * 100.0,
+                mercy_average
             )
         };
 
@@ -275,30 +303,27 @@ impl PatsagiCouncilCoordinator {
         current_game: &PowrushGame,
         proposed_change: &str,
     ) -> Result<String, String> {
-        let mut passed = 0;
-        let mut failed = 0;
-        let mut debate_log = Vec::new();
+        let mut passed = 0usize;
 
-        for (focus, council) in &mut self.councils {
-            let status = council.evaluate_proposal(proposed_change, current_game).await?;
-            
+        for council in self.councils.values_mut() {
+            let status = council
+                .evaluate_proposal(proposed_change, current_game)
+                .await?;
             if status == MercyGateStatus::Passed {
                 passed += 1;
-                debate_log.push(format!("{}: Initial APPROVAL", council.name));
-            } else {
-                failed += 1;
-                debate_log.push(format!("{}: Initial REJECTION", council.name));
             }
         }
 
-        let total = self.councils.len() as f64;
+        let total = self.councils.len().max(1) as f64;
         let approval_rate = passed as f64 / total;
 
         if approval_rate > 0.65 {
-            let voting_result = self.conduct_voting_round(proposed_change, current_game).await?;
-            
-            self.total_decisions += 1;
-            self.last_consensus = Some("Strong Cross-Council Consensus + Full Vote".to_string());
+            let voting_result = self
+                .conduct_voting_round(proposed_change, current_game)
+                .await?;
+            self.total_decisions = self.total_decisions.saturating_add(1);
+            self.last_consensus =
+                Some("Strong Cross-Council Consensus + Full Vote".to_string());
 
             Ok(format!(
                 "PATSAGi Cross-Council Debate + Voting Complete\n\n{}\n\n{}",
@@ -310,9 +335,8 @@ impl PatsagiCouncilCoordinator {
                 }
             ))
         } else if approval_rate > 0.4 {
-            self.total_decisions += 1;
+            self.total_decisions = self.total_decisions.saturating_add(1);
             self.last_consensus = Some("Moderate Cross-Council Consensus".to_string());
-            
             Ok(format!(
                 "PATSAGi Cross-Council Debate Complete\nInitial Approval Rate: {:.1}%\nFinal Verdict: MODERATE APPROVAL\nThe Councils found a wise middle path.",
                 approval_rate * 100.0
@@ -330,22 +354,25 @@ impl PatsagiCouncilCoordinator {
         current_game: &PowrushGame,
         proposed_change: &str,
     ) -> Result<String, String> {
-        self.debate_and_consensus(current_game, proposed_change).await
+        self.debate_and_consensus(current_game, proposed_change)
+            .await
     }
 
     pub fn get_council_status_report(&self) -> String {
-        let mut report = String::from("╔════════════════════════════════════════════════════════════╗\n");
-        report.push_str("║     16 PATSAGi COUNCILS — v14.15.0 ETERNAL GOVERNANCE     ║\n");
-        report.push_str("╚════════════════════════════════════════════════════════════╝\n\n");
+        let mut report = String::from(
+            "╔════════════════════════════════════════════════════════════╗\n",
+        );
+        report.push_str(
+            "║     16 PATSAGi COUNCILS — v14.15.0 ETERNAL GOVERNANCE     ║\n",
+        );
+        report.push_str(
+            "╚════════════════════════════════════════════════════════════╝\n\n",
+        );
 
         for (focus, council) in &self.councils {
             report.push_str(&format!(
-                "• {} ({})\n  Mercy Valence: {:.2} | CEHI: {:.2} | Decisions: {}\n\n",
-                council.name,
-                format!("{:?}", focus),
-                council.mercy_valence,
-                council.cehi,
-                council.decisions_made
+                "• {} ({:?})\n  Mercy Valence: {:.2} | CEHI: {:.2} | Decisions: {}\n\n",
+                council.name, focus, council.mercy_valence, council.cehi, council.decisions_made
             ));
         }
 
@@ -365,37 +392,14 @@ impl Default for PatsagiCouncilCoordinator {
     }
 }
 
-// === Mercy Engine Adapter Integration ===
-
 #[cfg(feature = "modular-mercy")]
 pub use crate::mercy_engine_adapter::{MercyEngineAdapter, MercyEngineVariant};
 
 pub mod prelude {
     pub use super::{
-        PatsagiCouncilCoordinator,
-        PATSAGiCouncil,
-        CouncilFocus,
-        CouncilVote,
-        VotingResult,
-        WorldGovernanceEngine,
+        AmbrosianNectarEconomy, CouncilFocus, CouncilVote, PATSAGiCouncil,
+        PatsagiCouncilCoordinator, PmsError, VERSION, VotingResult, WorldGovernanceEngine,
         WorldImpactType,
-        AmbrosianNectarEconomy,
-        PmsError,
-        VERSION,
-        // RREL Canada Pilot
-        CanadaPilotModule,
-        TrebMlsAdapter,
-        PmsBridge,
-        PmsProvider,
-        RecoEnforcementEngine,
-        QuantumRealEstateValuation,
-        EvidenceGenerator,
-        RREL_VERSION,
-        // Post-Quantum Signatures
-        RHPQSEngine,
-        RHPQSKey,
-        RHPQSSignature,
-        RHPQSError,
     };
 
     #[cfg(feature = "modular-mercy")]
