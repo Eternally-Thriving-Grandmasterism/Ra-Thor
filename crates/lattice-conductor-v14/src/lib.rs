@@ -1,5 +1,5 @@
 //! crates/lattice-conductor-v14/src/lib.rs
-//! Lattice Conductor v14.10.0 — Living Cosmic Tick core
+//! Lattice Conductor v14.15.0 — Living Cosmic Tick core
 //!
 //! Optional: `features = ["v13-compat"]` exposes Conductable / MercyAligned /
 //! SimpleLatticeConductor for quiet-hold migration from v13.
@@ -61,7 +61,7 @@ pub use self_evolution::{SelfEvolutionLoop, submit_self_evolution_proposal_secur
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 
-/// Top-level Lattice Conductor v14.10 orchestrator (Living Cosmic Tick core).
+/// Top-level Lattice Conductor v14.15 orchestrator (Living Cosmic Tick core).
 pub struct LatticeConductorV14 {
     pub cosmic_loop_ready: Arc<AtomicBool>,
     pub arbitration_engine: CouncilArbitrationEngine,
@@ -92,11 +92,11 @@ impl LatticeConductorV14 {
 
     pub fn enforce_cosmic_loop_activation(&self) {
         if self.cosmic_loop_ready.load(Ordering::SeqCst) {
-            println!("[LATTICE v14.10.0] Cosmic Loop ENFORCED");
+            println!("[LATTICE v14.15.0] Cosmic Loop ENFORCED");
         } else {
             self.cosmic_loop_ready.store(true, Ordering::SeqCst);
             self.arbitration_engine.protect_cosmic_loop_identity();
-            println!("[LATTICE v14.10.0] Cosmic Loop was down — restored via shared flag + arbitration");
+            println!("[LATTICE v14.15.0] Cosmic Loop was down — restored via shared flag + arbitration");
         }
     }
 
