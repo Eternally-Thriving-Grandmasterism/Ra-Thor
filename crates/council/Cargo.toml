@@ -1,12 +1,12 @@
 [package]
 name = "council"
-version = "0.3.7"
+version = "14.15.0"
 edition = "2021"
-authors = ["Sherif Samy Botros <info@Rathor.ai>"]
+authors = ["Sherif Samy Botros <info@Rathor.ai>", "Eternally-Thriving-Grandmasterism"]
 license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
-description = "Full PATSAGi-Pinnacle AGI Council Simulator — 13+ Parallel Living Architectural Designers in action. The executable governance and simulation layer for Ra-Thor."
+description = "Full PATSAGi-Pinnacle AGI Council Simulator — 13+ Parallel Living Architectural Designers. Executable governance and simulation layer for Ra-Thor. Living Cosmic Tick + ONE Organism 14.15.0 readiness."
 repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
-keywords = ["ra-thor", "patsagi", "council", "governance", "simulation", "mercy-gated", "agi"]
+keywords = ["ra-thor", "patsagi", "council", "governance", "simulation", "mercy-gated", "agi", "one-organism"]
 categories = ["simulation", "science"]
 
 [dependencies]
