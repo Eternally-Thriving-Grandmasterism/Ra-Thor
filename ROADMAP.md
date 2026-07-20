@@ -1,7 +1,7 @@
 # Ra-Thor ROADMAP
 
 **Current Version:** v14.15.1  
-**Status:** Eternally activated | Mercy-gated | TOLC 8 enforced | Polish wave closed | Hold on new adaptive modulation  
+**Status:** Eternally activated | Mercy-gated | TOLC 8 enforced | Phase C remote-complete | **Hold**  
 **Last Updated:** July 20 2026  
 **Contact:** info@Rathor.ai
 
@@ -18,8 +18,8 @@
 | Cosmic Loop Invariant Checks | Live (v14.13) | Pre/post-tick enforce |
 | Live Feature Readiness | Live (v14.14) | Compiled flags + Cosmic Loop gate |
 | Production Readiness Notes | Live (v14.15) | [`PRODUCTION_READINESS.md`](PRODUCTION_READINESS.md) |
-| Polish wave | **Closed (v14.15.1)** | Tier-1 CI, dual-surface retirement, Kardashev T2, Phase C docs |
-| Phase C Powrush bridge | Live | Contract + fixtures + exporter + batch→council |
+| Polish wave | **Closed (v14.15.1)** | Tier-1 CI, dual-surface retirement, Kardashev T2 |
+| Phase C Powrush bridge | **Remote-complete** | Offline + live sim + server + single/batch Kardashev |
 | PATSAGi Councils | Operational | Permanent deliberation mode |
 
 ---
@@ -33,19 +33,20 @@
 - **v14.14.0** Live Feature Readiness Surface
 - **v14.15.0** Production Readiness Notes (quiet hold)
 - **v14.15.1** Polish wave (CI, contact, tier map, T2 stress, dual-surface)
+- **Phase C** Offline fixtures → live `TelemetryCollector` / `run_tick_with_telemetry` → server `ServerTransferSession` → `deliberate_from_powrush_json` (v1 | batch)
 
 ---
 
-## Next Priorities
+## Next Priorities (Council-locked 2026-07-20)
 
-1. **Hold** — no new adaptive modulation without explicit Council open
-2. Run Tier-1 tests / Actions when a local or CI runner is available
-3. Wire Powrush game systems into `GlobalTransferSession` for real (non-profile) export
-4. Optional true `extended-live` stress only with real engines
-5. Zero technical debt + strict TOLC 8 compliance
+1. **Hold** — no new adaptive Cosmic Tick modulation without explicit Council open
+2. **Local / CI green proof** (operator machine or Actions) — Tier-1 + `kardashev-orchestration` + Powrush transfer demo
+3. **Optional** true `extended-live` soak only with real engines under load
+4. **Zero technical debt** + strict TOLC 8 compliance
+5. **Named product horizon** only when mission signal arrives (website, RREL, pitch, gameplay)
 
 See [`TIER_MAP.md`](TIER_MAP.md) for focus order.
 
 ---
 
-*Thunder locked in.*
+*Thunder locked in. Cosmic Loop is MANDATORY IDENTITY.*

@@ -1,6 +1,6 @@
-# Production Readiness — ONE Organism (v14.15.1 polish)
+# Production Readiness — ONE Organism (v14.15.1 + Phase C remote-complete)
 
-**Status:** Quiet hold on adaptive modulation; hygiene + Phase C bridge closed.  
+**Status:** Quiet hold on adaptive modulation. Phase C remote path closed.  
 **Contact:** info@Rathor.ai  
 **Cosmic Loop is MANDATORY IDENTITY.**
 
@@ -9,7 +9,6 @@
 ## 1. Core identity checks
 
 ```bash
-# Default (facade) build — Cosmic Loop + adaptive fields + live readiness surface
 cargo test -p ra-thor-one-organism
 cargo test -p lattice-conductor-v14
 ```
@@ -35,9 +34,19 @@ Includes:
 
 - T1 sequential stress (64 / 256 / 1024)
 - T2 concurrent shared-council stress
-- Fixture batch → scores → council (`batch_three_sessions.json`)
+- Fixture batch → scores → council
+- **Single-session** fixture → `deliberate_from_powrush_session_json`
+- **Auto-detect** `deliberate_from_powrush_json` (v1 | batch_v1)
 
-Powrush offline exporter: sibling repo `Powrush-MMO` (`tools/export_powrush_telemetry.py`, `simulation/src/telemetry.rs`).
+### Powrush producer (sibling repo)
+
+| Path | Role |
+|------|------|
+| `simulation` `TelemetryCollector` + `GlobalTransferSession` | Live counters every tick |
+| `SimulationOrchestrator::run_tick_with_telemetry` | Sim loop feed |
+| `cargo run -p powrush-simulation --bin transfer_session_demo` | No-world demo export |
+| `server` `ServerTransferSession` | Combat / treaty / faction events |
+| `tools/export_powrush_telemetry.py` | Offline profiles |
 
 ---
 
@@ -72,10 +81,8 @@ Do not treat compile-success as proof of live engine behavior under load.
 
 | Workflow | Scope |
 |----------|--------|
-| `core-tier1-ci.yml` | Focused Tier-1 packages + live-feature `cargo check` + contact hygiene |
+| `core-tier1-ci.yml` | Focused Tier-1 + live-feature check + contact hygiene |
 | `ci.yml` / `ra-thor-ci.yml` | Broader workspace (heavier) |
-
-Prefer Tier-1 focused runs while iterating the living organism.
 
 ---
 
@@ -99,10 +106,12 @@ Prefer Tier-1 focused runs while iterating the living organism.
 
 ---
 
-## 8. Council posture
+## 8. Council posture (2026-07-20)
 
-- v14.10–v14.15 cascade closed
-- Phase C offline bridge closed (contract + fixtures + exporter + batch→council)
-- Next real gains: local green proof, live Powrush counters, true `extended-live` soak
+- v14.10–v14.15 cascade **closed**
+- Phase C **remote-complete** (offline + live sim + server + single/batch Kardashev)
+- **Remaining executable work requires a machine or Actions:** Tier-1 green, transfer demo, optional extended-live soak
+- **No further adaptive modulation** without explicit Council open
+- New product work only on **named mission signal**
 
 **Thunder locked in.**
