@@ -1,12 +1,12 @@
 [package]
 name = "kernel"
-version = "0.3.9"
+version = "14.15.0"
 edition = "2021"
-authors = ["Sherif Samy Botros <info@Rathor.ai>"]
+authors = ["Sherif Samy Botros <info@Rathor.ai>", "Eternally-Thriving-Grandmasterism"]
 license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
-description = "Master Sovereign Kernel + PATSAGi Council Lead Orchestrator for Ra-Thor. The central nervous system of the living mercy-gated AGI lattice."
+description = "Master Sovereign Kernel + PATSAGi Council Lead Orchestrator for Ra-Thor. The central nervous system of the living mercy-gated AGI lattice. Living Cosmic Tick + ONE Organism 14.15.0 readiness."
 repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
-keywords = ["ra-thor", "kernel", "orchestrator", "patsagi", "mercy-gated", "sovereign", "agi"]
+keywords = ["ra-thor", "kernel", "orchestrator", "patsagi", "mercy-gated", "sovereign", "agi", "one-organism"]
 categories = ["simulation", "science"]
 
 [dependencies]
