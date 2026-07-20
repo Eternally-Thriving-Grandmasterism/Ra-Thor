@@ -13,7 +13,7 @@ Contact: info@Rathor.ai
 use lattice_conductor_v14::compat_v13::{
     Conductable, GeometricState, MercyAligned, MercyWeightedVote, SimpleLatticeConductor,
 };
-use lattice_conductor_v14::{CouncilArbitrationEngine, LatticeConductorV14};
+use lattice_conductor_v14::{ArbitrationDecision, CouncilArbitrationEngine, LatticeConductorV14};
 
 /// Foundational Mercy Core subsystem.
 #[derive(Debug, Clone)]
@@ -234,10 +234,7 @@ mod tests {
     fn test_arbitration_engine_blocks_disable() {
         let engine = CouncilArbitrationEngine::new();
         let decision = engine.arbitrate_cosmic_loop_change("disable the cosmic loop");
-        assert!(matches!(
-            decision,
-            lattice_conductor_v14::council_arbitration::ArbitrationDecision::Blocked { .. }
-        ));
+        assert!(matches!(decision, ArbitrationDecision::Blocked { .. }));
     }
 }
 
