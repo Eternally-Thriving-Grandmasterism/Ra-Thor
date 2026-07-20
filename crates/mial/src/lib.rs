@@ -1,10 +1,13 @@
-//! Mercy-Augmented Intelligence Amplification Layer (MIAL) v13.13.0
+//! Mercy-Augmented Intelligence Amplification Layer (MIAL) — v14.15.0
 //!
 //! Sovereign subsystem that makes intelligence amplification itself an act of Mercy.
 //! All components route through MercyGatingRuntime and PATSAGi Councils.
 //! Non-bypassable. Monotonic mercy strengthening enforced.
 //!
-//! This is the initial scaffolding for the dedicated internal development PR.
+//! Geometry mercy evaluation (MWPO) is the primary integration point used by
+//! the Powrush-MMO gate stack and the ONE Organism Living Cosmic Tick surface.
+//!
+//! Contact: info@Rathor.ai
 
 pub mod mial;
 pub mod mwpo;
