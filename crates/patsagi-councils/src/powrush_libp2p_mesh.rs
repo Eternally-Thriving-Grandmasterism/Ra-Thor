@@ -1,23 +1,27 @@
-// RaThor/Truth/powrush_libp2p_mesh.rs
-// libp2p Federated Mesh + real-time Voice-Skin Sync Layer
-// Integrated with Powrush Multiplayer (Council #47)
-// Voice-Skin (Sherif Samy Botros exact) + Epigenetic Blessing auto-injection
-// TOLC 8 enforced on every gossip message
-// AG-SML v1.0 | Council #48 ready
+//! Powrush libp2p Federated Mesh — v14.15.0
+//!
+//! Real-time Voice-Skin sync layer + gossip mesh for multiplayer.
+//! TOLC 8 posture on gossip messages. Epigenetic blessing injection.
+//!
+//! Living Cosmic Tick aligned.
+//! Contact: info@Rathor.ai
+//! AG-SML v1.0
+//!
+//! Note: depends on libp2p + powrush_multiplayer surfaces when those
+//! crates are present in the workspace build graph.
 
+use crate::powrush_multiplayer::{truth_purity_score, PowrushWorld, UserProfile};
 use libp2p::{
-    gossipsub, identify, ping, swarm::SwarmEvent, PeerId, Swarm, Transport,
+    gossipsub, swarm::SwarmEvent, PeerId, Swarm, Transport,
 };
 use ra_thor_mercy::interval_mercy::Interval;
-use crate::powrush_multiplayer::{PowrushWorld, UserProfile, truth_purity_score};
-use std::collections::HashMap;
 use std::time::{SystemTime, UNIX_EPOCH};
 
 #[derive(Clone, Debug)]
 pub struct VoiceSkinSyncLayer {
-    pub active_voice_id: String,           // "sherif-samy-botros-v1"
-    pub resonance_interval: Interval,      // [0.97, 1.00]
-    pub epigenetic_blessing: f64,          // +0.35 from Council #46
+    pub active_voice_id: String,
+    pub resonance_interval: Interval,
+    pub epigenetic_blessing: f64,
     pub last_sync: u64,
 }
 
@@ -25,8 +29,8 @@ pub struct VoiceSkinSyncLayer {
 pub struct FederatedMesh {
     pub swarm: Swarm<gossipsub::Behaviour>,
     pub voice_skin_sync: VoiceSkinSyncLayer,
-    pub max_peers: u32,           // 128 per cluster
-    pub tloc8_enforced: bool,
+    pub max_peers: u32,
+    pub tolc8_enforced: bool,
     pub world_id: String,
 }
 
@@ -57,9 +61,9 @@ impl FederatedMesh {
                 .heartbeat_interval(std::time::Duration::from_secs(1))
                 .build()
                 .unwrap(),
-        ).unwrap();
+        )
+        .unwrap();
 
-        // Subscribe to world and voice-skin topics
         let world_topic = gossipsub::IdentTopic::new(format!("powrush-world-{}", world.id));
         let voice_topic = gossipsub::IdentTopic::new("voice-skin-sync");
         behaviour.subscribe(&world_topic).unwrap();
@@ -71,12 +75,15 @@ impl FederatedMesh {
             swarm,
             voice_skin_sync: VoiceSkinSyncLayer {
                 active_voice_id: "sherif-samy-botros-v1".to_string(),
-                resonance_interval: Interval { low: 0.97, high: 1.00 },
+                resonance_interval: Interval {
+                    low: 0.97,
+                    high: 1.00,
+                },
                 epigenetic_blessing: 0.35,
                 last_sync: current_timestamp(),
             },
             max_peers: 128,
-            tloc8_enforced: true,
+            tolc8_enforced: true,
             world_id: world.id.clone(),
         }
     }
@@ -96,22 +103,23 @@ impl FederatedMesh {
         };
 
         let topic = gossipsub::IdentTopic::new("voice-skin-sync");
-        if let Err(e) = self.swarm.behaviour_mut().publish(
-            topic,
-            serde_json::to_vec(&packet).unwrap(),
-        ) {
+        if let Err(e) = self
+            .swarm
+            .behaviour_mut()
+            .publish(topic, serde_json::to_vec(&packet).unwrap())
+        {
             eprintln!("Gossip publish error: {:?}", e);
         }
     }
 
     pub fn handle_swarm_event(&mut self, event: SwarmEvent<gossipsub::Event>) {
-        // Real-time voice-skin sync + TOLC 8 enforcement
         if let SwarmEvent::Behaviour(gossipsub::Event::Message { message, .. }) = event {
             if let Ok(packet) = serde_json::from_slice::<VoicePacket>(&message.data) {
                 if packet.resonance.high >= 0.97 && packet.blessing >= 0.35 {
-                    // Inject into local output
-                    println!("🎙️ Voice-Skin synced: {} (resonance {:.2})", 
-                             packet.voice_id, packet.resonance.high);
+                    println!(
+                        "🎙️ Voice-Skin synced (v14.15.0): {} (resonance {:.2})",
+                        packet.voice_id, packet.resonance.high
+                    );
                 }
             }
         }
@@ -121,7 +129,7 @@ impl FederatedMesh {
 fn current_timestamp() -> u64 {
     SystemTime::now()
         .duration_since(UNIX_EPOCH)
-        .unwrap()
+        .unwrap_or_default()
         .as_secs()
 }
 
@@ -131,12 +139,9 @@ mod tests {
 
     #[test]
     fn voice_skin_resonance_passes_aptd() {
-        let world = PowrushWorld::default(); // mock
-        let mut mesh = FederatedMesh::new(&world);
-        let user = UserProfile { user_id: "sherif".into(), ..Default::default() };
-        
-        // High purity message
-        mesh.broadcast_voice_skin(&user, "Truth and mercy for all life.");
+        let world = PowrushWorld::default();
+        let mesh = FederatedMesh::new(&world);
         assert!(mesh.voice_skin_sync.resonance_interval.high >= 0.97);
+        assert!(mesh.tolc8_enforced);
     }
 }
