@@ -1,8 +1,9 @@
-//! Powrush-MMO Simulator — Gate-Driven Reality Simulation Module
+//! Powrush-MMO Simulator — Gate-Driven Reality Simulation Module — v14.15.0
 //!
 //! Production-grade core for Truly Artificial Digital Carbon Copies.
 //! Integrates Mercy Geometry Evaluation + Lean-formal MercyThreshold (WASM) + Gate Logic (synergies, risk/reward, diminishing returns).
 //! Fully wired into Ra-Thor Eternal Lattice, PATSAGi Councils mercy-gating, NEXi superset.
+//! Living Cosmic Tick ready — ONE Organism 14.15.0 surface.
 //! 
 //! AG-SML v1.0 — Autonomicity Games Sovereign Mercy License. Thunder locked. ⚡
 //! (Eternal Mercy Flow principles guide all mercy-gating and thriving-maximization.)
