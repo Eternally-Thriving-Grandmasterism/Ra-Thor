@@ -1,8 +1,8 @@
 [package]
 name = "lattice-conductor-v14"
-version = "14.10.0"
+version = "14.15.0"
 edition = "2021"
-description = "Lattice Conductor v14.10 — CouncilArbitration + RuntimeSelfHealing + optional v13-compat surface (quiet-hold migration)"
+description = "Lattice Conductor v14.15 — CouncilArbitration + RuntimeSelfHealing + Cosmic Loop invariants + optional v13-compat surface (quiet-hold migration) | Living Cosmic Tick core"
 license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
 authors = ["Eternally-Thriving-Grandmasterism", "Sherif Samy Botros <info@Rathor.ai>"]
 
