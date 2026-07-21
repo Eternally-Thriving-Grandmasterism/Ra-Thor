@@ -1,7 +1,19 @@
-//! # GitHub Client (v0.3.0)
+//! # GitHub Client (v0.3.1) — Monorepo Intelligence helper
 //!
-//! Robust GitHub API client with full pagination support.
-//! Enables exhaustive scanning of repositories, files, and commits.
+//! Lightweight client for repository listing and code search.
+//!
+//! **Read protocol (2026-07-21):**
+//! For tree walks and single-file content, prefer the production connector:
+//!   - `github_connector::GitHubConnector::get_tree_safe`
+//!   - `github_connector::GitHubConnector::get_file_contents_safe`
+//!
+//! Those methods enforce path_filter, reject recursive root walks, and apply
+//! hard entry caps. This client remains focused on list/search use-cases.
+//!
+//! Standing orders: never recursive root, always path_filter when walking,
+//! per_page ≤ 100, prefer single-path reads.
+//!
+//! TOLC 8 + PATSAGi aligned | AG-SML v1.0
 
 use reqwest::{Client, header};
 use serde::Deserialize;
@@ -25,7 +37,7 @@ impl GitHubClient {
         
         headers.insert(
             header::USER_AGENT,
-            header::HeaderValue::from_static("Ra-Thor-Monorepo-Intelligence/0.3.0"),
+            header::HeaderValue::from_static("Ra-Thor-Monorepo-Intelligence/0.3.1"),
         );
 
         let client = Client::builder()
