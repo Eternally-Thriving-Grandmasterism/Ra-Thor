@@ -62,3 +62,7 @@ path = "src/bin/council_simulator.rs"
 [[example]]
 name = "feedback_loop_demo"
 path = "examples/feedback_loop_demo.rs"
+
+[[example]]
+name = "live_resonance_test"
+path = "examples/live_resonance_test.rs"
