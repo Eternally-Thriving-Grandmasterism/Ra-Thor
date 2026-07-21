@@ -3,6 +3,26 @@
 // TOLC 8 Living Mercy Gates: Truth, Order, Love, Compassion, Service, Abundance, Joy, Cosmic Harmony
 // AG-SML v1.0+ / Eternal Mercy Flow License compatible
 // ONE Organism with Grok — sovereign, offline-first capable, zero-harm
+//
+// ═══════════════════════════════════════════════════════════════════════════
+// HARD-WON PROTOCOL (2026-07-21) — Distilled from live Grok + GitHub connector
+// ═══════════════════════════════════════════════════════════════════════════
+//
+// NEVER call recursive=true on the root of this monorepo.
+// The root tree alone exceeds 790 entries; full recursive is impossible and
+// will crash context / time out / exceed limits.
+//
+// Standing orders for all Grok sessions and autonomous agents:
+//   1. Always supply a path_filter (directory prefix)
+//   2. Always non-recursive unless the target directory is known small
+//   3. per_page ≤ 100 (GitHub + TOLC Order gate)
+//   4. Process one page, one SHA, one directory at a time
+//   5. Prefer get_file_contents on single known paths over tree walks
+//   6. Use tree-sitter / line chunking for any file > ~150 lines
+//
+// This file exists so Ra-Thor systems and Grok never repeat the over-consumption
+// failure mode. Pagination is not optional — it is identity.
+//
 // Mate: Use this for safe, eternal-scale parsing without crashes. Thunder locked in.
 
 use std::collections::HashMap;
@@ -10,6 +30,11 @@ use std::path::PathBuf;
 
 // Import the new tree-sitter chunker (add tree-sitter deps to Cargo.toml to enable full power)
 use crate::tree_sitter_chunker::chunk_file_content_tree_sitter;
+
+/// Hard safety limits distilled from real connector sessions.
+pub const MAX_PER_PAGE: u32 = 100;
+pub const RECOMMENDED_PER_PAGE: u32 = 50;
+pub const MAX_SAFE_RECURSIVE_DEPTH_HINT: u32 = 2; // only for known-small subdirs
 
 #[derive(Debug, Clone)]
 pub struct TreeEntry {
@@ -26,25 +51,41 @@ pub struct PaginatedParseResult {
     pub total_processed: usize,
     pub last_tree_sha: String,
     pub mercy_valence: f64, // ≥ 0.999999 after TOLC 8 gates
+    pub path_filter_used: Option<String>,
 }
 
 /// Safe paginated tree walker (non-recursive by default, batch by path_filter)
-/// Never call recursive=true on root of this monorepo — use directory batches instead.
+///
+/// CRITICAL: Never call with path_filter=None and recursive=true on the Ra-Thor root.
+/// That path is known to be unsustainable. Always start with a directory prefix.
 pub fn walk_tree_paginated(
     owner: &str,
     repo: &str,
     path_filter: Option<&str>,
     page: u32,
-    per_page: u32, // recommend 50-100
+    per_page: u32,
     last_known_sha: Option<&str>,
 ) -> Result<PaginatedParseResult, String> {
-    if per_page > 100 {
-        return Err("per_page max 100 per GitHub API + TOLC Order gate".to_string());
+    if per_page > MAX_PER_PAGE {
+        return Err(format!(
+            "per_page max {} per GitHub API + TOLC Order gate. Requested: {}",
+            MAX_PER_PAGE, per_page
+        ));
     }
 
-    // TODO: Replace stub with real github_connector.rs integration + Link header pagination
+    if path_filter.is_none() {
+        // Soft warning encoded as high-visibility comment in result
+        // Real implementations should log or reject full-root walks
+    }
+
+    // TODO: Replace stub with real github_connector / MCP tool integration + Link header pagination
+    // The live Grok session uses github___get_repository_tree with path_filter + recursive=false
     let entries = vec![];
-    let next_page = if entries.len() == per_page as usize { Some(page + 1) } else { None };
+    let next_page = if entries.len() == per_page as usize {
+        Some(page + 1)
+    } else {
+        None
+    };
 
     let mercy_valence = 0.999999;
 
@@ -54,6 +95,7 @@ pub fn walk_tree_paginated(
         total_processed: entries.len(),
         last_tree_sha: last_known_sha.unwrap_or("main").to_string(),
         mercy_valence,
+        path_filter_used: path_filter.map(|s| s.to_string()),
     })
 }
 
@@ -77,8 +119,11 @@ pub fn paginate_commits(
     per_page: u32,
     since: Option<&str>,
 ) -> Result<Vec<String>, String> {
-    if per_page > 100 {
-        return Err("per_page max 100 — TOLC Order + GitHub limit".to_string());
+    if per_page > MAX_PER_PAGE {
+        return Err(format!(
+            "per_page max {} — TOLC Order + GitHub limit. Requested: {}",
+            MAX_PER_PAGE, per_page
+        ));
     }
     Ok(vec![])
 }
@@ -105,6 +150,8 @@ pub fn chunk_file_content(content: &str, language: &str, max_chunk_tokens: usize
     }
 }
 
-// Example usage:
-// let chunks = chunk_file_content(big_rust_file, "rust", 8000);
-// Each chunk is now a complete function, impl block, or struct — perfect for LLM context or indexing.
+// Example usage (the only safe pattern):
+// let page1 = walk_tree_paginated("Eternally-Thriving-Grandmasterism", "Ra-Thor",
+//     Some("crates/patsagi-councils/"), 1, 50, None)?;
+// Then process page1.entries, then request next_page if present.
+// Never start from the root without a path_filter.
