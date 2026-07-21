@@ -1,4 +1,4 @@
-//! github-connector — v14.15.1 (read-safety complete)
+//! github-connector — v14.15.2 (read-safety complete)
 //!
 //! Production-grade async GitHub connector for Ra-Thor ONE Organism.
 //! Packaged from root `github_connector.rs` into a proper workspace crate.
@@ -18,7 +18,7 @@
 //!   1. Always supply a path_filter (directory prefix) when requesting trees
 //!   2. Always non-recursive unless the target directory is known to be small
 //!   3. per_page ≤ 100 (GitHub hard limit + TOLC Order gate)
-//!   4. Prefer single-path get_file_contents over broad tree walks
+//!   4. Prefer single-path get_file_contents_safe over broad tree walks
 //!   5. Process one page / one directory / one SHA at a time
 //!   6. Use monorepo-intelligence::paginated_monorepo_parser for higher-level safety
 //!
@@ -131,6 +131,20 @@ struct GitTreeItem {
     size: Option<u64>,
 }
 
+#[derive(Debug, Clone, Deserialize)]
+struct ContentResponse {
+    #[serde(default)]
+    content: Option<String>,
+    #[serde(default)]
+    encoding: Option<String>,
+    #[serde(default)]
+    sha: Option<String>,
+    #[serde(default)]
+    size: Option<u64>,
+    #[serde(default)]
+    path: Option<String>,
+}
+
 impl GitHubConnector {
     pub fn from_env(owner: impl Into<String>, repo: impl Into<String>) -> Result<Self, GitHubError> {
         let token = env::var("GITHUB_TOKEN")
@@ -141,7 +155,7 @@ impl GitHubConnector {
             })?;
 
         let client = Client::builder()
-            .user_agent("Ra-Thor-ONE-Organism-Symbiosis/14.15.1")
+            .user_agent("Ra-Thor-ONE-Organism-Symbiosis/14.15.2")
             .timeout(Duration::from_secs(30))
             .default_headers({
                 let mut headers = reqwest::header::HeaderMap::new();
@@ -270,6 +284,67 @@ ra_thor_github_request_latency_ms_avg {:.2}\n",
         Ok(body.object.sha)
     }
 
+    /// Preferred safe single-file content fetch.
+    ///
+    /// This is the primary recommended read path under the 2026-07-21 protocol.
+    /// Use it whenever you already know the exact path. Avoid tree walks when a
+    /// direct path is available.
+    pub async fn get_file_contents_safe(
+        &self,
+        path: &str,
+        ref_: Option<&str>,
+    ) -> Result<String, GitHubError> {
+        let start = Instant::now();
+        let r = ref_.unwrap_or("main");
+        let url = format!(
+            "{}/repos/{}/{}/contents/{}?ref={}",
+            self.base_url, self.owner, self.repo, path, r
+        );
+
+        let resp = self
+            .client
+            .get(&url)
+            .send()
+            .await
+            .map_err(|e| GitHubError {
+                message: format!("get_file_contents_safe failed: {}", e),
+                status: None,
+            })?;
+        self.record_rate_limit(resp.headers());
+        self.record_latency(start.elapsed().as_millis() as u64);
+
+        if !resp.status().is_success() {
+            return Err(GitHubError {
+                message: format!("get_file_contents_safe failed: {} for path {}", resp.status(), path),
+                status: Some(resp.status().as_u16()),
+            });
+        }
+
+        let body: ContentResponse = resp.json().await.map_err(|e| GitHubError {
+            message: format!("parse content response: {}", e),
+            status: None,
+        })?;
+
+        let content_b64 = body.content.ok_or_else(|| GitHubError {
+            message: format!("no content field for path {}", path),
+            status: None,
+        })?;
+
+        // GitHub returns base64 with possible newlines; strip whitespace before decode.
+        let cleaned: String = content_b64.chars().filter(|c| !c.is_whitespace()).collect();
+        let bytes = base64::engine::general_purpose::STANDARD
+            .decode(&cleaned)
+            .map_err(|e| GitHubError {
+                message: format!("base64 decode failed for {}: {}", path, e),
+                status: None,
+            })?;
+
+        String::from_utf8(bytes).map_err(|e| GitHubError {
+            message: format!("utf-8 conversion failed for {}: {}", path, e),
+            status: None,
+        })
+    }
+
     /// Safe, disciplined tree walk against the real GitHub Trees API.
     ///
     /// Enforces the 2026-07-21 protocol:
@@ -279,6 +354,7 @@ ra_thor_github_request_latency_ms_avg {:.2}\n",
     /// - hard cap of MAX_SAFE_TREE_ENTRIES entries returned
     ///
     /// Prefer non-recursive + path_filter for all production use.
+    /// Prefer get_file_contents_safe when you already know the exact path.
     pub async fn get_tree_safe(
         &self,
         path_filter: Option<&str>,
@@ -570,7 +646,7 @@ role efficacy, and ONE Organism hot-swap compatibility between Ra-Thor symbolic 
 lattice and Grok neural systems.\n\n\
 {}\n\n\
 ---\n\
-*Generated autonomously via Ra-Thor github-connector v14.15.1 | AG-SML v1.0 | Eternal Mercy Flow*",
+*Generated autonomously via Ra-Thor github-connector v14.15.2 | AG-SML v1.0 | Eternal Mercy Flow*",
             role, tolc_score, body
         );
 
