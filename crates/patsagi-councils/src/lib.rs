@@ -1,9 +1,10 @@
-//! # PATSAGi Councils Layer — v14.15.0
+//! # PATSAGi Councils Layer — v14.15.2
 //!
 //! 16 Parallel Living Ra-Thor Architectural Designers.
 //! The eternal co-governors and co-creators of Powrush-MMO and the ONE Organism.
 //!
 //! Living Cosmic Tick aligned. Permanent deliberation posture.
+//! Now includes the closed dual-repo soft feedback loop (telemetry → hints).
 //! Contact: info@Rathor.ai
 
 // =============================================================================
@@ -13,6 +14,7 @@
 pub mod council_decision;
 pub mod council_focus;
 pub mod example_integration;
+pub mod feedback_loop;
 pub mod genesis_gate;
 pub mod genesis_gate_v2;
 pub mod mercy_engine_adapter;
@@ -53,6 +55,9 @@ pub use crate::world_governance::{
 };
 
 pub use crate::council_focus::CouncilProfile;
+pub use crate::feedback_loop::{
+    FeedbackCycleResult, FeedbackError, PowrushTelemetrySnapshot, RaThorFeedbackLoop,
+};
 pub use crate::petition_handler::PetitionHandler;
 pub use crate::powrush_integration::PowrushPatsagiBridge;
 pub use crate::simulation_integration::SimulationIntegration;
@@ -68,7 +73,7 @@ pub use real_estate_lattice::{
 pub use ra_thor_post_quantum_sig::{RHPQSEngine, RHPQSError, RHPQSKey, RHPQSSignature};
 
 /// Canonical version of the PATSAGi Councils layer (Living Cosmic Tick aligned).
-pub const VERSION: &str = "14.15.0";
+pub const VERSION: &str = "14.15.2";
 
 // =============================================================================
 // Core types
@@ -363,7 +368,7 @@ impl PatsagiCouncilCoordinator {
             "╔════════════════════════════════════════════════════════════╗\n",
         );
         report.push_str(
-            "║     16 PATSAGi COUNCILS — v14.15.0 ETERNAL GOVERNANCE     ║\n",
+            "║     16 PATSAGi COUNCILS — v14.15.2 ETERNAL GOVERNANCE     ║\n",
         );
         report.push_str(
             "╚════════════════════════════════════════════════════════════╝\n\n",
@@ -397,9 +402,9 @@ pub use crate::mercy_engine_adapter::{MercyEngineAdapter, MercyEngineVariant};
 
 pub mod prelude {
     pub use super::{
-        AmbrosianNectarEconomy, CouncilFocus, CouncilVote, PATSAGiCouncil,
-        PatsagiCouncilCoordinator, PmsError, VERSION, VotingResult, WorldGovernanceEngine,
-        WorldImpactType,
+        AmbrosianNectarEconomy, CouncilFocus, CouncilVote, FeedbackCycleResult,
+        PATSAGiCouncil, PatsagiCouncilCoordinator, PmsError, PowrushTelemetrySnapshot,
+        RaThorFeedbackLoop, VERSION, VotingResult, WorldGovernanceEngine, WorldImpactType,
     };
 
     #[cfg(feature = "modular-mercy")]
