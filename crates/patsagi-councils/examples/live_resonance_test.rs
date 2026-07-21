@@ -3,6 +3,10 @@
 //! Exercises the full dual-repo soft feedback organism under three canonical
 //! scenarios and persists ResonanceMetrics so the breath survives restarts.
 //!
+//! Emission is gated by:
+//!   - TOLC 8 progressive floor (primary)
+//!   - Core Covenant ethical floor (hard protection)
+//!
 //! Run (standalone):
 //!   cargo run -p patsagi-councils --example live_resonance_test
 //!
@@ -21,8 +25,8 @@
 //! TOLC 8 | Living Cosmic Tick | ONE Organism | APAAGI → PATSAGi lineage
 
 use patsagi_councils::{
-    PowrushTelemetrySnapshot, RaThorFeedbackLoop, ResonanceMetrics, ValenceConsensusEngine,
-    ValenceVote, CORE_COVENANT, DEFAULT_METRICS_PATH,
+    tolc8_gate_check, PowrushTelemetrySnapshot, RaThorFeedbackLoop, ResonanceMetrics,
+    Tolc8Scores, ValenceConsensusEngine, ValenceVote, CORE_COVENANT, DEFAULT_METRICS_PATH,
 };
 use std::env;
 use std::path::{Path, PathBuf};
@@ -46,8 +50,8 @@ fn metrics_path() -> PathBuf {
 fn print_header(emit_path: &Path, metrics_path: &Path) {
     println!("╔══════════════════════════════════════════════════════════════════╗");
     println!("║       LIVE RESONANCE TEST — Dual-Repo Soft Feedback Organism     ║");
-    println!("║       PATSAGi Valence + ResonanceMetrics (persistent)            ║");
-    println!("║       TOLC 8 | Core Covenant | Anti-Deadlock | v14.15.6+         ║");
+    println!("║       TOLC 8 gated + ResonanceMetrics (persistent)               ║");
+    println!("║       Core Covenant | Anti-Deadlock | v14.15.8+                  ║");
     println!("╚══════════════════════════════════════════════════════════════════╝\n");
 
     println!("Core Covenant:");
@@ -55,8 +59,9 @@ fn print_header(emit_path: &Path, metrics_path: &Path) {
         println!("  • {}", line);
     }
     println!();
-    println!("Emission path : {}", emit_path.display());
-    println!("Metrics path  : {}\n", metrics_path.display());
+    println!("Emission gating : TOLC 8 progressive floor + Core Covenant ethical floor");
+    println!("Emission path   : {}", emit_path.display());
+    println!("Metrics path    : {}\n", metrics_path.display());
 }
 
 struct ScenarioOutcome {
@@ -85,6 +90,15 @@ fn run_scenario(
     println!("  council        : {:.2}", snap.council_participation_signal);
     println!("  innovation     : {:.2}", snap.innovation_signal);
     println!("  mercy_presence : {:.2}", snap.mercy_presence_signal);
+
+    // Explicit TOLC 8 view of this telemetry
+    let joy = snap.mercy_presence_signal.max(snap.innovation_signal * 0.9);
+    let harmony = (snap.peaceful_resolution_signal + snap.ethical_floor_signal) / 2.0;
+    let harmony_signed = harmony * 2.0 - 1.0;
+    let tolc_scores = Tolc8Scores::from_valence_axes(joy, harmony_signed, snap.abundance_signal);
+    let tolc_composite = tolc_scores.composite();
+    let tolc_result = tolc8_gate_check(tolc_composite);
+    println!("  tolc8_composite: {:.4} ({:?})", tolc_composite, tolc_result);
 
     let votes = vec![
         ValenceVote::new(
