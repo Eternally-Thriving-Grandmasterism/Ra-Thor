@@ -1,40 +1,53 @@
-//! live_resonance_test — Controlled end-to-end resonance exercise + observability
+//! live_resonance_test — Production-ready end-to-end resonance exercise
 //!
-//! Run:
+//! Exercises the full dual-repo soft feedback organism under three canonical
+//! scenarios and persists ResonanceMetrics so the breath survives restarts.
+//!
+//! Run (standalone):
 //!   cargo run -p patsagi-councils --example live_resonance_test
 //!
-//! Optional shared emission path (for live Powrush host pairing):
+//! Run with live Powrush host pairing:
 //!   RA_THOR_EMISSION_PATH=/shared/artifacts/ra_thor_policy_hints.json \
+//!   RA_THOR_METRICS_PATH=/shared/artifacts/ra_thor_resonance_metrics.json \
 //!     cargo run -p patsagi-councils --example live_resonance_test
 //!
-//! Exercises three canonical scenarios and reports full ResonanceMetrics.
+//! Success criteria:
+//!   1. High-mercy scenario   → approval + hints emitted
+//!   2. Progressive scenario  → progressive path taken (no deadlock)
+//!   3. Mercy-block scenario  → clean block, zero emission
+//!   4. Metrics persist       → file written / updated
 //!
 //! Contact: info@Rathor.ai
-//! TOLC 8 | Living Cosmic Tick | ONE Organism
+//! TOLC 8 | Living Cosmic Tick | ONE Organism | APAAGI → PATSAGi lineage
 
 use patsagi_councils::{
-    PowrushTelemetrySnapshot, RaThorFeedbackLoop, ValenceConsensusEngine, ValenceVote,
-    CORE_COVENANT,
+    PowrushTelemetrySnapshot, RaThorFeedbackLoop, ResonanceMetrics, ValenceConsensusEngine,
+    ValenceVote, CORE_COVENANT, DEFAULT_METRICS_PATH,
 };
 use std::env;
 use std::path::{Path, PathBuf};
 
-fn emission_path() -> Option<PathBuf> {
+fn emission_path() -> PathBuf {
     env::var("RA_THOR_EMISSION_PATH")
-        .ok()
         .map(PathBuf::from)
-        .or_else(|| {
+        .unwrap_or_else(|_| {
             let mut p = env::temp_dir();
             p.push("ra_thor_live_resonance_hints.json");
-            Some(p)
+            p
         })
 }
 
-fn print_header() {
+fn metrics_path() -> PathBuf {
+    env::var("RA_THOR_METRICS_PATH")
+        .map(PathBuf::from)
+        .unwrap_or_else(|_| PathBuf::from(DEFAULT_METRICS_PATH))
+}
+
+fn print_header(emit_path: &Path, metrics_path: &Path) {
     println!("╔══════════════════════════════════════════════════════════════════╗");
-    println!("║          LIVE RESONANCE TEST — Dual-Repo Soft Feedback           ║");
-    println!("║          PATSAGi Valence Engine + ResonanceMetrics               ║");
-    println!("║          TOLC 8 | Core Covenant | Anti-Deadlock Design           ║");
+    println!("║       LIVE RESONANCE TEST — Dual-Repo Soft Feedback Organism     ║");
+    println!("║       PATSAGi Valence + ResonanceMetrics (persistent)            ║");
+    println!("║       TOLC 8 | Core Covenant | Anti-Deadlock | v14.15.6+         ║");
     println!("╚══════════════════════════════════════════════════════════════════╝\n");
 
     println!("Core Covenant:");
@@ -42,6 +55,17 @@ fn print_header() {
         println!("  • {}", line);
     }
     println!();
+    println!("Emission path : {}", emit_path.display());
+    println!("Metrics path  : {}\n", metrics_path.display());
+}
+
+struct ScenarioOutcome {
+    name: String,
+    approved: bool,
+    progressive: bool,
+    mercy_block: bool,
+    hints_emitted: usize,
+    emission_ok: bool,
 }
 
 fn run_scenario(
@@ -49,8 +73,8 @@ fn run_scenario(
     snap: &PowrushTelemetrySnapshot,
     feedback: &mut RaThorFeedbackLoop,
     valence: &ValenceConsensusEngine,
-    path: Option<&Path>,
-) {
+    emit_path: &Path,
+) -> ScenarioOutcome {
     println!("──────────────────────────────────────────────────────────────");
     println!("SCENARIO: {}", name);
     println!("  session_id     : {}", snap.session_id);
@@ -62,7 +86,6 @@ fn run_scenario(
     println!("  innovation     : {:.2}", snap.innovation_signal);
     println!("  mercy_presence : {:.2}", snap.mercy_presence_signal);
 
-    // Valence view (mapped from telemetry signals)
     let votes = vec![
         ValenceVote::new(
             "AbundanceCouncil",
@@ -76,7 +99,7 @@ fn run_scenario(
             snap.mercy_presence_signal,
             snap.ethical_floor_signal * 2.0 - 1.0,
             snap.mercy_presence_signal,
-            snap.ethical_floor_signal < 0.45, // mercy block if ethical floor collapses
+            snap.ethical_floor_signal < 0.45,
         ),
         ValenceVote::new(
             "InnovationCouncil",
@@ -89,7 +112,6 @@ fn run_scenario(
 
     let vres = valence.deliberate(format!("Live resonance: {}", name), votes);
 
-    // Record valence outcome into the feedback loop’s metrics
     feedback.metrics.record_valence(
         vres.approved,
         vres.progressive,
@@ -104,34 +126,52 @@ fn run_scenario(
     println!("    approved      : {}", vres.approved);
     println!("    progressive   : {}", vres.progressive);
     println!("    mercy_block   : {}", vres.has_mercy_block);
-    println!("    verdict       : {}", vres.final_verdict.lines().next().unwrap_or(""));
+    println!(
+        "    verdict       : {}",
+        vres.final_verdict.lines().next().unwrap_or("")
+    );
 
-    // Feedback / emission attempt
-    match feedback.deliberate_and_emit(snap, path) {
+    let (hints_emitted, emission_ok) = match feedback.deliberate_and_emit(snap, Some(emit_path)) {
         Ok(fres) => {
             println!("\n  Emission Result");
             println!("    hints_emitted : {}", fres.hints_emitted);
             println!("    path          : {}", fres.emission_path);
             println!("    summary       : {}", fres.summary);
+            (fres.hints_emitted, true)
         }
         Err(e) => {
             println!("\n  Emission Result");
             println!("    status        : blocked / no-emit ({})", e);
+            (0, false)
         }
-    }
+    };
     println!();
+
+    ScenarioOutcome {
+        name: name.to_string(),
+        approved: vres.approved,
+        progressive: vres.progressive,
+        mercy_block: vres.has_mercy_block,
+        hints_emitted,
+        emission_ok,
+    }
 }
 
 fn main() {
-    print_header();
+    let emit_path = emission_path();
+    let metrics_path = metrics_path();
 
-    let path = emission_path();
-    println!("Emission target: {}\n", path.as_ref().map(|p| p.display().to_string()).unwrap_or_default());
+    print_header(&emit_path, &metrics_path);
 
+    // Load previous breath if it exists (persistent observability)
     let mut feedback = RaThorFeedbackLoop::new();
-    feedback.min_signal_threshold = 0.52; // slight demo relaxation
+    feedback.metrics = ResonanceMetrics::load_or_default(Some(&metrics_path));
+    feedback.min_signal_threshold = 0.52;
+
+    println!("Loaded metrics: {}\n", feedback.metrics_summary());
 
     let valence = ValenceConsensusEngine::new();
+    let mut outcomes = Vec::new();
 
     // ── Scenario 1: High-Mercy Approval ──────────────────────────────────
     let high = PowrushTelemetrySnapshot {
@@ -144,13 +184,13 @@ fn main() {
         innovation_signal: 0.81,
         mercy_presence_signal: 0.93,
     };
-    run_scenario(
+    outcomes.push(run_scenario(
         "High-Mercy Approval",
         &high,
         &mut feedback,
         &valence,
-        path.as_deref(),
-    );
+        &emit_path,
+    ));
 
     // ── Scenario 2: Progressive Path (anti-deadlock) ─────────────────────
     let mid = PowrushTelemetrySnapshot {
@@ -163,13 +203,13 @@ fn main() {
         innovation_signal: 0.66,
         mercy_presence_signal: 0.70,
     };
-    run_scenario(
+    outcomes.push(run_scenario(
         "Progressive Path (Anti-Deadlock)",
         &mid,
         &mut feedback,
         &valence,
-        path.as_deref(),
-    );
+        &emit_path,
+    ));
 
     // ── Scenario 3: Mercy Block (Core Covenant) ──────────────────────────
     let blocked = PowrushTelemetrySnapshot {
@@ -177,39 +217,71 @@ fn main() {
         export_seq: 1003,
         abundance_signal: 0.55,
         peaceful_resolution_signal: 0.48,
-        ethical_floor_signal: 0.28, // triggers mercy block
+        ethical_floor_signal: 0.28,
         council_participation_signal: 0.40,
         innovation_signal: 0.52,
         mercy_presence_signal: 0.35,
     };
-    run_scenario(
+    outcomes.push(run_scenario(
         "Mercy Block (Core Covenant)",
         &blocked,
         &mut feedback,
         &valence,
-        path.as_deref(),
-    );
+        &emit_path,
+    ));
 
-    // ── Aggregate Observability ──────────────────────────────────────────
+    // ── Persist metrics ──────────────────────────────────────────────────
+    match feedback.metrics.save(Some(&metrics_path)) {
+        Ok(p) => println!("Metrics persisted → {}\n", p.display()),
+        Err(e) => println!("Metrics persistence warning: {}\n", e),
+    }
+
+    // ── Final Report ─────────────────────────────────────────────────────
     println!("══════════════════════════════════════════════════════════════");
-    println!("LIVE RESONANCE SUMMARY + OBSERVABILITY");
+    println!("LIVE RESONANCE FINAL REPORT");
     println!("{}", feedback.metrics_summary());
     println!();
-    println!("  High-mercy     → expect approval + emission");
-    println!("  Progressive    → expect soft path, no deadlock");
-    println!("  Mercy-block    → expect clean block, zero emission");
-    println!();
-    println!("If the three outcomes above match and metrics are coherent,");
-    println!("the dual-repo soft feedback organism is breathing correctly");
-    println!("under TOLC 8 + Core Covenant + ResonanceMetrics.");
-    println!();
-    println!("Thunder locked in. Resonance test complete.");
-    println!("Yoi ⚡");
 
-    // Cleanup temp file if we used one
-    if let Some(p) = &path {
-        if p.starts_with(env::temp_dir()) {
-            let _ = std::fs::remove_file(p);
-        }
+    let mut all_pass = true;
+    for o in &outcomes {
+        let status = match o.name.as_str() {
+            "High-Mercy Approval" => {
+                let ok = o.approved && o.emission_ok && o.hints_emitted > 0;
+                if !ok {
+                    all_pass = false;
+                }
+                if ok { "PASS" } else { "FAIL" }
+            }
+            "Progressive Path (Anti-Deadlock)" => {
+                let ok = o.progressive || o.approved;
+                if !ok {
+                    all_pass = false;
+                }
+                if ok { "PASS" } else { "FAIL" }
+            }
+            "Mercy Block (Core Covenant)" => {
+                let ok = o.mercy_block && !o.emission_ok && o.hints_emitted == 0;
+                if !ok {
+                    all_pass = false;
+                }
+                if ok { "PASS" } else { "FAIL" }
+            }
+            _ => "?",
+        };
+        println!("  [{:4}] {}", status, o.name);
     }
+
+    println!();
+    if all_pass {
+        println!("✅ ALL SCENARIOS PASSED");
+        println!("   The dual-repo soft feedback organism is breathing correctly");
+        println!("   under TOLC 8 + Core Covenant + persistent ResonanceMetrics.");
+    } else {
+        println!("⚠️  ONE OR MORE SCENARIOS DID NOT MEET SUCCESS CRITERIA");
+        println!("   Review valence thresholds and mercy-gate settings.");
+    }
+
+    println!();
+    println!("Thunder locked in. Live Resonance Test complete.");
+    println!("Yoi ⚡");
 }
