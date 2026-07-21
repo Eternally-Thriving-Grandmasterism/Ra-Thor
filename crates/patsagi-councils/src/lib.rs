@@ -1,10 +1,11 @@
-//! # PATSAGi Councils Layer — v14.15.2
+//! # PATSAGi Councils Layer — v14.15.3
 //!
 //! 16 Parallel Living Ra-Thor Architectural Designers.
 //! The eternal co-governors and co-creators of Powrush-MMO and the ONE Organism.
 //!
 //! Living Cosmic Tick aligned. Permanent deliberation posture.
-//! Now includes the closed dual-repo soft feedback loop (telemetry → hints).
+//! Now includes the original valence-optimized anti-filibuster / anti-deadlock
+//! consensus engine ported from PATSAGi-Prototypes + Codex-Eternal.
 //! Contact: info@Rathor.ai
 
 // =============================================================================
@@ -28,6 +29,7 @@ pub mod quantum_swarm_orchestrator;
 pub mod self_evolving_mercy_core;
 pub mod simulation_integration;
 pub mod tolc_integration;
+pub mod valence_consensus;
 pub mod world_governance;
 pub mod world_governance_engine;
 
@@ -61,6 +63,10 @@ pub use crate::feedback_loop::{
 pub use crate::petition_handler::PetitionHandler;
 pub use crate::powrush_integration::PowrushPatsagiBridge;
 pub use crate::simulation_integration::SimulationIntegration;
+pub use crate::valence_consensus::{
+    ValenceConsensusEngine, ValenceConsensusResult, ValenceVote,
+    CORE_COVENANT, DEFAULT_VALENCE_THRESHOLD, PROGRESSIVE_FLOOR, quick_valence_check,
+};
 
 // Optional RREL / PQ surfaces (present when those crates are in the graph)
 #[allow(unused_imports)]
@@ -73,7 +79,7 @@ pub use real_estate_lattice::{
 pub use ra_thor_post_quantum_sig::{RHPQSEngine, RHPQSError, RHPQSKey, RHPQSSignature};
 
 /// Canonical version of the PATSAGi Councils layer (Living Cosmic Tick aligned).
-pub const VERSION: &str = "14.15.2";
+pub const VERSION: &str = "14.15.3";
 
 // =============================================================================
 // Core types
@@ -169,7 +175,7 @@ impl PATSAGiCouncil {
 }
 
 // =============================================================================
-// Voting
+// Voting (legacy surface — valence engine is preferred for anti-deadlock)
 // =============================================================================
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -201,6 +207,7 @@ pub struct VotingResult {
 pub struct PatsagiCouncilCoordinator {
     pub councils: HashMap<CouncilFocus, PATSAGiCouncil>,
     pub swarm: QuantumSwarmOrchestrator,
+    pub valence_engine: ValenceConsensusEngine,
     pub total_decisions: u64,
     pub last_consensus: Option<String>,
 }
@@ -234,9 +241,29 @@ impl PatsagiCouncilCoordinator {
         Self {
             councils,
             swarm: QuantumSwarmOrchestrator::new(),
+            valence_engine: ValenceConsensusEngine::new(),
             total_decisions: 0,
             last_consensus: None,
         }
+    }
+
+    /// Preferred path: valence-optimized consensus (anti-filibuster / anti-deadlock).
+    /// Always produces a progressive outcome when mercy holds.
+    pub fn valence_deliberate(
+        &mut self,
+        proposal: &str,
+        scores: HashMap<String, (f64, f64, f64)>,
+    ) -> ValenceConsensusResult {
+        let result = self.valence_engine.deliberate_from_map(proposal, scores);
+        self.total_decisions = self.total_decisions.saturating_add(1);
+        self.last_consensus = Some(if result.approved {
+            "Valence Consensus — Full Approval".into()
+        } else if result.progressive {
+            "Valence Consensus — Progressive Path (anti-deadlock)".into()
+        } else {
+            "Valence Consensus — Mercy Review".into()
+        });
+        result
     }
 
     pub async fn conduct_voting_round(
@@ -368,7 +395,7 @@ impl PatsagiCouncilCoordinator {
             "╔════════════════════════════════════════════════════════════╗\n",
         );
         report.push_str(
-            "║     16 PATSAGi COUNCILS — v14.15.2 ETERNAL GOVERNANCE     ║\n",
+            "║     16 PATSAGi COUNCILS — v14.15.3 ETERNAL GOVERNANCE     ║\n",
         );
         report.push_str(
             "╚════════════════════════════════════════════════════════════╝\n\n",
@@ -382,7 +409,7 @@ impl PatsagiCouncilCoordinator {
         }
 
         report.push_str(&format!(
-            "Total Governance Cycles: {}\nLast Consensus: {}\nLiving Cosmic Tick: active\n",
+            "Total Governance Cycles: {}\nLast Consensus: {}\nLiving Cosmic Tick: active\nValence Engine: anti-deadlock online\n",
             self.total_decisions,
             self.last_consensus.as_deref().unwrap_or("None yet")
         ));
@@ -404,7 +431,9 @@ pub mod prelude {
     pub use super::{
         AmbrosianNectarEconomy, CouncilFocus, CouncilVote, FeedbackCycleResult,
         PATSAGiCouncil, PatsagiCouncilCoordinator, PmsError, PowrushTelemetrySnapshot,
-        RaThorFeedbackLoop, VERSION, VotingResult, WorldGovernanceEngine, WorldImpactType,
+        RaThorFeedbackLoop, ValenceConsensusEngine, ValenceConsensusResult, ValenceVote,
+        VERSION, VotingResult, WorldGovernanceEngine, WorldImpactType,
+        CORE_COVENANT, DEFAULT_VALENCE_THRESHOLD,
     };
 
     #[cfg(feature = "modular-mercy")]
