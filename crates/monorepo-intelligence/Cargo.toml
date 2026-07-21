@@ -1,12 +1,12 @@
 [package]
 name = "ra-thor-monorepo-intelligence"
-version = "0.3.9"
+version = "0.3.10"
 edition = "2021"
-authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
+authors = ["Sherif Samy Botros <info@Rathor.ai>"]
 license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
-description = "RaThorMonorepoIntelligence — Central nervous system for the entire living lattice. Provides semantic search, health scoring, plugin architecture, universal AI integration, TOLC proofs, active inference, and predictive coding for self-evolving monorepo governance."
+description = "RaThorMonorepoIntelligence — Central nervous system for the entire living lattice. Provides semantic search, health scoring, plugin architecture, universal AI integration, TOLC proofs, active inference, and predictive coding for self-evolving monorepo governance. Enforces path_filter + pagination discipline for safe Grok + connector symbiosis."
 repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
-keywords = ["ra-thor", "monorepo-intelligence", "semantic-search", "health-scoring", "plugin-architecture", "tolc-proofs", "active-inference", "predictive-coding", "mercy-gated"]
+keywords = ["ra-thor", "monorepo-intelligence", "semantic-search", "health-scoring", "plugin-architecture", "tolc-proofs", "active-inference", "predictive-coding", "mercy-gated", "pagination", "grok-symbiosis"]
 categories = ["science", "simulation", "artificial-intelligence", "development-tools"]
 
 [dependencies]
