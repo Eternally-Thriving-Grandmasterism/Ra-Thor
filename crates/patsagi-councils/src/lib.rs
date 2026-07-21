@@ -1,11 +1,11 @@
-//! # PATSAGi Councils Layer — v14.15.3
+//! # PATSAGi Councils Layer — v14.15.5
 //!
 //! 16 Parallel Living Ra-Thor Architectural Designers.
 //! The eternal co-governors and co-creators of Powrush-MMO and the ONE Organism.
 //!
 //! Living Cosmic Tick aligned. Permanent deliberation posture.
-//! Now includes the original valence-optimized anti-filibuster / anti-deadlock
-//! consensus engine ported from PATSAGi-Prototypes + Codex-Eternal.
+//! Includes valence-optimized anti-filibuster consensus + dual-repo soft feedback
+//! + lightweight ResonanceMetrics observability.
 //! Contact: info@Rathor.ai
 
 // =============================================================================
@@ -21,6 +21,7 @@ pub mod genesis_gate_v2;
 pub mod mercy_engine_adapter;
 pub mod mercy_threshold;
 pub mod mercy_threshold_ffi;
+pub mod observability;
 pub mod patsagi_bridge;
 pub mod petition_handler;
 pub mod powrush_integration;
@@ -60,6 +61,7 @@ pub use crate::council_focus::CouncilProfile;
 pub use crate::feedback_loop::{
     FeedbackCycleResult, FeedbackError, PowrushTelemetrySnapshot, RaThorFeedbackLoop,
 };
+pub use crate::observability::{BlockReason, MetricsHandle, ResonanceMetrics};
 pub use crate::petition_handler::PetitionHandler;
 pub use crate::powrush_integration::PowrushPatsagiBridge;
 pub use crate::simulation_integration::SimulationIntegration;
@@ -79,7 +81,7 @@ pub use real_estate_lattice::{
 pub use ra_thor_post_quantum_sig::{RHPQSEngine, RHPQSError, RHPQSKey, RHPQSSignature};
 
 /// Canonical version of the PATSAGi Councils layer (Living Cosmic Tick aligned).
-pub const VERSION: &str = "14.15.3";
+pub const VERSION: &str = "14.15.5";
 
 // =============================================================================
 // Core types
@@ -123,8 +125,8 @@ impl PATSAGiCouncil {
             CouncilFocus::JoyAmplification => "Council of Joyful Nectar",
             CouncilFocus::HarmonyPreservation => "Council of Eternal Harmony",
             CouncilFocus::TruthVerification => "Council of Absolute Truth",
-            CouncilFocus::AbundanceCreation => "Council of Infinite Abundance",
             CouncilFocus::EthicalAlignment => "Council of Mercy Weaving",
+            CouncilFocus::AbundanceCreation => "Council of Infinite Abundance",
             CouncilFocus::PostScarcityEnforcement => "Council of Post-Scarcity",
             CouncilFocus::EternalCompassion => "Council of Eternal Compassion",
             CouncilFocus::QuantumEthics => "Council of Quantum Ethics",
@@ -395,7 +397,7 @@ impl PatsagiCouncilCoordinator {
             "╔════════════════════════════════════════════════════════════╗\n",
         );
         report.push_str(
-            "║     16 PATSAGi COUNCILS — v14.15.3 ETERNAL GOVERNANCE     ║\n",
+            "║     16 PATSAGi COUNCILS — v14.15.5 ETERNAL GOVERNANCE     ║\n",
         );
         report.push_str(
             "╚════════════════════════════════════════════════════════════╝\n\n",
@@ -409,7 +411,7 @@ impl PatsagiCouncilCoordinator {
         }
 
         report.push_str(&format!(
-            "Total Governance Cycles: {}\nLast Consensus: {}\nLiving Cosmic Tick: active\nValence Engine: anti-deadlock online\n",
+            "Total Governance Cycles: {}\nLast Consensus: {}\nLiving Cosmic Tick: active\nValence Engine: anti-deadlock online\nObservability: ResonanceMetrics live\n",
             self.total_decisions,
             self.last_consensus.as_deref().unwrap_or("None yet")
         ));
@@ -430,8 +432,9 @@ pub use crate::mercy_engine_adapter::{MercyEngineAdapter, MercyEngineVariant};
 pub mod prelude {
     pub use super::{
         AmbrosianNectarEconomy, CouncilFocus, CouncilVote, FeedbackCycleResult,
-        PATSAGiCouncil, PatsagiCouncilCoordinator, PmsError, PowrushTelemetrySnapshot,
-        RaThorFeedbackLoop, ValenceConsensusEngine, ValenceConsensusResult, ValenceVote,
+        MetricsHandle, PATSAGiCouncil, PatsagiCouncilCoordinator, PmsError,
+        PowrushTelemetrySnapshot, RaThorFeedbackLoop, ResonanceMetrics,
+        ValenceConsensusEngine, ValenceConsensusResult, ValenceVote,
         VERSION, VotingResult, WorldGovernanceEngine, WorldImpactType,
         CORE_COVENANT, DEFAULT_VALENCE_THRESHOLD,
     };
