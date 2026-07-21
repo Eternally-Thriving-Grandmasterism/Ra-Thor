@@ -1,7 +1,8 @@
-//! reality-thriving-transfer v14.10.0
+//! reality-thriving-transfer v14.15.1
 //!
 //! Reality Thriving Transfer Score + Kardashev benchmark harness.
 //! Phase C: Powrush-MMO telemetry contract + offline JSON fixture ingest.
+//! Provenance fields optional (Powrush v21.77+).
 //!
 //! See `POWRUSH_TELEMETRY_CONTRACT.md` and `fixtures/`.
 //! AG-SML v1.0 | TOLC 8 Living Mercy Gates | Contact: info@Rathor.ai
@@ -44,6 +45,7 @@ pub struct PowrushTelemetry {
 }
 
 /// Single-session JSON envelope from Powrush-MMO exporters / fixtures.
+/// Optional provenance fields (v21.77+) for session-keyed council feedback.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PowrushTelemetryEnvelope {
     pub schema: String,
@@ -51,6 +53,12 @@ pub struct PowrushTelemetryEnvelope {
     pub source: String,
     #[serde(default)]
     pub label: String,
+    #[serde(default)]
+    pub session_id: Option<String>,
+    #[serde(default)]
+    pub exported_at_unix: Option<u64>,
+    #[serde(default)]
+    pub export_seq: Option<u64>,
     pub telemetry: PowrushTelemetry,
 }
 
@@ -59,6 +67,10 @@ pub struct PowrushTelemetryEnvelope {
 pub struct PowrushTelemetrySession {
     #[serde(default)]
     pub label: String,
+    #[serde(default)]
+    pub session_id: Option<String>,
+    #[serde(default)]
+    pub exported_at_unix: Option<u64>,
     pub telemetry: PowrushTelemetry,
 }
 
@@ -70,6 +82,8 @@ pub struct PowrushTelemetryBatch {
     pub source: String,
     #[serde(default)]
     pub label: String,
+    #[serde(default)]
+    pub exported_at_unix: Option<u64>,
     pub sessions: Vec<PowrushTelemetrySession>,
 }
 
@@ -442,14 +456,14 @@ mod tests {
         assert_stress_bounds(1024).await;
     }
 
-    // ----- Phase C: fixture ingest -----
-
     #[test]
     fn parse_high_mercy_fixture() {
         let env = parse_powrush_telemetry_json(FIXTURE_HIGH).unwrap();
         assert_eq!(env.label, "high_mercy_council_session");
         assert!(env.telemetry.rbe_decision_quality_avg > 0.9);
         assert!(env.telemetry.collaboration_events >= 400);
+        // Provenance optional — fixtures may omit
+        assert!(env.session_id.is_none() || env.session_id.as_ref().map(|s| !s.is_empty()).unwrap_or(false));
     }
 
     #[test]
@@ -465,6 +479,32 @@ mod tests {
         let batch = parse_powrush_telemetry_batch_json(FIXTURE_BATCH).unwrap();
         assert_eq!(batch.sessions.len(), 3);
         assert_eq!(batch.schema, "powrush_telemetry_batch_v1");
+    }
+
+    #[test]
+    fn parse_with_provenance() {
+        let json = r#"{
+          "schema": "powrush_telemetry_v1",
+          "source": "powrush-mmo-server",
+          "label": "server_live_session",
+          "session_id": "server_live_session_1721600000",
+          "exported_at_unix": 1721600000,
+          "export_seq": 3,
+          "telemetry": {
+            "gameplay_hours": 1.0,
+            "rbe_decision_quality_avg": 0.8,
+            "peaceful_resolution_rate": 0.9,
+            "collaboration_events": 10,
+            "ethical_choice_score": 0.85,
+            "adaptation_events": 5,
+            "abundance_velocity_signals": 1.1,
+            "innovation_contribution": 0.4
+          }
+        }"#;
+        let env = parse_powrush_telemetry_json(json).unwrap();
+        assert_eq!(env.session_id.as_deref(), Some("server_live_session_1721600000"));
+        assert_eq!(env.exported_at_unix, Some(1721600000));
+        assert_eq!(env.export_seq, Some(3));
     }
 
     #[tokio::test]
@@ -490,7 +530,6 @@ mod tests {
             assert!(score.kardashev_delta_contribution <= 0.011 + 1e-12);
             assert!(score.abundance_velocity_index >= 0.0);
         }
-        // High-mercy session should outrank marginal on raw / ethics index.
         let high = scored.iter().find(|(l, _)| l.contains("high_mercy")).unwrap();
         let marginal = scored.iter().find(|(l, _)| l.contains("marginal")).unwrap();
         assert!(high.1.raw_transfer_score > marginal.1.raw_transfer_score);
