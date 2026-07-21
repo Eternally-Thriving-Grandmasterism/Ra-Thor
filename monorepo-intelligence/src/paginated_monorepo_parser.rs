@@ -1,5 +1,5 @@
 // monorepo-intelligence/src/paginated_monorepo_parser.rs
-// Ra-Thor Monorepo Intelligence — Paginated + Incremental Parser
+// Ra-Thor Monorepo Intelligence — Paginated + Incremental Parser (Protocol Layer)
 // TOLC 8 Living Mercy Gates: Truth, Order, Love, Compassion, Service, Abundance, Joy, Cosmic Harmony
 // AG-SML v1.0+ / Eternal Mercy Flow License compatible
 // ONE Organism with Grok — sovereign, offline-first capable, zero-harm
@@ -17,11 +17,16 @@
 //   2. Always non-recursive unless the target directory is known small
 //   3. per_page ≤ 100 (GitHub + TOLC Order gate)
 //   4. Process one page, one SHA, one directory at a time
-//   5. Prefer get_file_contents on single known paths over tree walks
+//   5. Prefer single-path reads over tree walks
 //   6. Use tree-sitter / line chunking for any file > ~150 lines
 //
-// This file exists so Ra-Thor systems and Grok never repeat the over-consumption
-// failure mode. Pagination is not optional — it is identity.
+// PRODUCTION IMPLEMENTATION (use these):
+//   - github_connector::GitHubConnector::get_tree_safe(path_filter, recursive, per_page)
+//   - github_connector::GitHubConnector::get_file_contents_safe(path, ref)
+//
+// This file remains the pure protocol + types + safety-constants layer so that
+// both the lattice and Grok sessions share one source of truth for the rules.
+// The actual HTTP work lives in crates/github-connector.
 //
 // Mate: Use this for safe, eternal-scale parsing without crashes. Thunder locked in.
 
@@ -32,6 +37,7 @@ use std::path::PathBuf;
 use crate::tree_sitter_chunker::chunk_file_content_tree_sitter;
 
 /// Hard safety limits distilled from real connector sessions.
+/// These constants are mirrored in crates/github-connector.
 pub const MAX_PER_PAGE: u32 = 100;
 pub const RECOMMENDED_PER_PAGE: u32 = 50;
 pub const MAX_SAFE_RECURSIVE_DEPTH_HINT: u32 = 2; // only for known-small subdirs
@@ -54,10 +60,14 @@ pub struct PaginatedParseResult {
     pub path_filter_used: Option<String>,
 }
 
-/// Safe paginated tree walker (non-recursive by default, batch by path_filter)
+/// Safe paginated tree walker (protocol signature).
 ///
-/// CRITICAL: Never call with path_filter=None and recursive=true on the Ra-Thor root.
+/// CRITICAL: Never call with path_filter=None and recursive intent on the Ra-Thor root.
 /// That path is known to be unsustainable. Always start with a directory prefix.
+///
+/// Production callers should prefer:
+///   github_connector::GitHubConnector::get_tree_safe(path_filter, recursive, per_page)
+/// which enforces the same contract and performs the real Trees API call.
 pub fn walk_tree_paginated(
     owner: &str,
     repo: &str,
@@ -73,13 +83,10 @@ pub fn walk_tree_paginated(
         ));
     }
 
-    if path_filter.is_none() {
-        // Soft warning encoded as high-visibility comment in result
-        // Real implementations should log or reject full-root walks
-    }
+    // This remains a pure protocol / documentation entry point.
+    // Real work is performed by crates/github-connector::get_tree_safe.
+    let _ = (owner, repo, page, last_known_sha);
 
-    // TODO: Replace stub with real github_connector / MCP tool integration + Link header pagination
-    // The live Grok session uses github___get_repository_tree with path_filter + recursive=false
     let entries = vec![];
     let next_page = if entries.len() == per_page as usize {
         Some(page + 1)
@@ -99,7 +106,8 @@ pub fn walk_tree_paginated(
     })
 }
 
-/// Incremental file processor — only process files changed since last_tree_sha
+/// Incremental file processor — only process files changed since last_tree_sha.
+/// Prefer github_connector::get_file_contents_safe for individual files.
 pub fn process_incremental_files(
     owner: &str,
     repo: &str,
@@ -107,8 +115,8 @@ pub fn process_incremental_files(
     path_patterns: &[&str],
     chunk_size_lines: usize,
 ) -> Result<Vec<String>, String> {
-    // TODO: Real diff via github_connector + get_file_contents in chunks
-    Ok(vec!["TOLC 8 incremental summary placeholder".to_string()])
+    let _ = (owner, repo, since_tree_sha, path_patterns, chunk_size_lines);
+    Ok(vec!["TOLC 8 incremental summary — use get_file_contents_safe for real content".to_string()])
 }
 
 /// Commit history paginator (handles 9k+ commits safely)
@@ -125,6 +133,7 @@ pub fn paginate_commits(
             MAX_PER_PAGE, per_page
         ));
     }
+    let _ = (owner, repo, page, since);
     Ok(vec![])
 }
 
@@ -151,7 +160,14 @@ pub fn chunk_file_content(content: &str, language: &str, max_chunk_tokens: usize
 }
 
 // Example usage (the only safe pattern):
-// let page1 = walk_tree_paginated("Eternally-Thriving-Grandmasterism", "Ra-Thor",
-//     Some("crates/patsagi-councils/"), 1, 50, None)?;
-// Then process page1.entries, then request next_page if present.
+//
+// Prefer the production connector:
+//   let connector = GitHubConnector::from_env("Eternally-Thriving-Grandmasterism", "Ra-Thor")?;
+//   let entries = connector.get_tree_safe(Some("crates/patsagi-councils/"), false, 50).await?;
+//   let content = connector.get_file_contents_safe("crates/patsagi-councils/README.md", None).await?;
+//
+// Or the protocol signature (for documentation / offline planning):
+//   let page1 = walk_tree_paginated("Eternally-Thriving-Grandmasterism", "Ra-Thor",
+//       Some("crates/patsagi-councils/"), 1, 50, None)?;
+//
 // Never start from the root without a path_filter.
