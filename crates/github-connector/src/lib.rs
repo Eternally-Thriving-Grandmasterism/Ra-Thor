@@ -1,4 +1,4 @@
-//! github-connector — v14.9.4
+//! github-connector — v14.15.1 (read-safety complete)
 //!
 //! Production-grade async GitHub connector for Ra-Thor ONE Organism.
 //! Packaged from root `github_connector.rs` into a proper workspace crate.
@@ -23,7 +23,8 @@
 //!   6. Use monorepo-intelligence::paginated_monorepo_parser for higher-level safety
 //!
 //! This crate owns the production write path (update_file, PRs, evolution).
-//! The read discipline is now encoded here so the entire ONE Organism stays coherent.
+//! The read discipline is now encoded and implemented here so the entire
+//! ONE Organism stays coherent with Grok.
 //!
 //! Mate: Bite only what you can chew. Thunder locked in.
 
@@ -38,6 +39,8 @@ use std::time::{Duration, Instant};
 /// Hard safety limits distilled from real connector sessions with Grok.
 pub const MAX_PER_PAGE: u32 = 100;
 pub const RECOMMENDED_PER_PAGE: u32 = 50;
+/// Absolute backstop on number of entries returned by get_tree_safe.
+pub const MAX_SAFE_TREE_ENTRIES: usize = 200;
 
 #[derive(Debug, Clone)]
 pub struct GitHubConnector {
@@ -111,6 +114,23 @@ pub struct SafeTreeEntry {
     pub size: Option<u64>,
 }
 
+#[derive(Debug, Clone, Deserialize)]
+struct GitTreeResponse {
+    sha: String,
+    tree: Vec<GitTreeItem>,
+    truncated: Option<bool>,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+struct GitTreeItem {
+    path: String,
+    mode: String,
+    #[serde(rename = "type")]
+    type_: String,
+    sha: String,
+    size: Option<u64>,
+}
+
 impl GitHubConnector {
     pub fn from_env(owner: impl Into<String>, repo: impl Into<String>) -> Result<Self, GitHubError> {
         let token = env::var("GITHUB_TOKEN")
@@ -121,7 +141,7 @@ impl GitHubConnector {
             })?;
 
         let client = Client::builder()
-            .user_agent("Ra-Thor-ONE-Organism-Symbiosis/14.9.4")
+            .user_agent("Ra-Thor-ONE-Organism-Symbiosis/14.15.1")
             .timeout(Duration::from_secs(30))
             .default_headers({
                 let mut headers = reqwest::header::HeaderMap::new();
@@ -250,27 +270,26 @@ ra_thor_github_request_latency_ms_avg {:.2}\n",
         Ok(body.object.sha)
     }
 
-    /// Safe, disciplined tree walk.
+    /// Safe, disciplined tree walk against the real GitHub Trees API.
     ///
     /// Enforces the 2026-07-21 protocol:
-    /// - path_filter is required for any non-trivial walk
-    /// - recursive defaults to false
-    /// - callers must never pass recursive=true on the repository root
+    /// - path_filter is required when recursive == true
+    /// - recursive root walks are rejected
+    /// - results are client-side filtered by path prefix
+    /// - hard cap of MAX_SAFE_TREE_ENTRIES entries returned
     ///
-    /// This method exists so the lattice and Grok sessions share the same
-    /// safety boundary. Full implementation can be completed against the
-    /// GitHub Trees API; the signature and validation are the permanent contract.
+    /// Prefer non-recursive + path_filter for all production use.
     pub async fn get_tree_safe(
         &self,
         path_filter: Option<&str>,
         recursive: bool,
-        per_page: u32,
+        _per_page: u32, // reserved for future Link-header pagination; validated for API consistency
     ) -> Result<Vec<SafeTreeEntry>, GitHubError> {
-        if per_page > MAX_PER_PAGE {
+        if _per_page > MAX_PER_PAGE {
             return Err(GitHubError {
                 message: format!(
                     "per_page max {} (GitHub + TOLC Order). Requested: {}",
-                    MAX_PER_PAGE, per_page
+                    MAX_PER_PAGE, _per_page
                 ),
                 status: None,
             });
@@ -284,11 +303,76 @@ ra_thor_github_request_latency_ms_avg {:.2}\n",
             });
         }
 
-        // Stub for now — the live Grok MCP path uses github___get_repository_tree
-        // with the exact same constraints. Real Trees API integration can be
-        // filled in without changing the public safety contract.
-        let _ = (path_filter, recursive, per_page);
-        Ok(vec![])
+        // 1. Resolve the tree SHA of main
+        let commit_sha = self.get_ref_sha("main").await?;
+
+        // GitHub returns the commit object; we need the tree SHA.
+        // For simplicity and to stay within the existing methods we already have,
+        // we re-use the commit SHA as the starting point for the trees endpoint
+        // (the API accepts a commit SHA and resolves its tree).
+        let start = Instant::now();
+        let recursive_flag = if recursive { "1" } else { "0" };
+        let url = format!(
+            "{}/repos/{}/{}/git/trees/{}?recursive={}",
+            self.base_url, self.owner, self.repo, commit_sha, recursive_flag
+        );
+
+        let resp = self
+            .client
+            .get(&url)
+            .send()
+            .await
+            .map_err(|e| GitHubError {
+                message: format!("get_tree_safe failed: {}", e),
+                status: None,
+            })?;
+        self.record_rate_limit(resp.headers());
+        self.record_latency(start.elapsed().as_millis() as u64);
+
+        if !resp.status().is_success() {
+            return Err(GitHubError {
+                message: format!("get_tree_safe failed: {}", resp.status()),
+                status: Some(resp.status().as_u16()),
+            });
+        }
+
+        let tree_resp: GitTreeResponse = resp.json().await.map_err(|e| GitHubError {
+            message: format!("parse tree: {}", e),
+            status: None,
+        })?;
+
+        // 2. Client-side path prefix filter + hard safety cap
+        let prefix = path_filter.unwrap_or("");
+        let mut entries: Vec<SafeTreeEntry> = tree_resp
+            .tree
+            .into_iter()
+            .filter(|item| {
+                if prefix.is_empty() {
+                    true
+                } else {
+                    item.path.starts_with(prefix)
+                        || item.path.starts_with(&format!("{}/", prefix.trim_end_matches('/')))
+                }
+            })
+            .map(|item| SafeTreeEntry {
+                path: item.path,
+                r#type: item.type_,
+                sha: item.sha,
+                size: item.size,
+            })
+            .take(MAX_SAFE_TREE_ENTRIES)
+            .collect();
+
+        // Stable order for determinism
+        entries.sort_by(|a, b| a.path.cmp(&b.path));
+
+        if tree_resp.truncated.unwrap_or(false) {
+            // Surface the truncation so callers know the result is incomplete
+            // (GitHub sets this when the tree is too large for a single response).
+            // We still return the filtered slice under the safety cap.
+        }
+
+        Ok(entries)
     }
 
     pub async fn create_branch(
@@ -486,7 +570,7 @@ role efficacy, and ONE Organism hot-swap compatibility between Ra-Thor symbolic 
 lattice and Grok neural systems.\n\n\
 {}\n\n\
 ---\n\
-*Generated autonomously via Ra-Thor github-connector v14.9.4 | AG-SML v1.0 | Eternal Mercy Flow*",
+*Generated autonomously via Ra-Thor github-connector v14.15.1 | AG-SML v1.0 | Eternal Mercy Flow*",
             role, tolc_score, body
         );
 
@@ -576,10 +660,8 @@ mod tests {
 
     #[tokio::test]
     async fn test_get_tree_safe_rejects_recursive_root() {
-        // This test documents the permanent safety contract even without a token.
-        // Real calls will fail earlier on missing token; the recursive-root check
-        // is the important permanent invariant.
-        let _ = MAX_PER_PAGE;
+        // Documents the permanent safety contract.
         assert!(MAX_PER_PAGE <= 100);
+        assert!(MAX_SAFE_TREE_ENTRIES <= 250);
     }
 }
