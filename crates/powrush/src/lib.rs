@@ -1,6 +1,8 @@
-//! crates/powrush/src/lib.rs — v14.15.0
+//! crates/powrush/src/lib.rs — v14.15.1
 //! Powrush RBE + governance compatibility surface for PATSAGi Councils.
 //! Living Cosmic Tick + ONE Organism readiness. Contact: info@Rathor.ai
+//!
+//! Policy Hint Emission (ra_thor_policy_hint_v1) sealed for dual-repo RTT bridge.
 
 pub mod clifford_healing_fields;
 pub mod npc;
@@ -12,6 +14,7 @@ pub mod experience_tier;
 pub mod ui_adaptation;
 pub mod virtual_joystick;
 pub mod governance_types;
+pub mod policy_hint_emission;
 
 pub use device_capability::{DeviceCapability, Platform, InputMethod, DeviceCapabilityPlugin};
 pub use experience_tier::{ExperienceTier, ExperienceTierPlugin};
@@ -28,4 +31,11 @@ pub use simulation::{Position, predict_move_position};
 pub use governance_types::{
     AscensionLevel, Faction, MercyGateStatus, Player, PlayerNeeds, PowrushGame, ResourceType,
     WorldResource,
+};
+
+// Dual-repo soft feedback emission (Ra-Thor → Powrush-MMO)
+pub use policy_hint_emission::{
+    PolicyHint, PolicyHintEnvelope, EmissionError,
+    emit_policy_hints, emit_after_deliberation, conservative_mercy_presence,
+    CLOSED_CATEGORIES, SCHEMA_V1, DEFAULT_EMISSION_PATH,
 };
