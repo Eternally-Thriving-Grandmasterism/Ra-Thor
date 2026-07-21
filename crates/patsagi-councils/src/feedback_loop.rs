@@ -1,4 +1,4 @@
-//! crates/patsagi-councils/src/feedback_loop.rs — v14.15.2
+//! crates/patsagi-councils/src/feedback_loop.rs — v14.15.5
 //! Ra-Thor Feedback Loop — closed dual-repo soft RTT with Powrush-MMO
 //!
 //! Flow:
@@ -10,10 +10,13 @@
 //! Only emits after a successful mercy-passing deliberation.
 //! Prefer small deltas. Offline-first. Zero-harm.
 //!
+//! Now reports into ResonanceMetrics for observability.
+//!
 //! Canonical emission contract: Powrush-MMO/docs/RA_THOR_POLICY_HINT_EMISSION.md
 //! Contact: info@Rathor.ai
 //! TOLC 8 + PATSAGi | Living Cosmic Tick
 
+use crate::observability::{BlockReason, ResonanceMetrics};
 use powrush::{
     PolicyHint, emit_after_deliberation, EmissionError, DEFAULT_EMISSION_PATH,
 };
@@ -88,6 +91,8 @@ pub struct RaThorFeedbackLoop {
     pub strength_scale: f64,
     /// Whether emission is enabled.
     pub enabled: bool,
+    /// Lightweight observability.
+    pub metrics: ResonanceMetrics,
 }
 
 impl Default for RaThorFeedbackLoop {
@@ -97,6 +102,7 @@ impl Default for RaThorFeedbackLoop {
             max_hints_per_cycle: 4,
             strength_scale: 0.45,
             enabled: true,
+            metrics: ResonanceMetrics::new(),
         }
     }
 }
@@ -111,11 +117,12 @@ impl RaThorFeedbackLoop {
     /// Only emits when the internal mercy check passes and at least one
     /// actionable soft hint is generated.
     pub fn deliberate_and_emit(
-        &self,
+        &mut self,
         telemetry: &PowrushTelemetrySnapshot,
         emission_path: Option<&Path>,
     ) -> Result<FeedbackCycleResult, FeedbackError> {
         if !self.enabled {
+            self.metrics.record_emission_block(BlockReason::MercyGate);
             return Err(FeedbackError::MercyGateFailed);
         }
 
@@ -134,6 +141,7 @@ impl RaThorFeedbackLoop {
             && telemetry.mercy_presence_signal >= 0.45;
 
         if !mercy_passed {
+            self.metrics.record_emission_block(BlockReason::MercyGate);
             return Err(FeedbackError::MercyGateFailed);
         }
 
@@ -207,6 +215,7 @@ impl RaThorFeedbackLoop {
         }
 
         if hints.is_empty() {
+            self.metrics.record_emission_block(BlockReason::NoHints);
             return Err(FeedbackError::NoHints);
         }
 
@@ -216,6 +225,8 @@ impl RaThorFeedbackLoop {
             hints.clone(),
             emission_path,
         )?;
+
+        self.metrics.record_emission_success(hints.len());
 
         let summary = format!(
             "Ra-Thor Feedback Cycle | session={} seq={} | hints={} | avg_signal={:.3} | path={}",
@@ -274,7 +285,7 @@ impl RaThorFeedbackLoop {
 
     /// Convenience: emit a single conservative mercy-presence hint.
     pub fn emit_mercy_nudge(
-        &self,
+        &mut self,
         session_id: &str,
         export_seq: u64,
         strength: f64,
@@ -289,6 +300,7 @@ impl RaThorFeedbackLoop {
         )?;
 
         let written = emit_after_deliberation(session_id, export_seq, vec![hint], path)?;
+        self.metrics.record_emission_success(1);
 
         Ok(FeedbackCycleResult {
             session_id: session_id.to_string(),
@@ -302,6 +314,11 @@ impl RaThorFeedbackLoop {
             ),
         })
     }
+
+    /// Current observability snapshot.
+    pub fn metrics_summary(&self) -> String {
+        self.metrics.summary()
+    }
 }
 
 #[cfg(test)]
@@ -312,7 +329,7 @@ mod tests {
 
     #[test]
     fn feedback_emits_on_strong_signals() {
-        let loop_ = RaThorFeedbackLoop::new();
+        let mut loop_ = RaThorFeedbackLoop::new();
         let mut snap = PowrushTelemetrySnapshot::default();
         snap.session_id = "test-sess-001".into();
         snap.export_seq = 99;
@@ -330,18 +347,20 @@ mod tests {
         assert!(result.mercy_passed);
         assert!(result.hints_emitted > 0);
         assert!(path.exists());
+        assert_eq!(loop_.metrics.emission_successes, 1);
 
         let _ = fs::remove_file(&path);
     }
 
     #[test]
     fn low_signals_blocked_by_mercy_gate() {
-        let loop_ = RaThorFeedbackLoop::new();
+        let mut loop_ = RaThorFeedbackLoop::new();
         let mut snap = PowrushTelemetrySnapshot::default();
         snap.ethical_floor_signal = 0.3;
         snap.mercy_presence_signal = 0.2;
 
         let err = loop_.deliberate_and_emit(&snap, None);
         assert!(matches!(err, Err(FeedbackError::MercyGateFailed)));
+        assert_eq!(loop_.metrics.mercy_gate_failures, 1);
     }
 }
