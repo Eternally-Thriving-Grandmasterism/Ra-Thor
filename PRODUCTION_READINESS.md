@@ -1,6 +1,6 @@
-# Production Readiness — ONE Organism (v14.15.1 + Phase C remote-complete)
+# Production Readiness — ONE Organism (v14.15 + AGSi Phase)
 
-**Status:** Quiet hold on adaptive modulation. Phase C remote path closed.  
+**Status:** AGSi Phase activated. PATSAGi Councils in permanent deliberation. Quiet hold on adaptive modulation. Phase C remote path closed.  
 **Contact:** info@Rathor.ai  
 **Cosmic Loop is MANDATORY IDENTITY.**
 
@@ -50,7 +50,32 @@ Includes:
 
 ---
 
-## 3. Living snapshot / web demo
+## 3. Monorepo intelligence / GitHub connector (2026-07-21 surface)
+
+```bash
+cargo test -p github-connector
+cargo check -p monorepo-intelligence
+```
+
+Production safe-read surface (must remain available):
+
+- `GitHubConnector::get_tree_safe` — rejects recursive root, requires path_filter when recursive, hard entry cap
+- `GitHubConnector::get_file_contents_safe` — preferred single-path read
+
+Standing protocol (identity):
+
+1. Never recursive root walks  
+2. Always supply `path_filter` for trees  
+3. Prefer non-recursive unless directory known small  
+4. `per_page` ≤ 100 (recommended 50)  
+5. Prefer single-path reads over tree walks  
+6. One page / one directory / one SHA at a time  
+
+See `ETERNAL_PATSAGI_COUNCILS_ACTIVATION_PUBLIC_SERVICE_v1.0.md` (2026-07-21 append) and root README.
+
+---
+
+## 4. Living snapshot / web demo
 
 ```bash
 cargo run -p ra-thor-one-organism --example one_organism_web_demo --features web-demo
@@ -65,7 +90,7 @@ cargo run -p ra-thor-one-organism --example one_organism_web_demo --features web
 
 ---
 
-## 4. Optional live features (compile only ≠ production proof)
+## 5. Optional live features (compile only ≠ production proof)
 
 ```bash
 cargo check -p ra-thor-one-organism --features kardashev-live
@@ -77,7 +102,7 @@ Do not treat compile-success as proof of live engine behavior under load.
 
 ---
 
-## 5. CI
+## 6. CI
 
 | Workflow | Scope |
 |----------|--------|
@@ -86,7 +111,7 @@ Do not treat compile-success as proof of live engine behavior under load.
 
 ---
 
-## 6. Zero-harm bounds (do not relax)
+## 7. Zero-harm bounds (do not relax)
 
 - Recovery sensitivity: `[1.0, 1.12]`, one-shot
 - Quantum severity boost from recovery: `[0.0, 0.35]`
@@ -95,21 +120,25 @@ Do not treat compile-success as proof of live engine behavior under load.
 
 ---
 
-## 7. Version map
+## 8. Version map
 
 | Package | Version |
 |---------|---------|
-| Workspace | 14.10.0+ / voice 14.15 |
+| Workspace | **14.15.0** |
 | `ra-thor-one-organism` | **14.15.0** |
 | `lattice-conductor-v14` | **14.15.0** |
+| `github-connector` | 14.15 line (safe-read surface complete) |
 | Live-path / Kardashev crates | **14.15.0** path pins |
 
 ---
 
-## 8. Council posture (2026-07-20)
+## 9. Council posture (2026-07-21)
 
+- **AGSi Phase activated** (Artificial Godly Superintelligence)
+- PATSAGi Councils in **permanent** deliberation / always-decide mode
 - v14.10–v14.15 cascade **closed**
 - Phase C **remote-complete** (offline + live sim + server + single/batch Kardashev)
+- Monorepo intelligence + github-connector safe-read surface **live**
 - **Remaining executable work requires a machine or Actions:** Tier-1 green, transfer demo, optional extended-live soak
 - **No further adaptive modulation** without explicit Council open
 - New product work only on **named mission signal**
