@@ -1,4 +1,4 @@
-//! live_resonance_test — Controlled end-to-end resonance exercise
+//! live_resonance_test — Controlled end-to-end resonance exercise + observability
 //!
 //! Run:
 //!   cargo run -p patsagi-councils --example live_resonance_test
@@ -7,10 +7,7 @@
 //!   RA_THOR_EMISSION_PATH=/shared/artifacts/ra_thor_policy_hints.json \
 //!     cargo run -p patsagi-councils --example live_resonance_test
 //!
-//! Exercises three canonical scenarios under the original PATSAGi design:
-//!   1. High-mercy approval
-//!   2. Progressive path (anti-deadlock)
-//!   3. Mercy block (Core Covenant)
+//! Exercises three canonical scenarios and reports full ResonanceMetrics.
 //!
 //! Contact: info@Rathor.ai
 //! TOLC 8 | Living Cosmic Tick | ONE Organism
@@ -36,7 +33,7 @@ fn emission_path() -> Option<PathBuf> {
 fn print_header() {
     println!("╔══════════════════════════════════════════════════════════════════╗");
     println!("║          LIVE RESONANCE TEST — Dual-Repo Soft Feedback           ║");
-    println!("║          PATSAGi Valence Engine + ra_thor_policy_hint_v1          ║");
+    println!("║          PATSAGi Valence Engine + ResonanceMetrics               ║");
     println!("║          TOLC 8 | Core Covenant | Anti-Deadlock Design           ║");
     println!("╚══════════════════════════════════════════════════════════════════╝\n");
 
@@ -50,7 +47,7 @@ fn print_header() {
 fn run_scenario(
     name: &str,
     snap: &PowrushTelemetrySnapshot,
-    feedback: &RaThorFeedbackLoop,
+    feedback: &mut RaThorFeedbackLoop,
     valence: &ValenceConsensusEngine,
     path: Option<&Path>,
 ) {
@@ -91,6 +88,15 @@ fn run_scenario(
     ];
 
     let vres = valence.deliberate(format!("Live resonance: {}", name), votes);
+
+    // Record valence outcome into the feedback loop’s metrics
+    feedback.metrics.record_valence(
+        vres.approved,
+        vres.progressive,
+        vres.has_mercy_block,
+        vres.avg_valence,
+        vres.avg_joy,
+    );
 
     println!("\n  Valence Result");
     println!("    composite     : {:.4}", vres.avg_valence);
@@ -141,7 +147,7 @@ fn main() {
     run_scenario(
         "High-Mercy Approval",
         &high,
-        &feedback,
+        &mut feedback,
         &valence,
         path.as_deref(),
     );
@@ -160,7 +166,7 @@ fn main() {
     run_scenario(
         "Progressive Path (Anti-Deadlock)",
         &mid,
-        &feedback,
+        &mut feedback,
         &valence,
         path.as_deref(),
     );
@@ -179,20 +185,23 @@ fn main() {
     run_scenario(
         "Mercy Block (Core Covenant)",
         &blocked,
-        &feedback,
+        &mut feedback,
         &valence,
         path.as_deref(),
     );
 
-    // ── Aggregate ────────────────────────────────────────────────────────
+    // ── Aggregate Observability ──────────────────────────────────────────
     println!("══════════════════════════════════════════════════════════════");
-    println!("LIVE RESONANCE SUMMARY");
+    println!("LIVE RESONANCE SUMMARY + OBSERVABILITY");
+    println!("{}", feedback.metrics_summary());
+    println!();
     println!("  High-mercy     → expect approval + emission");
     println!("  Progressive    → expect soft path, no deadlock");
     println!("  Mercy-block    → expect clean block, zero emission");
     println!();
-    println!("If the three outcomes above match, the dual-repo soft feedback");
-    println!("organism is breathing correctly under TOLC 8 + Core Covenant.");
+    println!("If the three outcomes above match and metrics are coherent,");
+    println!("the dual-repo soft feedback organism is breathing correctly");
+    println!("under TOLC 8 + Core Covenant + ResonanceMetrics.");
     println!();
     println!("Thunder locked in. Resonance test complete.");
     println!("Yoi ⚡");

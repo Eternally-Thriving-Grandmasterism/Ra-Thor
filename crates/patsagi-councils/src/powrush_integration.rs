@@ -1,23 +1,22 @@
-//! # Powrush Integration Bridge — v14.15.2
+//! # Powrush Integration Bridge — v14.15.5
 //!
 //! Single clean entry point the main Powrush simulation loop can call every cycle.
 //! The 16 PATSAGi Councils automatically govern, propose, and implement world changes.
 //!
-//! Now includes the closed dual-repo feedback loop:
-//!   after a successful governance tick, optionally emit soft policy hints
-//!   back to Powrush via the sealed ra_thor_policy_hint_v1 contract.
+//! Includes the closed dual-repo feedback loop + ResonanceMetrics observability.
 //!
 //! Living Cosmic Tick aligned.
 //! Contact: info@Rathor.ai
 //! AG-SML v1.0
 
 use crate::feedback_loop::{PowrushTelemetrySnapshot, RaThorFeedbackLoop, FeedbackCycleResult};
+use crate::observability::ResonanceMetrics;
 use crate::{CouncilFocus, SimulationIntegration, WorldImpactType};
 use powrush::PowrushGame;
 use serde::{Deserialize, Serialize};
 use std::path::Path;
 
-pub const VERSION: &str = "14.15.2";
+pub const VERSION: &str = "14.15.5";
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PowrushPatsagiBridge {
@@ -56,7 +55,7 @@ impl PowrushPatsagiBridge {
     ///
     /// After a successful Council intervention, builds a telemetry snapshot
     /// from the current game state and emits conservative policy hints
-    /// if the mercy gates pass.
+    /// if the mercy gates pass. Metrics are recorded automatically.
     pub async fn tick_with_feedback(
         &mut self,
         game: &mut PowrushGame,
@@ -78,6 +77,7 @@ impl PowrushPatsagiBridge {
                 }
                 Err(_) => {
                     // Silent on mercy-gate failure or no-hints — soft loop only
+                    // Metrics already recorded inside deliberate_and_emit
                 }
             }
         }
@@ -167,7 +167,7 @@ impl PowrushPatsagiBridge {
             .unwrap_or_else(|e| format!("Force governance error: {}", e))
     }
 
-    /// Compact telemetry summary.
+    /// Compact telemetry + metrics summary.
     pub fn summary(&self) -> String {
         let fb = self
             .last_feedback
@@ -175,13 +175,23 @@ impl PowrushPatsagiBridge {
             .map(|r| format!(" | last_hints={}", r.hints_emitted))
             .unwrap_or_default();
         format!(
-            "PowrushPatsagiBridge v{} | enabled={} | feedback={} | interventions={}{} | Living Cosmic Tick active",
+            "PowrushPatsagiBridge v{} | enabled={} | feedback={} | interventions={}{} | {}",
             self.version,
             self.enabled,
             self.feedback_enabled,
             self.integration.interventions,
-            fb
+            fb,
+            self.feedback.metrics_summary()
         )
+    }
+
+    /// Direct access to the observability surface.
+    pub fn metrics(&self) -> &ResonanceMetrics {
+        &self.feedback.metrics
+    }
+
+    pub fn metrics_summary(&self) -> String {
+        self.feedback.metrics_summary()
     }
 }
 
