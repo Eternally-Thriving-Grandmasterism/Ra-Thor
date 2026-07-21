@@ -210,6 +210,7 @@ pub fn conservative_mercy_presence(
 mod tests {
     use super::*;
     use std::fs;
+    use std::env;
 
     #[test]
     fn closed_set_rejects_unknown() {
@@ -243,8 +244,9 @@ mod tests {
 
     #[test]
     fn atomic_emit_roundtrip() {
-        let dir = tempfile::tempdir().unwrap();
-        let path = dir.path().join("ra_thor_policy_hints.json");
+        // Pure-std temporary path under system temp
+        let mut path = env::temp_dir();
+        path.push(format!("ra_thor_policy_hints_test_{}.json", std::process::id()));
 
         let h = PolicyHint::new(
             "rt-001",
@@ -265,5 +267,8 @@ mod tests {
         assert_eq!(parsed.target_session_id, "sess-xyz");
         assert_eq!(parsed.source_export_seq, 7);
         assert_eq!(parsed.hints[0].category, "ethical_floor");
+
+        // Cleanup
+        let _ = fs::remove_file(&written);
     }
 }
