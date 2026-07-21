@@ -1,24 +1,23 @@
-//! crates/patsagi-councils/src/feedback_loop.rs — v14.15.5
+//! crates/patsagi-councils/src/feedback_loop.rs — v14.15.8
 //! Ra-Thor Feedback Loop — closed dual-repo soft RTT with Powrush-MMO
 //!
 //! Flow:
 //!   Powrush telemetry snapshot
-//!     → lightweight PATSAGi-style deliberation (mercy-gated)
+//!     → TOLC 8 score mapping + gate check
 //!     → 0..N conservative PolicyHints (closed 6-category set)
 //!     → atomic emission via powrush::policy_hint_emission
 //!
-//! Only emits after a successful mercy-passing deliberation.
+//! Emission is now explicitly gated by TOLC 8 (progressive floor).
 //! Prefer small deltas. Offline-first. Zero-harm.
-//!
-//! Now reports into ResonanceMetrics for observability.
 //!
 //! Canonical emission contract: Powrush-MMO/docs/RA_THOR_POLICY_HINT_EMISSION.md
 //! Contact: info@Rathor.ai
 //! TOLC 8 + PATSAGi | Living Cosmic Tick
 
 use crate::observability::{BlockReason, ResonanceMetrics};
+use crate::tolc8::{tolc8_gate_check, Tolc8GateResult, Tolc8Scores};
 use powrush::{
-    PolicyHint, emit_after_deliberation, EmissionError, DEFAULT_EMISSION_PATH,
+    PolicyHint, emit_after_deliberation, EmissionError,
 };
 use serde::{Deserialize, Serialize};
 use std::path::Path;
@@ -63,7 +62,7 @@ impl Default for PowrushTelemetrySnapshot {
 pub enum FeedbackError {
     #[error("emission error: {0}")]
     Emission(#[from] EmissionError),
-    #[error("deliberation did not pass mercy gates — no emission")]
+    #[error("TOLC 8 gate failed — no emission")]
     MercyGateFailed,
     #[error("no actionable soft hints generated")]
     NoHints,
@@ -112,9 +111,21 @@ impl RaThorFeedbackLoop {
         Self::default()
     }
 
-    /// Full cycle: deliberate on telemetry → produce conservative hints → emit.
+    /// Map telemetry into TOLC 8 scores (conservative).
+    fn build_tolc8_scores(telemetry: &PowrushTelemetrySnapshot) -> Tolc8Scores {
+        // Derive the three primary axes from existing signals
+        let joy = telemetry.mercy_presence_signal.max(telemetry.innovation_signal * 0.9);
+        let harmony = (telemetry.peaceful_resolution_signal + telemetry.ethical_floor_signal) / 2.0;
+        // harmony is expected in roughly [0,1] here; convert toward [-1,1] for the mapper
+        let harmony_signed = harmony * 2.0 - 1.0;
+        let abundance = telemetry.abundance_signal;
+
+        Tolc8Scores::from_valence_axes(joy, harmony_signed, abundance)
+    }
+
+    /// Full cycle: deliberate on telemetry → TOLC 8 gate → produce conservative hints → emit.
     ///
-    /// Only emits when the internal mercy check passes and at least one
+    /// Only emits when TOLC 8 progressive floor is met and at least one
     /// actionable soft hint is generated.
     pub fn deliberate_and_emit(
         &mut self,
@@ -126,21 +137,16 @@ impl RaThorFeedbackLoop {
             return Err(FeedbackError::MercyGateFailed);
         }
 
-        // Simple aggregate mercy gate (conservative)
-        let avg_signal = (
-            telemetry.abundance_signal
-                + telemetry.peaceful_resolution_signal
-                + telemetry.ethical_floor_signal
-                + telemetry.council_participation_signal
-                + telemetry.innovation_signal
-                + telemetry.mercy_presence_signal
-        ) / 6.0;
+        // ── TOLC 8 gate (primary decision) ───────────────────────────────
+        let tolc_scores = Self::build_tolc8_scores(telemetry);
+        let composite = tolc_scores.composite();
+        let gate_result = tolc8_gate_check(composite);
 
-        let mercy_passed = avg_signal >= self.min_signal_threshold
-            && telemetry.ethical_floor_signal >= 0.55
-            && telemetry.mercy_presence_signal >= 0.45;
+        // Additional hard ethical floor (Core Covenant protection)
+        let ethical_ok = telemetry.ethical_floor_signal >= 0.55
+            && telemetry.mercy_presence_signal >= 0.40;
 
-        if !mercy_passed {
+        if !gate_result.allows_emission() || !ethical_ok {
             self.metrics.record_emission_block(BlockReason::MercyGate);
             return Err(FeedbackError::MercyGateFailed);
         }
@@ -228,12 +234,19 @@ impl RaThorFeedbackLoop {
 
         self.metrics.record_emission_success(hints.len());
 
+        let gate_label = match gate_result {
+            Tolc8GateResult::FormalPass => "TOLC8-Formal",
+            Tolc8GateResult::ProgressivePass => "TOLC8-Progressive",
+            Tolc8GateResult::MercyNormCollapse => "TOLC8-Collapse", // unreachable here
+        };
+
         let summary = format!(
-            "Ra-Thor Feedback Cycle | session={} seq={} | hints={} | avg_signal={:.3} | path={}",
+            "Ra-Thor Feedback Cycle | session={} seq={} | hints={} | tolc8={:.3} ({}) | path={}",
             telemetry.session_id,
             telemetry.export_seq,
             hints.len(),
-            avg_signal,
+            composite,
+            gate_label,
             path.display()
         );
 
@@ -353,11 +366,13 @@ mod tests {
     }
 
     #[test]
-    fn low_signals_blocked_by_mercy_gate() {
+    fn low_signals_blocked_by_tolc8_gate() {
         let mut loop_ = RaThorFeedbackLoop::new();
         let mut snap = PowrushTelemetrySnapshot::default();
         snap.ethical_floor_signal = 0.3;
         snap.mercy_presence_signal = 0.2;
+        snap.abundance_signal = 0.25;
+        snap.peaceful_resolution_signal = 0.3;
 
         let err = loop_.deliberate_and_emit(&snap, None);
         assert!(matches!(err, Err(FeedbackError::MercyGateFailed)));
