@@ -1,5 +1,5 @@
-//! crates/patsagi-councils/src/observability.rs — v14.15.5
-//! Lightweight observability for the dual-repo soft feedback organism
+//! crates/patsagi-councils/src/observability.rs — v14.15.6
+//! Lightweight observability + persistence for the dual-repo soft feedback organism
 //!
 //! Tracks the breath of the closed loop:
 //!   - Hints emitted
@@ -7,12 +7,21 @@
 //!   - Emission success vs blocked
 //!   - Simple running averages
 //!
-//! Zero heavy dependencies. Snapshot-friendly. Offline-first.
+//! Persistence: atomic JSON write/load (offline-first, fail-soft).
+//! Default path: artifacts/ra_thor_resonance_metrics.json
+//!
+//! Zero heavy dependencies. Snapshot-friendly.
 //! Contact: info@Rathor.ai
 //! TOLC 8 | Living Cosmic Tick | ONE Organism
 
 use serde::{Deserialize, Serialize};
+use std::fs;
+use std::io::Write;
+use std::path::{Path, PathBuf};
 use std::time::{SystemTime, UNIX_EPOCH};
+
+/// Default persistence path (watched / shared the same way as policy hints).
+pub const DEFAULT_METRICS_PATH: &str = "artifacts/ra_thor_resonance_metrics.json";
 
 /// Aggregate metrics for the soft feedback + valence organism.
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
@@ -41,6 +50,9 @@ pub struct ResonanceMetrics {
     // Timestamps
     pub last_emission_unix: Option<u64>,
     pub last_cycle_unix: Option<u64>,
+
+    /// Last successful persistence timestamp (unix seconds).
+    pub last_persisted_unix: Option<u64>,
 }
 
 impl ResonanceMetrics {
@@ -151,7 +163,7 @@ impl ResonanceMetrics {
         format!(
             "ResonanceMetrics | cycles={} | emit_ok={} ({:.1}%) | hints={} | \
              valence: approve={} progressive={} mercy_block={} review={} | \
-             avg_valence={:.3} avg_joy={:.3}",
+             avg_valence={:.3} avg_joy={:.3} | persisted={}",
             self.total_cycles,
             self.emission_successes,
             self.emission_success_rate() * 100.0,
@@ -161,13 +173,82 @@ impl ResonanceMetrics {
             self.valence_mercy_blocks,
             self.valence_reviews,
             self.avg_composite_valence(),
-            self.avg_joy()
+            self.avg_joy(),
+            self.last_persisted_unix
+                .map(|t| t.to_string())
+                .unwrap_or_else(|| "never".into())
         )
     }
 
     /// Reset all counters (useful between test runs).
     pub fn reset(&mut self) {
         *self = Self::default();
+    }
+
+    // ── Persistence ───────────────────────────────────────────────────────
+
+    /// Atomically save metrics to the given path (or default).
+    /// Creates parent directories as needed. Fail-soft on error.
+    pub fn save(&mut self, path: Option<&Path>) -> Result<PathBuf, std::io::Error> {
+        let target = path
+            .map(|p| p.to_path_buf())
+            .unwrap_or_else(|| PathBuf::from(DEFAULT_METRICS_PATH));
+
+        if let Some(parent) = target.parent() {
+            fs::create_dir_all(parent)?;
+        }
+
+        self.last_persisted_unix = Some(Self::now_unix());
+
+        let tmp = target.with_extension("json.tmp");
+        {
+            let mut f = fs::File::create(&tmp)?;
+            let json = serde_json::to_string_pretty(self)
+                .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e))?;
+            f.write_all(json.as_bytes())?;
+            f.sync_all()?;
+        }
+        fs::rename(&tmp, &target)?;
+
+        Ok(target)
+    }
+
+    /// Load metrics from the given path (or default).
+    /// Returns error if file missing or invalid.
+    pub fn load(path: Option<&Path>) -> Result<Self, std::io::Error> {
+        let target = path
+            .map(|p| p.to_path_buf())
+            .unwrap_or_else(|| PathBuf::from(DEFAULT_METRICS_PATH));
+
+        let raw = fs::read_to_string(&target)?;
+        let metrics: ResonanceMetrics = serde_json::from_str(&raw)
+            .map_err(|e| std::io::Error::new(std::io::ErrorKind::InvalidData, e))?;
+        Ok(metrics)
+    }
+
+    /// Load if the file exists, otherwise return a fresh default.
+    /// Never fails hard — ideal for startup of long-running hosts.
+    pub fn load_or_default(path: Option<&Path>) -> Self {
+        Self::load(path).unwrap_or_default()
+    }
+
+    /// Convenience: record + immediately persist (best-effort).
+    pub fn record_emission_success_and_save(
+        &mut self,
+        hints: usize,
+        path: Option<&Path>,
+    ) {
+        self.record_emission_success(hints);
+        let _ = self.save(path);
+    }
+
+    pub fn record_emission_block_and_save(
+        &mut self,
+        reason: BlockReason,
+        path: Option<&Path>,
+    ) {
+        self.record_emission_block(reason);
+        let _ = self.save(path);
     }
 }
 
@@ -182,12 +263,22 @@ pub enum BlockReason {
 #[derive(Debug, Clone, Default)]
 pub struct MetricsHandle {
     pub inner: ResonanceMetrics,
+    pub persist_path: Option<PathBuf>,
 }
 
 impl MetricsHandle {
     pub fn new() -> Self {
         Self {
             inner: ResonanceMetrics::new(),
+            persist_path: None,
+        }
+    }
+
+    /// Create and immediately try to load existing metrics.
+    pub fn load_or_new(path: Option<&Path>) -> Self {
+        Self {
+            inner: ResonanceMetrics::load_or_default(path),
+            persist_path: path.map(|p| p.to_path_buf()),
         }
     }
 
@@ -201,5 +292,10 @@ impl MetricsHandle {
 
     pub fn summary(&self) -> String {
         self.inner.summary()
+    }
+
+    /// Persist using the handle’s configured path (or default).
+    pub fn save(&mut self) -> Result<PathBuf, std::io::Error> {
+        self.inner.save(self.persist_path.as_deref())
     }
 }
