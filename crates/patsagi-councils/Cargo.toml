@@ -8,9 +8,37 @@ description.workspace = true
 repository.workspace = true
 
 [dependencies]
+# Core lattice
 ra-thor-core = { path = "../ra-thor-core" }
-lean-sys = "0.1"
+
+# Dual-repo RTT feedback + Powrush surface (policy hint emission lives here)
+powrush = { path = "../powrush" }
+
+# Mercy & governance
+mercy = { path = "../mercy" }
+quantum-swarm-orchestrator = { path = "../quantum-swarm-orchestrator" }
+
+# Workspace shared
 chrono.workspace = true
+serde = { workspace = true, features = ["derive"] }
+serde_json.workspace = true
+thiserror.workspace = true
+uuid.workspace = true
+
+# Formal verification bridge
+lean-sys = "0.1"
+
+# Optional / feature-gated surfaces (present in source)
+real-estate-lattice = { path = "../real-estate-lattice", optional = true }
+ra-thor-post-quantum-sig = { path = "../ra-thor-post-quantum-sig", optional = true }
+interstellar-operations = { path = "../interstellar-operations", optional = true }
+
+[features]
+default = []
+modular-mercy = []
+rrel = ["real-estate-lattice"]
+post-quantum = ["ra-thor-post-quantum-sig"]
+interstellar = ["interstellar-operations"]
 
 # === Lean 4 + Formal Verification ===
 # lean-sys provides FFI to Lean 4 theorem prover.
@@ -29,4 +57,8 @@ path = "src/lib.rs"
 
 [[bin]]
 name = "patsagi-council-simulator"
-path = "src/bin/simulator.rs"
+path = "src/bin/council_simulator.rs"
+
+[[example]]
+name = "feedback_loop_demo"
+path = "examples/feedback_loop_demo.rs"
