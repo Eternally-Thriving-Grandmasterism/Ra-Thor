@@ -1,12 +1,15 @@
 // crates/biomimetic/lib.rs
 // Ra-Thor Biomimetic Crate — Dedicated home for BiomimeticPatternEngine
-// and all living nature-inspired designs (avian LEV, gecko setae, fractal 528 Hz ASRE, lotus self-cleaning, mycelial, etc.)
+// + full multi-algorithm Biomimetic Optimization Engine (SwarmIntelligence)
 // Fully cross-pollinated with kernel, quantum, mercy, innovation generator, and the full Omnimaster lattice
 
-// Note: The authoritative implementation lives in core/biomimetic_pattern_engine.rs.
-// This crate provides a clean workspace surface and the living pattern catalog constants.
+// Note: The authoritative pattern engine lives in core/biomimetic_pattern_engine.rs.
+// SwarmIntelligence (multi-algorithm optimizer) lives in this crate.
 
 pub use crate::biomimetic_pattern_engine::BiomimeticPatternEngine;
+pub use crate::swarm_intelligence::{
+    SwarmIntelligence, BiomimeticAlgorithm, BiomimeticOptimizationResult,
+};
 
 // Core biomimetic pattern library (names only — full structured catalog lives in core)
 pub const BIOMIMETIC_PATTERNS: [&str; 8] = [
@@ -39,4 +42,15 @@ pub async fn select_and_apply_biomimetic(
     let (_pattern, coherence) =
         BiomimeticPatternEngine::select_and_apply(entangled_themes, base_valence, mercy_weight).await;
     coherence
+}
+
+/// Run a full biomimetic optimization with the chosen algorithm
+pub async fn run_biomimetic_optimization(
+    algorithm: BiomimeticAlgorithm,
+    agents: usize,
+    environment: &[String],
+    base_valence: f64,
+    mercy_weight: u8,
+) -> BiomimeticOptimizationResult {
+    SwarmIntelligence::run_optimization(algorithm, agents, environment, base_valence, mercy_weight).await
 }
