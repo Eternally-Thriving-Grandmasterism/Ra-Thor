@@ -27,6 +27,7 @@ impl SelfReviewLoop {
         let codex_filenames = CodexLoader::scan_docs_folder().await;
 
         let mut processed = 0usize;
+        let mut total_recycled = 0usize;
 
         for filename in &codex_filenames {
             // 1b. Load actual content (FENCA + Mercy already applied inside loader)
@@ -55,12 +56,19 @@ impl SelfReviewLoop {
                 /* context */
             );
 
-            // 5. Recycle useful ideas (now properly awaited)
-            let recycled_ideas = IdeaRecycler::extract_and_recycle(&content, mercy_weight).await;
+            // 5. Recycle useful ideas → structured RecycledIdea, then convert to seeds
+            //    for the current InnovationGenerator API (clean bidirectional handoff)
+            let recycled_seeds =
+                IdeaRecycler::extract_and_recycle_as_seeds(&content, mercy_weight).await;
+            total_recycled += recycled_seeds.len();
+
+            if recycled_seeds.is_empty() {
+                continue;
+            }
 
             // 6. Generate innovation from recycled ideas
             if let Some(innovation) = InnovationGenerator::create_from_recycled(
-                recycled_ideas,
+                recycled_seeds,
                 &mercy_scores,
                 mercy_weight,
             )
@@ -92,6 +100,7 @@ impl SelfReviewLoop {
             vec![],
             json!({
                 "codices_scanned": codex_filenames.len(),
+                "ideas_recycled": total_recycled,
                 "innovations_generated": processed,
                 "duration_ms": duration_ms
             }),
