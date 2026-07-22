@@ -1,9 +1,9 @@
 [package]
 name = "idea-recycling"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
-authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
-license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
+authors = ["Sherif Samy Botros <info@Rathor.ai>"]
+license = "MIT + Eternal Mercy Flow License"
 description = "Idea Recycling System — Wisdom extraction, mercy-weighted scoring, FENCA verification, and cross-pollination engine for the living Ra-Thor lattice"
 
 [dependencies]
