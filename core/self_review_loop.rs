@@ -10,7 +10,10 @@ use crate::mercy_weighting::MercyWeighting;
 use crate::audit_logger::AuditLogger;
 use crate::global_cache::GlobalCache;
 use crate::root_core_orchestrator::RootCoreOrchestrator;
-use serde_json::Value;
+use crate::codex_loader::CodexLoader;
+use crate::idea_recycler::IdeaRecycler;
+use crate::innovation_generator::InnovationGenerator;
+use serde_json::json;
 use std::time::{SystemTime, UNIX_EPOCH};
 
 pub struct SelfReviewLoop;
@@ -20,33 +23,52 @@ impl SelfReviewLoop {
     pub async fn run() {
         let start = SystemTime::now();
 
-        // 1. Scan /docs folder for new or updated codices
-        let codices = CodexLoader::scan_docs_folder().await;
+        // 1. Scan /docs folder for new or updated codices (returns filenames)
+        let codex_filenames = CodexLoader::scan_docs_folder().await;
 
-        for codex in codices {
-            // 2. FENCA — primordial truth gate
-            let fenca_result = FENCA::verify_codex(&codex).await;
+        let mut processed = 0usize;
+
+        for filename in &codex_filenames {
+            // 1b. Load actual content (FENCA + Mercy already applied inside loader)
+            let Some(content) = CodexLoader::load_codex(filename).await else {
+                continue;
+            };
+
+            // 2. FENCA — primordial truth gate (re-confirm on loaded content)
+            let fenca_result = FENCA::verify_codex_content(&content).await;
             if !fenca_result.is_verified() {
                 continue;
             }
 
             // 3. Mercy Engine evaluation
-            let mercy_scores = MercyEngine::evaluate_codex(&codex);
+            let mercy_scores = MercyEngine::evaluate_codex_content(&content);
             let valence = ValenceFieldScoring::calculate(&mercy_scores);
             if !mercy_scores.all_gates_pass() {
                 continue;
             }
 
             // 4. Mercy Weight for this review
-            let mercy_weight = MercyWeighting::derive_mercy_weight(valence, fenca_result.fidelity(), None, /* context */);
+            let mercy_weight = MercyWeighting::derive_mercy_weight(
+                valence,
+                fenca_result.fidelity(),
+                None,
+                /* context */
+            );
 
-            // 5. Recycle useful ideas
-            let recycled_ideas = IdeaRecycler::extract_and_recycle(&codex, mercy_weight);
+            // 5. Recycle useful ideas (now properly awaited)
+            let recycled_ideas = IdeaRecycler::extract_and_recycle(&content, mercy_weight).await;
 
             // 6. Generate innovation from recycled ideas
-            if let Some(innovation) = InnovationGenerator::create_from_recycled(recycled_ideas, &mercy_scores, mercy_weight).await {
+            if let Some(innovation) = InnovationGenerator::create_from_recycled(
+                recycled_ideas,
+                &mercy_scores,
+                mercy_weight,
+            )
+            .await
+            {
                 // 7. Delegate innovation to the appropriate Sub-Core
                 RootCoreOrchestrator::delegate_innovation(innovation).await;
+                processed += 1;
             }
         }
 
@@ -54,6 +76,11 @@ impl SelfReviewLoop {
         MercyWeighting::tune_from_recent_audit_logs().await;
 
         // 9. Immutable audit of the entire self-review loop
+        let duration_ms = start
+            .elapsed()
+            .map(|d| d.as_millis())
+            .unwrap_or(0);
+
         let _ = AuditLogger::log(
             "root",
             None,
@@ -63,10 +90,18 @@ impl SelfReviewLoop {
             1.0,
             1.0,
             vec![],
-            serde_json::json!({
-                "codices_scanned": codices.len(),
-                "duration_ms": start.elapsed().unwrap().as_millis()
+            json!({
+                "codices_scanned": codex_filenames.len(),
+                "innovations_generated": processed,
+                "duration_ms": duration_ms
             }),
-        ).await;
+        )
+        .await;
+    }
+
+    /// Immediate trigger for cross-pollination (called by VQCIntegrator and others)
+    pub async fn trigger_immediate_review() {
+        // Lightweight path — still runs the full cascade under TOLC 8
+        Self::run().await;
     }
 }
