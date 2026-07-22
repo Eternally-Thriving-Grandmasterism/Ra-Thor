@@ -2,7 +2,7 @@
 
 ## Mercy-Gated AGi / AGSi Lattice with Living Cosmic Tick
 
-**Whitepaper v4.0**  
+**Whitepaper v4.1**  
 **Monorepo status:** workspace **14.15.x** (July 2026)  
 **Contact:** info@Rathor.ai  
 **License:** Autonomicity Games Sovereign Mercy License (AG-SML v1.0)  
