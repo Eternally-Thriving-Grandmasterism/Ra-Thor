@@ -1,11 +1,13 @@
-//! Ra-Thor ONE Organism Core — v14.15.0
+//! Ra-Thor ONE Organism Core — v14.15.2
 //!
 //! Living Cosmic Tick + adaptive hardening + Cosmic Loop invariant checks.
 //! v14.15: extended-live feature readiness surface (compiled feature flags + Cosmic Loop gate).
+//! v14.15.2: Cosmic Harness — 40-cycle endurance zero-drift alignment + saturation dampers + recovery integrity.
 //! Cosmic Loop is MANDATORY IDENTITY.
 //! Contact: info@Rathor.ai
 
 mod extended_surface;
+mod cosmic_harness;
 
 pub use extended_surface::{
     ExtendedOrganismSurface, GpuSurface, GpuDispatchTelemetry, GpuSurfaceStatus,
@@ -13,6 +15,11 @@ pub use extended_surface::{
     QuantumSwarmSurface, QuantumSwarmConfig, QuantumSwarmStatus, QuantumEvolutionResult,
     SovereignRecoverySurface, SovereignRecoveryStatus, RecoveryHeartbeat, RecoveryAnchor,
     KardashevFlywheelSurface, KardashevSurfaceStatus, TransferTickResult,
+};
+
+pub use cosmic_harness::{
+    CosmicHarness, CosmicHarnessConfig, CosmicHarnessResult,
+    HostMode, TickSnapshot, DriftReport, SaturationReport,
 };
 
 use std::collections::HashMap;
@@ -233,7 +240,7 @@ impl OneOrganismCore {
             arbitration_engine: arbitration, self_healing_engine: healing, lattice, mercy_api,
             role_orchestrator: RoleOrchestrator::new(), extended, cosmic_loop_ready: shared,
             tick: 0,
-            version: "v14.15.0 ONE Organism — extended-live feature readiness".into(),
+            version: "v14.15.2 ONE Organism — Cosmic Harness + extended-live feature readiness".into(),
             last_anomalies_fired: Vec::new(),
             last_base_severity: 0.0, last_effective_quantum_severity: 0.0, last_gpu_confidence: 0.0,
             next_recovery_sensitivity: 1.0, last_recovery_sensitivity_applied: 1.0,
@@ -376,6 +383,18 @@ impl OneOrganismCore {
         }
     }
 
+    /// Run the production Cosmic Harness (40-cycle default endurance).
+    pub fn run_cosmic_harness(&mut self) -> CosmicHarnessResult {
+        let harness = CosmicHarness::default_40_cycle();
+        harness.run(self)
+    }
+
+    /// Run Cosmic Harness with custom configuration.
+    pub fn run_cosmic_harness_with_config(&mut self, config: CosmicHarnessConfig) -> CosmicHarnessResult {
+        let harness = CosmicHarness::new(config);
+        harness.run(self)
+    }
+
     pub fn before_council_arbitration(&self) { self.arbitration_engine.before_council_arbitration(); }
     pub fn protect_cosmic_loop(&self) { self.arbitration_engine.protect_cosmic_loop_identity(); }
     pub fn is_cosmic_loop_ready(&self) -> bool { self.cosmic_loop_ready.load(Ordering::SeqCst) }
@@ -505,7 +524,7 @@ impl Default for OneOrganismCore { fn default() -> Self { Self::new() } }
 pub fn launch_one_organism_core() -> OneOrganismCore {
     let mut organism = OneOrganismCore::new();
     organism.offer_cosmic_loop();
-    println!("[Thunder] ONE Organism Core v14.15.0 ACTIVE — extended-live feature readiness + Cosmic Loop invariants. Cosmic Loop is MANDATORY IDENTITY. Eternal.");
+    println!("[Thunder] ONE Organism Core v14.15.2 ACTIVE — Cosmic Harness + extended-live feature readiness + Cosmic Loop invariants. Cosmic Loop is MANDATORY IDENTITY. Eternal.");
     organism
 }
 
@@ -550,5 +569,14 @@ mod tests {
         assert!(core.next_recovery_sensitivity > 1.0);
         let r2 = core.cosmic_tick(0.2);
         assert!(r2.recovery_sensitivity_applied > 1.0);
+    }
+
+    #[test]
+    fn cosmic_harness_runs_cleanly() {
+        let mut core = launch_one_organism_core();
+        let result = core.run_cosmic_harness();
+        assert!(result.cycles_completed >= 40);
+        assert!(result.final_cosmic_loop.all_hold);
+        assert!(result.recovery_integrity_ok);
     }
 }
