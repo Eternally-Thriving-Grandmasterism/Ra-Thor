@@ -3,16 +3,23 @@
 //! Reality Thriving Transfer Score + Kardashev benchmark harness.
 //! Phase C: Powrush-MMO telemetry contract + offline JSON fixture ingest.
 //! Live Valence Optimizer: TOLC 8 gate vector from telemetry (read-only meta surface).
+//! Energy design proposals scored through the same TOLC 8 floors.
 //! Provenance fields optional (Powrush v21.77+).
 //!
 //! See `POWRUSH_TELEMETRY_CONTRACT.md` and `fixtures/`.
 //! AG-SML v1.0 | TOLC 8 Living Mercy Gates | Contact: info@Rathor.ai
 
 mod live_valence;
+mod energy_design;
 
 pub use live_valence::{
     LiveValenceOptimizer, LiveValenceReport, ValenceVector, THETA_MIN_SOFT, THETA_MIN_STRICT,
     ABUNDANCE_CAP, ADAPT_SATURATION, COLLAB_SATURATION,
+};
+
+pub use energy_design::{
+    EnergyDesignClass, EnergyDesignProposal, EnergyDesignScore, score_energy_design,
+    example_open_smr_high, example_geothermal_marginal, example_experimental_fail,
 };
 
 use serde::{Deserialize, Serialize};
@@ -580,5 +587,15 @@ mod tests {
         let batch = parse_powrush_telemetry_batch_json(FIXTURE_BATCH).unwrap();
         let reports = compute_live_valence_from_batch(&batch).unwrap();
         assert_eq!(reports.len(), 3);
+    }
+
+    #[test]
+    fn energy_design_examples_score() {
+        let high = score_energy_design(&example_open_smr_high()).unwrap();
+        assert!(high.valence.passes_strict_floor);
+        let marg = score_energy_design(&example_geothermal_marginal()).unwrap();
+        assert!(marg.valence.passes_soft_floor);
+        let fail = score_energy_design(&example_experimental_fail()).unwrap();
+        assert!(!fail.valence.passes_soft_floor);
     }
 }
