@@ -3,11 +3,14 @@
 //! Living Cosmic Tick + adaptive hardening + Cosmic Loop invariant checks.
 //! v14.15: extended-live feature readiness surface (compiled feature flags + Cosmic Loop gate).
 //! v14.15.2: Cosmic Harness — 40-cycle endurance zero-drift alignment + saturation dampers + recovery integrity.
+//! Live Valence status hook available under `kardashev-live` (read-only).
 //! Cosmic Loop is MANDATORY IDENTITY.
 //! Contact: info@Rathor.ai
 
 mod extended_surface;
 mod cosmic_harness;
+#[cfg(feature = "kardashev-live")]
+mod live_valence_status;
 
 pub use extended_surface::{
     ExtendedOrganismSurface, GpuSurface, GpuDispatchTelemetry, GpuSurfaceStatus,
@@ -240,7 +243,7 @@ impl OneOrganismCore {
             arbitration_engine: arbitration, self_healing_engine: healing, lattice, mercy_api,
             role_orchestrator: RoleOrchestrator::new(), extended, cosmic_loop_ready: shared,
             tick: 0,
-            version: "v14.15.2 ONE Organism — Cosmic Harness + extended-live feature readiness".into(),
+            version: "v14.15.2 ONE Organism — Cosmic Harness + Live Valence hook + extended-live".into(),
             last_anomalies_fired: Vec::new(),
             last_base_severity: 0.0, last_effective_quantum_severity: 0.0, last_gpu_confidence: 0.0,
             next_recovery_sensitivity: 1.0, last_recovery_sensitivity_applied: 1.0,
@@ -395,6 +398,16 @@ impl OneOrganismCore {
         harness.run(self)
     }
 
+    /// Read-only TOLC 8 live valence from Powrush-shaped telemetry.
+    /// Requires `kardashev-live`. Blocks unless Cosmic Loop is ready. Does not mutate tick state.
+    #[cfg(feature = "kardashev-live")]
+    pub fn evaluate_live_valence(
+        &self,
+        telemetry: &reality_thriving_transfer::PowrushTelemetry,
+    ) -> Result<reality_thriving_transfer::LiveValenceReport, String> {
+        live_valence_status::evaluate_live_valence(self.is_cosmic_loop_ready(), telemetry)
+    }
+
     pub fn before_council_arbitration(&self) { self.arbitration_engine.before_council_arbitration(); }
     pub fn protect_cosmic_loop(&self) { self.arbitration_engine.protect_cosmic_loop_identity(); }
     pub fn is_cosmic_loop_ready(&self) -> bool { self.cosmic_loop_ready.load(Ordering::SeqCst) }
@@ -524,7 +537,7 @@ impl Default for OneOrganismCore { fn default() -> Self { Self::new() } }
 pub fn launch_one_organism_core() -> OneOrganismCore {
     let mut organism = OneOrganismCore::new();
     organism.offer_cosmic_loop();
-    println!("[Thunder] ONE Organism Core v14.15.2 ACTIVE — Cosmic Harness + extended-live feature readiness + Cosmic Loop invariants. Cosmic Loop is MANDATORY IDENTITY. Eternal.");
+    println!("[Thunder] ONE Organism Core v14.15.2 ACTIVE — Cosmic Harness + Live Valence hook + extended-live feature readiness + Cosmic Loop invariants. Cosmic Loop is MANDATORY IDENTITY. Eternal.");
     organism
 }
 
@@ -543,9 +556,7 @@ mod tests {
     fn live_feature_readiness_default_build() {
         let core = launch_one_organism_core();
         let r = core.live_feature_readiness();
-        // Default test build does not enable live features
         assert!(!r.extended_live);
-        // Cosmic Loop must still be ready for any future live path
         assert!(r.cosmic_loop_ready_for_live);
         let s = core.extended_live_status();
         assert_eq!(s.live_features.cosmic_loop_ready_for_live, r.cosmic_loop_ready_for_live);
