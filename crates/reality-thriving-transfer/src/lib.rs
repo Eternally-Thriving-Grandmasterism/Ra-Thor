@@ -1,11 +1,19 @@
-//! reality-thriving-transfer v14.15.1
+//! reality-thriving-transfer v14.15.2
 //!
 //! Reality Thriving Transfer Score + Kardashev benchmark harness.
 //! Phase C: Powrush-MMO telemetry contract + offline JSON fixture ingest.
+//! Live Valence Optimizer: TOLC 8 gate vector from telemetry (read-only meta surface).
 //! Provenance fields optional (Powrush v21.77+).
 //!
 //! See `POWRUSH_TELEMETRY_CONTRACT.md` and `fixtures/`.
 //! AG-SML v1.0 | TOLC 8 Living Mercy Gates | Contact: info@Rathor.ai
+
+mod live_valence;
+
+pub use live_valence::{
+    LiveValenceOptimizer, LiveValenceReport, ValenceVector, THETA_MIN_SOFT, THETA_MIN_STRICT,
+    ABUNDANCE_CAP, ADAPT_SATURATION, COLLAB_SATURATION,
+};
 
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
@@ -159,6 +167,19 @@ pub async fn compute_scores_from_batch(
     Ok(out)
 }
 
+/// Live valence reports for every session in a batch (read-only, no EMA side effects).
+pub fn compute_live_valence_from_batch(
+    batch: &PowrushTelemetryBatch,
+) -> Result<Vec<(String, LiveValenceReport)>, String> {
+    let opt = LiveValenceOptimizer::new();
+    let mut out = Vec::with_capacity(batch.sessions.len());
+    for session in &batch.sessions {
+        let report = opt.evaluate(&session.telemetry)?;
+        out.push((session.label.clone(), report));
+    }
+    Ok(out)
+}
+
 pub struct RealityThrivingTransferCalculator {
     transfer_ema: Arc<Mutex<f64>>,
     valence_ema: Arc<Mutex<f64>>,
@@ -283,6 +304,11 @@ impl RealityThrivingTransferCalculator {
                 if mercy_audit_passed { "all green" } else { "compassion engaged" }
             ),
         })
+    }
+
+    /// Read-only TOLC 8 live valence from the same telemetry (no EMA mutation).
+    pub fn live_valence(&self, telemetry: &PowrushTelemetry) -> Result<LiveValenceReport, String> {
+        LiveValenceOptimizer::new().evaluate(telemetry)
     }
 
     pub async fn apply_transfer_feedback_to_swarm(&self, score: &RealityThrivingTransferScore) {
@@ -462,7 +488,6 @@ mod tests {
         assert_eq!(env.label, "high_mercy_council_session");
         assert!(env.telemetry.rbe_decision_quality_avg > 0.9);
         assert!(env.telemetry.collaboration_events >= 400);
-        // Provenance optional — fixtures may omit
         assert!(env.session_id.is_none() || env.session_id.as_ref().map(|s| !s.is_empty()).unwrap_or(false));
     }
 
@@ -539,5 +564,21 @@ mod tests {
     fn reject_wrong_schema() {
         let bad = r#"{"schema":"nope","telemetry":{"gameplay_hours":1.0,"rbe_decision_quality_avg":0.5,"peaceful_resolution_rate":0.5,"collaboration_events":1,"ethical_choice_score":0.5,"adaptation_events":1,"abundance_velocity_signals":0.5,"innovation_contribution":0.5}}"#;
         assert!(parse_powrush_telemetry_json(bad).is_err());
+    }
+
+    #[test]
+    fn live_valence_via_calculator() {
+        let env = parse_powrush_telemetry_json(FIXTURE_HIGH).unwrap();
+        let calc = RealityThrivingTransferCalculator::new();
+        let report = calc.live_valence(&env.telemetry).unwrap();
+        assert!(report.passes_soft_floor);
+        assert!(report.min_gate >= THETA_MIN_SOFT);
+    }
+
+    #[test]
+    fn live_valence_batch_helper() {
+        let batch = parse_powrush_telemetry_batch_json(FIXTURE_BATCH).unwrap();
+        let reports = compute_live_valence_from_batch(&batch).unwrap();
+        assert_eq!(reports.len(), 3);
     }
 }
