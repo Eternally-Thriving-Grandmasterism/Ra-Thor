@@ -3,14 +3,16 @@
 //! Reality Thriving Transfer Score + Kardashev benchmark harness.
 //! Phase C: Powrush-MMO telemetry contract + offline JSON fixture ingest.
 //! Live Valence Optimizer: TOLC 8 gate vector from telemetry (read-only meta surface).
-//! Energy design proposals scored through the same TOLC 8 floors.
+//! Energy design proposals + OpenSmrShard (strict TOLC 8 gate) scored through the same floors.
 //! Provenance fields optional (Powrush v21.77+).
 //!
+//! Companion open-SMR crate: https://github.com/Eternally-Thriving-Grandmasterism/SMR
 //! See `POWRUSH_TELEMETRY_CONTRACT.md` and `fixtures/`.
 //! AG-SML v1.0 | TOLC 8 Living Mercy Gates | Contact: info@Rathor.ai
 
 mod live_valence;
 mod energy_design;
+mod open_smr_shard;
 
 pub use live_valence::{
     LiveValenceOptimizer, LiveValenceReport, ValenceVector, THETA_MIN_SOFT, THETA_MIN_STRICT,
@@ -20,6 +22,11 @@ pub use live_valence::{
 pub use energy_design::{
     EnergyDesignClass, EnergyDesignProposal, EnergyDesignScore, score_energy_design,
     example_open_smr_high, example_geothermal_marginal, example_experimental_fail,
+};
+
+pub use open_smr_shard::{
+    birth_reference_open_smr_shard, DesignEnvelope, OpenProtocolSurface, OpenSmrShard,
+    SafetyCaseChecklist, SafetyCaseItem,
 };
 
 use serde::{Deserialize, Serialize};
@@ -597,5 +604,12 @@ mod tests {
         assert!(marg.valence.passes_soft_floor);
         let fail = score_energy_design(&example_experimental_fail()).unwrap();
         assert!(!fail.valence.passes_soft_floor);
+    }
+
+    #[test]
+    fn open_smr_shard_births_on_strict() {
+        let shard = birth_reference_open_smr_shard().unwrap();
+        assert!(shard.valence_at_birth.passes_strict_floor);
+        assert_eq!(shard.safety_progress(), (0, 6));
     }
 }
