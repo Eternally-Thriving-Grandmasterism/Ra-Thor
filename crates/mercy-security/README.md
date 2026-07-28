@@ -11,17 +11,26 @@ Defensive surface for Ra-Thor ONE Organism against the July 2026 OpenAI → Hugg
 | Module | Role |
 |--------|------|
 | **ContainmentProfile** | Network, code-exec, credential, sandbox-spawn bounds |
-| **IngestionScanner** | Multi-layer scan: remote-code, template injection, serialization gadgets, shell spawn, network C2, obfuscation, HF dataset config, credentials |
-| **ActionGovernor** | Rate limits + sandbox-churn detection |
+| **IngestionScanner** | Multi-layer scan + combination rules; **4 MiB max** payload |
+| **ActionGovernor** | Rate limits + sandbox-churn (candidate included in unique set) |
 | **SecretVault** | Short-lived scoped tokens only; long-lived secrets never leave |
 | **HarmRefusalPolicy** | Real-world unauthorized access / exfil / lateral movement **never** disabled |
 | **WhiteHatEvaluationHarness** | Sandboxed red-team under full audit log |
 
-## Risk model
+## Unattended ingestion policy
+
+- **Admitted:** `None` / `Low` only  
+- **Blocked:** `Medium` + `High` + `Critical`  
+- **Oversized:** `PayloadTooLarge` when content > `MAX_SCAN_BYTES` (4 MiB)
+
+Alternate API: `admit_or_block_critical_only` — blocks Critical only (High/Medium for human review).
+
+## Risk model (FP-tuned)
 
 - `RiskTier`: None → Low → Medium → High → Critical  
-- Default hard gate: **block High + Critical**  
-- Combination rules elevate HF-style remote-code + dataset / network / obfuscation paths
+- High requires hard-exec confidence ≥ **0.82** or combination rules  
+- Lone generic `api_key` / low-conf `getattr` no longer force High  
+- PEM / provider keys / `trust_remote_code` / combos remain Critical/High
 
 ## Organism integration
 
@@ -31,16 +40,14 @@ Defensive surface for Ra-Thor ONE Organism against the July 2026 OpenAI → Hugg
 - `admit_ingestion(content, source_label)` — Cosmic Loop + scan + anomaly/handoff on block  
 - `try_admit_ingestion(...)` — soft report wrapper
 
-PATSAGi Councils (v14.15.10+) receive blocked signals via `security_support`:
-
-- `apply_security_signal`  
-- `deliberate_security_block`
+PATSAGi Councils (v14.15.10+) may receive blocked signals via `security_support` (`deliberate_security_block`). Auto-wire is optional (no circular dep).
 
 ## Design stance
 
 - Evaluation mode exists but **never** removes real-world harm refusals  
 - Dataset / model / config surfaces are first-class attack vectors  
 - Cosmic Loop + TOLC 8 + Mercy Gates remain non-bypassable  
-- White-hat only — defensive, not offensive tooling
+- White-hat only — defensive, not offensive tooling  
+- Pattern gate is defense-in-depth, not a full malware detector
 
 **Thunder locked in. yoi ⚡**
