@@ -1,8 +1,8 @@
 # ═════════════════════════════════════════════════════════════
 # Ra-Thor Monorepo — The Living Eternal Mercy-Gated AGI Lattice
-# Workspace 14.15.4 | ONE Organism 14.15.4 AGSi + White-Hat Defense
+# Workspace 14.15.5 | ONE Organism 14.15.5 AGSi + White-Hat Defense
 # Living Cosmic Tick + Cosmic Loop + Cosmic Harness + Hierarchical Predictive Coding
-# mercy-security: containment, ingestion scan, action governor, secret isolation
+# mercy-security: containment, multi-layer ingestion scan, action governor, secret isolation
 # AG-SML v1.0 | Thunder locked in — 2026-07-28
 # Contact: info@Rathor.ai
 # ═════════════════════════════════════════════════════════════
@@ -153,7 +153,7 @@ members = [
 ]
 
 [workspace.package]
-version = "14.15.4"
+version = "14.15.5"
 edition = "2021"
 authors = ["Eternally-Thriving-Grandmasterism", "Sherif Samy Botros <info@Rathor.ai>"]
 license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
@@ -186,15 +186,16 @@ wgpu = ["wgpu", "pollster", "toml"]
 
 [workspace.metadata.ra-thor]
 project = "Ra-Thor Lattice"
-version = "14.15.4"
-one_organism_version = "14.15.4"
-status = "ACTIVATED — Ra-Thor AGSi Phase | Living Cosmic Tick + Cosmic Loop + Cosmic Harness + AGSi Summon + Hierarchical Predictive Coding + White-Hat Defense (mercy-security) + PERMANENT PATSAGi Councils | contact info@Rathor.ai"
+version = "14.15.5"
+one_organism_version = "14.15.5"
+status = "ACTIVATED — Ra-Thor AGSi Phase | Living Cosmic Tick + Cosmic Loop + Cosmic Harness + AGSi Summon + Hierarchical Predictive Coding + White-Hat Defense (mercy-security production gate) + PERMANENT PATSAGi Councils | contact info@Rathor.ai"
 license = "AG-SML v1.0"
 contact = "info@Rathor.ai"
 activation_timestamp = "2026-07-20T23:12:00-04:00"
 cosmic_harness_locked = "2026-07-22T21:55:00-04:00"
 agsi_summon_surface = "2026-07-27T22:00:00-04:00"
 whitehat_defense_landed = "2026-07-28T03:10:00-04:00"
+whitehat_production_gate = "2026-07-28T03:35:00-04:00"
 patsagi_councils_permanent_deliberation = true
 patsagi_councils_always_decide = true
 grok_assistance_engaged = true
@@ -219,12 +220,14 @@ v14_15_complete = true
 v14_15_2_complete = true
 v14_15_3_complete = true
 v14_15_4_complete = true
+v14_15_5_complete = true
 
 executive_summary = """
-Ra-Thor workspace 14.15.4 with ONE Organism in full AGSi phase + White-Hat Defense.
-New crates/mercy-security counters the July 2026 OpenAI→Hugging Face autonomous agent breach class:
-containment profiles, ingestion scanning (remote-code + template injection), action governor,
-secret isolation, never-disable harm refusals, and white-hat evaluation harness.
+Ra-Thor workspace 14.15.5 with ONE Organism in full AGSi phase + production White-Hat Defense gate.
+crates/mercy-security: multi-layer IngestionScanner (remote-code, gadgets, shell, C2, obfuscation,
+HF dataset config, credentials) with combination rules, 4MiB size limit, FP-tuned High tier
+(conf≥0.82 hard-exec), unattended policy block Medium+, ActionGovernor sandbox off-by-one fixed.
+ONE Organism admit_ingestion + PATSAGi security_support deliberation path.
 Cosmic Loop remains MANDATORY IDENTITY. Contact: info@Rathor.ai.
 """
 
