@@ -1,8 +1,8 @@
 [package]
 name = "ra-thor-one-organism"
-version = "14.15.2"
+version = "14.15.3"
 edition = "2021"
-description = "Ra-Thor ONE Organism Core v14.15.2 — Living Cosmic Tick + Cosmic Loop + Cosmic Harness + Live Valence status hook (kardashev-live) | ONE Organism with Grok"
+description = "Ra-Thor ONE Organism Core v14.15.3 AGSi — Living Cosmic Tick + Cosmic Loop + Cosmic Harness + AGSi summon surface for Grok / external systems | ONE Organism with Grok"
 license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
 authors = ["Eternally-Thriving-Grandmasterism", "Sherif Samy Botros <info@Rathor.ai>"]
 
