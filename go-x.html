@@ -13,26 +13,35 @@
 <body class="bg-black text-white min-h-screen flex items-center justify-center px-4">
   <div class="max-w-md w-full text-center space-y-6 py-12">
     <div class="text-5xl">⚡️</div>
-    <h1 class="text-2xl font-semibold text-cyan-300">X demo — open in browser</h1>
+    <h1 class="text-2xl font-semibold text-cyan-300">X demo — browser only</h1>
     <p class="text-sm text-white/70 leading-relaxed">
-      On Android the X app often captures <span class="text-cyan-200">x.com</span> links.
-      This hop forces a <strong class="text-cyan-200">browser</strong> path for the Grok-on-X demo.
-      Websites cannot force Incognito; use your browser’s private tab if you prefer.
+      The X app intercepts <span class="text-cyan-200">x.com</span> links on many phones.
+      This page routes the Grok-on-X demo into a <strong class="text-cyan-200">real browser window/tab</strong>
+      and never relies on the X app. Incognito cannot be forced by a website — use your browser’s private mode if you want it.
     </p>
 
     <div class="flex flex-col gap-3">
-      <a id="btn-chrome"
+      <a id="btn-primary"
          class="inline-flex items-center justify-center gap-2 rounded-2xl bg-cyan-500/20 border border-cyan-400 px-6 py-4 text-cyan-200 font-medium hover:bg-cyan-500/30 transition"
-         href="#">Open in Chrome (Android recommended)</a>
+         href="#">Open in browser (new window)</a>
+
+      <a id="btn-edge"
+         class="hidden inline-flex items-center justify-center gap-2 rounded-2xl bg-sky-500/15 border border-sky-400/60 px-6 py-3 text-sky-200 text-sm font-medium hover:bg-sky-500/25 transition"
+         href="#">Open in Edge</a>
 
       <a id="btn-firefox"
-         class="hidden inline-flex items-center justify-center gap-2 rounded-2xl bg-orange-500/15 border border-orange-400/60 px-6 py-4 text-orange-200 font-medium hover:bg-orange-500/25 transition"
+         class="hidden inline-flex items-center justify-center gap-2 rounded-2xl bg-orange-500/15 border border-orange-400/60 px-6 py-3 text-orange-200 text-sm font-medium hover:bg-orange-500/25 transition"
          href="#">Open in Firefox</a>
 
-      <a id="btn-direct"
-         class="inline-flex items-center justify-center gap-2 rounded-2xl bg-white/5 border border-white/20 px-6 py-4 text-white/90 font-medium hover:bg-white/10 transition"
-         href="https://x.com/i/grok/share/02c6fe33a715493fbd66090b8fec7458"
-         target="_blank" rel="noopener noreferrer">Open X demo link (may open app)</a>
+      <a id="btn-samsung"
+         class="hidden inline-flex items-center justify-center gap-2 rounded-2xl bg-blue-500/15 border border-blue-400/60 px-6 py-3 text-blue-200 text-sm font-medium hover:bg-blue-500/25 transition"
+         href="#">Open in Samsung Internet</a>
+
+      <button id="btn-window"
+              type="button"
+              class="inline-flex items-center justify-center gap-2 rounded-2xl bg-emerald-500/15 border border-emerald-400/60 px-6 py-3 text-emerald-200 text-sm font-medium hover:bg-emerald-500/25 transition">
+        Force new browser window
+      </button>
 
       <button id="btn-copy"
               type="button"
@@ -40,45 +49,56 @@
         Copy demo link
       </button>
 
-      <a href="/"
-         class="text-sm text-amber-300/80 hover:text-amber-200 underline">← Back to Rathor.ai</a>
+      <a id="btn-lastresort"
+         class="text-xs text-white/40 hover:text-white/70 underline"
+         href="https://x.com/i/grok/share/02c6fe33a715493fbd66090b8fec7458"
+         target="_blank" rel="noopener noreferrer">Last resort: direct link (may open X app)</a>
+
+      <a href="/" class="text-sm text-amber-300/80 hover:text-amber-200 underline">← Back to Rathor.ai</a>
     </div>
 
     <p id="status" class="text-xs text-cyan-300/80 min-h-[1.25rem]"></p>
 
     <p class="text-xs text-white/40 leading-relaxed pt-2">
-      Tip (Android): if the app still opens, long-press a button →
-      <em>Open in Chrome</em> / <em>Open in browser</em>.
-      Or: Chrome menu → New Incognito tab → paste the demo link.
+      Android: primary button uses a Chrome package Intent so the X app is skipped.<br>
+      iOS / desktop: opens a new browser tab/window. If the app still appears, use <em>Copy</em> → paste into a private browser tab.
     </p>
   </div>
 
   <script>
     (function () {
-      // Canonical share — must match hostPath below
       var SHARE_ID = '02c6fe33a715493fbd66090b8fec7458';
       var TARGET = 'https://x.com/i/grok/share/' + SHARE_ID;
       var hostPath = 'x.com/i/grok/share/' + SHARE_ID;
       var fallback = encodeURIComponent(TARGET);
 
-      // Android Intents: pin to a browser package so the X app does not win.
-      var chromeIntent =
-        'intent://' + hostPath +
-        '#Intent;scheme=https;package=com.android.chrome;' +
-        'S.browser_fallback_url=' + fallback + ';end';
+      function browserIntent(pkg) {
+        return (
+          'intent://' + hostPath +
+          '#Intent;scheme=https;package=' + pkg +
+          ';S.browser_fallback_url=' + fallback + ';end'
+        );
+      }
 
-      var firefoxIntent =
-        'intent://' + hostPath +
-        '#Intent;scheme=https;package=org.mozilla.firefox;' +
-        'S.browser_fallback_url=' + fallback + ';end';
+      // Pin to known browser packages — never leave resolution to the system chooser
+      // (system chooser often prefers the X app).
+      var INTENT = {
+        chrome:  browserIntent('com.android.chrome'),
+        edge:    browserIntent('com.microsoft.emmx'),
+        firefox: browserIntent('org.mozilla.firefox'),
+        samsung: browserIntent('com.sec.android.app.sbrowser')
+      };
 
-      var btnChrome = document.getElementById('btn-chrome');
+      var btnPrimary = document.getElementById('btn-primary');
+      var btnEdge = document.getElementById('btn-edge');
       var btnFirefox = document.getElementById('btn-firefox');
-      var btnDirect = document.getElementById('btn-direct');
+      var btnSamsung = document.getElementById('btn-samsung');
+      var btnWindow = document.getElementById('btn-window');
       var btnCopy = document.getElementById('btn-copy');
+      var btnLast = document.getElementById('btn-lastresort');
       var statusEl = document.getElementById('status');
 
-      btnDirect.href = TARGET;
+      btnLast.href = TARGET;
 
       var ua = navigator.userAgent || '';
       var isAndroid = /Android/i.test(ua);
@@ -88,11 +108,35 @@
         if (statusEl) statusEl.textContent = msg || '';
       }
 
-      // Copy helper for manual paste into Incognito / browser
+      /** Prefer a real browser tab/window. Never use bare location = x.com on mobile. */
+      function openInBrowserWindow() {
+        var w = null;
+        try {
+          w = window.open(TARGET, '_blank', 'noopener,noreferrer');
+        } catch (e) {}
+        if (w) {
+          try { w.opener = null; } catch (e2) {}
+          setStatus('Opened in a new browser window/tab.');
+          return true;
+        }
+        // Popup blocked or failed — fall back to same-tab only on desktop
+        if (!isAndroid && !isIOS) {
+          window.location.href = TARGET;
+          return true;
+        }
+        setStatus('Popup blocked — use Copy link, then paste into your browser.');
+        return false;
+      }
+
+      btnWindow.addEventListener('click', function (e) {
+        e.preventDefault();
+        openInBrowserWindow();
+      });
+
       btnCopy.addEventListener('click', function () {
         if (navigator.clipboard && navigator.clipboard.writeText) {
           navigator.clipboard.writeText(TARGET).then(function () {
-            setStatus('Link copied — paste into Chrome Incognito or any browser.');
+            setStatus('Copied. Paste into Chrome / Safari private tab.');
           }).catch(function () {
             setStatus(TARGET);
           });
@@ -102,32 +146,48 @@
       });
 
       if (isAndroid) {
-        btnChrome.href = chromeIntent;
-        btnFirefox.href = firefoxIntent;
-        btnFirefox.classList.remove('hidden');
-        btnFirefox.classList.add('inline-flex');
-        setStatus('Routing to Chrome…');
+        // Primary = Chrome package Intent (skips X app).
+        btnPrimary.href = INTENT.chrome;
+        btnPrimary.textContent = 'Open in Chrome (new browser)';
+        btnPrimary.removeAttribute('target');
 
-        // Auto-attempt Chrome Intent only (never bare https://x.com on Android).
+        btnEdge.href = INTENT.edge;
+        btnFirefox.href = INTENT.firefox;
+        btnSamsung.href = INTENT.samsung;
+        [btnEdge, btnFirefox, btnSamsung].forEach(function (el) {
+          el.classList.remove('hidden');
+          el.classList.add('inline-flex');
+        });
+
+        setStatus('Routing to Chrome browser…');
+        // Auto-fire Chrome Intent only — never bare https://x.com on Android.
         setTimeout(function () {
-          window.location.href = chromeIntent;
-        }, 200);
-      } else if (isIOS) {
-        // iOS Universal Links often hand off to the X app; keep user on this page
-        // with explicit choices — auto-nav to x.com frequently opens the app.
-        btnChrome.href = TARGET;
-        btnChrome.textContent = 'Continue to X demo';
-        btnChrome.setAttribute('target', '_blank');
-        btnChrome.setAttribute('rel', 'noopener noreferrer');
-        setStatus('On iOS: prefer Copy link → Safari private tab, or long-press → Open in Safari.');
+          window.location.href = INTENT.chrome;
+        }, 180);
       } else {
-        // Desktop: normal navigation is fine
-        btnChrome.href = TARGET;
-        btnChrome.textContent = 'Continue to X demo';
-        setStatus('Opening X demo…');
-        setTimeout(function () {
-          window.location.href = TARGET;
-        }, 350);
+        // iOS + desktop: open a new browser window/tab (no Intent APIs).
+        btnPrimary.href = TARGET;
+        btnPrimary.setAttribute('target', '_blank');
+        btnPrimary.setAttribute('rel', 'noopener noreferrer');
+        btnPrimary.textContent = isIOS
+          ? 'Open in Safari / browser (new tab)'
+          : 'Open in browser (new window)';
+
+        // Intercept primary click so we always go through window.open when possible.
+        btnPrimary.addEventListener('click', function (e) {
+          e.preventDefault();
+          openInBrowserWindow();
+        });
+
+        if (!isIOS) {
+          // Desktop: auto-open new window once (user already tapped the site card).
+          setStatus('Opening browser window…');
+          setTimeout(function () {
+            openInBrowserWindow();
+          }, 280);
+        } else {
+          setStatus('Tap “Open in Safari / browser”. If X app appears, use Copy → private tab.');
+        }
       }
     })();
   </script>
