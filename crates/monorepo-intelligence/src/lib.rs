@@ -10,7 +10,8 @@ pub mod search;
 
 pub use inheritance::{analyze_inheritance, InheritanceStatus};
 pub use predictive_coding::{
-    ExpectedFreeEnergy, HierarchicalPredictiveCoding, PredictiveCodingResult, MERCY_VALENCE_FLOOR,
+    ExpectedFreeEnergy, HierarchicalPredictiveCoding, PredictiveCodingError,
+    PredictiveCodingResult, MERCY_VALENCE_FLOOR,
 };
 pub use scanner::{MonorepoScanner, ScanError, ScanResult, ScannedFile};
 
@@ -55,13 +56,17 @@ impl MonorepoIntelligence {
         &self,
         sensory_input: f64,
         requested_depth: u32,
-    ) -> PredictiveCodingResult {
+    ) -> Result<PredictiveCodingResult, PredictiveCodingError> {
         self.predictive_engine()
             .hierarchical_predictive_coding(sensory_input, requested_depth)
     }
 
     /// Convenience: active inference free-energy minimization steps.
-    pub fn active_inference(&self, prediction_error: f64, steps: u32) -> f64 {
+    pub fn active_inference(
+        &self,
+        prediction_error: f64,
+        steps: u32,
+    ) -> Result<f64, PredictiveCodingError> {
         self.predictive_engine()
             .integrate_with_active_inference_v2(prediction_error, steps)
     }
