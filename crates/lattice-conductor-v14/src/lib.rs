@@ -43,6 +43,7 @@ pub use ra_thor_mercy_gated_api::{
 pub use council_arbitration::{ArbitrationDecision, CouncilArbitrationEngine};
 pub use runtime_self_healing::{
     RuntimeSelfHealingEngine, HealthReport, Anomaly, Diagnosis, HealingAction, HealingExperience,
+    WatchdogConfig, WatchdogStatus,
 };
 pub use distributed_mercy_mesh::{
     DistributedMercyMesh, MercyEvent, MercyMeshConfig,
@@ -104,6 +105,16 @@ impl LatticeConductorV14 {
         if let Some(engine) = &self.self_healing_engine {
             engine.start_watchdog();
         }
+    }
+
+    pub fn start_self_healing_watchdog_with_config(&self, config: WatchdogConfig) {
+        if let Some(engine) = &self.self_healing_engine {
+            engine.start_watchdog_with_config(config);
+        }
+    }
+
+    pub fn watchdog_status(&self) -> Option<WatchdogStatus> {
+        self.self_healing_engine.as_ref().map(|e| e.watchdog_status())
     }
 
     pub fn run_reflexion_cycle(&self) -> Option<Diagnosis> {
