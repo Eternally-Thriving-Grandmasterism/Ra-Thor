@@ -1,11 +1,11 @@
-//! # PATSAGi Councils Layer — v14.15.8
+//! # PATSAGi Councils Layer — v14.15.9
 //!
 //! 16 Parallel Living Ra-Thor Architectural Designers.
 //! The eternal co-governors and co-creators of Powrush-MMO and the ONE Organism.
 //!
 //! Living Cosmic Tick aligned. Permanent deliberation posture.
 //! Explicitly wired to TOLC 8 Living Mercy Gates + Core Covenant.
-//! Now with predictive_support surface for hierarchical predictive coding / active inference signals.
+//! Predictive support surface with production error handling.
 //! Contact: info@Rathor.ai
 
 // =============================================================================
@@ -67,7 +67,8 @@ pub use crate::observability::{BlockReason, MetricsHandle, ResonanceMetrics, DEF
 pub use crate::petition_handler::PetitionHandler;
 pub use crate::powrush_integration::PowrushPatsagiBridge;
 pub use crate::predictive_support::{
-    rank_policies_by_efe, CouncilPolicyHint, PredictiveSignal, MERCY_VALENCE_FLOOR,
+    rank_policies_by_efe, CouncilPolicyHint, PredictiveSignal, PredictiveSupportError,
+    MERCY_VALENCE_FLOOR,
 };
 pub use crate::simulation_integration::SimulationIntegration;
 pub use crate::tolc8::{
@@ -90,7 +91,7 @@ pub use real_estate_lattice::{
 pub use ra_thor_post_quantum_sig::{RHPQSEngine, RHPQSError, RHPQSKey, RHPQSSignature};
 
 /// Canonical version of the PATSAGi Councils layer (Living Cosmic Tick aligned).
-pub const VERSION: &str = "14.15.8";
+pub const VERSION: &str = "14.15.9";
 
 // =============================================================================
 // Core types
@@ -420,7 +421,7 @@ impl PatsagiCouncilCoordinator {
             "╔════════════════════════════════════════════════════════════╗\n",
         );
         report.push_str(
-            "║     16 PATSAGi COUNCILS — v14.15.8 ETERNAL GOVERNANCE     ║\n",
+            "║     16 PATSAGi COUNCILS — v14.15.9 ETERNAL GOVERNANCE     ║\n",
         );
         report.push_str(
             "╚════════════════════════════════════════════════════════════╝\n\n",
@@ -434,7 +435,7 @@ impl PatsagiCouncilCoordinator {
         }
 
         report.push_str(&format!(
-            "Total Governance Cycles: {}\nLast Consensus: {}\nLiving Cosmic Tick: active\nTOLC 8: wired | Core Covenant: honored\nValence Engine: anti-deadlock online\nPredictive Support: online\nObservability: ResonanceMetrics live\n",
+            "Total Governance Cycles: {}\nLast Consensus: {}\nLiving Cosmic Tick: active\nTOLC 8: wired | Core Covenant: honored\nValence Engine: anti-deadlock online\nPredictive Support: online (error-handled)\nObservability: ResonanceMetrics live\n",
             self.total_decisions,
             self.last_consensus.as_deref().unwrap_or("None yet")
         ));
@@ -456,7 +457,8 @@ pub mod prelude {
     pub use super::{
         AmbrosianNectarEconomy, CouncilFocus, CouncilVote, FeedbackCycleResult,
         MetricsHandle, PATSAGiCouncil, PatsagiCouncilCoordinator, PmsError,
-        PowrushTelemetrySnapshot, PredictiveSignal, RaThorFeedbackLoop, ResonanceMetrics,
+        PowrushTelemetrySnapshot, PredictiveSignal, PredictiveSupportError,
+        RaThorFeedbackLoop, ResonanceMetrics,
         Tolc8Gate, Tolc8GateResult, Tolc8Scores,
         ValenceConsensusEngine, ValenceConsensusResult, ValenceVote,
         VERSION, VotingResult, WorldGovernanceEngine, WorldImpactType,
