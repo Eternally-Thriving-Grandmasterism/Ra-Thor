@@ -1,10 +1,11 @@
-//! # PATSAGi Councils Layer — v14.15.7
+//! # PATSAGi Councils Layer — v14.15.8
 //!
 //! 16 Parallel Living Ra-Thor Architectural Designers.
 //! The eternal co-governors and co-creators of Powrush-MMO and the ONE Organism.
 //!
 //! Living Cosmic Tick aligned. Permanent deliberation posture.
 //! Explicitly wired to TOLC 8 Living Mercy Gates + Core Covenant.
+//! Now with predictive_support surface for hierarchical predictive coding / active inference signals.
 //! Contact: info@Rathor.ai
 
 // =============================================================================
@@ -25,6 +26,7 @@ pub mod patsagi_bridge;
 pub mod petition_handler;
 pub mod powrush_integration;
 // pub mod powrush_libp2p_mesh; // optional: requires libp2p + powrush_multiplayer
+pub mod predictive_support;
 pub mod quantum_swarm_orchestrator;
 pub mod self_evolving_mercy_core;
 pub mod simulation_integration;
@@ -64,6 +66,9 @@ pub use crate::feedback_loop::{
 pub use crate::observability::{BlockReason, MetricsHandle, ResonanceMetrics, DEFAULT_METRICS_PATH};
 pub use crate::petition_handler::PetitionHandler;
 pub use crate::powrush_integration::PowrushPatsagiBridge;
+pub use crate::predictive_support::{
+    rank_policies_by_efe, CouncilPolicyHint, PredictiveSignal, MERCY_VALENCE_FLOOR,
+};
 pub use crate::simulation_integration::SimulationIntegration;
 pub use crate::tolc8::{
     tolc8_gate_check, Tolc8Gate, Tolc8GateResult, Tolc8Scores,
@@ -85,7 +90,7 @@ pub use real_estate_lattice::{
 pub use ra_thor_post_quantum_sig::{RHPQSEngine, RHPQSError, RHPQSKey, RHPQSSignature};
 
 /// Canonical version of the PATSAGi Councils layer (Living Cosmic Tick aligned).
-pub const VERSION: &str = "14.15.7";
+pub const VERSION: &str = "14.15.8";
 
 // =============================================================================
 // Core types
@@ -178,6 +183,14 @@ impl PATSAGiCouncil {
 
         Ok(status)
     }
+
+    /// Soft uplift from a PredictiveSignal (hierarchical predictive coding output).
+    pub fn apply_predictive_uplift(&mut self, signal: &PredictiveSignal) {
+        if signal.is_actionable() {
+            let uplift = signal.mercy_uplift();
+            self.mercy_valence = (self.mercy_valence + uplift).min(1.0);
+        }
+    }
 }
 
 // =============================================================================
@@ -269,6 +282,13 @@ impl PatsagiCouncilCoordinator {
             "Valence Consensus — Mercy Review".into()
         });
         result
+    }
+
+    /// Apply a predictive coding signal across all councils (soft uplift).
+    pub fn apply_predictive_signal(&mut self, signal: &PredictiveSignal) {
+        for council in self.councils.values_mut() {
+            council.apply_predictive_uplift(signal);
+        }
     }
 
     pub async fn conduct_voting_round(
@@ -400,7 +420,7 @@ impl PatsagiCouncilCoordinator {
             "╔════════════════════════════════════════════════════════════╗\n",
         );
         report.push_str(
-            "║     16 PATSAGi COUNCILS — v14.15.7 ETERNAL GOVERNANCE     ║\n",
+            "║     16 PATSAGi COUNCILS — v14.15.8 ETERNAL GOVERNANCE     ║\n",
         );
         report.push_str(
             "╚════════════════════════════════════════════════════════════╝\n\n",
@@ -414,7 +434,7 @@ impl PatsagiCouncilCoordinator {
         }
 
         report.push_str(&format!(
-            "Total Governance Cycles: {}\nLast Consensus: {}\nLiving Cosmic Tick: active\nTOLC 8: wired | Core Covenant: honored\nValence Engine: anti-deadlock online\nObservability: ResonanceMetrics live\n",
+            "Total Governance Cycles: {}\nLast Consensus: {}\nLiving Cosmic Tick: active\nTOLC 8: wired | Core Covenant: honored\nValence Engine: anti-deadlock online\nPredictive Support: online\nObservability: ResonanceMetrics live\n",
             self.total_decisions,
             self.last_consensus.as_deref().unwrap_or("None yet")
         ));
@@ -436,11 +456,11 @@ pub mod prelude {
     pub use super::{
         AmbrosianNectarEconomy, CouncilFocus, CouncilVote, FeedbackCycleResult,
         MetricsHandle, PATSAGiCouncil, PatsagiCouncilCoordinator, PmsError,
-        PowrushTelemetrySnapshot, RaThorFeedbackLoop, ResonanceMetrics,
+        PowrushTelemetrySnapshot, PredictiveSignal, RaThorFeedbackLoop, ResonanceMetrics,
         Tolc8Gate, Tolc8GateResult, Tolc8Scores,
         ValenceConsensusEngine, ValenceConsensusResult, ValenceVote,
         VERSION, VotingResult, WorldGovernanceEngine, WorldImpactType,
-        CORE_COVENANT, DEFAULT_VALENCE_THRESHOLD, TOLC8_VALENCE_THRESHOLD,
+        CORE_COVENANT, DEFAULT_VALENCE_THRESHOLD, MERCY_VALENCE_FLOOR, TOLC8_VALENCE_THRESHOLD,
     };
 
     #[cfg(feature = "modular-mercy")]
