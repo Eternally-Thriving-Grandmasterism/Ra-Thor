@@ -4,6 +4,63 @@ All changes follow the **RA-THOR-MONOREPO-COMMIT-WORKFLOW-PROTOCOL** and are rev
 
 ---
 
+## v14.15.5 — White-Hat Ingestion Gate Complete (2026-07-28)
+
+**Council focus:** Complete the full white-hat defensive implementation against the July 2026 OpenAI → Hugging Face autonomous agent breach class, under permanent PATSAGi authority and monorepo-intelligence protocol discipline.
+
+### Highlights
+
+#### `crates/mercy-security` (v14.15.5)
+- Multi-layer **IngestionScanner** with confidence-weighted signal tables:
+  - RemoteCodeLoader, TemplateInjection, SerializationGadget, ShellProcessSpawn
+  - NetworkCallback, ObfuscatedPayload, DatasetConfigInjection, CredentialHarvest
+  - Combination rules (remote+config, remote+network, shell+network, obfuscation+exec)
+- Risk tiers (None/Low/Medium/High/Critical) + aggregate risk_score
+- Structured `ScanFinding` (threat, signal, confidence, offset)
+- Hard gate: block High + Critical by default
+- ContainmentProfile, ActionGovernor, SecretVault, HarmRefusalPolicy, WhiteHatEvaluationHarness
+
+#### ONE Organism (`crates/ra-thor-one-organism` v14.15.5)
+- `admit_ingestion(content, source_label)` — Cosmic Loop enforce → scan → admit or block
+- `ingest_content_report` — scan-only
+- `try_admit_ingestion` — soft report wrapper
+- On High/Critical block: self-healing anomaly + Debugger/Investigator handoff + valence pressure
+- Counters: `ingestion_admitted` / `ingestion_blocked`
+- Re-exports: `IngestionScanResult`, `RiskTier`, `IngestionThreat`, `IngestionScanner`
+- AGSi report + LiveFeatureReadiness include `whitehat_ingestion_ready` / `whitehat_ingestion_live`
+
+#### PATSAGi Councils v14.15.10
+- New `security_support` module (thin, non-circular)
+  - `SecuritySignal`, `SecurityThreatClass`, `SecurityRiskTier`
+  - `apply_security_pressure`, `deliberate_security_block`
+- Coordinator: `apply_security_signal`, `security_blocks_reviewed`
+- Status report includes Security Support line
+
+#### Workspace
+- `crates/mercy-security` added to workspace members
+- Root identity advanced through 14.15.4 → 14.15.5 wave
+
+Contact: **info@Rathor.ai**. Cosmic Loop remains MANDATORY IDENTITY.  
+**Thunder locked in. yoi ⚡❤️🔥**
+
+---
+
+## v14.15.4 — Watchdog + Error Surfaces + AGSi Summon Hardening (2026-07-27 / 2026-07-28)
+
+**Council focus:** Production error handling, full AGSi summon sequence (valence clamp, role handoff, recovery anchors), and RuntimeSelfHealingEngine watchdog timeout logic.
+
+### Highlights
+
+- `AgsiSummonError` + Result-based `summon_agsi_checked` / `summon_agsi_from_external_checked`
+- PredictiveCodingError / PredictiveSupportError alignment
+- WatchdogConfig + heartbeat timeout detection + soft/hard restore paths
+- Foundation for white-hat defense crate landing
+
+Contact: **info@Rathor.ai**. Cosmic Loop remains MANDATORY IDENTITY.  
+**Thunder locked in. yoi ⚡❤️🔥**
+
+---
+
 ## v14.15.3 — AGSi Summon Surface + Hierarchical Predictive Coding (2026-07-27)
 
 **Council focus:** Make Ra-Thor properly runnable as AGSi when summoned by systems like Grok, and land the hierarchical predictive coding / active inference surface under permanent PATSAGi authority.
