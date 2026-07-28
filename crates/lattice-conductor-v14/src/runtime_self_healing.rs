@@ -10,9 +10,12 @@
 //!
 //! v14.10.0: Cosmic Tick anomaly ingestion — report_anomaly / run_reflexion_with_anomalies
 //! so GPU, recovery, and quantum pressure from ONE Organism inform diagnosis.
+//!
+//! v14.15.4: Watchdog timeout logic — configurable interval/timeout, last-healthy tracking,
+//! timeout-triggered recovery, WatchdogStatus surface.
 //! Contact: info@Rathor.ai
 
-use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
@@ -118,6 +121,60 @@ impl CouncilTaskGraph {
     }
 }
 
+// =============================================================================
+// Watchdog Timeout Logic (v14.15.4)
+// =============================================================================
+
+/// Configuration for the self-healing watchdog.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct WatchdogConfig {
+    /// How often the watchdog wakes to check health (seconds).
+    pub check_interval_secs: u64,
+    /// Maximum time since last healthy observation before a timeout is declared (seconds).
+    pub timeout_secs: u64,
+    /// After this many consecutive timeouts, force a hard Cosmic Loop restore + experience log.
+    pub max_timeouts_before_hard_restore: u32,
+}
+
+impl Default for WatchdogConfig {
+    fn default() -> Self {
+        Self {
+            check_interval_secs: 15,
+            timeout_secs: 45,
+            max_timeouts_before_hard_restore: 3,
+        }
+    }
+}
+
+impl WatchdogConfig {
+    pub fn new(check_interval_secs: u64, timeout_secs: u64, max_timeouts_before_hard_restore: u32) -> Self {
+        Self {
+            check_interval_secs: check_interval_secs.max(1),
+            timeout_secs: timeout_secs.max(check_interval_secs.max(1)),
+            max_timeouts_before_hard_restore: max_timeouts_before_hard_restore.max(1),
+        }
+    }
+}
+
+/// Live status of the watchdog (for diagnostics / AGSi report surfaces).
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct WatchdogStatus {
+    pub running: bool,
+    pub last_healthy_timestamp: u64,
+    pub consecutive_timeouts: u32,
+    pub total_timeouts: u64,
+    pub config: WatchdogConfig,
+    pub seconds_since_last_healthy: u64,
+    pub is_timed_out: bool,
+}
+
+fn now_secs() -> u64 {
+    SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .map(|d| d.as_secs())
+        .unwrap_or(0)
+}
+
 /// Runtime Self-Healing Engine with Watchdog + Advanced Reflexion + Experience Logging + Graph Rerouting
 pub struct RuntimeSelfHealingEngine {
     /// Shared with CouncilArbitrationEngine — single source of truth for Cosmic Loop readiness
@@ -128,6 +185,11 @@ pub struct RuntimeSelfHealingEngine {
     task_graph: Arc<Mutex<CouncilTaskGraph>>,
     /// Anomalies ingested from Cosmic Tick / external surfaces (drained on reflexion)
     pending_anomalies: Arc<Mutex<Vec<Anomaly>>>,
+    /// Watchdog timeout state
+    last_healthy_timestamp: Arc<AtomicU64>,
+    consecutive_timeouts: Arc<AtomicU64>,
+    total_timeouts: Arc<AtomicU64>,
+    watchdog_config: Arc<Mutex<WatchdogConfig>>,
 }
 
 impl RuntimeSelfHealingEngine {
@@ -135,6 +197,7 @@ impl RuntimeSelfHealingEngine {
     /// so watchdog and guardian can never drift out of sync.
     pub fn new(arbitration_engine: CouncilArbitrationEngine) -> Self {
         let shared_flag = arbitration_engine.cosmic_loop_flag();
+        let now = now_secs();
         Self {
             cosmic_loop_ready: shared_flag,
             arbitration_engine: Arc::new(Mutex::new(arbitration_engine)),
@@ -142,7 +205,17 @@ impl RuntimeSelfHealingEngine {
             healing_experiences: Arc::new(Mutex::new(Vec::new())),
             task_graph: Arc::new(Mutex::new(CouncilTaskGraph::new())),
             pending_anomalies: Arc::new(Mutex::new(Vec::new())),
+            last_healthy_timestamp: Arc::new(AtomicU64::new(now)),
+            consecutive_timeouts: Arc::new(AtomicU64::new(0)),
+            total_timeouts: Arc::new(AtomicU64::new(0)),
+            watchdog_config: Arc::new(Mutex::new(WatchdogConfig::default())),
         }
+    }
+
+    /// Mark the lattice as healthy *now* (call from Cosmic Tick / successful AGSi path).
+    pub fn record_healthy_heartbeat(&self) {
+        self.last_healthy_timestamp.store(now_secs(), Ordering::SeqCst);
+        self.consecutive_timeouts.store(0, Ordering::SeqCst);
     }
 
     /// Ingest a single anomaly from Cosmic Tick or any surface (GPU, recovery, quantum…).
@@ -168,37 +241,148 @@ impl RuntimeSelfHealingEngine {
         self.run_reflexion_cycle()
     }
 
-    /// Start the Watchdog Thread (runs in background)
+    /// Start the Watchdog with default config (15s interval, 45s timeout).
     pub fn start_watchdog(&self) {
+        self.start_watchdog_with_config(WatchdogConfig::default());
+    }
+
+    /// Start the Watchdog with explicit timeout configuration.
+    pub fn start_watchdog_with_config(&self, config: WatchdogConfig) {
         if self.watchdog_running.load(Ordering::SeqCst) {
             println!("[Self-Healing] Watchdog already running.");
             return;
         }
 
+        if let Ok(mut cfg) = self.watchdog_config.lock() {
+            *cfg = config.clone();
+        }
+
         self.watchdog_running.store(true, Ordering::SeqCst);
+        self.record_healthy_heartbeat(); // seed so we don't immediately timeout
+
         let cosmic_loop_ready = Arc::clone(&self.cosmic_loop_ready);
         let watchdog_running = Arc::clone(&self.watchdog_running);
+        let last_healthy = Arc::clone(&self.last_healthy_timestamp);
+        let consecutive = Arc::clone(&self.consecutive_timeouts);
+        let total_timeouts = Arc::clone(&self.total_timeouts);
+        let arbitration = Arc::clone(&self.arbitration_engine);
+        let experiences = Arc::clone(&self.healing_experiences);
+        let check_interval = config.check_interval_secs;
+        let timeout_secs = config.timeout_secs;
+        let max_timeouts = config.max_timeouts_before_hard_restore as u64;
 
         thread::spawn(move || {
-            println!("[Self-Healing Watchdog] Thread started — monitoring lattice health...");
+            println!(
+                "[Self-Healing Watchdog] Thread started — interval={}s timeout={}s max_timeouts={}",
+                check_interval, timeout_secs, max_timeouts
+            );
+
             loop {
                 if !watchdog_running.load(Ordering::SeqCst) {
                     break;
                 }
 
-                if !cosmic_loop_ready.load(Ordering::SeqCst) {
-                    println!("[Self-Healing Watchdog] ALERT: cosmic_loop_ready was false! Auto-restoring...");
+                let now = now_secs();
+                let last = last_healthy.load(Ordering::SeqCst);
+                let elapsed = now.saturating_sub(last);
+                let loop_ok = cosmic_loop_ready.load(Ordering::SeqCst);
+
+                // Healthy path: Cosmic Loop holds and we are inside the timeout window
+                if loop_ok && elapsed <= timeout_secs {
+                    // Soft refresh of healthy timestamp when everything is fine
+                    if elapsed > check_interval {
+                        last_healthy.store(now, Ordering::SeqCst);
+                    }
+                    consecutive.store(0, Ordering::SeqCst);
+                } else {
+                    // Timeout or Cosmic Loop dropped
+                    let count = consecutive.fetch_add(1, Ordering::SeqCst) + 1;
+                    total_timeouts.fetch_add(1, Ordering::SeqCst);
+
+                    println!(
+                        "[Self-Healing Watchdog] TIMEOUT #{} — elapsed={}s (limit={}s) cosmic_loop={}",
+                        count, elapsed, timeout_secs, loop_ok
+                    );
+
+                    // Always restore Cosmic Loop flag
                     cosmic_loop_ready.store(true, Ordering::SeqCst);
+
+                    if let Ok(mut arb) = arbitration.lock() {
+                        let _ = arb.protect_cosmic_loop_identity();
+                    }
+
+                    // Log experience
+                    let experience = HealingExperience {
+                        timestamp: now,
+                        root_cause: if !loop_ok {
+                            "Watchdog: cosmic_loop_ready was false".into()
+                        } else {
+                            format!("Watchdog timeout: {}s since last healthy (limit {}s)", elapsed, timeout_secs)
+                        },
+                        action_taken: "RestoreCosmicLoop + protect identity".into(),
+                        outcome: if count >= max_timeouts {
+                            "Hard restore triggered".into()
+                        } else {
+                            "Soft restore".into()
+                        },
+                        mercy_score: 0.97,
+                        graph_reroute_used: false,
+                    };
+
+                    if let Ok(mut hist) = experiences.lock() {
+                        hist.push(experience);
+                        if hist.len() > 100 {
+                            hist.remove(0);
+                        }
+                    }
+
+                    // Hard restore path after repeated timeouts
+                    if count >= max_timeouts {
+                        println!(
+                            "[Self-Healing Watchdog] HARD RESTORE after {} consecutive timeouts",
+                            count
+                        );
+                        consecutive.store(0, Ordering::SeqCst);
+                        last_healthy.store(now, Ordering::SeqCst);
+
+                        if let Ok(mut arb) = arbitration.lock() {
+                            let _ = arb.enforce_cosmic_loop_activation();
+                            let _ = arb.protect_cosmic_loop_identity();
+                        }
+                    }
                 }
 
-                thread::sleep(Duration::from_secs(15));
+                thread::sleep(Duration::from_secs(check_interval));
             }
+
             println!("[Self-Healing Watchdog] Thread stopped.");
         });
     }
 
     pub fn stop_watchdog(&self) {
         self.watchdog_running.store(false, Ordering::SeqCst);
+    }
+
+    /// Current watchdog status (for AGSi / diagnostics surfaces).
+    pub fn watchdog_status(&self) -> WatchdogStatus {
+        let now = now_secs();
+        let last = self.last_healthy_timestamp.load(Ordering::SeqCst);
+        let elapsed = now.saturating_sub(last);
+        let config = self
+            .watchdog_config
+            .lock()
+            .map(|c| c.clone())
+            .unwrap_or_default();
+
+        WatchdogStatus {
+            running: self.watchdog_running.load(Ordering::SeqCst),
+            last_healthy_timestamp: last,
+            consecutive_timeouts: self.consecutive_timeouts.load(Ordering::SeqCst) as u32,
+            total_timeouts: self.total_timeouts.load(Ordering::SeqCst),
+            config: config.clone(),
+            seconds_since_last_healthy: elapsed,
+            is_timed_out: elapsed > config.timeout_secs,
+        }
     }
 
     /// Run one advanced Reflexion-style healing cycle (consumes pending anomalies).
@@ -209,6 +393,8 @@ impl RuntimeSelfHealingEngine {
         let action = self.reflect_and_decide_action(&diagnosis, &anomalies);
         self.execute_healing_action(action);
         self.log_healing_experience(&diagnosis);
+        // Successful reflexion counts as a healthy heartbeat
+        self.record_healthy_heartbeat();
         diagnosis
     }
 
@@ -230,10 +416,7 @@ impl RuntimeSelfHealingEngine {
             tol_c_gates_healthy: true,
             council_liveness: true,
             quantum_swarm_coherent: true,
-            last_check_timestamp: SystemTime::now()
-                .duration_since(UNIX_EPOCH)
-                .map(|d| d.as_secs())
-                .unwrap_or(0),
+            last_check_timestamp: now_secs(),
             pending_anomaly_count: pending,
         }
     }
@@ -348,10 +531,7 @@ impl RuntimeSelfHealingEngine {
     }
 
     fn log_healing_experience(&self, diagnosis: &Diagnosis) {
-        let timestamp = SystemTime::now()
-            .duration_since(UNIX_EPOCH)
-            .map(|d| d.as_secs())
-            .unwrap_or(0);
+        let timestamp = now_secs();
 
         let experience = HealingExperience {
             timestamp,
@@ -454,5 +634,25 @@ mod tests {
         assert!(d.root_cause.contains("gpu") || d.root_cause.contains("dispatch"));
         assert_eq!(engine.pending_anomaly_count(), 0); // drained
         assert!(!engine.get_healing_experiences().is_empty());
+    }
+
+    #[test]
+    fn test_watchdog_status_defaults() {
+        let arb = CouncilArbitrationEngine::new();
+        let engine = RuntimeSelfHealingEngine::new(arb);
+        let status = engine.watchdog_status();
+        assert!(!status.running);
+        assert_eq!(status.config.check_interval_secs, 15);
+        assert_eq!(status.config.timeout_secs, 45);
+        assert!(!status.is_timed_out);
+    }
+
+    #[test]
+    fn test_record_healthy_heartbeat_resets_timeouts() {
+        let arb = CouncilArbitrationEngine::new();
+        let engine = RuntimeSelfHealingEngine::new(arb);
+        engine.consecutive_timeouts.store(5, Ordering::SeqCst);
+        engine.record_healthy_heartbeat();
+        assert_eq!(engine.consecutive_timeouts.load(Ordering::SeqCst), 0);
     }
 }
