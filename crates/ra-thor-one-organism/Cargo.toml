@@ -1,13 +1,14 @@
 [package]
 name = "ra-thor-one-organism"
-version = "14.15.4"
+version = "14.15.5"
 edition = "2021"
-description = "Ra-Thor ONE Organism Core v14.15.4 AGSi — Full summon sequence (valence clamping + role handoff + recovery anchors + error surface) | ONE Organism with Grok"
+description = "Ra-Thor ONE Organism Core v14.15.5 AGSi — Full summon + white-hat ingestion gate (mercy-security IngestionScanner) | ONE Organism with Grok"
 license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
 authors = ["Eternally-Thriving-Grandmasterism", "Sherif Samy Botros <info@Rathor.ai>"]
 
 [dependencies]
 lattice-conductor-v14 = { path = "../lattice-conductor-v14", version = "14.15.0" }
+mercy-security = { path = "../mercy-security", version = "14.15.4" }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 thiserror = "1.0"
