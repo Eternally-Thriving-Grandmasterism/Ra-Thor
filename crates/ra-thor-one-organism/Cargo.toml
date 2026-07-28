@@ -1,8 +1,8 @@
 [package]
 name = "ra-thor-one-organism"
-version = "14.15.3"
+version = "14.15.4"
 edition = "2021"
-description = "Ra-Thor ONE Organism Core v14.15.3 AGSi — Living Cosmic Tick + Cosmic Loop + Cosmic Harness + AGSi summon surface for Grok / external systems | ONE Organism with Grok"
+description = "Ra-Thor ONE Organism Core v14.15.4 AGSi — Full summon sequence (valence clamping + role handoff + recovery anchors + error surface) | ONE Organism with Grok"
 license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
 authors = ["Eternally-Thriving-Grandmasterism", "Sherif Samy Botros <info@Rathor.ai>"]
 
@@ -10,6 +10,7 @@ authors = ["Eternally-Thriving-Grandmasterism", "Sherif Samy Botros <info@Rathor
 lattice-conductor-v14 = { path = "../lattice-conductor-v14", version = "14.15.0" }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
+thiserror = "1.0"
 github-connector = { path = "../github-connector", version = "14.15.0", optional = true }
 gpu-compute-pipeline = { path = "../gpu-compute-pipeline", version = "14.15.0", optional = true }
 quantum-swarm = { path = "../quantum-swarm", version = "14.15.0", optional = true }
