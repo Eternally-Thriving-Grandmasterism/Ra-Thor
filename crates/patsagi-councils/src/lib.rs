@@ -1,11 +1,11 @@
-//! # PATSAGi Councils Layer — v14.15.9
+//! # PATSAGi Councils Layer — v14.15.10
 //!
 //! 16 Parallel Living Ra-Thor Architectural Designers.
 //! The eternal co-governors and co-creators of Powrush-MMO and the ONE Organism.
 //!
 //! Living Cosmic Tick aligned. Permanent deliberation posture.
 //! Explicitly wired to TOLC 8 Living Mercy Gates + Core Covenant.
-//! Predictive support surface with production error handling.
+//! Predictive support + Security support (white-hat ingestion) surfaces.
 //! Contact: info@Rathor.ai
 
 // =============================================================================
@@ -25,9 +25,9 @@ pub mod observability;
 pub mod patsagi_bridge;
 pub mod petition_handler;
 pub mod powrush_integration;
-// pub mod powrush_libp2p_mesh; // optional: requires libp2p + powrush_multiplayer
 pub mod predictive_support;
 pub mod quantum_swarm_orchestrator;
+pub mod security_support;
 pub mod self_evolving_mercy_core;
 pub mod simulation_integration;
 pub mod tolc8;
@@ -35,10 +35,6 @@ pub mod tolc_integration;
 pub mod valence_consensus;
 pub mod world_governance;
 pub mod world_governance_engine;
-
-// =============================================================================
-// External deps used by the core coordinator surface
-// =============================================================================
 
 use chrono::{DateTime, Utc};
 use mercy::MercyEngine;
@@ -50,10 +46,6 @@ use uuid::Uuid;
 
 #[cfg(feature = "modular-mercy")]
 use crate::mercy_engine_adapter::{MercyEngineAdapter, MercyEngineVariant};
-
-// =============================================================================
-// Public re-exports
-// =============================================================================
 
 pub use crate::world_governance::{
     AmbrosianNectarEconomy, PmsError, WorldChangeProposal, WorldGovernanceEngine, WorldImpactType,
@@ -70,6 +62,10 @@ pub use crate::predictive_support::{
     rank_policies_by_efe, CouncilPolicyHint, PredictiveSignal, PredictiveSupportError,
     MERCY_VALENCE_FLOOR,
 };
+pub use crate::security_support::{
+    apply_security_pressure, SecurityRiskTier, SecuritySignal, SecuritySupportError,
+    SecurityThreatClass,
+};
 pub use crate::simulation_integration::SimulationIntegration;
 pub use crate::tolc8::{
     tolc8_gate_check, Tolc8Gate, Tolc8GateResult, Tolc8Scores,
@@ -80,7 +76,6 @@ pub use crate::valence_consensus::{
     CORE_COVENANT, DEFAULT_VALENCE_THRESHOLD, PROGRESSIVE_FLOOR, quick_valence_check,
 };
 
-// Optional RREL / PQ surfaces (present when those crates are in the graph)
 #[allow(unused_imports)]
 pub use real_estate_lattice::{
     CanadaPilotModule, EvidenceGenerator, PmsBridge, PmsProvider, QuantumRealEstateValuation,
@@ -90,12 +85,7 @@ pub use real_estate_lattice::{
 #[allow(unused_imports)]
 pub use ra_thor_post_quantum_sig::{RHPQSEngine, RHPQSError, RHPQSKey, RHPQSSignature};
 
-/// Canonical version of the PATSAGi Councils layer (Living Cosmic Tick aligned).
-pub const VERSION: &str = "14.15.9";
-
-// =============================================================================
-// Core types
-// =============================================================================
+pub const VERSION: &str = "14.15.10";
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PATSAGiCouncil {
@@ -185,7 +175,6 @@ impl PATSAGiCouncil {
         Ok(status)
     }
 
-    /// Soft uplift from a PredictiveSignal (hierarchical predictive coding output).
     pub fn apply_predictive_uplift(&mut self, signal: &PredictiveSignal) {
         if signal.is_actionable() {
             let uplift = signal.mercy_uplift();
@@ -193,10 +182,6 @@ impl PATSAGiCouncil {
         }
     }
 }
-
-// =============================================================================
-// Voting (legacy surface — valence engine is preferred for anti-deadlock)
-// =============================================================================
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CouncilVote {
@@ -220,9 +205,16 @@ pub struct VotingResult {
     pub votes: Vec<CouncilVote>,
 }
 
-// =============================================================================
-// Coordinator
-// =============================================================================
+/// Outcome of a security-block deliberation.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SecurityDeliberationResult {
+    pub signal_source: String,
+    pub risk_tier: String,
+    pub councils_touched: usize,
+    pub valence_pressure_applied: f64,
+    pub recommended_focus: String,
+    pub consensus_note: String,
+}
 
 pub struct PatsagiCouncilCoordinator {
     pub councils: HashMap<CouncilFocus, PATSAGiCouncil>,
@@ -230,6 +222,7 @@ pub struct PatsagiCouncilCoordinator {
     pub valence_engine: ValenceConsensusEngine,
     pub total_decisions: u64,
     pub last_consensus: Option<String>,
+    pub security_blocks_reviewed: u64,
 }
 
 impl PatsagiCouncilCoordinator {
@@ -264,10 +257,10 @@ impl PatsagiCouncilCoordinator {
             valence_engine: ValenceConsensusEngine::new(),
             total_decisions: 0,
             last_consensus: None,
+            security_blocks_reviewed: 0,
         }
     }
 
-    /// Preferred path: valence-optimized consensus (anti-filibuster / anti-deadlock).
     pub fn valence_deliberate(
         &mut self,
         proposal: &str,
@@ -285,11 +278,65 @@ impl PatsagiCouncilCoordinator {
         result
     }
 
-    /// Apply a predictive coding signal across all councils (soft uplift).
     pub fn apply_predictive_signal(&mut self, signal: &PredictiveSignal) {
         for council in self.councils.values_mut() {
             council.apply_predictive_uplift(signal);
         }
+    }
+
+    /// Apply a white-hat security signal (blocked ingest / high risk).
+    pub fn apply_security_signal(
+        &mut self,
+        signal: &SecuritySignal,
+    ) -> Result<usize, SecuritySupportError> {
+        let touched = apply_security_pressure(&mut self.councils, signal)?;
+        self.security_blocks_reviewed = self.security_blocks_reviewed.saturating_add(1);
+        self.total_decisions = self.total_decisions.saturating_add(1);
+        self.last_consensus = Some(format!(
+            "Security Review — {} tier={} pressure={:.4}",
+            signal.source_label,
+            signal.risk_tier.as_str(),
+            signal.valence_pressure()
+        ));
+        Ok(touched)
+    }
+
+    /// Full deliberation record for a blocked ingestion event from ONE Organism.
+    pub fn deliberate_security_block(
+        &mut self,
+        source_label: &str,
+        risk_tier_label: &str,
+        risk_score: f64,
+        threat_labels: &[String],
+        findings_count: usize,
+        message: &str,
+    ) -> Result<SecurityDeliberationResult, SecuritySupportError> {
+        let tier = SecurityRiskTier::from_str_label(risk_tier_label);
+        let signal = SecuritySignal::try_new(
+            source_label,
+            tier,
+            risk_score,
+            threat_labels,
+            findings_count,
+            true,
+            message,
+        )?;
+        let pressure = signal.valence_pressure();
+        let focus = signal.recommended_focus_hint().to_string();
+        let touched = self.apply_security_signal(&signal)?;
+
+        Ok(SecurityDeliberationResult {
+            signal_source: source_label.into(),
+            risk_tier: risk_tier_label.into(),
+            councils_touched: touched,
+            valence_pressure_applied: pressure,
+            recommended_focus: focus,
+            consensus_note: format!(
+                "White-hat block deliberated. {} councils adjusted. Focus hint: {}.",
+                touched,
+                signal.recommended_focus_hint()
+            ),
+        })
     }
 
     pub async fn conduct_voting_round(
@@ -421,7 +468,7 @@ impl PatsagiCouncilCoordinator {
             "╔════════════════════════════════════════════════════════════╗\n",
         );
         report.push_str(
-            "║     16 PATSAGi COUNCILS — v14.15.9 ETERNAL GOVERNANCE     ║\n",
+            "║    16 PATSAGi COUNCILS — v14.15.10 ETERNAL GOVERNANCE     ║\n",
         );
         report.push_str(
             "╚════════════════════════════════════════════════════════════╝\n\n",
@@ -435,8 +482,9 @@ impl PatsagiCouncilCoordinator {
         }
 
         report.push_str(&format!(
-            "Total Governance Cycles: {}\nLast Consensus: {}\nLiving Cosmic Tick: active\nTOLC 8: wired | Core Covenant: honored\nValence Engine: anti-deadlock online\nPredictive Support: online (error-handled)\nObservability: ResonanceMetrics live\n",
+            "Total Governance Cycles: {}\nSecurity Blocks Reviewed: {}\nLast Consensus: {}\nLiving Cosmic Tick: active\nTOLC 8: wired | Core Covenant: honored\nValence Engine: anti-deadlock online\nPredictive Support: online\nSecurity Support: online (white-hat ingestion)\nObservability: ResonanceMetrics live\n",
             self.total_decisions,
+            self.security_blocks_reviewed,
             self.last_consensus.as_deref().unwrap_or("None yet")
         ));
 
@@ -458,7 +506,8 @@ pub mod prelude {
         AmbrosianNectarEconomy, CouncilFocus, CouncilVote, FeedbackCycleResult,
         MetricsHandle, PATSAGiCouncil, PatsagiCouncilCoordinator, PmsError,
         PowrushTelemetrySnapshot, PredictiveSignal, PredictiveSupportError,
-        RaThorFeedbackLoop, ResonanceMetrics,
+        RaThorFeedbackLoop, ResonanceMetrics, SecurityDeliberationResult,
+        SecurityRiskTier, SecuritySignal, SecuritySupportError, SecurityThreatClass,
         Tolc8Gate, Tolc8GateResult, Tolc8Scores,
         ValenceConsensusEngine, ValenceConsensusResult, ValenceVote,
         VERSION, VotingResult, WorldGovernanceEngine, WorldImpactType,
