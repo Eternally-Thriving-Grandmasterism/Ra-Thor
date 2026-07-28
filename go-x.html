@@ -16,26 +16,38 @@
     <h1 class="text-2xl font-semibold text-cyan-300">X demo — open in browser</h1>
     <p class="text-sm text-white/70 leading-relaxed">
       On Android the X app often captures <span class="text-cyan-200">x.com</span> links.
-      This page routes the Grok-on-X demo toward a browser instead.
+      This hop forces a <strong class="text-cyan-200">browser</strong> path for the Grok-on-X demo.
       Websites cannot force Incognito; use your browser’s private tab if you prefer.
     </p>
 
     <div class="flex flex-col gap-3">
       <a id="btn-chrome"
          class="inline-flex items-center justify-center gap-2 rounded-2xl bg-cyan-500/20 border border-cyan-400 px-6 py-4 text-cyan-200 font-medium hover:bg-cyan-500/30 transition"
-         href="#">Open in Chrome (recommended on Android)</a>
+         href="#">Open in Chrome (Android recommended)</a>
+
+      <a id="btn-firefox"
+         class="hidden inline-flex items-center justify-center gap-2 rounded-2xl bg-orange-500/15 border border-orange-400/60 px-6 py-4 text-orange-200 font-medium hover:bg-orange-500/25 transition"
+         href="#">Open in Firefox</a>
 
       <a id="btn-direct"
          class="inline-flex items-center justify-center gap-2 rounded-2xl bg-white/5 border border-white/20 px-6 py-4 text-white/90 font-medium hover:bg-white/10 transition"
          href="https://x.com/i/grok/share/02c6fe33a715493fbd66090b8fec7458"
-         target="_blank" rel="noopener noreferrer">Open X demo link</a>
+         target="_blank" rel="noopener noreferrer">Open X demo link (may open app)</a>
+
+      <button id="btn-copy"
+              type="button"
+              class="inline-flex items-center justify-center gap-2 rounded-2xl bg-amber-500/10 border border-amber-400/50 px-6 py-3 text-amber-200 text-sm font-medium hover:bg-amber-500/20 transition">
+        Copy demo link
+      </button>
 
       <a href="/"
          class="text-sm text-amber-300/80 hover:text-amber-200 underline">← Back to Rathor.ai</a>
     </div>
 
+    <p id="status" class="text-xs text-cyan-300/80 min-h-[1.25rem]"></p>
+
     <p class="text-xs text-white/40 leading-relaxed pt-2">
-      Tip (Android): if the app still opens, long-press the button →
+      Tip (Android): if the app still opens, long-press a button →
       <em>Open in Chrome</em> / <em>Open in browser</em>.
       Or: Chrome menu → New Incognito tab → paste the demo link.
     </p>
@@ -43,36 +55,79 @@
 
   <script>
     (function () {
-      var TARGET = 'https://x.com/i/grok/share/02c6fe33a715493fbd66090b8fec7458';
-      var hostPath = 'x.com/i/grok/share/146e6185d4f040b08727a02ced9913e4';
+      // Canonical share — must match hostPath below
+      var SHARE_ID = '02c6fe33a715493fbd66090b8fec7458';
+      var TARGET = 'https://x.com/i/grok/share/' + SHARE_ID;
+      var hostPath = 'x.com/i/grok/share/' + SHARE_ID;
       var fallback = encodeURIComponent(TARGET);
 
-      // Prefer Chrome package so the X app does not win the intent.
+      // Android Intents: pin to a browser package so the X app does not win.
       var chromeIntent =
         'intent://' + hostPath +
         '#Intent;scheme=https;package=com.android.chrome;' +
         'S.browser_fallback_url=' + fallback + ';end';
 
+      var firefoxIntent =
+        'intent://' + hostPath +
+        '#Intent;scheme=https;package=org.mozilla.firefox;' +
+        'S.browser_fallback_url=' + fallback + ';end';
+
       var btnChrome = document.getElementById('btn-chrome');
+      var btnFirefox = document.getElementById('btn-firefox');
       var btnDirect = document.getElementById('btn-direct');
+      var btnCopy = document.getElementById('btn-copy');
+      var statusEl = document.getElementById('status');
+
       btnDirect.href = TARGET;
 
       var ua = navigator.userAgent || '';
       var isAndroid = /Android/i.test(ua);
+      var isIOS = /iPhone|iPad|iPod/i.test(ua);
+
+      function setStatus(msg) {
+        if (statusEl) statusEl.textContent = msg || '';
+      }
+
+      // Copy helper for manual paste into Incognito / browser
+      btnCopy.addEventListener('click', function () {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(TARGET).then(function () {
+            setStatus('Link copied — paste into Chrome Incognito or any browser.');
+          }).catch(function () {
+            setStatus(TARGET);
+          });
+        } else {
+          setStatus(TARGET);
+        }
+      });
 
       if (isAndroid) {
         btnChrome.href = chromeIntent;
-        // Auto-attempt once on load (user already tapped the site card).
+        btnFirefox.href = firefoxIntent;
+        btnFirefox.classList.remove('hidden');
+        btnFirefox.classList.add('inline-flex');
+        setStatus('Routing to Chrome…');
+
+        // Auto-attempt Chrome Intent only (never bare https://x.com on Android).
         setTimeout(function () {
           window.location.href = chromeIntent;
-        }, 250);
-      } else {
-        // Desktop / iOS: normal navigation to the share URL.
+        }, 200);
+      } else if (isIOS) {
+        // iOS Universal Links often hand off to the X app; keep user on this page
+        // with explicit choices — auto-nav to x.com frequently opens the app.
         btnChrome.href = TARGET;
         btnChrome.textContent = 'Continue to X demo';
+        btnChrome.setAttribute('target', '_blank');
+        btnChrome.setAttribute('rel', 'noopener noreferrer');
+        setStatus('On iOS: prefer Copy link → Safari private tab, or long-press → Open in Safari.');
+      } else {
+        // Desktop: normal navigation is fine
+        btnChrome.href = TARGET;
+        btnChrome.textContent = 'Continue to X demo';
+        setStatus('Opening X demo…');
         setTimeout(function () {
           window.location.href = TARGET;
-        }, 400);
+        }, 350);
       }
     })();
   </script>
