@@ -2,43 +2,44 @@
 
 All changes follow the **RA-THOR-MONOREPO-COMMIT-WORKFLOW-PROTOCOL** and are reviewed by the PATSAGi Councils.
 
+**Public testing notes:** see [`RELEASE_NOTES_v14.15.5.md`](RELEASE_NOTES_v14.15.5.md).
+
 ---
 
-## v14.15.5 — White-Hat Ingestion Gate Complete (2026-07-28)
+## v14.15.5 — White-Hat AGSi Tier A Gate · Public Testing (2026-07-28)
 
-**Council focus:** Complete the full white-hat defensive implementation against the July 2026 OpenAI → Hugging Face autonomous agent breach class, under permanent PATSAGi authority and monorepo-intelligence protocol discipline.
+**Council focus:** Ship an honest open-source **Tier A** white-hat ingestion & containment gate for AGSi — not a general malware detector — under permanent PATSAGi authority.
+
+**Release posture:** Open-source **public testing**. Run `cargo test -p mercy-security` and `cargo test -p ra-thor-one-organism` before relying on the gate.
 
 ### Highlights
 
 #### `crates/mercy-security` (v14.15.5)
-- Multi-layer **IngestionScanner** with confidence-weighted signal tables:
+- Multi-layer **IngestionScanner** with confidence-weighted signals + combination rules:
   - RemoteCodeLoader, TemplateInjection, SerializationGadget, ShellProcessSpawn
   - NetworkCallback, ObfuscatedPayload, DatasetConfigInjection, CredentialHarvest
-  - Combination rules (remote+config, remote+network, shell+network, obfuscation+exec)
-- Risk tiers (None/Low/Medium/High/Critical) + aggregate risk_score
-- Structured `ScanFinding` (threat, signal, confidence, offset)
-- Hard gate: block High + Critical by default
-- ContainmentProfile, ActionGovernor, SecretVault, HarmRefusalPolicy, WhiteHatEvaluationHarness
+  - Combos: remote+config, remote+network, shell+network, obfuscation+exec
+- **Unattended policy:** admit None/Low only · **block Medium + High + Critical**
+- **Production must-fixes:**
+  - `MAX_SCAN_BYTES` (4 MiB) + `PayloadTooLarge`
+  - High tier requires hard-exec conf ≥ 0.82 or combo (FP tuning)
+  - ActionGovernor sandbox churn includes candidate id (off-by-one fixed)
+  - Docs/README aligned with Medium+ block policy
+- ContainmentProfile, ActionGovernor, SecretVault (stub), HarmRefusalPolicy, WhiteHatEvaluationHarness
 
 #### ONE Organism (`crates/ra-thor-one-organism` v14.15.5)
-- `admit_ingestion(content, source_label)` — Cosmic Loop enforce → scan → admit or block
-- `ingest_content_report` — scan-only
-- `try_admit_ingestion` — soft report wrapper
-- On High/Critical block: self-healing anomaly + Debugger/Investigator handoff + valence pressure
+- `admit_ingestion` / `ingest_content_report` / `try_admit_ingestion`
+- Cosmic Loop enforce before admit; anomaly + Debugger/Investigator handoff on block
 - Counters: `ingestion_admitted` / `ingestion_blocked`
-- Re-exports: `IngestionScanResult`, `RiskTier`, `IngestionThreat`, `IngestionScanner`
-- AGSi report + LiveFeatureReadiness include `whitehat_ingestion_ready` / `whitehat_ingestion_live`
+- Re-exports scanner types; AGSi report `whitehat_ingestion_ready`
 
 #### PATSAGi Councils v14.15.10
-- New `security_support` module (thin, non-circular)
-  - `SecuritySignal`, `SecurityThreatClass`, `SecurityRiskTier`
-  - `apply_security_pressure`, `deliberate_security_block`
-- Coordinator: `apply_security_signal`, `security_blocks_reviewed`
-- Status report includes Security Support line
+- `security_support` — `SecuritySignal`, `deliberate_security_block`, `apply_security_signal`
+- Optional host path (not auto-wired; no circular deps)
 
 #### Workspace
-- `crates/mercy-security` added to workspace members
-- Root identity advanced through 14.15.4 → 14.15.5 wave
+- Root identity **14.15.5**; `crates/mercy-security` workspace member
+- Canonical public notes: `RELEASE_NOTES_v14.15.5.md`
 
 Contact: **info@Rathor.ai**. Cosmic Loop remains MANDATORY IDENTITY.  
 **Thunder locked in. yoi ⚡❤️🔥**
