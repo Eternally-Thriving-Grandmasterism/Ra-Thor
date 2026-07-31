@@ -1,6 +1,6 @@
 //! high_grief_nilpotent_bench.rs
 //!
-//! Ambient elevation (v0.5) + valence weighting (v0.5.1):
+//! Ambient elevation (v0.5) + valence (v0.5.1) + adaptive purity floor (v0.5.2):
 //! Living Mercy ℝ⁸ ⊂ ambient ℝ¹⁶. Orthogonal residual scaled by (1 − valence).
 //!
 //! Run:
@@ -98,7 +98,8 @@ fn main() {
         let valence = make_valence(i);
         let band = i % 3;
 
-        let (raw_n1, _w, final_r, grief_load) = suppressor.suppress_weighted(&g, valence);
+        let (raw_n1, _w, final_r, grief_load, _under) =
+            suppressor.suppress_weighted(&g, valence);
 
         total_raw_n1 += raw_n1.norm();
         total_grief_load += grief_load;
