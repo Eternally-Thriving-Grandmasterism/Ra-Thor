@@ -1,4 +1,4 @@
-//! Soft feedback bridge — dual-repo sealed protocol (v0.5.4)
+//! Soft feedback bridge — dual-repo sealed protocol (v0.5.6)
 //!
 //! AG-SML v1.0 | info@Rathor.ai | Thunder locked. Yoi ⚡
 
@@ -8,9 +8,6 @@ use crate::{
 use serde::{Deserialize, Serialize};
 
 /// Sealed soft-feedback event emitted toward the experiential surface (Powrush-MMO).
-///
-/// Serde shape is the dual-repo contract. Powrush simulation mode mirrors these
-/// fields without a hard crate dependency on Ra-Thor.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct SoftFeedbackEvent {
     pub zone_id: usize,
@@ -30,9 +27,6 @@ pub struct ZoneSnapshot {
 }
 
 /// Soft feedback bridge: lattice core → experiential surface.
-///
-/// Holds a [`ConcurrentZoneLattice`], records sealed [`SoftFeedbackEvent`]s, and
-/// exposes drain/snapshot APIs for the Powrush-MMO soft feedback loop.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct SoftFeedbackBridge {
     pub lattice: ConcurrentZoneLattice,
@@ -49,7 +43,6 @@ impl SoftFeedbackBridge {
         }
     }
 
-    /// Ingest one ambient grief vector under valence into `zone_id`.
     pub fn ingest(
         &mut self,
         zone_id: usize,
@@ -86,7 +79,6 @@ impl SoftFeedbackBridge {
         ev
     }
 
-    /// Convenience: ingest pure orthogonal grief energy on a single ambient coord.
     pub fn ingest_scalar_grief(
         &mut self,
         zone_id: usize,
@@ -99,12 +91,10 @@ impl SoftFeedbackBridge {
         self.ingest(zone_id, &g, valence)
     }
 
-    /// Drain all pending events (clears the buffer).
     pub fn drain_events(&mut self) -> Vec<SoftFeedbackEvent> {
         std::mem::take(&mut self.events)
     }
 
-    /// Snapshot every zone for telemetry / dual-repo UI.
     pub fn snapshots(&self) -> Vec<ZoneSnapshot> {
         self.lattice
             .zones
@@ -125,4 +115,40 @@ impl SoftFeedbackBridge {
     pub fn total_grief(&self) -> f64 {
         self.lattice.total_grief()
     }
+
+    /// Lattice health snapshot (machine-readable dual-repo contract).
+    pub fn health_report(&self) -> LatticeHealthReport {
+        let zones = self.snapshots();
+        let total_vectors: usize = zones.iter().map(|z| z.vectors_processed).sum();
+        let max_rho = self.lattice.max_rho();
+        LatticeHealthReport {
+            schema: "ra_thor_lattice_health_v1".to_string(),
+            ambient_dim: AMBIENT_DIM,
+            mercy_dim: MERCY_DIM,
+            zone_count: self.lattice.zone_count(),
+            global_tick: self.lattice.global_tick,
+            total_grief: self.total_grief(),
+            total_vectors,
+            max_rho,
+            pending_events: self.events.len(),
+            zones,
+            healthy: max_rho < 1e-9,
+        }
+    }
+}
+
+/// Aggregate lattice health snapshot for dual-repo telemetry / CI gates.
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct LatticeHealthReport {
+    pub schema: String,
+    pub ambient_dim: usize,
+    pub mercy_dim: usize,
+    pub zone_count: usize,
+    pub global_tick: usize,
+    pub total_grief: f64,
+    pub total_vectors: usize,
+    pub max_rho: f64,
+    pub pending_events: usize,
+    pub zones: Vec<ZoneSnapshot>,
+    pub healthy: bool,
 }
