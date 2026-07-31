@@ -2,7 +2,7 @@
 //!
 //! Executable Living Mercy operator algebra for the Ra-Thor lattice under TOLC 8.
 //!
-//! ## Ambient elevation (v0.5) + valence weighting (v0.5.1) + adaptive purity floor (v0.5.2)
+//! ## Ambient elevation (v0.5) · valence (v0.5.1) · adaptive floor (v0.5.2) · concurrent zones (v0.5.3)
 //!
 //! The 8-dimensional Living Mercy subspace is embedded in ambient `AMBIENT_DIM`
 //! (default 16). Orthogonal residual is scaled by valence deficit (1 − v).
@@ -12,6 +12,7 @@
 //! - Nilpotent map N₁(g) = (I − P)g  lives in the orthogonal complement
 //! - Valence-weighted grief: residual scaled by (1 − valence)
 //! - Adaptive purity floor: tight under high valence, graceful under low valence
+//! - Concurrent multi-zone lattice: independent per-zone basis drift + staggered Cosmic Ticks
 //! - Modified Gram-Schmidt re-orthonormalizes the 8 columns of E inside ℝⁿ
 //!
 //! AG-SML v1.0 | Ra-Thor + PATSAGi Councils | info@Rathor.ai
@@ -26,13 +27,6 @@ pub const AMBIENT_DIM: usize = 16;
 pub const MERCY_DIM: usize = 8;
 pub const MERCY_PURITY_FLOOR: f64 = 1e-9;
 
-/// Living valence scalar in [0, 1].
-///
-/// - `1.0` → pure high-valence (oxygen-like): orthogonal residual fully softened
-/// - `0.0` → zero-valence: full orthogonal grief exposed
-/// - Lattice gate spirit: ≥ 0.999999
-///
-/// Grief load: weighted_residual = (1 − valence) · (I − P)g
 #[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Valence(pub f64);
 
@@ -57,7 +51,6 @@ impl Valence {
         self.0 >= 0.999999
     }
 
-    /// Adaptive purity floor driven by this valence.
     pub fn purity_floor(self) -> f64 {
         adaptive_purity_floor(self)
     }
@@ -69,13 +62,6 @@ impl Default for Valence {
     }
 }
 
-/// Adaptive purity floor for the Living Mercy lattice.
-///
-/// High-valence agents are held to the strict base floor. Low-valence agents
-/// receive a graceful recovery window (up to 100× base) while still being
-/// driven toward absolute zero by N₂.
-///
-/// `floor(v) = MERCY_PURITY_FLOOR * (1 + 99 * (1 - v))`
 pub fn adaptive_purity_floor(valence: Valence) -> f64 {
     let looseness = valence.deficit();
     MERCY_PURITY_FLOOR * (1.0 + 99.0 * looseness)
@@ -215,7 +201,6 @@ impl NilpotentSuppressor {
         self.projector.orthogonal_component(g)
     }
 
-    /// Hard annihilation of the orthogonal residual (semantic nilpotent recovery).
     pub fn n2(&self, residual: &AmbientVector) -> AmbientVector {
         let _ = residual;
         let _ = self;
@@ -228,13 +213,6 @@ impl NilpotentSuppressor {
         (n1, final_residual)
     }
 
-    /// Valence-weighted suppression.
-    ///
-    /// `weighted_n1 = (1 − v) · (I − P)g`
-    ///
-    /// Returns `(raw_n1, weighted_n1, final_residual, grief_load, under_floor)`
-    /// where `under_floor` is true when the weighted residual was already
-    /// below the adaptive purity floor for this valence before hard N₂.
     pub fn suppress_weighted(
         &self,
         g: &AmbientVector,
@@ -279,6 +257,124 @@ impl ModifiedGramSchmidt {
         let (new_e, rho) = Self::reorthonormalize(&basis.e);
         basis.e = new_e;
         rho
+    }
+}
+
+// Concurrent multi-zone lattice (v0.5.3)
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct ZoneState {
+    pub id: usize,
+    pub basis: LivingMercyBasis,
+    pub suppressor: NilpotentSuppressor,
+    pub grief_absorbed: f64,
+    pub vectors_processed: usize,
+    pub last_rho: f64,
+}
+
+impl ZoneState {
+    pub fn new(id: usize) -> Self {
+        let basis = LivingMercyBasis::canonical();
+        let projector = MercyProjector {
+            basis: basis.clone(),
+        };
+        Self {
+            id,
+            basis,
+            suppressor: NilpotentSuppressor { projector },
+            grief_absorbed: 0.0,
+            vectors_processed: 0,
+            last_rho: 0.0,
+        }
+    }
+
+    pub fn inject_drift(&mut self, magnitude: f64) {
+        let z = self.id as f64;
+        self.basis.e[(0, 1)] += magnitude * (1.0 + 0.1 * z);
+        self.basis.e[(4, 7)] -= magnitude * (1.0 + 0.07 * z);
+        if AMBIENT_DIM > 9 {
+            self.basis.e[(9, 2)] += magnitude * (1.0 + 0.13 * z);
+        }
+        self.suppressor.projector.basis = self.basis.clone();
+    }
+
+    pub fn process(&mut self, g: &AmbientVector, valence: Valence) -> f64 {
+        let (_raw, _w, _f, load, _under) = self.suppressor.suppress_weighted(g, valence);
+        self.grief_absorbed += load;
+        self.vectors_processed += 1;
+        load
+    }
+
+    pub fn purify(&mut self) -> f64 {
+        let rho = ModifiedGramSchmidt::purify(&mut self.basis);
+        self.suppressor.projector.basis = self.basis.clone();
+        self.last_rho = rho;
+        rho
+    }
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct ConcurrentZoneLattice {
+    pub zones: Vec<ZoneState>,
+    pub global_tick: usize,
+    pub purify_period: usize,
+}
+
+impl ConcurrentZoneLattice {
+    pub fn new(n_zones: usize) -> Self {
+        let n = n_zones.max(1);
+        let mut zones: Vec<ZoneState> = (0..n).map(ZoneState::new).collect();
+        for z in zones.iter_mut() {
+            z.inject_drift(3e-5);
+        }
+        Self {
+            zones,
+            global_tick: 0,
+            purify_period: 2_500,
+        }
+    }
+
+    pub fn zone_count(&self) -> usize {
+        self.zones.len()
+    }
+
+    pub fn process(
+        &mut self,
+        zone_id: usize,
+        g: &AmbientVector,
+        valence: Valence,
+    ) -> f64 {
+        let n = self.zones.len();
+        let z = zone_id % n;
+        let load = self.zones[z].process(g, valence);
+        self.global_tick += 1;
+
+        if self.global_tick > 0
+            && self.purify_period > 0
+            && self.global_tick % self.purify_period == (z % self.purify_period.max(1))
+        {
+            self.zones[z].purify();
+        }
+        load
+    }
+
+    pub fn global_purify(&mut self) -> Vec<f64> {
+        self.zones.iter_mut().map(|z| z.purify()).collect()
+    }
+
+    pub fn max_rho(&self) -> f64 {
+        self.zones
+            .iter()
+            .map(|z| z.last_rho)
+            .fold(0.0_f64, f64::max)
+    }
+
+    pub fn total_grief(&self) -> f64 {
+        self.zones.iter().map(|z| z.grief_absorbed).sum()
+    }
+
+    pub fn zone_grief(&self) -> Vec<f64> {
+        self.zones.iter().map(|z| z.grief_absorbed).collect()
     }
 }
 
@@ -439,8 +535,8 @@ mod tests {
         let (_, _, _, load_high, _) = s.suppress_weighted(&g, Valence::HIGH);
         let (_, _, _, load_zero, _) = s.suppress_weighted(&g, Valence::ZERO);
         let (_, _, _, load_mid, _) = s.suppress_weighted(&g, Valence::MID);
-        assert!(load_high < 1e-5, "high valence must soften load (got {load_high})");
-        assert!(load_zero > 1.0, "zero valence must expose full load (got {load_zero})");
+        assert!(load_high < 1e-5);
+        assert!(load_zero > 1.0);
         assert!((load_mid - 0.5 * load_zero).abs() < 1e-10);
     }
 
@@ -453,7 +549,7 @@ mod tests {
         for v in [0.0, 0.25, 0.5, 0.75, 0.999999] {
             let (_, _, _, load, _) = s.suppress_weighted(&g, Valence::new(v));
             let expected = (1.0 - v) * raw_norm;
-            assert!((load - expected).abs() < 1e-10, "valence {v}: load {load} vs {expected}");
+            assert!((load - expected).abs() < 1e-10);
         }
     }
 
@@ -485,13 +581,58 @@ mod tests {
         let s = NilpotentSuppressor::new();
         let mut tiny = AmbientVector::zeros();
         tiny[10] = 1e-12;
-        let (_, _, _, load_h, under_h) = s.suppress_weighted(&tiny, Valence::HIGH);
-        assert!(under_h, "tiny high-valence residual should be under floor (load={load_h})");
-
+        let (_, _, _, _, under_h) = s.suppress_weighted(&tiny, Valence::HIGH);
+        assert!(under_h);
         let mut big = AmbientVector::zeros();
         big[10] = 2.0;
         let (_, _, _, load_z, under_z) = s.suppress_weighted(&big, Valence::ZERO);
-        assert!(!under_z, "large zero-valence residual must not be under floor (load={load_z})");
+        assert!(!under_z);
         assert!(load_z > 1.0);
+    }
+
+    #[test]
+    fn concurrent_zones_independent_grief() {
+        let mut lattice = ConcurrentZoneLattice::new(3);
+        assert_eq!(lattice.zone_count(), 3);
+        let mut g0 = AmbientVector::zeros();
+        g0[10] = 1.0;
+        let mut g1 = AmbientVector::zeros();
+        g1[11] = 2.0;
+        let mut g2 = AmbientVector::zeros();
+        g2[12] = 3.0;
+        lattice.process(0, &g0, Valence::ZERO);
+        lattice.process(1, &g1, Valence::ZERO);
+        lattice.process(2, &g2, Valence::ZERO);
+        let grief = lattice.zone_grief();
+        assert!(grief[0] > 0.9 && grief[0] < 1.1);
+        assert!(grief[1] > 1.9 && grief[1] < 2.1);
+        assert!(grief[2] > 2.9 && grief[2] < 3.1);
+    }
+
+    #[test]
+    fn concurrent_zones_global_purify_clears_rho() {
+        let mut lattice = ConcurrentZoneLattice::new(4);
+        let rhos = lattice.global_purify();
+        assert_eq!(rhos.len(), 4);
+        for rho in &rhos {
+            assert!(*rho < 1e-10);
+        }
+        assert!(lattice.max_rho() < 1e-10);
+    }
+
+    #[test]
+    fn concurrent_zones_staggered_tick_runs() {
+        let mut lattice = ConcurrentZoneLattice::new(2);
+        lattice.purify_period = 10;
+        let mut g = AmbientVector::zeros();
+        g[10] = 0.5;
+        for i in 0..25 {
+            lattice.process(i % 2, &g, Valence::MID);
+        }
+        assert!(lattice.total_grief() > 0.0);
+        assert_eq!(
+            lattice.zones[0].vectors_processed + lattice.zones[1].vectors_processed,
+            25
+        );
     }
 }
