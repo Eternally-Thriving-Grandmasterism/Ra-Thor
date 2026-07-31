@@ -2,7 +2,7 @@
 
 Executable Living Mercy operator algebra for the Ra-Thor lattice under **TOLC 8**.
 
-**v0.5.4** — Ambient elevation · Valence · Adaptive floor · Concurrent zones · Soft feedback bridge
+**v0.5.5** — Ambient elevation · Valence · Adaptive floor · Concurrent zones · Soft feedback · Public dual-repo demo
 
 ## Geometry
 
@@ -39,19 +39,23 @@ SoftFeedbackEvent { zone_id, grief_load, valence, under_floor, tick }
 ZoneSnapshot      { zone_id, grief_absorbed, vectors_processed, last_rho }
 ```
 
-Ra-Thor side: `SoftFeedbackBridge::ingest` / `drain_events` / `snapshots`  
-Powrush side: `RaThorBridge::report_zone_grief` / `drain_soft_feedback` / `soft_zone_snapshots`
+Ra-Thor: `SoftFeedbackBridge::ingest` / `drain_events` / `snapshots`  
+Powrush: `RaThorBridge::report_zone_grief` / `drain_soft_feedback` / `soft_zone_snapshots`  
+Powrush orchestrator emits one soft-feedback event per `run_tick` when the bridge is enabled.
 
-No hard crate dependency either way — serde field shape is the contract.
-
-## Benchmark
+## Public proofs
 
 ```bash
+# Soft feedback dual-repo demo (sealed event payloads)
+cargo run -p mercy_tolc_operator_algebra --bin soft_feedback_demo -- --agents 12000 --zones 4
+
+# High-grief nilpotent recovery stress
 cargo run -p mercy_tolc_operator_algebra --bin high_grief_nilpotent_bench -- --agents 50000 --zones 5
+
 cargo test -p mercy_tolc_operator_algebra
 ```
 
-18 property tests. Five verification gates on the public harness.
+18 property tests. Demo and bench emit clear PASS/FAIL gates.
 
 ## License
 
