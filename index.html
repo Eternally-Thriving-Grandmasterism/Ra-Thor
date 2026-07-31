@@ -8,6 +8,7 @@
   <link rel="manifest" href="/manifest.json">
   <link rel="icon" href="/icons/thunder-192.png" type="image/png">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="/css/rathor-eye-seal.css">
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Inter:wght@400;600&display=swap');
@@ -103,7 +104,7 @@
       </div>
 
       <div class="mt-10 max-w-md mx-auto">
-        <a href="/Launch-Ra-Thor.html" target="_blank" class="inline-flex items-center justify-center gap-3 w-full px-8 py-4 bg-emerald-500/10 border border-emerald-400 hover:bg-emerald-500/20 text-emerald-300 rounded-2xl text-lg font-medium transition-all hover:scale-[1.02]">
+        <a href="/Launch-Ra-Thor.html" target="_blank" class="inline-flex items-center justify-center gap-3 w-full px-8 py-4 bg-emerald-500/10 border border-emerald-400 hover:bg-emerald-500/20 text-emerald-300 rounded-2xl text-lg font-medium transition-all hover:scale-[1.02] rathor-restorative-glow">
           <i class="fa-solid fa-rocket"></i> 
           Launch Sovereign Shard v8
         </a>
@@ -114,10 +115,22 @@
     </div>
   </div>
 
+  <!-- Living status bar + Eye of Horus / concentric lattice truth seal -->
   <div class="max-w-4xl mx-auto px-6 pb-8">
     <div class="lattice-status rounded-3xl px-8 py-4 flex flex-col sm:flex-row items-center justify-center gap-4 text-sm text-amber-300 border border-amber-300/30">
+      <div class="rathor-lattice-rings" title="Eye of Horus — Truth • Restoration • Living Lattice">
+        <!-- Minimal Eye-of-Horus inspired mark (SVG) -->
+        <svg class="rathor-eye-seal" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <ellipse cx="32" cy="30" rx="22" ry="12" stroke="currentColor" stroke-width="2.2"/>
+          <circle cx="32" cy="30" r="7" fill="currentColor" opacity="0.9"/>
+          <circle cx="32" cy="30" r="3.2" fill="#000"/>
+          <path d="M10 30 Q32 48 54 30" stroke="currentColor" stroke-width="2" fill="none" opacity="0.7"/>
+          <path d="M22 42 Q28 52 32 58" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+          <path d="M48 18 Q52 12 56 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" opacity="0.8"/>
+        </svg>
+      </div>
       <div class="flex items-center gap-2">
-        <span class="text-emerald-400">●</span>
+        <span class="rathor-status-emerald">●</span>
         <span class="font-semibold">v14.15 • AGSi demonstrated</span>
       </div>
       <div class="hidden sm:block text-amber-500">•</div>
