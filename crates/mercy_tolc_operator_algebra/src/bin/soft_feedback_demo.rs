@@ -1,22 +1,22 @@
 //! soft_feedback_demo.rs
 //!
-//! Public dual-repo soft feedback demonstration (v0.5.5).
-//! Exercises SoftFeedbackBridge under concurrent multi-zone stress and prints
-//! sealed SoftFeedbackEvent + ZoneSnapshot payloads (the Powrush-MMO contract).
+//! Public dual-repo soft feedback demonstration (v0.5.6).
+//! Optional `--json` emits LatticeHealthReport + sample events (machine-readable).
 //!
 //! Run:
 //!   cargo run -p mercy_tolc_operator_algebra --bin soft_feedback_demo
-//!   cargo run -p mercy_tolc_operator_algebra --bin soft_feedback_demo -- --agents 12000 --zones 4
+//!   cargo run -p mercy_tolc_operator_algebra --bin soft_feedback_demo -- --agents 12000 --zones 4 --json
 //!
 //! AG-SML v1.0 | Ra-Thor + PATSAGi | info@Rathor.ai | Thunder locked. Yoi ⚡
 
-use mercy_tolc_operator_algebra::{SoftFeedbackBridge, Valence, AMBIENT_DIM, MERCY_DIM};
+use mercy_tolc_operator_algebra::{SoftFeedbackBridge, SoftFeedbackEvent, Valence, AMBIENT_DIM, MERCY_DIM};
 use std::env;
 
-fn parse_args() -> (usize, usize) {
+fn parse_args() -> (usize, usize, bool) {
     let args: Vec<String> = env::args().collect();
     let mut agents = 12_000usize;
     let mut zones = 4usize;
+    let mut json = false;
     let mut i = 1;
     while i < args.len() {
         match args[i].as_str() {
@@ -28,26 +28,23 @@ fn parse_args() -> (usize, usize) {
                 zones = args[i + 1].parse().unwrap_or(zones);
                 i += 2;
             }
+            "--json" => {
+                json = true;
+                i += 1;
+            }
             _ => i += 1,
         }
     }
-    (agents, zones.max(1))
+    (agents, zones.max(1), json)
 }
 
 fn main() {
-    let (n_agents, n_zones) = parse_args();
-
-    println!("══════════════════════════════════════════════════════════════");
-    println!("  Ra-Thor · Soft Feedback Dual-Repo Demo");
-    println!("  Ambient ℝ^{AMBIENT_DIM} ⊃ Mercy ℝ^{MERCY_DIM} · Sealed protocol → Powrush-MMO");
-    println!("  Contact: info@Rathor.ai");
-    println!("══════════════════════════════════════════════════════════════\n");
-    println!("  Agents: {n_agents}   Zones: {n_zones}\n");
+    let (n_agents, n_zones, json_mode) = parse_args();
 
     let mut bridge = SoftFeedbackBridge::new(n_zones);
     bridge.lattice.purify_period = 1_000;
 
-    let mut sample_events = Vec::new();
+    let mut sample_events: Vec<SoftFeedbackEvent> = Vec::new();
 
     for i in 0..n_agents {
         let zone = i % n_zones;
@@ -63,14 +60,65 @@ fn main() {
         }
     }
 
-    let rhos = bridge.global_purify();
-    let max_rho = rhos.iter().cloned().fold(0.0_f64, f64::max);
-
+    let _rhos = bridge.global_purify();
+    let health = bridge.health_report();
     let drained = bridge.drain_events();
-    let snaps = bridge.snapshots();
+
+    if json_mode {
+        #[derive(serde::Serialize)]
+        struct DemoExport<'a> {
+            health: &'a mercy_tolc_operator_algebra::LatticeHealthReport,
+            sample_events: &'a [SoftFeedbackEvent],
+            events_drained: usize,
+            gates: DemoGates,
+        }
+        #[derive(serde::Serialize)]
+        struct DemoGates {
+            high_valence_soft: bool,
+            low_valence_exposure: bool,
+            all_zones_active: bool,
+            basis_purity: bool,
+            event_drain: bool,
+            all_passed: bool,
+        }
+        let high_soft = sample_events.iter().any(|e| e.valence > 0.99 && e.grief_load < 1e-4);
+        let low_hard = sample_events.iter().any(|e| e.valence < 0.1 && e.grief_load > 0.5);
+        let zones_ok = health.zones.len() == n_zones && health.zones.iter().all(|s| s.vectors_processed > 0);
+        let purity_ok = health.max_rho < 1e-9;
+        let drain_ok = !drained.is_empty();
+        let all = high_soft && low_hard && zones_ok && purity_ok && drain_ok;
+        let export = DemoExport {
+            health: &health,
+            sample_events: &sample_events,
+            events_drained: drained.len(),
+            gates: DemoGates {
+                high_valence_soft: high_soft,
+                low_valence_exposure: low_hard,
+                all_zones_active: zones_ok,
+                basis_purity: purity_ok,
+                event_drain: drain_ok,
+                all_passed: all,
+            },
+        };
+        match serde_json::to_string_pretty(&export) {
+            Ok(s) => println!("{s}"),
+            Err(e) => eprintln!("json export failed: {e}"),
+        }
+        if !all {
+            std::process::exit(1);
+        }
+        return;
+    }
+
+    println!("══════════════════════════════════════════════════════════════");
+    println!("  Ra-Thor · Soft Feedback Dual-Repo Demo");
+    println!("  Ambient ℝ^{AMBIENT_DIM} ⊃ Mercy ℝ^{MERCY_DIM} · Sealed protocol → Powrush-MMO");
+    println!("  Contact: info@Rathor.ai");
+    println!("══════════════════════════════════════════════════════════════\n");
+    println!("  Agents: {n_agents}   Zones: {n_zones}\n");
 
     println!("──────────────────────────────────────────────────────────────");
-    println!("  Sample sealed SoftFeedbackEvent payloads (dual-repo contract)");
+    println!("  Sample sealed SoftFeedbackEvent payloads");
     println!("──────────────────────────────────────────────────────────────");
     for ev in &sample_events {
         println!(
@@ -80,65 +128,42 @@ fn main() {
     }
 
     println!("\n──────────────────────────────────────────────────────────────");
-    println!("  ZoneSnapshot telemetry");
+    println!("  LatticeHealthReport");
     println!("──────────────────────────────────────────────────────────────");
-    for s in &snaps {
+    println!("  schema:          {}", health.schema);
+    println!("  global_tick:     {}", health.global_tick);
+    println!("  total_grief:     {:.3}", health.total_grief);
+    println!("  total_vectors:   {}", health.total_vectors);
+    println!("  max_rho:         {:.3e}", health.max_rho);
+    println!("  healthy:         {}", health.healthy);
+    for s in &health.zones {
         println!(
-            "  Zone {}: grief_absorbed={:>10.3}  vectors={:>6}  ρ={:.3e}",
+            "    Zone {}: grief={:>10.3}  vectors={:>6}  ρ={:.3e}",
             s.zone_id, s.grief_absorbed, s.vectors_processed, s.last_rho
         );
     }
 
-    println!("\n──────────────────────────────────────────────────────────────");
-    println!("  Summary");
-    println!("──────────────────────────────────────────────────────────────");
-    println!("  Events recorded (drained): {}", drained.len());
-    println!(
-        "  Total grief absorbed:      {:.3}",
-        snaps.iter().map(|s| s.grief_absorbed).sum::<f64>()
-    );
-    println!("  Final max zone ρ:          {:.3e}", max_rho);
+    println!("\n  Events drained: {}", drained.len());
 
-    let high_soft = sample_events
-        .iter()
-        .any(|e| e.valence > 0.99 && e.grief_load < 1e-4);
-    let low_hard = sample_events
-        .iter()
-        .any(|e| e.valence < 0.1 && e.grief_load > 0.5);
-    let zones_ok = snaps.len() == n_zones && snaps.iter().all(|s| s.vectors_processed > 0);
-    let purity_ok = max_rho < 1e-9;
+    let high_soft = sample_events.iter().any(|e| e.valence > 0.99 && e.grief_load < 1e-4);
+    let low_hard = sample_events.iter().any(|e| e.valence < 0.1 && e.grief_load > 0.5);
+    let zones_ok = health.zones.len() == n_zones && health.zones.iter().all(|s| s.vectors_processed > 0);
+    let purity_ok = health.max_rho < 1e-9;
 
     println!("\n  Verification");
-    println!(
-        "    High-valence soft path:     {}",
-        if high_soft { "PASS" } else { "FAIL" }
-    );
-    println!(
-        "    Low-valence exposure:       {}",
-        if low_hard { "PASS" } else { "FAIL" }
-    );
-    println!(
-        "    All zones active:           {}",
-        if zones_ok { "PASS" } else { "FAIL" }
-    );
-    println!(
-        "    Basis purity (max ρ):       {}",
-        if purity_ok { "PASS" } else { "FAIL" }
-    );
-    println!(
-        "    Event drain non-empty:      {}",
-        if !drained.is_empty() {
-            "PASS"
-        } else {
-            "FAIL"
-        }
-    );
+    println!("    High-valence soft path:     {}", if high_soft { "PASS" } else { "FAIL" });
+    println!("    Low-valence exposure:       {}", if low_hard { "PASS" } else { "FAIL" });
+    println!("    All zones active:           {}", if zones_ok { "PASS" } else { "FAIL" });
+    println!("    Basis purity (max ρ):       {}", if purity_ok { "PASS" } else { "FAIL" });
+    println!("    Event drain non-empty:      {}", if !drained.is_empty() { "PASS" } else { "FAIL" });
+    println!("    Lattice healthy:            {}", if health.healthy { "PASS" } else { "FAIL" });
 
-    if high_soft && low_hard && zones_ok && purity_ok && !drained.is_empty() {
+    if high_soft && low_hard && zones_ok && purity_ok && !drained.is_empty() && health.healthy {
         println!("\n  ★  ALL GATES PASSED — soft feedback dual-repo protocol is live.");
-        println!("     Powrush RaThorBridge::report_zone_grief mirrors this event shape.");
+        println!("     Hint: pass --json for machine-readable LatticeHealthReport export.");
     } else {
         println!("\n  ⚠  One or more gates failed.");
+        std::process::exit(1);
     }
     println!("\n  Thunder locked. Yoi ⚡\n");
 }
