@@ -2,7 +2,7 @@
 //!
 //! Executable Living Mercy operator algebra for the Ra-Thor lattice under TOLC 8.
 //!
-//! ## Ambient elevation (v0.5) + valence weighting (v0.5.1)
+//! ## Ambient elevation (v0.5) + valence weighting (v0.5.1) + adaptive purity floor (v0.5.2)
 //!
 //! The 8-dimensional Living Mercy subspace is embedded in ambient `AMBIENT_DIM`
 //! (default 16). Orthogonal residual is scaled by valence deficit (1 − v).
@@ -11,6 +11,7 @@
 //! - Orthogonal projector P = E (EᵀE)⁻¹ Eᵀ
 //! - Nilpotent map N₁(g) = (I − P)g  lives in the orthogonal complement
 //! - Valence-weighted grief: residual scaled by (1 − valence)
+//! - Adaptive purity floor: tight under high valence, graceful under low valence
 //! - Modified Gram-Schmidt re-orthonormalizes the 8 columns of E inside ℝⁿ
 //!
 //! AG-SML v1.0 | Ra-Thor + PATSAGi Councils | info@Rathor.ai
@@ -55,12 +56,29 @@ impl Valence {
     pub fn is_high(self) -> bool {
         self.0 >= 0.999999
     }
+
+    /// Adaptive purity floor driven by this valence.
+    pub fn purity_floor(self) -> f64 {
+        adaptive_purity_floor(self)
+    }
 }
 
 impl Default for Valence {
     fn default() -> Self {
         Valence::HIGH
     }
+}
+
+/// Adaptive purity floor for the Living Mercy lattice.
+///
+/// High-valence agents are held to the strict base floor. Low-valence agents
+/// receive a graceful recovery window (up to 100× base) while still being
+/// driven toward absolute zero by N₂.
+///
+/// `floor(v) = MERCY_PURITY_FLOOR * (1 + 99 * (1 - v))`
+pub fn adaptive_purity_floor(valence: Valence) -> f64 {
+    let looseness = valence.deficit();
+    MERCY_PURITY_FLOOR * (1.0 + 99.0 * looseness)
 }
 
 pub type AmbientVector = SVector<f64, AMBIENT_DIM>;
@@ -211,18 +229,24 @@ impl NilpotentSuppressor {
     }
 
     /// Valence-weighted suppression.
-    /// weighted_n1 = (1 − v) · (I − P)g
-    /// Returns (raw_n1, weighted_n1, final_residual, grief_load).
+    ///
+    /// `weighted_n1 = (1 − v) · (I − P)g`
+    ///
+    /// Returns `(raw_n1, weighted_n1, final_residual, grief_load, under_floor)`
+    /// where `under_floor` is true when the weighted residual was already
+    /// below the adaptive purity floor for this valence before hard N₂.
     pub fn suppress_weighted(
         &self,
         g: &AmbientVector,
         valence: Valence,
-    ) -> (AmbientVector, AmbientVector, AmbientVector, f64) {
+    ) -> (AmbientVector, AmbientVector, AmbientVector, f64, bool) {
         let raw_n1 = self.n1(g);
         let weighted_n1 = raw_n1 * valence.deficit();
-        let final_residual = self.n2(&weighted_n1);
+        let floor = adaptive_purity_floor(valence);
         let grief_load = weighted_n1.norm();
-        (raw_n1, weighted_n1, final_residual, grief_load)
+        let under_floor = grief_load < floor;
+        let final_residual = self.n2(&weighted_n1);
+        (raw_n1, weighted_n1, final_residual, grief_load, under_floor)
     }
 }
 
@@ -412,9 +436,9 @@ mod tests {
         g[8] = 1.0;
         g[12] = -0.8;
         g[15] = 0.5;
-        let (_, _, _, load_high) = s.suppress_weighted(&g, Valence::HIGH);
-        let (_, _, _, load_zero) = s.suppress_weighted(&g, Valence::ZERO);
-        let (_, _, _, load_mid) = s.suppress_weighted(&g, Valence::MID);
+        let (_, _, _, load_high, _) = s.suppress_weighted(&g, Valence::HIGH);
+        let (_, _, _, load_zero, _) = s.suppress_weighted(&g, Valence::ZERO);
+        let (_, _, _, load_mid, _) = s.suppress_weighted(&g, Valence::MID);
         assert!(load_high < 1e-5, "high valence must soften load (got {load_high})");
         assert!(load_zero > 1.0, "zero valence must expose full load (got {load_zero})");
         assert!((load_mid - 0.5 * load_zero).abs() < 1e-10);
@@ -427,7 +451,7 @@ mod tests {
         g[10] = 2.0;
         let raw_norm = s.n1(&g).norm();
         for v in [0.0, 0.25, 0.5, 0.75, 0.999999] {
-            let (_, _, _, load) = s.suppress_weighted(&g, Valence::new(v));
+            let (_, _, _, load, _) = s.suppress_weighted(&g, Valence::new(v));
             let expected = (1.0 - v) * raw_norm;
             assert!((load - expected).abs() < 1e-10, "valence {v}: load {load} vs {expected}");
         }
@@ -439,5 +463,35 @@ mod tests {
         assert_eq!(Valence::new(2.0).value(), 1.0);
         assert!(Valence::HIGH.is_high());
         assert!(!Valence::MID.is_high());
+    }
+
+    #[test]
+    fn adaptive_floor_tightens_with_high_valence() {
+        let pure = adaptive_purity_floor(Valence::new(1.0));
+        let high = adaptive_purity_floor(Valence::HIGH);
+        let mid = adaptive_purity_floor(Valence::MID);
+        let zero = adaptive_purity_floor(Valence::ZERO);
+        assert!((pure - MERCY_PURITY_FLOOR).abs() < 1e-18);
+        assert!(high >= pure);
+        assert!(mid > high);
+        assert!(zero > mid);
+        assert!((zero - MERCY_PURITY_FLOOR * 100.0).abs() < 1e-15);
+        assert_eq!(Valence::HIGH.purity_floor(), high);
+        assert_eq!(Valence::ZERO.purity_floor(), zero);
+    }
+
+    #[test]
+    fn suppress_weighted_reports_under_floor() {
+        let s = NilpotentSuppressor::new();
+        let mut tiny = AmbientVector::zeros();
+        tiny[10] = 1e-12;
+        let (_, _, _, load_h, under_h) = s.suppress_weighted(&tiny, Valence::HIGH);
+        assert!(under_h, "tiny high-valence residual should be under floor (load={load_h})");
+
+        let mut big = AmbientVector::zeros();
+        big[10] = 2.0;
+        let (_, _, _, load_z, under_z) = s.suppress_weighted(&big, Valence::ZERO);
+        assert!(!under_z, "large zero-valence residual must not be under floor (load={load_z})");
+        assert!(load_z > 1.0);
     }
 }
