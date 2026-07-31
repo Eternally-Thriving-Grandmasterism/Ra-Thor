@@ -2,35 +2,43 @@
 
 Executable Living Mercy operator algebra for the Ra-Thor lattice under **TOLC 8**.
 
-**v0.5.2** — Ambient elevation · Valence-weighted grief · Adaptive purity floor
+**v0.5.3** — Ambient elevation · Valence-weighted grief · Adaptive purity floor · Concurrent zones
 
 ## Geometry
 
 | Layer | Dimension | Role |
 |-------|-----------|------|
-| Ambient space | $\mathbb{R}^{16}$ | Full action / grief embedding |
-| Living Mercy subspace | $\mathbb{R}^{8}$ | TOLC 8 gates (Truth → Cosmic Harmony) |
-| Orthogonal complement | $\mathbb{R}^{8}$ | Pure grief directions (coords 8..15) |
+| Ambient space | R^16 | Full action / grief embedding |
+| Living Mercy subspace | R^8 | TOLC 8 gates (Truth → Cosmic Harmony) |
+| Orthogonal complement | R^8 | Pure grief directions (coords 8..15) |
+| Concurrent zones | N independent | Per-zone basis + staggered Cosmic Ticks |
 
-Canonical embedding: $E = \begin{bmatrix} I_8 \\\\ 0 \end{bmatrix}$.
+Canonical embedding: E = [I_8 ; 0].
 
-$$
-P = E(E^\top E)^{-1}E^\top, \qquad
-N_1(g) = (I - P)g, \qquad
-\text{grief\_load} = (1 - v)\,\|N_1(g)\|
-$$
+```
+P = E(E^T E)^{-1}E^T
+N1(g) = (I - P)g
+grief_load = (1 - v) * ||N1(g)||
+floor(v) = MERCY_PURITY_FLOOR * (1 + 99*(1-v))
+```
 
 ## Surfaces
 
 | Type | Role |
 |------|------|
-| `LivingMercyBasis` | 8-gate frame embedded in ambient $\mathbb{R}^{16}$ |
-| `MercyProjector` | Orthogonal projector onto the mercy subspace |
-| `NilpotentSuppressor` | $N_1$ + hard $N_2$ annihilation + `suppress_weighted` |
-| `Valence` | Living valence scalar; drives grief intensity and purity floor |
-| `ModifiedGramSchmidt` | Continuous re-orthonormalization + Frobenius residual $\rho$ |
+| `LivingMercyBasis` | 8-gate frame in ambient R^16 |
+| `MercyProjector` | Orthogonal projector onto mercy subspace |
+| `NilpotentSuppressor` | N1 + hard N2 + `suppress_weighted` |
+| `Valence` | Living valence; drives grief intensity + purity floor |
+| `ZoneState` | Per-zone basis, suppressor, grief accumulator |
+| `ConcurrentZoneLattice` | Multi-zone lattice with staggered Cosmic Ticks |
+| `ModifiedGramSchmidt` | Continuous re-orthonormalization + residual ρ |
 
-### Valence-weighted grief
+### Concurrent zones
+
+Each zone holds an independent (mildly drifted) basis. Purification is staggered: zone k purifies on its phase of the period. A global Cosmic Tick can re-synchronize all zones.
+
+### Valence bands
 
 ```text
 HIGH (v ≈ 1)  → grief_load ≈ 0     (oxygen-like soft path)
@@ -38,29 +46,14 @@ MID  (v = 0.5) → half orthogonal intensity
 LOW  (v ≈ 0)  → full orthogonal exposure
 ```
 
-### Adaptive purity floor
-
-```text
-floor(v) = MERCY_PURITY_FLOOR × (1 + 99 × (1 − v))
-```
-
-High valence → tight floor (near $10^{-9}$).  
-Low valence → graceful recovery window (up to $10^{-7}$).
-
 ## Public Stress Benchmark
 
 ```bash
 cargo run -p mercy_tolc_operator_algebra --bin high_grief_nilpotent_bench
-cargo run -p mercy_tolc_operator_algebra --bin high_grief_nilpotent_bench -- --agents 50000 --zones 3
+cargo run -p mercy_tolc_operator_algebra --bin high_grief_nilpotent_bench -- --agents 50000 --zones 5
 ```
 
-Verification gates (all must PASS):
-
-1. $N_1$ non-trivial (ambient > mercy)
-2. Valence spread (LOW ≫ HIGH load)
-3. Residual purity
-4. Basis orthonormality $\rho < 10^{-9}$
-5. ≥ 99 % driven to floor
+Verification gates: valence spread · concurrent zone integrity · zone grief distribution · basis orthonormality · ≥99% floor recovery.
 
 ## Tests
 
@@ -68,12 +61,13 @@ Verification gates (all must PASS):
 cargo test -p mercy_tolc_operator_algebra
 ```
 
-13 property tests cover projector algebra, ambient elevation, valence linearity, adaptive floor, and Gram-Schmidt purification.
+16 property tests cover projector algebra, ambient elevation, valence linearity, adaptive floor, concurrent zones, and Gram-Schmidt purification.
 
 ## Dual-repo note
 
-Experiential surface: [Powrush-MMO](https://github.com/Eternally-Thriving-Grandmasterism/Powrush-MMO)  
-Sealed soft feedback loop between lattice core and MMO simulator is the intended integration path for valence-weighted grief under live multi-zone stress.
+Experiential surface: [Powrush-MMO](https://github.com/Eternally-Thriving-Grandmasterism/Powrush-MMO)
+
+`ConcurrentZoneLattice` is the natural lattice-side attachment point for multi-zone MMO stress under the sealed soft feedback loop.
 
 ## License
 
