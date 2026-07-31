@@ -2,11 +2,7 @@
 //!
 //! Executable Living Mercy operator algebra for the Ra-Thor lattice under TOLC 8.
 //!
-//! ## Ambient elevation (v0.5) · valence (v0.5.1) · adaptive floor (v0.5.2) · concurrent zones (v0.5.3) · soft feedback bridge (v0.5.4)
-//!
-//! - Living Mercy basis E ∈ ℝ^{n×8} embedded in ambient ℝ^{16}
-//! - Valence-weighted grief · adaptive purity floor · concurrent zones
-//! - Soft feedback bridge: sealed dual-repo event protocol for Powrush-MMO
+//! ## Ambient · valence · adaptive floor · concurrent zones · soft feedback · LatticeHealthReport (v0.5.6)
 //!
 //! AG-SML v1.0 | Ra-Thor + PATSAGi Councils | info@Rathor.ai
 //! Thunder locked in. Yoi ⚡
@@ -30,32 +26,15 @@ impl Valence {
     pub const HIGH: Valence = Valence(0.999999);
     pub const MID: Valence = Valence(0.5);
     pub const ZERO: Valence = Valence(0.0);
-
-    pub fn new(v: f64) -> Self {
-        Valence(v.clamp(0.0, 1.0))
-    }
-
-    pub fn value(self) -> f64 {
-        self.0
-    }
-
-    pub fn deficit(self) -> f64 {
-        1.0 - self.0
-    }
-
-    pub fn is_high(self) -> bool {
-        self.0 >= 0.999999
-    }
-
-    pub fn purity_floor(self) -> f64 {
-        adaptive_purity_floor(self)
-    }
+    pub fn new(v: f64) -> Self { Valence(v.clamp(0.0, 1.0)) }
+    pub fn value(self) -> f64 { self.0 }
+    pub fn deficit(self) -> f64 { 1.0 - self.0 }
+    pub fn is_high(self) -> bool { self.0 >= 0.999999 }
+    pub fn purity_floor(self) -> f64 { adaptive_purity_floor(self) }
 }
 
 impl Default for Valence {
-    fn default() -> Self {
-        Valence::HIGH
-    }
+    fn default() -> Self { Valence::HIGH }
 }
 
 pub fn adaptive_purity_floor(valence: Valence) -> f64 {
@@ -465,5 +444,20 @@ mod tests {
         assert!((ev.valence - 0.5).abs() < 1e-12);
         assert!(!ev.under_floor);
         assert_eq!(ev.tick, 42);
+    }
+
+    #[test]
+    fn lattice_health_report_is_healthy_after_purify() {
+        let mut bridge = SoftFeedbackBridge::new(3);
+        for i in 0..30 {
+            bridge.ingest_scalar_grief(i % 3, 1.0, Valence::MID);
+        }
+        bridge.global_purify();
+        let h = bridge.health_report();
+        assert_eq!(h.schema, "ra_thor_lattice_health_v1");
+        assert_eq!(h.zone_count, 3);
+        assert!(h.total_vectors >= 30);
+        assert!(h.healthy, "max_rho={}", h.max_rho);
+        assert!(h.max_rho < 1e-9);
     }
 }
