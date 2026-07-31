@@ -1,12 +1,12 @@
 [package]
 name = "mercy_tolc_operator_algebra"
-version = "0.5.2"
+version = "0.5.3"
 edition = "2021"
 authors = ["Eternally-Thriving-Grandmasterism", "Sherif Samy Botros <info@Rathor.ai>"]
 license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
-description = "MercyTOLCOperatorAlgebra — Living Mercy R^8 in ambient R^16, orthogonal projector, nilpotent suppression, valence-weighted grief, adaptive purity floor, and modified Gram-Schmidt for the Ra-Thor lattice under TOLC 8."
+description = "MercyTOLCOperatorAlgebra — Living Mercy R^8 in ambient R^16, concurrent multi-zone lattice, valence-weighted grief, adaptive purity floor, nilpotent suppression, modified Gram-Schmidt under TOLC 8."
 repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
-keywords = ["ra-thor", "mercy-tolc-operator-algebra", "tolc-8", "nilpotent", "valence", "projector", "gram-schmidt", "mercy-gated", "ambient-elevation", "adaptive-purity"]
+keywords = ["ra-thor", "mercy-tolc-operator-algebra", "tolc-8", "nilpotent", "valence", "concurrent-zones", "gram-schmidt", "mercy-gated"]
 categories = ["science", "simulation", "artificial-intelligence", "mathematics"]
 
 [dependencies]
