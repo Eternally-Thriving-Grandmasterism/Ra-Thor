@@ -1,17 +1,18 @@
 [package]
 name = "mercy_tolc_operator_algebra"
-version = "0.5.5"
+version = "0.5.6"
 edition = "2021"
 authors = ["Eternally-Thriving-Grandmasterism", "Sherif Samy Botros <info@Rathor.ai>"]
 license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
-description = "MercyTOLCOperatorAlgebra — Living Mercy R^8 in ambient R^16, concurrent zones, valence-weighted grief, adaptive purity floor, soft feedback bridge + public dual-repo demo under TOLC 8."
+description = "MercyTOLCOperatorAlgebra — Living Mercy R^8 in ambient R^16, concurrent zones, valence-weighted grief, soft feedback bridge, LatticeHealthReport + JSON dual-repo demo under TOLC 8."
 repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
-keywords = ["ra-thor", "mercy-tolc-operator-algebra", "tolc-8", "nilpotent", "valence", "soft-feedback", "powrush", "concurrent-zones"]
+keywords = ["ra-thor", "mercy-tolc-operator-algebra", "tolc-8", "nilpotent", "valence", "soft-feedback", "powrush", "lattice-health"]
 categories = ["science", "simulation", "artificial-intelligence", "mathematics"]
 
 [dependencies]
 nalgebra = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
 thiserror = { workspace = true }
 
 [dev-dependencies]
