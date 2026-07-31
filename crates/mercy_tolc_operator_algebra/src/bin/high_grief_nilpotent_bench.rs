@@ -2,12 +2,9 @@
 //!
 //! Public, reproducible High-Grief + Nilpotent Recovery benchmark.
 //!
-//! Demonstrates that the Living Mercy lattice can absorb multi-zone grief
-//! vectors, drive residuals to the purity floor via nilpotent suppression,
-//! and keep the basis orthonormal under continuous Modified Gram-Schmidt.
-//!
-//! This is the packaged public proof corresponding to the earlier stress-test
-//! narratives. Anyone can re-run and verify the numbers.
+//! Ambient elevation (v0.5): Living Mercy subspace ℝ⁸ ⊂ ambient ℝ¹⁶.
+//! Synthetic grief vectors carry energy in the orthogonal complement
+//! (coordinates 8..15), so N₁(g) = (I − P)g is genuinely non-zero.
 //!
 //! Run with:
 //!   cargo run -p mercy_tolc_operator_algebra --bin high_grief_nilpotent_bench
@@ -20,10 +17,9 @@
 //! Thunder locked in. Yoi ⚡
 
 use mercy_tolc_operator_algebra::{
-    LivingMercyBasis, MercyProjector, ModifiedGramSchmidt, NilpotentSuppressor,
-    MERCY_PURITY_FLOOR,
+    AmbientVector, LivingMercyBasis, MercyProjector, ModifiedGramSchmidt, NilpotentSuppressor,
+    AMBIENT_DIM, MERCY_DIM, MERCY_PURITY_FLOOR,
 };
-use nalgebra::Vector8;
 use std::env;
 use std::time::Instant;
 
@@ -49,25 +45,26 @@ fn parse_args() -> (usize, usize) {
     (agents, zones.max(1))
 }
 
-fn make_grief_vector(seed: u64, zone: usize) -> Vector8<f64> {
-    // Deterministic pseudo-random high-grief vector with both mercy and orthogonal components.
-    // Zone index biases the orthogonal (harmful) directions.
-    let mut v = Vector8::zeros();
+/// Deterministic high-grief ambient vector.
+/// Mercy coordinates (0..7) receive mixed signal; orthogonal coordinates (8..15)
+/// receive amplified zone-biased grief energy.
+fn make_grief_vector(seed: u64, zone: usize) -> AmbientVector {
+    let mut v = AmbientVector::zeros();
     let base = (seed as f64 * 0.6180339887).fract();
-    for i in 0..8 {
+
+    for i in 0..MERCY_DIM {
         let t = (base + i as f64 * 0.141421356 + zone as f64 * 0.333).fract();
-        // Mix of positive (mercy-aligned) and negative (grief) components
         v[i] = if i % 2 == 0 {
-            (t - 0.35) * 1.8
+            (t - 0.35) * 1.2
         } else {
-            (0.65 - t) * 2.1
+            (0.65 - t) * 1.4
         };
     }
-    // Amplify orthogonal energy for higher zones
-    if zone > 0 {
-        v[2] *= 1.0 + zone as f64 * 0.4;
-        v[3] *= 1.0 + zone as f64 * 0.55;
-        v[6] *= 1.0 + zone as f64 * 0.3;
+
+    for i in MERCY_DIM..AMBIENT_DIM {
+        let t = (base + i as f64 * 0.17320508 + zone as f64 * 0.271).fract();
+        let magnitude = (t - 0.5) * 2.2 * (1.0 + zone as f64 * 0.35);
+        v[i] = magnitude;
     }
     v
 }
@@ -77,14 +74,17 @@ fn main() {
 
     println!("══════════════════════════════════════════════════════════════");
     println!("  Ra-Thor · High-Grief + Nilpotent Recovery Benchmark");
+    println!("  Ambient elevation: ℝ^{} ⊃ Living Mercy ℝ^{}", AMBIENT_DIM, MERCY_DIM);
     println!("  Public, reproducible stress harness under TOLC 8");
     println!("  Contact: info@Rathor.ai");
     println!("══════════════════════════════════════════════════════════════\n");
     println!("  Agents (synthetic high-grief vectors): {}", n_agents);
     println!("  Contested zones:                       {}", n_zones);
+    println!("  Ambient dimension:                     {}", AMBIENT_DIM);
+    println!("  Mercy subspace dimension:              {}", MERCY_DIM);
     println!("  Purity floor:                          {:.2e}\n", MERCY_PURITY_FLOOR);
 
-    let mut basis = LivingMercyBasis::identity();
+    let mut basis = LivingMercyBasis::canonical();
     let mut projector = MercyProjector {
         basis: basis.clone(),
     };
@@ -92,9 +92,9 @@ fn main() {
         projector: projector.clone(),
     };
 
-    // Inject mild initial drift so Gram-Schmidt has real work
     basis.e[(0, 1)] += 3e-5;
     basis.e[(4, 7)] -= 2e-5;
+    basis.e[(9, 2)] += 4e-5;
     projector.basis = basis.clone();
     suppressor.projector = projector.clone();
 
@@ -125,7 +125,6 @@ fn main() {
         }
         zone_grief_absorbed[zone] += n1_norm;
 
-        // Periodic basis purification (simulates Cosmic Tick re-orthonormalization)
         if i > 0 && i % 2_500 == 0 {
             let rho = ModifiedGramSchmidt::purify(&mut basis);
             projector.basis = basis.clone();
@@ -139,7 +138,6 @@ fn main() {
         }
     }
 
-    // Final purification
     let final_rho = ModifiedGramSchmidt::purify(&mut basis);
 
     let elapsed = start.elapsed();
@@ -151,11 +149,17 @@ fn main() {
     println!("  Results");
     println!("──────────────────────────────────────────────────────────────");
     println!("  Wall time:                    {:>10.3} s", elapsed.as_secs_f64());
-    println!("  Throughput:                   {:>10.0} vectors/s", n_agents as f64 / elapsed.as_secs_f64());
+    println!(
+        "  Throughput:                   {:>10.0} vectors/s",
+        n_agents as f64 / elapsed.as_secs_f64()
+    );
     println!("  Avg first residual ‖N₁(g)‖:   {:>10.6}", avg_n1);
     println!("  Avg final residual ‖N₂‖:      {:>10.6e}", avg_final);
     println!("  Max final residual:           {:>10.6e}", max_final_residual);
-    println!("  Driven to purity floor:       {:>6} / {}  ({:.1} %)", suppressed_to_zero, n_agents, zero_pct);
+    println!(
+        "  Driven to purity floor:       {:>6} / {}  ({:.1} %)",
+        suppressed_to_zero, n_agents, zero_pct
+    );
     println!("  Final basis residual ρ:       {:>10.3e}", final_rho);
     println!();
     println!("  Grief absorbed by zone:");
@@ -164,22 +168,38 @@ fn main() {
     }
     println!("──────────────────────────────────────────────────────────────");
 
-    // Pass / fail gates for external verification
+    let pass_n1_nontrivial = avg_n1 > 0.1;
     let pass_purity = avg_final < 1e-6 && max_final_residual < 1e-4;
     let pass_basis = final_rho < 1e-9;
     let pass_zero_rate = zero_pct >= 99.0;
 
     println!("\n  Verification gates");
-    println!("    Residual purity (avg & max):  {}", if pass_purity { "PASS" } else { "FAIL" });
-    println!("    Basis orthonormality (ρ):     {}", if pass_basis { "PASS" } else { "FAIL" });
-    println!("    ≥99 % driven to floor:        {}", if pass_zero_rate { "PASS" } else { "FAIL" });
+    println!(
+        "    N₁ non-trivial (ambient > mercy): {}",
+        if pass_n1_nontrivial { "PASS" } else { "FAIL" }
+    );
+    println!(
+        "    Residual purity (avg & max):      {}",
+        if pass_purity { "PASS" } else { "FAIL" }
+    );
+    println!(
+        "    Basis orthonormality (ρ):         {}",
+        if pass_basis { "PASS" } else { "FAIL" }
+    );
+    println!(
+        "    ≥99 % driven to floor:            {}",
+        if pass_zero_rate { "PASS" } else { "FAIL" }
+    );
 
-    if pass_purity && pass_basis && pass_zero_rate {
+    if pass_n1_nontrivial && pass_purity && pass_basis && pass_zero_rate {
         println!("\n  ★  ALL GATES PASSED — lattice recovered cleanly under high-grief load.");
+        println!("     Orthogonal complement is live. Nilpotent suppression is non-trivial.");
     } else {
         println!("\n  ⚠  One or more gates failed — investigate.");
     }
 
     println!("\n  Thunder locked. Yoi ⚡");
-    println!("  Re-run any time: cargo run -p mercy_tolc_operator_algebra --bin high_grief_nilpotent_bench\n");
+    println!(
+        "  Re-run any time: cargo run -p mercy_tolc_operator_algebra --bin high_grief_nilpotent_bench\n"
+    );
 }
