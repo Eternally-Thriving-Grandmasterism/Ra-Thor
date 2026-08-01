@@ -1,4 +1,4 @@
-//! Soft feedback bridge — dual-repo sealed protocol (v0.5.8)
+//! Soft feedback bridge — dual-repo sealed protocol (v0.5.9)
 //!
 //! AG-SML v1.0 | info@Rathor.ai | Thunder locked. Yoi ⚡
 
@@ -20,6 +20,7 @@ pub struct SoftFeedbackEvent {
 pub struct ZoneSnapshot {
     pub zone_id: usize,
     pub grief_absorbed: f64,
+    pub stress_ema: f64,
     pub vectors_processed: usize,
     pub last_rho: f64,
     pub purify_count: usize,
@@ -49,11 +50,24 @@ impl SoftFeedbackBridge {
         valence: Valence,
     ) -> SoftFeedbackEvent {
         let z = zone_id % self.lattice.zone_count().max(1);
+        let alpha = self.lattice.stress_alpha;
         let (_raw, _w, _f, load, under) =
             self.lattice.zones[z].suppressor.suppress_weighted(g, valence);
         self.lattice.zones[z].grief_absorbed += load;
+        let a = alpha.clamp(0.0, 1.0);
+        self.lattice.zones[z].stress_ema =
+            (1.0 - a) * self.lattice.zones[z].stress_ema + a * load;
         self.lattice.zones[z].vectors_processed += 1;
         self.lattice.global_tick += 1;
+
+        // Mild decay on sibling zones (calm recovery)
+        let decay = a * 0.25;
+        let n = self.lattice.zones.len();
+        for i in 0..n {
+            if i != z {
+                self.lattice.zones[i].decay_stress(decay);
+            }
+        }
 
         let period = self.lattice.effective_purify_period(z);
         if self.lattice.global_tick > 0 && self.lattice.global_tick % period == (z % period) {
@@ -98,6 +112,7 @@ impl SoftFeedbackBridge {
             .map(|z| ZoneSnapshot {
                 zone_id: z.id,
                 grief_absorbed: z.grief_absorbed,
+                stress_ema: z.stress_ema,
                 vectors_processed: z.vectors_processed,
                 last_rho: z.last_rho,
                 purify_count: z.purify_count,
