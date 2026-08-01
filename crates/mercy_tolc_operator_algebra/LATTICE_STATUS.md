@@ -1,6 +1,6 @@
 # mercy_tolc_operator_algebra — Lattice Status
 
-**Version:** 0.5.10  
+**Version:** 0.5.11  
 **License:** AG-SML v1.0  
 **Contact:** info@Rathor.ai
 
@@ -19,21 +19,17 @@
 | Zone observability | 0.5.8 | purify_count + effective_period per zone |
 | Stress EMA recovery | 0.5.9 | Period recovers under calm |
 | Health aggregates | 0.5.10 | total_purify_count · max_stress_ema · mean_effective_period |
+| Telemetry surface | 0.5.11 | Demo + Powrush custom_metrics for aggregates |
 
-## LatticeHealthReport aggregates (v0.5.10)
+## Dual-repo telemetry keys (Powrush v21.88.7)
 
 ```
-total_purify_count    — sum of zone Cosmic Ticks
-max_stress_ema        — hottest zone stress
-mean_effective_period — average adaptive period
+soft_feedback_events
+soft_feedback_total_grief
+soft_feedback_max_stress
+soft_feedback_purify_count
+soft_feedback_mean_period
 ```
-
-Mirrored on Powrush-MMO `RaThorBridge` ZoneSnapshot (v18.24).
-
-## Dual-repo
-
-Sealed event fields: `{ zone_id, grief_load, valence, under_floor, tick }`  
-ZoneSnapshot fields: `+ stress_ema, purify_count, effective_period`
 
 ## Public proofs
 
