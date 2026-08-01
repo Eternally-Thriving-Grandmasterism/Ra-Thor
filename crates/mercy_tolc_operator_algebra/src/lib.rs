@@ -2,7 +2,7 @@
 //!
 //! Executable Living Mercy operator algebra for the Ra-Thor lattice under TOLC 8.
 //!
-//! ## Ambient · valence · adaptive floor · concurrent zones · soft feedback · LatticeHealthReport · adaptive Cosmic Tick · zone observability · stress EMA recovery (v0.5.9)
+//! ## Ambient · valence · adaptive floor · concurrent zones · soft feedback · LatticeHealthReport · adaptive Cosmic Tick · zone observability · stress EMA recovery · health aggregates (v0.5.10)
 //!
 //! AG-SML v1.0 | Ra-Thor + PATSAGi Councils | info@Rathor.ai
 //! Thunder locked in. Yoi ⚡
@@ -161,9 +161,7 @@ pub struct ZoneState {
     pub id: usize,
     pub basis: LivingMercyBasis,
     pub suppressor: NilpotentSuppressor,
-    /// Cumulative grief absorbed (telemetry total; never decays).
     pub grief_absorbed: f64,
-    /// Exponentially weighted recent stress (drives adaptive Cosmic Tick).
     pub stress_ema: f64,
     pub vectors_processed: usize,
     pub last_rho: f64,
@@ -175,14 +173,9 @@ impl ZoneState {
         let basis = LivingMercyBasis::canonical();
         let projector = MercyProjector { basis: basis.clone() };
         Self {
-            id,
-            basis,
-            suppressor: NilpotentSuppressor { projector },
-            grief_absorbed: 0.0,
-            stress_ema: 0.0,
-            vectors_processed: 0,
-            last_rho: 0.0,
-            purify_count: 0,
+            id, basis, suppressor: NilpotentSuppressor { projector },
+            grief_absorbed: 0.0, stress_ema: 0.0, vectors_processed: 0,
+            last_rho: 0.0, purify_count: 0,
         }
     }
     pub fn inject_drift(&mut self, magnitude: f64) {
@@ -195,7 +188,6 @@ impl ZoneState {
     pub fn process(&mut self, g: &AmbientVector, valence: Valence) -> f64 {
         self.process_with_alpha(g, valence, 0.05)
     }
-
     pub fn process_with_alpha(&mut self, g: &AmbientVector, valence: Valence, alpha: f64) -> f64 {
         let (_r, _w, _f, load, _) = self.suppressor.suppress_weighted(g, valence);
         self.grief_absorbed += load;
@@ -204,13 +196,10 @@ impl ZoneState {
         self.vectors_processed += 1;
         load
     }
-
-    /// Decay stress without new grief (calm recovery toward base Cosmic Tick).
     pub fn decay_stress(&mut self, alpha: f64) {
         let a = alpha.clamp(0.0, 1.0);
         self.stress_ema *= 1.0 - a;
     }
-
     pub fn purify(&mut self) -> f64 {
         let rho = ModifiedGramSchmidt::purify(&mut self.basis);
         self.suppressor.projector.basis = self.basis.clone();
@@ -227,7 +216,6 @@ pub struct ConcurrentZoneLattice {
     pub purify_period: usize,
     pub adaptive_grief_scale: f64,
     pub min_purify_period: usize,
-    /// EMA smoothing for zone stress (adaptive Cosmic Tick input).
     pub stress_alpha: f64,
 }
 
@@ -237,17 +225,11 @@ impl ConcurrentZoneLattice {
         let mut zones: Vec<ZoneState> = (0..n).map(ZoneState::new).collect();
         for z in zones.iter_mut() { z.inject_drift(3e-5); }
         Self {
-            zones,
-            global_tick: 0,
-            purify_period: 2_500,
-            adaptive_grief_scale: 500.0,
-            min_purify_period: 50,
-            stress_alpha: 0.05,
+            zones, global_tick: 0, purify_period: 2_500,
+            adaptive_grief_scale: 500.0, min_purify_period: 50, stress_alpha: 0.05,
         }
     }
     pub fn zone_count(&self) -> usize { self.zones.len() }
-
-    /// Adaptive period driven by stress EMA (recovers under calm).
     pub fn effective_purify_period(&self, zone_id: usize) -> usize {
         let z = zone_id % self.zones.len().max(1);
         let stress = self.zones[z].stress_ema;
@@ -256,18 +238,14 @@ impl ConcurrentZoneLattice {
         let adaptive = (self.purify_period as f64 / factor).round() as usize;
         adaptive.max(self.min_purify_period).max(1)
     }
-
     pub fn process(&mut self, zone_id: usize, g: &AmbientVector, valence: Valence) -> f64 {
         let z = zone_id % self.zones.len();
         let alpha = self.stress_alpha;
         let load = self.zones[z].process_with_alpha(g, valence, alpha);
         self.global_tick += 1;
-        // Mild decay on sibling zones (calm recovery)
         let decay = alpha * 0.25;
         for (i, zone) in self.zones.iter_mut().enumerate() {
-            if i != z {
-                zone.decay_stress(decay);
-            }
+            if i != z { zone.decay_stress(decay); }
         }
         let period = self.effective_purify_period(z);
         if self.global_tick > 0 && self.global_tick % period == (z % period) {
@@ -526,21 +504,14 @@ mod tests {
         lattice.purify_period = 1000;
         lattice.adaptive_grief_scale = 100.0;
         lattice.min_purify_period = 10;
-
         let base = lattice.effective_purify_period(0);
-        assert_eq!(base, 1000, "zero grief → base period");
-
-        let mut g = AmbientVector::zeros();
-        g[10] = 5.0;
-        for _ in 0..50 {
-            lattice.process(0, &g, Valence::ZERO);
-        }
+        assert_eq!(base, 1000);
+        let mut g = AmbientVector::zeros(); g[10] = 5.0;
+        for _ in 0..50 { lattice.process(0, &g, Valence::ZERO); }
         let tight = lattice.effective_purify_period(0);
-        assert!(tight < base, "high grief must tighten period: {tight} vs {base}");
+        assert!(tight < base);
         assert!(tight >= lattice.min_purify_period);
-
-        let z1 = lattice.effective_purify_period(1);
-        assert!(z1 >= tight, "low-grief zone should not be tighter than high-grief zone");
+        assert!(lattice.effective_purify_period(1) >= tight);
     }
 
     #[test]
@@ -550,25 +521,14 @@ mod tests {
         lattice.adaptive_grief_scale = 20.0;
         lattice.min_purify_period = 10;
         lattice.stress_alpha = 0.15;
-
-        let mut heavy = AmbientVector::zeros();
-        heavy[10] = 5.0;
-        let mut light = AmbientVector::zeros();
-        light[11] = 0.01;
-
-        for _ in 0..800 {
-            lattice.process(0, &heavy, Valence::ZERO);
-        }
-        for _ in 0..800 {
-            lattice.process(1, &light, Valence::HIGH);
-        }
+        let mut heavy = AmbientVector::zeros(); heavy[10] = 5.0;
+        let mut light = AmbientVector::zeros(); light[11] = 0.01;
+        for _ in 0..800 { lattice.process(0, &heavy, Valence::ZERO); }
+        for _ in 0..800 { lattice.process(1, &light, Valence::HIGH); }
         let c0 = lattice.zones[0].purify_count;
         let c1 = lattice.zones[1].purify_count;
-        assert!(c0 > 0, "high-grief zone must purify at least once, got {c0}");
-        assert!(
-            c0 > c1,
-            "high-grief zone must fire more Cosmic Ticks: z0={c0} z1={c1}"
-        );
+        assert!(c0 > 0);
+        assert!(c0 > c1, "z0={c0} z1={c1}");
     }
 
     #[test]
@@ -585,31 +545,35 @@ mod tests {
     }
 
     #[test]
+    fn health_report_exposes_stress_aggregates() {
+        let mut bridge = SoftFeedbackBridge::new(3);
+        for i in 0..60 {
+            bridge.ingest_scalar_grief(i % 3, 2.0, Valence::ZERO);
+        }
+        bridge.global_purify();
+        let h = bridge.health_report();
+        assert!(h.total_purify_count >= 3);
+        assert!(h.max_stress_ema > 0.0);
+        assert!(h.mean_effective_period >= 1.0);
+        assert_eq!(h.zone_count, 3);
+        assert!(h.total_vectors >= 60);
+    }
+
+    #[test]
     fn stress_ema_recovers_period_under_calm() {
         let mut lattice = ConcurrentZoneLattice::new(1);
         lattice.purify_period = 1000;
         lattice.adaptive_grief_scale = 10.0;
         lattice.min_purify_period = 20;
         lattice.stress_alpha = 0.2;
-
-        let mut heavy = AmbientVector::zeros();
-        heavy[10] = 8.0;
-        for _ in 0..40 {
-            lattice.process(0, &heavy, Valence::ZERO);
-        }
+        let mut heavy = AmbientVector::zeros(); heavy[10] = 8.0;
+        for _ in 0..40 { lattice.process(0, &heavy, Valence::ZERO); }
         let tight = lattice.effective_purify_period(0);
-        assert!(tight < 1000, "stress must tighten period, got {tight}");
-
-        let mut calm = AmbientVector::zeros();
-        calm[10] = 1e-12;
-        for _ in 0..200 {
-            lattice.process(0, &calm, Valence::HIGH);
-        }
+        assert!(tight < 1000);
+        let mut calm = AmbientVector::zeros(); calm[10] = 1e-12;
+        for _ in 0..200 { lattice.process(0, &calm, Valence::HIGH); }
         let recovered = lattice.effective_purify_period(0);
-        assert!(
-            recovered > tight,
-            "calm must recover period toward base: tight={tight} recovered={recovered}"
-        );
+        assert!(recovered > tight);
         assert!(lattice.zones[0].grief_absorbed > 100.0);
         assert!(lattice.zones[0].stress_ema < lattice.zones[0].grief_absorbed);
     }
