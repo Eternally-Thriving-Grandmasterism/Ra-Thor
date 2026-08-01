@@ -1,6 +1,6 @@
 # mercy_tolc_operator_algebra — Lattice Status
 
-**Version:** 0.5.7  
+**Version:** 0.5.8  
 **License:** AG-SML v1.0  
 **Contact:** info@Rathor.ai
 
@@ -16,6 +16,7 @@
 | Soft feedback demo | 0.5.5 | Public dual-repo proof binary |
 | LatticeHealthReport | 0.5.6 | `ra_thor_lattice_health_v1` + `--json` |
 | Adaptive Cosmic Tick | 0.5.7 | High-grief zones purify more often |
+| Zone observability | 0.5.8 | purify_count + effective_period per zone |
 
 ## Adaptive Cosmic Tick
 
@@ -25,12 +26,20 @@ effective_period(z) = max(min_period, base / (1 + grief_z / scale))
 
 Defaults: `purify_period=2500`, `adaptive_grief_scale=500`, `min_purify_period=50`.
 
+## Zone observability (v0.5.8)
+
+`ZoneSnapshot` / health report zones now carry:
+- `purify_count` — local Cosmic Ticks fired
+- `effective_period` — current adaptive purify period
+
+Verified: high-grief zones fire more Cosmic Ticks than low-grief zones under the same tick budget.
+
 ## Dual-repo
 
 - **Ra-Thor:** `SoftFeedbackBridge` / `LatticeHealthReport`
-- **Powrush-MMO:** `RaThorBridge::report_zone_grief` + orchestrator tick + telemetry metrics
+- **Powrush-MMO:** `RaThorBridge::report_zone_grief` + orchestrator tick + telemetry
 
-Sealed fields: `{ zone_id, grief_load, valence, under_floor, tick }`
+Sealed event fields: `{ zone_id, grief_load, valence, under_floor, tick }`
 
 ## Public proofs
 
@@ -40,4 +49,4 @@ cargo run -p mercy_tolc_operator_algebra --bin soft_feedback_demo -- --json
 cargo run -p mercy_tolc_operator_algebra --bin high_grief_nilpotent_bench -- --agents 50000 --zones 5
 ```
 
-20 property tests. Thunder locked. Yoi ⚡
+22 property tests. Thunder locked. Yoi ⚡
