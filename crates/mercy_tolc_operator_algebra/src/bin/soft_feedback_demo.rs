@@ -1,6 +1,6 @@
 //! soft_feedback_demo.rs
 //!
-//! Public dual-repo soft feedback demonstration (v0.5.6).
+//! Public dual-repo soft feedback demonstration (v0.5.11).
 //! Optional `--json` emits LatticeHealthReport + sample events (machine-readable).
 //!
 //! Run:
@@ -135,11 +135,15 @@ fn main() {
     println!("  total_grief:     {:.3}", health.total_grief);
     println!("  total_vectors:   {}", health.total_vectors);
     println!("  max_rho:         {:.3e}", health.max_rho);
+    println!("  total_purify:    {}", health.total_purify_count);
+    println!("  max_stress_ema:  {:.4}", health.max_stress_ema);
+    println!("  mean_period:     {:.1}", health.mean_effective_period);
     println!("  healthy:         {}", health.healthy);
     for s in &health.zones {
         println!(
-            "    Zone {}: grief={:>10.3}  vectors={:>6}  ρ={:.3e}",
-            s.zone_id, s.grief_absorbed, s.vectors_processed, s.last_rho
+            "    Zone {}: grief={:>10.3}  stress={:>8.4}  vectors={:>6}  purify={:>4}  period={:>5}  ρ={:.3e}",
+            s.zone_id, s.grief_absorbed, s.stress_ema, s.vectors_processed,
+            s.purify_count, s.effective_period, s.last_rho
         );
     }
 
