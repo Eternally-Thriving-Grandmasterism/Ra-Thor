@@ -2,7 +2,7 @@
 //!
 //! Executable Living Mercy operator algebra for the Ra-Thor lattice under TOLC 8.
 //!
-//! ## Ambient · valence · adaptive floor · concurrent zones · soft feedback · LatticeHealthReport · adaptive Cosmic Tick (v0.5.7)
+//! ## Ambient · valence · adaptive floor · concurrent zones · soft feedback · LatticeHealthReport · adaptive Cosmic Tick · zone observability (v0.5.8)
 //!
 //! AG-SML v1.0 | Ra-Thor + PATSAGi Councils | info@Rathor.ai
 //! Thunder locked in. Yoi ⚡
@@ -164,6 +164,7 @@ pub struct ZoneState {
     pub grief_absorbed: f64,
     pub vectors_processed: usize,
     pub last_rho: f64,
+    pub purify_count: usize,
 }
 
 impl ZoneState {
@@ -171,7 +172,7 @@ impl ZoneState {
         let basis = LivingMercyBasis::canonical();
         let projector = MercyProjector { basis: basis.clone() };
         Self { id, basis, suppressor: NilpotentSuppressor { projector },
-            grief_absorbed: 0.0, vectors_processed: 0, last_rho: 0.0 }
+            grief_absorbed: 0.0, vectors_processed: 0, last_rho: 0.0, purify_count: 0 }
     }
     pub fn inject_drift(&mut self, magnitude: f64) {
         let z = self.id as f64;
@@ -187,7 +188,9 @@ impl ZoneState {
     pub fn purify(&mut self) -> f64 {
         let rho = ModifiedGramSchmidt::purify(&mut self.basis);
         self.suppressor.projector.basis = self.basis.clone();
-        self.last_rho = rho; rho
+        self.last_rho = rho;
+        self.purify_count = self.purify_count.saturating_add(1);
+        rho
     }
 }
 
@@ -215,7 +218,6 @@ impl ConcurrentZoneLattice {
     }
     pub fn zone_count(&self) -> usize { self.zones.len() }
 
-    /// High-grief zones get a shorter Cosmic Tick period.
     pub fn effective_purify_period(&self, zone_id: usize) -> usize {
         let z = zone_id % self.zones.len().max(1);
         let grief = self.zones[z].grief_absorbed;
@@ -501,5 +503,43 @@ mod tests {
 
         let z1 = lattice.effective_purify_period(1);
         assert!(z1 >= tight, "low-grief zone should not be tighter than high-grief zone");
+    }
+
+    #[test]
+    fn high_grief_zone_fires_more_cosmic_ticks() {
+        let mut lattice = ConcurrentZoneLattice::new(2);
+        lattice.purify_period = 200;
+        lattice.adaptive_grief_scale = 50.0;
+        lattice.min_purify_period = 20;
+
+        let mut heavy = AmbientVector::zeros();
+        heavy[10] = 4.0;
+        let mut light = AmbientVector::zeros();
+        light[11] = 0.05;
+
+        for i in 0..2000 {
+            if i % 2 == 0 {
+                lattice.process(0, &heavy, Valence::ZERO);
+            } else {
+                lattice.process(1, &light, Valence::HIGH);
+            }
+        }
+        let c0 = lattice.zones[0].purify_count;
+        let c1 = lattice.zones[1].purify_count;
+        assert!(c0 > c1, "high-grief zone must fire more Cosmic Ticks: z0={c0} z1={c1}");
+        assert!(c0 > 0, "zone 0 should have purified at least once");
+    }
+
+    #[test]
+    fn zone_snapshot_exposes_observability_fields() {
+        let mut bridge = SoftFeedbackBridge::new(2);
+        bridge.ingest_scalar_grief(0, 1.0, Valence::ZERO);
+        bridge.global_purify();
+        let snaps = bridge.snapshots();
+        assert_eq!(snaps.len(), 2);
+        assert!(snaps[0].purify_count >= 1);
+        assert!(snaps[0].effective_period >= 1);
+        let h = bridge.health_report();
+        assert!(h.zones[0].purify_count >= 1);
     }
 }
