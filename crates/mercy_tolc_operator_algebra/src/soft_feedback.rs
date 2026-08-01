@@ -1,4 +1,4 @@
-//! Soft feedback bridge — dual-repo sealed protocol (v0.5.9)
+//! Soft feedback bridge — dual-repo sealed protocol (v0.5.10)
 //!
 //! AG-SML v1.0 | info@Rathor.ai | Thunder locked. Yoi ⚡
 
@@ -60,7 +60,6 @@ impl SoftFeedbackBridge {
         self.lattice.zones[z].vectors_processed += 1;
         self.lattice.global_tick += 1;
 
-        // Mild decay on sibling zones (calm recovery)
         let decay = a * 0.25;
         let n = self.lattice.zones.len();
         for i in 0..n {
@@ -133,6 +132,16 @@ impl SoftFeedbackBridge {
         let zones = self.snapshots();
         let total_vectors: usize = zones.iter().map(|z| z.vectors_processed).sum();
         let max_rho = self.lattice.max_rho();
+        let total_purify_count: usize = zones.iter().map(|z| z.purify_count).sum();
+        let max_stress_ema = zones
+            .iter()
+            .map(|z| z.stress_ema)
+            .fold(0.0_f64, f64::max);
+        let mean_effective_period = if zones.is_empty() {
+            0.0
+        } else {
+            zones.iter().map(|z| z.effective_period as f64).sum::<f64>() / zones.len() as f64
+        };
         LatticeHealthReport {
             schema: "ra_thor_lattice_health_v1".to_string(),
             ambient_dim: AMBIENT_DIM,
@@ -143,6 +152,9 @@ impl SoftFeedbackBridge {
             total_vectors,
             max_rho,
             pending_events: self.events.len(),
+            total_purify_count,
+            max_stress_ema,
+            mean_effective_period,
             zones,
             healthy: max_rho < 1e-9,
         }
@@ -160,6 +172,9 @@ pub struct LatticeHealthReport {
     pub total_vectors: usize,
     pub max_rho: f64,
     pub pending_events: usize,
+    pub total_purify_count: usize,
+    pub max_stress_ema: f64,
+    pub mean_effective_period: f64,
     pub zones: Vec<ZoneSnapshot>,
     pub healthy: bool,
 }
