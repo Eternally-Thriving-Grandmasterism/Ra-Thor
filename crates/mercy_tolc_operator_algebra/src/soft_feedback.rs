@@ -1,4 +1,4 @@
-//! Soft feedback bridge — dual-repo sealed protocol (v0.5.6)
+//! Soft feedback bridge — dual-repo sealed protocol (v0.5.7)
 //!
 //! AG-SML v1.0 | info@Rathor.ai | Thunder locked. Yoi ⚡
 
@@ -7,7 +7,6 @@ use crate::{
 };
 use serde::{Deserialize, Serialize};
 
-/// Sealed soft-feedback event emitted toward the experiential surface (Powrush-MMO).
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct SoftFeedbackEvent {
     pub zone_id: usize,
@@ -17,7 +16,6 @@ pub struct SoftFeedbackEvent {
     pub tick: usize,
 }
 
-/// Point-in-time snapshot of a single concurrent zone for telemetry / MMO UI.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct ZoneSnapshot {
     pub zone_id: usize,
@@ -26,7 +24,6 @@ pub struct ZoneSnapshot {
     pub last_rho: f64,
 }
 
-/// Soft feedback bridge: lattice core → experiential surface.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct SoftFeedbackBridge {
     pub lattice: ConcurrentZoneLattice,
@@ -56,11 +53,9 @@ impl SoftFeedbackBridge {
         self.lattice.zones[z].vectors_processed += 1;
         self.lattice.global_tick += 1;
 
-        let period = self.lattice.purify_period;
-        if self.lattice.global_tick > 0
-            && period > 0
-            && self.lattice.global_tick % period == (z % period.max(1))
-        {
+        // Adaptive Cosmic Tick: high-grief zones purify more often
+        let period = self.lattice.effective_purify_period(z);
+        if self.lattice.global_tick > 0 && self.lattice.global_tick % period == (z % period) {
             self.lattice.zones[z].purify();
         }
 
@@ -116,7 +111,6 @@ impl SoftFeedbackBridge {
         self.lattice.total_grief()
     }
 
-    /// Lattice health snapshot (machine-readable dual-repo contract).
     pub fn health_report(&self) -> LatticeHealthReport {
         let zones = self.snapshots();
         let total_vectors: usize = zones.iter().map(|z| z.vectors_processed).sum();
@@ -137,7 +131,6 @@ impl SoftFeedbackBridge {
     }
 }
 
-/// Aggregate lattice health snapshot for dual-repo telemetry / CI gates.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct LatticeHealthReport {
     pub schema: String,
