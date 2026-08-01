@@ -1,4 +1,4 @@
-//! Soft feedback bridge — dual-repo sealed protocol (v0.5.7)
+//! Soft feedback bridge — dual-repo sealed protocol (v0.5.8)
 //!
 //! AG-SML v1.0 | info@Rathor.ai | Thunder locked. Yoi ⚡
 
@@ -22,6 +22,8 @@ pub struct ZoneSnapshot {
     pub grief_absorbed: f64,
     pub vectors_processed: usize,
     pub last_rho: f64,
+    pub purify_count: usize,
+    pub effective_period: usize,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -53,7 +55,6 @@ impl SoftFeedbackBridge {
         self.lattice.zones[z].vectors_processed += 1;
         self.lattice.global_tick += 1;
 
-        // Adaptive Cosmic Tick: high-grief zones purify more often
         let period = self.lattice.effective_purify_period(z);
         if self.lattice.global_tick > 0 && self.lattice.global_tick % period == (z % period) {
             self.lattice.zones[z].purify();
@@ -99,6 +100,8 @@ impl SoftFeedbackBridge {
                 grief_absorbed: z.grief_absorbed,
                 vectors_processed: z.vectors_processed,
                 last_rho: z.last_rho,
+                purify_count: z.purify_count,
+                effective_period: self.lattice.effective_purify_period(z.id),
             })
             .collect()
     }
