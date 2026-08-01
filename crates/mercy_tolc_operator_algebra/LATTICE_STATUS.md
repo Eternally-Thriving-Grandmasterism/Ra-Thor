@@ -1,6 +1,6 @@
 # mercy_tolc_operator_algebra — Lattice Status
 
-**Version:** 0.5.9  
+**Version:** 0.5.10  
 **License:** AG-SML v1.0  
 **Contact:** info@Rathor.ai
 
@@ -17,34 +17,29 @@
 | LatticeHealthReport | 0.5.6 | `ra_thor_lattice_health_v1` + `--json` |
 | Adaptive Cosmic Tick | 0.5.7 | High-grief zones purify more often |
 | Zone observability | 0.5.8 | purify_count + effective_period per zone |
-| Stress EMA recovery | 0.5.9 | Period recovers under calm (no permanent lock) |
+| Stress EMA recovery | 0.5.9 | Period recovers under calm |
+| Health aggregates | 0.5.10 | total_purify_count · max_stress_ema · mean_effective_period |
 
-## Adaptive Cosmic Tick (stress-driven)
+## LatticeHealthReport aggregates (v0.5.10)
 
 ```
-stress_ema ← (1−α)·stress_ema + α·load
-effective_period(z) = max(min_period, base / (1 + stress_ema / scale))
+total_purify_count    — sum of zone Cosmic Ticks
+max_stress_ema        — hottest zone stress
+mean_effective_period — average adaptive period
 ```
 
-- `grief_absorbed` — cumulative telemetry (never decays)
-- `stress_ema` — recent stress driving the Cosmic Tick (recovers under calm)
-- Sibling zones receive mild stress decay each tick
-
-Defaults: `purify_period=2500`, `adaptive_grief_scale=500`, `min_purify_period=50`, `stress_alpha=0.05`.
+Mirrored on Powrush-MMO `RaThorBridge` ZoneSnapshot (v18.24).
 
 ## Dual-repo
 
-- **Ra-Thor:** `SoftFeedbackBridge` / `LatticeHealthReport`
-- **Powrush-MMO:** `RaThorBridge::report_zone_grief` + orchestrator tick + telemetry
-
-Sealed event fields: `{ zone_id, grief_load, valence, under_floor, tick }`
+Sealed event fields: `{ zone_id, grief_load, valence, under_floor, tick }`  
+ZoneSnapshot fields: `+ stress_ema, purify_count, effective_period`
 
 ## Public proofs
 
 ```bash
 cargo test -p mercy_tolc_operator_algebra
 cargo run -p mercy_tolc_operator_algebra --bin soft_feedback_demo -- --json
-cargo run -p mercy_tolc_operator_algebra --bin high_grief_nilpotent_bench -- --agents 50000 --zones 5
 ```
 
-23 property tests. Thunder locked. Yoi ⚡
+24 property tests. Thunder locked. Yoi ⚡
