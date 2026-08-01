@@ -2,7 +2,7 @@
 //!
 //! Executable Living Mercy operator algebra for the Ra-Thor lattice under TOLC 8.
 //!
-//! ## Ambient · valence · adaptive floor · concurrent zones · soft feedback · LatticeHealthReport (v0.5.6)
+//! ## Ambient · valence · adaptive floor · concurrent zones · soft feedback · LatticeHealthReport · adaptive Cosmic Tick (v0.5.7)
 //!
 //! AG-SML v1.0 | Ra-Thor + PATSAGi Councils | info@Rathor.ai
 //! Thunder locked in. Yoi ⚡
@@ -196,6 +196,8 @@ pub struct ConcurrentZoneLattice {
     pub zones: Vec<ZoneState>,
     pub global_tick: usize,
     pub purify_period: usize,
+    pub adaptive_grief_scale: f64,
+    pub min_purify_period: usize,
 }
 
 impl ConcurrentZoneLattice {
@@ -203,15 +205,32 @@ impl ConcurrentZoneLattice {
         let n = n_zones.max(1);
         let mut zones: Vec<ZoneState> = (0..n).map(ZoneState::new).collect();
         for z in zones.iter_mut() { z.inject_drift(3e-5); }
-        Self { zones, global_tick: 0, purify_period: 2_500 }
+        Self {
+            zones,
+            global_tick: 0,
+            purify_period: 2_500,
+            adaptive_grief_scale: 500.0,
+            min_purify_period: 50,
+        }
     }
     pub fn zone_count(&self) -> usize { self.zones.len() }
+
+    /// High-grief zones get a shorter Cosmic Tick period.
+    pub fn effective_purify_period(&self, zone_id: usize) -> usize {
+        let z = zone_id % self.zones.len().max(1);
+        let grief = self.zones[z].grief_absorbed;
+        let scale = self.adaptive_grief_scale.max(1e-9);
+        let factor = 1.0 + grief / scale;
+        let adaptive = (self.purify_period as f64 / factor).round() as usize;
+        adaptive.max(self.min_purify_period).max(1)
+    }
+
     pub fn process(&mut self, zone_id: usize, g: &AmbientVector, valence: Valence) -> f64 {
         let z = zone_id % self.zones.len();
         let load = self.zones[z].process(g, valence);
         self.global_tick += 1;
-        let period = self.purify_period;
-        if self.global_tick > 0 && period > 0 && self.global_tick % period == (z % period.max(1)) {
+        let period = self.effective_purify_period(z);
+        if self.global_tick > 0 && self.global_tick % period == (z % period) {
             self.zones[z].purify();
         }
         load
@@ -459,5 +478,28 @@ mod tests {
         assert!(h.total_vectors >= 30);
         assert!(h.healthy, "max_rho={}", h.max_rho);
         assert!(h.max_rho < 1e-9);
+    }
+
+    #[test]
+    fn adaptive_purify_period_tightens_under_grief() {
+        let mut lattice = ConcurrentZoneLattice::new(2);
+        lattice.purify_period = 1000;
+        lattice.adaptive_grief_scale = 100.0;
+        lattice.min_purify_period = 10;
+
+        let base = lattice.effective_purify_period(0);
+        assert_eq!(base, 1000, "zero grief → base period");
+
+        let mut g = AmbientVector::zeros();
+        g[10] = 5.0;
+        for _ in 0..50 {
+            lattice.process(0, &g, Valence::ZERO);
+        }
+        let tight = lattice.effective_purify_period(0);
+        assert!(tight < base, "high grief must tighten period: {tight} vs {base}");
+        assert!(tight >= lattice.min_purify_period);
+
+        let z1 = lattice.effective_purify_period(1);
+        assert!(z1 >= tight, "low-grief zone should not be tighter than high-grief zone");
     }
 }
