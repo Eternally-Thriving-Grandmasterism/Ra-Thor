@@ -1,7 +1,7 @@
 # Dual-Repo Soft Feedback Contract
 
-**Ra-Thor** `mercy_tolc_operator_algebra` ≥ v0.5.14  
-**Powrush-MMO** `RaThorBridge` ≥ v18.25 · orchestrator ≥ v21.88.9  
+**Ra-Thor** `mercy_tolc_operator_algebra` ≥ v0.5.15  
+**Powrush-MMO** `RaThorBridge` ≥ v18.26 · orchestrator ≥ v21.88.10  
 **License:** AG-SML v1.0 · **Contact:** info@Rathor.ai
 
 ## Sealed event (hard contract — do not rename fields)
@@ -23,7 +23,8 @@ ZoneSnapshot {
   zone_id, grief_absorbed, stress_ema,
   vectors_processed, last_rho,
   purify_count, effective_period,
-  status: ZoneHealthStatus  // Healthy | Stressed | Critical
+  status: ZoneHealthStatus,          // Healthy | Stressed | Critical
+  critical_auto_purify_count: usize  // priority Cosmic Ticks
 }
 ```
 
@@ -35,17 +36,22 @@ Stressed — elevated stress or mild residual
 Critical — stress ≥ scale or ρ ≥ 1e-6
 ```
 
+## Critical auto-remediation (v0.5.15 / Powrush v18.26)
+
+When status is **Critical**, both sides force-purify immediately (priority Cosmic Tick).  
+Counter: `critical_auto_purify_count` / report field `critical_auto_purifies`.
+
 ## LatticeHealthReport (`schema: ra_thor_lattice_health_v1`)
 
 ```text
-… zones_healthy, zones_stressed, zones_critical
-  zones[], healthy, health_score ∈ [0, 1]
+… zones_healthy, zones_stressed, zones_critical,
+  critical_auto_purifies, zones[], healthy, health_score ∈ [0, 1]
 ```
 
 **CI gate:** `healthy == true` **and** `health_score ≥ 0.5`  
 (`healthy` requires zero critical zones)
 
-## Powrush telemetry keys (v21.88.9)
+## Powrush telemetry keys (v21.88.10)
 
 ```
 soft_feedback_events
@@ -57,6 +63,7 @@ soft_feedback_health_score
 soft_feedback_zones_healthy
 soft_feedback_zones_stressed
 soft_feedback_zones_critical
+soft_feedback_critical_auto
 ```
 
 ## Proof
