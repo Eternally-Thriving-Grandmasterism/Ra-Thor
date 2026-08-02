@@ -1,4 +1,4 @@
-//! Soft feedback bridge — dual-repo sealed protocol (v0.5.17)
+//! Soft feedback bridge — dual-repo sealed protocol (v0.5.18)
 //!
 //! AG-SML v1.0 | info@Rathor.ai | Thunder locked. Yoi ⚡
 
@@ -273,6 +273,22 @@ impl SoftFeedbackBridge {
             zones,
             healthy: max_rho < 1e-9 && zones_critical == 0,
             health_score,
+            grief_per_tick: {
+                let t = self.lattice.global_tick.max(1) as f64;
+                self.total_grief() / t
+            },
+            vectors_per_tick: {
+                let t = self.lattice.global_tick.max(1) as f64;
+                total_vectors as f64 / t
+            },
+            soft_remediate_rate: {
+                let t = self.lattice.global_tick.max(1) as f64;
+                self.lattice.total_soft_remediates() as f64 / t
+            },
+            critical_auto_rate: {
+                let t = self.lattice.global_tick.max(1) as f64;
+                self.lattice.total_critical_auto_purifies() as f64 / t
+            },
         }
     }
 }
@@ -308,6 +324,14 @@ pub struct LatticeHealthReport {
     pub healthy: bool,
     /// Composite gate score in [0, 1]. 1.0 = pure + calm.
     pub health_score: f64,
+    /// Mean grief absorbed per global tick.
+    pub grief_per_tick: f64,
+    /// Mean vectors processed per global tick.
+    pub vectors_per_tick: f64,
+    /// Soft-remediate cycles per tick.
+    pub soft_remediate_rate: f64,
+    /// Critical auto-purify cycles per tick.
+    pub critical_auto_rate: f64,
 }
 
 impl LatticeHealthReport {
