@@ -1,7 +1,8 @@
 //! soft_feedback_demo.rs
 //!
-//! Public dual-repo soft feedback demonstration (v0.5.12).
+//! Public dual-repo soft feedback demonstration (v0.5.13).
 //! Optional `--json` emits LatticeHealthReport + sample events (machine-readable).
+//! CI gate: healthy && health_score ≥ 0.5
 //!
 //! Run:
 //!   cargo run -p mercy_tolc_operator_algebra --bin soft_feedback_demo
@@ -86,7 +87,8 @@ fn main() {
         let zones_ok = health.zones.len() == n_zones && health.zones.iter().all(|s| s.vectors_processed > 0);
         let purity_ok = health.max_rho < 1e-9;
         let drain_ok = !drained.is_empty();
-        let all = high_soft && low_hard && zones_ok && purity_ok && drain_ok;
+        let score_ok = health.health_score >= 0.5;
+        let all = high_soft && low_hard && zones_ok && purity_ok && drain_ok && score_ok;
         let export = DemoExport {
             health: &health,
             sample_events: &sample_events,
@@ -162,8 +164,10 @@ fn main() {
     println!("    Basis purity (max ρ):       {}", if purity_ok { "PASS" } else { "FAIL" });
     println!("    Event drain non-empty:      {}", if !drained.is_empty() { "PASS" } else { "FAIL" });
     println!("    Lattice healthy:            {}", if health.healthy { "PASS" } else { "FAIL" });
+    let score_ok = health.health_score >= 0.5;
+    println!("    Health score ≥ 0.5:         {} ({:.4})", if score_ok { "PASS" } else { "FAIL" }, health.health_score);
 
-    if high_soft && low_hard && zones_ok && purity_ok && !drained.is_empty() && health.healthy {
+    if high_soft && low_hard && zones_ok && purity_ok && !drained.is_empty() && health.healthy && score_ok {
         println!("\n  ★  ALL GATES PASSED — soft feedback dual-repo protocol is live.");
         println!("     Hint: pass --json for machine-readable LatticeHealthReport export.");
     } else {
