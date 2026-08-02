@@ -1,7 +1,7 @@
 # Dual-Repo Soft Feedback Contract
 
-**Ra-Thor** `mercy_tolc_operator_algebra` ≥ v0.5.17  
-**Powrush-MMO** `RaThorBridge` ≥ v18.28 · orchestrator ≥ v21.88.12  
+**Ra-Thor** `mercy_tolc_operator_algebra` ≥ v0.5.18  
+**Powrush-MMO** `RaThorBridge` ≥ v18.29 · orchestrator ≥ v21.88.13  
 **License:** AG-SML v1.0 · **Contact:** info@Rathor.ai
 
 ## Sealed event (hard contract — do not rename fields)
@@ -37,14 +37,14 @@ Stressed — elevated stress or mild residual
 Critical — stress ≥ scale or ρ ≥ 1e-6
 ```
 
-## Remediation tiers (v0.5.15–0.5.17 / Powrush v18.26–v18.28)
+## Remediation tiers
 
 ```
 Critical → force purify() + critical_auto_purify_count
 Stressed → decay_stress(α) + soft_remediate_count
 ```
 
-## Valence histogram (v0.5.16 / Powrush v18.27)
+## Valence histogram
 
 ```
 HIGH  — valence ≥ 0.999999  (mercy soft path)
@@ -53,18 +53,28 @@ LOW   — valence < 0.5
 mercy_ratio = high / (high + mid + low)
 ```
 
+## Rate metrics (v0.5.18)
+
+```
+grief_per_tick      = total_grief / global_tick
+vectors_per_tick    = total_vectors / global_tick
+soft_remediate_rate = soft_remediates / global_tick
+critical_auto_rate  = critical_auto_purifies / global_tick
+```
+
 ## LatticeHealthReport (`schema: ra_thor_lattice_health_v1`)
 
 ```text
-… zones_healthy, zones_stressed, zones_critical,
-  critical_auto_purifies, soft_remediates,
-  valence_high_count, valence_mid_count, valence_low_count,
-  valence_mercy_ratio, zones[], healthy, health_score ∈ [0, 1]
+… critical_auto_purifies, soft_remediates,
+  valence_high/mid/low_count, valence_mercy_ratio,
+  grief_per_tick, vectors_per_tick,
+  soft_remediate_rate, critical_auto_rate,
+  zones[], healthy, health_score ∈ [0, 1]
 ```
 
 **CI gate:** `healthy == true` **and** `health_score ≥ 0.5`
 
-## Powrush telemetry keys (v21.88.12)
+## Powrush telemetry keys (v21.88.13)
 
 ```
 soft_feedback_events
@@ -82,6 +92,10 @@ soft_feedback_valence_high
 soft_feedback_valence_mid
 soft_feedback_valence_low
 soft_feedback_mercy_ratio
+soft_feedback_grief_per_tick
+soft_feedback_vectors_per_tick
+soft_feedback_soft_remediate_rate
+soft_feedback_critical_auto_rate
 ```
 
 ## Proof
