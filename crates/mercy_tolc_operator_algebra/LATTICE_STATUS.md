@@ -1,6 +1,6 @@
 # mercy_tolc_operator_algebra — Lattice Status
 
-**Version:** 0.5.12  
+**Version:** 0.5.13  
 **License:** AG-SML v1.0  
 **Contact:** info@Rathor.ai
 
@@ -21,6 +21,7 @@
 | Health aggregates | 0.5.10 | total_purify · max_stress · mean_period |
 | Telemetry surface | 0.5.11 | Demo + Powrush custom_metrics |
 | Composite health score | 0.5.12 | health_score ∈ [0,1] + dual-repo contract |
+| Score gate + telemetry | 0.5.13 | demo CI gate ≥0.5 · Powrush health_score metric |
 
 See [DUAL_REPO_SOFT_FEEDBACK_CONTRACT.md](./DUAL_REPO_SOFT_FEEDBACK_CONTRACT.md).
 
