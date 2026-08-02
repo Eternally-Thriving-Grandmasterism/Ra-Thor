@@ -2,7 +2,7 @@
 //!
 //! Executable Living Mercy operator algebra for the Ra-Thor lattice under TOLC 8.
 //!
-//! ## Ambient · valence · adaptive floor · concurrent zones · soft feedback · LatticeHealthReport · adaptive Cosmic Tick · zone observability · stress EMA recovery · health aggregates · composite score (v0.5.12)
+//! ## Ambient · valence · adaptive floor · concurrent zones · soft feedback · LatticeHealthReport · adaptive Cosmic Tick · zone observability · stress EMA recovery · health aggregates · composite score · ZoneHealthStatus (v0.5.14)
 //!
 //! AG-SML v1.0 | Ra-Thor + PATSAGi Councils | info@Rathor.ai
 //! Thunder locked in. Yoi ⚡
@@ -559,6 +559,45 @@ mod tests {
         assert!(h.total_vectors >= 60);
         assert!(h.health_score > 0.0 && h.health_score <= 1.0);
         assert!(h.healthy);
+    }
+
+    #[test]
+    fn zone_health_status_classifies_calm_as_healthy() {
+        assert_eq!(
+            ZoneHealthStatus::classify(0.0, 0.0, 500.0),
+            ZoneHealthStatus::Healthy
+        );
+        assert_eq!(
+            ZoneHealthStatus::classify(60.0, 0.0, 500.0),
+            ZoneHealthStatus::Stressed
+        );
+        assert_eq!(
+            ZoneHealthStatus::classify(500.0, 0.0, 500.0),
+            ZoneHealthStatus::Critical
+        );
+        assert_eq!(
+            ZoneHealthStatus::classify(0.0, 1e-5, 500.0),
+            ZoneHealthStatus::Critical
+        );
+    }
+
+    #[test]
+    fn health_report_counts_zone_status() {
+        let mut bridge = SoftFeedbackBridge::new(2);
+        bridge.lattice.adaptive_grief_scale = 10.0;
+        bridge.lattice.stress_alpha = 0.3;
+        for _ in 0..30 {
+            bridge.ingest_scalar_grief(0, 8.0, Valence::ZERO);
+        }
+        for _ in 0..5 {
+            bridge.ingest_scalar_grief(1, 1e-12, Valence::HIGH);
+        }
+        bridge.global_purify();
+        let h = bridge.health_report();
+        assert_eq!(h.zones.len(), 2);
+        assert!(h.zones_stressed + h.zones_critical + h.zones_healthy == 2);
+        assert!(h.zones[0].status != ZoneHealthStatus::Healthy);
+        assert_eq!(h.zones[1].status, ZoneHealthStatus::Healthy);
     }
 
     #[test]
