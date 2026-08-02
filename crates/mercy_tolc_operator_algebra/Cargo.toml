@@ -1,12 +1,12 @@
 [package]
 name = "mercy_tolc_operator_algebra"
-version = "0.5.14"
+version = "0.5.15"
 edition = "2021"
 authors = ["Eternally-Thriving-Grandmasterism", "Sherif Samy Botros <info@Rathor.ai>"]
 license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
-description = "MercyTOLCOperatorAlgebra — Living Mercy R^8 in ambient R^16, ZoneHealthStatus Healthy/Stressed/Critical, composite health_score under TOLC 8."
+description = "MercyTOLCOperatorAlgebra — Living Mercy R^8 in ambient R^16, ZoneHealthStatus, critical-zone auto-remediation under TOLC 8."
 repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
-keywords = ["ra-thor", "mercy-tolc-operator-algebra", "tolc-8", "nilpotent", "valence", "soft-feedback", "zone-health", "health-score"]
+keywords = ["ra-thor", "mercy-tolc-operator-algebra", "tolc-8", "nilpotent", "valence", "soft-feedback", "zone-health", "auto-remediate"]
 categories = ["science", "simulation", "artificial-intelligence", "mathematics"]
 
 [dependencies]
