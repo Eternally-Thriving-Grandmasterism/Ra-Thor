@@ -2,7 +2,7 @@
 //!
 //! Executable Living Mercy operator algebra for the Ra-Thor lattice under TOLC 8.
 //!
-//! ## Ambient · valence · adaptive floor · concurrent zones · soft feedback · LatticeHealthReport · adaptive Cosmic Tick · zone observability · stress EMA recovery · health aggregates (v0.5.10)
+//! ## Ambient · valence · adaptive floor · concurrent zones · soft feedback · LatticeHealthReport · adaptive Cosmic Tick · zone observability · stress EMA recovery · health aggregates · composite score (v0.5.12)
 //!
 //! AG-SML v1.0 | Ra-Thor + PATSAGi Councils | info@Rathor.ai
 //! Thunder locked in. Yoi ⚡
@@ -557,6 +557,37 @@ mod tests {
         assert!(h.mean_effective_period >= 1.0);
         assert_eq!(h.zone_count, 3);
         assert!(h.total_vectors >= 60);
+        assert!(h.health_score > 0.0 && h.health_score <= 1.0);
+        assert!(h.healthy);
+    }
+
+    #[test]
+    fn health_score_drops_under_stress_and_recovers() {
+        let mut bridge = SoftFeedbackBridge::new(1);
+        bridge.lattice.adaptive_grief_scale = 10.0;
+        bridge.lattice.stress_alpha = 0.25;
+        bridge.lattice.purify_period = 1000;
+
+        let calm = bridge.health_report().health_score;
+        assert!((calm - 1.0).abs() < 1e-6, "idle score should be ~1, got {calm}");
+
+        for _ in 0..40 {
+            bridge.ingest_scalar_grief(0, 8.0, Valence::ZERO);
+        }
+        bridge.global_purify();
+        let stressed = bridge.health_report().health_score;
+        assert!(stressed < calm, "stress must lower score: calm={calm} stressed={stressed}");
+        assert!(stressed > 0.0);
+
+        for _ in 0..200 {
+            bridge.ingest_scalar_grief(0, 1e-12, Valence::HIGH);
+        }
+        bridge.global_purify();
+        let recovered = bridge.health_report().health_score;
+        assert!(
+            recovered > stressed,
+            "calm must raise score: stressed={stressed} recovered={recovered}"
+        );
     }
 
     #[test]
