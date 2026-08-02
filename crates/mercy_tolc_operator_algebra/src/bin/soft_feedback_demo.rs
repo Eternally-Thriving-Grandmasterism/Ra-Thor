@@ -1,6 +1,6 @@
 //! soft_feedback_demo.rs
 //!
-//! Public dual-repo soft feedback demonstration (v0.5.17).
+//! Public dual-repo soft feedback demonstration (v0.5.18).
 //! Optional `--json` emits LatticeHealthReport + sample events (machine-readable).
 //! CI gate: healthy && health_score ≥ 0.5
 //!
@@ -144,6 +144,10 @@ fn main() {
     println!("  zones H/S/C:     {}/{}/{}", health.zones_healthy, health.zones_stressed, health.zones_critical);
     println!("  critical_auto:   {}", health.critical_auto_purifies);
     println!("  soft_remediates: {}", health.soft_remediates);
+    println!("  grief/tick:      {:.4}", health.grief_per_tick);
+    println!("  vectors/tick:    {:.4}", health.vectors_per_tick);
+    println!("  soft_rate:       {:.4}", health.soft_remediate_rate);
+    println!("  critical_rate:   {:.4}", health.critical_auto_rate);
     println!("  valence H/M/L:   {}/{}/{}  (mercy_ratio={:.3})",
         health.valence_high_count, health.valence_mid_count, health.valence_low_count,
         health.valence_mercy_ratio);
