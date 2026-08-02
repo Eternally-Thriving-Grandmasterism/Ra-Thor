@@ -2,7 +2,7 @@
 //!
 //! Executable Living Mercy operator algebra for the Ra-Thor lattice under TOLC 8.
 //!
-//! ## Ambient · valence · adaptive floor · concurrent zones · soft feedback · LatticeHealthReport · adaptive Cosmic Tick · zone observability · stress EMA recovery · health aggregates · composite score · ZoneHealthStatus · critical auto-remediate · valence histogram (v0.5.16)
+//! ## Ambient · valence · adaptive floor · concurrent zones · soft feedback · LatticeHealthReport · adaptive Cosmic Tick · zone observability · stress EMA recovery · health aggregates · composite score · ZoneHealthStatus · critical auto-remediate · valence histogram · soft-remediate Stressed (v0.5.17)
 //!
 //! AG-SML v1.0 | Ra-Thor + PATSAGi Councils | info@Rathor.ai
 //! Thunder locked in. Yoi ⚡
@@ -167,6 +167,8 @@ pub struct ZoneState {
     pub last_rho: f64,
     pub purify_count: usize,
     pub critical_auto_purify_count: usize,
+    /// Soft cooling cycles applied while Stressed (not Critical).
+    pub soft_remediate_count: usize,
 }
 
 impl ZoneState {
@@ -177,6 +179,7 @@ impl ZoneState {
             id, basis, suppressor: NilpotentSuppressor { projector },
             grief_absorbed: 0.0, stress_ema: 0.0, vectors_processed: 0,
             last_rho: 0.0, purify_count: 0, critical_auto_purify_count: 0,
+            soft_remediate_count: 0,
         }
     }
     pub fn inject_drift(&mut self, magnitude: f64) {
@@ -219,6 +222,10 @@ pub struct ConcurrentZoneLattice {
     pub min_purify_period: usize,
     pub stress_alpha: f64,
     pub critical_auto_remediate: bool,
+    /// Soft-cool Stressed zones (extra stress decay; no force-purify).
+    pub soft_remediate_stressed: bool,
+    /// Decay alpha applied on soft-remediate (fraction of stress_ema removed).
+    pub soft_remediate_alpha: f64,
 }
 
 impl ConcurrentZoneLattice {
@@ -230,6 +237,8 @@ impl ConcurrentZoneLattice {
             zones, global_tick: 0, purify_period: 2_500,
             adaptive_grief_scale: 500.0, min_purify_period: 50, stress_alpha: 0.05,
             critical_auto_remediate: true,
+            soft_remediate_stressed: true,
+            soft_remediate_alpha: 0.15,
         }
     }
     pub fn zone_count(&self) -> usize { self.zones.len() }
@@ -254,22 +263,29 @@ impl ConcurrentZoneLattice {
         if self.global_tick > 0 && self.global_tick % period == (z % period) {
             self.zones[z].purify();
         }
-        if self.critical_auto_remediate {
-            let status = ZoneHealthStatus::classify(
-                self.zones[z].stress_ema,
-                self.zones[z].last_rho,
-                self.adaptive_grief_scale,
-            );
-            if status == ZoneHealthStatus::Critical {
-                self.zones[z].purify();
-                self.zones[z].critical_auto_purify_count =
-                    self.zones[z].critical_auto_purify_count.saturating_add(1);
-            }
+        let status = ZoneHealthStatus::classify(
+            self.zones[z].stress_ema,
+            self.zones[z].last_rho,
+            self.adaptive_grief_scale,
+        );
+        if status == ZoneHealthStatus::Critical && self.critical_auto_remediate {
+            self.zones[z].purify();
+            self.zones[z].critical_auto_purify_count =
+                self.zones[z].critical_auto_purify_count.saturating_add(1);
+        } else if status == ZoneHealthStatus::Stressed && self.soft_remediate_stressed {
+            // Soft cooling: accelerated stress decay without force-purify
+            let a = self.soft_remediate_alpha.clamp(0.0, 1.0);
+            self.zones[z].decay_stress(a);
+            self.zones[z].soft_remediate_count =
+                self.zones[z].soft_remediate_count.saturating_add(1);
         }
         load
     }
     pub fn total_critical_auto_purifies(&self) -> usize {
         self.zones.iter().map(|z| z.critical_auto_purify_count).sum()
+    }
+    pub fn total_soft_remediates(&self) -> usize {
+        self.zones.iter().map(|z| z.soft_remediate_count).sum()
     }
     pub fn global_purify(&mut self) -> Vec<f64> {
         self.zones.iter_mut().map(|z| z.purify()).collect()
@@ -604,6 +620,48 @@ mod tests {
         let h = bridge.health_report();
         assert_eq!(h.valence_high_count, 5);
         assert!((h.valence_mercy_ratio - 1.0).abs() < 1e-12);
+    }
+
+    #[test]
+    fn soft_remediate_fires_on_stressed_zone() {
+        let mut lattice = ConcurrentZoneLattice::new(1);
+        // scale=10 → Stressed when stress ∈ [1, 10), Critical ≥ 10
+        lattice.adaptive_grief_scale = 10.0;
+        lattice.stress_alpha = 0.25;
+        lattice.soft_remediate_stressed = true;
+        lattice.soft_remediate_alpha = 0.05; // mild cooling so we stay Stressed
+        lattice.critical_auto_remediate = false; // isolate soft path
+        lattice.purify_period = 10_000;
+        let mut g = AmbientVector::zeros();
+        // load ≈ 2.0 → EMA settles near 2.0 (Stressed band)
+        g[10] = 2.0;
+        for _ in 0..30 {
+            lattice.process(0, &g, Valence::ZERO);
+        }
+        let stress = lattice.zones[0].stress_ema;
+        assert!(
+            lattice.zones[0].soft_remediate_count > 0,
+            "soft_remediate_count=0 stress_ema={stress}"
+        );
+        assert_eq!(lattice.zones[0].critical_auto_purify_count, 0);
+        assert!(lattice.total_soft_remediates() > 0);
+        assert!(stress < lattice.adaptive_grief_scale, "stress escalated to Critical: {stress}");
+    }
+
+    #[test]
+    fn soft_remediate_can_be_disabled() {
+        let mut lattice = ConcurrentZoneLattice::new(1);
+        lattice.adaptive_grief_scale = 50.0;
+        lattice.stress_alpha = 0.3;
+        lattice.soft_remediate_stressed = false;
+        lattice.critical_auto_remediate = false;
+        lattice.purify_period = 10_000;
+        let mut g = AmbientVector::zeros();
+        g[10] = 3.0;
+        for _ in 0..20 {
+            lattice.process(0, &g, Valence::ZERO);
+        }
+        assert_eq!(lattice.zones[0].soft_remediate_count, 0);
     }
 
     #[test]
