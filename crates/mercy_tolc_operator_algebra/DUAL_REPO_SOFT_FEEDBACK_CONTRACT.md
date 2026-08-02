@@ -1,7 +1,7 @@
 # Dual-Repo Soft Feedback Contract
 
-**Ra-Thor** `mercy_tolc_operator_algebra` ≥ v0.5.12  
-**Powrush-MMO** `RaThorBridge` ≥ v18.24 · orchestrator ≥ v21.88.7  
+**Ra-Thor** `mercy_tolc_operator_algebra` ≥ v0.5.13  
+**Powrush-MMO** `RaThorBridge` ≥ v18.24 · orchestrator ≥ v21.88.8  
 **License:** AG-SML v1.0 · **Contact:** info@Rathor.ai
 
 ## Sealed event (hard contract — do not rename fields)
@@ -16,8 +16,6 @@ SoftFeedbackEvent {
 }
 ```
 
-Powrush emits one event per `run_tick` via `RaThorBridge::report_zone_grief`.
-
 ## ZoneSnapshot (observability surface)
 
 ```text
@@ -31,10 +29,7 @@ ZoneSnapshot {
 ## LatticeHealthReport (`schema: ra_thor_lattice_health_v1`)
 
 ```text
-ambient_dim, mercy_dim, zone_count, global_tick
-total_grief, total_vectors, max_rho, pending_events
-total_purify_count, max_stress_ema, mean_effective_period
-zones[], healthy, health_score ∈ [0, 1]
+… zones[], healthy, health_score ∈ [0, 1]
 ```
 
 ```
@@ -43,9 +38,9 @@ purity_term  = 1 / (1 + max_rho · 1e12)
 stress_term  = 1 / (1 + max_stress_ema / scale)
 ```
 
-CI gate: `healthy == true` and optionally `health_score ≥ threshold`.
+**CI gate:** `healthy == true` **and** `health_score ≥ 0.5`
 
-## Powrush telemetry keys
+## Powrush telemetry keys (v21.88.8)
 
 ```
 soft_feedback_events
@@ -53,6 +48,7 @@ soft_feedback_total_grief
 soft_feedback_max_stress
 soft_feedback_purify_count
 soft_feedback_mean_period
+soft_feedback_health_score
 ```
 
 ## Proof
