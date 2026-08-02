@@ -1,6 +1,6 @@
 # mercy_tolc_operator_algebra — Lattice Status
 
-**Version:** 0.5.15 (+ dual-repo critical auto-remediate mirror)  
+**Version:** 0.5.16  
 **License:** AG-SML v1.0  
 **Contact:** info@Rathor.ai
 
@@ -11,10 +11,19 @@
 | Ambient → composite score | 0.5.0–0.5.12 | full algebra + health_score |
 | Score gate + telemetry | 0.5.13 | demo CI ≥0.5 · Powrush health_score |
 | ZoneHealthStatus | 0.5.14 | Healthy / Stressed / Critical |
-| Dual-repo status mirror | Powrush v18.25 / orch v21.88.9 | H/S/C telemetry |
-| Critical auto-remediate | 0.5.15 | priority Cosmic Tick on Critical |
+| Critical auto-remediate | 0.5.15 | priority Cosmic Tick |
 | Dual-repo critical mirror | Powrush v18.26 / orch v21.88.10 | critical_auto telemetry |
+| Valence histogram | 0.5.16 | H/M/L bands + mercy_ratio |
+
+## Valence histogram
+
+```
+HIGH  — valence ≥ 0.999999  (mercy soft path)
+MID   — valence ≥ 0.5
+LOW   — valence < 0.5
+mercy_ratio = high / (high + mid + low)
+```
 
 See [DUAL_REPO_SOFT_FEEDBACK_CONTRACT.md](./DUAL_REPO_SOFT_FEEDBACK_CONTRACT.md).
 
-29 property tests. Thunder locked. Yoi ⚡
+31 property tests. Thunder locked. Yoi ⚡
