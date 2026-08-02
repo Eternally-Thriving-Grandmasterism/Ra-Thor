@@ -1,4 +1,4 @@
-//! Soft feedback bridge — dual-repo sealed protocol (v0.5.12)
+//! Soft feedback bridge — dual-repo sealed protocol (v0.5.14)
 //!
 //! AG-SML v1.0 | info@Rathor.ai | Thunder locked. Yoi ⚡
 
@@ -16,6 +16,39 @@ pub struct SoftFeedbackEvent {
     pub tick: usize,
 }
 
+/// Actionable zone status for CI / telemetry dashboards.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ZoneHealthStatus {
+    /// stress_ema below 10% of scale and ρ under floor
+    Healthy,
+    /// elevated stress or mild residual
+    Stressed,
+    /// stress_ema ≥ scale or ρ critically elevated
+    Critical,
+}
+
+impl ZoneHealthStatus {
+    /// Classify from stress EMA, purity residual, and adaptive grief scale.
+    pub fn classify(stress_ema: f64, last_rho: f64, stress_scale: f64) -> Self {
+        let scale = stress_scale.max(1e-9);
+        if last_rho >= 1e-6 || stress_ema >= scale {
+            ZoneHealthStatus::Critical
+        } else if stress_ema >= 0.10 * scale || last_rho >= 1e-9 {
+            ZoneHealthStatus::Stressed
+        } else {
+            ZoneHealthStatus::Healthy
+        }
+    }
+
+    pub fn as_str(self) -> &'static str {
+        match self {
+            ZoneHealthStatus::Healthy => "healthy",
+            ZoneHealthStatus::Stressed => "stressed",
+            ZoneHealthStatus::Critical => "critical",
+        }
+    }
+}
+
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct ZoneSnapshot {
     pub zone_id: usize,
@@ -25,6 +58,7 @@ pub struct ZoneSnapshot {
     pub last_rho: f64,
     pub purify_count: usize,
     pub effective_period: usize,
+    pub status: ZoneHealthStatus,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -108,14 +142,23 @@ impl SoftFeedbackBridge {
         self.lattice
             .zones
             .iter()
-            .map(|z| ZoneSnapshot {
-                zone_id: z.id,
-                grief_absorbed: z.grief_absorbed,
-                stress_ema: z.stress_ema,
-                vectors_processed: z.vectors_processed,
-                last_rho: z.last_rho,
-                purify_count: z.purify_count,
-                effective_period: self.lattice.effective_purify_period(z.id),
+            .map(|z| {
+                let effective_period = self.lattice.effective_purify_period(z.id);
+                let status = ZoneHealthStatus::classify(
+                    z.stress_ema,
+                    z.last_rho,
+                    self.lattice.adaptive_grief_scale,
+                );
+                ZoneSnapshot {
+                    zone_id: z.id,
+                    grief_absorbed: z.grief_absorbed,
+                    stress_ema: z.stress_ema,
+                    vectors_processed: z.vectors_processed,
+                    last_rho: z.last_rho,
+                    purify_count: z.purify_count,
+                    effective_period,
+                    status,
+                }
             })
             .collect()
     }
@@ -147,6 +190,18 @@ impl SoftFeedbackBridge {
             max_stress_ema,
             self.lattice.adaptive_grief_scale,
         );
+        let zones_healthy = zones
+            .iter()
+            .filter(|z| z.status == ZoneHealthStatus::Healthy)
+            .count();
+        let zones_stressed = zones
+            .iter()
+            .filter(|z| z.status == ZoneHealthStatus::Stressed)
+            .count();
+        let zones_critical = zones
+            .iter()
+            .filter(|z| z.status == ZoneHealthStatus::Critical)
+            .count();
         LatticeHealthReport {
             schema: "ra_thor_lattice_health_v1".to_string(),
             ambient_dim: AMBIENT_DIM,
@@ -160,8 +215,11 @@ impl SoftFeedbackBridge {
             total_purify_count,
             max_stress_ema,
             mean_effective_period,
+            zones_healthy,
+            zones_stressed,
+            zones_critical,
             zones,
-            healthy: max_rho < 1e-9,
+            healthy: max_rho < 1e-9 && zones_critical == 0,
             health_score,
         }
     }
@@ -181,6 +239,9 @@ pub struct LatticeHealthReport {
     pub total_purify_count: usize,
     pub max_stress_ema: f64,
     pub mean_effective_period: f64,
+    pub zones_healthy: usize,
+    pub zones_stressed: usize,
+    pub zones_critical: usize,
     pub zones: Vec<ZoneSnapshot>,
     pub healthy: bool,
     /// Composite gate score in [0, 1]. 1.0 = pure + calm.
