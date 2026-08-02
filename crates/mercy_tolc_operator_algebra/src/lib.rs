@@ -2,7 +2,7 @@
 //!
 //! Executable Living Mercy operator algebra for the Ra-Thor lattice under TOLC 8.
 //!
-//! ## Ambient · valence · adaptive floor · concurrent zones · soft feedback · LatticeHealthReport · adaptive Cosmic Tick · zone observability · stress EMA recovery · health aggregates · composite score · ZoneHealthStatus · critical auto-remediate (v0.5.15)
+//! ## Ambient · valence · adaptive floor · concurrent zones · soft feedback · LatticeHealthReport · adaptive Cosmic Tick · zone observability · stress EMA recovery · health aggregates · composite score · ZoneHealthStatus · critical auto-remediate · valence histogram (v0.5.16)
 //!
 //! AG-SML v1.0 | Ra-Thor + PATSAGi Councils | info@Rathor.ai
 //! Thunder locked in. Yoi ⚡
@@ -504,9 +504,7 @@ mod tests {
     #[test]
     fn lattice_health_report_is_healthy_after_purify() {
         let mut bridge = SoftFeedbackBridge::new(3);
-        for i in 0..30 {
-            bridge.ingest_scalar_grief(i % 3, 1.0, Valence::MID);
-        }
+        for i in 0..30 { bridge.ingest_scalar_grief(i % 3, 1.0, Valence::MID); }
         bridge.global_purify();
         let h = bridge.health_report();
         assert_eq!(h.schema, "ra_thor_lattice_health_v1");
@@ -565,9 +563,7 @@ mod tests {
     #[test]
     fn health_report_exposes_stress_aggregates() {
         let mut bridge = SoftFeedbackBridge::new(3);
-        for i in 0..60 {
-            bridge.ingest_scalar_grief(i % 3, 2.0, Valence::ZERO);
-        }
+        for i in 0..60 { bridge.ingest_scalar_grief(i % 3, 2.0, Valence::ZERO); }
         bridge.global_purify();
         let h = bridge.health_report();
         assert!(h.total_purify_count >= 3);
@@ -585,6 +581,29 @@ mod tests {
         assert_eq!(ZoneHealthStatus::classify(60.0, 0.0, 500.0), ZoneHealthStatus::Stressed);
         assert_eq!(ZoneHealthStatus::classify(500.0, 0.0, 500.0), ZoneHealthStatus::Critical);
         assert_eq!(ZoneHealthStatus::classify(0.0, 1e-5, 500.0), ZoneHealthStatus::Critical);
+    }
+
+    #[test]
+    fn valence_histogram_tracks_bands() {
+        let mut bridge = SoftFeedbackBridge::new(1);
+        bridge.ingest_scalar_grief(0, 1.0, Valence::HIGH);
+        bridge.ingest_scalar_grief(0, 1.0, Valence::HIGH);
+        bridge.ingest_scalar_grief(0, 1.0, Valence::MID);
+        bridge.ingest_scalar_grief(0, 1.0, Valence::ZERO);
+        let h = bridge.health_report();
+        assert_eq!(h.valence_high_count, 2);
+        assert_eq!(h.valence_mid_count, 1);
+        assert_eq!(h.valence_low_count, 1);
+        assert!((h.valence_mercy_ratio - 0.5).abs() < 1e-12);
+    }
+
+    #[test]
+    fn valence_mercy_ratio_is_one_when_all_high() {
+        let mut bridge = SoftFeedbackBridge::new(1);
+        for _ in 0..5 { bridge.ingest_scalar_grief(0, 0.1, Valence::HIGH); }
+        let h = bridge.health_report();
+        assert_eq!(h.valence_high_count, 5);
+        assert!((h.valence_mercy_ratio - 1.0).abs() < 1e-12);
     }
 
     #[test]
