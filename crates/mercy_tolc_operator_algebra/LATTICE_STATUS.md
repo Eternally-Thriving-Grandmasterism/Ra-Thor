@@ -1,6 +1,6 @@
 # mercy_tolc_operator_algebra — Lattice Status
 
-**Version:** 0.5.18  
+**Version:** 0.5.18 (+ dual-repo rate metrics mirror)  
 **License:** AG-SML v1.0  
 **Contact:** info@Rathor.ai
 
@@ -15,16 +15,8 @@
 | Valence histogram | 0.5.16 | H/M/L bands + mercy_ratio |
 | Soft-remediate Stressed | 0.5.17 | accelerated stress decay |
 | Dual-repo soft-remediate | Powrush v18.28 / orch v21.88.12 | soft_remediates telemetry |
-| Grief-rate metrics | 0.5.18 | grief/tick · vectors/tick · remediate rates |
-
-## Rate metrics
-
-```
-grief_per_tick      = total_grief / global_tick
-vectors_per_tick    = total_vectors / global_tick
-soft_remediate_rate = soft_remediates / global_tick
-critical_auto_rate  = critical_auto_purifies / global_tick
-```
+| Grief-rate metrics | 0.5.18 | grief/tick · vectors/tick · rates |
+| Dual-repo rate metrics | Powrush v18.29 / orch v21.88.13 | rate telemetry |
 
 See [DUAL_REPO_SOFT_FEEDBACK_CONTRACT.md](./DUAL_REPO_SOFT_FEEDBACK_CONTRACT.md).
 
