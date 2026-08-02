@@ -2,7 +2,7 @@
 //!
 //! Executable Living Mercy operator algebra for the Ra-Thor lattice under TOLC 8.
 //!
-//! ## Ambient · valence · adaptive floor · concurrent zones · soft feedback · LatticeHealthReport · adaptive Cosmic Tick · zone observability · stress EMA recovery · health aggregates · composite score · ZoneHealthStatus (v0.5.14)
+//! ## Ambient · valence · adaptive floor · concurrent zones · soft feedback · LatticeHealthReport · adaptive Cosmic Tick · zone observability · stress EMA recovery · health aggregates · composite score · ZoneHealthStatus · critical auto-remediate (v0.5.15)
 //!
 //! AG-SML v1.0 | Ra-Thor + PATSAGi Councils | info@Rathor.ai
 //! Thunder locked in. Yoi ⚡
@@ -166,6 +166,7 @@ pub struct ZoneState {
     pub vectors_processed: usize,
     pub last_rho: f64,
     pub purify_count: usize,
+    pub critical_auto_purify_count: usize,
 }
 
 impl ZoneState {
@@ -175,7 +176,7 @@ impl ZoneState {
         Self {
             id, basis, suppressor: NilpotentSuppressor { projector },
             grief_absorbed: 0.0, stress_ema: 0.0, vectors_processed: 0,
-            last_rho: 0.0, purify_count: 0,
+            last_rho: 0.0, purify_count: 0, critical_auto_purify_count: 0,
         }
     }
     pub fn inject_drift(&mut self, magnitude: f64) {
@@ -217,6 +218,7 @@ pub struct ConcurrentZoneLattice {
     pub adaptive_grief_scale: f64,
     pub min_purify_period: usize,
     pub stress_alpha: f64,
+    pub critical_auto_remediate: bool,
 }
 
 impl ConcurrentZoneLattice {
@@ -227,6 +229,7 @@ impl ConcurrentZoneLattice {
         Self {
             zones, global_tick: 0, purify_period: 2_500,
             adaptive_grief_scale: 500.0, min_purify_period: 50, stress_alpha: 0.05,
+            critical_auto_remediate: true,
         }
     }
     pub fn zone_count(&self) -> usize { self.zones.len() }
@@ -251,7 +254,22 @@ impl ConcurrentZoneLattice {
         if self.global_tick > 0 && self.global_tick % period == (z % period) {
             self.zones[z].purify();
         }
+        if self.critical_auto_remediate {
+            let status = ZoneHealthStatus::classify(
+                self.zones[z].stress_ema,
+                self.zones[z].last_rho,
+                self.adaptive_grief_scale,
+            );
+            if status == ZoneHealthStatus::Critical {
+                self.zones[z].purify();
+                self.zones[z].critical_auto_purify_count =
+                    self.zones[z].critical_auto_purify_count.saturating_add(1);
+            }
+        }
         load
+    }
+    pub fn total_critical_auto_purifies(&self) -> usize {
+        self.zones.iter().map(|z| z.critical_auto_purify_count).sum()
     }
     pub fn global_purify(&mut self) -> Vec<f64> {
         self.zones.iter_mut().map(|z| z.purify()).collect()
@@ -563,22 +581,38 @@ mod tests {
 
     #[test]
     fn zone_health_status_classifies_calm_as_healthy() {
-        assert_eq!(
-            ZoneHealthStatus::classify(0.0, 0.0, 500.0),
-            ZoneHealthStatus::Healthy
-        );
-        assert_eq!(
-            ZoneHealthStatus::classify(60.0, 0.0, 500.0),
-            ZoneHealthStatus::Stressed
-        );
-        assert_eq!(
-            ZoneHealthStatus::classify(500.0, 0.0, 500.0),
-            ZoneHealthStatus::Critical
-        );
-        assert_eq!(
-            ZoneHealthStatus::classify(0.0, 1e-5, 500.0),
-            ZoneHealthStatus::Critical
-        );
+        assert_eq!(ZoneHealthStatus::classify(0.0, 0.0, 500.0), ZoneHealthStatus::Healthy);
+        assert_eq!(ZoneHealthStatus::classify(60.0, 0.0, 500.0), ZoneHealthStatus::Stressed);
+        assert_eq!(ZoneHealthStatus::classify(500.0, 0.0, 500.0), ZoneHealthStatus::Critical);
+        assert_eq!(ZoneHealthStatus::classify(0.0, 1e-5, 500.0), ZoneHealthStatus::Critical);
+    }
+
+    #[test]
+    fn critical_auto_remediate_fires_under_extreme_stress() {
+        let mut lattice = ConcurrentZoneLattice::new(1);
+        lattice.adaptive_grief_scale = 5.0;
+        lattice.stress_alpha = 0.5;
+        lattice.critical_auto_remediate = true;
+        lattice.purify_period = 10_000;
+        let mut heavy = AmbientVector::zeros();
+        heavy[10] = 20.0;
+        for _ in 0..40 { lattice.process(0, &heavy, Valence::ZERO); }
+        assert!(lattice.zones[0].critical_auto_purify_count > 0);
+        assert!(lattice.total_critical_auto_purifies() > 0);
+        assert!(lattice.zones[0].last_rho < 1e-9);
+    }
+
+    #[test]
+    fn critical_auto_remediate_can_be_disabled() {
+        let mut lattice = ConcurrentZoneLattice::new(1);
+        lattice.adaptive_grief_scale = 5.0;
+        lattice.stress_alpha = 0.5;
+        lattice.critical_auto_remediate = false;
+        lattice.purify_period = 10_000;
+        let mut heavy = AmbientVector::zeros();
+        heavy[10] = 20.0;
+        for _ in 0..40 { lattice.process(0, &heavy, Valence::ZERO); }
+        assert_eq!(lattice.zones[0].critical_auto_purify_count, 0);
     }
 
     #[test]
@@ -586,12 +620,8 @@ mod tests {
         let mut bridge = SoftFeedbackBridge::new(2);
         bridge.lattice.adaptive_grief_scale = 10.0;
         bridge.lattice.stress_alpha = 0.3;
-        for _ in 0..30 {
-            bridge.ingest_scalar_grief(0, 8.0, Valence::ZERO);
-        }
-        for _ in 0..5 {
-            bridge.ingest_scalar_grief(1, 1e-12, Valence::HIGH);
-        }
+        for _ in 0..30 { bridge.ingest_scalar_grief(0, 8.0, Valence::ZERO); }
+        for _ in 0..5 { bridge.ingest_scalar_grief(1, 1e-12, Valence::HIGH); }
         bridge.global_purify();
         let h = bridge.health_report();
         assert_eq!(h.zones.len(), 2);
@@ -606,27 +636,16 @@ mod tests {
         bridge.lattice.adaptive_grief_scale = 10.0;
         bridge.lattice.stress_alpha = 0.25;
         bridge.lattice.purify_period = 1000;
-
         let calm = bridge.health_report().health_score;
-        assert!((calm - 1.0).abs() < 1e-6, "idle score should be ~1, got {calm}");
-
-        for _ in 0..40 {
-            bridge.ingest_scalar_grief(0, 8.0, Valence::ZERO);
-        }
+        assert!((calm - 1.0).abs() < 1e-6);
+        for _ in 0..40 { bridge.ingest_scalar_grief(0, 8.0, Valence::ZERO); }
         bridge.global_purify();
         let stressed = bridge.health_report().health_score;
-        assert!(stressed < calm, "stress must lower score: calm={calm} stressed={stressed}");
-        assert!(stressed > 0.0);
-
-        for _ in 0..200 {
-            bridge.ingest_scalar_grief(0, 1e-12, Valence::HIGH);
-        }
+        assert!(stressed < calm && stressed > 0.0);
+        for _ in 0..200 { bridge.ingest_scalar_grief(0, 1e-12, Valence::HIGH); }
         bridge.global_purify();
         let recovered = bridge.health_report().health_score;
-        assert!(
-            recovered > stressed,
-            "calm must raise score: stressed={stressed} recovered={recovered}"
-        );
+        assert!(recovered > stressed);
     }
 
     #[test]
