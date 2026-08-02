@@ -1,6 +1,6 @@
 # mercy_tolc_operator_algebra — Lattice Status
 
-**Version:** 0.5.16  
+**Version:** 0.5.16 (+ dual-repo valence histogram mirror)  
 **License:** AG-SML v1.0  
 **Contact:** info@Rathor.ai
 
@@ -14,15 +14,7 @@
 | Critical auto-remediate | 0.5.15 | priority Cosmic Tick |
 | Dual-repo critical mirror | Powrush v18.26 / orch v21.88.10 | critical_auto telemetry |
 | Valence histogram | 0.5.16 | H/M/L bands + mercy_ratio |
-
-## Valence histogram
-
-```
-HIGH  — valence ≥ 0.999999  (mercy soft path)
-MID   — valence ≥ 0.5
-LOW   — valence < 0.5
-mercy_ratio = high / (high + mid + low)
-```
+| Dual-repo valence mirror | Powrush v18.27 / orch v21.88.11 | valence + mercy_ratio telemetry |
 
 See [DUAL_REPO_SOFT_FEEDBACK_CONTRACT.md](./DUAL_REPO_SOFT_FEEDBACK_CONTRACT.md).
 
