@@ -1,4 +1,4 @@
-//! Soft feedback bridge — dual-repo sealed protocol (v0.5.14)
+//! Soft feedback bridge — dual-repo sealed protocol (v0.5.15)
 //!
 //! AG-SML v1.0 | info@Rathor.ai | Thunder locked. Yoi ⚡
 
@@ -105,6 +105,19 @@ impl SoftFeedbackBridge {
         let period = self.lattice.effective_purify_period(z);
         if self.lattice.global_tick > 0 && self.lattice.global_tick % period == (z % period) {
             self.lattice.zones[z].purify();
+        }
+        if self.lattice.critical_auto_remediate {
+            let status = ZoneHealthStatus::classify(
+                self.lattice.zones[z].stress_ema,
+                self.lattice.zones[z].last_rho,
+                self.lattice.adaptive_grief_scale,
+            );
+            if status == ZoneHealthStatus::Critical {
+                self.lattice.zones[z].purify();
+                self.lattice.zones[z].critical_auto_purify_count = self.lattice.zones[z]
+                    .critical_auto_purify_count
+                    .saturating_add(1);
+            }
         }
 
         let ev = SoftFeedbackEvent {
@@ -218,6 +231,7 @@ impl SoftFeedbackBridge {
             zones_healthy,
             zones_stressed,
             zones_critical,
+            critical_auto_purifies: self.lattice.total_critical_auto_purifies(),
             zones,
             healthy: max_rho < 1e-9 && zones_critical == 0,
             health_score,
@@ -242,6 +256,8 @@ pub struct LatticeHealthReport {
     pub zones_healthy: usize,
     pub zones_stressed: usize,
     pub zones_critical: usize,
+    /// Force-purifies triggered by Critical status (priority Cosmic Tick).
+    pub critical_auto_purifies: usize,
     pub zones: Vec<ZoneSnapshot>,
     pub healthy: bool,
     /// Composite gate score in [0, 1]. 1.0 = pure + calm.
