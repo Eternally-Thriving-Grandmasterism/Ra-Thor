@@ -1,7 +1,7 @@
 # Dual-Repo Soft Feedback Contract
 
-**Ra-Thor** `mercy_tolc_operator_algebra` ≥ v0.5.15  
-**Powrush-MMO** `RaThorBridge` ≥ v18.26 · orchestrator ≥ v21.88.10  
+**Ra-Thor** `mercy_tolc_operator_algebra` ≥ v0.5.16  
+**Powrush-MMO** `RaThorBridge` ≥ v18.27 · orchestrator ≥ v21.88.11  
 **License:** AG-SML v1.0 · **Contact:** info@Rathor.ai
 
 ## Sealed event (hard contract — do not rename fields)
@@ -38,20 +38,29 @@ Critical — stress ≥ scale or ρ ≥ 1e-6
 
 ## Critical auto-remediation (v0.5.15 / Powrush v18.26)
 
-When status is **Critical**, both sides force-purify immediately (priority Cosmic Tick).  
-Counter: `critical_auto_purify_count` / report field `critical_auto_purifies`.
+When status is **Critical**, both sides force-purify immediately (priority Cosmic Tick).
+
+## Valence histogram (v0.5.16 / Powrush v18.27)
+
+```
+HIGH  — valence ≥ 0.999999  (mercy soft path)
+MID   — valence ≥ 0.5
+LOW   — valence < 0.5
+mercy_ratio = high / (high + mid + low)
+```
 
 ## LatticeHealthReport (`schema: ra_thor_lattice_health_v1`)
 
 ```text
 … zones_healthy, zones_stressed, zones_critical,
-  critical_auto_purifies, zones[], healthy, health_score ∈ [0, 1]
+  critical_auto_purifies,
+  valence_high_count, valence_mid_count, valence_low_count,
+  valence_mercy_ratio, zones[], healthy, health_score ∈ [0, 1]
 ```
 
-**CI gate:** `healthy == true` **and** `health_score ≥ 0.5`  
-(`healthy` requires zero critical zones)
+**CI gate:** `healthy == true` **and** `health_score ≥ 0.5`
 
-## Powrush telemetry keys (v21.88.10)
+## Powrush telemetry keys (v21.88.11)
 
 ```
 soft_feedback_events
@@ -64,6 +73,10 @@ soft_feedback_zones_healthy
 soft_feedback_zones_stressed
 soft_feedback_zones_critical
 soft_feedback_critical_auto
+soft_feedback_valence_high
+soft_feedback_valence_mid
+soft_feedback_valence_low
+soft_feedback_mercy_ratio
 ```
 
 ## Proof
