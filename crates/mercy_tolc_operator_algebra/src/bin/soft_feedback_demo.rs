@@ -1,6 +1,6 @@
 //! soft_feedback_demo.rs
 //!
-//! Public dual-repo soft feedback demonstration (v0.5.11).
+//! Public dual-repo soft feedback demonstration (v0.5.12).
 //! Optional `--json` emits LatticeHealthReport + sample events (machine-readable).
 //!
 //! Run:
@@ -138,6 +138,7 @@ fn main() {
     println!("  total_purify:    {}", health.total_purify_count);
     println!("  max_stress_ema:  {:.4}", health.max_stress_ema);
     println!("  mean_period:     {:.1}", health.mean_effective_period);
+    println!("  health_score:    {:.6}", health.health_score);
     println!("  healthy:         {}", health.healthy);
     for s in &health.zones {
         println!(
