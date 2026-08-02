@@ -1,6 +1,6 @@
 # mercy_tolc_operator_algebra — Lattice Status
 
-**Version:** 0.5.15  
+**Version:** 0.5.15 (+ dual-repo critical auto-remediate mirror)  
 **License:** AG-SML v1.0  
 **Contact:** info@Rathor.ai
 
@@ -12,11 +12,8 @@
 | Score gate + telemetry | 0.5.13 | demo CI ≥0.5 · Powrush health_score |
 | ZoneHealthStatus | 0.5.14 | Healthy / Stressed / Critical |
 | Dual-repo status mirror | Powrush v18.25 / orch v21.88.9 | H/S/C telemetry |
-| Critical auto-remediate | 0.5.15 | priority Cosmic Tick on Critical zones |
-
-## Critical auto-remediation
-
-When `critical_auto_remediate = true` (default), any zone classified **Critical** after `process`/`ingest` is immediately purified. Counter: `critical_auto_purify_count` / `critical_auto_purifies`.
+| Critical auto-remediate | 0.5.15 | priority Cosmic Tick on Critical |
+| Dual-repo critical mirror | Powrush v18.26 / orch v21.88.10 | critical_auto telemetry |
 
 See [DUAL_REPO_SOFT_FEEDBACK_CONTRACT.md](./DUAL_REPO_SOFT_FEEDBACK_CONTRACT.md).
 
