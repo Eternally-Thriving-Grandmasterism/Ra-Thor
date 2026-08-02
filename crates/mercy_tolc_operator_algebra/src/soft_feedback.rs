@@ -1,4 +1,4 @@
-//! Soft feedback bridge — dual-repo sealed protocol (v0.5.15)
+//! Soft feedback bridge — dual-repo sealed protocol (v0.5.16)
 //!
 //! AG-SML v1.0 | info@Rathor.ai | Thunder locked. Yoi ⚡
 
@@ -66,6 +66,10 @@ pub struct SoftFeedbackBridge {
     pub lattice: ConcurrentZoneLattice,
     pub events: Vec<SoftFeedbackEvent>,
     pub max_events: usize,
+    /// Ingest counts by valence band (HIGH ≥0.999999, MID ≥0.5, else LOW).
+    pub valence_high_count: usize,
+    pub valence_mid_count: usize,
+    pub valence_low_count: usize,
 }
 
 impl SoftFeedbackBridge {
@@ -74,6 +78,19 @@ impl SoftFeedbackBridge {
             lattice: ConcurrentZoneLattice::new(n_zones),
             events: Vec::new(),
             max_events: 10_000,
+            valence_high_count: 0,
+            valence_mid_count: 0,
+            valence_low_count: 0,
+        }
+    }
+
+    fn record_valence_band(&mut self, valence: Valence) {
+        if valence.is_high() {
+            self.valence_high_count = self.valence_high_count.saturating_add(1);
+        } else if valence.value() >= 0.5 {
+            self.valence_mid_count = self.valence_mid_count.saturating_add(1);
+        } else {
+            self.valence_low_count = self.valence_low_count.saturating_add(1);
         }
     }
 
@@ -87,6 +104,7 @@ impl SoftFeedbackBridge {
         let alpha = self.lattice.stress_alpha;
         let (_raw, _w, _f, load, under) =
             self.lattice.zones[z].suppressor.suppress_weighted(g, valence);
+        self.record_valence_band(valence);
         self.lattice.zones[z].grief_absorbed += load;
         let a = alpha.clamp(0.0, 1.0);
         self.lattice.zones[z].stress_ema =
@@ -232,6 +250,19 @@ impl SoftFeedbackBridge {
             zones_stressed,
             zones_critical,
             critical_auto_purifies: self.lattice.total_critical_auto_purifies(),
+            valence_high_count: self.valence_high_count,
+            valence_mid_count: self.valence_mid_count,
+            valence_low_count: self.valence_low_count,
+            valence_mercy_ratio: {
+                let total = self.valence_high_count
+                    + self.valence_mid_count
+                    + self.valence_low_count;
+                if total == 0 {
+                    1.0
+                } else {
+                    self.valence_high_count as f64 / total as f64
+                }
+            },
             zones,
             healthy: max_rho < 1e-9 && zones_critical == 0,
             health_score,
@@ -258,6 +289,12 @@ pub struct LatticeHealthReport {
     pub zones_critical: usize,
     /// Force-purifies triggered by Critical status (priority Cosmic Tick).
     pub critical_auto_purifies: usize,
+    /// Valence-band histogram of ingested events.
+    pub valence_high_count: usize,
+    pub valence_mid_count: usize,
+    pub valence_low_count: usize,
+    /// Fraction of HIGH-valence ingests (mercy soft path). 1.0 = pure mercy flow.
+    pub valence_mercy_ratio: f64,
     pub zones: Vec<ZoneSnapshot>,
     pub healthy: bool,
     /// Composite gate score in [0, 1]. 1.0 = pure + calm.
