@@ -1,4 +1,4 @@
-//! Soft feedback bridge — dual-repo sealed protocol (v0.5.16)
+//! Soft feedback bridge — dual-repo sealed protocol (v0.5.17)
 //!
 //! AG-SML v1.0 | info@Rathor.ai | Thunder locked. Yoi ⚡
 
@@ -59,6 +59,7 @@ pub struct ZoneSnapshot {
     pub purify_count: usize,
     pub effective_period: usize,
     pub status: ZoneHealthStatus,
+    pub soft_remediate_count: usize,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -124,18 +125,22 @@ impl SoftFeedbackBridge {
         if self.lattice.global_tick > 0 && self.lattice.global_tick % period == (z % period) {
             self.lattice.zones[z].purify();
         }
-        if self.lattice.critical_auto_remediate {
-            let status = ZoneHealthStatus::classify(
-                self.lattice.zones[z].stress_ema,
-                self.lattice.zones[z].last_rho,
-                self.lattice.adaptive_grief_scale,
-            );
-            if status == ZoneHealthStatus::Critical {
-                self.lattice.zones[z].purify();
-                self.lattice.zones[z].critical_auto_purify_count = self.lattice.zones[z]
-                    .critical_auto_purify_count
-                    .saturating_add(1);
-            }
+        let status = ZoneHealthStatus::classify(
+            self.lattice.zones[z].stress_ema,
+            self.lattice.zones[z].last_rho,
+            self.lattice.adaptive_grief_scale,
+        );
+        if status == ZoneHealthStatus::Critical && self.lattice.critical_auto_remediate {
+            self.lattice.zones[z].purify();
+            self.lattice.zones[z].critical_auto_purify_count = self.lattice.zones[z]
+                .critical_auto_purify_count
+                .saturating_add(1);
+        } else if status == ZoneHealthStatus::Stressed && self.lattice.soft_remediate_stressed {
+            let a = self.lattice.soft_remediate_alpha.clamp(0.0, 1.0);
+            self.lattice.zones[z].decay_stress(a);
+            self.lattice.zones[z].soft_remediate_count = self.lattice.zones[z]
+                .soft_remediate_count
+                .saturating_add(1);
         }
 
         let ev = SoftFeedbackEvent {
@@ -189,6 +194,7 @@ impl SoftFeedbackBridge {
                     purify_count: z.purify_count,
                     effective_period,
                     status,
+                    soft_remediate_count: z.soft_remediate_count,
                 }
             })
             .collect()
@@ -250,6 +256,7 @@ impl SoftFeedbackBridge {
             zones_stressed,
             zones_critical,
             critical_auto_purifies: self.lattice.total_critical_auto_purifies(),
+            soft_remediates: self.lattice.total_soft_remediates(),
             valence_high_count: self.valence_high_count,
             valence_mid_count: self.valence_mid_count,
             valence_low_count: self.valence_low_count,
@@ -289,6 +296,8 @@ pub struct LatticeHealthReport {
     pub zones_critical: usize,
     /// Force-purifies triggered by Critical status (priority Cosmic Tick).
     pub critical_auto_purifies: usize,
+    /// Soft cooling cycles on Stressed zones (not Critical).
+    pub soft_remediates: usize,
     /// Valence-band histogram of ingested events.
     pub valence_high_count: usize,
     pub valence_mid_count: usize,
