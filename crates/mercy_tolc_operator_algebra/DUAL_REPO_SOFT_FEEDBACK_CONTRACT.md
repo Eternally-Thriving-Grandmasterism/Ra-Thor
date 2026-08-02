@@ -1,7 +1,7 @@
 # Dual-Repo Soft Feedback Contract
 
-**Ra-Thor** `mercy_tolc_operator_algebra` ≥ v0.5.16  
-**Powrush-MMO** `RaThorBridge` ≥ v18.27 · orchestrator ≥ v21.88.11  
+**Ra-Thor** `mercy_tolc_operator_algebra` ≥ v0.5.17  
+**Powrush-MMO** `RaThorBridge` ≥ v18.28 · orchestrator ≥ v21.88.12  
 **License:** AG-SML v1.0 · **Contact:** info@Rathor.ai
 
 ## Sealed event (hard contract — do not rename fields)
@@ -25,6 +25,7 @@ ZoneSnapshot {
   purify_count, effective_period,
   status: ZoneHealthStatus,          // Healthy | Stressed | Critical
   critical_auto_purify_count: usize  // priority Cosmic Ticks
+  soft_remediate_count: usize        // soft cooling cycles
 }
 ```
 
@@ -36,9 +37,12 @@ Stressed — elevated stress or mild residual
 Critical — stress ≥ scale or ρ ≥ 1e-6
 ```
 
-## Critical auto-remediation (v0.5.15 / Powrush v18.26)
+## Remediation tiers (v0.5.15–0.5.17 / Powrush v18.26–v18.28)
 
-When status is **Critical**, both sides force-purify immediately (priority Cosmic Tick).
+```
+Critical → force purify() + critical_auto_purify_count
+Stressed → decay_stress(α) + soft_remediate_count
+```
 
 ## Valence histogram (v0.5.16 / Powrush v18.27)
 
@@ -53,14 +57,14 @@ mercy_ratio = high / (high + mid + low)
 
 ```text
 … zones_healthy, zones_stressed, zones_critical,
-  critical_auto_purifies,
+  critical_auto_purifies, soft_remediates,
   valence_high_count, valence_mid_count, valence_low_count,
   valence_mercy_ratio, zones[], healthy, health_score ∈ [0, 1]
 ```
 
 **CI gate:** `healthy == true` **and** `health_score ≥ 0.5`
 
-## Powrush telemetry keys (v21.88.11)
+## Powrush telemetry keys (v21.88.12)
 
 ```
 soft_feedback_events
@@ -73,6 +77,7 @@ soft_feedback_zones_healthy
 soft_feedback_zones_stressed
 soft_feedback_zones_critical
 soft_feedback_critical_auto
+soft_feedback_soft_remediates
 soft_feedback_valence_high
 soft_feedback_valence_mid
 soft_feedback_valence_low
