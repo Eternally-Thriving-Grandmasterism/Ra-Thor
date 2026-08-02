@@ -1,6 +1,6 @@
 //! soft_feedback_demo.rs
 //!
-//! Public dual-repo soft feedback demonstration (v0.5.14).
+//! Public dual-repo soft feedback demonstration (v0.5.15).
 //! Optional `--json` emits LatticeHealthReport + sample events (machine-readable).
 //! CI gate: healthy && health_score ≥ 0.5
 //!
@@ -142,6 +142,7 @@ fn main() {
     println!("  mean_period:     {:.1}", health.mean_effective_period);
     println!("  health_score:    {:.6}", health.health_score);
     println!("  zones H/S/C:     {}/{}/{}", health.zones_healthy, health.zones_stressed, health.zones_critical);
+    println!("  critical_auto:   {}", health.critical_auto_purifies);
     println!("  healthy:         {}", health.healthy);
     for s in &health.zones {
         println!(
