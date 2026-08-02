@@ -1,4 +1,4 @@
-//! Soft feedback bridge — dual-repo sealed protocol (v0.5.10)
+//! Soft feedback bridge — dual-repo sealed protocol (v0.5.12)
 //!
 //! AG-SML v1.0 | info@Rathor.ai | Thunder locked. Yoi ⚡
 
@@ -142,6 +142,11 @@ impl SoftFeedbackBridge {
         } else {
             zones.iter().map(|z| z.effective_period as f64).sum::<f64>() / zones.len() as f64
         };
+        let health_score = LatticeHealthReport::compute_score(
+            max_rho,
+            max_stress_ema,
+            self.lattice.adaptive_grief_scale,
+        );
         LatticeHealthReport {
             schema: "ra_thor_lattice_health_v1".to_string(),
             ambient_dim: AMBIENT_DIM,
@@ -157,6 +162,7 @@ impl SoftFeedbackBridge {
             mean_effective_period,
             zones,
             healthy: max_rho < 1e-9,
+            health_score,
         }
     }
 }
@@ -177,4 +183,17 @@ pub struct LatticeHealthReport {
     pub mean_effective_period: f64,
     pub zones: Vec<ZoneSnapshot>,
     pub healthy: bool,
+    /// Composite gate score in [0, 1]. 1.0 = pure + calm.
+    pub health_score: f64,
+}
+
+impl LatticeHealthReport {
+    /// Composite score from purity residual and stress EMA.
+    /// `score = purity_term * stress_term` with both in (0, 1].
+    pub fn compute_score(max_rho: f64, max_stress_ema: f64, stress_scale: f64) -> f64 {
+        let purity_term = 1.0 / (1.0 + max_rho * 1e12);
+        let scale = stress_scale.max(1e-9);
+        let stress_term = 1.0 / (1.0 + max_stress_ema / scale);
+        (purity_term * stress_term).clamp(0.0, 1.0)
+    }
 }
