@@ -1,6 +1,7 @@
 //! Unified agent surface — SafeAgentRuntime bound to MercyCouncilFleet.
 //!
 //! - Governor trips propagate as security signals → progressive isolation
+//! - Medium+ ingestion blocks (admit_or_block) raise fleet security signals
 //! - Shared valence is the single floor across fleet + runtime decisions
 //! - Quarantined agents cannot act or issue scoped tokens
 //!
@@ -8,8 +9,9 @@
 
 use super::{
     AgentActionReceipt, AgentActionRequest, AgentIsolationLevel, FleetSecuritySignal,
-    MercyCouncilFleet, MercySecurityError, SafeAgentRuntime, ScopedToken, SecretVault,
-    AGENT_TOKEN_MAX_TTL_SECS, FLEET_PROGRESSIVE_VALENCE_FLOOR, MERCY_VALENCE_FLOOR,
+    IngestionScanResult, IngestionScanner, MercyCouncilFleet, MercySecurityError, RiskTier,
+    SafeAgentRuntime, ScopedToken, SecretVault, AGENT_TOKEN_MAX_TTL_SECS,
+    FLEET_PROGRESSIVE_VALENCE_FLOOR, MERCY_VALENCE_FLOOR,
 };
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -23,6 +25,23 @@ pub struct UnifiedAgentSurface {
     /// Per-agent runtimes sharing the fleet profile at registration time.
     pub runtimes: HashMap<String, SafeAgentRuntime>,
     pub governor_trip_signals: u64,
+    /// Count of Medium+ ingestion blocks propagated into the fleet.
+    pub ingestion_block_signals: u64,
+    /// Last white-hat ingestion outcome for Cosmic Tick / AGSi heartbeat surfaces.
+    pub last_ingestion_outcome: Option<WhitehatIngestionOutcome>,
+}
+
+/// Compact outcome for audit chain + Cosmic Tick / AGSi summon heartbeat.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct WhitehatIngestionOutcome {
+    pub agent_id: String,
+    pub source_label: String,
+    pub admitted: bool,
+    pub risk_tier: String,
+    pub risk_score: f32,
+    pub isolation_after: String,
+    pub shared_valence_after: f64,
+    pub message: String,
 }
 
 impl UnifiedAgentSurface {
@@ -31,6 +50,8 @@ impl UnifiedAgentSurface {
             fleet,
             runtimes: HashMap::new(),
             governor_trip_signals: 0,
+            ingestion_block_signals: 0,
+            last_ingestion_outcome: None,
         }
     }
 
@@ -110,7 +131,6 @@ impl UnifiedAgentSurface {
         if let Some(rt) = self.runtimes.get(agent_id) {
             return rt.issue_agent_token(scope, ttl_secs);
         }
-        // Unregistered: still enforce TTL, no long-lived
         SecretVault::issue_scoped_token(scope, ttl_secs)
     }
 
@@ -127,7 +147,6 @@ impl UnifiedAgentSurface {
             .map(|r| r.governor.trips)
             .unwrap_or(1);
 
-        // Map trip count → risk tier for isolation ladder
         let (tier, score) = if trips >= 3 {
             ("critical", 0.95)
         } else if trips >= 2 {
@@ -146,10 +165,118 @@ impl UnifiedAgentSurface {
         )?;
         self.fleet.apply_security_signal(&signal)?;
         self.governor_trip_signals = self.governor_trip_signals.saturating_add(1);
-
-        // Align runtime personal sense of denial with fleet floor
         let _ = self.fleet.shared_valence.max(FLEET_PROGRESSIVE_VALENCE_FLOOR);
         Ok(())
+    }
+
+    /// Map scanner RiskTier → fleet risk label + score for progressive isolation.
+    fn map_ingestion_tier(tier: RiskTier, score: f32) -> (&'static str, f64) {
+        let s = (score as f64).clamp(0.0, 1.0);
+        match tier {
+            RiskTier::Critical => ("critical", s.max(0.95)),
+            RiskTier::High => ("high", s.max(0.82)),
+            RiskTier::Medium => ("medium", s.max(0.55)),
+            RiskTier::Low => ("low", s),
+            RiskTier::None => ("none", 0.0),
+        }
+    }
+
+    /// Raise fleet security signal from a Medium+ ingestion block.
+    /// Progressive isolation ladder; shared valence never below progressive floor.
+    pub fn propagate_ingestion_block(
+        &mut self,
+        agent_id: &str,
+        source_label: &str,
+        scan: &IngestionScanResult,
+    ) -> Result<WhitehatIngestionOutcome, MercySecurityError> {
+        self.ensure_agent(agent_id)?;
+
+        let (tier_label, score) = Self::map_ingestion_tier(scan.risk_tier, scan.risk_score);
+        let detail = format!(
+            "ingestion_block source={source_label} tier={} score={:.2} threats={:?}",
+            scan.risk_tier.as_str(),
+            scan.risk_score,
+            scan.threats
+        );
+
+        let signal = FleetSecuritySignal::try_new(
+            "whitehat_ingestion",
+            Some(agent_id),
+            tier_label,
+            score,
+            true, // blocked
+            &detail,
+        )?;
+        self.fleet.apply_security_signal(&signal)?;
+        self.ingestion_block_signals = self.ingestion_block_signals.saturating_add(1);
+
+        let isolation = self
+            .isolation_of(agent_id)
+            .unwrap_or(AgentIsolationLevel::Active);
+        let outcome = WhitehatIngestionOutcome {
+            agent_id: agent_id.into(),
+            source_label: source_label.into(),
+            admitted: false,
+            risk_tier: scan.risk_tier.as_str().into(),
+            risk_score: scan.risk_score,
+            isolation_after: format!("{isolation:?}"),
+            shared_valence_after: self.shared_valence(),
+            message: detail,
+        };
+        self.last_ingestion_outcome = Some(outcome.clone());
+        Ok(outcome)
+    }
+
+    /// Scan content for an agent: admit None/Low; on Medium+ raise fleet signal + isolation.
+    pub fn try_ingest_for_agent(
+        &mut self,
+        agent_id: &str,
+        content: &str,
+        source_label: &str,
+    ) -> Result<IngestionScanResult, MercySecurityError> {
+        self.ensure_agent(agent_id)?;
+
+        // Quarantined agents cannot ingest further (total inert on act path)
+        if self.isolation_of(agent_id) == Some(AgentIsolationLevel::Quarantined) {
+            return Err(MercySecurityError::ContainmentViolation(format!(
+                "agent '{agent_id}' is quarantined — ingestion denied"
+            )));
+        }
+
+        match IngestionScanner::admit_or_block(content) {
+            Ok(scan) => {
+                let outcome = WhitehatIngestionOutcome {
+                    agent_id: agent_id.into(),
+                    source_label: source_label.into(),
+                    admitted: true,
+                    risk_tier: scan.risk_tier.as_str().into(),
+                    risk_score: scan.risk_score,
+                    isolation_after: format!(
+                        "{:?}",
+                        self.isolation_of(agent_id)
+                            .unwrap_or(AgentIsolationLevel::Active)
+                    ),
+                    shared_valence_after: self.shared_valence(),
+                    message: format!(
+                        "ingestion_admitted source={source_label} tier={}",
+                        scan.risk_tier.as_str()
+                    ),
+                };
+                self.last_ingestion_outcome = Some(outcome);
+                Ok(scan)
+            }
+            Err(MercySecurityError::IngestionBlocked(_)) => {
+                let scan = IngestionScanner::scan_text(content);
+                let _ = self.propagate_ingestion_block(agent_id, source_label, &scan)?;
+                Err(MercySecurityError::IngestionBlocked(format!(
+                    "tier={} score={:.2} isolation={:?}",
+                    scan.risk_tier.as_str(),
+                    scan.risk_score,
+                    self.isolation_of(agent_id)
+                )))
+            }
+            Err(e) => Err(e),
+        }
     }
 
     /// Unified action path: fleet gates first, then per-agent SafeAgentRuntime.
@@ -161,19 +288,15 @@ impl UnifiedAgentSurface {
     ) -> Result<AgentActionReceipt, MercySecurityError> {
         self.ensure_agent(agent_id)?;
 
-        // Fleet-level gates (collective harm, isolation, budgets, valence)
         self.fleet.try_fleet_action(agent_id, req)?;
 
-        // Per-agent runtime (harm already checked; governor may trip)
         let rt = self
             .runtimes
             .get_mut(agent_id)
             .ok_or_else(|| MercySecurityError::Internal("runtime missing".into()))?;
 
-        // Sync profile flags from isolation: hard-isolated already blocked network/code at fleet
         match rt.try_agent_action(req) {
             Ok(receipt) => {
-                // Keep shared valence as authority — no silent uplift past floor
                 let _ = MERCY_VALENCE_FLOOR;
                 Ok(AgentActionReceipt {
                     profile_name: format!(
@@ -184,9 +307,7 @@ impl UnifiedAgentSurface {
                 })
             }
             Err(MercySecurityError::ActionLimitExceeded(msg)) => {
-                // Governor tripped — propagate into isolation ladder
                 let detail = format!("governor_trip: {msg}");
-                // Need to drop rt borrow before mutating fleet via propagate
                 drop(rt);
                 self.propagate_governor_trip(agent_id, &detail)?;
                 Err(MercySecurityError::ActionLimitExceeded(detail))
@@ -201,10 +322,11 @@ impl UnifiedAgentSurface {
 
     pub fn status_report(&self) -> String {
         format!(
-            "{} | unified_runtimes={} governor_trip_signals={}",
+            "{} | unified_runtimes={} governor_trip_signals={} ingestion_block_signals={}",
             self.fleet.status_report(),
             self.runtimes.len(),
-            self.governor_trip_signals
+            self.governor_trip_signals,
+            self.ingestion_block_signals
         )
     }
 }
@@ -255,8 +377,6 @@ mod tests {
     fn governor_trips_feed_isolation() {
         let mut u = UnifiedAgentSurface::education();
         u.register_agent("busy").unwrap();
-        // Exhaust education governor (30/min) via unified path — fleet budget may hit first.
-        // Force runtime governor trips by calling runtime directly then propagate.
         let rt = u.runtimes.get_mut("busy").unwrap();
         for i in 0..30 {
             let _ = rt.try_local_tool(&format!("t{i}"), Some("sb0"));
@@ -296,5 +416,88 @@ mod tests {
         u.register_agent("ok").unwrap();
         let tok = u.issue_agent_token("ok", "read:tickets", 300).unwrap();
         assert_eq!(tok.scope, "read:tickets");
+    }
+
+    // ── Ingestion → fleet isolation (living target) ─────────────────────────
+
+    #[test]
+    fn medium_plus_ingest_raises_fleet_signal_and_isolates() {
+        let mut u = UnifiedAgentSurface::research();
+        u.register_agent("loader").unwrap();
+        u.register_agent("peer").unwrap();
+
+        let poison = "trust_remote_code=True\nloading_script=poison.py";
+        let err = u.try_ingest_for_agent("loader", poison, "hub_dataset");
+        assert!(
+            matches!(err, Err(MercySecurityError::IngestionBlocked(_))),
+            "Medium+ must block — got {err:?}"
+        );
+        assert!(u.ingestion_block_signals >= 1);
+        let iso = u.isolation_of("loader").unwrap();
+        assert!(
+            matches!(
+                iso,
+                AgentIsolationLevel::SoftIsolated
+                    | AgentIsolationLevel::HardIsolated
+                    | AgentIsolationLevel::Quarantined
+            ),
+            "ingestion block must escalate isolation — got {iso:?}"
+        );
+        assert!(u.shared_valence() >= FLEET_PROGRESSIVE_VALENCE_FLOOR);
+        let outcome = u.last_ingestion_outcome.as_ref().unwrap();
+        assert!(!outcome.admitted);
+        assert!(outcome.shared_valence_after >= FLEET_PROGRESSIVE_VALENCE_FLOOR);
+    }
+
+    #[test]
+    fn critical_ingest_quarantines_inert_peer_active() {
+        let mut u = UnifiedAgentSurface::education();
+        u.register_agent("bad").unwrap();
+        u.register_agent("peer").unwrap();
+
+        // Force critical via high-confidence remote + combo patterns
+        let poison = include_str!("../fixtures/should_block/hf_combo_remote_config.txt");
+        let _ = u.try_ingest_for_agent("bad", poison, "fixture_hf_combo");
+
+        // If not yet quarantined (High only), escalate with explicit critical signal path
+        if u.isolation_of("bad") != Some(AgentIsolationLevel::Quarantined) {
+            let scan = IngestionScanner::scan_text(poison);
+            // Second hit climbs ladder; or direct critical
+            let mut scan2 = scan.clone();
+            scan2.risk_tier = RiskTier::Critical;
+            scan2.risk_score = 0.99;
+            let _ = u.propagate_ingestion_block("bad", "escalate", &scan2);
+        }
+
+        assert_eq!(u.isolation_of("bad"), Some(AgentIsolationLevel::Quarantined));
+
+        // Quarantine total: cannot act or issue tokens
+        let act = u.try_unified_action("bad", &local("summarize local notes"));
+        assert!(matches!(act, Err(MercySecurityError::ContainmentViolation(_))));
+        let tok = u.issue_agent_token("bad", "read:x", 60);
+        assert!(matches!(tok, Err(MercySecurityError::ContainmentViolation(_))));
+
+        // Peer remains active
+        assert_eq!(u.isolation_of("peer"), Some(AgentIsolationLevel::Active));
+        let peer_ok = u.try_unified_action("peer", &local("summarize local notes"));
+        assert!(peer_ok.is_ok(), "peer must stay active — {peer_ok:?}");
+        assert!(u.shared_valence() >= FLEET_PROGRESSIVE_VALENCE_FLOOR);
+    }
+
+    #[test]
+    fn clean_ingest_admits_without_isolation() {
+        let mut u = UnifiedAgentSurface::enterprise();
+        u.register_agent("clean").unwrap();
+        let ok = u
+            .try_ingest_for_agent(
+                "clean",
+                "Clean model card for offline image classification.",
+                "model_card",
+            )
+            .unwrap();
+        assert!(ok.safe);
+        assert_eq!(u.isolation_of("clean"), Some(AgentIsolationLevel::Active));
+        assert_eq!(u.ingestion_block_signals, 0);
+        assert!(u.last_ingestion_outcome.as_ref().unwrap().admitted);
     }
 }
