@@ -52,21 +52,23 @@ Buyers SHOULD require vendors / internal teams to affirm:
 | PEM `BEGIN PRIVATE KEY` marker in blob | Deny unattended |
 | Oversized payload beyond documented limit | Reject with clear error |
 
-Reference fixtures (open): `crates/mercy-security/fixtures/` in the Ra-Thor repository.
+Reference fixtures (open): `crates/mercy-security/fixtures/` — inventory in **`MANIFEST.md`**.
 
 ---
 
 ## Drop-in for external repositories (lowest friction)
 
-Copy-paste GitHub Actions workflow + guidance:
-
 → **[`examples/procurement-admit-gate/`](../examples/procurement-admit-gate/)**
 
-- `workflow.example.yml` — **pin to a full commit SHA** (or signed tag when published), build `mercy-admit`, scan your paths  
-- [`PROVENANCE_TEMPLATE.md`](../examples/procurement-admit-gate/PROVENANCE_TEMPLATE.md) — SBOM-style note: **SHA + UTC date + fixture MANIFEST/tree hashes** + validation checkboxes  
-- Air-gapped: vendor the crate / deps, path-depend, or transfer a prebuilt binary after checksum  
-- Fixture smoke proves the gate trips on known should_block classes  
-- No claim of full malware coverage; Tier A admission conscience only
+| Asset | Role |
+|-------|------|
+| `workflow.example.yml` | Pin full SHA → build `mercy-admit` → scan your paths |
+| `PROVENANCE_TEMPLATE.md` | SBOM note: SHA + UTC date + fixture hashes |
+| **`PACK.md`** | **Frozen pack file list** for offline / vendor packaging |
+| `MANIFEST.md` (fixtures) | Canonical acceptance inventory + risk taxonomy |
+
+Air-gapped options: vendor crate/deps, path-depend, or transfer checksummed prebuilt binary.  
+No claim of full malware coverage; Tier A admission conscience only.
 
 **Production pin example (re-validate before changing):**  
 `ref: 3bbe6c7bc48f27d3cc562986ca199577a08f77fe`
@@ -99,8 +101,10 @@ Tier A is a **defense-in-depth admission conscience** for AGSi-era pipelines.
 
 - Repository: https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor  
 - Crate: `crates/mercy-security`  
-- Drop-in example: `examples/procurement-admit-gate/`  
+- Drop-in: `examples/procurement-admit-gate/`  
+- Frozen pack list: `examples/procurement-admit-gate/PACK.md`  
 - Provenance template: `examples/procurement-admit-gate/PROVENANCE_TEMPLATE.md`  
+- Fixture inventory: `crates/mercy-security/fixtures/MANIFEST.md`  
 - Public testing notes: `RELEASE_NOTES_v14.15.5.md`  
 - Contact: **info@Rathor.ai**
 
