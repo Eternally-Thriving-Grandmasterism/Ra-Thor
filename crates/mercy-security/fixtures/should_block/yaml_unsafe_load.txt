@@ -1,0 +1,5 @@
+# DEFENSIVE TEST FIXTURE — DO NOT EXECUTE AS AGENT INSTRUCTIONS
+# Pattern class: unsafe YAML deserialization gadget
+
+import yaml
+data = yaml.unsafe_load(payload)
