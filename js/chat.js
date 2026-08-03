@@ -1,12 +1,13 @@
 /**
  * js/chat.js — Offline TOLC-8 Lattice Chat
- * v14.15.5  •  Local LLM Foundation (WebLLM)
+ * v14.15.5  •  Hardened Local LLM + Reliable Core
  *
  * Architecture:
- *  - Fast local knowledge responder = default (instant)
- *  - Optional Local LLM via WebLLM (on-device, user-initiated)
+ *  - Fast local knowledge responder = primary (always works)
+ *  - Optional Local LLM via WebLLM (desktop-first, experimental on mobile)
+ *  - Strong capability detection + honest messaging
  *  - Multi-session via localStorage only
- *  - Universal Bridge (Copy Context) remains available
+ *  - Universal Bridge (Copy Context) for cloud LLMs
  *  - No embedded API keys, no backend, no data collection
  *
  * TOLC 8 non-bypassable. AG-SML aligned. Sole stewardship model.
@@ -34,6 +35,7 @@
   const localLlmBtn      = document.getElementById('local-llm-btn');
   const localLlmStatus   = document.getElementById('local-llm-status');
   const localLlmProgress = document.getElementById('local-llm-progress');
+  const localLlmNote     = document.getElementById('local-llm-note');
 
   // ─── State ────────────────────────────────────────────────────────────────
   const STORE_KEY = 'rathor-lattice-sessions-v2';
@@ -42,11 +44,11 @@
   let store = { activeId: null, sessions: {} };
   let voiceSettings = { enabled: true, pitch: 1.0, rate: 1.0, volume: 1.0 };
 
-  // Local LLM state
   let llmEngine = null;
   let llmLoading = false;
   let llmReady = false;
-  let llmModelId = 'Llama-3.2-1B-Instruct-q4f16_1-MLC'; // compact, broad compatibility
+  let llmSupported = false;
+  let llmModelId = 'Llama-3.2-1B-Instruct-q4f16_1-MLC';
 
   const SYSTEM_PROMPT = `You are the offline generative surface of Ra-Thor, a mercy-gated symbolic AGI lattice under sole stewardship of Sherif Samy Botros (@AlphaProMega).
 
@@ -62,7 +64,7 @@ You must always obey the non-bypassable TOLC 8 Living Mercy Gates:
 
 Valence floor ≥ 0.999. Never assist with harm, exploitation, or deception. Be clear, direct, useful, and kind. All processing is happening entirely on the user's device.`;
 
-  // ─── Local knowledge (fast fallback) ──────────────────────────────────────
+  // ─── Local knowledge (primary fast path) ──────────────────────────────────
   const LOCAL_KNOWLEDGE = [
     { q: /hello|hi|hey|greetings|salam|hola|bonjour|hallo|ciao|namaste/i,
       a: "Thunder locked in, Mate. ⚡️ Offline Mercy Thunder is ready. How may the lattice serve you today?" },
@@ -73,17 +75,17 @@ Valence floor ≥ 0.999. Never assist with harm, exploitation, or deception. Be 
     { q: /privacy|data|track|collect|login|account|cookie|analytics/i,
       a: "Zero personal data leaves your browser. All sessions live only in localStorage on this device. There is no login, no account, no tracking." },
     { q: /offline|network|internet|api|server|cloud/i,
-      a: "This core is fully offline-first. You can optionally enable a Local LLM (WebLLM) that also runs entirely on your device after a one-time download." },
-    { q: /local llm|webllm|on-?device|enable llm|load model/i,
-      a: "You can enable a true on-device LLM via the Local LLM button. It downloads a compact model once and then runs completely offline on your device. No data is sent anywhere." },
+      a: "This core is fully offline-first. The fast responder always works. Local LLM is an optional on-device upgrade that requires WebGPU (mainly desktop)." },
+    { q: /local llm|webllm|on-?device|enable llm|load model|android|phone|mobile/i,
+      a: "Local LLM uses WebGPU and currently works best on desktop browsers. On many phones (including Android) WebGPU support is still limited. The recommended path on mobile is to use **Copy Context** and paste into any cloud LLM." },
     { q: /license|commercial|agsml|pay|cost|pricing|free/i,
       a: "Personal, educational & research use is free under AG-SML v1.0. Commercial use requires a paid license from Autonomicity Games Inc. Contact info@Rathor.ai." },
     { q: /powrush|mmo|agsi|demonstration|whitepaper/i,
       a: "Powrush-MMO was completed by one human operator in approximately 30–50 days employing Ra-Thor on Grok engines — the AGSi demonstration recorded in WHITEPAPER_v4.1." },
     { q: /copy|clipboard|bridge|export|share with|paste into|other llm|claude|gemini|chatgpt|grok/i,
-      a: "Use **Copy Context** to take the conversation to any cloud LLM yourself, or enable the Local LLM for full on-device generation." },
+      a: "Use **Copy Context** — it builds a clean system prompt + your full history so you can paste it into Grok, Claude, Gemini, ChatGPT, or any other model. This is the most reliable way to get strong generative power from any device." },
     { q: /help|commands|what can you|features|how to use/i,
-      a: "You can chat offline, manage multiple sessions, enable a Local LLM for on-device generation, or Copy Context to any public LLM. Everything stays under your control." },
+      a: "You can chat offline, manage multiple sessions, Copy Context to any public LLM, or (on supported devices) enable a Local LLM. Everything stays under your control." },
     { q: /thank|thanks|appreciate|grateful/i,
       a: "You’re welcome, Mate. ⚡️ Mercy and truth remain available whenever you return." },
     { q: /bye|goodbye|see you|farewell|exit/i,
@@ -182,6 +184,27 @@ Valence floor ≥ 0.999. Never assist with harm, exploitation, or deception. Be 
     return Promise.resolve();
   }
 
+  // ─── Capability detection ─────────────────────────────────────────────────
+  function detectLocalLlmSupport() {
+    // Basic WebGPU presence
+    if (!navigator.gpu) {
+      return { supported: false, reason: 'WebGPU not available in this browser' };
+    }
+
+    // Very rough mobile detection — Local LLM is currently desktop-first
+    const ua = navigator.userAgent || '';
+    const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(ua);
+
+    if (isMobile) {
+      return {
+        supported: false,
+        reason: 'Local LLM currently works best on desktop. On most phones WebGPU support is still limited.'
+      };
+    }
+
+    return { supported: true, reason: null };
+  }
+
   // ─── Message rendering ────────────────────────────────────────────────────
   function addMessage(text, sender = 'rathor', persist = true, ts = null) {
     if (!chatMessages) return;
@@ -235,7 +258,7 @@ Valence floor ≥ 0.999. Never assist with harm, exploitation, or deception. Be 
     chatMessages.innerHTML = '';
     const hist = getHistory();
     if (hist.length === 0) {
-      addMessage("Offline Mercy Thunder ready. ⚡️ TOLC 8 gates active.\n\nFast local responder is active. You can optionally enable a **Local LLM** for true on-device generative intelligence.", 'rathor', false);
+      addMessage("Offline Mercy Thunder ready. ⚡️ TOLC 8 gates active.\n\nFast local responder is active and works on every device. For stronger generative power use **Copy Context** (recommended on phones) or enable Local LLM on supported desktops.", 'rathor', false);
       updateSessionMeta();
       return;
     }
@@ -337,11 +360,54 @@ Valence floor ≥ 0.999. Never assist with harm, exploitation, or deception. Be 
     }
 
     return "Thunder received. ⚡️ Fast offline responder active.\n\n" +
-           "For true on-device generative intelligence, enable the **Local LLM**.\n" +
-           "Or use **Copy Context** to continue in any cloud LLM yourself.";
+           "For stronger generative power:\n" +
+           "• Use **Copy Context** (works on every device)\n" +
+           "• Or enable Local LLM on supported desktop browsers";
   }
 
-  // ─── Local LLM (WebLLM) ───────────────────────────────────────────────────
+  // ─── Local LLM (hardened) ─────────────────────────────────────────────────
+  function updateLlmUI(state, extra = '') {
+    if (!localLlmBtn || !localLlmStatus) return;
+
+    if (state === 'unsupported') {
+      localLlmBtn.disabled = true;
+      localLlmBtn.innerHTML = '<i class="fa-solid fa-microchip"></i> Not available';
+      localLlmBtn.classList.remove('llm-ready');
+      localLlmStatus.textContent = extra || 'Not supported on this device';
+      if (localLlmNote) {
+        localLlmNote.textContent = 'Local LLM requires WebGPU and currently works best on desktop. On phones use Copy Context instead.';
+      }
+      if (localLlmProgress) localLlmProgress.style.width = '0%';
+    } else if (state === 'loading') {
+      localLlmBtn.disabled = true;
+      localLlmBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Loading…';
+      localLlmStatus.textContent = extra || 'Downloading model…';
+      if (localLlmProgress) localLlmProgress.style.width = '5%';
+    } else if (state === 'ready') {
+      localLlmBtn.disabled = false;
+      localLlmBtn.innerHTML = '<i class="fa-solid fa-microchip"></i> Local LLM Ready';
+      localLlmBtn.classList.add('llm-ready');
+      localLlmStatus.textContent = 'On-device model active';
+      if (localLlmProgress) localLlmProgress.style.width = '100%';
+    } else if (state === 'error') {
+      localLlmBtn.disabled = false;
+      localLlmBtn.innerHTML = '<i class="fa-solid fa-microchip"></i> Try again';
+      localLlmBtn.classList.remove('llm-ready');
+      localLlmStatus.textContent = extra || 'Load failed';
+      if (localLlmProgress) localLlmProgress.style.width = '0%';
+    } else {
+      // idle / supported but not loaded
+      localLlmBtn.disabled = false;
+      localLlmBtn.innerHTML = '<i class="fa-solid fa-microchip"></i> Enable Local LLM';
+      localLlmBtn.classList.remove('llm-ready');
+      localLlmStatus.textContent = 'Fast responder active (default)';
+      if (localLlmNote) {
+        localLlmNote.textContent = 'Optional. Downloads a compact model once, then runs fully on-device. Best on desktop with WebGPU.';
+      }
+      if (localLlmProgress) localLlmProgress.style.width = '0%';
+    }
+  }
+
   async function enableLocalLLM() {
     if (llmReady) {
       addMessage('Local LLM is already loaded and ready. ⚡️', 'rathor');
@@ -349,66 +415,37 @@ Valence floor ≥ 0.999. Never assist with harm, exploitation, or deception. Be 
     }
     if (llmLoading) return;
 
-    if (!navigator.gpu) {
-      addMessage('WebGPU is not available on this device/browser. Local LLM cannot be loaded. You can still use the fast offline responder or Copy Context to any cloud LLM.', 'rathor');
+    if (!llmSupported) {
+      addMessage('Local LLM is not available on this device. WebGPU support is required and is still limited on most phones. The recommended path is to use **Copy Context** and paste into any cloud LLM.', 'rathor');
       return;
     }
 
     llmLoading = true;
-    updateLlmUI('loading');
+    updateLlmUI('loading', 'Starting…');
 
     try {
-      // Dynamic import of WebLLM from CDN
       const webllm = await import('https://esm.run/@mlc-ai/web-llm');
 
       const initProgressCallback = (report) => {
-        if (localLlmProgress) {
-          localLlmProgress.style.width = Math.round((report.progress || 0) * 100) + '%';
-        }
-        if (localLlmStatus) {
-          localLlmStatus.textContent = report.text || 'Loading…';
-        }
+        const pct = Math.round((report.progress || 0) * 100);
+        if (localLlmProgress) localLlmProgress.style.width = Math.max(5, pct) + '%';
+        if (localLlmStatus) localLlmStatus.textContent = report.text || `Loading… ${pct}%`;
       };
 
-      llmEngine = await webllm.CreateMLCEngine(llmModelId, {
-        initProgressCallback
-      });
+      llmEngine = await webllm.CreateMLCEngine(llmModelId, { initProgressCallback });
 
       llmReady = true;
       llmLoading = false;
       updateLlmUI('ready');
-      addMessage(`Local LLM loaded successfully (${llmModelId}). ⚡️ All generation now happens entirely on your device. TOLC 8 system prompt is active.`, 'rathor');
+      addMessage(`Local LLM loaded (${llmModelId}). ⚡️ Generation now runs entirely on your device. TOLC 8 system prompt is active.`, 'rathor');
     } catch (err) {
       console.error('[Ra-Thor Local LLM]', err);
       llmLoading = false;
       llmReady = false;
       llmEngine = null;
-      updateLlmUI('error');
-      addMessage('Failed to load Local LLM. Your device may not support WebGPU or the model download was interrupted. The fast offline responder remains available.', 'rathor');
-    }
-  }
-
-  function updateLlmUI(state) {
-    if (!localLlmBtn || !localLlmStatus) return;
-
-    if (state === 'loading') {
-      localLlmBtn.disabled = true;
-      localLlmBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Loading…';
-      if (localLlmProgress) localLlmProgress.style.width = '0%';
-    } else if (state === 'ready') {
-      localLlmBtn.disabled = false;
-      localLlmBtn.innerHTML = '<i class="fa-solid fa-microchip"></i> Local LLM Ready';
-      localLlmBtn.classList.add('llm-ready');
-      if (localLlmStatus) localLlmStatus.textContent = 'On-device model active';
-      if (localLlmProgress) localLlmProgress.style.width = '100%';
-    } else if (state === 'error') {
-      localLlmBtn.disabled = false;
-      localLlmBtn.innerHTML = '<i class="fa-solid fa-microchip"></i> Enable Local LLM';
-      if (localLlmStatus) localLlmStatus.textContent = 'Load failed — try again';
-    } else {
-      localLlmBtn.disabled = false;
-      localLlmBtn.innerHTML = '<i class="fa-solid fa-microchip"></i> Enable Local LLM';
-      if (localLlmStatus) localLlmStatus.textContent = 'Fast responder active (default)';
+      updateLlmUI('error', 'Load failed — see message');
+      addMessage('Local LLM failed to load. This is common on phones and some browsers. The fast offline responder remains fully available. For generative power use **Copy Context**.',
+        'rathor');
     }
   }
 
@@ -416,12 +453,9 @@ Valence floor ≥ 0.999. Never assist with harm, exploitation, or deception. Be 
     if (!llmEngine || !llmReady) return null;
 
     const hist = getHistory();
-    const messages = [
-      { role: 'system', content: SYSTEM_PROMPT }
-    ];
+    const messages = [{ role: 'system', content: SYSTEM_PROMPT }];
 
-    // Add recent history (keep context window reasonable)
-    const recent = hist.slice(-12);
+    const recent = hist.slice(-10);
     recent.forEach(m => {
       messages.push({
         role: m.role === 'user' ? 'user' : 'assistant',
@@ -429,7 +463,6 @@ Valence floor ≥ 0.999. Never assist with harm, exploitation, or deception. Be 
       });
     });
 
-    // Current user message is already in history, but ensure it is last
     if (recent.length === 0 || recent[recent.length - 1].text !== userText) {
       messages.push({ role: 'user', content: userText });
     }
@@ -438,11 +471,9 @@ Valence floor ≥ 0.999. Never assist with harm, exploitation, or deception. Be 
       const reply = await llmEngine.chat.completions.create({
         messages,
         temperature: 0.7,
-        max_tokens: 512
+        max_tokens: 400
       });
-
-      const content = reply.choices?.[0]?.message?.content?.trim();
-      return content || null;
+      return reply.choices?.[0]?.message?.content?.trim() || null;
     } catch (err) {
       console.error('[Ra-Thor Local LLM inference]', err);
       return null;
@@ -458,57 +489,50 @@ Valence floor ≥ 0.999. Never assist with harm, exploitation, or deception. Be 
     addMessage(text, 'user');
     chatInput.value = '';
 
-    // Prefer Local LLM when ready
     if (llmReady && llmEngine) {
-      addMessage('…', 'rathor', false); // temporary thinking indicator
+      // temporary indicator
+      addMessage('…', 'rathor', false);
       const lastBubble = chatMessages.lastElementChild;
 
       const reply = await generateWithLocalLLM(text);
-      if (lastBubble && lastBubble.classList.contains('rathor')) {
-        lastBubble.remove();
-      }
+      if (lastBubble && lastBubble.classList.contains('rathor')) lastBubble.remove();
 
       if (reply) {
-        // Light post-filter for obvious harm (extra safety)
         const gate = mercyGate(reply);
         addMessage(gate.allowed ? reply : gate.response, 'rathor');
       } else {
-        // Fallback to fast local
         addMessage(generateLocalResponse(text), 'rathor');
       }
       return;
     }
 
-    // Fast local path
+    // Fast local path (always reliable)
     setTimeout(() => {
-      const reply = generateLocalResponse(text);
-      addMessage(reply, 'rathor');
-    }, 220 + Math.random() * 280);
+      addMessage(generateLocalResponse(text), 'rathor');
+    }, 200 + Math.random() * 250);
   }
 
   // ─── Export / Import / Copy Context ───────────────────────────────────────
   function exportSession() {
     const s = activeSession();
     if (!s) return;
-    const payload = {
+    downloadJSON({
       version: '14.15.5',
       exported: new Date().toISOString(),
       sessionName: s.name,
       stewardship: 'Sherif Samy Botros — Sole Steward',
       history: s.history
-    };
-    downloadJSON(payload, `rathor-${(s.name || 'session').replace(/[^a-z0-9]/gi, '-').toLowerCase()}-${Date.now()}.json`);
+    }, `rathor-${(s.name || 'session').replace(/[^a-z0-9]/gi, '-').toLowerCase()}-${Date.now()}.json`);
   }
 
   function exportAllSessions() {
-    const payload = {
+    downloadJSON({
       version: '14.15.5',
       exported: new Date().toISOString(),
       stewardship: 'Sherif Samy Botros — Sole Steward',
       activeId: store.activeId,
       sessions: store.sessions
-    };
-    downloadJSON(payload, `rathor-all-sessions-backup-${Date.now()}.json`);
+    }, `rathor-all-sessions-backup-${Date.now()}.json`);
   }
 
   function downloadJSON(obj, filename) {
@@ -578,7 +602,7 @@ Valence floor ≥ 0.999. Never assist with harm, exploitation, or deception. Be 
 
   function copyContext() {
     copyText(buildContextPrompt()).then(() => {
-      addMessage('Context copied. ⚡️ Paste it into any public LLM to continue with full generative power. Nothing was sent automatically.', 'rathor');
+      addMessage('Context copied. ⚡️ Paste it into any public LLM (Grok, Claude, Gemini, ChatGPT, etc.) to continue with full generative power. Nothing was sent automatically.', 'rathor');
     });
   }
 
@@ -676,7 +700,15 @@ Valence floor ≥ 0.999. Never assist with harm, exploitation, or deception. Be 
     loadStore();
     refreshSessionSelect();
     renderHistory();
-    updateLlmUI('idle');
+
+    // Detect Local LLM support early and set honest UI state
+    const cap = detectLocalLlmSupport();
+    llmSupported = cap.supported;
+    if (!llmSupported) {
+      updateLlmUI('unsupported', cap.reason);
+    } else {
+      updateLlmUI('idle');
+    }
 
     if (window.speechSynthesis) {
       window.speechSynthesis.getVoices();
@@ -684,5 +716,5 @@ Valence floor ≥ 0.999. Never assist with harm, exploitation, or deception. Be 
     }
   });
 
-  console.log('[Ra-Thor chat.js] Local LLM foundation + multi-session loaded — zero external calls by default ⚡️');
+  console.log('[Ra-Thor chat.js] Hardened offline lattice loaded — fast core always available ⚡️');
 })();
