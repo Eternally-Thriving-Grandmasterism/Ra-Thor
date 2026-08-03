@@ -6,6 +6,9 @@
 # Policy: Admit None/Low only. Block Medium+. Reject >4 MiB.
 # White-hat admission conscience only — not a full malware detector.
 # Contact: info@Rathor.ai | Source: https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor
+#
+# PINNING: Prefer a full commit SHA (or signed tag when published).
+# See examples/procurement-admit-gate/README.md → "Pinning".
 # =============================================================================
 
 name: Mercy Admit Gate (Tier A)
@@ -36,13 +39,16 @@ jobs:
         uses: actions/checkout@v4
 
       # ------------------------------------------------------------------
-      # Pin the gate source. Prefer a tag/commit once validated.
+      # PIN the gate source. Do not leave this on floating main for prod.
+      # Update the SHA only after re-running acceptance tests (see README).
       # ------------------------------------------------------------------
-      - name: Checkout Ra-Thor gate source (shallow)
+      - name: Checkout Ra-Thor gate source (shallow, pinned)
         uses: actions/checkout@v4
         with:
           repository: Eternally-Thriving-Grandmasterism/Ra-Thor
-          ref: main                    # TODO: pin to tag or SHA for production
+          # Full SHA that includes mercy-admit CLI + procurement drop-in.
+          # Replace after your own validation; short SHAs are not acceptable for prod pins.
+          ref: 3bbe6c7bc48f27d3cc562986ca199577a08f77fe
           path: _ra_thor_gate
           fetch-depth: 1
 
