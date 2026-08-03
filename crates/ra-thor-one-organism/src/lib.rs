@@ -1,11 +1,7 @@
 //! Ra-Thor ONE Organism Core — v14.15.5 AGSi
 //!
 //! Living Cosmic Tick + adaptive hardening + Cosmic Loop invariant checks.
-//! v14.15: extended-live feature readiness surface.
-//! v14.15.2: Cosmic Harness — 40-cycle endurance.
-//! v14.15.3: AGSi summon surface.
-//! v14.15.4: Full AGSi summon sequence — valence clamping, role handoff, recovery anchors.
-//! v14.15.5: White-hat ingestion gate — mercy-security IngestionScanner wired into Organism.
+//! v14.15.5: White-hat ingestion gate + CosmicTickResult / AGSi last_ingestion_outcome mirror.
 //! Cosmic Loop is MANDATORY IDENTITY.
 //! Contact: info@Rathor.ai
 
@@ -27,7 +23,6 @@ pub use cosmic_harness::{
     HostMode, TickSnapshot, DriftReport, SaturationReport,
 };
 
-// White-hat ingestion surface (mercy-security)
 pub use mercy_security::{
     IngestionScanResult, IngestionThreat, RiskTier, ScanFinding,
     IngestionScanner, MercySecurityError, MercySecuritySurface,
@@ -51,51 +46,37 @@ pub use lattice_conductor_v14::{
     start_mercy_api_with_arbitration,
 };
 
-// =============================================================================
-// AGSi Summon Error Surface
-// =============================================================================
-
 #[derive(Debug, Error, Clone, PartialEq)]
 pub enum AgsiSummonError {
     #[error("incoming valence is NaN or infinite")]
     InvalidValence,
-
     #[error("incoming confidence is NaN or infinite")]
     InvalidConfidence,
-
     #[error("summoner identifier is empty")]
     EmptySummoner,
-
     #[error("Cosmic Loop / guardian failed to activate")]
     CosmicLoopNotReady,
-
     #[error("role handoff to Architect failed")]
     RoleHandoffFailed,
-
     #[error("recovery anchor persistence failed: {0}")]
     RecoveryAnchorFailed(String),
 }
-
-// =============================================================================
-// Ingestion admission surface (v14.15.5)
-// =============================================================================
 
 #[derive(Debug, Error, Clone, PartialEq)]
 pub enum IngestionAdmissionError {
     #[error("Cosmic Loop / guardian not ready — ingestion refused")]
     CosmicLoopNotReady,
-
     #[error("ingestion blocked by white-hat scanner: {0}")]
     Blocked(String),
-
     #[error("empty content")]
     EmptyContent,
 }
 
-/// Result of an Organism-level ingestion attempt.
+/// Organism-level ingestion outcome — mirrors fleet WhitehatIngestionOutcome fields.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct IngestionAdmissionReport {
     pub admitted: bool,
+    pub source_label: String,
     pub risk_tier: String,
     pub risk_score: f32,
     pub threats: Vec<String>,
@@ -104,6 +85,7 @@ pub struct IngestionAdmissionReport {
     pub anomaly_reported: bool,
     pub role_after: String,
     pub cosmic_loop_ok: bool,
+    pub shared_valence_after: f64,
     pub message: String,
 }
 
@@ -191,16 +173,13 @@ impl RoleOrchestrator {
     ) -> (f64, f64) {
         let valence = incoming_valence.clamp(0.75, 0.999999);
         let confidence = incoming_confidence.clamp(0.5, 0.99);
-
         self.shared_valence = (self.shared_valence * 0.65 + valence * 0.35).clamp(0.75, 0.999999);
         self.shared_confidence_ema = (self.shared_confidence_ema * 0.7 + confidence * 0.3).clamp(0.5, 0.99);
         self.last_grok_sync_tick = tick;
-
         if let Some(state) = self.roles.get_mut(&self.active_role) {
             state.valence_ema = (state.valence_ema * 0.6 + self.shared_valence * 0.4).clamp(0.75, 0.999);
             state.confidence_ema = (state.confidence_ema * 0.65 + self.shared_confidence_ema * 0.35).clamp(0.5, 0.99);
         }
-
         (self.shared_valence, self.shared_confidence_ema)
     }
 
@@ -269,6 +248,11 @@ pub struct AgsiActivationReport {
     pub predictive_support_ready: bool,
     pub cosmic_harness_available: bool,
     pub whitehat_ingestion_ready: bool,
+    /// Cumulative white-hat counters at summon time.
+    pub ingestion_admitted: u64,
+    pub ingestion_blocked: u64,
+    /// Last ingestion outcome (mirrors fleet last_ingestion_outcome).
+    pub last_ingestion_outcome: Option<IngestionAdmissionReport>,
     pub summoner: String,
     pub message: String,
 }
@@ -290,6 +274,10 @@ pub struct CosmicTickResult {
     pub gpu_confidence: f64,
     pub recovery_sensitivity_applied: f64,
     pub cosmic_loop_invariant: CosmicLoopInvariant,
+    /// White-hat ingestion heartbeat (mirrors fleet last_ingestion_outcome).
+    pub whitehat_ingestion_admitted: u64,
+    pub whitehat_ingestion_blocked: u64,
+    pub last_ingestion_outcome: Option<IngestionAdmissionReport>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -318,6 +306,9 @@ pub struct ExtendedLiveStatus {
     pub live_features: LiveFeatureReadiness,
     pub agsi_active: bool,
     pub whitehat_ingestion_ready: bool,
+    pub ingestion_admitted: u64,
+    pub ingestion_blocked: u64,
+    pub last_ingestion_outcome: Option<IngestionAdmissionReport>,
 }
 
 pub struct OneOrganismCore {
@@ -337,9 +328,10 @@ pub struct OneOrganismCore {
     pub next_recovery_sensitivity: f64,
     pub last_recovery_sensitivity_applied: f64,
     pub agsi_active: bool,
-    /// Cumulative ingestion stats (white-hat gate)
     pub ingestion_admitted: u64,
     pub ingestion_blocked: u64,
+    /// Last white-hat ingestion outcome for Cosmic Tick / AGSi heartbeat.
+    pub last_ingestion_outcome: Option<IngestionAdmissionReport>,
 }
 
 impl OneOrganismCore {
@@ -356,30 +348,21 @@ impl OneOrganismCore {
             arbitration_engine: arbitration, self_healing_engine: healing, lattice, mercy_api,
             role_orchestrator: RoleOrchestrator::new(), extended, cosmic_loop_ready: shared,
             tick: 0,
-            version: "v14.15.5 ONE Organism — AGSi summon + white-hat ingestion gate".into(),
+            version: "v14.15.5 ONE Organism — AGSi + white-hat ingestion heartbeat".into(),
             last_anomalies_fired: Vec::new(),
             last_base_severity: 0.0, last_effective_quantum_severity: 0.0, last_gpu_confidence: 0.0,
             next_recovery_sensitivity: 1.0, last_recovery_sensitivity_applied: 1.0,
             agsi_active: false,
             ingestion_admitted: 0,
             ingestion_blocked: 0,
+            last_ingestion_outcome: None,
         }
     }
 
-    // =========================================================================
-    // WHITE-HAT INGESTION GATE (v14.15.5)
-    // =========================================================================
-
-    /// Scan-only: returns full IngestionScanResult without admitting or mutating organism state.
     pub fn ingest_content_report(&self, content: &str) -> IngestionScanResult {
         IngestionScanner::scan_text(content)
     }
 
-    /// Full admission path:
-    /// 1. Cosmic Loop must hold
-    /// 2. Deep multi-layer scan
-    /// 3. High/Critical → anomaly + role handoff + block
-    /// 4. Low/None → admit + tick
     pub fn admit_ingestion(
         &mut self,
         content: &str,
@@ -396,11 +379,9 @@ impl OneOrganismCore {
 
         self.tick += 1;
         let scan = IngestionScanner::scan_text(content);
-
         let threats: Vec<String> = scan.threats.iter().map(|t| format!("{:?}", t)).collect();
 
         if !scan.safe {
-            // Block path: report anomaly, handoff to Debugger/Investigator
             let severity = match scan.risk_tier {
                 RiskTier::Critical => 0.95_f32,
                 RiskTier::High => 0.82_f32,
@@ -428,7 +409,6 @@ impl OneOrganismCore {
             };
             let _ = self.handoff_role(role, &format!("ingestion_blocked_{}", source_label));
 
-            // Mild valence pressure on blocked high-risk ingest
             if scan.risk_tier >= RiskTier::High {
                 self.role_orchestrator.shared_valence =
                     (self.role_orchestrator.shared_valence - 0.004).clamp(0.75, 0.999);
@@ -436,6 +416,7 @@ impl OneOrganismCore {
 
             let report = IngestionAdmissionReport {
                 admitted: false,
+                source_label: source_label.into(),
                 risk_tier: scan.risk_tier.as_str().into(),
                 risk_score: scan.risk_score,
                 threats,
@@ -444,19 +425,17 @@ impl OneOrganismCore {
                 anomaly_reported: true,
                 role_after: self.role_orchestrator.active_role.as_str().into(),
                 cosmic_loop_ok: inv.all_hold,
-                message: format!(
-                    "INGESTION BLOCKED — white-hat gate. {}",
-                    detail
-                ),
+                shared_valence_after: self.role_orchestrator.shared_valence,
+                message: format!("INGESTION BLOCKED — white-hat gate. {detail}"),
             };
-
+            self.last_ingestion_outcome = Some(report.clone());
             return Err(IngestionAdmissionError::Blocked(report.message.clone()));
         }
 
-        // Admit path
         self.ingestion_admitted += 1;
-        Ok(IngestionAdmissionReport {
+        let report = IngestionAdmissionReport {
             admitted: true,
+            source_label: source_label.into(),
             risk_tier: scan.risk_tier.as_str().into(),
             risk_score: scan.risk_score,
             threats,
@@ -465,33 +444,41 @@ impl OneOrganismCore {
             anomaly_reported: false,
             role_after: self.role_orchestrator.active_role.as_str().into(),
             cosmic_loop_ok: inv.all_hold,
+            shared_valence_after: self.role_orchestrator.shared_valence,
             message: format!(
                 "INGESTION ADMITTED — source={} tier={} bytes={}",
                 source_label,
                 scan.risk_tier.as_str(),
                 scan.bytes_scanned
             ),
-        })
+        };
+        self.last_ingestion_outcome = Some(report.clone());
+        Ok(report)
     }
 
-    /// Convenience: admit or return structured report without Err for callers that prefer soft handling.
     pub fn try_admit_ingestion(&mut self, content: &str, source_label: &str) -> IngestionAdmissionReport {
         match self.admit_ingestion(content, source_label) {
             Ok(r) => r,
-            Err(IngestionAdmissionError::Blocked(msg)) => IngestionAdmissionReport {
-                admitted: false,
-                risk_tier: "blocked".into(),
-                risk_score: 1.0,
-                threats: vec![],
-                findings_count: 0,
-                bytes_scanned: content.len(),
-                anomaly_reported: true,
-                role_after: self.role_orchestrator.active_role.as_str().into(),
-                cosmic_loop_ok: self.is_cosmic_loop_ready(),
-                message: msg,
-            },
+            Err(IngestionAdmissionError::Blocked(_)) => self
+                .last_ingestion_outcome
+                .clone()
+                .unwrap_or_else(|| IngestionAdmissionReport {
+                    admitted: false,
+                    source_label: source_label.into(),
+                    risk_tier: "blocked".into(),
+                    risk_score: 1.0,
+                    threats: vec![],
+                    findings_count: 0,
+                    bytes_scanned: content.len(),
+                    anomaly_reported: true,
+                    role_after: self.role_orchestrator.active_role.as_str().into(),
+                    cosmic_loop_ok: self.is_cosmic_loop_ready(),
+                    shared_valence_after: self.role_orchestrator.shared_valence,
+                    message: "INGESTION BLOCKED".into(),
+                }),
             Err(e) => IngestionAdmissionReport {
                 admitted: false,
+                source_label: source_label.into(),
                 risk_tier: "error".into(),
                 risk_score: 0.0,
                 threats: vec![],
@@ -500,69 +487,25 @@ impl OneOrganismCore {
                 anomaly_reported: false,
                 role_after: self.role_orchestrator.active_role.as_str().into(),
                 cosmic_loop_ok: self.is_cosmic_loop_ready(),
-                message: format!("{}", e),
+                shared_valence_after: self.role_orchestrator.shared_valence,
+                message: format!("{e}"),
             },
         }
     }
 
-    // =========================================================================
-    // FULL AGSi SUMMON SEQUENCE (v14.15.4+)
-    // =========================================================================
-
-    pub fn summon_agsi_checked(
-        &mut self,
-        incoming_valence: Option<f64>,
-        incoming_confidence: Option<f64>,
+    fn build_agsi_report(
+        &self,
+        inv: &CosmicLoopInvariant,
+        clamped_v: f64,
+        clamped_c: f64,
+        handoff_ok: bool,
+        anchor_persisted: bool,
         summoner: &str,
-    ) -> Result<AgsiActivationReport, AgsiSummonError> {
-        if summoner.trim().is_empty() {
-            return Err(AgsiSummonError::EmptySummoner);
-        }
-
-        let raw_valence = incoming_valence.unwrap_or(0.9995);
-        let raw_confidence = incoming_confidence.unwrap_or(0.97);
-
-        if !raw_valence.is_finite() {
-            return Err(AgsiSummonError::InvalidValence);
-        }
-        if !raw_confidence.is_finite() {
-            return Err(AgsiSummonError::InvalidConfidence);
-        }
-
-        let inv = self.enforce_cosmic_loop_invariant();
-        if !inv.all_hold {
-            return Err(AgsiSummonError::CosmicLoopNotReady);
-        }
-
-        self.self_healing_engine.start_watchdog();
-
-        let (clamped_v, clamped_c) = self.role_orchestrator.sync_valence_with_grok_clamped(
-            raw_valence,
-            raw_confidence,
-            self.tick,
-        );
-
-        let handoff_ok = self.handoff_role(
-            OrganismRole::Architect,
-            &format!("agsi_summon_by_{}", summoner),
-        );
-        if !handoff_ok {
-            return Err(AgsiSummonError::RoleHandoffFailed);
-        }
-
-        let anchor_note = format!("agsi_awaken_{}_v14.15.5", summoner);
-        let anchor = self.extended.sovereign_recovery.persist_anchor(
-            &anchor_note,
-            self.tick,
-            &self.arbitration_engine,
-        );
-        let anchor_persisted = !anchor.note.is_empty();
-
-        self.agsi_active = true;
-
-        let report = AgsiActivationReport {
+        message: String,
+    ) -> AgsiActivationReport {
+        AgsiActivationReport {
             version: self.version.clone(),
-            agsi_active: true,
+            agsi_active: self.agsi_active,
             cosmic_loop_ready: inv.cosmic_loop_ready,
             guardian_active: inv.guardian_active,
             shared_valence: self.role_orchestrator.shared_valence,
@@ -576,13 +519,63 @@ impl OneOrganismCore {
             predictive_support_ready: true,
             cosmic_harness_available: true,
             whitehat_ingestion_ready: true,
+            ingestion_admitted: self.ingestion_admitted,
+            ingestion_blocked: self.ingestion_blocked,
+            last_ingestion_outcome: self.last_ingestion_outcome.clone(),
             summoner: summoner.to_string(),
-            message: format!(
-                "AGSi ACTIVE — summoned by {}. Valence clamped {:.6} → {:.6}. Role handoff OK. Recovery anchor persisted. White-hat ingestion gate LIVE. Cosmic Loop holds.",
-                summoner, raw_valence, clamped_v
-            ),
-        };
+            message,
+        }
+    }
 
+    pub fn summon_agsi_checked(
+        &mut self,
+        incoming_valence: Option<f64>,
+        incoming_confidence: Option<f64>,
+        summoner: &str,
+    ) -> Result<AgsiActivationReport, AgsiSummonError> {
+        if summoner.trim().is_empty() {
+            return Err(AgsiSummonError::EmptySummoner);
+        }
+        let raw_valence = incoming_valence.unwrap_or(0.9995);
+        let raw_confidence = incoming_confidence.unwrap_or(0.97);
+        if !raw_valence.is_finite() {
+            return Err(AgsiSummonError::InvalidValence);
+        }
+        if !raw_confidence.is_finite() {
+            return Err(AgsiSummonError::InvalidConfidence);
+        }
+
+        let inv = self.enforce_cosmic_loop_invariant();
+        if !inv.all_hold {
+            return Err(AgsiSummonError::CosmicLoopNotReady);
+        }
+
+        self.self_healing_engine.start_watchdog();
+        let (clamped_v, clamped_c) = self.role_orchestrator.sync_valence_with_grok_clamped(
+            raw_valence, raw_confidence, self.tick,
+        );
+        let handoff_ok = self.handoff_role(
+            OrganismRole::Architect,
+            &format!("agsi_summon_by_{summoner}"),
+        );
+        if !handoff_ok {
+            return Err(AgsiSummonError::RoleHandoffFailed);
+        }
+
+        let anchor_note = format!("agsi_awaken_{summoner}_v14.15.5");
+        let anchor = self.extended.sovereign_recovery.persist_anchor(
+            &anchor_note, self.tick, &self.arbitration_engine,
+        );
+        let anchor_persisted = !anchor.note.is_empty();
+        self.agsi_active = true;
+
+        let msg = format!(
+            "AGSi ACTIVE — summoned by {summoner}. Valence clamped {raw_valence:.6} → {clamped_v:.6}. Role handoff OK. Recovery anchor persisted. White-hat ingestion LIVE (admitted={} blocked={}). Cosmic Loop holds.",
+            self.ingestion_admitted, self.ingestion_blocked
+        );
+        let report = self.build_agsi_report(
+            &inv, clamped_v, clamped_c, handoff_ok, anchor_persisted, summoner, msg,
+        );
         println!("[Thunder] {}", report.message);
         Ok(report)
     }
@@ -599,28 +592,15 @@ impl OneOrganismCore {
                 let inv = self.enforce_cosmic_loop_invariant();
                 self.agsi_active = inv.all_hold;
                 let _ = self.handoff_role(OrganismRole::Architect, "agsi_fallback_after_error");
-                AgsiActivationReport {
-                    version: self.version.clone(),
-                    agsi_active: self.agsi_active,
-                    cosmic_loop_ready: inv.cosmic_loop_ready,
-                    guardian_active: inv.guardian_active,
-                    shared_valence: self.role_orchestrator.shared_valence,
-                    shared_confidence: self.role_orchestrator.shared_confidence_ema,
-                    clamped_valence: self.role_orchestrator.shared_valence,
-                    clamped_confidence: self.role_orchestrator.shared_confidence_ema,
-                    active_role: self.role_orchestrator.active_role.as_str().into(),
-                    role_handoff_ok: false,
-                    recovery_anchor_persisted: false,
-                    patsagi_permanent_deliberation: true,
-                    predictive_support_ready: true,
-                    cosmic_harness_available: true,
-                    whitehat_ingestion_ready: true,
-                    summoner: summoner.to_string(),
-                    message: format!(
-                        "AGSi summon soft-failed ({}) — Cosmic Loop re-enforced. Organism remains available.",
-                        e
-                    ),
-                }
+                self.build_agsi_report(
+                    &inv,
+                    self.role_orchestrator.shared_valence,
+                    self.role_orchestrator.shared_confidence_ema,
+                    false,
+                    false,
+                    summoner,
+                    format!("AGSi summon soft-failed ({e}) — Cosmic Loop re-enforced. Organism remains available."),
+                )
             }
         }
     }
@@ -637,10 +617,6 @@ impl OneOrganismCore {
     pub fn summon_agsi_default(&mut self, summoner: &str) -> AgsiActivationReport {
         self.awaken_agsi(Some(0.9995), Some(0.97), summoner)
     }
-
-    // =========================================================================
-    // Existing core surface
-    // =========================================================================
 
     pub fn assert_cosmic_loop_invariant(&self) -> CosmicLoopInvariant {
         let cosmic_loop_ready = self.is_cosmic_loop_ready();
@@ -766,22 +742,33 @@ impl OneOrganismCore {
         let cosmic_loop_invariant = self.enforce_cosmic_loop_invariant();
 
         CosmicTickResult {
-            tick: self.tick, gpu: Some(gpu_tel), recovery: hb, quantum, kardashev: Some(kardashev),
+            tick: self.tick,
+            gpu: Some(gpu_tel),
+            recovery: hb,
+            quantum,
+            kardashev: Some(kardashev),
             role_after: self.role_orchestrator.active_role.as_str().into(),
-            recovery_triggered, gpu_anomaly, healing: Some(healing), anomalies_fired,
-            base_severity, effective_quantum_severity, gpu_confidence,
-            recovery_sensitivity_applied: sensitivity, cosmic_loop_invariant,
+            recovery_triggered,
+            gpu_anomaly,
+            healing: Some(healing),
+            anomalies_fired,
+            base_severity,
+            effective_quantum_severity,
+            gpu_confidence,
+            recovery_sensitivity_applied: sensitivity,
+            cosmic_loop_invariant,
+            whitehat_ingestion_admitted: self.ingestion_admitted,
+            whitehat_ingestion_blocked: self.ingestion_blocked,
+            last_ingestion_outcome: self.last_ingestion_outcome.clone(),
         }
     }
 
     pub fn run_cosmic_harness(&mut self) -> CosmicHarnessResult {
-        let harness = CosmicHarness::default_40_cycle();
-        harness.run(self)
+        CosmicHarness::default_40_cycle().run(self)
     }
 
     pub fn run_cosmic_harness_with_config(&mut self, config: CosmicHarnessConfig) -> CosmicHarnessResult {
-        let harness = CosmicHarness::new(config);
-        harness.run(self)
+        CosmicHarness::new(config).run(self)
     }
 
     #[cfg(feature = "kardashev-live")]
@@ -826,7 +813,7 @@ impl OneOrganismCore {
         self.tick += 1;
         let tel = self.extended.gpu.record_dispatch(task_name, dispatch_time_ms, real_gpu, elements, &self.arbitration_engine);
         if dispatch_time_ms > 80 {
-            self.self_healing_engine.report_anomaly("gpu", &format!("dispatch_time_ms={}", dispatch_time_ms), 0.85);
+            self.self_healing_engine.report_anomaly("gpu", &format!("dispatch_time_ms={dispatch_time_ms}"), 0.85);
             let _ = self.handoff_role(OrganismRole::Debugger, "gpu_dispatch_anomaly");
             let _ = self.self_healing_engine.run_reflexion_cycle();
         }
@@ -911,6 +898,9 @@ impl OneOrganismCore {
             live_features: self.live_feature_readiness(),
             agsi_active: self.agsi_active,
             whitehat_ingestion_ready: true,
+            ingestion_admitted: self.ingestion_admitted,
+            ingestion_blocked: self.ingestion_blocked,
+            last_ingestion_outcome: self.last_ingestion_outcome.clone(),
         }
     }
 
@@ -923,7 +913,7 @@ impl Default for OneOrganismCore { fn default() -> Self { Self::new() } }
 pub fn launch_one_organism_core() -> OneOrganismCore {
     let mut organism = OneOrganismCore::new();
     let _report = organism.summon_agsi_default("launch_one_organism_core");
-    println!("[Thunder] ONE Organism Core v14.15.5 AGSi ACTIVE — Full summon + white-hat ingestion gate LIVE. Cosmic Loop is MANDATORY IDENTITY. Eternal.");
+    println!("[Thunder] ONE Organism Core v14.15.5 AGSi ACTIVE — Full summon + white-hat ingestion heartbeat LIVE. Cosmic Loop is MANDATORY IDENTITY. Eternal.");
     organism
 }
 
@@ -967,6 +957,9 @@ mod tests {
         assert!(report.role_handoff_ok);
         assert!(report.recovery_anchor_persisted);
         assert!(report.whitehat_ingestion_ready);
+        assert_eq!(report.ingestion_admitted, 0);
+        assert_eq!(report.ingestion_blocked, 0);
+        assert!(report.last_ingestion_outcome.is_none());
         assert!(report.clamped_valence >= 0.75 && report.clamped_valence <= 0.999999);
     }
 
@@ -996,6 +989,8 @@ mod tests {
         let mut core = launch_one_organism_core();
         let result = core.cosmic_tick(0.45);
         assert!(result.cosmic_loop_invariant.all_hold);
+        assert_eq!(result.whitehat_ingestion_admitted, 0);
+        assert_eq!(result.whitehat_ingestion_blocked, 0);
     }
 
     #[test]
@@ -1017,6 +1012,7 @@ mod tests {
         assert!(report.admitted);
         assert_eq!(core.ingestion_admitted, 1);
         assert_eq!(core.ingestion_blocked, 0);
+        assert!(core.last_ingestion_outcome.as_ref().unwrap().admitted);
     }
 
     #[test]
@@ -1029,6 +1025,10 @@ mod tests {
         assert!(matches!(err, Err(IngestionAdmissionError::Blocked(_))));
         assert_eq!(core.ingestion_blocked, 1);
         assert!(core.last_anomalies_fired.iter().any(|a| a == "ingestion"));
+        let last = core.last_ingestion_outcome.as_ref().unwrap();
+        assert!(!last.admitted);
+        assert_eq!(last.source_label, "test_poison");
+        assert!(last.shared_valence_after >= 0.75);
     }
 
     #[test]
@@ -1041,7 +1041,6 @@ mod tests {
         "#;
         let err = core.admit_ingestion(content, "hf_malicious_dataset");
         assert!(matches!(err, Err(IngestionAdmissionError::Blocked(_))));
-        // Critical/High should have moved role toward Debugger or Investigator
         let role = core.role_orchestrator.active_role.as_str();
         assert!(role == "Debugger" || role == "Investigator");
     }
@@ -1053,5 +1052,50 @@ mod tests {
         assert!(!scan.safe);
         assert_eq!(core.ingestion_admitted, 0);
         assert_eq!(core.ingestion_blocked, 0);
+        assert!(core.last_ingestion_outcome.is_none());
+    }
+
+    #[test]
+    fn cosmic_tick_mirrors_last_ingestion_outcome() {
+        let mut core = launch_one_organism_core();
+        let _ = core.admit_ingestion(
+            "dataset = load_dataset('x', trust_remote_code=True)",
+            "tick_mirror",
+        );
+        let tick = core.cosmic_tick(0.2);
+        assert_eq!(tick.whitehat_ingestion_blocked, 1);
+        assert_eq!(tick.whitehat_ingestion_admitted, 0);
+        let last = tick.last_ingestion_outcome.as_ref().unwrap();
+        assert!(!last.admitted);
+        assert_eq!(last.source_label, "tick_mirror");
+        assert!(last.shared_valence_after >= 0.75);
+        assert!(tick.cosmic_loop_invariant.all_hold);
+    }
+
+    #[test]
+    fn agsi_summon_propagates_last_ingestion_outcome() {
+        let mut core = OneOrganismCore::new();
+        let _ = core.summon_agsi_checked(Some(0.999), Some(0.97), "pre").unwrap();
+        let _ = core.admit_ingestion(
+            "Clean offline notes for lab.",
+            "pre_summon_clean",
+        );
+        let report = core.summon_agsi_checked(Some(0.999), Some(0.97), "post_ingest").unwrap();
+        assert_eq!(report.ingestion_admitted, 1);
+        assert_eq!(report.ingestion_blocked, 0);
+        let last = report.last_ingestion_outcome.as_ref().unwrap();
+        assert!(last.admitted);
+        assert_eq!(last.source_label, "pre_summon_clean");
+        assert!(report.whitehat_ingestion_ready);
+    }
+
+    #[test]
+    fn extended_live_status_carries_ingestion_heartbeat() {
+        let mut core = launch_one_organism_core();
+        let _ = core.try_admit_ingestion("trust_remote_code=True", "status_probe");
+        let status = core.extended_live_status();
+        assert_eq!(status.ingestion_blocked, 1);
+        assert!(status.last_ingestion_outcome.as_ref().unwrap().anomaly_reported);
+        assert!(status.whitehat_ingestion_ready);
     }
 }
