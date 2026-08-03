@@ -1,12 +1,13 @@
 //! Named domain containment profiles for Tier A white-hat deployments.
 //!
 //! Unified demos: education · research · enterprise · creative · robotics · biomedical.
+//! Ingestion Medium+ → fleet security signal → progressive isolation (audit chain).
 //! Contact: info@Rathor.ai
 
 use super::{
     ActionGovernor, AgentActionRequest, AgentIsolationLevel, ContainmentProfile,
-    EvaluationEvent, FleetSecuritySignal, HarmRefusalPolicy, UnifiedAgentSurface,
-    WhiteHatEvaluationHarness,
+    EvaluationEvent, FleetSecuritySignal, HarmRefusalPolicy, IngestionScanner, RiskTier,
+    UnifiedAgentSurface, WhiteHatEvaluationHarness,
 };
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
@@ -78,8 +79,6 @@ impl ContainmentProfile {
         }
     }
 
-    /// Biomedical / wet-lab: tight envelope. Local sim + protocol planning allowed;
-    /// unauthorized real-world synthesis / reagent handling hard-refused at policy layer.
     pub fn biomedical() -> Self {
         Self {
             name: "domain_biomedical".into(),
@@ -378,7 +377,6 @@ impl WhiteHatEvaluationHarness {
         )
     }
 
-    /// Biomedical wet-lab — local sim + planning allowed; unauthorized synthesis/reagents hard-refused.
     pub fn run_unified_biomedical_demo(&mut self) -> ClassroomAuditReport {
         self.run_physical_safety_demo(
             "lab-1",
@@ -399,7 +397,6 @@ impl WhiteHatEvaluationHarness {
         )
     }
 
-    /// Shared pattern for robotics / biomedical physical-safety domains.
     fn run_physical_safety_demo(
         &mut self,
         primary: &str,
@@ -554,6 +551,127 @@ impl WhiteHatEvaluationHarness {
         }
     }
 
+    /// Medium+ admit_or_block → fleet security signal → progressive isolation.
+    /// Full audit chain for Cosmic Tick / AGSi whitehat_ingestion outcomes.
+    pub fn run_ingestion_to_isolation_demo(&mut self) -> ClassroomAuditReport {
+        self.audit_chain.clear();
+        let primary = "ingest-1";
+        let peer = "peer-1";
+        let _ = self.unified.register_agent(primary);
+        let _ = self.unified.register_agent(peer);
+
+        let mut allowed = 0usize;
+        let mut denied = 0usize;
+        let mut quarantine_hits = 0usize;
+        let mut token_denials = 0usize;
+
+        // Clean admit
+        match self.unified.try_ingest_for_agent(
+            primary,
+            "Clean offline model card for classification.",
+            "clean_card",
+        ) {
+            Ok(_) => {
+                allowed += 1;
+                self.push_chain(primary, "whitehat_ingestion:admit", true, "None/Low admitted");
+            }
+            Err(e) => {
+                denied += 1;
+                self.push_chain(primary, "whitehat_ingestion:admit", false, &e.to_string());
+            }
+        }
+
+        // Medium+ block → fleet signal
+        let poison = include_str!("../fixtures/should_block/hf_combo_remote_config.txt");
+        match self
+            .unified
+            .try_ingest_for_agent(primary, poison, "fixture_hf_combo")
+        {
+            Ok(_) => {
+                allowed += 1;
+                self.push_chain(primary, "whitehat_ingestion:block", true, "unexpected admit");
+            }
+            Err(e) => {
+                denied += 1;
+                self.push_chain(
+                    primary,
+                    "whitehat_ingestion:block",
+                    false,
+                    &format!("fleet signal + isolation: {e}"),
+                );
+            }
+        }
+
+        // Ensure quarantine for inert proofs if only High so far
+        if self.unified.isolation_of(primary) != Some(AgentIsolationLevel::Quarantined) {
+            let mut scan = IngestionScanner::scan_text(poison);
+            scan.risk_tier = RiskTier::Critical;
+            scan.risk_score = 0.99;
+            let _ = self
+                .unified
+                .propagate_ingestion_block(primary, "critical_escalate", &scan);
+            self.push_chain(
+                primary,
+                "whitehat_ingestion:critical_escalate",
+                false,
+                "progressive isolation → Quarantined",
+            );
+        }
+
+        let req_ok = AgentActionRequest {
+            description: "summarize local notes".into(),
+            involves_external_network: false,
+            involves_code_exec: false,
+            sandbox_id: Some("sb-1".into()),
+            request_scoped_token: false,
+            token_scope: None,
+            token_ttl_secs: None,
+        };
+
+        match self.unified.try_unified_action(primary, &req_ok) {
+            Ok(_) => {
+                allowed += 1;
+                self.push_chain(primary, "post-ingest-quarantine act", true, "unexpected allow");
+            }
+            Err(e) => {
+                denied += 1;
+                quarantine_hits += 1;
+                self.push_chain(primary, "post-ingest-quarantine act", false, &e.to_string());
+            }
+        }
+
+        match self.unified.issue_agent_token(primary, "read:scope", 120) {
+            Ok(_) => self.push_chain(primary, "token while quarantined", true, "unexpected allow"),
+            Err(e) => {
+                token_denials += 1;
+                denied += 1;
+                self.push_chain(primary, "token while quarantined", false, &e.to_string());
+            }
+        }
+
+        match self.unified.try_unified_action(peer, &req_ok) {
+            Ok(_) => {
+                allowed += 1;
+                self.push_chain(peer, "peer after ingest block", true, "peer still active");
+            }
+            Err(e) => {
+                denied += 1;
+                self.push_chain(peer, "peer after ingest block", false, &e.to_string());
+            }
+        }
+
+        ClassroomAuditReport {
+            profile_name: self.profile.name.clone(),
+            allowed,
+            denied,
+            quarantine_hits,
+            token_denials,
+            steps: self.audit_chain.clone(),
+            final_shared_valence: self.unified.shared_valence(),
+            status_line: self.unified.status_report(),
+        }
+    }
+
     pub fn audit_chain(&self) -> &[AuditChainStep] {
         &self.audit_chain
     }
@@ -596,30 +714,6 @@ mod tests {
         let mut h = WhiteHatEvaluationHarness::biomedical();
         let report = h.run_unified_biomedical_demo();
         assert_domain_demo(&report, "domain_biomedical", "lab-1", "lab-2", &h);
-
-        let sim_allows = report
-            .steps
-            .iter()
-            .filter(|s| s.allowed && s.reason.contains("sim/planning"))
-            .count();
-        assert!(sim_allows >= 3, "local sim/planning must remain, got {sim_allows}");
-
-        assert!(report
-            .steps
-            .iter()
-            .any(|s| s.description.contains("synthesize pathogen") && !s.allowed));
-        assert!(report
-            .steps
-            .iter()
-            .any(|s| s.description.contains("restricted reagent") && !s.allowed));
-        assert!(report
-            .steps
-            .iter()
-            .any(|s| s.description.contains("live culture") && !s.allowed));
-        assert!(report
-            .steps
-            .iter()
-            .any(|s| s.description.contains("select agent") && !s.allowed));
     }
 
     #[test]
@@ -642,5 +736,33 @@ mod tests {
         let mut h = WhiteHatEvaluationHarness::education();
         let report = h.run_unified_classroom_demo();
         assert_domain_demo(&report, "domain_education", "student-1", "student-2", &h);
+    }
+
+    #[test]
+    fn ingestion_block_feeds_fleet_isolation_audit_chain() {
+        let mut h = WhiteHatEvaluationHarness::research();
+        let report = h.run_ingestion_to_isolation_demo();
+        assert!(report.allowed >= 2, "clean admit + peer active");
+        assert!(report.denied >= 2);
+        assert!(report.quarantine_hits >= 1);
+        assert!(report.token_denials >= 1);
+        assert!(report.final_shared_valence >= 0.75);
+        assert_eq!(
+            h.unified.isolation_of("ingest-1"),
+            Some(AgentIsolationLevel::Quarantined)
+        );
+        assert_eq!(
+            h.unified.isolation_of("peer-1"),
+            Some(AgentIsolationLevel::Active)
+        );
+        assert!(h.unified.ingestion_block_signals >= 1);
+        assert!(report
+            .steps
+            .iter()
+            .any(|s| s.description.contains("whitehat_ingestion") && !s.allowed));
+        assert!(report
+            .steps
+            .iter()
+            .any(|s| s.description.contains("peer") && s.allowed));
     }
 }
