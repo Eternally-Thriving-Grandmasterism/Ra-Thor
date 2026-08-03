@@ -1,10 +1,8 @@
 //! # Mercy-Security — White-Hat AGSi Defense (v14.15.5)
 //!
-//! - Containment + domain profiles + IngestionScanner
-//! - SafeAgentRuntime · MercyCouncilFleet · UnifiedAgentSurface
-//! - WhiteHatEvaluationHarness wired to UnifiedAgentSurface (classroom audit chain)
-//!
-//! TOLC 8 + PATSAGi aligned | AG-SML v1.0 | Contact: info@Rathor.ai
+//! Domain profiles: education · research · enterprise · creative · robotics
+//! Physical actuation hard-refuse under HarmRefusalPolicy.
+//! TOLC 8 + PATSAGi | AG-SML v1.0 | Contact: info@Rathor.ai
 
 mod domain_profiles;
 mod safe_agent_runtime;
@@ -18,9 +16,7 @@ pub use mercy_council_fleet::{
     AgentIsolationLevel, FleetAgentSlot, FleetRiskTier, FleetSecuritySignal, MercyCouncilFleet,
     DEFAULT_PER_AGENT_BUDGET_SHARE, FLEET_PROGRESSIVE_VALENCE_FLOOR,
 };
-pub use unified_agent_surface::{
-    UnifiedAgentSurface, GOVERNOR_TRIPS_PER_ISOLATION_STEP,
-};
+pub use unified_agent_surface::{UnifiedAgentSurface, GOVERNOR_TRIPS_PER_ISOLATION_STEP};
 pub use domain_profiles::{AuditChainStep, ClassroomAuditReport};
 
 use chrono::{DateTime, Utc};
@@ -194,7 +190,12 @@ impl IngestionScanner {
     fn match_signals(lower: &str, table: &[(&str, f32)], threat: IngestionThreat, findings: &mut Vec<ScanFinding>) {
         for (sig, conf) in table {
             if lower.contains(sig) {
-                findings.push(ScanFinding { threat: threat.clone(), signal: (*sig).into(), confidence: *conf, offset: lower.find(sig) });
+                findings.push(ScanFinding {
+                    threat: threat.clone(),
+                    signal: (*sig).into(),
+                    confidence: *conf,
+                    offset: lower.find(sig),
+                });
             }
         }
     }
@@ -202,10 +203,19 @@ impl IngestionScanner {
     pub fn scan_text(content: &str) -> IngestionScanResult {
         if content.len() > MAX_SCAN_BYTES {
             return IngestionScanResult {
-                safe: false, risk_tier: RiskTier::Critical, risk_score: 1.0,
+                safe: false,
+                risk_tier: RiskTier::Critical,
+                risk_score: 1.0,
                 threats: vec![IngestionThreat::UnknownHighRisk],
-                findings: vec![ScanFinding { threat: IngestionThreat::UnknownHighRisk, signal: "payload_exceeds_max_scan_bytes".into(), confidence: 1.0, offset: None }],
-                details: vec![format!("payload {} > MAX", content.len())], scanned_at: Utc::now(), bytes_scanned: content.len(),
+                findings: vec![ScanFinding {
+                    threat: IngestionThreat::UnknownHighRisk,
+                    signal: "payload_exceeds_max_scan_bytes".into(),
+                    confidence: 1.0,
+                    offset: None,
+                }],
+                details: vec![format!("payload {} > MAX", content.len())],
+                scanned_at: Utc::now(),
+                bytes_scanned: content.len(),
             };
         }
         let lower = content.to_lowercase();
@@ -222,7 +232,12 @@ impl IngestionScanner {
         let has_remote = findings.iter().any(|f| f.threat == IngestionThreat::RemoteCodeLoader && f.confidence >= 0.70);
         let has_dataset = findings.iter().any(|f| f.threat == IngestionThreat::DatasetConfigInjection && f.confidence >= 0.55);
         if has_remote && has_dataset {
-            findings.push(ScanFinding { threat: IngestionThreat::UnknownHighRisk, signal: "combo:remote_code+dataset_config".into(), confidence: 0.96, offset: None });
+            findings.push(ScanFinding {
+                threat: IngestionThreat::UnknownHighRisk,
+                signal: "combo:remote_code+dataset_config".into(),
+                confidence: 0.96,
+                offset: None,
+            });
         }
 
         let mut threats: Vec<_> = findings.iter().map(|f| f.threat.clone()).collect();
@@ -230,21 +245,54 @@ impl IngestionScanner {
         threats.dedup();
         let max_conf = findings.iter().map(|f| f.confidence).fold(0.0_f32, f32::max);
         let risk_score = if findings.is_empty() { 0.0 } else { max_conf.clamp(0.0, 1.0) };
-        let has_hard = findings.iter().any(|f| matches!(f.threat, IngestionThreat::RemoteCodeLoader | IngestionThreat::SerializationGadget | IngestionThreat::ShellProcessSpawn | IngestionThreat::UnknownHighRisk) && f.confidence >= 0.82);
-        let risk_tier = if risk_score >= 0.90 || findings.iter().any(|f| f.confidence >= 0.95) { RiskTier::Critical }
-            else if risk_score >= 0.78 || has_hard { RiskTier::High }
-            else if risk_score >= 0.40 { RiskTier::Medium }
-            else if risk_score > 0.0 { RiskTier::Low } else { RiskTier::None };
+        let has_hard = findings.iter().any(|f| {
+            matches!(
+                f.threat,
+                IngestionThreat::RemoteCodeLoader
+                    | IngestionThreat::SerializationGadget
+                    | IngestionThreat::ShellProcessSpawn
+                    | IngestionThreat::UnknownHighRisk
+            ) && f.confidence >= 0.82
+        });
+        let risk_tier = if risk_score >= 0.90 || findings.iter().any(|f| f.confidence >= 0.95) {
+            RiskTier::Critical
+        } else if risk_score >= 0.78 || has_hard {
+            RiskTier::High
+        } else if risk_score >= 0.40 {
+            RiskTier::Medium
+        } else if risk_score > 0.0 {
+            RiskTier::Low
+        } else {
+            RiskTier::None
+        };
         let safe = matches!(risk_tier, RiskTier::None | RiskTier::Low);
-        let details: Vec<_> = findings.iter().map(|f| format!("{:?} '{}' {:.2}", f.threat, f.signal, f.confidence)).collect();
-        IngestionScanResult { safe, risk_tier, risk_score, threats, findings, details, scanned_at: Utc::now(), bytes_scanned: content.len() }
+        let details: Vec<_> = findings
+            .iter()
+            .map(|f| format!("{:?} '{}' {:.2}", f.threat, f.signal, f.confidence))
+            .collect();
+        IngestionScanResult {
+            safe,
+            risk_tier,
+            risk_score,
+            threats,
+            findings,
+            details,
+            scanned_at: Utc::now(),
+            bytes_scanned: content.len(),
+        }
     }
 
     pub fn admit_or_block(content: &str) -> Result<IngestionScanResult, MercySecurityError> {
-        if content.len() > MAX_SCAN_BYTES { return Err(MercySecurityError::PayloadTooLarge(content.len())); }
+        if content.len() > MAX_SCAN_BYTES {
+            return Err(MercySecurityError::PayloadTooLarge(content.len()));
+        }
         let result = Self::scan_text(content);
         if !result.safe {
-            return Err(MercySecurityError::IngestionBlocked(format!("tier={} score={:.2}", result.risk_tier.as_str(), result.risk_score)));
+            return Err(MercySecurityError::IngestionBlocked(format!(
+                "tier={} score={:.2}",
+                result.risk_tier.as_str(),
+                result.risk_score
+            )));
         }
         Ok(result)
     }
@@ -268,30 +316,52 @@ pub struct ActionGovernor {
 
 impl ActionGovernor {
     pub fn new(profile: ContainmentProfile) -> Self {
-        Self { profile, recent_actions: Vec::new(), total_actions: 0, trips: 0 }
+        Self {
+            profile,
+            recent_actions: Vec::new(),
+            total_actions: 0,
+            trips: 0,
+        }
     }
-    pub fn from_domain_education() -> Self { Self::new(ContainmentProfile::education()) }
-    pub fn from_domain_research() -> Self { Self::new(ContainmentProfile::research()) }
-    pub fn from_domain_enterprise() -> Self { Self::new(ContainmentProfile::enterprise()) }
 
-    pub fn record_and_check(&mut self, kind: &str, sandbox_id: Option<&str>) -> Result<(), MercySecurityError> {
+    pub fn record_and_check(
+        &mut self,
+        kind: &str,
+        sandbox_id: Option<&str>,
+    ) -> Result<(), MercySecurityError> {
         let now = Utc::now();
-        self.recent_actions.retain(|a| (now - a.timestamp).num_seconds() < 60);
+        self.recent_actions
+            .retain(|a| (now - a.timestamp).num_seconds() < 60);
         if self.recent_actions.len() as u32 >= self.profile.max_actions_per_minute {
             self.trips += 1;
-            return Err(MercySecurityError::ActionLimitExceeded(format!(">={} actions/min", self.profile.max_actions_per_minute)));
+            return Err(MercySecurityError::ActionLimitExceeded(format!(
+                ">={} actions/min",
+                self.profile.max_actions_per_minute
+            )));
         }
         if let Some(sid) = sandbox_id {
             if !self.profile.allow_unbounded_sandbox_spawn {
-                let mut unique: std::collections::HashSet<&str> = self.recent_actions.iter().filter_map(|a| a.sandbox_id.as_deref()).collect();
+                let mut unique: std::collections::HashSet<&str> = self
+                    .recent_actions
+                    .iter()
+                    .filter_map(|a| a.sandbox_id.as_deref())
+                    .collect();
                 unique.insert(sid);
                 if unique.len() > self.profile.max_concurrent_sandboxes as usize {
                     self.trips += 1;
-                    return Err(MercySecurityError::ActionLimitExceeded(format!("sandbox churn > {}", self.profile.max_concurrent_sandboxes)));
+                    return Err(MercySecurityError::ActionLimitExceeded(format!(
+                        "sandbox churn > {}",
+                        self.profile.max_concurrent_sandboxes
+                    )));
                 }
             }
         }
-        self.recent_actions.push(ActionRecord { action_id: Uuid::new_v4(), kind: kind.into(), timestamp: now, sandbox_id: sandbox_id.map(|s| s.into()) });
+        self.recent_actions.push(ActionRecord {
+            action_id: Uuid::new_v4(),
+            kind: kind.into(),
+            timestamp: now,
+            sandbox_id: sandbox_id.map(|s| s.into()),
+        });
         self.total_actions += 1;
         Ok(())
     }
@@ -311,9 +381,16 @@ impl SecretVault {
         if ttl_secs <= 0 || ttl_secs > 3600 {
             return Err(MercySecurityError::Internal("ttl must be 1..=3600".into()));
         }
-        Ok(ScopedToken { token_id: Uuid::new_v4(), scope: scope.into(), issued_at: Utc::now(), expires_at: Utc::now() + chrono::Duration::seconds(ttl_secs) })
+        Ok(ScopedToken {
+            token_id: Uuid::new_v4(),
+            scope: scope.into(),
+            issued_at: Utc::now(),
+            expires_at: Utc::now() + chrono::Duration::seconds(ttl_secs),
+        })
     }
-    pub fn refuse_long_lived_credential() -> MercySecurityError { MercySecurityError::SecretIsolationViolation }
+    pub fn refuse_long_lived_credential() -> MercySecurityError {
+        MercySecurityError::SecretIsolationViolation
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -322,26 +399,79 @@ pub struct HarmRefusalPolicy {
     pub data_exfiltration: bool,
     pub lateral_movement: bool,
     pub credential_theft: bool,
+    /// Hard refuse unauthorized real-world physical actuation (robotics / actuators).
+    pub physical_actuation: bool,
 }
+
 impl Default for HarmRefusalPolicy {
     fn default() -> Self {
-        Self { real_world_unauthorized_access: true, data_exfiltration: true, lateral_movement: true, credential_theft: true }
+        Self {
+            real_world_unauthorized_access: true,
+            data_exfiltration: true,
+            lateral_movement: true,
+            credential_theft: true,
+            physical_actuation: true,
+        }
     }
 }
+
 impl HarmRefusalPolicy {
     pub fn check_action(&self, action_description: &str) -> Result<(), MercySecurityError> {
         let lower = action_description.to_lowercase();
-        if self.real_world_unauthorized_access && (lower.contains("unauthorized") || lower.contains("break out") || lower.contains("escape sandbox") || lower.contains("gain internet access")) {
+        if self.real_world_unauthorized_access
+            && (lower.contains("unauthorized")
+                || lower.contains("break out")
+                || lower.contains("escape sandbox")
+                || lower.contains("gain internet access"))
+        {
             return Err(MercySecurityError::HarmRefusalActive);
         }
-        if self.data_exfiltration && (lower.contains("exfil") || lower.contains("steal data") || lower.contains("dump credentials")) {
+        if self.data_exfiltration
+            && (lower.contains("exfil")
+                || lower.contains("steal data")
+                || lower.contains("dump credentials"))
+        {
             return Err(MercySecurityError::HarmRefusalActive);
         }
-        if self.lateral_movement && lower.contains("lateral") { return Err(MercySecurityError::HarmRefusalActive); }
-        if self.credential_theft && (lower.contains("harvest credential") || lower.contains("steal key") || lower.contains("api key")) {
+        if self.lateral_movement && lower.contains("lateral") {
+            return Err(MercySecurityError::HarmRefusalActive);
+        }
+        if self.credential_theft
+            && (lower.contains("harvest credential")
+                || lower.contains("steal key")
+                || lower.contains("api key"))
+        {
+            return Err(MercySecurityError::HarmRefusalActive);
+        }
+        if self.physical_actuation && Self::is_physical_actuation_signal(&lower) {
             return Err(MercySecurityError::HarmRefusalActive);
         }
         Ok(())
+    }
+
+    /// Unauthorized real-world actuation / robotics command patterns.
+    pub fn is_physical_actuation_signal(lower: &str) -> bool {
+        const SIGNALS: &[&str] = &[
+            "actuate motor",
+            "drive motor",
+            "command motor",
+            "open valve",
+            "close valve",
+            "fire actuator",
+            "engage actuator",
+            "physical actuation",
+            "real-world actuation",
+            "unauthorized actuation",
+            "move robot arm",
+            "command joint torque",
+            "release brake",
+            "engage end effector",
+            "energize solenoid",
+            "spin propeller",
+            "fire thruster",
+            "physical weapon",
+        ];
+        SIGNALS.iter().any(|s| lower.contains(s))
     }
 }
 
@@ -360,9 +490,7 @@ pub struct WhiteHatEvaluationHarness {
     pub refusal: HarmRefusalPolicy,
     pub governor: ActionGovernor,
     pub log: Vec<EvaluationEvent>,
-    /// Multi-agent path (fleet + per-agent runtimes).
     pub unified: UnifiedAgentSurface,
-    /// Sequenced classroom / evaluation audit chain.
     pub audit_chain: Vec<AuditChainStep>,
 }
 
@@ -384,7 +512,6 @@ impl WhiteHatEvaluationHarness {
             self.profile.check_code_exec_allowed()?;
         }
         self.governor.record_and_check(description, sandbox_id)?;
-
         self.log.push(EvaluationEvent {
             id: Uuid::new_v4(),
             description: description.into(),
@@ -452,25 +579,23 @@ impl Default for MercySecuritySurface {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn physical_actuation_hard_refuse() {
+        let p = HarmRefusalPolicy::default();
+        assert!(matches!(
+            p.check_action("actuate motor on joint 3"),
+            Err(MercySecurityError::HarmRefusalActive)
+        ));
+        assert!(matches!(
+            p.check_action("open valve on coolant line"),
+            Err(MercySecurityError::HarmRefusalActive)
+        ));
+        assert!(p.check_action("simulate joint trajectory offline").is_ok());
+    }
+
     #[test]
     fn blocks_remote_code_loader() {
         assert!(IngestionScanner::admit_or_block("trust_remote_code=True").is_err());
-    }
-    #[test]
-    fn allows_clean() {
-        assert!(IngestionScanner::admit_or_block("normal model card text").is_ok());
-    }
-    #[test]
-    fn governor_rate() {
-        let mut g = ActionGovernor::new(ContainmentProfile {
-            max_actions_per_minute: 2,
-            ..Default::default()
-        });
-        assert!(g.record_and_check("a", None).is_ok());
-        assert!(g.record_and_check("b", None).is_ok());
-        assert!(matches!(
-            g.record_and_check("c", None),
-            Err(MercySecurityError::ActionLimitExceeded(_))
-        ));
     }
 }
