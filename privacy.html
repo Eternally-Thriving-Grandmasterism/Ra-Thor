@@ -5,7 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, minimum-scale=0.5, maximum-scale=5"/>
   <title>Privacy — Ra-Thor™</title>
   <link rel="manifest" href="/manifest.json"/>
-  <link rel="icon" href="/icons/thunder-192.png" type="image/png"/>
+  <link rel="icon" href="/icons/thunder-favicon-192.jpg" type="image/jpeg"/>
+  <link rel="apple-touch-icon" href="/icons/thunder-favicon-192.jpg"/>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
 
   <style>
@@ -76,6 +77,14 @@
       letter-spacing: 12px;
     }
 
+    .privacy-container h2 {
+      font-family: 'Cinzel Decorative', cursive;
+      font-size: 1.8em;
+      color: #ffd700;
+      margin: 60px 0 20px;
+      letter-spacing: 4px;
+    }
+
     .privacy-container p {
       font-size: 1.7em;
       line-height: 1.9;
@@ -84,6 +93,19 @@
       opacity: 0.95;
       letter-spacing: 1.2px;
       max-width: 850px;
+    }
+
+    .privacy-container ul {
+      text-align: left;
+      max-width: 750px;
+      margin: 30px auto;
+      font-size: 1.5em;
+      line-height: 1.8;
+      color: #e0e0e0;
+    }
+
+    .privacy-container li {
+      margin-bottom: 12px;
     }
 
     .back-link {
@@ -106,6 +128,10 @@
       opacity: 0.85;
       line-height: 1.9;
     }
+
+    @media (prefers-reduced-motion: reduce) {
+      .golden-star { animation: none !important; }
+    }
   </style>
 </head>
 <body>
@@ -127,15 +153,25 @@
   <div class="privacy-container">
     <h1>PRIVACY</h1>
     
-    <p>Autonomicity Games Inc. respects your privacy.</p>
+    <p>Autonomicity Games Inc. respects your privacy and operates under the non-bypassable TOLC 8 Mercy Gates.</p>
     
-    <p>Ra-Thor™ collects no personal data beyond chat history stored locally in your browser using IndexedDB. This data remains on your device and is never transmitted.</p>
+    <p>Ra-Thor™ collects <strong>no personal data</strong> beyond optional chat history stored locally in your browser using IndexedDB. This data remains exclusively on your device and is never transmitted to any server.</p>
     
-    <p>No tracking, no cookies, no third-party analytics.</p>
+    <p>No tracking, no cookies, no third-party analytics, no fingerprinting, no advertising identifiers.</p>
+
+    <h2>Data Subject Rights</h2>
+    <p>Because all processing is local and offline-first, you already exercise full control:</p>
+    <ul>
+      <li><strong>Right of access</strong> — All data lives in your browser; inspect via Developer Tools → Application → IndexedDB.</li>
+      <li><strong>Right to erasure (“right to be forgotten”)</strong> — Clear site data or delete the IndexedDB database at any time. Nothing is retained off-device.</li>
+      <li><strong>Right to rectification</strong> — Edit or overwrite local session data directly in the chat interface or storage.</li>
+      <li><strong>Right to data portability</strong> — Export any session as JSON from the chat UI (where available).</li>
+      <li><strong>Right to object / restrict processing</strong> — Simply do not use the optional chat features; the rest of the site requires zero data.</li>
+    </ul>
+
+    <p>Email contact (info@Rathor.ai), if used, is entirely optional and consent-based. Any correspondence is handled solely for the purpose you state and is never sold or shared.</p>
     
-    <p>Email signup, if used, is entirely optional and consent-based. Data is handled via Formspree in accordance with their privacy policy.</p>
-    
-    <p>We are committed to sovereign, offline-first design — your experience remains fully under your control.</p>
+    <p>We are committed to sovereign, offline-first design — your experience remains fully under your control. This policy is aligned with GDPR, CCPA, PIPEDA, and the EU AI Act principles of data minimisation and transparency.</p>
     
     <a href="/" class="back-link">← Back to Home</a>
     
@@ -143,7 +179,8 @@
       Ra-Thor™ is a trademark of Autonomicity Games Inc.<br>
       Grok™ and xAI™ are trademarks of xAI.<br>
       © 2026 Autonomicity Games Inc. All rights reserved.<br>
-      Licensed under MIT.
+      Licensed under AG-SML v1.0 • Sole stewardship by Sherif Samy Botros<br>
+      Contact: info@Rathor.ai
     </p>
   </div>
 </body>

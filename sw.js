@@ -1,4 +1,5 @@
 // sw.js — Rathor-NEXi Mercy-gated Offline Service Worker + Starlink queue support
+// Updated: icons → thunder-favicon-*.jpg (v14.15.5 Finishing Actions)
 
 importScripts('https://storage.googleapis.com/workbox-cdn/releases/7.1.0/workbox-sw.js');
 
@@ -12,9 +13,11 @@ workbox.precaching.precacheAndRoute(self.__WB_MANIFEST || [
   { url: '/js/common.js', revision: null },
   { url: '/js/chat.js', revision: null },
   { url: '/locales/languages.json', revision: null },
-  { url: '/icons/thunder-192.png', revision: null },
-  { url: '/icons/thunder-512.png', revision: null },
-  { url: '/offline.html', revision: null }
+  { url: '/icons/thunder-favicon-192.jpg', revision: null },
+  { url: '/icons/thunder-favicon-512.jpg', revision: null },
+  { url: '/offline.html', revision: null },
+  { url: '/privacy.html', revision: null },
+  { url: '/go-x.html', revision: null }
 ]);
 
 // Navigation fallback to offline.html
@@ -108,8 +111,4 @@ self.addEventListener('activate', event => {
 self.addEventListener('install', event => self.skipWaiting());
 self.addEventListener('activate', event => event.waitUntil(self.clients.claim()));
 
-console.log('[Rathor SW] Mercy thunder online — Starlink queue & eternal offline protection ⚡️');self.addEventListener('activate', event => {
-  event.waitUntil(self.clients.claim());
-});
-
-console.log('[Rathor SW] Mercy thunder online — eternal lattice protected offline ⚡️');
+console.log('[Rathor SW] Mercy thunder online — Starlink queue & eternal offline protection ⚡️');
