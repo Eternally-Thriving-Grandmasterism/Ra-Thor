@@ -56,6 +56,18 @@ Reference fixtures (open): `crates/mercy-security/fixtures/` in the Ra-Thor repo
 
 ---
 
+## Drop-in for external repositories (lowest friction)
+
+Copy-paste GitHub Actions workflow + guidance:
+
+→ **[`examples/procurement-admit-gate/`](../examples/procurement-admit-gate/)**
+
+- `workflow.example.yml` — pin Ra-Thor, build `mercy-admit`, scan your paths  
+- Fixture smoke proves the gate trips on known should_block classes  
+- No claim of full malware coverage; Tier A admission conscience only
+
+---
+
 ## Profile mapping (non-engineer friendly)
 
 | Profile | Network | Remote code | Long-lived creds | Typical use |
@@ -82,6 +94,7 @@ Tier A is a **defense-in-depth admission conscience** for AGSi-era pipelines.
 
 - Repository: https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor  
 - Crate: `crates/mercy-security`  
+- Drop-in example: `examples/procurement-admit-gate/`  
 - Public testing notes: `RELEASE_NOTES_v14.15.5.md`  
 - Contact: **info@Rathor.ai**
 
