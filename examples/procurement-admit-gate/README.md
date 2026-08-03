@@ -30,9 +30,97 @@ This matches the contract language in [`docs/WHITEHAT_PROCUREMENT_TIER_A.md`](..
 
 2. Edit the `paths:` / scan list near the top of the job to match your model cards, loaders, agent configs, and dataset scripts.
 
-3. (Recommended) Pin the Ra-Thor `ref:` to a known tag or commit once you have validated it.
+3. **Pin the Ra-Thor `ref:`** (see [Pinning](#pinning-recommended-for-production) below).
 
 4. Open a PR that touches a scanned path — the gate runs automatically.
+
+---
+
+## Pinning (recommended for production)
+
+`main` moves. For reproducible CI and supply-chain review, **pin to a full commit SHA** (or a signed tag when published).
+
+### How to choose a pin today
+
+```bash
+# From a trusted clone of Ra-Thor
+git log -1 --oneline -- crates/mercy-security examples/procurement-admit-gate
+# Example pin that includes the Tier A CLI + drop-in (update as you re-validate):
+# 3bbe6c7bc48f27d3cc562986ca199577a08f77fe
+```
+
+In `workflow.example.yml`:
+
+```yaml
+- uses: actions/checkout@v4
+  with:
+    repository: Eternally-Thriving-Grandmasterism/Ra-Thor
+    ref: 3bbe6c7bc48f27d3cc562986ca199577a08f77fe   # full SHA — do not use short SHA in prod
+    path: _ra_thor_gate
+    fetch-depth: 1
+```
+
+### When tags appear
+
+Prefer an annotated / signed tag (e.g. `v14.15.5-whitehat` or similar) once the maintainers publish one. Until then, **SHA is the supported pin**.
+
+### Re-validation checklist after changing the pin
+
+- [ ] `cargo test -p mercy-security` green on the pinned commit  
+- [ ] Public fixture smoke still admits benign / blocks should_block  
+- [ ] Your internal model cards and loaders still pass or are intentionally reviewed  
+- [ ] Record the SHA + date in your change ticket / SBOM note
+
+---
+
+## Air-gapped / vendor-the-crate (short note)
+
+When runners cannot reach GitHub or crates.io at build time:
+
+### Option A — Vendor on a networked machine, transfer offline
+
+```bash
+# On a networked build host with the pinned Ra-Thor checkout:
+cd /path/to/Ra-Thor
+mkdir -p /tmp/mercy-vendor && cd /tmp/mercy-vendor
+# Minimal package that only needs the gate binary:
+cat > Cargo.toml <<'EOF'
+[package]
+name = "mercy-admit-offline"
+version = "0.0.0"
+edition = "2021"
+
+[[bin]]
+name = "mercy-admit"
+path = "src/main.rs"   # or point at the vendored bin source
+
+[dependencies]
+mercy-security = { path = "/path/to/Ra-Thor/crates/mercy-security" }
+EOF
+# Prefer cargo vendor of the gate crate + its direct deps:
+cargo vendor --versioned-dirs ./vendor
+# Transfer: crates/mercy-security + vendor/ + .cargo/config.toml that points to vendor
+```
+
+`mercy-security` direct crates.io deps (all ordinary): `serde`, `serde_json`, `thiserror`, `chrono`, `uuid`.
+
+### Option B — Path-depend the crate inside your monorepo
+
+Copy `crates/mercy-security` (and its `fixtures/` if you want the public corpus) into your tree, then:
+
+```toml
+# your Cargo.toml
+[dependencies]
+mercy-security = { path = "third_party/mercy-security" }
+```
+
+Build the binary with `cargo build -p mercy-security --bin mercy-admit` (or your renamed path package). No network required after the initial copy if dependencies are already vendored or cached.
+
+### Option C — Prebuilt binary transfer
+
+Build `mercy-admit` on a trusted networked host (`cargo build -p mercy-security --bin mercy-admit --release`), checksum it, and install the binary into the air-gapped image. Re-build when you change the pin. (Not a substitute for source review if your policy requires it.)
+
+**License reminder:** AG-SML v1.0 applies to the gate source. Record provenance (SHA + date) in your internal inventory.
 
 ---
 
