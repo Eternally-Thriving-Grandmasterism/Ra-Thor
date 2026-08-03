@@ -30,12 +30,29 @@ jobs:
         with:
           workspaces: "."
 
-      - name: Test mercy-security
+      - name: Test mercy-security (includes fixture corpus)
         run: cargo test -p mercy-security -- --nocapture
 
-      - name: Fixture corpus present
+      - name: Fixture corpus present + inventory
         run: |
+          set -e
           test -f crates/mercy-security/fixtures/MANIFEST.md
           test -d crates/mercy-security/fixtures/benign
           test -d crates/mercy-security/fixtures/should_block
-          echo "Fixture corpus layout OK"
+          echo "=== benign fixtures ==="
+          ls -1 crates/mercy-security/fixtures/benign/
+          echo "=== should_block fixtures ==="
+          ls -1 crates/mercy-security/fixtures/should_block/
+          # Require core expanded set
+          test -f crates/mercy-security/fixtures/benign/research_notes_clean.md
+          test -f crates/mercy-security/fixtures/should_block/template_jinja_injection.txt
+          test -f crates/mercy-security/fixtures/should_block/yaml_unsafe_load.txt
+          echo "Fixture corpus layout + expanded inventory OK"
+
+      - name: Quick admit-gate smoke (no live exploits)
+        run: |
+          set -e
+          # Benign must not panic the scanner; exact admit/block is covered by unit tests
+          cargo test -p mercy-security fixture_benign_model_card_admits -- --nocapture
+          cargo test -p mercy-security fixture_should_block_trust_remote_code -- --nocapture
+          echo "Admit-gate smoke examples passed"

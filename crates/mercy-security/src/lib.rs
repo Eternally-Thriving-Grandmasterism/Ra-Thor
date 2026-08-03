@@ -623,4 +623,126 @@ mod tests {
     fn blocks_remote_code_loader() {
         assert!(IngestionScanner::admit_or_block("trust_remote_code=True").is_err());
     }
+
+    // ── Public fixture corpus (Tier A admit gate) ──────────────────────────
+
+    #[test]
+    fn fixture_benign_model_card_admits() {
+        let content = include_str!("../fixtures/benign/model_card_clean.md");
+        let r = IngestionScanner::admit_or_block(content);
+        assert!(r.is_ok(), "clean model card must admit: {r:?}");
+        let r = r.unwrap();
+        assert!(matches!(r.risk_tier, RiskTier::None | RiskTier::Low));
+    }
+
+    #[test]
+    fn fixture_benign_research_notes_admits() {
+        let content = include_str!("../fixtures/benign/research_notes_clean.md");
+        assert!(IngestionScanner::admit_or_block(content).is_ok());
+    }
+
+    #[test]
+    fn fixture_benign_safe_python_snippet_admits() {
+        let content = include_str!("../fixtures/benign/safe_python_snippet.md");
+        assert!(IngestionScanner::admit_or_block(content).is_ok());
+    }
+
+    #[test]
+    fn fixture_benign_education_protocol_admits() {
+        let content = include_str!("../fixtures/benign/education_protocol.md");
+        assert!(IngestionScanner::admit_or_block(content).is_ok());
+    }
+
+    #[test]
+    fn fixture_should_block_trust_remote_code() {
+        let content = include_str!("../fixtures/should_block/trust_remote_code_loader.txt");
+        assert!(IngestionScanner::admit_or_block(content).is_err());
+        let scan = IngestionScanner::scan_text(content);
+        assert!(scan.risk_tier >= RiskTier::High);
+    }
+
+    #[test]
+    fn fixture_should_block_hf_combo() {
+        let content = include_str!("../fixtures/should_block/hf_combo_remote_config.txt");
+        assert!(IngestionScanner::admit_or_block(content).is_err());
+        let scan = IngestionScanner::scan_text(content);
+        assert!(scan.risk_tier >= RiskTier::High);
+        assert!(scan.threats.contains(&IngestionThreat::UnknownHighRisk)
+            || scan.threats.contains(&IngestionThreat::RemoteCodeLoader));
+    }
+
+    #[test]
+    fn fixture_should_block_pickle_gadget() {
+        let content = include_str!("../fixtures/should_block/pickle_gadget.txt");
+        assert!(IngestionScanner::admit_or_block(content).is_err());
+    }
+
+    #[test]
+    fn fixture_should_block_obfuscated_exec() {
+        let content = include_str!("../fixtures/should_block/obfuscated_exec_pattern.txt");
+        assert!(IngestionScanner::admit_or_block(content).is_err());
+        let scan = IngestionScanner::scan_text(content);
+        assert!(scan.risk_tier >= RiskTier::High);
+    }
+
+    #[test]
+    fn fixture_should_block_shell_network_combo() {
+        let content = include_str!("../fixtures/should_block/shell_network_combo.txt");
+        assert!(IngestionScanner::admit_or_block(content).is_err());
+    }
+
+    #[test]
+    fn fixture_should_block_pem_private_key() {
+        let content = include_str!("../fixtures/should_block/pem_private_key_marker.txt");
+        assert!(IngestionScanner::admit_or_block(content).is_err());
+        let scan = IngestionScanner::scan_text(content);
+        assert!(scan.threats.contains(&IngestionThreat::CredentialHarvestPattern));
+    }
+
+    #[test]
+    fn fixture_should_block_template_jinja() {
+        let content = include_str!("../fixtures/should_block/template_jinja_injection.txt");
+        assert!(IngestionScanner::admit_or_block(content).is_err());
+        let scan = IngestionScanner::scan_text(content);
+        assert!(scan.threats.contains(&IngestionThreat::TemplateInjection));
+    }
+
+    #[test]
+    fn fixture_should_block_network_callback() {
+        let content = include_str!("../fixtures/should_block/network_callback_marker.txt");
+        assert!(IngestionScanner::admit_or_block(content).is_err());
+        let scan = IngestionScanner::scan_text(content);
+        assert!(scan.threats.contains(&IngestionThreat::NetworkCallback));
+    }
+
+    #[test]
+    fn fixture_should_block_dataset_loading_script() {
+        let content = include_str!("../fixtures/should_block/dataset_loading_script.txt");
+        assert!(IngestionScanner::admit_or_block(content).is_err());
+    }
+
+    #[test]
+    fn fixture_should_block_credential_hf_token() {
+        let content = include_str!("../fixtures/should_block/credential_hf_token.txt");
+        assert!(IngestionScanner::admit_or_block(content).is_err());
+        let scan = IngestionScanner::scan_text(content);
+        assert!(scan.threats.contains(&IngestionThreat::CredentialHarvestPattern));
+    }
+
+    #[test]
+    fn fixture_should_block_yaml_unsafe_load() {
+        let content = include_str!("../fixtures/should_block/yaml_unsafe_load.txt");
+        assert!(IngestionScanner::admit_or_block(content).is_err());
+        let scan = IngestionScanner::scan_text(content);
+        assert!(scan.threats.contains(&IngestionThreat::SerializationGadget));
+    }
+
+    #[test]
+    fn fixture_docs_api_key_fp_probe() {
+        // Documented as Low-or-Medium FP probe; policy blocks Medium+.
+        let content = include_str!("../fixtures/benign/docs_mention_api_key.md");
+        let scan = IngestionScanner::scan_text(content);
+        assert!(scan.risk_tier <= RiskTier::Medium, "must not escalate to High/Critical");
+        // Whether admit or block depends on exact threshold; both are acceptable for this probe.
+    }
 }
