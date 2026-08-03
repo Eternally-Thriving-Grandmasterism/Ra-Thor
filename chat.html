@@ -4,14 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Ra-Thor™ Lattice Chat — Offline Mercy Thunder ⚡️ | rathor.ai</title>
-  <meta name="description" content="Offline TOLC-8 multi-session chat with Local Backend Bridge, WebLLM, STT/TTS, Document Injection, Session Search • Zero data collection • Sole stewardship by Sherif Samy Botros">
+  <meta name="description" content="Offline TOLC-8 multi-session chat with Local Backend Bridge, WebLLM, STT/TTS, Document Injection, Session Search, Optional Encryption • Zero data collection • Sole stewardship by Sherif Samy Botros">
   <meta name="theme-color" content="#fcd34d">
   <meta name="color-scheme" content="dark">
 
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://rathor.ai/chat.html">
   <meta property="og:title" content="Ra-Thor™ Lattice Chat — Offline Mercy Thunder ⚡️">
-  <meta property="og:description" content="Offline TOLC-8 multi-session chat • Local Backend Bridge • Document Injection • Session Search • Zero data leaves your device">
+  <meta property="og:description" content="Offline TOLC-8 multi-session chat • Local Backend Bridge • Document Injection • Optional Passphrase Encryption • Zero data leaves your device">
   <meta property="og:image" content="https://rathor.ai/icons/thunder-favicon-512.jpg">
 
   <link rel="manifest" href="/manifest.json">
@@ -97,7 +97,6 @@
     }
     @keyframes blink { 50% { opacity: 0; } }
 
-    /* Markdown styles */
     .message-text pre {
       background: #0a0a0a;
       border: 1px solid rgba(252, 211, 77, 0.2);
@@ -116,10 +115,7 @@
       padding: 0.12rem 0.35rem;
       border-radius: 0.3rem;
     }
-    .message-text pre code {
-      background: transparent;
-      padding: 0;
-    }
+    .message-text pre code { background: transparent; padding: 0; }
     .message-text h1, .message-text h2, .message-text h3 {
       font-weight: 600;
       margin: 0.6rem 0 0.35rem;
@@ -326,6 +322,11 @@
       margin: 0.15rem;
     }
 
+    #unlock-overlay {
+      z-index: 100;
+      background: rgba(0,0,0,0.94);
+    }
+
     @media (max-width: 480px) {
       #chat-messages { max-height: 28vh; min-height: 140px; padding: 0.85rem; }
       .message { max-width: 92%; font-size: 0.9rem; padding: 0.7rem 0.9rem; }
@@ -357,7 +358,7 @@
       </a>
       <div class="text-center flex-1 min-w-0">
         <h1 class="title-font text-lg sm:text-xl font-black tracking-tight thunder-glow truncate">Lattice Chat ⚡️</h1>
-        <p class="text-[10px] text-amber-400/70 mt-0.5">Offline Core • TOLC 8 • v14.17.0</p>
+        <p class="text-[10px] text-amber-400/70 mt-0.5">Offline Core • TOLC 8 • v14.18.0</p>
       </div>
       <a href="/privacy.html" class="text-xs text-white/50 shrink-0">Privacy</a>
     </div>
@@ -389,6 +390,7 @@
         <button id="import-session-btn" class="ctrl-btn" title="Import"><i class="fa-solid fa-upload"></i></button>
         <button id="copy-context-btn" class="ctrl-btn" title="Copy Context"><i class="fa-solid fa-clipboard"></i></button>
         <button id="voice-settings-btn" class="ctrl-btn" title="Voice / TTS"><i class="fa-solid fa-volume-high"></i></button>
+        <button id="encrypt-btn" class="ctrl-btn" title="Optional Passphrase Encryption"><i class="fa-solid fa-lock"></i></button>
       </div>
     </div>
 
@@ -461,7 +463,7 @@
           Send <span>⚡️</span>
         </button>
       </div>
-      <p class="text-[10px] text-white/40 mt-1.5 text-center leading-snug">Offline core • Multi-session • Markdown • Document Injection • STT + TTS</p>
+      <p class="text-[10px] text-white/40 mt-1.5 text-center leading-snug">Offline core • Multi-session • Markdown • Document Injection • Optional Encryption</p>
     </div>
 
     <!-- Bridge panel -->
@@ -527,6 +529,24 @@
         <button id="voice-cancel" class="flex-1 py-2.5 rounded-xl border border-white/20 text-sm">Cancel</button>
         <button id="voice-save" class="flex-1 py-2.5 rounded-xl bg-amber-400 text-black font-semibold text-sm">Save & Apply</button>
       </div>
+    </div>
+  </div>
+
+  <!-- Unlock Modal (shown when store is encrypted) -->
+  <div id="unlock-overlay" class="modal-overlay">
+    <div class="modal-content text-center">
+      <h2 class="title-font text-xl text-amber-300 mb-2 thunder-glow">Session Store Locked ⚡️</h2>
+      <p class="text-xs text-white/60 mb-5 leading-relaxed">
+        Your sessions are protected with a passphrase.<br>
+        Enter it to unlock. Nothing leaves your device.
+      </p>
+      <input id="unlock-passphrase" type="password" placeholder="Passphrase" 
+             class="w-full bg-black border border-amber-300/40 rounded-xl px-4 py-3 text-white text-sm mb-3 focus:outline-none focus:border-amber-300">
+      <p id="unlock-error" class="text-red-400 text-xs mb-3 hidden">Incorrect passphrase</p>
+      <button id="unlock-btn" class="w-full py-3 rounded-xl bg-amber-400 text-black font-semibold text-sm">
+        Unlock Lattice
+      </button>
+      <p class="text-[10px] text-white/40 mt-4">Forgetting the passphrase makes the data unrecoverable.</p>
     </div>
   </div>
 
