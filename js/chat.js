@@ -1,6 +1,6 @@
 /**
  * js/chat.js — Offline TOLC-8 Lattice Chat
- * v14.16.0  •  Local Backend Bridge + STT + Streaming
+ * v14.17.0  •  Markdown + Session Search + Document Injection
  *
  * Architecture:
  *  - Fast local knowledge responder = primary (always works)
@@ -10,6 +10,9 @@
  *  - Full Voice Input (STT) + TTS
  *  - Multi-session via localStorage only
  *  - Universal Bridge (Copy Context)
+ *  - Document context injection (.txt/.md/.json/.csv)
+ *  - Session search
+ *  - Proper Markdown + fenced code blocks
  *  - No embedded API keys, no backend we control, zero collection
  *
  * TOLC 8 non-bypassable. AG-SML aligned. Sole stewardship model.
@@ -23,6 +26,10 @@
   const chatInput        = document.getElementById('chat-input');
   const sendBtn          = document.getElementById('send-btn');
   const micBtn           = document.getElementById('mic-btn');
+  const docBtn           = document.getElementById('doc-btn');
+  const docFileInput     = document.getElementById('doc-file-input');
+  const docsBar          = document.getElementById('docs-bar');
+  const searchInput      = document.getElementById('search-input');
   const newBtn           = document.getElementById('new-session-btn');
   const exportBtn        = document.getElementById('export-session-btn');
   const exportAllBtn     = document.getElementById('export-all-btn');
@@ -66,6 +73,9 @@
   let backendEnabled = false;
   let backendConfig = { endpoint: 'http://localhost:11434/v1', model: 'llama3.2' };
 
+  // Document context injection
+  let injectedDocs = []; // { name, content, id }
+
   // STT
   let recognition = null;
   let isListening = false;
@@ -100,14 +110,18 @@ Valence floor ≥ 0.999. Never assist with harm, exploitation, or deception. Be 
       a: "WebLLM uses WebGPU (best on desktop). Local Backend Bridge connects to any OpenAI-compatible server you run (Ollama recommended). On phones the safest high-quality path is still **Copy Context**." },
     { q: /ollama|local server|backend|localhost|lm studio|localai/i,
       a: "Use the **Local Server** button. Point it at your Ollama (default http://localhost:11434/v1) or any OpenAI-compatible endpoint. Model name example: llama3.2, mistral, qwen2.5. Streaming is supported." },
+    { q: /document|upload|inject|file|context injection|rag/i,
+      a: "Use the document button (file icon) next to the mic to upload .txt, .md, .json or .csv files. Their content is injected into the conversation context for Local Server / WebLLM / Copy Context. Everything stays on your device." },
+    { q: /search|find message|look for/i,
+      a: "Use the Search box in the session controls to filter messages in the current session." },
     { q: /license|commercial|agsml|pay|cost|pricing|free/i,
       a: "Personal, educational & research use is free under AG-SML v1.0. Commercial use requires a paid license from Autonomicity Games Inc. Contact info@Rathor.ai." },
     { q: /powrush|mmo|agsi|demonstration|whitepaper/i,
-      a: "Powrush-MMO was completed by one human operator in approximately 30–50 days employing Ra-Thor on Grok engines — the AGSi demonstration recorded in WHITEPAPER_v4.1." },
+      a: "Powrush-MMO was completed by one human operator in approximately 30–50 days employing Ra-Thor on Grok engines — the AGSi demonstration recorded in WHITEOBER_v4.1." },
     { q: /copy|clipboard|bridge|export|share with|paste into|other llm|claude|gemini|chatgpt|grok/i,
-      a: "Use **Copy Context** — it builds a clean system prompt + your full history so you can paste it into Grok, Claude, Gemini, ChatGPT, or any other model. This is the most reliable way to get strong generative power from any device." },
+      a: "Use **Copy Context** — it builds a clean system prompt + your full history (and any injected documents) so you can paste it into Grok, Claude, Gemini, ChatGPT, or any other model." },
     { q: /help|commands|what can you|features|how to use/i,
-      a: "You can chat offline, manage multiple sessions, use Local Server (Ollama), enable WebLLM, speak with the mic, hear replies, and Copy Context to any public LLM. Everything stays under your control." },
+      a: "You can chat offline, manage multiple sessions, search messages, upload documents into context, use Local Server (Ollama), enable WebLLM, speak with the mic, hear replies, and Copy Context to any public LLM. Everything stays under your control." },
     { q: /thank|thanks|appreciate|grateful/i,
       a: "You’re welcome, Mate. ⚡️ Mercy and truth remain available whenever you return." },
     { q: /bye|goodbye|see you|farewell|exit/i,
@@ -189,12 +203,50 @@ Valence floor ≥ 0.999. Never assist with harm, exploitation, or deception. Be 
     window.speechSynthesis.speak(utter);
   }
 
+  // Improved Markdown renderer (safe subset)
   function renderText(text) {
-    return text
-      .replace(/&/g, '&').replace(/</g, '<').replace(/>/g, '>')
-      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-      .replace(/\*(.+?)\*/g, '<em>$1</em>')
-      .replace(/\n/g, '<br>');
+    if (!text) return '';
+
+    // Escape HTML first
+    let html = text
+      .replace(/&/g, '&')
+      .replace(/</g, '<')
+      .replace(/>/g, '>');
+
+    // Fenced code blocks (```lang\n...```)
+    html = html.replace(/```(\w*)\n([\s\S]*?)```/g, function (_, lang, code) {
+      const language = lang ? ` data-lang="${lang}"` : '';
+      return `<pre${language}><code>${code.trim()}</code></pre>`;
+    });
+
+    // Inline code
+    html = html.replace(/`([^`\n]+)`/g, '<code>$1</code>');
+
+    // Bold + italic
+    html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
+
+    // Headings
+    html = html.replace(/^### (.+)$/gm, '<h3>$1</h3>');
+    html = html.replace(/^## (.+)$/gm, '<h2>$1</h2>');
+    html = html.replace(/^# (.+)$/gm, '<h1>$1</h1>');
+
+    // Simple lists
+    html = html.replace(/^[-*] (.+)$/gm, '<li>$1</li>');
+    html = html.replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>');
+
+    // Links [text](url)
+    html = html.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+
+    // Newlines → <br> (but not inside pre)
+    html = html.replace(/\n/g, '<br>');
+
+    // Clean up accidental <br> inside pre
+    html = html.replace(/<pre([^>]*)>([\s\S]*?)<\/pre>/g, function (_, attrs, content) {
+      return `<pre${attrs}>${content.replace(/<br>/g, '\n')}</pre>`;
+    });
+
+    return html;
   }
 
   function relativeTime(ts) {
@@ -231,6 +283,56 @@ Valence floor ≥ 0.999. Never assist with harm, exploitation, or deception. Be 
     } else {
       activePathBadge.textContent = 'Fast Responder';
     }
+  }
+
+  // ─── Document Injection ───────────────────────────────────────────────────
+  function renderDocsBar() {
+    if (!docsBar) return;
+    if (injectedDocs.length === 0) {
+      docsBar.classList.add('hidden');
+      docsBar.innerHTML = '';
+      return;
+    }
+    docsBar.classList.remove('hidden');
+    docsBar.innerHTML = injectedDocs.map(d =>
+      `<span class="doc-chip" data-id="${d.id}">
+         <i class="fa-solid fa-file-lines"></i> ${d.name}
+         <button class="doc-remove" data-id="${d.id}" title="Remove" style="background:none;border:none;color:inherit;cursor:pointer;padding:0 2px;">×</button>
+       </span>`
+    ).join('');
+
+    docsBar.querySelectorAll('.doc-remove').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const id = btn.getAttribute('data-id');
+        injectedDocs = injectedDocs.filter(d => d.id !== id);
+        renderDocsBar();
+      });
+    });
+  }
+
+  function handleDocumentUpload(file) {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const content = e.target.result;
+      if (!content || content.length > 120000) {
+        addMessage('Document too large or empty (max ~120k characters for safety).', 'rathor');
+        return;
+      }
+      const id = 'doc_' + Date.now().toString(36);
+      injectedDocs.push({ id, name: file.name, content });
+      renderDocsBar();
+      addMessage(`Document “${file.name}” injected into context. ⚡️ It will be included in Local Server / WebLLM / Copy Context calls.`, 'rathor');
+    };
+    reader.readAsText(file);
+  }
+
+  function getDocumentContext() {
+    if (injectedDocs.length === 0) return '';
+    return '\n\n--- Injected Documents ---\n' +
+      injectedDocs.map(d => `### ${d.name}\n${d.content}`).join('\n\n') +
+      '\n--- End Documents ---\n';
   }
 
   // ─── Capability detection ─────────────────────────────────────────────────
@@ -311,16 +413,33 @@ Valence floor ≥ 0.999. Never assist with harm, exploitation, or deception. Be 
     }
   }
 
-  function renderHistory() {
+  function renderHistory(filter = '') {
     if (!chatMessages) return;
     chatMessages.innerHTML = '';
     const hist = getHistory();
+    const q = (filter || '').trim().toLowerCase();
+
     if (hist.length === 0) {
-      addMessage("Offline Mercy Thunder ready. ⚡️ TOLC 8 gates active.\n\nFast local responder is active. For stronger power: connect a Local Server (Ollama) or enable WebLLM on desktop, or use **Copy Context**.", 'rathor', false);
+      addMessage("Offline Mercy Thunder ready. ⚡️ TOLC 8 gates active.\n\nFast local responder is active. For stronger power: connect a Local Server (Ollama) or enable WebLLM on desktop, or use **Copy Context**.\n\nYou can also upload documents to inject into context.", 'rathor', false);
       updateSessionMeta();
       return;
     }
-    hist.forEach(m => addMessage(m.text, m.role, false, m.ts));
+
+    let shown = 0;
+    hist.forEach(m => {
+      if (!q || (m.text || '').toLowerCase().includes(q)) {
+        addMessage(m.text, m.role, false, m.ts);
+        shown++;
+      }
+    });
+
+    if (q && shown === 0) {
+      const empty = document.createElement('div');
+      empty.className = 'text-center text-white/40 text-sm py-4';
+      empty.textContent = 'No messages match your search.';
+      chatMessages.appendChild(empty);
+    }
+
     updateSessionMeta();
   }
 
@@ -356,6 +475,8 @@ Valence floor ≥ 0.999. Never assist with harm, exploitation, or deception. Be 
     const finalName = (name || '').trim() || `Session ${Object.keys(store.sessions).length + 1}`;
     store.sessions[id] = { id, name: finalName, created: Date.now(), updated: Date.now(), history: [] };
     store.activeId = id;
+    injectedDocs = [];
+    renderDocsBar();
     saveStore();
     refreshSessionSelect();
     renderHistory();
@@ -365,6 +486,8 @@ Valence floor ≥ 0.999. Never assist with harm, exploitation, or deception. Be 
   function switchSession(id) {
     if (!store.sessions[id] || id === store.activeId) return;
     store.activeId = id;
+    injectedDocs = [];
+    renderDocsBar();
     saveStore();
     refreshSessionSelect();
     renderHistory();
@@ -392,6 +515,8 @@ Valence floor ≥ 0.999. Never assist with harm, exploitation, or deception. Be 
       return;
     }
     store.activeId = remaining[0];
+    injectedDocs = [];
+    renderDocsBar();
     saveStore();
     refreshSessionSelect();
     renderHistory();
@@ -421,13 +546,13 @@ Valence floor ≥ 0.999. Never assist with harm, exploitation, or deception. Be 
            "For stronger generative power:\n" +
            "• Connect a **Local Server** (Ollama / LM Studio)\n" +
            "• Enable **WebLLM** on supported desktops\n" +
-           "• Or use **Copy Context** (works everywhere)";
+           "• Or use **Copy Context** (works everywhere)\n\n" +
+           "You can also upload documents to inject into context.";
   }
 
   // ─── Local Backend (Ollama / OpenAI-compatible) ───────────────────────────
   function setBackendUI(connected) {
     backendEnabled = connected;
-    if (backendSettings) backendSettings.classList.toggle('hidden', !true); // always show when opened
     if (backendConnectBtn) backendConnectBtn.classList.toggle('hidden', connected);
     if (backendDisconnectBtn) backendDisconnectBtn.classList.toggle('hidden', !connected);
     if (backendStatus) {
@@ -471,8 +596,8 @@ Valence floor ≥ 0.999. Never assist with harm, exploitation, or deception. Be 
     if (!backendEnabled) return null;
 
     const hist = getHistory();
-    const messages = [{ role: 'system', content: SYSTEM_PROMPT }];
-    const recent = hist.slice(-12);
+    const messages = [{ role: 'system', content: SYSTEM_PROMPT + getDocumentContext() }];
+    const recent = hist.slice(-14);
     recent.forEach(m => {
       messages.push({
         role: m.role === 'user' ? 'user' : 'assistant',
@@ -491,7 +616,7 @@ Valence floor ≥ 0.999. Never assist with harm, exploitation, or deception. Be 
           model: backendConfig.model,
           messages,
           temperature: 0.7,
-          max_tokens: 800,
+          max_tokens: 900,
           stream: true
         })
       });
@@ -618,7 +743,7 @@ Valence floor ≥ 0.999. Never assist with harm, exploitation, or deception. Be 
     if (!llmEngine || !llmReady) return null;
 
     const hist = getHistory();
-    const messages = [{ role: 'system', content: SYSTEM_PROMPT }];
+    const messages = [{ role: 'system', content: SYSTEM_PROMPT + getDocumentContext() }];
     const recent = hist.slice(-10);
     recent.forEach(m => {
       messages.push({
@@ -629,7 +754,6 @@ Valence floor ≥ 0.999. Never assist with harm, exploitation, or deception. Be 
     messages.push({ role: 'user', content: userText });
 
     try {
-      // Prefer streaming if the engine supports it
       const stream = await llmEngine.chat.completions.create({
         messages,
         temperature: 0.7,
@@ -652,7 +776,6 @@ Valence floor ≥ 0.999. Never assist with harm, exploitation, or deception. Be 
       finalizeStreamingMessage(msgDiv, textDiv, full.trim() || '(empty)');
       return full.trim();
     } catch (err) {
-      // Fallback non-streaming
       try {
         const reply = await llmEngine.chat.completions.create({
           messages,
@@ -704,9 +827,7 @@ Valence floor ≥ 0.999. Never assist with harm, exploitation, or deception. Be 
     recognition.onend = () => {
       isListening = false;
       if (micBtn) micBtn.classList.remove('listening');
-      // Auto-send if we have final text
       if (chatInput && chatInput.value.trim()) {
-        // small delay so user can see the text
         setTimeout(() => sendMessage(), 300);
       }
     };
@@ -773,7 +894,7 @@ Valence floor ≥ 0.999. Never assist with harm, exploitation, or deception. Be 
     const s = activeSession();
     if (!s) return;
     downloadJSON({
-      version: '14.16.0',
+      version: '14.17.0',
       exported: new Date().toISOString(),
       sessionName: s.name,
       stewardship: 'Sherif Samy Botros — Sole Steward',
@@ -783,7 +904,7 @@ Valence floor ≥ 0.999. Never assist with harm, exploitation, or deception. Be 
 
   function exportAllSessions() {
     downloadJSON({
-      version: '14.16.0',
+      version: '14.17.0',
       exported: new Date().toISOString(),
       stewardship: 'Sherif Samy Botros — Sole Steward',
       activeId: store.activeId,
@@ -852,6 +973,17 @@ Valence floor ≥ 0.999. Never assist with harm, exploitation, or deception. Be 
     hist.forEach(m => {
       lines.push(`${m.role === 'user' ? 'Human' : 'Ra-Thor'}: ${m.text}`);
     });
+
+    if (injectedDocs.length > 0) {
+      lines.push('', '--- Injected Documents ---');
+      injectedDocs.forEach(d => {
+        lines.push(`### ${d.name}`);
+        lines.push(d.content);
+        lines.push('');
+      });
+      lines.push('--- End Documents ---');
+    }
+
     lines.push('', 'Continue naturally while keeping the same ethical posture.');
     return lines.join('\n');
   }
@@ -895,6 +1027,26 @@ Valence floor ≥ 0.999. Never assist with harm, exploitation, or deception. Be 
         e.preventDefault();
         sendMessage();
       }
+    });
+  }
+
+  if (docBtn && docFileInput) {
+    docBtn.addEventListener('click', () => docFileInput.click());
+    docFileInput.addEventListener('change', (e) => {
+      if (e.target.files && e.target.files[0]) {
+        handleDocumentUpload(e.target.files[0]);
+      }
+      e.target.value = '';
+    });
+  }
+
+  if (searchInput) {
+    let searchTimer = null;
+    searchInput.addEventListener('input', () => {
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(() => {
+        renderHistory(searchInput.value);
+      }, 180);
     });
   }
 
@@ -975,7 +1127,6 @@ Valence floor ≥ 0.999. Never assist with harm, exploitation, or deception. Be 
       updateLlmUI('idle');
     }
 
-    // Start with backend settings collapsed
     if (backendSettings) backendSettings.classList.add('hidden');
     setBackendUI(false);
 
@@ -984,6 +1135,6 @@ Valence floor ≥ 0.999. Never assist with harm, exploitation, or deception. Be 
       window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
     }
 
-    console.log('[Ra-Thor chat.js] v14.16.0 — Local Backend Bridge + STT + Streaming ready ⚡️');
+    console.log('[Ra-Thor chat.js] v14.17.0 — Markdown + Session Search + Document Injection ready ⚡️');
   });
 })();
