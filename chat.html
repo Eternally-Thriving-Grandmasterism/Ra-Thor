@@ -4,14 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Ra-Thor™ Lattice Chat — Offline Mercy Thunder ⚡️ | rathor.ai</title>
-  <meta name="description" content="Offline TOLC-8 multi-session chat with optional on-device Local LLM • Zero data collection • Sole stewardship by Sherif Samy Botros">
+  <meta name="description" content="Offline TOLC-8 multi-session chat with Local Backend Bridge (Ollama etc.), optional WebLLM, STT + TTS • Zero data collection • Sole stewardship by Sherif Samy Botros">
   <meta name="theme-color" content="#fcd34d">
   <meta name="color-scheme" content="dark">
 
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://rathor.ai/chat.html">
   <meta property="og:title" content="Ra-Thor™ Lattice Chat — Offline Mercy Thunder ⚡️">
-  <meta property="og:description" content="Offline TOLC-8 multi-session chat • Optional Local LLM • Zero data leaves your device">
+  <meta property="og:description" content="Offline TOLC-8 multi-session chat • Local Backend Bridge • Optional WebLLM • Zero data leaves your device">
   <meta property="og:image" content="https://rathor.ai/icons/thunder-favicon-512.jpg">
 
   <link rel="manifest" href="/manifest.json">
@@ -63,7 +63,7 @@
       overflow-y: auto;
       flex: 1;
       min-height: 180px;
-      max-height: 36vh;
+      max-height: 34vh;
       -webkit-overflow-scrolling: touch;
     }
 
@@ -90,6 +90,12 @@
       border: 1px solid rgba(252, 211, 77, 0.25);
       border-bottom-left-radius: 0.3rem;
     }
+    .message.streaming .message-text::after {
+      content: '▍';
+      animation: blink 1s infinite;
+      margin-left: 2px;
+    }
+    @keyframes blink { 50% { opacity: 0; } }
 
     .message-meta {
       display: flex;
@@ -131,16 +137,15 @@
     .ctrl-btn:active { transform: scale(0.96); }
     .ctrl-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-    /* Input area – critical for mobile */
     .input-row {
       display: flex;
-      gap: 0.5rem;
+      gap: 0.4rem;
       align-items: stretch;
       width: 100%;
     }
     #chat-input {
       flex: 1 1 auto;
-      min-width: 0;          /* critical: allows shrinking */
+      min-width: 0;
       background: #0a0a0a;
       border: 1px solid rgba(252, 211, 77, 0.35);
       color: #fff;
@@ -153,21 +158,37 @@
       border-color: #fcd34d;
       box-shadow: 0 0 0 2px rgba(252, 211, 77, 0.2);
     }
-    #send-btn {
+    #mic-btn, #send-btn {
       flex: 0 0 auto;
-      padding: 0.75rem 1.1rem;
+      padding: 0.75rem 0.95rem;
       border-radius: 0.9rem;
-      background: #fbbf24;
-      color: #000;
       font-weight: 600;
       font-size: 0.9rem;
       border: none;
-      white-space: nowrap;
       display: flex;
       align-items: center;
-      gap: 0.3rem;
+      justify-content: center;
+      gap: 0.25rem;
     }
-    #send-btn:active { transform: scale(0.97); }
+    #mic-btn {
+      background: #1e1b4b;
+      color: #c7d2fe;
+      border: 1px solid rgba(139, 92, 246, 0.5);
+    }
+    #mic-btn.listening {
+      background: #7c3aed;
+      color: #fff;
+      animation: pulse-mic 1.2s infinite;
+    }
+    @keyframes pulse-mic {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(124, 58, 237, 0.5); }
+      50% { box-shadow: 0 0 0 8px rgba(124, 58, 237, 0); }
+    }
+    #send-btn {
+      background: #fbbf24;
+      color: #000;
+    }
+    #send-btn:active, #mic-btn:active { transform: scale(0.97); }
 
     #session-select {
       background: #0a0a0a;
@@ -176,7 +197,7 @@
       border-radius: 0.7rem;
       padding: 0.35rem 0.5rem;
       font-size: 0.78rem;
-      max-width: 140px;
+      max-width: 130px;
     }
 
     .modal-overlay {
@@ -195,7 +216,7 @@
       border: 1px solid rgba(252, 211, 77, 0.4);
       border-radius: 1.25rem;
       padding: 1.5rem;
-      max-width: 400px;
+      max-width: 420px;
       width: 100%;
       max-height: 85vh;
       overflow-y: auto;
@@ -217,52 +238,43 @@
       cursor: pointer;
     }
 
-    .llm-ready {
+    .llm-ready, .backend-ready {
       border-color: #34d399 !important;
       color: #34d399 !important;
     }
 
-    /* Mobile refinements */
+    .path-badge {
+      font-size: 0.65rem;
+      padding: 0.15rem 0.4rem;
+      border-radius: 999px;
+      background: rgba(252, 211, 77, 0.15);
+      color: #fcd34d;
+    }
+    .path-badge.active-backend { background: rgba(52, 211, 153, 0.2); color: #34d399; }
+    .path-badge.active-webllm { background: rgba(139, 92, 246, 0.2); color: #a78bfa; }
+
     @media (max-width: 480px) {
-      #chat-messages {
-        max-height: 32vh;
-        min-height: 160px;
-        padding: 0.85rem;
-      }
-      .message {
-        max-width: 90%;
-        font-size: 0.9rem;
-        padding: 0.7rem 0.9rem;
-      }
-      .ctrl-btn {
-        padding: 0.35rem 0.45rem;
-        font-size: 0.72rem;
-      }
-      #session-select {
-        max-width: 120px;
-        font-size: 0.72rem;
-      }
-      #send-btn {
-        padding: 0.7rem 0.9rem;
-        font-size: 0.85rem;
-      }
+      #chat-messages { max-height: 30vh; min-height: 150px; padding: 0.85rem; }
+      .message { max-width: 90%; font-size: 0.9rem; padding: 0.7rem 0.9rem; }
+      .ctrl-btn { padding: 0.35rem 0.45rem; font-size: 0.72rem; }
+      #session-select { max-width: 110px; font-size: 0.72rem; }
+      #send-btn, #mic-btn { padding: 0.7rem 0.85rem; font-size: 0.85rem; }
       .golden-star { opacity: 0.22; font-size: 22px; }
     }
 
     @media (prefers-reduced-motion: reduce) {
       .golden-star { animation: none !important; }
+      #mic-btn.listening { animation: none; }
     }
   </style>
 </head>
 <body class="bg-black text-white min-h-screen flex flex-col">
 
-  <!-- Subtle golden stars (non-interfering) -->
   <div class="golden-star" style="top:8%;left:4%;">★</div>
   <div class="golden-star" style="top:18%;left:92%;animation-delay:6s;">★</div>
   <div class="golden-star" style="top:62%;left:3%;animation-delay:15s;">★</div>
   <div class="golden-star" style="top:78%;left:90%;animation-delay:24s;">★</div>
 
-  <!-- Header -->
   <header class="relative z-10 border-b border-amber-300/20 bg-black/90">
     <div class="max-w-3xl mx-auto px-3 sm:px-4 py-3 flex items-center justify-between gap-2">
       <a href="/" class="inline-flex items-center gap-1.5 text-amber-300 text-sm font-medium shrink-0">
@@ -271,7 +283,7 @@
       </a>
       <div class="text-center flex-1 min-w-0">
         <h1 class="title-font text-lg sm:text-xl font-black tracking-tight thunder-glow truncate">Lattice Chat ⚡️</h1>
-        <p class="text-[10px] text-amber-400/70 mt-0.5">Offline Core • TOLC 8</p>
+        <p class="text-[10px] text-amber-400/70 mt-0.5">Offline Core • TOLC 8 • v14.16.0</p>
       </div>
       <a href="/privacy.html" class="text-xs text-white/50 shrink-0">Privacy</a>
     </div>
@@ -279,7 +291,7 @@
 
   <main class="relative z-10 flex-1 flex flex-col max-w-3xl w-full mx-auto px-3 sm:px-4 py-3">
 
-    <!-- Status + controls -->
+    <!-- Status + Session controls -->
     <div class="mb-2.5 rounded-2xl border border-amber-300/20 bg-zinc-950/80 px-3 py-2.5">
       <div class="flex flex-wrap items-center gap-1.5 mb-2">
         <span class="inline-flex items-center gap-1.5 text-emerald-400 text-xs font-medium">
@@ -287,7 +299,7 @@
           Offline Mercy Thunder
         </span>
         <span class="text-white/30 text-xs">•</span>
-        <span class="text-amber-300/80 text-xs">v14.15.5</span>
+        <span id="active-path-badge" class="path-badge">Fast Responder</span>
         <span id="session-meta" class="text-white/40 text-xs ml-auto"></span>
       </div>
 
@@ -301,39 +313,75 @@
         <button id="export-all-btn" class="ctrl-btn" title="Export All"><i class="fa-solid fa-file-export"></i></button>
         <button id="import-session-btn" class="ctrl-btn" title="Import"><i class="fa-solid fa-upload"></i></button>
         <button id="copy-context-btn" class="ctrl-btn" title="Copy Context"><i class="fa-solid fa-clipboard"></i></button>
-        <button id="voice-settings-btn" class="ctrl-btn" title="Voice"><i class="fa-solid fa-volume-high"></i></button>
+        <button id="voice-settings-btn" class="ctrl-btn" title="Voice / TTS"><i class="fa-solid fa-volume-high"></i></button>
       </div>
     </div>
 
-    <!-- Local LLM panel -->
+    <!-- Local Intelligence panel (WebLLM + Local Backend) -->
     <div class="mb-2.5 rounded-2xl border border-emerald-400/25 bg-emerald-950/20 px-3 py-2.5">
-      <div class="flex flex-wrap items-center justify-between gap-2">
+      <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
         <div class="min-w-0">
-          <p class="text-emerald-200 text-sm font-medium">Local LLM</p>
-          <p id="local-llm-status" class="text-[11px] text-white/50 mt-0.5 truncate">Detecting…</p>
+          <p class="text-emerald-200 text-sm font-medium">Local Intelligence</p>
+          <p id="local-llm-status" class="text-[11px] text-white/50 mt-0.5 truncate">Fast responder active (default)</p>
         </div>
-        <button id="local-llm-btn" class="ctrl-btn border-emerald-400/50 text-emerald-200 shrink-0">
-          <i class="fa-solid fa-microchip"></i> Enable
-        </button>
+        <div class="flex gap-1.5">
+          <button id="local-llm-btn" class="ctrl-btn border-emerald-400/50 text-emerald-200 shrink-0">
+            <i class="fa-solid fa-microchip"></i> WebLLM
+          </button>
+          <button id="local-backend-btn" class="ctrl-btn border-cyan-400/50 text-cyan-200 shrink-0">
+            <i class="fa-solid fa-server"></i> Local Server
+          </button>
+        </div>
       </div>
+
+      <!-- Local Backend settings (hidden by default) -->
+      <div id="backend-settings" class="hidden mt-2 pt-2 border-t border-emerald-400/15">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+          <div>
+            <label class="block text-cyan-200/80 mb-1">Endpoint</label>
+            <input id="backend-endpoint" type="text" value="http://localhost:11434/v1" 
+                   class="w-full bg-black/60 border border-cyan-400/30 rounded-lg px-2 py-1.5 text-white text-xs">
+          </div>
+          <div>
+            <label class="block text-cyan-200/80 mb-1">Model</label>
+            <input id="backend-model" type="text" value="llama3.2" 
+                   class="w-full bg-black/60 border border-cyan-400/30 rounded-lg px-2 py-1.5 text-white text-xs" placeholder="e.g. llama3.2, mistral, qwen2.5">
+          </div>
+        </div>
+        <div class="flex items-center gap-2 mt-2">
+          <button id="backend-connect-btn" class="ctrl-btn border-cyan-400/60 text-cyan-200 text-xs px-3">
+            <i class="fa-solid fa-plug"></i> Connect
+          </button>
+          <button id="backend-disconnect-btn" class="ctrl-btn text-xs px-3 hidden">
+            Disconnect
+          </button>
+          <span id="backend-status" class="text-[10px] text-white/40 ml-1">Not connected</span>
+        </div>
+      </div>
+
       <div class="mt-2 h-1 bg-zinc-800 rounded-full overflow-hidden">
         <div id="local-llm-progress" class="h-full bg-emerald-400 transition-all duration-300" style="width:0%"></div>
       </div>
-      <p id="local-llm-note" class="text-[10px] text-white/40 mt-1.5 leading-snug">Optional. Best on desktop with WebGPU. On phones use Copy Context.</p>
+      <p id="local-llm-note" class="text-[10px] text-white/40 mt-1.5 leading-snug">
+        WebLLM = pure browser. Local Server = Ollama / LM Studio / any OpenAI-compatible endpoint on your machine.
+      </p>
     </div>
 
     <!-- Messages -->
     <div id="chat-messages" class="rounded-2xl border border-amber-300/15 bg-zinc-950/50 mb-2.5"></div>
 
-    <!-- Input – fixed mobile layout -->
+    <!-- Input row with Mic + Send -->
     <div class="rounded-2xl border border-amber-300/30 bg-zinc-950/90 p-2.5">
       <div class="input-row">
         <input id="chat-input" type="text" placeholder="Speak your truth…" autocomplete="off">
+        <button id="mic-btn" title="Voice input (STT)">
+          <i class="fa-solid fa-microphone"></i>
+        </button>
         <button id="send-btn">
           Send <span>⚡️</span>
         </button>
       </div>
-      <p class="text-[10px] text-white/40 mt-1.5 text-center leading-snug">Offline • Multi-session • Mercy-gated • No login</p>
+      <p class="text-[10px] text-white/40 mt-1.5 text-center leading-snug">Offline core • Multi-session • Mercy-gated • No login • STT + TTS</p>
     </div>
 
     <!-- Bridge panel -->
@@ -362,7 +410,6 @@
     </div>
   </main>
 
-  <!-- Footer -->
   <footer class="relative z-10 border-t border-amber-300/15 py-5 mt-auto">
     <div class="max-w-3xl mx-auto px-4 text-center text-xs text-white/50">
       <p>© 2026 Sherif Samy Botros — Sole Steward of Autonomicity Games Inc.</p>
