@@ -42,7 +42,8 @@ cargo build -p mercy-security --bin mercy-admit
 ```
 
 **External repositories (procurement):** copy the drop-in from  
-[`examples/procurement-admit-gate/`](../../examples/procurement-admit-gate/)
+[`examples/procurement-admit-gate/`](../../examples/procurement-admit-gate/)  
+(includes pin guidance, air-gapped notes, and [`PROVENANCE_TEMPLATE.md`](../../examples/procurement-admit-gate/PROVENANCE_TEMPLATE.md)).
 
 See [`docs/WHITEHAT_CI_PRECOMMIT.md`](../../docs/WHITEHAT_CI_PRECOMMIT.md).
 
@@ -55,6 +56,7 @@ See [`docs/WHITEHAT_CI_PRECOMMIT.md`](../../docs/WHITEHAT_CI_PRECOMMIT.md).
 | Composite Action | [`.github/actions/mercy-admit-gate`](../../.github/actions/mercy-admit-gate) |
 | Pre-commit script | [`scripts/pre-commit-admit-gate.sh`](../../scripts/pre-commit-admit-gate.sh) |
 | **Procurement drop-in** | [`examples/procurement-admit-gate/`](../../examples/procurement-admit-gate/) |
+| **Provenance / SBOM template** | [`examples/procurement-admit-gate/PROVENANCE_TEMPLATE.md`](../../examples/procurement-admit-gate/PROVENANCE_TEMPLATE.md) |
 | Procurement one-pager | [`docs/WHITEHAT_PROCUREMENT_TIER_A.md`](../../docs/WHITEHAT_PROCUREMENT_TIER_A.md) |
 | CI / pre-commit guide | [`docs/WHITEHAT_CI_PRECOMMIT.md`](../../docs/WHITEHAT_CI_PRECOMMIT.md) |
 | Education harness lab | [`docs/WHITEHAT_EDUCATION_HARNESS.md`](../../docs/WHITEHAT_EDUCATION_HARNESS.md) |
