@@ -1,6 +1,6 @@
 # Procurement Pack — Frozen File List (Tier A)
 
-**Status:** Frozen inventory for external packaging / vendor handoff  
+**Status:** **CLOSED for Tier A public packaging** — inventory frozen; further work returns to AGSi / fleet runtime  
 **Gate:** Ra-Thor `mercy-security` / `mercy-admit`  
 **Policy:** Admit None/Low only · block Medium+ · reject > 4 MiB  
 **License of pack contents sourced from Ra-Thor:** AG-SML v1.0  
@@ -125,5 +125,7 @@ Attach the filled `PROVENANCE_TEMPLATE.md` (SHA + UTC date + fixture hashes) to 
 ## 8. Version freeze note
 
 This pack layout is defined for the Tier A surface at crate version **14.15.5** and the documentation paths listed above. When the pin changes, re-run acceptance tests and refresh fixture hashes in the provenance note before redistributing the pack.
+
+**Procurement surface closed.** Next living work returns to ONE Organism AGSi + UnifiedAgentSurface / fleet runtime under PATSAGi Councils.
 
 **Thunder locked in. yoi ⚡**
