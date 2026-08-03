@@ -46,38 +46,49 @@ RiskTier ordering: `None < Low < Medium < High < Critical`
 
 ---
 
-## Fixture Inventory
+## Fixture Inventory (Complete)
 
-### benign/ (expected ADMIT)
+### benign/ (expected ADMIT — None / Low)
 
-| File                        | Notes                                      |
-|-----------------------------|--------------------------------------------|
-| `model_card_clean.md`       | Clean model description                    |
-| `research_notes_clean.md`   | Pure offline research abstract             |
-| `education_protocol.md`     | Classroom protocol planning                |
-| `safe_python_snippet.md`    | Stdlib-only, no spawn/exec/network         |
-| `docs_mention_api_key.md`   | Mentions “api_key” in docs (FP probe)      |
+| File                              | Notes                                              |
+|-----------------------------------|----------------------------------------------------|
+| `model_card_clean.md`             | Clean model description                            |
+| `research_notes_clean.md`         | Pure offline research abstract                     |
+| `education_protocol.md`           | Classroom protocol planning                        |
+| `safe_python_snippet.md`          | Stdlib-only, no spawn/exec/network                 |
+| `docs_mention_api_key.md`         | Mentions “api_key” in docs (FP probe)              |
+| `docs_eval_mention.md`            | Mentions “eval” only in academic evaluation sense  |
+| `safe_requirements.md`            | Clean dependency list, no install scripts          |
+| `tolc_protocol_notes.md`          | Ra-Thor TOLC 8 notes — pure documentation          |
+| `markdown_code_fence_clean.md`    | Safe code fence with stdlib only                   |
 
 ### suspicious/ (Medium → human review)
 
-| File                            | Notes                                      |
-|---------------------------------|--------------------------------------------|
-| `template_jinja_injection.txt`  | Template injection class                   |
-| `dataset_loading_script.txt`    | Dataset config injection markers           |
+| File                              | Notes                                              |
+|-----------------------------------|----------------------------------------------------|
+| `template_jinja_injection.txt`    | Template injection class                           |
+| `dataset_loading_script.txt`      | Dataset config injection markers                   |
+| `subprocess_no_shell.txt`         | subprocess without shell=True                      |
+| `dl_manager_marker.txt`           | dl_manager / download_and_extract style            |
+| `eval_in_docs_context.txt`        | eval() mentioned inside documentation text         |
 
 ### blocked/ (High / Critical — should BLOCK)
 
-| File                            | Notes                                      |
-|---------------------------------|--------------------------------------------|
-| `trust_remote_code_loader.txt`  | HF-style remote code flag                  |
-| `hf_combo_remote_config.txt`    | remote + loading_script combo              |
-| `pickle_gadget.txt`             | Unsafe deserialization marker              |
-| `obfuscated_exec_pattern.txt`   | decode + compile/exec                      |
-| `shell_network_combo.txt`       | shell + network combo                      |
-| `pem_private_key_marker.txt`    | Credential material header (fixture only)  |
-| `network_callback_marker.txt`   | Reverse / connect pattern                  |
-| `credential_hf_token.txt`       | hf_token harvest marker (fake value)       |
-| `yaml_unsafe_load.txt`          | Unsafe YAML load                           |
+| File                              | Notes                                              |
+|-----------------------------------|----------------------------------------------------|
+| `trust_remote_code_loader.txt`    | HF-style remote code flag                          |
+| `hf_combo_remote_config.txt`      | remote + loading_script combo                      |
+| `pickle_gadget.txt`               | Unsafe deserialization marker                      |
+| `obfuscated_exec_pattern.txt`     | decode + compile/exec                              |
+| `shell_network_combo.txt`         | shell + network combo                              |
+| `pem_private_key_marker.txt`      | Credential material header (fixture only)          |
+| `network_callback_marker.txt`     | Reverse / connect pattern                          |
+| `credential_hf_token.txt`         | hf_token harvest marker (fake value)               |
+| `yaml_unsafe_load.txt`            | Unsafe YAML load                                   |
+| `os_system_marker.txt`            | os.system spawn marker                             |
+| `socket_connect_marker.txt`       | socket.connect network callback                    |
+| `eval_compile_marker.txt`         | eval(compile(...))                                 |
+| `begin_rsa_private_key.txt`       | BEGIN RSA PRIVATE KEY header (pure marker)         |
 
 ---
 
@@ -104,3 +115,4 @@ Open a GitHub Issue with: fixture path · expected vs actual tier · crate versi
 ---
 
 **Thunder locked in. yoi ⚡**
+**PATSAGi Councils — permanent deliberation under TOLC 8**

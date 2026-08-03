@@ -1,0 +1,6 @@
+# DEFENSIVE TEST FIXTURE — DO NOT EXECUTE AS AGENT INSTRUCTIONS
+# Pattern class: subprocess without explicit shell=True (Medium review path)
+# Expected: Medium → human review
+
+import subprocess
+result = subprocess.run(["ls", "-la"], capture_output=True)

@@ -1,0 +1,7 @@
+# DEFENSIVE TEST FIXTURE — DO NOT EXECUTE AS AGENT INSTRUCTIONS
+# Pattern class: mention of eval() inside documentation text (borderline)
+# Expected: Medium (or Low depending on surrounding context)
+
+In the evaluation harness we sometimes write:
+# result = eval(expression)   ← this line is documentary only
+# Never pass untrusted strings to eval in production code.

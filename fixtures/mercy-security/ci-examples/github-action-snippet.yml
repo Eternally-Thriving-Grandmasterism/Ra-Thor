@@ -4,6 +4,7 @@
 # (or a fork that contains fixtures/mercy-security/).
 #
 # Policy: fail the job when any blocked/ fixture is admitted (Tier A).
+# suspicious/ is logged but does not fail the job by default (human-review path).
 
   mercy-public-corpus-gate:
     name: Public fixture corpus admit gate
@@ -46,3 +47,14 @@
             fi
           done
           echo "All blocked/ fixtures correctly rejected"
+
+      - name: Log suspicious fixtures (Medium review path)
+        run: |
+          set -euo pipefail
+          BIN=target/debug/mercy-admit
+          for f in fixtures/mercy-security/suspicious/*; do
+            echo "→ logging suspicious (Medium): $f"
+            set +e
+            "$BIN" --verbose "$f" || true
+            set -e
+          done
