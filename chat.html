@@ -166,7 +166,7 @@
       <div class="flex flex-wrap items-center justify-between gap-3">
         <div>
           <p class="text-emerald-200 text-sm font-medium">Local LLM (On-Device)</p>
-          <p id="local-llm-status" class="text-[11px] text-white/50 mt-0.5">Fast responder active (default)</p>
+          <p id="local-llm-status" class="text-[11px] text-white/50 mt-0.5">Detecting capability…</p>
         </div>
         <button id="local-llm-btn" class="ctrl-btn border-emerald-400/50 text-emerald-200 hover:bg-emerald-400/10">
           <i class="fa-solid fa-microchip"></i> Enable Local LLM
@@ -175,7 +175,7 @@
       <div class="mt-2 h-1.5 bg-zinc-800 rounded-full overflow-hidden">
         <div id="local-llm-progress" class="h-full bg-emerald-400 transition-all duration-300" style="width:0%"></div>
       </div>
-      <p class="text-[10px] text-white/40 mt-2">Downloads a compact model once, then runs 100% on your device. Requires WebGPU. No data leaves your browser.</p>
+      <p id="local-llm-note" class="text-[10px] text-white/40 mt-2">Optional. Requires WebGPU. Currently works best on desktop browsers. On most phones the recommended path is Copy Context.</p>
     </div>
 
     <div id="chat-messages" class="rounded-2xl border border-amber-300/15 bg-zinc-950/50 mb-3"></div>
@@ -188,14 +188,14 @@
           Send <span class="text-base">⚡️</span>
         </button>
       </div>
-      <p class="text-[10px] text-white/40 mt-2 text-center">Core is offline • Optional Local LLM • Mercy-gated • No login • No data collection</p>
+      <p class="text-[10px] text-white/40 mt-2 text-center">Core is offline • Multi-session • Mercy-gated • No login • No data collection</p>
     </div>
 
     <!-- Bridge to LLM panel -->
     <div class="mt-5 rounded-2xl border border-violet-400/30 bg-violet-950/20 px-4 py-5 text-center">
       <p class="text-violet-200 font-medium text-sm mb-1">Bridge to any cloud LLM</p>
       <p class="text-[11px] text-white/50 mb-4 max-w-md mx-auto">
-        Copy a high-quality system prompt + your full history, then paste it into Grok, Claude, Gemini, ChatGPT, or any other model yourself.
+        Recommended on phones and all devices: copy a high-quality system prompt + your full history, then paste it into Grok, Claude, Gemini, ChatGPT, or any other model yourself.
       </p>
 
       <button id="copy-context-btn-alt"
