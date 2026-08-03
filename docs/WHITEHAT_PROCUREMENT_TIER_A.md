@@ -62,9 +62,13 @@ Copy-paste GitHub Actions workflow + guidance:
 
 → **[`examples/procurement-admit-gate/`](../examples/procurement-admit-gate/)**
 
-- `workflow.example.yml` — pin Ra-Thor, build `mercy-admit`, scan your paths  
+- `workflow.example.yml` — **pin to a full commit SHA** (or signed tag when published), build `mercy-admit`, scan your paths  
 - Fixture smoke proves the gate trips on known should_block classes  
+- Air-gapped note: vendor the crate / deps, path-depend, or transfer a prebuilt binary after checksum (see the example README)  
 - No claim of full malware coverage; Tier A admission conscience only
+
+**Production pin example (re-validate before changing):**  
+`ref: 3bbe6c7bc48f27d3cc562986ca199577a08f77fe`
 
 ---
 
