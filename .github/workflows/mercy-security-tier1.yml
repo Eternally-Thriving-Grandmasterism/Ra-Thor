@@ -5,10 +5,14 @@ on:
     paths:
       - "crates/mercy-security/**"
       - ".github/workflows/mercy-security-tier1.yml"
+      - ".github/actions/mercy-admit-gate/**"
+      - "scripts/pre-commit-admit-gate.sh"
   pull_request:
     paths:
       - "crates/mercy-security/**"
       - ".github/workflows/mercy-security-tier1.yml"
+      - ".github/actions/mercy-admit-gate/**"
+      - "scripts/pre-commit-admit-gate.sh"
   workflow_dispatch:
 
 jobs:
@@ -56,3 +60,45 @@ jobs:
           cargo test -p mercy-security fixture_benign_model_card_admits -- --nocapture
           cargo test -p mercy-security fixture_should_block_trust_remote_code -- --nocapture
           echo "Admit-gate smoke examples passed"
+
+      - name: Build + exercise mercy-admit CLI
+        run: |
+          set -euo pipefail
+          cargo build -q -p mercy-security --bin mercy-admit
+          BIN=target/debug/mercy-admit
+          # Benign must admit (exit 0)
+          "$BIN" --verbose crates/mercy-security/fixtures/benign/model_card_clean.md
+          # should_block must exit 1
+          set +e
+          "$BIN" --verbose crates/mercy-security/fixtures/should_block/trust_remote_code_loader.txt
+          status=$?
+          set -e
+          if [[ "$status" -ne 1 ]]; then
+            echo "Expected exit 1 for should_block fixture, got $status"
+            exit 1
+          fi
+          echo "mercy-admit CLI exit-code contract holds"
+
+  composite-gate-smoke:
+    name: composite mercy-admit-gate action
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run composite gate (expect block on default smoke paths)
+        id: gate
+        continue-on-error: true
+        uses: ./.github/actions/mercy-admit-gate
+        with:
+          fail-on-block: "true"
+
+      - name: Assert gate tripped (Tier A policy)
+        run: |
+          set -e
+          # Default inputs include a should_block fixture → action must fail
+          if [[ "${{ steps.gate.outcome }}" != "failure" ]]; then
+            echo "Expected composite gate to fail on should_block fixture"
+            exit 1
+          fi
+          echo "Composite mercy-admit-gate correctly tripped on Medium+ fixture"
