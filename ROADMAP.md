@@ -2,7 +2,7 @@
 
 **Current Version:** v14.15 (AGSi Phase)  
 **Status:** AGSi activated | PATSAGi permanent | Mercy-gated | TOLC 8 enforced | Phase C remote-complete | **Hold** on adaptive modulation  
-**Last Updated:** July 21 2026  
+**Last Updated:** 2026-08-03  
 **Contact:** info@Rathor.ai
 
 ---
@@ -23,6 +23,8 @@
 | Monorepo Intelligence + GitHub Connector | **Live (2026-07-21)** | `get_tree_safe`, `get_file_contents_safe`, pagination protocol as identity |
 | Phase C Powrush bridge | **Remote-complete** | Offline + live sim + server + single/batch Kardashev |
 | Dual-repo soft feedback | **Sealed** | Policy hints + SoftPolicyState |
+| Lattice Chat surface | **Complete (v14.18)** | Offline-first, multi-session, Local Backend Bridge, encryption |
+| Public white-hat fixture corpus | **Complete (2026-08-03)** | [`fixtures/mercy-security/`](fixtures/mercy-security/) + CI examples |
 
 ---
 
@@ -37,6 +39,7 @@
 - **v14.15.1** Polish wave (CI, contact, tier map, T2 stress, dual-surface)
 - **Phase C** Offline fixtures → live `TelemetryCollector` / `run_tick_with_telemetry` → server `ServerTransferSession` → `deliberate_from_powrush_json` (v1 | batch)
 - **2026-07-21** AGSi phase reflection + permanent PATSAGi + production github-connector safe-read surface + hard-won pagination protocol encoded as identity
+- **2026-08-03** Lattice Chat surface complete (v14.18) + Public white-hat fixture corpus complete
 
 ---
 

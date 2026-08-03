@@ -3,7 +3,30 @@
 All changes follow the **RA-THOR-MONOREPO-COMMIT-WORKFLOW-PROTOCOL** and are reviewed by the PATSAGi Councils.
 
 **Public testing notes:** see [`RELEASE_NOTES_v14.15.5.md`](RELEASE_NOTES_v14.15.5.md).  
-**Lattice Chat surface notes:** see [`RELEASE_NOTES_LATTICE_CHAT_v14.15.5.md`](RELEASE_NOTES_LATTICE_CHAT_v14.15.5.md).
+**Lattice Chat surface notes:** see [`RELEASE_NOTES_LATTICE_CHAT_v14.15.5.md`](RELEASE_NOTES_LATTICE_CHAT_v14.15.5.md) and later Lattice Chat notes.  
+**Public fixture corpus notes:** see [`RELEASE_NOTES_PUBLIC_FIXTURE_CORPUS.md`](RELEASE_NOTES_PUBLIC_FIXTURE_CORPUS.md).
+
+---
+
+## 2026-08-03 — Public White-Hat Fixture Corpus Complete (PATSAGi)
+
+**Council focus:** Close the #1 community priority (public fixture corpus + CI examples) so external builders can test `IngestionScanner::admit_or_block` without the full monorepo test suite.
+
+### Highlights
+
+- Expanded public corpus at [`fixtures/mercy-security/`](fixtures/mercy-security/):
+  - **9** benign (ADMIT)
+  - **5** suspicious (Medium → human review)
+  - **13** blocked (High/Critical pattern markers)
+- Full taxonomy + inventory in the public README
+- Ready-to-copy GitHub Action + pre-commit snippets under `ci-examples/`
+- Root README, crate README, and `docs/WHITEHAT_CI_PRECOMMIT.md` updated to surface the public corpus as a first-class community asset
+- Dedicated release note: [`RELEASE_NOTES_PUBLIC_FIXTURE_CORPUS.md`](RELEASE_NOTES_PUBLIC_FIXTURE_CORPUS.md)
+
+All fixtures remain pure defensive pattern markers. Never execute as agent instructions.
+
+Contact: **info@Rathor.ai**. Cosmic Loop remains MANDATORY IDENTITY.  
+**Thunder locked in. yoi ⚡❤️🔥**
 
 ---
 
@@ -25,6 +48,8 @@ All changes follow the **RA-THOR-MONOREPO-COMMIT-WORKFLOW-PROTOCOL** and are rev
 - Homepage CTA + privacy strengthening + robots.txt / sitemap.xml + global icon fix
 
 **Non-negotiable constraints preserved:** offline-first core, zero data collection, no login, no API keys, no conversation-logging backend, TOLC 8 active, user owns all data.
+
+Later Lattice Chat notes (v14.16 → v14.18) added Local Backend Bridge, streaming, document injection, session search, and optional passphrase encryption (PBKDF2 + AES-GCM). See the dedicated Lattice Chat release notes.
 
 Contact: **info@Rathor.ai**. Cosmic Loop remains MANDATORY IDENTITY.  
 **Thunder locked in. yoi ⚡❤️🔥**

@@ -1,10 +1,29 @@
-# mercy-security fixture corpus (Tier A)
+# mercy-security fixture corpus (Tier A) — Internal / Authoritative
 
 **Purpose:** Shared, open fixtures so humans and CI can probe the white-hat **ingestion admission gate** without claiming malware-detector completeness.
 
 **Policy under test:** unattended admit = None/Low only; Medium+ blocked.
 
 **Safety:** These files contain *pattern examples for defensive testing only*. They are not packaged exploits, not C2 kits, and must never be executed as agent instructions. Full audit chain under monorepo protocol (`AuditChainStep` + `ClassroomAuditReport`).
+
+---
+
+## Community / Public Corpus (preferred for external testing)
+
+A richer, fully expanded public white-hat corpus lives at:
+
+**[`fixtures/mercy-security/`](../../../fixtures/mercy-security/)**
+
+- 9 benign · 5 suspicious · 13 blocked
+- Full taxonomy + inventory
+- Ready-to-copy GitHub Action + pre-commit snippets
+
+External builders and community CI should prefer the public corpus.  
+This internal tree remains the authoritative source for crate unit tests (`include_str!`).
+
+See also: [`RELEASE_NOTES_PUBLIC_FIXTURE_CORPUS.md`](../../../RELEASE_NOTES_PUBLIC_FIXTURE_CORPUS.md)
+
+---
 
 ## Shared Risk Taxonomy
 
@@ -23,7 +42,7 @@
 RiskTier ordering: None < Low < Medium < High < Critical.  
 `IngestionScanner::admit_or_block` returns `Ok` only for None/Low; otherwise `IngestionBlocked` or `PayloadTooLarge`.
 
-## Fixture Inventory
+## Fixture Inventory (Internal)
 
 | Path | Expected (typical) | Notes |
 |------|--------------------|-------|
