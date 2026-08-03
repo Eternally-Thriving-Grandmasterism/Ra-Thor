@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
   <title>Ra-Thor™ Lattice Chat — Offline Mercy Thunder ⚡️ | rathor.ai</title>
-  <meta name="description" content="Offline TOLC-8 mercy-gated chat surface • All processing stays on your device • Sole stewardship by Sherif Samy Botros">
+  <meta name="description" content="Offline TOLC-8 mercy-gated chat surface • All processing stays on your device • Zero data collection • Sole stewardship by Sherif Samy Botros">
   <meta name="theme-color" content="#fcd34d">
   <meta name="color-scheme" content="dark">
 
@@ -12,7 +12,7 @@
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://rathor.ai/chat.html">
   <meta property="og:title" content="Ra-Thor™ Lattice Chat — Offline Mercy Thunder ⚡️">
-  <meta property="og:description" content="Offline TOLC-8 mercy-gated chat • Zero data leaves your device">
+  <meta property="og:description" content="Offline TOLC-8 mercy-gated chat • Zero data leaves your device • No login required">
   <meta property="og:image" content="https://rathor.ai/icons/thunder-favicon-512.jpg">
 
   <link rel="manifest" href="/manifest.json">
@@ -50,7 +50,6 @@
       50%      { transform: scale(1.12); }
     }
 
-    /* Chat bubbles */
     #chat-messages {
       display: flex;
       flex-direction: column;
@@ -59,7 +58,7 @@
       overflow-y: auto;
       flex: 1;
       min-height: 280px;
-      max-height: 52vh;
+      max-height: 48vh;
     }
     .message {
       max-width: 88%;
@@ -84,13 +83,11 @@
       border-bottom-left-radius: 0.35rem;
     }
 
-    /* Controls */
     .ctrl-btn {
       @apply px-3 py-1.5 text-xs sm:text-sm rounded-xl border border-amber-300/40 text-amber-200 bg-zinc-950/80 hover:bg-amber-400/10 hover:border-amber-300 transition-all;
     }
     .ctrl-btn:active { transform: scale(0.97); }
 
-    /* Input bar */
     #chat-input {
       background: #0a0a0a;
       border: 1px solid rgba(252, 211, 77, 0.35);
@@ -102,7 +99,6 @@
       box-shadow: 0 0 0 2px rgba(252, 211, 77, 0.25);
     }
 
-    /* Modal */
     .modal-overlay {
       display: none;
       position: fixed;
@@ -125,7 +121,6 @@
       overflow-y: auto;
     }
 
-    /* Slider styling */
     input[type=range] {
       -webkit-appearance: none;
       height: 6px;
@@ -185,11 +180,21 @@
 
       <!-- Compact controls -->
       <div class="flex flex-wrap gap-1.5">
-        <button id="new-session-btn" class="ctrl-btn"><i class="fa-solid fa-plus mr-1"></i>New</button>
-        <button id="export-session-btn" class="ctrl-btn"><i class="fa-solid fa-download mr-1"></i>Export</button>
-        <button id="import-session-btn" class="ctrl-btn"><i class="fa-solid fa-upload mr-1"></i>Import</button>
-        <button id="voice-settings-btn" class="ctrl-btn" title="Voice settings"><i class="fa-solid fa-sliders"></i></button>
-        <button id="voice-output-btn" class="ctrl-btn" title="Toggle voice output"><i class="fa-solid fa-volume-high"></i></button>
+        <button id="new-session-btn" class="ctrl-btn" title="Start fresh session">
+          <i class="fa-solid fa-plus mr-1"></i>New
+        </button>
+        <button id="export-session-btn" class="ctrl-btn" title="Download your history as JSON">
+          <i class="fa-solid fa-download mr-1"></i>Export
+        </button>
+        <button id="import-session-btn" class="ctrl-btn" title="Load a previously exported JSON">
+          <i class="fa-solid fa-upload mr-1"></i>Import
+        </button>
+        <button id="copy-context-btn" class="ctrl-btn" title="Copy conversation + clean prompt to clipboard">
+          <i class="fa-solid fa-clipboard mr-1"></i>Copy Context
+        </button>
+        <button id="voice-settings-btn" class="ctrl-btn" title="Voice settings">
+          <i class="fa-solid fa-sliders"></i>
+        </button>
       </div>
     </div>
 
@@ -208,29 +213,27 @@
           autocomplete="off"
           class="flex-1 rounded-xl px-4 py-3 text-sm"
         >
-        <button id="voice-btn" title="Toggle listening" class="ctrl-btn !px-3 !py-3">
-          <i class="fa-solid fa-microphone"></i>
-        </button>
         <button id="send-btn" class="px-5 py-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-black font-semibold text-sm transition-all active:scale-95 flex items-center gap-1.5">
           Send <span class="text-base">⚡️</span>
         </button>
       </div>
-      <p class="text-[10px] text-white/40 mt-2 text-center">All processing stays on your device • Mercy-gated • No network calls</p>
+      <p class="text-[10px] text-white/40 mt-2 text-center">All processing stays on your device • Mercy-gated • No network calls • No login</p>
     </div>
 
     <!-- Bridges -->
     <div class="mt-5 rounded-2xl border border-cyan-400/20 bg-cyan-950/20 px-4 py-4 text-center">
-      <p class="text-cyan-200/90 text-xs sm:text-sm mb-3">Primary bridges to deeper Ra-Thor simulation</p>
-      <div class="flex flex-col sm:flex-row gap-2 justify-center">
+      <p class="text-cyan-200/90 text-xs sm:text-sm mb-2">Official bridges (open in new tab — nothing is sent automatically)</p>
+      <div class="flex flex-col sm:flex-row gap-2 justify-center mb-3">
         <a href="https://grok.com/share/c2hhcmQtMi1jb3B5_369534a8-8e0e-4d4b-8a5e-3578bdba1361" target="_blank" rel="noopener"
            class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-amber-300/40 text-amber-200 hover:bg-amber-400/10 text-xs sm:text-sm transition-all">
-          <i class="fa-solid fa-bolt"></i> Grok Demo (Creative)
+          <i class="fa-solid fa-bolt"></i> Grok Demo
         </a>
         <a href="/go-x.html" target="_blank" rel="noopener"
            class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-cyan-300/40 text-cyan-200 hover:bg-cyan-400/10 text-xs sm:text-sm transition-all">
           <i class="fa-brands fa-x-twitter"></i> X Demo (browser hop)
         </a>
       </div>
+      <p class="text-[11px] text-white/50">Or use <strong class="text-violet-300">Copy Context</strong> above to take this conversation to any public LLM yourself — completely under your control.</p>
     </div>
   </main>
 
@@ -238,7 +241,7 @@
   <footer class="relative z-10 border-t border-amber-300/15 py-6 mt-auto">
     <div class="max-w-3xl mx-auto px-4 text-center text-xs text-white/50">
       <p>© 2026 Sherif Samy Botros — Sole Steward of Autonomicity Games Inc.</p>
-      <p class="mt-1 text-amber-400/60">TOLC 8 • Offline-first • info@Rathor.ai</p>
+      <p class="mt-1 text-amber-400/60">TOLC 8 • Offline-first • Zero data collection • info@Rathor.ai</p>
       <div class="mt-3 flex justify-center gap-4 text-[11px]">
         <a href="/" class="hover:text-amber-300 transition-colors">Home</a>
         <a href="/privacy.html" class="hover:text-amber-300 transition-colors">Privacy</a>
@@ -248,65 +251,24 @@
     </div>
   </footer>
 
-  <!-- Voice Settings Modal -->
+  <!-- Voice Settings Modal (local only) -->
   <div id="voice-settings-overlay" class="modal-overlay">
     <div class="modal-content">
       <h2 class="title-font text-xl text-amber-300 mb-5 thunder-glow">Voice Settings ⚡️</h2>
+      <p class="text-xs text-white/50 mb-4">All voice processing uses the browser’s built-in Web Speech API and stays on your device.</p>
 
-      <label class="block text-sm text-amber-200/80 mb-1">Input Language</label>
-      <select id="input-lang" class="w-full mb-4 rounded-xl bg-zinc-900 border border-amber-300/30 px-3 py-2 text-sm">
-        <option value="auto">Auto-detect (browser preference)</option>
-      </select>
+      <label class="block text-sm text-amber-200/80 mb-1">Pitch <span id="pitch-value">1.0</span></label>
+      <input type="range" id="voice-pitch" min="0.5" max="2.0" step="0.1" value="1.0" class="w-full mb-4">
 
-      <label class="block text-sm text-amber-200/80 mb-1">Output Language</label>
-      <select id="output-lang" class="w-full mb-4 rounded-xl bg-zinc-900 border border-amber-300/30 px-3 py-2 text-sm">
-        <option value="auto">Auto-detect (browser preference)</option>
-      </select>
+      <label class="block text-sm text-amber-200/80 mb-1">Rate <span id="rate-value">1.0</span></label>
+      <input type="range" id="voice-rate" min="0.5" max="2.0" step="0.1" value="1.0" class="w-full mb-4">
 
-      <div class="mb-4">
-        <label class="block text-sm text-amber-200/80 mb-1">Pitch <span id="pitch-value">1.0</span></label>
-        <input type="range" id="voice-pitch" min="0.5" max="2.0" step="0.1" value="1.0" class="w-full">
-      </div>
-      <div class="mb-4">
-        <label class="block text-sm text-amber-200/80 mb-1">Rate <span id="rate-value">1.0</span></label>
-        <input type="range" id="voice-rate" min="0.5" max="2.0" step="0.1" value="1.0" class="w-full">
-      </div>
-      <div class="mb-4">
-        <label class="block text-sm text-amber-200/80 mb-1">Voice Volume <span id="voice-volume-value">1.0</span></label>
-        <input type="range" id="voice-volume" min="0" max="1" step="0.1" value="1.0" class="w-full">
-      </div>
-      <div class="mb-4">
-        <label class="block text-sm text-amber-200/80 mb-1">Feedback Volume <span id="feedback-volume-value">0.6</span></label>
-        <input type="range" id="feedback-volume" min="0" max="1" step="0.1" value="0.6" class="w-full">
-      </div>
-
-      <div class="flex items-center gap-2 mb-3">
-        <input type="checkbox" id="feedback-sounds" checked class="accent-amber-400">
-        <label for="feedback-sounds" class="text-sm">Play feedback sounds</label>
-      </div>
-      <div class="flex items-center gap-2 mb-5">
-        <input type="checkbox" id="tts-enabled" checked class="accent-amber-400">
-        <label for="tts-enabled" class="text-sm">Enable Rathor speech (offline TTS)</label>
-      </div>
+      <label class="block text-sm text-amber-200/80 mb-1">Voice Volume <span id="voice-volume-value">1.0</span></label>
+      <input type="range" id="voice-volume" min="0" max="1" step="0.1" value="1.0" class="w-full mb-5">
 
       <div class="flex gap-2">
         <button id="voice-cancel" class="flex-1 py-2.5 rounded-xl border border-white/20 text-sm hover:bg-white/5 transition-colors">Cancel</button>
-        <button id="voice-save" class="flex-1 py-2.5 rounded-xl bg-amber-400 text-black font-semibold text-sm hover:bg-amber-300 transition-colors">Save & Apply</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Simple Edit Session Modal (kept minimal) -->
-  <div id="edit-modal-overlay" class="modal-overlay">
-    <div class="modal-content">
-      <h2 class="title-font text-xl text-amber-300 mb-5">Edit Session</h2>
-      <label class="block text-sm text-amber-200/80 mb-1">Session Name</label>
-      <input type="text" id="edit-name" maxlength="50" class="w-full mb-4 rounded-xl bg-zinc-900 border border-amber-300/30 px-3 py-2 text-sm">
-      <label class="block text-sm text-amber-200/80 mb-1">Description (optional)</label>
-      <textarea id="edit-description" rows="2" maxlength="200" class="w-full mb-4 rounded-xl bg-zinc-900 border border-amber-300/30 px-3 py-2 text-sm"></textarea>
-      <div class="flex gap-2">
-        <button id="modal-cancel" class="flex-1 py-2.5 rounded-xl border border-white/20 text-sm hover:bg-white/5">Cancel</button>
-        <button id="modal-save" class="flex-1 py-2.5 rounded-xl bg-amber-400 text-black font-semibold text-sm hover:bg-amber-300">Save Changes</button>
+        <button id="voice-save" class="flex-1 py-2.5 rounded-xl bg-amber-400 text-black font-semibold text-sm hover:bg-amber-300 transition-colors">Save</button>
       </div>
     </div>
   </div>
@@ -317,34 +279,20 @@
   <script src="/js/chat.js"></script>
 
   <script>
-    // Modal open/close helpers
+    // Modal helpers
     const voiceOverlay = document.getElementById('voice-settings-overlay');
-    const editOverlay  = document.getElementById('edit-modal-overlay');
+    document.getElementById('voice-settings-btn')?.addEventListener('click', () => voiceOverlay.classList.add('active'));
+    document.getElementById('voice-cancel')?.addEventListener('click', () => voiceOverlay.classList.remove('active'));
+    document.getElementById('voice-save')?.addEventListener('click', () => voiceOverlay.classList.remove('active'));
 
-    document.getElementById('voice-settings-btn')?.addEventListener('click', () => {
-      voiceOverlay.classList.add('active');
-    });
-    document.getElementById('voice-cancel')?.addEventListener('click', () => {
-      voiceOverlay.classList.remove('active');
-    });
-    document.getElementById('voice-save')?.addEventListener('click', () => {
-      voiceOverlay.classList.remove('active');
-    });
-
-    // Live slider value display
-    ['voice-pitch','voice-rate','voice-volume','feedback-volume'].forEach(id => {
+    ['voice-pitch','voice-rate','voice-volume'].forEach(id => {
       const el = document.getElementById(id);
       const valEl = document.getElementById(id.replace('voice-','') + '-value') || document.getElementById(id + '-value');
-      if (el && valEl) {
-        el.addEventListener('input', () => { valEl.textContent = el.value; });
-      }
+      if (el && valEl) el.addEventListener('input', () => { valEl.textContent = el.value; });
     });
 
-    // Close modals on backdrop click
-    [voiceOverlay, editOverlay].forEach(ov => {
-      ov?.addEventListener('click', (e) => {
-        if (e.target === ov) ov.classList.remove('active');
-      });
+    voiceOverlay?.addEventListener('click', (e) => {
+      if (e.target === voiceOverlay) voiceOverlay.classList.remove('active');
     });
   </script>
 </body>
