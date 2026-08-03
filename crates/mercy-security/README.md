@@ -32,6 +32,20 @@ Alternate API: `admit_or_block_critical_only` — blocks Critical only (High/Med
 - Lone generic `api_key` / low-conf `getattr` no longer force High  
 - PEM / provider keys / `trust_remote_code` / combos remain Critical/High
 
+## Public testing assets
+
+| Asset | Path |
+|-------|------|
+| Fixture corpus | [`fixtures/MANIFEST.md`](fixtures/MANIFEST.md) |
+| CI workflow | [`.github/workflows/mercy-security-tier1.yml`](../../.github/workflows/mercy-security-tier1.yml) |
+| Procurement one-pager | [`docs/WHITEHAT_PROCUREMENT_TIER_A.md`](../../docs/WHITEHAT_PROCUREMENT_TIER_A.md) |
+| CI / pre-commit guide | [`docs/WHITEHAT_CI_PRECOMMIT.md`](../../docs/WHITEHAT_CI_PRECOMMIT.md) |
+| Release notes | [`RELEASE_NOTES_v14.15.5.md`](../../RELEASE_NOTES_v14.15.5.md) |
+
+```bash
+cargo test -p mercy-security
+```
+
 ## Organism integration
 
 `ra-thor-one-organism` (v14.15.5+) exposes:
