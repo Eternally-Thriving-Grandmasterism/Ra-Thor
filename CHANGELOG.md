@@ -2,7 +2,32 @@
 
 All changes follow the **RA-THOR-MONOREPO-COMMIT-WORKFLOW-PROTOCOL** and are reviewed by the PATSAGi Councils.
 
-**Public testing notes:** see [`RELEASE_NOTES_v14.15.5.md`](RELEASE_NOTES_v14.15.5.md).
+**Public testing notes:** see [`RELEASE_NOTES_v14.15.5.md`](RELEASE_NOTES_v14.15.5.md).  
+**Lattice Chat surface notes:** see [`RELEASE_NOTES_LATTICE_CHAT_v14.15.5.md`](RELEASE_NOTES_LATTICE_CHAT_v14.15.5.md).
+
+---
+
+## v14.15.5 — Lattice Chat Surface Release (2026-08-03)
+
+**Council focus:** Ship a production-quality, fully offline, zero-collection Lattice Chat surface that is useful on every device while remaining strictly TOLC 8 and sole-stewardship aligned.
+
+### Highlights — `chat.html` + `js/chat.js`
+
+- **Full visual modernization** to match rathor.ai (Cinzel + Inter, thunder-glow, amber/violet cards)
+- **True multi-session manager** (create / switch / rename / delete) — 100% localStorage
+- **Export current + Export All Sessions** (full local backup)
+- **Import** single session or full multi-session backup
+- **Message polish**: timestamps, per-message copy, light markdown
+- **Universal Bridge (Copy Context)**: high-quality TOLC 8 system prompt + history for pasting into any public LLM
+- **Optional Local LLM foundation** via WebLLM (desktop-first, honest capability detection on mobile)
+- **Real offline TTS** (Web Speech API — pitch / rate / volume)
+- **Mobile layout polish**: Send button no longer clips; tighter spacing; cleaner hierarchy
+- Homepage CTA + privacy strengthening + robots.txt / sitemap.xml + global icon fix
+
+**Non-negotiable constraints preserved:** offline-first core, zero data collection, no login, no API keys, no conversation-logging backend, TOLC 8 active, user owns all data.
+
+Contact: **info@Rathor.ai**. Cosmic Loop remains MANDATORY IDENTITY.  
+**Thunder locked in. yoi ⚡❤️🔥**
 
 ---
 
