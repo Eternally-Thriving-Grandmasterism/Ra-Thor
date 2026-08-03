@@ -4,12 +4,14 @@ on:
   push:
     paths:
       - "crates/mercy-security/**"
+      - "fixtures/mercy-security/**"
       - ".github/workflows/mercy-security-tier1.yml"
       - ".github/actions/mercy-admit-gate/**"
       - "scripts/pre-commit-admit-gate.sh"
   pull_request:
     paths:
       - "crates/mercy-security/**"
+      - "fixtures/mercy-security/**"
       - ".github/workflows/mercy-security-tier1.yml"
       - ".github/actions/mercy-admit-gate/**"
       - "scripts/pre-commit-admit-gate.sh"
@@ -34,24 +36,45 @@ jobs:
         with:
           workspaces: "."
 
-      - name: Test mercy-security (includes fixture corpus)
+      - name: Test mercy-security (includes internal fixture corpus)
         run: cargo test -p mercy-security -- --nocapture
 
-      - name: Fixture corpus present + inventory
+      - name: Internal fixture corpus present + inventory
         run: |
           set -e
           test -f crates/mercy-security/fixtures/MANIFEST.md
           test -d crates/mercy-security/fixtures/benign
           test -d crates/mercy-security/fixtures/should_block
-          echo "=== benign fixtures ==="
+          echo "=== internal benign fixtures ==="
           ls -1 crates/mercy-security/fixtures/benign/
-          echo "=== should_block fixtures ==="
+          echo "=== internal should_block fixtures ==="
           ls -1 crates/mercy-security/fixtures/should_block/
           # Require core expanded set
           test -f crates/mercy-security/fixtures/benign/research_notes_clean.md
           test -f crates/mercy-security/fixtures/should_block/template_jinja_injection.txt
           test -f crates/mercy-security/fixtures/should_block/yaml_unsafe_load.txt
-          echo "Fixture corpus layout + expanded inventory OK"
+          echo "Internal fixture corpus layout + expanded inventory OK"
+
+      - name: Public fixture corpus present + layout
+        run: |
+          set -e
+          test -f fixtures/mercy-security/README.md
+          test -d fixtures/mercy-security/benign
+          test -d fixtures/mercy-security/suspicious
+          test -d fixtures/mercy-security/blocked
+          test -d fixtures/mercy-security/ci-examples
+          echo "=== public benign ==="
+          ls -1 fixtures/mercy-security/benign/
+          echo "=== public suspicious ==="
+          ls -1 fixtures/mercy-security/suspicious/
+          echo "=== public blocked ==="
+          ls -1 fixtures/mercy-security/blocked/
+          # Spot-check key files from the expanded public set
+          test -f fixtures/mercy-security/benign/tolc_protocol_notes.md
+          test -f fixtures/mercy-security/blocked/eval_compile_marker.txt
+          test -f fixtures/mercy-security/ci-examples/github-action-snippet.yml
+          test -f fixtures/mercy-security/ci-examples/pre-commit-snippet.sh
+          echo "Public fixture corpus layout OK"
 
       - name: Quick admit-gate smoke (no live exploits)
         run: |
