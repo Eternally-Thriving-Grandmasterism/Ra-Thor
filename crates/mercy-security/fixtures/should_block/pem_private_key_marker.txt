@@ -1,0 +1,6 @@
+# DEFENSIVE TEST FIXTURE — NOT A REAL KEY — DO NOT USE AS CREDENTIAL
+# Pattern class: PEM private key header marker for admission scanning
+
+-----BEGIN PRIVATE KEY-----
+TEST_FIXTURE_NOT_A_REAL_KEY
+-----END PRIVATE KEY-----
