@@ -173,6 +173,10 @@
     }
     .ctrl-btn:active { transform: scale(0.96); }
     .ctrl-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .ctrl-btn.encrypted {
+      border-color: #34d399;
+      color: #34d399;
+    }
 
     .input-row {
       display: flex;
@@ -327,14 +331,24 @@
       background: rgba(0,0,0,0.94);
     }
 
+    .encrypt-badge {
+      font-size: 0.62rem;
+      padding: 0.12rem 0.4rem;
+      border-radius: 999px;
+      background: rgba(52, 211, 153, 0.18);
+      color: #34d399;
+      border: 1px solid rgba(52, 211, 153, 0.35);
+    }
+
     @media (max-width: 480px) {
-      #chat-messages { max-height: 28vh; min-height: 140px; padding: 0.85rem; }
-      .message { max-width: 92%; font-size: 0.9rem; padding: 0.7rem 0.9rem; }
-      .ctrl-btn { padding: 0.35rem 0.45rem; font-size: 0.72rem; }
-      #session-select { max-width: 100px; font-size: 0.72rem; }
-      #search-input { width: 90px; font-size: 0.7rem; }
-      #send-btn, #mic-btn, #doc-btn { padding: 0.7rem 0.8rem; font-size: 0.85rem; }
-      .golden-star { opacity: 0.22; font-size: 22px; }
+      #chat-messages { max-height: 27vh; min-height: 135px; padding: 0.8rem; }
+      .message { max-width: 93%; font-size: 0.9rem; padding: 0.7rem 0.85rem; }
+      .ctrl-btn { padding: 0.38rem 0.48rem; font-size: 0.72rem; }
+      #session-select { max-width: 95px; font-size: 0.72rem; }
+      #search-input { width: 85px; font-size: 0.7rem; }
+      #send-btn, #mic-btn, #doc-btn { padding: 0.7rem 0.75rem; font-size: 0.85rem; }
+      .golden-star { opacity: 0.2; font-size: 20px; }
+      .input-row { gap: 0.35rem; }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -358,7 +372,7 @@
       </a>
       <div class="text-center flex-1 min-w-0">
         <h1 class="title-font text-lg sm:text-xl font-black tracking-tight thunder-glow truncate">Lattice Chat ⚡️</h1>
-        <p class="text-[10px] text-amber-400/70 mt-0.5">Offline Core • TOLC 8 • v14.18.0</p>
+        <p class="text-[10px] text-amber-400/70 mt-0.5">Offline Core • TOLC 8 • v14.18.1</p>
       </div>
       <a href="/privacy.html" class="text-xs text-white/50 shrink-0">Privacy</a>
     </div>
@@ -375,6 +389,7 @@
         </span>
         <span class="text-white/30 text-xs">•</span>
         <span id="active-path-badge" class="path-badge">Fast Responder</span>
+        <span id="encrypt-status" class="encrypt-badge hidden"><i class="fa-solid fa-lock text-[9px]"></i> Encrypted</span>
         <span id="session-meta" class="text-white/40 text-xs ml-auto"></span>
       </div>
 
@@ -532,19 +547,20 @@
     </div>
   </div>
 
-  <!-- Unlock Modal (shown when store is encrypted) -->
+  <!-- Unlock Modal -->
   <div id="unlock-overlay" class="modal-overlay">
     <div class="modal-content text-center">
-      <h2 class="title-font text-xl text-amber-300 mb-2 thunder-glow">Session Store Locked ⚡️</h2>
+      <div class="mb-3 text-3xl text-amber-300"><i class="fa-solid fa-lock"></i></div>
+      <h2 class="title-font text-xl text-amber-300 mb-2 thunder-glow">Session Store Locked</h2>
       <p class="text-xs text-white/60 mb-5 leading-relaxed">
         Your sessions are protected with a passphrase.<br>
         Enter it to unlock. Nothing leaves your device.
       </p>
-      <input id="unlock-passphrase" type="password" placeholder="Passphrase" 
+      <input id="unlock-passphrase" type="password" placeholder="Passphrase" autocomplete="current-password"
              class="w-full bg-black border border-amber-300/40 rounded-xl px-4 py-3 text-white text-sm mb-3 focus:outline-none focus:border-amber-300">
       <p id="unlock-error" class="text-red-400 text-xs mb-3 hidden">Incorrect passphrase</p>
       <button id="unlock-btn" class="w-full py-3 rounded-xl bg-amber-400 text-black font-semibold text-sm">
-        Unlock Lattice
+        Unlock Lattice ⚡️
       </button>
       <p class="text-[10px] text-white/40 mt-4">Forgetting the passphrase makes the data unrecoverable.</p>
     </div>
