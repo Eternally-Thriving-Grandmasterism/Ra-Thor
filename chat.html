@@ -4,14 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Ra-Thor™ Lattice Chat — Offline Mercy Thunder ⚡️ | rathor.ai</title>
-  <meta name="description" content="Offline TOLC-8 multi-session chat with Local Backend Bridge (Ollama etc.), optional WebLLM, STT + TTS • Zero data collection • Sole stewardship by Sherif Samy Botros">
+  <meta name="description" content="Offline TOLC-8 multi-session chat with Local Backend Bridge, WebLLM, STT/TTS, Document Injection, Session Search • Zero data collection • Sole stewardship by Sherif Samy Botros">
   <meta name="theme-color" content="#fcd34d">
   <meta name="color-scheme" content="dark">
 
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://rathor.ai/chat.html">
   <meta property="og:title" content="Ra-Thor™ Lattice Chat — Offline Mercy Thunder ⚡️">
-  <meta property="og:description" content="Offline TOLC-8 multi-session chat • Local Backend Bridge • Optional WebLLM • Zero data leaves your device">
+  <meta property="og:description" content="Offline TOLC-8 multi-session chat • Local Backend Bridge • Document Injection • Session Search • Zero data leaves your device">
   <meta property="og:image" content="https://rathor.ai/icons/thunder-favicon-512.jpg">
 
   <link rel="manifest" href="/manifest.json">
@@ -21,7 +21,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
 
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Inter:wght@400;500;600&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
 
     * { box-sizing: border-box; }
 
@@ -62,16 +62,16 @@
       padding: 1rem;
       overflow-y: auto;
       flex: 1;
-      min-height: 180px;
-      max-height: 34vh;
+      min-height: 160px;
+      max-height: 32vh;
       -webkit-overflow-scrolling: touch;
     }
 
     .message {
-      max-width: 85%;
+      max-width: 88%;
       padding: 0.75rem 1rem;
       border-radius: 1.15rem;
-      line-height: 1.45;
+      line-height: 1.5;
       font-size: 0.92rem;
       word-break: break-word;
       position: relative;
@@ -96,6 +96,47 @@
       margin-left: 2px;
     }
     @keyframes blink { 50% { opacity: 0; } }
+
+    /* Markdown styles */
+    .message-text pre {
+      background: #0a0a0a;
+      border: 1px solid rgba(252, 211, 77, 0.2);
+      border-radius: 0.6rem;
+      padding: 0.75rem 0.9rem;
+      overflow-x: auto;
+      margin: 0.6rem 0;
+      font-family: 'JetBrains Mono', ui-monospace, monospace;
+      font-size: 0.82rem;
+      line-height: 1.45;
+    }
+    .message-text code {
+      font-family: 'JetBrains Mono', ui-monospace, monospace;
+      font-size: 0.84em;
+      background: rgba(0,0,0,0.35);
+      padding: 0.12rem 0.35rem;
+      border-radius: 0.3rem;
+    }
+    .message-text pre code {
+      background: transparent;
+      padding: 0;
+    }
+    .message-text h1, .message-text h2, .message-text h3 {
+      font-weight: 600;
+      margin: 0.6rem 0 0.35rem;
+      color: #fde68a;
+    }
+    .message-text h1 { font-size: 1.15em; }
+    .message-text h2 { font-size: 1.08em; }
+    .message-text h3 { font-size: 1.02em; }
+    .message-text ul, .message-text ol {
+      margin: 0.4rem 0;
+      padding-left: 1.3rem;
+    }
+    .message-text li { margin: 0.15rem 0; }
+    .message-text a { color: #93c5fd; text-decoration: underline; }
+    .message.user .message-text a { color: #1e3a8a; }
+    .message.user .message-text code { background: rgba(0,0,0,0.15); }
+    .message.user .message-text pre { background: rgba(0,0,0,0.12); border-color: rgba(0,0,0,0.2); }
 
     .message-meta {
       display: flex;
@@ -158,9 +199,9 @@
       border-color: #fcd34d;
       box-shadow: 0 0 0 2px rgba(252, 211, 77, 0.2);
     }
-    #mic-btn, #send-btn {
+    #mic-btn, #send-btn, #doc-btn {
       flex: 0 0 auto;
-      padding: 0.75rem 0.95rem;
+      padding: 0.75rem 0.9rem;
       border-radius: 0.9rem;
       font-weight: 600;
       font-size: 0.9rem;
@@ -184,11 +225,16 @@
       0%, 100% { box-shadow: 0 0 0 0 rgba(124, 58, 237, 0.5); }
       50% { box-shadow: 0 0 0 8px rgba(124, 58, 237, 0); }
     }
+    #doc-btn {
+      background: #0f172a;
+      color: #94a3b8;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+    }
     #send-btn {
       background: #fbbf24;
       color: #000;
     }
-    #send-btn:active, #mic-btn:active { transform: scale(0.97); }
+    #send-btn:active, #mic-btn:active, #doc-btn:active { transform: scale(0.97); }
 
     #session-select {
       background: #0a0a0a;
@@ -197,7 +243,21 @@
       border-radius: 0.7rem;
       padding: 0.35rem 0.5rem;
       font-size: 0.78rem;
-      max-width: 130px;
+      max-width: 120px;
+    }
+
+    #search-input {
+      background: #0a0a0a;
+      border: 1px solid rgba(252, 211, 77, 0.3);
+      color: #fde68a;
+      border-radius: 0.6rem;
+      padding: 0.3rem 0.55rem;
+      font-size: 0.75rem;
+      width: 110px;
+    }
+    #search-input:focus {
+      outline: none;
+      border-color: #fcd34d;
     }
 
     .modal-overlay {
@@ -253,12 +313,26 @@
     .path-badge.active-backend { background: rgba(52, 211, 153, 0.2); color: #34d399; }
     .path-badge.active-webllm { background: rgba(139, 92, 246, 0.2); color: #a78bfa; }
 
+    .doc-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      background: rgba(52, 211, 153, 0.15);
+      border: 1px solid rgba(52, 211, 153, 0.35);
+      color: #6ee7b7;
+      font-size: 0.7rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 999px;
+      margin: 0.15rem;
+    }
+
     @media (max-width: 480px) {
-      #chat-messages { max-height: 30vh; min-height: 150px; padding: 0.85rem; }
-      .message { max-width: 90%; font-size: 0.9rem; padding: 0.7rem 0.9rem; }
+      #chat-messages { max-height: 28vh; min-height: 140px; padding: 0.85rem; }
+      .message { max-width: 92%; font-size: 0.9rem; padding: 0.7rem 0.9rem; }
       .ctrl-btn { padding: 0.35rem 0.45rem; font-size: 0.72rem; }
-      #session-select { max-width: 110px; font-size: 0.72rem; }
-      #send-btn, #mic-btn { padding: 0.7rem 0.85rem; font-size: 0.85rem; }
+      #session-select { max-width: 100px; font-size: 0.72rem; }
+      #search-input { width: 90px; font-size: 0.7rem; }
+      #send-btn, #mic-btn, #doc-btn { padding: 0.7rem 0.8rem; font-size: 0.85rem; }
       .golden-star { opacity: 0.22; font-size: 22px; }
     }
 
@@ -283,7 +357,7 @@
       </a>
       <div class="text-center flex-1 min-w-0">
         <h1 class="title-font text-lg sm:text-xl font-black tracking-tight thunder-glow truncate">Lattice Chat ⚡️</h1>
-        <p class="text-[10px] text-amber-400/70 mt-0.5">Offline Core • TOLC 8 • v14.16.0</p>
+        <p class="text-[10px] text-amber-400/70 mt-0.5">Offline Core • TOLC 8 • v14.17.0</p>
       </div>
       <a href="/privacy.html" class="text-xs text-white/50 shrink-0">Privacy</a>
     </div>
@@ -309,6 +383,7 @@
         <button id="rename-session-btn" class="ctrl-btn" title="Rename"><i class="fa-solid fa-pen"></i></button>
         <button id="delete-session-btn" class="ctrl-btn" title="Delete"><i class="fa-solid fa-trash"></i></button>
         <span class="text-white/15 mx-0.5">|</span>
+        <input id="search-input" type="search" placeholder="Search…" title="Search current session">
         <button id="export-session-btn" class="ctrl-btn" title="Export"><i class="fa-solid fa-download"></i></button>
         <button id="export-all-btn" class="ctrl-btn" title="Export All"><i class="fa-solid fa-file-export"></i></button>
         <button id="import-session-btn" class="ctrl-btn" title="Import"><i class="fa-solid fa-upload"></i></button>
@@ -317,7 +392,7 @@
       </div>
     </div>
 
-    <!-- Local Intelligence panel (WebLLM + Local Backend) -->
+    <!-- Local Intelligence panel -->
     <div class="mb-2.5 rounded-2xl border border-emerald-400/25 bg-emerald-950/20 px-3 py-2.5">
       <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
         <div class="min-w-0">
@@ -334,7 +409,6 @@
         </div>
       </div>
 
-      <!-- Local Backend settings (hidden by default) -->
       <div id="backend-settings" class="hidden mt-2 pt-2 border-t border-emerald-400/15">
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
           <div>
@@ -367,13 +441,19 @@
       </p>
     </div>
 
+    <!-- Injected documents chips -->
+    <div id="docs-bar" class="mb-2 hidden flex flex-wrap items-center gap-1"></div>
+
     <!-- Messages -->
     <div id="chat-messages" class="rounded-2xl border border-amber-300/15 bg-zinc-950/50 mb-2.5"></div>
 
-    <!-- Input row with Mic + Send -->
+    <!-- Input row -->
     <div class="rounded-2xl border border-amber-300/30 bg-zinc-950/90 p-2.5">
       <div class="input-row">
         <input id="chat-input" type="text" placeholder="Speak your truth…" autocomplete="off">
+        <button id="doc-btn" title="Upload document to inject into context">
+          <i class="fa-solid fa-file-lines"></i>
+        </button>
         <button id="mic-btn" title="Voice input (STT)">
           <i class="fa-solid fa-microphone"></i>
         </button>
@@ -381,7 +461,7 @@
           Send <span>⚡️</span>
         </button>
       </div>
-      <p class="text-[10px] text-white/40 mt-1.5 text-center leading-snug">Offline core • Multi-session • Mercy-gated • No login • STT + TTS</p>
+      <p class="text-[10px] text-white/40 mt-1.5 text-center leading-snug">Offline core • Multi-session • Markdown • Document Injection • STT + TTS</p>
     </div>
 
     <!-- Bridge panel -->
@@ -451,6 +531,7 @@
   </div>
 
   <input type="file" id="import-file-input" accept=".json" style="display:none;">
+  <input type="file" id="doc-file-input" accept=".txt,.md,.json,.csv,.log" style="display:none;">
 
   <script src="/js/chat.js"></script>
 
