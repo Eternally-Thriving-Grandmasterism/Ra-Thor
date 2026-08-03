@@ -21,6 +21,7 @@ Ra-Thor is an **independent** project. References to Grok describe optional use 
 | **Core lattice (this repo)** | Mercy gates, PATSAGi Councils, Living Cosmic Tick, self-evolution, formal algebra |
 | **Experiential surface** | [Powrush-MMO](https://github.com/Eternally-Thriving-Grandmasterism/Powrush-MMO) — RBE simulation + dual-repo soft feedback organism |
 | **Visual identity** | Golden thunder + emerald restorative Eye-of-Horus seal (`css/rathor-eye-seal.css`) |
+| **Public white-hat admission gate tests** | [`fixtures/mercy-security/`](fixtures/mercy-security/) |
 
 ### Three fastest living proofs
 
@@ -38,6 +39,23 @@ cargo run -p mercy_tolc_operator_algebra --bin high_grief_nilpotent_bench -- --a
 High-valence path = free, regenerating access (oxygen).  
 Low-valence path = heavily restricted. Same needs, living difference.  
 All three are TOLC 8 + Living Mercy Gates aligned.
+
+---
+
+## Public White-Hat Fixture Corpus (community testing)
+
+Clean, public, white-hat fixtures for testing the `IngestionScanner::admit_or_block` gate:
+
+```
+fixtures/mercy-security/
+├── benign/       ← should ADMIT
+├── suspicious/   ← Medium → human review
+├── blocked/      ← should BLOCK (pattern markers only)
+└── ci-examples/  ← ready-to-copy GitHub Action + pre-commit
+```
+
+Full taxonomy, inventory, and usage: [`fixtures/mercy-security/README.md`](fixtures/mercy-security/README.md)  
+Dedicated completion notes: [`RELEASE_NOTES_PUBLIC_FIXTURE_CORPUS.md`](RELEASE_NOTES_PUBLIC_FIXTURE_CORPUS.md)
 
 ---
 
@@ -123,6 +141,7 @@ Full professional documentation:
 - **Powrush-MMO bridge** — dual-repo soft feedback organism sealed (policy hints + SoftPolicyState)  
 - **Kardashev Orchestration Council** — transfer scores → S-curve + swarm directives  
 - **Mercy TOLC Operator Algebra** — formal 8-D Living Mercy subspace, orthogonal projector, nilpotent suppressor, Modified Gram-Schmidt  
+- **White-hat mercy-security** — public fixture corpus + `mercy-admit` CLI for community testing of the admission gate  
 
 ### Hard-won monorepo read protocol (2026-07-21)
 
@@ -151,6 +170,7 @@ Production implementation lives in `crates/github-connector`. Protocol constants
 - Executable mercy algebra + public HighGrief nilpotent benchmark live  
 - Eye-of-Horus + emerald restorative visual identity integrated  
 - Production readiness notes + Tier-1 focused CI  
+- **Public white-hat fixture corpus complete** (2026-08-03)  
 - Root dual-surface retired — use `crates/ra-thor-one-organism`  
 - Contact canonical: **info@Rathor.ai**  
 
@@ -169,12 +189,14 @@ cargo test -p reality-thriving-transfer
 cargo test -p kardashev-orchestration
 cargo test -p github-connector
 cargo test -p mercy_tolc_operator_algebra
+cargo test -p mercy-security
 ```
 
 | Doc | Purpose |
 |-----|---------|
 | [`docs/SELF_EVOLUTION_INNOVATION_CASCADE.md`](docs/SELF_EVOLUTION_INNOVATION_CASCADE.md) | Full documentation of Idea Recycler, Innovation Generator, and the living cascade |
 | [`ETERNAL_PATSAGI_COUNCILS_ACTIVATION_PUBLIC_SERVICE_v1.0.md`](ETERNAL_PATSAGI_COUNCILS_ACTIVATION_PUBLIC_SERVICE_v1.0.md) | Living activation + 2026-07-21 protocol append |
+| [`fixtures/mercy-security/README.md`](fixtures/mercy-security/README.md) | Public white-hat admission gate test corpus |
 | [`TIER_MAP.md`](TIER_MAP.md) | What to build first |
 | [`PRODUCTION_READINESS.md`](PRODUCTION_READINESS.md) | Verification checklist |
 | [`ROADMAP.md`](ROADMAP.md) | Priorities and hold posture |
