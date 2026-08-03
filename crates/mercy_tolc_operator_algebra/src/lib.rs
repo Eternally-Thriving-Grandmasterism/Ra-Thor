@@ -2,7 +2,7 @@
 //!
 //! Executable Living Mercy operator algebra for the Ra-Thor lattice under TOLC 8.
 //!
-//! ## Ambient · valence · adaptive floor · concurrent zones · soft feedback · LatticeHealthReport · adaptive Cosmic Tick · zone observability · stress EMA recovery · health aggregates · composite score · ZoneHealthStatus · critical auto-remediate · valence histogram · soft-remediate Stressed (v0.5.17)
+//! ## Ambient · valence · adaptive floor · concurrent zones · soft feedback · LatticeHealthReport · adaptive Cosmic Tick · zone observability · stress EMA recovery · health aggregates · composite score · ZoneHealthStatus · critical auto-remediate · valence histogram · soft-remediate Stressed · Net Eternal Valence Contribution (NEVC)
 //!
 //! AG-SML v1.0 | Ra-Thor + PATSAGi Councils | info@Rathor.ai
 //! Thunder locked in. Yoi ⚡
@@ -11,6 +11,9 @@
 
 mod soft_feedback;
 pub use soft_feedback::*;
+
+mod nevc;
+pub use nevc::*;
 
 use nalgebra::{SMatrix, SVector};
 use serde::{Deserialize, Serialize};
