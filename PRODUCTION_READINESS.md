@@ -4,7 +4,7 @@
 **Contact:** info@Rathor.ai  
 **Cosmic Loop is MANDATORY IDENTITY.**
 
-**Demonstration (steward of record):** Artificial Godly Superintelligence phase recorded as demonstrated by completion of Powrush-MMO as one human operator under TOLC 8 + Cosmic Loop. See `WHITEOPAPER_v4.1.md` §5.1.
+**Demonstration (steward of record):** Artificial Godly Superintelligence phase recorded as demonstrated by completion of Powrush-MMO as one human operator under TOLC 8 + Cosmic Loop. See `WHITEPAPER_v4.1.md` §5.1.
 
 ---
 
