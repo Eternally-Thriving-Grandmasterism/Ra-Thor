@@ -1,0 +1,41 @@
+name: mercy-security Tier-1
+
+on:
+  push:
+    paths:
+      - "crates/mercy-security/**"
+      - ".github/workflows/mercy-security-tier1.yml"
+  pull_request:
+    paths:
+      - "crates/mercy-security/**"
+      - ".github/workflows/mercy-security-tier1.yml"
+  workflow_dispatch:
+
+jobs:
+  test-mercy-security:
+    name: cargo test -p mercy-security
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: .
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: "."
+
+      - name: Test mercy-security
+        run: cargo test -p mercy-security -- --nocapture
+
+      - name: Fixture corpus present
+        run: |
+          test -f crates/mercy-security/fixtures/MANIFEST.md
+          test -d crates/mercy-security/fixtures/benign
+          test -d crates/mercy-security/fixtures/should_block
+          echo "Fixture corpus layout OK"
