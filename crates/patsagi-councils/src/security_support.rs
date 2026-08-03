@@ -1,8 +1,8 @@
 //! PATSAGi Security Support — thin reception of white-hat ingestion signals.
 //!
 //! Designed to avoid circular deps with mercy-security / ra-thor-one-organism.
-//! Councils receive structured threat signals and may apply soft valence pressure
-//! or recommend investigation under TOLC 8.
+//! Councils receive structured threat signals, apply soft valence pressure under
+//! domain-aware focus weights, and emit formal deliberation verdicts under TOLC 8.
 //!
 //! Contact: info@Rathor.ai
 
@@ -105,6 +105,79 @@ impl SecurityRiskTier {
     }
 }
 
+/// Host domain envelope (mirrors mercy-security presets without depending on that crate).
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Default)]
+pub enum SecurityDomainProfile {
+    #[default]
+    StrictWhitehat,
+    Research,
+    Enterprise,
+    Education,
+    CreativeContent,
+}
+
+impl SecurityDomainProfile {
+    pub fn from_label(s: &str) -> Self {
+        let l = s.to_lowercase();
+        if l.contains("research") || l.contains("hub") {
+            Self::Research
+        } else if l.contains("enterprise") || l.contains("copilot") {
+            Self::Enterprise
+        } else if l.contains("edu") || l.contains("classroom") || l.contains("lab") {
+            Self::Education
+        } else if l.contains("creative") || l.contains("content") {
+            Self::CreativeContent
+        } else {
+            Self::StrictWhitehat
+        }
+    }
+
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            Self::StrictWhitehat => "strict_whitehat",
+            Self::Research => "domain_research",
+            Self::Enterprise => "domain_enterprise",
+            Self::Education => "domain_education",
+            Self::CreativeContent => "domain_creative_content",
+        }
+    }
+
+    /// Multiplier on valence pressure (education/research more sensitive).
+    pub fn pressure_multiplier(&self) -> f64 {
+        match self {
+            Self::Education => 1.15,
+            Self::Research => 1.10,
+            Self::Enterprise => 1.05,
+            Self::CreativeContent => 1.0,
+            Self::StrictWhitehat => 1.0,
+        }
+    }
+}
+
+/// Formal council verdict on a white-hat security event.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub enum SecurityCouncilVerdict {
+    /// Unattended admit remains forbidden; human review optional.
+    UpholdBlock,
+    /// Block stands; Investigator/Debugger path recommended.
+    UpholdBlockInvestigate,
+    /// Only for non-actionable / low signals — no policy change.
+    NoAction,
+    /// Signal malformed or not actionable under policy.
+    RejectSignal,
+}
+
+impl SecurityCouncilVerdict {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            Self::UpholdBlock => "uphold_block",
+            Self::UpholdBlockInvestigate => "uphold_block_investigate",
+            Self::NoAction => "no_action",
+            Self::RejectSignal => "reject_signal",
+        }
+    }
+}
+
 /// Structured signal emitted when Organism blocks or reports ingestion risk.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SecuritySignal {
@@ -115,6 +188,7 @@ pub struct SecuritySignal {
     pub findings_count: usize,
     pub blocked: bool,
     pub message: String,
+    pub domain: SecurityDomainProfile,
 }
 
 impl SecuritySignal {
@@ -126,6 +200,28 @@ impl SecuritySignal {
         findings_count: usize,
         blocked: bool,
         message: &str,
+    ) -> Result<Self, SecuritySupportError> {
+        Self::try_new_with_domain(
+            source_label,
+            risk_tier,
+            risk_score,
+            threat_labels,
+            findings_count,
+            blocked,
+            message,
+            SecurityDomainProfile::StrictWhitehat,
+        )
+    }
+
+    pub fn try_new_with_domain(
+        source_label: &str,
+        risk_tier: SecurityRiskTier,
+        risk_score: f64,
+        threat_labels: &[String],
+        findings_count: usize,
+        blocked: bool,
+        message: &str,
+        domain: SecurityDomainProfile,
     ) -> Result<Self, SecuritySupportError> {
         if source_label.trim().is_empty() {
             return Err(SecuritySupportError::EmptySource);
@@ -145,6 +241,7 @@ impl SecuritySignal {
             findings_count,
             blocked,
             message: message.into(),
+            domain,
         })
     }
 
@@ -155,13 +252,14 @@ impl SecuritySignal {
     }
 
     /// Soft negative pressure on council mercy valence when high-risk blocked.
-    /// Never drops below progressive safety floor.
+    /// Never drops below progressive safety floor in apply_security_pressure.
     pub fn valence_pressure(&self) -> f64 {
         if !self.is_actionable() {
             return 0.0;
         }
         let base = self.risk_tier.severity_weight() * 0.012;
-        (base * (0.5 + self.risk_score * 0.5)).clamp(0.0, 0.025)
+        let raw = (base * (0.5 + self.risk_score * 0.5)).clamp(0.0, 0.025);
+        (raw * self.domain.pressure_multiplier()).clamp(0.0, 0.03)
     }
 
     pub fn recommended_focus_hint(&self) -> &'static str {
@@ -172,9 +270,36 @@ impl SecuritySignal {
             _ => "HarmonyPreservation",
         }
     }
+
+    pub fn decide_verdict(&self) -> SecurityCouncilVerdict {
+        if !self.is_actionable() {
+            return SecurityCouncilVerdict::NoAction;
+        }
+        match self.risk_tier {
+            SecurityRiskTier::Critical => SecurityCouncilVerdict::UpholdBlockInvestigate,
+            SecurityRiskTier::High => SecurityCouncilVerdict::UpholdBlockInvestigate,
+            SecurityRiskTier::Medium if self.blocked => SecurityCouncilVerdict::UpholdBlock,
+            _ if self.blocked => SecurityCouncilVerdict::UpholdBlock,
+            _ => SecurityCouncilVerdict::NoAction,
+        }
+    }
+
+    /// Per-council focus weight: Truth / Ethics / QuantumEthics absorb more pressure.
+    pub fn focus_pressure_weight(focus: &super::CouncilFocus) -> f64 {
+        use super::CouncilFocus::*;
+        match focus {
+            TruthVerification => 1.25,
+            EthicalAlignment => 1.20,
+            QuantumEthics => 1.15,
+            EternalCompassion => 1.05,
+            HarmonyPreservation => 1.0,
+            PostScarcityEnforcement => 1.0,
+            _ => 0.85,
+        }
+    }
 }
 
-/// Apply security signal across councils: soft valence pressure on high-risk blocks.
+/// Apply security signal across councils with focus-weighted soft valence pressure.
 pub fn apply_security_pressure(
     councils: &mut std::collections::HashMap<
         super::CouncilFocus,
@@ -185,9 +310,11 @@ pub fn apply_security_pressure(
     if !signal.is_actionable() {
         return Err(SecuritySupportError::NotActionable);
     }
-    let pressure = signal.valence_pressure();
+    let base_pressure = signal.valence_pressure();
     let mut touched = 0usize;
-    for council in councils.values_mut() {
+    for (focus, council) in councils.iter_mut() {
+        let w = SecuritySignal::focus_pressure_weight(focus);
+        let pressure = (base_pressure * w).clamp(0.0, 0.035);
         // Soft pressure — never below progressive floor ~0.75
         council.mercy_valence = (council.mercy_valence - pressure).clamp(0.75, 1.0);
         touched += 1;
@@ -213,11 +340,44 @@ mod tests {
         .unwrap();
         assert!(s.is_actionable());
         assert!(s.valence_pressure() > 0.0);
+        assert_eq!(s.decide_verdict(), SecurityCouncilVerdict::UpholdBlockInvestigate);
+    }
+
+    #[test]
+    fn education_domain_raises_pressure() {
+        let base = SecuritySignal::try_new(
+            "lab",
+            SecurityRiskTier::High,
+            0.85,
+            &["RemoteCodeLoader".into()],
+            2,
+            true,
+            "blocked",
+        )
+        .unwrap();
+        let edu = SecuritySignal::try_new_with_domain(
+            "lab",
+            SecurityRiskTier::High,
+            0.85,
+            &["RemoteCodeLoader".into()],
+            2,
+            true,
+            "blocked",
+            SecurityDomainProfile::Education,
+        )
+        .unwrap();
+        assert!(edu.valence_pressure() > base.valence_pressure());
     }
 
     #[test]
     fn rejects_bad_score() {
         let err = SecuritySignal::try_new("x", SecurityRiskTier::High, f64::NAN, &[], 0, true, "m");
         assert!(matches!(err, Err(SecuritySupportError::InvalidRiskScore(_))));
+    }
+
+    #[test]
+    fn domain_from_label() {
+        assert_eq!(SecurityDomainProfile::from_label("classroom-lab"), SecurityDomainProfile::Education);
+        assert_eq!(SecurityDomainProfile::from_label("research-hub"), SecurityDomainProfile::Research);
     }
 }
