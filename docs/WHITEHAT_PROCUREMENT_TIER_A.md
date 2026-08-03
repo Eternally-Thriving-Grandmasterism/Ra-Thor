@@ -63,8 +63,9 @@ Copy-paste GitHub Actions workflow + guidance:
 → **[`examples/procurement-admit-gate/`](../examples/procurement-admit-gate/)**
 
 - `workflow.example.yml` — **pin to a full commit SHA** (or signed tag when published), build `mercy-admit`, scan your paths  
+- [`PROVENANCE_TEMPLATE.md`](../examples/procurement-admit-gate/PROVENANCE_TEMPLATE.md) — SBOM-style note: **SHA + UTC date + fixture MANIFEST/tree hashes** + validation checkboxes  
+- Air-gapped: vendor the crate / deps, path-depend, or transfer a prebuilt binary after checksum  
 - Fixture smoke proves the gate trips on known should_block classes  
-- Air-gapped note: vendor the crate / deps, path-depend, or transfer a prebuilt binary after checksum (see the example README)  
 - No claim of full malware coverage; Tier A admission conscience only
 
 **Production pin example (re-validate before changing):**  
@@ -99,6 +100,7 @@ Tier A is a **defense-in-depth admission conscience** for AGSi-era pipelines.
 - Repository: https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor  
 - Crate: `crates/mercy-security`  
 - Drop-in example: `examples/procurement-admit-gate/`  
+- Provenance template: `examples/procurement-admit-gate/PROVENANCE_TEMPLATE.md`  
 - Public testing notes: `RELEASE_NOTES_v14.15.5.md`  
 - Contact: **info@Rathor.ai**
 
