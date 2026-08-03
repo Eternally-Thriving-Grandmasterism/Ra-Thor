@@ -1,0 +1,115 @@
+# =============================================================================
+# Mercy Admit Gate (Tier A) — Drop-in example for external repositories
+# =============================================================================
+# Copy this file to:  .github/workflows/mercy-admit-gate.yml
+#
+# Policy: Admit None/Low only. Block Medium+. Reject >4 MiB.
+# White-hat admission conscience only — not a full malware detector.
+# Contact: info@Rathor.ai | Source: https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor
+# =============================================================================
+
+name: Mercy Admit Gate (Tier A)
+
+on:
+  pull_request:
+  push:
+    paths:
+      # Adjust these globs to your model cards, loaders, agent configs, datasets
+      - "**.md"
+      - "**.txt"
+      - "**.py"
+      - "**.yml"
+      - "**.yaml"
+      - "**.json"
+      - "**.toml"
+      - "**.ipynb"
+  workflow_dispatch:
+
+jobs:
+  admit-gate:
+    name: Tier A admit_or_block
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - name: Checkout this repository
+        uses: actions/checkout@v4
+
+      # ------------------------------------------------------------------
+      # Pin the gate source. Prefer a tag/commit once validated.
+      # ------------------------------------------------------------------
+      - name: Checkout Ra-Thor gate source (shallow)
+        uses: actions/checkout@v4
+        with:
+          repository: Eternally-Thriving-Grandmasterism/Ra-Thor
+          ref: main                    # TODO: pin to tag or SHA for production
+          path: _ra_thor_gate
+          fetch-depth: 1
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo (gate workspace)
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: "_ra_thor_gate"
+
+      - name: Build mercy-admit
+        working-directory: _ra_thor_gate
+        run: |
+          set -euo pipefail
+          cargo build -q -p mercy-security --bin mercy-admit
+
+      # ------------------------------------------------------------------
+      # Edit the file list below for your repository layout.
+      # Leave empty to run the public fixture smoke (benign + should_block).
+      # ------------------------------------------------------------------
+      - name: Run admit_or_block gate
+        env:
+          # Set to "1" only on human-reviewed break-glass branches (never default on main)
+          WHITEHAT_ALLOW_MEDIUM: "0"
+        run: |
+          set -euo pipefail
+          BIN="_ra_thor_gate/target/debug/mercy-admit"
+          if [[ ! -x "$BIN" ]]; then
+            BIN="_ra_thor_gate/target/release/mercy-admit"
+          fi
+
+          # --- CUSTOMIZE THIS LIST ---
+          # Example: model cards, dataset loaders, agent YAML, notebook cells, etc.
+          FILES=(
+            # "docs/model_card.md"
+            # "datasets/loading_script.py"
+            # "agents/config.yaml"
+          )
+
+          if [[ ${#FILES[@]} -eq 0 ]]; then
+            echo "[mercy-admit] no custom paths configured — running public fixture smoke"
+            FILES=(
+              _ra_thor_gate/crates/mercy-security/fixtures/benign/model_card_clean.md
+              _ra_thor_gate/crates/mercy-security/fixtures/should_block/trust_remote_code_loader.txt
+            )
+          fi
+
+          echo "[mercy-admit] scanning ${#FILES[@]} path(s)..."
+          set +e
+          "$BIN" --verbose "${FILES[@]}"
+          status=$?
+          set -e
+
+          if [[ "$status" -eq 0 ]]; then
+            echo "[mercy-admit] all admitted (None/Low)"
+            exit 0
+          fi
+
+          if [[ "$status" -eq 1 ]]; then
+            if [[ "${WHITEHAT_ALLOW_MEDIUM}" == "1" ]]; then
+              echo "[mercy-admit] WHITEHAT_ALLOW_MEDIUM=1 — allowing after human review path"
+              exit 0
+            fi
+            echo "[mercy-admit] BLOCKED — Medium+ content detected (Tier A unattended policy)"
+            exit 1
+          fi
+
+          echo "[mercy-admit] hard error (status=$status)"
+          exit "$status"
