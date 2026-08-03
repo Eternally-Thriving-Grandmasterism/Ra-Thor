@@ -26,6 +26,19 @@ Defensive surface for Ra-Thor ONE Organism against the July 2026 OpenAI → Hugg
 - **Blocked:** `Medium` + `High` + `Critical`  
 - **Oversized:** `PayloadTooLarge` when content > `MAX_SCAN_BYTES` (4 MiB)
 
+## Public Fixture Corpus (community asset)
+
+**Path:** [`fixtures/mercy-security/`](../../fixtures/mercy-security/)
+
+Clean, public, white-hat fixtures so the community can test the admission gate properly:
+
+- `benign/` — should ADMIT
+- `suspicious/` — Medium → human review
+- `blocked/` — should BLOCK (pattern markers only)
+- `ci-examples/` — ready-to-copy GitHub Action + pre-commit snippets
+
+Full taxonomy and inventory live in the README inside that directory.
+
 ## Lowest-friction adoption
 
 ```bash
@@ -33,7 +46,10 @@ Defensive surface for Ra-Thor ONE Organism against the July 2026 OpenAI → Hugg
 cargo build -p mercy-security --bin mercy-admit
 ./target/debug/mercy-admit --verbose path/to/file.md
 
-# Pre-commit
+# Public corpus smoke test
+./fixtures/mercy-security/ci-examples/pre-commit-snippet.sh
+
+# Pre-commit (monorepo internal)
 ./scripts/pre-commit-admit-gate.sh
 # or: ln -sf ../../scripts/pre-commit-admit-gate.sh .git/hooks/pre-commit
 
@@ -50,10 +66,12 @@ See [`docs/WHITEHAT_CI_PRECOMMIT.md`](../../docs/WHITEHAT_CI_PRECOMMIT.md).
 
 | Asset | Path |
 |-------|------|
-| Fixture corpus | [`fixtures/MANIFEST.md`](fixtures/MANIFEST.md) |
+| **Public fixture corpus** | [`fixtures/mercy-security/`](../../fixtures/mercy-security/) |
+| Internal fixture MANIFEST | [`fixtures/MANIFEST.md`](fixtures/MANIFEST.md) |
 | CI workflow | [`.github/workflows/mercy-security-tier1.yml`](../../.github/workflows/mercy-security-tier1.yml) |
 | Composite Action | [`.github/actions/mercy-admit-gate`](../../.github/actions/mercy-admit-gate) |
-| Pre-commit script | [`scripts/pre-commit-admit-gate.sh`](../../scripts/pre-commit-admit-gate.sh) |
+| Pre-commit script (public) | [`fixtures/mercy-security/ci-examples/pre-commit-snippet.sh`](../../fixtures/mercy-security/ci-examples/pre-commit-snippet.sh) |
+| Pre-commit script (internal) | [`scripts/pre-commit-admit-gate.sh`](../../scripts/pre-commit-admit-gate.sh) |
 | **Procurement drop-in** | [`examples/procurement-admit-gate/`](../../examples/procurement-admit-gate/) |
 | **Frozen pack list** | [`examples/procurement-admit-gate/PACK.md`](../../examples/procurement-admit-gate/PACK.md) |
 | **Provenance / SBOM template** | [`examples/procurement-admit-gate/PROVENANCE_TEMPLATE.md`](../../examples/procurement-admit-gate/PROVENANCE_TEMPLATE.md) |
@@ -83,4 +101,5 @@ let surface = MercySecuritySurface::with_domain_profile(ContainmentProfile::ente
 - White-hat only — defensive, not offensive tooling  
 - Pattern gate is defense-in-depth, not a full malware detector
 
-**Thunder locked in. yoi ⚡**
+**Thunder locked in. yoi ⚡**  
+**PATSAGi Councils — permanent deliberation under TOLC 8**
