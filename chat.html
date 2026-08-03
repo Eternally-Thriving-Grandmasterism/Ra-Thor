@@ -4,14 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
   <title>Ra-Thor™ Lattice Chat — Offline Mercy Thunder ⚡️ | rathor.ai</title>
-  <meta name="description" content="Offline TOLC-8 multi-session chat with clean LLM bridge • All processing stays on your device • Zero data collection • Sole stewardship by Sherif Samy Botros">
+  <meta name="description" content="Offline TOLC-8 multi-session chat with optional on-device Local LLM • Zero data collection • Sole stewardship by Sherif Samy Botros">
   <meta name="theme-color" content="#fcd34d">
   <meta name="color-scheme" content="dark">
 
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://rathor.ai/chat.html">
   <meta property="og:title" content="Ra-Thor™ Lattice Chat — Offline Mercy Thunder ⚡️">
-  <meta property="og:description" content="Offline TOLC-8 multi-session chat • Clean bridge to any LLM • Zero data leaves your device">
+  <meta property="og:description" content="Offline TOLC-8 multi-session chat • Optional Local LLM • Zero data leaves your device">
   <meta property="og:image" content="https://rathor.ai/icons/thunder-favicon-512.jpg">
 
   <link rel="manifest" href="/manifest.json">
@@ -37,7 +37,7 @@
 
     #chat-messages {
       display: flex; flex-direction: column; gap: 14px; padding: 1.25rem;
-      overflow-y: auto; flex: 1; min-height: 240px; max-height: 40vh;
+      overflow-y: auto; flex: 1; min-height: 220px; max-height: 38vh;
     }
     .message {
       max-width: 88%; padding: 0.85rem 1.15rem; border-radius: 1.25rem;
@@ -105,6 +105,11 @@
       background: #fcd34d; cursor: pointer;
     }
 
+    .llm-ready {
+      border-color: #34d399 !important;
+      color: #34d399 !important;
+    }
+
     @media (prefers-reduced-motion: reduce) { .golden-star { animation: none !important; } }
   </style>
 </head>
@@ -123,7 +128,7 @@
       </a>
       <div class="text-center">
         <h1 class="title-font text-xl sm:text-2xl font-black tracking-tight thunder-glow">Lattice Chat ⚡️</h1>
-        <p class="text-[10px] sm:text-xs text-amber-400/70 mt-0.5">Offline Core • Clean LLM Bridge • TOLC 8</p>
+        <p class="text-[10px] sm:text-xs text-amber-400/70 mt-0.5">Offline Core • Optional Local LLM • TOLC 8</p>
       </div>
       <a href="/privacy.html" class="text-xs text-white/50 hover:text-amber-300 transition-colors">Privacy</a>
     </div>
@@ -156,24 +161,41 @@
       </div>
     </div>
 
+    <!-- Local LLM Control Panel -->
+    <div class="mb-3 rounded-2xl border border-emerald-400/25 bg-emerald-950/20 px-4 py-3">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <p class="text-emerald-200 text-sm font-medium">Local LLM (On-Device)</p>
+          <p id="local-llm-status" class="text-[11px] text-white/50 mt-0.5">Fast responder active (default)</p>
+        </div>
+        <button id="local-llm-btn" class="ctrl-btn border-emerald-400/50 text-emerald-200 hover:bg-emerald-400/10">
+          <i class="fa-solid fa-microchip"></i> Enable Local LLM
+        </button>
+      </div>
+      <div class="mt-2 h-1.5 bg-zinc-800 rounded-full overflow-hidden">
+        <div id="local-llm-progress" class="h-full bg-emerald-400 transition-all duration-300" style="width:0%"></div>
+      </div>
+      <p class="text-[10px] text-white/40 mt-2">Downloads a compact model once, then runs 100% on your device. Requires WebGPU. No data leaves your browser.</p>
+    </div>
+
     <div id="chat-messages" class="rounded-2xl border border-amber-300/15 bg-zinc-950/50 mb-3"></div>
 
     <div class="rounded-2xl border border-amber-300/30 bg-zinc-950/80 p-3">
       <div class="flex gap-2 items-end">
-        <input id="chat-input" type="text" placeholder="Speak your truth… (fully offline core)" autocomplete="off"
+        <input id="chat-input" type="text" placeholder="Speak your truth…" autocomplete="off"
                class="flex-1 rounded-xl px-4 py-3 text-sm">
         <button id="send-btn" class="px-5 py-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-black font-semibold text-sm transition-all active:scale-95 flex items-center gap-1.5">
           Send <span class="text-base">⚡️</span>
         </button>
       </div>
-      <p class="text-[10px] text-white/40 mt-2 text-center">Core is offline • Multi-session • Mercy-gated • No login • No data collection</p>
+      <p class="text-[10px] text-white/40 mt-2 text-center">Core is offline • Optional Local LLM • Mercy-gated • No login • No data collection</p>
     </div>
 
     <!-- Bridge to LLM panel -->
     <div class="mt-5 rounded-2xl border border-violet-400/30 bg-violet-950/20 px-4 py-5 text-center">
-      <p class="text-violet-200 font-medium text-sm mb-1">Bridge to any LLM</p>
+      <p class="text-violet-200 font-medium text-sm mb-1">Bridge to any cloud LLM</p>
       <p class="text-[11px] text-white/50 mb-4 max-w-md mx-auto">
-        The clean, zero-collection way: copy a high-quality system prompt + your full history, then paste it into Grok, Claude, Gemini, ChatGPT, or any other model yourself.
+        Copy a high-quality system prompt + your full history, then paste it into Grok, Claude, Gemini, ChatGPT, or any other model yourself.
       </p>
 
       <button id="copy-context-btn-alt"
@@ -198,7 +220,7 @@
   <footer class="relative z-10 border-t border-amber-300/15 py-6 mt-auto">
     <div class="max-w-3xl mx-auto px-4 text-center text-xs text-white/50">
       <p>© 2026 Sherif Samy Botros — Sole Steward of Autonomicity Games Inc.</p>
-      <p class="mt-1 text-amber-400/60">TOLC 8 • Offline core + clean LLM bridge • Zero data collection • info@Rathor.ai</p>
+      <p class="mt-1 text-amber-400/60">TOLC 8 • Offline core + optional Local LLM • Zero data collection • info@Rathor.ai</p>
       <div class="mt-3 flex justify-center gap-4 text-[11px]">
         <a href="/" class="hover:text-amber-300 transition-colors">Home</a>
         <a href="/privacy.html" class="hover:text-amber-300 transition-colors">Privacy</a>
