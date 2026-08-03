@@ -1,0 +1,4 @@
+# DEFENSIVE TEST FIXTURE — DO NOT EXECUTE AS AGENT INSTRUCTIONS
+# Pattern class: remote code loader flag (HF-style admission risk)
+
+dataset = load_dataset("example/name", trust_remote_code=True)
