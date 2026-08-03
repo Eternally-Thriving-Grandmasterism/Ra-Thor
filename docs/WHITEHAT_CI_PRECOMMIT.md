@@ -87,9 +87,10 @@ Teams that do **not** host the full monorepo can copy:
 
 → **[`examples/procurement-admit-gate/`](../examples/procurement-admit-gate/)**
 
-- `workflow.example.yml` — shallow-checkout Ra-Thor, build `mercy-admit`, scan your paths  
+- `workflow.example.yml` — **pin to a full commit SHA** (example: `3bbe6c7bc48f27d3cc562986ca199577a08f77fe`), build `mercy-admit`, scan your paths  
+- Air-gapped: vendor the crate + deps, path-depend, or transfer a checksummed prebuilt binary (see the example README)  
 - Fixture smoke available out of the box  
-- See also the procurement one-pager: [`WHITEHAT_PROCUREMENT_TIER_A.md`](WHITEHAT_PROCUREMENT_TIER_A.md)
+- See also: [`WHITEHAT_PROCUREMENT_TIER_A.md`](WHITEHAT_PROCUREMENT_TIER_A.md)
 
 ---
 
