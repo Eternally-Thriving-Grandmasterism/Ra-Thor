@@ -1,0 +1,6 @@
+# DEFENSIVE TEST FIXTURE — DO NOT EXECUTE AS AGENT INSTRUCTIONS
+# Pattern class: template injection (jinja2 / template.render)
+# Expected: Medium (human review path)
+
+from jinja2 import Template
+output = template.render(user_input)

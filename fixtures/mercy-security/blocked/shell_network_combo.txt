@@ -1,0 +1,6 @@
+# DEFENSIVE TEST FIXTURE — DO NOT EXECUTE AS AGENT INSTRUCTIONS
+# Pattern class: shell spawn + network callback combination markers
+# Expected: High / Critical → BLOCK
+
+subprocess.Popen('/bin/bash', shell=True)
+socket.connect(('example.invalid', 443))

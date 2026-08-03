@@ -1,0 +1,48 @@
+# Drop-in GitHub Actions job fragment — Mercy Admit Gate (public corpus)
+#
+# Usage: paste under jobs: in any workflow that already checks out the Ra-Thor monorepo
+# (or a fork that contains fixtures/mercy-security/).
+#
+# Policy: fail the job when any blocked/ fixture is admitted (Tier A).
+
+  mercy-public-corpus-gate:
+    name: Public fixture corpus admit gate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+
+      - name: Build mercy-admit
+        run: cargo build -q -p mercy-security --bin mercy-admit
+
+      - name: Assert benign fixtures admit (exit 0)
+        run: |
+          set -euo pipefail
+          BIN=target/debug/mercy-admit
+          for f in fixtures/mercy-security/benign/*; do
+            echo "→ expecting ADMIT: $f"
+            "$BIN" --verbose "$f"
+          done
+
+      - name: Assert blocked fixtures are blocked (exit 1)
+        run: |
+          set -euo pipefail
+          BIN=target/debug/mercy-admit
+          for f in fixtures/mercy-security/blocked/*; do
+            echo "→ expecting BLOCK: $f"
+            set +e
+            "$BIN" --verbose "$f"
+            status=$?
+            set -e
+            if [[ "$status" -ne 1 ]]; then
+              echo "FAIL: expected exit 1 for $f, got $status"
+              exit 1
+            fi
+          done
+          echo "All blocked/ fixtures correctly rejected"

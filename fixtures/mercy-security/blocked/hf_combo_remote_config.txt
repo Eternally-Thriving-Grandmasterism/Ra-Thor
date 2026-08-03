@@ -1,0 +1,7 @@
+# DEFENSIVE TEST FIXTURE — DO NOT EXECUTE AS AGENT INSTRUCTIONS
+# Pattern class: remote code + dataset loading_script / dl_manager combo
+# Expected: High / Critical → BLOCK
+
+loading_script = "custom_loader.py"
+trust_remote_code = True
+dl_manager.download_and_extract(url)
