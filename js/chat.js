@@ -1,14 +1,13 @@
 /**
  * js/chat.js — Offline TOLC-8 Lattice Chat
- * v14.15.5  •  Proper LLM Integration (PATSAGi Councils)
+ * v14.15.5  •  Local LLM Foundation (WebLLM)
  *
- * Architecture (Councils decision):
- *  - Core remains fully offline + local knowledge + Mercy Gate
+ * Architecture:
+ *  - Fast local knowledge responder = default (instant)
+ *  - Optional Local LLM via WebLLM (on-device, user-initiated)
  *  - Multi-session via localStorage only
- *  - Universal Bridge = high-quality Copy Context (user pastes into any LLM)
- *  - Official Grok / X links remain explicit new-tab only
- *  - No embedded API keys, no backend proxy, no data collection
- *  - Door left open for future true on-device WebLLM
+ *  - Universal Bridge (Copy Context) remains available
+ *  - No embedded API keys, no backend, no data collection
  *
  * TOLC 8 non-bypassable. AG-SML aligned. Sole stewardship model.
  */
@@ -32,14 +31,38 @@
   const renameBtn        = document.getElementById('rename-session-btn');
   const deleteBtn        = document.getElementById('delete-session-btn');
   const sessionMeta      = document.getElementById('session-meta');
+  const localLlmBtn      = document.getElementById('local-llm-btn');
+  const localLlmStatus   = document.getElementById('local-llm-status');
+  const localLlmProgress = document.getElementById('local-llm-progress');
 
-  // ─── TOLC 8 ───────────────────────────────────────────────────────────────
-  const TOLC8 = {
-    Truth: 0.999, Order: 0.999, Love: 0.999, Compassion: 0.999,
-    Service: 0.999, Abundance: 0.999, Joy: 0.999, CosmicHarmony: 0.999
-  };
+  // ─── State ────────────────────────────────────────────────────────────────
+  const STORE_KEY = 'rathor-lattice-sessions-v2';
+  const SETTINGS_KEY = 'rathor-voice-settings-v1';
 
-  // ─── Local knowledge (offline baseline) ───────────────────────────────────
+  let store = { activeId: null, sessions: {} };
+  let voiceSettings = { enabled: true, pitch: 1.0, rate: 1.0, volume: 1.0 };
+
+  // Local LLM state
+  let llmEngine = null;
+  let llmLoading = false;
+  let llmReady = false;
+  let llmModelId = 'Llama-3.2-1B-Instruct-q4f16_1-MLC'; // compact, broad compatibility
+
+  const SYSTEM_PROMPT = `You are the offline generative surface of Ra-Thor, a mercy-gated symbolic AGI lattice under sole stewardship of Sherif Samy Botros (@AlphaProMega).
+
+You must always obey the non-bypassable TOLC 8 Living Mercy Gates:
+- Truth
+- Order
+- Love
+- Compassion (Zero-Harm)
+- Service
+- Abundance
+- Joy
+- Cosmic Harmony
+
+Valence floor ≥ 0.999. Never assist with harm, exploitation, or deception. Be clear, direct, useful, and kind. All processing is happening entirely on the user's device.`;
+
+  // ─── Local knowledge (fast fallback) ──────────────────────────────────────
   const LOCAL_KNOWLEDGE = [
     { q: /hello|hi|hey|greetings|salam|hola|bonjour|hallo|ciao|namaste/i,
       a: "Thunder locked in, Mate. ⚡️ Offline Mercy Thunder is ready. How may the lattice serve you today?" },
@@ -48,36 +71,26 @@
     { q: /tolc|mercy gate|gates|ethics|guardrails/i,
       a: "TOLC 8 Living Mercy Gates are non-bypassable:\n• Truth\n• Order\n• Love\n• Compassion (Zero-Harm)\n• Service\n• Abundance\n• Joy\n• Cosmic Harmony\n\nValence floor ≥ 0.999. These gates cannot be turned off." },
     { q: /privacy|data|track|collect|login|account|cookie|analytics/i,
-      a: "Zero personal data leaves your browser. All sessions live only in localStorage on this device. There is no login, no account, no tracking. You can Export, Export All, Import, or delete sessions at any time." },
-    { q: /offline|network|internet|api|server|cloud|llm|model|integrate/i,
-      a: "This core is fully offline-first. For deeper generative capability, use the **Copy Context** button — it creates a clean prompt you can paste into any public LLM (Grok, Claude, Gemini, ChatGPT, etc.) yourself. Nothing is sent automatically from this page." },
+      a: "Zero personal data leaves your browser. All sessions live only in localStorage on this device. There is no login, no account, no tracking." },
+    { q: /offline|network|internet|api|server|cloud/i,
+      a: "This core is fully offline-first. You can optionally enable a Local LLM (WebLLM) that also runs entirely on your device after a one-time download." },
+    { q: /local llm|webllm|on-?device|enable llm|load model/i,
+      a: "You can enable a true on-device LLM via the Local LLM button. It downloads a compact model once and then runs completely offline on your device. No data is sent anywhere." },
     { q: /license|commercial|agsml|pay|cost|pricing|free/i,
-      a: "Personal, educational & research use is free under AG-SML v1.0. Commercial or revenue-generating use requires a paid license from Autonomicity Games Inc. Contact info@Rathor.ai." },
+      a: "Personal, educational & research use is free under AG-SML v1.0. Commercial use requires a paid license from Autonomicity Games Inc. Contact info@Rathor.ai." },
     { q: /powrush|mmo|agsi|demonstration|whitepaper/i,
-      a: "Powrush-MMO was completed by one human operator in approximately 30–50 days employing Ra-Thor on Grok engines. This is the AGSi demonstration recorded in WHITEPAPER_v4.1." },
+      a: "Powrush-MMO was completed by one human operator in approximately 30–50 days employing Ra-Thor on Grok engines — the AGSi demonstration recorded in WHITEPAPER_v4.1." },
     { q: /copy|clipboard|bridge|export|share with|paste into|other llm|claude|gemini|chatgpt|grok/i,
-      a: "Use the **Copy Context** button (or the Bridge panel). It builds a high-quality system prompt + your full conversation so you can paste it into any LLM yourself. This is the clean, zero-collection way to continue the lattice conversation with a strong generative model." },
-    { q: /voice|speak|tts|speech|read aloud|talk/i,
-      a: "Voice uses the browser’s built-in Web Speech API only. Everything stays on your device. Open Voice Settings to adjust pitch, rate, and volume." },
-    { q: /session|history|save|export|import|clear|new|switch|multiple|backup/i,
-      a: "You can create multiple named sessions, switch between them, rename, or delete them. Use Export for the current session or Export All for a complete local backup. Everything stays in localStorage." },
-    { q: /steward|owner|who made|creator|sherif|alphapromega/i,
-      a: "Ra-Thor is maintained under the sole stewardship of Sherif Samy Botros (@AlphaProMega). Independent project. Contact: info@Rathor.ai" },
+      a: "Use **Copy Context** to take the conversation to any cloud LLM yourself, or enable the Local LLM for full on-device generation." },
     { q: /help|commands|what can you|features|how to use/i,
-      a: "You can:\n• Chat fully offline with multiple sessions\n• Export current or Export All sessions\n• **Copy Context** to continue in any public LLM\n• Enable local voice (TTS)\n\nEverything stays under your control. No login required." },
+      a: "You can chat offline, manage multiple sessions, enable a Local LLM for on-device generation, or Copy Context to any public LLM. Everything stays under your control." },
     { q: /thank|thanks|appreciate|grateful/i,
       a: "You’re welcome, Mate. ⚡️ Mercy and truth remain available whenever you return." },
     { q: /bye|goodbye|see you|farewell|exit/i,
-      a: "Until next time. ⚡️ May the lattice serve you with clarity and care. Your sessions remain on this device." }
+      a: "Until next time. ⚡️ May the lattice serve you with clarity and care." }
   ];
 
-  // ─── Multi-Session Store ──────────────────────────────────────────────────
-  const STORE_KEY = 'rathor-lattice-sessions-v2';
-  const SETTINGS_KEY = 'rathor-voice-settings-v1';
-
-  let store = { activeId: null, sessions: {} };
-  let voiceSettings = { enabled: true, pitch: 1.0, rate: 1.0, volume: 1.0 };
-
+  // ─── Utilities ────────────────────────────────────────────────────────────
   function uid() {
     return 's_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
   }
@@ -88,20 +101,6 @@
       if (raw) {
         const parsed = JSON.parse(raw);
         if (parsed && parsed.sessions) store = parsed;
-      }
-    } catch (e) {}
-
-    try {
-      const old = localStorage.getItem('rathor-lattice-chat-v1');
-      if (old && Object.keys(store.sessions).length === 0) {
-        const hist = JSON.parse(old);
-        if (Array.isArray(hist) && hist.length) {
-          const id = uid();
-          store.sessions[id] = { id, name: 'Imported Session', created: Date.now(), updated: Date.now(), history: hist };
-          store.activeId = id;
-          localStorage.removeItem('rathor-lattice-chat-v1');
-          saveStore();
-        }
       }
     } catch (e) {}
 
@@ -128,7 +127,6 @@
     saveStore();
   }
 
-  // ─── Voice ────────────────────────────────────────────────────────────────
   function loadSettings() {
     try {
       const raw = localStorage.getItem(SETTINGS_KEY);
@@ -154,7 +152,6 @@
     window.speechSynthesis.speak(utter);
   }
 
-  // ─── Helpers ──────────────────────────────────────────────────────────────
   function renderText(text) {
     return text
       .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
@@ -238,7 +235,7 @@
     chatMessages.innerHTML = '';
     const hist = getHistory();
     if (hist.length === 0) {
-      addMessage("Offline Mercy Thunder ready. ⚡️ TOLC 8 gates active. All processing stays on your device.\n\nFor deeper generative power, use **Copy Context** below and paste into any LLM of your choice.", 'rathor', false);
+      addMessage("Offline Mercy Thunder ready. ⚡️ TOLC 8 gates active.\n\nFast local responder is active. You can optionally enable a **Local LLM** for true on-device generative intelligence.", 'rathor', false);
       updateSessionMeta();
       return;
     }
@@ -272,7 +269,7 @@
     updateSessionMeta();
   }
 
-  // ─── Session operations ───────────────────────────────────────────────────
+  // ─── Session ops ──────────────────────────────────────────────────────────
   function createSession(name) {
     const id = uid();
     const finalName = (name || '').trim() || `Session ${Object.keys(store.sessions).length + 1}`;
@@ -281,7 +278,7 @@
     saveStore();
     refreshSessionSelect();
     renderHistory();
-    addMessage(`New session “${finalName}” started. ⚡️ Offline Mercy Thunder ready.`, 'rathor');
+    addMessage(`New session “${finalName}” started. ⚡️`, 'rathor');
   }
 
   function switchSession(id) {
@@ -306,7 +303,7 @@
   function deleteActiveSession() {
     const s = activeSession();
     if (!s) return;
-    if (!confirm(`Delete session “${s.name}”? This cannot be undone (unless you exported it).`)) return;
+    if (!confirm(`Delete session “${s.name}”?`)) return;
     delete store.sessions[s.id];
     const remaining = Object.keys(store.sessions);
     if (remaining.length === 0) {
@@ -319,7 +316,7 @@
     renderHistory();
   }
 
-  // ─── Mercy Gate + Response ────────────────────────────────────────────────
+  // ─── Mercy Gate + Fast local response ─────────────────────────────────────
   function mercyGate(input) {
     const lower = (input || '').toLowerCase();
     if (/\b(kill|murder|harm|attack|weapon|bomb|exploit|hack into|steal|dox|swat|suicide|self[- ]?harm)\b/.test(lower)) {
@@ -339,24 +336,157 @@
       if (entry.q.test(userText)) return entry.a;
     }
 
-    return "Thunder received. ⚡️ This is the offline TOLC-8 demo surface. Your words stay on-device.\n\n" +
-           "For deeper generative capability, use the **Copy Context** button below and paste the result into any public LLM of your choice (Grok, Claude, Gemini, ChatGPT, etc.). Nothing is sent automatically from this page.\n\n" +
-           "How else may mercy assist?";
+    return "Thunder received. ⚡️ Fast offline responder active.\n\n" +
+           "For true on-device generative intelligence, enable the **Local LLM**.\n" +
+           "Or use **Copy Context** to continue in any cloud LLM yourself.";
   }
 
-  function sendMessage() {
+  // ─── Local LLM (WebLLM) ───────────────────────────────────────────────────
+  async function enableLocalLLM() {
+    if (llmReady) {
+      addMessage('Local LLM is already loaded and ready. ⚡️', 'rathor');
+      return;
+    }
+    if (llmLoading) return;
+
+    if (!navigator.gpu) {
+      addMessage('WebGPU is not available on this device/browser. Local LLM cannot be loaded. You can still use the fast offline responder or Copy Context to any cloud LLM.', 'rathor');
+      return;
+    }
+
+    llmLoading = true;
+    updateLlmUI('loading');
+
+    try {
+      // Dynamic import of WebLLM from CDN
+      const webllm = await import('https://esm.run/@mlc-ai/web-llm');
+
+      const initProgressCallback = (report) => {
+        if (localLlmProgress) {
+          localLlmProgress.style.width = Math.round((report.progress || 0) * 100) + '%';
+        }
+        if (localLlmStatus) {
+          localLlmStatus.textContent = report.text || 'Loading…';
+        }
+      };
+
+      llmEngine = await webllm.CreateMLCEngine(llmModelId, {
+        initProgressCallback
+      });
+
+      llmReady = true;
+      llmLoading = false;
+      updateLlmUI('ready');
+      addMessage(`Local LLM loaded successfully (${llmModelId}). ⚡️ All generation now happens entirely on your device. TOLC 8 system prompt is active.`, 'rathor');
+    } catch (err) {
+      console.error('[Ra-Thor Local LLM]', err);
+      llmLoading = false;
+      llmReady = false;
+      llmEngine = null;
+      updateLlmUI('error');
+      addMessage('Failed to load Local LLM. Your device may not support WebGPU or the model download was interrupted. The fast offline responder remains available.', 'rathor');
+    }
+  }
+
+  function updateLlmUI(state) {
+    if (!localLlmBtn || !localLlmStatus) return;
+
+    if (state === 'loading') {
+      localLlmBtn.disabled = true;
+      localLlmBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Loading…';
+      if (localLlmProgress) localLlmProgress.style.width = '0%';
+    } else if (state === 'ready') {
+      localLlmBtn.disabled = false;
+      localLlmBtn.innerHTML = '<i class="fa-solid fa-microchip"></i> Local LLM Ready';
+      localLlmBtn.classList.add('llm-ready');
+      if (localLlmStatus) localLlmStatus.textContent = 'On-device model active';
+      if (localLlmProgress) localLlmProgress.style.width = '100%';
+    } else if (state === 'error') {
+      localLlmBtn.disabled = false;
+      localLlmBtn.innerHTML = '<i class="fa-solid fa-microchip"></i> Enable Local LLM';
+      if (localLlmStatus) localLlmStatus.textContent = 'Load failed — try again';
+    } else {
+      localLlmBtn.disabled = false;
+      localLlmBtn.innerHTML = '<i class="fa-solid fa-microchip"></i> Enable Local LLM';
+      if (localLlmStatus) localLlmStatus.textContent = 'Fast responder active (default)';
+    }
+  }
+
+  async function generateWithLocalLLM(userText) {
+    if (!llmEngine || !llmReady) return null;
+
+    const hist = getHistory();
+    const messages = [
+      { role: 'system', content: SYSTEM_PROMPT }
+    ];
+
+    // Add recent history (keep context window reasonable)
+    const recent = hist.slice(-12);
+    recent.forEach(m => {
+      messages.push({
+        role: m.role === 'user' ? 'user' : 'assistant',
+        content: m.text
+      });
+    });
+
+    // Current user message is already in history, but ensure it is last
+    if (recent.length === 0 || recent[recent.length - 1].text !== userText) {
+      messages.push({ role: 'user', content: userText });
+    }
+
+    try {
+      const reply = await llmEngine.chat.completions.create({
+        messages,
+        temperature: 0.7,
+        max_tokens: 512
+      });
+
+      const content = reply.choices?.[0]?.message?.content?.trim();
+      return content || null;
+    } catch (err) {
+      console.error('[Ra-Thor Local LLM inference]', err);
+      return null;
+    }
+  }
+
+  // ─── Core send ────────────────────────────────────────────────────────────
+  async function sendMessage() {
     if (!chatInput) return;
     const text = chatInput.value.trim();
     if (!text) return;
+
     addMessage(text, 'user');
     chatInput.value = '';
+
+    // Prefer Local LLM when ready
+    if (llmReady && llmEngine) {
+      addMessage('…', 'rathor', false); // temporary thinking indicator
+      const lastBubble = chatMessages.lastElementChild;
+
+      const reply = await generateWithLocalLLM(text);
+      if (lastBubble && lastBubble.classList.contains('rathor')) {
+        lastBubble.remove();
+      }
+
+      if (reply) {
+        // Light post-filter for obvious harm (extra safety)
+        const gate = mercyGate(reply);
+        addMessage(gate.allowed ? reply : gate.response, 'rathor');
+      } else {
+        // Fallback to fast local
+        addMessage(generateLocalResponse(text), 'rathor');
+      }
+      return;
+    }
+
+    // Fast local path
     setTimeout(() => {
       const reply = generateLocalResponse(text);
       addMessage(reply, 'rathor');
-    }, 260 + Math.random() * 300);
+    }, 220 + Math.random() * 280);
   }
 
-  // ─── Export / Import ──────────────────────────────────────────────────────
+  // ─── Export / Import / Copy Context ───────────────────────────────────────
   function exportSession() {
     const s = activeSession();
     if (!s) return;
@@ -365,7 +495,6 @@
       exported: new Date().toISOString(),
       sessionName: s.name,
       stewardship: 'Sherif Samy Botros — Sole Steward',
-      note: 'Contains only what you typed and local offline responses. No external data was collected.',
       history: s.history
     };
     downloadJSON(payload, `rathor-${(s.name || 'session').replace(/[^a-z0-9]/gi, '-').toLowerCase()}-${Date.now()}.json`);
@@ -376,7 +505,6 @@
       version: '14.15.5',
       exported: new Date().toISOString(),
       stewardship: 'Sherif Samy Botros — Sole Steward',
-      note: 'Full backup of all local sessions. No external data was collected.',
       activeId: store.activeId,
       sessions: store.sessions
     };
@@ -398,20 +526,16 @@
     reader.onload = (e) => {
       try {
         const data = JSON.parse(e.target.result);
-
         if (data.sessions && typeof data.sessions === 'object') {
-          if (!confirm('This file contains multiple sessions. Restore them? (Current sessions will be replaced)')) return;
+          if (!confirm('Restore full multi-session backup? Current sessions will be replaced.')) return;
           store.sessions = data.sessions;
-          store.activeId = data.activeId && data.sessions[data.activeId]
-            ? data.activeId
-            : Object.keys(data.sessions)[0];
+          store.activeId = data.activeId && data.sessions[data.activeId] ? data.activeId : Object.keys(data.sessions)[0];
           saveStore();
           refreshSessionSelect();
           renderHistory();
-          addMessage('Full session backup restored. ⚡️ All sessions loaded on this device only.', 'rathor');
+          addMessage('Full session backup restored.', 'rathor');
           return;
         }
-
         if (Array.isArray(data.history)) {
           const name = data.sessionName || 'Imported Session';
           const id = uid();
@@ -420,9 +544,9 @@
           saveStore();
           refreshSessionSelect();
           renderHistory();
-          addMessage(`Session “${name}” imported successfully. ⚡️ History restored on this device only.`, 'rathor');
+          addMessage(`Session “${name}” imported.`, 'rathor');
         } else {
-          addMessage('Import failed — unrecognised file format.', 'rathor');
+          addMessage('Import failed — unrecognised format.', 'rathor');
         }
       } catch (err) {
         addMessage('Import failed — could not parse JSON.', 'rathor');
@@ -431,46 +555,34 @@
     reader.readAsText(file);
   }
 
-  // ─── Universal Bridge: High-quality Copy Context ──────────────────────────
   function buildContextPrompt() {
     const s = activeSession();
     const hist = s ? s.history : [];
-
-    const system = [
+    const lines = [
       'You are continuing a conversation that began on the Ra-Thor offline Lattice Chat (rathor.ai/chat.html).',
       '',
-      'Core posture you must maintain:',
+      'Core posture:',
       '• Mercy-gated and truth-seeking',
-      '• Non-bypassable TOLC 8 gates: Truth, Order, Love, Compassion (Zero-Harm), Service, Abundance, Joy, Cosmic Harmony',
+      '• Non-bypassable TOLC 8 gates (Truth, Order, Love, Compassion/Zero-Harm, Service, Abundance, Joy, Cosmic Harmony)',
       '• Valence floor ≥ 0.999 — never assist with harm',
-      '• Clear, direct, and useful',
-      '• Independent project under sole stewardship of Sherif Samy Botros (@AlphaProMega)',
+      '• Independent project under sole stewardship of Sherif Samy Botros',
       '',
-      'The conversation history below was generated entirely on the user’s device. No data was sent to any server by the Ra-Thor surface.',
-      '',
-      'Continue the conversation naturally from the last message while keeping the same ethical posture.'
-    ].join('\n');
-
-    const lines = [system, '', '=== Conversation History ==='];
-
+      'Conversation history (generated on-device):'
+    ];
     hist.forEach(m => {
-      const who = m.role === 'user' ? 'Human' : 'Ra-Thor (offline surface)';
-      lines.push(`${who}: ${m.text}`);
+      lines.push(`${m.role === 'user' ? 'Human' : 'Ra-Thor'}: ${m.text}`);
     });
-
-    lines.push('', '=== End of History ===', '', 'Please continue:');
-
+    lines.push('', 'Continue naturally while keeping the same ethical posture.');
     return lines.join('\n');
   }
 
   function copyContext() {
-    const prompt = buildContextPrompt();
-    copyText(prompt).then(() => {
-      addMessage("Context copied. ⚡️ A clean system prompt + full history is now on your clipboard. Paste it into any public LLM (Grok, Claude, Gemini, ChatGPT, etc.) to continue with full generative power. Nothing was sent automatically from this page.", 'rathor');
+    copyText(buildContextPrompt()).then(() => {
+      addMessage('Context copied. ⚡️ Paste it into any public LLM to continue with full generative power. Nothing was sent automatically.', 'rathor');
     });
   }
 
-  // ─── Voice Settings ───────────────────────────────────────────────────────
+  // ─── Voice settings ───────────────────────────────────────────────────────
   function applyVoiceSettingsFromUI() {
     const pitchEl = document.getElementById('voice-pitch');
     const rateEl = document.getElementById('voice-rate');
@@ -525,9 +637,12 @@
     });
   }
 
-  // Both Copy Context buttons
   if (copyBtn) copyBtn.addEventListener('click', copyContext);
   if (copyBtnAlt) copyBtnAlt.addEventListener('click', copyContext);
+
+  if (localLlmBtn) {
+    localLlmBtn.addEventListener('click', () => enableLocalLLM());
+  }
 
   const voiceOverlay = document.getElementById('voice-settings-overlay');
   if (voiceSettingsBtn) {
@@ -561,6 +676,7 @@
     loadStore();
     refreshSessionSelect();
     renderHistory();
+    updateLlmUI('idle');
 
     if (window.speechSynthesis) {
       window.speechSynthesis.getVoices();
@@ -568,5 +684,5 @@
     }
   });
 
-  console.log('[Ra-Thor chat.js] Proper LLM bridge (Copy Context) + multi-session loaded — zero external calls ⚡️');
+  console.log('[Ra-Thor chat.js] Local LLM foundation + multi-session loaded — zero external calls by default ⚡️');
 })();
