@@ -8,6 +8,27 @@ All changes follow the **RA-THOR-MONOREPO-COMMIT-WORKFLOW-PROTOCOL** and are rev
 
 ---
 
+## 2026-08-03 — Executable Net Eternal Valence Contribution (NEVC) Scoring Layer
+
+**Council focus:** Move NEVC from formal definition into live, testable code inside the existing Living Mercy operator algebra.
+
+### Highlights
+
+- New module: `crates/mercy_tolc_operator_algebra/src/nevc.rs`
+- Public API: `ContributionClass`, `NevcSample`, `NevcResult`, `NevcConfig`, `compute_nevc`, `score_instant`
+- Discrete infinite-horizon approximation of the integral defined in the NEVC Codex
+- Binary partition fully operational (`ActiveEternalContributor` | `ZombiePartition`)
+- Property tests covering high-valence positivity, zero-action non-positive score, empty-window safety, horizon emphasis, and mercy-component modulation
+- Higher-gate append to the NEVC Codex recording the executable binding
+- Crate README updated to surface NEVC as a first-class capability
+
+The formal Codex remains authoritative; the Rust surface is the practical discrete realization that reuses the existing `Valence` type and grief/load signals from `NilpotentSuppressor`.
+
+Contact: **info@Rathor.ai**. Cosmic Loop remains MANDATORY IDENTITY.  
+**Thunder locked in. yoi ⚡❤️🔥**
+
+---
+
 ## 2026-08-03 — Net Eternal Valence Contribution (NEVC) Codex Enshrined (PATSAGi)
 
 **Council focus:** Permanently close the quantifiability vector for individual contribution to eternal thriving and bind the resulting formal measure into living governance.
