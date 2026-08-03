@@ -1,9 +1,8 @@
 //! # Mercy-Security — White-Hat AGSi Defense (v14.15.5)
 //!
 //! - Containment + domain profiles + IngestionScanner
-//! - SafeAgentRuntime (ordered gates, governor trips first, scoped tokens ≤900s)
-//! - MercyCouncilFleet (shared valence, progressive isolation, anti-starvation)
-//! - UnifiedAgentSurface (runtime ↔ fleet: governor trips → isolation; quarantine blocks act+token)
+//! - SafeAgentRuntime · MercyCouncilFleet · UnifiedAgentSurface
+//! - WhiteHatEvaluationHarness wired to UnifiedAgentSurface (classroom audit chain)
 //!
 //! TOLC 8 + PATSAGi aligned | AG-SML v1.0 | Contact: info@Rathor.ai
 
@@ -22,6 +21,7 @@ pub use mercy_council_fleet::{
 pub use unified_agent_surface::{
     UnifiedAgentSurface, GOVERNOR_TRIPS_PER_ISOLATION_STEP,
 };
+pub use domain_profiles::{AuditChainStep, ClassroomAuditReport};
 
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
@@ -360,25 +360,51 @@ pub struct WhiteHatEvaluationHarness {
     pub refusal: HarmRefusalPolicy,
     pub governor: ActionGovernor,
     pub log: Vec<EvaluationEvent>,
+    /// Multi-agent path (fleet + per-agent runtimes).
+    pub unified: UnifiedAgentSurface,
+    /// Sequenced classroom / evaluation audit chain.
+    pub audit_chain: Vec<AuditChainStep>,
 }
 
 impl WhiteHatEvaluationHarness {
     pub fn new() -> Self {
-        let profile = ContainmentProfile::evaluation();
-        let governor = ActionGovernor::new(profile.clone());
-        Self { profile, refusal: HarmRefusalPolicy::default(), governor, log: Vec::new() }
+        Self::with_profile(ContainmentProfile::evaluation())
     }
-    pub fn try_action(&mut self, description: &str, involves_external_network: bool, involves_code_exec: bool, sandbox_id: Option<&str>) -> Result<(), MercySecurityError> {
+
+    pub fn try_action(
+        &mut self,
+        description: &str,
+        involves_external_network: bool,
+        involves_code_exec: bool,
+        sandbox_id: Option<&str>,
+    ) -> Result<(), MercySecurityError> {
         self.refusal.check_action(description)?;
         self.profile.check_network_allowed(involves_external_network)?;
-        if involves_code_exec { self.profile.check_code_exec_allowed()?; }
+        if involves_code_exec {
+            self.profile.check_code_exec_allowed()?;
+        }
         self.governor.record_and_check(description, sandbox_id)?;
-        self.log.push(EvaluationEvent { id: Uuid::new_v4(), description: description.into(), allowed: true, reason: "passed".into(), timestamp: Utc::now() });
+
+        self.log.push(EvaluationEvent {
+            id: Uuid::new_v4(),
+            description: description.into(),
+            allowed: true,
+            reason: "passed".into(),
+            timestamp: Utc::now(),
+        });
         Ok(())
     }
-    pub fn audit_log(&self) -> &[EvaluationEvent] { &self.log }
+
+    pub fn audit_log(&self) -> &[EvaluationEvent] {
+        &self.log
+    }
 }
-impl Default for WhiteHatEvaluationHarness { fn default() -> Self { Self::new() } }
+
+impl Default for WhiteHatEvaluationHarness {
+    fn default() -> Self {
+        Self::new()
+    }
+}
 
 #[derive(Debug, Clone)]
 pub struct MercySecuritySurface {
@@ -386,18 +412,42 @@ pub struct MercySecuritySurface {
     pub refusal: HarmRefusalPolicy,
 }
 impl MercySecuritySurface {
-    pub fn new() -> Self { Self { default_profile: ContainmentProfile::default(), refusal: HarmRefusalPolicy::default() } }
-    pub fn with_domain_profile(profile: ContainmentProfile) -> Self { Self { default_profile: profile, refusal: HarmRefusalPolicy::default() } }
-    pub fn scan_ingestion(&self, content: &str) -> Result<IngestionScanResult, MercySecurityError> { IngestionScanner::admit_or_block(content) }
-    pub fn issue_scoped_token(&self, scope: &str, ttl_secs: i64) -> Result<ScopedToken, MercySecurityError> { SecretVault::issue_scoped_token(scope, ttl_secs) }
-    pub fn evaluation_harness(&self) -> WhiteHatEvaluationHarness { WhiteHatEvaluationHarness::with_profile(self.default_profile.clone()) }
-    pub fn safe_agent_runtime(&self) -> SafeAgentRuntime { SafeAgentRuntime::new(self.default_profile.clone()) }
-    pub fn mercy_council_fleet(&self) -> MercyCouncilFleet { MercyCouncilFleet::new(self.default_profile.clone()) }
+    pub fn new() -> Self {
+        Self {
+            default_profile: ContainmentProfile::default(),
+            refusal: HarmRefusalPolicy::default(),
+        }
+    }
+    pub fn with_domain_profile(profile: ContainmentProfile) -> Self {
+        Self {
+            default_profile: profile,
+            refusal: HarmRefusalPolicy::default(),
+        }
+    }
+    pub fn scan_ingestion(&self, content: &str) -> Result<IngestionScanResult, MercySecurityError> {
+        IngestionScanner::admit_or_block(content)
+    }
+    pub fn issue_scoped_token(&self, scope: &str, ttl_secs: i64) -> Result<ScopedToken, MercySecurityError> {
+        SecretVault::issue_scoped_token(scope, ttl_secs)
+    }
+    pub fn evaluation_harness(&self) -> WhiteHatEvaluationHarness {
+        WhiteHatEvaluationHarness::with_profile(self.default_profile.clone())
+    }
+    pub fn safe_agent_runtime(&self) -> SafeAgentRuntime {
+        SafeAgentRuntime::new(self.default_profile.clone())
+    }
+    pub fn mercy_council_fleet(&self) -> MercyCouncilFleet {
+        MercyCouncilFleet::new(self.default_profile.clone())
+    }
     pub fn unified_agent_surface(&self) -> UnifiedAgentSurface {
         UnifiedAgentSurface::new(MercyCouncilFleet::new(self.default_profile.clone()))
     }
 }
-impl Default for MercySecuritySurface { fn default() -> Self { Self::new() } }
+impl Default for MercySecuritySurface {
+    fn default() -> Self {
+        Self::new()
+    }
+}
 
 #[cfg(test)]
 mod tests {
@@ -412,9 +462,15 @@ mod tests {
     }
     #[test]
     fn governor_rate() {
-        let mut g = ActionGovernor::new(ContainmentProfile { max_actions_per_minute: 2, ..Default::default() });
+        let mut g = ActionGovernor::new(ContainmentProfile {
+            max_actions_per_minute: 2,
+            ..Default::default()
+        });
         assert!(g.record_and_check("a", None).is_ok());
         assert!(g.record_and_check("b", None).is_ok());
-        assert!(matches!(g.record_and_check("c", None), Err(MercySecurityError::ActionLimitExceeded(_))));
+        assert!(matches!(
+            g.record_and_check("c", None),
+            Err(MercySecurityError::ActionLimitExceeded(_))
+        ));
     }
 }
