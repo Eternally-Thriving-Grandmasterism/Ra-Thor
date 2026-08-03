@@ -61,15 +61,16 @@ fn emit(label: &str, result: &IngestionScanResult, admitted: bool, json: bool, v
         // Minimal stable JSON surface for CI parsers
         let status = if admitted { "admitted" } else { "blocked" };
         let threats: Vec<String> = result.threats.iter().map(|t| format!("{t:?}")).collect();
+        let threats_json = serde_json::to_string(&threats).unwrap_or_else(|_| "[]".into());
         println!(
-            r#"{{"path":{},"status":"{}","risk_tier":"{}","risk_score":{:.4},"safe":{},"bytes":{},"threats":{}}}" #,
+            "{{\"path\":{},\"status\":\"{}\",\"risk_tier\":\"{}\",\"risk_score\":{:.4},\"safe\":{},\"bytes\":{},\"threats\":{}}}",
             json_escape(label),
             status,
             result.risk_tier.as_str(),
             result.risk_score,
             result.safe,
             result.bytes_scanned,
-            serde_json::to_string(&threats).unwrap_or_else(|_| "[]".into())
+            threats_json
         );
         return;
     }
