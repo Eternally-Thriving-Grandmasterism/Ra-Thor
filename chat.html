@@ -4,14 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
   <title>Ra-Thor™ Lattice Chat — Offline Mercy Thunder ⚡️ | rathor.ai</title>
-  <meta name="description" content="Offline TOLC-8 multi-session chat • All processing stays on your device • Zero data collection • Local TTS • Sole stewardship by Sherif Samy Botros">
+  <meta name="description" content="Offline TOLC-8 multi-session chat with clean LLM bridge • All processing stays on your device • Zero data collection • Sole stewardship by Sherif Samy Botros">
   <meta name="theme-color" content="#fcd34d">
   <meta name="color-scheme" content="dark">
 
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://rathor.ai/chat.html">
   <meta property="og:title" content="Ra-Thor™ Lattice Chat — Offline Mercy Thunder ⚡️">
-  <meta property="og:description" content="Offline TOLC-8 multi-session chat • Zero data leaves your device • No login required">
+  <meta property="og:description" content="Offline TOLC-8 multi-session chat • Clean bridge to any LLM • Zero data leaves your device">
   <meta property="og:image" content="https://rathor.ai/icons/thunder-favicon-512.jpg">
 
   <link rel="manifest" href="/manifest.json">
@@ -37,7 +37,7 @@
 
     #chat-messages {
       display: flex; flex-direction: column; gap: 14px; padding: 1.25rem;
-      overflow-y: auto; flex: 1; min-height: 260px; max-height: 44vh;
+      overflow-y: auto; flex: 1; min-height: 240px; max-height: 40vh;
     }
     .message {
       max-width: 88%; padding: 0.85rem 1.15rem; border-radius: 1.25rem;
@@ -58,9 +58,7 @@
       display: flex; align-items: center; justify-content: space-between;
       margin-top: 0.4rem; gap: 0.5rem;
     }
-    .msg-time {
-      font-size: 0.65rem; opacity: 0.55;
-    }
+    .msg-time { font-size: 0.65rem; opacity: 0.55; }
     .message.user .msg-time { color: #000; }
     .message.rathor .msg-time { color: #c7d2fe; }
 
@@ -125,7 +123,7 @@
       </a>
       <div class="text-center">
         <h1 class="title-font text-xl sm:text-2xl font-black tracking-tight thunder-glow">Lattice Chat ⚡️</h1>
-        <p class="text-[10px] sm:text-xs text-amber-400/70 mt-0.5">Offline • Multi-Session • TOLC 8</p>
+        <p class="text-[10px] sm:text-xs text-amber-400/70 mt-0.5">Offline Core • Clean LLM Bridge • TOLC 8</p>
       </div>
       <a href="/privacy.html" class="text-xs text-white/50 hover:text-amber-300 transition-colors">Privacy</a>
     </div>
@@ -151,9 +149,9 @@
         <button id="delete-session-btn" class="ctrl-btn" title="Delete current session"><i class="fa-solid fa-trash"></i></button>
         <span class="text-white/20 mx-0.5">|</span>
         <button id="export-session-btn" class="ctrl-btn" title="Export current session"><i class="fa-solid fa-download"></i></button>
-        <button id="export-all-btn" class="ctrl-btn" title="Export ALL sessions (full backup)"><i class="fa-solid fa-file-export"></i></button>
+        <button id="export-all-btn" class="ctrl-btn" title="Export ALL sessions"><i class="fa-solid fa-file-export"></i></button>
         <button id="import-session-btn" class="ctrl-btn" title="Import session or full backup"><i class="fa-solid fa-upload"></i></button>
-        <button id="copy-context-btn" class="ctrl-btn" title="Copy full context to clipboard"><i class="fa-solid fa-clipboard"></i></button>
+        <button id="copy-context-btn" class="ctrl-btn" title="Copy high-quality context for any LLM"><i class="fa-solid fa-clipboard"></i></button>
         <button id="voice-settings-btn" class="ctrl-btn" title="Voice settings"><i class="fa-solid fa-volume-high"></i></button>
       </div>
     </div>
@@ -162,35 +160,45 @@
 
     <div class="rounded-2xl border border-amber-300/30 bg-zinc-950/80 p-3">
       <div class="flex gap-2 items-end">
-        <input id="chat-input" type="text" placeholder="Speak your truth… (fully offline)" autocomplete="off"
+        <input id="chat-input" type="text" placeholder="Speak your truth… (fully offline core)" autocomplete="off"
                class="flex-1 rounded-xl px-4 py-3 text-sm">
         <button id="send-btn" class="px-5 py-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-black font-semibold text-sm transition-all active:scale-95 flex items-center gap-1.5">
           Send <span class="text-base">⚡️</span>
         </button>
       </div>
-      <p class="text-[10px] text-white/40 mt-2 text-center">All processing stays on your device • Multi-session • Mercy-gated • No login</p>
+      <p class="text-[10px] text-white/40 mt-2 text-center">Core is offline • Multi-session • Mercy-gated • No login • No data collection</p>
     </div>
 
-    <div class="mt-5 rounded-2xl border border-cyan-400/20 bg-cyan-950/20 px-4 py-4 text-center">
-      <p class="text-cyan-200/90 text-xs sm:text-sm mb-2">Official bridges (open in new tab — nothing is sent automatically)</p>
-      <div class="flex flex-col sm:flex-row gap-2 justify-center mb-3">
+    <!-- Bridge to LLM panel -->
+    <div class="mt-5 rounded-2xl border border-violet-400/30 bg-violet-950/20 px-4 py-5 text-center">
+      <p class="text-violet-200 font-medium text-sm mb-1">Bridge to any LLM</p>
+      <p class="text-[11px] text-white/50 mb-4 max-w-md mx-auto">
+        The clean, zero-collection way: copy a high-quality system prompt + your full history, then paste it into Grok, Claude, Gemini, ChatGPT, or any other model yourself.
+      </p>
+
+      <button id="copy-context-btn-alt"
+              class="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-violet-500/20 border border-violet-400 text-violet-200 hover:bg-violet-500/30 text-sm font-medium transition-all mb-4">
+        <i class="fa-solid fa-clipboard"></i>
+        Copy Context for any LLM
+      </button>
+
+      <div class="flex flex-col sm:flex-row gap-2 justify-center">
         <a href="https://grok.com/share/c2hhcmQtMi1jb3B5_369534a8-8e0e-4d4b-8a5e-3578bdba1361" target="_blank" rel="noopener"
            class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-amber-300/40 text-amber-200 hover:bg-amber-400/10 text-xs sm:text-sm transition-all">
-          <i class="fa-solid fa-bolt"></i> Grok Demo
+          <i class="fa-solid fa-bolt"></i> Open Grok Demo
         </a>
         <a href="/go-x.html" target="_blank" rel="noopener"
            class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-cyan-300/40 text-cyan-200 hover:bg-cyan-400/10 text-xs sm:text-sm transition-all">
-          <i class="fa-brands fa-x-twitter"></i> X Demo (browser hop)
+          <i class="fa-brands fa-x-twitter"></i> Open X Demo
         </a>
       </div>
-      <p class="text-[11px] text-white/50">Or use <strong class="text-violet-300">Copy Context</strong> / per-message copy to take content to any public LLM yourself.</p>
     </div>
   </main>
 
   <footer class="relative z-10 border-t border-amber-300/15 py-6 mt-auto">
     <div class="max-w-3xl mx-auto px-4 text-center text-xs text-white/50">
       <p>© 2026 Sherif Samy Botros — Sole Steward of Autonomicity Games Inc.</p>
-      <p class="mt-1 text-amber-400/60">TOLC 8 • Offline multi-session • Zero data collection • info@Rathor.ai</p>
+      <p class="mt-1 text-amber-400/60">TOLC 8 • Offline core + clean LLM bridge • Zero data collection • info@Rathor.ai</p>
       <div class="mt-3 flex justify-center gap-4 text-[11px]">
         <a href="/" class="hover:text-amber-300 transition-colors">Home</a>
         <a href="/privacy.html" class="hover:text-amber-300 transition-colors">Privacy</a>
