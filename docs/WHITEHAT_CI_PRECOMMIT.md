@@ -69,7 +69,7 @@ cargo test -p mercy-security
 
 Manual: Actions → **mercy-security Tier-1** → Run workflow.
 
-### Reusable composite action
+### Reusable composite action (inside Ra-Thor)
 
 ```yaml
 - uses: ./.github/actions/mercy-admit-gate
@@ -80,6 +80,16 @@ Manual: Actions → **mercy-security Tier-1** → Run workflow.
 ```
 
 Default (no `paths`) runs a benign + should_block fixture pair so the action proves the gate trips.
+
+### External repositories (procurement drop-in)
+
+Teams that do **not** host the full monorepo can copy:
+
+→ **[`examples/procurement-admit-gate/`](../examples/procurement-admit-gate/)**
+
+- `workflow.example.yml` — shallow-checkout Ra-Thor, build `mercy-admit`, scan your paths  
+- Fixture smoke available out of the box  
+- See also the procurement one-pager: [`WHITEHAT_PROCUREMENT_TIER_A.md`](WHITEHAT_PROCUREMENT_TIER_A.md)
 
 ---
 
