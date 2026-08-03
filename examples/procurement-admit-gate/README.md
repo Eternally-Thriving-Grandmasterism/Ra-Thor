@@ -13,6 +13,7 @@
 | Asset | Purpose |
 |-------|---------|
 | [`workflow.example.yml`](workflow.example.yml) | Ready-to-copy GitHub Actions workflow |
+| [`PROVENANCE_TEMPLATE.md`](PROVENANCE_TEMPLATE.md) | SBOM / provenance note (SHA + date + fixture hash) |
 | Public fixtures | Acceptance tests (benign vs should_block) in the Ra-Thor repo |
 | Policy | Admit **None/Low** only · block **Medium+** · reject payloads > 4 MiB |
 
@@ -32,7 +33,9 @@ This matches the contract language in [`docs/WHITEHAT_PROCUREMENT_TIER_A.md`](..
 
 3. **Pin the Ra-Thor `ref:`** (see [Pinning](#pinning-recommended-for-production) below).
 
-4. Open a PR that touches a scanned path — the gate runs automatically.
+4. Fill [`PROVENANCE_TEMPLATE.md`](PROVENANCE_TEMPLATE.md) and attach it to your change ticket / vendor record.
+
+5. Open a PR that touches a scanned path — the gate runs automatically.
 
 ---
 
@@ -69,7 +72,21 @@ Prefer an annotated / signed tag (e.g. `v14.15.5-whitehat` or similar) once the 
 - [ ] `cargo test -p mercy-security` green on the pinned commit  
 - [ ] Public fixture smoke still admits benign / blocks should_block  
 - [ ] Your internal model cards and loaders still pass or are intentionally reviewed  
-- [ ] Record the SHA + date in your change ticket / SBOM note
+- [ ] Record the SHA + date + fixture hashes in [`PROVENANCE_TEMPLATE.md`](PROVENANCE_TEMPLATE.md)
+
+---
+
+## Provenance / SBOM note
+
+Use **[`PROVENANCE_TEMPLATE.md`](PROVENANCE_TEMPLATE.md)** for procurement and AppSec records. It captures:
+
+- Full pin SHA + UTC date + recorder  
+- Fixture `MANIFEST.md` SHA-256 and optional aggregate corpus hash  
+- Direct crate dependencies  
+- Deployment mode (CI / vendor / path / prebuilt)  
+- Validation checkboxes and honesty non-claims  
+
+Commands to generate fixture hashes are included in the template.
 
 ---
 
@@ -120,7 +137,7 @@ Build the binary with `cargo build -p mercy-security --bin mercy-admit` (or your
 
 Build `mercy-admit` on a trusted networked host (`cargo build -p mercy-security --bin mercy-admit --release`), checksum it, and install the binary into the air-gapped image. Re-build when you change the pin. (Not a substitute for source review if your policy requires it.)
 
-**License reminder:** AG-SML v1.0 applies to the gate source. Record provenance (SHA + date) in your internal inventory.
+**License reminder:** AG-SML v1.0 applies to the gate source. Record provenance (SHA + date + fixture hashes) via the template.
 
 ---
 
