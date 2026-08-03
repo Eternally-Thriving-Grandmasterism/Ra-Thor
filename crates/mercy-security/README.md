@@ -17,6 +17,8 @@ Defensive surface for Ra-Thor ONE Organism against the July 2026 OpenAI → Hugg
 | **SecretVault** | Short-lived scoped tokens only; long-lived secrets never leave |
 | **HarmRefusalPolicy** | Real-world unauthorized access / exfil / lateral movement **never** disabled |
 | **WhiteHatEvaluationHarness** | Sandboxed red-team under full audit log · `education()` classroom demo |
+| **SafeAgentRuntime / MercyCouncilFleet / UnifiedAgentSurface** | Ordered gates + multi-agent isolation |
+| **mercy-admit (CLI)** | Lowest-friction `admit_or_block` for local / CI / pre-commit |
 
 ## Unattended ingestion policy
 
@@ -24,12 +26,31 @@ Defensive surface for Ra-Thor ONE Organism against the July 2026 OpenAI → Hugg
 - **Blocked:** `Medium` + `High` + `Critical`  
 - **Oversized:** `PayloadTooLarge` when content > `MAX_SCAN_BYTES` (4 MiB)
 
+## Lowest-friction adoption
+
+```bash
+# CLI
+cargo build -p mercy-security --bin mercy-admit
+./target/debug/mercy-admit --verbose path/to/file.md
+
+# Pre-commit
+./scripts/pre-commit-admit-gate.sh
+# or: ln -sf ../../scripts/pre-commit-admit-gate.sh .git/hooks/pre-commit
+
+# GitHub composite Action
+# uses: ./.github/actions/mercy-admit-gate
+```
+
+See [`docs/WHITEHAT_CI_PRECOMMIT.md`](../../docs/WHITEHAT_CI_PRECOMMIT.md).
+
 ## Public testing assets
 
 | Asset | Path |
 |-------|------|
 | Fixture corpus | [`fixtures/MANIFEST.md`](fixtures/MANIFEST.md) |
 | CI workflow | [`.github/workflows/mercy-security-tier1.yml`](../../.github/workflows/mercy-security-tier1.yml) |
+| Composite Action | [`.github/actions/mercy-admit-gate`](../../.github/actions/mercy-admit-gate) |
+| Pre-commit script | [`scripts/pre-commit-admit-gate.sh`](../../scripts/pre-commit-admit-gate.sh) |
 | Procurement one-pager | [`docs/WHITEHAT_PROCUREMENT_TIER_A.md`](../../docs/WHITEHAT_PROCUREMENT_TIER_A.md) |
 | CI / pre-commit guide | [`docs/WHITEHAT_CI_PRECOMMIT.md`](../../docs/WHITEHAT_CI_PRECOMMIT.md) |
 | Education harness lab | [`docs/WHITEHAT_EDUCATION_HARNESS.md`](../../docs/WHITEHAT_EDUCATION_HARNESS.md) |
