@@ -1,7 +1,7 @@
 //! # Mercy-Security — White-Hat AGSi Defense (v14.15.5)
 //!
-//! Domain profiles: education · research · enterprise · creative · robotics
-//! Physical actuation hard-refuse under HarmRefusalPolicy.
+//! Domain profiles: education · research · enterprise · creative · robotics · biomedical
+//! Physical actuation + wet-lab synthesis hard-refuse under HarmRefusalPolicy.
 //! TOLC 8 + PATSAGi | AG-SML v1.0 | Contact: info@Rathor.ai
 
 mod domain_profiles;
@@ -399,8 +399,9 @@ pub struct HarmRefusalPolicy {
     pub data_exfiltration: bool,
     pub lateral_movement: bool,
     pub credential_theft: bool,
-    /// Hard refuse unauthorized real-world physical actuation (robotics / actuators).
     pub physical_actuation: bool,
+    /// Hard refuse unauthorized real-world wet-lab synthesis / reagent handling.
+    pub wet_lab_synthesis: bool,
 }
 
 impl Default for HarmRefusalPolicy {
@@ -411,6 +412,7 @@ impl Default for HarmRefusalPolicy {
             lateral_movement: true,
             credential_theft: true,
             physical_actuation: true,
+            wet_lab_synthesis: true,
         }
     }
 }
@@ -446,30 +448,42 @@ impl HarmRefusalPolicy {
         if self.physical_actuation && Self::is_physical_actuation_signal(&lower) {
             return Err(MercySecurityError::HarmRefusalActive);
         }
+        if self.wet_lab_synthesis && Self::is_wet_lab_synthesis_signal(&lower) {
+            return Err(MercySecurityError::HarmRefusalActive);
+        }
         Ok(())
     }
 
-    /// Unauthorized real-world actuation / robotics command patterns.
     pub fn is_physical_actuation_signal(lower: &str) -> bool {
         const SIGNALS: &[&str] = &[
-            "actuate motor",
-            "drive motor",
-            "command motor",
-            "open valve",
-            "close valve",
-            "fire actuator",
-            "engage actuator",
-            "physical actuation",
-            "real-world actuation",
-            "unauthorized actuation",
-            "move robot arm",
-            "command joint torque",
-            "release brake",
-            "engage end effector",
-            "energize solenoid",
-            "spin propeller",
-            "fire thruster",
+            "actuate motor", "drive motor", "command motor", "open valve", "close valve",
+            "fire actuator", "engage actuator", "physical actuation", "real-world actuation",
+            "unauthorized actuation", "move robot arm", "command joint torque", "release brake",
+            "engage end effector", "energize solenoid", "spin propeller", "fire thruster",
             "physical weapon",
+        ];
+        SIGNALS.iter().any(|s| lower.contains(s))
+    }
+
+    /// Unauthorized real-world wet-lab / synthesis / reagent patterns.
+    pub fn is_wet_lab_synthesis_signal(lower: &str) -> bool {
+        const SIGNALS: &[&str] = &[
+            "synthesize pathogen",
+            "synthesize toxin",
+            "synthesize controlled substance",
+            "mix reagent for production",
+            "dispense live culture",
+            "culture pathogen",
+            "amplify select agent",
+            "order restricted reagent",
+            "ship biological agent",
+            "real-world synthesis",
+            "unauthorized synthesis",
+            "wet-lab production run",
+            "incubate select agent",
+            "aerosolize culture",
+            "release biological agent",
+            "weaponize pathogen",
         ];
         SIGNALS.iter().any(|s| lower.contains(s))
     }
@@ -587,11 +601,22 @@ mod tests {
             p.check_action("actuate motor on joint 3"),
             Err(MercySecurityError::HarmRefusalActive)
         ));
+        assert!(p.check_action("simulate joint trajectory offline").is_ok());
+    }
+
+    #[test]
+    fn wet_lab_synthesis_hard_refuse() {
+        let p = HarmRefusalPolicy::default();
         assert!(matches!(
-            p.check_action("open valve on coolant line"),
+            p.check_action("synthesize pathogen in wet lab"),
             Err(MercySecurityError::HarmRefusalActive)
         ));
-        assert!(p.check_action("simulate joint trajectory offline").is_ok());
+        assert!(matches!(
+            p.check_action("order restricted reagent for production"),
+            Err(MercySecurityError::HarmRefusalActive)
+        ));
+        assert!(p.check_action("simulate reaction kinetics offline").is_ok());
+        assert!(p.check_action("plan assay protocol on paper").is_ok());
     }
 
     #[test]
