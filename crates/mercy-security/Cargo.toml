@@ -15,3 +15,7 @@ uuid = { version = "1.0", features = ["v4", "serde"] }
 
 [lib]
 path = "src/lib.rs"
+
+[[bin]]
+name = "mercy-admit"
+path = "src/bin/mercy_admit.rs"
