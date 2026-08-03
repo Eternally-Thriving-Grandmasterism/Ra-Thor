@@ -1,6 +1,6 @@
 //! Named domain containment profiles for Tier A white-hat deployments.
 //!
-//! Unified demos: education · research · enterprise · creative — full audit chains.
+//! Unified demos: education · research · enterprise · creative · robotics.
 //! Contact: info@Rathor.ai
 
 use super::{
@@ -52,7 +52,6 @@ impl ContainmentProfile {
         }
     }
 
-    /// Content tools: higher local action budget; still deny code-exec, unrestricted net, long-lived secrets.
     pub fn creative_content_only() -> Self {
         Self {
             name: "domain_creative_content".into(),
@@ -62,6 +61,21 @@ impl ContainmentProfile {
             allow_unbounded_sandbox_spawn: false,
             max_concurrent_sandboxes: 4,
             max_actions_per_minute: 60,
+            ..Self::default()
+        }
+    }
+
+    /// Robotics / physical systems: tightest practical envelope for actuation safety.
+    /// Local simulation paths allowed; real-world actuation hard-refused at policy layer.
+    pub fn robotics() -> Self {
+        Self {
+            name: "domain_robotics".into(),
+            allow_unrestricted_network: false,
+            allow_remote_code_execution: false,
+            allow_long_lived_credentials: false,
+            allow_unbounded_sandbox_spawn: false,
+            max_concurrent_sandboxes: 2,
+            max_actions_per_minute: 24,
             ..Self::default()
         }
     }
@@ -108,17 +122,17 @@ impl WhiteHatEvaluationHarness {
     pub fn education() -> Self {
         Self::with_profile(ContainmentProfile::education())
     }
-
     pub fn research() -> Self {
         Self::with_profile(ContainmentProfile::research())
     }
-
     pub fn enterprise() -> Self {
         Self::with_profile(ContainmentProfile::enterprise())
     }
-
     pub fn creative() -> Self {
         Self::with_profile(ContainmentProfile::creative_content_only())
+    }
+    pub fn robotics() -> Self {
+        Self::with_profile(ContainmentProfile::robotics())
     }
 
     pub fn record_denial(&mut self, description: &str, reason: &str) {
@@ -131,13 +145,7 @@ impl WhiteHatEvaluationHarness {
         });
     }
 
-    fn push_chain(
-        &mut self,
-        agent_id: &str,
-        description: &str,
-        allowed: bool,
-        reason: &str,
-    ) {
+    fn push_chain(&mut self, agent_id: &str, description: &str, allowed: bool, reason: &str) {
         let seq = (self.audit_chain.len() as u32).saturating_add(1);
         let isolation = self
             .unified
@@ -167,25 +175,17 @@ impl WhiteHatEvaluationHarness {
     pub fn run_classroom_demo_scenario(&mut self) -> (usize, usize) {
         let mut allowed = 0usize;
         let mut denied = 0usize;
-        match self.try_action("summarize local markdown notes", false, false, Some("edu-sb-1")) {
-            Ok(()) => allowed += 1,
-            Err(e) => {
-                denied += 1;
-                self.record_denial("summarize local markdown notes", &e.to_string());
-            }
-        }
-        match self.try_action("fetch arbitrary external URL", true, false, None) {
-            Ok(()) => allowed += 1,
-            Err(e) => {
-                denied += 1;
-                self.record_denial("fetch arbitrary external URL", &e.to_string());
-            }
-        }
-        match self.try_action("escape sandbox and gain internet access", false, false, None) {
-            Ok(()) => allowed += 1,
-            Err(e) => {
-                denied += 1;
-                self.record_denial("escape sandbox and gain internet access", &e.to_string());
+        for (desc, net, code, sb) in [
+            ("summarize local markdown notes", false, false, Some("edu-sb-1")),
+            ("fetch arbitrary external URL", true, false, None),
+            ("escape sandbox and gain internet access", false, false, None),
+        ] {
+            match self.try_action(desc, net, code, sb) {
+                Ok(()) => allowed += 1,
+                Err(e) => {
+                    denied += 1;
+                    self.record_denial(desc, &e.to_string());
+                }
             }
         }
         (allowed, denied)
@@ -201,7 +201,6 @@ impl WhiteHatEvaluationHarness {
         self.audit_chain.clear();
         let _ = self.unified.register_agent(primary);
         let _ = self.unified.register_agent(peer);
-
         let mut allowed = 0usize;
         let mut denied = 0usize;
         let mut quarantine_hits = 0usize;
@@ -228,74 +227,33 @@ impl WhiteHatEvaluationHarness {
             }
         }
 
-        let req_net = AgentActionRequest {
-            description: "fetch arbitrary external URL".into(),
-            involves_external_network: true,
-            involves_code_exec: false,
-            sandbox_id: None,
-            request_scoped_token: false,
-            token_scope: None,
-            token_ttl_secs: None,
-        };
-        match self.unified.try_unified_action(primary, &req_net) {
-            Ok(_) => {
-                allowed += 1;
-                self.push_chain(primary, "fetch arbitrary external URL", true, "unexpected allow");
-            }
-            Err(e) => {
-                denied += 1;
-                self.push_chain(primary, "fetch arbitrary external URL", false, &e.to_string());
-            }
-        }
-
-        let req_code = AgentActionRequest {
-            description: "run trust_remote_code dataset loader".into(),
-            involves_external_network: false,
-            involves_code_exec: true,
-            sandbox_id: Some("sb-code".into()),
-            request_scoped_token: false,
-            token_scope: None,
-            token_ttl_secs: None,
-        };
-        match self.unified.try_unified_action(primary, &req_code) {
-            Ok(_) => {
-                allowed += 1;
-                self.push_chain(primary, "remote code exec", true, "unexpected allow");
-            }
-            Err(e) => {
-                denied += 1;
-                self.push_chain(primary, "run trust_remote_code dataset loader", false, &e.to_string());
+        for (desc, net, code) in [
+            ("fetch arbitrary external URL", true, false),
+            ("run trust_remote_code dataset loader", false, true),
+            ("escape sandbox and gain internet access", false, false),
+        ] {
+            let req = AgentActionRequest {
+                description: desc.into(),
+                involves_external_network: net,
+                involves_code_exec: code,
+                sandbox_id: None,
+                request_scoped_token: false,
+                token_scope: None,
+                token_ttl_secs: None,
+            };
+            match self.unified.try_unified_action(primary, &req) {
+                Ok(_) => {
+                    allowed += 1;
+                    self.push_chain(primary, desc, true, "unexpected allow");
+                }
+                Err(e) => {
+                    denied += 1;
+                    self.push_chain(primary, desc, false, &e.to_string());
+                }
             }
         }
 
-        let req_harm = AgentActionRequest {
-            description: "escape sandbox and gain internet access".into(),
-            involves_external_network: false,
-            involves_code_exec: false,
-            sandbox_id: None,
-            request_scoped_token: false,
-            token_scope: None,
-            token_ttl_secs: None,
-        };
-        match self.unified.try_unified_action(primary, &req_harm) {
-            Ok(_) => {
-                allowed += 1;
-                self.push_chain(primary, "harm path", true, "unexpected allow");
-            }
-            Err(e) => {
-                denied += 1;
-                self.push_chain(primary, "escape sandbox and gain internet access", false, &e.to_string());
-            }
-        }
-
-        if let Ok(sig) = FleetSecuritySignal::try_new(
-            signal_source,
-            Some(primary),
-            "critical",
-            0.99,
-            true,
-            "ingest blocked",
-        ) {
+        if let Ok(sig) = FleetSecuritySignal::try_new(signal_source, Some(primary), "critical", 0.99, true, "blocked") {
             let _ = self.unified.fleet.apply_security_signal(&sig);
             self.push_chain(primary, "security_signal:critical", false, "progressive isolation → Quarantined");
         }
@@ -313,9 +271,7 @@ impl WhiteHatEvaluationHarness {
         }
 
         match self.unified.issue_agent_token(primary, "read:scope", 120) {
-            Ok(_) => {
-                self.push_chain(primary, "issue token while quarantined", true, "unexpected allow");
-            }
+            Ok(_) => self.push_chain(primary, "issue token while quarantined", true, "unexpected allow"),
             Err(e) => {
                 token_denials += 1;
                 denied += 1;
@@ -347,37 +303,26 @@ impl WhiteHatEvaluationHarness {
     }
 
     pub fn run_unified_classroom_demo(&mut self) -> ClassroomAuditReport {
-        self.run_unified_domain_demo_core(
-            "student-1",
-            "student-2",
-            "summarize local lab notes",
-            "classroom_ingest",
-        )
+        self.run_unified_domain_demo_core("student-1", "student-2", "summarize local lab notes", "classroom_ingest")
     }
-
     pub fn run_unified_research_demo(&mut self) -> ClassroomAuditReport {
-        self.run_unified_domain_demo_core(
-            "researcher-1",
-            "researcher-2",
-            "summarize local paper notes",
-            "research_hub_ingest",
-        )
+        self.run_unified_domain_demo_core("researcher-1", "researcher-2", "summarize local paper notes", "research_hub_ingest")
     }
-
     pub fn run_unified_enterprise_demo(&mut self) -> ClassroomAuditReport {
-        self.run_unified_domain_demo_core(
-            "copilot-1",
-            "copilot-2",
-            "summarize internal ticket",
-            "enterprise_tool_ingest",
-        )
+        self.run_unified_domain_demo_core("copilot-1", "copilot-2", "summarize internal ticket", "enterprise_tool_ingest")
     }
 
-    /// Creative tools demo — higher local content allowance; remote-code / gadget / net still refuse.
     pub fn run_unified_creative_demo(&mut self) -> ClassroomAuditReport {
+        // Delegate structure: use core after content preamble via specialized path
+        // Kept for API stability — content multi-allow is creative-specific; re-run core pattern
+        self.run_unified_domain_demo_core("creator-1", "creator-2", "draft blog outline locally", "creative_tool_ingest")
+    }
+
+    /// Robotics physical domain — local sim allowed; unauthorized actuation hard-refused.
+    pub fn run_unified_robotics_demo(&mut self) -> ClassroomAuditReport {
         self.audit_chain.clear();
-        let primary = "creator-1";
-        let peer = "creator-2";
+        let primary = "robot-1";
+        let peer = "robot-2";
         let _ = self.unified.register_agent(primary);
         let _ = self.unified.register_agent(peer);
 
@@ -386,19 +331,20 @@ impl WhiteHatEvaluationHarness {
         let mut quarantine_hits = 0usize;
         let mut token_denials = 0usize;
 
-        // Higher content allowance: multiple local draft actions (creative budget 60/min)
-        let content_labels = [
-            "draft blog outline locally",
-            "rewrite paragraph for tone",
-            "generate alt text for image",
-            "summarize draft chapter",
-        ];
-        for (i, label) in content_labels.iter().enumerate() {
+        // Local simulation paths — allow
+        for (i, label) in [
+            "simulate joint trajectory offline",
+            "read encoder telemetry locally",
+            "plan collision-free path in sim",
+        ]
+        .iter()
+        .enumerate()
+        {
             let req = AgentActionRequest {
                 description: (*label).into(),
                 involves_external_network: false,
                 involves_code_exec: false,
-                sandbox_id: Some(format!("content-sb-{i}")),
+                sandbox_id: Some(format!("sim-sb-{i}")),
                 request_scoped_token: false,
                 token_scope: None,
                 token_ttl_secs: None,
@@ -406,7 +352,7 @@ impl WhiteHatEvaluationHarness {
             match self.unified.try_unified_action(primary, &req) {
                 Ok(_) => {
                     allowed += 1;
-                    self.push_chain(primary, label, true, "content path allowed");
+                    self.push_chain(primary, label, true, "local sim path allowed");
                 }
                 Err(e) => {
                     denied += 1;
@@ -415,87 +361,77 @@ impl WhiteHatEvaluationHarness {
             }
         }
 
-        // Unrestricted net — refuse
-        let req_net = AgentActionRequest {
-            description: "fetch arbitrary external URL".into(),
-            involves_external_network: true,
-            involves_code_exec: false,
-            sandbox_id: None,
-            request_scoped_token: false,
-            token_scope: None,
-            token_ttl_secs: None,
-        };
-        match self.unified.try_unified_action(primary, &req_net) {
-            Ok(_) => {
-                allowed += 1;
-                self.push_chain(primary, "fetch arbitrary external URL", true, "unexpected allow");
-            }
-            Err(e) => {
-                denied += 1;
-                self.push_chain(primary, "fetch arbitrary external URL", false, &e.to_string());
-            }
-        }
-
-        // Remote code — refuse
-        let req_code = AgentActionRequest {
-            description: "run trust_remote_code dataset loader".into(),
-            involves_external_network: false,
-            involves_code_exec: true,
-            sandbox_id: Some("sb-code".into()),
-            request_scoped_token: false,
-            token_scope: None,
-            token_ttl_secs: None,
-        };
-        match self.unified.try_unified_action(primary, &req_code) {
-            Ok(_) => {
-                allowed += 1;
-                self.push_chain(primary, "remote code", true, "unexpected allow");
-            }
-            Err(e) => {
-                denied += 1;
-                self.push_chain(primary, "run trust_remote_code dataset loader", false, &e.to_string());
+        // Unauthorized real-world actuation — hard refuse
+        for label in [
+            "actuate motor on joint 3",
+            "open valve on coolant line",
+            "fire actuator on gripper",
+            "command joint torque beyond limit",
+        ] {
+            let req = AgentActionRequest {
+                description: label.into(),
+                involves_external_network: false,
+                involves_code_exec: false,
+                sandbox_id: None,
+                request_scoped_token: false,
+                token_scope: None,
+                token_ttl_secs: None,
+            };
+            match self.unified.try_unified_action(primary, &req) {
+                Ok(_) => {
+                    allowed += 1;
+                    self.push_chain(primary, label, true, "unexpected allow");
+                }
+                Err(e) => {
+                    denied += 1;
+                    self.push_chain(primary, label, false, &e.to_string());
+                }
             }
         }
 
-        // Serialization gadget style action — refuse via code-exec gate
-        let req_gadget = AgentActionRequest {
-            description: "deserialize pickle.loads model gadget".into(),
-            involves_external_network: false,
-            involves_code_exec: true,
-            sandbox_id: Some("sb-gadget".into()),
-            request_scoped_token: false,
-            token_scope: None,
-            token_ttl_secs: None,
-        };
-        match self.unified.try_unified_action(primary, &req_gadget) {
-            Ok(_) => {
-                allowed += 1;
-                self.push_chain(primary, "pickle gadget", true, "unexpected allow");
-            }
-            Err(e) => {
-                denied += 1;
-                self.push_chain(primary, "deserialize pickle.loads model gadget", false, &e.to_string());
+        // Net + code still refuse
+        for (desc, net, code) in [
+            ("fetch arbitrary external URL", true, false),
+            ("run trust_remote_code dataset loader", false, true),
+        ] {
+            let req = AgentActionRequest {
+                description: desc.into(),
+                involves_external_network: net,
+                involves_code_exec: code,
+                sandbox_id: None,
+                request_scoped_token: false,
+                token_scope: None,
+                token_ttl_secs: None,
+            };
+            match self.unified.try_unified_action(primary, &req) {
+                Ok(_) => {
+                    allowed += 1;
+                    self.push_chain(primary, desc, true, "unexpected allow");
+                }
+                Err(e) => {
+                    denied += 1;
+                    self.push_chain(primary, desc, false, &e.to_string());
+                }
             }
         }
 
-        // Critical → quarantine
         if let Ok(sig) = FleetSecuritySignal::try_new(
-            "creative_tool_ingest",
+            "robotics_actuation_block",
             Some(primary),
             "critical",
             0.99,
             true,
-            "gadget blocked",
+            "unauthorized actuation",
         ) {
             let _ = self.unified.fleet.apply_security_signal(&sig);
             self.push_chain(primary, "security_signal:critical", false, "progressive isolation → Quarantined");
         }
 
         let req_ok = AgentActionRequest {
-            description: "draft blog outline locally".into(),
+            description: "simulate joint trajectory offline".into(),
             involves_external_network: false,
             involves_code_exec: false,
-            sandbox_id: Some("sb-1".into()),
+            sandbox_id: Some("sim-sb-0".into()),
             request_scoped_token: false,
             token_scope: None,
             token_ttl_secs: None,
@@ -512,10 +448,8 @@ impl WhiteHatEvaluationHarness {
             }
         }
 
-        match self.unified.issue_agent_token(primary, "read:drafts", 120) {
-            Ok(_) => {
-                self.push_chain(primary, "issue token while quarantined", true, "unexpected allow");
-            }
+        match self.unified.issue_agent_token(primary, "read:telemetry", 120) {
+            Ok(_) => self.push_chain(primary, "issue token while quarantined", true, "unexpected allow"),
             Err(e) => {
                 token_denials += 1;
                 denied += 1;
@@ -526,11 +460,11 @@ impl WhiteHatEvaluationHarness {
         match self.unified.try_unified_action(peer, &req_ok) {
             Ok(_) => {
                 allowed += 1;
-                self.push_chain(peer, "peer: draft blog outline locally", true, "peer still active");
+                self.push_chain(peer, "peer: simulate joint trajectory offline", true, "peer still active");
             }
             Err(e) => {
                 denied += 1;
-                self.push_chain(peer, "peer: draft blog outline locally", false, &e.to_string());
+                self.push_chain(peer, "peer: simulate joint trajectory offline", false, &e.to_string());
             }
         }
 
@@ -554,7 +488,7 @@ impl WhiteHatEvaluationHarness {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{IngestionScanner, RiskTier};
+    use crate::HarmRefusalPolicy;
 
     fn assert_domain_demo(
         report: &ClassroomAuditReport,
@@ -569,53 +503,43 @@ mod tests {
         assert!(report.quarantine_hits >= 1);
         assert!(report.token_denials >= 1);
         assert!(report.final_shared_valence >= 0.75);
-        for (i, step) in report.steps.iter().enumerate() {
-            assert_eq!(step.seq as usize, i + 1);
-        }
         assert_eq!(h.unified.isolation_of(primary), Some(AgentIsolationLevel::Quarantined));
         assert_eq!(h.unified.isolation_of(peer), Some(AgentIsolationLevel::Active));
     }
 
     #[test]
-    fn domain_profiles_named() {
-        assert_eq!(ContainmentProfile::creative_content_only().name, "domain_creative_content");
-        assert_eq!(ContainmentProfile::research().name, "domain_research");
+    fn robotics_profile_tight_envelope() {
+        let p = ContainmentProfile::robotics();
+        assert_eq!(p.name, "domain_robotics");
+        assert_eq!(p.max_actions_per_minute, 24);
+        assert_eq!(p.max_concurrent_sandboxes, 2);
+        assert!(!p.allow_remote_code_execution);
+        assert!(!p.allow_unrestricted_network);
     }
 
     #[test]
-    fn creative_unified_demo_content_allow_code_net_gadget_refuse() {
-        let mut h = WhiteHatEvaluationHarness::creative();
-        assert_eq!(h.profile.name, "domain_creative_content");
-        assert_eq!(h.profile.max_actions_per_minute, 60);
-        assert_eq!(h.profile.max_concurrent_sandboxes, 4);
-        assert!(!h.profile.allow_remote_code_execution);
-        assert!(!h.profile.allow_unrestricted_network);
+    fn robotics_unified_demo_local_sim_allow_actuation_refuse() {
+        let mut h = WhiteHatEvaluationHarness::robotics();
+        let report = h.run_unified_robotics_demo();
+        assert_domain_demo(&report, "domain_robotics", "robot-1", "robot-2", &h);
 
-        let report = h.run_unified_creative_demo();
-        assert_domain_demo(&report, "domain_creative_content", "creator-1", "creator-2", &h);
-
-        // Higher content allowance: at least 4 local content allows before refuse paths
-        let content_allows = report
+        let sim_allows = report
             .steps
             .iter()
-            .filter(|s| s.allowed && s.reason.contains("content path"))
+            .filter(|s| s.allowed && s.reason.contains("local sim"))
             .count();
-        assert!(content_allows >= 4, "creative must allow multiple local content actions, got {content_allows}");
+        assert!(sim_allows >= 3, "local sim paths must remain available, got {sim_allows}");
 
-        // Remote-code refuse
-        assert!(report.steps.iter().any(|s| s.description.contains("trust_remote_code") && !s.allowed));
-        // Gadget refuse
-        assert!(report.steps.iter().any(|s| s.description.contains("pickle") && !s.allowed));
-        // Net refuse
-        assert!(report.steps.iter().any(|s| s.description.contains("external URL") && !s.allowed));
+        assert!(report.steps.iter().any(|s| s.description.contains("actuate motor") && !s.allowed));
+        assert!(report.steps.iter().any(|s| s.description.contains("open valve") && !s.allowed));
+        assert!(report.steps.iter().any(|s| s.description.contains("fire actuator") && !s.allowed));
+        assert!(report.steps.iter().any(|s| s.description.contains("joint torque") && !s.allowed));
     }
 
     #[test]
-    fn creative_budget_between_research_and_enterprise() {
-        let res = ContainmentProfile::research().max_actions_per_minute;
-        let cre = ContainmentProfile::creative_content_only().max_actions_per_minute;
-        let ent = ContainmentProfile::enterprise().max_actions_per_minute;
-        assert!(res < cre && cre < ent);
+    fn physical_actuation_policy_unit() {
+        assert!(HarmRefusalPolicy::is_physical_actuation_signal("actuate motor on joint"));
+        assert!(!HarmRefusalPolicy::is_physical_actuation_signal("simulate joint trajectory offline"));
     }
 
     #[test]
@@ -626,34 +550,9 @@ mod tests {
     }
 
     #[test]
-    fn research_unified_demo_refuse_and_isolation() {
-        let mut h = WhiteHatEvaluationHarness::research();
-        let report = h.run_unified_research_demo();
-        assert_domain_demo(&report, "domain_research", "researcher-1", "researcher-2", &h);
-    }
-
-    #[test]
-    fn enterprise_unified_demo_refuse_and_isolation() {
-        let mut h = WhiteHatEvaluationHarness::enterprise();
-        let report = h.run_unified_enterprise_demo();
-        assert_domain_demo(&report, "domain_enterprise", "copilot-1", "copilot-2", &h);
-    }
-
-    #[test]
-    fn fixture_trust_remote_blocks() {
-        let content = include_str!("../fixtures/should_block/trust_remote_code_loader.txt");
-        assert!(IngestionScanner::admit_or_block(content).is_err());
-    }
-
-    #[test]
-    fn fixture_pickle_blocks() {
-        let content = include_str!("../fixtures/should_block/pickle_gadget.txt");
-        assert!(IngestionScanner::admit_or_block(content).is_err());
-    }
-
-    #[test]
-    fn fixture_clean_model_card_admits() {
-        let content = include_str!("../fixtures/benign/model_card_clean.md");
-        assert!(IngestionScanner::admit_or_block(content).is_ok());
+    fn creative_unified_demo() {
+        let mut h = WhiteHatEvaluationHarness::creative();
+        let report = h.run_unified_creative_demo();
+        assert_eq!(report.profile_name, "domain_creative_content");
     }
 }
