@@ -5,6 +5,7 @@
 //!
 //! Core capabilities:
 //! - Hard containment profiles (network, code execution, credential visibility)
+//! - Named domain profiles: research / enterprise / education / creative
 //! - Deep multi-layer IngestionScanner (remote-code, template injection, gadgets, C2, obfuscation)
 //! - Autonomous action governor (rate limits, volume anomaly, C2-like patterns)
 //! - Secret isolation (agents never receive long-lived credentials)
@@ -13,6 +14,8 @@
 //!
 //! Policy (unattended ingest): block Medium + High + Critical (only None/Low admitted).
 //! TOLC 8 + PATSAGi aligned | AG-SML v1.0 | Contact: info@Rathor.ai
+
+mod domain_profiles;
 
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
@@ -121,6 +124,8 @@ impl ContainmentProfile {
         Ok(())
     }
 }
+
+// Domain presets (research / enterprise / education / creative) live in domain_profiles.rs
 
 // =============================================================================
 // 2. Deep Ingestion Scanner
@@ -294,7 +299,6 @@ impl IngestionScanner {
             ("environment.from_string", 0.88),
             ("mako.template", 0.85),
             ("string.template", 0.60),
-            // Removed ultra-noisy format(/%s/f") — too many clean-doc FPs
         ]
     }
 
@@ -316,7 +320,6 @@ impl IngestionScanner {
         &[
             ("aws_secret_access_key", 0.95),
             ("aws_access_key_id", 0.90),
-            // Generic api_key lowered to reduce clean-doc FPs; PEM/provider keys stay high
             ("api_key", 0.52),
             ("apikey", 0.52),
             ("private_key", 0.85),
@@ -352,11 +355,9 @@ impl IngestionScanner {
                 });
             }
         }
-        let _ = original; // reserved for future exact-case offset
+        let _ = original;
     }
 
-    /// Full multi-layer scan. Does not block; returns structured risk.
-    /// Rejects payloads larger than [`MAX_SCAN_BYTES`] via empty findings + caller gate.
     pub fn scan_text(content: &str) -> IngestionScanResult {
         if content.len() > MAX_SCAN_BYTES {
             return IngestionScanResult {
@@ -468,7 +469,6 @@ impl IngestionScanner {
             (0.65 * max_conf + 0.35 * (sum_conf / findings.len() as f32)).clamp(0.0, 1.0)
         };
 
-        // Hard-exec elevation requires meaningful confidence (FP tuning).
         let has_hard_exec = findings.iter().any(|f| {
             matches!(
                 f.threat,
@@ -494,7 +494,6 @@ impl IngestionScanner {
             RiskTier::None
         };
 
-        // Unattended policy: only None / Low are safe. Medium+ blocked.
         let safe = matches!(risk_tier, RiskTier::None | RiskTier::Low);
 
         let details: Vec<String> = findings
@@ -519,8 +518,6 @@ impl IngestionScanner {
         }
     }
 
-    /// Hard gate for unattended ingest: blocks Medium + High + Critical.
-    /// Only None / Low pass. Oversized payloads → PayloadTooLarge.
     pub fn admit_or_block(content: &str) -> Result<IngestionScanResult, MercySecurityError> {
         if content.len() > MAX_SCAN_BYTES {
             return Err(MercySecurityError::PayloadTooLarge(content.len()));
@@ -538,7 +535,6 @@ impl IngestionScanner {
         Ok(result)
     }
 
-    /// Alternate policy: block only Critical (High/Medium left to human review).
     pub fn admit_or_block_critical_only(content: &str) -> Result<IngestionScanResult, MercySecurityError> {
         if content.len() > MAX_SCAN_BYTES {
             return Err(MercySecurityError::PayloadTooLarge(content.len()));
@@ -783,6 +779,8 @@ impl Default for WhiteHatEvaluationHarness {
     }
 }
 
+// Education / research / enterprise constructors + classroom demo: domain_profiles.rs
+
 // =============================================================================
 // Top-level facade
 // =============================================================================
@@ -801,6 +799,13 @@ impl MercySecuritySurface {
         }
     }
 
+    pub fn with_domain_profile(profile: ContainmentProfile) -> Self {
+        Self {
+            default_profile: profile,
+            refusal: HarmRefusalPolicy::default(),
+        }
+    }
+
     pub fn scan_ingestion(&self, content: &str) -> Result<IngestionScanResult, MercySecurityError> {
         IngestionScanner::admit_or_block(content)
     }
@@ -814,7 +819,7 @@ impl MercySecuritySurface {
     }
 
     pub fn evaluation_harness(&self) -> WhiteHatEvaluationHarness {
-        WhiteHatEvaluationHarness::new()
+        WhiteHatEvaluationHarness::with_profile(self.default_profile.clone())
     }
 }
 
@@ -890,7 +895,6 @@ mod tests {
 
     #[test]
     fn lone_generic_api_key_not_forced_high() {
-        // FP tuning: mentioning api_key alone must not force High/Critical
         let content = "Configure your api_key in the settings panel.";
         let r = IngestionScanner::scan_text(content);
         assert!(r.risk_tier < RiskTier::High);
@@ -942,7 +946,6 @@ mod tests {
         });
         assert!(gov.record_and_check("a", Some("s1")).is_ok());
         assert!(gov.record_and_check("b", Some("s2")).is_ok());
-        // 3rd distinct sandbox must trip (candidate included in unique set)
         assert!(matches!(
             gov.record_and_check("c", Some("s3")),
             Err(MercySecurityError::ActionLimitExceeded(_))
