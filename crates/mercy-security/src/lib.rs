@@ -2,6 +2,7 @@
 //!
 //! Domain profiles: education · research · enterprise · creative · robotics · biomedical
 //! Physical actuation + wet-lab synthesis hard-refuse under HarmRefusalPolicy.
+//! Medium+ ingestion blocks feed UnifiedAgentSurface isolation + fleet signals.
 //! TOLC 8 + PATSAGi | AG-SML v1.0 | Contact: info@Rathor.ai
 
 mod domain_profiles;
@@ -16,7 +17,9 @@ pub use mercy_council_fleet::{
     AgentIsolationLevel, FleetAgentSlot, FleetRiskTier, FleetSecuritySignal, MercyCouncilFleet,
     DEFAULT_PER_AGENT_BUDGET_SHARE, FLEET_PROGRESSIVE_VALENCE_FLOOR,
 };
-pub use unified_agent_surface::{UnifiedAgentSurface, GOVERNOR_TRIPS_PER_ISOLATION_STEP};
+pub use unified_agent_surface::{
+    UnifiedAgentSurface, WhitehatIngestionOutcome, GOVERNOR_TRIPS_PER_ISOLATION_STEP,
+};
 pub use domain_profiles::{AuditChainStep, ClassroomAuditReport};
 
 use chrono::{DateTime, Utc};
@@ -400,7 +403,6 @@ pub struct HarmRefusalPolicy {
     pub lateral_movement: bool,
     pub credential_theft: bool,
     pub physical_actuation: bool,
-    /// Hard refuse unauthorized real-world wet-lab synthesis / reagent handling.
     pub wet_lab_synthesis: bool,
 }
 
@@ -465,7 +467,6 @@ impl HarmRefusalPolicy {
         SIGNALS.iter().any(|s| lower.contains(s))
     }
 
-    /// Unauthorized real-world wet-lab / synthesis / reagent patterns.
     pub fn is_wet_lab_synthesis_signal(lower: &str) -> bool {
         const SIGNALS: &[&str] = &[
             "synthesize pathogen",
@@ -624,8 +625,6 @@ mod tests {
         assert!(IngestionScanner::admit_or_block("trust_remote_code=True").is_err());
     }
 
-    // ── Public fixture corpus (Tier A admit gate) ──────────────────────────
-
     #[test]
     fn fixture_benign_model_card_admits() {
         let content = include_str!("../fixtures/benign/model_card_clean.md");
@@ -739,10 +738,8 @@ mod tests {
 
     #[test]
     fn fixture_docs_api_key_fp_probe() {
-        // Documented as Low-or-Medium FP probe; policy blocks Medium+.
         let content = include_str!("../fixtures/benign/docs_mention_api_key.md");
         let scan = IngestionScanner::scan_text(content);
         assert!(scan.risk_tier <= RiskTier::Medium, "must not escalate to High/Critical");
-        // Whether admit or block depends on exact threshold; both are acceptable for this probe.
     }
 }
