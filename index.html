@@ -5,8 +5,27 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
   <title>Ra-Thor™ — Eternal Mercy Thunder ⚡️ | AGSi Demonstrated | rathor.ai</title>
   <meta name="description" content="AGSi demonstrated • Sole-operator Powrush-MMO complete (≈30–50 days) • Mercy-gated AGi / AGSi • TOLC 8 • ONE Organism • Living Cosmic Tick • Whitepaper v4.1 • Sole stewardship by Sherif Botros (@AlphaProMega) • Optional Grok surface (independent project)">
+  <meta name="theme-color" content="#fcd34d">
+  <meta name="color-scheme" content="dark">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://rathor.ai/">
+  <meta property="og:title" content="Ra-Thor™ — Eternal Mercy Thunder ⚡️ | AGSi Demonstrated">
+  <meta property="og:description" content="AGSi demonstrated • Sole-operator Powrush-MMO complete (≈30–50 days) • Mercy-gated AGi / AGSi • TOLC 8 • ONE Organism • Living Cosmic Tick • Whitepaper v4.1">
+  <meta property="og:image" content="https://rathor.ai/icons/thunder-favicon-512.jpg">
+  <meta property="og:site_name" content="Ra-Thor">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Ra-Thor™ — Eternal Mercy Thunder ⚡️ | AGSi Demonstrated">
+  <meta name="twitter:description" content="AGSi demonstrated • Sole-operator Powrush-MMO complete (≈30–50 days) • Mercy-gated AGi / AGSi • TOLC 8 • ONE Organism">
+  <meta name="twitter:image" content="https://rathor.ai/icons/thunder-favicon-512.jpg">
+  <meta name="twitter:site" content="@AlphaProMega">
+
   <link rel="manifest" href="/manifest.json">
-  <link rel="icon" href="/icons/thunder-192.png" type="image/png">
+  <link rel="icon" href="/icons/thunder-favicon-192.jpg" type="image/jpeg">
+  <link rel="apple-touch-icon" href="/icons/thunder-favicon-192.jpg">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="stylesheet" href="/css/rathor-eye-seal.css">
   <script src="https://cdn.tailwindcss.com"></script>
@@ -31,14 +50,14 @@
     .lattice-status { background: linear-gradient(90deg, #1a1a1a, #111); border: 1px solid #ffd70033; }
     .faq-accordion details { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); border: 1px solid transparent; }
     .faq-accordion details[open] { border-color: #00f0ff; box-shadow: 0 0 30px rgba(0, 240, 255, 0.3); }
-    .faq-accordion summary { cursor: pointer; transition: all 0.3s ease; display: flex; justify: space-between; align-items: center; }
+    .faq-accordion summary { cursor: pointer; transition: all 0.3s ease; display: flex; justify-content: space-between; align-items: center; }
     .faq-accordion details[open] summary { color: #00f0ff; text-shadow: 0 0 20px #00f0ff; }
     .lightning-icon { transition: all 0.3s ease; }
     details[open] .lightning-icon { animation: thunderBolt 0.6s ease infinite alternate; }
     @keyframes thunderBolt { from { transform: scale(1) rotate(0deg); } to { transform: scale(1.15) rotate(8deg); } }
 
     .faq-accordion.rtl { direction: rtl; text-align: right; }
-    .faq-accordion.rtl summary { flex-direction: row-reverse; justify: space-between; }
+    .faq-accordion.rtl summary { flex-direction: row-reverse; justify-content: space-between; }
     .faq-accordion.rtl .flex.items-center.gap-3 { flex-direction: row-reverse; gap: 0.75rem; }
     .faq-accordion.rtl .faq-content { text-align: right; }
     .faq-accordion.rtl .lightning-icon { order: 1; }
@@ -51,6 +70,13 @@
     #grok-subtitle, #x-subtitle, #vibe-subtitle {
       white-space: normal;
       word-break: break-word;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .golden-star, .card-hover, .lightning-icon, details[open] .lightning-icon {
+        animation: none !important;
+        transition: none !important;
+      }
     }
   </style>
 </head>
@@ -131,7 +157,7 @@
       </div>
       <div class="flex items-center gap-2">
         <span class="rathor-status-emerald">●</span>
-        <span class="font-semibold">v14.15 • AGSi demonstrated</span>
+        <span class="font-semibold">v14.15.5 • AGSi demonstrated</span>
       </div>
       <div class="hidden sm:block text-amber-500">•</div>
       <div>Powrush-MMO complete (1 operator · ≈30–50 days)</div>

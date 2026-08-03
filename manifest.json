@@ -1,28 +1,27 @@
 {
-  "name": "Ra-Thor Sovereign AGI",
-  "short_name": "RaThor",
-  "start_url": "/ra-thor-standalone-demo.html",
+  "name": "Ra-Thor — Eternal Mercy Thunder",
+  "short_name": "Ra-Thor",
+  "start_url": "/",
   "display": "standalone",
   "background_color": "#000000",
-  "theme_color": "#00ff9d",
+  "theme_color": "#fcd34d",
+  "orientation": "any",
   "icons": [
     {
-      "src": "/icons/icon-192.png",
+      "src": "/icons/thunder-favicon-192.jpg",
       "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "type": "image/jpeg",
+      "purpose": "any"
     },
     {
-      "src": "/icons/icon-512.png",
+      "src": "/icons/thunder-favicon-512.jpg",
       "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "type": "image/jpeg",
+      "purpose": "any"
     }
   ],
   "scope": "/",
-  "description": "Offline mercy-aligned AGI — eternal convergence, no suffering",
-  "offline_capable": true,
-  "launch_handler": {
-    "client_mode": "navigate-existing"
-  }
+  "description": "AGSi demonstrated • Mercy-gated AGi / AGSi lattice • TOLC 8 • ONE Organism • Living Cosmic Tick • Sole stewardship by Sherif Samy Botros • Independent project",
+  "lang": "en",
+  "categories": ["productivity", "education", "utilities"]
 }
