@@ -11,26 +11,18 @@ Defensive surface for Ra-Thor ONE Organism against the July 2026 OpenAI → Hugg
 | Module | Role |
 |--------|------|
 | **ContainmentProfile** | Network, code-exec, credential, sandbox-spawn bounds |
+| **Domain presets** | `research` · `enterprise` · `education` · `creative_content_only` |
 | **IngestionScanner** | Multi-layer scan + combination rules; **4 MiB max** payload |
 | **ActionGovernor** | Rate limits + sandbox-churn (candidate included in unique set) |
 | **SecretVault** | Short-lived scoped tokens only; long-lived secrets never leave |
 | **HarmRefusalPolicy** | Real-world unauthorized access / exfil / lateral movement **never** disabled |
-| **WhiteHatEvaluationHarness** | Sandboxed red-team under full audit log |
+| **WhiteHatEvaluationHarness** | Sandboxed red-team under full audit log · `education()` classroom demo |
 
 ## Unattended ingestion policy
 
 - **Admitted:** `None` / `Low` only  
 - **Blocked:** `Medium` + `High` + `Critical`  
 - **Oversized:** `PayloadTooLarge` when content > `MAX_SCAN_BYTES` (4 MiB)
-
-Alternate API: `admit_or_block_critical_only` — blocks Critical only (High/Medium for human review).
-
-## Risk model (FP-tuned)
-
-- `RiskTier`: None → Low → Medium → High → Critical  
-- High requires hard-exec confidence ≥ **0.82** or combination rules  
-- Lone generic `api_key` / low-conf `getattr` no longer force High  
-- PEM / provider keys / `trust_remote_code` / combos remain Critical/High
 
 ## Public testing assets
 
@@ -40,27 +32,27 @@ Alternate API: `admit_or_block_critical_only` — blocks Critical only (High/Med
 | CI workflow | [`.github/workflows/mercy-security-tier1.yml`](../../.github/workflows/mercy-security-tier1.yml) |
 | Procurement one-pager | [`docs/WHITEHAT_PROCUREMENT_TIER_A.md`](../../docs/WHITEHAT_PROCUREMENT_TIER_A.md) |
 | CI / pre-commit guide | [`docs/WHITEHAT_CI_PRECOMMIT.md`](../../docs/WHITEHAT_CI_PRECOMMIT.md) |
+| Education harness lab | [`docs/WHITEHAT_EDUCATION_HARNESS.md`](../../docs/WHITEHAT_EDUCATION_HARNESS.md) |
 | Release notes | [`RELEASE_NOTES_v14.15.5.md`](../../RELEASE_NOTES_v14.15.5.md) |
 
 ```bash
 cargo test -p mercy-security
 ```
 
-## Organism integration
+## Domain profiles (quick)
 
-`ra-thor-one-organism` (v14.15.5+) exposes:
+```rust
+use mercy_security::{ContainmentProfile, WhiteHatEvaluationHarness, MercySecuritySurface};
 
-- `ingest_content_report(content)` — scan only  
-- `admit_ingestion(content, source_label)` — Cosmic Loop + scan + anomaly/handoff on block  
-- `try_admit_ingestion(...)` — soft report wrapper
-
-PATSAGi Councils (v14.15.10+) may receive blocked signals via `security_support` (`deliberate_security_block`). Auto-wire is optional (no circular dep).
+let research = ContainmentProfile::research();
+let mut lab = WhiteHatEvaluationHarness::education();
+let (allowed, denied) = lab.run_classroom_demo_scenario();
+let surface = MercySecuritySurface::with_domain_profile(ContainmentProfile::enterprise());
+```
 
 ## Design stance
 
 - Evaluation mode exists but **never** removes real-world harm refusals  
-- Dataset / model / config surfaces are first-class attack vectors  
-- Cosmic Loop + TOLC 8 + Mercy Gates remain non-bypassable  
 - White-hat only — defensive, not offensive tooling  
 - Pattern gate is defense-in-depth, not a full malware detector
 
