@@ -14,7 +14,8 @@
 |-------|---------|
 | [`workflow.example.yml`](workflow.example.yml) | Ready-to-copy GitHub Actions workflow |
 | [`PROVENANCE_TEMPLATE.md`](PROVENANCE_TEMPLATE.md) | SBOM / provenance note (SHA + date + fixture hash) |
-| Public fixtures | Acceptance tests (benign vs should_block) in the Ra-Thor repo |
+| [`PACK.md`](PACK.md) | **Frozen procurement pack file list** for external packaging |
+| Public fixtures | Acceptance tests via `crates/mercy-security/fixtures/MANIFEST.md` |
 | Policy | Admit **None/Low** only · block **Medium+** · reject payloads > 4 MiB |
 
 This matches the contract language in [`docs/WHITEHAT_PROCUREMENT_TIER_A.md`](../../docs/WHITEHAT_PROCUREMENT_TIER_A.md).
@@ -36,6 +37,8 @@ This matches the contract language in [`docs/WHITEHAT_PROCUREMENT_TIER_A.md`](..
 4. Fill [`PROVENANCE_TEMPLATE.md`](PROVENANCE_TEMPLATE.md) and attach it to your change ticket / vendor record.
 
 5. Open a PR that touches a scanned path — the gate runs automatically.
+
+For offline / vendor handoff archives, follow **[`PACK.md`](PACK.md)**.
 
 ---
 
@@ -87,6 +90,18 @@ Use **[`PROVENANCE_TEMPLATE.md`](PROVENANCE_TEMPLATE.md)** for procurement and A
 - Validation checkboxes and honesty non-claims  
 
 Commands to generate fixture hashes are included in the template.
+
+---
+
+## Procurement pack (external packaging)
+
+**[`PACK.md`](PACK.md)** freezes the file list for vendor handoff / offline zip:
+
+- Core: README, workflow, provenance template, PACK itself  
+- Acceptance pointer: `crates/mercy-security/fixtures/MANIFEST.md` + `benign/` + `should_block/`  
+- Recommended docs: procurement one-pager, CI guide, crate README, release notes  
+- Explicit non-inclusions (no live exploits, no full monorepo claim)  
+- `tar` recipe from a pinned SHA  
 
 ---
 
@@ -168,6 +183,7 @@ Reference fixtures (public):
 
 - Benign: `crates/mercy-security/fixtures/benign/`
 - Should-block: `crates/mercy-security/fixtures/should_block/`
+- Inventory: `crates/mercy-security/fixtures/MANIFEST.md`
 
 ---
 
