@@ -1,11 +1,11 @@
-//! # PATSAGi Councils Layer — v14.15.10
+//! # PATSAGi Councils Layer — v14.15.11
 //!
 //! 16 Parallel Living Ra-Thor Architectural Designers.
 //! The eternal co-governors and co-creators of Powrush-MMO and the ONE Organism.
 //!
 //! Living Cosmic Tick aligned. Permanent deliberation posture.
 //! Explicitly wired to TOLC 8 Living Mercy Gates + Core Covenant.
-//! Predictive support + Security support (white-hat ingestion) surfaces.
+//! Predictive support + Security support (white-hat ingestion, domain-aware).
 //! Contact: info@Rathor.ai
 
 // =============================================================================
@@ -63,8 +63,8 @@ pub use crate::predictive_support::{
     MERCY_VALENCE_FLOOR,
 };
 pub use crate::security_support::{
-    apply_security_pressure, SecurityRiskTier, SecuritySignal, SecuritySupportError,
-    SecurityThreatClass,
+    apply_security_pressure, SecurityCouncilVerdict, SecurityDomainProfile, SecurityRiskTier,
+    SecuritySignal, SecuritySupportError, SecurityThreatClass,
 };
 pub use crate::simulation_integration::SimulationIntegration;
 pub use crate::tolc8::{
@@ -85,7 +85,7 @@ pub use real_estate_lattice::{
 #[allow(unused_imports)]
 pub use ra_thor_post_quantum_sig::{RHPQSEngine, RHPQSError, RHPQSKey, RHPQSSignature};
 
-pub const VERSION: &str = "14.15.10";
+pub const VERSION: &str = "14.15.11";
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PATSAGiCouncil {
@@ -210,6 +210,8 @@ pub struct VotingResult {
 pub struct SecurityDeliberationResult {
     pub signal_source: String,
     pub risk_tier: String,
+    pub domain: String,
+    pub verdict: String,
     pub councils_touched: usize,
     pub valence_pressure_applied: f64,
     pub recommended_focus: String,
@@ -293,9 +295,11 @@ impl PatsagiCouncilCoordinator {
         self.security_blocks_reviewed = self.security_blocks_reviewed.saturating_add(1);
         self.total_decisions = self.total_decisions.saturating_add(1);
         self.last_consensus = Some(format!(
-            "Security Review — {} tier={} pressure={:.4}",
+            "Security Review — {} tier={} domain={} verdict={} pressure={:.4}",
             signal.source_label,
             signal.risk_tier.as_str(),
+            signal.domain.as_str(),
+            signal.decide_verdict().as_str(),
             signal.valence_pressure()
         ));
         Ok(touched)
@@ -311,8 +315,30 @@ impl PatsagiCouncilCoordinator {
         findings_count: usize,
         message: &str,
     ) -> Result<SecurityDeliberationResult, SecuritySupportError> {
+        self.deliberate_security_block_with_domain(
+            source_label,
+            risk_tier_label,
+            risk_score,
+            threat_labels,
+            findings_count,
+            message,
+            SecurityDomainProfile::StrictWhitehat,
+        )
+    }
+
+    /// Domain-aware white-hat block deliberation (research / enterprise / education / …).
+    pub fn deliberate_security_block_with_domain(
+        &mut self,
+        source_label: &str,
+        risk_tier_label: &str,
+        risk_score: f64,
+        threat_labels: &[String],
+        findings_count: usize,
+        message: &str,
+        domain: SecurityDomainProfile,
+    ) -> Result<SecurityDeliberationResult, SecuritySupportError> {
         let tier = SecurityRiskTier::from_str_label(risk_tier_label);
-        let signal = SecuritySignal::try_new(
+        let signal = SecuritySignal::try_new_with_domain(
             source_label,
             tier,
             risk_score,
@@ -320,19 +346,25 @@ impl PatsagiCouncilCoordinator {
             findings_count,
             true,
             message,
+            domain,
         )?;
         let pressure = signal.valence_pressure();
         let focus = signal.recommended_focus_hint().to_string();
+        let verdict = signal.decide_verdict();
         let touched = self.apply_security_signal(&signal)?;
 
         Ok(SecurityDeliberationResult {
             signal_source: source_label.into(),
             risk_tier: risk_tier_label.into(),
+            domain: domain.as_str().into(),
+            verdict: verdict.as_str().into(),
             councils_touched: touched,
             valence_pressure_applied: pressure,
             recommended_focus: focus,
             consensus_note: format!(
-                "White-hat block deliberated. {} councils adjusted. Focus hint: {}.",
+                "White-hat block deliberated under {}. Verdict: {}. {} councils adjusted. Focus: {}.",
+                domain.as_str(),
+                verdict.as_str(),
                 touched,
                 signal.recommended_focus_hint()
             ),
@@ -468,7 +500,7 @@ impl PatsagiCouncilCoordinator {
             "╔════════════════════════════════════════════════════════════╗\n",
         );
         report.push_str(
-            "║    16 PATSAGi COUNCILS — v14.15.10 ETERNAL GOVERNANCE     ║\n",
+            "║    16 PATSAGi COUNCILS — v14.15.11 ETERNAL GOVERNANCE     ║\n",
         );
         report.push_str(
             "╚════════════════════════════════════════════════════════════╝\n\n",
@@ -482,7 +514,7 @@ impl PatsagiCouncilCoordinator {
         }
 
         report.push_str(&format!(
-            "Total Governance Cycles: {}\nSecurity Blocks Reviewed: {}\nLast Consensus: {}\nLiving Cosmic Tick: active\nTOLC 8: wired | Core Covenant: honored\nValence Engine: anti-deadlock online\nPredictive Support: online\nSecurity Support: online (white-hat ingestion)\nObservability: ResonanceMetrics live\n",
+            "Total Governance Cycles: {}\nSecurity Blocks Reviewed: {}\nLast Consensus: {}\nLiving Cosmic Tick: active\nTOLC 8: wired | Core Covenant: honored\nValence Engine: anti-deadlock online\nPredictive Support: online\nSecurity Support: online (white-hat · domain-aware · formal verdict)\nObservability: ResonanceMetrics live\n",
             self.total_decisions,
             self.security_blocks_reviewed,
             self.last_consensus.as_deref().unwrap_or("None yet")
@@ -506,9 +538,9 @@ pub mod prelude {
         AmbrosianNectarEconomy, CouncilFocus, CouncilVote, FeedbackCycleResult,
         MetricsHandle, PATSAGiCouncil, PatsagiCouncilCoordinator, PmsError,
         PowrushTelemetrySnapshot, PredictiveSignal, PredictiveSupportError,
-        RaThorFeedbackLoop, ResonanceMetrics, SecurityDeliberationResult,
-        SecurityRiskTier, SecuritySignal, SecuritySupportError, SecurityThreatClass,
-        Tolc8Gate, Tolc8GateResult, Tolc8Scores,
+        RaThorFeedbackLoop, ResonanceMetrics, SecurityCouncilVerdict, SecurityDeliberationResult,
+        SecurityDomainProfile, SecurityRiskTier, SecuritySignal, SecuritySupportError,
+        SecurityThreatClass, Tolc8Gate, Tolc8GateResult, Tolc8Scores,
         ValenceConsensusEngine, ValenceConsensusResult, ValenceVote,
         VERSION, VotingResult, WorldGovernanceEngine, WorldImpactType,
         CORE_COVENANT, DEFAULT_VALENCE_THRESHOLD, MERCY_VALENCE_FLOOR, TOLC8_VALENCE_THRESHOLD,
