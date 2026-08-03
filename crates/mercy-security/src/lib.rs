@@ -2,14 +2,15 @@
 //!
 //! - Containment + domain profiles + IngestionScanner
 //! - SafeAgentRuntime (ordered gates, governor trips first, scoped tokens ≤900s)
-//! - MercyCouncilFleet (shared valence floors, progressive isolation, anti-starvation,
-//!   security_support-style inputs, collective harm refusal)
+//! - MercyCouncilFleet (shared valence, progressive isolation, anti-starvation)
+//! - UnifiedAgentSurface (runtime ↔ fleet: governor trips → isolation; quarantine blocks act+token)
 //!
 //! TOLC 8 + PATSAGi aligned | AG-SML v1.0 | Contact: info@Rathor.ai
 
 mod domain_profiles;
 mod safe_agent_runtime;
 mod mercy_council_fleet;
+mod unified_agent_surface;
 
 pub use safe_agent_runtime::{
     AgentActionReceipt, AgentActionRequest, SafeAgentRuntime, AGENT_TOKEN_MAX_TTL_SECS,
@@ -17,6 +18,9 @@ pub use safe_agent_runtime::{
 pub use mercy_council_fleet::{
     AgentIsolationLevel, FleetAgentSlot, FleetRiskTier, FleetSecuritySignal, MercyCouncilFleet,
     DEFAULT_PER_AGENT_BUDGET_SHARE, FLEET_PROGRESSIVE_VALENCE_FLOOR,
+};
+pub use unified_agent_surface::{
+    UnifiedAgentSurface, GOVERNOR_TRIPS_PER_ISOLATION_STEP,
 };
 
 use chrono::{DateTime, Utc};
@@ -389,6 +393,9 @@ impl MercySecuritySurface {
     pub fn evaluation_harness(&self) -> WhiteHatEvaluationHarness { WhiteHatEvaluationHarness::with_profile(self.default_profile.clone()) }
     pub fn safe_agent_runtime(&self) -> SafeAgentRuntime { SafeAgentRuntime::new(self.default_profile.clone()) }
     pub fn mercy_council_fleet(&self) -> MercyCouncilFleet { MercyCouncilFleet::new(self.default_profile.clone()) }
+    pub fn unified_agent_surface(&self) -> UnifiedAgentSurface {
+        UnifiedAgentSurface::new(MercyCouncilFleet::new(self.default_profile.clone()))
+    }
 }
 impl Default for MercySecuritySurface { fn default() -> Self { Self::new() } }
 
