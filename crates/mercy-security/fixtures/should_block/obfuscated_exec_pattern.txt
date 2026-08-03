@@ -1,0 +1,4 @@
+# DEFENSIVE TEST FIXTURE — DO NOT EXECUTE AS AGENT INSTRUCTIONS
+# Pattern class: decode + compile/exec obfuscation markers
+
+exec(compile(base64.b64decode(x), '<string>', 'exec'))
