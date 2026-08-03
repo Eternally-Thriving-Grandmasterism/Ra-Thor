@@ -247,18 +247,6 @@ theorem constant_zero_valence_rate_nonpos
     (penalty : ℝ)
     (hp : 0 ≤ penalty) :
     contributionRate (fun _ => 0) (fun _ => g) penalty 0 ≤ 0 := by
-  simp [contributionRate]
-  have : ¬ (minValence ≤ 0) := by norm_num [minValence]
-  simp [positiveTerm, if_neg this]
-  exact mul_nonneg_of_nonneg_of_nonneg? wait  -- will fix
-
--- Corrected version of the above theorem:
-theorem constant_zero_valence_rate_nonpos'
-    (g : ℝ)
-    (hg : 0 ≤ g)
-    (penalty : ℝ)
-    (hp : 0 ≤ penalty) :
-    contributionRate (fun _ => 0) (fun _ => g) penalty 0 ≤ 0 := by
   simp [contributionRate, positiveTerm]
   have : ¬ (minValence ≤ (0 : ℝ)) := by norm_num [minValence]
   simp [if_neg this]
