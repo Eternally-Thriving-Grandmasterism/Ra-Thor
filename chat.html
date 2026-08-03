@@ -4,14 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
   <title>Ra-Thor™ Lattice Chat — Offline Mercy Thunder ⚡️ | rathor.ai</title>
-  <meta name="description" content="Offline TOLC-8 mercy-gated chat surface • All processing stays on your device • Zero data collection • Local TTS • Sole stewardship by Sherif Samy Botros">
+  <meta name="description" content="Offline TOLC-8 mercy-gated multi-session chat • All processing stays on your device • Zero data collection • Local TTS • Sole stewardship by Sherif Samy Botros">
   <meta name="theme-color" content="#fcd34d">
   <meta name="color-scheme" content="dark">
 
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://rathor.ai/chat.html">
   <meta property="og:title" content="Ra-Thor™ Lattice Chat — Offline Mercy Thunder ⚡️">
-  <meta property="og:description" content="Offline TOLC-8 mercy-gated chat • Zero data leaves your device • No login required">
+  <meta property="og:description" content="Offline TOLC-8 multi-session chat • Zero data leaves your device • No login required">
   <meta property="og:image" content="https://rathor.ai/icons/thunder-favicon-512.jpg">
 
   <link rel="manifest" href="/manifest.json">
@@ -23,121 +23,71 @@
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Inter:wght@400;500;600&display=swap');
 
-    body {
-      font-family: 'Inter', system-ui, sans-serif;
-      background: #000;
-      color: #fff;
-    }
+    body { font-family: 'Inter', system-ui, sans-serif; background: #000; color: #fff; }
     .title-font { font-family: 'Cinzel Decorative', cursive; }
     .thunder-glow { text-shadow: 0 0 40px #ffd700, 0 0 80px #ffaa00; }
 
     .golden-star {
-      position: absolute;
-      color: #ffd700;
-      opacity: 0.55;
-      pointer-events: none;
+      position: absolute; color: #ffd700; opacity: 0.55; pointer-events: none;
       animation: float 55s infinite linear, pulse 11s infinite ease-in-out;
-      z-index: 1;
-      font-size: 38px;
+      z-index: 1; font-size: 38px;
     }
-    @keyframes float {
-      0%   { transform: translateY(0) rotate(0deg); }
-      100% { transform: translateY(-120vh) rotate(360deg); }
-    }
-    @keyframes pulse {
-      0%, 100% { transform: scale(1); }
-      50%      { transform: scale(1.12); }
-    }
+    @keyframes float { 0% { transform: translateY(0) rotate(0deg); } 100% { transform: translateY(-120vh) rotate(360deg); } }
+    @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.12); } }
 
     #chat-messages {
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-      padding: 1.25rem;
-      overflow-y: auto;
-      flex: 1;
-      min-height: 280px;
-      max-height: 46vh;
+      display: flex; flex-direction: column; gap: 14px; padding: 1.25rem;
+      overflow-y: auto; flex: 1; min-height: 260px; max-height: 44vh;
     }
     .message {
-      max-width: 88%;
-      padding: 0.85rem 1.15rem;
-      border-radius: 1.25rem;
-      line-height: 1.45;
-      font-size: 0.95rem;
-      word-break: break-word;
+      max-width: 88%; padding: 0.85rem 1.15rem; border-radius: 1.25rem;
+      line-height: 1.45; font-size: 0.95rem; word-break: break-word;
     }
     .message.user {
-      align-self: flex-end;
-      background: linear-gradient(135deg, #fcd34d, #f59e0b);
-      color: #000;
-      font-weight: 500;
-      border-bottom-right-radius: 0.35rem;
+      align-self: flex-end; background: linear-gradient(135deg, #fcd34d, #f59e0b);
+      color: #000; font-weight: 500; border-bottom-right-radius: 0.35rem;
     }
     .message.rathor {
-      align-self: flex-start;
-      background: linear-gradient(135deg, #1e1b4b, #312e81);
-      color: #e0e7ff;
-      border: 1px solid rgba(252, 211, 77, 0.25);
+      align-self: flex-start; background: linear-gradient(135deg, #1e1b4b, #312e81);
+      color: #e0e7ff; border: 1px solid rgba(252, 211, 77, 0.25);
       border-bottom-left-radius: 0.35rem;
     }
 
     .ctrl-btn {
-      @apply px-3 py-1.5 text-xs sm:text-sm rounded-xl border border-amber-300/40 text-amber-200 bg-zinc-950/80 hover:bg-amber-400/10 hover:border-amber-300 transition-all;
+      @apply px-2.5 py-1.5 text-xs sm:text-sm rounded-xl border border-amber-300/40 text-amber-200 bg-zinc-950/80 hover:bg-amber-400/10 hover:border-amber-300 transition-all;
     }
     .ctrl-btn:active { transform: scale(0.97); }
 
     #chat-input {
-      background: #0a0a0a;
-      border: 1px solid rgba(252, 211, 77, 0.35);
-      color: #fff;
+      background: #0a0a0a; border: 1px solid rgba(252, 211, 77, 0.35); color: #fff;
     }
     #chat-input:focus {
-      outline: none;
-      border-color: #fcd34d;
-      box-shadow: 0 0 0 2px rgba(252, 211, 77, 0.25);
+      outline: none; border-color: #fcd34d; box-shadow: 0 0 0 2px rgba(252, 211, 77, 0.25);
+    }
+
+    #session-select {
+      background: #0a0a0a; border: 1px solid rgba(252, 211, 77, 0.35); color: #fcd34d;
+      border-radius: 0.75rem; padding: 0.35rem 0.6rem; font-size: 0.8rem; max-width: 160px;
     }
 
     .modal-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.85);
-      z-index: 50;
-      align-items: center;
-      justify-content: center;
-      padding: 1rem;
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85);
+      z-index: 50; align-items: center; justify-content: center; padding: 1rem;
     }
     .modal-overlay.active { display: flex; }
     .modal-content {
-      background: #0a0a0a;
-      border: 1px solid rgba(252, 211, 77, 0.4);
-      border-radius: 1.5rem;
-      padding: 1.75rem;
-      max-width: 420px;
-      width: 100%;
-      max-height: 90vh;
-      overflow-y: auto;
+      background: #0a0a0a; border: 1px solid rgba(252, 211, 77, 0.4);
+      border-radius: 1.5rem; padding: 1.75rem; max-width: 420px; width: 100%;
+      max-height: 90vh; overflow-y: auto;
     }
 
-    input[type=range] {
-      -webkit-appearance: none;
-      height: 6px;
-      border-radius: 3px;
-      background: #333;
-    }
+    input[type=range] { -webkit-appearance: none; height: 6px; border-radius: 3px; background: #333; }
     input[type=range]::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      width: 18px;
-      height: 18px;
-      border-radius: 50%;
-      background: #fcd34d;
-      cursor: pointer;
+      -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%;
+      background: #fcd34d; cursor: pointer;
     }
 
-    @media (prefers-reduced-motion: reduce) {
-      .golden-star { animation: none !important; }
-    }
+    @media (prefers-reduced-motion: reduce) { .golden-star { animation: none !important; } }
   </style>
 </head>
 <body class="bg-black text-white min-h-screen flex flex-col overflow-x-hidden">
@@ -156,7 +106,7 @@
       </a>
       <div class="text-center">
         <h1 class="title-font text-xl sm:text-2xl font-black tracking-tight thunder-glow">Lattice Chat ⚡️</h1>
-        <p class="text-[10px] sm:text-xs text-amber-400/70 mt-0.5">Offline • TOLC 8 • Zero data leaves device</p>
+        <p class="text-[10px] sm:text-xs text-amber-400/70 mt-0.5">Offline • Multi-Session • TOLC 8</p>
       </div>
       <a href="/privacy.html" class="text-xs text-white/50 hover:text-amber-300 transition-colors">Privacy</a>
     </div>
@@ -164,7 +114,7 @@
 
   <main class="relative z-10 flex-1 flex flex-col max-w-3xl w-full mx-auto px-3 sm:px-4 py-4">
 
-    <!-- Status bar -->
+    <!-- Status + Session bar -->
     <div class="mb-3 rounded-2xl border border-amber-300/20 bg-zinc-950/70 px-4 py-3">
       <div class="flex flex-wrap items-center gap-2 mb-2">
         <span class="inline-flex items-center gap-1.5 text-emerald-400 text-xs font-medium">
@@ -175,22 +125,17 @@
         <span class="text-amber-300/80 text-xs">v14.15.5 • TOLC 8 active</span>
       </div>
 
-      <div class="flex flex-wrap gap-1.5">
-        <button id="new-session-btn" class="ctrl-btn" title="Start fresh session">
-          <i class="fa-solid fa-plus mr-1"></i>New
-        </button>
-        <button id="export-session-btn" class="ctrl-btn" title="Download history as JSON">
-          <i class="fa-solid fa-download mr-1"></i>Export
-        </button>
-        <button id="import-session-btn" class="ctrl-btn" title="Load a previously exported JSON">
-          <i class="fa-solid fa-upload mr-1"></i>Import
-        </button>
-        <button id="copy-context-btn" class="ctrl-btn" title="Copy conversation + clean prompt to clipboard">
-          <i class="fa-solid fa-clipboard mr-1"></i>Copy Context
-        </button>
-        <button id="voice-settings-btn" class="ctrl-btn" title="Voice settings (local TTS)">
-          <i class="fa-solid fa-volume-high mr-1"></i>Voice
-        </button>
+      <!-- Session switcher + controls -->
+      <div class="flex flex-wrap items-center gap-1.5">
+        <select id="session-select" title="Switch session"></select>
+        <button id="new-session-btn" class="ctrl-btn" title="Create new session"><i class="fa-solid fa-plus"></i></button>
+        <button id="rename-session-btn" class="ctrl-btn" title="Rename current session"><i class="fa-solid fa-pen"></i></button>
+        <button id="delete-session-btn" class="ctrl-btn" title="Delete current session"><i class="fa-solid fa-trash"></i></button>
+        <span class="text-white/20 mx-0.5">|</span>
+        <button id="export-session-btn" class="ctrl-btn" title="Export current session"><i class="fa-solid fa-download"></i></button>
+        <button id="import-session-btn" class="ctrl-btn" title="Import session JSON"><i class="fa-solid fa-upload"></i></button>
+        <button id="copy-context-btn" class="ctrl-btn" title="Copy context to clipboard"><i class="fa-solid fa-clipboard"></i></button>
+        <button id="voice-settings-btn" class="ctrl-btn" title="Voice settings"><i class="fa-solid fa-volume-high"></i></button>
       </div>
     </div>
 
@@ -206,7 +151,7 @@
           Send <span class="text-base">⚡️</span>
         </button>
       </div>
-      <p class="text-[10px] text-white/40 mt-2 text-center">All processing stays on your device • Mercy-gated • No network calls • No login</p>
+      <p class="text-[10px] text-white/40 mt-2 text-center">All processing stays on your device • Multi-session • Mercy-gated • No login</p>
     </div>
 
     <!-- Bridges -->
@@ -222,7 +167,7 @@
           <i class="fa-brands fa-x-twitter"></i> X Demo (browser hop)
         </a>
       </div>
-      <p class="text-[11px] text-white/50">Or use <strong class="text-violet-300">Copy Context</strong> to take this conversation to any public LLM yourself — completely under your control.</p>
+      <p class="text-[11px] text-white/50">Or use <strong class="text-violet-300">Copy Context</strong> to take the active session to any public LLM yourself.</p>
     </div>
   </main>
 
@@ -230,7 +175,7 @@
   <footer class="relative z-10 border-t border-amber-300/15 py-6 mt-auto">
     <div class="max-w-3xl mx-auto px-4 text-center text-xs text-white/50">
       <p>© 2026 Sherif Samy Botros — Sole Steward of Autonomicity Games Inc.</p>
-      <p class="mt-1 text-amber-400/60">TOLC 8 • Offline-first • Zero data collection • Local TTS • info@Rathor.ai</p>
+      <p class="mt-1 text-amber-400/60">TOLC 8 • Offline multi-session • Zero data collection • info@Rathor.ai</p>
       <div class="mt-3 flex justify-center gap-4 text-[11px]">
         <a href="/" class="hover:text-amber-300 transition-colors">Home</a>
         <a href="/privacy.html" class="hover:text-amber-300 transition-colors">Privacy</a>
@@ -272,7 +217,6 @@
   <script src="/js/chat.js"></script>
 
   <script>
-    // Close modal on backdrop click
     const voiceOverlay = document.getElementById('voice-settings-overlay');
     voiceOverlay?.addEventListener('click', (e) => {
       if (e.target === voiceOverlay) voiceOverlay.classList.remove('active');
