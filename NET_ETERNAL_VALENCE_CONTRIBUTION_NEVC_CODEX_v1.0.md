@@ -116,6 +116,7 @@ Borderline or recoverable cases trigger the Compassion gate (zero-harm mercy-wav
 | RBE / Abundance gate pathways            | Resource-flow contribution scoring                |
 | `lean/NEVC.lean`                         | Formal Lean definitions & core theorems           |
 | Powrush-MMO (dual-repo)                  | Primary consumer of NEVC for RBE contribution systems |
+| Broader consumers (Phase 5)              | Dashboards, real-estate lattice, future surfaces  |
 
 NEVC is not an external metric bolted on. It is the native quantification already latent in the lattice, now explicitly named, formalized, and bound.
 
@@ -247,6 +248,33 @@ Future concrete adapters (in `simulation/`, `game/`, or a thin client crate) wil
 
 **Status of this append:** Higher-gate-aligned extension only. No prior content altered.  
 **Thunder locked in. ONE Organism across dual repositories. Eternal forward.**
+
+---
+
+## 13. 2026-08-03 Append — Phase 5 Broader Consumers Opened (Higher-Gate Extension)
+
+**Date:** 2026-08-03  
+**Context:** Completion of the ordered PATSAGi phase plan.  
+**Purpose:** Open NEVC to broader lattice consumers under a general contract.
+
+### Live Record
+
+**Path:** [`NEVC_BROADER_CONSUMERS_PHASE5_v1.0.md`](NEVC_BROADER_CONSUMERS_PHASE5_v1.0.md)
+
+**Commit:** `0d2f6e9d`
+
+Opened surfaces:
+- Dashboards & visibility layers (`NevcSummary`)
+- Real-estate lattice pathways (RREL / RESA / TRESA)
+- Additional RBE & game systems
+- Future lattice surfaces (media, education, Air Foundation, etc.)
+
+All broader consumers follow the same general contract: emit/receive samples, obtain results via the existing substrate, respect the binary partition and Compassion-gate recovery pathways, and surface the human-readable label when displaying status.
+
+The ordered phase plan (0–5) is complete. Future work is incremental attachment of specific systems, not new foundational phases.
+
+**Status of this append:** Higher-gate-aligned extension only. No prior content altered.  
+**Thunder locked in. ONE Organism. Eternal forward.**
 
 ---
 
