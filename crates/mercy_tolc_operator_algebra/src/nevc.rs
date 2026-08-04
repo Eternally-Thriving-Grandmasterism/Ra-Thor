@@ -89,6 +89,21 @@ impl NevcResult {
     }
 }
 
+/// Horizon weighting model (Phase 4 refinement).
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum HorizonModel {
+    /// Linear emphasis: w(t) = 1 + emphasis · t_norm
+    Linear,
+    /// Exponential tilt toward later samples: w(t) = exp(emphasis · t_norm)
+    Exponential,
+}
+
+impl Default for HorizonModel {
+    fn default() -> Self {
+        HorizonModel::Linear
+    }
+}
+
 /// Configuration for the discrete NEVC integrator.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct NevcConfig {
@@ -97,10 +112,12 @@ pub struct NevcConfig {
     /// Penalty multiplier applied to grief / entropy load.
     pub grief_penalty: f64,
     /// Asymptotic horizon emphasis (higher → more weight on later samples).
-    /// Practical range [0.0, 2.0]. 1.0 is neutral.
+    /// Practical range [0.0, 2.0]. 1.0 is neutral for Linear.
     pub horizon_emphasis: f64,
     /// Soft floor below which a sample contributes zero positive signal.
     pub valence_floor: f64,
+    /// Horizon weighting model (Phase 4).
+    pub horizon_model: HorizonModel,
 }
 
 impl Default for NevcConfig {
@@ -110,7 +127,67 @@ impl Default for NevcConfig {
             grief_penalty: 1.0,
             horizon_emphasis: 1.0,
             valence_floor: 0.999999,
+            horizon_model: HorizonModel::Linear,
         }
+    }
+}
+
+impl NevcConfig {
+    /// Neutral weighting (no horizon tilt).
+    pub fn neutral() -> Self {
+        Self {
+            horizon_emphasis: 0.0,
+            horizon_model: HorizonModel::Linear,
+            ..Default::default()
+        }
+    }
+
+    /// Mild forward emphasis (default linear tilt).
+    pub fn forward_emphasis() -> Self {
+        Self::default()
+    }
+
+    /// Stronger eternal tilt using exponential weighting.
+    pub fn eternal_tilt() -> Self {
+        Self {
+            horizon_emphasis: 1.5,
+            horizon_model: HorizonModel::Exponential,
+            ..Default::default()
+        }
+    }
+}
+
+/// Visibility summary suitable for dashboards, Steam overlays, or in-game UI.
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct NevcSummary {
+    pub class: ContributionClass,
+    pub score: f64,
+    pub sample_count: usize,
+    pub mean_valence: f64,
+    pub total_grief: f64,
+    pub label: &'static str,
+}
+
+impl From<&NevcResult> for NevcSummary {
+    fn from(r: &NevcResult) -> Self {
+        let label = match r.class {
+            ContributionClass::ActiveEternalContributor => "Active Eternal Contributor",
+            ContributionClass::ZombiePartition => "Zombie Partition",
+        };
+        Self {
+            class: r.class,
+            score: r.score,
+            sample_count: r.sample_count,
+            mean_valence: r.mean_valence,
+            total_grief: r.total_grief,
+            label,
+        }
+    }
+}
+
+impl NevcResult {
+    pub fn summary(&self) -> NevcSummary {
+        NevcSummary::from(self)
     }
 }
 
@@ -123,7 +200,7 @@ impl Default for NevcConfig {
 /// ```
 ///
 /// where `positive_term` is zero below the valence floor and grows with
-/// proximity to 1.0, and `w(t)` applies mild asymptotic emphasis.
+/// proximity to 1.0, and `w(t)` applies the selected horizon model.
 pub fn compute_nevc(samples: &[NevcSample], config: &NevcConfig) -> NevcResult {
     if samples.is_empty() {
         return NevcResult {
@@ -149,16 +226,18 @@ pub fn compute_nevc(samples: &[NevcSample], config: &NevcConfig) -> NevcResult {
 
         // Positive contribution only above the floor; grows as v → 1.0
         let positive = if v >= config.valence_floor {
-            // normalized proximity to ideal (1.0)
             let proximity = (v - config.valence_floor) / (1.0 - config.valence_floor).max(1e-12);
             config.positive_weight * proximity
         } else {
             0.0
         };
 
-        // Horizon weight: mild emphasis on later samples (asymptotic tilt)
+        // Horizon weight (Phase 4 models)
         let t_norm = (s.t as f64) / t_max;
-        let w = 1.0 + config.horizon_emphasis * t_norm;
+        let w = match config.horizon_model {
+            HorizonModel::Linear => 1.0 + config.horizon_emphasis * t_norm,
+            HorizonModel::Exponential => (config.horizon_emphasis * t_norm).exp(),
+        };
 
         // Mercy alignment bonus (if components supplied)
         let mercy_bonus = if s.mercy_components.is_empty() {
@@ -166,7 +245,6 @@ pub fn compute_nevc(samples: &[NevcSample], config: &NevcConfig) -> NevcResult {
         } else {
             let mean_m: f64 = s.mercy_components.iter().sum::<f64>()
                 / (s.mercy_components.len().max(1) as f64);
-            // clamp to reasonable range so it cannot dominate
             (0.5 + 0.5 * mean_m.clamp(0.0, 1.0)).clamp(0.5, 1.5)
         };
 
@@ -245,17 +323,10 @@ mod tests {
     fn horizon_emphasis_increases_later_weight() {
         let early = NevcSample::new(Valence::HIGH, 0.0, 0);
         let late = NevcSample::new(Valence::HIGH, 0.0, 100);
-        let cfg_neutral = NevcConfig {
-            horizon_emphasis: 0.0,
-            ..Default::default()
-        };
-        let cfg_emphasize = NevcConfig {
-            horizon_emphasis: 2.0,
-            ..Default::default()
-        };
+        let cfg_neutral = NevcConfig::neutral();
+        let cfg_emphasize = NevcConfig::eternal_tilt();
         let s_neutral = compute_nevc(&[early.clone(), late.clone()], &cfg_neutral).score;
         let s_emph = compute_nevc(&[early, late], &cfg_emphasize).score;
-        // Both positive; emphasis should not invert sign for pure high-valence
         assert!(s_neutral > 0.0 && s_emph > 0.0);
     }
 
@@ -267,5 +338,13 @@ mod tests {
         let r_high = compute_nevc(&[with_high_mercy], &NevcConfig::default());
         let r_low = compute_nevc(&[with_low_mercy], &NevcConfig::default());
         assert!(r_high.score >= r_low.score);
+    }
+
+    #[test]
+    fn summary_label_is_correct() {
+        let r = score_instant(Valence::HIGH, 0.0);
+        let s = r.summary();
+        assert_eq!(s.label, "Active Eternal Contributor");
+        assert!(s.class.is_contributor());
     }
 }
