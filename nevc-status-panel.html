@@ -6,33 +6,13 @@
   <title>NEVC Status · Ra-Thor Lattice</title>
   <style>
     :root {
-      --bg: #0b0b12;
-      --card: #14141f;
-      --border: #2a2a3a;
-      --text: #e8e6f0;
-      --muted: #8b87a0;
-      --contributor: #5eead4;
-      --zombie: #9ca3af;
-      --amber: #fbbf24;
+      --bg: #0b0b12; --card: #14141f; --border: #2a2a3a; --text: #e8e6f0;
+      --muted: #8b87a0; --contributor: #5eead4; --zombie: #9ca3af;
     }
-    body {
-      margin: 0;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: var(--bg);
-      color: var(--text);
-      font-family: "Inter", system-ui, sans-serif;
-    }
-    .panel {
-      width: min(420px, 92vw);
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 1.75rem;
-      box-shadow: 0 0 40px rgba(251, 191, 36, 0.06);
-    }
+    body { margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center;
+      background: var(--bg); color: var(--text); font-family: Inter, system-ui, sans-serif; }
+    .panel { width: min(420px, 92vw); background: var(--card); border: 1px solid var(--border);
+      border-radius: 16px; padding: 1.75rem; box-shadow: 0 0 40px rgba(251, 191, 36, 0.06); }
     .panel.contributor { border-color: var(--contributor); }
     .eyebrow { font-size: 0.7rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
     .label { font-size: 1.5rem; font-weight: 600; margin: 0.5rem 0 1.25rem; }
@@ -41,14 +21,10 @@
     .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; font-size: 0.9rem; }
     .k { color: var(--muted); font-size: 0.75rem; }
     .v { font-family: ui-monospace, monospace; margin-top: 0.2rem; }
-    select {
-      background: #0f0f18;
-      color: var(--text);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 0.4rem 0.6rem;
-    }
+    select { background: #0f0f18; color: var(--text); border: 1px solid var(--border);
+      border-radius: 8px; padding: 0.4rem 0.6rem; }
     .note { margin-top: 1.25rem; font-size: 0.75rem; color: var(--muted); line-height: 1.45; }
+    .feed { margin-top: 0.75rem; font-size: 0.7rem; color: var(--muted); }
   </style>
 </head>
 <body>
@@ -69,9 +45,10 @@
         <option value="eternal">Eternal tilt</option>
       </select>
     </div>
+    <div id="nevc-feed-status" class="feed">Feed: idle</div>
     <p class="note">
       Binary partition only under TOLC 8: Active Eternal Contributor or Zombie Partition.
-      Compassion-gate recovery remains open. Phase 10 visibility surface.
+      Compassion-gate recovery remains open. Finish Pass C live feed polls <code>data/nevc_status.json</code>.
     </p>
   </div>
   <script>
@@ -88,6 +65,21 @@
       document.getElementById('nevc-grief').textContent = Number(s.total_grief ?? 0).toFixed(3);
     }
     window.setNevcSummary = setNevcSummary;
+
+    const FEED_URL = 'data/nevc_status.json';
+    const POLL_MS = 5000;
+    async function pollFeed() {
+      const el = document.getElementById('nevc-feed-status');
+      try {
+        const res = await fetch(FEED_URL + '?t=' + Date.now(), { cache: 'no-store' });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const data = await res.json();
+        setNevcSummary(data);
+        el.textContent = 'Feed: live · ' + (data.updated_at || 'ok');
+      } catch (e) {
+        el.textContent = 'Feed: offline (' + e.message + ') — using last/demo state';
+      }
+    }
     setNevcSummary({
       class: 'ActiveEternalContributor',
       label: 'Active Eternal Contributor',
@@ -96,6 +88,8 @@
       mean_valence: 0.999999,
       total_grief: 0.01
     });
+    pollFeed();
+    setInterval(pollFeed, POLL_MS);
   </script>
 </body>
 </html>

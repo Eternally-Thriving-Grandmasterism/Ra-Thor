@@ -1,0 +1,10 @@
+{
+  "class": "ActiveEternalContributor",
+  "label": "Active Eternal Contributor",
+  "score": 0.42,
+  "sample_count": 12,
+  "mean_valence": 0.999999,
+  "total_grief": 0.01,
+  "updated_at": "2026-08-04T04:24:00Z",
+  "source": "nevc_live_feed_v1"
+}
