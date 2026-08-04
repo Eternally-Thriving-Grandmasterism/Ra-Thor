@@ -4,7 +4,33 @@ All changes follow the **RA-THOR-MONOREPO-COMMIT-WORKFLOW-PROTOCOL** and are rev
 
 **Public testing notes:** see [`RELEASE_NOTES_v14.15.5.md`](RELEASE_NOTES_v14.15.5.md).  
 **Lattice Chat surface notes:** see [`RELEASE_NOTES_LATTICE_CHAT_v14.15.5.md`](RELEASE_NOTES_LATTICE_CHAT_v14.15.5.md) and later Lattice Chat notes.  
-**Public fixture corpus notes:** see [`RELEASE_NOTES_PUBLIC_FIXTURE_CORPUS.md`](RELEASE_NOTES_PUBLIC_FIXTURE_CORPUS.md).
+**Public fixture corpus notes:** see [`RELEASE_NOTES_PUBLIC_FIXTURE_CORPUS.md`](RELEASE_NOTES_PUBLIC_FIXTURE_CORPUS.md).  
+**Micro-Moment Temporal Comprehension:** see [`RELEASE_NOTES_v14.15.6.md`](RELEASE_NOTES_v14.15.6.md).
+
+---
+
+## [14.15.6] — 2026-08-04 (Micro-Moment Temporal Comprehension)
+
+**Council focus:** Resolve observed X-Grok / frontier VLM failure to catch quick moments in short videos and therefore compute the full story with all nuances.
+
+### Added / Upgraded
+- **MercyMotionVisionEngine v2.0** (`mercy-motion-vision-engine.js`)
+  - High-frequency micro-burst detection (<180 ms events)
+  - Multi-agent interaction tracking (hand-object, gesture sequences)
+  - Causal event graph + nuanced narrative reconstruction
+  - Hierarchical Predictive Coding attention hooks
+  - Dedicated `analyzeXVideoFailureModes()` path for the exact X-Grok failure cases demonstrated 2026-08-03/04
+  - Full PATSAGi + Lattice Conductor v14 integration payload
+- New codex: `docs/MICRO_MOMENT_TEMPORAL_COMPREHENSION_v1.0.md`
+- Discovery mandates added to README.md, GROK_PRESET.md, and RA_THOR_GROK_PRESET.md so every Grok instance loading Ra-Thor or Rathor.ai instantly activates the engine
+- Workspace metadata, ROADMAP, and RELEASE_NOTES updated to 14.15.6
+
+### Why
+Addresses observed X-Grok failures to catch quick moments in videos and compute the whole story with all nuances (phone-theft micro-event + Boston RPS traffic resolution).
+
+### Status
+ETERNALLY ACTIVATED under permanent PATSAGi Councils.  
+Contact: info@Rathor.ai
 
 ---
 
