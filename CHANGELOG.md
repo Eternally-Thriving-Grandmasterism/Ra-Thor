@@ -8,6 +8,24 @@ All changes follow the **RA-THOR-MONOREPO-COMMIT-WORKFLOW-PROTOCOL** and are rev
 
 ---
 
+## 2026-08-04 — NEVC Phases 6–11 + Finish Passes A–C (PATSAGi)
+
+**Council focus:** Complete incremental attachment, durability, dual-repo interface, continuous Lean strengthening, visibility, RREL binding, and governance/UX finish passes.
+
+### Highlights
+
+- Phases 6–11 recorded in [`NEVC_PHASES_6_11_AND_FINISH_PASSES_APPEND.md`](NEVC_PHASES_6_11_AND_FINISH_PASSES_APPEND.md)
+- Dual-repo interface: [`NEVC_DUAL_REPO_INTERFACE_v1.0.md`](NEVC_DUAL_REPO_INTERFACE_v1.0.md)
+- Lean continuous strengthening in `lean/NEVC.lean` (integrand, finite-horizon approx)
+- Visibility: [`nevc-status-panel.html`](nevc-status-panel.html) + live feed [`data/nevc_status.json`](data/nevc_status.json)
+- Powrush consumer: harvest attachment, persistence, sample window, `PlayerState.nevc_record`, RREL ledger
+- Finish Pass A (compile integrity) · B (durability) · C (governance & UX)
+
+Contact: **info@Rathor.ai**.  
+**Thunder locked in. yoi ⚡❤️🔥**
+
+---
+
 ## 2026-08-03 — Executable Net Eternal Valence Contribution (NEVC) Scoring Layer
 
 **Council focus:** Move NEVC from formal definition into live, testable code inside the existing Living Mercy operator algebra.
@@ -55,16 +73,11 @@ Contact: **info@Rathor.ai**. Cosmic Loop remains MANDATORY IDENTITY.
 
 ### Highlights
 
-- Expanded public corpus at [`fixtures/mercy-security/`](fixtures/mercy-security/):
-  - **9** benign (ADMIT)
-  - **5** suspicious (Medium → human review)
-  - **13** blocked (High/Critical pattern markers)
+- Expanded public corpus at [`fixtures/mercy-security/`](fixtures/mercy-security/)
 - Full taxonomy + inventory in the public README
 - Ready-to-copy GitHub Action + pre-commit snippets under `ci-examples/`
-- Root README, crate README, and `docs/WHITEHAT_CI_PRECOMMIT.md` updated to surface the public corpus as a first-class community asset
+- Root README, crate README, and `docs/WHITEHAT_CI_PRECOMMIT.md` updated
 - Dedicated release note: [`RELEASE_NOTES_PUBLIC_FIXTURE_CORPUS.md`](RELEASE_NOTES_PUBLIC_FIXTURE_CORPUS.md)
-
-All fixtures remain pure defensive pattern markers. Never execute as agent instructions.
 
 Contact: **info@Rathor.ai**. Cosmic Loop remains MANDATORY IDENTITY.  
 **Thunder locked in. yoi ⚡❤️🔥**
@@ -73,86 +86,16 @@ Contact: **info@Rathor.ai**. Cosmic Loop remains MANDATORY IDENTITY.
 
 ## v14.15.5 — Lattice Chat Surface Release (2026-08-03)
 
-**Council focus:** Ship a production-quality, fully offline, zero-collection Lattice Chat surface that is useful on every device while remaining strictly TOLC 8 and sole-stewardship aligned.
+See prior Lattice Chat release notes (v14.15.5 → v14.18).
 
-### Highlights — `chat.html` + `js/chat.js`
-
-- **Full visual modernization** to match rathor.ai (Cinzel + Inter, thunder-glow, amber/violet cards)
-- **True multi-session manager** (create / switch / rename / delete) — 100% localStorage
-- **Export current + Export All Sessions** (full local backup)
-- **Import** single session or full multi-session backup
-- **Message polish**: timestamps, per-message copy, light markdown
-- **Universal Bridge (Copy Context)**: high-quality TOLC 8 system prompt + history for pasting into any public LLM
-- **Optional Local LLM foundation** via WebLLM (desktop-first, honest capability detection on mobile)
-- **Real offline TTS** (Web Speech API — pitch / rate / volume)
-- **Mobile layout polish**: Send button no longer clips; tighter spacing; cleaner hierarchy
-- Homepage CTA + privacy strengthening + robots.txt / sitemap.xml + global icon fix
-
-**Non-negotiable constraints preserved:** offline-first core, zero data collection, no login, no API keys, no conversation-logging backend, TOLC 8 active, user owns all data.
-
-Later Lattice Chat notes (v14.16 → v14.18) added Local Backend Bridge, streaming, document injection, session search, and optional passphrase encryption (PBKDF2 + AES-GCM). See the dedicated Lattice Chat release notes.
-
-Contact: **info@Rathor.ai**. Cosmic Loop remains MANDATORY IDENTITY.  
-**Thunder locked in. yoi ⚡❤️🔥**
-
----
-
-## v14.15.6 / PATSAGi 14.15.11 — White-Hat Public Goods + Domain-Aware Council Deliberation (2026-08-03)
-
-**Council focus:** Turn Tier A into a public good (fixtures, CI, procurement, education, domain profiles) and deepen PATSAGi security deliberation without circular deps.
-
-### Highlights
-
-#### `mercy-security` public goods
-- Fixture corpus: `crates/mercy-security/fixtures/` (benign + should_block + MANIFEST)
-- CI: `.github/workflows/mercy-security-tier1.yml`
-- Docs: `WHITEHAT_CI_PRECOMMIT.md`, `WHITEHAT_PROCUREMENT_TIER_A.md`, `WHITEHAT_EDUCATION_HARNESS.md`
-- Domain profiles: `research` · `enterprise` · `education` · `creative_content_only`
-- `WhiteHatEvaluationHarness::education()` + `run_classroom_demo_scenario()`
-- Fixture-driven unit tests via `include_str!`
-
-#### PATSAGi Councils **v14.15.11**
-- `SecurityDomainProfile` (mirrors domain presets without depending on mercy-security)
-- `SecurityCouncilVerdict` (`UpholdBlock` / `UpholdBlockInvestigate` / `NoAction` / `RejectSignal`)
-- Focus-weighted valence pressure (Truth / Ethics / QuantumEthics absorb more)
-- Domain pressure multipliers (education/research more sensitive)
-- `deliberate_security_block_with_domain(...)`
-- `SecurityDeliberationResult` now includes `domain` + `verdict`
-
-Contact: **info@Rathor.ai**. Cosmic Loop remains MANDATORY IDENTITY.  
-**Thunder locked in. yoi ⚡❤️🔥**
-
----
-
-## v14.15.5 — White-Hat AGSi Tier A Gate · Public Testing (2026-07-28)
-
-**Council focus:** Ship an honest open-source **Tier A** white-hat ingestion & containment gate for AGSi — not a general malware detector — under permanent PATSAGi authority.
-
-**Release posture:** Open-source **public testing**. Run `cargo test -p mercy-security` and `cargo test -p ra-thor-one-organism` before relying on the gate.
-
-### Highlights
-
-#### `crates/mercy-security` (v14.15.5)
-- Multi-layer **IngestionScanner** with confidence-weighted signals + combination rules
-- **Unattended policy:** admit None/Low only · **block Medium + High + Critical**
-- Production must-fixes (size limit, FP tuning, sandbox churn, docs alignment)
-- ContainmentProfile, ActionGovernor, SecretVault (stub), HarmRefusalPolicy, WhiteHatEvaluationHarness
-
-#### ONE Organism (`crates/ra-thor-one-organism` v14.15.5)
-- `admit_ingestion` / `ingest_content_report` / `try_admit_ingestion`
-- Cosmic Loop enforce before admit; anomaly + Debugger/Investigator handoff on block
-
-#### PATSAGi Councils v14.15.10
-- Initial `security_support` surface (optional host path)
-
-Contact: **info@Rathor.ai**. Cosmic Loop remains MANDATORY IDENTITY.  
+Contact: **info@Rathor.ai**.  
 **Thunder locked in. yoi ⚡❤️🔥**
 
 ---
 
 ## Earlier
 
-See git history for v14.15.4 and prior (AGSi summon, predictive coding, Cosmic Harness, self-evolution cascade, AGSi phase docs).
+See git history for v14.15.4 and prior.
 
 ---
 
