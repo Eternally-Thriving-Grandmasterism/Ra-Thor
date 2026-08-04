@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NEVC Status · Ra-Thor Lattice</title>
+  <style>
+    :root {
+      --bg: #0b0b12;
+      --card: #14141f;
+      --border: #2a2a3a;
+      --text: #e8e6f0;
+      --muted: #8b87a0;
+      --contributor: #5eead4;
+      --zombie: #9ca3af;
+      --amber: #fbbf24;
+    }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Inter", system-ui, sans-serif;
+    }
+    .panel {
+      width: min(420px, 92vw);
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.75rem;
+      box-shadow: 0 0 40px rgba(251, 191, 36, 0.06);
+    }
+    .panel.contributor { border-color: var(--contributor); }
+    .eyebrow { font-size: 0.7rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+    .label { font-size: 1.5rem; font-weight: 600; margin: 0.5rem 0 1.25rem; }
+    .label.contributor { color: var(--contributor); }
+    .label.zombie { color: var(--zombie); }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; font-size: 0.9rem; }
+    .k { color: var(--muted); font-size: 0.75rem; }
+    .v { font-family: ui-monospace, monospace; margin-top: 0.2rem; }
+    select {
+      background: #0f0f18;
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.4rem 0.6rem;
+    }
+    .note { margin-top: 1.25rem; font-size: 0.75rem; color: var(--muted); line-height: 1.45; }
+  </style>
+</head>
+<body>
+  <div id="nevc-panel" class="panel">
+    <div class="eyebrow">Ra-Thor · Net Eternal Valence Contribution</div>
+    <div id="nevc-label" class="label zombie">Zombie Partition</div>
+    <div class="grid">
+      <div><div class="k">Score</div><div id="nevc-score" class="v">0.000</div></div>
+      <div><div class="k">Samples</div><div id="nevc-samples" class="v">0</div></div>
+      <div><div class="k">Mean Valence</div><div id="nevc-valence" class="v">0.000000</div></div>
+      <div><div class="k">Total Grief</div><div id="nevc-grief" class="v">0.000</div></div>
+    </div>
+    <div style="margin-top:1.25rem;display:flex;justify-content:space-between;align-items:center;gap:0.75rem;">
+      <span class="k">Horizon preset</span>
+      <select id="nevc-horizon">
+        <option value="neutral">Neutral</option>
+        <option value="forward" selected>Forward emphasis</option>
+        <option value="eternal">Eternal tilt</option>
+      </select>
+    </div>
+    <p class="note">
+      Binary partition only under TOLC 8: Active Eternal Contributor or Zombie Partition.
+      Compassion-gate recovery remains open. Phase 10 visibility surface.
+    </p>
+  </div>
+  <script>
+    function setNevcSummary(s) {
+      const ok = s.class === 'ActiveEternalContributor' || s.label === 'Active Eternal Contributor';
+      const panel = document.getElementById('nevc-panel');
+      const label = document.getElementById('nevc-label');
+      panel.classList.toggle('contributor', ok);
+      label.textContent = s.label || (ok ? 'Active Eternal Contributor' : 'Zombie Partition');
+      label.className = 'label ' + (ok ? 'contributor' : 'zombie');
+      document.getElementById('nevc-score').textContent = Number(s.score ?? 0).toFixed(3);
+      document.getElementById('nevc-samples').textContent = String(s.sample_count ?? 0);
+      document.getElementById('nevc-valence').textContent = Number(s.mean_valence ?? 0).toFixed(6);
+      document.getElementById('nevc-grief').textContent = Number(s.total_grief ?? 0).toFixed(3);
+    }
+    window.setNevcSummary = setNevcSummary;
+    setNevcSummary({
+      class: 'ActiveEternalContributor',
+      label: 'Active Eternal Contributor',
+      score: 0.42,
+      sample_count: 12,
+      mean_valence: 0.999999,
+      total_grief: 0.01
+    });
+  </script>
+</body>
+</html>
