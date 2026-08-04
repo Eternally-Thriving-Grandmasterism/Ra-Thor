@@ -1,18 +1,13 @@
 -- lean/NEVC.lean
 -- Net Eternal Valence Contribution (NEVC) Formalization
--- Builds on TOLC8_MercyGate.lean valence substrate
--- Phase 9: continuous / measure-theoretic strengthening
+-- Phase 9 + Finish Pass D: continuous strengthening + improper-limit sketch
 
 /-!
 # Net Eternal Valence Contribution (NEVC)
 
-Formalization of the NEVC Codex
-(`NET_ETERNAL_VALENCE_CONTRIBUTION_NEVC_CODEX_v1.0.md`).
-
-Provides:
-- Discrete definitions (executable Rust surface)
-- Continuous rate, weight, integrand, finite-horizon approximation
-- Integrability conditions and discrete–continuous consistency lemmas
+Formalization of the NEVC Codex.
+Finish Pass D adds an improper-integral limit sketch (Tendsto-style Props)
+without requiring the full Mathlib analysis surface in-tree.
 
 AG-SML v1.0 | Ra-Thor + PATSAGi Councils | info@Rathor.ai
 Thunder locked in. Yoi ⚡
@@ -150,13 +145,11 @@ theorem below_floor_nonpos_term
   simp [hpt]
   exact neg_nonpos_of_nonneg s.grief_nonneg
 
-/-! ## Phase 9 — Continuous Strengthening (Codex §3.3) -/
+/-! ## Continuous Strengthening -/
 
-/-- Continuous contribution rate at time t. -/
 def contributionRate (valence : ℝ → ℝ) (grief : ℝ → ℝ) (penalty : ℝ) (t : ℝ) : ℝ :=
   positiveTerm (valence t) - penalty * (grief t)
 
-/-- Asymptotic weight: non-decreasing in t for non-negative emphasis. -/
 def asymptoticWeight (emphasis : ℝ) (t : ℝ) : ℝ :=
   1 + emphasis * t
 
@@ -169,26 +162,19 @@ theorem asymptoticWeight_mono (emphasis : ℝ) (he : 0 ≤ emphasis)
     asymptoticWeight emphasis t1 ≤ asymptoticWeight emphasis t2 := by
   simp [asymptoticWeight]; nlinarith
 
-/-- Integrand of the infinite-horizon NEVC integral. -/
 def integrand (valence : ℝ → ℝ) (grief : ℝ → ℝ)
     (penalty emphasis : ℝ) (t : ℝ) : ℝ :=
   contributionRate valence grief penalty t * asymptoticWeight emphasis t
 
-/-- Integrability condition (stated as a Prop for future measure work):
-    the absolute integrand is dominated on every compact interval [0, T]. -/
 def IntegrableOnCompact
     (valence : ℝ → ℝ) (grief : ℝ → ℝ) (penalty emphasis T : ℝ) : Prop :=
   ∃ M : ℝ, ∀ t : ℝ, 0 ≤ t → t ≤ T → |integrand valence grief penalty emphasis t| ≤ M
 
-/-- Improper-integrability sketch: finite-horizon integrals remain bounded
-    as T → ∞ (to be discharged per trajectory family). -/
 def ImproperIntegrable
     (valence : ℝ → ℝ) (grief : ℝ → ℝ) (penalty emphasis : ℝ) : Prop :=
   ∃ B : ℝ, ∀ T : ℝ, 0 ≤ T →
     IntegrableOnCompact valence grief penalty emphasis T
 
-/-- Finite-horizon Riemann-style partial sum on a uniform partition of [0, T].
-    This is a constructive stand-in for ∫_0^T integrand(t) dt. -/
 def finiteHorizonApprox
     (valence : ℝ → ℝ) (grief : ℝ → ℝ)
     (penalty emphasis T : ℝ) (n : ℕ) : ℝ :=
@@ -202,24 +188,56 @@ def finiteHorizonApprox
         sum k + integrand valence grief penalty emphasis t * dt
     sum n
 
-/-- Continuous NEVC: ideal object as the improper limit of finite-horizon
-    approximations. For the foundational layer we expose the finite-horizon
-    approximant; full `tendsto` machinery is higher-gate Mathlib work. -/
 def continuousNevcApprox
     (valence : ℝ → ℝ) (grief : ℝ → ℝ)
     (penalty emphasis T : ℝ) (n : ℕ) : ℝ :=
   finiteHorizonApprox valence grief penalty emphasis T n
 
-/-- Sentinel continuousNevc: evaluates the finite-horizon approximant at a
-    default horizon. Replace with true improper integral when Mathlib analysis
-    surface is fully linked in-tree. -/
 def continuousNevc
     (valence : ℝ → ℝ) (grief : ℝ → ℝ)
     (penalty : ℝ := 1) (emphasis : ℝ := 1)
     (T : ℝ := 1) (n : ℕ := 10) : ℝ :=
   continuousNevcApprox valence grief penalty emphasis T n
 
-/-! ### Continuous consistency lemmas -/
+/-! ## Finish Pass D — Improper limit (Tendsto-style sketch) -/
+
+/-- ε-δ style limit statement for the horizon family T ↦ I(T).
+    Stands in for `Tendsto I atTop (𝓝 L)` without requiring full Topology imports. -/
+def HasImproperLimit (I : ℝ → ℝ) (L : ℝ) : Prop :=
+  ∀ ε : ℝ, 0 < ε → ∃ T0 : ℝ, ∀ T : ℝ, T0 ≤ T → |I T - L| < ε
+
+/-- The continuous NEVC ideal is the improper limit of finite-horizon values
+    when such a limit exists. -/
+def continuousNevcLimit
+    (valence : ℝ → ℝ) (grief : ℝ → ℝ)
+    (penalty emphasis : ℝ) (n : ℕ) (L : ℝ) : Prop :=
+  HasImproperLimit (fun T => continuousNevcApprox valence grief penalty emphasis T n) L
+
+/-- For a constant high-valence zero-grief trajectory the integrand is nonnegative,
+    so partial integrals are monotone in T when the weight is nonnegative. -/
+theorem constant_high_valence_integrand_nonneg
+    (v : ℝ) (hv : minValence ≤ v)
+    (penalty emphasis t : ℝ)
+    (he : 0 ≤ emphasis) (ht : 0 ≤ t) :
+    0 ≤ integrand (fun _ => v) (fun _ => 0) penalty emphasis t := by
+  simp [integrand, contributionRate]
+  have hfloor : minValence < 1 := by norm_num [minValence]
+  have hpt : 0 ≤ positiveTerm v := positiveTerm_nonneg v minValence hfloor
+  have hw : 0 ≤ asymptoticWeight emphasis t := le_of_lt (asymptoticWeight_pos emphasis t he ht)
+  exact mul_nonneg hpt hw
+
+/-- Linking: if the improper limit exists and is strictly positive, the continuous
+    object classifies as ActiveEternalContributor. -/
+theorem improper_limit_pos_is_contributor
+    (L : ℝ) (hL : 0 < L) :
+    classFromScore L = ContributionClass.ActiveEternalContributor :=
+  classFromScore_pos L hL
+
+/-- Linking: non-positive improper limit classifies as ZombiePartition. -/
+theorem improper_limit_nonpos_is_zombie
+    (L : ℝ) (hL : L ≤ 0) :
+    classFromScore L = ContributionClass.ZombiePartition :=
+  classFromScore_nonpos L hL
 
 theorem constant_high_valence_rate_nonneg
     (v : ℝ) (hv : minValence ≤ v) (penalty : ℝ := 1) :
@@ -236,27 +254,11 @@ theorem constant_zero_valence_rate_nonpos
   simp [if_neg this]
   exact neg_nonpos_of_nonneg (mul_nonneg hp hg)
 
-/-- Constant high-valence, zero-grief trajectory has non-negative integrand
-    for non-negative emphasis and time. -/
-theorem constant_high_valence_integrand_nonneg
-    (v : ℝ) (hv : minValence ≤ v)
-    (penalty emphasis t : ℝ)
-    (he : 0 ≤ emphasis) (ht : 0 ≤ t) :
-    0 ≤ integrand (fun _ => v) (fun _ => 0) penalty emphasis t := by
-  simp [integrand, contributionRate]
-  have hfloor : minValence < 1 := by norm_num [minValence]
-  have hpt : 0 ≤ positiveTerm v := positiveTerm_nonneg v minValence hfloor
-  have hw : 0 ≤ asymptoticWeight emphasis t := le_of_lt (asymptoticWeight_pos emphasis t he ht)
-  exact mul_nonneg hpt hw
-
-/-- Discrete high-valence zero-grief seed remains strictly positive
-    (links executable surface to continuous positive trajectories). -/
 theorem discrete_matches_continuous_seed
     (s : NevcSample) (hv : minValence ≤ s.valence) (hg : s.griefLoad = 0) :
     0 < computeNevc [s] :=
   high_valence_zero_grief_pos s hv hg
 
-/-- Classification of a continuous approximant via the same binary partition. -/
 def classFromContinuousApprox
     (valence : ℝ → ℝ) (grief : ℝ → ℝ)
     (penalty emphasis T : ℝ) (n : ℕ) : ContributionClass :=

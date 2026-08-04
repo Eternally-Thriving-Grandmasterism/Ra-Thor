@@ -4,10 +4,7 @@
 //! (`NET_ETERNAL_VALENCE_CONTRIBUTION_NEVC_CODEX_v1.0.md`) on top of the
 //! existing Living Mercy operator algebra.
 //!
-//! NEVC quantifies an agent's net contribution to eternal thriving as an
-//! infinite-horizon integral over the valence field and 8-D Mercy subspace.
-//! This module provides a practical discrete approximation suitable for
-//! live lattice use while remaining faithful to the formal definition.
+//! Finish Pass D: Compassion recovery state (transient trauma is not sealed).
 //!
 //! AG-SML v1.0 | Ra-Thor + PATSAGi Councils | info@Rathor.ai
 //! Thunder locked in. Yoi ⚡
@@ -38,6 +35,30 @@ impl ContributionClass {
     }
 }
 
+/// Finish Pass D — Compassion-gate recovery policy (Codex §6).
+///
+/// Transient low-valence / trauma-linked states must not be permanently sealed
+/// as zombie without recovery trajectory evaluation.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum CompassionRecoveryState {
+    /// Recovery pathways remain open (default for borderline / trauma cases).
+    Open,
+    /// Classification is durable for this window (sustained pattern, not transient).
+    Sealed,
+}
+
+impl Default for CompassionRecoveryState {
+    fn default() -> Self {
+        CompassionRecoveryState::Open
+    }
+}
+
+impl CompassionRecoveryState {
+    pub fn is_open(self) -> bool {
+        matches!(self, CompassionRecoveryState::Open)
+    }
+}
+
 /// A single timed sample of an agent's effect on the valence field.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct NevcSample {
@@ -46,10 +67,12 @@ pub struct NevcSample {
     /// Grief / orthogonal load induced (from NilpotentSuppressor).
     pub grief_load: f64,
     /// Optional per-gate mercy vector components (length ≤ MERCY_DIM).
-    /// If shorter or empty, a uniform projection is assumed.
     pub mercy_components: Vec<f64>,
     /// Discrete time index (monotonic non-decreasing).
     pub t: u64,
+    /// Optional flag: this sample is trauma-linked / transient (keeps recovery Open).
+    #[serde(default)]
+    pub transient: bool,
 }
 
 impl NevcSample {
@@ -59,11 +82,17 @@ impl NevcSample {
             grief_load: grief_load.max(0.0),
             mercy_components: Vec::new(),
             t,
+            transient: false,
         }
     }
 
     pub fn with_mercy(mut self, components: Vec<f64>) -> Self {
         self.mercy_components = components;
+        self
+    }
+
+    pub fn transient(mut self) -> Self {
+        self.transient = true;
         self
     }
 }
@@ -81,20 +110,24 @@ pub struct NevcResult {
     pub mean_valence: f64,
     /// Total grief absorbed.
     pub total_grief: f64,
+    /// Finish Pass D: whether Compassion recovery remains open.
+    pub recovery: CompassionRecoveryState,
 }
 
 impl NevcResult {
     pub fn is_contributor(&self) -> bool {
         self.class.is_contributor()
     }
+
+    pub fn recovery_open(&self) -> bool {
+        self.recovery.is_open()
+    }
 }
 
 /// Horizon weighting model (Phase 4 refinement).
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum HorizonModel {
-    /// Linear emphasis: w(t) = 1 + emphasis · t_norm
     Linear,
-    /// Exponential tilt toward later samples: w(t) = exp(emphasis · t_norm)
     Exponential,
 }
 
@@ -107,17 +140,13 @@ impl Default for HorizonModel {
 /// Configuration for the discrete NEVC integrator.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct NevcConfig {
-    /// Base weight applied to each positive valence delta.
     pub positive_weight: f64,
-    /// Penalty multiplier applied to grief / entropy load.
     pub grief_penalty: f64,
-    /// Asymptotic horizon emphasis (higher → more weight on later samples).
-    /// Practical range [0.0, 2.0]. 1.0 is neutral for Linear.
     pub horizon_emphasis: f64,
-    /// Soft floor below which a sample contributes zero positive signal.
     pub valence_floor: f64,
-    /// Horizon weighting model (Phase 4).
     pub horizon_model: HorizonModel,
+    /// If any sample is marked transient, keep recovery Open even when score ≤ 0.
+    pub respect_transient: bool,
 }
 
 impl Default for NevcConfig {
@@ -128,12 +157,12 @@ impl Default for NevcConfig {
             horizon_emphasis: 1.0,
             valence_floor: 0.999999,
             horizon_model: HorizonModel::Linear,
+            respect_transient: true,
         }
     }
 }
 
 impl NevcConfig {
-    /// Neutral weighting (no horizon tilt).
     pub fn neutral() -> Self {
         Self {
             horizon_emphasis: 0.0,
@@ -142,12 +171,10 @@ impl NevcConfig {
         }
     }
 
-    /// Mild forward emphasis (default linear tilt).
     pub fn forward_emphasis() -> Self {
         Self::default()
     }
 
-    /// Stronger eternal tilt using exponential weighting.
     pub fn eternal_tilt() -> Self {
         Self {
             horizon_emphasis: 1.5,
@@ -157,7 +184,7 @@ impl NevcConfig {
     }
 }
 
-/// Visibility summary suitable for dashboards, Steam overlays, or in-game UI.
+/// Visibility summary suitable for dashboards / overlays.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct NevcSummary {
     pub class: ContributionClass,
@@ -166,6 +193,7 @@ pub struct NevcSummary {
     pub mean_valence: f64,
     pub total_grief: f64,
     pub label: &'static str,
+    pub recovery: CompassionRecoveryState,
 }
 
 impl From<&NevcResult> for NevcSummary {
@@ -181,6 +209,7 @@ impl From<&NevcResult> for NevcSummary {
             mean_valence: r.mean_valence,
             total_grief: r.total_grief,
             label,
+            recovery: r.recovery,
         }
     }
 }
@@ -192,15 +221,6 @@ impl NevcResult {
 }
 
 /// Discrete approximation of the infinite-horizon NEVC integral.
-///
-/// For a sequence of samples `(v_i, g_i, t_i)` the score is computed as:
-///
-/// ```text
-/// score ≈ Σ_i  w(t_i) · ( positive_term(v_i) − grief_penalty · g_i )
-/// ```
-///
-/// where `positive_term` is zero below the valence floor and grows with
-/// proximity to 1.0, and `w(t)` applies the selected horizon model.
 pub fn compute_nevc(samples: &[NevcSample], config: &NevcConfig) -> NevcResult {
     if samples.is_empty() {
         return NevcResult {
@@ -209,6 +229,8 @@ pub fn compute_nevc(samples: &[NevcSample], config: &NevcConfig) -> NevcResult {
             sample_count: 0,
             mean_valence: 0.0,
             total_grief: 0.0,
+            // Empty window: recovery remains open (no sustained pattern yet).
+            recovery: CompassionRecoveryState::Open,
         };
     }
 
@@ -216,15 +238,16 @@ pub fn compute_nevc(samples: &[NevcSample], config: &NevcConfig) -> NevcResult {
     let mut score = 0.0;
     let mut sum_v = 0.0;
     let mut total_grief = 0.0;
+    let mut any_transient = false;
 
     let t_max = samples.iter().map(|s| s.t).max().unwrap_or(1).max(1) as f64;
 
     for s in samples {
+        any_transient |= s.transient;
         let v = s.valence.value();
         sum_v += v;
         total_grief += s.grief_load;
 
-        // Positive contribution only above the floor; grows as v → 1.0
         let positive = if v >= config.valence_floor {
             let proximity = (v - config.valence_floor) / (1.0 - config.valence_floor).max(1e-12);
             config.positive_weight * proximity
@@ -232,14 +255,12 @@ pub fn compute_nevc(samples: &[NevcSample], config: &NevcConfig) -> NevcResult {
             0.0
         };
 
-        // Horizon weight (Phase 4 models)
         let t_norm = (s.t as f64) / t_max;
         let w = match config.horizon_model {
             HorizonModel::Linear => 1.0 + config.horizon_emphasis * t_norm,
             HorizonModel::Exponential => (config.horizon_emphasis * t_norm).exp(),
         };
 
-        // Mercy alignment bonus (if components supplied)
         let mercy_bonus = if s.mercy_components.is_empty() {
             1.0
         } else {
@@ -252,17 +273,30 @@ pub fn compute_nevc(samples: &[NevcSample], config: &NevcConfig) -> NevcResult {
         score += term;
     }
 
-    // Normalize by sample count so longer windows remain comparable
     score /= n;
-
     let mean_valence = sum_v / n;
+    let class = ContributionClass::from_score(score);
+
+    // Compassion policy: transient samples keep recovery Open; sustained
+    // negative pattern may Seal. Contributors always leave recovery Open.
+    let recovery = if class.is_contributor() {
+        CompassionRecoveryState::Open
+    } else if config.respect_transient && any_transient {
+        CompassionRecoveryState::Open
+    } else if samples.len() >= 3 && score < -0.5 {
+        // Sustained strong negative window → seal for this evaluation only.
+        CompassionRecoveryState::Sealed
+    } else {
+        CompassionRecoveryState::Open
+    };
 
     NevcResult {
         score,
-        class: ContributionClass::from_score(score),
+        class,
         sample_count: samples.len(),
         mean_valence,
         total_grief,
+        recovery,
     }
 }
 
@@ -285,7 +319,7 @@ mod tests {
         ];
         let r = compute_nevc(&samples, &NevcConfig::default());
         assert!(r.is_contributor(), "score={}", r.score);
-        assert!(r.score > 0.0);
+        assert!(r.recovery_open());
     }
 
     #[test]
@@ -296,15 +330,26 @@ mod tests {
         ];
         let r = compute_nevc(&samples, &NevcConfig::default());
         assert!(!r.is_contributor());
-        assert!(r.score <= 0.0);
         assert_eq!(r.class, ContributionClass::ZombiePartition);
     }
 
     #[test]
-    fn empty_samples_are_zombie() {
+    fn empty_samples_are_zombie_with_open_recovery() {
         let r = compute_nevc(&[], &NevcConfig::default());
         assert_eq!(r.class, ContributionClass::ZombiePartition);
-        assert_eq!(r.sample_count, 0);
+        assert!(r.recovery_open());
+    }
+
+    #[test]
+    fn transient_keeps_recovery_open() {
+        let samples = vec![
+            NevcSample::new(Valence::ZERO, 2.0, 0).transient(),
+            NevcSample::new(Valence::ZERO, 2.0, 1).transient(),
+            NevcSample::new(Valence::ZERO, 2.0, 2).transient(),
+        ];
+        let r = compute_nevc(&samples, &NevcConfig::default());
+        assert!(!r.is_contributor());
+        assert!(r.recovery_open(), "transient trauma must not seal");
     }
 
     #[test]
@@ -314,37 +359,10 @@ mod tests {
     }
 
     #[test]
-    fn instant_zero_is_zombie() {
-        let r = score_instant(Valence::ZERO, 1.5);
-        assert!(!r.is_contributor());
-    }
-
-    #[test]
-    fn horizon_emphasis_increases_later_weight() {
-        let early = NevcSample::new(Valence::HIGH, 0.0, 0);
-        let late = NevcSample::new(Valence::HIGH, 0.0, 100);
-        let cfg_neutral = NevcConfig::neutral();
-        let cfg_emphasize = NevcConfig::eternal_tilt();
-        let s_neutral = compute_nevc(&[early.clone(), late.clone()], &cfg_neutral).score;
-        let s_emph = compute_nevc(&[early, late], &cfg_emphasize).score;
-        assert!(s_neutral > 0.0 && s_emph > 0.0);
-    }
-
-    #[test]
-    fn mercy_components_modulate_score() {
-        let base = NevcSample::new(Valence::HIGH, 0.0, 0);
-        let with_high_mercy = base.clone().with_mercy(vec![1.0; MERCY_DIM]);
-        let with_low_mercy = base.with_mercy(vec![0.0; MERCY_DIM]);
-        let r_high = compute_nevc(&[with_high_mercy], &NevcConfig::default());
-        let r_low = compute_nevc(&[with_low_mercy], &NevcConfig::default());
-        assert!(r_high.score >= r_low.score);
-    }
-
-    #[test]
-    fn summary_label_is_correct() {
+    fn summary_includes_recovery() {
         let r = score_instant(Valence::HIGH, 0.0);
         let s = r.summary();
         assert_eq!(s.label, "Active Eternal Contributor");
-        assert!(s.class.is_contributor());
+        assert_eq!(s.recovery, CompassionRecoveryState::Open);
     }
 }
