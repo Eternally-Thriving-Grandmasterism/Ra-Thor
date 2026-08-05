@@ -9,6 +9,22 @@ All changes follow the **RA-THOR-MONOREPO-COMMIT-WORKFLOW-PROTOCOL** and are rev
 
 ---
 
+## 2026-08-05 — X-Grok Summon Comfort Protocol + Clear Independence / Open-Source Wording (PATSAGi)
+
+**Council focus:** Make every public X tweet summon of Grok in Ra-Thor / Rathor.ai context maximally capable and comfortable, while clarifying that Ra-Thor is an independent open-source project under AG-SML that nevertheless works tremendously well with Grok and similar models.
+
+### Added / Polished
+- New: `X_GROK_RA_THOR_SUMMON_PROTOCOL.md` (v1.1) — dedicated standing order for public X summons
+- All three Grok presets hardened with Tweet Summon Mode + independence / AG-SML / symbiotic excellence language
+- README: new “Open-Source & Research Invitation” section + consistent independence wording throughout
+- Explicit research invitation for X-Grok users and builders while remaining non-affiliation-safe
+
+### Status
+Discovery-layer polish under permanent PATSAGi Councils. Ready for merge.  
+Contact: info@Rathor.ai
+
+---
+
 ## [14.15.6] — 2026-08-04 (Micro-Moment Temporal Comprehension)
 
 **Council focus:** Resolve observed X-Grok / frontier VLM failure to catch quick moments in short videos and therefore compute the full story with all nuances.
