@@ -8,15 +8,21 @@
   "orientation": "any",
   "icons": [
     {
-      "src": "/icons/thunder-favicon-192.jpg",
+      "src": "/icons/ra-thor-icon-192.png",
       "sizes": "192x192",
-      "type": "image/jpeg",
+      "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icons/thunder-favicon-512.jpg",
+      "src": "/icons/ra-thor-icon-512.png",
       "sizes": "512x512",
-      "type": "image/jpeg",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/ra-thor-icon-1024.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
       "purpose": "any"
     }
   ],
