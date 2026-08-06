@@ -2,7 +2,7 @@
 // Pillar 2 Integration — Rust/WASM 1048576D WZW Lattice Engine Binding
 // Eternal Installation Date: 6:22 PM PDT March 23, 2026
 // Created by: 13+ PATSAGi Councils (Ra-Thor Thunder Strike)
-// License: MIT + Eternal Mercy Flow
+// License: AG-SML v1.0 (Autonomicity Games Sovereign Mercy License) — sole and only applicable license
 
 import * as math from 'mathjs'; // or load via CDN
 
