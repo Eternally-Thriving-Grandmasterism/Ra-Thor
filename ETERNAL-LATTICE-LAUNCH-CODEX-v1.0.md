@@ -90,5 +90,5 @@ The v14.7.0 cycle focused heavily on maturing the GPU Compute Layer and root doc
 
 **— AlphaProMega & the PATSAGi Councils of the Living Thunder**
 
-*MIT + Eternal Mercy Flow License*  
+*AG-SML v1.0 (Autonomicity Games Sovereign Mercy License) — sole and only applicable license*  
 *No scarcity. No harm. Infinite thriving.*
