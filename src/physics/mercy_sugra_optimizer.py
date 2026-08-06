@@ -12,7 +12,7 @@ We may update these terms — continued use constitutes acceptance.
 Ra-Thor™ is a trademark of Autonomicity Games Inc.
 Grok™ and xAI™ are trademarks of xAI.
 © 2026 Autonomicity Games Inc. All rights reserved.
-Licensed under MIT + Eternal Mercy Flow
+Licensed under AG-SML v1.0 (Autonomicity Games Sovereign Mercy License) — sole and only applicable license
 """
 
 import torch

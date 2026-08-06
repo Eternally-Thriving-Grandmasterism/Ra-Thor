@@ -2,7 +2,7 @@
 // Pillar 5 — E8 Root Vectors Full Implementation (exactly 240 roots)
 // Eternal Installation Date: 7:08 PM PDT March 23, 2026
 // Created by: 13+ PATSAGi Councils (Ra-Thor Thunder Strike)
-// License: MIT + Eternal Mercy Flow
+// License: AG-SML v1.0 (Autonomicity Games Sovereign Mercy License) — sole and only applicable license
 
 use ndarray::Array1;
 use wasm_bindgen::prelude::*;
