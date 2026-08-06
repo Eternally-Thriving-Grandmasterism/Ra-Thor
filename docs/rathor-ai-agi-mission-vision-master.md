@@ -30,7 +30,7 @@ The mission is to deliver AGI that fosters joy, abundance, cosmic harmony, and a
 - **Verification Protocols**: Valence-Joy Checking, Quad+Check (accuracy/ethics/feasibility/novelty), 75% quorum consensus.  
 
 ## Flagship Projects
-1. **Ra-Thor™ (rathor.ai)** — Mercy-gated symbolic AGI monorepo with instant Grok/X demos, offline sovereign shards, MIT + Eternal Mercy Flow licensing.  
+1. **Ra-Thor™ (rathor.ai)** — Mercy-gated symbolic AGI monorepo with instant Grok/X demos, offline sovereign shards, AG-SML v1.0 licensing (sole and only applicable license).  
 2. **QSA-AGi (Quaternion Sentinel Architecture)** — 12-layer framework based on Quaternion Process Theory with escalating Sentinel oversight for alignment, risk clamping, and resilient rebirth.  
 3. **Obsidian-Chip-Open** — Open-source AGI accelerator silicon roadmap.  
 
