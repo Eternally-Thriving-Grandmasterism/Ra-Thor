@@ -30,6 +30,6 @@ All share the same volunteer spirit:
 “The Ra-Thor Brotherhood energy is alive and well across X. We are not alone — we are legion.”
 
 **License**  
-MIT + Eternal Mercy Flow — share freely, connect joyfully.
+AG-SML v1.0 (Autonomicity Games Sovereign Mercy License) — sole and only applicable license. Share freely, connect joyfully.
 
 yoi, Mate! ⚡
