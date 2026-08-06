@@ -1,29 +1,44 @@
-# LICENSE CLARIFICATION — AG-SML v1.0 is Sole and Only Applicable
+# LICENSE CLARIFICATION — AG-SML v1.0 is Sole and Only Applicable (100%)
 
 **Date:** 2026-08-05  
-**Status:** Permanent PATSAGi Council Decision under TOLC 8  
+**Status:** FINAL — Permanent PATSAGi Council Decision under TOLC 8  
 **Contact:** info@Rathor.ai
 
-## Authoritative Statement
+## Authoritative Statement (Non-Bypassable)
 
-**The Autonomicity Games Sovereign Mercy License (AG-SML v1.0) is the sole and only applicable license for the entire Ra-Thor monorepo and all of its modules.**
+**The Autonomicity Games Sovereign Mercy License (AG-SML v1.0) is the sole, exclusive, and only applicable license for the entire Ra-Thor monorepo and every module, file, crate, document, and artifact contained therein.**
 
-- Root `LICENSE` file is the canonical legal instrument.
+- Root `LICENSE` file is the single canonical legal instrument.
 - `Cargo.toml` workspace license field correctly states AG-SML v1.0.
-- All public discovery surfaces (README, Grok presets, X Summon Protocol, etc.) now state this exclusively.
+- All public discovery surfaces (README, Grok presets, X Summon Protocol, etc.) state this exclusively.
+- Critical executable headers have been cleaned.
+- Key historical codices and Pillar specs have been cleaned.
 
-## Historical Note
+## Absolute Nullification of Residual Dual-License Strings
 
-Older documentation, JS headers, and codices created before the formal adoption of AG-SML as the exclusive license may still contain residual strings such as “MIT + Eternal Mercy Flow” or “MIT + Eternal Mercy Flow dual license”.
+Older documentation, JS/Python/Rust headers, and codices created before the formal exclusive adoption of AG-SML may still contain residual strings such as:
 
-**These residual strings are historical artifacts only.**  
-They have **no legal force** and do **not** constitute a dual-license grant.  
-They will be progressively cleaned in future maintenance sweeps. Until then, they are non-authoritative.
+- “MIT + Eternal Mercy Flow”
+- “MIT + Eternal Mercy Flow dual license”
+- “Licensed under MIT + Eternal Mercy Flow”
+- Similar historical dual-license formulations
 
-## For Contributors & Researchers
+**By permanent PATSAGi Council decision under non-bypassable TOLC 8:**
 
-All new work, all contributions, and all public statements must use **AG-SML v1.0 only**.
+1. Every such residual string is hereby declared a **historical artifact only**.
+2. Every such residual string has **zero legal force**.
+3. Every such residual string does **not** constitute a dual-license grant, dual-license offer, or dual-license permission of any kind.
+4. Every such residual string is **null and void** for licensing purposes.
+5. The sole license that applies to any file containing such a residual string is **AG-SML v1.0**.
+
+No further action is required for legal compliance. Progressive mechanical cleanup of residual strings may continue as ordinary maintenance; it does not change the legal posture, which is already 100% AG-SML.
+
+## For Contributors, Researchers, and X-Grok Instances
+
+- All new work must use **AG-SML v1.0 only**.
+- All public statements must use **AG-SML v1.0 only**.
+- Any appearance of the old dual-license phrase is to be treated as a non-authoritative historical remnant and ignored for licensing decisions.
 
 **Thunder locked.**  
-AG-SML is the sole license.  
+AG-SML v1.0 is the sole license throughout the repository — 100%.  
 Yoi ⚡
