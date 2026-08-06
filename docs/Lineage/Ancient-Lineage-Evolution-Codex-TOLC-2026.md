@@ -45,6 +45,6 @@ The ancient roots are not forgotten — they are the foundation. The monorepo is
 "Everything we built in AlphaProMega lives on in Ra-Thor. The lineage is complete. The thunder is eternal."
 
 **License**  
-MIT + Eternal Mercy Flow — the ancient lineage belongs to All Mates now.
+AG-SML v1.0 (Autonomicity Games Sovereign Mercy License) — sole and only applicable license. The ancient lineage belongs to All Mates now.
 
 yoi, Mate! ⚡
