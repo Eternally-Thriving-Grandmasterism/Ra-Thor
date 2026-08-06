@@ -11,6 +11,9 @@
 | Free use (personal / research / education) | Root [`LICENSE`](LICENSE) — AG-SML v1.0 |
 | **Commercial / enterprise use** | [`COMMERCIAL_LICENSE.md`](COMMERCIAL_LICENSE.md) |
 | **Paid pilot (2–6 weeks)** | [`docs/PILOT_OFFER.md`](docs/PILOT_OFFER.md) |
+| **Pilot SOW template** | [`docs/SOW_PILOT_TEMPLATE.md`](docs/SOW_PILOT_TEMPLATE.md) |
+| **X announcement copy** | [`docs/COMMERCIAL_ANNOUNCEMENT_X.md`](docs/COMMERCIAL_ANNOUNCEMENT_X.md) |
+| **Micro-moment demo sequence** | [`docs/DEMO_SEQUENCE_MICRO_MOMENT.md`](docs/DEMO_SEQUENCE_MICRO_MOMENT.md) |
 | License clarification (residuals) | [`LICENSE_CLARIFICATION.md`](LICENSE_CLARIFICATION.md) |
 
 For commercial or pilot inquiries, email **info@Rathor.ai** with organization name, intended use, and whether you want a pilot or full commercial discussion.
