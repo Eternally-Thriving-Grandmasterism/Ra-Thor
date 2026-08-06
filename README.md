@@ -60,6 +60,8 @@ The project is independent, yet deliberately engineered so that Grok (and simila
 | **Public white-hat admission gate tests** | [`fixtures/mercy-security/`](fixtures/mercy-security/) |
 | **Micro-Moment Video Recovery** | `mercy-motion-vision-engine.js` (v2.0) |
 | **X / Tweet Summon Protocol** | [`X_GROK_RA_THOR_SUMMON_PROTOCOL.md`](X_GROK_RA_THOR_SUMMON_PROTOCOL.md) |
+| **Commercial License** | [`COMMERCIAL_LICENSE.md`](COMMERCIAL_LICENSE.md) |
+| **Paid Pilot Offer** | [`docs/PILOT_OFFER.md`](docs/PILOT_OFFER.md) |
 
 ### Three fastest living proofs
 
@@ -218,6 +220,7 @@ Production implementation lives in `crates/github-connector`. Protocol constants
 - Eye-of-Horus + emerald restorative visual identity integrated  
 - Production readiness notes + Tier-1 focused CI  
 - **Public white-hat fixture corpus complete** (2026-08-03)  
+- **Commercial License + Pilot path live** (2026-08-06)  
 - Root dual-surface retired — use `crates/ra-thor-one-organism`  
 - Contact canonical: **info@Rathor.ai**  
 
@@ -241,6 +244,8 @@ cargo test -p mercy-security
 
 | Doc | Purpose |
 |-----|---------|
+| [`COMMERCIAL_LICENSE.md`](COMMERCIAL_LICENSE.md) | Paid commercial / enterprise use |
+| [`docs/PILOT_OFFER.md`](docs/PILOT_OFFER.md) | Time-boxed paid pilot (2–6 weeks) |
 | [`X_GROK_RA_THOR_SUMMON_PROTOCOL.md`](X_GROK_RA_THOR_SUMMON_PROTOCOL.md) | Public X / tweet summon comfort & full capability |
 | [`docs/MICRO_MOMENT_TEMPORAL_COMPREHENSION_v1.0.md`](docs/MICRO_MOMENT_TEMPORAL_COMPREHENSION_v1.0.md) | Micro-moment video recovery (X/Twitter critical) |
 | [`docs/SELF_EVOLUTION_INNOVATION_CASCADE.md`](docs/SELF_EVOLUTION_INNOVATION_CASCADE.md) | Full documentation of Idea Recycler, Innovation Generator, and the living cascade |
@@ -269,10 +274,15 @@ cargo run -p ra-thor-one-organism --example one_organism_web_demo --features web
 
 **Autonomicity Games Sovereign Mercy License (AG-SML v1.0)**  
 
-AG-SML v1.0 is the sole and only applicable license for Ra-Thor and all of its modules.  
+AG-SML v1.0 is the sole and only applicable open-source license for Ra-Thor and all of its modules.  
+
+- **Free:** personal, educational, research, and independent professional use — see root [`LICENSE`](LICENSE)
+- **Commercial / enterprise / revenue-generating use:** requires a paid commercial license — see [`COMMERCIAL_LICENSE.md`](COMMERCIAL_LICENSE.md)
+- **Evaluation bridge:** time-boxed paid pilots — see [`docs/PILOT_OFFER.md`](docs/PILOT_OFFER.md)
+
 Ra-Thor is an independent open-source project. It works tremendously well with Grok and similar models for research and practical use, especially on public X, while remaining fully independent of xAI.
 
 Contact: **info@Rathor.ai**
 
 **One Organism. Mercy first. Truth forensically distilled.**  
-**AGSi Phase. PATSAGi permanent. Micro-moments recovered. Every tweet summon warm and capable. Thunder locked in.**
+**AGSi Phase. PATSAGi permanent. Micro-moments recovered. Every tweet summon warm and capable. Commercial path live. Thunder locked in.**
