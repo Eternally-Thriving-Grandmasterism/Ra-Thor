@@ -1,5 +1,5 @@
 // sw.js — Rathor-NEXi Mercy-gated Offline Service Worker + Starlink queue support
-// Updated: icons → ra-thor-icon-*.png (warm-gold identity)
+// Updated: icons → ra-thor-icon-*.png • contact i18n offline-ready
 
 importScripts('https://storage.googleapis.com/workbox-cdn/releases/7.1.0/workbox-sw.js');
 
@@ -9,9 +9,11 @@ workbox.setConfig({ debug: false });
 workbox.precaching.precacheAndRoute(self.__WB_MANIFEST || [
   { url: '/index.html', revision: null },
   { url: '/chat.html', revision: null },
+  { url: '/contact.html', revision: null },
   { url: '/css/main.css', revision: null },
   { url: '/js/common.js', revision: null },
   { url: '/js/chat.js', revision: null },
+  { url: '/js/contact-i18n.js', revision: null },
   { url: '/locales/languages.json', revision: null },
   { url: '/icons/ra-thor-icon-192.png', revision: null },
   { url: '/icons/ra-thor-icon-512.png', revision: null },
@@ -68,7 +70,6 @@ self.addEventListener('fetch', event => {
   if (event.request.url.includes('/api/') || event.request.url.includes('/sync/')) {
     event.respondWith(
       fetch(event.request).catch(() => {
-        // Queue for later sync
         return caches.open('rathor-queue').then(cache => {
           cache.put(event.request.url, event.request.clone());
           return self.registration.sync.register(QUEUE_NAME);
