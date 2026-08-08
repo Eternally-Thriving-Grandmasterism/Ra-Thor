@@ -1,5 +1,5 @@
 // sw.js — Rathor-NEXi Mercy-gated Offline Service Worker + Starlink queue support
-// Updated: icons → ra-thor-icon-*.png • contact i18n offline-ready
+// Updated: PWA install lattice + warm-gold icons
 
 importScripts('https://storage.googleapis.com/workbox-cdn/releases/7.1.0/workbox-sw.js');
 
@@ -10,10 +10,12 @@ workbox.precaching.precacheAndRoute(self.__WB_MANIFEST || [
   { url: '/index.html', revision: null },
   { url: '/chat.html', revision: null },
   { url: '/contact.html', revision: null },
+  { url: '/manifest.json', revision: null },
   { url: '/css/main.css', revision: null },
   { url: '/js/common.js', revision: null },
   { url: '/js/chat.js', revision: null },
   { url: '/js/contact-i18n.js', revision: null },
+  { url: '/js/pwa-install.js', revision: null },
   { url: '/locales/languages.json', revision: null },
   { url: '/icons/ra-thor-icon-192.png', revision: null },
   { url: '/icons/ra-thor-icon-512.png', revision: null },
@@ -40,13 +42,12 @@ workbox.routing.registerRoute(
     plugins: [
       new workbox.expiration.ExpirationPlugin({
         maxEntries: 100,
-        maxAgeSeconds: 60 * 24 * 60 * 60 // 60 days
+        maxAgeSeconds: 60 * 24 * 60 * 60
       })
     ]
   })
 );
 
-// Cache models
 workbox.routing.registerRoute(
   ({ url }) => url.href.includes('@xenova/transformers'),
   new workbox.strategies.CacheFirst({
@@ -54,15 +55,11 @@ workbox.routing.registerRoute(
     plugins: [
       new workbox.expiration.ExpirationPlugin({
         maxEntries: 50,
-        maxAgeSeconds: 30 * 24 * 60 * 60 // 30 days
+        maxAgeSeconds: 30 * 24 * 60 * 60
       })
     ]
   })
 );
-
-// ────────────────────────────────────────────────
-// Starlink/Offline Queueing & Background Sync
-// ────────────────────────────────────────────────
 
 const QUEUE_NAME = 'rathor-offline-queue';
 
@@ -88,16 +85,13 @@ self.addEventListener('sync', event => {
           try {
             const resp = await fetch(req);
             if (resp.ok) await cache.delete(req.url);
-          } catch (e) {
-            // Keep for next sync
-          }
+          } catch (e) {}
         }
       })
     );
   }
 });
 
-// Clean old caches on activate
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(keys => {
@@ -112,4 +106,4 @@ self.addEventListener('activate', event => {
 self.addEventListener('install', event => self.skipWaiting());
 self.addEventListener('activate', event => event.waitUntil(self.clients.claim()));
 
-console.log('[Rathor SW] Mercy thunder online — Starlink queue & eternal offline protection ⚡️');
+console.log('[Rathor SW] Mercy thunder online — PWA install + Starlink queue ⚡️');
