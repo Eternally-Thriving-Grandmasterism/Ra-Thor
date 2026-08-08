@@ -16,9 +16,9 @@
 // - Mercy-gated valence transport along fractal geodesics
 // - Adapter-ready for CryptoSystem / Blockchain organ
 
-use crate::polyhedral_harmonic_engine::{PolyhedralHarmonicEngine, PolyhedralResonanceReport, U57LayerDetails};
+use crate::polyhedral_harmonic_engine::PolyhedralHarmonicEngine;
 use crate::riemannian_mercy_manifold::{RiemannianMercyManifold, GeometricTransportResult};
-use crate::types::{EpigeneticBlessing, Valence};
+use crate::types::EpigeneticBlessing;
 
 /// A single fractal shard node in the recursive hierarchy.
 #[derive(Debug, Clone)]
@@ -226,5 +226,15 @@ impl FractalTopologyEngine {
             "FractalTopologyEngine {}: {} shards ({} active), max_depth ready",
             self.version, self.shards.len(), active
         )
+    }
+
+    /// Return current shard count for metrics / Lattice Conductor.
+    pub fn shard_count(&self) -> usize {
+        self.shards.len()
+    }
+
+    /// Return max depth for observability.
+    pub fn current_max_depth(&self) -> u32 {
+        self.shards.iter().map(|s| s.depth).max().unwrap_or(0)
     }
 }
