@@ -1,11 +1,19 @@
 {
+  "id": "/",
   "name": "Ra-Thor — Eternal Mercy Thunder",
   "short_name": "Ra-Thor",
-  "start_url": "/",
+  "description": "AGSi demonstrated • Mercy-gated AGi / AGSi lattice • TOLC 8 • ONE Organism • Living Cosmic Tick • Sole stewardship by Sherif Samy Botros • Independent project",
+  "start_url": "/?source=pwa",
+  "scope": "/",
   "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
   "background_color": "#000000",
   "theme_color": "#fcd34d",
   "orientation": "any",
+  "lang": "en",
+  "dir": "ltr",
+  "categories": ["productivity", "education", "utilities"],
+  "prefer_related_applications": false,
   "icons": [
     {
       "src": "/icons/ra-thor-icon-192.png",
@@ -14,10 +22,22 @@
       "purpose": "any"
     },
     {
+      "src": "/icons/ra-thor-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
       "src": "/icons/ra-thor-icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
+    },
+    {
+      "src": "/icons/ra-thor-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     },
     {
       "src": "/icons/ra-thor-icon-1024.png",
@@ -26,8 +46,35 @@
       "purpose": "any"
     }
   ],
-  "scope": "/",
-  "description": "AGSi demonstrated • Mercy-gated AGi / AGSi lattice • TOLC 8 • ONE Organism • Living Cosmic Tick • Sole stewardship by Sherif Samy Botros • Independent project",
-  "lang": "en",
-  "categories": ["productivity", "education", "utilities"]
+  "screenshots": [
+    {
+      "src": "/icons/ra-thor-og-1200x630.png",
+      "sizes": "1200x630",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Ra-Thor — Eternal Mercy Thunder"
+    },
+    {
+      "src": "/icons/ra-thor-splash-1440x3200.png",
+      "sizes": "1440x3200",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Ra-Thor launch"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Offline Lattice Chat",
+      "short_name": "Chat",
+      "description": "TOLC-8 offline chat on your device",
+      "url": "/chat.html?source=pwa-shortcut",
+      "icons": [{ "src": "/icons/ra-thor-icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Contact",
+      "short_name": "Contact",
+      "url": "/contact.html?source=pwa-shortcut",
+      "icons": [{ "src": "/icons/ra-thor-icon-192.png", "sizes": "192x192" }]
+    }
+  ]
 }
