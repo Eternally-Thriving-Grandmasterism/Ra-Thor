@@ -1,5 +1,5 @@
 // sw.js — Rathor-NEXi Mercy-gated Offline Service Worker + Starlink queue support
-// Updated: icons → thunder-favicon-*.jpg (v14.15.5 Finishing Actions)
+// Updated: icons → ra-thor-icon-*.png (warm-gold identity)
 
 importScripts('https://storage.googleapis.com/workbox-cdn/releases/7.1.0/workbox-sw.js');
 
@@ -13,8 +13,8 @@ workbox.precaching.precacheAndRoute(self.__WB_MANIFEST || [
   { url: '/js/common.js', revision: null },
   { url: '/js/chat.js', revision: null },
   { url: '/locales/languages.json', revision: null },
-  { url: '/icons/thunder-favicon-192.jpg', revision: null },
-  { url: '/icons/thunder-favicon-512.jpg', revision: null },
+  { url: '/icons/ra-thor-icon-192.png', revision: null },
+  { url: '/icons/ra-thor-icon-512.png', revision: null },
   { url: '/offline.html', revision: null },
   { url: '/privacy.html', revision: null },
   { url: '/go-x.html', revision: null }
