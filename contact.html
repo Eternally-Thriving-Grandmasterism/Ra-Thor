@@ -102,10 +102,18 @@
         <p id="guidance-note" class="text-xs text-white/50 mt-5">All communications are handled under the TOLC 8 Mercy Gates and APTD-verified processes.</p>
       </div>
 
-      <div class="text-center">
+      <div class="text-center flex flex-wrap justify-center gap-4">
         <a href="/" class="inline-flex items-center gap-2 text-sm text-amber-400 hover:text-amber-300 transition-colors">
           <i class="fa-solid fa-home"></i>
           <span id="return-text">Return to Main Ra-Thor Experience</span>
+        </a>
+        <a href="/chat.html" class="inline-flex items-center gap-2 text-sm text-violet-300 hover:text-violet-200 transition-colors">
+          <i class="fa-solid fa-comments"></i>
+          <span>Offline Lattice Chat</span>
+        </a>
+        <a href="/privacy.html" class="inline-flex items-center gap-2 text-sm text-white/60 hover:text-amber-200 transition-colors">
+          <i class="fa-solid fa-shield-halved"></i>
+          <span>Privacy</span>
         </a>
       </div>
     </div>
@@ -118,8 +126,6 @@
 
   <script src="/js/contact-i18n.js"></script>
   <script>
-    // Lightweight bootstrap — full i18n dictionaries live in contact-i18n.js when available;
-    // fallback keeps English labels from the static HTML above.
     (function () {
       const selector = document.getElementById('lang-selector');
       if (!selector) return;
