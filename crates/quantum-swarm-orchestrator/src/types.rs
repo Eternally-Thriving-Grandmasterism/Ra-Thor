@@ -10,6 +10,7 @@
 // - GodlyIntelligenceCoherence: Multi-axis coherence measurement
 // - OneOrganismContext / Insight: Context and output of ONE Organism cycles
 
+use serde::{Deserialize, Serialize};
 use std::ops::Add;
 
 /// Represents mercy-aligned valence (state of mercy coherence).
