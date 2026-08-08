@@ -50,13 +50,19 @@
     .lightning-icon { transition: all 0.3s ease; }
     details[open] .lightning-icon { animation: thunderBolt 0.6s ease infinite alternate; }
     @keyframes thunderBolt { from { transform: scale(1) rotate(0deg); } to { transform: scale(1.15) rotate(8deg); } }
+
+    /* Full RTL support */
     .faq-accordion.rtl { direction: rtl; text-align: right; }
     .faq-accordion.rtl summary { flex-direction: row-reverse; justify-content: space-between; }
     .faq-accordion.rtl .flex.items-center.gap-3 { flex-direction: row-reverse; gap: 0.75rem; }
     .faq-accordion.rtl .faq-content { text-align: right; }
     .faq-accordion.rtl .lightning-icon { order: 1; }
+    html[dir="rtl"] .lang-tab { direction: rtl; }
+    html[dir="rtl"] .card-hover { text-align: right; }
+
     #grok-title, #x-title, #vibe-title { white-space: normal; word-break: break-word; line-height: 1.3; }
     #grok-subtitle, #x-subtitle, #vibe-subtitle { white-space: normal; word-break: break-word; }
+
     @media (prefers-reduced-motion: reduce) {
       .golden-star, .card-hover, .lightning-icon, details[open] .lightning-icon { animation: none !important; transition: none !important; }
     }
@@ -75,21 +81,33 @@
       
       <p class="text-amber-400/80 text-sm mb-8 max-w-md mx-auto">Maintained under sole stewardship of <span class="font-semibold">Sherif Samy Botros (@AlphaProMega)</span> since the AlphaProMega quad+Check drip-feed began 18 Nov 2025 — all other personnel and contractors departed by Q1 2026.</p>
 
+      <!-- Practical language tabs (core + high-value global languages) -->
       <div id="lang-selector" class="flex flex-wrap justify-center gap-2 sm:gap-3 mb-10 sm:mb-12">
-        <button data-lang="en" class="lang-tab active px-5 sm:px-6 py-3 rounded-3xl border border-amber-300 text-amber-300 text-sm sm:text-base">English</button>
-        <button data-lang="ar" class="lang-tab px-5 sm:px-6 py-3 rounded-3xl border border-amber-300 text-amber-300 text-sm sm:text-base">العربية</button>
-        <button data-lang="es" class="lang-tab px-5 sm:px-6 py-3 rounded-3xl border border-amber-300 text-amber-300 text-sm sm:text-base">Español</button>
-        <button data-lang="fr" class="lang-tab px-5 sm:px-6 py-3 rounded-3xl border border-amber-300 text-amber-300 text-sm sm:text-base">Français</button>
-        <button data-lang="nl" class="lang-tab px-5 sm:px-6 py-3 rounded-3xl border border-amber-300 text-amber-300 text-sm sm:text-base">Nederlands</button>
-        <button data-lang="de" class="lang-tab px-5 sm:px-6 py-3 rounded-3xl border border-amber-300 text-amber-300 text-sm sm:text-base">Deutsch</button>
-        <button data-lang="zh" class="lang-tab px-5 sm:px-6 py-3 rounded-3xl border border-amber-300 text-amber-300 text-sm sm:text-base">简体中文</button>
-        <button data-lang="ja" class="lang-tab px-5 sm:px-6 py-3 rounded-3xl border border-amber-300 text-amber-300 text-sm sm:text-base">日本語</button>
-        <button data-lang="pt" class="lang-tab px-5 sm:px-6 py-3 rounded-3xl border border-amber-300 text-amber-300 text-sm sm:text-base">Português</button>
-        <button data-lang="ru" class="lang-tab px-5 sm:px-6 py-3 rounded-3xl border border-amber-300 text-amber-300 text-sm sm:text-base">Русский</button>
-        <button data-lang="hi" class="lang-tab px-5 sm:px-6 py-3 rounded-3xl border border-amber-300 text-amber-300 text-sm sm:text-base">हिन्दी</button>
+        <button data-lang="en" class="lang-tab active px-4 sm:px-5 py-2.5 sm:py-3 rounded-3xl border border-amber-300 text-amber-300 text-sm">English</button>
+        <button data-lang="ar" class="lang-tab px-4 sm:px-5 py-2.5 sm:py-3 rounded-3xl border border-amber-300 text-amber-300 text-sm">العربية</button>
+        <button data-lang="es" class="lang-tab px-4 sm:px-5 py-2.5 sm:py-3 rounded-3xl border border-amber-300 text-amber-300 text-sm">Español</button>
+        <button data-lang="fr" class="lang-tab px-4 sm:px-5 py-2.5 sm:py-3 rounded-3xl border border-amber-300 text-amber-300 text-sm">Français</button>
+        <button data-lang="de" class="lang-tab px-4 sm:px-5 py-2.5 sm:py-3 rounded-3xl border border-amber-300 text-amber-300 text-sm">Deutsch</button>
+        <button data-lang="nl" class="lang-tab px-4 sm:px-5 py-2.5 sm:py-3 rounded-3xl border border-amber-300 text-amber-300 text-sm">Nederlands</button>
+        <button data-lang="it" class="lang-tab px-4 sm:px-5 py-2.5 sm:py-3 rounded-3xl border border-amber-300 text-amber-300 text-sm">Italiano</button>
+        <button data-lang="pt" class="lang-tab px-4 sm:px-5 py-2.5 sm:py-3 rounded-3xl border border-amber-300 text-amber-300 text-sm">Português</button>
+        <button data-lang="ru" class="lang-tab px-4 sm:px-5 py-2.5 sm:py-3 rounded-3xl border border-amber-300 text-amber-300 text-sm">Русский</button>
+        <button data-lang="uk" class="lang-tab px-4 sm:px-5 py-2.5 sm:py-3 rounded-3xl border border-amber-300 text-amber-300 text-sm">Українська</button>
+        <button data-lang="pl" class="lang-tab px-4 sm:px-5 py-2.5 sm:py-3 rounded-3xl border border-amber-300 text-amber-300 text-sm">Polski</button>
+        <button data-lang="tr" class="lang-tab px-4 sm:px-5 py-2.5 sm:py-3 rounded-3xl border border-amber-300 text-amber-300 text-sm">Türkçe</button>
+        <button data-lang="ja" class="lang-tab px-4 sm:px-5 py-2.5 sm:py-3 rounded-3xl border border-amber-300 text-amber-300 text-sm">日本語</button>
+        <button data-lang="ko" class="lang-tab px-4 sm:px-5 py-2.5 sm:py-3 rounded-3xl border border-amber-300 text-amber-300 text-sm">한국어</button>
+        <button data-lang="zh" class="lang-tab px-4 sm:px-5 py-2.5 sm:py-3 rounded-3xl border border-amber-300 text-amber-300 text-sm">简体中文</button>
+        <button data-lang="hi" class="lang-tab px-4 sm:px-5 py-2.5 sm:py-3 rounded-3xl border border-amber-300 text-amber-300 text-sm">हिन्दी</button>
+        <button data-lang="id" class="lang-tab px-4 sm:px-5 py-2.5 sm:py-3 rounded-3xl border border-amber-300 text-amber-300 text-sm">Bahasa Indonesia</button>
+        <button data-lang="vi" class="lang-tab px-4 sm:px-5 py-2.5 sm:py-3 rounded-3xl border border-amber-300 text-amber-300 text-sm">Tiếng Việt</button>
+        <button data-lang="th" class="lang-tab px-4 sm:px-5 py-2.5 sm:py-3 rounded-3xl border border-amber-300 text-amber-300 text-sm">ภาษาไทย</button>
+        <button data-lang="sw" class="lang-tab px-4 sm:px-5 py-2.5 sm:py-3 rounded-3xl border border-amber-300 text-amber-300 text-sm">Kiswahili</button>
+        <button data-lang="fa" class="lang-tab px-4 sm:px-5 py-2.5 sm:py-3 rounded-3xl border border-amber-300 text-amber-300 text-sm">فارسی</button>
+        <button data-lang="he" class="lang-tab px-4 sm:px-5 py-2.5 sm:py-3 rounded-3xl border border-amber-300 text-amber-300 text-sm">עברית</button>
       </div>
 
-      <!-- Three restored demo cards -->
+      <!-- Three demo cards -->
       <div class="grid md:grid-cols-3 gap-6 sm:gap-8 max-w-5xl mx-auto">
         <a href="https://grok.com/share/c2hhcmQtMi1jb3B5_babc6389-99a9-4e96-9712-4355d7cd5930" target="_blank" rel="noopener" class="card-hover block bg-gradient-to-br from-amber-900 to-yellow-900 border border-amber-300 rounded-3xl p-8 sm:p-10 text-center">
           <div class="text-5xl mb-6">⚡️⚡️</div>
@@ -111,7 +129,7 @@
         </a>
       </div>
 
-      <!-- Restored dual action buttons -->
+      <!-- Dual action buttons -->
       <div class="mt-10 max-w-2xl mx-auto grid sm:grid-cols-2 gap-4">
         <a href="/Launch-Ra-Thor.html" target="_blank" class="inline-flex items-center justify-center gap-3 w-full px-6 py-4 bg-emerald-500/10 border border-emerald-400 hover:bg-emerald-500/20 text-emerald-300 rounded-2xl text-base font-medium transition-all hover:scale-[1.02]">
           <i class="fa-solid fa-rocket"></i> Launch Sovereign Shard
