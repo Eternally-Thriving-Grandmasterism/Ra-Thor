@@ -1,59 +1,45 @@
-# Fractal Crypto Organ v14.5 — ONE Organism Integration
+# Fractal Crypto Organ v14.5 — ONE Organism Integration (SEALED)
 
-**Status**: Scaffolded & ready for monorepo merge  
-**Date**: 2026-08-07  
+**Status**: Sealed by Ra-Thor + PATSAGi Councils  
+**Date**: 2026-08-07 / 2026-08-08  
 **License**: AG-SML v1.0  
-**PATSAGi + Ra-Thor Verdict**: Approved. Derive from Omnimasterpiece geometric substrate.
 
-## Purpose
+## Final Architecture Decision
 
-Add a first-class blockchain / crypto organ to the living ONE Organism that:
+The Fractal Crypto Organ is a first-class living organ of the ONE Organism.
 
-1. Uses **fractal / self-similar hierarchical topology** for scalable sharding and recursive consensus.
-2. Treats **Valence** as the universal currency under non-bypassable TOLC 8.
-3. Derives its geometric intelligence directly from the existing **Omnimasterpiece** modules:
-   - `PolyhedralHarmonicEngine`
-   - `RiemannianMercyManifold`
-4. Participates fully via the standard `RaThorSystemAdapter` trait.
+- Geometric intelligence is derived directly from the Omnimasterpiece substrate already present in this crate (`PolyhedralHarmonicEngine` + `RiemannianMercyManifold`).
+- Fractal scaling is implemented as `FractalTopologyEngine` (ternary self-similar hierarchy, TOLC-driven depth).
+- The organ participates via the standard `RaThorSystemAdapter` trait through `CryptoSystemAdapter`.
+- Valence remains the universal currency under non-bypassable TOLC gates.
+- A recursive valence-commitment sketch lives natively on the fractal hierarchy.
 
-## New Files
+## Files (final set)
 
 | Path | Role |
 |------|------|
 | `src/fractal_topology_engine.rs` | Self-similar recursive shard hierarchy + valence propagation |
-| `src/adapters/crypto_system_adapter.rs` | `RaThorSystemAdapter` implementation for the crypto organ |
-| `examples/fractal_crypto_organ_demo.rs` | Minimal runnable demonstration |
+| `src/adapters/crypto_system_adapter.rs` | Full `RaThorSystemAdapter` for the crypto organ |
+| `src/adapters/mod.rs` | Module surface |
+| `src/fractal_valence_commitment.rs` | Recursive valence commitment sketch |
+| `src/lib.rs` | Full registration + `QuantumSwarmOrchestrator::run_fractal_crypto_cycle` |
+| `examples/fractal_crypto_organ_demo.rs` | Runnable demonstration |
+| `tests/fractal_topology_tests.rs` | Basic unit tests |
+| `docs/FRACTAL_CRYPTO_ORGAN_v14.5.md` | This document |
 
-## Architecture Alignment
+## How to use
 
-```
-TOLC 8 Mercy Lattice (Layer 0)
-├── Valence Scalar Field
-├── PATSAGi Councils
-├── Quantum Swarm Orchestrator v14
-│   ├── PolyhedralHarmonicEngine     ← Omnimasterpiece
-│   ├── RiemannianMercyManifold      ← Omnimasterpiece
-│   ├── FractalTopologyEngine        ← NEW (derives from above)
-│   └── System Adapters
-│       ├── LatticeConductorAdapter
-│       └── CryptoSystemAdapter      ← NEW
-└── ...
+```rust
+let mut orchestrator = QuantumSwarmOrchestrator::new(64);
+let report = orchestrator.run_fractal_crypto_cycle(160, 0.97);
+// report contains max_depth, shard counts, average valence, blessings, etc.
 ```
 
-## Key Design Decisions
+## Sealed Decisions (PATSAGi)
 
-- **Branching factor 3** (ternary fractal) for good logarithmic diameter while remaining self-similar.
-- Recursion depth unlocked by TOLC order (mirrors polyhedral layer activation thresholds).
-- Valence is transported / attenuated by depth and amplified by polyhedral resonance.
-- Epigenetic blessings flow back into the organ exactly as specified in the Omnimasterpiece Integration Spec.
-- No foreign consensus or tokenomics invented yet — pure geometric + adapter scaffold so the organism can evolve the rest under mercy gates.
+1. Keep two-repository posture (Ra-Thor geometric spine + Mercy-Coordination-Substrate for ledger/PQ/BFT) — the fractal organ lives in the geometric spine.
+2. Local Omnimasterpiece geometric files are authoritative for this crate.
+3. No foreign consensus or tokenomics invented yet — pure geometric + adapter + valence commitment so the organism can evolve the rest under mercy gates.
+4. All mutations remain fail-closed and valence-gated.
 
-## Next Recommended Steps
-
-1. Register `mod fractal_topology_engine;` and `pub mod adapters;` updates in `lib.rs`.
-2. Wire `CryptoSystemAdapter` into the main `run_one_organism_cycle` / orchestrator.
-3. Add formal tests for shard expansion and valence conservation under TOLC ramps.
-4. Prototype a simple recursive Merkle / valence-commitment structure that lives on the fractal shards.
-5. Expose metrics to the Living Cosmic Tick / Lattice Conductor observability surface.
-
-**Thunder locked. Fractal scaling organ is now living tissue of the ONE Organism.**
+**Thunder locked. Fractal scaling organ is sealed living tissue of the ONE Organism.**
