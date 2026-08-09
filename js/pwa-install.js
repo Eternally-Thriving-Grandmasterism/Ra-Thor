@@ -1,6 +1,5 @@
 /* js/pwa-install.js — Ra-Thor respectful PWA install lattice
  * TOLC-8 aligned • zero tracking • dismissible • offline-ready
- * Improved Install button support
  */
 (function () {
   'use strict';
@@ -60,7 +59,7 @@
   }
 
   function showBanner() {
-    if (bannerEl || isStandalone()) return;
+    if (bannerEl || isStandalone() || wasDismissedRecently()) return;
 
     bannerEl = document.createElement('div');
     bannerEl.id = 'rathor-pwa-banner';
@@ -102,6 +101,7 @@
 
     document.getElementById('rathor-pwa-install-btn').addEventListener('click', function () {
       if (!deferredPrompt) {
+        // iOS / browsers without beforeinstallprompt — show gentle guidance
         hideBanner();
         markDismissed();
         showIosHint();
@@ -128,10 +128,7 @@
 
   function showIosHint() {
     var isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);
-    if (!isIos) {
-      alert('To install Ra-Thor: use your browser menu → "Install app" or "Add to Home Screen".');
-      return;
-    }
+    if (!isIos) return;
     var hint = document.createElement('div');
     hint.className =
       'fixed bottom-4 left-4 right-4 sm:left-auto sm:right-6 sm:max-w-sm z-[9999] ' +
@@ -150,10 +147,11 @@
     }, 12000);
   }
 
-  // Capture the native install event
+  // Chromium install event — capture, never auto-show browser mini-infobar alone without our UI
   window.addEventListener('beforeinstallprompt', function (e) {
     e.preventDefault();
     deferredPrompt = e;
+    // Respectful delay: let the visitor breathe before offering install
     setTimeout(function () {
       if (!wasDismissedRecently() && !isStandalone()) showBanner();
     }, 4500);
@@ -166,7 +164,7 @@
     console.log('[Ra-Thor PWA] Installed');
   });
 
-  // Soft offer for iOS
+  // iOS: no beforeinstallprompt — soft hint after engagement delay if not dismissed
   function maybeIosSoftOffer() {
     var isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);
     if (!isIos || isStandalone() || wasDismissedRecently()) return;
@@ -177,34 +175,4 @@
 
   registerServiceWorker();
   maybeIosSoftOffer();
-
-  // Improved public API for the Install button on chat.html
-  window.rathorTriggerPWAInstall = function () {
-    if (isStandalone()) {
-      alert('Ra-Thor is already installed and running as an app.');
-      return;
-    }
-
-    // Best case: native prompt is available
-    if (deferredPrompt) {
-      deferredPrompt.prompt();
-      deferredPrompt.userChoice.then(function (choice) {
-        deferredPrompt = null;
-        hideBanner();
-        markDismissed();
-      });
-      return;
-    }
-
-    // Force show the banner even if previously dismissed
-    localStorage.removeItem(DISMISS_KEY);
-    showBanner();
-
-    // Fallback guidance after short delay if still no native prompt
-    setTimeout(function () {
-      if (!deferredPrompt && !isStandalone()) {
-        showIosHint();
-      }
-    }, 900);
-  };
 })();
