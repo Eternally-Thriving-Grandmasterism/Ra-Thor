@@ -37,7 +37,7 @@
     .golden-star { position: absolute; color: #ffd700; opacity: 0.35; pointer-events: none; animation: float 55s infinite linear, pulse 11s infinite ease-in-out; z-index: 0; font-size: 28px; }
     @keyframes float { 0% { transform: translateY(0) rotate(0deg); } 100% { transform: translateY(-120vh) rotate(360deg); } }
     @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
-    #chat-messages { display: flex; flex-direction: column; gap: 12px; padding: 1rem; overflow-y: auto; flex: 1; min-height: 160px; max-height: 32vh; -webkit-overflow-scrolling: touch; }
+    #chat-messages { display: flex; flex-direction: column; gap: 12px; padding: 1rem; overflow-y: auto; flex: 1; min-height: 160px; max-height: 42vh; -webkit-overflow-scrolling: touch; }
     .message { max-width: 88%; padding: 0.75rem 1rem; border-radius: 1.15rem; line-height: 1.5; font-size: 0.92rem; word-break: break-word; position: relative; }
     .message.user { align-self: flex-end; background: linear-gradient(135deg, #fcd34d, #f59e0b); color: #000; font-weight: 500; border-bottom-right-radius: 0.3rem; }
     .message.rathor { align-self: flex-start; background: linear-gradient(135deg, #1e1b4b, #312e81); color: #e0e7ff; border: 1px solid rgba(252, 211, 77, 0.25); border-bottom-left-radius: 0.3rem; }
@@ -54,51 +54,21 @@
     .msg-time { font-size: 0.62rem; opacity: 0.55; }
     .msg-copy { background: transparent; border: none; cursor: pointer; font-size: 0.68rem; opacity: 0.5; padding: 0.15rem 0.25rem; border-radius: 0.3rem; }
     .ctrl-btn { display: inline-flex; align-items: center; justify-content: center; padding: 0.4rem 0.55rem; font-size: 0.75rem; border-radius: 0.7rem; border: 1px solid rgba(252, 211, 77, 0.4); color: #fde68a; background: rgba(9, 9, 11, 0.85); transition: all 0.15s; white-space: nowrap; }
+    .ctrl-btn:hover { background: rgba(252, 211, 77, 0.15); }
     .ctrl-btn:active { transform: scale(0.96); }
     .ctrl-btn:disabled { opacity: 0.5; cursor: not-allowed; }
     .ctrl-btn.encrypted { border-color: #34d399; color: #34d399; }
     .input-row { display: flex; gap: 0.4rem; align-items: stretch; width: 100%; }
-    #chat-input { flex: 1 1 auto; min-width: 0; background: #0a0a0a; border: 1px solid rgba(252, 211, 77, 0.35); color: #fff; border-radius: 0.9rem; padding: 0.75rem 0.9rem; font-size: 0.95rem; }
+    #chat-input { flex: 1 1 auto; min-width: 0; background: #0a0a0a; border: 1px solid rgba(252, 211, 77, 0.35); color: #fff; border-radius: 0.9rem; padding: 0.75rem 1rem; font-size: 0.95rem; resize: none; min-height: 48px; max-height: 140px; }
     #chat-input:focus { outline: none; border-color: #fcd34d; box-shadow: 0 0 0 2px rgba(252, 211, 77, 0.2); }
-    #mic-btn, #send-btn, #doc-btn { flex: 0 0 auto; padding: 0.75rem 0.9rem; border-radius: 0.9rem; font-weight: 600; font-size: 0.9rem; border: none; display: flex; align-items: center; justify-content: center; gap: 0.25rem; }
-    #mic-btn { background: #1e1b4b; color: #c7d2fe; border: 1px solid rgba(139, 92, 246, 0.5); }
-    #mic-btn.listening { background: #7c3aed; color: #fff; animation: pulse-mic 1.2s infinite; }
-    @keyframes pulse-mic { 0%, 100% { box-shadow: 0 0 0 0 rgba(124, 58, 237, 0.5); } 50% { box-shadow: 0 0 0 8px rgba(124, 58, 237, 0); } }
-    #doc-btn { background: #0f172a; color: #94a3b8; border: 1px solid rgba(148, 163, 184, 0.4); }
-    #send-btn { background: #fbbf24; color: #000; }
-    #session-select { background: #0a0a0a; border: 1px solid rgba(252, 211, 77, 0.35); color: #fcd34d; border-radius: 0.7rem; padding: 0.35rem 0.5rem; font-size: 0.78rem; max-width: 120px; }
-    #search-input { background: #0a0a0a; border: 1px solid rgba(252, 211, 77, 0.3); color: #fde68a; border-radius: 0.6rem; padding: 0.3rem 0.55rem; font-size: 0.75rem; width: 110px; }
-    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.88); z-index: 50; align-items: center; justify-content: center; padding: 1rem; }
-    .modal-overlay.active { display: flex; }
-    .modal-content { background: #0a0a0a; border: 1px solid rgba(252, 211, 77, 0.4); border-radius: 1.25rem; padding: 1.5rem; max-width: 420px; width: 100%; max-height: 85vh; overflow-y: auto; }
-    input[type=range] { -webkit-appearance: none; height: 6px; border-radius: 3px; background: #333; width: 100%; }
-    input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; background: #fcd34d; cursor: pointer; }
-    .path-badge { font-size: 0.65rem; padding: 0.15rem 0.4rem; border-radius: 999px; background: rgba(252, 211, 77, 0.15); color: #fcd34d; }
-    .encrypt-badge { font-size: 0.62rem; padding: 0.12rem 0.4rem; border-radius: 999px; background: rgba(52, 211, 153, 0.18); color: #34d399; border: 1px solid rgba(52, 211, 153, 0.35); }
-    .doc-chip { display: inline-flex; align-items: center; gap: 0.3rem; background: rgba(52, 211, 153, 0.15); border: 1px solid rgba(52, 211, 153, 0.35); color: #6ee7b7; font-size: 0.7rem; padding: 0.2rem 0.5rem; border-radius: 999px; margin: 0.15rem; }
-    #unlock-overlay { z-index: 100; background: rgba(0,0,0,0.94); }
-    @media (max-width: 480px) {
-      #chat-messages { max-height: 27vh; min-height: 135px; padding: 0.8rem; }
-      .message { max-width: 93%; font-size: 0.9rem; padding: 0.7rem 0.85rem; }
-      .ctrl-btn { padding: 0.38rem 0.48rem; font-size: 0.72rem; }
-      #session-select { max-width: 95px; font-size: 0.72rem; }
-      #search-input { width: 85px; font-size: 0.7rem; }
-      #send-btn, #mic-btn, #doc-btn { padding: 0.7rem 0.75rem; font-size: 0.85rem; }
-      .golden-star { opacity: 0.2; font-size: 20px; }
-    }
-    @media (prefers-reduced-motion: reduce) {
-      .golden-star { animation: none !important; }
-      #mic-btn.listening { animation: none; }
-    }
+    #send-btn { background: linear-gradient(135deg, #fcd34d, #f59e0b); color: #000; font-weight: 600; border: none; border-radius: 0.9rem; padding: 0 1.25rem; font-size: 0.95rem; white-space: nowrap; }
+    #send-btn:disabled { opacity: 0.5; }
+    .path-badge { background: rgba(252, 211, 77, 0.15); color: #fde68a; padding: 0.15rem 0.5rem; border-radius: 999px; font-size: 0.7rem; }
+    .encrypt-badge { background: rgba(52, 211, 153, 0.15); color: #34d399; padding: 0.15rem 0.5rem; border-radius: 999px; font-size: 0.7rem; }
   </style>
 </head>
 <body class="bg-black text-white min-h-screen flex flex-col">
-
-  <div class="golden-star" style="top:8%;left:4%;">★</div>
-  <div class="golden-star" style="top:18%;left:92%;animation-delay:6s;">★</div>
-  <div class="golden-star" style="top:62%;left:3%;animation-delay:15s;">★</div>
-  <div class="golden-star" style="top:78%;left:90%;animation-delay:24s;">★</div>
-
+  <!-- Header -->
   <header class="relative z-10 border-b border-amber-300/20 bg-black/90">
     <div class="max-w-3xl mx-auto px-3 sm:px-4 py-3 flex items-center justify-between gap-2">
       <a href="/" class="inline-flex items-center gap-1.5 text-amber-300 text-sm font-medium shrink-0">
@@ -113,7 +83,10 @@
     </div>
   </header>
 
-  <main class="relative z-10 flex-1 flex flex-col max-w-3xl w-full mx-auto px-3 sm:px-4 py-3">
+  <!-- Main content -->
+  <main class="flex-1 flex flex-col max-w-3xl w-full mx-auto px-3 sm:px-4 py-3 relative z-10">
+    
+    <!-- Status + Control bar -->
     <div class="mb-2.5 rounded-2xl border border-amber-300/20 bg-zinc-950/80 px-3 py-2.5">
       <div class="flex flex-wrap items-center gap-1.5 mb-2">
         <span class="inline-flex items-center gap-1.5 text-emerald-400 text-xs font-medium">
@@ -125,21 +98,22 @@
         <span id="encrypt-status" class="encrypt-badge hidden"><i class="fa-solid fa-lock text-[9px]"></i> Encrypted</span>
         <span id="session-meta" class="text-white/40 text-xs ml-auto"></span>
       </div>
+
       <div class="flex flex-wrap items-center gap-1">
-        <select id="session-select" title="Switch session"></select>
+        <select id="session-select" title="Switch session" class="ctrl-btn bg-zinc-900 text-amber-200 text-xs max-w-[120px]"></select>
         <button id="new-session-btn" class="ctrl-btn" title="New session"><i class="fa-solid fa-plus"></i></button>
         <button id="rename-session-btn" class="ctrl-btn" title="Rename"><i class="fa-solid fa-pen"></i></button>
         <button id="delete-session-btn" class="ctrl-btn" title="Delete"><i class="fa-solid fa-trash"></i></button>
         <span class="text-white/15 mx-0.5">|</span>
-        <input id="search-input" type="search" placeholder="Search…" title="Search current session">
+        <input id="search-input" type="search" placeholder="Search…" title="Search current session" class="ctrl-btn bg-zinc-900 text-white text-xs w-24 sm:w-32">
         <button id="export-session-btn" class="ctrl-btn" title="Export"><i class="fa-solid fa-download"></i></button>
         <button id="export-all-btn" class="ctrl-btn" title="Export All"><i class="fa-solid fa-file-export"></i></button>
         <button id="import-session-btn" class="ctrl-btn" title="Import"><i class="fa-solid fa-upload"></i></button>
         <button id="copy-context-btn" class="ctrl-btn" title="Copy Context"><i class="fa-solid fa-clipboard"></i></button>
         <button id="voice-settings-btn" class="ctrl-btn" title="Voice / TTS"><i class="fa-solid fa-volume-high"></i></button>
         <button id="encrypt-btn" class="ctrl-btn" title="Optional Passphrase Encryption"><i class="fa-solid fa-lock"></i></button>
-
-        <!-- Install PWA button -->
+        
+        <!-- NEW: Install PWA button -->
         <button id="install-pwa-btn" class="ctrl-btn" title="Install Ra-Thor as a PWA" onclick="window.rathorTriggerPWAInstall && window.rathorTriggerPWAInstall()">
           <i class="fa-solid fa-download"></i>
           <span class="hidden sm:inline ml-1">Install</span>
@@ -147,66 +121,21 @@
       </div>
     </div>
 
-    <div class="mb-2.5 rounded-2xl border border-emerald-400/25 bg-emerald-950/20 px-3 py-2.5">
-      <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
-        <div class="min-w-0">
-          <p class="text-emerald-200 text-sm font-medium">Local Intelligence</p>
-          <p id="local-llm-status" class="text-[11px] text-white/50 mt-0.5 truncate">Fast responder active (default)</p>
-        </div>
-        <div class="flex gap-1.5">
-          <button id="local-llm-btn" class="ctrl-btn border-emerald-400/50 text-emerald-200 shrink-0"><i class="fa-solid fa-microchip"></i> WebLLM</button>
-          <button id="local-backend-btn" class="ctrl-btn border-cyan-400/50 text-cyan-200 shrink-0"><i class="fa-solid fa-server"></i> Local Server</button>
-        </div>
-      </div>
-      <div id="backend-settings" class="hidden mt-2 pt-2 border-t border-emerald-400/15">
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-          <div>
-            <label class="block text-cyan-200/80 mb-1">Endpoint</label>
-            <input id="backend-endpoint" type="text" value="http://localhost:11434/v1" class="w-full bg-black/60 border border-cyan-400/30 rounded-lg px-2 py-1.5 text-white text-xs">
-          </div>
-          <div>
-            <label class="block text-cyan-200/80 mb-1">Model</label>
-            <input id="backend-model" type="text" value="llama3.2" class="w-full bg-black/60 border border-cyan-400/30 rounded-lg px-2 py-1.5 text-white text-xs" placeholder="e.g. llama3.2, mistral, qwen2.5">
-          </div>
-        </div>
-        <div class="flex items-center gap-2 mt-2">
-          <button id="backend-connect-btn" class="ctrl-btn border-cyan-400/60 text-cyan-200 text-xs px-3"><i class="fa-solid fa-plug"></i> Connect</button>
-          <button id="backend-disconnect-btn" class="ctrl-btn text-xs px-3 hidden">Disconnect</button>
-          <span id="backend-status" class="text-[10px] text-white/40 ml-1">Not connected</span>
-        </div>
-      </div>
-      <div class="mt-2 h-1 bg-zinc-800 rounded-full overflow-hidden">
-        <div id="local-llm-progress" class="h-full bg-emerald-400 transition-all duration-300" style="width:0%"></div>
-      </div>
-      <p id="local-llm-note" class="text-[10px] text-white/40 mt-1.5 leading-snug">WebLLM = pure browser. Local Server = Ollama / LM Studio / any OpenAI-compatible endpoint on your machine.</p>
+    <!-- Chat messages -->
+    <div id="chat-messages" class="rounded-2xl border border-amber-300/15 bg-zinc-950/60 mb-3"></div>
+
+    <!-- Input area -->
+    <div class="input-row mb-2">
+      <textarea id="chat-input" placeholder="Speak or command your truth..." rows="1"></textarea>
+      <button id="send-btn" type="button">Send ⚡️</button>
     </div>
 
-    <div id="docs-bar" class="mb-2 hidden flex flex-wrap items-center gap-1"></div>
-    <div id="chat-messages" class="rounded-2xl border border-amber-300/15 bg-zinc-950/50 mb-2.5"></div>
-
-    <div class="rounded-2xl border border-amber-300/30 bg-zinc-950/90 p-2.5">
-      <div class="input-row">
-        <input id="chat-input" type="text" placeholder="Speak your truth…" autocomplete="off">
-        <button id="doc-btn" title="Upload document to inject into context"><i class="fa-solid fa-file-lines"></i></button>
-        <button id="mic-btn" title="Voice input (STT)"><i class="fa-solid fa-microphone"></i></button>
-        <button id="send-btn">Send <span>⚡️</span></button>
-      </div>
-      <p class="text-[10px] text-white/40 mt-1.5 text-center leading-snug">Offline core • Multi-session • Markdown • Document Injection • Optional Encryption</p>
-    </div>
-
-    <div class="mt-4 rounded-2xl border border-violet-400/30 bg-violet-950/20 px-3.5 py-4 text-center">
-      <p class="text-violet-200 font-medium text-sm mb-1">Bridge to any cloud LLM</p>
-      <p class="text-[11px] text-white/50 mb-3.5 leading-relaxed max-w-sm mx-auto">Recommended on phones: copy a clean system prompt + history, then paste into Grok, Claude, Gemini, ChatGPT, or any model.</p>
-      <button id="copy-context-btn-alt" class="inline-flex items-center justify-center gap-2 w-full max-w-xs mx-auto px-5 py-2.5 rounded-xl bg-violet-500/20 border border-violet-400 text-violet-200 text-sm font-medium mb-3">
-        <i class="fa-solid fa-clipboard"></i> Copy Context for any LLM
-      </button>
-      <div class="flex flex-col gap-2 max-w-xs mx-auto">
-        <a href="https://grok.com/share/c2hhcmQtMi1jb3B5_369534a8-8e0e-4d4b-8a5e-3578bdba1361" target="_blank" rel="noopener" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-amber-300/40 text-amber-200 text-sm"><i class="fa-solid fa-bolt"></i> Open Grok Demo</a>
-        <a href="/go-x.html" target="_blank" rel="noopener" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-cyan-300/40 text-cyan-200 text-sm"><i class="fa-brands fa-x-twitter"></i> Open X Demo</a>
-      </div>
-    </div>
+    <p class="text-center text-[11px] text-white/40 mb-2">
+      Offline core • Multi-session • Markdown • Document Injection • Optional Encryption
+    </p>
   </main>
 
+  <!-- Footer -->
   <footer class="relative z-10 border-t border-amber-300/15 py-5 mt-auto">
     <div class="max-w-3xl mx-auto px-4 text-center text-xs text-white/50">
       <p>© 2026 Sherif Samy Botros — Sole Steward of Autonomicity Games Inc.</p>
@@ -220,49 +149,7 @@
     </div>
   </footer>
 
-  <div id="voice-settings-overlay" class="modal-overlay">
-    <div class="modal-content">
-      <h2 class="title-font text-xl text-amber-300 mb-2 thunder-glow">Voice Settings ⚡️</h2>
-      <p class="text-xs text-white/50 mb-4">Browser Web Speech API only. Stays on your device.</p>
-      <div class="flex items-center gap-2 mb-4">
-        <input type="checkbox" id="tts-enabled" checked class="accent-amber-400 w-4 h-4">
-        <label for="tts-enabled" class="text-sm">Enable offline speech (TTS)</label>
-      </div>
-      <label class="block text-sm text-amber-200/80 mb-1">Pitch <span id="pitch-value">1.0</span></label>
-      <input type="range" id="voice-pitch" min="0.5" max="2.0" step="0.1" value="1.0" class="mb-3">
-      <label class="block text-sm text-amber-200/80 mb-1">Rate <span id="rate-value">1.0</span></label>
-      <input type="range" id="voice-rate" min="0.5" max="2.0" step="0.1" value="1.0" class="mb-3">
-      <label class="block text-sm text-amber-200/80 mb-1">Volume <span id="voice-volume-value">1.0</span></label>
-      <input type="range" id="voice-volume" min="0" max="1" step="0.1" value="1.0" class="mb-5">
-      <div class="flex gap-2">
-        <button id="voice-cancel" class="flex-1 py-2.5 rounded-xl border border-white/20 text-sm">Cancel</button>
-        <button id="voice-save" class="flex-1 py-2.5 rounded-xl bg-amber-400 text-black font-semibold text-sm">Save & Apply</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="unlock-overlay" class="modal-overlay">
-    <div class="modal-content text-center">
-      <div class="mb-3 text-3xl text-amber-300"><i class="fa-solid fa-lock"></i></div>
-      <h2 class="title-font text-xl text-amber-300 mb-2 thunder-glow">Session Store Locked</h2>
-      <p class="text-xs text-white/60 mb-5 leading-relaxed">Your sessions are protected with a passphrase.<br>Enter it to unlock. Nothing leaves your device.</p>
-      <input id="unlock-passphrase" type="password" placeholder="Passphrase" autocomplete="current-password" class="w-full bg-black border border-amber-300/40 rounded-xl px-4 py-3 text-white text-sm mb-3 focus:outline-none focus:border-amber-300">
-      <p id="unlock-error" class="text-red-400 text-xs mb-3 hidden">Incorrect passphrase</p>
-      <button id="unlock-btn" class="w-full py-3 rounded-xl bg-amber-400 text-black font-semibold text-sm">Unlock Lattice ⚡️</button>
-      <p class="text-[10px] text-white/40 mt-4">Forgetting the passphrase makes the data unrecoverable.</p>
-    </div>
-  </div>
-
-  <input type="file" id="import-file-input" accept=".json" style="display:none;">
-  <input type="file" id="doc-file-input" accept=".txt,.md,.json,.csv,.log" style="display:none;">
-
   <script src="/js/chat.js"></script>
-  <script>
-    const voiceOverlay = document.getElementById('voice-settings-overlay');
-    voiceOverlay?.addEventListener('click', (e) => {
-      if (e.target === voiceOverlay) voiceOverlay.classList.remove('active');
-    });
-  </script>
-  <script src="/js/pwa-install.js"></script>
+  <script src="/js/pwa-install.js" defer></script>
 </body>
 </html>
