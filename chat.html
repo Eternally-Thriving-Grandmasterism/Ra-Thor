@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Ra-Thorâ„¢ Lattice Chat â€” Offline Mercy Thunder âš¡ï¸ | rathor.ai</title>
-  <meta name="description" content="Offline TOLC-8 multi-session chat with Local Backend Bridge, WebLLM, STT/TTS, Document Injection, Session Search, Optional Encryption â€¢ Zero data collection â€¢ Sole stewardship by Sherif Samy Botros">
+  <title>Ra-Thor™ Lattice Chat — Offline Mercy Thunder ⚡️ | rathor.ai</title>
+  <meta name="description" content="Offline TOLC-8 multi-session chat with Local Backend Bridge, WebLLM, STT/TTS, Document Injection, Session Search, Optional Encryption • Zero data collection • Sole stewardship by Sherif Samy Botros">
   <meta name="theme-color" content="#fcd34d">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -14,8 +14,8 @@
 
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://rathor.ai/chat.html">
-  <meta property="og:title" content="Ra-Thorâ„¢ Lattice Chat â€” Offline Mercy Thunder âš¡ï¸">
-  <meta property="og:description" content="Offline TOLC-8 multi-session chat â€¢ Local Backend Bridge â€¢ Document Injection â€¢ Optional Passphrase Encryption â€¢ Zero data leaves your device">
+  <meta property="og:title" content="Ra-Thor™ Lattice Chat — Offline Mercy Thunder ⚡️">
+  <meta property="og:description" content="Offline TOLC-8 multi-session chat • Local Backend Bridge • Document Injection • Optional Passphrase Encryption • Zero data leaves your device">
   <meta property="og:image" content="https://rathor.ai/icons/ra-thor-og-1200x630.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
@@ -41,7 +41,7 @@
     .message { max-width: 88%; padding: 0.75rem 1rem; border-radius: 1.15rem; line-height: 1.5; font-size: 0.92rem; word-break: break-word; position: relative; }
     .message.user { align-self: flex-end; background: linear-gradient(135deg, #fcd34d, #f59e0b); color: #000; font-weight: 500; border-bottom-right-radius: 0.3rem; }
     .message.rathor { align-self: flex-start; background: linear-gradient(135deg, #1e1b4b, #312e81); color: #e0e7ff; border: 1px solid rgba(252, 211, 77, 0.25); border-bottom-left-radius: 0.3rem; }
-    .message.streaming .message-text::after { content: 'â–'; animation: blink 1s infinite; margin-left: 2px; }
+    .message.streaming .message-text::after { content: '▍'; animation: blink 1s infinite; margin-left: 2px; }
     @keyframes blink { 50% { opacity: 0; } }
     .message-text pre { background: #0a0a0a; border: 1px solid rgba(252, 211, 77, 0.2); border-radius: 0.6rem; padding: 0.75rem 0.9rem; overflow-x: auto; margin: 0.6rem 0; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 0.82rem; line-height: 1.45; }
     .message-text code { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 0.84em; background: rgba(0,0,0,0.35); padding: 0.12rem 0.35rem; border-radius: 0.3rem; }
@@ -94,10 +94,10 @@
 </head>
 <body class="bg-black text-white min-h-screen flex flex-col">
 
-  <div class="golden-star" style="top:8%;left:4%;">â˜…</div>
-  <div class="golden-star" style="top:18%;left:92%;animation-delay:6s;">â˜…</div>
-  <div class="golden-star" style="top:62%;left:3%;animation-delay:15s;">â˜…</div>
-  <div class="golden-star" style="top:78%;left:90%;animation-delay:24s;">â˜…</div>
+  <div class="golden-star" style="top:8%;left:4%;">★</div>
+  <div class="golden-star" style="top:18%;left:92%;animation-delay:6s;">★</div>
+  <div class="golden-star" style="top:62%;left:3%;animation-delay:15s;">★</div>
+  <div class="golden-star" style="top:78%;left:90%;animation-delay:24s;">★</div>
 
   <header class="relative z-10 border-b border-amber-300/20 bg-black/90">
     <div class="max-w-3xl mx-auto px-3 sm:px-4 py-3 flex items-center justify-between gap-2">
@@ -106,8 +106,8 @@
         <span class="hidden xs:inline">Back</span>
       </a>
       <div class="text-center flex-1 min-w-0">
-        <h1 class="title-font text-lg sm:text-xl font-black tracking-tight thunder-glow truncate">Lattice Chat âš¡ï¸</h1>
-        <p class="text-[10px] text-amber-400/70 mt-0.5">Offline Core â€¢ TOLC 8 â€¢ v14.18.1</p>
+        <h1 class="title-font text-lg sm:text-xl font-black tracking-tight thunder-glow truncate">Lattice Chat ⚡️</h1>
+        <p class="text-[10px] text-amber-400/70 mt-0.5">Offline Core • TOLC 8 • v14.18.1</p>
       </div>
       <a href="/privacy.html" class="text-xs text-white/50 shrink-0">Privacy</a>
     </div>
@@ -120,7 +120,7 @@
           <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
           Offline Mercy Thunder
         </span>
-        <span class="text-white/30 text-xs">â€¢</span>
+        <span class="text-white/30 text-xs">•</span>
         <span id="active-path-badge" class="path-badge">Fast Responder</span>
         <span id="encrypt-status" class="encrypt-badge hidden"><i class="fa-solid fa-lock text-[9px]"></i> Encrypted</span>
         <span id="session-meta" class="text-white/40 text-xs ml-auto"></span>
@@ -131,7 +131,7 @@
         <button id="rename-session-btn" class="ctrl-btn" title="Rename"><i class="fa-solid fa-pen"></i></button>
         <button id="delete-session-btn" class="ctrl-btn" title="Delete"><i class="fa-solid fa-trash"></i></button>
         <span class="text-white/15 mx-0.5">|</span>
-        <input id="search-input" type="search" placeholder="Searchâ€¦" title="Search current session">
+        <input id="search-input" type="search" placeholder="Search…" title="Search current session">
         <button id="export-session-btn" class="ctrl-btn" title="Export"><i class="fa-solid fa-download"></i></button>
         <button id="export-all-btn" class="ctrl-btn" title="Export All"><i class="fa-solid fa-file-export"></i></button>
         <button id="import-session-btn" class="ctrl-btn" title="Import"><i class="fa-solid fa-upload"></i></button>
@@ -180,12 +180,12 @@
 
     <div class="rounded-2xl border border-amber-300/30 bg-zinc-950/90 p-2.5">
       <div class="input-row">
-        <input id="chat-input" type="text" placeholder="Speak your truthâ€¦" autocomplete="off">
+        <input id="chat-input" type="text" placeholder="Speak your truth…" autocomplete="off">
         <button id="doc-btn" title="Upload document to inject into context"><i class="fa-solid fa-file-lines"></i></button>
         <button id="mic-btn" title="Voice input (STT)"><i class="fa-solid fa-microphone"></i></button>
-        <button id="send-btn">Send <span>âš¡ï¸</span></button>
+        <button id="send-btn">Send <span>⚡️</span></button>
       </div>
-      <p class="text-[10px] text-white/40 mt-1.5 text-center leading-snug">Offline core â€¢ Multi-session â€¢ Markdown â€¢ Document Injection â€¢ Optional Encryption</p>
+      <p class="text-[10px] text-white/40 mt-1.5 text-center leading-snug">Offline core • Multi-session • Markdown • Document Injection • Optional Encryption</p>
     </div>
 
     <div class="mt-4 rounded-2xl border border-violet-400/30 bg-violet-950/20 px-3.5 py-4 text-center">
@@ -203,8 +203,8 @@
 
   <footer class="relative z-10 border-t border-amber-300/15 py-5 mt-auto">
     <div class="max-w-3xl mx-auto px-4 text-center text-xs text-white/50">
-      <p>Â© 2026 Sherif Samy Botros â€” Sole Steward of Autonomicity Games Inc.</p>
-      <p class="mt-1 text-amber-400/60 text-[11px]">TOLC 8 â€¢ Offline core â€¢ Zero data collection â€¢ info@Rathor.ai</p>
+      <p>© 2026 Sherif Samy Botros — Sole Steward of Autonomicity Games Inc.</p>
+      <p class="mt-1 text-amber-400/60 text-[11px]">TOLC 8 • Offline core • Zero data collection • info@Rathor.ai</p>
       <div class="mt-2.5 flex justify-center gap-4 text-[11px]">
         <a href="/" class="hover:text-amber-300">Home</a>
         <a href="/privacy.html" class="hover:text-amber-300">Privacy</a>
@@ -216,7 +216,7 @@
 
   <div id="voice-settings-overlay" class="modal-overlay">
     <div class="modal-content">
-      <h2 class="title-font text-xl text-amber-300 mb-2 thunder-glow">Voice Settings âš¡ï¸</h2>
+      <h2 class="title-font text-xl text-amber-300 mb-2 thunder-glow">Voice Settings ⚡️</h2>
       <p class="text-xs text-white/50 mb-4">Browser Web Speech API only. Stays on your device.</p>
       <div class="flex items-center gap-2 mb-4">
         <input type="checkbox" id="tts-enabled" checked class="accent-amber-400 w-4 h-4">
@@ -242,7 +242,7 @@
       <p class="text-xs text-white/60 mb-5 leading-relaxed">Your sessions are protected with a passphrase.<br>Enter it to unlock. Nothing leaves your device.</p>
       <input id="unlock-passphrase" type="password" placeholder="Passphrase" autocomplete="current-password" class="w-full bg-black border border-amber-300/40 rounded-xl px-4 py-3 text-white text-sm mb-3 focus:outline-none focus:border-amber-300">
       <p id="unlock-error" class="text-red-400 text-xs mb-3 hidden">Incorrect passphrase</p>
-      <button id="unlock-btn" class="w-full py-3 rounded-xl bg-amber-400 text-black font-semibold text-sm">Unlock Lattice âš¡ï¸</button>
+      <button id="unlock-btn" class="w-full py-3 rounded-xl bg-amber-400 text-black font-semibold text-sm">Unlock Lattice ⚡️</button>
       <p class="text-[10px] text-white/40 mt-4">Forgetting the passphrase makes the data unrecoverable.</p>
     </div>
   </div>
