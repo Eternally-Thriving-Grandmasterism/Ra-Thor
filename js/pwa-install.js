@@ -101,7 +101,6 @@
 
     document.getElementById('rathor-pwa-install-btn').addEventListener('click', function () {
       if (!deferredPrompt) {
-        // iOS / browsers without beforeinstallprompt — show gentle guidance
         hideBanner();
         markDismissed();
         showIosHint();
@@ -128,7 +127,11 @@
 
   function showIosHint() {
     var isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);
-    if (!isIos) return;
+    if (!isIos) {
+      // Fallback for other browsers without deferredPrompt
+      alert('To install Ra-Thor: use your browser menu → "Install app" or "Add to Home Screen".');
+      return;
+    }
     var hint = document.createElement('div');
     hint.className =
       'fixed bottom-4 left-4 right-4 sm:left-auto sm:right-6 sm:max-w-sm z-[9999] ' +
@@ -147,11 +150,10 @@
     }, 12000);
   }
 
-  // Chromium install event — capture, never auto-show browser mini-infobar alone without our UI
+  // Chromium install event
   window.addEventListener('beforeinstallprompt', function (e) {
     e.preventDefault();
     deferredPrompt = e;
-    // Respectful delay: let the visitor breathe before offering install
     setTimeout(function () {
       if (!wasDismissedRecently() && !isStandalone()) showBanner();
     }, 4500);
@@ -164,7 +166,7 @@
     console.log('[Ra-Thor PWA] Installed');
   });
 
-  // iOS: no beforeinstallprompt — soft hint after engagement delay if not dismissed
+  // iOS soft offer
   function maybeIosSoftOffer() {
     var isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);
     if (!isIos || isStandalone() || wasDismissedRecently()) return;
@@ -175,4 +177,22 @@
 
   registerServiceWorker();
   maybeIosSoftOffer();
+
+  // Public API — for custom Install buttons (chat.html, etc.)
+  window.rathorTriggerPWAInstall = function () {
+    if (isStandalone()) {
+      alert('Ra-Thor is already installed and running as an app.');
+      return;
+    }
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then(function (choice) {
+        deferredPrompt = null;
+        hideBanner();
+        markDismissed();
+      });
+    } else {
+      showIosHint();
+    }
+  };
 })();
