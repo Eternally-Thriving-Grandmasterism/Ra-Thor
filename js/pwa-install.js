@@ -1,11 +1,11 @@
 /* js/pwa-install.js — Ra-Thor respectful PWA install lattice
- * TOLC-8 aligned • zero tracking • dismissible • offline-ready
+ * TOLC-8 aligned • zero tracking • offline-ready
+ * Now offers the install banner on every page load
  */
 (function () {
   'use strict';
 
   var DISMISS_KEY = 'rathor-pwa-install-dismissed';
-  var DISMISS_DAYS = 14;
   var deferredPrompt = null;
   var bannerEl = null;
 
@@ -15,18 +15,6 @@
       window.navigator.standalone === true ||
       document.referrer.includes('android-app://')
     );
-  }
-
-  function wasDismissedRecently() {
-    try {
-      var raw = localStorage.getItem(DISMISS_KEY);
-      if (!raw) return false;
-      var ts = parseInt(raw, 10);
-      if (isNaN(ts)) return false;
-      return Date.now() - ts < DISMISS_DAYS * 24 * 60 * 60 * 1000;
-    } catch (e) {
-      return false;
-    }
   }
 
   function markDismissed() {
@@ -59,7 +47,7 @@
   }
 
   function showBanner() {
-    if (bannerEl || isStandalone() || wasDismissedRecently()) return;
+    if (bannerEl || isStandalone()) return;
 
     bannerEl = document.createElement('div');
     bannerEl.id = 'rathor-pwa-banner';
@@ -101,9 +89,7 @@
 
     document.getElementById('rathor-pwa-install-btn').addEventListener('click', function () {
       if (!deferredPrompt) {
-        // iOS / browsers without beforeinstallprompt — show gentle guidance
         hideBanner();
-        markDismissed();
         showIosHint();
         return;
       }
@@ -111,7 +97,6 @@
       deferredPrompt.userChoice.then(function (choice) {
         deferredPrompt = null;
         hideBanner();
-        markDismissed();
         if (choice && choice.outcome === 'accepted') {
           console.log('[Ra-Thor PWA] User accepted install');
         }
@@ -119,7 +104,6 @@
     });
 
     function dismiss() {
-      markDismissed();
       hideBanner();
     }
     document.getElementById('rathor-pwa-dismiss-btn').addEventListener('click', dismiss);
@@ -128,7 +112,10 @@
 
   function showIosHint() {
     var isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);
-    if (!isIos) return;
+    if (!isIos) {
+      alert('To install Ra-Thor: use your browser menu → "Install app" or "Add to Home Screen".');
+      return;
+    }
     var hint = document.createElement('div');
     hint.className =
       'fixed bottom-4 left-4 right-4 sm:left-auto sm:right-6 sm:max-w-sm z-[9999] ' +
@@ -147,32 +134,52 @@
     }, 12000);
   }
 
-  // Chromium install event — capture, never auto-show browser mini-infobar alone without our UI
+  // Always capture the native install event
   window.addEventListener('beforeinstallprompt', function (e) {
     e.preventDefault();
     deferredPrompt = e;
-    // Respectful delay: let the visitor breathe before offering install
+
+    // Offer the banner every time (no more long dismiss period)
     setTimeout(function () {
-      if (!wasDismissedRecently() && !isStandalone()) showBanner();
-    }, 4500);
+      if (!isStandalone()) showBanner();
+    }, 2500); // slightly faster than before
   });
 
   window.addEventListener('appinstalled', function () {
     deferredPrompt = null;
     hideBanner();
-    markDismissed();
     console.log('[Ra-Thor PWA] Installed');
   });
 
-  // iOS: no beforeinstallprompt — soft hint after engagement delay if not dismissed
+  // Soft offer for iOS on every visit
   function maybeIosSoftOffer() {
     var isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);
-    if (!isIos || isStandalone() || wasDismissedRecently()) return;
+    if (!isIos || isStandalone()) return;
     setTimeout(function () {
-      if (!isStandalone() && !wasDismissedRecently()) showBanner();
-    }, 8000);
+      if (!isStandalone()) showBanner();
+    }, 4000);
   }
 
   registerServiceWorker();
   maybeIosSoftOffer();
+
+  // Public API for the Install button
+  window.rathorTriggerPWAInstall = function () {
+    if (isStandalone()) {
+      alert('Ra-Thor is already installed and running as an app.');
+      return;
+    }
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then(function () {
+        deferredPrompt = null;
+        hideBanner();
+      });
+    } else {
+      showBanner();
+      setTimeout(function () {
+        if (!deferredPrompt) showIosHint();
+      }, 600);
+    }
+  };
 })();
