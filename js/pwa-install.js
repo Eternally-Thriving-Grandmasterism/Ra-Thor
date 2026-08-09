@@ -128,7 +128,6 @@
   function showIosHint() {
     var isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);
     if (!isIos) {
-      // Fallback for other browsers without deferredPrompt
       alert('To install Ra-Thor: use your browser menu → "Install app" or "Add to Home Screen".');
       return;
     }
@@ -150,7 +149,6 @@
     }, 12000);
   }
 
-  // Chromium install event
   window.addEventListener('beforeinstallprompt', function (e) {
     e.preventDefault();
     deferredPrompt = e;
@@ -166,7 +164,6 @@
     console.log('[Ra-Thor PWA] Installed');
   });
 
-  // iOS soft offer
   function maybeIosSoftOffer() {
     var isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);
     if (!isIos || isStandalone() || wasDismissedRecently()) return;
@@ -178,7 +175,7 @@
   registerServiceWorker();
   maybeIosSoftOffer();
 
-  // Public API — for custom Install buttons (chat.html, etc.)
+  // Public API — required for the Install button on chat.html
   window.rathorTriggerPWAInstall = function () {
     if (isStandalone()) {
       alert('Ra-Thor is already installed and running as an app.');
