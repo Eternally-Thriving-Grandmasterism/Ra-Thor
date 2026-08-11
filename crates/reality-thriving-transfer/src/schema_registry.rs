@@ -1,9 +1,10 @@
 //! Schema Registry + Bridging Pass + Transfer Quality
-//! v14.17.0 — High-road skill transfer for Ra-Thor / Powrush coupling
+//! v14.18.1 — Challenge provenance from Powrush high-road practice
 //!
 //! Implements deliberate principle extraction (high-road) alongside
 //! similarity-triggered reuse (low-road), with mercy-gated provenance.
 //! Parses `powrush_bridging_context_v1` / `powrush_bridging_batch_v1` from Powrush.
+//! Optional challenge_* fields (v21.91.1+) enrich tags without breaking older payloads.
 //!
 //! Theoretical anchors: Perkins & Salomon (low-road / high-road),
 //! identical elements, schema theory, metacognitive scaffolding.
@@ -87,9 +88,32 @@ pub struct BridgingContext {
     pub peaceful_rate: f64,
     pub abundance_velocity: f64,
     pub surface_label: String,
+    pub challenge_id: Option<u64>,
+    pub challenge_title: Option<String>,
+    pub challenge_principle: Option<String>,
 }
 
-/// Wire envelope from Powrush `powrush_bridging_context_v1` (extra fields ignored on map).
+impl Default for BridgingContext {
+    fn default() -> Self {
+        Self {
+            session_id: None,
+            realm_id: None,
+            decision_title: None,
+            decision_type: None,
+            mercy_factor: 0.0,
+            ethical_score: 0.0,
+            rbe_quality: 0.0,
+            peaceful_rate: 0.0,
+            abundance_velocity: 0.0,
+            surface_label: String::new(),
+            challenge_id: None,
+            challenge_title: None,
+            challenge_principle: None,
+        }
+    }
+}
+
+/// Wire envelope from Powrush `powrush_bridging_context_v1`.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PowrushBridgingEnvelope {
     pub schema: String,
@@ -112,6 +136,12 @@ pub struct PowrushBridgingEnvelope {
     pub decision_id: Option<u64>,
     #[serde(default)]
     pub tick: Option<u64>,
+    #[serde(default)]
+    pub challenge_id: Option<u64>,
+    #[serde(default)]
+    pub challenge_title: Option<String>,
+    #[serde(default)]
+    pub challenge_principle: Option<String>,
 }
 
 impl PowrushBridgingEnvelope {
@@ -131,6 +161,9 @@ impl PowrushBridgingEnvelope {
             } else {
                 self.surface_label.clone()
             },
+            challenge_id: self.challenge_id,
+            challenge_title: self.challenge_title.clone(),
+            challenge_principle: self.challenge_principle.clone(),
         }
     }
 }
@@ -156,20 +189,27 @@ pub fn bridging_pass(ctx: &BridgingContext) -> BridgingPassResult {
     let mut extracted = Vec::new();
     let mut notes = Vec::new();
 
+    let challenge_tag = ctx.challenge_id.map(|id| format!("challenge_{}", id));
+
     if ctx.rbe_quality >= 0.65 && ctx.abundance_velocity >= 0.8 {
         let id = format!(
             "schema_rbe_alloc_{}",
             ctx.session_id.as_deref().unwrap_or("anon")
         );
+        let principle = ctx
+            .challenge_principle
+            .clone()
+            .filter(|p| p.to_lowercase().contains("allocation") || p.to_lowercase().contains("resource"))
+            .unwrap_or_else(|| {
+                "resource allocation under abundance pressure with sustainability bias".into()
+            });
+        let mut tags = vec!["rbe".into(), "abundance".into(), "allocation".into()];
+        if let Some(ref t) = challenge_tag {
+            tags.push(t.clone());
+        }
         extracted.push(
-            PortablePrincipleSchema::new(
-                id,
-                "resource allocation under abundance pressure with sustainability bias",
-                vec!["rbe".into(), "abundance".into(), "allocation".into()],
-                ctx.mercy_factor,
-                ctx.ethical_score,
-            )
-            .with_origin(ctx.session_id.clone(), ctx.realm_id),
+            PortablePrincipleSchema::new(id, principle, tags, ctx.mercy_factor, ctx.ethical_score)
+                .with_origin(ctx.session_id.clone(), ctx.realm_id),
         );
         notes.push("Extracted RBE allocation schema (high-road).".into());
     }
@@ -179,15 +219,20 @@ pub fn bridging_pass(ctx: &BridgingContext) -> BridgingPassResult {
             "schema_peaceful_resolve_{}",
             ctx.session_id.as_deref().unwrap_or("anon")
         );
+        let principle = ctx
+            .challenge_principle
+            .clone()
+            .filter(|p| p.to_lowercase().contains("peace") || p.to_lowercase().contains("resolution"))
+            .unwrap_or_else(|| {
+                "peaceful resolution under incomplete information with ethical priority".into()
+            });
+        let mut tags = vec!["peace".into(), "ethics".into(), "council".into()];
+        if let Some(ref t) = challenge_tag {
+            tags.push(t.clone());
+        }
         extracted.push(
-            PortablePrincipleSchema::new(
-                id,
-                "peaceful resolution under incomplete information with ethical priority",
-                vec!["peace".into(), "ethics".into(), "council".into()],
-                ctx.mercy_factor,
-                ctx.ethical_score,
-            )
-            .with_origin(ctx.session_id.clone(), ctx.realm_id),
+            PortablePrincipleSchema::new(id, principle, tags, ctx.mercy_factor, ctx.ethical_score)
+                .with_origin(ctx.session_id.clone(), ctx.realm_id),
         );
         notes.push("Extracted peaceful-resolution schema (high-road).".into());
     }
@@ -197,17 +242,48 @@ pub fn bridging_pass(ctx: &BridgingContext) -> BridgingPassResult {
             "schema_mercy_priority_{}",
             ctx.session_id.as_deref().unwrap_or("anon")
         );
+        let principle = ctx
+            .challenge_principle
+            .clone()
+            .filter(|p| p.to_lowercase().contains("mercy"))
+            .unwrap_or_else(|| "mercy-first prioritization when stakes are high".into());
+        let mut tags = vec!["mercy".into(), "tolc".into(), "priority".into()];
+        if let Some(ref t) = challenge_tag {
+            tags.push(t.clone());
+        }
         extracted.push(
-            PortablePrincipleSchema::new(
-                id,
-                "mercy-first prioritization when stakes are high",
-                vec!["mercy".into(), "tolc".into(), "priority".into()],
-                ctx.mercy_factor,
-                ctx.ethical_score,
-            )
-            .with_origin(ctx.session_id.clone(), ctx.realm_id),
+            PortablePrincipleSchema::new(id, principle, tags, ctx.mercy_factor, ctx.ethical_score)
+                .with_origin(ctx.session_id.clone(), ctx.realm_id),
         );
         notes.push("Extracted mercy-priority schema (high-road).".into());
+    }
+
+    // Explicit challenge principle when no threshold schema fired but practice context present
+    if extracted.is_empty() {
+        if let Some(ref principle) = ctx.challenge_principle {
+            if ctx.mercy_factor >= 0.55 {
+                let id = format!(
+                    "schema_challenge_{}_{}",
+                    ctx.challenge_id.unwrap_or(0),
+                    ctx.session_id.as_deref().unwrap_or("anon")
+                );
+                let mut tags = vec!["challenge".into(), "high_road".into()];
+                if let Some(ref t) = challenge_tag {
+                    tags.push(t.clone());
+                }
+                extracted.push(
+                    PortablePrincipleSchema::new(
+                        id,
+                        principle.clone(),
+                        tags,
+                        ctx.mercy_factor,
+                        ctx.ethical_score,
+                    )
+                    .with_origin(ctx.session_id.clone(), ctx.realm_id),
+                );
+                notes.push("Extracted challenge-principle schema (high-road practice).".into());
+            }
+        }
     }
 
     if let Some(ref dtype) = ctx.decision_type {
@@ -217,6 +293,10 @@ pub fn bridging_pass(ctx: &BridgingContext) -> BridgingPassResult {
                 dtype
             ));
         }
+    }
+
+    if let Some(ref title) = ctx.challenge_title {
+        notes.push(format!("Active practice challenge: {}", title));
     }
 
     if extracted.is_empty() {
@@ -494,10 +574,15 @@ mod tests {
             peaceful_rate: 0.92,
             abundance_velocity: 1.4,
             surface_label: "realm_2_council".into(),
+            challenge_id: Some(1),
+            challenge_title: Some("Caps Across Climates".into()),
+            challenge_principle: Some("resource allocation under uncertainty".into()),
         };
         let result = bridging_pass(&ctx);
         assert!(result.high_road_effort);
         assert!(!result.extracted.is_empty());
+        assert!(result.extracted.iter().any(|s| s.tags.iter().any(|t| t == "challenge_1")));
+        assert!(result.notes.iter().any(|n| n.contains("Caps Across Climates")));
     }
 
     #[test]
