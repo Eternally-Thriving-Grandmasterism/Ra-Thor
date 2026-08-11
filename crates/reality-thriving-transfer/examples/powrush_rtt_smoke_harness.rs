@@ -1,4 +1,4 @@
-//! Powrush → Ra-Thor RTT smoke harness
+//! Powrush → Ra-Thor RTT + SchemaRegistry smoke harness
 //!
 //! ```bash
 //! cargo run -p reality-thriving-transfer --example powrush_rtt_smoke_harness
@@ -12,8 +12,9 @@
 //! Contact: info@Rathor.ai | TOLC 8 + PATSAGi | Thunder locked in. Yoi ⚡
 
 use reality_thriving_transfer::{
-    compute_scores_from_batch, parse_powrush_telemetry_batch_json, parse_powrush_telemetry_json,
-    RealityThrivingTransferCalculator,
+    bridge_and_ingest, compute_scores_from_batch, metacognitive_prompt,
+    parse_powrush_telemetry_batch_json, parse_powrush_telemetry_json,
+    MetaPhase, RealityThrivingTransferCalculator, SchemaRegistry, TransferQualityMetrics,
 };
 use std::env;
 use std::fs;
@@ -68,13 +69,19 @@ fn parse_args() -> (Option<String>, Option<String>) {
 #[tokio::main]
 async fn main() {
     println!("═══════════════════════════════════════════════════════════");
-    println!("  Ra-Thor × Powrush RTT Smoke Harness");
-    println!("  schema: powrush_telemetry_v1 / batch_v1");
+    println!("  Ra-Thor × Powrush RTT + SchemaRegistry Smoke Harness");
+    println!("  schema: powrush_telemetry_v1 / batch_v1 + high-road bridge");
     println!("  contact: info@Rathor.ai");
     println!("═══════════════════════════════════════════════════════════\n");
 
     let (single_path, batch_path) = parse_args();
     let calc = RealityThrivingTransferCalculator::new();
+    let mut registry = SchemaRegistry::new();
+
+    // --- Metacognitive planning pulse ---
+    if let Some(p) = metacognitive_prompt(MetaPhase::Planning, 0.85) {
+        println!("[meta] planning: {}", p);
+    }
 
     // --- Single session ---
     let single_json = read_or_fixture(single_path.as_deref(), FIXTURE_HIGH);
@@ -97,6 +104,26 @@ async fn main() {
                     println!("[v1] note: {}", score.council_note);
                 }
                 Err(e) => println!("[v1] Mercy Gate REJECT: {}", e),
+            }
+
+            // High-road bridging → SchemaRegistry
+            let result = bridge_and_ingest(
+                &mut registry,
+                &env.telemetry,
+                env.session_id.clone(),
+                env.label.clone(),
+            );
+            println!(
+                "[bridge] high_road={} extracted={} notes={:?}",
+                result.high_road_effort,
+                result.extracted.len(),
+                result.notes
+            );
+            for s in &result.extracted {
+                println!(
+                    "  • schema_id={} principle={} mercy={:.2} tags={:?}",
+                    s.schema_id, s.principle, s.mercy_at_birth, s.tags
+                );
             }
         }
         Err(e) => println!("[v1] parse REJECT: {}", e),
@@ -122,6 +149,15 @@ async fn main() {
                             score.mercy_audit_passed
                         );
                     }
+                    // Bridge each session into registry
+                    for session in &batch.sessions {
+                        let _ = bridge_and_ingest(
+                            &mut registry,
+                            &session.telemetry,
+                            session.session_id.clone(),
+                            session.label.clone(),
+                        );
+                    }
                     if let (Some(h), Some(m)) = (
                         scored.iter().find(|(l, _)| l.contains("high_mercy")),
                         scored.iter().find(|(l, _)| l.contains("marginal")),
@@ -137,6 +173,36 @@ async fn main() {
             }
         }
         Err(e) => println!("[batch] parse REJECT: {}", e),
+    }
+
+    // --- Registry retrieval demo ---
+    println!("\n[registry] schemas={}", registry.len());
+    let near = registry.retrieve_near(&["rbe", "mercy"], 0.3);
+    println!("[registry] near(rbe|mercy) hits={}", near.len());
+    let far = registry.retrieve_far("allocation", 0.3);
+    println!("[registry] far(allocation) hits={}", far.len());
+    if let Some(first) = near.first().or(far.first()) {
+        match registry.try_apply(&first.schema_id.clone(), true, 0.5) {
+            Ok(s) => println!(
+                "[registry] try_apply FAR OK id={} reliability={:.3}",
+                s.schema_id, s.reliability
+            ),
+            Err(e) => println!("[registry] try_apply REJECT: {}", e),
+        }
+    }
+
+    let metrics = TransferQualityMetrics::from_registry(&registry, 0.9, 0.85);
+    println!(
+        "[quality] near_rate={:.2} far_rate={:.2} schemas={} bridging_passes={} meta={:.2}",
+        metrics.near_rate(),
+        metrics.far_rate(),
+        metrics.schemas_in_registry,
+        metrics.bridging_passes_run,
+        metrics.metacognitive_compliance
+    );
+
+    if let Some(p) = metacognitive_prompt(MetaPhase::Evaluation, 0.85) {
+        println!("[meta] evaluation: {}", p);
     }
 
     // --- Mercy gate rejection paths ---
@@ -170,6 +236,6 @@ async fn main() {
         Err(e) => println!("[gates] correctly REJECTED wrong schema: {}", e),
     }
 
-    println!("\n[smoke] complete — dual-repo bridge paths exercised.");
+    println!("\n[smoke] complete — RTT + high-road SchemaRegistry paths exercised.");
     println!("Thunder locked in. Yoi ⚡");
 }
