@@ -1,4 +1,4 @@
-//! reality-thriving-transfer v14.18.0
+//! reality-thriving-transfer v14.18.1
 //!
 //! Reality Thriving Transfer Score + Kardashev benchmark harness.
 //! Phase C: Powrush-MMO telemetry contract + offline JSON fixture ingest.
@@ -7,7 +7,7 @@
 //! Schema Registry + Bridging Pass + Transfer Quality (high-road / low-road transfer).
 //! Parses `powrush_bridging_context_v1` / `powrush_bridging_batch_v1` from Powrush.
 //! Lattice Conductor soft hook for SchemaRegistry queries (zero hard-dep).
-//! Provenance fields optional (Powrush v21.77+).
+//! Optional challenge_* provenance (Powrush v21.91.1+).
 //!
 //! Companion open-SMR crate: https://github.com/Eternally-Thriving-Grandmasterism/SMR
 //! See `POWRUSH_TELEMETRY_CONTRACT.md` and `fixtures/`.
@@ -216,6 +216,9 @@ pub fn bridging_context_from_telemetry(
         peaceful_rate: tel.peaceful_resolution_rate,
         abundance_velocity: tel.abundance_velocity_signals,
         surface_label: surface_label.into(),
+        challenge_id: None,
+        challenge_title: None,
+        challenge_principle: None,
     }
 }
 
@@ -454,8 +457,6 @@ mod tests {
     use super::*;
 
     const FIXTURE_HIGH: &str = include_str!("../fixtures/session_high_mercy.json");
-    const FIXTURE_MARGINAL: &str = include_str!("../fixtures/session_marginal.json");
-    const FIXTURE_EARLY: &str = include_str!("../fixtures/session_early_player.json");
     const FIXTURE_BATCH: &str = include_str!("../fixtures/batch_three_sessions.json");
     const FIXTURE_BRIDGING: &str = include_str!("../fixtures/bridging_context_high_mercy.json");
 
