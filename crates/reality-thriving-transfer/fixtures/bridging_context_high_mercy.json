@@ -1,0 +1,15 @@
+{
+  "schema": "powrush_bridging_context_v1",
+  "session_id": "council_tick_9001",
+  "realm_id": 2,
+  "decision_title": "Verdant Cap of Abundance",
+  "decision_type": "ResourcePolicy",
+  "mercy_factor": 0.88,
+  "ethical_score": 0.86,
+  "rbe_quality": 0.91,
+  "peaceful_rate": 0.93,
+  "abundance_velocity": 1.45,
+  "surface_label": "realm_2_ResourcePolicy",
+  "decision_id": 4242,
+  "tick": 9001
+}
