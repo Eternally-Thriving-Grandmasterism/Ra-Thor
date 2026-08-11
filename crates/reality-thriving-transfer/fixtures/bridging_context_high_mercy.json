@@ -9,7 +9,10 @@
   "rbe_quality": 0.91,
   "peaceful_rate": 0.93,
   "abundance_velocity": 1.45,
-  "surface_label": "realm_2_ResourcePolicy",
+  "surface_label": "realm_2_ResourcePolicy|challenge_1_resource_allocation_under_uncertainty",
   "decision_id": 4242,
-  "tick": 9001
+  "tick": 9001,
+  "challenge_id": 1,
+  "challenge_title": "Caps Across Climates",
+  "challenge_principle": "resource allocation under uncertainty"
 }
