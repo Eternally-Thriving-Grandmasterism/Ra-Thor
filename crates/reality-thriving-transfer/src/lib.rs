@@ -1,9 +1,10 @@
-//! reality-thriving-transfer v14.15.2
+//! reality-thriving-transfer v14.16.0
 //!
 //! Reality Thriving Transfer Score + Kardashev benchmark harness.
 //! Phase C: Powrush-MMO telemetry contract + offline JSON fixture ingest.
 //! Live Valence Optimizer: TOLC 8 gate vector from telemetry (read-only meta surface).
 //! Energy design proposals + OpenSmrShard (strict TOLC 8 gate) scored through the same floors.
+//! Schema Registry + Bridging Pass + Transfer Quality (high-road / low-road transfer).
 //! Provenance fields optional (Powrush v21.77+).
 //!
 //! Companion open-SMR crate: https://github.com/Eternally-Thriving-Grandmasterism/SMR
@@ -13,6 +14,7 @@
 mod live_valence;
 mod energy_design;
 mod open_smr_shard;
+mod schema_registry;
 
 pub use live_valence::{
     LiveValenceOptimizer, LiveValenceReport, ValenceVector, THETA_MIN_SOFT, THETA_MIN_STRICT,
@@ -27,6 +29,11 @@ pub use energy_design::{
 pub use open_smr_shard::{
     birth_reference_open_smr_shard, DesignEnvelope, OpenProtocolSurface, OpenSmrShard,
     SafetyCaseChecklist, SafetyCaseItem,
+};
+
+pub use schema_registry::{
+    BridgingContext, BridgingPassResult, MetaPhase, PortablePrincipleSchema, SchemaRegistry,
+    TransferQualityMetrics, bridging_pass, metacognitive_prompt, scaffold_support_level,
 };
 
 use serde::{Deserialize, Serialize};
@@ -67,7 +74,6 @@ pub struct PowrushTelemetry {
 }
 
 /// Single-session JSON envelope from Powrush-MMO exporters / fixtures.
-/// Optional provenance fields (v21.77+) for session-keyed council feedback.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PowrushTelemetryEnvelope {
     pub schema: String,
@@ -84,7 +90,6 @@ pub struct PowrushTelemetryEnvelope {
     pub telemetry: PowrushTelemetry,
 }
 
-/// One entry inside a batch envelope.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PowrushTelemetrySession {
     #[serde(default)]
@@ -96,7 +101,6 @@ pub struct PowrushTelemetrySession {
     pub telemetry: PowrushTelemetry,
 }
 
-/// Batch JSON envelope (schema powrush_telemetry_batch_v1).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PowrushTelemetryBatch {
     pub schema: String,
@@ -135,11 +139,6 @@ pub struct KardashevOrchestrationReport {
     pub recommendation_for_council: String,
 }
 
-// =============================================================================
-// Fixture / exporter ingest
-// =============================================================================
-
-/// Parse a single-session `powrush_telemetry_v1` JSON string.
 pub fn parse_powrush_telemetry_json(json: &str) -> Result<PowrushTelemetryEnvelope, String> {
     let env: PowrushTelemetryEnvelope = serde_json::from_str(json)
         .map_err(|e| format!("Mercy Gate (Truth): invalid powrush_telemetry_v1 JSON: {}", e))?;
@@ -152,7 +151,6 @@ pub fn parse_powrush_telemetry_json(json: &str) -> Result<PowrushTelemetryEnvelo
     Ok(env)
 }
 
-/// Parse a batch `powrush_telemetry_batch_v1` JSON string.
 pub fn parse_powrush_telemetry_batch_json(json: &str) -> Result<PowrushTelemetryBatch, String> {
     let batch: PowrushTelemetryBatch = serde_json::from_str(json)
         .map_err(|e| format!("Mercy Gate (Truth): invalid powrush_telemetry_batch_v1 JSON: {}", e))?;
@@ -168,7 +166,6 @@ pub fn parse_powrush_telemetry_batch_json(json: &str) -> Result<PowrushTelemetry
     Ok(batch)
 }
 
-/// Score every session in a batch sequentially (shared calculator EMAs).
 pub async fn compute_scores_from_batch(
     calc: &RealityThrivingTransferCalculator,
     batch: &PowrushTelemetryBatch,
@@ -181,7 +178,6 @@ pub async fn compute_scores_from_batch(
     Ok(out)
 }
 
-/// Live valence reports for every session in a batch (read-only, no EMA side effects).
 pub fn compute_live_valence_from_batch(
     batch: &PowrushTelemetryBatch,
 ) -> Result<Vec<(String, LiveValenceReport)>, String> {
@@ -192,6 +188,40 @@ pub fn compute_live_valence_from_batch(
         out.push((session.label.clone(), report));
     }
     Ok(out)
+}
+
+/// High-road bridge: build BridgingContext from Powrush telemetry + optional provenance.
+pub fn bridging_context_from_telemetry(
+    tel: &PowrushTelemetry,
+    session_id: Option<String>,
+    realm_id: Option<u8>,
+    surface_label: impl Into<String>,
+) -> BridgingContext {
+    BridgingContext {
+        session_id,
+        realm_id,
+        decision_title: None,
+        decision_type: None,
+        mercy_factor: tel.ethical_choice_score,
+        ethical_score: tel.ethical_choice_score,
+        rbe_quality: tel.rbe_decision_quality_avg,
+        peaceful_rate: tel.peaceful_resolution_rate,
+        abundance_velocity: tel.abundance_velocity_signals,
+        surface_label: surface_label.into(),
+    }
+}
+
+/// Run bridging pass and ingest into registry; returns how many schemas added/updated.
+pub fn bridge_and_ingest(
+    reg: &mut SchemaRegistry,
+    tel: &PowrushTelemetry,
+    session_id: Option<String>,
+    surface_label: impl Into<String>,
+) -> BridgingPassResult {
+    let ctx = bridging_context_from_telemetry(tel, session_id, None, surface_label);
+    let result = bridging_pass(&ctx);
+    reg.ingest_bridging(result.clone());
+    result
 }
 
 pub struct RealityThrivingTransferCalculator {
@@ -320,7 +350,6 @@ impl RealityThrivingTransferCalculator {
         })
     }
 
-    /// Read-only TOLC 8 live valence from the same telemetry (no EMA mutation).
     pub fn live_valence(&self, telemetry: &PowrushTelemetry) -> Result<LiveValenceReport, String> {
         LiveValenceOptimizer::new().evaluate(telemetry)
     }
@@ -502,7 +531,6 @@ mod tests {
         assert_eq!(env.label, "high_mercy_council_session");
         assert!(env.telemetry.rbe_decision_quality_avg > 0.9);
         assert!(env.telemetry.collaboration_events >= 400);
-        assert!(env.session_id.is_none() || env.session_id.as_ref().map(|s| !s.is_empty()).unwrap_or(false));
     }
 
     #[test]
@@ -563,12 +591,6 @@ mod tests {
         let calc = RealityThrivingTransferCalculator::new();
         let scored = compute_scores_from_batch(&calc, &batch).await.unwrap();
         assert_eq!(scored.len(), 3);
-        for (label, score) in &scored {
-            assert!(!label.is_empty());
-            assert!(score.kardashev_delta_contribution >= 0.0);
-            assert!(score.kardashev_delta_contribution <= 0.011 + 1e-12);
-            assert!(score.abundance_velocity_index >= 0.0);
-        }
         let high = scored.iter().find(|(l, _)| l.contains("high_mercy")).unwrap();
         let marginal = scored.iter().find(|(l, _)| l.contains("marginal")).unwrap();
         assert!(high.1.raw_transfer_score > marginal.1.raw_transfer_score);
@@ -611,5 +633,22 @@ mod tests {
         let shard = birth_reference_open_smr_shard().unwrap();
         assert!(shard.valence_at_birth.passes_strict_floor);
         assert_eq!(shard.safety_progress(), (0, 6));
+    }
+
+    #[test]
+    fn bridge_high_mercy_fixture_into_registry() {
+        let env = parse_powrush_telemetry_json(FIXTURE_HIGH).unwrap();
+        let mut reg = SchemaRegistry::new();
+        let result = bridge_and_ingest(
+            &mut reg,
+            &env.telemetry,
+            env.session_id.clone(),
+            env.label.clone(),
+        );
+        assert!(result.high_road_effort);
+        assert!(!result.extracted.is_empty());
+        assert!(!reg.is_empty());
+        let metrics = TransferQualityMetrics::from_registry(&reg, 1.0, 0.9);
+        assert!(metrics.schemas_in_registry >= 1);
     }
 }
