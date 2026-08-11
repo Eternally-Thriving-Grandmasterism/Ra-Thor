@@ -1,8 +1,8 @@
 [package]
 name = "reality-thriving-transfer"
-version = "14.17.0"
+version = "14.18.0"
 edition = "2021"
-description = "Ra-Thor Reality Thriving Transfer + Schema Registry + Bridging JSON ingest (high-road transfer) + Kardashev harness (ONE Organism 14.17)"
+description = "Ra-Thor RTT + Schema Registry + Bridging ingest + Lattice Conductor soft hook (ONE Organism 14.18)"
 license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
 authors = ["Eternally-Thriving-Grandmasterism", "Sherif Samy Botros <info@Rathor.ai>"]
 
