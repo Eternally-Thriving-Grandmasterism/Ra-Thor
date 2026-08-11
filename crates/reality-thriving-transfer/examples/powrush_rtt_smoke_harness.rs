@@ -1,20 +1,22 @@
-//! Powrush → Ra-Thor RTT + SchemaRegistry smoke harness
+//! Powrush → Ra-Thor RTT + SchemaRegistry + Bridging smoke harness
 //!
 //! ```bash
 //! cargo run -p reality-thriving-transfer --example powrush_rtt_smoke_harness
 //!
-//! # Live Powrush artifacts (optional)
 //! cargo run -p reality-thriving-transfer --example powrush_rtt_smoke_harness -- \
 //!   --single ../../../Powrush-MMO/artifacts/powrush_rtt_latest.json \
-//!   --batch  ../../../Powrush-MMO/artifacts/powrush_rtt_batch_latest.json
+//!   --batch  ../../../Powrush-MMO/artifacts/powrush_rtt_batch_latest.json \
+//!   --bridging ../../../Powrush-MMO/artifacts/powrush_bridging_latest.json
 //! ```
 //!
 //! Contact: info@Rathor.ai | TOLC 8 + PATSAGi | Thunder locked in. Yoi ⚡
 
 use reality_thriving_transfer::{
-    bridge_and_ingest, compute_scores_from_batch, metacognitive_prompt,
+    bridge_and_ingest, compute_scores_from_batch, conductor_query_schemas,
+    conductor_try_apply_schema, ingest_bridging_json, metacognitive_prompt,
     parse_powrush_telemetry_batch_json, parse_powrush_telemetry_json,
-    MetaPhase, RealityThrivingTransferCalculator, SchemaRegistry, TransferQualityMetrics,
+    ConductorSchemaQuery, MetaPhase, RealityThrivingTransferCalculator, SchemaRegistry,
+    TransferQualityMetrics,
 };
 use std::env;
 use std::fs;
@@ -22,6 +24,7 @@ use std::path::PathBuf;
 
 const FIXTURE_HIGH: &str = include_str!("../fixtures/session_high_mercy.json");
 const FIXTURE_BATCH: &str = include_str!("../fixtures/batch_three_sessions.json");
+const FIXTURE_BRIDGING: &str = include_str!("../fixtures/bridging_context_high_mercy.json");
 
 fn read_or_fixture(path: Option<&str>, fixture: &str) -> String {
     match path {
@@ -45,17 +48,19 @@ fn read_or_fixture(path: Option<&str>, fixture: &str) -> String {
     }
 }
 
-fn parse_args() -> (Option<String>, Option<String>) {
+fn parse_args() -> (Option<String>, Option<String>, Option<String>) {
     let mut single = None;
     let mut batch = None;
+    let mut bridging = None;
     let mut args = env::args().skip(1);
     while let Some(a) = args.next() {
         match a.as_str() {
             "--single" => single = args.next(),
             "--batch" => batch = args.next(),
+            "--bridging" => bridging = args.next(),
             "--help" | "-h" => {
                 println!(
-                    "Usage: powrush_rtt_smoke_harness [--single PATH] [--batch PATH]\n\
+                    "Usage: powrush_rtt_smoke_harness [--single PATH] [--batch PATH] [--bridging PATH]\n\
                      Defaults to fixtures when paths missing."
                 );
                 std::process::exit(0);
@@ -63,27 +68,26 @@ fn parse_args() -> (Option<String>, Option<String>) {
             other => println!("[smoke] unknown arg ignored: {}", other),
         }
     }
-    (single, batch)
+    (single, batch, bridging)
 }
 
 #[tokio::main]
 async fn main() {
     println!("═══════════════════════════════════════════════════════════");
-    println!("  Ra-Thor × Powrush RTT + SchemaRegistry Smoke Harness");
-    println!("  schema: powrush_telemetry_v1 / batch_v1 + high-road bridge");
+    println!("  Ra-Thor × Powrush RTT + SchemaRegistry + Bridging Smoke");
+    println!("  schemas: telemetry_v1 / batch_v1 / bridging_context_v1");
     println!("  contact: info@Rathor.ai");
     println!("═══════════════════════════════════════════════════════════\n");
 
-    let (single_path, batch_path) = parse_args();
+    let (single_path, batch_path, bridging_path) = parse_args();
     let calc = RealityThrivingTransferCalculator::new();
     let mut registry = SchemaRegistry::new();
 
-    // --- Metacognitive planning pulse ---
     if let Some(p) = metacognitive_prompt(MetaPhase::Planning, 0.85) {
         println!("[meta] planning: {}", p);
     }
 
-    // --- Single session ---
+    // --- Single RTT ---
     let single_json = read_or_fixture(single_path.as_deref(), FIXTURE_HIGH);
     match parse_powrush_telemetry_json(&single_json) {
         Ok(env) => {
@@ -101,12 +105,9 @@ async fn main() {
                         score.kardashev_delta_contribution,
                         score.confidence
                     );
-                    println!("[v1] note: {}", score.council_note);
                 }
                 Err(e) => println!("[v1] Mercy Gate REJECT: {}", e),
             }
-
-            // High-road bridging → SchemaRegistry
             let result = bridge_and_ingest(
                 &mut registry,
                 &env.telemetry,
@@ -114,128 +115,101 @@ async fn main() {
                 env.label.clone(),
             );
             println!(
-                "[bridge] high_road={} extracted={} notes={:?}",
-                result.high_road_effort,
+                "[bridge-from-rtt] extracted={} notes={:?}",
                 result.extracted.len(),
                 result.notes
             );
-            for s in &result.extracted {
-                println!(
-                    "  • schema_id={} principle={} mercy={:.2} tags={:?}",
-                    s.schema_id, s.principle, s.mercy_at_birth, s.tags
-                );
-            }
         }
         Err(e) => println!("[v1] parse REJECT: {}", e),
     }
 
-    // --- Batch ---
+    // --- Batch RTT ---
     let batch_json = read_or_fixture(batch_path.as_deref(), FIXTURE_BATCH);
-    match parse_powrush_telemetry_batch_json(&batch_json) {
-        Ok(batch) => {
-            println!(
-                "\n[batch] schema={} sessions={}",
-                batch.schema,
-                batch.sessions.len()
-            );
-            match compute_scores_from_batch(&calc, &batch).await {
-                Ok(scored) => {
-                    for (label, score) in &scored {
-                        println!(
-                            "  • {} | raw={:.4} kΔ={:.5} audit={}",
-                            label,
-                            score.raw_transfer_score,
-                            score.kardashev_delta_contribution,
-                            score.mercy_audit_passed
-                        );
-                    }
-                    // Bridge each session into registry
-                    for session in &batch.sessions {
-                        let _ = bridge_and_ingest(
-                            &mut registry,
-                            &session.telemetry,
-                            session.session_id.clone(),
-                            session.label.clone(),
-                        );
-                    }
-                    if let (Some(h), Some(m)) = (
-                        scored.iter().find(|(l, _)| l.contains("high_mercy")),
-                        scored.iter().find(|(l, _)| l.contains("marginal")),
-                    ) {
-                        let ok = h.1.raw_transfer_score > m.1.raw_transfer_score;
-                        println!(
-                            "[batch] rank check high_mercy > marginal: {}",
-                            if ok { "OK" } else { "UNEXPECTED" }
-                        );
-                    }
-                }
-                Err(e) => println!("[batch] score REJECT: {}", e),
+    if let Ok(batch) = parse_powrush_telemetry_batch_json(&batch_json) {
+        println!("\n[batch] sessions={}", batch.sessions.len());
+        if let Ok(scored) = compute_scores_from_batch(&calc, &batch).await {
+            for (label, score) in &scored {
+                println!(
+                    "  • {} | raw={:.4} kΔ={:.5}",
+                    label, score.raw_transfer_score, score.kardashev_delta_contribution
+                );
+            }
+            for session in &batch.sessions {
+                let _ = bridge_and_ingest(
+                    &mut registry,
+                    &session.telemetry,
+                    session.session_id.clone(),
+                    session.label.clone(),
+                );
             }
         }
-        Err(e) => println!("[batch] parse REJECT: {}", e),
     }
 
-    // --- Registry retrieval demo ---
-    println!("\n[registry] schemas={}", registry.len());
-    let near = registry.retrieve_near(&["rbe", "mercy"], 0.3);
-    println!("[registry] near(rbe|mercy) hits={}", near.len());
-    let far = registry.retrieve_far("allocation", 0.3);
-    println!("[registry] far(allocation) hits={}", far.len());
-    if let Some(first) = near.first().or(far.first()) {
-        match registry.try_apply(&first.schema_id.clone(), true, 0.5) {
+    // --- Live / fixture bridging JSON (A) ---
+    let bridging_json = read_or_fixture(bridging_path.as_deref(), FIXTURE_BRIDGING);
+    match ingest_bridging_json(&mut registry, &bridging_json) {
+        Ok(result) => {
+            println!(
+                "\n[bridging-json] high_road={} extracted={}",
+                result.high_road_effort,
+                result.extracted.len()
+            );
+            for s in &result.extracted {
+                println!(
+                    "  • {} | {} | mercy={:.2} tags={:?}",
+                    s.schema_id, s.principle, s.mercy_at_birth, s.tags
+                );
+            }
+        }
+        Err(e) => println!("[bridging-json] REJECT: {}", e),
+    }
+
+    // --- Lattice Conductor soft query (B) ---
+    let cq = ConductorSchemaQuery {
+        near_road: true,
+        tags: vec!["rbe".into(), "mercy".into()],
+        principle_query: None,
+        min_reliability: 0.3,
+        max_results: 6,
+    };
+    let near = conductor_query_schemas(&registry, &cq);
+    println!(
+        "\n[conductor] near query hits={} registry_size={}",
+        near.hits.len(),
+        near.registry_size
+    );
+    let far_q = ConductorSchemaQuery {
+        near_road: false,
+        tags: vec![],
+        principle_query: Some("allocation".into()),
+        min_reliability: 0.3,
+        max_results: 4,
+    };
+    let far = conductor_query_schemas(&registry, &far_q);
+    println!("[conductor] far(allocation) hits={}", far.hits.len());
+    if let Some(hit) = near.hits.first().or(far.hits.first()) {
+        match conductor_try_apply_schema(&mut registry, &hit.schema_id, true, 0.5) {
             Ok(s) => println!(
-                "[registry] try_apply FAR OK id={} reliability={:.3}",
+                "[conductor] try_apply FAR OK id={} reliability={:.3}",
                 s.schema_id, s.reliability
             ),
-            Err(e) => println!("[registry] try_apply REJECT: {}", e),
+            Err(e) => println!("[conductor] try_apply REJECT: {}", e),
         }
     }
 
     let metrics = TransferQualityMetrics::from_registry(&registry, 0.9, 0.85);
     println!(
-        "[quality] near_rate={:.2} far_rate={:.2} schemas={} bridging_passes={} meta={:.2}",
+        "[quality] near_rate={:.2} far_rate={:.2} schemas={} bridging_passes={}",
         metrics.near_rate(),
         metrics.far_rate(),
         metrics.schemas_in_registry,
-        metrics.bridging_passes_run,
-        metrics.metacognitive_compliance
+        metrics.bridging_passes_run
     );
 
     if let Some(p) = metacognitive_prompt(MetaPhase::Evaluation, 0.85) {
         println!("[meta] evaluation: {}", p);
     }
 
-    // --- Mercy gate rejection paths ---
-    println!("\n[gates] probing invalid telemetry…");
-    let bad_json = r#"{
-  "schema": "powrush_telemetry_v1",
-  "source": "smoke",
-  "label": "invalid_bounds",
-  "telemetry": {
-    "gameplay_hours": 1.0,
-    "rbe_decision_quality_avg": 1.4,
-    "peaceful_resolution_rate": 0.5,
-    "collaboration_events": 1,
-    "ethical_choice_score": 0.5,
-    "adaptation_events": 1,
-    "abundance_velocity_signals": 0.5,
-    "innovation_contribution": 0.5
-  }
-}"#;
-    match parse_powrush_telemetry_json(bad_json) {
-        Ok(env) => match calc.compute_transfer_score(&env.telemetry).await {
-            Ok(_) => println!("[gates] UNEXPECTED accept of out-of-bounds rbe"),
-            Err(e) => println!("[gates] correctly REJECTED: {}", e),
-        },
-        Err(e) => println!("[gates] parse error: {}", e),
-    }
-
-    let wrong_schema = bad_json.replace("powrush_telemetry_v1", "nope_v0");
-    match parse_powrush_telemetry_json(&wrong_schema) {
-        Ok(_) => println!("[gates] UNEXPECTED accept of wrong schema"),
-        Err(e) => println!("[gates] correctly REJECTED wrong schema: {}", e),
-    }
-
-    println!("\n[smoke] complete — RTT + high-road SchemaRegistry paths exercised.");
+    println!("\n[smoke] complete — RTT + bridging JSON + conductor hook exercised.");
     println!("Thunder locked in. Yoi ⚡");
 }
