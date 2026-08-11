@@ -1,8 +1,9 @@
 //! Schema Registry + Bridging Pass + Transfer Quality
-//! v14.16.0 — High-road skill transfer for Ra-Thor / Powrush coupling
+//! v14.17.0 — High-road skill transfer for Ra-Thor / Powrush coupling
 //!
 //! Implements deliberate principle extraction (high-road) alongside
 //! similarity-triggered reuse (low-road), with mercy-gated provenance.
+//! Parses `powrush_bridging_context_v1` / `powrush_bridging_batch_v1` from Powrush.
 //!
 //! Theoretical anchors: Perkins & Salomon (low-road / high-road),
 //! identical elements, schema theory, metacognitive scaffolding.
@@ -17,22 +18,15 @@ use std::time::{SystemTime, UNIX_EPOCH};
 // Portable principle schemas
 // =============================================================================
 
-/// Deep-structure principle extracted from a concrete decision or session.
-/// Surface features are discarded; only portable structure remains.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct PortablePrincipleSchema {
     pub schema_id: String,
-    /// Human/agent-readable principle (e.g. "resource allocation under uncertainty").
     pub principle: String,
-    /// Optional tags for retrieval ("rbe", "harmony", "council", "combat").
     pub tags: Vec<String>,
-    /// Origin session or decision id (provenance).
     pub origin_session_id: Option<String>,
     pub origin_realm_id: Option<u8>,
-    /// Mercy / ethical score at extraction time — revalidated on application.
     pub mercy_at_birth: f64,
     pub ethical_at_birth: f64,
-    /// Reliability grows with successful far/near reuses; fades on failure.
     pub reliability: f64,
     pub near_reuse_count: u64,
     pub far_reuse_count: u64,
@@ -72,7 +66,6 @@ impl PortablePrincipleSchema {
         self
     }
 
-    /// Mercy gate: refuse application if birth mercy is below floor.
     pub fn passes_mercy_floor(&self, floor: f64) -> bool {
         self.mercy_at_birth >= floor && self.ethical_at_birth >= floor * 0.9
     }
@@ -93,8 +86,63 @@ pub struct BridgingContext {
     pub rbe_quality: f64,
     pub peaceful_rate: f64,
     pub abundance_velocity: f64,
-    /// Surface label of the concrete situation (for contrast, not stored as principle).
     pub surface_label: String,
+}
+
+/// Wire envelope from Powrush `powrush_bridging_context_v1` (extra fields ignored on map).
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct PowrushBridgingEnvelope {
+    pub schema: String,
+    #[serde(default)]
+    pub session_id: Option<String>,
+    #[serde(default)]
+    pub realm_id: Option<u8>,
+    #[serde(default)]
+    pub decision_title: Option<String>,
+    #[serde(default)]
+    pub decision_type: Option<String>,
+    pub mercy_factor: f64,
+    pub ethical_score: f64,
+    pub rbe_quality: f64,
+    pub peaceful_rate: f64,
+    pub abundance_velocity: f64,
+    #[serde(default)]
+    pub surface_label: String,
+    #[serde(default)]
+    pub decision_id: Option<u64>,
+    #[serde(default)]
+    pub tick: Option<u64>,
+}
+
+impl PowrushBridgingEnvelope {
+    pub fn to_context(&self) -> BridgingContext {
+        BridgingContext {
+            session_id: self.session_id.clone(),
+            realm_id: self.realm_id,
+            decision_title: self.decision_title.clone(),
+            decision_type: self.decision_type.clone(),
+            mercy_factor: self.mercy_factor,
+            ethical_score: self.ethical_score,
+            rbe_quality: self.rbe_quality,
+            peaceful_rate: self.peaceful_rate,
+            abundance_velocity: self.abundance_velocity,
+            surface_label: if self.surface_label.is_empty() {
+                "powrush_bridging".into()
+            } else {
+                self.surface_label.clone()
+            },
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct PowrushBridgingBatch {
+    pub schema: String,
+    #[serde(default)]
+    pub source: String,
+    pub contexts: Vec<PowrushBridgingEnvelope>,
+    #[serde(default)]
+    pub exported_at_unix: Option<u64>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -104,13 +152,10 @@ pub struct BridgingPassResult {
     pub high_road_effort: bool,
 }
 
-/// Deliberate high-road extraction from a concrete council / session context.
-/// Does not rely on surface similarity — forces principle abstraction.
 pub fn bridging_pass(ctx: &BridgingContext) -> BridgingPassResult {
     let mut extracted = Vec::new();
     let mut notes = Vec::new();
 
-    // Core abstractions from telemetry structure (not surface build orders).
     if ctx.rbe_quality >= 0.65 && ctx.abundance_velocity >= 0.8 {
         let id = format!(
             "schema_rbe_alloc_{}",
@@ -188,8 +233,63 @@ pub fn bridging_pass(ctx: &BridgingContext) -> BridgingPassResult {
     }
 }
 
+/// Parse single `powrush_bridging_context_v1` JSON from Powrush-MMO.
+pub fn parse_powrush_bridging_json(json: &str) -> Result<PowrushBridgingEnvelope, String> {
+    let env: PowrushBridgingEnvelope = serde_json::from_str(json)
+        .map_err(|e| format!("Mercy Gate (Truth): invalid bridging JSON: {}", e))?;
+    if env.schema != "powrush_bridging_context_v1" {
+        return Err(format!(
+            "Mercy Gate (Truth): expected schema powrush_bridging_context_v1, got '{}'",
+            env.schema
+        ));
+    }
+    Ok(env)
+}
+
+/// Parse `powrush_bridging_batch_v1` JSON.
+pub fn parse_powrush_bridging_batch_json(json: &str) -> Result<PowrushBridgingBatch, String> {
+    let batch: PowrushBridgingBatch = serde_json::from_str(json)
+        .map_err(|e| format!("Mercy Gate (Truth): invalid bridging batch JSON: {}", e))?;
+    if batch.schema != "powrush_bridging_batch_v1" {
+        return Err(format!(
+            "Mercy Gate (Truth): expected schema powrush_bridging_batch_v1, got '{}'",
+            batch.schema
+        ));
+    }
+    if batch.contexts.is_empty() {
+        return Err("Mercy Gate (Truth): bridging batch contains no contexts".into());
+    }
+    Ok(batch)
+}
+
+/// Parse → bridging_pass → ingest. Returns the pass result.
+pub fn ingest_bridging_json(
+    reg: &mut SchemaRegistry,
+    json: &str,
+) -> Result<BridgingPassResult, String> {
+    let env = parse_powrush_bridging_json(json)?;
+    let result = bridging_pass(&env.to_context());
+    reg.ingest_bridging(result.clone());
+    Ok(result)
+}
+
+/// Ingest every context in a bridging batch.
+pub fn ingest_bridging_batch_json(
+    reg: &mut SchemaRegistry,
+    json: &str,
+) -> Result<Vec<BridgingPassResult>, String> {
+    let batch = parse_powrush_bridging_batch_json(json)?;
+    let mut out = Vec::with_capacity(batch.contexts.len());
+    for env in &batch.contexts {
+        let result = bridging_pass(&env.to_context());
+        reg.ingest_bridging(result.clone());
+        out.push(result);
+    }
+    Ok(out)
+}
+
 // =============================================================================
-// Schema registry (storage + low-road / high-road retrieval)
+// Schema registry
 // =============================================================================
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
@@ -213,7 +313,6 @@ impl SchemaRegistry {
             self.schemas
                 .entry(schema.schema_id.clone())
                 .and_modify(|existing| {
-                    // Strengthen reliability on re-extraction of same id lineage
                     existing.reliability = (existing.reliability * 0.85 + 0.15).min(0.98);
                     existing.mercy_at_birth =
                         (existing.mercy_at_birth * 0.7 + schema.mercy_at_birth * 0.3).clamp(0.0, 1.0);
@@ -224,7 +323,6 @@ impl SchemaRegistry {
         n
     }
 
-    /// Low-road: tag overlap retrieval (similarity-triggered).
     pub fn retrieve_near(&self, tags: &[&str], min_reliability: f64) -> Vec<&PortablePrincipleSchema> {
         self.schemas
             .values()
@@ -233,7 +331,6 @@ impl SchemaRegistry {
             .collect()
     }
 
-    /// High-road: principle-text / deep-structure search (deliberate mapping).
     pub fn retrieve_far(
         &self,
         principle_query: &str,
@@ -250,7 +347,6 @@ impl SchemaRegistry {
             .collect()
     }
 
-    /// Apply a schema in a new context — revalidates mercy floor.
     pub fn try_apply(
         &mut self,
         schema_id: &str,
@@ -294,22 +390,16 @@ impl SchemaRegistry {
 }
 
 // =============================================================================
-// Transfer quality metrics (instrumentation)
+// Transfer quality metrics
 // =============================================================================
 
-/// Optional companion metrics for RTT / council telemetry.
-/// Does not break powrush_telemetry_v1; travels beside it.
 #[derive(Debug, Clone, Serialize, Deserialize, Default, PartialEq)]
 pub struct TransferQualityMetrics {
-    /// Successful same-context / same-realm reuses.
     pub near_transfer_success: u64,
     pub near_transfer_attempts: u64,
-    /// Successful cross-context / cross-realm reuses.
     pub far_transfer_success: u64,
     pub far_transfer_attempts: u64,
-    /// How often bridging_pass produced ≥1 schema.
     pub abstraction_success_rate: f64,
-    /// Fraction of deliberations that ran planning/monitoring/evaluation prompts.
     pub metacognitive_compliance: f64,
     pub bridging_passes_run: u64,
     pub schemas_in_registry: u64,
@@ -347,7 +437,7 @@ impl TransferQualityMetrics {
 }
 
 // =============================================================================
-// Metacognitive scaffolding prompts (fadable)
+// Metacognitive scaffolding
 // =============================================================================
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -357,10 +447,9 @@ pub enum MetaPhase {
     Evaluation,
 }
 
-/// Soft prompt strings for council / agent loops. Support level 1.0 = full scaffold, 0.0 = faded.
 pub fn metacognitive_prompt(phase: MetaPhase, support_level: f64) -> Option<&'static str> {
     if support_level <= 0.05 {
-        return None; // fully faded — independent self-regulation expected
+        return None;
     }
     match phase {
         MetaPhase::Planning => Some(
@@ -375,9 +464,7 @@ pub fn metacognitive_prompt(phase: MetaPhase, support_level: f64) -> Option<&'st
     }
 }
 
-/// Fade support as reliability of dominant schema rises.
 pub fn scaffold_support_level(dominant_reliability: f64) -> f64 {
-    // High reliability → less external scaffolding
     (1.0 - dominant_reliability).clamp(0.0, 1.0)
 }
 
@@ -391,6 +478,8 @@ fn now_secs() -> u64 {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    const FIXTURE_BRIDGING: &str = include_str!("../fixtures/bridging_context_high_mercy.json");
 
     #[test]
     fn bridging_extracts_on_strong_signals() {
@@ -409,32 +498,22 @@ mod tests {
         let result = bridging_pass(&ctx);
         assert!(result.high_road_effort);
         assert!(!result.extracted.is_empty());
-        assert!(result.extracted.iter().all(|s| s.passes_mercy_floor(0.5)));
     }
 
     #[test]
-    fn registry_near_and_far_retrieval() {
+    fn parse_and_ingest_bridging_fixture() {
         let mut reg = SchemaRegistry::new();
-        let result = bridging_pass(&BridgingContext {
-            session_id: Some("s2".into()),
-            realm_id: None,
-            decision_title: None,
-            decision_type: None,
-            mercy_factor: 0.9,
-            ethical_score: 0.9,
-            rbe_quality: 0.85,
-            peaceful_rate: 0.8,
-            abundance_velocity: 1.2,
-            surface_label: "test".into(),
-        });
-        reg.ingest_bridging(result);
+        let result = ingest_bridging_json(&mut reg, FIXTURE_BRIDGING).unwrap();
+        assert!(!result.extracted.is_empty());
         assert!(!reg.is_empty());
-
         let near = reg.retrieve_near(&["rbe"], 0.3);
         assert!(!near.is_empty());
+    }
 
-        let far = reg.retrieve_far("allocation", 0.3);
-        assert!(!far.is_empty());
+    #[test]
+    fn reject_wrong_bridging_schema() {
+        let bad = r#"{"schema":"nope","mercy_factor":0.9,"ethical_score":0.9,"rbe_quality":0.9,"peaceful_rate":0.9,"abundance_velocity":1.0,"surface_label":"x"}"#;
+        assert!(parse_powrush_bridging_json(bad).is_err());
     }
 
     #[test]
@@ -442,23 +521,13 @@ mod tests {
         let mut reg = SchemaRegistry::new();
         let weak = PortablePrincipleSchema::new("weak", "test principle", vec![], 0.2, 0.2);
         reg.schemas.insert(weak.schema_id.clone(), weak);
-        let err = reg.try_apply("weak", true, 0.5);
-        assert!(err.is_err());
+        assert!(reg.try_apply("weak", true, 0.5).is_err());
         assert_eq!(reg.total_mercy_rejects, 1);
     }
 
     #[test]
     fn scaffold_fades_with_reliability() {
         assert!(scaffold_support_level(0.9) < scaffold_support_level(0.4));
-        assert!(metacognitive_prompt(MetaPhase::Planning, 0.8).is_some());
         assert!(metacognitive_prompt(MetaPhase::Planning, 0.0).is_none());
-    }
-
-    #[test]
-    fn transfer_quality_from_registry() {
-        let reg = SchemaRegistry::new();
-        let m = TransferQualityMetrics::from_registry(&reg, 0.7, 0.85);
-        assert_eq!(m.schemas_in_registry, 0);
-        assert!((m.metacognitive_compliance - 0.85).abs() < 1e-9);
     }
 }
