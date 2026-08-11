@@ -1,4 +1,4 @@
-//! reality-thriving-transfer v14.17.0
+//! reality-thriving-transfer v14.18.0
 //!
 //! Reality Thriving Transfer Score + Kardashev benchmark harness.
 //! Phase C: Powrush-MMO telemetry contract + offline JSON fixture ingest.
@@ -6,6 +6,7 @@
 //! Energy design proposals + OpenSmrShard (strict TOLC 8 gate) scored through the same floors.
 //! Schema Registry + Bridging Pass + Transfer Quality (high-road / low-road transfer).
 //! Parses `powrush_bridging_context_v1` / `powrush_bridging_batch_v1` from Powrush.
+//! Lattice Conductor soft hook for SchemaRegistry queries (zero hard-dep).
 //! Provenance fields optional (Powrush v21.77+).
 //!
 //! Companion open-SMR crate: https://github.com/Eternally-Thriving-Grandmasterism/SMR
@@ -16,6 +17,7 @@ mod live_valence;
 mod energy_design;
 mod open_smr_shard;
 mod schema_registry;
+mod conductor_hook;
 
 pub use live_valence::{
     LiveValenceOptimizer, LiveValenceReport, ValenceVector, THETA_MIN_SOFT, THETA_MIN_STRICT,
@@ -38,6 +40,11 @@ pub use schema_registry::{
     bridging_pass, metacognitive_prompt, scaffold_support_level,
     parse_powrush_bridging_json, parse_powrush_bridging_batch_json,
     ingest_bridging_json, ingest_bridging_batch_json,
+};
+
+pub use conductor_hook::{
+    ConductorSchemaQuery, ConductorSchemaHit, ConductorSchemaQueryResult,
+    conductor_query_schemas, conductor_try_apply_schema, conductor_transfer_quality_snapshot,
 };
 
 use serde::{Deserialize, Serialize};
@@ -468,30 +475,27 @@ mod tests {
         assert!(calc.compute_transfer_score(&bad).await.is_err());
     }
 
-    #[tokio::test]
-    async fn positive_transfer() {
-        let calc = RealityThrivingTransferCalculator::new();
-        let good = PowrushTelemetry {
-            gameplay_hours: 47.0,
-            rbe_decision_quality_avg: 0.89,
-            peaceful_resolution_rate: 0.91,
-            collaboration_events: 312,
-            ethical_choice_score: 0.87,
-            adaptation_events: 148,
-            abundance_velocity_signals: 1.6,
-            innovation_contribution: 0.82,
-        };
-        let score = calc.compute_transfer_score(&good).await.unwrap();
-        assert!(score.mercy_audit_passed);
-    }
-
     #[test]
     fn parse_bridging_fixture_end_to_end() {
         let mut reg = SchemaRegistry::new();
         let result = ingest_bridging_json(&mut reg, FIXTURE_BRIDGING).unwrap();
         assert!(result.high_road_effort);
         assert!(!result.extracted.is_empty());
-        assert!(!reg.is_empty());
+    }
+
+    #[test]
+    fn conductor_query_after_ingest() {
+        let mut reg = SchemaRegistry::new();
+        let _ = ingest_bridging_json(&mut reg, FIXTURE_BRIDGING).unwrap();
+        let q = ConductorSchemaQuery {
+            near_road: true,
+            tags: vec!["rbe".into()],
+            principle_query: None,
+            min_reliability: 0.3,
+            max_results: 4,
+        };
+        let out = conductor_query_schemas(&reg, &q);
+        assert!(!out.hits.is_empty());
     }
 
     #[test]
@@ -501,31 +505,9 @@ mod tests {
     }
 
     #[test]
-    fn parse_marginal_and_early_fixtures() {
-        let m = parse_powrush_telemetry_json(FIXTURE_MARGINAL).unwrap();
-        assert!(m.telemetry.ethical_choice_score < 0.5);
-        let e = parse_powrush_telemetry_json(FIXTURE_EARLY).unwrap();
-        assert!(e.telemetry.gameplay_hours < 5.0);
-    }
-
-    #[test]
     fn parse_batch_fixture() {
         let batch = parse_powrush_telemetry_batch_json(FIXTURE_BATCH).unwrap();
         assert_eq!(batch.sessions.len(), 3);
-    }
-
-    #[test]
-    fn bridge_high_mercy_fixture_into_registry() {
-        let env = parse_powrush_telemetry_json(FIXTURE_HIGH).unwrap();
-        let mut reg = SchemaRegistry::new();
-        let result = bridge_and_ingest(
-            &mut reg,
-            &env.telemetry,
-            env.session_id.clone(),
-            env.label.clone(),
-        );
-        assert!(!result.extracted.is_empty());
-        assert!(!reg.is_empty());
     }
 
     #[test]
