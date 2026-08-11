@@ -1,5 +1,5 @@
 //! Lattice Conductor soft hook — SchemaRegistry query surface
-//! v14.18.0
+//! v14.18.1
 //!
 //! Zero hard dependency on lattice-conductor crates. Conductor / PATSAGi
 //! adapters call these pure functions with a shared SchemaRegistry.
@@ -139,6 +139,9 @@ mod tests {
             peaceful_rate: 0.9,
             abundance_velocity: 1.3,
             surface_label: "t".into(),
+            challenge_id: None,
+            challenge_title: None,
+            challenge_principle: None,
         });
         reg.ingest_bridging(result);
 
