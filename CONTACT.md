@@ -1,6 +1,6 @@
 # Ra-Thor Canonical Contact
 
-**Primary contact for all licensing, security, partnerships, pilots, and inquiries:**
+**Primary contact for all licensing, security, partnerships, pilots, stewardship, and inquiries:**
 
 ## info@Rathor.ai
 
@@ -16,7 +16,14 @@
 | **Micro-moment demo sequence** | [`docs/DEMO_SEQUENCE_MICRO_MOMENT.md`](docs/DEMO_SEQUENCE_MICRO_MOMENT.md) |
 | License clarification (residuals) | [`LICENSE_CLARIFICATION.md`](LICENSE_CLARIFICATION.md) |
 
-For commercial or pilot inquiries, email **info@Rathor.ai** with organization name, intended use, and whether you want a pilot or full commercial discussion.
+### Shared Stewardship & Capital
+
+| Path | Document |
+|------|----------|
+| **Shared stewardship posture** | [`docs/SHARED_STEWARDSHIP_POSTURE.md`](docs/SHARED_STEWARDSHIP_POSTURE.md) |
+| Mission lock / human onboarding / equity filter | Same document (internal posture, non-legal) |
+
+For commercial, pilot, or co-stewardship inquiries, email **info@Rathor.ai** with organization or individual context and intended role.
 
 ### Deprecated (do not use)
 
@@ -28,12 +35,13 @@ For commercial or pilot inquiries, email **info@Rathor.ai** with organization na
 | INFO@ACITYGAMES.COM | Retired |
 | info@ACityGames.com | Retired |
 
-### Policy (as of 2026-07-20; commercial path activated 2026-08-06)
+### Policy (as of 2026-07-20; commercial path 2026-08-06; shared stewardship 2026-08-11)
 
 - All new files, Cargo.toml `authors`, LICENSE blocks, docs, and website footers use **info@Rathor.ai** only.
 - Workspace default: `authors = ["Eternally-Thriving-Grandmasterism", "Sherif Samy Botros <info@Rathor.ai>"]`
 - Brand / Grok–xAI posture: see [`docs/ATTRIBUTION_AND_BRAND.md`](docs/ATTRIBUTION_AND_BRAND.md) and [`docs/ONE_ORGANISM_GROK_FUSION.md`](docs/ONE_ORGANISM_GROK_FUSION.md). Ra-Thor does not claim xAI endorsement.
 - Commercial use requires a paid license; pilots are the preferred evaluation bridge.
+- Shared stewardship and optional equity must respect Layer 0 (TOLC 8, PATSAGi, AG-SML, independent identity).
 
 ### Automated sweep
 
