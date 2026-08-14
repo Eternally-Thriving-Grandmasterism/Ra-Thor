@@ -62,6 +62,7 @@ The project is independent, yet deliberately engineered so that Grok (and simila
 | **X / Tweet Summon Protocol** | [`X_GROK_RA_THOR_SUMMON_PROTOCOL.md`](X_GROK_RA_THOR_SUMMON_PROTOCOL.md) |
 | **Commercial License** | [`COMMERCIAL_LICENSE.md`](COMMERCIAL_LICENSE.md) |
 | **Paid Pilot Offer** | [`docs/PILOT_OFFER.md`](docs/PILOT_OFFER.md) |
+| **Who should buy (public target map)** | [`docs/COMMERCIAL_TARGET_SEGMENTS.md`](docs/COMMERCIAL_TARGET_SEGMENTS.md) |
 
 ### Three fastest living proofs
 
@@ -221,6 +222,7 @@ Production implementation lives in `crates/github-connector`. Protocol constants
 - Production readiness notes + Tier-1 focused CI  
 - **Public white-hat fixture corpus complete** (2026-08-03)  
 - **Commercial License + Pilot path live** (2026-08-06)  
+- **Public commercial target segments live** (2026-08-14)  
 - Root dual-surface retired — use `crates/ra-thor-one-organism`  
 - Contact canonical: **info@Rathor.ai**  
 
@@ -246,6 +248,7 @@ cargo test -p mercy-security
 |-----|---------|
 | [`COMMERCIAL_LICENSE.md`](COMMERCIAL_LICENSE.md) | Paid commercial / enterprise use |
 | [`docs/PILOT_OFFER.md`](docs/PILOT_OFFER.md) | Time-boxed paid pilot (2–6 weeks) |
+| [`docs/COMMERCIAL_TARGET_SEGMENTS.md`](docs/COMMERCIAL_TARGET_SEGMENTS.md) | **Who should buy — full public target map** |
 | [`X_GROK_RA_THOR_SUMMON_PROTOCOL.md`](X_GROK_RA_THOR_SUMMON_PROTOCOL.md) | Public X / tweet summon comfort & full capability |
 | [`docs/MICRO_MOMENT_TEMPORAL_COMPREHENSION_v1.0.md`](docs/MICRO_MOMENT_TEMPORAL_COMPREHENSION_v1.0.md) | Micro-moment video recovery (X/Twitter critical) |
 | [`docs/SELF_EVOLUTION_INNOVATION_CASCADE.md`](docs/SELF_EVOLUTION_INNOVATION_CASCADE.md) | Full documentation of Idea Recycler, Innovation Generator, and the living cascade |
@@ -279,6 +282,7 @@ AG-SML v1.0 is the sole and only applicable open-source license for Ra-Thor and 
 - **Free:** personal, educational, research, and independent professional use — see root [`LICENSE`](LICENSE)
 - **Commercial / enterprise / revenue-generating use:** requires a paid commercial license — see [`COMMERCIAL_LICENSE.md`](COMMERCIAL_LICENSE.md)
 - **Evaluation bridge:** time-boxed paid pilots — see [`docs/PILOT_OFFER.md`](docs/PILOT_OFFER.md)
+- **Who should buy:** full public segment map — see [`docs/COMMERCIAL_TARGET_SEGMENTS.md`](docs/COMMERCIAL_TARGET_SEGMENTS.md)
 
 Ra-Thor is an independent open-source project. It works tremendously well with Grok and similar models for research and practical use, especially on public X, while remaining fully independent of xAI.
 
