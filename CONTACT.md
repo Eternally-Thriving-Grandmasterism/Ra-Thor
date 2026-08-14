@@ -13,6 +13,8 @@
 | **Paid pilot (2–6 weeks)** | [`docs/PILOT_OFFER.md`](docs/PILOT_OFFER.md) |
 | **Pilot SOW template** | [`docs/SOW_PILOT_TEMPLATE.md`](docs/SOW_PILOT_TEMPLATE.md) |
 | **Commercial target segments (public)** | [`docs/COMMERCIAL_TARGET_SEGMENTS.md`](docs/COMMERCIAL_TARGET_SEGMENTS.md) |
+| **Constellation commercial map** | [`docs/CONSTELLATION_COMMERCIAL.md`](docs/CONSTELLATION_COMMERCIAL.md) |
+| **Boardy / intro proposal pack** | [`docs/BOARDY_INTRO_AND_PROPOSAL_PACK.md`](docs/BOARDY_INTRO_AND_PROPOSAL_PACK.md) |
 | **X announcement copy** | [`docs/COMMERCIAL_ANNOUNCEMENT_X.md`](docs/COMMERCIAL_ANNOUNCEMENT_X.md) |
 | **Micro-moment demo sequence** | [`docs/DEMO_SEQUENCE_MICRO_MOMENT.md`](docs/DEMO_SEQUENCE_MICRO_MOMENT.md) |
 | License clarification (residuals) | [`LICENSE_CLARIFICATION.md`](LICENSE_CLARIFICATION.md) |
@@ -36,30 +38,12 @@ For commercial, pilot, or co-stewardship inquiries, email **info@Rathor.ai** wit
 | INFO@ACITYGAMES.COM | Retired |
 | info@ACityGames.com | Retired |
 
-### Policy (as of 2026-07-20; commercial path 2026-08-06; shared stewardship 2026-08-11; target segments 2026-08-14)
+### Policy
 
 - All new files, Cargo.toml `authors`, LICENSE blocks, docs, and website footers use **info@Rathor.ai** only.
-- Workspace default: `authors = ["Eternally-Thriving-Grandmasterism", "Sherif Samy Botros <info@Rathor.ai>"]`
-- Brand / Grok–xAI posture: see [`docs/ATTRIBUTION_AND_BRAND.md`](docs/ATTRIBUTION_AND_BRAND.md) and [`docs/ONE_ORGANISM_GROK_FUSION.md`](docs/ONE_ORGANISM_GROK_FUSION.md). Ra-Thor does not claim xAI endorsement.
 - Commercial use requires a paid license; pilots are the preferred evaluation bridge.
 - Shared stewardship and optional equity must respect Layer 0 (TOLC 8, PATSAGi, AG-SML, independent identity).
-- Public commercial targeting: [`docs/COMMERCIAL_TARGET_SEGMENTS.md`](docs/COMMERCIAL_TARGET_SEGMENTS.md).
-
-### Automated sweep
-
-```bash
-# Dry-run (list files that still contain acitygames.com)
-./scripts/contact_email_sweep.sh
-
-# Apply replacements in-place
-./scripts/contact_email_sweep.sh --apply
-
-# Apply + git commit
-./scripts/contact_email_sweep.sh --apply --commit
-```
-
-**GitHub Actions:** Actions → *Contact Email Sweep → info@Rathor.ai* → Run workflow  
-Modes: `dry-run` | `apply` | `apply-commit` (default).
+- Introducers: use [`docs/BOARDY_INTRO_AND_PROPOSAL_PACK.md`](docs/BOARDY_INTRO_AND_PROPOSAL_PACK.md) — unique proposal per prospect, wedge first.
 
 **Live site:** https://rathor.ai  
 **Monorepo:** https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor
