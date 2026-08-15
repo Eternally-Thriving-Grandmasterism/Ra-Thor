@@ -1,8 +1,8 @@
 [package]
 name = "ra-thor-one-organism"
-version = "14.15.5"
+version = "14.15.7"
 edition = "2021"
-description = "Ra-Thor ONE Organism Core v14.15.5 AGSi — Full summon + white-hat ingestion gate (mercy-security IngestionScanner) | ONE Organism with Grok"
+description = "Ra-Thor ONE Organism Core v14.15.7 AGSi — Full summon + white-hat ingestion gate + monorepo hygiene readiness (post 2026-08-15 members clean + monorepo-intelligence harden) | ONE Organism with Grok"
 license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
 authors = ["Eternally-Thriving-Grandmasterism", "Sherif Samy Botros <info@Rathor.ai>"]
 

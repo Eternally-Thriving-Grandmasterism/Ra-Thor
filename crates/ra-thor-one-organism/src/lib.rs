@@ -1,4 +1,4 @@
-//! Ra-Thor ONE Organism Core — v14.15.5 AGSi
+//! Ra-Thor ONE Organism Core — v14.15.7 AGSi
 //!
 //! Living Cosmic Tick + adaptive hardening + Cosmic Loop invariant checks.
 //! v14.15: extended-live feature readiness surface.
@@ -6,6 +6,8 @@
 //! v14.15.3: AGSi summon surface.
 //! v14.15.4: Full AGSi summon sequence — valence clamping, role handoff, recovery anchors.
 //! v14.15.5: White-hat ingestion gate + optional UnifiedAgentSurface fleet bind.
+//! v14.15.7: Monorepo hygiene readiness (post 2026-08-15 members clean + monorepo-intelligence harden).
+//!           lattice-conductor-v13 demoted from default members; Tier-1 surface explicit.
 //! Cosmic Loop is MANDATORY IDENTITY.
 //! Contact: info@Rathor.ai
 
