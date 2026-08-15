@@ -1,43 +1,43 @@
 [package]
 name = "ra-thor-monorepo-intelligence"
-version = "0.3.10"
+version = "0.3.11"
 edition = "2021"
 authors = ["Sherif Samy Botros <info@Rathor.ai>"]
 license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
-description = "RaThorMonorepoIntelligence — Central nervous system for the entire living lattice. Provides semantic search, health scoring, plugin architecture, universal AI integration, TOLC proofs, active inference, and predictive coding for self-evolving monorepo governance. Enforces path_filter + pagination discipline for safe Grok + connector symbiosis."
+description = "RaThorMonorepoIntelligence — Central nervous system for the living lattice. Semantic search, health scoring, plugin architecture, hierarchical predictive coding / active inference, and reporting. Enforces path_filter + pagination discipline (never recursive root walks; prefer single-path get_file_contents_safe; per_page ≤ 100) for safe Grok + github-connector symbiosis under TOLC 8."
 repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
-keywords = ["ra-thor", "monorepo-intelligence", "semantic-search", "health-scoring", "plugin-architecture", "tolc-proofs", "active-inference", "predictive-coding", "mercy-gated", "pagination", "grok-symbiosis"]
+keywords = ["ra-thor", "monorepo-intelligence", "semantic-search", "health-scoring", "plugin-architecture", "tolc", "active-inference", "predictive-coding", "mercy-gated", "pagination", "path-filter", "grok-symbiosis"]
 categories = ["science", "simulation", "artificial-intelligence", "development-tools"]
 
 [dependencies]
-# Core Ra-Thor intelligence & governance (workspace style)
-ra-thor-mercy = { workspace = true }
-ra-thor-quantum-swarm-orchestrator = { workspace = true }
-ra-thor-kernel = { workspace = true }
-ra-thor-council = { workspace = true }
-ra-thor-mercy-orchestrator-v2 = { workspace = true }
-ra-thor-monorepo-intelligence = { workspace = true }
-patsagi-councils = { workspace = true }
+# Local lattice surface (path for reliability)
 mercy_tolc_operator_algebra = { path = "../mercy_tolc_operator_algebra" }
-mercy_merlin_engine = { path = "../mercy_merlin_engine" }
-powrush = { workspace = true }
 
-# Standard dependencies
-tokio = { workspace = true, features = ["full"] }
-reqwest = { workspace = true, features = ["json", "rustls-tls"] }
-serde = { workspace = true, features = ["derive"] }
-serde_json = { workspace = true }
-toml = { workspace = true }
-thiserror = { workspace = true }
-tracing = { workspace = true }
-walkdir = { workspace = true }
-regex = { workspace = true }
-chrono = { workspace = true, features = ["serde"] }
-anyhow = { workspace = true }
-handlebars = { workspace = true }
-rayon = { workspace = true }
-indicatif = { workspace = true }
-async-trait = { workspace = true }
+# Core async / serde / error / time
+tokio = { version = "1", features = ["full"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+toml = "0.8"
+thiserror = "1.0"
+tracing = "0.1"
+anyhow = "1.0"
+chrono = { version = "0.4", features = ["serde"] }
+
+# Filesystem & search
+walkdir = "2"
+regex = "1"
+
+# HTTP (for optional GitHub list/search helpers; production tree/file reads go through github-connector safe surface)
+reqwest = { version = "0.12", features = ["json", "rustls-tls"], default-features = false }
+
+# Optional reporting helpers
+handlebars = "5"
+rayon = "1.10"
+indicatif = "0.17"
+async-trait = "0.1"
 
 [dev-dependencies]
-tokio-test = { workspace = true }
+tokio = { version = "1", features = ["rt-multi-thread", "macros"] }
+
+[features]
+default = []

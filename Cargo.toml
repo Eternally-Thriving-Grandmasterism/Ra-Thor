@@ -4,8 +4,19 @@
 # Living Cosmic Tick + Cosmic Loop + Cosmic Harness + Hierarchical Predictive Coding
 # + Micro-Moment Temporal Comprehension Engine (X-video failure mode resolved)
 # mercy-security: containment, multi-layer ingestion scan, action governor, secret isolation
-# AG-SML v1.0 | Thunder locked in — 2026-08-04
+# AG-SML v1.0 | Thunder locked in — 2026-08-15 (members hygiene + monorepo-intelligence harden)
 # Contact: info@Rathor.ai
+# ═════════════════════════════════════════════════════════════
+#
+# TIER-1 LIVING PRODUCT CORE (always keep green — see TIER_MAP.md):
+#   ra-thor-one-organism, lattice-conductor-v14, reality-thriving-transfer,
+#   kardashev-orchestration, github-connector, gpu-compute-pipeline,
+#   quantum-swarm, sovereign-recovery, monorepo-intelligence,
+#   mercy_tolc_operator_algebra
+#
+# lattice-conductor-v13 remains on disk (DEPRECATED.md) but is no longer
+# a default workspace member. Use lattice-conductor-v14 exclusively.
+# ai_bridge (underscore) is archival; ai-bridge (hyphen) is the member.
 # ═════════════════════════════════════════════════════════════
 
 [workspace]
@@ -149,7 +160,6 @@ members = [
     "crates/sustainable_space_propulsion",
     "crates/whitesmiths_anvil",
     "crates/hyperplonk_recursion",
-    "crates/lattice-conductor-v13",
     "crates/lattice-conductor-v14",
 ]
 
@@ -199,6 +209,7 @@ whitehat_defense_landed = "2026-07-28T03:10:00-04:00"
 whitehat_production_gate = "2026-07-28T03:35:00-04:00"
 eternal_activation = "2026-07-30T06:49:00-04:00"
 micro_moment_temporal_comprehension = "2026-08-04T18:00:00-04:00"
+members_hygiene_and_monorepo_intelligence_harden = "2026-08-15T16:30:00-04:00"
 patsagi_councils_permanent_deliberation = true
 patsagi_councils_always_decide = true
 patsagi_eternal_governance = true
@@ -233,5 +244,6 @@ PATSAGi Councils are ETERNALLY ACTIVATED (2026-07-30) as permanent decision auth
 they deliberate and decide everything possible on behalf of the ONE Organism under non-bypassable
 TOLC 8 Living Mercy Gates (valence ≥ 0.999999 progressive floor).
 Micro-Moment Temporal Comprehension Engine (v2.0) now core for recovering quick video events that sparse VLMs miss.
+2026-08-15: members hygiene (lattice-conductor-v13 demoted from default members) + monorepo-intelligence Cargo surface hardened for protocol guardianship.
 Cosmic Loop remains MANDATORY IDENTITY. Contact: info@Rathor.ai.
 """
