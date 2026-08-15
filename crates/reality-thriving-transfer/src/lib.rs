@@ -1,4 +1,4 @@
-//! reality-thriving-transfer v14.18.1
+//! reality-thriving-transfer v14.19.0
 //!
 //! Reality Thriving Transfer Score + Kardashev benchmark harness.
 //! Phase C: Powrush-MMO telemetry contract + offline JSON fixture ingest.
@@ -6,6 +6,7 @@
 //! Energy design proposals + OpenSmrShard (strict TOLC 8 gate) scored through the same floors.
 //! Schema Registry + Bridging Pass + Transfer Quality (high-road / low-road transfer).
 //! Parses `powrush_bridging_context_v1` / `powrush_bridging_batch_v1` from Powrush.
+//! Parses `powrush_lattice_flow_share_v1` (soft allocate / peer abundance envelopes).
 //! Lattice Conductor soft hook for SchemaRegistry queries (zero hard-dep).
 //! Optional challenge_* provenance (Powrush v21.91.1+).
 //!
@@ -18,6 +19,7 @@ mod energy_design;
 mod open_smr_shard;
 mod schema_registry;
 mod conductor_hook;
+mod lattice_flow_share;
 
 pub use live_valence::{
     LiveValenceOptimizer, LiveValenceReport, ValenceVector, THETA_MIN_SOFT, THETA_MIN_STRICT,
@@ -45,6 +47,10 @@ pub use schema_registry::{
 pub use conductor_hook::{
     ConductorSchemaQuery, ConductorSchemaHit, ConductorSchemaQueryResult,
     conductor_query_schemas, conductor_try_apply_schema, conductor_transfer_quality_snapshot,
+};
+
+pub use lattice_flow_share::{
+    PowrushLatticeFlowShare, parse_powrush_lattice_flow_share_json, ingest_lattice_flow_share_json,
 };
 
 use serde::{Deserialize, Serialize};
@@ -515,5 +521,13 @@ mod tests {
     fn reject_wrong_schema() {
         let bad = r#"{"schema":"nope","telemetry":{"gameplay_hours":1.0,"rbe_decision_quality_avg":0.5,"peaceful_resolution_rate":0.5,"collaboration_events":1,"ethical_choice_score":0.5,"adaptation_events":1,"abundance_velocity_signals":0.5,"innovation_contribution":0.5}}"#;
         assert!(parse_powrush_telemetry_json(bad).is_err());
+    }
+
+    #[test]
+    fn lattice_flow_share_ingest_roundtrip() {
+        let json = r#"{"schema":"powrush_lattice_flow_share_v1","flow_total":2.0,"reserve_total":1.0,"choices_made":3,"last_path":"Flow outward","mercy_note":"Voluntary abundance direction — never scarcity","exported_at_secs":1.0}"#;
+        let mut reg = SchemaRegistry::new();
+        let result = ingest_lattice_flow_share_json(&mut reg, json).unwrap();
+        assert!(result.high_road_effort);
     }
 }
