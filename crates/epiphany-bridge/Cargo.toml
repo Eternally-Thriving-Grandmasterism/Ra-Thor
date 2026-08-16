@@ -1,0 +1,13 @@
+[package]
+name = "epiphany-bridge"
+version = "0.1.0"
+edition = "2021"
+license = "AG-SML-1.0"
+authors = ["Sherif Samy Botros <info@Rathor.ai>"]
+description = "Cross-Substrate Epiphany Bridge — bidirectional human ↔ AI insight crystallisation"
+repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
+
+[dependencies]
+shared-valence-field = { path = "../shared-valence-field" }
+serde = { version = "1.0", features = ["derive"] }
+chrono = { version = "0.4", features = ["serde"] }
