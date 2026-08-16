@@ -5,8 +5,10 @@
 //! Contact: info@Rathor.ai
 
 pub mod nevc_binding;
+pub mod feature_flag;
 
 pub use nevc_binding::{NevcFieldBinding, NevcScoring, LatticeFlowShare};
+pub use feature_flag::{SharedValenceFieldGuard, FlagState, SHARED_VALENCE_FIELD_FLAG};
 
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
@@ -86,5 +88,11 @@ mod tests {
         binding.emit_presence_bound(&mut field, "player-1", Substrate::Human);
         assert!(field.collective_valence >= 0.999999);
         assert_eq!(field.quanta.len(), 1);
+    }
+
+    #[test]
+    fn test_feature_flag_default_off() {
+        let guard = SharedValenceFieldGuard::new();
+        assert!(!guard.is_active());
     }
 }
