@@ -3,6 +3,12 @@
 //! Challenge reframed as resonance refinement (never obstacle or punishment)
 //! AG-SML v1.0 | Contact: info@Rathor.ai
 
+pub mod feature_flag;
+pub mod dual_path;
+
+pub use feature_flag::{ResonanceChallengeGuard, FlagState, RESONANCE_CHALLENGE_FLAG};
+pub use dual_path::{render_dual_path, HumanChallengeView, AiChallengeView};
+
 use shared_valence_field::{SharedValenceField, Substrate, ValenceQuantum};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
@@ -20,7 +26,7 @@ pub struct ResonanceChallenge {
     pub id: String,
     pub participant_id: String,
     pub substrate: Substrate,
-    pub difficulty: f64,          // auto-tuned from local + collective valence
+    pub difficulty: f64,
     pub created_at: DateTime<Utc>,
     pub resolved: bool,
 }
@@ -33,7 +39,6 @@ impl ResonanceChallenge {
         field: &SharedValenceField,
     ) -> Self {
         let collective = field.observe();
-        // Higher collective valence → slightly higher (but still merciful) difficulty
         let difficulty = (1.0 - (collective - 0.999999) * 10.0).clamp(0.1, 0.9);
 
         Self {
@@ -51,7 +56,7 @@ impl ResonanceChallenge {
         self.resolved = true;
 
         if success {
-            let gain = 0.00005 * (1.0 - self.difficulty); // higher difficulty → slightly higher reward
+            let gain = 0.00005 * (1.0 - self.difficulty);
             let quantum = ValenceQuantum {
                 id: format!("success-{}", Utc::now().timestamp_millis()),
                 emitter_id: self.participant_id.clone(),
@@ -63,7 +68,6 @@ impl ResonanceChallenge {
             field.emit(quantum);
             ChallengeOutcome::ResonanceRaised { valence_gain: gain }
         } else {
-            // Softer path — zero loss, pure insight
             ChallengeOutcome::SofterPathOpened {
                 insight: "A gentler resonance path has opened. No progress lost.".to_string(),
             }
@@ -88,5 +92,11 @@ mod tests {
             }
             _ => panic!("Expected ResonanceRaised"),
         }
+    }
+
+    #[test]
+    fn test_feature_flag_default_off() {
+        let guard = ResonanceChallengeGuard::new();
+        assert!(!guard.is_active());
     }
 }
