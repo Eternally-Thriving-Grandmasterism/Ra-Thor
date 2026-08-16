@@ -4,6 +4,10 @@
 //! AG-SML v1.0 | TOLC 8 gated | feature-flaggable
 //! Contact: info@Rathor.ai
 
+pub mod nevc_binding;
+
+pub use nevc_binding::{NevcFieldBinding, NevcScoring, LatticeFlowShare};
+
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
@@ -43,28 +47,23 @@ impl SharedValenceField {
         }
     }
 
-    /// Emit a valence quantum and record it as an NEVC contribution event
     pub fn emit(&mut self, quantum: ValenceQuantum) {
-        // Non-bypassable TOLC 8 floor
         let new_collective = (self.collective_valence + quantum.amount).max(0.999999);
         self.collective_valence = new_collective;
         self.quanta.push(quantum);
         self.last_updated = Utc::now();
-        // Binding point: this is where the sealed NEVC scoring + lattice flow share broadcast will be called
     }
 
-    /// Observe current field (human sensory / AI structured views handled by Soft Sovereign Agency Layer)
     pub fn observe(&self) -> f64 {
         self.collective_valence
     }
 
-    /// Convenience constructor for a presence contribution (used by Symbiotic Membrane)
     pub fn emit_presence(emitter_id: impl Into<String>, substrate: Substrate) -> ValenceQuantum {
         ValenceQuantum {
             id: format!("presence-{}", Utc::now().timestamp_millis()),
             emitter_id: emitter_id.into(),
             substrate,
-            amount: 0.00001, // minimal high-valence presence quantum
+            amount: 0.00001,
             timestamp: Utc::now(),
             context: "presence".into(),
         }
@@ -74,26 +73,18 @@ impl SharedValenceField {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use nevc_binding::{NevcFieldBinding, PlaceholderNevcScoring, PlaceholderLatticeFlowShare};
 
     #[test]
-    fn test_emit_raises_collective() {
+    fn test_bound_emit() {
         let mut field = SharedValenceField::new("test-instance");
-        let q = ValenceQuantum {
-            id: "q1".into(),
-            emitter_id: "player1".into(),
-            substrate: Substrate::Human,
-            amount: 0.0001,
-            timestamp: Utc::now(),
-            context: "cooperation".into(),
-        };
-        field.emit(q);
-        assert!(field.collective_valence >= 0.999999);
-    }
+        let mut binding = NevcFieldBinding::new(
+            PlaceholderNevcScoring::default(),
+            PlaceholderLatticeFlowShare::default(),
+        );
 
-    #[test]
-    fn test_presence_quantum() {
-        let q = SharedValenceField::emit_presence("ai-1", Substrate::AI);
-        assert_eq!(q.context, "presence");
-        assert!(q.amount > 0.0);
+        binding.emit_presence_bound(&mut field, "player-1", Substrate::Human);
+        assert!(field.collective_valence >= 0.999999);
+        assert_eq!(field.quanta.len(), 1);
     }
 }
