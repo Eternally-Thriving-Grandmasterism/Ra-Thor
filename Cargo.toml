@@ -161,6 +161,13 @@ members = [
     "crates/whitesmiths_anvil",
     "crates/hyperplonk_recursion",
     "crates/lattice-conductor-v14",
+        # === Living Valence Organism (Phases B–F) ===
+    "crates/shared-valence-field",
+    "crates/symbiotic-membrane",
+    "crates/resonance-challenge",
+    "crates/epiphany-bridge",
+    "crates/abundance-breath",
+    "crates/soft-sovereign-agency",
 ]
 
 [workspace.package]
