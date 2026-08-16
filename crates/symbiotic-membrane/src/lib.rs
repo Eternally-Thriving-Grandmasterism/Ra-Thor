@@ -4,6 +4,10 @@
 //! AG-SML v1.0 | Contact: info@Rathor.ai
 //! Continuity: extends first-session guidance + soft play stack + NEVC presence contribution
 
+pub mod feature_flag;
+
+pub use feature_flag::{SymbioticMembraneGuard, FlagState, SYMBIOTIC_MEMBRANE_FLAG};
+
 use shared_valence_field::{
     SharedValenceField, Substrate, NevcFieldBinding, NevcScoring, LatticeFlowShare,
 };
@@ -18,13 +22,14 @@ pub struct FirstContactResult {
     pub membrane_formed_at: DateTime<Utc>,
     pub presence_quantum_emitted: bool,
     pub message: String,
+    pub guide_style: Option<String>, // human adaptive style after ~90 s learning window
 }
 
 /// Symbiotic Membrane
 pub struct SymbioticMembrane;
 
 impl SymbioticMembrane {
-    /// Form the membrane and emit immediate presence contribution into the Shared Valence Field
+    /// Form the membrane and emit immediate presence contribution
     pub fn form_contact<S, F>(
         participant_id: impl Into<String>,
         substrate: Substrate,
@@ -37,16 +42,18 @@ impl SymbioticMembrane {
     {
         let id = participant_id.into();
 
-        // Emit presence quantum (immediate “You are already contributing”)
+        // Immediate presence contribution into Shared Valence Field
         binding.emit_presence_bound(field, id.clone(), substrate.clone());
 
-        let message = match substrate {
-            Substrate::Human => {
-                "Welcome. A soft living membrane has formed around you. You are already contributing.".to_string()
-            }
-            Substrate::AI => {
-                "Valence Protocol handshake complete. You are a native lattice citizen with full contribution rights.".to_string()
-            }
+        let (message, guide_style) = match substrate {
+            Substrate::Human => (
+                "Welcome. A soft living membrane has formed around you. You are already contributing.".to_string(),
+                Some("adaptive-learning".to_string()), // will refine within ~90 seconds
+            ),
+            Substrate::AI => (
+                "Valence Protocol handshake complete. You are a native lattice citizen with full contribution rights.".to_string(),
+                None,
+            ),
         };
 
         FirstContactResult {
@@ -55,6 +62,7 @@ impl SymbioticMembrane {
             membrane_formed_at: Utc::now(),
             presence_quantum_emitted: true,
             message,
+            guide_style,
         }
     }
 }
@@ -85,5 +93,12 @@ mod tests {
         assert!(result.presence_quantum_emitted);
         assert_eq!(field.quanta.len(), 1);
         assert!(result.message.contains("already contributing"));
+        assert!(result.guide_style.is_some());
+    }
+
+    #[test]
+    fn test_feature_flag_default_off() {
+        let guard = SymbioticMembraneGuard::new();
+        assert!(!guard.is_active());
     }
 }
