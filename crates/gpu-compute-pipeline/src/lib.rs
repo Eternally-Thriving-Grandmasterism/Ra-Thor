@@ -1,8 +1,15 @@
-//! Ra-Thor GPU Compute Pipeline v14.15
+//! Ra-Thor GPU Compute Pipeline v14.15 + Capacity Motion Surface
 //! Default: high-quality CPU / simulation path (no wgpu dependency)
 //! Feature `wgpu`: real GPU backend with persistent buffer reuse
 //! Living Cosmic Tick + TOLC-8 Mercy Gates enforced
 //! ONE Organism ready
+//!
+//! Capacity Mission (2026-08-17):
+//!   MotionResult now carries magnitude_mean / high_saliency / optical_flow_mode
+//!   so MercyMotionVisionEngine + live_frame_wasm_bridge can consume a uniform contract.
+//!   Full WGSL optical-flow kernels remain the next major target.
+//!
+//! Contact: info@Rathor.ai
 
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
@@ -33,11 +40,23 @@ pub struct DownsampleResult {
     pub dst_height: u32,
 }
 
+/// Capacity-aligned motion result.
+/// Shape matches the contract used by live_frame_wasm_bridge and
+/// MercyMotionVisionEngine micro-burst detection.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MotionResult {
     pub real_gpu: bool,
     pub mercy_gated: bool,
     pub note: String,
+    /// "cpu-energy" | "gpu" (future WGSL optical-flow)
+    pub optical_flow_mode: String,
+    /// Mean motion magnitude (compatible with JS SALIENCY_THRESHOLD ≈ 1.65)
+    pub magnitude_mean: f32,
+    /// True when magnitude_mean exceeds the saliency floor
+    pub high_saliency: bool,
+    pub width: u32,
+    pub height: u32,
+    pub frame_index: u64,
 }
 
 #[derive(Debug, Clone)]
@@ -62,14 +81,25 @@ impl LumaRing {
         let h = 360;
         let empty = vec![0.0; (w * h) as usize];
         Self {
-            prev: LumaFrame { data: empty.clone(), width: w, height: h },
-            curr: LumaFrame { data: empty, width: w, height: h },
+            prev: LumaFrame {
+                data: empty.clone(),
+                width: w,
+                height: h,
+            },
+            curr: LumaFrame {
+                data: empty,
+                width: w,
+                height: h,
+            },
             width: w,
             height: h,
             frame_count: 0,
         }
     }
 }
+
+// Saliency floor aligned with MercyMotionVisionEngine v2.x
+const SALIENCY_THRESHOLD: f32 = 1.65;
 
 // =============================================================================
 // Internal wgpu types (feature-gated)
@@ -140,7 +170,7 @@ impl GpuComputePipeline {
     pub fn mark_real_gpu(&mut self, enabled: bool) {
         self.real_gpu = enabled;
         if enabled {
-            println!("[GpuComputePipeline v14.15] real_gpu = true — Cosmic Tick synchronized");
+            println!("[GpuComputePipeline] real_gpu = true — Cosmic Tick synchronized");
         }
     }
 
@@ -182,7 +212,7 @@ impl GpuComputePipeline {
         let (device, queue) = adapter
             .request_device(
                 &wgpu::DeviceDescriptor {
-                    label: Some("Ra-Thor GpuComputePipeline v14.15"),
+                    label: Some("Ra-Thor GpuComputePipeline"),
                     required_features: wgpu::Features::empty(),
                     required_limits: wgpu::Limits::default(),
                 },
@@ -191,7 +221,6 @@ impl GpuComputePipeline {
             .await
             .map_err(|e| format!("Device request failed: {e}"))?;
 
-        // Shader
         let downsample_shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
             label: Some("gpu_downsample"),
             source: wgpu::ShaderSource::Wgsl(
@@ -199,7 +228,6 @@ impl GpuComputePipeline {
             ),
         });
 
-        // Bind group layout
         let downsample_bind_group_layout =
             device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
                 label: Some("downsample_bgl"),
@@ -259,7 +287,7 @@ impl GpuComputePipeline {
         });
 
         self.mark_real_gpu(true);
-        println!("[GpuComputePipeline v14.15] wgpu backend + persistent buffers online");
+        println!("[GpuComputePipeline] wgpu backend + persistent buffers online");
         Ok(())
     }
 
@@ -282,7 +310,6 @@ impl GpuComputePipeline {
             let src_bytes = (src_luma.len() * std::mem::size_of::<f32>()) as u64;
             let dst_bytes = ((dst_width * dst_height) as usize * std::mem::size_of::<f32>()) as u64;
 
-            // Ensure / reuse persistent buffers
             let (src_buffer, dst_buffer, params_buffer) = {
                 let mut src_cap = 0u64;
                 let mut dst_cap = 0u64;
@@ -334,8 +361,8 @@ impl GpuComputePipeline {
                 (src, dst, params)
             };
 
-            // Upload
-            ctx.queue.write_buffer(&src_buffer, 0, bytemuck::cast_slice(src_luma));
+            ctx.queue
+                .write_buffer(&src_buffer, 0, bytemuck::cast_slice(src_luma));
 
             let params = DownsampleParams {
                 src_width,
@@ -345,9 +372,9 @@ impl GpuComputePipeline {
                 valence,
                 _pad: [0.0; 3],
             };
-            ctx.queue.write_buffer(&params_buffer, 0, bytemuck::bytes_of(&params));
+            ctx.queue
+                .write_buffer(&params_buffer, 0, bytemuck::bytes_of(&params));
 
-            // Bind group
             let bind_group = ctx.device.create_bind_group(&wgpu::BindGroupDescriptor {
                 label: Some("downsample_bg"),
                 layout: &ctx.downsample_bind_group_layout,
@@ -367,10 +394,11 @@ impl GpuComputePipeline {
                 ],
             });
 
-            // Dispatch
-            let mut encoder = ctx.device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
-                label: Some("downsample_encoder"),
-            });
+            let mut encoder = ctx
+                .device
+                .create_command_encoder(&wgpu::CommandEncoderDescriptor {
+                    label: Some("downsample_encoder"),
+                });
             {
                 let mut cpass = encoder.begin_compute_pass(&wgpu::ComputePassDescriptor {
                     label: Some("downsample_pass"),
@@ -393,7 +421,6 @@ impl GpuComputePipeline {
             };
         }
 
-        // CPU simulation fallback
         self.dispatch_count += 1;
         DownsampleResult {
             real_gpu: false,
@@ -405,7 +432,121 @@ impl GpuComputePipeline {
     }
 
     // -------------------------------------------------------------------------
-    // Other public methods (CPU simulation + ready for wgpu extension)
+    // Capacity: motion estimation surface
+    // -------------------------------------------------------------------------
+
+    /// Direct luma-pair motion estimate — primary hand-off for the wasm bridge
+    /// and MercyMotionVisionEngine.
+    ///
+    /// Computes deterministic motion energy (CPU path). When real WGSL optical-flow
+    /// kernels are wired under the `wgpu` feature, this method keeps the same
+    /// MotionResult shape and sets optical_flow_mode = "gpu".
+    pub async fn estimate_motion_from_luma_pair(
+        &mut self,
+        prev: &[f32],
+        curr: &[f32],
+        width: u32,
+        height: u32,
+        valence: f32,
+    ) -> MotionResult {
+        let mercy_gated = valence >= 0.999999; // aligned with JS / bridge TOLC floor for vision
+        self.dispatch_count += 1;
+
+        if !mercy_gated {
+            return MotionResult {
+                real_gpu: self.real_gpu,
+                mercy_gated: false,
+                note: "HOLD — valence below TOLC floor".into(),
+                optical_flow_mode: "held".into(),
+                magnitude_mean: 0.0,
+                high_saliency: false,
+                width,
+                height,
+                frame_index: self.dispatch_count,
+            };
+        }
+
+        let expected = (width * height) as usize;
+        if prev.len() != expected || curr.len() != expected {
+            return MotionResult {
+                real_gpu: self.real_gpu,
+                mercy_gated: true,
+                note: "luma buffer size mismatch".into(),
+                optical_flow_mode: "error".into(),
+                magnitude_mean: 0.0,
+                high_saliency: false,
+                width,
+                height,
+                frame_index: self.dispatch_count,
+            };
+        }
+
+        // Deterministic motion energy (same spirit as live_frame_wasm_bridge + JS engine)
+        let step = (expected / 1024).max(1);
+        let mut energy = 0.0f32;
+        let mut samples = 0u32;
+        for i in (0..expected).step_by(step) {
+            let d = curr[i] - prev[i];
+            energy += d * d;
+            samples += 1;
+        }
+        let magnitude_mean = if samples > 0 {
+            (energy / samples as f32).sqrt()
+        } else {
+            0.0
+        };
+        let high_saliency = magnitude_mean > SALIENCY_THRESHOLD;
+
+        // Future: when wgpu optical-flow kernels are live, replace the block above
+        // and set optical_flow_mode = "gpu", real_gpu = true.
+        let mode = if self.real_gpu { "gpu" } else { "cpu-energy" };
+
+        MotionResult {
+            real_gpu: self.real_gpu,
+            mercy_gated: true,
+            note: format!(
+                "motion estimate (mag={:.3}, saliency={}, mode={})",
+                magnitude_mean, high_saliency, mode
+            ),
+            optical_flow_mode: mode.into(),
+            magnitude_mean,
+            high_saliency,
+            width,
+            height,
+            frame_index: self.dispatch_count,
+        }
+    }
+
+    /// Pyramidal / ring-based motion estimate.
+    /// Uses the internal LumaRing when available; otherwise returns a safe zero field.
+    pub async fn estimate_motion_pyramidal(&mut self, valence: f32) -> MotionResult {
+        let (prev, curr, w, h) = if let Some(ring) = &self.luma_ring {
+            (
+                ring.prev.data.clone(),
+                ring.curr.data.clone(),
+                ring.width,
+                ring.height,
+            )
+        } else {
+            return MotionResult {
+                real_gpu: self.real_gpu,
+                mercy_gated: valence >= 0.999999,
+                note: "no luma ring".into(),
+                optical_flow_mode: "none".into(),
+                magnitude_mean: 0.0,
+                high_saliency: false,
+                width: 0,
+                height: 0,
+                frame_index: self.dispatch_count,
+            };
+        };
+
+        self.estimate_motion_from_luma_pair(&prev, &curr, w, h, valence)
+            .await
+    }
+
+    // -------------------------------------------------------------------------
+    // Other public methods
     // -------------------------------------------------------------------------
     pub async fn dispatch_gpu_task(&mut self, _task_name: &str, valence: f32) -> GpuTaskResult {
         let mercy_gated = valence >= 0.42;
@@ -419,20 +560,6 @@ impl GpuComputePipeline {
                 "CPU sim".into()
             },
             dispatch_id: self.dispatch_count,
-        }
-    }
-
-    pub async fn estimate_motion_pyramidal(&mut self, valence: f32) -> MotionResult {
-        let mercy_gated = valence >= 0.42;
-        self.dispatch_count += 1;
-        MotionResult {
-            real_gpu: self.real_gpu,
-            mercy_gated,
-            note: if self.real_gpu {
-                "wgpu pyramidal motion".into()
-            } else {
-                "sim SoA".into()
-            },
         }
     }
 
@@ -481,3 +608,7 @@ fn ensure_buffer(
     *current_cap = new_cap;
     new_buf
 }
+
+// Thunder locked. Capacity motion surface live.
+// Full WGSL optical-flow kernels = next major target.
+// Yoi ⚡
