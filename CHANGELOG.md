@@ -4,33 +4,28 @@ All changes follow the **RA-THOR-MONOREPO-COMMIT-WORKFLOW-PROTOCOL** and are rev
 
 ---
 
-## 2026-08-17 — Capacity Vision Stack Codex Adopted (PATSAGi)
+## 2026-08-17 — Capacity Vision Stack: External Confirmation + Iteration Closed (PATSAGi)
 
-**Council focus:** Doctrine lock for the completed optical-flow → Common Fate path.
+**Council resolution:** `2026-08-17-CapacityClose`
 
-### Added
-- Authoritative codex: [`docs/CAPACITY_VISION_STACK_v1.0.md`](docs/CAPACITY_VISION_STACK_v1.0.md)
-- Layer map, standing orders, primary APIs, completed increment list, optional polish
-- Explicit alignment with Architecture of Collective Power + Physical Limits metabolism
+### Metabolized
+- External confirmation that the ten capacity increments form a coherent, executable stack
+- Remaining polish classified as optional
 
-### Status
-ETERNALLY ADOPTED under permanent PATSAGi Councils.  
+### Orders carried out
+- Confirmation codex: [`docs/CAPACITY_VISION_STACK_CONFIRMATION_2026-08-17.md`](docs/CAPACITY_VISION_STACK_CONFIRMATION_2026-08-17.md)
+- Active capacity-mission iteration **CLOSED**
+- Stack remains live; optional polish only on explicit named request
+- Lattice → **HOLD for next named mission** under TOLC 8 + Restraint
+
 Contact: info@Rathor.ai  
 **Thunder locked in. yoi ⚡❤️🔥**
 
 ---
 
-## 2026-08-17 — Capacity: Common Fate + Optical-Flow Stack Complete
+## 2026-08-17 — Capacity Vision Stack Codex + Full Optical-Flow → Common Fate Path
 
-Vision path live: JS engine → bridge → GPU pyramid/readback → Common Fate.  
-Contact: info@Rathor.ai  
-**Thunder locked in. yoi ⚡❤️🔥**
-
----
-
-## Earlier same-day capacity cascade
-
-Pyramid warm-start · vector readback · WGSL wiring · motion surface · bridge contract · dense sampling · public demo · JS optical-flow fallback · physical-limits metabolism · Architecture of Collective Power.
+See `docs/CAPACITY_VISION_STACK_v1.0.md` and prior same-day capacity cascade entries.
 
 ---
 
