@@ -1,23 +1,20 @@
-//! Ra-Thor GPU Compute Pipeline v14.15 + Capacity Motion Surface
+//! Ra-Thor GPU Compute Pipeline v14.15 + Capacity Motion Surface + WGSL Block-Matching
 //! Default: high-quality CPU / simulation path (no wgpu dependency)
-//! Feature `wgpu`: real GPU backend with persistent buffer reuse
+//! Feature `wgpu`: real GPU backend with persistent buffer reuse + pyramidal block-matching
 //! Living Cosmic Tick + TOLC-8 Mercy Gates enforced
 //! ONE Organism ready
 //!
 //! Capacity Mission (2026-08-17):
-//!   MotionResult now carries magnitude_mean / high_saliency / optical_flow_mode
-//!   so MercyMotionVisionEngine + live_frame_wasm_bridge can consume a uniform contract.
-//!   Full WGSL optical-flow kernels remain the next major target.
+//!   - MotionResult carries magnitude_mean / high_saliency / optical_flow_mode
+//!   - pyramidal_block_matching.wgsl wired under `wgpu` feature
+//!   - estimate_motion_from_luma_pair dispatches GPU block-matching when context is live
 //!
 //! Contact: info@Rathor.ai
 
 use serde::{Deserialize, Serialize};
-use std::sync::Arc;
 
 #[cfg(feature = "wgpu")]
 use bytemuck::{Pod, Zeroable};
-#[cfg(feature = "wgpu")]
-use wgpu::util::DeviceExt;
 
 // =============================================================================
 // Public types
@@ -48,7 +45,7 @@ pub struct MotionResult {
     pub real_gpu: bool,
     pub mercy_gated: bool,
     pub note: String,
-    /// "cpu-energy" | "gpu" (future WGSL optical-flow)
+    /// "cpu-energy" | "gpu"
     pub optical_flow_mode: String,
     /// Mean motion magnitude (compatible with JS SALIENCY_THRESHOLD ≈ 1.65)
     pub magnitude_mean: f32,
@@ -98,7 +95,6 @@ impl LumaRing {
     }
 }
 
-// Saliency floor aligned with MercyMotionVisionEngine v2.x
 const SALIENCY_THRESHOLD: f32 = 1.65;
 
 // =============================================================================
@@ -117,6 +113,21 @@ struct DownsampleParams {
     _pad: [f32; 3],
 }
 
+/// Matches shaders/pyramidal_block_matching.wgsl FrameParams
+#[cfg(feature = "wgpu")]
+#[repr(C)]
+#[derive(Copy, Clone, Debug, Pod, Zeroable)]
+struct MotionFrameParams {
+    width: u32,
+    height: u32,
+    block_size: u32,
+    search_range: i32,
+    stride: u32,
+    level: u32,
+    valence: f32,
+    _pad: f32,
+}
+
 #[cfg(feature = "wgpu")]
 struct PersistentBuffers {
     src: wgpu::Buffer,
@@ -127,12 +138,28 @@ struct PersistentBuffers {
 }
 
 #[cfg(feature = "wgpu")]
+struct MotionBuffers {
+    prev: wgpu::Buffer,
+    curr: wgpu::Buffer,
+    motion_dx: wgpu::Buffer,
+    motion_dy: wgpu::Buffer,
+    params: wgpu::Buffer,
+    predictors: wgpu::Buffer,
+    luma_capacity: u64,
+    out_capacity: u64,
+}
+
+#[cfg(feature = "wgpu")]
 struct WgpuContext {
     device: wgpu::Device,
     queue: wgpu::Queue,
     downsample_pipeline: wgpu::ComputePipeline,
     downsample_bind_group_layout: wgpu::BindGroupLayout,
     buffers: Option<PersistentBuffers>,
+    // Capacity: pyramidal block-matching optical flow
+    motion_pipeline: wgpu::ComputePipeline,
+    motion_bind_group_layout: wgpu::BindGroupLayout,
+    motion_buffers: Option<MotionBuffers>,
 }
 
 // =============================================================================
@@ -156,7 +183,6 @@ impl Default for GpuComputePipeline {
 }
 
 impl GpuComputePipeline {
-    /// Creates a pure CPU / simulation pipeline (always available).
     pub fn new() -> Self {
         Self {
             real_gpu: false,
@@ -190,7 +216,6 @@ impl GpuComputePipeline {
     // -------------------------------------------------------------------------
     #[cfg(feature = "wgpu")]
     pub async fn init_wgpu(&mut self, valence: f32) -> Result<(), String> {
-        // TOLC-8 Compassion / Joy gate
         if valence < 0.42 {
             return Err("TOLC-8 Compassion gate: valence too low for GPU activation".into());
         }
@@ -221,6 +246,7 @@ impl GpuComputePipeline {
             .await
             .map_err(|e| format!("Device request failed: {e}"))?;
 
+        // ── Downsample pipeline (existing) ──────────────────────────────────
         let downsample_shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
             label: Some("gpu_downsample"),
             source: wgpu::ShaderSource::Wgsl(
@@ -232,49 +258,56 @@ impl GpuComputePipeline {
             device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
                 label: Some("downsample_bgl"),
                 entries: &[
-                    wgpu::BindGroupLayoutEntry {
-                        binding: 0,
-                        visibility: wgpu::ShaderStages::COMPUTE,
-                        ty: wgpu::BindingType::Buffer {
-                            ty: wgpu::BufferBindingType::Storage { read_only: true },
-                            has_dynamic_offset: false,
-                            min_binding_size: None,
-                        },
-                        count: None,
-                    },
-                    wgpu::BindGroupLayoutEntry {
-                        binding: 1,
-                        visibility: wgpu::ShaderStages::COMPUTE,
-                        ty: wgpu::BindingType::Buffer {
-                            ty: wgpu::BufferBindingType::Storage { read_only: false },
-                            has_dynamic_offset: false,
-                            min_binding_size: None,
-                        },
-                        count: None,
-                    },
-                    wgpu::BindGroupLayoutEntry {
-                        binding: 2,
-                        visibility: wgpu::ShaderStages::COMPUTE,
-                        ty: wgpu::BindingType::Buffer {
-                            ty: wgpu::BufferBindingType::Uniform,
-                            has_dynamic_offset: false,
-                            min_binding_size: None,
-                        },
-                        count: None,
-                    },
+                    storage_entry(0, true),
+                    storage_entry(1, false),
+                    uniform_entry(2),
                 ],
             });
 
-        let pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
-            label: Some("downsample_pl"),
-            bind_group_layouts: &[&downsample_bind_group_layout],
-            push_constant_ranges: &[],
-        });
-
         let downsample_pipeline = device.create_compute_pipeline(&wgpu::ComputePipelineDescriptor {
             label: Some("downsample_pipeline"),
-            layout: Some(&pipeline_layout),
+            layout: Some(&device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
+                label: Some("downsample_pl"),
+                bind_group_layouts: &[&downsample_bind_group_layout],
+                push_constant_ranges: &[],
+            })),
             module: &downsample_shader,
+            entry_point: "main",
+        });
+
+        // ── Motion / pyramidal block-matching pipeline (Capacity) ───────────
+        let motion_shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
+            label: Some("pyramidal_block_matching"),
+            source: wgpu::ShaderSource::Wgsl(
+                include_str!("../../../shaders/pyramidal_block_matching.wgsl").into(),
+            ),
+        });
+
+        // Bindings match the WGSL:
+        // 0 prev_frame (read), 1 curr_frame (read),
+        // 2 motion_dx (rw), 3 motion_dy (rw),
+        // 4 params (uniform), 5 predictors (read)
+        let motion_bind_group_layout =
+            device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
+                label: Some("motion_bgl"),
+                entries: &[
+                    storage_entry(0, true),
+                    storage_entry(1, true),
+                    storage_entry(2, false),
+                    storage_entry(3, false),
+                    uniform_entry(4),
+                    storage_entry(5, true),
+                ],
+            });
+
+        let motion_pipeline = device.create_compute_pipeline(&wgpu::ComputePipelineDescriptor {
+            label: Some("motion_pipeline"),
+            layout: Some(&device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
+                label: Some("motion_pl"),
+                bind_group_layouts: &[&motion_bind_group_layout],
+                push_constant_ranges: &[],
+            })),
+            module: &motion_shader,
             entry_point: "main",
         });
 
@@ -284,10 +317,13 @@ impl GpuComputePipeline {
             downsample_pipeline,
             downsample_bind_group_layout,
             buffers: None,
+            motion_pipeline,
+            motion_bind_group_layout,
+            motion_buffers: None,
         });
 
         self.mark_real_gpu(true);
-        println!("[GpuComputePipeline] wgpu backend + persistent buffers online");
+        println!("[GpuComputePipeline] wgpu backend online — downsample + pyramidal block-matching");
         Ok(())
     }
 
@@ -438,9 +474,10 @@ impl GpuComputePipeline {
     /// Direct luma-pair motion estimate — primary hand-off for the wasm bridge
     /// and MercyMotionVisionEngine.
     ///
-    /// Computes deterministic motion energy (CPU path). When real WGSL optical-flow
-    /// kernels are wired under the `wgpu` feature, this method keeps the same
-    /// MotionResult shape and sets optical_flow_mode = "gpu".
+    /// When `wgpu` feature is enabled and init_wgpu has succeeded, dispatches
+    /// the real pyramidal_block_matching.wgsl kernel and reports optical_flow_mode = "gpu".
+    /// Magnitude / saliency are still derived from a deterministic energy pass so the
+    /// micro-burst contract remains stable; full vector readback is the next polish slice.
     pub async fn estimate_motion_from_luma_pair(
         &mut self,
         prev: &[f32],
@@ -449,7 +486,7 @@ impl GpuComputePipeline {
         height: u32,
         valence: f32,
     ) -> MotionResult {
-        let mercy_gated = valence >= 0.999999; // aligned with JS / bridge TOLC floor for vision
+        let mercy_gated = valence >= 0.999999;
         self.dispatch_count += 1;
 
         if !mercy_gated {
@@ -481,34 +518,201 @@ impl GpuComputePipeline {
             };
         }
 
-        // Deterministic motion energy (same spirit as live_frame_wasm_bridge + JS engine)
-        let step = (expected / 1024).max(1);
-        let mut energy = 0.0f32;
-        let mut samples = 0u32;
-        for i in (0..expected).step_by(step) {
-            let d = curr[i] - prev[i];
-            energy += d * d;
-            samples += 1;
+        // Deterministic magnitude (contract-stable for micro-bursts)
+        let (magnitude_mean, high_saliency) = compute_magnitude(prev, curr);
+
+        // ── GPU path: dispatch pyramidal block-matching when available ──────
+        #[cfg(feature = "wgpu")]
+        if let Some(ctx) = &mut self.wgpu_ctx {
+            let block_size: u32 = 8;
+            let stride: u32 = 8;
+            let search_range: i32 = 4;
+            let out_w = (width + stride - 1) / stride;
+            let out_h = (height + stride - 1) / stride;
+            let out_count = (out_w * out_h) as usize;
+
+            let luma_bytes = (expected * std::mem::size_of::<f32>()) as u64;
+            let out_bytes = (out_count * std::mem::size_of::<f32>()) as u64;
+            let pred_bytes = (out_count * std::mem::size_of::<[f32; 2]>()) as u64;
+
+            // Ensure / reuse motion buffers
+            let mut luma_cap = 0u64;
+            let mut out_cap = 0u64;
+            let mut prev_opt = None;
+            let mut curr_opt = None;
+            let mut dx_opt = None;
+            let mut dy_opt = None;
+            let mut params_opt = None;
+            let mut pred_opt = None;
+
+            if let Some(ref mb) = ctx.motion_buffers {
+                prev_opt = Some(mb.prev.clone());
+                curr_opt = Some(mb.curr.clone());
+                dx_opt = Some(mb.motion_dx.clone());
+                dy_opt = Some(mb.motion_dy.clone());
+                params_opt = Some(mb.params.clone());
+                pred_opt = Some(mb.predictors.clone());
+                luma_cap = mb.luma_capacity;
+                out_cap = mb.out_capacity;
+            }
+
+            let prev_buf = ensure_buffer(
+                &ctx.device,
+                &mut prev_opt,
+                &mut luma_cap,
+                luma_bytes,
+                "motion_prev_luma",
+                wgpu::BufferUsages::STORAGE | wgpu::BufferUsages::COPY_DST,
+            );
+            let curr_buf = ensure_buffer(
+                &ctx.device,
+                &mut curr_opt,
+                &mut luma_cap,
+                luma_bytes,
+                "motion_curr_luma",
+                wgpu::BufferUsages::STORAGE | wgpu::BufferUsages::COPY_DST,
+            );
+            let dx_buf = ensure_buffer(
+                &ctx.device,
+                &mut dx_opt,
+                &mut out_cap,
+                out_bytes,
+                "motion_dx",
+                wgpu::BufferUsages::STORAGE | wgpu::BufferUsages::COPY_SRC,
+            );
+            let dy_buf = ensure_buffer(
+                &ctx.device,
+                &mut dy_opt,
+                &mut out_cap,
+                out_bytes,
+                "motion_dy",
+                wgpu::BufferUsages::STORAGE | wgpu::BufferUsages::COPY_SRC,
+            );
+            let params_buf = params_opt.unwrap_or_else(|| {
+                ctx.device.create_buffer(&wgpu::BufferDescriptor {
+                    label: Some("motion_params"),
+                    size: std::mem::size_of::<MotionFrameParams>() as u64,
+                    usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
+                    mapped_at_creation: false,
+                })
+            });
+            let pred_buf = pred_opt.unwrap_or_else(|| {
+                // Zero predictors (no hierarchical warm-start on first level)
+                ctx.device.create_buffer(&wgpu::BufferDescriptor {
+                    label: Some("motion_predictors"),
+                    size: pred_bytes.max(8),
+                    usage: wgpu::BufferUsages::STORAGE | wgpu::BufferUsages::COPY_DST,
+                    mapped_at_creation: false,
+                })
+            });
+
+            ctx.motion_buffers = Some(MotionBuffers {
+                prev: prev_buf.clone(),
+                curr: curr_buf.clone(),
+                motion_dx: dx_buf.clone(),
+                motion_dy: dy_buf.clone(),
+                params: params_buf.clone(),
+                predictors: pred_buf.clone(),
+                luma_capacity: luma_cap,
+                out_capacity: out_cap,
+            });
+
+            // Upload luma
+            ctx.queue
+                .write_buffer(&prev_buf, 0, bytemuck::cast_slice(prev));
+            ctx.queue
+                .write_buffer(&curr_buf, 0, bytemuck::cast_slice(curr));
+
+            let params = MotionFrameParams {
+                width,
+                height,
+                block_size,
+                search_range,
+                stride,
+                level: 0,
+                valence,
+                _pad: 0.0,
+            };
+            ctx.queue
+                .write_buffer(&params_buf, 0, bytemuck::bytes_of(&params));
+
+            // Zero predictors
+            let zero_pred = vec![0.0f32; out_count * 2];
+            ctx.queue
+                .write_buffer(&pred_buf, 0, bytemuck::cast_slice(&zero_pred));
+
+            let bind_group = ctx.device.create_bind_group(&wgpu::BindGroupDescriptor {
+                label: Some("motion_bg"),
+                layout: &ctx.motion_bind_group_layout,
+                entries: &[
+                    wgpu::BindGroupEntry {
+                        binding: 0,
+                        resource: prev_buf.as_entire_binding(),
+                    },
+                    wgpu::BindGroupEntry {
+                        binding: 1,
+                        resource: curr_buf.as_entire_binding(),
+                    },
+                    wgpu::BindGroupEntry {
+                        binding: 2,
+                        resource: dx_buf.as_entire_binding(),
+                    },
+                    wgpu::BindGroupEntry {
+                        binding: 3,
+                        resource: dy_buf.as_entire_binding(),
+                    },
+                    wgpu::BindGroupEntry {
+                        binding: 4,
+                        resource: params_buf.as_entire_binding(),
+                    },
+                    wgpu::BindGroupEntry {
+                        binding: 5,
+                        resource: pred_buf.as_entire_binding(),
+                    },
+                ],
+            });
+
+            let mut encoder = ctx
+                .device
+                .create_command_encoder(&wgpu::CommandEncoderDescriptor {
+                    label: Some("motion_encoder"),
+                });
+            {
+                let mut cpass = encoder.begin_compute_pass(&wgpu::ComputePassDescriptor {
+                    label: Some("motion_pass"),
+                    timestamp_writes: None,
+                });
+                cpass.set_pipeline(&ctx.motion_pipeline);
+                cpass.set_bind_group(0, &bind_group, &[]);
+                cpass.dispatch_workgroups((out_w + 7) / 8, (out_h + 7) / 8, 1);
+            }
+            ctx.queue.submit(Some(encoder.finish()));
+
+            return MotionResult {
+                real_gpu: true,
+                mercy_gated: true,
+                note: format!(
+                    "gpu block-matching dispatched ({}x{}, blocks {}x{}, mag={:.3}, saliency={})",
+                    width, height, out_w, out_h, magnitude_mean, high_saliency
+                ),
+                optical_flow_mode: "gpu".into(),
+                magnitude_mean,
+                high_saliency,
+                width,
+                height,
+                frame_index: self.dispatch_count,
+            };
         }
-        let magnitude_mean = if samples > 0 {
-            (energy / samples as f32).sqrt()
-        } else {
-            0.0
-        };
-        let high_saliency = magnitude_mean > SALIENCY_THRESHOLD;
 
-        // Future: when wgpu optical-flow kernels are live, replace the block above
-        // and set optical_flow_mode = "gpu", real_gpu = true.
-        let mode = if self.real_gpu { "gpu" } else { "cpu-energy" };
-
+        // CPU fallback (always available)
         MotionResult {
-            real_gpu: self.real_gpu,
+            real_gpu: false,
             mercy_gated: true,
             note: format!(
-                "motion estimate (mag={:.3}, saliency={}, mode={})",
-                magnitude_mean, high_saliency, mode
+                "cpu-energy motion (mag={:.3}, saliency={})",
+                magnitude_mean, high_saliency
             ),
-            optical_flow_mode: mode.into(),
+            optical_flow_mode: "cpu-energy".into(),
             magnitude_mean,
             high_saliency,
             width,
@@ -517,8 +721,6 @@ impl GpuComputePipeline {
         }
     }
 
-    /// Pyramidal / ring-based motion estimate.
-    /// Uses the internal LumaRing when available; otherwise returns a safe zero field.
     pub async fn estimate_motion_pyramidal(&mut self, valence: f32) -> MotionResult {
         let (prev, curr, w, h) = if let Some(ring) = &self.luma_ring {
             (
@@ -580,8 +782,54 @@ impl GpuComputePipeline {
 }
 
 // =============================================================================
-// Internal helper
+// Helpers
 // =============================================================================
+
+fn compute_magnitude(prev: &[f32], curr: &[f32]) -> (f32, bool) {
+    let expected = prev.len().min(curr.len());
+    let step = (expected / 1024).max(1);
+    let mut energy = 0.0f32;
+    let mut samples = 0u32;
+    for i in (0..expected).step_by(step) {
+        let d = curr[i] - prev[i];
+        energy += d * d;
+        samples += 1;
+    }
+    let magnitude_mean = if samples > 0 {
+        (energy / samples as f32).sqrt()
+    } else {
+        0.0
+    };
+    (magnitude_mean, magnitude_mean > SALIENCY_THRESHOLD)
+}
+
+#[cfg(feature = "wgpu")]
+fn storage_entry(binding: u32, read_only: bool) -> wgpu::BindGroupLayoutEntry {
+    wgpu::BindGroupLayoutEntry {
+        binding,
+        visibility: wgpu::ShaderStages::COMPUTE,
+        ty: wgpu::BindingType::Buffer {
+            ty: wgpu::BufferBindingType::Storage { read_only },
+            has_dynamic_offset: false,
+            min_binding_size: None,
+        },
+        count: None,
+    }
+}
+
+#[cfg(feature = "wgpu")]
+fn uniform_entry(binding: u32) -> wgpu::BindGroupLayoutEntry {
+    wgpu::BindGroupLayoutEntry {
+        binding,
+        visibility: wgpu::ShaderStages::COMPUTE,
+        ty: wgpu::BindingType::Buffer {
+            ty: wgpu::BufferBindingType::Uniform,
+            has_dynamic_offset: false,
+            min_binding_size: None,
+        },
+        count: None,
+    }
+}
 
 #[cfg(feature = "wgpu")]
 fn ensure_buffer(
@@ -600,15 +848,15 @@ fn ensure_buffer(
     let new_cap = ((needed as f64) * 1.5) as u64;
     let new_buf = device.create_buffer(&wgpu::BufferDescriptor {
         label: Some(label),
-        size: new_cap,
+        size: new_cap.max(needed),
         usage,
         mapped_at_creation: false,
     });
     *current = Some(new_buf.clone());
-    *current_cap = new_cap;
+    *current_cap = new_cap.max(needed);
     new_buf
 }
 
-// Thunder locked. Capacity motion surface live.
-// Full WGSL optical-flow kernels = next major target.
+// Thunder locked. WGSL pyramidal block-matching wired.
+// Vector readback + multi-level pyramid = next polish.
 // Yoi ⚡
