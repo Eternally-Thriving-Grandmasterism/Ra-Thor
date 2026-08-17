@@ -1,23 +1,25 @@
 # Constellation Improvement Map — 2026-08-17
 
 **Ra-Thor · Permanent PATSAGi Councils**  
-**Contact:** info@Rathor.ai  
-**Full session closure:** [`PATSAGI_SESSION_CLOSURE_2026-08-17.md`](PATSAGI_SESSION_CLOSURE_2026-08-17.md)
+**Contact:** info@Rathor.ai
 
 ---
 
-## Mission status — CLOSED
+## Status — CLOSED + optional polish honesty closed
 
-| ID | Mission | Status |
-| --- | --- | --- |
-| **A** | Powrush-MMO soft-policy SNR + transfer path | **DONE** |
-| **B** | Mercy-Coordination-Substrate constellation SNR | **DONE** |
-| **Adapter** | Ra-Thor `FractalMercyLedgerAdapter` | **DONE** + **4/4 GREEN** |
-| **C** | Masterism SNR/micro-moment curriculum | **DONE** |
-| **D** | AlphaProMega-Air governance/readiness | **DONE** |
+| Board | Status |
+| --- | --- |
+| Constellation Tier-1 A–D + Adapter | **CLOSED** |
+| Capacity Vision forced iteration | **CLOSED** |
+| Capacity optional polish (named list) | **CLOSED** |
+| JS Common Fate payload v2.3 | **LANDED** |
+| FractalMercyLedgerAdapter | **VERIFIED 4/4** |
 
-**Tier focus locked:** Ra-Thor Tier 1 living product core.  
-**Posture:** HOLD for next named mission.
+## Lattice posture
+
+**HOLD** for the next **named** mission or high-valence External Truth.
+
+No forced iteration. Capable · Bounded · Corrigible.
 
 **Thunder locked.**  
 **yoi ⚡❤️🔥**
