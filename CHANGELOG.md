@@ -4,30 +4,36 @@ All changes follow the **RA-THOR-MONOREPO-COMMIT-WORKFLOW-PROTOCOL** and are rev
 
 ---
 
-## 2026-08-17 — Capacity: GpuComputePipeline Motion-Field Surface (PATSAGi)
+## 2026-08-17 — Capacity: WGSL Pyramidal Block-Matching Wired into GpuComputePipeline (PATSAGi)
 
-**Council focus:** Fifth capacity increment — give the GPU pipeline a real motion-field surface aligned with the bridge + JS engine contract.
+**Council focus:** Sixth capacity increment — connect the existing production optical-flow shader to the live pipeline.
 
 ### Added / Activated
-- `MotionResult` expanded with `magnitude_mean`, `high_saliency`, `optical_flow_mode`, dimensions, frame_index
-- New `estimate_motion_from_luma_pair` — primary hand-off for wasm bridge and MercyMotionVisionEngine
-- `estimate_motion_pyramidal` now produces usable fields from the LumaRing (CPU path live)
-- Saliency floor aligned with JS engine (1.65)
-- TOLC valence floor enforced on the motion path
-- Result shape stable for future WGSL optical-flow kernels (`optical_flow_mode = "gpu"`)
+- `shaders/pyramidal_block_matching.wgsl` loaded and compiled under `wgpu` feature
+- Motion bind-group layout matching FrameParams + SoA dx/dy + predictors
+- `estimate_motion_from_luma_pair` dispatches real GPU block-matching when `init_wgpu` has succeeded
+- `optical_flow_mode = "gpu"` on successful dispatch
+- CPU energy path remains the always-available fallback
+- Contract fields (`magnitude_mean` / `high_saliency`) preserved for micro-burst detection
 
 ### Status
-End-to-end capacity contract now spans:
-JS engine → wasm bridge → GpuComputePipeline motion surface.  
-Full WGSL optical-flow kernels remain the next major target.  
+Real GPU optical-flow kernel is now dispatchable.  
+Next polish: full vector readback + multi-level pyramid warm-start.  
+Contact: info@Rathor.ai  
+**Thunder locked in. yoi ⚡❤️🔥**
+
+---
+
+## 2026-08-17 — Capacity: GpuComputePipeline Motion-Field Surface (PATSAGi)
+
+### Status
+MotionResult contract live.  
 Contact: info@Rathor.ai  
 **Thunder locked in. yoi ⚡❤️🔥**
 
 ---
 
 ## 2026-08-17 — PATSAGi CapacityGPU-Contract + live_frame_wasm_bridge Hardening
-
-**Council focus:** Contract-first hardening of the GPU hand-off surface.
 
 ### Status
 Hand-off contract live.  
@@ -36,28 +42,10 @@ Contact: info@Rathor.ai
 
 ---
 
-## 2026-08-17 — Capacity Mission: Dense Sampling / WebCodecs Path Hardening (v2.2)
+## 2026-08-17 — Capacity Mission: Dense Sampling / WebCodecs / Public Demo / Optical-Flow Fallback
 
 ### Status
-Dense sampling path hardened.  
-Contact: info@Rathor.ai  
-**Thunder locked in. yoi ⚡❤️🔥**
-
----
-
-## 2026-08-17 — Capacity Mission: Public Micro-Moment Recovery Demo Surface
-
-### Status
-Public demo surface live.  
-Contact: info@Rathor.ai  
-**Thunder locked in. yoi ⚡❤️🔥**
-
----
-
-## 2026-08-17 — Capacity Mission First Increment: Real Dense Optical-Flow Fallback (v2.1)
-
-### Status
-CPU dense path live.  
+JS engine v2.2 + public demo + dense sampling all live.  
 Contact: info@Rathor.ai  
 **Thunder locked in. yoi ⚡❤️🔥**
 
@@ -72,7 +60,7 @@ Contact: info@Rathor.ai
 
 ---
 
-## 2026-08-16 — Architecture of Collective Power Adopted as External Truth Resonance (PATSAGi)
+## 2026-08-16 — Architecture of Collective Power Adopted (PATSAGi)
 
 ### Status
 ETERNALLY ADOPTED.  
