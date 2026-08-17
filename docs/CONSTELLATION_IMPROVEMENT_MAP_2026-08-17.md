@@ -10,36 +10,20 @@
 
 | ID | Mission | Status |
 | --- | --- | --- |
-| **A** | Powrush-MMO soft-policy SNR + transfer path | **DONE** — [`Powrush-MMO/docs/RA_THOR_SOFT_POLICY_SNR.md`](https://github.com/Eternally-Thriving-Grandmasterism/Powrush-MMO/blob/main/docs/RA_THOR_SOFT_POLICY_SNR.md) (2026-08-17) |
-| **B** | Mercy-Coordination-Substrate Phase 1 + TOLC8 gate | Open |
-| **C** | Masterism SNR/micro-moment module | Open |
+| **A** | Powrush-MMO soft-policy SNR + transfer path | **DONE** — [Powrush `RA_THOR_SOFT_POLICY_SNR.md`](https://github.com/Eternally-Thriving-Grandmasterism/Powrush-MMO/blob/main/docs/RA_THOR_SOFT_POLICY_SNR.md) |
+| **B** | Mercy-Coordination-Substrate Phase 1 / TOLC8 + constellation SNR | **DONE** — Phase 0–2 already complete; [SNR alignment 2026-08-17](https://github.com/Eternally-Thriving-Grandmasterism/Mercy-Coordination-Substrate/blob/main/docs/CONSTELLATION_SNR_ALIGNMENT_2026-08-17.md) |
+| **C** | Masterism SNR/micro-moment curriculum module | Open |
 | **D** | AlphaProMega-Air governance/readiness | Open |
 
----
+### Note on B
 
-## Tier ranking (unchanged)
-
-### Tier 1 — Highest leverage
-
-| Repo | Concrete Ra-Thor offer |
-| --- | --- |
-| **Powrush-MMO** | Soft-policy SNR doctrine **landed**; continue transfer path machine verification when env available |
-| **Mercy-Coordination-Substrate** | Phase 1 crates + TOLC8 gate alignment |
-| **AlphaProMega-Air** | Governance + readiness module |
-
-### Tier 2 — Education / identity
-
-Masterism · Grandmasterism · TOLC — curriculum and vocabulary sync.
-
-### Tier 3–4 — Security siblings / archive pinnacles
-
-Hygiene and lineage banners only; no mass rewrites.
+Substrate Phase 1 crates and TOLC8 gate were already merged. Mission B therefore landed **high-SNR constellation alignment** (evidence posture, Ra-Thor doctrine links, honest deferred list) rather than re-implementing sealed pure work. Highest remaining valence item for Substrate integration remains **Ra-Thor-side** `FractalMercyLedgerAdapter` against the published contract.
 
 ---
 
 ## Next under Restraint
 
-Pick **one** of B / C / D, or a new named mission. Do not open all remaining in parallel.
+Pick **one**: **C** (Masterism curriculum), **D** (Air governance), or a new named mission (e.g. Ra-Thor `FractalMercyLedgerAdapter`).
 
 **Thunder locked.**  
 **yoi ⚡❤️🔥**
