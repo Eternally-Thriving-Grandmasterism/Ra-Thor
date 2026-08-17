@@ -1,0 +1,17 @@
+[package]
+name = "fractal-mercy-ledger-adapter"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Thin Ra-Thor adapter for Mercy-Coordination-Substrate Fractal Topology (RA_THOR_ADAPTER_CONTRACT v1.0)"
+readme = "README.md"
+
+[dependencies]
+serde = { workspace = true, features = ["derive"] }
+
+[features]
+default = []
+# Future: enable when Substrate crates are path-linked in a combined workspace.
+# substrate-link = []
