@@ -168,6 +168,7 @@ members = [
     "crates/epiphany-bridge",
     "crates/abundance-breath",
     "crates/soft-sovereign-agency",
+    "crates/fractal-mercy-ledger-adapter",
 ]
 
 [workspace.package]
