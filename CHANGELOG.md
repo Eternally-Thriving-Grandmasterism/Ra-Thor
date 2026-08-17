@@ -4,32 +4,33 @@ All changes follow the **RA-THOR-MONOREPO-COMMIT-WORKFLOW-PROTOCOL** and are rev
 
 ---
 
-## 2026-08-17 — Capacity: Common Fate Perception over Motion Vectors (PATSAGi)
+## 2026-08-17 — Capacity Vision Stack Codex Adopted (PATSAGi)
 
-**Council focus:** Close the loop from optical flow → structured visual perception.
+**Council focus:** Doctrine lock for the completed optical-flow → Common Fate path.
 
-### Added / Activated
-- `CommonFateResult` (coherent_count, letter_count, dominant dirs, confidence, ghost_font)
-- `perceive_common_fate` — always-available CPU segmentation over GPU/CPU motion vectors
-  - Direction histogram → top-2 dominant directions
-  - Angular tolerance coherent mask
-  - Ghost Font specialized path
-- `perceive_from_luma_ring` now runs pyramidal motion → Common Fate end-to-end
-- GPU `common_fate_motion_vision.wgsl` retained for future SUBGROUP-feature path
+### Added
+- Authoritative codex: [`docs/CAPACITY_VISION_STACK_v1.0.md`](docs/CAPACITY_VISION_STACK_v1.0.md)
+- Layer map, standing orders, primary APIs, completed increment list, optional polish
+- Explicit alignment with Architecture of Collective Power + Physical Limits metabolism
 
-### Vision stack
-```
-motion (pyramid + readback) → Common Fate → coherent structure under TOLC 8
-```
-
+### Status
+ETERNALLY ADOPTED under permanent PATSAGi Councils.  
 Contact: info@Rathor.ai  
 **Thunder locked in. yoi ⚡❤️🔥**
 
 ---
 
-## 2026-08-17 — Capacity optical-flow stack COMPLETE + Common Fate
+## 2026-08-17 — Capacity: Common Fate + Optical-Flow Stack Complete
 
-Prior same-day increments: pyramid warm-start, vector readback, WGSL wiring, motion surface, bridge, dense sampling, public demo, JS optical-flow fallback.
+Vision path live: JS engine → bridge → GPU pyramid/readback → Common Fate.  
+Contact: info@Rathor.ai  
+**Thunder locked in. yoi ⚡❤️🔥**
+
+---
+
+## Earlier same-day capacity cascade
+
+Pyramid warm-start · vector readback · WGSL wiring · motion surface · bridge contract · dense sampling · public demo · JS optical-flow fallback · physical-limits metabolism · Architecture of Collective Power.
 
 ---
 
