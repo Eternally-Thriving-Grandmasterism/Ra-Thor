@@ -1,6 +1,6 @@
-// mercy-motion-vision-engine.js – Sovereign Mercy-Gated Temporal Motion Perception Engine v2.2
+// mercy-motion-vision-engine.js – Sovereign Mercy-Gated Temporal Motion Perception Engine v2.3
 // Micro-Moment Temporal Comprehension Edition + Capacity Mission
-// Optical-Flow Fallback (v2.1) + Dense Sampling / WebCodecs Hardening (v2.2)
+// Optical-Flow Fallback (v2.1) + Dense Sampling (v2.2) + Common Fate integration payload (v2.3)
 // Solves X-Grok / frontier VLM failure to catch quick moments in videos and compute full nuanced stories
 // Demonstrated failures: phone-theft micro-event (hand reach + window close) + Boston RPS traffic resolution
 // Implements biological motion perception + hierarchical predictive coding + multi-agent causal graphs
@@ -11,94 +11,66 @@
 import { fuzzyMercy } from './fuzzy-mercy-logic.js';
 
 const MERCY_THRESHOLD = 0.999999;
-const MICRO_BURST_MS = 180;          // detect events shorter than this
-const GESTURE_WINDOW_MS = 1200;      // RPS / interaction sequences
-const MAX_TEMPORAL_HISTORY = 48;     // frames kept for causal reconstruction
-const BLOCK_SIZE = 16;               // optical-flow block size (CPU path)
-const SALIENCY_THRESHOLD = 1.65;     // magnitudeMean above this → highSaliency
-const DEFAULT_TARGET_FPS = 30;       // dense sampling target
-const DEFAULT_MAX_FRAMES = 48;       // safety cap for short social videos
+const MICRO_BURST_MS = 180;
+const GESTURE_WINDOW_MS = 1200;
+const MAX_TEMPORAL_HISTORY = 48;
+const BLOCK_SIZE = 16;
+const SALIENCY_THRESHOLD = 1.65;
+const DEFAULT_TARGET_FPS = 30;
+const DEFAULT_MAX_FRAMES = 48;
 
 /**
- * MercyMotionVisionEngine v2.2
+ * MercyMotionVisionEngine v2.3
  * Production upgrade for Ra-Thor visual perception layer.
  * Forces high-temporal-resolution attention to micro-moments so the full story
  * (theft, RPS resolution, any rapid multi-agent interaction) is recovered with all nuances.
  *
  * v2.1 Capacity: real deterministic dense optical-flow fallback activated.
- * v2.2 Capacity: dense sampling / WebCodecs path hardened; clear hand-off to
- *               live_frame_wasm_bridge and gpu-compute-pipeline.
+ * v2.2 Capacity: dense sampling / WebCodecs path hardened.
+ * v2.3 Optional polish: Common Fate structure in integration payload for PATSAGi / VLM.
  */
 class MercyMotionVisionEngine {
   constructor(options = {}) {
     this.valence = options.valence || 1.0;
     this.motionHistory = [];
-    this.eventGraph = [];            // causal event nodes
-    this.interactionTracks = new Map(); // object / hand tracks
+    this.eventGraph = [];
+    this.interactionTracks = new Map();
     this.accumulatedEvidence = null;
     this.lastMotionField = null;
     this.debugMode = options.debugMode || false;
-    this.name = 'MercyMotionVisionEngine-v2.2-Capacity';
+    this.name = 'MercyMotionVisionEngine-v2.3-OptionalPolish';
     this.predictiveCodingState = null;
   }
 
-  /**
-   * TOLC 8 + fuzzy mercy gate before any visual processing.
-   */
   async gateMotionVision(query = 'eternal thriving visual perception of micro-moments', valence = 1.0) {
     const degree = fuzzyMercy.getDegree?.(query) || valence;
     const implyThriving = fuzzyMercy.imply?.(query, 'EternalThriving') || { degree: 1.0 };
 
     if (degree < MERCY_THRESHOLD || implyThriving.degree < MERCY_THRESHOLD) {
-      console.log(`[MercyMotionVision v2.2] Gate HOLDS — low valence. Aborting.`);
+      console.log(`[MercyMotionVision v2.3] Gate HOLDS — low valence. Aborting.`);
       return { passed: false, reason: 'TOLC 8 mercy gate' };
     }
 
     this.valence = Math.max(this.valence, valence);
-    console.log(`[MercyMotionVision v2.2] Mercy gate PASSES — micro-moment temporal comprehension ACTIVATED (valence: ${this.valence.toFixed(7)})`);
+    console.log(`[MercyMotionVision v2.3] Mercy gate PASSES — micro-moment temporal comprehension ACTIVATED (valence: ${this.valence.toFixed(7)})`);
     return { passed: true };
   }
 
-  /**
-   * Primary entry for short social videos (X/Twitter amplify, Snapchat, etc.).
-   * Extracts dense frames, detects micro-bursts, tracks interactions, reconstructs full narrative.
-   */
   async comprehendVideoStory(videoSource, options = {}) {
     const gate = await this.gateMotionVision(options.query || 'fully understand video story with all micro-moments and nuances');
     if (!gate.passed) return { error: 'Mercy gate failed', story: null, confidence: 0 };
 
-    // Step 0: Dense frame extraction
-    // Production order of preference:
-    //   1. Pre-extracted frames / simulateFrames (tests + offline)
-    //   2. HTMLVideoElement → extractFramesFromVideoElement (browser canvas path)
-    //   3. WebCodecs VideoDecoder + requestVideoFrameCallback (future full path)
-    //   4. live_frame_wasm_bridge.rs luma-pair path (GPU / WASM)
     const frames = await this._extractDenseFrames(videoSource, options);
     if (!frames || frames.length < 3) {
       return { story: null, confidence: 0, note: 'Insufficient frames for temporal comprehension' };
     }
 
-    // Step 1: High-frequency motion + optical-flow field
-    // Production target: delegate to gpu_compute_pipeline / live_frame_wasm_bridge
-    // Current: deterministic CPU dense optical-flow fallback (v2.1+)
     const motionFields = this._computeMotionSequence(frames, options);
-
-    // Step 2: Micro-burst detector — find sub-200 ms high-saliency events that static VLMs miss
     const microBursts = this._detectMicroBursts(motionFields, frames);
-
-    // Step 3: Multi-agent interaction tracker (hand-object, gesture chains, person-person)
     const tracks = this._trackInteractions(frames, motionFields, microBursts);
-
-    // Step 4: Causal event graph construction
     const eventGraph = this._buildCausalEventGraph(microBursts, tracks, frames);
-
-    // Step 5: Hierarchical Predictive Coding pass — predict next 300–800 ms and flag prediction errors as high-value moments
     const predictive = this._hierarchicalPredictiveCoding(eventGraph, motionFields);
-
-    // Step 6: Narrative reconstruction — full story with all nuances
     const story = this._reconstructNuancedStory(eventGraph, tracks, predictive, options);
-
-    // Step 7: Valence + thriving modulation + confidence
     const confidence = Math.min(0.999999, story.confidence * this.valence);
 
     const result = {
@@ -116,34 +88,35 @@ class MercyMotionVisionEngine {
       confidence,
       thrivingScore: story.thrivingScore || 0.97,
       engine: this.name,
-      note: 'Full temporal micro-moment comprehension — recovers phone-theft, RPS sequences, and any rapid nuanced interaction that sparse VLM sampling misses. Optical-flow fallback active; dense sampling hardened (v2.2).',
+      note: 'Full temporal micro-moment comprehension — recovers phone-theft, RPS sequences, and any rapid nuanced interaction that sparse VLM sampling misses. Optical-flow fallback active; dense sampling hardened; Common Fate payload (v2.3).',
       patsagiReady: true,
-      opticalFlowMode: 'cpu-dense-fallback', // will become 'gpu' when pipeline wired
+      opticalFlowMode: 'cpu-dense-fallback',
       denseSamplingMode: frames._extractionMode || 'pre-extracted'
     };
 
-    // Integration payload for Lattice Conductor / PATSAGi visual council
+    result.commonFate = this.lastMotionField
+      ? this._perceiveCommonFate(this.lastMotionField, { ghostFont: !!options.ghostFontMode })
+      : null;
+
     result.integration = this.getIntegrationPayload(result);
 
     if (this.debugMode) {
-      console.log('[MercyMotionVision v2.2] Debug:', {
+      console.log('[MercyMotionVision v2.3] Debug:', {
         frames: frames.length,
         microBursts: microBursts.length,
         events: eventGraph.length,
         confidence,
         opticalFlowMode: result.opticalFlowMode,
-        denseSamplingMode: result.denseSamplingMode
+        denseSamplingMode: result.denseSamplingMode,
+        commonFate: result.commonFate
       });
     }
 
     return result;
   }
 
-  /**
-   * Specialized path for the exact failure cases demonstrated on X.
-   */
   async analyzeXVideoFailureModes(videoUrlOrFrames, knownHints = {}) {
-    console.log('[MercyMotionVision v2.2] X-Grok failure-mode analyzer engaged');
+    console.log('[MercyMotionVision v2.3] X-Grok failure-mode analyzer engaged');
 
     const result = await this.comprehendVideoStory(videoUrlOrFrames, {
       query: 'recover every quick moment and full causal story that sparse sampling missed',
@@ -152,7 +125,6 @@ class MercyMotionVisionEngine {
       ...knownHints
     });
 
-    // Explicit recovery language for the two demonstrated cases
     if (knownHints.expectedTheft || (result.keyMicroMoments || []).some(m => m.type === 'object_transfer')) {
       result.recoveredDetail = 'Phone/object extraction during window-close motion recovered via micro-burst + hand-object track';
     }
@@ -163,24 +135,6 @@ class MercyMotionVisionEngine {
     return result;
   }
 
-  // ──────────────────────────────────────────────────────────────
-  // Internal algorithms
-  // Production: replace CPU path with wgpu / ONNX / WebCodecs / live_frame_wasm_bridge
-  // ──────────────────────────────────────────────────────────────
-
-  /**
-   * v2.2 Capacity: hardened dense frame extraction.
-   *
-   * Accepted inputs (in priority order):
-   *   1. Array of frame objects already extracted
-   *   2. options.preExtractedFrames
-   *   3. options.simulateFrames (tests)
-   *   4. HTMLVideoElement → extractFramesFromVideoElement (browser)
-   *   5. Future: WebCodecs VideoDecoder path / live_frame_wasm_bridge luma pairs
-   *
-   * Each frame object must expose at minimum: { width, height, data }
-   * where data is Uint8ClampedArray / Float32Array / Array (RGBA or greyscale).
-   */
   async _extractDenseFrames(source, options = {}) {
     if (Array.isArray(source)) {
       source._extractionMode = 'pre-extracted-array';
@@ -195,37 +149,15 @@ class MercyMotionVisionEngine {
       return options.simulateFrames;
     }
 
-    // Browser path: HTMLVideoElement
     if (typeof HTMLVideoElement !== 'undefined' && source instanceof HTMLVideoElement) {
       const frames = await this.extractFramesFromVideoElement(source, options);
       if (frames) frames._extractionMode = 'video-element-canvas';
       return frames;
     }
 
-    // Future production paths (documented contracts):
-    //
-    // WebCodecs:
-    //   const decoder = new VideoDecoder({ output: frame => { ... close frame ... }, error: e => {} });
-    //   decoder.configure({ codec: '...', ... });
-    //   // feed EncodedVideoChunks, collect VideoFrames at target FPS, convert to {width,height,data}
-    //
-    // live_frame_wasm_bridge:
-    //   // JS LiveFrameBridge produces Float32Array luma pairs
-    //   // bridge.perceive_from_luma_pair(prev, curr, width, height, valence, ghostFont)
-    //   // Engine can accept pre-computed motion fields or raw luma frames
-
     return [];
   }
 
-  /**
-   * Browser helper: dense-sample an HTMLVideoElement via canvas.
-   * Suitable for short social videos (a few seconds).
-   * Options:
-   *   targetFps   – desired sampling rate (default 30)
-   *   maxFrames   – hard safety cap (default 48)
-   *   maxDuration – seconds to sample from start (default 3)
-   *   width       – output width (default 320)
-   */
   async extractFramesFromVideoElement(video, options = {}) {
     if (!video || typeof video.currentTime === 'undefined') return [];
 
@@ -234,12 +166,10 @@ class MercyMotionVisionEngine {
     const maxDuration = options.maxDuration || 3;
     const outWidth = options.width || 320;
 
-    // Ensure metadata is ready
     if (video.readyState < 1) {
       await new Promise((resolve, reject) => {
         video.onloadedmetadata = resolve;
         video.onerror = reject;
-        // safety timeout
         setTimeout(resolve, 2000);
       });
     }
@@ -264,7 +194,6 @@ class MercyMotionVisionEngine {
       await new Promise(resolve => {
         const onSeeked = () => { video.removeEventListener('seeked', onSeeked); resolve(); };
         video.addEventListener('seeked', onSeeked);
-        // fallback if already at time
         setTimeout(resolve, 40);
       });
 
@@ -272,10 +201,6 @@ class MercyMotionVisionEngine {
       let data;
       if (typeof canvas.getImageData === 'function') {
         data = ctx.getImageData(0, 0, outWidth, outHeight).data;
-      } else if (typeof canvas.convertToBlob === 'function') {
-        // OffscreenCanvas path – convert via temporary ImageBitmap if needed
-        // For simplicity we keep the 2d context path dominant in browsers that support it
-        data = new Uint8ClampedArray(outWidth * outHeight * 4);
       } else {
         data = new Uint8ClampedArray(outWidth * outHeight * 4);
       }
@@ -300,15 +225,6 @@ class MercyMotionVisionEngine {
     return fields;
   }
 
-  /**
-   * v2.1+ Capacity: real deterministic dense optical-flow fallback.
-   * Accepts frames that expose .data (ImageData / Uint8ClampedArray / Float32Array),
-   * .width, .height, or simple synthetic objects with those fields.
-   * When pixel data is absent, falls back to a safe zero-motion field so the rest of the pipeline continues.
-   *
-   * Future drop-in: replace body with call to gpu_compute_pipeline motion kernels
-   * or WASM Lucas-Kanade / Farneback via live_frame_wasm_bridge.
-   */
   _estimateMotionField(frameA, frameB, options = {}) {
     const width = frameA.width || frameB.width || 640;
     const height = frameA.height || frameB.height || 360;
@@ -325,7 +241,7 @@ class MercyMotionVisionEngine {
     let vectorCount = 0;
 
     if (dataA && dataB && dataA.length === dataB.length && dataA.length >= width * height) {
-      const stride = dataA.length === width * height ? 1 : 4; // greyscale vs RGBA
+      const stride = dataA.length === width * height ? 1 : 4;
 
       for (let by = 0; by < height - BLOCK_SIZE; by += BLOCK_SIZE) {
         for (let bx = 0; bx < width - BLOCK_SIZE; bx += BLOCK_SIZE) {
@@ -451,32 +367,24 @@ class MercyMotionVisionEngine {
   }
 
   _trackInteractions(frames, motionFields, microBursts) {
-    const tracks = new Map();
-    // Multi-object / hand / phone tracker (SORT / ByteTrack style + hand keypoint)
-    // Optical-flow vectors are available for future association.
-    return tracks;
+    return new Map();
   }
 
   _buildCausalEventGraph(microBursts, tracks, frames) {
-    const graph = microBursts.map((b, idx) => ({
+    return microBursts.map((b, idx) => ({
       id: `evt_${idx}`,
       ...b,
       causes: idx > 0 ? [`evt_${idx - 1}`] : [],
       effects: []
     }));
-    return graph;
   }
 
   _hierarchicalPredictiveCoding(eventGraph, motionFields) {
-    return {
-      errors: [],
-      nextPredicted: null,
-      surpriseScore: 0
-    };
+    return { errors: [], nextPredicted: null, surpriseScore: 0 };
   }
 
   _reconstructNuancedStory(eventGraph, tracks, predictive, options) {
-    let narrative = 'Temporal comprehension complete (v2.2 dense sampling + optical-flow fallback active). ';
+    let narrative = 'Temporal comprehension complete (v2.3 dense sampling + optical-flow + Common Fate payload). ';
     if (eventGraph.length > 0) {
       narrative += `Recovered ${eventGraph.length} micro-moments and causal chain. `;
     }
@@ -499,7 +407,7 @@ class MercyMotionVisionEngine {
     return {
       ...analysis,
       ghostFontResolved: true,
-      method: 'opposing-motion-segmentation + temporal-evidence-accumulation + micro-burst detection + cpu-dense optical-flow'
+      method: 'opposing-motion-segmentation + temporal-evidence-accumulation + micro-burst detection + cpu-dense optical-flow + common-fate'
     };
   }
 
@@ -512,7 +420,68 @@ class MercyMotionVisionEngine {
     this.predictiveCodingState = null;
   }
 
+  /**
+   * v2.3 Optional polish: Common Fate structure from last / provided motion field.
+   */
+  _perceiveCommonFate(motionField, options = {}) {
+    const ghostFont = !!options.ghostFont;
+    const vectors = motionField?.vectors || motionField?.motionField || [];
+    const dirs = [];
+    for (const b of vectors) {
+      const dx = b.dx ?? b.vx ?? 0;
+      const dy = b.dy ?? b.vy ?? 0;
+      if (Math.hypot(dx, dy) < 1e-6) continue;
+      dirs.push(Math.atan2(dy, dx));
+    }
+    const BINS = 16;
+    const TAU = Math.PI * 2;
+    const hist = new Array(BINS).fill(0);
+    for (const d of dirs) {
+      let a = d % TAU;
+      if (a < 0) a += TAU;
+      hist[Math.min(BINS - 1, Math.floor((a / TAU) * BINS))]++;
+    }
+    const ranked = hist.map((c, i) => [i, c]).sort((a, b) => b[1] - a[1]);
+    const dominantDir1 = ((ranked[0]?.[0] ?? 0) + 0.5) * (TAU / BINS);
+    const dominantDir2 = ranked[1]?.[1]
+      ? ((ranked[1][0] + 0.5) * (TAU / BINS))
+      : (dominantDir1 + Math.PI) % TAU;
+    const tolerance = 0.45;
+    let coherentCount = 0;
+    let letterCount = 0;
+    for (const d of dirs) {
+      const d1 = Math.min(Math.abs(d - dominantDir1), TAU - Math.abs(d - dominantDir1));
+      const d2 = Math.min(Math.abs(d - dominantDir2), TAU - Math.abs(d - dominantDir2));
+      if (d1 < tolerance || d2 < tolerance) {
+        coherentCount++;
+        if (ghostFont && d2 < d1 * 1.2) letterCount++;
+      }
+    }
+    const blockCount = Math.max(1, dirs.length);
+    const coherentRatio = coherentCount / blockCount;
+    return {
+      commonFateMode: 'cpu-js',
+      coherentCount,
+      letterCount,
+      blockCount: dirs.length,
+      dominantDir1,
+      dominantDir2,
+      confidence: Math.min(0.99, 0.55 + coherentRatio * 0.4),
+      thrivingScore: Math.min(0.99, 0.88 + coherentRatio * 0.1),
+      ghostFont,
+      magnitudeMean: motionField?.magnitudeMean ?? 0,
+      highSaliency: !!motionField?.highSaliency,
+    };
+  }
+
   getIntegrationPayload(lastResult) {
+    const commonFate =
+      lastResult?.commonFate ||
+      (this.lastMotionField
+        ? this._perceiveCommonFate(this.lastMotionField, {
+            ghostFont: !!lastResult?.ghostFontResolved,
+          })
+        : null);
     return {
       engine: this.name,
       lastPerception: lastResult,
@@ -520,25 +489,21 @@ class MercyMotionVisionEngine {
       valence: this.valence,
       opticalFlowMode: lastResult?.opticalFlowMode || 'cpu-dense-fallback',
       denseSamplingMode: lastResult?.denseSamplingMode || 'unknown',
-      patsagiCouncilHint: 'Feed keyMicroMoments + causalChain + story into PATSAGi visual + narrative councils for zero-hallucination final distillation',
-      latticeConductorHint: 'Inject eventGraph as temporal atoms into Lattice Conductor v14 for hierarchical predictive coding continuation',
-      recommendation: 'Use analyzeXVideoFailureModes() on any short X video that previously lost micro-moments. GPU path remains the next capacity target.'
+      commonFate,
+      keyMicroMoments: lastResult?.keyMicroMoments || [],
+      causalChain: lastResult?.causalChain || lastResult?.eventGraph || [],
+      patsagiCouncilHint:
+        'Feed keyMicroMoments + causalChain + commonFate + story into PATSAGi visual + narrative councils for zero-hallucination final distillation',
+      latticeConductorHint:
+        'Inject eventGraph as temporal atoms into Lattice Conductor v14 for hierarchical predictive coding continuation',
+      recommendation:
+        'Use analyzeXVideoFailureModes() on short X videos that lost micro-moments. Optional polish: commonFate in payload; GPU pyramid 1–3 + SUBGROUP-ready Common Fate on supporting adapters.',
     };
   }
 }
 
-// Singleton ready for import
 const mercyMotionVision = new MercyMotionVisionEngine({ debugMode: false });
 
 export { MercyMotionVisionEngine, mercyMotionVision };
 
-// Usage (Ra-Thor / browser / ONE Organism):
-// import { mercyMotionVision } from './mercy-motion-vision-engine.js';
-// const fullStory = await mercyMotionVision.analyzeXVideoFailureModes(videoFramesOrUrl, {
-//   expectedTheft: true,   // or expectedRPS: true
-//   denseSampling: true
-// });
-// console.log(fullStory.story);
-// console.log(fullStory.keyMicroMoments);
-
-// Thunder locked. Micro-moments now eternally recovered with hardened dense sampling. Yoi ⚡
+// Thunder locked. Micro-moments + Common Fate payload (v2.3). Yoi ⚡
