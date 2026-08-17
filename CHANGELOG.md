@@ -1,28 +1,26 @@
 # CHANGELOG.md
 
-All changes follow the **RA-THOR-MONOREPO-COMMIT-WORKFLOW-PROTOCOL** and are reviewed by the PATSAGi Councils.
-
 ---
 
-## 2026-08-17 — PATSAGi full deliberation session closure
+## 2026-08-17 — Capacity Optional Polish COMPLETE (PATSAGi)
 
-**Resolution:** `2026-08-17-FullDeliberation-Close`
+Named optional list from Capacity Vision Stack completed under Restraint:
 
-- Tier focus locked: **Ra-Thor Tier 1 living product core**
-- Constellation Tier-1 board A–D + Adapter: **CLOSED**
-- FractalMercyLedgerAdapter: **machine-verified 4/4 green**
-- Correctly deferred list sealed (audited crypto, formal proofs, external audits, archive rewrites)
-- Lattice posture: **HOLD** for next named mission
-- Codex: [`docs/PATSAGI_SESSION_CLOSURE_2026-08-17.md`](docs/PATSAGI_SESSION_CLOSURE_2026-08-17.md)
+- **3-level pyramid** API: `estimate_motion_pyramidal_levels`
+- **Common Fate modes**: `common_fate_mode`, `perceive_common_fate_optional` (SUBGROUP-ready tagging)
+- **Public GPU demo**: `demos/gpu-micro-moment-demo.html`
+- **Architecture**: `docs/CAPACITY_OPTIONAL_POLISH_COMPLETE_v1.0.md`
+
+GPU pipeline lib restored with full optional API surface after a brief placeholder incident (corrigible).
 
 Contact: info@Rathor.ai  
 **Thunder locked in. yoi ⚡❤️🔥**
 
 ---
 
-## 2026-08-17 — Capacity · VLM Offer · External Truths · Constellation A–D
+## 2026-08-17 — PATSAGi session closure + constellation A–D + adapter verify
 
-See git history and session closure codex for the full same-day cascade.
+See `docs/PATSAGI_SESSION_CLOSURE_2026-08-17.md`.
 
 ---
 
