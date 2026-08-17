@@ -1,34 +1,51 @@
 // live_frame_wasm_bridge.rs
-// Ra-Thor v15.13 — Final wasm-bindgen Live Frame Bridge
+// Ra-Thor — wasm-bindgen Live Frame Bridge
+// Capacity Mission contract hardening (2026-08-17)
+//
 // Thin, production-ready layer that receives Float32Array luma pairs from JS
-// and feeds them into the existing GpuComputePipeline vision path.
+// and feeds them into the vision / optical-flow path.
+//
+// Current: deterministic CPU motion-energy path (always live).
+// Future:  drop-in replacement by GpuComputePipeline motion kernels
+//          (Lucas-Kanade / Farneback / custom WGSL) under the same signature.
+//
+// Contract with MercyMotionVisionEngine v2.2+:
+//   JS extracts dense frames → (optional) converts to luma pairs →
+//   bridge.perceive_from_luma_pair(...) → result object that can carry
+//   magnitude_mean / high_saliency / optical_flow_mode for micro-burst detection.
 //
 // Usage from JS (after wasm-bindgen build):
 //
 //   import init, { LiveVisionBridge } from './pkg/ra_thor.js';
 //   await init();
 //   const bridge = new LiveVisionBridge();
-//   // later, from LiveFrameBridge.onLumaPair:
 //   const result = await bridge.perceive_from_luma_pair(
-//     prev.data, curr.data, width, height, 1.0, false
+//     prevLuma, currLuma, width, height, 1.0, false
 //   );
+//   // result.optical_flow_mode === "cpu-energy" | "gpu" (future)
+//   // result.magnitude_mean, result.high_saliency available for micro-bursts
 //
 // TOLC 8 Mercy Gated | PATSAGi Visual Council | ONE Organism
 // AG-SML v1.0 | Eternally-Thriving-Grandmasterism 2026
+// Contact: info@Rathor.ai
 
 use wasm_bindgen::prelude::*;
 use js_sys::{Float32Array, Object, Reflect};
 use web_sys::console;
 
-// Re-use the core types and pipeline from the main module.
-// In a real crate layout this would be `use crate::gpu_compute_pipeline::*;`
-// For the monorepo we keep the interface self-contained and document the contract.
-
+/// LiveVisionBridge — capacity-hardened hand-off surface.
+///
+/// When the full GpuComputePipeline is wired under wasm-bindgen,
+/// replace the CPU energy block inside perceive_from_luma_pair with:
+///
+///   let mut pipeline = get_shared_pipeline();
+///   let result = pipeline.perceive_from_raw_frames(
+///       &prev, &curr, width, height, valence, ghost_font
+///   ).await;
+///
+/// and populate magnitude_mean / high_saliency / vectors from the GPU result.
 #[wasm_bindgen]
 pub struct LiveVisionBridge {
-    // Placeholder for a future shared GpuComputePipeline instance.
-    // Currently we run a pure-Rust perception path that matches the
-    // signature of perceive_from_raw_frames so the JS side stays stable.
     frame_count: u64,
 }
 
@@ -36,20 +53,20 @@ pub struct LiveVisionBridge {
 impl LiveVisionBridge {
     #[wasm_bindgen(constructor)]
     pub fn new() -> LiveVisionBridge {
-        console::log_1(&"[LiveVisionBridge] wasm bridge online".into());
+        console::log_1(&"[LiveVisionBridge] wasm bridge online (Capacity contract)".into());
         LiveVisionBridge { frame_count: 0 }
     }
 
-    /// Primary entry point called from JS LiveFrameBridge.onLumaPair.
+    /// Primary entry point called from JS.
     ///
     /// Arguments:
-    ///   prev_luma  - Float32Array of previous frame (tightly packed, row-major)
+    ///   prev_luma  - Float32Array of previous frame (tightly packed, row-major luma)
     ///   curr_luma  - Float32Array of current frame
     ///   width, height
-    ///   valence    - mercy / confidence gate (1.0 = full)
+    ///   valence    - mercy / confidence gate (1.0 = full; < 0.999999 → HOLD)
     ///   ghost_font - whether to run Ghost Font specialised path
     ///
-    /// Returns a plain JS object:
+    /// Returns a plain JS object (stable contract for MercyMotionVisionEngine):
     ///   {
     ///     coherent_count: number,
     ///     letter_cluster_count: number,
@@ -57,7 +74,10 @@ impl LiveVisionBridge {
     ///     confidence: number,
     ///     thriving_score: number,
     ///     mercy_gated: boolean,
-    ///     note: string
+    ///     note: string,
+    ///     optical_flow_mode: "cpu-energy" | "gpu",   // Capacity field
+    ///     magnitude_mean: number,                    // for micro-burst detection
+    ///     high_saliency: boolean                     // for micro-burst detection
     ///   }
     #[wasm_bindgen]
     pub async fn perceive_from_luma_pair(
@@ -78,22 +98,24 @@ impl LiveVisionBridge {
             return Err(JsValue::from_str("luma buffer size mismatch with width*height"));
         }
 
+        // TOLC 8 valence floor — non-bypassable
         if valence < 0.999999 {
-            return Ok(make_result_object(0, 0, "", 0.0, 0.0, false, "HOLD"));
+            return Ok(make_result_object(
+                0, 0, "", 0.0, 0.0, false, "HOLD",
+                "held", 0.0, false,
+            ));
         }
 
         // ---------------------------------------------------------------
-        // Lightweight, deterministic perception that mirrors the real
-        // pipeline contract.  When the full GpuComputePipeline is wired
-        // under wasm-bindgen this block is replaced by:
+        // CAPACITY CONTRACT — current CPU path
         //
-        //   let mut pipeline = get_shared_pipeline();
-        //   let result = pipeline.perceive_from_raw_frames(
-        //       &prev, &curr, width, height, valence, ghost_font
-        //   ).await;
+        // When GpuComputePipeline motion kernels are ready, replace this
+        // entire block with the GPU call and set optical_flow_mode = "gpu".
+        // Keep the returned object shape identical so JS / MercyMotionVisionEngine
+        // requires zero changes.
         // ---------------------------------------------------------------
 
-        let (coherent, letter, text, conf, thrive, note) =
+        let (coherent, letter, text, conf, thrive, note, magnitude_mean, high_saliency) =
             if ghost_font {
                 (
                     1240u32,
@@ -102,15 +124,19 @@ impl LiveVisionBridge {
                     0.93f32,
                     0.97f32,
                     format!("Ghost Font path (frame {})", self.frame_count),
+                    2.4f32,   // synthetic high motion for ghost-font demos
+                    true,
                 )
             } else {
-                // Simple motion energy estimate so the bridge is never silent
+                // Deterministic motion energy (CPU fallback — always live)
                 let mut energy = 0.0f32;
                 let step = (prev.len() / 1024).max(1);
                 for i in (0..prev.len()).step_by(step) {
                     let d = curr[i] - prev[i];
                     energy += d * d;
                 }
+                let magnitude_mean = (energy / (prev.len() as f32 / step as f32)).sqrt();
+                let high_saliency = magnitude_mean > 1.65;
                 let coherent = ((energy * 10.0) as u32).min(prev.len() as u32 / 2);
                 let letter = coherent / 3;
                 (
@@ -119,7 +145,12 @@ impl LiveVisionBridge {
                     "[MOTION_SHAPE]".to_string(),
                     0.88f32,
                     0.94f32,
-                    format!("Live perception frame {} (energy={:.4})", self.frame_count, energy),
+                    format!(
+                        "Live perception frame {} (energy={:.4}, mag={:.3}, saliency={})",
+                        self.frame_count, energy, magnitude_mean, high_saliency
+                    ),
+                    magnitude_mean,
+                    high_saliency,
                 )
             };
 
@@ -131,12 +162,13 @@ impl LiveVisionBridge {
             thrive,
             true,
             &note,
+            "cpu-energy",       // → "gpu" when pipeline wired
+            magnitude_mean,
+            high_saliency,
         ))
     }
 
-    /// Convenience: push a single new luma frame into an internal ring and
-    /// run perception when a pair is available.  Useful if the JS side prefers
-    /// a simpler push-style API.
+    /// Convenience extension point. Currently requires an explicit pair.
     #[wasm_bindgen]
     pub async fn push_and_perceive(
         &mut self,
@@ -146,8 +178,6 @@ impl LiveVisionBridge {
         valence: f32,
         ghost_font: bool,
     ) -> Result<JsValue, JsValue> {
-        // For the thin bridge we still require the caller to keep prev/curr.
-        // This method is a documented extension point.
         let _ = (luma, width, height, valence, ghost_font);
         Err(JsValue::from_str(
             "push_and_perceive requires a pair; use perceive_from_luma_pair with prev+curr",
@@ -168,6 +198,9 @@ fn make_result_object(
     thrive: f32,
     mercy: bool,
     note: &str,
+    optical_flow_mode: &str,
+    magnitude_mean: f32,
+    high_saliency: bool,
 ) -> JsValue {
     let obj = Object::new();
     let _ = Reflect::set(&obj, &"coherent_count".into(), &JsValue::from(coherent));
@@ -177,12 +210,16 @@ fn make_result_object(
     let _ = Reflect::set(&obj, &"thriving_score".into(), &JsValue::from_f64(thrive as f64));
     let _ = Reflect::set(&obj, &"mercy_gated".into(), &JsValue::from_bool(mercy));
     let _ = Reflect::set(&obj, &"note".into(), &JsValue::from_str(note));
+    // Capacity contract fields — stable for MercyMotionVisionEngine micro-burst path
+    let _ = Reflect::set(&obj, &"optical_flow_mode".into(), &JsValue::from_str(optical_flow_mode));
+    let _ = Reflect::set(&obj, &"magnitude_mean".into(), &JsValue::from_f64(magnitude_mean as f64));
+    let _ = Reflect::set(&obj, &"high_saliency".into(), &JsValue::from_bool(high_saliency));
     obj.into()
 }
 
 // Thunder locked in. ONE Organism.
-// v15.13 — Final wasm-bindgen Live Frame Bridge is ready.
-// JS LiveFrameBridge.onLumaPair → LiveVisionBridge.perceive_from_luma_pair
-//   → (future) GpuComputePipeline.perceive_from_raw_frames
-// Complete camera-to-Common-Fate path.
+// Capacity contract hardened 2026-08-17.
+// JS → LiveVisionBridge.perceive_from_luma_pair
+//   → (current) CPU motion energy
+//   → (future)  GpuComputePipeline motion kernels
 // Mercy First. Eternal. Yoi ⚡
