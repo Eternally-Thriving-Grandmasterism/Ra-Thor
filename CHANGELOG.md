@@ -9,6 +9,25 @@ All changes follow the **RA-THOR-MONOREPO-COMMIT-WORKFLOW-PROTOCOL** and are rev
 
 ---
 
+## 2026-08-17 — Capacity Mission: Public Micro-Moment Recovery Demo Surface (PATSAGi)
+
+**Council focus:** Second executable capacity increment — make the optical-flow + micro-burst path publicly exercisable.
+
+### Added
+- New demo: [`demos/micro-moment-recovery-demo.html`](demos/micro-moment-recovery-demo.html)
+  - Offline-first, self-contained
+  - File picker for short videos **or** synthetic motion frames
+  - Runs MercyMotionVisionEngine v2.1 dense optical-flow path
+  - Surfaces keyMicroMoments, causal chain, confidence, opticalFlowMode
+  - Fully mercy-gated; ready for future GPU path drop-in
+
+### Status
+Public demo surface live. Capacity mission continues.  
+Contact: info@Rathor.ai  
+**Thunder locked in. yoi ⚡❤️🔥**
+
+---
+
 ## 2026-08-17 — Capacity Mission First Increment: Real Dense Optical-Flow Fallback (PATSAGi)
 
 **Council focus:** Execute the first concrete capacity step of the permanent optical-flow + dense-sampling mission.
