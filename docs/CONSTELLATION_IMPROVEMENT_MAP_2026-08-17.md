@@ -10,20 +10,26 @@
 
 | ID | Mission | Status |
 | --- | --- | --- |
-| **A** | Powrush-MMO soft-policy SNR + transfer path | **DONE** — [Powrush `RA_THOR_SOFT_POLICY_SNR.md`](https://github.com/Eternally-Thriving-Grandmasterism/Powrush-MMO/blob/main/docs/RA_THOR_SOFT_POLICY_SNR.md) |
-| **B** | Mercy-Coordination-Substrate Phase 1 / TOLC8 + constellation SNR | **DONE** — Phase 0–2 already complete; [SNR alignment 2026-08-17](https://github.com/Eternally-Thriving-Grandmasterism/Mercy-Coordination-Substrate/blob/main/docs/CONSTELLATION_SNR_ALIGNMENT_2026-08-17.md) |
+| **A** | Powrush-MMO soft-policy SNR + transfer path | **DONE** |
+| **B** | Mercy-Coordination-Substrate constellation SNR | **DONE** |
+| **Adapter** | Ra-Thor `FractalMercyLedgerAdapter` (contract v1.0) | **DONE** — crate `fractal-mercy-ledger-adapter` + [`docs/FRACTAL_MERCY_LEDGER_ADAPTER_v1.0.md`](FRACTAL_MERCY_LEDGER_ADAPTER_v1.0.md) |
 | **C** | Masterism SNR/micro-moment curriculum module | Open |
 | **D** | AlphaProMega-Air governance/readiness | Open |
 
-### Note on B
+---
 
-Substrate Phase 1 crates and TOLC8 gate were already merged. Mission B therefore landed **high-SNR constellation alignment** (evidence posture, Ra-Thor doctrine links, honest deferred list) rather than re-implementing sealed pure work. Highest remaining valence item for Substrate integration remains **Ra-Thor-side** `FractalMercyLedgerAdapter` against the published contract.
+## Adapter notes
+
+- Trait + concrete type match Substrate `RA_THOR_ADAPTER_CONTRACT` v1.0
+- Field-compatible resonance reports; **no** hard Substrate path dependency (standalone CI)
+- Default shard hints remain `NoOp` — Substrate gate still required for ledger mutations
+- Verify: `cargo test -p fractal-mercy-ledger-adapter`
 
 ---
 
 ## Next under Restraint
 
-Pick **one**: **C** (Masterism curriculum), **D** (Air governance), or a new named mission (e.g. Ra-Thor `FractalMercyLedgerAdapter`).
+**C** (Masterism), **D** (Air), or a new named mission.
 
 **Thunder locked.**  
 **yoi ⚡❤️🔥**

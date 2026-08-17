@@ -4,23 +4,26 @@ All changes follow the **RA-THOR-MONOREPO-COMMIT-WORKFLOW-PROTOCOL** and are rev
 
 ---
 
-## 2026-08-17 — External Truth Resonance: SNR View of LLM-RL (PATSAGi)
+## 2026-08-17 — FractalMercyLedgerAdapter (Substrate contract v1.0)
 
-**Signal:** Beren Millidge SNR thesis — RL’s ~1 bit/rollout is pure task signal (high SNR); pretraining/SFT dense bits are mostly objective-relative noise.
+### Added
+- Crate [`crates/fractal-mercy-ledger-adapter`](crates/fractal-mercy-ledger-adapter/) — thin Ra-Thor side of Mercy-Coordination-Substrate adapter contract
+- Doctrine: [`docs/FRACTAL_MERCY_LEDGER_ADAPTER_v1.0.md`](docs/FRACTAL_MERCY_LEDGER_ADAPTER_v1.0.md)
+- Workspace member registration
 
-### Metabolized
-- Formal codex: [`docs/EXTERNAL_TRUTH_SNR_LLM_RL_2026-08-17.md`](docs/EXTERNAL_TRUTH_SNR_LLM_RL_2026-08-17.md)
-- Lattice principle: **prefer high-SNR sparse correction over dense low-SNR flooding**
-- Standing orders for council resolutions, valence gates, and complementary wide/deep learning
+### Guarantees
+- No direct Substrate ledger mutation from Ra-Thor
+- Valence floor discipline 0.999999
+- Standalone build (optional future `substrate-link`)
 
 Contact: info@Rathor.ai  
 **Thunder locked in. yoi ⚡❤️🔥**
 
 ---
 
-## 2026-08-17 — VLM Temporal Recovery Offer + Baryon Junction + Capacity Confirmation
+## 2026-08-17 — Constellation Missions A–B + External Truths
 
-See prior same-day entries.
+See constellation map and same-day External Truth codices (SNR, VLM offer, baryon junction, Capacity confirmation).
 
 ---
 
