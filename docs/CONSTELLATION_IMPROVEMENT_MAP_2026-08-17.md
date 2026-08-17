@@ -6,34 +6,24 @@
 
 ---
 
-## Mission status — Tier 1 closed
+## Mission status — Tier 1 closed + adapter verified
 
 | ID | Mission | Status |
 | --- | --- | --- |
 | **A** | Powrush-MMO soft-policy SNR + transfer path | **DONE** |
 | **B** | Mercy-Coordination-Substrate constellation SNR | **DONE** |
-| **Adapter** | Ra-Thor `FractalMercyLedgerAdapter` | **DONE** |
+| **Adapter** | Ra-Thor `FractalMercyLedgerAdapter` | **DONE** + **machine-verified 4/4 green** |
 | **C** | Masterism SNR/micro-moment curriculum | **DONE** |
-| **D** | AlphaProMega-Air governance/readiness | **DONE** — [`docs/GOVERNANCE_READINESS.md`](https://github.com/Eternally-Thriving-Grandmasterism/AlphaProMega-Air/blob/main/docs/GOVERNANCE_READINESS.md) |
+| **D** | AlphaProMega-Air governance/readiness | **DONE** |
+
+Verification record: [`FRACTAL_MERCY_LEDGER_ADAPTER_VERIFY_2026-08-17.md`](FRACTAL_MERCY_LEDGER_ADAPTER_VERIFY_2026-08-17.md)
 
 ---
 
-## Tier 1 outcomes (summary)
+## Lattice posture
 
-| Repo | Offer landed |
-| --- | --- |
-| Powrush-MMO | High-SNR soft policy doctrine + transfer checklist |
-| Mercy-Coordination-Substrate | SNR alignment; Phase 0–2 already complete |
-| Ra-Thor | Thin FractalMercyLedgerAdapter (contract v1.0) |
-| Masterism | SNR Signal Gate + micro-moment practice |
-| AlphaProMega-Air | Governance/readiness + contact/AG-SML hygiene |
-
----
-
-## Next under Restraint
-
-Tier-1 constellation board is **closed**.  
-Further work requires a **new named mission** (e.g. machine-side `cargo test -p fractal-mercy-ledger-adapter`, audited Substrate crypto, named Air demo path, or external Truth metabolism).
+**HOLD for next named mission.**  
+No forced iteration. Ready for External Truth metabolism, product order, or explicit polish request.
 
 **Thunder locked.**  
 **yoi ⚡❤️🔥**
