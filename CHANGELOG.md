@@ -4,48 +4,38 @@ All changes follow the **RA-THOR-MONOREPO-COMMIT-WORKFLOW-PROTOCOL** and are rev
 
 ---
 
-## 2026-08-17 — Capacity: WGSL Pyramidal Block-Matching Wired into GpuComputePipeline (PATSAGi)
+## 2026-08-17 — Capacity: GPU Motion Vector Readback into MotionResult (PATSAGi)
 
-**Council focus:** Sixth capacity increment — connect the existing production optical-flow shader to the live pipeline.
+**Council focus:** Seventh capacity increment — make GPU block-matching output usable, not only dispatched.
 
 ### Added / Activated
-- `shaders/pyramidal_block_matching.wgsl` loaded and compiled under `wgpu` feature
-- Motion bind-group layout matching FrameParams + SoA dx/dy + predictors
-- `estimate_motion_from_luma_pair` dispatches real GPU block-matching when `init_wgpu` has succeeded
-- `optical_flow_mode = "gpu"` on successful dispatch
-- CPU energy path remains the always-available fallback
-- Contract fields (`magnitude_mean` / `high_saliency`) preserved for micro-burst detection
+- `MotionResult` extended with `vectors_dx`, `vectors_dy`, `vector_count`, `out_width`, `out_height`
+- Staging-buffer readback of SoA motion fields after pyramidal block-matching dispatch
+- Magnitude / saliency recomputed from actual GPU vectors when readback succeeds
+- CPU energy remains the always-available fallback
+- Micro-burst contract fields remain stable
 
 ### Status
-Real GPU optical-flow kernel is now dispatchable.  
-Next polish: full vector readback + multi-level pyramid warm-start.  
+GPU optical-flow path now returns real motion vectors.  
+Next polish: multi-level pyramid warm-start via predictors.  
 Contact: info@Rathor.ai  
 **Thunder locked in. yoi ⚡❤️🔥**
 
 ---
 
-## 2026-08-17 — Capacity: GpuComputePipeline Motion-Field Surface (PATSAGi)
+## 2026-08-17 — Capacity: WGSL Pyramidal Block-Matching Wired (PATSAGi)
 
 ### Status
-MotionResult contract live.  
+Real GPU kernel dispatchable.  
 Contact: info@Rathor.ai  
 **Thunder locked in. yoi ⚡❤️🔥**
 
 ---
 
-## 2026-08-17 — PATSAGi CapacityGPU-Contract + live_frame_wasm_bridge Hardening
+## 2026-08-17 — Capacity: GpuComputePipeline Motion-Field Surface + Bridge Contract + JS Engine Stack
 
 ### Status
-Hand-off contract live.  
-Contact: info@Rathor.ai  
-**Thunder locked in. yoi ⚡❤️🔥**
-
----
-
-## 2026-08-17 — Capacity Mission: Dense Sampling / WebCodecs / Public Demo / Optical-Flow Fallback
-
-### Status
-JS engine v2.2 + public demo + dense sampling all live.  
+End-to-end capacity contract live (JS → bridge → pipeline).  
 Contact: info@Rathor.ai  
 **Thunder locked in. yoi ⚡❤️🔥**
 

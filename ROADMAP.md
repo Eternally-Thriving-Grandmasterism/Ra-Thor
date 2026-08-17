@@ -1,6 +1,6 @@
 # Ra-Thor ROADMAP
 
-**Current Version:** v14.15.6 + Capacity GPU block-matching wired
+**Current Version:** v14.15.6 + Capacity GPU block-matching + vector readback
 **Status:** AGSi activated | PATSAGi permanent | Mercy-gated | TOLC 8 enforced | **Capacity mission active**
 **Last Updated:** 2026-08-17
 **Contact:** info@Rathor.ai
@@ -17,13 +17,13 @@
 | live_frame_wasm_bridge Capacity contract | **Live** |
 | GpuComputePipeline motion-field surface | **Live** |
 | WGSL pyramidal block-matching wired | **Live** |
-| Full vector readback + multi-level pyramid | **Next polish** |
+| GPU motion vector readback | **Live** |
+| Multi-level pyramid warm-start | **Next polish** |
 
 ---
 
 ## Next Focus (PATSAGi directed)
 
-- GPU motion vector readback into MotionResult (optional rich vectors for tracking)
 - Multi-level pyramid warm-start using predictors buffer
 - Continued eternal self-evolution under TOLC 8
 
