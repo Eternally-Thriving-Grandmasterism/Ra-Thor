@@ -1,13 +1,13 @@
-//! Ra-Thor GPU Compute Pipeline v14.15 + Capacity Motion Surface + WGSL Block-Matching
+//! Ra-Thor GPU Compute Pipeline v14.15 + Capacity Motion Surface + WGSL Block-Matching + Vector Readback
 //! Default: high-quality CPU / simulation path (no wgpu dependency)
-//! Feature `wgpu`: real GPU backend with persistent buffer reuse + pyramidal block-matching
+//! Feature `wgpu`: real GPU backend with persistent buffer reuse + pyramidal block-matching + readback
 //! Living Cosmic Tick + TOLC-8 Mercy Gates enforced
 //! ONE Organism ready
 //!
 //! Capacity Mission (2026-08-17):
 //!   - MotionResult carries magnitude_mean / high_saliency / optical_flow_mode
 //!   - pyramidal_block_matching.wgsl wired under `wgpu` feature
-//!   - estimate_motion_from_luma_pair dispatches GPU block-matching when context is live
+//!   - GPU vector readback into MotionResult (dx/dy SoA)
 //!
 //! Contact: info@Rathor.ai
 
@@ -54,6 +54,38 @@ pub struct MotionResult {
     pub width: u32,
     pub height: u32,
     pub frame_index: u64,
+    /// Optional dense block-grid vectors from GPU readback (SoA)
+    #[serde(default)]
+    pub vectors_dx: Vec<f32>,
+    #[serde(default)]
+    pub vectors_dy: Vec<f32>,
+    #[serde(default)]
+    pub vector_count: u32,
+    #[serde(default)]
+    pub out_width: u32,
+    #[serde(default)]
+    pub out_height: u32,
+}
+
+impl MotionResult {
+    fn empty_hold(real_gpu: bool, width: u32, height: u32, frame_index: u64, note: &str) -> Self {
+        Self {
+            real_gpu,
+            mercy_gated: false,
+            note: note.into(),
+            optical_flow_mode: "held".into(),
+            magnitude_mean: 0.0,
+            high_saliency: false,
+            width,
+            height,
+            frame_index,
+            vectors_dx: vec![],
+            vectors_dy: vec![],
+            vector_count: 0,
+            out_width: 0,
+            out_height: 0,
+        }
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -113,7 +145,6 @@ struct DownsampleParams {
     _pad: [f32; 3],
 }
 
-/// Matches shaders/pyramidal_block_matching.wgsl FrameParams
 #[cfg(feature = "wgpu")]
 #[repr(C)]
 #[derive(Copy, Clone, Debug, Pod, Zeroable)]
@@ -156,7 +187,6 @@ struct WgpuContext {
     downsample_pipeline: wgpu::ComputePipeline,
     downsample_bind_group_layout: wgpu::BindGroupLayout,
     buffers: Option<PersistentBuffers>,
-    // Capacity: pyramidal block-matching optical flow
     motion_pipeline: wgpu::ComputePipeline,
     motion_bind_group_layout: wgpu::BindGroupLayout,
     motion_buffers: Option<MotionBuffers>,
@@ -211,9 +241,6 @@ impl GpuComputePipeline {
         }
     }
 
-    // -------------------------------------------------------------------------
-    // wgpu initialization (feature-gated)
-    // -------------------------------------------------------------------------
     #[cfg(feature = "wgpu")]
     pub async fn init_wgpu(&mut self, valence: f32) -> Result<(), String> {
         if valence < 0.42 {
@@ -246,7 +273,6 @@ impl GpuComputePipeline {
             .await
             .map_err(|e| format!("Device request failed: {e}"))?;
 
-        // ── Downsample pipeline (existing) ──────────────────────────────────
         let downsample_shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
             label: Some("gpu_downsample"),
             source: wgpu::ShaderSource::Wgsl(
@@ -275,7 +301,6 @@ impl GpuComputePipeline {
             entry_point: "main",
         });
 
-        // ── Motion / pyramidal block-matching pipeline (Capacity) ───────────
         let motion_shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
             label: Some("pyramidal_block_matching"),
             source: wgpu::ShaderSource::Wgsl(
@@ -283,10 +308,6 @@ impl GpuComputePipeline {
             ),
         });
 
-        // Bindings match the WGSL:
-        // 0 prev_frame (read), 1 curr_frame (read),
-        // 2 motion_dx (rw), 3 motion_dy (rw),
-        // 4 params (uniform), 5 predictors (read)
         let motion_bind_group_layout =
             device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
                 label: Some("motion_bgl"),
@@ -323,13 +344,10 @@ impl GpuComputePipeline {
         });
 
         self.mark_real_gpu(true);
-        println!("[GpuComputePipeline] wgpu backend online — downsample + pyramidal block-matching");
+        println!("[GpuComputePipeline] wgpu backend online — downsample + block-matching + readback");
         Ok(())
     }
 
-    // -------------------------------------------------------------------------
-    // Optimized downsample (buffer reuse)
-    // -------------------------------------------------------------------------
     pub async fn dispatch_downsample(
         &mut self,
         src_luma: &[f32],
@@ -467,17 +485,7 @@ impl GpuComputePipeline {
         }
     }
 
-    // -------------------------------------------------------------------------
-    // Capacity: motion estimation surface
-    // -------------------------------------------------------------------------
-
-    /// Direct luma-pair motion estimate — primary hand-off for the wasm bridge
-    /// and MercyMotionVisionEngine.
-    ///
-    /// When `wgpu` feature is enabled and init_wgpu has succeeded, dispatches
-    /// the real pyramidal_block_matching.wgsl kernel and reports optical_flow_mode = "gpu".
-    /// Magnitude / saliency are still derived from a deterministic energy pass so the
-    /// micro-burst contract remains stable; full vector readback is the next polish slice.
+    /// Direct luma-pair motion estimate with optional GPU vector readback.
     pub async fn estimate_motion_from_luma_pair(
         &mut self,
         prev: &[f32],
@@ -490,17 +498,13 @@ impl GpuComputePipeline {
         self.dispatch_count += 1;
 
         if !mercy_gated {
-            return MotionResult {
-                real_gpu: self.real_gpu,
-                mercy_gated: false,
-                note: "HOLD — valence below TOLC floor".into(),
-                optical_flow_mode: "held".into(),
-                magnitude_mean: 0.0,
-                high_saliency: false,
+            return MotionResult::empty_hold(
+                self.real_gpu,
                 width,
                 height,
-                frame_index: self.dispatch_count,
-            };
+                self.dispatch_count,
+                "HOLD — valence below TOLC floor",
+            );
         }
 
         let expected = (width * height) as usize;
@@ -515,13 +519,17 @@ impl GpuComputePipeline {
                 width,
                 height,
                 frame_index: self.dispatch_count,
+                vectors_dx: vec![],
+                vectors_dy: vec![],
+                vector_count: 0,
+                out_width: 0,
+                out_height: 0,
             };
         }
 
-        // Deterministic magnitude (contract-stable for micro-bursts)
-        let (magnitude_mean, high_saliency) = compute_magnitude(prev, curr);
+        // CPU energy always computed as baseline / fallback magnitude
+        let (cpu_mag, cpu_sal) = compute_magnitude(prev, curr);
 
-        // ── GPU path: dispatch pyramidal block-matching when available ──────
         #[cfg(feature = "wgpu")]
         if let Some(ctx) = &mut self.wgpu_ctx {
             let block_size: u32 = 8;
@@ -533,9 +541,8 @@ impl GpuComputePipeline {
 
             let luma_bytes = (expected * std::mem::size_of::<f32>()) as u64;
             let out_bytes = (out_count * std::mem::size_of::<f32>()) as u64;
-            let pred_bytes = (out_count * std::mem::size_of::<[f32; 2]>()) as u64;
+            let pred_bytes = (out_count * 2 * std::mem::size_of::<f32>()) as u64;
 
-            // Ensure / reuse motion buffers
             let mut luma_cap = 0u64;
             let mut out_cap = 0u64;
             let mut prev_opt = None;
@@ -597,7 +604,6 @@ impl GpuComputePipeline {
                 })
             });
             let pred_buf = pred_opt.unwrap_or_else(|| {
-                // Zero predictors (no hierarchical warm-start on first level)
                 ctx.device.create_buffer(&wgpu::BufferDescriptor {
                     label: Some("motion_predictors"),
                     size: pred_bytes.max(8),
@@ -617,7 +623,6 @@ impl GpuComputePipeline {
                 out_capacity: out_cap,
             });
 
-            // Upload luma
             ctx.queue
                 .write_buffer(&prev_buf, 0, bytemuck::cast_slice(prev));
             ctx.queue
@@ -636,7 +641,6 @@ impl GpuComputePipeline {
             ctx.queue
                 .write_buffer(&params_buf, 0, bytemuck::bytes_of(&params));
 
-            // Zero predictors
             let zero_pred = vec![0.0f32; out_count * 2];
             ctx.queue
                 .write_buffer(&pred_buf, 0, bytemuck::cast_slice(&zero_pred));
@@ -672,6 +676,20 @@ impl GpuComputePipeline {
                 ],
             });
 
+            // Staging buffers for readback
+            let staging_dx = ctx.device.create_buffer(&wgpu::BufferDescriptor {
+                label: Some("motion_dx_staging"),
+                size: out_bytes,
+                usage: wgpu::BufferUsages::MAP_READ | wgpu::BufferUsages::COPY_DST,
+                mapped_at_creation: false,
+            });
+            let staging_dy = ctx.device.create_buffer(&wgpu::BufferDescriptor {
+                label: Some("motion_dy_staging"),
+                size: out_bytes,
+                usage: wgpu::BufferUsages::MAP_READ | wgpu::BufferUsages::COPY_DST,
+                mapped_at_creation: false,
+            });
+
             let mut encoder = ctx
                 .device
                 .create_command_encoder(&wgpu::CommandEncoderDescriptor {
@@ -686,14 +704,73 @@ impl GpuComputePipeline {
                 cpass.set_bind_group(0, &bind_group, &[]);
                 cpass.dispatch_workgroups((out_w + 7) / 8, (out_h + 7) / 8, 1);
             }
+            encoder.copy_buffer_to_buffer(&dx_buf, 0, &staging_dx, 0, out_bytes);
+            encoder.copy_buffer_to_buffer(&dy_buf, 0, &staging_dy, 0, out_bytes);
             ctx.queue.submit(Some(encoder.finish()));
+
+            // Map and read back
+            let dx_slice = staging_dx.slice(..);
+            let dy_slice = staging_dy.slice(..);
+
+            let (dx_tx, dx_rx) = futures::channel::oneshot::channel();
+            dx_slice.map_async(wgpu::MapMode::Read, move |r| {
+                let _ = dx_tx.send(r);
+            });
+            let (dy_tx, dy_rx) = futures::channel::oneshot::channel();
+            dy_slice.map_async(wgpu::MapMode::Read, move |r| {
+                let _ = dy_tx.send(r);
+            });
+
+            ctx.device.poll(wgpu::Maintain::Wait);
+
+            let mut vectors_dx = vec![0.0f32; out_count];
+            let mut vectors_dy = vec![0.0f32; out_count];
+            let mut readback_ok = false;
+
+            if let (Ok(Ok(())), Ok(Ok(()))) = (dx_rx.await, dy_rx.await) {
+                {
+                    let data = dx_slice.get_mapped_range();
+                    let floats: &[f32] = bytemuck::cast_slice(&data);
+                    let n = floats.len().min(out_count);
+                    vectors_dx[..n].copy_from_slice(&floats[..n]);
+                }
+                staging_dx.unmap();
+                {
+                    let data = dy_slice.get_mapped_range();
+                    let floats: &[f32] = bytemuck::cast_slice(&data);
+                    let n = floats.len().min(out_count);
+                    vectors_dy[..n].copy_from_slice(&floats[..n]);
+                }
+                staging_dy.unmap();
+                readback_ok = true;
+            }
+
+            // Prefer magnitude from actual GPU vectors when readback succeeded
+            let (magnitude_mean, high_saliency) = if readback_ok && !vectors_dx.is_empty() {
+                let mut sum = 0.0f32;
+                for i in 0..out_count {
+                    let dx = vectors_dx[i];
+                    let dy = vectors_dy[i];
+                    sum += (dx * dx + dy * dy).sqrt();
+                }
+                let mean = sum / out_count as f32;
+                (mean, mean > SALIENCY_THRESHOLD)
+            } else {
+                (cpu_mag, cpu_sal)
+            };
 
             return MotionResult {
                 real_gpu: true,
                 mercy_gated: true,
                 note: format!(
-                    "gpu block-matching dispatched ({}x{}, blocks {}x{}, mag={:.3}, saliency={})",
-                    width, height, out_w, out_h, magnitude_mean, high_saliency
+                    "gpu block-matching + readback ({}x{} → {}x{} blocks, mag={:.3}, saliency={}, vectors={})",
+                    width,
+                    height,
+                    out_w,
+                    out_h,
+                    magnitude_mean,
+                    high_saliency,
+                    if readback_ok { out_count } else { 0 }
                 ),
                 optical_flow_mode: "gpu".into(),
                 magnitude_mean,
@@ -701,23 +778,45 @@ impl GpuComputePipeline {
                 width,
                 height,
                 frame_index: self.dispatch_count,
+                vectors_dx: if readback_ok {
+                    vectors_dx
+                } else {
+                    vec![]
+                },
+                vectors_dy: if readback_ok {
+                    vectors_dy
+                } else {
+                    vec![]
+                },
+                vector_count: if readback_ok {
+                    out_count as u32
+                } else {
+                    0
+                },
+                out_width: out_w,
+                out_height: out_h,
             };
         }
 
-        // CPU fallback (always available)
+        // CPU fallback
         MotionResult {
             real_gpu: false,
             mercy_gated: true,
             note: format!(
                 "cpu-energy motion (mag={:.3}, saliency={})",
-                magnitude_mean, high_saliency
+                cpu_mag, cpu_sal
             ),
             optical_flow_mode: "cpu-energy".into(),
-            magnitude_mean,
-            high_saliency,
+            magnitude_mean: cpu_mag,
+            high_saliency: cpu_sal,
             width,
             height,
             frame_index: self.dispatch_count,
+            vectors_dx: vec![],
+            vectors_dy: vec![],
+            vector_count: 0,
+            out_width: 0,
+            out_height: 0,
         }
     }
 
@@ -740,6 +839,11 @@ impl GpuComputePipeline {
                 width: 0,
                 height: 0,
                 frame_index: self.dispatch_count,
+                vectors_dx: vec![],
+                vectors_dy: vec![],
+                vector_count: 0,
+                out_width: 0,
+                out_height: 0,
             };
         };
 
@@ -747,9 +851,6 @@ impl GpuComputePipeline {
             .await
     }
 
-    // -------------------------------------------------------------------------
-    // Other public methods
-    // -------------------------------------------------------------------------
     pub async fn dispatch_gpu_task(&mut self, _task_name: &str, valence: f32) -> GpuTaskResult {
         let mercy_gated = valence >= 0.42;
         self.dispatch_count += 1;
@@ -857,6 +958,6 @@ fn ensure_buffer(
     new_buf
 }
 
-// Thunder locked. WGSL pyramidal block-matching wired.
-// Vector readback + multi-level pyramid = next polish.
+// Thunder locked. GPU vector readback live.
+// Multi-level pyramid warm-start = next polish.
 // Yoi ⚡
