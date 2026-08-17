@@ -1,5 +1,6 @@
-//! Ra-Thor GPU Compute Pipeline — Capacity Motion Stack Complete
-//! CPU sim default | wgpu: downsample + pyramidal block-matching + readback + multi-level warm-start
+//! Ra-Thor GPU Compute Pipeline — Capacity Motion + Common Fate Perception
+//! CPU sim default | wgpu: downsample + pyramidal block-matching + readback + pyramid warm-start
+//! Common Fate: always-available CPU segmentation over motion vectors
 //! TOLC-8 Mercy Gates | ONE Organism | Contact: info@Rathor.ai
 
 use serde::{Deserialize, Serialize};
@@ -49,7 +50,6 @@ pub struct MotionResult {
     pub out_width: u32,
     #[serde(default)]
     pub out_height: u32,
-    /// Number of pyramid levels executed (1 = single, 2 = coarse+fine)
     #[serde(default)]
     pub pyramid_levels: u32,
 }
@@ -74,6 +74,23 @@ impl MotionResult {
             pyramid_levels: 0,
         }
     }
+}
+
+/// Common Fate segmentation result — coherent motion structure + optional Ghost Font path.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CommonFateResult {
+    pub real_gpu_motion: bool,
+    pub mercy_gated: bool,
+    pub coherent_count: u32,
+    pub letter_count: u32,
+    pub block_count: u32,
+    pub dominant_dir1: f32,
+    pub dominant_dir2: f32,
+    pub confidence: f32,
+    pub thriving_score: f32,
+    pub ghost_font: bool,
+    pub note: String,
+    pub motion: Option<MotionResult>,
 }
 
 #[derive(Debug, Clone)]
@@ -116,6 +133,8 @@ impl LumaRing {
 }
 
 const SALIENCY_THRESHOLD: f32 = 1.65;
+const PI: f32 = std::f32::consts::PI;
+const TAU: f32 = 2.0 * PI;
 
 // =============================================================================
 // Internal wgpu types
@@ -328,7 +347,7 @@ impl GpuComputePipeline {
         });
 
         self.mark_real_gpu(true);
-        println!("[GpuComputePipeline] wgpu online — downsample + block-matching + readback + pyramid");
+        println!("[GpuComputePipeline] wgpu online — motion stack + Common Fate ready");
         Ok(())
     }
 
@@ -468,7 +487,6 @@ impl GpuComputePipeline {
         }
     }
 
-    /// Single-level motion estimate (direct hand-off path).
     pub async fn estimate_motion_from_luma_pair(
         &mut self,
         prev: &[f32],
@@ -481,7 +499,6 @@ impl GpuComputePipeline {
             .await
     }
 
-    /// True 2-level coarse-to-fine pyramid with predictor warm-start.
     pub async fn estimate_motion_pyramidal(&mut self, valence: f32) -> MotionResult {
         let (prev, curr, w, h) = if let Some(ring) = &self.luma_ring {
             (
@@ -500,7 +517,6 @@ impl GpuComputePipeline {
             );
         };
 
-        // Need enough resolution for a meaningful coarse level
         if w < 64 || h < 64 {
             let mut r = self
                 .estimate_motion_from_luma_pair(&prev, &curr, w, h, valence)
@@ -509,13 +525,11 @@ impl GpuComputePipeline {
             return r;
         }
 
-        // ── Level 1 (coarse): stride 16, search 4, zero predictors ──────────
         let coarse = self
             .dispatch_motion_level(&prev, &curr, w, h, valence, 8, 16, 4, 1, None)
             .await;
 
         if !coarse.real_gpu || coarse.vector_count == 0 {
-            // GPU unavailable — fall back to single-level CPU/GPU path
             let mut r = self
                 .estimate_motion_from_luma_pair(&prev, &curr, w, h, valence)
                 .await;
@@ -524,7 +538,6 @@ impl GpuComputePipeline {
             return r;
         }
 
-        // Upsample coarse vectors 2× into fine-grid predictors (interleaved dx,dy)
         let fine_stride: u32 = 8;
         let fine_out_w = (w + fine_stride - 1) / fine_stride;
         let fine_out_h = (h + fine_stride - 1) / fine_stride;
@@ -537,7 +550,6 @@ impl GpuComputePipeline {
             fine_out_h,
         );
 
-        // ── Level 0 (fine): stride 8, search 2 (refinement), warm-started ───
         let mut fine = self
             .dispatch_motion_level(
                 &prev,
@@ -554,14 +566,147 @@ impl GpuComputePipeline {
             .await;
 
         fine.pyramid_levels = 2;
-        fine.note = format!(
-            "pyramid 2-level (coarse→fine warm-start) | {}",
-            fine.note
-        );
+        fine.note = format!("pyramid 2-level (coarse→fine) | {}", fine.note);
         fine
     }
 
-    /// Internal: dispatch one pyramid level with optional predictors.
+    /// Common Fate segmentation over a MotionResult's vectors.
+    /// Always-available CPU path; consumes GPU or CPU motion fields equally.
+    pub fn perceive_common_fate(
+        &self,
+        motion: &MotionResult,
+        valence: f32,
+        ghost_font: bool,
+    ) -> CommonFateResult {
+        let mercy_gated = valence >= 0.999999;
+        if !mercy_gated {
+            return CommonFateResult {
+                real_gpu_motion: motion.real_gpu,
+                mercy_gated: false,
+                coherent_count: 0,
+                letter_count: 0,
+                block_count: 0,
+                dominant_dir1: 0.0,
+                dominant_dir2: 0.0,
+                confidence: 0.0,
+                thriving_score: 0.0,
+                ghost_font,
+                note: "HOLD — valence below TOLC floor".into(),
+                motion: None,
+            };
+        }
+
+        let n = motion.vector_count as usize;
+        if n == 0 || motion.vectors_dx.len() < n || motion.vectors_dy.len() < n {
+            // No vectors — fall back to magnitude-only heuristic
+            let coherent = if motion.high_saliency { 1 } else { 0 };
+            return CommonFateResult {
+                real_gpu_motion: motion.real_gpu,
+                mercy_gated: true,
+                coherent_count: coherent,
+                letter_count: 0,
+                block_count: 0,
+                dominant_dir1: 0.0,
+                dominant_dir2: PI,
+                confidence: if motion.high_saliency { 0.7 } else { 0.4 },
+                thriving_score: 0.9,
+                ghost_font,
+                note: "Common Fate (no vectors — magnitude heuristic)".into(),
+                motion: Some(motion.clone()),
+            };
+        }
+
+        // Build direction histogram (36 bins of 10°)
+        const BINS: usize = 36;
+        let mut hist = [0u32; BINS];
+        let mut dirs = Vec::with_capacity(n);
+
+        for i in 0..n {
+            let dx = motion.vectors_dx[i];
+            let dy = motion.vectors_dy[i];
+            let speed = (dx * dx + dy * dy).sqrt();
+            if speed < 0.15 {
+                dirs.push(None);
+                continue;
+            }
+            let mut dir = dy.atan2(dx);
+            if dir < 0.0 {
+                dir += TAU;
+            }
+            let bin = ((dir / TAU) * BINS as f32).floor() as usize % BINS;
+            hist[bin] += 1;
+            dirs.push(Some(dir));
+        }
+
+        // Top-2 dominant directions
+        let mut ranked: Vec<(usize, u32)> = hist.iter().copied().enumerate().collect();
+        ranked.sort_by(|a, b| b.1.cmp(&a.1));
+        let dominant_dir1 = (ranked[0].0 as f32 + 0.5) * (TAU / BINS as f32);
+        let dominant_dir2 = if ranked[1].1 > 0 {
+            (ranked[1].0 as f32 + 0.5) * (TAU / BINS as f32)
+        } else {
+            (dominant_dir1 + PI) % TAU
+        };
+
+        let tolerance = 0.45; // ~25.8°
+        let mut coherent_count = 0u32;
+        let mut letter_count = 0u32;
+
+        for d in &dirs {
+            let Some(dir) = d else { continue };
+            let d1 = angle_diff(*dir, dominant_dir1);
+            let d2 = angle_diff(*dir, dominant_dir2);
+            if d1 < tolerance || d2 < tolerance {
+                coherent_count += 1;
+                if ghost_font && d2 < d1 * 1.2 {
+                    letter_count += 1;
+                }
+            }
+        }
+
+        let block_count = n as u32;
+        let coherent_ratio = if block_count > 0 {
+            coherent_count as f32 / block_count as f32
+        } else {
+            0.0
+        };
+        let confidence = (0.55 + coherent_ratio * 0.4).min(0.99);
+        let thriving_score = (0.88 + coherent_ratio * 0.1).min(0.99);
+
+        CommonFateResult {
+            real_gpu_motion: motion.real_gpu,
+            mercy_gated: true,
+            coherent_count,
+            letter_count,
+            block_count,
+            dominant_dir1,
+            dominant_dir2,
+            confidence,
+            thriving_score,
+            ghost_font,
+            note: format!(
+                "Common Fate (coherent={}/{}, letters={}, dirs={:.2}/{:.2}, gpu_motion={})",
+                coherent_count,
+                block_count,
+                letter_count,
+                dominant_dir1,
+                dominant_dir2,
+                motion.real_gpu
+            ),
+            motion: Some(motion.clone()),
+        }
+    }
+
+    /// Full perception path: pyramidal motion → Common Fate.
+    pub async fn perceive_from_luma_ring(
+        &mut self,
+        valence: f32,
+        ghost_font: bool,
+    ) -> CommonFateResult {
+        let motion = self.estimate_motion_pyramidal(valence).await;
+        self.perceive_common_fate(&motion, valence, ghost_font)
+    }
+
     async fn dispatch_motion_level(
         &mut self,
         prev: &[f32],
@@ -719,7 +864,6 @@ impl GpuComputePipeline {
             ctx.queue
                 .write_buffer(&params_buf, 0, bytemuck::bytes_of(&params));
 
-            // Predictors: warm-start from coarser level, or zeros
             let pred_data: Vec<f32> = if let Some(p) = predictors {
                 let mut v = p.to_vec();
                 v.resize(out_count * 2, 0.0);
@@ -913,21 +1057,6 @@ impl GpuComputePipeline {
             dispatch_id: self.dispatch_count,
         }
     }
-
-    pub async fn perceive_from_luma_ring(&mut self, valence: f32, _ghost: bool) -> GpuTaskResult {
-        let mercy_gated = valence >= 0.42;
-        self.dispatch_count += 1;
-        GpuTaskResult {
-            real_gpu: self.real_gpu,
-            mercy_gated,
-            note: if self.real_gpu {
-                "wgpu Common Fate".into()
-            } else {
-                "CPU Common Fate sim".into()
-            },
-            dispatch_id: self.dispatch_count,
-        }
-    }
 }
 
 // =============================================================================
@@ -952,8 +1081,11 @@ fn compute_magnitude(prev: &[f32], curr: &[f32]) -> (f32, bool) {
     (magnitude_mean, magnitude_mean > SALIENCY_THRESHOLD)
 }
 
-/// Upsample coarse SoA dx/dy by 2× into interleaved predictors for the fine grid.
-/// Coarse vectors are scaled ×2 (pixel displacement doubles when resolution doubles).
+fn angle_diff(a: f32, b: f32) -> f32 {
+    let diff = (a - b).abs();
+    diff.min(TAU - diff)
+}
+
 fn upsample_predictors_2x(
     coarse_dx: &[f32],
     coarse_dy: &[f32],
@@ -1043,6 +1175,6 @@ fn ensure_buffer(
     new_buf
 }
 
-// Thunder locked. Multi-level pyramid warm-start live.
-// Capacity optical-flow stack complete for the named mission.
+// Thunder locked. Common Fate perception live over motion vectors.
+// Vision stack: motion → coherent structure under TOLC 8.
 // Yoi ⚡
