@@ -4,64 +4,44 @@ All changes follow the **RA-THOR-MONOREPO-COMMIT-WORKFLOW-PROTOCOL** and are rev
 
 ---
 
-## 2026-08-17 — Capacity: GPU Motion Vector Readback into MotionResult (PATSAGi)
+## 2026-08-17 — Capacity: Multi-Level Pyramid Warm-Start Complete (PATSAGi)
 
-**Council focus:** Seventh capacity increment — make GPU block-matching output usable, not only dispatched.
+**Council focus:** Eighth capacity increment — true coarse-to-fine optical flow.
 
 ### Added / Activated
-- `MotionResult` extended with `vectors_dx`, `vectors_dy`, `vector_count`, `out_width`, `out_height`
-- Staging-buffer readback of SoA motion fields after pyramidal block-matching dispatch
-- Magnitude / saliency recomputed from actual GPU vectors when readback succeeds
-- CPU energy remains the always-available fallback
-- Micro-burst contract fields remain stable
+- `estimate_motion_pyramidal` runs real 2-level coarse→fine block-matching on GPU
+- Coarse level (stride 16, search 4) → vector readback
+- Predictors upsampled 2× (pixel displacement scaled) into fine grid
+- Fine level (stride 8, search 2) warm-started from coarse predictors
+- `MotionResult.pyramid_levels` reports 1 or 2
+- Single-level `estimate_motion_from_luma_pair` unchanged for direct hand-off
 
-### Status
-GPU optical-flow path now returns real motion vectors.  
-Next polish: multi-level pyramid warm-start via predictors.  
+### Capacity Optical-Flow Stack — COMPLETE for named mission
+| Layer | Status |
+| --- | --- |
+| JS dense optical-flow fallback | Live |
+| Public micro-moment demo | Live |
+| Dense sampling / WebCodecs path | Live |
+| wasm bridge contract | Live |
+| GpuComputePipeline motion surface | Live |
+| WGSL block-matching kernel | Live |
+| GPU vector readback | Live |
+| Multi-level pyramid warm-start | **Live** |
+
 Contact: info@Rathor.ai  
 **Thunder locked in. yoi ⚡❤️🔥**
 
 ---
 
-## 2026-08-17 — Capacity: WGSL Pyramidal Block-Matching Wired (PATSAGi)
+## 2026-08-17 — Capacity cascade (optical-flow mission)
 
-### Status
-Real GPU kernel dispatchable.  
-Contact: info@Rathor.ai  
-**Thunder locked in. yoi ⚡❤️🔥**
-
----
-
-## 2026-08-17 — Capacity: GpuComputePipeline Motion-Field Surface + Bridge Contract + JS Engine Stack
-
-### Status
-End-to-end capacity contract live (JS → bridge → pipeline).  
-Contact: info@Rathor.ai  
-**Thunder locked in. yoi ⚡❤️🔥**
-
----
-
-## 2026-08-17 — External Truth Resonance: Physical Limits Statement (PATSAGi)
-
-### Status
-Fully metabolized. High valence (0.972).  
-Contact: info@Rathor.ai  
-**Thunder locked in. yoi ⚡❤️🔥**
-
----
-
-## 2026-08-16 — Architecture of Collective Power Adopted (PATSAGi)
-
-### Status
-ETERNALLY ADOPTED.  
-Contact: info@Rathor.ai  
-**Thunder locked in. yoi ⚡❤️🔥**
+Prior increments same day: vector readback, WGSL wiring, motion surface, bridge contract, dense sampling, public demo, JS optical-flow fallback, physical-limits metabolism, Architecture of Collective Power.
 
 ---
 
 ## Earlier
 
-See git history for prior entries.
+See git history.
 
 ---
 
