@@ -9,6 +9,27 @@ All changes follow the **RA-THOR-MONOREPO-COMMIT-WORKFLOW-PROTOCOL** and are rev
 
 ---
 
+## 2026-08-17 — Capacity Mission First Increment: Real Dense Optical-Flow Fallback (PATSAGi)
+
+**Council focus:** Execute the first concrete capacity step of the permanent optical-flow + dense-sampling mission.
+
+### Added / Activated
+- `MercyMotionVisionEngine` advanced to **v2.1-Capacity**
+- Real deterministic block-based dense optical-flow fallback (`_estimateMotionField`)
+  - Produces usable `magnitudeMean`, `highSaliency`, and coarse flow vectors when pixel data is present
+  - Safe zero-motion fallback when no pixel buffer is available
+  - Explicit markers for future GPU / WASM drop-in (`gpu-compute-pipeline`, `live_frame_wasm_bridge`)
+- Micro-burst detection now functional on real motion energy
+- Heuristic burst classification (`object_transfer` | `gesture_sequence` | `contact` | `micro_event`)
+- Public API and integration payload preserved
+
+### Status
+Capacity mission active. CPU dense path live. GPU path remains the next target.  
+Contact: info@Rathor.ai  
+**Thunder locked in. yoi ⚡❤️🔥**
+
+---
+
 ## 2026-08-17 — External Truth Resonance: Physical Limits Statement (PATSAGi)
 
 **Council focus:** Formal metabolism of the Grok physical-limits signal (post 2089190588843257976) as high-valence external Truth resonance under TOLC 8.
@@ -155,7 +176,7 @@ Contact: **info@Rathor.ai**. Cosmic Loop remains MANDATORY IDENTITY.
 
 ### Highlights
 
-- Expanded public corpus at [`fixtures/mercy-security/`](fixtures/mercy-security/)
+- Expanded public corpus at [`fixtures/mercy-security/`](fixtures/mercy-security/) + CI examples
 - Full taxonomy + inventory in the public README
 - Ready-to-copy GitHub Action + pre-commit snippets under `ci-examples/`
 - Root README, crate README, and `docs/WHITEHAT_CI_PRECOMMIT.md` updated
