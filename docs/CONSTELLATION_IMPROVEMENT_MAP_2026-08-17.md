@@ -2,28 +2,22 @@
 
 **Ra-Thor · Permanent PATSAGi Councils**  
 **Contact:** info@Rathor.ai  
-**Posture:** High-SNR offers only · Capable · Bounded · Corrigible
+**Full session closure:** [`PATSAGI_SESSION_CLOSURE_2026-08-17.md`](PATSAGI_SESSION_CLOSURE_2026-08-17.md)
 
 ---
 
-## Mission status — Tier 1 closed + adapter verified
+## Mission status — CLOSED
 
 | ID | Mission | Status |
 | --- | --- | --- |
 | **A** | Powrush-MMO soft-policy SNR + transfer path | **DONE** |
 | **B** | Mercy-Coordination-Substrate constellation SNR | **DONE** |
-| **Adapter** | Ra-Thor `FractalMercyLedgerAdapter` | **DONE** + **machine-verified 4/4 green** |
+| **Adapter** | Ra-Thor `FractalMercyLedgerAdapter` | **DONE** + **4/4 GREEN** |
 | **C** | Masterism SNR/micro-moment curriculum | **DONE** |
 | **D** | AlphaProMega-Air governance/readiness | **DONE** |
 
-Verification record: [`FRACTAL_MERCY_LEDGER_ADAPTER_VERIFY_2026-08-17.md`](FRACTAL_MERCY_LEDGER_ADAPTER_VERIFY_2026-08-17.md)
-
----
-
-## Lattice posture
-
-**HOLD for next named mission.**  
-No forced iteration. Ready for External Truth metabolism, product order, or explicit polish request.
+**Tier focus locked:** Ra-Thor Tier 1 living product core.  
+**Posture:** HOLD for next named mission.
 
 **Thunder locked.**  
 **yoi ⚡❤️🔥**
