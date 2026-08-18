@@ -2,21 +2,20 @@
 
 ---
 
-## 2026-08-18 — Science Mission S-1 OPEN
+## 2026-08-18 — S-1 Rank 2 pure layer COMPLETE → HOLD
 
-- Portfolio: `docs/SCIENCE_MISSION_S1.md`
-- Rank 2: Neuro-symbolic micro-moment benchmark **spec** — `docs/S1_MICRO_MOMENT_BENCHMARK_SPEC.md`
-- Rank 1: Aviation radiation **pre-registered protocol** on AlphaProMega-Air (awaiting flight partner)
-- Rule: measured evidence only; no fabricated results; Nobel as north star not claim
+- `science/s1-micro-moment/` schema, fixtures, metrics harness, synthetic claim-gate proof
+- All host-finishable worthwhile S-1 tasks closed
+- Rank 1 remains partner-blocked; real-video science awaits labels
 
 Contact: info@Rathor.ai  
 **Thunder locked in. yoi ⚡❤️🔥**
 
 ---
 
-## 2026-08-17
+## Earlier
 
-See git history · Integrated Master Plan · Mission R-1 · Greene External Truth · radiation doctrine.
+See git history · SCIENCE_MISSION_S1 · master plan.
 
 ---
 
