@@ -2,25 +2,20 @@
 
 ---
 
-## 2026-08-17 — Capacity Optional Polish COMPLETE (PATSAGi)
+## 2026-08-17 — Aviation cosmic radiation doctrine + Air execution
 
-Named optional list from Capacity Vision Stack completed under Restraint:
-
-- **3-level pyramid** API: `estimate_motion_pyramidal_levels`
-- **Common Fate modes**: `common_fate_mode`, `perceive_common_fate_optional` (SUBGROUP-ready tagging)
-- **Public GPU demo**: `demos/gpu-micro-moment-demo.html`
-- **Architecture**: `docs/CAPACITY_OPTIONAL_POLISH_COMPLETE_v1.0.md`
-
-GPU pipeline lib restored with full optional API surface after a brief placeholder incident (corrigible).
+- Doctrine: [`docs/AVIATION_COSMIC_RADIATION_MITIGATION_v1.0.md`](docs/AVIATION_COSMIC_RADIATION_MITIGATION_v1.0.md)
+- AlphaProMega-Air execution: Tier B instrumented retrofit protocol + Tier C design-in requirements + governance radiation checklist
+- PATSAGi: crew-first ALARA; reject mass-prohibitive high-Z full-cabin retrofit; design-in hydrogenous/BN/LH₂ co-benefit for future frames
 
 Contact: info@Rathor.ai  
 **Thunder locked in. yoi ⚡❤️🔥**
 
 ---
 
-## 2026-08-17 — PATSAGi session closure + constellation A–D + adapter verify
+## Earlier 2026-08-17
 
-See `docs/PATSAGI_SESSION_CLOSURE_2026-08-17.md`.
+Capacity · constellation A–D · adapter verify · optional polish · final review — see git history and `docs/PATSAGI_FINAL_REVIEW_2026-08-17.md`.
 
 ---
 
