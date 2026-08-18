@@ -2,20 +2,21 @@
 
 ---
 
-## 2026-08-17 — External Truth: Greene agency / consciousness / AI / simulation
+## 2026-08-18 — Science Mission S-1 OPEN
 
-- Metabolized Brian Greene–class signal (free will, substrate minds, misalignment + abundance, simulation odds)
-- Doctrine: `docs/EXTERNAL_TRUTH_GREENE_AGENCY_CONSCIOUSNESS_2026-08-17.md`
-- PATSAGi: strengthen Capacity×Restraint rule; no auto product mission; simulation remains hypothesis
+- Portfolio: `docs/SCIENCE_MISSION_S1.md`
+- Rank 2: Neuro-symbolic micro-moment benchmark **spec** — `docs/S1_MICRO_MOMENT_BENCHMARK_SPEC.md`
+- Rank 1: Aviation radiation **pre-registered protocol** on AlphaProMega-Air (awaiting flight partner)
+- Rule: measured evidence only; no fabricated results; Nobel as north star not claim
 
 Contact: info@Rathor.ai  
 **Thunder locked in. yoi ⚡❤️🔥**
 
 ---
 
-## Earlier 2026-08-17
+## 2026-08-17
 
-Mission R-1 complete · radiation doctrine · constellation/capacity closures — see `docs/PATSAGI_INTEGRATED_MASTER_PLAN_2026-08-17.md`.
+See git history · Integrated Master Plan · Mission R-1 · Greene External Truth · radiation doctrine.
 
 ---
 
