@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rathor.ai/science/s1-micro-moment/label.schema.json",
+  "title": "S1MicroMomentClipLabel",
+  "type": "object",
+  "required": ["clip_id", "source", "duration_ms", "fps", "events", "split"],
+  "properties": {
+    "clip_id": { "type": "string", "minLength": 1 },
+    "source": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": { "type": "string", "enum": ["file", "url", "synthetic"] },
+        "path": { "type": "string" },
+        "provenance": { "type": "string" }
+      }
+    },
+    "duration_ms": { "type": "number", "minimum": 0 },
+    "fps": { "type": "number", "minimum": 1 },
+    "split": { "type": "string", "enum": ["train", "val", "test"] },
+    "events": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["event_id", "class", "t_start_ms", "t_end_ms"],
+        "properties": {
+          "event_id": { "type": "string" },
+          "class": {
+            "type": "string",
+            "enum": ["E1_object_transfer", "E2_gesture_resolution", "E3_contact_onset", "E4_negative"]
+          },
+          "t_start_ms": { "type": "number" },
+          "t_end_ms": { "type": "number" },
+          "caption": { "type": "string" },
+          "agents": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        }
+      }
+    },
+    "annotators": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "agreement_span_iou": { "type": "number", "minimum": 0, "maximum": 1 }
+  }
+}

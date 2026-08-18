@@ -1,0 +1,45 @@
+{
+  "dataset": "s1-micro-moment-v0-synthetic",
+  "contact": "info@Rathor.ai",
+  "note": "Synthetic labels for harness proof only — not scientific claims",
+  "clips": [
+    {
+      "clip_id": "syn_e1_001",
+      "source": { "type": "synthetic", "provenance": "translating-bar + burst inject" },
+      "duration_ms": 2000,
+      "fps": 30,
+      "split": "test",
+      "events": [
+        {
+          "event_id": "e1",
+          "class": "E1_object_transfer",
+          "t_start_ms": 800,
+          "t_end_ms": 1100,
+          "caption": "Rapid object/hand transfer micro-moment",
+          "agents": ["hand"]
+        }
+      ],
+      "annotators": ["synthetic"],
+      "agreement_span_iou": 1.0
+    },
+    {
+      "clip_id": "syn_e4_001",
+      "source": { "type": "synthetic", "provenance": "static noise" },
+      "duration_ms": 2000,
+      "fps": 30,
+      "split": "test",
+      "events": [
+        {
+          "event_id": "neg",
+          "class": "E4_negative",
+          "t_start_ms": 0,
+          "t_end_ms": 2000,
+          "caption": "No micro-event",
+          "agents": []
+        }
+      ],
+      "annotators": ["synthetic"],
+      "agreement_span_iou": 1.0
+    }
+  ]
+}
