@@ -2,20 +2,20 @@
 
 ---
 
-## 2026-08-18 — S-1 Rank 2 pure layer COMPLETE → HOLD
+## 2026-08-18 — PATSAGi named-actions decision + host verification
 
-- `science/s1-micro-moment/` schema, fixtures, metrics harness, synthetic claim-gate proof
-- All host-finishable worthwhile S-1 tasks closed
-- Rank 1 remains partner-blocked; real-video science awaits labels
+- Decision: `docs/PATSAGI_DECISION_NAMED_ACTIONS_2026-08-18.md`
+- Priority P1–P6 locked; default P1; single external push → P2
+- Host: adapter 4/4 · GPU optional 2/2 · S-1 harness OK
 
 Contact: info@Rathor.ai  
 **Thunder locked in. yoi ⚡❤️🔥**
 
 ---
 
-## Earlier
+## Earlier 2026-08-18
 
-See git history · SCIENCE_MISSION_S1 · master plan.
+S-1 Rank 2 pure layer · monorepo ultimate plan — see git history.
 
 ---
 
