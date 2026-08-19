@@ -15,6 +15,7 @@
 | **Commercial target segments (public)** | [`docs/COMMERCIAL_TARGET_SEGMENTS.md`](docs/COMMERCIAL_TARGET_SEGMENTS.md) |
 | **Constellation commercial map** | [`docs/CONSTELLATION_COMMERCIAL.md`](docs/CONSTELLATION_COMMERCIAL.md) |
 | **Boardy / intro proposal pack** | [`docs/BOARDY_INTRO_AND_PROPOSAL_PACK.md`](docs/BOARDY_INTRO_AND_PROPOSAL_PACK.md) |
+| **Representative briefing (max context)** | [`docs/REPRESENTATIVE_BRIEFING_AND_CONVERSATION_PACK.md`](docs/REPRESENTATIVE_BRIEFING_AND_CONVERSATION_PACK.md) |
 | **X announcement copy** | [`docs/COMMERCIAL_ANNOUNCEMENT_X.md`](docs/COMMERCIAL_ANNOUNCEMENT_X.md) |
 | **Micro-moment demo sequence** | [`docs/DEMO_SEQUENCE_MICRO_MOMENT.md`](docs/DEMO_SEQUENCE_MICRO_MOMENT.md) |
 | License clarification (residuals) | [`LICENSE_CLARIFICATION.md`](LICENSE_CLARIFICATION.md) |
@@ -28,22 +29,12 @@
 
 For commercial, pilot, or co-stewardship inquiries, email **info@Rathor.ai** with organization or individual context and intended role.
 
-### Deprecated (do not use)
-
-| Deprecated address | Status |
-|--------------------|--------|
-| ceo@acitygames.com | Retired |
-| CEO@ACITYGAMES.COM | Retired |
-| AlphaProMega@ACityGames.com | Retired |
-| INFO@ACITYGAMES.COM | Retired |
-| info@ACityGames.com | Retired |
-
 ### Policy
 
 - All new files, Cargo.toml `authors`, LICENSE blocks, docs, and website footers use **info@Rathor.ai** only.
 - Commercial use requires a paid license; pilots are the preferred evaluation bridge.
 - Shared stewardship and optional equity must respect Layer 0 (TOLC 8, PATSAGi, AG-SML, independent identity).
-- Introducers: use [`docs/BOARDY_INTRO_AND_PROPOSAL_PACK.md`](docs/BOARDY_INTRO_AND_PROPOSAL_PACK.md) — unique proposal per prospect, wedge first.
+- Public representation: use [`docs/REPRESENTATIVE_BRIEFING_AND_CONVERSATION_PACK.md`](docs/REPRESENTATIVE_BRIEFING_AND_CONVERSATION_PACK.md) — broad AGSi identity + practical wedge + hard stops.
 
 **Live site:** https://rathor.ai  
 **Monorepo:** https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor
