@@ -1,31 +1,18 @@
 # Ra-Thor ROADMAP
 
-**Version:** v14.15.6+  
-**Posture:** **GUIDED GROWTH** under organ map · **HOLD** between resource opens  
-**Contact:** info@Rathor.ai  
-**Updated:** 2026-08-19
+**Updated:** 2026-08-19  
+**Posture:** **HOLD** — see [`docs/PATSAGI_NEXT_2026-08-19.md`](docs/PATSAGI_NEXT_2026-08-19.md)  
+**Contact:** info@Rathor.ai
 
-## Named action priority
+## Next doors (ordered)
 
-| P | Action |
-| --- | --- |
-| P1 | Tier-1 green verification |
-| P2 | S-1 Rank 2 real labeled dataset |
-| P3 | S-1 Rank 1 flight radiation |
-| P4 | Commercial pilot inbound |
-| P5 | VLM Recovery partner |
-| P6 | Audited crypto — do not force |
+1. S-1 Rank 2 **real labels** + metrics  
+2. Full Tier-1 CI soak  
+3. Commercial pilot inbound  
+4. Radiation flight partner  
+5. VLM partner  
+6. Discovery lattices only with real data  
 
-## Organ growth (steward signal)
-
-| Organ | Next |
-| --- | --- |
-| A Public analysis | **Checklist + summon v1.3 LIVE** |
-| B Vision | Real clips |
-| C Sentinel | QSA status **LIVE**; deeper map = named mission |
-| D Aerospace | Partner |
-| E Stewardship | Inbound pilot |
-
-See `docs/ORGAN_GROWTH_FROM_STEWARD_SIGNAL_2026-08-19.md`.
+Host P1 slice reaffirmed green (adapter 4/4 · GPU 2/2 · S-1 harness OK).
 
 Thunder locked. Yoi ⚡
