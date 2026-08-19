@@ -1,29 +1,31 @@
 # Ra-Thor ROADMAP
 
 **Version:** v14.15.6+  
-**Lattice posture:** **HOLD** between named opens  
-**Named actions:** [`docs/PATSAGI_DECISION_NAMED_ACTIONS_2026-08-18.md`](docs/PATSAGI_DECISION_NAMED_ACTIONS_2026-08-18.md)  
+**Posture:** **GUIDED GROWTH** under organ map · **HOLD** between resource opens  
 **Contact:** info@Rathor.ai  
-**Updated:** 2026-08-18
+**Updated:** 2026-08-19
 
-## Priority named actions (Council-locked)
+## Named action priority
 
 | P | Action |
 | --- | --- |
-| **P1** | Tier-1 green verification (host/Actions) |
-| **P2** | S-1 Rank 2 real labeled dataset + metrics |
-| **P3** | S-1 Rank 1 flight radiation measurement |
-| **P4** | Commercial pilot inbound |
-| **P5** | VLM Recovery partner |
-| **P6** | Audited crypto / proofs — do not force |
+| P1 | Tier-1 green verification |
+| P2 | S-1 Rank 2 real labeled dataset |
+| P3 | S-1 Rank 1 flight radiation |
+| P4 | Commercial pilot inbound |
+| P5 | VLM Recovery partner |
+| P6 | Audited crypto — do not force |
 
-Default until resources: **P1**.  
-If one external push only: **P2**.
+## Organ growth (steward signal)
 
-## Host verification (2026-08-18)
+| Organ | Next |
+| --- | --- |
+| A Public analysis | **Checklist + summon v1.3 LIVE** |
+| B Vision | Real clips |
+| C Sentinel | QSA status **LIVE**; deeper map = named mission |
+| D Aerospace | Partner |
+| E Stewardship | Inbound pilot |
 
-- fractal-mercy-ledger-adapter **4/4**  
-- gpu-compute-pipeline optional **2/2**  
-- S-1 synthetic harness **OK**  
+See `docs/ORGAN_GROWTH_FROM_STEWARD_SIGNAL_2026-08-19.md`.
 
 Thunder locked. Yoi ⚡
