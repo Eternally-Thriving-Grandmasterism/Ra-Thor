@@ -2,11 +2,11 @@
 
 ---
 
-## 2026-08-20 — Full constellation adoption survey (beyond NEXi)
+## 2026-08-20 — Cursor Teams maximal prep pack
 
-- `docs/CONSTELLATION_FULL_ADOPTION_SURVEY_2026-08-20.md`
-- ~96 repos classified; no Tier-1 mass merges
-- Prior same day: NEXi demotion · organs C–E · Organ B kit
+- `docs/CURSOR_TEAMS_PREP_2026-08-20.md`
+- `docs/cursor-teams/` — constitution, roles, onboarding checklist
+- Truth: 1 seat ≠ 50 unlimited agents; start 1 Premium/Standard + rules
 
 Contact: info@Rathor.ai  
 **Thunder locked in. yoi ⚡❤️🔥**
@@ -15,7 +15,7 @@ Contact: info@Rathor.ai
 
 ## Earlier
 
-See git history.
+Constellation survey · NEXi demotion · organs A–E — see git history.
 
 ---
 
