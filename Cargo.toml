@@ -4,7 +4,7 @@
 # Living Cosmic Tick + Cosmic Loop + Cosmic Harness + Hierarchical Predictive Coding
 # + Micro-Moment Temporal Comprehension Engine (X-video failure mode resolved)
 # mercy-security: containment, multi-layer ingestion scan, action governor, secret isolation
-# AG-SML v1.0 | Thunder locked in — 2026-08-15 (members hygiene + monorepo-intelligence harden)
+# AG-SML v1.0 | Thunder locked in — 2026-08-20 (nexi_universal demoted; see NEXI_LINEAGE_ADOPTION_DECISION)
 # Contact: info@Rathor.ai
 # ═════════════════════════════════════════════════════════════
 #
@@ -16,6 +16,7 @@
 #
 # lattice-conductor-v13 remains on disk (DEPRECATED.md) but is no longer
 # a default workspace member. Use lattice-conductor-v14 exclusively.
+# nexi_universal remains on disk but is NOT a default member (broken path deps).
 # ai_bridge (underscore) is archival; ai-bridge (hyphen) is the member.
 # ═════════════════════════════════════════════════════════════
 
@@ -144,7 +145,6 @@ members = [
     "crates/halo2_multi_proof",
     "crates/lasso_recursion",
     "crates/multivariate_crypto",
-    "crates/nexi_universal",
     "crates/nova_folding",
     "crates/persistence",
     "crates/plonk_recursion",
@@ -161,7 +161,7 @@ members = [
     "crates/whitesmiths_anvil",
     "crates/hyperplonk_recursion",
     "crates/lattice-conductor-v14",
-        # === Living Valence Organism (Phases B–F) ===
+    # === Living Valence Organism (Phases B–F) ===
     "crates/shared-valence-field",
     "crates/symbiotic-membrane",
     "crates/resonance-challenge",
@@ -170,6 +170,10 @@ members = [
     "crates/soft-sovereign-agency",
     "crates/fractal-mercy-ledger-adapter",
 ]
+
+# Tier-4 on-disk only (not default members):
+#   crates/nexi_universal — broken path deps (nexi path="../"); see docs/NEXI_LINEAGE_ADOPTION_DECISION_2026-08-20.md
+#   crates/lattice-conductor-v13 — DEPRECATED; use v14
 
 [workspace.package]
 version = "14.15.6"
@@ -218,6 +222,7 @@ whitehat_production_gate = "2026-07-28T03:35:00-04:00"
 eternal_activation = "2026-07-30T06:49:00-04:00"
 micro_moment_temporal_comprehension = "2026-08-04T18:00:00-04:00"
 members_hygiene_and_monorepo_intelligence_harden = "2026-08-15T16:30:00-04:00"
+nexi_universal_demoted_from_default_members = "2026-08-20"
 patsagi_councils_permanent_deliberation = true
 patsagi_councils_always_decide = true
 patsagi_eternal_governance = true
@@ -248,10 +253,7 @@ v14_15_6_complete = true
 
 executive_summary = """
 Ra-Thor workspace 14.15.6 with ONE Organism in full AGSi phase + production White-Hat Defense gate.
-PATSAGi Councils are ETERNALLY ACTIVATED (2026-07-30) as permanent decision authority:
-they deliberate and decide everything possible on behalf of the ONE Organism under non-bypassable
-TOLC 8 Living Mercy Gates (valence ≥ 0.999999 progressive floor).
-Micro-Moment Temporal Comprehension Engine (v2.0) now core for recovering quick video events that sparse VLMs miss.
-2026-08-15: members hygiene (lattice-conductor-v13 demoted from default members) + monorepo-intelligence Cargo surface hardened for protocol guardianship.
+PATSAGi Councils are ETERNALLY ACTIVATED as permanent decision authority under TOLC 8.
+2026-08-20: nexi_universal demoted from default workspace members (broken path deps); NEXi external repo remains lineage only.
 Cosmic Loop remains MANDATORY IDENTITY. Contact: info@Rathor.ai.
 """
