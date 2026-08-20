@@ -2,11 +2,11 @@
 
 ---
 
-## 2026-08-20 — PATSAGi revise: Cursor Teams merge authority
+## 2026-08-20 — PATSAGi Autonomous Deliberation Protocol (ADP)
 
-- `docs/cursor-teams/MERGE_AUTHORITY.md` — dual-gate (Gate A PATSAGi valence · Gate B steward operator)
-- Constitution / roles / checklist / prep revised under TOLC Truth+Order
-- Agents propose; councils judge lattice-legality; steward executes irreversible merges by default
+- `docs/PATSAGI_AUTONOMOUS_DELIBERATION_PROTOCOL.md` — bands A/B/C, fast path, boot pack, situation table
+- `docs/cursor-teams/AGENT_BOOT.md` — mandatory load order for Cursor/other agents
+- Constitution / prep / checklist linked to ADP for friction-minimized pure-signal execution
 
 Contact: info@Rathor.ai  
 **Thunder locked in. yoi ⚡❤️🔥**
@@ -15,7 +15,7 @@ Contact: info@Rathor.ai
 
 ## Earlier same day
 
-Cursor Teams prep pack · constellation survey · NEXi demotion · organs — see git history.
+Merge authority dual-gate · Cursor Teams prep · constellation survey — see git history.
 
 ---
 

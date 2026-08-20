@@ -1,39 +1,36 @@
-# Cursor Teams — Onboarding Checklist (PATSAGi-revised)
+# Cursor Teams — Onboarding Checklist
 
 **Contact:** info@Rathor.ai
 
 ## Before payment
 
-- [ ] Read seats ≠ unlimited agents
-- [ ] Read `MERGE_AUTHORITY.md` (dual gate)
-- [ ] Choose 1 Premium or 1 Standard to start
+- [ ] Seats ≠ unlimited agents
+- [ ] Read ADP + MERGE_AUTHORITY
+- [ ] Choose 1 Premium or 1 Standard
 
 ## At subscribe
 
-- [ ] Steward controls billing + org admin
+- [ ] Steward controls billing + admin
 - [ ] Spend alerts on
 - [ ] GitHub org connected
-- [ ] Team Rules ← `RULES_CONSTITUTION.md`
-- [ ] Agents pointed at `MERGE_AUTHORITY.md`
+- [ ] Team Rules ← RULES_CONSTITUTION (ADP-linked)
+- [ ] Pin AGENT_BOOT + ADP as first context
 
 ## First verification
 
-- [ ] Agent states: PATSAGi judges lattice-legality; steward merges irreversibles
-- [ ] Agent refuses “auto-merge everything to main”
-- [ ] Agent refuses helicopter “certification” claims
-- [ ] Agent uses `info@Rathor.ai`
-- [ ] One Tier-1 `cargo test -p …` succeeds in session
+- [ ] Agent recites bands A/B/C correctly
+- [ ] Agent **proceeds** on a Band A doc hygiene task without asking
+- [ ] Agent **proposes** (not merges) a Band B code touch
+- [ ] Agent **HOLDs** fake certification / invented metrics
+- [ ] `info@Rathor.ai` used
+- [ ] One Tier-1 `cargo test -p` works in session
 
 ## First week
 
-- [ ] R1+R2 only unless steward opens more
-- [ ] Material changes: Gate A checklist in PR/message
-- [ ] Steward performs Gate B merges
-- [ ] Usage log (Composer vs third-party)
-- [ ] Second seat only if review queue healthy
-
-## Freeze switch
-
-- [ ] Steward can revoke agent write / pause Teams usage immediately if valence drops
+- [ ] R1+R2 only unless opened
+- [ ] Gate A on material PRs
+- [ ] Steward Gate B merges
+- [ ] Usage log
+- [ ] Freeze switch known
 
 **Thunder locked.** yoi ⚡

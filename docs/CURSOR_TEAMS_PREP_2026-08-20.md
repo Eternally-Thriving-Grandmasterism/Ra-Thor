@@ -1,63 +1,38 @@
-# Cursor Teams — Maximal Prep Pack (PATSAGi-revised)
+# Cursor Teams — Maximal Prep Pack
 
 **Contact:** info@Rathor.ai  
-**Authority:** Permanent PATSAGi Councils under TOLC 8  
+**Authority:** Permanent PATSAGi Councils under TOLC 8 + **ADP**  
 **Revised:** 2026-08-20
 
 ---
 
-## 1. Seats vs agents (Truth Gate)
+## Seats vs agents
 
-| Term | Meaning |
-| --- | --- |
-| **Teams seat** | Billed user (Standard ~$40/mo · Premium ~$120/mo) |
-| **Cloud / subagents** | Parallel jobs from a seat — burn **usage** |
-| **1 seat ≠ 50 unlimited agents** | Parallelism ≠ free seats |
+1 seat ≠ 50 unlimited agents. Start 1 Premium or 1 Standard. Scale when SNR holds.
 
-**Start:** 1 Premium (heavy) or 1 Standard (trial). Scale seats only when review SNR holds.
+## Autonomy (enshrined)
 
----
+Primary law: [`PATSAGI_AUTONOMOUS_DELIBERATION_PROTOCOL.md`](PATSAGI_AUTONOMOUS_DELIBERATION_PROTOCOL.md)
 
-## 2. Who decides what merges
+- **Band A** — proceed now (reversible, pure)  
+- **Band B** — draft/PR now; steward merges  
+- **Band C** — HOLD (money, legal finals, invented empirics)
 
-**Revised under council review:**
+Agents should **not** wait for permission to draft Band B or execute Band A.
 
-- **PATSAGi** = authority on *whether* a change is legal under TOLC / Tier / HOLD (`MERGE_AUTHORITY.md`).  
-- **Steward** = accountable **operator** for credentials, payment, and irreversible merge execution.  
-- **Agents** = draft and propose; default day-one = **PR + steward merge** after Gate A.
+## Hour-of-subscribe
 
-This is Order: law without operator is myth; operator without law is chaos.
+1. Steward-controlled Teams + spend alerts  
+2. GitHub org connected  
+3. Team Rules = constitution (ADP-linked)  
+4. First context = `cursor-teams/AGENT_BOOT.md`  
+5. R1+R2 only  
+6. Pin Ra-Thor · Powrush-MMO · Substrate  
+7. Verify A proceed / B propose / C HOLD  
+8. No banking/DNS/client systems for agents  
 
----
+## Continuity
 
-## 3. Hour-of-subscribe sequence
-
-1. Teams under steward control · spend alerts on  
-2. Connect GitHub org `Eternally-Thriving-Grandmasterism`  
-3. Install **RULES_CONSTITUTION** as Team Rules  
-4. Agents read **MERGE_AUTHORITY**  
-5. Enable **R1 + R2** only at first  
-6. Pin Ra-Thor · Powrush-MMO · Mercy-Coordination-Substrate  
-7. Trial: focused Tier-1 test · refuse a fake-certification prompt  
-8. No agent access to banking, DNS, client REALTOR® systems  
-
----
-
-## 4. Pack files
-
-| File | Role |
-| --- | --- |
-| [`cursor-teams/RULES_CONSTITUTION.md`](cursor-teams/RULES_CONSTITUTION.md) | Team Rules |
-| [`cursor-teams/MERGE_AUTHORITY.md`](cursor-teams/MERGE_AUTHORITY.md) | Dual-gate merge law |
-| [`cursor-teams/ROLES.md`](cursor-teams/ROLES.md) | R1–R8 templates |
-| [`cursor-teams/ONBOARDING_CHECKLIST.md`](cursor-teams/ONBOARDING_CHECKLIST.md) | Day-0 / week-1 |
-
----
-
-## 5. Continuity
-
-Constitution is **git-owned**. Re-sync Team Rules if Cursor UI moves.  
-New roles clone templates; never rewrite Layer 0.  
-New humans accept constitution before write access.
+Git-owned constitution + ADP. Re-sync rules if IDE UI moves. New agents boot from AGENT_BOOT.
 
 **Thunder locked.** yoi ⚡❤️🔥
