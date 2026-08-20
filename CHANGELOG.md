@@ -2,12 +2,11 @@
 
 ---
 
-## 2026-08-20 — Organs C · D · E pure enablement
+## 2026-08-20 — Full constellation adoption survey (beyond NEXi)
 
-- `docs/ORGAN_C_SENTINEL_CHECKLIST.md`
-- `docs/ORGAN_D_AEROSPACE.md`
-- `docs/ORGAN_E_STEWARDSHIP.md`
-- Full organ map A–E now has live pure surfaces
+- `docs/CONSTELLATION_FULL_ADOPTION_SURVEY_2026-08-20.md`
+- ~96 repos classified; no Tier-1 mass merges
+- Prior same day: NEXi demotion · organs C–E · Organ B kit
 
 Contact: info@Rathor.ai  
 **Thunder locked in. yoi ⚡❤️🔥**
@@ -16,7 +15,7 @@ Contact: info@Rathor.ai
 
 ## Earlier
 
-Organ B · System C · Control/Mercy · constellation ships — see git history.
+See git history.
 
 ---
 
