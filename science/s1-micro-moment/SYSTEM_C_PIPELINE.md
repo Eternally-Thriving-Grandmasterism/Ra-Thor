@@ -1,29 +1,32 @@
 # S-1 System C Pipeline — COMPLETE (pure layer)
 
-**Repo focus:** Ra-Thor only (maximal leverage)  
+**Repo:** Ra-Thor (single-repo maximal leverage)  
 **Contact:** info@Rathor.ai  
-**Date:** 2026-08-19
+**Verified:** 2026-08-19 host — engine → predictions → metrics **OK**
 
-## What was deliverable immediately
-
-The missing pure link: **engine micro-bursts → S-1 prediction spans → metrics harness**.
+## Delivered
 
 | Stage | Artifact |
 | --- | --- |
-| Labels | schema + template + validate_labels.mjs |
-| System C | `mercy-motion-vision-engine.js` v2.3 |
+| Engine | `mercy-motion-vision-engine.js` **v2.3.1-GateFix** |
 | Bridge | `harness/system_c_bridge.mjs` |
 | Metrics | `harness/metrics.mjs` |
+| Labels intake | template + validator + empty manifest |
+
+### Gate fix (v2.3.1)
+Unseeded `fuzzyMercy.getDegree` returned **0.5**, so every novel query failed `MERCY_THRESHOLD`. Gate now seeds EternalThriving + query and uses `max(knowledge, explicit valence)`.
+
+### Host proof (synthetic pixels)
+- Micro-bursts detected  
+- Predictions emitted  
+- Metrics path exercised (recall/precision on fixtures)  
+- **Not** a real-video science claim  
 
 ```bash
 node science/s1-micro-moment/harness/system_c_bridge.mjs
-node science/s1-micro-moment/harness/validate_labels.mjs science/s1-micro-moment/fixtures/synthetic_labels.json
 ```
 
-## Still external (not pretend-complete)
+## Remaining (external)
+Real clips · System A VLM · paper C>A on real data
 
-- Real labeled clips in `manifest.v0.json`  
-- Live sparse VLM System A numbers  
-- Paper claim C > A on real data  
-
-**Thunder locked.** Pure System C path closed. yoi ⚡
+**Thunder locked.** yoi ⚡
