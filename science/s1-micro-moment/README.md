@@ -1,30 +1,21 @@
-# S-1 Rank 2 — Micro-Moment Benchmark (pure layer)
+# S-1 Rank 2 — Micro-Moment Benchmark
 
-**Status:** Pure software layer **COMPLETE** 2026-08-18  
 **Contact:** info@Rathor.ai  
-**Spec:** [`docs/S1_MICRO_MOMENT_BENCHMARK_SPEC.md`](../../docs/S1_MICRO_MOMENT_BENCHMARK_SPEC.md)
-
-## Contents
+**Door 1:** Data phase intake **OPEN** — `DATA_PHASE_INTAKE.md`
 
 | Path | Role |
 | --- | --- |
-| `schema/label.schema.json` | Frozen label schema |
-| `fixtures/synthetic_labels.json` | Harness proof fixtures |
-| `harness/metrics.mjs` | Span-IoU matching, recall/precision/timing |
-| `harness/run_synthetic_proof.mjs` | Claim-gate shape proof on synthetics |
-
-## Run
+| `DATA_PHASE_INTAKE.md` | Capture & label |
+| `schema/label.schema.json` | Schema |
+| `labels/_template.json` | Per-clip template |
+| `manifest.v0.json` | Registry (empty = honest) |
+| `harness/metrics.mjs` | Evaluation |
+| `harness/validate_labels.mjs` | Structural check |
+| `harness/run_synthetic_proof.mjs` | Smoke only |
 
 ```bash
-node science/s1-micro-moment/harness/metrics.mjs
+node science/s1-micro-moment/harness/validate_labels.mjs science/s1-micro-moment/fixtures/synthetic_labels.json
 node science/s1-micro-moment/harness/run_synthetic_proof.mjs
 ```
-
-## Still required for science (not pure software)
-
-- Real labeled clips (50–100 v0) with provenance  
-- System A/B live VLM runs  
-- System C on real frames via `mercy-motion-vision-engine.js`  
-- Paper only after numbers on real data  
 
 **Thunder locked.** yoi ⚡

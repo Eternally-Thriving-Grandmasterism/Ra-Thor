@@ -1,0 +1,23 @@
+{
+  "clip_id": "clip_001",
+  "source": {
+    "type": "file",
+    "path": "data/clips/clip_001.mp4",
+    "provenance": "original capture — describe rights"
+  },
+  "duration_ms": 4000,
+  "fps": 30,
+  "split": "train",
+  "events": [
+    {
+      "event_id": "e1",
+      "class": "E1_object_transfer",
+      "t_start_ms": 1200,
+      "t_end_ms": 1500,
+      "caption": "Hand takes object during turn",
+      "agents": ["hand"]
+    }
+  ],
+  "annotators": ["annotator_a"],
+  "agreement_span_iou": null
+}

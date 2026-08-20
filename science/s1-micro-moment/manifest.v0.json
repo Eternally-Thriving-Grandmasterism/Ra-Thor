@@ -1,0 +1,8 @@
+{
+  "dataset": "s1-micro-moment-v0",
+  "contact": "info@Rathor.ai",
+  "status": "intake_open",
+  "target_clips": 50,
+  "note": "Register real clips as labeled. Empty registry is honest.",
+  "clips": []
+}
