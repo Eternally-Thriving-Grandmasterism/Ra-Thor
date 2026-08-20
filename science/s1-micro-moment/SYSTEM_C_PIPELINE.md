@@ -1,32 +1,27 @@
-# S-1 System C Pipeline — COMPLETE (pure layer)
+# S-1 System C Pipeline — COMPLETE
 
-**Repo:** Ra-Thor (single-repo maximal leverage)  
 **Contact:** info@Rathor.ai  
-**Verified:** 2026-08-19 host — engine → predictions → metrics **OK**
+**Engine:** v2.3.1-GateFix  
+**Status:** Pure path closed · real clips still external
 
-## Delivered
-
-| Stage | Artifact |
-| --- | --- |
-| Engine | `mercy-motion-vision-engine.js` **v2.3.1-GateFix** |
-| Bridge | `harness/system_c_bridge.mjs` |
-| Metrics | `harness/metrics.mjs` |
-| Labels intake | template + validator + empty manifest |
-
-### Gate fix (v2.3.1)
-Unseeded `fuzzyMercy.getDegree` returned **0.5**, so every novel query failed `MERCY_THRESHOLD`. Gate now seeds EternalThriving + query and uses `max(knowledge, explicit valence)`.
-
-### Host proof (synthetic pixels)
-- Micro-bursts detected  
-- Predictions emitted  
-- Metrics path exercised (recall/precision on fixtures)  
-- **Not** a real-video science claim  
+## Commands
 
 ```bash
+# End-to-end synthetic proof (engine → predictions → metrics)
 node science/s1-micro-moment/harness/system_c_bridge.mjs
+
+# When you have real labels + System C prediction map:
+node science/s1-micro-moment/harness/evaluate_predictions.mjs path/to/labels.json path/to/predictions.json
+
+node science/s1-micro-moment/harness/validate_labels.mjs path/to/labels.json
 ```
 
-## Remaining (external)
-Real clips · System A VLM · paper C>A on real data
+## Human next step
+
+1. Capture clips per `DATA_PHASE_INTAKE.md`  
+2. Label from `labels/_template.json`  
+3. Run System C on real frames → predictions JSON  
+4. `evaluate_predictions.mjs`  
+5. Compare to sparse VLM (System A) only when both exist  
 
 **Thunder locked.** yoi ⚡
