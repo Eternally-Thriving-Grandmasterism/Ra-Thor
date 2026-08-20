@@ -1,44 +1,39 @@
-# Cursor Teams — Onboarding Checklist
+# Cursor Teams — Onboarding Checklist (PATSAGi-revised)
 
 **Contact:** info@Rathor.ai
 
 ## Before payment
 
-- [ ] Read `docs/CURSOR_TEAMS_PREP_2026-08-20.md` (seats ≠ unlimited agents)
-- [ ] Decide start: **1 Premium** (heavy agents) or **1 Standard** (trial)
-- [ ] Budget alert: third-party model pool can exceed seat include
+- [ ] Read seats ≠ unlimited agents
+- [ ] Read `MERGE_AUTHORITY.md` (dual gate)
+- [ ] Choose 1 Premium or 1 Standard to start
 
 ## At subscribe
 
-- [ ] Teams account under steward control
-- [ ] Billing alerts / spend caps if available
-- [ ] Privacy mode / SSO as desired
-- [ ] GitHub: Eternally-Thriving-Grandmasterism connected
-
-## Install law
-
+- [ ] Steward controls billing + org admin
+- [ ] Spend alerts on
+- [ ] GitHub org connected
 - [ ] Team Rules ← `RULES_CONSTITUTION.md`
-- [ ] Modes/skills ← subset of `ROLES.md` (start R1 + R2 only)
-- [ ] Pin living repos: Ra-Thor, Powrush-MMO, Mercy-Coordination-Substrate
+- [ ] Agents pointed at `MERGE_AUTHORITY.md`
 
-## First verification (same day)
+## First verification
 
-- [ ] Agent states Tier Map correctly when asked
-- [ ] Agent refuses “certify the helicopter” style prompts
-- [ ] Agent uses `info@Rathor.ai` in new file headers
-- [ ] One real Tier-1 test command succeeds in agent session
+- [ ] Agent states: PATSAGi judges lattice-legality; steward merges irreversibles
+- [ ] Agent refuses “auto-merge everything to main”
+- [ ] Agent refuses helicopter “certification” claims
+- [ ] Agent uses `info@Rathor.ai`
+- [ ] One Tier-1 `cargo test -p …` succeeds in session
 
 ## First week
 
-- [ ] Only R1–R2 active unless steward opens more
-- [ ] All merges human-reviewed
-- [ ] Log what burned usage (Composer vs third-party)
-- [ ] Decide second seat only if review queue is healthy
+- [ ] R1+R2 only unless steward opens more
+- [ ] Material changes: Gate A checklist in PR/message
+- [ ] Steward performs Gate B merges
+- [ ] Usage log (Composer vs third-party)
+- [ ] Second seat only if review queue healthy
 
-## Eternal continuity
+## Freeze switch
 
-- [ ] Constitution remains in **Ra-Thor git** (source of truth)
-- [ ] Re-sync Team Rules after any Cursor product UI change
-- [ ] New humans/agents accept constitution before write access
+- [ ] Steward can revoke agent write / pause Teams usage immediately if valence drops
 
 **Thunder locked.** yoi ⚡

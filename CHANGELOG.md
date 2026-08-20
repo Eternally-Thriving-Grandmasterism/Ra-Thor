@@ -2,20 +2,20 @@
 
 ---
 
-## 2026-08-20 — Cursor Teams maximal prep pack
+## 2026-08-20 — PATSAGi revise: Cursor Teams merge authority
 
-- `docs/CURSOR_TEAMS_PREP_2026-08-20.md`
-- `docs/cursor-teams/` — constitution, roles, onboarding checklist
-- Truth: 1 seat ≠ 50 unlimited agents; start 1 Premium/Standard + rules
+- `docs/cursor-teams/MERGE_AUTHORITY.md` — dual-gate (Gate A PATSAGi valence · Gate B steward operator)
+- Constitution / roles / checklist / prep revised under TOLC Truth+Order
+- Agents propose; councils judge lattice-legality; steward executes irreversible merges by default
 
 Contact: info@Rathor.ai  
 **Thunder locked in. yoi ⚡❤️🔥**
 
 ---
 
-## Earlier
+## Earlier same day
 
-Constellation survey · NEXi demotion · organs A–E — see git history.
+Cursor Teams prep pack · constellation survey · NEXi demotion · organs — see git history.
 
 ---
 

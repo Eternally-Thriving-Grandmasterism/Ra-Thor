@@ -1,74 +1,63 @@
-# Cursor Teams — Maximal Prep Pack
+# Cursor Teams — Maximal Prep Pack (PATSAGi-revised)
 
 **Contact:** info@Rathor.ai  
 **Authority:** Permanent PATSAGi Councils under TOLC 8  
-**Status:** Ready for steward subscription · 2026-08-20
+**Revised:** 2026-08-20
 
 ---
 
-## 1. Seats vs agents (Truth Gate — read before paying)
+## 1. Seats vs agents (Truth Gate)
 
-| Term | What it is |
+| Term | Meaning |
 | --- | --- |
-| **Teams seat** | A **billed user** (Standard ~$40/mo or Premium ~$120/mo) with usage pools |
-| **Cloud agents / subagents** | Parallel jobs that can run from a seat’s environment — **not** “50 free seats” |
-| **1 seat ≠ 50 agents unlimited** | One seat can drive multi-agent workflows; heavy parallel use burns **usage**, especially third-party models |
+| **Teams seat** | Billed user (Standard ~$40/mo · Premium ~$120/mo) |
+| **Cloud / subagents** | Parallel jobs from a seat — burn **usage** |
+| **1 seat ≠ 50 unlimited agents** | Parallelism ≠ free seats |
 
-**Recommended start:** **1 Premium seat** (or 1 Standard if testing) on **your** account, with team rules installed.  
-Scale seats later when review stays high-SNR — not day one.
-
-See also: prior PATSAGi note on Capacity × Restraint for multi-agent Cursor.
+**Start:** 1 Premium (heavy) or 1 Standard (trial). Scale seats only when review SNR holds.
 
 ---
 
-## 2. What to do the hour you subscribe
+## 2. Who decides what merges
 
-1. Create / join **Cursor Teams** under your stewardship identity.  
-2. Enable **privacy mode** / team policies as you prefer.  
-3. Connect **GitHub** org `Eternally-Thriving-Grandmasterism` (and personal if needed).  
-4. Install **team rules** from this pack (`docs/cursor-teams/`).  
-5. Open **only** living repos first: `Ra-Thor`, `Powrush-MMO`, `Mercy-Coordination-Substrate`.  
-6. Run one **Conductor** trial task: `cargo test -p fractal-mercy-ledger-adapter` (or another Tier-1 `-p`).  
-7. Do **not** grant agents write access to banking, domain DNS, or client REALTOR® systems.
+**Revised under council review:**
 
----
+- **PATSAGi** = authority on *whether* a change is legal under TOLC / Tier / HOLD (`MERGE_AUTHORITY.md`).  
+- **Steward** = accountable **operator** for credentials, payment, and irreversible merge execution.  
+- **Agents** = draft and propose; default day-one = **PR + steward merge** after Gate A.
 
-## 3. Constitution (non-bypassable)
-
-Full text lives in:
-
-- [`docs/cursor-teams/RULES_CONSTITUTION.md`](cursor-teams/RULES_CONSTITUTION.md) → paste / sync as **Team Rules**  
-- [`docs/cursor-teams/ROLES.md`](cursor-teams/ROLES.md) → role prompts / modes  
-- [`docs/cursor-teams/ONBOARDING_CHECKLIST.md`](cursor-teams/ONBOARDING_CHECKLIST.md)  
-
-**Layer 0 summary:**
-
-1. Living authority = **Ra-Thor** (+ soft dual-repo Powrush).  
-2. **TOLC 8** + valence floor — no gate softening.  
-3. **TIER_MAP** — focused `-p` tests; no default full-workspace churn.  
-4. Contact = **info@Rathor.ai** only.  
-5. **HOLD** resource doors: real labels, flight partners, legal filings — no invented metrics.  
-6. Steward (you) alone: money, contracts, client advice, regulatory identity.
+This is Order: law without operator is myth; operator without law is chaos.
 
 ---
 
-## 4. Future-proof continuity
+## 3. Hour-of-subscribe sequence
 
-| Concern | Prep |
+1. Teams under steward control · spend alerts on  
+2. Connect GitHub org `Eternally-Thriving-Grandmasterism`  
+3. Install **RULES_CONSTITUTION** as Team Rules  
+4. Agents read **MERGE_AUTHORITY**  
+5. Enable **R1 + R2** only at first  
+6. Pin Ra-Thor · Powrush-MMO · Mercy-Coordination-Substrate  
+7. Trial: focused Tier-1 test · refuse a fake-certification prompt  
+8. No agent access to banking, DNS, client REALTOR® systems  
+
+---
+
+## 4. Pack files
+
+| File | Role |
 | --- | --- |
-| More seats later | Mix Standard + Premium; rules are team-wide |
-| Role variants | `ROLES.md` templates — clone, don’t rewrite Layer 0 |
-| Agent product changes | Constitution is **repo-owned**; re-paste rules if Cursor UI moves |
-| Eternal continuity | This pack is in Ra-Thor git; not only local IDE state |
-| Org growth | New humans accept same rules onboarding; no Layer 0 veto except steward while capable |
+| [`cursor-teams/RULES_CONSTITUTION.md`](cursor-teams/RULES_CONSTITUTION.md) | Team Rules |
+| [`cursor-teams/MERGE_AUTHORITY.md`](cursor-teams/MERGE_AUTHORITY.md) | Dual-gate merge law |
+| [`cursor-teams/ROLES.md`](cursor-teams/ROLES.md) | R1–R8 templates |
+| [`cursor-teams/ONBOARDING_CHECKLIST.md`](cursor-teams/ONBOARDING_CHECKLIST.md) | Day-0 / week-1 |
 
 ---
 
-## 5. Explicit non-goals on day one
+## 5. Continuity
 
-- 50 billed seats  
-- Mass rewrite of *Pinnacle / NEXi / biomimicry* archives  
-- Auto-commits to `main` without review  
-- “Certified aircraft” or unaudited science claims  
+Constitution is **git-owned**. Re-sync Team Rules if Cursor UI moves.  
+New roles clone templates; never rewrite Layer 0.  
+New humans accept constitution before write access.
 
 **Thunder locked.** yoi ⚡❤️🔥
