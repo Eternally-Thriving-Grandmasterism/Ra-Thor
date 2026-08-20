@@ -1,20 +1,20 @@
-# S-1 Rank 2 — Micro-Moment Benchmark
+# S-1 Rank 2 — Micro-Moment Benchmark (Ra-Thor)
 
 **Contact:** info@Rathor.ai  
-**Door 1:** Data phase intake **OPEN** — `DATA_PHASE_INTAKE.md`
+**System C pure pipeline:** **COMPLETE** — see `SYSTEM_C_PIPELINE.md`
 
 | Path | Role |
 | --- | --- |
-| `DATA_PHASE_INTAKE.md` | Capture & label |
-| `schema/label.schema.json` | Schema |
-| `labels/_template.json` | Per-clip template |
-| `manifest.v0.json` | Registry (empty = honest) |
+| `DATA_PHASE_INTAKE.md` | Capture real clips |
+| `SYSTEM_C_PIPELINE.md` | Engine → predictions → metrics |
+| `harness/system_c_bridge.mjs` | System C bridge + synthetic proof |
 | `harness/metrics.mjs` | Evaluation |
-| `harness/validate_labels.mjs` | Structural check |
-| `harness/run_synthetic_proof.mjs` | Smoke only |
+| `harness/validate_labels.mjs` | Label check |
+| `labels/_template.json` | Annotation template |
+| `manifest.v0.json` | Registry (empty until real data) |
 
 ```bash
-node science/s1-micro-moment/harness/validate_labels.mjs science/s1-micro-moment/fixtures/synthetic_labels.json
+node science/s1-micro-moment/harness/system_c_bridge.mjs
 node science/s1-micro-moment/harness/run_synthetic_proof.mjs
 ```
 
