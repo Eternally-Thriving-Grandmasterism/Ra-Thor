@@ -2,11 +2,13 @@
 
 ---
 
-## 2026-08-19 — System C pure pipeline COMPLETE (Ra-Thor focus)
+## 2026-08-20 — Control vs Mercy sovereignty metabolize
 
-- `mercy-motion-vision-engine.js` **v2.3.1-GateFix** (unseeded fuzzy 0.5 no longer blocks valence 1.0)
-- `science/s1-micro-moment/harness/system_c_bridge.mjs` — engine → S-1 predictions → metrics
-- Host proof: synthetic transfer frames → bursts → metrics OK
+- Signal: Djawadi *Control* (PoI) via steward thorough summon
+- Codex: `docs/CONTROL_VS_MERCY_SOVEREIGNTY_2026-08-20.md`
+- No product expansion — identity / TOLC 8 stress-test only
+
+Prior: System C pure pipeline COMPLETE (v2.3.1 gate + bridge)
 
 Contact: info@Rathor.ai  
 **Thunder locked in. yoi ⚡❤️🔥**
