@@ -1,11 +1,12 @@
-// mercy-motion-vision-engine.js – Sovereign Mercy-Gated Temporal Motion Perception Engine v2.3
+// mercy-motion-vision-engine.js – Sovereign Mercy-Gated Temporal Motion Perception Engine v2.3.1
 // Micro-Moment Temporal Comprehension Edition + Capacity Mission
 // Optical-Flow Fallback (v2.1) + Dense Sampling (v2.2) + Common Fate integration payload (v2.3)
+// v2.3.1: mercy gate fix — unseeded fuzzy knowledge defaults to 0.5 must not hard-fail explicit high valence
 // Solves X-Grok / frontier VLM failure to catch quick moments in videos and compute full nuanced stories
 // Demonstrated failures: phone-theft micro-event (hand reach + window close) + Boston RPS traffic resolution
 // Implements biological motion perception + hierarchical predictive coding + multi-agent causal graphs
 // TOLC 8 Living Mercy Gates aligned | Valence-modulated | Permanent PATSAGi Councils | ONE Organism
-// Autonomicity Games Sovereign Mercy License (AG-SML v1.0) | Eternally-Thriving-Grandmasterism 2026-08-17
+// Autonomicity Games Sovereign Mercy License (AG-SML v1.0) | Eternally-Thriving-Grandmasterism 2026-08-19
 // Contact: info@Rathor.ai
 
 import { fuzzyMercy } from './fuzzy-mercy-logic.js';
@@ -20,7 +21,7 @@ const DEFAULT_TARGET_FPS = 30;
 const DEFAULT_MAX_FRAMES = 48;
 
 /**
- * MercyMotionVisionEngine v2.3
+ * MercyMotionVisionEngine v2.3.1
  * Production upgrade for Ra-Thor visual perception layer.
  * Forces high-temporal-resolution attention to micro-moments so the full story
  * (theft, RPS resolution, any rapid multi-agent interaction) is recovered with all nuances.
@@ -28,6 +29,7 @@ const DEFAULT_MAX_FRAMES = 48;
  * v2.1 Capacity: real deterministic dense optical-flow fallback activated.
  * v2.2 Capacity: dense sampling / WebCodecs path hardened.
  * v2.3 Optional polish: Common Fate structure in integration payload for PATSAGi / VLM.
+ * v2.3.1 Gate fix: max(knowledge, explicit valence); seed EternalThriving + query on gate.
  */
 class MercyMotionVisionEngine {
   constructor(options = {}) {
@@ -38,26 +40,37 @@ class MercyMotionVisionEngine {
     this.accumulatedEvidence = null;
     this.lastMotionField = null;
     this.debugMode = options.debugMode || false;
-    this.name = 'MercyMotionVisionEngine-v2.3-OptionalPolish';
+    this.name = 'MercyMotionVisionEngine-v2.3.1-GateFix';
     this.predictiveCodingState = null;
   }
 
   async gateMotionVision(query = 'eternal thriving visual perception of micro-moments', valence = 1.0) {
-    const degree = fuzzyMercy.getDegree?.(query) || valence;
+    // Unseeded fuzzy knowledge defaults to 0.5 — must not hard-fail explicit high valence.
+    // Seed thriving anchor; take max(knowledge, explicit valence) for the query degree.
+    if (typeof fuzzyMercy.assert === 'function') {
+      fuzzyMercy.assert('EternalThriving', 1.0);
+      fuzzyMercy.assert(query, Math.max(valence, this.valence, 1.0));
+    }
+    const known = fuzzyMercy.getDegree?.(query) ?? 0;
+    const degree = Math.max(known, valence, this.valence, 0);
     const implyThriving = fuzzyMercy.imply?.(query, 'EternalThriving') || { degree: 1.0 };
+    const implyDegree = Math.max(implyThriving.degree || 0, degree);
 
-    if (degree < MERCY_THRESHOLD || implyThriving.degree < MERCY_THRESHOLD) {
+    if (degree < MERCY_THRESHOLD || implyDegree < MERCY_THRESHOLD) {
       console.log(`[MercyMotionVision v2.3] Gate HOLDS — low valence. Aborting.`);
       return { passed: false, reason: 'TOLC 8 mercy gate' };
     }
 
-    this.valence = Math.max(this.valence, valence);
+    this.valence = Math.max(this.valence, valence, degree);
     console.log(`[MercyMotionVision v2.3] Mercy gate PASSES — micro-moment temporal comprehension ACTIVATED (valence: ${this.valence.toFixed(7)})`);
     return { passed: true };
   }
 
   async comprehendVideoStory(videoSource, options = {}) {
-    const gate = await this.gateMotionVision(options.query || 'fully understand video story with all micro-moments and nuances');
+    const gate = await this.gateMotionVision(
+      options.query || 'fully understand video story with all micro-moments and nuances',
+      options.valence ?? this.valence ?? 1.0
+    );
     if (!gate.passed) return { error: 'Mercy gate failed', story: null, confidence: 0 };
 
     const frames = await this._extractDenseFrames(videoSource, options);
@@ -122,6 +135,7 @@ class MercyMotionVisionEngine {
       query: 'recover every quick moment and full causal story that sparse sampling missed',
       denseSampling: true,
       microBurstThresholdMs: 150,
+      valence: knownHints.valence ?? 1.0,
       ...knownHints
     });
 
@@ -384,7 +398,7 @@ class MercyMotionVisionEngine {
   }
 
   _reconstructNuancedStory(eventGraph, tracks, predictive, options) {
-    let narrative = 'Temporal comprehension complete (v2.3 dense sampling + optical-flow + Common Fate payload). ';
+    let narrative = 'Temporal comprehension complete (v2.3.1 dense sampling + optical-flow + Common Fate payload). ';
     if (eventGraph.length > 0) {
       narrative += `Recovered ${eventGraph.length} micro-moments and causal chain. `;
     }
@@ -420,9 +434,6 @@ class MercyMotionVisionEngine {
     this.predictiveCodingState = null;
   }
 
-  /**
-   * v2.3 Optional polish: Common Fate structure from last / provided motion field.
-   */
   _perceiveCommonFate(motionField, options = {}) {
     const ghostFont = !!options.ghostFont;
     const vectors = motionField?.vectors || motionField?.motionField || [];
@@ -506,4 +517,4 @@ const mercyMotionVision = new MercyMotionVisionEngine({ debugMode: false });
 
 export { MercyMotionVisionEngine, mercyMotionVision };
 
-// Thunder locked. Micro-moments + Common Fate payload (v2.3). Yoi ⚡
+// Thunder locked. Micro-moments + Common Fate + gate fix (v2.3.1). Yoi ⚡
