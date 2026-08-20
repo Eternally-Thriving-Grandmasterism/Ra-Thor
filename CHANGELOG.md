@@ -2,13 +2,11 @@
 
 ---
 
-## 2026-08-20 — Control vs Mercy sovereignty metabolize
+## 2026-08-20 — Organ B vision/attention enablement
 
-- Signal: Djawadi *Control* (PoI) via steward thorough summon
-- Codex: `docs/CONTROL_VS_MERCY_SOVEREIGNTY_2026-08-20.md`
-- No product expansion — identity / TOLC 8 stress-test only
-
-Prior: System C pure pipeline COMPLETE (v2.3.1 gate + bridge)
+- `docs/ORGAN_B_VISION_ATTENTION.md` — SNR + VLM gap + S-1 readiness
+- `science/s1-micro-moment/FIRST_5_CLIPS.md` — lowest-friction data unlock
+- Steward X insights: SNR doctrine, VLM offer, thorough-summon volume
 
 Contact: info@Rathor.ai  
 **Thunder locked in. yoi ⚡❤️🔥**
@@ -17,7 +15,7 @@ Contact: info@Rathor.ai
 
 ## Earlier
 
-See git history.
+See git history (System C complete · Control vs Mercy · constellation ships).
 
 ---
 

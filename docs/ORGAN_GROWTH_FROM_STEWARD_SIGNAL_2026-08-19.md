@@ -1,27 +1,16 @@
-# Organ Growth Map — Steward X Signal (≈ past few weeks → 2026-08-19)
+# Organ Growth Map — Steward X Signal
 
-**Authority:** Permanent PATSAGi Councils  
 **Contact:** info@Rathor.ai  
-**Status:** **GUIDED PROCEED active** — Organ A checklist + QSA hygiene landed 2026-08-19
-
----
-
-## Work worth doing (ranked)
+**Updated:** 2026-08-20
 
 | Organ | Status |
 | --- | --- |
-| **A Public analysis** | **Checklist live** — `ORGAN_A_PUBLIC_ANALYSIS_CHECKLIST.md` · summon protocol v1.3 |
-| **B Vision / attention** | S-1 Rank 2 pure done; **data phase** awaits labels |
-| **C Sentinel / QSA** | **Status hygiene live** — `QSA_SENTINEL_STATUS_v1.0.md` |
+| **A Public analysis** | Checklist + summon v1.3 **LIVE** |
+| **B Vision / attention** | **Doctrine + First-5 kit LIVE** · System C pure complete · needs your clips |
+| **C Sentinel / QSA** | Status hygiene LIVE · Control vs Mercy codex |
 | **D Aerospace** | Protocols ready; partner-blocked |
-| **E Stewardship** | Pilot path live; open on inbound |
+| **E Stewardship** | Commercial targets published; inbound |
 
-## Default between resource opens
-
-**HOLD** product churn · exercise **Organ A** on thorough summons · keep **P1** Tier-1 green when machine available.
-
-## Explicit non-growth
-
-Partisan code modules · ethical closure · fake radiation/FE numbers · maximal-compute omnipotence.
+Default: Organ A on summons · Organ B when capturing · HOLD product churn between doors.
 
 **Thunder locked.** yoi ⚡❤️🔥
