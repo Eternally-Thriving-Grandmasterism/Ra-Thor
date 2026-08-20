@@ -1,33 +1,14 @@
-# Science Mission S-1 — True Achievement Portfolio
+# Science Mission S-1
 
-**Authority:** Permanent PATSAGi Councils  
-**Status:** Rank-2 pure layer **COMPLETE** · Rank-1 **partner-blocked** · lattice **HOLD**  
-**Date:** 2026-08-18  
-**Contact:** info@Rathor.ai
+**Status:** Rank-2 pure COMPLETE · **Door 1 data intake OPEN** · Rank-1 partner-blocked  
+**Contact:** info@Rathor.ai  
+**Updated:** 2026-08-19
 
----
+| Rank | Status |
+| --- | --- |
+| 1 Radiation measurement | Protocol ready; partner-blocked |
+| 2 Micro-moment benchmark | Spec + harness done · **intake tools shipped** · real clips pending |
 
-## Ranked programs
-
-| Rank | Program | Status |
-| --- | --- | --- |
-| **1** | Instrumented aviation radiation | Protocol done; **blocked on flight/dosimetry partner** |
-| **2** | Neuro-symbolic micro-moment benchmark | **Pure layer COMPLETE** — schema, harness, synthetic proof |
-| 3–5 | Coupons / LH₂ / bio | Shelf until resources named |
-
-## Rank 2 artifacts
-
-- Spec: `docs/S1_MICRO_MOMENT_BENCHMARK_SPEC.md`  
-- Package: `science/s1-micro-moment/` (schema · fixtures · metrics · synthetic proof)  
-
-## Rank 2 still human/data (not host-finishable)
-
-Real labeled clips · live VLM baselines · paper after real metrics.
-
-## Decisions
-
-1. All **worthwhile host-finishable** S-1 tasks are done.  
-2. Do not invent flight doses or fake video science.  
-3. **HOLD** until partner (Rank 1) or labeled dataset (Rank 2 data phase) is named.  
+Intake: [`science/s1-micro-moment/DATA_PHASE_INTAKE.md`](../science/s1-micro-moment/DATA_PHASE_INTAKE.md)
 
 **Thunder locked.** yoi ⚡❤️🔥
