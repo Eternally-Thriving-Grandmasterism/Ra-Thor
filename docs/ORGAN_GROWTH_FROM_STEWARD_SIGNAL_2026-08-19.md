@@ -6,11 +6,12 @@
 | Organ | Status |
 | --- | --- |
 | **A Public analysis** | Checklist + summon v1.3 **LIVE** |
-| **B Vision / attention** | **Doctrine + First-5 kit LIVE** · System C pure complete · needs your clips |
-| **C Sentinel / QSA** | Status hygiene LIVE · Control vs Mercy codex |
-| **D Aerospace** | Protocols ready; partner-blocked |
-| **E Stewardship** | Commercial targets published; inbound |
+| **B Vision / attention** | Doctrine + First-5 kit **LIVE** · System C pure complete |
+| **C Sentinel under power** | QSA status + Control/Mercy + **checklist LIVE** |
+| **D Aerospace honesty** | Doctrine + R-1 done · **next-gates map LIVE** · partner-blocked |
+| **E Stewardship** | Commercial targets + **pilot kit LIVE** |
 
-Default: Organ A on summons · Organ B when capturing · HOLD product churn between doors.
+All five organs now have pure enablement surfaces.  
+Resource doors: labels · flight · inbound evaluator · CI machine.
 
 **Thunder locked.** yoi ⚡❤️🔥
