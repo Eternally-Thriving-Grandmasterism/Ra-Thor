@@ -2,11 +2,11 @@
 
 ---
 
-## 2026-08-21 — Signal: JWST Saturn beads / hexagon (Truth vs scare)
+## 2026-08-21 — Signal: standard macro over ego splash
 
-- `docs/signals/JWST_SATURN_BEADS_HEXAGON_2026.md`
-- Strip “scariest planet” packaging; retain Stallard et al. JWST/NIRSpec morphology
-- Agent micro-protocol for space scare content under ADP
+- `docs/signals/STANDARD_MACRO_OVER_EGO_SPLASH.md` — Grandmaster Protocol from competitive PvT lesson
+- AGENT_BOOT updated: *Standard macro before experimental splash*
+- Constellation: innovation remains Band B after sealed protocol is green
 
 Contact: info@Rathor.ai  
 **Thunder locked in. yoi ⚡❤️🔥**
@@ -15,7 +15,7 @@ Contact: info@Rathor.ai
 
 ## Earlier
 
-Optical skyrmions · ADP · Cursor dual-gate — see git history.
+JWST Saturn · optical skyrmions · ADP — see git history.
 
 ---
 
