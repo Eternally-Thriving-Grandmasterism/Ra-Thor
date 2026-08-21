@@ -2,12 +2,12 @@
 
 ---
 
-## 2026-08-21 — Signal: AB 2624 speech/privacy tension
+## 2026-08-21 — Signal: geomagnetic field / SAA / solar-storm fragility
 
-- `docs/signals/AB2624_SPEECH_PRIVACY_TENSION_2026.md`
-- Dual interest: anti-harassment safety AND fraud/press scrutiny under TOLC
-- Lattice resolves publication standards; civic/legal channels resolve statute
-- No partisan product · no doxx how-to
+- `docs/signals/GEOMAGNETIC_SAA_SOLAR_STORM_2026.md`
+- Consensus: secular weakening, SAA expansion (Swarm-era), pole motion, storm risk to tech
+- Outside consensus: specific 2040–60 Davidson cycle/mechanism as lattice fact
+- Prep warranted; panic product refused
 
 Contact: info@Rathor.ai  
 **Thunder locked in. yoi ⚡❤️🔥**
@@ -16,7 +16,7 @@ Contact: info@Rathor.ai
 
 ## Earlier
 
-Quantum repeater · standard macro · JWST — see git history.
+AB 2624 · quantum repeater · standard macro — see git history.
 
 ---
 
