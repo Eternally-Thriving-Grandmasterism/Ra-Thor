@@ -2,13 +2,12 @@
 
 ---
 
-## 2026-08-20 — Signal: optical skyrmions (NTU / Optica)
+## 2026-08-21 — Signal: JWST Saturn beads / hexagon (Truth vs scare)
 
-- `docs/signals/OPTICAL_SKYRMIONS_NTU_2026.md` — Truth Gate on NextScience post + primary literature
-- Transfer: topological invariants · simple generators · multi-texture · measured robustness only
-- Explicit non-claims: no Ra-Thor optical lab, no Wi‑Fi product, no Air/Fusion result fabrication
+- `docs/signals/JWST_SATURN_BEADS_HEXAGON_2026.md`
+- Strip “scariest planet” packaging; retain Stallard et al. JWST/NIRSpec morphology
+- Agent micro-protocol for space scare content under ADP
 
-Prior same day: ADP · Cursor merge authority · constellation survey  
 Contact: info@Rathor.ai  
 **Thunder locked in. yoi ⚡❤️🔥**
 
@@ -16,7 +15,7 @@ Contact: info@Rathor.ai
 
 ## Earlier
 
-See git history.
+Optical skyrmions · ADP · Cursor dual-gate — see git history.
 
 ---
 
