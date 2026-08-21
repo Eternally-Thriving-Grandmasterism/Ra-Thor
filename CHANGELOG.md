@@ -2,20 +2,21 @@
 
 ---
 
-## 2026-08-21 — Signal: metro quantum repeater (Zhu et al., Nature Photonics)
+## 2026-08-21 — Signal: AB 2624 speech/privacy tension
 
-- `docs/signals/METRO_QUANTUM_REPEATER_ZHU_2026.md`
-- 14.5 km matter–matter · 78.6% fidelity · CHSH 3.7σ · not unhackable
-- Routing: watchlist only for Substrate; no quantum hardware claim in constellation
+- `docs/signals/AB2624_SPEECH_PRIVACY_TENSION_2026.md`
+- Dual interest: anti-harassment safety AND fraud/press scrutiny under TOLC
+- Lattice resolves publication standards; civic/legal channels resolve statute
+- No partisan product · no doxx how-to
 
 Contact: info@Rathor.ai  
 **Thunder locked in. yoi ⚡❤️🔥**
 
 ---
 
-## Earlier same day
+## Earlier
 
-Standard macro · JWST Saturn — see git history.
+Quantum repeater · standard macro · JWST — see git history.
 
 ---
 
