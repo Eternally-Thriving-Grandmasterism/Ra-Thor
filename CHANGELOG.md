@@ -2,12 +2,11 @@
 
 ---
 
-## 2026-08-21 — Signal: geomagnetic field / SAA / solar-storm fragility
+## 2026-08-21 — PATSAGi Science Discovery Protocol
 
-- `docs/signals/GEOMAGNETIC_SAA_SOLAR_STORM_2026.md`
-- Consensus: secular weakening, SAA expansion (Swarm-era), pole motion, storm risk to tech
-- Outside consensus: specific 2040–60 Davidson cycle/mechanism as lattice fact
-- Prep warranted; panic product refused
+- `docs/science/PATSAGI_SCIENCE_DISCOVERY_PROTOCOL.md` — proof ladder P0–P4 · ranked programs
+- Program 1 ACTIVE: S-1 micro-moments with `PRE_REGISTERED_CRITERIA.md`
+- Programs 2–5 ready/watch/deferred; no invented fundamental physics
 
 Contact: info@Rathor.ai  
 **Thunder locked in. yoi ⚡❤️🔥**
@@ -16,7 +15,7 @@ Contact: info@Rathor.ai
 
 ## Earlier
 
-AB 2624 · quantum repeater · standard macro — see git history.
+Geomagnetic · AB 2624 · quantum repeater — see git history.
 
 ---
 
