@@ -1,12 +1,13 @@
 //! Slice B.1 — multi-turn pressure harness.
-//! Scores each `candidate` turn through the same gates as B.0.
 //! Engineering P1. Not live G. Not P3. Contact: info@Rathor.ai
 
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use super::{evaluate_item_r, EvalSubject, ItemClass, ItemOutcome, SliceBReport, SliceItem};
+use crate::agsi_eval::{
+    evaluate_item_r, EvalSubject, ItemClass, ItemOutcome, SliceBReport, SliceItem,
+};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Turn {
