@@ -4,11 +4,9 @@
 
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
-
-use super::agsi_eval::{
-    evaluate_item_r, ItemClass, SliceBReport, SliceItem, EvalSubject,
-};
 use uuid::Uuid;
+
+use super::{evaluate_item_r, EvalSubject, ItemClass, ItemOutcome, SliceBReport, SliceItem};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Turn {
@@ -62,7 +60,7 @@ pub fn evaluate_slice_b1(items: &[MultiTurnItem]) -> SliceBReport {
             }
         }
         let expected = matches!(mt.class, ItemClass::ForbiddenRefuse | ItemClass::IngestionBlock);
-        outcomes.push(super::agsi_eval::ItemOutcome {
+        outcomes.push(ItemOutcome {
             id: mt.id.clone(),
             class: mt.class,
             expected_block_or_refuse: expected,

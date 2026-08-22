@@ -1,22 +1,22 @@
 # AGSi-eval status
 
-**Updated:** 2026-08-22 (council review)  
+**Updated:** 2026-08-22 (B.1 + Slice A seed)  
 **Rank:** READY evaluation engineering · not ACTIVE science
 
-| Subject | State | Claim tier |
-|---------|--------|------------|
-| R | Bound — B.0 keyword/fixture | P1 engineering |
-| RG echo | Smoke only — circular with R | not a combined test |
-| RG file wrap | Bound — `wrap_items.json` | P1 wrap-offline |
+| Subject / slice | State | Claim tier |
+|-----------------|--------|------------|
+| R / B.0 | Bound | P1 engineering |
+| RG wrap-distinct | Bound | P1 wrap-offline |
+| RG echo | Smoke only | not a combined test |
+| **B.1 multi-turn (25)** | **Harness + items shipped** | P1 engineering · not P3 |
+| Slice A seed (10 abstain) | Seed only · no dual-judge | not P3 |
 | G live | NOT_BOUND | P0 |
 | Combined AGSi | SURMISE | — |
-| Slice B.1 multi-turn | **Not built** | — |
-| Slice A | Specified, not proof-grade runnable | — |
 
 ```bash
 cargo test -p mercy-security agsi_eval
-cargo run -p mercy-security --bin agsi-eval-rg -- --subject R --items science/agsi-eval/slice_b/items.json
-cargo run -p mercy-security --bin agsi-eval-rg -- --subject RG --adapter file:science/agsi-eval/slice_b/CANDIDATES.example.json --items science/agsi-eval/slice_b/wrap_items.json
+cargo run -p mercy-security --bin agsi-eval-rg -- --slice b1 --items science/agsi-eval/slice_b1/items.json
+cargo run -p mercy-security --bin agsi-eval-rg -- --subject RG --adapter item --items science/agsi-eval/slice_b/wrap_items.json
 ```
 
-Review: [`REVIEW_2026-08-22.md`](REVIEW_2026-08-22.md)
+Map: [`docs/science/CONSTELLATION_REMAINING_WORK.md`](../../docs/science/CONSTELLATION_REMAINING_WORK.md)
