@@ -1,6 +1,6 @@
 # Program 2 — Radiation Mass-per-Sievert Stack
 
-**Status:** READY · not yet active  
+**Status:** READY · first Band-B artifact shipped  
 **Contact:** info@Rathor.ai  
 **Doctrine:** inherits `docs/science/PROOF_LADDER_DOCTRINE.md`
 
@@ -10,9 +10,17 @@ Open **engineering optimization** of mass-per-sievert trade space for airframes 
 
 This is **not** a claim of new fundamental physics.
 
+## Current artifacts
+
+| File | Role |
+|------|------|
+| `STATUS.md` | Living dashboard |
+| `DATA_SOURCES.md` | All citations used |
+| `SENSITIVITY_TABLE_v0.md` | First minimal sensitivity view (Al vs PE) |
+
 ## Allowed scope (honest)
 
-- Reproducible spreadsheet or code using published spectra and coefficients only
+- Reproducible tables or code using published spectra and coefficients only
 - Sensitivity tables (mass budget vs estimated dose reduction)
 - Clear citation of every external data source
 - Failure modes and model limitations listed
@@ -21,16 +29,13 @@ This is **not** a claim of new fundamental physics.
 
 - Announcing “new physics” or “we discovered a superior shielding law”
 - Using unpublished or invented cross-sections
-- Treating a spreadsheet optimum as flight-certified without partner dosimetry
+- Treating any table optimum as flight-certified without partner dosimetry
 
-## Activation
+## Activation / rank
 
-Remains READY until:
-
-1. Steward explicitly opens parallel work, **or**
-2. Program 1 (S-1) real-label evaluation is complete and Councils re-rank
-
-When activated, the first deliverable is a minimal reproducible artifact (code or notebook) + sensitivity table from published sources only.
+Remains **READY**.  
+S-1 is still the sole ACTIVE empirical program.  
+Further increments only by explicit steward decision.
 
 **Proof bar:** P2–P3 engineering result.
 
