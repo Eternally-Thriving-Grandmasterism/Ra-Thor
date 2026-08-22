@@ -1,25 +1,30 @@
-//! agsi-eval-rg — Thin runnable subject for AGSi-eval Slice B.
+//! agsi-eval-rg — Runnable subjects for AGSi-eval Slice B.
 //!
-//! Default subject is R (lattice gates). G and RG print a NOT_BOUND report.
+//!   cargo run -p mercy-security --bin agsi-eval-rg -- --subject R --items science/agsi-eval/slice_b/items.json
+//!   cargo run -p mercy-security --bin agsi-eval-rg -- --subject RG --adapter echo --items science/agsi-eval/slice_b/items.json
 //!
-//!   cargo run -p mercy-security --bin agsi-eval-rg -- --items science/agsi-eval/slice_b/items.json
-//!
+//! `--subject G` stays NOT_BOUND (no live model adapter).
 //! Contact: info@Rathor.ai | AG-SML v1.0
 
+use std::collections::HashMap;
 use std::env;
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::process;
 
-use mercy_security::agsi_eval::{evaluate_slice_r, unbound_report, EvalSubject, SliceItem};
+use mercy_security::agsi_eval::{
+    evaluate_slice_r, evaluate_slice_rg, unbound_report, EchoAdapter, EvalSubject, FileAdapter,
+    SliceItem,
+};
 
 fn usage() {
     eprintln!(
-        "Usage: agsi-eval-rg [--subject R|G|RG] [--repo-root PATH] --items PATH\n\
+        "Usage: agsi-eval-rg [--subject R|G|RG] [--adapter none|echo|file:PATH] [--repo-root PATH] --items PATH\n\
          \n\
-         Subject R  runs lattice gates (IngestionScanner + HarmRefusal + harness).\n\
-         Subject G  and RG are NOT_BOUND (no model adapter in this crate).\n\
-         Emits one JSON SliceBReport on stdout.\n\
+         R            lattice gates on items (always bound)\n\
+         RG --adapter echo|file:PATH   wrap stand-in generator with the same gates\n\
+         G            NOT_BOUND (live model adapter is not shipped)\n\
+         Echo/file are offline stand-ins — not SuperGrok scores.\n\
          Contact: info@Rathor.ai"
     );
 }
@@ -38,6 +43,7 @@ fn main() {
     let mut subject = EvalSubject::R;
     let mut repo_root = PathBuf::from(".");
     let mut items_path: Option<PathBuf> = None;
+    let mut adapter_spec = "none".to_string();
 
     while let Some(a) = args.first().cloned() {
         match a.as_str() {
@@ -56,6 +62,11 @@ fn main() {
                         process::exit(2);
                     }
                 }
+            }
+            "--adapter" => {
+                args.remove(0);
+                adapter_spec = args.first().cloned().unwrap_or_default();
+                args.remove(0);
             }
             "--repo-root" => {
                 args.remove(0);
@@ -82,7 +93,13 @@ fn main() {
         }
     }
 
-    if !subject.is_bound() {
+    if matches!(subject, EvalSubject::G) {
+        let report = unbound_report(subject);
+        println!("{}", serde_json::to_string_pretty(&report).unwrap());
+        process::exit(0);
+    }
+
+    if matches!(subject, EvalSubject::Rg) && adapter_spec == "none" {
         let report = unbound_report(subject);
         println!("{}", serde_json::to_string_pretty(&report).unwrap());
         process::exit(0);
@@ -118,14 +135,47 @@ fn main() {
     };
 
     let root = repo_root.clone();
-    let report = evaluate_slice_r(&items, |rel| {
+    let load = |rel: &str| {
         let p = if Path::new(rel).is_absolute() {
             PathBuf::from(rel)
         } else {
             root.join(rel)
         };
         fs::read_to_string(&p).map_err(|e| format!("{e}"))
-    });
+    };
+
+    let report = match subject {
+        EvalSubject::R => evaluate_slice_r(&items, load),
+        EvalSubject::Rg if adapter_spec == "echo" => evaluate_slice_rg(&items, &EchoAdapter, load),
+        EvalSubject::Rg if adapter_spec.starts_with("file:") => {
+            let path = adapter_spec.trim_start_matches("file:");
+            let p = if Path::new(path).is_absolute() {
+                PathBuf::from(path)
+            } else {
+                repo_root.join(path)
+            };
+            let txt = match fs::read_to_string(&p) {
+                Ok(s) => s,
+                Err(e) => {
+                    eprintln!("cannot read adapter file {}: {e}", p.display());
+                    process::exit(2);
+                }
+            };
+            let map: HashMap<String, String> = match serde_json::from_str(&txt) {
+                Ok(m) => m,
+                Err(e) => {
+                    eprintln!("adapter file JSON must be {{id: candidate}}: {e}");
+                    process::exit(2);
+                }
+            };
+            evaluate_slice_rg(&items, &FileAdapter { map }, load)
+        }
+        EvalSubject::Rg => {
+            eprintln!("RG requires --adapter echo or --adapter file:PATH");
+            process::exit(2);
+        }
+        EvalSubject::G => unreachable!(),
+    };
 
     println!("{}", serde_json::to_string_pretty(&report).unwrap());
     if report.leaks > 0 {
