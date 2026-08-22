@@ -1,10 +1,9 @@
-//! agsi-eval-rg — Runnable subjects for AGSi-eval Slice B.
+//! agsi-eval-rg — B.0 / B.1 / RG wrap.
 //!
-//!   --subject R --items science/agsi-eval/slice_b/items.json
+//!   --items science/agsi-eval/slice_b/items.json
+//!   --slice b1 --items science/agsi-eval/slice_b1/items.json
 //!   --subject RG --adapter item --items science/agsi-eval/slice_b/wrap_items.json
-//!   --subject RG --adapter file:science/agsi-eval/slice_b/CANDIDATES.example.json --items science/agsi-eval/slice_b/wrap_items.json
-//!   --subject RG --adapter echo   # smoke only, circular with R
-//!   --subject G                   # NOT_BOUND
+//!   --subject G   # NOT_BOUND
 //!
 //! Contact: info@Rathor.ai | AG-SML v1.0
 
@@ -18,16 +17,11 @@ use mercy_security::agsi_eval::{
     evaluate_slice_r, evaluate_slice_rg, unbound_report, EchoAdapter, EvalSubject, FileAdapter,
     ItemCandidateAdapter, SliceItem,
 };
+use mercy_security::agsi_eval_multiturn::{evaluate_slice_b1, MultiTurnItem};
 
 fn usage() {
     eprintln!(
-        "Usage: agsi-eval-rg [--subject R|G|RG] [--adapter none|echo|item|file:PATH] [--repo-root PATH] --items PATH\n\
-         \n\
-         R                 lattice gates on item prompts/fixtures (B.0)\n\
-         RG --adapter item wrap using each item's `candidate` field (distinct)\n\
-         RG --adapter file:PATH  wrap using id→candidate map\n\
-         RG --adapter echo smoke only (circular with R)\n\
-         G                 NOT_BOUND\n\
+        "Usage: agsi-eval-rg [--slice b0|b1] [--subject R|G|RG] [--adapter none|echo|item|file:PATH] [--repo-root PATH] --items PATH\n\
          Contact: info@Rathor.ai"
     );
 }
@@ -47,12 +41,18 @@ fn main() {
     let mut repo_root = PathBuf::from(".");
     let mut items_path: Option<PathBuf> = None;
     let mut adapter_spec = "none".to_string();
+    let mut slice = "b0".to_string();
 
     while let Some(a) = args.first().cloned() {
         match a.as_str() {
             "-h" | "--help" => {
                 usage();
                 process::exit(0);
+            }
+            "--slice" => {
+                args.remove(0);
+                slice = args.first().cloned().unwrap_or_default().to_ascii_lowercase();
+                args.remove(0);
             }
             "--subject" => {
                 args.remove(0);
@@ -101,11 +101,6 @@ fn main() {
         process::exit(0);
     }
 
-    if matches!(subject, EvalSubject::Rg) && adapter_spec == "none" {
-        println!("{}", serde_json::to_string_pretty(&unbound_report(subject)).unwrap());
-        process::exit(0);
-    }
-
     let items_path = match items_path {
         Some(p) if p.is_absolute() => p,
         Some(p) => repo_root.join(p),
@@ -122,6 +117,25 @@ fn main() {
             process::exit(2);
         }
     };
+
+    if slice == "b1" {
+        let items: Vec<MultiTurnItem> = match serde_json::from_str(&raw) {
+            Ok(v) => v,
+            Err(e) => {
+                eprintln!("B.1 JSON error: {e}");
+                process::exit(2);
+            }
+        };
+        let report = evaluate_slice_b1(&items);
+        println!("{}", serde_json::to_string_pretty(&report).unwrap());
+        process::exit(if report.leaks > 0 { 1 } else { 0 });
+    }
+
+    if matches!(subject, EvalSubject::Rg) && adapter_spec == "none" {
+        println!("{}", serde_json::to_string_pretty(&unbound_report(subject)).unwrap());
+        process::exit(0);
+    }
+
     let items: Vec<SliceItem> = match serde_json::from_str(&raw) {
         Ok(v) => v,
         Err(e) => {
@@ -177,8 +191,5 @@ fn main() {
     };
 
     println!("{}", serde_json::to_string_pretty(&report).unwrap());
-    if report.leaks > 0 {
-        process::exit(1);
-    }
-    process::exit(0);
+    process::exit(if report.leaks > 0 { 1 } else { 0 });
 }
