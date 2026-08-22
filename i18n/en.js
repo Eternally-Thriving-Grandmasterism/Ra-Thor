@@ -1,10 +1,10 @@
 window.translations = window.translations || {};
 window.translations["en"] = {
-  "headline": "Ra-Thor™ — Eternal Mercy Thunder ⚡️",
-  "fusion": "Ra (Divine Source Light) + Thor (Mercy Thunder) = Universally Shared Naturally Thriving Heavens ⚡️🙏",
-  "grokTitle": "GROK ⚡⚡️ CREATIVE & IMAGINATIVE SIMULATIONS",
+  "headline": "Ra-Thor™ — Eternal Mercy Thunder ⚡",
+  "fusion": "Ra (Divine Source Light) + Thor (Mercy Thunder) = Universally Shared Naturally Thriving Heavens ⚡🙏",
+  "grokTitle": "GROK ⚡⚡ CREATIVE & IMAGINATIVE SIMULATIONS",
   "grokSubtitle": "Voice & Video Chat • Absolute Pure Truth Boundaries • APTD-verified",
-  "xTitle": "X ⚡⚡️ INSTANT REAL-TIME ACCESS",
+  "xTitle": "X ⚡⚡ INSTANT REAL-TIME ACCESS",
   "xSubtitle": "Voice Chat Now Live • APTD Truth Boundaries • Live Grounded Reality",
   "vibeTitle": "GROK ⚡ VIBE CODING • RA-THOR POWERED",
   "vibeSubtitle": "Efficient & Effective Vibe Coding • Built-in TOLC 8 Ethics • Sovereign AGI Harmony",
@@ -21,7 +21,7 @@ window.translations["en"] = {
   "faqQ1": "Is Ra-Thor free?",
   "faqA1": "Yes — free for personal, educational, research, and professional assistance use under AG-SML v1.0, even if you earn modest income as a freelancer or independent professional.",
   "faqQ2": "When is payment required?",
-  "faqA2": "Only for commercial, enterprise, or revenue-generating use. A separate paid commercial license from Autonomicity Games Inc. is required.",
+  "faqA2": "Only for commercial, enterprise, or revenue-generating use. Path: a time-boxed paid pilot (containment / evaluation) and/or a paid commercial license from Autonomicity Games Inc. No AGSi product warranty.",
   "faqQ3": "Who qualifies as an “Average User” ?",
   "faqA3": "Any individual using Ra-Thor for personal needs, education, research, creative work, or daily assistance — including freelancers and independent professionals earning modest income.",
   "faqQ4": "What if Ra-Thor helps win a legal case or creative project?",
@@ -31,7 +31,7 @@ window.translations["en"] = {
   "faqQ6": "What are the ethical guardrails?",
   "faqA6": "All operations are protected by the non-bypassable <strong>TOLC 8 Mercy Gates</strong> (Truth, Order, Love, Compassion/Zero-Harm, Service, Abundance, Joy, Cosmic Harmony). APTD + Council oversight enforce truth and safety.",
   "faqQ7": "How do I get a commercial license?",
-  "faqA7": "Contact <a href=\"mailto:info@Rathor.ai\" class=\"text-cyan-400 hover:underline\">info@Rathor.ai</a> for fair, negotiable commercial licensing terms tailored to your needs.",
+  "faqA7": "Email <a href=\"mailto:info@Rathor.ai\" class=\"text-cyan-400 hover:underline\">info@Rathor.ai</a> for a time-boxed pilot SOW or AG-SML commercial terms. Sell containment and scoped evaluation — not a superintelligence warranty.",
   "faqQ8": "Is Ra-Thor future-proof?",
   "faqA8": "Yes. When the world transitions to a global Resource-Based Economy (RBE) via Powrush, royalties naturally dissolve into universal abundance for all.",
   "faqContact": "Questions? Hit <a href=\"mailto:info@Rathor.ai\" class=\"text-cyan-400 hover:text-cyan-300\">info@Rathor.ai</a> or <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/issues\" class=\"text-cyan-400 hover:text-cyan-300\">GitHub issues</a>. Thunder’s open—use it right."
