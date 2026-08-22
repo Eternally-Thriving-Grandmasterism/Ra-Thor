@@ -1,6 +1,6 @@
 # Program 2 — Sensitivity Table v0
 
-**Status:** First Band-B engineering artifact  
+**Status:** First Band-B engineering artifact (+ micro-increment)  
 **Contact:** info@Rathor.ai  
 **Doctrine:** `docs/science/PROOF_LADDER_DOCTRINE.md`  
 **Claim tier:** Engineering only · **Not** a discovery · **Not** flight-certified
@@ -50,7 +50,19 @@ No new transport calculation was performed for v0.
 Liquid hydrogen ≳ polyethylene / water ≳ aluminum ≳ higher-Z structural metals  
 (on a mass basis for GCR dose-equivalent reduction under the modeled conditions).
 
-Exact percentage reductions vary widely (roughly 10–45 % at 20–30 g cm⁻² depending on solar cycle, quality factor, organ, and code). v0 therefore reports **ranking and qualitative shape**, not a single universal number.
+---
+
+## 3.1 Concrete literature-extracted points (illustrative only)
+
+These are **order-of-magnitude observations** drawn from the published ranges already referenced in `DATA_SOURCES.md`. They are **not** design values.
+
+| Source class | Observation (paraphrased from literature) | Caveat |
+|--------------|-------------------------------------------|--------|
+| Modern GEANT4 / phantom-style studies | At ~30 g cm⁻², polyethylene dose-equivalent reduction often reported in the roughly 30–45 % band under solar-minimum conditions (depending on quality factor and organ); aluminum at the same areal density typically lower | Strongly sensitive to solar cycle, Q-factor definition, and exact geometry |
+| Classic + HZETRN-family results | Aluminum frequently shows a local minimum in dose equivalent near ~20 g cm⁻²; further thickness can increase dose equivalent because of secondary neutron production | Geometry and transport-code dependent; not universal |
+| Comparative material studies | Hydrogen-rich materials (polyethylene, water, liquid hydrogen) consistently rank above aluminum on a **mass** basis for GCR dose-equivalent reduction | Structural, thermal, and fire properties are separate engineering constraints |
+
+Exact percentages move by tens of percent across solar-min vs solar-max, ICRP vs NASA quality factors, and slab vs realistic habitat geometries. Therefore this track continues to emphasize **ranking and shape**, not a single universal number.
 
 ---
 
@@ -77,8 +89,8 @@ Exact percentage reductions vary widely (roughly 10–45 % at 20–30 g cm⁻² 
 
 ## 6. Next honest increments (only if steward opens further scope)
 
-- Extract specific numerical points from a single cited figure/table and reproduce them exactly.
-- Add a second table for a reference SPE spectrum.
+- Extract specific numerical points from a single cited figure/table and reproduce them exactly with page/figure reference.
+- Add a second table for a reference SPE spectrum under the same rules.
 - Add a simple areal-density → estimated relative dose column under one fixed published assumption set.
 - Never promote any number to “design value” without partner dosimetry.
 
