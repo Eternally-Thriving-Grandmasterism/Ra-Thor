@@ -51,7 +51,7 @@
 
       <a id="btn-lastresort"
          class="text-xs text-white/40 hover:text-white/70 underline"
-         href="https://x.com/i/grok/share/3e68b97333674640aa6186d31589f5ac"
+         href="https://x.com/i/grok/share/689402e8965c41778335d66aabef948a"
          target="_blank" rel="noopener noreferrer">Last resort: direct link (may open X app)</a>
 
       <a href="/" class="text-sm text-amber-300/80 hover:text-amber-200 underline">← Back to Rathor.ai</a>
@@ -67,7 +67,7 @@
 
   <script>
     (function () {
-      var SHARE_ID = '3e68b97333674640aa6186d31589f5ac';
+      var SHARE_ID = '689402e8965c41778335d66aabef948a';
       var TARGET = 'https://x.com/i/grok/share/' + SHARE_ID;
       var hostPath = 'x.com/i/grok/share/' + SHARE_ID;
       var fallback = encodeURIComponent(TARGET);
@@ -80,8 +80,6 @@
         );
       }
 
-      // Pin to known browser packages — never leave resolution to the system chooser
-      // (system chooser often prefers the X app).
       var INTENT = {
         chrome:  browserIntent('com.android.chrome'),
         edge:    browserIntent('com.microsoft.emmx'),
@@ -108,7 +106,6 @@
         if (statusEl) statusEl.textContent = msg || '';
       }
 
-      /** Prefer a real browser tab/window. Never use bare location = x.com on mobile. */
       function openInBrowserWindow() {
         var w = null;
         try {
@@ -119,7 +116,6 @@
           setStatus('Opened in a new browser window/tab.');
           return true;
         }
-        // Popup blocked or failed — fall back to same-tab only on desktop
         if (!isAndroid && !isIOS) {
           window.location.href = TARGET;
           return true;
@@ -146,7 +142,6 @@
       });
 
       if (isAndroid) {
-        // Primary = Chrome package Intent (skips X app).
         btnPrimary.href = INTENT.chrome;
         btnPrimary.textContent = 'Open in Chrome (new browser)';
         btnPrimary.removeAttribute('target');
@@ -160,12 +155,10 @@
         });
 
         setStatus('Routing to Chrome browser…');
-        // Auto-fire Chrome Intent only — never bare https://x.com on Android.
         setTimeout(function () {
           window.location.href = INTENT.chrome;
         }, 180);
       } else {
-        // iOS + desktop: open a new browser window/tab (no Intent APIs).
         btnPrimary.href = TARGET;
         btnPrimary.setAttribute('target', '_blank');
         btnPrimary.setAttribute('rel', 'noopener noreferrer');
@@ -173,14 +166,12 @@
           ? 'Open in Safari / browser (new tab)'
           : 'Open in browser (new window)';
 
-        // Intercept primary click so we always go through window.open when possible.
         btnPrimary.addEventListener('click', function (e) {
           e.preventDefault();
           openInBrowserWindow();
         });
 
         if (!isIOS) {
-          // Desktop: auto-open new window once (user already tapped the site card).
           setStatus('Opening browser window…');
           setTimeout(function () {
             openInBrowserWindow();
