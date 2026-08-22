@@ -71,6 +71,11 @@
         '<a href="https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/docs/COMMERCIAL_TARGET_SEGMENTS.md" class="hover:text-amber-200 font-semibold text-cyan-300/90">Commercial target segments</a>'
       );
     }
+    document.querySelectorAll('a[href="/chat.html"]').forEach(function (a) {
+      if (a.textContent && a.textContent.indexOf('v14.18') === -1) {
+        a.innerHTML = a.innerHTML.replace('Offline Lattice Chat', 'Offline Lattice Chat v14.18');
+      }
+    });
     console.info('[Ra-Thor] site-lock-2026-08-22 applied');
   });
 })();
