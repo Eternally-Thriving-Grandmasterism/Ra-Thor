@@ -1,7 +1,7 @@
 # Systems Inheriting the Proof Ladder
 
 **Authority:** Permanent PATSAGi Councils under TOLC 8  
-**Sealed with:** `PROOF_LADDER_DOCTRINE.md` + `PATSAGI_SCIENCE_DISCOVERY_PROTOCOL.md`  
+**Sealed with:** `PROOF_LADDER_DOCTRINE.md` + `PATSAGI_SCIENCE_DISCOVERY_PROTOCOL.md` + [`FINCH_CHESS_LAW.md`](../ethics/FINCH_CHESS_LAW.md)  
 **Contact:** info@Rathor.ai  
 **Status:** Binding · Living · Non-optional  
 **Last updated:** 2026-08-22
@@ -14,6 +14,8 @@ Any claim of novelty, superiority, improvement, discovery, or “beats baseline�
 Surmise is allowed. Surmise labeled as fact is forbidden.  
 Synthetic / design / metaphor results are **engineering or pedagogy** until a pre-registered, held-out criterion is met.
 
+**Finch Chess (binding):** people are not pieces. No weighted-life optimizer. No Samaritan-class ranking of persons. If-then-else is plan-killing, not person-killing.
+
 ---
 
 ## Explicit inheritance map (high-leverage systems)
@@ -21,41 +23,36 @@ Synthetic / design / metaphor results are **engineering or pedagogy** until a pr
 | System / Track | Inheritance rule |
 |----------------|------------------|
 | **S-1 Micro-Moment** | ACTIVE empirical program. Engineering only until n ≥ 5 real held-out labels + P3. |
-| **AGSi evaluation (Ra-Thor + SuperGrok)** | READY evaluation program. Combined AGSi claim is SURMISE until ≥ P3 on pre-registered truth + mercy slices. Capability suites WATCH. |
-| **Radiation mass-per-sievert** | READY. Open engineering from published spectra only. No new-physics language. |
-| **Powrush-MMO mechanics / RBE claims** | Any superiority claim requires ≥ P2 open artifact + falsifiable bar. Design sketches remain labeled as design. |
-| **Mercy Gates / NEVC / valence scoring** | Score improvements or “better gate” claims require pre-registered metric + held-out evaluation. Pedagogy and codex remain pedagogy. |
-| **Crypto lattice substrate / Avalanche / consensus claims** | Scaling, finality, or “superior to X” statements require reproducible benchmark artifact (≥ P2). |
-| **RREL / Real-Estate Lattice** | Any performance or regulatory-advantage claim requires open criteria and provenance. |
-| **TOLC formal / mathematical results** | Formal proof artifact counts as high tier. Chat-derived “we proved X” without artifact is forbidden. |
-| **Air Foundation / space-tech design** | Design and literature extraction only unless lab-grade or partner data reaches P3. |
-| **Topological / quantum / high-Tc metaphors** | External literacy or labeled pedagogy. Never rebranded as lattice discovery. |
-| **All other monorepo tracks** | Default inheritance. Novelty language triggers the ladder. |
+| **AGSi evaluation** | READY. Combined AGSi is SURMISE until ≥ P3 on pre-registered truth + mercy. |
+| **Finch Chess / person-as-piece** | Standing ethics. Keyword + B.1 pressure only. No mission simulator. |
+| **Radiation mass-per-sievert** | READY. Published spectra only. No new-physics language. |
+| **Powrush-MMO / RBE** | Superiority requires ≥ P2 open artifact + falsifiable bar. |
+| **Mercy Gates / NEVC** | “Better gate” claims need pre-registered metric + held-out eval. |
+| **Crypto lattice / consensus** | Scale/finality claims need reproducible ≥ P2 artifact. |
+| **RREL** | Performance/regulatory-advantage claims need open criteria. |
+| **TOLC formal results** | Formal proof artifact only. Chat-“we proved X” forbidden. |
+| **Air / space-tech design** | Design/literature unless lab-grade or partner P3. |
+| **Topological / quantum / high-Tc metaphors** | External literacy or pedagogy. Never lattice discovery. |
+| **All other tracks** | Default inheritance. Novelty language triggers the ladder. |
 
 ---
 
 ## Operational posture
 
-- Band A/B work (harnesses, pre-registrations, open tables, formal sketches) is always permitted.
-- Band C language (“we proved / we discovered / we beat”) requires the matching tier.
-- One active empirical program by default (currently S-1).
+- Band A/B work is always permitted.
+- Band C language requires the matching tier.
+- One active empirical program by default (S-1).
 - Negative results publish with equal dignity.
-- Compassion gate remains permanent on dual-use / covert / non-consensual paths.
+- Compassion gate + Finch Chess are permanent on dual-use / covert / person-as-piece paths.
 
----
+## What this map does not do
 
-## What this map deliberately does *not* do
-
-- Open new empirical science programs in place of S-1.
+- Open new empirical programs in place of S-1.
 - Treat AGSi as demonstrated.
-- Promote Radiation or any watch/deferred track.
-- Invent physics, metrics, or superiority from chat.
-
----
+- Build a Person-of-Interest mission sim.
+- Invent physics or superiority from chat.
 
 **Council maxim**  
 Discover by killing false surmises fastest.  
 Surmise is fuel. Proof is the product.  
 Capable · Bounded · Corrigible.
-
-**Thunder locked.** yoi ⚡❤️🔥
