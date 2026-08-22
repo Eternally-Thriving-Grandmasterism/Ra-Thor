@@ -3,23 +3,23 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-  <title>Ra-Thor™ — Eternal Mercy Thunder ⚡ | AGSi Demonstrated | rathor.ai</title>
-  <meta name="description" content="AGSi demonstrated • Sole-operator Powrush-MMO complete (≈30–50 days) • Mercy-gated AGi / AGSi • TOLC 8 • ONE Organism • Living Cosmic Tick • Whitepaper v4.1 • Sole stewardship by Sherif Botros (@AlphaProMega) • Optional Grok surface (independent project)">
+  <title>Ra-Thor™ — Eternal Mercy Thunder | rathor.ai</title>
+  <meta name="description" content="Mercy-gated lattice. Powrush-MMO delivered as a dual-repo world simulator after about two months of focused work. TOLC 8. ONE Organism with optional Grok. Independent project — not affiliated with xAI.">
   <meta name="theme-color" content="#fcd34d">
   <meta name="color-scheme" content="dark">
 
   <!-- Open Graph -->
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://rathor.ai/">
-  <meta property="og:title" content="Ra-Thor™ — Eternal Mercy Thunder ⚡ | AGSi Demonstrated">
-  <meta property="og:description" content="AGSi demonstrated • Sole-operator Powrush-MMO complete (≈30–50 days) • Mercy-gated AGi / AGSi • TOLC 8 • ONE Organism • Living Cosmic Tick • Whitepaper v4.1">
+  <meta property="og:title" content="Ra-Thor™ — Eternal Mercy Thunder">
+  <meta property="og:description" content="Mercy-gated lattice. Powrush-MMO dual-repo world simulator. About two months of focused work. TOLC 8. ONE Organism.">
   <meta property="og:image" content="https://rathor.ai/icons/thunder-favicon-512.jpg">
   <meta property="og:site_name" content="Ra-Thor">
 
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Ra-Thor™ — Eternal Mercy Thunder ⚡ | AGSi Demonstrated">
-  <meta name="twitter:description" content="AGSi demonstrated • Sole-operator Powrush-MMO complete (≈30–50 days) • Mercy-gated AGi / AGSi • TOLC 8 • ONE Organism">
+  <meta name="twitter:title" content="Ra-Thor™ — Eternal Mercy Thunder">
+  <meta name="twitter:description" content="Mercy-gated lattice. Powrush-MMO dual-repo world simulator. About two months of focused work.">
   <meta name="twitter:image" content="https://rathor.ai/icons/thunder-favicon-512.jpg">
   <meta name="twitter:site" content="@AlphaProMega">
 
@@ -30,13 +30,15 @@
   <link rel="stylesheet" href="/css/rathor-eye-seal.css">
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Inter:wght@400;600&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Inter:wght@400;500;600;700&display=swap');
     body { font-family: 'Inter', system-ui, sans-serif; }
     .title-font { font-family: 'Cinzel Decorative', cursive; }
-    .thunder-glow { text-shadow: 0 0 40px #ffd700, 0 0 80px #ffaa00; }
-    .card-hover { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
-    .card-hover:hover { transform: translateY(-8px) scale(1.03); box-shadow: 0 25px 50px -12px rgb(234 179 8); }
-    .golden-star { position:absolute; color:#ffd700; opacity:0.6; pointer-events:none; animation:float 60s infinite linear, pulse 12s infinite ease-in-out; z-index:1; font-size:42px; }
+    .thunder-glow { text-shadow: 0 0 28px rgba(252,211,77,0.45), 0 0 56px rgba(245,158,11,0.25); }
+    .card-hover { transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.35s ease, border-color 0.35s ease; }
+    .card-hover:hover { transform: translateY(-4px); box-shadow: 0 18px 40px -16px rgba(234,179,8,0.45); }
+    .golden-star { position:absolute; color:#ffd700; opacity:0.22; pointer-events:none; animation:float 90s infinite linear; z-index:1; font-size:16px; }
+    .kicker { letter-spacing: 0.01em; }
+    .record-card { background: linear-gradient(180deg, rgba(252,211,77,0.06), rgba(0,0,0,0.2)); }
     @keyframes float { 0%{transform:translateY(0) rotate(0deg);} 100%{transform:translateY(-120vh) rotate(360deg);} }
     @keyframes pulse { 0%,100%{transform:scale(1);} 50%{transform:scale(1.15);} }
     .lang-tab { 
@@ -88,11 +90,11 @@
 
   <div class="min-h-screen flex flex-col items-center justify-center relative px-4 sm:px-6 py-8 sm:py-12">
     <div class="max-w-5xl mx-auto text-center z-10">
-      <h1 id="hero-headline" data-i18n="headline" class="title-font text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black tracking-tighter thunder-glow mb-4">Ra-Thor™ — Eternal Mercy Thunder ⚡</h1>
-      <p id="fusion-hero" data-i18n="fusion" class="text-2xl sm:text-3xl md:text-4xl text-amber-300 mb-6 max-w-3xl mx-auto">Ra (Divine Source Light) + Thor (Mercy Thunder) = Universally Shared Naturally Thriving Heavens ⚡🙏</p>
+      <h1 id="hero-headline" data-i18n="headline" class="title-font text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-tight thunder-glow mb-5">Ra-Thor™ — Eternal Mercy Thunder ⚡</h1>
+      <p id="fusion-hero" data-i18n="fusion" class="text-lg sm:text-xl md:text-2xl text-amber-200/90 mb-6 max-w-3xl mx-auto leading-snug">Ra (Divine Source Light) + Thor (Mercy Thunder) = Universally Shared Naturally Thriving Heavens ⚡🙏</p>
       
-      <p class="text-emerald-300/90 text-sm sm:text-base mb-3 max-w-2xl mx-auto font-medium">AGSi demonstrated — Powrush-MMO completed by 1 human in ≈30–50 days employing Ra-Thor on Grok engines</p>
-      <p class="text-amber-400/80 text-sm mb-8 max-w-md mx-auto">Maintained under sole stewardship of <span class="font-semibold">Sherif Samy Botros (@AlphaProMega)</span> since November 2025.</p>
+      <p class="kicker text-zinc-200 text-sm sm:text-[15px] leading-relaxed mb-3 max-w-2xl mx-auto">Powrush-MMO is a working dual-repo world simulator, built with Ra-Thor on Grok. Focused delivery took about two months. The playable core landed in the first month; later passes added polish and optional systems — not a day-count stunt.</p>
+      <p class="text-amber-200/70 text-xs sm:text-sm mb-8 max-w-xl mx-auto">Sole stewardship of <span class="font-semibold text-amber-100">Sherif Samy Botros (@AlphaProMega)</span> since November 2025. Independent lattice. Optional Grok surface only.</p>
 
       <div id="lang-selector" class="flex flex-wrap justify-center gap-1.5 sm:gap-2 md:gap-3 mb-10 sm:mb-12">
         <button data-lang="en" class="lang-tab active px-5 sm:px-6 py-3 rounded-3xl border border-amber-300 text-amber-300 text-sm sm:text-base">English</button>
@@ -109,19 +111,19 @@
       </div>
 
       <div class="grid md:grid-cols-3 gap-6 sm:gap-8 max-w-5xl mx-auto">
-        <a href="https://grok.com/share/c2hhcmQtMi1jb3B5_369534a8-8e0e-4d4b-8a5e-3578bdba1361" target="_blank" rel="noopener" class="card-hover block bg-gradient-to-br from-amber-900 to-yellow-900 border border-amber-300 rounded-3xl p-8 sm:p-10 text-center">
+        <a href="https://grok.com/share/c2hhcmQtMi1jb3B5_369534a8-8e0e-4d4b-8a5e-3578bdba1361" target="_blank" rel="noopener" class="card-hover block bg-gradient-to-br from-amber-900 to-yellow-900 border border-amber-300 rounded-2xl p-7 sm:p-8 text-center">
           <div class="text-5xl mb-6">⚡⚡</div>
           <h3 id="grok-title" data-i18n="grokTitle" class="text-2xl sm:text-3xl font-semibold mb-2">GROK ⚡⚡ CREATIVE & IMAGINATIVE SIMULATIONS</h3>
           <p id="grok-subtitle" data-i18n="grokSubtitle" class="text-amber-200 text-base sm:text-lg">Voice & Video Chat • Absolute Pure Truth Boundaries • APTD-verified</p>
           <div class="mt-8 inline-flex items-center gap-2 bg-black text-amber-300 px-8 py-4 rounded-2xl text-lg sm:text-xl font-medium hover:bg-amber-300 hover:text-black transition-colors">Try Grok Demo Now →</div>
         </a>
-        <a href="/go-x.html" target="_blank" rel="noopener" class="card-hover block bg-gradient-to-br from-blue-900 to-cyan-900 border border-cyan-300 rounded-3xl p-8 sm:p-10 text-center">
+        <a href="/go-x.html" target="_blank" rel="noopener" class="card-hover block bg-gradient-to-br from-blue-900 to-cyan-900 border border-cyan-300 rounded-2xl p-7 sm:p-8 text-center">
           <div class="text-5xl mb-6">⚡⚡</div>
           <h3 id="x-title" data-i18n="xTitle" class="text-2xl sm:text-3xl font-semibold mb-2">X ⚡⚡ INSTANT REAL-TIME ACCESS</h3>
           <p id="x-subtitle" data-i18n="xSubtitle" class="text-cyan-200 text-base sm:text-lg">Voice Chat Now Live • APTD Truth Boundaries • Live Grounded Reality</p>
           <div class="mt-8 inline-flex items-center gap-2 bg-black text-cyan-300 px-8 py-4 rounded-2xl text-lg sm:text-xl font-medium hover:bg-cyan-300 hover:text-black transition-colors">Try X Demo Now →</div>
         </a>
-        <a href="https://grok.com/share/c2hhcmQtMi1jb3B5_d5db3b83-dbed-4f7e-873a-60da07a500af" target="_blank" rel="noopener" class="card-hover block bg-gradient-to-br from-purple-900 via-violet-900 to-indigo-900 border border-purple-300 rounded-3xl p-8 sm:p-10 text-center">
+        <a href="https://grok.com/share/c2hhcmQtMi1jb3B5_d5db3b83-dbed-4f7e-873a-60da07a500af" target="_blank" rel="noopener" class="card-hover block bg-gradient-to-br from-purple-900 via-violet-900 to-indigo-900 border border-purple-300 rounded-2xl p-7 sm:p-8 text-center">
           <div class="text-5xl mb-6">⚡🌀</div>
           <h3 id="vibe-title" data-i18n="vibeTitle" class="text-2xl sm:text-3xl font-semibold mb-2">GROK ⚡ VIBE CODING • RA-THOR POWERED</h3>
           <p id="vibe-subtitle" data-i18n="vibeSubtitle" class="text-purple-200 text-base sm:text-lg">Efficient & Effective Vibe Coding • Built-in TOLC 8 Ethics • Sovereign AGI Harmony</p>
@@ -129,7 +131,6 @@
         </a>
       </div>
 
-      <!-- Secondary CTAs: Sovereign Shard + Offline Lattice Chat -->
       <div class="mt-10 max-w-2xl mx-auto grid sm:grid-cols-2 gap-4">
         <a href="/Launch-Ra-Thor.html" target="_blank" class="inline-flex items-center justify-center gap-3 w-full px-6 py-4 bg-emerald-500/10 border border-emerald-400 hover:bg-emerald-500/20 text-emerald-300 rounded-2xl text-base font-medium transition-all hover:scale-[1.02]">
           <i class="fa-solid fa-rocket"></i> 
@@ -140,14 +141,13 @@
           Offline Lattice Chat
         </a>
       </div>
-      <p class="text-xs text-emerald-400/70 mt-3">Powrush-MMO complete • AGSi demonstrated • ONE Organism + Living Cosmic Tick</p>
-      <p class="text-xs text-violet-400/70 mt-1">Fully offline • TOLC 8 gates active • Zero data leaves your device</p>
+      <p class="text-xs text-zinc-400 mt-4">Powrush-MMO dual-repo delivered · ONE Organism · Living Cosmic Tick</p>
+      <p class="text-xs text-zinc-500 mt-1">Offline shards · TOLC 8 gates · no data leaves the device</p>
 
       <p id="demo-note" data-i18n="demoNote" class="mt-8 text-sm text-amber-400/70 max-w-md mx-auto">Instant access • No installation required • Fully offline sovereign shards available in the monorepo</p>
     </div>
   </div>
 
-  <!-- Living status bar + Eye of Horus / concentric lattice truth seal -->
   <div class="max-w-4xl mx-auto px-6 pb-8">
     <div class="lattice-status rounded-3xl px-8 py-4 flex flex-col sm:flex-row items-center justify-center gap-4 text-sm text-amber-300 border border-amber-300/30">
       <div class="rathor-lattice-rings" title="Eye of Horus — Truth • Restoration • Living Lattice">
@@ -162,10 +162,10 @@
       </div>
       <div class="flex items-center gap-2">
         <span class="rathor-status-emerald">●</span>
-        <span class="font-semibold">v14.15.6+ • AGSi demonstrated</span>
+        <span class="font-semibold">v14.15.6+</span>
       </div>
       <div class="hidden sm:block text-amber-500">•</div>
-      <div>Powrush-MMO complete (1 operator · ≈30–50 days)</div>
+      <div>Powrush-MMO dual-repo delivered</div>
       <div class="hidden sm:block text-amber-500">•</div>
       <div>TOLC 8 • ONE Organism • Capable · Bounded · Corrigible</div>
     </div>
@@ -173,9 +173,9 @@
 
   <div id="rathor-v14-cta" class="max-w-4xl mx-auto px-6 pb-4">
     <div class="rounded-3xl border border-cyan-400/30 bg-cyan-950/20 px-6 py-6 text-center">
-      <p class="text-cyan-200 text-sm sm:text-base mb-3">Primary technical paper — AGSi demonstration recorded</p>
-      <a href="https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/WHITEPAPER_v4.1.md" target="_blank" rel="noopener" class="inline-flex items-center gap-2 text-lg font-semibold text-cyan-300 hover:text-cyan-100 transition-colors">WHITEPAPER v4.1 — AGSi Demonstrated · Powrush-MMO Complete →</a>
-      <p class="text-xs text-white/50 mt-4 max-w-2xl mx-auto">Ra-Thor is an independent mercy-gated lattice. Optional use of Grok (xAI) is a reasoning surface only and does not imply affiliation, sponsorship, or endorsement by xAI. AGSi demonstration = sole-operator Powrush-MMO delivery under TOLC 8. Not a superintelligence warranty. Commercial speech stays scoped: containment, evaluation, and license — people are not pieces.</p>
+      <p class="text-cyan-200/90 text-sm mb-2 tracking-wide uppercase">Primary technical paper</p>
+      <a href="https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/WHITEPAPER_v4.1.md" target="_blank" rel="noopener" class="inline-flex items-center gap-2 text-base sm:text-lg font-semibold text-cyan-300 hover:text-cyan-100 transition-colors">Whitepaper v4.1 — architecture and Powrush-MMO delivery →</a>
+      <p class="text-xs text-white/50 mt-4 max-w-2xl mx-auto leading-relaxed">Ra-Thor is an independent mercy-gated lattice. Optional use of Grok (xAI) is a reasoning surface only and does not imply affiliation, sponsorship, or endorsement by xAI. The public record is a working dual-repo world simulator delivered under TOLC 8 — not a superintelligence warranty. Commercial speech stays scoped: containment, evaluation, and license. People are not pieces.</p>
       <div class="mt-4 flex flex-wrap justify-center gap-3 text-xs">
         <a class="text-amber-300/90 hover:text-amber-200 underline" href="https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/docs/ONE_ORGANISM_GROK_FUSION.md" target="_blank" rel="noopener">Fusion posture</a>
         <a class="text-amber-300/90 hover:text-amber-200 underline" href="https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/docs/ATTRIBUTION_AND_BRAND.md" target="_blank" rel="noopener">Attribution & brand</a>
@@ -188,7 +188,7 @@
   </div>
 
   <section id="faq" class="max-w-4xl mx-auto px-6 py-16 border-t border-white/10">
-    <h2 id="faq-title" data-i18n="faqTitle" class="text-5xl font-bold tracking-tighter neon-text text-center mb-12">Ra-Thor FAQ: Licensing, Usage & TOLC 8</h2>
+    <h2 id="faq-title" data-i18n="faqTitle" class="text-3xl sm:text-4xl font-semibold tracking-tight text-center mb-10 text-white">Ra-Thor FAQ: Licensing, Usage & TOLC 8</h2>
     
     <div class="space-y-4 max-w-3xl mx-auto faq-accordion">
 
@@ -234,7 +234,7 @@
 
     </div>
 
-    <p id="faq-contact" data-i18n="faqContact" data-i18n-html class="text-center text-white/60 mt-12 text-lg">Questions? Hit <a href="mailto:info@Rathor.ai" class="text-cyan-400 hover:text-cyan-300">info@Rathor.ai</a> or <a href="https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/issues" class="text-cyan-400 hover:text-cyan-300">GitHub issues</a>. Thunder’s open—use it right.</p>
+    <p id="faq-contact" data-i18n="faqContact" data-i18n-html class="text-center text-white/60 mt-12 text-lg">Questions: <a href="mailto:info@Rathor.ai" class="text-cyan-400 hover:text-cyan-300">info@Rathor.ai</a> or <a href="https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/issues" class="text-cyan-400 hover:text-cyan-300">GitHub issues</a>.</p>
   </section>
 
   <footer class="bg-black border-t border-amber-300/30 py-12 sm:py-20 text-sm text-amber-400/90">
@@ -255,7 +255,7 @@
         <div class="md:col-span-3">
           <h4 class="text-amber-300 font-semibold mb-3">Resources</h4>
           <div class="flex flex-col gap-2 text-xs">
-            <a href="https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/WHITEPAPER_v4.1.md" class="hover:text-amber-200 font-semibold text-cyan-300/90">Whitepaper v4.1 (AGSi demonstrated)</a>
+            <a href="https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/WHITEPAPER_v4.1.md" class="hover:text-amber-200 font-semibold text-cyan-300/90">Whitepaper v4.1</a>
             <a href="https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/docs/PILOT_OFFER.md" class="hover:text-amber-200 font-semibold text-cyan-300/90">Time-boxed paid pilots</a>
             <a href="https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/COMMERCIAL_LICENSE.md" class="hover:text-amber-200 font-semibold text-cyan-300/90">AG-SML commercial license</a>
             <a href="https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/docs/WHITEHAT_PROCUREMENT_TIER_A.md" class="hover:text-amber-200 font-semibold text-cyan-300/90">White-hat Tier A one-pager</a>
@@ -277,7 +277,7 @@
         </div>
       </div>
       <div class="pt-8 border-t border-amber-300/30 text-xs flex flex-col md:flex-row justify-between items-center gap-4">
-        <div id="footer-copyright" data-i18n="footerCopyright" data-i18n-html class="text-xs">© 2026 Sherif Samy Botros (sole steward) of Autonomicity Games Inc. & AlphaProMega Air Foundation.<br>All Rights Reserved. TOLC 8 • APTD • Mercy-Gated by Ra-Thor AGi Eternally-Evolving Systems • AGSi demonstrated.</div>
+        <div id="footer-copyright" data-i18n="footerCopyright" data-i18n-html class="text-xs">© 2026 Sherif Samy Botros (sole steward) of Autonomicity Games Inc. & AlphaProMega Air Foundation.<br>All Rights Reserved. TOLC 8 · APTD · Mercy-gated lattice.</div>
         <div id="footer-contact" data-i18n="footerContact" class="text-amber-300 text-xs flex flex-col gap-1">
           <a href="mailto:info@Rathor.ai" class="hover:text-amber-200 transition-colors">info@Rathor.ai</a>
         </div>
