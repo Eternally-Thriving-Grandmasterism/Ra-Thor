@@ -1,0 +1,40 @@
+name: site-lock-hook
+
+on:
+  push:
+    paths:
+      - "js/site-lock-2026-08-22.js"
+      - ".github/workflows/site-lock-hook.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  hook:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Ensure homepage loads site lock
+        run: |
+          if grep -q 'site-lock-2026-08-22.js' index.html; then
+            echo "already hooked"
+            exit 0
+          fi
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('index.html')
+          t = p.read_text()
+          needle = '  <script>\n    window.translations'
+          insert = '  <script src="/i18n/en.js"></script>\n  <script src="/js/site-lock-2026-08-22.js"></script>\n  <script>\n    window.translations'
+          if needle not in t:
+              raise SystemExit('needle missing in index.html')
+          p.write_text(t.replace(needle, insert, 1))
+          PY
+          git config user.name "ra-thor-site-lock"
+          git config user.email "info@Rathor.ai"
+          git add index.html
+          git commit -m "site(rathor.ai): load 2026-08-22 lock injector"
+          git push
