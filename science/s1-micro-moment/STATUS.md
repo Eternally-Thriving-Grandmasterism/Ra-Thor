@@ -2,6 +2,7 @@
 
 **Contact:** info@Rathor.ai  
 **Authority:** Permanent PATSAGi Councils under TOLC 8  
+**Doctrine:** Bound by [`docs/science/PROOF_LADDER_DOCTRINE.md`](../../docs/science/PROOF_LADDER_DOCTRINE.md)  
 **Last updated:** 2026-08-21
 
 ## Proof-ladder position
@@ -32,7 +33,7 @@ Synthetic C > A is **not** a scientific discovery. Real labels required.
 - Label validator
 - Pre-registered success criteria (`PRE_REGISTERED_CRITERIA.md`)
 - Synthetic end-to-end proof (fixtures only)
-- Intake protocol + First-5 starter kit
+- Intake protocol + First-5 starter kit + Labeling Guide
 
 ## Critical path (only door that matters)
 
