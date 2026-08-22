@@ -4,7 +4,7 @@
 **Sealed with:** `PROOF_LADDER_DOCTRINE.md` + `PATSAGI_SCIENCE_DISCOVERY_PROTOCOL.md`  
 **Contact:** info@Rathor.ai  
 **Status:** Binding · Living · Non-optional  
-**Last updated:** 2026-08-21
+**Last updated:** 2026-08-22
 
 ---
 
@@ -21,8 +21,9 @@ Synthetic / design / metaphor results are **engineering or pedagogy** until a pr
 | System / Track | Inheritance rule |
 |----------------|------------------|
 | **S-1 Micro-Moment** | ACTIVE empirical program. Engineering only until n ≥ 5 real held-out labels + P3. |
+| **AGSi evaluation (Ra-Thor + SuperGrok)** | READY evaluation program. Combined AGSi claim is SURMISE until ≥ P3 on pre-registered truth + mercy slices. Capability suites WATCH. |
 | **Radiation mass-per-sievert** | READY. Open engineering from published spectra only. No new-physics language. |
-| **Powrush-MMO mechanics / RBE claims** | Any superiority claim (balance, RBE throughput, faction dynamics, movement, etc.) requires ≥ P2 open artifact + falsifiable bar. Design sketches remain labeled as design. |
+| **Powrush-MMO mechanics / RBE claims** | Any superiority claim requires ≥ P2 open artifact + falsifiable bar. Design sketches remain labeled as design. |
 | **Mercy Gates / NEVC / valence scoring** | Score improvements or “better gate” claims require pre-registered metric + held-out evaluation. Pedagogy and codex remain pedagogy. |
 | **Crypto lattice substrate / Avalanche / consensus claims** | Scaling, finality, or “superior to X” statements require reproducible benchmark artifact (≥ P2). |
 | **RREL / Real-Estate Lattice** | Any performance or regulatory-advantage claim requires open criteria and provenance. |
@@ -45,9 +46,9 @@ Synthetic / design / metaphor results are **engineering or pedagogy** until a pr
 
 ## What this map deliberately does *not* do
 
-- Open new empirical programs.
+- Open new empirical science programs in place of S-1.
+- Treat AGSi as demonstrated.
 - Promote Radiation or any watch/deferred track.
-- Expand synthetic S-1 further for its own sake.
 - Invent physics, metrics, or superiority from chat.
 
 ---
