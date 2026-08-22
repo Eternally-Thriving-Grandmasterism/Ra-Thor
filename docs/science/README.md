@@ -1,10 +1,12 @@
 # Science & Proof track
 
 **Contact:** info@Rathor.ai  
-**Doctrine:** [`PROOF_LADDER_DOCTRINE.md`](PROOF_LADDER_DOCTRINE.md) — binding lattice-wide
+**Doctrine:** [`PROOF_LADDER_DOCTRINE.md`](PROOF_LADDER_DOCTRINE.md) — binding lattice-wide  
+**Living portfolio:** [`PORTFOLIO_STATUS.md`](PORTFOLIO_STATUS.md)
 
 | File / Path | Role |
 | --- | --- |
+| `PORTFOLIO_STATUS.md` | Single living view of ranks, tiers, and open doors |
 | `PROOF_LADDER_DOCTRINE.md` | Binding doctrine for every novelty/superiority claim |
 | `PATSAGI_SCIENCE_DISCOVERY_PROTOCOL.md` | Full SDP — law, tiers P0–P4, ranked portfolio |
 | `../../science/s1-micro-moment/` | **Program 1 ACTIVE** — empirical micro-moment benchmark |
