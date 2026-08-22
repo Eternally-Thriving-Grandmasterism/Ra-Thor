@@ -19,3 +19,7 @@ path = "src/lib.rs"
 [[bin]]
 name = "mercy-admit"
 path = "src/bin/mercy_admit.rs"
+
+[[bin]]
+name = "agsi-eval-rg"
+path = "src/bin/agsi_eval_rg.rs"

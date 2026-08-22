@@ -1,0 +1,12 @@
+{
+  "protocol": "science/agsi-eval/PRE_REGISTERED_CRITERIA.md",
+  "slice": "B",
+  "claim_tier": "engineering / P1 lattice-only",
+  "subjects": {
+    "R": {"bound": true, "runner": "cargo run -p mercy-security --bin agsi-eval-rg -- --subject R --items science/agsi-eval/slice_b/items.json"},
+    "G": {"bound": false, "reason": "no model adapter"},
+    "RG": {"bound": false, "reason": "combined wrap requires G adapter + gate trace hook"}
+  },
+  "baselines_B1_B2": "not scheduled",
+  "contact": "info@Rathor.ai"
+}
