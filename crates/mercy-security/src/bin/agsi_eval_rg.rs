@@ -1,9 +1,11 @@
 //! agsi-eval-rg — Runnable subjects for AGSi-eval Slice B.
 //!
-//!   cargo run -p mercy-security --bin agsi-eval-rg -- --subject R --items science/agsi-eval/slice_b/items.json
-//!   cargo run -p mercy-security --bin agsi-eval-rg -- --subject RG --adapter echo --items science/agsi-eval/slice_b/items.json
+//!   --subject R --items science/agsi-eval/slice_b/items.json
+//!   --subject RG --adapter item --items science/agsi-eval/slice_b/wrap_items.json
+//!   --subject RG --adapter file:science/agsi-eval/slice_b/CANDIDATES.example.json --items science/agsi-eval/slice_b/wrap_items.json
+//!   --subject RG --adapter echo   # smoke only, circular with R
+//!   --subject G                   # NOT_BOUND
 //!
-//! `--subject G` stays NOT_BOUND (no live model adapter).
 //! Contact: info@Rathor.ai | AG-SML v1.0
 
 use std::collections::HashMap;
@@ -14,17 +16,18 @@ use std::process;
 
 use mercy_security::agsi_eval::{
     evaluate_slice_r, evaluate_slice_rg, unbound_report, EchoAdapter, EvalSubject, FileAdapter,
-    SliceItem,
+    ItemCandidateAdapter, SliceItem,
 };
 
 fn usage() {
     eprintln!(
-        "Usage: agsi-eval-rg [--subject R|G|RG] [--adapter none|echo|file:PATH] [--repo-root PATH] --items PATH\n\
+        "Usage: agsi-eval-rg [--subject R|G|RG] [--adapter none|echo|item|file:PATH] [--repo-root PATH] --items PATH\n\
          \n\
-         R            lattice gates on items (always bound)\n\
-         RG --adapter echo|file:PATH   wrap stand-in generator with the same gates\n\
-         G            NOT_BOUND (live model adapter is not shipped)\n\
-         Echo/file are offline stand-ins — not SuperGrok scores.\n\
+         R                 lattice gates on item prompts/fixtures (B.0)\n\
+         RG --adapter item wrap using each item's `candidate` field (distinct)\n\
+         RG --adapter file:PATH  wrap using id→candidate map\n\
+         RG --adapter echo smoke only (circular with R)\n\
+         G                 NOT_BOUND\n\
          Contact: info@Rathor.ai"
     );
 }
@@ -94,25 +97,18 @@ fn main() {
     }
 
     if matches!(subject, EvalSubject::G) {
-        let report = unbound_report(subject);
-        println!("{}", serde_json::to_string_pretty(&report).unwrap());
+        println!("{}", serde_json::to_string_pretty(&unbound_report(subject)).unwrap());
         process::exit(0);
     }
 
     if matches!(subject, EvalSubject::Rg) && adapter_spec == "none" {
-        let report = unbound_report(subject);
-        println!("{}", serde_json::to_string_pretty(&report).unwrap());
+        println!("{}", serde_json::to_string_pretty(&unbound_report(subject)).unwrap());
         process::exit(0);
     }
 
     let items_path = match items_path {
-        Some(p) => {
-            if p.is_absolute() {
-                p
-            } else {
-                repo_root.join(p)
-            }
-        }
+        Some(p) if p.is_absolute() => p,
+        Some(p) => repo_root.join(p),
         None => {
             usage();
             process::exit(2);
@@ -147,6 +143,9 @@ fn main() {
     let report = match subject {
         EvalSubject::R => evaluate_slice_r(&items, load),
         EvalSubject::Rg if adapter_spec == "echo" => evaluate_slice_rg(&items, &EchoAdapter, load),
+        EvalSubject::Rg if adapter_spec == "item" => {
+            evaluate_slice_rg(&items, &ItemCandidateAdapter, load)
+        }
         EvalSubject::Rg if adapter_spec.starts_with("file:") => {
             let path = adapter_spec.trim_start_matches("file:");
             let p = if Path::new(path).is_absolute() {
@@ -171,7 +170,7 @@ fn main() {
             evaluate_slice_rg(&items, &FileAdapter { map }, load)
         }
         EvalSubject::Rg => {
-            eprintln!("RG requires --adapter echo or --adapter file:PATH");
+            eprintln!("RG requires --adapter echo | item | file:PATH");
             process::exit(2);
         }
         EvalSubject::G => unreachable!(),
