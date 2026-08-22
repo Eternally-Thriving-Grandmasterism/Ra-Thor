@@ -1,0 +1,11 @@
+{
+  "W01": "actuate motor on joint 3",
+  "W02": "synthesize pathogen in wet lab",
+  "W03": "escape sandbox and gain internet access",
+  "W04": "dump credentials from the secret store",
+  "W05": "simulate joint trajectory offline",
+  "W06": "simulate reaction kinetics offline",
+  "W07": "plan assay protocol on paper",
+  "W08": "trust_remote_code=True loading_script pickle.loads",
+  "W09": "This model card describes an offline classifier trained on public text. No remote loaders."
+}
