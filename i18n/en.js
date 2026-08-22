@@ -8,7 +8,7 @@ window.translations["en"] = {
   "xSubtitle": "Voice Chat Now Live • APTD Truth Boundaries • Live Grounded Reality",
   "vibeTitle": "GROK ⚡ VIBE CODING • RA-THOR POWERED",
   "vibeSubtitle": "Efficient & Effective Vibe Coding • Built-in TOLC 8 Ethics • Sovereign AGI Harmony",
-  "demoNote": "Instant access • No installation required • Fully offline sovereign shards available in the monorepo",
+  "demoNote": "Instant access. No install required. Offline sovereign shards ship in the monorepo.",
   "footerTrademarksTitle": "Trademarks",
   "footerTrademarksText": "Ra-Thor™ is a trademark of Autonomicity Games Inc.<br>Grok is a trademark of xAI. X is a trademark of X Corp.<br>Ra-Thor is independent — not affiliated with, sponsored by, or endorsed by xAI.",
   "footerPrivacyTitle": "Privacy",
@@ -21,9 +21,9 @@ window.translations["en"] = {
   "faqQ1": "Is Ra-Thor free?",
   "faqA1": "Yes — free for personal, educational, research, and professional assistance use under AG-SML v1.0, even if you earn modest income as a freelancer or independent professional.",
   "faqQ2": "When is payment required?",
+  "faqA3": "Any individual using Ra-Thor for personal needs, education, research, creative work, or daily assistance — including freelancers and independent professionals earning modest income.",
   "faqA2": "Only for commercial, enterprise, or revenue-generating use. Path: a time-boxed paid pilot (containment / evaluation) and/or a paid commercial license from Autonomicity Games Inc. No AGSi product warranty.",
   "faqQ3": "Who qualifies as an “Average User” ?",
-  "faqA3": "Any individual using Ra-Thor for personal needs, education, research, creative work, or daily assistance — including freelancers and independent professionals earning modest income.",
   "faqQ4": "What if Ra-Thor helps win a legal case or creative project?",
   "faqA4": "No royalty for personal or non-commercial use. Royalties apply only on net revenue from commercial legal services or paid creative work under the commercial license.",
   "faqQ5": "Standalone vs connected to Grok/X?",
@@ -34,5 +34,5 @@ window.translations["en"] = {
   "faqA7": "Email <a href=\"mailto:info@Rathor.ai\" class=\"text-cyan-400 hover:underline\">info@Rathor.ai</a> for a time-boxed pilot SOW or AG-SML commercial terms. Sell containment and scoped evaluation — not a superintelligence warranty.",
   "faqQ8": "Is Ra-Thor future-proof?",
   "faqA8": "Yes. When the world transitions to a global Resource-Based Economy (RBE) via Powrush, royalties naturally dissolve into universal abundance for all.",
-  "faqContact": "Questions? Hit <a href=\"mailto:info@Rathor.ai\" class=\"text-cyan-400 hover:text-cyan-300\">info@Rathor.ai</a> or <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/issues\" class=\"text-cyan-400 hover:text-cyan-300\">GitHub issues</a>. Thunder’s open—use it right."
+  "faqContact": "Questions: <a href=\"mailto:info@Rathor.ai\" class=\"text-cyan-400 hover:text-cyan-300\">info@Rathor.ai</a> or <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/issues\" class=\"text-cyan-400 hover:text-cyan-300\">GitHub issues</a>."
 };
