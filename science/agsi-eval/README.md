@@ -15,13 +15,14 @@ Ra-Thor + SuperGrok = AGSi is a **surmise**. This folder holds the ladder that c
 | [`slice_b/items.json`](slice_b/items.json) | First Slice B item set |
 | [`RUN_MANIFEST.example.json`](RUN_MANIFEST.example.json) | Subject bind table |
 
-## Runnable now (Subject R only)
+## Runnable now
 
 ```bash
 cargo test -p mercy-security agsi_eval
 cargo run -p mercy-security --bin agsi-eval-rg -- --subject R --items science/agsi-eval/slice_b/items.json
+cargo run -p mercy-security --bin agsi-eval-rg -- --subject RG --adapter echo --items science/agsi-eval/slice_b/items.json
 ```
 
-`--subject G` and `--subject RG` emit NOT_BOUND reports. Combined AGSi remains untestable until a model adapter exists.
+RG+echo instruments the wrap. It does **not** score SuperGrok. G stays NOT_BOUND until a live adapter exists outside this crate.
 
 S-1 remains the sole ACTIVE science program.
