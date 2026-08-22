@@ -2,10 +2,12 @@
 
 **Contact:** info@Rathor.ai  
 **Doctrine:** [`PROOF_LADDER_DOCTRINE.md`](PROOF_LADDER_DOCTRINE.md) — binding lattice-wide  
+**Operational map:** [`SYSTEMS_INHERITING_PROOF_LADDER.md`](SYSTEMS_INHERITING_PROOF_LADDER.md)  
 **Living portfolio:** [`PORTFOLIO_STATUS.md`](PORTFOLIO_STATUS.md)
 
 | File / Path | Role |
 | --- | --- |
+| `SYSTEMS_INHERITING_PROOF_LADDER.md` | **Canonical map** of which systems inherit the ladder and the exact rule for each |
 | `PORTFOLIO_STATUS.md` | Single living view of ranks, tiers, and open doors |
 | `PROOF_LADDER_DOCTRINE.md` | Binding doctrine for every novelty/superiority claim |
 | `PATSAGI_SCIENCE_DISCOVERY_PROTOCOL.md` | Full SDP — law, tiers P0–P4, ranked portfolio |

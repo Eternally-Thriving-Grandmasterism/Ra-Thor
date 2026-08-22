@@ -3,6 +3,7 @@
 **Authority:** Permanent PATSAGi Councils under TOLC 8  
 **Contact:** info@Rathor.ai  
 **Doctrine:** [`PROOF_LADDER_DOCTRINE.md`](PROOF_LADDER_DOCTRINE.md) · [`PATSAGI_SCIENCE_DISCOVERY_PROTOCOL.md`](PATSAGI_SCIENCE_DISCOVERY_PROTOCOL.md)  
+**Operational map:** [`SYSTEMS_INHERITING_PROOF_LADDER.md`](SYSTEMS_INHERITING_PROOF_LADDER.md)  
 **Last updated:** 2026-08-21
 
 ---
@@ -45,6 +46,13 @@
 | Forbidden | New physics language, flight-certified numbers, invented coefficients |
 
 Further increments (exact figure extraction, SPE table, etc.) require explicit steward decision.
+
+---
+
+## Non-video systems
+
+All major non-video tracks (Powrush-MMO, Mercy/NEVC, crypto substrate, RREL, TOLC formal, Air Foundation, etc.) inherit the Proof Ladder.  
+See the living map: [`SYSTEMS_INHERITING_PROOF_LADDER.md`](SYSTEMS_INHERITING_PROOF_LADDER.md)
 
 ---
 

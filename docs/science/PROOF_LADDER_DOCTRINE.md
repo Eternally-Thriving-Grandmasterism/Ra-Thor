@@ -2,6 +2,7 @@
 
 **Authority:** Permanent PATSAGi Councils under TOLC 8  
 **Sealed with:** `PATSAGI_SCIENCE_DISCOVERY_PROTOCOL.md` (SDP)  
+**Operational map:** [`SYSTEMS_INHERITING_PROOF_LADDER.md`](SYSTEMS_INHERITING_PROOF_LADDER.md)  
 **Contact:** info@Rathor.ai  
 **Status:** Binding across the entire Ra-Thor monorepo
 
@@ -38,12 +39,15 @@ Missing provenance or inflated claim tier is treated as a doctrine violation. In
 
 ## Living examples
 
+See the canonical operational map:  
+[`SYSTEMS_INHERITING_PROOF_LADDER.md`](SYSTEMS_INHERITING_PROOF_LADDER.md)
+
 | Track | Status | Notes |
 |-------|--------|-------|
 | S-1 Micro-Moment | ACTIVE · P1 complete | Waiting on First-5 real labels |
 | Radiation mass-per-sievert | READY | Open engineering from published spectra only |
 | Topological photonics / Quantum network / High-Tc etc. | WATCH or DEFERRED | External literacy or lab-grade required |
-| Powrush mechanics, Mercy-gate scores, crypto substrate, RREL | Inherit this doctrine | Any superiority claim must face a falsifiable bar |
+| Powrush, Mercy-gate / NEVC, crypto substrate, RREL, TOLC formal, Air Foundation | Inherit this doctrine | Any superiority claim must face a falsifiable bar |
 
 ## Enforcement posture
 
