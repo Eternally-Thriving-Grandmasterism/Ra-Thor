@@ -26,6 +26,16 @@ It is the standing **Proof Ladder Doctrine** for *any* claim of novelty, superio
 5. **One active empirical program** by default (currently S-1). Parallel only by explicit steward decision.
 6. **Compassion gate** remains permanent on dual-use / covert / non-consensual paths.
 
+## Artifact Integrity & Provenance
+
+Any artifact released under this doctrine (labels, predictions, spreadsheets, formal proofs, evaluation reports) must carry:
+
+- Clear **claim tier** (P0–P4 or “engineering only” / “pedagogy”)
+- **Provenance** (source of data, synthetic vs real, rights note)
+- Explicit statement of what is **not** claimed
+
+Missing provenance or inflated claim tier is treated as a doctrine violation. Integrity of the artifact is part of the proof, not an afterthought.
+
 ## Living examples
 
 | Track | Status | Notes |
