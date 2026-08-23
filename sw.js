@@ -1,15 +1,16 @@
 /* sw.js — Ra-Thor vanilla offline worker
- * Workspace 14.15.6 · LOCK 2026-08-23-lattice
+ * Workspace 14.15.6 · LOCK 2026-08-23-theme
  * Pass-through documents. Fetch handler present for Chrome installability.
  * Contact: info@Rathor.ai
  */
-var LOCK = '2026-08-23-lattice';
+var LOCK = '2026-08-23-theme';
 var CACHE = 'rathor-core-' + LOCK;
 var PRECACHE = [
   '/', '/index.html', '/chat.html', '/contact.html', '/privacy.html',
   '/offline.html', '/thanks.html', '/go-x.html', '/Launch-Ra-Thor.html',
   '/sovereign-shard.html', '/web-forge.html', '/manifest.json',
   '/js/pwa-boot.js', '/js/pwa-install.js', '/js/lang-offer.js',
+  '/js/rathor-theme.js', '/css/rathor-theme.css',
   '/js/family-nav-2026-08-22.js', '/js/site-lock-2026-08-22.js',
   '/js/science-map-lock.js', '/js/sovereign-shard.js', '/js/chat.js',
   '/js/contact-i18n.js',
@@ -48,7 +49,9 @@ self.addEventListener('fetch', function (event) {
 
   if (req.mode === 'navigate' || req.destination === 'document') {
     event.respondWith(
-      fetch(req).then(function (res) { return res; }).catch(function () {
+      fetch(req).then(function (res) {
+        return res;
+      }).catch(function () {
         return caches.match(req).then(function (hit) {
           return hit || caches.match('/index.html') || caches.match('/offline.html');
         });

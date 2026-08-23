@@ -2,7 +2,7 @@
    Shared public-surface network for rathor.ai
    Workspace 14.15.6 · Lattice Chat v14.18.x
    Contact: info@Rathor.ai
-   2026-08-23: Install chip + coherent family labels
+   2026-08-23: Install chip + coherent family labels + theme toggle
 */
 (function () {
   if (window.__rtFamilyNav) return;
@@ -67,9 +67,9 @@
   }
 
   function styleLink(el, current) {
-    el.style.cssText = 'font:600 11px/1.2 system-ui,sans-serif;padding:0.35rem 0.65rem;border-radius:999px;text-decoration:none;border:1px solid rgba(252,211,77,0.35);color:#fde68a;background:transparent;cursor:pointer;';
+    el.style.cssText = 'font:600 11px/1.2 system-ui,sans-serif;padding:0.35rem 0.65rem;border-radius:999px;text-decoration:none;border:1px solid var(--rt-line, rgba(240,211,106,0.34));color:var(--rt-gold,#f0d36a);background:transparent;cursor:pointer;';
     el.addEventListener('focus', function () {
-      el.style.outline = '2px solid #fbbf24';
+      el.style.outline = '2px solid var(--rt-gold-hot,#f5c84a)';
       el.style.outlineOffset = '2px';
     });
     el.addEventListener('blur', function () {
@@ -77,9 +77,9 @@
     });
     if (current) {
       el.setAttribute('aria-current', 'page');
-      el.style.background = '#fbbf24';
-      el.style.color = '#000';
-      el.style.borderColor = '#fbbf24';
+      el.style.background = 'var(--rt-gold-hot,#f5c84a)';
+      el.style.color = 'var(--rt-on-gold,#111)';
+      el.style.borderColor = 'var(--rt-gold-hot,#f5c84a)';
     }
   }
 
@@ -89,8 +89,8 @@
     nav.setAttribute('aria-label', kind === 'top' ? 'Ra-Thor family' : 'Ra-Thor family footer');
     var blur = reduceMotion() ? 'none' : 'blur(8px)';
     nav.style.cssText = kind === 'top'
-      ? 'position:sticky;top:0;z-index:40;display:flex;flex-wrap:wrap;gap:0.4rem;justify-content:center;align-items:center;padding:0.45rem 0.7rem;background:rgba(0,0,0,0.88);border-bottom:1px solid rgba(252,211,77,0.28);backdrop-filter:' + blur + ';'
-      : 'display:flex;flex-wrap:wrap;gap:0.55rem;justify-content:center;align-items:center;padding:0.7rem;border-top:1px solid rgba(252,211,77,0.2);margin-top:1rem;';
+      ? 'position:sticky;top:0;z-index:40;display:flex;flex-wrap:wrap;gap:0.4rem;justify-content:center;align-items:center;padding:0.45rem 0.7rem;background:var(--rt-nav-bg,rgba(5,5,5,0.9));border-bottom:1px solid var(--rt-line,rgba(240,211,106,0.34));backdrop-filter:' + blur + ';'
+      : 'display:flex;flex-wrap:wrap;gap:0.55rem;justify-content:center;align-items:center;padding:0.7rem;border-top:1px solid var(--rt-line-soft,rgba(240,211,106,0.18));margin-top:1rem;';
 
     LINKS.forEach(function (item) {
       var a = document.createElement('a');
@@ -106,8 +106,6 @@
       install.textContent = 'Install';
       install.setAttribute('aria-label', 'Install Ra-Thor on this device');
       styleLink(install, false);
-      install.style.borderColor = 'rgba(52,211,153,0.55)';
-      install.style.color = '#6ee7b7';
       install.addEventListener('click', function () {
         if (typeof window.rathorTriggerPWAInstall === 'function') {
           window.rathorTriggerPWAInstall();
@@ -115,6 +113,18 @@
       });
       nav.appendChild(install);
     }
+
+    var theme = document.createElement('button');
+    theme.type = 'button';
+    theme.id = kind === 'top' ? 'rt-theme-toggle' : 'rt-theme-toggle-foot';
+    theme.setAttribute('data-rt-theme-toggle', '1');
+    theme.textContent = 'Light';
+    theme.setAttribute('aria-label', 'Toggle light and dark theme');
+    styleLink(theme, false);
+    theme.addEventListener('click', function () {
+      if (typeof window.rathorToggleTheme === 'function') window.rathorToggleTheme();
+    });
+    nav.appendChild(theme);
     return nav;
   }
 
@@ -148,6 +158,7 @@
     if (!document.getElementById('rt-family-footer')) {
       document.body.appendChild(bar('footer'));
     }
+    try { window.dispatchEvent(new Event('rathor-nav-ready')); } catch (e) {}
   }
 
   function lockForgeCopy() {
@@ -169,13 +180,23 @@
     } catch (e) {}
   }
 
+  function bootScienceMap() {
+    if (document.querySelector('script[src*="science-map-lock"]')) return;
+    var s = document.createElement('script');
+    s.src = '/js/science-map-lock.js';
+    s.defer = true;
+    (document.head || document.documentElement).appendChild(s);
+  }
+
   if (document.body) {
     mount();
     lockForgeCopy();
+    bootScienceMap();
   } else {
     document.addEventListener('DOMContentLoaded', function () {
       mount();
       lockForgeCopy();
+      bootScienceMap();
     });
   }
 })();
