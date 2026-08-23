@@ -40,8 +40,8 @@
   <link rel="stylesheet" href="/css/rathor-theme.css">
   <script>
     (function () {
-      try { document.documentElement.setAttribute('data-theme', localStorage.getItem('rathor-theme') || 'dark'); }
-      catch (e) { document.documentElement.setAttribute('data-theme', 'dark'); }
+      try { document.documentElement.setAttribute('data-theme', localStorage.getItem('rathor-theme') || 'dark');
+      } catch (e) { document.documentElement.setAttribute('data-theme', 'dark'); }
     })();
   </script>
   <script src="https://cdn.tailwindcss.com"></script>
@@ -57,15 +57,21 @@
     .lang-tab { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); min-height: 44px; white-space: normal; text-align: center; line-height: 1.3; }
     .lang-tab.active { background-color: #fcd34d !important; color: #000000 !important; border-color: #fcd34d !important; box-shadow: 0 0 25px #fcd34d; }
     .lattice-status { background: linear-gradient(90deg, #1a1a1a, #111); border: 1px solid #ffd70033; }
+    .faq-accordion { direction: inherit; text-align: start; }
     .faq-accordion details { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); border: 1px solid transparent; }
     .faq-accordion details[open] { border-color: rgba(240, 211, 106, 0.45); box-shadow: 0 12px 28px -16px rgba(201, 162, 39, 0.35); }
-    .faq-accordion summary { cursor: pointer; transition: all 0.3s ease; display: flex; justify-content: space-between; align-items: center; }
+    .faq-accordion summary { cursor: pointer; list-style: none; display: flex; flex-direction: row; flex-wrap: nowrap; justify-content: flex-start; align-items: flex-start; gap: 0.7rem; text-align: start; }
+    .faq-accordion summary::-webkit-details-marker { display: none; }
     .faq-accordion details[open] summary { color: #f0d36a; text-shadow: none; }
+    .faq-accordion .lightning-icon { flex: 0 0 auto; line-height: 1.45; }
+    .faq-accordion summary .faq-q { flex: 1 1 auto; min-width: 0; text-align: start; line-height: 1.45; font-weight: 500; }
+    .faq-accordion .faq-content { margin-top: 0.85rem; padding-inline-start: 1.85rem; text-align: start; }
     .lightning-icon { transition: all 0.3s ease; }
     details[open] .lightning-icon { animation: thunderBolt 0.6s ease infinite alternate; }
     @keyframes float { 0%{transform:translateY(0) rotate(0deg);} 100%{transform:translateY(-120vh) rotate(360deg);} }
     @keyframes thunderBolt { from { transform: scale(1) rotate(0deg); } to { transform: scale(1.15) rotate(8deg); } }
-    .faq-accordion.rtl { direction: rtl; text-align: right; }
+    #faq[dir="rtl"], .faq-accordion.rtl { direction: rtl; text-align: start; }
+    html[dir="rtl"] .faq-accordion summary, #faq[dir="rtl"] .faq-accordion summary { flex-direction: row; }
     @media (prefers-reduced-motion: reduce) {
       .golden-star, .card-hover, .lightning-icon, details[open] .lightning-icon { animation: none !important; transition: none !important; }
     }
@@ -159,10 +165,13 @@
   <section id="faq" class="max-w-4xl mx-auto px-6 py-16 border-t border-white/10">
     <h2 id="faq-title" data-i18n="faqTitle" class="text-3xl sm:text-4xl font-semibold tracking-tight text-center mb-10 text-white">Ra-Thor FAQ: Licensing, Usage & TOLC 8</h2>
     <div class="space-y-4 max-w-3xl mx-auto faq-accordion">
-      <details><summary class="flex items-center gap-3"><span class="lightning-icon text-amber-300">⚡</span> <span id="faq-q1" data-i18n="faqQ1">Is Ra-Thor free?</span></summary><div id="faq-a1" data-i18n="faqA1" class="faq-content mt-6 text-white/80 leading-relaxed">Yes — free for personal, educational, research, and professional assistance use under AG-SML v1.0, even if you earn modest income as a freelancer or independent professional.</div></details>
-      <details><summary class="flex items-center gap-3"><span class="lightning-icon text-amber-300">⚡</span> <span id="faq-q2" data-i18n="faqQ2">When is payment required?</span></summary><div id="faq-a2" data-i18n="faqA2" class="faq-content mt-6 text-white/80 leading-relaxed">Only for commercial, enterprise, or revenue-generating use. Path: a time-boxed paid pilot (containment / evaluation) and/or a paid commercial license from Autonomicity Games Inc. No AGSi product warranty.</div></details>
-      <details><summary class="flex items-center gap-3"><span class="lightning-icon text-amber-300">⚡</span> <span id="faq-q3" data-i18n="faqQ3">Who qualifies as an “Average User”?</span></summary><div id="faq-a3" data-i18n="faqA3" class="faq-content mt-6 text-white/80 leading-relaxed">Any individual using Ra-Thor for personal needs, education, research, creative work, or daily assistance — including freelancers and independent professionals earning modest income.</div></details>
-      <details><summary class="flex items-center gap-3"><span class="lightning-icon text-amber-300">⚡</span> <span id="faq-q7" data-i18n="faqQ7">How do I get a commercial license?</span></summary><div id="faq-a7" data-i18n="faqA7" data-i18n-html class="faq-content mt-6 text-white/80 leading-relaxed">Email <a href="mailto:info@Rathor.ai" class="text-amber-300 hover:underline">info@Rathor.ai</a> for a time-boxed pilot SOW or AG-SML commercial terms. Sell containment and scoped evaluation — not a superintelligence warranty.</div></details>
+      <details><summary><span class="lightning-icon text-amber-300" aria-hidden="true">⚡</span><span id="faq-q1" class="faq-q" data-i18n="faqQ1">Is Ra-Thor free?</span></summary><div id="faq-a1" data-i18n="faqA1" class="faq-content text-white/80 leading-relaxed">Yes — free for personal, educational, research, and professional assistance use under AG-SML v1.0, even if you earn modest income as a freelancer or independent professional.</div></details>
+      <details><summary><span class="lightning-icon text-amber-300" aria-hidden="true">⚡</span><span id="faq-q2" class="faq-q" data-i18n="faqQ2">When is payment required?</span></summary><div id="faq-a2" data-i18n="faqA2" class="faq-content text-white/80 leading-relaxed">Only for commercial, enterprise, or revenue-generating use. Path: a time-boxed paid pilot (containment / evaluation) and/or a paid commercial license from Autonomicity Games Inc. No AGSi product warranty.</div></details>
+      <details><summary><span class="lightning-icon text-amber-300" aria-hidden="true">⚡</span><span id="faq-q3" class="faq-q" data-i18n="faqQ3">Who qualifies as an “Average User”?</span></summary><div id="faq-a3" data-i18n="faqA3" class="faq-content text-white/80 leading-relaxed">Any individual using Ra-Thor for personal needs, education, research, creative work, or daily assistance — including freelancers and independent professionals earning modest income.</div></details>
+      <details><summary><span class="lightning-icon text-amber-300" aria-hidden="true">⚡</span><span id="faq-q7" class="faq-q" data-i18n="faqQ7">How do I get a commercial license?</span></summary><div id="faq-a7" data-i18n="faqA7" data-i18n-html class="faq-content text-white/80 leading-relaxed">Email <a href="mailto:info@Rathor.ai" class="text-amber-300 hover:underline">info@Rathor.ai</a> for a time-boxed pilot SOW or AG-SML commercial terms. Sell containment and scoped evaluation — not a superintelligence warranty.</div></details>
+      <details><summary><span class="lightning-icon text-amber-300" aria-hidden="true">⚡</span><span id="faq-q9" class="faq-q" data-i18n="faqQ9">What is Lattice Chat?</span></summary><div id="faq-a9" data-i18n="faqA9" class="faq-content text-white/80 leading-relaxed">A privacy-first, multi-session, hybrid-bridge chat surface at /chat.html. Offline-first, no login, no embedded API keys, no backend we control. v14.18.x adds optional passphrase encryption of the session store via Web Crypto (PBKDF2 + AES-GCM).</div></details>
+      <details><summary><span class="lightning-icon text-amber-300" aria-hidden="true">⚡</span><span id="faq-q10" class="faq-q" data-i18n="faqQ10">Are the science lattices part of Ra-Thor?</span></summary><div id="faq-a10" data-i18n="faqA10" class="faq-content text-white/80 leading-relaxed">They are sister public discovery lattices under the same steward, AG-SML v1.0, and TOLC 8. Research surfaces — not claims of a working plant, certified aircraft, or commercial product.</div></details>
+      <details><summary><span class="lightning-icon text-amber-300" aria-hidden="true">⚡</span><span id="faq-q11" class="faq-q" data-i18n="faqQ11">What are the PATSAGi Councils?</span></summary><div id="faq-a11" data-i18n="faqA11" class="faq-content text-white/80 leading-relaxed">Permanent mercy-gated deliberation councils in the monorepo. They decide under TOLC 8. Architecture and governance posture — not a warranty that every decision is automatically correct.</div></details>
     </div>
     <p id="faq-contact" data-i18n="faqContact" data-i18n-html class="text-center text-white/60 mt-12 text-lg">Questions: <a href="mailto:info@Rathor.ai" class="text-amber-300">info@Rathor.ai</a> or <a href="https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/issues" class="text-amber-300">GitHub issues</a>.</p>
   </section>
@@ -208,24 +217,32 @@
   <script>
     window.translations = window.translations || {};
     function applyTranslations(lang) {
-      const t = window.translations[lang] || window.translations.en;
-      if (!t) return;
+      const pack = window.translations[lang] || {};
+      const en = window.translations.en || {};
       document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.getAttribute('data-i18n');
-        if (t[key] === undefined) return;
-        if (el.hasAttribute('data-i18n-html')) el.innerHTML = t[key];
-        else el.textContent = t[key];
+        const val = (pack[key] !== undefined) ? pack[key] : en[key];
+        if (val === undefined) return;
+        if (el.hasAttribute('data-i18n-html')) el.innerHTML = val;
+        else el.textContent = val;
       });
       document.querySelectorAll('.lang-tab').forEach(b => b.classList.remove('active'));
       const activeBtn = document.querySelector('.lang-tab[data-lang="' + lang + '"]');
       if (activeBtn) activeBtn.classList.add('active');
+      const rtl = (lang === 'ar');
+      document.documentElement.setAttribute('lang', lang || 'en');
+      document.documentElement.setAttribute('dir', rtl ? 'rtl' : 'ltr');
       const faqSection = document.getElementById('faq');
       if (faqSection) {
-        if (lang === 'ar') { faqSection.classList.add('rtl'); faqSection.setAttribute('dir', 'rtl'); }
+        if (rtl) { faqSection.classList.add('rtl'); faqSection.setAttribute('dir', 'rtl'); }
         else { faqSection.classList.remove('rtl'); faqSection.setAttribute('dir', 'ltr'); }
+      }
+      if (typeof window.applyLockI18n === 'function') {
+        try { window.applyLockI18n(lang); } catch (e) {}
       }
       try { localStorage.setItem('rathor-lang', lang); } catch(e) {}
     }
+    window.applyTranslations = applyTranslations;
     function loadLangScript(lang) {
       return new Promise((resolve, reject) => {
         if (window.translations[lang]) { resolve(lang); return; }
@@ -240,6 +257,7 @@
       try { await loadLangScript(lang); applyTranslations(lang); }
       catch (e) { if (lang !== 'en') { await loadLangScript('en'); applyTranslations('en'); } }
     }
+    window.switchLanguage = switchLanguage;
     function initLanguageSystem() {
       const sel = document.getElementById('lang-selector');
       if (sel) sel.addEventListener('click', function(e) {
