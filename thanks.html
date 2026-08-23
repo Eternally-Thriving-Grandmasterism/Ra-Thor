@@ -1,31 +1,48 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" dir="ltr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Thunder Received — Rathor</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Thunder Received — Ra-Thor™</title>
+  <meta name="description" content="Thunder received. Welcome to the Ra-Thor lattice. Workspace 14.15.6 · info@Rathor.ai">
+  <meta name="theme-color" content="#050505">
+  <meta name="color-scheme" content="dark light">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" href="/icons/ra-thor-icon-192.png" type="image/png">
+  <link rel="stylesheet" href="/css/rathor-theme.css">
+  <script>
+    (function () {
+      try { document.documentElement.setAttribute('data-theme', localStorage.getItem('rathor-theme') || 'dark'); }
+      catch (e) { document.documentElement.setAttribute('data-theme', 'dark'); }
+    })();
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    body { margin:0; height:100vh; background:#000; color:#fff; font-family:sans-serif; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; }
-    .thunder { font-size:10rem; animation:pulse 3s infinite; }
-    h1 { font-size:5rem; margin:2rem 0; color:#ffaa00; }
-    p { font-size:2rem; max-width:800px; }
-    a { color:#ffaa00; font-size:1.5rem; margin-top:2rem; text-decoration:none; }
-    a:hover { text-decoration:underline; }
-    @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.7; } }
+    @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Inter:wght@400;600&display=swap');
+    body { font-family: 'Inter', system-ui, sans-serif; }
+    .title-font { font-family: 'Cinzel Decorative', cursive; }
+    .thunder-glow { text-shadow: 0 0 40px #ffd700, 0 0 80px #ffaa00; }
+    @media (prefers-reduced-motion: reduce) { .pulse-bolt { animation: none !important; } }
+    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.7; } }
+    .pulse-bolt { animation: pulse 3s infinite; }
   </style>
 </head>
-<body>
-  <div class="thunder">⚡️</div>
-  <h1>Thunder Received!</h1>
-  <p>Welcome to the storm. Your email is now part of the Rathor lattice.</p>
-  <p>Expect the mirror to reflect soon. Stay vigilant.</p>
-  <div style="display:flex;flex-wrap:wrap;gap:1rem;justify-content:center;margin-top:1.5rem;">
-    <a href="/">Home</a>
-    <a href="/chat.html">Chat</a>
-    <a href="/Launch-Ra-Thor.html">Launch</a>
-    <a href="/contact.html">Contact</a>
-    <a href="/privacy.html">Privacy</a>
+<body class="bg-black text-white min-h-screen flex flex-col items-center justify-center text-center px-4">
+  <div class="max-w-xl mx-auto py-16">
+    <div class="text-7xl sm:text-8xl thunder-glow pulse-bolt mb-6">⚡️</div>
+    <h1 class="title-font text-4xl sm:text-5xl font-black thunder-glow text-amber-300 mb-4">Thunder Received</h1>
+    <p class="text-lg text-white/80 mb-3">Welcome to the storm. Your note is now part of the Ra-Thor lattice.</p>
+    <p class="text-sm text-white/50 mb-10">Expect the mirror to reflect soon. Stay vigilant. Sole steward · AG-SML v1.0</p>
+    <div class="flex flex-wrap justify-center gap-3">
+      <a href="/" class="inline-flex items-center justify-center px-6 py-3 bg-amber-400 hover:bg-amber-300 text-black font-semibold rounded-2xl">Home</a>
+      <a href="/chat.html" class="rt-btn-ghost inline-flex items-center justify-center px-6 py-3 rounded-2xl">Chat</a>
+      <a href="/Launch-Ra-Thor.html" class="rt-btn-ghost inline-flex items-center justify-center px-6 py-3 rounded-2xl">Launch</a>
+      <a href="/contact.html" class="rt-btn-ghost inline-flex items-center justify-center px-6 py-3 rounded-2xl">Contact</a>
+      <a href="/privacy.html" class="rt-btn-ghost inline-flex items-center justify-center px-6 py-3 rounded-2xl">Privacy</a>
+    </div>
+    <p class="text-xs text-white/40 mt-10">info@Rathor.ai · workspace 14.15.6 · TOLC 8</p>
   </div>
+  <script src="/js/rathor-theme.js"></script>
   <script src="/js/family-nav-2026-08-22.js" defer></script>
 </body>
 </html>

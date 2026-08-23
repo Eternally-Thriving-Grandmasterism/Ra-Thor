@@ -1,18 +1,28 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" dir="ltr">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Offline Mercy Thunder ⚡️ · Ra-Thor v14.15.6</title>
   <meta name="description" content="PWA fallback. Workspace 14.15.6. Lattice Chat v14.18.x stays on this device. Capable · Bounded · Corrigible.">
-  <meta name="theme-color" content="#ffaa00">
-  <link rel="icon" href="/icons/ra-thor-icon-192.png" type="image/png"/>
-  <link rel="apple-touch-icon" href="/icons/ra-thor-icon-192.png"/>
+  <meta name="theme-color" content="#050505">
+  <meta name="color-scheme" content="dark light">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" href="/icons/ra-thor-icon-192.png" type="image/png">
+  <link rel="apple-touch-icon" href="/icons/ra-thor-icon-192.png">
+  <link rel="stylesheet" href="/css/rathor-theme.css">
+  <script>
+    (function () {
+      try { document.documentElement.setAttribute('data-theme', localStorage.getItem('rathor-theme') || 'dark'); }
+      catch (e) { document.documentElement.setAttribute('data-theme', 'dark'); }
+    })();
+  </script>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Inter:wght@400;600&display=swap');
     body {
-      background: #0a0015;
-      color: #ffdd44;
-      font-family: system-ui, sans-serif;
+      background: #050505;
+      color: #f6f1e4;
+      font-family: 'Inter', system-ui, sans-serif;
       text-align: center;
       padding: 40px 20px;
       margin: 0;
@@ -22,31 +32,31 @@
       align-items: center;
       min-height: 100vh;
     }
-    h1 { color: #ffaa00; font-size: 2.2em; margin: 0 0 0.4em; }
-    p { font-size: 1.05em; margin: 0.6em 0; max-width: 28rem; line-height: 1.45; }
-    .chip { font-size: 0.75em; color: #ffdd44cc; letter-spacing: 0.04em; margin-bottom: 1.2em; }
-    a { color: #ffaa00; }
+    .title-font { font-family: 'Cinzel Decorative', cursive; }
+    h1 { color: #f0d36a; font-size: 2.1em; margin: 0 0 0.4em; text-shadow: 0 0 28px rgba(245,200,74,0.28); }
+    p { font-size: 1.05em; margin: 0.6em 0; max-width: 28rem; line-height: 1.45; color: rgba(246,241,228,0.78); }
+    .chip { font-size: 0.75em; color: rgba(240,211,106,0.8); letter-spacing: 0.04em; margin-bottom: 1.2em; }
     .row { display: flex; flex-wrap: wrap; gap: 0.8rem; justify-content: center; margin-top: 1.4em; }
     button, .btn {
-      background: #ffaa00;
-      color: #000;
+      background: #f5c84a;
+      color: #111;
       border: none;
       padding: 12px 28px;
-      border-radius: 8px;
+      border-radius: 16px;
       font-size: 1em;
       font-weight: 700;
       cursor: pointer;
       text-decoration: none;
       display: inline-block;
     }
-    button:hover, .btn:hover { background: #ffdd44; }
-    .ghost { background: transparent; color: #ffaa00; border: 1px solid #ffaa00; }
-    .note { font-size: 0.8em; color: #ffdd4488; margin-top: 1.6em; }
+    button:hover, .btn:hover { filter: brightness(1.06); }
+    .ghost { background: transparent; color: #f0d36a; border: 1px solid rgba(240,211,106,0.34); }
+    .note { font-size: 0.8em; color: rgba(246,241,228,0.46); margin-top: 1.6em; }
   </style>
 </head>
 <body>
   <p class="chip">workspace 14.15.6 · Lattice Chat v14.18.x · TOLC 8</p>
-  <h1>Offline Mercy Thunder ⚡️</h1>
+  <h1 class="title-font">Offline Mercy Thunder ⚡️</h1>
   <p>Lattice resting in deep peace. You are still safe here.</p>
   <p>Cached pages and any Lattice Chat sessions on this device stay local. No Ra-Thor backend.</p>
   <p>Reconnect when thunder calls again.</p>
@@ -59,6 +69,7 @@
     <a class="btn ghost" href="/privacy.html">Privacy</a>
   </div>
   <p class="note">Capable · Bounded · Corrigible · Independent of xAI · info@Rathor.ai</p>
+  <script src="/js/rathor-theme.js"></script>
   <script src="/js/family-nav-2026-08-22.js" defer></script>
 </body>
 </html>
