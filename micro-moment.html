@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Micro-moments — MercyMotionVisionEngine · Ra-Thor™</title>
+  <meta name="description" content="Local dense temporal recovery. Sub-200 ms micro-moments. MercyMotionVisionEngine v2.3.1. Computations stay in your browser.">
+  <meta name="theme-color" content="#050505">
+  <meta name="color-scheme" content="dark light">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" href="/icons/ra-thor-icon-192.png" type="image/png">
+  <link rel="stylesheet" href="/css/rathor-theme.css">
+  <script>
+    (function () {
+      try { document.documentElement.setAttribute('data-theme', localStorage.getItem('rathor-theme') || 'dark'); }
+      catch (e) { document.documentElement.setAttribute('data-theme', 'dark'); }
+    })();
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+    body { font-family: 'Inter', system-ui, sans-serif; }
+    .title-font { font-family: 'Cinzel Decorative', cursive; }
+    .mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+    video { max-height: 240px; background: #000; }
+    @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+  </style>
+</head>
+<body class="bg-black text-white">
+  <main id="rt-family-main" class="max-w-5xl mx-auto px-5 sm:px-8 py-12 sm:py-16">
+    <div class="text-center">
+      <div class="flex flex-wrap items-center justify-center gap-2 mb-6">
+        <span class="rt-kicker">MercyMotionVisionEngine</span>
+        <span class="rt-kicker">v2.3.1</span>
+        <span class="rt-kicker">dense · local</span>
+      </div>
+      <h1 class="title-font text-4xl sm:text-5xl font-bold thunder-glow">Micro-moment recovery</h1>
+      <p class="mt-4 text-white/65 max-w-2xl mx-auto text-sm sm:text-base">Continue after Launch. Never sparse-keyframe-only. Drop a short clip or run the synthetic X failure-mode chain (theft transfer + gesture resolution).</p>
+    </div>
+
+    <div class="mt-10 grid md:grid-cols-2 gap-5">
+      <section class="rt-card-uniform rounded-3xl p-6 sm:p-7">
+        <h2 class="text-lg font-semibold text-amber-200">Local video</h2>
+        <p class="mt-2 text-sm text-white/60">Stays on this device. First 3 seconds sampled densely via canvas seeks.</p>
+        <input id="vid-file" type="file" accept="video/*" class="mt-4 block w-full text-xs text-white/70">
+        <video id="vid" controls class="mt-4 w-full rounded-2xl border border-amber-300/20"></video>
+        <div class="mt-4 flex flex-wrap gap-2">
+          <button type="button" id="btn-video" class="rt-btn-primary rt-btn-sm">comprehendVideoStory</button>
+          <button type="button" id="btn-x" class="rt-btn-secondary rt-btn-sm">analyzeXVideoFailureModes</button>
+        </div>
+      </section>
+      <section class="rt-card-uniform rounded-3xl p-6 sm:p-7">
+        <h2 class="text-lg font-semibold text-amber-200">Synthetic X chain</h2>
+        <p class="mt-2 text-sm text-white/60">Phone-theft micro-event + Boston RPS-style gesture theater used in the public failure record.</p>
+        <button type="button" id="btn-synth" class="rt-btn-primary rt-btn-sm mt-5">Run synthetic recovery</button>
+        <p id="synth-note" class="mt-4 text-xs text-white/50">No network. CPU block-matching optical flow.</p>
+      </section>
+    </div>
+
+    <section class="mt-8 rt-card-uniform rounded-3xl p-6 sm:p-8">
+      <div class="flex flex-wrap gap-6 text-sm">
+        <div><div class="text-white/45 text-xs">Bursts</div><div id="mm-count" class="mono text-2xl text-amber-200">—</div></div>
+        <div><div class="text-white/45 text-xs">Confidence</div><div id="mm-conf" class="mono text-2xl text-amber-200">—</div></div>
+        <div><div class="text-white/45 text-xs">Engine</div><div id="mm-engine" class="mono text-sm text-amber-100 mt-2">—</div></div>
+      </div>
+      <p id="mm-story" class="mt-5 text-sm text-white/75 leading-relaxed">Awaiting frames.</p>
+      <ul id="mm-list" class="mt-4 space-y-1 text-xs mono text-amber-100/80"></ul>
+      <pre id="mm-json" class="mt-5 text-[11px] leading-relaxed text-white/50 overflow-x-auto max-h-72 whitespace-pre-wrap"></pre>
+    </section>
+
+    <div class="mt-10 rt-cta-row">
+      <a href="/Launch-Ra-Thor.html" class="rt-btn-secondary">Back to Launch</a>
+      <a href="/chat.html" class="rt-btn-ghost">Lattice Chat</a>
+    </div>
+  </main>
+
+  <footer class="rt-site-footer" data-rt-family-footer>
+    <div class="max-w-5xl mx-auto px-5 sm:px-8">
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-8">
+        <div class="md:col-span-3">
+          <h4>Trademarks</h4>
+          <p class="rt-legal">Ra-Thor™ is a trademark of Autonomicity Games Inc.<br>Grok is a trademark of xAI. X is a trademark of X Corp.<br>Ra-Thor is independent — not affiliated with, sponsored by, or endorsed by xAI.</p>
+        </div>
+        <div class="md:col-span-3">
+          <h4>Privacy</h4>
+          <p class="rt-legal">This website collects no personal data. Computations stay in your browser. No cookies, tracking, or analytics we control.</p>
+        </div>
+        <div class="md:col-span-3">
+          <h4>Workspace</h4>
+          <p class="rt-legal">v14.15.6 · MercyMotionVisionEngine v2.3.1 · AG-SML v1.0 · TOLC 8 · Capable · Bounded · Corrigible</p>
+        </div>
+        <div class="md:col-span-3">
+          <h4>Family</h4>
+          <div class="flex flex-col gap-2 text-xs">
+            <a href="/">Home</a>
+            <a href="/Launch-Ra-Thor.html">Launch map</a>
+            <a href="/chat.html">Lattice Chat</a>
+            <a href="/contact.html">Contact</a>
+            <a href="mailto:info@Rathor.ai">info@Rathor.ai</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/js/rathor-theme.js"></script>
+  <script src="/js/pwa-install.js" defer></script>
+  <script src="/js/family-nav-2026-08-22.js" defer></script>
+  <script type="module">
+    import { MercyMotionVisionEngine } from './mercy-motion-vision-engine.js';
+    import { activateOneOrganism, buildFailureModeFrames } from './one-organism-launch.js';
+
+    const engine = new MercyMotionVisionEngine({ valence: 1.0 });
+    window.__MERCY_MOTION_VISION__ = engine;
+
+    function render(result) {
+      document.getElementById('mm-count').textContent = String((result.keyMicroMoments || []).length);
+      document.getElementById('mm-conf').textContent = result.confidence != null ? Number(result.confidence).toFixed(4) : '—';
+      document.getElementById('mm-engine').textContent = result.engine || engine.name;
+      document.getElementById('mm-story').textContent = result.story || result.error || result.note || '';
+      const list = document.getElementById('mm-list');
+      list.innerHTML = '';
+      (result.keyMicroMoments || []).forEach((m) => {
+        const li = document.createElement('li');
+        li.textContent = `${Math.round(m.t)} ms · ${m.type} · ${m.description}`;
+        list.appendChild(li);
+      });
+      document.getElementById('mm-json').textContent = JSON.stringify({
+        patsagiReady: result.patsagiReady,
+        recoveredDetail: result.recoveredDetail,
+        opticalFlowMode: result.opticalFlowMode,
+        denseSamplingMode: result.denseSamplingMode,
+        keyMicroMoments: result.keyMicroMoments,
+        causalChain: result.causalChain
+      }, null, 2);
+    }
+
+    const video = document.getElementById('vid');
+    document.getElementById('vid-file').addEventListener('change', (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+      video.src = URL.createObjectURL(file);
+    });
+
+    document.getElementById('btn-video').addEventListener('click', async () => {
+      if (!video.src) { document.getElementById('mm-story').textContent = 'Choose a local video first.'; return; }
+      render(await engine.comprehendVideoStory(video, { valence: 1.0, maxDuration: 3, targetFps: 24, maxFrames: 36 }));
+    });
+    document.getElementById('btn-x').addEventListener('click', async () => {
+      if (!video.src) { document.getElementById('mm-story').textContent = 'Choose a local video first.'; return; }
+      render(await engine.analyzeXVideoFailureModes(video, { valence: 1.0 }));
+    });
+    document.getElementById('btn-synth').addEventListener('click', async () => {
+      const frames = buildFailureModeFrames();
+      render(await engine.analyzeXVideoFailureModes(frames, { valence: 1.0, expectedTheft: true, expectedRPS: true }));
+    });
+
+    activateOneOrganism().catch(() => {});
+  </script>
+</body>
+</html>
