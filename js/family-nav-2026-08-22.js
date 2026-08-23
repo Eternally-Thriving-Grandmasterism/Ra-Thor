@@ -5,6 +5,7 @@
    2026-08-23: Install chip + coherent family labels
    2026-08-23b: Professional site footer contract · no pill-bar footer
    2026-08-23c: Celestial sun/moon orb + compact install glyph
+   2026-08-23d: Skip link is fixed+clip — never left:-999px (standalone RTL)
 */
 (function () {
   if (window.__rtFamilyNav) return;
@@ -114,10 +115,18 @@
       install.className = 'rt-install-orb';
       install.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 3v12m0 0-4-4m4 4 4-4M5 19h14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
       install.setAttribute('aria-label', 'Install Ra-Thor on this device');
+      install.setAttribute('data-rt-say-skip', '1');
       install.title = 'Install on this device';
       install.addEventListener('click', function () {
         if (typeof window.rathorTriggerPWAInstall === 'function') {
           window.rathorTriggerPWAInstall();
+        } else if (typeof window.rathorSay === 'function') {
+          window.rathorSay({
+            title: 'Install module loading',
+            body: 'Give it a second, then tap Install again.',
+            tone: 'hold',
+            ms: 3000
+          });
         }
       });
       tools.appendChild(install);
@@ -128,6 +137,7 @@
     theme.id = kind === 'top' ? 'rt-theme-toggle' : 'rt-theme-toggle-foot';
     theme.className = 'rt-theme-orb';
     theme.setAttribute('data-rt-theme-toggle', '1');
+    theme.setAttribute('data-rt-say-skip', '1');
     theme.setAttribute('aria-label', 'Switch to light mode');
     theme.title = 'Day — switch to light';
     theme.innerHTML = '<span class="rt-celestial-stack" aria-hidden="true"></span>';
@@ -184,20 +194,51 @@
     return wrap;
   }
 
+  var SKIP_HIDE =
+    'position:fixed;top:0;left:0;inset-inline-start:0;inset-inline-end:auto;' +
+    'width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;' +
+    'clip:rect(0,0,0,0);clip-path:inset(50%);white-space:nowrap;border:0;' +
+    'z-index:60;background:transparent;color:transparent;';
+  var SKIP_SHOW =
+    'position:fixed;top:0.5rem;inset-inline-start:0.5rem;left:auto;right:auto;' +
+    'width:auto;height:auto;padding:0.4rem 0.7rem;margin:0;overflow:visible;' +
+    'clip:auto;clip-path:none;white-space:nowrap;z-index:80;' +
+    'background:#fbbf24;color:#000;border-radius:0.35rem;' +
+    'font:600 12px/1.2 system-ui,sans-serif;';
+
+  function hideSkip(a) {
+    if (!a) return;
+    a.style.cssText = SKIP_HIDE;
+  }
+
+  function clipViewport() {
+    var root = document.documentElement;
+    if (root) {
+      root.style.overflowX = 'clip';
+      root.style.maxWidth = '100%';
+    }
+    if (document.body) {
+      document.body.style.overflowX = 'clip';
+      document.body.style.maxWidth = '100%';
+    }
+  }
+
   function skipLink() {
-    if (document.getElementById('rt-skip-family')) return;
+    var existing = document.getElementById('rt-skip-family');
+    if (existing) {
+      hideSkip(existing);
+      return;
+    }
     var a = document.createElement('a');
     a.id = 'rt-skip-family';
     a.href = '#rt-family-main';
     a.textContent = 'Skip family navigation';
-    a.style.cssText = 'position:absolute;left:-999px;top:0;background:#fbbf24;color:#000;padding:0.4rem 0.7rem;z-index:50;font:600 12px system-ui,sans-serif;';
-    a.addEventListener('focus', function () {
-      a.style.left = '0.5rem';
-      a.style.top = '0.5rem';
-    });
-    a.addEventListener('blur', function () {
-      a.style.left = '-999px';
-    });
+    /* Never use left:-999px / position:absolute off-canvas.
+       Android standalone + html[dir=rtl] treats that as extra
+       scroll width and parks the visual viewport on the yellow chip. */
+    hideSkip(a);
+    a.addEventListener('focus', function () { a.style.cssText = SKIP_SHOW; });
+    a.addEventListener('blur', function () { hideSkip(a); });
     document.body.insertBefore(a, document.body.firstChild);
     if (!document.getElementById('rt-family-main')) {
       var main = document.querySelector('main') || document.body.children[1] || document.body;
@@ -207,6 +248,7 @@
 
   function mount() {
     if (document.body && document.body.getAttribute('data-rt-family') === 'off') return;
+    clipViewport();
     skipLink();
     if (!document.getElementById('rt-family-nav') && !compactOffTop()) {
       document.body.insertBefore(bar('top'), document.body.firstChild);
@@ -245,6 +287,11 @@
   }
 
   function bootTheme() {
+    if (!window.rathorSay && !document.querySelector('script[src*="rathor-feedback"]')) {
+      var f = document.createElement('script');
+      f.src = '/js/rathor-feedback.js';
+      (document.head || document.documentElement).appendChild(f);
+    }
     if (!document.querySelector('link[href*="rathor-theme.css"]')) {
       var l = document.createElement('link');
       l.rel = 'stylesheet';
