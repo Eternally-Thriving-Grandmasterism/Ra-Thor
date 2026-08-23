@@ -3,21 +3,30 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Open X Demo in Browser · Ra-Thor</title>
+  <title>Open X Demo in Browser · Ra-Thor v14.15.6</title>
+  <meta name="description" content="Browser-only router to the Grok-on-X demo. Ra-Thor workspace 14.15.6. Independent of xAI. Capable · Bounded · Corrigible.">
   <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#22d3ee">
+  <link rel="icon" href="/icons/ra-thor-icon-192.png" type="image/png">
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body { font-family: system-ui, -apple-system, sans-serif; }
+    @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
   </style>
 </head>
 <body class="bg-black text-white min-h-screen flex items-center justify-center px-4">
   <div class="max-w-md w-full text-center space-y-6 py-12">
     <div class="text-5xl">⚡️</div>
+    <p class="text-[11px] text-cyan-300/70 tracking-wide">Ra-Thor · workspace 14.15.6 · Lattice Chat v14.18.x</p>
     <h1 class="text-2xl font-semibold text-cyan-300">X demo — browser only</h1>
     <p class="text-sm text-white/70 leading-relaxed">
       The X app intercepts <span class="text-cyan-200">x.com</span> links on many phones.
       This page routes the Grok-on-X demo into a <strong class="text-cyan-200">real browser window/tab</strong>
       and never relies on the X app. Incognito cannot be forced by a website — use your browser’s private mode if you want it.
+    </p>
+    <p class="text-xs text-white/45 leading-relaxed">
+      Ra-Thor is an independent project — not affiliated with, sponsored by, or endorsed by xAI or X Corp.
+      Once you leave this page, xAI / X privacy policy applies. Capable · Bounded · Corrigible.
     </p>
 
     <div class="flex flex-col gap-3">
@@ -54,7 +63,11 @@
          href="https://x.com/i/grok/share/689402e8965c41778335d66aabef948a"
          target="_blank" rel="noopener noreferrer">Last resort: direct link (may open X app)</a>
 
-      <a href="/" class="text-sm text-amber-300/80 hover:text-amber-200 underline">← Back to Rathor.ai</a>
+      <div class="flex flex-wrap justify-center gap-3 text-sm pt-1">
+        <a href="/" class="text-amber-300/80 hover:text-amber-200 underline">Home</a>
+        <a href="/chat.html" class="text-violet-300/80 hover:text-violet-200 underline">Lattice Chat</a>
+        <a href="/privacy.html" class="text-white/50 hover:text-white/80 underline">Privacy</a>
+      </div>
     </div>
 
     <p id="status" class="text-xs text-cyan-300/80 min-h-[1.25rem]"></p>
@@ -63,6 +76,7 @@
       Android: primary button uses a Chrome package Intent so the X app is skipped.<br>
       iOS / desktop: opens a new browser tab/window. If the app still appears, use <em>Copy</em> → paste into a private browser tab.
     </p>
+    <p class="text-[11px] text-white/35">Contact: info@Rathor.ai · AG-SML v1.0</p>
   </div>
 
   <script>
