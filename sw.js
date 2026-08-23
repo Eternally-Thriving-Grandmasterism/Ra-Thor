@@ -10,7 +10,7 @@ var PRECACHE = [
   '/offline.html', '/thanks.html', '/go-x.html', '/Launch-Ra-Thor.html',
   '/sovereign-shard.html', '/web-forge.html', '/manifest.json',
   '/js/pwa-boot.js', '/js/pwa-install.js', '/js/lang-offer.js',
-  '/js/rathor-theme.js', '/css/rathor-theme.css',
+  '/js/rathor-theme.js', '/js/rathor-unify.js', '/css/rathor-theme.css',
   '/js/family-nav-2026-08-22.js', '/js/site-lock-2026-08-22.js',
   '/js/science-map-lock.js', '/js/sovereign-shard.js', '/js/chat.js',
   '/js/contact-i18n.js',
