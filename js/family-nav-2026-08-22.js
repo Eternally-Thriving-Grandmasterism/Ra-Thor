@@ -188,12 +188,31 @@
     (document.head || document.documentElement).appendChild(s);
   }
 
+  function bootTheme() {
+    if (!document.querySelector('link[href*="rathor-theme.css"]')) {
+      var l = document.createElement('link');
+      l.rel = 'stylesheet';
+      l.href = '/css/rathor-theme.css';
+      (document.head || document.documentElement).appendChild(l);
+    }
+    if (typeof window.rathorToggleTheme !== 'function' && !document.querySelector('script[src*="rathor-theme.js"]')) {
+      var s = document.createElement('script');
+      s.src = '/js/rathor-theme.js';
+      s.onload = function () {
+        try { window.dispatchEvent(new Event('rathor-nav-ready')); } catch (e) {}
+      };
+      (document.head || document.documentElement).appendChild(s);
+    }
+  }
+
   if (document.body) {
+    bootTheme();
     mount();
     lockForgeCopy();
     bootScienceMap();
   } else {
     document.addEventListener('DOMContentLoaded', function () {
+      bootTheme();
       mount();
       lockForgeCopy();
       bootScienceMap();
