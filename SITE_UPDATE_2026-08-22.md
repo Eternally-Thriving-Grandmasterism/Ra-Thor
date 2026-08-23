@@ -17,28 +17,27 @@
 | Independence | not affiliated with, sponsored by, or endorsed by xAI |
 | Claims | capable · bounded · corrigible |
 
+## Family navigation
+
+Shared injector: `/js/family-nav-2026-08-22.js`
+Buttons (current page highlighted): **Home · Chat · Launch · Shard · Forge · Contact · Privacy**
+
+Live with injector + in-page buttons this tick: `offline.html`, `thanks.html`, `go-x.html`.
+Home loads the bar once `site-lock-2026-08-22.js` appends the same script (next landing if not already cached).
+
 ## Public surfaces vs lock
 
 | Surface | Role | Bound |
 | --- | --- | --- |
 | `/` | lock injector + modular i18n (71 keys × 11 langs) | no re-inline dictionaries |
-| `/chat.html` | Lattice Chat v14.18.x | local IndexedDB / localStorage; no backend we control |
+| `/chat.html` | Lattice Chat v14.18.x | local IndexedDB / localStorage |
 | `/Launch-Ra-Thor.html` | launch map | 6 science cards, research-only |
-| `/sovereign-shard.html` | Shard v8 demo | local weights; not a live Conductor node |
+| `/sovereign-shard.html` | Shard v8 demo | local weights; not a live Conductor |
+| `/web-forge.html` | local generator demo | workspace 14.15.6; not a product |
 | `/contact.html` | info@Rathor.ai | guidance-5 names all 6 sister lattices |
-| `/privacy.html` + `docs/Legal/privacy.md` | privacy | same store wording; dated 2026-08-22 |
+| `/privacy.html` + `docs/Legal/privacy.md` | privacy | same store wording |
 | `/go-x.html` | X-app bypass router | independence line; xAI/X policy after leave |
-| `/offline.html` | PWA fallback | family chip; cached-only, no backend |
-
-## Sister science lattices (research surfaces — not products)
-
-- Fusion Abundance
-- Ambient-Pressure High-Tc
-- Protein & Molecular Design
-- Mercy Coordination Substrate
-- Daedalus-Skin Eternal Ark
-- Air Foundation (Air + rotorcraft)
-
-FAQ 11: PATSAGi Councils = architecture / governance posture, not automatic-correctness warranty.
+| `/offline.html` | PWA fallback | cached-only |
+| `/thanks.html` | contact receipt | family links |
 
 Thunder locked in.
