@@ -62,10 +62,7 @@ html, body {
 }
 
 /* Visually hidden skip control.
-   position:fixed + clip — NEVER left:-999px / absolute off-canvas.
-   Negative left + html[dir=rtl] + Android standalone expands the
-   scrollport; Chrome parks the visual viewport on the yellow chip
-   and shoves the page to the right. */
+   position:fixed + clip — NEVER left:-999px / absolute off-canvas. */
 #rt-skip-family {
   position: fixed !important;
   top: 0;
@@ -94,7 +91,6 @@ html, body {
   clip: auto !important;
   clip-path: none !important;
   overflow: visible !important;
-  white-space: nowrap;
   top: 0.5rem;
   inset-inline-start: 0.5rem;
   inset-inline-end: auto;
@@ -109,3 +105,6 @@ html[data-theme] body.bg-black {
   background: var(--rt-bg) !important;
   color: var(--rt-ink) !important;
 }
+
+@import url('rathor-theme-rest-a.css');
+@import url('rathor-theme-rest-b.css');
