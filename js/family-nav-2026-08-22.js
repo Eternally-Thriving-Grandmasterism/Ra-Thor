@@ -2,8 +2,7 @@
    Shared public-surface network for rathor.ai
    Workspace 14.15.6 · Lattice Chat v14.18.x
    Contact: info@Rathor.ai
-   PATSAGi polish 2026-08-22/23: skip-link + reduced-motion + focus ring +
-   Forge truth lock + compact off-top when the page already ships a family header
+   2026-08-23: Install chip + coherent family labels
 */
 (function () {
   if (window.__rtFamilyNav) return;
@@ -41,6 +40,13 @@
     }
   }
 
+  function isStandalone() {
+    return (
+      (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) ||
+      window.navigator.standalone === true
+    );
+  }
+
   function alreadyHasFamilyHeader() {
     if (document.querySelector('[data-rt-family-header]')) return true;
     var scope = document.querySelector('header') || document.body;
@@ -60,6 +66,23 @@
     return alreadyHasFamilyHeader();
   }
 
+  function styleLink(el, current) {
+    el.style.cssText = 'font:600 11px/1.2 system-ui,sans-serif;padding:0.35rem 0.65rem;border-radius:999px;text-decoration:none;border:1px solid rgba(252,211,77,0.35);color:#fde68a;background:transparent;cursor:pointer;';
+    el.addEventListener('focus', function () {
+      el.style.outline = '2px solid #fbbf24';
+      el.style.outlineOffset = '2px';
+    });
+    el.addEventListener('blur', function () {
+      el.style.outline = 'none';
+    });
+    if (current) {
+      el.setAttribute('aria-current', 'page');
+      el.style.background = '#fbbf24';
+      el.style.color = '#000';
+      el.style.borderColor = '#fbbf24';
+    }
+  }
+
   function bar(kind) {
     var nav = document.createElement('nav');
     nav.id = kind === 'top' ? 'rt-family-nav' : 'rt-family-footer';
@@ -73,22 +96,25 @@
       var a = document.createElement('a');
       a.href = item.href;
       a.textContent = item.label;
-      a.style.cssText = 'font:600 11px/1.2 system-ui,sans-serif;padding:0.35rem 0.65rem;border-radius:999px;text-decoration:none;border:1px solid rgba(252,211,77,0.35);color:#fde68a;';
-      a.addEventListener('focus', function () {
-        a.style.outline = '2px solid #fbbf24';
-        a.style.outlineOffset = '2px';
-      });
-      a.addEventListener('blur', function () {
-        a.style.outline = 'none';
-      });
-      if (isHere(item.href)) {
-        a.setAttribute('aria-current', 'page');
-        a.style.background = '#fbbf24';
-        a.style.color = '#000';
-        a.style.borderColor = '#fbbf24';
-      }
+      styleLink(a, isHere(item.href));
       nav.appendChild(a);
     });
+
+    if (!isStandalone()) {
+      var install = document.createElement('button');
+      install.type = 'button';
+      install.textContent = 'Install';
+      install.setAttribute('aria-label', 'Install Ra-Thor on this device');
+      styleLink(install, false);
+      install.style.borderColor = 'rgba(52,211,153,0.55)';
+      install.style.color = '#6ee7b7';
+      install.addEventListener('click', function () {
+        if (typeof window.rathorTriggerPWAInstall === 'function') {
+          window.rathorTriggerPWAInstall();
+        }
+      });
+      nav.appendChild(install);
+    }
     return nav;
   }
 

@@ -75,6 +75,20 @@
       "short_name": "Contact",
       "url": "/contact.html?source=pwa-shortcut",
       "icons": [{ "src": "/icons/ra-thor-icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Lattice map",
+      "short_name": "Launch",
+      "description": "Chat, Shard, Forge, and science lattices",
+      "url": "/Launch-Ra-Thor.html?source=pwa-shortcut",
+      "icons": [{ "src": "/icons/ra-thor-icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Sovereign Shard",
+      "short_name": "Shard",
+      "description": "Local TOLC 8 shard demo",
+      "url": "/sovereign-shard.html?source=pwa-shortcut",
+      "icons": [{ "src": "/icons/ra-thor-icon-192.png", "sizes": "192x192" }]
     }
   ]
 }
