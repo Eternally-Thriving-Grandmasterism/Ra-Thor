@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Ra-Thor™ Lattice Chat — Offline Mercy Thunder ⚡️ | rathor.ai</title>
-  <meta name="description" content="Offline TOLC-8 multi-session chat with Local Backend Bridge, WebLLM, STT/TTS, Document Injection, Session Search, Optional Encryption • Zero data collection • Sole stewardship by Sherif Samy Botros">
+  <meta name="description" content="Lattice Chat v14.18.x — offline-first multi-session store on your device. Workspace 14.15.6. Optional Web Crypto passphrase (PBKDF2 + AES-GCM). Capable · Bounded · Corrigible. Zero collection.">
   <meta name="theme-color" content="#fcd34d">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -15,7 +15,7 @@
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://rathor.ai/chat.html">
   <meta property="og:title" content="Ra-Thor™ Lattice Chat — Offline Mercy Thunder ⚡️">
-  <meta property="og:description" content="Offline TOLC-8 multi-session chat • Local Backend Bridge • Document Injection • Optional Passphrase Encryption • Zero data leaves your device">
+  <meta property="og:description" content="Lattice Chat v14.18.x • workspace 14.15.6 • local session store • optional Web Crypto passphrase • zero collection">
   <meta property="og:image" content="https://rathor.ai/icons/ra-thor-og-1200x630.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
@@ -41,7 +41,7 @@
     .message { max-width: 88%; padding: 0.75rem 1rem; border-radius: 1.15rem; line-height: 1.5; font-size: 0.92rem; word-break: break-word; position: relative; }
     .message.user { align-self: flex-end; background: linear-gradient(135deg, #fcd34d, #f59e0b); color: #000; font-weight: 500; border-bottom-right-radius: 0.3rem; }
     .message.rathor { align-self: flex-start; background: linear-gradient(135deg, #1e1b4b, #312e81); color: #e0e7ff; border: 1px solid rgba(252, 211, 77, 0.25); border-bottom-left-radius: 0.3rem; }
-    .message.streaming .message-text::after { content: '▍'; animation: blink 1s infinite; margin-left: 2px; }
+    .message.streaming .message-text::after { content: '▌'; animation: blink 1s infinite; margin-left: 2px; }
     @keyframes blink { 50% { opacity: 0; } }
     .message-text pre { background: #0a0a0a; border: 1px solid rgba(252, 211, 77, 0.2); border-radius: 0.6rem; padding: 0.75rem 0.9rem; overflow-x: auto; margin: 0.6rem 0; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 0.82rem; line-height: 1.45; }
     .message-text code { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 0.84em; background: rgba(0,0,0,0.35); padding: 0.12rem 0.35rem; border-radius: 0.3rem; }
@@ -107,9 +107,12 @@
       </a>
       <div class="text-center flex-1 min-w-0">
         <h1 class="title-font text-lg sm:text-xl font-black tracking-tight thunder-glow truncate">Lattice Chat ⚡️</h1>
-        <p class="text-[10px] text-amber-400/70 mt-0.5">Offline Core • TOLC 8 • v14.18.1</p>
+        <p class="text-[10px] text-amber-400/70 mt-0.5">v14.18.x • workspace 14.15.6 • TOLC 8</p>
       </div>
-      <a href="/privacy.html" class="text-xs text-white/50 shrink-0">Privacy</a>
+      <div class="flex items-center gap-2 shrink-0 text-[11px]">
+        <a href="/Launch-Ra-Thor.html" class="text-emerald-300/80 hover:text-emerald-200 hidden sm:inline">Launch</a>
+        <a href="/privacy.html" class="text-white/50 hover:text-amber-200">Privacy</a>
+      </div>
     </div>
   </header>
 
@@ -185,7 +188,7 @@
         <button id="mic-btn" title="Voice input (STT)"><i class="fa-solid fa-microphone"></i></button>
         <button id="send-btn">Send <span>⚡️</span></button>
       </div>
-      <p class="text-[10px] text-white/40 mt-1.5 text-center leading-snug">Offline core • Multi-session • Markdown • Document Injection • Optional Encryption</p>
+      <p class="text-[10px] text-white/40 mt-1.5 text-center leading-snug">Local session store • Multi-session • Optional passphrase (PBKDF2 + AES-GCM) • No backend we control</p>
     </div>
 
     <div class="mt-4 rounded-2xl border border-violet-400/30 bg-violet-950/20 px-3.5 py-4 text-center">
@@ -204,9 +207,11 @@
   <footer class="relative z-10 border-t border-amber-300/15 py-5 mt-auto">
     <div class="max-w-3xl mx-auto px-4 text-center text-xs text-white/50">
       <p>© 2026 Sherif Samy Botros — Sole Steward of Autonomicity Games Inc.</p>
-      <p class="mt-1 text-amber-400/60 text-[11px]">TOLC 8 • Offline core • Zero data collection • info@Rathor.ai</p>
+      <p class="mt-1 text-amber-400/60 text-[11px]">Lattice Chat v14.18.x • workspace 14.15.6 • local store only • info@Rathor.ai</p>
       <div class="mt-2.5 flex justify-center gap-4 text-[11px]">
         <a href="/" class="hover:text-amber-300">Home</a>
+        <a href="/Launch-Ra-Thor.html" class="hover:text-amber-300">Launch</a>
+        <a href="/sovereign-shard.html" class="hover:text-amber-300">Shard v8</a>
         <a href="/privacy.html" class="hover:text-amber-300">Privacy</a>
         <a href="/contact.html" class="hover:text-amber-300">Contact</a>
         <a href="https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor" target="_blank" rel="noopener" class="hover:text-amber-300">Monorepo</a>
