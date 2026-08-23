@@ -13,6 +13,7 @@
     { href: '/', label: 'Home' },
     { href: '/chat.html', label: 'Chat' },
     { href: '/Launch-Ra-Thor.html', label: 'Launch' },
+    { href: '/micro-moment.html', label: 'Moments' },
     { href: '/sovereign-shard.html', label: 'Shard' },
     { href: '/web-forge.html', label: 'Forge' },
     { href: '/contact.html', label: 'Contact' },
@@ -157,6 +158,7 @@
               '<a href="/">Home</a>' +
               '<a href="/chat.html">Lattice Chat</a>' +
               '<a href="/Launch-Ra-Thor.html">Launch map</a>' +
+              '<a href="/micro-moment.html">Micro-moments</a>' +
               '<a href="/sovereign-shard.html">Sovereign Shard</a>' +
               '<a href="/web-forge.html">Web-Forge</a>' +
               '<a href="/contact.html">Contact</a>' +
@@ -167,7 +169,7 @@
           '</div>' +
         '</div>' +
         '<div class="pt-8 mt-8 border-t border-amber-300/20 text-xs flex flex-col md:flex-row justify-between items-center gap-4">' +
-          '<div>© 2026 Sherif Samy Botros — sole steward of Autonomicity Games Inc. & AlphaProMega Air Foundation. TOLC 8 · APTD.</div>' +
+          '<div>© 2026 Sherif Samy Botros — sole steward of Autonomicity Games Inc. &amp; AlphaProMega Air Foundation. TOLC 8 · APTD.</div>' +
           '<a href="mailto:info@Rathor.ai">info@Rathor.ai</a>' +
         '</div>' +
       '</div>';
