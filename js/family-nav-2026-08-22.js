@@ -6,6 +6,8 @@
    2026-08-23b: Professional site footer contract · no pill-bar footer
    2026-08-23c: Celestial sun/moon orb + compact install glyph
    2026-08-23d: Skip link is fixed+clip — never left:-999px (standalone RTL)
+   2026-08-23e: Uniform gold bar — incomplete local navs no longer suppress;
+                retire competing family navs; Chat + Forge + Shard share one chrome
 */
 (function () {
   if (window.__rtFamilyNav) return;
@@ -53,6 +55,7 @@
 
   function alreadyHasFamilyHeader() {
     if (document.querySelector('[data-rt-family-header]')) return true;
+    if (document.getElementById('rt-family-nav')) return true;
     var scope = document.querySelector('header') || document.body;
     if (!scope) return false;
     var found = {};
@@ -61,7 +64,21 @@
       var t = (anchors[i].textContent || '').replace(/\s+/g, ' ').trim();
       if (t) found[t] = true;
     }
-    return !!(found.Home && found.Chat && (found.Launch || found.Shard || found.Forge));
+    /* Only treat a local header as family chrome when it already has the
+       full public walk — incomplete Forge/Shard/Chat bars must not suppress. */
+    return !!(found.Home && found.Chat && found.Launch && found.Moments && found.Shard && found.Forge && found.Contact && found.Privacy);
+  }
+
+  function retireLocalFamilyNavs() {
+    var nodes = document.querySelectorAll('nav');
+    for (var i = 0; i < nodes.length; i++) {
+      var n = nodes[i];
+      if (n.id === 'rt-family-nav' || n.id === 'rt-family-footer') continue;
+      var label = (n.getAttribute('aria-label') || '').toLowerCase();
+      if (label === 'ra-thor family' || label.indexOf('ra-thor family') !== -1) {
+        if (n.parentNode) n.parentNode.removeChild(n);
+      }
+    }
   }
 
   function compactOffTop() {
@@ -250,6 +267,7 @@
     if (document.body && document.body.getAttribute('data-rt-family') === 'off') return;
     clipViewport();
     skipLink();
+    retireLocalFamilyNavs();
     if (!document.getElementById('rt-family-nav') && !compactOffTop()) {
       document.body.insertBefore(bar('top'), document.body.firstChild);
     }
