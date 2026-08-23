@@ -1,5 +1,5 @@
 /* sw.js — Ra-Thor vanilla offline worker
- * Workspace 14.15.6 · LOCK 2026-08-23-theme
+ * Workspace 14.15.6 · LOCK 2026-08-23-lattice
  * Pass-through documents. Fetch handler present for Chrome installability.
  * Contact: info@Rathor.ai
  */
@@ -8,7 +8,8 @@ var CACHE = 'rathor-core-' + LOCK;
 var PRECACHE = [
   '/', '/index.html', '/chat.html', '/contact.html', '/privacy.html',
   '/offline.html', '/thanks.html', '/go-x.html', '/Launch-Ra-Thor.html',
-  '/sovereign-shard.html', '/web-forge.html', '/manifest.json',
+  '/micro-moment.html', '/sovereign-shard.html', '/web-forge.html', '/manifest.json',
+  '/mercy-motion-vision-engine.js', '/fuzzy-mercy-logic.js', '/one-organism-launch.js',
   '/js/pwa-boot.js', '/js/pwa-install.js', '/js/lang-offer.js',
   '/js/rathor-theme.js', '/js/rathor-unify.js', '/css/rathor-theme.css',
   '/js/family-nav-2026-08-22.js', '/js/site-lock-2026-08-22.js',
