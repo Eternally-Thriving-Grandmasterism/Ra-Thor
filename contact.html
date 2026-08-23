@@ -5,8 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
   <title>Contact Ra-Thor™ — Eternal Mercy Thunder ⚡ | rathor.ai</title>
   <meta name="description" content="Single official contact for Ra-Thor AGi • info@Rathor.ai • Commercial licensing, security, stewardship & inquiries">
+  <meta name="theme-color" content="#050505">
+  <meta name="color-scheme" content="dark light">
+  <link rel="manifest" href="/manifest.json">
   <link rel="icon" href="/icons/ra-thor-icon-192.png" type="image/png">
   <link rel="apple-touch-icon" href="/icons/ra-thor-icon-192.png">
+  <link rel="stylesheet" href="/css/rathor-theme.css">
+  <script>
+    (function () {
+      try { document.documentElement.setAttribute('data-theme', localStorage.getItem('rathor-theme') || 'dark'); }
+      catch (e) { document.documentElement.setAttribute('data-theme', 'dark'); }
+    })();
+  </script>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <style>
@@ -67,30 +77,27 @@
         <div class="text-6xl mb-6">⚡</div>
         <h2 id="main-email" class="text-3xl font-semibold mb-2">info@Rathor.ai</h2>
         <p id="main-subtitle" class="text-amber-400 mb-6">The single eternal official email for all entities</p>
-        
-        <a href="mailto:info@Rathor.ai" 
-           class="inline-flex items-center justify-center gap-3 w-full sm:w-auto px-10 py-4 bg-amber-400 hover:bg-amber-300 text-black font-semibold rounded-2xl text-lg transition-all active:scale-[0.985]">
+        <a href="mailto:info@Rathor.ai" class="inline-flex items-center justify-center gap-3 w-full sm:w-auto px-10 py-4 bg-amber-400 hover:bg-amber-300 text-black font-semibold rounded-2xl text-lg transition-all active:scale-[0.985]">
           <i class="fa-solid fa-envelope"></i>
           <span id="send-button">Send Email Now</span>
         </a>
         <p id="response-time" class="text-xs text-white/50 mt-4">We aim to respond within 48 hours</p>
       </div>
 
-      <div class="card-hover bg-zinc-950 border border-cyan-300/30 rounded-3xl p-8 mb-10 max-w-xl mx-auto">
+      <div class="card-hover rt-card-uniform rounded-3xl p-8 mb-10 max-w-xl mx-auto">
         <div class="flex items-center justify-center gap-3 mb-4">
-          <i class="fa-brands fa-github text-3xl text-cyan-400"></i>
+          <i class="fa-brands fa-github text-3xl text-amber-300"></i>
           <h3 id="github-title" class="text-2xl font-semibold">GitHub Issues</h3>
         </div>
         <p id="github-subtitle" class="text-white/70 mb-5">For technical questions, bug reports, or public discussion</p>
-        <a href="https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/issues" target="_blank" rel="noopener"
-           class="inline-flex items-center justify-center gap-2 px-8 py-3 border border-cyan-400 hover:bg-cyan-950 text-cyan-300 rounded-2xl transition-all">
+        <a href="https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/issues" target="_blank" rel="noopener" class="rt-btn-ghost inline-flex items-center justify-center gap-2 px-8 py-3 rounded-2xl transition-all">
           <span id="github-button">Open an Issue on GitHub →</span>
         </a>
       </div>
 
       <div class="max-w-xl mx-auto text-left bg-zinc-950/60 border border-white/10 rounded-3xl p-8 mb-10">
         <h4 id="guidance-title" class="font-semibold text-amber-300 mb-4 flex items-center gap-2">
-          <i class="fa-solid fa-lightbulb"></i> 
+          <i class="fa-solid fa-lightbulb"></i>
           What to include in your message
         </h4>
         <ul class="space-y-2 text-white/80 text-sm" id="guidance-list">
@@ -108,11 +115,11 @@
           <i class="fa-solid fa-home"></i>
           <span id="return-text">Return to Main Ra-Thor Experience</span>
         </a>
-        <a href="/chat.html" class="inline-flex items-center gap-2 text-sm text-violet-300 hover:text-violet-200 transition-colors">
+        <a href="/chat.html" class="inline-flex items-center gap-2 text-sm text-amber-300 hover:text-amber-200 transition-colors">
           <i class="fa-solid fa-comments"></i>
           <span>Offline Lattice Chat v14.18</span>
         </a>
-        <a href="/Launch-Ra-Thor.html" class="inline-flex items-center gap-2 text-sm text-emerald-300 hover:text-emerald-200 transition-colors">
+        <a href="/Launch-Ra-Thor.html" class="inline-flex items-center gap-2 text-sm text-amber-300 hover:text-amber-200 transition-colors">
           <i class="fa-solid fa-rocket"></i>
           <span>Launch v14.15.6</span>
         </a>
@@ -120,7 +127,7 @@
           <i class="fa-solid fa-gem"></i>
           <span>Shard v8</span>
         </a>
-        <a href="/web-forge.html" class="inline-flex items-center gap-2 text-sm text-lime-300 hover:text-lime-200 transition-colors">
+        <a href="/web-forge.html" class="inline-flex items-center gap-2 text-sm text-amber-300 hover:text-amber-200 transition-colors">
           <i class="fa-solid fa-hammer"></i>
           <span>Web-Forge</span>
         </a>
@@ -155,6 +162,8 @@
       });
     })();
   </script>
+  <script src="/js/rathor-theme.js"></script>
+  <script src="/js/pwa-install.js" defer></script>
   <script src="/js/family-nav-2026-08-22.js" defer></script>
 </body>
 </html>
