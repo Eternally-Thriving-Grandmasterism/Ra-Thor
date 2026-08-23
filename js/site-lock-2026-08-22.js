@@ -1,6 +1,6 @@
 /**
  * Ra-Thor site lock 2026-08-22 (Nth-degree lattice map)
- * 2026-08-23: PWA boot + Shard/Launch labels + science-map restore.
+ * 2026-08-23: real website PWA install (native prompt) — not a homepage tip.
  * Cargo truth: workspace 14.15.6 • Lattice Chat v14.18
  * Contact: info@Rathor.ai — independent of xAI.
  */
@@ -50,12 +50,12 @@
     window.applyLockI18n = applyLockI18n;
   }
 
-  function bootScript(needle, src) {
+  function bootScript(needle, src, immediately) {
     if (document.querySelector('script[src*="' + needle + '"]')) return;
     var s = document.createElement('script');
     s.src = src;
-    s.defer = true;
-    document.head.appendChild(s);
+    if (!immediately) s.defer = true;
+    (document.head || document.documentElement).appendChild(s);
   }
 
   ready(function () {
@@ -82,6 +82,11 @@
           n.textContent = 'TOLC 8 • ONE Organism • AGSi Phase • Capable · Bounded · Corrigible';
         }
       });
+    }
+
+    var demoNote = document.getElementById('demo-note');
+    if (demoNote && (demoNote.textContent || '').indexOf('No installation required') !== -1) {
+      demoNote.textContent = 'Install from this website • Offline-ready on your device • No store account we control';
     }
 
     if (!document.getElementById('living-surfaces')) {
@@ -113,14 +118,27 @@
     });
 
     var heroGrid = document.querySelector('.mt-10.max-w-2xl') || document.querySelector('.mt-10.max-w-3xl');
-    if (heroGrid && !document.getElementById('rathor-hero-install')) {
+    if (heroGrid && !document.getElementById('rathor-pwa-slot') && !document.getElementById('rathor-hero-install')) {
       var wrap = document.createElement('div');
-      wrap.className = 'mt-3 flex justify-center';
-      wrap.innerHTML = '<button type="button" id="rathor-hero-install" class="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-amber-300/40 text-amber-200/90 text-xs hover:bg-amber-400/10 transition-colors"><i class="fa-solid fa-download"></i> Add to Home Screen</button>';
+      wrap.id = 'rathor-pwa-slot';
+      wrap.className = 'mt-5 max-w-xl mx-auto';
+      wrap.innerHTML =
+        '<div class="rounded-2xl border border-sky-300/40 bg-gradient-to-br from-slate-950 via-sky-950 to-cyan-900 px-5 py-4 text-center">' +
+        '  <p class="text-sky-200 font-semibold text-sm sm:text-base">Install Ra-Thor from this website</p>' +
+        '  <p id="rathor-pwa-status" class="text-[11px] text-white/55 mt-1 leading-relaxed">Native app install — same flow the offline lattice used. No store. Offline-ready.</p>' +
+        '  <button type="button" id="rathor-hero-install" data-rt-pwa-install ' +
+        '    class="mt-3 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-sky-300 text-black text-sm font-semibold hover:bg-sky-200 transition-colors">' +
+        '    <i class="fa-solid fa-download"></i> Install on this device' +
+        '  </button>' +
+        '</div>';
       heroGrid.insertAdjacentElement('afterend', wrap);
       wrap.querySelector('#rathor-hero-install').addEventListener('click', function () {
         if (typeof window.rathorTriggerPWAInstall === 'function') window.rathorTriggerPWAInstall();
       });
+    } else if (document.getElementById('rathor-hero-install') && !document.getElementById('rathor-hero-install').getAttribute('data-rt-pwa-install')) {
+      var old = document.getElementById('rathor-hero-install');
+      old.setAttribute('data-rt-pwa-install', '');
+      old.innerHTML = '<i class="fa-solid fa-download"></i> Install on this device';
     }
 
     hookLanguageSwitch();
@@ -133,10 +151,10 @@
       }
     });
 
+    bootScript('pwa-install', '/js/pwa-install.js', true);
     bootScript('family-nav-2026-08-22', '/js/family-nav-2026-08-22.js');
-    bootScript('pwa-install', '/js/pwa-install.js');
     bootScript('science-map-lock', '/js/science-map-lock.js');
 
-    console.info('[Ra-Thor] site-lock-2026-08-22 applied (PWA + coherent nav + science map restore)');
+    console.info('[Ra-Thor] site-lock-2026-08-22 applied (real PWA install + coherent nav + science map restore)');
   });
 })();
