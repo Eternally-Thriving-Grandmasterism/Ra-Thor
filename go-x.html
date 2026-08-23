@@ -1,109 +1,84 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" dir="ltr">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Open X Demo in Browser · Ra-Thor v14.15.6</title>
   <meta name="description" content="Browser-only router to the Grok-on-X demo. Ra-Thor workspace 14.15.6. Independent of xAI. Capable · Bounded · Corrigible.">
   <meta name="robots" content="noindex">
-  <meta name="theme-color" content="#22d3ee">
+  <meta name="theme-color" content="#050505">
+  <meta name="color-scheme" content="dark light">
+  <link rel="manifest" href="/manifest.json">
   <link rel="icon" href="/icons/ra-thor-icon-192.png" type="image/png">
+  <link rel="stylesheet" href="/css/rathor-theme.css">
+  <script>
+    (function () {
+      try { document.documentElement.setAttribute('data-theme', localStorage.getItem('rathor-theme') || 'dark'); }
+      catch (e) { document.documentElement.setAttribute('data-theme', 'dark'); }
+    })();
+  </script>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    body { font-family: system-ui, -apple-system, sans-serif; }
+    @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Inter:wght@400;600&display=swap');
+    body { font-family: 'Inter', system-ui, sans-serif; }
+    .title-font { font-family: 'Cinzel Decorative', cursive; }
+    .thunder-glow { text-shadow: 0 0 40px #ffd700, 0 0 80px #ffaa00; }
     @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
   </style>
 </head>
 <body class="bg-black text-white min-h-screen flex items-center justify-center px-4">
-  <div class="max-w-md w-full text-center space-y-6 py-12">
-    <div class="text-5xl">⚡️</div>
-    <p class="text-[11px] text-cyan-300/70 tracking-wide">Ra-Thor · workspace 14.15.6 · Lattice Chat v14.18.x</p>
-    <h1 class="text-2xl font-semibold text-cyan-300">X demo — browser only</h1>
+  <div class="max-w-md w-full text-center space-y-6 py-12 z-10">
+    <div class="text-5xl thunder-glow">⚡️</div>
+    <p class="text-[11px] text-amber-300/70 tracking-wide">Ra-Thor · workspace 14.15.6 · Lattice Chat v14.18.x</p>
+    <h1 class="title-font text-2xl font-semibold text-amber-300 thunder-glow">X demo — browser only</h1>
     <p class="text-sm text-white/70 leading-relaxed">
-      The X app intercepts <span class="text-cyan-200">x.com</span> links on many phones.
-      This page routes the Grok-on-X demo into a <strong class="text-cyan-200">real browser window/tab</strong>
+      The X app intercepts <span class="text-amber-200">x.com</span> links on many phones.
+      This page routes the Grok-on-X demo into a <strong class="text-amber-200">real browser window/tab</strong>
       and never relies on the X app. Incognito cannot be forced by a website — use your browser’s private mode if you want it.
     </p>
     <p class="text-xs text-white/45 leading-relaxed">
       Ra-Thor is an independent project — not affiliated with, sponsored by, or endorsed by xAI or X Corp.
       Once you leave this page, xAI / X privacy policy applies. Capable · Bounded · Corrigible.
     </p>
-
     <div class="flex flex-col gap-3">
-      <a id="btn-primary"
-         class="inline-flex items-center justify-center gap-2 rounded-2xl bg-cyan-500/20 border border-cyan-400 px-6 py-4 text-cyan-200 font-medium hover:bg-cyan-500/30 transition"
-         href="#">Open in browser (new window)</a>
-
-      <a id="btn-edge"
-         class="hidden inline-flex items-center justify-center gap-2 rounded-2xl bg-sky-500/15 border border-sky-400/60 px-6 py-3 text-sky-200 text-sm font-medium hover:bg-sky-500/25 transition"
-         href="#">Open in Edge</a>
-
-      <a id="btn-firefox"
-         class="hidden inline-flex items-center justify-center gap-2 rounded-2xl bg-orange-500/15 border border-orange-400/60 px-6 py-3 text-orange-200 text-sm font-medium hover:bg-orange-500/25 transition"
-         href="#">Open in Firefox</a>
-
-      <a id="btn-samsung"
-         class="hidden inline-flex items-center justify-center gap-2 rounded-2xl bg-blue-500/15 border border-blue-400/60 px-6 py-3 text-blue-200 text-sm font-medium hover:bg-blue-500/25 transition"
-         href="#">Open in Samsung Internet</a>
-
-      <button id="btn-window"
-              type="button"
-              class="inline-flex items-center justify-center gap-2 rounded-2xl bg-emerald-500/15 border border-emerald-400/60 px-6 py-3 text-emerald-200 text-sm font-medium hover:bg-emerald-500/25 transition">
-        Force new browser window
-      </button>
-
-      <button id="btn-copy"
-              type="button"
-              class="inline-flex items-center justify-center gap-2 rounded-2xl bg-amber-500/10 border border-amber-400/50 px-6 py-3 text-amber-200 text-sm font-medium hover:bg-amber-500/20 transition">
-        Copy demo link
-      </button>
-
-      <a id="btn-lastresort"
-         class="text-xs text-white/40 hover:text-white/70 underline"
-         href="https://x.com/i/grok/share/689402e8965c41778335d66aabef948a"
-         target="_blank" rel="noopener noreferrer">Last resort: direct link (may open X app)</a>
-
+      <a id="btn-primary" class="inline-flex items-center justify-center gap-2 rounded-2xl bg-amber-400 text-black px-6 py-4 font-semibold hover:bg-amber-300 transition" href="#">Open in browser (new window)</a>
+      <a id="btn-edge" class="hidden inline-flex items-center justify-center gap-2 rounded-2xl rt-btn-ghost px-6 py-3 text-sm font-medium" href="#">Open in Edge</a>
+      <a id="btn-firefox" class="hidden inline-flex items-center justify-center gap-2 rounded-2xl rt-btn-ghost px-6 py-3 text-sm font-medium" href="#">Open in Firefox</a>
+      <a id="btn-samsung" class="hidden inline-flex items-center justify-center gap-2 rounded-2xl rt-btn-ghost px-6 py-3 text-sm font-medium" href="#">Open in Samsung Internet</a>
+      <button id="btn-window" type="button" class="inline-flex items-center justify-center gap-2 rounded-2xl rt-btn-ghost px-6 py-3 text-sm font-medium">Force new browser window</button>
+      <button id="btn-copy" type="button" class="inline-flex items-center justify-center gap-2 rounded-2xl border border-amber-400/50 px-6 py-3 text-amber-200 text-sm font-medium hover:bg-amber-500/10 transition">Copy demo link</button>
+      <a id="btn-lastresort" class="text-xs text-white/40 hover:text-amber-200 underline" href="https://x.com/i/grok/share/689402e8965c41778335d66aabef948a" target="_blank" rel="noopener noreferrer">Last resort: direct link (may open X app)</a>
       <div class="flex flex-wrap justify-center gap-3 text-sm pt-1">
         <a href="/" class="text-amber-300/80 hover:text-amber-200 underline">Home</a>
-        <a href="/chat.html" class="text-violet-300/80 hover:text-violet-200 underline">Chat</a>
-        <a href="/Launch-Ra-Thor.html" class="text-emerald-300/80 hover:text-emerald-200 underline">Launch</a>
+        <a href="/chat.html" class="text-amber-300/80 hover:text-amber-200 underline">Chat</a>
+        <a href="/Launch-Ra-Thor.html" class="text-amber-300/80 hover:text-amber-200 underline">Launch</a>
         <a href="/sovereign-shard.html" class="text-amber-200/80 hover:text-amber-100 underline">Shard</a>
         <a href="/contact.html" class="text-amber-300/80 hover:text-amber-200 underline">Contact</a>
-        <a href="/privacy.html" class="text-white/50 hover:text-white/80 underline">Privacy</a>
+        <a href="/privacy.html" class="text-white/50 hover:text-amber-200 underline">Privacy</a>
       </div>
     </div>
-
-    <p id="status" class="text-xs text-cyan-300/80 min-h-[1.25rem]"></p>
-
+    <p id="status" class="text-xs text-amber-300/80 min-h-[1.25rem]"></p>
     <p class="text-xs text-white/40 leading-relaxed pt-2">
       Android: primary button uses a Chrome package Intent so the X app is skipped.<br>
       iOS / desktop: opens a new browser tab/window. If the app still appears, use <em>Copy</em> → paste into a private browser tab.
     </p>
     <p class="text-[11px] text-white/35">Contact: info@Rathor.ai · AG-SML v1.0</p>
   </div>
-
   <script>
     (function () {
       var SHARE_ID = '689402e8965c41778335d66aabef948a';
       var TARGET = 'https://x.com/i/grok/share/' + SHARE_ID;
       var hostPath = 'x.com/i/grok/share/' + SHARE_ID;
       var fallback = encodeURIComponent(TARGET);
-
       function browserIntent(pkg) {
-        return (
-          'intent://' + hostPath +
-          '#Intent;scheme=https;package=' + pkg +
-          ';S.browser_fallback_url=' + fallback + ';end'
-        );
+        return 'intent://' + hostPath + '#Intent;scheme=https;package=' + pkg + ';S.browser_fallback_url=' + fallback + ';end';
       }
-
       var INTENT = {
         chrome:  browserIntent('com.android.chrome'),
         edge:    browserIntent('com.microsoft.emmx'),
         firefox: browserIntent('org.mozilla.firefox'),
         samsung: browserIntent('com.sec.android.app.sbrowser')
       };
-
       var btnPrimary = document.getElementById('btn-primary');
       var btnEdge = document.getElementById('btn-edge');
       var btnFirefox = document.getElementById('btn-firefox');
@@ -112,93 +87,53 @@
       var btnCopy = document.getElementById('btn-copy');
       var btnLast = document.getElementById('btn-lastresort');
       var statusEl = document.getElementById('status');
-
       btnLast.href = TARGET;
-
       var ua = navigator.userAgent || '';
       var isAndroid = /Android/i.test(ua);
       var isIOS = /iPhone|iPad|iPod/i.test(ua);
-
-      function setStatus(msg) {
-        if (statusEl) statusEl.textContent = msg || '';
-      }
-
+      function setStatus(msg) { if (statusEl) statusEl.textContent = msg || ''; }
       function openInBrowserWindow() {
         var w = null;
-        try {
-          w = window.open(TARGET, '_blank', 'noopener,noreferrer');
-        } catch (e) {}
-        if (w) {
-          try { w.opener = null; } catch (e2) {}
-          setStatus('Opened in a new browser window/tab.');
-          return true;
-        }
-        if (!isAndroid && !isIOS) {
-          window.location.href = TARGET;
-          return true;
-        }
+        try { w = window.open(TARGET, '_blank', 'noopener,noreferrer'); } catch (e) {}
+        if (w) { try { w.opener = null; } catch (e2) {} setStatus('Opened in a new browser window/tab.'); return true; }
+        if (!isAndroid && !isIOS) { window.location.href = TARGET; return true; }
         setStatus('Popup blocked — use Copy link, then paste into your browser.');
         return false;
       }
-
-      btnWindow.addEventListener('click', function (e) {
-        e.preventDefault();
-        openInBrowserWindow();
-      });
-
+      btnWindow.addEventListener('click', function (e) { e.preventDefault(); openInBrowserWindow(); });
       btnCopy.addEventListener('click', function () {
         if (navigator.clipboard && navigator.clipboard.writeText) {
           navigator.clipboard.writeText(TARGET).then(function () {
             setStatus('Copied. Paste into Chrome / Safari private tab.');
-          }).catch(function () {
-            setStatus(TARGET);
-          });
-        } else {
-          setStatus(TARGET);
-        }
+          }).catch(function () { setStatus(TARGET); });
+        } else { setStatus(TARGET); }
       });
-
       if (isAndroid) {
         btnPrimary.href = INTENT.chrome;
         btnPrimary.textContent = 'Open in Chrome (new browser)';
         btnPrimary.removeAttribute('target');
-
         btnEdge.href = INTENT.edge;
         btnFirefox.href = INTENT.firefox;
         btnSamsung.href = INTENT.samsung;
-        [btnEdge, btnFirefox, btnSamsung].forEach(function (el) {
-          el.classList.remove('hidden');
-          el.classList.add('inline-flex');
-        });
-
+        [btnEdge, btnFirefox, btnSamsung].forEach(function (el) { el.classList.remove('hidden'); el.classList.add('inline-flex'); });
         setStatus('Routing to Chrome browser…');
-        setTimeout(function () {
-          window.location.href = INTENT.chrome;
-        }, 180);
+        setTimeout(function () { window.location.href = INTENT.chrome; }, 180);
       } else {
         btnPrimary.href = TARGET;
         btnPrimary.setAttribute('target', '_blank');
         btnPrimary.setAttribute('rel', 'noopener noreferrer');
-        btnPrimary.textContent = isIOS
-          ? 'Open in Safari / browser (new tab)'
-          : 'Open in browser (new window)';
-
-        btnPrimary.addEventListener('click', function (e) {
-          e.preventDefault();
-          openInBrowserWindow();
-        });
-
+        btnPrimary.textContent = isIOS ? 'Open in Safari / browser (new tab)' : 'Open in browser (new window)';
+        btnPrimary.addEventListener('click', function (e) { e.preventDefault(); openInBrowserWindow(); });
         if (!isIOS) {
           setStatus('Opening browser window…');
-          setTimeout(function () {
-            openInBrowserWindow();
-          }, 280);
+          setTimeout(function () { openInBrowserWindow(); }, 280);
         } else {
           setStatus('Tap “Open in Safari / browser”. If X app appears, use Copy → private tab.');
         }
       }
     })();
   </script>
+  <script src="/js/rathor-theme.js"></script>
   <script src="/js/family-nav-2026-08-22.js" defer></script>
 </body>
 </html>
