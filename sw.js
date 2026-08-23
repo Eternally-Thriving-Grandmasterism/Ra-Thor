@@ -1,9 +1,9 @@
 /* sw.js — Ra-Thor vanilla offline worker
- * Workspace 14.15.6 · LOCK 2026-08-23-lattice
+ * Workspace 14.15.6 · LOCK 2026-08-23-rtl-clip
  * Pass-through documents. Fetch handler present for Chrome installability.
  * Contact: info@Rathor.ai
  */
-var LOCK = '2026-08-23-feedback-full';
+var LOCK = '2026-08-23-rtl-clip';
 var CACHE = 'rathor-core-' + LOCK;
 var PRECACHE = [
   '/', '/index.html', '/chat.html', '/contact.html', '/privacy.html',
@@ -61,11 +61,26 @@ self.addEventListener('fetch', function (event) {
     return;
   }
 
+  if (req.destination === 'script' || req.destination === 'style') {
+    event.respondWith(
+      fetch(req).then(function (res) {
+        if (res && res.ok) {
+          var copy = res.clone();
+          caches.open(CACHE).then(function (cache) { cache.put(req, copy); });
+        }
+        return res;
+      }).catch(function () {
+        return caches.match(req);
+      })
+    );
+    return;
+  }
+
   event.respondWith(
     caches.match(req).then(function (hit) {
       if (hit) return hit;
       return fetch(req).then(function (res) {
-        if (res && res.ok && (req.destination === 'image' || req.destination === 'script' || req.destination === 'style')) {
+        if (res && res.ok && req.destination === 'image') {
           var copy = res.clone();
           caches.open(CACHE).then(function (cache) { cache.put(req, copy); });
         }
