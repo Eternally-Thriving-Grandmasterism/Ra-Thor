@@ -1,6 +1,7 @@
 /**
  * Ra-Thor site lock 2026-08-22 (Nth-degree lattice map)
  * 2026-08-23: real website PWA install (native prompt) — not a homepage tip.
+ * 2026-08-23e: FAQ Q9–Q11 i18n by id even if data-i18n was missing on inject.
  * Cargo truth: workspace 14.15.6 • Lattice Chat v14.18
  * Contact: info@Rathor.ai — independent of xAI.
  */
@@ -12,6 +13,15 @@
     else document.addEventListener('DOMContentLoaded', fn);
   }
 
+  function lockKey(el) {
+    var key = el.getAttribute('data-i18n') || el.getAttribute('data-lock-i18n');
+    if (key) return key;
+    var id = el.id || '';
+    if (/^faq-q\d+$/.test(id)) return 'faqQ' + id.slice(5);
+    if (/^faq-a\d+$/.test(id)) return 'faqA' + id.slice(5);
+    return null;
+  }
+
   function applyLockI18n(lang) {
     try {
       lang = lang || localStorage.getItem('rathor-lang') || 'en';
@@ -20,21 +30,18 @@
     }
     var packs = window.translations || {};
     var t = packs[lang] || packs.en;
-    if (!t) return;
-    document.querySelectorAll('#living-surfaces [data-i18n], #science-lattices [data-i18n], #indexed-lattice [data-i18n], #faq-q9, #faq-q10, #faq-q11, [data-lock-i18n]').forEach(function (el) {
-      var key = el.getAttribute('data-i18n') || el.getAttribute('data-lock-i18n');
-      if (!key || t[key] === undefined) return;
-      if (el.hasAttribute('data-i18n-html')) el.innerHTML = t[key];
-      else el.textContent = t[key];
+    var en = packs.en || {};
+    if (!t && !en) return;
+    document.querySelectorAll('#living-surfaces [data-i18n], #science-lattices [data-i18n], #indexed-lattice [data-i18n], #faq-q9, #faq-q10, #faq-q11, #faq-a9, #faq-a10, #faq-a11, [data-lock-i18n]').forEach(function (el) {
+      var key = lockKey(el);
+      if (!key) return;
+      var val = (t && t[key] !== undefined) ? t[key] : en[key];
+      if (val === undefined) return;
+      if (el.hasAttribute('data-i18n-html') || key.indexOf('faqA') === 0) el.innerHTML = val;
+      else el.textContent = val;
     });
-    var faqA9 = document.getElementById('faq-a9');
-    var faqA10 = document.getElementById('faq-a10');
-    var faqA11 = document.getElementById('faq-a11');
-    if (faqA9 && t.faqA9) faqA9.innerHTML = t.faqA9;
-    if (faqA10 && t.faqA10) faqA10.innerHTML = t.faqA10;
-    if (faqA11 && t.faqA11) faqA11.innerHTML = t.faqA11;
     var kicker = document.querySelector('.kicker');
-    if (kicker && t.kicker) kicker.textContent = t.kicker;
+    if (kicker && (t.kicker || en.kicker)) kicker.textContent = t.kicker || en.kicker;
   }
 
   function hookLanguageSwitch() {
@@ -155,6 +162,6 @@
     bootScript('family-nav-2026-08-22', '/js/family-nav-2026-08-22.js');
     bootScript('science-map-lock', '/js/science-map-lock.js');
 
-    console.info('[Ra-Thor] site-lock-2026-08-22 applied (real PWA install + coherent nav + science map restore)');
+    console.info('[Ra-Thor] site-lock-2026-08-22 applied (FAQ i18n lock + real PWA install + science map)');
   });
 })();
