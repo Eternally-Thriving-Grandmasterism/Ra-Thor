@@ -329,22 +329,105 @@ html[data-theme] .faq-accordion details[open] summary {
   text-shadow: none !important;
 }
 
-#rt-theme-toggle {
-  font: 600 11px/1.2 system-ui, sans-serif;
-  padding: 0.35rem 0.65rem;
+html {
+  transition: background-color 0.35s ease, color 0.35s ease;
+}
+html[data-theme] body {
+  transition: background-color 0.35s ease, color 0.35s ease;
+}
+
+html[data-theme="light"] .golden-star {
+  opacity: 0.12 !important;
+  color: #8a6a12 !important;
+}
+
+.rt-nav-tools {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-left: 0.35rem;
+  padding-left: 0.45rem;
+  border-left: 1px solid var(--rt-line-soft);
+}
+
+.rt-theme-orb,
+.rt-install-orb {
+  position: relative;
+  width: 34px;
+  height: 34px;
+  min-width: 34px;
+  min-height: 34px;
+  padding: 0;
   border-radius: 999px;
   border: 1px solid var(--rt-line);
   color: var(--rt-gold);
-  background: transparent;
-  cursor: pointer;
-  letter-spacing: 0.02em;
-}
-#rt-theme-toggle:hover {
   background: var(--rt-wash);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
 }
-#rt-theme-toggle:focus-visible {
+.rt-theme-orb:hover,
+.rt-install-orb:hover {
+  background: rgba(240, 211, 106, 0.18);
+  border-color: var(--rt-gold-hot);
+}
+.rt-theme-orb:focus-visible,
+.rt-install-orb:focus-visible {
   outline: 2px solid var(--rt-gold-hot);
   outline-offset: 2px;
+}
+
+.rt-install-orb svg {
+  width: 15px;
+  height: 15px;
+}
+
+.rt-celestial-stack {
+  position: relative;
+  width: 16px;
+  height: 16px;
+  display: block;
+}
+.rt-celestial-sun,
+.rt-celestial-moon {
+  position: absolute;
+  inset: 0;
+  width: 16px;
+  height: 16px;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  fill: currentColor;
+  transform-origin: 50% 50%;
+  transition: opacity 0.28s ease, transform 0.4s ease;
+}
+.rt-celestial-sun {
+  fill: none;
+}
+html[data-theme="dark"] .rt-celestial-moon,
+html[data-theme="light"] .rt-celestial-sun {
+  opacity: 1;
+  transform: rotate(0deg) scale(1);
+}
+html[data-theme="dark"] .rt-celestial-sun,
+html[data-theme="light"] .rt-celestial-moon {
+  opacity: 0;
+  transform: rotate(-40deg) scale(0.55);
+}
+html[data-theme="light"] .rt-theme-orb {
+  background: rgba(201, 162, 39, 0.16);
+  color: var(--rt-gold-deep);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rt-celestial-sun,
+  .rt-celestial-moon,
+  html,
+  html[data-theme] body {
+    transition: none !important;
+  }
 }
 
 #rt-family-nav {
