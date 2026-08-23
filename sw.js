@@ -1,44 +1,28 @@
 /* sw.js — Ra-Thor vanilla offline worker
- * Workspace 14.15.6 · LOCK 2026-08-23-native4
- * No CDN. No Workbox. Root scope. Contact: info@Rathor.ai
+ * Workspace 14.15.6 · LOCK 2026-08-23-lattice
+ * Pass-through documents. Fetch handler present for Chrome installability.
+ * Contact: info@Rathor.ai
  */
-var LOCK = '2026-08-23-native4';
+var LOCK = '2026-08-23-lattice';
 var CACHE = 'rathor-core-' + LOCK;
-
 var PRECACHE = [
-  '/',
-  '/index.html',
-  '/chat.html',
-  '/contact.html',
-  '/privacy.html',
-  '/offline.html',
-  '/thanks.html',
-  '/go-x.html',
-  '/Launch-Ra-Thor.html',
-  '/sovereign-shard.html',
-  '/web-forge.html',
-  '/manifest.json',
-  '/js/pwa-boot.js',
-  '/js/pwa-install.js',
-  '/js/family-nav-2026-08-22.js',
-  '/js/site-lock-2026-08-22.js',
-  '/js/science-map-lock.js',
-  '/js/sovereign-shard.js',
-  '/js/chat.js',
+  '/', '/index.html', '/chat.html', '/contact.html', '/privacy.html',
+  '/offline.html', '/thanks.html', '/go-x.html', '/Launch-Ra-Thor.html',
+  '/sovereign-shard.html', '/web-forge.html', '/manifest.json',
+  '/js/pwa-boot.js', '/js/pwa-install.js', '/js/lang-offer.js',
+  '/js/family-nav-2026-08-22.js', '/js/site-lock-2026-08-22.js',
+  '/js/science-map-lock.js', '/js/sovereign-shard.js', '/js/chat.js',
   '/js/contact-i18n.js',
-  '/icons/ra-thor-icon-192.png',
-  '/icons/ra-thor-icon-512.png'
+  '/icons/ra-thor-icon-192.png', '/icons/ra-thor-icon-512.png'
 ];
 
 self.addEventListener('install', function (event) {
   self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE).then(function (cache) {
-      return Promise.all(
-        PRECACHE.map(function (url) {
-          return cache.add(url).catch(function () { return null; });
-        })
-      );
+      return Promise.all(PRECACHE.map(function (url) {
+        return cache.add(url).catch(function () { return null; });
+      }));
     })
   );
 });
@@ -46,16 +30,12 @@ self.addEventListener('install', function (event) {
 self.addEventListener('activate', function (event) {
   event.waitUntil(
     caches.keys().then(function (keys) {
-      return Promise.all(
-        keys.map(function (key) {
-          if (key.indexOf(LOCK) === -1 && key.indexOf('rathor-models') === -1 && key.indexOf('rathor-queue') === -1) {
-            return caches.delete(key);
-          }
-        })
-      );
-    }).then(function () {
-      return self.clients.claim();
-    })
+      return Promise.all(keys.map(function (key) {
+        if (key.indexOf(LOCK) === -1 && key.indexOf('rathor-models') === -1 && key.indexOf('rathor-queue') === -1) {
+          return caches.delete(key);
+        }
+      }));
+    }).then(function () { return self.clients.claim(); })
   );
 });
 
@@ -68,24 +48,7 @@ self.addEventListener('fetch', function (event) {
 
   if (req.mode === 'navigate' || req.destination === 'document') {
     event.respondWith(
-      fetch(req).then(function (res) {
-        var ct = res.headers.get('content-type') || '';
-        if (ct.indexOf('text/html') === -1) {
-          var copy = res.clone();
-          caches.open(CACHE).then(function (cache) { cache.put(req, copy); });
-          return res;
-        }
-        return res.text().then(function (html) {
-          if (html.indexOf('pwa-boot.js') === -1) {
-            html = html.replace(/<head[^>]*>/i, function (m) {
-              return m + '<script src="/js/pwa-boot.js"></script>';
-            });
-          }
-          var headers = new Headers(res.headers);
-          headers.set('Cache-Control', 'no-store');
-          return new Response(html, { status: res.status, statusText: res.statusText, headers: headers });
-        });
-      }).catch(function () {
+      fetch(req).then(function (res) { return res; }).catch(function () {
         return caches.match(req).then(function (hit) {
           return hit || caches.match('/index.html') || caches.match('/offline.html');
         });
@@ -98,7 +61,7 @@ self.addEventListener('fetch', function (event) {
     caches.match(req).then(function (hit) {
       if (hit) return hit;
       return fetch(req).then(function (res) {
-        if (res && res.ok && (req.destination === 'image' || req.destination === 'script' || req.destination === 'style' || url.pathname.indexOf('/icons/') === 0)) {
+        if (res && res.ok && (req.destination === 'image' || req.destination === 'script' || req.destination === 'style')) {
           var copy = res.clone();
           caches.open(CACHE).then(function (cache) { cache.put(req, copy); });
         }
@@ -108,4 +71,4 @@ self.addEventListener('fetch', function (event) {
   );
 });
 
-console.log('[Ra-Thor SW] vanilla native lock ' + LOCK + ' • workspace 14.15.6');
+console.log('[Ra-Thor SW] lattice lock ' + LOCK + ' • workspace 14.15.6');

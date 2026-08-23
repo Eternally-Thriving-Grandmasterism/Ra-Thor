@@ -3,10 +3,10 @@
   "name": "Ra-Thor — Eternal Mercy Thunder",
   "short_name": "Ra-Thor",
   "description": "Mercy-gated lattice • Offline Lattice Chat • TOLC 8 • Independent project",
-  "start_url": "/",
+  "start_url": "/?source=pwa",
   "scope": "/",
   "display": "standalone",
-  "display_override": ["standalone"],
+  "display_override": ["standalone", "minimal-ui"],
   "background_color": "#000000",
   "theme_color": "#fcd34d",
   "orientation": "any",
@@ -14,7 +14,6 @@
   "dir": "ltr",
   "categories": ["productivity", "education", "utilities"],
   "prefer_related_applications": false,
-  "launch_handler": { "client_mode": "navigate-existing" },
   "icons": [
     { "src": "/icons/ra-thor-icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
     { "src": "/icons/ra-thor-icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
@@ -23,7 +22,7 @@
     { "src": "/icons/ra-thor-icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ],
   "shortcuts": [
-    { "name": "Offline Lattice Chat", "short_name": "Chat", "url": "/chat.html", "icons": [{ "src": "/icons/ra-thor-icon-192.png", "sizes": "192x192" }] },
+    { "name": "Offline Lattice Chat", "short_name": "Chat", "url": "/chat.html?source=pwa-shortcut", "icons": [{ "src": "/icons/ra-thor-icon-192.png", "sizes": "192x192" }] },
     { "name": "Lattice map", "short_name": "Launch", "url": "/Launch-Ra-Thor.html", "icons": [{ "src": "/icons/ra-thor-icon-192.png", "sizes": "192x192" }] },
     { "name": "Sovereign Shard", "short_name": "Shard", "url": "/sovereign-shard.html", "icons": [{ "src": "/icons/ra-thor-icon-192.png", "sizes": "192x192" }] }
   ]
