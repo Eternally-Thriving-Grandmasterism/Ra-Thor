@@ -17,19 +17,9 @@
 </head>
 <body class="bg-zinc-950 text-white">
     <div class="max-w-6xl mx-auto p-8">
-        <div class="flex justify-between items-center mb-12">
-            <div>
-                <h1 class="text-5xl title-font tracking-tighter">⚡ Web-Forge</h1>
-                <p class="text-emerald-400 text-xl">workspace 14.15.6 • local generator demo</p>
-            </div>
-            <nav class="flex flex-wrap items-center gap-2 text-sm" aria-label="Ra-Thor family">
-                <a href="/" class="px-3 py-2 rounded-2xl border border-white/15 hover:border-emerald-400/50">Home</a>
-                <a href="/chat.html" class="px-3 py-2 rounded-2xl border border-violet-400/40 text-violet-200">Chat</a>
-                <a href="/Launch-Ra-Thor.html" class="px-3 py-2 rounded-2xl border border-emerald-400/40 text-emerald-200">Launch</a>
-                <a href="/sovereign-shard.html" class="px-3 py-2 rounded-2xl border border-amber-400/40 text-amber-200">Shard</a>
-                <a href="/contact.html" class="px-3 py-2 rounded-2xl border border-white/15">Contact</a>
-                <a href="/privacy.html" class="px-3 py-2 rounded-2xl border border-white/15">Privacy</a>
-            </nav>
+        <div class="mb-12">
+            <h1 class="text-5xl title-font tracking-tighter">⚡ Web-Forge</h1>
+            <p class="text-emerald-400 text-xl">workspace 14.15.6 • local generator demo</p>
         </div>
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
             <div class="bg-zinc-900 rounded-3xl p-8">
@@ -231,6 +221,8 @@
             setTimeout(() => { generateShard(); }, 150);
         };
     </script>
+    <script src="/js/rathor-theme.js"></script>
+    <script src="/js/pwa-install.js" defer></script>
     <script src="/js/family-nav-2026-08-22.js" defer></script>
 </body>
 </html>
