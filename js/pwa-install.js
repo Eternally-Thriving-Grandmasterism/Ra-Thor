@@ -154,9 +154,23 @@
       '  <button type="button" id="rathor-pwa-close-btn" aria-label="Dismiss" class="text-white/40 text-lg leading-none shrink-0 px-1">×</button>' +
       '</div>';
     document.body.appendChild(bannerEl);
+    speak({
+      title: 'Install ready',
+      body: 'Chrome can add Ra-Thor to this device. Accept opens the system sheet — no store.',
+      ms: 3000
+    });
     var inst = document.getElementById('rathor-pwa-install-btn');
     if (inst) inst.addEventListener('click', function () { triggerInstall(); });
-    function dismiss() { markDismissed(); hideBanner(); }
+    function dismiss() {
+      markDismissed();
+      hideBanner();
+      speak({
+        title: 'Install postponed',
+        body: 'Nothing was added. The reminder stays hidden for 14 days. Tap the download glyph anytime.',
+        tone: 'hold',
+        ms: 3000
+      });
+    }
     var d = document.getElementById('rathor-pwa-dismiss-btn');
     var x = document.getElementById('rathor-pwa-close-btn');
     if (d) d.addEventListener('click', dismiss);
@@ -293,7 +307,19 @@
       navigator.getInstalledRelatedApps().then(function (apps) {
         if (apps && apps.length) {
           knownInstalled = true;
-          if (!isStandalone()) setButtons('Already installed', false);
+          if (!isStandalone()) {
+            setButtons('Already installed', false);
+            try {
+              if (sessionStorage.getItem('rathor-hf-related') === '1') return;
+              sessionStorage.setItem('rathor-hf-related', '1');
+            } catch (e) {}
+            speak({
+              title: 'Already on this device',
+              body: 'Chrome reports Ra-Thor is installed. Use the home-screen icon — nothing new to add.',
+              tone: 'ok',
+              ms: 3000
+            });
+          }
         }
       }).catch(function () {});
     } catch (e) {}
