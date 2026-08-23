@@ -2,6 +2,7 @@
    Shared public-surface network for rathor.ai
    Workspace 14.15.6 · Lattice Chat v14.18.x
    Contact: info@Rathor.ai
+   PATSAGi polish 2026-08-22: skip-link + reduced-motion + focus ring
 */
 (function () {
   if (window.__rtFamilyNav) return;
@@ -31,12 +32,21 @@
     return norm(href) === here;
   }
 
+  function reduceMotion() {
+    try {
+      return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    } catch (e) {
+      return false;
+    }
+  }
+
   function bar(kind) {
     var nav = document.createElement('nav');
     nav.id = kind === 'top' ? 'rt-family-nav' : 'rt-family-footer';
-    nav.setAttribute('aria-label', 'Ra-Thor family');
+    nav.setAttribute('aria-label', kind === 'top' ? 'Ra-Thor family' : 'Ra-Thor family footer');
+    var blur = reduceMotion() ? 'none' : 'blur(8px)';
     nav.style.cssText = kind === 'top'
-      ? 'position:sticky;top:0;z-index:40;display:flex;flex-wrap:wrap;gap:0.4rem;justify-content:center;align-items:center;padding:0.45rem 0.7rem;background:rgba(0,0,0,0.88);border-bottom:1px solid rgba(252,211,77,0.28);backdrop-filter:blur(8px);'
+      ? 'position:sticky;top:0;z-index:40;display:flex;flex-wrap:wrap;gap:0.4rem;justify-content:center;align-items:center;padding:0.45rem 0.7rem;background:rgba(0,0,0,0.88);border-bottom:1px solid rgba(252,211,77,0.28);backdrop-filter:' + blur + ';'
       : 'display:flex;flex-wrap:wrap;gap:0.55rem;justify-content:center;align-items:center;padding:0.7rem;border-top:1px solid rgba(252,211,77,0.2);margin-top:1rem;';
 
     LINKS.forEach(function (item) {
@@ -44,6 +54,13 @@
       a.href = item.href;
       a.textContent = item.label;
       a.style.cssText = 'font:600 11px/1.2 system-ui,sans-serif;padding:0.35rem 0.65rem;border-radius:999px;text-decoration:none;border:1px solid rgba(252,211,77,0.35);color:#fde68a;';
+      a.addEventListener('focus', function () {
+        a.style.outline = '2px solid #fbbf24';
+        a.style.outlineOffset = '2px';
+      });
+      a.addEventListener('blur', function () {
+        a.style.outline = 'none';
+      });
       if (isHere(item.href)) {
         a.setAttribute('aria-current', 'page');
         a.style.background = '#fbbf24';
@@ -55,10 +72,32 @@
     return nav;
   }
 
+  function skipLink() {
+    if (document.getElementById('rt-skip-family')) return;
+    var a = document.createElement('a');
+    a.id = 'rt-skip-family';
+    a.href = '#rt-family-main';
+    a.textContent = 'Skip family navigation';
+    a.style.cssText = 'position:absolute;left:-999px;top:0;background:#fbbf24;color:#000;padding:0.4rem 0.7rem;z-index:50;font:600 12px system-ui,sans-serif;';
+    a.addEventListener('focus', function () {
+      a.style.left = '0.5rem';
+      a.style.top = '0.5rem';
+    });
+    a.addEventListener('blur', function () {
+      a.style.left = '-999px';
+    });
+    document.body.insertBefore(a, document.body.firstChild);
+    if (!document.getElementById('rt-family-main')) {
+      var main = document.querySelector('main') || document.body.children[1] || document.body;
+      if (main && main !== a) main.id = main.id || 'rt-family-main';
+    }
+  }
+
   function mount() {
-    if (!document.getElementById('rt-family-nav')) {
-      var top = bar('top');
-      document.body.insertBefore(top, document.body.firstChild);
+    if (document.body && document.body.getAttribute('data-rt-family') === 'off') return;
+    skipLink();
+    if (!document.getElementById('rt-family-nav') && document.body.getAttribute('data-rt-family') !== 'off-top') {
+      document.body.insertBefore(bar('top'), document.body.firstChild);
     }
     if (!document.getElementById('rt-family-footer')) {
       document.body.appendChild(bar('footer'));

@@ -25,6 +25,12 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://rathor.ai/web-forge.html</loc>
+    <lastmod>2026-08-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://rathor.ai/go-x.html</loc>
     <lastmod>2026-08-23</lastmod>
     <changefreq>monthly</changefreq>
@@ -41,6 +47,12 @@
     <lastmod>2026-08-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://rathor.ai/thanks.html</loc>
+    <lastmod>2026-08-23</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
   </url>
   <url>
     <loc>https://rathor.ai/offline.html</loc>

@@ -17,27 +17,31 @@
 | Independence | not affiliated with, sponsored by, or endorsed by xAI |
 | Claims | capable · bounded · corrigible |
 
+## PATSAGi review — 2026-08-22 night
+
+Deliberation under TOLC 8. Capable · bounded · corrigible. No superintelligence warranty.
+
+| Council | Finding | Action this lock |
+| --- | --- | --- |
+| Truth | `web-forge.html` still advertised **v14.0.0** and “ONE Organism • Live” | Relabel as workspace **14.15.6** local demo; drop Live product chip |
+| Order | `sitemap.xml` omitted Forge (and thanks) | Add `/web-forge.html` + `/thanks.html` |
+| Service | Family walk incomplete on Forge | Injector + in-page chips |
+| Mercy | Sticky bar + page headers can double-chrome | Keep both this lock. Future: `data-rt-family="off-top"` |
+| Abundance | Six science lattices are research surfaces | Do not convert cards into product warranties |
+| Joy | Modular i18n (71 keys × 11) stays out of `index.html` | No re-inline |
+| Cosmic Harmony | Cargo `14.15.6` remains identity | GPU/tick notes stay in v15.34 docs only |
+
 ## Family navigation
 
-Shared injector: `/js/family-nav-2026-08-22.js`
-Buttons (current page highlighted): **Home · Chat · Launch · Shard · Forge · Contact · Privacy**
+Shared injector: `/js/family-nav-2026-08-22.js`  
+Buttons (current page gold): **Home · Chat · Launch · Shard · Forge · Contact · Privacy**
 
-Live with injector + in-page buttons this tick: `offline.html`, `thanks.html`, `go-x.html`.
-Home loads the bar once `site-lock-2026-08-22.js` appends the same script (next landing if not already cached).
+## Future (bounded — do not execute as warranty)
 
-## Public surfaces vs lock
-
-| Surface | Role | Bound |
-| --- | --- | --- |
-| `/` | lock injector + modular i18n (71 keys × 11 langs) | no re-inline dictionaries |
-| `/chat.html` | Lattice Chat v14.18.x | local IndexedDB / localStorage |
-| `/Launch-Ra-Thor.html` | launch map | 6 science cards, research-only |
-| `/sovereign-shard.html` | Shard v8 demo | local weights; not a live Conductor |
-| `/web-forge.html` | local generator demo | workspace 14.15.6; not a product |
-| `/contact.html` | info@Rathor.ai | guidance-5 names all 6 sister lattices |
-| `/privacy.html` + `docs/Legal/privacy.md` | privacy | same store wording |
-| `/go-x.html` | X-app bypass router | independence line; xAI/X policy after leave |
-| `/offline.html` | PWA fallback | cached-only |
-| `/thanks.html` | contact receipt | family links |
+1. Do not bump workspace identity to 15.x.
+2. Precache `/js/family-nav-2026-08-22.js` in `sw.js` so offline fallback keeps the walk.
+3. `websiteforge` crate should emit the same 14.15.6 demo lock (no v14.0.0).
+4. Optional compact mode: skip sticky top bar when a page already ships a full family header.
+5. Sister lattices stay research repos under AG-SML v1.0 + TOLC 8.
 
 Thunder locked in.
