@@ -1,8 +1,8 @@
 /* sw.js — Ra-Thor vanilla offline worker
- * Workspace 14.15.6 · LOCK 2026-08-23-native
+ * Workspace 14.15.6 · LOCK 2026-08-23-native2
  * No CDN. No Workbox. Root scope. Contact: info@Rathor.ai
  */
-var LOCK = '2026-08-23-native';
+var LOCK = '2026-08-23-native2';
 var CACHE = 'rathor-core-' + LOCK;
 
 var PRECACHE = [
