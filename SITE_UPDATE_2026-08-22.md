@@ -26,7 +26,7 @@ Deliberation under TOLC 8. Capable · bounded · corrigible. No superintelligenc
 | Truth | `web-forge.html` still advertised **v14.0.0** and “ONE Organism • Live” | Relabel as workspace **14.15.6** local demo; drop Live product chip |
 | Order | `sitemap.xml` omitted Forge (and thanks) | Add `/web-forge.html` + `/thanks.html` |
 | Service | Family walk incomplete on Forge | Injector + in-page chips |
-| Mercy | Sticky bar + page headers can double-chrome | Keep both this lock. Future: `data-rt-family="off-top"` |
+| Mercy | Sticky bar + page headers can double-chrome | Compact off-top when a page already ships a family header |
 | Abundance | Six science lattices are research surfaces | Do not convert cards into product warranties |
 | Joy | Modular i18n (71 keys × 11) stays out of `index.html` | No re-inline |
 | Cosmic Harmony | Cargo `14.15.6` remains identity | GPU/tick notes stay in v15.34 docs only |
@@ -36,12 +36,20 @@ Deliberation under TOLC 8. Capable · bounded · corrigible. No superintelligenc
 Shared injector: `/js/family-nav-2026-08-22.js`  
 Buttons (current page gold): **Home · Chat · Launch · Shard · Forge · Contact · Privacy**
 
-## Future (bounded — do not execute as warranty)
+Compact: skip sticky top bar when `data-rt-family="off-top"` **or** the page already has a header with Home + Chat + (Launch|Shard|Forge). Footer walk still mounts. Explicit `data-rt-family="off"` disables both.
 
-1. Do not bump workspace identity to 15.x.
-2. Precache `/js/family-nav-2026-08-22.js` in `sw.js` so offline fallback keeps the walk.
-3. `websiteforge` crate should emit the same 14.15.6 demo lock (no v14.0.0).
-4. Optional compact mode: skip sticky top bar when a page already ships a full family header.
+## Lock completed 2026-08-23 (this continue)
+
+1. Do not bump workspace identity to 15.x. — held.
+2. Precache `/js/family-nav-2026-08-22.js` in `sw.js`. — done prior lock.
+3. `crates/websiteforge` emits workspace **14.15.6** (crate version + `WORKSPACE_LOCK_14_15_6.md`). Contact info@Rathor.ai only.
+4. Compact family-nav off-top when a page already ships a family header.
 5. Sister lattices stay research repos under AG-SML v1.0 + TOLC 8.
+
+## Still bounded (do not execute as warranty)
+
+- Historical docs (`docs/web-forge_v14.md`, `RELEASE_NOTES.md` v14.0.0) stay historical — do not rewrite as current identity.
+- Root `websiteforge/` tree is archival relative to `crates/websiteforge`.
+- `service-worker.js` is the older sovereign-demo cache; public surface uses `sw.js`.
 
 Thunder locked in.

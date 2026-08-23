@@ -2,7 +2,8 @@
    Shared public-surface network for rathor.ai
    Workspace 14.15.6 · Lattice Chat v14.18.x
    Contact: info@Rathor.ai
-   PATSAGi polish 2026-08-22: skip-link + reduced-motion + focus ring + Forge truth lock
+   PATSAGi polish 2026-08-22/23: skip-link + reduced-motion + focus ring +
+   Forge truth lock + compact off-top when the page already ships a family header
 */
 (function () {
   if (window.__rtFamilyNav) return;
@@ -38,6 +39,25 @@
     } catch (e) {
       return false;
     }
+  }
+
+  function alreadyHasFamilyHeader() {
+    if (document.querySelector('[data-rt-family-header]')) return true;
+    var scope = document.querySelector('header') || document.body;
+    if (!scope) return false;
+    var found = {};
+    var anchors = scope.querySelectorAll('a');
+    for (var i = 0; i < anchors.length; i++) {
+      var t = (anchors[i].textContent || '').replace(/\s+/g, ' ').trim();
+      if (t) found[t] = true;
+    }
+    return !!(found.Home && found.Chat && (found.Launch || found.Shard || found.Forge));
+  }
+
+  function compactOffTop() {
+    var flag = document.body && document.body.getAttribute('data-rt-family');
+    if (flag === 'off-top' || flag === 'off') return true;
+    return alreadyHasFamilyHeader();
   }
 
   function bar(kind) {
@@ -96,7 +116,7 @@
   function mount() {
     if (document.body && document.body.getAttribute('data-rt-family') === 'off') return;
     skipLink();
-    if (!document.getElementById('rt-family-nav') && document.body.getAttribute('data-rt-family') !== 'off-top') {
+    if (!document.getElementById('rt-family-nav') && !compactOffTop()) {
       document.body.insertBefore(bar('top'), document.body.firstChild);
     }
     if (!document.getElementById('rt-family-footer')) {
