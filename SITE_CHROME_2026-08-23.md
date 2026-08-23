@@ -8,7 +8,7 @@ Launch first, then family pages.
 - APIs: analyzeXVideoFailureModes(), comprehendVideoStory()
 
 2026-08-23 index overwrite:
-- Replace GitHub "Initialize index.html with website structure" stub
+- Replace GitHub initialize stub
 - Family-nav + theme + PWA early capture + 3 CTAs (Launch / Moments / Chat)
 - Gold/black chrome; xAI language only in Trademarks
 
@@ -18,3 +18,8 @@ Launch first, then family pages.
 - Buttons: .rt-btn-primary | .rt-btn-secondary | .rt-btn-ghost.
 - Cards are the primary CTAs.
 - Contact: info@Rathor.ai
+
+2026-08-23 celestial polish:
+- Theme control is a sun/moon orb (moon at night, sun by day)
+- Compact install glyph sits with the orb
+- Light mode softens golden stars; theme-color meta follows the sky

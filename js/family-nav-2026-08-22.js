@@ -4,6 +4,7 @@
    Contact: info@Rathor.ai
    2026-08-23: Install chip + coherent family labels
    2026-08-23b: Professional site footer contract · no pill-bar footer
+   2026-08-23c: Celestial sun/moon orb + compact install glyph
 */
 (function () {
   if (window.__rtFamilyNav) return;
@@ -103,31 +104,38 @@
       nav.appendChild(a);
     });
 
+    var tools = document.createElement('span');
+    tools.className = 'rt-nav-tools';
+    tools.setAttribute('aria-label', 'Site tools');
+
     if (!isStandalone()) {
       var install = document.createElement('button');
       install.type = 'button';
-      install.textContent = 'Install';
+      install.className = 'rt-install-orb';
+      install.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 3v12m0 0-4-4m4 4 4-4M5 19h14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
       install.setAttribute('aria-label', 'Install Ra-Thor on this device');
-      styleLink(install, false);
+      install.title = 'Install on this device';
       install.addEventListener('click', function () {
         if (typeof window.rathorTriggerPWAInstall === 'function') {
           window.rathorTriggerPWAInstall();
         }
       });
-      nav.appendChild(install);
+      tools.appendChild(install);
     }
 
     var theme = document.createElement('button');
     theme.type = 'button';
     theme.id = kind === 'top' ? 'rt-theme-toggle' : 'rt-theme-toggle-foot';
+    theme.className = 'rt-theme-orb';
     theme.setAttribute('data-rt-theme-toggle', '1');
-    theme.textContent = 'Light';
-    theme.setAttribute('aria-label', 'Toggle light and dark theme');
-    styleLink(theme, false);
+    theme.setAttribute('aria-label', 'Switch to light mode');
+    theme.title = 'Day — switch to light';
+    theme.innerHTML = '<span class="rt-celestial-stack" aria-hidden="true"></span>';
     theme.addEventListener('click', function () {
       if (typeof window.rathorToggleTheme === 'function') window.rathorToggleTheme();
     });
-    nav.appendChild(theme);
+    tools.appendChild(theme);
+    nav.appendChild(tools);
     return nav;
   }
 
