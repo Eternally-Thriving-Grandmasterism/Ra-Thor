@@ -191,6 +191,111 @@ html[data-theme] .bg-violet-500\/10:hover {
   background: rgba(240, 211, 106, 0.14) !important;
 }
 
+.rt-btn-secondary {
+  background: transparent !important;
+  color: var(--rt-gold) !important;
+  border: 1px solid var(--rt-line) !important;
+}
+.rt-btn-secondary:hover {
+  background: var(--rt-wash) !important;
+}
+
+.rt-btn-primary,
+.rt-btn-secondary,
+.rt-btn-ghost,
+.rt-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  min-height: 44px;
+  min-width: 10.5rem;
+  padding: 0.7rem 1.25rem;
+  border-radius: 1rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  line-height: 1.2;
+  text-decoration: none;
+  letter-spacing: 0.01em;
+  box-sizing: border-box;
+}
+.rt-btn-sm {
+  min-width: 0;
+  min-height: 36px;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.8rem;
+  border-radius: 0.75rem;
+}
+
+.rt-cta-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem;
+}
+.rt-cta-row > a,
+.rt-cta-row > button {
+  flex: 1 1 12rem;
+  max-width: 18rem;
+}
+
+.rt-card-uniform {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+.rt-card-uniform .rt-card-action {
+  margin-top: auto;
+  padding-top: 1.15rem;
+}
+
+.rt-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.28rem 0.75rem;
+  border-radius: 999px;
+  border: 1px solid var(--rt-line-soft);
+  background: var(--rt-wash);
+  color: var(--rt-gold);
+  font-size: 0.68rem;
+  font-weight: 650;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.rt-site-footer {
+  border-top: 1px solid var(--rt-line) !important;
+  background: var(--rt-bg) !important;
+  color: var(--rt-muted) !important;
+  padding: 2.5rem 0 1.75rem;
+  margin-top: 2rem;
+}
+.rt-site-footer h4 {
+  color: var(--rt-gold) !important;
+  font-size: 0.78rem;
+  font-weight: 650;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin: 0 0 0.7rem;
+}
+.rt-site-footer a {
+  color: var(--rt-gold);
+  text-decoration: none;
+}
+.rt-site-footer a:hover {
+  color: var(--rt-ink);
+}
+.rt-site-footer .rt-legal {
+  font-size: 0.78rem;
+  line-height: 1.55;
+  color: var(--rt-faint);
+}
+
+#rt-family-footer.rt-family-pills {
+  display: none;
+}
+
 html[data-theme] .lang-tab {
   color: var(--rt-gold);
   border-color: var(--rt-line);
