@@ -1,12 +1,12 @@
 // sw.js — Ra-Thor mercy-gated offline worker
-// Workspace 14.15.6 · family walk lock 2026-08-23
+// Workspace 14.15.6 · family walk lock 2026-08-23-pwa
 // Contact: info@Rathor.ai
 
 importScripts('https://storage.googleapis.com/workbox-cdn/releases/7.1.0/workbox-sw.js');
 
 workbox.setConfig({ debug: false });
 
-var LOCK = '2026-08-23';
+var LOCK = '2026-08-23-pwa';
 
 workbox.precaching.precacheAndRoute(self.__WB_MANIFEST || [
   { url: '/index.html', revision: LOCK },
