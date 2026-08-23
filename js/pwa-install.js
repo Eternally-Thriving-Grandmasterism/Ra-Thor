@@ -1,4 +1,6 @@
-/* js/pwa-install.js — restore the Aug-8 lattice install that Chrome accepted
+/* js/pwa-install.js — Aug-8 lattice Chrome install, restored 2026-08-23
+ * Capture BIP early. Register SW immediately. Wait for the event, then event.prompt().
+ * Do not show the menu-coach card until the wait expires.
  * Workspace 14.15.6 · TOLC 8 · info@Rathor.ai
  */
 (function () {
@@ -6,9 +8,18 @@
 
   var DISMISS_KEY = 'rathor-pwa-install-dismissed';
   var DISMISS_DAYS = 14;
+  var WAIT_MS = 12000;
   window.__rtPwa = window.__rtPwa || { ev: null };
   var deferredPrompt = window.__rtPwa.ev || null;
   var bannerEl = null;
+  var waiting = false;
+
+  try {
+    var q = new URLSearchParams(location.search);
+    if (q.has('pwa') || q.has('install') || q.get('source') === 'pwa') {
+      localStorage.removeItem(DISMISS_KEY);
+    }
+  } catch (e) {}
 
   function ua() { return navigator.userAgent || ''; }
   function isStandalone() {
@@ -40,14 +51,17 @@
   function chromeIntent() {
     return 'intent://rathor.ai/#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=https%3A%2F%2Frathor.ai%2F;end';
   }
+  function setStatus(text) {
+    var el = document.getElementById('rathor-pwa-status');
+    if (el && text) el.textContent = text;
+  }
 
   function registerServiceWorker() {
-    if (!('serviceWorker' in navigator)) return;
-    function go() {
-      navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(function () {});
-    }
-    if (document.readyState === 'complete') go();
-    else window.addEventListener('load', go);
+    if (!('serviceWorker' in navigator)) return Promise.resolve();
+    return navigator.serviceWorker.register('/sw.js', { scope: '/', updateViaCache: 'none' }).then(function (reg) {
+      try { if (reg && reg.update) reg.update(); } catch (e) {}
+      return reg;
+    }).catch(function () { return null; });
   }
 
   function hideBanner() {
@@ -76,8 +90,13 @@
     if (ev.userChoice) {
       ev.userChoice.then(function (choice) {
         hideBanner();
-        markDismissed();
-        if (choice && choice.outcome === 'accepted') setButtons('Installed', true);
+        if (choice && choice.outcome === 'accepted') {
+          markDismissed();
+          setButtons('Installed', true);
+          setStatus('Installed on this device.');
+        } else {
+          setStatus('Install stayed on the device sheet. Tap again any time.');
+        }
       }).catch(function () {});
     }
     return true;
@@ -127,7 +146,34 @@
     bannerEl = hint;
     var ok = document.getElementById('rathor-ios-hint-ok');
     if (ok) ok.addEventListener('click', hideBanner);
-    setTimeout(hideBanner, 16000);
+    setTimeout(hideBanner, 18000);
+  }
+
+  function waitThenPrompt() {
+    if (waiting) return;
+    waiting = true;
+    setButtons('Preparing…', true);
+    setStatus('Warming the Chrome install sheet. Stay on this page.');
+    registerServiceWorker();
+    var started = Date.now();
+    var timer = setInterval(function () {
+      if (firePrompt()) {
+        clearInterval(timer);
+        waiting = false;
+        setButtons('Install Ra-Thor', false);
+        return;
+      }
+      if (Date.now() - started >= WAIT_MS) {
+        clearInterval(timer);
+        waiting = false;
+        setButtons('Install Ra-Thor', false);
+        setStatus('If the sheet did not open: Chrome menu ⋮ → Install app (not Add to Home screen).');
+        showHint(
+          '<p class="text-amber-300 font-semibold mb-1">Chrome install</p>' +
+          '<p>Stay on this page a few seconds, then tap Install again — or use Chrome’s menu <strong>⋮ → Install app</strong> (not Add to Home screen).</p>'
+        );
+      }
+    }, 350);
   }
 
   function triggerInstall() {
@@ -145,7 +191,7 @@
       return;
     }
     if (firePrompt()) return;
-    showHint('<p class="text-amber-300 font-semibold mb-1">Chrome install</p><p>Stay on this page a few seconds, then tap Install again — or use Chrome’s menu <strong>⋮ → Install app</strong> (not Add to Home screen).</p>');
+    waitThenPrompt();
   }
 
   function wire(el) {
@@ -159,9 +205,10 @@
     deferredPrompt = e;
     window.__rtPwa.ev = e;
     setButtons('Install Ra-Thor', false);
+    setStatus('Ready. Tap Install for the Chrome system sheet.');
     setTimeout(function () {
       if (!wasDismissedRecently() && !isStandalone()) showBanner();
-    }, 2500);
+    }, 1800);
   });
 
   window.addEventListener('appinstalled', function () {
@@ -170,17 +217,21 @@
     hideBanner();
     markDismissed();
     setButtons('Installed', true);
+    setStatus('Installed on this device.');
   });
 
   window.rathorTriggerPWAInstall = triggerInstall;
   registerServiceWorker();
   function mount() {
-    if (isStandalone()) { setButtons('Installed', true); return; }
+    if (isStandalone()) { setButtons('Installed', true); setStatus('Running as the installed app.'); return; }
     wire(document.getElementById('rathor-hero-install'));
     wire(document.getElementById('rathor-lattice-install'));
     var extras = document.querySelectorAll('[data-rt-pwa-install]');
     for (var i = 0; i < extras.length; i++) wire(extras[i]);
     setButtons('Install Ra-Thor', false);
+    if (deferredPrompt || (window.__rtPwa && window.__rtPwa.ev)) {
+      setStatus('Ready. Tap Install for the Chrome system sheet.');
+    }
   }
   if (document.body) mount();
   else document.addEventListener('DOMContentLoaded', mount);
