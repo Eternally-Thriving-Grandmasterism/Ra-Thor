@@ -1,11 +1,8 @@
 /**
  * Ra-Thor site lock 2026-08-22 (Nth-degree lattice map)
- * Injects living surfaces / science lattices / indexed map onto rathor.ai
- * Uses data-i18n so switchLanguage() can localize injected copy.
- * Cargo truth: workspace 14.15.6 • Lattice Chat v14.18 • Whitepaper v4.1
- * Contact: info@Rathor.ai
- * Independent lattice — not affiliated with, sponsored by, or endorsed by xAI.
- * 2026-08-23: restore PWA boot on Home + coherent Shard/Launch labels.
+ * 2026-08-23: PWA boot + Shard/Launch labels + science-map restore.
+ * Cargo truth: workspace 14.15.6 • Lattice Chat v14.18
+ * Contact: info@Rathor.ai — independent of xAI.
  */
 (function () {
   'use strict';
@@ -51,6 +48,14 @@
       };
     }
     window.applyLockI18n = applyLockI18n;
+  }
+
+  function bootScript(needle, src) {
+    if (document.querySelector('script[src*="' + needle + '"]')) return;
+    var s = document.createElement('script');
+    s.src = src;
+    s.defer = true;
+    document.head.appendChild(s);
   }
 
   ready(function () {
@@ -128,20 +133,10 @@
       }
     });
 
-    if (!document.querySelector('script[src*="family-nav-2026-08-22"]')) {
-      var fn = document.createElement('script');
-      fn.src = '/js/family-nav-2026-08-22.js';
-      fn.defer = true;
-      document.head.appendChild(fn);
-    }
+    bootScript('family-nav-2026-08-22', '/js/family-nav-2026-08-22.js');
+    bootScript('pwa-install', '/js/pwa-install.js');
+    bootScript('science-map-lock', '/js/science-map-lock.js');
 
-    if (!document.querySelector('script[src*="pwa-install"]')) {
-      var pw = document.createElement('script');
-      pw.src = '/js/pwa-install.js';
-      pw.defer = true;
-      document.head.appendChild(pw);
-    }
-
-    console.info('[Ra-Thor] site-lock-2026-08-22 applied (PWA restore + coherent Shard/Launch + family-nav)');
+    console.info('[Ra-Thor] site-lock-2026-08-22 applied (PWA + coherent nav + science map restore)');
   });
 })();
