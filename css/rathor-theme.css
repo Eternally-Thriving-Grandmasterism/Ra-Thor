@@ -1,7 +1,7 @@
-/* rathor-theme.css — uniform lattice look
- * Workspace 14.15.6 · dark default · optional light · info@Rathor.ai
- * Near-black field, warm ivory ink, single gold accent. No rainbow.
- */
+@import url('rathor-theme-rest-a.css');
+@import url('rathor-theme-rest-b.css');
+
+/* rathor-theme.css — uniform lattice look + standalone RTL clip */
 :root,
 html[data-theme="dark"] {
   color-scheme: dark;
@@ -21,7 +21,6 @@ html[data-theme="dark"] {
   --rt-on-gold: #111111;
   --rt-nav-bg: rgba(5, 5, 5, 0.9);
 }
-
 html[data-theme="light"] {
   color-scheme: light;
   --rt-bg: #f3ead8;
@@ -40,7 +39,6 @@ html[data-theme="light"] {
   --rt-on-gold: #111111;
   --rt-nav-bg: rgba(255, 250, 241, 0.92);
 }
-
 html {
   background: var(--rt-bg);
   overflow-x: clip;
@@ -60,15 +58,11 @@ html, body {
     width: 100%;
   }
 }
-
-/* Visually hidden skip control.
-   position:fixed + clip — NEVER left:-999px / absolute off-canvas. */
 #rt-skip-family {
   position: fixed !important;
   top: 0;
   left: 0;
   inset-inline-start: 0;
-  inset-inline-end: auto;
   width: 1px !important;
   height: 1px !important;
   padding: 0 !important;
@@ -93,7 +87,6 @@ html, body {
   overflow: visible !important;
   top: 0.5rem;
   inset-inline-start: 0.5rem;
-  inset-inline-end: auto;
   left: auto;
   color: #000;
   background: #fbbf24;
@@ -105,6 +98,3 @@ html[data-theme] body.bg-black {
   background: var(--rt-bg) !important;
   color: var(--rt-ink) !important;
 }
-
-@import url('rathor-theme-rest-a.css');
-@import url('rathor-theme-rest-b.css');
