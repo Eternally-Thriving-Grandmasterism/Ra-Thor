@@ -100,20 +100,9 @@
   <div class="golden-star" style="top:78%;left:90%;animation-delay:24s;">★</div>
 
   <header class="relative z-10 border-b border-amber-300/20 bg-black/90">
-    <div class="max-w-3xl mx-auto px-3 sm:px-4 py-3 flex items-center justify-between gap-2">
-      <a href="/" class="inline-flex items-center gap-1.5 text-amber-300 text-sm font-medium shrink-0">
-        <i class="fa-solid fa-arrow-left"></i>
-        <span class="hidden xs:inline">Back</span>
-      </a>
-      <div class="text-center flex-1 min-w-0">
-        <h1 class="title-font text-lg sm:text-xl font-black tracking-tight thunder-glow truncate">Lattice Chat ⚡️</h1>
-        <p class="text-[10px] text-amber-400/70 mt-0.5">v14.18.x • workspace 14.15.6 • TOLC 8</p>
-      </div>
-      <div class="flex items-center gap-2 shrink-0 text-[11px]">
-        <button type="button" id="rathor-lattice-install" data-rt-pwa-install class="ctrl-btn border-sky-300/50 text-sky-200">Install</button>
-        <a href="/Launch-Ra-Thor.html" class="text-emerald-300/80 hover:text-emerald-200 hidden sm:inline">Launch</a>
-        <a href="/privacy.html" class="text-white/50 hover:text-amber-200">Privacy</a>
-      </div>
+    <div class="max-w-3xl mx-auto px-3 sm:px-4 py-3 text-center">
+      <h1 class="title-font text-lg sm:text-xl font-black tracking-tight thunder-glow">Lattice Chat ⚡️</h1>
+      <p class="text-[10px] text-amber-400/70 mt-0.5">v14.18.x • workspace 14.15.6 • TOLC 8 • family bar shared</p>
     </div>
   </header>
 
@@ -205,21 +194,6 @@
     </div>
   </main>
 
-  <footer class="relative z-10 border-t border-amber-300/15 py-5 mt-auto">
-    <div class="max-w-3xl mx-auto px-4 text-center text-xs text-white/50">
-      <p>© 2026 Sherif Samy Botros — Sole Steward of Autonomicity Games Inc.</p>
-      <p class="mt-1 text-amber-400/60 text-[11px]">Lattice Chat v14.18.x • workspace 14.15.6 • local store only • info@Rathor.ai</p>
-      <div class="mt-2.5 flex justify-center gap-4 text-[11px]">
-        <a href="/" class="hover:text-amber-300">Home</a>
-        <a href="/Launch-Ra-Thor.html" class="hover:text-amber-300">Launch</a>
-        <a href="/sovereign-shard.html" class="hover:text-amber-300">Shard v8</a>
-        <a href="/privacy.html" class="hover:text-amber-300">Privacy</a>
-        <a href="/contact.html" class="hover:text-amber-300">Contact</a>
-        <a href="https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor" target="_blank" rel="noopener" class="hover:text-amber-300">Monorepo</a>
-      </div>
-    </div>
-  </footer>
-
   <div id="voice-settings-overlay" class="modal-overlay">
     <div class="modal-content">
       <h2 class="title-font text-xl text-amber-300 mb-2 thunder-glow">Voice Settings ⚡️</h2>
@@ -263,6 +237,8 @@
       if (e.target === voiceOverlay) voiceOverlay.classList.remove('active');
     });
   </script>
-  <script src="/js/pwa-install.js"></script>
+  <script src="/js/rathor-theme.js"></script>
+  <script src="/js/pwa-install.js" defer></script>
+  <script src="/js/family-nav-2026-08-22.js" defer></script>
 </body>
 </html>
