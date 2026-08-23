@@ -203,6 +203,11 @@
       };
       (document.head || document.documentElement).appendChild(s);
     }
+    if (!document.querySelector('script[src*="rathor-unify.js"]')) {
+      var u = document.createElement('script');
+      u.src = '/js/rathor-unify.js';
+      (document.head || document.documentElement).appendChild(u);
+    }
   }
 
   if (document.body) {
