@@ -87,7 +87,9 @@
             '<h2 class="text-2xl sm:text-3xl font-semibold tracking-tight text-center mb-6 text-white" data-i18n="surfacesTitle">Living Surfaces</h2>' +
             '<div class="grid sm:grid-cols-2 gap-4">' +
             '<a href="/chat.html" class="card-hover block rounded-2xl border border-violet-400/40 bg-violet-950/20 p-5"><p class="font-semibold text-violet-200" data-i18n="surfaceChat">Offline Lattice Chat v14.18</p><p class="text-xs text-white/60 mt-2" data-i18n="surfaceChatNote">Multi-session, offline-first, optional passphrase encryption. No account. No backend we control.</p></a>' +
-            '<a href="/Launch-Ra-Thor.html" class="card-hover block rounded-2xl border border-emerald-400/40 bg-emerald-950/20 p-5"><p class="font-semibold text-emerald-200" data-i18n="surfaceShard">Sovereign Shard v8</p><p class="text-xs text-white/60 mt-2" data-i18n="surfaceShardNote">Dedicated launcher • 11 languages • real-time TOLC 8 verification</p></a>' +
+            '<a href="/Launch-Ra-Thor.html" class="card-hover block rounded-2xl border border-emerald-400/40 bg-emerald-950/20 p-5"><p class="font-semibold text-emerald-200">Launch v14.15.6</p><p class="text-xs text-white/60 mt-2">Thunder lattice map • science cards • Chat / Shard / Forge</p></a>' +
+            '<a href="/sovereign-shard.html" class="card-hover block rounded-2xl border border-amber-400/40 bg-amber-950/20 p-5"><p class="font-semibold text-amber-200">Sovereign Shard v8</p><p class="text-xs text-white/60 mt-2">Local TOLC 8 demo — not a live Conductor node.</p></a>' +
+            '<a href="/web-forge.html" class="card-hover block rounded-2xl border border-lime-400/40 bg-lime-950/20 p-5"><p class="font-semibold text-lime-200">Web-Forge</p><p class="text-xs text-white/60 mt-2">Local gate-weight generator. Demo surface only.</p></a>' +
             '<a href="https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/WHITEPAPER_v4.1.md" target="_blank" rel="noopener" class="card-hover block rounded-2xl border border-cyan-400/40 bg-cyan-950/20 p-5"><p class="font-semibold text-cyan-200" data-i18n="surfacePaper">Whitepaper v4.1</p><p class="text-xs text-white/60 mt-2" data-i18n="surfacePaperNote">ONE Organism architecture and Powrush-MMO delivery record</p></a>' +
             '<a href="https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor" target="_blank" rel="noopener" class="card-hover block rounded-2xl border border-amber-400/40 bg-amber-950/20 p-5"><p class="font-semibold text-amber-200" data-i18n="surfaceRepo">Open the monorepo</p><p class="text-xs text-white/60 mt-2" data-i18n="surfaceRepoNote">200+ crates • PATSAGi Councils • Lattice Conductor v14 • white-hat fixtures</p></a>' +
             '</div></section>' +
@@ -161,6 +163,13 @@
       }
     });
 
-    console.info('[Ra-Thor] site-lock-2026-08-22 applied (i18n-aware, science map + PATSAGi FAQ)');
+    if (!document.querySelector('script[src*="family-nav-2026-08-22"]')) {
+      var fn = document.createElement('script');
+      fn.src = '/js/family-nav-2026-08-22.js';
+      fn.defer = true;
+      document.head.appendChild(fn);
+    }
+
+    console.info('[Ra-Thor] site-lock-2026-08-22 applied (i18n-aware, science map + PATSAGi FAQ + family-nav)');
   });
 })();
