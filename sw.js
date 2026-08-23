@@ -1,8 +1,8 @@
 /* sw.js — Ra-Thor vanilla offline worker
- * Workspace 14.15.6 · LOCK 2026-08-23-native3
+ * Workspace 14.15.6 · LOCK 2026-08-23-native4
  * No CDN. No Workbox. Root scope. Contact: info@Rathor.ai
  */
-var LOCK = '2026-08-23-native3';
+var LOCK = '2026-08-23-native4';
 var CACHE = 'rathor-core-' + LOCK;
 
 var PRECACHE = [
@@ -62,7 +62,6 @@ self.addEventListener('activate', function (event) {
 self.addEventListener('fetch', function (event) {
   var req = event.request;
   if (req.method !== 'GET') return;
-
   var url;
   try { url = new URL(req.url); } catch (e) { return; }
   if (url.origin !== self.location.origin) return;
