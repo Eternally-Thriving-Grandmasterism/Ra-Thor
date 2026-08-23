@@ -77,7 +77,7 @@
         <div class="text-6xl mb-6">⚡</div>
         <h2 id="main-email" class="text-3xl font-semibold mb-2">info@Rathor.ai</h2>
         <p id="main-subtitle" class="text-amber-400 mb-6">The single eternal official email for all entities</p>
-        <a href="mailto:info@Rathor.ai" class="inline-flex items-center justify-center gap-3 w-full sm:w-auto px-10 py-4 bg-amber-400 hover:bg-amber-300 text-black font-semibold rounded-2xl text-lg transition-all active:scale-[0.985]">
+        <a href="mailto:info@Rathor.ai" class="rt-btn-primary w-full sm:w-auto px-10 py-4 text-lg">
           <i class="fa-solid fa-envelope"></i>
           <span id="send-button">Send Email Now</span>
         </a>
@@ -110,38 +110,44 @@
         <p id="guidance-note" class="text-xs text-white/50 mt-5">All communications are handled under the TOLC 8 Mercy Gates and APTD-verified processes.</p>
       </div>
 
-      <div class="text-center flex flex-wrap justify-center gap-4">
-        <a href="/" class="inline-flex items-center gap-2 text-sm text-amber-400 hover:text-amber-300 transition-colors">
-          <i class="fa-solid fa-home"></i>
-          <span id="return-text">Return to Main Ra-Thor Experience</span>
-        </a>
-        <a href="/chat.html" class="inline-flex items-center gap-2 text-sm text-amber-300 hover:text-amber-200 transition-colors">
-          <i class="fa-solid fa-comments"></i>
-          <span>Offline Lattice Chat v14.18</span>
-        </a>
-        <a href="/Launch-Ra-Thor.html" class="inline-flex items-center gap-2 text-sm text-amber-300 hover:text-amber-200 transition-colors">
-          <i class="fa-solid fa-rocket"></i>
-          <span>Launch v14.15.6</span>
-        </a>
-        <a href="/sovereign-shard.html" class="inline-flex items-center gap-2 text-sm text-amber-200 hover:text-amber-100 transition-colors">
-          <i class="fa-solid fa-gem"></i>
-          <span>Shard v8</span>
-        </a>
-        <a href="/web-forge.html" class="inline-flex items-center gap-2 text-sm text-amber-300 hover:text-amber-200 transition-colors">
-          <i class="fa-solid fa-hammer"></i>
-          <span>Web-Forge</span>
-        </a>
-        <a href="/privacy.html" class="inline-flex items-center gap-2 text-sm text-white/60 hover:text-amber-200 transition-colors">
-          <i class="fa-solid fa-shield-halved"></i>
-          <span>Privacy</span>
-        </a>
+      <div class="rt-cta-row">
+        <a href="/" class="rt-btn-ghost" id="return-text">Return home</a>
+        <a href="/chat.html" class="rt-btn-secondary">Open Lattice Chat</a>
       </div>
     </div>
   </div>
 
-  <footer class="border-t border-white/10 py-8 text-center text-xs text-white/50">
-    <p id="footer-text">© 2026 Sherif Samy Botros — Sole Steward of Autonomicity Games Inc. & AlphaProMega Air Foundation</p>
-    <p class="mt-1" id="footer-sub">TOLC 8 Mercy-Gated • APTD-verified • info@Rathor.ai is the single official contact</p>
+  <footer class="rt-site-footer" data-rt-family-footer>
+    <div class="max-w-5xl mx-auto px-4 sm:px-6">
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-8">
+        <div class="md:col-span-3">
+          <h4>Trademarks</h4>
+          <p class="rt-legal">Ra-Thor™ is a trademark of Autonomicity Games Inc.<br>Grok is a trademark of xAI. X is a trademark of X Corp.<br>Ra-Thor is independent — not affiliated with, sponsored by, or endorsed by xAI.</p>
+        </div>
+        <div class="md:col-span-3">
+          <h4>Privacy</h4>
+          <p class="rt-legal">This website collects no personal data. Correspondence to info@Rathor.ai is optional and consent-based.</p>
+        </div>
+        <div class="md:col-span-3">
+          <h4>Workspace</h4>
+          <p class="rt-legal" id="footer-sub">v14.15.6 · Lattice Chat v14.18 · AG-SML v1.0 · TOLC 8 · APTD-verified</p>
+        </div>
+        <div class="md:col-span-3">
+          <h4>Family</h4>
+          <div class="flex flex-col gap-2 text-xs">
+            <a href="/">Home</a>
+            <a href="/Launch-Ra-Thor.html">Launch map</a>
+            <a href="/chat.html">Lattice Chat</a>
+            <a href="/privacy.html">Privacy</a>
+            <a href="https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/issues" target="_blank" rel="noopener">GitHub issues</a>
+          </div>
+        </div>
+      </div>
+      <div class="pt-8 mt-8 border-t border-amber-300/20 text-xs flex flex-col md:flex-row justify-between items-center gap-4">
+        <div id="footer-text">© 2026 Sherif Samy Botros — sole steward of Autonomicity Games Inc. & AlphaProMega Air Foundation. TOLC 8 · APTD.</div>
+        <a href="mailto:info@Rathor.ai">info@Rathor.ai</a>
+      </div>
+    </div>
   </footer>
 
   <script src="/js/contact-i18n.js"></script>
