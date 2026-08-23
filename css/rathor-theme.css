@@ -41,420 +41,66 @@ html[data-theme="light"] {
   --rt-nav-bg: rgba(255, 250, 241, 0.92);
 }
 
-html { background: var(--rt-bg); }
-html[data-theme] body,
-html[data-theme] body.bg-black {
-  background: var(--rt-bg) !important;
-  color: var(--rt-ink) !important;
-}
-
-html[data-theme="light"] .bg-zinc-950,
-html[data-theme="light"] .bg-zinc-900,
-html[data-theme="light"] .bg-zinc-900\/70,
-html[data-theme="light"] .bg-black,
-html[data-theme="light"] .bg-black\/90,
-html[data-theme="light"] .bg-zinc-950\/80,
-html[data-theme="light"] .bg-zinc-950\/50,
-html[data-theme="light"] .bg-zinc-950\/90 {
-  background-color: var(--rt-bg-elev) !important;
-}
-
-html[data-theme="light"] .text-white,
-html[data-theme="light"] .text-white\/80,
-html[data-theme="light"] .text-white\/70,
-html[data-theme="light"] .text-zinc-200 {
-  color: var(--rt-ink) !important;
-}
-html[data-theme="light"] .text-white\/60,
-html[data-theme="light"] .text-white\/55,
-html[data-theme="light"] .text-white\/50,
-html[data-theme="light"] .text-white\/40,
-html[data-theme="light"] .text-zinc-400,
-html[data-theme="light"] .text-zinc-500 {
-  color: var(--rt-muted) !important;
-}
-
-html[data-theme] .text-amber-100,
-html[data-theme] .text-amber-200,
-html[data-theme] .text-amber-200\/90,
-html[data-theme] .text-amber-200\/80,
-html[data-theme] .text-amber-200\/70,
-html[data-theme] .text-amber-300,
-html[data-theme] .text-amber-300\/90,
-html[data-theme] .text-amber-400,
-html[data-theme] .text-amber-400\/90,
-html[data-theme] .text-amber-400\/70,
-html[data-theme] .text-sky-200,
-html[data-theme] .text-sky-300,
-html[data-theme] .text-cyan-200,
-html[data-theme] .text-cyan-300,
-html[data-theme] .text-cyan-300\/90,
-html[data-theme] .text-cyan-400,
-html[data-theme] .text-emerald-200,
-html[data-theme] .text-emerald-300,
-html[data-theme] .text-emerald-400,
-html[data-theme] .text-emerald-400\/70,
-html[data-theme] .text-violet-200,
-html[data-theme] .text-violet-300,
-html[data-theme] .text-violet-300\/90,
-html[data-theme] .text-violet-300\/70,
-html[data-theme] .text-purple-200,
-html[data-theme] .text-purple-300,
-html[data-theme] .text-lime-200,
-html[data-theme] .text-lime-300 {
-  color: var(--rt-gold) !important;
-}
-
-html[data-theme] .border-amber-300,
-html[data-theme] .border-amber-300\/30,
-html[data-theme] .border-amber-300\/20,
-html[data-theme] .border-amber-400,
-html[data-theme] .border-amber-400\/50,
-html[data-theme] .border-sky-300,
-html[data-theme] .border-sky-300\/40,
-html[data-theme] .border-sky-300\/50,
-html[data-theme] .border-cyan-300,
-html[data-theme] .border-cyan-300\/30,
-html[data-theme] .border-cyan-400\/30,
-html[data-theme] .border-emerald-300\/20,
-html[data-theme] .border-emerald-300\/30,
-html[data-theme] .border-emerald-400,
-html[data-theme] .border-emerald-400\/50,
-html[data-theme] .border-emerald-900,
-html[data-theme] .border-emerald-900\/50,
-html[data-theme] .border-violet-300,
-html[data-theme] .border-violet-300\/30,
-html[data-theme] .border-violet-400,
-html[data-theme] .border-purple-300,
-html[data-theme] .border-lime-300\/30,
-html[data-theme] .border-white\/10,
-html[data-theme] .border-white\/20,
-html[data-theme] .border-white\/30 {
-  border-color: var(--rt-line) !important;
-}
-
-html[data-theme] .thunder-glow {
-  text-shadow: 0 0 22px rgba(245, 215, 110, 0.32), 0 0 48px rgba(201, 162, 39, 0.16);
-}
-html[data-theme="light"] .thunder-glow {
-  text-shadow: 0 0 14px rgba(184, 134, 11, 0.16);
-}
-
-.rt-card,
-.rt-card-uniform,
-html[data-theme] .record-card {
-  background: linear-gradient(180deg, var(--rt-wash), rgba(0, 0, 0, 0.22)) !important;
-  border: 1px solid var(--rt-line) !important;
-  color: var(--rt-ink);
-  box-shadow: var(--rt-shadow);
-}
-html[data-theme="light"] .rt-card,
-html[data-theme="light"] .rt-card-uniform,
-html[data-theme="light"] .record-card {
-  background: var(--rt-bg-card) !important;
-}
-
-.rt-btn,
-.rt-btn-primary,
-html[data-theme] #send-btn,
-html[data-theme] #rathor-hero-install,
-html[data-theme] #rathor-lattice-install,
-html[data-theme] .bg-amber-400,
-html[data-theme] .bg-sky-300,
-html[data-theme] .bg-violet-500,
-html[data-theme] .bg-emerald-500 {
-  background: var(--rt-gold-hot) !important;
-  color: var(--rt-on-gold) !important;
-  border: 1px solid var(--rt-gold-hot) !important;
-}
-.rt-btn:hover,
-.rt-btn-primary:hover,
-html[data-theme] #rathor-hero-install:hover,
-html[data-theme] .bg-amber-400:hover,
-html[data-theme] .bg-sky-300:hover,
-html[data-theme] .bg-violet-500:hover,
-html[data-theme] .bg-emerald-500:hover {
-  filter: brightness(1.06);
-}
-
-.rt-btn-ghost,
-html[data-theme] .bg-emerald-500\/10,
-html[data-theme] .bg-violet-500\/10,
-html[data-theme] .bg-cyan-950\/20 {
-  background: var(--rt-wash) !important;
-  color: var(--rt-gold) !important;
-  border: 1px solid var(--rt-line) !important;
-}
-.rt-btn-ghost:hover,
-html[data-theme] .bg-emerald-500\/10:hover,
-html[data-theme] .bg-violet-500\/10:hover {
-  background: rgba(240, 211, 106, 0.14) !important;
-}
-
-.rt-btn-secondary {
-  background: transparent !important;
-  color: var(--rt-gold) !important;
-  border: 1px solid var(--rt-line) !important;
-}
-.rt-btn-secondary:hover {
-  background: var(--rt-wash) !important;
-}
-
-.rt-btn-primary,
-.rt-btn-secondary,
-.rt-btn-ghost,
-.rt-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.55rem;
-  min-height: 44px;
-  min-width: 10.5rem;
-  padding: 0.7rem 1.25rem;
-  border-radius: 1rem;
-  font-weight: 600;
-  font-size: 0.95rem;
-  line-height: 1.2;
-  text-decoration: none;
-  letter-spacing: 0.01em;
-  box-sizing: border-box;
-}
-.rt-btn-sm {
-  min-width: 0;
-  min-height: 36px;
-  padding: 0.4rem 0.8rem;
-  font-size: 0.8rem;
-  border-radius: 0.75rem;
-}
-
-.rt-cta-row {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 0.75rem;
-}
-.rt-cta-row > a,
-.rt-cta-row > button {
-  flex: 1 1 12rem;
-  max-width: 18rem;
-}
-
-.rt-card-uniform {
-  display: flex;
-  flex-direction: column;
-  min-height: 100%;
-}
-.rt-card-uniform .rt-card-action {
-  margin-top: auto;
-  padding-top: 1.15rem;
-}
-
-.rt-kicker {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.28rem 0.75rem;
-  border-radius: 999px;
-  border: 1px solid var(--rt-line-soft);
-  background: var(--rt-wash);
-  color: var(--rt-gold);
-  font-size: 0.68rem;
-  font-weight: 650;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.rt-site-footer {
-  border-top: 1px solid var(--rt-line) !important;
-  background: var(--rt-bg) !important;
-  color: var(--rt-muted) !important;
-  padding: 2.5rem 0 1.75rem;
-  margin-top: 2rem;
-}
-.rt-site-footer h4 {
-  color: var(--rt-gold) !important;
-  font-size: 0.78rem;
-  font-weight: 650;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  margin: 0 0 0.7rem;
-}
-.rt-site-footer a {
-  color: var(--rt-gold);
-  text-decoration: none;
-}
-.rt-site-footer a:hover {
-  color: var(--rt-ink);
-}
-.rt-site-footer .rt-legal {
-  font-size: 0.78rem;
-  line-height: 1.55;
-  color: var(--rt-faint);
-}
-
-#rt-family-footer.rt-family-pills {
-  display: none;
-}
-
-html[data-theme] .lang-tab {
-  color: var(--rt-gold);
-  border-color: var(--rt-line);
-  background: transparent;
-}
-html[data-theme] .lang-tab.active {
-  background: var(--rt-gold-hot) !important;
-  color: var(--rt-on-gold) !important;
-  border-color: var(--rt-gold-hot) !important;
-  box-shadow: 0 0 22px rgba(245, 200, 74, 0.28);
-}
-
-html[data-theme] .lattice-status {
-  background: var(--rt-bg-elev) !important;
-  border: 1px solid var(--rt-line) !important;
-  color: var(--rt-gold) !important;
-}
-
-html[data-theme] .faq-accordion details {
-  border: 1px solid var(--rt-line-soft);
-  border-radius: 1rem;
-  padding: 0.85rem 1rem;
-  background: var(--rt-bg-elev);
-}
-html[data-theme] .faq-accordion details[open] {
-  border-color: var(--rt-line) !important;
-  box-shadow: var(--rt-shadow);
-}
-html[data-theme] .faq-accordion details[open] summary {
-  color: var(--rt-gold) !important;
-  text-shadow: none !important;
-}
-
 html {
-  transition: background-color 0.35s ease, color 0.35s ease;
+  background: var(--rt-bg);
+  overflow-x: clip;
+  max-width: 100%;
+  width: 100%;
 }
-html[data-theme] body {
-  transition: background-color 0.35s ease, color 0.35s ease;
+html, body {
+  overflow-x: clip;
+  overscroll-behavior-x: none;
+  max-width: 100%;
 }
-
-html[data-theme="light"] .golden-star {
-  opacity: 0.12 !important;
-  color: #8a6a12 !important;
-}
-
-.rt-nav-tools {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  margin-left: 0.35rem;
-  padding-left: 0.45rem;
-  border-left: 1px solid var(--rt-line-soft);
-}
-
-.rt-theme-orb,
-.rt-install-orb {
-  position: relative;
-  width: 34px;
-  height: 34px;
-  min-width: 34px;
-  min-height: 34px;
-  padding: 0;
-  border-radius: 999px;
-  border: 1px solid var(--rt-line);
-  color: var(--rt-gold);
-  background: var(--rt-wash);
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-}
-.rt-theme-orb:hover,
-.rt-install-orb:hover {
-  background: rgba(240, 211, 106, 0.18);
-  border-color: var(--rt-gold-hot);
-}
-.rt-theme-orb:focus-visible,
-.rt-install-orb:focus-visible {
-  outline: 2px solid var(--rt-gold-hot);
-  outline-offset: 2px;
-}
-
-.rt-install-orb svg {
-  width: 15px;
-  height: 15px;
-}
-
-.rt-celestial-stack {
-  position: relative;
-  width: 16px;
-  height: 16px;
-  display: block;
-}
-.rt-celestial-sun,
-.rt-celestial-moon {
-  position: absolute;
-  inset: 0;
-  width: 16px;
-  height: 16px;
-  stroke: currentColor;
-  stroke-width: 1.7;
-  stroke-linecap: round;
-  fill: currentColor;
-  transform-origin: 50% 50%;
-  transition: opacity 0.28s ease, transform 0.4s ease;
-}
-.rt-celestial-sun {
-  fill: none;
-}
-html[data-theme="dark"] .rt-celestial-moon,
-html[data-theme="light"] .rt-celestial-sun {
-  opacity: 1;
-  transform: rotate(0deg) scale(1);
-}
-html[data-theme="dark"] .rt-celestial-sun,
-html[data-theme="light"] .rt-celestial-moon {
-  opacity: 0;
-  transform: rotate(-40deg) scale(0.55);
-}
-html[data-theme="light"] .rt-theme-orb {
-  background: rgba(201, 162, 39, 0.16);
-  color: var(--rt-gold-deep);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .rt-celestial-sun,
-  .rt-celestial-moon,
-  html,
-  html[data-theme] body {
-    transition: none !important;
+@media (display-mode: standalone), (display-mode: fullscreen) {
+  html, body {
+    overflow-x: clip !important;
+    overscroll-behavior-x: none;
+    max-width: 100% !important;
+    width: 100%;
   }
 }
 
-#rt-family-nav {
-  background: var(--rt-nav-bg) !important;
-  border-bottom: 1px solid var(--rt-line) !important;
+/* Visually hidden skip control.
+   position:fixed + clip — NEVER left:-999px / absolute off-canvas.
+   Negative left + html[dir=rtl] + Android standalone expands the
+   scrollport; Chrome parks the visual viewport on the yellow chip
+   and shoves the page to the right. */
+#rt-skip-family {
+  position: fixed !important;
+  top: 0;
+  left: 0;
+  inset-inline-start: 0;
+  inset-inline-end: auto;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  clip-path: inset(50%) !important;
+  white-space: nowrap;
+  border: 0;
+  z-index: 60;
+  color: transparent;
+  background: transparent;
 }
-#rt-family-footer {
-  border-top: 1px solid var(--rt-line-soft) !important;
-}
-
-html[data-theme] .message.rathor {
-  background: var(--rt-bg-elev) !important;
-  color: var(--rt-ink) !important;
-  border: 1px solid var(--rt-line) !important;
-}
-html[data-theme] .message.user {
-  background: linear-gradient(135deg, var(--rt-gold-hot), var(--rt-gold-deep)) !important;
-  color: var(--rt-on-gold) !important;
-}
-
-html[data-theme] a.text-cyan-300,
-html[data-theme] a.text-cyan-300\/90,
-html[data-theme] a.text-cyan-400,
-html[data-theme] a.text-violet-300\/90 {
-  color: var(--rt-gold) !important;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  * { scroll-behavior: auto !important; }
+#rt-skip-family:focus,
+#rt-skip-family:focus-visible {
+  width: auto !important;
+  height: auto !important;
+  margin: 0 !important;
+  padding: 0.4rem 0.7rem !important;
+  clip: auto !important;
+  clip-path: none !important;
+  overflow: visible !important;
+  white-space: nowrap;
+  top: 0.5rem;
+  inset-inline-start: 0.5rem;
+  inset-inline-end: auto;
+  left: auto;
+  color: #000;
+  background: #fbbf24;
+  font: 600 12px/1.2 system-ui, sans-serif;
+  border-radius: 0.35rem;
 }
