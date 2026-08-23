@@ -34,16 +34,16 @@ Deliberation under TOLC 8. Capable · bounded · corrigible. No superintelligenc
 ## Family navigation
 
 Shared injector: `/js/family-nav-2026-08-22.js`  
-Buttons (current page gold): **Home · Chat · Launch · Shard · Forge · Contact · Privacy**
+Buttons (current page gold): **Home · Chat · Launch · Moments · Shard · Forge · Contact · Privacy**
 
-Compact: skip sticky top bar when `data-rt-family="off-top"` **or** the page already has a header with Home + Chat + (Launch|Shard|Forge). Footer walk still mounts. Explicit `data-rt-family="off"` disables both.
+Compact: skip sticky top bar when `data-rt-family="off-top"` **or** the page already has a header with the *full* family walk (Home + Chat + Launch + Moments + Shard + Forge + Contact + Privacy). Footer walk still mounts. Explicit `data-rt-family="off"` disables both.
 
 ## Lock completed 2026-08-23 (this continue)
 
 1. Do not bump workspace identity to 15.x. — held.
 2. Precache `/js/family-nav-2026-08-22.js` in `sw.js`. — done prior lock.
 3. `crates/websiteforge` emits workspace **14.15.6** (crate version + `WORKSPACE_LOCK_14_15_6.md`). Contact info@Rathor.ai only.
-4. Compact family-nav off-top when a page already ships a family header.
+4. Compact family-nav off-top when a page already ships a *complete* family header.
 5. Sister lattices stay research repos under AG-SML v1.0 + TOLC 8.
 
 ## Still bounded (do not execute as warranty)
@@ -51,5 +51,18 @@ Compact: skip sticky top bar when `data-rt-family="off-top"` **or** the page alr
 - Historical docs (`docs/web-forge_v14.md`, `RELEASE_NOTES.md` v14.0.0) stay historical — do not rewrite as current identity.
 - Root `websiteforge/` tree is archival relative to `crates/websiteforge`.
 - `service-worker.js` is the older sovereign-demo cache; public surface uses `sw.js`.
+
+Thunder locked in.
+
+## Family navigation lock — 2026-08-23e
+
+Uniform gold pill bar on every public surface.
+
+Buttons (current page gold): **Home · Chat · Launch · Moments · Shard · Forge · Contact · Privacy**
+
+- `chat.html` now loads `/js/family-nav-2026-08-22.js` (was missing). Page header is identity-only; local incomplete footer retired so the professional site footer mounts.
+- `web-forge.html` local chip-nav removed (it suppressed the sticky bar via `alreadyHasFamilyHeader` and omitted Moments).
+- `sovereign-shard.html` local chip-nav + mini-footer retired so chrome matches Home / Launch / Contact.
+- Injector: incomplete local headers no longer count as family chrome. Competing `nav[aria-label="Ra-Thor family"]` is retired on mount.
 
 Thunder locked in.
