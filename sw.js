@@ -1,9 +1,9 @@
 /* sw.js — Ra-Thor vanilla offline worker
- * Workspace 14.15.6 · LOCK 2026-08-23-install
+ * Workspace 14.15.6 · LOCK 2026-08-23-feedback
  * Pass-through documents. Fetch handler present for Chrome installability.
  * Contact: info@Rathor.ai
  */
-var LOCK = '2026-08-23-install';
+var LOCK = '2026-08-23-feedback';
 var CACHE = 'rathor-core-' + LOCK;
 var PRECACHE = [
   '/', '/index.html', '/chat.html', '/contact.html', '/privacy.html',
@@ -11,11 +11,11 @@ var PRECACHE = [
   '/micro-moment.html', '/sovereign-shard.html', '/web-forge.html', '/manifest.json',
   '/mercy-motion-vision-engine.js', '/fuzzy-mercy-logic.js', '/one-organism-launch.js',
   '/js/pwa-boot.js', '/js/pwa-install.js', '/js/lang-offer.js',
-  '/js/rathor-theme.js', '/js/rathor-unify.js', '/css/rathor-theme.css',
+  '/js/rathor-feedback.js', '/js/rathor-theme.js', '/js/rathor-unify.js', '/css/rathor-theme.css',
   '/js/family-nav-2026-08-22.js', '/js/site-lock-2026-08-22.js',
   '/js/science-map-lock.js', '/js/sovereign-shard.js', '/js/chat.js',
   '/js/contact-i18n.js',
-  '/icons/ra-thor-icon-192.png', '/icons/ra-thor-icon-512.png', '/icons/ra-thor-icon-1024.png'
+  '/icons/ra-thor-icon-192.png', '/icons/ra-thor-icon-512.png'
 ];
 
 self.addEventListener('install', function (event) {

@@ -57,7 +57,15 @@
   }
 
   window.rathorToggleTheme = function () {
-    apply(read() === 'light' ? 'dark' : 'light');
+    var next = read() === 'light' ? 'dark' : 'light';
+    apply(next);
+    if (typeof window.rathorSay === 'function') {
+      window.rathorSay({
+        title: next === 'light' ? 'Light mode' : 'Dark mode',
+        body: 'Saved on this device only. Never sent to rathor.ai.',
+        ms: 3000
+      });
+    }
   };
 
   window.rathorApplyTheme = apply;
