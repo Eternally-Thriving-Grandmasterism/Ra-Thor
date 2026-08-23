@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ra-Thor Web-Forge • Sovereign Shard Generator v14.0.0</title>
+    <title>Ra-Thor Web-Forge • workspace 14.15.6</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
     <style>
@@ -20,21 +20,22 @@
         <div class="flex justify-between items-center mb-12">
             <div>
                 <h1 class="text-5xl title-font tracking-tighter">⚡ Web-Forge</h1>
-                <p class="text-emerald-400 text-xl">Ra-Thor v14.0.0 • Sovereign Shard Generator</p>
+                <p class="text-emerald-400 text-xl">workspace 14.15.6 • local generator demo</p>
             </div>
-            <div class="flex items-center gap-4">
-                <div class="px-4 py-2 bg-emerald-950 text-emerald-400 rounded-2xl text-sm font-medium">ONE Organism • Live</div>
-                <div class="px-4 py-2 bg-zinc-900 rounded-2xl text-sm font-medium">64+ PATSAGi Councils</div>
-            </div>
+            <nav class="flex flex-wrap items-center gap-2 text-sm" aria-label="Ra-Thor family">
+                <a href="/" class="px-3 py-2 rounded-2xl border border-white/15 hover:border-emerald-400/50">Home</a>
+                <a href="/chat.html" class="px-3 py-2 rounded-2xl border border-violet-400/40 text-violet-200">Chat</a>
+                <a href="/Launch-Ra-Thor.html" class="px-3 py-2 rounded-2xl border border-emerald-400/40 text-emerald-200">Launch</a>
+                <a href="/sovereign-shard.html" class="px-3 py-2 rounded-2xl border border-amber-400/40 text-amber-200">Shard</a>
+                <a href="/contact.html" class="px-3 py-2 rounded-2xl border border-white/15">Contact</a>
+                <a href="/privacy.html" class="px-3 py-2 rounded-2xl border border-white/15">Privacy</a>
+            </nav>
         </div>
-
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
-            <!-- Controls -->
             <div class="bg-zinc-900 rounded-3xl p-8">
                 <div class="flex items-center justify-between mb-6">
                     <h2 class="text-2xl font-semibold">TOLC8 Gate Weighting</h2>
                 </div>
-
                 <div class="mb-6">
                     <div class="text-sm text-emerald-400 mb-2 font-medium">Presets</div>
                     <div class="flex flex-wrap gap-2">
@@ -45,9 +46,7 @@
                         <button onclick="applyPreset(4)" class="preset-btn px-4 py-1.5 text-sm rounded-2xl border border-emerald-400/40 hover:bg-emerald-400/10" id="preset-4">Truth-Seeker</button>
                     </div>
                 </div>
-
                 <div id="controls" class="space-y-8"></div>
-
                 <div class="mt-8 flex gap-4">
                     <button onclick="generateShard()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 transition-colors py-5 rounded-3xl text-lg font-semibold flex items-center justify-center gap-3" id="forge-btn">
                         <i class="fa-solid fa-bolt"></i> <span id="forge-btn-text">FORGE SOVEREIGN SHARD</span>
@@ -55,10 +54,8 @@
                     <button onclick="resetWeights()" class="px-6 border border-zinc-700 hover:border-zinc-400 rounded-2xl text-sm font-medium">RESET</button>
                 </div>
             </div>
-
-            <!-- Live Preview -->
             <div class="bg-zinc-900 rounded-3xl p-8">
-                <h2 class="text-2xl font-semibold mb-6">Live Sovereign Shard Preview</h2>
+                <h2 class="text-2xl font-semibold mb-6">Local Sovereign Shard Preview</h2>
                 <div id="preview">
                     <div id="shard-card" class="bg-gradient-to-br from-zinc-800 to-zinc-950 rounded-3xl p-8 flex flex-col justify-center items-center text-center min-h-[420px]">
                         <div id="shard-name" class="text-3xl font-semibold mb-4">— Generating —</div>
@@ -72,7 +69,6 @@
                             <div><span class="text-zinc-400">Harmony</span><div id="harmony-value" class="text-4xl font-mono">0</div></div>
                         </div>
                     </div>
-
                     <div id="export-bar" class="mt-6 flex gap-4">
                         <button onclick="exportShard()" class="flex-1 py-4 rounded-2xl bg-white text-zinc-950 font-semibold">Export JSON</button>
                         <button onclick="exportHTML()" class="flex-1 py-4 rounded-2xl border border-white font-semibold">Export Standalone HTML</button>
@@ -81,7 +77,6 @@
             </div>
         </div>
     </div>
-
     <script>
         const gates = [
             { name: "Truth", key: "truth", default: 1.0 },
@@ -93,7 +88,6 @@
             { name: "Joy", key: "joy", default: 1.0 },
             { name: "Cosmic Harmony", key: "cosmicHarmony", default: 1.0 }
         ];
-
         const presets = [
             { truth: 1.0, order: 1.0, love: 1.0, compassion: 1.0, service: 1.0, abundance: 1.2, joy: 1.0, cosmicHarmony: 1.1 },
             { truth: 1.0, order: 0.9, love: 1.4, compassion: 1.8, service: 1.6, abundance: 1.1, joy: 1.2, cosmicHarmony: 1.3 },
@@ -101,17 +95,14 @@
             { truth: 1.1, order: 1.2, love: 1.3, compassion: 1.3, service: 1.2, abundance: 1.2, joy: 1.3, cosmicHarmony: 1.8 },
             { truth: 1.8, order: 1.6, love: 0.9, compassion: 1.0, service: 1.1, abundance: 1.0, joy: 0.9, cosmicHarmony: 1.2 }
         ];
-
         let weights = {};
         let currentShard = null;
-
         function generateSecureId(prefix = 'ss') {
             const array = new Uint8Array(16);
             crypto.getRandomValues(array);
             const hex = Array.from(array).map(b => b.toString(16).padStart(2, '0')).join('');
             return `${prefix}-${hex}`;
         }
-
         function initControls() {
             const container = document.getElementById('controls');
             gates.forEach(gate => {
@@ -123,26 +114,20 @@
                     <div class="w-16 font-mono text-right" id="value-${gate.key}">${gate.default.toFixed(2)}</div>
                 `;
                 container.appendChild(div);
-
                 const slider = document.getElementById(`slider-${gate.key}`);
                 const valueEl = document.getElementById(`value-${gate.key}`);
-
                 slider.addEventListener('input', () => {
                     weights[gate.key] = parseFloat(slider.value);
                     valueEl.textContent = weights[gate.key].toFixed(2);
                     clearActivePreset();
                 });
-
                 weights[gate.key] = gate.default;
             });
-
             applyPreset(0, true);
         }
-
         function applyPreset(index, silent = false) {
             const preset = presets[index];
             if (!preset) return;
-
             gates.forEach(gate => {
                 const slider = document.getElementById(`slider-${gate.key}`);
                 const valueEl = document.getElementById(`value-${gate.key}`);
@@ -152,25 +137,21 @@
                     weights[gate.key] = preset[gate.key];
                 }
             });
-
             clearActivePreset();
             const btn = document.getElementById(`preset-${index}`);
             if (btn) btn.classList.add('active', 'bg-emerald-400', 'text-black', 'border-emerald-400');
         }
-
         function clearActivePreset() {
             for (let i = 0; i < 5; i++) {
                 const btn = document.getElementById(`preset-${i}`);
                 if (btn) btn.classList.remove('active', 'bg-emerald-400', 'text-black', 'border-emerald-400');
             }
         }
-
         function calculateValence() {
             let total = 0;
             gates.forEach(gate => total += weights[gate.key] || 1.0);
             return Math.min(1.0, total / 8 * 0.92);
         }
-
         function generateShard() {
             const valence = calculateValence();
             currentShard = {
@@ -183,23 +164,19 @@
                 mercy: Math.floor(valence * 980),
                 harmony: (valence * 1.618).toFixed(2)
             };
-
             document.getElementById('shard-name').textContent = currentShard.name;
             document.getElementById('valence-fill').style.width = (valence * 100) + '%';
             document.getElementById('valence-value').textContent = valence.toFixed(6);
             document.getElementById('evolution-value').textContent = currentShard.evolution;
             document.getElementById('mercy-value').textContent = currentShard.mercy;
             document.getElementById('harmony-value').textContent = currentShard.harmony;
-
             document.getElementById('forge-btn-text').textContent = 'RE-FORGE SHARD';
         }
-
         function resetWeights() {
             applyPreset(0);
             currentShard = null;
             document.getElementById('forge-btn-text').textContent = 'FORGE SOVEREIGN SHARD';
         }
-
         function exportShard() {
             if (!currentShard) { alert("Please forge a shard first."); return; }
             const data = JSON.stringify(currentShard, null, 2);
@@ -210,16 +187,8 @@
             a.download = currentShard.name.replace(/ /g, '-') + '.json';
             a.click();
         }
-
         function exportHTML() {
-            if (!currentShard) {
-                alert("Please forge a shard first.");
-                return;
-            }
-
-            const weightsStr = JSON.stringify(currentShard.weights, null, 2);
-
-            // Self-contained secure ID generator for exported file
+            if (!currentShard) { alert("Please forge a shard first."); return; }
             const exportIdScript = `
                 function generateSecureId(prefix = 'ss') {
                     const array = new Uint8Array(16);
@@ -227,7 +196,6 @@
                     return prefix + '-' + Array.from(array).map(b => b.toString(16).padStart(2,'0')).join('');
                 }
             `;
-
             const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -238,22 +206,19 @@
 </head>
 <body class="bg-zinc-950 text-white p-8 max-w-5xl mx-auto">
     <h1 class="text-4xl font-bold mb-2">${currentShard.name}</h1>
-    <p class="text-emerald-400 mb-8">Generated by Ra-Thor Web-Forge v14.0.0 • TOLC8 Weighted</p>
-
+    <p class="text-emerald-400 mb-8">Generated by Ra-Thor Web-Forge · workspace 14.15.6 · local demo</p>
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         <div class="bg-zinc-900 p-4 rounded-2xl metric"><div class="text-sm text-zinc-400">Valence</div><div class="text-3xl font-mono">${currentShard.valence.toFixed(6)}</div></div>
         <div class="bg-zinc-900 p-4 rounded-2xl metric"><div class="text-sm text-zinc-400">Evolution</div><div class="text-3xl font-mono">${currentShard.evolution}</div></div>
         <div class="bg-zinc-900 p-4 rounded-2xl metric"><div class="text-sm text-zinc-400">Mercy Score</div><div class="text-3xl font-mono">${currentShard.mercy}</div></div>
         <div class="bg-zinc-900 p-4 rounded-2xl metric"><div class="text-sm text-zinc-400">Harmony</div><div class="text-3xl font-mono">${currentShard.harmony}</div></div>
     </div>
-
     <script>
         ${exportIdScript}
         console.log('%c[Sovereign Shard] Standalone export loaded successfully', 'color:#10b981');
     <\/script>
 </body>
 </html>`;
-
             const blob = new Blob([html], { type: 'text/html' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -261,14 +226,11 @@
             a.download = currentShard.name.replace(/ /g, '-') + '.html';
             a.click();
         }
-
         window.onload = () => {
             initControls();
-            // Auto-forge a shard on load so the page never looks empty
-            setTimeout(() => {
-                generateShard();
-            }, 150);
+            setTimeout(() => { generateShard(); }, 150);
         };
     </script>
+    <script src="/js/family-nav-2026-08-22.js" defer></script>
 </body>
 </html>
