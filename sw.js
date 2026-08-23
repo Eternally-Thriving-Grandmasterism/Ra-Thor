@@ -1,8 +1,8 @@
 /* sw.js — Ra-Thor vanilla offline worker
- * Workspace 14.15.6 · LOCK 2026-08-23-native2
+ * Workspace 14.15.6 · LOCK 2026-08-23-native3
  * No CDN. No Workbox. Root scope. Contact: info@Rathor.ai
  */
-var LOCK = '2026-08-23-native2';
+var LOCK = '2026-08-23-native3';
 var CACHE = 'rathor-core-' + LOCK;
 
 var PRECACHE = [
@@ -18,6 +18,7 @@ var PRECACHE = [
   '/sovereign-shard.html',
   '/web-forge.html',
   '/manifest.json',
+  '/js/pwa-boot.js',
   '/js/pwa-install.js',
   '/js/family-nav-2026-08-22.js',
   '/js/site-lock-2026-08-22.js',
@@ -69,9 +70,22 @@ self.addEventListener('fetch', function (event) {
   if (req.mode === 'navigate' || req.destination === 'document') {
     event.respondWith(
       fetch(req).then(function (res) {
-        var copy = res.clone();
-        caches.open(CACHE).then(function (cache) { cache.put(req, copy); });
-        return res;
+        var ct = res.headers.get('content-type') || '';
+        if (ct.indexOf('text/html') === -1) {
+          var copy = res.clone();
+          caches.open(CACHE).then(function (cache) { cache.put(req, copy); });
+          return res;
+        }
+        return res.text().then(function (html) {
+          if (html.indexOf('pwa-boot.js') === -1) {
+            html = html.replace(/<head[^>]*>/i, function (m) {
+              return m + '<script src="/js/pwa-boot.js"></script>';
+            });
+          }
+          var headers = new Headers(res.headers);
+          headers.set('Cache-Control', 'no-store');
+          return new Response(html, { status: res.status, statusText: res.statusText, headers: headers });
+        });
       }).catch(function () {
         return caches.match(req).then(function (hit) {
           return hit || caches.match('/index.html') || caches.match('/offline.html');
