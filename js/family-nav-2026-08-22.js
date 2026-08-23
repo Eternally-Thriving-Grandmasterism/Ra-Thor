@@ -2,7 +2,7 @@
    Shared public-surface network for rathor.ai
    Workspace 14.15.6 · Lattice Chat v14.18.x
    Contact: info@Rathor.ai
-   PATSAGi polish 2026-08-22: skip-link + reduced-motion + focus ring
+   PATSAGi polish 2026-08-22: skip-link + reduced-motion + focus ring + Forge truth lock
 */
 (function () {
   if (window.__rtFamilyNav) return;
@@ -104,6 +104,32 @@
     }
   }
 
-  if (document.body) mount();
-  else document.addEventListener('DOMContentLoaded', mount);
+  function lockForgeCopy() {
+    if (here !== '/web-forge.html') return;
+    try {
+      document.title = 'Ra-Thor Web-Forge • workspace 14.15.6';
+      var nodes = document.querySelectorAll('h1, p, div, title');
+      for (var i = 0; i < nodes.length; i++) {
+        var el = nodes[i];
+        if (!el.childNodes || el.childNodes.length !== 1 || el.childNodes[0].nodeType !== 3) continue;
+        var s = el.textContent || '';
+        if (s.indexOf('v14.0.0') !== -1 || s.indexOf('ONE Organism') !== -1 || s.indexOf('64+') !== -1) {
+          el.textContent = s
+            .replace(/v14\.0\.0/g, 'workspace 14.15.6')
+            .replace(/ONE Organism • Live/g, 'Local demo · not a product')
+            .replace(/64\+ PATSAGi Councils/g, 'workspace 14.15.6');
+        }
+      }
+    } catch (e) {}
+  }
+
+  if (document.body) {
+    mount();
+    lockForgeCopy();
+  } else {
+    document.addEventListener('DOMContentLoaded', function () {
+      mount();
+      lockForgeCopy();
+    });
+  }
 })();
