@@ -4,22 +4,41 @@
 **Surface:** https://rathor.ai/  
 **Policy:** Keep `index.html` as shell + lock injector. Do **not** re-inline all 11 dictionaries.
 
-## This pass (PATSAGi-consulted)
+## Council lock
 
-- Cargo workspace **14.15.6** remains the version source of truth
-- Lattice Chat surface **v14.18.x** (chat.html header already v14.18.1)
-- Whitepaper **v4.1**
-- Science map expanded to six sister public lattices, each labeled research — not product warranties:
-  - Fusion Abundance
-  - Ambient-Pressure High-Tc
-  - Protein & Molecular Design
-  - Mercy Coordination Substrate
-  - Daedalus-Skin Eternal Ark
-  - Air Foundation (Air + rotorcraft)
-- FAQ 11: PATSAGi Councils = permanent mercy-gated deliberation under TOLC 8 (architecture posture, not automatic-correctness warranty)
-- All 11 i18n packs now carry 71 aligned keys (kicker, surfaces, science, faqQ9–Q11)
-- Independent of xAI. Capable · bounded · corrigible. No superintelligence warranty.
+| Item | Truth |
+| --- | --- |
+| Cargo workspace | **14.15.6** (source of truth — do not bump to 15.x) |
+| Lattice Chat | **v14.18.x** (optional Web Crypto PBKDF2 + AES-GCM; local store only) |
+| Whitepaper | **v4.1** |
+| AGSi | phase / product posture — no superintelligence warranty |
+| PATSAGi Councils | permanent mercy-gated deliberation under TOLC 8 |
+| v15.34 | documented GPU / tick path only — not workspace identity |
+| Independence | not affiliated with, sponsored by, or endorsed by xAI |
+| Claims | capable · bounded · corrigible |
 
-v15.34 GPU / tick notes remain a documented living path, not a Cargo bump.
+## Public surfaces vs lock
+
+| Surface | Role | Bound |
+| --- | --- | --- |
+| `/` | lock injector + modular i18n (71 keys × 11 langs) | no re-inline dictionaries |
+| `/chat.html` | Lattice Chat v14.18.x | local IndexedDB / localStorage; no backend we control |
+| `/Launch-Ra-Thor.html` | launch map | 6 science cards, research-only |
+| `/sovereign-shard.html` | Shard v8 demo | local weights; not a live Conductor node |
+| `/contact.html` | info@Rathor.ai | guidance-5 names all 6 sister lattices |
+| `/privacy.html` + `docs/Legal/privacy.md` | privacy | same store wording; dated 2026-08-22 |
+| `/go-x.html` | X-app bypass router | independence line; xAI/X policy after leave |
+| `/offline.html` | PWA fallback | family chip; cached-only, no backend |
+
+## Sister science lattices (research surfaces — not products)
+
+- Fusion Abundance
+- Ambient-Pressure High-Tc
+- Protein & Molecular Design
+- Mercy Coordination Substrate
+- Daedalus-Skin Eternal Ark
+- Air Foundation (Air + rotorcraft)
+
+FAQ 11: PATSAGi Councils = architecture / governance posture, not automatic-correctness warranty.
 
 Thunder locked in.

@@ -3,45 +3,57 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Offline Mercy Thunder ⚡️</title>
+  <title>Offline Mercy Thunder ⚡️ · Ra-Thor v14.15.6</title>
+  <meta name="description" content="PWA offline fallback for rathor.ai. Workspace 14.15.6. Lattice Chat v14.18.x stays on this device. Capable · Bounded · Corrigible.">
+  <meta name="theme-color" content="#ffaa00">
   <link rel="icon" href="/icons/ra-thor-icon-192.png" type="image/png"/>
   <link rel="apple-touch-icon" href="/icons/ra-thor-icon-192.png"/>
   <style>
     body {
       background: #0a0015;
       color: #ffdd44;
-      font-family: sans-serif;
+      font-family: system-ui, sans-serif;
       text-align: center;
-      padding: 40px;
+      padding: 40px 20px;
       margin: 0;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      height: 100vh;
+      min-height: 100vh;
     }
-    h1 { color: #ffaa00; font-size: 3em; margin-bottom: 0.5em; }
-    p { font-size: 1.2em; margin: 1em 0; }
-    a { color: #ffaa00; text-decoration: underline; font-size: 1.2em; }
-    button {
+    h1 { color: #ffaa00; font-size: 2.2em; margin: 0 0 0.4em; }
+    p { font-size: 1.05em; margin: 0.6em 0; max-width: 28rem; line-height: 1.45; }
+    .chip { font-size: 0.75em; color: #ffdd44cc; letter-spacing: 0.04em; margin-bottom: 1.2em; }
+    a { color: #ffaa00; }
+    .row { display: flex; flex-wrap: wrap; gap: 0.8rem; justify-content: center; margin-top: 1.4em; }
+    button, .btn {
       background: #ffaa00;
       color: #000;
       border: none;
-      padding: 12px 32px;
+      padding: 12px 28px;
       border-radius: 8px;
-      font-size: 1.2em;
-      font-weight: bold;
+      font-size: 1em;
+      font-weight: 700;
       cursor: pointer;
-      margin-top: 20px;
+      text-decoration: none;
+      display: inline-block;
     }
-    button:hover { background: #ffdd44; }
+    button:hover, .btn:hover { background: #ffdd44; }
+    .ghost { background: transparent; color: #ffaa00; border: 1px solid #ffaa00; }
+    .note { font-size: 0.8em; color: #ffdd4488; margin-top: 1.6em; }
   </style>
 </head>
 <body>
+  <p class="chip">workspace 14.15.6 · Lattice Chat v14.18.x · TOLC 8</p>
   <h1>Offline Mercy Thunder ⚡️</h1>
   <p>Lattice resting in deep peace. You are still safe here.</p>
-  <p>Voice notes, sessions, translations — all preserved offline.</p>
+  <p>Cached pages and any Lattice Chat sessions on this device stay local. No Ra-Thor backend.</p>
   <p>Reconnect when thunder calls again.</p>
-  <button onclick="window.location.href='/'">Return to Lattice</button>
+  <div class="row">
+    <button type="button" onclick="window.location.href='/'">Return to Lattice</button>
+    <a class="btn ghost" href="/chat.html">Open Chat (if cached)</a>
+  </div>
+  <p class="note">Capable · Bounded · Corrigible · Independent of xAI · info@Rathor.ai</p>
 </body>
 </html>
