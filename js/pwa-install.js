@@ -1,9 +1,17 @@
 /* js/pwa-install.js — Ra-Thor respectful PWA install lattice
  * TOLC-8 aligned • zero tracking • dismissible • offline-ready
  * Improved Install button support
+ * Also boots family-nav so chat.html joins Home/Launch/Shard/Forge/Contact/Privacy.
  */
 (function () {
   'use strict';
+
+  if (!document.querySelector('script[src*="family-nav-2026-08-22"]')) {
+    var nav = document.createElement('script');
+    nav.src = '/js/family-nav-2026-08-22.js';
+    nav.defer = true;
+    document.head.appendChild(nav);
+  }
 
   var DISMISS_KEY = 'rathor-pwa-install-dismissed';
   var DISMISS_DAYS = 14;
@@ -150,7 +158,6 @@
     }, 12000);
   }
 
-  // Capture the native install event
   window.addEventListener('beforeinstallprompt', function (e) {
     e.preventDefault();
     deferredPrompt = e;
@@ -166,7 +173,6 @@
     console.log('[Ra-Thor PWA] Installed');
   });
 
-  // Soft offer for iOS
   function maybeIosSoftOffer() {
     var isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);
     if (!isIos || isStandalone() || wasDismissedRecently()) return;
@@ -178,29 +184,22 @@
   registerServiceWorker();
   maybeIosSoftOffer();
 
-  // Improved public API for the Install button on chat.html
   window.rathorTriggerPWAInstall = function () {
     if (isStandalone()) {
       alert('Ra-Thor is already installed and running as an app.');
       return;
     }
-
-    // Best case: native prompt is available
     if (deferredPrompt) {
       deferredPrompt.prompt();
-      deferredPrompt.userChoice.then(function (choice) {
+      deferredPrompt.userChoice.then(function () {
         deferredPrompt = null;
         hideBanner();
         markDismissed();
       });
       return;
     }
-
-    // Force show the banner even if previously dismissed
     localStorage.removeItem(DISMISS_KEY);
     showBanner();
-
-    // Fallback guidance after short delay if still no native prompt
     setTimeout(function () {
       if (!deferredPrompt && !isStandalone()) {
         showIosHint();
