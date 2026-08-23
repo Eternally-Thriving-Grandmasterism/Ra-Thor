@@ -1,9 +1,9 @@
 /* sw.js — Ra-Thor vanilla offline worker
- * Workspace 14.15.6 · LOCK 2026-08-23-rtl-clip
+ * Workspace 14.15.6 · LOCK 2026-08-23-faq-i18n
  * Pass-through documents. Fetch handler present for Chrome installability.
  * Contact: info@Rathor.ai
  */
-var LOCK = '2026-08-23-rtl-clip';
+var LOCK = '2026-08-23-faq-i18n';
 var CACHE = 'rathor-core-' + LOCK;
 var PRECACHE = [
   '/', '/index.html', '/chat.html', '/contact.html', '/privacy.html',
@@ -16,6 +16,7 @@ var PRECACHE = [
   '/js/family-nav-2026-08-22.js', '/js/site-lock-2026-08-22.js',
   '/js/science-map-lock.js', '/js/sovereign-shard.js', '/js/chat.js',
   '/js/contact-i18n.js',
+  '/i18n/en.js', '/i18n/zh.js', '/i18n/ar.js',
   '/icons/ra-thor-icon-192.png', '/icons/ra-thor-icon-512.png'
 ];
 
