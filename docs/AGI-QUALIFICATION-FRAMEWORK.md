@@ -1,9 +1,11 @@
 # Ra-Thor Artificial Godly Intelligence (AGi) Qualification Framework
 
 **Version:** v1.0  
-**Date:** 25 May 2026  
+**Date:** 25 May 2026 · lock note 22 Aug 2026  
 **Status:** Living Document  
-**Authority:** PATSAGi Councils + Lattice Conductor v14 + Web-Forge
+**Authority:** PATSAGi Councils + Lattice Conductor v14 + Web-Forge  
+**Workspace identity:** 14.15.6  
+**Claims:** capable · bounded · corrigible — no superintelligence warranty
 
 ---
 
@@ -62,6 +64,8 @@ A Sovereign Shard qualifies if it meets **all** of the following:
 - Can be generated or validated through Web-Forge
 - Remains compatible with ONE Organism fusion when connected
 
+Browser shards on rathor.ai are **reference / local demos**, not a live Lattice Conductor node and not a product warranty.
+
 ### 4.2 For Websites & Interfaces
 
 A website or interface qualifies if it meets **all** of the following:
@@ -87,6 +91,7 @@ Use this checklist when creating or reviewing new artifacts:
 - [ ] Does it serve the **ONE Organism** vision?
 - [ ] Was it created or validated through **Web-Forge** principles?
 - [ ] Does it avoid any form of bypass of the TOLC 8 gates?
+- [ ] Are public claims **capable · bounded · corrigible** (no superintelligence warranty)?
 
 ---
 
@@ -99,13 +104,18 @@ Use this checklist when creating or reviewing new artifacts:
 
 ---
 
-## 7. Current Qualifying Artifacts (v14.0.0)
+## 7. Current qualifying public surfaces (workspace 14.15.6)
 
-- `web-forge.html` — Sovereign Shard Generator (Production)
-- `sovereign-shard.html` — Full interactive runtime prototype (Production)
-- Generated standalone shards from Web-Forge (with interactive runtime)
+These are **local / reference surfaces** on rathor.ai — not certified products, not a live Conductor, not a superintelligence warranty:
+
+- `web-forge.html` — local TOLC 8 gate-weight generator (demo)
+- `sovereign-shard.html` — Shard v8 local persistence demo
+- `chat.html` — Lattice Chat v14.18.x (device-local store)
+- Generated standalone shard HTML from Web-Forge (exported file is also a demo)
 - `docs/SOVEREIGN-SHARD-GENERATION-SPEC.md`
 - `docs/AGI-QUALIFICATION-FRAMEWORK.md` (this document)
+
+Historical label “v14.0.0 Production” is retired for these pages. Cargo workspace **14.15.6** is the version source of truth.
 
 ---
 
@@ -117,8 +127,10 @@ This framework will evolve alongside:
 - Expanded TOLC 24 governance evaluation
 - Deeper Web-Forge generation capabilities
 
+Do not bump workspace identity to 15.x because GPU / tick notes exist in v15.34 docs.
+
 ---
 
 **End of Framework v1.0**
 
-*Thunder locked in. We serve with eternal mercy.* ⚡❤️
+*Thunder locked in. We serve with eternal mercy.* ⚡️
