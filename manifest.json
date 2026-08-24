@@ -8,7 +8,7 @@
   "display": "standalone",
   "display_override": ["standalone"],
   "background_color": "#000000",
-  "theme_color": "#fcd34d",
+  "theme_color": "#050505",
   "orientation": "any",
   "lang": "en",
   "dir": "ltr",
@@ -29,6 +29,7 @@
     { "name": "Offline Lattice Chat", "short_name": "Chat", "url": "/chat.html", "icons": [{ "src": "/icons/ra-thor-icon-192.png", "sizes": "192x192" }] },
     { "name": "Lattice map", "short_name": "Launch", "url": "/Launch-Ra-Thor.html", "icons": [{ "src": "/icons/ra-thor-icon-192.png", "sizes": "192x192" }] },
     { "name": "Micro-moments", "short_name": "Moments", "url": "/micro-moment.html", "icons": [{ "src": "/icons/ra-thor-icon-192.png", "sizes": "192x192" }] },
-    { "name": "Sovereign Shard", "short_name": "Shard", "url": "/sovereign-shard.html", "icons": [{ "src": "/icons/ra-thor-icon-192.png", "sizes": "192x192" }] }
+    { "name": "Sovereign Shard", "short_name": "Shard", "url": "/sovereign-shard.html", "icons": [{ "src": "/icons/ra-thor-icon-192.png", "sizes": "192x192" }] },
+    { "name": "Web-Forge", "short_name": "Forge", "url": "/web-forge.html", "icons": [{ "src": "/icons/ra-thor-icon-192.png", "sizes": "192x192" }] }
   ]
 }
