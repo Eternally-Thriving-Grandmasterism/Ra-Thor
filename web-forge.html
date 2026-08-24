@@ -3,12 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ra-Thor Web-Forge • workspace 14.15.6</title>
+    <meta name="theme-color" content="#050505">
+    <meta name="color-scheme" content="dark light">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" href="/icons/ra-thor-icon-192.png" type="image/png">
+    <title>Web-Forge • Ra-Thor local generator</title>
+    <meta name="description" content="Web-Forge is a local TOLC 8 gate-weight generator. Forge a sovereign shard on this device, then export. Demo only.">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600&display=swap');
-        body { font-family: 'Inter', sans-serif; }
+        body { font-family: 'Inter', sans-serif; background:#050505; }
         .title-font { font-family: 'Space Grotesk', sans-serif; }
         .preset-btn { transition: all 0.2s ease; }
         .preset-btn.active { background-color: #10b981; color: black; border-color: #10b981; }
@@ -19,12 +26,13 @@
     <div class="max-w-6xl mx-auto p-8">
         <div class="mb-12">
             <h1 class="text-5xl title-font tracking-tighter">⚡ Web-Forge</h1>
-            <p class="text-emerald-400 text-xl">workspace 14.15.6 • local generator demo</p>
+            <p class="text-emerald-400 text-xl">Local generator on this device • workspace 14.15.6</p>
+            <p class="text-white/55 text-sm mt-3 max-w-2xl leading-relaxed">Choose eight mercy-gate weights, forge a shard, then export JSON or a standalone page. Nothing leaves your phone. This is a demo — not a live Conductor and not a product warranty.</p>
         </div>
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
             <div class="bg-zinc-900 rounded-3xl p-8">
                 <div class="flex items-center justify-between mb-6">
-                    <h2 class="text-2xl font-semibold">TOLC8 Gate Weighting</h2>
+                    <h2 class="text-2xl font-semibold">TOLC 8 Gate Weighting</h2>
                 </div>
                 <div class="mb-6">
                     <div class="text-sm text-emerald-400 mb-2 font-medium">Presets</div>
@@ -190,6 +198,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="theme-color" content="#050505">
 <title>${currentShard.name} • Ra-Thor Sovereign Shard</title>
 <script src="https://cdn.tailwindcss.com"><\/script>
 <style>body { font-family: system-ui, sans-serif; } .metric { transition: all 0.4s ease; }</style>
