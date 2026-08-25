@@ -1,5 +1,5 @@
 /* science-map-lock.js — Home science lattices + public works + FAQ
-   2026-08-24: official corporate copy; flagships and core stack links
+   2026-08-24: official corporate copy; FAQ 9–24; black chrome companion
    Contact: info@Rathor.ai
 */
 (function () {
@@ -13,6 +13,12 @@
     }
   }
 
+  function pack() {
+    var lang = currentLang();
+    var all = window.translations || {};
+    return all[lang] || all.en || {};
+  }
+
   function reapplyLang() {
     var lang = currentLang();
     try {
@@ -21,13 +27,13 @@
     } catch (e) {}
   }
 
-  function faqItem(idNum, qKey, qEn, aEn) {
+  function faqItem(idNum, qEn, aEn) {
     return (
       '<details><summary>' +
         '<span class="lightning-icon text-amber-300" aria-hidden="true">⚡</span>' +
-        '<span id="faq-q' + idNum + '" class="faq-q" data-i18n="' + qKey + '">' + qEn + '</span>' +
+        '<span id="faq-q' + idNum + '" class="faq-q" data-i18n="faqQ' + idNum + '">' + qEn + '</span>' +
       '</summary>' +
-      '<div id="faq-a' + idNum + '" data-i18n="faqA' + idNum + '" class="faq-content text-white/80 leading-relaxed">' + aEn + '</div>' +
+      '<div id="faq-a' + idNum + '" data-i18n="faqA' + idNum + '" data-i18n-html class="faq-content text-white/80 leading-relaxed">' + aEn + '</div>' +
       '</details>'
     );
   }
@@ -40,11 +46,6 @@
     if (qEl.className.indexOf('faq-q') === -1) qEl.className = (qEl.className + ' faq-q').trim();
     var aEl = document.getElementById('faq-a' + n);
     if (aEl && !aEl.getAttribute('data-i18n')) aEl.setAttribute('data-i18n', 'faqA' + n);
-    var sum = qEl.parentNode;
-    if (sum && sum.tagName === 'SUMMARY') {
-      var extras = sum.querySelectorAll('span.text-3xl');
-      for (var i = 0; i < extras.length; i++) extras[i].parentNode.removeChild(extras[i]);
-    }
   }
 
   function workCard(href, titleKey, titleEn, noteKey, noteEn, border) {
@@ -54,6 +55,21 @@
         '<p class="text-xs text-white/60 mt-2" data-i18n="' + noteKey + '">' + noteEn + '</p>' +
       '</a>'
     );
+  }
+
+  function injectFaq() {
+    var acc = document.querySelector('.faq-accordion');
+    if (!acc) return;
+    var t = pack();
+    var en = (window.translations && window.translations.en) || t;
+    for (var n = 9; n <= 24; n++) {
+      if (document.getElementById('faq-q' + n)) continue;
+      var q = t['faqQ' + n] || en['faqQ' + n] || '';
+      var a = t['faqA' + n] || en['faqA' + n] || '';
+      if (!q) continue;
+      acc.insertAdjacentHTML('beforeend', faqItem(n, q, a));
+    }
+    for (var i = 9; i <= 24; i++) normalizeFaqRow(document.getElementById('faq-q' + i));
   }
 
   function go() {
@@ -102,39 +118,14 @@
       );
     }
 
-    var acc = document.querySelector('.faq-accordion');
-    if (acc && !document.getElementById('faq-q9')) {
-      acc.insertAdjacentHTML(
-        'beforeend',
-        faqItem(9, 'faqQ9', 'What is Lattice Chat?',
-          'A private chat that lives on your device at /chat.html. No login. No keys we hold. Optional passphrase encryption (PBKDF2 + AES-GCM).') +
-        faqItem(10, 'faqQ10', 'Are the science lattices part of Ra-Thor?',
-          'They are sister public repositories under the same steward, AG-SML v1.0, and TOLC 8. Research and systems-engineering surfaces. They do not claim a working fusion plant, a validated drug, a launched chain, a flying worldship, or certified aircraft.') +
-        faqItem(11, 'faqQ11', 'What are the PATSAGi Councils?',
-          'Permanent mercy-gated deliberation councils in the monorepo. They decide under TOLC 8. Architecture and governance posture — not a warranty that every decision is automatically correct.')
-      );
-    }
-    if (acc && !document.getElementById('faq-q12')) {
-      acc.insertAdjacentHTML('beforeend', faqItem(12, 'faqQ12', 'What has actually been delivered?',
-        'Software you can inspect today: the Ra-Thor monorepo, Offline Lattice Chat on this device, the Powrush-MMO dual-repo world simulator, and public sister repositories across research and engineering. That is a large, auditable body of work by one steward. It is not a fusion plant, a drug, a flying ship, or a superintelligence warranty.'));
-    }
-    if (acc && !document.getElementById('faq-q13')) {
-      acc.insertAdjacentHTML('beforeend', faqItem(13, 'faqQ13', 'What else is public?',
-        'Around the two flagships sit MercyOS, the Mercy Coordination Substrate, NEXi, ESAO, the optional Grok proxy, Air Foundation studies, and related public repositories. See Public works on this page or the GitHub organization.'));
-    }
-
-    [9,10,11,12,13].forEach(function (n) {
-      normalizeFaqRow(document.getElementById('faq-q' + n));
-    });
+    injectFaq();
     reapplyLang();
   }
 
   if (document.body) go();
   else document.addEventListener('DOMContentLoaded', go);
   window.addEventListener('load', function () {
-    [9,10,11,12,13].forEach(function (n) {
-      normalizeFaqRow(document.getElementById('faq-q' + n));
-    });
+    injectFaq();
     reapplyLang();
   });
 })();
