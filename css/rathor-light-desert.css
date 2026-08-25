@@ -54,8 +54,6 @@ html[data-theme="light"] #shard-card .bg-zinc-800 {
 html[data-theme="light"] #valence-fill.bg-emerald-400 {
   background-color: #2f6b46 !important;
 }
-html[data-theme="light"] .text-amber-300\/80,
-html[data-theme="light"] .text-amber-200\/80,
 html[data-theme="light"] [data-i18n="worksFlagships"],
 html[data-theme="light"] [data-i18n="worksCore"],
 html[data-theme="light"] [data-i18n="worksRelated"] {
@@ -71,4 +69,21 @@ html[data-theme="light"] .rt-site-footer,
 html[data-theme="light"] .rt-site-footer p,
 html[data-theme="light"] .rt-site-footer div {
   color: var(--rt-muted) !important;
+}
+
+/* Catch every pale gold/yellow utility Tailwind left on parchment */
+html[data-theme="light"] [class*="text-amber"],
+html[data-theme="light"] [class*="text-yellow"],
+html[data-theme="light"] [class*="text-orange"] {
+  color: var(--rt-ink) !important;
+}
+html[data-theme="light"] a[class*="text-amber"],
+html[data-theme="light"] a[class*="text-yellow"],
+html[data-theme="light"] a[class*="text-orange"],
+html[data-theme="light"] a:not(.rt-btn):not(.rt-btn-primary):not(.rt-btn-secondary):not(.rt-btn-ghost):not([class*="bg-amber"]) {
+  color: var(--rt-gold-deep) !important;
+}
+html[data-theme="light"] a.underline,
+html[data-theme="light"] a[class*="underline"] {
+  text-decoration-color: var(--rt-gold-deep);
 }
