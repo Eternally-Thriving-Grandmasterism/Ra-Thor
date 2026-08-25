@@ -1,5 +1,5 @@
 /* science-map-lock.js — Home science lattices + public works + FAQ
-   2026-08-24: official corporate copy; FAQ 9–24; black chrome companion
+   2026-08-24: official corporate copy; FAQ 9–25; session honesty
    Contact: info@Rathor.ai
 */
 (function () {
@@ -62,14 +62,14 @@
     if (!acc) return;
     var t = pack();
     var en = (window.translations && window.translations.en) || t;
-    for (var n = 9; n <= 24; n++) {
+    for (var n = 9; n <= 25; n++) {
       if (document.getElementById('faq-q' + n)) continue;
       var q = t['faqQ' + n] || en['faqQ' + n] || '';
       var a = t['faqA' + n] || en['faqA' + n] || '';
       if (!q) continue;
       acc.insertAdjacentHTML('beforeend', faqItem(n, q, a));
     }
-    for (var i = 9; i <= 24; i++) normalizeFaqRow(document.getElementById('faq-q' + i));
+    for (var i = 9; i <= 25; i++) normalizeFaqRow(document.getElementById('faq-q' + i));
   }
 
   function go() {
@@ -94,7 +94,7 @@
           workCard('https://github.com/Eternally-Thriving-Grandmasterism/NEXi', 'workNexi', 'NEXi', 'workNexiNote', 'Supporting lattice crate. Public source in the same family.', 'border-white/20') +
           workCard('https://github.com/Eternally-Thriving-Grandmasterism/ESAO', 'workEsao', 'ESAO', 'workEsaoNote', 'Supporting engine in the same family. Public source.', 'border-white/20') +
           workCard('https://github.com/Eternally-Thriving-Grandmasterism/rathor-grok-proxy', 'workProxy', 'rathor-grok-proxy', 'workProxyNote', 'Practical integration surface for optional Grok sessions. Demonstration plumbing — not an xAI product.', 'border-white/20') +
-          workCard('https://github.com/Eternally-Thriving-Grandmasterism', 'worksOrg', 'Full organization on GitHub →', 'worksRelated', 'Related public repositories: MercyOS-Pinnacle, MercyChain, Universal-Lattice, FENCA, PATSAGi-Pinnacle, Masterism, MercyShieldPlus.', 'border-white/20') +
+          workCard('https://github.com/Eternally-Thriving-Grandmasterism', 'worksOrg', 'Full organization on GitHub →', 'worksRelated', 'Related public repositories under the same steward.', 'border-white/20') +
           '</div></section>'
       );
     }
