@@ -1,9 +1,9 @@
 /* sw.js — Ra-Thor vanilla offline worker
- * Workspace 14.15.6 · LOCK 2026-08-24-chrome-black-faq
+ * Workspace 14.15.6 · LOCK 2026-08-24-voice-finish
  * Pass-through documents. Fetch handler present for Chrome installability.
  * Contact: info@Rathor.ai
  */
-var LOCK = '2026-08-24-chrome-black-faq';
+var LOCK = '2026-08-24-voice-finish';
 var CACHE = 'rathor-core-' + LOCK;
 var PRECACHE = [
   '/', '/index.html', '/chat.html', '/contact.html', '/privacy.html',
