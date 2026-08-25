@@ -39,7 +39,7 @@ html[data-theme] .faq-accordion details[open] { border-color: var(--rt-line) !im
 html[data-theme] .faq-accordion details[open] summary { color: var(--rt-gold) !important; text-shadow: none !important; }
 html { transition: background-color 0.35s ease, color 0.35s ease; }
 html[data-theme] body { transition: background-color 0.35s ease, color 0.35s ease; }
-html[data-theme="light"] .golden-star { opacity: 0.12 !important; color: #8a6a12 !important; }
+html[data-theme="light"] .golden-star { opacity: 0.12 !important; color: #5c4308 !important; }
 .rt-nav-tools {
   display: inline-flex;
   align-items: center;
@@ -112,7 +112,7 @@ html[data-theme="light"] .rt-theme-orb { background: rgba(201, 162, 39, 0.16); c
 #rt-human-feedback .rt-hf-title { margin: 0; font-size: 0.78rem; font-weight: 700; color: var(--rt-gold); }
 #rt-human-feedback .rt-hf-body { margin: 0.18rem 0 0; font-size: 0.78rem; line-height: 1.4; color: var(--rt-muted); }
 #rt-human-feedback[data-tone="ok"] { border-color: rgba(52, 211, 153, 0.45); }
-#rt-human-feedback[data-tone="ok"] .rt-hf-title { color: #6ee7b7; }
+#rt-human-feedback[data-tone="ok"] .rt-hf-title { color: #047857; }
 #rt-human-feedback[data-tone="hold"] { border-color: rgba(251, 191, 36, 0.5); }
 @media (prefers-reduced-motion: reduce) {
   #rt-human-feedback { transition: none !important; transform: translateX(-50%) translateY(0); }
@@ -134,3 +134,90 @@ html[data-theme] a.text-cyan-300\/90,
 html[data-theme] a.text-cyan-400,
 html[data-theme] a.text-violet-300\/90 { color: var(--rt-gold) !important; }
 @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+
+/* LIGHT READING LOCK — paper + ink. Gold is for controls, not paragraphs. */
+html[data-theme="light"] .text-amber-100,
+html[data-theme="light"] .text-amber-200,
+html[data-theme="light"] .text-amber-200\/90,
+html[data-theme="light"] .text-amber-200\/80,
+html[data-theme="light"] .text-amber-200\/70,
+html[data-theme="light"] .text-amber-300,
+html[data-theme="light"] .text-amber-300\/90,
+html[data-theme="light"] .text-amber-400,
+html[data-theme="light"] .text-amber-400\/90,
+html[data-theme="light"] .text-amber-400\/70,
+html[data-theme="light"] .text-sky-200,
+html[data-theme="light"] .text-sky-300,
+html[data-theme="light"] .text-cyan-200,
+html[data-theme="light"] .text-cyan-300,
+html[data-theme="light"] .text-cyan-300\/90,
+html[data-theme="light"] .text-cyan-400,
+html[data-theme="light"] .text-emerald-200,
+html[data-theme="light"] .text-emerald-300,
+html[data-theme="light"] .text-violet-200,
+html[data-theme="light"] .text-violet-300,
+html[data-theme="light"] .text-purple-200,
+html[data-theme="light"] .text-purple-300,
+html[data-theme="light"] .text-lime-200,
+html[data-theme="light"] .text-lime-300,
+html[data-theme="light"] .title-font,
+html[data-theme="light"] h1,
+html[data-theme="light"] h2,
+html[data-theme="light"] h3 {
+  color: var(--rt-ink) !important;
+  text-shadow: none !important;
+}
+html[data-theme="light"] .text-white\/60,
+html[data-theme="light"] .text-white\/55,
+html[data-theme="light"] .text-white\/50,
+html[data-theme="light"] .text-white\/45,
+html[data-theme="light"] .text-white\/40,
+html[data-theme="light"] .text-white\/35,
+html[data-theme="light"] .text-zinc-400,
+html[data-theme="light"] .text-zinc-500,
+html[data-theme="light"] .kicker,
+html[data-theme="light"] .faq-content {
+  color: var(--rt-muted) !important;
+}
+html[data-theme="light"] a.text-amber-300,
+html[data-theme="light"] a.text-amber-200,
+html[data-theme="light"] a.text-amber-400,
+html[data-theme="light"] .rt-site-footer a,
+html[data-theme="light"] .rt-btn-ghost,
+html[data-theme="light"] .rt-btn-secondary {
+  color: var(--rt-gold-deep) !important;
+}
+html[data-theme="light"] .rt-site-footer h4 {
+  color: var(--rt-gold-deep) !important;
+}
+html[data-theme="light"] .bg-black\/40,
+html[data-theme="light"] .bg-black\/50,
+html[data-theme="light"] .bg-black\/30,
+html[data-theme="light"] #product-paths a {
+  background: var(--rt-bg-card) !important;
+  color: var(--rt-ink) !important;
+  border-color: var(--rt-line) !important;
+}
+html[data-theme="light"] #product-paths p { color: var(--rt-ink) !important; }
+html[data-theme="light"] #product-paths p.text-\[11px\],
+html[data-theme="light"] #product-paths .text-white\/55 { color: var(--rt-muted) !important; }
+html[data-theme="light"] .lang-tab {
+  color: var(--rt-ink) !important;
+  border-color: var(--rt-line) !important;
+  background: var(--rt-bg-card) !important;
+}
+html[data-theme="light"] .lang-tab.active {
+  background: var(--rt-gold-hot) !important;
+  color: var(--rt-on-gold) !important;
+  border-color: var(--rt-gold-hot) !important;
+  box-shadow: none !important;
+}
+html[data-theme="light"] .lattice-status {
+  color: var(--rt-ink) !important;
+  background: var(--rt-bg-card) !important;
+}
+html[data-theme="light"] .faq-accordion details[open] summary {
+  color: var(--rt-gold-deep) !important;
+}
+html[data-theme="light"] .thunder-glow { text-shadow: none !important; }
+html[data-theme="light"] .rt-site-footer { color: var(--rt-muted) !important; }
