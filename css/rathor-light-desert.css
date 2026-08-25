@@ -22,7 +22,6 @@ html[data-theme="light"] #science-lattices a p.text-xs,
 html[data-theme="light"] #product-paths a p.text-\[11px\] {
   color: var(--rt-muted) !important;
 }
-/* Panels only — do not flatten action buttons */
 html[data-theme="light"] [class*="bg-violet-950"],
 html[data-theme="light"] [class*="bg-emerald-950"],
 html[data-theme="light"] [class*="bg-lime-950"],
@@ -121,18 +120,16 @@ html[data-theme="light"] .message.rathor {
   border-color: var(--rt-line) !important;
 }
 
-/* One highlight color: lush saffron. Selected nav + primary + former greens. */
+/* Primary actions only — never match hover:bg-emerald-400/10 on idle chips */
 html[data-theme="light"] .rt-btn,
 html[data-theme="light"] .rt-btn-primary,
 html[data-theme="light"] .bg-amber-400,
 html[data-theme="light"] .bg-amber-500,
 html[data-theme="light"] .bg-yellow-400,
 html[data-theme="light"] .bg-yellow-500,
-html[data-theme="light"] [class*="bg-emerald-4"],
-html[data-theme="light"] [class*="bg-emerald-5"],
-html[data-theme="light"] [class*="bg-emerald-6"],
-html[data-theme="light"] [class*="bg-green-5"],
-html[data-theme="light"] [class*="bg-green-6"],
+html[data-theme="light"] .bg-emerald-500,
+html[data-theme="light"] .bg-emerald-600,
+html[data-theme="light"] #forge-btn,
 html[data-theme="light"] #send-btn,
 html[data-theme="light"] #rathor-hero-install,
 html[data-theme="light"] #rathor-lattice-install,
@@ -148,4 +145,28 @@ html[data-theme="light"] .rt-btn-secondary {
   background: var(--rt-bg-card) !important;
   color: var(--rt-gold-deep) !important;
   border: 1px solid var(--rt-line) !important;
+}
+html[data-theme="light"] #valence-fill {
+  background: var(--rt-gold-hot) !important;
+}
+
+/* Forge presets: idle outline, selected fill + glow — both themes */
+html[data-theme] .preset-btn {
+  background: transparent !important;
+  background-image: none !important;
+  color: var(--rt-gold) !important;
+  border: 1px solid var(--rt-line) !important;
+  box-shadow: none !important;
+}
+html[data-theme="light"] .preset-btn {
+  background: var(--rt-bg-card) !important;
+  color: var(--rt-ink) !important;
+  border-color: var(--rt-line) !important;
+}
+html[data-theme] .preset-btn.active,
+html[data-theme] .preset-btn.active.bg-emerald-400 {
+  background: var(--rt-gold-hot) !important;
+  color: var(--rt-on-gold) !important;
+  border-color: var(--rt-gold-hot) !important;
+  box-shadow: 0 0 22px color-mix(in srgb, var(--rt-gold-hot) 42%, transparent) !important;
 }
