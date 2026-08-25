@@ -1,6 +1,6 @@
 /**
  * Ra-Thor site lock 2026-08-22 (Nth-degree lattice map)
- * 2026-08-24: official corporate copy applied to all data-i18n nodes.
+ * 2026-08-24: session cards name Ra-Thor + Grok as a gated working method.
  * Cargo truth: workspace 14.15.6 • Lattice Chat v14.18
  * Contact: info@Rathor.ai — independent of xAI.
  */
@@ -31,7 +31,7 @@
     var t = packs[lang] || packs.en;
     var en = packs.en || {};
     if (!t && !en) return;
-    document.querySelectorAll('[data-i18n], [data-lock-i18n], #public-works [data-i18n], #science-lattices [data-i18n], #living-surfaces [data-i18n]').forEach(function (el) {
+    document.querySelectorAll('[data-i18n], [data-lock-i18n]').forEach(function (el) {
       var key = lockKey(el);
       if (!key) return;
       var val = (t && t[key] !== undefined) ? t[key] : en[key];
@@ -64,12 +64,47 @@
     (document.head || document.documentElement).appendChild(s);
   }
 
+  function wireSessionCards() {
+    var map = {
+      'grok-title': 'grokTitle',
+      'grok-subtitle': 'grokSubtitle',
+      'grok-cta': 'grokCta',
+      'x-title': 'xTitle',
+      'x-subtitle': 'xSubtitle',
+      'x-cta': 'xCta',
+      'vibe-title': 'vibeTitle',
+      'vibe-subtitle': 'vibeSubtitle',
+      'vibe-cta': 'vibeCta'
+    };
+    Object.keys(map).forEach(function (id) {
+      var el = document.getElementById(id);
+      if (!el) return;
+      el.setAttribute('data-i18n', map[id]);
+    });
+    var grid = document.querySelector('.grid.md\\:grid-cols-3') || document.querySelector('div.grid.max-w-5xl');
+    if (!grid) {
+      var grids = document.querySelectorAll('div.grid');
+      for (var g = 0; g < grids.length; g++) {
+        if (grids[g].querySelectorAll('a.card-hover').length >= 3) { grid = grids[g]; break; }
+      }
+    }
+    if (grid) {
+      var btns = grid.querySelectorAll('.rt-btn-primary');
+      var keys = ['grokCta', 'xCta', 'vibeCta'];
+      var ids = ['grok-cta', 'x-cta', 'vibe-cta'];
+      for (var i = 0; i < btns.length && i < 3; i++) {
+        if (!btns[i].id) btns[i].id = ids[i];
+        btns[i].setAttribute('data-i18n', keys[i]);
+      }
+    }
+  }
+
   ready(function () {
     var meta = document.querySelector('meta[name="description"]');
     if (meta) {
       meta.setAttribute(
         'content',
-        'Ra-Thor is an independent software lattice from Autonomicity Games Inc. Two public flagships: this monorepo and Powrush-MMO. Optional Grok surfaces are demonstrations only. Not affiliated with xAI.'
+        'Ra-Thor is an independent software lattice from Autonomicity Games Inc. Two public flagships: this monorepo and Powrush-MMO. Optional Grok sessions work under PATSAGi Councils. Not affiliated with xAI.'
       );
     }
 
@@ -79,19 +114,7 @@
     var fusion = document.getElementById('fusion-hero');
     if (fusion) fusion.setAttribute('data-i18n', 'fusion');
 
-    ['grok-title','grok-subtitle','x-title','x-subtitle','vibe-title','vibe-subtitle'].forEach(function (id) {
-      var el = document.getElementById(id);
-      if (!el) return;
-      var map = {
-        'grok-title': 'grokTitle',
-        'grok-subtitle': 'grokSubtitle',
-        'x-title': 'xTitle',
-        'x-subtitle': 'xSubtitle',
-        'vibe-title': 'vibeTitle',
-        'vibe-subtitle': 'vibeSubtitle'
-      };
-      el.setAttribute('data-i18n', map[id]);
-    });
+    wireSessionCards();
 
     var status = document.querySelector('.lattice-status');
     if (status) {
@@ -123,6 +146,7 @@
     hookLanguageSwitch();
     window.addEventListener('load', function () {
       hookLanguageSwitch();
+      wireSessionCards();
       try { applyLockI18n(localStorage.getItem('rathor-lang') || 'en'); }
       catch (e) { applyLockI18n('en'); }
     });
@@ -131,6 +155,6 @@
     bootScript('family-nav-2026-08-22', '/js/family-nav-2026-08-22.js');
     bootScript('science-map-lock', '/js/science-map-lock.js');
 
-    console.info('[Ra-Thor] site-lock-2026-08-24 official copy + public works');
+    console.info('[Ra-Thor] site-lock-2026-08-24 session cards + official copy');
   });
 })();
