@@ -1,10 +1,11 @@
 /* js/rathor-theme.js — dark default, optional light, on-device only
- * Celestial orb: moon while night, sun while day.
+ * 2026-08-24: system chrome stays #050505 in every theme (no gold / cream bars).
  * Contact: info@Rathor.ai
  */
 (function () {
   'use strict';
   var KEY = 'rathor-theme';
+  var CHROME = '#050505';
 
   var SUN =
     '<svg class="rt-celestial-sun" viewBox="0 0 24 24" aria-hidden="true" focusable="false">' +
@@ -36,14 +37,24 @@
     btn.dataset.theme = next;
   }
 
+  function lockChrome() {
+    var metas = document.querySelectorAll('meta[name="theme-color"]');
+    if (!metas.length) {
+      var m = document.createElement('meta');
+      m.setAttribute('name', 'theme-color');
+      document.head.appendChild(m);
+      metas = [m];
+    }
+    for (var i = 0; i < metas.length; i++) metas[i].setAttribute('content', CHROME);
+  }
+
   function apply(mode) {
     var next = mode === 'light' ? 'light' : 'dark';
     document.documentElement.setAttribute('data-theme', next);
     try { localStorage.setItem(KEY, next); } catch (e) {}
     var buttons = document.querySelectorAll('#rt-theme-toggle, [data-rt-theme-toggle]');
     for (var i = 0; i < buttons.length; i++) paintButton(buttons[i], next);
-    var meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) meta.setAttribute('content', next === 'light' ? '#f3ead8' : '#050505');
+    lockChrome();
     document.documentElement.style.colorScheme = next;
     try { window.dispatchEvent(new CustomEvent('rathor-theme-changed', { detail: { theme: next } })); } catch (e) {}
   }
@@ -62,7 +73,7 @@
     if (typeof window.rathorSay === 'function') {
       window.rathorSay({
         title: next === 'light' ? 'Light mode' : 'Dark mode',
-        body: 'Saved on this device only. Never sent to rathor.ai.',
+        body: 'Saved on this device only. System bar stays black.',
         ms: 3000
       });
     }
@@ -73,7 +84,5 @@
 
   ensureCss();
   apply(read());
-  window.addEventListener('rathor-nav-ready', function () {
-    apply(read());
-  });
+  window.addEventListener('rathor-nav-ready', function () { apply(read()); });
 })();
