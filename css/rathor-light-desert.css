@@ -22,12 +22,13 @@ html[data-theme="light"] #science-lattices a p.text-xs,
 html[data-theme="light"] #product-paths a p.text-\[11px\] {
   color: var(--rt-muted) !important;
 }
-html[data-theme="light"] [class*="bg-violet-"],
-html[data-theme="light"] [class*="bg-emerald-"],
-html[data-theme="light"] [class*="bg-lime-"],
-html[data-theme="light"] [class*="bg-cyan-"],
-html[data-theme="light"] [class*="bg-sky-"],
-html[data-theme="light"] [class*="bg-indigo-"],
+/* Panels only — do not flatten action buttons */
+html[data-theme="light"] [class*="bg-violet-950"],
+html[data-theme="light"] [class*="bg-emerald-950"],
+html[data-theme="light"] [class*="bg-lime-950"],
+html[data-theme="light"] [class*="bg-cyan-950"],
+html[data-theme="light"] [class*="bg-sky-950"],
+html[data-theme="light"] [class*="bg-indigo-950"],
 html[data-theme="light"] [class*="bg-amber-950"],
 html[data-theme="light"] [class*="bg-zinc-950"],
 html[data-theme="light"] [class*="bg-zinc-900"],
@@ -52,7 +53,7 @@ html[data-theme="light"] #shard-card .text-zinc-400 {
 html[data-theme="light"] #shard-card .bg-zinc-800 {
   background-color: rgba(36, 26, 16, 0.16) !important;
 }
-html[data-theme="light"] span.w-1\.5.bg-emerald-400,
+html[data-theme="light"] span.w-1\.5[class*="bg-emerald"],
 html[data-theme="light"] span.animate-pulse[class*="bg-emerald"] {
   background-color: #2f6b46 !important;
   background-image: none !important;
@@ -89,7 +90,7 @@ html[data-theme="light"] [class*="text-purple"] {
 html[data-theme="light"] a[class*="text-amber"],
 html[data-theme="light"] a[class*="text-yellow"],
 html[data-theme="light"] a[class*="text-orange"],
-html[data-theme="light"] a:not(.rt-btn):not(.rt-btn-primary):not(.rt-btn-secondary):not(.rt-btn-ghost):not([class*="bg-amber"]) {
+html[data-theme="light"] a:not(.rt-btn):not(.rt-btn-primary):not(.rt-btn-secondary):not(.rt-btn-ghost):not([class*="bg-amber"]):not([aria-current]) {
   color: var(--rt-gold-deep) !important;
 }
 html[data-theme="light"] a.underline,
@@ -118,4 +119,33 @@ html[data-theme="light"] .message.rathor {
   background: var(--rt-bg-card) !important;
   color: var(--rt-ink) !important;
   border-color: var(--rt-line) !important;
+}
+
+/* One highlight color: lush saffron. Selected nav + primary + former greens. */
+html[data-theme="light"] .rt-btn,
+html[data-theme="light"] .rt-btn-primary,
+html[data-theme="light"] .bg-amber-400,
+html[data-theme="light"] .bg-amber-500,
+html[data-theme="light"] .bg-yellow-400,
+html[data-theme="light"] .bg-yellow-500,
+html[data-theme="light"] [class*="bg-emerald-4"],
+html[data-theme="light"] [class*="bg-emerald-5"],
+html[data-theme="light"] [class*="bg-emerald-6"],
+html[data-theme="light"] [class*="bg-green-5"],
+html[data-theme="light"] [class*="bg-green-6"],
+html[data-theme="light"] #send-btn,
+html[data-theme="light"] #rathor-hero-install,
+html[data-theme="light"] #rathor-lattice-install,
+html[data-theme="light"] a[aria-current="page"],
+html[data-theme="light"] .lang-tab.active {
+  background: var(--rt-gold-hot) !important;
+  background-image: none !important;
+  color: var(--rt-on-gold) !important;
+  border-color: var(--rt-gold-hot) !important;
+}
+html[data-theme="light"] .rt-btn-ghost,
+html[data-theme="light"] .rt-btn-secondary {
+  background: var(--rt-bg-card) !important;
+  color: var(--rt-gold-deep) !important;
+  border: 1px solid var(--rt-line) !important;
 }

@@ -31,13 +31,13 @@ html[data-theme="light"] {
   --rt-muted: #4a3b28;
   --rt-faint: #5c4a32;
   --rt-gold: #4e350c;
-  --rt-gold-hot: #b8892a;
+  --rt-gold-hot: #d47818;
   --rt-gold-deep: #3d2a08;
   --rt-line: rgba(36, 26, 16, 0.22);
   --rt-line-soft: rgba(36, 26, 16, 0.14);
   --rt-wash: rgba(36, 26, 16, 0.06);
   --rt-shadow: 0 14px 28px -16px rgba(36, 26, 16, 0.28);
-  --rt-on-gold: #241a10;
+  --rt-on-gold: #fff8ed;
   --rt-nav-bg: rgba(239, 228, 200, 0.94);
 }
 html {
