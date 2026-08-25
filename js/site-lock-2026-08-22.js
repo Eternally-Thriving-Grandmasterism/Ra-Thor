@@ -130,14 +130,14 @@
         cta.insertAdjacentHTML(
           'afterend',
           '<section id="living-surfaces" class="max-w-4xl mx-auto px-6 pb-8">' +
-            '<h2 class="text-2xl sm:text-3xl font-semibold tracking-tight text-center mb-6 text-white" data-i18n="surfacesTitle">Start on this device</h2>' +
+            '<h2 class="text-2xl sm:text-3xl font-semibold tracking-tight text-center mb-6 text-white" data-i18n="surfacesTitle">On this device</h2>' +
             '<div class="grid sm:grid-cols-2 gap-4">' +
-            '<a href="/chat.html" class="card-hover block rounded-2xl border border-violet-400/40 bg-violet-950/20 p-5"><p class="font-semibold text-violet-200" data-i18n="surfaceChat">Offline Lattice Chat</p><p class="text-xs text-white/60 mt-2" data-i18n="surfaceChatNote">Private sessions on this device. Optional passphrase. No account. No backend we control.</p></a>' +
-            '<a href="/Launch-Ra-Thor.html" class="card-hover block rounded-2xl border border-emerald-400/40 bg-emerald-950/20 p-5"><p class="font-semibold text-emerald-200" data-i18n="surfaceMap">Launch map</p><p class="text-xs text-white/60 mt-2" data-i18n="surfaceMapNote">Public map of Chat, Shard, Forge, and science cards.</p></a>' +
-            '<a href="/sovereign-shard.html" class="card-hover block rounded-2xl border border-amber-400/40 bg-amber-950/20 p-5"><p class="font-semibold text-amber-200" data-i18n="surfaceShard">Sovereign Shard</p><p class="text-xs text-white/60 mt-2" data-i18n="surfaceShardNote">Local demonstration of the mercy gates on your device.</p></a>' +
-            '<a href="/web-forge.html" class="card-hover block rounded-2xl border border-lime-400/40 bg-lime-950/20 p-5"><p class="font-semibold text-lime-200">Web-Forge</p><p class="text-xs text-white/60 mt-2">Local gate-weight generator. Demonstration only.</p></a>' +
-            '<a href="https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/WHITEPAPER_v4.1.md" target="_blank" rel="noopener" class="card-hover block rounded-2xl border border-cyan-400/40 bg-cyan-950/20 p-5"><p class="font-semibold text-cyan-200" data-i18n="surfacePaper">Whitepaper v4.1</p><p class="text-xs text-white/60 mt-2" data-i18n="surfacePaperNote">Architecture and the Powrush-MMO delivery record.</p></a>' +
-            '<a href="https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor" target="_blank" rel="noopener" class="card-hover block rounded-2xl border border-amber-400/40 bg-amber-950/20 p-5"><p class="font-semibold text-amber-200" data-i18n="surfaceRepo">Open the monorepo</p><p class="text-xs text-white/60 mt-2" data-i18n="surfaceRepoNote">Source, councils, conductor, and public fixtures.</p></a>' +
+            '<a href="/chat.html" class="card-hover rt-card-uniform block rounded-2xl p-5"><p class="font-semibold text-amber-100" data-i18n="surfaceChat">Offline Lattice Chat</p><p class="text-xs text-white/60 mt-2" data-i18n="surfaceChatNote">Private sessions on this device. Optional passphrase. No account. No backend we control.</p></a>' +
+            '<a href="/Launch-Ra-Thor.html" class="card-hover rt-card-uniform block rounded-2xl p-5"><p class="font-semibold text-amber-100" data-i18n="surfaceMap">Launch map</p><p class="text-xs text-white/60 mt-2" data-i18n="surfaceMapNote">Public map of Chat, Shard, Forge, and research cards.</p></a>' +
+            '<a href="/sovereign-shard.html" class="card-hover rt-card-uniform block rounded-2xl p-5"><p class="font-semibold text-amber-100" data-i18n="surfaceShard">Sovereign Shard</p><p class="text-xs text-white/60 mt-2" data-i18n="surfaceShardNote">Local demonstration of the mercy gates on this device.</p></a>' +
+            '<a href="/web-forge.html" class="card-hover rt-card-uniform block rounded-2xl p-5"><p class="font-semibold text-amber-100">Web-Forge</p><p class="text-xs text-white/60 mt-2">Local gate-weight generator. Demonstration only.</p></a>' +
+            '<a href="https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/WHITEPAPER_v4.1.md" target="_blank" rel="noopener" class="card-hover rt-card-uniform block rounded-2xl p-5"><p class="font-semibold text-amber-100" data-i18n="surfacePaper">Whitepaper v4.1</p><p class="text-xs text-white/60 mt-2" data-i18n="surfacePaperNote">Architecture and the Powrush-MMO delivery record.</p></a>' +
+            '<a href="https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor" target="_blank" rel="noopener" class="card-hover rt-card-uniform block rounded-2xl p-5"><p class="font-semibold text-amber-100" data-i18n="surfaceRepo">Open the monorepo</p><p class="text-xs text-white/60 mt-2" data-i18n="surfaceRepoNote">Source, councils, conductor, and public fixtures.</p></a>' +
             '</div></section>'
         );
       }
@@ -155,6 +155,6 @@
     bootScript('family-nav-2026-08-22', '/js/family-nav-2026-08-22.js');
     bootScript('science-map-lock', '/js/science-map-lock.js');
 
-    console.info('[Ra-Thor] site-lock-2026-08-24 session cards + official copy');
+    console.info('[Ra-Thor] site-lock-2026-08-24 desert-uniform surfaces');
   });
 })();
