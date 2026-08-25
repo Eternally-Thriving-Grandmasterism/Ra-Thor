@@ -1,0 +1,74 @@
+/* rathor-light-desert.css — siege-sand parchment lock */
+html[data-theme="light"] #living-surfaces a,
+html[data-theme="light"] #public-works a,
+html[data-theme="light"] #science-lattices a,
+html[data-theme="light"] #product-paths a {
+  background: var(--rt-bg-card) !important;
+  border: 1px solid var(--rt-line) !important;
+  color: var(--rt-ink) !important;
+  box-shadow: none !important;
+}
+html[data-theme="light"] #living-surfaces a p,
+html[data-theme="light"] #public-works a p,
+html[data-theme="light"] #science-lattices a p,
+html[data-theme="light"] #product-paths a p,
+html[data-theme="light"] #living-surfaces a .font-semibold,
+html[data-theme="light"] #public-works a .font-semibold {
+  color: var(--rt-ink) !important;
+}
+html[data-theme="light"] #living-surfaces a p.text-xs,
+html[data-theme="light"] #public-works a p.text-xs,
+html[data-theme="light"] #science-lattices a p.text-xs,
+html[data-theme="light"] #product-paths a p.text-\[11px\] {
+  color: var(--rt-muted) !important;
+}
+html[data-theme="light"] [class*="bg-violet-"],
+html[data-theme="light"] [class*="bg-emerald-"],
+html[data-theme="light"] [class*="bg-lime-"],
+html[data-theme="light"] [class*="bg-cyan-"],
+html[data-theme="light"] [class*="bg-sky-"],
+html[data-theme="light"] [class*="bg-amber-950"],
+html[data-theme="light"] [class*="bg-zinc-950"],
+html[data-theme="light"] [class*="bg-zinc-900"],
+html[data-theme="light"] [class*="from-zinc-"],
+html[data-theme="light"] [class*="to-zinc-"] {
+  background: var(--rt-bg-card) !important;
+  background-image: none !important;
+}
+html[data-theme="light"] #shard-card {
+  background: var(--rt-bg-card) !important;
+  color: var(--rt-ink) !important;
+  border: 1px solid var(--rt-line) !important;
+}
+html[data-theme="light"] #shard-card #shard-name,
+html[data-theme="light"] #shard-card #valence-value,
+html[data-theme="light"] #shard-card #evolution-value,
+html[data-theme="light"] #shard-card #mercy-value,
+html[data-theme="light"] #shard-card #harmony-value,
+html[data-theme="light"] #shard-card .text-zinc-400 {
+  color: var(--rt-ink) !important;
+}
+html[data-theme="light"] #shard-card .bg-zinc-800 {
+  background-color: rgba(36, 26, 16, 0.16) !important;
+}
+html[data-theme="light"] #valence-fill.bg-emerald-400 {
+  background-color: #2f6b46 !important;
+}
+html[data-theme="light"] .text-amber-300\/80,
+html[data-theme="light"] .text-amber-200\/80,
+html[data-theme="light"] [data-i18n="worksFlagships"],
+html[data-theme="light"] [data-i18n="worksCore"],
+html[data-theme="light"] [data-i18n="worksRelated"] {
+  color: var(--rt-gold-deep) !important;
+}
+html[data-theme="light"] .bg-zinc-950\/60,
+html[data-theme="light"] .bg-zinc-950\/70 {
+  background: var(--rt-bg-card) !important;
+  color: var(--rt-ink) !important;
+}
+html[data-theme="light"] footer,
+html[data-theme="light"] .rt-site-footer,
+html[data-theme="light"] .rt-site-footer p,
+html[data-theme="light"] .rt-site-footer div {
+  color: var(--rt-muted) !important;
+}
