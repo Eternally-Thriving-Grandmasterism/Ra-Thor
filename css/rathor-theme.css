@@ -23,21 +23,21 @@ html[data-theme="dark"] {
 }
 html[data-theme="light"] {
   color-scheme: light;
-  --rt-bg: #f4efe3;
-  --rt-bg-elev: #fbf7ee;
-  --rt-bg-card: #fffdf8;
-  --rt-ink: #1a1610;
-  --rt-muted: #3d362c;
-  --rt-faint: #5c5346;
-  --rt-gold: #5c4308;
-  --rt-gold-hot: #c4a035;
-  --rt-gold-deep: #4a3606;
-  --rt-line: rgba(26, 22, 16, 0.2);
-  --rt-line-soft: rgba(26, 22, 16, 0.12);
-  --rt-wash: rgba(26, 22, 16, 0.045);
-  --rt-shadow: 0 14px 28px -16px rgba(26, 22, 16, 0.22);
-  --rt-on-gold: #1a1610;
-  --rt-nav-bg: rgba(251, 247, 238, 0.94);
+  --rt-bg: #e6d5b0;
+  --rt-bg-elev: #efe4c8;
+  --rt-bg-card: #f3e9d0;
+  --rt-ink: #241a10;
+  --rt-muted: #4a3b28;
+  --rt-faint: #5c4a32;
+  --rt-gold: #4e350c;
+  --rt-gold-hot: #b8892a;
+  --rt-gold-deep: #3d2a08;
+  --rt-line: rgba(36, 26, 16, 0.22);
+  --rt-line-soft: rgba(36, 26, 16, 0.14);
+  --rt-wash: rgba(36, 26, 16, 0.06);
+  --rt-shadow: 0 14px 28px -16px rgba(36, 26, 16, 0.28);
+  --rt-on-gold: #241a10;
+  --rt-nav-bg: rgba(239, 228, 200, 0.94);
 }
 html {
   background: var(--rt-bg);
