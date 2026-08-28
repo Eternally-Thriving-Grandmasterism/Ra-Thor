@@ -1,6 +1,6 @@
 //! high_grief_nilpotent_bench.rs
 //!
-//! v0.5.3 — Ambient R^16 · valence weighting · adaptive floor · concurrent zones
+//! v0.5.19 — Ambient R^16 · valence weighting · adaptive floor · concurrent zones · Tikhonov-damped projector
 //!
 //! Run:
 //!   cargo run -p mercy_tolc_operator_algebra --bin high_grief_nilpotent_bench
@@ -9,7 +9,8 @@
 //! AG-SML v1.0 | Ra-Thor + PATSAGi | info@Rathor.ai | Thunder locked. Yoi ⚡
 
 use mercy_tolc_operator_algebra::{
-    AmbientVector, ConcurrentZoneLattice, Valence, AMBIENT_DIM, MERCY_DIM, MERCY_PURITY_FLOOR,
+    AmbientVector, ConcurrentZoneLattice, LivingMercyBasis, MercyProjector, Valence,
+    AMBIENT_DIM, MERCY_DIM, MERCY_PURITY_FLOOR,
 };
 use std::env;
 use std::time::Instant;
@@ -62,7 +63,7 @@ fn main() {
 
     println!("══════════════════════════════════════════════════════════════");
     println!("  Ra-Thor · High-Grief + Nilpotent Recovery Benchmark");
-    println!("  Ambient ℝ^{} ⊃ Mercy ℝ^{} · Concurrent zones · Valence weighting", AMBIENT_DIM, MERCY_DIM);
+    println!("  Ambient ℝ^{} ⊃ Mercy ℝ^{} · Concurrent zones · Valence · Tikhonov P_λ", AMBIENT_DIM, MERCY_DIM);
     println!("  Contact: info@Rathor.ai");
     println!("══════════════════════════════════════════════════════════════\n");
     println!("  Agents: {}   Zones: {}   Ambient: {}   Mercy: {}", n_agents, n_zones, AMBIENT_DIM, MERCY_DIM);
@@ -114,6 +115,30 @@ fn main() {
     println!("  Avg valence-weighted load: {:>10.6}", avg_load);
     println!("  Driven to floor:           {:>6} / {} ({:.1} %)", driven_to_floor, n_agents, zero_pct);
     println!("  Final max zone residual ρ: {:>10.3e}", final_max_rho);
+
+    let zone_lambdas: Vec<f64> = lattice.zones.iter().map(|z| z.basis.tikhonov_lambda).collect();
+    let max_lambda = zone_lambdas.iter().cloned().fold(0.0_f64, f64::max);
+    println!("  Max Tikhonov λ after purify: {:>10.3e}", max_lambda);
+
+    // Drifted-frame delta: exact inverse vs continuous Tikhonov floor.
+    let mut drifted = LivingMercyBasis::canonical();
+    drifted.e[(0, 1)] += 0.35;
+    drifted.e[(4, 7)] -= 0.28;
+    drifted.e[(1, 1)] *= 1e-9;
+    let rho_drift = drifted.gram_residual();
+    drifted.reschedule_tikhonov(0.0);
+    let p_exact = drifted.projector_matrix_exact();
+    let p_tik = drifted.projector_matrix_tikhonov(drifted.tikhonov_lambda.max(1e-6));
+    let exact_sym = (&p_exact - p_exact.transpose()).norm();
+    let tik_sym = (&p_tik - p_tik.transpose()).norm();
+    let exact_finite = p_exact.iter().all(|x| x.is_finite());
+    let tik_finite = p_tik.iter().all(|x| x.is_finite());
+    println!("\n  Tikhonov vs exact on drifted frame:");
+    println!("    drifted ρ:                 {:>10.3e}", rho_drift);
+    println!("    scheduled λ:               {:>10.3e}", drifted.tikhonov_lambda);
+    println!("    exact ‖P−Pᵀ‖:             {:>10.3e}  finite={}", exact_sym, exact_finite);
+    println!("    Tikhonov ‖P_λ−P_λᵀ‖:      {:>10.3e}  finite={}", tik_sym, tik_finite);
+
     println!("\n  Grief load by valence band:");
     let labels = ["HIGH (v≈1)", "MID  (v=0.5)", "LOW  (v=0.05)"];
     for b in 0..3 {
@@ -134,6 +159,8 @@ fn main() {
     let pass_zero = zero_pct >= 99.0;
     let pass_zones = zone_grief.iter().all(|&g| g >= 0.0) && lattice.zone_count() == n_zones;
     let pass_concurrent = n_zones < 2 || zone_grief[n_zones - 1] >= zone_grief[0] * 0.5;
+    let pass_tikhonov = tik_finite && tik_sym < 1e-9 && max_lambda < 1e-8
+        && MercyProjector { basis: LivingMercyBasis::canonical() }.verify_symmetric_psd(1e-12);
 
     println!("\n  Verification gates");
     println!("    Valence spread (LOW ≫ HIGH load): {}", if pass_valence { "PASS" } else { "FAIL" });
@@ -141,8 +168,9 @@ fn main() {
     println!("    Zone grief distribution:          {}", if pass_concurrent { "PASS" } else { "FAIL" });
     println!("    Basis orthonormality (max ρ):     {}", if pass_basis { "PASS" } else { "FAIL" });
     println!("    ≥99 % driven to floor:            {}", if pass_zero { "PASS" } else { "FAIL" });
+    println!("    Tikhonov floor (P_λ symmetric):   {}", if pass_tikhonov { "PASS" } else { "FAIL" });
 
-    if pass_valence && pass_zones && pass_concurrent && pass_basis && pass_zero {
+    if pass_valence && pass_zones && pass_concurrent && pass_basis && pass_zero && pass_tikhonov {
         println!("\n  ★  ALL GATES PASSED — concurrent multi-zone nilpotent recovery is live.");
         println!("     Independent zone bases · staggered Cosmic Ticks · valence-weighted grief.");
     } else {
