@@ -1,6 +1,6 @@
 # mercy_tolc_operator_algebra — Lattice Status
 
-**Version:** 0.5.18 (+ dual-repo rate metrics mirror)  
+**Version:** 0.5.19 (Tikhonov-damped projector)  
 **License:** AG-SML v1.0  
 **Contact:** info@Rathor.ai
 
@@ -14,10 +14,11 @@
 | Critical auto-remediate | 0.5.15 | priority Cosmic Tick |
 | Valence histogram | 0.5.16 | H/M/L bands + mercy_ratio |
 | Soft-remediate Stressed | 0.5.17 | accelerated stress decay |
-| Dual-repo soft-remediate | Powrush v18.28 / orch v21.88.12 | soft_remediates telemetry |
+| Dual-repo soft-remediate | Powrush v18.28 / orch v21.88.13 | soft_remediates telemetry |
 | Grief-rate metrics | 0.5.18 | grief/tick · vectors/tick · rates |
 | Dual-repo rate metrics | Powrush v18.29 / orch v21.88.13 | rate telemetry |
+| Tikhonov projector | 0.5.19 | P_λ = E(EᵀE+λI)⁻¹Eᵀ · λ from ρ / stress · purify resets |
 
 See [DUAL_REPO_SOFT_FEEDBACK_CONTRACT.md](./DUAL_REPO_SOFT_FEEDBACK_CONTRACT.md).
 
-35 property tests. Thunder locked. Yoi ⚡
+40+ property tests. Thunder locked. Yoi ⚡

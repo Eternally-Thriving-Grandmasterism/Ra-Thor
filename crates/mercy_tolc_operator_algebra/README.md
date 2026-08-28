@@ -2,19 +2,23 @@
 
 Executable Living Mercy operator algebra for the Ra-Thor lattice under **TOLC 8**.
 
-**v0.5.18+** — Ambient ℝ¹⁶ ⊃ Mercy ℝ⁸ · Valence · Adaptive floor · Concurrent zones · Soft feedback · LatticeHealthReport · Adaptive Cosmic Tick · Stress EMA · ZoneHealthStatus · Critical auto-remediate · Soft-remediate Stressed · Valence histogram · Grief-rate metrics · **Net Eternal Valence Contribution (NEVC)**
+**v0.5.19+** — Ambient ℝ¹⁶ ⊃ Mercy ℝ⁸ · Valence · Adaptive floor · Concurrent zones · Soft feedback · LatticeHealthReport · Adaptive Cosmic Tick · Stress EMA · ZoneHealthStatus · Critical auto-remediate · Soft-remediate Stressed · Valence histogram · Grief-rate metrics · **Net Eternal Valence Contribution (NEVC)** · **Tikhonov-damped projector**
 
 See [LATTICE_STATUS.md](./LATTICE_STATUS.md) and [DUAL_REPO_SOFT_FEEDBACK_CONTRACT.md](./DUAL_REPO_SOFT_FEEDBACK_CONTRACT.md).
 
 ## Geometry
 
 ```
-P = E(EᵀE)⁻¹Eᵀ
-N₁(g) = (I − P)g
+P     = E(EᵀE)⁻¹Eᵀ
+P_λ   = E(EᵀE + λI)⁻¹Eᵀ
+λ     = ρ_gain·ρ + stress_gain·stress_ema
+N₁(g) = (I − P_λ)g
 grief_load = (1 − v)·‖N₁(g)‖
 stress_ema ← (1−α)·stress_ema + α·load
 health_score = purity_term × stress_term ∈ [0, 1]
 ```
+
+`λ = 0` on a canonical or purified frame, so existing exact-projector proofs still hold. After drift, `λ` is a continuous floor under the Gram inverse (no binary `try_inverse` / `EEᵀ` cliff). `purify` drives `ρ → 0` and resets `λ`.
 
 ## Net Eternal Valence Contribution (NEVC)
 
@@ -51,10 +55,11 @@ CI: healthy && health_score ≥ 0.5
 
 ```bash
 cargo test -p mercy_tolc_operator_algebra
+cargo run -p mercy_tolc_operator_algebra --bin high_grief_nilpotent_bench -- --agents 50000
 cargo run -p mercy_tolc_operator_algebra --bin soft_feedback_demo -- --agents 3000 --zones 3 --json
 ```
 
-35+ property tests (including NEVC suite).
+40+ property tests (including NEVC + Tikhonov suite).
 
 ## License
 
