@@ -210,4 +210,4 @@
         assert_eq!(scored.class, ContributionClass::ZombiePartition);
     }
 
-    include!("algebra_tests_restored.rs");
+    include!("algebra_tests_health.rs");
