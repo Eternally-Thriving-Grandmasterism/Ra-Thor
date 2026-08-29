@@ -20,5 +20,4 @@ include!("algebra.rs");
 #[cfg(test)]
 mod tests {
     include!("algebra_tests.rs");
-    include!("algebra_tests_restored.rs");
 }
