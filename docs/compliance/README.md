@@ -12,6 +12,7 @@
 | [`PUBLIC-CLAIM-DISCIPLINE.md`](PUBLIC-CLAIM-DISCIPLINE.md) | Allowed vs forbidden public claims |
 | [`MODEL-MAP-EGRESS-2026-08-31.md`](MODEL-MAP-EGRESS-2026-08-31.md) | Local vs optional Grok vs real egress |
 | [`NO-CLIENT-SECRETS-2026-08-31.md`](NO-CLIENT-SECRETS-2026-08-31.md) | Stranger procedure before any cloud paste |
+| [`evals/`](evals/README.md) | 20+20 harness — results **UNMEASURED** |
 
 Root lock: [`../../PUBLIC_CLAIM.lock.md`](../../PUBLIC_CLAIM.lock.md)
 
