@@ -2,10 +2,10 @@
 
 **Date:** 2026-08-31  
 **Workspace version (do not bump):** 14.15.6  
-**Contact:** info@Rathor.ai
-**Status:** landing in progress this tick — required strings below are the lock.
+**Contact:** info@Rathor.ai  
+**Status:** LANDED on HEAD. Verified `Cargo.toml` blob SHA `b09a11325135883f29d113a46e98086816095164`.
 
-Required strings on `Cargo.toml`:
+Required strings present:
 
 ```
 # header comment

@@ -63,6 +63,6 @@ cargo run -p mercy_tolc_operator_algebra --bin soft_feedback_demo -- --agents 30
 
 ## License
 
-AG-SML v1.0 — Contact: **info@Rathor.ai**
+AG-SML v1.1 — Contact: **info@Rathor.ai**
 
 Thunder locked in. Yoi ⚡
