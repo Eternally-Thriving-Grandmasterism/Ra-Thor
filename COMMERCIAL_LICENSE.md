@@ -40,7 +40,7 @@ If you are unsure, email **info@Rathor.ai** with a short description.
 |------|-----|-------|------------------|
 | **Startup / Small Team** | Companies under a defined headcount / revenue threshold | Annual or one-time | Simple written commercial grant |
 | **Enterprise** | Larger organizations, production deployments | Custom | Negotiated scope, support, and term |
-| **Pilot \u2192 Convert** | Any organization testing fit before full license | Fixed-fee pilot (see `docs/PILOT_OFFER.md`) | Pilot fee credits toward commercial license if converted |
+| **Pilot → Convert** | Any organization testing fit before full license | Fixed-fee pilot (see `docs/PILOT_OFFER.md`) | Pilot fee credits toward commercial license if converted |
 
 Exact pricing is provided on request. There is no public price list by design.
 
@@ -71,9 +71,9 @@ A commercial license does **not** remove mercy gates, PATSAGi structure, or AG-S
 
 1. Email **info@Rathor.ai** with organization name, intended use, approximate scale, and whether you want a **pilot** or a **full commercial license** discussion.
 2. We reply with next steps.
-3. Agreement \u2192 invoice \u2192 activation.
+3. Agreement → invoice → activation.
 
-**Target response time:** within 1\u20132 business days for serious inquiries.
+**Target response time:** within 1–2 business days for serious inquiries.
 
 ---
 
