@@ -8,8 +8,8 @@
 
 | Path | Document |
 |------|----------|
-| Free use (personal / research / education) | Root [`LICENSE`](LICENSE) — AG-SML v1.0 |
-| **Commercial / enterprise use** | [`COMMERCIAL_LICENSE.md`](COMMERCIAL_LICENSE.md) |
+| Free use (personal / research / education / Wanderer) | Root [`LICENSE`](LICENSE) — AG-SML v1.1 |
+| **Commercial / enterprise use** | [`COMMERCIAL_LICENSE.md`](COMMERCIAL_LICENSE.md) — AG-SML v1.1 exhibit |
 | **Paid pilot (2–6 weeks)** | [`docs/PILOT_OFFER.md`](docs/PILOT_OFFER.md) |
 | **Pilot SOW template** | [`docs/SOW_PILOT_TEMPLATE.md`](docs/SOW_PILOT_TEMPLATE.md) |
 | **Commercial target segments (public)** | [`docs/COMMERCIAL_TARGET_SEGMENTS.md`](docs/COMMERCIAL_TARGET_SEGMENTS.md) |
@@ -19,6 +19,7 @@
 | **X announcement copy** | [`docs/COMMERCIAL_ANNOUNCEMENT_X.md`](docs/COMMERCIAL_ANNOUNCEMENT_X.md) |
 | **Micro-moment demo sequence** | [`docs/DEMO_SEQUENCE_MICRO_MOMENT.md`](docs/DEMO_SEQUENCE_MICRO_MOMENT.md) |
 | License clarification (residuals) | [`LICENSE_CLARIFICATION.md`](LICENSE_CLARIFICATION.md) |
+| Gate glossary | [`docs/GLOSSARY-GATES-TOLC8.md`](docs/GLOSSARY-GATES-TOLC8.md) |
 
 ### Shared Stewardship & Capital
 
@@ -32,9 +33,9 @@ For commercial, pilot, or co-stewardship inquiries, email **info@Rathor.ai** wit
 ### Policy
 
 - All new files, Cargo.toml `authors`, LICENSE blocks, docs, and website footers use **info@Rathor.ai** only.
-- Commercial use requires a paid license; pilots are the preferred evaluation bridge.
+- Public grant is AG-SML v1.1. Commercial use requires a paid license; pilots are the preferred evaluation bridge.
 - Shared stewardship and optional equity must respect Layer 0 (TOLC 8, PATSAGi, AG-SML, independent identity).
-- Public representation: use [`docs/REPRESENTATIVE_BRIEFING_AND_CONVERSATION_PACK.md`](docs/REPRESENTATIVE_BRIEFING_AND_CONVERSATION_PACK.md) — broad AGSi identity + practical wedge + hard stops.
+- Public representation: use [`docs/REPRESENTATIVE_BRIEFING_AND_CONVERSATION_PACK.md`](docs/REPRESENTATIVE_BRIEFING_AND_CONVERSATION_PACK.md) — inspectable research software + practical wedge + hard stops. Not a certification. Not xAI-affiliated.
 
 **Live site:** https://rathor.ai  
 **Monorepo:** https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor

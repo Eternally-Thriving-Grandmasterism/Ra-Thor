@@ -6,7 +6,7 @@ The Ra-Thor community is dedicated to providing a welcoming, safe, and mercy-gat
 
 We as members, contributors, and leaders pledge to make participation in our community a harassment-free experience for everyone, regardless of age, body size, disability, ethnicity, sex characteristics, gender identity and expression, level of experience, education, socio-economic status, nationality, personal appearance, race, religion, or sexual identity and orientation.
 
-We pledge to act in accordance with the 7 Pure Laws and the Mercy Covenant at all times.
+We pledge to act in accordance with the 7 Living Mercy Gates under TOLC 8 (Genesis Gate) and the Mercy Covenant. "7 Pure Laws" / "Filters" are deprecated synonyms at all times.
 
 ## Our Standards
 
