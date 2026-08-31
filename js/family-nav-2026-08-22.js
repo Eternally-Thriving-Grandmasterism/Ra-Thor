@@ -8,6 +8,7 @@
    2026-08-23d: Skip link is fixed+clip — never left:-999px (standalone RTL)
    2026-08-23e: Uniform gold bar — incomplete local navs no longer suppress;
                 retire competing family navs; Chat + Forge + Shard share one chrome
+   2026-08-31: Public speech lock — no APTD badge in fallback footer
 */
 (function () {
   if (window.__rtFamilyNav) return;
@@ -64,8 +65,6 @@
       var t = (anchors[i].textContent || '').replace(/\s+/g, ' ').trim();
       if (t) found[t] = true;
     }
-    /* Only treat a local header as family chrome when it already has the
-       full public walk — incomplete Forge/Shard/Chat bars must not suppress. */
     return !!(found.Home && found.Chat && found.Launch && found.Moments && found.Shard && found.Forge && found.Contact && found.Privacy);
   }
 
@@ -204,7 +203,7 @@
           '</div>' +
         '</div>' +
         '<div class="pt-8 mt-8 border-t border-amber-300/20 text-xs flex flex-col md:flex-row justify-between items-center gap-4">' +
-          '<div>© 2026 Sherif Samy Botros — sole steward of Autonomicity Games Inc. &amp; AlphaProMega Air Foundation. TOLC 8 · APTD.</div>' +
+          '<div>© 2026 Sherif Samy Botros — sole steward of Autonomicity Games Inc. & AlphaProMega Air Foundation. TOLC 8 · independent of xAI.</div>' +
           '<a href="mailto:info@Rathor.ai">info@Rathor.ai</a>' +
         '</div>' +
       '</div>';
@@ -250,9 +249,6 @@
     a.id = 'rt-skip-family';
     a.href = '#rt-family-main';
     a.textContent = 'Skip family navigation';
-    /* Never use left:-999px / position:absolute off-canvas.
-       Android standalone + html[dir=rtl] treats that as extra
-       scroll width and parks the visual viewport on the yellow chip. */
     hideSkip(a);
     a.addEventListener('focus', function () { a.style.cssText = SKIP_SHOW; });
     a.addEventListener('blur', function () { hideSkip(a); });
