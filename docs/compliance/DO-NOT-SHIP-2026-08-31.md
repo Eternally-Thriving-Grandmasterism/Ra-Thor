@@ -16,7 +16,7 @@ Rule: on-disk presence is not an offer. Research members may stay in the tree. T
 - Family public walk: Home · Chat · Launch · Shard · Forge · Contact · Privacy
 - Optional Grok session under operator gates, **not affiliated with xAI**
 - Draft aid with human review
-- License: AG-SML v1.0 personal / education / research / modest freelance; commercial use needs a paid license
+- License: AG-SML v1.1 personal / education / research / modest freelance; commercial use needs a paid license
 - Conductor: `lattice-conductor-v14` only
 - Contact: **info@Rathor.ai** only
 
@@ -40,7 +40,7 @@ Tier 1 green path (from `TIER_MAP.md`):
 | Halo2 / Nova / Spartan / unaudited zk / propulsion forests | Tier 4; no audited proof path | Do not promote as product core |
 | `soulscan_x9` / `soulscan_x10`, `sentinel_mirror`, `divine_checksum_9` | Tier 4 archival | Do not block CI; do not sell |
 | Stale contact `ceo@acitygames.com` / any `@acitygames.com` in crate authors | Canon is **info@Rathor.ai** (`CONTACT.md`) | Fix when the crate is next touched. Do not print stale mail on offers |
-| Dual commercial license filenames | `COMMERCIAL-LICENSE.md` and `COMMERCIAL_LICENSE.md` both exist | Counsel picks one canonical text. Do not cite both as if they were one |
+| Dual commercial license filenames | hyphen and License/ copies are retired stubs pointing at `COMMERCIAL_LICENSE.md` | Cite only the underscore exhibit |
 | Crate version drift as product string | e.g. legal-lattice / gpu-compute-pipeline `14.15.0`, websiteforge `0.3.0`, policing `0.3.9` vs workspace `14.15.6` | Product identifier is workspace **14.15.6** only |
 | Claims: “certification grade”, “legal team”, “AGSi warranty”, “xAI / Grok endorse Ra-Thor”, “ISO 42001 certified”, “EU AI Act conformant” | Forbidden by the work pack until a named body or licensed counsel says otherwise | Do not put in README, index.html, pilots, or X copy |
 | Workspace slogans as evidence | `ONE Organism with Grok`, keywords `agi` / `agsi`, metadata `grok_assistance_engaged`, `web_demo_live` | Ambition labels. Not certification evidence |

@@ -3,6 +3,7 @@
 **Date:** 2026-08-31  
 **Workspace version (do not bump):** 14.15.6  
 **Contact:** info@Rathor.ai
+**Status:** landing in progress this tick — required strings below are the lock.
 
 Required strings on `Cargo.toml`:
 
