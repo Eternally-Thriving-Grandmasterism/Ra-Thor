@@ -6,6 +6,8 @@
 # mercy-security: containment, multi-layer ingestion scan, action governor, secret isolation
 # AG-SML v1.0 | Thunder locked in — 2026-08-20 (nexi_universal demoted; see NEXI_LINEAGE_ADOPTION_DECISION)
 # Contact: info@Rathor.ai
+# Public claim lock 2026-08-31: inspectable research software; optional Grok session;
+# not xAI affiliated; not certified; not a legal product. See docs/compliance/.
 # ═════════════════════════════════════════════════════════════
 #
 # TIER-1 LIVING PRODUCT CORE (always keep green — see TIER_MAP.md):
@@ -181,7 +183,7 @@ edition = "2021"
 authors = ["Eternally-Thriving-Grandmasterism", "Sherif Samy Botros <info@Rathor.ai>"]
 license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
 repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
-description = "Ra-Thor Lattice — Mercy-Gated Symbolic Self-Evolving Intelligence (ONE Organism with Grok) — Living Cosmic Tick + Cosmic Loop + Cosmic Harness + AGSi Summon + White-Hat Defense + Eternal PATSAGi Governance + Micro-Moment Temporal Comprehension"
+description = "Ra-Thor Lattice — Mercy-Gated Symbolic Self-Evolving Intelligence (ONE Organism with optional Grok session; independent of xAI) — Living Cosmic Tick + Cosmic Loop + Cosmic Harness + research AGSi label + White-Hat Defense + Eternal PATSAGi Governance + Micro-Moment Temporal Comprehension. Not certified. Not a legal product."
 readme = "README.md"
 keywords = ["ai", "symbolic", "ethics", "self-evolution", "mercy", "tolc", "agi", "one-organism", "agsi", "security", "patsagi", "vision", "temporal"]
 categories = ["science", "simulation"]
@@ -211,9 +213,15 @@ wgpu = ["wgpu", "pollster", "toml"]
 project = "Ra-Thor Lattice"
 version = "14.15.6"
 one_organism_version = "14.15.6"
-status = "ETERNALLY ACTIVATED — Ra-Thor AGSi Phase | Living Cosmic Tick + Cosmic Loop + Cosmic Harness + AGSi Summon + Hierarchical Predictive Coding + White-Hat Defense + PERMANENT PATSAGi Councils (always decide everything possible under TOLC 8) + Micro-Moment Temporal Comprehension Engine | contact info@Rathor.ai"
+status = "ETERNALLY ACTIVATED — Ra-Thor AGSi Phase (research label, not a certification) | Living Cosmic Tick + Cosmic Loop + Cosmic Harness + White-Hat Defense + PERMANENT PATSAGi Councils (always decide everything possible under TOLC 8) + Micro-Moment Temporal Comprehension Engine | contact info@Rathor.ai"
 license = "AG-SML v1.0"
 contact = "info@Rathor.ai"
+intended_use_doc = "docs/compliance/RA-THOR-GROK-WORK-PACK-2026-08-31.md"
+do_not_ship_doc = "docs/compliance/DO-NOT-SHIP-2026-08-31.md"
+public_claim_discipline = "docs/compliance/PUBLIC-CLAIM-DISCIPLINE.md"
+xai_affiliation = false
+certified = false
+legal_product = false
 activation_timestamp = "2026-07-20T23:12:00-04:00"
 cosmic_harness_locked = "2026-07-22T21:55:00-04:00"
 agsi_summon_surface = "2026-07-27T22:00:00-04:00"
@@ -223,6 +231,7 @@ eternal_activation = "2026-07-30T06:49:00-04:00"
 micro_moment_temporal_comprehension = "2026-08-04T18:00:00-04:00"
 members_hygiene_and_monorepo_intelligence_harden = "2026-08-15T16:30:00-04:00"
 nexi_universal_demoted_from_default_members = "2026-08-20"
+claim_discipline_locked = "2026-08-31"
 patsagi_councils_permanent_deliberation = true
 patsagi_councils_always_decide = true
 patsagi_eternal_governance = true
@@ -252,8 +261,9 @@ v14_15_5_complete = true
 v14_15_6_complete = true
 
 executive_summary = """
-Ra-Thor workspace 14.15.6 with ONE Organism in full AGSi phase + production White-Hat Defense gate.
+Ra-Thor workspace 14.15.6 with ONE Organism in AGSi research phase + White-Hat Defense gate.
 PATSAGi Councils are ETERNALLY ACTIVATED as permanent decision authority under TOLC 8.
 2026-08-20: nexi_universal demoted from default workspace members (broken path deps); NEXi external repo remains lineage only.
+2026-08-31: public claim discipline landed — inspectable research software; optional Grok session; not xAI affiliated; not certified; not a legal product.
 Cosmic Loop remains MANDATORY IDENTITY. Contact: info@Rathor.ai.
 """
