@@ -9,11 +9,14 @@
 | --- | --- |
 | [`RA-THOR-GROK-WORK-PACK-2026-08-31.md`](RA-THOR-GROK-WORK-PACK-2026-08-31.md) | Standing brief, intended use, evidence gaps, 14-day plan |
 | [`DO-NOT-SHIP-2026-08-31.md`](DO-NOT-SHIP-2026-08-31.md) | Isolate list — on-disk ≠ offer |
+| [`PUBLIC-CLAIM-DISCIPLINE.md`](PUBLIC-CLAIM-DISCIPLINE.md) | Allowed vs forbidden public claims |
 
 Related living doctrine (not this folder):
 - [`../../TIER_MAP.md`](../../TIER_MAP.md)
 - [`../../CONTACT.md`](../../CONTACT.md)
+- [`../../AI-ETHICS.md`](../../AI-ETHICS.md) — design doctrine, not a conformity file
 - [`../NEXI_LINEAGE_ADOPTION_DECISION_2026-08-20.md`](../NEXI_LINEAGE_ADOPTION_DECISION_2026-08-20.md)
 - Root `LICENSE` — AG-SML v1.0
+- Family site `index.html` — already carries independent / not-xAI / capable-bounded-corrigible lock
 
 Do not treat files in this folder as filed instruments.
