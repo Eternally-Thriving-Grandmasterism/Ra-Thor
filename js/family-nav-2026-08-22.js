@@ -184,7 +184,7 @@
           '</div>' +
           '<div class="md:col-span-3">' +
             '<h4>Workspace</h4>' +
-            '<p class="rt-legal">v14.15.6 source of truth · Lattice Chat v14.18 · Shard v8 local demo · AG-SML v1.0 · TOLC 8 · Capable · Bounded · Corrigible</p>' +
+            '<p class="rt-legal">v14.15.6 source of truth · Lattice Chat v14.18 · Shard v8 local demo · AG-SML v1.1 · TOLC 8 · Capable · Bounded · Corrigible</p>' +
           '</div>' +
           '<div class="md:col-span-3">' +
             '<h4>Family</h4>' +
