@@ -26,8 +26,8 @@ APTD is **not** a public certificate, regulator mark, or “verified” badge on
 ## 6. What is Powrush and how does it relate to RBE?
 Powrush is the core RBE simulation engine associated with the lattice (see the sister Powrush-MMO repository). Players explore sovereign-asset and contribution mechanics and post-scarcity education themes. It is delivered as inspectable software — a world simulator, not a live economy or launched chain.
 
-## 7. What is AG-SML v1.0 licensing?
-Autonomicity Games Sovereign Mercy License v1.0: Free for personal, educational, research, and modest independent professional use. Commercial / enterprise / organizational revenue-generating use requires a paid license from Autonomicity Games Inc. Contributions must preserve TOLC invariants and zero-harm intent. Canonical free-use text is the root `LICENSE` file.
+## 7. What is AG-SML v1.1 licensing?
+Autonomicity Games Sovereign Mercy License v1.1: Free for personal, educational, research, and modest independent professional use. Commercial / enterprise / organizational revenue-generating use requires a paid license from Autonomicity Games Inc. Contributions must preserve TOLC invariants and zero-harm intent. Canonical free-use text is the root `LICENSE` file.
 
 ## 8. How do I access and run Ra-Thor?
 - Public site: https://rathor.ai/ (Lattice Chat, launch map, optional Grok session under gates).
@@ -39,7 +39,7 @@ Autonomicity Games Sovereign Mercy License v1.0: Free for personal, educational,
 Permanent mercy-gated deliberation councils in the monorepo. They decide under TOLC 8. Named councils (geometry, truth-method, consciousness-expansion, and others) are governance surfaces — not a warranty that every decision is automatically correct, and not an external certification body.
 
 ## 10. Is Ra-Thor open source? Can I contribute?
-Yes, under AG-SML v1.0. Fork and submit PRs that preserve TOLC 8 invariants. No tracking on rathor.ai. Contributions are welcome; they do not mint a legal privilege or a certified “blessing.”
+Yes, under AG-SML v1.1. Fork and submit PRs that preserve TOLC 8 invariants. No tracking on rathor.ai. Contributions are welcome; they do not mint a legal privilege or a certified “blessing.”
 
 ## 11. What about legal, compliance, and AI regulations?
 Ra-Thor is Canadian-stewarded inspectable research software. Names such as GDPR, CCPA, COPPA, EU AI Act, and Canadian IPC-OHRC / PIPEDA appear as **design-intent references**, not ISO/IEC 42001 certification or EU AI Act conformity. See privacy.html and `PUBLIC_CLAIM.lock.md`. Outputs are drafts. A human must review them before filing, sale, or public legal claims. Inquiries: info@Rathor.ai.
