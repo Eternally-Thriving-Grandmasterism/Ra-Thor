@@ -10,6 +10,10 @@
 | [`RA-THOR-GROK-WORK-PACK-2026-08-31.md`](RA-THOR-GROK-WORK-PACK-2026-08-31.md) | Standing brief, intended use, evidence gaps, 14-day plan |
 | [`DO-NOT-SHIP-2026-08-31.md`](DO-NOT-SHIP-2026-08-31.md) | Isolate list — on-disk ≠ offer |
 | [`PUBLIC-CLAIM-DISCIPLINE.md`](PUBLIC-CLAIM-DISCIPLINE.md) | Allowed vs forbidden public claims |
+| [`MODEL-MAP-EGRESS-2026-08-31.md`](MODEL-MAP-EGRESS-2026-08-31.md) | Local vs optional Grok vs real egress |
+| [`NO-CLIENT-SECRETS-2026-08-31.md`](NO-CLIENT-SECRETS-2026-08-31.md) | Stranger procedure before any cloud paste |
+
+Root lock: [`../../PUBLIC_CLAIM.lock.md`](../../PUBLIC_CLAIM.lock.md)
 
 Related living doctrine (not this folder):
 - [`../../TIER_MAP.md`](../../TIER_MAP.md)
