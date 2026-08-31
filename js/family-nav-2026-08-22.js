@@ -1,6 +1,6 @@
 /* family-nav-2026-08-22.js
    Shared public-surface network for rathor.ai
-   Workspace 14.15.6 · Lattice Chat v14.18.x
+   Workspace 14.15.6
    Contact: info@Rathor.ai
    2026-08-23: Install chip + coherent family labels
    2026-08-23b: Professional site footer contract · no pill-bar footer
@@ -184,7 +184,7 @@
           '</div>' +
           '<div class="md:col-span-3">' +
             '<h4>Workspace</h4>' +
-            '<p class="rt-legal">v14.15.6 source of truth · Lattice Chat v14.18 · Shard v8 local demo · AG-SML v1.1 · TOLC 8 · Capable · Bounded · Corrigible</p>' +
+            '<p class="rt-legal">v14.15.6 · AG-SML v1.1 · TOLC 8 · Capable · Bounded · Corrigible</p>' +
           '</div>' +
           '<div class="md:col-span-3">' +
             '<h4>Family</h4>' +
