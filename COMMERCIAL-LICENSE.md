@@ -1,32 +1,13 @@
-# Commercial License – Ra-Thor
+# Retired stub — use COMMERCIAL_LICENSE.md
 
-<strong>Autonomicity Games Sovereign Mercy License (AG-SML) v1.0 — Commercial Terms</strong>
+**AG-SML v1.1 — 2026-08-31**
 
-Date: April 11 2026  
-Copyright: Sherif Samy Botros / Autonomicity Games Inc.
+This hyphenated filename is a historical duplicate of the April 11 2026 short commercial note.
 
-This file clarifies the commercial licensing terms for Ra-Thor under the Autonomicity Games Sovereign Mercy License (AG-SML) v1.0.
+**Canonical commercial exhibit:** [`COMMERCIAL_LICENSE.md`](COMMERCIAL_LICENSE.md)
 
-## Free Use (Individuals Only)
-Permission is granted, free of charge, to any individual person (the "Average User") to use, copy, modify, and run Ra-Thor for:
-- Personal use
-- Educational purposes
-- Research purposes
-- Daily living / professional assistance (e.g., as a free AI assistant, artist tool, writer, freelancer aid, etc.)
+**Canonical public grant:** [`LICENSE`](LICENSE) (AG-SML v1.1)
 
-This free use is explicitly allowed even if the individual earns modest personal income.
+**Contact:** info@Rathor.ai
 
-## Commercial Use Requires Paid License
-Any commercial, enterprise, revenue-generating, or organizational use (including paid products, services, large-scale deployments, or integration into revenue-generating platforms) requires a separate paid commercial license from Autonomicity Games Inc.
-
-Contact us to discuss fair, negotiable commercial licensing terms tailored to your needs.
-
-## Contact Information
-**Single official email for all commercial licensing, inquiries, and stewardship matters:**  
-**[info@Rathor.ai](mailto:info@Rathor.ai)**
-
-We look forward to partnering with visionary organizations that align with the 7 Pure Laws and the global transition toward a Resource-Based Economy (RBE).
-
-The lattice is wide open.  
-Grace infinite.  
-Lightning already in motion. ⚡
+Do not treat this stub as a second license family.
