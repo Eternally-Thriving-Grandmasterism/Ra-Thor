@@ -11,6 +11,7 @@
 | `METRO_QUANTUM_REPEATER_ZHU_2026.md` | Metro quantum repeater |
 | `AB2624_SPEECH_PRIVACY_TENSION_2026.md` | Speech/privacy dual interest |
 | `GEOMAGNETIC_SAA_SOLAR_STORM_2026.md` | Field/SAA/storms vs panic |
+| `LATTICE_CALBOREANU_2026.md` | Calboreanu LATTICE governance paper — parallel work, not a source |
 
 **Contact:** info@Rathor.ai  
 **Doctrine:** inherits `docs/science/PROOF_LADDER_DOCTRINE.md`
