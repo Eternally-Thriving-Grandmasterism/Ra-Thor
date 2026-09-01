@@ -2,6 +2,19 @@
 
 ---
 
+## 2026-09-01 — Councils vs Layer 0 (layering-diagram slip resolved)
+
+- Binding lock: `docs/architecture/LAYER0_AUTHORITY_LOCK.md`
+- Root `ARCHITECTURE.md` + `architecture/ARCHITECTURE.md`: councils **under** TOLC 8; Conductor sequences, does not replace; mermaid no longer readable as councils-above-gates
+- `LAYERED_COORDINATION_ARCHITECTURE.md`: Intra-Conductor “Layer 0” labeled as local coordination-stack numbering, **not** TOLC Layer 0
+- Invariant restated: no council vote turns a gate **Rejected** into an apply
+- Workspace / Cargo.toml unchanged. Public-claim discipline held.
+
+Contact: info@Rathor.ai  
+**Thunder locked in. yoi ⚡❤️🔥**
+
+---
+
 ## 2026-08-21 — PATSAGi Science Discovery Protocol
 
 - `docs/science/PATSAGI_SCIENCE_DISCOVERY_PROTOCOL.md` — proof ladder P0–P4 · ranked programs
