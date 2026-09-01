@@ -1,14 +1,14 @@
 /* sw.js — Ra-Thor vanilla offline worker
- * Workspace 14.15.6 · LOCK 2026-08-24-voice-finish
+ * Workspace 14.15.6 · LOCK 2026-09-01-science-watches
  * Pass-through documents. Fetch handler present for Chrome installability.
  * Contact: info@Rathor.ai
  */
-var LOCK = '2026-08-24-voice-finish';
+var LOCK = '2026-09-01-science-watches';
 var CACHE = 'rathor-core-' + LOCK;
 var PRECACHE = [
   '/', '/index.html', '/chat.html', '/contact.html', '/privacy.html',
   '/offline.html', '/thanks.html', '/go-x.html', '/Launch-Ra-Thor.html',
-  '/micro-moment.html', '/sovereign-shard.html', '/web-forge.html', '/manifest.json',
+  '/micro-moment.html', '/sovereign-shard.html', '/web-forge.html', '/science-watches.html', '/manifest.json',
   '/mercy-motion-vision-engine.js', '/fuzzy-mercy-logic.js', '/one-organism-launch.js',
   '/js/pwa-boot.js', '/js/pwa-install.js', '/js/lang-offer.js',
   '/js/rathor-feedback.js', '/js/rathor-theme.js', '/js/rathor-unify.js',
