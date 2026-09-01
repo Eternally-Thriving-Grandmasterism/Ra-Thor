@@ -1,5 +1,6 @@
 /* science-map-lock.js — Home science lattices + public works + FAQ
    2026-08-24: official corporate copy; FAQ 9–26; session honesty
+   2026-09-01: watch-class cards (PCG/GSL + LATTICE) — no product claims
    Contact: info@Rathor.ai
 */
 (function () {
@@ -114,6 +115,21 @@
           '<a href="https://github.com/Eternally-Thriving-Grandmasterism/Daedalus-Skin-Eternal-Ark" target="_blank" rel="noopener" class="card-hover block rounded-2xl border border-sky-300/30 bg-black p-5"><p class="font-semibold text-sky-200" data-i18n="scienceArk">Daedalus-Skin Eternal Ark</p><p class="text-xs text-white/60 mt-2" data-i18n="scienceArkNote">Public systems-engineering worldship study. Architecture — not a flying vessel.</p></a>' +
           '<a href="https://github.com/Eternally-Thriving-Grandmasterism/AlphaProMega-Air" target="_blank" rel="noopener" class="card-hover block rounded-2xl border border-lime-300/30 bg-black p-5"><p class="font-semibold text-lime-200" data-i18n="scienceAir">Air Foundation lattices</p><p class="text-xs text-white/60 mt-2" data-i18n="scienceAirNote">Public engineering research on airframe and rotorcraft reliability. Not certified aircraft.</p></a>' +
           '<a href="https://github.com/Eternally-Thriving-Grandmasterism/AlphaProMega-Rotorcraft-Immortality" target="_blank" rel="noopener" class="card-hover block rounded-2xl border border-lime-300/30 bg-black p-5"><p class="font-semibold text-lime-200">Rotorcraft reliability</p><p class="text-xs text-white/60 mt-2">Public engineering study of rotary-wing single-point-of-failure reduction. Not certified aircraft.</p></a>' +
+          '</div></section>'
+      );
+    }
+
+    var sci = document.getElementById('science-lattices');
+    if (sci && !document.getElementById('science-watches')) {
+      sci.insertAdjacentHTML(
+        'afterend',
+        '<section id="science-watches" class="max-w-4xl mx-auto px-6 pb-8">' +
+          '<h2 class="text-2xl sm:text-3xl font-semibold tracking-tight text-center mb-3 text-white">Watch class — 1 Sep 2026</h2>' +
+          '<p class="text-center text-sm text-white/60 mb-6 max-w-2xl mx-auto">External claims recorded so headlines do not become allowables or lineage. Not products.</p>' +
+          '<div class="grid sm:grid-cols-2 gap-4">' +
+          '<a href="https://github.com/Eternally-Thriving-Grandmasterism/Daedalus-Skin-Eternal-Ark/blob/main/materials/pcg-gsl-tether-watch-2026-09-01.md" target="_blank" rel="noopener" class="card-hover block rounded-2xl border border-sky-300/30 bg-black p-5"><p class="font-semibold text-sky-200">PCG / GSL tether stream</p><p class="text-xs text-white/60 mt-2">ISEC / Korean 1 km CVD. Conditional 90–99 GPa. Watch only — not a habitat allowable, not a flying elevator.</p></a>' +
+          '<a href="https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/docs/signals/LATTICE_CALBOREANU_2026.md" target="_blank" rel="noopener" class="card-hover block rounded-2xl border border-amber-300/30 bg-black p-5"><p class="font-semibold text-amber-200">LATTICE (Calboreanu 2026)</p><p class="text-xs text-white/60 mt-2">Parallel governance paper. Not a Ra-Thor source. mercy-security stays white-hat.</p></a>' +
+          '<a href="/science-watches.html" class="card-hover block rounded-2xl border border-white/20 bg-black p-5 sm:col-span-2"><p class="font-semibold text-white">On-site watch page</p><p class="text-xs text-white/60 mt-2">Same notes in public-claim language. Family bar unchanged.</p></a>' +
           '</div></section>'
       );
     }
