@@ -14,6 +14,7 @@
 | `../../science/s1-micro-moment/` | **Program 1 ACTIVE** — empirical micro-moment benchmark |
 | `../../science/radiation_mass_per_sievert/` | **Program 2 READY** — engineering optimization (published data only) |
 | `../signals/` | External metabolisms (not our discoveries) |
+| `SISTER_WATCH_2026-09-01.md` | Pointers: Daedalus PCG/GSL packet; LATTICE paper. No new program. |
 
 **Current active empirical program:** S-1 (waiting on First-5 real labels).  
 All other claims inherit the Proof Ladder Doctrine.
