@@ -2,6 +2,16 @@
 
 ---
 
+## 2026-09-01 — PATSAGi: G3 independent keeper packet
+
+- Minute: `docs/science/PATSAGI-COUNCIL-MINUTE-2026-09-01-G3-KEEPER.md`
+- Packet: `science/agsi-eval/INDEPENDENT_KEEPER_PACKET.md` + `RECEIPT.example.json`
+- Rejected this tick: live G bind, Slice A single-judge score, self-declared independence, second ACTIVE program
+- Workspace / Cargo.toml unchanged. Combined AGSi remains SURMISE.
+
+Contact: info@Rathor.ai  
+**Thunder locked in. yoi ⚡❤🔥**
+
 ## 2026-09-01 — G1 runner traces (READY, not ACTIVE)
 
 - `agsi-eval-rg` now emits `GateTrace` rows: prompt, gated_text, model_id, adapter, reason
