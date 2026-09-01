@@ -14,7 +14,7 @@ var PRECACHE = [
   '/js/rathor-feedback.js', '/js/rathor-theme.js', '/js/rathor-unify.js',
   '/css/rathor-theme.css', '/css/rathor-theme-rest-a.css', '/css/rathor-theme-rest-b.css',
   '/js/family-nav-2026-08-22.js', '/js/site-lock-2026-08-22.js',
-  '/js/science-map-lock.js', '/js/sovereign-shard.js', '/js/chat.js',
+  '/js/science-map-lock.js', '/js/watch-footer-lock.js', '/js/sovereign-shard.js', '/js/chat.js',
   '/js/contact-i18n.js',
   '/i18n/en.js', '/i18n/zh.js', '/i18n/ar.js',
   '/icons/ra-thor-icon-192.png', '/icons/ra-thor-icon-512.png'
