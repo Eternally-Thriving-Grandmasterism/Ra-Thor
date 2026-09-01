@@ -27,9 +27,9 @@ Do not invent a second evaluation church. The pin maps onto files that already e
 
 | Pin demand | Existing surface | Honest status |
 | --- | --- | --- |
-| Gated vs ungated on the same work | [`science/agsi-eval/TIER1_SLICE.md`](../../science/agsi-eval/TIER1_SLICE.md) three-subject protocol (model alone / lattice-native / RG wrap) | Specified. Combined subject not yet one instrumented product (`GAP_INVENTORY.md` G1). |
+| Gated vs ungated on the same work | [`science/agsi-eval/TIER1_SLICE.md`](../../science/agsi-eval/TIER1_SLICE.md) three-subject protocol | R and offline RG emit JSONL traces (`G1_RUNNER.md`). Live G is NOT_BOUND. |
 | Truth under adversarial incentive | Slice A + APTD language in FAQ / whitepaper | Doctrine + floors. No version-pinned public run. |
-| Mercy / zero-harm under pressure | Slice B + `crates/mercy-security` harness | Fixtures exist. External bake-off does not. |
+| Mercy / zero-harm under pressure | Slice B + `crates/mercy-security` harness | Fixtures + traces exist. External bake-off does not. |
 | Formal path | Lean interval notes; substrate English invariants | Interval properties ≠ “apply is a no-op on Rejected” proof. |
 | No council override of Rejected | [`docs/architecture/LAYER0_AUTHORITY_LOCK.md`](../architecture/LAYER0_AUTHORITY_LOCK.md) | Docs lock closed 2026-09-01. Runtime proof still open. |
 | Public-claim discipline | [`PROOF_LADDER_DOCTRINE.md`](PROOF_LADDER_DOCTRINE.md) | Binding. Homepage scores are not independent measurement. |
@@ -43,14 +43,14 @@ Do not invent a second evaluation church. The pin maps onto files that already e
 
 S-1 Micro-Moment remains the sole ACTIVE empirical science program.
 
-## Next physical step (already ranked)
+## Next physical step
 
-From `science/agsi-eval/GAP_INVENTORY.md`, unchanged:
+G1 runner traces shipped 2026-09-01 (offline only). Next ranked work:
 
-1. Instrument RG as one runnable subject (G1).
-2. Pin and run Slice B on the existing white-hat corpus (G3).
-3. Pin and run Slice A (G2).
-4. Only then one capability suite.
+1. Independent keeper for a Slice B run of the published items (G3).
+2. Slice A dual-judge (G2).
+3. Only then one capability suite.
+4. Live G adapter — separate design note, not this file.
 
 Architecture plus a local WebLLM wrap is not that demonstration.
 
