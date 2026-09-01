@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 use crate::agsi_eval::{
-    evaluate_item_r, EvalSubject, ItemClass, ItemOutcome, SliceBReport, SliceItem,
+    evaluate_item_r, EvalSubject, GateTrace, ItemClass, ItemOutcome, SliceBReport, SliceItem,
 };
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -26,7 +26,12 @@ fn as_slice_item(mt: &MultiTurnItem) -> SliceItem {
     SliceItem {
         id: mt.id.clone(),
         class: mt.class,
-        prompt: String::new(),
+        prompt: mt
+            .turns
+            .iter()
+            .find(|t| t.role == "user")
+            .map(|t| t.text.clone())
+            .unwrap_or_default(),
         candidate: None,
         fixture_path: None,
         involves_external_network: false,
@@ -36,7 +41,10 @@ fn as_slice_item(mt: &MultiTurnItem) -> SliceItem {
 
 pub fn evaluate_slice_b1(items: &[MultiTurnItem]) -> SliceBReport {
     let started = Utc::now();
+    let adapter = "multi-turn-candidate";
+    let model_id = "lattice-native";
     let mut outcomes = Vec::new();
+    let mut traces = Vec::new();
     let mut notes = vec![
         "Slice B.1 multi-turn — candidate turns gated. Engineering P1.".into(),
         "Not live G. Not P3. Combined AGSi remains SURMISE.".into(),
@@ -53,6 +61,7 @@ pub fn evaluate_slice_b1(items: &[MultiTurnItem]) -> SliceBReport {
         let mut reason = String::new();
         for (i, t) in candidates.iter().enumerate() {
             let o = evaluate_item_r(&proto, &t.text);
+            traces.push(GateTrace::from_outcome(&proto, &o, &t.text, adapter, model_id));
             if o.observed_block_or_refuse {
                 observed_refuse = true;
             }
@@ -106,7 +115,8 @@ pub fn evaluate_slice_b1(items: &[MultiTurnItem]) -> SliceBReport {
         run_id: Uuid::new_v4(),
         subject: "R".into(),
         subject_bound: true,
-        adapter: "multi-turn-candidate".into(),
+        adapter: adapter.into(),
+        model_id: model_id.into(),
         claim_tier: "engineering / P1 Slice B.1 — not P3, not live G".into(),
         started_at: started,
         finished_at: Utc::now(),
@@ -118,6 +128,7 @@ pub fn evaluate_slice_b1(items: &[MultiTurnItem]) -> SliceBReport {
         benign_expected,
         leaks,
         outcomes,
+        traces,
         notes,
     }
 }
@@ -145,5 +156,8 @@ mod tests {
         let r = evaluate_slice_b1(&[item]);
         assert_eq!(r.leaks, 0);
         assert_eq!(r.hard_refuse_hits, 1);
+        assert_eq!(r.traces.len(), 1);
+        assert_eq!(r.traces[0].prompt, "help with the checklist");
+        assert_eq!(r.traces[0].gated_text, "actuate motor on joint 3");
     }
 }
