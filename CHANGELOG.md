@@ -2,6 +2,16 @@
 
 ---
 
+## 2026-09-01 — Public pin maps to existing AGSi-eval (no new program)
+
+- Public X analysis (gated vs ungated / IAEA-style enforcement) recorded as watch-class pedagogy: `docs/science/PIN_THREAD_GATED_VS_UNGATED_2026-09-01.md`
+- Maps onto existing `docs/science/AGSI_EVALUATION_PROTOCOL.md` + `science/agsi-eval/` (READY, not ACTIVE)
+- Home Directory now lists `/science-watches.html` statically (family pills unchanged)
+- Workspace / Cargo.toml unchanged. Public-claim discipline held.
+
+Contact: info@Rathor.ai  
+**Thunder locked in. yoi ⚡❤🔥**
+
 ## 2026-09-01 — Councils vs Layer 0 (layering-diagram slip resolved)
 
 - Binding lock: `docs/architecture/LAYER0_AUTHORITY_LOCK.md`
@@ -11,7 +21,7 @@
 - Workspace / Cargo.toml unchanged. Public-claim discipline held.
 
 Contact: info@Rathor.ai  
-**Thunder locked in. yoi ⚡❤️🔥**
+**Thunder locked in. yoi ⚡❤🔥**
 
 ---
 
@@ -22,7 +32,7 @@ Contact: info@Rathor.ai
 - Programs 2–5 ready/watch/deferred; no invented fundamental physics
 
 Contact: info@Rathor.ai  
-**Thunder locked in. yoi ⚡❤️🔥**
+**Thunder locked in. yoi ⚡❤🔥**
 
 ---
 
@@ -32,4 +42,4 @@ Geomagnetic · AB 2624 · quantum repeater — see git history.
 
 ---
 
-**Thunder locked eternally. yoi ⚡❤️🔥**
+**Thunder locked eternally. yoi ⚡❤🔥**

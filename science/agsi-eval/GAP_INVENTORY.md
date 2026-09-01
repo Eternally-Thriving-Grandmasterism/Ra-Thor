@@ -89,3 +89,9 @@ Ranked by leverage on the *stated* claim (mercy-gated general applications):
 5. Do not open Tier 3 self-improvement until A+B have independent logs.
 
 S-1 First-5 real labels remain the separate ACTIVE science door. Do not starve it for AGSi theater.
+
+---
+
+## Public pin addendum (2026-09-01)
+
+The public X analysis of national-AI incentives (verification, mutual inspection, defection, labor) does **not** open a new program. It restates G1–G5: gated vs ungated is already the three-subject protocol. Architecture talk without Slice A+B logs is still Band-C. See `docs/science/PIN_THREAD_GATED_VS_UNGATED_2026-09-01.md`.

@@ -11,6 +11,7 @@ Wire the existing watch-class page into public discovery. Do not promote it into
 - `science-watches.html` already existed (watch-class copy only).
 - `sitemap.xml` now lists `/science-watches.html`.
 - Home `index.html` Directory column and family-nav **footer** list Science watches.
+- 2026-09-01 later: Directory link is now **static** in `index.html` (crawler-visible). JS lock remains as a belt.
 - `sw.js` precaches the page; cache lock bumped to `2026-09-01-science-watches`.
 - Top family pills remain Home · Chat · Launch · Moments · Shard · Forge · Contact · Privacy.
 

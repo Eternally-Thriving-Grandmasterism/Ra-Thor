@@ -15,6 +15,7 @@
 | `../../science/radiation_mass_per_sievert/` | **Program 2 READY** — engineering optimization (published data only) |
 | `../signals/` | External metabolisms (not our discoveries) |
 | `SISTER_WATCH_2026-09-01.md` | Pointers: Daedalus PCG/GSL packet; LATTICE paper. No new program. |
+| `PIN_THREAD_GATED_VS_UNGATED_2026-09-01.md` | Public pin: proof / adoption / enforcement maps to existing AGSi-eval. Pedagogy only. |
 
 **Current active empirical program:** S-1 (waiting on First-5 real labels).  
 All other claims inherit the Proof Ladder Doctrine.
