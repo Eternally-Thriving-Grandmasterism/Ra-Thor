@@ -21,6 +21,19 @@ Numbered stacks (Layer 0 / 1 / 2…) are **dependency drawings**: later layers r
 
 If a sentence says a system sits “above Layer 0,” read it as “stacked on, and bound by, Layer 0.” If the sentence can be read as “councils may override gates,” it is a slip. Correct it to **under**.
 
+## Slip closed (2026-09-01)
+
+The layering-diagram slip named in council deliberation is closed on the live surfaces:
+
+| Surface | What changed |
+| --- | --- |
+| Root [`ARCHITECTURE.md`](../../ARCHITECTURE.md) | Authority-lock section; mermaid now routes gates → bound councils/conductor; “above” reading forbidden. |
+| [`architecture/ARCHITECTURE.md`](../../architecture/ARCHITECTURE.md) | Data-flow order corrected: gates (Layer 0) **before** council elaboration. |
+| [`LAYERED_COORDINATION_ARCHITECTURE.md`](LAYERED_COORDINATION_ARCHITECTURE.md) | Intra-Conductor “Layer 0” labeled as local coordination-stack numbering. |
+| [`CONTRIBUTING.md`](../../CONTRIBUTING.md) | Governance model restates under-not-above. |
+
+Whitepaper already held the invariant (`WHITEPAPER_v4.1.md` §4.2–4.3). Architecture diagrams now match it.
+
 ## Namespace collision
 
 `LAYERED_COORDINATION_ARCHITECTURE.md` uses “Layer 0 — Intra-Conductor” for **coordination mechanics inside one conductor**. That label is local to that document. It is **not** TOLC Layer 0.
