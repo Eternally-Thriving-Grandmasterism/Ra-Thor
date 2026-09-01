@@ -2,6 +2,17 @@
 
 ---
 
+## 2026-09-01 — G1 runner traces (READY, not ACTIVE)
+
+- `agsi-eval-rg` now emits `GateTrace` rows: prompt, gated_text, model_id, adapter, reason
+- `--log PATH` writes JSONL; `--model-id` pins the subject label
+- Subject G remains NOT_BOUND. No live model adapter. No AGSi score.
+- Docs: `science/agsi-eval/G1_RUNNER.md`
+- Workspace / root Cargo.toml unchanged.
+
+Contact: info@Rathor.ai  
+**Thunder locked in. yoi ⚡❤🔥**
+
 ## 2026-09-01 — Public pin maps to existing AGSi-eval (no new program)
 
 - Public X analysis (gated vs ungated / IAEA-style enforcement) recorded as watch-class pedagogy: `docs/science/PIN_THREAD_GATED_VS_UNGATED_2026-09-01.md`

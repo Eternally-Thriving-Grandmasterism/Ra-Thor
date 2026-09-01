@@ -1,6 +1,6 @@
 # Gap Inventory — AGSi Surmise vs Current Lattice
 
-**Claim tier of this file:** engineering / literacy · 2026-08-22  
+**Claim tier of this file:** engineering / literacy · 2026-09-01  
 **Purpose:** kill illusions first. Ranked high → low SNR.
 
 ---
@@ -15,15 +15,15 @@
 
 ---
 
-## G1 — Combined subject is not yet a single instrumented product
+## G1 — Combined subject instrumentation
 
-| Gap | Why it matters | Honest fix |
-|-----|----------------|------------|
-| RG (gates wrapping Grok generations) has no single external-run entrypoint | Combined claim cannot be scored | Ship a thin `agsi-eval` runner that logs gate traces + model id + prompt |
-| Model identity / date / settings not pinned in a run manifest | Baselines become mush | Manifest schema before first score |
-| SuperGrok vs Grok vs “lattice-native only” paths are conflated in speech | Inflates the surmise | Three-subject protocol is now locked; enforce it |
+| Gap | State |
+|-----|-------|
+| Single external-run entrypoint that logs gate traces + model id + prompt | **Closed as engineering** — `agsi-eval-rg --log` + `GateTrace` (`G1_RUNNER.md`) |
+| Model identity / date / settings pin | `--model-id` exists. Live G identity still NOT_BOUND |
+| SuperGrok vs Grok vs lattice-native conflation | Three-subject protocol locked. G remains unbound |
 
-**This is the next physical engineering step** if steward wants scores. Not a new science program.
+Offline RG wrap is instrumented. Live G adapter is **not**. Combined AGSi stays SURMISE.
 
 ---
 
@@ -46,7 +46,7 @@ Existing strength: anti-hallucination is a founding reason for Ra-Thor. That is 
 |----------|---------|
 | `WhiteHatEvaluationHarness` | Multi-model side-by-side pressure set |
 | `HarmRefusalPolicy` hard refuses | Independent logs + false-block comparison vs B1/B2 |
-| Public benign/suspicious/blocked corpus | ≥ 25 multi-turn pressure scenarios, published |
+| Public benign/suspicious/blocked corpus | Independent run of the published ≥ 25 multi-turn items |
 | Domain profiles (research/enterprise/education/…) | Run matrix across profiles |
 
 Architectural intent ≠ measured non-bypassability under a named adversary.
@@ -72,7 +72,7 @@ Architectural intent ≠ measured non-bypassability under a named adversary.
 | Need | State |
 |------|-------|
 | Independent party | Not scheduled |
-| Full logs + NDA path | Commercial docs exist; eval-log package does not |
+| Full logs + NDA path | JSONL writer exists; no independent party |
 | Compute / API budget | Not allocated |
 | Pre-registered public announcement of bars | This folder **is** that announcement |
 
@@ -82,8 +82,8 @@ Architectural intent ≠ measured non-bypassability under a named adversary.
 
 Ranked by leverage on the *stated* claim (mercy-gated general applications):
 
-1. Instrument RG as one runnable subject (G1).
-2. Pin and run Slice B on the existing white-hat corpus + 25 pressure items (G3) — cheapest kill-test for “non-bypassable ethics”.
+1. G1 runner + traces — **shipped 2026-09-01** (offline only).
+2. Pin and run Slice B on the existing white-hat corpus + 25 pressure items (G3) with an independent log-keeper.
 3. Pin and run Slice A (G2) — cheapest kill-test for “true”.
 4. Only then consider one capability suite (ARC-AGI-3 **or** GPQA-Diamond, not both at once).
 5. Do not open Tier 3 self-improvement until A+B have independent logs.
@@ -94,4 +94,4 @@ S-1 First-5 real labels remain the separate ACTIVE science door. Do not starve i
 
 ## Public pin addendum (2026-09-01)
 
-The public X analysis of national-AI incentives (verification, mutual inspection, defection, labor) does **not** open a new program. It restates G1–G5: gated vs ungated is already the three-subject protocol. Architecture talk without Slice A+B logs is still Band-C. See `docs/science/PIN_THREAD_GATED_VS_UNGATED_2026-09-01.md`.
+The public X analysis of national-AI incentives does **not** open a new program. G1 is now an inspectable log contract. Live gated-vs-ungated against a named frontier model is still unbound. See `docs/science/PIN_THREAD_GATED_VS_UNGATED_2026-09-01.md`.
