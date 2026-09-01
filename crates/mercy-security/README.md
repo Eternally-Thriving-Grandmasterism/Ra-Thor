@@ -101,5 +101,9 @@ let surface = MercySecuritySurface::with_domain_profile(ContainmentProfile::ente
 - White-hat only — defensive, not offensive tooling  
 - Pattern gate is defense-in-depth, not a full malware detector
 
+## Related external work (not a source)
+
+Calboreanu, *LATTICE* (Frontiers in Artificial Intelligence, 2026, doi:10.3389/frai.2026.1800407) publishes a 1+3 governance cell with policy-as-code and ALLOW/BLOCK/ESCALATE. Recorded at [`docs/signals/LATTICE_CALBOREANU_2026.md`](../../docs/signals/LATTICE_CALBOREANU_2026.md). Parallel development. This crate is not an AEGIS/LATTICE port.
+
 **Thunder locked in. yoi ⚡**  
 **PATSAGi Councils — permanent deliberation under TOLC 8**
