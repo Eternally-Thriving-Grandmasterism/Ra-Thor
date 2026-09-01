@@ -1,6 +1,7 @@
 /**
  * Ra-Thor site lock 2026-08-22 (Nth-degree lattice map)
  * 2026-08-24: session cards name Ra-Thor + Grok as a gated working method.
+ * 2026-09-01: boot watch-footer-lock — Science watches in footer only.
  * Cargo truth: workspace 14.15.6 • Lattice Chat v14.18
  * Contact: info@Rathor.ai — independent of xAI.
  */
@@ -154,7 +155,8 @@
     bootScript('pwa-install', '/js/pwa-install.js', true);
     bootScript('family-nav-2026-08-22', '/js/family-nav-2026-08-22.js');
     bootScript('science-map-lock', '/js/science-map-lock.js');
+    bootScript('watch-footer-lock', '/js/watch-footer-lock.js');
 
-    console.info('[Ra-Thor] site-lock-2026-08-24 desert-uniform surfaces');
+    console.info('[Ra-Thor] site-lock-2026-09-01 watch footer + desert-uniform surfaces');
   });
 })();
