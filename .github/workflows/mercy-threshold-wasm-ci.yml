@@ -4,12 +4,11 @@ on:
   push:
     branches: [ main ]
     paths:
-      - 'lean/mercy-threshold/**'
+      # root lean/ was archived to docs/archive/root-dirs/research/lean in #410
       - 'crates/mercy-threshold-wasm/**'
       - 'crates/mial/**'
   pull_request:
     paths:
-      - 'lean/mercy-threshold/**'
       - 'crates/mercy-threshold-wasm/**'
 
 jobs:
