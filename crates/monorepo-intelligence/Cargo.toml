@@ -36,9 +36,20 @@ handlebars = "5"
 rayon = "1.10"
 indicatif = "0.17"
 async-trait = "0.1"
+clap = { version = "4", features = ["derive"], optional = true }
 
 [dev-dependencies]
 tokio = { version = "1", features = ["rt-multi-thread", "macros"] }
 
 [features]
 default = []
+cli = ["dep:clap"]
+
+[[bin]]
+name = "ra-thor-monorepo-intelligence"
+path = "src/main.rs"
+required-features = ["cli"]
+
+[[example]]
+name = "powrush_report"
+required-features = ["cli"]
