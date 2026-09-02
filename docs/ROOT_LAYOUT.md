@@ -15,7 +15,8 @@ Ra-Thor workspace **14.15.6**. Contact [info@Rathor.ai](mailto:info@Rathor.ai). 
 - After slice 8 (#402, main `e8684e654bb1`): **254** root entries, **90** files, **164** directories; 4 `.metta` and 4 `.py` prototypes archived; last planned file slice
 - After directory slice 1 (#403, main `d9ffff79b1c4`): **221** root entries, **90** files, **131** directories; 33 `mercy_*` research trees archived; `crates/` copies remain source of truth; `Cargo.toml` members unchanged
 - After directory slice 2 (#404, main `acbaa38f7d44`): **209** root entries, **90** files, **119** directories; 12 orchestrator/consciousness trees archived; `crates/` copies remain source of truth; `Cargo.toml` members unchanged
-- After directory slice 3 (this PR): **202** root entries, **90** files, **112** directories; 7 Powrush dump trees archived; player game remains sibling Powrush-MMO; `crates/powrush` and `Cargo.toml` unchanged
+- After directory slice 3 (#405, main `5302de7a68b9`): **202** root entries, **90** files, **112** directories; 7 Powrush dump trees archived; player game remains sibling Powrush-MMO; `crates/powrush` and `Cargo.toml` unchanged
+- After directory slice 4 (this PR): **197** root entries, **90** files, **107** directories; 5 NEXi/self-evolution/xai dump trees archived; NEXi lineage only (not a default Cargo member); HOLD inventing `crates/self-evolution`; independent of xAI
 - Extensions (files): ~406 `.md` (pre-slice-1), ~163 `.js` then 155 archived in slice 2, 16 `.html` (living Pages stay), 11 `.rs` archived in slice 3, 22 junk / extensionless dumps archived in slice 4, 23 `POWRUSH_*` design notes archived in slice 5, 28 historical `RELEASE_*` / `WHITEPAPER_*` archived in slice 6 (keep-two stay at root), plus remaining spaced/broken names in later slices, 4 `.metta` and 4 `.py` prototypes archived in slice 8 (last planned file slice)
 
 ## Keep at repo root (identity / gates / tooling)
@@ -33,7 +34,7 @@ Identity-linked extras that stay at root (do not archive): `ETERNAL-LATTICE-LAUN
 Stale identity links: `WHITEPAPER_v4.1.md` is no longer at root (do not restore). It now lives at `docs/archive/root-releases/WHITEPAPER_v4.1.md`. Also already gone; do not restore: `GPU_COMPUTE_LAYER.md`, `PRE_REGISTERED_CRITERIA.md`.
 
 
-Living directories that stay: `crates/`, `.github/`, `docs/` (this archive lives under it, including `docs/archive/root-rs/` for slice 3, `docs/archive/root-junk/` for slice 4, `docs/archive/powrush-notes/` for slice 5, `docs/archive/root-releases/` for slice 6, and `docs/archive/root-notes/misc/` for slice 7, and `docs/archive/root-notes/prototypes/` for slice 8, and `docs/archive/root-dirs/mercy-research/` for directory slice 1, and `docs/archive/root-dirs/orchestrators/` for directory slice 2, and `docs/archive/root-dirs/powrush/` for directory slice 3), `website/`, `js/` (living scripts plus `js/archive/root-engines/` for slice 2), `fixtures/`, `css/`, and other in-use trees. Do not one-shot-move the remaining directory forest.
+Living directories that stay: `crates/`, `.github/`, `docs/` (this archive lives under it, including `docs/archive/root-rs/` for slice 3, `docs/archive/root-junk/` for slice 4, `docs/archive/powrush-notes/` for slice 5, `docs/archive/root-releases/` for slice 6, and `docs/archive/root-notes/misc/` for slice 7, and `docs/archive/root-notes/prototypes/` for slice 8, and `docs/archive/root-dirs/mercy-research/` for directory slice 1, and `docs/archive/root-dirs/orchestrators/` for directory slice 2, and `docs/archive/root-dirs/powrush/` for directory slice 3, and `docs/archive/root-dirs/lineage/` for directory slice 4), `website/`, `js/` (living scripts plus `js/archive/root-engines/` for slice 2), `fixtures/`, `css/`, and other in-use trees. Do not one-shot-move the remaining directory forest.
 
 ## Slice 1 (#395)
 
@@ -456,7 +457,7 @@ Moved:
 No `crates/`, `Cargo.toml`, `.github/`, Pages identity, `js/`, `css/`, `fixtures/`, or `website/` changes.
 
 
-## Directory slice 3 (this PR)
+## Directory slice 3 (#405)
 
 **7** root Powrush dump / game-adjacent trees archived to `docs/archive/root-dirs/powrush/` (same directory names). Tree SHAs reused (git-mv equivalent; no recursive walk). These are archival root dumps, not the living game. Player game remains the sibling [Powrush-MMO](https://github.com/Eternally-Thriving-Grandmasterism/Powrush-MMO) repo; browser client remains [Powrush-MMO-Simulator](https://github.com/Eternally-Thriving-Grandmasterism/Powrush-MMO-Simulator). `powrush_config.json` stays at root. `crates/powrush` stays (policy/telemetry only; do not grow the player loop here). `Cargo.toml` members unchanged. Conductor **v14** only. Independent of xAI.
 
@@ -472,14 +473,26 @@ Moved:
 
 No `crates/`, `Cargo.toml`, `.github/`, Pages identity, `js/`, `css/`, `fixtures/`, or `website/` changes. Do not fold the Powrush-MMO player loop into this repo.
 
+## Directory slice 4 (this PR)
+
+**5** root research/lineage dump trees archived to `docs/archive/root-dirs/lineage/` (same directory names). Tree SHAs reused (git-mv equivalent; no recursive walk). Archival root dumps, not shipped products. NEXi / nexi-core remain external lineage only; `nexi_universal` is not a default Cargo member. HOLD inventing `crates/self-evolution` as a product — root `self-evolution/` is a deprecated dump, not v14 workspace identity. `xai-grok-bridge` is research notes; Ra-Thor is independent of xAI; optional Grok session under operator gates. `crates/` and `Cargo.toml` unchanged. Conductor **v14** only.
+
+Moved:
+
+- `NEXi/`
+- `nexi-core/`
+- `self-evolution/`
+- `self-improvement/`
+- `xai-grok-bridge/`
+
+No `crates/`, `Cargo.toml`, `.github/`, Pages identity, `js/`, `css/`, `fixtures/`, or `website/` changes. Do not invent `crates/self-evolution`. Do not revive conductor v13.
+
 ## Later slices (not this PR)
 
 File-level dump is otherwise sorted. Remaining directory HOLD (later dir slices):
 
-- NEXi
-- self-evolution (archive not product; HOLD inventing `crates/self-evolution`)
-- zk gadget root dupes
-- remaining research dirs
+- zk gadget root dupes (`bulletproofs_range`, `halo2_inner_product`, …)
+- remaining research dirs (`codices`, `philosophy`, `grokipedia`, …)
 - Keep living: `crates/`, `.github/`, `docs/`, `js/`, `website/`, `public/`, `src/`, `tests/`, `scripts/`, `css/`, `fixtures/`, `i18n/`, `shaders/`, `k8s/`, `grafana/`, and other in-use trees. Do not one-shot-move the remaining directory forest.
 - Pages HTML stays at root unless proven dead (GitHub Pages / site; CNAME stays). Candidates later (not this PR): `ra-thor-website-1.html`, `test-light.html`, `Launch-Ra-Thor.html`
 - keep JS at root (PWA / identity / tooling)
