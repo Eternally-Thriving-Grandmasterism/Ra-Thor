@@ -1,13 +1,8 @@
 name: Ra-Thor Alchemical Evolution CI
 
 on:
-  push:
-    paths:
-      - 'self-evolution/**'
-      - '.github/workflows/alchemical-evolution-ci.yml'
-  pull_request:
-    paths:
-      - 'self-evolution/**'
+  # parked 2026-09-02; invented ra-thor alchemical_evolution package test
+  workflow_dispatch:
 
 jobs:
   test:
