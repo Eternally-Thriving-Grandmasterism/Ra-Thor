@@ -1,10 +1,8 @@
 name: Self-Verification CI
 
 on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+  # Parked: Lean+Coq+nonexistent feature on every PR. Opt-in only.
+  workflow_dispatch:
 
 jobs:
   verify:

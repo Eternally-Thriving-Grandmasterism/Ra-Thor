@@ -1,9 +1,7 @@
 name: Automated Approval Gate — PATSAGi Council Orchestrated
 
 on:
-  pull_request:
-    branches: [ main ]
-    types: [opened, synchronize, reopened]
+  # Parked: echo-PASS councils + auto-approve. Real deliberation is the Grok Bot PATSAGi routine.
   workflow_dispatch:
 
 permissions:
