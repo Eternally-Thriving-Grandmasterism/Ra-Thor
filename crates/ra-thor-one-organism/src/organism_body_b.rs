@@ -1,3 +1,4 @@
+impl OneOrganismCore {
     pub fn cosmic_tick(&mut self, severity: f64) -> CosmicTickResult {
         self.tick += 1;
         self.arbitration_engine.on_lattice_sync();
