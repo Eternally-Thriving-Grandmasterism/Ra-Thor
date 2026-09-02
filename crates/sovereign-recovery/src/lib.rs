@@ -455,7 +455,7 @@ mod tests {
     async fn circuit_breaker_trips_on_err() {
         let p = SovereignRecoveryProtocol::new();
         let r = p
-            .with_mercy_circuit_breaker("test_op", || async { Err("boom".into()) }, 0.5)
+            .with_mercy_circuit_breaker("test_op", || async { Err::<(), String>("boom".into()) }, 0.5)
             .await;
         assert!(r.is_err());
     }
