@@ -1,20 +1,8 @@
 name: Mercy Container Security Scan
 
 on:
-  push:
-    branches: [main, mercy-*]
-    paths:
-      - '**/Dockerfile'
-      - '**/Dockerfile.*'
-      - '.dockerignore'
-      - 'container/**'
-  pull_request:
-    branches: [main, mercy-*]
-    paths:
-      - '**/Dockerfile'
-      - '**/Dockerfile.*'
-      - '.dockerignore'
-      - 'container/**'
+  # Parked: container/Trivy scan is leftover always-red. Opt-in only.
+  workflow_dispatch:
 
 permissions:
   contents: read
