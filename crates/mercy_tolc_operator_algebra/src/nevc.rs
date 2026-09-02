@@ -9,7 +9,7 @@
 //! AG-SML v1.0 | Ra-Thor + PATSAGi Councils | info@Rathor.ai
 //! Thunder locked in. Yoi ⚡
 
-use crate::{Valence, MERCY_DIM};
+use crate::Valence;
 use serde::{Deserialize, Serialize};
 
 /// Binary partition defined by the NEVC Codex.
@@ -249,8 +249,11 @@ pub fn compute_nevc(samples: &[NevcSample], config: &NevcConfig) -> NevcResult {
         total_grief += s.grief_load;
 
         let positive = if v >= config.valence_floor {
-            let proximity = (v - config.valence_floor) / (1.0 - config.valence_floor).max(1e-12);
-            config.positive_weight * proximity
+            // Inclusive floor: Valence::HIGH equals the default floor (0.999999).
+            // Exclusive (v - floor) made HIGH a zero-width zombie (score == 0).
+            let denom = (1.0 - config.valence_floor).max(1e-12);
+            let ramp = ((v - config.valence_floor) / denom).clamp(0.0, 1.0);
+            config.positive_weight * (0.5 + 0.5 * ramp)
         } else {
             0.0
         };
