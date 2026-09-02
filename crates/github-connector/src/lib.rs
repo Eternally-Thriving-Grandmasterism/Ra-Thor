@@ -345,12 +345,101 @@ ra_thor_github_request_latency_ms_avg {:.2}\n",
         })
     }
 
+    fn join_tree_path(prefix: &str, rel: &str) -> String {
+        let prefix = prefix.trim_matches('/');
+        let rel = rel.trim_matches('/');
+        match (prefix.is_empty(), rel.is_empty()) {
+            (true, true) => String::new(),
+            (true, false) => rel.to_string(),
+            (false, true) => prefix.to_string(),
+            (false, false) => format!("{prefix}/{rel}"),
+        }
+    }
+
+    async fn fetch_git_tree(
+        &self,
+        tree_or_commit_sha: &str,
+        recursive: bool,
+    ) -> Result<GitTreeResponse, GitHubError> {
+        let start = Instant::now();
+        let recursive_flag = if recursive { "1" } else { "0" };
+        let url = format!(
+            "{}/repos/{}/{}/git/trees/{}?recursive={}",
+            self.base_url, self.owner, self.repo, tree_or_commit_sha, recursive_flag
+        );
+        let resp = self
+            .client
+            .get(&url)
+            .send()
+            .await
+            .map_err(|e| GitHubError {
+                message: format!("get_tree_safe failed: {}", e),
+                status: None,
+            })?;
+        self.record_rate_limit(resp.headers());
+        self.record_latency(start.elapsed().as_millis() as u64);
+        if !resp.status().is_success() {
+            return Err(GitHubError {
+                message: format!("get_tree_safe failed: {}", resp.status()),
+                status: Some(resp.status().as_u16()),
+            });
+        }
+        resp.json().await.map_err(|e| GitHubError {
+            message: format!("parse tree: {}", e),
+            status: None,
+        })
+    }
+
+    /// Walk path components with non-recursive trees (never a recursive root fetch).
+    async fn resolve_path_tree_sha(
+        &self,
+        start_sha: &str,
+        path: &str,
+    ) -> Result<String, GitHubError> {
+        let mut sha = start_sha.to_string();
+        for component in path.trim_matches('/').split('/') {
+            if component.is_empty() {
+                continue;
+            }
+            let tree = self.fetch_git_tree(&sha, false).await?;
+            if tree.truncated.unwrap_or(false) {
+                return Err(GitHubError {
+                    message: format!(
+                        "git tree truncated while resolving path_filter `{path}` at `{component}`. Narrow the prefix or use get_file_contents_safe."
+                    ),
+                    status: None,
+                });
+            }
+            let item = tree
+                .tree
+                .into_iter()
+                .find(|i| i.path == component)
+                .ok_or_else(|| GitHubError {
+                    message: format!("path_filter `{path}`: `{component}` not in tree {sha}"),
+                    status: Some(404),
+                })?;
+            if item.type_ != "tree" {
+                return Err(GitHubError {
+                    message: format!(
+                        "path_filter `{path}`: `{component}` is a {}, not a tree. Use get_file_contents_safe for files.",
+                        item.type_
+                    ),
+                    status: None,
+                });
+            }
+            sha = item.sha;
+        }
+        Ok(sha)
+    }
+
     /// Safe, disciplined tree walk against the real GitHub Trees API.
     ///
     /// Enforces the 2026-07-21 protocol:
     /// - path_filter is required when recursive == true
     /// - recursive root walks are rejected
-    /// - results are client-side filtered by path prefix
+    /// - path_filter is resolved to a subtree SHA (non-recursive parent walks)
+    ///   so GitHub never returns the whole-repo recursive tree
+    /// - truncated trees are an error (not a silent partial list)
     /// - hard cap of MAX_SAFE_TREE_ENTRIES entries returned
     ///
     /// Prefer non-recursive + path_filter for all production use.
@@ -359,13 +448,13 @@ ra_thor_github_request_latency_ms_avg {:.2}\n",
         &self,
         path_filter: Option<&str>,
         recursive: bool,
-        _per_page: u32, // reserved for future Link-header pagination; validated for API consistency
+        per_page: u32,
     ) -> Result<Vec<SafeTreeEntry>, GitHubError> {
-        if _per_page > MAX_PER_PAGE {
+        if per_page > MAX_PER_PAGE {
             return Err(GitHubError {
                 message: format!(
                     "per_page max {} (GitHub + TOLC Order). Requested: {}",
-                    MAX_PER_PAGE, _per_page
+                    MAX_PER_PAGE, per_page
                 ),
                 status: None,
             });
@@ -379,59 +468,37 @@ ra_thor_github_request_latency_ms_avg {:.2}\n",
             });
         }
 
-        // 1. Resolve the tree SHA of main
         let commit_sha = self.get_ref_sha("main").await?;
+        let path_prefix = path_filter
+            .map(|p| p.trim_matches('/').to_string())
+            .filter(|p| !p.is_empty())
+            .unwrap_or_default();
+        let tree_sha = if path_prefix.is_empty() {
+            commit_sha
+        } else {
+            self.resolve_path_tree_sha(&commit_sha, &path_prefix).await?
+        };
 
-        // GitHub returns the commit object; we need the tree SHA.
-        // For simplicity and to stay within the existing methods we already have,
-        // we re-use the commit SHA as the starting point for the trees endpoint
-        // (the API accepts a commit SHA and resolves its tree).
-        let start = Instant::now();
-        let recursive_flag = if recursive { "1" } else { "0" };
-        let url = format!(
-            "{}/repos/{}/{}/git/trees/{}?recursive={}",
-            self.base_url, self.owner, self.repo, commit_sha, recursive_flag
-        );
-
-        let resp = self
-            .client
-            .get(&url)
-            .send()
-            .await
-            .map_err(|e| GitHubError {
-                message: format!("get_tree_safe failed: {}", e),
-                status: None,
-            })?;
-        self.record_rate_limit(resp.headers());
-        self.record_latency(start.elapsed().as_millis() as u64);
-
-        if !resp.status().is_success() {
+        let tree_resp = self.fetch_git_tree(&tree_sha, recursive).await?;
+        if tree_resp.truncated.unwrap_or(false) {
+            let label = if path_prefix.is_empty() {
+                "<repo-root>".to_string()
+            } else {
+                path_prefix.clone()
+            };
             return Err(GitHubError {
-                message: format!("get_tree_safe failed: {}", resp.status()),
-                status: Some(resp.status().as_u16()),
+                message: format!(
+                    "git tree truncated for `{label}` (recursive={recursive}). Narrow path_filter or use get_file_contents_safe."
+                ),
+                status: None,
             });
         }
 
-        let tree_resp: GitTreeResponse = resp.json().await.map_err(|e| GitHubError {
-            message: format!("parse tree: {}", e),
-            status: None,
-        })?;
-
-        // 2. Client-side path prefix filter + hard safety cap
-        let prefix = path_filter.unwrap_or("");
         let mut entries: Vec<SafeTreeEntry> = tree_resp
             .tree
             .into_iter()
-            .filter(|item| {
-                if prefix.is_empty() {
-                    true
-                } else {
-                    item.path.starts_with(prefix)
-                        || item.path.starts_with(&format!("{}/", prefix.trim_end_matches('/')))
-                }
-            })
             .map(|item| SafeTreeEntry {
-                path: item.path,
+                path: Self::join_tree_path(&path_prefix, &item.path),
                 r#type: item.type_,
                 sha: item.sha,
                 size: item.size,
@@ -439,15 +506,7 @@ ra_thor_github_request_latency_ms_avg {:.2}\n",
             .take(MAX_SAFE_TREE_ENTRIES)
             .collect();
 
-        // Stable order for determinism
         entries.sort_by(|a, b| a.path.cmp(&b.path));
-
-        if tree_resp.truncated.unwrap_or(false) {
-            // Surface the truncation so callers know the result is incomplete
-            // (GitHub sets this when the tree is too large for a single response).
-            // We still return the filtered slice under the safety cap.
-        }
-
         Ok(entries)
     }
 
@@ -456,10 +515,8 @@ ra_thor_github_request_latency_ms_avg {:.2}\n",
         branch_name: &str,
         from_branch: &str,
     ) -> Result<CreateBranchResponse, GitHubError> {
-        let sha = self.get_ref_sha(from_branch).await.unwrap_or_else(|_| {
-            // fallback placeholder if ref lookup fails (keeps offline/dev usable)
-            "main".into()
-        });
+        // Fail closed: GitHub git/refs requires a commit SHA, not a branch name.
+        let sha = self.get_ref_sha(from_branch).await?;
 
         let start = Instant::now();
         let url = format!(
@@ -739,5 +796,15 @@ mod tests {
         // Documents the permanent safety contract.
         assert!(MAX_PER_PAGE <= 100);
         assert!(MAX_SAFE_TREE_ENTRIES <= 250);
+    }
+
+    #[test]
+    fn join_tree_path_prefixes_subtree_entries() {
+        assert_eq!(
+            GitHubConnector::join_tree_path("crates/github-connector", "src/lib.rs"),
+            "crates/github-connector/src/lib.rs"
+        );
+        assert_eq!(GitHubConnector::join_tree_path("", "README.md"), "README.md");
+        assert_eq!(GitHubConnector::join_tree_path("crates/", "/src"), "crates/src");
     }
 }

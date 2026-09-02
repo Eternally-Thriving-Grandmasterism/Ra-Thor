@@ -58,7 +58,16 @@ impl MonorepoScanner {
         let mut crates_found: usize = 0;
         let mut files_scanned: usize = 0;
 
-        for entry in WalkDir::new(&self.root) {
+        // Cap depth and skip build/VCS trees. This is a local inventory, not a
+        // GitHub recursive root walk; target/ and .git/ still must not be scanned.
+        for entry in WalkDir::new(&self.root)
+            .max_depth(10)
+            .into_iter()
+            .filter_entry(|e| {
+                let name = e.file_name();
+                name != "target" && name != ".git" && name != "node_modules"
+            })
+        {
             let entry = entry?;
             files_scanned += 1;
 
@@ -107,5 +116,33 @@ impl MonorepoScanner {
             crates_found,
             files_scanned,
         })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::fs;
+
+    #[test]
+    fn scan_skips_target_and_git() {
+        let root = std::env::temp_dir().join(format!("mi-scan-{}", std::process::id()));
+        let _ = fs::remove_dir_all(&root);
+        fs::create_dir_all(root.join("crates/foo")).unwrap();
+        fs::write(root.join("crates/foo/Cargo.toml"), "[package]\nname=\"foo\"\n").unwrap();
+        fs::create_dir_all(root.join("target/debug")).unwrap();
+        fs::write(root.join("target/debug/foo.rlib"), "nope").unwrap();
+        fs::create_dir_all(root.join(".git/objects")).unwrap();
+        fs::write(root.join(".git/HEAD"), "ref: refs/heads/main").unwrap();
+        let r = MonorepoScanner::new(root.clone()).scan().unwrap();
+        let _ = fs::remove_dir_all(&root);
+        assert!(
+            r.files.iter().all(|f| {
+                !f.relative_path.starts_with("target") && !f.relative_path.starts_with(".git")
+            }),
+            "scanned {:?}",
+            r.files.iter().map(|f| f.relative_path.as_str()).collect::<Vec<_>>()
+        );
+        assert!(r.crates_found >= 1);
     }
 }
