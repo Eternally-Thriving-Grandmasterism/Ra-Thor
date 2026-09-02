@@ -1,26 +1,8 @@
 name: Mercy Kubernetes Security Scan
 
 on:
-  push:
-    branches: [main, mercy-*]
-    paths:
-      - '**/*.yaml'
-      - '**/*.yml'
-      - 'k8s/**'
-      - 'helm/**'
-      - 'kustomize/**'
-      - 'Dockerfile'
-      - '.dockerignore'
-  pull_request:
-    branches: [main, mercy-*]
-    paths:
-      - '**/*.yaml'
-      - '**/*.yml'
-      - 'k8s/**'
-      - 'helm/**'
-      - 'kustomize/**'
-      - 'Dockerfile'
-      - '.dockerignore'
+  # Parked: `**/*.yml` glob fired on every workflow PR and stayed red. Opt-in only.
+  workflow_dispatch:
 
 permissions:
   contents: read

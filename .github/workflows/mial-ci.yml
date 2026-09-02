@@ -1,1 +1,12 @@
-/* Final advanced CI workflow */
+name: MIAL CI (parked stub)
+
+on:
+  # Parked: file was not valid workflow YAML (`/* ... */`) and failed on every push.
+  # Advanced MIAL CI stays on its feat branch file. Opt-in only.
+  workflow_dispatch:
+
+jobs:
+  parked:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "mial-ci.yml parked; not a gate"

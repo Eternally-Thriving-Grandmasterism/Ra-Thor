@@ -1,24 +1,8 @@
 name: Mercy Helm Chart Security Scan
 
 on:
-  push:
-    branches: [main, mercy-*]
-    paths:
-      - '**Chart.yaml'
-      - '**values.yaml'
-      - '**templates/**.yaml'
-      - '**charts/**'
-      - 'helm/**'
-      - 'kustomize/**'  # often used with Helm
-  pull_request:
-    branches: [main, mercy-*]
-    paths:
-      - '**Chart.yaml'
-      - '**values.yaml'
-      - '**templates/**.yaml'
-      - '**charts/**'
-      - 'helm/**'
-      - 'kustomize/**'
+  # Parked: Helm/K8s scan leftover always-red. Opt-in only.
+  workflow_dispatch:
 
 permissions:
   contents: read

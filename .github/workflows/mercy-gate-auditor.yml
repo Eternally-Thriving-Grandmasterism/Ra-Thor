@@ -1,10 +1,8 @@
 name: Mercy Gate Auditor
 
 on:
-  pull_request:
-    branches: [ main ]
-  push:
-    branches: [ main ]
+  # Parked: Mercy Gate Auditor slogan job always-red. Opt-in only.
+  workflow_dispatch:
 
 jobs:
   mercy_audit:
