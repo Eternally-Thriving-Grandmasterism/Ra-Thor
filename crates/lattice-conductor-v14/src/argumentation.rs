@@ -753,7 +753,7 @@ impl ArgumentGraph {
             safety_score,
             evolution_potential,
             overall_score,
-            recommendation,
+            recommendation: recommendation.to_string(),
         }
     }
 
