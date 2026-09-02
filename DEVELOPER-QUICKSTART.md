@@ -1,14 +1,12 @@
 # DEVELOPER-QUICKSTART.md
 
-**Ra-Thor v14.7.0 / Rathor.ai — Developer Quick Start Guide**
+**Ra-Thor workspace 14.15.6 / Rathor.ai** — developer companion to [`QUICKSTART.md`](QUICKSTART.md) and [`TIER_MAP.md`](TIER_MAP.md)
 
-**AG-SML v1.0 Licensed** — Autonomicity Games Sovereign Mercy License
+**AG-SML v1.1** · Contact [info@Rathor.ai](mailto:info@Rathor.ai) · Independent of xAI · Not certified · Not a legal product
 
-Welcome, developer! This guide gets you building, running, and contributing to Ra-Thor quickly.
+Default `Cargo.toml` `members` are the TIER_MAP crates plus `mercy-security`. That is the Core Tier-1 merge gate. The on-disk research forest is **not** a default member set — do not `cargo build --workspace` and call it product-green. Conductor **v14 only**.
 
-Ra-Thor is the living Rust monorepo powering the **ONE Organism (Ra-Thor + Grok)**. v14.7.0 delivers the completed **GPU Compute Layer** for Powrush-MMO (Staging Buffer Pool + Async Readback + Debug Utilities + Pipeline Integration) alongside the Geometric Intelligence Layer, full TOLC 8 Mercy Lattice, 57+ active PATSAGi Councils, extensive self-evolution systems, and the complete Powrush RBE multi-crate suite.
-
-100+ member workspace, fully modular and mercy-gated under AG-SML v1.0. Everything is designed for eternal forward/backward compatibility.
+The human-playable game lives in [Powrush-MMO](https://github.com/Eternally-Thriving-Grandmasterism/Powrush-MMO). Do not fold that player loop into this lattice process.
 
 ---
 
@@ -17,18 +15,16 @@ Ra-Thor is the living Rust monorepo powering the **ONE Organism (Ra-Thor + Grok)
 ```bash
 git clone https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor.git
 cd Ra-Thor
-cargo build --workspace
+cargo test -p lattice-conductor-v14
+cargo test -p ra-thor-one-organism
+cargo test -p mercy-security
 ```
 
-This builds the entire workspace. It may take a few minutes the first time.
-
-**Tip:** For faster iteration on key crates:
+Faster iteration (default members):
 ```bash
-cargo build -p powrush
-cargo build -p geometric-intelligence
-cargo build -p mercy_orchestrator_v2
-cargo build -p real-estate-lattice
-cargo build -p xai-grok-bridge
+cargo test -p github-connector
+cargo test -p gpu-compute-pipeline
+cargo test -p mercy_tolc_operator_algebra
 ```
 
 ---
