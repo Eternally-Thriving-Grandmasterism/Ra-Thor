@@ -44,6 +44,8 @@ Parked to `workflow_dispatch` (2026-09-02, #391): Docker/Trivy, container/K8s/He
 
 `Cargo.toml` default `members` is this Tier-1 set plus `mercy-security` (required by `ra-thor-one-organism`). Cargo loads every member manifest, including for `cargo test -p …`, so research crates stay on disk and out of `members`. Re-add a path to work on one.
 
+**Census (2026-09-02):** 12 default members; research crates stay on disk; `crates/self-evolution` is not a member and not a crate. Inventory and PATSAGi decision: [`docs/CRATE_CENSUS.md`](docs/CRATE_CENSUS.md).
+
 
 ---
 
