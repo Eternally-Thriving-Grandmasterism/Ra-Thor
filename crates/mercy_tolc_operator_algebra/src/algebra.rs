@@ -262,8 +262,11 @@ pub struct ConcurrentZoneLattice {
 impl ConcurrentZoneLattice {
     pub fn new(n_zones: usize) -> Self {
         let n = n_zones.max(1);
-        let mut zones: Vec<ZoneState> = (0..n).map(ZoneState::new).collect();
-        for z in zones.iter_mut() { z.inject_drift(3e-5); }
+        // Canonical start: Healthy, health_score == 1.0. Constructor drift of 3e-5
+        // left last_rho above the Critical ρ gate (1e-6), so a fresh lattice was
+        // already Critical and soft_remediate never saw Stressed. Tests that need
+        // residual call ZoneState::inject_drift.
+        let zones: Vec<ZoneState> = (0..n).map(ZoneState::new).collect();
         Self {
             zones, global_tick: 0, purify_period: 2_500,
             adaptive_grief_scale: 500.0, min_purify_period: 50, stress_alpha: 0.05,

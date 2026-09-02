@@ -24,3 +24,7 @@ v13-compat = []
 
 [lib]
 path = "src/lib.rs"
+
+[[example]]
+name = "shared_chat_mercy_mesh_web_demo"
+required-features = ["web-demo"]

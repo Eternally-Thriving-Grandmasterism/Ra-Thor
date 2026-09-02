@@ -213,7 +213,7 @@ impl SovereignRecoveryProtocol {
             0.65
         };
         let gpu_pressure =
-            (council_metrics.gpu_memory_usage_bytes as f64 / (2.0 * 1024.0 * 1024.0)).min(1.0);
+            (council_metrics.gpu_memory_usage_bytes as f64 / (2.0 * 1024.0 * 1024.0 * 1024.0)).min(1.0);
         let requires_recovery = context_pressure > 0.82
             || flow_deviation > 0.35
             || gpu_pressure > 0.88
@@ -455,7 +455,7 @@ mod tests {
     async fn circuit_breaker_trips_on_err() {
         let p = SovereignRecoveryProtocol::new();
         let r = p
-            .with_mercy_circuit_breaker("test_op", || async { Err("boom".into()) }, 0.5)
+            .with_mercy_circuit_breaker("test_op", || async { Err::<(), String>("boom".into()) }, 0.5)
             .await;
         assert!(r.is_err());
     }

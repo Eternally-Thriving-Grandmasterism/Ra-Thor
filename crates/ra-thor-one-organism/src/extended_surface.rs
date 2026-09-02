@@ -71,7 +71,6 @@ pub struct GpuSurfaceStatus {
     pub live_path: bool,
 }
 
-#[derive(Debug)]
 pub struct GpuSurface {
     dispatch_count: u64,
     total_dispatch_time_ms: u64,
@@ -80,6 +79,19 @@ pub struct GpuSurface {
     memory_usage_bytes: usize,
     #[cfg(feature = "gpu-live")]
     pipeline: std::sync::Arc<tokio::sync::Mutex<gpu_compute_pipeline::GpuComputePipeline>>,
+}
+
+impl std::fmt::Debug for GpuSurface {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let mut s = f.debug_struct("GpuSurface");
+        s.field("dispatch_count", &self.dispatch_count)
+            .field("total_dispatch_time_ms", &self.total_dispatch_time_ms)
+            .field("last_telemetry", &self.last_telemetry)
+            .field("pool_efficiency", &self.pool_efficiency)
+            .field("memory_usage_bytes", &self.memory_usage_bytes)
+            .field("live_path", &cfg!(feature = "gpu-live"));
+        s.finish()
+    }
 }
 
 impl Clone for GpuSurface {
@@ -123,37 +135,34 @@ impl GpuSurface {
 
         #[cfg(feature = "gpu-live")]
         {
-            use gpu_compute_pipeline::GpuTask;
-            let task = GpuTask {
-                id: self.dispatch_count + 1,
-                name: task_name.into(),
-                buffer_size: elements.max(64),
-                intensity: if elements > 8192 {
-                    "high".into()
-                } else {
-                    "medium".into()
-                },
-            };
-            let result = block_on_live(async {
+            // Real pipeline API is luma-ring motion estimate, not a GpuTask dispatcher.
+            let started = std::time::Instant::now();
+            let motion = block_on_live(async {
                 let mut pipe = self.pipeline.lock().await;
-                if real_gpu {
-                    pipe.mark_real_gpu(true);
-                }
-                pipe.dispatch_gpu_task(task).await
+                pipe.real_gpu = real_gpu;
+                // HIGH valence (0.999999) matches the pipeline mercy gate so the
+                // CPU energy path actually runs instead of empty_hold.
+                pipe.estimate_motion_pyramidal(0.999999).await
             });
+            let measured = started.elapsed().as_millis() as u64;
 
             self.dispatch_count += 1;
-            let measured = result.execution_time_ms.max(1);
+            let measured = measured.max(1);
             self.total_dispatch_time_ms += measured;
 
-            let workgroups = ((elements + 63) / 64) as u32;
+            let elems = if motion.vector_count > 0 {
+                motion.vector_count as usize
+            } else {
+                elements.max(1)
+            };
+            let workgroups = ((elems + 63) / 64) as u32;
             let tel = GpuDispatchTelemetry {
-                task_id: self.dispatch_count,
+                task_id: motion.frame_index.max(self.dispatch_count),
                 task_name: task_name.into(),
-                real_gpu: result.real_gpu,
+                real_gpu: motion.real_gpu,
                 dispatch_time_ms: measured,
-                readback_available: result.readback_data.is_some(),
-                elements_processed: elements,
+                readback_available: motion.vector_count > 0,
+                elements_processed: elems,
                 workgroups_dispatched: workgroups,
             };
             self.last_telemetry = Some(tel.clone());
@@ -243,12 +252,21 @@ pub struct FlushResult {
     pub error: Option<String>,
 }
 
-#[derive(Debug)]
 pub struct GitHubSurface {
     intended_prs: Vec<EvolutionPrIntent>,
     offline_mode: bool,
     #[cfg(feature = "github-live")]
     connector: Option<std::sync::Arc<github_connector::GitHubConnector>>,
+}
+
+impl std::fmt::Debug for GitHubSurface {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("GitHubSurface")
+            .field("intended_prs", &self.intended_prs)
+            .field("offline_mode", &self.offline_mode)
+            .field("live_path", &cfg!(feature = "github-live"))
+            .finish()
+    }
 }
 
 impl Clone for GitHubSurface {
@@ -474,7 +492,6 @@ pub struct QuantumEvolutionResult {
     pub weight_update_ok: bool,
 }
 
-#[derive(Debug)]
 pub struct QuantumSwarmSurface {
     config: QuantumSwarmConfig,
     step: u64,
@@ -484,6 +501,20 @@ pub struct QuantumSwarmSurface {
     total_proposals: u64,
     #[cfg(feature = "quantum-live")]
     engine: std::sync::Arc<tokio::sync::Mutex<quantum_swarm::QuantumSwarmEngine>>,
+}
+
+impl std::fmt::Debug for QuantumSwarmSurface {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("QuantumSwarmSurface")
+            .field("config", &self.config)
+            .field("step", &self.step)
+            .field("member_count", &self.member_count)
+            .field("total_weight_updates", &self.total_weight_updates)
+            .field("total_adaptive_jumps", &self.total_adaptive_jumps)
+            .field("total_proposals", &self.total_proposals)
+            .field("live_path", &cfg!(feature = "quantum-live"))
+            .finish()
+    }
 }
 
 impl Clone for QuantumSwarmSurface {
@@ -822,7 +853,6 @@ pub struct SovereignRecoveryStatus {
     pub live_path: bool,
 }
 
-#[derive(Debug)]
 pub struct SovereignRecoverySurface {
     heartbeat_count: u64,
     anchor_count: u64,
@@ -831,6 +861,19 @@ pub struct SovereignRecoverySurface {
     last_anchor: Option<RecoveryAnchor>,
     #[cfg(feature = "recovery-live")]
     protocol: std::sync::Arc<sovereign_recovery::SovereignRecoveryProtocol>,
+}
+
+impl std::fmt::Debug for SovereignRecoverySurface {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("SovereignRecoverySurface")
+            .field("heartbeat_count", &self.heartbeat_count)
+            .field("anchor_count", &self.anchor_count)
+            .field("recovery_events", &self.recovery_events)
+            .field("last_heartbeat", &self.last_heartbeat)
+            .field("last_anchor", &self.last_anchor)
+            .field("live_path", &cfg!(feature = "recovery-live"))
+            .finish()
+    }
 }
 
 impl Clone for SovereignRecoverySurface {
@@ -1005,7 +1048,6 @@ pub struct KardashevSurfaceStatus {
     pub live_path: bool,
 }
 
-#[derive(Debug)]
 pub struct KardashevFlywheelSurface {
     cycle_count: u64,
     cumulative_kardashev_delta: f64,
@@ -1015,6 +1057,26 @@ pub struct KardashevFlywheelSurface {
     calculator: std::sync::Arc<reality_thriving_transfer::RealityThrivingTransferCalculator>,
     #[cfg(feature = "kardashev-live")]
     council: std::sync::Arc<kardashev_orchestration::KardashevOrchestrationCouncil>,
+}
+
+impl std::fmt::Debug for KardashevFlywheelSurface {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        // Live calculator/council hold Mutex state; skip dumping them.
+        let mut s = f.debug_struct("KardashevFlywheelSurface");
+        s.field("cycle_count", &self.cycle_count)
+            .field("cumulative_kardashev_delta", &self.cumulative_kardashev_delta)
+            .field("velocity_ema", &self.velocity_ema)
+            .field("last_transfer", &self.last_transfer);
+        #[cfg(feature = "kardashev-live")]
+        {
+            s.field("live_path", &true);
+        }
+        #[cfg(not(feature = "kardashev-live"))]
+        {
+            s.field("live_path", &false);
+        }
+        s.finish()
+    }
 }
 
 impl Clone for KardashevFlywheelSurface {

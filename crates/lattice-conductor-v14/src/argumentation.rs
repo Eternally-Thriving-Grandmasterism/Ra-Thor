@@ -440,7 +440,9 @@ impl ArgumentGraph {
 
                 if self.phase4_config.enable_defeater_context_modifiers {
                     let ctx = def.context.clone();
-                    impact = self.apply_defeater_context_modifier(impact, &ctx);
+                    let modified = self.apply_defeater_context_modifier(impact, &ctx);
+                    score.context_modifier += modified - impact;
+                    impact = modified;
                 }
 
                 score.defeater_contribution -= impact;
@@ -753,7 +755,7 @@ impl ArgumentGraph {
             safety_score,
             evolution_potential,
             overall_score,
-            recommendation,
+            recommendation: recommendation.to_string(),
         }
     }
 
@@ -963,8 +965,9 @@ mod phase4_tests {
 
         let score = graph.calculate_influence_score(weak);
 
-        // Should have both superiority contribution and softened defeater contribution
-        assert!(score.superiority_contribution > 0.0);
+        // `weak` is the inferior claim, so superiority_contribution is negative.
+        // MercyGate still softens the defeater (defeater_contribution < 0).
+        assert!(score.superiority_contribution < 0.0);
         assert!(score.defeater_contribution < 0.0);
     }
 
@@ -989,10 +992,9 @@ mod phase4_tests {
         let score_b = graph.calculate_influence_score(claim_b);
         let score_c = graph.calculate_influence_score(claim_c);
 
-        // claim_b should receive positive influence from Council superiority
-        assert!(score_b.superiority_contribution > 0.0);
-
-        // claim_c should receive positive influence (weaker context)
-        assert!(score_c.superiority_contribution > 0.0);
+        // claim_b is weaker than Council-superior A (-0.12*1.25) and stronger
+        // than general C (+0.15*1.0) → net 0. claim_c is only the weaker side.
+        assert_eq!(score_b.superiority_contribution, 0.0);
+        assert!(score_c.superiority_contribution < 0.0);
     }
 }
