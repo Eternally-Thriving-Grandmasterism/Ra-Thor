@@ -38,6 +38,9 @@ cargo test -p fractal-mercy-ledger-adapter
 Default GitHub Actions gate: `.github/workflows/core-tier1-ci.yml`.  
 Full `--workspace` jobs (`ci.yml`, `ra-thor-ci.yml`) are `workflow_dispatch` only. Do not treat them as product-green.
 
+`Cargo.toml` default `members` is this Tier-1 set plus `mercy-security` (required by `ra-thor-one-organism`). Cargo loads every member manifest, including for `cargo test -p …`, so research crates stay on disk and out of `members`. Re-add a path to work on one.
+
+
 ---
 
 ## Powrush split (do not collapse)
