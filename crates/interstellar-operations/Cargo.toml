@@ -11,6 +11,7 @@ repository.workspace = true
 serde = { workspace = true, features = ["derive"] }
 tokio = { workspace = true, features = ["full"] }
 mercy = { path = "../mercy" }
-# Note: cehi and self-evolution paths may need review
-cehi = { path = "../interstellar-operations" }
-self-evolution = { path = "../self-evolution" }
+# cehi is the local module `cehi_epigenetic_blessings`, not a path crate.
+# `crates/self-evolution` has source but no manifest. Do not path-dep it
+# (also collides with repo-root `self-evolution`, which is wired to
+# deprecated lattice-conductor-v13). This crate does not import either.
