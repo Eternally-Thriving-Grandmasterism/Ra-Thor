@@ -383,4 +383,4 @@ impl OneOrganismCore {
         println!("[OneOrganismCore {}] Cosmic Loop OFFERED + ENFORCED (ready={} guardian={}) + Watchdog STARTED + White-hat ingestion LIVE", self.version, inv.cosmic_loop_ready, inv.guardian_active);
     }
     pub fn on_lattice_sync(&mut self) { let _ = self.cosmic_tick(0.22); }
-
+}
