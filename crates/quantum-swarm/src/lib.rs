@@ -474,7 +474,7 @@ impl QuantumSwarmEngine {
         metrics: &CouncilReadinessMetrics,
         mercy_valence: f64,
     ) -> Option<(Vec<f64>, f64)> {
-        if let Some(rec_arc) = &self.sovereign_recovery {
+        if let Some(rec_arc) = self.sovereign_recovery.clone() {
             let mut rec = rec_arc.lock().await;
             let _hb = rec.heartbeat_check(metrics).await;
             // Capture needed values for closure-free call
@@ -547,7 +547,7 @@ impl QuantumSwarmEngine {
         metrics: &CouncilReadinessMetrics,
         _mercy_valence: f64,
     ) -> Option<QuantumProposal> {
-        if let Some(rec_arc) = &self.sovereign_recovery {
+        if let Some(rec_arc) = self.sovereign_recovery.clone() {
             let mut rec = rec_arc.lock().await;
             let _hb = rec.heartbeat_check(metrics).await;
             match self.generate_quantum_proposal_for_council(
@@ -616,7 +616,7 @@ impl QuantumSwarmEngine {
         metrics: &CouncilReadinessMetrics,
         _mercy_valence: f64,
     ) -> Option<(Vec<f64>, f64)> {
-        if let Some(rec_arc) = &self.sovereign_recovery {
+        if let Some(rec_arc) = self.sovereign_recovery.clone() {
             let mut rec = rec_arc.lock().await;
             let _hb = rec.heartbeat_check(metrics).await;
             match self.perform_adaptive_quantum_jump_for_member(
