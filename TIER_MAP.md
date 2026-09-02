@@ -1,7 +1,7 @@
 # Ra-Thor Tier Map — Focus without deleting ambition
 
 **Contact:** info@Rathor.ai  
-**Updated:** 2026-08-20 — NEXi adoption decision  
+**Updated:** 2026-09-02 — default CI pinned to Tier-1 `-p` tests  
 **Related:** [`docs/NEXI_LINEAGE_ADOPTION_DECISION_2026-08-20.md`](docs/NEXI_LINEAGE_ADOPTION_DECISION_2026-08-20.md)
 
 ---
@@ -28,8 +28,15 @@ cargo test -p reality-thriving-transfer
 cargo test -p kardashev-orchestration
 cargo test -p github-connector
 cargo test -p gpu-compute-pipeline
+cargo test -p quantum-swarm
+cargo test -p sovereign-recovery
+cargo test -p ra-thor-monorepo-intelligence
+cargo test -p mercy_tolc_operator_algebra
 cargo test -p fractal-mercy-ledger-adapter
 ```
+
+Default GitHub Actions gate: `.github/workflows/core-tier1-ci.yml`.  
+Full `--workspace` jobs (`ci.yml`, `ra-thor-ci.yml`) are `workflow_dispatch` only. Do not treat them as product-green.
 
 ---
 
