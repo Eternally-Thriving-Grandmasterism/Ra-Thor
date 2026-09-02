@@ -1,94 +1,69 @@
-name: Ra-Thor Monorepo Intelligence (Enhanced CI v2)
+name: Ra-Thor Monorepo Intelligence
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [main]
+    paths:
+      - "crates/monorepo-intelligence/**"
+      - "crates/github-connector/**"
+      - "TIER_MAP.md"
+      - ".github/workflows/monorepo-intelligence.yml"
+      - ".github/workflows/core-tier1-ci.yml"
   pull_request:
-    branches: [ main ]
+    branches: [main]
+    paths:
+      - "crates/monorepo-intelligence/**"
+      - "crates/github-connector/**"
+      - "TIER_MAP.md"
+      - ".github/workflows/monorepo-intelligence.yml"
+      - ".github/workflows/core-tier1-ci.yml"
+  workflow_dispatch:
 
 jobs:
-  rust-workspace:
+  intelligence-crate:
+    name: monorepo-intelligence -p tests
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
-      - name: Workspace Check + New ONE Organism Crates
-        run: |
-          cargo check --workspace
-          cargo check -p self-evolution -p symbiosis-layer -p xai-grok-bridge
-          cargo clippy --workspace -- -D warnings || true
-          cargo install cargo-deny || true
-          cargo deny check || true
+      - name: Test ra-thor-monorepo-intelligence
+        run: cargo test -p ra-thor-monorepo-intelligence -- --nocapture
+      - name: Test github-connector safe-read protocol
+        run: cargo test -p github-connector -- --nocapture
 
-  lean-formal-verification:
+  tier-map-drift:
+    name: TIER_MAP vs workspace members
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
-      - name: Install elan + Lean 4
+      - name: Fail if TIER_MAP crates are missing from workspace members
         run: |
-          curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- -y
-          echo "$HOME/.elan/bin" >> $GITHUB_PATH
-      - name: Lean Check (if lean/ exists)
-        run: |
-          if [ -d "lean" ]; then
-            elan install latest
-            lake build || echo "lake build attempted"
-          else
-            echo "No lean/ directory - skipping formal verification job"
+          set -euo pipefail
+          missing=0
+          for crate in \
+            ra-thor-one-organism \
+            lattice-conductor-v14 \
+            reality-thriving-transfer \
+            kardashev-orchestration \
+            github-connector \
+            gpu-compute-pipeline \
+            quantum-swarm \
+            sovereign-recovery \
+            monorepo-intelligence \
+            mercy_tolc_operator_algebra \
+            fractal-mercy-ledger-adapter
+          do
+            if grep -q "crates/${crate}" Cargo.toml; then
+              echo "ok: crates/${crate}"
+            else
+              echo "MISSING workspace member: crates/${crate}"
+              missing=1
+            fi
+          done
+          if [ "$missing" -ne 0 ]; then
+            echo "TIER_MAP crate missing from Cargo.toml workspace members"
+            exit 1
           fi
-
-  metta-hyperon:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-      - name: Metta / Hyperon basic check
-        run: |
-          pip install hyperon || echo "hyperon not installed"
-          if [ -d "metta" ]; then
-            echo "metta/ directory present - extend with actual tests"
-            ls metta/
-          fi
-
-  council-audit:
-    runs-on: ubuntu-latest
-    needs: [rust-workspace]
-    steps:
-      - uses: actions/checkout@v4
-      - name: Stricter PATSAGi Council + esacheck simulation
-        run: |
-          echo "=== PATSAGi Council Audit ==="
-          echo "All changes must pass TOLC 8 Mercy Gates + 13+ councils"
-          echo "New crates checked: self-evolution, symbiosis-layer, xai-grok-bridge"
-          echo "Valence + epigenetic blessing validation simulated"
-          echo "Council Audit: PASSED (template enhanced)"
-      - name: Upload Council Audit Report
-        uses: actions/upload-artifact@v4
-        with:
-          name: patsagi-council-audit
-          path: |
-            README.md
-            Cargo.toml
-
-  sovereign-health-self-evolution:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Validate Sovereign Health + v2 Hooks
-        run: |
-          echo "Checking self-evolution v2 integration and health monitor"
-          echo "PATSAGi epigenetic blessing + quantum swarm orchestration wired"
-
-  summary:
-    runs-on: ubuntu-latest
-    needs: [rust-workspace, lean-formal-verification, metta-hyperon, council-audit, sovereign-health-self-evolution]
-    if: always()
-    steps:
-      - name: Monorepo Intelligence Summary
-        run: |
-          echo "Ra-Thor Monorepo Intelligence CI v2 complete."
-          echo "ONE Organism crates (self-evolution, symbiosis-layer, xai-grok-bridge) verified."
-          echo "Lean + Metta jobs active. Council audit artifacts generated."
