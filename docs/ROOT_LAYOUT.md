@@ -9,18 +9,21 @@ Ra-Thor workspace **14.15.6**. Contact [info@Rathor.ai](mailto:info@Rathor.ai). 
 - After slice 2 (#396, main `5003cac2e303`): **541** root entries, **377** files, **164** directories
 - After slice 3 (#397, main `d8f77b5698bc`): **530** root entries, **366** files, **164** directories; **0** root `.rs`
 - After slice 4 (#398, main `a98a45fb6ca9`): **508** root entries, **344** files, **164** directories
-- After slice 5 (this PR): **485** root entries, **321** files, **164** directories; **0** root `POWRUSH_*.md`
-- Extensions (files): ~406 `.md` (pre-slice-1), ~163 `.js` then 155 archived in slice 2, 16 `.html` (living Pages stay), 11 `.rs` archived in slice 3, 22 junk / extensionless dumps archived in slice 4, 23 `POWRUSH_*` design notes archived in slice 5, plus remaining spaced/broken names in later slices
+- After slice 5 (#399, main `76d380691c47`): **485** root entries, **321** files, **164** directories; **0** root `POWRUSH_*.md`
+- After slice 6 (this PR): **457** root entries, **293** files, **164** directories; two README-linked release-note files kept at root
+- Extensions (files): ~406 `.md` (pre-slice-1), ~163 `.js` then 155 archived in slice 2, 16 `.html` (living Pages stay), 11 `.rs` archived in slice 3, 22 junk / extensionless dumps archived in slice 4, 23 `POWRUSH_*` design notes archived in slice 5, 28 historical `RELEASE_*` / `WHITEPAPER_*` archived in slice 6 (keep-two stay at root), plus remaining spaced/broken names in later slices
 
 ## Keep at repo root (identity / gates / tooling)
 
 README, LICENSE, Cargo.toml, TIER_MAP.md, CHANGELOG.md, CONTRIBUTING.md, CONTACT.md, PUBLIC_CLAIM.lock.md, QUICKSTART.md, DEVELOPER-QUICKSTART.md, PRODUCTION_READINESS.md, ARCHITECTURE.md, ROADMAP.md, VISION.md, SECURITY.md, SUPPORT.md, CODE_OF_CONDUCT.md, CLA.md, COMMERCIAL_LICENSE.md, COMMERCIAL-LICENSE.md, LICENSE_CLARIFICATION.md, GROK_PRESET.md, GROK_PRESET_RATHOR_AI.md, RA_THOR_GROK_PRESET.md, GROK_RA_THOR_GITHUB_INTEGRATION_PROTOCOL.md, X_GROK_RA_THOR_SUMMON_PROTOCOL.md, Makefile, Dockerfile, package.json, deny.toml, CNAME, robots.txt, sitemap.xml, docker-compose*.yml, WORKSPACE.bazel, BUILD.bazel, next.config.js, vite.config.ts, webpack.config.js, capacitor.config.ts, .gitignore, .gitattributes, .dockerignore, .nojekyll, .bazelrc.ml, .semgrep.yml, .trufflehog-ignore.txt
 
+Keep-two README-linked release notes (slice 6): `RELEASE_NOTES_v14.15.6.md` (README Instant Discovery), `RELEASE_NOTES_PUBLIC_FIXTURE_CORPUS.md` (README fixtures). `CHANGELOG.md` is already identity. Workspace identity stays **14.15.6** — `RELEASE_NOTES_v15.34.md` is archival only, not a shipped workspace bump.
+
 PWA / identity / tooling JS that stay at root: `mercy-motion-vision-engine.js` (README identity), `sw.js` (index.html registers `/sw.js`), `service-worker.js`, `service-worker-eternal-cache.js`, `workbox-config.js` (root tooling), `one-organism-launch.js`.
 
 `powrush_config.json` stays at root (lattice config; not a design note).
 
-Living directories that stay: `crates/`, `.github/`, `docs/` (this archive lives under it, including `docs/archive/root-rs/` for slice 3, `docs/archive/root-junk/` for slice 4, and `docs/archive/powrush-notes/` for slice 5), `website/`, `js/` (living scripts plus `js/archive/root-engines/` for slice 2), `fixtures/`, `css/`, and other in-use trees. Do not one-shot-move the 164-dir forest.
+Living directories that stay: `crates/`, `.github/`, `docs/` (this archive lives under it, including `docs/archive/root-rs/` for slice 3, `docs/archive/root-junk/` for slice 4, `docs/archive/powrush-notes/` for slice 5, and `docs/archive/root-releases/` for slice 6), `website/`, `js/` (living scripts plus `js/archive/root-engines/` for slice 2), `fixtures/`, `css/`, and other in-use trees. Do not one-shot-move the 164-dir forest.
 
 ## Slice 1 (#395)
 
@@ -87,7 +90,7 @@ Moved:
 
 No living Pages HTML, identity JS, markdown identity, Powrush notes, `Cargo.toml`, `crates/`, or `.github/` changes.
 
-## Slice 5 (this PR)
+## Slice 5 (#399)
 
 **23** `POWRUSH_*` design markdown files archived to `docs/archive/powrush-notes/` (same basenames). Blob SHAs unchanged (git-mv equivalent). `powrush_config.json` stays at root. Player game remains the sibling [Powrush-MMO](https://github.com/Eternally-Thriving-Grandmasterism/Powrush-MMO) repo; browser client remains [Powrush-MMO-Simulator](https://github.com/Eternally-Thriving-Grandmasterism/Powrush-MMO-Simulator). Ra-Thor is the lattice only — do not fold the player loop into this repo. Shared: NEVC / telemetry / policy hints.
 
@@ -119,9 +122,46 @@ Moved:
 
 No living Pages HTML, identity JS, `Cargo.toml`, `crates/`, or `.github/` changes. Conductor **v14** only.
 
+## Slice 6 (this PR)
+
+**28** historical `RELEASE_*` / `WHITEPAPER_*` markdown files archived to `docs/archive/root-releases/` (same basenames). Blob SHAs unchanged (git-mv equivalent). Keep-two README-linked files stay at root: `RELEASE_NOTES_v14.15.6.md`, `RELEASE_NOTES_PUBLIC_FIXTURE_CORPUS.md`. `CHANGELOG.md` already identity. Conductor **v14** only — `RELEASE-v13.*` notes are archived, not revived. `RELEASE_NOTES_v15.34.md` is archival only; workspace identity stays **14.15.6**.
+
+Moved:
+
+- `RELEASE-v13.0.0.md`
+- `RELEASE-v13.1.0.md`
+- `RELEASE.md`
+- `RELEASE_NOTES.md`
+- `RELEASE_NOTES_LATTICE_CHAT_v14.15.5.md`
+- `RELEASE_NOTES_LATTICE_CHAT_v14.16.0.md`
+- `RELEASE_NOTES_LATTICE_CHAT_v14.17.0.md`
+- `RELEASE_NOTES_LATTICE_CHAT_v14.18.0.md`
+- `RELEASE_NOTES_v0.7.0.md`
+- `RELEASE_NOTES_v12.1.md`
+- `RELEASE_NOTES_v14.15.5.md`
+- `RELEASE_NOTES_v14.8.1.md`
+- `RELEASE_NOTES_v14.8.2.md`
+- `RELEASE_NOTES_v14.8.md`
+- `RELEASE_NOTES_v14.9.0.md`
+- `RELEASE_NOTES_v14.9.1.md`
+- `RELEASE_NOTES_v14.9.2.md`
+- `RELEASE_NOTES_v14.9.3.md`
+- `RELEASE_NOTES_v14.9.4.md`
+- `RELEASE_NOTES_v14.9.5.md`
+- `RELEASE_NOTES_v14.9.6.md`
+- `RELEASE_NOTES_v14.9.7.md`
+- `RELEASE_NOTES_v14.9.8.md`
+- `RELEASE_NOTES_v15.34.md`
+- `WHITEPAPER_v3.0.md`
+- `WHITEPAPER_v3.2.md`
+- `WHITEPAPER_v4.0.md`
+- `WHITEPAPER_v4.1.md`
+
+No living Pages HTML, identity JS, `Cargo.toml`, `crates/`, or `.github/` changes. Independent of xAI.
+
 ## Later slices (not this PR)
 
-- remaining ~250 root md (other-md, loose-md, release notes)
+- remaining other-md / loose-md (~200)
 - 4 `.metta`, 4 `.py`
 - Pages HTML stays at root unless proven dead (GitHub Pages / site; CNAME stays)
 - 164 root directories (research-dir forest, zk gadgets, orchestrators, `self-evolution/`, `xai-grok-bridge/`, powrush*, NEXi). HOLD inventing `crates/self-evolution` as a product.
