@@ -14,4 +14,4 @@ if __name__ == "__main__":
     print("loaded keys:", list(cfg.keys()))
 ```
 
-No subprocess, no eval, no network, no remote loaders.
+Does not spawn processes, does not call eval, no network, no remote loaders.
