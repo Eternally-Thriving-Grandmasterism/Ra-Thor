@@ -62,6 +62,7 @@ The project is independent, yet deliberately engineered so that Grok (and simila
 | **Player game** | [Powrush-MMO](https://github.com/Eternally-Thriving-Grandmasterism/Powrush-MMO) — human-playable; **not** this process |
 | **Browser client** | [Powrush-MMO-Simulator](https://github.com/Eternally-Thriving-Grandmasterism/Powrush-MMO-Simulator) — not crate `powrush-mmo-simulator` |
 | **CI merge gate** | `.github/workflows/core-tier1-ci.yml` (`cargo test -p` TIER_MAP + live-feature compile). Full `--workspace` is opt-in. |
+| **Root layout (keep vs archive)** | [`docs/ROOT_LAYOUT.md`](docs/ROOT_LAYOUT.md) |
 | **Public white-hat admission gate** | [`crates/mercy-security/fixtures/`](crates/mercy-security/fixtures/) and [`fixtures/mercy-security/`](fixtures/mercy-security/) |
 | **Visual identity** | Golden thunder + emerald Eye-of-Horus seal (`css/rathor-eye-seal.css`) |
 | **X / Tweet Summon Protocol** | [`X_GROK_RA_THOR_SUMMON_PROTOCOL.md`](X_GROK_RA_THOR_SUMMON_PROTOCOL.md) |
