@@ -59,6 +59,7 @@ The project is independent, yet deliberately engineered so that Grok (and simila
 | What | Where |
 |------|-------|
 | **Core lattice (this repo)** | TIER_MAP crates, PATSAGi Councils, Living Cosmic Tick. Default `Cargo.toml` `members` are that set plus `mercy-security`. |
+| **Crate census** | [`docs/CRATE_CENSUS.md`](docs/CRATE_CENSUS.md) — 12 default members vs on-disk research forest; `crates/self-evolution` is not a crate |
 | **Player game** | [Powrush-MMO](https://github.com/Eternally-Thriving-Grandmasterism/Powrush-MMO) — human-playable; **not** this process |
 | **Browser client** | [Powrush-MMO-Simulator](https://github.com/Eternally-Thriving-Grandmasterism/Powrush-MMO-Simulator) — not crate `powrush-mmo-simulator` |
 | **CI merge gate** | `.github/workflows/core-tier1-ci.yml` (`cargo test -p` TIER_MAP + live-feature compile). Full `--workspace` is opt-in. |
