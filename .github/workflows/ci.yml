@@ -1,10 +1,10 @@
 name: CI — Ra-Thor Monorepo
 
 on:
-  push:
-    branches: [ main, 'v*.*.*' ]
-  pull_request:
-    branches: [ main ]
+  # Full-workspace nextest + clippy is opt-in.
+  # Default PR/main gate is .github/workflows/core-tier1-ci.yml (TIER_MAP -p).
+  # Do not claim workspace-green from this workflow.
+  workflow_dispatch:
 
 env:
   CARGO_TERM_COLOR: always

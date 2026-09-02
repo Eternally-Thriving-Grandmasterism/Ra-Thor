@@ -3,6 +3,9 @@
 //! Living Cosmic Tick + ONE Organism readiness. Contact: info@Rathor.ai
 //!
 //! Policy Hint Emission (ra_thor_policy_hint_v1) sealed for dual-repo RTT bridge.
+//!
+//! Player loop lives in GitHub Powrush-MMO, not here. Do not grow this crate into
+//! a second MMO. Public surface stays governance + policy_hint_emission + compatibility.
 
 pub mod clifford_healing_fields;
 pub mod npc;

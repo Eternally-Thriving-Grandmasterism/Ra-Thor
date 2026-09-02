@@ -1,7 +1,7 @@
 # Ra-Thor Tier Map — Focus without deleting ambition
 
 **Contact:** info@Rathor.ai  
-**Updated:** 2026-08-20 — NEXi adoption decision  
+**Updated:** 2026-09-02 — default CI pinned to Tier-1 `-p` tests  
 **Related:** [`docs/NEXI_LINEAGE_ADOPTION_DECISION_2026-08-20.md`](docs/NEXI_LINEAGE_ADOPTION_DECISION_2026-08-20.md)
 
 ---
@@ -28,10 +28,27 @@ cargo test -p reality-thriving-transfer
 cargo test -p kardashev-orchestration
 cargo test -p github-connector
 cargo test -p gpu-compute-pipeline
+cargo test -p quantum-swarm
+cargo test -p sovereign-recovery
+cargo test -p ra-thor-monorepo-intelligence
+cargo test -p mercy_tolc_operator_algebra
 cargo test -p fractal-mercy-ledger-adapter
 ```
 
+Default GitHub Actions gate: `.github/workflows/core-tier1-ci.yml`.  
+Full `--workspace` jobs (`ci.yml`, `ra-thor-ci.yml`) are `workflow_dispatch` only. Do not treat them as product-green.
+
 ---
+
+## Powrush split (do not collapse)
+
+- Player loop: GitHub [Powrush-MMO](https://github.com/Eternally-Thriving-Grandmasterism/Powrush-MMO).
+- Browser client: GitHub [Powrush-MMO-Simulator](https://github.com/Eternally-Thriving-Grandmasterism/Powrush-MMO-Simulator) — not crate `powrush-mmo-simulator`.
+- Lattice sim: this repo (`reality-thriving-transfer` telemetry, `crates/powrush` policy hints, crate `powrush-mmo-simulator` mercy tick).
+- Shared only: NEVC + telemetry JSON + `ra_thor_policy_hint_v1`. Mode B stays offline-playable.
+- Do not grow unexported game files in `crates/powrush` (`player.rs`, `quests.rs`, joystick).
+
+See `docs/CONSTELLATION_SURFACES.md`.
 
 ## Tier 2 — Mission bridges
 
