@@ -135,37 +135,34 @@ impl GpuSurface {
 
         #[cfg(feature = "gpu-live")]
         {
-            use gpu_compute_pipeline::GpuTask;
-            let task = GpuTask {
-                id: self.dispatch_count + 1,
-                name: task_name.into(),
-                buffer_size: elements.max(64),
-                intensity: if elements > 8192 {
-                    "high".into()
-                } else {
-                    "medium".into()
-                },
-            };
-            let result = block_on_live(async {
+            // Real pipeline API is luma-ring motion estimate, not a GpuTask dispatcher.
+            let started = std::time::Instant::now();
+            let motion = block_on_live(async {
                 let mut pipe = self.pipeline.lock().await;
-                if real_gpu {
-                    pipe.mark_real_gpu(true);
-                }
-                pipe.dispatch_gpu_task(task).await
+                pipe.real_gpu = real_gpu;
+                // HIGH valence (0.999999) matches the pipeline mercy gate so the
+                // CPU energy path actually runs instead of empty_hold.
+                pipe.estimate_motion_pyramidal(0.999999).await
             });
+            let measured = started.elapsed().as_millis() as u64;
 
             self.dispatch_count += 1;
-            let measured = result.execution_time_ms.max(1);
+            let measured = measured.max(1);
             self.total_dispatch_time_ms += measured;
 
-            let workgroups = ((elements + 63) / 64) as u32;
+            let elems = if motion.vector_count > 0 {
+                motion.vector_count as usize
+            } else {
+                elements.max(1)
+            };
+            let workgroups = ((elems + 63) / 64) as u32;
             let tel = GpuDispatchTelemetry {
-                task_id: self.dispatch_count,
+                task_id: motion.frame_index.max(self.dispatch_count),
                 task_name: task_name.into(),
-                real_gpu: result.real_gpu,
+                real_gpu: motion.real_gpu,
                 dispatch_time_ms: measured,
-                readback_available: result.readback_data.is_some(),
-                elements_processed: elements,
+                readback_available: motion.vector_count > 0,
+                elements_processed: elems,
                 workgroups_dispatched: workgroups,
             };
             self.last_telemetry = Some(tel.clone());
