@@ -11,8 +11,9 @@ Ra-Thor workspace **14.15.6**. Contact [info@Rathor.ai](mailto:info@Rathor.ai). 
 - After slice 4 (#398, main `a98a45fb6ca9`): **508** root entries, **344** files, **164** directories
 - After slice 5 (#399, main `76d380691c47`): **485** root entries, **321** files, **164** directories; **0** root `POWRUSH_*.md`
 - After slice 6 (#400, main `98b54f39f46e`): **457** root entries, **293** files, **164** directories; two README-linked release-note files kept at root
-- After slice 7 (this PR): **262** root entries, **98** files, **164** directories; leftover root research markdown archived
-- Extensions (files): ~406 `.md` (pre-slice-1), ~163 `.js` then 155 archived in slice 2, 16 `.html` (living Pages stay), 11 `.rs` archived in slice 3, 22 junk / extensionless dumps archived in slice 4, 23 `POWRUSH_*` design notes archived in slice 5, 28 historical `RELEASE_*` / `WHITEPAPER_*` archived in slice 6 (keep-two stay at root), plus remaining spaced/broken names in later slices
+- After slice 7 (#401, main `bd0943c88745`): **262** root entries, **98** files, **164** directories; leftover root research markdown archived
+- After slice 8 (this PR): **254** root entries, **90** files, **164** directories; 4 `.metta` and 4 `.py` prototypes archived; last planned file slice
+- Extensions (files): ~406 `.md` (pre-slice-1), ~163 `.js` then 155 archived in slice 2, 16 `.html` (living Pages stay), 11 `.rs` archived in slice 3, 22 junk / extensionless dumps archived in slice 4, 23 `POWRUSH_*` design notes archived in slice 5, 28 historical `RELEASE_*` / `WHITEPAPER_*` archived in slice 6 (keep-two stay at root), plus remaining spaced/broken names in later slices, 4 `.metta` and 4 `.py` prototypes archived in slice 8 (last planned file slice)
 
 ## Keep at repo root (identity / gates / tooling)
 
@@ -29,7 +30,7 @@ Identity-linked extras that stay at root (do not archive): `ETERNAL-LATTICE-LAUN
 Stale identity links: `WHITEPAPER_v4.1.md` is no longer at root (do not restore). It now lives at `docs/archive/root-releases/WHITEPAPER_v4.1.md`. Also already gone; do not restore: `GPU_COMPUTE_LAYER.md`, `PRE_REGISTERED_CRITERIA.md`.
 
 
-Living directories that stay: `crates/`, `.github/`, `docs/` (this archive lives under it, including `docs/archive/root-rs/` for slice 3, `docs/archive/root-junk/` for slice 4, `docs/archive/powrush-notes/` for slice 5, `docs/archive/root-releases/` for slice 6, and `docs/archive/root-notes/misc/` for slice 7), `website/`, `js/` (living scripts plus `js/archive/root-engines/` for slice 2), `fixtures/`, `css/`, and other in-use trees. Do not one-shot-move the 164-dir forest.
+Living directories that stay: `crates/`, `.github/`, `docs/` (this archive lives under it, including `docs/archive/root-rs/` for slice 3, `docs/archive/root-junk/` for slice 4, `docs/archive/powrush-notes/` for slice 5, `docs/archive/root-releases/` for slice 6, and `docs/archive/root-notes/misc/` for slice 7, and `docs/archive/root-notes/prototypes/` for slice 8), `website/`, `js/` (living scripts plus `js/archive/root-engines/` for slice 2), `fixtures/`, `css/`, and other in-use trees. Do not one-shot-move the 164-dir forest.
 
 ## Slice 1 (#395)
 
@@ -165,7 +166,7 @@ Moved:
 
 No living Pages HTML, identity JS, `Cargo.toml`, `crates/`, or `.github/` changes. Independent of xAI.
 
-## Slice 7 (this PR)
+## Slice 7 (#401)
 
 **195** leftover root research markdown files archived to `docs/archive/root-notes/misc/` (same basenames). Blob SHAs unchanged (git-mv equivalent). Identity docs and identity-linked extras stay at root. Conductor **v14** only — `LATTICE_CONDUCTOR_v13_BLUEPRINT.md` and `PATSAGi-ROADMAP-v13.md` are archived, not revived. `ETERNAL_SELF_EVOLUTION_PROTOCOL_v1.0.md` is archival notes only; do not invent `crates/self-evolution` as a product.
 
@@ -369,13 +370,32 @@ Moved:
 
 No living Pages HTML, identity JS, `Cargo.toml`, `crates/`, or `.github/` changes. Independent of xAI.
 
+
+## Slice 8 (this PR)
+
+**8** root MeTTa / Python prototypes archived to `docs/archive/root-notes/prototypes/` (same basenames). Blob SHAs unchanged (git-mv equivalent). Last planned file slice. Pages HTML and identity files stay at root. Directory forest remains HOLD. Conductor **v14** only.
+
+Moved:
+
+- `AbsolutePureTruthCo-OpMatchupLattice.metta`
+- `AbsolutePureTruthMatchupLattice.metta`
+- `mercy_ethics_core.metta`
+- `nexi_integration.metta`
+- `calibration_reader.py`
+- `nexi_council_prototype_simulation.py`
+- `nexi_plonk_valence_council_sim.py`
+- `quantize_with_aimet.py`
+
+No living Pages HTML, identity JS, identity markdown, `Cargo.toml`, `crates/`, or `.github/` changes. Independent of xAI.
+
 ## Later slices (not this PR)
 
-- Pages HTML (16) stays at root unless proven dead (GitHub Pages / site; CNAME stays)
+File-level dump is otherwise sorted. Remaining HOLD:
+
+- Pages HTML stays at root unless proven dead (GitHub Pages / site; CNAME stays). Candidates later (not this PR): `ra-thor-website-1.html`, `test-light.html`, `Launch-Ra-Thor.html`
 - keep JS at root (PWA / identity / tooling)
-- 4 `.metta`, 4 `.py`
 - tooling json/css (including `powrush_config.json`, `manifest.json`, `ra-thor.css`)
-- 164 root directories (research-dir forest, zk gadgets, orchestrators, `self-evolution/`, `xai-grok-bridge/`, powrush*, NEXi). HOLD inventing `crates/self-evolution` as a product.
+- 164 root directories (research-dir forest, zk gadgets, orchestrators, `self-evolution/`, `xai-grok-bridge/`, powrush*, NEXi). Do not one-shot-move the directory forest. HOLD inventing `crates/self-evolution` as a product.
 - leftover Pages config: `_headers` stays
 - `docs/` itself is already a large research dump; do not recursive-walk it in CI.
 
