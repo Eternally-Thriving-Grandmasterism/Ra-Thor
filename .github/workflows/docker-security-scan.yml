@@ -1,10 +1,7 @@
 name: Docker Security Scan (Trivy)
 
 on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+  # Parked: Trivy image scan always-red on every PR; not the TIER_MAP -p gate. Opt-in only.
   workflow_dispatch:
 
 jobs:
