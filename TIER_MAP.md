@@ -40,6 +40,16 @@ Full `--workspace` jobs (`ci.yml`, `ra-thor-ci.yml`) are `workflow_dispatch` onl
 
 ---
 
+## Powrush split (do not collapse)
+
+- Player loop: GitHub [Powrush-MMO](https://github.com/Eternally-Thriving-Grandmasterism/Powrush-MMO).
+- Browser client: GitHub [Powrush-MMO-Simulator](https://github.com/Eternally-Thriving-Grandmasterism/Powrush-MMO-Simulator) — not crate `powrush-mmo-simulator`.
+- Lattice sim: this repo (`reality-thriving-transfer` telemetry, `crates/powrush` policy hints, crate `powrush-mmo-simulator` mercy tick).
+- Shared only: NEVC + telemetry JSON + `ra_thor_policy_hint_v1`. Mode B stays offline-playable.
+- Do not grow unexported game files in `crates/powrush` (`player.rs`, `quests.rs`, joystick).
+
+See `docs/CONSTELLATION_SURFACES.md`.
+
 ## Tier 2 — Mission bridges
 
 | Surface | Role |
