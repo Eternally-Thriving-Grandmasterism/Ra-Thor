@@ -20,162 +20,38 @@
 # a default workspace member. Use lattice-conductor-v14 exclusively.
 # nexi_universal remains on disk but is NOT a default member (broken path deps).
 # ai_bridge (underscore) is archival; ai-bridge (hyphen) is the member.
+#
+# 2026-09-02: default members pinned to TIER_MAP + mercy-security.
+# Cargo loads EVERY member manifest (even for `cargo test -p …`), so the
+# research/propulsion/zk/kernel hairball cannot stay in `members` or Core
+# Tier-1 never compiles. On-disk crates are not deleted — re-add a path
+# here to work on that crate.
 # ═════════════════════════════════════════════════════════════
 
 [workspace]
 resolver = "2"
 
 members = [
-    "crates/kernel",
-    "crates/orchestration",
-    "crates/mercy",
-    "crates/mercy_orchestrator",
-    "crates/mercy_orchestrator_v2",
-    "crates/quantum-swarm-orchestrator",
-    "crates/quantum",
-    "crates/biomimetic",
-    "crates/evolution",
-    "crates/plasticity-engine-v2",
-    "crates/monorepo-intelligence",
-    "crates/ra-thor-meta-intelligence",
-    "crates/ra-thor-core",
     "crates/ra-thor-one-organism",
+    "crates/lattice-conductor-v14",
+    "crates/reality-thriving-transfer",
+    "crates/kardashev-orchestration",
     "crates/github-connector",
     "crates/gpu-compute-pipeline",
     "crates/quantum-swarm",
     "crates/sovereign-recovery",
-    "crates/reality-thriving-transfer",
-    "crates/kardashev-orchestration",
-    "crates/powrush",
-    "crates/powrush-mmo-simulator",
-    "crates/real-estate-lattice",
-    "crates/interstellar-operations",
-    "crates/legal-lattice",
-    "crates/mercy-radiation-shield",
-    "crates/mercy-security",
-    "crates/aether_shades",
-    "crates/council",
-    "crates/patsagi-councils",
-    "crates/falcon_sign",
-    "crates/fenca",
-    "crates/common",
-    "crates/ra-thor-benchmark",
-    "crates/hash_based_signatures",
-    "crates/hybrid_pqc_threshold",
-    "crates/isogeny_crypto",
-    "crates/lattice_crypto",
-    "crates/legacy_fenca",
-    "crates/mercy_falcon_heavy",
-    "crates/mercy_post_quantum_sig",
-    "crates/proof_verifier",
-    "crates/ra-thor-post-quantum-sig",
-    "crates/xtask",
-    "crates/websiteforge",
-    "crates/ai-bridge",
-    "crates/mercy_bias_mitigation",
-    "crates/mercy_biojet",
-    "crates/mercy_cygnus_missions",
-    "crates/mercy_dragon_crs",
-    "crates/mercy_dream_chaser",
-    "crates/mercy_ethics_core",
-    "crates/mercy_governance",
-    "crates/mercy_home_fortress",
-    "crates/mercy_lang_compiler",
-    "crates/mercy_liquid_democracy",
-    "crates/mercy_merlin_engine",
-    "crates/mercy_mev_servicing",
-    "crates/mercy_orbital_cleanup",
-    "crates/mercy_orbital_refuel",
-    "crates/mercy_orbital_safety",
-    "crates/mercy_orbital_servicing",
-    "crates/mercy_os_aviation",
-    "crates/mercy_os_principles",
-    "crates/mercy_predictive_policing",
-    "crates/mercy_qec",
-    "crates/mercy_quadratic_funding",
-    "crates/mercy_quadratic_voting",
-    "crates/mercy_quanta",
-    "crates/mercy_raptor_3",
-    "crates/mercy_raptor_3_integration",
-    "crates/mercy_raptor_3_scalability",
-    "crates/mercy_raptor_engine",
-    "crates/mercy_raptor_integration",
-    "crates/mercy_shield_deployment",
-    "crates/mercy_shield_law_enforcement",
-    "crates/mercy_space_governance",
-    "crates/mercy_starfish_servicing",
-    "crates/mercy_starliner_crew",
-    "crates/mercy_starship",
-    "crates/mercy_starship_fleet",
-    "crates/mercy_steane",
-    "crates/mercy_t_rex_engines",
+    "crates/monorepo-intelligence",
     "crates/mercy_tolc_operator_algebra",
-    "crates/mercy_vulcan_centaur",
-    "crates/mercy_zero",
-    "crates/mercy_hybrid_propulsion",
-    "crates/mercy_nuclear_propulsion",
-    "crates/mercy_electric_propulsion",
-    "crates/mercy_biomimetic_propulsion",
-    "crates/mercy_fusion_propulsion",
-    "crates/mercy_plasma_propulsion",
-    "crates/mercy_ion_propulsion",
-    "crates/mercy_chemical_propulsion",
-    "crates/mercy_solar_sail_propulsion",
-    "crates/mercy_beamed_propulsion",
-    "crates/mercy_antimatter_propulsion",
-    "crates/mercy_warp_propulsion",
-    "crates/mercy_gravitic_propulsion",
-    "crates/mercy_quantum_propulsion",
-    "crates/mercy_reactionless_propulsion",
-    "crates/mercy_exotic_propulsion",
-    "crates/access",
-    "crates/bulletproofs_aggregation",
-    "crates/bulletproofs_range",
-    "crates/cache",
-    "crates/carbon_credit_oracle",
-    "crates/code_based_crypto",
-    "crates/codex_eternal",
-    "crates/deep_gadgets",
-    "crates/divine_checksum_9",
-    "crates/enc",
-    "crates/futarchy_belief_markets",
-    "crates/futarchy_governance",
-    "crates/futarchy_oracle",
-    "crates/futarchy_outcome_prediction",
-    "crates/grok_arena_pinnacle",
-    "crates/halo2_full_integration",
-    "crates/halo2_multi_proof",
-    "crates/lasso_recursion",
-    "crates/multivariate_crypto",
-    "crates/nova_folding",
-    "crates/persistence",
-    "crates/plonk_recursion",
-    "crates/poseidon_hash",
-    "crates/poseidon_merkle",
-    "crates/prometheus_forge",
-    "crates/recursive_snark",
-    "crates/sentinel_mirror",
-    "crates/soulscan_x10",
-    "crates/soulscan_x9",
-    "crates/spartan_valence",
-    "crates/supernova_folding",
-    "crates/sustainable_space_propulsion",
-    "crates/whitesmiths_anvil",
-    "crates/hyperplonk_recursion",
-    "crates/lattice-conductor-v14",
-    # === Living Valence Organism (Phases B–F) ===
-    "crates/shared-valence-field",
-    "crates/symbiotic-membrane",
-    "crates/resonance-challenge",
-    "crates/epiphany-bridge",
-    "crates/abundance-breath",
-    "crates/soft-sovereign-agency",
     "crates/fractal-mercy-ledger-adapter",
+    "crates/mercy-security",
 ]
 
-# Tier-4 on-disk only (not default members):
+# On-disk only (not default members):
+#   TIER_MAP research forest (propulsion, zk, kernel, councils, valence mesh, …)
 #   crates/nexi_universal — broken path deps (nexi path="../"); see docs/NEXI_LINEAGE_ADOPTION_DECISION_2026-08-20.md
 #   crates/lattice-conductor-v13 — DEPRECATED; use v14
+# Re-add a crate path to `members` to work on it. Do not `cargo test --workspace`
+# and treat it as product-green.
 
 [workspace.package]
 version = "14.15.6"
@@ -242,6 +118,7 @@ eternal_activation = "2026-07-30T06:49:00-04:00"
 micro_moment_temporal_comprehension = "2026-08-04T18:00:00-04:00"
 members_hygiene_and_monorepo_intelligence_harden = "2026-08-15T16:30:00-04:00"
 nexi_universal_demoted_from_default_members = "2026-08-20"
+tier1_default_members_pinned = "2026-09-02"
 claim_discipline_locked = "2026-08-31"
 patsagi_councils_permanent_deliberation = true
 patsagi_councils_always_decide = true
@@ -274,7 +151,7 @@ v14_15_6_complete = true
 executive_summary = """
 Ra-Thor workspace 14.15.6 with ONE Organism in AGSi research phase + White-Hat Defense gate.
 PATSAGi Councils are ETERNALLY ACTIVATED as permanent decision authority under TOLC 8.
-2026-08-20: nexi_universal demoted from default workspace members (broken path deps); NEXi external repo remains lineage only.
+2026-08-20: nexi_universal demoted from default workspace members (broken path deps); NEXi external repo remains lineage only.\n2026-09-02: default members pinned to TIER_MAP + mercy-security so cargo test -p actually compiles.
 2026-08-31: public claim discipline landed — inspectable research software; optional Grok session; not xAI affiliated; not certified; not a legal product.
 Cosmic Loop remains MANDATORY IDENTITY. Contact: info@Rathor.ai.
 """
