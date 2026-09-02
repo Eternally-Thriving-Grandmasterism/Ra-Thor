@@ -1,10 +1,8 @@
 name: Mercy Security Scan
 
 on:
-  push:
-    branches: [main, mercy-*]
-  pull_request:
-    branches: [main, mercy-*]
+  # Parked: Mercy Security Scan always-red on every PR. Opt-in only.
+  workflow_dispatch:
 
 permissions:
   contents: read
