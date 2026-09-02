@@ -1,10 +1,9 @@
 name: Ra-Thor CI/CD (xtask integrated)
 
 on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+  # cargo test --workspace + clippy --workspace is opt-in.
+  # Default PR/main gate is core-tier1-ci.yml.
+  workflow_dispatch:
 
 jobs:
   check:
