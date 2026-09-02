@@ -357,7 +357,7 @@ impl ActionGovernor {
                     return Err(MercySecurityError::ActionLimitExceeded(format!(
                         "sandbox churn > {}",
                         self.profile.max_concurrent_sandboxes
-                    ));
+                    )));
                 }
             }
         }
