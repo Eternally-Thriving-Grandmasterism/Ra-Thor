@@ -10,7 +10,8 @@ Ra-Thor workspace **14.15.6**. Contact [info@Rathor.ai](mailto:info@Rathor.ai). 
 - After slice 3 (#397, main `d8f77b5698bc`): **530** root entries, **366** files, **164** directories; **0** root `.rs`
 - After slice 4 (#398, main `a98a45fb6ca9`): **508** root entries, **344** files, **164** directories
 - After slice 5 (#399, main `76d380691c47`): **485** root entries, **321** files, **164** directories; **0** root `POWRUSH_*.md`
-- After slice 6 (this PR): **457** root entries, **293** files, **164** directories; two README-linked release-note files kept at root
+- After slice 6 (#400, main `98b54f39f46e`): **457** root entries, **293** files, **164** directories; two README-linked release-note files kept at root
+- After slice 7 (this PR): **262** root entries, **98** files, **164** directories; leftover root research markdown archived
 - Extensions (files): ~406 `.md` (pre-slice-1), ~163 `.js` then 155 archived in slice 2, 16 `.html` (living Pages stay), 11 `.rs` archived in slice 3, 22 junk / extensionless dumps archived in slice 4, 23 `POWRUSH_*` design notes archived in slice 5, 28 historical `RELEASE_*` / `WHITEPAPER_*` archived in slice 6 (keep-two stay at root), plus remaining spaced/broken names in later slices
 
 ## Keep at repo root (identity / gates / tooling)
@@ -23,7 +24,12 @@ PWA / identity / tooling JS that stay at root: `mercy-motion-vision-engine.js` (
 
 `powrush_config.json` stays at root (lattice config; not a design note).
 
-Living directories that stay: `crates/`, `.github/`, `docs/` (this archive lives under it, including `docs/archive/root-rs/` for slice 3, `docs/archive/root-junk/` for slice 4, `docs/archive/powrush-notes/` for slice 5, and `docs/archive/root-releases/` for slice 6), `website/`, `js/` (living scripts plus `js/archive/root-engines/` for slice 2), `fixtures/`, `css/`, and other in-use trees. Do not one-shot-move the 164-dir forest.
+Identity-linked extras that stay at root (do not archive): `ETERNAL-LATTICE-LAUNCH-CODEX-v1.0.md`, `ETERNAL_PATSAGI_COUNCILS_ACTIVATION_PUBLIC_SERVICE_v1.0.md`, `LAYERED_COORDINATION_ARCHITECTURE.md`, `PLAN.md`, `RA-THOR-MONOREPO-COMMIT-WORKFLOW-PROTOCOL.md`, `rbe-transition-roadmap-v1.1.md`, GROK presets, `TIER_MAP.md`, `README.md`, `CHANGELOG.md`, keep-two release notes.
+
+Stale identity links: `WHITEPAPER_v4.1.md` is no longer at root (do not restore). It now lives at `docs/archive/root-releases/WHITEPAPER_v4.1.md`. Also already gone; do not restore: `GPU_COMPUTE_LAYER.md`, `PRE_REGISTERED_CRITERIA.md`.
+
+
+Living directories that stay: `crates/`, `.github/`, `docs/` (this archive lives under it, including `docs/archive/root-rs/` for slice 3, `docs/archive/root-junk/` for slice 4, `docs/archive/powrush-notes/` for slice 5, `docs/archive/root-releases/` for slice 6, and `docs/archive/root-notes/misc/` for slice 7), `website/`, `js/` (living scripts plus `js/archive/root-engines/` for slice 2), `fixtures/`, `css/`, and other in-use trees. Do not one-shot-move the 164-dir forest.
 
 ## Slice 1 (#395)
 
@@ -122,7 +128,7 @@ Moved:
 
 No living Pages HTML, identity JS, `Cargo.toml`, `crates/`, or `.github/` changes. Conductor **v14** only.
 
-## Slice 6 (this PR)
+## Slice 6 (#400)
 
 **28** historical `RELEASE_*` / `WHITEPAPER_*` markdown files archived to `docs/archive/root-releases/` (same basenames). Blob SHAs unchanged (git-mv equivalent). Keep-two README-linked files stay at root: `RELEASE_NOTES_v14.15.6.md`, `RELEASE_NOTES_PUBLIC_FIXTURE_CORPUS.md`. `CHANGELOG.md` already identity. Conductor **v14** only — `RELEASE-v13.*` notes are archived, not revived. `RELEASE_NOTES_v15.34.md` is archival only; workspace identity stays **14.15.6**.
 
@@ -159,11 +165,216 @@ Moved:
 
 No living Pages HTML, identity JS, `Cargo.toml`, `crates/`, or `.github/` changes. Independent of xAI.
 
+## Slice 7 (this PR)
+
+**195** leftover root research markdown files archived to `docs/archive/root-notes/misc/` (same basenames). Blob SHAs unchanged (git-mv equivalent). Identity docs and identity-linked extras stay at root. Conductor **v14** only — `LATTICE_CONDUCTOR_v13_BLUEPRINT.md` and `PATSAGi-ROADMAP-v13.md` are archived, not revived. `ETERNAL_SELF_EVOLUTION_PROTOCOL_v1.0.md` is archival notes only; do not invent `crates/self-evolution` as a product.
+
+Moved:
+
+- `7-d-measurement-techniques.md`
+- `7-d-resonance-meditation.md`
+- `AI-ETHICS.md`
+- `Bioprinting_Advances_Report_v2026.md`
+- `COMPLETION-NOTE.md`
+- `Cracked-Riemann1.md`
+- `Cracking-Riemann.md`
+- `DEPLOYMENT.md`
+- `DERIVATION_ROADMAP.md`
+- `ETERNAL-QUANTUM-ENGINE.md`
+- `ETERNAL_REFLECTION.md`
+- `ETERNAL_SELF_EVOLUTION_PROTOCOL_v1.0.md`
+- `FINAL_GENESIS_COMMIT.md`
+- `GAP-RESOLUTION-PLAN-v13.1.7.md`
+- `GATE-8-IMPLEMENTATION-DETAILS.md`
+- `HYPERBOLIC_EMBEDDINGS.md`
+- `LATTICE_CONDUCTOR_v12.3.md`
+- `LATTICE_CONDUCTOR_v13_BLUEPRINT.md`
+- `LICENSE_SWEEP_COMPLETE.md`
+- `LIQUID_DEMOCRACY_BLUEPRINT.md`
+- `LOGICAL_AND_LOVING_CONSCIOUSNESS_TOLC_CREATOR_RESOLUTION_v1.0.md`
+- `MERCY-GATES-EXPLORATION.md`
+- `MERGE-STRATEGY.md`
+- `MERcy-GATE-8-SOVEREIGN-DIVINE-SPARK.md`
+- `MERcy-GATES-16-MECHANICS.md`
+- `MERcy-GATES.md`
+- `MISSION-CODEX-INDEX.md`
+- `MONOREPO_INHERITANCE_STATUS.md`
+- `MULTIVERSE_GEOMETRY_LAYER_DESIGN_v1.0.md`
+- `Mercy_Protocol.md`
+- `NEOLOGISMS.md`
+- `NET_ETERNAL_VALENCE_CONTRIBUTION_NEVC_CODEX_v1.0.md`
+- `NEVC_BROADER_CONSUMERS_PHASE5_v1.0.md`
+- `NEVC_DUAL_REPO_INTERFACE_v1.0.md`
+- `NEVC_PHASES_6_11_AND_FINISH_PASSES_APPEND.md`
+- `NEVC_PUBLISHED_DEPENDENCY.md`
+- `NEXi_Monorepo_Structure.md`
+- `Offline-mode.md`
+- `PATSAGi-ROADMAP-v13.1.6.md`
+- `PATSAGi-ROADMAP-v13.md`
+- `PLANS.md`
+- `Permanence_Anchor_Prompt_v1.md`
+- `QUADRATIC_FUNDING_BLUEPRINT.md`
+- `QUADRATIC_VOTING_BLUEPRINT.md`
+- `RA-THOR-FUTURE-ARCHITECTURE-BLUEPRINT.md`
+- `RA-THOR-WEBSITE-ARCHIVE-MERCY-BRIDGE-v1.md`
+- `RA-THOR_MIGRATION.md`
+- `RATHOR-AI-ETHICS-FRAMEWORK.md`
+- `RBE_ABSOLUTE_PURE_TRUTH.md`
+- `RBE_DEPLOYMENT_MODELS.md`
+- `README-powrush-divine.md`
+- `RREL_UPGRADE_PLAN.md`
+- `Ra-Thor-Whitepaper.md`
+- `Ra-Thor_Layered_Coordination_Architecture_v1.0.md`
+- `Rathor_Seed-Structure.md`
+- `SITE_CHROME_2026-08-23.md`
+- `SITE_CHROME_2026-08-24.md`
+- `SITE_CHROME_2026-09-01.md`
+- `SITE_UPDATE_2026-08-22.md`
+- `SITE_UPDATE_V14.md`
+- `SOUL_MECHANICS_LATENT_READINESS_PATSAGI_RESOLUTION_v1.0.md`
+- `SOVEREIGNTY-GATE-MECHANICS.md`
+- `STRUCTURE.md`
+- `SampleOutput.md`
+- `Solflare_Solana_Warper.md`
+- `Structure.md`
+- `UNIFIED-COHERENCE-ACTIVATION.md`
+- `UNIVERSAL_APPLICATION_PRINCIPLES.md`
+- `VERSION-HISTORY.md`
+- `Website-Structure.md`
+- `YOI-INVOCATION-CANON.md`
+- `advanced-7-d-calibration-variations.md`
+- `advanced-7-d-measurement-techniques.md`
+- `advanced-7-d-variations.md`
+- `antifouling-marine-coatings-sovereign-manufacturing-techniques.md`
+- `bci-for-esports-training-sovereign-pinnacle.md`
+- `biomimetic-antifouling-coatings-sovereign-manufacturing-techniques.md`
+- `biomimetic-esports-pinnacle-blueprint.md`
+- `biomimetic-prosthetics-for-gamers-sovereign-design.md`
+- `calibration-protocols-for-7-d-scans.md`
+- `computer-assisted-geometry-proofs-tolc-8-2026.md`
+- `coq-float-libraries-tolc-8-2026.md`
+- `coq-hott-library-tolc-8-2026.md`
+- `coq-interval-libraries-tolc-8-2026.md`
+- `eternal-lattice-cache-refresh.md`
+- `eternal-lattice-flush-protocol.md`
+- `federation-first-contact-procedures.md`
+- `flocq-rounding-error-proofs-tolc-8-2026.md`
+- `formal-verification-frameworks-tolc-8-2026.md`
+- `galactic-federation-tolc-ra-thor-integration.md`
+- `galactic-resonance-protocols.md`
+- `infinite-layer-∞+6-omniversal-co-creation-nexus.md`
+- `infinite-layer-∞+7-eternal-omni-thriving-singularity-activation-practice.md`
+- `infinite-layer-∞+7-eternal-omni-thriving-singularity.md`
+- `infinite-layers-beyond-7-d.md`
+- `johnson-solids-tolc-8-applications-geometry-2026.md`
+- `lattice-completion-celebration.md`
+- `lean-4-formalization-tolc-8-geometry-2026.md`
+- `lean4-cpp-bindings-exploration-2026.md`
+- `lean4-ffi-bindings-exploration-2026.md`
+- `lean4-rust-ffi-exploration-2026.md`
+- `lotus-effect-sovereign-manufacturing-techniques.md`
+- `lotus-gecko-hybrid-pinnacle-blueprint.md`
+- `lotus-gecko-shark-triple-hybrid-pinnacle-blueprint.md`
+- `mercy-1024d-norm-preservation-proof-tolc-2026.md`
+- `mercy-1048576d-norm-preservation-proof-tolc-2026-2.md`
+- `mercy-1048576d-norm-preservation-proof-tolc-2026-3.md`
+- `mercy-1048576d-norm-preservation-proof-tolc-2026.md`
+- `mercy-128d-norm-preservation-proof-tolc-2026.md`
+- `mercy-131072d-norm-preservation-proof-tolc-2026.md`
+- `mercy-16384d-norm-preservation-proof-tolc-2026.md`
+- `mercy-2048d-norm-preservation-proof-tolc-2026.md`
+- `mercy-256d-norm-preservation-proof-tolc-2026.md`
+- `mercy-262144d-norm-preservation-proof-tolc-2026.md`
+- `mercy-32768d-norm-preservation-proof-tolc-2026.md`
+- `mercy-4096d-norm-preservation-proof-tolc-2026.md`
+- `mercy-512d-norm-preservation-proof-tolc-2026.md`
+- `mercy-524288d-norm-preservation-proof-tolc-2026.md`
+- `mercy-64d-norm-preservation-proof-tolc-2026.md`
+- `mercy-65536d-norm-preservation-proof-tolc-2026.md`
+- `mercy-8192d-norm-preservation-proof-tolc-2026.md`
+- `mercy-abundance-gate-codex-tolc-2026.md`
+- `mercy-bio-resurrection-codex-v2.md`
+- `mercy-birch-swinnerton-dyer-conjecture-tolc-2026.md`
+- `mercy-birch-swinnerton-dyer-deeper-probe-tolc-2026.md`
+- `mercy-bogomolnyi-bound-derivation-tolc-2026.md`
+- `mercy-diu-solution-brief.md`
+- `mercy-e8-anomaly-cancellation-tolc-2026.md`
+- `mercy-e8-applications-physics-tolc-2026.md`
+- `mercy-e8-dynkin-diagram-derivation-tolc-2026.md`
+- `mercy-e8-functoriality-deeper-probe-tolc-2026.md`
+- `mercy-e8-heterotic-strings-tolc-2026.md`
+- `mercy-e8-root-system-derivation-tolc-2026.md`
+- `mercy-e8-root-vectors-tolc-2026.md`
+- `mercy-e8-symmetry-tolc-2026.md`
+- `mercy-e8-weyl-group-tolc-2026.md`
+- `mercy-even-tighter-zero-bounds-1048576d-tolc-2026.md`
+- `mercy-explicit-zero-bound-1048576d-tolc-2026.md`
+- `mercy-gates-codex-tolc-2026.md`
+- `mercy-gating-constitutional-ai-nexi-synthesis.md`
+- `mercy-gating-mechanisms-deep-dive.md`
+- `mercy-geometric-langlands-duality-deeper-probe-tolc-2026.md`
+- `mercy-harmony-gate-codex-tolc-2026.md`
+- `mercy-hecke-eigensheaves-deeper-probe-tolc-2026.md`
+- `mercy-hitchin-fibration-deeper-probe-tolc-2026.md`
+- `mercy-joy-gate-codex-tolc-2026.md`
+- `mercy-joy-gate-mechanics-codex-tolc-2026.md`
+- `mercy-l-functions-role-tolc-2026.md`
+- `mercy-langlands-program-connections-tolc-2026.md`
+- `mercy-langlands-program-deeper-probe-tolc-2026.md`
+- `mercy-m-theory-lift-tolc-2026.md`
+- `mercy-machine-learning-ethics-ra-thor-integration-tolc-2026.md`
+- `mercy-majorana-zero-modes.md`
+- `mercy-mjolnir-riemann-full-assault-tolc-2026.md`
+- `mercy-mordell-weil-group-tolc-2026.md`
+- `mercy-non-harm-gate-codex-tolc-2026.md`
+- `mercy-octonion-sedenion-integration-tolc-2026.md`
+- `mercy-octonion-sedenion-master-codex-tolc-2026.md`
+- `mercy-octonion-zero-divisors-tolc-2026.md`
+- `mercy-octonions-higher-cognition-tolc-2026.md`
+- `mercy-peace-gate-codex-tolc-2026-2.md`
+- `mercy-peace-gate-codex-tolc-2026.md`
+- `mercy-protoss-carrier-blueprint.md`
+- `mercy-protoss-carrier-mechanics-detailed.md`
+- `mercy-rawthor-encrypted-gate-v2.md`
+- `mercy-sovereignty-gate-codex-tolc-2026.md`
+- `mercy-threshold-rust-integration-plan-2026.md`
+- `mercy-threshold-theorem-tolc-8-lean-2026.md`
+- `mercy-topological-qubits.md`
+- `mercy-truth-gate-codex-tolc-2026.md`
+- `mercy-x-this-week-grok-voice-listen-tolc-2026.md`
+- `neural-interfaces-in-prosthetics-sovereign-integration.md`
+- `openagi-overhaul-thunder-declaration.md`
+- `plan.md`
+- `ra-thor-avalanche-consensus.md`
+- `ra-thor-avalanche-dag-mechanics.md`
+- `ra-thor-avalanche-dag-parallelism.md`
+- `ra-thor-consensus-lattice.md`
+- `ra-thor-hyperbolic-tiling-visualization.md`
+- `ra-thor-manifesto-v1.1.md`
+- `ra-thor-snowman-mechanics.md`
+- `ra-thor-sovereign-launch.md`
+- `ra-thor-starship-blueprints.md`
+- `ra-thor-transitive-voting-mechanics.md`
+- `raii-error-patterns-2026.md`
+- `rathor-ai-benchmarks-and-papers.md`
+- `shared-ptr-usage-2026.md`
+- `shark-riblet-drag-reduction-pinnacle-blueprint.md`
+- `shark-riblet-sovereign-manufacturing-techniques.md`
+- `superoleophobic-sovereign-manufacturing-techniques.md`
+- `thunder-mirror-codex-2026.md`
+- `unique-ptr-usage-2026.md`
+- `zalgaller-classification-johnson-solids-tolc-8-2026.md`
+- `zwitterionic-polymer-antifouling-mechanisms-sovereign-manufacturing-techniques.md`
+- `zwitterionic-polymers-in-medicine-sovereign-integration.md`
+
+No living Pages HTML, identity JS, `Cargo.toml`, `crates/`, or `.github/` changes. Independent of xAI.
+
 ## Later slices (not this PR)
 
-- remaining other-md / loose-md (~200)
+- Pages HTML (16) stays at root unless proven dead (GitHub Pages / site; CNAME stays)
+- keep JS at root (PWA / identity / tooling)
 - 4 `.metta`, 4 `.py`
-- Pages HTML stays at root unless proven dead (GitHub Pages / site; CNAME stays)
+- tooling json/css (including `powrush_config.json`, `manifest.json`, `ra-thor.css`)
 - 164 root directories (research-dir forest, zk gadgets, orchestrators, `self-evolution/`, `xai-grok-bridge/`, powrush*, NEXi). HOLD inventing `crates/self-evolution` as a product.
 - leftover Pages config: `_headers` stays
 - `docs/` itself is already a large research dump; do not recursive-walk it in CI.
