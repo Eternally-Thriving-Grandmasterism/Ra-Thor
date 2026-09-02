@@ -38,7 +38,7 @@ Identity-linked extras that stay at root (do not archive): `ETERNAL-LATTICE-LAUN
 Stale identity links: `WHITEPAPER_v4.1.md` is no longer at root (do not restore). It now lives at `docs/archive/root-releases/WHITEPAPER_v4.1.md`. Also already gone; do not restore: `GPU_COMPUTE_LAYER.md`, `PRE_REGISTERED_CRITERIA.md`.
 
 
-Living directories that stay: `crates/`, `.github/`, `docs/` (this archive lives under it, including `docs/archive/root-rs/` for slice 3, `docs/archive/root-junk/` for slice 4, `docs/archive/powrush-notes/` for slice 5, `docs/archive/root-releases/` for slice 6, and `docs/archive/root-notes/misc/` for slice 7, and `docs/archive/root-notes/prototypes/` for slice 8, and `docs/archive/root-dirs/mercy-research/` for directory slice 1, and `docs/archive/root-dirs/orchestrators/` for directory slice 2, and `docs/archive/root-dirs/powrush/` for directory slice 3, and `docs/archive/root-dirs/lineage/` for directory slice 4, and `docs/archive/root-dirs/zk-gadgets/` for directory slice 5, and `docs/archive/root-dirs/crate-dupes/` for directory slice 6, and `docs/archive/root-dirs/research/` for directory slice 7, and `docs/archive/root-dirs/app-dumps/` for directory slice 8), `website/`, `js/` (living scripts plus `js/archive/root-engines/` for slice 2), `fixtures/`, `css/`, `api/`, `app/`, `pages/`, `data/`, and other in-use trees. Leftover app/core dump directories are archived; Next.js `api/` `app/` `pages/` and `data/` stay at root. Remaining at root is the living keep set. Follow-up (not this PR): `pages/_app.js` still imports `../mercy-orchestrator.js` which was archived to `js/archive/root-engines/` in #396.
+Living directories that stay: `crates/`, `.github/`, `docs/` (this archive lives under it, including `docs/archive/root-rs/` for slice 3, `docs/archive/root-junk/` for slice 4, `docs/archive/powrush-notes/` for slice 5, `docs/archive/root-releases/` for slice 6, and `docs/archive/root-notes/misc/` for slice 7, and `docs/archive/root-notes/prototypes/` for slice 8, and `docs/archive/root-dirs/mercy-research/` for directory slice 1, and `docs/archive/root-dirs/orchestrators/` for directory slice 2, and `docs/archive/root-dirs/powrush/` for directory slice 3, and `docs/archive/root-dirs/lineage/` for directory slice 4, and `docs/archive/root-dirs/zk-gadgets/` for directory slice 5, and `docs/archive/root-dirs/crate-dupes/` for directory slice 6, and `docs/archive/root-dirs/research/` for directory slice 7, and `docs/archive/root-dirs/app-dumps/` for directory slice 8), `website/`, `js/` (living scripts plus `js/archive/root-engines/` for slice 2), `fixtures/`, `css/`, `api/`, `app/`, `pages/`, `data/`, and other in-use trees. Leftover app/core dump directories are archived; Next.js `api/` `app/` `pages/` and `data/` stay at root. Remaining at root is the living keep set. Follow-up: `pages/_app.js` stale `../mercy-orchestrator.js` import — fixed in this PR (dropped bogus layout wrapper).
 
 ## Slice 1 (#395)
 
@@ -588,7 +588,7 @@ No `crates/`, `Cargo.toml`, `.github/`, Pages identity, `js/`, `css/`, `fixtures
 
 **8** leftover root app/core dump trees archived to `docs/archive/root-dirs/app-dumps/` (same directory names). Tree SHAs reused (git-mv equivalent; no recursive walk). Archival root dumps, not the living Next.js surface. Not moved (stay at root): `api/` (Next API stub `done.js`), `app/` (app router), `pages/` (Next `_app.js` / `index.js`), `data/` (`nevc_status.json`). `Cargo.toml` members unchanged. `crates/` unchanged. Conductor **v14** only. Independent of xAI. Research software; not a certified, legal, or AGSi-warranty product. Human override on drafts. Do not invent a self-evolution product. Do not fold Powrush-MMO.
 
-Follow-up (not this PR): `pages/_app.js` still imports `../mercy-orchestrator.js`, which was archived to `js/archive/root-engines/` in #396.
+Follow-up: `pages/_app.js` stale `../mercy-orchestrator.js` import — fixed in this PR (dropped bogus layout wrapper).
 
 Moved:
 
@@ -608,7 +608,7 @@ No `crates/`, `Cargo.toml`, `.github/`, Pages identity, `js/`, `css/`, `fixtures
 File-level dump is otherwise sorted. Leftover research directories are archived (directory slice 7; last planned research-dir slice). Leftover app/core dump directories are archived (directory slice 8). Remaining at root is the living keep set (~35 dirs) plus ~90 identity/Pages files.
 
 - Next.js surface stays at root: `api/` (stub `done.js`), `app/` (app router), `pages/` (`_app.js` / `index.js`), `data/` (`nevc_status.json`).
-- Follow-up (not this PR): `pages/_app.js` still imports `../mercy-orchestrator.js` which was archived to `js/archive/root-engines/` in #396.
+- Follow-up: `pages/_app.js` stale `../mercy-orchestrator.js` import — fixed in this PR (dropped bogus layout wrapper).
 - Keep living: `crates/`, `.github/`, `docs/`, `js/`, `website/`, `public/`, `src/`, `tests/`, `scripts/`, `css/`, `fixtures/`, `i18n/`, `shaders/`, `k8s/`, `grafana/`, and other in-use trees.
 - Pages HTML stays at root unless proven dead (GitHub Pages / site; CNAME stays). Candidates later (not this PR): `ra-thor-website-1.html`, `test-light.html`, `Launch-Ra-Thor.html`
 - keep JS at root (PWA / identity / tooling)
