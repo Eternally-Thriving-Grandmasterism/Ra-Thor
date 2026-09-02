@@ -1,7 +1,7 @@
 # Ra-Thor Tier Map — Focus without deleting ambition
 
 **Contact:** info@Rathor.ai  
-**Updated:** 2026-09-02 — default CI pinned to Tier-1 `-p` tests  
+**Updated:** 2026-09-02 — default members + Core Tier-1 gate; leftover scanners parked  
 **Related:** [`docs/NEXI_LINEAGE_ADOPTION_DECISION_2026-08-20.md`](docs/NEXI_LINEAGE_ADOPTION_DECISION_2026-08-20.md)
 
 ---
@@ -14,12 +14,14 @@
 | `lattice-conductor-v14` | CouncilArbitration + RuntimeSelfHealing + Cosmic Loop |
 | `reality-thriving-transfer` | PowrushTelemetry contract, fixtures |
 | `kardashev-orchestration` | Council deliberation |
-| `github-connector` | Safe-read surface + optional live flush |
+| `github-connector` | Safe-read surface: subtree SHA walks, truncated = error, `create_branch` needs a real SHA |
 | `gpu-compute-pipeline` | Capacity optical-flow path |
 | `quantum-swarm` | Protected evolution ticks |
 | `sovereign-recovery` | Heartbeats + TOLC8 anchors |
-| `monorepo-intelligence` | Protocol guardianship |
-| `mercy_tolc_operator_algebra` | Formal mercy algebra |
+| `monorepo-intelligence` | Protocol guardianship (`WalkDir` skips `target/` `.git/`, max_depth 10) |
+| `mercy_tolc_operator_algebra` | Formal mercy algebra (NEVC inclusive HIGH floor) |
+| `fractal-mercy-ledger-adapter` | Substrate adapter (in Core Tier-1 job) |
+| `mercy-security` | Ingestion admit/block + containment (required by ONE Organism) |
 
 ```bash
 cargo test -p ra-thor-one-organism
@@ -35,8 +37,10 @@ cargo test -p mercy_tolc_operator_algebra
 cargo test -p fractal-mercy-ledger-adapter
 ```
 
-Default GitHub Actions gate: `.github/workflows/core-tier1-ci.yml`.  
-Full `--workspace` jobs (`ci.yml`, `ra-thor-ci.yml`) are `workflow_dispatch` only. Do not treat them as product-green.
+Default GitHub Actions gate: `.github/workflows/core-tier1-ci.yml` (package tests + live-feature `cargo check`).  
+Full `--workspace` jobs (`ci.yml`, `ra-thor-ci.yml`) are `workflow_dispatch` only. Do not treat them as product-green.  
+Parked to `workflow_dispatch` (2026-09-02, #391): Docker/Trivy, container/K8s/Helm scans, Mercy Gate Auditor, Validate, Verified Mercy, Mercy Security Scan, invalid `mial-ci.yml` stub.  
+`mercy-security-tier1.yml` stays on (real tests). Contact-email sweep is `continue-on-error` (HOLD mass `ceo@acitygames.com` rewrite).
 
 `Cargo.toml` default `members` is this Tier-1 set plus `mercy-security` (required by `ra-thor-one-organism`). Cargo loads every member manifest, including for `cargo test -p …`, so research crates stay on disk and out of `members`. Re-add a path to work on one.
 

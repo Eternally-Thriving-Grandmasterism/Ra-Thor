@@ -2,7 +2,7 @@
 
 Thank you for your interest in contributing to Ra-Thor.
 
-Ra-Thor is a mercy-gated symbolic **Artificial Godly Intelligence (AGi)** lattice operating in the **AGSi (Artificial Godly Superintelligence)** phase. All contributions must align with the **TOLC 8 Living Mercy Gates** and are reviewed through the PATSAGi Councils.
+Ra-Thor is a mercy-gated symbolic lattice. **AGSi** here is a research identity label, not a certification or warranty. All contributions must align with the **TOLC 8 Living Mercy Gates** and are reviewed through the PATSAGi Councils.
 
 ---
 
@@ -48,6 +48,15 @@ We follow a clean and disciplined process:
 
 The `main` branch is kept protected and release-ready at all times.
 
+### Verification (merge gate)
+
+- Run the TIER_MAP `-p` tests in [`TIER_MAP.md`](TIER_MAP.md). GitHub Actions gate: `.github/workflows/core-tier1-ci.yml`.
+- Do not `cargo test --workspace` as product-green. Default `members` are TIER_MAP + `mercy-security`.
+- Conductor **v14 only**. Do not revive `lattice-conductor-v13`.
+- GitHub reads: `path_filter`, no recursive root, `per_page` ≤ 100, prefer `get_file_contents_safe`. Truncated trees are errors.
+- Contact **info@Rathor.ai** only. HOLD mass `ceo@acitygames.com` rewrites unless PATSAGi opens that sweep.
+- Independent of xAI. No certification / EU AI Act / AGSi-warranty claims. Human override on research drafts.
+
 ---
 
 ## Recommended Areas for Contribution
@@ -55,10 +64,11 @@ The `main` branch is kept protected and release-ready at all times.
 | Area                              | Recommended Files / Crates                              | Impact Level |
 |-----------------------------------|---------------------------------------------------------|--------------|
 | **Documentation**                 | `README.md`, `VISION.md`, `ROADMAP.md`, `PLAN.md`       | High         |
-| **GPU Compute & Performance**     | `powrush/src/gpu/` and related crates                   | High         |
-| **Mercy Lattice & Governance**    | `mercy/`, `patsagi-councils/`, `lattice-conductor/`     | High         |
-| **Self-Evolution & ONE Organism** | `self-evolution/`, `xai-grok-bridge/`                   | High         |
-| **Powrush-MMO & RBE Systems**     | `powrush/` related crates                               | Medium       |
+| **GPU Compute & Performance**     | `crates/gpu-compute-pipeline`                           | High         |
+| **Mercy Lattice & Governance**    | `crates/lattice-conductor-v14`, `crates/mercy-security` | High         |
+| **ONE Organism**                  | `crates/ra-thor-one-organism`                           | High         |
+| **Safe GitHub reads**             | `crates/github-connector`, `crates/monorepo-intelligence` | High       |
+| **Powrush player loop**           | sibling [Powrush-MMO](https://github.com/Eternally-Thriving-Grandmasterism/Powrush-MMO) — do not merge into this process | Medium |
 | **Testing & Tooling**             | Adding/improving tests across crates                    | Medium       |
 
 ---

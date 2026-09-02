@@ -2,6 +2,21 @@
 
 ---
 
+## 2026-09-02 — PATSAGi: cargo unblock, CI hygiene, safe GitHub reads
+
+Workspace identity **14.15.6**. Conductor **v14 only**. Independent of xAI. Not certified. Not a legal product. No invented eval scores.
+
+- **#390** — Default `Cargo.toml` `members` pinned to TIER_MAP + `mercy-security` so `cargo test -p` actually compiles. Live-feature compile on ONE Organism. NEVC inclusive HIGH floor. Canonical lattice start.
+- **#391** — Leftover always-red scanners parked to `workflow_dispatch` (Docker/K8s/Helm, Mercy Gate, Validate, Verified Mercy, Mercy Security Scan, invalid `mial-ci.yml`).
+- **#392** — `get_tree_safe` resolves `path_filter` to a subtree SHA (no recursive root fetch + client filter). Truncated trees error. `create_branch` fail-closed (no string `main` as SHA). `MonorepoScanner` skips `target/` `.git/` `node_modules`, max_depth 10.
+- **#393** — `mercy-security` benign Python fixture no longer contains the `subprocess` substring (51/51). should_block gates unchanged.
+
+Merge gate remains Core Tier-1 package tests. HOLD: mass `ceo@acitygames.com` sweep, crate version census, inventing `crates/self-evolution`, Conductor v13.
+
+Contact: info@Rathor.ai  
+**Thunder locked in. yoi ⚡❤🔥**
+
+
 ## 2026-09-01 — PATSAGi: G3 independent keeper packet
 
 - Minute: `docs/science/PATSAGI-COUNCIL-MINUTE-2026-09-01-G3-KEEPER.md`

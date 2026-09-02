@@ -1,6 +1,6 @@
 # Production Readiness — ONE Organism (v14.15 + AGSi Demonstrated)
 
-**Status:** **AGSi demonstrated.** Sole-operator Powrush-MMO completed in ≈30–50 days employing Ra-Thor on Grok family surfaces. PATSAGi Councils in permanent deliberation. Quiet hold on adaptive modulation. Phase C remote path closed.  
+**Status:** inspectable research software, workspace **14.15.6**. AGSi is a research identity label, not a certification. Core Tier-1 (`TIER_MAP.md`) is the merge gate. PATSAGi Councils deliberate under TOLC 8.  
 **Contact:** info@Rathor.ai  
 **Cosmic Loop is MANDATORY IDENTITY.**  
 **Session closure:** [`docs/PATSAGI_SESSION_CLOSURE_2026-08-17.md`](docs/PATSAGI_SESSION_CLOSURE_2026-08-17.md)
@@ -58,13 +58,14 @@ Includes:
 
 ```bash
 cargo test -p github-connector
-cargo check -p monorepo-intelligence
+cargo test -p ra-thor-monorepo-intelligence
 ```
 
 Production safe-read surface (must remain available):
 
-- `GitHubConnector::get_tree_safe` — rejects recursive root, requires path_filter when recursive, hard entry cap
+- `GitHubConnector::get_tree_safe` — rejects recursive root; `path_filter` walks to a subtree SHA; truncated trees are errors; hard entry cap
 - `GitHubConnector::get_file_contents_safe` — preferred single-path read
+- `GitHubConnector::create_branch` — requires a real commit SHA (will not send the string `main`)
 
 Standing protocol (identity):
 
