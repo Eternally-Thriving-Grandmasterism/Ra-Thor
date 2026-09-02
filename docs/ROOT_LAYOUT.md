@@ -7,8 +7,9 @@ Ra-Thor workspace **14.15.6**. Contact [info@Rathor.ai](mailto:info@Rathor.ai). 
 - **824** root entries: **660** files, **164** directories (as of 2026-09-02, main `2f2021703b6c`)
 - After slice 1 (#395, main `b0c15bf11431`): **696** root entries, **532** files, **164** directories
 - After slice 2 (#396, main `5003cac2e303`): **541** root entries, **377** files, **164** directories
-- After slice 3 (this PR): **530** root entries, **366** files, **164** directories; **0** root `.rs`
-- Extensions (files): ~406 `.md` (pre-slice-1), ~163 `.js` then 155 archived in slice 2, 16 `.html`, 11 `.rs` archived in slice 3, plus broken/spaced names
+- After slice 3 (#397, main `d8f77b5698bc`): **530** root entries, **366** files, **164** directories; **0** root `.rs`
+- After slice 4 (this PR): **508** root entries, **344** files, **164** directories
+- Extensions (files): ~406 `.md` (pre-slice-1), ~163 `.js` then 155 archived in slice 2, 16 `.html` (living Pages stay), 11 `.rs` archived in slice 3, 22 junk / extensionless dumps archived in slice 4, plus remaining spaced/broken names in later slices
 
 ## Keep at repo root (identity / gates / tooling)
 
@@ -16,7 +17,7 @@ README, LICENSE, Cargo.toml, TIER_MAP.md, CHANGELOG.md, CONTRIBUTING.md, CONTACT
 
 PWA / identity / tooling JS that stay at root: `mercy-motion-vision-engine.js` (README identity), `sw.js` (index.html registers `/sw.js`), `service-worker.js`, `service-worker-eternal-cache.js`, `workbox-config.js` (root tooling), `one-organism-launch.js`.
 
-Living directories that stay: `crates/`, `.github/`, `docs/` (this archive lives under it, including `docs/archive/root-rs/` for slice 3), `website/`, `js/` (living scripts plus `js/archive/root-engines/` for slice 2), `fixtures/`, `css/`, and other in-use trees. Do not one-shot-move the 164-dir forest.
+Living directories that stay: `crates/`, `.github/`, `docs/` (this archive lives under it, including `docs/archive/root-rs/` for slice 3 and `docs/archive/root-junk/` for slice 4), `website/`, `js/` (living scripts plus `js/archive/root-engines/` for slice 2), `fixtures/`, `css/`, and other in-use trees. Do not one-shot-move the 164-dir forest.
 
 ## Slice 1 (#395)
 
@@ -32,7 +33,7 @@ Blob SHAs unchanged (git-mv equivalent). Identity files and crates stay put.
 
 **155** root JS engines archived to `js/archive/root-engines/` (154 from the pre-#395 classification plus `professional-dossiers-seeder.js`). Blob SHAs unchanged (git-mv equivalent). Pages already load living scripts from `js/`. Keep-at-root JS listed above. No crates/, CI, HTML, or Rust changes.
 
-## Slice 3 (this PR)
+## Slice 3 (#397)
 
 **11** root `.rs` migration shims / scratch archived to `docs/archive/root-rs/` (same basenames). They were not workspace members; `Cargo.toml` has no path refs to them. Production Rust lives in `crates/*` (unchanged tree SHA). Blob SHAs of the moved files are unchanged (git-mv equivalent). `gpu_patsagi_bridge.rs` was mentioned in conductor v13 notes and is archived here, not revived — Conductor **v14** only.
 
@@ -52,14 +53,45 @@ Moved:
 
 No HTML, JS, `Cargo.toml`, `crates/`, or `.github/` changes.
 
+## Slice 4 (this PR)
+
+**22** clearly-dead root junk files archived to `docs/archive/root-junk/` (exact basenames, including spaces, colons, arrows, and em-dashes). HTML backups, simulation output, mercy-gate `.bin` fragments, test dumps, and extensionless pseudocode. Blob SHAs unchanged (git-mv equivalent). Living Pages identity files stay at root (`index.html`, `contact.html`, CNAME, `sw.js`, `manifest.json`, `_headers`, `ra-thor.css`, `robots.txt`, `sitemap.xml`).
+
+Moved:
+
+- `index.html backup`
+- `index.html.newbackupenglish`
+- `mercy-gate-v1-part1.bin`
+- `mercy-gate-v1-part2.bin`
+- `mercy-gate-v1-part3.bin`
+- `simulation_output_100M_year.txt`
+- `simulation_output_10M_year.txt`
+- `test-connector.txt`
+- `test_tolc8_push.txt`
+- `Attention Update Algorithm (pseudocode → JS ready)`
+- `COMPLETE TIER 5 UNION EVENT SIMULATION BLOCK`
+- `Called inside hyperonValenceGate() when forward chains are weak:`
+- `FULL BACKWARD PLN CHAINING PSEUDOCODE (Structured, mercy-gated, eternal-truth style)`
+- `FULL PLN CHAINING PSEUDOCODE (Structured, eternal-truth style — can be directly implemented)`
+- `Full Orchestration Pseudocode (Mission-Wide)`
+- `GENESIS_GATE_FULL_PSEUDOCODE (AG-SML v1.0 licensed).md`
+- `Implementation in NEXi (Live Code Fragments)`
+- `StarCraft macro elevated: bet on exact build paths (tech + units + timing combos) under fog-of-war uncertainty. Informed conviction on correlations crushes noise`
+- `Valence Computation Pseudocode (High-level, structured, eternal-truth style — can be directly translated to JS)`
+- `Worker script (paste into editor)`
+- `four possible outcomes in a full multi-LMSR market (generalized Logarithmic Market Scoring Rule, the gold standard for prediction markets)`
+- `live prototype simulation`
+
+No living Pages HTML, identity JS, markdown identity, Powrush notes, `Cargo.toml`, `crates/`, or `.github/` changes.
+
 ## Later slices (not this PR)
 
 - Pages HTML stays at root unless proven dead (GitHub Pages / site; CNAME stays)
 - `POWRUSH_*` notes — game lives in [Powrush-MMO](https://github.com/Eternally-Thriving-Grandmasterism/Powrush-MMO); do not fold the player loop into this process
-- `RELEASE_NOTES_*` / whitepapers
-- loose-md including spaced/broken filenames
+- remaining ~278 root `.md` (loose-md including spaced/broken filenames; `RELEASE_NOTES_*` / whitepapers)
+- 4 `.metta`, 4 `.py`
 - 164 root directories (research-dir forest, zk gadgets, orchestrators, `self-evolution/`, `xai-grok-bridge/`, powrush*, NEXi). HOLD inventing `crates/self-evolution` as a product.
-- leftover junk: `_headers`, `simulation_output_*.txt`, `*.bin`, `test-*.txt`
+- leftover Pages config: `_headers` stays
 - `docs/` itself is already a large research dump; do not recursive-walk it in CI.
 
 ## Hygiene rules
