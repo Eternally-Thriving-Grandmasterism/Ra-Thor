@@ -22,7 +22,11 @@ impl CooperativeGame {
 
     /// Exact Shapley value calculation (for small n)
     pub fn shapley_value(&self) -> Vec<(String, f64)> {
-        let n = self.players.len();
+        self.shapley_value_for_players(&self.players)
+    }
+
+    fn shapley_value_for_players(&self, players: &[String]) -> Vec<(String, f64)> {
+        let n = players.len();
         if n == 0 { return vec![]; }
 
         let mut values = vec![0.0; n];
@@ -31,7 +35,7 @@ impl CooperativeGame {
             let mut coalition = HashSet::new();
             for i in 0..n {
                 if (mask & (1 << i)) != 0 {
-                    coalition.insert(self.players[i].clone());
+                    coalition.insert(players[i].clone());
                 }
             }
 
@@ -40,7 +44,7 @@ impl CooperativeGame {
             for i in 0..n {
                 if (mask & (1 << i)) != 0 {
                     let mut without_i = coalition.clone();
-                    without_i.remove(&self.players[i]);
+                    without_i.remove(&players[i]);
                     let without_value = (self.characteristic_function)(&without_i);
                     let marginal = coalition_value - without_value;
                     values[i] += marginal;
@@ -49,7 +53,7 @@ impl CooperativeGame {
         }
 
         let factor = 1.0 / n as f64;
-        self.players.iter().cloned().zip(values.into_iter().map(|v| v * factor)).collect()
+        players.iter().cloned().zip(values.into_iter().map(|v| v * factor)).collect()
     }
 
     /// Monte Carlo approximation of Shapley value
@@ -155,8 +159,8 @@ impl CooperativeGame {
                 let mut test = current.clone();
                 test.insert(cand.clone());
 
-                let temp_game = CooperativeGame::new(test.iter().cloned().collect(), |s| (self.characteristic_function)(s));
-                let shapley = temp_game.shapley_value();
+                let subset: Vec<String> = test.iter().cloned().collect();
+                let shapley = self.shapley_value_for_players(&subset);
 
                 let min_shapley = shapley.iter().map(|(_, v)| *v).fold(f64::INFINITY, f64::min);
                 let total_value = (self.characteristic_function)(&test);
