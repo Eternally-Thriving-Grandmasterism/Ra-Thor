@@ -1005,7 +1005,6 @@ pub struct KardashevSurfaceStatus {
     pub live_path: bool,
 }
 
-#[derive(Debug)]
 pub struct KardashevFlywheelSurface {
     cycle_count: u64,
     cumulative_kardashev_delta: f64,
@@ -1015,6 +1014,26 @@ pub struct KardashevFlywheelSurface {
     calculator: std::sync::Arc<reality_thriving_transfer::RealityThrivingTransferCalculator>,
     #[cfg(feature = "kardashev-live")]
     council: std::sync::Arc<kardashev_orchestration::KardashevOrchestrationCouncil>,
+}
+
+impl std::fmt::Debug for KardashevFlywheelSurface {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        // Live calculator/council hold Mutex state; skip dumping them.
+        let mut s = f.debug_struct("KardashevFlywheelSurface");
+        s.field("cycle_count", &self.cycle_count)
+            .field("cumulative_kardashev_delta", &self.cumulative_kardashev_delta)
+            .field("velocity_ema", &self.velocity_ema)
+            .field("last_transfer", &self.last_transfer);
+        #[cfg(feature = "kardashev-live")]
+        {
+            s.field("live_path", &true);
+        }
+        #[cfg(not(feature = "kardashev-live"))]
+        {
+            s.field("live_path", &false);
+        }
+        s.finish()
+    }
 }
 
 impl Clone for KardashevFlywheelSurface {
