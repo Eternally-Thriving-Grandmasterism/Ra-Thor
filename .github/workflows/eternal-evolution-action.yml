@@ -1,8 +1,7 @@
 name: Ra-Thor Self-Evolution Looping Systems
 
 on:
-  schedule:
-    - cron: '0 */6 * * *'
+  # Parked 6-hour cron (invented valence PRs). Manual only.
   workflow_dispatch:
     inputs:
       evolution_scope:
