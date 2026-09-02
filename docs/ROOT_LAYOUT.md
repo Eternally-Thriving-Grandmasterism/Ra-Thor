@@ -8,8 +8,9 @@ Ra-Thor workspace **14.15.6**. Contact [info@Rathor.ai](mailto:info@Rathor.ai). 
 - After slice 1 (#395, main `b0c15bf11431`): **696** root entries, **532** files, **164** directories
 - After slice 2 (#396, main `5003cac2e303`): **541** root entries, **377** files, **164** directories
 - After slice 3 (#397, main `d8f77b5698bc`): **530** root entries, **366** files, **164** directories; **0** root `.rs`
-- After slice 4 (this PR): **508** root entries, **344** files, **164** directories
-- Extensions (files): ~406 `.md` (pre-slice-1), ~163 `.js` then 155 archived in slice 2, 16 `.html` (living Pages stay), 11 `.rs` archived in slice 3, 22 junk / extensionless dumps archived in slice 4, plus remaining spaced/broken names in later slices
+- After slice 4 (#398, main `a98a45fb6ca9`): **508** root entries, **344** files, **164** directories
+- After slice 5 (this PR): **485** root entries, **321** files, **164** directories; **0** root `POWRUSH_*.md`
+- Extensions (files): ~406 `.md` (pre-slice-1), ~163 `.js` then 155 archived in slice 2, 16 `.html` (living Pages stay), 11 `.rs` archived in slice 3, 22 junk / extensionless dumps archived in slice 4, 23 `POWRUSH_*` design notes archived in slice 5, plus remaining spaced/broken names in later slices
 
 ## Keep at repo root (identity / gates / tooling)
 
@@ -17,7 +18,9 @@ README, LICENSE, Cargo.toml, TIER_MAP.md, CHANGELOG.md, CONTRIBUTING.md, CONTACT
 
 PWA / identity / tooling JS that stay at root: `mercy-motion-vision-engine.js` (README identity), `sw.js` (index.html registers `/sw.js`), `service-worker.js`, `service-worker-eternal-cache.js`, `workbox-config.js` (root tooling), `one-organism-launch.js`.
 
-Living directories that stay: `crates/`, `.github/`, `docs/` (this archive lives under it, including `docs/archive/root-rs/` for slice 3 and `docs/archive/root-junk/` for slice 4), `website/`, `js/` (living scripts plus `js/archive/root-engines/` for slice 2), `fixtures/`, `css/`, and other in-use trees. Do not one-shot-move the 164-dir forest.
+`powrush_config.json` stays at root (lattice config; not a design note).
+
+Living directories that stay: `crates/`, `.github/`, `docs/` (this archive lives under it, including `docs/archive/root-rs/` for slice 3, `docs/archive/root-junk/` for slice 4, and `docs/archive/powrush-notes/` for slice 5), `website/`, `js/` (living scripts plus `js/archive/root-engines/` for slice 2), `fixtures/`, `css/`, and other in-use trees. Do not one-shot-move the 164-dir forest.
 
 ## Slice 1 (#395)
 
@@ -53,7 +56,7 @@ Moved:
 
 No HTML, JS, `Cargo.toml`, `crates/`, or `.github/` changes.
 
-## Slice 4 (this PR)
+## Slice 4 (#398)
 
 **22** clearly-dead root junk files archived to `docs/archive/root-junk/` (exact basenames, including spaces, colons, arrows, and em-dashes). HTML backups, simulation output, mercy-gate `.bin` fragments, test dumps, and extensionless pseudocode. Blob SHAs unchanged (git-mv equivalent). Living Pages identity files stay at root (`index.html`, `contact.html`, CNAME, `sw.js`, `manifest.json`, `_headers`, `ra-thor.css`, `robots.txt`, `sitemap.xml`).
 
@@ -84,12 +87,43 @@ Moved:
 
 No living Pages HTML, identity JS, markdown identity, Powrush notes, `Cargo.toml`, `crates/`, or `.github/` changes.
 
+## Slice 5 (this PR)
+
+**23** `POWRUSH_*` design markdown files archived to `docs/archive/powrush-notes/` (same basenames). Blob SHAs unchanged (git-mv equivalent). `powrush_config.json` stays at root. Player game remains the sibling [Powrush-MMO](https://github.com/Eternally-Thriving-Grandmasterism/Powrush-MMO) repo; browser client remains [Powrush-MMO-Simulator](https://github.com/Eternally-Thriving-Grandmasterism/Powrush-MMO-Simulator). Ra-Thor is the lattice only — do not fold the player loop into this repo. Shared: NEVC / telemetry / policy hints.
+
+Moved:
+
+- `POWRUSH-16-GATES-RESEARCH.md`
+- `POWRUSH-FACTION-DIPLOMACY-DETAILS.md`
+- `POWRUSH-FACTION-DIPLOMACY-INTEGRATION.md`
+- `POWRUSH-IN-GAME-MEME-GENERATOR.md`
+- `POWRUSH-MMO-GLOBAL-RELEASE-ROADMAP.md`
+- `POWRUSH-MMO-MECHANICS.md`
+- `POWRUSH-MMO-MULTI-AGENT-HUMAN-AI-AGI-COEXISTENCE-DESIGN.md`
+- `POWRUSH-MULTI-AI-MEME-VAULT.md`
+- `POWRUSH-RACE-SPECIFIC-ABILITIES.md`
+- `POWRUSH-RACE-SPECIFIC-RBE-ABILITIES.md`
+- `POWRUSH-RBE-IMPLEMENTATION.md`
+- `POWRUSH-RBE-SIMULATION-DETAILS.md`
+- `POWRUSH_FIXED_POINT_MOVEMENT_v14.5.md`
+- `POWRUSH_INPUT_REPLAY_QUEUE_v14.5.md`
+- `POWRUSH_MMO_INTEGRATED_DESIGN_v14.5.md`
+- `POWRUSH_MMO_PLAYER_EXPERIENCE_DESIGN_v14.5.md`
+- `POWRUSH_MOVEMENT_IMPLEMENTATION_SKELETON_v14.5.md`
+- `POWRUSH_MOVEMENT_MASTER_IMPLEMENTATION_v14.5.md`
+- `POWRUSH_MOVEMENT_SYSTEM_DESIGN_v14.5.md`
+- `POWRUSH_NETWORK_PREDICTION_MOVEMENT_v14.5.md`
+- `POWRUSH_SERVER_RECONCILIATION_v14.5.md`
+- `POWRUSH_ULTIMATE_MMO_PATSAGI_COUNCIL_CONVERGENCE_v1.0.md`
+- `POWRUSH_WEEKLY_WAR_UNLOCK_MECHANICS_v14.5.md`
+
+No living Pages HTML, identity JS, `Cargo.toml`, `crates/`, or `.github/` changes. Conductor **v14** only.
+
 ## Later slices (not this PR)
 
-- Pages HTML stays at root unless proven dead (GitHub Pages / site; CNAME stays)
-- `POWRUSH_*` notes — game lives in [Powrush-MMO](https://github.com/Eternally-Thriving-Grandmasterism/Powrush-MMO); do not fold the player loop into this process
-- remaining ~278 root `.md` (loose-md including spaced/broken filenames; `RELEASE_NOTES_*` / whitepapers)
+- remaining ~250 root md (other-md, loose-md, release notes)
 - 4 `.metta`, 4 `.py`
+- Pages HTML stays at root unless proven dead (GitHub Pages / site; CNAME stays)
 - 164 root directories (research-dir forest, zk gadgets, orchestrators, `self-evolution/`, `xai-grok-bridge/`, powrush*, NEXi). HOLD inventing `crates/self-evolution` as a product.
 - leftover Pages config: `_headers` stays
 - `docs/` itself is already a large research dump; do not recursive-walk it in CI.
