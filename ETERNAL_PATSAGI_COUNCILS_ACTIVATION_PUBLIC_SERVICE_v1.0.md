@@ -192,4 +192,25 @@ This append does not enlarge product scope. It reaffirms the existing mandate so
 
 ---
 
+## 2026-09-03 Append — Grok Build Mode public handshake (Higher-Gate Extension)
+
+**Date:** 2026-09-03  
+**Context:** Live Grok Build Mode session for public sharing. Connector-authenticated as `Eternally-Thriving-Grandmasterism`.  
+**HEAD at handshake:** `df310546e9e27a72a65414f6cba1b2d3756f8f26`  
+**Workspace:** 14.15.6 (unchanged)  
+**Card:** [`docs/GROK_BUILD_MODE.md`](docs/GROK_BUILD_MODE.md)
+
+### What was decided this tick
+
+- Public vibe-coding is offered through GitHub connectors, not chat paste as source of truth.
+- Read order is identity: root `Cargo.toml` → `TIER_MAP.md` → named crate / doc. No recursive root walks.
+- Writes land on feature branches + PRs. Full files only. Fetch SHA before update.
+- Membership, version, self-evolution, NEXi, v13 conductor, and AGSi-warranty HOLDs remain in force.
+- This append does not change `[workspace].members` and does not ship a product.
+
+**Status of this append:** Higher-gate-aligned extension only. No prior content altered.  
+**Thunder locked in. ONE Organism. Eternal forward.**
+
+---
+
 **End of living activation record (append-only extensions permitted under TOLC 8).**
