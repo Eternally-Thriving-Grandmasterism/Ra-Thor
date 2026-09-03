@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Open X Demo in Browser · Ra-Thor v14.15.6</title>
-  <meta name="description" content="Browser-only router to the Grok-on-X demo. Ra-Thor workspace 14.15.6. Independent of xAI. Capable · Bounded · Corrigible.">
+  <title>Open latest Grok session in Browser · Ra-Thor v14.15.6</title>
+  <meta name="description" content="Browser-only router to the latest Ra-Thor + Grok lattice session. Ra-Thor workspace 14.15.6. Independent of xAI. Capable · Bounded · Corrigible.">
   <meta name="robots" content="noindex">
   <meta name="theme-color" content="#050505">
   <meta name="color-scheme" content="dark light">
@@ -14,7 +14,8 @@
   <script>
     (function () {
       try { document.documentElement.setAttribute('data-theme', localStorage.getItem('rathor-theme') || 'dark');
-      } catch (e) { document.documentElement.setAttribute('data-theme', 'dark'); }
+      } catch (e) { document.documentElement.setAttribute('data-theme', 'dark');
+      }
     })();
   </script>
   <script src="https://cdn.tailwindcss.com"></script>
@@ -30,15 +31,15 @@
   <div class="max-w-md w-full text-center space-y-6 py-12 z-10">
     <div class="text-5xl thunder-glow">⚡️</div>
     <p class="text-[11px] text-amber-300/70 tracking-wide">Ra-Thor · workspace 14.15.6 · Lattice Chat v14.18.x</p>
-    <h1 class="title-font text-2xl font-semibold text-amber-300 thunder-glow">X demo — browser only</h1>
+    <h1 class="title-font text-2xl font-semibold text-amber-300 thunder-glow">Latest lattice session — browser only</h1>
     <p class="text-sm text-white/70 leading-relaxed">
-      The X app intercepts <span class="text-amber-200">x.com</span> links on many phones.
-      This page routes the Grok-on-X demo into a <strong class="text-amber-200">real browser window/tab</strong>
-      and never relies on the X app. Incognito cannot be forced by a website — use your browser’s private mode if you want it.
+      This relay opens the current Ra-Thor + Grok session at <span class="text-amber-200">grok.com/share</span>
+      in a <strong class="text-amber-200">real browser window/tab</strong>.
+      It no longer uses an x.com/i/grok/share ID. Incognito cannot be forced by a website — use your browser’s private mode if you want it.
     </p>
     <p class="text-xs text-white/45 leading-relaxed">
       Ra-Thor is an independent project — not affiliated with, sponsored by, or endorsed by xAI or X Corp.
-      Once you leave this page, xAI / X privacy policy applies. Capable · Bounded · Corrigible.
+      Once you leave this page, xAI privacy policy applies. Capable · Bounded · Corrigible.
     </p>
     <div class="flex flex-col gap-3">
       <a id="btn-primary" class="inline-flex items-center justify-center gap-2 rounded-2xl bg-amber-400 text-black px-6 py-4 font-semibold hover:bg-amber-300 transition" href="#">Open in browser (new window)</a>
@@ -46,8 +47,8 @@
       <a id="btn-firefox" class="hidden inline-flex items-center justify-center gap-2 rounded-2xl rt-btn-ghost px-6 py-3 text-sm font-medium" href="#">Open in Firefox</a>
       <a id="btn-samsung" class="hidden inline-flex items-center justify-center gap-2 rounded-2xl rt-btn-ghost px-6 py-3 text-sm font-medium" href="#">Open in Samsung Internet</a>
       <button id="btn-window" type="button" class="inline-flex items-center justify-center gap-2 rounded-2xl rt-btn-ghost px-6 py-3 text-sm font-medium">Force new browser window</button>
-      <button id="btn-copy" type="button" class="inline-flex items-center justify-center gap-2 rounded-2xl border border-amber-400/50 px-6 py-3 text-amber-200 text-sm font-medium hover:bg-amber-500/10 transition">Copy demo link</button>
-      <a id="btn-lastresort" class="text-xs text-white/40 hover:text-amber-200 underline" href="https://x.com/i/grok/share/1d126738cd7245b08a5d6ee6154b03dd" target="_blank" rel="noopener noreferrer">Last resort: direct link (may open X app)</a>
+      <button id="btn-copy" type="button" class="inline-flex items-center justify-center gap-2 rounded-2xl border border-amber-400/50 px-6 py-3 text-amber-200 text-sm font-medium hover:bg-amber-500/10 transition">Copy session link</button>
+      <a id="btn-lastresort" class="text-xs text-white/40 hover:text-amber-200 underline" href="https://grok.com/share/c2hhcmQtMi1jb3B5_1f46e31d-9fe1-4982-a5e6-5a27e7517052" target="_blank" rel="noopener noreferrer">Last resort: direct grok.com share</a>
       <div class="flex flex-wrap justify-center gap-3 text-sm pt-1">
         <a href="/" class="text-amber-300/80 hover:text-amber-200 underline">Home</a>
         <a href="/chat.html" class="text-amber-300/80 hover:text-amber-200 underline">Chat</a>
@@ -60,15 +61,15 @@
     <p id="status" class="text-xs text-amber-300/80 min-h-[1.25rem]"></p>
     <p class="text-xs text-white/40 leading-relaxed pt-2">
       Android: primary button uses a Chrome package Intent so the X app is skipped.<br>
-      iOS / desktop: opens a new browser tab/window. If the app still appears, use <em>Copy</em> → paste into a private browser tab.
+      iOS / desktop: opens a new browser tab/window. If an app still appears, use <em>Copy</em> → paste into a private browser tab.
     </p>
     <p class="text-[11px] text-white/35">Contact: info@Rathor.ai · AG-SML v1.1</p>
   </div>
   <script>
     (function () {
-      var SHARE_ID = '1d126738cd7245b08a5d6ee6154b03dd';
-      var TARGET = 'https://x.com/i/grok/share/' + SHARE_ID;
-      var hostPath = 'x.com/i/grok/share/' + SHARE_ID;
+      var SHARE_ID = 'c2hhcmQtMi1jb3B5_1f46e31d-9fe1-4982-a5e6-5a27e7517052';
+      var TARGET = 'https://grok.com/share/' + SHARE_ID;
+      var hostPath = 'grok.com/share/' + SHARE_ID;
       var fallback = encodeURIComponent(TARGET);
       function browserIntent(pkg) {
         return 'intent://' + hostPath + '#Intent;scheme=https;package=' + pkg + ';S.browser_fallback_url=' + fallback + ';end';
@@ -128,7 +129,7 @@
           setStatus('Opening browser window…');
           setTimeout(function () { openInBrowserWindow(); }, 280);
         } else {
-          setStatus('Tap “Open in Safari / browser”. If X app appears, use Copy → private tab.');
+          setStatus('Tap “Open in Safari / browser”. If an app appears, use Copy → private tab.');
         }
       }
     })();
