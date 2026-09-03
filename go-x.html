@@ -33,7 +33,7 @@
     <h1 class="title-font text-2xl font-semibold text-amber-300 thunder-glow">X demo — browser only</h1>
     <p class="text-sm text-white/70 leading-relaxed">
       The X app intercepts <span class="text-amber-200">x.com</span> links on many phones.
-      This page routes the Grok-on-X demo into a <strong class="text-amber-200">real browser window/tab</strong>
+      This page routes the latest Grok share session into a <strong class="text-amber-200">real browser window/tab</strong>
       and never relies on the X app. Incognito cannot be forced by a website — use your browser’s private mode if you want it.
     </p>
     <p class="text-xs text-white/45 leading-relaxed">
@@ -47,7 +47,7 @@
       <a id="btn-samsung" class="hidden inline-flex items-center justify-center gap-2 rounded-2xl rt-btn-ghost px-6 py-3 text-sm font-medium" href="#">Open in Samsung Internet</a>
       <button id="btn-window" type="button" class="inline-flex items-center justify-center gap-2 rounded-2xl rt-btn-ghost px-6 py-3 text-sm font-medium">Force new browser window</button>
       <button id="btn-copy" type="button" class="inline-flex items-center justify-center gap-2 rounded-2xl border border-amber-400/50 px-6 py-3 text-amber-200 text-sm font-medium hover:bg-amber-500/10 transition">Copy demo link</button>
-      <a id="btn-lastresort" class="text-xs text-white/40 hover:text-amber-200 underline" href="https://x.com/i/grok/share/689402e8965c41778335d66aabef948a" target="_blank" rel="noopener noreferrer">Last resort: direct link (may open X app)</a>
+      <a id="btn-lastresort" class="text-xs text-white/40 hover:text-amber-200 underline" href="https://grok.com/share/c2hhcmQtMi1jb3B5_1f46e31d-9fe1-4982-a5e6-5a27e7517052" target="_blank" rel="noopener noreferrer">Last resort: direct link (may open X app)</a>
       <div class="flex flex-wrap justify-center gap-3 text-sm pt-1">
         <a href="/" class="text-amber-300/80 hover:text-amber-200 underline">Home</a>
         <a href="/chat.html" class="text-amber-300/80 hover:text-amber-200 underline">Chat</a>
@@ -66,9 +66,9 @@
   </div>
   <script>
     (function () {
-      var SHARE_ID = '689402e8965c41778335d66aabef948a';
-      var TARGET = 'https://x.com/i/grok/share/' + SHARE_ID;
-      var hostPath = 'x.com/i/grok/share/' + SHARE_ID;
+      var SHARE_ID = 'c2hhcmQtMi1jb3B5_1f46e31d-9fe1-4982-a5e6-5a27e7517052';
+      var TARGET = 'https://grok.com/share/c2hhcmQtMi1jb3B5_1f46e31d-9fe1-4982-a5e6-5a27e7517052';
+      var hostPath = 'grok.com/share/' + SHARE_ID;
       var fallback = encodeURIComponent(TARGET);
       function browserIntent(pkg) {
         return 'intent://' + hostPath + '#Intent;scheme=https;package=' + pkg + ';S.browser_fallback_url=' + fallback + ';end';
