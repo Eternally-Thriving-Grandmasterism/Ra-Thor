@@ -98,6 +98,19 @@ soft_feedback_soft_remediate_rate
 soft_feedback_critical_auto_rate
 ```
 
+## What this contract is not (2026-09-06 seal)
+
+This protocol is **lattice telemetry**. It is not:
+
+- a treasury, central bank, or UBI disbursement rail
+- proof that funding, eligibility, or inflation are solved
+- a circulating mercy-token or cash replacement
+- a license to collapse the Powrush player loop into the Ra-Thor monorepo
+
+Do not add money fields to `SoftFeedbackEvent`. A later named motion may build a *separate* in-silico scarcity simulator that *consumes* these events. That simulator would still be engineering until real allocation data exists.
+
+Council minute: `docs/science/PATSAGI-COUNCIL-MINUTE-2026-09-06-UBI-SOFT-FEEDBACK-CLAIM.md`
+
 ## Proof
 
 ```bash
