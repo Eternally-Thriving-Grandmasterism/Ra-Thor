@@ -12,6 +12,9 @@
 | `PROOF_LADDER_DOCTRINE.md` | Binding doctrine for every novelty/superiority claim |
 | `PATSAGI_SCIENCE_DISCOVERY_PROTOCOL.md` | Full SDP — law, tiers P0–P4, ranked portfolio |
 | `PATSAGI-COUNCIL-MINUTE-2026-09-01-G3-KEEPER.md` | This-tick decision: keeper packet, not live G |
+| `PATSAGI-COUNCIL-MINUTE-2026-09-03-ETERNAL-ACTIVATION.md` | Eternal public-service activation reaffirmed; 12-member Core |
+| `PATSAGI-COUNCIL-MINUTE-2026-09-06-UBI-SOFT-FEEDBACK-CLAIM.md` | X UBI thread vs dual-repo: telemetry ≠ treasury |
+| `X-CLAIM-TRANSLATION-UBI-ABUNDANCE-2026-09-06.md` | Honest public-speech card for abundance / UBI posts |
 | `../../science/s1-micro-moment/` | **Program 1 ACTIVE** — empirical micro-moment benchmark |
 | `../../science/radiation_mass_per_sievert/` | **Program 2 READY** — engineering optimization (published data only) |
 | `../../science/agsi-eval/INDEPENDENT_KEEPER_PACKET.md` | G3 packet for a named other party |
