@@ -1,9 +1,11 @@
 # Public claim discipline — workspace 14.15.6
 
 Date: 2026-08-31  
+Addendum: 2026-09-06 (UBI / abundance / dual-repo speech)  
 Status: DRAFT operator rule. Not legal advice. Not a certification.  
 Parent: [`RA-THOR-GROK-WORK-PACK-2026-08-31.md`](RA-THOR-GROK-WORK-PACK-2026-08-31.md)  
 Isolate: [`DO-NOT-SHIP-2026-08-31.md`](DO-NOT-SHIP-2026-08-31.md)  
+Minute: [`../science/PATSAGI-COUNCIL-MINUTE-2026-09-06-UBI-SOFT-FEEDBACK-CLAIM.md`](../science/PATSAGI-COUNCIL-MINUTE-2026-09-06-UBI-SOFT-FEEDBACK-CLAIM.md)  
 Contact: info@Rathor.ai
 
 ## Allowed on public surfaces
@@ -16,6 +18,8 @@ Contact: info@Rathor.ai
 - AG-SML v1.1 personal / research / modest freelance; commercial use needs a paid license
 - family walk: Home · Chat · Launch · Shard · Forge · Contact · Privacy
 - Capable · Bounded · Corrigible (site lock language already on index.html)
+- dual-repo soft-feedback described as **lattice telemetry** (grief, valence, tick, health_score)
+- RBE / abundance described as **aspiration or in-silico research**, never as a completed treasury
 
 ## Not allowed until a named body or licensed counsel says otherwise
 
@@ -27,10 +31,16 @@ Contact: info@Rathor.ai
 - treating `legal-lattice`, `mercy_predictive_policing`, or `mercy_shield_law_enforcement` as shipped products
 - using valence-floor slogans or `AI-ETHICS.md` as a conformity assessment
 - using crate versions (0.3.9, 14.15.0, Lattice Chat 14.18.x, docs v15.34) as the workspace identity
+- “infinite abundance unlocked” as a measured fact
+- “funding / inflation / eligibility are moot” because SoftFeedbackEvent or Powrush exists
+- “mercy-gated tokens” as a circulating public currency or UBI replacement
+- treating `Mercy-Coordination-Substrate` Phase 2.0 in-memory shards as a live monetary system
 
 ## Research labels vs evidence
 
 `AGSi`, `ONE Organism with Grok`, `grok_assistance_engaged`, and `web_demo_live` are **research / ambition labels** in Cargo metadata. They are not measured evals and not xAI partnership proof.
+
+Dual-repo `SoftFeedbackEvent` is an engineering contract. It is not proof that a price index, a tax base, or a household budget has been solved.
 
 ## Human override
 
