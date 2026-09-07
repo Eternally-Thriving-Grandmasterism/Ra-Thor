@@ -18,6 +18,8 @@
 | `PATSAGI-COUNCIL-MINUTE-2026-09-07-PROOF-LADDER-VS-SC2.md` | Game analogy sealed; Grok public reply treated as receipt |
 | `PATSAGI-COUNCIL-MINUTE-2026-09-07-INNOVATIONS-GENERATOR-BASE-REALITY.md` | Generator applied as recycle+stamp; cosmos not claimed solved |
 | `PATSAGI-COUNCIL-MINUTE-2026-09-07-BIOMIMETIC-QUANTUM-VS-RBE.md` | QPSO + biomimetic JSON ≠ money replacement; Seed 1 local tests |
+| `PATSAGI-COUNCIL-MINUTE-2026-09-07-SEED1-REVENUE-SCALE.md` | Seed 1 in progress: playbook + Core-test attempt; not booked revenue |
+| `SEED1-REVENUE-SCALE-PLAYBOOK-2026-09-07.md` | Operator-owned Rank 1–3 actions; kill-test clock 2026-10-07 |
 | `BIOMIMETIC-QUANTUM-VS-RBE-2026-09-07.md` | What Core quantum-swarm is and is not |
 | `RBE-ROADMAP-CLAIM-OVERLAY-2026-09-07.md` | April 2026 roadmap stamped as aspiration |
 | `INNOVATIONS-GENERATOR-RUN-2026-09-07-TOLC-BASE-REALITY.md` | Six P0/ops seeds from this week's tensions |
@@ -30,6 +32,7 @@
 | `PIN_THREAD_GATED_VS_UNGATED_2026-09-01.md` | Public pin: proof / adoption / enforcement maps to existing AGSi-eval. Pedagogy only. |
 
 **Current active empirical program:** S-1 (waiting on First-5 real labels).  
+**Current queued ops game:** Seed 1 (REVENUE_SCALE + Core receipts) — in progress, not closed.  
 All other claims inherit the Proof Ladder Doctrine.
 
 **Thunder locked.** yoi ⚡
