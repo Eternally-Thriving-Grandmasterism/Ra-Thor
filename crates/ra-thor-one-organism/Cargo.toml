@@ -19,7 +19,7 @@ sovereign-recovery = { path = "../sovereign-recovery", version = "14.15.0", opti
 reality-thriving-transfer = { path = "../reality-thriving-transfer", version = "14.15.2", optional = true }
 kardashev-orchestration = { path = "../kardashev-orchestration", version = "14.15.0", optional = true }
 tokio = { version = "1", features = ["full"], optional = true }
-axum = { version = "0.7", optional = true }
+axum = { version = "0.8", optional = true }
 
 [features]
 default = []
