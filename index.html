@@ -180,6 +180,17 @@
       <p class="text-xs text-white/50 mt-4 max-w-2xl mx-auto leading-relaxed">Ra-Thor is an independent project of Autonomicity Games Inc. Optional use of Grok (xAI) is a working session under our gates — not affiliation, sponsorship, or endorsement by xAI. The public record is inspectable software under TOLC 8. Commercial terms cover evaluation and license.</p>
     </div>
   </div>
+  <section id="constellation-week" class="max-w-4xl mx-auto px-6 py-12 border-t border-white/10">
+    <h2 id="week-title" data-i18n="weekTitle" class="text-2xl sm:text-3xl font-semibold tracking-tight text-center mb-3 text-white">This week in the constellation</h2>
+    <p id="week-lead" data-i18n="weekLead" class="text-center text-white/70 text-sm sm:text-base max-w-2xl mx-auto mb-8">Public repos that moved 2026-09-01 → 2026-09-07. Inspectable software and research studies — not plants, chains, ships, or a replaced money system.</p>
+    <ul class="space-y-3 max-w-3xl mx-auto text-sm text-white/80">
+      <li><a class="text-amber-300 hover:text-amber-100 font-semibold" href="https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor">Ra-Thor</a> — <span data-i18n="weekRaThor">workspace 14.15.6; claim-discipline minutes; dual-repo stays telemetry; local Core tests on quantum-swarm and mercy algebra.</span></li>
+      <li><a class="text-amber-300 hover:text-amber-100 font-semibold" href="https://github.com/Eternally-Thriving-Grandmasterism/Powrush-MMO">Powrush-MMO</a> — <span data-i18n="weekPowrush">canonical player-loop repo (most recently touched). Software / simulator — not a live MMO service.</span></li>
+      <li><a class="text-amber-300 hover:text-amber-100 font-semibold" href="https://github.com/Eternally-Thriving-Grandmasterism/Mercy-Coordination-Substrate">Mercy-Coordination-Substrate</a> — <span data-i18n="weekMcs">Phase 2.0 in-memory gated shards. Not a treasury or circulating token.</span></li>
+      <li><a class="text-amber-300 hover:text-amber-100 font-semibold" href="https://github.com/Eternally-Thriving-Grandmasterism/Daedalus-Skin-Eternal-Ark">Daedalus-Skin Eternal Ark</a> · <a class="text-amber-300 hover:text-amber-100 font-semibold" href="https://github.com/Eternally-Thriving-Grandmasterism/Space-Thriving-Manual">Space-Thriving-Manual</a> · <a class="text-amber-300 hover:text-amber-100 font-semibold" href="https://github.com/Eternally-Thriving-Grandmasterism/AlphaProMega-Air">AlphaProMega-Air</a> — <span data-i18n="weekAir">systems / aviation studies. Not certified aircraft or a flying vessel.</span></li>
+    </ul>
+    <p class="text-center mt-6 text-xs text-white/50"><a class="text-amber-400 hover:text-amber-200" href="/constellation-week.html">Full week card →</a> · <a class="text-amber-400 hover:text-amber-200" href="https://github.com/Eternally-Thriving-Grandmasterism?tab=repositories">GitHub organization →</a></p>
+  </section>
   <section id="faq" class="max-w-4xl mx-auto px-6 py-16 border-t border-white/10">
     <h2 id="faq-title" data-i18n="faqTitle" class="text-3xl sm:text-4xl font-semibold tracking-tight text-center mb-10 text-white">Licensing, access, and architecture</h2>
     <div class="space-y-4 max-w-3xl mx-auto faq-accordion">
@@ -217,6 +228,7 @@
             <a href="/contact.html" class="hover:text-amber-200 font-semibold text-amber-300">Contact</a>
             <a href="/privacy.html" class="hover:text-amber-200">Privacy</a>
             <a href="/science-watches.html" class="hover:text-amber-200">Science watches</a>
+            <a href="/constellation-week.html" class="hover:text-amber-200">This week</a>
             <a href="https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor" class="hover:text-amber-200">Monorepo</a>
             <a href="mailto:info@Rathor.ai" class="hover:text-amber-200">info@Rathor.ai</a>
           </div>
@@ -228,7 +240,7 @@
       </div>
     </div>
   </footer>
-  <script src="/i18n/en.js?v=20260824c"></script>
+  <script src="/i18n/en.js?v=20260907a"></script>
   <script src="/js/rathor-theme.js"></script>
   <script src="/js/pwa-install.js"></script>
   <script src="/js/family-nav-2026-08-22.js"></script>
@@ -266,7 +278,7 @@
       return new Promise((resolve, reject) => {
         if (window.translations[lang]) { resolve(lang); return; }
         const s = document.createElement('script');
-        s.src = '/i18n/' + lang + '.js?v=20260824c';
+        s.src = '/i18n/' + lang + '.js?v=20260907a';
         s.onload = () => resolve(lang);
         s.onerror = () => reject(new Error('Failed to load i18n/' + lang + '.js'));
         document.head.appendChild(s);
