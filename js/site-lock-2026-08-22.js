@@ -1,6 +1,6 @@
 /**
  * Ra-Thor site lock 2026-08-22
- * 2026-09-07: language expand + RTL ar/fa/he + living-surfaces restored.
+ * 2026-09-07: language expand + RTL ar/fa/he + living-surfaces + cache 20260907b.
  * Contact: info@Rathor.ai — independent of xAI.
  */
 (function () {
@@ -55,16 +55,25 @@
     });
     sel.setAttribute('data-expanded', '1');
   }
+  function loadPackB(lang) {
+    return new Promise(function (resolve) {
+      if (!lang) { resolve(); return; }
+      var s = document.createElement('script');
+      s.src = '/i18n/' + lang + '.js?v=20260907b';
+      s.onload = function () { resolve(); };
+      s.onerror = function () { resolve(); };
+      document.head.appendChild(s);
+    });
+  }
   function hookLanguageSwitch() {
     if (window.__rathorLockHooked) return;
     window.__rathorLockHooked = true;
     var orig = window.switchLanguage;
-    if (typeof orig === 'function') {
-      window.switchLanguage = async function (lang) {
-        await orig(lang);
-        applyLockI18n(lang);
-      };
-    }
+    window.switchLanguage = async function (lang) {
+      await loadPackB(lang);
+      if (typeof orig === 'function') await orig(lang);
+      applyLockI18n(lang);
+    };
     window.applyLockI18n = applyLockI18n;
   }
   function bootScript(needle, src, immediately) {
@@ -114,6 +123,6 @@
     bootScript('family-nav-2026-08-22', '/js/family-nav-2026-08-22.js');
     bootScript('science-map-lock', '/js/science-map-lock.js');
     bootScript('watch-footer-lock', '/js/watch-footer-lock.js');
-    console.info('[Ra-Thor] site-lock-2026-09-07 language expand + surfaces + RTL');
+    console.info('[Ra-Thor] site-lock-2026-09-07 language expand + surfaces + RTL + cache b');
   });
 })();
