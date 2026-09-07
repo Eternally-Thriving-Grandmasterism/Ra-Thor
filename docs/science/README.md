@@ -16,6 +16,8 @@
 | `PATSAGI-COUNCIL-MINUTE-2026-09-03-ETERNAL-ACTIVATION.md` | Eternal public-service activation reaffirmed; 12-member Core |
 | `PATSAGI-COUNCIL-MINUTE-2026-09-06-UBI-SOFT-FEEDBACK-CLAIM.md` | X UBI thread vs dual-repo: telemetry ≠ treasury |
 | `PATSAGI-COUNCIL-MINUTE-2026-09-07-PROOF-LADDER-VS-SC2.md` | Game analogy sealed; Grok public reply treated as receipt |
+| `PATSAGI-COUNCIL-MINUTE-2026-09-07-INNOVATIONS-GENERATOR-BASE-REALITY.md` | Generator applied as recycle+stamp; cosmos not claimed solved |
+| `INNOVATIONS-GENERATOR-RUN-2026-09-07-TOLC-BASE-REALITY.md` | Six P0/ops seeds from this week's tensions |
 | `X-CLAIM-TRANSLATION-UBI-ABUNDANCE-2026-09-06.md` | Honest public-speech card for abundance / UBI posts |
 | `../../science/s1-micro-moment/` | **Program 1 ACTIVE** — empirical micro-moment benchmark |
 | `../../science/radiation_mass_per_sievert/` | **Program 2 READY** — engineering optimization (published data only) |
