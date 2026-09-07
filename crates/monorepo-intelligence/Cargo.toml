@@ -32,7 +32,7 @@ reqwest = { version = "0.12", features = ["json", "rustls-tls"], default-feature
 urlencoding = "2"
 
 # Optional reporting helpers
-handlebars = "5"
+handlebars = "6"
 rayon = "1.10"
 indicatif = "0.17"
 async-trait = "0.1"
