@@ -68,7 +68,7 @@ categories = ["science", "simulation"]
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 tokio = { version = "1", features = ["full"] }
-nalgebra = { version = "0.33", features = ["serde-serialize"] }
+nalgebra = { version = "0.35", features = ["serde-serialize"] }
 thiserror = "1.0"
 tracing = "0.1"
 tracing-subscriber = "0.3"
