@@ -9,7 +9,7 @@ authors = ["Eternally-Thriving-Grandmasterism", "Sherif Samy Botros <info@Rathor
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-rand = "0.8"
+rand = "0.10"
 tokio = { version = "1", features = ["sync", "macros", "rt", "time"] }
 gpu-compute-pipeline = { path = "../gpu-compute-pipeline", version = "14.15.0", optional = true }
 
