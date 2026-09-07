@@ -17,6 +17,9 @@
 | `PATSAGI-COUNCIL-MINUTE-2026-09-06-UBI-SOFT-FEEDBACK-CLAIM.md` | X UBI thread vs dual-repo: telemetry ≠ treasury |
 | `PATSAGI-COUNCIL-MINUTE-2026-09-07-PROOF-LADDER-VS-SC2.md` | Game analogy sealed; Grok public reply treated as receipt |
 | `PATSAGI-COUNCIL-MINUTE-2026-09-07-INNOVATIONS-GENERATOR-BASE-REALITY.md` | Generator applied as recycle+stamp; cosmos not claimed solved |
+| `PATSAGI-COUNCIL-MINUTE-2026-09-07-BIOMIMETIC-QUANTUM-VS-RBE.md` | QPSO + biomimetic JSON ≠ money replacement; Seed 1 local tests |
+| `BIOMIMETIC-QUANTUM-VS-RBE-2026-09-07.md` | What Core quantum-swarm is and is not |
+| `RBE-ROADMAP-CLAIM-OVERLAY-2026-09-07.md` | April 2026 roadmap stamped as aspiration |
 | `INNOVATIONS-GENERATOR-RUN-2026-09-07-TOLC-BASE-REALITY.md` | Six P0/ops seeds from this week's tensions |
 | `X-CLAIM-TRANSLATION-UBI-ABUNDANCE-2026-09-06.md` | Honest public-speech card for abundance / UBI posts |
 | `../../science/s1-micro-moment/` | **Program 1 ACTIVE** — empirical micro-moment benchmark |
