@@ -34,7 +34,7 @@ urlencoding = "2"
 # Optional reporting helpers
 handlebars = "5"
 rayon = "1.10"
-indicatif = "0.17"
+indicatif = "0.18"
 async-trait = "0.1"
 clap = { version = "4", features = ["derive"], optional = true }
 
