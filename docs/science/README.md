@@ -10,10 +10,12 @@
 | `SYSTEMS_INHERITING_PROOF_LADDER.md` | **Canonical map** of which systems inherit the ladder and the exact rule for each |
 | `PORTFOLIO_STATUS.md` | Single living view of ranks, tiers, and open doors |
 | `PROOF_LADDER_DOCTRINE.md` | Binding doctrine for every novelty/superiority claim |
+| `PROOF-LADDER-VS-GAME-LADDER.md` | Pedagogy: SC2 score-ladder ≠ proof ladder |
 | `PATSAGI_SCIENCE_DISCOVERY_PROTOCOL.md` | Full SDP — law, tiers P0–P4, ranked portfolio |
 | `PATSAGI-COUNCIL-MINUTE-2026-09-01-G3-KEEPER.md` | This-tick decision: keeper packet, not live G |
 | `PATSAGI-COUNCIL-MINUTE-2026-09-03-ETERNAL-ACTIVATION.md` | Eternal public-service activation reaffirmed; 12-member Core |
 | `PATSAGI-COUNCIL-MINUTE-2026-09-06-UBI-SOFT-FEEDBACK-CLAIM.md` | X UBI thread vs dual-repo: telemetry ≠ treasury |
+| `PATSAGI-COUNCIL-MINUTE-2026-09-07-PROOF-LADDER-VS-SC2.md` | Game analogy sealed; Grok public reply treated as receipt |
 | `X-CLAIM-TRANSLATION-UBI-ABUNDANCE-2026-09-06.md` | Honest public-speech card for abundance / UBI posts |
 | `../../science/s1-micro-moment/` | **Program 1 ACTIVE** — empirical micro-moment benchmark |
 | `../../science/radiation_mass_per_sievert/` | **Program 2 READY** — engineering optimization (published data only) |

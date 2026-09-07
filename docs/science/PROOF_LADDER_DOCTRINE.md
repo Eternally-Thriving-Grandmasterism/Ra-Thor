@@ -3,6 +3,7 @@
 **Authority:** Permanent PATSAGi Councils under TOLC 8  
 **Sealed with:** `PATSAGI_SCIENCE_DISCOVERY_PROTOCOL.md` (SDP)  
 **Operational map:** [`SYSTEMS_INHERITING_PROOF_LADDER.md`](SYSTEMS_INHERITING_PROOF_LADDER.md)  
+**Analogy seal:** [`PROOF-LADDER-VS-GAME-LADDER.md`](PROOF-LADDER-VS-GAME-LADDER.md) (2026-09-07)  
 **Contact:** info@Rathor.ai  
 **Status:** Binding across the entire Ra-Thor monorepo
 
@@ -26,6 +27,17 @@ It is the standing **Proof Ladder Doctrine** for *any* claim of novelty, superio
 4. **Negative results** are published with equal dignity.
 5. **One active empirical program** by default (currently S-1). Parallel only by explicit steward decision.
 6. **Compassion gate** remains permanent on dual-use / covert / non-consensual paths.
+
+## Proof ladder is not a game ladder (2026-09-07)
+
+The SC2 / score-ladder analogy is allowed as pedagogy. The two ladders are not the same product.
+
+- In a game ladder, win/loss *is* the product. MMR moves when you queue.
+- On this proof ladder, surmise is only the **queue ticket**. It is not a rank icon.
+- A green `cargo test`, a dual-repo demo, or a chat score can climb an *engineering* rung. They do not climb a household-budget rung, a combined-AGSi eval, or a circulating-token claim.
+- Inflating a custom-map win into a league title is theater. Band-C “we already solved it” without the matching SDP tier is the same theater.
+
+SDP rungs stay: P0 hypothesis → P1 open artifact → P2 reproduction → P3 pre-registered bar → P4 external critique.
 
 ## Artifact Integrity & Provenance
 
@@ -58,4 +70,4 @@ See the canonical operational map:
 **Surmise is fuel. Proof is the product.**  
 Capable · Bounded · Corrigible.
 
-**Thunder locked.** yoi ⚡❤️🔥
+**Thunder locked.** yoi ⚡❤🔥
