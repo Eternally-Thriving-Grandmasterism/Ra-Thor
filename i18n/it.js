@@ -144,5 +144,16 @@ window.translations["it"] = {
   "weekMcs": "Frammenti con cancelli in memoria, fase 2.0. Non un tesoro n\u00e9 un token in circolazione.",
   "weekAir": "studi di sistemi / aviazione. Non aeromobili certificati n\u00e9 un vascello in volo.",
   "weekPowrushSim": "Sorella simulatrice browser. Non il servizio dal vivo.",
-  "faqContact": "Richieste: <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 hover:text-amber-200\">info@Rathor.ai</a> \u00b7 <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/issues\" class=\"text-amber-300 hover:text-amber-200\">issue GitHub</a>."
+  "faqContact": "Richieste: <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 hover:text-amber-200\">info@Rathor.ai</a> \u00b7 <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/issues\" class=\"text-amber-300 hover:text-amber-200\">issue GitHub</a>.",
+  "watchTitle": "Classe di vigilanza \u2014 1 settembre 2026",
+  "watchLead": "Pretese esterne registrate perch\u00e9 i titoli non diventino valori ammissibili o lignaggio. Non prodotti.",
+  "watchPcg": "Flusso tether PCG / GSL",
+  "watchPcgNote": "ISEC / CVD coreano di 1 km. Condizionale 90\u201399 GPa. Solo vigilanza \u2014 non un valore ammissibile di habitat, non un ascensore in volo.",
+  "watchLattice": "LATTICE (Calboreanu 2026)",
+  "watchLatticeNote": "Articolo di governance parallela. Non \u00e8 una fonte di Ra-Thor. mercy-security resta white-hat.",
+  "watchPage": "Pagina di vigilanza sul sito",
+  "watchPageNote": "Le stesse note in linguaggio di pretesa pubblica. La barra della famiglia non cambia.",
+  "scienceRotor": "Affidabilit\u00e0 dei velivoli a rotore",
+  "scienceRotorNote": "Studio pubblico di ingegneria sulla riduzione del punto unico di guasto dell'ala rotante. Non aeromobili certificati."
 };
+
