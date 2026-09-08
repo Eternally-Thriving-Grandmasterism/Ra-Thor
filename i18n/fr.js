@@ -144,5 +144,16 @@ window.translations["fr"] = {
   "weekMcs": "Fragments \u00e0 portes en m\u00e9moire, phase 2.0. Pas un Tr\u00e9sor ni un jeton en circulation.",
   "weekAir": "\u00e9tudes de syst\u00e8mes / aviation. Pas des a\u00e9ronefs certifi\u00e9s ni un vaisseau en vol.",
   "weekPowrushSim": "S\u0153ur simulatrice navigateur. Pas le service en direct.",
-  "faqContact": "Demandes : <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 hover:text-amber-200\">info@Rathor.ai</a> \u00b7 <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/issues\" class=\"text-amber-300 hover:text-amber-200\">issues GitHub</a>."
+  "faqContact": "Demandes : <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 hover:text-amber-200\">info@Rathor.ai</a> \u00b7 <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/issues\" class=\"text-amber-300 hover:text-amber-200\">issues GitHub</a>.",
+  "watchTitle": "Classe de veille \u2014 1er septembre 2026",
+  "watchLead": "Revendications externes enregistr\u00e9es pour que les titres ne deviennent ni valeurs admissibles ni lign\u00e9e. Pas des produits.",
+  "watchPcg": "Flux d'amarre PCG / GSL",
+  "watchPcgNote": "ISEC / CVD cor\u00e9en de 1 km. Conditionnel 90\u201399 GPa. Veille seulement \u2014 pas une valeur admissible d'habitat, pas un ascenseur en vol.",
+  "watchLattice": "LATTICE (Calboreanu 2026)",
+  "watchLatticeNote": "Article de gouvernance parall\u00e8le. Ce n'est pas une source de Ra-Thor. mercy-security reste en chapeau blanc.",
+  "watchPage": "Page de veille sur le site",
+  "watchPageNote": "Les m\u00eames notes en langage de revendication publique. La barre de famille est inchang\u00e9e.",
+  "scienceRotor": "Fiabilit\u00e9 des a\u00e9ronefs \u00e0 rotor",
+  "scienceRotorNote": "\u00c9tude publique d'ing\u00e9nierie sur la r\u00e9duction du point unique de d\u00e9faillance de la voilure tournante. Pas des a\u00e9ronefs certifi\u00e9s."
 };
+
