@@ -144,5 +144,15 @@ window.translations["pt"] = {
   "weekMcs": "Fragmentos com port\u00f5es em mem\u00f3ria, fase 2.0. N\u00e3o um tesouro nem um token em circula\u00e7\u00e3o.",
   "weekAir": "estudos de sistemas / avia\u00e7\u00e3o. N\u00e3o aeronaves certificadas nem uma nave em voo.",
   "weekPowrushSim": "Irm\u00e3 simuladora de navegador. N\u00e3o o servi\u00e7o em direto.",
-  "faqContact": "Pedidos: <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 hover:text-amber-200\">info@Rathor.ai</a> \u00b7 <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/issues\" class=\"text-amber-300 hover:text-amber-200\">issues GitHub</a>."
+  "faqContact": "Pedidos: <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 hover:text-amber-200\">info@Rathor.ai</a> \u00b7 <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/issues\" class=\"text-amber-300 hover:text-amber-200\">issues GitHub</a>.",
+  "watchTitle": "Classe de vigil\u00e2ncia \u2014 1 de setembro de 2026",
+  "watchLead": "Pretens\u00f5es externas registadas para que as manchetes n\u00e3o se tornem valores admiss\u00edveis nem linhagem. N\u00e3o s\u00e3o produtos.",
+  "watchPcg": "Fluxo de amarra PCG / GSL",
+  "watchPcgNote": "ISEC / CVD coreano de 1 km. Condicional 90\u201399 GPa. S\u00f3 vigil\u00e2ncia \u2014 n\u00e3o um valor admiss\u00edvel de habitat, n\u00e3o um elevador em voo.",
+  "watchLattice": "LATTICE (Calboreanu 2026)",
+  "watchLatticeNote": "Documento de governa\u00e7\u00e3o paralela. N\u00e3o \u00e9 uma fonte de Ra-Thor. mercy-security permanece de chap\u00e9u branco.",
+  "watchPage": "P\u00e1gina de vigil\u00e2ncia no s\u00edtio",
+  "watchPageNote": "As mesmas notas em linguagem de pretens\u00e3o p\u00fablica. A barra de fam\u00edlia permanece inalterada.",
+  "scienceRotor": "Fiabilidade de aeronaves de rotor",
+  "scienceRotorNote": "Estudo p\u00fablico de engenharia sobre a redu\u00e7\u00e3o do ponto \u00fanico de falha da asa rotativa. N\u00e3o aeronaves certificadas."
 };
