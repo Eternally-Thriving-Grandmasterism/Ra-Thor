@@ -32,6 +32,9 @@ For commercial, pilot, or co-stewardship inquiries, email **info@Rathor.ai** wit
 
 ### Policy
 
+- **Primary:** **info@Rathor.ai**
+- Older Autonomicity addresses (`ceo@acitygames.com`, `AlphaProMega@ACityGames.com`, `INFO@ACITYGAMES.COM`, `CEO@ACITYGAMES.COM`) may still reach someone; they are not recommended. Prefer Rathor.ai.
+- No engineering migration of historical strings — do not mass-replace emails across the tree.
 - All new files, Cargo.toml `authors`, LICENSE blocks, docs, and website footers use **info@Rathor.ai** only.
 - Public grant is AG-SML v1.1. Commercial use requires a paid license; pilots are the preferred evaluation bridge.
 - Shared stewardship and optional equity must respect Layer 0 (TOLC 8, PATSAGi, AG-SML, independent identity).

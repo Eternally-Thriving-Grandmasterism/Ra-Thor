@@ -67,32 +67,3 @@ jobs:
           cargo check -p ra-thor-one-organism --features quantum-live
           cargo check -p ra-thor-one-organism --features gpu-live
           cargo check -p ra-thor-one-organism --features web-demo
-
-  contact-canonical:
-    name: Contact email hygiene (info@Rathor.ai)
-    # Known-failing: dozens of crate Cargo.toml authors still ceo@acitygames.com.
-    # Sweep is a separate PR. Do not block the TIER_MAP -p gate on it.
-    continue-on-error: true
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    steps:
-      - uses: actions/checkout@v4
-      - name: Fail if active deprecated contact emails appear outside allowlist
-        run: |
-          set -euo pipefail
-          # Allowlist: CONTACT.md, sweep script, contact workflow (document deprecations on purpose)
-          hits=$(grep -RInE \
-            -e 'ceo@acitygames\.com' \
-            -e 'AlphaProMega@ACityGames\.com' \
-            -e 'INFO@ACITYGAMES\.COM' \
-            -e 'CEO@ACITYGAMES\.COM' \
-            --exclude-dir=target --exclude-dir=.git --exclude-dir=node_modules \
-            --exclude=CONTACT.md --exclude=contact_email_sweep.sh \
-            --exclude=contact-email-sweep.yml \
-            . || true)
-          if [ -n "$hits" ]; then
-            echo "$hits"
-            echo "Deprecated contact email found outside allowlist"
-            exit 1
-          fi
-          echo "Contact hygiene OK — canonical info@Rathor.ai"
