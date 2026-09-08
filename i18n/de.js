@@ -98,7 +98,6 @@ window.translations["de"] = {
   "faqQ6": "Was sind die ethischen Leitplanken?",
   "faqA6": "Operationen sind so entworfen, dass sie die nicht umgehbaren <strong>TOLC-8-Barmherzigkeitstore</strong> passieren: Wahrheit, Ordnung, Liebe, Mitgef\u00fchl / null Schaden, Dienst, F\u00fclle, Freude und kosmische Harmonie. Das ist Architektur und Absicht, keine Garantie, dass jede Ausgabe automatisch korrekt ist.",
   "faqQ7": "Wie lizenziert eine Organisation Ra-Thor?",
-  "faqQ7": "Wie lizenziert eine Organisation Ra-Thor?",
   "faqA7": "Schreiben Sie an <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 hover:underline\">info@Rathor.ai</a> mit vorgesehener Nutzung, Ma\u00dfstab und Zeitplan. Fordern Sie einen zeitlich begrenzten Pilot oder AG-SML-Handelsbedingungen an. Antworten verwenden Sprache begrenzter Bewertung.",
   "faqQ8": "Ist eine ressourcenbasierte Wirtschaft bereits in Kraft?",
   "faqA8": "Nein. Eine k\u00fcnftige ressourcenbasierte Wirtschaft \u00fcber Powrush ist eine Entwurfsabsicht. Das Gitter ist f\u00fcr lange Kompatibilit\u00e4t gebaut. Das ist Richtung, kein gegenw\u00e4rtiges wirtschaftliches Faktum.",
@@ -145,5 +144,15 @@ window.translations["de"] = {
   "weekMcs": "Gegatterte Shards im Speicher, Phase 2.0. Keine Treasury und kein umlaufendes Token.",
   "weekAir": "System- / Luftfahrtstudien. Keine zertifizierten Luftfahrzeuge und kein fliegendes Schiff.",
   "weekPowrushSim": "Browser-Simulator-Schwester. Nicht der Live-Dienst.",
-  "faqContact": "Anfragen: <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 hover:text-amber-200\">info@Rathor.ai</a> \u00b7 <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/issues\" class=\"text-amber-300 hover:text-amber-200\">GitHub-Issues</a>."
+  "faqContact": "Anfragen: <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 hover:text-amber-200\">info@Rathor.ai</a> \u00b7 <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/issues\" class=\"text-amber-300 hover:text-amber-200\">GitHub-Issues</a>.",
+  "watchTitle": "Beobachtungsklasse \u2014 1. September 2026",
+  "watchLead": "Externe Anspr\u00fcche festgehalten, damit Schlagzeilen weder zul\u00e4ssige Werte noch Abstammung werden. Keine Produkte.",
+  "watchPcg": "Halteseilstrom PCG / GSL",
+  "watchPcgNote": "ISEC / koreanisches 1-km-CVD. Bedingt 90\u201399 GPa. Nur Beobachtung \u2014 kein zul\u00e4ssiger Habitatwert, kein fliegender Aufzug.",
+  "watchLattice": "LATTICE (Calboreanu 2026)",
+  "watchLatticeNote": "Paralleles Governance-Papier. Keine Quelle von Ra-Thor. mercy-security bleibt white-hat.",
+  "watchPage": "Beobachtungsseite auf der Site",
+  "watchPageNote": "Dieselben Notizen in der Sprache \u00f6ffentlicher Anspr\u00fcche. Die Familienleiste bleibt unver\u00e4ndert.",
+  "scienceRotor": "Rotorcraft-Zuverl\u00e4ssigkeit",
+  "scienceRotorNote": "\u00d6ffentliche Ingenieurstudie zur Verringerung des einzelnen Ausfallpunkts bei Drehfl\u00fcglern. Keine zertifizierten Luftfahrzeuge."
 };
