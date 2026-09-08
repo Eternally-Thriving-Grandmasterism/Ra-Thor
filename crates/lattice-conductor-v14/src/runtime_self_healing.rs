@@ -307,7 +307,7 @@ impl RuntimeSelfHealingEngine {
                     // Always restore Cosmic Loop flag
                     cosmic_loop_ready.store(true, Ordering::SeqCst);
 
-                    if let Ok(mut arb) = arbitration.lock() {
+                    if let Ok(arb) = arbitration.lock() {
                         let _ = arb.protect_cosmic_loop_identity();
                     }
 
@@ -345,7 +345,7 @@ impl RuntimeSelfHealingEngine {
                         consecutive.store(0, Ordering::SeqCst);
                         last_healthy.store(now, Ordering::SeqCst);
 
-                        if let Ok(mut arb) = arbitration.lock() {
+                        if let Ok(arb) = arbitration.lock() {
                             let _ = arb.enforce_cosmic_loop_activation();
                             let _ = arb.protect_cosmic_loop_identity();
                         }
@@ -502,13 +502,13 @@ impl RuntimeSelfHealingEngine {
                 println!("[Self-Healing] Executing: RestoreCosmicLoop");
                 self.cosmic_loop_ready.store(true, Ordering::SeqCst);
 
-                if let Ok(mut arb) = self.arbitration_engine.lock() {
+                if let Ok(arb) = self.arbitration_engine.lock() {
                     let _ = arb.protect_cosmic_loop_identity();
                 }
             }
             HealingAction::RestartComponent(name) => {
                 println!("[Self-Healing] Executing: RestartComponent({})", name);
-                if let Ok(mut arb) = self.arbitration_engine.lock() {
+                if let Ok(arb) = self.arbitration_engine.lock() {
                     let _ = arb.protect_cosmic_loop_identity();
                 }
             }
@@ -521,7 +521,7 @@ impl RuntimeSelfHealingEngine {
                     graph.reweight_edge(&from, &to, 3.5);
                 }
 
-                if let Ok(mut arb) = self.arbitration_engine.lock() {
+                if let Ok(arb) = self.arbitration_engine.lock() {
                     let _ = arb.protect_cosmic_loop_identity();
                 }
             }

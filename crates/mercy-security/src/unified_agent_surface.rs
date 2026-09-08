@@ -308,7 +308,6 @@ impl UnifiedAgentSurface {
             }
             Err(MercySecurityError::ActionLimitExceeded(msg)) => {
                 let detail = format!("governor_trip: {msg}");
-                drop(rt);
                 self.propagate_governor_trip(agent_id, &detail)?;
                 Err(MercySecurityError::ActionLimitExceeded(detail))
             }
@@ -377,14 +376,15 @@ mod tests {
     fn governor_trips_feed_isolation() {
         let mut u = UnifiedAgentSurface::education();
         u.register_agent("busy").unwrap();
-        let rt = u.runtimes.get_mut("busy").unwrap();
-        for i in 0..30 {
-            let _ = rt.try_local_tool(&format!("t{i}"), Some("sb0"));
+        {
+            let rt = u.runtimes.get_mut("busy").unwrap();
+            for i in 0..30 {
+                let _ = rt.try_local_tool(&format!("t{i}"), Some("sb0"));
+            }
+            let trip = rt.try_local_tool("overflow", Some("sb0"));
+            assert!(matches!(trip, Err(MercySecurityError::ActionLimitExceeded(_))));
+            assert!(rt.governor.trips >= 1);
         }
-        let trip = rt.try_local_tool("overflow", Some("sb0"));
-        assert!(matches!(trip, Err(MercySecurityError::ActionLimitExceeded(_))));
-        assert!(rt.governor.trips >= 1);
-        drop(rt);
         u.propagate_governor_trip("busy", "rate overflow").unwrap();
         assert!(u.governor_trip_signals >= 1);
         let iso = u.isolation_of("busy").unwrap();

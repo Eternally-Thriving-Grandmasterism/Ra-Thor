@@ -47,7 +47,6 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 
 use serde::{Deserialize, Serialize};
-use thiserror::Error;
 
 pub use lattice_conductor_v14::{
     CouncilArbitrationEngine,

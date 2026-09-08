@@ -149,7 +149,6 @@ impl CosmicHarness {
             (self.config.cycles as usize) * self.config.modes.len(),
         );
         let mut anomaly_counts: HashMap<String, u64> = HashMap::new();
-        let mut recovery_events = 0u64;
         let mut cosmic_loop_failures = 0u64;
 
         let mut prev_valence = core.role_orchestrator.shared_valence;
@@ -190,9 +189,6 @@ impl CosmicHarness {
                 // Saturation proxy via anomaly categories
                 for a in &result.anomalies_fired {
                     *anomaly_counts.entry(a.clone()).or_insert(0) += 1;
-                }
-                if result.recovery_triggered {
-                    recovery_events += 1;
                 }
 
                 snapshots.push(TickSnapshot {

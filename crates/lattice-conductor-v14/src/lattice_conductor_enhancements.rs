@@ -1,7 +1,7 @@
 // crates/lattice-conductor-v14/src/lattice_conductor_enhancements.rs
 // Full Restorative Merge - Preserving all logic + GovernanceRiskReport + JSON support
 
-use crate::distributed_mercy_mesh::{DistributedMercyMesh, MercyEvent, OrganismNode};
+use crate::distributed_mercy_mesh::{DistributedMercyMesh, OrganismNode};
 use crate::patsagi_governance::{PatsagiCouncilSimulator, PatsagiDecision, PatsagiReviewRequest};
 use crate::cooperative_governance::CooperativeGame;
 use std::collections::HashSet;
