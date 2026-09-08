@@ -144,5 +144,15 @@ window.translations["es"] = {
   "weekMcs": "Fragmentos con compuertas en memoria, fase 2.0. No un tesoro ni un token en circulación.",
   "weekAir": "estudios de sistemas / aviación. No aeronaves certificadas ni una nave en vuelo.",
   "weekPowrushSim": "Hermana simuladora de navegador. No el servicio en vivo.",
-  "faqContact": "Consultas: <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 hover:text-amber-200\">info@Rathor.ai</a> · <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/issues\" class=\"text-amber-300 hover:text-amber-200\">issues de GitHub</a>."
+  "faqContact": "Consultas: <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 hover:text-amber-200\">info@Rathor.ai</a> · <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/issues\" class=\"text-amber-300 hover:text-amber-200\">issues de GitHub</a>.",
+  "watchTitle": "Clase de vigilancia — 1 de septiembre de 2026",
+  "watchLead": "Reivindicaciones externas registradas para que los titulares no se vuelvan valores admisibles ni linaje. No son productos.",
+  "watchPcg": "Flujo de amarre PCG / GSL",
+  "watchPcgNote": "ISEC / CVD coreano de 1 km. Condicional 90–99 GPa. Solo vigilancia — no un valor admisible de hábitat, no un ascensor en vuelo.",
+  "watchLattice": "LATTICE (Calboreanu 2026)",
+  "watchLatticeNote": "Artículo de gobernanza paralela. No es una fuente de Ra-Thor. mercy-security sigue siendo de sombrero blanco.",
+  "watchPage": "Página de vigilancia en el sitio",
+  "watchPageNote": "Las mismas notas en lenguaje de reivindicación pública. La barra de familia no cambia.",
+  "scienceRotor": "Fiabilidad de aeronaves de rotor",
+  "scienceRotorNote": "Estudio público de ingeniería sobre la reducción del punto único de fallo del ala rotatoria. No aeronaves certificadas."
 };
