@@ -9,6 +9,7 @@
    2026-08-23e: Uniform gold bar — incomplete local navs no longer suppress;
                 retire competing family navs; Chat + Forge + Shard share one chrome
    2026-08-31: Public speech lock — no APTD badge in fallback footer
+   2026-09-09: Employ destination in the bar and the fallback directory
 */
 (function () {
   if (window.__rtFamilyNav) return;
@@ -17,6 +18,7 @@
   var LINKS = [
     { href: '/', label: 'Home' },
     { href: '/chat.html', label: 'Chat' },
+    { href: '/employ.html', label: 'Employ' },
     { href: '/Launch-Ra-Thor.html', label: 'Launch' },
     { href: '/micro-moment.html', label: 'Moments' },
     { href: '/sovereign-shard.html', label: 'Shard' },
@@ -65,7 +67,7 @@
       var t = (anchors[i].textContent || '').replace(/\s+/g, ' ').trim();
       if (t) found[t] = true;
     }
-    return !!(found.Home && found.Chat && found.Launch && found.Moments && found.Shard && found.Forge && found.Contact && found.Privacy);
+    return !!(found.Home && found.Chat && found.Employ && found.Launch && found.Moments && found.Shard && found.Forge && found.Contact && found.Privacy);
   }
 
   function retireLocalFamilyNavs() {
@@ -191,6 +193,7 @@
             '<div class="flex flex-col gap-2 text-xs">' +
               '<a href="/">Home</a>' +
               '<a href="/chat.html">Lattice Chat</a>' +
+              '<a href="/employ.html">How to employ</a>' +
               '<a href="/Launch-Ra-Thor.html">Launch map</a>' +
               '<a href="/micro-moment.html">Micro-moments</a>' +
               '<a href="/sovereign-shard.html">Sovereign Shard</a>' +
