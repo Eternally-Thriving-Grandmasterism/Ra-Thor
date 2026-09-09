@@ -7,6 +7,8 @@ This file records that law. It does not replace [`AGENT_PROTOCOL.md`](AGENT_PROT
 **Contact:** info@Rathor.ai. Independent of xAI. Not certified. Not a legal product.
 **Workspace:** 14.15.6. No 15.x.
 
+R3 is on main at `948b7d7a`. R4 is doc honesty, not a crate.
+
 ## Lived path
 
 Cosmic Loop already lives in those four Tier-1 crates. Agents propose. They do not rewrite `main` or spawn crates.
@@ -25,4 +27,4 @@ Archived lineage under `docs/archive/root-dirs/lineage/self-evolution/` stays ar
 
 - No Powrush-MMO, no WASD, no Title Online, no Market.
 - No generator. No Pages. No listen on `0.0.0.0`.
-- Do not start R4 in this PR.
+- Do not start R5 or R6 in this PR.
