@@ -12,6 +12,7 @@ This file does not replace the load-first path. It does not add a ninth gate.
 2. [`GROK_BOT_LATTICE_PATH.md`](GROK_BOT_LATTICE_PATH.md) — read one known path; never walk the repo root.
 3. [`../TIER_MAP.md`](../TIER_MAP.md) — Core Tier-1 is the merge gate. Conductor is `lattice-conductor-v14` only.
 4. [`WRAP_LLM_INTENTION.md`](WRAP_LLM_INTENTION.md) — humans wrap models with this lattice; the model is never sovereign.
+5. [`BINDING_AFTER_REDESIGN.md`](BINDING_AFTER_REDESIGN.md) — controlled loop bound; uncontrolled self-redesign stays OPEN.
 
 If a rule here disagrees with those files, those files win. Do not fork a parallel protocol.
 
@@ -52,6 +53,7 @@ AGSi stays a research label. Capable · Bounded · Corrigible.
 - Lethal-as-default.
 - Folding the Powrush client into this repo.
 - Contact-email as a required CI gate when it is satellite noise.
+- Closing “binding after uncontrolled self-redesign” with a crate or a score.
 
 Cosmic Loop, TOLC 8, and mercy gates already on a path you touch stay enforced. Do not invent a 9th gate that breaks 8.
 
@@ -62,10 +64,11 @@ Cosmic Loop, TOLC 8, and mercy gates already on a path you touch stay enforced. 
 - Drive Powrush WASD, Title Online, or Market from this repo.
 - Treat `legal-lattice`, `mercy_predictive_policing`, or `mercy_shield_law_enforcement` as shipped products.
 - Let an LLM claim it became AGI/ASI by sitting inside this wrap.
+- Claim Layer 0 still binds after the running system redesigns Layer 0.
 
 ## Next slice
 
-W1 is wrap-LLM intention (this PR).
+W1 wrap-LLM and W2 OPEN-gap stamp are on this path.
 R5 is a fresh constellation pointer from the current tip, not stale #445.
 R6 is one fail-closed Cosmic Loop test in one named Tier-1 crate, Steward-named later.
 
