@@ -54,6 +54,10 @@ Cosmic Loop, TOLC 8, and mercy gates already on a path you touch stay enforced. 
 - Drive Powrush WASD, Title Online, or Market from this repo.
 - Treat `legal-lattice`, `mercy_predictive_policing`, or `mercy_shield_law_enforcement` as shipped products.
 
-## Next slice (not this PR)
+## Next slice
 
-R2 is `docs/TOKEN_BUDGET.md`. Do not start R3 until R1 and R2 exist on main and Core has seen them.
+R4 is standing-doc honesty (this PR).
+R5 is a fresh constellation pointer from the current tip, not stale #445.
+R6 is one fail-closed Cosmic Loop test in one named Tier-1 crate, Steward-named later.
+
+Do not start R5 or R6 in this PR.
