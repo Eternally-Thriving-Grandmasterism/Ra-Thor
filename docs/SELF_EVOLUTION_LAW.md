@@ -8,10 +8,14 @@ This file records that law. It does not replace [`AGENT_PROTOCOL.md`](AGENT_PROT
 **Workspace:** 14.15.6. No 15.x.
 
 R3 is on main at `948b7d7a`. R4 is doc honesty, not a crate.
+W2: binding after uncontrolled self-redesign stays **OPEN**. See [`BINDING_AFTER_REDESIGN.md`](BINDING_AFTER_REDESIGN.md).
 
 ## Lived path
 
 Cosmic Loop already lives in those four Tier-1 crates. Agents propose. They do not rewrite `main` or spawn crates.
+
+**Controlled loop:** bound (steward + Core + Layer 0).
+**Uncontrolled redesign** (the running system changes its own gates / projector / merge law): **OPEN**. Do not close this in a crate or a score.
 
 ## Not a crate
 
