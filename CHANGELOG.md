@@ -2,6 +2,18 @@
 
 ---
 
+## 2026-09-09 — standing docs: protocol, budget, self-evolution law
+
+Workspace identity **14.15.6**. Conductor **v14 only**. Independent of xAI. Not certified. Not a legal product. No invented eval scores.
+
+- **#447** — `docs/AGENT_PROTOCOL.md`. Standing orders for Grok, BabyBot, and Bot 1.
+- **#448** — `docs/TOKEN_BUDGET.md`. Per-task cap: name files, one crate max, stop if unsure.
+- **#449** — `docs/SELF_EVOLUTION_LAW.md`. Lived self-evolution is Cosmic Loop in `lattice-conductor-v14`, `quantum-swarm`, `sovereign-recovery`, and `ra-thor-one-organism`. `crates/self-evolution` is not a crate.
+
+No `Cargo.toml` bump. No new crate. No Pages. No listen on `0.0.0.0`.
+
+Contact: info@Rathor.ai
+
 ## 2026-09-02 — PATSAGi: cargo unblock, CI hygiene, safe GitHub reads
 
 Workspace identity **14.15.6**. Conductor **v14 only**. Independent of xAI. Not certified. Not a legal product. No invented eval scores.
