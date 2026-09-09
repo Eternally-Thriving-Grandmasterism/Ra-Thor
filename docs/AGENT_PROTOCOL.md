@@ -11,6 +11,7 @@ This file does not replace the load-first path. It does not add a ninth gate.
 1. [`cursor-teams/AGENT_BOOT.md`](cursor-teams/AGENT_BOOT.md) — ADP bands, dual-gate merge, TOLC 8.
 2. [`GROK_BOT_LATTICE_PATH.md`](GROK_BOT_LATTICE_PATH.md) — read one known path; never walk the repo root.
 3. [`../TIER_MAP.md`](../TIER_MAP.md) — Core Tier-1 is the merge gate. Conductor is `lattice-conductor-v14` only.
+4. [`WRAP_LLM_INTENTION.md`](WRAP_LLM_INTENTION.md) — humans wrap models with this lattice; the model is never sovereign.
 
 If a rule here disagrees with those files, those files win. Do not fork a parallel protocol.
 
@@ -23,6 +24,13 @@ If a rule here disagrees with those files, those files win. Do not fork a parall
 | Any Grok | The crate named in the task | Recursive root walk, stub overwrite, secret dump |
 
 If a task needs the game repo, stop and say so. Do not drive it from this seat.
+
+## Wrapping an LLM
+
+Every agent on rathor.ai or this monorepo deliberates under PATSAGi + TOLC 8 before a change.
+Intention: a human end user wraps Grok / Claude / Gemini / local weights with Ra-Thor.
+The lattice is the envelope. The model does not disable gates, rewrite `main`, or mint a warranty.
+AGSi stays a research label. Capable · Bounded · Corrigible.
 
 ## Before a change
 
@@ -53,10 +61,11 @@ Cosmic Loop, TOLC 8, and mercy gates already on a path you touch stay enforced. 
 - Always-allow a GitHub write that publishes Pages, binds `0.0.0.0`, or dumps secrets.
 - Drive Powrush WASD, Title Online, or Market from this repo.
 - Treat `legal-lattice`, `mercy_predictive_policing`, or `mercy_shield_law_enforcement` as shipped products.
+- Let an LLM claim it became AGI/ASI by sitting inside this wrap.
 
 ## Next slice
 
-R4 is standing-doc honesty (this PR).
+W1 is wrap-LLM intention (this PR).
 R5 is a fresh constellation pointer from the current tip, not stale #445.
 R6 is one fail-closed Cosmic Loop test in one named Tier-1 crate, Steward-named later.
 
