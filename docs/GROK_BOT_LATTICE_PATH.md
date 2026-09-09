@@ -9,6 +9,7 @@ Not an xAI affiliation. Not a certification. Drafts need human override before a
 - Prefer a single known path. Use `github-connector::GitHubConnector::get_file_contents_safe`.
 - Tree walks: `get_tree_safe` with a `path_filter`. Never recursive root. `per_page` ≤ 100.
 - `crates/monorepo-intelligence` is protocol guardianship, not a license to walk the whole tree.
+- Landed agents also read [`BINDING_AFTER_REDESIGN.md`](BINDING_AFTER_REDESIGN.md) and [`WRAP_LLM_INTENTION.md`](WRAP_LLM_INTENTION.md).
 
 ## Change
 
@@ -30,3 +31,4 @@ Opt-in full workspace: `workflow_dispatch` on `.github/workflows/ci.yml` and `ra
 - Re-add `nexi_universal` as a default member or revive conductor v13.
 - Treat `legal-lattice`, `mercy_predictive_policing`, or `mercy_shield_law_enforcement` as shipped products.
 - Invent eval scores. If evidence is missing, list the gap.
+- Claim binding after uncontrolled self-redesign is solved. That gap stays OPEN.
