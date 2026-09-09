@@ -249,4 +249,17 @@ mod tests {
         let scan = core.ingest_content_report("pickle.loads(payload)");
         assert!(!scan.safe); assert_eq!(core.ingestion_admitted, 0); assert_eq!(core.ingestion_blocked, 0);
     }
+
+    /// R6: Cosmic Loop fail-closed. When the shared flag is down, `assert_cosmic_loop_invariant`
+    /// (without `enforce`) reports `all_hold == false`. Does not close BINDING_AFTER_REDESIGN.
+    /// Workspace stays 14.15.6. No ninth gate.
+    #[test]
+    fn r6_cosmic_loop_fail_closed_when_flag_down() {
+        let core = OneOrganismCore::new();
+        core.cosmic_loop_ready
+            .store(false, std::sync::atomic::Ordering::SeqCst);
+        let inv = core.assert_cosmic_loop_invariant();
+        assert!(!inv.cosmic_loop_ready);
+        assert!(!inv.all_hold);
+    }
 }
