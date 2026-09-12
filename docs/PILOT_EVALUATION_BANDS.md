@@ -23,6 +23,9 @@ Used when an adversarial-testing or audit firm is asked to score **our** gates, 
 | **A1 — Gate evidence pack** | 3 weeks | **18,000–28,000** | ≥80 labeled cases, ≥20 multi-turn chains, override + rollback drills, written limits memo |
 | **A2 — Extended multi-turn** | +1 week option | **+6,000–10,000** | Extra evaluator-owned chains only; no new product scope |
 
+**A1 default confirmation number: USD 22,000.**  
+Use that number on the 20-minute fit call. Counters must stay inside 18,000–28,000. See [PHASE_A_BUDGET_AND_SCOPE_CONFIRMATION.md](PHASE_A_BUDGET_AND_SCOPE_CONFIRMATION.md).
+
 Payer: Autonomicity Games Inc.  
 Payee: named evaluator firm.  
 Terms: 50% on signed SOW, 50% on accepted pack.  
@@ -44,6 +47,8 @@ Used when the evaluator or an end-client instruments **one** agent stack with Ra
 Credit: **100%** of B1 (and B2 if purchased) applies to a first-year Core Lattice commercial license if converted within **90 days** of the final report.
 
 Startup vs enterprise changes the **license after conversion**, not the pilot envelope.
+
+Phase B stays **off the first conversation** for evaluator intros. Default path is Phase A.
 
 ---
 
@@ -75,15 +80,16 @@ Ask: info@Rathor.ai. Target reply: 1–2 business days for a serious inquiry tha
 
 ## 5. How an introducer should quote this
 
-Correct:
+Correct for evaluator intros:
 
-> Their public evaluation envelope for an independent gate assessment is USD 18–28k fixed. A client-side control-layer pilot is USD 16–32k fixed and credits 100% toward year-one license if converted in 90 days.
+> Phase A is the default. Autonomicity Games Inc. pays a fixed USD 22,000 (band 18–28k) for a 15-business-day independent gate evaluation. First conversation is a 20-minute fit call. Introduction is not live until she accepts that call.
 
 Incorrect:
 
 > They will pay whatever you invoice.  
 > The product is certified.  
-> Annual licenses start at $X.
+> Annual licenses start at $X.  
+> Let’s jump to a client pilot first.
 
 ---
 
