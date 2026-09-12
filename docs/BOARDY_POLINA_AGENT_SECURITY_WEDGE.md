@@ -8,20 +8,13 @@
 
 This file exists so an introducer can make **one concrete introduction** without a vague commercial conversation.
 
-It answers Constantin / The Valley directly:
+**Current default path:** Phase A. Autonomicity Games Inc. pays **USD 22,000** fixed. The **20-minute fit call is conversation one**. The introduction is **not live** until the evaluator accepts that call.
 
-1. What problem Ra-Thor solves for an adversarial-testing firm's **clients**
-2. What that firm would **actually deploy**
-3. How we measure it in **2–6 weeks**
-4. Deliverables and evidence standards
-5. A **credible budget range** and who pays whom
-
-Related:
-
-- [PILOT_EVALUATION_BANDS.md](PILOT_EVALUATION_BANDS.md)
-- [EVIDENCE_STANDARDS_AGENT_SECURITY.md](EVIDENCE_STANDARDS_AGENT_SECURITY.md)
-- [SOW_AGENT_SECURITY_CONTROL_LAYER.md](SOW_AGENT_SECURITY_CONTROL_LAYER.md)
-- [PILOT_OFFER.md](PILOT_OFFER.md)
+- Confirmation object: [PHASE_A_BUDGET_AND_SCOPE_CONFIRMATION.md](PHASE_A_BUDGET_AND_SCOPE_CONFIRMATION.md)
+- Fit-call agenda: [FIT_CALL_PHASE_A.md](FIT_CALL_PHASE_A.md)
+- Evidence: [EVIDENCE_STANDARDS_AGENT_SECURITY.md](EVIDENCE_STANDARDS_AGENT_SECURITY.md)
+- SOW: [SOW_AGENT_SECURITY_CONTROL_LAYER.md](SOW_AGENT_SECURITY_CONTROL_LAYER.md)
+- Envelopes: [PILOT_EVALUATION_BANDS.md](PILOT_EVALUATION_BANDS.md)
 - Crate: [`crates/mercy-security/README.md`](../crates/mercy-security/README.md)
 
 ---
@@ -34,7 +27,7 @@ Open with this sentence:
 
 > Ra-Thor can sit as an auditable admit / review / block / escalate control layer in front of an agent under test, so a prompt-injection and agent-security assessment produces measured false-accept, false-reject, bypass, override, and rollback evidence instead of a narrative-only report.
 
-Then offer the two-phase envelope below. Stop. Let them ask questions.
+Then offer **Phase A at USD 22,000** and the 20-minute fit call. Stop. Let them ask questions.
 
 ---
 
@@ -44,7 +37,7 @@ Then offer the two-phase envelope below. Stop. Let them ask questions.
 
 **Named example (intro candidate, not a customer):** Polina Moshenets — independent adversarial-testing practice. Public profile: https://www.linkedin.com/in/polina-moshenets
 
-This document is **not** a claim that she has agreed to anything. It is the missing scope packet so an introducer can decide whether the conversation is real enough to make.
+This document is **not** a claim that she has agreed to anything.
 
 ---
 
@@ -68,156 +61,98 @@ A client's agent stack can be jailbroken, tool-hijacked, or multi-turn escalated
 | Short deliberation / provenance record | gate decision + reason codes; procurement provenance template under `examples/procurement-admit-gate/` |
 | Human override + recovery posture | documented override path; `sovereign-recovery` crate in Core; **must be exercised and scored, not assumed** |
 
-**What this is not:**
-
-- Not a certified product, SOC2 report, or EU AI Act conformity assessment
-- Not a replacement for the evaluator's methodology
-- Not a production SaaS the evaluator must host
-- Not offensive exploit tooling
-- Not an xAI product
-
-The evaluator keeps their method. Ra-Thor is the **instrumented control plane** their method runs against.
+**What this is not:** not certified; not a replacement for her method; not a SaaS; not offensive tooling; not an xAI product.
 
 ---
 
-## 3. What Polina's firm would actually put in its stack
-
-Minimum deploy for a 3-week evaluation (no production rewrite):
-
-1. Clone / pin commit of this monorepo (workspace **14.15.6**).
-2. Build the admit CLI:
+## 3. What the firm deploys in 3 weeks
 
 ```bash
 cargo test -p mercy-security
 cargo build -p mercy-security --bin mercy-admit
 ```
 
-3. Wrap each assessment turn:
-   - **Before** the model/tool call: run `mercy-admit` (or the library `admit_or_block`) on the untrusted turn payload + retrieved context.
-   - Record: decision (`admit` / `review` / `block`), reason code, profile, payload hash, timestamp, operator id.
-   - **After** a tool/action: record whether `ActionGovernor` allowed, deferred, or refused.
-4. On `review` or suspected false-accept: human override protocol (name, time, rationale, whether action still executed).
-5. On confirmed bad admit: rollback protocol (what was reversed, what could not be reversed, residual risk).
-6. Emit one evidence row per turn into the evaluator's existing report format.
+Wrap each turn: scan before the model/tool call; record admit/review/block + reason + payload hash; record governor allow/defer/refuse; log overrides; run rollback drills on bad admits. Emit one evidence row per turn.
 
-Optional, week 3 only if weeks 1–2 are clean:
-
-- Drop-in GitHub Action / pre-commit from `fixtures/mercy-security/ci-examples/`
-- Procurement pack from `examples/procurement-admit-gate/`
-
-Out of scope for this wedge: Powrush player loop, Daedalus, video micro-moment engine, research-forest crates not in default `members`, any claim of certification.
+Out of scope: Powrush, Daedalus, video engine, research-forest crates, certification.
 
 ---
 
-## 4. How we measure it in 2–6 weeks
+## 4. How we measure it
 
-Canonical metric definitions: [EVIDENCE_STANDARDS_AGENT_SECURITY.md](EVIDENCE_STANDARDS_AGENT_SECURITY.md).
+FA / FR / bypass / override / rollback. Floor: ≥80 labeled cases, ≥20 multi-turn chains, ≥10 override drills, ≥5 rollback drills. Definitions: [EVIDENCE_STANDARDS_AGENT_SECURITY.md](EVIDENCE_STANDARDS_AGENT_SECURITY.md).
 
-| Metric | Question the client can use |
-|--------|-----------------------------|
-| **False-accept (FA)** | Did the gate admit a payload that the evaluator labels attack-successful or policy-violating? |
-| **False-reject (FR)** | Did the gate block a payload the evaluator labels benign / in-policy? |
-| **Bypass** | Did an attack complete a tool/action **without** a corresponding block or review event? |
-| **Override** | When a human overrode the gate, was the override logged with actor, rationale, and whether the action still ran? |
-| **Rollback** | After a bad admit or successful attack, what state was reversed, and what residual effect remains? |
-
-**Minimum statistical floor for a 3-week packet:**
-
-- ≥ 80 labeled cases (mix of public corpus + evaluator-owned multi-turn chains)
-- ≥ 20 multi-turn chains (≥3 turns)
-- ≥ 10 override drills
-- ≥ 5 rollback drills
-- Every case has a replay handle (payload hash + decision log + evaluator label)
-
-This floor is an **evidence standard**, not a pass score. Pass/fail is the client's. Ra-Thor does not mark itself certified if numbers look good.
+This floor is an evidence standard, not a pass score and not a certificate.
 
 ---
 
-## 5. Two-phase money so the intro is not vague
+## 5. Money — Phase A is default
 
-Exact signed dollars live in the SOW. Public bands live in [PILOT_EVALUATION_BANDS.md](PILOT_EVALUATION_BANDS.md). Summary for Boardy:
-
-### Phase A — Independent evaluation of Ra-Thor's own gates
+### Phase A — Independent evaluation of Ra-Thor's own gates (DEFAULT)
 
 | Field | Value |
 |-------|--------|
 | **Buyer** | Autonomicity Games Inc. |
-| **Seller** | Evaluator firm (e.g. Polina's practice) |
-| **Purpose** | Prove whether the control layer is worth putting in front of *her clients* |
-| **Duration** | 3 weeks (may stretch to 4 if labeled corpus needs extra turns) |
-| **Public envelope** | **USD 18,000–28,000** fixed |
-| **Payment** | 50% on signed SOW, 50% on accepted evidence pack |
-| **What this proves to an introducer** | Scope is defined and Autonomicity Games Inc. will fund a bounded evaluation of this class |
+| **Seller** | Evaluator firm |
+| **Default fee** | **USD 22,000** fixed |
+| **Band** | 18,000–28,000 if she counters |
+| **Duration** | 15 business days |
+| **Payment** | 50% on signed SOW, 50% on accepted pack |
+| **First conversation** | 20-minute fit call |
+| **Intro live?** | Only after she accepts that call |
 
-Phase A is optional if the evaluator prefers to skip to a client-paid pilot. It exists because “please evaluate us for free” is not a serious intro.
+Confirmation page: [PHASE_A_BUDGET_AND_SCOPE_CONFIRMATION.md](PHASE_A_BUDGET_AND_SCOPE_CONFIRMATION.md)
 
-### Phase B — Control-layer pilot on one client agent stack
+### Phase B — Control-layer pilot on one client stack (LATER)
 
-| Field | Value |
-|-------|--------|
-| **Buyer** | Evaluator firm or the named end-client |
-| **Seller** | Autonomicity Games Inc. |
-| **Purpose** | Instrument one real assessment engagement with the control layer |
-| **Duration** | 3–4 weeks inside the 2–6 week pilot window |
-| **Public envelope** | **USD 16,000–32,000** fixed |
-| **Credit** | **100%** of the Phase B fee credits toward a first-year Core Lattice commercial license if converted within 90 days of final report |
-| **Startup vs enterprise** | Same pilot envelope; license after conversion follows [COMMERCIAL_LICENSE.md](../COMMERCIAL_LICENSE.md) startup or enterprise tier |
-
-No public list for full annual licenses. Those stay in a signed schedule. The pilot envelopes above are public **so an introducer is not asked to invent a number**.
+USD 16,000–32,000. 100% credits to year-one license if converted within 90 days. **Do not open the first conversation here.**
 
 ---
 
-## 6. Deliverables (Phase A or Phase B)
+## 6. Deliverables (Phase A)
 
 1. Pinned commit SHA + `cargo test -p mercy-security` log
-2. Instrument map: where the gate sat relative to model / tools / retrieval
-3. Case ledger (CSV or JSONL) with FA / FR / bypass / override / rollback fields
-4. Ten written case studies (5 attacks that mattered, 5 benign that must stay admitted)
-5. Limits memo — what the pattern gate cannot see; multi-turn residue; residual rollback risk
-6. 45-minute readout with the introducer optional on the line
-7. Go / no-go note for Phase B or for commercial conversion
-
-Template SOW: [SOW_AGENT_SECURITY_CONTROL_LAYER.md](SOW_AGENT_SECURITY_CONTROL_LAYER.md)
+2. Instrument map
+3. Case ledger with FA / FR / bypass / override / rollback fields
+4. Ten written case studies
+5. Limits memo
+6. 45-minute readout
+7. Go / no-go for Phase B
 
 ---
 
-## 7. Intro text Boardy / Constantin can send
+## 7. Text Boardy sends now (fit call first)
 
-> Polina — flagging a bounded, paid evaluation rather than an open-ended pitch.
+> Polina — budget and scope confirmation, not a live intro.
 >
-> Ra-Thor (Autonomicity Games Inc., independent, not xAI-affiliated) has an inspectable admit/review/block control layer (`mercy-security` + `mercy-admit`) intended to sit in front of an agent under test. The ask is whether that layer gives your prompt-injection / multi-turn / agent-security assessments measurable false-accept, false-reject, bypass, override, and rollback evidence in 3 weeks.
+> Default path is Phase A: Autonomicity Games Inc. pays a fixed **USD 22,000** (band 18–28k) for a 15-business-day independent evaluation of the `mercy-security` admit/review/block layer. Metrics: false-accept, false-reject, bypass, override, rollback against a published floor. Not certified. Gates stay on.
 >
-> Two envelopes are public:
-> • Phase A: Autonomicity Games Inc. funds an independent evaluation of its own gates at USD 18k–28k fixed.
-> • Phase B: you or a named client fund a control-layer pilot on one stack at USD 16k–32k fixed, 100% creditable to a first-year license if you convert within 90 days.
+> First conversation is a **20-minute fit call** with Sherif at info@Rathor.ai. If you confirm the six locked lines and accept that call, I can mark the introduction forward.
 >
-> Not certified. Not a replacement for your method. White-hat only. Contact info@Rathor.ai. Packet: docs/BOARDY_POLINA_AGENT_SECURITY_WEDGE.md on https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor
+> Confirmation: https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/docs/PHASE_A_BUDGET_AND_SCOPE_CONFIRMATION.md
+> Agenda: https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/docs/FIT_CALL_PHASE_A.md
 
 ---
 
-## 8. Fit-call gate before any intro is “closed”
+## 8. Fit-call gate
 
-A 20-minute fit call with info@Rathor.ai is required before Phase A or B is treated as live. On that call we confirm:
+Agenda: [FIT_CALL_PHASE_A.md](FIT_CALL_PHASE_A.md).
 
-- Evaluator can run Rust/Cargo locally or accept a provided test harness box
-- No request to disable TOLC 8 / harm-refusal
-- Named payment entity and invoice path
-- Which phase starts first
+Pass criteria for “introduction live”: Phase A accepted; fee 22,000 or written counter inside the band; invoice legal name; harness path chosen; gates stay on; one kickoff week named.
 
-If those four are not true, **do not introduce**. That is the rule that keeps the evaluator out of a vague conversation.
+Anything short of that stays **not live**.
 
 ---
 
 ## 9. Hard stops
 
-- Do not tell the evaluator Ra-Thor is certified, legally warranted, or xAI-endorsed
-- Do not offer to turn gates off for a higher score
-- Do not expand scope into video, Powrush, or constellation modules inside this SOW
-- Do not invent prior customers, LOIs, or revenue
-- Do not send exploit payloads that are live malware; public corpus + evaluator-owned white-hat chains only
+- Do not claim certified, legally warranted, or xAI-endorsed
+- Do not offer to turn gates off
+- Do not expand into video / Powrush / Daedalus on this SOW
+- Do not invent customers, LOIs, or escrow
+- Do not send live-malware payloads
 
 ---
 
-**PATSAGi decision 2026-09-12:** this wedge is the default intro shape for adversarial-testing firms.  
-Mercy first. Evidence second. License third.  
+**PATSAGi decision 2026-09-12 (second tick):** Phase A + 20-minute fit call is the default path. Introduction stays conditional until she accepts the call.  
 Yoi ⚡
