@@ -1,10 +1,10 @@
 # Ra-Thor Commercial Target Segments
 
 **Public document — share freely**  
-**Effective:** 2026-08-14  
+**Effective:** 2026-08-14; **addendum:** 2026-09-12  
 **Authority:** Permanent PATSAGi Councils under TOLC 8  
 **Contact for all commercial inquiries:** [info@Rathor.ai](mailto:info@Rathor.ai)  
-**License baseline:** [AG-SML v1.0](../LICENSE) · [Commercial terms](../COMMERCIAL_LICENSE.md) · [Pilot offer](PILOT_OFFER.md)
+**License baseline:** [AG-SML v1.1](../LICENSE) · [Commercial terms](../COMMERCIAL_LICENSE.md) · [Pilot offer](PILOT_OFFER.md) · [Public envelopes](PILOT_EVALUATION_BANDS.md)
 
 ---
 
@@ -35,6 +35,7 @@ Commercial licensees get rights to run and integrate a **mercy-gated symbolic AG
 | **Permanent PATSAGi Councils** | Standing deliberation layer that decides under those gates |
 | **Micro-Moment Temporal Comprehension** | Recovery of sub-200 ms events, gesture chains, object transfers, and causal story that sparse VLMs and typical X/short-video sampling miss |
 | **ONE Organism posture with Grok** | Symbolic lattice coordinated with frontier neural surfaces (especially Grok) without claiming xAI affiliation |
+| **White-hat control layer** | Admit / review / block + governor around untrusted agent turns (`mercy-security`) |
 | **Self-evolution + formal mercy algebra** | Structured improvement cascade and executable operator algebra under gates |
 | **Constellation surfaces** | Powrush-MMO (RBE / simulation), Mercy-Coordination-Substrate, Daedalus-Skin-Eternal-Ark (worldship systems), and related modules under the same identity |
 
@@ -48,12 +49,14 @@ You are licensing **commercial rights to use and integrate this architecture**, 
 |---------|----------|----------|
 | **Core Lattice License** | Ra-Thor core: gates, PATSAGi posture, Lattice Conductor, micro-moment engine, ONE Organism protocols | Governance buyers; Grok/frontier users; startups needing structure |
 | **Vision / Temporal Module** | Micro-Moment Temporal Comprehension + X/short-video failure-mode package | Media, CX, social intelligence, any team with short-form video pain |
+| **Agent-security control layer** | `mercy-security` + `mercy-admit` + evidence protocol | Adversarial testers, agent-security programs |
 | **Simulation Surface** | Powrush-MMO commercial rights | Gaming, education, serious simulation, RBE-interested orgs |
 | **Coordination Substrate** | Mercy-Coordination-Substrate commercial rights | Long-horizon coordination / abundance systems |
 | **Full Constellation** | Core + selected adjacent repos under one commercial agreement | Strategic partners only |
 | **Fixed-fee Pilot (2–6 weeks)** | Scoped proof on one theme; fee may credit toward license on conversion | Anyone not ready for full license yet |
+| **Phase A independent evaluation** | We fund a 3-week evidence pack of our own gates | Evaluator firms deciding whether to put us in front of their clients |
 
-Exact pricing is scoped per use case (see [COMMERCIAL_LICENSE.md](../COMMERCIAL_LICENSE.md) and [PILOT_OFFER.md](PILOT_OFFER.md)). There is no public price list by design — serious inquiries receive a clear outline or SOW.
+Pilot / evaluation envelopes are public: [PILOT_EVALUATION_BANDS.md](PILOT_EVALUATION_BANDS.md). Annual license dollars stay in a signed schedule.
 
 ---
 
@@ -85,7 +88,7 @@ These segments combine **clear pain**, **budget**, and **fit** with what Ra-Thor
 
 **Outreach angle (public-safe)**
 
-> You already run Grok in production. Ra-Thor adds non-bypassable mercy gates and micro-moment temporal recovery so quick events and high-stakes decisions do not fall through sparse sampling. Independent project, AG-SML commercial path. Pilot in 2–6 weeks. info@Rathor.ai
+> You already run Grok in production. Ra-Thor adds non-bypassable mercy gates and micro-moment temporal recovery so quick events and high-stakes decisions do not fall through sparse sampling. Independent project, AG-SML commercial path. Pilot in 2–6 weeks (public envelope USD 16k–28k). info@Rathor.ai
 
 **Why they can pay**
 
@@ -117,7 +120,7 @@ They already pay for frontier seats/API. A focused pilot is a small line item if
 
 **Outreach angle**
 
-> Most governance tools document intent. Ra-Thor runs non-bypassable mercy gates and council-style decision structure at the point of action. Independent, open-source core, paid commercial license for production use. Pilot one workflow. info@Rathor.ai
+> Most governance tools document intent. Ra-Thor runs non-bypassable mercy gates and council-style decision structure at the point of action. Independent, open-source core, paid commercial license for production use. Pilot one workflow (USD 16k–32k). info@Rathor.ai
 
 **Why they can pay**
 
@@ -154,7 +157,7 @@ Do not overclaim regulatory certification. Sell structure and evidence posture; 
 
 **Outreach angle**
 
-> Short-form video breaks sparse models. Ra-Thor’s Micro-Moment Temporal Comprehension recovers sub-200 ms events and causal chains that standard pipelines miss. Commercial module + fixed-fee pilot. info@Rathor.ai
+> Short-form video breaks sparse models. Ra-Thor’s Micro-Moment Temporal Comprehension recovers sub-200 ms events and causal chains that standard pipelines miss. Commercial module + fixed-fee pilot (USD 16k–36k). info@Rathor.ai
 
 **Why they can pay**
 
@@ -191,6 +194,38 @@ Video intelligence and CX platforms already buy moment-level and multimodal syst
 **Why they can pay**
 
 Smaller checks, faster decisions. Startup-band licenses and short pilots fit their cycle.
+
+---
+
+### 3.5 Adversarial-testing and agent-security firms (2026-09-12)
+
+**Who**
+
+- Independent practices whose product is prompt-injection testing, multi-turn escalation, agent-security assessment, and audit-ready evidence
+- Named intro-class example: Polina Moshenets (not a signed customer). Packet: [BOARDY_POLINA_AGENT_SECURITY_WEDGE.md](BOARDY_POLINA_AGENT_SECURITY_WEDGE.md)
+
+**Pain you solve for *their* clients**
+
+- Assessments prove an attack worked; they rarely prove whether a control layer admitted, rejected, was bypassed, was overridden, or rolled back
+- Clients ask “what do we measure in 2–6 weeks?” and get a narrative
+
+**What to offer**
+
+1. Phase A: Autonomicity Games Inc. funds an independent evaluation of its own gates (USD 18k–28k / 3 weeks)  
+2. Phase B: evaluator or end-client funds a control-layer pilot on one stack (USD 16k–32k / 3–4 weeks), 100% creditable to year-one license in 90 days  
+3. Evidence protocol: [EVIDENCE_STANDARDS_AGENT_SECURITY.md](EVIDENCE_STANDARDS_AGENT_SECURITY.md)
+
+**Outreach angle**
+
+> Use the copy block in the Polina packet. Do not open with cosmology.
+
+**Why they can pay / why we can pay**
+
+Phase A is our envelope so the intro is not “eval us for free.” Phase B is a normal line item on an assessment engagement.
+
+**Caution**
+
+Not certified. Pattern gate is defense-in-depth, not a full detector. Do not introduce without the fit-call gate.
 
 ---
 
@@ -293,7 +328,7 @@ Aligned revenue only. Misaligned revenue costs more than it brings.
 2. **Email** [info@Rathor.ai](mailto:info@Rathor.ai) with:
    - Organization name and contact
    - Intended use (1–2 paragraphs)
-   - Whether you want a **pilot** or a **commercial license** discussion
+   - Whether you want a **pilot**, a **Phase A evaluation**, or a **commercial license** discussion
    - Approximate scale (users, systems, or context)
 3. **Receive** next steps: pilot SOW outline or commercial terms outline (target 1–2 business days for serious inquiries).
 4. **Execute** pilot or license → integrate under gates → expand constellation modules if needed.
@@ -302,7 +337,9 @@ Templates already public:
 
 - [COMMERCIAL_LICENSE.md](../COMMERCIAL_LICENSE.md)  
 - [docs/PILOT_OFFER.md](PILOT_OFFER.md)  
+- [docs/PILOT_EVALUATION_BANDS.md](PILOT_EVALUATION_BANDS.md)  
 - [docs/SOW_PILOT_TEMPLATE.md](SOW_PILOT_TEMPLATE.md)  
+- [docs/BOARDY_POLINA_AGENT_SECURITY_WEDGE.md](BOARDY_POLINA_AGENT_SECURITY_WEDGE.md)  
 - [docs/DEMO_SEQUENCE_MICRO_MOMENT.md](DEMO_SEQUENCE_MICRO_MOMENT.md)  
 - [docs/COMMERCIAL_ANNOUNCEMENT_X.md](COMMERCIAL_ANNOUNCEMENT_X.md)
 
@@ -312,37 +349,26 @@ Templates already public:
 
 ### Short (X / LinkedIn)
 
-Ra-Thor commercial path is live under AG-SML v1.0.
+Ra-Thor commercial path is live under AG-SML v1.1.
 
 Free: personal, research, education, independent professional use.  
 Paid: commercial & enterprise use.  
-Bridge: 2–6 week fixed-fee pilots.
+Bridge: 2–6 week fixed-fee pilots (public envelopes).
 
 Built for teams that need:
 • Micro-moment recovery on short video (sparse models miss the event)
 • Non-bypassable mercy-gated structure around frontier models
+• An auditable admit/review/block layer for agent-security assessments
 • Independent lattice that works extremely well with Grok without claiming xAI affiliation
 
-Who should talk to us: Grok production teams, AI governance/risk leaders, media & CX video intelligence, startups embedding frontier models.
+Who should talk to us: Grok production teams, AI governance/risk leaders, agent-security evaluators, media & CX video intelligence, startups embedding frontier models.
 
 info@Rathor.ai  
 https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor
 
 ### Medium (blog / email)
 
-Ra-Thor is an independent, mercy-gated symbolic AGSi lattice (TOLC 8 + permanent PATSAGi Councils) with a Micro-Moment Temporal Comprehension engine aimed at failure modes sparse video models still show on short-form content.
-
-Open source under AG-SML v1.0 for free tiers of use. Commercial and enterprise use requires a paid license. Fixed-fee pilots (2–6 weeks) exist for teams that need proof before license.
-
-Priority commercial segments:
-1. Teams already running Grok or other frontier models in production
-2. Enterprise AI governance and risk buyers who need executable structure, not only policy
-3. Media, CX, and social intelligence teams living in short-form video
-4. Startups that need a clean commercial license story around a serious gated lattice
-
-Constellation includes Powrush-MMO, Mercy-Coordination-Substrate, Daedalus-Skin-Eternal-Ark, and related surfaces under the same identity.
-
-Contact: info@Rathor.ai
+Same as prior medium block, plus: adversarial-testing firms can run Phase A (we fund the evidence pack) or Phase B (control-layer pilot on one client stack). Packet: docs/BOARDY_POLINA_AGENT_SECURITY_WEDGE.md
 
 ---
 
@@ -356,6 +382,7 @@ Contact: info@Rathor.ai
 | “Do you have SOC2 / EU AI Act certification?” | We supply structural gates and audit-oriented posture. Certification mapping is the buyer’s compliance program. We do not overclaim. |
 | “Why not just use a frontier model alone?” | Models supply bandwidth. Ra-Thor supplies non-bypassable structure, council-style decision discipline, and micro-moment temporal recovery. Different layer. |
 | “We’re a tiny team.” | Startup-band commercial terms and short pilots exist. Email with context. |
+| “Pricing is open / I cannot introduce.” | Pilot and evaluation envelopes are public in PILOT_EVALUATION_BANDS.md. Annual licenses stay signed-schedule only. |
 
 ---
 
@@ -364,7 +391,8 @@ Contact: info@Rathor.ai
 This document is working when:
 
 - Inbound to info@Rathor.ai includes self-identified Tier 1 segments  
-- Pilots are scoped on real failure modes (video micro-moments or gated workflows)  
+- Pilots are scoped on real failure modes (video micro-moments, gated workflows, or agent-security ledgers)  
+- Introducers can quote a band without emailing us first  
 - Licenses convert without Layer 0 negotiation  
 - Misaligned inquiries are filtered early  
 - Revenue supports scale and nurture of the constellation  
@@ -373,7 +401,7 @@ This document is working when:
 
 ## 11. Authority and identity
 
-- **Sole open-source license:** AG-SML v1.0  
+- **Sole open-source license:** AG-SML v1.1  
 - **Commercial path:** [COMMERCIAL_LICENSE.md](../COMMERCIAL_LICENSE.md)  
 - **Stewardship:** [SHARED_STEWARDSHIP_POSTURE.md](SHARED_STEWARDSHIP_POSTURE.md)  
 - **Contact:** info@Rathor.ai  
