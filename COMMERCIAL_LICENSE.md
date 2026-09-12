@@ -1,12 +1,14 @@
 # Ra-Thor Commercial License — AG-SML v1.1 Commercial Terms
 
-**Effective:** 2026-08-31  
+**Effective:** 2026-08-31; **envelope pointer:** 2026-09-12  
 **Authority:** Permanent PATSAGi Councils under TOLC 8  
 **Contact:** info@Rathor.ai  
 **Public grant:** root `LICENSE` (AG-SML v1.1)  
 **Thesis (not a license):** `rbe-transition-roadmap-v1.1.md`
 
-This is the **single commercial exhibit**. It is not a second public license family. Dollar amounts and percentages belong only in a **signed commercial schedule**, labeled transitional until sunset.
+This is the **single commercial exhibit**. It is not a second public license family. Dollar amounts for **annual / enterprise licenses** belong only in a **signed commercial schedule**, labeled transitional until sunset.
+
+**Pilot and independent-evaluation envelopes are public** so introducers are not blocked by open pricing. See [`docs/PILOT_EVALUATION_BANDS.md`](docs/PILOT_EVALUATION_BANDS.md).
 
 ---
 
@@ -41,8 +43,10 @@ If you are unsure, email **info@Rathor.ai** with a short description.
 | **Startup / Small Team** | Companies under a defined headcount / revenue threshold | Annual or one-time | Simple written commercial grant |
 | **Enterprise** | Larger organizations, production deployments | Custom | Negotiated scope, support, and term |
 | **Pilot → Convert** | Any organization testing fit before full license | Fixed-fee pilot (see `docs/PILOT_OFFER.md`) | Pilot fee credits toward commercial license if converted |
+| **Independent evaluation (Phase A)** | Autonomicity Games Inc. buys a scoped evidence pack from an evaluator | Fixed-fee, we pay | Envelope in `docs/PILOT_EVALUATION_BANDS.md` |
 
-Exact pricing is provided on request. There is no public price list by design.
+**Public envelopes (pilots / evaluations only):** [`docs/PILOT_EVALUATION_BANDS.md`](docs/PILOT_EVALUATION_BANDS.md).  
+**Annual / enterprise dollars:** still provided on request inside a signed schedule. There is no public annual price list.
 
 ---
 
@@ -69,11 +73,13 @@ A commercial license does **not** remove mercy gates, PATSAGi structure, or AG-S
 
 ## 6. How to start
 
-1. Email **info@Rathor.ai** with organization name, intended use, approximate scale, and whether you want a **pilot** or a **full commercial license** discussion.
+1. Email **info@Rathor.ai** with organization name, intended use, approximate scale, and whether you want a **pilot**, an **independent evaluation**, or a **full commercial license** discussion.
 2. We reply with next steps.
 3. Agreement → invoice → activation.
 
 **Target response time:** within 1–2 business days for serious inquiries.
+
+Agent-security / prompt-injection evaluators start at [`docs/BOARDY_POLINA_AGENT_SECURITY_WEDGE.md`](docs/BOARDY_POLINA_AGENT_SECURITY_WEDGE.md).
 
 ---
 

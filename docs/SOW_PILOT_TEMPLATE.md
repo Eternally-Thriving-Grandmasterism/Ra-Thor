@@ -1,10 +1,14 @@
 # Ra-Thor Pilot — Statement of Work (Template)
 
-**Version:** 1.0 — 2026-08-06  
+**Version:** 1.1 — 2026-09-12  
 **Contact:** info@Rathor.ai  
 **Authority:** Permanent PATSAGi Councils under TOLC 8
 
 > Copy this template for each pilot. Fill bracketed fields. Do not expand commercial rights beyond this SOW without a signed commercial license.
+>
+> Agent-security / prompt-injection evaluations should use the filled form instead: [SOW_AGENT_SECURITY_CONTROL_LAYER.md](SOW_AGENT_SECURITY_CONTROL_LAYER.md).
+
+Public envelopes: [PILOT_EVALUATION_BANDS.md](PILOT_EVALUATION_BANDS.md)
 
 ---
 
@@ -20,13 +24,13 @@
 
 ## 2. Pilot theme & objective
 
-**Theme:** [Micro-Moment Video Recovery | Mercy-Gated Decision Layer | ONE Organism + Grok Integration | Custom: ___]
+**Theme:** [Agent-security control layer | Micro-Moment Video Recovery | Mercy-Gated Decision Layer | ONE Organism + Grok Integration | Custom: ___]
 
 **Objective (1–3 sentences):**  
 [What success looks like for the Client in this pilot.]
 
 **Out of scope:**  
-[Explicit exclusions — e.g. production deployment, unlimited seats, redistribution rights.]
+[Explicit exclusions — e.g. production deployment, unlimited seats, redistribution rights, certification.]
 
 ---
 
@@ -63,11 +67,13 @@
 
 | Item | Amount |
 |------|--------|
-| **Fixed pilot fee** | [USD amount] |
+| **Fixed pilot fee** | [USD amount inside the published band] |
 | Payment terms | [e.g. 50% on signature, 50% on final report] |
 | Invoice to | [billing contact / entity] |
 
-Pilot fee credit toward commercial license on conversion: **[Yes — up to X% / No / Case-by-case]**.
+Pilot fee credit toward commercial license on conversion: **[Yes — 100% within 90 days / Yes — up to X% / No / Case-by-case]**.
+
+Do not sign a pilot fee outside [PILOT_EVALUATION_BANDS.md](PILOT_EVALUATION_BANDS.md) without a written exception from info@Rathor.ai.
 
 ---
 
@@ -75,7 +81,7 @@ Pilot fee credit toward commercial license on conversion: **[Yes — up to X% / 
 
 - Client may use Ra-Thor **only** for the pilot objective and duration defined here  
 - No production commercial rights, redistribution, or sublicensing under this SOW  
-- AG-SML v1.0 continues to govern free/personal/research use outside this SOW  
+- AG-SML v1.1 continues to govern free/personal/research use outside this SOW  
 - Full commercial rights require a separate signed commercial license ([COMMERCIAL_LICENSE.md](../COMMERCIAL_LICENSE.md))
 
 ---
