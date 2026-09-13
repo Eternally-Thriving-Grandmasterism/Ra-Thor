@@ -13,7 +13,7 @@
 //! Companion open-SMR crate: https://github.com/Eternally-Thriving-Grandmasterism/SMR
 //! See `POWRUSH_TELEMETRY_CONTRACT.md`, `LIVED_TICK_READER.md`, and `fixtures/`.
 //! T1: optional lived-tick reader via `POWRUSH_LIVED_TICK_PATH` (no network).
-//! AG-SML v1.0 | TOLC 8 Living Mercy Gates | Contact: info@Rathor.ai
+//! AG-SML v1.1 | TOLC 8 Living Mercy Gates | Contact: info@Rathor.ai
 
 mod live_valence;
 mod energy_design;
