@@ -45,7 +45,7 @@
   function expandLangButtons() {
     var sel = document.getElementById('lang-selector');
     if (!sel || sel.getAttribute('data-expanded') === '1') return;
-    [['it','Italiano'],['ko','\ud55c\uad6d\uc5b4'],['uk','\u0423\u043a\u0440\u0430\u0457\u043d\u0441\u044c\u043a\u0430'],['pl','Polski'],['tr','T\u00fcrk\u00e7e'],['vi','Ti\u1ebfng Vi\u1ec7t'],['id','Bahasa Indonesia'],['sv','Svenska'],['th','\u0e44\u0e17\u0e22'],['el','\u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac'],['fa','\u0641\u0627\u0631\u0633\u06cc'],['he','\u05e2\u05d1\u05e8\u05d9\u05ea']].forEach(function (pair) {
+    [['it','Italiano'],['ko','한국어'],['uk','Українська'],['pl','Polski'],['tr','Türkçe'],['vi','Tiếng Việt'],['id','Bahasa Indonesia'],['sv','Svenska'],['th','ไทย'],['el','Ελληνικά'],['fa','فارسی'],['he','עברית']].forEach(function (pair) {
       if (sel.querySelector('[data-lang="' + pair[0] + '"]')) return;
       var b = document.createElement('button');
       b.setAttribute('data-lang', pair[0]);
@@ -107,7 +107,7 @@
           '<a href="/chat.html" class="card-hover rt-card-uniform block rounded-2xl p-5"><p class="font-semibold text-amber-100" data-i18n="surfaceChat">Offline Lattice Chat</p><p class="text-xs text-white/60 mt-2" data-i18n="surfaceChatNote">Private sessions on this device. Optional passphrase. No account. No backend we control.</p></a>' +
           '<a href="/Launch-Ra-Thor.html" class="card-hover rt-card-uniform block rounded-2xl p-5"><p class="font-semibold text-amber-100" data-i18n="surfaceMap">Launch map</p><p class="text-xs text-white/60 mt-2" data-i18n="surfaceMapNote">Public map of Chat, Shard, Forge, and research cards.</p></a>' +
           '<a href="/sovereign-shard.html" class="card-hover rt-card-uniform block rounded-2xl p-5"><p class="font-semibold text-amber-100" data-i18n="surfaceShard">Sovereign Shard</p><p class="text-xs text-white/60 mt-2" data-i18n="surfaceShardNote">Local demonstration of the mercy gates on this device.</p></a>' +
-          '<a href="https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/WHITEPAPER_v4.1.md" target="_blank" rel="noopener" class="card-hover rt-card-uniform block rounded-2xl p-5"><p class="font-semibold text-amber-100" data-i18n="surfacePaper">Whitepaper v4.1</p><p class="text-xs text-white/60 mt-2" data-i18n="surfacePaperNote">Architecture and the Powrush-MMO delivery record.</p></a>' +
+          '<a href="/docs/archive/root-releases/WHITEPAPER_v4.1.md" target="_blank" rel="noopener" class="card-hover rt-card-uniform block rounded-2xl p-5"><p class="font-semibold text-amber-100" data-i18n="surfacePaper">Whitepaper v4.1</p><p class="text-xs text-white/60 mt-2" data-i18n="surfacePaperNote">Architecture and the Powrush-MMO delivery record.</p></a>' +
           '<a href="https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor" target="_blank" rel="noopener" class="card-hover rt-card-uniform block rounded-2xl p-5"><p class="font-semibold text-amber-100" data-i18n="surfaceRepo">Open the monorepo</p><p class="text-xs text-white/60 mt-2" data-i18n="surfaceRepoNote">Source, councils, conductor, and public fixtures.</p></a>' +
           '</div></section>');
       }
