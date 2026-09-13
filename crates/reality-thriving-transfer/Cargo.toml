@@ -3,7 +3,7 @@ name = "reality-thriving-transfer"
 version = "14.18.1"
 edition = "2021"
 description = "Ra-Thor RTT + Schema Registry + Bridging ingest + challenge provenance + Lattice Conductor soft hook (ONE Organism 14.18.1)"
-license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
+license = "AG-SML v1.1 — Autonomicity Games Sovereign Mercy License"
 authors = ["Eternally-Thriving-Grandmasterism", "Sherif Samy Botros <info@Rathor.ai>"]
 
 [dependencies]
