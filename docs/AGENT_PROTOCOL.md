@@ -75,11 +75,12 @@ Cosmic Loop, TOLC 8, and mercy gates already on a path you touch stay enforced. 
 - R1–R5 docs backlog; R5 constellation pointer.
 - R6 fail-closed Cosmic Loop test in `ra-thor-one-organism` (tip includes `26afa119`).
 - Book lane memo + minute (#459).
+- R7 protocol honesty + T2 memo (#461).
+- T1 env-gated lived-tick reader in `reality-thriving-transfer` (#462).
 
 ## Next slice
 
-1. **T2** (this honesty pass): [`POWRUSH_TICK_T2_MEMO.md`](POWRUSH_TICK_T2_MEMO.md) — climate fields → policy without keys.
-2. **T1** (next code PR): env-gated lived-tick JSON reader inside `reality-thriving-transfer` — off unless path set; no network; no new workspace member; focused `-p reality-thriving-transfer` only.
-3. Curated TOLC mathematics human digest under `docs/` — only after Masterism editor freeze.
+1. Curated TOLC mathematics human digest under `docs/` — only after Masterism editor freeze.
+2. Book-lane paid SKUs / MSRP — Steward after human editor freeze (no invented prices).
 
-Do not start a second R6. Do not bump 15.x. Do not flip `POWRUSH_INGEST` from this repo.
+Do not start a second R6 or second T1. Do not bump 15.x. Do not flip `POWRUSH_INGEST` from this repo.
