@@ -37,5 +37,5 @@ T1 is not a product. Do not add workspace members for it.
 ## Dual-repo
 
 Powrush Bot 1 owns feel slices A1–A5.
-This seat owns lattice R&D (R6 done; T2 done; T1 next).
+This seat owns lattice R&D (R6 done; T2 done; T1 this PR).
 `POWRUSH_INGEST` is **never flipped on from this repo**.
