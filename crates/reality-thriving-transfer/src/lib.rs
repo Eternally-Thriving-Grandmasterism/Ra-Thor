@@ -11,7 +11,8 @@
 //! Optional challenge_* provenance (Powrush v21.91.1+).
 //!
 //! Companion open-SMR crate: https://github.com/Eternally-Thriving-Grandmasterism/SMR
-//! See `POWRUSH_TELEMETRY_CONTRACT.md` and `fixtures/`.
+//! See `POWRUSH_TELEMETRY_CONTRACT.md`, `LIVED_TICK_READER.md`, and `fixtures/`.
+//! T1: optional lived-tick reader via `POWRUSH_LIVED_TICK_PATH` (no network).
 //! AG-SML v1.0 | TOLC 8 Living Mercy Gates | Contact: info@Rathor.ai
 
 mod live_valence;
@@ -20,6 +21,13 @@ mod open_smr_shard;
 mod schema_registry;
 mod conductor_hook;
 mod lattice_flow_share;
+mod lived_tick;
+
+pub use lived_tick::{
+    LivedClimate, LivedHourFlags, LivedStanding, LivedWeek, PowrushLivedTick,
+    POWRUSH_LIVED_TICK_PATH_ENV, load_lived_tick_from_env, load_lived_tick_from_path,
+    mercy_summary_line, parse_powrush_lived_tick_json,
+};
 
 pub use live_valence::{
     LiveValenceOptimizer, LiveValenceReport, ValenceVector, THETA_MIN_SOFT, THETA_MIN_STRICT,
@@ -530,4 +538,12 @@ mod tests {
         let result = ingest_lattice_flow_share_json(&mut reg, json).unwrap();
         assert!(result.high_road_effort);
     }
+    #[test]
+    fn lived_tick_sample_summary() {
+        let tick = parse_powrush_lived_tick_json(include_str!("../fixtures/lived_tick_sample.json")).unwrap();
+        let line = mercy_summary_line(&tick);
+        assert!(line.contains("Heartwood"));
+        assert!(line.contains("keys=never"));
+    }
+
 }
