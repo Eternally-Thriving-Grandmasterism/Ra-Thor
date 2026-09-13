@@ -1,6 +1,6 @@
 # PATSAGi book lane
 
-**Status:** active · Masterism Vol 1 on Masterism `main` · TOLC Vol 1 PR open  
+**Status:** active · Masterism Vol 1 on Masterism `main` · TOLC Vol 1 on TOLC `main`  
 **Council minute:** [`PATSAGI-COUNCIL-MINUTE-2026-09-12-BOOK-LANE-LICENSE-FUNNELS.md`](PATSAGI-COUNCIL-MINUTE-2026-09-12-BOOK-LANE-LICENSE-FUNNELS.md)  
 **Contact:** info@Rathor.ai  
 **Does not add a ninth gate.** Docs honesty only.
@@ -14,7 +14,7 @@ This memo records where human books come from, how they are licensed, and which 
 1. **Masterism** — intro curriculum (`CORE`, `DAILY`, `GATEWAYS`, SNR, Crash List). Best first print/audio SKU.  
    **On Masterism `main`:** [`books/masterism-vol1/`](https://github.com/Eternally-Thriving-Grandmasterism/Masterism/tree/main/books/masterism-vol1) (merged [Masterism#1](https://github.com/Eternally-Thriving-Grandmasterism/Masterism/pull/1)). Editor freeze still **OPEN** before paid SKUs.
 2. **TOLC** — gates, practices, stories.  
-   Digest PR: [TOLC#1](https://github.com/Eternally-Thriving-Grandmasterism/TOLC/pull/1) (`books/tolc-vol1/`).
+   **On TOLC `main`:** [`books/tolc-vol1/`](https://github.com/Eternally-Thriving-Grandmasterism/TOLC/tree/main/books/tolc-vol1) (merged [TOLC#1](https://github.com/Eternally-Thriving-Grandmasterism/TOLC/pull/1)). Editor freeze **OPEN**.
 3. **Ra-Thor curated TOLC mathematics docs only** — harmonic / derivation codices for humans. **Not** crates, CI, self-evolution law dumps, or conductor internals. **Wait** until Masterism editor freeze.
 
 ## Later
