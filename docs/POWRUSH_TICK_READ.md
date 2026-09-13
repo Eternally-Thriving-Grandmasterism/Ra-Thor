@@ -30,12 +30,12 @@ Powrush L0. Do not emit WASD. Do not light Title Online from a tick.
 |---|---|---|
 | **R6** | One fail-closed Cosmic Loop test in one Tier-1 crate | **Done** (`ra-thor-one-organism`, merge includes `26afa119`) |
 | **T2** | Memo: which climate fields would later inform policy without touching keys | **Done** — [`POWRUSH_TICK_T2_MEMO.md`](POWRUSH_TICK_T2_MEMO.md) |
-| **T1** | Optional reader that loads a tick JSON from a path env and prints a one-line mercy summary — **off unless path set**, no network | **This PR** — `lived_tick` in `reality-thriving-transfer`; env `POWRUSH_LIVED_TICK_PATH` |
+| **T1** | Optional reader that loads a tick JSON from a path env and prints a one-line mercy summary — **off unless path set**, no network | **Done** — `lived_tick` in `reality-thriving-transfer` (#462); env `POWRUSH_LIVED_TICK_PATH` |
 
 T1 is not a product. Do not add workspace members for it.
 
 ## Dual-repo
 
 Powrush Bot 1 owns feel slices A1–A5.
-This seat owns lattice R&D (R6 done; T2 done; T1 this PR).
+This seat owns lattice R&D (R6 / T2 / T1 done on main).
 `POWRUSH_INGEST` is **never flipped on from this repo**.
