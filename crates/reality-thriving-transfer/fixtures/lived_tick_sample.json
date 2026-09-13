@@ -1,0 +1,27 @@
+{
+  "schema": "powrush_lived_tick_v1",
+  "house_id": "hw-1",
+  "house_name": "Heartwood",
+  "climate": {
+    "harmony": 0.82,
+    "stress": 0.18,
+    "tons": 12.0,
+    "restored": 3.0,
+    "hex_id": "hex-7"
+  },
+  "standing": {
+    "peace": true,
+    "declared_lethal": false
+  },
+  "week": {
+    "tons": 40.0,
+    "restored": 11.0
+  },
+  "hour_flags": {
+    "satchel": true,
+    "flow": true,
+    "reserve": false,
+    "hour_two": true,
+    "hour_three": false
+  }
+}

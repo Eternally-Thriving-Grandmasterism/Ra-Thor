@@ -30,7 +30,7 @@ Powrush L0. Do not emit WASD. Do not light Title Online from a tick.
 |---|---|---|
 | **R6** | One fail-closed Cosmic Loop test in one Tier-1 crate | **Done** (`ra-thor-one-organism`, merge includes `26afa119`) |
 | **T2** | Memo: which climate fields would later inform policy without touching keys | **Done** — [`POWRUSH_TICK_T2_MEMO.md`](POWRUSH_TICK_T2_MEMO.md) |
-| **T1** | Optional reader that loads a tick JSON from a path env and prints a one-line mercy summary — **off unless path set**, no network | **Next code door** — place in `reality-thriving-transfer`; no new workspace member |
+| **T1** | Optional reader that loads a tick JSON from a path env and prints a one-line mercy summary — **off unless path set**, no network | **This PR** — `lived_tick` in `reality-thriving-transfer`; env `POWRUSH_LIVED_TICK_PATH` |
 
 T1 is not a product. Do not add workspace members for it.
 
