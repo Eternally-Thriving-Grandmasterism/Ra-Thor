@@ -1,7 +1,7 @@
 # Lived-tick reader (T1)
 
 **Crate:** `reality-thriving-transfer`  
-**Door:** T1 (PATSAGi R7)  
+**Door:** T1 — **Done on main** ([Ra-Thor#462](https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/pull/462))  
 **Contact:** info@Rathor.ai  
 **Workspace:** 14.15.6
 
