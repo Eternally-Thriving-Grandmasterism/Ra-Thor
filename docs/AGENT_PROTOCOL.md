@@ -13,6 +13,8 @@ This file does not replace the load-first path. It does not add a ninth gate.
 3. [`../TIER_MAP.md`](../TIER_MAP.md) — Core Tier-1 is the merge gate. Conductor is `lattice-conductor-v14` only.
 4. [`WRAP_LLM_INTENTION.md`](WRAP_LLM_INTENTION.md) — humans wrap models with this lattice; the model is never sovereign.
 5. [`BINDING_AFTER_REDESIGN.md`](BINDING_AFTER_REDESIGN.md) — controlled loop bound; uncontrolled self-redesign stays OPEN.
+6. [`BOOK_LANE.md`](BOOK_LANE.md) — human books; Masterism first; AG-SML v1.1; no Drive storefront.
+7. [`POWRUSH_TICK_READ.md`](POWRUSH_TICK_READ.md) — read ticks for R&D only; never drive keys.
 
 If a rule here disagrees with those files, those files win. Do not fork a parallel protocol.
 
@@ -54,6 +56,7 @@ AGSi stays a research label. Capable · Bounded · Corrigible.
 - Folding the Powrush client into this repo.
 - Contact-email as a required CI gate when it is satellite noise.
 - Closing “binding after uncontrolled self-redesign” with a crate or a score.
+- Reopening Dependabot majors #433–441.
 
 Cosmic Loop, TOLC 8, and mercy gates already on a path you touch stay enforced. Do not invent a 9th gate that breaks 8.
 
@@ -66,10 +69,17 @@ Cosmic Loop, TOLC 8, and mercy gates already on a path you touch stay enforced. 
 - Let an LLM claim it became AGI/ASI by sitting inside this wrap.
 - Claim Layer 0 still binds after the running system redesigns Layer 0.
 
+## Done on main (do not re-open as “next”)
+
+- W1 wrap-LLM path docs; W2 OPEN-gap stamp remains OPEN.
+- R1–R5 docs backlog; R5 constellation pointer.
+- R6 fail-closed Cosmic Loop test in `ra-thor-one-organism` (tip includes `26afa119`).
+- Book lane memo + minute (#459).
+
 ## Next slice
 
-W1 wrap-LLM and W2 OPEN-gap stamp are on this path.
-R5 is a fresh constellation pointer from the current tip, not stale #445.
-R6 is one fail-closed Cosmic Loop test in one named Tier-1 crate, Steward-named later.
+1. **T2** (this honesty pass): [`POWRUSH_TICK_T2_MEMO.md`](POWRUSH_TICK_T2_MEMO.md) — climate fields → policy without keys.
+2. **T1** (next code PR): env-gated lived-tick JSON reader inside `reality-thriving-transfer` — off unless path set; no network; no new workspace member; focused `-p reality-thriving-transfer` only.
+3. Curated TOLC mathematics human digest under `docs/` — only after Masterism editor freeze.
 
-Do not start R5 or R6 in this PR.
+Do not start a second R6. Do not bump 15.x. Do not flip `POWRUSH_INGEST` from this repo.
