@@ -1,6 +1,6 @@
 # PATSAGi book lane
 
-**Status:** active · first digest opened 2026-09-12  
+**Status:** active · Masterism Vol 1 on Masterism `main` · TOLC Vol 1 PR open  
 **Council minute:** [`PATSAGI-COUNCIL-MINUTE-2026-09-12-BOOK-LANE-LICENSE-FUNNELS.md`](PATSAGI-COUNCIL-MINUTE-2026-09-12-BOOK-LANE-LICENSE-FUNNELS.md)  
 **Contact:** info@Rathor.ai  
 **Does not add a ninth gate.** Docs honesty only.
@@ -12,9 +12,10 @@ This memo records where human books come from, how they are licensed, and which 
 ## First books (derive in this order)
 
 1. **Masterism** — intro curriculum (`CORE`, `DAILY`, `GATEWAYS`, SNR, Crash List). Best first print/audio SKU.  
-   Live digest: [Masterism `books/masterism-vol1/`](https://github.com/Eternally-Thriving-Grandmasterism/Masterism/tree/books/masterism-vol1-digest/books/masterism-vol1) · PR [Masterism#1](https://github.com/Eternally-Thriving-Grandmasterism/Masterism/pull/1).
-2. **TOLC** — gates, practices, stories (separate curriculum repo when named).
-3. **Ra-Thor curated TOLC mathematics docs only** — harmonic / derivation codices for humans. **Not** crates, CI, self-evolution law dumps, or conductor internals.
+   **On Masterism `main`:** [`books/masterism-vol1/`](https://github.com/Eternally-Thriving-Grandmasterism/Masterism/tree/main/books/masterism-vol1) (merged [Masterism#1](https://github.com/Eternally-Thriving-Grandmasterism/Masterism/pull/1)). Editor freeze still **OPEN** before paid SKUs.
+2. **TOLC** — gates, practices, stories.  
+   Digest PR: [TOLC#1](https://github.com/Eternally-Thriving-Grandmasterism/TOLC/pull/1) (`books/tolc-vol1/`).
+3. **Ra-Thor curated TOLC mathematics docs only** — harmonic / derivation codices for humans. **Not** crates, CI, self-evolution law dumps, or conductor internals. **Wait** until Masterism editor freeze.
 
 ## Later
 
@@ -33,7 +34,7 @@ This memo records where human books come from, how they are licensed, and which 
 
 ## License (locked 2026-09-12)
 
-- **Sole public grant:** [AG-SML v1.1](../LICENSE) (house text; Masterism Work must match — no lingering v1.0 stamp).
+- **Sole public grant:** [AG-SML v1.1](../LICENSE) (house text; sister curricula must match — no lingering v1.0 stamp).
 - **Commercial path:** [`COMMERCIAL_LICENSE.md`](../COMMERCIAL_LICENSE.md) + signed schedule for orgs / resellers / classroom packs.
 - **Split:** GitHub markdown = Wanderer study grant. Official print/ebook/audio SKUs = Steward retail editions (personal use of that edition; no commercial reprint). Schools/publishers/translators email info@Rathor.ai.
 - **Do not** invent AG-SML v1.2 for book cleanup. **Do not** add a Creative Commons parallel.
@@ -66,8 +67,9 @@ markdown digest (GitHub) → human editor freeze → official editions → art p
 ## Operating split
 
 - **Masterism repo** holds the Volume 1 manuscript and book index under `books/`.
-- **This lattice (Ra-Thor)** holds this lane memo, the council minute, and later curated mathematics digests under `docs/`.
-- BabyBot / lattice steward may open Masterism book digests when Steward names the book door; science repos stay on their factory agents.
+- **TOLC repo** holds gates/practices digests under `books/`.
+- **This lattice (Ra-Thor)** holds this lane memo, council minutes, and later curated mathematics digests under `docs/`.
+- BabyBot / lattice steward may open curriculum book digests when Steward names the book door; science repos stay on their factory agents.
 - Store account sign-in and paid listing remain Steward actions unless Steward explicitly leaves them to an agent.
 
 ---
