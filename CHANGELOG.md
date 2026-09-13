@@ -2,6 +2,20 @@
 
 ---
 
+## 2026-09-13 — R7 / T1 / honesty + R8 AG-SML stamp
+
+Workspace identity **14.15.6**. Conductor **v14 only**. Independent of xAI. Not certified. Not a legal product. No invented eval scores.
+
+- **#461** — R7: protocol honesty, `POWRUSH_TICK_T2_MEMO.md`, book-lane tip refresh.
+- **#462** — T1: env-gated lived-tick reader in `reality-thriving-transfer` (`POWRUSH_LIVED_TICK_PATH`; no network; no ingest flip).
+- **#463** — Protocol marks T1 Done; Next = math digest after Masterism editor freeze.
+- **R8 (this)** — CHANGELOG catch-up; `reality-thriving-transfer` AG-SML **v1.1** stamp; lived-tick reader doc Done. Math digest / paid SKUs still held.
+
+No workspace member adds. No 15.x. W2 stays OPEN.
+
+Contact: info@Rathor.ai
+
+
 ## 2026-09-09 — standing docs: protocol, budget, self-evolution law
 
 Workspace identity **14.15.6**. Conductor **v14 only**. Independent of xAI. Not certified. Not a legal product. No invented eval scores.
