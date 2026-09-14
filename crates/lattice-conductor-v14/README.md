@@ -5,7 +5,7 @@
 
 Orchestration-level enforcement of **Cosmic Loop Activation** as mandatory core identity of Ra-Thor.
 
-Layer 0 on this crate is the **admission shell** (`MercyGatedApi` + `CouncilArbitrationEngine`), not a value in attached weights. Apply-class requests without the engine are Rejected. Map: [`docs/LAYER_0_RUNTIME_BOUNDARY.md`](../../docs/LAYER_0_RUNTIME_BOUNDARY.md).
+Layer 0 on this crate is the **admission shell** (`MercyGatedApi` + `CouncilArbitrationEngine` + `mercy-security` admit on apply-class + payload map → g), not a value in attached weights. Map: [`docs/LAYER_0_RUNTIME_BOUNDARY.md`](../../docs/LAYER_0_RUNTIME_BOUNDARY.md). R6: `tests/r6_fail_closed_controlled_loop.rs`.
 
 ## Migration from v13
 
@@ -39,6 +39,7 @@ lattice-conductor-v14 = { path = "../lattice-conductor-v14" }
 - Hooks: `enforce_cosmic_loop_activation()`, `before_council_arbitration()`, `on_lattice_sync()`
 - Anomaly path: `report_anomaly` → informed `run_reflexion_cycle` from Cosmic Tick telemetry
 - Apply-class API calls must pass `&CouncilArbitrationEngine`; wired path `handle_mercy_api_request` always does
+- Apply-class payloads must pass `mercy-security` `admit_or_block` and are mapped into ambient \(g\)
 
 ## Features
 
@@ -55,6 +56,7 @@ lattice-conductor-v14 = { path = "../lattice-conductor-v14" }
 cargo test -p lattice-conductor-v14
 cargo test -p lattice-conductor-v14 --features v13-compat
 cargo test -p ra-thor-one-organism
+cargo test -p mercy_tolc_operator_algebra
 ```
 
 See also: `TIER_MAP.md`, `docs/LAYER_0_RUNTIME_BOUNDARY.md`, `PRODUCTION_READINESS.md`.
