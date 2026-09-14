@@ -43,6 +43,10 @@ Binding after the running system redesigns its own gates: **OPEN** — see [`BIN
 2. Fail-closed ingest on apply-class.
 3. R6 controlled-loop tests.
 4. `wrap_model_output` — optional-model apply envelope.
+5. `submit_self_evolution_proposal_securely` → `handle_request` (#475).
+6. After #476: `GitHubSurface::queue_evolution_pr` calls that same apply-class shell (engine + admit + map → \(g\)). No third keyword list.
+
+**STOP Layer 0** unless a real default-member apply-class bypass is found by search. Do not invent a ninth path.
 
 Still open:
 
@@ -54,6 +58,7 @@ Still open:
 cargo test -p mercy_tolc_operator_algebra
 cargo test -p lattice-conductor-v14
 cargo test -p mercy-security
+cargo test -p ra-thor-one-organism
 ```
 
 **Capable · Bounded · Corrigible.**  

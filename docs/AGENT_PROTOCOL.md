@@ -77,6 +77,7 @@ Cosmic Loop, TOLC 8, and mercy gates already on a path you touch stay enforced. 
 - Book lane memo + minute (#459).
 - R7 protocol honesty + T2 memo (#461).
 - T1 env-gated lived-tick reader in `reality-thriving-transfer` (#462).
+- Layer 0 one-shell: wrap (#474), self-evo submit (#475), evolution PR queue via `handle_request` (after #476). **STOP Layer 0** unless a real default-member apply-class bypass is found by search. `BINDING_AFTER_REDESIGN.md` stays OPEN.
 
 ## Next slice
 
