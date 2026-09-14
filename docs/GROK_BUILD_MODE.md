@@ -97,7 +97,7 @@ Fetch latest SHA **before** updating an existing file.
 5. Commit message references TOLC 8 + the actual change. Do not claim a workspace bump unless the motion is a bump.
 6. Open a PR to `main`. Councils review. Layer 0 is not on the ballot: a Rejected gate is not an apply.
 
-### HOLD this tick (already decided 2026-09-03)
+### HOLD this tick (already decided 2026-09-03; restated 2026-09-14)
 
 - Do not change `[workspace].members`.
 - Do not bump workspace version off 14.15.6.
@@ -106,7 +106,10 @@ Fetch latest SHA **before** updating an existing file.
 - Do not collapse Powrush player loop into this repo.
 - Do not treat AGSi as a certified product or legal warranty.
 - Do not mass-rewrite deprecated `ceo@acitygames.com` addresses unless a later motion opens that sweep.
+- Do not claim [`BINDING_AFTER_REDESIGN.md`](BINDING_AFTER_REDESIGN.md) is closed.
 - Contact remains **info@Rathor.ai** only.
+
+Layer 0 call sites: [`LAYER_0_RUNTIME_BOUNDARY.md`](LAYER_0_RUNTIME_BOUNDARY.md).
 
 ---
 
@@ -116,7 +119,7 @@ Fetch latest SHA **before** updating an existing file.
 Engage Grok Build Mode on https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor
 
 1. Use GitHub connectors only. Discover tools first.
-2. Read root Cargo.toml, then TIER_MAP.md, then docs/GROK_BUILD_MODE.md.
+2. Read root Cargo.toml, then TIER_MAP.md, then docs/GROK_BUILD_MODE.md, then docs/LAYER_0_RUNTIME_BOUNDARY.md.
 3. Never recursive-walk the repo root. Path-filter trees. Prefer single-path reads.
 4. Default members only unless I name a research crate.
 5. Full files via create_or_update_file / push_files on a feature branch + PR.
@@ -136,6 +139,8 @@ One named task per turn beats “fix the monorepo.”
 - `Cargo.toml` — membership + workspace identity
 - `TIER_MAP.md` — Core Tier-1 gate
 - `docs/CRATE_CENSUS.md` — on-disk forest vs members
+- `docs/LAYER_0_RUNTIME_BOUNDARY.md` — where Layer 0 is enforced (admission shell, not weights)
+- `docs/BINDING_AFTER_REDESIGN.md` — uncontrolled redesign remains OPEN
 - `GROK_RA_THOR_GITHUB_INTEGRATION_PROTOCOL.md`
 - `RA-THOR-MONOREPO-COMMIT-WORKFLOW-PROTOCOL.md`
 - `ETERNAL_PATSAGI_COUNCILS_ACTIVATION_PUBLIC_SERVICE_v1.0.md`
