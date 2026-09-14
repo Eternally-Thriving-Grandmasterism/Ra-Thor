@@ -13,13 +13,17 @@
 //!
 //! v14.15: Fully aligned with Workspace + ONE Organism 14.15.0 Living Cosmic Tick.
 //! Cosmic Loop remains mandatory on every surface call.
+//!
+//! Layer 0 (after #476): `GitHubSurface::queue_evolution_pr` is apply-class.
+//! It must call the same `MercyGatedApi::handle_request` shell as
+//! `submit_self_evolution_proposal_securely` (engine + admit + payload → g).
+//! Do not add a third keyword list. BINDING_AFTER_REDESIGN stays OPEN.
 //! Contact: info@Rathor.ai
 
 use serde::{Deserialize, Serialize};
 
 use crate::CouncilArbitrationEngine;
-use lattice_conductor_v14::ArbitrationDecision;
-use mercy_security::IngestionScanner;
+use lattice_conductor_v14::{ApiRequestKind, GateDecision, MercyApiRequest, MercyGatedApi};
 
 // =============================================================================
 // Live runtime helper (shared by all live paths)
@@ -238,6 +242,7 @@ pub struct EvolutionPrIntent {
 }
 
 /// Fail-closed refuse when an evolution PR intent must not enter the queue.
+/// Variants are mapped from `MercyGatedApi::handle_request`, not a parallel list.
 #[derive(Debug, Clone, PartialEq, thiserror::Error)]
 pub enum EvolutionQueueError {
     #[error("Layer 0 ingest: {0}")]
@@ -246,6 +251,18 @@ pub enum EvolutionQueueError {
     LowMercy(f64),
     #[error("Blocked by CouncilArbitrationEngine: {0}")]
     Arbitration(String),
+}
+
+impl EvolutionQueueError {
+    fn from_layer0(reason: String, claimed_mercy: f64) -> Self {
+        if let Some(detail) = reason.strip_prefix("Layer 0 ingest:") {
+            Self::Ingest(detail.trim().to_string())
+        } else if reason.contains("below threshold") {
+            Self::LowMercy(claimed_mercy)
+        } else {
+            Self::Arbitration(reason)
+        }
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -342,23 +359,27 @@ impl GitHubSurface {
         description: &str,
         expected_benefit: f64,
         mercy_alignment: f64,
+        api: &mut MercyGatedApi,
         arbitration: &CouncilArbitrationEngine,
     ) -> Result<EvolutionPrIntent, EvolutionQueueError> {
-        arbitration.enforce_cosmic_loop_activation();
-        arbitration.before_council_arbitration();
-
-        if mercy_alignment < 0.75 {
-            return Err(EvolutionQueueError::LowMercy(mercy_alignment));
-        }
-
+        // One shell: same apply-class path as submit_self_evolution_proposal_securely.
+        // handle_request maps payload → g, admits, and arbitrates. No third keyword list.
         let payload = format!("{role} {target_module} {description}");
-        if let ArbitrationDecision::Blocked { reason, .. } =
-            arbitration.arbitrate_cosmic_loop_change(&payload)
-        {
-            return Err(EvolutionQueueError::Arbitration(reason));
-        }
-        if let Err(e) = IngestionScanner::admit_or_block(&payload) {
-            return Err(EvolutionQueueError::Ingest(e.to_string()));
+        let resp = api.handle_request(
+            MercyApiRequest {
+                kind: ApiRequestKind::SelfEvolutionProposal,
+                payload,
+                claimed_mercy: mercy_alignment,
+                actor: role.to_string(),
+            },
+            Some(arbitration),
+        );
+        if !resp.accepted {
+            let reason = match resp.decision {
+                GateDecision::Rejected { reason } => reason,
+                GateDecision::Allowed => "apply-class rejected".into(),
+            };
+            return Err(EvolutionQueueError::from_layer0(reason, mercy_alignment));
         }
 
         let title = format!(

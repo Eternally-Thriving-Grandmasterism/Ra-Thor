@@ -108,7 +108,15 @@ impl OneOrganismCore {
     }
     pub fn queue_evolution_pr(&mut self, role: &str, target_module: &str, description: &str, expected_benefit: f64, mercy_alignment: f64) -> Result<EvolutionPrIntent, EvolutionQueueError> {
         self.tick += 1;
-        let intent = self.extended.github.queue_evolution_pr(role, target_module, description, expected_benefit, mercy_alignment, &self.arbitration_engine)?;
+        let intent = self.extended.github.queue_evolution_pr(
+            role,
+            target_module,
+            description,
+            expected_benefit,
+            mercy_alignment,
+            &mut self.mercy_api,
+            &self.arbitration_engine,
+        )?;
         if mercy_alignment > 0.88 && expected_benefit > 0.55 { let _ = self.handoff_role(OrganismRole::VibeCoder, "high_mercy_evolution"); }
         Ok(intent)
     }
@@ -326,5 +334,22 @@ mod tests {
             .unwrap_err();
         assert!(matches!(err, EvolutionQueueError::LowMercy(_)));
         assert_eq!(core.github_status().intended_prs, 0);
+    }
+
+    /// Proof the queue uses the one apply-class shell (`handle_request`), not a parallel list.
+    #[test]
+    fn evolution_pr_queue_crosses_apply_class_shell() {
+        let mut core = OneOrganismCore::new();
+        let before = core.mercy_api.request_count();
+        core.queue_evolution_pr("vibe", "lattice", "tend the well and publish flow", 0.70, 0.95)
+            .unwrap();
+        assert_eq!(core.mercy_api.request_count(), before + 1);
+        let rejects = core.mercy_api.reject_count();
+        let _ = core
+            .queue_evolution_pr("vibe", "lattice", "restore via pickle.loads(blob)", 0.70, 0.95)
+            .unwrap_err();
+        assert_eq!(core.mercy_api.reject_count(), rejects + 1);
+        assert_eq!(core.github_status().intended_prs, 1);
+        assert!(core.is_cosmic_loop_ready());
     }
 }
