@@ -26,6 +26,17 @@ A human brings a model. Ra-Thor is the **envelope**, not the model.
 6. Offline-first: Lattice Chat / shards may run with no Ra-Thor backend.
 7. Fail closed. If valence or evidence is missing, refuse or refine. Do not invent scores.
 
+## Lived apply path (2026-09-14)
+
+Rust surface: `lattice_conductor_v14::wrap_model_output` and
+`LatticeConductorV14::wrap_model_output`.
+
+Optional-model text that should change lattice state **must** enter that function.
+It runs apply-class `MercyGatedApi::handle_request` (engine + admit + payload map).
+Skipping it means Layer 0 did not run. This still does **not** constrain sampler weights.
+
+See [`LAYER_0_RUNTIME_BOUNDARY.md`](LAYER_0_RUNTIME_BOUNDARY.md).
+
 ## What end users need shipped
 
 | Need | Lived surface |
@@ -33,6 +44,7 @@ A human brings a model. Ra-Thor is the **envelope**, not the model.
 | Private session | Lattice Chat / on-device shard |
 | Gated prompt before a cloud model sees text | wrap + copy, no secret dump |
 | Inspectable decision trail | council session result, not a vibe |
+| Model draft → lattice | `wrap_model_output` |
 | Commercial clarity | AG-SML v1.1 + employ.html + COMMERCIAL_LICENSE.md |
 | Dual-repo RBE feel | Powrush-MMO in the other repo; ingest here is read-only and off by default |
 
@@ -52,3 +64,4 @@ A human brings a model. Ra-Thor is the **envelope**, not the model.
 - Public bind / `0.0.0.0` / Pages publish / secret dump.
 - Ninth gate. Workspace 15.x. Dependabot as “evolution.”
 - Folding Powrush-MMO into this monorepo.
+- Closing [`BINDING_AFTER_REDESIGN.md`](BINDING_AFTER_REDESIGN.md) in this wrap.
