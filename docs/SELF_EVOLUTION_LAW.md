@@ -10,11 +10,13 @@ This file records that law. It does not replace [`AGENT_PROTOCOL.md`](AGENT_PROT
 R3 is on main at `948b7d7a`. R4 is doc honesty, not a crate.
 W2: binding after uncontrolled self-redesign stays **OPEN**. See [`BINDING_AFTER_REDESIGN.md`](BINDING_AFTER_REDESIGN.md).
 
+R6 (2026-09-14, steward-named): fail-closed tests on the **controlled** loop only — `crates/lattice-conductor-v14/tests/r6_fail_closed_controlled_loop.rs`. Missing arb, Cosmic Loop disable, blocked ingest, council-cannot-flip-reject. R6 does **not** close uncontrolled redesign.
+
 ## Lived path
 
 Cosmic Loop already lives in those four Tier-1 crates. Agents propose. They do not rewrite `main` or spawn crates.
 
-**Controlled loop:** bound (steward + Core + Layer 0).
+**Controlled loop:** bound (steward + Core + Layer 0 + R6).
 **Uncontrolled redesign** (the running system changes its own gates / projector / merge law): **OPEN**. Do not close this in a crate or a score.
 
 ## Not a crate
@@ -31,4 +33,4 @@ Archived lineage under `docs/archive/root-dirs/lineage/self-evolution/` stays ar
 
 - No Powrush-MMO, no WASD, no Title Online, no Market.
 - No generator. No Pages. No listen on `0.0.0.0`.
-- Do not start R5 or R6 in this PR.
+- Do not unpark `crates/self-evolution` to “finish” R6.

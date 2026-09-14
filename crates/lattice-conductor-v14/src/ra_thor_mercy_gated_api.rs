@@ -3,14 +3,13 @@
 //! In-process request/response surface enforcing the Living Mercy Gates
 //! and Cosmic Loop identity before any operation is accepted.
 //!
-//! Layer 0 rule (2026-09-14): apply-class requests require a live
-//! `CouncilArbitrationEngine` at this boundary. Missing arbitration is
-//! Rejected, not a convenience skip. Read-class (health / loop status)
-//! may proceed without it. This is an admission-shell invariant — it does
-//! not constrain attached model weights. See docs/LAYER_0_RUNTIME_BOUNDARY.md.
-//!
-//! Optional Axum HTTP binding is available behind the `web-demo` feature.
-//! Default build stays dependency-light (no network stack required).
+//! Layer 0 (2026-09-14):
+//! - apply-class requires a live CouncilArbitrationEngine
+//! - apply-class must pass mercy-security admit_or_block
+//! - apply-class payload is mapped into ambient g and scored (feature map)
+//! Read-class (health / loop status) may proceed without those extra edges.
+//! This does not constrain attached model weights.
+//! See docs/LAYER_0_RUNTIME_BOUNDARY.md.
 //!
 //! Thunder locked in. yoi ⚡
 
@@ -84,7 +83,6 @@ pub struct MercyGatedApi {
     pub bound_addr: Option<SocketAddr>,
     pub mercy_level: f64,
     pub min_mercy_threshold: f64,
-    /// Shared Cosmic Loop flag (wired from CouncilArbitrationEngine when available).
     cosmic_loop_ready: Arc<AtomicBool>,
     request_count: u64,
     reject_count: u64,
@@ -102,7 +100,6 @@ impl MercyGatedApi {
         }
     }
 
-    /// Wire the shared Cosmic Loop flag from the arbitration engine.
     pub fn with_cosmic_loop_flag(mut self, flag: Arc<AtomicBool>) -> Self {
         self.cosmic_loop_ready = flag;
         self
@@ -160,7 +157,6 @@ impl MercyGatedApi {
         let ts = now_secs();
         let gates: Vec<String> = MercyGate::all().iter().map(|g| format!("{:?}", g)).collect();
 
-        // 0. Layer 0 — apply-class must present the arbitration engine.
         if request.kind.is_apply_class() && arbitration.is_none() {
             return self.reject(
                 "Layer 0: apply-class request requires CouncilArbitrationEngine at the runtime boundary".into(),
@@ -171,7 +167,6 @@ impl MercyGatedApi {
             );
         }
 
-        // 1. Cosmic Loop is mandatory identity
         if let Some(arb) = arbitration {
             arb.enforce_cosmic_loop_activation();
             arb.before_council_arbitration();
@@ -181,7 +176,6 @@ impl MercyGatedApi {
 
         let loop_ready = self.cosmic_loop_ready.load(Ordering::SeqCst);
 
-        // 2. Mercy threshold gate
         if request.claimed_mercy < self.min_mercy_threshold {
             return self.reject(
                 format!(
@@ -195,7 +189,6 @@ impl MercyGatedApi {
             );
         }
 
-        // 3. Keyword hardening against Cosmic Loop weakening
         if let Some(arb) = arbitration {
             let decision = arb.arbitrate_cosmic_loop_change(&request.payload);
             if let crate::council_arbitration::ArbitrationDecision::Blocked { reason, .. } = decision
@@ -210,7 +203,21 @@ impl MercyGatedApi {
             }
         }
 
-        // 4. Accept
+        if request.kind.is_apply_class() {
+            if let Err(e) = mercy_security::IngestionScanner::admit_or_block(&request.payload) {
+                return self.reject(
+                    format!("Layer 0 ingest: {e}"),
+                    "Rejected — mercy-security admit_or_block".into(),
+                    request.claimed_mercy,
+                    gates,
+                    loop_ready,
+                );
+            }
+            let valence = mercy_tolc_operator_algebra::Valence::new(request.claimed_mercy);
+            let _report =
+                mercy_tolc_operator_algebra::map_and_score_payload(&request.payload, valence);
+        }
+
         let kind_label = match &request.kind {
             ApiRequestKind::HealthCheck => "HealthCheck",
             ApiRequestKind::CosmicLoopStatus => "CosmicLoopStatus",
@@ -234,7 +241,6 @@ impl MercyGatedApi {
         }
     }
 
-    /// Convenience: status snapshot.
     pub fn status(&self) -> MercyApiResponse {
         MercyApiResponse {
             accepted: true,
@@ -257,10 +263,6 @@ impl Default for MercyGatedApi {
     }
 }
 
-/// Start a mercy-gated API handle.
-///
-/// Without the `web-demo` feature this is an in-process handle only
-/// (no socket bind). With `web-demo`, an Axum listener can be layered later.
 pub fn start_mercy_api_server(addr: Option<SocketAddr>) -> MercyGatedApi {
     println!(
         "[MercyGatedApi] start_mercy_api_server — in-process surface ready (addr={:?})",
@@ -276,7 +278,6 @@ pub fn start_mercy_api_server(addr: Option<SocketAddr>) -> MercyGatedApi {
     }
 }
 
-/// Start API wired to an existing arbitration engine (shared Cosmic Loop flag).
 pub fn start_mercy_api_with_arbitration(
     addr: Option<SocketAddr>,
     arbitration: &CouncilArbitrationEngine,
@@ -384,5 +385,27 @@ mod tests {
         );
         assert!(resp.accepted);
         assert_eq!(api.reject_count(), 0);
+    }
+
+    #[test]
+    fn rejects_apply_class_blocked_ingest() {
+        let arb = CouncilArbitrationEngine::new();
+        let mut api = start_mercy_api_with_arbitration(None, &arb);
+        let resp = api.handle_request(
+            MercyApiRequest {
+                kind: ApiRequestKind::CouncilQuery,
+                payload: "trust_remote_code=True loading_script".into(),
+                claimed_mercy: 0.99,
+                actor: "ingest".into(),
+            },
+            Some(&arb),
+        );
+        assert!(!resp.accepted);
+        match resp.decision {
+            GateDecision::Rejected { reason } => {
+                assert!(reason.contains("ingest"));
+            }
+            GateDecision::Allowed => panic!("blocked ingest must reject"),
+        }
     }
 }
