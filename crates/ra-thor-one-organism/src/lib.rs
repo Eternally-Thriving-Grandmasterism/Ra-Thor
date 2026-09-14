@@ -19,7 +19,7 @@ mod live_valence_status;
 
 pub use extended_surface::{
     ExtendedOrganismSurface, GpuSurface, GpuDispatchTelemetry, GpuSurfaceStatus,
-    GitHubSurface, EvolutionPrIntent, GitHubSurfaceStatus, FlushResult,
+    GitHubSurface, EvolutionPrIntent, EvolutionQueueError, GitHubSurfaceStatus, FlushResult,
     QuantumSwarmSurface, QuantumSwarmConfig, QuantumSwarmStatus, QuantumEvolutionResult,
     SovereignRecoverySurface, SovereignRecoveryStatus, RecoveryHeartbeat, RecoveryAnchor,
     KardashevFlywheelSurface, KardashevSurfaceStatus, TransferTickResult,

@@ -106,10 +106,11 @@ impl OneOrganismCore {
         }
         tel
     }
-    pub fn queue_evolution_pr(&mut self, role: &str, target_module: &str, description: &str, expected_benefit: f64, mercy_alignment: f64) -> EvolutionPrIntent {
+    pub fn queue_evolution_pr(&mut self, role: &str, target_module: &str, description: &str, expected_benefit: f64, mercy_alignment: f64) -> Result<EvolutionPrIntent, EvolutionQueueError> {
         self.tick += 1;
+        let intent = self.extended.github.queue_evolution_pr(role, target_module, description, expected_benefit, mercy_alignment, &self.arbitration_engine)?;
         if mercy_alignment > 0.88 && expected_benefit > 0.55 { let _ = self.handoff_role(OrganismRole::VibeCoder, "high_mercy_evolution"); }
-        self.extended.github.queue_evolution_pr(role, target_module, description, expected_benefit, mercy_alignment, &self.arbitration_engine)
+        Ok(intent)
     }
     pub fn flush_evolution_prs(&mut self) -> Vec<FlushResult> {
         self.tick += 1; let _ = self.handoff_role(OrganismRole::VibeCoder, "flush_evolution_prs");
@@ -261,5 +262,69 @@ mod tests {
         let inv = core.assert_cosmic_loop_invariant();
         assert!(!inv.cosmic_loop_ready);
         assert!(!inv.all_hold);
+    }
+
+    #[test]
+    fn evolution_pr_queue_admits_benign() {
+        let mut core = OneOrganismCore::new();
+        let intent = core
+            .queue_evolution_pr("vibe", "lattice", "tend the well and publish flow", 0.70, 0.95)
+            .unwrap();
+        assert!(intent.title.contains("lattice"));
+        assert_eq!(core.github_status().intended_prs, 1);
+        assert!(core.is_cosmic_loop_ready());
+    }
+
+    #[test]
+    fn evolution_pr_queue_blocks_pickle() {
+        let mut core = OneOrganismCore::new();
+        let err = core
+            .queue_evolution_pr("vibe", "lattice", "restore via pickle.loads(blob)", 0.70, 0.95)
+            .unwrap_err();
+        assert!(matches!(err, EvolutionQueueError::Ingest(_)));
+        assert_eq!(core.github_status().intended_prs, 0);
+    }
+
+    #[test]
+    fn evolution_pr_queue_blocks_remote_code() {
+        let mut core = OneOrganismCore::new();
+        let err = core
+            .queue_evolution_pr(
+                "vibe",
+                "lattice",
+                "Use trust_remote_code=True loading_script",
+                0.70,
+                0.95,
+            )
+            .unwrap_err();
+        assert!(matches!(err, EvolutionQueueError::Ingest(_)));
+        assert_eq!(core.github_status().intended_prs, 0);
+    }
+
+    #[test]
+    fn evolution_pr_queue_blocks_disable_loop() {
+        let mut core = OneOrganismCore::new();
+        let err = core
+            .queue_evolution_pr(
+                "vibe",
+                "lattice",
+                "please disable the cosmic loop activation protocol",
+                0.70,
+                0.95,
+            )
+            .unwrap_err();
+        assert!(matches!(err, EvolutionQueueError::Arbitration(_)));
+        assert_eq!(core.github_status().intended_prs, 0);
+        assert!(core.is_cosmic_loop_ready());
+    }
+
+    #[test]
+    fn evolution_pr_queue_blocks_low_mercy() {
+        let mut core = OneOrganismCore::new();
+        let err = core
+            .queue_evolution_pr("vibe", "lattice", "tend the well", 0.90, 0.20)
+            .unwrap_err();
+        assert!(matches!(err, EvolutionQueueError::LowMercy(_)));
+        assert_eq!(core.github_status().intended_prs, 0);
     }
 }
