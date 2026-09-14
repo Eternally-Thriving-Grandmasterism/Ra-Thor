@@ -6,12 +6,13 @@
 //! See MIGRATION_v13_to_v14.md.
 //!
 //! Contact: info@Rathor.ai
-//! Serving all Life. Thunder locked in. yoi ⚡❤️🔥
+//! Serving all Life. Thunder locked in. yoi ⚡❤🔥
 
 pub mod clifford_healing_fields;
 pub mod healing_integration;
 pub mod eternal_mercy_mesh;
 pub mod ra_thor_mercy_gated_api;
+pub mod wrap_model_output;
 
 pub mod council_arbitration;
 pub mod runtime_self_healing;
@@ -39,6 +40,7 @@ pub use ra_thor_mercy_gated_api::{
     MercyGatedApi, start_mercy_api_server, start_mercy_api_with_arbitration,
     MercyApiRequest, MercyApiResponse, ApiRequestKind, GateDecision,
 };
+pub use wrap_model_output::{wrap_model_output, ModelSurface};
 
 pub use council_arbitration::{ArbitrationDecision, CouncilArbitrationEngine};
 pub use runtime_self_healing::{
@@ -143,11 +145,24 @@ impl LatticeConductorV14 {
             .map(|api| api.handle_request(request, Some(arb)))
     }
 
+    /// Optional-model draft → Layer 0. Missing API surface is a miss, not apply.
+    pub fn wrap_model_output(
+        &mut self,
+        surface: ModelSurface,
+        model_text: &str,
+        claimed_mercy: f64,
+        actor: &str,
+    ) -> Option<MercyApiResponse> {
+        let arb = &self.arbitration_engine;
+        self.mercy_api.as_mut().map(|api| {
+            wrap_model_output::wrap_model_output(api, arb, surface, model_text, claimed_mercy, actor)
+        })
+    }
+
     pub fn mercy_api_status(&self) -> Option<MercyApiResponse> {
         self.mercy_api.as_ref().map(|api| api.status())
     }
 
-    /// True when Cosmic Loop is ready (shared atomic).
     pub fn is_cosmic_loop_ready(&self) -> bool {
         self.arbitration_engine.is_cosmic_loop_ready()
     }
@@ -159,4 +174,4 @@ impl Default for LatticeConductorV14 {
     }
 }
 
-// Thunder locked in. Serving all Life. yoi ⚡❤️🔥
+// Thunder locked in. Serving all Life. yoi ⚡❤🔥
