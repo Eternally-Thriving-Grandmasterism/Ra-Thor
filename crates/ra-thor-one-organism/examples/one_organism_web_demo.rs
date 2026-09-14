@@ -298,8 +298,10 @@ async fn github_queue(
     Json(body): Json<GithubQueueBody>,
 ) -> Json<serde_json::Value> {
     let mut o = org.lock().await;
-    let intent = o.queue_evolution_pr(&body.role, &body.target_module, &body.description, body.expected_benefit, body.mercy_alignment);
-    Json(serde_json::json!({"ok": true, "intent": intent, "github_status": o.github_status()}))
+    match o.queue_evolution_pr(&body.role, &body.target_module, &body.description, body.expected_benefit, body.mercy_alignment) {
+        Ok(intent) => Json(serde_json::json!({"ok": true, "intent": intent, "github_status": o.github_status()})),
+        Err(e) => Json(serde_json::json!({"ok": false, "error": e.to_string(), "github_status": o.github_status()})),
+    }
 }
 
 async fn role_handoff(

@@ -18,6 +18,8 @@
 use serde::{Deserialize, Serialize};
 
 use crate::CouncilArbitrationEngine;
+use lattice_conductor_v14::ArbitrationDecision;
+use mercy_security::IngestionScanner;
 
 // =============================================================================
 // Live runtime helper (shared by all live paths)
@@ -235,6 +237,17 @@ pub struct EvolutionPrIntent {
     pub title: String,
 }
 
+/// Fail-closed refuse when an evolution PR intent must not enter the queue.
+#[derive(Debug, Clone, PartialEq, thiserror::Error)]
+pub enum EvolutionQueueError {
+    #[error("Layer 0 ingest: {0}")]
+    Ingest(String),
+    #[error("claimed mercy {0:.3} below 0.75")]
+    LowMercy(f64),
+    #[error("Blocked by CouncilArbitrationEngine: {0}")]
+    Arbitration(String),
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct GitHubSurfaceStatus {
     pub intended_prs: usize,
@@ -330,9 +343,23 @@ impl GitHubSurface {
         expected_benefit: f64,
         mercy_alignment: f64,
         arbitration: &CouncilArbitrationEngine,
-    ) -> EvolutionPrIntent {
+    ) -> Result<EvolutionPrIntent, EvolutionQueueError> {
         arbitration.enforce_cosmic_loop_activation();
         arbitration.before_council_arbitration();
+
+        if mercy_alignment < 0.75 {
+            return Err(EvolutionQueueError::LowMercy(mercy_alignment));
+        }
+
+        let payload = format!("{role} {target_module} {description}");
+        if let ArbitrationDecision::Blocked { reason, .. } =
+            arbitration.arbitrate_cosmic_loop_change(&payload)
+        {
+            return Err(EvolutionQueueError::Arbitration(reason));
+        }
+        if let Err(e) = IngestionScanner::admit_or_block(&payload) {
+            return Err(EvolutionQueueError::Ingest(e.to_string()));
+        }
 
         let title = format!(
             "[ONE Organism] {} evolution: {} (benefit={:.2}, mercy={:.3})",
@@ -353,7 +380,7 @@ impl GitHubSurface {
             title,
             self.offline_mode
         );
-        intent
+        Ok(intent)
     }
 
     pub fn drain_intents(&mut self) -> Vec<EvolutionPrIntent> {
