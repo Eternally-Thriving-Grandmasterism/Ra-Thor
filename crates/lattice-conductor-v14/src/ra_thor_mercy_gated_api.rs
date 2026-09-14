@@ -1,7 +1,13 @@
 //! Ra-Thor Mercy-Gated API (v14.8.3)
 //!
-//! In-process request/response surface enforcing the 7 Living Mercy Gates
+//! In-process request/response surface enforcing the Living Mercy Gates
 //! and Cosmic Loop identity before any operation is accepted.
+//!
+//! Layer 0 rule (2026-09-14): apply-class requests require a live
+//! `CouncilArbitrationEngine` at this boundary. Missing arbitration is
+//! Rejected, not a convenience skip. Read-class (health / loop status)
+//! may proceed without it. This is an admission-shell invariant — it does
+//! not constrain attached model weights. See docs/LAYER_0_RUNTIME_BOUNDARY.md.
 //!
 //! Optional Axum HTTP binding is available behind the `web-demo` feature.
 //! Default build stays dependency-light (no network stack required).
@@ -28,6 +34,19 @@ pub enum ApiRequestKind {
     CouncilQuery,
     SelfEvolutionProposal,
     Custom(String),
+}
+
+impl ApiRequestKind {
+    /// Apply-class kinds change lattice or council state. They must cross Layer 0.
+    pub fn is_apply_class(&self) -> bool {
+        matches!(
+            self,
+            ApiRequestKind::SubmitHealingIntent
+                | ApiRequestKind::CouncilQuery
+                | ApiRequestKind::SelfEvolutionProposal
+                | ApiRequestKind::Custom(_)
+        )
+    }
 }
 
 /// Inbound request.
@@ -111,6 +130,26 @@ impl MercyGatedApi {
         self.cosmic_loop_ready.load(Ordering::SeqCst)
     }
 
+    fn reject(
+        &mut self,
+        reason: String,
+        message: String,
+        mercy_score: f64,
+        gates: Vec<String>,
+        loop_ready: bool,
+    ) -> MercyApiResponse {
+        self.reject_count += 1;
+        MercyApiResponse {
+            accepted: false,
+            decision: GateDecision::Rejected { reason },
+            message,
+            mercy_score,
+            gates_checked: gates,
+            timestamp: now_secs(),
+            cosmic_loop_ready: loop_ready,
+        }
+    }
+
     /// Evaluate and (if allowed) accept a mercy-gated request.
     pub fn handle_request(
         &mut self,
@@ -120,6 +159,17 @@ impl MercyGatedApi {
         self.request_count += 1;
         let ts = now_secs();
         let gates: Vec<String> = MercyGate::all().iter().map(|g| format!("{:?}", g)).collect();
+
+        // 0. Layer 0 — apply-class must present the arbitration engine.
+        if request.kind.is_apply_class() && arbitration.is_none() {
+            return self.reject(
+                "Layer 0: apply-class request requires CouncilArbitrationEngine at the runtime boundary".into(),
+                "Rejected — missing Layer 0 engine".into(),
+                request.claimed_mercy,
+                gates,
+                self.cosmic_loop_ready.load(Ordering::SeqCst),
+            );
+        }
 
         // 1. Cosmic Loop is mandatory identity
         if let Some(arb) = arbitration {
@@ -133,21 +183,16 @@ impl MercyGatedApi {
 
         // 2. Mercy threshold gate
         if request.claimed_mercy < self.min_mercy_threshold {
-            self.reject_count += 1;
-            return MercyApiResponse {
-                accepted: false,
-                decision: GateDecision::Rejected {
-                    reason: format!(
-                        "claimed_mercy {:.3} below threshold {:.3}",
-                        request.claimed_mercy, self.min_mercy_threshold
-                    ),
-                },
-                message: "Rejected by Living Mercy Gates".into(),
-                mercy_score: request.claimed_mercy,
-                gates_checked: gates,
-                timestamp: ts,
-                cosmic_loop_ready: loop_ready,
-            };
+            return self.reject(
+                format!(
+                    "claimed_mercy {:.3} below threshold {:.3}",
+                    request.claimed_mercy, self.min_mercy_threshold
+                ),
+                "Rejected by Living Mercy Gates".into(),
+                request.claimed_mercy,
+                gates,
+                loop_ready,
+            );
         }
 
         // 3. Keyword hardening against Cosmic Loop weakening
@@ -155,16 +200,13 @@ impl MercyGatedApi {
             let decision = arb.arbitrate_cosmic_loop_change(&request.payload);
             if let crate::council_arbitration::ArbitrationDecision::Blocked { reason, .. } = decision
             {
-                self.reject_count += 1;
-                return MercyApiResponse {
-                    accepted: false,
-                    decision: GateDecision::Rejected { reason },
-                    message: "Blocked by CouncilArbitrationEngine".into(),
-                    mercy_score: request.claimed_mercy,
-                    gates_checked: gates,
-                    timestamp: ts,
-                    cosmic_loop_ready: loop_ready,
-                };
+                return self.reject(
+                    reason,
+                    "Blocked by CouncilArbitrationEngine".into(),
+                    request.claimed_mercy,
+                    gates,
+                    loop_ready,
+                );
             }
         }
 
@@ -304,5 +346,43 @@ mod tests {
         );
         assert!(!resp.accepted);
         assert!(matches!(resp.decision, GateDecision::Rejected { .. }));
+    }
+
+    #[test]
+    fn rejects_apply_class_without_arbitration() {
+        let mut api = MercyGatedApi::new();
+        let resp = api.handle_request(
+            MercyApiRequest {
+                kind: ApiRequestKind::SelfEvolutionProposal,
+                payload: "evolve".into(),
+                claimed_mercy: 0.99,
+                actor: "skip".into(),
+            },
+            None,
+        );
+        assert!(!resp.accepted);
+        assert_eq!(api.reject_count(), 1);
+        match resp.decision {
+            GateDecision::Rejected { reason } => {
+                assert!(reason.contains("Layer 0"));
+            }
+            GateDecision::Allowed => panic!("apply-class without arb must reject"),
+        }
+    }
+
+    #[test]
+    fn allows_read_class_without_arbitration() {
+        let mut api = MercyGatedApi::new();
+        let resp = api.handle_request(
+            MercyApiRequest {
+                kind: ApiRequestKind::HealthCheck,
+                payload: "ping".into(),
+                claimed_mercy: 0.99,
+                actor: "probe".into(),
+            },
+            None,
+        );
+        assert!(resp.accepted);
+        assert_eq!(api.reject_count(), 0);
     }
 }

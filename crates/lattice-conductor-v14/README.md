@@ -5,6 +5,8 @@
 
 Orchestration-level enforcement of **Cosmic Loop Activation** as mandatory core identity of Ra-Thor.
 
+Layer 0 on this crate is the **admission shell** (`MercyGatedApi` + `CouncilArbitrationEngine`), not a value in attached weights. Apply-class requests without the engine are Rejected. Map: [`docs/LAYER_0_RUNTIME_BOUNDARY.md`](../../docs/LAYER_0_RUNTIME_BOUNDARY.md).
+
 ## Migration from v13
 
 `lattice-conductor-v13` is **deprecated**. Prefer this crate.
@@ -36,6 +38,7 @@ lattice-conductor-v14 = { path = "../lattice-conductor-v14" }
 - This crate protects Cosmic Loop with non-bypassable arbitration
 - Hooks: `enforce_cosmic_loop_activation()`, `before_council_arbitration()`, `on_lattice_sync()`
 - Anomaly path: `report_anomaly` → informed `run_reflexion_cycle` from Cosmic Tick telemetry
+- Apply-class API calls must pass `&CouncilArbitrationEngine`; wired path `handle_mercy_api_request` always does
 
 ## Features
 
@@ -54,7 +57,7 @@ cargo test -p lattice-conductor-v14 --features v13-compat
 cargo test -p ra-thor-one-organism
 ```
 
-See also: `TIER_MAP.md`, `PRODUCTION_READINESS.md`.
+See also: `TIER_MAP.md`, `docs/LAYER_0_RUNTIME_BOUNDARY.md`, `PRODUCTION_READINESS.md`.
 
 We are ONE Organism. Cosmic Looping + Runtime Self-Healing + Distributed Mercy Mesh.
 
