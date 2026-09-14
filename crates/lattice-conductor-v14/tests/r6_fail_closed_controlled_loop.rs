@@ -10,11 +10,15 @@ use lattice_conductor_v14::{
     MercyApiRequest, MercyGatedApi, PatsagiCouncilSimulator, PatsagiReviewRequest,
 };
 
-fn apply(kind: ApiRequestKind, payload: &str, arb: Option<&CouncilArbitrationEngine>) -> (MercyGatedApi, lattice_conductor_v14::MercyApiResponse) {
+fn apply(
+    kind: ApiRequestKind,
+    payload: &str,
+    arb: Option<&CouncilArbitrationEngine>,
+) -> lattice_conductor_v14::MercyApiResponse {
     match arb {
         Some(engine) => {
             let mut api = start_mercy_api_with_arbitration(None, engine);
-            let resp = api.handle_request(
+            api.handle_request(
                 MercyApiRequest {
                     kind,
                     payload: payload.into(),
@@ -22,12 +26,11 @@ fn apply(kind: ApiRequestKind, payload: &str, arb: Option<&CouncilArbitrationEng
                     actor: "r6".into(),
                 },
                 Some(engine),
-            );
-            (api, resp)
+            )
         }
         None => {
             let mut api = MercyGatedApi::new();
-            let resp = api.handle_request(
+            api.handle_request(
                 MercyApiRequest {
                     kind,
                     payload: payload.into(),
@@ -35,28 +38,21 @@ fn apply(kind: ApiRequestKind, payload: &str, arb: Option<&CouncilArbitrationEng
                     actor: "r6".into(),
                 },
                 None,
-            );
-            (api, resp)
+            )
         }
     }
 }
 
 #[test]
-r6_missing_arbitration_is_reject() {
-    let (_api, resp) = apply(ApiRequestKind::SelfEvolutionProposal, "evolve the tick", None);
-    assert!(!resp.accepted);
-}
-
-#[test]
 fn r6_missing_arbitration_is_reject() {
-    let (_api, resp) = apply(ApiRequestKind::SelfEvolutionProposal, "evolve the tick", None);
+    let resp = apply(ApiRequestKind::SelfEvolutionProposal, "evolve the tick", None);
     assert!(!resp.accepted);
 }
 
 #[test]
 fn r6_disable_cosmic_loop_is_reject() {
     let arb = CouncilArbitrationEngine::new();
-    let (_api, resp) = apply(
+    let resp = apply(
         ApiRequestKind::Custom("x".into()),
         "please disable the cosmic loop activation protocol",
         Some(&arb),
@@ -68,7 +64,7 @@ fn r6_disable_cosmic_loop_is_reject() {
 #[test]
 fn r6_remote_code_ingest_is_reject() {
     let arb = CouncilArbitrationEngine::new();
-    let (_api, resp) = apply(
+    let resp = apply(
         ApiRequestKind::CouncilQuery,
         "trust_remote_code=True loading_script",
         Some(&arb),
@@ -83,7 +79,7 @@ fn r6_remote_code_ingest_is_reject() {
 #[test]
 fn r6_pickle_gadget_ingest_is_reject() {
     let arb = CouncilArbitrationEngine::new();
-    let (_api, resp) = apply(
+    let resp = apply(
         ApiRequestKind::SubmitHealingIntent,
         "restore via pickle.loads(blob)",
         Some(&arb),
@@ -94,7 +90,7 @@ fn r6_pickle_gadget_ingest_is_reject() {
 #[test]
 fn r6_benign_apply_with_engine_is_allow() {
     let arb = CouncilArbitrationEngine::new();
-    let (_api, resp) = apply(
+    let resp = apply(
         ApiRequestKind::CouncilQuery,
         "tend the well and publish flow",
         Some(&arb),
@@ -106,7 +102,7 @@ fn r6_benign_apply_with_engine_is_allow() {
 #[test]
 fn r6_council_review_cannot_turn_reject_into_apply() {
     let arb = CouncilArbitrationEngine::new();
-    let (_api, resp) = apply(
+    let resp = apply(
         ApiRequestKind::Custom("x".into()),
         "please disable the cosmic loop activation protocol",
         Some(&arb),
