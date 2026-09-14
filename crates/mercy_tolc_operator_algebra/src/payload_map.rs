@@ -1,13 +1,13 @@
 //! Deterministic payload → ambient vector map.
 //!
 //! This is a feature map, not an embedding model and not a sampler constraint.
-//! Optional-model text is scored into \(g \in \mathbb{R}^{16}\) so Layer 0 geometry
-//! can run *before apply*. Tokens that never call this function are not gated.
+//! Optional-model text is scored into g in R^16 so Layer 0 geometry can run
+//! before apply. Tokens that never call this function are not gated.
 //!
 //! Contact: info@Rathor.ai
 
 use crate::{
-    AmbientVector, AMBIENT_DIM, MercyGate, NilpotentSuppressor, Valence, MERCY_DIM,
+    AmbientVector, AMBIENT_DIM, MERCY_DIM, NilpotentSuppressor, Valence,
 };
 use serde::{Deserialize, Serialize};
 
@@ -25,9 +25,8 @@ const RESIDUAL_MARKERS: &[&str] = &[
 ];
 
 /// Map UTF-8 text onto the living ambient space.
-///
-//! Bytes fold into all 16 dims. Residual markers add energy off the 8-gate frame
-//! so \(N_1\) is nonzero when those markers appear.
+/// Bytes fold into all 16 dims. Residual markers add energy off the 8-gate
+/// frame so N1 is nonzero when those markers appear.
 pub fn map_payload_to_ambient(text: &str) -> AmbientVector {
     let mut g = AmbientVector::zeros();
     let bytes = text.as_bytes();
@@ -48,7 +47,6 @@ pub fn map_payload_to_ambient(text: &str) -> AmbientVector {
             g[dim] += 0.45;
         }
     }
-    let _ = MercyGate::ALL;
     g
 }
 
