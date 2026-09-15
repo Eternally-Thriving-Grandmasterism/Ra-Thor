@@ -144,3 +144,18 @@ html[data-theme="light"] .lang-tab {
   color: var(--rt-gold-deep);
   background: var(--rt-bg-card);
 }
+
+/* Family pills stay Home…Privacy left-to-right. Do not mirror the row. */
+#rt-family-nav {
+  direction: ltr !important;
+  flex-direction: row !important;
+}
+article.rt-prose,
+.rt-prose,
+#faq,
+.faq-accordion,
+[data-rt-prose] {
+  direction: ltr;
+  unicode-bidi: isolate;
+  text-align: start;
+}

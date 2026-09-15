@@ -129,8 +129,16 @@ html[data-theme] .bg-emerald-500 {
 .rt-cta-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.75rem; }
 .rt-cta-row > a,
 .rt-cta-row > button { flex: 1 1 12rem; max-width: 18rem; }
-.rt-card-uniform { display: flex; flex-direction: column; min-height: 100%; }
-.rt-card-uniform .rt-card-action { margin-top: auto; padding-top: 1.15rem; }
+.rt-card-uniform { display: flex; flex-direction: column; min-height: 0; }
+.rt-card-uniform .rt-card-action,
+.rt-card-uniform .rt-btn-primary,
+.rt-card-uniform [data-i18n$="Cta"] {
+  margin-top: 1.15rem;
+  position: static;
+  display: block;
+  align-self: center;
+  max-width: 100%;
+}
 .rt-kicker {
   display: inline-flex;
   align-items: center;
