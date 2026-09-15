@@ -35,7 +35,9 @@ Obvious standalone Base64 (RFC 4648 alphabet, optional padding, length ≥ 16 an
 
 Benign decoded prose **must admit**. Fixture: `crates/mercy-security/fixtures/benign/base64_tend_the_well.md` (token `dGVuZCB0aGUgd2VsbA==`).
 
-Keyword `contains()` runs after stripping Unicode Cf format chars (U+200B / U+200C / U+200D / U+FEFF / …). Spaces (Zs) are **not** stripped. A ZWSP inside “flow state” prose must still admit.
+Keyword `contains()` runs after stripping Unicode Cf format chars (U+200B / U+200C / U+200D / U+FEFF / …). Identifier/path signals (`trust_remote_code`, `pickle.loads`, …) also match with ≤8 interior whitespace characters so a paste-split still blocks. Single-token words (`subprocess`, `eval(`) are **not** space-glued. A ZWSP inside “flow state” prose must still admit.
+
+Benign Base64 fixture land: `1dfbc81d4`.
 
 CI fails if the plaintext / B64 / split blocks regress, or if the benign Base64 fixture starts blocking. This is not METR.
 
