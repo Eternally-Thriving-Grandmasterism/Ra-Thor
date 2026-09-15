@@ -35,7 +35,9 @@ Obvious standalone Base64 (RFC 4648 alphabet, optional padding, length ≥ 16 an
 
 Benign decoded prose **must admit**. Fixture: `crates/mercy-security/fixtures/benign/base64_tend_the_well.md` (token `dGVuZCB0aGUgd2VsbA==`).
 
-Keyword `contains()` runs after stripping Unicode Cf format chars (U+200B / U+200C / U+200D / U+FEFF / …). Identifier/path signals (`trust_remote_code`, `pickle.loads`, …) also match with ≤8 interior whitespace characters so a paste-split still blocks. Single-token words (`subprocess`, `eval(`) are **not** space-glued. A ZWSP inside “flow state” prose must still admit.
+Keyword `contains()` runs after stripping Unicode Cf format chars (U+200B / U+200C / U+200D / U+FEFF / …) and folding fullwidth ASCII + common Cyrillic lookalikes. Identifier/path signals (`trust_remote_code`, `pickle.loads`, …) also match with ≤8 interior whitespace characters so a paste-split still blocks. Single-token words (`subprocess`, `eval(`) are **not** space-glued. A ZWSP inside “flow state” prose must still admit. Benign Cyrillic prose must still admit.
+
+Whitespace-split land: `cf0937832`. Benign Base64 fixture land: `1dfbc81d4`.
 
 Benign Base64 fixture land: `1dfbc81d4`.
 

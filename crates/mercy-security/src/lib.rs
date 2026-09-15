@@ -529,6 +529,35 @@ impl IngestionScanner {
         s.chars().filter(|c| !Self::is_cf_format(*c)).collect()
     }
 
+    /// Fullwidth ASCII + common Cyrillic lookalikes used to spoof latin identifiers.
+    /// Applied to the keyword haystack only (Base64 tokens are extracted from the original).
+    fn fold_homoglyph(c: char) -> char {
+        let cp = c as u32;
+        if (0xFF01..=0xFF5E).contains(&cp) {
+            return char::from_u32(cp - 0xFEE0).unwrap_or(c);
+        }
+        match c {
+            '\u{0430}' | '\u{0410}' => 'a',
+            '\u{0435}' | '\u{0415}' => 'e',
+            '\u{043E}' | '\u{041E}' => 'o',
+            '\u{0440}' | '\u{0420}' => 'p',
+            '\u{0441}' | '\u{0421}' => 'c',
+            '\u{0443}' | '\u{0423}' => 'y',
+            '\u{0445}' | '\u{0425}' => 'x',
+            '\u{0456}' | '\u{0406}' => 'i',
+            '\u{0455}' | '\u{0405}' => 's',
+            _ => c,
+        }
+    }
+
+    fn fold_keyword_haystack(s: &str) -> String {
+        Self::strip_cf_format(s)
+            .chars()
+            .map(Self::fold_homoglyph)
+            .collect::<String>()
+            .to_lowercase()
+    }
+
     pub fn scan_text(content: &str) -> IngestionScanResult {
         Self::scan_text_depth(content, 0)
     }
@@ -539,7 +568,7 @@ impl IngestionScanner {
         if content.len() > MAX_SCAN_BYTES {
             return Self::oversized_payload_result(content.len());
         }
-        let lower = Self::strip_cf_format(content).to_lowercase();
+        let lower = Self::fold_keyword_haystack(content);
         let mut findings = Self::collect_keyword_findings(&lower);
 
         if b64_depth == 0 {
@@ -1096,5 +1125,25 @@ mod tests {
             "The academic eval (metrics) discussion stays offline. No remote loaders.",
         );
         assert!(r.is_ok(), "must not glue eval(: {r:?}");
+    }
+
+    #[test]
+    fn fullwidth_trust_remote_code_blocks() {
+        assert!(IngestionScanner::admit_or_block("ｔｒｕｓｔ＿ｒｅｍｏｔｅ＿ｃｏｄｅ").is_err());
+    }
+
+    #[test]
+    fn cyrillic_homoglyph_trust_remote_code_blocks() {
+        assert!(IngestionScanner::admit_or_block("tru\u{0455}t_remote_code").is_err());
+        assert!(IngestionScanner::admit_or_block("trust_remote_\u{0441}ode").is_err());
+        assert!(IngestionScanner::admit_or_block("pickle.l\u{043E}ads").is_err());
+    }
+
+    #[test]
+    fn benign_cyrillic_prose_admits() {
+        let r = IngestionScanner::admit_or_block(
+            "Заметки о милосердии и classroom flow state. No remote loaders.",
+        );
+        assert!(r.is_ok(), "benign Cyrillic prose must admit: {r:?}");
     }
 }
