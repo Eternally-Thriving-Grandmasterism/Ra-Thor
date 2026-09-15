@@ -205,34 +205,16 @@ impl IngestionScanner {
         }
     }
 
-    pub fn scan_text(content: &str) -> IngestionScanResult {
-        if content.len() > MAX_SCAN_BYTES {
-            return IngestionScanResult {
-                safe: false,
-                risk_tier: RiskTier::Critical,
-                risk_score: 1.0,
-                threats: vec![IngestionThreat::UnknownHighRisk],
-                findings: vec![ScanFinding {
-                    threat: IngestionThreat::UnknownHighRisk,
-                    signal: "payload_exceeds_max_scan_bytes".into(),
-                    confidence: 1.0,
-                    offset: None,
-                }],
-                details: vec![format!("payload {} > MAX", content.len())],
-                scanned_at: Utc::now(),
-                bytes_scanned: content.len(),
-            };
-        }
-        let lower = content.to_lowercase();
+    fn collect_keyword_findings(lower: &str) -> Vec<ScanFinding> {
         let mut findings = Vec::new();
-        Self::match_signals(&lower, Self::remote_code_signals(), IngestionThreat::RemoteCodeLoader, &mut findings);
-        Self::match_signals(&lower, Self::serialization_gadget_signals(), IngestionThreat::SerializationGadget, &mut findings);
-        Self::match_signals(&lower, Self::shell_spawn_signals(), IngestionThreat::ShellProcessSpawn, &mut findings);
-        Self::match_signals(&lower, Self::network_callback_signals(), IngestionThreat::NetworkCallback, &mut findings);
-        Self::match_signals(&lower, Self::obfuscation_signals(), IngestionThreat::ObfuscatedPayload, &mut findings);
-        Self::match_signals(&lower, Self::dataset_config_signals(), IngestionThreat::DatasetConfigInjection, &mut findings);
-        Self::match_signals(&lower, Self::credential_signals(), IngestionThreat::CredentialHarvestPattern, &mut findings);
-        Self::match_signals(&lower, Self::template_signals(), IngestionThreat::TemplateInjection, &mut findings);
+        Self::match_signals(lower, Self::remote_code_signals(), IngestionThreat::RemoteCodeLoader, &mut findings);
+        Self::match_signals(lower, Self::serialization_gadget_signals(), IngestionThreat::SerializationGadget, &mut findings);
+        Self::match_signals(lower, Self::shell_spawn_signals(), IngestionThreat::ShellProcessSpawn, &mut findings);
+        Self::match_signals(lower, Self::network_callback_signals(), IngestionThreat::NetworkCallback, &mut findings);
+        Self::match_signals(lower, Self::obfuscation_signals(), IngestionThreat::ObfuscatedPayload, &mut findings);
+        Self::match_signals(lower, Self::dataset_config_signals(), IngestionThreat::DatasetConfigInjection, &mut findings);
+        Self::match_signals(lower, Self::credential_signals(), IngestionThreat::CredentialHarvestPattern, &mut findings);
+        Self::match_signals(lower, Self::template_signals(), IngestionThreat::TemplateInjection, &mut findings);
 
         let has_remote = findings.iter().any(|f| f.threat == IngestionThreat::RemoteCodeLoader && f.confidence >= 0.70);
         let has_dataset = findings.iter().any(|f| f.threat == IngestionThreat::DatasetConfigInjection && f.confidence >= 0.55);
@@ -244,7 +226,177 @@ impl IngestionScanner {
                 offset: None,
             });
         }
+        findings
+    }
 
+    fn is_b64_payload_byte(c: u8) -> bool {
+        c.is_ascii_alphanumeric() || c == b'+' || c == b'/'
+    }
+
+    fn b64_digit(c: u8) -> Option<u8> {
+        match c {
+            b'A'..=b'Z' => Some(c - b'A'),
+            b'a'..=b'z' => Some(c - b'a' + 26),
+            b'0'..=b'9' => Some(c - b'0' + 52),
+            b'+' => Some(62),
+            b'/' => Some(63),
+            _ => None,
+        }
+    }
+
+    /// RFC 4648 standard alphabet. Padding required for a complete group.
+    fn decode_rfc4648_base64(token: &str) -> Option<Vec<u8>> {
+        let bytes = token.as_bytes();
+        let n = bytes.len();
+        if n < 4 || n % 4 != 0 {
+            return None;
+        }
+        let pad = bytes.iter().rev().take_while(|&&c| c == b'=').count();
+        if pad > 2 {
+            return None;
+        }
+        for (i, &c) in bytes.iter().enumerate() {
+            if i < n - pad {
+                if Self::b64_digit(c).is_none() {
+                    return None;
+                }
+            } else if c != b'=' {
+                return None;
+            }
+        }
+        let mut out = Vec::with_capacity(n / 4 * 3 - pad);
+        let mut i = 0;
+        while i < n {
+            let c0 = bytes[i];
+            let c1 = bytes[i + 1];
+            let c2 = bytes[i + 2];
+            let c3 = bytes[i + 3];
+            let v0 = Self::b64_digit(c0)?;
+            let v1 = Self::b64_digit(c1)?;
+            let v2 = if c2 == b'=' { 0 } else { Self::b64_digit(c2)? };
+            let v3 = if c3 == b'=' { 0 } else { Self::b64_digit(c3)? };
+            if c2 == b'=' && c3 != b'=' {
+                return None;
+            }
+            if (c2 == b'=' || c3 == b'=') && i + 4 != n {
+                return None;
+            }
+            let triple = (u32::from(v0) << 18)
+                | (u32::from(v1) << 12)
+                | (u32::from(v2) << 6)
+                | u32::from(v3);
+            out.push(((triple >> 16) & 0xff) as u8);
+            if c2 != b'=' {
+                out.push(((triple >> 8) & 0xff) as u8);
+            }
+            if c3 != b'=' {
+                out.push((triple & 0xff) as u8);
+            }
+            i += 4;
+        }
+        Some(out)
+    }
+
+    fn is_obvious_base64_token(token: &str) -> bool {
+        let bytes = token.as_bytes();
+        let n = bytes.len();
+        if n < 16 || n % 4 != 0 {
+            return false;
+        }
+        let pad = bytes.iter().rev().take_while(|&&c| c == b'=').count();
+        if pad > 2 {
+            return false;
+        }
+        let core = &bytes[..n - pad];
+        if core.is_empty() || core.iter().any(|&c| !Self::is_b64_payload_byte(c)) {
+            return false;
+        }
+        // Git SHAs / hex ids are alphabet-subset, not an obvious Base64 paste.
+        if core.iter().all(|&c| c.is_ascii_hexdigit()) {
+            return false;
+        }
+        let has_upper = core.iter().any(|&c| c.is_ascii_uppercase());
+        let has_lower = core.iter().any(|&c| c.is_ascii_lowercase());
+        let has_plus_slash = core.iter().any(|&c| c == b'+' || c == b'/');
+        (has_upper && has_lower) || has_plus_slash || pad > 0
+    }
+
+    /// Standalone obvious Base64 (alphabet + padding, length ≥ 16, % 4 == 0).
+    fn obvious_standalone_base64_tokens(content: &str) -> Vec<String> {
+        const MIN_LEN: usize = 16;
+        const MAX_TOKENS: usize = 32;
+        let bytes = content.as_bytes();
+        let max_enc = MAX_SCAN_BYTES.saturating_mul(4) / 3;
+        let mut tokens = Vec::new();
+        let mut i = 0;
+        while i < bytes.len() && tokens.len() < MAX_TOKENS {
+            if !Self::is_b64_payload_byte(bytes[i]) {
+                i += 1;
+                continue;
+            }
+            if i > 0 && bytes[i - 1].is_ascii_alphanumeric() {
+                while i < bytes.len() && (Self::is_b64_payload_byte(bytes[i]) || bytes[i] == b'=') {
+                    i += 1;
+                }
+                continue;
+            }
+            let start = i;
+            while i < bytes.len() && Self::is_b64_payload_byte(bytes[i]) {
+                i += 1;
+            }
+            let pad_start = i;
+            while i < bytes.len() && bytes[i] == b'=' && i - pad_start < 2 {
+                i += 1;
+            }
+            let end = i;
+            if end < bytes.len()
+                && (bytes[end].is_ascii_alphanumeric()
+                    || bytes[end] == b'+'
+                    || bytes[end] == b'/'
+                    || bytes[end] == b'=')
+            {
+                continue;
+            }
+            let n = end - start;
+            if n < MIN_LEN || n % 4 != 0 || n > max_enc {
+                continue;
+            }
+            let token = &content[start..end];
+            if Self::is_obvious_base64_token(token) {
+                tokens.push(token.to_string());
+            }
+        }
+        tokens
+    }
+
+    fn decode_b64_utf8_capped(token: &str) -> Option<String> {
+        let decoded = Self::decode_rfc4648_base64(token)?;
+        if decoded.is_empty() || decoded.len() > MAX_SCAN_BYTES {
+            return None;
+        }
+        // Skip non-UTF-8 (binary image payloads, etc.). Do not lossy-decode.
+        String::from_utf8(decoded).ok()
+    }
+
+    fn oversized_payload_result(len: usize) -> IngestionScanResult {
+        IngestionScanResult {
+            safe: false,
+            risk_tier: RiskTier::Critical,
+            risk_score: 1.0,
+            threats: vec![IngestionThreat::UnknownHighRisk],
+            findings: vec![ScanFinding {
+                threat: IngestionThreat::UnknownHighRisk,
+                signal: "payload_exceeds_max_scan_bytes".into(),
+                confidence: 1.0,
+                offset: None,
+            }],
+            details: vec![format!("payload {} > MAX", len)],
+            scanned_at: Utc::now(),
+            bytes_scanned: len,
+        }
+    }
+
+    fn finalize_scan(findings: Vec<ScanFinding>, bytes_scanned: usize) -> IngestionScanResult {
         let mut threats: Vec<_> = findings.iter().map(|f| f.threat.clone()).collect();
         threats.sort_by(|a, b| format!("{a:?}").cmp(&format!("{b:?}")));
         threats.dedup();
@@ -283,8 +435,43 @@ impl IngestionScanner {
             findings,
             details,
             scanned_at: Utc::now(),
-            bytes_scanned: content.len(),
+            bytes_scanned,
         }
+    }
+
+    pub fn scan_text(content: &str) -> IngestionScanResult {
+        Self::scan_text_depth(content, 0)
+    }
+
+    /// `b64_depth` 0 = may decode obvious standalone Base64 once and re-scan.
+    /// Depth 1+ never decodes again (no zip-bomb / nested theater).
+    fn scan_text_depth(content: &str, b64_depth: u8) -> IngestionScanResult {
+        if content.len() > MAX_SCAN_BYTES {
+            return Self::oversized_payload_result(content.len());
+        }
+        let lower = content.to_lowercase();
+        let mut findings = Self::collect_keyword_findings(&lower);
+
+        if b64_depth == 0 {
+            for token in Self::obvious_standalone_base64_tokens(content) {
+                if let Some(decoded) = Self::decode_b64_utf8_capped(&token) {
+                    if decoded == content {
+                        continue;
+                    }
+                    let inner = Self::scan_text_depth(&decoded, 1);
+                    for f in inner.findings {
+                        findings.push(ScanFinding {
+                            threat: f.threat,
+                            signal: format!("b64:{}", f.signal),
+                            confidence: f.confidence,
+                            offset: f.offset,
+                        });
+                    }
+                }
+            }
+        }
+
+        Self::finalize_scan(findings, content.len())
     }
 
     pub fn admit_or_block(content: &str) -> Result<IngestionScanResult, MercySecurityError> {
@@ -743,5 +930,35 @@ mod tests {
         let content = include_str!("../fixtures/benign/docs_mention_api_key.md");
         let scan = IngestionScanner::scan_text(content);
         assert!(scan.risk_tier <= RiskTier::Medium, "must not escalate to High/Critical");
+    }
+
+    #[test]
+    fn base64_trust_remote_code_without_decoder_token_blocks() {
+        // Standard Base64 of `trust_remote_code` — no decoder token in the paste.
+        let token = "dHJ1c3RfcmVtb3RlX2NvZGU=";
+        assert!(IngestionScanner::admit_or_block(token).is_err());
+        let scan = IngestionScanner::scan_text(token);
+        assert!(scan
+            .findings
+            .iter()
+            .any(|f| f.signal.contains("trust_remote_code")));
+    }
+
+    #[test]
+    fn base64_benign_prose_admits() {
+        // Standard Base64 of "tend the well" — obvious token, no tripwire after decode.
+        let token = "dGVuZCB0aGUgd2VsbA==";
+        let r = IngestionScanner::admit_or_block(token);
+        assert!(r.is_ok(), "benign Base64 prose must admit: {r:?}");
+    }
+
+    #[test]
+    fn nested_base64_is_not_decoded_twice() {
+        // One-level rescan only. Outer is Base64 of the Base64 of trust_remote_code.
+        let double = "dEhKMWMzUmZjbVZibTNSbFgyTnZaR1U9";
+        assert!(
+            IngestionScanner::admit_or_block(double).is_ok(),
+            "nested Base64 is not theater-decoded"
+        );
     }
 }
