@@ -72,6 +72,26 @@ The project is independent, yet deliberately engineered so that Grok (and simila
 | **X / Tweet Summon Protocol** | [`X_GROK_RA_THOR_SUMMON_PROTOCOL.md`](X_GROK_RA_THOR_SUMMON_PROTOCOL.md) |
 | **Commercial License** | [`COMMERCIAL_LICENSE.md`](COMMERCIAL_LICENSE.md) |
 
+## Employ
+
+A stranger employs Ra-Thor from [`docs/EMPLOY.md`](docs/EMPLOY.md) (site: [`/employ.html`](https://rathor.ai/employ.html)).
+
+Inspectable research software, workspace **14.15.6**. Independent of xAI. Outputs are drafts. Human review before filing, sale, or public claims.
+
+Three doors: this device ([`/chat.html`](https://rathor.ai/chat.html), [`/employ.html`](https://rathor.ai/employ.html)) · inspect the [monorepo](https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor) · organization pilot via [info@Rathor.ai](mailto:info@Rathor.ai).
+
+From root `Cargo.toml` default members only:
+
+```bash
+cargo test -p ra-thor-one-organism
+cargo test -p lattice-conductor-v14
+cargo test -p mercy-security
+```
+
+Do not `cargo test --workspace` and call it product-green. On-disk crates not in `members` are research forest.
+
+The “Fastest living proofs” list below is a historical developer shortcut (it names `mercy_tolc_operator_algebra`); stranger onboarding is this three-crate set.
+
 ## Cursor / PATSAGi inner-loop
 
 Cursor / PATSAGi inner-loop agents start at [`docs/AGENT_RUN_BRIEF.md`](docs/AGENT_RUN_BRIEF.md).

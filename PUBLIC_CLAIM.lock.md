@@ -29,3 +29,5 @@ Visible labels, same three destinations on Contact and the site footer:
   Official follow named by the steward: https://www.facebook.com/share/1b7Z76vUpL/
 
 Family site `index.html` already carries the independent / capable · bounded · corrigible lock. Keep that walk: Home · Chat · Employ · Launch · Moments · Shard · Forge · Contact · Privacy.
+
+Stranger employ spine: [`docs/EMPLOY.md`](docs/EMPLOY.md).
