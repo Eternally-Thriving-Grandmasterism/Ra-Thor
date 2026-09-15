@@ -1,21 +1,22 @@
 /* sw.js — Ra-Thor vanilla offline worker
- * Workspace 14.15.6 · LOCK 2026-09-01-science-watches
+ * Workspace 14.15.6 · LOCK 2026-09-15-week
  * Pass-through documents. Fetch handler present for Chrome installability.
  * Contact: info@Rathor.ai
  */
-var LOCK = '2026-09-01-science-watches';
+var LOCK = '2026-09-15-week';
 var CACHE = 'rathor-core-' + LOCK;
 var PRECACHE = [
   '/', '/index.html', '/chat.html', '/contact.html', '/privacy.html',
   '/offline.html', '/thanks.html', '/go-x.html', '/Launch-Ra-Thor.html',
-  '/micro-moment.html', '/sovereign-shard.html', '/web-forge.html', '/science-watches.html', '/manifest.json',
+  '/micro-moment.html', '/sovereign-shard.html', '/web-forge.html', '/science-watches.html',
+  '/constellation-week.html', '/employ.html', '/manifest.json',
   '/mercy-motion-vision-engine.js', '/fuzzy-mercy-logic.js', '/one-organism-launch.js',
   '/js/pwa-boot.js', '/js/pwa-install.js', '/js/lang-offer.js',
   '/js/rathor-feedback.js', '/js/rathor-theme.js', '/js/rathor-unify.js',
   '/css/rathor-theme.css', '/css/rathor-theme-rest-a.css', '/css/rathor-theme-rest-b.css',
   '/js/family-nav-2026-08-22.js', '/js/site-lock-2026-08-22.js',
   '/js/science-map-lock.js', '/js/watch-footer-lock.js', '/js/sovereign-shard.js', '/js/chat.js',
-  '/js/contact-i18n.js',
+  '/js/contact-i18n.js', '/js/week-window.js', '/js/week-window.json',
   '/i18n/en.js', '/i18n/zh.js', '/i18n/ar.js',
   '/icons/ra-thor-icon-192.png', '/icons/ra-thor-icon-512.png'
 ];
