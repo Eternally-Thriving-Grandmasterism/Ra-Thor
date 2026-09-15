@@ -8,8 +8,8 @@
   const translations = {
     en: {
       back: "Back to Ra-Thor",
-      headline: "Contact Ra-Thor™",
-      subtitle: "Eternal Mercy Thunder ⚡️",
+      headline: "Contact Ra-Thor",
+      subtitle: "Write to info@Rathor.ai",
       intro: "Single official point of contact under sole stewardship of <span class=\"font-semibold text-amber-300\">Sherif Samy Botros (@AlphaProMega)</span>",
       mainSubtitle: "The single eternal official email for all entities",
       sendButton: "Send Email Now",
