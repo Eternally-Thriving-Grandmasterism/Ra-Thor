@@ -10,6 +10,7 @@
                 retire competing family navs; Chat + Forge + Shard share one chrome
    2026-08-31: Public speech lock — no APTD badge in fallback footer
    2026-09-09: Employ destination in the bar and the fallback directory
+   2026-09-15: Compact Follow row — X / LinkedIn / Facebook (visible labels)
 */
 (function () {
   if (window.__rtFamilyNav) return;
@@ -167,6 +168,30 @@
     return nav;
   }
 
+  function followNavHtml() {
+    return (
+      '<nav class="rt-follow" aria-label="Follow" data-rt-follow="1">' +
+        '<p class="rt-follow-label">Follow</p>' +
+        '<ul class="rt-follow-list">' +
+          '<li><a href="https://x.com/AlphaProMega" rel="me noopener" target="_blank">X / Twitter</a></li>' +
+          '<li><a href="https://www.linkedin.com/in/sherif-botros" rel="me noopener" target="_blank">LinkedIn</a></li>' +
+          '<!-- official follow named by the steward: https://www.facebook.com/share/1b7Z76vUpL/ -->' +
+          '<li><a href="https://www.facebook.com/people/Ra-Thor-AI/61594361430419/" rel="me noopener" target="_blank">Facebook</a></li>' +
+        '</ul>' +
+      '</nav>'
+    );
+  }
+
+  function ensureFollowStrip() {
+    var roots = document.querySelectorAll('.rt-site-footer, [data-rt-family-footer], footer');
+    for (var i = 0; i < roots.length; i++) {
+      var root = roots[i];
+      if (!root || root.querySelector('[data-rt-follow]')) continue;
+      var inner = root.querySelector('.max-w-5xl') || root;
+      inner.insertAdjacentHTML('afterbegin', followNavHtml());
+    }
+  }
+
   function siteFooter() {
     var wrap = document.createElement('footer');
     wrap.className = 'rt-site-footer';
@@ -175,6 +200,7 @@
     wrap.setAttribute('aria-label', 'Ra-Thor site footer');
     wrap.innerHTML =
       '<div class="max-w-5xl mx-auto px-4 sm:px-6">' +
+        followNavHtml() +
         '<div class="grid grid-cols-1 md:grid-cols-12 gap-8">' +
           '<div class="md:col-span-3">' +
             '<h4>Trademarks</h4>' +
@@ -273,6 +299,7 @@
     if (!document.querySelector('.rt-site-footer') && !document.querySelector('[data-rt-family-footer]')) {
       document.body.appendChild(siteFooter());
     }
+    ensureFollowStrip();
     try { window.dispatchEvent(new Event('rathor-nav-ready')); } catch (e) {}
   }
 
