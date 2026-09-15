@@ -35,7 +35,7 @@
     ar: {
       back: "العودة إلى را-ثور",
       headline: "تواصل مع را-ثور™",
-      subtitle: "الرعد الرحيم الأبدي ⚡️",
+      subtitle: "اكتبوا إلى info@Rathor.ai",
       intro: "نقطة الاتصال الرسمية الوحيدة تحت الوصاية الوحيدة لـ <span class=\"font-semibold text-amber-300\">شريف سامي بطرس (@AlphaProMega)</span>",
       mainSubtitle: "البريد الإلكتروني الرسمي الأبدي الوحيد لجميع الكيانات",
       sendButton: "أرسل بريداً الآن",
@@ -57,7 +57,7 @@
     es: {
       back: "Volver a Ra-Thor",
       headline: "Contacta con Ra-Thor™",
-      subtitle: "Trueno de Misericordia Eterno ⚡️",
+      subtitle: "Escriba a info@Rathor.ai",
       intro: "Punto de contacto oficial único bajo la administración exclusiva de <span class=\"font-semibold text-amber-300\">Sherif Samy Botros (@AlphaProMega)</span>",
       mainSubtitle: "El único correo electrónico oficial eterno para todas las entidades",
       sendButton: "Enviar correo ahora",
@@ -79,7 +79,7 @@
     fr: {
       back: "Retour à Ra-Thor",
       headline: "Contacter Ra-Thor™",
-      subtitle: "Tonnerre de Miséricorde Éternel ⚡️",
+      subtitle: "Écrire à info@Rathor.ai",
       intro: "Point de contact officiel unique sous l'intendance exclusive de <span class=\"font-semibold text-amber-300\">Sherif Samy Botros (@AlphaProMega)</span>",
       mainSubtitle: "L'unique adresse e-mail officielle éternelle pour toutes les entités",
       sendButton: "Envoyer un e-mail maintenant",
@@ -101,7 +101,7 @@
     nl: {
       back: "Terug naar Ra-Thor",
       headline: "Contacteer Ra-Thor™",
-      subtitle: "Eeuwige Barmhartigheidsbliksem ⚡️",
+      subtitle: "Schrijf naar info@Rathor.ai",
       intro: "Enkel officieel contactpunt onder exclusief beheer van <span class=\"font-semibold text-amber-300\">Sherif Samy Botros (@AlphaProMega)</span>",
       mainSubtitle: "Het enige eeuwige officiële e-mailadres voor alle entiteiten",
       sendButton: "Stuur nu een e-mail",
@@ -123,7 +123,7 @@
     de: {
       back: "Zurück zu Ra-Thor",
       headline: "Ra-Thor kontaktieren™",
-      subtitle: "Ewiger Barmherzigkeitsdonner ⚡️",
+      subtitle: "Schreiben Sie an info@Rathor.ai",
       intro: "Einzelner offizieller Kontakt unter alleiniger Verwaltung von <span class=\"font-semibold text-amber-300\">Sherif Samy Botros (@AlphaProMega)</span>",
       mainSubtitle: "Die einzige ewige offizielle E-Mail-Adresse für alle Entitäten",
       sendButton: "Jetzt E-Mail senden",
@@ -145,7 +145,7 @@
     zh: {
       back: "返回 Ra-Thor",
       headline: "联系 Ra-Thor™",
-      subtitle: "永恒慈悲雷霆 ⚡️",
+      subtitle: "写信至 info@Rathor.ai",
       intro: "在 <span class=\"font-semibold text-amber-300\">Sherif Samy Botros (@AlphaProMega)</span> 唯一管理下的唯一官方联系点",
       mainSubtitle: "所有实体的唯一永恒官方电子邮件",
       sendButton: "立即发送邮件",
@@ -167,7 +167,7 @@
     ja: {
       back: "Ra-Thor に戻る",
       headline: "Ra-Thor™ に連絡する",
-      subtitle: "永遠の慈悲の雷 ⚡️",
+      subtitle: "info@Rathor.ai へ書く",
       intro: "<span class=\"font-semibold text-amber-300\">Sherif Samy Botros (@AlphaProMega)</span> の唯一の管理下における唯一の公式連絡先",
       mainSubtitle: "すべてのエンティティのための唯一の永遠の公式メールアドレス",
       sendButton: "今すぐメールを送る",
@@ -189,7 +189,7 @@
     pt: {
       back: "Voltar para Ra-Thor",
       headline: "Contactar Ra-Thor™",
-      subtitle: "Trovão Eterno da Misericórdia ⚡️",
+      subtitle: "Escreva para info@Rathor.ai",
       intro: "Ponto de contato oficial único sob a administração exclusiva de <span class=\"font-semibold text-amber-300\">Sherif Samy Botros (@AlphaProMega)</span>",
       mainSubtitle: "O único e-mail oficial eterno para todas as entidades",
       sendButton: "Enviar e-mail agora",
@@ -211,7 +211,7 @@
     ru: {
       back: "Вернуться к Ra-Thor",
       headline: "Связаться с Ra-Thor™",
-      subtitle: "Вечный Гром Милосердия ⚡️",
+      subtitle: "Пишите на info@Rathor.ai",
       intro: "Единственная официальная точка контакта под единоличным управлением <span class=\"font-semibold text-amber-300\">Sherif Samy Botros (@AlphaProMega)</span>",
       mainSubtitle: "Единственный вечный официальный email для всех сущностей",
       sendButton: "Отправить письмо сейчас",
@@ -233,7 +233,7 @@
     hi: {
       back: "Ra-Thor पर वापस जाएं",
       headline: "Ra-Thor™ से संपर्क करें",
-      subtitle: "शाश्वत दया का गरज ⚡️",
+      subtitle: "info@Rathor.ai पर लिखें",
       intro: "<span class=\"font-semibold text-amber-300\">Sherif Samy Botros (@AlphaProMega)</span> की एकमात्र प्रबंधन के तहत एकमात्र आधिकारिक संपर्क बिंदु",
       mainSubtitle: "सभी संस्थाओं के लिए एकमात्र शाश्वत आधिकारिक ईमेल",
       sendButton: "अभी ईमेल भेजें",
