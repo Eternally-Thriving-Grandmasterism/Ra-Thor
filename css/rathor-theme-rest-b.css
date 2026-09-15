@@ -292,6 +292,35 @@ html[data-theme="light"] .rt-site-footer { color: var(--rt-muted) !important; }
   font-family: Inter, system-ui, sans-serif;
   text-shadow: none;
 }
+.rt-week-page h2 {
+  font-size: 1.05rem;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  margin: 0 0 0.65rem;
+  color: var(--rt-gold);
+  font-family: Inter, system-ui, sans-serif;
+}
+.rt-week-page .rt-card {
+  padding: 1rem 1.1rem;
+  margin: 0 0 0.85rem;
+  border-radius: 1rem;
+}
+.rt-week-page .rt-card p,
+.rt-week-page .rt-card li {
+  margin: 0 0 0.65rem;
+  font-size: 0.92rem;
+  color: var(--rt-ink);
+}
+.rt-week-page .rt-card p:last-child,
+.rt-week-page .rt-card li:last-child { margin-bottom: 0; }
+.rt-week-page .rt-card ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.45rem;
+}
+.rt-week-page .rt-cta-row { margin: 0.85rem 0 0; }
 .rt-week-window {
   margin: 0 0 1.35rem;
   color: var(--rt-muted);

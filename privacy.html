@@ -1,135 +1,132 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
+<html lang="en" dir="ltr" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
   <title>Privacy — Ra-Thor</title>
-  <meta name="description" content="Ra-Thor privacy policy — zero personal data collection • offline-first • Lattice Chat local store • TOLC 8 • privacy-minimised design (not a conformity certificate)">
+  <meta name="description" content="Ra-Thor privacy policy — no personal data collection • Lattice Chat local store • third-party X/Grok policy • TOLC 8 • privacy-minimised design (not a conformity certificate)">
   <meta name="theme-color" content="#050505">
   <meta name="color-scheme" content="dark light">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://rathor.ai/privacy.html">
-  <meta property="og:title" content="Privacy — Ra-Thor™">
-  <meta property="og:description" content="Zero personal data collection • Lattice Chat stays on-device • TOLC 8 Mercy Gates • not a conformity certificate">
+  <meta property="og:title" content="Privacy — Ra-Thor">
+  <meta property="og:description" content="No personal data collection • Lattice Chat stays on-device • TOLC 8 Mercy Gates • not a conformity certificate">
   <meta property="og:image" content="https://rathor.ai/icons/ra-thor-og-1200x630.png">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:image" content="https://rathor.ai/icons/ra-thor-og-1200x630.png">
+  <link rel="canonical" href="https://rathor.ai/privacy.html">
   <link rel="manifest" href="/manifest.json">
   <link rel="icon" href="/icons/ra-thor-icon-192.png" type="image/png">
   <link rel="apple-touch-icon" href="/icons/ra-thor-icon-192.png">
   <link rel="stylesheet" href="/css/rathor-theme.css">
   <script>
     (function () {
-      try { document.documentElement.setAttribute('data-theme', localStorage.getItem('rathor-theme') || 'dark');
-      } catch (e) { document.documentElement.setAttribute('data-theme', 'dark'); }
+      try { document.documentElement.setAttribute('data-theme', localStorage.getItem('rathor-theme') || 'dark'); }
+      catch (e) { document.documentElement.setAttribute('data-theme', 'dark'); }
     })();
   </script>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Inter:wght@400;600&display=swap');
-    body { font-family: 'Inter', system-ui, sans-serif; }
-    .title-font { font-family: 'Cinzel Decorative', cursive; }
-    .thunder-glow { text-shadow: 0 0 40px #ffd700, 0 0 80px #ffaa00; }
-    .golden-star { position: absolute; color: #ffd700; opacity: 0.6; pointer-events: none; animation: float 60s infinite linear, pulse 12s infinite ease-in-out; z-index: 1; font-size: 42px; }
-    @keyframes float { 0%{transform:translateY(0) rotate(0deg);} 100%{transform:translateY(-120vh) rotate(360deg);} }
-    @keyframes pulse { 0%,100%{transform:scale(1);} 50%{transform:scale(1.15);} }
-    .card-hover { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
-    .card-hover:hover { transform: translateY(-4px); box-shadow: 0 20px 40px -12px rgb(234 179 8 / 0.25); }
-    @media (prefers-reduced-motion: reduce) {
-      .golden-star, .card-hover { animation: none !important; transition: none !important; }
-    }
-  </style>
 </head>
-<body class="bg-black text-white overflow-x-hidden">
-  <div class="min-h-screen flex flex-col relative">
-    <div class="max-w-3xl mx-auto px-4 sm:px-6 py-12 sm:py-16 z-10 w-full">
-      <a href="/" class="inline-flex items-center gap-2 text-amber-400 hover:text-amber-300 transition-colors mb-8 text-sm">
-        <i class="fa-solid fa-arrow-left"></i>
-        <span>Back to Ra-Thor</span>
-      </a>
-      <div class="text-center mb-12">
-        <h1 class="title-font text-5xl sm:text-6xl font-black tracking-tighter thunder-glow mb-3">Privacy</h1>
-        <p class="text-lg sm:text-xl text-amber-300">Nothing we control leaves this device.</p>
-        <p class="text-sm text-white/50 mt-4">Last Updated: August 31, 2026 · Aligned with <a href="https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/docs/Legal/privacy.md" class="text-amber-400/80 hover:text-amber-300 underline" target="_blank" rel="noopener">docs/Legal/privacy.md</a></p>
+<body>
+  <main class="rt-week-page" id="rt-family-main" data-week-start="2026-09-08" data-week-end="2026-09-15">
+    <p><a class="rt-week-back" href="/">← Home</a></p>
+    <p class="rt-page-week"><a href="/constellation-week.html" data-i18n="weekMore">Full week note →</a></p>
+    <h1>Privacy</h1>
+    <p class="rt-week-window">Nothing we control leaves this device.</p>
+    <p class="rt-week-note">Last Updated: 2026-09-15 · Aligned with <a href="https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/docs/Legal/privacy.md" target="_blank" rel="noopener">docs/Legal/privacy.md</a></p>
+
+    <section class="rt-card">
+      <h2>Overview</h2>
+      <p>Ra-Thor (rathor.ai) is designed with a fundamental commitment to user sovereignty and privacy. This website and all associated sovereign shards operate under strict principles of minimal data collection and maximum user control.</p>
+      <p>Autonomicity Games Inc. respects your privacy and operates under the <strong>TOLC 8 Mercy Gates</strong>.</p>
+    </section>
+
+    <section class="rt-card">
+      <h2>Data Collection</h2>
+      <p>This website collects no personal data whatsoever.</p>
+      <ul>
+        <li>No cookies are used.</li>
+        <li>No tracking technologies or analytics are employed.</li>
+        <li>No personal information is requested, stored, or transmitted.</li>
+        <li>All computations and simulations run locally in your browser.</li>
+        <li>Lattice Chat stores sessions in IndexedDB / localStorage on this device only. Optional passphrase encryption uses Web Crypto (PBKDF2 + AES-GCM) in the browser. Nothing is uploaded to a Ra-Thor backend — we do not operate one.</li>
+        <li>Optional WebLLM and “Local Server” bridges stay on your machine. Connecting a local endpoint (Ollama / LM Studio) is your choice and does not send history to rathor.ai.</li>
+      </ul>
+    </section>
+
+    <section class="rt-card">
+      <h2>How Ra-Thor Works</h2>
+      <p>Ra-Thor is a mercy-gated symbolic lattice. When you use the connected demos (Grok or X integrations), those interactions are governed by the respective platforms’ (xAI / X Corp) privacy policies.</p>
+      <p>When you use <strong>Sovereign Shard v8</strong> or <a href="/chat.html">Lattice Chat</a> (workspace 14.15.6), <strong>the session store stays on your device</strong>. Optional encryption never leaves the browser. Bridging to Grok / X / another cloud model is explicit and then follows that provider’s policy.</p>
+    </section>
+
+    <section class="rt-card">
+      <h2>Your Rights</h2>
+      <p>Since no personal data is collected by this website, there is no personal data to access, correct, or delete on our servers. You retain full sovereignty over any local data:</p>
+      <ul>
+        <li><strong>Right of access</strong> — Inspect local chat/session data via Developer Tools → Application → IndexedDB / localStorage.</li>
+        <li><strong>Right to erasure</strong> — Clear site data or delete IndexedDB at any time. Nothing is retained off-device.</li>
+        <li><strong>Right to rectification</strong> — Edit or overwrite local session data in the chat interface or storage.</li>
+        <li><strong>Right to data portability</strong> — Export sessions as JSON from the chat UI where available.</li>
+        <li><strong>Right to object</strong> — Simply do not use optional chat features; the rest of the site requires zero data.</li>
+      </ul>
+    </section>
+
+    <section class="rt-card">
+      <h2>Compliance</h2>
+      <p>Ra-Thor is designed with privacy minimisation in mind. Names below are <strong>design-intent references</strong>, not ISO/IEC 42001 certification or EU AI Act conformity:</p>
+      <ul>
+        <li><strong>GDPR</strong></li>
+        <li><strong>CCPA</strong></li>
+        <li><strong>COPPA</strong></li>
+        <li><strong>EU AI Act</strong></li>
+        <li><strong>Canadian IPC-OHRC Principles</strong> / PIPEDA-aligned minimisation</li>
+      </ul>
+      <p>Because this website collects no personal data, many controller obligations are reduced in practice. That is not a certificate. Workspace identity is 14.15.6. See PUBLIC_CLAIM.lock.md.</p>
+    </section>
+
+    <section class="rt-card">
+      <h2>Third-Party Services</h2>
+      <p>This page loads first-party CSS and JS from rathor.ai only (theme, family navigation, PWA install, week window). There is no Tailwind, Font Awesome, or Google Fonts CDN here. Click-only Google Translate is optional: it does not load until you ask, and then it uses Google on the network. Offline language packs on this site stay the default. We do not run analytics or tracking cookies.</p>
+      <p>Connected demos on grok.com or x.com are subject to the privacy policies of xAI and X Corp respectively. Email to info@Rathor.ai is optional and consent-based; correspondence is never sold or shared.</p>
+    </section>
+
+    <section class="rt-card">
+      <h2>Contact</h2>
+      <p>For any privacy-related questions</p>
+      <div class="rt-cta-row">
+        <a href="mailto:info@Rathor.ai" class="rt-btn-primary">info@Rathor.ai</a>
+        <a href="https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/issues" class="rt-btn-ghost" target="_blank" rel="noopener">GitHub Issues</a>
       </div>
-      <div class="card-hover bg-zinc-950 border border-amber-300/30 rounded-3xl p-8 sm:p-10 mb-8">
-        <h2 class="text-xl font-semibold text-amber-300 mb-4 flex items-center gap-2"><i class="fa-solid fa-shield-halved"></i> Overview</h2>
-        <p class="text-white/80 leading-relaxed mb-4">Ra-Thor (rathor.ai) is designed with a fundamental commitment to user sovereignty and privacy. This website and all associated sovereign shards operate under strict principles of minimal data collection and maximum user control.</p>
-        <p class="text-white/80 leading-relaxed">Autonomicity Games Inc. respects your privacy and operates under the <strong class="text-amber-300">TOLC 8 Mercy Gates</strong>.</p>
-      </div>
-      <div class="card-hover bg-zinc-950 border border-amber-300/20 rounded-3xl p-8 sm:p-10 mb-8">
-        <h2 class="text-xl font-semibold text-amber-300 mb-4 flex items-center gap-2"><i class="fa-solid fa-database"></i> Data Collection</h2>
-        <p class="text-lg text-amber-200 font-medium mb-4">This website collects no personal data whatsoever.</p>
-        <ul class="space-y-2 text-white/80 text-sm sm:text-base">
-          <li class="flex gap-2"><span class="text-amber-400 shrink-0">•</span> No cookies are used.</li>
-          <li class="flex gap-2"><span class="text-amber-400 shrink-0">•</span> No tracking technologies or analytics are employed.</li>
-          <li class="flex gap-2"><span class="text-amber-400 shrink-0">•</span> No personal information is requested, stored, or transmitted.</li>
-          <li class="flex gap-2"><span class="text-amber-400 shrink-0">•</span> All computations and simulations run locally in your browser.</li>
-          <li class="flex gap-2"><span class="text-amber-400 shrink-0">•</span> Lattice Chat stores sessions in IndexedDB / localStorage on this device only. Optional passphrase encryption uses Web Crypto (PBKDF2 + AES-GCM) in the browser. Nothing is uploaded to a Ra-Thor backend — we do not operate one.</li>
-          <li class="flex gap-2"><span class="text-amber-400 shrink-0">•</span> Optional WebLLM and “Local Server” bridges stay on your machine. Connecting a local endpoint (Ollama / LM Studio) is your choice and does not send history to rathor.ai.</li>
+    </section>
+
+    <p class="rt-week-note">We may update this Privacy Policy from time to time. Changes will be posted on this page with an updated “Last Updated” date.</p>
+    <p class="rt-week-foot">
+      <a href="/">Home</a>
+      · <a href="/chat.html">Lattice Chat</a>
+      · <a href="/employ.html">Employ</a>
+      · <a href="/Launch-Ra-Thor.html">Launch</a>
+      · <a href="/contact.html">Contact</a>
+    </p>
+  </main>
+  <footer class="rt-site-footer" data-rt-family-footer>
+    <div class="max-w-5xl mx-auto px-4 sm:px-6">
+      <nav class="rt-follow" aria-label="Follow" data-rt-follow="1">
+        <p class="rt-follow-label" data-i18n="followTitle">Follow</p>
+        <ul class="rt-follow-list">
+          <li><a href="https://x.com/AlphaProMega" rel="me noopener" target="_blank" data-i18n="followX">X / Twitter</a></li>
+          <li><a href="https://www.linkedin.com/in/sherif-botros" rel="me noopener" target="_blank" data-i18n="followLinkedIn">LinkedIn</a></li>
+          <!-- official follow named by the steward: https://www.facebook.com/share/1b7Z76vUpL/ -->
+          <li><a href="https://www.facebook.com/people/Ra-Thor-AI/61594361430419/" rel="me noopener" target="_blank" data-i18n="followFacebook">Facebook</a></li>
         </ul>
-      </div>
-      <div class="card-hover bg-zinc-950 border border-amber-300/20 rounded-3xl p-8 sm:p-10 mb-8">
-        <h2 class="text-xl font-semibold text-amber-300 mb-4 flex items-center gap-2"><i class="fa-solid fa-bolt"></i> How Ra-Thor Works</h2>
-        <p class="text-white/80 leading-relaxed mb-4">Ra-Thor is a mercy-gated symbolic lattice. When you use the connected demos (Grok or X integrations), those interactions are governed by the respective platforms’ (xAI / X Corp) privacy policies.</p>
-        <p class="text-white/80 leading-relaxed">When you use <strong class="text-amber-300">Sovereign Shard v8</strong> or <a href="/chat.html" class="text-amber-300 underline">Lattice Chat</a> (workspace 14.15.6), <strong class="text-amber-300">the session store stays on your device</strong>. Optional encryption never leaves the browser. Bridging to Grok / X / another cloud model is explicit and then follows that provider’s policy.</p>
-      </div>
-      <div class="card-hover rt-card-uniform rounded-3xl p-8 sm:p-10 mb-8">
-        <h2 class="text-xl font-semibold text-amber-300 mb-4 flex items-center gap-2"><i class="fa-solid fa-user-shield"></i> Your Rights</h2>
-        <p class="text-white/80 leading-relaxed mb-4">Since no personal data is collected by this website, there is no personal data to access, correct, or delete on our servers. You retain full sovereignty over any local data:</p>
-        <ul class="space-y-3 text-white/80 text-sm sm:text-base">
-          <li><strong class="text-amber-300">Right of access</strong> — Inspect local chat/session data via Developer Tools → Application → IndexedDB / localStorage.</li>
-          <li><strong class="text-amber-300">Right to erasure</strong> — Clear site data or delete IndexedDB at any time. Nothing is retained off-device.</li>
-          <li><strong class="text-amber-300">Right to rectification</strong> — Edit or overwrite local session data in the chat interface or storage.</li>
-          <li><strong class="text-amber-300">Right to data portability</strong> — Export sessions as JSON from the chat UI where available.</li>
-          <li><strong class="text-amber-300">Right to object</strong> — Simply do not use optional chat features; the rest of the site requires zero data.</li>
-        </ul>
-      </div>
-      <div class="card-hover bg-zinc-950 border border-amber-300/20 rounded-3xl p-8 sm:p-10 mb-8">
-        <h2 class="text-xl font-semibold text-amber-300 mb-4 flex items-center gap-2"><i class="fa-solid fa-scale-balanced"></i> Compliance</h2>
-        <p class="text-white/80 leading-relaxed mb-4">Ra-Thor is designed with privacy minimisation in mind. Names below are <strong class="text-amber-300">design-intent references</strong>, not ISO/IEC 42001 certification or EU AI Act conformity:</p>
-        <ul class="space-y-2 text-white/80 text-sm sm:text-base mb-4">
-          <li class="flex gap-2"><span class="text-amber-400">•</span> <strong>GDPR</strong></li>
-          <li class="flex gap-2"><span class="text-amber-400">•</span> <strong>CCPA</strong></li>
-          <li class="flex gap-2"><span class="text-amber-400">•</span> <strong>COPPA</strong></li>
-          <li class="flex gap-2"><span class="text-amber-400">•</span> <strong>EU AI Act</strong></li>
-          <li class="flex gap-2"><span class="text-amber-400">•</span> <strong>Canadian IPC-OHRC Principles</strong> / PIPEDA-aligned minimisation</li>
-        </ul>
-        <p class="text-white/60 text-sm">Because this website collects no personal data, many controller obligations are reduced in practice. That is not a certificate. Workspace identity is 14.15.6. See PUBLIC_CLAIM.lock.md.</p>
-      </div>
-      <div class="card-hover bg-zinc-950 border border-amber-300/20 rounded-3xl p-8 sm:p-10 mb-8">
-        <h2 class="text-xl font-semibold text-amber-300 mb-4 flex items-center gap-2"><i class="fa-solid fa-cloud"></i> Third-Party Services</h2>
-        <p class="text-white/80 leading-relaxed mb-3">The landing page uses CDN resources (Tailwind CSS, Font Awesome) for presentation only. These do not track users in the context of Ra-Thor usage.</p>
-        <p class="text-white/80 leading-relaxed">Connected demos on grok.com or x.com are subject to the privacy policies of xAI and X Corp respectively. Email to info@Rathor.ai is optional and consent-based; correspondence is never sold or shared.</p>
-      </div>
-      <div class="card-hover bg-zinc-950 border border-amber-300/30 rounded-3xl p-8 sm:p-10 mb-10 text-center">
-        <h2 class="text-xl font-semibold text-amber-300 mb-3">Contact</h2>
-        <p class="text-white/70 text-sm mb-6">For any privacy-related questions</p>
-        <div class="flex flex-col sm:flex-row gap-3 justify-center">
-          <a href="mailto:info@Rathor.ai" class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-amber-400 hover:bg-amber-300 text-black font-semibold rounded-2xl transition-all"><i class="fa-solid fa-envelope"></i> info@Rathor.ai</a>
-          <a href="https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/issues" target="_blank" rel="noopener" class="rt-btn-ghost inline-flex items-center justify-center gap-2 px-6 py-3 rounded-2xl transition-all"><i class="fa-brands fa-github"></i> GitHub Issues</a>
-        </div>
-      </div>
-      <p class="text-center text-xs text-white/40 mb-8">We may update this Privacy Policy from time to time. Changes will be posted on this page with an updated “Last Updated” date.</p>
-      <div class="flex flex-wrap justify-center gap-4 text-sm mb-12">
-        <a href="/" class="inline-flex items-center gap-2 text-amber-400 hover:text-amber-300"><i class="fa-solid fa-home"></i> Home</a>
-        <a href="/chat.html" class="inline-flex items-center gap-2 text-amber-300 hover:text-amber-200"><i class="fa-solid fa-comments"></i> Lattice Chat</a>
-        <a href="/Launch-Ra-Thor.html" class="inline-flex items-center gap-2 text-amber-300 hover:text-amber-200"><i class="fa-solid fa-rocket"></i> Launch</a>
-        <a href="/sovereign-shard.html" class="inline-flex items-center gap-2 text-amber-200 hover:text-amber-100"><i class="fa-solid fa-gem"></i> Shard v8</a>
-        <a href="/web-forge.html" class="inline-flex items-center gap-2 text-amber-300 hover:text-amber-200"><i class="fa-solid fa-hammer"></i> Web-Forge</a>
-        <a href="/contact.html" class="inline-flex items-center gap-2 text-amber-300 hover:text-amber-200"><i class="fa-solid fa-envelope"></i> Contact</a>
-        <a href="/employ.html" class="inline-flex items-center gap-2 text-amber-300 hover:text-amber-200"><i class="fa-solid fa-door-open"></i> Employ</a>
-      </div>
+      </nav>
+      <p class="rt-legal">v14.15.6 · AG-SML v1.1 · Capable · Bounded · Corrigible · info@Rathor.ai</p>
     </div>
-    <footer class="border-t border-amber-300/30 py-10 text-center text-xs text-amber-400/80 mt-auto">
-      <p class="mb-2">Ra-Thor™ is a trademark of Autonomicity Games Inc. · Grok is a trademark of xAI · X is a trademark of X Corp.</p>
-      <p class="mb-2">Ra-Thor is independent — not affiliated with, sponsored by, or endorsed by xAI.</p>
-      <p class="text-white/40">© 2026 Sherif Samy Botros — Sole Steward · AG-SML v1.1 · TOLC 8 Mercy-Gated · info@Rathor.ai</p>
-    </footer>
-  </div>
+  </footer>
+  <script src="/i18n/en.js?v=20260915b"></script>
+  <script src="/js/week-window.js"></script>
   <script src="/js/rathor-theme.js"></script>
-  <script src="/js/pwa-install.js" defer></script>
-  <script src="/js/family-nav-2026-08-22.js" defer></script>
+  <script src="/js/pwa-install.js"></script>
+  <script src="/js/family-nav-2026-08-22.js"></script>
+  <script src="/js/site-lock-2026-08-22.js"></script>
 </body>
 </html>
