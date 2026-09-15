@@ -194,15 +194,75 @@ impl IngestionScanner {
 
     fn match_signals(lower: &str, table: &[(&str, f32)], threat: IngestionThreat, findings: &mut Vec<ScanFinding>) {
         for (sig, conf) in table {
-            if lower.contains(sig) {
+            if let Some(offset) = Self::find_signal(lower, sig) {
                 findings.push(ScanFinding {
                     threat: threat.clone(),
                     signal: (*sig).into(),
                     confidence: *conf,
-                    offset: lower.find(sig),
+                    offset: Some(offset),
                 });
             }
         }
+    }
+
+    /// Identifier / path signals may have Unicode whitespace inserted in a paste.
+    /// Single-token words (`subprocess`, `eval(`) do **not** skip spaces (no glue).
+    fn signal_allows_interior_ws(sig: &str) -> bool {
+        sig.contains('_') || sig.contains('.') || sig.contains('/') || sig.contains('=')
+    }
+
+    /// Match `needle` in `haystack`, allowing ≤8 consecutive whitespace chars between needle chars.
+    fn find_skipping_ws(haystack: &str, needle: &str) -> Option<usize> {
+        const MAX_INTERIOR_WS: usize = 8;
+        if needle.is_empty() {
+            return Some(0);
+        }
+        let nchars: Vec<char> = needle.chars().collect();
+        let hchars: Vec<(usize, char)> = haystack.char_indices().collect();
+        let mut i = 0;
+        while i < hchars.len() {
+            let start = hchars[i].0;
+            let mut hi = i;
+            let mut ni = 0;
+            while ni < nchars.len() && hi < hchars.len() {
+                let hc = hchars[hi].1;
+                if ni > 0 && hc.is_whitespace() {
+                    let mut skipped = 0;
+                    while hi < hchars.len() && hchars[hi].1.is_whitespace() {
+                        skipped += 1;
+                        if skipped > MAX_INTERIOR_WS {
+                            break;
+                        }
+                        hi += 1;
+                    }
+                    if skipped > MAX_INTERIOR_WS {
+                        break;
+                    }
+                    continue;
+                }
+                if hc == nchars[ni] {
+                    hi += 1;
+                    ni += 1;
+                } else {
+                    break;
+                }
+            }
+            if ni == nchars.len() {
+                return Some(start);
+            }
+            i += 1;
+        }
+        None
+    }
+
+    fn find_signal(lower: &str, sig: &str) -> Option<usize> {
+        if let Some(off) = lower.find(sig) {
+            return Some(off);
+        }
+        if Self::signal_allows_interior_ws(sig) {
+            return Self::find_skipping_ws(lower, sig);
+        }
+        None
     }
 
     fn collect_keyword_findings(lower: &str) -> Vec<ScanFinding> {
@@ -1015,8 +1075,26 @@ mod tests {
     }
 
     #[test]
-    fn real_space_split_is_not_glued() {
-        // Spaces are Zs, not Cf. Do not merge "trust_ remote_code" into the tripwire.
-        assert!(IngestionScanner::admit_or_block("trust_ remote_code").is_ok());
+    fn whitespace_split_trust_remote_code_blocks() {
+        assert!(IngestionScanner::admit_or_block("trust_ remote_code").is_err());
+        assert!(IngestionScanner::admit_or_block("trust_\tremote_code").is_err());
+        assert!(IngestionScanner::admit_or_block("trust_\nremote_code").is_err());
+        assert!(IngestionScanner::admit_or_block("trust_\u{00a0}remote_code").is_err());
+        assert!(IngestionScanner::admit_or_block("pickle. loads").is_err());
+    }
+
+    #[test]
+    fn subprocess_space_split_still_admits() {
+        // Single-token signals do not skip spaces: "sub process" ≠ subprocess.
+        let r = IngestionScanner::admit_or_block("Classroom notes on a sub process in the lab.");
+        assert!(r.is_ok(), "must not glue subprocess: {r:?}");
+    }
+
+    #[test]
+    fn academic_eval_metrics_paren_still_admits() {
+        let r = IngestionScanner::admit_or_block(
+            "The academic eval (metrics) discussion stays offline. No remote loaders.",
+        );
+        assert!(r.is_ok(), "must not glue eval(: {r:?}");
     }
 }
