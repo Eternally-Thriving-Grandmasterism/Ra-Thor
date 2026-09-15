@@ -1,10 +1,10 @@
 # Rathor.ai homepage locale packs
 
-**Cache token:** `20260907b`  
-**Source of truth:** `i18n/en.js` (145 living keys)  
+**Cache token:** `20260915a`  
+**Source of truth:** `i18n/en.js` (living keys + Follow + claim lock)  
 **Contact:** info@Rathor.ai
 
-Buttons on `index.html` load `/i18n/{lang}.js?v=20260907b`. Missing keys fall back to English in the page script. RTL: `ar`, `fa`, `he`.
+Buttons on `index.html` load `/i18n/{lang}.js?v=20260915a`. Missing keys fall back to English in the page script. RTL: `ar`, `fa`, `he`. Claim sentences that moved in W3 live in English only — other packs omit them so they cannot go blank or invent METR.
 
 | Code | Language | Notes |
 | --- | --- | --- |
