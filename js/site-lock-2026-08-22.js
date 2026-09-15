@@ -65,6 +65,22 @@
       document.head.appendChild(s);
     });
   }
+  function bindLangSelector() {
+    var sel = document.getElementById('lang-selector');
+    if (!sel || sel.getAttribute('data-rt-bound') === '1') return;
+    sel.setAttribute('data-rt-bound', '1');
+    sel.addEventListener('click', function (e) {
+      var btn = e.target.closest('[data-lang]');
+      if (!btn) return;
+      var lang = btn.getAttribute('data-lang');
+      if (typeof window.switchLanguage === 'function') {
+        window.switchLanguage(lang);
+      } else if (typeof window.switchContactLang === 'function') {
+        window.switchContactLang(lang);
+      }
+      try { localStorage.setItem('rathor-lang', lang); } catch (err) {}
+    });
+  }
   function hookLanguageSwitch() {
     if (window.__rathorLockHooked) return;
     window.__rathorLockHooked = true;
@@ -97,6 +113,7 @@
     if (fusion) fusion.setAttribute('data-i18n', 'fusion');
     wireSessionCards();
     expandLangButtons();
+    bindLangSelector();
     if (!document.getElementById('living-surfaces')) {
       var cta = document.getElementById('rathor-v14-cta');
       if (cta) {
@@ -115,6 +132,7 @@
     hookLanguageSwitch();
     window.addEventListener('load', function () {
       expandLangButtons();
+      bindLangSelector();
       hookLanguageSwitch();
       wireSessionCards();
       try { applyLockI18n(localStorage.getItem('rathor-lang') || 'en'); } catch (e) { applyLockI18n('en'); }

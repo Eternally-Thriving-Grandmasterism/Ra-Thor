@@ -272,7 +272,7 @@
       document.querySelectorAll('.lang-tab').forEach(b => b.classList.remove('active'));
       const activeBtn = document.querySelector('.lang-tab[data-lang="' + lang + '"]');
       if (activeBtn) activeBtn.classList.add('active');
-      const rtl = (lang === 'ar');
+      const rtl = (lang === 'ar' || lang === 'fa' || lang === 'he');
       document.documentElement.setAttribute('lang', lang || 'en');
       document.documentElement.setAttribute('dir', rtl ? 'rtl' : 'ltr');
       const faqSection = document.getElementById('faq');
