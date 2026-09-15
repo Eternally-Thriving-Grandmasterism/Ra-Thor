@@ -1,0 +1,118 @@
+/* Home shell — after Tailwind CDN removal. Same tokens as Employ. */
+#lang-selector {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.4rem;
+  margin: 0 auto 1.75rem;
+  max-width: 42rem;
+}
+#lang-selector button,
+.lang-tab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 0.42rem 0.95rem;
+  border-radius: 999px;
+  border: 1px solid var(--rt-line);
+  background: transparent;
+  color: var(--rt-gold);
+  font: 600 0.82rem/1.2 Inter, system-ui, sans-serif;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+#lang-selector button:hover,
+.lang-tab:hover {
+  border-color: var(--rt-gold-hot);
+  background: var(--rt-wash);
+}
+#lang-selector button.active,
+.lang-tab.active {
+  background: var(--rt-gold-hot) !important;
+  color: var(--rt-on-gold) !important;
+  border-color: var(--rt-gold-hot) !important;
+}
+
+#product-paths {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.7rem;
+  max-width: 56rem;
+  margin: 0 auto 2.25rem;
+  text-align: start;
+}
+@media (min-width: 640px) {
+  #product-paths { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (min-width: 960px) {
+  #product-paths { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+#product-paths a,
+#product-paths a:link,
+#product-paths a:visited {
+  display: block;
+  text-decoration: none !important;
+  color: inherit !important;
+  border-radius: 1.15rem;
+  border: 1px solid var(--rt-line);
+  background: var(--rt-bg-elev);
+  padding: 0.95rem 1.05rem;
+  box-shadow: var(--rt-shadow);
+  min-height: 5.25rem;
+}
+#product-paths a:hover,
+#product-paths a:focus-visible {
+  border-color: var(--rt-gold-hot);
+  background: var(--rt-wash);
+  outline: none;
+}
+#product-paths a p {
+  margin: 0;
+  text-decoration: none !important;
+}
+#product-paths a p:first-child {
+  color: var(--rt-gold) !important;
+  font-size: 0.92rem;
+  font-weight: 650;
+}
+#product-paths a p:last-child {
+  margin-top: 0.35rem;
+  color: var(--rt-muted) !important;
+  font-size: 0.72rem;
+  line-height: 1.4;
+  font-weight: 500;
+}
+
+a.rt-card-uniform,
+a.rt-card-uniform:link,
+a.rt-card-uniform:visited,
+a.card-hover,
+a.card-hover:link,
+a.card-hover:visited {
+  color: inherit !important;
+  text-decoration: none !important;
+}
+a.rt-card-uniform h3,
+a.rt-card-uniform p {
+  text-decoration: none !important;
+  color: inherit;
+}
+a.rt-card-uniform p {
+  color: var(--rt-gold) !important;
+}
+a.rt-card-uniform h3 {
+  color: var(--rt-ink) !important;
+}
+
+html[data-theme="light"] #product-paths a {
+  background: var(--rt-bg-card);
+}
+html[data-theme="light"] #product-paths a p:first-child {
+  color: var(--rt-gold-deep) !important;
+}
+html[data-theme="light"] #lang-selector button,
+html[data-theme="light"] .lang-tab {
+  color: var(--rt-gold-deep);
+  background: var(--rt-bg-card);
+}
