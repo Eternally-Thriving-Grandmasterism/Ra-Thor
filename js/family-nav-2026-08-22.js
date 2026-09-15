@@ -344,7 +344,7 @@
     }
     if (!document.querySelector('script[src*="google-translate-optin"]')) {
       var g = document.createElement('script');
-      g.src = '/js/google-translate-optin.js';
+      g.src = '/js/google-translate-optin.js?v=20260915c';
       g.defer = true;
       (document.head || document.documentElement).appendChild(g);
     }
