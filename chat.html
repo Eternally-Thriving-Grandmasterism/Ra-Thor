@@ -25,15 +25,12 @@
   <link rel="manifest" href="/manifest.json">
   <link rel="icon" href="/icons/ra-thor-icon-192.png" type="image/png">
   <link rel="apple-touch-icon" href="/icons/ra-thor-icon-192.png">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <script src="https://cdn.tailwindcss.com"></script>
-
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
-    * { box-sizing: border-box; }
+  <link rel="stylesheet" href="/css/rathor-theme.css">
+<style>
+* { box-sizing: border-box; }
     body { font-family: 'Inter', system-ui, sans-serif; background: #000; color: #fff; margin: 0; padding: 0; overflow-x: hidden; -webkit-text-size-adjust: 100%; }
-    .title-font { font-family: 'Cinzel Decorative', cursive; }
-    .thunder-glow { text-shadow: 0 0 40px #ffd700, 0 0 80px #ffaa00; }
+    .title-font { font-family: Inter, system-ui, sans-serif; }
+.thunder-glow { text-shadow: 0 0 40px #ffd700, 0 0 80px #ffaa00; }
     .golden-star { position: absolute; color: #ffd700; opacity: 0.35; pointer-events: none; animation: float 55s infinite linear, pulse 11s infinite ease-in-out; z-index: 0; font-size: 28px; }
     @keyframes float { 0% { transform: translateY(0) rotate(0deg); } 100% { transform: translateY(-120vh) rotate(360deg); } }
     @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
@@ -109,8 +106,8 @@
   <main class="relative z-10 flex-1 flex flex-col max-w-3xl w-full mx-auto px-3 sm:px-4 py-3">
     <div class="mb-2.5 rounded-2xl border border-amber-300/20 bg-zinc-950/80 px-3 py-2.5">
       <div class="flex flex-wrap items-center gap-1.5 mb-2">
-        <span class="inline-flex items-center gap-1.5 text-emerald-400 text-xs font-medium">
-          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span class="inline-flex items-center gap-1.5 text-amber-400 text-xs font-medium">
+          <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
           Offline Mercy Thunder
         </span>
         <span class="text-white/30 text-xs">•</span>
@@ -134,18 +131,18 @@
       </div>
     </div>
 
-    <div class="mb-2.5 rounded-2xl border border-emerald-400/25 bg-emerald-950/20 px-3 py-2.5">
+    <div class="mb-2.5 rounded-2xl border border-amber-400/25 bg-zinc-950/20 px-3 py-2.5">
       <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
         <div class="min-w-0">
-          <p class="text-emerald-200 text-sm font-medium">Local Intelligence</p>
+          <p class="text-amber-200 text-sm font-medium">Local Intelligence</p>
           <p id="local-llm-status" class="text-[11px] text-white/50 mt-0.5 truncate">Fast responder active (default)</p>
         </div>
         <div class="flex gap-1.5">
-          <button id="local-llm-btn" class="ctrl-btn border-emerald-400/50 text-emerald-200 shrink-0"><i class="fa-solid fa-microchip"></i> WebLLM</button>
+          <button id="local-llm-btn" class="ctrl-btn border-amber-400/50 text-amber-200 shrink-0"><i class="fa-solid fa-microchip"></i> WebLLM</button>
           <button id="local-backend-btn" class="ctrl-btn border-cyan-400/50 text-cyan-200 shrink-0"><i class="fa-solid fa-server"></i> Local Server</button>
         </div>
       </div>
-      <div id="backend-settings" class="hidden mt-2 pt-2 border-t border-emerald-400/15">
+      <div id="backend-settings" class="hidden mt-2 pt-2 border-t border-amber-400/15">
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
           <div>
             <label class="block text-cyan-200/80 mb-1">Endpoint</label>
@@ -163,7 +160,7 @@
         </div>
       </div>
       <div class="mt-2 h-1 bg-zinc-800 rounded-full overflow-hidden">
-        <div id="local-llm-progress" class="h-full bg-emerald-400 transition-all duration-300" style="width:0%"></div>
+        <div id="local-llm-progress" class="h-full bg-amber-400 transition-all duration-300" style="width:0%"></div>
       </div>
       <p id="local-llm-note" class="text-[10px] text-white/40 mt-1.5 leading-snug">WebLLM = pure browser. Local Server = Ollama / LM Studio / any OpenAI-compatible endpoint on your machine.</p>
     </div>
@@ -229,6 +226,21 @@
 
   <input type="file" id="import-file-input" accept=".json" style="display:none;">
   <input type="file" id="doc-file-input" accept=".txt,.md,.json,.csv,.log" style="display:none;">
+
+  <footer class="rt-site-footer bg-black border-t border-amber-300/30 py-12 sm:py-20 text-sm text-amber-400/90" data-rt-family-footer>
+    <div class="max-w-5xl mx-auto px-4 sm:px-6">
+      <nav class="rt-follow" aria-label="Follow" data-rt-follow="1">
+        <p class="rt-follow-label" data-i18n="followTitle">Follow</p>
+        <ul class="rt-follow-list">
+          <li><a href="https://x.com/AlphaProMega" rel="me noopener" target="_blank" data-i18n="followX">X / Twitter</a></li>
+          <li><a href="https://www.linkedin.com/in/sherif-botros" rel="me noopener" target="_blank" data-i18n="followLinkedIn">LinkedIn</a></li>
+          <!-- official follow named by the steward: https://www.facebook.com/share/1b7Z76vUpL/ -->
+          <li><a href="https://www.facebook.com/people/Ra-Thor-AI/61594361430419/" rel="me noopener" target="_blank" data-i18n="followFacebook">Facebook</a></li>
+        </ul>
+      </nav>
+      <p class="rt-legal">v14.15.6 · AG-SML v1.1 · Capable · Bounded · Corrigible · info@Rathor.ai</p>
+    </div>
+  </footer>
 
   <script src="/js/chat.js"></script>
   <script>

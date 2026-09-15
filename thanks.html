@@ -16,12 +16,10 @@
       catch (e) { document.documentElement.setAttribute('data-theme', 'dark'); }
     })();
   </script>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Inter:wght@400;600&display=swap');
-    body { font-family: 'Inter', system-ui, sans-serif; }
-    .title-font { font-family: 'Cinzel Decorative', cursive; }
-    .thunder-glow { text-shadow: 0 0 40px #ffd700, 0 0 80px #ffaa00; }
+<style>
+body { font-family: 'Inter', system-ui, sans-serif; }
+    .title-font { font-family: Inter, system-ui, sans-serif; }
+.thunder-glow { text-shadow: 0 0 40px #ffd700, 0 0 80px #ffaa00; }
     @media (prefers-reduced-motion: reduce) { .pulse-bolt { animation: none !important; } }
     @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.7; } }
     .pulse-bolt { animation: pulse 3s infinite; }
