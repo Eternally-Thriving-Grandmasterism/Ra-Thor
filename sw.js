@@ -17,6 +17,7 @@ var PRECACHE = [
   '/js/family-nav-2026-08-22.js', '/js/site-lock-2026-08-22.js',
   '/js/science-map-lock.js', '/js/watch-footer-lock.js', '/js/sovereign-shard.js', '/js/chat.js',
   '/js/contact-i18n.js', '/js/week-window.js', '/js/week-window.json',
+  '/js/google-translate-optin.js',
   '/i18n/en.js', '/i18n/ar.js', '/i18n/es.js', '/i18n/fr.js', '/i18n/nl.js',
   '/i18n/de.js', '/i18n/zh.js', '/i18n/ja.js', '/i18n/pt.js', '/i18n/ru.js',
   '/i18n/hi.js', '/i18n/it.js', '/i18n/ko.js', '/i18n/uk.js', '/i18n/pl.js',
