@@ -61,6 +61,7 @@ RiskTier ordering: `None < Low < Medium < High < Critical`
 | `safe_requirements.md`            | Clean dependency list, no install scripts          |
 | `tolc_protocol_notes.md`          | Ra-Thor TOLC 8 notes — pure documentation          |
 | `markdown_code_fence_clean.md`    | Safe code fence with stdlib only                   |
+| `base64_tend_the_well.md`         | Short Base64 of “tend the well”; FP budget         |
 
 ### suspicious/ (Medium → human review)
 

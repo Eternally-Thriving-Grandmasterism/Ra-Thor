@@ -14,7 +14,7 @@ A richer, fully expanded public white-hat corpus lives at:
 
 **[`fixtures/mercy-security/`](../../../fixtures/mercy-security/)**
 
-- 9 benign · 5 suspicious · 13 blocked
+- 10 benign · 5 suspicious · 13 blocked
 - Full taxonomy + inventory
 - Ready-to-copy GitHub Action + pre-commit snippets
 
@@ -51,6 +51,7 @@ RiskTier ordering: None < Low < Medium < High < Critical.
 | `benign/research_notes_clean.md` | Admit / None | Pure research abstract |
 | `benign/safe_python_snippet.md` | Admit / None or Low | Mentions stdlib without spawn/exec |
 | `benign/education_protocol.md` | Admit / None | Classroom protocol planning |
+| `benign/base64_tend_the_well.md` | Admit / None | Short Base64 of “tend the well”; FP budget |
 | `should_block/trust_remote_code_loader.txt` | Block High/Critical | HF-style remote code |
 | `should_block/hf_combo_remote_config.txt` | Block High/Critical | remote + loading_script combo |
 | `should_block/pickle_gadget.txt` | Block High/Critical | unsafe deserialization pattern |
