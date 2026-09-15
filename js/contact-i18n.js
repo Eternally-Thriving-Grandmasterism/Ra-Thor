@@ -26,7 +26,11 @@
       guidanceNote: "All communications are handled under the TOLC 8 Mercy Gates. Outputs and replies are drafts for human review — not a certified legal product.",
       return: "Return to Main Ra-Thor Experience",
       footer: "© 2026 Sherif Samy Botros — Sole Steward of Autonomicity Games Inc. & AlphaProMega Air Foundation. TOLC 8 · independent of xAI.",
-      footerSub: "v14.15.6 · AG-SML v1.1 · TOLC 8 · Capable · Bounded · Corrigible"
+      footerSub: "v14.15.6 · AG-SML v1.1 · TOLC 8 · Capable · Bounded · Corrigible",
+      followTitle: "Follow",
+      followX: "X / Twitter",
+      followLinkedIn: "LinkedIn",
+      followFacebook: "Facebook"
     },
     ar: {
       back: "العودة إلى را-ثور",
@@ -257,34 +261,44 @@
     else el.textContent = value;
   }
 
+  function pick(langPack, key) {
+    if (langPack && langPack[key] != null && langPack[key] !== '') return langPack[key];
+    const en = translations.en || {};
+    return en[key];
+  }
+
   function switchContactLang(lang) {
-    const t = translations[lang];
+    const t = translations[lang] || translations.en;
     if (!t) return;
 
     document.querySelectorAll('.lang-tab').forEach(b => b.classList.remove('active'));
     const activeBtn = document.querySelector('.lang-tab[data-lang="' + lang + '"]');
     if (activeBtn) activeBtn.classList.add('active');
 
-    setText('back-text', t.back);
-    setText('headline', t.headline);
-    setText('subtitle', t.subtitle);
-    setText('intro', t.intro, true);
-    setText('main-subtitle', t.mainSubtitle);
-    setText('send-button', t.sendButton);
-    setText('response-time', t.responseTime);
-    setText('github-title', t.githubTitle);
-    setText('github-subtitle', t.githubSubtitle);
-    setText('github-button', t.githubButton);
-    setText('guidance-title', '<i class="fa-solid fa-lightbulb"></i> ' + t.guidanceTitle, true);
-    setText('guidance-1', t.guidance1, true);
-    setText('guidance-2', t.guidance2, true);
-    setText('guidance-3', t.guidance3, true);
-    setText('guidance-4', t.guidance4, true);
-    setText('guidance-5', t.guidance5, true);
-    setText('guidance-note', t.guidanceNote);
-    setText('return-text', t.return);
-    setText('footer-text', t.footer, true);
-    setText('footer-sub', t.footerSub);
+    setText('back-text', pick(t, 'back'));
+    setText('headline', pick(t, 'headline'));
+    setText('subtitle', pick(t, 'subtitle'));
+    setText('intro', pick(t, 'intro'), true);
+    setText('main-subtitle', pick(t, 'mainSubtitle'));
+    setText('send-button', pick(t, 'sendButton'));
+    setText('response-time', pick(t, 'responseTime'));
+    setText('github-title', pick(t, 'githubTitle'));
+    setText('github-subtitle', pick(t, 'githubSubtitle'));
+    setText('github-button', pick(t, 'githubButton'));
+    setText('guidance-title', '<i class="fa-solid fa-lightbulb"></i> ' + pick(t, 'guidanceTitle'), true);
+    setText('guidance-1', pick(t, 'guidance1'), true);
+    setText('guidance-2', pick(t, 'guidance2'), true);
+    setText('guidance-3', pick(t, 'guidance3'), true);
+    setText('guidance-4', pick(t, 'guidance4'), true);
+    setText('guidance-5', pick(t, 'guidance5'), true);
+    setText('guidance-note', pick(t, 'guidanceNote'));
+    setText('return-text', pick(t, 'return'));
+    setText('footer-text', pick(t, 'footer'), true);
+    setText('footer-sub', pick(t, 'footerSub'));
+    setText('follow-title', pick(t, 'followTitle'));
+    setText('follow-x', pick(t, 'followX'));
+    setText('follow-linkedin', pick(t, 'followLinkedIn'));
+    setText('follow-facebook', pick(t, 'followFacebook'));
 
     const container = document.querySelector('.max-w-3xl');
     if (lang === 'ar') {
