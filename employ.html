@@ -24,13 +24,10 @@
       } catch (e) { document.documentElement.setAttribute('data-theme', 'dark'); }
     })();
   </script>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Inter:wght@400;600&display=swap');
-    body { font-family: 'Inter', system-ui, sans-serif; }
-    .title-font { font-family: 'Cinzel Decorative', cursive; }
-    .thunder-glow { text-shadow: 0 0 40px #ffd700, 0 0 80px #ffaa00; }
+<style>
+body { font-family: 'Inter', system-ui, sans-serif; }
+    .title-font { font-family: Inter, system-ui, sans-serif; }
+.thunder-glow { text-shadow: 0 0 40px #ffd700, 0 0 80px #ffaa00; }
     .golden-star { position: absolute; color: #ffd700; opacity: 0.6; pointer-events: none; animation: float 60s infinite linear, pulse 12s infinite ease-in-out; z-index: 1; font-size: 42px; }
     @keyframes float { 0%{transform:translateY(0) rotate(0deg);} 100%{transform:translateY(-120vh) rotate(360deg);} }
     @keyframes pulse { 0%,100%{transform:scale(1);} 50%{transform:scale(1.15);} }
@@ -278,7 +275,7 @@
         <span class="inline-flex items-center gap-2 text-amber-300"><i class="fa-solid fa-door-open"></i> Employ</span>
       </div>
     </div>
-    <footer class="border-t border-amber-300/30 py-10 text-center text-xs text-amber-400/80 mt-auto">
+    <footer class="rt-site-footer bg-black border-t border-amber-300/30 py-12 sm:py-20 text-sm text-amber-400/90" data-rt-family-footer>
       <nav class="rt-follow justify-center" aria-label="Follow" data-rt-follow="1">
         <p class="rt-follow-label">Follow</p>
         <ul class="rt-follow-list">
