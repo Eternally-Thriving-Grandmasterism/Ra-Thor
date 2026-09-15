@@ -36,20 +36,34 @@
       '&u=' + encodeURIComponent(u);
   }
 
+  function applyDir(node, text) {
+    if (!node) return;
+    var rtl = typeof window.rtIsRtlText === 'function' && window.rtIsRtlText(text);
+    node.setAttribute('dir', rtl ? 'rtl' : 'ltr');
+  }
+
   function sync() {
     var a = document.getElementById('rt-gtranslate-open');
     var note = document.getElementById('rt-gtranslate-note');
+    var wrap = document.getElementById('rt-gtranslate');
     var lang = currentLang();
     if (a) {
-      a.textContent = pack('gTranslateBtn', 'Translate with Google');
+      var btn = pack('gTranslateBtn', 'Translate with Google');
+      a.textContent = btn;
       a.setAttribute('href', googleHref(lang));
+      a.setAttribute('data-i18n', 'gTranslateBtn');
+      applyDir(a, btn);
     }
     if (note) {
-      note.textContent = pack(
+      var txt = pack(
         'gTranslateNote',
         'Opens Google Translate in a new tab. Needs the network. Not the offline pack.'
       );
+      note.textContent = txt;
+      note.setAttribute('data-i18n', 'gTranslateNote');
+      applyDir(note, txt);
     }
+    if (wrap) applyDir(wrap, (note && note.textContent) || '');
   }
 
   function mount() {

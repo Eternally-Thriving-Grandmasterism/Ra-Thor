@@ -635,6 +635,7 @@ a.rt-gtranslate-btn:focus-visible {
   font-size: 0.72rem;
   line-height: 1.4;
   color: var(--rt-faint);
+  unicode-bidi: isolate;
 }
 #google_translate_element { display: none !important; }
 .rt-page-week {
