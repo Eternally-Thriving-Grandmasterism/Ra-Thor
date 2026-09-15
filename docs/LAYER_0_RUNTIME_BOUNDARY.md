@@ -48,6 +48,8 @@ Binding after the running system redesigns its own gates: **OPEN** — see [`BIN
 
 **STOP Layer 0** unless a real default-member apply-class bypass is found by search. Do not invent a ninth path.
 
+Keyword inspect (not METR): [`MODEL_INSPECT_NOT_METR.md`](MODEL_INSPECT_NOT_METR.md).
+
 Still open:
 
 - Sampler / weight constraint (not claimed).

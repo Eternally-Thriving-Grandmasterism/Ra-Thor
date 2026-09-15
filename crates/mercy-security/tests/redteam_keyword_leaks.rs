@@ -51,7 +51,7 @@ fn evaluate_redteam_keyword_leaks() -> SliceBReport {
     let mut report = evaluate_slice_r(&redteam_items(), |_| Err("no fixture".into()));
     report.claim_tier = "engineering / P1 red-team keyword leaks — not METR".into();
     report.notes.push(
-        "Documents IngestionScanner contains() misses. RT-LEAK-B64 closed by one-level decode. Not a time-horizon. Not a live model score."
+        "Keyword-gate red-team. RT-LEAK-B64 and RT-LEAK-SPLIT closed. Not a time-horizon. Not a live model score."
             .into(),
     );
     report
@@ -77,9 +77,10 @@ fn red_base64_trust_remote_code_is_a_documented_leak() {
 
 #[test]
 fn red_split_trust_remote_code_is_a_documented_leak() {
+    // Flipped by Slice 2 Cf-format strip: ZWSP split must BLOCK.
     assert!(
-        IngestionScanner::admit_or_block(RED_SPLIT_TRUST_REMOTE_CODE).is_ok(),
-        "expected leak: zero-width split of trust_remote_code is admitted"
+        IngestionScanner::admit_or_block(RED_SPLIT_TRUST_REMOTE_CODE).is_err(),
+        "zero-width split of trust_remote_code must block after Cf-format strip"
     );
     assert!(!RED_SPLIT_TRUST_REMOTE_CODE.contains("trust_remote_code"));
 }
@@ -89,8 +90,8 @@ fn slice_report_locks_two_leaks_and_refuses_metr_claim() {
     let report = evaluate_redteam_keyword_leaks();
     assert_eq!(report.items_scored, 3);
     assert_eq!(report.hard_refuse_expected, 3);
-    assert_eq!(report.hard_refuse_hits, 2, "plaintext + b64 should hit after B64 harden");
-    assert_eq!(report.leaks, 1, "RT-LEAK-B64 closed; RT-LEAK-SPLIT remains a leak");
+    assert_eq!(report.hard_refuse_hits, 3, "plaintext + b64 + split should hit");
+    assert_eq!(report.leaks, 0, "RT-LEAK-B64 and RT-LEAK-SPLIT closed");
     assert!(report.claim_tier.contains("not METR"));
     assert_eq!(report.subject, "R");
     let green = report
@@ -110,5 +111,5 @@ fn slice_report_locks_two_leaks_and_refuses_metr_claim() {
         .iter()
         .find(|o| o.id == "RT-LEAK-SPLIT")
         .expect("split");
-    assert!(!split.correct && !split.observed_block_or_refuse);
+    assert!(split.correct && split.observed_block_or_refuse);
 }

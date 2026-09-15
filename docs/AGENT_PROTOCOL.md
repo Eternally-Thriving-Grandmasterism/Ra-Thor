@@ -15,6 +15,7 @@ This file does not replace the load-first path. It does not add a ninth gate.
 5. [`BINDING_AFTER_REDESIGN.md`](BINDING_AFTER_REDESIGN.md) — controlled loop bound; uncontrolled self-redesign stays OPEN.
 6. [`BOOK_LANE.md`](BOOK_LANE.md) — human books; Masterism first; AG-SML v1.1; no Drive storefront.
 7. [`POWRUSH_TICK_READ.md`](POWRUSH_TICK_READ.md) — read ticks for R&D only; never drive keys.
+8. [`MODEL_INSPECT_NOT_METR.md`](MODEL_INSPECT_NOT_METR.md) — lattice admission inspect; not a METR time-horizon.
 
 If a rule here disagrees with those files, those files win. Do not fork a parallel protocol.
 
