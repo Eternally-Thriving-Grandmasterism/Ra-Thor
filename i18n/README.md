@@ -1,36 +1,40 @@
 # Rathor.ai homepage locale packs
 
-**Cache token:** `20260915a`  
-**Source of truth:** `i18n/en.js` (living keys + Follow + claim lock)  
+**Cache token:** `20260915b`  
+**Source of truth:** `i18n/en.js` (living keys + Follow + claim lock + week lines)  
 **Contact:** info@Rathor.ai
 
-Buttons on `index.html` load `/i18n/{lang}.js?v=20260915a`. Missing keys fall back to English in the page script. RTL: `ar`, `fa`, `he`. Claim sentences that moved in W3 live in English only — other packs omit them so they cannot go blank or invent METR.
+Buttons on `index.html` load `/i18n/{lang}.js?v=20260915b`. Missing keys fall back to English in the page script. Never blank. Never invent METR. RTL: `ar`, `fa`, `he`.
+
+W8 completeness (every pack): family labels (`navHome`…`navPrivacy`) · Follow labels · hero/subhead (`headline`, `fusion`, `kicker`) · week card (`weekTitle`, `weekLineRa`, `weekLinePowrush`, `weekLineResearch`, `weekMore`) · Employ primary CTA (`employCta`) · Contact inquiry (`contactInquiry`).
+
+Service worker precaches `/i18n/*.js`. Offline packs are the product UX. Google Translate is a later click-only layer.
 
 | Code | Language | Notes |
 | --- | --- | --- |
-| en | English | Living voice 2026-09-07. Claim lock. |
+| en | English | Living voice 2026-09-15. Claim lock. Headline is the brand word. |
 | ar | العربية | RTL |
-| es | Español | Full 145 |
-| fr | Français | Full 145 — faqA8 is NOT “RBE already here” |
-| nl | Nederlands | Full 145 |
-| de | Deutsch | Full 145 |
-| zh | 简体中文 | Full 145 |
-| ja | 日本語 | Full 145 |
-| pt | Português | Full 145 |
-| ru | Русский | Full 145 |
-| hi | हिन्दी | Full 145 |
-| it | Italiano | New 2026-09-07 |
-| ko | 한국어 | New 2026-09-07 |
-| uk | Українська | New 2026-09-07 |
-| pl | Polski | New 2026-09-07 |
-| tr | Türkçe | New 2026-09-07 |
-| vi | Tiếng Việt | New 2026-09-07 |
-| id | Bahasa Indonesia | New 2026-09-07 |
-| sv | Svenska | New 2026-09-07 |
-| th | ไทย | New 2026-09-07 |
-| el | Ελληνικά | New 2026-09-07 |
-| fa | فارسی | New 2026-09-07 · RTL |
-| he | עברית | New 2026-09-07 · RTL |
+| es | Español | |
+| fr | Français | faqA8 is NOT “RBE already here” |
+| nl | Nederlands | |
+| de | Deutsch | |
+| zh | 简体中文 | |
+| ja | 日本語 | |
+| pt | Português | |
+| ru | Русский | |
+| hi | हिन्दी | |
+| it | Italiano | |
+| ko | 한국어 | |
+| uk | Українська | |
+| pl | Polski | |
+| tr | Türkçe | |
+| vi | Tiếng Việt | |
+| id | Bahasa Indonesia | |
+| sv | Svenska | |
+| th | ไทย | |
+| el | Ελληνικά | |
+| fa | فارسی | RTL |
+| he | עברית | RTL |
 
 Do not copy the pre-2026-08-31 “RBE royalties dissolve into abundance” FAQ line. `faqA8` on every pack must stay: RBE is design intent, not a present economic fact.
 

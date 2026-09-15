@@ -251,7 +251,7 @@
       </div>
     </div>
   </footer>
-  <script src="/i18n/en.js?v=20260915w"></script>
+  <script src="/i18n/en.js?v=20260915b"></script>
   <script src="/js/week-window.js"></script>
   <script src="/js/rathor-theme.js"></script>
   <script src="/js/pwa-install.js"></script>
@@ -290,7 +290,7 @@
       return new Promise((resolve, reject) => {
         if (window.translations[lang]) { resolve(lang); return; }
         const s = document.createElement('script');
-        s.src = '/i18n/' + lang + '.js?v=20260915w';
+        s.src = '/i18n/' + lang + '.js?v=20260915b';
         s.onload = () => resolve(lang);
         s.onerror = () => reject(new Error('Failed to load i18n/' + lang + '.js'));
         document.head.appendChild(s);
