@@ -16,6 +16,46 @@
 .rt-site-footer a { color: var(--rt-gold); text-decoration: none; }
 .rt-site-footer a:hover { color: var(--rt-ink); }
 .rt-site-footer .rt-legal { font-size: 0.78rem; line-height: 1.55; color: var(--rt-faint); }
+.rt-follow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem 1rem;
+  margin: 0 0 1.1rem;
+}
+.rt-follow-label {
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 650;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--rt-gold);
+}
+.rt-follow-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 0.95rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.rt-follow-list a {
+  color: var(--rt-gold);
+  font-size: 0.88rem;
+  font-weight: 600;
+  text-decoration: none;
+  border-bottom: 1px solid var(--rt-line-soft);
+}
+.rt-follow-list a:hover,
+.rt-follow-list a:focus-visible {
+  color: var(--rt-ink);
+  outline: none;
+}
+.rt-follow-card {
+  margin: 0 auto 2.5rem;
+  max-width: 36rem;
+  text-align: start;
+}
 #rt-family-footer.rt-family-pills { display: none; }
 html[data-theme] .lang-tab { color: var(--rt-gold); border-color: var(--rt-line); background: transparent; }
 html[data-theme] .lang-tab.active {
