@@ -1,19 +1,45 @@
 # Rathor.ai homepage locale packs
 
-**Cache token:** `20260915b`  
-**Source of truth:** `i18n/en.js` (living keys + Follow + claim lock + week lines)  
+**Cache token:** `20260915c` (`i18n-chrome.js`) · packs still `?v=20260915b`  
+**Source of truth:** `i18n/en.js`  
 **Contact:** info@Rathor.ai
 
-Buttons on `index.html` load `/i18n/{lang}.js?v=20260915b`. Missing keys fall back to English in the page script. Never blank. Never invent METR. RTL: `ar`, `fa`, `he`.
+## Chrome-only policy (W4)
 
-W8 completeness (every pack): family labels (`navHome`…`navPrivacy`) · Follow labels · hero/subhead (`headline`, `fusion`, `kicker`) · week card (`weekTitle`, `weekLineRa`, `weekLinePowrush`, `weekLineResearch`, `weekMore`) · Employ primary CTA (`employCta`) · Contact inquiry (`contactInquiry`).
+Offline packs translate **chrome**, not essays. Future copy edits to Employ / Privacy / FAQ **do not** demand 23 translations.
+
+**Applied keys** (`js/i18n-chrome.js`):
+
+- family labels — `navHome` … `navPrivacy`
+- Follow — `followTitle`, `followX`, `followLinkedIn`, `followFacebook`
+- hero / subhead — `headline`, `fusion`, `kicker`
+- week lines — `weekTitle`, `weekLineRa`, `weekLinePowrush`, `weekMore`
+- session cards — titles, subtitles, CTAs (`grok*` `x*` `vibe*` `employCta`)
+- Employ chrome — `employTitle`, `employSubtitle`
+- Contact inquiry — `contactInquiry`
+- Google tab chrome — `gTranslateBtn`, `gTranslateNote`
+
+**Long copy stays English in git** (do not spend a seat translating these into 23 packs):
+
+- Employ body (`article.rt-prose`)
+- Privacy body
+- FAQ answers (`faqA*`) and FAQ questions (`faqQ*`)
+- week research footnote (`weekLineResearch`)
+
+Missing key → English. Never blank. Never invent METR.
+
+## Direction
+
+`dir=rtl` only when the **applied string** for that node is actually RTL (`ar` / `fa` / `he` script). English fallback forces `dir=ltr` on that node. If most chrome nodes fell back, `<main>` stays `ltr`. `html[dir]` follows chrome only — not the language code alone. `<article>` / `.rt-prose` stay `dir=ltr lang=en` until a real translation exists. Family pill row stays Home…Privacy left-to-right (do not mirror).
+
+Buttons on `index.html` load `/i18n/{lang}.js?v=20260915b`.
 
 Service worker precaches `/i18n/*.js`. Offline packs are the product UX. Google Translate is a **new-tab URL** (`js/google-translate-optin.js`) — it does **not** inject `translate.google.com` (COEP `require-corp` would fail a widget). Do not relax COEP on `/chat.html` or worker paths.
 
 | Code | Language | Notes |
 | --- | --- | --- |
 | en | English | Living voice 2026-09-15. Claim lock. Headline is the brand word. |
-| ar | العربية | RTL |
+| ar | العربية | RTL chrome only, when the string is actually Arabic |
 | es | Español | |
 | fr | Français | faqA8 is NOT “RBE already here” |
 | nl | Nederlands | |
@@ -33,9 +59,9 @@ Service worker precaches `/i18n/*.js`. Offline packs are the product UX. Google 
 | sv | Svenska | |
 | th | ไทย | |
 | el | Ελληνικά | |
-| fa | فارسی | RTL |
-| he | עברית | RTL |
+| fa | فارسی | RTL chrome only |
+| he | עברית | RTL chrome only |
 
-Do not copy the pre-2026-08-31 “RBE royalties dissolve into abundance” FAQ line. `faqA8` on every pack must stay: RBE is design intent, not a present economic fact.
+Do not copy the pre-2026-08-31 “RBE royalties dissolve into abundance” FAQ line. `faqA8` on every pack must stay: RBE is design intent, not a present economic fact. Packs may still contain FAQ essays historically; the site does not apply them.
 
 AG-SML v1.1. Independent of xAI. Not certified aircraft, plants, chains, or a replaced money system.

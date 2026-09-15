@@ -17,15 +17,15 @@
   window.__rtFamilyNav = true;
 
   var LINKS = [
-    { href: '/', label: 'Home' },
-    { href: '/chat.html', label: 'Chat' },
-    { href: '/employ.html', label: 'Employ' },
-    { href: '/Launch-Ra-Thor.html', label: 'Launch' },
-    { href: '/micro-moment.html', label: 'Moments' },
-    { href: '/sovereign-shard.html', label: 'Shard' },
-    { href: '/web-forge.html', label: 'Forge' },
-    { href: '/contact.html', label: 'Contact' },
-    { href: '/privacy.html', label: 'Privacy' }
+    { href: '/', label: 'Home', key: 'navHome' },
+    { href: '/chat.html', label: 'Chat', key: 'navChat' },
+    { href: '/employ.html', label: 'Employ', key: 'navEmploy' },
+    { href: '/Launch-Ra-Thor.html', label: 'Launch', key: 'navLaunch' },
+    { href: '/micro-moment.html', label: 'Moments', key: 'navMoments' },
+    { href: '/sovereign-shard.html', label: 'Shard', key: 'navShard' },
+    { href: '/web-forge.html', label: 'Forge', key: 'navForge' },
+    { href: '/contact.html', label: 'Contact', key: 'navContact' },
+    { href: '/privacy.html', label: 'Privacy', key: 'navPrivacy' }
   ];
 
   function norm(p) {
@@ -111,8 +111,9 @@
     nav.id = kind === 'top' ? 'rt-family-nav' : 'rt-family-footer';
     nav.setAttribute('aria-label', kind === 'top' ? 'Ra-Thor family' : 'Ra-Thor family footer');
     var blur = reduceMotion() ? 'none' : 'blur(8px)';
+    nav.setAttribute('dir', 'ltr');
     nav.style.cssText = kind === 'top'
-      ? 'position:sticky;top:0;z-index:40;display:flex;flex-wrap:wrap;gap:0.4rem;justify-content:center;align-items:center;padding:0.45rem 0.7rem;background:var(--rt-nav-bg,rgba(5,5,5,0.9));border-bottom:1px solid var(--rt-line,rgba(240,211,106,0.34));backdrop-filter:' + blur + ';'
+      ? 'position:sticky;top:0;z-index:40;display:flex;flex-direction:row;flex-wrap:wrap;gap:0.4rem;justify-content:center;align-items:center;padding:0.45rem 0.7rem;background:var(--rt-nav-bg,rgba(5,5,5,0.9));border-bottom:1px solid var(--rt-line,rgba(240,211,106,0.34));backdrop-filter:' + blur + ';direction:ltr;'
       : 'display:none;';
     if (kind !== 'top') nav.className = 'rt-family-pills';
 
@@ -165,8 +166,35 @@
     });
     tools.appendChild(theme);
     nav.appendChild(tools);
+    applyNavLabels(nav);
     return nav;
   }
+
+  function applyNavLabels(nav) {
+    nav = nav || document.getElementById('rt-family-nav');
+    if (!nav) return;
+    nav.setAttribute('dir', 'ltr');
+    var lang = 'en';
+    try { lang = localStorage.getItem('rathor-lang') || 'en'; } catch (e) {}
+    var packs = window.translations || {};
+    var pack = packs[lang] || {};
+    var en = packs.en || {};
+    var anchors = nav.querySelectorAll('a');
+    LINKS.forEach(function (item, i) {
+      var a = anchors[i];
+      if (!a) return;
+      var val = pack[item.key];
+      if (val == null || val === '') val = en[item.key] || item.label;
+      a.textContent = val;
+      var fallback = (val === item.label) || (en[item.key] && val === en[item.key]);
+      var rtl = !fallback && typeof window.rtIsRtlText === 'function' && window.rtIsRtlText(val);
+      a.setAttribute('dir', rtl ? 'rtl' : 'ltr');
+    });
+  }
+
+  document.addEventListener('rt-chrome-i18n', function () {
+    applyNavLabels();
+  });
 
   function followNavHtml() {
     return (
@@ -300,6 +328,7 @@
       document.body.appendChild(siteFooter());
     }
     ensureFollowStrip();
+    applyNavLabels();
     try { window.dispatchEvent(new Event('rathor-nav-ready')); } catch (e) {}
   }
 
@@ -341,6 +370,11 @@
       l.rel = 'stylesheet';
       l.href = '/css/rathor-theme.css';
       (document.head || document.documentElement).appendChild(l);
+    }
+    if (!document.querySelector('script[src*="i18n-chrome"]')) {
+      var c = document.createElement('script');
+      c.src = '/js/i18n-chrome.js?v=20260915c';
+      (document.head || document.documentElement).appendChild(c);
     }
     if (!document.querySelector('script[src*="google-translate-optin"]')) {
       var g = document.createElement('script');

@@ -55,7 +55,11 @@
     if (typeof window.switchContactLang === 'function') { try { window.switchContactLang(lang); } catch (e) {} }
     if (typeof window.applyLockI18n === 'function') { try { window.applyLockI18n(lang); } catch (e) {} }
     document.documentElement.setAttribute('lang', lang);
-    document.documentElement.setAttribute('dir', lang === 'ar' ? 'rtl' : 'ltr');
+    if (typeof window.rtApplyChromeI18n === 'function') {
+      try { window.rtApplyChromeI18n(lang); } catch (e2) {}
+    } else {
+      document.documentElement.setAttribute('dir', 'ltr');
+    }
     document.querySelectorAll('.lang-tab, [data-lang]').forEach(function (btn) {
       var code = btn.getAttribute && btn.getAttribute('data-lang');
       if (!code) return;

@@ -76,7 +76,7 @@
     for (var i = 0; i < nodes.length; i++) {
       nodes[i].disabled = !!disabled;
       if (nodes[i].id === 'rathor-pwa-install-btn') nodes[i].textContent = label;
-      else nodes[i].innerHTML = '<i class="fa-solid fa-download"></i> ' + label;
+      else nodes[i].textContent = label;
     }
     var note = document.getElementById('rathor-pwa-status');
     if (note && !disabled) {

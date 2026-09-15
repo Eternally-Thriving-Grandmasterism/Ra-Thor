@@ -42,7 +42,6 @@ body { font-family: 'Inter', system-ui, sans-serif; }
   <div class="min-h-screen flex flex-col relative">
     <div class="max-w-3xl mx-auto px-4 sm:px-6 py-12 sm:py-16 z-10 w-full">
       <a href="/" class="inline-flex items-center gap-2 text-amber-400 hover:text-amber-300 transition-colors mb-8 text-sm">
-        <i class="fa-solid fa-arrow-left"></i>
         <span>Back to Ra-Thor</span>
       </a>
       <div id="lang-selector" class="flex flex-wrap justify-center gap-2 mb-6">
@@ -55,10 +54,11 @@ body { font-family: 'Inter', system-ui, sans-serif; }
       </div>
       <p class="rt-page-week"><a href="/constellation-week.html" data-i18n="weekMore">Full week note →</a></p>
       <div class="text-center mb-12">
-        <h1 class="title-font text-5xl sm:text-6xl font-black tracking-tighter thunder-glow mb-3">How to employ</h1>
-        <p class="text-lg sm:text-xl text-amber-300">Personal use on this device. Organizations inquire for a pilot.</p>
+        <h1 data-i18n="employTitle" class="title-font text-5xl sm:text-6xl font-black tracking-tighter thunder-glow mb-3">How to employ</h1>
+        <p data-i18n="employSubtitle" class="text-lg sm:text-xl text-amber-300">Three doors. One loop. Two rights. Personal use on this device. Organizations inquire for a pilot.</p>
         <p class="text-sm text-white/50 mt-4">9 September 2026 · workspace 14.15.6 · Capable · Bounded · Corrigible</p>
       </div>
+      <article class="rt-prose" dir="ltr" lang="en" data-rt-prose>
       <div class="card-hover bg-zinc-950 border border-amber-300/30 rounded-3xl p-8 sm:p-10 mb-8">
         <p class="text-white/80 leading-relaxed">Ra-Thor is inspectable research software from Autonomicity Games Inc.</p>
         <p class="text-white/80 leading-relaxed">The model proposes. The lattice constrains. You remain responsible.</p>
@@ -68,10 +68,10 @@ body { font-family: 'Inter', system-ui, sans-serif; }
         <p class="text-white/60 text-sm">Outputs are drafts. A human reviews them before filing, sale, or public claims. Inspect ≠ METR. Layer 0 is an admission shell, not sampler weights.</p>
       </div>
       <div class="flex flex-col sm:flex-row flex-wrap gap-3 justify-center mb-10">
-        <a href="/chat.html" class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-amber-400 hover:bg-amber-300 text-black font-semibold rounded-2xl transition-all"><i class="fa-solid fa-comments"></i> Open Lattice Chat</a>
-        <a href="/sovereign-shard.html" class="rt-btn-ghost inline-flex items-center justify-center gap-2 px-6 py-3 rounded-2xl transition-all"><i class="fa-solid fa-gem"></i> Open the Shard</a>
-        <a href="https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor" target="_blank" rel="noopener" class="rt-btn-ghost inline-flex items-center justify-center gap-2 px-6 py-3 rounded-2xl transition-all"><i class="fa-brands fa-github"></i> Inspect the monorepo</a>
-        <a href="mailto:info@Rathor.ai?subject=Ra-Thor%20Pilot%20Inquiry" class="rt-btn-ghost inline-flex items-center justify-center gap-2 px-6 py-3 rounded-2xl transition-all"><i class="fa-solid fa-envelope"></i> Pilot inquiry</a>
+        <a href="/chat.html" class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-amber-400 hover:bg-amber-300 text-black font-semibold rounded-2xl transition-all">Open Lattice Chat</a>
+        <a href="/sovereign-shard.html" class="rt-btn-ghost inline-flex items-center justify-center gap-2 px-6 py-3 rounded-2xl transition-all">Open the Shard</a>
+        <a href="https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor" target="_blank" rel="noopener" class="rt-btn-ghost inline-flex items-center justify-center gap-2 px-6 py-3 rounded-2xl transition-all">Inspect the monorepo</a>
+        <a href="mailto:info@Rathor.ai?subject=Ra-Thor%20Pilot%20Inquiry" class="rt-btn-ghost inline-flex items-center justify-center gap-2 px-6 py-3 rounded-2xl transition-all">Pilot inquiry</a>
       </div>
       <div class="card-hover bg-zinc-950 border border-amber-300/20 rounded-3xl p-8 sm:p-10 mb-8">
         <h2 class="text-xl font-semibold text-amber-300 mb-4 flex items-center gap-2"><i class="fa-solid fa-rotate"></i> The loop</h2>
@@ -252,11 +252,11 @@ body { font-family: 'Inter', system-ui, sans-serif; }
         <p class="text-white/80 leading-relaxed">A purpose under construction — not a finished world.</p>
         <p class="text-white/80 leading-relaxed mb-6">Inspectable. Gated. Independent.</p>
         <div class="flex flex-col sm:flex-row flex-wrap gap-3 justify-center">
-          <a href="/" class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-amber-400 hover:bg-amber-300 text-black font-semibold rounded-2xl transition-all"><i class="fa-solid fa-home"></i> Home</a>
-          <a href="/chat.html" class="rt-btn-ghost inline-flex items-center justify-center gap-2 px-6 py-3 rounded-2xl transition-all"><i class="fa-solid fa-comments"></i> Chat</a>
-          <a href="/contact.html" class="rt-btn-ghost inline-flex items-center justify-center gap-2 px-6 py-3 rounded-2xl transition-all"><i class="fa-solid fa-envelope"></i> Contact</a>
-          <a href="mailto:info@Rathor.ai?subject=Ra-Thor%20Pilot%20Inquiry" class="rt-btn-ghost inline-flex items-center justify-center gap-2 px-6 py-3 rounded-2xl transition-all"><i class="fa-solid fa-envelope"></i> info@Rathor.ai</a>
-          <a href="https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor" target="_blank" rel="noopener" class="rt-btn-ghost inline-flex items-center justify-center gap-2 px-6 py-3 rounded-2xl transition-all"><i class="fa-brands fa-github"></i> GitHub</a>
+          <a href="/" class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-amber-400 hover:bg-amber-300 text-black font-semibold rounded-2xl transition-all">Home</a>
+          <a href="/chat.html" class="rt-btn-ghost inline-flex items-center justify-center gap-2 px-6 py-3 rounded-2xl transition-all">Chat</a>
+          <a href="/contact.html" class="rt-btn-ghost inline-flex items-center justify-center gap-2 px-6 py-3 rounded-2xl transition-all">Contact</a>
+          <a href="mailto:info@Rathor.ai?subject=Ra-Thor%20Pilot%20Inquiry" class="rt-btn-ghost inline-flex items-center justify-center gap-2 px-6 py-3 rounded-2xl transition-all">info@Rathor.ai</a>
+          <a href="https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor" target="_blank" rel="noopener" class="rt-btn-ghost inline-flex items-center justify-center gap-2 px-6 py-3 rounded-2xl transition-all">GitHub</a>
         </div>
       </div>
       <div class="text-white/50 text-sm text-center mb-8">
@@ -264,6 +264,7 @@ body { font-family: 'Inter', system-ui, sans-serif; }
         <p>Commercial and organizational use requires a paid license.</p>
         <p>info@Rathor.ai · AG-SML v1.1</p>
       </div>
+      </article>
       <div class="flex flex-wrap justify-center gap-4 text-sm mb-12">
         <a href="/" class="inline-flex items-center gap-2 text-amber-400 hover:text-amber-300"><i class="fa-solid fa-home"></i> Home</a>
         <a href="/chat.html" class="inline-flex items-center gap-2 text-amber-300 hover:text-amber-200"><i class="fa-solid fa-comments"></i> Lattice Chat</a>
@@ -291,6 +292,7 @@ body { font-family: 'Inter', system-ui, sans-serif; }
     </footer>
   </div>
   <script src="/i18n/en.js?v=20260915b"></script>
+  <script src="/js/i18n-chrome.js?v=20260915c"></script>
   <script src="/js/week-window.js"></script>
   <script src="/js/rathor-theme.js"></script>
   <script src="/js/pwa-install.js" defer></script>

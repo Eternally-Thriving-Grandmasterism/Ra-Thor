@@ -56,10 +56,19 @@
   }
 
   function applyDir(lang) {
-    var rtl = lang === 'ar';
+    if (typeof window.rtApplyChromeI18n === 'function') {
+      try { window.rtApplyChromeI18n(lang); } catch (e0) {}
+      clipRoot();
+      tameSkip();
+      pinScroll();
+      requestAnimationFrame(pinScroll);
+      setTimeout(pinScroll, 40);
+      setTimeout(pinScroll, 200);
+      return;
+    }
     var root = document.documentElement;
     if (root) {
-      root.setAttribute('dir', rtl ? 'rtl' : 'ltr');
+      /* Do not flip the document from the language code alone. */
       if (lang) root.setAttribute('lang', lang);
     }
     clipRoot();

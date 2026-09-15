@@ -300,16 +300,33 @@
     setText('follow-linkedin', pick(t, 'followLinkedIn'));
     setText('follow-facebook', pick(t, 'followFacebook'));
 
-    const container = document.querySelector('.max-w-3xl');
-    if (lang === 'ar') {
-      if (container) container.classList.add('rtl');
-      document.documentElement.setAttribute('dir', 'rtl');
-      document.documentElement.setAttribute('lang', 'ar');
-    } else {
-      if (container) container.classList.remove('rtl');
-      document.documentElement.setAttribute('dir', 'ltr');
-      document.documentElement.setAttribute('lang', lang);
+    const ids = [
+      'back-text', 'headline', 'subtitle', 'intro', 'main-subtitle',
+      'send-button', 'response-time', 'github-title', 'github-subtitle',
+      'github-button', 'guidance-title', 'guidance-note', 'return-text'
+    ];
+    var rtlHits = 0;
+    var n = 0;
+    ids.forEach(function (id) {
+      var el = document.getElementById(id);
+      if (!el) return;
+      n++;
+      var text = el.textContent || '';
+      var rtl = typeof window.rtIsRtlText === 'function'
+        ? window.rtIsRtlText(text)
+        : /[\u0590-\u08FF]/.test(text);
+      el.setAttribute('dir', rtl ? 'rtl' : 'ltr');
+      if (rtl) rtlHits++;
+    });
+    var container = document.querySelector('.max-w-3xl');
+    var mostRtl = n > 0 && rtlHits > n / 2;
+    if (container) {
+      if (mostRtl) container.classList.add('rtl');
+      else container.classList.remove('rtl');
     }
+    document.documentElement.setAttribute('lang', lang);
+    document.documentElement.setAttribute('dir', mostRtl ? 'rtl' : 'ltr');
+    if (typeof window.rtLockProseDir === 'function') window.rtLockProseDir();
 
     try { localStorage.setItem('rathor-lang', lang); } catch (e) {}
   }

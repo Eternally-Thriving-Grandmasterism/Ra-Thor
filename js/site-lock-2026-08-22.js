@@ -23,23 +23,31 @@
     var t = packs[lang] || packs.en;
     var en = packs.en || {};
     if (!t && !en) return;
+    if (typeof window.rtApplyChromeI18n === 'function') {
+      window.rtApplyChromeI18n(lang);
+      return;
+    }
     document.querySelectorAll('[data-i18n], [data-lock-i18n]').forEach(function (el) {
       var key = lockKey(el);
       if (!key) return;
-      var val = (t && t[key] !== undefined) ? t[key] : en[key];
+      if (typeof window.rtIsLongCopyKey === 'function' && window.rtIsLongCopyKey(key)) return;
+      if (typeof window.rtIsChromeKey === 'function' && !window.rtIsChromeKey(key)) return;
+      var val = (t && t[key] !== undefined && t[key] !== '') ? t[key] : en[key];
       if (val === undefined) return;
-      if (el.hasAttribute('data-i18n-html') || key.indexOf('faqA') === 0 || key.indexOf('footer') === 0) el.innerHTML = val;
+      if (el.hasAttribute('data-i18n-html')) el.innerHTML = val;
       else el.textContent = val;
+      var usedPack = t && t[key] !== undefined && t[key] !== '';
+      var rtl = usedPack && typeof window.rtIsRtlText === 'function' && window.rtIsRtlText(val);
+      el.setAttribute('dir', rtl ? 'rtl' : 'ltr');
     });
     var kicker = document.querySelector('.kicker');
     if (kicker && (t.kicker || en.kicker)) kicker.textContent = t.kicker || en.kicker;
-    var rtl = (lang === 'ar' || lang === 'fa' || lang === 'he');
     document.documentElement.setAttribute('lang', lang || 'en');
-    document.documentElement.setAttribute('dir', rtl ? 'rtl' : 'ltr');
+    document.documentElement.setAttribute('dir', 'ltr');
     var faqSection = document.getElementById('faq');
     if (faqSection) {
-      if (rtl) { faqSection.classList.add('rtl'); faqSection.setAttribute('dir', 'rtl'); }
-      else { faqSection.classList.remove('rtl'); faqSection.setAttribute('dir', 'ltr'); }
+      faqSection.classList.remove('rtl');
+      faqSection.setAttribute('dir', 'ltr');
     }
   }
   function expandLangButtons() {
@@ -137,6 +145,7 @@
       wireSessionCards();
       try { applyLockI18n(localStorage.getItem('rathor-lang') || 'en'); } catch (e) { applyLockI18n('en'); }
     });
+    bootScript('i18n-chrome', '/js/i18n-chrome.js?v=20260915c', true);
     bootScript('pwa-install', '/js/pwa-install.js', true);
     bootScript('family-nav-2026-08-22', '/js/family-nav-2026-08-22.js');
     bootScript('science-map-lock', '/js/science-map-lock.js');

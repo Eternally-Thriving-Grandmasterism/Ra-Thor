@@ -60,12 +60,11 @@
   function injectFaq() {
     var acc = document.querySelector('.faq-accordion');
     if (!acc) return;
-    var t = pack();
-    var en = (window.translations && window.translations.en) || t;
+    var en = (window.translations && window.translations.en) || {};
     for (var n = 9; n <= 26; n++) {
       if (document.getElementById('faq-q' + n)) continue;
-      var q = t['faqQ' + n] || en['faqQ' + n] || '';
-      var a = t['faqA' + n] || en['faqA' + n] || '';
+      var q = en['faqQ' + n] || '';
+      var a = en['faqA' + n] || '';
       if (!q) continue;
       acc.insertAdjacentHTML('beforeend', faqItem(n, q, a));
     }
